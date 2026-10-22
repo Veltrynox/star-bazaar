@@ -1,5 +1,5 @@
-Game Design Document - Third Draft
-Date: 16 October 2026
+Game Design Document - Forth Draft
+Date: 21 October 2026
 
 GIT: https://github.com/Veltrynox/star-bazaar/blob/main/gdd.md
 
@@ -18,496 +18,274 @@ Core loop: Check prices, buy where a commodity is cheap, fly, sell where it is i
 demand, and reinvest in ships and permits. Each new ship runs the same
 loop as an automated route.
 
-Win: 
-  - The first company to reach X cr net worth wins. Net worth =
-cash + 50% of ship purchase prices + cargo at base price. On day 30 the highest net worth wins
-  - Note: X is a placeholder. The best value will be found during playtests.
- 
-Loss:
-  - Cash stays below 0 for X in-game days in a row. Will determine the amount by balancing the settings. Purchases are blocked when unaffordable, so only upkeep can push cash negative, and the player is warned the moment it does.
-  - A rival reaches X cr first.
+Win: the first time the cash balance is at least 9,000 credits at the end of any cycle, the game ends and the success story shows.
 
+Loss: if the cash balance is still below 9,000 credits at the end of cycle 30, the game ends and the end screen shows the cash reached and the target.
 ========================================
 2. GAME MECHANICS / PLAYER EXPERIENCE
 ========================================
-The one rule: everything in the game is stock. Every planet holds a
-stock of each commodity it trades, and the price is calculated from
-that stock. The player, the rivals and the events all do only one
-thing: they change stock. No other system sets a price.
+The numbers come from a rough paper model built on the GDD’s fixed facts: [GCM:win_cycle] cycles of about [GCM:cycle_minutes] minutes each. They’re meant to give a working first pass for tuning in the debug menu, not final balance.
 
-The fun part: reading an event, spotting the price spike it causes,
-and getting a ship there before the rivals drain the stock.
+The game takes about an hour to complete. In game cycle lasts around [GCM:cycle_minutes] minutes. There are [GCM:win_cycle] cycles.
+The player can pause the gave at any time.
 
-Content is data: planets, commodities, ships, rivals and events are
-all rows in data tables or procedural generators. Adding more of them
-costs no new code.
+Credits Inflow:
+Trades
+Events
 
-2.2 CORE LOOP
+Credits Outflow:
+Ship maintenance - [GCM:maintenance] per ship, every [GCM:maintenance_interval] cycles
+Trip cost - Every trade trip cost (we combine fuel price, crew price here just to keep less variables). [GCM:trip_cost]cr per leg.
+Permits - One time purchase to open a new solar system.
+Events
 
-[Check prices] -> [Buy cheap] -> (fly) -> [Sell dear] -> [Reinvest in ships] -> back to Check prices (next trip)
- 
-    Buy cheap --(stock -)--> [ PLANET STOCK: price = f(stock) ] <--(stock +)-- Sell dear
-    Events --(stock + recovery target)--> [ PLANET STOCK ] <--(trade)-- Rivals
- 
-[ PLANET STOCK ] --(reads)--> expectedProfit(ship, route)
-    expectedProfit --> Route card
-    expectedProfit --> Automated routes
-    expectedProfit --> Rival route choice (picks routes)
- 
-Buying, selling, events and rivals all change planet stock, and price
-comes only from stock. The route card, automated routes and rivals all
-read the same expectedProfit function.
+Mechanics:
+Trades - Trade buy and sell resources
+Permits - Solar systems access
+Events - To bring some randomness and fun to the game.
 
-2.3 GALAXY, PLANETS AND PRICES
- 
-The galaxy is generated from a seed, and play happens inside one
-system of 10 planets (planet count is a parameter).
- 
-Planets: each planet produces one commodity and consumes another, and
-trades nothing else. The generator guarantees at least one profitable
-pair between the two starting planets. The default seed reproduces the
-v1 set:
- 
-  Planet    Produces        Consumes        Access
-  --------  --------------  --------------  -------------
-  Kessa     Energy          Food            Start
-  Doran     Food            Energy          Start
-  Vell      Technology      Food            Permit
-  Ossa      Energy          Technology      Permit
-  Marrow    Science         Energy          Permit
-  Tiber     Food            Science         Permit
-  Quill     Technology      Science         Permit
-  Brask     Science         Technology      Permit
-  Aurel     Luxury goods    Technology      Final permit
-  Sable     Science         Luxury goods    Final permit
+Top bar:
+Goal line: "Goal: [GCM:win_cash] by cycle [GCM:win_cycle]. Now: [cash balance]."
 
-Commodities:
- 
-  Commodity             Base price (cr)   Reference stock
-  ---------------------  ----------------  ---------------
-  Food                   100               1,000
-  Energy                 120               1,000
-  Technology modules     300               500
-  Science modules        400               500
-  Luxury goods           1,000             150
- 
-The market panel shows buy price, sell price, stock and a trend arrow
-for each commodity the planet trades.
+The game is mostly event and text driven, for now.
 
-2.4 SHIPS, AUTOMATED ROUTES AND UPKEEP
- 
-The player starts with one Light Hauler and 20,000 cr on Kessa and
-Doran. More ships are bought at the Star Bazaar from day 8. A leg is
-one flight between two planets.
- 
-  Class           Price(cr)  Hold  Leg time(days)  Fuel/leg(cr)  Upkeep/week(cr)
-  --------------  ---------  ----  ---------------  ------------  ----------------
-  Courier         15,000     20    0.25             100           1,500
-  Light Hauler    25,000     50    0.5              300           3,000
-  Bulk Freighter  60,000     200   1                1,000         8,000
- 
-Crew wages are included in upkeep. Each ship beyond the third adds 10%
-to the whole fleet's weekly upkeep. Upkeep is charged once per week (7
-in-game days).
- 
-Manual trade: select a ship, a buy planet, a commodity and a sell
-planet. The ship flies, buys a full hold it can afford, flies, sells,
-and docks.
- 
-Automated route: the same order, set to repeat, with a maximum buy
-price. Before each loop the ship checks two things:
-  - Is the buy price at or below the limit?
-  - Can the company afford the load?
- 
-If both are yes, it flies the loop. If not, it waits docked and
-re-checks every few in-game hours. A waiting ship still pays upkeep.
- 
-Route status: each automated route shows Running or Waiting, plus the
-reason (price above limit, or not enough cash). The route card shows
-expectedProfit: a full load at current prices, including the price
-movement the load causes, minus fuel and the ship's share of upkeep.
-An active event on either planet adds a warning icon.
+First 4 cycles (about 8 minutes) of the game:
+The player reads the preface story. The game starts. We sees 3 Planets, a notification board on the right side with a mission hint.
+"Buy a ship" mission text. The UI on top with some information: [GCM:starting_credits] starting credits. The planet highlights, the players clicks on it, a menu pop ups. This planet has an abundance of evergy abundance but not enough food. Under it there is a menu with a ship we can buy. The Player clicks on it and buys a ship. Mission complete. We see another menu that explains how to trade. The Player clicks on another Planet and sees that that the planet has abundnce of food but low energy supply. The Player buys energy cheaply at [GCM:energy_buy] per unit, on one planet and clicks on the second Planet and sells the energy for [GCM:energy_sell]cr. But the player can't simply sell and fly back, it would be a low cash flow that ship maitanance and trip cost will eat soon. The Player buys food cheaply for [GCM:food_buy]cr and flies back to sell it on Planet 1 where food sells for [GCM:food_sell]cr. The automated menu automatically asks if we want to establish an automated trade route. We hit yes. 
 
-2.5 EVENTS, RIVALS AND PERMITS
- 
-Events are generated from templates. Each event picks a planet, a
-commodity it trades, a direction (shortage or surplus), a size
-(30-50% price move) and a duration (3-7 days), then adds one line of
-flavour text from a pool.
- 
-  - An event multiplies current stock and the daily recovery target by
-    k for its duration. The price formula always uses the planet's
-    fixed reference stock. When the event ends, the recovery target
-    returns to reference and normal recovery applies.
-    k = 1/(1+size)^2 for a shortage, 1/(1-size)^2 for a surplus.
-  - Saturation, recovery and rivals therefore keep working during an
-    event with no special cases.
-  - Roughly one event every 2-3 days; the first is scripted on day 5
-    to hit Kessa or Doran.
- 
-Rivals are the automated-route bot with a wallet. Each day, every idle
-rival ship takes the route with the highest expectedProfit that it can
-afford.
- 
-  - Both start with 20,000 cr and one ship, and start growing on day 8.
-  - A rival buys a ship when cash covers its price + 1.5 weeks of
-    upkeep + 5,000 cr, up to 5 ships.
-  - A rival buys up to 4 survey permits.
-  - Rivals buy from the same stock as the player, so they move the
-    same prices.
- 
-Rival personality is parameters, not code:
- 
-  Rival                           Preferred ship              Event bonus                                      Personality
-  ------------------------------  ---------------------------  ------------------------------------------------  --------------------------------
-  Vexari Consortium               Courier                      High: weights routes touching an active event    Boastful alien hagglers
-  Halvorsen-Krane Interstellar    Light Hauler, then Bulk Fr.   None: prefers long, stable routes                Cold megacorp, speaks in memos
- 
-Each rival has a portrait and about 10 lines triggered by key moments
-(buys a ship, wins a contested market, falls behind).
- 
-Survey permits unlock one more planet each. The first costs 12,000 cr
-and each next one costs x1.3: 12,000 / 15,600 / 20,280 / 26,364 /
-34,273 / 44,555 cr. The luxury planets, Aurel and Sable, are the final
-permit at 60,000 cr.
+That's a profit of 8 per unit. With 20 units of cargo, 160 per leg, 320 per round trip. A round trip takes 2 cycles, so it costs 80 trip cost and 100 maintenance (50 per cycle), leaving about 140 per round trip.
 
-2.6 TIME, WIN AND LOSS
- 
-The game runs in pausable real time at pause, 1x and 2x. One in-game
-day lasts 2 real minutes at 1x, so a 30-day campaign takes about an
-hour. A hidden 10x speed exists for testing and balancing.
- 
-Win: the first company to reach X cr net worth wins. Net worth =
-cash + 50% of ship purchase prices + cargo at base price.
- 
-Loss:
-  - Cash stays below 0 for 3 in-game days in a row. Purchases are
-    blocked when unaffordable, so only upkeep can push cash negative,
-    and the player is warned the moment it does.
-  - A rival reaches X cr first.
- 
-First minute: three hints guide the player: buy energy on Kessa, sell
-it on Doran, buy a second ship. The Kessa-Doran trade is profitable
-from the first tap.
- 
-HUD: cash, day and speed, plus the player's net worth beside both
-rivals' as a race bar to X cr.
+After several cycles we have enough money to get a second ship. The Player can choose if it adds the ship to the existing route or create a new one. Too many ships eat the resources on the planet and increase the price of the resource. Too few give low cache flow. There is a cap of possible ships amount which is [GCM:ship_cap] ships max.
 
-2.7 PLATFORMS AND CAMERA
- 
-macOS. Every screen is usable with mouse. The camera is a tilted top-down map with three zoom
-levels (planet, system, galaxy) and +/-45 degree rotation on the
-vertical axis.
+Automated routes:
+−[GCM:saturation] sell price per extra ship on the same route
 
-2.10 Player experience
-Day 5. A news line slides onto the HUD: *Food shortage on Doran.* The Doran food price arrow flips red, climbing past the normal band.
+That's the code loop pretty much. I imagine the game to be a slow pased and builds up interest over time with more updates. I dont worry that the first prototype is just that. The working core loop.
 
-The player taps the market panel to confirm the spike, then opens Kessa's route card. It already reads +6,200 cr expected, a warning icon pulsing next to it — the price won't hold once a ship lands. No time to admire it: the player assigns the idle Light Hauler and sends it.
+Balance targets:
+A decent player buys their 4th ship around cycle [GCM:target_4th_ship_cycle], gets the first permit around cycle [GCM:target_first_permit_cycle], and has [GCM:target_ships_range] ships by about cycle [GCM:target_8_ships_cycle]. That player's cash balance reaches [GCM:win_cash] around cycles [GCM:target_win_cycle_range].
+A sloppy player stays on one route, overloads it, or skips permits. That player ends somewhere around [GCM:target_sloppy_cash_low]–[GCM:target_sloppy_cash_high] and loses. The loss condition matters without being punishing.
+Selling and flying back empty still earns, but only half as much. One leg earns 160 and costs [GCM:trip_cost] to fly, so the ship makes 120 before maintenance. Carrying cargo both ways makes 240 per round trip before maintenance.
+If players win before about cycle [GCM:check_early_win_cycle], raise the win threshold or the maintenance cost first.
+f the second ship comes later than about cycle [GCM:check_second_ship_cycle], the tutorial pacing drags. Raise the margins slightly.
+Expose all of these values in the debug menu. The QA bot runs can then check whether “always expand” and “never expand” strategies both lose. If one of them wins, it’s a dominant strategy.
 
-The Light Hauler docks a few in-game hours later. The card recalculates live: still green, just smaller than promised. The player sells anyway, banks the cr, and glances at the race bar — Vexari's net worth ticked up too.
+Events:
+Events can change the resource amount on the planet by [GCM:event_effect] and open and close some Planets temporarily. Events happen every [GCM:event_interval] cycles (about 7 events per game, roughly one every 8 minutes)
 
-Rival ships don’t appear on the galaxy map, and the player never watches a rival fly a route. Rivals act during the same tick the player’s automated routes resolve, off-screen, and their effect only surfaces afterward. Price and stock, after the fact. If a rival bought or sold on a planet since the player last checked, the market panel’s trend arrow and stock number simply reflect it — a price that was low an hour ago can read high now, with no animation or event tag explaining why. The player has to notice the shift themselves.
+Menu UI:
+Debug menu: "Debug and Game Control menus are removed from the release build"
+Event control:
+  How often events happen
+  A list of events availaible
+  Trigger an event
+  Effect multiplier for events
+Game Control menu:
+  Balance values (v0.1): Change here to test. Each value is defined once in this section; the rest of the GDD refers to it as [GCM:key].
+    cycle_minutes              2 minutes
+    starting_credits           1,500
+    ship_price                 1,000
+    cargo                      20 units
+    ship_cap                   8 ships
+    energy_buy                 10
+    energy_sell                18
+    food_buy                   12
+    food_sell                  20
+    trip_cost                  40 per leg
+    maintenance                150 per ship
+    maintenance_interval       3 cycles
+    saturation                 10%
+    permit_2_cost              2,000
+    permit_3_cost              4,000
+    permit_margin_bonus        50%
+    event_interval             4 cycles
+    event_effect               ±10–25% or ±300–800 cr
+    win_cycle                  30
+    win_cash                   9,000
+    pace_cycle_10_target       4,000
+    pace_cycle_20_target       8,000
+    pace_cycle_25_target       10,000
+    upgrade_cost               1,000
+    upgrade_margin_bonus       10%
+  Balance targets (checks):
+    target_4th_ship_cycle      9
+    target_first_permit_cycle  13
+    target_8_ships_cycle       18
+    target_win_cycle_range     25–28
+    permit_1_affordable_cycles 12–14
+    check_early_win_cycle      22
+    check_second_ship_cycle    6
+    target_ships_range         7–8
+    target_sloppy_cash_low     7,000
+    target_sloppy_cash_high    10,000
+    One cycle lasts:           2 minutes
+    Travel time:               every leg takes 1 cycle
 
-2.11 Screens
+A Player makes money mostly from trades.
 
-- **Market panel** — opens from any planet. Lists each commodity it trades with buy price, sell price, current stock, and a trend arrow. An active event on that planet shows its flavor-text line at the top.
+Planned features after we create the working core loop game.
+Ship Upgrades (part of the core loop, the late-game spending option):
+Once a ship is bought, the player can pay [GCM:upgrade_cost] credits to upgrade it. The upgrade adds +[GCM:upgrade_margin_bonus] margin per unit on that ship's route. Each ship can be upgraded once. Upgrades are optional.
 
-- **Route card** — one per manual or automated route. Shows the ship assigned, the buy and sell planets, and live expectedProfit for a full load at current prices (net of fuel and the ship's upkeep share). Automated routes add a status line: Running, or Waiting with a reason (price above limit / insufficient cash). A warning icon appears if an event is active on either planet.
+Planned later: Space buildings trade posts.
 
-- **Fleet list** — every owned ship, its class, current route or idle status, and upkeep cost. This is where the player assigns an idle ship to a new manual trade or automated route.
+The win condition:
+Told in the beginnig of the game over a text menu. The Player has a dream to escape from society on its own planet. But in order to do that, the player needs money. The first time the cash balance (the credit figure in the top UI bar) is at least 9,000 credits at the end of a cycle, the game ends and the success story shows. If cash is still below 9,000 at the end of cycle 30 (about 1 hour in), the game ends with a loss.
 
-- **HUD race bar** — always visible: cash, day, speed control, and a bar comparing the player's net worth against both rivals', all racing toward the X cr win line.
+Ship stats:
+Ship price: [GCM:ship_price]cr
+Cargo per ship: [GCM:cargo] units
+
+Trade:
+About 8 credits margin per unit. A round trip earns a margin of about 320 per ship (sales minus buying cost), before trip cost and maintenance.
+
+Permits:
+The first permit becomes affordable around cycle [GCM:permit_1_affordable_cycles]. New systems have about [GCM:permit_margin_bonus] better margins than the starter system, to reward expansion.
+System 2: [GCM:permit_2_cost]cr. System 3: [GCM:permit_3_cost]cr
+System 3 can only be bought after System 2.
 
 ========================================
 3. AI ARCHITECTURE
 ========================================
-I'll find models and sounds myself in open libraries.
+I (me the owner) works in a claude code session. Claude leads and writes the main code. and subagents take bounded pieces of work in parallel.
+The only game is be playing the build. Every step ends with something I can play and a short list of questions for me.
+Build only the current step of the plan, no additional polish steps.
 
 Agents:
-Lead Designer
-  Role: decides which proposed features survive by whether they create a story the player will repeat, cutting the rest before they cost build time.
-  Input: feature proposal, the "fun part" sentence
-  Output: decision (keep / cut), one-line reason
-  Effect: keeps the game to features that create stories players
-  repeat, instead of busywork
+Lead Designer - Claude Sonnet
+  Role: The main overseer of the project that coordinates everyone else and reviews their work.
+  Input: The JSON output of any other agent work's in md fortam. Will decide later on in more details.
+  Output: JSON file for every other agent.
+  Effect: Keeps and shapes the game to features that create stories players based on the GDD document.
+  Weekly limits of the subscription: 1%
  
-Producer
-  Role: turns the GDD’s unlock schedule into an ordered, owned task queue so the second ship, first permit and first event land on the days promised.
-  Input: task list, unlock schedule (day -> feature)
-  Output: build_queue.json - ordered tasks, day, owner, status
-  Effect: lands the second ship, first permit and first event on the
-  days the GDD promises
+Producer - Claude Haiku
+  Role: turns the GDD’s unlock schedule into an ordered, owned task queue so the second ship and first permit land on the days promised.
+  Input: Schedule it creates and reviews.
+  Output: Schedule every other agent has access to.
+  Effect: Coordinates other agents to do their work on time and budget.
+  Weekly limits of the subscription: 1.5%
  
-Economy Designer
-  Role: tunes prices, stock levels and thresholds so every trade stays profitable but never trivial from day 1 through day 30.
-  Input: planet list, commodity list, ship/permit prices, last sim results
-  Output: prices.json (base_price, reference_stock, role per
-  planet-commodity), updated thresholds
-  Effect: keeps every trade profitable but never trivial, from day 1
-  through day 30
+Economy Designer - Claude Sonnet
+  Role: tunes prices, so every trade stays profitable but never trivial from day 1.
+  Input: Generated planet's data tables.
+  Output: An updated data table with prices and stocks.
+  Effect: Keeps planet's data up to date.
+  Weekly limits of the subscription: 1.5%
  
-Rival AI Designer
-  Role: encodes each rival’s ship preference, event bonus and growth pace as parameters, so Vexari and Halvorsen-Krane read as distinct traders on the map.
-  Input: rival roster, ship classes, event list
-  Output: rival_rules.json - per rival: preferred_ship, event_bonus,
-  growth_thresholds, ship_cap
-  Effect: gives Vexari and Halvorsen-Krane distinct, readable trading
-  behavior on the map
- 
-Events Writer
-  Role: turns the Economy Designer’s approved price-effect range into one-line event stories the player can act on.
-  Input: approved price-effect range (from Economy Designer),
-  planet/commodity list
-  Output: events.json - planet, commodity, direction, size, duration,
-  flavor_text (max ~40 words)
-  Effect: turns every price spike into a one-line story the player
-  remembers and can act on
- 
-UI Designer
-  Role: maps the live route, ship and market data onto panel fields and status icons so the player can see why a ship is idle and fix it in one tap.
-  Input: route/ship/market data shape, screen list
+UI Designer - Claude Sonnet
+  Role: Creates UI panels for the game.
+  Input: Game's GDD. Engine Files to write a code and work with UI.
   Output: UI spec - panel_id -> field bindings, status_icon map
-  Effect: lets the player see why a ship is idle and fix it in one tap
+  Effect: Makes game UI friendly and shape player's interaction experience.
+  Weekly limits of the subscription: 4%
  
-Galaxy Artist
-  Role: bakes the seed into a lit, readable galaxy once at scene load, so producer planets, rival ships and events stand out at a glance.
-  Input: seed, planet_count
-  Output: galaxy_seed.json (seed, sun_indices, point_count, density-grid
-  params); lighting/camera presets
-  Effect: makes the galaxy read at a glance - producer planets, rival
-  ships and events stand out
+Galaxy Artist - Claude Sonnet
+  Role: Background ART artist. For one specific effect in the game.
+  Input: Game engine files.
+  Output: Point cloud of galaxies with attributes for Godot.
+  Weekly limits of the subscription: One time use basically. Not relevant.
  
-Gameplay Programmer
-  Role: is the sole path from every agent’s JSON output into Godot scenes and scripts, making the live game match the balance the sim predicted.
-  Input: prices.json, rival_rules.json, events.json, galaxy_seed.json
-  Output: Godot scenes and scripts - markets, ships, routes, upkeep, win/loss,
-  matching the sim
-  Effect: makes the live economy behave exactly like the balance the
-  sim predicted
+Gameplay Programmer - Claude Sonnet
+  Role: Programs all of the interaction of the player with the game and UI and internal logic of the game.
+  Input: Task brief, relevant GDD sections, godot files, JSON data from other agents.
+  Output: Godot files.
+  Effect: ?? Creates the game backbone.
+  Weekly limits of the subscription: 55%
  
-Platform Engineer
-  Role: configures the build and input mapping so the same game runs smoothly on both target platforms.
+Platform Engineer - Claude Haiku
+  Role: configures the build and input mapping so the same game runs smoothly on macOS.
   Input: build_target macOS, frame_time_budget
   Output: platform build config, controller input map
-  Effect: keeps the same game smooth on mouse
+  Effect: keeps the game smooth on macOS
+  Weekly limits of the subscription: 2%
  
-QA Tester
+QA Tester - Claude Sonnet
   Role: runs nightly bot playthroughs and flags broken or unwinnable runs before they reach a human playtester.
-  Input: nightly build, bot script
+  Input: nightly build, bot script, build log, bot script, last report
   Output: bug_report.json - run_id, issue_type, severity
   Effect: keeps unwinnable or broken runs out of what the player ever
   sees
- 
-Per-agent weekly token budget, with model assigned per agent:
+  Weekly limits of the subscription: 2%
 
-AGENT                    MODEL              TOKENS/WEEK   BASIS
-Gameplay Programmer      Claude Sonnet 5    1,800,000     Re-reads full GDD, all four JSON files and the
-                                                           current codebase each session; needs stronger
-                                                           reasoning to turn data into correct Godot
-                                                           systems, not just extraction - the 1M context
-                                                           window covers the full reload
-UI Designer              Claude Haiku 5.5     150,000     Full route/ship/market data shape plus screen
-                                                           specs, each session
-Galaxy Artist             Claude Haiku 5.5     100,000     Seed params, lighting/camera presets, iterative
-                                                           art review
-Platform Engineer         Claude Haiku 5.5      80,000     Build config and input map, checked weekly
-                                                           against the current build
-QA Tester                 Claude Haiku 5.5      55,000     ~7 nightly bot runs/week, one bug_report.json
-                                                           each
-Producer                  Claude Haiku 5.5      20,000     build_queue.json regenerated against updated
-                                                           task list + unlock schedule
-Economy Designer          Claude Haiku 5.5      15,000     ~6 reruns/week at ~2,500 tokens each
-Rival AI Designer         Claude Haiku 5.5      15,000     rival_rules.json updates against current
-                                                           roster/events
-Events Writer             Claude Haiku 5.5      10,000     ~11 events/week at ~900 tokens each
-Lead Designer              Claude Haiku 5.5       5,000     2-3 keep/cut reviews, short input/output
---------------------------------------------------------------------------------------------------
-TOTAL                                        2,250,000     matches the GDD's weekly baseline
-
-Asset Scraper (optional)  Claude Haiku 5.5     +40,000     only on weeks a missing asset is requested
-
-
-Cost, recalculated with the mixed models (70/30 input/output split; Sonnet 5:
-$2 / $10 per MTok input/output; Haiku 5.5: $0.10 / $0.50 per MTok, under-100K-
-prompt tier):
-
-                               TOKENS/WEEK   COST/WEEK
-Gameplay Programmer (Sonnet 5)   1,800,000   ~$7.92
-Other 9 agents (Haiku 5.5)         450,000   ~$0.10
---------------------------------------------------------
-TOTAL                            2,250,000   ~$8.02/week
-
-14-week semester: ~$112, or ~$179 with the 60% rework buffer.
-
-
+Budget controlling agent - Claude Haiku
+  Role: Controls the weekly Claude pro limits
+  Input: nothing, just claude pro acess to account's limints.
+  Output: nothing
+  Effects: It can block the work of agents if we are over the budget.
+  Weekly limits of the subscription: 1%
 
 ========================================
-4. PROMPT CONSTRAINTS
+4. CONSTRAINTS
 ========================================
+Agents spend at most 70% of the weekly meter. The other 30% is reserved and never assigned to an agent.
+Sonnet costs ~20x Haiku per token, so its 1.8M tokens are ~99% of the weekly cost in Section 3.
+The Haiku agents together are small on the meter.
 
-Every agent's prompt carries the same four global constraints, so
-outputs stay consistent and repeatable whichever model runs it:
- 
-  1. Output only valid content matching that agent's current schema
-     version - JSON for data-producing agents, no prose outside the
-     schema's fields.
-  2. Never invent a planet, commodity, ship class or rival name that
-     isn't already in the GDD's data tables.
-  3. Never write a number outside its defined range (event size
-     30-50%, duration 3-7 days, permit multiplier x1.3, and so on).
-  4. Never leave a required field empty or placeholder - a field the
-     agent can't fill is a reason to flag the run, not to guess.
- 
-Per-agent constraints, on top of the global four:
- 
-  - Economy Designer: every price, cost or threshold change must come
-    with a rerun of the 40-run sim and the five headline numbers (day
-    of first permit, second ship, restricted/final permit, first win,
-    rival win rate).
-  - Events Writer: flavor_text <= 40 words, no real-world brands or
-    politics, must name the affected planet and commodity by their
-    canonical names, direction must be exactly "shortage" or
-    "surplus".
-  - Rival AI Designer: a rule change may not contradict an
-    established personality - Vexari stays Courier-first and
-    event-chasing, Halvorsen-Krane stays Light-Hauler-then-Bulk-
-    Freighter.
-  - Every screen spec must be fully usable with mouse alone, matching the macOS-only platform target
-  - Galaxy Artist: may never require the density grid to recompute at runtime
-    - generation happens once, at scene load, full stop.
- 
-A run that breaks any constraint fails schema validation and never
-reaches Godot.
+Hard stops (written into every agent prompt):
+  - Stop when the task is done, not when time runs out.
+  - Stop at the turn cap even if unfinished; write a handoff
+  - Never re-read a file already read this session.
+  - No exploratory work outside the task brief.
+  - If a task looks bigger than its cap, stop and report the
+    estimate to the Producer instead of starting.
+
+Every agent ends its session with this envelope, in a JSON file:
+
+  agent:          <agent name>
+  date:           <YYYY-MM-DD>
+  task:           <one line from the Producer's queue>
+  status:         done | partial | blocked
+  files_changed:  <list of paths>
+  schema_version: <version of any JSON written>
+  usage_note:     <rough % of meter used this session>
+  open_questions: <max 3 bullets, or "none">
+  handoff:        <max 150 words: what the next session needs>
+
+Rules:
+  - Data goes in JSON that matches the versioned schema
+  - Prose summaries: max 200 words. No restating the GDD.
+  - No invented fields, planets or values. Unknown -> write
+    "UNKNOWN" and list it under open_questions.
+  - Code (Programmer only): full files, no partial snippets,
+    one file per change block.
+  - Lead Designer reviews: keep / cut / change + one-line reason
+    per item. Nothing else.
+
+Pro limits come in 5-hour session windows plus the weekly meter, not
+requests per minute. Plan around windows:
+
+  - The Gameplay Programmer gets its own window. Nothing else runs
+    in that window.
+  - Haiku agents are batched: up to 4 per window, run in dependency
+    order (Economy -> Producer -> UI -> QA).
+  - Stop starting new agent work when a window passes ~80%; finish
+    the current task and write the handoff.
+  - Max 2 agent windows per day, leaving room for my own use.
+  - If a window limit is hit mid-task, the agent's handoff is the
+    restart point. No re-running from scratch.
+
+Rules:
+  - Start every session fresh with a brief: max 300 words plus the
+    files listed above.
+  - Programmer: start a new session when the task changes or the
+    conversation gets long; carry over only the handoff.
+  - GDD is sent in sections, never whole, except for the Lead
+    Designer's Section 1-2.
+  - Custom instructions per agent: max 150 words, kept in one file
+    (agent_rules.md) so they are written once, not retyped.
+
+Also a constraint is my own available time outside the course, which caps how many build iterations a week can realistically absorb.
 
 ========================================
 5. ENGINE INTEGRATION
 ========================================
+I'll use MCP and an agent that writes code directly to the game engine. That agent collects the output json file and makes necessary fixes.
 
-Each JSON file has exactly one Godot node or Resource that owns reading it, so
-a creative change (a new planet, a tuned price) has one clear
-technical landing spot:
- 
-  File                Godot object                         When it's read
-  -------------------  -----------------------------------  ---------------------------------------
-  prices.json          Economy autoload (singleton), a Resource  Once, in _ready()
-                        (one row per planet-commodity pair)
-  events.json           Event Manager node                   Once at load, then ticked against the
-                                                               in-game day count to fire events
-  rival_rules.json      A Rival node per                     Once in _ready(); never re-read
-                         rival, reading its own custom Resource    mid-run
-  galaxy_seed.json      The scene's Galaxy Generator node    Once in _ready(), runs the
-                                                               point-cloud/density-grid bake and never again
- 
-Validation sits at the boundary, not inside gameplay code: a file that
-fails schema validation blocks the editor run with an error
-naming the bad field, rather than reaching a script and failing at
-runtime. This is what keeps a bad agent output from becoming a silent
-in-game bug - it becomes a visible build-time error instead.
- 
-The Gameplay Programmer owns every reader above; no other agent's
-output reaches Godot through any other path.
+Every agent's output is translated into a fixed, versioned JSON schema, and only that JSON
+crosses into the engine. Gameplay programmer translates it to GODOT.
 
 Galaxy generation: scatter a dense point cloud, bake a low-res 3D density grid
 from it, pick the sun points, and propagate light from the suns
 through the volume, dimmed by density. This runs once at scene
 generation, so distant and occluded stars darken.
-
-The one function: expectedProfit(ship, route) estimates what a full
-load would earn on a route. The route card shows it, automated routes
-use it to decide whether to fly, and rivals use it to choose their
-routes. Write it once, use it three times.
-
-Price rule (the only pricing logic):
- 
-  1. Role: producers price at 0.6x base, consumers at 1.4x base.
-  2. Stock: multiply by (reference stock / current stock)^0.5,
-     clamped to 0.5x-2x.
-  3. Spread: buy = mid x 1.05, sell = mid x 0.95.
-  4. Each unit bought removes one unit of stock; each unit sold adds
-     one.
-  5. Recovery: each day, stock closes 30% of the gap to its recovery
-     target. The recovery target equals reference stock unless an
-     event is active.
-
-========================================
-6. TECHNICAL STRATEGY
-========================================
-
-
-PILLAR 1: THE AI DEV PIPELINE
-No agent writes directly into Godot: every agent's output is
-translated into a fixed, versioned JSON schema, and only that JSON
-crosses into the engine. A mismatched schema fails the build loudly
-at load time instead of breaking the game silently.
-
-PILLAR 2: TECHNICAL REQUIREMENTS & CONSTRAINTS
-API rate limits stage the agents work instead of running it in
-parallel, context window size caps how much of the GDD, sim and
-codebase one session can safely hold before it needs a fresh, trimmed
-brief, and processing latency means the Producer's unlock schedule
-has to budget real wall-clock time per agent turn.
-
-  - Rate limit: the Start tier allows 1,000 requests/min, 2M input
-    tokens/min and 400K output tokens/min per model - the weekly
-    2.25M-token budget sits far under every per-minute cap, so staging
-    agents by dependency is about build order, not throughput.
-  - Context window: Sonnet 5 has a 1M-token context window,
-    so the full GDD, economy sim and current codebase fit in one
-    session without pagination at this project's scope.
- 
-Sources:
-  - Claude pricing: https://platform.claude.com/docs/en/about-claude/pricing
-  - Claude models overview: https://platform.claude.com/docs/en/about-claude/models/overview
-  - Claude API rate limits: https://platform.claude.com/docs/en/api/rate-limits
-
-A fourth constraint is my own available time outside the course, which caps how many build iterations a week can realistically absorb.
-
-Biggest technical constraint: AI hallucination — an agent confidently producing a planet, number, or field that doesn’t exist or doesn’t fit its range, which breaks the game silently if it reaches Godot unvalidated. Handled with schema validation at the one boundary every agent’s output crosses: a bad file fails loudly at load time and blocks the editor run, rather than shipping broken.
-
-PILLAR 3: TOKEN BUDGETS & PROJECTIONS
-At roughly 2.27M tokens/week across 10 agents, a
-14-week semester costs about 32M tokens, or about 51M with a 60%
-buffer for context reloads, failed builds and rework.
-
-All agent output here is generated during the 14-week build and baked
-into the JSON files above - the shipped game never calls the API at
-runtime (see the AI Dev Pipeline), so this is a development-time
-budget, not a per-player-session cost.
- 
-  - Per event generation (Events Writer): ~900 tokens
-  - Per economy rerun (Economy Designer): ~2,500 tokens
-  - Weekly total across the 10 core agents: ~2.25M tokens (Gameplay
-    Programmer on Claude Sonnet 5, the other 9 on Claude Haiku 5.5 -
-    see the per-agent table in Section 3)
-  - Cost at mixed pricing (Sonnet 5: $2 / $10 per MTok input/output;
-    Haiku 5.5: $0.10 / $0.50 per MTok, under-100K-prompt tier,
-    70/30 input/output split): ~$8.02/week
-  - 14-week semester: ~$112, or ~$179 with the 60% rework buffer
-    (~51M tokens)
- 
-The agent roles, token budget and API constraints are fully specified
-above; this section is what to actually do with them week to week.
- 
-  - Weekly budget check-in. Compare actual tokens spent against the
-    ~2.27M/week baseline every Friday. A week that runs noticeably
-    over is a signal to re-check Prompt Constraints first - a chatty
-    or under-constrained agent is the most likely cause, not a
-    cost-model surprise.
- 
-  - Schema changes are scheduled, not ad hoc. A prices.json,
-    events.json, rival_rules.json or galaxy_seed.json version bump
-    goes through the Producer, who confirms the Gameplay Programmer
-    and every agent that writes that file are updated in the same
-    work session - never a silent field rename.
- 
-  - Headroom, not a hard wall. At Start-tier rate limits (API
-    Constraints, above), the semester's actual usage sits far under
-    every per-minute cap, so the real constraint is staging by
-    dependency, not throughput - revisit this only if the team moves
-    to a higher-volume workflow than the current plan.
- 
-  - Cost is not the risk. At ~$112-$179 for the full semester, budget
-    overrun isn't the failure mode to plan around; AI hallucination
-    reaching Godot unvalidated is (Prompt Constraints -> Engine
-    Integration's schema validation is the one line of defense).
- 
