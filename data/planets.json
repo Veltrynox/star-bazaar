@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "data_version": 1,
+  "planets": [
+    {
+      "id": "planet_1",
+      "name": "Planet 1",
+      "abundant": "energy",
+      "scarce": "food",
+      "stock": "UNKNOWN",
+      "base_prices": "UNKNOWN"
+    },
+    {
+      "id": "planet_2",
+      "name": "Planet 2",
+      "abundant": "food",
+      "scarce": "energy",
+      "stock": "UNKNOWN",
+      "base_prices": "UNKNOWN"
+    },
+    {
+      "id": "planet_3",
+      "name": "Planet 3",
+      "abundant": "UNKNOWN",
+      "scarce": "UNKNOWN",
+      "stock": "UNKNOWN",
+      "base_prices": "UNKNOWN"
+    }
+  ]
+}
