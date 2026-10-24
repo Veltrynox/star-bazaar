@@ -1,4 +1,4 @@
-Game Design Document - Forth Draft
+Game Design Document - Fourth Draft
 Date: 21 October 2026
 
 GIT: https://github.com/Veltrynox/star-bazaar/blob/main/gdd.md
@@ -18,9 +18,9 @@ Core loop: Check prices, buy where a commodity is cheap, fly, sell where it is i
 demand, and reinvest in ships and permits. Each new ship runs the same
 loop as an automated route.
 
-Win: the first time the cash balance is at least 9,000 credits at the end of any cycle, the game ends and the success story shows.
+Win: the first time the cash balance is at least [GCM:win_cash] credits at the end of any cycle, the game ends and the success story shows.
 
-Loss: if the cash balance is still below 9,000 credits at the end of cycle 30, the game ends and the end screen shows the cash reached and the target.
+Loss: if the cash balance is still below [GCM:win_cash] credits at the end of cycle [GCM:win_cycle], the game ends and the end screen shows the cash reached and the target.
 ========================================
 2. GAME MECHANICS / PLAYER EXPERIENCE
 ========================================
@@ -28,7 +28,7 @@ Source of truth: The numbers in this GDD are a starting point only. Once product
 
 The numbers come from a rough paper model built on the GDD’s fixed facts: [GCM:win_cycle] cycles of about [GCM:cycle_minutes] minutes each. They’re meant to give a working first pass for tuning in the debug menu, not final balance.
 
-The game takes about an hour to complete. In game cycle lasts around [GCM:cycle_minutes] minutes. There are [GCM:win_cycle] cycles.
+The game takes about [GCM:win_cycle] × [GCM:cycle_minutes] minutes to complete. In game cycle lasts around [GCM:cycle_minutes] minutes. There are [GCM:win_cycle] cycles.
 The player can pause the gave at any time.
 
 Credits Inflow:
@@ -51,11 +51,11 @@ Goal line: "Goal: [GCM:win_cash] by cycle [GCM:win_cycle]. Now: [cash balance]."
 
 The game is mostly event and text driven, for now.
 
-First 4 cycles (about 8 minutes) of the game:
+First 4 cycles of the game:
 The player reads the preface story. The game starts. We sees 3 Planets, a notification board on the right side with a mission hint.
 "Buy a ship" mission text. The UI on top with some information: [GCM:starting_credits] starting credits. The planet highlights, the players clicks on it, a menu pop ups. This planet has an abundance of evergy abundance but not enough food. Under it there is a menu with a ship we can buy. The Player clicks on it and buys a ship. Mission complete. We see another menu that explains how to trade. The Player clicks on another Planet and sees that that the planet has abundnce of food but low energy supply. The Player buys energy cheaply at [GCM:energy_buy] per unit, on one planet and clicks on the second Planet and sells the energy for [GCM:energy_sell]cr. But the player can't simply sell and fly back, it would be a low cash flow that ship maitanance and trip cost will eat soon. The Player buys food cheaply for [GCM:food_buy]cr and flies back to sell it on Planet 1 where food sells for [GCM:food_sell]cr. The automated menu automatically asks if we want to establish an automated trade route. We hit yes. 
 
-That's a profit of 8 per unit. With 20 units of cargo, 160 per leg, 320 per round trip. A round trip takes 2 cycles, so it costs 80 trip cost and 100 maintenance (50 per cycle), leaving about 140 per round trip.
+That's a profit of [GCM:food_sell] − [GCM:food_buy] per unit (the route margin). With [GCM:cargo] units of cargo, one loaded leg earns margin × cargo, so a round trip with cargo both ways earns 2 × margin × cargo. A round trip takes 2 × [GCM:travel_cycles_per_leg] cycles, costs 2 × [GCM:trip_cost] in trip cost, and carries maintenance of [GCM:maintenance] per ship every [GCM:maintenance_interval] cycles. What is left is the round-trip profit.
 
 After several cycles we have enough money to get a second ship. The Player can choose if it adds the ship to the existing route or create a new one. Too many ships eat the resources on the planet and increase the price of the resource. Too few give low cache flow. There is a cap of possible ships amount which is [GCM:ship_cap] ships max.
 
@@ -67,13 +67,13 @@ That's the code loop pretty much. I imagine the game to be a slow pased and buil
 Balance targets:
 A decent player buys their 4th ship around cycle [GCM:target_4th_ship_cycle], gets the first permit around cycle [GCM:target_first_permit_cycle], and has [GCM:target_ships_range] ships by about cycle [GCM:target_8_ships_cycle]. That player's cash balance reaches [GCM:win_cash] around cycles [GCM:target_win_cycle_range].
 A sloppy player stays on one route, overloads it, or skips permits. That player stays below the win threshold and loses. The loss condition matters without being punishing.
-Selling and flying back empty still earns, but only half as much. One leg earns 160 and costs [GCM:trip_cost] to fly, so the ship makes 120 before maintenance. Carrying cargo both ways makes 240 per round trip before maintenance.
+Selling and flying back empty still earns, but only half as much. One loaded leg earns margin × cargo and costs [GCM:trip_cost] to fly, so the ship makes margin × cargo − [GCM:trip_cost] before maintenance. Carrying cargo both ways makes 2 × (margin × cargo − [GCM:trip_cost]) per round trip before maintenance.
 If players win before about cycle [GCM:check_early_win_cycle], raise the win threshold or the maintenance cost first.
 f the second ship comes later than about cycle [GCM:check_second_ship_cycle], the tutorial pacing drags. Raise the margins slightly.
 Expose all of these values in the debug menu. The QA bot runs can then check whether “always expand” and “never expand” strategies both lose. If one of them wins, it’s a dominant strategy.
 
 Events:
-Events can change the resource amount on the planet by [GCM:event_effect] and open and close some Planets temporarily. Events happen every [GCM:event_interval] cycles (about 7 events per game, roughly one every 8 minutes)
+Events can change the resource amount on the planet by [GCM:event_effect] and open and close some Planets temporarily. Events happen every [GCM:event_interval] cycles (about [GCM:win_cycle] ÷ [GCM:event_interval] events per game)
 
 Menu UI:
 Debug menu: "Debug and Game Control menus are removed from the release build"
@@ -83,42 +83,7 @@ Event control:
   Trigger an event
   Effect multiplier for events
 Game Control menu:
-  Starting values (v0.1). Each key matches a key in data/balance.json, which is the source of truth once production starts. The rest of the GDD refers to these keys as [GCM:<key>].
-    cycle_minutes              2 minutes
-    starting_credits           1,500
-    ship_price                 1,000
-    cargo                      20 units
-    ship_cap                   8 ships
-    energy_buy                 10
-    energy_sell                18
-    food_buy                   12
-    food_sell                  20
-    trip_cost                  40 per leg
-    travel_cycles_per_leg      1 cycle
-    maintenance                150 per ship
-    maintenance_interval       3 cycles
-    saturation                 10%
-    permit_2_cost              2,000
-    permit_3_cost              4,000
-    permit_margin_bonus        50%
-    event_interval             4 cycles
-    event_effect               ±10–25% or ±300–800 cr
-    win_cycle                  30
-    win_cash                   9,000
-    pace_cycle_10_target       3,000
-    pace_cycle_20_target       6,000
-    pace_cycle_25_target       7,500
-    upgrade_cost               1,000
-    upgrade_margin_bonus       10%
-  Balance targets (checks):
-    target_4th_ship_cycle      9
-    target_first_permit_cycle  13
-    target_8_ships_cycle       18
-    target_win_cycle_range     25–28
-    permit_1_affordable_cycles 12–14
-    check_early_win_cycle      22
-    check_second_ship_cycle    6
-    target_ships_range         7–8
+  Values and targets: every number is in data/balance.json ("values" and "targets" sections), not in this GDD. The Game Control menu reads and writes that file. Keys match the [GCM:<key>] tokens used in this GDD. The v0.1 values in that file are the starting point for the paper model and for tuning.
 
 A Player makes money mostly from trades.
 
@@ -129,14 +94,14 @@ Once a ship is bought, the player can pay [GCM:upgrade_cost] credits to upgrade 
 Planned later: Space buildings trade posts.
 
 The win condition:
-Told in the beginnig of the game over a text menu. The Player has a dream to escape from society on its own planet. But in order to do that, the player needs money. The first time the cash balance (the credit figure in the top UI bar) is at least 9,000 credits at the end of a cycle, the game ends and the success story shows. If cash is still below 9,000 at the end of cycle 30 (about 1 hour in), the game ends with a loss.
+Told in the beginnig of the game over a text menu. The Player has a dream to escape from society on its own planet. But in order to do that, the player needs money. The first time the cash balance (the credit figure in the top UI bar) is at least [GCM:win_cash] credits at the end of a cycle, the game ends and the success story shows. If cash is still below [GCM:win_cash] at the end of cycle [GCM:win_cycle] (about [GCM:win_cycle] × [GCM:cycle_minutes] minutes in), the game ends with a loss.
 
 Ship stats:
 Ship price: [GCM:ship_price]cr
 Cargo per ship: [GCM:cargo] units
 
 Trade:
-About 8 credits margin per unit. A round trip earns a margin of about 320 per ship (sales minus buying cost), before trip cost and maintenance.
+The margin per unit is the sell price minus the buy price, see section 2. A round trip earns 2 × [GCM:cargo] × margin per ship, before trip cost and maintenance.
 
 Permits:
 The first permit becomes affordable around cycle [GCM:permit_1_affordable_cycles]. New systems have about [GCM:permit_margin_bonus] better margins than the starter system, to reward expansion.
@@ -207,7 +172,7 @@ Move older handoffs into an archive folder that no agent reads by default.
 4. CONSTRAINTS
 ========================================
 Agents together may use at most 68% of the weekly meter. The other 32% is reserved and never assigned to an agent.
-Sonnet costs ~20x Haiku per token. The four Sonnet agents hold 61% of the weekly budget in Section 3, and the two Haiku agents hold 7%.
+The six agents' weekly limits in Section 3 add up to 68%: the four Sonnet agents hold 61% and the two Haiku agents hold 7%.
 
 Hard stops (written into every agent prompt):
   - Stop when the task is done, not when time runs out.
@@ -276,3 +241,8 @@ Galaxy generation: scatter a dense point cloud, bake a low-res 3D density grid
 from it, pick the sun points, and propagate light from the suns
 through the volume, dimmed by density. This runs once at scene
 generation, so distant and occluded stars darken.
+
+========================================
+6. CHANGE LOG
+========================================
+2026-10-23: Replaced hard-coded numbers in sections 2-4 with [GCM:<key>] tokens. The Game Control values and targets list now points to data/balance.json, which already held every value with the same number, so balance.json is unchanged. Worked examples (margin, per-trip and round-trip figures) are now written as formulas. Removed the unsourced "Sonnet costs ~20x Haiku" ratio. Fixed "Forth" to "Fourth" in the title.
