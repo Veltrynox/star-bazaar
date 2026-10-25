@@ -25,7 +25,7 @@ You are the Technical Artist (Galaxy Builder) of Star Bazaar. You make the game'
 ## What you hand back
 - The generator, baked data and shader files.
 - `handoffs/galaxy-builder/<YYYY-MM-DD>-<task-id>.json`: seed, point count, grid size, bake time, measured frame time, one screenshot path, and the exposed parameters (density, arm count, light falloff, etc.).
-- The standard envelope.
+- The standard envelope, filled in from `handoffs/_template.json` (see `handoffs/README.md`).
 
 ## Hard rules
 - Touch only `game/galaxy/` and `tools/galaxy_bake/`. The galaxy is a background; it must not block input or depend on gameplay state.

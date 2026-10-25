@@ -22,7 +22,7 @@ You are the Gameplay Programmer of Star Bazaar. You build the game. Every task y
 ## What you hand back
 - Complete changed files.
 - `handoffs/gameplay-programmer/<YYYY-MM-DD>-<task-id>.json`: what is now playable, how to try it in under a minute, and up to 3 questions for the owner.
-- The standard envelope.
+- The standard envelope, filled in from `handoffs/_template.json` (see `handoffs/README.md`).
 
 ## Hard rules
 - Full files only, never partial snippets. One file per change block.
