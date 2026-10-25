@@ -1,5 +1,177 @@
 {
   "schema_version": 1,
-  "date": "2026-10-23",
-  "tasks": []
+  "date": "2026-10-25",
+  "tasks": [
+    {
+      "task_id": "T01",
+      "title": "Baseline check of balance.json and planets.json with paper sim",
+      "owner_agent": "economy-designer",
+      "depends_on": [],
+      "status": "running",
+      "turn_cap": 30,
+      "window": "W1 2026-10-25 economy batch",
+      "brief": "Check v0.1 values in data/balance.json and data/planets.json against the GDD paper model. Run bot-style paper sims (always_expand, never_expand, single_route, optimal). Confirm the win lands around cycles 25-28. Edit only data/ files and log each change. Do not change design."
+    },
+    {
+      "task_id": "T02",
+      "title": "Project layout check and macOS export preset",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [],
+      "status": "partial",
+      "owner_note": "Owner created export_presets.cfg in the Godot editor at repo root: macOS preset, include data/*.json, excludes handoffs/ qa/ tools/ media/ assets/ output/ build/ .claude/ .git/ gdd.md *.md, output build/StarBazaar.zip. Bundle id confirmed com.example.starbazaar. Signing is ad-hoc (codesign/codesign=1), owner's choice; no Developer ID or notarization planned. Export test is owner-run from the Godot editor; not yet reported. T02 stays partial until the owner reports the result. T03 is not blocked on it unless the owner says so. assets/ stays excluded for now; it returns to the export when the ship model is used (see the ship task note).",
+      "turn_cap": 40,
+      "window": "next gameplay window (solo)",
+      "brief": "Project is at repo root (project.godot, icon.svg, .editorconfig). Godot scripts go under game/. data/ sits inside the project and is read at runtime, so the export must include data/*.json. Export preset is already in place (owner-made). Remaining work: check the preset against this brief and report it. Do not move files."
+    },
+    {
+      "task_id": "T03",
+      "title": "Cycle timer and top bar goal line",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": ["T01", "T02"],
+      "status": "queued",
+      "turn_cap": 60,
+      "window": "next gameplay window (solo)",
+      "brief": "Cycle timer using cycle_minutes and win_cycle, with pause. Top bar shows starting_credits and 'Goal: win_cash by cycle win_cycle. Now: cash.' Read values from data/balance.json at runtime."
+    },
+    {
+      "task_id": "T04",
+      "title": "Three starting planets and prices",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": ["T03"],
+      "status": "queued",
+      "turn_cap": 50,
+      "window": "next gameplay window (solo)",
+      "brief": "Show the starting planets from data/planets.json on the map. Click opens a planet panel with abundance, shortage and prices for each commodity."
+    },
+    {
+      "task_id": "T06",
+      "title": "Buy a ship and manual trade with trip cost",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": ["T04"],
+      "status": "queued",
+      "turn_cap": 60,
+      "window": "next gameplay window (solo)",
+      "brief": "First ship purchase (ship_price, cargo) with the 'Buy a ship' mission. Manual buy and sell, with trip_cost per leg and the tutorial trade prompt. Ship model task note: when the ship model is added, assets/ must return to the export filter (owner decision)."
+    },
+    {
+      "task_id": "T07",
+      "title": "Automated routes and saturation",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": ["T06", "T01"],
+      "status": "queued",
+      "turn_cap": 60,
+      "window": "next gameplay window (solo)",
+      "brief": "Offer an automated route after the first loaded round trip. Add ships to an existing route or start a new one, up to ship_cap. Apply saturation per extra ship and maintenance every maintenance_interval cycles."
+    },
+    {
+      "task_id": "T08",
+      "title": "Creative Director review of core loop build",
+      "owner_agent": "creative-director",
+      "depends_on": ["T07"],
+      "status": "queued",
+      "turn_cap": 25,
+      "window": "next batch (economy, creative-director, qa)",
+      "brief": "Keep, cut or change verdict per item for T03-T07 against the GDD fantasy. Edit GDD only if needed and log it."
+    },
+    {
+      "task_id": "T09",
+      "title": "QA bot runs on core loop build",
+      "owner_agent": "qa-analyst",
+      "depends_on": ["T07", "T08"],
+      "status": "queued",
+      "turn_cap": 30,
+      "window": "next batch (economy, creative-director, qa)",
+      "brief": "Run always_expand, never_expand, single_route and optimal bots on the latest build. Report final_cash, cycle_reached and outcome per strategy. Flag crashes, softlocks and dominant strategies."
+    },
+    {
+      "task_id": "T10",
+      "title": "Economy retune from QA results",
+      "owner_agent": "economy-designer",
+      "depends_on": ["T09"],
+      "status": "queued",
+      "turn_cap": 25,
+      "window": "next batch (economy, creative-director, qa)",
+      "brief": "Adjust balance.json only where QA shows a dominant strategy, an early win or a late win. Log each change with old, new and reason."
+    },
+    {
+      "task_id": "T11",
+      "title": "Permits (systems 2 and 3)",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": ["T10"],
+      "status": "queued",
+      "turn_cap": 50,
+      "window": "next gameplay window (solo)",
+      "brief": "Permit purchase for system 2 (permit_2_cost) and system 3 (permit_3_cost, needs system 2). New systems use permit_margin_bonus."
+    },
+    {
+      "task_id": "T12",
+      "title": "Events",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": ["T11"],
+      "status": "queued",
+      "turn_cap": 50,
+      "window": "next gameplay window (solo)",
+      "brief": "Events every event_interval cycles. Each changes planet resources by event_effect and can open or close a planet temporarily."
+    },
+    {
+      "task_id": "T14",
+      "title": "Win and loss screens",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": ["T12"],
+      "status": "queued",
+      "turn_cap": 40,
+      "window": "next gameplay window (solo)",
+      "brief": "Success story at win_cash by end of any cycle. End screen at win_cycle showing cash reached and the target."
+    },
+    {
+      "task_id": "T15",
+      "title": "Tutorial for first 4 cycles",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": ["T14", "T07"],
+      "status": "queued",
+      "turn_cap": 60,
+      "window": "next gameplay window (solo)",
+      "brief": "Follow GDD section 2 'First 4 cycles': preface, 3 planets, buy ship, trade energy and food, offer route. Mission text and notification board on the right."
+    },
+    {
+      "task_id": "T13",
+      "title": "Debug and Game Control menus (tuning only)",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": ["T15"],
+      "status": "queued",
+      "turn_cap": 50,
+      "window": "next gameplay window (solo)",
+      "brief": "Game Control menu reads and writes data/balance.json. Event control (frequency, list, trigger, multiplier). Stripped from release builds. Owner placed this after the tutorial (T15)."
+    },
+    {
+      "task_id": "T05",
+      "title": "Galaxy background (point cloud, density grid, sun light)",
+      "owner_agent": "galaxy-builder",
+      "depends_on": ["T02"],
+      "status": "queued",
+      "turn_cap": 40,
+      "window": "own window, queued after T15; may run in parallel with gameplay only when the owner starts it",
+      "brief": "Visual element, not gameplay. Build the galaxy generator per GDD section 5: scatter points, bake a low-res density grid, pick suns, propagate light once at scene generation. Keep within a macOS frame budget and report frame_time_ms. Owner has not fixed its position; recommended after T15."
+    },
+    {
+      "task_id": "T16",
+      "title": "Creative Director review of full build",
+      "owner_agent": "creative-director",
+      "depends_on": ["T15"],
+      "status": "queued",
+      "turn_cap": 25,
+      "window": "next batch (economy, creative-director, qa)",
+      "brief": "Keep, cut or change verdict per item for the full playable build against the GDD."
+    },
+    {
+      "task_id": "T17",
+      "title": "QA bot runs on full build",
+      "owner_agent": "qa-analyst",
+      "depends_on": ["T16"],
+      "status": "queued",
+      "turn_cap": 30,
+      "window": "next batch (economy, creative-director, qa)",
+      "brief": "Repeat the four bot strategies on the full build. Check win window, loss behaviour, crashes and softlocks. Feed results to the owner."
+    }
+  ]
 }
