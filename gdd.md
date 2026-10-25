@@ -3,6 +3,16 @@ Date: 21 October 2026
 
 GIT: https://github.com/Veltrynox/star-bazaar/blob/main/gdd.md
 
+SECTION INDEX
+Each section starts with a banner line of "=" signs, then its heading. Find a section by grepping its heading (for example: grep -n "^2\. GAME MECHANICS" gdd.md). Line numbers are not listed because they change with every edit.
+  1. EXECUTIVE SUMMARY / GAME SPECIFICITY: one-liner, name, engine, platform, core loop, win and loss conditions
+  2. GAME MECHANICS / PLAYER EXPERIENCE: credit inflow and outflow, mechanics, first 4 cycles, automated routes, balance targets, events, menu UI, planned upgrades
+  3. AI ARCHITECTURE: owner workflow, project brief, the six agent roles and their limits
+  4. CONSTRAINTS: meter budget, hard stops, handoff envelope, window scheduling
+  5. ENGINE INTEGRATION: how agent output reaches Godot, galaxy generation
+  6. CHANGE LOG: dated record of GDD edits
+Numbers are not in this GDD. They are [GCM:<key>] tokens that point to data/balance.json.
+
 ========================================
 1. EXECUTIVE SUMMARY / GAME SPECIFICITY
 ========================================
@@ -246,3 +256,4 @@ generation, so distant and occluded stars darken.
 6. CHANGE LOG
 ========================================
 2026-10-23: Replaced hard-coded numbers in sections 2-4 with [GCM:<key>] tokens. The Game Control values and targets list now points to data/balance.json, which already held every value with the same number, so balance.json is unchanged. Worked examples (margin, per-trip and round-trip figures) are now written as formulas. Removed the unsourced "Sonnet costs ~20x Haiku" ratio. Fixed "Forth" to "Fourth" in the title.
+Added a section index after the title block. No design or number changes.
