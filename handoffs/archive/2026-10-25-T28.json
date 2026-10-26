@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-10-25",
+  "task": "T28",
+  "status": "done",
+  "files_changed": ["game/main.gd", "game/map.gd", "game/planet_panel.gd", "game/ship_panel.gd", "game/planet_hint.gd"],
+  "usage_note": "Small task, one session.",
+  "open_questions": [
+    "Halo is a translucent gold sphere (1.3x planet radius). Want a ring or a different colour?",
+    "Buy works only on the mission planet (abundant energy, scarce food) for now. Should every planet sell ships later?",
+    "Ships panel sits at a fixed offset_top 170 under the board; fine if the board grows to more missions?"
+  ],
+  "handoff": "Press New Game, Start. Planet 1 pulses gold. Click it, press 'Buy a ship (1000 cr)' (works while paused). Cash drops, Ships panel shows 1 / 8, mission reads '(complete)', pulse stops. Button is disabled with a reason when cash is short or the cap is reached. Ship count is autosaved (key 'ships', default 0, VERSION unchanged); Continue restores it with no pulse if a ship was bought. Headless load of main.tscn is clean. Not verified: visuals of the halo and layout, and the save round trip (sandbox blocks user://).",
+  "details": {
+    "constants": {
+      "game/planet_hint.gd": "HINT_COLOR, PULSE_SPEED=3.0, ALPHA_MIN=0.10, ALPHA_MAX=0.40, SCALE_MIN=1.0, SCALE_MAX=1.12, HALO_FACTOR=1.3"
+    },
+    "balance_keys_read": ["ship_price", "ship_cap"],
+    "not_verified": "Halo look and panel overlap on screen; buy flow and save/continue at runtime."
+  }
+}

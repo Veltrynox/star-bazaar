@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-10-26",
+  "task": "T35 Debug menu: add x12 to time speed",
+  "status": "done",
+  "files_changed": [
+    "game/debug_menu.gd",
+    "schedule.json",
+    "handoffs/gameplay-programmer/2026-10-26-T35.json"
+  ],
+  "usage_note": "single session, code only; Godot not run",
+  "open_questions": [
+    "UNKNOWN: godot is not installed in this sandbox, so 'godot --headless --quit' and the in-game check were NOT run. Please press Play and report any parse error."
+  ],
+  "handoff": "SPEEDS in add_speed_button() is now [1,2,4,8,12]; cycle wraps 12 -> 1. Checked: only other time_speed uses are main.gd var and _process multiply, which are value-agnostic; label uses int(), so 'x12' prints correctly. Not run.",
+  "details": {
+    "try_in_a_minute": "Play, press backtick, click 'Time speed' four times to reach x12."
+  }
+}

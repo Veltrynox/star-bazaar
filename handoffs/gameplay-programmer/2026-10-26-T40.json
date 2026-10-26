@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-10-26",
+  "task": "T40 Top bar money text opens a cycle-end cash forecast dropdown",
+  "status": "done",
+  "files_changed": [
+    "game/cash_forecast.gd",
+    "game/main.gd",
+    "schedule.json",
+    "handoffs/gameplay-programmer/2026-10-26-T40.json"
+  ],
+  "usage_note": "single session, code only; Godot not run",
+  "open_questions": [
+    "UNKNOWN: godot is not installed in this sandbox, so 'godot --headless --quit' and the in-game check were NOT run. Please press Play and report any parse error.",
+    "Economy-designer: is maintenance (100) a flat charge or per ship, and is it charged at the end of cycles divisible by maintenance_interval (3)? The forecast assumes flat, cycles 3, 6, 9...",
+    "Nothing is charged or earned at cycle end today (_end_cycle only checks win/loss), so income is always 'none'. Confirm that automated routes (T07) should add an income line."
+  ],
+  "handoff": "New game/cash_forecast.gd, hooked in main.gd (var, create after goal_label exists, refresh() call in _refresh). Clicking the Goal/Now text opens a dropdown under it: cycle number, time to cycle end (scaled by time_speed, 'paused' when paused), Income (green), Outcome (red), After cycle. Second click on the text or a click elsewhere closes it (outside click is not consumed, so it still reaches the map). The panel stops mouse input so clicks on it never reach the map. Updates every frame while open. Only maintenance exists in balance.json; it is listed in red on cycles divisible by maintenance_interval as '(not charged yet)' and NOT subtracted from After cycle. Set MAINTENANCE_CHARGED to true in cash_forecast.gd when T07 charges it.",
+  "details": {
+    "try_in_a_minute": "Play, press Start, click the Goal text at top left. Resume time or use the debug speed button to watch the timer; click again to close."
+  }
+}

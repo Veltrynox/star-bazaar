@@ -1,0 +1,19 @@
+{
+  "agent": "producer",
+  "date": "2026-10-26",
+  "window": "w7 (owner request, usage report at window start)",
+  "started": [],
+  "started_by_main_session_recorded": ["T32", "T37", "T38"],
+  "stopped": [],
+  "blocked": [],
+  "added": [
+    {"task_id": "T37", "owner_agent": "economy-designer", "title": "Give planets with no resources a resource set", "status": "running"},
+    {"task_id": "T38", "owner_agent": "creative-director", "title": "Confirm planet names", "status": "running"},
+    {"task_id": "T39", "owner_agent": "gameplay-programmer", "title": "Apply planet renames everywhere they appear", "status": "queued", "depends_on": ["T37", "T38", "T32"]}
+  ],
+  "order": ["T32 (running)", "T37 (running)", "T38 (running)", "T39", "T07", "T18", "T19", "T08", "T09", "T10", "T11", "T12", "T14", "T15", "T13", "T16", "T17"],
+  "done_recorded": ["T33", "T34", "T35", "T36"],
+  "archived": ["handoffs/gameplay-programmer/2026-10-26-sun.json", "handoffs/galaxy-builder/2026-10-25-T05.json", "handoffs/galaxy-builder/2026-10-25-T05b.json", "handoffs/galaxy-builder/2026-10-25-T31.json"],
+  "meter": {"session": "67% used, resets 1pm America/Toronto", "weekly": "9% used, resets Nov 1 4pm America/Toronto"},
+  "notes": "Producer did not start any agent. Producer file named -w7 because 2026-10-26.json already exists from the earlier producer session. Gameplay-programmer model setting is for the owner to decide."
+}

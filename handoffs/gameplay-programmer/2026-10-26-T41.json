@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-10-26",
+  "task": "T41 Planet panel shows only existing prices",
+  "status": "done",
+  "files_changed": [
+    "game/planet_panel.gd",
+    "schedule.json",
+    "handoffs/gameplay-programmer/2026-10-26-T41.json"
+  ],
+  "usage_note": "single short session; Godot not run",
+  "open_questions": [
+    "UNKNOWN: godot is not installed in this sandbox, so headless load and in-game check were NOT run. Please press Play and click a planet."
+  ],
+  "handoff": "show_planet() in planet_panel.gd now prints per commodity only the price sides that exist, e.g. 'Energy: buy 10' and 'Food: sell 26'; commodities with no price are skipped. Removed the unused _price() helper. Abundant and Shortage lines unchanged. No data, trade or balance changes; cash_forecast.gd and main.gd untouched.",
+  "details": {
+    "try_in_a_minute": "Play, Start, click any planet; the Prices list has no n/a."
+  }
+}

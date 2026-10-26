@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-10-26",
+  "task": "T34 Debug menu: time speed button (x1, x2, x4, x8)",
+  "status": "done",
+  "files_changed": ["game/main.gd", "game/debug_menu.gd", "schedule.json", "handoffs/gameplay-programmer/2026-10-26-T34.json"],
+  "usage_note": "single session, code only; Godot not run",
+  "open_questions": [
+    "UNKNOWN: godot is not installed in this sandbox, so 'godot --headless --quit' and the in-game check were NOT run. Please press Play and report any parse error."
+  ],
+  "handoff": "main.gd: new var time_speed (default 1.0); _process does cycle_elapsed += delta * time_speed. Not in collect()/apply_state, so it is never saved. Main scene is rebuilt on new game or load, so it resets to x1 (not run to confirm). Pause returns before the timer, so it stops time at any speed. Flight time (T30) uses _progress(), derived from cycle and cycle_elapsed, so flights scale automatically with no change to trade.gd. debug_menu.gd: add_speed_button() builds a button labelled 'Time speed: xN' that cycles 1,2,4,8,1 and registers via add_tool(). main.gd calls it only inside the debug-build block, so release has none. No balance changes.",
+  "details": {
+    "try_in_a_minute": "Play, start a game, press backtick, click 'Time speed', resume, watch the cycle bar fill faster."
+  }
+}

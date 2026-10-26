@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "agent": "galaxy-builder",
+  "date": "2026-10-25",
+  "task": "T05b: stars allowed everywhere on the map",
+  "status": "done",
+  "files_changed": [
+    "game/galaxy/star_field.gd",
+    "handoffs/galaxy-builder/2026-10-25-T05b.json"
+  ],
+  "usage_note": "~3%",
+  "open_questions": [
+    "UNKNOWN: how it looks on screen (headless, not rendered); check star density among planets and the cap by eye.",
+    "UNKNOWN: frame time on macOS, not measured."
+  ],
+  "handoff": "MIN_RADIUS and RADIAL_BIAS removed. Stars now start at r=0: r = MAX_RADIUS * rand^RADIAL_POWER (0.6; 0.5 is even per area, so the core is slightly denser than flat but not a spike). Thickness gets a floor THICKNESS_MIN=4 so the centre is a lens, not a razor sheet. Seed, arms (twist now runs from the centre), colours, brightness, distance fade unchanged. Near-camera safety: quads already shrink with distance, so added NEAR_CLEAR=1.5 / NEAR_FULL=8 smoothstep that hides stars next to the lens, and stars within PLANET_AREA_RADIUS=25 are capped at brightness 0.6 so planets, labels and halo stay the focus. Stars inside a planet are hidden by depth test. No game/map.gd change. Project loads headless with no script errors. Visual unverified.",
+  "details": {
+    "seed": 20261025,
+    "point_count": 3000,
+    "grid_size": null,
+    "bake_time_s": null,
+    "frame_time_ms": null,
+    "screenshot": null,
+    "parameters": {
+      "MAX_RADIUS": 220.0,
+      "RADIAL_POWER": 0.6,
+      "THICKNESS": 0.06,
+      "THICKNESS_MIN": 4.0,
+      "NEAR_CLEAR": 1.5,
+      "NEAR_FULL": 8.0,
+      "PLANET_AREA_RADIUS": 25.0,
+      "NEAR_MAX_BRIGHT": 0.6
+    }
+  }
+}

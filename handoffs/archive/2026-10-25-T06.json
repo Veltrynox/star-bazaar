@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-10-25",
+  "task": "T06",
+  "status": "done",
+  "files_changed": [
+    "game/trade.gd (new)",
+    "game/main.gd",
+    "game/planet_panel.gd",
+    "game/ship_panel.gd (offset_top only)"
+  ],
+  "usage_note": "One session, no re-reads.",
+  "open_questions": [
+    "Travel is instant, costs trip_cost per leg, no travel time. Is that acceptable until T07/travel_cycles_per_leg?",
+    "Only one ship trades (it starts where the first ship was bought); extra ships are count-only until routes. OK?",
+    "How-to-trade explanation is a text block on the notification board, not a pop-up menu. Acceptable, or do you want a modal?"
+  ],
+  "handoff": "Every planet now shows Buy a ship. Per commodity with a price: Buy 1, Buy max, Sell all, disabled with a reason. 'Send ship here' on other planets moves the ship instantly for trip_cost. Top bar shows Energy/Food/Cargo used/cap. Mission steps: 1 buy ship (halo on energy_buy planet), 2 buy energy there, 3 send ship to the energy_sell planet, 4 sell all energy, 5 buy food, 6 send back, 7 sell all food, then completion line. Halo and board text follow the step. Hook for T07 route offer: main.gd _on_trade_mission_complete(). Autosave stores cargo, ship_planet, mission_step with defaults for old saves. Not verified: visuals, clicking, and the save round trip (user:// blocked); trade logic was checked with a headless script and the project loads clean. ship_panel.gd offset_top moved 170 to 380 so it does not overlap the guide text.",
+  "details": {
+    "mission_steps": [
+      "BUY_SHIP",
+      "BUY_ENERGY",
+      "GO_SELL_PLANET",
+      "SELL_ENERGY",
+      "BUY_FOOD",
+      "GO_BACK",
+      "SELL_FOOD",
+      "DONE"
+    ],
+    "design_choices": [
+      "instant travel, trip_cost per leg",
+      "single trading ship",
+      "step 2 completes at first energy bought, player should Buy max before leaving"
+    ],
+    "not_verified": [
+      "visual layout",
+      "mouse interaction",
+      "save/continue round trip"
+    ]
+  }
+}

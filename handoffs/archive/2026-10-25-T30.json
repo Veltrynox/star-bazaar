@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-10-25",
+  "task": "T30: timed travel and trading rules while paused (CD ruling T29, option B)",
+  "status": "done",
+  "files_changed": ["game/trade.gd", "game/main.gd", "game/planet_panel.gd", "game/ship_panel.gd", "handoffs/gameplay-programmer/2026-10-25-T30.json"],
+  "usage_note": "small task, well under cap",
+  "open_questions": [
+    "Owner: Send ship here with no ship at all still says 'Buy a ship first.' (clearer than the ruling's 'No ship of yours is docked here.'); OK?",
+    "Owner: with one abstract ship, the Send button on the planet where the ship is docked is hidden (nothing to send to); fine?",
+    "Owner: the Pause button turns yellow whenever paused with a ship in flight (not only in the tutorial); keep?"
+  ],
+  "handoff": "Send ship here now charges trip_cost and starts a flight of travel_cycles_per_leg cycles (read at runtime, default 1). Trade.dest/arrive_at hold the flight; arrival uses cycle progress (cycle-1 + elapsed/cycle length) so pause never advances it. Buy/Sell/Send are blocked in flight; disabled buttons carry the exact ruling text as tooltip and note. Ships panel shows 'Docked at X' / 'In flight to X, arrives in N cycle(s)' and 'Space: resume'. Mission text switches to the flying line; Pause button is highlighted. Save adds dest and flight_left (defaults: docked) so old saves load. Headless trade-logic script passed: buy, send, blocked trading/resend in flight, save round trip through JSON into a fresh Trade, old-save default, arrival, mission steps advancing. Not verified visually: panel layout, tooltips, yellow highlight, real Continue.",
+  "details": {
+    "same_planet_exploit": "Not possible with current data/planets.json: planet_1 has only energy_buy and food_sell, planet_2 only food_buy and energy_sell, planet_3 has no prices (UNKNOWN). No planet both sells and buys the same good, so buy-then-sell at one planet cannot happen or profit. Economy Designer should keep it that way (or make sell < buy at any planet that has both).",
+    "try_in_a_minute": "Start, Space off preface, click Planet 1, Buy a ship, Buy max energy, click Planet 2, Send ship here: Send and trade buttons lock, text says flying; press Space; after about 2 min (1 cycle) it lands, sell energy."
+  }
+}

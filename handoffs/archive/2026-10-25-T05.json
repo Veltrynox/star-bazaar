@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "agent": "galaxy-builder",
+  "date": "2026-10-25",
+  "task": "T05",
+  "status": "partial",
+  "files_changed": [
+    "game/galaxy/star_field.gd",
+    "game/map.gd (3-line hook before the DirectionalLight3D in _ready)",
+    "handoffs/galaxy-builder/2026-10-25-T05.json"
+  ],
+  "usage_note": "Basic version only. No density grid, sun propagation or volumetric light.",
+  "open_questions": [
+    "UNKNOWN: how it looks on screen (headless, not rendered). Owner should check brightness, star size and fade distances by eye.",
+    "UNKNOWN: frame time on macOS, not measured (headless cannot render). No frame_time_ms is claimed.",
+    "Should stars stay a flat disc, or should the galaxy shape be stronger (more visible arms)?"
+  ],
+  "handoff": "Star field added as one MultiMeshInstance3D (game/galaxy/star_field.gd), created from map.gd with a one-line hook. 3000 stars, fixed seed, disc with 2 soft spiral arms, radius 40-220 world units so they never reach planets. Billboard quads with a small unshaded additive shader; brightness fades with camera distance (50 to 260), so far stars go dark. Camera orbit and zoom give parallax because stars are real 3D points. No collision, no input, no lights, no shadows, no per-frame script. Project loads headless with no script errors. Visual look and frame time unverified.",
+  "details": {
+    "draw_calls_added": 1,
+    "vertices_added": 12000,
+    "triangles_added": 6000,
+    "instances": 3000,
+    "per_frame_cpu": "none (no _process; fade and billboard done in vertex shader)",
+    "frame_time_ms": null,
+    "frame_time_note": "Not measured: headless cannot render.",
+    "screenshot": null,
+    "seed": 20261025,
+    "grid_size": null,
+    "bake_time": "not baked; generation at scene start is a 3000-iteration loop, not timed",
+    "constants_in_star_field_gd": {
+      "STAR_COUNT": 3000, "SEED": 20261025, "MIN_RADIUS": 40.0, "MAX_RADIUS": 220.0,
+      "RADIAL_BIAS": 0.7, "THICKNESS": 0.06, "ARM_COUNT": 2, "ARM_TWIST": 2.5,
+      "ARM_SPREAD": 0.5, "ARM_FRACTION": 0.6, "BRIGHTNESS_MIN": 0.08, "BRIGHTNESS_MAX": 1.0,
+      "BRIGHTNESS_POWER": 5.0, "SIZE_MIN": 0.7, "SIZE_MAX": 1.8, "STAR_ANGULAR_SIZE": 0.0035,
+      "FADE_NEAR": 50.0, "FADE_FAR": 260.0, "FADE_POWER": 1.5, "MASTER_INTENSITY": 0.9,
+      "TINT_COOL": "(0.65,0.78,1.0)", "TINT_WHITE": "(1,1,1)", "TINT_WARM": "(1.0,0.82,0.62)",
+      "TINT_WARM_CHANCE": 0.25, "TINT_COOL_CHANCE": 0.25
+    },
+    "not_verified_visually": [
+      "Billboard orientation and size on screen (shader overrides MODELVIEW_MATRIX; Godot 4.7 behaviour untested by eye)",
+      "Whether stars read too bright or too faint against the planets and halo",
+      "Fade range versus the camera zoom limits (camera distance 5 to 64)",
+      "Additive blending order relative to Label3D and the halo"
+    ],
+    "not_done": "twinkle (skipped), density grid, sun light propagation, per-star light attribute"
+  }
+}

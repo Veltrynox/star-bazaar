@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-10-25",
+  "task": "T26",
+  "status": "done",
+  "files_changed": ["game/save_game.gd", "game/main_menu.gd", "game/main_menu.tscn", "game/main.gd", "project.godot"],
+  "usage_note": "Small task, one session.",
+  "open_questions": [
+    "New Game with an existing save: no confirmation shown; the old save is only overwritten at the first autosave of the new run (pause toggle, cycle end, Menu, window close). Want a confirm dialog?",
+    "A Menu button was added to the top bar to return to the main menu (needed for the 'return to menu' save point). OK, or move it elsewhere?",
+    "Win/loss currently just sets game_over and clears the save; the real win/loss screens are a later task."
+  ],
+  "handoff": "Game now launches into a main menu (Continue, New Game, Quit). Continue is disabled with no save. New Game shows the preface; Continue skips it and resumes paused. Autosave writes at cycle end, on every pause/resume toggle, on Menu, and on window close. Not run in a window: headless load is clean, but user:// writes fail in the sandbox, so the save round trip is untested at runtime.",
+  "details": {
+    "save_load_design": "File: user://autosave.json (macOS: ~/Library/Application Support/Godot/app_userdata/StarBazaar/autosave.json). Format {version:1, state:{cycle, cycle_elapsed, cash, paused}}. One file, no slots. Tuning values (balance.json, planets.json) are never saved. Code in game/save_game.gd (static functions: exists, load_state, write_state, clear, _migrate; static continue_requested flag set by the menu). Writes: end of each non-final cycle, on pause toggle, on Menu button, on window close request; never while the preface is open or after game over. Win/loss calls SaveGame.clear() so Continue stays disabled. Load: main.gd apply_state() restores values, always paused, preface skipped. Corrupt, missing or newer-version file means no save (Continue disabled). Adding fields later: add a key in main.gd collect_state() and read it with a default in apply_state(); old saves still load because missing keys use defaults. Bump SaveGame.VERSION and add a step in _migrate() only if an existing key changes meaning. Future per-system state (ships, routes, permits, events, planet stock) should be one sub-dictionary key each, built by that system.",
+    "not_verified": "Menu look, button flow, and the actual save/load round trip (sandbox blocks user:// writes). class_name is not used because the script class cache is not built headless; scripts use preload instead."
+  }
+}

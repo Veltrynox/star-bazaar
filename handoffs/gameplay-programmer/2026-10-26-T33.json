@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-10-26",
+  "task": "T33 Debug menu: live editor for balance and map/camera values",
+  "status": "partial",
+  "files_changed": ["game/debug_menu.gd", "game/main.gd", "game/map.gd", "schedule.json", "handoffs/gameplay-programmer/2026-10-26-T33.json"],
+  "usage_note": "single session, code only; Godot not run",
+  "open_questions": [
+    "UNKNOWN: godot is not available in this sandbox, so 'godot --headless --quit' and the visual check were NOT run. Please press Play and report any parse error.",
+    "Several values are only read at start (starting_credits) or are targets nothing reads yet; editing them changes no gameplay. OK?",
+    "Mouse wheel over the menu also zooms the map (map reads wheel in _input). Fix it in a later task?"
+  ],
+  "handoff": "Toggle key: backtick (KEY_QUOTELEFT), free in the project. New game/debug_menu.gd: left-side scrolling panel with a SpinBox for every value and target in balance.json (arrays and event_effect included) plus ZOOM_MIN/MAX, orbit yaw/pitch limits, SUN_RADIUS, planet scale. Values edit main.balance in place (trade.gd shares it); targets live in a private copy; nothing writes balance.json or the autosave. 'Reset all' reloads the file. main.gd creates it only if OS.is_debug_build(). map.gd: those consts became vars plus apply_tunables(), planet_radius(), keys_enabled (camera keys pause while typing in a field). T34 HOOK: debug_menu.add_tool(button) in game/debug_menu.gd (tools_box at the top); main.gd holds var debug_menu (null in release). The file is still packed in release exports but never loaded.",
+  "details": {
+    "try_in_a_minute": "Play, start a game, press backtick, change ship_price or SUN_RADIUS, see it apply; backtick again to close."
+  }
+}

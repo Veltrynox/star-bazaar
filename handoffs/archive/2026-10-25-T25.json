@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-10-25",
+  "task": "T25",
+  "status": "done",
+  "files_changed": ["game/map.gd", "handoffs/gameplay-programmer/2026-10-25-T25.json"],
+  "usage_note": "Small change, one file.",
+  "open_questions": ["Scale: code ring radius was 6 world units (not 300), so I used MAP_UNIT_SCALE 0.02 (300 map units = 6 units). Is that the intended scale?"],
+  "handoff": "Map reads x/y from planets.json (x -> scene x, y -> scene z, height 0); planets lacking x/y fall back to the old ring. Camera focus is the bounding-box centre of the planets; start zoom and all camera constants unchanged. Headless load shows no script errors. Not verified visually: framing on screen, and that y positive reads as 'forward' as the owner expects (scene +z is toward the default camera, i.e. down on screen).",
+  "details": {}
+}

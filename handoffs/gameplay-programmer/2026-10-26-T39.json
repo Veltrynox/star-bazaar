@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-10-26",
+  "task": "T39 Apply planet renames",
+  "status": "done",
+  "files_changed": [
+    "data/planets.json",
+    "schedule.json",
+    "handoffs/gameplay-programmer/2026-10-26-T39.json"
+  ],
+  "usage_note": "single short session; Godot not installed in sandbox, not run",
+  "open_questions": [
+    "gdd.md line 67 (tutorial prose) still says 'Planet 1'. I may not edit the GDD; should the owner or creative director change it to Voltara?",
+    "UNKNOWN: Godot not run; please press Play and confirm names show in map labels, planet panel and trade texts."
+  ],
+  "handoff": "Only name fields changed in data/planets.json: planet_1 Voltara, planet_2 Tillam, planet_3 Ashgate. No ids, coordinates, resources, prices or data_version touched. Grep of game/ found no hard-coded 'Planet 1/2/3'; map.gd, planet_panel.gd and trade.gd already read name from data, so no code change. state.md has no old names. schedule.json: T32, T37, T38, T39 set to done (T39 was set done directly; running mark was not written separately).",
+  "details": {
+    "try_in_a_minute": "Play: map labels and planet panel titles read Voltara, Tillam, Ashgate."
+  }
+}

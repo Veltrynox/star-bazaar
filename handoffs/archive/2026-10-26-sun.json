@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-10-26",
+  "task": "Sun: plain yellow sphere in the middle of the map (owner request)",
+  "status": "partial",
+  "files_changed": ["game/map.gd", "handoffs/gameplay-programmer/2026-10-26-sun.json"],
+  "usage_note": "tiny review task",
+  "open_questions": [
+    "Owner: sun radius 1.5 world units (nearly twice a planet) and unshaded flat yellow; OK or do you want it bigger/smaller or lit?",
+    "UNKNOWN: the godot binary is not on PATH and not in /Applications for this sandbox, so the headless load check was not run; please run 'godot --headless --quit' or press Play."
+  ],
+  "handoff": "Reviewed _add_sun and SUN_RADIUS in game/map.gd: consistent with surrounding style (const block, SphereMesh, 48x24 segments, visual only). It sits at the planets' bounding-box centre (world 0,0,-1.4), clear of all three planets (about 4.3 units away, no overlap). It is a bare MeshInstance3D with no collider and is not in positions[], so it is not clickable and pick_planet is unaffected (clicks over it still return -1 or a planet behind it). The GDD has no sun requirement, so nothing conflicts. One change made: renamed the local DirectionalLight3D variable 'sun' in _ready to 'light' to avoid confusion with the new sun. Not run: headless check (no godot available) and visual check.",
+  "details": {
+    "try_in_a_minute": "Open the project, press Play, start a game: a yellow ball sits between the three planets; clicking it does nothing."
+  }
+}

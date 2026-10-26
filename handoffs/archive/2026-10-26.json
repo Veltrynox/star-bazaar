@@ -1,0 +1,38 @@
+{
+  "agent": "producer",
+  "date": "2026-10-26",
+  "task": "Owner request 2026-10-26: schedule sun review (T32), debug menu (T33) and time speed button (T34)",
+  "status": "done",
+  "started": [
+    "T32 marked running at owner's direction (sun review of game/map.gd). Producer did not launch it; main session started it."
+  ],
+  "stopped": [],
+  "blocked": [],
+  "queue_order": [
+    "T32 (running, gameplay-programmer, solo window)",
+    "T07 (automated routes, existing, next gameplay window)",
+    "T33 (debug menu live editor, gameplay-programmer)",
+    "T34 (time speed button, gameplay-programmer, after T33)",
+    "T18, T19, T08, T09, T10 (economy batch, existing)",
+    "T11, T12, T14, T15, T13, T05, T16, T17 (existing, unchanged order)"
+  ],
+  "changes": [
+    "Added T32, T33, T34 to schedule.json with owner, turn_cap and window.",
+    "T13 brief kept (balance.json write-back and event control); owner_note says the live editor and speed button are T33 and T34, so T13 must not build a second menu.",
+    "T33 and T34 placed after T07 so the minimum prototype is not delayed. Owner may reorder.",
+    "Moved 15 older handoffs (all but the latest five by modification time) to handoffs/archive/ with mv. Not read."
+  ],
+  "files_changed": [
+    "schedule.json",
+    "state.md",
+    "handoffs/producer/2026-10-26.json",
+    "handoffs/archive/ (15 files moved in)"
+  ],
+  "schema_version": 1,
+  "usage_note": "Owner gave no meter figure this window. UNKNOWN current; last known session 20%, weekly 3%.",
+  "open_questions": [
+    "Meter figure at the start of this window: UNKNOWN. Owner to report.",
+    "Debug menu toggle key: Producer proposes backtick (KEY_QUOTELEFT), F1 as fallback. Owner to confirm.",
+    "Is T33 and T34 after T07 (prototype first) the right order, or should the debug menu come before the prototype?"
+  ]
+}

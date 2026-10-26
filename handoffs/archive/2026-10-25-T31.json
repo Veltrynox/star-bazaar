@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "agent": "galaxy-builder",
+  "date": "2026-10-25",
+  "task": "T31: VDB workflow exploration for the galaxy look",
+  "status": "done",
+  "files_changed": [
+    "handoffs/galaxy-builder/2026-10-25-T31.json"
+  ],
+  "usage_note": "~4%",
+  "open_questions": [
+    "UNKNOWN: FogVolume or raymarch frame cost on the owner's macOS machine.",
+    "UNKNOWN: which renderer the export uses (FogVolume needs Forward+ or Mobile).",
+    "Owner: is hand-authored VDB content wanted, or is a procedural bake enough?"
+  ],
+  "handoff": "Status: exploration done, no game files changed. Answer: nothing has to be downloaded. Godot 4.7.2 has no VDB support (ClassDB check), but ImageTexture3D, FogVolume and 3D sampler shaders exist, so a self-baked low-res grid does the job. Blender 5.1 and Houdini 22 are already installed if hand-authored VDB is ever wanted. Recommended path: GDScript bake, per-star light tint, then dust slices or FogVolume. Full note in details.note.",
+  "details": {
+    "seed": null,
+    "point_count": null,
+    "grid_size": null,
+    "bake_time_s": null,
+    "frame_time_ms": null,
+    "screenshot": null,
+    "parameters": {},
+    "note": "VDB EXPLORATION (T31). Verified = ran on local Godot 4.7.2 / shell. Unverified = my knowledge.\na) OpenVDB (.vdb): sparse hierarchical voxel container from DreamWorks, used by Houdini/Blender for smoke and clouds. [unverified, knowledge]\n Godot has no VDB support. VERIFIED by headless ClassDB query: no class with 'VDB' in the name (OpenVDB/VDB: false); recognized Texture3D extensions are only tres, res, dds. No importer.\n VERIFIED present: FogVolume, FogMaterial, Texture3D, ImageTexture3D (create() with 8x8x8 R8 returned OK), NoiseTexture3D, CompressedTexture3D, Texture3DRD, VoxelGI, GPUParticles3D, MultiMeshInstance3D; fog shaders with sampler3D compile in the class list check (shader_type fog; not compiled on GPU headless).\nb) Default-tool replacements (costs are guesses, no rendering possible here):\n 1 Baked grid as ImageTexture3D (e.g. 64x64x16 R8, ~64 KB; our own GDScript bake, or a .tres/.res/.dds). Needs: bake script only. Render via FogVolume + shader_type fog (needs Environment volumetric fog on; it is a froxel pass, a guess: 1-3 ms on Apple GPU, hardware-dependent) or a raymarch spatial shader on a box (guess 1-4 ms, cost scales with steps x screen area). Quality: real dust lanes and sun glow. Risk: untested visually, Compatibility renderer lacks fog volumes (UNKNOWN which renderer the project uses at export).\n 2 Layered billboard sprites: 8-20 alpha quads of baked dust slices. Needs: slice images from the bake. Guess <0.5 ms. Quality: ok from top-down, banding if camera tilts. Risk: low.\n 3 Star point cloud with density-driven tint (what star_field.gd already is, plus a per-star light value baked from the grid). Guess ~0.1 ms for 3000-20000 quads. Quality: dust shows as dark gaps and tinted stars, no smooth glow. Risk: lowest.\n Light propagation (sun to grid) is a one-time CPU bake in GDScript (64x64x16 = 65k cells, a few suns: well under a second, guess). It is needed in every option and does not use VDB.\nc) Installed (VERIFIED by commands): python3 3.9.6, numpy NOT installed, openvdb python module NOT installed, 'which blender' empty but /Applications/Blender.app exists and runs (5.1), Houdini 22.0.466 is installed (/Applications/Houdini). Both can author and export .vdb. Nothing needs downloading for options 1-3 because the bake can be pure GDScript (or plain Python without numpy). A .vdb would only be needed if the owner wants to author clouds by hand in Blender/Houdini; then a converter VDB -> raw 3D grid is required (Blender or Houdini scripting can write raw slices/PNG stacks; not tested). Not checked: whether Blender/Houdini licences or scripting work in this sandbox.\nd) Recommendation: skip VDB. Bake our own grid in GDScript (we only need low-res).\n Step 1 (S): bake density grid from the existing point cloud + sun propagation in GDScript, store per-star light, tint stars. Gives option 3 immediately.\n Step 2 (M): store grid as ImageTexture3D, add a cheap look: either 12-16 billboard dust slices (option 2) or FogVolume (option 1).\n Step 3 (S): owner screenshot check on macOS and frame time measurement; pick FogVolume vs slices from the result.\n Owner decides: (1) does he need hand-authored clouds in Blender/Houdini (then VDB-to-grid export is extra work, size M), or is a procedural galaxy fine; (2) quality target: dark dust gaps only (option 3) or visible glowing volume (option 1); (3) which renderer is used for the macOS export (Forward+/Mobile vs Compatibility).\n Could not settle here: real frame cost and look of FogVolume/raymarch on macOS; needs a rendered run on the owner's machine."
+  }
+}

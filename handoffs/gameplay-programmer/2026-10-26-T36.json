@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-10-26",
+  "task": "T36 Map: dot over planet where a ship is docked",
+  "status": "done",
+  "files_changed": [
+    "game/map.gd",
+    "game/main.gd",
+    "schedule.json",
+    "handoffs/gameplay-programmer/2026-10-26-T36.json"
+  ],
+  "usage_note": "single session, code only; Godot not run",
+  "open_questions": [
+    "UNKNOWN: godot is not installed in this sandbox, so 'godot --headless --quit' and the in-game check were NOT run. Please press Play and report any parse error."
+  ],
+  "handoff": "map.gd: set_dock_dot(index, on) makes a small unshaded green sphere (0.3 x planet radius) 1.6 radii above the planet; freed when off, rebuilt after apply_tunables resize like the hint. It is a plain MeshInstance3D with no collision; pick_planet is untouched. main.gd _refresh() calls map.set_dock_dot(trade.ship_planet, ships > 0 and trade.docked_at(trade.ship_planet)), so it hides in flight and with 0 ships. No new settings or balance values. Not run; visibility from the default camera unchecked.",
+  "details": {
+    "try_in_a_minute": "Play, buy a ship: dot appears over that planet; send it: dot vanishes until arrival."
+  }
+}
