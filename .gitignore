@@ -3,3 +3,4 @@ build/
 .godot/
 tools/godot/
 .claude/settings.local.json
+build/StarBazaar.zip
