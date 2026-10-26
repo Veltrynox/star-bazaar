@@ -39,7 +39,8 @@ Source of truth: The numbers in this GDD are a starting point only. Once product
 The numbers come from a rough paper model built on the GDD’s fixed facts: [GCM:win_cycle] cycles of about [GCM:cycle_minutes] minutes each. They’re meant to give a working first pass for tuning in the debug menu, not final balance.
 
 The game takes about [GCM:win_cycle] × [GCM:cycle_minutes] minutes to complete. In game cycle lasts around [GCM:cycle_minutes] minutes. There are [GCM:win_cycle] cycles.
-The player can pause the gave at any time.
+The player can pause the game at any time.
+While paused the player can look, plan, buy a ship, and trade or dispatch only at a planet where one of their ships is docked. Travel always takes [GCM:travel_cycles_per_leg] cycle(s) of running game time, and a ship in transit cannot trade. So a pause allows at most one leg of orders (trade here, then send), and a full buy-fly-sell-fly-sell loop cannot be finished without time passing.
 
 Credits Inflow:
 Trades
@@ -137,12 +138,12 @@ What it is: Star Bazaar is a single-player space trading game for macOS, built i
   Why it exists: A studio needs one person with final say on design, or features drift.
 
 2. Producer - Claude Haiku
-  Role: Turns the build plan into an ordered task queue. It pauses new work when the owner reports that a window has passed about 80% of the meter.
-  Input: The GDD build steps, agent handoffs and the owner's meter report.
-  Output: A schedule.json file with the task, owner, dependencies and status for each item.
-  Effect: Work happens in the right order and the budget never runs out mid-task.
+  Role: Plans the work. It turns the build plan into an ordered task queue, keeps schedule.json and state.md up to date, tracks the owner's meter and the 80% stop rule, advises which task runs next, and archives old handoffs. Finished tasks move to handoffs/archive/schedule-done.json to keep schedule.json small. The main session (the agent the owner talks to) is the owner's single point of contact and starts the work agents. The Producer may also start agents when the main session or the owner asks. A start only counts once the agent's handoff file exists, so the Producer must stay alive and check for the file before it ends. It never marks a task running or done without that evidence.
+  Input: The GDD build steps, agent handoffs, the owner's meter report and requests from the main session.
+  Output: A schedule.json file with the task, owner, dependencies and status for each item, a state.md file, and the archive of old handoffs.
+  Effect: Work happens in the right order, the budget never runs out mid-task, and every status in the queue is backed by a handoff file and changed files.
   Weekly limits of the subscription: 2%
-  Why it exists: Real studios have a producer, not a separate budget person. The budget controller is folded in here: the owner reads the meter and the Producer schedules around it.
+  Why it exists: Real studios have a producer, not a separate budget person. The budget controller is folded in here: the owner reads the meter and the Producer schedules around it. Status claims need file evidence because in two windows the Producer recorded agents as running when none were alive and no files had changed.
 
 3. Systems & Economy Designer - Claude Sonnet
   Role: Owns every number in the game: prices, margins, maintenance, saturation, permits and event effects. It runs a headless paper simulation to test them.
@@ -176,8 +177,8 @@ What it is: Star Bazaar is a single-player space trading game for macOS, built i
   Weekly limits of the subscription: 5%
   Why it exists: The agents that build and balance the game shouldn't grade their own work. Studios keep QA separate for exactly that reason.
 
-Keep one rolling state.md file with only the last 5 handoffs.
-Move older handoffs into an archive folder that no agent reads by default.
+The Producer keeps one rolling state.md file with only the last 5 handoffs.
+The Producer moves older handoffs into an archive folder that no agent reads by default.
 ========================================
 4. CONSTRAINTS
 ========================================
@@ -223,7 +224,10 @@ requests per minute. Plan around windows:
     Economy Designer -> Creative Director -> QA Analyst.
   - Stop starting new agent work when the owner reports a window has
     passed ~80%; finish the current task and write the handoff. No agent
-    can read the meter, so the owner checks it.
+    can read the meter, so the owner checks it. The Producer tracks this
+    rule and advises; the main session starts the agents.
+  - A task counts as running or done only when the agent's handoff file
+    exists and its files_changed are real.
   - Max 2 agent windows per day, leaving room for my own use.
   - If a window limit is hit mid-task, the agent's handoff is the
     restart point. No re-running from scratch.
@@ -257,3 +261,5 @@ generation, so distant and occluded stars darken.
 ========================================
 2026-10-23: Replaced hard-coded numbers in sections 2-4 with [GCM:<key>] tokens. The Game Control values and targets list now points to data/balance.json, which already held every value with the same number, so balance.json is unchanged. Worked examples (margin, per-trip and round-trip figures) are now written as formulas. Removed the unsourced "Sonnet costs ~20x Haiku" ratio. Fixed "Forth" to "Fourth" in the title.
 Added a section index after the title block. No design or number changes.
+2026-10-25: Rewrote the Producer entry in section 3: the main session is the owner's single point of contact and starts the work agents, while the Producer plans (queue, state.md, 80% rule, archive) and may start agents only on request, with no running or done status without a handoff file as evidence. Made the state.md/archive lines and the 80% stop rule in sections 3 and 4 consistent. No design or number changes.
+2026-10-25: Section 2 pause rule (T29): pausing no longer allows a whole trade loop. Travel takes game time, ships in transit cannot trade, and a pause allows one leg of orders. Fixed "gave" typo. No number changes.
