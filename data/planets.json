@@ -1,10 +1,10 @@
 {
   "schema_version": 1,
-  "data_version": 2,
+  "data_version": 3,
   "planets": [
     {
       "id": "planet_1",
-      "name": "Planet 1",
+      "name": "Voltara",
       "abundant": "energy",
       "scarce": "food",
       "stock": "UNKNOWN",
@@ -17,7 +17,7 @@
     },
     {
       "id": "planet_2",
-      "name": "Planet 2",
+      "name": "Tillam",
       "abundant": "food",
       "scarce": "energy",
       "stock": "UNKNOWN",
@@ -30,11 +30,14 @@
     },
     {
       "id": "planet_3",
-      "name": "Planet 3",
-      "abundant": "UNKNOWN",
-      "scarce": "UNKNOWN",
+      "name": "Ashgate",
+      "abundant": "food",
+      "scarce": "energy",
       "stock": "UNKNOWN",
-      "base_prices": "UNKNOWN",
+      "base_prices": {
+        "food_buy": 11,
+        "energy_sell": 27
+      },
       "x": 0,
       "y": -220
     }
