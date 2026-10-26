@@ -1,0 +1,36 @@
+{
+  "agent": "producer",
+  "date": "2026-10-25",
+  "window": 5,
+  "task": "Owner requests A to D: zoom approval, planet positions, pause and preface, right-side mission board, position switch",
+  "status": "done",
+  "started": [
+    {"task_id": "T22", "owner_agent": "economy-designer", "reason": "Owner asked to run it now. It edits only data/planets.json, so it runs alongside T04 as an explicit owner exception to the solo gameplay window."}
+  ],
+  "stopped": [],
+  "blocked": [],
+  "queued_new": [
+    {"task_id": "T23", "owner_agent": "gameplay-programmer", "depends_on": ["T04"], "turn_cap": 40, "content": "Preface text menu, game starts paused, P toggles pause (Space kept unless it conflicts)"},
+    {"task_id": "T24", "owner_agent": "gameplay-programmer", "depends_on": ["T23"], "turn_cap": 40, "content": "Right-side mission hint board, Buy a ship, text only"},
+    {"task_id": "T25", "owner_agent": "gameplay-programmer", "depends_on": ["T22", "T24"], "turn_cap": 30, "content": "map.gd uses planet x/y positions instead of the ring layout"}
+  ],
+  "changed": [
+    "T20: zoom bounds 0.25 to 3.0 recorded as owner-approved",
+    "T22: blocked version replaced; now running",
+    "T06: depends_on now T25 (order: C, D, position switch, then T06, T07)",
+    "T15: owner_note added (T23 and T24 cover the preface and board)",
+    "T19 and T01: economy handoff path now handoffs/archive/2026-10-25-T01-w3.json"
+  ],
+  "archived": ["handoffs/economy-designer/2026-10-25-T01-w3.json moved to handoffs/archive/"],
+  "not_started_and_why": {
+    "T04": "already running, not touched",
+    "T23, T24, T25": "wait for T04 (solo gameplay window; shared map and main files)",
+    "T18, T19, T08, T09, T10": "economy batch stays after T07, per owner"
+  },
+  "meter": "Owner gave no figure this window. Last known: session 20%, weekly 3% (owner message). Well under the 80% per-window stop and 68% weekly share. Economy-designer T22 is light.",
+  "open_questions": [
+    "Owner: should Space stay a pause key next to P? The gameplay handoff (T23) will say whether it was kept.",
+    "Owner: is the preface text the GDD win-condition text as written, or a shorter version?",
+    "UNKNOWN: current meter figure for window 5"
+  ]
+}

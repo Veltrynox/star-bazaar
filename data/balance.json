@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "data_version": 1,
+  "data_version": 2,
   "source": "Seeded from gdd.md, Game Control menu section (starting values, v0.1). Source of truth once production starts.",
   "values": {
     "cycle_minutes": 2,
@@ -10,11 +10,11 @@
     "cargo": 20,
     "ship_cap": 8,
     "energy_buy": 10,
-    "energy_sell": 18,
+    "energy_sell": 24,
     "food_buy": 12,
-    "food_sell": 20,
+    "food_sell": 26,
     "trip_cost": 40,
-    "maintenance": 150,
+    "maintenance": 100,
     "maintenance_interval": 3,
     "saturation": 0.1,
     "permit_2_cost": 2000,

@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-10-25",
+  "task": "T21",
+  "status": "done",
+  "files_changed": ["game/map.gd"],
+  "usage_note": "Small task, well under the 50-turn cap.",
+  "open_questions": [
+    "Orbit limits are my defaults, owner to confirm: YAW_MIN_DEG -45, YAW_MAX_DEG 45, PITCH_MIN_DEG 20 (above the plane), PITCH_MAX_DEG 80, start yaw 0 / pitch 45. Keep or change?",
+    "Orbit input is right-mouse drag plus arrow keys (my choice). OK, or different binding?",
+    "Zoom bounds ZOOM_MIN 0.25 / ZOOM_MAX 3.0 still need owner approval (no GDD spec)."
+  ],
+  "handoff": "game/map.gd is now a Node3D. Planets are SphereMesh MeshInstance3D nodes (lit, with a DirectionalLight3D) on the same placeholder ring (LAYOUT_RADIUS 6.0 world units, PLANET_RADIUS 0.8). Names are billboarded Label3D nodes under each sphere. Background is black: WorldEnvironment BG_COLOR black plus RenderingServer default clear colour black. Camera orbits the focus point. Constants at top of map.gd: YAW_MIN_DEG -45, YAW_MAX_DEG 45, PITCH_MIN_DEG 20, PITCH_MAX_DEG 80, START_PITCH_DEG 45, ORBIT_MOUSE_SENS 0.3, ORBIT_KEY_SPEED 60. Controls: WASD pans on the plane relative to view yaw, wheel zooms (ZOOM_MIN/ZOOM_MAX unchanged), right-drag or arrow keys orbit, Space pauses. main.gd, main.tscn, data/ untouched. Headless run: no script errors, only sandbox log-file and CA messages. Not verified visually: headless cannot render, so label size/readability, lighting, and orbit direction feel are untested.",
+  "details": {
+    "orbit_constants": {
+      "YAW_MIN_DEG": -45.0,
+      "YAW_MAX_DEG": 45.0,
+      "PITCH_MIN_DEG": 20.0,
+      "PITCH_MAX_DEG": 80.0,
+      "START_YAW_DEG": 0.0,
+      "START_PITCH_DEG": 45.0
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-10-25",
+  "task": "T03",
+  "status": "done",
+  "files_changed": ["game/main.gd", "game/main.tscn", "project.godot"],
+  "usage_note": "Small task; Godot not installed here, verified by reading only.",
+  "open_questions": [
+    "UNKNOWN: should the win/loss check wait for the win/loss screens task? Currently the game just stops at game over."
+  ],
+  "handoff": "Open project, run: top bar shows 'Goal: 9000 by cycle 30. Now: 1500.' plus cycle counter, cycle progress bar and Pause/Resume button (Space also toggles). Cycle length = cycle_minutes*60 s from data/balance.json. At end of a cycle the cycle_ended signal fires; the game stops when cash >= win_cash or cycle == win_cycle (placeholder, no screens). Cash is a plain int on main.gd for later tasks to modify. Debug menu not yet built. Not run: godot is not installed in this environment.",
+  "details": {"ran_project": false}
+}

@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "agent": "economy-designer",
+  "date": "2026-10-25",
+  "task": "T01 w3: baseline check, planets.json review, re-run sims",
+  "status": "partial",
+  "files_changed": [
+    "data/planets.json",
+    "handoffs/economy-designer/2026-10-25-T01-w3.json"
+  ],
+  "usage_note": "~2%",
+  "open_questions": [
+    "UNKNOWN: planet_3 abundant/scarce goods and prices (GDD silent; needs Creative Director)",
+    "UNKNOWN: planet stock amounts (GDD gives none; saturation meaning is T18)",
+    "UNKNOWN: 2nd ship lands cycle 3 vs check cycle 6, 4th ship cycle 8 vs 9, permit 2 cycle 16 vs 13; accept or retune after QA"
+  ],
+  "handoff": "Balance.json kept as is (v2). planets.json: filled base_prices for planet_1 and planet_2 from GDD onboarding text (they mirror balance.json; balance.json stays the source). Stock and planet_3 remain UNKNOWN: GDD gives no data. Sim rerun: optimal wins cycle 26 (9456); single_route, always_expand, never_expand all lose (956, 700, 6700). Win window 25-28 met, no win before 22. Saturation meaning and routes per system left to T18.",
+  "details": {
+    "changes": [
+      {
+        "key": "planets.json data_version",
+        "old": 1,
+        "new": 2,
+        "reason": "Data changed."
+      },
+      {
+        "key": "planet_1.base_prices",
+        "old": "UNKNOWN",
+        "new": {
+          "energy_buy": 10,
+          "food_sell": 26
+        },
+        "reason": "GDD onboarding: energy bought cheaply, food sells here; values from balance.json."
+      },
+      {
+        "key": "planet_2.base_prices",
+        "old": "UNKNOWN",
+        "new": {
+          "food_buy": 12,
+          "energy_sell": 24
+        },
+        "reason": "GDD onboarding: food bought cheaply, energy sells here; values from balance.json."
+      }
+    ],
+    "sim_results": [
+      {
+        "strategy": "optimal",
+        "final_cash": 9456,
+        "win_cycle": 26
+      },
+      {
+        "strategy": "single_route",
+        "final_cash": 956,
+        "win_cycle": null
+      },
+      {
+        "strategy": "always_expand",
+        "final_cash": 700,
+        "win_cycle": null
+      },
+      {
+        "strategy": "never_expand",
+        "final_cash": 6700,
+        "win_cycle": null
+      }
+    ]
+  }
+}

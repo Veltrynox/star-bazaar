@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "agent": "economy-designer",
+  "date": "2026-10-25",
+  "task": "T22",
+  "status": "done",
+  "files_changed": [
+    "data/planets.json",
+    "handoffs/economy-designer/2026-10-25-T22.json"
+  ],
+  "usage_note": "Small data-only task.",
+  "open_questions": [],
+  "handoff": "Added x,y to each planet in planets.json. Map units, origin at map centre, x right, y depth/forward on the map plane (positive y = further forward). No balance, price or stock changes. data_version left at 2 (no convention requires a bump for added fields).",
+  "details": {
+    "units": "map units (same scale as ring radius 300); x right, y depth/forward",
+    "positions": {
+      "planet_1": {
+        "x": -200,
+        "y": 80
+      },
+      "planet_2": {
+        "x": 200,
+        "y": 80
+      },
+      "planet_3": {
+        "x": 0,
+        "y": -220
+      }
+    },
+    "changes": [
+      {
+        "key": "planets.planet_1.x",
+        "old": "absent",
+        "new": -200,
+        "reason": "map position (T22)"
+      },
+      {
+        "key": "planets.planet_1.y",
+        "old": "absent",
+        "new": 80,
+        "reason": "map position (T22)"
+      },
+      {
+        "key": "planets.planet_2.x",
+        "old": "absent",
+        "new": 200,
+        "reason": "map position (T22)"
+      },
+      {
+        "key": "planets.planet_2.y",
+        "old": "absent",
+        "new": 80,
+        "reason": "map position (T22)"
+      },
+      {
+        "key": "planets.planet_3.x",
+        "old": "absent",
+        "new": 0,
+        "reason": "map position (T22)"
+      },
+      {
+        "key": "planets.planet_3.y",
+        "old": "absent",
+        "new": -220,
+        "reason": "map position (T22)"
+      }
+    ],
+    "notes": "planet_1 to planet_2 distance 400; all within 240 of origin. data_version unchanged at 2."
+  }
+}

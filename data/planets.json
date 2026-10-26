@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "data_version": 1,
+  "data_version": 2,
   "planets": [
     {
       "id": "planet_1",
@@ -8,7 +8,12 @@
       "abundant": "energy",
       "scarce": "food",
       "stock": "UNKNOWN",
-      "base_prices": "UNKNOWN"
+      "base_prices": {
+        "energy_buy": 10,
+        "food_sell": 26
+      },
+      "x": -200,
+      "y": 80
     },
     {
       "id": "planet_2",
@@ -16,7 +21,12 @@
       "abundant": "food",
       "scarce": "energy",
       "stock": "UNKNOWN",
-      "base_prices": "UNKNOWN"
+      "base_prices": {
+        "food_buy": 12,
+        "energy_sell": 24
+      },
+      "x": 200,
+      "y": 80
     },
     {
       "id": "planet_3",
@@ -24,7 +34,9 @@
       "abundant": "UNKNOWN",
       "scarce": "UNKNOWN",
       "stock": "UNKNOWN",
-      "base_prices": "UNKNOWN"
+      "base_prices": "UNKNOWN",
+      "x": 0,
+      "y": -220
     }
   ]
 }

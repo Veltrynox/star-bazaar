@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-10-25",
+  "task": "T20",
+  "status": "done",
+  "files_changed": ["game/map.gd", "game/main.gd"],
+  "usage_note": "Small task, well under the 50-turn cap.",
+  "open_questions": [
+    "Zoom bounds are not in gdd.md (it has no zoom spec). Defaults: ZOOM_MIN 0.25, ZOOM_MAX 3.0. Keep or change?",
+    "planets.json has no position fields. Ring layout used for now. Should the Economy Designer add positions?",
+    "UNKNOWN: should planets be true 3D spheres? Placeholders are shaded 2D circles."
+  ],
+  "handoff": "Open the project and run the main scene. Planets from data/planets.json show as blue spheres (shaded 2D circles) with name labels, on a ring of radius 300 (LAYOUT_RADIUS) because planets.json has no positions. Controls: WASD pans, mouse wheel zooms, Space pauses (T03 top bar and timer unchanged). Constants at top of game/map.gd: ZOOM_MIN 0.25, ZOOM_MAX 3.0, ZOOM_STEP 1.1, START_ZOOM 1.0, PAN_SPEED 600, PLANET_RADIUS 40. gdd.md has no zoom spec, so bounds need owner approval. Headless check: no script errors; only sandbox-related log-file and CA-certificate messages from the engine.",
+  "details": {}
+}

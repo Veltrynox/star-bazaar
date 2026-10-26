@@ -7,18 +7,56 @@
       "title": "Baseline check of balance.json and planets.json with paper sim",
       "owner_agent": "economy-designer",
       "depends_on": [],
-      "status": "running",
+      "status": "done",
+      "owner_note": "2026-10-25 window 3: economy-designer partial (now handoffs/archive/2026-10-25-T01-w3.json, moved by Producer window 5). Sims re-run, same results (optimal wins cycle 26, others lose). planets.json base_prices filled from GDD for planets 1 and 2; planet_3 and stock still UNKNOWN, moved to T19. Started by Producer (economy batch, owner kept balance changes, planets.json review and paper sims). 2026-10-25 window 2: economy-designer ended partial (handoffs/economy-designer/2026-10-25-T01.json, now archived). It changed data/balance.json (food_sell 20->26, energy_sell 18->24, maintenance 150->100, data_version 2) and wrote tools/sim.py. Owner approved tools/sim.py and KEPT the data/balance.json changes (2026-10-25). planets.json not reviewed.",
       "turn_cap": 30,
       "window": "W1 2026-10-25 economy batch",
-      "brief": "Check v0.1 values in data/balance.json and data/planets.json against the GDD paper model. Run bot-style paper sims (always_expand, never_expand, single_route, optimal). Confirm the win lands around cycles 25-28. Edit only data/ files and log each change. Do not change design."
+      "brief": "Check v0.1 values in data/balance.json and data/planets.json against the GDD paper model. Run bot-style paper sims (always_expand, never_expand, single_route, optimal) using tools/sim.py, which the owner approved. Confirm the win lands around cycles 25-28. Edit only data/ files and log each change. Do not change design."
+    },
+    {
+      "task_id": "T18",
+      "title": "Creative Director ruling on saturation and routes per system",
+      "owner_agent": "creative-director",
+      "depends_on": [
+        "T01"
+      ],
+      "status": "queued",
+      "turn_cap": 20,
+      "window": "next economy batch (economy, creative-director, qa), after the minimum prototype (T07)",
+      "brief": "Rule on the meaning of saturation (economy-designer assumed -10% of margin per extra ship) and routes per system (assumed 1). Record the ruling in gdd.md only if needed and log it. Do not tune numbers.",
+      "owner_note": "Created by Producer from T01 open questions (handoffs/economy-designer/2026-10-25-T01.json, archived). Producer window 4: kept queued; it is not needed before T07 and the gameplay window runs alone."
+    },
+    {
+      "task_id": "T19",
+      "title": "Creative Director ruling on planet_3 goods, planet stock and pacing checks",
+      "owner_agent": "creative-director",
+      "depends_on": [
+        "T01"
+      ],
+      "status": "queued",
+      "turn_cap": 20,
+      "window": "next economy batch (economy, creative-director, qa), after the minimum prototype (T07)",
+      "brief": "Rule on planet_3 abundant and scarce goods and prices (GDD is silent), and on planet stock amounts. Record in gdd.md only if needed and log it. Do not tune numbers. Economy-designer then retunes only if the ruling needs it.",
+      "owner_note": "Created by Producer from T01 window 3 open questions (now handoffs/archive/2026-10-25-T01-w3.json, moved by Producer window 5). Pacing (2nd ship at cycle 3, permit 2 at cycle 16) left to QA after the build exists. Owner has NOT yet decided whether T01 economy changes need further tuning; this ruling is the route for planet_3."
+    },
+    {
+      "task_id": "T22",
+      "title": "Add planet position fields (x, y) to planets.json",
+      "owner_agent": "economy-designer",
+      "depends_on": [],
+      "status": "done",
+      "turn_cap": 20,
+      "window": "owner-requested early start, 2026-10-25 window 5 (runs alongside T04; edits data/planets.json only)",
+      "brief": "Owner approved 2026-10-25: add x and y position fields per planet to data/planets.json so the map can use real positions instead of the ring layout. Data only: no balance changes; do not change prices, abundance, margins or design. Edit only data/planets.json and log each change. Handoff: handoffs/economy-designer/2026-10-25-T22.json, listing the positions so the gameplay-programmer can use them in T25.",
+      "owner_note": "2026-10-25 window 5: owner approved. Producer started it now per owner request (exception to the solo gameplay window, because it touches only data/planets.json). Created by Producer from the T20 open question; replaces the blocked version. | 2026-10-25: started by the main session (not the Producer); done, verified by handoff file handoffs/economy-designer/2026-10-25-T22.json."
     },
     {
       "task_id": "T02",
       "title": "Project layout check and macOS export preset",
       "owner_agent": "gameplay-programmer",
       "depends_on": [],
-      "status": "partial",
-      "owner_note": "Owner created export_presets.cfg in the Godot editor at repo root: macOS preset, include data/*.json, excludes handoffs/ qa/ tools/ media/ assets/ output/ build/ .claude/ .git/ gdd.md *.md, output build/StarBazaar.zip. Bundle id confirmed com.example.starbazaar. Signing is ad-hoc (codesign/codesign=1), owner's choice; no Developer ID or notarization planned. Export test is owner-run from the Godot editor; not yet reported. T02 stays partial until the owner reports the result. T03 is not blocked on it unless the owner says so. assets/ stays excluded for now; it returns to the export when the ship model is used (see the ship task note).",
+      "status": "done",
+      "owner_note": "Owner created export_presets.cfg in the Godot editor at repo root: macOS preset, include data/*.json, excludes handoffs/ qa/ tools/ media/ assets/ output/ build/ .claude/ .git/ gdd.md *.md, output build/StarBazaar.zip. Bundle id confirmed com.example.starbazaar. Signing is ad-hoc (codesign/codesign=1), owner's choice; no Developer ID or notarization planned. Owner reported the macOS export test passed (2026-10-25). assets/ stays excluded for now; it returns to the export when the ship model is used (see the T06 note).",
       "turn_cap": 40,
       "window": "next gameplay window (solo)",
       "brief": "Project is at repo root (project.godot, icon.svg, .editorconfig). Godot scripts go under game/. data/ sits inside the project and is read at runtime, so the export must include data/*.json. Export preset is already in place (owner-made). Remaining work: check the preset against this brief and report it. Do not move files."
@@ -27,27 +65,101 @@
       "task_id": "T03",
       "title": "Cycle timer and top bar goal line",
       "owner_agent": "gameplay-programmer",
-      "depends_on": ["T01", "T02"],
-      "status": "queued",
+      "depends_on": [
+        "T01",
+        "T02"
+      ],
+      "status": "done",
       "turn_cap": 60,
       "window": "next gameplay window (solo)",
-      "brief": "Cycle timer using cycle_minutes and win_cycle, with pause. Top bar shows starting_credits and 'Goal: win_cash by cycle win_cycle. Now: cash.' Read values from data/balance.json at runtime."
+      "brief": "Cycle timer using cycle_minutes and win_cycle, with pause. Top bar shows starting_credits and 'Goal: win_cash by cycle win_cycle. Now: cash.' Read values from data/balance.json at runtime.",
+      "owner_note": "2026-10-25: owner approved starting gameplay now, without waiting for economy numbers (goal: minimum playable prototype). Producer marked done from handoffs/gameplay-programmer/2026-10-25-T03.json. Window 4: headless load passed (T20 check, no script errors). Owner has NOT yet play-tested this in the editor. Win/loss is a placeholder until T14."
+    },
+    {
+      "task_id": "T20",
+      "title": "Placeholder planets (spheres) and WASD camera with zoom",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [
+        "T03"
+      ],
+      "status": "done",
+      "turn_cap": 50,
+      "window": "next gameplay window (solo)",
+      "brief": "Show the planets from data/planets.json as plain spheres on a map, placed from their position data if present, otherwise a simple layout. Add a camera that moves with WASD and zooms with the mouse wheel. Zoom bounds are NOT in gdd.md, so use sensible defaults in code, expose them as named constants, and flag them in the handoff for the owner. Do not change data/ files. Do not add planet panels, trading, ships or the galaxy background; those are other tasks. Read gdd.md first and note in the handoff that it has no zoom spec. Handoff path: handoffs/gameplay-programmer/2026-10-25-T20.json (template: handoffs/_template.json). Headless check: tools/godot/Godot.app/Contents/MacOS/Godot --headless --path . --quit-after 300 must load with no script errors.",
+      "owner_note": "2026-10-25: owner request. Owner meter at start: session 16%, weekly 3% (window 3). Window 4: marked done from handoffs/gameplay-programmer/2026-10-25-T20.json. Zoom bounds ZOOM_MIN 0.25 / ZOOM_MAX 3.0 APPROVED by owner (2026-10-25 window 5). No gdd spec. Planets are now 3D (see T21), zoom constants unchanged."
+    },
+    {
+      "task_id": "T21",
+      "title": "Owner feedback on T20: 3D planet spheres, billboard labels, orbit camera",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [
+        "T20"
+      ],
+      "status": "done",
+      "turn_cap": 50,
+      "window": "gameplay window (solo), 2026-10-25",
+      "brief": "Owner feedback on T20: planets as 3D spheres (SphereMesh) with billboard labels, black background, orbit camera with limited angles (yaw -45 to 45, pitch 20 to 80, start pitch 45). Right-drag or arrow keys orbit.",
+      "owner_note": "Owner accepted T21 (2026-10-25: happy with it). Orbit limits accepted for now; owner may change them later. Not verified visually by the agent (headless only). Handoff: handoffs/gameplay-programmer/2026-10-25-T21.json."
     },
     {
       "task_id": "T04",
       "title": "Three starting planets and prices",
       "owner_agent": "gameplay-programmer",
-      "depends_on": ["T03"],
-      "status": "queued",
+      "depends_on": [
+        "T03"
+      ],
+      "status": "done",
       "turn_cap": 50,
-      "window": "next gameplay window (solo)",
-      "brief": "Show the starting planets from data/planets.json on the map. Click opens a planet panel with abundance, shortage and prices for each commodity."
+      "window": "gameplay window (solo), started 2026-10-25 window 4",
+      "brief": "Show the starting planets from data/planets.json on the map. Click opens a planet panel with abundance, shortage and prices for each commodity.",
+      "owner_note": "2026-10-25 window 4: started by Producer. Step 2 of the minimum playable prototype (T04, T06, T07). Map is now 3D (T21), so click must use a 3D pick (raycast onto the planet spheres), not a 2D hit test. Use the ring layout until T22 is approved. Planet panel is a UI panel; keep it to abundance, shortage and prices. | 2026-10-25: started by the main session (not the Producer); done, verified by handoff file handoffs/gameplay-programmer/2026-10-25-T04.json."
+    },
+    {
+      "task_id": "T23",
+      "title": "Preface text menu, game starts paused, P toggles pause",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [
+        "T04"
+      ],
+      "status": "done",
+      "turn_cap": 40,
+      "window": "gameplay window (solo), after T04 finishes",
+      "brief": "Owner decision 2026-10-25. Show the preface story as a text menu first (GDD win condition section and section 2 'First 4 cycles'). The game starts paused after the preface is dismissed. The P key toggles pause and unpause. Keep Space working as a pause key too unless it conflicts; say in the handoff whether you kept it. The player can pause at any time (gdd.md section 2). Read only those GDD sections. Handoff: handoffs/gameplay-programmer/2026-10-25-T23.json (template: handoffs/_template.json). Headless check must load with no script errors.",
+      "owner_note": "Owner decision 2026-10-25: Space stays as the pause key; do NOT add the P key (ignore P). Game still starts paused. | 2026-10-25: started by the main session (not the Producer); done, verified by handoff file handoffs/gameplay-programmer/2026-10-25-T23.json."
+    },
+    {
+      "task_id": "T24",
+      "title": "Right-side mission hint board (Buy a ship), text only",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [
+        "T23"
+      ],
+      "status": "done",
+      "owner_note": "2026-10-25 window 6 (diagnostic): launched by Producer via Agent tool (gameplay-programmer, async). Handoff handoffs/gameplay-programmer/2026-10-25-T24.json appeared about 12 s after launch; game/main.gd mtime changed 20:12:46 to 20:17:08. Agent completed. Producer did NOT run the headless load itself; agent reports it passed. Not verified visually. Started before T23 was done (owner override of the T23 dependency). Open: 'Notifications' title and 'Mission:' prefix wording.",
+      "turn_cap": 40,
+      "window": "gameplay window (solo), after T23",
+      "brief": "Owner decision 2026-10-25. Build the notification board on the right side (GDD section 2) for the first mission, with the 'Buy a ship' mission hint text. Text only. Not the full tutorial (that is T15). Where the GDD is silent, take the smallest choice and list it in the handoff as an owner question. Handoff: handoffs/gameplay-programmer/2026-10-25-T24.json."
+    },
+    {
+      "task_id": "T25",
+      "title": "Map uses planet position data instead of ring layout",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [
+        "T22",
+        "T24"
+      ],
+      "status": "queued",
+      "turn_cap": 30,
+      "window": "gameplay window (solo), after T24 (order set by owner: C and D, then the position switch)",
+      "brief": "Once data/planets.json has x and y per planet (T22), game/map.gd places planets from those positions instead of the ring layout. Keep the 3D spheres and orbit camera. Do not change data/ files. Must not run while T04 is running (shared map and main files). Handoff: handoffs/gameplay-programmer/2026-10-25-T25.json."
     },
     {
       "task_id": "T06",
       "title": "Buy a ship and manual trade with trip cost",
       "owner_agent": "gameplay-programmer",
-      "depends_on": ["T04"],
+      "depends_on": [
+        "T25"
+      ],
       "status": "queued",
       "turn_cap": 60,
       "window": "next gameplay window (solo)",
@@ -57,17 +169,22 @@
       "task_id": "T07",
       "title": "Automated routes and saturation",
       "owner_agent": "gameplay-programmer",
-      "depends_on": ["T06", "T01"],
+      "depends_on": [
+        "T06",
+        "T01"
+      ],
       "status": "queued",
       "turn_cap": 60,
       "window": "next gameplay window (solo)",
-      "brief": "Offer an automated route after the first loaded round trip. Add ships to an existing route or start a new one, up to ship_cap. Apply saturation per extra ship and maintenance every maintenance_interval cycles."
+      "brief": "Offer an automated route after the first loaded round trip. Add ships to an existing route or start a new one, up to ship_cap. Apply saturation per extra ship and maintenance every maintenance_interval cycles. Completing T07 gives the owner the minimum playable prototype to play."
     },
     {
       "task_id": "T08",
       "title": "Creative Director review of core loop build",
       "owner_agent": "creative-director",
-      "depends_on": ["T07"],
+      "depends_on": [
+        "T07"
+      ],
       "status": "queued",
       "turn_cap": 25,
       "window": "next batch (economy, creative-director, qa)",
@@ -77,7 +194,10 @@
       "task_id": "T09",
       "title": "QA bot runs on core loop build",
       "owner_agent": "qa-analyst",
-      "depends_on": ["T07", "T08"],
+      "depends_on": [
+        "T07",
+        "T08"
+      ],
       "status": "queued",
       "turn_cap": 30,
       "window": "next batch (economy, creative-director, qa)",
@@ -87,7 +207,9 @@
       "task_id": "T10",
       "title": "Economy retune from QA results",
       "owner_agent": "economy-designer",
-      "depends_on": ["T09"],
+      "depends_on": [
+        "T09"
+      ],
       "status": "queued",
       "turn_cap": 25,
       "window": "next batch (economy, creative-director, qa)",
@@ -97,7 +219,9 @@
       "task_id": "T11",
       "title": "Permits (systems 2 and 3)",
       "owner_agent": "gameplay-programmer",
-      "depends_on": ["T10"],
+      "depends_on": [
+        "T10"
+      ],
       "status": "queued",
       "turn_cap": 50,
       "window": "next gameplay window (solo)",
@@ -107,7 +231,9 @@
       "task_id": "T12",
       "title": "Events",
       "owner_agent": "gameplay-programmer",
-      "depends_on": ["T11"],
+      "depends_on": [
+        "T11"
+      ],
       "status": "queued",
       "turn_cap": 50,
       "window": "next gameplay window (solo)",
@@ -117,7 +243,9 @@
       "task_id": "T14",
       "title": "Win and loss screens",
       "owner_agent": "gameplay-programmer",
-      "depends_on": ["T12"],
+      "depends_on": [
+        "T12"
+      ],
       "status": "queued",
       "turn_cap": 40,
       "window": "next gameplay window (solo)",
@@ -127,17 +255,23 @@
       "task_id": "T15",
       "title": "Tutorial for first 4 cycles",
       "owner_agent": "gameplay-programmer",
-      "depends_on": ["T14", "T07"],
+      "depends_on": [
+        "T14",
+        "T07"
+      ],
       "status": "queued",
       "turn_cap": 60,
       "window": "next gameplay window (solo)",
-      "brief": "Follow GDD section 2 'First 4 cycles': preface, 3 planets, buy ship, trade energy and food, offer route. Mission text and notification board on the right."
+      "brief": "Follow GDD section 2 'First 4 cycles': preface, 3 planets, buy ship, trade energy and food, offer route. Mission text and notification board on the right.",
+      "owner_note": "2026-10-25 window 5: the preface pause (T23) and the right-side mission board (T24) are separate earlier tasks. T15 builds the rest of the 4-cycle tutorial on top of them."
     },
     {
       "task_id": "T13",
       "title": "Debug and Game Control menus (tuning only)",
       "owner_agent": "gameplay-programmer",
-      "depends_on": ["T15"],
+      "depends_on": [
+        "T15"
+      ],
       "status": "queued",
       "turn_cap": 50,
       "window": "next gameplay window (solo)",
@@ -147,17 +281,21 @@
       "task_id": "T05",
       "title": "Galaxy background (point cloud, density grid, sun light)",
       "owner_agent": "galaxy-builder",
-      "depends_on": ["T02"],
+      "depends_on": [
+        "T02"
+      ],
       "status": "queued",
       "turn_cap": 40,
-      "window": "own window, queued after T15; may run in parallel with gameplay only when the owner starts it",
-      "brief": "Visual element, not gameplay. Build the galaxy generator per GDD section 5: scatter points, bake a low-res density grid, pick suns, propagate light once at scene generation. Keep within a macOS frame budget and report frame_time_ms. Owner has not fixed its position; recommended after T15."
+      "window": "own window, after T15 (owner decision 2026-10-25)",
+      "brief": "Visual element, not gameplay. Build the galaxy generator per GDD section 5: scatter points, bake a low-res density grid, pick suns, propagate light once at scene generation. Keep within a macOS frame budget and report frame_time_ms. Owner decided it comes after the tutorial (T15); a bare minimum playable prototype comes first, so start only after T15 is done."
     },
     {
       "task_id": "T16",
       "title": "Creative Director review of full build",
       "owner_agent": "creative-director",
-      "depends_on": ["T15"],
+      "depends_on": [
+        "T15"
+      ],
       "status": "queued",
       "turn_cap": 25,
       "window": "next batch (economy, creative-director, qa)",
@@ -167,7 +305,9 @@
       "task_id": "T17",
       "title": "QA bot runs on full build",
       "owner_agent": "qa-analyst",
-      "depends_on": ["T16"],
+      "depends_on": [
+        "T16"
+      ],
       "status": "queued",
       "turn_cap": 30,
       "window": "next batch (economy, creative-director, qa)",

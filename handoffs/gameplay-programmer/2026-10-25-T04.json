@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-10-25",
+  "task": "T04",
+  "status": "done",
+  "files_changed": ["game/map.gd", "game/main.gd", "game/planet_panel.gd"],
+  "usage_note": "Small task, well under the turn cap.",
+  "open_questions": [
+    "Price keys are <commodity>_buy / <commodity>_sell. I show them as 'buy X, sell Y' exactly as in the data, and 'n/a' where a key is missing. Does 'buy' mean the player buys at that price? Economy designer to confirm the wording.",
+    "UNKNOWN: planet 3 abundant, shortage and prices show as the text UNKNOWN. Stock (also UNKNOWN) is not shown."
+  ],
+  "handoff": "Left-click a planet sphere to open the planet panel (top-left, under the top bar). It shows Abundant, Shortage and buy/sell prices per commodity. Click empty space to close it. Picking is a 3D camera-ray vs sphere test (Map.pick_planet) that emits planet_clicked(index). Clicks on UI panels do not reach the map. Main's mouse_filter is now IGNORE so clicks pass through to the map. Commodity list is derived from planets.json (abundant/scarce and *_buy/*_sell keys); other fields are ignored, so the x/y additions will not break it. Camera controls, constants, top bar and timer are unchanged. Headless load: no script errors. Not verified visually: panel placement and size, click feel, and that the panel does not overlap the top bar at other window sizes. No trading, ships or buttons. T23 not started.",
+  "details": {}
+}

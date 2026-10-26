@@ -1,3 +1,5 @@
 .DS_Store
 build/
 .godot/
+tools/godot/
+.claude/settings.local.json

@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-10-25",
+  "task": "T23",
+  "status": "done",
+  "files_changed": [
+    "game/main.gd",
+    "handoffs/gameplay-programmer/2026-10-25-T23.json"
+  ],
+  "usage_note": "Small task, one file edited.",
+  "open_questions": [
+    "Confirm preface text (below). I wrote it from the GDD win-condition line; the GDD has no dedicated preface paragraph, so wording is mine, built on the GDD sentence.",
+    "Should the preface mention the loss at cycle win_cycle? I included it."
+  ],
+  "handoff": "Preface overlay shown on launch with Start button; map processing/input disabled while open; game starts paused after Start (Space or Pause button resumes). Space ignored while preface is open. Pause works any time. Headless load clean (only sandbox noise). Not verified visually: layout, font sizes, focus on Start, Space behaviour with focused buttons.",
+  "details": {
+    "preface_text": "You dream of escaping society and living on a planet of your own. But to do that, you need money.\n\nEarn at least {win_cash} credits by the end of a cycle, within {win_cycle} cycles, and the dream comes true. If you are still short when cycle {win_cycle} ends, it slips away.\n\nYou start with {starting_credits} credits. Buy a ship, buy cheap where a good is abundant, and sell where it is scarce.",
+    "gdd_source": "Section 1 win condition: 'Told in the beginning ... over a text menu ... dream to escape from society on its own planet ... needs money'; section 2 first 4 cycles: 'The player reads the preface story'. No P key added.",
+    "unverified_visually": [
+      "layout",
+      "Start focus",
+      "Space on focused button"
+    ]
+  }
+}

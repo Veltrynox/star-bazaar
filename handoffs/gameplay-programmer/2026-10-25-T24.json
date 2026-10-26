@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-10-25",
+  "task": "T24",
+  "status": "done",
+  "files_changed": ["game/main.gd", "handoffs/gameplay-programmer/2026-10-25-T24.json"],
+  "usage_note": "Small task, one file edit.",
+  "open_questions": [
+    "GDD gives only the text 'Buy a ship'. I show a 'Notifications' title and 'Mission: Buy a ship'. Wording OK?",
+    "Board stays visible all game and never changes after the mission; completion/next hint is left to T15. Fine?"
+  ],
+  "handoff": "Added _build_board() in game/main.gd: a panel at top right under the top bar (240 px wide, 12 px margin) titled 'Notifications' with the line 'Mission: Buy a ship'. Text only, ignores mouse so map clicks pass through. Planet panel is on the left so they do not overlap. Top bar, timer, pause, preface and camera untouched. Headless load check run. Not verified visually: layout, size and look on screen, and overlap on small windows. Open the project and dismiss the preface to see it.",
+  "details": {}
+}
