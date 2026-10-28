@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "agent": "qa-analyst",
+  "date": "2026-10-28",
+  "task": "Rerun five-scenario balance test as a 30-minute timed run on bc15b89 harness",
+  "status": "done",
+  "files_changed": [
+    "qa/reports/2026-10-28-rerun-bc15b89-bug_report.json",
+    "handoffs/qa-analyst/2026-10-28-rerun-bc15b89.json"
+  ],
+  "usage_note": "UNKNOWN",
+  "open_questions": [
+    "UNKNOWN: whether never_expand and sloppy have any legal action in the cycle-5 idle state (softlock flag)",
+    "UNKNOWN: why bot decent with its skill choices wins 38% while the sim's full-tree decent wins 100%"
+  ],
+  "handoff": "Run 2026-10-28 19:45:16 to 20:16:33 UTC (1877 s, 20 passes, 9600 bot runs, 0 crashes, 0 frozen). Decent win rate 34-38% in four scenarios and 17% in cargo-34; always_expand is tied with decent. Decent wins at cycles 26-30. Never_expand and sloppy never win. Save_mismatch, run_stats and save_not_cleared: zero issues. Open issues: 269 softlock flags in never_expand and sloppy runs (high); bot decent vs sim gap (medium, producer). Skipping all skills gives decent 8/8 wins, so the skill path is suspect. Bot is at bc15b89 in worktrees; the summary .md was not written (system rule), raw JSON at scratchpad rerun-bc15b89/all_runs.json.",
+  "details": {
+    "results": [
+      {
+        "strategy": "decent",
+        "final_cash": 7909,
+        "cycle_reached": 30,
+        "outcome": "loss"
+      },
+      {
+        "strategy": "always_expand",
+        "final_cash": 7909,
+        "cycle_reached": 30,
+        "outcome": "loss"
+      },
+      {
+        "strategy": "never_expand",
+        "final_cash": 5110,
+        "cycle_reached": 30,
+        "outcome": "loss"
+      },
+      {
+        "strategy": "sloppy",
+        "final_cash": 4670,
+        "cycle_reached": 30,
+        "outcome": "loss"
+      }
+    ]
+  }
+}
