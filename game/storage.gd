@@ -13,10 +13,12 @@ const DEFAULT_START := 0.0  # T65: a new company starts with nothing stored
 var balance: Dictionary = {}
 var commodities: Array = []
 var stock: Dictionary = {}  # container key -> {commodity: int}
+var cuts: Dictionary = {}  # T109: container key -> capacity factor left (1.0 = untouched); asteroid hits
 
 func setup(bal: Dictionary, planet_count: int, commodity_list: Array) -> void:
 	balance = bal
 	commodities = commodity_list
+	cuts = {}
 	reset(planet_count)
 
 ## T65: no container exists until the first order touching a planet creates it (ensure()).
@@ -30,8 +32,27 @@ static func planet_key(i: int) -> String:
 	return "planet:%d" % i
 
 ## Seam for space storage: override per container kind here (e.g. "system:" bigger).
-func capacity_of(_key: String) -> int:
-	return maxi(1, int(balance.get("storage_capacity", DEFAULT_CAPACITY)))
+func capacity_of(key: String) -> int:
+	if key.begins_with("system:"):  # T85: Space Storage, one per system
+		return maxi(1, int(balance.get("space_storage_capacity", 500)))
+	return maxi(1, int(round(int(balance.get("storage_capacity", DEFAULT_CAPACITY)) * float(cuts.get(key, 1.0)))))
+
+## T109: cut the capacity of one container by pct (0.5 = half). Stock above the new capacity is lost.
+func cut_capacity(key: String, pct: float) -> void:
+	cuts[key] = clampf(float(cuts.get(key, 1.0)) * (1.0 - clampf(pct, 0.0, 1.0)), 0.0, 1.0)
+	if not stock.has(key):
+		return
+	for c in commodities:
+		stock[key][c] = mini(amount(key, c), capacity_of(key))
+
+func cuts_to_dict() -> Dictionary:
+	return cuts.duplicate()
+
+func cuts_from_dict(saved) -> void:
+	cuts = {}
+	if typeof(saved) == TYPE_DICTIONARY:
+		for k in saved.keys():
+			cuts[str(k)] = clampf(float(saved[k]), 0.0, 1.0)
 
 func ensure(key: String) -> void:
 	if stock.has(key):
@@ -77,6 +98,9 @@ func rating(key: String, c: String) -> int:
 	if a <= 0:
 		return 0
 	return clampi(ceili(5.0 * a / capacity_of(key)), 1, 5)
+
+static func system_key(sys: int) -> String:
+	return "system:%d" % sys
 
 func planet_rating(i: int, c: String) -> int:
 	return rating(planet_key(i), c)

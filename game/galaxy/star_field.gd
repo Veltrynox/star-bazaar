@@ -2,7 +2,8 @@ extends MultiMeshInstance3D
 ## T05 (basic): decorative 3D star field. One MultiMesh = one draw call, no per-star nodes.
 ## Visual only: no collision, no input, no lights, no gameplay state. Static after _ready();
 ## all motion comes from the camera moving in the 3D scene (parallax).
-## Later work (not done): density grid bake, sun light propagation, per-star light attribute.
+## Bake (once, in _ready): points -> low-res density grid -> sun points -> light marched through the grid -> per-star light attribute
+## (multiplies the star colour). Deterministic from SEED. Dust = point density.
 
 # --- Tuning (all constants; the shader gets them as uniforms) ---
 const STAR_COUNT := 3000
@@ -34,6 +35,20 @@ const TINT_WHITE := Color(1.0, 1.0, 1.0)
 const TINT_WARM := Color(1.0, 0.82, 0.62)
 const TINT_WARM_CHANCE := 0.25
 const TINT_COOL_CHANCE := 0.25
+
+# --- Bake tuning ---
+const GRID_XZ := 32             # density grid cells across the disc diameter
+const GRID_Y := 8               # density grid cells across the height
+const GRID_HALF_HEIGHT := 30.0  # grid covers y in [-this, +this]
+const SUN_COUNT := 24
+const SUN_INTENSITY := 1.0
+const LIGHT_FALLOFF := 40.0     # distance where a sun's light has dropped to a quarter (inverse square, softened)
+const DUST_ABSORPTION := 0.06    # optical depth per unit of normalised cell density per world unit
+const MARCH_STEPS := 12         # samples along each sun-to-star ray
+const LIGHT_GAIN := 6.0         # scales summed light before the clamp
+const LIGHT_MIN := 0.12         # brightness floor for a star no sun reaches (hidden in dust)
+const LIGHT_MAX := 1.0
+const DENSITY_NORM_PERCENTILE := 0.97  # density at this rank maps to 1.0
 
 const SHADER_CODE := """
 shader_type spatial;
@@ -83,6 +98,10 @@ func _ready() -> void:
 
 	var rng := RandomNumberGenerator.new()
 	rng.seed = SEED
+	var pos := PackedVector3Array()
+	pos.resize(STAR_COUNT)
+	var cols := PackedColorArray()
+	cols.resize(STAR_COUNT)
 	for i in STAR_COUNT:
 		var u := pow(rng.randf(), RADIAL_POWER)
 		var r := MAX_RADIUS * u
@@ -91,7 +110,7 @@ func _ready() -> void:
 			var arm := rng.randi() % ARM_COUNT
 			ang = TAU * float(arm) / float(ARM_COUNT) + ARM_TWIST * u + rng.randfn(0.0, ARM_SPREAD)
 		var y := rng.randfn(0.0, maxf(THICKNESS * r, THICKNESS_MIN))
-		mm.set_instance_transform(i, Transform3D(Basis.IDENTITY, Vector3(cos(ang) * r, y, sin(ang) * r)))
+		pos[i] = Vector3(cos(ang) * r, y, sin(ang) * r)
 
 		var b := lerpf(BRIGHTNESS_MIN, BRIGHTNESS_MAX, pow(rng.randf(), BRIGHTNESS_POWER))
 		if r < PLANET_AREA_RADIUS:
@@ -103,10 +122,66 @@ func _ready() -> void:
 		elif t < TINT_WARM_CHANCE + TINT_COOL_CHANCE:
 			tint = TINT_WHITE.lerp(TINT_COOL, rng.randf())
 		var s := lerpf(SIZE_MIN, SIZE_MAX, b)  # brighter stars are a bit larger
-		mm.set_instance_color(i, Color(tint.r * b, tint.g * b, tint.b * b, s))
+		cols[i] = Color(tint.r * b, tint.g * b, tint.b * b, s)
+
+	var t0 := Time.get_ticks_usec()
+	var grid := _bake_density(pos)
+	var suns := _pick_suns(pos, rng)
+	var light := _propagate(pos, suns, grid)
+	light_values = light
+	bake_time_ms = (Time.get_ticks_usec() - t0) / 1000.0
+	for i in STAR_COUNT:
+		var c := cols[i]
+		var l := lerpf(LIGHT_MIN, LIGHT_MAX, light[i])
+		mm.set_instance_transform(i, Transform3D(Basis.IDENTITY, pos[i]))
+		mm.set_instance_color(i, Color(c.r * l, c.g * l, c.b * l, c.a))
 	multimesh = mm
 
 	cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	gi_mode = GeometryInstance3D.GI_MODE_DISABLED
 	extra_cull_margin = MAX_RADIUS * 2.0  # quads are scaled in the shader; keep the AABB from culling them
 	custom_aabb = AABB(Vector3.ONE * -MAX_RADIUS, Vector3.ONE * MAX_RADIUS * 2.0)
+
+var bake_time_ms := 0.0
+var light_values := PackedFloat32Array()  # per-star light 0..1 after the bake (for tools and tests)
+
+func _cell(p: Vector3) -> int:
+	var fx := clampf((p.x / MAX_RADIUS * 0.5 + 0.5) * GRID_XZ, 0.0, GRID_XZ - 0.001)
+	var fz := clampf((p.z / MAX_RADIUS * 0.5 + 0.5) * GRID_XZ, 0.0, GRID_XZ - 0.001)
+	var fy := clampf((p.y / GRID_HALF_HEIGHT * 0.5 + 0.5) * GRID_Y, 0.0, GRID_Y - 0.001)
+	return (int(fy) * GRID_XZ + int(fz)) * GRID_XZ + int(fx)
+
+func _bake_density(pos: PackedVector3Array) -> PackedFloat32Array:
+	var g := PackedFloat32Array()
+	g.resize(GRID_XZ * GRID_XZ * GRID_Y)
+	for p in pos:
+		g[_cell(p)] += 1.0
+	var sorted := g.duplicate()
+	sorted.sort()
+	var ref := maxf(sorted[int(DENSITY_NORM_PERCENTILE * (sorted.size() - 1))], 1.0)
+	for i in g.size():
+		g[i] = minf(g[i] / ref, 2.0)
+	return g
+
+func _pick_suns(pos: PackedVector3Array, rng: RandomNumberGenerator) -> PackedVector3Array:
+	var suns := PackedVector3Array()
+	for i in SUN_COUNT:
+		suns.append(pos[rng.randi() % pos.size()])
+	return suns
+
+func _propagate(pos: PackedVector3Array, suns: PackedVector3Array, grid: PackedFloat32Array) -> PackedFloat32Array:
+	var out := PackedFloat32Array()
+	out.resize(pos.size())
+	var f2 := LIGHT_FALLOFF * LIGHT_FALLOFF
+	for i in pos.size():
+		var p := pos[i]
+		var sum := 0.0
+		for sun in suns:
+			var d := p.distance_to(sun)
+			var tau := 0.0
+			var step := d / MARCH_STEPS
+			for k in MARCH_STEPS:
+				tau += grid[_cell(sun.lerp(p, (k + 0.5) / MARCH_STEPS))] * DUST_ABSORPTION * step
+			sum += SUN_INTENSITY / (1.0 + d * d / f2) * exp(-tau)
+		out[i] = clampf(sum * LIGHT_GAIN / SUN_COUNT * 4.0, 0.0, 1.0)
+	return out

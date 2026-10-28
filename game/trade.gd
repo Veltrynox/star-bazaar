@@ -6,6 +6,8 @@ extends RefCounted
 
 var balance: Dictionary = {}
 var planets: Array = []
+var events: RefCounted = null  # T12: active event price effects (events.gd), null = none
+var shield: RefCounted = null  # T101: solar shield (shield.gd), null = none
 
 func setup(bal: Dictionary, plist: Array) -> void:
 	balance = bal
@@ -19,7 +21,17 @@ func price(i: int, key: String) -> int:
 	if typeof(prices) != TYPE_DICTIONARY:
 		return -1
 	var v = prices.get(key)
-	return int(v) if (typeof(v) == TYPE_INT or typeof(v) == TYPE_FLOAT) else -1
+	if not (typeof(v) == TYPE_INT or typeof(v) == TYPE_FLOAT):
+		return -1
+	if key.ends_with("_buy") or key.ends_with("_sell"):
+		var f := 1.0
+		if events != null:  # T12: event price factor on both prices
+			f *= float(events.price_factor(i, key.substr(0, key.rfind("_"))))
+		if shield != null:  # T101: shield mix and profit factors, planets bought later only
+			f *= float(shield.price_factor(i, key))
+		if events != null or shield != null:
+			return maxi(0, roundi(float(v) * f))
+	return int(v)
 
 ## Per-unit margin of carrying commodity c from planet `from` to planet `to`
 ## (sell price at `to` minus buy price at `from`), or 0 if either price is missing.

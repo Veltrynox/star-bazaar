@@ -75,40 +75,95 @@ func _ready() -> void:
 	camera.make_current()
 
 	planets = _load_planets()
-	var n := planets.size()
+	for p in planets:
+		p["system"] = 1  # T85: planets.json is system 1
+	_planet_mat = StandardMaterial3D.new()
+	_planet_mat.albedo_color = Color(0.35, 0.55, 0.85)
+	for i in planets.size():
+		_make_planet(i)
+	_frame_planets()
+	_add_sun(focus)
+	_add_orbit_rings(focus)
+	_update_camera()
+
+## Orbit rings: thin circles on the ground plane through each planet, centred on the sun, plus one dashed
+## outer ring. The camera pitch gives the tilt. Colours: theme tokens line_200 / line_100.
+## Visual only: no collision, no shadows, never hit by the planet click test.
+func _add_orbit_rings(center: Vector3) -> void:
+	var inner := Ui.col("line_200")
+	var outer := Ui.col("line_100")
 	var mat := StandardMaterial3D.new()
-	mat.albedo_color = Color(0.35, 0.55, 0.85)
-	for i in n:
-		var pos: Vector3
-		if planets[i].has("x") and planets[i].has("y"):
-			pos = Vector3(float(planets[i]["x"]), 0.0, float(planets[i]["y"])) * MAP_UNIT_SCALE
-		else:
-			var a := TAU * float(i) / float(max(n, 1)) - PI / 2.0
-			pos = Vector3(cos(a), 0.0, sin(a)) * LAYOUT_RADIUS
-		positions.append(pos)
-		var mi := MeshInstance3D.new()
-		var sphere := SphereMesh.new()
-		sphere.radius = planet_radius()
-		sphere.height = planet_radius() * 2.0
-		sphere.radial_segments = 48
-		sphere.rings = 24
-		sphere.material = mat
-		mi.mesh = sphere
-		mi.position = pos
-		add_child(mi)
-		planet_meshes.append(sphere)
-		var l := Label3D.new()
-		l.text = str(planets[i].get("name", planets[i].get("id", "?")))
-		l.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-		l.no_depth_test = true
-		l.fixed_size = true
-		l.pixel_size = 0.0008
-		l.font_size = 40
-		l.outline_size = 8
-		l.position = pos + Vector3(0, -(planet_radius() + 0.5), 0)
-		add_child(l)
-		planet_labels.append(l)
-	# Frame all planets: focus on the centre of their bounding box on the ground plane.
+	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	mat.vertex_color_use_as_albedo = true
+	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	var im := ImmediateMesh.new()
+	var max_r := 0.0
+	var segs := 128
+	for p in positions:
+		var r := Vector2(p.x - center.x, p.z - center.z).length()
+		if r < 0.01:
+			continue
+		max_r = maxf(max_r, r)
+		im.surface_begin(Mesh.PRIMITIVE_LINE_STRIP, mat)
+		im.surface_set_color(inner)
+		for s in segs + 1:
+			var a := TAU * float(s) / float(segs)
+			im.surface_add_vertex(center + Vector3(cos(a), 0.0, sin(a)) * r)
+		im.surface_end()
+	if max_r > 0.0:
+		var ro := max_r * 1.2
+		var dashes := 90  # dash on 1 step, gap on 3 (preview: 2 6)
+		im.surface_begin(Mesh.PRIMITIVE_LINES, mat)
+		im.surface_set_color(outer)
+		for d in dashes:
+			var a0 := TAU * float(d) / float(dashes)
+			var a1 := a0 + TAU / float(dashes) * 0.25
+			im.surface_add_vertex(center + Vector3(cos(a0), 0.0, sin(a0)) * ro)
+			im.surface_add_vertex(center + Vector3(cos(a1), 0.0, sin(a1)) * ro)
+		im.surface_end()
+	var mi := MeshInstance3D.new()
+	mi.name = "OrbitRings"
+	mi.mesh = im
+	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	add_child(mi)
+
+var _planet_mat: StandardMaterial3D
+
+## T85: one planet node (mesh + label) for planets[i]; position from x,y or the old ring layout.
+func _make_planet(i: int) -> void:
+	var n := planets.size()
+	var pos: Vector3
+	if planets[i].has("x") and planets[i].has("y"):
+		pos = Vector3(float(planets[i]["x"]), 0.0, float(planets[i]["y"])) * MAP_UNIT_SCALE
+	else:
+		var a := TAU * float(i) / float(max(n, 1)) - PI / 2.0
+		pos = Vector3(cos(a), 0.0, sin(a)) * LAYOUT_RADIUS
+	positions.append(pos)
+	var mi := MeshInstance3D.new()
+	var sphere := SphereMesh.new()
+	sphere.radius = planet_radius()
+	sphere.height = planet_radius() * 2.0
+	sphere.radial_segments = 48
+	sphere.rings = 24
+	sphere.material = _planet_mat
+	mi.mesh = sphere
+	mi.position = pos
+	add_child(mi)
+	planet_meshes.append(sphere)
+	var l := Label3D.new()
+	l.text = str(planets[i].get("name", planets[i].get("id", "?")))
+	l.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	l.no_depth_test = true
+	l.fixed_size = true
+	l.pixel_size = 0.0008
+	l.font_size = 40
+	l.outline_size = 8
+	l.position = pos + Vector3(0, -(planet_radius() + 0.5), 0)
+	add_child(l)
+	planet_labels.append(l)
+
+## Focus on the centre of the planets' bounding box on the ground plane.
+func _frame_planets() -> void:
 	if positions.size() > 0:
 		var lo := positions[0]
 		var hi := positions[0]
@@ -116,8 +171,31 @@ func _ready() -> void:
 			lo = Vector3(minf(lo.x, p.x), 0.0, minf(lo.z, p.z))
 			hi = Vector3(maxf(hi.x, p.x), 0.0, maxf(hi.z, p.z))
 		focus = (lo + hi) * 0.5
-	_add_sun(focus)
-	_update_camera()
+
+## T85: a permitted system appears. Appends IN PLACE (trade, events and the engine share this array)
+## so indexes of earlier planets never change. Returns the index of the first new planet.
+func add_planets(list: Array) -> int:
+	var first := planets.size()
+	for p in list:
+		planets.append(p)
+		_make_planet(planets.size() - 1)
+	_frame_planets()
+	return first
+
+## T105: put the camera focus on the middle of one system's planets.
+func focus_system(id: int) -> void:
+	var lo := Vector3.ZERO
+	var hi := Vector3.ZERO
+	var first := true
+	for i in planets.size():
+		if int(planets[i].get("system", 1)) != id or i >= positions.size():
+			continue
+		var p := positions[i]
+		lo = p if first else Vector3(minf(lo.x, p.x), 0.0, minf(lo.z, p.z))
+		hi = p if first else Vector3(maxf(hi.x, p.x), 0.0, maxf(hi.z, p.z))
+		first = false
+	if not first:
+		focus = (lo + hi) * 0.5
 
 ## Plain yellow sphere in the middle of the map (visual only, not clickable).
 func _add_sun(pos: Vector3) -> void:
