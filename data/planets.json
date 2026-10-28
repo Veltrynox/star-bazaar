@@ -1,10 +1,11 @@
 {
   "schema_version": 1,
-  "data_version": 4,
+  "data_version": 5,
   "planets": [
     {
       "id": "planet_1",
       "name": "Voltara",
+      "type": "volcanic",
       "abundant": "energy",
       "scarce": "food",
       "base_prices": {
@@ -19,6 +20,7 @@
     {
       "id": "planet_2",
       "name": "Tillam",
+      "type": "temperate",
       "abundant": "food",
       "scarce": "energy",
       "base_prices": {
@@ -33,6 +35,7 @@
     {
       "id": "planet_3",
       "name": "Ashgate",
+      "type": "temperate",
       "abundant": "food",
       "scarce": "energy",
       "base_prices": {

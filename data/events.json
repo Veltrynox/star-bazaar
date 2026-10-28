@@ -1,0 +1,211 @@
+[
+ {
+  "id": "EV01",
+  "title": "Energy glut at Voltara",
+  "tag": "[price down: Voltara, energy]",
+  "kind": "P",
+  "text": "Voltara's reactors beat their quota by a wide margin, and nobody asked for the surplus. Energy there costs less to buy and pays less to sell. The Plan calls it a triumph. The reactors hum a little louder, as if pleased.",
+  "choices": []
+ },
+ {
+  "id": "EV02",
+  "title": "Blight on Tillam's terraces",
+  "tag": "[price up: Tillam, food]",
+  "kind": "P",
+  "text": "A blight went through the Tillam terraces, grey and fast, and the leaves came away like paper. Food there costs more and pays more. The committee will study it. The terraces will not wait for the study.",
+  "choices": []
+ },
+ {
+  "id": "EV03",
+  "title": "A good harvest at Ashgate",
+  "tag": "[price down: Ashgate, food]",
+  "kind": "P",
+  "text": "Ashgate's harvest came in above the Plan. Food there costs less to buy and pays less to sell. A surplus is a fine thing to share, and a poor thing to sell. The Bureau has issued a form for gratitude.",
+  "choices": []
+ },
+ {
+  "id": "EV04",
+  "title": "Voltara goes hungry",
+  "tag": "[price up: Voltara, food]",
+  "kind": "P",
+  "text": "The crews on Voltara work long shifts and eat what arrives. Less arrived. Food there costs more and pays more. Rations were reduced equally for everyone, which is what makes it fair and not what makes it better.",
+  "choices": []
+ },
+ {
+  "id": "EV05",
+  "title": "Cold season on Tillam",
+  "tag": "[price up: Tillam, energy]",
+  "kind": "P",
+  "text": "A cold season on Tillam. The heaters run day and night, so energy there costs more and pays more. Frost forms on the inside of the ducts, in patterns no one has agreed to explain.",
+  "choices": []
+ },
+ {
+  "id": "EV06",
+  "title": "Ashgate lights its furnaces",
+  "tag": "[price up: Ashgate, energy]",
+  "kind": "P",
+  "text": "Ashgate's foundries restarted all at once to meet the new plan. Energy there costs more and pays more. The furnaces are very bright. Nobody asked where the energy would come from. That is where a small company comes in.",
+  "choices": []
+ },
+ {
+  "id": "EV07",
+  "title": "Tillam stops work",
+  "tag": "[planet closed: Tillam]",
+  "kind": "P",
+  "text": "Tillam's dock workers stopped work over a dispute the committee calls a misunderstanding. The port is closed for a while. Routes touching Tillam are blocked until it reopens. The ships do not take sides.",
+  "choices": []
+ },
+ {
+  "id": "EV08",
+  "title": "Ashgate seals its port",
+  "tag": "[planet closed: Ashgate]",
+  "kind": "P",
+  "text": "Ashgate sealed its port after something unnamed was found in the lower docks, and the doctors say little. It reopens when they say so. Routes touching Ashgate are blocked until then. Caution is shared equally, including by you.",
+  "choices": []
+ },
+ {
+  "id": "EV09",
+  "title": "Voltara's grid fails",
+  "tag": "[planet closed: Voltara]",
+  "kind": "I",
+  "text": "A fault in Voltara's grid took the port with it. The planet that powers everyone cannot keep its own lights on. Closed for a while. Routes touching Voltara are blocked until it reopens. The Plan will be revised, backwards.",
+  "choices": []
+ },
+ {
+  "id": "EV10",
+  "title": "The lender walks the market",
+  "tag": "[price down: Tillam, energy]",
+  "kind": "Q",
+  "text": "A lender's agent walked Tillam's market, and everyone sold what they had to settle. Energy there costs less and pays less for now. Even in a society that owns everything together, someone has found a way to owe.",
+  "choices": []
+ },
+ {
+  "id": "EV11",
+  "title": "A foreman says enough",
+  "tag": "[price down: Ashgate, energy]",
+  "kind": "Q",
+  "text": "An Ashgate foreman declared that the shift had made enough and sent everyone home. Energy there costs less and pays less. Enough is a number the Plan does not print. It spread through the docks faster than the form to stop it.",
+  "choices": []
+ },
+ {
+  "id": "EV12",
+  "title": "Good news travels slowly",
+  "tag": "[price up: Voltara, energy]",
+  "kind": "Q",
+  "text": "Word from other systems arrives late, and Voltara's buyers stopped waiting for it. They bought, so energy there costs more and pays more. Out past the beacons the dark is patient. It has always been the one thing nobody has to share.",
+  "choices": []
+ },
+ {
+  "id": "EV13",
+  "title": "A family buys the table",
+  "tag": "[price up: Ashgate, food]",
+  "kind": "Q",
+  "text": "A family with old credits bought Ashgate's food contracts, all of them, quietly. Food there costs more and pays more. The Commons owns everything together, and a family has found the part that is still for sale. You are in no position to judge.",
+  "choices": []
+ },
+ {
+  "id": "EV14",
+  "title": "The inspector's count",
+  "tag": "[price down: Voltara, food]",
+  "kind": "I",
+  "text": "An inspector counted Voltara's food stores and found them sufficient, on a form. The market believed the form, so food there costs less and pays less. The crews are still hungry, but correctly accounted for.",
+  "choices": []
+ },
+ {
+  "id": "EV15",
+  "title": "A festival of founders",
+  "tag": "[price up: Tillam, food]",
+  "kind": "I",
+  "text": "Tillam declared a festival to honour its founding, though three committees claim to be the founders. Food there costs more and pays more. Everyone agrees on the feast. Nobody agrees on who is hosting, so everyone is.",
+  "choices": []
+ },
+ {
+  "id": "EV16",
+  "title": "A half-empty ship departs",
+  "tag": "[price down: Tillam, food]",
+  "kind": "Q",
+  "text": "A ship left Tillam half empty, bound for a rock no one has charted. Those who stayed sold spare food to afford staying. Food there costs less and pays less. The departure form was filed in advance. The return form was not.",
+  "choices": []
+ },
+ {
+  "id": "EV17",
+  "title": "",
+  "text": "",
+  "title_id": "EV17_TITLE",
+  "text_id": "EV17_BODY",
+  "tag": "[route efficiency down: random planet]",
+  "kind": "C",
+  "choices": [
+   {
+    "text": "",
+    "text_id": "EV17_PAY_BTN",
+    "eff_id": "EV17_PAY_EFF",
+    "tag": "[debris: pay]",
+    "popup_title_id": "EV17_PAID_TITLE",
+    "popup_id": "EV17_PAID"
+   },
+   {
+    "text": "",
+    "text_id": "EV17_LEAVE_BTN",
+    "eff_id": "EV17_LEAVE_EFF",
+    "tag": "[debris: leave]",
+    "popup_title_id": "EV17_LEFT_TITLE",
+    "popup_id": "EV17_LEFT"
+   }
+  ]
+ },
+ {
+  "id": "EV18",
+  "title": "",
+  "text": "",
+  "title_id": "EV18_TITLE",
+  "text_id": "EV18_BODY",
+  "tag": "[shield: offer]",
+  "kind": "C",
+  "choices": [
+   {
+    "text": "",
+    "text_id": "EV18_BUILD_BTN",
+    "eff_id": "EV18_BUILD_EFF",
+    "tag": "[shield: build]",
+    "popup_title_id": "EV18_BUILT_TITLE",
+    "popup_id": "EV18_BUILT"
+   },
+   {
+    "text": "",
+    "text_id": "EV18_SKIP_BTN",
+    "eff_id": "EV18_SKIP_EFF",
+    "tag": "[shield: skip]",
+    "popup_title_id": "EV18_SKIPPED_TITLE",
+    "popup_id": "EV18_SKIPPED"
+   }
+  ]
+ },
+ {
+  "id": "EV20",
+  "title": "",
+  "text": "",
+  "title_id": "EV20_TITLE",
+  "text_id": "EV20_BODY",
+  "tag": "[asteroid: offer]",
+  "kind": "C",
+  "choices": [
+   {
+    "text": "",
+    "text_id": "EV20_PAY_BTN",
+    "eff_id": "EV20_PAY_EFF",
+    "tag": "[asteroid: pay]",
+    "popup_title_id": "EV20_PAID_TITLE",
+    "popup_id": "EV20_PAID"
+   },
+   {
+    "text": "",
+    "text_id": "EV20_DECLINE_BTN",
+    "eff_id": "EV20_DECLINE_EFF",
+    "tag": "[asteroid: decline]",
+    "popup_title_id": "EV20_MISS_TITLE",
+    "popup_id": "EV20_MISS"
+   }
+  ]
+ }
+]

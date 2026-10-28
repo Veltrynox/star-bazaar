@@ -1,0 +1,1604 @@
+[
+ {
+  "id": "SCR_TITLE_NAME",
+  "text": "Star Bazaar",
+  "max": 24,
+  "place": "Title screen, big text"
+ },
+ {
+  "id": "SCR_TITLE_TAGLINE",
+  "text": "A small company in a shared, indifferent sky.",
+  "max": 70,
+  "place": "Title screen, under the name"
+ },
+ {
+  "id": "SCR_PREFACE",
+  "text": "Everything under this sky is shared. The air, the ducts, the hulls that creak like something asleep, and every credit anyone earns, which goes into the Common Ledger and comes back in portions. The Plan is generous. The Plan is also five cycles long, and then another five.\n\nThere is one form for leaving: a Release. It takes you off the ledger and sells you a planet nobody has counted. It is sold in credits, to fellow hands who have them.\n\nSo you have a small company, one ship's worth of cash, three planets and two goods. Buy where it is cheap. Sell where it is not. Serving the common good is encouraged. Profit, officially, is a typing error.\n\nThe sky will not notice either way.",
+  "max": 700,
+  "place": "Preface screen"
+ },
+ {
+  "id": "SCR_PREFACE_BTN",
+  "text": "Begin",
+  "max": 24,
+  "place": "Preface screen, continue button"
+ },
+ {
+  "id": "SCR_PREFACE_SKIP",
+  "text": "Skip",
+  "max": 24,
+  "place": "Preface screen, skip button"
+ },
+ {
+  "id": "MENU_CONTINUE",
+  "text": "Continue",
+  "max": 24,
+  "place": "Main menu, loads the saved game"
+ },
+ {
+  "id": "MENU_NEW_GAME",
+  "text": "New game",
+  "max": 24,
+  "place": "Main menu, starts a new run"
+ },
+ {
+  "id": "MENU_CONFIRM_NEW",
+  "text": "Start a new game?",
+  "max": 110,
+  "place": "Confirmation dialog, new game while a saved game exists"
+ },
+ {
+  "id": "NOT_NO_SAVE",
+  "text": "No saved game yet.",
+  "max": 110,
+  "place": "Main menu, Continue with no saved game"
+ },
+ {
+  "id": "MENU_HINT_CONTINUE_OFF",
+  "text": "Continue needs a saved game.",
+  "max": 110,
+  "place": "Main menu, hint on a disabled Continue"
+ },
+ {
+  "id": "MENU_RESUME",
+  "text": "Resume",
+  "max": 24,
+  "place": "Game menu"
+ },
+ {
+  "id": "MENU_SKILLS",
+  "text": "Skills",
+  "max": 24,
+  "place": "Game menu and top bar"
+ },
+ {
+  "id": "MENU_SETTINGS",
+  "text": "Settings",
+  "max": 24,
+  "place": "Game menu (reserved slot)"
+ },
+ {
+  "id": "MENU_STATISTICS",
+  "text": "Statistics",
+  "max": 24,
+  "place": "Game menu"
+ },
+ {
+  "id": "MENU_STATISTICS_DESC",
+  "text": "Shows the figures for this run.",
+  "max": 110,
+  "place": "Game menu, hint on the entry"
+ },
+ {
+  "id": "MENU_HELP",
+  "text": "Help",
+  "max": 24,
+  "place": "Game menu"
+ },
+ {
+  "id": "MENU_HELP_DESC",
+  "text": "Shows how to read prices, set orders and make routes.",
+  "max": 110,
+  "place": "Game menu, hint on the entry"
+ },
+ {
+  "id": "MENU_SAVE_LOAD",
+  "text": "Save and load",
+  "max": 24,
+  "place": "Game menu"
+ },
+ {
+  "id": "MENU_SAVE_LOAD_DESC",
+  "text": "Save the game, or load the saved game.",
+  "max": 110,
+  "place": "Game menu, hint on the entry"
+ },
+ {
+  "id": "NOT_LOADED",
+  "text": "Game loaded.",
+  "max": 110,
+  "place": "Notice, saved game loaded"
+ },
+ {
+  "id": "MENU_MAIN",
+  "text": "Main menu",
+  "max": 24,
+  "place": "Game menu"
+ },
+ {
+  "id": "MENU_QUIT",
+  "text": "Quit game",
+  "max": 24,
+  "place": "Game menu"
+ },
+ {
+  "id": "MENU_CONFIRM_MAIN",
+  "text": "Save and return to the main menu?",
+  "max": 110,
+  "place": "Confirmation dialog"
+ },
+ {
+  "id": "MENU_CONFIRM_QUIT",
+  "text": "Save and quit the game?",
+  "max": 110,
+  "place": "Confirmation dialog"
+ },
+ {
+  "id": "BTN_YES",
+  "text": "Yes",
+  "max": 24,
+  "place": "Dialogs"
+ },
+ {
+  "id": "BTN_NO",
+  "text": "No",
+  "max": 24,
+  "place": "Dialogs"
+ },
+ {
+  "id": "BTN_OK",
+  "text": "OK",
+  "max": 24,
+  "place": "Event popup"
+ },
+ {
+  "id": "BTN_BUY",
+  "text": "Buy",
+  "max": 24,
+  "place": "Planet panel resource row"
+ },
+ {
+  "id": "BTN_SELL",
+  "text": "Sell",
+  "max": 24,
+  "place": "Planet panel resource row"
+ },
+ {
+  "id": "BTN_SEND",
+  "text": "Send to...",
+  "max": 24,
+  "place": "Storage row"
+ },
+ {
+  "id": "BTN_LEARN",
+  "text": "Learn",
+  "max": 24,
+  "place": "Skill screen"
+ },
+ {
+  "id": "BTN_REMOVE",
+  "text": "Remove",
+  "max": 24,
+  "place": "Route and storage panels"
+ },
+ {
+  "id": "LBL_BUY_PRICE",
+  "text": "Buy price",
+  "max": 24,
+  "place": "Planet panel"
+ },
+ {
+  "id": "LBL_SELL_PRICE",
+  "text": "Sell price",
+  "max": 24,
+  "place": "Planet panel"
+ },
+ {
+  "id": "LBL_COMPANY_STORAGE",
+  "text": "Company storage",
+  "max": 24,
+  "place": "Planet panel"
+ },
+ {
+  "id": "LBL_SHIP_UPKEEP",
+  "text": "Ship upkeep",
+  "max": 24,
+  "place": "Top bar and route panel"
+ },
+ {
+  "id": "LBL_EXPENSES",
+  "text": "Expenses",
+  "max": 24,
+  "place": "Top bar"
+ },
+ {
+  "id": "LBL_SKILL_POINTS",
+  "text": "Skill points",
+  "max": 24,
+  "place": "Top bar, skill screen header"
+ },
+ {
+  "id": "LBL_GOAL",
+  "text": "Goal: {goal} by cycle {cycle}. Now: {cash}.",
+  "max": 110,
+  "place": "Top bar goal line"
+ },
+ {
+  "id": "LBL_GROSS",
+  "text": "Income before costs",
+  "max": 24,
+  "place": "Route panel and statistics, income before costs"
+ },
+ {
+  "id": "LBL_NET",
+  "text": "Income after costs",
+  "max": 24,
+  "place": "Route panel and statistics, income after costs"
+ },
+ {
+  "id": "LBL_TRIP_COST",
+  "text": "Trip cost",
+  "max": 24,
+  "place": "Route panel, cost of one trip on a route"
+ },
+ {
+  "id": "ST_WAITING_ROOM",
+  "text": "Waiting for room",
+  "max": 24,
+  "place": "Route panel, status of a route that waits because the destination is full"
+ },
+ {
+  "id": "SK_POINTS_LEFT",
+  "text": "Skill points left",
+  "max": 24,
+  "place": "Skill screen header, label before the number"
+ },
+ {
+  "id": "SK_CONFIRM",
+  "text": "Learn {skill}?",
+  "max": 110,
+  "place": "Skill screen, confirm dialog before Learn"
+ },
+ {
+  "id": "SK_BTN_CLOSE",
+  "text": "Close",
+  "max": 24,
+  "place": "Skill screen, close button"
+ },
+ {
+  "id": "SK_NONE_SELECTED",
+  "text": "Click a skill to see what it does.",
+  "max": 110,
+  "place": "Skill screen, detail panel before a click"
+ },
+ {
+  "id": "SK_BTN_LEARNED",
+  "text": "Learned",
+  "max": 24,
+  "place": "Learn button, disabled on a learned skill"
+ },
+ {
+  "id": "SK_BTN_LOCKED",
+  "text": "Locked",
+  "max": 24,
+  "place": "Learn button, disabled on a locked skill"
+ },
+ {
+  "id": "SK_LABEL_EFFECT",
+  "text": "What it changes",
+  "max": 24,
+  "place": "Detail panel label above the plain line"
+ },
+ {
+  "id": "SK_LABEL_NEEDS_POINTS",
+  "text": "Not enough skill points.",
+  "max": 60,
+  "place": "Detail panel, available but too costly"
+ },
+ {
+  "id": "SK_A1_GATE",
+  "text": "Space Storage opens once you have visited every planet in the first system and made a first route.",
+  "max": 110,
+  "place": "Skill screen, detail panel of Space Storage (A1) while locked"
+ },
+ {
+  "id": "MB_01",
+  "text": "Click a planet to see what it sells and what it lacks.",
+  "max": 110,
+  "place": "Mission board, cycle 1"
+ },
+ {
+  "id": "MB_02",
+  "text": "Compare planets. Buy where a good is cheap, sell where it is dear.",
+  "max": 110,
+  "place": "Mission board, after the first planet panel is opened"
+ },
+ {
+  "id": "MB_03",
+  "text": "Move stock with a route: press Send to... and click the destination planet.",
+  "max": 110,
+  "place": "Mission board, route mission"
+ },
+ {
+  "id": "MB_04",
+  "text": "First route running. A ship carries stock between the two Company storages.",
+  "max": 110,
+  "place": "Mission board, route done"
+ },
+ {
+  "id": "MB_05",
+  "text": "Build a second route, or learn a skill. Skills cost skill points.",
+  "max": 110,
+  "place": "Mission board, later"
+ },
+ {
+  "id": "TUT_C1_PLANET",
+  "text": "Click a planet. The panel shows what it makes, what it lacks and its prices.",
+  "max": 110,
+  "place": "Cycle 1, planet highlighted"
+ },
+ {
+  "id": "TUT_C1_ROW",
+  "text": "Each good has a row with a Buy price, a Sell price and a bar for Company storage.",
+  "max": 110,
+  "place": "Cycle 1, panel open"
+ },
+ {
+  "id": "TUT_C1_BUY",
+  "text": "Buy is a standing order. Each cycle it buys goods into Company storage here.",
+  "max": 110,
+  "place": "Cycle 1, after the first Buy click"
+ },
+ {
+  "id": "TUT_C1_SELL",
+  "text": "Sell is a standing order too. Each cycle it sells stock from Company storage.",
+  "max": 110,
+  "place": "Cycle 1, after the first Sell click"
+ },
+ {
+  "id": "TUT_C2_ROUTE_DONE",
+  "text": "The ship is assigned. It moves stock between storages when the cycle runs.",
+  "max": 110,
+  "place": "Cycle 2, first route confirmed"
+ },
+ {
+  "id": "TUT_C2_UPKEEP",
+  "text": "Each ship costs Ship upkeep. It appears in the top bar as part of Expenses.",
+  "max": 110,
+  "place": "Cycle 2, first upkeep line shown"
+ },
+ {
+  "id": "TUT_C3_STORAGE",
+  "text": "Company storage holds your goods on a planet. When it is full, Buy waits.",
+  "max": 110,
+  "place": "Cycle 3, first company storage view"
+ },
+ {
+  "id": "TUT_C3_ONEWAY",
+  "text": "Routes are one way. To send stock both ways, make a second route back.",
+  "max": 110,
+  "place": "Cycle 3"
+ },
+ {
+  "id": "TUT_C4_SKILLS",
+  "text": "You have skill points. Open Skills and learn something.",
+  "max": 110,
+  "place": "Cycle 4, if a skill point is held"
+ },
+ {
+  "id": "TUT_C4_FREE",
+  "text": "That is all the guidance there is. The Plan has nothing to add.",
+  "max": 110,
+  "place": "Cycle 4, end of tutorial"
+ },
+ {
+  "id": "NOT_ROUTE_BLOCKED_CLOSED",
+  "text": "Route blocked: {planet} is closed. It resumes when the port reopens.",
+  "max": 110,
+  "place": "Notice, route touches a closed planet"
+ },
+ {
+  "id": "NOT_ROUTE_BLOCKED_FULL",
+  "text": "Route blocked: Company storage at {planet} is full.",
+  "max": 110,
+  "place": "Notice, destination storage full"
+ },
+ {
+  "id": "NOT_ROUTE_STALLED",
+  "text": "Route waiting: no {commodity} in Company storage at {planet}.",
+  "max": 110,
+  "place": "Notice, source storage empty"
+ },
+ {
+  "id": "NOT_STORAGE_FULL",
+  "text": "Storage full. Buy is idle until there is room.",
+  "max": 110,
+  "place": "Row status, Buy order idle"
+ },
+ {
+  "id": "NOT_SKILL_POINT",
+  "text": "Skill point earned: {reason}.",
+  "max": 110,
+  "place": "Notice, expansion points earned"
+ },
+ {
+  "id": "NOT_SKILL_REASON_PLANET",
+  "text": "first visit to {planet}",
+  "max": 60,
+  "place": "Fills {reason}"
+ },
+ {
+  "id": "NOT_SKILL_REASON_ROUTE",
+  "text": "first route from {planet_a} to {planet_b}",
+  "max": 60,
+  "place": "Fills {reason}"
+ },
+ {
+  "id": "NOT_SKILL_REASON_SYSTEM",
+  "text": "first route in a new system",
+  "max": 60,
+  "place": "Fills {reason}"
+ },
+ {
+  "id": "NOT_SKILL_LEARNED",
+  "text": "Learned: {skill}.",
+  "max": 110,
+  "place": "Notice, skill learned"
+ },
+ {
+  "id": "NOT_SKILL_NO_POINTS",
+  "text": "Not enough skill points.",
+  "max": 110,
+  "place": "Skill screen, not enough points"
+ },
+ {
+  "id": "NOT_SKILL_NO_SYSTEMS",
+  "text": "No systems available yet.",
+  "max": 110,
+  "place": "Skill screen, permit skill, no systems open"
+ },
+ {
+  "id": "NOT_SHIP_BOUGHT",
+  "text": "Ship bought. It is free for a route.",
+  "max": 110,
+  "place": "Notice, ship bought"
+ },
+ {
+  "id": "NOT_SHIP_FREE",
+  "text": "No ship available. Buying one needs more cash.",
+  "max": 110,
+  "place": "Notice, no free ship"
+ },
+ {
+  "id": "NOT_DEAD_RESCUE",
+  "text": "Rescue notice: the Bureau grants {amount} credits, enough for a ship. Start again.",
+  "max": 110,
+  "place": "Notice, rescue notice"
+ },
+ {
+  "id": "NOT_EVENT_PREFIX",
+  "text": "News from the sky",
+  "max": 24,
+  "place": "Event popup heading"
+ },
+ {
+  "id": "NOT_SAVED",
+  "text": "Game saved.",
+  "max": 110,
+  "place": "Notice"
+ },
+ {
+  "id": "NOT_ROUTE_MADE",
+  "text": "Route made: {planet_a} to {planet_b}.",
+  "max": 110,
+  "place": "Notice, route made"
+ },
+ {
+  "id": "NOT_ROUTE_REMOVED",
+  "text": "Route removed: {planet_a} to {planet_b}.",
+  "max": 110,
+  "place": "Notice, route removed"
+ },
+ {
+  "id": "LBL_LANE_SHIP",
+  "text": "Ship",
+  "max": 24,
+  "place": "Connections list, a ship's place on a shared route; the game adds \"k of N\""
+ },
+ {
+  "id": "NOT_LANE_SHIP_ADDED",
+  "text": "Ship added to the route.",
+  "max": 110,
+  "place": "Notice, a ship added to an existing route"
+ },
+ {
+  "id": "NOT_RESUMED",
+  "text": "Running.",
+  "max": 110,
+  "place": "Notice, game unpaused"
+ },
+ {
+  "id": "NOT_PAUSED",
+  "text": "Paused. Nothing earns while paused.",
+  "max": 110,
+  "place": "Notice"
+ },
+ {
+  "id": "CHOICE_TITLE",
+  "text": "The goal is met",
+  "max": 40,
+  "place": "Choice screen heading"
+ },
+ {
+  "id": "CHOICE_TEXT",
+  "text": "The cash goal is met. The Bureau offers two forms. The Release takes the company off the Common Ledger. Staying keeps the company on it, as a corporation. Choose once. The run ends either way.",
+  "max": 280,
+  "place": "Choice screen body"
+ },
+ {
+  "id": "CHOICE_RELEASE",
+  "text": "Take the Release",
+  "max": 28,
+  "place": "Button"
+ },
+ {
+  "id": "CHOICE_RELEASE_EFFECT",
+  "text": "The run ends here, with a Release ending.",
+  "max": 90,
+  "place": "Line under the button"
+ },
+ {
+  "id": "CHOICE_CORP",
+  "text": "Stay as a corporation",
+  "max": 28,
+  "place": "Button"
+ },
+ {
+  "id": "CHOICE_CORP_EFFECT",
+  "text": "The run ends here, with a corporate ending.",
+  "max": 90,
+  "place": "Line under the button"
+ },
+ {
+  "id": "WORLD_SYS1_NAME",
+  "text": "Hollin Reach",
+  "max": 24,
+  "place": "System 1 name, map and system labels"
+ },
+ {
+  "id": "WORLD_SYS1_DESC",
+  "text": "Three planets, two goods. Voltara burns, Tillam and Ashgate eat.",
+  "max": 110,
+  "place": "System 1, map tooltip"
+ },
+ {
+  "id": "WORLD_SYS2_NAME",
+  "text": "Dunmere Reach",
+  "max": 24,
+  "place": "System 2 name, map and system labels"
+ },
+ {
+  "id": "WORLD_SYS2_DESC",
+  "text": "Four planets, farther out. Fields and reactors on one side, a hungry market on the other.",
+  "max": 110,
+  "place": "System 2, permit screen and map tooltip"
+ },
+ {
+  "id": "WORLD_S2P1_NAME",
+  "text": "Brannock",
+  "max": 24,
+  "place": "System 2 planet 1 (S2-P1, food-rich hub)"
+ },
+ {
+  "id": "WORLD_S2P1_DESC",
+  "text": "Grain terraces and a busy dock. Brannock has food to spare and a permanent shortage of power.",
+  "max": 110,
+  "place": "Planet 1 of system 2, planet tooltip"
+ },
+ {
+  "id": "WORLD_S2P2_NAME",
+  "text": "Cindrel",
+  "max": 24,
+  "place": "System 2 planet 2 (S2-P2, energy-rich)"
+ },
+ {
+  "id": "WORLD_S2P2_DESC",
+  "text": "A planet of reactors that hum all night. Cindrel has energy to spare and kitchens that want filling.",
+  "max": 110,
+  "place": "Planet 2 of system 2, planet tooltip"
+ },
+ {
+  "id": "WORLD_S2P3_NAME",
+  "text": "Mossfell",
+  "max": 24,
+  "place": "System 2 planet 3 (S2-P3, food-rich outpost)"
+ },
+ {
+  "id": "WORLD_S2P3_DESC",
+  "text": "A damp outpost of vats and sheds. Mossfell grows food and counts its power in candles.",
+  "max": 110,
+  "place": "Planet 3 of system 2, planet tooltip"
+ },
+ {
+  "id": "WORLD_S2P4_NAME",
+  "text": "Quillon",
+  "max": 24,
+  "place": "System 2 planet 4 (S2-P4, consumer market)"
+ },
+ {
+  "id": "WORLD_S2P4_DESC",
+  "text": "A market world that makes nothing and wants both goods. Quillon pays on time, in forms.",
+  "max": 110,
+  "place": "Planet 4 of system 2, planet tooltip"
+ },
+ {
+  "id": "PERMIT_S2_NAME",
+  "text": "Permit: Dunmere Reach",
+  "max": 24,
+  "place": "Permit list, system 2 entry"
+ },
+ {
+  "id": "PERMIT_S2_DESC",
+  "text": "Opens Dunmere Reach to the company. Needs Permit Charter (C1). Costs credits and skill points.",
+  "max": 110,
+  "place": "Permit list, system 2 description"
+ },
+ {
+  "id": "PERMIT_S2_BTN",
+  "text": "Buy permit",
+  "max": 24,
+  "place": "Permit list, buy button"
+ },
+ {
+  "id": "NOT_PERMIT_S2",
+  "text": "Permit bought. Dunmere Reach is open: four new planets.",
+  "max": 110,
+  "place": "Notice, permit for system 2 bought"
+ },
+ {
+  "id": "SS_POST_NAME",
+  "text": "Space Storage",
+  "max": 24,
+  "place": "Space Storage post, name"
+ },
+ {
+  "id": "SS_POST_DESC",
+  "text": "A buffer for the whole system. Company storage feeds it slowly. It holds goods and adds no flow.",
+  "max": 110,
+  "place": "Space Storage post, one-line description"
+ },
+ {
+  "id": "TUT_GALAXY_INTRO",
+  "text": "This is the galaxy view. It shows the systems you have explored and the links between them.",
+  "max": 110,
+  "place": "Galaxy view, first open"
+ },
+ {
+  "id": "TUT_GALAXY_ICONS",
+  "text": "The icons beside each system show the resources found there.",
+  "max": 110,
+  "place": "Galaxy view, after intro"
+ },
+ {
+  "id": "TUT_GALAXY_ROUTES",
+  "text": "Your own trade routes are drawn on the map. Click a system to open it.",
+  "max": 110,
+  "place": "Galaxy view, after icons"
+ },
+ {
+  "id": "LBL_SHIP_SMALL",
+  "text": "Skerrit",
+  "max": 24,
+  "place": "Ship type name, small ship (working name, owner to confirm)"
+ },
+ {
+  "id": "LBL_SHIP_LARGE",
+  "text": "Voruun Hauler",
+  "max": 24,
+  "place": "Ship type name, large ship (working name, owner to confirm)"
+ },
+ {
+  "id": "NOT_EVENT_EFFECT_UP",
+  "text": "Prices for {commodity} at {planet} rise {pct} percent for {cycles} cycles.",
+  "max": 90,
+  "place": "Event popup, effect line, price up"
+ },
+ {
+  "id": "NOT_EVENT_EFFECT_DOWN",
+  "text": "Prices for {commodity} at {planet} fall {pct} percent for {cycles} cycles.",
+  "max": 90,
+  "place": "Event popup, effect line, price down"
+ },
+ {
+  "id": "NOT_EVENT_EFFECT_CLOSED",
+  "text": "{planet} is closed for {cycles} cycles. Routes and orders touching it stop.",
+  "max": 90,
+  "place": "Event popup, effect line, closed planet"
+ },
+ {
+  "id": "NOT_EVENT_EFFECT_CASH",
+  "text": "Your cash changes once by {amount}.",
+  "max": 90,
+  "place": "Event popup, effect line, one-off cash change"
+ },
+ {
+  "id": "NOT_EVENT_EFFECT_STOCK",
+  "text": "{commodity} stock at {planet} changes once by {amount}.",
+  "max": 90,
+  "place": "Event popup, effect line, one-off stock change"
+ },
+ {
+  "id": "LBL_EVENT_FEED",
+  "text": "Recent events",
+  "max": 24,
+  "place": "Notification board, event feed heading"
+ },
+ {
+  "id": "LBL_PAUSED",
+  "text": "Paused",
+  "max": 24,
+  "place": "Top bar state label, game paused"
+ },
+ {
+  "id": "LBL_RUNNING",
+  "text": "Running",
+  "max": 24,
+  "place": "Top bar state label, game running"
+ },
+ {
+  "id": "LBL_GAME_OVER",
+  "text": "Game over",
+  "max": 24,
+  "place": "End screen header area, run lost"
+ },
+ {
+  "id": "LBL_MAIN_RESOURCES",
+  "text": "Main resources",
+  "max": 24,
+  "place": "System panel, heading above the resource row (stock sell prices of main commodities)"
+ },
+ {
+  "id": "SK_HEADER",
+  "text": "Skills",
+  "max": 24,
+  "place": "Skill screen title"
+ },
+ {
+  "id": "SK_BRANCH_A",
+  "text": "Logistics",
+  "max": 24,
+  "place": "Column header"
+ },
+ {
+  "id": "SK_BRANCH_B",
+  "text": "Research",
+  "max": 24,
+  "place": "Column header"
+ },
+ {
+  "id": "SK_BRANCH_C",
+  "text": "Expansion",
+  "max": 24,
+  "place": "Column header"
+ },
+ {
+  "id": "SK_STATE_LEARNED",
+  "text": "Learned",
+  "max": 24,
+  "place": "Node state"
+ },
+ {
+  "id": "SK_STATE_AVAILABLE",
+  "text": "Available",
+  "max": 24,
+  "place": "Node state"
+ },
+ {
+  "id": "SK_STATE_LOCKED",
+  "text": "Locked",
+  "max": 24,
+  "place": "Node state"
+ },
+ {
+  "id": "SK_NEEDS",
+  "text": "Needs: {skill}.",
+  "max": 60,
+  "place": "Locked node line"
+ },
+ {
+  "id": "SK_COST",
+  "text": "Cost: {amount} points",
+  "max": 24,
+  "place": "Detail panel label"
+ },
+ {
+  "id": "SK_NO_CREDITS",
+  "text": "Skills cost skill points, never credits.",
+  "max": 110,
+  "place": "Skill screen footer"
+ },
+ {
+  "id": "END_BARE_HANDS",
+  "text": "You did it the plain way: buy, sell, repeat. The Release came through stamped, and the Bureau did not look up. The planet is yours, uncounted and quiet. The Commons will list you as a clerical error. You can live with that. The door is open. Walk through it.",
+  "max": 350,
+  "place": "Ending: The Cheapest Road"
+ },
+ {
+  "id": "END_LAST_LIGHT",
+  "text": "The Plan was almost closed. In the final cycle the numbers lined up and the goal was met with nothing to spare. The clerk stamped your Release as the lights in the office went down for the night. You earned the planet, and the memory of every cycle you spent counting. Standing on it now you feel more relief than joy, then a little more joy than you expected. Some things only count when they nearly do not.",
+  "max": 700,
+  "place": "Ending: The Last Light"
+ },
+ {
+  "id": "END_COLD_LEDGER",
+  "text": "You knew each price before it moved and each event before it arrived. The goal fell to you like a sum on a page, and the Release was a formality. The planet is yours, exact and silent. You look at the horizon and see a column of figures. It balances. It always balances. The Bureau has sent a kind letter, offering you a desk. You are not sure when you stopped being the one who escaped, and became the one who counts.",
+  "max": 700,
+  "place": "Ending: The Quiet Ledger"
+ },
+ {
+  "id": "END_OWN_HORIZON",
+  "text": "You reached further than the rest, and it paid. Every permit, every beacon and every distant pair of planets added to the map until the map had a gap in it, and the gap was yours. The Release is filed. The planet sits at the edge of what anyone has charted, beyond the reach of any form. Behind you the company hums on without you, and the Plan does not know your name. Ahead, nothing at all, which is exactly what you came for.",
+  "max": 700,
+  "place": "Ending: Own Horizon"
+ },
+ {
+  "id": "END_SLOW_HARBOR",
+  "text": "You built a company that holds. Well-kept hulls, deep holds, goods moving on time. The cash goal came the way tides do. The Release came with a note: the Commons thanks you for your service and asks that the supply line stay open. You put down a small dock, a bench and a light on your own ground. A ship arrives every few days with exactly what you ordered. It is escape, mostly. You have never been anywhere you were so little in a hurry to leave.",
+  "max": 700,
+  "place": "Ending: The Slow Harbor"
+ },
+ {
+  "id": "END_ENOUGH",
+  "text": "You learned a little of everything and bet on nothing in particular. The goal came anyway, and with it the Release, and a planet no ledger has yet counted. Standing on it you notice the question the whole voyage was built to postpone: what is the amount that is enough? You have it now. You are not sure it was the amount you named at the start. The Commons would say enough is shared. The sky has no opinion. You sit down, and for a while decide not to count.",
+  "max": 700,
+  "place": "Ending: Enough"
+ },
+ {
+  "id": "END_STAT_LINE",
+  "text": "Goal reached in cycle {cycle} with {cash} credits.",
+  "max": 110,
+  "place": "End screen, under the ending text (every win, both sides; shown before any _EPI line)"
+ },
+ {
+  "id": "END_REL_FULL_L",
+  "text": "You built the lines first, and everything else stood on them. Deep holds at Voltara, Tillam and Ashgate, hulls that ran to time, and then the same pattern in every system on the chart. The goal came the way tides do. The Release was filed in order, and the Bureau, polite to the end, asked only that the supply stay open. You said it would. You put down a dock on your own ground, a bench and a light. A ship came in that evening with exactly what you had ordered, and the hold hummed like something asleep. Along the way you learned which shelf fills first at Tillam, which hull sulks at Ashgate, and how long Voltara can run on a full hold. None of it is written in any ledger. All of it is why the thing works. You have escaped. It is strange to be so well supplied by the thing you left.",
+  "max": 1000,
+  "place": "Ending: The Long Supply Line"
+ },
+ {
+  "id": "END_REL_FULL_L_EPI",
+  "text": "Every few days a ship arrives on time. You have stopped minding.",
+  "max": 140,
+  "place": "End screen, after the ending text"
+ },
+ {
+  "id": "END_REL_FULL_R",
+  "text": "You read the sky the way others read a form. Prices at Voltara, Tillam and Ashgate, and then at every market beyond, were known to you before they moved. The goal fell the way a sum falls. The Release was filed and returned by morning, stamped, and the planet is yours. Nothing there surprises you. You check the forecast from habit, and the habit finds nothing to forecast. You remember the first cycles, when a price rise was news and not arithmetic. You miss them a little. Nobody warned you that certainty is also a kind of quiet, and that the quiet has a hum of its own. That is the cost of knowing: the horizon arrives already counted. The Bureau's letter, offering you a desk, lies unopened on the table. You have not decided what that says about you.",
+  "max": 1000,
+  "place": "Ending: The Exact Distance"
+ },
+ {
+  "id": "END_REL_FULL_R_EPI",
+  "text": "The letter stays unopened. The figures keep adding up anyway.",
+  "max": 140,
+  "place": "End screen, after the ending text"
+ },
+ {
+  "id": "END_REL_FULL_E",
+  "text": "Every permit, every beacon, every distant pair of planets: you charted them all, and the map ended where you wanted it to. The Release was filed from the last system anyone has a name for. The planet you bought lies beyond it, a pale rock under a patient sun, uncounted by any ledger. Behind you the company runs on, and the Plan does not know your name. Ahead there is one ridge. You put a light on it yourself. You remember Voltara as a small bright place with a loud reactor, and Tillam and Ashgate as the first two names you learned. They look very close from here, like pins on a table. You came a long way to be this alone, and you are exactly as alone as you hoped.",
+  "max": 1000,
+  "place": "Ending: The Far Edge"
+ },
+ {
+  "id": "END_REL_FULL_E_EPI",
+  "text": "Out here the sky is wider than the Plan. You leave the light on anyway.",
+  "max": 140,
+  "place": "End screen, after the ending text"
+ },
+ {
+  "id": "END_REL_FULL_X",
+  "text": "You learned more than one trade and kept every one. The lines ran, the forecasts held, the map grew past Ashgate and past the last beacon. The goal came when you were ready for it. The Release was filed without a single correction, which the clerk remarked on, politely, as unusual. The planet is yours, uncounted, with a dock, a window and a long view. Nothing in the company is a mystery to you. You could name every hold at Voltara, Tillam and Ashgate from memory, and every beacon after them. This is rarer than it sounds, and you earned it one cycle at a time. You know what enough is now, and it is not the amount you named at the start. You sit down. The sky has no opinion. For once you are glad of it.",
+  "max": 1000,
+  "place": "Ending: Everything Learned"
+ },
+ {
+  "id": "END_REL_FULL_X_EPI",
+  "text": "You count nothing tonight. The Commons will have to manage without you.",
+  "max": 140,
+  "place": "End screen, after the ending text"
+ },
+ {
+  "id": "END_CORP_BARE",
+  "text": "You stayed. The company stays on the Common Ledger, and the work goes on as before: buy, sell, repeat. The Bureau thanks you for your continued contribution. Nothing changes much, and that is the whole ending. The ships still run. The numbers still move. It is a living.",
+  "max": 350,
+  "place": "Ending: The Same Desk"
+ },
+ {
+  "id": "END_CORP_LOGI",
+  "text": "You stayed, and the company became part of how the Commons eats. Your holds keep the shelves full and your ships keep the dock times. The Bureau enters you in the Common Ledger as a service, with a small line of thanks. Nobody forgets what you carry, and nobody thanks you twice. The goal is behind you. The work is still in front. It is a quiet kind of power. You are needed, which is a way of belonging the forms do not mention.",
+  "max": 700,
+  "place": "Ending: The Steady Contract"
+ },
+ {
+  "id": "END_CORP_RES",
+  "text": "You stayed, and the company became what the Commons feared and, in quiet hours, consulted. You knew the prices before the Bureau did. Now the Bureau asks. A committee sits, a polite clerk takes notes, and your forecast becomes the Plan's. You are not in charge. You are only never wrong, which in a society that shares everything is the more awkward thing to be. The Common Ledger gives you a column of your own. It is the longest column.",
+  "max": 700,
+  "place": "Ending: The Useful Forecast"
+ },
+ {
+  "id": "END_CORP_EXP",
+  "text": "You stayed, and the company kept growing. Permits, beacons and far routes made a map that now includes you. The Bureau drafts a new form to describe what you have become, and then a second form, because the first did not fit. You are a corporation: a small Commons of your own, with ships, holds and a long view. The sky is as large as it was. You have only built a bigger door into it.",
+  "max": 700,
+  "place": "Ending: The Wider Charter"
+ },
+ {
+  "id": "END_CORP_MIX",
+  "text": "You stayed, and the company carries on as a bit of everything: some lines, some forecasts, some reach. The Bureau enters it in the Common Ledger as a going concern, which sounds like a compliment and is a classification. The ships run. The accounts balance. The Commons neither fears you nor needs you very much, and that is its own sort of freedom. Tomorrow there is a cycle, and then another.",
+  "max": 700,
+  "place": "Ending: The Going Concern"
+ },
+ {
+  "id": "END_CORP_FULL_L",
+  "text": "You stayed, and the company grew into the thing the Commons lives on. Holds at Voltara, Tillam and Ashgate and in every system after them, ships on time, shelves full. When a harvest failed or a reactor sulked, your stock covered it, and no one wrote that down. The Bureau gave you a seat on the supply committee, and you arrived early. Nobody calls you a corporation now. They call you the line. Once, at Tillam, a clerk asked what you were for. You said you were not sure. The clerk wrote it down as an answer. You did not escape, and you were not absorbed. You are load-bearing. In the dark the holds hum, and the lights stay on in a great many kitchens.",
+  "max": 1000,
+  "place": "Ending: The Common Table"
+ },
+ {
+  "id": "END_CORP_FULL_L_EPI",
+  "text": "A great many kitchens are warm tonight. None of them know your name. That is the job.",
+  "max": 140,
+  "place": "End screen, after the ending text"
+ },
+ {
+  "id": "END_CORP_FULL_R",
+  "text": "You stayed, and the company became the thing the Commons feared: a firm that is never surprised. You read Voltara, Tillam and Ashgate, and then every market beyond, and the forecasts came true so often that the Bureau stopped checking them. The next Plan was drafted from your figures. The one after was drafted by you, with the clerks taking notes. Voltara's reactors are scheduled by your numbers. Ashgate's harvests are sold by your numbers. Tillam's committee has stopped meeting on the days you are quiet. Nobody was forced. It was simply easier to ask. The Common Ledger lists the company as a corporation and the Plan as its client. In the cold the screens glow, and the numbers behind them are yours.",
+  "max": 1000,
+  "place": "Ending: The Unwritten Plan"
+ },
+ {
+  "id": "END_CORP_FULL_R_EPI",
+  "text": "The next five-cycle plan arrives with your figures in it. No one remembers asking.",
+  "max": 140,
+  "place": "End screen, after the ending text"
+ },
+ {
+  "id": "END_CORP_FULL_E",
+  "text": "You stayed, and the company walked outward until it had a sky of its own. Permits in every system, beacons on every ridge, routes across distances the Plan only drew in pencil. The Bureau has a form for a company this large. It is called a Commons. You are not quite one and not quite the other, and a few systems now call you when something breaks. At the far edge of the chart a light burns that you did not install. The ships you started with are the smallest thing on the books now. You keep one Skerrit in a bay, out of habit, with the lamp on. You did not build an escape. You built somewhere to escape to, with a ledger of your own.",
+  "max": 1000,
+  "place": "Ending: The Second Commons"
+ },
+ {
+  "id": "END_CORP_FULL_E_EPI",
+  "text": "At the far edge of the chart, someone files a form with your name at the top.",
+  "max": 140,
+  "place": "End screen, after the ending text"
+ },
+ {
+  "id": "END_CORP_FULL_X",
+  "text": "You stayed, and the company is all of it: the holds, the forecasts, the reach. The lines run through Voltara, Tillam and Ashgate and out into every system on the chart. The Bureau is unsure whether to fear you or thank you, and has settled on a form that does both. You are the thing the Commons feared and the thing it quietly needs, and the two turn out to be one company. You began with a few hulls and an empty ledger on Voltara. Tillam and Ashgate were the whole world then. Now they are the first two lines on a very long page, and you know the page by heart. The ships come and go. The ledger is long. Outside the glass the hull creaks, as if turning over in its sleep, and goes on.",
+  "max": 1000,
+  "place": "Ending: The Whole Machine"
+ },
+ {
+  "id": "END_CORP_FULL_X_EPI",
+  "text": "The Commons runs on you, and fears you, and files both under thanks.",
+  "max": 140,
+  "place": "End screen, after the ending text"
+ },
+ {
+  "id": "END_LOSS",
+  "text": "The Plan closed before the goal was met. The Release was never filed. The Bureau is very kind about it. Your company is entered in the Common Ledger, your ships assigned to the common good, and your name given a quota that is fair and equal and exactly the size of everyone else's. No one is cruel. The sky is as large as it was, and it did not notice. A different company, a different run, might read the prices sooner. Count what you have. It is more than you started with, and less than you needed.",
+  "max": 600,
+  "place": "Ending: The Plan Closes"
+ },
+ {
+  "id": "END_LOSS_STAT",
+  "text": "Cash reached: {cash}. Cash goal: {goal}.",
+  "max": 110,
+  "place": "End screen, under the loss text"
+ },
+ {
+  "id": "END_TITLE_REL",
+  "text": "The Release is filed",
+  "max": 40,
+  "place": "End screen heading, Release side"
+ },
+ {
+  "id": "END_TITLE_CORP",
+  "text": "Entered in the Common Ledger",
+  "max": 40,
+  "place": "End screen heading, Corporation side"
+ },
+ {
+  "id": "END_SIGN_REL",
+  "text": "The Bureau stamps the form and reaches for the next one. You are no longer on the ledger.",
+  "max": 140,
+  "place": "End screen, after the ending text and any epilogue, Release side"
+ },
+ {
+  "id": "END_SIGN_CORP",
+  "text": "The Bureau stamps the entry. The company stays on the ledger and the work goes on, somewhere past this page.",
+  "max": 140,
+  "place": "End screen, after the ending text and any epilogue, Corporation side"
+ },
+ {
+  "id": "END_STAT_CYCLES",
+  "text": "Cycles taken",
+  "max": 24,
+  "place": "End screen stats label (value {cycle})"
+ },
+ {
+  "id": "END_STAT_CASH",
+  "text": "Final credits",
+  "max": 24,
+  "place": "End screen stats label (value {cash})"
+ },
+ {
+  "id": "END_STAT_BRANCHES",
+  "text": "Branches learned",
+  "max": 24,
+  "place": "End screen stats label (value {branches})"
+ },
+ {
+  "id": "END_STAT_SYSTEMS",
+  "text": "Systems reached",
+  "max": 24,
+  "place": "End screen stats label (value {systems})"
+ },
+ {
+  "id": "END_RUN_OVER",
+  "text": "This run is over. Start a new game or go to the main menu.",
+  "max": 110,
+  "place": "End screen, above the buttons, every ending including loss"
+ },
+ {
+  "id": "END_BTN_NEW",
+  "text": "New game",
+  "max": 24,
+  "place": "End screen buttons"
+ },
+ {
+  "id": "END_BTN_MENU",
+  "text": "Main menu",
+  "max": 24,
+  "place": "End screen buttons"
+ },
+ {
+  "id": "END_BTN_QUIT",
+  "text": "Quit game",
+  "max": 24,
+  "place": "End screen buttons"
+ },
+ {
+  "id": "SK_A1_NAME",
+  "text": "Space Storage",
+  "max": 24,
+  "place": "Skill screen, node name"
+ },
+ {
+  "id": "SK_A1_FLAVOUR",
+  "text": "One great hold in the sky, held in common, quietly kept by you.",
+  "max": 90,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_A1_PLAIN",
+  "text": "Unlocks Space Storage, one large company storage per system. Planet storage feeds it slowly.",
+  "max": 110,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_A2_NAME",
+  "text": "Deep Holds",
+  "max": 24,
+  "place": "Skill screen, node name"
+ },
+ {
+  "id": "SK_A2_FLAVOUR",
+  "text": "A shelf is a promise that something will be there. The Plan loves a shelf.",
+  "max": 90,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_A2_PLAIN",
+  "text": "Raises the capacity of Company storage on planets.",
+  "max": 110,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_A3_NAME",
+  "text": "Second Hull",
+  "max": 24,
+  "place": "Skill screen, node name"
+ },
+ {
+  "id": "SK_A3_FLAVOUR",
+  "text": "The Bureau calls it a vessel of the common good. It is a bigger hull.",
+  "max": 90,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_A3_PLAIN",
+  "text": "Unlocks the large ship, the Voruun Hauler, besides the small Skerrit.",
+  "max": 110,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_A4_NAME",
+  "text": "Quick Loading",
+  "max": 24,
+  "place": "Skill screen, node name"
+ },
+ {
+  "id": "SK_A4_FLAVOUR",
+  "text": "Dock time is shared time. Spend less of it.",
+  "max": 90,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_A4_PLAIN",
+  "text": "A route moves more goods each cycle.",
+  "max": 110,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_A5_NAME",
+  "text": "Drydock Deals",
+  "max": 24,
+  "place": "Skill screen, node name"
+ },
+ {
+  "id": "SK_A5_FLAVOUR",
+  "text": "Every machine is a slow bill with wings, and it hums while it waits.",
+  "max": 90,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_A5_PLAIN",
+  "text": "Lowers Ship upkeep.",
+  "max": 110,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_B1_NAME",
+  "text": "Market Ledger",
+  "max": 24,
+  "place": "Skill screen, node name"
+ },
+ {
+  "id": "SK_B1_FLAVOUR",
+  "text": "The Common Ledger records everything but prices. Keep your own.",
+  "max": 90,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_B1_PLAIN",
+  "text": "Shows the price history of each planet in its panel.",
+  "max": 110,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_B2_NAME",
+  "text": "Standing Orders",
+  "max": 24,
+  "place": "Skill screen, node name"
+ },
+ {
+  "id": "SK_B2_FLAVOUR",
+  "text": "A good form is one you only file once.",
+  "max": 90,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_B2_PLAIN",
+  "text": "Local Buy and Sell orders handle more goods per cycle.",
+  "max": 110,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_B3_NAME",
+  "text": "Price Whisper",
+  "max": 24,
+  "place": "Skill screen, node name"
+ },
+ {
+  "id": "SK_B3_FLAVOUR",
+  "text": "Prices move before people do. Listen to the walls.",
+  "max": 90,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_B3_PLAIN",
+  "text": "Shows the expected price move for the next cycle before it happens.",
+  "max": 110,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_B4_NAME",
+  "text": "Event Forecast",
+  "max": 24,
+  "place": "Skill screen, node name"
+ },
+ {
+  "id": "SK_B4_FLAVOUR",
+  "text": "The sky has moods. The Plan pretends not to notice them.",
+  "max": 90,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_B4_PLAIN",
+  "text": "Shows the next event one cycle before it happens.",
+  "max": 110,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_C1_NAME",
+  "text": "Permit Charter",
+  "max": 24,
+  "place": "Skill screen, node name"
+ },
+ {
+  "id": "SK_C1_FLAVOUR",
+  "text": "A stamp is also a kind of door. Keep the stamp warm.",
+  "max": 90,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_C1_PLAIN",
+  "text": "Lets you buy permits to open new systems. Permits cost skill points and credits.",
+  "max": 110,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_C2_NAME",
+  "text": "Survey Beacon",
+  "max": 24,
+  "place": "Skill screen, node name"
+ },
+ {
+  "id": "SK_C2_FLAVOUR",
+  "text": "Better to know a place before it counts you.",
+  "max": 90,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_C2_PLAIN",
+  "text": "Shows the planets of a permitted system before your first visit.",
+  "max": 110,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_C3_NAME",
+  "text": "Long Haul",
+  "max": 24,
+  "place": "Skill screen, node name"
+ },
+ {
+  "id": "SK_C3_FLAVOUR",
+  "text": "Distance is only a long way of saying not yet, and not on the ledger.",
+  "max": 90,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_C3_PLAIN",
+  "text": "Allows routes between systems. Needs Space Storage (A1).",
+  "max": 110,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_C4_NAME",
+  "text": "Colonial Rights",
+  "max": 24,
+  "place": "Skill screen, node name"
+ },
+ {
+  "id": "SK_C4_FLAVOUR",
+  "text": "The second door is always cheaper than the first, and filed in fewer copies.",
+  "max": 90,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_C4_PLAIN",
+  "text": "Lowers the credit price of later permits.",
+  "max": 110,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "EV17_TITLE",
+  "text": "Debris over {planet}",
+  "max": 40,
+  "place": "choice title"
+ },
+ {
+  "id": "EV17_BODY",
+  "text": "A cloud of broken hull and spent tanks has settled into orbit over {planet}. A contractor offers to clear it for a fee. The Bureau has filed the debris as \"unowned\", which is how it stayed.",
+  "max": 280,
+  "place": "choice body"
+ },
+ {
+  "id": "EV17_PAY_BTN",
+  "text": "Pay the fee",
+  "max": 28,
+  "place": "button"
+ },
+ {
+  "id": "EV17_PAY_EFF",
+  "text": "Pay the fee. The debris is cleared and routes from {planet} run as before.",
+  "max": 90,
+  "place": "effect line"
+ },
+ {
+  "id": "EV17_LEAVE_BTN",
+  "text": "Leave the debris",
+  "max": 28,
+  "place": "button"
+ },
+ {
+  "id": "EV17_LEAVE_EFF",
+  "text": "Routes from {planet} carry less while the debris stays. It does not clear itself.",
+  "max": 90,
+  "place": "effect line"
+ },
+ {
+  "id": "EV17_PAID_TITLE",
+  "text": "Orbit over {planet} is clear",
+  "max": 32,
+  "place": "popup title"
+ },
+ {
+  "id": "EV17_PAID",
+  "text": "The contractor swept the orbit and signed the form. Routes from {planet} carry their full load again. The debris went somewhere. The form does not say where.",
+  "max": 280,
+  "place": "popup"
+ },
+ {
+  "id": "EV17_LEFT_TITLE",
+  "text": "Debris stays over {planet}",
+  "max": 32,
+  "place": "popup title"
+ },
+ {
+  "id": "EV17_LEFT",
+  "text": "You left the debris. Ships from {planet} thread around it and carry less. The offer stays open. The debris turns slowly, in no hurry.",
+  "max": 280,
+  "place": "popup"
+ },
+ {
+  "id": "EV18_TITLE",
+  "text": "A shield for the sun",
+  "max": 32,
+  "place": "choice title"
+ },
+ {
+  "id": "EV18_BODY",
+  "text": "Engineers propose a partial shield over the sun. Residents dislike it. It would change the resource mix on planets you can buy later: some resources fall, and you earn more profit and energy there. Planets you already own are not affected.",
+  "max": 280,
+  "place": "choice body"
+ },
+ {
+  "id": "EV18_BUILD_BTN",
+  "text": "Build the shield",
+  "max": 28,
+  "place": "button"
+ },
+ {
+  "id": "EV18_BUILD_EFF",
+  "text": "Planets you can buy later change: some resources drop, profit and energy rise.",
+  "max": 90,
+  "place": "effect line"
+ },
+ {
+  "id": "EV18_SKIP_BTN",
+  "text": "Do not build",
+  "max": 28,
+  "place": "button"
+ },
+ {
+  "id": "EV18_SKIP_EFF",
+  "text": "Nothing changes. The sun keeps its full light.",
+  "max": 90,
+  "place": "effect line"
+ },
+ {
+  "id": "EV18_BUILT_TITLE",
+  "text": "The shield is up",
+  "max": 32,
+  "place": "popup title"
+ },
+ {
+  "id": "EV18_BUILT",
+  "text": "The shield is in place. Residents are unhappy and say so, in writing. On planets you can buy later, some resources fall, and profit and energy rise. Planets you own are unchanged. The sky is a little dimmer.",
+  "max": 280,
+  "place": "popup"
+ },
+ {
+  "id": "EV18_SKIPPED_TITLE",
+  "text": "The shield stays on paper",
+  "max": 32,
+  "place": "popup title"
+ },
+ {
+  "id": "EV18_SKIPPED",
+  "text": "The plans go back into the cabinet. Residents are relieved and file no thanks. Nothing changes in any market.",
+  "max": 280,
+  "place": "popup"
+ },
+ {
+  "id": "EV19_TITLE",
+  "text": "Nomads on the asteroids",
+  "max": 32,
+  "place": "choice title"
+ },
+ {
+  "id": "EV19_BODY",
+  "text": "Nomad families live on the asteroids you could mine. They have no entry on the Common Ledger, which the Bureau regards as a personal failing. You can evict them and mine the rock, or let them stay.",
+  "max": 280,
+  "place": "choice body"
+ },
+ {
+  "id": "EV19_EVICT_BTN",
+  "text": "Evict the nomads",
+  "max": 28,
+  "place": "button"
+ },
+ {
+  "id": "EV19_EVICT_EFF",
+  "text": "The asteroids open for mining. Some nomads turn to piracy, and pirates rise.",
+  "max": 90,
+  "place": "effect line"
+ },
+ {
+  "id": "EV19_STAY_BTN",
+  "text": "Let them stay",
+  "max": 28,
+  "place": "button"
+ },
+ {
+  "id": "EV19_STAY_EFF",
+  "text": "The asteroids stay closed to mining. No pirates come of it.",
+  "max": 90,
+  "place": "effect line"
+ },
+ {
+  "id": "EV19_EVICTED_TITLE",
+  "text": "The asteroids are cleared",
+  "max": 32,
+  "place": "popup title"
+ },
+ {
+  "id": "EV19_EVICTED",
+  "text": "The nomads left on the next tide, quietly. The rock is yours to mine. Some of them did not go far, and they now keep ships and a grudge. Pirates rise.",
+  "max": 280,
+  "place": "popup"
+ },
+ {
+  "id": "EV19_STAYED_TITLE",
+  "text": "The nomads stay",
+  "max": 32,
+  "place": "popup title"
+ },
+ {
+  "id": "EV19_STAYED",
+  "text": "You let the nomads stay. Their lamps burn on the rock, small and steady. The asteroids remain closed to mining.",
+  "max": 280,
+  "place": "popup"
+ },
+ {
+  "id": "EV19_PIRATES_TITLE",
+  "text": "Pirates reduce trade",
+  "max": 32,
+  "place": "popup title"
+ },
+ {
+  "id": "EV19_PIRATES",
+  "text": "Pirates now work the lanes, and fewer cargoes get through. Trade volume falls while they stay. The Bureau has opened a file on them. It is a thin file.",
+  "max": 280,
+  "place": "popup"
+ },
+ {
+  "id": "EV19_HIRE_BTN",
+  "text": "Hire a clearance crew",
+  "max": 28,
+  "place": "button"
+ },
+ {
+  "id": "EV19_HIRE_EFF",
+  "text": "Pay to have the pirates cleared. It costs credits and removes their effect on trade.",
+  "max": 90,
+  "place": "effect line"
+ },
+ {
+  "id": "EV20_TITLE",
+  "text": "An asteroid is approaching",
+  "max": 32,
+  "place": "choice title"
+ },
+ {
+  "id": "EV20_BODY",
+  "text": "The Bureau reports an asteroid on a slow path toward the system. The state can deflect it for a payment. The form for refusing is shorter than the form for paying. The dark outside has begun to look closer.",
+  "max": 280,
+  "place": "choice body"
+ },
+ {
+  "id": "EV20_PAY_BTN",
+  "text": "Pay the state",
+  "max": 28,
+  "place": "button"
+ },
+ {
+  "id": "EV20_PAY_EFF",
+  "text": "Cost: payment to the state. Asteroid dealt with. The company gains one expansion point.",
+  "max": 90,
+  "place": "effect line"
+ },
+ {
+  "id": "EV20_DECLINE_BTN",
+  "text": "Decline",
+  "max": 28,
+  "place": "button"
+ },
+ {
+  "id": "EV20_DECLINE_EFF",
+  "text": "An even chance: company storage is hit, or nothing happens.",
+  "max": 90,
+  "place": "effect line"
+ },
+ {
+  "id": "EV20_PAID_TITLE",
+  "text": "The asteroid is deflected",
+  "max": 32,
+  "place": "popup title"
+ },
+ {
+  "id": "EV20_PAID",
+  "text": "The state turned the rock aside and sent a receipt. The company gains one expansion point for the trouble. The asteroid drifts on, toward someone else's sky.",
+  "max": 280,
+  "place": "popup"
+ },
+ {
+  "id": "EV20_REWARD",
+  "text": "Event reward: the asteroid is dealt with and the company gains an expansion point.",
+  "max": 280,
+  "place": "notice (shown after EV20_PAID)"
+ },
+ {
+  "id": "EV20_HIT_TITLE",
+  "text": "Company storage destroyed",
+  "max": 32,
+  "place": "popup title"
+ },
+ {
+  "id": "EV20_HIT_DESTROYED",
+  "text": "The asteroid struck {planet}. Your company storage there is gone, and what it held with it. The Bureau has recorded the loss as an adjustment of the Common Ledger.",
+  "max": 280,
+  "place": "popup"
+ },
+ {
+  "id": "EV20_HIT_CAPACITY",
+  "text": "The asteroid grazed {planet}. Your company storage there is cracked and holds less than before. The Bureau has recorded the damage as \"partial\".",
+  "max": 280,
+  "place": "popup"
+ },
+ {
+  "id": "EV20_MISS_TITLE",
+  "text": "The asteroid passes",
+  "max": 32,
+  "place": "popup title"
+ },
+ {
+  "id": "EV20_MISS",
+  "text": "The asteroid passed the system and kept going. Nothing was hit and nothing changes. The Bureau has withdrawn its warning, with regret.",
+  "max": 280,
+  "place": "popup"
+ }
+]

@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "note": "T58 ship types. Abstract template values; owner to confirm names. A *_key field names a value in balance.json (read at runtime); a plain number is used as is. speed is abstract and display only (travel stays travel_cycles_per_leg).",
+  "types": [
+    {"id": "small", "name": "Skerrit", "name_id": "LBL_SHIP_SMALL", "price_key": "ship_price", "cargo_mult": 1, "upkeep_mult": 1, "speed": 1.0},
+    {"id": "large", "name": "Voruun Hauler", "name_id": "LBL_SHIP_LARGE", "price_key": "hauler_price", "cargo_mult_key": "hauler_cargo_mult", "upkeep_mult_key": "hauler_upkeep_mult", "speed": 0.75}
+  ]
+}
