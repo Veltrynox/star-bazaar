@@ -1,0 +1,51 @@
+[
+  {
+    "run_id": "fast-decent-s1 (same for sloppy, always_expand, never_expand, seeds 1 to 5, and --clock=timer)",
+    "seed": 1,
+    "strategy": "decent",
+    "issue_type": "softlock",
+    "severity": "high",
+    "steps": [
+      "Run: SEEDS=1 STRATEGIES=decent sh qa/bots/run_batch.sh <out>   (default fast clock)",
+      "Cycle 1, tutorial: buy ship 1 at Voltara (cash 1500 -> 500, ship_price 1000).",
+      "Cycle 1: Buy energy at Voltara on (order_amount 40 x price 10 = 400 cr). Cash 500 -> 100.",
+      "Cycle 1: Send energy Voltara -> Tillam (route built, free ship assigned).",
+      "Cycle 1 settle: route needs fixed cost 115 (trip 95 + maintenance 60/3). Cash 100 < 115: route 'stalled: Not enough cash'. Stock stays at Voltara.",
+      "Cycles 2 to 30: no cash or stock change. Nothing sells. Loss at cycle 30 with cash 100 (sloppy: cash 0)."
+    ],
+    "expected": "The first trade loop is fundable from the start, or the game tells the player why nothing moves and gives a way out before the run is lost by idleness.",
+    "actual": "Dead start. After the 1000 cr tutorial ship, every full Buy order (40 units, at least 10 cr each, cheapest is energy at Voltara) leaves less than the 115 cr fixed route cost, so no route ever runs. No escape found: a Sell at the source needs stock that the same Buy order must buy. Idle from cycle 4 (sloppy from cycle 5). Identical for seeds 1 to 5 and for the timer clock. Bot-independent: any full buy leaves under 115 cr.",
+    "owner_agent": "economy-designer"
+  },
+  {
+    "run_id": "inject-decent-s1 (QA input +1000 cr at cycle 1; decent s2 same)",
+    "seed": 1,
+    "strategy": "decent",
+    "issue_type": "unwinnable",
+    "severity": "high",
+    "steps": [
+      "Run: TAG=inject EXTRA=\"--inject=1:1000\" SEEDS=1 STRATEGIES=decent sh qa/bots/run_batch.sh <out>",
+      "The injected 1000 cr is QA input that avoids the start trap (not a player action, not a balance change).",
+      "Decent builds 3 lanes, 3 ships, learns 5 skills, plays to cycle 30."
+    ],
+    "expected": "With a working start, a reasonable strategy reaches win_cash 9000 by win_cycle 30 (pacing target cycle 22 to 30 for decent).",
+    "actual": "Decent ends at cycle 30 with cash 8701 (299 short), outcome LOSS. Other strategies with the same input: never_expand 6210, sloppy 5370, always_expand bankrupt (see next issue). No strategy wins in any seed. Pacing for decent cannot be measured while no natural win exists.",
+    "owner_agent": "economy-designer"
+  },
+  {
+    "run_id": "inject-always_expand-s1 (QA input +1000 cr at cycle 1; s2 same)",
+    "seed": 1,
+    "strategy": "always_expand",
+    "issue_type": "softlock",
+    "severity": "high",
+    "steps": [
+      "Run: TAG=inject EXTRA=\"--inject=1:1000\" SEEDS=1 STRATEGIES=always_expand sh qa/bots/run_batch.sh <out>",
+      "Buys a ship whenever can_buy_ship is ok (no reserve), so cash goes into ships and Buy orders.",
+      "Cycle 4: cash 1, 2 ships, routes stalled on fixed cost; no stock can be sold.",
+      "Cycles 5 to 30: no change. Loss at cycle 30 with cash 1."
+    ],
+    "expected": "Bankruptcy with ships owned is recoverable, or ends the run early as a loss. The player is not left idle for 26 cycles.",
+    "actual": "Dead state from cycle 4. Rescue stipend (rescue_stipend 1000) only pays when ships == 0 (main._check_stranded), so a bankrupt player with ships gets no help. Repeats the 2026-10-26 report (softlock, always_expand) on the current build.",
+    "owner_agent": "gameplay-programmer"
+  }
+]

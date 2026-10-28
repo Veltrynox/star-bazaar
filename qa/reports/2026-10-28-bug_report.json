@@ -1,0 +1,57 @@
+[
+  {
+    "run_id": "2026-10-28-T53-smoke-decent-1",
+    "seed": 1,
+    "strategy": "decent",
+    "issue_type": "pacing",
+    "severity": "medium",
+    "steps": "From the repo root: GODOT=/Applications/Godot.app/Contents/MacOS/Godot SEEDS=1 STRATEGIES=decent TAG=smoke LIMIT=300 sh qa/bots/run_batch.sh <out_dir>. Fast clock, default choice, no force-goal or inject.",
+    "expected": "Decent player reaches win_cash 9000 inside the pacing window (cycle ~22 to 30), or the balance target for decent is documented as a loss at cycle 30.",
+    "actual": "Loss at cycle 30 with final_cash 7360 (win_cash 9000). 3 ships, 3 lanes, 3 lanes built, no lanes removed, ship buys at cycles 1, 11, 14. The run itself is clean: end_cycle_ok true, end_screen_ok true, stats_ok true, no issues in the harness. Single seed, bot not a human player; a balance question for economy-designer, not a harness bug.",
+    "owner_agent": "economy-designer"
+  },
+  {
+    "run_id": "2026-10-28-quick-always_expand-1",
+    "seed": 1,
+    "strategy": "always_expand",
+    "issue_type": "softlock_economy_stall",
+    "severity": "high",
+    "steps": "From the repo root: SEEDS=\"1 2 3\" STRATEGIES=\"always_expand\" TAG=quick LIMIT=120 qa/bots/run_batch.sh <out_dir> (Godot at tools/godot/Godot.app/Contents/MacOS/Godot, fast clock, default choice, no inject). Read cash_by_cycle in results_quick.jsonl for seed 1.",
+    "expected": "Either trade income keeps cash moving, or the T95 stranded rescue (rescue_stipend 1000, once per cycle) fires as soon as the empire is stuck. A run should not sit at near-zero cash for 20+ cycles.",
+    "actual": "Cash is 2 from cycle 8 through cycle 29 while 4 routes are open and 24 ships are owned (ship_buys every cycle from cycle 6). The stipend does not fire until cycle 30 (cash 2 to 1002). Routes count as running, so _check_stranded does not treat the run as stuck, but no income reaches cash. Same pattern on seed 2 (cash 6 from cycle 8 to 29, stipend only at cycle 30) and seed 3 (cash 2 from cycle 8 to 29). Run still advances to the cycle-30 loss, so it is not a crash or freeze. Possible cause to check: routes report running but deliver nothing once ship count exceeds lanes (the bot notes the T87 several-ships-per-lane hook is not wired, so the extra ships are idle). Not verified in the engine.",
+    "owner_agent": "gameplay-programmer"
+  },
+  {
+    "run_id": "2026-10-28-quick-all-win-check",
+    "seed": 0,
+    "strategy": "decent,sloppy,always_expand,never_expand",
+    "issue_type": "unverified_win_path",
+    "severity": "medium",
+    "steps": "SEEDS=\"1 2 3\" TAG=quick LIMIT=120 qa/bots/run_batch.sh <out_dir> with all four strategies (default). Check outcome and final_cash in results_quick.jsonl. win_cash 9000 and win_cycle 30 from data/balance.json.",
+    "expected": "A win path is reachable by at least one scripted strategy at a sensible cycle, or the design says the goal is out of reach for bots.",
+    "actual": "12 of 12 runs ended LOSS at cycle 30 (END_LOSS). Highest final cash was 6040 (decent seed 2). No run reached 9000, so the win branch was not exercised by the batch. The loss branch and end-screen checks passed on all 12 runs. Winnability is unconfirmed, not disproven.",
+    "owner_agent": "economy-designer"
+  },
+  {
+    "run_id": "2026-10-28-quick-never_expand-vs-decent",
+    "seed": 1,
+    "strategy": "never_expand,sloppy,decent",
+    "issue_type": "dominant_strategy_check",
+    "severity": "medium",
+    "steps": "SEEDS=\"1 2 3\" TAG=quick LIMIT=120 qa/bots/run_batch.sh <out_dir>. Compare final_cash across strategies in results_quick.jsonl.",
+    "expected": "Expanding (decent, always_expand) clearly beats a one-ship strategy over 30 cycles, or the difference is intentional and documented.",
+    "actual": "Final cash: never_expand 5150, 2889, 4473 (seeds 1 to 3); sloppy 5313, 4842, 5409; decent 1862, 6040, 5815 (seed 1 is the worst of all decent runs and below never_expand seed 1). Expansion gives little or no gain at this pacing, and no single strategy wins. Not a dominant strategy by the brief's definition (none wins), but expansion is not clearly rewarded. Bot strategies are simple, so treat as a signal only.",
+    "owner_agent": "economy-designer"
+  },
+  {
+    "run_id": "2026-10-28-quick-error-log-noise",
+    "seed": 1,
+    "strategy": "all",
+    "issue_type": "engine_warning",
+    "severity": "low",
+    "steps": "Any headless run of qa/bots/bot_run.gd on this macOS machine. Look at the first lines of the Godot log, e.g. scratchpad qa/quick_decent_1.log.",
+    "expected": "No ERROR lines in headless runs, or the known platform noise is documented.",
+    "actual": "Every run (12 of 12) prints 'ERROR: Condition \"ret != noErr\" is true. Returning: \"\"' at platform/macos/os_macos.mm:1035 (get_system_ca_certificates). It comes from the Godot engine on macOS, not from game code, and does not affect results. Filter it out in run_batch.sh errors output.",
+    "owner_agent": "qa-analyst"
+  }
+]
