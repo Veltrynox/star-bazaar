@@ -96,6 +96,7 @@ var idle_streak := 0
 var dead_from := -1
 var ship_buys: Array = []  # [cycle, planet, ships_after]
 var skills_learned: Array = []  # [cycle, id]
+var skill_log: Array = []  # [cycle, id, points_spent] per learned skill, in learn order
 var lanes_built := 0
 var lanes_removed := 0
 var orders_changed := 0
@@ -147,6 +148,9 @@ func _process(_delta: float) -> bool:
 	if phase == 0:
 		main = load(MAIN_SCENE).instantiate()
 		get_root().add_child(main)
+		# Game events draw from an RNG that main's setup randomizes (events.gd rng.randomize()). Seed it
+		# from --seed after setup so the same seed gives the same run. The game itself is not changed.
+		main.events.rng.seed = seed_value
 		phase = 1
 		return false
 	if phase == 1:
@@ -483,6 +487,7 @@ func _learn_skills() -> void:
 			var r: Dictionary = main.learn_skill(id)
 			if r["ok"]:
 				skills_learned.append([main.cycle, id])
+				skill_log.append([main.cycle, id, SkillTree.cost(main.balance, id)])
 				_count("skill_learn", main.cycle)
 				learned = true
 				break
@@ -603,6 +608,7 @@ func _finish() -> bool:
 		"lanes_removed": lanes_removed,
 		"orders_changed": orders_changed,
 		"skills_learned": skills_learned,
+		"skill_log": skill_log,
 		"skill_points_left": main.skill_points,
 		"permits_bought": null,  # no permit feature in this build; null, not 0, so it is not read as a result
 		"dead_from_cycle": dead_from,
