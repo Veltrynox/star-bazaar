@@ -1,0 +1,59 @@
+[
+  {
+    "run_id": "rerun-bc15b89 driver pass 1-20 (scenario baseline, example)",
+    "seed": 1803,
+    "strategy": "never_expand",
+    "issue_type": "softlock",
+    "severity": "high",
+    "steps": [
+      "git worktree baseline at bc15b89 (scratch copy, tools/godot symlinked, .godot copied)",
+      "HOME=<scratch> godot --headless --path <worktree> -s res://qa/bots/bot_run.gd -- --strategy=never_expand --seed=1803 --clock=fast --choice=RELEASE",
+      "Bot keeps one ship and no routes; the run reaches cycle 7 and the softlock detector fires."
+    ],
+    "expected": "Either the run keeps progressing with a playable action available, or a dead-end state is clearly signalled as a loss before cycle 30.",
+    "actual": "Detector: 'idle from cycle 5: 3 cycles with no cash or stock change (cash 1068, ships 1, routes 0, Buy/Sell orders on 0)'. Same flag in 269 of 4800 never_expand and sloppy runs across the five scenarios (138 never_expand, 131 sloppy). Runs still end as END_LOSS at cycle 30. UNKNOWN whether the player has any legal action in this state; if not, this is a true softlock, not just an idle strategy.",
+    "owner_agent": "gameplay-programmer"
+  },
+  {
+    "run_id": "rerun-bc15b89 driver passes 1-20, all five scenarios",
+    "seed": 101,
+    "strategy": "decent",
+    "issue_type": "balance_bot_vs_sim_mismatch",
+    "severity": "medium",
+    "steps": [
+      "Bot decent, 8 seeds per pass, 20 passes (seeds 101-2008), three choice policies (alt, RELEASE, CORP), --clock=fast, per scenario.",
+      "Sim: python3 tools/sim.py --mc 200 --seed 1 [--real], events block, 'decent full tree (ref)' and 'decent no skills' rows."
+    ],
+    "expected": "Bot decent win rate close to the sim's decent win rate (sim full tree ref 100% in all five scenarios; no skills 86-96% default, 58-84% --real).",
+    "actual": "Bot decent win rate 38% (baseline), 37% (trip-cost-90), 35% (decent-4-lanes), 34% (trip-cost-90-4-lanes), 17% (cargo-34). Bot decent does not agree with the sim. Bot decent wins only 26-30 cycles (median 28-30). Per-batch spread in baseline 0.29-0.50 (sd 0.055).",
+    "owner_agent": "producer"
+  },
+  {
+    "run_id": "rerun-bc15b89 checks/noskill, baseline",
+    "seed": 1,
+    "strategy": "decent",
+    "issue_type": "bot_skill_policy_suspect",
+    "severity": "medium",
+    "steps": [
+      "Scratch worktree baseline at bc15b89.",
+      "godot --headless --path <baseline> -s res://qa/bots/bot_run.gd -- --strategy=decent --seed=1..8 --clock=fast --skip-skill=A1,A2,A3,A4,A5,B1,B2,B3,B4,C1,C2,C3,C4"
+    ],
+    "expected": "Skill purchases change decent's win rate only as far as the sim's skill rows say (sim full tree 100%).",
+    "actual": "With all 13 skills skipped, decent wins 8/8 (cycles 21-24). With the bot's own skill choices (B1, B2, C1, A1, A2, C2 seen in the run), decent wins 38%. The skill path the bot chooses is the likely cause of the gap to the sim. Not confirmed.",
+    "owner_agent": "producer"
+  },
+  {
+    "run_id": "qa-head ablation determinism check (before event-RNG seeding)",
+    "seed": 1,
+    "strategy": "decent",
+    "issue_type": "nondeterministic_run",
+    "severity": "medium",
+    "steps": [
+      "Scratch copy of HEAD d173a4c, qa/bots/run_batch.sh TAG=all EXTRA='--clock=fast' STRATEGIES=decent SEEDS='1 2' (run twice).",
+      "Compare final_cash for seed 1 across invocations."
+    ],
+    "expected": "Same seed and same configuration give the same run.",
+    "actual": "Seed 1 gave final_cash 8575 (win) in one invocation and 7966 (loss) in another. Cause: game/events.gd setup() calls rng.randomize(), so event picks are unseeded. Fixed in the bot by seeding main.events.rng from --seed (qa/bots/bot_run.gd). Repeat runs now match. Results from the 30-minute balance run predate the fix and cannot be reproduced by seed.",
+    "owner_agent": "gameplay-programmer"
+  }
+]

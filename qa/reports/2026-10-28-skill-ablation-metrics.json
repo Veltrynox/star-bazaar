@@ -1,0 +1,318 @@
+{
+  "inputs": [
+    "results_all.jsonl",
+    "results_skip_A1.jsonl",
+    "results_skip_A2.jsonl",
+    "results_skip_A3.jsonl",
+    "results_skip_A4.jsonl",
+    "results_skip_A5.jsonl",
+    "results_skip_B1.jsonl",
+    "results_skip_B2.jsonl",
+    "results_skip_B3.jsonl",
+    "results_skip_B4.jsonl",
+    "results_skip_C1.jsonl",
+    "results_skip_C2.jsonl",
+    "results_skip_C3.jsonl",
+    "results_skip_C4.jsonl"
+  ],
+  "runs": 56,
+  "base_runs_total": 4,
+  "failed_total": 0,
+  "runs_with_issues": 1,
+  "warnings": [
+    "1 runs carry bot issues (see the RESULT issues field)"
+  ],
+  "clocks": {
+    "fast": {
+      "base_runs": 4,
+      "strategies": [
+        "decent"
+      ],
+      "a_decision_density": {
+        "decent": {
+          "runs": 4,
+          "runs_with_decision_data": 4,
+          "cycles": 118,
+          "decisions": 341,
+          "mean_decisions_per_cycle": 2.889830508474576,
+          "zero_decision_cycle_share": 0.0,
+          "mean_decisions_per_run": 85.25,
+          "decisions_by_kind": {
+            "order_change": 271,
+            "route_close": 6,
+            "route_open": 22,
+            "ship_buy": 16,
+            "skill_learn": 24,
+            "win_choice": 2
+          }
+        }
+      },
+      "b_dominant_strategy": {
+        "seeds_in_all_strategies": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "seed_count": 4,
+        "ties": 0,
+        "top_cash_share": {
+          "decent": 1.0
+        },
+        "sole_top_seeds": {
+          "decent": 4
+        },
+        "win_share": {
+          "decent": {
+            "wins": 2,
+            "runs": 4,
+            "win_share": 0.5
+          }
+        }
+      },
+      "c_outcome_spread": {
+        "decent": {
+          "runs": 4,
+          "cash_runs": 4,
+          "mean_final_cash": 8168.5,
+          "stdev_final_cash": 744.6630110325073,
+          "min_final_cash": 7219,
+          "max_final_cash": 8914,
+          "range_final_cash": 1695,
+          "distinct_win_cycles": [
+            28,
+            30
+          ],
+          "distinct_loss_cycles": [
+            30
+          ],
+          "end_cycle_not_ok": 0,
+          "failed": 0
+        }
+      },
+      "d_skill_impact": {
+        "learn_runs": 4,
+        "skip_runs": 52,
+        "skipped_skill_ids": [
+          "A1",
+          "A2",
+          "A3",
+          "A4",
+          "A5",
+          "B1",
+          "B2",
+          "B3",
+          "B4",
+          "C1",
+          "C2",
+          "C3",
+          "C4"
+        ],
+        "mean_skills_learned_learn_runs": 6.0,
+        "learn_mean_final_cash": 8168.5,
+        "skip_mean_final_cash": 7919.0,
+        "learn_win_rate": 0.5,
+        "skip_win_rate": 0.4230769230769231,
+        "matched_pairs": 4,
+        "matched_cash_diff_learn_minus_skip": 0.0,
+        "matched_win_rate_diff_learn_minus_skip": 0.0
+      },
+      "d2_skill_log": {
+        "learn_runs": 4,
+        "runs_with_skill_log": 4,
+        "skills": {
+          "A1": {
+            "learned_in_runs": 4,
+            "learn_share": 1.0,
+            "mean_cycle": 5.0,
+            "mean_points_spent": 1.0
+          },
+          "A2": {
+            "learned_in_runs": 4,
+            "learn_share": 1.0,
+            "mean_cycle": 5.0,
+            "mean_points_spent": 1.0
+          },
+          "A3": {
+            "learned_in_runs": 0,
+            "learn_share": 0.0,
+            "mean_cycle": null,
+            "mean_points_spent": null
+          },
+          "A4": {
+            "learned_in_runs": 0,
+            "learn_share": 0.0,
+            "mean_cycle": null,
+            "mean_points_spent": null
+          },
+          "A5": {
+            "learned_in_runs": 0,
+            "learn_share": 0.0,
+            "mean_cycle": null,
+            "mean_points_spent": null
+          },
+          "B1": {
+            "learned_in_runs": 4,
+            "learn_share": 1.0,
+            "mean_cycle": 1.0,
+            "mean_points_spent": 1.0
+          },
+          "B2": {
+            "learned_in_runs": 4,
+            "learn_share": 1.0,
+            "mean_cycle": 2.0,
+            "mean_points_spent": 2.0
+          },
+          "B3": {
+            "learned_in_runs": 0,
+            "learn_share": 0.0,
+            "mean_cycle": null,
+            "mean_points_spent": null
+          },
+          "B4": {
+            "learned_in_runs": 0,
+            "learn_share": 0.0,
+            "mean_cycle": null,
+            "mean_points_spent": null
+          },
+          "C1": {
+            "learned_in_runs": 4,
+            "learn_share": 1.0,
+            "mean_cycle": 2.0,
+            "mean_points_spent": 1.0
+          },
+          "C2": {
+            "learned_in_runs": 4,
+            "learn_share": 1.0,
+            "mean_cycle": 5.0,
+            "mean_points_spent": 1.0
+          },
+          "C3": {
+            "learned_in_runs": 0,
+            "learn_share": 0.0,
+            "mean_cycle": null,
+            "mean_points_spent": null
+          },
+          "C4": {
+            "learned_in_runs": 0,
+            "learn_share": 0.0,
+            "mean_cycle": null,
+            "mean_points_spent": null
+          }
+        }
+      },
+      "d3_per_skill_impact": {
+        "A1": {
+          "skip_runs": 4,
+          "matched_pairs": 4,
+          "effect_cash_learn_minus_skip": -672.75,
+          "effect_win_rate_learn_minus_skip": -0.5,
+          "learn_mean_cash_matched": 8168.5,
+          "skip_mean_cash_matched": 8841.25
+        },
+        "A2": {
+          "skip_runs": 4,
+          "matched_pairs": 4,
+          "effect_cash_learn_minus_skip": 666.75,
+          "effect_win_rate_learn_minus_skip": 0.5,
+          "learn_mean_cash_matched": 8168.5,
+          "skip_mean_cash_matched": 7501.75
+        },
+        "A3": {
+          "skip_runs": 4,
+          "matched_pairs": 4,
+          "effect_cash_learn_minus_skip": 0.0,
+          "effect_win_rate_learn_minus_skip": 0.0,
+          "learn_mean_cash_matched": 8168.5,
+          "skip_mean_cash_matched": 8168.5
+        },
+        "A4": {
+          "skip_runs": 4,
+          "matched_pairs": 4,
+          "effect_cash_learn_minus_skip": 0.0,
+          "effect_win_rate_learn_minus_skip": 0.0,
+          "learn_mean_cash_matched": 8168.5,
+          "skip_mean_cash_matched": 8168.5
+        },
+        "A5": {
+          "skip_runs": 4,
+          "matched_pairs": 4,
+          "effect_cash_learn_minus_skip": 0.0,
+          "effect_win_rate_learn_minus_skip": 0.0,
+          "learn_mean_cash_matched": 8168.5,
+          "skip_mean_cash_matched": 8168.5
+        },
+        "B1": {
+          "skip_runs": 4,
+          "matched_pairs": 4,
+          "effect_cash_learn_minus_skip": 1624.75,
+          "effect_win_rate_learn_minus_skip": 0.5,
+          "learn_mean_cash_matched": 8168.5,
+          "skip_mean_cash_matched": 6543.75
+        },
+        "B2": {
+          "skip_runs": 4,
+          "matched_pairs": 4,
+          "effect_cash_learn_minus_skip": 1624.75,
+          "effect_win_rate_learn_minus_skip": 0.5,
+          "learn_mean_cash_matched": 8168.5,
+          "skip_mean_cash_matched": 6543.75
+        },
+        "B3": {
+          "skip_runs": 4,
+          "matched_pairs": 4,
+          "effect_cash_learn_minus_skip": 0.0,
+          "effect_win_rate_learn_minus_skip": 0.0,
+          "learn_mean_cash_matched": 8168.5,
+          "skip_mean_cash_matched": 8168.5
+        },
+        "B4": {
+          "skip_runs": 4,
+          "matched_pairs": 4,
+          "effect_cash_learn_minus_skip": 0.0,
+          "effect_win_rate_learn_minus_skip": 0.0,
+          "learn_mean_cash_matched": 8168.5,
+          "skip_mean_cash_matched": 8168.5
+        },
+        "C1": {
+          "skip_runs": 4,
+          "matched_pairs": 4,
+          "effect_cash_learn_minus_skip": 0.0,
+          "effect_win_rate_learn_minus_skip": 0.0,
+          "learn_mean_cash_matched": 8168.5,
+          "skip_mean_cash_matched": 8168.5
+        },
+        "C2": {
+          "skip_runs": 4,
+          "matched_pairs": 4,
+          "effect_cash_learn_minus_skip": 0.0,
+          "effect_win_rate_learn_minus_skip": 0.0,
+          "learn_mean_cash_matched": 8168.5,
+          "skip_mean_cash_matched": 8168.5
+        },
+        "C3": {
+          "skip_runs": 4,
+          "matched_pairs": 4,
+          "effect_cash_learn_minus_skip": 0.0,
+          "effect_win_rate_learn_minus_skip": 0.0,
+          "learn_mean_cash_matched": 8168.5,
+          "skip_mean_cash_matched": 8168.5
+        },
+        "C4": {
+          "skip_runs": 4,
+          "matched_pairs": 4,
+          "effect_cash_learn_minus_skip": 0.0,
+          "effect_win_rate_learn_minus_skip": 0.0,
+          "learn_mean_cash_matched": 8168.5,
+          "skip_mean_cash_matched": 8168.5
+        }
+      },
+      "e_event_impact": {
+        "runs_with_event_field": 56,
+        "events_resolved_total": 0,
+        "runs_with_events": 0,
+        "note": "Event coverage zero: 56 runs, 0 events resolved. _resolve_events() is a stub in this build, so no event comparison is possible. Result: no event effect measured."
+      }
+    }
+  }
+}
