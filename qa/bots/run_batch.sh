@@ -5,6 +5,8 @@
 # Writes <out_dir>/<TAG>_<strategy>_<seed>.log (full Godot output), <out_dir>/results_<TAG>.jsonl
 # (one RESULT json per run) and <out_dir>/errors_<TAG>.log (Godot ERROR lines and run failures).
 # A run with no RESULT line is classed as "crash" (non-zero exit) or "frozen" (killed at LIMIT s).
+# After the batch, qa/bots/metrics.py writes <out_dir>/metrics_<TAG>.json and metrics_<TAG>.md from the
+# results file. METRICS_WITH="<file> ..." adds other results files (e.g. a --skip-skill batch) to that report.
 # Every run uses a scratch HOME (like tools/tests/run.sh), so user:// (autosave, stats.json) never
 # touches the real user directory. Each run gets its own scratch HOME.
 set -u
@@ -47,3 +49,6 @@ for strategy in $STRATEGIES; do
     echo "${TAG} ${strategy} seed=${seed} exit=${code}"
   done
 done
+# shellcheck disable=SC2086
+"${PYTHON:-python3}" "$REPO/qa/bots/metrics.py" "$RESULTS" ${METRICS_WITH:-} \
+  --json "$OUT/metrics_${TAG}.json" --md "$OUT/metrics_${TAG}.md"
