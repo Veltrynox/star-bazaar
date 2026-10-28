@@ -507,17 +507,22 @@ func _stock_total() -> int:
 	return t
 
 
+## A closed planet is not a dead end: while any planet is closed (events close planets for a few cycles, and
+## routes touching them pay nothing) no idle cycle is counted. A cycle with cash or stock movement clears dead_from.
+## The softlock issue is recorded only at run end, if dead_from is still set, so a recovered run is not flagged.
 func _check_idle(c: int, before: Array) -> void:
-	if main.game_over or dead_from >= 0:
+	if main.game_over:
+		return
+	if not main.engine.closed_planets.is_empty():
+		idle_streak = 0
 		return
 	if before == _state_sig():
 		idle_streak += 1
-		if idle_streak == IDLE_AFTER:
+		if idle_streak >= IDLE_AFTER and dead_from < 0:
 			dead_from = c - IDLE_AFTER + 1
-			_issue("softlock", c, "idle from cycle %d: %d cycles with no cash or stock change (cash %d, ships %d, routes %d, Buy/Sell orders on %d)" % [
-				dead_from, IDLE_AFTER, main.cash, main.ships, main.engine.routes.size(), _orders_on()])
 	else:
 		idle_streak = 0
+		dead_from = -1
 
 
 func _orders_on() -> int:
@@ -558,6 +563,9 @@ func _issue(kind: String, cycle: int, detail: String) -> void:
 
 ## Checks made once the run is over: stats, autosave and end screen; then the RESULT line.
 func _finish() -> bool:
+	if dead_from >= 0:
+		_issue("softlock", dead_from, "idle from cycle %d: %d cycles with no cash or stock change until the end (cash %d, ships %d, routes %d, Buy/Sell orders on %d, closed planets %d)" % [
+			dead_from, IDLE_AFTER, main.cash, main.ships, main.engine.routes.size(), _orders_on(), main.engine.closed_planets.size()])
 	var end_cycle: int = main.cycle
 	var final_cash: int = main.cash
 	var outcome := "softlock"

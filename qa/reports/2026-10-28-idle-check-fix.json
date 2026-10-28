@@ -1,0 +1,29 @@
+{
+  "change": "qa/bots/bot_run.gd _check_idle: no idle counting while any planet is closed; dead_from cleared on cash or stock movement; softlock issue recorded at run end only if still idle",
+  "seed4": {
+    "before": {
+      "sloppy": 1,
+      "never_expand": 1,
+      "decent": 0
+    },
+    "after": {
+      "sloppy": 0,
+      "never_expand": 0,
+      "decent": 0
+    }
+  },
+  "seeds1_20": {
+    "runs_per_strategy": 20,
+    "before": {
+      "sloppy": 1,
+      "never_expand": 1,
+      "decent": 0
+    },
+    "after": {
+      "sloppy": 0,
+      "never_expand": 0,
+      "decent": 0
+    }
+  },
+  "real_dead_end_check": "scratch copy only, _state_sig forced constant: never_expand seed 4 flags softlock at dead_from 1 (kept)"
+}
