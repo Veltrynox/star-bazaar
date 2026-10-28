@@ -1,0 +1,65 @@
+{
+ "note": "PROPOSAL, system 2 planets in planets.json entry format plus 'system'. Roles only; story-designer names them. Read by tools/sim.py. Not read by the game.",
+ "planets": [
+  {
+   "id": "s2_p1",
+   "role": "S2-P1 (food-rich hub)",
+   "system": 2,
+   "abundant": "food",
+   "scarce": "energy",
+   "base_prices": {
+    "food_buy": 11,
+    "food_sell": 9,
+    "energy_sell": 31,
+    "energy_buy": 32
+   },
+   "x": 520,
+   "y": 60
+  },
+  {
+   "id": "s2_p2",
+   "role": "S2-P2 (energy-rich)",
+   "system": 2,
+   "abundant": "energy",
+   "scarce": "food",
+   "base_prices": {
+    "energy_buy": 9,
+    "energy_sell": 8,
+    "food_sell": 33,
+    "food_buy": 33
+   },
+   "x": 760,
+   "y": 140
+  },
+  {
+   "id": "s2_p3",
+   "role": "S2-P3 (food-rich outpost)",
+   "system": 2,
+   "abundant": "food",
+   "scarce": "energy",
+   "base_prices": {
+    "food_buy": 12,
+    "food_sell": 10,
+    "energy_sell": 33,
+    "energy_buy": 34
+   },
+   "x": 700,
+   "y": -140
+  },
+  {
+   "id": "s2_p4",
+   "role": "S2-P4 (consumer market, buys both)",
+   "system": 2,
+   "abundant": "none",
+   "scarce": "both",
+   "base_prices": {
+    "energy_sell": 34,
+    "food_sell": 34,
+    "energy_buy": 35,
+    "food_buy": 35
+   },
+   "x": 900,
+   "y": -20
+  }
+ ]
+}
