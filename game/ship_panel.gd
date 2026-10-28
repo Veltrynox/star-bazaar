@@ -2,8 +2,6 @@ extends PanelContainer
 ## T28: small Ships menu, right side under the notification board. Shows ship count / cap.
 
 var label: Label
-var status: Label  # T30: docked / in flight
-var hint: Label    # T30: 'Space: resume' while paused with a ship in flight
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -21,16 +19,6 @@ func _ready() -> void:
 	box.add_child(title)
 	label = Label.new()
 	box.add_child(label)
-	status = Label.new()
-	status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	box.add_child(status)
-	hint = Label.new()
-	hint.text = "Space: resume"
-	hint.add_theme_color_override("font_color", Color(1.0, 0.85, 0.3))
-	box.add_child(hint)
 
-func set_count(ships: int, cap: int, state: String = "", waiting: bool = false) -> void:
+func set_count(ships: int, cap: int) -> void:
 	label.text = "Ships: %d / %d" % [ships, cap]
-	status.text = state
-	status.visible = state != ""
-	hint.visible = waiting

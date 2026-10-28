@@ -74,6 +74,29 @@ func add_speed_button() -> void:
 		b.text = "Time speed: x%d" % int(main.time_speed))
 	add_tool(b)
 
+## Button that fast-forwards to the next cycle via main.debug_advance_cycle().
+func add_next_cycle_button() -> void:
+	var b := Button.new()
+	b.text = "Advance to next cycle"
+	b.pressed.connect(main.debug_advance_cycle)
+	add_tool(b)
+
+## T07: read-only dump of routes (planets, ships, level, net, status) in a label.
+func add_routes_dump() -> void:
+	var l := Label.new()
+	l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	var b := Button.new()
+	b.text = "Dump routes"
+	b.pressed.connect(func():
+		var lines: Array = []
+		for r in main.get_routes():
+			lines.append("#%d %s > %s %s lvl %d net %d (%s) %s" % [r["id"],
+				main.map.planets[r["a"]].get("name", "?"), main.map.planets[r["b"]].get("name", "?"),
+				r["c"], r["level"], r["net"], r["status"], r["reason"]])
+		l.text = "\n".join(lines) if not lines.is_empty() else "No routes.")
+	add_tool(b)
+	add_tool(l)
+
 func _read_file() -> Dictionary:
 	var f := FileAccess.open(BALANCE_PATH, FileAccess.READ)
 	if f == null:

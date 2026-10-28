@@ -2,7 +2,7 @@ extends RefCounted
 ## T26: single automatic save file. JSON, versioned, tuning values never stored.
 ##
 ## Layout: {"version": int, "state": {...}}. To add future state (ships, routes,
-## permits, events, planet stock): put a new key in the dict built by main.gd
+## permits, events): put a new key in the dict built by main.gd
 ## collect_state(), read it with a default in apply_state(). Missing keys fall back
 ## to defaults, so old saves keep loading. Bump VERSION and add a step to
 ## _migrate() only when an existing key changes meaning or shape.

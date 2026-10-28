@@ -1,11 +1,10 @@
 extends PanelContainer
-## T40: dropdown under the top-bar money text. Shows what happens to cash when the current
-## cycle ends: income lines (green), outcome lines (red), cash after the cycle.
-## Only mechanics that exist: _end_cycle() in main.gd charges nothing yet, so the only line
-## is maintenance from balance.json (maintenance every maintenance_interval cycles), which is
-## shown but NOT counted until T07 charges it. Flip MAINTENANCE_CHARGED to true then.
+## T40 / T40b: dropdown under the top-bar money text. Lists what each route pays when the current
+## cycle ends (net income per route, from the T07 engine) and the cash after the cycle.
+## Income green, outcome red. Trip cost and maintenance are netted inside each route (GDD), so no
+## gross or cost line appears here; the per-route status lives on the planet panel.
+## Outcome lines are the cash that really leaves at cycle end; nothing is charged directly any more.
 
-const MAINTENANCE_CHARGED := false
 const GREEN := Color(0.45, 0.9, 0.45)
 const RED := Color(1.0, 0.45, 0.4)
 
@@ -51,6 +50,21 @@ func _line(text: String, color: Color = Color.WHITE) -> void:
 	l.add_theme_color_override("font_color", color)
 	box.add_child(l)
 
+## Income lines: one per route, the amount it pays when this cycle ends (engine payout, net).
+func income_lines() -> Array:
+	var out: Array = []  # [text, amount]
+	for l in main.engine.local_preview(main.cash):  # T68 local orders (buys negative, sells positive)
+		out.append([str(l[0]) + ("" if str(l[2]) in ["Buying.", "Selling."] else " (" + str(l[2]).trim_suffix(".").to_lower() + ")"), int(l[1])])
+	for rec in main.engine.routes:
+		var paid: int = main.engine.payout_of(rec)
+		var status: String = main.engine.status_of(rec)
+		var label := "%s > %s (%s)" % [main.planet_name(rec["a"]), main.planet_name(rec["b"]), rec["c"]]
+		if status != "running":
+			label += " " + status
+		label += " ship cost"
+		out.append([label, paid])
+	return out
+
 ## Called by main.gd _refresh() every frame; rebuilds the lines while open.
 func refresh() -> void:
 	if not visible or main == null:
@@ -58,30 +72,23 @@ func refresh() -> void:
 	for c in box.get_children():
 		box.remove_child(c)
 		c.queue_free()
-	var bal: Dictionary = main.balance
 	var cash: int = main.cash
-	var income: Array = []   # [text, amount]
-	var outcome: Array = []  # [text, amount], amount positive = cash leaving
-	var interval := int(bal.get("maintenance_interval", 0))
-	var upkeep := int(bal.get("maintenance", 0))
-	var counted := 0
-	if interval > 0 and upkeep > 0 and main.cycle % interval == 0:
-		var note := "" if MAINTENANCE_CHARGED else " (not charged yet)"
-		outcome.append(["Maintenance%s" % note, upkeep])
-		if MAINTENANCE_CHARGED:
-			counted = upkeep
+	var income := income_lines()
+	var outcome: Array = []  # [text, amount], amount positive = cash leaving; none exist today
 	var total_in := 0
 	for l in income:
 		total_in += int(l[1])
-	var total_out := counted
+	var total_out := 0
+	for l in outcome:
+		total_out += int(l[1])
 	var left: float = (main._cycle_seconds() - main.cycle_elapsed) / maxf(0.01, main.time_speed)
 	var timing := "paused" if main.paused else "in %ds" % ceili(left)
 	_line("Cycle %d ends %s. Now: %d" % [main.cycle, timing, cash])
-	_line("Income:")
+	_line("Income (net per order and route):")
 	if income.is_empty():
 		_line("  none", GREEN)
 	for l in income:
-		_line("  %s: +%d" % [l[0], int(l[1])], GREEN)
+		_line("  %s: %+d" % [l[0], int(l[1])], GREEN if int(l[1]) >= 0 else RED)
 	_line("Outcome:")
 	if outcome.is_empty():
 		_line("  none", RED)

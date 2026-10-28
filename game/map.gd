@@ -4,6 +4,7 @@ extends Node3D
 ## are laid out on a ring around the origin (in the XZ plane).
 
 signal planet_clicked(index: int)  # -1 when the click hit empty space
+signal route_clicked(id: int)      # T07b: click on a route line (no planet under the cursor)
 
 const PLANETS_PATH := "res://data/planets.json"
 
@@ -31,7 +32,7 @@ var yaw_min_deg := -45.0
 var yaw_max_deg := 45.0
 var pitch_min_deg := 20.0        # angle above the plane; never goes below it
 var pitch_max_deg := 80.0
-var sun_radius := 1.5
+var sun_radius := 0.75
 var planet_scale := 1.0          # multiplies PLANET_RADIUS (visual size and click radius)
 var keys_enabled := true         # T33: debug menu turns this off while typing in a field
 
@@ -45,8 +46,10 @@ var focus := Vector3.ZERO
 var zoom: float = START_ZOOM
 var yaw_deg: float = START_YAW_DEG
 var pitch_deg: float = START_PITCH_DEG
+var pending_hint: MeshInstance3D  # T57 halo on the planet with a pending connection
 var hint: MeshInstance3D  # T28 pulsing halo, null until first requested
-var dock_dot: MeshInstance3D  # T35 bright dot over the planet a ship is docked at, null when none
+var route_lines: Dictionary = {}  # T07b: route id -> route_line.gd node
+var _route_list: Array = []       # last list given to set_routes (rebuilt after tunable changes)
 
 func _ready() -> void:
 	RenderingServer.set_default_clear_color(Color.BLACK)
@@ -146,28 +149,61 @@ func set_hint(index: int, on: bool) -> void:
 		hint.setup(planet_radius())
 	hint.position = positions[index]
 
-## T35: show or hide a small bright dot over planet `index` (where a ship is docked). Not pickable.
-func set_dock_dot(index: int, on: bool) -> void:
-	if not on or index < 0 or index >= positions.size():
-		if dock_dot != null:
-			dock_dot.queue_free()
-			dock_dot = null
+## T57: halo on the planet holding a pending Buy/Sell order; -1 removes it.
+func set_pending(index: int) -> void:
+	if index < 0 or index >= positions.size():
+		if pending_hint != null:
+			pending_hint.queue_free()
+			pending_hint = null
 		return
-	if dock_dot == null:
-		var sphere := SphereMesh.new()
-		sphere.radius = planet_radius() * 0.3
-		sphere.height = sphere.radius * 2.0
-		sphere.radial_segments = 16
-		sphere.rings = 8
-		var mat := StandardMaterial3D.new()
-		mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-		mat.albedo_color = Color(0.4, 1.0, 0.6)  # bright green, distinct from the gold hint
-		sphere.material = mat
-		dock_dot = MeshInstance3D.new()
-		dock_dot.mesh = sphere
-		dock_dot.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-		add_child(dock_dot)
-	dock_dot.position = positions[index] + Vector3(0, planet_radius() * 1.6, 0)
+	if pending_hint == null:
+		pending_hint = load("res://game/planet_hint.gd").new()
+		add_child(pending_hint)
+		pending_hint.setup(planet_radius())
+	pending_hint.position = positions[index]
+
+## T07b: show one glowing line per route. routes: Array of {id, a, b, ships, status}.
+## Lines are created once per route and only restyled afterwards; removed when the route is gone.
+func set_routes(routes: Array) -> void:
+	_route_list = routes
+	var seen := {}
+	for r in routes:
+		var id := int(r["id"])
+		var a := int(r["a"])
+		var b := int(r["b"])
+		if a < 0 or b < 0 or a >= positions.size() or b >= positions.size():
+			continue
+		seen[id] = true
+		var half := false  # T68: the opposite direction exists on the same pair: each arrow covers half the line
+		for o in routes:
+			if int(o["a"]) == b and int(o["b"]) == a:
+				half = true
+		var line = route_lines.get(id)
+		if line != null and (line.pair_a != a or line.pair_b != b or line.half != half):
+			line.queue_free()
+			route_lines.erase(id)
+			line = null
+		if line == null:
+			line = load("res://game/route_line.gd").new()
+			add_child(line)
+			line.setup(id, a, b, positions[a], positions[b], planet_radius(), half)
+			route_lines[id] = line
+		line.set_style(str(r.get("status", "running")), int(r.get("ships", 1)))
+	for id in route_lines.keys():
+		if not seen.has(id):
+			route_lines[id].queue_free()
+			route_lines.erase(id)
+
+## Route id whose line is within a few pixels of screen_pos, or -1.
+func pick_route(screen_pos: Vector2) -> int:
+	var best := -1
+	var best_d := 14.0
+	for id in route_lines:
+		var d: float = route_lines[id].screen_distance(camera, screen_pos)
+		if d < best_d:
+			best_d = d
+			best = id
+	return best
 
 func _load_planets() -> Array:
 	var f := FileAccess.open(PLANETS_PATH, FileAccess.READ)
@@ -202,9 +238,10 @@ func apply_tunables() -> void:
 	if hint != null:  # rebuilt at the new size on the next set_hint call
 		hint.queue_free()
 		hint = null
-	if dock_dot != null:  # rebuilt at the new size on the next set_dock_dot call
-		dock_dot.queue_free()
-		dock_dot = null
+	for id in route_lines.keys():  # route lines start at the planet surface: rebuild at the new size
+		route_lines[id].queue_free()
+	route_lines.clear()
+	set_routes(_route_list)
 	_update_camera()
 
 func _process(delta: float) -> void:
@@ -238,7 +275,13 @@ func _input(event: InputEvent) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	# T04: left click picks a planet with a camera ray / sphere test.
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-		planet_clicked.emit(pick_planet(event.position))
+		var hit := pick_planet(event.position)
+		if hit < 0:
+			var rid := pick_route(event.position)
+			if rid >= 0:
+				route_clicked.emit(rid)
+				return
+		planet_clicked.emit(hit)
 
 ## Returns index of nearest planet hit by the camera ray through screen_pos, or -1.
 func pick_planet(screen_pos: Vector2) -> int:
