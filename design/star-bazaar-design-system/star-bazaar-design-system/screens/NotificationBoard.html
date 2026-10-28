@@ -1,0 +1,318 @@
+<!doctype html>
+<html data-theme="dark"><head><style>/* Star Bazaar UI — component styles. Every colour, gap and radius is a token from tokens.json. */
+@import url("https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap");
+
+html, body { margin: 0; background: var(--void-100); color: var(--ink); font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
+.ds-pad { padding: var(--space-5); }
+.ds-row { display: flex; gap: var(--space-4); align-items: center; flex-wrap: wrap; }
+.ds-mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.ds-caption { font: 500 11px/14px var(--font-sans); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-muted); }
+.ds-muted { color: var(--ink-muted); } .ds-subtle { color: var(--ink-subtle); }
+.ds-good { color: var(--signal-good); } .ds-warn { color: var(--signal-warn); } .ds-bad { color: var(--signal-bad); } .ds-info-c { color: var(--signal-info); }
+
+/* Space backdrop: void + warm dust; stars come from StarBazaar.starfield() on a canvas.ds-stars */
+.ds-space { position: relative; overflow: hidden; background:
+  radial-gradient(ellipse 40% 30% at 30% 62%, #5a46362e, transparent 70%),
+  radial-gradient(ellipse 35% 25% at 62% 30%, #5a46361f, transparent 70%),
+  radial-gradient(ellipse 120% 90% at 50% 50%, var(--void-100), var(--void-000)); }
+.ds-stars { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+
+/* Icons */
+.ds-icon { width: 18px; height: 18px; display: inline-block; flex: none; vertical-align: middle; }
+.ds-icon svg { width: 100%; height: 100%; display: block; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.ds-energy { color: var(--commodity-energy); } .ds-food { color: var(--commodity-food); } .ds-cash { color: var(--cash); }
+
+/* Glass panel */
+.ds-panel { background: var(--panel-100); border: 1px solid var(--line-200); border-radius: var(--radius-lg);
+  box-shadow: var(--panel-lift); backdrop-filter: blur(var(--blur-glass)); -webkit-backdrop-filter: blur(var(--blur-glass)); }
+.ds-sec { display: flex; flex-direction: column; gap: var(--space-2); }
+
+/* Key caps */
+.ds-kbd { display: inline-grid; place-items: center; min-width: 20px; height: 20px; padding: 0 5px; box-sizing: border-box; border: 1px solid var(--line-200); border-bottom-width: 2px; border-radius: var(--radius-sm);
+  font: 400 11px/1 var(--font-mono); color: var(--ink-muted); background: var(--panel-200); }
+
+/* Top bar */
+.ds-topbar { display: flex; align-items: center; gap: var(--space-6); height: 60px; padding: 0 var(--space-5); background: linear-gradient(180deg, #0a0c11f0, #0a0c1100); }
+.ds-logo { width: 28px; height: 28px; color: var(--ink); }
+.ds-goal { display: flex; flex-direction: column; gap: 6px; min-width: 360px; }
+.ds-goal .line { font: 400 14px/18px var(--font-sans); letter-spacing: .02em; color: var(--ink-muted); }
+.ds-goal .line b { font: 400 14px/18px var(--font-mono); color: var(--cash); font-variant-numeric: tabular-nums; }
+.ds-goal .track { height: 3px; border-radius: var(--radius-full); background: var(--line-100); overflow: hidden; }
+.ds-goal .track i { display: block; height: 100%; background: var(--cash); }
+.ds-stat-inline { display: flex; align-items: center; gap: var(--space-2); font: 400 13px/16px var(--font-sans); color: var(--ink-muted); letter-spacing: .02em; }
+.ds-stat-inline b { font: 400 14px/18px var(--font-mono); color: var(--ink); font-variant-numeric: tabular-nums; }
+.ds-stat-inline small { font: 400 11px/14px var(--font-mono); color: var(--ink-subtle); }
+.ds-cycle { margin-left: auto; display: flex; align-items: center; gap: var(--space-3); }
+.ds-cycle .n { font: 400 13px/16px var(--font-mono); color: var(--ink-muted); text-align: right; }
+.ds-cycle .s { font: 400 13px/16px var(--font-sans); letter-spacing: .04em; text-align: right; }
+
+/* Buttons */
+.ds-btn { white-space: nowrap; display: inline-flex; align-items: center; justify-content: space-between; gap: var(--space-3); min-height: 40px; padding: 0 var(--space-4);
+  font: 400 14px/18px var(--font-sans); letter-spacing: .06em; color: var(--ink); background: var(--panel-100);
+  border: 1px solid var(--line-200); border-radius: var(--radius-md); cursor: pointer; box-sizing: border-box; }
+.ds-btn:hover { border-color: var(--line-300); background: var(--panel-200); }
+.ds-btn:focus-visible { outline: 1px solid var(--star-warm); outline-offset: 2px; }
+.ds-btn.primary { border-color: var(--star-warm); box-shadow: inset 0 0 18px #f1d4a01f; }
+.ds-btn.ghost { background: none; border-color: transparent; color: var(--ink-muted); }
+.ds-btn.ghost:hover { color: var(--ink); border-color: var(--line-200); }
+.ds-btn.danger:hover { color: var(--signal-bad); border-color: var(--signal-bad); }
+.ds-btn.sm { min-height: 28px; padding: 0 var(--space-3); font-size: 12px; letter-spacing: .04em; }
+.ds-btn[disabled] { color: var(--ink-subtle); border-color: var(--line-100); cursor: not-allowed; background: none; box-shadow: none; }
+.ds-btn .ds-icon { width: 16px; height: 16px; }
+.ds-btn .ds-kbd { margin-left: var(--space-1); }
+.ds-hint { font: 400 12px/16px var(--font-sans); color: var(--ink-subtle); letter-spacing: .02em; margin-top: 6px; }
+
+/* Run state (Space) */
+.ds-runstate { display: flex; align-items: center; gap: var(--space-3); height: 56px; padding: 0 var(--space-4) 0 var(--space-3); border-radius: var(--radius-lg); cursor: pointer; }
+.ds-runstate .ic { width: 32px; height: 32px; display: grid; place-items: center; border-radius: var(--radius-md); border: 1px solid var(--line-200); color: var(--ink); }
+.ds-runstate .ic .ds-icon { width: 16px; height: 16px; }
+.ds-runstate .t { font: 400 14px/18px var(--font-sans); letter-spacing: .04em; }
+.ds-runstate .d { font: 400 12px/16px var(--font-sans); color: var(--ink-muted); }
+.ds-runstate.paused .ic { border-color: var(--signal-warn); color: var(--signal-warn); }
+.ds-banner { display: inline-flex; align-items: center; gap: var(--space-2); padding: var(--space-2) var(--space-4); border-radius: var(--radius-full); border: 1px solid #e2c05e66; background: var(--panel-100);
+  color: var(--signal-warn); font: 400 13px/18px var(--font-sans); letter-spacing: .03em; backdrop-filter: blur(var(--blur-glass)); }
+.ds-banner .ds-icon { width: 14px; height: 14px; }
+
+/* Map labels & markers */
+.ds-maplabel { display: inline-flex; flex-direction: column; gap: 3px; font: 400 13px/16px var(--font-sans); letter-spacing: .04em; color: var(--ink); text-shadow: 0 1px 6px #000; white-space: nowrap; }
+.ds-maplabel .kind { font-size: 11px; line-height: 14px; color: var(--ink-muted); letter-spacing: .06em; }
+.ds-maplabel .yields { display: flex; gap: var(--space-2); font: 400 11px/14px var(--font-mono); color: var(--ink); }
+.ds-maplabel .yields span { display: inline-flex; align-items: center; gap: 3px; }
+.ds-maplabel .yields .ds-icon { width: 12px; height: 12px; }
+.ds-maplabel.dim { color: var(--ink-muted); }
+.ds-maplabel.locked { color: var(--ink-subtle); }
+.ds-sysname { font: 300 15px/20px var(--font-sans); letter-spacing: .3em; color: var(--ink-muted); text-transform: uppercase; }
+.ds-routetag { display: inline-flex; align-items: center; gap: 6px; padding: 3px 8px; border-radius: var(--radius-full); background: var(--panel-100); border: 1px solid var(--line-100);
+  font: 400 11px/14px var(--font-mono); color: var(--ink); white-space: nowrap; cursor: pointer; backdrop-filter: blur(6px); }
+.ds-routetag .ds-icon { width: 12px; height: 12px; }
+.ds-routetag:hover, .ds-routetag[aria-selected="true"] { border-color: var(--line-300); }
+.ds-routetag.waiting { color: var(--signal-warn); border-color: #e2c05e55; }
+
+.ds-reticle { position: relative; border-radius: var(--radius-full); border: 1px solid var(--line-300); filter: drop-shadow(0 0 5px var(--star-warm)); }
+.ds-reticle::before, .ds-reticle::after { content: ""; position: absolute; background: var(--star-warm); }
+.ds-reticle::before { left: 50%; top: -7px; bottom: -7px; width: 1px; transform: translateX(-50%);
+  -webkit-mask: linear-gradient(#000 0 5px, transparent 5px calc(100% - 5px), #000 calc(100% - 5px)); mask: linear-gradient(#000 0 5px, transparent 5px calc(100% - 5px), #000 calc(100% - 5px)); }
+.ds-reticle::after { top: 50%; left: -7px; right: -7px; height: 1px; transform: translateY(-50%);
+  -webkit-mask: linear-gradient(90deg, #000 0 5px, transparent 5px calc(100% - 5px), #000 calc(100% - 5px)); mask: linear-gradient(90deg, #000 0 5px, transparent 5px calc(100% - 5px), #000 calc(100% - 5px)); }
+
+/* Planet spheres — set the class for the world type, size with width/height */
+.ds-planet { position: relative; border-radius: var(--radius-full); flex: none; overflow: hidden;
+  background: radial-gradient(circle at 34% 32%, var(--p-hi), var(--p-mid) 42%, var(--p-lo) 78%);
+  box-shadow: inset -0.28em -0.18em 0.6em #000000e6; font-size: 40px; }
+.ds-planet::after { content: ""; position: absolute; inset: 0; border-radius: inherit; background: radial-gradient(circle at 110% 110%, #000000f2 20%, transparent 62%); }
+.ds-planet.terran { --p-hi: #cfe0ea; --p-mid: #3f6f8e; --p-lo: #11263a;
+  background: radial-gradient(ellipse 30% 14% at 40% 30%, #e8eef0cc, transparent 70%), radial-gradient(ellipse 26% 18% at 62% 58%, #4f6a4ab3, transparent 72%), radial-gradient(ellipse 22% 12% at 30% 60%, #5d7350a6, transparent 70%), radial-gradient(circle at 34% 32%, var(--p-hi), var(--p-mid) 42%, var(--p-lo) 78%); }
+.ds-planet.terran.atmo { box-shadow: inset -0.28em -0.18em 0.6em #000000e6, var(--glow-atmo); overflow: visible; }
+.ds-planet.arid { --p-hi: #e2c39b; --p-mid: #9a7452; --p-lo: #3a2818;
+  background: repeating-linear-gradient(-18deg, #ffffff08 0 3%, transparent 3% 7%), radial-gradient(circle at 34% 32%, var(--p-hi), var(--p-mid) 42%, var(--p-lo) 78%); }
+.ds-planet.frozen { --p-hi: #e6eaee; --p-mid: #8d969f; --p-lo: #2a2f36; }
+.ds-planet.molten { --p-hi: #f0b37a; --p-mid: #8a3d22; --p-lo: #2a0f08;
+  background: radial-gradient(ellipse 18% 8% at 55% 55%, #ffb36a99, transparent 70%), radial-gradient(circle at 34% 32%, var(--p-hi), var(--p-mid) 42%, var(--p-lo) 78%); }
+.ds-planet.gas { --p-hi: #e9d6b8; --p-mid: #a1876a; --p-lo: #33271c;
+  background: repeating-linear-gradient(8deg, #ffffff12 0 6%, #00000014 6% 11%, transparent 11% 16%), radial-gradient(circle at 34% 32%, var(--p-hi), var(--p-mid) 42%, var(--p-lo) 78%); }
+
+/* Sun */
+.ds-star { position: absolute; transform: translate(-50%, -50%); pointer-events: none; }
+.ds-star .halo { position: absolute; left: 50%; top: 50%; width: var(--s, 320px); height: var(--s, 320px); transform: translate(-50%, -50%); border-radius: var(--radius-full);
+  background: radial-gradient(circle, #fff6e6 0 3%, #f1d4a0e6 7%, #f1d4a055 16%, #e6a24c1c 34%, transparent 62%); }
+.ds-star .flare { position: absolute; left: 50%; top: 50%; width: calc(var(--s, 320px) * 2.2); height: 2px; transform: translate(-50%, -50%);
+  background: linear-gradient(90deg, transparent, #f1d4a04d 35%, #fff6e6cc 50%, #f1d4a04d 65%, transparent); }
+.ds-star .flare.v { width: 2px; height: calc(var(--s, 320px) * 0.9); background: linear-gradient(transparent, #f1d4a038 35%, #fff6e699 50%, #f1d4a038 65%, transparent); }
+
+/* Side panel (planet / route) */
+.ds-side { width: 320px; box-sizing: border-box; padding: var(--space-4); display: flex; flex-direction: column; gap: var(--space-4); }
+.ds-side .head { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--space-3); }
+.ds-side h2 { margin: 0; font: 400 20px/26px var(--font-sans); letter-spacing: .01em; }
+.ds-side .sub { font: 400 12px/16px var(--font-sans); letter-spacing: .06em; color: var(--ink-muted); margin-top: 2px; }
+.ds-side .hero { position: relative; height: 110px; margin: 0 calc(var(--space-4) * -1); display: grid; place-items: center; border-top: 1px solid var(--line-100); border-bottom: 1px solid var(--line-100);
+  background: radial-gradient(circle at 80% 15%, #f1d4a033, transparent 45%), var(--void-000); overflow: hidden; }
+.ds-side .hero .ds-planet { width: 76px; height: 76px; font-size: 34px; }
+.ds-x { width: 28px; height: 28px; display: grid; place-items: center; border-radius: var(--radius-md); border: 1px solid transparent; background: none; color: var(--ink-muted); cursor: pointer; padding: 0; flex: none; }
+.ds-x:hover { color: var(--ink); border-color: var(--line-200); }
+.ds-x .ds-icon { width: 16px; height: 16px; }
+
+.ds-flow { display: grid; grid-template-columns: 56px 1fr auto; row-gap: 6px; column-gap: var(--space-3); align-items: center; font: 400 13px/18px var(--font-sans); }
+.ds-flow .k { color: var(--ink-muted); }
+.ds-flow .c { display: inline-flex; align-items: center; gap: 6px; }
+.ds-flow .c .ds-icon { width: 14px; height: 14px; }
+.ds-flow .v { font: 400 13px/18px var(--font-mono); font-variant-numeric: tabular-nums; }
+.ds-flow .v small { color: var(--ink-subtle); font-size: 11px; }
+
+.ds-stock { display: grid; grid-template-columns: 70px 1fr 74px; gap: var(--space-3); align-items: center; font: 400 12px/16px var(--font-sans); color: var(--ink-muted); }
+.ds-stock .bar { height: 6px; border-radius: var(--radius-sm); background: var(--line-100); overflow: hidden; }
+.ds-stock .bar i { display: block; height: 100%; border-radius: var(--radius-sm); }
+.ds-stock .n { font: 400 12px/16px var(--font-mono); color: var(--ink); text-align: right; font-variant-numeric: tabular-nums; }
+.ds-stock .n.full { color: var(--signal-warn); }
+
+.ds-conn { display: flex; flex-direction: column; gap: 2px; }
+.ds-conn .route { display: flex; align-items: center; gap: var(--space-2); padding: 6px var(--space-2); border-radius: var(--radius-sm); font: 400 13px/18px var(--font-sans); cursor: pointer; }
+.ds-conn .route:hover { background: var(--panel-200); }
+.ds-conn .route .ds-icon { width: 14px; height: 14px; }
+.ds-conn .route .net { margin-left: auto; font: 400 12px/16px var(--font-mono); }
+.ds-conn .ship { display: flex; align-items: center; gap: var(--space-2); padding: 4px var(--space-2) 4px 30px; font: 400 12px/16px var(--font-sans); color: var(--ink-muted); }
+.ds-conn .ship .ds-icon { width: 14px; height: 14px; }
+.ds-conn .ship .st { margin-left: auto; }
+.ds-conn .ship .rm { margin-left: var(--space-2); background: none; border: 1px solid var(--line-100); border-radius: var(--radius-sm); color: var(--ink-muted); font: 400 11px/14px var(--font-sans); letter-spacing: .04em; padding: 3px 8px; cursor: pointer; }
+.ds-conn .ship .rm:hover { color: var(--signal-bad); border-color: var(--signal-bad); }
+
+.ds-ledger { display: grid; grid-template-columns: 1fr auto; row-gap: 8px; font: 400 13px/18px var(--font-sans); }
+.ds-ledger .v { font: 400 13px/18px var(--font-mono); text-align: right; font-variant-numeric: tabular-nums; }
+.ds-ledger .k { color: var(--ink-muted); }
+.ds-ledger .tot { border-top: 1px solid var(--line-200); padding-top: 8px; color: var(--ink); }
+.ds-ledger .tot.v { font-size: 15px; }
+.ds-last { font: 400 12px/16px var(--font-mono); color: var(--ink-subtle); }
+.ds-status { display: inline-flex; align-items: center; gap: 8px; font: 400 13px/18px var(--font-sans); }
+.ds-status::before { content: ""; width: 7px; height: 7px; border-radius: var(--radius-full); background: currentColor; }
+
+/* Notification board */
+.ds-board { width: 320px; box-sizing: border-box; padding: var(--space-3) 0; display: flex; flex-direction: column; }
+.ds-board .grp { padding: var(--space-2) var(--space-4) var(--space-3); display: flex; flex-direction: column; gap: var(--space-3); }
+.ds-board .grp + .grp { border-top: 1px solid var(--line-100); padding-top: var(--space-3); }
+.ds-board .grp header { display: flex; justify-content: space-between; align-items: center; }
+.ds-note { display: grid; grid-template-columns: 16px 1fr; gap: var(--space-3); font: 400 13px/18px var(--font-sans); letter-spacing: .01em; }
+.ds-note .ds-icon { width: 16px; height: 16px; margin-top: 1px; color: var(--ink-muted); }
+.ds-note .when { display: block; font: 400 11px/14px var(--font-mono); color: var(--ink-subtle); margin-top: 2px; }
+.ds-note .fx { display: block; color: var(--ink-muted); }
+.ds-note.mission .ds-icon { color: var(--signal-info); }
+.ds-note.event .ds-icon { color: var(--star-warm); }
+.ds-note.warn, .ds-note.warn .ds-icon { color: var(--signal-warn); }
+.ds-note.good .ds-icon { color: var(--signal-good); }
+.ds-note.old { color: var(--ink-muted); }
+.ds-tut { display: flex; gap: 4px; } .ds-tut i { width: 14px; height: 3px; border-radius: var(--radius-full); background: var(--line-200); } .ds-tut i.on { background: var(--signal-info); }
+
+/* Key hints */
+.ds-keys { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4); font: 400 12px/16px var(--font-sans); color: var(--ink-subtle); letter-spacing: .02em; }
+.ds-keys span { display: inline-flex; align-items: center; gap: 6px; }
+
+/* Event popup */
+.ds-popup { width: 420px; box-sizing: border-box; padding: var(--space-5); display: flex; flex-direction: column; gap: var(--space-3); }
+.ds-popup .kicker { display: flex; align-items: center; gap: var(--space-2); font: 500 11px/14px var(--font-sans); letter-spacing: .14em; text-transform: uppercase; color: var(--star-warm); }
+.ds-popup .kicker .ds-icon { width: 14px; height: 14px; }
+.ds-popup h3 { margin: 0; font: 400 22px/28px var(--font-sans); }
+.ds-popup p { margin: 0; font: 400 14px/21px var(--font-sans); color: var(--ink-muted); }
+.ds-popup .fx { font: 400 13px/18px var(--font-mono); padding: var(--space-2) var(--space-3); border-radius: var(--radius-sm); background: var(--panel-200); }
+.ds-popup .acts { display: flex; gap: var(--space-2); justify-content: flex-end; margin-top: var(--space-2); }
+.ds-choice { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-2); margin-top: var(--space-2); }
+.ds-choice .ds-btn { width: 100%; justify-content: center; }
+.ds-choice .eff { font: 400 12px/16px var(--font-sans); color: var(--ink-muted); text-align: center; margin-top: 6px; }
+</style><style>/* Star Bazaar — generated from tokens.json */
+:root {
+  --void-000: #040508;
+  --void-100: #0a0c11;
+  --panel-100: #0d1016c2;
+  --panel-200: #161a22e6;
+  --panel-300: #202530;
+  --line-100: #ffffff14;
+  --line-200: #ffffff2e;
+  --line-300: #ffffff5c;
+  --ink: #ebe7df;
+  --ink-muted: #a19e97;
+  --ink-subtle: #7f7f80;
+  --star-core: #fff6e6;
+  --star-warm: #f1d4a0;
+  --nebula-dust: #5a4636;
+  --commodity-energy: #e6a24c;
+  --commodity-food: #a8cc6c;
+  --signal-info: #72aae6;
+  --signal-good: #6fc4ad;
+  --signal-warn: #e2c05e;
+  --signal-bad: #e57d6c;
+  --cash: #efe2c4;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 40px;
+  --radius-sm: 3px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+  --radius-full: 999px;
+  --glow-star: 0 0 18px 4px #f1d4a066;
+  --glow-atmo: 0 0 14px 1px #72aae64d;
+  --panel-lift: 0 18px 48px #00000099;
+  --blur-glass: 14px;
+  --font-sans: Jost, "Futura PT", "Avenir Next", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+}
+.map-faction { font-family: var(--font-sans); font-size: 15px; line-height: 20px; font-weight: 400; letter-spacing: 0.22em; }
+.map-label { font-family: var(--font-sans); font-size: 13px; line-height: 16px; font-weight: 400; letter-spacing: 0.04em; }
+.panel-title { font-family: var(--font-sans); font-size: 20px; line-height: 26px; font-weight: 400; letter-spacing: 0.01em; }
+.panel-caption { font-family: var(--font-sans); font-size: 11px; line-height: 14px; font-weight: 500; letter-spacing: 0.12em; }
+.body { font-family: var(--font-sans); font-size: 13px; line-height: 18px; font-weight: 400; letter-spacing: 0.02em; }
+.button { font-family: var(--font-sans); font-size: 14px; line-height: 18px; font-weight: 400; letter-spacing: 0.08em; }
+.readout { font-family: var(--font-mono); font-size: 13px; line-height: 16px; font-weight: 400; letter-spacing: 0.02em; }
+.readout-sm { font-family: var(--font-mono); font-size: 11px; line-height: 14px; font-weight: 400; letter-spacing: 0.04em; }
+</style><script>/* Star Bazaar UI — tiny helper: line icons and a seeded starfield. No React. */
+(function () {
+  var P = {
+    energy: '<path d="M12 2.5l5.5 7L12 21.5 6.5 9.5z"/><path d="M6.5 9.5h11M12 2.5l-2 7 2 12 2-12z"/>',
+    food: '<path d="M12 21.5V8.5"/><path d="M12 8.5c0-3 2-5.3 4.8-5.8 0 3-2 5.3-4.8 5.8zM12 8.5C12 5.5 10 3.2 7.2 2.7c0 3 2 5.3 4.8 5.8z"/><path d="M12 14.5c0-2.6 1.9-4.6 4.5-5 0 2.6-1.9 4.6-4.5 5zM12 14.5c0-2.6-1.9-4.6-4.5-5 0 2.6 1.9 4.6 4.5 5z"/>',
+    cash: '<circle cx="12" cy="12" r="8.5"/><path d="M14.6 9.3c-.5-.9-1.4-1.4-2.6-1.4-1.5 0-2.6.8-2.6 2s1.1 1.7 2.6 2.1c1.5.4 2.6.9 2.6 2.1s-1.1 2.1-2.6 2.1c-1.2 0-2.1-.5-2.6-1.4M12 6.2v1.7M12 16.2v1.6"/>',
+    expenses: '<path d="M4 6h16M4 12h10M4 18h6"/><path d="M17 14v6M14.5 17.5L17 20l2.5-2.5"/>',
+    skills: '<circle cx="12" cy="4.5" r="2"/><circle cx="5.5" cy="19.5" r="2"/><circle cx="12" cy="19.5" r="2"/><circle cx="18.5" cy="19.5" r="2"/><path d="M12 6.5v11M12 11l-6.5 6.5M12 11l6.5 6.5"/>',
+    ship: '<path d="M3.5 9h11l6 3-6 3h-11z"/><path d="M7 9v6M10.5 9v6M3.5 12H1.5"/>',
+    route: '<circle cx="5" cy="17.5" r="2"/><circle cx="19" cy="6.5" r="2"/><path d="M7 17.5c6 0 4-11 10-11"/>',
+    storage: '<path d="M3.5 7.5L12 3l8.5 4.5v9L12 21l-8.5-4.5z"/><path d="M3.5 7.5L12 12l8.5-4.5M12 12v9"/>',
+    planet: '<circle cx="12" cy="12" r="5.5"/><ellipse cx="12" cy="12" rx="10.5" ry="3.4" transform="rotate(-20 12 12)"/>',
+    research: '<path d="M9.5 3h5M10.5 3v6L5 19.2A1.3 1.3 0 0 0 6.2 21h11.6a1.3 1.3 0 0 0 1.2-1.8L13.5 9V3"/><path d="M7.4 15h9.2"/>',
+    expansion: '<path d="M12 3v18M3 12h18"/><path d="M9.5 5.5L12 3l2.5 2.5M9.5 18.5L12 21l2.5-2.5M5.5 9.5L3 12l2.5 2.5M18.5 9.5L21 12l-2.5 2.5"/>',
+    notice: '<path d="M6 16v-5a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/>',
+    event: '<path d="M12 3l2.2 6.3L21 12l-6.8 2.7L12 21l-2.2-6.3L3 12l6.8-2.7z"/>',
+    lock: '<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
+    pause: '<path d="M9 5v14M15 5v14"/>',
+    play: '<path d="M8 5l11 7-11 7z"/>',
+    chevron: '<path d="M9 5l7 7-7 7"/>',
+    back: '<path d="M15 5l-7 7 7 7"/>',
+    close: '<path d="M6 6l12 12M18 6L6 18"/>',
+    plus: '<path d="M12 6v12M6 12h12"/>',
+    mark: '<circle cx="12" cy="12" r="9.5"/><path d="M12 4.5l2.6 7.5L12 19.5 9.4 12z"/>'
+  };
+  function icon(name) { return '<svg viewBox="0 0 24 24" aria-hidden="true">' + (P[name] || '') + '</svg>'; }
+  function rng(seed) { var s = seed >>> 0 || 1; return function () { s ^= s << 13; s ^= s >>> 17; s ^= s << 5; return ((s >>> 0) % 100000) / 100000; }; }
+  function starfield(canvas, opts) {
+    opts = opts || {};
+    var r = rng(opts.seed || 7), dpr = window.devicePixelRatio || 1;
+    var w = canvas.clientWidth || canvas.width, h = canvas.clientHeight || canvas.height;
+    canvas.width = w * dpr; canvas.height = h * dpr;
+    var c = canvas.getContext('2d'); c.scale(dpr, dpr);
+    var n = Math.round(w * h * (opts.density || 0.0011));
+    var tints = ['255,246,230', '241,212,160', '200,220,255', '255,255,255'];
+    for (var i = 0; i < n; i++) {
+      var x = r() * w, y = r() * h, t = r(), rad = t > 0.985 ? 1.5 : t > 0.9 ? 1 : 0.55;
+      var a = 0.25 + r() * 0.65, col = tints[Math.floor(r() * tints.length)];
+      if (rad > 1.2) { var g = c.createRadialGradient(x, y, 0, x, y, rad * 5); g.addColorStop(0, 'rgba(' + col + ',' + a * 0.6 + ')'); g.addColorStop(1, 'rgba(' + col + ',0)'); c.fillStyle = g; c.beginPath(); c.arc(x, y, rad * 5, 0, 6.283); c.fill(); }
+      c.fillStyle = 'rgba(' + col + ',' + a + ')'; c.beginPath(); c.arc(x, y, rad, 0, 6.283); c.fill();
+    }
+  }
+  function hydrate(root) {
+    root = root || document;
+    var els = root.querySelectorAll('[data-icon]');
+    for (var i = 0; i < els.length; i++) { els[i].classList.add('ds-icon'); els[i].innerHTML = icon(els[i].getAttribute('data-icon')); }
+    var cs = root.querySelectorAll('canvas.ds-stars');
+    for (var j = 0; j < cs.length; j++) starfield(cs[j], { seed: +cs[j].getAttribute('data-seed') || 7, density: +cs[j].getAttribute('data-density') || undefined });
+  }
+  /* Numbers the way the game writes them: 6,840 · +348 · −80 */
+  function num(n, signed) { var s = Math.abs(n).toLocaleString('en-US'); return n < 0 ? '−' + s : (signed ? '+' + s : s); }
+  window.StarBazaar = { icon: icon, icons: Object.keys(P), starfield: starfield, hydrate: hydrate, num: num };
+})();
+</script><meta charset="utf-8"><title>NotificationBoard</title></head>
+<body>
+<div class="ds-space ds-pad" style="min-height:592px">
+  <canvas class="ds-stars" data-seed="33"></canvas>
+  <aside class="ds-panel ds-board" style="position:relative">
+    <div class="grp"><header><span class="ds-caption">Mission</span><span class="ds-tut"><i class="on"></i><i class="on"></i><i class="on"></i><i></i></span></header>
+      <div class="ds-note mission"><span data-icon="notice"></span><span>Reach 10,000 by cycle 10.<span class="fx">A busy route earns more with a second ship.</span></span></div>
+      <div class="ds-note mission"><span data-icon="route"></span><span>Routes run by themselves. You only decide where they go.<span class="when">Tutorial 3 of 4</span></span></div></div>
+    <div class="grp"><header><span class="ds-caption">Event feed</span></header>
+      <div class="ds-note event"><span data-icon="event"></span><span>News from the sky: dust storm over Tillam.<span class="fx">Tillam makes 10% less food for 2 cycles.</span><span class="when">Cycle 6</span></span></div></div>
+    <div class="grp"><header><span class="ds-caption">Notices</span></header>
+      <div class="ds-note warn"><span data-icon="pause"></span><span>Paused. Nothing earns while paused.<span class="when">Cycle 7</span></span></div>
+      <div class="ds-note warn"><span data-icon="route"></span><span>Voltara to Tillam: Waiting for room.<span class="when">Cycle 7</span></span></div>
+      <div class="ds-note good"><span data-icon="skills"></span><span>Skill learned<span class="fx">Long Haul: trip cost −10%.</span><span class="when">Cycle 6</span></span></div>
+      <div class="ds-note"><span data-icon="expansion"></span><span>Expansion points earned<span class="fx">First route from Voltara.</span><span class="when">Cycle 5</span></span></div>
+      <div class="ds-note old"><span data-icon="notice"></span><span>Game saved.<span class="when">Cycle 4</span></span></div></div>
+  </aside>
+</div>
+<script>StarBazaar.hydrate();</script>
+</body></html>

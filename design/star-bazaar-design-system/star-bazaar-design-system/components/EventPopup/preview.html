@@ -1,0 +1,25 @@
+<!-- @dsCard group="Dialogs" height=430 width=960 -->
+<!doctype html>
+<html><head><meta charset="utf-8"><title>EventPopup</title></head>
+<body>
+<div class="ds-space ds-pad" style="min-height:382px;display:flex;gap:24px;align-items:flex-start">
+  <canvas class="ds-stars" data-seed="44"></canvas>
+  <div class="ds-panel ds-popup" style="position:relative">
+    <div class="kicker"><span data-icon="event"></span>News from the sky</div>
+    <h3>Dust storm over Tillam</h3>
+    <p>A belt of fine grit has settled over Tillam's fields. The farmers are unimpressed. So is the harvest.</p>
+    <div class="fx"><span class="ds-food" data-icon="food" style="width:14px;height:14px"></span> Tillam makes 10% less food for 2 cycles.</div>
+    <div class="acts"><button class="ds-btn primary" style="min-width:96px;justify-content:center">OK</button></div>
+  </div>
+  <div class="ds-panel ds-popup" style="position:relative">
+    <div class="kicker"><span data-icon="event"></span>News from the sky · planned</div>
+    <h3>A nomad fleet asks to dock</h3>
+    <p>They want a week of berths at Ashgate and promise to pay in something they call "goods".</p>
+    <div class="ds-choice">
+      <div><button class="ds-btn">Let them dock</button><div class="eff">+1 expansion point, −5% Ashgate room</div></div>
+      <div><button class="ds-btn">Turn them away</button><div class="eff">No change</div></div>
+    </div>
+  </div>
+</div>
+<script>StarBazaar.hydrate();</script>
+</body></html>

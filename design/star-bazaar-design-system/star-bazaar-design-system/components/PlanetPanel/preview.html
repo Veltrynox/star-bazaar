@@ -1,0 +1,27 @@
+<!-- @dsCard group="Panels" height=800 width=380 -->
+<!doctype html>
+<html><head><meta charset="utf-8"><title>PlanetPanel</title><style>.ds-conn .ship > .ds-icon:first-child { margin-left: -22px; }</style></head>
+<body>
+<div class="ds-space ds-pad" style="min-height:752px">
+  <canvas class="ds-stars" data-seed="30"></canvas>
+  <aside class="ds-panel ds-side" style="position:relative">
+    <div class="head"><div><h2>Voltara</h2><div class="sub">Hollin Reach · Molten world</div></div><button class="ds-x" aria-label="Close"><span data-icon="close"></span></button></div>
+    <div class="hero"><canvas class="ds-stars" data-seed="170" data-density="0.002"></canvas><div class="ds-planet molten"></div></div>
+    <div class="ds-sec"><span class="ds-caption">Production</span><div class="ds-flow">
+      <span class="k">Makes</span><span class="c"><span data-icon="energy" class="ds-energy"></span>Energy</span><span class="v">60 <small>/ cycle</small></span>
+      <span class="k">Needs</span><span class="c"><span data-icon="food" class="ds-food"></span>Food</span><span class="v">20 <small>/ cycle</small></span></div></div>
+    <div class="ds-sec"><span class="ds-caption">Stock</span>
+      <div class="ds-stock"><span>Energy</span><span class="bar"><i style="width:70%;background:var(--commodity-energy)"></i></span><span class="n">140 / 200</span></div>
+      <div class="ds-stock"><span>Food</span><span class="bar"><i style="width:24%;background:var(--commodity-food)"></i></span><span class="n">12 / 50</span></div></div>
+    <div class="ds-sec"><span class="ds-caption">Connections</span><div class="ds-conn">
+      <div class="route"><span data-icon="energy" class="ds-energy"></span>To Ashgate<span class="net ds-good">+286</span></div>
+      <div class="ship"><span data-icon="ship"></span>Ship 1 of 2<span class="st">On the way</span><button class="rm">Remove</button></div>
+      <div class="ship"><span data-icon="ship"></span>Ship 2 of 2<span class="st">Coming back</span><button class="rm">Remove</button></div>
+      <div class="route"><span data-icon="energy" class="ds-energy"></span>To Tillam<span class="net ds-bad">−80</span></div>
+      <div class="ship"><span data-icon="ship"></span>Ship 1 of 1<span class="st ds-warn">Waiting for room.</span><button class="rm">Remove</button></div></div></div>
+    <div><div style="display:flex;gap:8px"><button class="ds-btn primary" style="flex:1">Send to…<span data-icon="chevron"></span></button><button class="ds-btn"><span data-icon="ship"></span>Buy ship</button></div>
+      <div class="ds-hint">1 free ship. Ship upkeep 80 / cycle each.</div></div>
+  </aside>
+</div>
+<script>StarBazaar.hydrate();</script>
+</body></html>

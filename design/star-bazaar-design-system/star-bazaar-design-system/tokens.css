@@ -1,0 +1,48 @@
+/* Star Bazaar — generated from tokens.json */
+:root {
+  --void-000: #040508;
+  --void-100: #0a0c11;
+  --panel-100: #0d1016c2;
+  --panel-200: #161a22e6;
+  --panel-300: #202530;
+  --line-100: #ffffff14;
+  --line-200: #ffffff2e;
+  --line-300: #ffffff5c;
+  --ink: #ebe7df;
+  --ink-muted: #a19e97;
+  --ink-subtle: #7f7f80;
+  --star-core: #fff6e6;
+  --star-warm: #f1d4a0;
+  --nebula-dust: #5a4636;
+  --commodity-energy: #e6a24c;
+  --commodity-food: #a8cc6c;
+  --signal-info: #72aae6;
+  --signal-good: #6fc4ad;
+  --signal-warn: #e2c05e;
+  --signal-bad: #e57d6c;
+  --cash: #efe2c4;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 40px;
+  --radius-sm: 3px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+  --radius-full: 999px;
+  --glow-star: 0 0 18px 4px #f1d4a066;
+  --glow-atmo: 0 0 14px 1px #72aae64d;
+  --panel-lift: 0 18px 48px #00000099;
+  --blur-glass: 14px;
+  --font-sans: Jost, "Futura PT", "Avenir Next", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+}
+.map-faction { font-family: var(--font-sans); font-size: 15px; line-height: 20px; font-weight: 400; letter-spacing: 0.22em; }
+.map-label { font-family: var(--font-sans); font-size: 13px; line-height: 16px; font-weight: 400; letter-spacing: 0.04em; }
+.panel-title { font-family: var(--font-sans); font-size: 20px; line-height: 26px; font-weight: 400; letter-spacing: 0.01em; }
+.panel-caption { font-family: var(--font-sans); font-size: 11px; line-height: 14px; font-weight: 500; letter-spacing: 0.12em; }
+.body { font-family: var(--font-sans); font-size: 13px; line-height: 18px; font-weight: 400; letter-spacing: 0.02em; }
+.button { font-family: var(--font-sans); font-size: 14px; line-height: 18px; font-weight: 400; letter-spacing: 0.08em; }
+.readout { font-family: var(--font-mono); font-size: 13px; line-height: 16px; font-weight: 400; letter-spacing: 0.02em; }
+.readout-sm { font-family: var(--font-mono); font-size: 11px; line-height: 14px; font-weight: 400; letter-spacing: 0.04em; }

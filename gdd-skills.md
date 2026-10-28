@@ -2,7 +2,7 @@ Star Bazaar: Skill Tree, Space Storage and Game Menu (design draft 1)
 Date: 27 October 2026
 Split out of gdd.md. Read only when your brief lists it. Owner: the project owner.
 
-Status: DRAFT. Owner answers 2026-10-27: branches are Logistics, Research, Expansion; Space Storage costs expansion points; permits cost expansion points; the skill screen does not pause the game. Skill names and the node list are still proposals for the owner to edit (task T72). Nothing here is built yet. Numbers are not in this file: they are [GCM:<key>] tokens that point to data/balance.json (or data/skills.json once it exists). Prices, point values and costs are the Economy Designer's job.
+Status: DRAFT (economy numbers set in balance.json v5, 2026-10-27; story names in story/skills.md). Owner answers 2026-10-27: branches are Logistics, Research, Expansion; Space Storage costs expansion points; permits cost expansion points; the skill screen does not pause the game. Skill names and the node list are still proposals for the owner to edit (task T72). Nothing here is built yet. Numbers are not in this file: they are [GCM:<key>] tokens that point to data/balance.json (or data/skills.json once it exists). Prices, point values and costs are the Economy Designer's job.
 
 SECTION INDEX
   1. PRINCIPLES
@@ -33,13 +33,16 @@ Points are earned once per event:
   - First route made between a new pair of planets: [GCM:skill_points_route] point(s).
   - First route or storage in a new system: [GCM:skill_points_system] point(s).
 The same planet, pair or system never pays twice. Closing and re-opening a route does not pay again.
+Name: these are "expansion points" in data keys and in this file; the one on-screen name is "Skill points" (top bar and skill screen header), per the glossary in story/voice.md.
+The player starts with 0 points; the home planet (Voltara) gives the first on cycle 1 (sim assumption, not yet confirmed in code). Values: [GCM:skill_points_planet], [GCM:skill_points_route], [GCM:skill_points_system]. A route counts once per planet pair, direction ignored. System 1 has no system bonus.
+System 1 total: 3 planets plus 2 profitable pairs x 2 = 7 points (9 if the loss-making Tillam-Ashgate pair is counted). The whole tree costs 22 points (A: 1, 1, 3, 2, 2; B: 1, 2, 2, 2; C: 1, 1, 2, 2). So system 1 buys one short branch or about 4 nodes, never the tree; the full tree needs systems 2 and 3, which are on hold.
 The top bar shows "Skill points: N" next to the Skills button. A small mark appears on the button when the player has points and a skill is available.
 A notice appears when points are earned ("+1 skill point: first visit to Tillam").
 
 ========================================
 3. THE THREE BRANCHES
 ========================================
-Skills below are proposals. "Cost" is in expansion points, set by the Economy Designer: [GCM:skill_cost_<id>].
+Skills below are proposals. "Cost" is in expansion points, set by the Economy Designer: [GCM:skill_cost_<id>] (balance.json v5 has all thirteen, A1 to C4). Effect keys: A3 Second Hull uses hauler_price, hauler_cargo_mult, hauler_upkeep_mult; A4 skill_A4_route_units; A5 skill_A5_upkeep; B2 skill_B2_order_units; B3 skill_B3_margin.
 
 BRANCH A: LOGISTICS (how goods move and are kept)
   A1 Space Storage - the first node of the branch; it costs expansion points like any skill (section 4).
@@ -65,7 +68,8 @@ Prerequisites: each branch is a short chain. A node needs the node above it in t
 ========================================
 4. SPACE STORAGE (the first skill)
 ========================================
-Space Storage is the first node of the Logistics branch and the natural first purchase. It costs expansion points ([GCM:skill_cost_space_storage]); it is not free. Early points come from the first planet visits and the first route, so it is reachable in the first cycles. Until it is learned the player has planet storage only.
+Space Storage is the first node of the Logistics branch and the natural first purchase. It costs expansion points ([GCM:skill_cost_A1]); it is not free. Early points come from the first planet visits and the first route, so it is reachable in the first cycles. Until it is learned the player has planet storage only.
+Gate (decision by the owner, 2026-10-28): A1 stays Locked until the player has visited all planets of system 1 (Voltara, Tillam, Ashgate) and has made at least one route; it then costs [GCM:skill_cost_A1] as usual. Saves with A1 already learned keep it.
 Rules:
   - One space storage per system, much bigger than a planet storage. The capacity is [GCM:space_storage_capacity].
   - It is company property and is set up on the first use, like planet storage.
@@ -113,8 +117,9 @@ The menu pauses the game while open. The skill tree opened from its own top-bar 
   - The skill screen and the game menu are separate scenes, so the menu list can grow without touching the tree.
 
 ========================================
-9. ENDINGS (to design)
+9. ENDINGS (drafted in story/endings.md; wiring T77 to T80)
 ========================================
+Update 2026-10-27: the win now ends with a choice, Release or Stay as a corporation, and each side has three tiers (Bare, Partial, Full) picked from the skills learned; see "The win choice and endings" in gdd.md and story/endings.md for the tables and ids. Inputs from the tree: learned skill ids, learned count per branch, dominant branch, branches fully learned, systems reached. Full is unreachable until systems 2 and 3 are unblocked. The Expansion branch has no income effect while they are on hold, so it only shapes the ending tier. The earlier text below is kept as history.
 The skills the player learns decide which ending they get. The cash goal stays the win condition (gdd.md); the ending is the story told when it is reached, so one run can end in different ways depending on the branch the company leaned on (for example Logistics, Research or Expansion, or a balance of all three). The loss ending is separate.
 How many endings, and how the skills pick one (a majority branch, a key skill, or a set of choices) is the owner's call. The story agent proposes wording and structure once the owner answers.
 
@@ -123,6 +128,7 @@ How many endings, and how the skills pick one (a majority branch, a key skill, o
 ========================================
 Answered 2026-10-27: branches are Logistics, Research, Expansion; Space Storage costs points; permits cost points; the screen does not pause the game; the first menu entry after the basics is Settings.
 Still open (task T72 for the owner):
-  1. What skills belong in each of the three branches, and which skills push toward which ending?
-  2. How many endings, and how does the tree choose one?
-  3. Does the player start with any expansion points, or earn the first ones from the first visit and route?
+  1. What skills belong in each of the three branches, and which skills push toward which ending? (Drafted in story/skills.md and story/endings.md; owner to confirm.)
+  2. How many endings, and how does the tree choose one? (Drafted: 2 sides x 3 tiers, tables in story/endings.md; owner to confirm.)
+  3. Starting points: answered in the economy handoff, start at 0, first points from the first visit and route (home planet gives 1).
+  4. Expansion has no income effect while systems 2 and 3 are on hold: acceptable as an ending-only branch?

@@ -124,6 +124,8 @@ The Gameplay Programmer and the Galaxy Builder write into the Godot project, usi
 Every agent's output is translated into a fixed, versioned JSON schema, and only that JSON
 crosses into the engine.
 
+Story texts: the story-designer owns story/*.md (voice, screens, events, skills, endings). tools/build_story.py generates data/story_text.json and data/events.json from them (the only writer of those two files; text-only exception to the data/ rule); the gameplay-programmer wires them through game/story_text.gd and does not edit story/*.md. Event effect values are not in events.json: they live in data/balance.json and are listed in tools/event_effects.md. Debug-only controls (debug menu, force goal) are stripped from the release export.
+
 Galaxy generation: scatter a dense point cloud, bake a low-res 3D density grid
 from it, pick the sun points, and propagate light from the suns
 through the volume, dimmed by density. This runs once at scene

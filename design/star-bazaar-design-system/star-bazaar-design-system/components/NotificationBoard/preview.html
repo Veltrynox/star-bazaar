@@ -1,0 +1,22 @@
+<!-- @dsCard group="Panels" height=640 width=380 -->
+<!doctype html>
+<html><head><meta charset="utf-8"><title>NotificationBoard</title></head>
+<body>
+<div class="ds-space ds-pad" style="min-height:592px">
+  <canvas class="ds-stars" data-seed="33"></canvas>
+  <aside class="ds-panel ds-board" style="position:relative">
+    <div class="grp"><header><span class="ds-caption">Mission</span><span class="ds-tut"><i class="on"></i><i class="on"></i><i class="on"></i><i></i></span></header>
+      <div class="ds-note mission"><span data-icon="notice"></span><span>Reach 10,000 by cycle 10.<span class="fx">A busy route earns more with a second ship.</span></span></div>
+      <div class="ds-note mission"><span data-icon="route"></span><span>Routes run by themselves. You only decide where they go.<span class="when">Tutorial 3 of 4</span></span></div></div>
+    <div class="grp"><header><span class="ds-caption">Event feed</span></header>
+      <div class="ds-note event"><span data-icon="event"></span><span>News from the sky: dust storm over Tillam.<span class="fx">Tillam makes 10% less food for 2 cycles.</span><span class="when">Cycle 6</span></span></div></div>
+    <div class="grp"><header><span class="ds-caption">Notices</span></header>
+      <div class="ds-note warn"><span data-icon="pause"></span><span>Paused. Nothing earns while paused.<span class="when">Cycle 7</span></span></div>
+      <div class="ds-note warn"><span data-icon="route"></span><span>Voltara to Tillam: Waiting for room.<span class="when">Cycle 7</span></span></div>
+      <div class="ds-note good"><span data-icon="skills"></span><span>Skill learned<span class="fx">Long Haul: trip cost −10%.</span><span class="when">Cycle 6</span></span></div>
+      <div class="ds-note"><span data-icon="expansion"></span><span>Expansion points earned<span class="fx">First route from Voltara.</span><span class="when">Cycle 5</span></span></div>
+      <div class="ds-note old"><span data-icon="notice"></span><span>Game saved.<span class="when">Cycle 4</span></span></div></div>
+  </aside>
+</div>
+<script>StarBazaar.hydrate();</script>
+</body></html>

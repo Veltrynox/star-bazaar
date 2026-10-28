@@ -1,0 +1,23 @@
+<!-- @dsCard group="Actions" height=260 -->
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Button</title></head>
+<body>
+<div class="ds-space ds-pad" style="height:212px;display:flex;flex-direction:column;gap:20px">
+  <canvas class="ds-stars" data-seed="9"></canvas>
+  <div class="ds-row" style="position:relative">
+    <button class="ds-btn primary" style="width:180px">Send to…<span data-icon="chevron"></span></button>
+    <button class="ds-btn"><span data-icon="ship"></span>Buy ship</button>
+    <button class="ds-btn danger">Remove route</button>
+    <button class="ds-btn ghost">No</button>
+    <button class="ds-btn sm">Skills <span class="ds-kbd">K</span></button>
+  </div>
+  <div class="ds-row" style="position:relative;align-items:flex-start">
+    <div><button class="ds-btn primary">Learn</button></div>
+    <div><button class="ds-btn" disabled>Learned</button></div>
+    <div><button class="ds-btn" disabled><span data-icon="lock"></span>Locked</button></div>
+    <div><button class="ds-btn" disabled>Learn</button><div class="ds-hint ds-warn">Not enough skill points.</div></div>
+    <div><button class="ds-btn" disabled>Continue</button><div class="ds-hint">Continue needs a saved game.</div></div>
+  </div>
+</div>
+<script>StarBazaar.hydrate();</script>
+</body></html>

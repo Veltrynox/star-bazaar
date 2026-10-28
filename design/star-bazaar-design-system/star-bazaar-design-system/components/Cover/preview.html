@@ -1,0 +1,37 @@
+<!-- @dsCard height=288 -->
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Cover</title>
+<style>
+  html, body { margin: 0; }
+  .cover { position: relative; width: 960px; height: 288px; background: var(--void-100); overflow: hidden; }
+  .cover svg { position: absolute; left: 0; top: 0; }
+  .b-star { fill: var(--star-warm); } .b-energy { fill: var(--commodity-energy); } .b-food { fill: var(--commodity-food); }
+  .b-panel { fill: var(--panel-300); } .b-ink { fill: var(--ink); } .b-cut { fill: var(--void-100); }
+  .r-lg { rx: var(--radius-lg); } .r-md { rx: var(--radius-md); }
+  .route { fill: none; stroke: var(--commodity-energy); stroke-width: 2; }
+  .orbit { fill: none; stroke: var(--line-300); stroke-width: 1; }
+  .name { position: absolute; left: 40px; bottom: 72px; max-width: 440px; font: 300 72px/0.95 var(--font-sans); letter-spacing: .02em; color: var(--ink); }
+  .tag { position: absolute; left: 40px; bottom: 40px; max-width: 440px; white-space: nowrap; font: 400 13px/18px var(--font-sans); letter-spacing: .04em; color: var(--ink-muted); }
+</style></head>
+<body>
+<div class="cover">
+  <svg width="960" height="288" viewBox="0 0 960 288">
+    <!-- blocks: panel-300 slab 200×176 (radius-lg), star-warm disc r=72 (radius-full), commodity-energy 80×96, commodity-food 120×80 (radius-md), ink planet r=8
+         arrangement: one tall slab bleeding off the top right, the star disc in front of it, satellites below, all right of x=480
+         pattern: orbits + one route (literal motif) — "Orbits are tilted ellipses… one curved line per lane": line-300 orbits, a commodity-energy route arc
+         steps & radii: space-5 24 gaps, space-6 40 inset; radius-lg 10, radius-md 6, radius-full -->
+    <rect class="b-panel r-lg" x="736" y="-10" width="200" height="186"/>
+    <rect class="b-food r-md" x="528" y="192" width="120" height="80"/>
+    <rect class="b-energy r-md" x="856" y="192" width="80" height="96"/>
+    <circle class="b-star" cx="672" cy="112" r="72"/>
+    <ellipse class="orbit" cx="672" cy="112" rx="112" ry="40"/>
+    <ellipse class="orbit" cx="672" cy="112" rx="168" ry="60"/>
+    <ellipse class="orbit" cx="672" cy="112" rx="192" ry="69"/>
+    <path class="route" d="M560 152 Q 640 230 790 166"/>
+    <circle class="b-ink" cx="790" cy="166" r="8"/>
+    <circle class="b-ink" cx="560" cy="152" r="6"/>
+  </svg>
+  <div class="name">Star<br>Bazaar</div>
+  <div class="tag">A small company in a large indifferent sky.</div>
+</div>
+</body></html>

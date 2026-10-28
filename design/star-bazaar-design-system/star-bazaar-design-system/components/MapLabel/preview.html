@@ -1,0 +1,27 @@
+<!-- @dsCard group="Map" height=230 -->
+<!doctype html>
+<html><head><meta charset="utf-8"><title>MapLabel</title></head>
+<body>
+<div class="ds-space ds-pad" style="height:182px;display:flex;gap:44px;align-items:center;flex-wrap:wrap">
+  <canvas class="ds-stars" data-seed="12"></canvas>
+  <div style="position:relative;display:flex;align-items:center;gap:20px">
+    <div class="ds-reticle" style="width:48px;height:48px;display:grid;place-items:center"><div class="ds-planet molten" style="width:26px;height:26px;font-size:12px"></div></div>
+    <div class="ds-maplabel"><span class="name">Voltara</span><span class="kind">Molten world</span><span class="yields"><span><span data-icon="energy" class="ds-energy"></span>60</span></span></div>
+  </div>
+  <div style="position:relative;display:flex;align-items:center;gap:12px">
+    <div class="ds-planet arid" style="width:30px;height:30px;font-size:14px"></div>
+    <div class="ds-maplabel"><span class="name">Ashgate</span><span class="kind">Arid world</span><span class="yields"><span class="ds-muted">Buys energy and food</span></span></div>
+  </div>
+  <div style="position:relative;display:flex;flex-direction:column;gap:10px">
+    <span class="ds-routetag"><span data-icon="energy" class="ds-energy"></span>2 ships · +286</span>
+    <span class="ds-routetag" aria-selected="true"><span data-icon="food" class="ds-food"></span>1 ship · +142</span>
+    <span class="ds-routetag waiting"><span data-icon="energy" class="ds-energy"></span>Waiting for room.</span>
+  </div>
+  <div style="position:relative;display:flex;align-items:center;gap:10px;color:var(--ink-subtle)">
+    <span data-icon="lock" style="width:16px;height:16px"></span>
+    <div class="ds-maplabel locked"><span class="name">Dunmere Reach</span><span class="kind" style="color:var(--ink-subtle)">System 2 · permit or skill</span></div>
+  </div>
+  <div style="position:relative" class="ds-sysname">Hollin Reach</div>
+</div>
+<script>StarBazaar.hydrate();</script>
+</body></html>

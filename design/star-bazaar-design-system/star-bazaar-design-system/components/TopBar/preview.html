@@ -1,0 +1,17 @@
+<!-- @dsCard group="HUD" height=150 width=1200 -->
+<!doctype html>
+<html><head><meta charset="utf-8"><title>TopBar</title></head>
+<body>
+<div class="ds-space" style="height:150px">
+  <canvas class="ds-stars" data-seed="3"></canvas>
+  <header class="ds-topbar" style="position:relative">
+    <span class="ds-logo" data-icon="mark"></span>
+    <div class="ds-goal"><div class="line">Goal: <b>50,000</b> by cycle <b>30</b>. Now: <b>6,840</b>.</div><div class="track"><i style="width:13.7%"></i></div></div>
+    <span class="ds-stat-inline"><span data-icon="expenses"></span>Expenses <b>432</b><small>/ cycle</small></span>
+    <span class="ds-stat-inline"><span data-icon="skills"></span>Skill points <b>2</b></span>
+    <button class="ds-btn sm">Skills <span class="ds-kbd">K</span></button>
+    <div class="ds-cycle"><div><div class="n">Cycle 7</div><div class="s ds-good">Running.</div></div></div>
+  </header>
+</div>
+<script>StarBazaar.hydrate();</script>
+</body></html>
