@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-10-27",
+  "task": "T65",
+  "status": "done",
+  "files_changed": ["game/route_line.gd", "game/map.gd", "game/storage.gd", "game/main.gd", "game/planet_panel.gd"],
+  "usage_note": "Within turn cap.",
+  "open_questions": [
+    "Economy-designer: planets.json has no price for these (shown as 'no data', Buy/Sell button disabled): planet_1 energy_sell, food_buy; planet_2 energy_buy, food_sell; planet_3 energy_buy, food_sell. Supply them if every commodity should show both prices.",
+    "Owner: with storage starting at 0 and refill 5/cycle, a first route moves little at first (cycle 1 test: cash 1500 to 480 after buying a ship plus one cycle). Economy retune needed?",
+    "Owner: please eyeball line width (ART_WIDTH 0.30 to 0.18, head and tail shrink with it) and sun size (1.5 to 0.75)."
+  ],
+  "handoff": "Line ART_WIDTH 0.18. Sun radius default 0.75. Market rows show 'Buy price: X cr  Sell price: Y cr', missing = 'no data'; rating bars removed from them. Storage DEFAULT_START 0; no container exists until a connection is created, which establishes storage at both its planets (Storage.established/ensure). amount() is 0 and no-ops for missing storage, so engine and forecast need no change. New 'Company storage' section (title, capacity, one row per commodity with 5-line bar and amount e.g. 5/100) shown only when established. route_clicked IMPLEMENTED: clicking a line opens the source planet's panel with a gold 'Selected: ...' line and 'Remove this connection' button. Checks: headless load clean; scripted run (buy ship, first order creates storage at both planets and not others, cycle 1 to 2 running, state roundtrip through JSON restores stock, cash, routes, remove) passed. Not verified: real autosave file write (sandbox blocks user://), and nothing visually: line width, sun size, panel layout, click-on-line picking."
+}

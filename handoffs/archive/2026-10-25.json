@@ -8,7 +8,7 @@
   "stopped": [],
   "blocked": ["T22 (economy-designer): add planet position fields to planets.json. Blocked until the owner decides."],
   "done_this_window": ["T20 (placeholder planets and WASD camera, from handoffs/gameplay-programmer/2026-10-25-T20.json)", "T21 (3D spheres and orbit camera, owner accepted, from handoffs/gameplay-programmer/2026-10-25-T21.json)"],
-  "queued_next": ["T06 (buy ship, manual trade) after T04", "T07 (automated routes, saturation) after T06, completes the minimum playable prototype", "T18, T19 (creative-director) and T08, T09, T10 in the next economy batch after T07"],
+  "queued_next": ["T06 (buy ship, manual trade) after T04", "T07 (automated routes, saturation) after T06, completes the minimum playable prototype", "T18, T19 (owner) and T08, T09, T10 in the next economy batch after T07"],
   "files_changed": ["schedule.json", "state.md", "handoffs/producer/2026-10-25.json", "handoffs/archive/2026-10-25-T01.json (moved from handoffs/economy-designer/, not read)"],
   "usage_note": "Owner did not report a meter figure in this request. UNKNOWN current; last known session 16%, weekly 3%. One agent started (gameplay-programmer, T04). Agent windows today already exceed the 2-per-day guideline because owner-requested windows were run; owner to confirm.",
   "open_questions": [
@@ -16,5 +16,5 @@
     "Owner: should economy-designer add x and y position fields to planets.json (T22 blocked), or keep the ring layout?",
     "Owner: report the current /usage figure at the next window start, and confirm whether owner-requested windows count toward the 2-per-day cap."
   ],
-  "handoff": "T20 and T21 are done. Owner accepted T21 (3D spheres, billboard labels, black background, orbit limits yaw -45 to 45 and pitch 20 to 80). Started T04 (planet panel: abundance, shortage, prices), which runs alone in the gameplay window. Click must use a 3D pick on the spheres. Next: T06 (buy ship, manual trade), then T07 (automated routes and saturation). After T07 the owner can play the minimum prototype. T18 and T19 (creative-director rulings on saturation, routes, planet_3 goods) queue for the next economy batch after T07. T22 (planet positions) is blocked on the owner. T03 is still awaiting an editor play-test. Owner must decide: zoom bounds, planet positions, and the meter figure."
+  "handoff": "T20 and T21 are done. Owner accepted T21 (3D spheres, billboard labels, black background, orbit limits yaw -45 to 45 and pitch 20 to 80). Started T04 (planet panel: abundance, shortage, prices), which runs alone in the gameplay window. Click must use a 3D pick on the spheres. Next: T06 (buy ship, manual trade), then T07 (automated routes and saturation). After T07 the owner can play the minimum prototype. T18 and T19 (owner rulings on saturation, routes, planet_3 goods) queue for the next economy batch after T07. T22 (planet positions) is blocked on the owner. T03 is still awaiting an editor play-test. Owner must decide: zoom bounds, planet positions, and the meter figure."
 }

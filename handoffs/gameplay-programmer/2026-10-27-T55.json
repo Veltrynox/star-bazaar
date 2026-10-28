@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-10-27",
+  "task": "T55",
+  "status": "done",
+  "files_changed": ["game/storage.gd", "game/main.gd"],
+  "usage_note": "Small task, well under turn cap.",
+  "open_questions": [
+    "Economy-designer: add to data/balance.json values: storage_capacity (code default 100), storage_refill (5 per commodity per cycle), storage_start (1.0 fraction). I did not edit data/*.json per hard rule; code defaults apply until added.",
+    "T56: buy orders should call storage.add(key,c,n), sell orders storage.remove(key,c,n); planet key via Storage.planet_key(i). Full/empty checks: is_full/is_empty."
+  ],
+  "handoff": "New game/storage.gd: stock per container and commodity, one shared capacity, slow per-cycle self-refill (tick called in main._end_cycle after route settlement). rating(key,c)/planet_rating(i,c) gives 0-5 (5 full, any stock >=1). Containers are string keys ('planet:<i>'); capacity_of()/refill_of() take the key, so a later 'system:<n>' space storage is a drop-in. Saved under 'storage' in the autosave; old saves get fresh stock. Saturation untouched. No UI. Headless check loads with no script errors (only sandbox log-file errors).",
+  "details": {"api": "add, remove, amount, space, is_full, is_empty, rating, planet_rating, tick, to_dict, from_dict"}
+}

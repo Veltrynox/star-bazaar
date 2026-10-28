@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-10-27",
+  "task": "T67",
+  "status": "partial",
+  "files_changed": ["game/route_line.gd"],
+  "usage_note": "Within turn cap.",
+  "open_questions": [
+    "Producer/owner: deleting assets/route/route_tail|mid|head.png and their .import files was blocked by the permission classifier. They are now unused; please delete them (or allow it).",
+    "Owner: please eyeball pulse look (PULSE_LEN 0.9, SPEED_RUNNING 0.7, SPEED_STALLED 0.15, alpha 0.4 to 1.0) and that the two halves meet at the centre line.",
+    "Owner: the half sits on the left of travel direction (image up = left); say if the first route should be on the other side."
+  ],
+  "handoff": "Route line is now straight (arc code removed). Each route is one camera-facing ribbon using half_tail/mid/head.png on the left of its travel direction, spanning centre line to outer edge (half_width = ART_WIDTH/2). The opposite route on the same pair is its own node going the other way, so its half lands on the other side, rotated 180, meeting at the centre line. Shader pulse: brightness 0.7 to 1.45 and alpha 0.4 to 1.0 wave travelling source to destination (vertex colour r = distance along line); running = white, blocked = red, stalled = grey and slow. map.gd unchanged. Checks: headless load clean; scripted run: one route gave 1 line, adding B-to-A gave 2 lines with opposite directions on the same endpoints and opposite left-normals on screen (one above, one below the centre line). Not verified visually: pulse look, seam at the centre line, texture orientation, picking."
+}

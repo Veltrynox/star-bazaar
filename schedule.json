@@ -3,221 +3,229 @@
   "date": "2026-10-26",
   "tasks": [
     {
-      "task_id": "T18",
-      "title": "Creative Director ruling on saturation and routes per system",
-      "owner_agent": "creative-director",
-      "depends_on": [
-        "T01"
-      ],
-      "status": "queued",
-      "turn_cap": 20,
-      "window": "next economy batch (economy, creative-director, qa), after the minimum prototype (T07)",
-      "brief": "Rule on the meaning of saturation (economy-designer assumed -10% of margin per extra ship) and routes per system (assumed 1). Record the ruling in gdd.md only if needed and log it. Do not tune numbers.",
-      "owner_note": "Created by Producer from T01 open questions (handoffs/economy-designer/2026-10-25-T01.json, archived). Producer window 4: kept queued; it is not needed before T07 and the gameplay window runs alone."
-    },
-    {
-      "task_id": "T19",
-      "title": "Creative Director ruling on planet_3 goods, planet stock and pacing checks",
-      "owner_agent": "creative-director",
-      "depends_on": [
-        "T01"
-      ],
-      "status": "queued",
-      "turn_cap": 20,
-      "window": "next economy batch (economy, creative-director, qa), after the minimum prototype (T07)",
-      "brief": "Rule on planet_3 abundant and scarce goods and prices (GDD is silent), and on planet stock amounts. Record in gdd.md only if needed and log it. Do not tune numbers. Economy-designer then retunes only if the ruling needs it.",
-      "owner_note": "Created by Producer from T01 window 3 open questions (now handoffs/archive/2026-10-25-T01-w3.json, moved by Producer window 5). Pacing (2nd ship at cycle 3, permit 2 at cycle 16) left to QA after the build exists. Owner has NOT yet decided whether T01 economy changes need further tuning; this ruling is the route for planet_3."
-    },
-    {
-      "task_id": "T25",
-      "title": "Map uses planet position data instead of ring layout",
-      "owner_agent": "gameplay-programmer",
-      "depends_on": [
-        "T22",
-        "T24"
-      ],
-      "status": "done",
-      "turn_cap": 30,
-      "window": "gameplay window (solo), after T24 (order set by owner: C and D, then the position switch)",
-      "brief": "Once data/planets.json has x and y per planet (T22), game/map.gd places planets from those positions instead of the ring layout. Keep the 3D spheres and orbit camera. Do not change data/ files. Must not run while T04 is running (shared map and main files). Handoff: handoffs/gameplay-programmer/2026-10-25-T25.json.",
-      "owner_note": "Done; verified by handoffs/gameplay-programmer/2026-10-25-T25.json and game/map.gd. Not seen on screen. Scale MAP_UNIT_SCALE 0.02 and y direction need owner confirmation."
-    },
-    {
-      "task_id": "T06",
-      "title": "Ships at every planet, trade mission, resource buy/sell, cargo display",
-      "owner_agent": "gameplay-programmer",
-      "depends_on": [],
-      "status": "done",
-      "turn_cap": 60,
-      "window": "next gameplay window (solo)",
-      "brief": "Buy a ship at every planet. Second mission (first trade) from GDD 'First 4 cycles' with a guiding halo and mission steps. Resource buy/sell in the planet panel, cargo/resource balance in the top bar, abstract travel with trip_cost per leg. Routes are T07.",
-      "owner_note": "Done; verified by handoffs/gameplay-programmer/2026-10-25-T06.json and new game/trade.gd. Trade logic run headless on real data; visuals and save round trip not checked (sandbox). Route offer hook: _on_trade_mission_complete() in game/main.gd (T07)."
-    },
-    {
-      "task_id": "T32",
-      "title": "Review sun code in game/map.gd (SUN_RADIUS, _add_sun)",
-      "owner_agent": "gameplay-programmer",
-      "depends_on": [],
-      "status": "done",
-      "turn_cap": 15,
-      "window": "owner request 2026-10-26; started by main session (gameplay window, solo)",
-      "brief": "Review the main session's edit to game/map.gd: the SUN_RADIUS const, _add_sun() (yellow unshaded sphere at the centre of the planets) and its call before _update_camera(). Check for errors, node naming, overlap with planets and camera framing, and that nothing else changed. Fix only clear errors or crashes in the sun code; no design or balance changes. Write the handoff to handoffs/gameplay-programmer/2026-10-26-T32.json.",
-      "owner_note": "Marked running by Producer at owner's direction. Producer did not launch it; main session starts it."
-    },
-    {
-      "task_id": "T07",
-      "title": "Automated routes and saturation",
-      "owner_agent": "gameplay-programmer",
-      "depends_on": [
-        "T06",
-        "T01"
-      ],
-      "status": "queued",
-      "turn_cap": 60,
-      "window": "next gameplay window (solo)",
-      "brief": "Offer an automated route after the first loaded round trip. Add ships to an existing route or start a new one, up to ship_cap. Apply saturation per extra ship and maintenance every maintenance_interval cycles. Completing T07 gives the owner the minimum playable prototype to play."
-    },
-    {
-      "task_id": "T33",
-      "title": "Debug menu: live editor for balance and map/camera values",
-      "owner_agent": "gameplay-programmer",
-      "depends_on": [],
-      "status": "done",
-      "turn_cap": 50,
-      "window": "next gameplay window (solo), after T07; must not run while T32 is running",
-      "brief": "Add a debug menu that edits live, in the running game, every value in data/balance.json (values and targets) plus map and camera tunables that make sense (ZOOM_MIN, ZOOM_MAX, orbit yaw and pitch limits, SUN_RADIUS, planet scale). Toggle it with one key: do not use SPACE, P, WASD, arrow keys or the mouse. Suggested backtick (KEY_QUOTELEFT); if already bound, F1. Stripped from release builds, as GDD section 2 Menu UI says. Do not write to data/balance.json and do not change any value.",
-      "owner_note": "Owner request 2026-10-26. Writing edits back to balance.json stays in T13. Owner has not chosen the toggle key; the agent reports which key it used."
-    },
-    {
-      "task_id": "T34",
-      "title": "Debug menu: time speed button (x1, x2, x4, x8)",
-      "owner_agent": "gameplay-programmer",
-      "depends_on": [
-        "T33"
-      ],
-      "status": "done",
-      "turn_cap": 30,
-      "window": "next gameplay window (solo), after T33",
-      "brief": "Add a button in the debug menu that cycles the time speed multiplier x1, x2, x4, x8 and back to x1, showing the current multiplier on the button. Apply it in the cycle timer in game/main.gd _process so the whole game clock scales. The multiplier is runtime only: it is not written to the autosave and resets to x1 on new game or load. Pause still stops time at any speed. Do not change balance values.",
-      "owner_note": "Owner request 2026-10-26. Speed is never saved, so save_game.gd must not store it."
-    },
-    {
-      "task_id": "T35",
-      "title": "Debug menu: add x12 to time speed",
-      "owner_agent": "gameplay-programmer",
-      "depends_on": [],
-      "status": "done",
-      "turn_cap": 15,
-      "window": "owner request 2026-10-26",
-      "brief": "Time-speed cycle becomes x1, x2, x4, x8, x12, x1.",
-      "owner_note": "Done; Godot not run (not installed in sandbox)."
-    },
-    {
-      "task_id": "T36",
-      "title": "Map: dot over planet where a ship is docked",
-      "owner_agent": "gameplay-programmer",
-      "depends_on": [],
-      "status": "done",
-      "turn_cap": 15,
-      "window": "owner request 2026-10-26",
-      "brief": "Small bright non-clickable dot over the planet a ship is docked at; hidden in flight and when ships == 0.",
-      "owner_note": "Done; Godot not run (not installed in sandbox)."
-    },
-    {
-      "task_id": "T37",
-      "title": "Economy: give planets with no resources a resource set",
+      "task_id": "T48",
+      "title": "Economy: system-1 sim check and single price source",
       "owner_agent": "economy-designer",
       "depends_on": [],
-      "status": "done",
-      "turn_cap": 25,
-      "window": "owner request 2026-10-26; started by main session (economy, with T38)",
-      "brief": "Fix planets that have no resources in data/planets.json. Edit only those planets. Log each change with old, new and reason. Do not change prices, margins or other balance numbers beyond what the fix needs. Write the handoff to handoffs/economy-designer/2026-10-26-T37.json.",
-      "owner_note": "Marked running by Producer at owner's direction. Producer did not launch it; main session starts it. Shares data/planets.json with T38, so T39 waits for both."
+      "status": "queued",
+      "turn_cap": 15,
+      "window": "W1 batch (Economy, then owner); first",
+      "brief": "Sim only, no retune. (a) Run python3 tools/sim.py --mc 50 and report, per strategy, the best final_cash and win_cycle for a system-1-only line (no permit routes). (b) Make data/planets.json base_prices the only price source: remove energy_buy, energy_sell, food_buy, food_sell and any other duplicated price key from data/balance.json, but only where planets.json already holds the same number; if a number differs, stop and report. Point tools/sim.py at planets.json for prices. Log each removed key. (c) Confirm starting_credits covers the first ship and the second ship lands by check_second_ship_cycle. (d) Report the best line at ship_cap 6 for information only. Change no value. Handoff: handoffs/economy-designer/<date>-T48.json.",
+      "owner_note": "Producer decision (owner asked Producer to decide; owner may veto): planets.json wins for prices. Turn cap kept low on purpose (owner: economy runs are expensive); sim.py only."
     },
     {
-      "task_id": "T38",
-      "title": "Creative Director: confirm planet names",
-      "owner_agent": "creative-director",
-      "depends_on": [],
-      "status": "done",
-      "turn_cap": 20,
-      "window": "owner request 2026-10-26; started by main session (creative-director, with T37)",
-      "brief": "Confirm the planet names in data/planets.json against the GDD fantasy. Decide per planet: keep, or rename (give the new name). Names only; no numbers. Edit gdd.md only if a planet name it uses changes, and log it. Write the handoff to handoffs/creative-director/2026-10-26-T38.json.",
-      "owner_note": "Marked running by Producer at owner's direction. Producer did not launch it; main session starts it. Shares data/planets.json with T37; T39 waits for both."
-    },
-    {
-      "task_id": "T39",
-      "title": "Apply planet renames everywhere they appear",
-      "owner_agent": "gameplay-programmer",
+      "task_id": "T49",
+      "title": "owner GDD alignment pass (route model, price source, systems 2 and 3 hold)",
+      "owner_agent": "owner",
       "depends_on": [
-        "T37",
-        "T38",
-        "T32"
+        "T48"
       ],
       "status": "done",
-      "turn_cap": 20,
-      "window": "next gameplay window (solo), after T37, T38 and T32 are done",
-      "brief": "Apply the T38 name decisions in data/planets.json (only names) and in any game/ code or on-screen text that shows a planet name, found with Grep on the old names. Do not change any number, price or resource. Write the handoff to handoffs/gameplay-programmer/2026-10-26-T39.json.",
-      "owner_note": "Owner-visible rename. Gameplay window must run alone; do not start while T32 is running."
+      "turn_cap": 25,
+      "window": "W1 batch (owner, after T48)",
+      "brief": "Edit gdd.md only, no numbers, log every edit. (1) Dead state: the test is owns zero ships and cash below ship_price; pays rescue_stipend once; remove the 'or nothing if the player already owns a free ship' wording. (2) Balance targets: rewrite lines that no longer match the route model and balance.json targets (for example the margin and maintenance advice). (3) Source of truth: prices live in data/planets.json (Producer decision in T48); balance.json for all other values; update the [GCM:] tokens for prices. (4) Mark systems 2 and 3 (Permits section, permit tokens, permit targets) ON HOLD: out of scope for this build. (5) Saturation: credits off the sell price per extra ship. Handoff: handoffs/owner/<date>-T49.json.",
+      "owner_note": "Owner: systems 2 and 3 on hold; scope is a playable system 1. No new mechanics in this pass."
     },
     {
-      "task_id": "T40",
-      "title": "Top bar money text opens a cycle-end cash forecast dropdown",
+      "task_id": "T44",
+      "title": "Timer and fast-forward give the same result (clock divergence)",
       "owner_agent": "gameplay-programmer",
-      "depends_on": [],
+      "depends_on": [
+        "T42"
+      ],
       "status": "done",
       "turn_cap": 30,
-      "window": "owner request 2026-10-26",
-      "brief": "Clicking the Goal/Now text opens a dropdown: income (green), outcome (red) and cash after the current cycle ends. Live, respects pause and speed, blocks clicks to the map.",
-      "owner_note": "Done; Godot not run (not installed in sandbox). Nothing is charged at cycle end yet; only maintenance is listed, uncounted, until T07."
+      "window": "W2 gameplay G1 (solo), first task; after the owner's meter reading",
+      "brief": "QA: timer run gives 5580 cash and 20 legs; fast-forward gives 8380 and 30 legs (old trade model). Find engine-side causes in the timer path (main._process) versus debug_advance_cycle(): ship arrival (trade.tick) timing and cycle end. Make the same orders give the same arrivals and settlement on both paths. Report the bot-cadence part (left to T47). No balance values change. Handoff: handoffs/gameplay-programmer/<date>-T44.json.",
+      "owner_note": "Runs before the route engine (owner C2). Owner gameplay-programmer per QA."
     },
     {
-      "task_id": "T41",
-      "title": "Planet panel: show only existing prices (no n/a)",
+      "task_id": "T50",
+      "title": "Remove planet stock readers and the stock comment",
       "owner_agent": "gameplay-programmer",
       "depends_on": [],
       "status": "done",
       "turn_cap": 10,
-      "window": "owner request 2026-10-26",
-      "brief": "Print only buy or sell price that exists per commodity; keep abundant/scarce lines.",
-      "owner_note": "Done; Godot not run (not installed in sandbox)."
+      "window": "W2 gameplay G1 (solo), after T44",
+      "brief": "Remove the stock comment at game/save_game.gd line 5 and any code in game/ that reads a 'stock' key (Grep for stock). Do not edit data/ files (economy removed stock). No other behaviour change. Handoff: handoffs/gameplay-programmer/<date>-T50.json.",
+      "owner_note": "Owner split: economy removed stock from data and agent file (done); gameplay removes readers and the comment."
     },
     {
-      "task_id": "T08",
-      "title": "Creative Director review of core loop build",
-      "owner_agent": "creative-director",
+      "task_id": "T51",
+      "title": "Retire manual trade UI and paused-step code (keep trade.gd logic)",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [
+        "T50"
+      ],
+      "status": "done",
+      "turn_cap": 40,
+      "window": "W3 gameplay G2 (solo)",
+      "brief": "Remove, or hide if removal is risky, the player buy and sell actions and cargo controls in the planet panel, the manual trade mission step, and the one-leg-per-pause code from T29/T30. Keep the per-commodity buy and sell price display (T41). Keep game/trade.gd logic: it becomes the route engine in T07. Leave the route offer hook (_on_trade_mission_complete in game/main.gd) for T07 to replace. Do not change data/ files. Handoff: handoffs/gameplay-programmer/<date>-T51.json.",
+      "owner_note": "owner C2 verdicts: manual buy/sell cut; paused-step rule obsolete. Interim: the old tutorial trade mission has no action until T15."
+    },
+    {
+      "task_id": "T52",
+      "title": "Hide the docked-ship dot on the map",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [
+        "T51"
+      ],
+      "status": "done",
+      "turn_cap": 10,
+      "window": "W3 gameplay G2 (solo), after T51",
+      "brief": "Remove or hide the docked-ship dot from T36 (ships no longer dock for trade). Do not add a route-status marker. Leave the rest of game/map.gd unchanged. Handoff: handoffs/gameplay-programmer/<date>-T52.json.",
+      "owner_note": "owner C2 verdict: change, low priority. Route-status markers are not in scope."
+    },
+    {
+      "task_id": "T07",
+      "title": "Route engine: set up, add ship, close, cycle-end net settlement, saturation, idle rule, stranded rescue",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [
+        "T44",
+        "T48",
+        "T51"
+      ],
+      "status": "done",
+      "turn_cap": 60,
+      "window": "W4 gameplay G3 (solo)",
+      "brief": "Build the automated route engine (GDD section 2, Automated routes). Route record: unordered planet pair, ship count, level (base only), orders (empty = trade both ways). Set-up check: a free ship or buy at ship_price, room under ship_cap, both planets open, net above zero; refuse with one reason; buy and assign in one step; no setup fee. Adding a ship joins the pair's route; closing a route frees its ships at zero cost. Settle once per cycle end using the formulas in handoffs/economy-designer/2026-10-26-T10.json details.answers (1_formula, 2_saturation). Saturation is 5 credits off each leg's sell price at the selling planet per extra ship on that route, floor at buy price. A route at or below zero net idles and shows 'not profitable'. A ship's first cycle pays pro rata to the time assigned. Stranded (absorbs T46): at cycle end, if the player owns zero ships and cash is below ship_price, pay rescue_stipend (balance.json, 1000) with a notice; never end the game. Read prices from data/planets.json. Reuse game/trade.gd logic. If the cap is reached, stop and hand off partial. Handoff: handoffs/gameplay-programmer/<date>-T07.json.",
+      "owner_note": "Split from the route screen (T07b). Absorbs T46 (stranded trigger, owner C2). Bigger than the old cap: the handoff is the restart point."
+    },
+    {
+      "task_id": "T07b",
+      "title": "Route screen: list, set-up flow with reason, per-route and per-ship net, saturation effect, status, level",
+      "owner_agent": "gameplay-programmer",
       "depends_on": [
         "T07"
       ],
-      "status": "queued",
-      "turn_cap": 25,
-      "window": "next batch (economy, creative-director, qa)",
-      "brief": "Keep, cut or change verdict per item for T03-T07 against the GDD fantasy. Edit GDD only if needed and log it."
+      "status": "done",
+      "turn_cap": 40,
+      "window": "W5 gameplay G4 (solo), first task",
+      "brief": "Build the route screen (GDD Route UI, must show): the two planets, ship count against ship_cap, net income per cycle for the route and per ship, the current saturation effect and the marginal net of one more ship (shown before the player confirms), status (running, idle, blocked by a closed planet), level, and a one-click breakdown (gross, trip cost, maintenance). The set-up flow shows the verdict and the one reason when no. Uses the T07 engine; no balance values change. Handoff: handoffs/gameplay-programmer/<date>-T07b.json.",
+      "owner_note": "Split from T07 per owner C2. The refused-setup reason text is needed by the tutorial (T15)."
     },
     {
-      "task_id": "T09",
-      "title": "QA bot runs on core loop build",
+      "task_id": "T40b",
+      "title": "Cash forecast dropdown lists net income per route",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [
+        "T07"
+      ],
+      "status": "done",
+      "turn_cap": 15,
+      "window": "W5 gameplay G4 (solo), after T07b",
+      "brief": "Change the T40 top-bar dropdown to list net income per route (from T07) and the cash after the cycle ends, income green and outcome red. No gross or cost lines outside the breakdown. Handoff: handoffs/gameplay-programmer/<date>-T40b.json.",
+      "owner_note": "Follow-up to T40 (done), owner C2."
+    },
+    {
+      "task_id": "T53",
+      "title": "QA bot rewrite: strategies act through routes",
       "owner_agent": "qa-analyst",
       "depends_on": [
-        "T07",
-        "T08"
+        "T56"
+      ],
+      "status": "queued",
+      "turn_cap": 25,
+      "window": "W6 batch (QA), after T08",
+      "brief": "Rewrite the bot strategies in qa/bots/ to act only through route actions (set up, add ship, close), not manual trade. Keep the four strategy names (always_expand, never_expand, sloppy, decent), the fast-forward batch and the timer option. Do not change game code or balance. Handoff: handoffs/qa-analyst/<date>-T53.json.",
+      "owner_note": "owner C2 new task for qa-analyst; prerequisite of T47. REDESIGN 2026-10-27: bots act through planet Buy/Sell orders and route removal; rewrite after T56."
+    },
+    {
+      "task_id": "T47",
+      "title": "QA re-run on the route build (system 1 only)",
+      "owner_agent": "qa-analyst",
+      "depends_on": [
+        "T53",
+        "T57",
+        "T44"
       ],
       "status": "queued",
       "turn_cap": 30,
-      "window": "next batch (economy, creative-director, qa)",
-      "brief": "Run always_expand, never_expand, single_route and optimal bots on the latest build. Report final_cash, cycle_reached and outcome per strategy. Flag crashes, softlocks and dominant strategies."
+      "window": "W7 QA window (solo)",
+      "brief": "Re-run the four strategies with fast-forward and timer runs, seeds 1 to 5, on the route build with permits absent. Report final_cash, cycle_reached and outcome per strategy, win-boundary probes, softlocks, dominant strategy, timer vs fast-forward gap, and pacing against balance targets. Flag crashes. Handoff: handoffs/qa-analyst/<date>-T47.json.",
+      "owner_note": "Replaces T09 as the real check. First real read of the system-1 win path (see state.md). REDESIGN 2026-10-27: runs on the click-to-route build, after T57."
     },
     {
-      "task_id": "T10",
-      "title": "Economy retune from QA results",
-      "owner_agent": "economy-designer",
+      "task_id": "T15",
+      "title": "Tutorial for the first 4 cycles (route version)",
+      "owner_agent": "gameplay-programmer",
       "depends_on": [
-        "T09"
+        "T57"
       ],
       "status": "queued",
-      "turn_cap": 25,
-      "window": "next batch (economy, creative-director, qa)",
-      "brief": "Adjust balance.json only where QA shows a dominant strategy, an early win or a late win. Log each change with old, new and reason."
+      "turn_cap": 60,
+      "window": "W8 gameplay G5 (solo)",
+      "brief": "Rewrite the tutorial to GDD section 2 'First 4 cycles' (route version): preface (T23), three planets, mission board on the right (T24), planet panels show buy and sell prices, the board explains that a route is a ship that flies by itself, the player opens the route screen, sees the net-income preview, confirms; the ship is bought and assigned in one step; mission complete. No manual trade step. Uses the T07b route screen. Handoff: handoffs/gameplay-programmer/<date>-T15.json.",
+      "owner_note": "owner C2 rewrite. T14 is no longer a prerequisite: teaching routes does not need the win screen. REDESIGN 2026-10-27: tutorial must teach click-to-route on the planet panel (Buy then Sell), not the route screen; brief to be updated by Producer after T57."
+    },
+    {
+      "task_id": "T05",
+      "title": "Galaxy background (basic 3D star field), next steps",
+      "owner_agent": "galaxy-builder",
+      "depends_on": [
+        "T15"
+      ],
+      "status": "queued",
+      "turn_cap": 40,
+      "window": "W9 galaxy window (solo), after T15",
+      "brief": "Visual element, not gameplay. Build the galaxy generator per GDD section 5: scatter points, bake a low-res density grid, pick suns, propagate light once at scene generation. Keep within a macOS frame budget and report frame_time_ms.",
+      "owner_note": "Owner decided T05 comes after the tutorial. Basic star field done (T05b). Still open: density grid and sun propagation."
+    },
+    {
+      "task_id": "T12",
+      "title": "Events as price modifiers",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [
+        "T07",
+        "T15"
+      ],
+      "status": "queued",
+      "turn_cap": 50,
+      "window": "W10 gameplay G6 (solo)",
+      "brief": "Events every event_interval cycles (balance.json). Each event applies a pct price modifier (event_effect.pct) to one planet's sell prices for event_interval cycles, rounded to whole credits, and can close a planet temporarily. A route touching a closed planet is blocked: it pays nothing and costs nothing until the planet reopens or the player moves its ships. No stock and no cr values. Routes recalculate from the modified prices. Handoff: handoffs/gameplay-programmer/<date>-T12.json.",
+      "owner_note": "Was chained to T11 (permits). Events are system 1 content, so T12 no longer waits for the hold. Modifier defined in economy T10 answer 8."
+    },
+    {
+      "task_id": "T13",
+      "title": "Debug and Game Control menus (tuning only)",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [
+        "T12",
+        "T15"
+      ],
+      "status": "queued",
+      "turn_cap": 50,
+      "window": "W11 gameplay G7 (solo)",
+      "brief": "Game Control menu reads and writes data/balance.json (values and targets), plus event control (frequency, list, trigger, multiplier from T12), plus route level and route keys (ship_cap, saturation, orders fields). Stripped from release builds. One menu only: extend the T33 debug menu.",
+      "owner_note": "Owner placed after the tutorial (T15). Needs the T12 event controls. Route level and orders are hooks from T07."
+    },
+    {
+      "task_id": "T14",
+      "title": "Win and loss screens",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [
+        "T12",
+        "T13"
+      ],
+      "status": "queued",
+      "turn_cap": 40,
+      "window": "W12 gameplay G8 (solo)",
+      "brief": "Success story at win_cash by end of any cycle. End screen at win_cycle showing cash reached and the target.",
+      "owner_note": "In the system-1 build the win is reachable only if the balance allows it (see state.md). Test with debug_advance_cycle probes."
+    },
+    {
+      "task_id": "T17",
+      "title": "QA bot runs on full build",
+      "owner_agent": "qa-analyst",
+      "depends_on": [
+        "T14",
+        "T13",
+        "T05"
+      ],
+      "status": "queued",
+      "turn_cap": 30,
+      "window": "W13 batch (QA), after T16",
+      "brief": "Repeat the four bot strategies on the full build. Check win window, loss behaviour, crashes and softlocks. Feed results to the owner."
     },
     {
       "task_id": "T11",
@@ -226,181 +234,255 @@
       "depends_on": [
         "T10"
       ],
-      "status": "queued",
+      "status": "stopped",
       "turn_cap": 50,
-      "window": "next gameplay window (solo)",
-      "brief": "Permit purchase for system 2 (permit_2_cost) and system 3 (permit_3_cost, needs system 2). New systems use permit_margin_bonus."
+      "window": "ON HOLD (owner 2026-10-26): not in any window",
+      "brief": "Permit purchase for system 2 (permit_2_cost) and system 3 (permit_3_cost, needs system 2). New systems use permit_margin_bonus. Systems 2 and 3 have no planets or goods in the design yet.",
+      "owner_note": "ON HOLD by owner. Do not start until the owner lifts the hold."
     },
     {
-      "task_id": "T12",
-      "title": "Events",
-      "owner_agent": "gameplay-programmer",
+      "task_id": "T54",
+      "title": "System-1 win path: economy retune (on hold)",
+      "owner_agent": "economy-designer",
       "depends_on": [
-        "T11"
+        "T47",
+        "T48"
       ],
-      "status": "queued",
-      "turn_cap": 50,
-      "window": "next gameplay window (solo)",
-      "brief": "Events every event_interval cycles. Each changes planet resources by event_effect and can open or close a planet temporarily."
+      "status": "stopped",
+      "turn_cap": 25,
+      "window": "ON HOLD until the owner chooses a system-1 win path",
+      "brief": "Only if the owner picks an option from state.md. Edit balance.json or planets.json within that choice; log each change with old, new and reason; run tools/sim.py before and after.",
+      "owner_note": "Created by Producer 2026-10-26. Stopped: waits for an owner decision, not for a QA result alone."
     },
     {
-      "task_id": "T14",
-      "title": "Win and loss screens",
+      "task_id": "T55",
+      "title": "Planet storage: model, shared capacity, slow refill, 5-level rating",
       "owner_agent": "gameplay-programmer",
       "depends_on": [
-        "T12"
-      ],
-      "status": "queued",
-      "turn_cap": 40,
-      "window": "next gameplay window (solo)",
-      "brief": "Success story at win_cash by end of any cycle. End screen at win_cycle showing cash reached and the target."
-    },
-    {
-      "task_id": "T15",
-      "title": "Tutorial for first 4 cycles",
-      "owner_agent": "gameplay-programmer",
-      "depends_on": [
-        "T14",
         "T07"
       ],
       "status": "queued",
-      "turn_cap": 60,
-      "window": "next gameplay window (solo)",
-      "brief": "Follow GDD section 2 'First 4 cycles': preface, 3 planets, buy ship, trade energy and food, offer route. Mission text and notification board on the right.",
-      "owner_note": "2026-10-25 window 5: the preface pause (T23) and the right-side mission board (T24) are separate earlier tasks. T15 builds the rest of the 4-cycle tutorial on top of them."
+      "turn_cap": 40,
+      "window": "Redesign R1 gameplay (solo), first; producer to place",
+      "brief": "Add planet storage. Every planet holds stock per commodity up to ONE shared max capacity (same for all goods and planets; abstract number in data/balance.json). Planet resources are infinite, the storage is not. Buy orders fill the storage slowly every cycle, sell orders drain it; the storage also refills on its own over time. Stock persists indefinitely, save/load included. Expose a rating 0-5 per commodity (5 = full). Prices still differ per planet (planets.json). Leave a clean seam for a later space storage (one per system, bigger). No UI here. Handoff: handoffs/gameplay-programmer/<date>-T55.json.",
+      "owner_note": "Owner direction 2026-10-27 (route redesign). Abstract numbers only; owner plays then refines."
     },
     {
-      "task_id": "T13",
-      "title": "Debug and Game Control menus (tuning only)",
+      "task_id": "T56",
+      "title": "One-way routes: buy-side and sell-side connections, auto ship assignment, stall and block rules",
       "owner_agent": "gameplay-programmer",
       "depends_on": [
-        "T15"
+        "T55"
       ],
       "status": "queued",
-      "turn_cap": 50,
-      "window": "next gameplay window (solo)",
-      "brief": "Game Control menu reads and writes data/balance.json. Event control (frequency, list, trigger, multiplier). Stripped from release builds. Owner placed this after the tutorial (T15).",
-      "owner_note": "2026-10-26: the live value editor and time speed button are T33 and T34 (owner request). Build the Game Control and event controls on the debug menu from T33; do not create a second menu."
+      "turn_cap": 60,
+      "window": "Redesign R2 gameplay (solo)",
+      "brief": "Rework game/route_engine.gd. A route is ONE-WAY: a Buy order at planet A (planet resource -> A storage) and a Sell order at planet B (B storage -> market); a ship hauls between the two storages. Connection kinds: planet to planet now; planet to storage and storage to storage are later (space storage), keep the data model open. A planet may hold several routes while its storage allows. One ship per route, never shared. A ship is assigned automatically from the owned pool when the connection is made; if none is free, the setup says so (reason text). Rules: empty source storage -> route stalls (waits); full destination storage -> route BLOCKED: stops, emits a notification event, state red, until the player removes it, sells down the storage or sets an alternative route. Player or money missing for a buy order -> stalls. Ship limit stays (ship_cap, tune later). Purchase and maintenance stay (numbers later). REMOVE the saturation rule (5 credits off the sell price per extra ship) entirely, code and balance.json key; owner confirmed 2026-10-27. Storage fill is the only pressure. Report what you removed. Handoff: handoffs/gameplay-programmer/<date>-T56.json.",
+      "owner_note": "Owner direction 2026-10-27 (route redesign). Abstract numbers only; owner plays then refines."
     },
     {
-      "task_id": "T05",
-      "title": "Galaxy background (basic 3D star field)",
-      "owner_agent": "galaxy-builder",
-      "depends_on": [],
-      "status": "partial",
-      "turn_cap": 40,
-      "window": "owner request 2026-10-25: moved ahead of the tutorial; basic version only",
-      "brief": "Visual element, not gameplay. Build the galaxy generator per GDD section 5: scatter points, bake a low-res density grid, pick suns, propagate light once at scene generation. Keep within a macOS frame budget and report frame_time_ms. Owner decided it comes after the tutorial (T15); a bare minimum playable prototype comes first, so start only after T15 is done.",
-      "owner_note": "Basic star field built (game/galaxy/star_field.gd, 3-line hook in game/map.gd); verified by handoffs/archive/2026-10-25-T05.json. Not seen on screen; no frame time measured. Density grid, sun propagation and per-star light are NOT done (later work). | Owner liked the star look (2026-10-25); asked to remove the minimum radius push (T05b)."
-    },
-    {
-      "task_id": "T16",
-      "title": "Creative Director review of full build",
-      "owner_agent": "creative-director",
+      "task_id": "T57",
+      "title": "Click-to-route UI on the planet panel; remove the top-menu route screen",
+      "owner_agent": "gameplay-programmer",
       "depends_on": [
-        "T15"
+        "T56"
       ],
       "status": "queued",
-      "turn_cap": 25,
-      "window": "next batch (economy, creative-director, qa)",
-      "brief": "Keep, cut or change verdict per item for the full playable build against the GDD."
+      "turn_cap": 60,
+      "window": "Redesign R3 gameplay (solo)",
+      "brief": "Remove the route screen opened from the top menu (game/route_screen.gd and its menu entry and calls; also the T07b flow). New flow: click a planet -> panel lists resource rows -> each row shows a vertical 5-line rating bar (5 = full storage, abundance at a glance) and Buy / Sell buttons -> click Buy (or Sell) and the order is placed; the buy side stores slowly each cycle in that planet's storage. To finish a route the player then does the same Sell on another planet, and the ship is auto-assigned. Clicking a planet (later a space storage) lists its connections with a Remove button. Blocked routes show red on the map line and in the panel, and raise a notification. Keep price display and the cash forecast (T40b: adapt to the new route list). Handoff: handoffs/gameplay-programmer/<date>-T57.json. Route line art: assets/route/route_tail.png (start diamond), route_mid.png (81 px, tile it along the line) and route_head.png (arrowhead, points to the sell planet); transparent background, gold with tan guide rails, all 172 px tall; tint by modulate (red when blocked). Replace the plain route line (game/route_line.gd) with tail + tiled mid + head scaled to the line.",
+      "owner_note": "Owner: do NOT use UI from the top menu for connections."
     },
     {
-      "task_id": "T17",
-      "title": "QA bot runs on full build",
-      "owner_agent": "qa-analyst",
+      "task_id": "T58",
+      "title": "Ship types: small and large, names, purchase and maintenance",
+      "owner_agent": "gameplay-programmer",
       "depends_on": [
-        "T16"
+        "T56"
       ],
       "status": "queued",
       "turn_cap": 30,
-      "window": "next batch (economy, creative-director, qa)",
-      "brief": "Repeat the four bot strategies on the full build. Check win window, loss behaviour, crashes and softlocks. Feed results to the owner."
+      "window": "Redesign R3 gameplay (solo), after T57",
+      "brief": "Two ship types in data/ (abstract numbers): small and large (higher capacity, higher purchase and maintenance, abstract speed). Working names, owner to confirm: small = Skerrit, large = Voruun Hauler (alien-sounding, no franchise references). Auto-assignment picks a suitable free ship; buying a ship happens from the ship panel. Ships are for hauling only. Handoff: handoffs/gameplay-programmer/<date>-T58.json.",
+      "owner_note": "Names are a proposal; owner may change them."
     },
     {
-      "task_id": "T26",
-      "title": "Main menu (New Game, Continue) and autosave/load pipeline",
+      "task_id": "T59",
+      "title": "Skill tree: owner design brief",
+      "owner_agent": "owner",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 0,
+      "window": "Owner, any time before T60",
+      "brief": "Owner explains the skill tree: branches, skills, costs, effects. Known so far: skills are bought with expansion points, NOT money (money only reaches the final goal). Points come from a first visit to a planet, from routes, and from new systems. Starting skills: storage and the licence to expand to the next system. Handoff: owner note in state.md, then doc-manager records it in the GDD.",
+      "owner_note": "Owner direction 2026-10-27 (route redesign). Abstract numbers only; owner plays then refines. 2026-10-27: first draft written in gdd-skills.md; owner edits the branches and skills there, which completes T59."
+    },
+    {
+      "task_id": "T60",
+      "title": "Skill tree: points, starting skills, screen",
       "owner_agent": "gameplay-programmer",
       "depends_on": [
-        "T23"
+        "T59",
+        "T57"
       ],
-      "status": "done",
+      "status": "stopped",
       "turn_cap": 60,
-      "window": "owner request 2026-10-25; started by main session",
-      "brief": "Main menu with New Game and Continue (no load button, one automatic save under user://). Gameplay programmer designs and implements the save/load pipeline in its own file and documents it in the handoff.",
-      "owner_note": "Done; verified by handoffs/gameplay-programmer/2026-10-25-T26.json and new files game/save_game.gd, main_menu.gd, main_menu.tscn. Save/load round trip NOT run (sandbox blocks user://); owner to test in the editor."
+      "window": "ON HOLD until T59",
+      "brief": "Implement expansion points (first planet visit, route made, new system), the skill tree screen, and the two starting skills (storage, next-system licence) per the T59 brief.",
+      "owner_note": "Owner direction 2026-10-27 (route redesign). Abstract numbers only; owner plays then refines. Superseded by T71."
     },
     {
-      "task_id": "T27",
-      "title": "GDD: updated Producer role",
-      "owner_agent": "creative-director",
-      "depends_on": [],
-      "status": "done",
+      "task_id": "T61",
+      "title": "Owner playtest of the new route model",
+      "owner_agent": "owner",
+      "depends_on": [
+        "T57",
+        "T58"
+      ],
+      "status": "queued",
+      "turn_cap": 0,
+      "window": "Owner, after R3",
+      "brief": "Owner plays with abstract numbers and gives feedback: feel of storage fill, blocked routes, rating bars, ship count. Findings feed T62 and T63.",
+      "owner_note": "Owner direction 2026-10-27 (route redesign). Abstract numbers only; owner plays then refines."
+    },
+    {
+      "task_id": "T62",
+      "title": "GDD update for the click-to-route and storage model",
+      "owner_agent": "doc-manager",
+      "depends_on": [
+        "T61"
+      ],
+      "status": "queued",
+      "turn_cap": 25,
+      "window": "After T61",
+      "brief": "Update gdd.md and gdd-log.md to the implemented, owner-approved model: one-way routes, planet storage and 5-level rating, blocked and stalled rules, space storage (later), ship types, skill tree and expansion points. Replace the old route screen and saturation sections. Log every edit.",
+      "owner_note": "Owner direction 2026-10-27 (route redesign). Abstract numbers only; owner plays then refines."
+    },
+    {
+      "task_id": "T63",
+      "title": "Economy: numbers for storage, refill, ships and expansion points",
+      "owner_agent": "economy-designer",
+      "depends_on": [
+        "T61"
+      ],
+      "status": "queued",
+      "turn_cap": 25,
+      "window": "After T61, parallel with T62",
+      "brief": "Replace the abstract numbers: storage capacity, refill and transfer speed, planet-to-space-storage transfer time, ship purchase and maintenance for both types, ship limit, expansion point values, win and loss thresholds. Update tools/sim.py to the one-way route model. Log each change.",
+      "owner_note": "Owner direction 2026-10-27 (route redesign). Abstract numbers only; owner plays then refines."
+    },
+    {
+      "task_id": "T64",
+      "title": "Space storage (one per system) and storage-to-storage links",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [
+        "T63"
+      ],
+      "status": "stopped",
+      "turn_cap": 60,
+      "window": "ON HOLD: later phase",
+      "brief": "One bigger storage per system, unlocked later; planets transfer into it slowly; it supports a broken route for a while; storage-to-storage links move goods between systems; click it to see and remove connections. Needs the owner's go and T63 numbers.",
+      "owner_note": "Owner direction 2026-10-27 (route redesign). Abstract numbers only; owner plays then refines."
+    },
+    {
+      "task_id": "T65",
+      "title": "Owner playtest round 1: storage panel, price labels, line and sun size",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [
+        "T57"
+      ],
+      "status": "queued",
+      "turn_cap": 40,
+      "window": "Redesign R4 gameplay (solo)",
+      "brief": "Owner feedback 2026-10-27. (1) Route line: thinner (reduce ART_WIDTH in game/route_line.gd; about 60 percent of now). The art in assets/route/ was already re-cut (white contour removed), do not touch it. (2) Sun on the map: half its current diameter. (3) Planet panel market rows: show BOTH the buy price and the sell price for every commodity, never a dash; label them clearly (Buy price / Sell price) so they cannot be mistaken for stock. If data/planets.json lacks a price for some planet and commodity, do not invent one: list the gaps in the handoff for the economy-designer. (4) Storage starts at 0 on every planet (new company): set DEFAULT_START in game/storage.gd to 0. (5) Planet storage is company property, established automatically on the first trade at that planet (first buy or sell order touching it). Before that the planet has no storage: no storage section, nothing to block or stall on; the first order creates it. Route engine, save/load and forecast must handle planets with no storage yet. (6) Storage is a SEPARATE section of the planet panel, shown only once established: title 'Company storage', capacity, and one row per commodity with the 5-line rating bar and the amount (for example 35/100). Remove the rating bars from the market rows. Handoff: handoffs/gameplay-programmer/<date>-T65.json."
+    },
+    {
+      "task_id": "T66",
+      "title": "Economy: fill missing buy/sell prices so every planet quotes both sides",
+      "owner_agent": "economy-designer",
+      "depends_on": [
+        "T65"
+      ],
+      "status": "queued",
       "turn_cap": 15,
-      "window": "owner request 2026-10-25; started by main session",
-      "brief": "Rewrite the Producer entry in gdd.md and log it in the change log: main session is the owner's contact and starts agents, producer plans and may start agents only with handoff-file evidence.",
-      "owner_note": "Done; verified: gdd.md Producer entry rewritten, handoffs/creative-director/2026-10-25-T27.json exists."
+      "window": "Redesign R4 batch (Economy), parallel with T67",
+      "brief": "Owner decision 2026-10-27: every planet quotes BOTH a buy price and a sell price for every commodity (no fixed buy-only or sell-only goods), so a player can mistakenly buy high and sell low; that mistake is the interest. Fill the gaps in data/planets.json (planet_1 energy_sell and food_buy; planet_2 energy_buy and food_sell; planet_3 energy_buy and food_sell; check all planets). Prices must differ per planet, keep each planet's sell below its own buy price where a spread applies, and keep at least one clearly profitable and one clearly losing pairing per commodity. Do not touch other values. Run python3 tools/sim.py --mc 50 only if it still runs on planets.json; the old two-way sim is known to be stale, so do not fix it here. Log each added price. Handoff: handoffs/economy-designer/<date>-T66.json."
     },
     {
-      "task_id": "T28",
-      "title": "Buy the first ship (abstract), pulsing planet hint, ships panel",
+      "task_id": "T67",
+      "title": "Route visual: straight line, pulsing glow along trade direction, half-arrow per direction",
       "owner_agent": "gameplay-programmer",
       "depends_on": [
-        "T25"
+        "T65"
       ],
-      "status": "done",
-      "turn_cap": 60,
-      "window": "owner request 2026-10-25; starts after T25",
-      "brief": "A glowing pulsing marker on the planet the Buy a ship mission points to, to show it can be clicked. Planet panel gets a Buy a ship button (ship_price from data/balance.json); buying withdraws the credits and adds a ship. A ships menu on the right side of the screen shows the ship count. The ship is abstract: no 3D model. Add the ship count to the autosave. Mission board updates when the mission is complete.",
-      "owner_note": "Done; verified by handoffs/gameplay-programmer/2026-10-25-T28.json and new files game/ship_panel.gd, game/planet_hint.gd. Not seen on screen; save round trip untested in sandbox."
+      "status": "queued",
+      "turn_cap": 40,
+      "window": "Redesign R4 gameplay (solo)",
+      "brief": "Owner feedback 2026-10-27. (1) The route line is currently an arc: make it a straight line between the two planets. (2) Make the art a pulsing, semi-transparent glow: a soft brightness and alpha wave that travels along the line in the direction of the trade (source to destination); red when blocked, grey and slow when stalled. No new textures needed, use modulate or a small shader. (3) The art is now split in half lengthwise: assets/route/half_tail.png, half_mid.png (81 px, tile) and half_head.png, 86 px tall each (the upper half of the old full arrow; the full route_tail/mid/head.png are obsolete, delete them and their .import files once unused). One-way trade draws ONE half-arrow on one side of the line, pointing to the destination. When the opposite direction is also established (a second route A to B and B to A for the same pair of planets), draw the second half rotated 180 degrees on the other side of the centre line, so the two halves join into the full arrow pair, each pulsing in its own direction. Side by side halves must meet at the centre line without a gap. Handoff: handoffs/gameplay-programmer/<date>-T67.json."
     },
     {
-      "task_id": "T29",
-      "title": "Creative Director ruling: one step while paused",
-      "owner_agent": "creative-director",
-      "depends_on": [],
-      "status": "done",
-      "turn_cap": 20,
-      "window": "owner request 2026-10-25",
-      "brief": "Ideas and a ruling on limiting trading while paused so only one step can be made, not the whole loop.",
-      "owner_note": "Done; verified: handoffs/creative-director/2026-10-25-T29.json, gdd.md line 43 and change log. Ruling B: travel takes travel_cycles_per_leg cycles; one leg of orders per pause."
-    },
-    {
-      "task_id": "T30",
-      "title": "Implement the paused-step rule",
+      "task_id": "T68",
+      "title": "Local buy/sell at the planet without a route; routes only move stock; new route art",
       "owner_agent": "gameplay-programmer",
       "depends_on": [
-        "T29"
+        "T67"
       ],
-      "status": "done",
+      "status": "queued",
       "turn_cap": 50,
-      "window": "after T29",
-      "brief": "Implement the Creative Director ruling from T29 in the trade and planet panel code so only one step can be made while paused.",
-      "owner_note": "Done; verified by handoffs/gameplay-programmer/2026-10-25-T30.json and game/trade.gd (arrive_at). Trade logic run headless; visuals and real Continue not checked (sandbox)."
+      "window": "Redesign R5 gameplay (solo)",
+      "brief": "Owner direction 2026-10-27. (1) The player must be able to Buy and Sell on a planet with NO route. Buy on a planet's resource row is a standing local order: each cycle it buys up to a per-cycle amount at that planet's buy price, pays cash, and adds to that planet's company storage (established on the first trade) until the storage is full or cash runs out. Sell is a standing local order that sells stock from that planet's storage at the sell price. With no outflow the storage can fill to max capacity; the order then idles with a short status (storage full), not an error. Per-cycle amount: an abstract code constant for now (use the ship load size), the economy-designer sets it later. Buy and sell each toggle on and off per commodity. No ship is needed for local orders. (2) A route is optional and only MOVES stock: a separate control on a planet's storage row ('Send to...', then click the destination planet) creates a one-way route source storage to destination storage with one auto-assigned ship; stalls when the source storage is empty, is blocked (red, notification) when the destination is full. The old 'Buy here then click the other planet and Sell' pending flow is replaced by this. Keep planet-to-storage and storage-to-storage as later options. Update the route engine, planet panel, save/load, cash forecast and the scripted checks accordingly; storage still changes only through orders and routes (no free refill). (3) New route art: assets/route/arrow_tail.png (72 px), arrow_mid.png (81 px, tile) and arrow_head.png (367 px), each 198 px tall, one whole arrow pointing right (head, diamond and fins at the destination end), transparent background. A one-way route draws ONE arrow over the full line length: tail at the source, tiled mid, head at the destination. When both directions exist on the same pair, each direction's arrow covers HALF of the line and they meet in the middle (the second one pointing the other way). Same overall thickness as the earlier art (0.18 world units per 172 px of art height); keep the straight line, the pulsing glow and the red / grey states. Remove the half-arrow ribbon code. Do not delete assets/route/half_*.png (the main session will). Handoff: handoffs/gameplay-programmer/<date>-T68.json."
     },
     {
-      "task_id": "T05b",
-      "title": "Star field: allow stars everywhere (remove push radius)",
-      "owner_agent": "galaxy-builder",
+      "task_id": "T69",
+      "title": "Show ship maintenance to the player (no hidden costs)",
+      "owner_agent": "gameplay-programmer",
       "depends_on": [
-        "T05"
+        "T68"
       ],
-      "status": "done",
-      "turn_cap": 15,
-      "window": "owner request 2026-10-25",
-      "brief": "Remove the minimum-radius push so stars can be anywhere on the map; keep them non-intrusive.",
-      "owner_note": "Done; verified by handoffs/archive/2026-10-25-T05b.json and game/galaxy/star_field.gd. Not seen on screen."
+      "status": "queued",
+      "turn_cap": 40,
+      "window": "Redesign R5 gameplay (solo), after T68",
+      "brief": "Owner direction 2026-10-27: maintenance used to be a hidden value; expose it so the player never sees less profit than expected. Show it wherever profit is shown: (1) on a route's connection entry in the planet panel: revenue, goods cost, ship maintenance and trip cost as separate lines, then net per cycle; (2) in the ship panel: each ship's maintenance per cycle and the total; (3) in the cash forecast: maintenance as its own line, not folded into route net; (4) in the end-of-cycle summary or notice: gross profit, maintenance paid, net, in one line. Use plain labels such as 'Ship upkeep'. If an old tooltip or hint calls the number profit when it is net of upkeep, relabel it. No balance values change. Handoff: handoffs/gameplay-programmer/<date>-T69.json. ADDED 2026-10-27: in the cash forecast dropdown (game/cash_forecast.gd, opened by clicking the money UI) the red section is headed 'Outcome:' (owner calls it Outflow). Rename the heading to 'Expenses:' and list ship upkeep there, one line per ship or one total (programmer's choice, whichever fits), so the cash after the cycle adds up: income minus expenses. The income lines then show gross, not net of upkeep, if the engine can supply it; if not, report. Update the comments in that file that say maintenance is netted inside each route.",
+      "owner_note": "Owner 2026-10-27. Also tell doc-manager (T62) to document that upkeep is visible."
     },
     {
-      "task_id": "T31",
-      "title": "VDB workflow exploration (no download/no build yet)",
-      "owner_agent": "galaxy-builder",
-      "depends_on": [],
-      "status": "done",
-      "turn_cap": 20,
-      "window": "owner request 2026-10-25",
-      "brief": "Exploration only: can Godot 4.7 do the GDD density-grid look with default tools, or does anything need downloading. Findings in the handoff.",
-      "owner_note": "Done (exploration); findings in handoffs/archive/2026-10-25-T31.json details.note. No download needed; engine has no VDB importer; ImageTexture3D + FogVolume/raymarch or baked star tint are the default-tool paths. Owner decisions pending."
+      "task_id": "T70",
+      "title": "Routes wait when the destination has outflow; block only when there is none",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [
+        "T68"
+      ],
+      "status": "queued",
+      "turn_cap": 30,
+      "window": "Redesign R5 gameplay (solo), with T69",
+      "brief": "Owner direction 2026-10-27. A route must not break just because supply exceeds demand (for example the route delivers 10 and the destination sells 5). Rule: when the destination storage is full or has less room than the load, a route that has OUTFLOW at the destination for that commodity WAITS: it moves only what fits this cycle (partial load, no all-or-nothing), never turns red and raises no notification; status text 'Waiting for room.' in a neutral colour. Outflow = an enabled local Sell order for that commodity at the destination, or an outgoing route from that storage for that commodity. Only when the destination is full and there is NO outflow does the route become BLOCKED (red, one notification, stops) because nothing will ever make room; it resumes by itself when an outflow appears or the storage drains. An empty source still stalls. Update the cash forecast so a waiting route shows the reduced amount it really moves. Handoff: handoffs/gameplay-programmer/<date>-T70.json.",
+      "owner_note": "Owner 2026-10-27."
+    },
+    {
+      "task_id": "T71",
+      "title": "Skill tree screen, expansion points and game menu",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [
+        "T72",
+        "T70"
+      ],
+      "status": "stopped",
+      "turn_cap": 70,
+      "window": "ON HOLD until the owner edits gdd-skills.md",
+      "brief": "Build gdd-skills.md sections 2, 6, 7 and 8 once the owner has settled the open questions: expansion points, the Skills button (hotkey K) and screen with three branch columns, data/skills.json (written with the Economy Designer for costs), has_skill hooks, the game menu (Resume, Skills, Main menu, Quit; reserved slots for Settings, Statistics, Help, Save and load), save and load of skills and points. Space storage as a learned-at-start skill needs T64 (stopped).",
+      "owner_note": "Created 2026-10-27. Supersedes T60 (stopped)."
+    },
+    {
+      "task_id": "T72",
+      "title": "Owner: skills per branch, endings and starting points",
+      "owner_agent": "owner",
+      "depends_on": [
+        "T59"
+      ],
+      "status": "queued",
+      "turn_cap": 0,
+      "window": "Owner, before T71",
+      "brief": "Answer the open questions in gdd-skills.md section 10: (1) which skills belong in Logistics, Research and Expansion and which push toward which ending; (2) how many endings and how the tree chooses one; (3) whether the player starts with any expansion points. The story agent (to be created by the owner) can then write the ending texts."
     }
   ],
   "done_task_ids": [
@@ -412,7 +494,33 @@
     "T21",
     "T04",
     "T23",
-    "T24"
+    "T24",
+    "T18",
+    "T19",
+    "T25",
+    "T06",
+    "T32",
+    "T33",
+    "T34",
+    "T35",
+    "T36",
+    "T37",
+    "T38",
+    "T39",
+    "T40",
+    "T41",
+    "T09",
+    "T10",
+    "T26",
+    "T27",
+    "T28",
+    "T29",
+    "T30",
+    "T05b",
+    "T31",
+    "T42",
+    "T43",
+    "T45"
   ],
-  "done_archive": "handoffs/archive/schedule-done.json"
+  "done_archive": "handoffs/archive/schedule-done-2026-10-26.json"
 }

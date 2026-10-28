@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "agent": "producer",
+  "date": "2026-10-26",
+  "task": "Plan queue from QA T09 findings; record T42 and T43 as done; archive handoffs",
+  "status": "done",
+  "files_changed": [
+    "schedule.json",
+    "state.md",
+    "handoffs/producer/2026-10-26.json",
+    "handoffs/archive/ (moved: gameplay T33 to T36, T39, T40; producer w7; owner planet-names; economy planet-resources)"
+  ],
+  "usage_note": "Owner-reported at window start: session 67% (resets 1pm America/Toronto), weekly 9%. Producer used no agent meter. owner batch C1 can start under 80%; gameplay G1 waits for next reading.",
+  "started": [],
+  "stopped": [],
+  "blocked": [
+    {"task_id": "T07", "why": "waits for T45 ruling (ship income) and T46 (dead-state rule)"},
+    {"task_id": "T46", "why": "waits for T44 and T45"},
+    {"task_id": "T10", "why": "waits for T07, T19 and T45; numbers must follow the ship-income model"},
+    {"task_id": "T47", "why": "waits for T07, T10, T44 and T46"},
+    {"task_id": "T09", "why": "ran before T07 and T08; kept as baseline, re-run is T47"}
+  ],
+  "changes": [
+    "T42 (debug advance-cycle button) and T43 (QA bot harness) added as done.",
+    "T09 set to done as baseline; owner_note records it ran before its dependencies.",
+    "T45 (owner: dead state and ship income) added, queued, owner batch C1.",
+    "T18 and T19 moved from the economy batch to owner batch C1.",
+    "T44 (timer vs fast-forward parity) and T46 (dead-state code) added, gameplay G1.",
+    "T07 depends on T45 and T46; T10 depends on T07, T19, T45.",
+    "T47 (QA re-run after retune) added, economy batch E1.",
+    "T05 status changed from partial (not a valid status) to queued; still waits for T15.",
+    "No agent started. Tasks stay queued for the main session to launch."
+  ],
+  "open_questions": [
+    "UNKNOWN: if retuned income still cannot reach win_cash 9000 in cycles 25 to 28, which moves: win_cash, the win window, or income? Owner decision; GDD change if win_cash or the window moves.",
+    "UNKNOWN: which meter figure to track against the 68% agent cap (24h per-agent figures total 36% versus weekly 9%).",
+    "UNKNOWN: how many agent windows have already run today (cap 2 per day). Owner to confirm before G1 starts."
+  ],
+  "handoff": "Queue updated for QA findings. Next: C1 batch (owner) with T45 (dead state and ship income), T18 and T19. Main session may launch it now (67% reported). After the 1pm reset and a new meter reading: G1 gameplay solo with T44 (timer/fast-forward parity), then T46 (dead-state code). Then G2 gameplay solo with T07 (routes, saturation, ship income per T45): the minimum prototype. Then E1 batch: T10 economy retune (win window, pacing, dominance numbers), T08 owner review, T47 QA re-run last. T09 kept as a baseline only because it ran before T07. T42 and T43 recorded as done. Nothing committed. Uncommitted: game/main.gd, game/debug_menu.gd, qa/ files, QA and gameplay handoffs. Owner questions are in open_questions."
+}

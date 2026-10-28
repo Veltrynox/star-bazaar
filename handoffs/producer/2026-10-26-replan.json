@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "agent": "producer",
+  "date": "2026-10-26",
+  "task": "Re-plan queue for the automated-route model (owner C2, owner decisions, T10 done); no agent started",
+  "status": "done",
+  "files_changed": [
+    "schedule.json",
+    "state.md",
+    "handoffs/producer/2026-10-26-replan.json",
+    "handoffs/archive/schedule-done-2026-10-26.json",
+    "handoffs/archive/ (older handoffs moved with mv -n)"
+  ],
+  "usage_note": "Producer session only, no agent started. Meter UNKNOWN for this session; last owner reading 67% session at window start, before C1 and C2 ran.",
+  "started": [],
+  "stopped": [
+    {"task_id": "T11", "why": "Owner: systems 2 and 3 ON HOLD."},
+    {"task_id": "T54", "why": "Created on hold: waits for an owner decision on the system-1 win path."}
+  ],
+  "blocked": [],
+  "changes": [
+    "T10 marked done (owner: retune done, balance v3, planets v4). T09 stays done as a baseline.",
+    "T46 removed; folded into T07 (stranded test: owns zero ships and cash below ship_price, rescue_stipend 1000).",
+    "T07 split: T07 route engine (W4) and T07b route screen (W5).",
+    "T40b added: forecast lists net income per route (W5).",
+    "T50 removes stock readers and the save_game comment (W2). Economy stock removal already done.",
+    "T48 economy (W1): system-1 sim check via tools/sim.py, planets.json as the single price source (Producer decision, owner may veto), starting credits check.",
+    "T49 owner GDD pass (W1): dead-state wording, balance-targets text, price source, systems 2 and 3 hold, saturation unit.",
+    "T51 retires manual trade UI and paused-step code, keeps trade.gd (W3). T52 hides the docked-ship dot (W3).",
+    "T08 owner review now on routes (W6). T53 QA bot rewrite through routes (W6). T47 QA re-run on system 1 (W7).",
+    "T15 tutorial rewritten (W8); no longer depends on T14.",
+    "T12 events no longer depend on T11; T13 now after T12 because Game Control needs event controls.",
+    "Windows W1 to W13 (about 7 days at 2 agent windows per day). Done tasks (26) moved to handoffs/archive/schedule-done-2026-10-26.json; done_task_ids kept in schedule.json."
+  ],
+  "win_path_note": "Systems 2 and 3 on hold. In balance v3 the win came only through permit routes (+50% margin, one extra route per permit). The T10 results list no no-permit line above 7120 at cycle 30 (always_expand, 4 ships), below win_cash 9000. So a system-1 build has no modelled win path. T48 confirms the exact best line. Options are for the owner: lift the hold, change win_cash or the window for system 1, or change system-1 income (T54). Producer has not decided.",
+  "open_questions": [
+    "OWNER: system-1 win path. Lift the hold, change win_cash or the window for system 1, or change system-1 income (T54)?",
+    "OWNER: ship_cap 8 (kept for now) or 6.",
+    "UNKNOWN: how many agent windows have already run today (cap 2 per day)."
+  ],
+  "handoff": "Queue re-planned around automated routes. Start only after the owner's meter reading (under 80%). W1 batch: economy T48 (sim check, planets.json as price source), then owner T49 (GDD alignment). Then gameplay: W2 T44 and T50, W3 T51 and T52, W4 T07 engine, W5 T07b and T40b. W6: owner T08, then QA T53. W7: QA T47 re-run on system 1. W8 tutorial T15. W9 galaxy T05. W10 events T12. W11 Game Control T13. W12 win/loss T14. W13: owner T16, then QA T17. Permits T11 and economy retune T54 are stopped on hold. Owner must decide the system-1 win path before T54. Nothing started or committed. Use tools/sim.py for cheap economy checks."
+}

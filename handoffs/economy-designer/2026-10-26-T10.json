@@ -1,0 +1,184 @@
+{
+  "schema_version": 1,
+  "agent": "economy-designer",
+  "date": "2026-10-26",
+  "task": "Economy retune from QA results",
+  "status": "done",
+  "files_changed": [
+    "data/balance.json",
+    "data/planets.json",
+    ".claude/agents/economy-designer.md",
+    "handoffs/economy-designer/2026-10-26-T10.json",
+    "tools/sim.py"
+  ],
+  "usage_note": "UNKNOWN: no meter reading; about 10% of one window.",
+  "open_questions": [
+    "OWNER/owner: permits have no planets. planets.json has only the 3 starter planets, so permit_margin_bonus was modelled as one new route per permit at +50% margin. Need a owner task: what do systems 2 and 3 contain (planets, goods)?",
+    "OWNER: build-side income share is thin. Best line wins at 26 with 8 ships, but 4 ships plus permits win at 26-28 too, so ships 5-8 add little (saturation). Accept, or lower ship_cap to 6 (owner call, pacing target says 7-8)?",
+    "UNKNOWN: tools/sim.py still models the old manual-trade game; not touched this session (task forbade repo scripts). Rewrite as a follow-up task?"
+  ],
+  "handoff": "Balance v3. Net per ship per cycle = (margin_leg1 + margin_leg2) x cargo / (2 x travel_cycles_per_leg) - trip_cost / travel_cycles_per_leg - maintenance / maintenance_interval, with each leg's sell price lowered by saturation x (ships already on the route), floored at the buy price. Maintenance is charged as maintenance / maintenance_interval every cycle (50), never as a lump; keep maintenance a multiple of the interval so settlement is whole credits. saturation is now credits per unit of sell price (was 0.1): programmer must read it as 5 credits. Route total <= 0 idles. Rescue_stipend 1000 pays only when the player owns zero ships. event_effect is pct only (cr removed): multiplies the sell prices of one planet by 1 +/- pct for event_interval cycles, whole credits rounded. Pro-rate a ship's first cycle by time assigned so late-cycle purchases cannot earn a full cycle. Planet stock removed from planets.json and economy-designer.md; game/save_game.gd line 5 comment is for gameplay-programmer. ADDENDUM: tools/sim.py is replaced by a route-model sim (reads balance.json and planets.json). Run: python3 tools/sim.py --mc 50 (about 0.1 s). Reproduces T10: best 26, decent 27, never/always/sloppy lose.",
+  "details": {
+    "changes": [
+      {
+        "key": "trip_cost",
+        "old": 40,
+        "new": 110,
+        "reason": "Fixed costs per ship-cycle (trip plus maintenance share) must be about 160 so permit routes beat saturated starter routes; starter-only line now loses."
+      },
+      {
+        "key": "maintenance",
+        "old": 100,
+        "new": 150,
+        "reason": "Pairs with trip_cost; 150 / 3 = 50 per cycle, a whole credit with no remainder."
+      },
+      {
+        "key": "saturation",
+        "old": 0.1,
+        "new": 5,
+        "reason": "Now credits off each leg's sell price per extra ship (was a fraction). 5 makes the 3rd ship on a starter route net zero or negative, which stops always-expand."
+      },
+      {
+        "key": "permit_2_cost",
+        "old": 2000,
+        "new": 1000,
+        "reason": "Permit is the only way past the starter ceiling; at 2000 the decent line won at cycle 29 or lost."
+      },
+      {
+        "key": "permit_3_cost",
+        "old": 4000,
+        "new": 1500,
+        "reason": "Same; permit 3 still pays back in about 6 cycles so it is worth buying by cycle 17."
+      },
+      {
+        "key": "rescue_stipend",
+        "old": null,
+        "new": 1000,
+        "reason": "New key (owner C1/C2). Equals ship_price: restarts exactly one ship, nothing more."
+      },
+      {
+        "key": "event_effect",
+        "old": {
+          "pct": [
+            0.1,
+            0.25
+          ],
+          "cr": [
+            300,
+            800
+          ]
+        },
+        "new": {
+          "pct": [
+            0.1,
+            0.2
+          ]
+        },
+        "reason": "Price modifier only (stock cut); cr part removed; upper bound 0.2 keeps wins before cycle 22 to about 1 run in 400."
+      },
+      {
+        "key": "pace_cycle_10_target",
+        "old": 3000,
+        "new": 900,
+        "reason": "Cash after reinvesting in the net-route model, decent line."
+      },
+      {
+        "key": "pace_cycle_20_target",
+        "old": 6000,
+        "new": 1300,
+        "reason": "Same; cash is low until the 6th to 8th ship and both permits are bought, then jumps."
+      },
+      {
+        "key": "pace_cycle_25_target",
+        "old": 7500,
+        "new": 6200,
+        "reason": "Same; decent line reaches 9000 at cycle 27."
+      },
+      {
+        "key": "target_4th_ship_cycle",
+        "old": 9,
+        "new": 14,
+        "reason": "Permit 2 competes with ship 4 for cash; best line buys ship 4 at 12, decent at 15."
+      },
+      {
+        "key": "target_first_permit_cycle",
+        "old": 13,
+        "new": 10,
+        "reason": "Best line buys it at 9, decent at 12."
+      },
+      {
+        "key": "permit_1_affordable_cycles",
+        "old": [
+          12,
+          14
+        ],
+        "new": [
+          8,
+          12
+        ],
+        "reason": "Matches the new permit cost and cash curve."
+      },
+      {
+        "key": "target_8_ships_cycle",
+        "old": 18,
+        "new": 22,
+        "reason": "Best line reaches 8 ships at cycle 21."
+      }
+    ],
+    "unchanged_on_purpose": "starting_credits 1500 and ship_price 1000 (first ship leaves 500; 2nd ship at cycle 5, limit 6), cargo, ship_cap, prices, Ashgate prices (round-trip margin 32 vs Tillam 28, +14%), permit_margin_bonus 0.5, win_cash, win_cycle, upgrade_*.",
+    "answers": {
+      "1_formula": "Confirmed with one correction: margin is per leg, so the gross term is (m1 + m2) x cargo, not 2 x margin x cargo (equal only on symmetric pairs; Ashgate legs are 17 and 15). Per ship per cycle = ((m1+m2) x cargo - 2 x trip_cost - maintenance x 2 x travel / interval) / (2 x travel) = (m1+m2) x cargo / (2 x travel) - trip_cost / travel - maintenance / interval. Defaults: Tillam 280 - 110 - 50 = 120; Ashgate 320 - 160 = 160. Maintenance is smoothed by charging maintenance / maintenance_interval = 50 every cycle (no 3-cycle lump); closing a route just before the due cycle therefore saves nothing. Keep maintenance a multiple of the interval, or floor and carry the remainder.",
+      "2_saturation": "5 credits off the sell price at the selling planet per extra ship, on both legs. Ship nets by order on one route: Tillam 120, 20, -80; Ashgate 160, 60, -40; permit-2 route 260, 160, 60, -40; permit-3 route 320, 220, 120, 20, -80. So the marginal ship reaches zero or below at the 3rd ship on a starter route, the 4th on permit 2, the 5th on permit 3. Whole-route net turns <= 0 (route idles) at the 4th ship on Tillam and the 5th on Ashgate, so a sloppy overload is a visible loss, not a freeze. Preview must show the marginal ship net before the player confirms.",
+      "3_ship_and_start": "ship_price 1000, starting_credits 1500. Second ship lands at cycle 5 on the first route (500 left + 160 per cycle), limit 6.",
+      "4_rescue": "rescue_stipend 1000 = ship_price. It cannot be farmed: there is no ship resale, so once a ship is owned the player can never be stranded (a free ship needs no cash to restart). Recommend the stranded test be 'owns zero ships and cash < ship_price', not 'no route earning': an event that closes Voltara blocks every starter route for event_interval cycles and must not pay a stipend. Even at zero ships it fires at most once per run.",
+      "5_hoarding": "No hoarding exploit. Idle ships cost nothing but also earn nothing, and every running ship nets above zero by the add-ship rule, so parking one only loses income. Maintenance is smoothed so timing closures does not help. Rule to add, not a number: a ship's first cycle on a route pays pro rata to the fraction of the cycle it was assigned, otherwise buying at the last second earns a full cycle (about 160 per ship). The sim assumes purchases at cycle start.",
+      "6_pacing": "See sim_results. Search method: throwaway paper model, whole-credit nets, settlement at every cycle end, buying at cycle start; best line = exhaustive search over permit timing with greedy best-marginal ship placement. Event Monte Carlo (400 seeds, pct 0.1 to 0.2, random planet, 4 cycles): best wins 89% (median 27, 1 win before 22), decent 81% (median 28), always_expand 1%, never_expand 0%.",
+      "7_ashgate_permits": "Ashgate left at energy_sell 27, food_buy 11 (+14% round-trip margin over Tillam, so two Voltara routes are a real choice). permit_margin_bonus 0.5 kept: +/-0.1 moves the best win by 1 to 2 cycles (0.4: 27 or 28, 0.6: 25), still in window. Permit routes are modelled as one new route each at +50% sell-side margin (see open question 1).",
+      "8_events": "event_effect = {pct:[0.1,0.2]}: one random planet, its sell prices x (1 +/- pct), rounded to whole credits, applied for event_interval cycles (until the next event, no new key). Example: Tillam -20% makes energy 24 -> 19, margin 9, first ship nets 70, second ship -30, so the route idles part of its ships. Closing a planet blocks its routes at zero cost, as the GDD says. Upgrades: upgrade_cost and upgrade_margin_bonus left for the route-level task; a route level should replace the per-ship upgrade, one system only.",
+      "gdd_gaps": [
+        "Permits have no planets or goods (see open question 1).",
+        "Planet prices live twice: balance.json (energy_buy, food_sell, ...) and planets.json base_prices. Nothing says which wins. Suggest planets.json is the source and balance.json keeps only the starter reference.",
+        "GDD dead state text says 'or nothing if the player already owns a free ship', which makes stranded unreachable except at zero ships; wording should state that on purpose.",
+        "GDD 'Balance targets' still describes the 4th-ship and first-permit pacing that the cash model does not support at the old values; targets were updated in balance.json, the GDD is not edited by this role.",
+        "game/save_game.gd line 5 still mentions stock (gameplay-programmer)."
+      ]
+    },
+    "sim_results": [
+      {
+        "strategy": "best (permit 2 after 2 ships, permit 3 after 1 more, 8 ships)",
+        "final_cash": 9620,
+        "win_cycle": 26
+      },
+      {
+        "strategy": "decent (permit 2 after 3 ships, permit 3 after 3, 8 ships)",
+        "final_cash": 9080,
+        "win_cycle": 27
+      },
+      {
+        "strategy": "decent, late permit 3 (after 5 ships)",
+        "final_cash": 9380,
+        "win_cycle": 29
+      },
+      {
+        "strategy": "never_expand (1 ship)",
+        "final_cash": 5300,
+        "win_cycle": null
+      },
+      {
+        "strategy": "always_expand (ships ASAP, no permits, stops at zero marginal net, 4 ships)",
+        "final_cash": 7120,
+        "win_cycle": null
+      },
+      {
+        "strategy": "sloppy (one route, no permits)",
+        "final_cash": 3600,
+        "win_cycle": null
+      },
+      {
+        "strategy": "sloppy overload (ships forced onto one route, 5 or more)",
+        "final_cash": 40,
+        "win_cycle": null
+      }
+    ]
+  }
+}

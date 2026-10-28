@@ -38,9 +38,6 @@ Prose is limited to 200 words, except `handoff`, which is limited to 150.
   - `parameters`: object of exposed parameters and their values.
 - **qa-analyst**
   - `results`: list of `{ "strategy", "final_cash", "cycle_reached", "outcome" }`. `outcome` is `win`, `loss`, `crash` or `softlock`.
-- **creative-director**
-  - `verdicts`: list of `{ "item", "verdict", "reason" }`. `verdict` is `keep`, `cut` or `change`. The reason is one line.
-  - `gdd_changes`: list of section numbers edited in `gdd.md`. Empty list if none.
 - **producer**
   - `started`, `stopped`: lists of `task_id`.
   - `blocked`: list of `{ "task_id", "reason" }`.

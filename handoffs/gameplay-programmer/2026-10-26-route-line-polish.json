@@ -1,0 +1,13 @@
+{
+  "agent": "gameplay-programmer",
+  "date": "2026-10-26",
+  "task": "route-line-polish",
+  "status": "partial",
+  "files_changed": ["game/route_line.gd"],
+  "schema_version": 1,
+  "usage_note": "Shader-only rewrite inside route_line.gd; API (setup, set_style, screen_distance, fields) unchanged; map.gd untouched.",
+  "playable": "Active routes now draw as a tapered glowing arc: thin white-hot core, soft halo, shimmer, and one comet spark (bright head plus trailing tail) per ship (max 8) flowing A to B. Idle and blocked routes are dim, static, dashed, no sparks.",
+  "how_to_try": "Run the game, buy a ship and start a route; watch the arc between the planets. Add ships to see more sparks.",
+  "open_questions": ["UNKNOWN: shader not visually checked. Headless has no renderer and the shader only compiles when a route is drawn; please open a windowed run and look at it (tell me if the glow is too bright or the sparks too sharp)."],
+  "handoff": "Headless load shows no script errors (only sandbox log-file and certificate noise). No screenshot captured."
+}

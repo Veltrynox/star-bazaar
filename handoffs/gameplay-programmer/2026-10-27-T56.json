@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-10-27",
+  "task": "T56",
+  "status": "done",
+  "files_changed": ["game/route_engine.gd", "game/main.gd", "game/storage.gd", "game/cash_forecast.gd", "game/debug_menu.gd", "data/balance.json", "game/route_screen.gd (deleted)", "game/route_screen.gd.uid (deleted)"],
+  "usage_note": "Within turn cap.",
+  "open_questions": [
+    "Owner: storage DEFAULT_START changed 1.0 -> 0.25 as a placeholder so planets do not start full (every sell would block on cycle 1). Which start fill do you want?",
+    "Economy-designer: tools/sim.py still reads balance 'saturation' (removed) and models two-way pair routes; it needs a rewrite. Also storage_capacity/storage_refill/storage_start still not in balance.json.",
+    "Owner: the sell order drains at most one ship load per cycle and storage self-refills 5/cycle, so a destination can fill slowly and block even with a single route. Intended, or should sell drain faster?"
+  ],
+  "handoff": "REMOVED: saturation key from data/balance.json; saturation math in route_engine.gd; sat lines in the old route screen. Old route screen DELETED (game/route_screen.gd, its Routes button, route_clicked hookup and refresh in main.gd): it depended on the two-way model, so this was the minimum to keep the build loading; T57 only needs the planet-panel UI. Engine is one-way: record {id, src, dst keys, a, b planets, c, ships 1, state, reason}. Main API for T57: can_connect(src,dst,c), set_buy_order(planet,c,dest), set_sell_order(planet,c,source), remove_connection(id), connections_at(planet,c='') -> copies with status running|stalled|blocked, reason, net, role buy|sell; get_routes(). Ship auto-assigned from the free pool; none free -> reason 'No free ship. Buy a ship first.' (no auto-buy). Blocked (full destination or closed planet) emits main.route_blocked(id,text) and post_notice, red line on map; empty source or no cash stalls. Old saves lose their routes. No profitability check: negative-margin routes are allowed. Headless check passes; a standalone engine run settled cycles correctly.",
+  "details": {"per_cycle": "units=floor(cargo/(2*travel)); buy fills source, ship moves, sell drains destination; costs trip+maintenance per running route"}
+}

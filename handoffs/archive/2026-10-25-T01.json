@@ -11,7 +11,7 @@
     "UNKNOWN: planets.json stock and base_prices, and planet_3 data; sim uses balance.json prices only",
     "UNKNOWN: whether never_expand means one ship total (assumed); it reaches 6700, close enough to need QA check"
   ],
-  "handoff": "v0.1 values failed the paper model: optimal ended at ~1.3k cash and never won (margin 8, upkeep 50/cycle per ship). Raised food_sell 20->26, energy_sell 18->24, cut maintenance 150->100; data_version is now 2. Sim (tools/sim.py, new, crude paper model) gives optimal win cycle 26, 2nd ship cycle 3, 4th ship cycle 8, permit 2 at cycle 16 (targets 6, 9, 13). single_route, always_expand and never_expand all lose. Not done: planets.json is still UNKNOWN for stock, prices and planet_3. Needs Creative Director confirmation of saturation meaning and routes per system, then QA bot runs to verify the sim against real play.",
+  "handoff": "v0.1 values failed the paper model: optimal ended at ~1.3k cash and never won (margin 8, upkeep 50/cycle per ship). Raised food_sell 20->26, energy_sell 18->24, cut maintenance 150->100; data_version is now 2. Sim (tools/sim.py, new, crude paper model) gives optimal win cycle 26, 2nd ship cycle 3, 4th ship cycle 8, permit 2 at cycle 16 (targets 6, 9, 13). single_route, always_expand and never_expand all lose. Not done: planets.json is still UNKNOWN for stock, prices and planet_3. Needs owner confirmation of saturation meaning and routes per system, then QA bot runs to verify the sim against real play.",
   "details": {
     "changes": [
       { "key": "food_sell", "old": 20, "new": 26, "reason": "v0.1 margin 8 could not reach win_cash under the paper model." },

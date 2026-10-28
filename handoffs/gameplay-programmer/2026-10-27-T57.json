@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-10-27",
+  "task": "T57",
+  "status": "done",
+  "files_changed": ["game/planet_panel.gd", "game/main.gd", "game/map.gd", "game/route_line.gd", "game/cash_forecast.gd", "export_presets.cfg"],
+  "usage_note": "Within turn cap.",
+  "open_questions": [
+    "Owner: please eyeball the arrow art on the map (ART_WIDTH 0.30 world units in route_line.gd) and the rating-bar look; I could not view the game.",
+    "Owner: the arc-line pick (click a route line) still emits route_clicked but nothing listens; remove it or use it to select a connection?",
+    "Owner: with a pending order the other planet's Buy/Sell is not greyed out; failures show as a notice. OK?"
+  ],
+  "handoff": "Click a planet: rows per commodity with a vertical 5-line rating bar (tooltip shows stock), prices, Buy and Sell. Press Buy (or Sell), the planet gets a halo, a gold banner and a Cancel button appear; Esc or pressing the same button cancels. Click another planet and press the opposite button for the same commodity to create the one-way route (failure reason goes to the notification, pending stays). The panel lists the planet's connections with status (running, stalled, blocked in red, with reason) and Remove. route_line.gd now draws tail + tiled mid + head from assets/route/, modulate white running, grey stalled, red blocked. No leftover top-menu route UI or route_screen references. Export filter changed: assets/* excluded the arrow PNGs, now only the ship models and arrow.png are excluded. Headless check clean; scripted flow (buy, sell, cycle, remove) passed. Not verified visually."
+}

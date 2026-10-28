@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "agent": "economy-designer",
+  "date": "2026-10-27",
+  "task": "T66",
+  "status": "done",
+  "files_changed": [
+    "data/planets.json"
+  ],
+  "usage_note": "Small task, no sim run (sim stale per brief).",
+  "open_questions": [
+    "T65 was still queued when T66 ran; confirm price semantics (buy = player pays, sell = player receives)."
+  ],
+  "handoff": "Added 6 prices so all planets quote both sides; sell < buy on every planet. Profitable and losing pairings exist for both commodities.",
+  "details": {
+    "added": {
+      "planet_1.energy_sell": [
+        8,
+        "just under own buy 10"
+      ],
+      "planet_1.food_buy": [
+        30,
+        "scarce good, above own sell 26"
+      ],
+      "planet_2.energy_buy": [
+        28,
+        "above own sell 24"
+      ],
+      "planet_2.food_sell": [
+        10,
+        "below own buy 12"
+      ],
+      "planet_3.energy_buy": [
+        31,
+        "above own sell 27"
+      ],
+      "planet_3.food_sell": [
+        9,
+        "below own buy 11"
+      ]
+    },
+    "data_version_unchanged": true,
+    "sim": "not run"
+  }
+}

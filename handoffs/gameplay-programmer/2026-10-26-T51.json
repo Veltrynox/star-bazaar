@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-10-26",
+  "task": "T51 Retire manual trade UI and paused-step code (keep trade.gd logic)",
+  "status": "done",
+  "files_changed": ["game/trade.gd", "game/main.gd", "game/planet_panel.gd", "game/ship_panel.gd", "handoffs/gameplay-programmer/2026-10-26-T51.json", "schedule.json"],
+  "usage_note": "UNKNOWN: no meter reading; medium session.",
+  "open_questions": ["Interim: after the first ship is bought nothing can be done until T07/T15 (the board mission line hides once ships > 0). Acceptable for the gap?"],
+  "handoff": "Manual trading is gone. Removed (not hidden): planet panel buy/sell/send controls and signals; main.gd trade/send handlers, _after_action, cargo label, how-to-trade guide label, flight-landing and one-leg-per-pause code (pause highlight, ship panel docked/flight status and Space hint); trade.gd cargo, flight, mission steps, buy/sell/send/rows, save collect/apply. Kept in trade.gd: setup, price(), capacity(), trip_cost(), travel_cycles(), _name(); added margin(from,to,commodity). Kept: planet price display, ship purchase, cycle timer, save/load, debug menu, debug_advance_cycle (returns cycle). Hidden by visibility: only the board mission line (shown while ships == 0). _on_trade_mission_complete hook left in main.gd, uncalled, for T07. Preface text now says to put the ship on a route. Old saves load: cargo, ship_planet, dest, flight_left, mission_step are ignored; new saves omit them. Verified: headless load clean; temp script loaded main.tscn, clicked a planet, debug_advance_cycle returned 2 then 3, collect_state and an old-style apply_state worked; script deleted. qa/bots untouched, broken until T53."
+}

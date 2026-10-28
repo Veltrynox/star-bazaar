@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-10-26",
+  "task": "T44 Timer and fast-forward parity",
+  "status": "done",
+  "files_changed": ["game/main.gd", "handoffs/gameplay-programmer/2026-10-26-T44.json", "schedule.json"],
+  "usage_note": "short session; Godot headless, QA bot run twice per clock",
+  "open_questions": [
+    "Ship arrival is continuous: it lands travel_cycles after the moment of sending, not at a cycle boundary. A player who sends mid-cycle arrives mid-next-cycle, so one leg per cycle only happens when acting at cycle start. Keep as is, or quantise arrivals to cycle ends (design call, T07)?"
+  ],
+  "handoff": "Engine change in main._process (shared by timer and debug_advance_cycle): each cycle boundary crossed now lands ships due by that boundary (trade.tick(cycle)) BEFORE _end_cycle runs, in a while loop so a long frame crossing several boundaries is handled; a landing still triggers _after_action. Before, arrivals were ticked only after cycle end, once per frame. Verified with the QA bot (never_expand, current balance) using fixed 1 s _process steps vs debug_advance_cycle: both 6280 cash, 30 legs, 30 cycles. With the original random 1-45 s chunks the timer run gets 4180 cash: that is bot cadence (it acts up to 45 s into a cycle, so the 1-cycle flight lands after its next check). It is real game semantics, not a bug; left to T47. No balance change. Temp script deleted."
+}

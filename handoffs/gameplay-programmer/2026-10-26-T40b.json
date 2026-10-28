@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-10-26",
+  "task": "T40b Cash forecast dropdown lists net income per route",
+  "status": "done",
+  "files_changed": ["game/cash_forecast.gd", "handoffs/gameplay-programmer/2026-10-26-T40b.json", "schedule.json"],
+  "usage_note": "UNKNOWN: roughly 4 turns, verified in the same headless run as T07b.",
+  "open_questions": [
+    "The Outcome section always reads 'none' (red): nothing charges cash directly now. Drop the heading until permits or upgrades exist?"
+  ],
+  "handoff": "Click the money text in the top bar. The dropdown shows the cycle timer, one green line per route (planet pair, ship count, what it pays at the end of this cycle, from engine.payout_of, so a ship bought mid-cycle shows its pro rata pay), an Outcome section (red, currently none) and 'After cycle' cash. No gross or cost lines; the old maintenance line and MAINTENANCE_CHARGED flag are removed. Idle or blocked routes show +0 with their status."
+}

@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "agent": "qa-analyst",
+  "date": "2026-10-26",
+  "task": "QA bot runs on core loop build",
+  "status": "partial",
+  "files_changed": [
+    "qa/bots/bot_run.gd",
+    "qa/bots/run_batch.sh",
+    "qa/reports/2026-10-26-bug_report.json",
+    "qa/bots/out_2026-10-26/",
+    "handoffs/qa-analyst/2026-10-26-T09.json"
+  ],
+  "usage_note": "UNKNOWN: no meter reading; roughly 100k tokens used",
+  "open_questions": [
+    "UNKNOWN: whether ships should add income or capacity in this build. trade.gd has one ship_planet and one dest; capacity() ignores the ship count.",
+    "UNKNOWN: release export not built. Godot export was denied by the sandbox and the bypass was refused. Debug gating was checked statically in game/main.gd only.",
+    "UNKNOWN: whether this run closes T09 or T17. The build has menu and save but no permits, so permits_bought is 0 in every run."
+  ],
+  "handoff": "Fast-forward batch (4 strategies, seeds 1 to 5, debug_advance_cycle) plus win-boundary probes and 2 timer runs. No crashes, script errors or freezes. Win/loss check passed on every run; wins fire at the right cycle (probes: cycle 1, 29 and 30). No strategy wins: never_expand ends 8380 at cycle 30 against win_cash 9000. Sloppy and always_expand go dead by cycles 4 to 5 (cash below trip cost, no cargo): softlock. Ship purchases add no income. Timer clock loses 10 legs versus fast-forward. Seeds do not change outcomes (no RNG in game). Not tested: release export, save/load (user:// writes blocked by sandbox), permits (absent). Next: economy retune (T10), dead-state fix, ruling on ship income.",
+  "details": {
+    "results": [
+      { "strategy": "decent", "final_cash": 1380, "cycle_reached": 30, "outcome": "loss" },
+      { "strategy": "sloppy", "final_cash": 4, "cycle_reached": 30, "outcome": "loss" },
+      { "strategy": "always_expand", "final_cash": 29, "cycle_reached": 30, "outcome": "loss" },
+      { "strategy": "never_expand", "final_cash": 8380, "cycle_reached": 30, "outcome": "loss" }
+    ]
+  }
+}

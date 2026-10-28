@@ -2,7 +2,7 @@
   "schema_version": 1,
   "agent": "gameplay-programmer",
   "date": "2026-10-25",
-  "task": "T30: timed travel and trading rules while paused (CD ruling T29, option B)",
+  "task": "T30: timed travel and trading rules while paused (owner ruling T29, option B)",
   "status": "done",
   "files_changed": ["game/trade.gd", "game/main.gd", "game/planet_panel.gd", "game/ship_panel.gd", "handoffs/gameplay-programmer/2026-10-25-T30.json"],
   "usage_note": "small task, well under cap",

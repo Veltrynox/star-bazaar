@@ -10,7 +10,7 @@
   ],
   "usage_note": "Small data-only task. Full sim not rerun: sim reads balance.json only and balance is unchanged.",
   "open_questions": [
-    "planets.json stock is UNKNOWN for all planets; no stock key is read by the sim, needs a CD/GDD decision.",
+    "planets.json stock is UNKNOWN for all planets; no stock key is read by the sim, needs a owner/GDD decision.",
     "planet_3 prices differ from global balance energy_sell/food_buy (24/12); decide whether planet prices or balance are the source of truth."
   ],
   "handoff": "Only planet_3 was empty; planet_1 and planet_2 already had resources and prices consistent with gdd.md and balance.json and are unchanged. planet_3 is now abundant food, scarce energy, food_buy 11, energy_sell 27 (was all UNKNOWN). Route P1-P3: energy 10 to 27 (+17), food 11 to 26 (+15), round trip 32/unit vs 28/unit on P1-P2, about 14% better, a reward for the permit, not a dominant route (same saturation and costs). Mission planet is still planet_1 (abundant energy, scarce food). data_version 2 to 3. Names, ids, coordinates, stock untouched.",

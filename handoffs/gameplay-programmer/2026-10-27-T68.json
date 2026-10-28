@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-10-27",
+  "task": "T68",
+  "status": "done",
+  "files_changed": ["game/route_engine.gd", "game/main.gd", "game/planet_panel.gd", "game/cash_forecast.gd", "game/route_line.gd", "game/map.gd", "assets/route/arrow_head.png.import", "assets/route/arrow_mid.png.import", "assets/route/arrow_tail.png.import"],
+  "usage_note": "Within turn cap.",
+  "open_questions": [
+    "Economy-designer: local order amount is the ship load (balance cargo, 20/cycle, engine.local_amount()); a route moves cargo/(2*travel)=10 units and costs 160/cycle (trip + maintenance), prices play no part in routes. Retune?",
+    "Owner: please eyeball arrow look (width 0.18 per 172 px, pulse), the two half arrows meeting in the middle, and the panel layout with Buy/Sell toggles and Send to... buttons.",
+    "Producer/owner: assets/route/half_*.png (+ .import) are now unused; main session deletes them."
+  ],
+  "handoff": "Buy and Sell on a planet's resource row are now toggles (standing local orders, no ship): each cycle Buy buys up to 20 units at the buy price into that planet's storage (created on first trade) until full or cash runs out; Sell sells up to 20 from storage. Full/empty storage idles with a status shown under the row ('Storage full.' / 'Storage empty.' / 'Not enough cash.'). Storage rows have 'Send to...'; then click the destination planet: one-way route storage to storage with one auto ship, stalls on empty source, blocked (red, notice) on full destination; it only moves stock and costs trip + maintenance. Cycle order: local buys, routes, local sells. Old pending Buy/Sell flow removed. Cash forecast lists local orders. Save has new 'orders' key. Route art: arrow_tail/mid/head, full arrow for one way, two half arrows meeting in the middle for both ways; half ribbon code removed. No free refill. Checks passed: headless load; scripted run (buy fills 20 per cycle to 100 then idles, sell drains, route stall/move/block, 1 then 2 then 1 arrows with halves meeting at the same midpoint, save/load round trip). Not verified visually: arrow look, texture orientation, panel layout, click flow, real autosave write."
+}

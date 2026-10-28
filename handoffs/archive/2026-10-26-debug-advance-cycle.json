@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-10-26",
+  "task": "Debug menu: advance to next cycle (QA fast-forward)",
+  "status": "done",
+  "files_changed": [
+    "game/main.gd",
+    "game/debug_menu.gd",
+    "handoffs/gameplay-programmer/2026-10-26-debug-advance-cycle.json"
+  ],
+  "usage_note": "single short session; Godot 4.7.2 headless run",
+  "open_questions": [],
+  "handoff": "New method on game/main.gd: debug_advance_cycle() -> int (returns the cycle number after the call). It sets cycle_elapsed to the cycle length and runs the normal _process(0.0) once, so _end_cycle() (cycle_ended signal, win/loss check, cycle += 1, save) and trade.tick (ship arrivals) run exactly as on the timer. Works while paused (pause state is restored); no-op if game_over or in release builds. Debug menu gets an 'Advance to next cycle' button (debug_menu.add_next_cycle_button(), added in main._ready next to the speed button). No existing method renamed or moved; no balance changes. Headless check: paused game at cycle 1, call returned 2, cycle_ended emitted once, project loads with no script errors.",
+  "details": {
+    "call": "var new_cycle: int = main.debug_advance_cycle()",
+    "try_in_a_minute": "Play, Start, press ` and click 'Advance to next cycle'; the top bar cycle number goes up by one."
+  }
+}

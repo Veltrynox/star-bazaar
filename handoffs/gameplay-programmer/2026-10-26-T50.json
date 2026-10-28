@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-10-26",
+  "task": "T50 Remove planet stock readers and comment",
+  "status": "done",
+  "files_changed": ["game/save_game.gd", "handoffs/gameplay-programmer/2026-10-26-T50.json", "schedule.json"],
+  "usage_note": "tiny session",
+  "open_questions": [],
+  "handoff": "Case-insensitive grep of game/ found one mention of stock: the comment at game/save_game.gd line 5, now reworded to 'permits, events'. No code in game/ reads a stock key, and the save never stored stock, so the save format is unchanged and old saves load as before. Project loads headless with no script errors."
+}

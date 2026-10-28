@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-10-26",
+  "task": "T07b Route screen + glowing route lines on the map + board notice clears after one cycle",
+  "status": "done",
+  "files_changed": ["game/route_screen.gd", "game/route_line.gd", "game/map.gd", "game/main.gd", "handoffs/gameplay-programmer/2026-10-26-T07b.json", "schedule.json"],
+  "usage_note": "UNKNOWN: roughly 25 turns. Headless only; the line shader and screen layout were not seen on screen.",
+  "open_questions": [
+    "Keep can_add_ship_to_route refusing when the extra ship's own marginal net is <= 0 (reason 'Another ship would not add income.' now shown in the screen)? Owner has not ruled; unchanged.",
+    "Route lines: pulse flows a to b only (planet order by index), though ships fly both ways. OK, or two-way light?",
+    "Hover highlight on a line was left out (click opens the route screen). Wanted?"
+  ],
+  "handoff": "Top-bar Routes button opens game/route_screen.gd: route list, two planet pickers, then either the set-up preview (projected net, per-ship net, saturation cut now and with one more ship, marginal net of one more ship, verdict or the single reason, Confirm buys and assigns a ship if none free) or, for an existing pair, ships/cap, net, status, level plus Add ship, Remove a ship, Close route. Breakdown button shows gross, trip cost, maintenance, net (matches engine). Map: game/route_line.gd draws one ribbon per route (arc, thin core, soft glow, GPU-animated light pulses; running teal, idle dim grey-blue and static, blocked muted amber); width grows with ships; click a line to open that route. map.set_routes(list) is called after every change and cycle end. Board notice clears at the next cycle end. Verified headless: create, view values equal engine, line created and removed on close, notice cleared."
+}

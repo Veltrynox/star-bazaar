@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-10-26",
+  "task": "T07 Route engine (absorbs T46 stranded rule); no route screen (T07b)",
+  "status": "done",
+  "files_changed": ["game/route_engine.gd", "game/main.gd", "game/debug_menu.gd", "handoffs/gameplay-programmer/2026-10-26-T07.json", "schedule.json"],
+  "usage_note": "UNKNOWN: roughly 20 turns. Sandbox could not write user:// so autosave was not exercised on disk; save/load tested via collect_state/apply_state with a JSON round trip.",
+  "open_questions": [
+    "can_add_ship_to_route refuses when the extra ship's marginal net is <= 0 (Voltara-Tillam: 3rd ship marginal -80, though route total would stay 60). Keep this refusal, or allow it and let the route net decide?",
+    "Notice shows as a label under the mission line on the board (one at a time, never cleared). OK until T07b/tutorial, or should it fade after a cycle?"
+  ],
+  "handoff": "Engine in game/route_engine.gd (records, math) and game/main.gd (cash/ship API). Verified headless: Voltara-Tillam 1 ship nets 120, Voltara-Ashgate 160 (match sim.py); V-T 2 ships 140, 3 ships 60 (marginal -80); timer step and debug_advance_cycle both +120; mid-cycle 2nd ship pays 130 (pro rata 0.5); paused pays 0; stranded pays 1000 once with 0 ships and cash<ship_price, none with 1 ship; routes survive save round trip, old save loads as zero routes. API on main (all return {ok, reason[, id]} unless noted): free_ships()->int; can_buy_ship(); buy_ship(); can_create_route(a,b); create_route(a,b)->{ok,reason,id} (buys a ship if none free); can_add_ship_to_route(id); add_ship_to_route(id); remove_ship(id) (last ship closes route); close_route(id); get_routes()->Array of {id,a,b,ships,level,orders,fresh,net,per_ship,marginal,status running|idle|blocked}; route_net(id)->int. Engine (main.engine): net_of(rec), net_for(a,b,n), ship_net(a,b,k), legs(a,b), planet_open(i), closed_planets (permit/event hook, runtime only). Signals: routes_settled(results,total), notice_posted(text); post_notice(text). Planet args are indexes into map.planets. Settlement runs first in _end_cycle, then stranded check, then cycle_ended. Level and orders are stored and saved, not read. Debug menu has a Dump routes button. No route screen, no route line art."
+}

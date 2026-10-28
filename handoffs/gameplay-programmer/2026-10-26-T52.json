@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-10-26",
+  "task": "T52 Hide the docked-ship dot on the map",
+  "status": "done",
+  "files_changed": ["game/map.gd", "game/main.gd", "handoffs/gameplay-programmer/2026-10-26-T52.json", "schedule.json"],
+  "usage_note": "UNKNOWN: tiny session.",
+  "open_questions": [],
+  "handoff": "The T35 docked-ship dot is removed: map.gd dock_dot variable, set_dock_dot() and its resize cleanup deleted (the only call, in main.gd, was dropped in T51). The rest of map.gd is unchanged. No route-status marker added (T07b). Grep for dock_dot finds nothing. Project loads headless with no script errors; the T51 temp script ran against it."
+}

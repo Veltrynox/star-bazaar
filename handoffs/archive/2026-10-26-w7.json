@@ -8,7 +8,7 @@
   "blocked": [],
   "added": [
     {"task_id": "T37", "owner_agent": "economy-designer", "title": "Give planets with no resources a resource set", "status": "running"},
-    {"task_id": "T38", "owner_agent": "creative-director", "title": "Confirm planet names", "status": "running"},
+    {"task_id": "T38", "owner_agent": "owner", "title": "Confirm planet names", "status": "running"},
     {"task_id": "T39", "owner_agent": "gameplay-programmer", "title": "Apply planet renames everywhere they appear", "status": "queued", "depends_on": ["T37", "T38", "T32"]}
   ],
   "order": ["T32 (running)", "T37 (running)", "T38 (running)", "T39", "T07", "T18", "T19", "T08", "T09", "T10", "T11", "T12", "T14", "T15", "T13", "T16", "T17"],
