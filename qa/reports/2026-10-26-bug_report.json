@@ -1,0 +1,96 @@
+[
+  {
+    "run_id": "fast-always_expand-s1",
+    "seed": 1,
+    "strategy": "always_expand",
+    "issue_type": "softlock",
+    "severity": "high",
+    "steps": [
+      "Run: STRATEGIES=always_expand SEEDS=1 TAG=fast qa/bots/run_batch.sh qa/bots/out_2026-10-26",
+      "Cycle 1: buy ship 1 at Voltara (planet 0) for 1000 cr, buy energy, send the ship (trip cost 40).",
+      "Cycle 3: buy ship 2 with no cash reserve.",
+      "Cycles 4 to 5: sell cargo, spend the rest, cash falls to 29.",
+      "From cycle 5: ship docked, 29 cr is below trip_cost 40, cargo empty. No trade or send is possible.",
+      "Cycles 5 to 30: nothing changes; the game ends at cycle 30 as a loss with cash 29."
+    ],
+    "expected": "A bankrupt state is either recoverable (income possible) or ends the run early as a loss. The player is not left idle for 25 cycles.",
+    "actual": "Dead state from cycle 5. No action can raise cash. Identical for seeds 2 to 5. Result: loss at cycle 30, final_cash 29, ships 2.",
+    "owner_agent": "gameplay-programmer"
+  },
+  {
+    "run_id": "fast-sloppy-s1",
+    "seed": 1,
+    "strategy": "sloppy",
+    "issue_type": "softlock",
+    "severity": "high",
+    "steps": [
+      "Run: STRATEGIES=sloppy SEEDS=1 TAG=fast qa/bots/run_batch.sh qa/bots/out_2026-10-26",
+      "Cycle 1: buy ship 1 at Voltara, buy max energy, send to Tillam.",
+      "Cycle 4: buy ship 2 with all remaining cash, cash falls to 4.",
+      "From cycle 4: ship docked at a planet with 4 cr (trip_cost 40), cargo empty. No action can raise cash."
+    ],
+    "expected": "Bankruptcy is recoverable or ends the run early as a loss, not an idle 26 cycles.",
+    "actual": "Dead state from cycle 4 until the cycle-30 loss. Identical for seeds 2 to 5. final_cash 4, ships 2.",
+    "owner_agent": "gameplay-programmer"
+  },
+  {
+    "run_id": "fast-never_expand-s1 (all four strategies)",
+    "seed": 1,
+    "strategy": "never_expand",
+    "issue_type": "unwinnable",
+    "severity": "high",
+    "steps": [
+      "Run: STRATEGIES=\"decent sloppy always_expand never_expand\" SEEDS=1 TAG=fast qa/bots/run_batch.sh qa/bots/out_2026-10-26",
+      "Each run plays to the end with debug_advance_cycle(). Win cash is 9000 (balance win_cash), win cycle 30.",
+      "Read final_cash for each strategy from results_fast.jsonl."
+    ],
+    "expected": "A reasonable single-route income line reaches win_cash in the target window (win cycle 25 to 28, per balance targets), so a win is reachable.",
+    "actual": "No strategy wins. never_expand: 8380 at cycle 30 (620 short). decent: 1380 (8 ships). always_expand: 29. sloppy: 4. The best line only gets to about 7820 by cycle 28, so the 25 to 28 window cannot be reached by income alone. Identical for seeds 2 to 5.",
+    "owner_agent": "economy-designer"
+  },
+  {
+    "run_id": "fast-decent-s1 vs fast-never_expand-s1",
+    "seed": 1,
+    "strategy": "never_expand",
+    "issue_type": "dominant_strategy",
+    "severity": "medium",
+    "steps": [
+      "Run: STRATEGIES=\"decent never_expand\" SEEDS=1 TAG=fast qa/bots/run_batch.sh qa/bots/out_2026-10-26",
+      "decent buys ships on the cash-reserve rule (8 ships by cycle 28). never_expand keeps 1 ship.",
+      "Compare final_cash at cycle 30."
+    ],
+    "expected": "Extra ships either add income or capacity, or the cost is a visible trade-off. Expansion should not be strictly worse.",
+    "actual": "Ship count has no effect on income in this build: trade.gd has one ship_planet and one dest, capacity() is cargo only (20), and ships only gate send(). Each extra ship costs 1000 cr and adds nothing. never_expand ends 8380, decent 1380, always_expand 29. Expansion is strictly dominated.",
+    "owner_agent": "economy-designer"
+  },
+  {
+    "run_id": "fast-never_expand-s1 vs timer-never_expand-s1",
+    "seed": 1,
+    "strategy": "never_expand",
+    "issue_type": "clock_divergence",
+    "severity": "medium",
+    "steps": [
+      "Run: STRATEGIES=never_expand SEEDS=1 TAG=fast qa/bots/run_batch.sh qa/bots/out_2026-10-26 (final_cash 8380, legs_sent 30).",
+      "Run: STRATEGIES=\"decent never_expand\" SEEDS=1 EXTRA=\"--clock=timer\" TAG=timer qa/bots/run_batch.sh qa/bots/out_2026-10-26 (never_expand final_cash 5580, legs_sent 20).",
+      "Same decisions in both. Only the clock differs (debug_advance_cycle vs real _process chunks of 1 to 45 s)."
+    ],
+    "expected": "A cycle played on the real timer and a cycle played with debug_advance_cycle() give the same economy for the same decisions.",
+    "actual": "Timer run loses 10 legs and 2800 cr. A ship sent part-way through a cycle lands in the next cycle, after the bot's cycle-start decision point, so it can only send again a cycle later. Cause is partly the bot acting only at cycle start, and partly that trip arrival is processed only on the timer. The fast-forward economy is the optimistic bound. Needs a ruling on whether a ship arriving mid-cycle may trade in that cycle.",
+    "owner_agent": "gameplay-programmer"
+  },
+  {
+    "run_id": "fast-all-s1 (pace checkpoints)",
+    "seed": 1,
+    "strategy": "decent",
+    "issue_type": "pacing",
+    "severity": "medium",
+    "steps": [
+      "Run: qa/bots/run_batch.sh with the four strategies, seed 1, TAG=fast.",
+      "Read cash_at 10, 20, 25 in results_fast.jsonl and compare with balance pace targets 3000, 6000, 7500.",
+      "Read ship_buys for the decent run. Compare the 8th ship with target_8_ships_cycle 18."
+    ],
+    "expected": "Pace targets met: cash 3000 at cycle 10, 6000 at 20, 7500 at 25. Eighth ship about cycle 18.",
+    "actual": "Every strategy is behind. decent: cycle 10 cash 780, cycle 20 1580, cycle 25 980; 8th ship at cycle 28. never_expand: 2780, 5580, 6980. No decent run wins, so the 'decent wins before 22 or after 30' check does not fire, but pacing is far off target.",
+    "owner_agent": "economy-designer"
+  }
+]
