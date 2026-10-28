@@ -248,6 +248,50 @@ def event_impact(all_recs, base, clock):
     return res
 
 
+def _decent_clock(recs, clock):
+    return [r for r in recs if r["strategy"] == "decent" and clock_of(r) == clock
+            and not r.get("inject") and r.get("force_goal_cycle", -1) in (-1, None) and has_cash(r)]
+
+
+def skill_log_summary(recs, clock):
+    """Per skill id, over decent learn runs (no skip): how often learned, at what mean cycle, for what mean points.
+    Reads the skill_log field added to the RESULT line; older runs without it are counted as missing."""
+    learn = [r for r in _decent_clock(recs, clock) if not (r.get("skip_skills") or [])]
+    with_log = [r for r in learn if "skill_log" in r]
+    res = {"learn_runs": len(learn), "runs_with_skill_log": len(with_log), "skills": {}}
+    for sid in ("A1", "A2", "A3", "A4", "A5", "B1", "B2", "B3", "B4", "C1", "C2", "C3", "C4"):
+        hits = [(e[0], e[2]) for r in with_log for e in r["skill_log"] if e[1] == sid]
+        if not with_log:
+            break
+        res["skills"][sid] = {
+            "learned_in_runs": len(hits),
+            "learn_share": len(hits) / len(with_log),
+            "mean_cycle": mean([c for c, _ in hits]) if hits else None,
+            "mean_points_spent": mean([p for _, p in hits]) if hits else None,
+        }
+    return res
+
+
+def per_skill_impact(recs, clock):
+    """Each single-skill skip (decent) matched by (seed, choice) to the all-skills decent run.
+    Effect = all-skills minus skip-X, so a positive number means the skill helps."""
+    dec = _decent_clock(recs, clock)
+    learn = [r for r in dec if not (r.get("skip_skills") or [])]
+    out = {}
+    for sid in sorted({x for r in dec for x in (r.get("skip_skills") or [])}):
+        skip = [r for r in dec if r.get("skip_skills") == [sid]]
+        pairs = paired(learn, skip)
+        entry = {"skip_runs": len(skip), "matched_pairs": len(pairs)}
+        if pairs:
+            entry["effect_cash_learn_minus_skip"] = mean([a["final_cash"] - b["final_cash"] for a, b in pairs])
+            entry["effect_win_rate_learn_minus_skip"] = mean(
+                [(a.get("outcome") == "win") - (b.get("outcome") == "win") for a, b in pairs])
+            entry["learn_mean_cash_matched"] = mean([a["final_cash"] for a, _ in pairs])
+            entry["skip_mean_cash_matched"] = mean([b["final_cash"] for _, b in pairs])
+        out[sid] = entry
+    return out
+
+
 def analyze_clock(all_recs, base_clock, clock):
     base = [r for r in base_clock if clock_of(r) == clock]
     strategies = ordered({r["strategy"] for r in base})
@@ -258,6 +302,8 @@ def analyze_clock(all_recs, base_clock, clock):
         "b_dominant_strategy": dominant(base, strategies) if strategies else {},
         "c_outcome_spread": spread(base, strategies),
         "d_skill_impact": skill_impact(all_recs, clock),
+        "d2_skill_log": skill_log_summary(all_recs, clock),
+        "d3_per_skill_impact": per_skill_impact(all_recs, clock),
         "e_event_impact": event_impact(all_recs, base, clock),
     }
 
@@ -357,6 +403,31 @@ def write_md(report, path):
                 L.append("Matched by seed: cash diff (learn minus skip) %s; win rate diff %s." % (
                     fmt(d.get("matched_cash_diff_learn_minus_skip"), 0),
                     pct(d.get("matched_win_rate_diff_learn_minus_skip"))))
+        L.append("")
+        L.append("### d2. Skill log (decent learn runs)")
+        L.append("")
+        sl = a.get("d2_skill_log", {})
+        if not sl.get("runs_with_skill_log"):
+            L.append("No run in the input carries a skill_log field (older results).")
+        else:
+            L.append("Runs with skill_log: %d of %d learn runs." % (sl["runs_with_skill_log"], sl["learn_runs"]))
+            L.append("")
+            L.append("| skill | learned in | mean cycle | mean points |")
+            L.append("|---|---|---|---|")
+            for sid, v in sl["skills"].items():
+                L.append("| %s | %s | %s | %s |" % (sid, pct(v["learn_share"]), fmt(v["mean_cycle"]), fmt(v["mean_points_spent"])))
+        L.append("")
+        L.append("### d3. Per-skill impact (single skip vs all skills, matched by seed and choice)")
+        L.append("")
+        pi = a.get("d3_per_skill_impact", {})
+        if not pi:
+            L.append("No single-skill skip runs in the input.")
+        else:
+            L.append("| skill | skip runs | matched | cash effect (learn minus skip) | win-rate effect |")
+            L.append("|---|---|---|---|---|")
+            for sid, v in pi.items():
+                L.append("| %s | %d | %d | %s | %s |" % (sid, v["skip_runs"], v["matched_pairs"],
+                    fmt(v.get("effect_cash_learn_minus_skip"), 0), pct(v.get("effect_win_rate_learn_minus_skip"))))
         e = a["e_event_impact"]
         L.append("")
         L.append("### e. Event impact")
