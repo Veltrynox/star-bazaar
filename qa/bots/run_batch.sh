@@ -16,8 +16,11 @@ SEEDS="${SEEDS:-1 2 3 4 5}"
 EXTRA="${EXTRA:-}"
 TAG="${TAG:-fast}"
 LIMIT="${LIMIT:-120}"
-SCRATCH_ROOT="${TMPDIR:-/tmp}/star-bazaar-qa-home"
 mkdir -p "$OUT"
+# One scratch root per out dir: parallel batches with the same TAG, strategy and seed must not share a HOME
+# (shared user:// made autosave and stats.json collide between runs).
+OUT_ID="$(cd "$OUT" && pwd | cksum | cut -d" " -f1)"
+SCRATCH_ROOT="${TMPDIR:-/tmp}/star-bazaar-qa-home/$OUT_ID"
 RESULTS="$OUT/results_${TAG}.jsonl"
 ERRORS="$OUT/errors_${TAG}.log"
 : > "$RESULTS"
