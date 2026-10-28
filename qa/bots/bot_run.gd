@@ -102,6 +102,9 @@ var orders_changed := 0
 var notes: Array = []
 var issues: Array = []  # [kind, cycle, detail]
 var cycle_rows: Array = []  # [cycle, cash, ships, routes]
+var decision_at: Dictionary = {}  # cycle -> real player actions taken in that cycle (metrics)
+var decision_kinds: Dictionary = {}  # kind -> count (metrics)
+var events_resolved := 0  # events answered by _resolve_events (0 while the hook is a stub)
 
 
 func _initialize() -> void:
@@ -172,7 +175,7 @@ func _play_cycle() -> void:
 	if c == force_cycle:
 		main.debug_force_goal = true
 		notes.append("debug force-goal toggle on at cycle %d (QA; same as the debug menu)" % c)
-	_resolve_events()
+	events_resolved += _resolve_events()
 	if not main.pending.is_empty():
 		main.cancel_pending()
 	_decide(c)
@@ -207,7 +210,9 @@ func _advance_timer() -> void:
 	while main.cycle == start and not main.game_over and chunks < MAX_CHUNKS:
 		chunks += 1
 		if main.paused:  # an event paused the game mid-cycle: answer it, then carry on
-			if _resolve_events() == 0:
+			var answered := _resolve_events()
+			events_resolved += answered
+			if answered == 0:
 				break  # no answer: the check below reports the cycle as not ended
 			main.set_paused(false)
 			continue
@@ -252,6 +257,7 @@ func _resolve_choice() -> void:
 		_issue("save_mismatch", choice_cycle, "unanswered win choice is not in the save (a reload would skip it)")
 	choice_side = _pick_side()
 	main.end_screen.chosen.emit(choice_side)
+	_count("win_choice", choice_cycle)
 
 
 func _pick_side() -> String:
@@ -356,6 +362,7 @@ func _buy_ship_at(p: int, c: int) -> void:
 	main.planet_panel.buy_ship_requested.emit()
 	if main.ships > before:
 		ship_buys.append([c, p, main.ships])
+		_count("ship_buy", c)
 
 
 ## Routes: remove routes no longer in the plan or whose destination is full (frees their ship),
@@ -403,6 +410,7 @@ func _build_route(lane: Dictionary) -> bool:
 	main.map.planet_clicked.emit(b)
 	if main.engine.find_same(a, b, c) >= 0:
 		lanes_built += 1
+		_count("route_open", main.cycle)
 		return true
 	if not main.pending.is_empty():
 		main.cancel_pending()
@@ -414,8 +422,11 @@ func _build_route(lane: Dictionary) -> bool:
 
 ## Remove a route from the planet panel's Remove button (route_id from the route list).
 func _remove_route(id: int) -> void:
+	var routes_before: int = main.engine.routes.size()
 	main.planet_panel.remove_requested.emit(id)
 	lanes_removed += 1
+	if main.engine.routes.size() < routes_before:
+		_count("route_close", main.cycle)
 
 
 ## Buy / Sell toggles. Each role is on only at the lane's ends: buy at a, sell at b.
@@ -456,6 +467,8 @@ func _set_order(p: int, c: String, role: String, on: bool) -> void:
 	if main.engine.local_on(p, c, role) != on:
 		_issue("order_failed", main.cycle, "%s %s order at planet %d did not switch to %s (notice: %s)" % [
 			role, c, p, "on" if on else "off", main.last_notice])
+	else:
+		_count("order_change", main.cycle)
 
 
 ## Skills cost points only (no cash). Learns in tree order, restarting after each purchase so
@@ -470,6 +483,7 @@ func _learn_skills() -> void:
 			var r: Dictionary = main.learn_skill(id)
 			if r["ok"]:
 				skills_learned.append([main.cycle, id])
+				_count("skill_learn", main.cycle)
 				learned = true
 				break
 
@@ -506,6 +520,12 @@ func _orders_on() -> int:
 	for o in main.engine.local.values():
 		k += int(bool(o["buy"])) + int(bool(o["sell"]))
 	return k
+
+
+## Records one real player action (a no-op is never passed here) for the metrics report.
+func _count(kind: String, c: int) -> void:
+	decision_at[c] = int(decision_at.get(c, 0)) + 1
+	decision_kinds[kind] = int(decision_kinds.get(kind, 0)) + 1
 
 
 func _select(p: int) -> void:
@@ -547,6 +567,19 @@ func _finish() -> bool:
 	for r in cycle_rows:
 		if r[0] in [10, 20, 25]:
 			pace[str(r[0])] = r[1]
+	var cycle_keys: Array = []
+	for r in cycle_rows:
+		cycle_keys.append(r[0])
+	for k in decision_at.keys():
+		if not cycle_keys.has(k):
+			cycle_keys.append(k)
+	cycle_keys.sort()
+	var decisions_by_cycle: Array = []
+	var decisions_total := 0
+	for k in cycle_keys:
+		var n: int = int(decision_at.get(k, 0))
+		decisions_by_cycle.append([k, n])
+		decisions_total += n
 	var result := {
 		"strategy": strategy,
 		"seed": seed_value,
@@ -579,6 +612,11 @@ func _finish() -> bool:
 		"cash_by_cycle": cycle_rows.map(func(r): return [r[0], r[1]]),
 		"issues": issues,
 		"notes": notes,
+		"decisions_total": decisions_total,
+		"decisions_by_cycle": decisions_by_cycle,
+		"decisions_by_kind": decision_kinds,
+		"skip_skills": skip_skills,
+		"events_resolved": events_resolved,
 	}
 	print("RESULT " + JSON.stringify(result))
 	quit(0)
