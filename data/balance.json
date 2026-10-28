@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "data_version": 2,
+  "data_version": 4,
   "source": "Seeded from gdd.md, Game Control menu section (starting values, v0.1). Source of truth once production starts.",
   "values": {
     "cycle_minutes": 2,
@@ -9,40 +9,32 @@
     "ship_price": 1000,
     "cargo": 20,
     "ship_cap": 8,
-    "energy_buy": 10,
-    "energy_sell": 24,
-    "food_buy": 12,
-    "food_sell": 26,
-    "trip_cost": 40,
-    "maintenance": 100,
+    "trip_cost": 110,
+    "maintenance": 150,
     "maintenance_interval": 3,
-    "saturation": 0.1,
-    "permit_2_cost": 2000,
-    "permit_3_cost": 4000,
+    "permit_2_cost": 1000,
+    "permit_3_cost": 1500,
     "permit_margin_bonus": 0.5,
+    "rescue_stipend": 1000,
     "event_interval": 4,
     "event_effect": {
       "pct": [
         0.1,
-        0.25
-      ],
-      "cr": [
-        300,
-        800
+        0.2
       ]
     },
     "win_cycle": 30,
     "win_cash": 9000,
-    "pace_cycle_10_target": 3000,
-    "pace_cycle_20_target": 6000,
-    "pace_cycle_25_target": 7500,
+    "pace_cycle_10_target": 900,
+    "pace_cycle_20_target": 1300,
+    "pace_cycle_25_target": 6200,
     "upgrade_cost": 1000,
     "upgrade_margin_bonus": 0.1
   },
   "targets": {
-    "target_4th_ship_cycle": 9,
-    "target_first_permit_cycle": 13,
-    "target_8_ships_cycle": 18,
+    "target_4th_ship_cycle": 14,
+    "target_first_permit_cycle": 10,
+    "target_8_ships_cycle": 22,
     "target_ships_range": [
       7,
       8
@@ -52,8 +44,8 @@
       28
     ],
     "permit_1_affordable_cycles": [
-      12,
-      14
+      8,
+      12
     ],
     "check_early_win_cycle": 22,
     "check_second_ship_cycle": 6

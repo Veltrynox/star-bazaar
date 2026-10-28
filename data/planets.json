@@ -1,16 +1,17 @@
 {
   "schema_version": 1,
-  "data_version": 3,
+  "data_version": 4,
   "planets": [
     {
       "id": "planet_1",
       "name": "Voltara",
       "abundant": "energy",
       "scarce": "food",
-      "stock": "UNKNOWN",
       "base_prices": {
         "energy_buy": 10,
-        "food_sell": 26
+        "food_sell": 26,
+        "energy_sell": 8,
+        "food_buy": 30
       },
       "x": -200,
       "y": 80
@@ -20,10 +21,11 @@
       "name": "Tillam",
       "abundant": "food",
       "scarce": "energy",
-      "stock": "UNKNOWN",
       "base_prices": {
         "food_buy": 12,
-        "energy_sell": 24
+        "energy_sell": 24,
+        "energy_buy": 28,
+        "food_sell": 10
       },
       "x": 200,
       "y": 80
@@ -33,10 +35,11 @@
       "name": "Ashgate",
       "abundant": "food",
       "scarce": "energy",
-      "stock": "UNKNOWN",
       "base_prices": {
         "food_buy": 11,
-        "energy_sell": 27
+        "energy_sell": 27,
+        "energy_buy": 31,
+        "food_sell": 9
       },
       "x": 0,
       "y": -220
