@@ -1,0 +1,24 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Material" path="res://art/planets/planet_volcanic_v2.tres" id="1"]
+[ext_resource type="Material" path="res://art/planets/halo_volcanic_v2.tres" id="2"]
+
+[sub_resource type="SphereMesh" id="m"]
+radius = 1.0
+height = 2.0
+radial_segments = 128
+rings = 64
+
+[sub_resource type="SphereMesh" id="h"]
+radius = 1.2
+height = 2.4
+radial_segments = 32
+rings = 16
+
+[node name="Planet" type="MeshInstance3D"]
+mesh = SubResource("m")
+surface_material_override/0 = ExtResource("1")
+
+[node name="Halo" type="MeshInstance3D" parent="."]
+mesh = SubResource("h")
+surface_material_override/0 = ExtResource("2")

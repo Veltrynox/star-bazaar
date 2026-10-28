@@ -1,0 +1,8 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3]
+
+[ext_resource type="Shader" path="res://art/planets/halo_v2.gdshader" id="1"]
+
+[resource]
+shader = ExtResource("1")
+shader_parameter/halo_col = Color(0.35,0.75,1.0, 1)
+shader_parameter/strength = 0.5

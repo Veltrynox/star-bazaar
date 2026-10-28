@@ -1,0 +1,23 @@
+[gd_resource type="ShaderMaterial" load_steps=3 format=3]
+
+[ext_resource type="Shader" path="res://art/planets/planet_v2.gdshader" id="1"]
+[ext_resource type="Texture2D" path="res://art/planets/height_temperate_v2.png" id="2"]
+
+[resource]
+shader = ExtResource("1")
+shader_parameter/height_tex = ExtResource("2")
+shader_parameter/col_a = Color(0.05,0.25,0.34, 1)
+shader_parameter/col_b = Color(0.12,0.46,0.52, 1)
+shader_parameter/col_c = Color(0.42,0.62,0.42, 1)
+shader_parameter/col_d = Color(0.88,0.95,0.97, 1)
+shader_parameter/col_e = Color(0.74,0.68,0.46, 1)
+shader_parameter/crack_col = Color(0.03,0.12,0.2, 1)
+shader_parameter/crack_hot = Color(0,0,0, 1)
+shader_parameter/rim_col = Color(0.02,0.08,0.16, 1)
+shader_parameter/thr = Vector3(0.29, 0.44, 0.6)
+shader_parameter/acc_range = Vector2(0.44, 0.6)
+shader_parameter/acc_amt = 0.85
+shader_parameter/pole_frost = 1.0
+shader_parameter/glow = 0.0
+shader_parameter/crack_dark = 0.85
+shader_parameter/bump = 1.0
