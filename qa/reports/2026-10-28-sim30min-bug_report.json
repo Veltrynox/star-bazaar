@@ -1,0 +1,101 @@
+[
+  {
+    "run_id": "2026-10-28-sim30min-base-decent",
+    "seed": "1-6",
+    "strategy": "decent",
+    "issue_type": "balance_unwinnable",
+    "severity": "high",
+    "steps": "cd repo; EXTRA='--clock=fast' SEEDS='1 2 3 4 5 6' TAG=base LIMIT=120 qa/bots/run_batch.sh <out> (strategy decent). Also TAG=timer EXTRA='--clock=timer' LIMIT=300 and EXTRA='--clock=fast --skip-skill=A3'.",
+    "expected": "Intended path (decent: expands on time, buys permits) reaches win_cash 8500 by cycle 30 (sim --real predicts ~65% wins, median cycle 28).",
+    "actual": "0 of 18 decent runs won across three variants. Final cash 2688 to 6559 at cycle 30, all END_LOSS. Bot ships: 3 (cycles 1, 10-16, 16-19). Permits: none in build.",
+    "owner_agent": "economy-designer"
+  },
+  {
+    "run_id": "2026-10-28-sim30min-base-always_expand",
+    "seed": "2,4,6 (timer); 4 (noA3)",
+    "strategy": "always_expand",
+    "issue_type": "dominant_strategy",
+    "severity": "medium",
+    "steps": "EXTRA='--clock=timer' SEEDS='1 2 3 4 5 6' TAG=timer qa/bots/run_batch.sh <out>; always_expand rows.",
+    "expected": "More than one viable strategy; win not decided by the last cycle only.",
+    "actual": "always_expand is the only strategy that wins (3 of 24 runs). All 3 wins land on cycle 30 with cash 8596 to 8598, only about 100 over the goal. sloppy and never_expand win 0 of 12 runs.",
+    "owner_agent": "economy-designer"
+  },
+  {
+    "run_id": "2026-10-28-sim30min-base-decent-repeat",
+    "seed": 1,
+    "strategy": "decent",
+    "issue_type": "nondeterminism",
+    "severity": "medium",
+    "steps": "EXTRA='--clock=fast' SEEDS='1' STRATEGIES=decent TAG=rep<x> qa/bots/run_batch.sh <out>, repeated 4 times with the same arguments.",
+    "expected": "Same seed and same arguments give the same result (final_cash, ship_buys, skills_learned).",
+    "actual": "final_cash 5906, 5906, 5906, 6026 on four repeats. A fifth run (TAG=base) gave 4574 with A1/A2/C2 learned at cycle 20 instead of 17. Results are not repeatable, so seed comparisons are noisy.",
+    "owner_agent": "game-programmer"
+  },
+  {
+    "run_id": "2026-10-28-sim30min-skill3",
+    "seed": "1-6",
+    "strategy": "decent",
+    "issue_type": "feature_no_effect",
+    "severity": "medium",
+    "steps": "Read game/route_engine.gd: it reads skill_A4_route_units, skill_B2_order_units, skill_A5_upkeep, skill_B3_margin only. Run EXTRA='--clock=fast' with and without --skip-skill=A3.",
+    "expected": "Skill A3 Second Hull (cost 3) unlocks the Voruun Hauler and changes route or upkeep numbers.",
+    "actual": "No code in game/ reads hauler_price, hauler_cargo_mult or hauler_upkeep_mult, and no Hauler ship type exists. Bots never reach A3: points run out after 6 skills (pts_left 0), so A3 was not learned in any base run. With vs without A3: cash difference 0 in the build (only timing noise from the repeatability issue).",
+    "owner_agent": "producer"
+  },
+  {
+    "run_id": "2026-10-28-sim30min-pacing-always_expand",
+    "seed": "1-6",
+    "strategy": "always_expand",
+    "issue_type": "pacing_idle",
+    "severity": "medium",
+    "steps": "EXTRA='--clock=fast' SEEDS='1 2 3 4 5 6' TAG=base; read ship_buys and cash_by_cycle.",
+    "expected": "Player has a decision or an event to respond to across cycles 6 to 30.",
+    "actual": "All 4 lanes are built by cycle 5 (ship_buys at 1, 3, 4, 5). Cycles 6 to 30 have no ship purchase, no route choice, and no skill choice after cycle 20 (points are spent). Only a linear cash rise is left.",
+    "owner_agent": "game-designer"
+  },
+  {
+    "run_id": "2026-10-28-sim30min-pacing-decent",
+    "seed": "1-6",
+    "strategy": "decent",
+    "issue_type": "pacing_idle",
+    "severity": "medium",
+    "steps": "EXTRA='--clock=fast' SEEDS='1 2 3 4 5 6' TAG=base; read ship_buys and skills_learned.",
+    "expected": "Decisions spread across the 30 cycles.",
+    "actual": "Decent buys ships at cycles 1, 10 to 15 and 16 to 19, then has no purchases for about 11 cycles. All three skill purchases (A1, A2, C2) land in one batch at cycle 17 to 20. Cash flat or dipping in cycles 2, 4, 6, 9, 10 and 15 looks like forced waits and needs checking.",
+    "owner_agent": "game-designer"
+  },
+  {
+    "run_id": "2026-10-28-sim30min-pacing-sloppy-never",
+    "seed": "1-6",
+    "strategy": "sloppy / never_expand",
+    "issue_type": "pacing_idle",
+    "severity": "medium",
+    "steps": "EXTRA='--clock=fast' SEEDS='1 2 3 4 5 6' TAG=base; read cash_by_cycle.",
+    "expected": "The player has some choice in the second half of the game.",
+    "actual": "sloppy and never_expand have one route and no decisions after cycle 1 to 6. Their curves are straight lines (sloppy +157 per cycle).",
+    "owner_agent": "game-designer"
+  },
+  {
+    "run_id": "2026-10-28-sim30min-events-coverage",
+    "seed": "all",
+    "strategy": "all",
+    "issue_type": "qa_coverage_gap",
+    "severity": "medium",
+    "steps": "Read qa/bots/bot_run.gd _resolve_events() (returns 0, stub). game/main.gd line 869 fires events every event_interval cycles and sets paused=true with an event notice (main.gd 1014-1035).",
+    "expected": "Bots answer every event so the runs cover event texts and the paused state.",
+    "actual": "Bot never answers events. Runs show no event text; event coverage is UNKNOWN. Runs still reach cycle 30, so the pause does not block the fast clock.",
+    "owner_agent": "qa-analyst"
+  },
+  {
+    "run_id": "2026-10-28-sim30min-log-errors",
+    "seed": "all",
+    "strategy": "all",
+    "issue_type": "error_log",
+    "severity": "low",
+    "steps": "Run any batch; grep errors_<TAG>.log.",
+    "expected": "No engine errors in headless runs.",
+    "actual": "85 lines \"ERROR: Condition ret != noErr ... Returning: \"\"\" across runs. Likely audio or OS driver in headless; not verified.",
+    "owner_agent": "game-programmer"
+  }
+]

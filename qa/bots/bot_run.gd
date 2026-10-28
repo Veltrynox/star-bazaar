@@ -71,6 +71,7 @@ var force_cycle := -1
 var inject_cycle := -1
 var inject_cash := 0
 var bad_args := false
+var skip_skills: Array = []  # QA option --skip-skill=A3,... (never learn these ids)
 var rng := RandomNumberGenerator.new()
 var main: Node = null
 var phase := 0
@@ -115,6 +116,8 @@ func _initialize() -> void:
 			choice_policy = arg.trim_prefix("--choice=")
 		elif arg.begins_with("--force-goal="):
 			force_cycle = int(arg.trim_prefix("--force-goal="))
+		elif arg.begins_with("--skip-skill="):
+			skip_skills = Array(arg.trim_prefix("--skip-skill=").split(","))
 		elif arg.begins_with("--inject="):
 			var parts := arg.trim_prefix("--inject=").split(":")
 			inject_cycle = int(parts[0])
@@ -462,7 +465,7 @@ func _learn_skills() -> void:
 	while learned:
 		learned = false
 		for id in SkillTree.all_ids():
-			if main.learned_skills.has(id):
+			if main.learned_skills.has(id) or skip_skills.has(id):
 				continue
 			var r: Dictionary = main.learn_skill(id)
 			if r["ok"]:
