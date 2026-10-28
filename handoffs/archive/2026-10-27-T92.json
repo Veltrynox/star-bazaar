@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-10-27",
+  "task": "T92",
+  "status": "done",
+  "files_changed": ["story/voice.md", "handoffs/story-designer/2026-10-27-T92.json"],
+  "usage_note": "Small task, one pass.",
+  "open_questions": [],
+  "handoff": "Glossary in story/voice.md now lists Hollin Reach, Dunmere Reach, Brannock, Cindrel, Mossfell, Quillon, and the owner decisions: Skill points label stays for expansion points, Corporation follows the existing capitalisation rule, end screen {branches} is a plain count. Nothing else changed. python3 tools/build_story.py (no --allow-skip) ran clean: 190 entries, 16 events, 0 skipped. No new texts to wire."
+}

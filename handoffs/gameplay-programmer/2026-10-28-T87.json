@@ -1,0 +1,16 @@
+{
+ "schema_version": 1,
+ "agent": "gameplay-programmer",
+ "date": "2026-10-28",
+ "task": "T87",
+ "status": "done",
+ "files_changed": ["game/route_engine.gd", "game/main.gd", "game/planet_panel.gd", "tools/tests/run_tests.gd"],
+ "usage_note": "Small change; headless suite pass=146 fail=0.",
+ "open_questions": [
+  "story-designer: missing id LBL_LANE_SHIP = per-ship tag in the Connections list when a lane has 2+ ships, fills two ints (ship index, ship count), e.g. 'ship %d of %d', max 20 chars. Fallback used: 'ship %d of %d'.",
+  "story-designer: missing id NOT_LANE_SHIP_ADDED = notice when Send to... adds a ship to an existing lane, fills count, commodity, planet, max 60 chars. Fallback used: 'Ship added to the lane (N): c to Planet.'",
+  "Marginal-per-ship check not done in game: routes now only move stock and earn nothing; profit comes from local orders. Please have economy re-check in T88."
+ ],
+ "handoff": "Option chosen: pressing Send to... again on the same source, destination and commodity adds a ship (route record per ship, no new cap; free-ship pool from T81 limits it). find_same rejection removed from check_connection; engine has lane_count and lane_index. Map draws one line per lane with ship count passed to it (route_line.set_style ignores the count today, so dot density does not change; one-line change for the artist/galaxy owner). Lane status shows running if any ship runs. Connections list tags 'ship k of N' and each ship has its own Remove. Ships share the source storage pool: new test shows two ships move no more than the pool holds. Try: Send to... twice on the same pair, buy a second ship first. Tests: pass=146 fail=0.",
+ "details": {"pass": 146, "fail": 0}
+}

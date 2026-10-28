@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-10-28",
+  "task": "T120",
+  "status": "done",
+  "files_changed": ["story/events.md", "handoffs/story-designer/2026-10-28-T120.json"],
+  "usage_note": "Small task, one block added.",
+  "open_questions": ["EV20_PAY_EFF and EV20_PAID still say the asteroid gives no skill point. They now contradict the reward and need a rewrite once you approve."],
+  "handoff": "EV20_REWARD added to story/events.md after EV20_PAID (80 characters, limit 110). It is a plain notice with no numbers, no payment wording, no shield or flags. Ready to wire. EV20_PAY_EFF and EV20_PAID are now stale and should not be wired until rewritten.",
+  "details": {}
+}

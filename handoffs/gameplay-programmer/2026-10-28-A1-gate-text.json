@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-10-28",
+  "task": "A1-gate-text",
+  "status": "done",
+  "files_changed": ["game/skill_screen.gd", "data/story_text.json", "handoffs/gameplay-programmer/2026-10-28-A1-gate-text.json"],
+  "usage_note": "Headless tests 177 pass, 0 fail (Godot.app, scratch HOME).",
+  "open_questions": [],
+  "handoff": "Ran tools/build_story.py (255 entries, SK_A1_GATE present). skill_screen.gd now loads SK_A1_GATE via StoryText.get_text; A1_GATE_TEXT constant removed. No balance or other text changed. Try: open the skill screen, select Space Storage while locked."
+}

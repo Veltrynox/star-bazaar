@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-10-28",
+  "task": "T109",
+  "status": "done",
+  "files_changed": ["game/main.gd", "game/events.gd", "game/storage.gd", "game/event_notice.gd", "tools/build_story.py", "data/events.json (generated)", "tools/tests/run_tests.gd", "handoffs/gameplay-programmer/2026-10-28-T109.json"],
+  "usage_note": "Headless tests pass=300 fail=0. Asteroid art (dashed path and polygon rock on the event card) drawn in code, not viewed by eye.",
+  "open_questions": [
+    "ECONOMY: the reward of one expansion point has no balance key; it is the constant ASTEROID_REWARD_POINTS = 1 in main.gd. Add a key?",
+    "OWNER: decline with no company storage anywhere cannot hit anything, so it shows EV20_MISS. OK?",
+    "OWNER: the cut is permanent and stacks (each hit halves the planet's capacity again, minimum 1). OK?"
+  ],
+  "handoff": "EV20 is a choice event from story ids, in the random pool. Pay: asteroid_deflect_cost credits, one expansion point (event reward, not bought), EV20_REWARD notice, no reputation. Decline: seeded roll against asteroid_decline_bad_odds (events.seed_rng(seed) for QA replay). Bad: one random established company storage loses asteroid_storage_loss_pct of its capacity (stock trimmed, storage stays; EV20_HIT_CAPACITY). Good or no storage: EV20_MISS. No destruction outcome. Cuts saved and loaded (storage_cuts). Try: debug menu, Fire event EV20.",
+  "details": {"pass": 300, "fail": 0, "fallback_ids": []}
+}

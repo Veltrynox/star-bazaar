@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-10-28",
+  "task": "T85",
+  "status": "done",
+  "files_changed": ["data/systems.json (new)", "game/systems.gd (new)", "game/main.gd", "game/map.gd", "game/storage.gd", "game/route_engine.gd", "game/skill_screen.gd", "game/planet_panel.gd", "tools/tests/run_tests.gd", "handoffs/gameplay-programmer/2026-10-28-T85.json"],
+  "usage_note": "About 25 tool calls.",
+  "open_questions": [
+    "ECONOMY: data/systems.json is a new file (system 2 planets, prices from tools/system2.json, permit keys named). Please take ownership or move it.",
+    "STORY: ids missing, plain fallbacks in use: PERMIT_COST_LINE, PERMIT_NEEDS_C1, PERMIT_NO_CREDITS (skill screen permit entry).",
+    "OWNER: Space Storage has no map object, only a section in the planet panel of every planet in its system. Add a clickable post on the map?"
+  ],
+  "handoff": "Permit Charter (C1) then a Permits row in the skill screen (K): buy Dunmere Reach for permit_2_cost credits plus permit_points_2 points; Brannock, Cindrel, Mossfell, Quillon appear on the map (indexes 3 to 6, system 1 unchanged). First order or route there gives the system point and counts for endings (systems_in_game = 2). Space Storage (A1 gate unchanged): after A1 each open system has a post (key system:N, capacity space_storage_capacity). After each cycle planet storage leftovers feed it at planet_to_space_rate per commodity; a route draws from the post when its source planet storage is short. Saved: open_systems, reached_ids. Try: debug force C1, buy the permit, open a system 2 planet. Tests: pass=226 fail=0.",
+  "details": {"pass": 226, "fail": 0}
+}

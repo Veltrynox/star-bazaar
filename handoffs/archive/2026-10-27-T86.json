@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-10-27",
+  "task": "T86",
+  "status": "done",
+  "files_changed": ["story/screens.md", "data/story_text.json", "data/events.json", "handoffs/story-designer/2026-10-27-T86.json"],
+  "usage_note": "Small task, one pass.",
+  "open_questions": ["Approve names: Hollin Reach (system 1), Dunmere Reach (system 2), Brannock, Cindrel, Mossfell, Quillon?", "Does the permit screen show cost and points itself? The desc only says credits and skill points, no numbers.", "Space Storage post: is it a named building or only the A1 label? Text uses the label."],
+  "handoff": "New section 'Systems and system 2' at the end of story/screens.md, ids WORLD_*, PERMIT_S2_*, NOT_PERMIT_S2, SS_POST_*. Build ran clean (190 entries, 0 skipped). Programmer can wire them from data/story_text.json. Voice.md glossary not yet updated with the system names; add after owner approval. Notice NOT_PERMIT_S2 mentions four planets, which is from the brief.",
+  "details": {}
+}

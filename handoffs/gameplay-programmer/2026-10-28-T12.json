@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-10-28",
+  "task": "T12",
+  "status": "done",
+  "files_changed": ["game/events.gd", "game/event_notice.gd", "game/trade.gd", "game/main.gd", "game/debug_menu.gd", "tools/tests/run_tests.gd"],
+  "usage_note": "Within cap.",
+  "open_questions": [
+    "data/events.json has no choices (all 16 events have an empty choices list), so choice buttons are built and tested only by code path. Choice format assumed: {text, tag} with the same tag syntax; cash and stock tags are also parsed. Needs the story-designer or doc-manager to confirm the format when choice events are added.",
+    "Events start at cycle 5 (after the 4-cycle tutorial), then every event_interval. The sim fires at cycle 1. Keep?"
+  ],
+  "handoff": "Events fire at the start of cycle 5, 9, 13..., pause the game and show a notice (title and text from events.json, plain effect line with NOT_EVENT_PREFIX, Continue). Price events multiply both buy and sell price of one commodity by 1 +/- event_price_pct for event_price_cycles (trade.price). Closed events block routes and orders for event_close_cycles; skills A1, A2, B4 each bridge one closed cycle. Feed of this run's events is on the notification board. State is saved (active effects, feed, unconfirmed notice). Debug menu has Fire event by id. Try: run, press backtick, pick EV07, Fire event. Fallback ids (missing in story_text.json, plain English used): NOT_EVENT_EFFECT_UP, NOT_EVENT_EFFECT_DOWN, NOT_EVENT_EFFECT_CLOSED, NOT_EVENT_EFFECT_CASH, NOT_EVENT_EFFECT_STOCK, LBL_EVENT_FEED. Tests: pass=163 fail=0.",
+  "details": {"pass": 163, "fail": 0, "choice_effects_changed": []}
+}

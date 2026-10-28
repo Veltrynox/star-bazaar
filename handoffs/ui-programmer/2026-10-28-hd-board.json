@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-10-28",
+  "task": "hd-board",
+  "status": "done",
+  "files_changed": ["project.godot", "game/ship_panel.gd", "handoffs/ui-programmer/2026-10-28-hd-board.json"],
+  "usage_note": "Single session.",
+  "open_questions": [
+    "Galaxy overlay was only checked as a full-rect (1280x720) while hidden; it needs two open systems to show. Layouts still use fixed pixel sizes; owner may want a 1920x1080 base later.",
+    "export_presets.cfg has no window settings; it follows project.godot."
+  ],
+  "handoff": "Board cause: ship panel buy-button text (min width 321) widened the right column to 353 px, pushing the scroll strip past its right anchor (board x 884..1237 in a 1152 view). Buy buttons now wrap. Base window 1280x720 (1920x1080 exceeds typical 1440x900 Mac screens), canvas_items, keep aspect. Rects at 1280x720: board 1012..1268 x 60..189, inside. Planet, skill, menu, event, forecast inside. Tests: see details. Not checked by eye: all screens. No git.",
+  "details": {
+    "how_to_see": "Run the game and resize the window: the 16:9 picture scales with bars; the board sits fully inside at the right.",
+    "not_checked_by_eye": ["all screens"],
+    "git": "not run"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-10-28",
+  "task": "labels",
+  "status": "done",
+  "files_changed": ["story/screens.md", "story/voice.md", "handoffs/story-designer/2026-10-28-labels.json"],
+  "usage_note": "Small task, one pass.",
+  "open_questions": [],
+  "handoff": "Added LBL_GROSS, LBL_NET, LBL_TRIP_COST, ST_WAITING_ROOM to story/screens.md after LBL_GOAL (max 24 each, all fit). Glossary line added in voice.md. MENU_STATISTICS, MENU_HELP, MENU_SAVE_LOAD and their _DESC ids were already present. All ready for the programmer to wire.",
+  "details": {}
+}

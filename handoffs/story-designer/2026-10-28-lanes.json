@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-10-28",
+  "task": "lanes",
+  "status": "done",
+  "files_changed": ["story/screens.md", "handoffs/story-designer/2026-10-28-lanes.json"],
+  "usage_note": "Small task, two ids.",
+  "open_questions": ["Owner said lane; glossary term is route, so texts say route. Rename in glossary if lane is wanted."],
+  "handoff": "Ready to wire: LBL_LANE_SHIP (Ship, 4 chars, game appends k of N) and NOT_LANE_SHIP_ADDED (Ship added to the route., 25 chars). Both are in story/screens.md after NOT_ROUTE_REMOVED. No new glossary term.",
+  "details": {}
+}

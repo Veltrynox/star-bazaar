@@ -1,0 +1,11 @@
+{
+  "agent": "ui-programmer",
+  "date": "2026-10-28",
+  "task": "fit-screen",
+  "status": "done",
+  "files_changed": ["game/ui.gd", "game/main.gd", "game/ship_panel.gd", "game/planet_panel.gd", "game/skill_screen.gd", "game/cash_forecast.gd", "game/event_notice.gd", "handoffs/ui-programmer/2026-10-28-fit-screen.json"],
+  "schema_version": 1,
+  "usage_note": "No git (sandbox). Tests via /Applications/Godot.app, scratch HOME: pass=269 fail=0; main.tscn headless 60 frames clean.",
+  "open_questions": ["Debug menu overlaps the planet panel on the left (existing, debug only); left as is.", "Not checked by eye: every screen at 1152x648 and 1280x800."],
+  "handoff": "Added Ui.scroll_wrap (scroll area capped to window height). Ship panel and notification board now stack in one scrolling right column (no fixed y=380). Planet panel, skill screen, cash forecast, event popup and preface scroll when taller than the window. Top bar goal text shortens instead of pushing buttons off. Already fine by code: rail, game menu, galaxy overlay, main menu, end screen (own scroll), debug menu (own scroll). Not seen by eye."
+}

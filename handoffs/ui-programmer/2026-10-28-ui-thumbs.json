@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-10-28",
+  "task": "ui-thumbs",
+  "status": "done",
+  "files_changed": ["game/planet_panel.gd", "art/textures/ui/ui_thumb_barren.png.import", "art/textures/ui/ui_thumb_temperate.png.import", "art/textures/ui/ui_thumb_volcanic.png.import", "handoffs/ui-programmer/2026-10-28-ui-thumbs.json"],
+  "usage_note": "Single session.",
+  "open_questions": ["Panel top glow skipped: StyleBoxFlat has no gradient or per-side border colour; needs a gradient texture from the artist.", "Story ids LBL_PAUSED, LBL_RUNNING, LBL_GAME_OVER, LBL_MAIN_RESOURCES still use plain fallbacks."],
+  "handoff": "Thumbs load by planet type (ui_thumb_<type>); planet_thumb_<id> path removed. System panel header uses ui_header_horizon. Import files generated headless. Not checked by eye: planet panel. No git.",
+  "details": {"how_to_see": "Run game, click a planet: header strip and thumbs.", "not_checked_by_eye": ["planet panel"], "git": "not run"}
+}

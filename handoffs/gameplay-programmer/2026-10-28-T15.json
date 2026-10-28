@@ -1,0 +1,14 @@
+{
+  "agent": "gameplay-programmer",
+  "date": "2026-10-28",
+  "task": "T15",
+  "status": "done",
+  "files_changed": ["game/main.gd"],
+  "schema_version": 1,
+  "usage_note": "Small task, one file.",
+  "open_questions": [
+    "Cycle 2 upkeep line shows only if a ship is owned; cycle 4 skills line only if a skill point is held. OK?",
+    "Tutorial lines are not saved; after a load the line for the current cycle is shown again. OK?"
+  ],
+  "handoff": "Tutorial for cycles 1 to 4 is a blue text block on the notification board (tutorial_label in main.gd). Lines load by id from StoryText (get_or, empty fallback; all 11 TUT_C1..C4 ids exist, TUT_GALAXY_* not wired). Triggers: C1_PLANET at new game; C1_ROW on first planet click; C1_BUY / C1_SELL on first Buy / Sell order; C2_ROUTE_DONE on first route; at each cycle start: cycle 2 upkeep, cycle 3 storage + one-way, cycle 4 skills (if points) + free. Hidden after cycle 4. Existing mission label and halo unchanged. Try: new game, click planet, toggle Buy, Send to..., advance cycles with the debug button. Tests: 226 pass, 0 fail."
+}

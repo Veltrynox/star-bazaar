@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-27",
+  "tasks": [
+    {
+      "task_id": "T74",
+      "title": "Story: align to the real route flow, add event choices, character-count check",
+      "owner_agent": "story-designer",
+      "depends_on": [],
+      "status": "running",
+      "turn_cap": 30,
+      "window": "Owner-requested, 2026-10-27",
+      "brief": "Read story/game-flow.md first (it wins over the GDD for the route flow). (1) Rewrite tutorial lines and notices in story/screens.md to the real flow: standing local Buy and Sell orders on a planet row, then optional 'Send to...' routes between company storages; not 'Buy here, Sell there'. Add notices for: order idle (storage full), route waiting for room, route stalled (empty source), route blocked (red). (2) Events (story/events.md): every event is shown as a paused notification. Give each event either one 'Continue' button (effect applies as tagged) or two to three choices. Write 8 to 10 of the 16 events as choice events; keep the rest single-button. Each choice: id, label (max 28 characters), a plain effect line (max 90 characters) and an effect tag from the vocabulary at the end of game-flow.md only. Choices should be real trade-offs (cash now versus prices later, safe versus risky, a closed port versus a favour), in the same voice, with the ironic and philosophical tone. No numbers. A short line after a choice (max 120 characters) is allowed. The gameplay-programmer will read this file to build the notification, so list for each event: id, title, text, kind (single or choice), choices. (3) END_OWN_HORIZON: keep the permits and beacons, since systems 2 and 3 will come; keep it vague about when. (4) Use Bash to count characters per block and fix every block over its limit; report the count of blocks checked. (5) Keep story/voice.md glossary current. Handoff: handoffs/story-designer/2026-10-27-T74.json.",
+      "owner_note": "Owner 2026-10-27: Bash added to the story-designer. Skill-point question (3) waits for the economy-designer after the owner confirms the story changes."
+    },
+    {
+      "task_id": "T75",
+      "title": "Corporation path: ending(s), choice screen text, skill influence on the corporate outcome",
+      "owner_agent": "story-designer",
+      "depends_on": [
+        "T74"
+      ],
+      "status": "queued",
+      "turn_cap": 30,
+      "window": "Story window S1 (solo), after T74 is done",
+      "brief": "Text and conditions only, no mechanics, no new numbers. Read story/endings.md, story/screens.md, story/voice.md, story/skills.md (ids and names only) and the end-of-game and route sections of story/game-flow.md. Write: (1) endings.md: a new section 'Corporation path' with 2 to 4 endings (ids END_CORP_*), each with id, name, mood, text max 700 characters, and a plain condition using only what the game knows (learned skill ids, learned count per branch, dominant branch, cycle goal reached, final cash, last cycle of the window). Add a selection table (first match wins) with one default ending. Corporate endings keep the company; they do not escape. Keep the six Release endings unchanged. (2) screens.md: the choice screen texts: CHOICE_TITLE (max 40), CHOICE_TEXT (max 280), CHOICE_RELEASE and CHOICE_CORP labels (max 28 each), and one effect line each (max 90) that states only what the game does: Release = the run ends with a Release ending; Corporation = the run ends with a corporate ending. (3) If a skill link to the corporate outcome implies a mechanic, list it in ideas.md (three ideas in total at most), do not add it to the texts. (4) Count characters per block (wc -m or awk). Handoff: handoffs/story-designer/2026-10-27-T75.json, listing the ids ready to wire.",
+      "owner_note": "Owner 2026-10-27: the win ends with a final choice, Release or Stay as a Corporation. The corporation outcome is new. Owner decides the texts."
+    },
+    {
+      "task_id": "T76",
+      "title": "Story text loader and wiring: title, preface, menus, notices, skill text data",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [
+        "T74"
+      ],
+      "status": "queued",
+      "turn_cap": 50,
+      "window": "Gameplay G-c (solo), after G-b (T69 and T70)",
+      "brief": "Read story/screens.md, story/skills.md, story/events.md (format only), story/voice.md, and game/main_menu.gd. Do not edit story/*.md. (1) Write tools/build_story.py: reads story/screens.md, skills.md, endings.md, events.md and writes data/story_text.json (id, text, max, place) and data/events.json (id, title, tag, kind, text, choices). The build is the only writer of these two generated files (text-only exception to the data/ rule; say so in the handoff). It fails on a text over its max, a repeated id, or a block it cannot read unambiguously; stop and report such a block, do not guess. (2) game/story_text.gd: get(id, args) fills {placeholders}; a missing id logs an error and returns the id. (3) Wire the title screen, preface, main menu entries, and the notices the engine already emits (route blocked, route stalled, storage full, dead-state rescue, ship bought, skill point if it exists). List any notice with no trigger in the handoff; do not add triggers. (4) Skill names and text: data only; the skill tree screen is T71 (stopped). (5) Not here: tutorial (T15), events (T12), endings and choice (T77). Handoff: handoffs/gameplay-programmer/<date>-T76.json.",
+      "owner_note": "Producer 2026-10-27: first wiring task for the story texts. Owner decides any text changes; the programmer does not rewrite them."
+    }
+  ]
+}

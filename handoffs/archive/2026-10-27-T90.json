@@ -1,0 +1,15 @@
+{
+ "agent":"economy-designer","date":"2026-10-27","task":"T90","status":"done",
+ "files_changed":["data/balance.json","handoffs/economy-designer/2026-10-27-T90.json"],
+ "schema_version":1,
+ "usage_note":"tiny",
+ "changes":[
+  {"key":"pace_cycle_10_target","old":900,"new":"removed","reason":"stale, unread by game/ tools/ tests"},
+  {"key":"pace_cycle_20_target","old":1300,"new":"removed","reason":"stale"},
+  {"key":"pace_cycle_25_target","old":6200,"new":"removed","reason":"stale"},
+  {"key":"data_version","old":6,"new":7,"reason":"bump"}],
+ "sim":"runs; decent variants win cycles 24-27; sloppy, always-expand, never-expand lose (unchanged)",
+ "tests":"tools/tests/run.sh pass=89 fail=0",
+ "open_questions":[],
+ "handoff":"Removed 3 pace_cycle_* keys, data_version 6 to 7. grep over game/, tools/, data/ found no other references. Sim and tests pass."
+}

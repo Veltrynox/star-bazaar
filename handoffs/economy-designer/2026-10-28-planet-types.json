@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "agent": "economy-designer",
+  "date": "2026-10-28",
+  "task": "planet-types",
+  "status": "done",
+  "files_changed": ["data/planets.json", "data/systems.json", "handoffs/economy-designer/2026-10-28-planet-types.json"],
+  "usage_note": "small",
+  "open_questions": [],
+  "handoff": "Added visual type key per planet. planets.json data_version 4 -> 5. systems.json has no data_version, not bumped. Sim output identical before and after. System 2 planets matched by name via story_text.json (name_id) and role; all found.",
+  "details": {
+    "changes": [
+      {"key": "planet_1 Voltara type", "old": "none", "new": "volcanic", "reason": "owner decision 2026-10-28: planet types"},
+      {"key": "planet_2 Tillam type", "old": "none", "new": "temperate", "reason": "owner decision 2026-10-28: planet types"},
+      {"key": "planet_3 Ashgate type", "old": "none", "new": "temperate", "reason": "owner decision 2026-10-28: planet types"},
+      {"key": "s2_p1 Brannock type", "old": "none", "new": "temperate", "reason": "owner decision 2026-10-28: planet types"},
+      {"key": "s2_p2 Cindrel type", "old": "none", "new": "volcanic", "reason": "owner decision 2026-10-28: planet types"},
+      {"key": "s2_p3 Mossfell type", "old": "none", "new": "temperate", "reason": "owner decision 2026-10-28: planet types"},
+      {"key": "s2_p4 Quillon type", "old": "none", "new": "barren", "reason": "owner decision 2026-10-28: planet types"},
+      {"key": "planets.json data_version", "old": 4, "new": 5, "reason": "owner decision 2026-10-28: planet types"}
+    ],
+    "sim": "identical before and after (decent wins cycle 26, cash 9513; sloppy, always-expand, never-expand lose)"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-10-28",
+  "task": "T119",
+  "status": "done",
+  "files_changed": ["story/screens.md", "handoffs/story-designer/2026-10-28-T119.json"],
+  "usage_note": "Small task, three tutorial lines, one file read set.",
+  "open_questions": ["Does clicking a system in the galaxy view open it? TUT_GALAXY_ROUTES says so; drop that sentence if not."],
+  "handoff": "Three galaxy view tutorial lines added to story/screens.md, section 'Tutorial: galaxy view (T119)': TUT_GALAXY_INTRO, TUT_GALAXY_ICONS, TUT_GALAXY_ROUTES. All max 110 characters, no numbers, plain tone. Show in order, once, the first time the galaxy view opens after system 2 is open. Ready for the programmer to wire.",
+  "details": {}
+}

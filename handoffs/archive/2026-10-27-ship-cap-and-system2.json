@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "agent": "economy-designer",
+  "date": "2026-10-27",
+  "task": "ship-cap-and-system2",
+  "status": "done",
+  "files_changed": [
+    "data/balance.json",
+    "tools/sim.py",
+    "tools/system2.json",
+    "tools/system2_proposal.md",
+    "handoffs/economy-designer/2026-10-27-ship-cap-and-system2.json"
+  ],
+  "usage_note": "About 14 tool calls. Sim rewritten to v4 (shared order pools). planets.json untouched (no system field).",
+  "open_questions": [
+    "OWNER/PROGRAMMER: sim assumes any number of ships may share a route or pair and that a ship with no profitable work idles at zero cost (GDD says so). If one route = one ship, the natural limit is the number of routes (4 in system 1) and needs no tuning. Confirm.",
+    "OWNER: Logistics and Research skills barely speed the win now (26 to 27 vs 27, target 22 to 26); only the full tree (24) and event robustness (Logistics 97% vs 72%) show. Raise skill effects, or accept?",
+    "OWNER: Expansion has a real but late income effect (system 2 ships net 220 to 285 vs 125 to 157 at home, but permit+first ship is 2000 and arrives about cycle 18). Win 27 either way, so no dominant branch. Make it faster (cheaper permit; 600 makes always-expand+C1 win) or accept?"
+  ],
+  "handoff": "Finding: code already shares one Buy/Sell order pool per planet+commodity, so the old sim (4 independent routes) was wrong; v4 models pools. Natural limit system 1 = 5 ships at order_amount 40 (marginal net per ship N=1..10: 157,157,125,125,21,5,0,0,0,0). System 2 = 9 ships. ship_cap 8 to 24 (backstop above about 21 with skill B2); no code change needed for the limit. System 2 data in tools/system2.json and system2_proposal.md; planets.json needs a system field first.",
+  "details": {
+    "changed_keys": {
+      "order_amount": [
+        20,
+        40,
+        "shared pool per planet+commodity sets the natural limit: 2 pools x 40 units / 16 per ship = 5 ships"
+      ],
+      "trip_cost": [
+        80,
+        95,
+        "keeps no-skills win at 27 with the larger pools"
+      ],
+      "ship_cap": [
+        8,
+        24,
+        "backstop only; natural limit 5 (system 1) + 9 (system 2) = 14, about 21 with B2 pools +50%"
+      ],
+      "data_version": [
+        5,
+        6,
+        "bump"
+      ],
+      "unchanged": "cargo 32, ship_price 1000, permit_2_cost 1000, permit_points_2 3, permit_3 keys, space_storage_capacity 500, planet_to_space_rate 10, win_cash 9000, win_cycle 30, permit_margin_bonus 0.5 (now baked into system 2 prices; code should not apply it again)"
+    },
+    "natural_limit": "Limit = 2 x order_amount / (cargo/2) = 5 ships per system 1 (energy out of Voltara 40/cycle, food into Voltara 40/cycle; second routes V>T and T>V share those pools, so add nothing). Marginal net per ship: 157, 157, 125, 125, 21, 5, 0, 0, 0, 0. Skills move it: B2 raises pools (+50%), A4 and hauler cut ships needed. No new mechanic needed: planet resources are infinite, pool = order_amount.",
+    "code_changes_for_gameplay_programmer": [
+      "Confirm Buy order and Sell order amounts are per planet+commodity per cycle, shared by all routes touching that storage (route_engine local_amount).",
+      "Idle ships with no profitable route must cost nothing (already in GDD).",
+      "Before system 2: add a 'system' field to planets.json entries and let the map/permit code read it; planets.json currently assumes 3 planets. Do not apply permit_margin_bonus on top of system 2 prices.",
+      "Per-route distance is not data (travel_cycles_per_leg and trip_cost are global); x,y are map only."
+    ],
+    "space_storage": "capacity 500, planet_to_space_rate 10 per planet+commodity per cycle (kept). Role: a buffer, not extra flow: 500 covers about 12 cycles of one 40-unit pool, far longer than a 3-cycle closure, so routes keep running through events; rate 10 is a quarter of an order pool, so a space storage cannot be the main conduit inside a system. For Long Haul (C3) the link carries at most rate x feeding planets, e.g. 30/cycle from 3 planets, about 2 ships worth. Inter-system routes are NOT modelled in the sim.",
+    "system2": "4 planets: S2-P1 food-rich hub, S2-P2 energy-rich, S2-P3 food-rich outpost, S2-P4 consumer market (buys both). 7 profitable routes (food P1>P2, P1>P4, P3>P2, P3>P4; energy P2>P1, P2>P3, P2>P4). Margins 22 to 25. Natural limit 9 ships, steady about 1725/cycle. Permit: 1000 credits + 3 points (permit_points_2) + skill C1. Prices in tools/system2_proposal.md.",
+    "sim_no_events": {
+      "decent no skills": "WIN c27, 9570",
+      "decent logistics": "WIN c27",
+      "decent research": "WIN c26",
+      "decent expansion (C1-C4)": "WIN c27",
+      "decent permit only": "WIN c27, 10996 (10 ships)",
+      "decent permit+research": "WIN c26",
+      "decent mixed": "WIN c26",
+      "decent full tree ref": "WIN c24",
+      "sloppy overload": "loss 1168",
+      "always expand": "loss 826 (14 ships)",
+      "always expand+C1": "loss 826",
+      "never expand": "loss 3661"
+    },
+    "win_ranges_100_event_seeds_min_median_max": {
+      "no skills": "24/27/30, 72% win",
+      "logistics": "24/27/30, 97%",
+      "research": "24/27/30, 75%",
+      "permit only": "25/27/30, 76%",
+      "mixed": "24/27/30, 87%",
+      "full tree": "22/24/26, 100%",
+      "sloppy, always, never": "0% win"
+    },
+    "checks": "2nd ship at cycle 6; earliest win 22 (full tree, events), none earlier than 22; the three bad strategies lose. A cheaper permit (600) makes always-expand+C1 win: not done."
+  }
+}

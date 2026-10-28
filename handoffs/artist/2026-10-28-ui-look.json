@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "agent": "artist",
+  "date": "2026-10-28",
+  "task": "ui-look",
+  "status": "done",
+  "files_changed": ["art/style.md", "art/make_ui.py", "art/textures/ui/ui_panel_glass.png", "art/textures/ui/ui_header_horizon.png", "art/textures/ui/ui_thumb_planet_1.png", "art/textures/ui/ui_thumb_planet_2.png", "art/textures/ui/ui_thumb_planet_3.png", "art/textures/ui/ui_glyph_pause_amber.png", "art/textures/ui/ui_glyph_pause_grey.png", "art/textures/ui/ui_glyph_chevron_amber.png", "art/textures/ui/ui_glyph_chevron_grey.png"],
+  "usage_note": "Mood board not opened; worked from the owner's notes.",
+  "open_questions": ["planets.json has no type key; thumbnails are per planet id (planet_1..3). Confirm or give type names."],
+  "handoff": "Ready in art/textures/ui/. Panel: ui_panel_glass.png 48x48, 9-slice margin 10 (StyleBoxTexture). Header: ui_header_horizon.png 320x96. Thumbs: ui_thumb_planet_1/2/3.png 96x96 round. Glyphs 32x32: ui_glyph_pause_{amber,grey}.png, ui_glyph_chevron_{amber,grey}.png. Cost: about 43 KB on disk total, largest 320x96, no draw-call impact beyond one textured rect each. Colour tokens in art/style.md UI look section. Wire in theme and panels (ui-programmer).",
+  "details": {}
+}

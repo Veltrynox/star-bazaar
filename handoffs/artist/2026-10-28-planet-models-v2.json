@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "agent": "artist",
+  "date": "2026-10-28",
+  "task": "planet-models-v2",
+  "status": "partial",
+  "files_changed": [
+    "art/style.md",
+    "art/planets/make_planets_v2.py",
+    "art/planets/planet_v2.gdshader",
+    "art/planets/halo_v2.gdshader",
+    "art/planets/planet_v2.tscn",
+    "art/planets/planet_volcanic_v2.tres",
+    "art/planets/planet_temperate_v2.tres",
+    "art/planets/planet_barren_v2.tres",
+    "art/planets/halo_volcanic_v2.tres",
+    "art/planets/halo_temperate_v2.tres",
+    "art/planets/halo_barren_v2.tres",
+    "art/planets/height_volcanic_v2.png",
+    "art/planets/height_temperate_v2.png",
+    "art/planets/height_barren_v2.png",
+    "art/planets/renders/planet_volcanic_v2.png",
+    "art/planets/renders/planet_temperate_v2.png",
+    "art/planets/renders/planet_barren_v2.png"
+  ],
+  "usage_note": "Same method kept (height map on sphere, one shader); it can give the requested features. Renders are software previews, not GPU renders. Old v1 files untouched.",
+  "open_questions": [
+    "Run the shaders on a real GPU window (render.gd points at v1; edit paths) to check silhouette, halo and frame_time_ms.",
+    "Halo costs a second draw call per planet; accept, or drop it on small map sizes?",
+    "Import height_*_v2.png as Lossless with mipmaps off in the editor (VRAM compression blurs the steps)."
+  ],
+  "handoff": "Not wired. Prototype v2: art/planets/planet_v2.tscn (sphere 128x64 16,640 tris plus halo shell 960 tris, 2 draw calls). Materials planet_<type>_v2.tres and halo_<type>_v2.tres, types volcanic, temperate, barren; swap both materials by planet type key. Height maps 384x192, 16 to 25 KB. Shaders planet_v2.gdshader and halo_v2.gdshader (halo uses cull_front and blend_add). Renders 512 px: art/planets/renders/planet_<type>_v2.png. Frame time and GPU compile not measured.",
+  "details": {}
+}

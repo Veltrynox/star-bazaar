@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-10-27",
+  "task": "T74-tone-rework: alien dread plus light collectivist wit, escape-vs-absorbed endings",
+  "status": "done",
+  "files_changed": [
+    "story/voice.md",
+    "story/screens.md",
+    "story/events.md",
+    "story/endings.md",
+    "story/skills.md",
+    "story/ideas.md"
+  ],
+  "usage_note": "~4%",
+  "open_questions": [
+    "Owner: confirm new story terms (the Commons, the Plan, the Bureau, Common Ledger, Release, fellow hand) and that 'Release' stays in story texts only.",
+    "Owner: tutorial and mission lines now follow game-flow.md (Buy and Sell are standing orders, routes via Send to...). OK?",
+    "Owner: END_SLOW_HARBOR and END_COLD_LEDGER end in partial absorption. Keep, or make every win a clean escape?"
+  ],
+  "handoff": "All story/ files re-toned and length-checked against voice.md limits. Ready to wire: screens.md (title, preface, menus, new BTN_OK, BTN_SEND, NOT_STORAGE_FULL, tutorial lines rewritten to match game-flow.md, NOT_DEAD_RESCUE now says Rescue notice), events.md (EV01-EV16, same ids and tags, text only), skills.md (same ids, new flavour, plain lines unchanged), endings.md (same ids and selection rule; END_LOSS renamed The Plan Closes). Story-only terms are in voice.md; none changes a number. ideas.md is for the owner, not for wiring.",
+  "details": {}
+}

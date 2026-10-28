@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-10-28",
+  "task": "A1-gate",
+  "status": "done",
+  "files_changed": ["story/screens.md", "handoffs/story-designer/2026-10-28-A1-gate.json"],
+  "usage_note": "Short session: one grep, one edit.",
+  "open_questions": [],
+  "handoff": "Added SK_A1_GATE (98 of 110 characters) to story/screens.md, skill screen section. Ready to wire: replace the constant A1_GATE_TEXT in game/skill_screen.gd (line 88, used at line 133) with the story id. Current fallback: 'Locked until you have visited Voltara, Tillam and Ashgate and made one route.' The story build may need a rerun to include the new id.",
+  "details": {}
+}

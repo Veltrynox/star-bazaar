@@ -1,0 +1,11 @@
+{
+  "agent": "ui-programmer",
+  "date": "2026-10-28",
+  "task": "orbit-tokens",
+  "status": "done",
+  "files_changed": ["tools/build_theme.py", "design/theme/star_bazaar.tres", "game/ui.gd", "handoffs/ui-programmer/2026-10-28-orbit-tokens.json"],
+  "schema_version": 1,
+  "usage_note": "small",
+  "open_questions": [],
+  "handoff": "Theme colours orbit_line = line-200 (#ffffff2e) for planet orbits and orbit_line_outer = line-100 (#ffffff14) for the dashed outer orbit. Read with Ui.orbit_line() / Ui.orbit_line_outer(), or Ui.col(Ui.LINE_ORBIT). Map drawing not touched. Headless load clean; tests 269 pass 0 fail. Not checked by eye. No git run."
+}

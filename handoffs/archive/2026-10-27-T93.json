@@ -1,0 +1,5 @@
+{"agent":"gameplay-programmer","date":"2026-10-27","task":"T93","status":"done","schema_version":1,
+"files_changed":["game/run_stats.gd","game/ending_picker.gd","game/main.gd","tools/tests/run_tests.gd"],
+"usage_note":"small task, well under cap",
+"open_questions":["story-designer: add id END_STAT_NONE, text \"None\" (max 24, place: End screen branches value when no branch learned). Code uses hardcoded 'None' until it exists.","T85: gate Space Storage post feature on learned_skills.has(\"A1\") (Main.learned_skills / engine.learned); nothing gated now."],
+"handoff":"Stats now store tier (Bare/Partial/Full via new EndingPicker.tier) in last.tier and a tiers count dict; loss records empty tier. End screen Branches learned shows names joined by ', ' (SK_BRANCH_A/B/C), value is free-length. Old saves without a skills key now start with none (A1 rule removed from main.gd). Tests updated; run.sh passes (all pass)."}

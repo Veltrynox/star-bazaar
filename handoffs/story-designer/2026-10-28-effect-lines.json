@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-10-28",
+  "task": "effect-lines",
+  "status": "done",
+  "files_changed": ["story/screens.md"],
+  "usage_note": "Small task, one edit pass.",
+  "open_questions": ["Is the max 90 counted on the raw text with placeholders or on the filled text? Filled UP/DOWN lines can exceed 90 (e.g. Voruun names, long planet names)."],
+  "handoff": "Five NOT_EVENT_EFFECT_* lines rewritten in story/screens.md with placeholders {commodity}, {planet}, {pct}, {cycles}, {amount} as briefed. Ready to wire. Amount is shown as given by the game, so the game should add sign and currency if wanted.",
+  "details": {}
+}

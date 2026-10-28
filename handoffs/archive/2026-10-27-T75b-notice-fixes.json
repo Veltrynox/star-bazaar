@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-10-27",
+  "task": "T75b-notice-fixes",
+  "status": "done",
+  "files_changed": ["story/screens.md", "story/skills.md"],
+  "usage_note": "Small fix, 3 blocks, build run once.",
+  "open_questions": ["voice.md glossary says expansion points but the UI shows Skill points; notices follow the UI. Owner may want one term."],
+  "handoff": "Fixed NOT_SKILL_POINT (single text, no designer note: 'Skill point earned: {reason}.'), SK_COST ('Cost: {amount} points', 21 chars) and NOT_SHIP_BOUGHT ('Ship bought. It is free for a route.'). tools/build_story.py without --allow-skip: 147 entries, 16 events, skipped 0. Programmer can re-run the build and wire as before. NOT_SKILL_POINT has no plural form; if the game grants several points, add an id with {amount}.",
+  "details": {}
+}

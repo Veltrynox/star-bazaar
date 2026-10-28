@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "agent": "producer",
+  "date": "2026-10-27",
+  "task": "Reconcile schedule; queue owner requests a-f; order and parallel plan",
+  "status": "done",
+  "files_changed": [
+    "schedule.json",
+    "state.md",
+    "handoffs/producer/2026-10-27.json",
+    "handoffs/archive/schedule-done-2026-10-27-2.json",
+    "handoffs/archive/2026-10-27-producer-session1.json (moved)",
+    "handoffs/archive/2026-10-27-T67.json, T68, T73, T74-tone-rework, T75 (moved)"
+  ],
+  "usage_note": "Meter not reported to producer this session; UNKNOWN. Main session started T81 (economy) and T77 (gameplay).",
+  "open_questions": [
+    "OWNER: after 'Stay as a Corporation', does the run end or continue?",
+    "OWNER: Expansion branch income effect once system 2 exists, or ending-tier only?",
+    "OWNER: delete route_tail, route_mid, route_head and half_* PNGs?"
+  ],
+  "details": {
+    "started": ["T81 economy-designer (ship limit, system 2 numbers) - by main session", "T77 gameplay-programmer (win choice, end screens) - by main session"],
+    "stopped": [],
+    "blocked": [],
+    "done_reconciled": ["T74", "T75", "T75b", "T76", "T77s (story end screen, not in queue)", "ECON-SIM-V3"],
+    "new_tasks": {
+      "T81": "economy, running",
+      "T82": "gameplay, econ code wiring, after T77 and T81",
+      "T83": "gameplay, untriggered notices, skill texts, preface skip, menu, after T12 and T84",
+      "T84": "story, ids for menu, preface skip, skill texts, notices (can start now)",
+      "T85": "gameplay, Space Storage post and system 2, after T83, T81, T86 (replaces T64, part of T11)",
+      "T86": "story, system 2 name, planets, commodity names, after T81"
+    },
+    "changed": {
+      "T12": "events brief rewritten (owner request b); after T58",
+      "T53": "brief now matches the planet-order redesign",
+      "T80": "covers events and system 2; after T79, T12, T85",
+      "T78, T79, T69, T70, T58, T15, T13, T17, T47": "dependencies set to the gameplay lane order"
+    },
+    "gameplay_lane_order": ["T77 (running)", "T82", "T78", "T79", "T69+T70", "T58", "T12", "T83", "T15", "T85", "T13"],
+    "parallel": "Story (story/ only) and QA (qa/) can run beside the gameplay lane. Economy has its own window. Galaxy (T05) after T15.",
+    "assumption": "T11 system 2 permit scope is folded into T85 and T64 is superseded by T85. Owner to confirm."
+  },
+  "handoff": "Schedule reconciled. T74, T75, T76 archived; sim-v3 and T77s recorded as done. Running: T77 (gameplay) and T81 (economy), both started by the main session. New queue: T82 economy code wiring, T83 untriggered texts, T84 story ids (can start now), T85 Space Storage and system 2, T86 system 2 names. T12 events re-scoped to owner request b. T80 QA now covers events and system 2. T77s ids must be passed to the running T77 agent. Gameplay runs one task at a time after T77 in the order in details.gameplay_lane_order. Story and QA can run beside it. Owner to confirm the T11 and T64 fold-in to T85."
+}

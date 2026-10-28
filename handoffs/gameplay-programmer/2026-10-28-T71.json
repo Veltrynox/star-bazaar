@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-10-28",
+  "task": "T71",
+  "status": "done",
+  "files_changed": ["game/main.gd", "game/game_menu.gd"],
+  "usage_note": "Most of T71 (skill_tree.gd, skill_screen.gd, top bar points, K hotkey, save/load, learn_skill) was already in the tree; I audited it and added the missing pieces.",
+  "open_questions": ["Story ids missing for game menu slots: MENU_STATISTICS, MENU_HELP, MENU_SAVE_LOAD (only MENU_SETTINGS exists). Those slots are skipped until the Story Designer adds them. Settings shows disabled."],
+  "handoff": "Added main.has_skill(id) hook and disabled reserved Settings slot in the game menu (others skipped, no ids). All 13 skill_cost_<id> keys and all SK_* ids exist; no SK_* id lacks a screen. Space Storage start skill (A1) waits for T85. Try: press K for skills, Esc for the game menu."
+}

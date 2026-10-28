@@ -1,0 +1,30 @@
+{
+  "agent": "producer",
+  "date": "2026-10-28",
+  "task": "Convert the seven owner ideas of 2026-10-28 into queue tasks",
+  "started": [],
+  "stopped": [],
+  "blocked": [
+    {
+      "task_id": "T95",
+      "reason": "Owner must answer seven questions (Q1 to Q7) before any idea task starts. Ideas 2, 3, 5 and 6 may be deferred by the owner."
+    }
+  ],
+  "added": ["T95", "T96", "T97", "T98", "T99", "T100", "T101", "T102", "T103", "T104", "T105", "T106", "T107", "T108", "T109", "T110", "T111", "T112", "T113", "T114", "T115", "T116", "T117"],
+  "conflicts_flagged": [
+    "Ideas 5 and 6 pay money for a skill point or a cleared field; T59 says money only reaches the final goal.",
+    "Idea 5 'reputation' and 'skill 3' are not defined in the design.",
+    "Idea 2 'completion ending' vs the Bare/Partial/Full tiers in the owner decision of 2026-10-27.",
+    "Idea 3 pirates vs 'Ships are for hauling only' (T58 brief).",
+    "Idea 4 zoom bug is not described in the queue; T105 starts by reproducing it."
+  ],
+  "recommended_start_order": [
+    "Now: T90 (economy), T92 (story), T93, then T79 (gameplay, own window).",
+    "After T95 answers: story batch T96, T100, T103, T108; economy batch T97, T99, T102, T107.",
+    "Gameplay lane continues: T71, T69+T70, T87, T114, T58, T12, T98, T109, T101, T113, T104, T105.",
+    "Galaxy-builder window after T15: T05, T110, T115.",
+    "QA after builds: T53, T80, T116 (with T17 if ready). Doc: T91 after T87, T117 after T95."
+  ],
+  "usage_note": "Owner meter not reported this session; UNKNOWN. No agent started.",
+  "schema_version": 1
+}

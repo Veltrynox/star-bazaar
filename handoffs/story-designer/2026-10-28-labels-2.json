@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-10-28",
+  "task": "labels-2",
+  "status": "done",
+  "files_changed": ["story/screens.md"],
+  "usage_note": "Small task, one append to screens.md.",
+  "open_questions": ["Owner to confirm ship names Skerrit and Voruun Hauler."],
+  "handoff": "Eight ids appended to story/screens.md under 'Labels 2': LBL_SHIP_SMALL, LBL_SHIP_LARGE, NOT_EVENT_EFFECT_UP/DOWN/CLOSED/CASH/STOCK, LBL_EVENT_FEED. All within max length, no numbers. Ready for the programmer to wire into data/story_text.json.",
+  "details": {}
+}

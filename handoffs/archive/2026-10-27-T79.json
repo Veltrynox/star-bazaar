@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-10-27",
+  "task": "T79",
+  "status": "done",
+  "files_changed": ["tools/tests/run.sh", "tools/tests/run_tests.gd", "handoffs/gameplay-programmer/2026-10-27-T79.json"],
+  "usage_note": "Single session. No game code changed. run.sh runs tools/build_story.py, which rewrites the two generated data files (content unchanged).",
+  "open_questions": [
+    "BUG: a loss is recorded in stats.json (side LOSS, END_LOSS), but T78 item 3 says losses are not recorded (OQ3 may change this). Keep recording losses or stop?",
+    "T78 file format differs from the spec: file has runs/choices{RELEASE,CORP,LOSS}/endings/last, spec says wins/choices{release,corporation}. Accept the actual format?",
+    "Skill B3 (skill_B3_margin) and all skill_cost_* keys are not read by any game code yet. Expected until the skill screen (T71)?"
+  ],
+  "handoff": "Run: sh tools/tests/run.sh (scratch HOME, so the real user dir is untouched; exit code 1 on any failure). 89 checks: pass 88, fail 1. The one fail is the loss-recording bug above (test asserts the T78 spec). Covered: story ids/max/placeholders, picker (all tiers, both sides, precedence, default), win choice (two buttons), Release/Corp answers, no double count, reload of unanswered choice, loss, stats file (atomic, corrupt moved aside, wrong shape), expansion points (once per planet/pair, either order, save round trip, local order), skill keys A4/B2/A5, force-goal. No test asserts one ship per lane. Full endings are only reachable by synthetic input: SYSTEMS_IN_GAME is 1.",
+  "details": {"pass": 88, "fail": 1, "command": "sh tools/tests/run.sh"}
+}

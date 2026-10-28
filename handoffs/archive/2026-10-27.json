@@ -1,0 +1,39 @@
+{
+  "agent": "producer",
+  "date": "2026-10-27",
+  "task": "Owner decisions 2026-10-27: schedule and state update (no agents started)",
+  "status": "done",
+  "started": [],
+  "stopped": [],
+  "blocked": [],
+  "done_moved_to_archive": ["T77", "T77b", "T78", "T81", "T82", "T84", "T86"],
+  "queued_in_order": ["T79", "T93", "T71", "T69", "T70", "T87", "T58", "T12", "T83", "T15", "T85", "T88", "T90", "T92", "T53", "T80", "T47", "T17", "T91", "T05", "T13", "T89", "T61", "T62", "T63", "T59", "T72"],
+  "changed": {
+    "T71": "restored from stopped; depends on T79 only (T72 and T70 dropped for this run); skill points top bar, SK_* texts, skill_cost_<id>, menu",
+    "T79": "depends on T78 and T93; loss now counts as one LOSS",
+    "T80": "loss now counts as one LOSS",
+    "T83": "skill screen texts moved to T71; menu defaults applied",
+    "T12": "owner topic: skill B3 to discuss later",
+    "T58": "depends on T87",
+    "T62": "owner set to general-purpose (no doc-manager agent exists)",
+    "T69": "owner note points to the T62 agent",
+    "T72": "no longer blocks T71"
+  },
+  "new_tasks": ["T87 multi-ship lanes", "T88 economy re-check", "T89 A3 hauler (low)", "T90 remove pace_cycle_* keys", "T91 GDD reconcile (general-purpose)", "T92 voice glossary for system 1 and 2 names", "T93 ending tier in stats"],
+  "closed_items": ["Route images: nothing in the project to delete"],
+  "files_changed": [
+    "schedule.json",
+    "state.md",
+    "handoffs/producer/2026-10-27.json",
+    "handoffs/archive/schedule-done-2026-10-27-3.json",
+    "handoffs/archive/ (7 handoffs beyond latest 5, plus the earlier producer handoff of 2026-10-27)"
+  ],
+  "schema_version": 1,
+  "usage_note": "Owner reported no usage figure this session. UNKNOWN. Nothing started, so no new load.",
+  "open_questions": [
+    "OWNER: T71 runs without T72 (owner answers in gdd-skills section 10). Confirm the dependency drop.",
+    "OWNER: owner said T79 is running; schedule shows T77 done and T79 queued behind T93. Confirm the order.",
+    "OWNER: after 'Stay as a Corporation', does the run end or continue?"
+  ],
+  "handoff": "Nothing started, stopped or blocked; no agent is running. Done and archived: T77, T77b, T78, T81, T82, T84, T86 (stale 'running' status fixed; their handoffs showed done). Next in the gameplay lane: T79, then T93 (tier in stats, before T79's tests), then T71 (skill tree, restored), T69+T70, T87 (shared lanes, from owner option A), T58, T12, T83, T15, T85, T13, T89 (A3 hauler, low). Economy: T90 (remove pace_cycle_* keys, ready now), then T88 (sim vs game, after T87). Story: T92 (glossary, ready now). QA: T53, T80, T47, T17. Doc: T91 (GDD reconcile, after T87). T62 now general-purpose. T83 no longer duplicates T71. Handoffs beyond the latest five moved to archive."
+}

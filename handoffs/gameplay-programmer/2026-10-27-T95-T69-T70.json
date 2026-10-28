@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-10-27",
+  "task": "T95-T69-T70",
+  "status": "done",
+  "files_changed": [
+    "game/main.gd",
+    "game/route_engine.gd",
+    "game/cash_forecast.gd",
+    "game/planet_panel.gd",
+    "game/ship_panel.gd",
+    "game/story_text.gd",
+    "tools/tests/run_tests.gd"
+  ],
+  "usage_note": "UNKNOWN: about 25 tool turns, meter not reported.",
+  "open_questions": [
+    "Story-designer: missing ids, now plain fallbacks in code via StoryText.get_or: LBL_GROSS (Gross), LBL_NET (Net), LBL_TRIP_COST (Trip cost), ST_WAITING_ROOM ('Waiting for room.', const WAITING_TEXT in route_engine.gd).",
+    "Routes carry stock only (no prices), so revenue and goods-cost lines on a connection are always 0 and were left out; goods cost shows as local Buy lines in the forecast. Wanted differently?",
+    "always_expand inject 1:1000 is rescued already at the end of cycle 1 (cash 2, 2 ships, both routes stalled), not cycle 4, and again every cycle: the bot spends each stipend on ships (24 ships), so it stays at cash 2. Rule works; bot behaviour is the cause."
+  ],
+  "handoff": "A: _check_stranded rescues on (no ships and cash < ship_price) OR (cash < fixed_cost, no route state running, no Sell order with stock); once per cycle (last_rescue_cycle); tests incl. 1600 start never rescued. B (T69): engine splits fixed cost into trip_part/upkeep_part; planet panel connection shows Trip cost, Ship upkeep, Net; ship panel lists upkeep per ship and total; forecast headed Expenses with trip cost and upkeep per moving route and buys, income = sells; 'Last cycle: Gross, Ship upkeep, Net' line in forecast (main.last_summary), no notice, to avoid overwriting event notices. C (T70): full destination with outflow (Sell order or outgoing route) gives state waiting (neutral, no notice, partial loads), without outflow blocked as before; forecast shows the real moved amount. Tests 141 pass; QA bot default strategies run with no errors/crashes.",
+  "details": {}
+}

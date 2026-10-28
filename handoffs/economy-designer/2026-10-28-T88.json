@@ -1,0 +1,33 @@
+{
+ "schema_version": 1,
+ "agent": "economy-designer",
+ "date": "2026-10-28",
+ "task": "T88",
+ "status": "done",
+ "files_changed": [],
+ "usage_note": "Read route_engine.gd, ran sim.py before; no change so no after-run needed (output identical).",
+ "tolerance": "per-row gap within 10 percent or 15 credits per cycle; no balance change inside it",
+ "lane_check": {
+  "lane": "Voltara -> Ashgate energy (buy 10, sell 27, margin 17), order_amount 40, units per ship 16, upkeep 115 per moving ship",
+  "rows": [
+   {"ships": 1, "sim_marginal": 157, "game_by_code": 157, "gap": 0},
+   {"ships": 2, "sim_marginal": 157, "game_by_code": 157, "gap": 0},
+   {"ships": 3, "sim_marginal": 21, "game_by_code": 21, "gap": 0, "note": "pool left 8 units: 8*17-115"},
+   {"ships": 4, "sim_marginal": 0, "game_by_code": 0, "gap": 0, "note": "source stock empty, ship stalls and pays no upkeep"}
+  ],
+  "marginal_sign": "positive for ships 1-3, zero from ship 4, never negative"
+ },
+ "differences_small": [
+  "Game has no first-cycle zero for a new route (buy order may already hold stock); sim is slightly conservative.",
+  "Game storage buffer lets a lane draw stock down for a few cycles before the pool limit bites; transient only.",
+  "Game gate: ship 3 earns 21 only if dst sell pool and storage space allow; same as sim pool."
+ ],
+ "natural_limit": "Holds: one lane saturates at about 2.5 ships (40/16); other lanes are better for ship 3+. Sim table: 5th ship 21, 6th 5, 7th+ 0. Sims: decent 26 win, sloppy/always/never lose.",
+ "changes": [],
+ "sim_results": {"decent no skills": "win c26 9513", "sloppy": "loss 377", "always expand": "loss 1359", "never expand": "loss 3761", "decent full tree": "win c23"},
+ "open_questions": [
+  "UNKNOWN: real-game 4th ship on a lane shows stalled; confirm in a play test that it does not pay upkeep (code says 0).",
+  "Ship 3 on a saturated lane gives only 21 per cycle against a 1000 price; players may buy it as a trap. Owner: accept or warn in UI?"
+ ],
+ "handoff": "Sim and game match for multi-ship lanes (gap 0 per row). One ship 157, three ships 157+157+21, fourth stalls at 0. No balance change."
+}

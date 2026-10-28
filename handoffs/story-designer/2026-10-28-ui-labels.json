@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-10-28",
+  "task": "ui-labels",
+  "status": "done",
+  "files_changed": ["story/screens.md", "handoffs/story-designer/2026-10-28-ui-labels.json"],
+  "usage_note": "Small task, one append and checks.",
+  "open_questions": ["LBL_GAME_OVER uses 'Game over' as a plain label; the rescue notice still never says it. Owner may prefer 'Run lost'."],
+  "handoff": "Four labels appended to story/screens.md, ready to wire: LBL_PAUSED (Paused), LBL_RUNNING (Running), LBL_GAME_OVER (Game over), LBL_MAIN_RESOURCES (Main resources). All within 24 characters, no numbers.",
+  "details": {}
+}

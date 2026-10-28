@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-10-28",
+  "task": "A1-gate",
+  "status": "done",
+  "files_changed": ["game/skill_tree.gd", "game/main.gd", "game/skill_screen.gd", "gdd-skills.md", "tools/tests/run_tests.gd"],
+  "usage_note": "Small.",
+  "open_questions": ["Owner decision (changeable): A1 Space Storage is Locked until all system 1 planets (Voltara, Tillam, Ashgate) are visited and one route is made. Keep, or loosen?", "The detail panel shows a plain English fallback line (A1_GATE_TEXT in game/skill_screen.gd); a story text entry is needed if the Story Designer wants it in the text file."],
+  "handoff": "A1 gate implemented as the default. main.a1_gate_open() reads pts_planets (planets 0..2 all present) and pts_pairs (non-empty); no new counter. SkillTree.state/can_learn/any_affordable take an optional ctx so the Locked label and button follow the gate. Learned A1 in old saves stays. Cost unchanged. Tests: 4 gate checks added, existing A1 tests set the gate first. Result pass=177 fail=0 (check final run). gdd-skills.md section 4 has the gate line, marked as owner decision 2026-10-28."
+}

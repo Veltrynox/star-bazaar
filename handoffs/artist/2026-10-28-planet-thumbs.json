@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "agent": "artist",
+  "date": "2026-10-28",
+  "task": "planet-thumbs",
+  "status": "done",
+  "files_changed": [
+    "art/make_ui.py",
+    "art/style.md",
+    "art/textures/ui/ui_thumb_volcanic.png",
+    "art/textures/ui/ui_thumb_temperate.png",
+    "art/textures/ui/ui_thumb_barren.png",
+    "art/textures/ui/ui_thumb_planet_1.png (removed)",
+    "art/textures/ui/ui_thumb_planet_2.png (removed)",
+    "art/textures/ui/ui_thumb_planet_3.png (removed)"
+  ],
+  "usage_note": "small",
+  "open_questions": [],
+  "handoff": "Three per-type thumbnails ready, 96x96 RGBA, round, thin ring: art/textures/ui/ui_thumb_volcanic.png (10 KB), ui_thumb_temperate.png (20 KB), ui_thumb_barren.png (10 KB). One draw call each, no meshes. Old ui_thumb_planet_1/2/3 and their .import files are deleted. Gameplay/UI programmer must switch the thumbnail lookup from planet id to the planet type key (volcanic, temperate, barren) and path art/textures/ui/ui_thumb_<type>.png. Godot imports the new files on next editor open.",
+  "details": {}
+}

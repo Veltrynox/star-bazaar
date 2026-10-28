@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "agent": "qa-analyst",
+  "date": "2026-10-28",
+  "task": "T53 QA bot rewrite: strategies act through routes",
+  "status": "done",
+  "files_changed": [
+    "qa/reports/2026-10-28-bug_report.json",
+    "handoffs/qa-analyst/2026-10-28-T53.json"
+  ],
+  "usage_note": "UNKNOWN: about 15 tool turns, meter not reported.",
+  "open_questions": [
+    "UNKNOWN: whether the 2026-10-27 bot_run.gd rewrite (already route-based) counts as T53 done, since schedule.json still reads queued. This pass verified it and changed no bot code.",
+    "UNKNOWN: the decent smoke run loses at cycle 30 with 7360 cash. Whether decent should win in the 22 to 30 window is economy-designer's call.",
+    "UNKNOWN: release export check (no debug menu) not run in this task; it is outside T53 scope."
+  ],
+  "handoff": "T53: qa/bots/bot_run.gd and run_batch.sh already act through planet Buy/Sell orders, Send to... routes, Remove, ship button, learn_skill and end_screen.chosen; all four strategy names, fast clock and timer option present. I checked every signal and engine call against game/ (no mismatch) and changed no bot code. Full batch not run: the entry does not ask for it. One smoke run (decent, seed 1, Godot.app, scratch HOME) finished clean at cycle 30 as a loss, cash 7360, 3 ships, no harness issues. Only flag: pacing, medium, to economy-designer (decent does not reach 9000 by cycle 30 on one seed). Report: qa/reports/2026-10-28-bug_report.json.",
+  "details": {
+    "smoke_run": {
+      "strategy": "decent",
+      "seed": 1,
+      "clock": "fast",
+      "outcome": "loss",
+      "final_cash": 7360,
+      "cycle_reached": 30,
+      "ships_owned": 3,
+      "routes_open": 3,
+      "lanes_removed": 0,
+      "issues": []
+    },
+    "batch_run": false,
+    "batch_reason": "Entry T53 does not ask for a batch run; T47 runs the real batch."
+  }
+}

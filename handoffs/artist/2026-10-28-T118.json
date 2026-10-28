@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "agent": "artist",
+  "date": "2026-10-28",
+  "task": "T118",
+  "status": "done",
+  "files_changed": [
+    "art/style.md",
+    "art/make_icons.py",
+    "art/textures/icons/icon_energy_64.png",
+    "art/textures/icons/icon_energy_128.png",
+    "art/textures/icons/icon_food_64.png",
+    "art/textures/icons/icon_food_128.png"
+  ],
+  "usage_note": "Pure python generator, no dependencies.",
+  "open_questions": [],
+  "handoff": "Icons ready in art/textures/icons/: icon_energy_{64,128}.png (amber bolt) and icon_food_{64,128}.png (green leaf), keyed to the data commodity keys energy and food (same for systems 1 and 2). Flat, dark outline, transparent. Cost: 4 PNGs, 64 or 128 px, 0.7-1.4 KB each (about 4 KB total), one draw call per icon sprite (batchable), no meshes. Wire in T105: load by icon_<key>_64.png. Palette is in art/style.md. Not checked in game; frame_time not measured.",
+  "details": {}
+}

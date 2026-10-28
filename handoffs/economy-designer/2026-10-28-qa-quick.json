@@ -1,0 +1,5 @@
+{"agent":"economy-designer","date":"2026-10-28","task":"qa-quick-economy","status":"done","files_changed":["data/balance.json","gdd-log.md","handoffs/economy-designer/2026-10-28-qa-quick.json"],"schema_version":1,
+"changes":[{"key":"data_version","old":9,"new":10,"reason":"version bump"},{"key":"starting_credits","old":1600,"new":1800,"reason":"earlier 2nd ship, decent pacing"},{"key":"win_cash","old":9000,"new":8500,"reason":"win unreachable for bots in lane-limited build"}],
+"sim":{"T87_wired_mc30":{"decent":"87% win, cycles 22/25/30","sloppy":"loss 322","always_expand":"loss ~1360","never_expand":"loss ~4160"},"lane_limited_real_mc30":{"decent":"53% win, 26/28/30","always_expand":"same as decent (lane-limited, one ship per lane)","never_expand":"loss"}},
+"usage_note":"sim.py only","open_questions":["Does the owner want decent no-skill min win at cycle 22 (current) or later?","Always-expand stall needs T87 wiring or a purchase guard (gameplay-programmer)."],
+"handoff":"Two number changes. Always-expand stall is code: idle extra ships absorb all cash."}

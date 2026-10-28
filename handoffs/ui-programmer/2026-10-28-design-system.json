@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-10-28",
+  "task": "design-system",
+  "status": "done",
+  "files_changed": [
+    "design/star-bazaar-design-system/ (unzipped)",
+    "design/theme/star_bazaar.tres",
+    "design/theme/icons/*.svg",
+    "tools/build_theme.py",
+    "project.godot",
+    "game/ui.gd",
+    "game/main.gd",
+    "game/planet_panel.gd",
+    "game/ship_panel.gd",
+    "game/cash_forecast.gd",
+    "game/skill_screen.gd",
+    "game/game_menu.gd",
+    "game/main_menu.gd",
+    "game/event_notice.gd",
+    "game/end_screen.gd",
+    "handoffs/ui-programmer/2026-10-28-design-system.json"
+  ],
+  "usage_note": "Single session.",
+  "open_questions": [
+    "Jost and JetBrains Mono font files are not in the zip; the theme uses system fonts with fallbacks (Futura, Menlo). Can the owner supply the .ttf files?",
+    "Notification board is 240px wide, design says 320px; planet panel is 320. Widen it? (touches main.gd/ship_panel layout)",
+    "Route panel, key hints bar and map labels from the design need new UI nodes or map work; left out as beyond styling."
+  ],
+  "handoff": "Design system unzipped to design/star-bazaar-design-system/. python3 tools/build_theme.py turns tokens.json into design/theme/star_bazaar.tres (global theme via project.godot gui/theme/custom) and white icon copies. Scripts use theme type variations (ButtonPrimary, LabelTitle, PanelBar...) and Ui.col/Ui.icon; hard-coded colours and sizes removed. Swap design: replace folder, rerun script. Tests pass=226 fail=0, headless load clean, main/skills/menu/main menu instantiate. Not checked by eye: every screen. No git.",
+  "details": {
+    "how_to_see": "Open the project, run it: main menu, New Game, preface, top bar, click planet, K for skills, Esc for menu, event popup on a cycle event.",
+    "not_checked_by_eye": [
+      "all screens"
+    ],
+    "git": "not run"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-10-27",
+  "task": "T84",
+  "status": "done",
+  "files_changed": ["story/screens.md"],
+  "usage_note": "Short session, well under the 25-turn cap.",
+  "open_questions": [
+    "MENU_CONFIRM_NEW assumes a new game replaces the saved game; confirm that is what the game does, or drop the dialog.",
+    "NOT_RESUMED ('Running.') is optional; wire only if a notice on unpause is wanted.",
+    "Continue is hard-coded in game/main_menu.gd; MENU_HINT_CONTINUE_OFF and NOT_NO_SAVE are alternatives, wire one."
+  ],
+  "handoff": "build_story.py ran without --allow-skip: 172 entries, 0 skipped, exit 0. Already existed, not changed: SCR_PREFACE_SKIP, SK_* screen strings, BTN_LEARN, NOT_SAVED, NOT_PAUSED, NOT_ROUTE_STALLED, NOT_SHIP_BOUGHT, NOT_SKILL_*. New and ready to wire: MENU_CONTINUE, MENU_NEW_GAME, MENU_CONFIRM_NEW, NOT_NO_SAVE, MENU_HINT_CONTINUE_OFF; SK_POINTS_LEFT, SK_CONFIRM, SK_BTN_CLOSE, SK_NONE_SELECTED, SK_BTN_LEARNED, SK_BTN_LOCKED, SK_LABEL_EFFECT, SK_LABEL_NEEDS_POINTS; NOT_ROUTE_MADE, NOT_ROUTE_REMOVED, NOT_RESUMED. Still missing: none known. 'Skill points' label kept per owner.",
+  "details": {}
+}

@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-10-28",
+  "task": "T70",
+  "status": "done",
+  "files_changed": [],
+  "usage_note": "Small: verified existing implementation and ran the tests.",
+  "open_questions": [
+    "Story-designer: ids still missing, plain fallbacks in code: LBL_GROSS, LBL_NET, LBL_TRIP_COST, ST_WAITING_ROOM."
+  ],
+  "handoff": "A full destination with outflow (enabled Sell order or outgoing route) makes the route wait: partial load, neutral 'Waiting for room.', no notice; with no outflow it is blocked as before; the forecast shows the real moved amount. Implemented in the earlier combined session (see 2026-10-27-T95-T69-T70.json); re-verified now, no code change. Headless tests: pass=141 fail=0 (JSON parse error in the log is the expected corrupt-file test). Try: sh tools/tests/run.sh.",
+  "details": {"pass": 141, "fail": 0}
+}

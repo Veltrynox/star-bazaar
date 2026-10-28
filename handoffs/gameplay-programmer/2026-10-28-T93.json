@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-10-28",
+  "task": "T93",
+  "status": "done",
+  "files_changed": [],
+  "usage_note": "Small; code was already present in the working tree, verified only.",
+  "open_questions": [],
+  "handoff": "Ending tier is recorded. main.gd calls EndingPicker.tier(ending_inputs()) for wins and passes it to RunStats.record(side, ending_id, cycle, cash, tier). stats.json stores tiers {Bare|Partial|Full: count} and last.tier. Losses pass an empty tier, so side is LOSS and no tier is counted. schema_version stays 1: the tiers key was already in the fresh schema, and older files without it are handled by a type check in record(). Picker table and ending texts unchanged. Headless load is clean. Try it: finish a run, then open user://stats.json.",
+  "details": {}
+}

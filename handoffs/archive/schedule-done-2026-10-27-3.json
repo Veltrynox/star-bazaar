@@ -1,0 +1,83 @@
+{
+  "date": "2026-10-27",
+  "note": "Done tasks moved by producer, session 2 (2026-10-27)",
+  "tasks": [
+    {
+      "task_id": "T77",
+      "title": "Win choice screen (Release or Stay as a Corporation), win and loss end screens",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [
+        "T75",
+        "T76"
+      ],
+      "status": "running",
+      "turn_cap": 50,
+      "window": "Gameplay lane, running now (main session, 2026-10-27)",
+      "brief": "Replaces T14. (1) At the cash goal (existing end-of-cycle check), pause and show the choice screen (CHOICE_* from story/screens.md): title, text, two buttons, each with its effect line. No close button. (2) Release: choose the ending with the Release table in story/endings.md (first match, default END_ENOUGH). Corporation: choose with the table T75 adds. Inputs: learned skill ids, learned count per branch, dominant branch, cycle goal reached, final cash, last-cycle flag. (3) Ending screen: name, text, END_STAT_LINE (cycle and cash), buttons END_BTN_NEW, END_BTN_MENU, END_BTN_QUIT. (4) Window ends without goal: END_LOSS and END_LOSS_STAT with cash and goal, same buttons. (5) Dead-state rescue stays a notice (NOT_DEAD_RESCUE), not an ending. (6) Once answered, call the recorder with the side and ending id; do not write files here (T78). Texts come from story_text.gd (T76). Handoff: handoffs/gameplay-programmer/<date>-T77.json.",
+      "owner_note": "Owner 2026-10-27: the win gives a final choice. Old T14 scope is in this task. Producer 2026-10-27: also wire the T77s ids (handoffs/story-designer/2026-10-27-T77s-end-screen.json: END_TITLE_REL/CORP, END_SIGN_REL/CORP, END_STAT_CYCLES/CASH/BRANCHES/SYSTEMS, END_RUN_OVER, CHOICE_*_EFFECT). Main session to pass this to the running agent."
+    },
+    {
+      "task_id": "T78",
+      "title": "Choice and outcome recording to user:// (local only), force-goal debug control",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [
+        "T77",
+        "T82"
+      ],
+      "status": "queued",
+      "turn_cap": 40,
+      "window": "Gameplay lane, after T82",
+      "brief": "(1) On each answered win, record once into user://stats.json: schema_version 1, wins, choices {release, corporation}, endings {id: count}. Record when the choice is answered, not when the screen opens. Each run carries a recorded flag saved with the run, so a reload never counts it twice. Do not record losses (owner OQ3 may change this). (2) Write atomically: user://stats.json.tmp, then rename. Missing file: create it. Unreadable file: move it to user://stats.bad.json and start fresh. (3) No network, no analytics SDK, no name or id. Nothing leaves the machine. (4) No in-game stats screen (owner decides). (5) Debug-only (stripped from release export, like debug_menu): a force-goal control that sets cash to win_cash at the end of the current cycle, so QA can reach both branches now. Normal play does not reach 9000 in system 1 (T10: 7120 at cycle 30; T54 on hold). Show the stats file path in the debug menu. Handoff: handoffs/gameplay-programmer/<date>-T78.json.",
+      "owner_note": "Owner 2026-10-27: record which side the player chose and the ending reached, to compare collective escape vs corporation. Owner decides beyond that."
+    },
+    {
+      "task_id": "T81",
+      "title": "Natural ship limit, system 2 numbers and Space Storage post numbers",
+      "owner_agent": "economy-designer",
+      "depends_on": [],
+      "status": "running",
+      "turn_cap": 30,
+      "window": "Economy, running now (main session, 2026-10-27)",
+      "brief": "Owner request 2026-10-27. (1) Replace the fixed ship_cap with a natural ship limit that comes from the economy (no profitable route, no ship); report the resulting limit and log it. (2) System 2: planet count, one role per planet (labels such as S2-P1), resources per planet, permit_2_cost, expansion point cost to enter, and Space Storage post numbers (capacity, planet_to_space_rate, support duration for a broken route). Abstract numbers in data/balance.json and data/planets.json. Update tools/sim.py for system 2. Log every change with old, new and reason; run tools/sim.py before and after. No code and no story text. Handoff: handoffs/economy-designer/<date>-T81.json.",
+      "owner_note": "Producer 2026-10-27: started by main session. Unblocks T82, T86 and T85. Ship limit numbers feed T58."
+    },
+    {
+      "task_id": "T82",
+      "title": "Wire economy sim-v3 code changes (order amount, skill keys, expansion points)",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [
+        "T77",
+        "T81"
+      ],
+      "status": "queued",
+      "turn_cap": 40,
+      "window": "Gameplay lane, after T77 and T81",
+      "brief": "Read handoffs/economy-designer/2026-10-27-sim-v3-retune.json, details.code_changes_for_gameplay_programmer, and implement it: (1) separate order_amount key for local Buy and Sell orders; (2) read the skill effect keys (A3 hauler_*, A4, A5, B2, B3) from data; (3) award expansion points once per planet, once per pair and once per system; (4) stop reading the stale pace_cycle_10/20/25_target keys and event_effect. Do not delete keys from data/balance.json (owner open question) and do not change values. If a value is missing, stop and report. Handoff: handoffs/gameplay-programmer/<date>-T82.json.",
+      "owner_note": "Producer 2026-10-27: owner request (a). Removing the stale keys from data is an owner decision (see state.md)."
+    },
+    {
+      "task_id": "T84",
+      "title": "Story: ids for menu, preface skip, skill texts and untriggered notices",
+      "owner_agent": "story-designer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 25,
+      "window": "Story lane, can run beside the gameplay lane (story/ files only)",
+      "brief": "Owner request 2026-10-27, for T83. (1) Check story/screens.md for: preface skip button, main menu Continue, New Game, the untriggered notices (route stalled, ship bought, saved, paused) and the skill points notice. Where an id is missing, write it in voice with its max length. No mechanics, no new numbers. (2) Close the open T76 handoff items if T75b did not: NOT_SKILL_POINT designer note, SK_COST over max (27 characters, max 24), NOT_SHIP_BOUGHT wording. (3) Count characters per block with Bash (wc -m or awk). Running tools/build_story.py is allowed; do not edit game/ or data/ by hand. Handoff: handoffs/story-designer/<date>-T84.json listing the ids ready to wire and any still missing.",
+      "owner_note": "Producer 2026-10-27: owner request (c), first step. Ask via this task, not in the gameplay task."
+    },
+    {
+      "task_id": "T86",
+      "title": "Story: system 2 name, planets, descriptions and commodity names",
+      "owner_agent": "story-designer",
+      "depends_on": [
+        "T81"
+      ],
+      "status": "queued",
+      "turn_cap": 25,
+      "window": "Story lane, after T81",
+      "brief": "Owner request 2026-10-27 (d). Read the economy handoff from T81 (its roles, such as S2-P1, become names). Write in voice (story/voice.md): the system 2 name, one name and a one-line description per planet, and any new commodity names. No numbers or mechanics. Keep max lengths as in T74. Count characters with Bash; run tools/build_story.py if the files need it. Handoff: handoffs/story-designer/<date>-T86.json, listing each id and name for T85.",
+      "owner_note": "Producer 2026-10-27: owner request (d). Needs the economy handoff first."
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-10-28",
+  "task": "T105",
+  "status": "done",
+  "files_changed": ["game/galaxy_view.gd", "game/main.gd", "game/map.gd"],
+  "usage_note": "One new overlay script plus small hooks in main.gd and map.gd.",
+  "open_questions": ["Missing story ids use plain fallbacks: MENU_GALAXY ('Galaxy' button), BTN_CLOSE ('Close'), LBL_UNKNOWN ('?' for unreached systems). Please add them.", "No galaxy coordinates exist in data; systems are laid out in a row by id and linked in id order. Is that acceptable until the owner supplies positions?", "frame_time_ms not measured (headless only); the view is a 2D overlay redrawn only on change."],
+  "handoff": "Galaxy view: top bar Galaxy button (appears once system 2 is open) or key G; Esc or Close button leaves. Shows explored systems, links, planets with energy/food icons (abundant resource, from art/textures/icons), and the player's routes (green running, amber otherwise). Unreached systems show as a grey circle with '?'. First open shows TUT_GALAXY_INTRO, ICONS, ROUTES in order, once (galaxy_seen saved). Clicking a system closes the view and moves the map camera to that system, so the ROUTES sentence 'Click a system to open it' holds. Tests: pass=226 fail=0. Try: debug menu, buy permit 2, press G."
+}

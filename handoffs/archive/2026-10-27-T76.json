@@ -1,0 +1,43 @@
+{
+ "schema_version": 1,
+ "agent": "gameplay-programmer",
+ "date": "2026-10-27",
+ "task": "T76",
+ "status": "done",
+ "files_changed": [
+  "tools/build_story.py",
+  "data/story_text.json",
+  "data/events.json",
+  "game/story_text.gd",
+  "game/main.gd",
+  "game/main_menu.gd",
+  "game/route_engine.gd"
+ ],
+ "usage_note": "Well under the 50-turn cap.",
+ "open_questions": [
+  "story-designer: NOT_SKILL_POINT (screens.md line 107) holds a designer note '(If the game gives more than one...)'. Builder skips it. Give one plain text, or two ids.",
+  "story-designer: SK_COST 'Cost: {amount} skill points' is 27 chars, max 24. Builder skips it. Raise max or shorten.",
+  "OWNER/story-designer: NOT_SHIP_BOUGHT says 'assigned to the route', but buying does not assign. The game posts no ship-bought notice today. Wanted anyway, with other wording?"
+ ],
+ "handoff": "Story text now comes from data. Run python3 tools/build_story.py --allow-skip (without the flag it exits 2 when blocks are skipped). Wired: title name and tagline (main menu), preface title/body/button, Quit game, Main menu button, goal line, route blocked (closed or full), storage full (order status), rescue, no free ship. Headless load clean. No notice trigger added.",
+ "details": {
+  "playable": "Open the game: title shows name and tagline; New Game shows the written preface; top bar shows the goal line.",
+  "try": "Launch, press New Game, read the preface, press Begin.",
+  "generated_data_exception": "tools/build_story.py is the only writer of data/story_text.json (145 entries) and data/events.json (16 events, choices empty until T74 writes choice events); text-only exception to the data/ rule.",
+  "api": "StoryText.get_text(id, args) in game/story_text.gd. Named get_text because Object already defines get(). Missing id logs an error and returns the id.",
+  "skipped_blocks": [
+   "NOT_SKILL_POINT (designer note)",
+   "SK_COST (over max)"
+  ],
+  "builder_conventions": "Ending max from id: _EPI 140, BARE 350, _FULL_ 1000, END_LOSS 600, else 700. END_BTN_* have 3 fields and no text line: third field read as the label. Skill ids A1..C4 become SK_<id>_NAME/_FLAVOUR/_PLAIN.",
+  "notices_without_trigger": [
+   "NOT_ROUTE_STALLED (engine sets stalled state but posts no notice)",
+   "NOT_SHIP_BOUGHT (no notice today)",
+   "NOT_SKILL_POINT, NOT_SKILL_REASON_*, NOT_SKILL_LEARNED, NOT_SKILL_NO_POINTS, NOT_SKILL_NO_SYSTEMS (no skills)",
+   "NOT_SAVED, NOT_PAUSED, NOT_EVENT_PREFIX",
+   "SCR_PREFACE_SKIP (no skip button)"
+  ],
+  "not_wired_no_id": "Continue and New Game buttons on the main menu have no id in the story files; kept hard-coded. Other hard-coded strings left (Buy/Sell buttons, other labels, route reasons, pause button) are not in T76 scope.",
+  "skills": "Names and text are in data/story_text.json only."
+ }
+}

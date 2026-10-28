@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-10-28",
+  "task": "event-gate",
+  "status": "done",
+  "files_changed": ["game/events.gd", "game/main.gd", "tools/tests/run_tests.gd"],
+  "usage_note": "Small.",
+  "open_questions": ["Cycle 2 event could not be reproduced through the normal schedule. Was the debug 'Force an event' flag on, or an old save loaded?"],
+  "handoff": "Cause: due() is correct (cycle>1 and (cycle-1)%event_interval==0, interval 4 gives 5, 9, 13) and is the only normal path, so cycle 2 cannot fire from the schedule. The only other path is debug_force_event (debug menu 'Force an event'), which picks from the full pool incl. choice events EV17/18/20. Also, before this change the first slot (cycle 5) could pick any choice event; no gate existed. Added Events.available(id, cycle) and random_id(skip, cycle): an event with min_cycle above cycle is skipped; missing key = no gate; cycle 0 = no check. main.gd passes cycle (also used by debug force). debug_fire_event by id is not gated. Save/load unchanged (gate is data only). Tests: 305 pass, 0 fail (5 new). No min_cycle set in data. EV19 is not in events.json.",
+  "details": {"pass": 305, "fail": 0}
+}

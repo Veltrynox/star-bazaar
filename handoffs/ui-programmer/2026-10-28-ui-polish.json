@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-10-28",
+  "task": "ui-polish",
+  "status": "partial",
+  "files_changed": ["tools/build_theme.py", "design/theme/star_bazaar.tres", "game/ui.gd", "game/main.gd", "game/cash_forecast.gd", "game/planet_panel.gd", "game/galaxy_view.gd", "handoffs/ui-programmer/2026-10-28-ui-polish.json"],
+  "usage_note": "Single session.",
+  "open_questions": [
+    "Story ids missing, plain fallbacks used: LBL_PAUSED, LBL_RUNNING, LBL_GAME_OVER, LBL_MAIN_RESOURCES. Top bar Pause/Resume and the planet panel Buy a ship text are still literals.",
+    "Artist files not present in art/textures/ui/: header_strip, planet_thumb_<planet id>. Which names will the artist use? Research and crew screens do not exist, so the rail has 3 icons (skills, galaxy, menu).",
+    "Faint top light on glass panels needs a gradient texture (StyleBoxFlat cannot do it); skipped. LBL_GOAL repeats cash next to the new cash counter."
+  ],
+  "handoff": "Fonts: Jost Regular/Medium and JetBrains Mono Regular (design/fonts/*/static) via FontFile in the theme; OFL files kept. Top bar, rail, system panel, primary button, glass theme, galaxy labels done. Tests pass=226 fail=0, headless load clean. Not checked by eye: every screen. No git.",
+  "details": {
+    "how_to_see": "Run the game: top bar, left rail, click a planet (thumbs, Main resources, big amber Buy a ship), G with two systems for the galaxy counts.",
+    "not_checked_by_eye": ["all screens"],
+    "git": "not run"
+  }
+}

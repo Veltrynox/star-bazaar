@@ -1,0 +1,19 @@
+{
+  "agent": "gameplay-programmer",
+  "date": "2026-10-27",
+  "task": "T77",
+  "status": "done",
+  "files_changed": ["game/main.gd", "game/story_text.gd", "game/ending_picker.gd", "game/end_screen.gd", "handoffs/gameplay-programmer/2026-10-27-T77.json"],
+  "schema_version": 1,
+  "usage_note": "build_story.py regenerated data/story_text.json and data/events.json (skipped: 0); it is the only writer. No balance.json or sim.py edits.",
+  "playable": "At cash >= win_cash at cycle end the game stops and shows the choice screen (Release / Stay as a corporation, with effect lines, no close). The pick shows the ending (name, text, stat line, epilogue if any) with New game / Main menu / Quit. Window end without goal shows END_LOSS + END_LOSS_STAT. Unanswered choice returns after reload (choice_pending saved); answered ending clears the save.",
+  "try_it": "Debug menu: set cash to 9000+, press Next cycle. Pick a side. Headless check clean.",
+  "recording_hook": "Signal main.run_ended(side, ending_id); side is RELEASE, CORP or LOSS. Fired once in main._finish().",
+  "notes": "game/ending_picker.gd holds both selection tables (branch sizes counted from SK_*_NAME ids). Skills do not exist yet: main.learned_skills is empty and systems_reached is 1, so only Bare and the Partial-by-default endings occur now. Full works once SYSTEMS_IN_GAME in main.gd is raised above 1 and systems_reached is updated. Ending names come from the 'Ending: ...' place field via StoryText.ending_name(). Dead-state rescue untouched. T75 listed as queued in schedule but the Corp table is already in story/endings.md and was used.",
+  "open_questions": [
+    "Owner: does play continue after 'Stay as a corporation'? Implemented as the Release flow: ending screen, then menu/new/quit.",
+    "Who sets learned_skills and systems_reached (T71 skill screen, system 2)? Both are plain vars in main.gd, saved.",
+    "Should the loss also be recorded by T78 (run_ended fires with side LOSS)?"
+  ],
+  "handoff": "T77 done. Choice screen, ending screens and loss screen are wired through game/end_screen.gd and game/ending_picker.gd. T78 hooks main.run_ended(side, ending_id). Full tier is untestable until skills and system 2 exist; picker verified headless with sample inputs for Release and Corp."
+}

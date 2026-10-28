@@ -1,0 +1,14 @@
+{
+  "agent": "gameplay-programmer",
+  "date": "2026-10-27",
+  "task": "T77b",
+  "status": "done",
+  "files_changed": ["game/end_screen.gd", "game/main.gd", "handoffs/gameplay-programmer/2026-10-27-T77b.json"],
+  "schema_version": 1,
+  "usage_note": "build_story.py: 156 entries, skipped 0. No balance.json, planets.json or sim.py edits.",
+  "playable": "Win screens now show: title (END_TITLE_REL/CORP), ending text, epilogue (Full only), sign-off, four stat rows (cycles, credits, branches, systems), END_RUN_OVER, then New game / Main menu / Quit. END_STAT_LINE is no longer shown. Loss screen: END_LOSS, END_LOSS_STAT, END_RUN_OVER, buttons. The ending name no longer appears on screen.",
+  "try_it": "Debug menu: cash 9000, Next cycle, pick a side.",
+  "notes": "show_ending(ending_id, side, stats, stat). branches = letters A/B/C with at least one learned skill (EndingPicker.counts); systems = systems_reached. Choice screen reads CHOICE_*_EFFECT from story_text.json, so it uses the updated lines. Verified headless: Corp win and loss screens print the expected labels; project loads clean.",
+  "open_questions": [],
+  "handoff": "T77b done. End screens follow story/endings.md layout; stats supplied from main.gd (cycle, cash, learned_skills, systems_reached)."
+}

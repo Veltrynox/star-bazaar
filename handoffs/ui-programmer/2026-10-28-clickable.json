@@ -1,0 +1,11 @@
+{
+  "agent": "ui-programmer",
+  "date": "2026-10-28",
+  "task": "clickable",
+  "status": "done",
+  "files_changed": ["game/ui.gd", "game/main.gd", "game/main_menu.gd", "game/planet_panel.gd", "game/galaxy_view.gd", "game/skill_screen.gd", "game/game_menu.gd", "game/event_notice.gd", "handoffs/ui-programmer/2026-10-28-clickable.json"],
+  "schema_version": 1,
+  "usage_note": "No git (sandbox). /Applications/Godot.app, scratch HOME: pass=269 fail=0; main.tscn headless clean.",
+  "open_questions": ["Story ids missing, plain fallback used: MENU_HINT_LOCKED (reserved menu slots), EVT_HINT_CHOICE_OFF (disabled event choice).", "Planet panel 'Not traded here.' and ship/buy reasons are still hard-coded by the gameplay side; ids wanted.", "Not checked by eye: board at 1152x648 and 1280x800, hover outlines, cursors."],
+  "handoff": "Board: right column scroll widened by the scrollbar width (content was clipped at the right edge) and starts below the real top bar height. Clickable cue: Ui.install_cursors gives every enabled button a pointing hand, disabled keep arrow (theme supplies hover and dim looks); planet thumbnails and galaxy system nodes draw a warm outline on hover. Tooltips for disabled skill, permit, menu-slot and event-choice buttons. Applies to main and title screens. Not seen by eye."
+}

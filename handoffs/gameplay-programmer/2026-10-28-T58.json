@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-10-28",
+  "task": "T58",
+  "status": "done",
+  "files_changed": ["data/ships.json", "game/ships.gd", "game/route_engine.gd", "game/main.gd", "game/ship_panel.gd", "tools/tests/run_tests.gd"],
+  "usage_note": "Medium; one pass, tests green first run.",
+  "open_questions": [
+    "Owner: confirm names Skerrit (small) and Voruun Hauler (large). Story ids LBL_SHIP_SMALL and LBL_SHIP_LARGE are missing; plain names are used until the story lane adds them.",
+    "Owner: speed is abstract and display-only (small 1.0, large 0.75); travel stays travel_cycles_per_leg. Wire it later or drop it?",
+    "Large ship numbers reuse the T81 balance keys (hauler_price 2000, hauler_cargo_mult 2, hauler_upkeep_mult 1.5). Keep?"
+  ],
+  "handoff": "Two ship types in data/ships.json (small, large). Numbers are template values read from balance.json keys: small = ship_price 1000, cargo x1, upkeep x1; large = hauler_price 2000, hauler_cargo_mult 2, hauler_upkeep_mult 1.5, speed 0.75 (abstract, display only). No balance value changed. Ship panel has a Buy button per type (price and upkeep shown) and lists each ship by name. Route records carry ship type; units per cycle and upkeep follow it. Auto-assignment: when both types are free, the large ship takes a lane that can move more than a small ship carries, else the small one; if only one type is free it is used. Saves hold large_ships; old saves load as all small. Planet panel button still buys small. Tests: pass=193 fail=0 (new T58 block). Fallback ids: LBL_SHIP_SMALL, LBL_SHIP_LARGE (names via get_or). Try: open game, buy ships from the right panel, make two routes."
+}

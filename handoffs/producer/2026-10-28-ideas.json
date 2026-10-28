@@ -1,0 +1,34 @@
+{
+  "agent": "producer",
+  "date": "2026-10-28",
+  "task": "Record owner answers to the seven ideas (T95) and set the serial order for T96 to T118",
+  "status": "done",
+  "files_changed": [
+    "schedule.json",
+    "state.md",
+    "handoffs/producer/2026-10-28-ideas.json"
+  ],
+  "schema_version": 1,
+  "started": [],
+  "stopped": [],
+  "blocked": [
+    {"task_id": "T96", "reason": "Q1 debris fee size and non-payment effect unanswered; whole idea chain waits behind it"},
+    {"task_id": "T97", "reason": "same Q1 answer; also chained after T96"},
+    {"task_id": "T99", "reason": "shield build costs and resource mix unanswered"},
+    {"task_id": "T102", "reason": "pirates (Q3) open; must be answered before T102 or T104 starts"},
+    {"task_id": "T104", "reason": "pirates open; brief needs asteroid fields (T113), which come later in the serial order"},
+    {"task_id": "T107", "reason": "money cannot buy a skill point (owner answer 1); alternative reward open"},
+    {"task_id": "T109", "reason": "same reward question; skill 3 identity open"},
+    {"task_id": "T111", "reason": "field-clearing skill and money-clearing rule open (Q6)"},
+    {"task_id": "T113", "reason": "clearing skill not named (Q6)"},
+    {"task_id": "T115", "reason": "planet types unanswered (Q7)"}
+  ],
+  "first_startable": {"task_id": "T93", "owner_agent": "gameplay-programmer", "note": "Gameplay lane, first in order. T92 (story) and T90 (economy) and T53 (QA) can also start now in their own lanes."},
+  "usage_note": "Owner has not reported a meter figure this session (UNKNOWN). No agent started or stopped in this session.",
+  "open_questions": [
+    "Does 'money never buys skill points' cover all money spending (debris fee, shield build, state payment, field clearing), or only skill points? T59 says money only reaches the final goal.",
+    "What is the reward for idea 5's paid option, since it cannot be a skill point? Proposal: research point from the survey outcome, or a cash or stock return.",
+    "Pirates (Q3): what do pirates do to us? Needed before T102 or T104 starts."
+  ],
+  "handoff": "Owner answers to the seven ideas are recorded in T95 (done). Ideas run serially: 1 debris (T96-T98), 2 shield (T99-T101), 3 nomads and pirates (T102-T104), 4 galaxy zoom (T106, T118, T105), 5 asteroid approach (T107-T110), 6 asteroid fields (T111-T113), 7 ship dots and textures (T114-T115). T110, T115 and new T118 (map icons) moved to the artist agent. Reputation removed from idea 5; solar shield touches only buyable planets. The chain stops at T96 until the debris answers arrive, so nothing downstream starts. T114 is blocked by T87 (four steps: T93, T79, T70, T87) and also waits in the chain. T105 is blocked by T85 (seven steps: T93, T79, T70, T87, T12, T83, T85) and by the chain. Nothing was started or stopped."
+}

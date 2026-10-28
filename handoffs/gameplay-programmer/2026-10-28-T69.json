@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-10-28",
+  "task": "T69",
+  "status": "done",
+  "files_changed": [],
+  "usage_note": "Small: verified existing implementation and ran the tests.",
+  "open_questions": [
+    "Story-designer: ids still missing, plain fallbacks in code: LBL_GROSS, LBL_NET, LBL_TRIP_COST, ST_WAITING_ROOM."
+  ],
+  "handoff": "Ship upkeep is shown: planet panel connection lists Trip cost, Ship upkeep and Net; ship panel lists upkeep per ship and total; cash forecast has an Expenses section with trip cost and upkeep so After cycle = income minus expenses; a Last cycle line shows Gross, Ship upkeep, Net. Implemented in the earlier combined session (see 2026-10-27-T95-T69-T70.json); re-verified now, no code change. Headless tests: pass=141 fail=0 (JSON parse error in the log is the expected corrupt-file test). Try: sh tools/tests/run.sh.",
+  "details": {"pass": 141, "fail": 0}
+}

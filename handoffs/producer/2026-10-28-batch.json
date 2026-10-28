@@ -1,0 +1,35 @@
+{
+  "agent": "producer",
+  "date": "2026-10-28",
+  "task": "Record owner answers T95 to T108; add T118 and T119; set batch status",
+  "status": "done",
+  "started": [],
+  "stopped": [],
+  "blocked": ["T104 (nomad field link open); T105 (blocked by T85 per owner; tutorial deps T15, T119 added)", "T111", "T113", "T115"],
+  "marked_running_batch": ["T96", "T97", "T99", "T100", "T102", "T103", "T107", "T108"],
+  "changes": [
+    "T95 owner_note records batch answers Q1 to Q5.",
+    "T96, T97, T99, T100, T102, T103, T107, T108 set to running; texts and numbers updated to answers.",
+    "Build chain made serial: T98 to T101 to T104 to T105 to T109 to T113 to T114. Numbers and texts no longer depend on build tasks (T99, T102, T107 depend on T95 only).",
+    "T109 unblocked (reward and skill 3 answered); queued behind T105.",
+    "T118 (map icons, artist) created: referenced by T105 and T116 but missing from the queue.",
+    "T119 (tutorial text, galaxy view introduction, story-designer) created; T105 depends on T15 and T119."
+  ],
+  "in_batch_order": "T96 before T97; T99 before T100; T102 before T103; T107 before T108.",
+  "next_task": "T98 (idea 1 build), after T96 and T97 return; still needs T12 from the gameplay queue.",
+  "envelope": {
+    "agent": "producer",
+    "date": "2026-10-28",
+    "task": "Owner answers T95 to T108 recorded; batch set",
+    "status": "done",
+    "files_changed": ["schedule.json", "state.md", "handoffs/producer/2026-10-28-batch.json"],
+    "schema_version": 1,
+    "usage_note": "Owner has not reported a meter figure today. UNKNOWN.",
+    "open_questions": [
+      "Does money never buying skill points cover all money spending?",
+      "Nomads: mine a field without a clearing skill, or move T113 before T104?",
+      "Which skill clears asteroid fields, or is it paid only; planet types for T115?"
+    ],
+    "handoff": "Batch of eight tasks marked running (T96, T97, T99, T100, T102, T103, T107, T108). Build chain serial. T118 and T119 created. T105 blocked by T85 with T15 and T119 added. T104 and T113 stay blocked on the nomad and field question."
+  }
+}

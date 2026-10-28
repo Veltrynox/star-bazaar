@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-10-27",
+  "task": "T71",
+  "status": "done",
+  "files_changed": ["game/skill_tree.gd", "game/skill_screen.gd", "game/game_menu.gd", "game/main.gd", "tools/tests/run_tests.gd"],
+  "usage_note": "About 25 turns. sh tools/tests/run.sh: 120 pass, 0 fail.",
+  "open_questions": [
+    "A1 Space Storage: built as a normal skill that costs skill_cost_A1 (gdd-skills.md section 4). Only a save with no learned_skills key starts with A1 learned (section 8). OK?",
+    "Missing text ids for story-designer: a top-bar 'Menu' button label (the existing button still says MENU_MAIN and goes straight to the main menu; Esc opens the new game menu), and the NOT_SKILL_POINT notice is still not posted when points are earned (not in this brief).",
+    "B3 Price Whisper is display-only (no effect). Owner topic later."
+  ],
+  "handoff": "Loss test fixed (choices.LOSS, endings.END_LOSS). Skills: top bar shows 'Skill points: N' and a Skills button (* when something is affordable), K toggles the skill screen, which does not pause. Three columns, detail panel, Learn then Yes/No confirm, spends skill_cost_<id>, posts NOT_SKILL_LEARNED, saves. Prerequisites: previous node in branch, C3 also A1. Esc: closes skills, else opens game menu (Resume, Skills, Main menu, Quit with confirms; pauses while open and restores). Learned skills feed the engine (A4, B2, A5) and the ending picker; end screen branch count verified. Try: run, press K, learn Space Storage with the start point.",
+  "details": {}
+}

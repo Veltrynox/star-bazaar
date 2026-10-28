@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-10-28",
+  "task": "T96 T100 T103 T108 event texts (ideas 1, 2, 3, 5)",
+  "status": "done",
+  "files_changed": ["story/events.md", "story/ideas.md", "handoffs/story-designer/2026-10-28-ideas.json"],
+  "usage_note": "One session, texts only. No git (sandbox). All lengths checked with awk.",
+  "open_questions": [
+    "Idea 2: no completion-ending wording exists in story/endings.md, so none was written. Idea 4 in story/ideas.md proposes it. Owner to approve?",
+    "Idea 5: the brief's reward notice is not written; the owner's alternative reward is still open. Pay outcome says no skill point, no reputation.",
+    "Debris and pirates: the effect lines say 'routes from {planet} carry less' and 'trade volume falls'. Economy Designer to confirm wording matches the real effect."
+  ],
+  "handoff": "Ready to wire from story/events.md, section 'Events, choice events': EV17 (debris), EV18 (solar shield), EV19 (nomads and pirates, incl. pirate notice and hire button/effect), EV20 (asteroid, incl. EV20_HIT_DESTROYED, EV20_HIT_CAPACITY, EV20_MISS). Each id has title/body/button/effect or popup form. Uses {planet} only. Storage is called company storage, not warehouse (glossary). Not written: shield completion-ending lines, asteroid reward notice, resident unhappiness notices beyond EV18_BUILT.",
+  "details": {}
+}

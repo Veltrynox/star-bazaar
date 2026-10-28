@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-10-28",
+  "task": "T120-fix EV20 asteroid pay texts",
+  "status": "done",
+  "files_changed": ["story/events.md"],
+  "usage_note": "Small edit, two blocks.",
+  "open_questions": ["Owner said 'research point'; voice.md glossary says 'expansion point'. EV20_PAY_EFF and EV20_PAID use 'expansion point'. EV20_REWARD (unchanged) still says 'research point'. Confirm the term and align."],
+  "handoff": "Rewritten for wiring: EV20_PAY_EFF (effect line, max 90) and EV20_PAID (popup, max 280) now say the asteroid is dealt with and the company gains one point, with the payment as cost. EV20_REWARD is unchanged and still reads 'research point', which conflicts with the glossary term 'expansion point'. Once the owner confirms the term, change EV20_REWARD to match, or tell me to. No shield or hidden flag is mentioned.",
+  "details": {}
+}

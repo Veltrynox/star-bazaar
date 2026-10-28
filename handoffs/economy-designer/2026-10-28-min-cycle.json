@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "agent": "economy-designer",
+  "date": "2026-10-28",
+  "task": "min-cycle",
+  "status": "partial",
+  "files_changed": ["data/events.json"],
+  "usage_note": "small",
+  "open_questions": ["EV19 (nomads and pirates) does not exist in data/events.json; no key added. Add the event, then min_cycle 15."],
+  "handoff": "Added min_cycle 15 (win_cycle 30 / 2 = mid run; event_interval 4 gives about 3 offers after) to EV17, EV18, EV20. EV19 missing. Sim output identical before and after (decent wins cycle 26, sloppy/always-expand/never-expand lose).",
+  "details": {
+    "changes": [
+      {"event": "EV17", "key": "min_cycle", "new": 15, "reason": "owner request 2026-10-28: late events to mid game"},
+      {"event": "EV18", "key": "min_cycle", "new": 15, "reason": "owner request 2026-10-28: late events to mid game"},
+      {"event": "EV20", "key": "min_cycle", "new": 15, "reason": "owner request 2026-10-28: late events to mid game"}
+    ],
+    "sim": "before == after (identical); decent no skills 9513 win c26; sloppy 377 loss; always expand 1359 loss; never expand 3761 loss"
+  }
+}

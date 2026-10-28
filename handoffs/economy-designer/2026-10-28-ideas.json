@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "agent": "economy-designer",
+  "date": "2026-10-28",
+  "task": "T97, T99, T102, T107 (ideas)",
+  "status": "done",
+  "files_changed": ["data/balance.json", "handoffs/economy-designer/2026-10-28-ideas.json"],
+  "usage_note": "One balance edit, data_version 8 to 9. Sim run before and after.",
+  "open_questions": [
+    "Pirate eviction count (2) is a template: per evicted nomad group or per nomad? Owner or story to confirm the unit.",
+    "Shield resource shifts need a unit confirmed by the programmer: fractions of a planet's resource mix, applied only to planets bought later.",
+    "Asteroid bad outcome: only storage cut is set (50%); warehouse destruction not used. Owner to pick, and to choose the paid option's alternative reward (no skill point, no reputation)."
+  ],
+  "handoff": "Added 14 new keys to balance.json (owner-approved by task). All old keys unchanged. tools/sim.py does not read the new keys, so before and after results are identical. No git commands run (sandbox blocks git). Programmer should read the keys listed in details. Money never buys skill points: none of these effects grant any.",
+  "details": {
+    "changes_all_new_keys_old_value_none": {
+      "T97 debris": {
+        "debris_route_penalty": {"new": 0.25, "source": "template", "reason": "owner: debris cuts route efficiency from that planet; 25% matches one upgrade step. Stays until cleared (no timer, no decay)."},
+        "debris_clear_fee": {"new": 400, "source": "template", "reason": "one-off cash; about 2.5 cycles of one ship's net (157), less than a ship (1000), so paying is clearly better than living with it."}
+      },
+      "T99 shield": {
+        "shield_build_cost": {"new": 2500, "source": "template", "reason": "late-game spend, above permit 3 (1500); about 5 cycles of mid-game income."},
+        "shield_energy_share_shift": {"new": 0.2, "source": "template", "reason": "energy share of newly purchasable planets in the shielded system goes up 20 points."},
+        "shield_food_share_shift": {"new": -0.2, "source": "template", "reason": "food share goes down 20 points, mirror of energy so the mix still sums to the same total."},
+        "shield_energy_gain": {"new": 0.15, "source": "template", "reason": "player energy output +15%."},
+        "shield_profit_gain": {"new": 0.1, "source": "template", "reason": "player margin +10% (below skill B3 0.12 so it is not dominant)."},
+        "shield_unhappiness": {"new": 0.15, "source": "template", "reason": "resident unhappiness +0.15 on a 0 to 1 scale; real scale UNKNOWN until T95."}
+      },
+      "T102 pirates": {
+        "pirate_volume_penalty": {"new": 0.3, "source": "template", "reason": "trade volume -30% while pirates present."},
+        "pirate_hire_cost": {"new": 600, "source": "template", "reason": "one-off hire clears pirates. At 4 ships (~600 per cycle) 30% loss is ~180 per cycle, so hiring pays back in ~3.3 cycles: possible but costly. Equals 1 permit-2 step more than half."},
+        "pirate_nomads_per_eviction": {"new": 2, "source": "template", "reason": "nomads who become pirates per eviction; 2 is enough to start pirates but small."}
+      },
+      "T107 asteroid": {
+        "asteroid_deflect_cost": {"new": 800, "source": "template", "reason": "state fee; grants no skill point and no reputation. Below a ship, above debris fee."},
+        "asteroid_decline_bad_odds": {"new": 0.5, "source": "owner", "reason": "50/50 roll between bad outcome and nothing."},
+        "asteroid_storage_loss_pct": {"new": 0.5, "source": "template", "reason": "warehouse capacity cut 50% (of 500 space storage, 250) on the bad outcome; expected loss 25%."}
+      }
+    },
+    "sim_before_after": {
+      "note": "tools/sim.py ignores new keys; identical before and after.",
+      "decent no skills": "9513, win cycle 26",
+      "decent full tree (ref)": "9379, win cycle 23",
+      "sloppy overload": "377, loss",
+      "always expand": "1359, loss",
+      "never expand": "3761, loss"
+    }
+  }
+}

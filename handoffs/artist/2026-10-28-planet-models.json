@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "agent": "artist",
+  "date": "2026-10-28",
+  "task": "planet-models",
+  "status": "partial",
+  "files_changed": ["art/style.md", "art/planets/make_planets.py", "art/planets/planet.gdshader", "art/planets/planet.tscn", "art/planets/render.gd", "art/planets/planet_volcanic.tres", "art/planets/planet_temperate.tres", "art/planets/planet_barren.tres", "art/planets/height_volcanic.png", "art/planets/height_temperate.png", "art/planets/height_barren.png", "art/planets/renders/planet_volcanic.png", "art/planets/renders/planet_temperate.png", "art/planets/renders/planet_barren.png"],
+  "usage_note": "Shader route chosen (option 1+2). Owner idea confirmed in spirit: vector-like shapes are baked into a height map and wrapped on a sphere (equirect), not true mesh extrusion. Renders are software previews, not GPU renders.",
+  "open_questions": [
+    "Run art/planets/render.gd on a real window (Godot --path . --script res://art/planets/render.gd) to get true renders and frame_time_ms; the sandbox could not open a window.",
+    "Outer soft halo beyond the silhouette needs a second quad or mesh (extra draw call). Wanted?",
+    "Plates read as large blobs; raise plate count or lower disp for a smaller look?"
+  ],
+  "handoff": "Prototype only, not wired. Shader art/planets/planet.gdshader plus per-type materials planet_<type>.tres (volcanic, temperate, barren) on art/planets/planet.tscn (sphere 128x64, 16,640 tris, 1 draw call). Height maps 256x128, 17-34 KB each. Renders: art/planets/renders/planet_<type>.png at 512 px (software preview of the shader). Frame time not measured. Resources load in headless Godot 4.7; shader compile not checked on GPU. To wire later: instance planet.tscn and swap the material by planet type key."
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-10-28",
+  "task": "T120-term",
+  "status": "done",
+  "files_changed": ["story/events.md"],
+  "usage_note": "Single-line edit, no other reads.",
+  "open_questions": ["Owner: please confirm the term 'expansion point' for EV20_REWARD (now matches EV20_PAY_EFF, EV20_PAID and story/voice.md)."],
+  "handoff": "EV20_REWARD changed from 'research point' to 'expansion point'. Text is within the 110 character limit. If the game already shows the old string (for example in data/story_text.json), the programmer should re-sync it from story/events.md. Owner should confirm the term.",
+  "details": {}
+}

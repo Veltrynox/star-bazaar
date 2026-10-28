@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-10-28",
+  "task": "T101",
+  "status": "done",
+  "files_changed": ["game/shield.gd (new)", "game/main.gd", "game/events.gd", "game/trade.gd", "game/route_engine.gd", "game/planet_panel.gd", "game/debug_menu.gd", "tools/build_story.py", "data/events.json (generated)", "tools/tests/run_tests.gd", "handoffs/gameplay-programmer/2026-10-28-T101.json"],
+  "usage_note": "Headless tests pass=300 fail=0 (269 before, plus 15 shield and 16 asteroid tests). Choice screen exercised by test, not viewed by eye.",
+  "open_questions": [
+    "OWNER: the build action is the EV18 choice event (random pool, offered once, not after a decision), not a separate button in the system view. Add a button too?",
+    "ECONOMY: I read the shield keys as price factors on planets bought later: energy price x(1 - shield_energy_share_shift), food x(1 - shield_food_share_shift), sell prices x(1 + shield_profit_gain), energy units routes move x(1 + shield_energy_gain). OK?",
+    "STORY: ids missing, plain fallback in use: PLANET_UNHAPPY (planet panel line 'Resident unhappiness: 15%'). No planet has a habitable flag in the data; Shield.habitable() reads key 'habitable' (default true) when a system opens."
+  ],
+  "handoff": "EV18 is a choice event built from story ids (build_story.py adds it to events.json). Build costs shield_build_cost, shown on the button, disabled without cash. Planets in the game at build time stay unchanged (exempt ids saved); planets of systems opened by a permit later get the mix, profit and energy changes and show unhappiness (shield_unhappiness) in the planet panel. Skip changes nothing. State saved and loaded (old saves: no shield). Ending picker and endings untouched; the shield is not mentioned in any ending. Try: debug menu, Fire event EV18, build, then grant permit 2 and click a system 2 planet.",
+  "details": {"pass": 300, "fail": 0, "fallback_ids": ["PLANET_UNHAPPY"]}
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-10-28",
+  "task": "T79",
+  "status": "done",
+  "files_changed": [],
+  "usage_note": "Small; tests already existed in tools/tests/run_tests.gd, ran and verified.",
+  "open_questions": [],
+  "handoff": "Headless suite tools/tests/run_tests.gd (runner tools/tests/run.sh) covers story text ids/lengths, ending picker (each Release and corporate ending, first match, default), stats recording (one win one count, reload no double count, corrupt file moved aside and recreated, loss records LOSS), choice screen, tier count, expansion points. Result: pass=141 fail=0. build_story.py runs clean (193 entries, 16 events). The JSON parse error in the log is the expected corrupt-file test. Note run.sh uses tools/godot/...; I ran /Applications/Godot.app instead with scratch HOME. Try: sh tools/tests/run.sh.",
+  "details": {"pass": 141, "fail": 0}
+}

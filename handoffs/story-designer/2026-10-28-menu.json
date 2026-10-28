@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-10-28",
+  "task": "menu",
+  "status": "done",
+  "files_changed": ["story/screens.md", "handoffs/story-designer/2026-10-28-menu.json"],
+  "usage_note": "Small task, one pass.",
+  "open_questions": ["NOT_LOADED is a new notice id I added alongside the three entries; keep or drop?"],
+  "handoff": "Ready to wire from story/screens.md, section Menu entries: MENU_STATISTICS, MENU_STATISTICS_DESC, MENU_HELP, MENU_HELP_DESC, MENU_SAVE_LOAD, MENU_SAVE_LOAD_DESC, NOT_LOADED. No numbers, no flavour. Labels sit before MENU_MAIN in the list.",
+  "details": {}
+}

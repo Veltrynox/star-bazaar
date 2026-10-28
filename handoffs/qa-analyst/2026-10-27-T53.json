@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "agent": "qa-analyst",
+  "date": "2026-10-27",
+  "task": "QA bot rewrite: strategies act through routes",
+  "status": "done",
+  "files_changed": [
+    "qa/bots/bot_run.gd",
+    "qa/bots/run_batch.sh",
+    "qa/reports/2026-10-27-bug_report.json",
+    "qa/reports/2026-10-27-runs.jsonl",
+    "handoffs/qa-analyst/2026-10-27-T53.json"
+  ],
+  "usage_note": "UNKNOWN: about 30 tool turns, meter not reported.",
+  "open_questions": [
+    "UNKNOWN: is the start trap a balance problem (starting_credits 1500 vs ship_price 1000 and order_amount 40) or a rule problem (Buy settles before the route's fixed cost)? economy-designer to decide.",
+    "UNKNOWN: release export not verified. The installed Godot 4.7.2 templates lack godot_macos_release.universal, so the release check is static only (debug menu created only under OS.is_debug_build()).",
+    "UNKNOWN: every headless run prints 'Condition ret != noErr' (macOS engine). Not from game or bot; not counted as a bug."
+  ],
+  "handoff": "T53 done. bot_run.gd now acts through map clicks, Buy/Sell, Send to..., Remove, ship button, main.learn_skill and end_screen.chosen; checks run_stats and autosave. Run: sh qa/bots/run_batch.sh <out> (env STRATEGIES, SEEDS, EXTRA e.g. --clock=timer, --force-goal=20, --inject=1:1000, --choice=CORP). Scratch HOME per run. Default runs: all 4 strategies lose at cycle 30 (start trap, high). Forced-goal runs win at the forced cycle; choice, ending and stats correct. Inject +1000: decent 8701 (no win), never 6210, sloppy 5370, always_expand bankrupt. No dominant strategy (no non-decent win). Permits: none in build (null). Hooks ready: T87 (second ship via Send to...) and T12 (_resolve_events). Next: economy-designer on the start trap, then re-run.",
+  "details": {
+    "results": [
+      {
+        "strategy": "decent",
+        "final_cash": 100,
+        "cycle_reached": 30,
+        "outcome": "loss"
+      },
+      {
+        "strategy": "sloppy",
+        "final_cash": 0,
+        "cycle_reached": 30,
+        "outcome": "loss"
+      },
+      {
+        "strategy": "always_expand",
+        "final_cash": 100,
+        "cycle_reached": 30,
+        "outcome": "loss"
+      },
+      {
+        "strategy": "never_expand",
+        "final_cash": 100,
+        "cycle_reached": 30,
+        "outcome": "loss"
+      }
+    ]
+  }
+}

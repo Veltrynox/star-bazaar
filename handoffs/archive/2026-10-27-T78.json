@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-10-27",
+  "task": "T78",
+  "status": "done",
+  "files_changed": ["game/run_stats.gd", "game/main.gd", "game/debug_menu.gd"],
+  "usage_note": "Within cap. No story text or data files touched (tools/build_story.py remains the only writer of generated story data).",
+  "open_questions": [
+    "LOSS is recorded as side LOSS / END_LOSS (per launch prompt; the brief said not to). Keep it, or drop it?",
+    "Tier is stored as empty string: no tier is known at _finish. Is a tier wanted in the record?",
+    "Stats show no 'wins' key: 'runs' counts all recorded runs and choices.LOSS separates losses. OK?"
+  ],
+  "handoff": "Each run is recorded once in user://stats.json from main._finish (the run_recorded flag guards it; _finish clears the save, so a reload cannot recount). Format: schema_version, runs, choices {RELEASE, CORP, LOSS}, endings {id: count}, last {side, ending, tier, cycle, cash}. Atomic write via stats.json.tmp then rename; unreadable file moves to stats.bad.json. Debug menu (debug builds only) has a 'Force goal at cycle end' toggle and shows the stats file path. Headless: forced win, RELEASE then a second run CORP gave counts 1/1 and accumulated across instances; corrupt file moved to bad. Project loads with no script errors.",
+  "details": {"try": "Run, open debug menu, toggle Force goal, press Advance to next cycle, pick a side; open the path shown in the menu."}
+}

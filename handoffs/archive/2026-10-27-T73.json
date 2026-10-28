@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-10-27",
+  "task": "Story: first full draft (voice, screens, events, skills, 5+ endings)",
+  "status": "done",
+  "files_changed": [
+    "story/voice.md",
+    "story/screens.md",
+    "story/events.md",
+    "story/skills.md",
+    "story/endings.md",
+    "story/ideas.md"
+  ],
+  "usage_note": "~5%",
+  "open_questions": [
+    "Owner: confirm route click flow (Buy at source planet, Sell at destination) as assumed in screens.md tutorial lines.",
+    "Owner: END_OWN_HORIZON mentions permits and beacons while systems 2 and 3 are on hold; keep or soften?",
+    "UNKNOWN: whether skill points can be earned more than one at a time (NOT_SKILL_POINT has a fallback form)."
+  ],
+  "handoff": "Draft only; owner edits first. Ready to wire after owner review: screens.md (title, preface, menus, tutorial, notices), events.md (16 events with tags), skills.md (A1-C4), endings.md (6 win endings with a first-match table, loss, stat lines). Placeholders in braces are filled by the game. Ending table needs only learned ids, branch counts, cycle reached and cash. Not for wiring yet: ideas.md. Terms added to the glossary: Cash goal, Rescue notice.",
+  "details": {}
+}

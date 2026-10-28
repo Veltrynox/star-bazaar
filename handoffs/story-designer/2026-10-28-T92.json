@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-10-28",
+  "task": "T92",
+  "status": "done",
+  "files_changed": [
+    "handoffs/story-designer/2026-10-28-T92.json"
+  ],
+  "usage_note": "Short session: two reads, two checks.",
+  "open_questions": [
+    "story/voice.md already lists Hollin Reach, Dunmere Reach, Brannock, Cindrel, Mossfell and Quillon (marked owner approved, T92), so I made no edit. Confirm this is enough."
+  ],
+  "handoff": "Glossary entries for system 1 (Hollin Reach) and system 2 (Dunmere Reach with Brannock, Cindrel, Mossfell, Quillon and their roles) were already present in story/voice.md, so voice.md is unchanged. tools/build_story.py does not reference voice.md, so no build was run. The planet roles in the glossary come from the earlier entry and screens.md, not from the T86 handoff, which only names the planets. No texts are new for the programmer to wire.",
+  "details": {}
+}

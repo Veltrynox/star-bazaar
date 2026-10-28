@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-10-27",
+  "task": "T82",
+  "status": "done",
+  "files_changed": ["game/route_engine.gd", "game/main.gd", "handoffs/gameplay-programmer/2026-10-27-T82.json"],
+  "usage_note": "About 12 tool calls. Headless load clean; scripted check of awards and skill math passed.",
+  "open_questions": [
+    "OWNER: B3 (skill_B3_margin 0.12) is not applied: GDD says B3 only shows the next price move and no price moves exist in code. Keep it display-only?",
+    "OWNER: A3 Hauler keys (hauler_*) are not read yet: no hauler ship type exists. Separate task?",
+    "OWNER: skill points have no UI yet (main.skill_points, saved). Top bar label belongs to the skill-tree screen task?"
+  ],
+  "handoff": "order_amount (40) now drives local Buy/Sell (one order record per planet+commodity+role = one shared pool, routes share it). Skill keys read from balance when the id is in learned_skills: A4 route units, B2 order units, A5 upkeep (on the maintenance part). Points: skill_points awarded once per planet (home = mission planet Voltara at new game), once per unordered planet pair on first route, plus reach_system() for skill_points_system (not called, no system 2). Verified: start 1, second planet 2, first route pair 4, second route on the same pair adds nothing. State saved (skill_points, pts_planets, pts_pairs; old saves recompute). pace_cycle_* and event_effect are not read anywhere in game/. ship_cap 24 is only the buy backstop. System 2 prices already include the permit +50%: do not apply permit_margin_bonus again. Route rule: find_same rejects the same src, dst and commodity, so a second route on an identical pair+commodity is NOT allowed; the opposite direction or another commodity on the same pair is allowed (new ship each). This matches 'one route = one ship', but 'Send to...' cannot add a second ship to one lane; the economy natural limit of 5 ships relies on routes sharing pools, and with 4 profitable lanes only 4 route ships fit unless sim assumed multiple ships per lane. Conflict to resolve with Economy."
+}

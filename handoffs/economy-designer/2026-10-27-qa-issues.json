@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "agent": "economy-designer",
+  "date": "2026-10-27",
+  "task": "qa-issues",
+  "status": "done",
+  "files_changed": ["data/balance.json", "tools/sim.py", "handoffs/economy-designer/2026-10-27-qa-issues.json"],
+  "usage_note": "UNKNOWN: about 12 tool turns, meter not reported.",
+  "open_questions": [
+    "Upgrades (upgrade_cost) and Hauler are not in the build; sim wins rely on them for lines beyond no-skills. Which task delivers them, and does T88 re-run the QA bot after T87?",
+    "Optional rule: should a local Buy order keep cash >= fixed cost of running routes (reserve)? Not needed for the tutorial path with the new number; the rescue rule is the safety net.",
+    "UNKNOWN: which commodity/planet the tutorial Buy uses. Worst case food at 12 cr x 40 = 480 + 115 = 595 fits within the 600 left."
+  ],
+  "handoff": "Start trap is a numbers fix: starting_credits 1500 -> 1600 (600 left after the ship covers the worst full Buy 480 + route cost 115). Sim (events, 300 seeds): decent no skills 74% win, median cycle 27; full tree 100% at 24; sloppy, always-expand, never-expand 0%. Sim matches the QA bot: replaying the bot's ship timing (cycles 1, 6, 10; lanes VAe, VTe, AVf) in the lane-limited model gives 8929 vs bot 8701. The bot gap is the build, not the model: one ship per lane, no upgrades, no Hauler, no permit, and a bot that reserves cash. T87 closes it. Rescue spec below.",
+  "details": {
+    "changed_keys": [
+      {"key": "starting_credits", "old": 1500, "new": 1600, "reason": "After the 1000 cr ship, 600 left covers a full 40-unit Buy (max 480) plus the 115 route cost, so the first route always runs."},
+      {"key": "data_version", "old": 7, "new": 8, "reason": "bump"}
+    ],
+    "unchanged_on_purpose": "win_cash 9000, win_cycle 30, ship_price, order_amount, trip_cost, maintenance: sim targets met, so no further change. Win threshold not lowered.",
+    "sim_tool_changes": "tools/sim.py: --real (one ship per lane, no upgrades/Hauler/permit = build as of today), --inject=C:N (QA input), --rescue-any (proposed rescue rule).",
+    "sim_results_full_model_no_events": {
+      "decent_no_skills": "9513, win cycle 26",
+      "decent_full_tree": "9379, win cycle 23",
+      "sloppy": "377, loss",
+      "always_expand": "1359, loss (with proposed rescue; 826 before)",
+      "never_expand": "3761, loss"
+    },
+    "sim_results_events_300_seeds": "no skills 74% (median 27, range 23-30); logistics 99%; research 78%; mixed 96%; full tree 100% (median 24); sloppy/always/never 0%.",
+    "sim_results_real_build_model": "decent no skills, no inject, perfect play: wins cycle 29 (9029). Second ship by cycle 1-6 depends on cash reserve.",
+    "reconciliation": [
+      "Per ship income matches: real never_expand 6210 with inject = 162 cr/cycle vs sim 157.",
+      "Bot buys ships at cycles 1, 6, 10 and builds only 3 lanes; sim buys the second ship at once and a fourth lane at 7. Replay of bot timing in the model: 8929 vs 8701 (the 228 difference is the stock buffer in the Buy order, about 400 per source).",
+      "Build limits: one ship per lane (T87 pending), only 4 profitable lanes in system 1 (marginal ships 1-4: 157, 157, 125, 125; ship 5+ near 0), no upgrades, no Hauler, no permits. Without them decent tops out near 8700-9000 in 30 cycles, with only a few cycles of margin."
+    ],
+    "rescue_spec_for_gameplay_programmer": {
+      "file": "game/main.gd _check_stranded (line ~480), and gdd.md stranded section (doc-manager)",
+      "old_rule": "ships == 0 and cash < ship_price",
+      "new_rule": "At end of cycle, if cash < fixed_cost() (route_engine.fixed_cost(), 115) AND no route is running (every route state is stalled or blocked, or there are no routes) AND stock cannot be sold for cash (no local Sell order has stock in storage, i.e. total sellable value = 0): pay rescue_stipend, show the existing notice. Keep the old zero-ships clause as an OR.",
+      "also": "Mark run_stats rescue count as today. Not a loss, not a win. No new balance key. Fires at most once per cycle.",
+      "verify": "QA bot always_expand inject run: cash 1 with 2 ships at cycle 4 must get 1000 at cycle 4 end and run again. Default decent run with 1600 start must never rescue.",
+      "note": "Idle-by-closed-planet cases: blocked routes also count as not running, so an event that closes both planets can trigger a rescue; acceptable (setback only, still loses at cycle 30 if far from 9000)."
+    }
+  }
+}

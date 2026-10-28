@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-10-28",
+  "task": "T98",
+  "status": "done",
+  "files_changed": ["tools/build_story.py", "data/events.json", "data/story_text.json", "game/events.gd", "game/event_notice.gd", "game/route_engine.gd", "game/main.gd", "tools/tests/run_tests.gd", "handoffs/gameplay-programmer/2026-10-28-T98.json"],
+  "usage_note": "Headless tests 173 pass, 0 fail. Choice screen exercised by test through debug_fire_event (same path as the debug Fire event button); not viewed by eye.",
+  "open_questions": [
+    "Debris has no pay button outside the event: the offer only returns when EV17 fires again (it picks a planet that already has debris first). Add a planet-panel Pay button?",
+    "EV17 is now in the random pool (17 events). Keep it random, or give it its own cadence?",
+    "No per-planet debris marker in the UI yet. Wanted?"
+  ],
+  "handoff": "EV17 debris is a choice event. build_story.py now parses EV17_* ids from story/events.md into story_text.json and appends the EV17 entry to events.json (title_id, text_id, choices with text_id, eff_id, tag [debris: pay|leave], popup ids). Fee (debris_clear_fee) is a one-off cash cost; Leave adds the planet to events.debris, which cuts units moved by routes from that planet by debris_route_penalty (RouteEngine.planned_units). Saved and reloaded. Pay is disabled without cash. Outcome popup uses EV17_PAID/LEFT with BTN_OK. No fallback ids needed: all EV17 ids exist. Try: debug menu, Fire event, EV17.",
+  "details": {"fallback_ids": []}
+}

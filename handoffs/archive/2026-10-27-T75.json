@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-10-27",
+  "task": "T75",
+  "status": "done",
+  "files_changed": ["story/endings.md", "story/screens.md", "story/voice.md", "story/ideas.md", "handoffs/story-designer/2026-10-27-T75.json"],
+  "usage_note": "Small session, well under the cap of 30 turns.",
+  "open_questions": [
+    "Full tier needs every open system reached; systems 2 and 3 are on hold, so Full is unreachable until permits work. Accept?",
+    "Full length max 1000 and Bare max 350 are new limits in voice.md. OK?",
+    "END_BARE_HANDS was shortened (now 258 chars) to fit the plainer Bare tier."
+  ],
+  "handoff": "Ready to wire: CHOICE_TITLE, CHOICE_TEXT, CHOICE_RELEASE, CHOICE_RELEASE_EFFECT, CHOICE_CORP, CHOICE_CORP_EFFECT (screens.md). Release table: END_BARE_HANDS, END_REL_FULL_X/L/R/E (+_EPI), END_LAST_LIGHT, END_COLD_LEDGER, END_OWN_HORIZON, END_SLOW_HARBOR, END_ENOUGH. Corporation table: END_CORP_BARE, END_CORP_FULL_X/L/R/E (+_EPI), END_CORP_LOGI/RES/EXP/MIX. Selection tables and conditions are in endings.md; the Recording ids section lists the side for each id. New inputs for the picker: systems reached, branch fully learned. New term Corporation added to voice.md.",
+  "details": {}
+}
