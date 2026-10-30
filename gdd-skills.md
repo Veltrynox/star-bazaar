@@ -35,19 +35,19 @@ Points are earned once per event:
 The same planet, pair or system never pays twice. Closing and re-opening a route does not pay again.
 Name: these are "expansion points" in data keys and in this file; the one on-screen name is "Skill points" (top bar and skill screen header), per the glossary in story/voice.md.
 The player starts with 0 points; the home planet (Voltara) gives the first on cycle 1 (sim assumption, not yet confirmed in code). Values: [GCM:skill_points_planet], [GCM:skill_points_route], [GCM:skill_points_system]. A route counts once per planet pair, direction ignored. System 1 has no system bonus.
-System 1 total: 3 planets plus 2 profitable pairs x 2 = 7 points (9 if the loss-making Tillam-Ashgate pair is counted). The whole tree costs 22 points (A: 1, 1, 3, 2, 2; B: 1, 2, 2, 2; C: 1, 1, 2, 2). So system 1 buys one short branch or about 4 nodes, never the tree; the full tree needs systems 2 and 3, which are on hold.
+System 1 total: 3 planets plus 2 profitable pairs x 2 = 7 points (9 if the loss-making Tillam-Ashgate pair is counted). The whole tree costs 20 points (A: 1, 1, 3, 2; B: 1, 2, 2, 2; C: 1, 1, 2, 2). So system 1 buys one short branch or about 4 nodes, never the tree; the full tree needs systems 2 and 3, which are on hold.
 The top bar shows "Skill points: N" next to the Skills button. A small mark appears on the button when the player has points and a skill is available.
 A notice appears when points are earned ("+1 skill point: first visit to Tillam").
 
 ========================================
 3. THE THREE BRANCHES
 ========================================
-Skills below are proposals. "Cost" is in expansion points, set by the Economy Designer: [GCM:skill_cost_<id>] (balance.json v5 has all thirteen, A1 to C4). Effect keys: A3 Second Hull uses hauler_price, hauler_cargo_mult, hauler_upkeep_mult; A4 skill_A4_route_units; A5 skill_A5_upkeep; B2 skill_B2_order_units; B3 skill_B3_margin.
+Skills below are proposals. "Cost" is in expansion points, set by the Economy Designer: [GCM:skill_cost_<id>] (balance.json has all twelve, A1, A2, A4, A5, B1 to B4, C1 to C4; A3 was cut 2026-10-28). Effect keys: A4 skill_A4_route_units; A5 skill_A5_upkeep; B2 skill_B2_order_units; B3 skill_B3_margin.
 
 BRANCH A: LOGISTICS (how goods move and are kept)
   A1 Space Storage - the first node of the branch; it costs expansion points like any skill (section 4).
   A2 Bigger Holds - raises the capacity of company storage on planets.
-  A3 Second Hull - unlocks the larger ship type (the Voruun Hauler; working name).
+  (A3 Second Hull and the large ship were cut by the owner on 2026-10-28; A4 now follows A2.)
   A4 Fast Loading - raises how much a route moves per cycle.
   A5 Drydock Deals - lowers ship upkeep.
 
