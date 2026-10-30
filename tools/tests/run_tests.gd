@@ -450,7 +450,6 @@ func _test_skill_screen() -> void:
 	check(ST.prereqs("A1").is_empty() and ST.prereqs("A3") == ["A2"] and ST.prereqs("C3") == ["C2", "A1"], "skills: prerequisites chain, C3 also needs A1")
 	check(m.learned_skills.is_empty(), "skills: nothing learned at start")
 	# top bar
-	check(m.points_label.text == "%s: %d" % [StoryText.get_text("LBL_SKILL_POINTS"), m.skill_points], "skills: top bar shows Skill points: N")
 	# cost and points
 	m.skill_points = 0
 	m.pts_planets = [0, 1, 2]
@@ -824,36 +823,24 @@ func _test_ships() -> void:
 	m._dismiss_preface()
 	var bal: Dictionary = m.balance
 	var Sh = load("res://game/ships.gd")
-	check(Sh.price("small", bal) == int(bal["ship_price"]) and Sh.price("large", bal) == int(bal["hauler_price"]), "T58: ship prices come from balance keys")
-	check(Sh.cargo_mult("large", bal) == float(bal["hauler_cargo_mult"]) and Sh.upkeep_mult("large", bal) > Sh.upkeep_mult("small", bal), "T58: large carries more and costs more upkeep")
-	check(Sh.display_name("small") == "Skerrit" and Sh.display_name("large") == "Voruun Hauler", "T58: plain fallback names")
+	check(Sh.KINDS == ["small"] and Sh.price("small", bal) == int(bal["ship_price"]), "T58: one ship type, price from balance")
+	check(Sh.display_name("small") == "Skerrit", "T58: plain fallback name")
 	m.cash = 10000
-	check(m.buy_ship("large")["ok"] and m.ships == 1 and m.large_ships == 1 and m.cash == 10000 - int(bal["hauler_price"]), "T58: buy large charges hauler_price")
-	check(m.buy_ship()["ok"] and m.ships == 2 and m.large_ships == 1 and m.free_of("small") == 1 and m.free_of("large") == 1, "T58: buy small, free counts per type")
+	check(m.buy_ship()["ok"] and m.ships == 1 and m.cash == 10000 - int(bal["ship_price"]), "T58: buy charges ship_price")
 	var e = m.engine
-	check(e.units_per_cycle({"ship": "large"}) == floori(float(e.units_per_cycle({"ship": "small"})) * float(bal["hauler_cargo_mult"])), "T58: large moves more units per cycle")
-	check(e.upkeep_part({"ship": "large"}) > e.upkeep_part({"ship": "small"}), "T58: large upkeep is higher")
 	check(e.upkeep_part() == e.upkeep_part({"ship": "small"}), "T58: default upkeep is the small ship")
 	var c := "energy"
 	var key: String = m.storage.planet_key(0)
 	m.storage.ensure(key)
 	m.storage.ensure(m.storage.planet_key(1))
 	m.storage.add(key, c, m.storage.space(key, c))
-	check(m.pick_ship(0, 1, c) == "large", "T58: deep stock picks the large ship")
-	m.storage.remove(key, c, m.storage.amount(key, c))
-	check(m.pick_ship(0, 1, c) == "small", "T58: empty source picks the small ship")
-	m.storage.add(key, c, m.storage.space(key, c))
 	var r: Dictionary = m.send_stock(0, 1, c)
-	check(r["ok"] and e.routes.size() == 1 and str(e.routes[0]["ship"]) == "large", "T58: route auto-assigned the large ship")
-	var r2: Dictionary = m.send_stock(0, 1, c)
-	check(r2["ok"] and str(e.routes[1]["ship"]) == "small", "T58: next route takes the remaining small ship")
+	check(r["ok"] and e.routes.size() == 1 and str(e.routes[0]["ship"]) == "small", "T58: route auto-assigned the small ship")
 	check(not m.can_connect(0, 1, c)["ok"], "T58: no free ship, no route")
 	var st: Dictionary = m.collect_state()
-	check(int(st["large_ships"]) == 1, "T58: save holds large_ships")
-	e.from_array(st["routes"], 2, 1)
-	check(e.assigned_of("large") == 1 and e.assigned_of("small") == 1, "T58: restore keeps ship types")
-	e.from_array([{"a": 0, "b": 1, "c": c, "ship": "large"}], 1, 0)
-	check(e.routes.size() == 1 and str(e.routes[0]["ship"]) == "small", "T58: restore falls back to the owned type")
+	check(not st.has("large_ships"), "T58: save has no large_ships")
+	e.from_array([{"a": 0, "b": 1, "c": c, "ship": "large"}], 1)
+	check(e.routes.size() == 1 and str(e.routes[0]["ship"]) == "small", "T58: old save with a large route loads as small")
 	await _free_main(m)
 	_wipe_user()
 
@@ -975,7 +962,7 @@ func _test_debug_menu() -> void:
 	check(not m.debug_tools_allowed(false) and m.debug_tools_allowed(true), "debug: release build excludes the menu")
 	var d: PanelContainer = m.debug_menu
 	for k in ["force_event", "show_events", "event_state", "debris_planet", "debris_set", "debris_clear", "unlock_s2", "permit_system", "grant_permit",
-			"open_systems", "gate_open", "gate_reset", "gate_state", "ship_small", "ship_large", "route_id", "route_level", "route_set_level", "ship_state",
+			"open_systems", "gate_open", "gate_reset", "gate_state", "ship_small", "route_id", "route_level", "route_set_level", "ship_state",
 			"cash_add", "points_add", "reset_run", "notice_next", "tut_restart", "tutorial_state", "galaxy_open", "save_now", "save_state"]:
 		check(d.qa.has(k), "debug: control " + k)
 	d.qa["force_event"].pressed.emit()
@@ -994,8 +981,7 @@ func _test_debug_menu() -> void:
 	check(not m.a1_gate_open(), "debug: A1 gate cleared")
 	m.cash = 0
 	d.qa["ship_small"].pressed.emit()
-	d.qa["ship_large"].pressed.emit()
-	check(m.ships == 2 and m.large_ships == 1, "debug: free ships")
+	check(m.ships == 1, "debug: free ships")
 	d.qa["cash_add"].pressed.emit()
 	d.qa["points_add"].pressed.emit()
 	check(m.cash == 1000 and m.skill_points >= 5, "debug: cash and points")

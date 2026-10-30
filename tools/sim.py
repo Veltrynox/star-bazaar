@@ -4,14 +4,14 @@ Reads data/balance.json, data/planets.json, data/events.json (tags only). No gam
 Model (per cycle, one ship = one src->dst commodity c leg, steady state; any number of ships per route):
   v4: buy order at (src,c) and sell order at (dst,c) are SHARED POOLS of order_amount*(1+B2) units/cycle across all ships;
   ships fill pools in margin order; a ship whose net <=0 idles. Ship flow f = min(route_units, pool left)
-  route_units = cargo/(2*travel) * (1+A4) * (hauler_mult if Hauler)
+  route_units = cargo/(2*travel) * (1+A4)
   margin m = (sell_dst - buy_src) * (1+B3) * (1+upgrade_bonus*level)   with event price factors on both prices
-  net = f*m - upkeep, upkeep = (trip_cost + maintenance/interval) * (1-A5) * (hauler_upkeep_mult if Hauler); net<=0 -> idle, pays 0
+  net = f*m - upkeep, upkeep = (trip_cost + maintenance/interval) * (1-A5); net<=0 -> idle, pays 0
   New route earns 0 in its first cycle (stock must move first; UNKNOWN real pipeline lag).
 Events (every event_interval cycles, one random of events.json): price up/down = factor on that planet+commodity buy and sell
   prices for event_price_cycles; closed = planet blocked for event_close_cycles (A1/A2/B4 each cover one cycle of it).
 Points: planet_first_visit, new pair, (system points unused in system 1). Skills cost points; no credits.
---real: mirrors the build as of 2026-10-27 (one ship per lane, no upgrades, no Hauler, no permit); --inject=C:N adds N cash at cycle C (QA input). Lane-limited mode reproduces the QA bot (decent +1000: 8701).
+--real: mirrors the build as of 2026-10-27 (one ship per lane, no upgrades, no permit); --inject=C:N adds N cash at cycle C (QA input). Lane-limited mode reproduces the QA bot (decent +1000: 8701).
 Win: cash>=win_cash at cycle end. Loss: cycle win_cycle ends below. Rescue: no ships and cash<ship_price -> stipend."""
 import json, os, re, random, statistics, sys, itertools
 R = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -41,13 +41,13 @@ def routes_in(sysn):
 R1, R2 = routes_in(1), routes_in(2)
 ALL = R1
 def pair(r): return frozenset((r[0], r[1]))
-TREE = {"A1": None, "A2": "A1", "A3": "A2", "A4": "A3", "A5": "A4", "B1": None, "B2": "B1", "B3": "B2", "B4": "B3",
+TREE = {"A1": None, "A2": "A1", "A4": "A2", "A5": "A4", "B1": None, "B2": "B1", "B3": "B2", "B4": "B3",
         "C1": None, "C2": "C1", "C3": "C2", "C4": "C3"}
 def cost(s): return V["skill_cost_" + s]
 BUILDS = {
- "none": [], "logistics": ["A1", "A2", "A3", "A4", "A5"], "research": ["B1", "B2", "B3", "B4"],
- "expansion": ["C1", "C2", "C3", "C4"], "econ_mix": ["B1", "B2", "A1", "A2", "A3", "B3", "A4", "A5", "B4"],
- "log_first": ["A1", "A2", "A3", "A4", "B1", "B2", "A5", "B3", "B4"],
+ "none": [], "logistics": ["A1", "A2", "A4", "A5"], "research": ["B1", "B2", "B3", "B4"],
+ "expansion": ["C1", "C2", "C3", "C4"], "econ_mix": ["B1", "B2", "A1", "A2", "B3", "A4", "A5", "B4"],
+ "log_first": ["A1", "A2", "A4", "B1", "B2", "A5", "B3", "B4"],
  "perm_only": ["C1"], "perm_research": ["C1", "B1", "B2", "B3", "B4"],
  "full": list(TREE)}
 def margin(r, sk, ev, lv):
@@ -60,8 +60,8 @@ def margin(r, sk, ev, lv):
     return (sell - buy) * (1 + V["skill_B3_margin"] * ("B3" in sk)) * (1 + V["upgrade_margin_bonus"] * lv)
 def ship_stats(x, sk):
     h = x["h"]
-    ru = V["cargo"] / (2 * V["travel_cycles_per_leg"]) * (1 + V["skill_A4_route_units"] * ("A4" in sk)) * (V["hauler_cargo_mult"] if h else 1)
-    up = (V["trip_cost"] + V["maintenance"] / V["maintenance_interval"]) * (1 - V["skill_A5_upkeep"] * ("A5" in sk)) * (V["hauler_upkeep_mult"] if h else 1)
+    ru = V["cargo"] / (2 * V["travel_cycles_per_leg"]) * (1 + V["skill_A4_route_units"] * ("A4" in sk))
+    up = (V["trip_cost"] + V["maintenance"] / V["maintenance_interval"]) * (1 - V["skill_A5_upkeep"] * ("A5" in sk))
     return ru, up
 def blocked(r, ev, sk):
     for (k, p, c), left in ev:
@@ -107,7 +107,7 @@ def run(strat="decent", build="none", rng=None, trace=False):
         learn()
         if c == INJ[0]: cash += INJ[1]
         evp = [x for x in ev if x[0][0] != "closed"]
-        def price(h): return V["hauler_price"] if h else V["ship_price"]
+        def price(h): return V["ship_price"]
         def inc_now(sh): return income(sh, sk)
         def new(r, h, lv=0): return {"r": r, "lv": lv, "h": h, "age": 1}
         def buy_ship(r, h):
@@ -134,7 +134,7 @@ def run(strat="decent", build="none", rng=None, trace=False):
                 if strat == "decent" and len(ships) < V["ship_cap"]:
                     for r in pool_routes:
                         if REAL and any(x["r"] == r for x in ships): continue
-                        for h in ([False, True] if "A3" in sk else [False]):
+                        for h in ([False]):
                             dv = inc_now(ships + [new(r, h)]) - base
                             if dv > 0: opts.append((dv / price(h), price(h), "route", r, h))
                 if strat == "decent" and not REAL:

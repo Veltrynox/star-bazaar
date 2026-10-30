@@ -27,6 +27,9 @@ func setup(bal: Dictionary, plist: Array) -> void:
 	balance = bal
 	planets = plist
 	rng.randomize()
+	for a in OS.get_cmdline_user_args():  # a given --seed=<int> makes the event RNG repeatable (QA); normal play stays random
+		if a.begins_with("--seed="):
+			rng.seed = int(a.trim_prefix("--seed="))
 	defs = []
 	by_id = {}
 	if not FileAccess.file_exists(PATH):
