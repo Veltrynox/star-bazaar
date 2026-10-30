@@ -702,12 +702,6 @@
   "place": "Ship type name, small ship (working name, owner to confirm)"
  },
  {
-  "id": "LBL_SHIP_LARGE",
-  "text": "Voruun Hauler",
-  "max": 24,
-  "place": "Ship type name, large ship (working name, owner to confirm)"
- },
- {
   "id": "NOT_EVENT_EFFECT_UP",
   "text": "Prices for {commodity} at {planet} rise {pct} percent for {cycles} cycles.",
   "max": 90,
@@ -1112,24 +1106,6 @@
  {
   "id": "SK_A2_PLAIN",
   "text": "Raises the capacity of Company storage on planets.",
-  "max": 110,
-  "place": "Skill screen, detail panel"
- },
- {
-  "id": "SK_A3_NAME",
-  "text": "Second Hull",
-  "max": 24,
-  "place": "Skill screen, node name"
- },
- {
-  "id": "SK_A3_FLAVOUR",
-  "text": "The Bureau calls it a vessel of the common good. It is a bigger hull.",
-  "max": 90,
-  "place": "Skill screen, detail panel"
- },
- {
-  "id": "SK_A3_PLAIN",
-  "text": "Unlocks the large ship, the Voruun Hauler, besides the small Skerrit.",
   "max": 110,
   "place": "Skill screen, detail panel"
  },

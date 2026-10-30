@@ -11,10 +11,6 @@ A2 | Deep Holds
 Flavour: A shelf is a promise that something will be there. The Plan loves a shelf.
 Plain: Raises the capacity of Company storage on planets.
 
-A3 | Second Hull
-Flavour: The Bureau calls it a vessel of the common good. It is a bigger hull.
-Plain: Unlocks the large ship, the Voruun Hauler, besides the small Skerrit.
-
 A4 | Quick Loading
 Flavour: Dock time is shared time. Spend less of it.
 Plain: A route moves more goods each cycle.

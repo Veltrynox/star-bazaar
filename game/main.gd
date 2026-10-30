@@ -60,7 +60,6 @@ var event_feed_label: Label  # T12 this run's events on the board
 
 var skill_screen: PanelContainer  # T71, hidden until opened
 var game_menu: PanelContainer  # T71, hidden until opened
-var points_label: Label
 var cash_label: Label
 var delta_label: Label
 var state_label: Label
@@ -75,7 +74,6 @@ var pause_button: Button
 var progress: ProgressBar
 var preface: Control  # T23 preface overlay; null once dismissed
 var ships: int = 0  # T28 abstract ship count (all types)
-var large_ships: int = 0  # T58: how many of `ships` are large (the rest are small)
 var ship_panel: PanelContainer
 var top_bar: PanelContainer
 var right_col: VBoxContainer  # holds the notification board and the ship panel
@@ -177,7 +175,7 @@ func _ready() -> void:
 ## T26: state written to the autosave. Add new keys here (see save_game.gd).
 ## Tuning values from balance.json are never saved.
 func collect_state() -> Dictionary:
-	return {"cycle": cycle, "cycle_elapsed": cycle_elapsed, "cash": cash, "paused": paused, "ships": ships, "large_ships": large_ships,
+	return {"cycle": cycle, "cycle_elapsed": cycle_elapsed, "cash": cash, "paused": paused, "ships": ships,
 		"routes": engine.to_array(), "storage": storage.to_dict(), "orders": engine.local_to_array(),
 		"choice_pending": choice_pending, "learned_skills": learned_skills, "systems_reached": systems_reached,
 		"skill_points": skill_points, "pts_planets": pts_planets, "pts_pairs": pts_pairs, "events": events.to_dict(),
@@ -196,8 +194,7 @@ func apply_state(s: Dictionary) -> void:
 	cycle_elapsed = clampf(float(s.get("cycle_elapsed", 0.0)), 0.0, _cycle_seconds())
 	cash = int(s.get("cash", cash))
 	ships = clampi(int(s.get("ships", 0)), 0, int(balance.get("ship_cap", 0)))
-	large_ships = clampi(int(s.get("large_ships", 0)), 0, ships)  # old saves: all small
-	engine.from_array(s.get("routes", []), ships, large_ships)  # old saves: no key = zero routes
+	engine.from_array(s.get("routes", []), ships)  # old saves: no key = zero routes
 	storage.from_dict(s.get("storage"), map.planets.size())  # old saves: fresh stock
 	engine.local_from_array(s.get("orders"))  # old saves: no local orders
 	# T51: old saves may hold cargo, ship_planet, dest, flight_left, mission_step; ignored.
@@ -528,9 +525,9 @@ func _buy_ship_kind(kind: String) -> void:
 func free_ships() -> int:
 	return ships - engine.total_assigned()
 
-## T58: owned and free ships of one type ("small" or "large").
+## T58: owned and free ships of one type (only "small" remains).
 func owned_of(kind: String) -> int:
-	return large_ships if kind == "large" else ships - large_ships
+	return ships if kind == "small" else 0
 
 func free_of(kind: String) -> int:
 	return owned_of(kind) - engine.assigned_of(kind)
@@ -542,8 +539,6 @@ func buy_ship(kind: String = "small") -> Dictionary:
 		return r
 	cash -= Ships.price(kind, balance)
 	ships += 1
-	if kind == "large":
-		large_ships += 1
 	_after_change()
 	return r
 
@@ -556,15 +551,9 @@ func can_buy_ship(kind: String = "small") -> Dictionary:
 		return {"ok": false, "reason": "Not enough cash for a ship."}
 	return {"ok": true, "reason": ""}
 
-## T58: auto-assignment. Picks the free ship that suits the lane: the large ship when both types are free and
-## the lane can move more than a small ship carries, otherwise the small one; any free ship when only one type is free.
-func pick_ship(src: int, dst: int, c: String) -> String:
-	var small_free := free_of("small") > 0
-	var large_free := free_of("large") > 0
-	if small_free and large_free:
-		var room := mini(storage.amount(storage.planet_key(src), c), storage.space(storage.planet_key(dst), c))
-		return "large" if room > engine.units_per_cycle({"ship": "small"}) else "small"
-	return "large" if large_free else "small"
+## T58: auto-assignment. One ship type remains (small).
+func pick_ship(_src: int, _dst: int, _c: String) -> String:
+	return "small"
 
 ## ---- T56 one-way route API (T57 UI and bots). One ship per route, auto-assigned from the free pool. ----
 
@@ -1152,8 +1141,6 @@ func debug_add_ship(kind: String) -> bool:
 	if not OS.is_debug_build() or game_over or ships >= int(balance.get("ship_cap", 0)):
 		return false
 	ships += 1
-	if kind == "large":
-		large_ships += 1
 	_after_change()
 	return true
 
@@ -1267,14 +1254,6 @@ func _build_ui() -> void:
 	delta_label = Label.new()
 	delta_label.theme_type_variation = "LabelNumberMuted"
 	cash_box.add_child(delta_label)
-	var pts_box := HBoxContainer.new()
-	pts_box.add_theme_constant_override("separation", 6)
-	pts_box.tooltip_text = StoryText.get_text("LBL_SKILL_POINTS")
-	pts_box.add_child(_bar_icon("skills"))
-	points_label = Label.new()
-	points_label.theme_type_variation = "LabelNumber"
-	pts_box.add_child(points_label)
-	box.add_child(pts_box)
 	# right: goal, cycle, state, pause (amber). The goal text takes the free space and shortens if the window is narrow.
 	goal_label = Label.new()
 	goal_label.theme_type_variation = "LabelSmall"
@@ -1371,7 +1350,6 @@ func _refresh() -> void:
 	progress.value = cycle_elapsed / _cycle_seconds()
 	pause_button.text = "Resume" if paused else "Pause"
 	pause_button.icon = Ui.icon("play" if paused else "pause")
-	points_label.text = "%s: %d" % [StoryText.get_text("LBL_SKILL_POINTS"), skill_points]
 	var star := " *" if SkillTree.any_affordable(learned_skills, skill_points, balance, skill_ctx()) else ""
 	skills_button.tooltip_text = StoryText.get_text("MENU_SKILLS") + star
 	skills_button.icon = Ui.icon("skills")

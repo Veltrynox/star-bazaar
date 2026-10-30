@@ -56,7 +56,7 @@ The player is "you" or "the company". Never a gender, never a name.
 - Expansion points (shown as "Skill points" in the top bar): spent on skills and permits.
 - Permits: allow entry to a new system (on hold in this build).
 - Cycles: the game's time unit.
-- Ships: Skerrit (small), Voruun Hauler (large). Working names.
+- Ships: Skerrit (the only ship type). Working name.
 - Cash goal: the credit target that wins the game. Credits: the currency.
 - System 1: Voltara (abundant energy, scarce food), Tillam and Ashgate (abundant food, scarce energy).
 - Hollin Reach: system 1 (owner approved, T92).

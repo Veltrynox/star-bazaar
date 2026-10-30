@@ -1,11 +1,11 @@
 extends RefCounted
-## T58: ship types from data/ships.json (small, large). Numbers: price, cargo and upkeep multipliers
+## T58: ship types from data/ships.json (small only; the large Hauler was cut). Numbers: price, cargo and upkeep multipliers
 ## come from balance.json keys named in the file; speed is abstract and display only.
 ## Ships are for hauling only: they move stock along routes.
 
 const StoryText := preload("res://game/story_text.gd")
 const PATH := "res://data/ships.json"
-const KINDS := ["small", "large"]
+const KINDS := ["small"]
 
 static var _defs: Dictionary = {}
 

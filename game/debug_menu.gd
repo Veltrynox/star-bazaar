@@ -185,8 +185,8 @@ func gate_text() -> String:
 		str(main.pts_planets), main.pts_pairs.size(), str(main.open_systems.filter(func(s): return main.space_post_open(int(s))))]
 
 func ships_text() -> String:
-	var lines: Array = ["Ships %d/%d (small %d, large %d), free %d" % [main.ships, int(main.balance.get("ship_cap", 0)),
-		main.owned_of("small"), main.owned_of("large"), main.free_ships()]]
+	var lines: Array = ["Ships %d/%d, free %d" % [main.ships, int(main.balance.get("ship_cap", 0)),
+		main.free_ships()]]
 	for r in main.engine.routes:
 		lines.append("route #%d: %s ship, level %d" % [int(r["id"]), str(r.get("ship", "small")), int(r.get("level", 1))])
 	return "\n".join(lines)
@@ -235,7 +235,6 @@ func add_qa_tools() -> void:
 	_qa_label("gate_state")
 	_qa_section("QA: ships and routes")
 	_qa_button("ship_small", "Add small ship (free)", func(): main.debug_add_ship("small"); _refresh_qa())
-	_qa_button("ship_large", "Add large ship (free)", func(): main.debug_add_ship("large"); _refresh_qa())
 	var rid := _spin(1, 1, 9999, 1, func(_v): pass)
 	var lvl := _spin(1, 1, 99, 1, func(_v): pass)
 	_add_qa_row("Route id / level", [rid, lvl])

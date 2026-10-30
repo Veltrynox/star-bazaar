@@ -94,7 +94,7 @@ func planet_open(i: int) -> bool:
 ## Units a ship moves per cycle.
 func units_per_cycle(rec = null) -> int:
 	var base := float(trade.capacity()) / (2.0 * maxf(0.0001, trade.travel_cycles()))
-	base *= Ships.cargo_mult(kind_of(rec), balance)  # T58: large ship carries more
+	base *= Ships.cargo_mult(kind_of(rec), balance)  # T58
 	if learned.has("A4"):
 		base *= 1.0 + float(balance.get("skill_A4_route_units", 0))
 	return floori(base)
@@ -411,12 +411,11 @@ func local_from_array(saved) -> void:
 				set_local(p, c, role, true)
 				local_of(p, c)[role + "_state"] = str(s.get(role + "_state", ""))
 
-func from_array(saved, owned_ships: int, owned_large: int = 0) -> void:
+func from_array(saved, owned_ships: int) -> void:
 	reset()
 	if typeof(saved) != TYPE_ARRAY:
 		return
 	var left := owned_ships
-	var left_large := clampi(owned_large, 0, owned_ships)
 	for s in saved:
 		if typeof(s) != TYPE_DICTIONARY or left <= 0 or not s.has("c"):
 			continue
@@ -426,15 +425,7 @@ func from_array(saved, owned_ships: int, owned_large: int = 0) -> void:
 		if not check_connection(a, b, c)["ok"]:
 			continue
 		left -= 1
-		var kind := str(s.get("ship", "small"))  # T58: old saves hold small ships only
-		if kind == "large" and left_large > 0:
-			left_large -= 1
-		else:
-			kind = "small"
-			if owned_ships - owned_large - assigned_of("small") <= 0:
-				kind = "large"  # all small ships are taken; a free large one serves
-		var rec := new_record(a, b, c)
-		rec["ship"] = kind
+		var rec := new_record(a, b, c)  # old saves with a "large" ship type load as small
 		rec["id"] = maxi(1, int(s.get("id", 0)))
 		rec["level"] = maxi(1, int(s.get("level", 1)))
 		rec["state"] = str(s.get("state", "running"))

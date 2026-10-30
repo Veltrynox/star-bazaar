@@ -207,7 +207,6 @@ Your own trade routes are drawn on the map. Click a system to open it.
 
 ## Labels 2 (2026-10-28; fallback texts replaced)
 LBL_SHIP_SMALL | 24 | Ship type name, small ship (working name, owner to confirm) | Skerrit
-LBL_SHIP_LARGE | 24 | Ship type name, large ship (working name, owner to confirm) | Voruun Hauler
 NOT_EVENT_EFFECT_UP | 90 | Event popup, effect line, price up | Prices for {commodity} at {planet} rise {pct} percent for {cycles} cycles.
 NOT_EVENT_EFFECT_DOWN | 90 | Event popup, effect line, price down | Prices for {commodity} at {planet} fall {pct} percent for {cycles} cycles.
 NOT_EVENT_EFFECT_CLOSED | 90 | Event popup, effect line, closed planet | {planet} is closed for {cycles} cycles. Routes and orders touching it stop.
