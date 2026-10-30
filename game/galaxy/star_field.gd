@@ -29,7 +29,7 @@ const NEAR_CLEAR := 1.5         # camera distance where a star is fully hidden (
 const NEAR_FULL := 8.0          # camera distance where a star reaches full brightness
 const PLANET_AREA_RADIUS := 25.0 # stars inside this radius get the brightness cap below
 const NEAR_MAX_BRIGHT := 0.6    # brightness cap for stars inside the planet area, keeps planets/labels the focus
-const MASTER_INTENSITY := 0.9   # global brightness multiplier
+const MASTER_INTENSITY := 1.1   # global brightness multiplier
 const TINT_COOL := Color(0.65, 0.78, 1.0)
 const TINT_WHITE := Color(1.0, 1.0, 1.0)
 const TINT_WARM := Color(1.0, 0.82, 0.62)
@@ -49,6 +49,79 @@ const LIGHT_GAIN := 6.0         # scales summed light before the clamp
 const LIGHT_MIN := 0.12         # brightness floor for a star no sun reaches (hidden in dust)
 const LIGHT_MAX := 1.0
 const DENSITY_NORM_PERCENTILE := 0.97  # density at this rank maps to 1.0
+
+# --- Halo (soft glow on the brightest few stars; same fade as the points, one extra draw call) ---
+const HALO_COUNT := 40          # how many of the brightest (post-dust) stars get a halo
+const HALO_SIZE := 4.5          # halo quad size as a multiple of the star's point size
+const HALO_INTENSITY := 0.35    # halo peak brightness (below the map glow threshold of 1.0, so it never double-blooms)
+const HALO_FALLOFF := 3.0       # higher = tighter, softer core-to-edge falloff
+
+# --- Spikes (four-arm cross flare on a seeded ~10% of stars) ---
+const SPIKE_CHANCE := 0.10      # share of stars that get spikes
+const SPIKE_SEED_OFFSET := 7919 # separate RNG (SEED + this) so star positions/colours and the bake are unchanged
+const SPIKE_SIZE := 8.0         # spike quad size as a multiple of the star's point size
+const SPIKE_INTENSITY := 0.9
+const SPIKE_LENGTH_FALLOFF := 2.0  # along-arm fade (higher = shorter arms)
+const SPIKE_WIDTH := 28.0       # across-arm sharpness (higher = thinner arms)
+const SPIKE_COLOR_BLUE := Color(0.6, 0.75, 1.0)  # each spiked star gets a colour between this and white
+const SPIKE_COLOR_WHITE := Color(1.0, 1.0, 1.0)
+
+const SPIKE_SHADER_CODE := """
+shader_type spatial;
+render_mode unshaded, blend_add, depth_draw_never, cull_disabled, fog_disabled, shadows_disabled;
+uniform float angular_size;
+uniform float fade_near;
+uniform float fade_far;
+uniform float fade_power;
+uniform float near_clear;
+uniform float near_full;
+uniform float spike_size;
+uniform float spike_intensity;
+uniform float spike_length_falloff;
+uniform float spike_width;
+varying float fade;
+void vertex() {
+	MODELVIEW_MATRIX = VIEW_MATRIX * mat4(INV_VIEW_MATRIX[0], INV_VIEW_MATRIX[1], INV_VIEW_MATRIX[2], MODEL_MATRIX[3]);
+	float dist = length(MODEL_MATRIX[3].xyz - CAMERA_POSITION_WORLD);
+	VERTEX.xy *= angular_size * dist * COLOR.a * spike_size;
+	fade = pow(1.0 - smoothstep(fade_near, fade_far, dist), fade_power) * smoothstep(near_clear, near_full, dist);
+}
+void fragment() {
+	vec2 p = (UV - vec2(0.5)) * 2.0;
+	vec2 a = abs(p);
+	float edge = clamp(1.0 - max(a.x, a.y), 0.0, 1.0);
+	float arm_x = exp(-a.y * spike_width) * pow(clamp(1.0 - a.x, 0.0, 1.0), spike_length_falloff);
+	float arm_y = exp(-a.x * spike_width) * pow(clamp(1.0 - a.y, 0.0, 1.0), spike_length_falloff);
+	float g = max(arm_x, arm_y) * smoothstep(0.0, 0.1, edge);
+	ALBEDO = COLOR.rgb * g * fade * spike_intensity;
+}
+"""
+
+const HALO_SHADER_CODE := """
+shader_type spatial;
+render_mode unshaded, blend_add, depth_draw_never, cull_disabled, fog_disabled, shadows_disabled;
+uniform float angular_size;
+uniform float fade_near;
+uniform float fade_far;
+uniform float fade_power;
+uniform float near_clear;
+uniform float near_full;
+uniform float halo_size;
+uniform float halo_intensity;
+uniform float halo_falloff;
+varying float fade;
+void vertex() {
+	MODELVIEW_MATRIX = VIEW_MATRIX * mat4(INV_VIEW_MATRIX[0], INV_VIEW_MATRIX[1], INV_VIEW_MATRIX[2], MODEL_MATRIX[3]);
+	float dist = length(MODEL_MATRIX[3].xyz - CAMERA_POSITION_WORLD);
+	VERTEX.xy *= angular_size * dist * COLOR.a * halo_size;
+	fade = pow(1.0 - smoothstep(fade_near, fade_far, dist), fade_power) * smoothstep(near_clear, near_full, dist);
+}
+void fragment() {
+	float d = clamp(length(UV - vec2(0.5)) * 2.0, 0.0, 1.0);
+	float g = pow(1.0 - d, halo_falloff) * (1.0 - d);
+	ALBEDO = COLOR.rgb * g * fade * halo_intensity;
+}
+"""
 
 const SHADER_CODE := """
 shader_type spatial;
@@ -136,11 +209,106 @@ func _ready() -> void:
 		mm.set_instance_transform(i, Transform3D(Basis.IDENTITY, pos[i]))
 		mm.set_instance_color(i, Color(c.r * l, c.g * l, c.b * l, c.a))
 	multimesh = mm
+	_build_halos(pos, cols, light)
+	_build_spikes(pos, cols, light)
 
 	cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	gi_mode = GeometryInstance3D.GI_MODE_DISABLED
 	extra_cull_margin = MAX_RADIUS * 2.0  # quads are scaled in the shader; keep the AABB from culling them
 	custom_aabb = AABB(Vector3.ONE * -MAX_RADIUS, Vector3.ONE * MAX_RADIUS * 2.0)
+
+func _build_halos(pos: PackedVector3Array, cols: PackedColorArray, light: PackedFloat32Array) -> void:
+	# Pick the brightest stars after dust (colour * light), so hidden stars never glow.
+	var order: Array = []
+	for i in STAR_COUNT:
+		var c := cols[i]
+		var l := lerpf(LIGHT_MIN, LIGHT_MAX, light[i])
+		order.append([maxf(c.r, maxf(c.g, c.b)) * l, i])
+	order.sort_custom(func(a, b): return a[0] > b[0])
+	var n := mini(HALO_COUNT, STAR_COUNT)
+	var quad := QuadMesh.new()
+	quad.size = Vector2.ONE
+	var mat := ShaderMaterial.new()
+	var sh := Shader.new()
+	sh.code = HALO_SHADER_CODE
+	mat.shader = sh
+	mat.set_shader_parameter("angular_size", STAR_ANGULAR_SIZE)
+	mat.set_shader_parameter("fade_near", FADE_NEAR)
+	mat.set_shader_parameter("fade_far", FADE_FAR)
+	mat.set_shader_parameter("fade_power", FADE_POWER)
+	mat.set_shader_parameter("near_clear", NEAR_CLEAR)
+	mat.set_shader_parameter("near_full", NEAR_FULL)
+	mat.set_shader_parameter("halo_size", HALO_SIZE)
+	mat.set_shader_parameter("halo_intensity", HALO_INTENSITY)
+	mat.set_shader_parameter("halo_falloff", HALO_FALLOFF)
+	quad.material = mat
+	var hm := MultiMesh.new()
+	hm.transform_format = MultiMesh.TRANSFORM_3D
+	hm.use_colors = true
+	hm.mesh = quad
+	hm.instance_count = n
+	for k in n:
+		var i: int = order[k][1]
+		var c := cols[i]
+		var l := lerpf(LIGHT_MIN, LIGHT_MAX, light[i])
+		hm.set_instance_transform(k, Transform3D(Basis.IDENTITY, pos[i]))
+		hm.set_instance_color(k, Color(c.r * l, c.g * l, c.b * l, c.a))
+	var h := MultiMeshInstance3D.new()
+	h.multimesh = hm
+	h.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	h.gi_mode = GeometryInstance3D.GI_MODE_DISABLED
+	h.extra_cull_margin = MAX_RADIUS * 2.0
+	h.custom_aabb = AABB(Vector3.ONE * -MAX_RADIUS, Vector3.ONE * MAX_RADIUS * 2.0)
+	add_child(h)
+
+func _build_spikes(pos: PackedVector3Array, cols: PackedColorArray, light: PackedFloat32Array) -> void:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = SEED + SPIKE_SEED_OFFSET
+	var idx := PackedInt32Array()
+	var tints := PackedColorArray()
+	for i in STAR_COUNT:  # fixed draw count per star keeps the set stable
+		var pick := rng.randf()
+		var t := rng.randf()
+		if pick < SPIKE_CHANCE:
+			idx.append(i)
+			tints.append(SPIKE_COLOR_BLUE.lerp(SPIKE_COLOR_WHITE, t))
+	var quad := QuadMesh.new()
+	quad.size = Vector2.ONE
+	var mat := ShaderMaterial.new()
+	var sh := Shader.new()
+	sh.code = SPIKE_SHADER_CODE
+	mat.shader = sh
+	mat.set_shader_parameter("angular_size", STAR_ANGULAR_SIZE)
+	mat.set_shader_parameter("fade_near", FADE_NEAR)
+	mat.set_shader_parameter("fade_far", FADE_FAR)
+	mat.set_shader_parameter("fade_power", FADE_POWER)
+	mat.set_shader_parameter("near_clear", NEAR_CLEAR)
+	mat.set_shader_parameter("near_full", NEAR_FULL)
+	mat.set_shader_parameter("spike_size", SPIKE_SIZE)
+	mat.set_shader_parameter("spike_intensity", SPIKE_INTENSITY)
+	mat.set_shader_parameter("spike_length_falloff", SPIKE_LENGTH_FALLOFF)
+	mat.set_shader_parameter("spike_width", SPIKE_WIDTH)
+	quad.material = mat
+	var sm := MultiMesh.new()
+	sm.transform_format = MultiMesh.TRANSFORM_3D
+	sm.use_colors = true
+	sm.mesh = quad
+	sm.instance_count = idx.size()
+	for k in idx.size():
+		var i := idx[k]
+		var c := cols[i]
+		var b := maxf(c.r, maxf(c.g, c.b))  # star brightness (tint-independent) so the spike colour is the spiked star's own
+		var l := lerpf(LIGHT_MIN, LIGHT_MAX, light[i])
+		var tc := tints[k]
+		sm.set_instance_transform(k, Transform3D(Basis.IDENTITY, pos[i]))
+		sm.set_instance_color(k, Color(tc.r * b * l, tc.g * b * l, tc.b * b * l, c.a))
+	var h := MultiMeshInstance3D.new()
+	h.multimesh = sm
+	h.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	h.gi_mode = GeometryInstance3D.GI_MODE_DISABLED
+	h.extra_cull_margin = MAX_RADIUS * 2.0
+	h.custom_aabb = AABB(Vector3.ONE * -MAX_RADIUS, Vector3.ONE * MAX_RADIUS * 2.0)
+	add_child(h)
 
 var bake_time_ms := 0.0
 var light_values := PackedFloat32Array()  # per-star light 0..1 after the bake (for tools and tests)

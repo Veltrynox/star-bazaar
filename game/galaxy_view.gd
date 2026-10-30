@@ -17,7 +17,6 @@ var close_button: Button
 var icons: Dictionary = {}
 var _hit: Array = []  # [{id, pos, r}]
 var _hover_id: int = -1
-
 func setup(main_node: Control) -> void:
 	main = main_node
 	visible = false
