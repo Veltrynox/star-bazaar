@@ -18,6 +18,7 @@ const MAP_UNIT_SCALE := 0.02     # world units per map unit in planets.json (old
 const PLANET_RADIUS := 0.8
 const BASE_DISTANCE := 16.0      # camera distance from focus point at zoom 1
 const CAMERA_FOV := 45.0
+const PLANET_SPHERE := preload("res://art/planet_fx/planet_sphere.tscn")  # unit-radius sphere; scaled to planet_radius()
 
 # Orbit limits in degrees (owner-to-confirm defaults). Yaw 0 looks along -Z.
 const START_YAW_DEG := 0.0
@@ -37,9 +38,57 @@ var planet_scale := 1.0          # multiplies PLANET_RADIUS (visual size and cli
 var keys_enabled := true         # T33: debug menu turns this off while typing in a field
 
 var planets: Array = []
-var planet_meshes: Array[SphereMesh] = []
+const BELT_INNER := 1.7   # clear of the glow shell (1.12) and the pick halo (up to 1.46), in planet radii
+const BELT_OUTER := 2.3
+const BELT_SPIN := 0.015  # turns per second about the planet's axis (shader time, no per-frame code)
+## Flat ring quad with a circular mask. Noise is sampled by (radius, angle + TIME), so the belt turns on the GPU.
+const BELT_SHADER := """shader_type spatial;
+render_mode unshaded, blend_mix, cull_disabled, depth_draw_never;
+uniform float inner = 0.74;      // inner edge as a fraction of the quad half-width
+uniform float spin = 0.015;
+uniform vec3 key_dir = vec3(0.0, 0.5, 0.8);
+uniform vec4 key_color : source_color = vec4(1.0, 0.76, 0.42, 1.0);
+uniform vec4 dust_col : source_color = vec4(0.45, 0.40, 0.34, 1.0);
+uniform vec4 rock_col : source_color = vec4(0.72, 0.68, 0.62, 1.0);
+varying vec3 wpos;
+varying vec3 ctr;
+float h21(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+float vnoise(vec2 p) {
+	vec2 i = floor(p); vec2 f = fract(p); f = f * f * (3.0 - 2.0 * f);
+	return mix(mix(h21(i), h21(i + vec2(1, 0)), f.x), mix(h21(i + vec2(0, 1)), h21(i + vec2(1, 1)), f.x), f.y);
+}
+void vertex() {
+	wpos = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
+	ctr = (MODEL_MATRIX * vec4(0.0, 0.0, 0.0, 1.0)).xyz;
+}
+void fragment() {
+	vec2 q = UV * 2.0 - 1.0;
+	float r = length(q);
+	float t = (r - inner) / (1.0 - inner);
+	if (t < 0.0 || t > 1.0) discard;
+	float ang = atan(q.y, q.x) / TAU + TIME * spin;
+	// Pattern wraps around the angle: sample on a circle of noise so there is no seam.
+	vec2 c = vec2(cos(ang * TAU), sin(ang * TAU));
+	float n1 = vnoise(c * 12.0 + vec2(t * 18.0, 0.0));
+	float n2 = vnoise(c * 44.0 + vec2(t * 80.0, 7.0));
+	float bands = 0.5 + 0.5 * sin(t * 40.0 + n1 * 5.0);
+	float dens = n1 * 0.55 + n2 * 0.45;
+	float edge = smoothstep(0.0, 0.12, t) * smoothstep(1.0, 0.8, t);
+	float a = smoothstep(0.38, 0.62, dens * 0.7 + bands * 0.45) * edge;   // gaps where the mix is low
+	if (a < 0.02) discard;
+	vec3 n = vec3(0.0, 1.0, 0.0);
+	float l = abs(dot(n, normalize(key_dir)));
+	float lit = 0.25 + 0.75 * pow(l, 0.6);
+	vec3 col = mix(dust_col.rgb, rock_col.rgb, n2) * (0.1 + key_color.rgb * lit * 1.3);
+	ALBEDO = col;
+	ALPHA = a * 0.9;
+}
+"""
+var planet_spheres: Array[MeshInstance3D] = []
+var belt_materials: Dictionary = {}  # planet index -> ShaderMaterial of its asteroid belt  # one planet_sphere.tscn per planet, at its 3D position
 var planet_labels: Array[Label3D] = []
 var sun_mesh: SphereMesh
+var focus_sun_pos := Vector3.ZERO  # world position of the sun sphere (the screen-space light source for the FX)
 var positions: Array[Vector3] = []
 var camera: Camera3D
 var focus := Vector3.ZERO
@@ -61,6 +110,11 @@ func _ready() -> void:
 	var we := WorldEnvironment.new()
 	we.environment = env
 	add_child(we)
+	# Planet FX highlights are HDR (>1.0): glow on this environment (needs rendering/viewport/hdr_2d).
+	env.glow_enabled = true
+	env.glow_hdr_threshold = 1.0
+	env.glow_intensity = 0.8
+	env.glow_blend_mode = Environment.GLOW_BLEND_MODE_ADDITIVE
 
 	# T05: decorative star field background (visual only; see game/galaxy/star_field.gd)
 	add_child(load("res://game/galaxy/star_field.gd").new())
@@ -77,8 +131,6 @@ func _ready() -> void:
 	planets = _load_planets()
 	for p in planets:
 		p["system"] = 1  # T85: planets.json is system 1
-	_planet_mat = StandardMaterial3D.new()
-	_planet_mat.albedo_color = Color(0.35, 0.55, 0.85)
 	for i in planets.size():
 		_make_planet(i)
 	_frame_planets()
@@ -127,8 +179,6 @@ func _add_orbit_rings(center: Vector3) -> void:
 	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	add_child(mi)
 
-var _planet_mat: StandardMaterial3D
-
 ## T85: one planet node (mesh + label) for planets[i]; position from x,y or the old ring layout.
 func _make_planet(i: int) -> void:
 	var n := planets.size()
@@ -139,17 +189,18 @@ func _make_planet(i: int) -> void:
 		var a := TAU * float(i) / float(max(n, 1)) - PI / 2.0
 		pos = Vector3(cos(a), 0.0, sin(a)) * LAYOUT_RADIUS
 	positions.append(pos)
-	var mi := MeshInstance3D.new()
-	var sphere := SphereMesh.new()
-	sphere.radius = planet_radius()
-	sphere.height = planet_radius() * 2.0
-	sphere.radial_segments = 48
-	sphere.rings = 24
-	sphere.material = _planet_mat
-	mi.mesh = sphere
-	mi.position = pos
-	add_child(mi)
-	planet_meshes.append(sphere)
+	var sph: MeshInstance3D = PLANET_SPHERE.instantiate()
+	sph.planet_type = str(planets[i].get("type", "")).to_lower()
+	sph.rarity = clampf(float(planets[i].get("rarity", 0.0)), 0.0, 1.0)
+	var h := absi(str(planets[i].get("id", i)).hash())
+	sph.planet_id = str(planets[i].get("id", i))  # the sphere picks its own variant and rim light from this
+	sph.position = pos
+	sph.scale = Vector3.ONE * planet_radius()
+	add_child(sph)
+	planet_spheres.append(sph)
+	if belt_slot(h) == 0:  # 10% of the planets carry an asteroid belt
+		_add_belt(i, sph, h)
+	_aim_sphere(i)
 	var l := Label3D.new()
 	l.text = str(planets[i].get("name", planets[i].get("id", "?")))
 	l.billboard = BaseMaterial3D.BILLBOARD_ENABLED
@@ -212,6 +263,7 @@ func _add_sun(pos: Vector3) -> void:
 	var mi := MeshInstance3D.new()
 	mi.mesh = sphere
 	mi.position = pos
+	focus_sun_pos = pos
 	add_child(mi)
 
 ## T28: show or hide the pulsing "click me" halo around planet `index`.
@@ -305,9 +357,8 @@ func apply_tunables() -> void:
 	zoom = clampf(zoom, zoom_min, zoom_max)
 	yaw_deg = clampf(yaw_deg, yaw_min_deg, yaw_max_deg)
 	pitch_deg = clampf(pitch_deg, pitch_min_deg, pitch_max_deg)
-	for m in planet_meshes:
-		m.radius = planet_radius()
-		m.height = planet_radius() * 2.0
+	for sp in planet_spheres:
+		sp.scale = Vector3.ONE * planet_radius()
 	for i in planet_labels.size():
 		planet_labels[i].position = positions[i] + Vector3(0, -(planet_radius() + 0.5), 0)
 	if sun_mesh != null:
@@ -394,3 +445,49 @@ func _update_camera() -> void:
 	var offset := Vector3(sin(yaw) * cos(pitch), sin(pitch), cos(yaw) * cos(pitch)) * dist
 	camera.position = focus + offset
 	camera.look_at(focus, Vector3.UP)
+	_update_fx()
+
+## Flat textured ring in the sphere's unit space (scales with the planet), tilted a little. One quad, one shader.
+func _add_belt(i: int, sph: MeshInstance3D, h: int) -> void:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = h
+	var quad := PlaneMesh.new()
+	quad.size = Vector2.ONE * BELT_OUTER * 2.0
+	var sh := Shader.new()
+	sh.code = BELT_SHADER
+	var mat := ShaderMaterial.new()
+	mat.shader = sh
+	mat.set_shader_parameter("inner", BELT_INNER / BELT_OUTER)
+	mat.set_shader_parameter("spin", BELT_SPIN)
+	quad.material = mat
+	var mi := MeshInstance3D.new()
+	mi.mesh = quad
+	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	mi.rotation_degrees = Vector3(rng.randf_range(10.0, 25.0), 0.0, rng.randf_range(-10.0, 10.0))
+	sph.add_child(mi)
+	belt_materials[i] = mat
+
+## Points the sphere's key light (object space, no rotation, so world space) from planet i towards the sun.
+func _aim_sphere(i: int) -> void:
+	if i >= planet_spheres.size() or i >= positions.size():
+		return
+	var d := focus_sun_pos - positions[i]
+	if d.length() < 0.001:
+		return
+	d = d.normalized()
+	if not d.is_equal_approx(planet_spheres[i].key_dir):
+		planet_spheres[i].key_dir = d
+		if belt_materials.has(i):
+			belt_materials[i].set_shader_parameter("key_dir", d)
+
+func _update_fx() -> void:
+	for i in planet_spheres.size():
+		_aim_sphere(i)
+
+static func _mix(h: int) -> int:
+	return (h ^ (h >> 15)) * 2246822519 & 0x7FFFFFFF
+
+## 0..9 slot for belts from the id hash, independent of the sphere look.
+static func belt_slot(h: int) -> int:
+	var x := _mix(h)
+	return ((x >> 3) ^ (x >> 11) ^ (x >> 21)) % 10
