@@ -70,7 +70,7 @@ func rebuild() -> void:
 	_ship_button()
 	size = Vector2.ZERO
 
-## Title, subtitle, header strip (artist image when present), planet thumbnails, Main resources row.
+## Title, subtitle, planet thumbnails, Main resources row.
 func _header(p: Dictionary) -> void:
 	var title := Label.new()
 	title.text = str(p.get("name", p.get("id", "?")))
@@ -85,15 +85,6 @@ func _header(p: Dictionary) -> void:
 		var d := _label(str(p["desc"]))
 		d.theme_type_variation = "LabelSmall"
 		box.add_child(d)
-	var strip: Texture2D = Ui.ui_texture("ui_header_horizon")
-	if strip != null:
-		var tr := TextureRect.new()
-		tr.texture = strip
-		tr.custom_minimum_size = Vector2(288, 56)
-		tr.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		tr.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-		tr.clip_contents = true
-		box.add_child(tr)
 	var thumbs := HBoxContainer.new()
 	thumbs.add_theme_constant_override("separation", 8)
 	var sid: int = int(p.get("system", 1))
