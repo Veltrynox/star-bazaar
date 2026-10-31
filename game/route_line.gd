@@ -1,5 +1,5 @@
 extends MeshInstance3D
-## T68: route drawn as a straight camera-facing arrow (assets/route/arrow_tail|mid|head.png, 198 px tall, one whole
+## T68: route drawn as a straight camera-facing arrow (assets/route/route_arrow_tail|mid|head.png, 198 px tall, one whole
 ## arrow pointing right: tail at the source, tiled mid, head at the destination). A one-way route draws one arrow
 ## over the full line; when the opposite direction also exists (`half`), each arrow covers only its half of the line
 ## (source end to the middle) and they meet in the middle. A brightness/alpha wave travels source to destination;
@@ -71,7 +71,7 @@ func setup(id: int, a: int, b: int, pos_a: Vector3, pos_b: Vector3, planet_radiu
 		_shader = Shader.new()
 		_shader.code = SHADER_CODE
 		for n in ["tail", "mid", "head"]:
-			_textures.append(load("res://assets/route/arrow_%s.png" % n))
+			_textures.append(load("res://assets/route/route_arrow_%s.png" % n))
 	cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	extra_cull_margin = 2.0
 	var dir := (pos_b - pos_a).normalized()

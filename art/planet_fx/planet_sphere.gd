@@ -10,7 +10,7 @@ const FX := preload("res://art/planet_fx/planet_fx.gd")
 
 ## Surface textures, one entry each (greyscale equirectangular). The first entry is the default.
 ## Index rule: texture_index_for_id(planet_id) = FNV hash of the id (seed 3) times the list size, so the same id always gets the same texture.
-const SURFACE_TEXTURES := ["res://art/planet_fx/planet_1.jpg"]
+const SURFACE_TEXTURES := ["res://art/planet_fx/planet_surface_01.jpg"]
 ## Fine grain map for the city specks and the streak layer.
 const FINE_TEXTURE := "res://art/planet_fx/planet_sphere_tone.png"
 
