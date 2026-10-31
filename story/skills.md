@@ -66,5 +66,5 @@ SK_COST | 24 | Detail panel label | Cost: {amount} points
 SK_NO_CREDITS | 110 | Skill screen footer | Skills cost skill points, never credits.
 
 ## Notes for the owner (ideas only, no changes)
-- C1 to C4 depend on systems 2 and 3, which are on hold. The screen should say "No systems available yet." (NOT_SKILL_NO_SYSTEMS) next to C1 so the player is not misled.
+- C1 to C4 depend on systems 2 and 3. System 2 is in the Alpha; system 3 is on hold. Until system 3 exists, C4 (Colonial Rights) has no permit to discount, because the only permit in the build is system 2 and it is usually bought first. The screen should say "No systems available yet." (NOT_SKILL_NO_SYSTEMS) when no permit is left to buy.
 - A4 and B2 both say "more per cycle". If they move different numbers, the Economy Designer should confirm the wording is distinct.

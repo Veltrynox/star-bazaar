@@ -54,7 +54,7 @@ The player is "you" or "the company". Never a gender, never a name.
 - Income before costs, Income after costs, Trip cost: route and statistics labels (LBL_GROSS, LBL_NET, LBL_TRIP_COST). "Waiting for room": route status when the destination is full (ST_WAITING_ROOM).
 - Buy price, Sell price: price labels in the planet panel. Buy and Sell on a row are standing orders, on or off.
 - Expansion points (shown as "Skill points" in the top bar): spent on skills and permits.
-- Permits: allow entry to a new system (on hold in this build).
+- Permits: allow entry to a new system. Permit Charter (C1) unlocks them; system 2 is open in the Alpha.
 - Cycles: the game's time unit.
 - Ships: Skerrit (the only ship type). Working name.
 - Cash goal: the credit target that wins the game. Credits: the currency.
