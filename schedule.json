@@ -529,7 +529,7 @@
         "T99",
         "T100"
       ],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 60,
       "window": "Gameplay lane, idea 2 build (step 3 of 3, serial), after idea 1 build T98 and texts T100. Needs T85 for the buyable planets.",
       "brief": "(1) Build action for the partial shield over the sun in the system view; cost from data. (2) Per-planet resource-mix modifiers applied to production and prices; profit and energy gains from data. (3) Resident unhappiness per planet, shown in the planet panel with story ids, if T99 defines it. (4) Habitability flag per planet, used only for which buyable planets the player can choose (owner 2026-10-28). Do not change the ending picker (T77) or the ending structure. (5) Save and load the shield state. No hard-coded text or numbers. Handoff: handoffs/gameplay-programmer/<date>-T101.json.",
@@ -669,7 +669,7 @@
         "T108",
         "T120"
       ],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 50,
       "window": "Gameplay lane, idea 5 build (step 3 of 4, serial), after T105 (idea 4 build) and the T107 and T108 batch work.",
       "brief": "(1) Asteroid event as a T12 choice event: pay (money to the state; grants one research point as an event reward, not bought with money; no skill point and no reputation) or decline. (2) Decline: a seeded 50/50 roll (replayable for QA) between a bad outcome (the chosen warehouse destroyed, or its storage cut, per data) and nothing. (3) Asteroid drawn as a simple polygon on an approach path. (4) Texts by id; numbers from data. (5) Save and load. Handoff: handoffs/gameplay-programmer/<date>-T109.json.",
@@ -810,7 +810,7 @@
       "depends_on": [
         "T101"
       ],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 15,
       "window": "Gameplay lane, after T101. NOT READY: owner has not said whether to build this now.",
       "brief": "Owner decision 2026-10-28. (1) Add a shield_built flag, set when the player builds the solar shield (T101); saved and loaded. (2) game/ending_picker.gd reads the flag as a condition. Add no new ending rows and no new text unless the owner asks. (3) The flag is hidden: no ending, notice, panel or other text may mention it. (4) No balance values. Handoff: handoffs/gameplay-programmer/<date>-T121.json.",
