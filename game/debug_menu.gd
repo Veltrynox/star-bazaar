@@ -75,17 +75,6 @@ func setup(main_node: Control) -> void:
 func add_tool(control: Control) -> void:
 	tools_box.add_child(control)
 
-## T34: button that cycles the clock speed x1, x2, x4, x8, x12, x1. Runtime only, not saved.
-func add_speed_button() -> void:
-	const SPEEDS := [1.0, 2.0, 4.0, 8.0, 12.0]
-	var b := Button.new()
-	b.text = "Time speed: x%d" % int(main.time_speed)
-	b.pressed.connect(func():
-		var i := SPEEDS.find(main.time_speed)
-		main.time_speed = SPEEDS[(i + 1) % SPEEDS.size()]
-		b.text = "Time speed: x%d" % int(main.time_speed))
-	add_tool(b)
-
 ## Button that fast-forwards to the next cycle via main.debug_advance_cycle().
 func add_next_cycle_button() -> void:
 	var b := Button.new()

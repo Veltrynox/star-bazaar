@@ -31,7 +31,9 @@ var cycle_elapsed: float = 0.0  # seconds into current cycle
 var debug_force_goal: bool = false  # T78: debug-only, runtime only, never saved
 var debug_force_event: bool = false  # T13: debug-only, fire a random event at the next cycle start, then clears
 var run_recorded: bool = false  # T78: a run is recorded once
-var time_speed: float = 1.0  # T34: debug-only clock multiplier, runtime only, never saved
+var time_speed: float = 1.0  # clock multiplier chosen in the top bar (1, 2, 6 or 12); saved, sticky until changed
+const SPEEDS := [1.0, 2.0, 6.0, 12.0]
+var speed_buttons: Array = []
 var paused: bool = true  # T23: game starts paused after the preface
 var game_over: bool = false
 var choice_pending: bool = false  # T77: win choice shown and not answered yet (saved)
@@ -81,6 +83,9 @@ var cash_forecast: PanelContainer  # T40
 var mission_label: Label
 var tutorial_label: Label  # T15: first 4 cycles hint on the board
 var tut_first: Dictionary = {}  # T15: one-time triggers already used this session
+## T124 guided first steps: index into TUT_GUIDE; TUT_GUIDE.size() means done. Saved.
+const TUT_GUIDE := ["TUT_G1_SELECT", "TUT_G2_BUY", "TUT_G3_SEND", "TUT_G4_SELL", "TUT_G5_SKILLS", "TUT_G6_DONE"]
+var tut_step: int = 0
 var trade: RefCounted = Trade.new()  # price/margin logic for T07
 var commodities: Array = []
 var storage: RefCounted = Storage.new()  # T55 planet stock
@@ -163,7 +168,6 @@ func _ready() -> void:
 		debug_menu = load("res://game/debug_menu.gd").new()
 		add_child(debug_menu)
 		debug_menu.setup(self)
-		debug_menu.add_speed_button()
 		debug_menu.add_next_cycle_button()
 		debug_menu.add_routes_dump()
 		debug_menu.add_force_goal()
@@ -178,8 +182,8 @@ func collect_state() -> Dictionary:
 	return {"cycle": cycle, "cycle_elapsed": cycle_elapsed, "cash": cash, "paused": paused, "ships": ships,
 		"routes": engine.to_array(), "storage": storage.to_dict(), "orders": engine.local_to_array(),
 		"choice_pending": choice_pending, "learned_skills": learned_skills, "systems_reached": systems_reached,
-		"skill_points": skill_points, "pts_planets": pts_planets, "pts_pairs": pts_pairs, "events": events.to_dict(),
-			"open_systems": open_systems, "reached_ids": reached_ids, "galaxy_seen": galaxy_seen,
+		"time_speed": time_speed, "skill_points": skill_points, "pts_planets": pts_planets, "pts_pairs": pts_pairs, "events": events.to_dict(),
+			"open_systems": open_systems, "reached_ids": reached_ids, "galaxy_seen": galaxy_seen, "tut_step": tut_step,
 		"shield": shield.to_dict(), "storage_cuts": storage.cuts_to_dict(), "price_history": price_history}
 
 func apply_state(s: Dictionary) -> void:
@@ -190,8 +194,10 @@ func apply_state(s: Dictionary) -> void:
 			_open_system(sid)
 	reached_ids = _int_array(s.get("reached_ids"))
 	galaxy_seen = bool(s.get("galaxy_seen", false))
+	tut_step = int(s.get("tut_step", TUT_GUIDE.size()))  # old saves: guided steps skipped (already past cycle 1)
 	cycle = maxi(1, int(s.get("cycle", 1)))
 	cycle_elapsed = clampf(float(s.get("cycle_elapsed", 0.0)), 0.0, _cycle_seconds())
+	time_speed = _speed_or_default(s.get("time_speed", 1.0))  # old saves: x1
 	cash = int(s.get("cash", cash))
 	ships = clampi(int(s.get("ships", 0)), 0, int(balance.get("ship_cap", 0)))
 	engine.from_array(s.get("routes", []), ships)  # old saves: no key = zero routes
@@ -237,17 +243,32 @@ func _int_array(v) -> Array:
 	return out
 
 ## T82: expansion points, each source once. Keys skill_points_planet / _route / _system.
+var _pending_pts := 0  # points earned since the last pop-up (T126)
+var skill_point_pop: Control  # T126 pop-up, created on first use
+
 func _add_points(n: int) -> void:
 	skill_points += n
+	_pending_pts += n
 	if skill_screen != null and skill_screen.visible:
 		skill_screen.refresh()
 
 var _quiet_points := false  # no notice while the start state or an old save is being built
 
 func _point_notice(reason: String) -> void:
+	var earned := _pending_pts
+	_pending_pts = 0
 	if _quiet_points:
 		return
 	post_notice(StoryText.get_text("NOT_SKILL_POINT", {"reason": reason}))
+	if earned > 0:
+		_show_point_pop(earned, reason)
+
+## T126: the visible pop-up, drawn over the top of the screen; never blocks play.
+func _show_point_pop(earned: int, reason: String) -> void:
+	if skill_point_pop == null:
+		skill_point_pop = load("res://game/skill_point_pop.gd").new()
+		add_child(skill_point_pop)
+	skill_point_pop.show_points(earned, reason, StoryText.get_text("NOT_SKILL_POP_TITLE", {"points": earned}))
 
 func _award_planet(p: int) -> void:
 	if p < 0 or pts_planets.has(p):
@@ -498,6 +519,7 @@ func _find_mission_planet() -> int:
 
 ## Rebuilds the planet panel (rows, connections, ship button) for the selected planet.
 func _refresh_panel() -> void:
+	_tut_advance()  # T124: selecting a planet is a guided step
 	if selected_planet >= 0:
 		planet_panel.rebuild()
 
@@ -712,6 +734,7 @@ func _push_routes_to_map() -> void:
 
 func _after_change() -> void:
 	_push_routes_to_map()
+	_tut_advance()
 	_refresh()
 	_refresh_panel()
 	save_now()
@@ -1011,7 +1034,9 @@ func _apply_effect(id: String, eff: Dictionary) -> Dictionary:
 		"asteroid_pay":  # T109: payment to the state; the point is an event reward, not bought
 			cash -= events.asteroid_cost()
 			_add_points(ASTEROID_REWARD_POINTS)
+			_pending_pts = 0
 			post_notice(StoryText.get_text("EV20_REWARD"))
+			_show_point_pop(ASTEROID_REWARD_POINTS, StoryText.get_text("EV20_REWARD"))
 		"asteroid_decline":  # T109: seeded roll, bad = storage cut at one established planet, else nothing
 			asteroid_last_hit = -1
 			if events.asteroid_roll():
@@ -1195,6 +1220,8 @@ func debug_add_cash(n: int) -> void:
 func debug_add_points(n: int) -> void:
 	if OS.is_debug_build():
 		_add_points(n)
+		_pending_pts = 0
+		_show_point_pop(n, "Debug: points added")
 		_after_change()
 
 func debug_set_route_level(id: int, level: int) -> bool:
@@ -1226,6 +1253,7 @@ func debug_restart_tutorial() -> void:
 	if not OS.is_debug_build():
 		return
 	tut_first = {}
+	tut_step = 0
 	galaxy_seen = false
 	cycle = 1
 	cycle_elapsed = 0.0
@@ -1245,6 +1273,29 @@ func debug_reset_run() -> void:
 	get_tree().reload_current_scene()
 
 ## Player pause toggle (button, Space): posts the paused notice.
+## Top bar speed selector: 1x, 2x, 6x, 12x. Sticky: it stays until the player picks another.
+func _build_speed_buttons(box: HBoxContainer) -> void:
+	var group := ButtonGroup.new()
+	for i in SPEEDS.size():
+		var b := Button.new()
+		b.text = "%dx" % int(SPEEDS[i])
+		b.toggle_mode = true
+		b.button_group = group
+		b.theme_type_variation = "ButtonGhost"
+		b.tooltip_text = "Game speed %dx" % int(SPEEDS[i])
+		b.custom_minimum_size = Vector2(34, 28)
+		b.pressed.connect(set_speed.bind(SPEEDS[i]))
+		box.add_child(b)
+		speed_buttons.append(b)
+
+func set_speed(value: float) -> void:
+	time_speed = _speed_or_default(value)
+
+## Only the four speeds are allowed; anything else (old or bad saves) becomes x1.
+func _speed_or_default(value) -> float:
+	var v := float(value)
+	return v if SPEEDS.has(v) else 1.0
+
 func toggle_pause() -> void:
 	set_paused(not paused)
 	post_notice(StoryText.get_text("NOT_PAUSED" if paused else "NOT_RESUMED"))
@@ -1318,8 +1369,12 @@ func _build_ui() -> void:
 	state_label = Label.new()
 	state_label.theme_type_variation = "LabelCaption"
 	box.add_child(state_label)
+	_build_speed_buttons(box)
 	pause_button = Button.new()
 	pause_button.theme_type_variation = "ButtonPrimary"
+	pause_button.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	pause_button.expand_icon = true
+	pause_button.custom_minimum_size = Vector2(36, 28)
 	pause_button.pressed.connect(toggle_pause)
 	box.add_child(pause_button)
 	var menu_button := Button.new()
@@ -1377,6 +1432,7 @@ func _rail_button(icon_token: String, story_id: String, fallback: String, cb: Ca
 func _refresh() -> void:
 	if goal_label == null:
 		return
+	_tut_advance()
 	goal_label.text = StoryText.get_text("LBL_GOAL", {"goal": int(balance.get("win_cash", 0)),
 		"cycle": int(balance.get("win_cycle", 0)), "cash": cash})
 	cash_label.text = str(cash)
@@ -1391,8 +1447,11 @@ func _refresh() -> void:
 	else:
 		state_label.text = StoryText.get_or("LBL_RUNNING", "Running").to_upper()
 	progress.value = cycle_elapsed / _cycle_seconds()
-	pause_button.text = "Resume" if paused else "Pause"
+	pause_button.text = ""  # icon only (owner item 1)
+	pause_button.tooltip_text = StoryText.get_or("MENU_RESUME", "Resume") if paused else StoryText.get_or("MENU_PAUSE", "Pause")
 	pause_button.icon = Ui.icon("play" if paused else "pause")
+	for i in speed_buttons.size():
+		speed_buttons[i].button_pressed = SPEEDS[i] == time_speed
 	var star := " *" if SkillTree.any_affordable(learned_skills, skill_points, balance, skill_ctx()) else ""
 	skills_button.tooltip_text = StoryText.get_text("MENU_SKILLS") + star
 	skills_button.icon = Ui.icon("skills")
@@ -1416,11 +1475,36 @@ func _tut_show(ids: Array) -> void:
 	if tutorial_label == null:
 		return
 	var parts: Array = []
+	if tut_step < TUT_GUIDE.size():  # T124: while the guided steps run, their line is the only tutorial line
+		ids = [TUT_GUIDE[tut_step]]
 	for id in ids:
 		parts.append(StoryText.get_or(str(id), "", {}))
 	var t := "\n".join(parts).strip_edges()
 	tutorial_label.text = t
-	tutorial_label.visible = t != "" and cycle <= 4 and not game_over
+	tutorial_label.visible = t != "" and (cycle <= 4 or tut_step < TUT_GUIDE.size()) and not game_over
+
+## T124: moves the guided tutorial on when the player has done the current step. Called on every change.
+func _tut_advance() -> void:
+	var moved := false
+	while tut_step < TUT_GUIDE.size() and _tut_step_done(tut_step):
+		tut_step += 1
+		moved = true
+	if moved:
+		_tut_show([])
+
+func _tut_step_done(i: int) -> bool:
+	match i:
+		0:
+			return selected_planet >= 0
+		1:
+			return engine.local.values().any(func(o): return bool(o["buy"]))
+		2:
+			return not engine.routes.is_empty()
+		3:
+			return engine.local.values().any(func(o): return bool(o["sell"]))
+		4:
+			return not learned_skills.is_empty()
+	return false
 
 ## Shows `ids` the first time `key` fires (cycles 1 to 4).
 func _tut_once(key: String, ids: Array) -> void:

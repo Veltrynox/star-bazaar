@@ -95,7 +95,12 @@ static func scroll_wrap(panel: Container, content: Control, reserved: float) -> 
 	content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	if content.get_parent() != null:
 		content.get_parent().remove_child(content)
-	sc.add_child(content)
+	# owner item 8: a gutter keeps the content clear of the scrollbar
+	var gutter := MarginContainer.new()
+	gutter.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	gutter.add_theme_constant_override("margin_right", 14)
+	gutter.add_child(content)
+	sc.add_child(gutter)
 	panel.add_child(sc)
 	var fit := func() -> void:
 		if not is_instance_valid(panel) or not panel.is_inside_tree():
