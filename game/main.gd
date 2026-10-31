@@ -180,7 +180,7 @@ func collect_state() -> Dictionary:
 		"choice_pending": choice_pending, "learned_skills": learned_skills, "systems_reached": systems_reached,
 		"skill_points": skill_points, "pts_planets": pts_planets, "pts_pairs": pts_pairs, "events": events.to_dict(),
 			"open_systems": open_systems, "reached_ids": reached_ids, "galaxy_seen": galaxy_seen,
-		"shield": shield.to_dict(), "storage_cuts": storage.cuts_to_dict()}
+		"shield": shield.to_dict(), "storage_cuts": storage.cuts_to_dict(), "price_history": price_history}
 
 func apply_state(s: Dictionary) -> void:
 	shield.from_dict(s.get("shield"))  # T101: old saves: no shield
@@ -205,6 +205,8 @@ func apply_state(s: Dictionary) -> void:
 				learned_skills.append(str(id))
 	# Saves without a skills key start with none: Space Storage must be earned via skill A1.
 	engine.learned = learned_skills
+	_sync_skill_effects()
+	price_history = s.get("price_history", {}) if typeof(s.get("price_history")) == TYPE_DICTIONARY else {}
 	_ensure_posts()
 	systems_reached = maxi(1, int(s.get("systems_reached", 1)))
 	skill_points = maxi(0, int(s.get("skill_points", 0)))
@@ -312,6 +314,13 @@ func unowned_systems() -> Array:
 			out.append(sid)
 	return out
 
+## Credit price of a permit: the data price, less skill C4 Colonial Rights (balance skill_C4_permit_discount).
+func permit_cost(sid: int) -> int:
+	var c := Systems.permit_cost(balance, sid)
+	if has_skill("C4"):
+		c = floori(float(c) * (1.0 - float(balance.get("skill_C4_permit_discount", 0.0))))
+	return c
+
 ## {ok, reason}; reason is "", "owned", "skill", "credits", "points", "over" or "unknown".
 func can_buy_permit(sid: int) -> Dictionary:
 	if not Systems.ids().has(sid):
@@ -322,7 +331,7 @@ func can_buy_permit(sid: int) -> Dictionary:
 		return {"ok": false, "reason": "owned"}
 	if not has_skill(str(Systems.get_system(sid).get("requires_skill", "C1"))):
 		return {"ok": false, "reason": "skill"}
-	if cash < Systems.permit_cost(balance, sid):
+	if cash < permit_cost(sid):
 		return {"ok": false, "reason": "credits"}
 	if skill_points < Systems.permit_points(balance, sid):
 		return {"ok": false, "reason": "points"}
@@ -333,7 +342,7 @@ func buy_permit(sid: int) -> Dictionary:
 	var v := can_buy_permit(sid)
 	if not v["ok"]:
 		return v
-	cash -= Systems.permit_cost(balance, sid)
+	cash -= permit_cost(sid)
 	skill_points -= Systems.permit_points(balance, sid)
 	_open_system(sid)
 	post_notice(StoryText.get_text(str(Systems.get_system(sid).get("permit_notice_id", "NOT_PERMIT_S2"))))
@@ -367,6 +376,7 @@ func learn_skill(id: String) -> Dictionary:
 		return v
 	skill_points -= SkillTree.cost(balance, id)
 	learned_skills.append(id)
+	_sync_skill_effects()
 	_sync_closed()
 	_ensure_posts()
 	post_notice(StoryText.get_text("NOT_SKILL_LEARNED", {"skill": SkillTree.skill_name(id)}))
@@ -378,6 +388,36 @@ func learn_skill(id: String) -> Dictionary:
 ## T71: effect hook. Systems ask main.has_skill("A4") etc.; effect numbers stay in balance.json.
 func has_skill(id: String) -> bool:
 	return learned_skills.has(id)
+
+## Skill effects that live on other objects: A2 Deep Holds raises planet storage capacity.
+func _sync_skill_effects() -> void:
+	storage.capacity_mult = 1.0 + float(balance.get("skill_A2_capacity", 0.0)) if has_skill("A2") else 1.0
+
+## B1 Market Ledger: the last few sell prices of a planet's commodity, newest last. Kept at each cycle end.
+const PRICE_HISTORY_LEN := 5
+var price_history: Dictionary = {}  # "<planet>|<commodity>" -> Array of ints (runtime, saved)
+
+func _record_prices() -> void:
+	for i in trade.planets.size():
+		for c in commodities:
+			var p: int = trade.price(i, str(c) + "_sell")
+			if p < 0:
+				continue
+			var k := "%d|%s" % [i, str(c)]
+			var arr: Array = price_history.get(k, [])
+			arr.append(p)
+			while arr.size() > PRICE_HISTORY_LEN:
+				arr.pop_front()
+			price_history[k] = arr
+
+func price_history_line(planet: int, c: String) -> String:
+	var arr: Array = price_history.get("%d|%s" % [planet, c], [])
+	if arr.is_empty():
+		return StoryText.get_text("LBL_PRICE_HISTORY_NONE")
+	var parts := []
+	for v in arr:
+		parts.append(str(v))
+	return StoryText.get_text("LBL_PRICE_HISTORY", {"prices": ", ".join(parts)})
 
 func open_skills() -> void:
 	if preface != null or game_over:
@@ -836,6 +876,7 @@ func _end_cycle() -> void:
 	_settle_routes()
 	engine.feed_space()  # T85: planet storage into Space Storage at planet_to_space_rate
 	_check_stranded()
+	_record_prices()  # B1 Market Ledger history
 	_push_routes_to_map()
 	_refresh_panel()
 	cycle_ended.emit(cycle)
@@ -853,6 +894,8 @@ func _end_cycle() -> void:
 	events.tick()  # T12: effects that ran this cycle age
 	cycle += 1
 	_sync_closed()
+	if has_skill("B4") and events.due(cycle + 1):  # B4 Event Forecast: one cycle of warning
+		post_notice(StoryText.get_text("EVT_NEXT_DUE"))
 	if events.due(cycle) or (OS.is_debug_build() and debug_force_event):
 		debug_force_event = false
 		fire_event(events.random_id(["EV18"] if shield.decided else [], cycle))

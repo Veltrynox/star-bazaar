@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "data_version": 13,
-  "source": "2026-10-28 v13: A3 and hauler keys removed. v12: planet_to_space_rate 3 to 1 (QA A1 leak). v11: added debris, shield, pirate, asteroid keys (owner ideas 1,3,5). Template values marked in handoff.",
+  "data_version": 14,
+  "source": "2026-10-31 v14: skill_A2_capacity 0.5 and skill_C4_permit_discount 0.2 added (template values, owner and economy designer to confirm). 2026-10-28 v13: A3 and hauler keys removed. v12: planet_to_space_rate 3 to 1 (QA A1 leak). v11: added debris, shield, pirate, asteroid keys (owner ideas 1,3,5). Template values marked in handoff.",
   "values": {
     "cycle_minutes": 2,
     "travel_cycles_per_leg": 1,
@@ -30,6 +30,8 @@
     "skill_points_system": 3,
     "permit_points_2": 3,
     "permit_points_3": 4,
+    "skill_A2_capacity": 0.5,
+    "skill_C4_permit_discount": 0.2,
     "skill_A4_route_units": 0.15,
     "skill_B2_order_units": 0.5,
     "skill_B3_margin": 0.12,

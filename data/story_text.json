@@ -804,6 +804,36 @@
   "place": "Skill screen, permit line when credits are short"
  },
  {
+  "id": "NOT_ROUTE_NEEDS_C3",
+  "text": "Routes between systems need Long Haul (C3).",
+  "max": 110,
+  "place": "Route between two systems without Long Haul (C3)"
+ },
+ {
+  "id": "EVT_NEXT_DUE",
+  "text": "An event is due next cycle.",
+  "max": 110,
+  "place": "Notice, Event Forecast (B4), posted one cycle before an event"
+ },
+ {
+  "id": "LBL_PRICE_HISTORY",
+  "text": "Recent sell prices: {prices}.",
+  "max": 110,
+  "place": "Planet panel, Market Ledger (B1), under the prices; {prices} is a list of sell prices"
+ },
+ {
+  "id": "LBL_PRICE_HISTORY_NONE",
+  "text": "Recent sell prices: none yet.",
+  "max": 110,
+  "place": "Planet panel, Market Ledger (B1), before the first cycle closes"
+ },
+ {
+  "id": "LBL_NEXT_PRICE",
+  "text": "Next cycle: {buy} cr to buy, {sell} cr to sell.",
+  "max": 110,
+  "place": "Planet panel, Price Whisper (B3), prices for the next cycle; {buy} and {sell} are credits"
+ },
+ {
   "id": "SK_HEADER",
   "text": "Skills",
   "max": 24,

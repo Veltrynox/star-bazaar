@@ -162,10 +162,13 @@ func random_id(skip: Array = [], cycle: int = 0) -> String:
 		return ""
 	return str(pool[rng.randi_range(0, pool.size() - 1)]["id"])
 
-## Factor on both buy and sell price of commodity c at a planet.
-func price_factor(planet: int, c: String) -> float:
+## Factor on both buy and sell price of commodity c at a planet. next_cycle = the factor after one tick
+## (only effects with cycles left after this one; B3 Price Whisper shows it).
+func price_factor(planet: int, c: String, next_cycle: bool = false) -> float:
 	var f := 1.0
 	for a in active:
+		if next_cycle and int(a["left"]) < 2:
+			continue
 		if a["kind"] != "closed" and int(a["planet"]) == planet and str(a["c"]) == c:
 			f *= 1.0 + pct() * (1.0 if a["kind"] == "up" else -1.0)
 	return f

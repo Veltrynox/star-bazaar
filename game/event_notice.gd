@@ -6,6 +6,8 @@ const StoryText := preload("res://game/story_text.gd")
 
 signal confirmed(choice: int)  # -1 = Continue, otherwise the choice index
 
+var first_enabled := -1  # index of the first choice button that is not disabled; -1 when none (or Continue only)
+
 func show_event(title: String, text: String, effect_line: String, choices: Array, continue_text: String, disabled: Array = [], art: String = "") -> void:
 	color = Ui.col("scrim_soft")
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -58,6 +60,7 @@ func show_event(title: String, text: String, effect_line: String, choices: Array
 			box.add_child(b)
 			if first == null and not b.disabled:
 				first = b
+				first_enabled = idx
 	if first != null:
 		first.grab_focus()
 

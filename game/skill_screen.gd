@@ -112,7 +112,7 @@ func _build_permits() -> void:
 		c.queue_free()
 	for sid in main.Systems.ids():
 		var sys: Dictionary = main.Systems.get_system(int(sid))
-		var cost: int = main.Systems.permit_cost(main.balance, int(sid))
+		var cost: int = main.permit_cost(int(sid))
 		var pts: int = main.Systems.permit_points(main.balance, int(sid))
 		var row := HBoxContainer.new()
 		row.add_theme_constant_override("separation", 12)

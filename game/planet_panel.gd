@@ -146,6 +146,19 @@ func _row(c: String, prices: Dictionary, pend: Dictionary) -> Control:
 	t.text = "%s: %s   %s: %s" % [StoryText.get_text("LBL_BUY_PRICE"), _price(buy), StoryText.get_text("LBL_SELL_PRICE"), _price(sell)]
 	t.theme_type_variation = "LabelSmall"
 	info.add_child(t)
+	if main.has_skill("B1"):  # Market Ledger: recent sell prices
+		var h := Label.new()
+		h.text = main.price_history_line(planet_index, c)
+		h.theme_type_variation = "LabelSmall"
+		info.add_child(h)
+	if main.has_skill("B3"):  # Price Whisper: the prices the next cycle starts with
+		var nb: int = main.trade.price(planet_index, c + "_buy", true)
+		var ns: int = main.trade.price(planet_index, c + "_sell", true)
+		if nb >= 0 and ns >= 0:
+			var nx := Label.new()
+			nx.text = StoryText.get_text("LBL_NEXT_PRICE", {"buy": nb, "sell": ns})
+			nx.theme_type_variation = "LabelSmall"
+			info.add_child(nx)
 	for role in ["buy", "sell"]:
 		if main.engine.local_on(planet_index, c, role):
 			var st := Label.new()

@@ -227,3 +227,10 @@ EVT_HINT_CHOICE_OFF | 110 | Event popup, tooltip on a choice that cannot be take
 PERMIT_COST_LINE | 110 | Skill screen, permit cost line; {credits} and {points} are filled in | Cost: {credits} credits and {points} skill points.
 PERMIT_NEEDS_C1 | 110 | Skill screen, permit line when Permit Charter (C1) is missing | Needs Permit Charter (C1).
 PERMIT_NO_CREDITS | 110 | Skill screen, permit line when credits are short | Not enough credits.
+
+## Skill effects made real (2026-10-31, Alpha): Long Haul, Event Forecast, Market Ledger, Price Whisper
+NOT_ROUTE_NEEDS_C3 | 110 | Route between two systems without Long Haul (C3) | Routes between systems need Long Haul (C3).
+EVT_NEXT_DUE | 110 | Notice, Event Forecast (B4), posted one cycle before an event | An event is due next cycle.
+LBL_PRICE_HISTORY | 110 | Planet panel, Market Ledger (B1), under the prices; {prices} is a list of sell prices | Recent sell prices: {prices}.
+LBL_PRICE_HISTORY_NONE | 110 | Planet panel, Market Ledger (B1), before the first cycle closes | Recent sell prices: none yet.
+LBL_NEXT_PRICE | 110 | Planet panel, Price Whisper (B3), prices for the next cycle; {buy} and {sell} are credits | Next cycle: {buy} cr to buy, {sell} cr to sell.

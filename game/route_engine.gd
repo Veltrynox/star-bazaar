@@ -205,6 +205,8 @@ func check_connection(src: int, dst: int, c: String) -> Dictionary:
 		return {"ok": false, "reason": "Unknown commodity."}
 	if not planet_open(src) or not planet_open(dst):
 		return {"ok": false, "reason": "A planet on this route is closed."}
+	if int(trade.planets[src].get("system", 1)) != int(trade.planets[dst].get("system", 1)) and not learned.has("C3"):
+		return {"ok": false, "reason": StoryText.get_text("NOT_ROUTE_NEEDS_C3")}  # C3 Long Haul
 	return {"ok": true, "reason": ""}  # T87: a second ship on the same lane is allowed
 
 ## T70: full destination, no source stock check: true when the route cannot add a unit now.
