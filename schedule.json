@@ -294,7 +294,7 @@
         "T71",
         "T58"
       ],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 30,
       "window": "Gameplay lane, low priority, last",
       "brief": "Owner decision 2026-10-27 (item 7). Skill A3 hauler keys (hauler_*) are not read yet (T82 handoff: no hauler ship type exists). Apply the hauler effect keys from data/balance.json to the ship system once T58 has the ship types. Read numbers from data; change no values. Skill B3 is not part of this task. Handoff: handoffs/gameplay-programmer/<date>-T89.json.",
@@ -834,7 +834,7 @@
       "depends_on": [
         "T122"
       ],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 15,
       "window": "Gameplay lane, after T122 (shares the top bar control).",
       "brief": "Promote the speed selector (1x, 2x, 6x, 12x) from the debug build into the release build and the top bar. The chosen speed stays on until the player changes it, and survives pause and resume. It must not change balance or cycle length, only how fast game time runs. Save the chosen speed in the autosave and restore it on load. Handoff: handoffs/gameplay-programmer/<date>-T123.json.",
