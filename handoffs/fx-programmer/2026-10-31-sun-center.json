@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "agent": "fx-programmer",
+  "date": "2026-10-31",
+  "task": "Sun: centre the disc at the same place (78,78 style frame centre) in every frame",
+  "status": "done_unverified_visually",
+  "files_changed": ["tools/sun_center/center_frames.py", "tools/sun_center/pngio.py", "art/sun/frames_raw/sun_flare_00..63.png (new, raw copy)", "art/sun/frames/sun_flare_00..63.png (centred)", "tools/sun_debug/frames.js"],
+  "usage_note": "Re-run: python3 tools/sun_center/center_frames.py (default set sun_flare; also accepts sun_storm, sun_calm; --dry measures only). Always reads art/sun/frames_raw. Then python3 tools/sun_debug/make_planes.py. Shader, map.gd, planet shader, crop values untouched.",
+  "open_questions": ["Owner: look at the sun on screen. Does the disc stay put while it burns? Flares near the frame edge may be cut by the shift (largest shift 9 px)."],
+  "handoff": "Disc fitted per frame (edge circle fit, trimmed, radius held within +-1 px of the set median), frame shifted by whole pixels, padded black. Only sun_flare is in use (sun_flare.gd SOURCE); storm and calm are not used and were not changed.",
+  "details": {
+    "frames_processed": 64,
+    "frame_centre": [77.5, 77.5],
+    "before": {"max_centre_distance_px": 9.45, "mean_px": 6.12, "typical_shift_px": "x 0..-9, y -2..-8 (drift follows sheet column and row, so the crop grid was slightly off)"},
+    "after_residual": {"max_centre_distance_px": 0.71, "mean_px": 0.42, "note": "integer shifts, so up to 0.71 px by design; 2 flare-heavy frames measured with a free radius fit give up to 3.55 px but the overlay on frame 31 matches the limb"},
+    "radius_px": {"min": 53.75, "max": 55.50, "mean": 54.49, "spread_percent": 3.2, "free_fit_max": 57.0, "free_fit_spread_percent": 6.0, "note": "radius not changed; free-fit outliers (frames 26, 28, 31, 35) are flare-driven"},
+    "tests": "headless run_tests TOTAL pass=382 fail=0; bot decent seed 2: 0 SCRIPT ERROR, outcome win",
+    "not_checked": "Look on screen; whether the disc in the shader view looks still. Centre is the geometric centre of the 156 px frame: pixel index 77.5, which is 78.0 in edge coordinates."
+  }
+}

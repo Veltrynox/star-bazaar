@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "agent": "fx-programmer",
+  "date": "2026-10-31",
+  "task": "Static HTML debug page: each sun plane isolated, with its crop, rotation, offset and phase",
+  "status": "fixed_unverified_visually",
+  "files_changed": [
+    "tools/sun_debug/index.html",
+    "tools/sun_debug/make_planes.py",
+    "tools/sun_debug/planes.json",
+    "tools/sun_debug/planes.js",
+    "tools/sun_debug/frames.js"
+  ],
+  "usage_note": "Open tools/sun_debug/index.html directly (file://). Game files untouched (sun_flare.gd, sun.gdshader, map.gd). Regenerate data after changing sun_flare.gd: python3 tools/sun_debug/make_planes.py",
+  "open_questions": [
+    "Does a tile look like the plane in the game? The page ignores yaw/pitch/depth (2D), so only crop, rotation, phase, glow, edge fade and additive sum are checked.",
+    "Canvas clips at 1.0; the game's HDR glow above 1.0 is not shown."
+  ],
+  "handoff": "Page shows 5 tiles (PLANES), each with index, yaw, pitch (derived from the Fibonacci direction), offset z, crop centre, crop scale, crop rotation, frame phase, frame shown, glow and spin. Tile image = frame crop with the shader's UV math (uv = centre + R(rot)*(p-0.5)*scale), linear blend of frame f and f+1, round edge fade, glow, additive on black. A combined canvas adds all planes. Frame slider 0..63, play at game FPS, glow on/off, fade on/off, spin slider. Per-plane values are not constants in sun_flare.gd, they are computed in _ready() and _layout(); make_planes.py repeats those formulas (lines 33-56, 69) and reads PLANES, PLANE_GLOW, FPS, SOURCE, FRAME_COUNT, radius, golden by regex. planes.js duplicates planes.json because fetch() fails on file://.",
+  "details": {
+    "planes": 5,
+    "plane_glow": 0.4,
+    "fps": 3.0,
+    "source": "sun_flare",
+    "frame_size_px": "156x156",
+    "verified": "planes.json values compared by hand against the GDScript formulas; all 64 image paths (../../art/sun/frames/sun_flare_NN.png from tools/sun_debug) exist on disk.",
+    "not_checked": "Page never opened in a browser: layout, drawing, canvas transform sign conventions (rotation direction), play loop."
+  },
+  "bug_2026-10-31": {
+    "report": "owner saw black tiles",
+    "cause": "Most likely draw() was gated on ALL 64 images loading (loaded === N), with onerror only logging to the console; any single failed or slow image meant draw() never ran, so tiles stayed at the CSS black with no message. No definite single fault was found in paths, pixels or composite mode, so this is the best-supported cause, not proven.",
+    "checked_ok": [
+      "image path ../../art/sun/frames/sun_flare_NN.png is correct from tools/sun_debug (generated planes.js frame_url; 64 files exist)",
+      "frames are opaque RGB and bright: sun_flare_00 mean RGB 93.3/48.7/9.3, sun_flare_30 mean RGB 157.8/99.2/30.9, max 255; x glow 0.4 is dim but visible",
+      "no getImageData/toDataURL anywhere, drawImage only, so file:// taint is not an issue",
+      "additive lighter on opaque black frames adds, does not hide"
+    ],
+    "fix": [
+      "draw after each image settles, and once on frame 0, not only when all 64 load",
+      "missing frames are skipped (ok() guard) instead of throwing",
+      "visible status line (loaded n/64, first path, resolved URL), red error list on the page for failed images and window.onerror",
+      "text fallback NO IMAGE: path drawn on the tile",
+      "edge fade now a black source-over gradient instead of destination-in (same look on black, no alpha holes)"
+    ],
+    "not_checked": "No browser, no node: JS syntax not machine-checked, only read. Owner must open the page and read the status line."
+  },
+  "bug_2026-10-31_b": {
+    "report": "owner saw 'Frames loaded 0 / 64, FAILED 64' with file:/// paths; files exist",
+    "cause": "Browser blocks loading local image files from a page opened from disk.",
+    "fix": "make_planes.py now also writes tools/sun_debug/frames.js (const SUN_FRAMES = 64 base64 PNG data URIs, 3.65 MB). index.html loads each Image from the data URI; failure text now only for a bad data URI. Status line, error list, tile message, planes, slider, toggles kept.",
+    "verified": "All 64 URIs decode to PNG with IHDR 156x156 (header bytes read in Python).",
+    "not_checked": "No browser. Owner must open tools/sun_debug/index.html and confirm 'Frames loaded 64 / 64'."
+  }
+}

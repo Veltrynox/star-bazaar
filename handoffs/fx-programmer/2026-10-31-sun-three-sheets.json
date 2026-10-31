@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "agent": "fx-programmer",
+  "date": "2026-10-31",
+  "task": "Sun: all three sheets, one sheet per plane, own frame offset per plane; centre storm and calm",
+  "status": "done_unverified_visually",
+  "files_changed": ["art/sun/sun_flare.gd", "art/sun/sun.gdshader", "art/sun/frames/sun_storm_00..63.png (centred)", "art/sun/frames/sun_calm_00..63.png (centred)", "tools/sun_debug/make_planes.py", "tools/sun_debug/index.html", "tools/sun_debug/planes.js", "tools/sun_debug/planes.json", "tools/sun_debug/frames.js"],
+  "usage_note": "Planes: 0 storm, 1 flare, 2 calm, 3 flare, 4 storm (PLANE_SETS in sun_flare.gd). Re-centre: python3 tools/sun_center/center_frames.py sun_storm sun_calm (from raw). Regenerate debug page: python3 tools/sun_debug/make_planes.py. map.gd, planet shader, crops, rotations untouched.",
+  "open_questions": ["Owner: on screen, is the mix of sheets right (change PLANE_SETS to reorder)? Is the sun brightness/flare response right now that storm and calm are in?"],
+  "handoff": "One Texture2DArray of 192 layers (sheet*64+frame, 156x156 RGBA8, about 18.7 MB). Shader gets uniform layer_base per plane. sun_flare global: mean of the frames the five planes show at burn position frame_pos (storm lifts it most, calm least), precomputed for the 64 positions and scaled 0..1. set_radius and sun_flare unchanged.",
+  "details": {
+    "centring": {
+      "sun_flare": "already centred: max 0.71 px, mean 0.42, radius 53.75..55.50, largest shift 9 px (unchanged)",
+      "sun_storm": "was NOT centred (before: max 11.1 px). Centred from raw: radius 51.25..53.25, 9 frames had 1.3..2.3 px residual on re-measure (flare-driven fit shift), corrected with a second whole-pixel shift from raw; all frames now <= 1.0 px. largest shift 9 px",
+      "sun_calm": "was NOT centred (before: max 9.4 px). Centred from raw: radius 58.75..59.25, frame 61 had 2.5 px, corrected; all frames now <= 1.0 px. largest shift 7 px",
+      "note": "the second correction for 10 frames was done with a throwaway script, not in center_frames.py; re-running center_frames.py on storm/calm reproduces the first result (a few frames up to 2.5 px) not the corrected one"
+    },
+    "plane_offsets": {"sets": ["storm", "flare", "calm", "flare", "storm"], "phase_frames": [0.0, 39.55, 15.11, 54.66, 30.22], "note": "repeats: storm planes 0 and 4 are 30 frames apart, flare planes 1 and 3 are 15 frames apart"},
+    "tests": "headless run_tests TOTAL pass=382 fail=0; bot decent seed 2: 0 SCRIPT ERROR, outcome win",
+    "not_checked": "Anything on screen (array texture of 192 layers on a real GPU, brightness balance, flare response). Debug page JS could not be run (no node/browser); only regenerated data and read the code. Also fixed a pre-existing bug there: the fade overlay fillRect sat inside a comment."
+  }
+}

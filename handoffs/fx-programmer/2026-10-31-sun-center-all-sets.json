@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "agent": "fx-programmer",
+  "date": "2026-10-31",
+  "task": "Centre sun_storm and sun_calm like sun_flare; add a set selector to the sun debug page",
+  "status": "done_unverified_visually",
+  "files_changed": ["art/sun/frames/sun_storm_00..63.png (centred from raw)", "art/sun/frames/sun_calm_00..63.png (centred from raw)", "tools/sun_debug/make_planes.py", "tools/sun_debug/index.html", "tools/sun_debug/frames.js (regenerated, 14 MB, all three sets)"],
+  "usage_note": "python3 tools/sun_center/center_frames.py sun_storm sun_calm, then python3 tools/sun_debug/make_planes.py. Open tools/sun_debug/index.html and use the Set dropdown.",
+  "open_questions": ["Owner: open tools/sun_debug/index.html from file://, pick each set in the Set dropdown, scrub frames: does the disc stay put? sun_storm and sun_calm have flare-heavy frames with a held-radius residual of about 2.3 to 2.5 px (see details)."],
+  "handoff": "Storm and calm were not centred (raw max centre distance 10.7 and 9.4 px), so both were centred from art/sun/frames_raw. sun_flare, SOURCE, shader, map.gd, planet shader and crop values untouched; the game still uses sun_flare.",
+  "details": {
+    "sun_storm": {"before_max_px": 11.12, "after_max_px": 2.30, "after_mean_px": 0.63, "radius_min_max": [51.25, 53.25], "largest_shift_px": "about 5 x, 8 y (seen in dry run)", "note": "free-radius max 14.5 px is flare-driven misfit, held-radius is the real measure"},
+    "sun_calm": {"before_max_px": 9.41, "after_max_px": 2.50, "after_mean_px": 0.36, "radius_min_max": [58.75, 59.25], "largest_shift_px": "about 7 x, 6 y (seen in dry run, frame 61)", "note": "frame 61 has a weak edge fit (score 35); it is the likely 2.5 px frame"},
+    "within_1px": "not for every frame: mean is under 1 px, a few flare-heavy frames are 2 to 2.5 px off. Tool not changed.",
+    "selector": "Did not exist. Added: frames.js now holds SUN_SETS {sun_flare, sun_storm, sun_calm} and SUN_DEFAULT; page Set dropdown switches tiles and combined view; default sun_flare; works from file:// with data URIs, no fetch.",
+    "tests": "headless run_tests TOTAL pass=382 fail=0; bot decent seed 2: 0 SCRIPT ERROR, outcome win",
+    "not_checked": "Page not opened (no browser here, no node for a JS syntax check); only read carefully. Frames not looked at on screen."
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "agent": "fx-programmer",
+  "date": "2026-10-31",
+  "task": "Owner item 11: sun as a shell of flat grid planes instead of one textured sphere",
+  "status": "done_unverified_visually",
+  "files_changed": ["art/sun/sun_flare.gd", "art/sun/sun.gdshader"],
+  "usage_note": "No new images. map.gd, planet shaders and balance untouched. QA handoff untouched.",
+  "open_questions": [
+    "Look at it in a real window: plane glow (0.55 each, 12 planes add up), plane size (3 sun radii) and the 0.55..1.0 round edge fade may need tuning."
+  ],
+  "handoff": "12 QuadMesh planes, one per Fibonacci direction (own yaw and pitch), each slightly off centre along its facing (0.05..0.17 radius) and turning slowly in its own plane. Each plane has its own ShaderMaterial: additive, unshaded, double sided, no depth write. Per plane: own UV crop centre (+-0.18 around the middle), crop scale 0.5..0.62, crop rotation and frame phase (golden-ratio spread), so no two planes show the same part or the same frame. Round soft fade hides the square edge. 64-frame Texture2DArray kept; frames advance at 12 FPS; sun_flare global still set from the once-at-load frame brightness; set_radius() resizes the planes. Cost: 12 draw calls, one shader, 4 texture reads per pixel per plane.",
+  "details": {
+    "planes": 12,
+    "tests": "headless run_tests: TOTAL pass=382 fail=0",
+    "not_checked": "Shader compile and look. Windowed qa/gui/shot.gd run produced no screenshot in this sandbox (no output after minutes, stopped), so nothing was seen by eye."
+  }
+}

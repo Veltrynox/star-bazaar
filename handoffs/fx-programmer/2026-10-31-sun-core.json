@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "agent": "fx-programmer",
+  "date": "2026-10-31",
+  "task": "Sun: white HDR core at the centre; sun brightness raised above 1.0 (additive)",
+  "status": "done_unverified_visually",
+  "files_changed": ["art/sun/sun.gdshader", "art/sun/sun_flare.gd"],
+  "usage_note": "Core: constants CORE_RADIUS 0.34 and CORE_FALLOFF 1.8 in sun.gdshader; CORE_VALUE 3.0 in sun_flare.gd. PLANE_GLOW 0.9 in sun_flare.gd. set_radius and sun_flare global unchanged. map.gd and planet shader untouched.",
+  "open_questions": ["Owner: on screen, is the core size (0.34 of the quad half-size, about half the disc) and value 3.0 right? Do edge lines remain outside the core?"],
+  "handoff": "Core is one extra camera-facing quad (6th draw call) drawn by sun.gdshader with core_on=1: white, value 3.0 at the centre, pow(1 - smoothstep(0, CORE_RADIUS, r), CORE_FALLOFF) radially. Additive blend, so it saturates the plane grid near the centre. Brightness: the PLANE_GLOW constant (0.4 then) was never passed to the shader, so planes used the shader default 0.4 (5 x 0.4 = 2.0 max overlap, mostly well under 1.0). Now passed and raised to 0.9 (up to 4.5 on overlap). Map env has glow on, hdr threshold 1.0, additive, intensity 0.8, and viewport/hdr_2d is on, so values above 1.0 glow. Frames, offsets, sheet mix unchanged.",
+  "details": {
+    "edge_lines": "Not checkable here. Outside the core the planes still fade only from r 0.55 to 1.0 of the quad, and raising brightness makes any grid line where the planes overlap or the frame edge crop brighter. Proposed small fix, NOT added: multiply each plane by a view-space edge fade (dim the plane where it intersects other planes, e.g. use depth-fade against neighbours) or, cheaper, lower PLANES overlap by widening the fade to smoothstep(0.35, 0.9, r). Also note: the plane edge lines may be the frame crop border, not the quad edge.",
+    "tests": "headless run_tests TOTAL pass=382 fail=0; bot decent seed 2: no SCRIPT ERROR or SHADER ERROR, outcome win",
+    "not_checked": "Everything on screen: billboard orientation of the core, glow strength, whether PLANE_GLOW 0.9 is too bright or washes out the storm detail."
+  }
+}

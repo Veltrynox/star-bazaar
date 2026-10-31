@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "agent": "fx-programmer",
+  "date": "2026-10-31",
+  "task": "Interactive sun sheet crop tool and a cutter that uses the saved crop",
+  "status": "built_unverified_in_browser",
+  "files_changed": [
+    "tools/sun_crop/index.html",
+    "tools/sun_crop/make_sheets.py",
+    "tools/sun_crop/sheets.js",
+    "tools/cut_sun.gd"
+  ],
+  "usage_note": "Open tools/sun_crop/index.html (file://). Pick v01/v02/v03, line the grid up (drag canvas, drag green/blue/pink dots, or type numbers), check the previews, Confirm crop, repeat for all three, Download crop.json and save it as tools/sun_crop/crop.json. Then: Godot --headless --path . -s res://tools/cut_sun.gd. Regenerate sheets.js after changing a sheet: python3 tools/sun_crop/make_sheets.py",
+  "open_questions": [
+    "Cell grid uses one gap value for both axes; tell me if the sheets need separate x and y gaps.",
+    "Owner must confirm the crop in the page before any frame is re-cut."
+  ],
+  "handoff": "crop.json format: {\"version\":1,\"sheets\":{\"v01\":{x,y,cell_w,cell_h,gap,cols,rows}, ...}} in source-sheet pixels. cut_sun.gd (kept as GDScript) reads it; a sheet with no entry is reported and skipped; missing crop.json writes nothing and exits 1. It cuts all sheets in memory, prints each frame's position and size, and fails (exit 1, nothing written) if any frame is not cell_w x cell_h (for example a grid that runs off the sheet). Only then are frames written. Output names unchanged: sun_storm (v01), sun_flare (v02), sun_calm (v03), 64 frames each in art/sun/frames. sun_flare.gd, sun.gdshader, map.gd untouched. Existing frames untouched; no fake crop data created.",
+  "details": {
+    "sheets_js_size_mb": 11.03,
+    "sheet_size_px": "1254x1254 each (read from PNG headers)",
+    "verified": "JS in index.html parses (JavaScriptCore syntax check). sheets.js generated from the three PNGs. cut_sun.gd run headless with crop.json absent: prints the missing message, writes no frames (no frame file changed).",
+    "not_checked": "Page never opened in a browser (layout, drag handles, previews, download). cut_sun.gd cutting and size check path never run, because crop.json does not exist yet; it needs one real run after the owner saves crop.json."
+  }
+}

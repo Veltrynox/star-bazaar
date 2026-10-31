@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "agent": "fx-programmer",
+  "date": "2026-10-31",
+  "task": "Sun: each plane shows the whole sun frame, not a zoomed crop",
+  "status": "done_unverified_visually",
+  "files_changed": ["art/sun/sun_flare.gd", "tools/sun_debug/make_planes.py", "tools/sun_debug/planes.json", "tools/sun_debug/planes.js", "tools/sun_debug/frames.js"],
+  "usage_note": "sun.gdshader, map.gd, planet shader, sheets and frames untouched. Shader math needs no change: uv = uv_center + q * uv_scale; with the round fade (r<=1) the sampled extent is uv_center +- 0.5*uv_scale, which stays inside the 0..1 frame while the centre shift is <= 0.5*(1-scale).",
+  "open_questions": ["Owner: look at the sun on screen. Is the whole disc visible on every plane, are the 5 planes still different enough, is the sum brighter at the core now (planes overlap more)? Tune PLANE_GLOW if too bright."],
+  "handoff": "uv_scale 0.50..0.62 -> 0.90..1.00 (0.9 + fposmod(i*0.37,1)*0.1). uv_center spread +-0.18 -> +-0.02 (factor 0.36 -> 0.04). Rotation, frame phase, yaw/pitch, spin and depth offset unchanged. Debug page data regenerated.",
+  "details": {
+    "planes": 5,
+    "uv_scale_per_plane": [0.900, 0.937, 0.974, 0.911, 0.948],
+    "uv_center_per_plane": [[0.480,0.492],[0.505,0.507],[0.489,0.483],[0.514,0.498],[0.499,0.513]],
+    "uv_rot_rad": [0.00, 1.48, 2.97, 4.45, 5.93],
+    "tests": "headless run_tests: TOTAL pass=382 fail=0; bot decent seed 2: 0 SCRIPT ERROR, outcome win",
+    "not_checked": "Look on screen, shader in a window, whether the sun frame edge is black enough that the 0.9 scale shows no frame border (the round fade at r>0.55 should hide it)."
+  }
+}
