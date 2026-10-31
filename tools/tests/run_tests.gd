@@ -34,6 +34,7 @@ func _run() -> void:
 	await _test_systems()
 	await _test_shield()
 	await _test_asteroid()
+	await _test_full_endings()
 	await _test_debug_menu()
 	print("TOTAL pass=%d fail=%d" % [passed, failed])
 	quit(1 if failed > 0 else 0)
@@ -417,7 +418,7 @@ func _test_main() -> void:
 			allnum = false
 	check(allnum, "skills: effect keys are numbers")
 	var costs_ok := true
-	for s in ["A1", "A2", "A3", "A4", "A5", "B1", "B2", "B3", "B4", "C1", "C2", "C3", "C4"]:
+	for s in ["A1", "A2", "A4", "A5", "B1", "B2", "B3", "B4", "C1", "C2", "C3", "C4"]:
 		if not bal.has("skill_cost_" + s) or not StoryText.has_text("SK_%s_NAME" % s):
 			costs_ok = false
 	check(costs_ok, "skills: every skill has a cost key and a story name")
@@ -432,7 +433,7 @@ func _test_main() -> void:
 	check(e.local_amount() == floori(float(bal["order_amount"]) * (1.0 + float(bal["skill_B2_order_units"]))) and e.local_amount() > l0, "skills: B2 raises order units by skill_B2_order_units")
 	e.learned = ["A5"]
 	check(e.fixed_cost() < f0, "skills: A5 lowers upkeep")
-	e.learned = ["A1", "A2", "A3", "B1", "B3", "B4", "C1", "C2", "C3", "C4"]
+	e.learned = ["A1", "A2", "B1", "B3", "B4", "C1", "C2", "C3", "C4"]
 	check(e.units_per_cycle() == u0 and e.local_amount() == l0 and e.fixed_cost() == f0, "skills: other skills do not change engine numbers (B3 margin is not wired in code yet)")
 	e.learned = m.learned_skills
 	await _free_main(m)
@@ -446,8 +447,8 @@ func _test_skill_screen() -> void:
 	var m: Control = await _new_main()
 	m._dismiss_preface()
 	var bal: Dictionary = m.balance
-	check(ST.all_ids().size() == 13, "skills: 13 nodes from story ids")
-	check(ST.prereqs("A1").is_empty() and ST.prereqs("A3") == ["A2"] and ST.prereqs("C3") == ["C2", "A1"], "skills: prerequisites chain, C3 also needs A1")
+	check(ST.all_ids().size() == 12, "skills: 12 nodes from story ids (A3 cut)")
+	check(ST.prereqs("A1").is_empty() and ST.prereqs("A4") == ["A2"] and ST.prereqs("A5") == ["A4"] and ST.prereqs("C3") == ["C2", "A1"], "skills: prerequisites chain, C3 also needs A1")
 	check(m.learned_skills.is_empty(), "skills: nothing learned at start")
 	# top bar
 	# cost and points
@@ -486,10 +487,10 @@ func _test_skill_screen() -> void:
 	check(not r["ok"] and r["reason"] == "known" and m.skill_points == 10 - cost_a1, "skills: a learned skill is not charged twice")
 	m.learn_skill("A2")
 	check(m.learned_skills == ["A1", "A2"], "skills: A2 learnable after A1")
-	m.learn_skill("A4")
-	check(not m.learned_skills.has("A4"), "skills: A4 needs A3")
+	m.learn_skill("A5")
+	check(not m.learned_skills.has("A5"), "skills: A5 needs A4")
 	m.skill_points = 50
-	for id in ["A3", "A4"]:
+	for id in ["A4", "A5"]:
 		m.learn_skill(id)
 	check(m.engine.learned.has("A4") and m.engine.learned == m.learned_skills, "skills: engine sees learned skills (A4)")
 	m.learn_skill("C1")
@@ -621,6 +622,7 @@ func _test_rescue_waiting() -> void:
 	rec["id"] = 1
 	rec["state"] = "running"
 	e.routes = [rec]
+	m.last_net = 10  # a running route that pays is healthy
 	m._check_stranded()
 	check(m.cash == 1, "rescue: a running route means no rescue")
 	rec["state"] = "stalled"
@@ -951,6 +953,41 @@ func _test_systems() -> void:
 	m.engine.settle(m.cash)
 	check(str(rec["state"]) == "stalled", "space: no backup without A1", str(rec["state"]))
 	await _free_main(m)
+	_wipe_user()
+
+# ---- Full-tier endings reachable in play: system 2 opened and reached, Logistics fully learned ----
+func _test_full_endings() -> void:
+	for side in ["RELEASE", "CORP"]:
+		_wipe_user()
+		var m: Control = await _new_main()
+		m._dismiss_preface()
+		var bal: Dictionary = m.balance
+		m.cash = 50000
+		m.skill_points = 100
+		m.learned_skills.append("C1")
+		var pr: Dictionary = m.buy_permit(2)
+		check(pr["ok"] and m.open_systems.has(2), "full: system 2 permit bought (%s)" % side, str(pr))
+		m.set_local_order(3, "food", "buy", true)
+		check(m.systems_reached == 2, "full: system 2 reached by an order (%s)" % side)
+		m.pts_planets = [0, 1, 2]
+		m.pts_pairs = ["0-1"]
+		m.skill_points = 100
+		var all_ok := true
+		for id in ["A1", "A2", "A4", "A5"]:
+			if not m.learn_skill(id)["ok"]:
+				all_ok = false
+		check(all_ok and m.learned_skills.has("A5"), "full: Logistics learned in tree order (%s)" % side, str(m.learned_skills))
+		check(m.ending_inputs()["all_systems_reached"], "full: all open systems reached (%s)" % side)
+		m.cash = int(bal["win_cash"])
+		m._end_cycle()
+		await process_frame
+		var ended := []
+		m.run_ended.connect(func(sd, id): ended.append([sd, id]))
+		m._on_choice(side)
+		var want := "END_REL_FULL_L" if side == "RELEASE" else "END_CORP_FULL_L"
+		check(ended.size() == 1 and ended[0][1] == want, "full: %s ends with %s" % [side, want], str(ended))
+		check(StoryText.has_text(want + "_EPI") and m.end_screen != null, "full: end screen and epilogue shown (%s)" % side)
+		await _free_main(m)
 	_wipe_user()
 
 # ---- T13: debug menu QA controls ----
