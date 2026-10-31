@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "agent": "galaxy-builder",
+  "date": "2026-10-31",
+  "task": "T05",
+  "status": "partial",
+  "files_changed": ["handoffs/galaxy-builder/2026-10-31-T05.json"],
+  "open_questions": ["UNKNOWN: frame_time_ms on the macOS windowed build; headless has no renderer and no windowed run was done."],
+  "handoff": "Audit only, no code change needed: game/galaxy/star_field.gd already contains the full GDD s5 pipeline (T05 pass 1): 3000 points, 32x32x8 density grid, 24 suns picked from points, light marched 12 steps per sun-star ray with inverse-square falloff and exp(-tau) dust absorption, result baked into each star's colour once in _ready. Re-verified headless today: seed 20261025, bake 169 ms, deterministic (two instances give identical light arrays), light quantiles min 0.03, p10 0.13, p50 0.37, p90 0.87, max 1.0. Draw cost unchanged: MultiMesh draw calls, no per-frame work. frame_time_ms: not measured (needs windowed run). No screenshot taken. Tuning consts: GRID_XZ, GRID_Y, SUN_COUNT, LIGHT_FALLOFF, DUST_ABSORPTION, MARCH_STEPS, LIGHT_GAIN, LIGHT_MIN.",
+  "details": {"seed": 20261025, "point_count": 3000, "grid": [32, 32, 8], "sun_count": 24, "bake_time_ms": 169, "frame_time_ms": null, "screenshot": null}
+}
