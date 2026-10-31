@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-10-31",
+  "task": "T114",
+  "status": "done",
+  "files_changed": ["game/route_line.gd", "handoffs/gameplay-programmer/2026-10-31-T114.json"],
+  "open_questions": ["Dots loop on a fixed 2.4 s trip, not synced to the cycle timer; sync would need a cycle-progress hook in main.gd. Want it?"],
+  "handoff": "Each running route lane now shows one white dot per ship (max 12) with a fading, tapering trail. Dots fade in leaving the source and fade out arriving at the destination. Ships on a shared lane are spread evenly in time so they follow one another. Stalled and blocked lanes show no dots. Visual only: a GPU shader on a child quad mesh of route_line.gd, so no per-frame GDScript. Try it: buy a ship, set a route, watch the line; add a second ship on the same lane to see two dots. Tests: 404 pass; 'win: second run recorded' and 'win: unanswered choice returns after reload' fail, and 'second run recorded' also fails with the original route_line.gd restored, so I believe it is not from this change. frame_time_ms: not measured (headless has no render)."
+}

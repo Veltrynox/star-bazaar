@@ -48,6 +48,54 @@ void fragment() {
 }
 """
 
+## T114: one dot per ship with a fading trail, leaving the source and arriving at the destination (visual only).
+const DOT_RADIUS := 0.07      # world units
+const DOT_TRAIL := 0.9        # trail length, world units
+const DOT_PERIOD := 2.4       # seconds for one trip
+const DOT_MAX := 12           # most dots drawn on one lane
+const DOT_SHADER := """
+shader_type spatial;
+render_mode unshaded, cull_disabled, depth_draw_never;
+uniform vec3 p0;
+uniform vec3 dir;
+uniform float len = 1.0;
+uniform float radius = 0.07;
+uniform float trail = 0.9;
+uniform float period = 2.4;
+uniform vec4 modulate : source_color = vec4(1.0);
+varying float back;
+varying float side_w;
+varying float pos_along;
+varying float head_fade;
+void vertex() {
+	float s = fract(TIME / period + COLOR.g);
+	float head = s * len;
+	back = mix(-radius, trail, COLOR.r);
+	pos_along = head - back;
+	side_w = UV.y * radius;
+	head_fade = smoothstep(0.0, 0.08, s) * (1.0 - smoothstep(0.92, 1.0, s));
+	vec3 pm = p0 + dir * pos_along;
+	vec3 vp = (MODELVIEW_MATRIX * vec4(pm, 1.0)).xyz;
+	vec3 t = normalize((MODELVIEW_MATRIX * vec4(dir, 0.0)).xyz);
+	vp += normalize(cross(t, normalize(vp))) * side_w;
+	POSITION = PROJECTION_MATRIX * vec4(vp, 1.0);
+}
+void fragment() {
+	float a;
+	if (back <= 0.0) {
+		a = 1.0 - smoothstep(0.7 * radius, radius, length(vec2(back, side_w)));
+	} else {
+		float k = clamp(1.0 - back / trail, 0.0, 1.0);
+		float w = radius * k + 0.0001;
+		a = k * k * 0.7 * (1.0 - smoothstep(0.6 * w, w, abs(side_w)));
+	}
+	a *= head_fade * step(0.0, pos_along) * step(pos_along, len);
+	ALBEDO = modulate.rgb;
+	ALPHA = a * modulate.a;
+}
+"""
+
+static var _dot_shader: Shader
 static var _shader: Shader
 static var _textures: Array = []
 
@@ -60,6 +108,9 @@ var mats: Array[ShaderMaterial] = []
 var samples: PackedVector3Array = PackedVector3Array()
 var _pts: PackedVector3Array = PackedVector3Array()
 var _cum: PackedFloat32Array = PackedFloat32Array()
+var _dots: MeshInstance3D
+var _dot_mat: ShaderMaterial
+var _dot_count: int = 0
 
 func setup(id: int, a: int, b: int, pos_a: Vector3, pos_b: Vector3, planet_radius: float, is_half: bool = false) -> void:
 	half = is_half
@@ -110,7 +161,57 @@ func setup(id: int, a: int, b: int, pos_a: Vector3, pos_b: Vector3, planet_radiu
 	samples = PackedVector3Array()
 	for i in SAMPLES + 1:
 		samples.append(p0.lerp(p2, float(i) / float(SAMPLES)))
+	_setup_dots(p0, (p2 - p0).normalized(), total)
 	set_style("running", 1)
+
+func _setup_dots(p0: Vector3, dir: Vector3, total: float) -> void:
+	if _dot_shader == null:
+		_dot_shader = Shader.new()
+		_dot_shader.code = DOT_SHADER
+	if _dots == null:
+		_dots = MeshInstance3D.new()
+		_dots.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		add_child(_dots)
+	_dots.extra_cull_margin = total + 4.0
+	_dot_mat = ShaderMaterial.new()
+	_dot_mat.shader = _dot_shader
+	_dot_mat.set_shader_parameter("p0", p0)
+	_dot_mat.set_shader_parameter("dir", dir)
+	_dot_mat.set_shader_parameter("len", total)
+	_dot_mat.set_shader_parameter("radius", DOT_RADIUS)
+	_dot_mat.set_shader_parameter("trail", minf(DOT_TRAIL, total))
+	_dot_mat.set_shader_parameter("period", DOT_PERIOD)
+	_dots.material_override = _dot_mat
+	_dot_count = -1
+
+## One quad per ship, evenly spread in time so ships on a shared lane leave one after another.
+func _build_dots(n: int) -> void:
+	_dot_count = n
+	if n <= 0:
+		_dots.mesh = null
+		return
+	var verts := PackedVector3Array()
+	var uvs := PackedVector2Array()
+	var cols := PackedColorArray()
+	var idx := PackedInt32Array()
+	for i in n:
+		var ph := float(i) / float(n)
+		for tt in [0.0, 1.0]:
+			for side in [-1.0, 1.0]:
+				verts.append(Vector3.ZERO)
+				uvs.append(Vector2(tt, side))
+				cols.append(Color(tt, ph, 0, 1))
+		var k := i * 4
+		idx.append_array(PackedInt32Array([k, k + 1, k + 2, k + 1, k + 3, k + 2]))
+	var arrays := []
+	arrays.resize(Mesh.ARRAY_MAX)
+	arrays[Mesh.ARRAY_VERTEX] = verts
+	arrays[Mesh.ARRAY_TEX_UV] = uvs
+	arrays[Mesh.ARRAY_COLOR] = cols
+	arrays[Mesh.ARRAY_INDEX] = idx
+	var am := ArrayMesh.new()
+	am.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+	_dots.mesh = am
 
 ## Point and tangent at distance s along the line.
 func _at(s: float) -> Array:
@@ -145,7 +246,12 @@ func _add_strip(am: ArrayMesh, s0: float, s1: float, steps: int, u_max: float) -
 	am.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
 
 ## Tint from route status: running = art colours, stalled = dim, blocked = red.
-func set_style(status: String, _ships: int) -> void:
+func set_style(status: String, ships: int) -> void:
+	if _dots != null:  # T114: dots only while ships actually run
+		var n := mini(ships, DOT_MAX) if status == "running" else 0
+		if n != _dot_count:
+			_build_dots(n)
+		_dot_mat.set_shader_parameter("modulate", Color(1, 1, 1, 0.95))
 	var col := COL_RUNNING
 	if status == "blocked":
 		col = COL_BLOCKED
