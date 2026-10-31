@@ -252,3 +252,7 @@ TUT_G3_SEND | 110 | Guided step 3, until a route exists | On that storage row, c
 TUT_G4_SELL | 110 | Guided step 4, until Sell is on somewhere | Turn Sell on at the other planet. The company sells what arrives, at that planet's price.
 TUT_G5_SKILLS | 110 | Guided step 5, until a skill is learned | Skill points come from planets, routes and systems. Open Skills and learn one.
 TUT_G6_DONE | 110 | Guided step 6, after step 5 | That is the loop: buy, move, sell, learn. The guidance stops here. The Plan has nothing to add.
+
+## Map edge arrow (T128, owner item 7)
+MAP_ARROW_PERMIT | 50 | Tooltip of the arrow at the edge of the 3D map when a permit or system can be opened; click opens Skills with the steps lit | A new system is within reach. Open Skills.
+MAP_ARROW_SYSTEM | 50 | Tooltip of the same arrow once the permit is held; click moves the view to the other system | Go to the other system.

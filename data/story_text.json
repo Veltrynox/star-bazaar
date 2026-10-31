@@ -900,6 +900,18 @@
   "place": "Guided step 6, after step 5"
  },
  {
+  "id": "MAP_ARROW_PERMIT",
+  "text": "A new system is within reach. Open Skills.",
+  "max": 50,
+  "place": "Tooltip of the arrow at the edge of the 3D map when a permit or system can be opened; click opens Skills with the steps lit"
+ },
+ {
+  "id": "MAP_ARROW_SYSTEM",
+  "text": "Go to the other system.",
+  "max": 50,
+  "place": "Tooltip of the same arrow once the permit is held; click moves the view to the other system"
+ },
+ {
   "id": "SK_HEADER",
   "text": "Skills",
   "max": 24,
