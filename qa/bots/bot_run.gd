@@ -11,7 +11,7 @@ extends SceneTree
 ##   end_screen.chosen (Release / Stay as a Corporation buttons on the choice screen)
 ##
 ## Each cycle, while the game is paused:
-##   0. events (T12 hook _resolve_events; none in this build)
+##   0. events: _resolve_events answers any open event notice (first enabled choice, else Continue)
 ##   1. the first ship at the mission planet if the bot owns none (tutorial)
 ##   2. skills via main.learn_skill (every strategy except sloppy), in skill tree order
 ##   3. plan: profitable lanes "Buy at A, Send to... B, Sell at B", ranked by profit per cycle
@@ -50,7 +50,6 @@ extends SceneTree
 ##
 ## T87 hook (several ships on one lane): not wired yet. When it lands, sloppy and decent should send
 ## a second ship down the top lane with the same Send to... (see _sync_lanes). Not a bug until then.
-## T12 hook (events): _resolve_events() must answer each pending event; see _advance_timer.
 
 const MAIN_SCENE := "res://game/main.tscn"
 const SaveGame := preload("res://game/save_game.gd")
@@ -198,11 +197,17 @@ func _play_cycle() -> void:
 	main.set_paused(true)
 
 
-## T12 HOOK: events are not in the build. When they land, answer every pending event here (a choice
-## picked by strategy, or Continue) and return how many were answered. Called before each cycle's
-## decisions and inside the timer loop when the game pauses mid-cycle.
+## Events: answer every open event notice. The first enabled choice is taken (choices are ordered
+## so the first is the paid or accepting option; a disabled one is skipped); an event with no
+## choices gets Continue. Uses the notice's own confirmed signal, the same one the OK button emits.
+## Returns how many were answered.
 func _resolve_events() -> int:
-	return 0
+	var answered := 0
+	while main.event_notice != null and answered < 10:
+		var notice = main.event_notice
+		notice.confirmed.emit(notice.first_enabled)  # -1 (Continue) when the event has no choices
+		answered += 1
+	return answered
 
 
 ## Fast clock: one call runs the normal end-of-cycle path exactly once.
