@@ -396,6 +396,12 @@
   "place": "Cycle 4, if a skill point is held"
  },
  {
+  "id": "TUT_PERMIT_C1",
+  "text": "Permit Charter (C1) is the first skill that opens another system. A permit costs credits and skill points.",
+  "max": 110,
+  "place": "Any cycle after the first, once a skill point is held and Permit Charter (C1) is not learned"
+ },
+ {
   "id": "TUT_C4_FREE",
   "text": "That is all the guidance there is. The Plan has nothing to add.",
   "max": 110,

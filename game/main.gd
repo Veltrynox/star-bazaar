@@ -1439,7 +1439,11 @@ func _tut_cycle() -> void:
 		4:
 			_tut_show((["TUT_C4_SKILLS"] if skill_points > 0 else []) + ["TUT_C4_FREE"])
 		_:
-			_tut_show([])
+			if not tut_first.has("permit") and skill_points > 0 and not has_skill("C1"):  # the way to system 2, once
+				tut_first["permit"] = true
+				_tut_show(["TUT_PERMIT_C1"])
+			else:
+				_tut_show([])
 
 ## T24: notification board, right side, text only. GDD section 2 'First 4 cycles'.
 func _build_board() -> void:

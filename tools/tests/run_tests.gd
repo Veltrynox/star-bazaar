@@ -1008,6 +1008,14 @@ func _test_skill_effects() -> void:
 	var cap1: int = m.storage.capacity_of(key0)
 	check(cap1 == int(round(float(cap0) * (1.0 + float(bal["skill_A2_capacity"])))) and cap1 > cap0, "A2: planet storage capacity raised by skill_A2_capacity", "%d -> %d" % [cap0, cap1])
 	check(m.storage.capacity_of("system:1") == int(bal["space_storage_capacity"]), "A2: Space Storage capacity unchanged")
+	# tutorial: the permit line once, when a point is held and C1 is not learned
+	m.cycle = 6
+	m.skill_points = 1
+	m.learned_skills.erase("C1")
+	m.tut_first.erase("permit")
+	m._tut_cycle()
+	check(m.tut_first.has("permit") and StoryText.has_text("TUT_PERMIT_C1"), "tutorial: permit line shown once for C1")
+	m.skill_points = 0
 	# C2 Survey Beacon: planet names of a system shown in its permit entry before the permit
 	m.learned_skills.append("C2")
 	m.skill_screen.refresh()

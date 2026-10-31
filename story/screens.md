@@ -120,6 +120,8 @@ TUT_C3_ONEWAY | 110 | Cycle 3
 Routes are one way. To send stock both ways, make a second route back.
 TUT_C4_SKILLS | 110 | Cycle 4, if a skill point is held
 You have skill points. Open Skills and learn something.
+TUT_PERMIT_C1 | 110 | Any cycle after the first, once a skill point is held and Permit Charter (C1) is not learned
+Permit Charter (C1) is the first skill that opens another system. A permit costs credits and skill points.
 TUT_C4_FREE | 110 | Cycle 4, end of tutorial
 That is all the guidance there is. The Plan has nothing to add.
 
