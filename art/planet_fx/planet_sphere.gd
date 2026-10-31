@@ -8,11 +8,34 @@ extends MeshInstance3D
 
 const FX := preload("res://art/planet_fx/planet_fx.gd")
 
-## Surface textures, one entry each (greyscale equirectangular). The first entry is the default.
-## Index rule: texture_index_for_id(planet_id) = FNV hash of the id (seed 3) times the list size, so the same id always gets the same texture.
+## Per-type surface table: beauty (colour), disp (height, relief), optional glow mask and lights mask.
+## Types not in the table fall back to the old greyscale SURFACE_TEXTURES entry with the palette tint.
+const TP := "res://art/textures/planets/"
+const TYPE_TEXTURES := {
+	"volcanic": {"beauty": TP + "planet_volcanic_beauty.png", "disp": TP + "planet_volcanic_displacement_1.png"},
+	"cloudy": {"beauty": TP + "planet_cloudy_beauty.png", "disp": TP + "planet_cloudy_displacement.png", "glow": TP + "planet_glowing_mask.png"},
+	"desert": {"beauty": TP + "planet_desert_beauty.png", "disp": TP + "planet_desert_displacement.png"},
+	"lush": {"beauty": TP + "planet_lush_beauty.png", "disp": TP + "planet_lush_displacement.png"},
+	"agrarian": {"beauty": TP + "planet_agrarian_beauty.png", "disp": TP + "planet_agrarian_displacement.png"},
+	"ocean": {"beauty": TP + "planet_ocean_beauty.png", "disp": TP + "planet_ocean_displacement.png"},
+	"moon": {"beauty": TP + "planet_moon_beauty.png", "disp": TP + "planet_moon_displacement.png", "ring": TP + "asteroid_ring_1.png"},
+	"urban": {"beauty": TP + "planet_with_lights_beauty.png", "disp": TP + "planet_with_lights_displacement.png", "lights": TP + "planet_lights_mask.png"},
+}
+## Old fallback (greyscale equirectangular) for types without a table entry.
 const SURFACE_TEXTURES := ["res://art/planet_fx/planet_surface_01.jpg"]
+## Loaded textures by path: each file is loaded once for all planets.
+static var _tex_cache: Dictionary = {}
+
+static func cached_tex(path: String) -> Texture2D:
+	if not _tex_cache.has(path):
+		_tex_cache[path] = load(path)
+	return _tex_cache[path]
+
 ## Fine grain map for the city specks and the streak layer.
 const FINE_TEXTURE := "res://art/planet_fx/planet_sphere_tone.png"
+
+## Half-width of the ring quad in planet radii (the PNG ring spans 0.32 to 0.98 of it: about 1.2 to 3.7 radii).
+const RING_HALF := 3.8
 
 enum Variant { STANDARD, FRESNEL_ONLY, CITY, PALE, STREAKS }
 
@@ -165,11 +188,26 @@ func _apply() -> void:
 		Variant.CITY: shader_variant = 2
 		Variant.PALE: shader_variant = 3
 	# Surface texture: from the list by id (or texture_index when use_id is false).
+	var tt: Dictionary = TYPE_TEXTURES.get(planet_type, {})
+	var beauty: bool = not tt.is_empty()
+	if beauty:
+		shader_variant = 0  # beauty maps always show their surface (no fresnel-only or pale look)
 	var tex_i: int = texture_index_for_id(planet_id) if use_id else clampi(texture_index, 0, SURFACE_TEXTURES.size() - 1)
 	var m := get_surface_override_material(0) as ShaderMaterial
 	if m:
-		m.set_shader_parameter("surface_tex", load(SURFACE_TEXTURES[tex_i]))
-		m.set_shader_parameter("fine_tex", load(FINE_TEXTURE))
+		m.set_shader_parameter("use_beauty", beauty)
+		m.set_shader_parameter("surface_tex", cached_tex(tt["beauty"] if beauty else SURFACE_TEXTURES[tex_i]))
+		m.set_shader_parameter("fine_tex", cached_tex(FINE_TEXTURE))
+		m.set_shader_parameter("use_disp", beauty and tt.has("disp"))
+		m.set_shader_parameter("use_glow_mask", beauty and tt.has("glow"))
+		m.set_shader_parameter("use_lights_mask", beauty and tt.has("lights"))
+		if beauty and tt.has("disp"):
+			m.set_shader_parameter("disp_tex", cached_tex(tt["disp"]))
+		if beauty and tt.has("glow"):
+			m.set_shader_parameter("glow_tex", cached_tex(tt["glow"]))
+		if beauty and tt.has("lights"):
+			m.set_shader_parameter("lights_tex", cached_tex(tt["lights"]))
+		m.set_shader_parameter("glow_col", p.glow)
 		m.set_shader_parameter("variant", shader_variant)
 		m.set_shader_parameter("use_rim", rim_on)
 		m.set_shader_parameter("deep_col", p.deep)
@@ -186,6 +224,7 @@ func _apply() -> void:
 		m.set_shader_parameter("shadow_darkness", shadow_darkness)
 		m.set_shader_parameter("city_col", city_color)
 		m.set_shader_parameter("grain_amount", grain_amount)
+	_apply_ring(tt)
 	var glow := get_node_or_null("Glow") as MeshInstance3D
 	var gm := glow.get_surface_override_material(0) as ShaderMaterial if glow else null
 	if gm:
@@ -202,9 +241,36 @@ func _apply() -> void:
 		am.set_shader_parameter("key_dir", key_dir)
 	var streaks := get_node_or_null("Streaks") as MeshInstance3D
 	if streaks:
-		streaks.visible = look == Variant.STREAKS
+		streaks.visible = look == Variant.STREAKS and not (beauty and tt.has("glow"))
 		var sm := streaks.get_surface_override_material(0) as ShaderMaterial
 		if sm:
 			sm.set_shader_parameter("streak_col", p.pale)
 			sm.set_shader_parameter("strength", streak_strength)
 			sm.set_shader_parameter("key_dir", key_dir)
+
+## Ring for types with a "ring" entry (moon): one quad child, built once, shares the cached ring texture.
+func _apply_ring(tt: Dictionary) -> void:
+	var ring := get_node_or_null("Ring") as MeshInstance3D
+	if not tt.has("ring"):
+		if ring:
+			ring.visible = false
+		return
+	if ring == null:
+		ring = MeshInstance3D.new()
+		ring.name = "Ring"
+		var quad := PlaneMesh.new()
+		quad.size = Vector2.ONE * RING_HALF * 2.0
+		ring.mesh = quad
+		ring.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		var rng := RandomNumberGenerator.new()
+		rng.seed = hash(planet_id)
+		ring.rotation_degrees = Vector3(rng.randf_range(12.0, 24.0), 0.0, rng.randf_range(-12.0, 12.0))
+		var mat := ShaderMaterial.new()
+		mat.shader = load("res://art/planet_fx/planet_sphere_ring.gdshader")
+		ring.material_override = mat
+		add_child(ring)
+	ring.visible = true
+	var rm := ring.material_override as ShaderMaterial
+	rm.set_shader_parameter("ring_tex", cached_tex(tt["ring"]))
+	rm.set_shader_parameter("key_dir", key_dir)
+	rm.set_shader_parameter("key_color", key_color)

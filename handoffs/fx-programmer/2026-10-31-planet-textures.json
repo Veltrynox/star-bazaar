@@ -1,0 +1,34 @@
+{
+  "task": "planet textures per type, glow and lights masks, thumbnails",
+  "files_changed": [
+    "art/planet_fx/planet_sphere.gdshader (beauty path, relief, glow mask, lights mask)",
+    "art/planet_fx/planet_sphere.gd (TYPE_TEXTURES table, static texture cache, ring node)",
+    "art/planet_fx/planet_fx.gd (new palettes, TYPE_PALETTE for the 8 new type ids; temperate and barren kept as fallback)",
+    "art/planet_fx/planet_sphere_ring.gdshader (new, ring quad for moon)",
+    "art/textures/ui/ui_thumb_{volcanic,cloudy,desert,lush,agrarian,ocean,moon,urban}.png (volcanic overwritten; temperate and barren untouched)",
+    "art/textures/planets/*.png.import (new, mipmaps turned on)"
+  ],
+  "mapping": {
+    "volcanic": "beauty volcanic + displacement_1, palette ember, no masks (lava glows in the beauty map)",
+    "cloudy": "beauty cloudy + displacement, glowing mask as lightning (glow colour = palette glow, pale storm); old streak shell hidden for this type",
+    "desert": "desert beauty + displacement, palette amber",
+    "lush": "lush beauty + displacement, palette green",
+    "agrarian": "agrarian beauty + displacement, palette meadow",
+    "ocean": "ocean beauty + displacement, palette blue",
+    "moon": "moon beauty + displacement + asteroid_ring_1 as a ring child quad (added in planet_sphere.gd, not map.gd), palette ice",
+    "urban": "with_lights beauty + displacement + lights mask, palette city (cool, warm lights)",
+    "other_types": "old greyscale surface plus palette tint, unchanged (texture_index_for_id kept for them)"
+  },
+  "beauty_path": "colour albedo, no palette tint; key light tint only 35 percent; fresnel-only and pale looks are forced off for table types so the texture always shows; relief = height gradient bends the normal for the key light only (param relief 1.2, subtle)",
+  "glow_settings": "glow_mask_strength 1.1, pulse 0.8 +/- 0.2 sin(TIME*1.1, per 48-cell phase) + 0.25*sun_flare; full on the dark side, 45 percent on the lit side; final ALBEDO capped at 2.0 on beauty path",
+  "lights_settings": "lights_strength 1.5, city_col (warm FFD27A), dark side only (1 - lit), twinkle 0.8 +/- 0.2 sin(TIME*0.7) per 320-cell phase; old fine_tex city specks skipped for beauty",
+  "ring": "RING_HALF 3.8 radii (ring spans about 1.2 to 3.7), tilt from id hash, radial alpha mask because the PNG has no alpha, brightened x2.4, slow spin, sun-shadow behind the planet",
+  "budget": "1 sphere + glow shell + atmosphere (+ streaks or ring quad) per planet; textures loaded once via static cache; per type at most 4 textures of 1774x887 (ring 1254x1254), only types in use are loaded; 6 texture reads max per pixel",
+  "thumbnails": "PIL not installed, so a headless Godot script cropped the centre 887x887 of each beauty map, scaled to 256x256, circular alpha",
+  "headless_result": "godot --headless --import: textures imported, no shader or script errors. Instanced planet_sphere.tscn for all 8 types plus temperate under headless: ok. --quit-after 300: only an unrelated dummy-renderer message 'material_get_instance_shader_parameters material is null' and the macOS certificate message.",
+  "not_checked": "Headless uses the dummy renderer, so shaders were NOT compiled on a GPU and nothing was looked at on screen. Colours, relief sign/strength, ring size and glow level need a visual pass.",
+  "open_questions": [
+    "map.gd still adds its own procedural belt to 10 percent of planets; moon planets may then show two rings. Owner may want map.gd to skip the belt for moon.",
+    "Type ids must match planet_type lowercase from data/planets.json (planet 'temperate' etc. still use the old greyscale look until the data is migrated)."
+  ]
+}

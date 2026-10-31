@@ -5,10 +5,24 @@ render_mode unshaded, cull_back, depth_draw_opaque;
 // palette (deep, mid, pale). The key light (sun side) and the rim light (far side, optional) are separate terms,
 // and the Fresnel edge is on every planet.
 // Looks (variant): 0 standard, 1 fresnel_only, 2 city (0% of planets, uses fine_tex), 3 pale (lighter palette).
+// Beauty path (use_beauty): the texture is a colour map, used as albedo with no palette tint. The displacement map gives
+// subtle relief on the key light (height gradient bends the normal). Optional glow mask (emission on both sides, soft pulse)
+// and lights mask (dark side only, small warm twinkle). Emission stays under about 2.0 (bloom-safe).
 // Unshaded, so the final colour is written to ALBEDO directly.
 
 uniform sampler2D surface_tex : filter_linear_mipmap, repeat_enable;  // greyscale surface, set per planet from the texture list
 uniform sampler2D fine_tex : filter_linear_mipmap, repeat_enable;     // old generated tone map: B = fine grain (city specks only)
+uniform bool use_beauty = false;                  // true: surface_tex is a colour map (per-type table in planet_sphere.gd)
+uniform sampler2D disp_tex : filter_linear_mipmap, repeat_enable;     // greyscale height, relief on the key light
+uniform sampler2D glow_tex : filter_linear_mipmap, repeat_enable;     // white streaks on black, emission
+uniform sampler2D lights_tex : filter_linear_mipmap, repeat_enable;   // white city lights on black, dark side only
+uniform bool use_disp = false;
+uniform bool use_glow_mask = false;
+uniform bool use_lights_mask = false;
+uniform float relief = 1.2;                       // relief strength (subtle)
+uniform vec4 glow_col : source_color = vec4(0.60, 0.75, 1.00, 1.0);
+uniform float glow_mask_strength = 1.1;
+uniform float lights_strength = 1.5;
 uniform int variant : hint_range(0, 3) = 0;
 uniform bool use_rim = true;
 uniform vec4 deep_col : source_color = vec4(0.10, 0.07, 0.28, 1.0);
@@ -46,7 +60,8 @@ void fragment() {
 	vec2 dy = dFdy(uv);
 	if (abs(dx.x) > 0.5) dx.x -= sign(dx.x);
 	if (abs(dy.x) > 0.5) dy.x -= sign(dy.x);
-	float tone = textureGrad(surface_tex, uv, dx, dy).r;
+	vec4 tex = textureGrad(surface_tex, uv, dx, dy);
+	float tone = tex.r;
 
 	float NdV = clamp(dot(NORMAL, VIEW), 0.0, 1.0);
 	float fres = pow(1.0 - NdV, fres_power) * fres_strength;  // Fresnel edge: always on
@@ -91,5 +106,5 @@ void fragment() {
 	// Grain: +/- grain_amount on the final colour, from a hash of the screen pixel.
 	float g = fract(sin(dot(FRAGCOORD.xy, vec2(12.9898, 78.233))) * 43758.5453);
 	col *= 1.0 + (g - 0.5) * 2.0 * grain_amount;
-	ALBEDO = clamp(col, 0.0, 1.0);
+	ALBEDO = use_beauty ? min(col, vec3(2.0)) : clamp(col, 0.0, 1.0);  // beauty path may carry HDR emission
 }

@@ -9,15 +9,21 @@ const PRESETS := {
 	"blue": {"deep": Color("0B1B3D"), "mid": Color("1F5FB8"), "pale": Color("8FC3FF"), "rim": Color("B5E0FF"), "glow": Color("3D9BFF")},
 	"magenta": {"deep": Color("2A0A2E"), "mid": Color("8E2A9C"), "pale": Color("F0A6FF"), "rim": Color("FFC8FF"), "glow": Color("E040FF")},
 	"ice": {"deep": Color("101A2A"), "mid": Color("5C7AA6"), "pale": Color("E0F0FF"), "rim": Color("FFFFFF"), "glow": Color("9CC8FF")},
+	"ember": {"deep": Color("2A0A06"), "mid": Color("B8401A"), "pale": Color("FFB27A"), "rim": Color("FFC890"), "glow": Color("FF6A2A")},
+	"amber": {"deep": Color("2A1A0A"), "mid": Color("B87A3A"), "pale": Color("FFD9A0"), "rim": Color("FFE2B8"), "glow": Color("FFA84A")},
+	"storm": {"deep": Color("1A2230"), "mid": Color("7A90B0"), "pale": Color("E6EEF8"), "rim": Color("F2F6FF"), "glow": Color("A8C4FF")},
+	"green": {"deep": Color("08241A"), "mid": Color("2E8F5A"), "pale": Color("A8F0C0"), "rim": Color("C8FFD8"), "glow": Color("4AE08A")},
+	"meadow": {"deep": Color("1A2408"), "mid": Color("6FA23A"), "pale": Color("DDF0A0"), "rim": Color("EEFFC0"), "glow": Color("B4E65A")},
+	"city": {"deep": Color("0E1230"), "mid": Color("3A4A9A"), "pale": Color("B0BEF0"), "rim": Color("C8D4FF"), "glow": Color("6A80E8")},
 	"neutral": {"deep": Color("161A22"), "mid": Color("4A5566"), "pale": Color("C8D0DC"), "rim": Color("E6ECF5"), "glow": Color("8FA0B8")},
 }
 
 ## Base palette for each planet type. Violet is kept for the top rarity tier only.
-const TYPE_PALETTE := {"temperate": "blue", "volcanic": "magenta", "barren": "ice"}
+const TYPE_PALETTE := {"lush": "blue", "agrarian": "blue", "ocean": "blue", "cloudy": "blue", "volcanic": "magenta", "desert": "magenta", "moon": "ice", "urban": "ice"}
 const TOP_TIER := 0.9   ## rarity at or above this uses the violet preset
 const VIOLET_PRESET := "violet"
 
-@export var planet_type: String = "temperate":
+@export var planet_type: String = "lush":
 	set(v):
 		planet_type = v
 		_apply()
