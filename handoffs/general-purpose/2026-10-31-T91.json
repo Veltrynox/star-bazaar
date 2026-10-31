@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "agent": "general-purpose",
+  "date": "2026-10-31",
+  "task": "T91",
+  "status": "done",
+  "files_changed": [
+    "/Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/gdd.md",
+    "/Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/gdd-process.md",
+    "/Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/gdd-log.md",
+    "/Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/handoffs/general-purpose/2026-10-31-T91.json"
+  ],
+  "open_questions": [
+    "Economy Designer: the sim writes per-cycle throughput as cargo / (2 x travel_cycles_per_leg), a round-trip form; confirm the one-way figure.",
+    "The First 4 cycles route text still describes the older route screen until the planned T15 tutorial rewrite."
+  ],
+  "handoff": "GDD now matches the one-way route model: standing Buy and Sell orders, planet storage with the 5-line rating bar, one-way Send to routes, route statuses, and shared order pools as the lane limit. Round-trip formulas and saturation text removed; DOC NOTE removed. Win condition uses the final choice screen (no success story); system 2 in scope, system 3 on hold; System 1 win path updated to the 2026-10-31 bot result, with stale 7120 and 9000 figures removed. Run ends after either choice; losses recorded as LOSS; user://autosave.json and user://stats.json documented as local. gdd-process.md: saturation removed from the Economy Designer role; Story Designer and general-purpose documentation roles added; no doc-manager. No numbers or balance values changed. Every edit logged in gdd-log.md. gdd-skills.md was not in the brief and was not checked."
+}

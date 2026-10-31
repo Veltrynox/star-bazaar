@@ -19,7 +19,7 @@ What it is: Star Bazaar is a single-player space trading game for macOS, built i
   Why it exists: Real studios have a producer. Status claims need file evidence because in two windows the Producer recorded agents as running when none were alive and no files had changed.
 
 2. Systems & Economy Designer - Claude Sonnet
-  Role: Owns every number in the game: prices, margins, maintenance, saturation, permits and event effects. It runs a headless paper simulation to test them.
+  Role: Owns every number in the game: prices, margins, maintenance, permits and event effects. It runs a headless paper simulation to test them.
   Input: The balance table, planet data and the QA reports.
   Output: A versioned balance.json file and a short note on what changed and why.
   Effect: Trading stays profitable but never trivial, and the win lands around cycles 25–28.
@@ -45,6 +45,20 @@ What it is: Star Bazaar is a single-player space trading game for macOS, built i
   Output: A bug_report.json file with run_id, strategy, final cash, cycle reached, issue_type and severity.
   Effect: Broken or unwinnable runs never reach a human playtester, and balance claims are checked against real runs.
   Why it exists: The agents that build and balance the game shouldn't grade their own work. Studios keep QA separate for exactly that reason.
+
+6. Story Designer - Claude Sonnet
+  Role: Owns the story and voice: story/*.md (title and preface, event texts, win, loss and ending screens, skill names and descriptions) and keeps every text in one voice. It does not set mechanics or numbers.
+  Input: The GDD story section, story/game-flow.md and the balance keys that a text refers to.
+  Output: Edited story/*.md files; tools/build_story.py generates the data files from them.
+  Effect: The player reads one consistent world, and the endings follow the skills learned.
+  Why it exists: Story text is a separate craft from balance and code, and it needs its own owner.
+
+7. Documentation (General-purpose agent)
+  Role: Writes and reconciles the GDD (gdd.md, gdd-skills.md, gdd-process.md), the GDD change log and the task handoffs when a task asks for it. There is no doc-manager agent; the Creative Director and Documentation Manager roles were removed on 2026-10-26, and the doc-manager is replaced by a general-purpose agent (owner decision, 2026-10-27).
+  Input: The task brief from tools/task.py and only the GDD sections the brief names.
+  Output: Edited GDD files with one change-log entry per edit, and a handoff file under handoffs/general-purpose/.
+  Effect: The GDD matches the built game, and planned items are marked as planned.
+  Why it exists: The GDD must be kept current without a design agent of its own. Numbers stay in data/balance.json; the GDD only points to them.
 
 The Producer keeps one rolling state.md file with only the last 5 handoffs.
 The Producer moves older handoffs into an archive folder that no agent reads by default.

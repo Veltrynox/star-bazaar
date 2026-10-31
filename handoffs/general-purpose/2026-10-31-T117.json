@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "agent": "general-purpose",
+  "date": "2026-10-31",
+  "task": "T117",
+  "status": "done",
+  "files_changed": [
+    "/Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/gdd.md",
+    "/Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/gdd-log.md",
+    "/Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/handoffs/general-purpose/2026-10-31-T117.json"
+  ],
+  "open_questions": [
+    "Is the idea 5 research point a skill point? The T95 note says no skill point; the 2026-10-28 owner decision gives one research point as an event reward.",
+    "Owner: the planet types and which planet has which type (T115 is blocked on this).",
+    "Owner: does 'money never buys skill points' cover all spending, and does the T59 rule let money clear debris, fields or pirates?"
+  ],
+  "handoff": "First pass of the 2026-10-28 owner ideas recorded in gdd.md as PLANNED, nothing marked built. Events (Events section): debris, solar shield, nomads and pirates, asteroid approach, asteroid fields, with task ids and open questions; no shield wording in endings and no habitability line, tiers unchanged. Planned features: galaxy view opens after system 2 is opened (T119 with T15), ship dots per ship on a shared lane (T114), planet textures per type (T115, types unset). Standing money rule: money never buys skill points. No numbers or balance values changed. Every edit logged in gdd-log.md. Second pass after T116 is still to do and needs a new brief."
+}
