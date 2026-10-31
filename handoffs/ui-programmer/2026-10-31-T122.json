@@ -1,0 +1,14 @@
+{
+ "schema_version": 1,
+ "agent": "ui-programmer",
+ "date": "2026-10-31",
+ "task": "T122",
+ "status": "done",
+ "files_changed": [
+  "game/main.gd"
+ ],
+ "open_questions": [
+  "Story id MENU_PAUSE is missing (fallback 'Pause' used)."
+ ],
+ "handoff": "Already implemented earlier: pause button is icon only (theme play/pause icons) with tooltip MENU_RESUME/fallback. Verified, no change. MENU_PAUSE story id missing, fallback 'Pause' used."
+}

@@ -52,6 +52,13 @@ func show_points(points: int, reason: String, title: String) -> void:
 	_tween.tween_callback(func(): visible = false)
 	queue_redraw()
 
+## Dismiss: any click or key hides it (the input still reaches the game, so play is never blocked).
+func _input(event: InputEvent) -> void:
+	if visible and _ring_t > 0.15 and ((event is InputEventMouseButton and event.pressed) or (event is InputEventKey and event.pressed and not event.echo)):
+		if _tween != null and _tween.is_valid():
+			_tween.kill()
+		visible = false
+
 func _process(_delta: float) -> void:
 	if visible:
 		queue_redraw()

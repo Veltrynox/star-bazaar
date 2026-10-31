@@ -103,6 +103,7 @@ var selected_planet: int = -1
 var pending: Dictionary = {}  # T68: "Send to..." waiting for a destination {planet, c}; empty when none
 var pending_label: Label
 var last_local: Array = []  # T68: local order results of the last cycle end
+var income_popup: Control  # T133 green +N above planets
 var mission_planet: int = -1  # planet that sells the first ship (abundant energy, scarce food)
 
 func _ready() -> void:
@@ -123,6 +124,9 @@ func _ready() -> void:
 	map.route_clicked.connect(_on_route_clicked)
 	_build_board()
 	_build_pending_label()
+	income_popup = load("res://game/income_popup.gd").new()  # T133
+	add_child(income_popup)
+	income_popup.setup(map)
 	ship_panel = load("res://game/ship_panel.gd").new()
 	right_col.add_child(ship_panel)
 	planet_panel.buy_ship_requested.connect(_buy_ship)
@@ -630,6 +634,8 @@ func _on_send(c: String) -> void:
 		return
 	pending = {"planet": selected_planet, "c": c}
 	_pending_changed()
+	if storage.amount(storage.planet_key(selected_planet), c) <= 0:  # T134: allowed, but say it will wait
+		post_notice(StoryText.get_text("NOT_ROUTE_STALLED", {"commodity": c.capitalize(), "planet": planet_name(selected_planet)}))
 
 func cancel_pending() -> void:
 	pending = {}
@@ -880,7 +886,22 @@ func _settle_routes() -> Array:
 	for rec in r["newly_stalled"]:
 		post_notice(StoryText.get_text("NOT_ROUTE_STALLED", {"commodity": str(rec["c"]), "planet": planet_name(int(rec["a"]))}))
 	routes_settled.emit(r["results"], int(r["delta"]))
+	_show_income(r)
 	return r["results"]
+
+## T133: credits each planet gained this cycle, from the engine's own results (routes pay at their
+## destination, local sell orders at their planet). Only positive amounts are shown.
+func _show_income(r: Dictionary) -> void:
+	if income_popup == null:
+		return
+	var gains := {}
+	for v in r["results"]:
+		if int(v["paid"]) > 0:
+			gains[int(v["b"])] = int(gains.get(int(v["b"]), 0)) + int(v["paid"])
+	for v in r["local"]:
+		if str(v["role"]) == "sell" and int(v["paid"]) > 0:
+			gains[int(v["planet"])] = int(gains.get(int(v["planet"]), 0)) + int(v["paid"])
+	income_popup.show_gains(gains)
 
 ## Story text for a route that just became blocked: closed planet, else full destination storage.
 func _blocked_text(rec: Dictionary) -> String:

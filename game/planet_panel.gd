@@ -189,11 +189,9 @@ func _row(c: String, prices: Dictionary, pend: Dictionary) -> Control:
 func _price(v) -> String:
 	return "%s cr" % str(v) if v != null else "no data"
 
-## T65: company storage, only once an order has established it at this planet.
+## T65: company storage. T134: shown from the start (zero stock) so "Send to..." can plan a route at once.
 func _storage_section() -> void:
 	var key: String = main.storage.planet_key(planet_index)
-	if not main.storage.established(key):
-		return
 	box.add_child(HSeparator.new())
 	var cap: int = main.storage.capacity_of(key)
 	var title := Label.new()

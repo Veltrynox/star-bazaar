@@ -1,0 +1,13 @@
+{
+ "schema_version": 1,
+ "agent": "ui-programmer",
+ "date": "2026-10-31",
+ "task": "T134",
+ "status": "done",
+ "files_changed": [
+  "game/planet_panel.gd",
+  "game/main.gd"
+ ],
+ "open_questions": "none",
+ "handoff": "Company storage section (with Send to...) now shows on every planet from the start, even at zero stock. Pressing Send at zero stock still starts the pending route and posts NOT_ROUTE_STALLED. Not checked by eye."
+}

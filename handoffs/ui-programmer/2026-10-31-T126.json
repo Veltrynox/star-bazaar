@@ -1,0 +1,12 @@
+{
+ "schema_version": 1,
+ "agent": "ui-programmer",
+ "date": "2026-10-31",
+ "task": "T126",
+ "status": "done",
+ "files_changed": [
+  "game/skill_point_pop.gd"
+ ],
+ "open_questions": "none",
+ "handoff": "Pop-up and ring splash already existed (no art). Added dismiss: any click or key hides it without blocking input. Not checked by eye."
+}

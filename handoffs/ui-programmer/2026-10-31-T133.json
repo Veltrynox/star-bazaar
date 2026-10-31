@@ -1,0 +1,13 @@
+{
+ "schema_version": 1,
+ "agent": "ui-programmer",
+ "date": "2026-10-31",
+ "task": "T133",
+ "status": "done",
+ "files_changed": [
+  "game/income_popup.gd",
+  "game/main.gd"
+ ],
+ "open_questions": "none",
+ "handoff": "New income_popup.gd: green +N (theme signal_good, mono font, faint outline glow) above planets that gained credits, rises and fades in 1.8s, ignores mouse. Gains come from engine settle results (route paid at destination, local sells). Not checked by eye."
+}
