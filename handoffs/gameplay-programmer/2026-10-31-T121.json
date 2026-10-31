@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-10-31",
+  "task": "T121",
+  "status": "done",
+  "files_changed": ["game/main.gd", "game/ending_picker.gd", "tools/tests/run_tests.gd", "handoffs/gameplay-programmer/2026-10-31-T121.json"],
+  "open_questions": "none",
+  "handoff": "The hidden shield flag is the existing shield.built (T101), already saved and loaded. ending_inputs() now passes it as shield_built, and EndingPicker.shield_built(inp) reads it as a condition for future rows. No ending row, text, notice or panel uses or mentions it, so no ending changes. No balance values added. Two tests added. Full run: pass=418 fail=0. T101 and T109 were already built and handed off on 2026-10-28 (300 pass at that time), so no new work and no new 10-31 handoffs for them."
+}

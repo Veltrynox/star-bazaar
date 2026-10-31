@@ -129,6 +129,9 @@ func _test_picker() -> void:
 	var P := EndingPicker
 	# Release tiers
 	check(P.pick_release(_inp(["A1"], 1)) == "END_BARE_HANDS", "release: bare hands (A1 only, 1 system)")
+	check(not P.shield_built({}) and P.shield_built({"shield_built": true}), "T121: hidden shield flag read by picker")
+	var _si := _inp(["A1", "A2"]); _si["shield_built"] = true
+	check(P.pick_release(_si) == P.pick_release(_inp(["A1", "A2"])), "T121: flag changes no ending row")
 	check(P.pick_release(_inp([], 1)) == "END_BARE_HANDS", "release: bare hands (nothing learned)")
 	check(P.pick_release(_inp(_full("A"), 3, true)) == "END_REL_FULL_L", "release: full L")
 	check(P.pick_release(_inp(_full("B"), 3, true)) == "END_REL_FULL_R", "release: full R")

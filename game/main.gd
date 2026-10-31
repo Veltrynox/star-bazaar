@@ -1072,7 +1072,8 @@ func _open_end_screen() -> ColorRect:
 func ending_inputs() -> Dictionary:
 	return {"learned": learned_skills, "systems_reached": systems_reached,
 		"all_systems_reached": systems_reached >= systems_in_game() and systems_in_game() > 1,
-		"last_cycle": cycle >= int(balance.get("win_cycle", 0))}
+		"last_cycle": cycle >= int(balance.get("win_cycle", 0)),
+		"shield_built": shield.built}  # T121 hidden flag
 
 func _on_choice(side: String) -> void:
 	choice_pending = false

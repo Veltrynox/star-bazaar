@@ -6,6 +6,7 @@ extends RefCounted
 ##   systems_reached: int (systems with a first route or storage; system 1 counts)
 ##   all_systems_reached: bool (every open system reached; false while only system 1 exists)
 ##   last_cycle: bool (goal reached on the last cycle of the window; Release only)
+##   shield_built: bool (T121 hidden flag, saved as shield.built; no ending row uses it yet, never shown)
 ## Branch sizes are counted from the SK_<id>_NAME story ids, so no number is hard-coded.
 
 const StoryText := preload("res://game/story_text.gd")
@@ -56,6 +57,10 @@ static func fully_learned(learned: Array) -> Array:
 		if size > 0 and c[b] >= size:
 			out.append(b)
 	return out
+
+## T121: hidden condition for future rows. Never mentioned in any text.
+static func shield_built(inp: Dictionary) -> bool:
+	return bool(inp.get("shield_built", false))
 
 static func is_bare(inp: Dictionary) -> bool:
 	if int(inp.get("systems_reached", 1)) > 1:
