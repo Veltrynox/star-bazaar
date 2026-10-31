@@ -34,6 +34,8 @@ var yaw_max_deg := 45.0
 var pitch_min_deg := 20.0        # angle above the plane; never goes below it
 var pitch_max_deg := 80.0
 var sun_radius := 0.75
+var sun_node: Node3D  # T132: animated 3D sun
+var key_light: DirectionalLight3D
 var planet_scale := 1.0          # multiplies PLANET_RADIUS (visual size and click radius)
 var keys_enabled := true         # T33: debug menu turns this off while typing in a field
 
@@ -87,7 +89,6 @@ void fragment() {
 var planet_spheres: Array[MeshInstance3D] = []
 var belt_materials: Dictionary = {}  # planet index -> ShaderMaterial of its asteroid belt  # one planet_sphere.tscn per planet, at its 3D position
 var planet_labels: Array[Label3D] = []
-var sun_mesh: SphereMesh
 var focus_sun_pos := Vector3.ZERO  # world position of the sun sphere (the screen-space light source for the FX)
 var positions: Array[Vector3] = []
 var camera: Camera3D
@@ -119,9 +120,9 @@ func _ready() -> void:
 	# T05: decorative star field background (visual only; see game/galaxy/star_field.gd)
 	add_child(load("res://game/galaxy/star_field.gd").new())
 
-	var light := DirectionalLight3D.new()
-	light.rotation_degrees = Vector3(-40, -30, 0)
-	add_child(light)
+	key_light = DirectionalLight3D.new()
+	key_light.rotation_degrees = Vector3(-40, -30, 0)
+	add_child(key_light)
 
 	camera = Camera3D.new()
 	camera.fov = CAMERA_FOV
@@ -250,21 +251,13 @@ func focus_system(id: int) -> void:
 
 ## Plain yellow sphere in the middle of the map (visual only, not clickable).
 func _add_sun(pos: Vector3) -> void:
-	var mat := StandardMaterial3D.new()
-	mat.albedo_color = Color(1.0, 0.85, 0.2)
-	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	var sphere := SphereMesh.new()
-	sphere.radius = sun_radius
-	sphere.height = sun_radius * 2.0
-	sphere.radial_segments = 48
-	sphere.rings = 24
-	sphere.material = mat
-	sun_mesh = sphere
-	var mi := MeshInstance3D.new()
-	mi.mesh = sphere
-	mi.position = pos
+	# T132: the animated 3D sun (art/sun/sun_flare.gd); its flares drive the planets' key light.
+	sun_node = load("res://art/sun/sun_flare.gd").new()
+	sun_node.radius = sun_radius
+	sun_node.key_light = key_light
+	sun_node.position = pos
 	focus_sun_pos = pos
-	add_child(mi)
+	add_child(sun_node)
 
 ## T28: show or hide the pulsing "click me" halo around planet `index`.
 func set_hint(index: int, on: bool) -> void:
@@ -361,9 +354,8 @@ func apply_tunables() -> void:
 		sp.scale = Vector3.ONE * planet_radius()
 	for i in planet_labels.size():
 		planet_labels[i].position = positions[i] + Vector3(0, -(planet_radius() + 0.5), 0)
-	if sun_mesh != null:
-		sun_mesh.radius = sun_radius
-		sun_mesh.height = sun_radius * 2.0
+	if sun_node != null:
+		sun_node.set_radius(sun_radius)
 	if hint != null:  # rebuilt at the new size on the next set_hint call
 		hint.queue_free()
 		hint = null

@@ -37,3 +37,10 @@ textures/vram_compression/import_s3tc_bptc=true
 textures/vram_compression/import_etc2_astc=true
 viewport/hdr_2d=true
 environment/defaults/default_clear_color=Color(0.0392, 0.0471, 0.0667, 1)
+
+[shader_globals]
+
+sun_flare={
+"type": "float",
+"value": 0.0
+}
