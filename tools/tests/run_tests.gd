@@ -1107,7 +1107,8 @@ func _test_skill_effects() -> void:
 	check(eng.sold_price(0, "energy") == plain, "B3: no margin without the skill")
 	eng.learned = ["B3"]
 	var boosted: int = eng.sold_price(0, "energy")
-	check(boosted == roundi(float(plain) * (1.0 + float(bal["skill_B3_margin"]))) and boosted > plain, "B3: sold price raised by skill_B3_margin", "%d -> %d" % [plain, boosted])
+	# plain can be as low as 6; an 8% margin then rounds back to the same whole credit, so only >= is safe here
+	check(boosted == roundi(float(plain) * (1.0 + float(bal["skill_B3_margin"]))) and boosted >= plain, "B3: sold price raised by skill_B3_margin", "%d -> %d" % [plain, boosted])
 	m.storage.add(key0, "energy", 10)
 	var sale: Dictionary = eng._local_calc(0, "energy", "sell", 1000)
 	check(int(sale["credits"]) == int(sale["n"]) * boosted and int(sale["n"]) > 0, "B3: a Sell order pays the margin per unit", str(sale))
