@@ -815,6 +815,129 @@
       "window": "Gameplay lane, after T101. NOT READY: owner has not said whether to build this now.",
       "brief": "Owner decision 2026-10-28. (1) Add a shield_built flag, set when the player builds the solar shield (T101); saved and loaded. (2) game/ending_picker.gd reads the flag as a condition. Add no new ending rows and no new text unless the owner asks. (3) The flag is hidden: no ending, notice, panel or other text may mention it. (4) No balance values. Handoff: handoffs/gameplay-programmer/<date>-T121.json.",
       "owner_note": "Owner 2026-10-28: flag used by the ending picker, never shown to the player. For this flag only, this overrides T101 item 4 (do not change the ending picker). Owner has not decided to build it; keep queued, not ready. Created by Producer 2026-10-28."
+    },
+    {
+      "task_id": "T122",
+      "title": "Pause/resume: icon only, no words (owner item 1)",
+      "owner_agent": "ui-programmer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 15,
+      "window": "UI lane. Small; can go any time.",
+      "brief": "Replace the pause/resume control's text with a simple icon (play and pause glyphs). Keep the existing pause state logic. Icon must be readable at macOS window size and have a tooltip with the same action. Use existing UI glyph textures if they fit; no new art. Handoff: handoffs/ui-programmer/<date>-T122.json.",
+      "owner_note": "Created by main session 2026-10-31 from the owner's list (11 items). Owner decides scope; no code yet."
+    },
+    {
+      "task_id": "T123",
+      "title": "Speed controls 1x 2x 6x 12x: release build and UI, sticky (owner item 2)",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [
+        "T122"
+      ],
+      "status": "queued",
+      "turn_cap": 15,
+      "window": "Gameplay lane, after T122 (shares the top bar control).",
+      "brief": "Promote the speed selector (1x, 2x, 6x, 12x) from the debug build into the release build and the top bar. The chosen speed stays on until the player changes it, and survives pause and resume. It must not change balance or cycle length, only how fast game time runs. Save the chosen speed in the autosave and restore it on load. Handoff: handoffs/gameplay-programmer/<date>-T123.json.",
+      "owner_note": "Created by main session 2026-10-31 from the owner's list (11 items). Owner decides scope; no code yet."
+    },
+    {
+      "task_id": "T124",
+      "title": "Tutorial: first steps (buy, Send to, sell, skill tree) (owner item 3)",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 15,
+      "window": "Gameplay lane. Needs the story lines first (story designer step inside the brief).",
+      "brief": "Build a guided tutorial for the first steps: Buy on a planet row, Send to... a second planet, Sell at the destination, and what the skill tree is for. Each step waits until the player does it. Story lines for every step come from story/screens.md (story-designer writes them first; if a line is missing, do not invent text, ask). Reuse the existing tutorial hook (TUT_* ids). Handoff: handoffs/gameplay-programmer/<date>-T124.json.",
+      "owner_note": "Created by main session 2026-10-31 from the owner's list (11 items). Owner decides scope; no code yet."
+    },
+    {
+      "task_id": "T125",
+      "title": "Replace the first skill, Market Ledger (owner item 4)",
+      "owner_agent": "story-designer",
+      "depends_on": [],
+      "status": "blocked",
+      "turn_cap": 15,
+      "window": "NOT READY: the owner's message was cut off before naming the replacement skill. Owner must give the new skill's name and effect.",
+      "brief": "Once the owner names the replacement: story-designer writes the name, flavour, plain text and locked/learned lines (SK_* ids) and replaces the B1 Market Ledger text. Economy designer sets the effect and cost in balance.json. Gameplay programmer wires the effect after that. Until then nothing changes.",
+      "owner_note": "Created by main session 2026-10-31 from the owner's list (11 items). Owner decides scope; no code yet."
+    },
+    {
+      "task_id": "T126",
+      "title": "Skill point earned: visible pop-up with a splash (owner item 5)",
+      "owner_agent": "ui-programmer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 15,
+      "window": "UI lane. Splash uses existing UI textures only; any new art goes to the artist first.",
+      "brief": "When a skill point is earned, show a short pop-up over the top of the screen: the point count and a one-line reason (story text NOT_SKILL_REASON_* already exists). The splash is an animated highlight built from existing UI textures and the existing notice style. No new art or effect files without an artist handoff. The pop-up must not block play; it fades after a few seconds and can be dismissed. Handoff: handoffs/ui-programmer/<date>-T126.json.",
+      "owner_note": "Created by main session 2026-10-31 from the owner's list (11 items). Owner decides scope; no code yet."
+    },
+    {
+      "task_id": "T127",
+      "title": "Permit Charter text: clearer, less stamp wording (owner item 6)",
+      "owner_agent": "story-designer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 15,
+      "window": "Story lane. Quick.",
+      "brief": "Rewrite the Permit Charter (C1) skill text and its permit lines (SK_C1_* and PERMIT_* ids) so the purpose is obvious at a glance. Owner said the current wording mentions a stamp and is not clear. Keep the voice in story/voice.md and the max lengths. Handoff: handoffs/story-designer/<date>-T127.json.",
+      "owner_note": "Created by main session 2026-10-31 from the owner's list (11 items). Owner decides scope; no code yet."
+    },
+    {
+      "task_id": "T128",
+      "title": "Skill arrow outside the planet ring in the 3D view (owner item 7)",
+      "owner_agent": "ui-programmer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 15,
+      "window": "NOT READY for art: the arrow icon needs an artist handoff first. The UI logic can be built with a placeholder from existing textures.",
+      "brief": "Add a minimal arrow outside the planet ring in the 3D view. It is hidden until a skill permit or system is available to open. Clicking it opens the skill tab and highlights the steps needed. If the permit is held, clicking moves the view to the other system. Icon: artist handoff (minimal arrow, no new effects). Handoff: handoffs/ui-programmer/<date>-T128.json.",
+      "owner_note": "Created by main session 2026-10-31 from the owner's list (11 items). Owner decides scope; no code yet."
+    },
+    {
+      "task_id": "T129",
+      "title": "Planet panel: more room above the scrollbar (owner item 8)",
+      "owner_agent": "ui-programmer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 15,
+      "window": "UI lane. Small.",
+      "brief": "When the planet panel grows with options, the scrollbar sits too close to the other elements. Give it a clear margin from the option rows and the panel edge at macOS window size. Check at the smallest supported window. Handoff: handoffs/ui-programmer/<date>-T129.json.",
+      "owner_note": "Created by main session 2026-10-31 from the owner's list (11 items). Owner decides scope; no code yet."
+    },
+    {
+      "task_id": "T130",
+      "title": "Event texts: braver, more story, in line with the game (owner item 9)",
+      "owner_agent": "story-designer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 15,
+      "window": "Story lane. Batch of event texts (data/events.json, EV01 to EV20).",
+      "brief": "Owner says event texts are dull. Rewrite the event title and body lines (EV* ids) and choice labels to be bolder and more in the Commons and Bureau voice, with a sharper sense of consequence. Keep the same meaning, effects and numbers; no new mechanics. Keep max lengths. Handoff: handoffs/story-designer/<date>-T130.json.",
+      "owner_note": "Created by main session 2026-10-31 from the owner's list (11 items). Owner decides scope; no code yet."
+    },
+    {
+      "task_id": "T131",
+      "title": "Folder layout: media, references and assets (owner item 10)",
+      "owner_agent": "producer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 15,
+      "window": "Housekeeping. Do it between agent runs so no one has files open.",
+      "brief": "The folders are messy. Propose a layout (for example media/ for documents and branding, media/refs for reference images, assets/ for game-ready files) and move files with git mv so history is kept. Before moving: find every reference (scenes, .import files, uid files, scripts, handoffs, gdd docs) and update paths. Run the test suite after the move. Do not move art/planet_fx or any file a scene loads without fixing its references. Handoff: handoffs/producer/<date>-T131.json.",
+      "owner_note": "Created by main session 2026-10-31 from the owner's list (11 items). Owner decides scope; no code yet."
+    },
+    {
+      "task_id": "T132",
+      "title": "Sun: cut the sprite sheet and make a 3D sun that lights the planets (owner item 11)",
+      "owner_agent": "fx-programmer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 15,
+      "window": "FX lane. Source sheet: art/Solar Flare Evolution Sprite Sheet.png (8 by 8 grid of frames). Owner asked for FX here, overriding the no-new-fx rule for this item only.",
+      "brief": "Cut the sheet into frames with a script (keep the script in tools/). Then build a 3D sun in Godot from the frames: an animated texture on a sphere, with the flare motion driven by the frame sequence. The sun's flare events should brighten or shift the light on the planets. Keep the frame budget for macOS. Handoff: handoffs/fx-programmer/<date>-T132.json.",
+      "owner_note": "Created by main session 2026-10-31 from the owner's list (11 items). Owner decides scope; no code yet."
     }
   ],
   "done_task_ids": [
