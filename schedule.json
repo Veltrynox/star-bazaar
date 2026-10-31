@@ -240,7 +240,7 @@
         "T05",
         "T94"
       ],
-      "status": "queued",
+      "status": "partial",
       "turn_cap": 30,
       "window": "QA lane, after T80 (T13 and T05 done)",
       "brief": "Repeat the four bot strategies on the full build. Check win window, loss behaviour, crashes and softlocks. Feed results to the owner."
