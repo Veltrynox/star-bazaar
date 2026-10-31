@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "agent": "producer",
+  "date": "2026-10-31",
+  "task": "Asset naming convention (art/NAMING.md) and audit of art/, assets/, media/. No renames, no moves, no commits.",
+  "status": "done",
+  "files_changed": [
+    "art/NAMING.md",
+    "handoffs/producer/2026-10-31-asset-naming.json"
+  ],
+  "usage_note": "Read-only work: find and grep. Excluded handoffs/archive/, gdd-log.md and gdd-process.md; gdd.md only grepped. Meter figure not reported this session: UNKNOWN.",
+  "open_questions": [
+    "D1 Accept the sequence exception so sun_00..sun_63 keep their names (64 files), or rename to sun_flare_NN (also edits sun_flare.gd and cut_sun.gd).",
+    "D2 Which sun sheet is the master (sun_sheet_v01 or v02)? cut_sun.gd expects 'Solar Flare Evolution Sprite Sheet.png', which is not in the repo.",
+    "D3 Keep or delete the unreferenced assets: route_arrow.png, planet_2.jpg, ui_glyph_* (4), ui_header_horizon, ui_panel_glass, star_bazaar_corvette.glb/.obj, font zips. UNKNOWN whether the artist plans to wire them."
+  ],
+  "handoff": "Convention is in art/NAMING.md (proposal, not applied): snake_case, category prefix from a fixed list, folder = category, two-digit frames and variants, sizes and states from short lists, source sheets in art/source/ with version suffix, media/ is documents and refs only. Audit: 101 raster, model and doc assets; 22 fail name or folder rules (21.8%). 15 are clear renames (sheets, planet_1/2, route arrows, corvette, PDFs, zips, font zips, route_arrow.png location); 7 are hash-named media/refs awaiting a decision. Highest risk: runtime-built names (icon_%s, ui_thumb_%s, arrow_%s, sun_%02d) and the corvette, which the export filter excludes by the assets/star_bazaar_* pattern. Code in art/ (gd, gdshader, tscn, tres, generators) is a folder mismatch, not a naming fault. Doc drift: art/style.md cites art/planets/, which does not exist.",
+  "details": {
+    "inventory": {
+      "art_root": {"assets": 2, "note": "sun_sheet_v01.png, sun_sheet_v02.png (untracked, Godot imports made)"},
+      "art/planet_fx": {"assets": 4, "code_files": 15, "note": "planet_1.jpg, planet_2.jpg, planet_glow_mask.jpg, planet_sphere_tone.png; code: 3 gd, 5 gdshader, 5 tres, 2 tscn"},
+      "art/sun/frames": {"assets": 64, "note": "sun_00.png..sun_63.png, all with .import"},
+      "art/textures/icons": {"assets": 4, "note": "icon_energy_64/128, icon_food_64/128"},
+      "art/textures/ui": {"assets": 9, "note": "4 glyphs, header, panel, 3 thumbs"},
+      "art/sun (code)": {"code_files": 2, "note": "sun_flare.gd, sun.gdshader"},
+      "art root (code)": {"code_files": 2, "note": "make_icons.py, make_ui.py (generators)"},
+      "assets/": {"assets": 2, "note": "star_bazaar_corvette.glb and .obj (3D)"},
+      "assets/route_arrow.png": {"assets": 1, "note": "at assets root, not in route/"},
+      "assets/route": {"assets": 3, "note": "arrow_head, arrow_mid, arrow_tail"},
+      "media/": {"assets": 3, "note": "Star_Bazaar_GDD.pdf, Star_Bazaar_Agent_Crew.pdf, star-bazaar-design-system.zip"},
+      "media/fonts": {"assets": 2, "note": "two zips with commas and capitals"},
+      "media/refs": {"assets": 7, "note": "7 hash-named jpgs, 32 hex characters each"},
+      "totals": {"assets": 101, "non_compliant": 22, "compliant": 79, "companions_not_counted": "each asset has a .import; scripts have .uid"}
+    },
+    "audit": [
+      {"path": "art/sun_sheet_v01.png", "problem": "Source sheet in art/ root; version suffix; no grid in name", "proposed": "art/source/sun_sheet_flare_8x8_v01.png", "references": ["tools/cut_sun.gd:7 expects 'Solar Flare Evolution Sprite Sheet.png' (file not in repo)"], "risk": "medium", "decision": "D2"},
+      {"path": "art/sun_sheet_v02.png", "problem": "Same as v01", "proposed": "art/source/sun_sheet_flare_8x8_v02.png", "references": ["none in code"], "risk": "medium", "decision": "D2"},
+      {"path": "art/planet_fx/planet_1.jpg", "problem": "Variant not two digits; planet texture sits in fx folder", "proposed": "art/planet/planet_surface_01.jpg", "references": ["art/planet_fx/planet_sphere.gd:13 SURFACE_TEXTURES"], "risk": "low (single-entry list, hash index unaffected)", "decision": null},
+      {"path": "art/planet_fx/planet_2.jpg", "problem": "Variant not two digits; no code reference (orphan)", "proposed": "art/planet/planet_surface_02.jpg, or delete", "references": ["none found"], "risk": "low", "decision": "D3"},
+      {"path": "assets/route_arrow.png", "problem": "Folder: loose at assets root, not in route/; no code reference (orphan)", "proposed": "art/route/route_arrow.png, or delete", "references": ["none found"], "risk": "low", "decision": "D3"},
+      {"path": "assets/route/arrow_head.png", "problem": "Missing category prefix; folder assets/ is 3D-only in target", "proposed": "art/route/route_arrow_head.png", "references": ["game/route_line.gd:74 format 'res://assets/route/arrow_%s.png'"], "risk": "medium (runtime format string)", "decision": null},
+      {"path": "assets/route/arrow_mid.png", "problem": "Same", "proposed": "art/route/route_arrow_mid.png", "references": ["game/route_line.gd:74"], "risk": "medium", "decision": null},
+      {"path": "assets/route/arrow_tail.png", "problem": "Same", "proposed": "art/route/route_arrow_tail.png", "references": ["game/route_line.gd:74"], "risk": "medium", "decision": null},
+      {"path": "assets/star_bazaar_corvette.glb", "problem": "Project-name prefix instead of category; unreferenced in code", "proposed": "assets/model_corvette.glb", "references": ["export_presets.cfg:13 exclude 'assets/star_bazaar_*' (rename would ship it in builds)"], "risk": "medium (export filter must change in same step)", "decision": "D3"},
+      {"path": "assets/star_bazaar_corvette.obj", "problem": "Duplicate format of the .glb; prefix; unreferenced", "proposed": "assets/model_corvette.obj, or delete", "references": ["export_presets.cfg:13"], "risk": "medium", "decision": "D3"},
+      {"path": "media/Star_Bazaar_GDD.pdf", "problem": "Capitals; no doc_ prefix; folder media/ root", "proposed": "media/docs/doc_gdd.pdf", "references": ["none in repo"], "risk": "low (external links UNKNOWN)", "decision": null},
+      {"path": "media/Star_Bazaar_Agent_Crew.pdf", "problem": "Capitals; no doc_ prefix", "proposed": "media/docs/doc_agent_crew.pdf", "references": ["none in repo"], "risk": "low", "decision": null},
+      {"path": "media/star-bazaar-design-system.zip", "problem": "Hyphens", "proposed": "media/docs/doc_design_system.zip", "references": ["tools/build_theme.py uses design/star-bazaar-design-system/ folder, not this zip"], "risk": "low", "decision": null},
+      {"path": "media/fonts/JetBrains_Mono,Jost,Montserrat_Alternates.zip", "problem": "Comma, capitals, three families in one zip; contents UNKNOWN in detail", "proposed": "media/docs/doc_fonts_jetbrains_jost_montserrat.zip", "references": ["none in repo; design/fonts holds extracted copies"], "risk": "low", "decision": "D3"},
+      {"path": "media/fonts/Jost,Montserrat_Alternates.zip", "problem": "Comma, capitals; probably duplicates the zip above (UNKNOWN)", "proposed": "media/docs/doc_fonts_jost_montserrat_alternates.zip, or delete", "references": ["none in repo"], "risk": "low", "decision": "D3"},
+      {"path": "media/refs/1615831cb09ae017215e4f39cf114177.jpg", "problem": "Hash name; subject lost", "proposed": "media/refs/ref_<subject>_NN.jpg after owner tags it", "references": ["none (only its .import)"], "risk": "low", "decision": "D4"},
+      {"path": "media/refs/1e829416f2189ef57a675992f3a3a906.jpg", "problem": "Hash name", "proposed": "as above", "references": ["none"], "risk": "low", "decision": "D4"},
+      {"path": "media/refs/1f1591bb76523403976e5f40c7c0662a.jpg", "problem": "Hash name", "proposed": "as above", "references": ["none"], "risk": "low", "decision": "D4"},
+      {"path": "media/refs/9c5acb016ec6d8e676beddb2bf7b8311.jpg", "problem": "Hash name", "proposed": "as above", "references": ["none"], "risk": "low", "decision": "D4"},
+      {"path": "media/refs/a4f627f4630c0abed309ec0bd8224af5.jpg", "problem": "Hash name", "proposed": "as above", "references": ["none"], "risk": "low", "decision": "D4"},
+      {"path": "media/refs/bc2000f337052abb32d81ceced912008.jpg", "problem": "Hash name", "proposed": "as above", "references": ["none"], "risk": "low", "decision": "D4"},
+      {"path": "media/refs/bee27467b7edbf0c738c8ac4ebc7b4b6.jpg", "problem": "Hash name", "proposed": "as above", "references": ["none"], "risk": "low", "decision": "D4"}
+    ],
+    "compliant_but_risky_to_rename": [
+      {"path": "art/sun/frames/sun_00..63.png (64)", "note": "Passes sequence rule; keep unless D1 says rename", "references": ["art/sun/sun_flare.gd:8 'sun_%02d.png'", "tools/cut_sun.gd:23"], "risk": "high"},
+      {"path": "art/textures/icons/icon_{energy,food}_{64,128}.png", "note": "Passes name; folder art/textures/icons not art/icons", "references": ["game/galaxy_view.gd:8 'icon_%s_64.png'", "art/make_icons.py:54", "art/style.md"], "risk": "high (key-built)"},
+      {"path": "art/textures/ui/ui_thumb_{volcanic,temperate,barren}.png", "note": "Name must equal planet type lowercased", "references": ["game/planet_panel.gd:359 'ui_thumb_%s' via Ui.ui_texture", "art/make_ui.py"], "risk": "high (silent fallback to plain disc)"},
+      {"path": "art/textures/ui/ui_glyph_*.png, ui_header_horizon.png, ui_panel_glass.png", "note": "Passes name; no game or theme reference found (orphans until wired)", "references": ["art/make_ui.py", "art/style.md", "handoffs/artist/2026-10-28-ui-look.json"], "risk": "low"},
+      {"path": "art/planet_fx/planet_glow_mask.jpg, planet_sphere_tone.png", "note": "Passes name; folder planet_fx mixes planet and fx", "references": ["art/planet_fx/planet_sphere.gd:15", "art/planet_fx/planet_texture_gen.gd:12", "planet_sphere_material.tres"], "risk": "medium"}
+    ],
+    "code_in_art_not_counted": ["art/planet_fx/planet_fx.gd", "art/planet_fx/planet_sphere.gd", "art/planet_fx/planet_texture_gen.gd", "art/sun/sun_flare.gd", "6 gdshader in art/planet_fx and art/sun", "5 tres and 2 tscn in art/planet_fx", "art/make_icons.py", "art/make_ui.py"],
+    "doc_drift": ["art/style.md cites art/planets/ (make_planets_v2.py, renders/): folder absent", "export_presets.cfg:13 excludes 'assets/arrow.png*' which does not exist"],
+    "owner_decisions": {
+      "D1": "Sequence exception: keep sun_NN (64 files) or rename to sun_flare_NN.",
+      "D2": "Master sun sheet (v01 or v02), and where cut_sun.gd should find it (its expected file is missing).",
+      "D3": "Keep or delete orphans: route_arrow.png, planet_2.jpg, ui_glyph_* (4), ui_header_horizon, ui_panel_glass, corvette .glb and .obj, font zips.",
+      "D4": "media/refs: rename hash names to ref_<subject>_NN (owner supplies subjects) or keep hashes with a manifest.",
+      "D5": "Folder moves (art/textures to art/ui and art/icons, art/planet_fx split, assets/route to art/route, docs to media/docs) and code/generators out of art/: approve in one step or per folder."
+    },
+    "method_notes": "Renames must follow art/NAMING.md section 6 (companions and runtime format strings). No file was changed other than the two listed."
+  }
+}
