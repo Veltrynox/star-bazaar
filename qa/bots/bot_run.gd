@@ -46,6 +46,8 @@ extends SceneTree
 ##   --skills=<id,id,...>    only these skills may be learned (empty value or none: no skill). Default: all.
 ##   --skill-order=<id,...>  learn these first, in this order, then the rest in tree order.
 ##   --permit=<system id>    buy that system's permit as soon as the game allows it (needs C1).
+##   --reload-choice         T80: at the win choice, free the game and start a new one from the save (Continue path),
+##                           then answer. Checks the choice comes back unchanged.
 ##
 ## Run (from the repo root, or through qa/bots/run_batch.sh which also uses a scratch HOME):
 ##   HOME=<scratch dir> tools/godot/Godot.app/Contents/MacOS/Godot --headless --path . \
@@ -76,6 +78,10 @@ var force_cycle := -1
 var inject_cycle := -1
 var inject_cash := 0
 var bad_args := false
+var reload_at_choice := false  # QA option --reload-choice: reload the game from the save at the unanswered win choice
+var reloaded := false
+var event_rows: Array = []  # T80: per cycle, the active event effects and closed planets (for the events check)
+var reload_ok := true
 var skip_skills: Array = []  # QA option --skip-skill=A3,... (never learn these ids)
 var only_skills: Array = []  # QA option --skills=... (empty: every skill may be learned)
 var skill_order: Array = []  # QA option --skill-order=... (learned first, in this order)
@@ -133,6 +139,8 @@ func _initialize() -> void:
 			force_cycle = int(arg.trim_prefix("--force-goal="))
 		elif arg.begins_with("--skip-skill="):
 			skip_skills = Array(arg.trim_prefix("--skip-skill=").split(","))
+		elif arg == "--reload-choice":
+			reload_at_choice = true
 		elif arg.begins_with("--skills="):
 			only_skills = _csv(arg.trim_prefix("--skills="))
 			if only_skills.is_empty():  # --skills= or --skills=none: no skill may be learned (empty alone means all)
@@ -210,6 +218,7 @@ func _play_cycle() -> void:
 	else:
 		main.debug_advance_cycle()
 	_check_cycle_result(c, ended_before)
+	_log_events()
 	if not hung:
 		_check_idle(c, sig_before)
 	if not hung and main.choice_pending:
@@ -294,6 +303,8 @@ func _resolve_choice() -> void:
 	var saved := SaveGame.load_state()
 	if not bool(saved.get("choice_pending", false)):
 		_issue("save_mismatch", choice_cycle, "unanswered win choice is not in the save (a reload would skip it)")
+	if reload_at_choice and not reloaded:
+		_reload_game()
 	choice_side = _pick_side()
 	main.end_screen.chosen.emit(choice_side)
 	_count("win_choice", choice_cycle)
@@ -638,6 +649,44 @@ func _select(p: int) -> void:
 	main.map.planet_clicked.emit(p)
 
 
+## QA reload: frees the running game and starts a new one from the save, as the main menu Continue does.
+## Checks the choice comes back once, at the same cycle and cash, and still unanswered.
+func _reload_game() -> void:
+	reloaded = true
+	var before_cycle: int = main.cycle
+	var before_cash: int = main.cash
+	var before_ships: int = main.ships
+	get_root().remove_child(main)
+	main.free()
+	SaveGame.continue_requested = true
+	main = load(MAIN_SCENE).instantiate()
+	get_root().add_child(main)
+	main.events.rng.seed = seed_value
+	if main.preface != null:
+		main._dismiss_preface()
+	main.set_process(false)
+	main.cycle_ended.connect(_on_cycle_ended)
+	main.run_ended.connect(_on_run_ended)
+	notes.append("reloaded from save at the win choice (cycle %d, cash %d)" % [before_cycle, before_cash])
+	if main.cycle != before_cycle or main.cash != before_cash or main.ships != before_ships:
+		reload_ok = false
+		_issue("reload_state", before_cycle, "reload changed state: cycle %d -> %d, cash %d -> %d, ships %d -> %d" % [before_cycle, main.cycle, before_cash, main.cash, before_ships, main.ships])
+	if not main.choice_pending or main.end_screen == null:
+		reload_ok = false
+		_issue("reload_choice", before_cycle, "choice did not come back after reload (choice_pending %s, end screen %s)" % [main.choice_pending, main.end_screen != null])
+	choice_cycle = main.cycle
+
+
+## T80 events check input: the active price and closure effects after this cycle's tick.
+func _log_events() -> void:
+	var rows: Array = []
+	for a in main.events.active:
+		rows.append([main.cycle, str(a["id"]), str(a["kind"]), int(a["planet"]), str(a["c"]), int(a["left"]), int(a["age"])])
+	var closed: Array = main.engine.closed_planets.duplicate()
+	if not rows.is_empty() or not closed.is_empty():
+		event_rows.append({"cycle": main.cycle, "active": rows, "closed": closed})
+
+
 ## Records what the game is about to judge at the end of a cycle (signal fires before the check).
 func _on_cycle_ended(cycle: int) -> void:
 	ended_count += 1
@@ -718,6 +767,7 @@ func _finish() -> bool:
 		"dead_from_cycle": dead_from,
 		"stats_ok": stats_ok,
 		"end_screen_ok": end_screen_ok,
+		"event_rows": event_rows,
 		"cash_at": pace,
 		"cash_by_cycle": cycle_rows.map(func(r): return [r[0], r[1]]),
 		"issues": issues,
