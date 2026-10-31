@@ -682,7 +682,7 @@
       "depends_on": [
         "T109"
       ],
-      "status": "queued",
+      "status": "partial",
       "turn_cap": 30,
       "window": "Artist lane, idea 5 step 4 of 4 (serial), after T109.",
       "brief": "Simple polygon structure of hexagons around the sun, shown during the asteroid event, plus the small visual extras the owner listed. Line and polygon draw, no heavy shader. Stay within the macOS frame budget and report frame_time_ms. No gameplay logic. Handoff: handoffs/artist/<date>-T110.json.",
