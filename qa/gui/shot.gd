@@ -38,6 +38,7 @@ func _run() -> void:
 		await _frames(1)
 	main.set_paused(true)
 	await _save(out.path_join("02_game.png"))
-	main.open_skill_screen() if main.has_method("open_skill_screen") else null
+	main.open_skills()
+	await _frames(2)
 	await _save(out.path_join("03_game_skills.png"))
 	quit(0)
