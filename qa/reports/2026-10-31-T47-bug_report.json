@@ -1,0 +1,68 @@
+[
+  {
+    "run_id": "2026-10-31-T47",
+    "seed": "1-5",
+    "strategy": "always_expand, decent",
+    "issue_type": "dominant_strategy",
+    "severity": "medium",
+    "steps": "TAG=fast47 EXTRA='--choice=alt' and TAG=timer47 EXTRA='--clock=timer --choice=alt' LIMIT=600 qa/bots/run_batch.sh <out>; compare always_expand and decent rows, seeds 1-5, both clocks. Confirms the T80 finding.",
+    "expected": "always_expand (buys a ship whenever cash allows) differs from decent in path or result, or does not win ahead of it.",
+    "actual": "CONFIRMED on this build. Fast and timer: always_expand equals decent on all 5 seeds: same final cash (fast 9498, 8826, 8538, 9730, 8773), same win cycle, same ending, 4 ships, 4 ship_buy and identical decisions_by_kind. Both reach the 4-ship state and stop buying. Expansion is not a decision the bot can differ on. Check the always_expand policy and the ship cap/cost gate (ship_buy stops at 4 for both).",
+    "owner_agent": "economy-designer"
+  },
+  {
+    "run_id": "2026-10-31-T47",
+    "seed": "1-5",
+    "strategy": "all four (fast vs timer)",
+    "issue_type": "timer_fast_gap",
+    "severity": "medium",
+    "steps": "Run seeds 1-5 for each strategy with EXTRA='--choice=alt' (fast) and EXTRA='--clock=timer --choice=alt' LIMIT=600 (timer), then compare final_cash and cycle_reached per seed.",
+    "expected": "Same seed gives the same result on fast and timer (the game has no RNG; the clock should only change chunking).",
+    "actual": "Results differ. decent cash fast vs timer: seed1 9498 vs 8802, seed4 9730 vs 8872, seed2 8826 vs 8670, seed3 8538 vs 8552, seed5 8773 vs 8769; mean fast 9073 vs timer 8733. Win cycle: seed3 25 (fast) vs 27 (timer); seed5 26 vs 24. never_expand: seed1 4554 vs 3851, seed2 4454 vs 4223, seed3 4891 vs 4707, seed4 1871 vs 1674, seed5 4190 vs 4190. sloppy identical on both clocks. Suggests timing-dependent state inside a cycle (purchase or order timing) on the timer path.",
+    "owner_agent": "gameplay-programmer"
+  },
+  {
+    "run_id": "2026-10-31-T47",
+    "seed": "3, 5",
+    "strategy": "decent (timer)",
+    "issue_type": "pacing_note",
+    "severity": "low",
+    "steps": "TAG=timer47 EXTRA='--clock=timer --choice=alt' LIMIT=600 qa/bots/run_batch.sh <out>; read cycle_reached for decent seed 3 (27) and seed 5 (24).",
+    "expected": "Decent natural win inside the skilled-branch target window 22-26 (data/balance.json targets.win_skilled_cycles) on both clocks.",
+    "actual": "Fast decent wins at 25-26 on all 5 seeds (inside 22-26). Timer decent wins at 26, 26, 27, 26, 24: seed 3 is one cycle past the skilled window (still inside the no-skill window 26-30). No decent run wins before 22 or after 30, so the medium pacing rule is not triggered.",
+    "owner_agent": "economy-designer"
+  },
+  {
+    "run_id": "2026-10-31-T47",
+    "seed": "1-5",
+    "strategy": "decent (force-goal probes)",
+    "issue_type": "win_cash_reporting",
+    "severity": "low",
+    "steps": "TAG=p21 EXTRA='--choice=alt --force-goal=21' and TAG=p22 EXTRA='--choice=alt --force-goal=22' (decent, seeds 1-5). Also --force-goal=30 for decent, never_expand, sloppy.",
+    "expected": "A forced win reports the cash the run actually had, as a natural run does (natural decent cash at cycle 25-26 is 8538-9730).",
+    "actual": "Every forced-goal run (25 runs: force 21 x5, 22 x5, 30 x15) reports final_cash exactly 8500 regardless of real cash. Win cycle and ending are right (win at the forced cycle in all 25). Win trigger works; the cash figure may be clamped or set by the force toggle. Cause UNKNOWN (harness or game).",
+    "owner_agent": "UNKNOWN (qa-analyst harness or gameplay-programmer)"
+  },
+  {
+    "run_id": "2026-10-31-T47",
+    "seed": "1-5",
+    "strategy": "decent, sloppy, always_expand, never_expand",
+    "issue_type": "environment_noise",
+    "severity": "low",
+    "steps": "Any run of qa/bots/run_batch.sh on the Mac. See errors_*.log.",
+    "expected": "No error lines in a clean headless run.",
+    "actual": "Every run prints 'ERROR: Condition \"ret != noErr\" is true. Returning: \"\"' (os_macos.mm get_system_ca_certificates). Not from the game; no effect on results. Same as T80. UNKNOWN cause.",
+    "owner_agent": "producer"
+  },
+  {
+    "run_id": "2026-10-31-T47",
+    "seed": "1-5",
+    "strategy": "decent (probe batch, first attempt)",
+    "issue_type": "harness_invalid_window",
+    "severity": "low",
+    "steps": "First attempt of TAG=p21, p22, p30, pinj, pinjlo while game/ui.gd was being edited (mtime 21:55:00, probe started 21:54:47). Read errors_p21.log.",
+    "expected": "A probe batch runs on a stable build; a compile error is a game bug.",
+    "actual": "Compile errors (main.gd Variant inference, install_cursors missing on GDScript) and cash 0 at cycle 1 for many runs. Caused by a concurrent edit in the shared working tree, not by a game bug. Discarded and rerun from scratch on a stable build (all 0 non-noErr errors). Results in the runs file are the rerun.",
+    "owner_agent": "qa-analyst"
+  }
+]

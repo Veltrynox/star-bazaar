@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "agent": "qa-analyst",
+  "date": "2026-10-31",
+  "task": "T47",
+  "status": "done",
+  "files_changed": [
+    "qa/reports/2026-10-31-T47-bug_report.json",
+    "qa/reports/2026-10-31-T47-runs.jsonl",
+    "handoffs/qa-analyst/2026-10-31-T47.json"
+  ],
+  "open_questions": [
+    "UNKNOWN: why forced-goal runs report final_cash exactly 8500 (harness or game).",
+    "UNKNOWN: cause of the timer vs fast cash gap (same seed differs; likely in-cycle timing).",
+    "UNKNOWN: release export not built; debug menu gate checked statically only (debug_tools_allowed)."
+  ],
+  "handoff": "T47 done. 40 natural runs (20 fast, 20 timer; 4 strategies x seeds 1-5), plus 37 probe runs (77 rows in the runs file). No crash, freeze or softlock. Win cycles: decent 25-26 fast, 24-27 timer (one past skilled window 22-26). Win boundary exact: cash 8499 loses, 8500 wins at cycle 30. Force-goal 21/22/30 win at that cycle. T80 confirmed: always_expand equals decent on all 5 seeds on both clocks (dominant_strategy, medium). Sloppy and never_expand lose 5/5. Timer and fast differ in cash on 9 of 20 pairs (medium). Forced win reports cash 8500 (low). Batch rerun needed when game files are being edited (first probe attempt discarded). Details in details.results.",
+  "details": {
+    "results": [
+      {
+        "strategy": "decent",
+        "clock": "fast",
+        "final_cash": "8538-9730 (mean 9073)",
+        "cycle_reached": "25-26",
+        "outcome": "win x5 (END_ENOUGH, END_CORP_MIX)"
+      },
+      {
+        "strategy": "decent",
+        "clock": "timer",
+        "final_cash": "8552-8872 (mean 8733)",
+        "cycle_reached": "24-27",
+        "outcome": "win x5"
+      },
+      {
+        "strategy": "always_expand",
+        "clock": "fast",
+        "final_cash": "same as decent",
+        "cycle_reached": "25-26",
+        "outcome": "win x5, identical to decent"
+      },
+      {
+        "strategy": "always_expand",
+        "clock": "timer",
+        "final_cash": "same as decent",
+        "cycle_reached": "24-27",
+        "outcome": "win x5, identical to decent"
+      },
+      {
+        "strategy": "sloppy",
+        "clock": "fast",
+        "final_cash": "1203-4103",
+        "cycle_reached": "30",
+        "outcome": "loss x5 (END_LOSS)"
+      },
+      {
+        "strategy": "sloppy",
+        "clock": "timer",
+        "final_cash": "1203-4103 (identical)",
+        "cycle_reached": "30",
+        "outcome": "loss x5"
+      },
+      {
+        "strategy": "never_expand",
+        "clock": "fast",
+        "final_cash": "1871-4891",
+        "cycle_reached": "30",
+        "outcome": "loss x5"
+      },
+      {
+        "strategy": "never_expand",
+        "clock": "timer",
+        "final_cash": "1674-4707",
+        "cycle_reached": "30",
+        "outcome": "loss x5"
+      }
+    ],
+    "win_boundary_probes": [
+      "force-goal 21 (decent): win at 21 x5",
+      "force-goal 22 (decent): win at 22 x5",
+      "force-goal 30 (decent, never, sloppy): win at 30 x15",
+      "inject 30:6628 never_expand seed4: loss at 30, cash 8499",
+      "inject 30:6629 same: win at 30, cash 8500"
+    ],
+    "dominant_strategy": "none; always_expand ties decent (T80 confirmed)",
+    "pacing_targets": "data/balance.json: no skills 26-30, skilled 22-26, full 19-23, early check 22, win_cash 8500 at cycle 30"
+  }
+}
