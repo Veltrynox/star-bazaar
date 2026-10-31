@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>Sun debug: planes</title>
+<style>
+body{background:#07080c;color:#d8dde8;font:14px/1.45 -apple-system,Helvetica,Arial,sans-serif;margin:16px 24px}
+h1{font-size:20px;margin:0 0 6px}h2{font-size:16px;margin:22px 0 8px}
+.note{max-width:980px;color:#aab3c4}.note b{color:#e6ebf5}code{color:#ffd9a0}
+#bar{position:sticky;top:0;background:#0d1018;padding:8px 12px;border:1px solid #232a3a;border-radius:6px;margin:12px 0;z-index:2;display:flex;gap:18px;flex-wrap:wrap;align-items:center}
+#bar input[type=range]{width:360px}
+#grid{display:flex;flex-wrap:wrap;gap:16px}
+.tile{background:#10131b;border:1px solid #232a3a;border-radius:6px;padding:10px;width:240px}
+.tile canvas{display:block;width:240px;height:240px;background:#000;border:1px solid #2c3448}
+.tile table{margin-top:8px;font-size:13px;border-collapse:collapse;width:100%}
+.tile td{padding:1px 0}.tile td:first-child{color:#8a94aa;width:46%}.tile td:last-child{font-family:Menlo,monospace;color:#eef}
+.tile h3{margin:0 0 6px;font-size:15px;color:#ffd9a0}
+#combo{width:480px;height:480px;background:#000;border:1px solid #2c3448}
+.legend{color:#8a94aa;font-size:13px}
+</style></head><body>
+<h1>Sun debug: one tile per grid plane</h1>
+<div class="note">
+Each tile shows one plane of the sun alone, as <code>art/sun/sun.gdshader</code> samples it: the plane's own <b>sheet</b> (storm, flare or calm; one sheet per plane, repeats allowed), its
+<b>crop centre</b>, <b>crop scale</b> and <b>crop rotation</b> on the cut frame, a round soft edge (smoothstep 0.55..1.0),
+the plane's <b>frame phase</b> with linear blending of frame f and f+1, times <b>glow</b>, added onto black.
+The combined view adds all planes with additive blending. This is a <b>2D approximation of the 3D placement</b>:
+yaw, pitch and the depth offset are listed but not drawn (every plane is shown face-on and centred), and the slow spin of each plane
+is only drawn if you move the spin slider. The numbers come from <code id="src"></code>;
+per-plane values (phase, crop, rotation, yaw/pitch, spin) are not stored there, they are computed in
+<code>_ready()</code>/<code>_layout()</code>, so <code>make_planes.py</code> repeats those formulas and writes <code>planes.js</code>.
+Yaw and pitch are derived from the plane direction for display. Regenerate with <code>python3 tools/sun_debug/make_planes.py</code>.
+</div>
+<div id="bar">
+ <label>Frame <input id="frame" type="range" min="0" max="63" step="1" value="0"> <b id="fval">0</b> / 63</label>
+ <label><input id="glowon" type="checkbox" checked> apply glow (0.4); off = full brightness, to see the texture</label>
+ <label><input id="fade" type="checkbox" checked> round edge fade</label>
+ <label>Spin <input id="spin" type="range" min="0" max="60" step="0.5" value="0" style="width:200px"> <b id="sval">0</b> s</label>
+ <label><input id="play" type="checkbox"> play at game FPS</label>
+ <label>Sheets <select id="set"></select> <span id="setnote" class="legend"></span></label>
+</div>
+<div id="status" style="padding:8px 12px;border:1px solid #232a3a;border-radius:6px;margin:8px 0">Loading frames...</div>
+<pre id="errs" style="color:#ff8a80;white-space:pre-wrap;margin:0"></pre>
+<h2>Planes</h2><div id="grid"></div>
+<h2>All planes added</h2>
+<canvas id="combo" width="480" height="480"></canvas>
+<div class="legend" id="comboinfo"></div>
+<script src="planes.js"></script>
+<script src="frames.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+const D = SUN_DATA, N = D.frame_count, S = 240, C = 480;
+document.getElementById('src').textContent = D.source_file + ' (PLANES line ' + D.lines.PLANES + ', PLANE_GLOW ' + D.lines.PLANE_GLOW +
+  ', FPS ' + D.lines.FPS + ', SETS ' + D.lines.SETS + ', PLANE_SETS ' + D.lines.PLANE_SETS + ', plane formulas lines ' + D.lines.per_plane_formulas + ')';
+// Visible error list: any failure is printed on the page, not only in the console.
+const failed = [];
+function showErr(m) { const e = document.getElementById('errs'); e.textContent += m + '\n'; }
+window.onerror = (m, u, l) => { showErr('JS error: ' + m + ' (line ' + l + ')'); };
+let loadedSets = {}, loaded = 0, done = 0, curSet = '', override = '';
+const imgsOf = p => loadedSets[override || p.set] || [];
+function status() {
+  const tot = Object.keys(SUN_SETS).length * N;
+  document.getElementById('status').textContent = 'Frames loaded ' + loaded + ' / ' + tot + (failed.length ? ',  FAILED ' + failed.length : '') +
+    '.  Embedded data URIs (frames.js, sets: ' + Object.keys(SUN_SETS).map(k => k + ' ' + SUN_SETS[k].length).join(', ') + ').';
+}
+// Load all sets once (each plane needs its own). Draw after every image settles, so one bad file cannot leave all tiles black.
+function loadAll() {
+  Object.keys(SUN_SETS).forEach(name => {
+    const arr = []; loadedSets[name] = arr;
+    for (let i = 0; i < N; i++) {
+      const im = new Image(), url = name + ' frame ' + String(i).padStart(2, '0') + ' (bad data URI)';
+      const fin = () => { done++; status(); if (done % 16 === 0 || done === Object.keys(SUN_SETS).length * N) draw(); };
+      im.onload = () => { loaded++; fin(); };
+      im.onerror = () => { failed.push(url); showErr('IMAGE FAILED: ' + url); fin(); };
+      im.src = (SUN_SETS[name] && SUN_SETS[name][i]) || ''; arr.push(im);
+    }
+  });
+  status();
+}
+const ok = im => im && im.complete && im.naturalWidth > 0;
+// Offscreen canvas with one plane drawn the way the shader does (size px).
+function plane(p, size, f, glowOn, fadeOn, spinS) {
+  const imgs = imgsOf(p);
+  const cv = document.createElement('canvas'); cv.width = cv.height = size; const g = cv.getContext('2d');
+  const fp = (((f + p.phase) % N) + N) % N, f0 = Math.floor(fp), f1 = (f0 + 1) % N, t = fp - f0;
+  const W = ok(imgs[f0]) ? imgs[f0].naturalWidth : 156, H = ok(imgs[f0]) ? imgs[f0].naturalHeight : 156;
+  const k = size / (p.uv_scale * W), c = Math.cos(p.uv_rot), s = Math.sin(p.uv_rot);
+  const cx = p.uv_center[0] * W, cy = p.uv_center[1] * H;
+  g.fillStyle = '#000'; g.fillRect(0, 0, size, size);
+  g.globalCompositeOperation = 'lighter'; g.imageSmoothingEnabled = true;
+  g.setTransform(k * c, -k * s, k * s, k * c, size / 2 - k * (c * cx + s * cy), size / 2 - k * (-s * cx + c * cy));
+  const m = glowOn ? p.glow : 1;
+  g.globalAlpha = (1 - t) * m; if (ok(imgs[f0])) g.drawImage(imgs[f0], 0, 0);
+  g.globalAlpha = t * m; if (ok(imgs[f1])) g.drawImage(imgs[f1], 0, 0);
+  g.setTransform(1, 0, 0, 1, 0, 0); g.globalAlpha = 1;
+  if (fadeOn) { // fade = 1 - smoothstep(0.55, 1.0, r), r = 2*|p|
+    const gr = g.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
+    for (let j = 0; j <= 20; j++) { const r = j / 20, x = Math.min(Math.max((r - 0.55) / 0.45, 0), 1);
+      gr.addColorStop(r, 'rgba(0,0,0,' + (x * x * (3 - 2 * x)).toFixed(4) + ')'); }
+    g.globalCompositeOperation = 'source-over'; g.fillStyle = gr; g.fillRect(0, 0, size, size); // black overlay that grows toward the edge (same result on black)
+  }
+  if (spinS > 0) { // the quad turns in its own plane at spin_rad_s; draw the whole plane rotated
+    const o = document.createElement('canvas'); o.width = o.height = size; const h = o.getContext('2d');
+    h.fillStyle = '#000'; h.fillRect(0, 0, size, size); h.translate(size / 2, size / 2); h.rotate(p.spin_rad_s * spinS);
+    h.drawImage(cv, -size / 2, -size / 2); return o;
+  }
+  return cv;
+}
+function fmt(v, d) { return Number(v).toFixed(d === undefined ? 3 : d); }
+const grid = document.getElementById('grid'), tiles = [];
+D.planes.forEach(p => {
+  const d = document.createElement('div'); d.className = 'tile';
+  d.innerHTML = '<h3>Plane ' + p.index + ': <span class="sn"></span></h3><canvas width="' + S + '" height="' + S + '"></canvas><table>' +
+   [['yaw (deg, derived)', fmt(p.yaw_deg, 1)], ['pitch (deg, derived)', fmt(p.pitch_deg, 1)],
+    ['offset z (radii)', fmt(p.offset_z_radii, 2) + '  (' + fmt(p.offset_z, 4) + ' m)'],
+    ['crop centre', '(' + fmt(p.uv_center[0]) + ', ' + fmt(p.uv_center[1]) + ')'],
+    ['crop scale', fmt(p.uv_scale)], ['crop rotation', fmt(p.uv_rot) + ' rad = ' + fmt(p.uv_rot * 180 / Math.PI, 1) + ' deg'],
+    ['sheet', p.set + ' (layers ' + p.layer_base + '..' + (p.layer_base + N - 1) + ')'], ['frame phase (offset)', fmt(p.phase, 2)], ['frame shown', '<span class="fs"></span>'],
+    ['glow', fmt(p.glow, 2)], ['spin', fmt(p.spin_rad_s, 2) + ' rad/s']]
+   .map(r => '<tr><td>' + r[0] + '</td><td>' + r[1] + '</td></tr>').join('') + '</table>';
+  grid.appendChild(d); tiles.push({p, cv: d.querySelector('canvas'), fs: d.querySelector('.fs'), sn: d.querySelector('.sn')});
+});
+function draw(ff) {
+  const f = (typeof ff === 'number') ? ff : +$('frame').value, go = $('glowon').checked, fd = $('fade').checked, sp = +$('spin').value;
+  $('fval').textContent = Math.floor(f); $('sval').textContent = sp;
+  const cc = $('combo').getContext('2d'); cc.setTransform(1, 0, 0, 1, 0, 0);
+  cc.globalCompositeOperation = 'source-over'; cc.fillStyle = '#000'; cc.fillRect(0, 0, C, C);
+  cc.globalCompositeOperation = 'lighter';
+  tiles.forEach(t => {
+    const fp = (((f + t.p.phase) % N) + N) % N;
+    t.sn.textContent = override || t.p.set;
+    t.fs.textContent = fmt(fp, 2) + ' (' + Math.floor(fp) + ' -> ' + (Math.floor(fp) + 1) % N + ')';
+    const g = t.cv.getContext('2d'); g.globalCompositeOperation = 'source-over';
+    g.drawImage(plane(t.p, S, f, go, fd, sp), 0, 0);
+    cc.drawImage(plane(t.p, C, f, go, fd, sp), 0, 0);
+    if (!ok(imgsOf(t.p)[Math.floor(fp)])) { // text fallback on the tile so the owner sees which file is missing
+      g.globalCompositeOperation = 'source-over'; g.fillStyle = '#ff8a80'; g.font = '12px monospace';
+      g.fillText('NO IMAGE: frame ' + String(Math.floor(fp)).padStart(2, '0'), 6, 16);
+    }
+  });
+  $('comboinfo').textContent = (override ? 'All planes forced to ' + override : 'Sheets: ' + D.planes.map(q => q.set.replace('sun_', '')).join(', ')) + ': sum of ' + D.planes_count + ' planes x glow ' + D.plane_glow + (go ? '' : ' (glow off: each at 1.0)') +
+    ' at frame ' + f + '. Canvas clips at 255; the game goes above 1.0 into HDR glow, so bright cores clip here.';
+}
+$('frame').oninput = () => { playF = +$('frame').value; draw(); };
+$('glowon').onchange = $('fade').onchange = $('spin').oninput = () => draw();
+let last = 0, playF = 0;
+function tick(ts) { if ($('play').checked) { const dt = (ts - last) / 1000; playF = (playF + dt * D.fps) % N; $('frame').value = Math.floor(playF); draw(playF); }
+  last = ts; requestAnimationFrame(tick); }
+{ const o = document.createElement('option'); o.value = ''; o.textContent = 'game: one sheet per plane'; $('set').appendChild(o); }
+Object.keys(SUN_SETS).forEach(k => { const o = document.createElement('option'); o.value = k; o.textContent = 'all planes: ' + k; $('set').appendChild(o); });
+$('set').value = ''; $('set').onchange = () => { override = $('set').value; draw(); };
+$('setnote').textContent = '(game view is the default)';
+loadAll();
+requestAnimationFrame(tick);
+</script></body></html>

@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>Sun crop tool</title>
+<style>
+ body{background:#111;color:#ddd;font:14px/1.4 sans-serif;margin:12px}
+ h1{font-size:18px;margin:0 0 6px} h2{font-size:15px;margin:14px 0 6px}
+ .note{background:#222;border-left:3px solid #e8a33a;padding:8px 12px;margin-bottom:10px;max-width:900px}
+ .tabs button{padding:6px 16px;margin-right:4px;background:#222;color:#ddd;border:1px solid #444;cursor:pointer}
+ .tabs button.on{background:#e8a33a;color:#000}
+ .row{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:end;margin:8px 0}
+ label{display:flex;flex-direction:column;font-size:12px;color:#aaa}
+ input,select{width:84px;background:#000;color:#fff;border:1px solid #555;padding:3px;font-size:14px}
+ button.act{padding:7px 14px;font-size:14px;cursor:pointer;background:#2c4;border:0;color:#000}
+ button.dl{background:#4ae}
+ #view{width:min(100%,1300px);height:68vh;overflow:auto;border:1px solid #555;background:#000}
+ canvas{display:block}
+ #main{cursor:move}
+ .pv{display:flex;flex-wrap:wrap;gap:20px;align-items:flex-start}
+ .pv canvas{border:1px solid #555;background:#000}
+ pre{background:#000;border:1px solid #333;padding:8px;max-width:900px;overflow:auto}
+ .warn{color:#f66} .ok{color:#6e6}
+</style></head><body>
+<h1>Sun crop tool</h1>
+<div class="note">
+ <b>How to use.</b> 1) Pick a sheet tab. 2) Line the grid up with the cells: drag the canvas to move the whole grid,
+ drag the <span style="color:#4f4">green</span> dot (top-left of cell 0,0) to move it exactly, the <span style="color:#4cf">blue</span> dot
+ (bottom-right of cell 0,0) to set the cell size, the <span style="color:#f6f">pink</span> dot (top-left of cell 1,1) to set the gap.
+ Or type numbers. Zoom in to see the dark separator lines. 3) Check the two previews below the canvas.
+ 4) Press <b>Confirm crop</b> for the sheet. Do this for all three sheets.
+ 5) Press <b>Download crop.json</b> and save the file as <code>tools/sun_crop/crop.json</code>. Then the cutting tool can run.
+ All numbers are pixels of the source sheet. Confirmed values are also kept in this browser (localStorage).
+</div>
+<div class="tabs" id="tabs"></div>
+<div class="row">
+ <label>Origin X (px)<input type="number" id="x" step="1"></label>
+ <label>Origin Y (px)<input type="number" id="y" step="1"></label>
+ <label>Cell width (px)<input type="number" id="cw" step="1" min="1"></label>
+ <label>Cell height (px)<input type="number" id="ch" step="1" min="1"></label>
+ <label>Gap between cells (px)<input type="number" id="gap" step="1" min="0"></label>
+ <label>Columns<input type="number" id="cols" step="1" min="1"></label>
+ <label>Rows<input type="number" id="rows" step="1" min="1"></label>
+ <label>Zoom<select id="zoom"></select></label>
+ <label>Grid fits sheet?<span id="fit"></span></label>
+</div>
+<div class="row">
+ <button class="act" id="confirm">Confirm crop</button>
+ <button class="act dl" id="download">Download crop.json</button>
+ <span id="status"></span>
+</div>
+<div id="view"><canvas id="main"></canvas></div>
+<div id="info" style="margin-top:4px;color:#aaa"></div>
+<h2>Preview</h2>
+<div class="pv">
+ <div>First cell (0,0) as cropped, enlarged<br><canvas id="pcell"></canvas></div>
+ <div>Whole grid of cropped cells (pink lines are only spacing between the previews)<br><canvas id="pgrid"></canvas></div>
+</div>
+<h2>Saved (confirmed) values</h2>
+<pre id="saved">nothing confirmed yet</pre>
+<script src="sheets.js"></script>
+<script>
+const KEYS = ["v01","v02","v03"], LS = "sun_crop_confirmed_v1";
+const $ = id => document.getElementById(id);
+const imgs = {}, work = {}; let confirmed = {}; let cur = "v01";
+try { confirmed = JSON.parse(localStorage.getItem(LS) || "{}"); } catch (e) { confirmed = {}; }
+for (const k of KEYS) {
+  const s = SUN_SHEETS[k], c = Math.floor(s.w / 8);
+  work[k] = confirmed[k] ? Object.assign({}, confirmed[k]) : {x:0, y:0, cell_w:c, cell_h:c, gap:0, cols:8, rows:8};
+  imgs[k] = new Image(); imgs[k].onload = () => { if (k === cur) refresh(); }; imgs[k].src = s.uri;
+}
+const F = {x:"x", y:"y", cell_w:"cw", cell_h:"ch", gap:"gap", cols:"cols", rows:"rows"};
+const zoomSel = $("zoom");
+for (const z of [0.5, 0.75, 1, 1.5, 2, 3, 4, 6]) zoomSel.add(new Option(z * 100 + "%", z));
+zoomSel.value = 1.5;
+const zoom = () => parseFloat(zoomSel.value);
+
+// tabs
+for (const k of KEYS) {
+  const b = document.createElement("button"); b.textContent = k + " (" + SUN_SHEETS[k].name + ")"; b.id = "tab_" + k;
+  b.onclick = () => { cur = k; refresh(); }; $("tabs").appendChild(b);
+}
+// number boxes -> state
+for (const f in F) $(F[f]).oninput = () => {
+  const v = parseInt($(F[f]).value, 10);
+  if (!isNaN(v)) { work[cur][f] = v; draw(); }
+};
+zoomSel.onchange = refresh;
+
+function fits(g, s) {
+  const w = g.x + g.cols * g.cell_w + (g.cols - 1) * g.gap, h = g.y + g.rows * g.cell_h + (g.rows - 1) * g.gap;
+  return g.x >= 0 && g.y >= 0 && g.cell_w > 0 && g.cell_h > 0 && g.gap >= 0 && g.cols > 0 && g.rows > 0 && w <= s.w && h <= s.h;
+}
+function refresh() {
+  for (const k of KEYS) $("tab_" + k).className = k === cur ? "on" : "";
+  const s = SUN_SHEETS[cur], z = zoom(), cv = $("main");
+  cv.width = Math.round(s.w * z); cv.height = Math.round(s.h * z);
+  for (const f in F) $(F[f]).value = work[cur][f];
+  draw();
+}
+function draw() {
+  const k = cur, s = SUN_SHEETS[k], g = work[k], z = zoom(), cv = $("main"), c = cv.getContext("2d");
+  c.imageSmoothingEnabled = false; c.clearRect(0, 0, cv.width, cv.height);
+  if (imgs[k].complete && imgs[k].naturalWidth) c.drawImage(imgs[k], 0, 0, cv.width, cv.height);
+  c.lineWidth = 1;
+  for (let r = 0; r < g.rows; r++) for (let q = 0; q < g.cols; q++) {
+    c.strokeStyle = (r === 0 && q === 0) ? "#4f4" : "rgba(255,60,60,0.9)";
+    c.strokeRect((g.x + q * (g.cell_w + g.gap)) * z + 0.5, (g.y + r * (g.cell_h + g.gap)) * z + 0.5, g.cell_w * z, g.cell_h * z);
+  }
+  for (const h of handles()) { c.beginPath(); c.arc(h.px, h.py, 6, 0, 7); c.fillStyle = h.col; c.fill(); c.strokeStyle = "#000"; c.stroke(); }
+  const ok = fits(g, s); $("fit").innerHTML = ok ? '<span class="ok">yes</span>' : '<span class="warn">NO, outside the sheet</span>';
+  $("info").textContent = s.name + " is " + s.w + " x " + s.h + " px. Grid spans " +
+    (g.cols * g.cell_w + (g.cols - 1) * g.gap) + " x " + (g.rows * g.cell_h + (g.rows - 1) * g.gap) + " px from (" + g.x + ", " + g.y + ").";
+  previews(); showStatus();
+}
+function handles() {
+  const g = work[cur], z = zoom();
+  return [
+    {n:"origin", col:"#4f4", px:g.x * z, py:g.y * z},
+    {n:"size", col:"#4cf", px:(g.x + g.cell_w) * z, py:(g.y + g.cell_h) * z},
+    {n:"gap", col:"#f6f", px:(g.x + g.cell_w + g.gap) * z, py:(g.y + g.cell_h + g.gap) * z},
+  ];
+}
+// drag on the canvas
+let drag = null;
+function pos(e) { const r = $("main").getBoundingClientRect(); return {x:(e.clientX - r.left) / zoom(), y:(e.clientY - r.top) / zoom(), sx:e.clientX - r.left, sy:e.clientY - r.top}; }
+$("main").onmousedown = e => {
+  const p = pos(e); let mode = "move";
+  for (const h of handles().reverse()) if (Math.hypot(h.px - p.sx, h.py - p.sy) < 10) { mode = h.n; break; }
+  drag = {mode, p, g:Object.assign({}, work[cur])}; e.preventDefault();
+};
+window.onmousemove = e => {
+  if (!drag) return;
+  const p = pos(e), g = work[cur], d = drag.g, dx = Math.round(p.x - drag.p.x), dy = Math.round(p.y - drag.p.y);
+  if (drag.mode === "move" || drag.mode === "origin") { g.x = d.x + dx; g.y = d.y + dy; }
+  else if (drag.mode === "size") { g.cell_w = Math.max(1, Math.round(p.x - g.x)); g.cell_h = Math.max(1, Math.round(p.y - g.y)); }
+  else if (drag.mode === "gap") { g.gap = Math.max(0, Math.round(((p.x - g.x - g.cell_w) + (p.y - g.y - g.cell_h)) / 2)); }
+  for (const f in F) $(F[f]).value = g[f];
+  draw();
+};
+window.onmouseup = () => { drag = null; };
+
+// previews
+function cellRect(g, q, r) { return [g.x + q * (g.cell_w + g.gap), g.y + r * (g.cell_h + g.gap), g.cell_w, g.cell_h]; }
+function previews() {
+  const k = cur, g = work[k], im = imgs[k], s = SUN_SHEET_OK(k); if (!s) return;
+  const pc = $("pcell"), c = pc.getContext("2d"), sc = Math.max(1, Math.floor(300 / Math.max(g.cell_w, g.cell_h)));
+  pc.width = g.cell_w * sc; pc.height = g.cell_h * sc; c.imageSmoothingEnabled = false;
+  const [sx, sy, sw, sh] = cellRect(g, 0, 0); c.drawImage(im, sx, sy, sw, sh, 0, 0, pc.width, pc.height);
+  const pg = $("pgrid"), d = pg.getContext("2d"), gs = Math.min(1, 800 / (g.cols * (g.cell_w + 2))), dw = Math.floor(g.cell_w * gs), dh = Math.floor(g.cell_h * gs);
+  pg.width = g.cols * (dw + 2) + 2; pg.height = g.rows * (dh + 2) + 2; d.fillStyle = "#c0c"; d.fillRect(0, 0, pg.width, pg.height); d.imageSmoothingEnabled = true;
+  for (let r = 0; r < g.rows; r++) for (let q = 0; q < g.cols; q++) {
+    const [a, b, w, h] = cellRect(g, q, r);
+    if (a < 0 || b < 0 || a + w > im.naturalWidth || b + h > im.naturalHeight) continue; // outside the sheet: leave pink
+    d.drawImage(im, a, b, w, h, 2 + q * (dw + 2), 2 + r * (dh + 2), dw, dh);
+  }
+}
+function SUN_SHEET_OK(k) { return imgs[k].complete && imgs[k].naturalWidth ? imgs[k] : null; }
+
+// confirm and download
+function showStatus() {
+  const out = {version:1, sheets:confirmed};
+  $("saved").textContent = Object.keys(confirmed).length ? JSON.stringify(out, null, 2) : "nothing confirmed yet";
+  const done = KEYS.filter(k => confirmed[k]);
+  $("status").innerHTML = "Confirmed: " + (done.length ? done.join(", ") : "none") + (done.length < 3 ? ' <span class="warn">(download works, but unconfirmed sheets will be skipped by the cutter)</span>' : ' <span class="ok">all three</span>');
+}
+$("confirm").onclick = () => {
+  const g = work[cur], s = SUN_SHEETS[cur];
+  if (!fits(g, s)) { alert("The grid does not fit inside the sheet (" + s.w + " x " + s.h + "). Fix it, then confirm."); return; }
+  confirmed[cur] = Object.assign({}, g);
+  try { localStorage.setItem(LS, JSON.stringify(confirmed)); } catch (e) {}
+  showStatus();
+};
+$("download").onclick = () => {
+  if (!Object.keys(confirmed).length) { alert("Confirm at least one sheet first."); return; }
+  const blob = new Blob([JSON.stringify({version:1, sheets:confirmed}, null, 2) + "\n"], {type:"application/json"});
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "crop.json";
+  document.body.appendChild(a); a.click(); a.remove();
+};
+refresh();
+</script></body></html>
