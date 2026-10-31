@@ -62,6 +62,8 @@ const STRATEGIES := ["decent", "sloppy", "always_expand", "never_expand"]
 const DECENT_LANES := 24  # no lane cap, matching tools/sim.py decent (ship_cap is the only limit)
 const DECENT_FROM_CYCLE := 1  # buy from the first cycle, matching tools/sim.py decent
 const DECENT_RESERVE := 0  # no cash reserve, matching tools/sim.py decent
+const PAYBACK_CYCLES := 10  # QA: a lane must pay a ship back within this many cycles
+const PERMIT_WORKING_CASH := 400  # QA: cash the --permit buy keeps back for standing buy orders
 const IDLE_AFTER := 3  # cycles in a row with no cash or stock change before it counts as a softlock
 const MAX_STEPS := 1000  # watchdog: bot cycles before a run is called a softlock
 const MAX_CHUNKS := 100000  # watchdog: timer steps inside one cycle
@@ -336,10 +338,19 @@ func _ranked_lanes() -> Array:
 				if bp <= 0 or sp < 0:
 					continue
 				var profit: int = (sp - bp) * units - fixed
-				if profit > 0:
+				# A lane is worth a ship only if one cycle's profit pays the ship back within PAYBACK_CYCLES.
+				var ship_price: int = int(main.balance.get("ship_price", 0))
+				if profit * PAYBACK_CYCLES >= ship_price and not _cross_system_blocked(a, b):  # the game refuses cross-system routes without C3
 					out.append({"a": a, "b": b, "c": cs, "profit": profit})
 	out.sort_custom(func(x, y): return x["profit"] > y["profit"])
 	return out
+
+
+## QA: the game's own rule (route_engine.gd): a route between two systems needs Long Haul (C3).
+func _cross_system_blocked(a: int, b: int) -> bool:
+	var sa := int(main.trade.planets[a].get("system", 1))
+	var sb := int(main.trade.planets[b].get("system", 1))
+	return sa != sb and not main.learned_skills.has("C3")
 
 
 func _plan() -> Array:
@@ -491,7 +502,9 @@ func _buy_wanted(a: int, c: String) -> bool:
 	var units: int = mini(int(main.engine.local_amount()), int(main.engine.units_per_cycle()))
 	var bp: int = int(main.trade.price(a, c + "_buy"))
 	var stock: int = int(main.storage.amount(main.storage.planet_key(a), c))
-	return stock < units and main.cash >= int(main.engine.fixed_cost()) + units * bp
+	# A Buy order buys what cash allows (engine), so one unit of cash-above-trip is enough to keep it on.
+	# Requiring a full shipment here left cash stuck at the trip cost with no trade, a deadlock.
+	return stock < units and main.cash >= int(main.engine.fixed_cost()) + maxi(bp, 1)
 
 
 func _set_order(p: int, c: String, role: String, on: bool) -> void:
@@ -522,6 +535,8 @@ func _buy_wanted_permit() -> bool:
 	if permit_sid < 0 or main.open_systems.has(permit_sid):
 		return false
 	if not bool(main.can_buy_permit(permit_sid).get("ok", false)):
+		return false
+	if int(main.cash) < int(main.permit_cost(permit_sid)) + PERMIT_WORKING_CASH:  # QA: keep cash to buy stock after the permit
 		return false
 	var r: Dictionary = main.buy_permit(permit_sid)
 	if r.get("ok", false):
@@ -579,6 +594,15 @@ func _stock_total() -> int:
 ## A closed planet is not a dead end: while any planet is closed (events close planets for a few cycles, and
 ## routes touching them pay nothing) no idle cycle is counted. A cycle with cash or stock movement clears dead_from.
 ## The softlock issue is recorded only at run end, if dead_from is still set, so a recovered run is not flagged.
+func _diag_dump(c: int) -> void:
+	print("DIAG cycle %d cash %d fixed %d" % [c, main.cash, main.engine.fixed_cost()])
+	for rec in main.engine.routes:
+		print("DIAG route %s %s->%s state=%s reason=%s src=%s dst=%s" % [rec.get("c"), rec.get("a"), rec.get("b"), rec.get("state"), rec.get("reason"), rec.get("src"), rec.get("dst")])
+	for o in main.engine.local.values():
+		print("DIAG order planet=%s c=%s buy=%s sell=%s buy_state=%s sell_state=%s" % [o.get("planet"), o.get("c"), o.get("buy"), o.get("sell"), o.get("buy_state"), o.get("sell_state")])
+		print("DIAG   stock=%s capacity=%s" % [main.storage.amount(str(o.get("planet")), str(o.get("c"))), main.storage.capacity_of(str(o.get("planet")))])
+
+
 func _check_idle(c: int, before: Array) -> void:
 	if main.game_over:
 		return
@@ -589,6 +613,7 @@ func _check_idle(c: int, before: Array) -> void:
 		idle_streak += 1
 		if idle_streak >= IDLE_AFTER and dead_from < 0:
 			dead_from = c - IDLE_AFTER + 1
+			_diag_dump(c)
 	else:
 		idle_streak = 0
 		dead_from = -1
