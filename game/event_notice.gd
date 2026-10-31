@@ -7,6 +7,7 @@ const StoryText := preload("res://game/story_text.gd")
 signal confirmed(choice: int)  # -1 = Continue, otherwise the choice index
 
 var first_enabled := -1  # index of the first choice button that is not disabled; -1 when none (or Continue only)
+var enabled_choices: Array = []  # indexes of every choice button that is not disabled, in order (QA reads these)
 
 func show_event(title: String, text: String, effect_line: String, choices: Array, continue_text: String, disabled: Array = [], art: String = "") -> void:
 	color = Ui.col("scrim_soft")
@@ -58,6 +59,8 @@ func show_event(title: String, text: String, effect_line: String, choices: Array
 			var idx := i
 			b.pressed.connect(func(): confirmed.emit(idx))
 			box.add_child(b)
+			if not b.disabled:
+				enabled_choices.append(idx)
 			if first == null and not b.disabled:
 				first = b
 				first_enabled = idx

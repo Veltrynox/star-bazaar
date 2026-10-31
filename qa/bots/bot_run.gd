@@ -37,6 +37,7 @@ extends SceneTree
 ## Options (after --):
 ##   --strategy=decent|sloppy|always_expand|never_expand
 ##   --seed=<int>            only drives timer chunks and the alt choice (the game has no RNG)
+##   --event-policy=first|decline   how event notices are answered (see _event_pick)
 ##   --clock=fast|timer
 ##   --choice=alt|RELEASE|CORP   alt: odd seed RELEASE, even seed CORP (default alt)
 ##   --force-goal=<cycle>    turns on the debug "Force goal at cycle end" toggle at that cycle
@@ -104,6 +105,7 @@ var issues: Array = []  # [kind, cycle, detail]
 var cycle_rows: Array = []  # [cycle, cash, ships, routes]
 var decision_at: Dictionary = {}  # cycle -> real player actions taken in that cycle (metrics)
 var decision_kinds: Dictionary = {}  # kind -> count (metrics)
+var event_policy := "first"  # --event-policy=first|decline
 var events_resolved := 0  # events answered by _resolve_events (0 while the hook is a stub)
 
 
@@ -111,6 +113,8 @@ func _initialize() -> void:
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--strategy="):
 			strategy = arg.trim_prefix("--strategy=")
+		elif arg.begins_with("--event-policy="):
+			event_policy = arg.trim_prefix("--event-policy=")
 		elif arg.begins_with("--seed="):
 			seed_value = int(arg.trim_prefix("--seed="))
 		elif arg.begins_with("--clock="):
@@ -201,11 +205,21 @@ func _play_cycle() -> void:
 ## so the first is the paid or accepting option; a disabled one is skipped); an event with no
 ## choices gets Continue. Uses the notice's own confirmed signal, the same one the OK button emits.
 ## Returns how many were answered.
+## --event-policy=first (default): the first enabled choice (the paying one on EV17, EV18, EV20).
+## --event-policy=decline: the last enabled choice (the leave / skip / decline one), so no fee is paid.
+func _event_pick(notice) -> int:
+	var idx := -1
+	for i in notice.enabled_choices:
+		if event_policy == "first":
+			return i
+		idx = i
+	return idx
+
 func _resolve_events() -> int:
 	var answered := 0
 	while main.event_notice != null and answered < 10:
 		var notice = main.event_notice
-		notice.confirmed.emit(notice.first_enabled)  # -1 (Continue) when the event has no choices
+		notice.confirmed.emit(_event_pick(notice))  # -1 (Continue) when the event has no choices
 		answered += 1
 	return answered
 
