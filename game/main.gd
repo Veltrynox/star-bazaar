@@ -47,6 +47,8 @@ var open_systems: Array = [1]  # T85: system ids opened by a permit (system 1 is
 var galaxy_seen := false  # T105: galaxy tutorial lines already shown, saved
 var galaxy_view: Control  # T105 overlay
 var galaxy_button: Button
+var skill_arrow: Button  # T128: edge arrow in the 3D view: permit steps, or go to the other system
+var view_system := 1  # T128: system the map camera was last put on
 var reached_ids: Array = []  # T85: systems past the first that already gave the reach point, saved
 
 ## T77/T85: systems in the game (system 1 plus every entry in data/systems.json); Full endings need all reached.
@@ -448,12 +450,50 @@ func open_skills() -> void:
 ## T105: click on a system in the galaxy view: close the view and put the map camera on that system.
 func _on_galaxy_system(id: int) -> void:
 	galaxy_view.close_view()
+	view_system = id
 	map.focus_system(id)
 
 func toggle_galaxy() -> void:
 	if preface != null or game_over:
 		return
 	galaxy_view.toggle_view()
+
+## T128: what the edge arrow does now. {} = hidden; {"mode": "skills", "steps": [...]} = open Skills with those steps lit;
+## {"mode": "view", "system": id} = move the camera to the other open system.
+func skill_arrow_target() -> Dictionary:
+	if preface != null or game_over:
+		return {}
+	var open := unowned_systems()
+	if not open.is_empty():
+		var req := str(Systems.get_system(int(open[0])).get("requires_skill", "C1"))
+		if has_skill(req):
+			return {"mode": "skills", "steps": []}
+		if SkillTree.state(learned_skills, req, skill_ctx()) == "available":
+			var steps := []
+			_missing_chain(req, steps)
+			return {"mode": "skills", "steps": steps}
+	if open_systems.size() > 1:
+		var i := open_systems.find(view_system)
+		return {"mode": "view", "system": int(open_systems[(i + 1) % open_systems.size()])}
+	return {}
+
+func _missing_chain(id: String, out: Array) -> void:
+	for p in SkillTree.missing_prereqs(learned_skills, id):
+		_missing_chain(p, out)
+	if not learned_skills.has(id) and not out.has(id):
+		out.append(id)
+
+func _on_skill_arrow() -> void:
+	var t := skill_arrow_target()
+	if t.is_empty():
+		return
+	if str(t["mode"]) == "skills":
+		if preface == null and not game_over:
+			skill_screen.open_highlight(t["steps"])
+	else:
+		view_system = int(t["system"])
+		map.focus_system(view_system)
+		_refresh()
 
 func toggle_skills() -> void:
 	if skill_screen.visible:
@@ -1409,6 +1449,18 @@ func _build_rail() -> void:
 	galaxy_button = _rail_button("planet", "MENU_GALAXY", "Galaxy", toggle_galaxy)  # T105: shown once system 2 is open
 	galaxy_button.visible = false
 	col.add_child(galaxy_button)
+	skill_arrow = Button.new()  # T128: sits left of the right column, mid-height, clear of the planet ring
+	skill_arrow.theme_type_variation = "ButtonRail"
+	skill_arrow.icon = Ui.icon("chevron")  # placeholder: the artist makes the real arrow
+	skill_arrow.custom_minimum_size = Vector2(44, 44)
+	skill_arrow.set_anchors_and_offsets_preset(Control.PRESET_CENTER_RIGHT)
+	skill_arrow.offset_left = -(12.0 + 240.0 + 16.0 + 8.0 + 44.0)
+	skill_arrow.offset_right = -(12.0 + 240.0 + 16.0 + 8.0)
+	skill_arrow.offset_top = -22
+	skill_arrow.offset_bottom = 22
+	skill_arrow.visible = false
+	skill_arrow.pressed.connect(_on_skill_arrow)
+	add_child(skill_arrow)
 	var menu_rail := _rail_button("mark", "MENU_MAIN", "Menu", game_menu_toggle)
 	col.add_child(menu_rail)
 
@@ -1458,6 +1510,12 @@ func _refresh() -> void:
 	skills_button.modulate = Ui.col("star_warm") if star != "" else Color.WHITE
 	if galaxy_button != null:
 		galaxy_button.visible = open_systems.size() > 1
+	if skill_arrow != null:
+		var at := skill_arrow_target()
+		skill_arrow.visible = not at.is_empty()
+		if not at.is_empty():
+			skill_arrow.tooltip_text = StoryText.get_or("MAP_ARROW_PERMIT" if str(at["mode"]) == "skills" else "MAP_ARROW_SYSTEM",
+				"Open Skills" if str(at["mode"]) == "skills" else "Go to the other system")
 	if galaxy_view != null:
 		galaxy_view.refresh()
 	if cash_forecast != null:

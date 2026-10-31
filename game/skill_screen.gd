@@ -20,6 +20,7 @@ var confirm_row: HBoxContainer
 var confirm_label: Label
 var _root: VBoxContainer
 var permit_box: VBoxContainer  # T85: permits list under the tree
+var highlight: Array = []  # T128: skill ids to point at (the steps to a permit), cleared on close
 
 func setup(main_node: Control) -> void:
 	main = main_node
@@ -84,7 +85,15 @@ func close_screen() -> void:
 	if visible:
 		visible = false
 		selected = ""
+		highlight = []
 		closed.emit()
+
+## T128: open the screen with the given steps lit; the first one not yet learned is selected.
+func open_highlight(ids: Array) -> void:
+	highlight = ids.duplicate()
+	selected = str(ids[0]) if not ids.is_empty() else ""
+	_hide_confirm()
+	open_screen()
 
 func select(id: String) -> void:
 	selected = id
@@ -102,6 +111,8 @@ func refresh() -> void:
 		var btn: Button = node_buttons[id]
 		btn.text = "%s\n%s" % [SkillTree.skill_name(id), StoryText.get_text("SK_STATE_" + st.to_upper())]
 		btn.self_modulate = COL_LEARNED if st == "learned" else (COL_AVAILABLE if st == "available" else COL_LOCKED)
+		if highlight.has(id) and st != "learned":
+			btn.self_modulate = COL_LEARNED * 1.5  # T128: lit step on the way to a permit
 	_build_detail()
 	_build_permits()
 
