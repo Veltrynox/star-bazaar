@@ -6,6 +6,7 @@ extends Node3D
 signal planet_clicked(index: int)  # -1 when the click hit empty space
 signal route_clicked(id: int)      # T07b: click on a route line (no planet under the cursor)
 
+const PlanetTypes := preload("res://game/planet_types.gd")
 const PLANETS_PATH := "res://data/planets.json"
 
 # Zoom bounds are not in gdd.md: defaults for owner decision.
@@ -337,6 +338,9 @@ func _load_planets() -> Array:
 	if typeof(parsed) != TYPE_DICTIONARY or not parsed.has("planets"):
 		push_error("Bad planets.json")
 		return []
+	for pl in parsed["planets"]:
+		if typeof(pl) == TYPE_DICTIONARY:
+			PlanetTypes.apply(pl)
 	return parsed["planets"]
 
 func planet_radius() -> float:

@@ -20,7 +20,7 @@
     {
       "id": "planet_2",
       "name": "Tillam",
-      "type": "temperate",
+      "type": "lush",
       "abundant": "food",
       "scarce": "energy",
       "base_prices": {
@@ -35,7 +35,7 @@
     {
       "id": "planet_3",
       "name": "Ashgate",
-      "type": "temperate",
+      "type": "agrarian",
       "abundant": "food",
       "scarce": "energy",
       "base_prices": {

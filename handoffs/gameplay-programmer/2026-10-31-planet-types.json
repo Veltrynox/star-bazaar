@@ -1,0 +1,15 @@
+{
+  "agent": "gameplay-programmer",
+  "date": "2026-10-31",
+  "task": "planet-types",
+  "status": "done",
+  "schema_version": 1,
+  "files_changed": ["data/planet_types.json (new)", "game/planet_types.gd (new)", "game/map.gd", "game/systems.gd", "data/planets.json", "data/systems.json", "art/planet_fx/planet_fx.gd (palette map + default type only)"],
+  "type_table": {"volcanic": "abundant energy / scarce food", "desert": "energy / food", "cloudy": "energy / food", "lush": "food / energy", "agrarian": "food / energy", "ocean": "food / energy", "moon": "none / both", "urban": "none / both"},
+  "retyped": {"planet_2 Tillam": "temperate -> lush", "planet_3 Ashgate": "temperate -> agrarian", "s2_p1": "temperate -> ocean", "s2_p2": "volcanic -> desert", "s2_p3": "temperate -> agrarian", "s2_p4": "barren -> urban", "planet_1 Voltara": "volcanic (unchanged)"},
+  "parse_result": "godot --headless --path . --quit-after 300: no script errors (only an unrelated macOS system-CA warning). Not play-tested.",
+  "economy_designer_must_decide": "Abundance amounts per type: planet_types.json 'abundance' is null for all 8. Nothing reads it yet. No base_prices or balance values changed.",
+  "fx_programmer_must_know": "Type ids now used: volcanic, desert, cloudy, lush, agrarian, ocean, moon, urban. In art/planet_fx/planet_fx.gd I replaced TYPE_PALETTE with all 8 ids (lush/agrarian/ocean/cloudy->blue, volcanic/desert->magenta, moon/urban->ice) and the default planet_type 'temperate' -> 'lush'. planet_sphere.gd still has default planet_type = 'temperate' (left for you). Old ids temperate and barren no longer exist in data. texture_set equals id.",
+  "notes": "Planets get abundant/scarce from the type at load (Map._load_planets, Systems.planets_of) via PlanetTypes.apply; unknown type pushes a warning. JSON abundant/scarce fields kept for tools/sim.py. No other hard-coded temperate/barren in game/*.gd.",
+  "open_questions": []
+}

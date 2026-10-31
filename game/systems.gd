@@ -5,6 +5,7 @@ extends RefCounted
 ## can read map.planets[i] the same way for any system. Costs are balance.json keys, never numbers here.
 
 const StoryText := preload("res://game/story_text.gd")
+const PlanetTypes := preload("res://game/planet_types.gd")
 const PATH := "res://data/systems.json"
 
 static var _cache: Array = []
@@ -41,6 +42,7 @@ static func planets_of(id: int) -> Array:
 		d["name"] = StoryText.get_text(str(d["name_id"])) if d.has("name_id") else str(d.get("id", "?"))
 		d["desc"] = StoryText.get_text(str(d["desc_id"])) if d.has("desc_id") else ""
 		d["system"] = id
+		PlanetTypes.apply(d)
 		out.append(d)
 	return out
 

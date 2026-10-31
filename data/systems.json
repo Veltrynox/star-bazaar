@@ -14,16 +14,16 @@
       "permit_points_key": "permit_points_2",
       "requires_skill": "C1",
       "planets": [
-        {"id": "s2_p1", "name_id": "WORLD_S2P1_NAME", "desc_id": "WORLD_S2P1_DESC", "type": "temperate", "role": "food-rich hub",
+        {"id": "s2_p1", "name_id": "WORLD_S2P1_NAME", "desc_id": "WORLD_S2P1_DESC", "type": "ocean", "role": "food-rich hub",
          "abundant": "food", "scarce": "energy",
          "base_prices": {"food_buy": 11, "food_sell": 9, "energy_sell": 31, "energy_buy": 32}, "x": 520, "y": 60},
-        {"id": "s2_p2", "name_id": "WORLD_S2P2_NAME", "desc_id": "WORLD_S2P2_DESC", "type": "volcanic", "role": "energy-rich",
+        {"id": "s2_p2", "name_id": "WORLD_S2P2_NAME", "desc_id": "WORLD_S2P2_DESC", "type": "desert", "role": "energy-rich",
          "abundant": "energy", "scarce": "food",
          "base_prices": {"energy_buy": 9, "energy_sell": 8, "food_sell": 33, "food_buy": 33}, "x": 760, "y": 140},
-        {"id": "s2_p3", "name_id": "WORLD_S2P3_NAME", "desc_id": "WORLD_S2P3_DESC", "type": "temperate", "role": "food-rich outpost",
+        {"id": "s2_p3", "name_id": "WORLD_S2P3_NAME", "desc_id": "WORLD_S2P3_DESC", "type": "agrarian", "role": "food-rich outpost",
          "abundant": "food", "scarce": "energy",
          "base_prices": {"food_buy": 12, "food_sell": 10, "energy_sell": 33, "energy_buy": 34}, "x": 700, "y": -140},
-        {"id": "s2_p4", "name_id": "WORLD_S2P4_NAME", "desc_id": "WORLD_S2P4_DESC", "type": "barren", "role": "consumer market",
+        {"id": "s2_p4", "name_id": "WORLD_S2P4_NAME", "desc_id": "WORLD_S2P4_DESC", "type": "urban", "role": "consumer market",
          "abundant": "none", "scarce": "both",
          "base_prices": {"energy_sell": 34, "food_sell": 34, "energy_buy": 35, "food_buy": 35}, "x": 900, "y": -20}
       ]
