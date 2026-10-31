@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-10-31",
+  "task": "skill-tree-r1",
+  "status": "done",
+  "files_changed": [
+    "game/route_engine.gd",
+    "game/main.gd",
+    "game/planet_panel.gd",
+    "game/skill_screen.gd",
+    "tools/tests/run_tests.gd",
+    "goals/skill-tree-progression/blackboard.json",
+    "handoffs/gameplay-programmer/2026-10-31-skill-tree-r1.json"
+  ],
+  "open_questions": [
+    "B3 applies to Sell order credits, not route moves (routes only move stock). Right place?",
+    "C2 'surveyed' = a free Survey button per unpermitted system in the skill screen. OK, or should it cost credits?",
+    "Arrow glyphs (up, down, right) rely on font fallback; story designer or art to confirm they render."
+  ],
+  "handoff": "B3, B1, B4, C2 wired behind has_skill; unlearned play unchanged. Tests 402 pass, 0 fail. New text keys needed (code uses fallback literals until they exist): LBL_BEST_PARTNER {planet} {margin}; NOT_ROUTE_BELOW_UPKEEP {margin} {cost}; EVT_NEXT_DUE_PRICE {planet} {commodity} {direction}; EVT_NEXT_DUE_CLOSED {planet}; LBL_SURVEY_PRICES {planet} {fb} {fs} {eb} {es}; BTN_SURVEY. Nothing checked by eye.",
+  "details": {
+    "new_text_keys": {
+      "LBL_BEST_PARTNER": "Best partner: {planet} ({margin} cr per unit).",
+      "NOT_ROUTE_BELOW_UPKEEP": "This route earns {margin} cr a cycle and costs {cost}. It will run at a loss.",
+      "EVT_NEXT_DUE_PRICE": "{commodity} at {planet} will {direction} next cycle.",
+      "EVT_NEXT_DUE_CLOSED": "{planet} will close next cycle.",
+      "LBL_SURVEY_PRICES": "{planet}: Food {fb}/{fs} cr, Energy {eb}/{es} cr (buy/sell).",
+      "BTN_SURVEY": "Survey (1 point cheaper)"
+    },
+    "tests": "402 pass 0 fail (was 382)",
+    "not_built": "B4 reroute prepay, B2, A2, A4, A5, C4 untouched"
+  }
+}

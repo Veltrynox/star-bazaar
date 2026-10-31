@@ -1,0 +1,180 @@
+{
+  "schema_version": 1,
+  "agent": "qa-analyst",
+  "date": "2026-10-31",
+  "task": "skill-tree-r2",
+  "status": "done",
+  "files_changed": [
+    "qa/reports/2026-10-31-skill-tree-r2.json",
+    "qa/reports/2026-10-31-skill-tree-r2-runs.jsonl",
+    "goals/skill-tree-progression/blackboard.json",
+    "handoffs/qa-analyst/2026-10-31-skill-tree-r2.json"
+  ],
+  "open_questions": [
+    "UNKNOWN: is the C3 +11 cycle slowdown (2/8 losses) real balance or bot ship-greed (22 ships, near-zero cash)?",
+    "UNKNOWN: whether the untracked planet textures (art/textures/planets) load in the release export; headless logs show load errors.",
+    "UNKNOWN: which decent vs always_expand definition the Producer keeps (outcomes identical in all six sets)."
+  ],
+  "handoff": "Round 2 QA: tests 406 pass, 0 fail. 200 bot runs (seeds 1-8): no crash, freeze or script error. Fixed since r1: B4 test, plain lines B3, B4, A2, C2, C3, C4, and C4 now needs only C2. Still open: A5 plain line says 20%/16, code gives 30%/14 (story-designer). C4 learned after permit 2 in 8/8 seeds, zero effect (economy-designer). C3 +11 cycles with 2/8 losses. Pacing early: C1+permit 2 median 19, logistics 20. A5 and B2 add about 0 cycles. Only B3 (-2.5 cycles) and A4 (-5) clearly matter. No dominant strategy. Release export: no debug menu (gated by OS.is_debug_build). Full table in details.results.",
+  "details": {
+    "results": [
+      {
+        "strategy": "no skills / decent",
+        "final_cash": 8672,
+        "cycle_reached": "median 28 (23-30)",
+        "outcome": "mixed: 7 win, 1 loss"
+      },
+      {
+        "strategy": "no skills / always_expand",
+        "final_cash": 8672,
+        "cycle_reached": "median 28 (23-30)",
+        "outcome": "mixed: 7 win, 1 loss"
+      },
+      {
+        "strategy": "no skills / sloppy",
+        "final_cash": 3363,
+        "cycle_reached": "no win (ends 30)",
+        "outcome": "loss"
+      },
+      {
+        "strategy": "no skills / never_expand",
+        "final_cash": 3751,
+        "cycle_reached": "no win (ends 30)",
+        "outcome": "loss"
+      },
+      {
+        "strategy": "C1 + permit 2 / decent",
+        "final_cash": 9649,
+        "cycle_reached": "median 19 (18-19)",
+        "outcome": "win"
+      },
+      {
+        "strategy": "C1 + permit 2 / always_expand",
+        "final_cash": 9649,
+        "cycle_reached": "median 19 (18-19)",
+        "outcome": "win"
+      },
+      {
+        "strategy": "full tree, no permit / decent",
+        "final_cash": 8799,
+        "cycle_reached": "median 26 (25-29)",
+        "outcome": "mixed: 7 win, 1 loss"
+      },
+      {
+        "strategy": "full tree, no permit / always_expand",
+        "final_cash": 8799,
+        "cycle_reached": "median 26 (25-29)",
+        "outcome": "mixed: 7 win, 1 loss"
+      },
+      {
+        "strategy": "full tree, no permit / sloppy",
+        "final_cash": 3363,
+        "cycle_reached": "no win (ends 30)",
+        "outcome": "loss"
+      },
+      {
+        "strategy": "full tree, no permit / never_expand",
+        "final_cash": 3528,
+        "cycle_reached": "no win (ends 30)",
+        "outcome": "loss"
+      },
+      {
+        "strategy": "full tree + permit 2 / decent",
+        "final_cash": 10082,
+        "cycle_reached": "median 30 (29-30)",
+        "outcome": "mixed: 6 win, 2 loss"
+      },
+      {
+        "strategy": "full tree + permit 2 / always_expand",
+        "final_cash": 10082,
+        "cycle_reached": "median 30 (29-30)",
+        "outcome": "mixed: 6 win, 2 loss"
+      },
+      {
+        "strategy": "A1,A2,A4,A5 / decent",
+        "final_cash": 8717,
+        "cycle_reached": "median 20 (18-24)",
+        "outcome": "win"
+      },
+      {
+        "strategy": "A1,A2,A4,A5 / always_expand",
+        "final_cash": 8717,
+        "cycle_reached": "median 20 (18-24)",
+        "outcome": "win"
+      },
+      {
+        "strategy": "C1,C2,C4 + permit 2 / decent",
+        "final_cash": 9649,
+        "cycle_reached": "median 19 (18-19)",
+        "outcome": "win"
+      },
+      {
+        "strategy": "C1,C2,C4 + permit 2 / always_expand",
+        "final_cash": 9649,
+        "cycle_reached": "median 19 (18-19)",
+        "outcome": "win"
+      }
+    ],
+    "tests": {
+      "pass": 406,
+      "fail": 0
+    },
+    "skill_verdicts": {
+      "A2": {
+        "r1": "weak, about -1 cycle",
+        "r2": "weak, 26 to 25; plain line fixed"
+      },
+      "A4": {
+        "r1": "not flagged",
+        "r2": "matters, 25 to 20 after A2"
+      },
+      "A5": {
+        "r1": "weak, 0 cycles after A4",
+        "r2": "still weak, 0 cycles; cash changes on 3 of 8 seeds"
+      },
+      "B1": {
+        "r1": "cosmetic",
+        "r2": "still cosmetic, 28 to 28"
+      },
+      "B2": {
+        "r1": "weak, about -1.5, noise",
+        "r2": "still weak, 28 to 26.5, 6/8 wins"
+      },
+      "B3": {
+        "r1": "text false (routes); effect not measured",
+        "r2": "matters, 26.5 to 24 (8/8 wins); wired on Sell orders"
+      },
+      "B4": {
+        "r1": "test stale; text inexact",
+        "r2": "weak, 24 to 23; warnings only"
+      },
+      "C2": {
+        "r1": "cosmetic",
+        "r2": "gate for C3 and C4; Survey is point-neutral; 0 cycles"
+      },
+      "C3": {
+        "r1": "matters, +11 cycles, 2/8 losses",
+        "r2": "unchanged; open"
+      },
+      "C4": {
+        "r1": "dead (unreachable before permit 2)",
+        "r2": "reachable after C2, still dead: 0 effect, learned after permit 2 in 8/8"
+      }
+    },
+    "plain_lines": {
+      "A2": "true",
+      "A4": "true",
+      "A5": "FALSE (20%/16 vs 30%/14)",
+      "B1": "true",
+      "B2": "true",
+      "B3": "true",
+      "B4": "true",
+      "C2": "true",
+      "C3": "true",
+      "C4": "true (permit cost -20%)"
+    },
+    "c4_before_permit2": "no: 0 of 8 seeds; reachable on points, bot reserves permit points",
+    "release_export": "pass: debug menu only when OS.is_debug_build(); export excludes qa/, tools/",
+    "decent_vs_always_expand": "identical in all six sets (harness definition open)"
+  }
+}

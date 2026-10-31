@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-10-31",
+  "task": "skill-tree-r1b",
+  "status": "partial",
+  "files_changed": [
+    "tools/tests/run_tests.gd"
+  ],
+  "open_questions": [
+    "Economy-designer: routes in the engine only pay upkeep; per-unit earnings come from Sell orders at the destination, which already carry B3. Is that the model the sim assumes? If the sim credits routes directly, say so and I will change the engine instead.",
+    "Story keys LBL_BEST_PARTNER, NOT_ROUTE_BELOW_UPKEEP, EVT_NEXT_DUE_PRICE, EVT_NEXT_DUE_CLOSED, LBL_SURVEY_PRICES, BTN_SURVEY are not in data/story_text.json yet; fallback literals kept."
+  ],
+  "handoff": "B3 code unchanged: route_margin already uses sold_price (B3 applied) and route settlement pays only upkeep, so adding B3 to route credits would double count with the Sell order. Added two headless tests proving the lane margin carries B3 and the route adds no credits itself. Story keys not added yet, so fallbacks stay. Tests: pass 404, fail 0.",
+  "details": {
+    "tests": {
+      "pass": 404,
+      "fail": 0
+    }
+  }
+}

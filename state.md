@@ -27,6 +27,9 @@ Keep under 40 lines. Workflow: gdd-process.md. Detail in handoffs.
 3. Nomads: mine a field without a clearing skill, or move T113 before T104? Field clearing skill or paid only? Planet types (T115).
 4. Build the shield flag now (T121)?
 
+## Goals
+- skill-tree-progression: done 2026-10-31 (report: goals/skill-tree-progression/report.md). Open for owner: point sink after permit 2, B2, C4 usefulness, C3 slowdown.
+
 ## Latest handoff per agent
 - gameplay-programmer: handoffs/gameplay-programmer/2026-10-28-T93.json
 - economy-designer: handoffs/economy-designer/2026-10-28-ideas.json (T97)

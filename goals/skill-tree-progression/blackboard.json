@@ -1,0 +1,184 @@
+{
+  "schema_version": 1,
+  "goal": "Improve the skill tree: make every skill matter for game progression, keep A1 Space Storage and C1 Permit Charter untouched, rewrite skill descriptions in the game's voice. Finish when a QA agent runs the update skill set twice and gives feedback on improvements, then stop.",
+  "goal_slug": "skill-tree-progression",
+  "started": "2026-10-31",
+  "finished": "2026-10-31",
+  "facts": [
+    {
+      "id": "F1",
+      "agent": "main",
+      "date": "2026-10-31",
+      "text": "Protected by owner: A1 Space Storage (the space station skill) and C1 Permit Charter (the permit skill). Do not change their id, name, cost, effect, prerequisites or texts."
+    },
+    {
+      "id": "F2",
+      "agent": "main",
+      "date": "2026-10-31",
+      "text": "Skill effect hooks already exist for A1, A2, A4, A5, B1, B2, B3, B4, C1, C2, C3, C4 (game/main.gd has_skill, game/route_engine.gd, game/planet_panel.gd, game/skill_screen.gd, game/storage.gd)."
+    },
+    {
+      "id": "F3",
+      "agent": "economy-designer",
+      "date": "2026-10-31",
+      "text": "skill_B3_margin has no code hook in game/; B3 in game only shows next prices. Sim models +margin."
+    },
+    {
+      "id": "F4",
+      "agent": "qa-analyst",
+      "date": "2026-10-31",
+      "text": "280 bot runs, 6 skill sets x 8 seeds plus permit sets. Decent with C1 + permit 2 wins at median 19; full tree is not reachable without a permit (7-8 points pre-permit, 20 needed). C4 unreachable before the only permit. B3 routes text false. Test B4 stale (403/404)."
+    },
+    {
+      "id": "F-SD2",
+      "agent": "story-designer",
+      "date": "2026-10-31",
+      "text": "Plain lines for A2, B3, B4, C2, C3, C4 rewritten to match code (QA r1 text_mismatch). A1 and C1 untouched. Built into data/story_text.json."
+    },
+    {
+      "id": "F5",
+      "agent": "gameplay-programmer",
+      "date": "2026-10-31",
+      "text": "C4 prereq is now C2 only. B4 test fixed. Survey button already shown on skill screen after C2. Suite 406 pass, 0 fail."
+    },
+    {
+      "id": "F-QA-R2a",
+      "agent": "qa-analyst",
+      "date": "2026-10-31",
+      "text": "Round 2: tests 406/0. 200 bot runs, no crash/freeze. Still open: A5 plain line false (20%/16 vs 30%/14); C4 learned after permit 2 in 8/8 seeds, 0 effect; C3 +11 cycles, 2/8 losses; pacing early (C1+permit 2 median 19, logistics 20). Verdicts in handoffs/qa-analyst/2026-10-31-skill-tree-r2.json."
+    },
+    {
+      "id": "F-QA-R2b",
+      "agent": "qa-analyst",
+      "date": "2026-10-31",
+      "text": "Measured ladders (decent, seeds 1-8, no permit): A4 -5 cycles, B3 -2.5, B4 -1, A2 -1, B2 -1.5 (noise), A5 0, B1 0, C2 0, C4 0. Only A4 and B3 clearly change the win cycle among the non-protected skills."
+    }
+  ],
+  "decisions": [
+    {
+      "id": "D1",
+      "agent": "economy-designer",
+      "date": "2026-10-31",
+      "text": "A4 0.125, A5 0.2, B3 0.08 (balance v16); others unchanged. Each of A4/A5/B3 gives 2-3 cycles alone, full tree median 23. B1, C2, C4 cosmetic in numbers; B4 and A2 bridge one closed cycle. Details in handoffs/economy-designer/2026-10-31-skill-tree-r1.json."
+    },
+    {
+      "id": "D2",
+      "agent": "story-designer",
+      "date": "2026-10-31",
+      "text": "Rewrote flavour and plain for A2,A4,A5,B1,B2,B3,B4,C2,C3,C4 in story/skills.md; names unchanged; A1 and C1 untouched. B1, B3, B4, C2 plain lines describe mechanics still to be built, so they are false until the programmer ships them. data/story_text.json rebuilt."
+    },
+    {
+      "id": "D3",
+      "agent": "gameplay-programmer",
+      "date": "2026-10-31",
+      "text": "B3 margin applies to Sell order credits (routes only move stock, they never sell). B1 arrow, best partner, below-upkeep warning; B4 pre-picks the event and names planet+commodity; C2 adds a free Survey button, surveyed system permit costs 1 point less. A1 and C1 untouched. Tests 402 pass, 0 fail."
+    },
+    {
+      "id": "D2",
+      "agent": "economy-designer",
+      "date": "2026-10-31",
+      "text": "A5 upkeep 0.2 to 0.3 (balance v17). Sim: full tree median 23 unchanged. C3 slowdown: sim does not model cross-system routes; likely bot ship-greed, no change."
+    }
+  ],
+  "open_questions": [
+    {
+      "id": "Q1",
+      "agent": "main",
+      "date": "2026-10-31",
+      "text": "Reading of 'update skill set': one update pass of the skill set (numbers, code and text) followed by a QA run, done twice. Assumed, not confirmed by the owner.",
+      "status": "open",
+      "answer": ""
+    },
+    {
+      "id": "Q2",
+      "agent": "economy-designer",
+      "date": "2026-10-31",
+      "text": "Wire B3 margin in game, or remove the sim term and re-tune?",
+      "status": "open",
+      "answer": ""
+    },
+    {
+      "id": "Q3",
+      "agent": "economy-designer",
+      "date": "2026-10-31",
+      "text": "B2 gives no win-cycle gain in sim; keep as overload tool or add a mechanic? B1/C2/B4 mechanics proposed in handoff need gameplay-programmer.",
+      "status": "open",
+      "answer": ""
+    },
+    {
+      "id": "Q4",
+      "agent": "qa-analyst",
+      "date": "2026-10-31",
+      "text": "Is the C3 slowdown (19 to 30, 2/8 losses) real balance or bot ship-greed?",
+      "status": "open",
+      "answer": ""
+    },
+    {
+      "id": "Q3",
+      "agent": "economy-designer",
+      "date": "2026-10-31",
+      "text": "Owner: point sink after system 2 (15-28 points unspent after permit 2); B2 left unchanged.",
+      "status": "open",
+      "answer": ""
+    },
+    {
+      "id": "Q4",
+      "agent": "economy-designer",
+      "date": "2026-10-31",
+      "text": "sim.py TREE still has C4 needing C3; needs one-line edit to C2 (not in this task's file list).",
+      "status": "open",
+      "answer": ""
+    }
+  ],
+  "claims": [],
+  "artifacts": [
+    {
+      "id": "A1",
+      "agent": "main",
+      "path": "gdd-skills.md",
+      "kind": "file"
+    },
+    {
+      "id": "A2",
+      "agent": "main",
+      "path": "story/skills.md",
+      "kind": "file"
+    },
+    {
+      "id": "A3",
+      "agent": "main",
+      "path": "data/balance.json",
+      "kind": "file"
+    },
+    {
+      "id": "A4",
+      "agent": "story-designer",
+      "path": "data/story_text.json",
+      "kind": "file"
+    },
+    {
+      "id": "A5",
+      "agent": "gameplay-programmer",
+      "path": "handoffs/gameplay-programmer/2026-10-31-skill-tree-r1.json",
+      "kind": "file"
+    },
+    {
+      "id": "A6",
+      "agent": "qa-analyst",
+      "path": "qa/reports/2026-10-31-skill-tree-r1.json",
+      "kind": "file"
+    },
+    {
+      "id": "A7",
+      "agent": "qa-analyst",
+      "path": "handoffs/qa-analyst/2026-10-31-skill-tree-r1.json",
+      "kind": "file"
+    },
+    {
+      "id": "A8",
+      "agent": "gameplay-programmer",
+      "path": "handoffs/gameplay-programmer/2026-10-31-skill-tree-r2.json",
+      "kind": "file"
+    }
+  ]
+}

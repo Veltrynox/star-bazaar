@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "agent": "economy-designer",
+  "date": "2026-10-31",
+  "task": "skill-tree-r2",
+  "status": "done",
+  "files_changed": [
+    "data/balance.json",
+    "handoffs/economy-designer/2026-10-31-skill-tree-r2.json"
+  ],
+  "open_questions": [
+    "Owner: point sink after system 2 (15-28 points unspent after permit 2)?",
+    "Owner: B2 unchanged (about -1.5 cycles, within noise).",
+    "sim.py TREE still has C4 requiring C3; one-line change to C2 needs my sim edit (outside this task's file list)."
+  ],
+  "handoff": "A5 upkeep 0.2 to 0.3, data_version 17. C3 slowdown: sim does not model cross-system routes; sim shows ship marginal ~0 beyond ship 5 and QA run ended with 22 ships and ~0 cash, so cause is most likely bot ship-greed, not a balance fault. No change made. Win window unchanged.",
+  "details": {
+    "changes": {
+      "skill_A5_upkeep": {
+        "old": 0.2,
+        "new": 0.3,
+        "reason": "A5 added 0 cycles after A4"
+      },
+      "data_version": {
+        "old": 16,
+        "new": 17
+      }
+    },
+    "c3_diagnosis": "not modelled in sim; likely bot ship-greed",
+    "sim": "see report"
+  }
+}

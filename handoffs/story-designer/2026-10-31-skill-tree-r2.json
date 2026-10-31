@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-10-31",
+  "task": "skill-tree-r2",
+  "status": "done",
+  "files_changed": [
+    "story/skills.md",
+    "data/story_text.json",
+    "goals/skill-tree-progression/blackboard.json"
+  ],
+  "open_questions": [],
+  "handoff": "Rewrote plain lines SK_A2, B3, B4, C2, C3, C4 to match code per QA r1; A1 and C1 untouched. build_story.py run; data/story_text.json updated, all within 110 chars. Nothing to wire: ids unchanged. C4 prerequisite (C2) is in the plain line; the owner may drop it if the screen shows prerequisites.",
+  "details": {}
+}

@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "agent": "economy-designer",
+  "date": "2026-10-31",
+  "task": "skill-tree-r1",
+  "status": "done",
+  "files_changed": [
+    "data/balance.json",
+    "handoffs/economy-designer/2026-10-31-skill-tree-r1.json",
+    "goals/skill-tree-progression/blackboard.json"
+  ],
+  "open_questions": [
+    "B3: game has no hook for skill_B3_margin (sim models +8% margin; game B3 only shows next prices). Wire it, or drop the sim term?",
+    "B2 shows no win-cycle effect in sim (pools bind only with 3+ ships on one commodity). Keep as overload tool or add a mechanic?",
+    "always expand + C1 wins (cycle 28 median) - pre-existing dominance, not caused by skills; not touched."
+  ],
+  "handoff": "Retuned A4 0.15->0.125, A5 0.3->0.2, B3 0.12->0.08 (data_version 16). Each owned from cycle 0 gains about 2-3 cycles (was 3-4). Full tree median 23 (was 22), no-skills 25, sloppy/always/never still lose. B1, C2, C4 cosmetic; B3 unwired in game; B4 and A2 only shorten closures. Mechanics proposed for gameplay-programmer.",
+  "details": {
+    "changes": [
+      {
+        "key": "skill_A4_route_units",
+        "old": 0.15,
+        "new": 0.125,
+        "reason": "16 to 18 units per ship-cycle; -3 cycles alone, was -3.7"
+      },
+      {
+        "key": "skill_A5_upkeep",
+        "old": 0.3,
+        "new": 0.2,
+        "reason": "ship upkeep 20 to 16 per cycle; -2 cycles alone, was -2.7"
+      },
+      {
+        "key": "skill_B3_margin",
+        "old": 0.12,
+        "new": 0.08,
+        "reason": "-2 cycles alone, was -2.9; stops B3 beating its cost"
+      },
+      {
+        "key": "skill_B2_order_units",
+        "old": 0.5,
+        "new": 0.5,
+        "reason": "unchanged; no sweep value moved the sim"
+      },
+      {
+        "key": "skill_A2_capacity",
+        "old": 0.5,
+        "new": 0.5,
+        "reason": "unchanged; A2 also bridges 1 closed cycle (-1.1 cycles with A1)"
+      },
+      {
+        "key": "skill_C4_permit_discount",
+        "old": 0.2,
+        "new": 0.2,
+        "reason": "unchanged; permit_2_cost 600 to 480 saves 120 credits, ~0 cycles"
+      }
+    ],
+    "sim_before_after_median_60_seeds": {
+      "decent no skills": "25 / 25",
+      "logistics": "24 / 25",
+      "research": "25 / 26",
+      "permit only": "25 / 26",
+      "full tree": "22 / 23",
+      "sloppy": "loss",
+      "always expand": "loss",
+      "never expand": "loss",
+      "always expand+C1": "28 / 28 (wins, pre-existing)"
+    },
+    "effect_when_owned_from_cycle_0_mean_cycles_vs_no_skill": {
+      "A4": "-3.7 to -3.0",
+      "A5": "-2.7 to -2.0",
+      "B3": "-2.9 to -1.9",
+      "A2(+A1)": -1.1,
+      "B4": -0.5,
+      "B2": "~0",
+      "B1": 0,
+      "C2": 0,
+      "C4": "~0"
+    },
+    "progression_by_skill": {
+      "A2": "bigger storage (+50%) and one closed cycle bridged; small win-cycle gain (~-1), prereq for A4",
+      "A4": "+12.5% units per ship (16 to 18); biggest cash lever, about -3 cycles",
+      "A5": "-20% ship upkeep; about -2 cycles, helps weak late routes stay positive",
+      "B1": "cosmetic: price_history_line is text only in planet_panel.gd; no number or option",
+      "B2": "+50% order pool (40 to 60 per cycle); no gain with one ship per route, matters only with 3+ ships on a commodity",
+      "B3": "cosmetic in game (shows next prices); sim assumes +8% margin that code never applies",
+      "B4": "not purely informational: bridges 1 closed cycle (main.gd _closed_bridge) and a notice; ~-0.5 cycles; also unlocks ending END_COLD_LEDGER",
+      "C2": "cosmetic: skill_screen.gd lists planet names of an unpermitted system; no number",
+      "C3": "unlocks routes between systems (needed for cross-system trade); real choice",
+      "C4": "permit price -20% (600 to 480, 1500 to 1200); ~0 cycles, saves credits only"
+    },
+    "proposed_mechanics_need_gameplay_programmer": {
+      "B1": "Ledger shows each planet's buy-low/sell-high trend arrow and marks the best route partner; also route setup warns when a route's margin is below upkeep (net loss). Changes a decision, not a number.",
+      "B3": "Wire skill_B3_margin: sell prices on routes +8% (or ledger-flagged goods). Needed so the screen number is true.",
+      "B4": "Forecast also names the planet and commodity, and the player can prepay to move one ship away; gives a decision, not a notice.",
+      "C2": "Beacon reveals the base prices of the unpermitted system's planets, and permit is 1 expansion point cheaper once surveyed; turns scouting into a purchase choice."
+    },
+    "text_for_story_designer": {
+      "A2": "Storage holds 50% more. A planet closed by an event reopens one cycle sooner.",
+      "A4": "Each ship moves 18 units a cycle instead of 16 (12.5% more).",
+      "A5": "Ship upkeep is 20% lower (16 instead of 20 credits a cycle).",
+      "B1": "Shows recent sell prices (no number change until mechanic approved).",
+      "B2": "Buy and Sell orders handle 60 units a cycle instead of 40 (50% more).",
+      "B3": "Shows next cycle's prices; routes earn 8% more per unit (only once wired).",
+      "B4": "One cycle of warning before an event; a closed planet reopens one cycle sooner.",
+      "C2": "Shows the planets of a system before you buy its permit.",
+      "C3": "Routes can run between systems.",
+      "C4": "Permits cost 20% less (system 2: 480, system 3: 1200)."
+    }
+  }
+}

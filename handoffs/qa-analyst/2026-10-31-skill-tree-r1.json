@@ -1,0 +1,199 @@
+{
+  "schema_version": 1,
+  "agent": "qa-analyst",
+  "date": "2026-10-31",
+  "task": "skill-tree-r1",
+  "status": "done",
+  "files_changed": [
+    "qa/bots/bot_run.gd",
+    "qa/reports/2026-10-31-skill-tree-r1.json",
+    "qa/reports/2026-10-31-skill-tree-r1-runs.jsonl",
+    "handoffs/qa-analyst/2026-10-31-skill-tree-r1.json",
+    "goals/skill-tree-progression/blackboard.json"
+  ],
+  "open_questions": [
+    "UNKNOWN: whether the C3 slowdown (19 to 30, 2/8 losses) is real balance or bot ship-greed (no cash reserve).",
+    "UNKNOWN: which decent definition the owner wants (brief: reserve and permits; harness: no reserve, no permit unless --permit).",
+    "UNKNOWN: whether points left after system 2 are meant for system 3 (on hold in systems.json)."
+  ],
+  "handoff": "Ran 280 headless bot runs (8 seeds per set, same seeds) plus the test suite. Tests: 403 pass, 1 fail (B4 assertion stale vs named forecast). Median win cycle: no skills 28, logistics 20, research 23, expansion-only 26 (5/8), full tree 26 (only 6 of 12 skills affordable without a permit), always-expand 26, C1+permit 19, full tree+permit 30 (2/8 lose). Cosmetic or dead: C4 (unreachable before the only permit), C2 (net zero points), B1 (text). Weak: A5, B2, A2. False text: B3 routes, B4 naming, A2 storage. Harness bug fixed: --skills= learned everything (qa/bots/bot_run.gd, uncommitted). Decent equals always-expand in the harness, so dominance is untested. No crash, freeze or softlock. Details in qa/reports/2026-10-31-skill-tree-r1.json.",
+  "details": {
+    "results": [
+      {
+        "strategy": "decent, no skills",
+        "final_cash": 8672.5,
+        "cycle_reached": 28,
+        "outcome": "win",
+        "win_rate": "7/8",
+        "skills_learned_max": 0,
+        "ships": 4.0,
+        "skill_points_left_median": 7.0
+      },
+      {
+        "strategy": "decent, logistics only (A1,A2,A4,A5)",
+        "final_cash": 8863.5,
+        "cycle_reached": 20.0,
+        "outcome": "win",
+        "win_rate": "8/8",
+        "skills_learned_max": 4,
+        "ships": 4.0,
+        "skill_points_left_median": 0.0
+      },
+      {
+        "strategy": "decent, research only (B1-B4)",
+        "final_cash": 8833.0,
+        "cycle_reached": 23.0,
+        "outcome": "win",
+        "win_rate": "8/8",
+        "skills_learned_max": 4,
+        "ships": 4.0,
+        "skill_points_left_median": 0.0
+      },
+      {
+        "strategy": "decent, expansion only (A1,C1-C4)",
+        "final_cash": 8564.5,
+        "cycle_reached": 26,
+        "outcome": "win",
+        "win_rate": "5/8",
+        "skills_learned_max": 5,
+        "ships": 4.0,
+        "skill_points_left_median": 0.0
+      },
+      {
+        "strategy": "decent, full tree (no permit)",
+        "final_cash": 8799.5,
+        "cycle_reached": 26,
+        "outcome": "win",
+        "win_rate": "7/8",
+        "skills_learned_max": 6,
+        "ships": 4.0,
+        "skill_points_left_median": 0.0
+      },
+      {
+        "strategy": "always_expand, full tree (no permit)",
+        "final_cash": 8799.5,
+        "cycle_reached": 26,
+        "outcome": "win",
+        "win_rate": "7/8",
+        "skills_learned_max": 6,
+        "ships": 4.0,
+        "skill_points_left_median": 0.0
+      },
+      {
+        "strategy": "decent, C1 + permit 2 only",
+        "final_cash": 9649.0,
+        "cycle_reached": 19.0,
+        "outcome": "win",
+        "win_rate": "8/8",
+        "skills_learned_max": 1,
+        "ships": 11.0,
+        "skill_points_left_median": 20.0
+      },
+      {
+        "strategy": "decent, full tree + permit 2",
+        "final_cash": 10033.0,
+        "cycle_reached": 30.0,
+        "outcome": "win",
+        "win_rate": "6/8",
+        "skills_learned_max": 12,
+        "ships": 22.0,
+        "skill_points_left_median": 15.0
+      },
+      {
+        "strategy": "decent, C1,C2,A1,C3 + permit 2",
+        "final_cash": 8746.0,
+        "cycle_reached": 30.0,
+        "outcome": "win",
+        "win_rate": "6/8",
+        "skills_learned_max": 4,
+        "ships": 22.0,
+        "skill_points_left_median": 30.0
+      }
+    ],
+    "skill_verdicts": [
+      {
+        "skill": "A1 Space Storage (protected)",
+        "verdict": "ending and cash only",
+        "evidence": "A1 alone: median 26, 5/8 wins vs 28 no skills; +150 cash. Also bridges one closed cycle, which its plain line does not state. Judged, not edited."
+      },
+      {
+        "skill": "A2 Deep Holds",
+        "verdict": "weak: cash only",
+        "evidence": "A1+A2 25 vs A1 26 (-1, noise). Planet storage only; plain 'Company storage' ambiguous."
+      },
+      {
+        "skill": "A4 Quick Loading",
+        "verdict": "changes win cycle (no-permit)",
+        "evidence": "A1+A2+A4 20 vs 25 (-5), 8/8 wins. Permit world: no change (ship-limited)."
+      },
+      {
+        "skill": "A5 Drydock Deals",
+        "verdict": "weak: cash only after A4",
+        "evidence": "A1-A4 20 vs A1-A5 20; cash +70."
+      },
+      {
+        "skill": "B1 Market Ledger",
+        "verdict": "cosmetic in numbers (decision aid)",
+        "evidence": "28 vs 28. Trend, partner and warning are text only; bot does not react."
+      },
+      {
+        "skill": "B2 Standing Orders",
+        "verdict": "weak",
+        "evidence": "B1+B2 26.5 (6/8) vs B1 28; within noise. Pool binds only with 3+ ships per commodity."
+      },
+      {
+        "skill": "B3 Price Whisper",
+        "verdict": "changes win cycle",
+        "evidence": "B1+B2+B3 24 vs 26.5 (-2.5), 8/8. Plain line false for routes."
+      },
+      {
+        "skill": "B4 Event Forecast",
+        "verdict": "changes win cycle (small)",
+        "evidence": "B1-B4 23 vs 24 (-1); closed-event bridge. Plain line overstates naming."
+      },
+      {
+        "skill": "C1 Permit Charter (protected)",
+        "verdict": "changes win cycle, gate for all permits",
+        "evidence": "C1 + permit 2: median 19 vs 28 without (-9). Judged, not edited."
+      },
+      {
+        "skill": "C2 Survey Beacon",
+        "verdict": "cosmetic in numbers",
+        "evidence": "19 = 19 (bot never surveys). Net zero points in code (costs 1, saves 1)."
+      },
+      {
+        "skill": "C3 Long Haul",
+        "verdict": "changes win cycle, strongly (slower for bot)",
+        "evidence": "C1,C2,A1,C3 + permit: median 30 (19 without), 2/8 lose, 22 ships. Cause UNKNOWN (balance or bot greed)."
+      },
+      {
+        "skill": "C4 Colonial Rights",
+        "verdict": "dead in shipped content",
+        "evidence": "Needs C3 first; only permit 2 exists and is bought before C4 can be learned. 0 effect."
+      }
+    ],
+    "ranked_improvements": [
+      "1. gameplay-programmer: fix stale B4 test (run_tests.gd 'B4: warning posted...') to the named forecast text; suite is 403/404.",
+      "2. story-designer: SK_B3_PLAIN 'Routes and Sell orders' -> 'Sell orders'; SK_B4_PLAIN name planet and commodity only for price events, or add planet to closed-event line.",
+      "3. economy-designer: re-check C3 cross-system lane margins and the 22-ship spend; target decent win 22-26 with C3.",
+      "4. economy-designer with gameplay-programmer: make C4 buyable before permit 2 (prereq C2 or C1 in skill_tree.gd), or move its discount to a real second permit.",
+      "5. economy-designer: give points a sink after system 2 (15-28 unspent at win) or lower system points.",
+      "6. story-designer: SK_C3_PLAIN add 'and Survey Beacon (C2)'; SK_C2_PLAIN say 'after you press Survey'; SK_A2_PLAIN say 'Planet storage holds 50% more'.",
+      "7. economy-designer: A5 adds 0 after A4 (raise to ~0.3 or accept as cash-only); B2 weak (Q3 open)."
+    ],
+    "tests": {
+      "pass": 403,
+      "fail": 1,
+      "failing": "B4: warning posted in the cycle before an event"
+    },
+    "run_counts": {
+      "total_runs": 280,
+      "sets": "8 seeds each (1-8)",
+      "crash": 0,
+      "frozen": 0,
+      "harness_issues": 0,
+      "permit_runs_buy_permit_2": "cycles 3-5 in all runs with --permit=2"
+    },
+    "notes": "Batch used --clock=fast, default choice. Noise: 'ret != noErr get_system_ca_certificates' (macOS, not game). 'Parse JSON failed' in tests is the intentional corrupt-stats test. permits_bought metric is null in metrics; permits appear in notes. Full per-run data in qa/reports/2026-10-31-skill-tree-r1-runs.jsonl."
+  }
+}

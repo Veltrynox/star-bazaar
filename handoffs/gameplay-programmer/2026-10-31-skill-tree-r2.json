@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-10-31",
+  "task": "skill-tree-r2",
+  "status": "done",
+  "files_changed": [
+    "game/skill_tree.gd",
+    "tools/tests/run_tests.gd",
+    "handoffs/gameplay-programmer/2026-10-31-skill-tree-r2.json"
+  ],
+  "open_questions": [],
+  "handoff": "B4 test fixed (accepts the named 'Next cycle:' forecast or the plain warning). C4 now requires C2 only (skill_tree.gd prereqs special case); tests added for locked before C2 and available after C2 without C3. Survey button already exists: skill screen permit list shows 'Survey (1 point cheaper)' under each unopened system once C2 is learned; no change made. Suite: 406 pass, 0 fail.",
+  "details": {
+    "tests": {
+      "pass": 406,
+      "fail": 0
+    }
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-10-31",
+  "task": "skill-tree-r1",
+  "status": "done",
+  "files_changed": [
+    "story/skills.md",
+    "data/story_text.json",
+    "data/events.json",
+    "goals/skill-tree-progression/blackboard.json",
+    "handoffs/story-designer/2026-10-31-skill-tree-r1.json"
+  ],
+  "open_questions": [
+    "B1, B3, B4, C2 plain lines name mechanics not yet in game. Ship the mechanics before the texts, or the lines mislead.",
+    "C4 plain line carries 480 and 1200 as fixed numbers. If permit costs change, the text must change, or the game should insert them.",
+    "B4 prepay-to-move-a-ship idea from economy handoff is not in the text; add a line only if built."
+  ],
+  "handoff": "Plain lines for A2, A4, A5, B1, B2, B3, B4, C2, C3, C4 rewritten with the numbers from the economy handoff. Names unchanged, so endings.md needs no edit. A1 and C1 untouched. build_story.py ran: 288 entries, 19 events. Programmer: B1 (trend, best partner, margin warning), B3 (8% margin), B4 (planet and commodity named), C2 (base prices, 1 point cheaper permit) must be built to match the text. All SK_*_FLAVOUR and SK_*_PLAIN ids are ready.",
+  "details": {}
+}

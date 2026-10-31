@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-10-31",
+  "task": "skill-tree-r1b",
+  "status": "done",
+  "files_changed": ["story/screens.md", "story/skills.md", "data/story_text.json"],
+  "open_questions": ["BTN_SURVEY hardcodes '1 point cheaper'; if the discount changes in data, the button text must change or take a placeholder."],
+  "handoff": "Added EVT_NEXT_DUE_PRICE, EVT_NEXT_DUE_CLOSED, LBL_BEST_PARTNER, NOT_ROUTE_BELOW_UPKEEP, LBL_SURVEY_PRICES, BTN_SURVEY to story/screens.md; texts match the code fallbacks and placeholders. C4 plain line no longer states 480 or 1200. B3 line matches 8% more per unit. build_story.py regenerated data/story_text.json. Programmer: fallbacks can stay or be dropped; the keys now exist.",
+  "details": {}
+}

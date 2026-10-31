@@ -1,0 +1,134 @@
+[
+  {
+    "run_id": "2026-10-31-skill-tree-r2",
+    "seed": "n/a",
+    "strategy": "n/a (static check)",
+    "issue_type": "text_mismatch",
+    "severity": "medium",
+    "steps": "Read SK_A5_PLAIN in data/story_text.json ('Ship upkeep is 20% lower: 16 credits a cycle instead of 20.'). Read route_engine.gd upkeep_part(): maintenance 60 / maintenance_interval 3 = 20 base, times (1 - skill_A5_upkeep); skill_A5_upkeep is now 0.3 (balance v17).",
+    "expected": "Plain line matches the code: 30% lower, 14 credits a cycle instead of 20.",
+    "actual": "Line still says 20% and 16. Code gives 14. The round 2 upkeep change (0.2 to 0.3) did not update the text.",
+    "owner_agent": "story-designer"
+  },
+  {
+    "run_id": "2026-10-31-skill-tree-r2",
+    "seed": "1-8",
+    "strategy": "decent",
+    "issue_type": "dead_skill",
+    "severity": "medium",
+    "steps": "TAG=c4 STRATEGIES=decent SEEDS='1 2 3 4 5 6 7 8' EXTRA='--skills=C1,C2,C4 --permit=2' qa/bots/run_batch.sh <out>; read skill_log and notes. Compare with TAG=nskp EXTRA='--skills=C1 --permit=2'.",
+    "expected": "C4 (permits 20% cheaper) is learnable before permit 2 in some order and changes a purchase or the outcome.",
+    "actual": "C4 is learned at cycle 5 in 8/8 seeds; permit 2 is bought at cycle 3 in 8/8 (bot keeps points for the permit). Win cycle, final cash and ending equal nskp on all 8 seeds, so C4 has no measured effect. Points allow it (C1 + C2 + C4 = 4; permit 2 costs 3 points, 2 after survey; r1 measured 7-8 pre-permit points), so this is a tree/order issue, not a hard lock.",
+    "owner_agent": "economy-designer"
+  },
+  {
+    "run_id": "2026-10-31-skill-tree-r2",
+    "seed": "1-8",
+    "strategy": "decent",
+    "issue_type": "pacing_early",
+    "severity": "medium",
+    "steps": "TAG=nskp EXTRA='--skills=C1 --permit=2'; TAG=logi EXTRA='--skills=A1,A2,A4,A5'; TAG=a124 EXTRA='--skills=A1,A2,A4' (qa/bots/run_batch.sh, STRATEGIES=decent SEEDS='1 2 3 4 5 6 7 8').",
+    "expected": "Decent player wins between cycles 22 and 30.",
+    "actual": "C1 + permit 2 wins 8/8 at cycles 18-19 (median 19). Logistics A1,A2,A4,A5 wins 8/8 at 18-24 (median 20). A1,A2,A4 median 20. Unchanged from round 1.",
+    "owner_agent": "economy-designer"
+  },
+  {
+    "run_id": "2026-10-31-skill-tree-r2",
+    "seed": "1-8",
+    "strategy": "decent",
+    "issue_type": "pacing_late",
+    "severity": "medium",
+    "steps": "TAG=c3s EXTRA='--skills=C1,C2,A1,C3 --permit=2'; TAG=fullp EXTRA='--permit=2' (qa/bots/run_batch.sh, STRATEGIES=decent SEEDS='1 2 3 4 5 6 7 8').",
+    "expected": "Full or C3 runs win inside the window, with a small, intended change from the C1 + permit baseline (19).",
+    "actual": "C3 moves the median from 19 to 30 (+11) and loses 2/8 at cycle 30. Full tree + permit 2 also wins 6/8 at 29-30 with 2 losses. Runs end with 22 ships and near-zero cash. Cause still UNKNOWN (ship greed vs balance). Unchanged from round 1.",
+    "owner_agent": "economy-designer"
+  },
+  {
+    "run_id": "2026-10-31-skill-tree-r2",
+    "seed": "1-8",
+    "strategy": "decent",
+    "issue_type": "weak_skill",
+    "severity": "low",
+    "steps": "TAG=a124 EXTRA='--skills=A1,A2,A4' vs TAG=logi EXTRA='--skills=A1,A2,A4,A5' (decent, seeds 1-8).",
+    "expected": "A5 (upkeep 30% lower after v17) moves the win cycle or unlocks a choice.",
+    "actual": "Win cycle median 20 with and without A5. A5 changes final cash on 3 of 8 seeds only. Still weak after the v17 change.",
+    "owner_agent": "economy-designer"
+  },
+  {
+    "run_id": "2026-10-31-skill-tree-r2",
+    "seed": "1-8",
+    "strategy": "decent",
+    "issue_type": "weak_skill",
+    "severity": "low",
+    "steps": "TAG=b1 EXTRA='--skills=B1' vs TAG=b12 EXTRA='--skills=B1,B2' (decent, seeds 1-8).",
+    "expected": "B2 (order size +50%) moves the win cycle clearly.",
+    "actual": "Median 28 (7/8 wins) becomes 26.5 (6/8 wins). Within noise, and the economy sim says about 0. Unchanged from round 1.",
+    "owner_agent": "economy-designer"
+  },
+  {
+    "run_id": "2026-10-31-skill-tree-r2",
+    "seed": "1-8",
+    "strategy": "decent",
+    "issue_type": "cosmetic_skill",
+    "severity": "low",
+    "steps": "TAG=b1 EXTRA='--skills=B1' vs TAG=nosk EXTRA='--skills=' (decent, seeds 1-8).",
+    "expected": "B1 changes a decision or a number.",
+    "actual": "Median 28 both. B1 adds trend arrow, best partner and below-upkeep warning only; the bot does not react. Unchanged from round 1.",
+    "owner_agent": "economy-designer"
+  },
+  {
+    "run_id": "2026-10-31-skill-tree-r2",
+    "seed": "1-8",
+    "strategy": "decent",
+    "issue_type": "cosmetic_skill",
+    "severity": "low",
+    "steps": "TAG=c12p EXTRA='--skills=C1,C2 --permit=2' vs TAG=nskp EXTRA='--skills=C1 --permit=2' (decent, seeds 1-8).",
+    "expected": "C2 changes a number or a choice beyond being a gate.",
+    "actual": "Identical results on all 8 seeds (median 19). Survey costs nothing and saves 1 point on permit 2, so the net point effect is zero; the bot never presses Survey. C2 now works as a gate for C3 and C4 only.",
+    "owner_agent": "economy-designer"
+  },
+  {
+    "run_id": "2026-10-31-skill-tree-r2",
+    "seed": "1-8",
+    "strategy": "decent (no permit)",
+    "issue_type": "balance_issue",
+    "severity": "medium",
+    "steps": "TAG=nosk EXTRA='--skills=' ... for skill set: TAG=full STRATEGIES=decent EXTRA='' (qa/bots/run_batch.sh, seeds 1-8); read skill_log.",
+    "expected": "Full tree is reachable in a normal game.",
+    "actual": "Without a permit the decent bot learns 6 of 12 skills (B1,B2,C1,A1,A2,C2) and never buys A4, A5, B3, B4, C3, C4. Unchanged from round 1.",
+    "owner_agent": "economy-designer"
+  },
+  {
+    "run_id": "2026-10-31-skill-tree-r2",
+    "seed": "1-8",
+    "strategy": "decent (+ permit 2)",
+    "issue_type": "balance_issue",
+    "severity": "medium",
+    "steps": "TAG=fullp EXTRA='--permit=2' and TAG=c4 EXTRA='--skills=C1,C2,C4 --permit=2' (qa/bots/run_batch.sh); read skill_points_left.",
+    "expected": "Skill points stay a scarce resource through the run.",
+    "actual": "Unspent points at win: 15 median (fullp, all 12 skills bought), 17 (c4), 20 (nskp). No sink exists until system 3 (on hold). Unchanged from round 1.",
+    "owner_agent": "economy-designer"
+  },
+  {
+    "run_id": "2026-10-31-skill-tree-r2",
+    "seed": "1-8",
+    "strategy": "decent and always_expand",
+    "issue_type": "harness_spec_mismatch",
+    "severity": "medium",
+    "steps": "STRATEGIES='decent always_expand' SEEDS='1 2 3 4 5 6 7 8' qa/bots/run_batch.sh <out> for six sets (nosk, nskp, full, fullp, logi, c4).",
+    "expected": "decent keeps a reserve and buys permits; always_expand buys whenever cash allows; outcomes differ.",
+    "actual": "Identical results (cash, cycle, ending) on all 8 seeds in all six sets. bot_run.gd sets decent reserve 0 and lanes 24. Still open: the Producer must choose one definition.",
+    "owner_agent": "producer"
+  },
+  {
+    "run_id": "2026-10-31-skill-tree-r2",
+    "seed": "1-8",
+    "strategy": "decent (headless log check)",
+    "issue_type": "asset_load_error",
+    "severity": "medium",
+    "steps": "HOME=<scratch> tools/godot/Godot.app/Contents/MacOS/Godot --headless --path . -s res://qa/bots/bot_run.gd -- --strategy=decent --seed=1 ; grep 'No loader found'.",
+    "expected": "Planet textures in art/textures/planets/ load without errors.",
+    "actual": "'No loader found for resource: res://art/textures/planets/planet_*_beauty.png' and '_displacement' logged in every run. Folder is untracked (git status). Runs still finish. Whether the release export is affected is UNKNOWN (not tested).",
+    "owner_agent": "artist"
+  }
+]
