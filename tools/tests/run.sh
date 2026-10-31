@@ -6,4 +6,13 @@ cd "$(dirname "$0")/../.." || exit 1
 python3 tools/build_story.py || exit 1
 SCRATCH="${TMPDIR:-/tmp}/star-bazaar-test-home"
 rm -rf "$SCRATCH"; mkdir -p "$SCRATCH"
-HOME="$SCRATCH" tools/godot/Godot.app/Contents/MacOS/Godot --headless --path . -s res://tools/tests/run_tests.gd
+LOG="$SCRATCH/run.log"
+HOME="$SCRATCH" tools/godot/Godot.app/Contents/MacOS/Godot --headless --path . -s res://tools/tests/run_tests.gd > "$LOG" 2>&1
+code=$?
+cat "$LOG"
+# A script that fails to parse makes Godot exit 0 with no tests run; treat that as a failure too.
+if grep -q "SCRIPT ERROR\|Failed to load script" "$LOG"; then
+  echo "FAIL: script load or parse error (see above)"
+  exit 1
+fi
+exit $code
