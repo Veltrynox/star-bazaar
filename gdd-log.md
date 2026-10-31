@@ -49,3 +49,10 @@ Added a section index after the title block. No design or number changes.
 2026-10-31 (general-purpose, T117): The galaxy view, ship dots, planet textures and money rules from the owner ideas of 2026-10-28 are recorded as planned under the planned features, with the open questions listed.
 2026-10-31 (general-purpose, T117): The rule that money never buys skill points is recorded as a standing money rule, with its open scope questions listed.
 2026-10-31 (general-purpose, T117): The second pass of T117 after T116 is still to do, and this first pass changed no numbers.
+2026-10-31 (general-purpose, T62): The First 4 cycles tutorial text now states the current route flow (standing orders, "Send to...", free ship, net preview) and the older route-screen wording is marked as planned for the T15 rewrite, with no number changed.
+2026-10-31 (general-purpose, T62): The Space Storage line now says it is in the build as skill A1 with the stock move after sells, and the open owner call that local Sell orders cannot yet draw from it is listed.
+2026-10-31 (general-purpose, T62): A ship types note is added under Ship stats, recording the one built type from data/ships.json and the owner's 2026-10-28 cut of the Hauler, with no number changed.
+2026-10-31 (general-purpose, T62): The permit margin paragraph now lists permit_margin_bonus as possibly unused for the Economy Designer to confirm, with no number changed.
+2026-10-31 (general-purpose, T62): The Ship Upgrades heading is marked as planned and not built, with no number changed.
+2026-10-31 (general-purpose, T62): The 80-seed sim snapshot in the Economy v5 section is marked as superseded by the 2026-10-28 run, and its numbers are kept unchanged.
+2026-10-31 (general-purpose, T62): The gdd.md date line is changed to 31 October 2026 to show the revision.

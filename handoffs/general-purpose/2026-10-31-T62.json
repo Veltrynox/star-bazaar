@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "agent": "general-purpose",
+  "date": "2026-10-31",
+  "task": "T62",
+  "status": "partial",
+  "files_changed": [
+    "/Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/gdd.md",
+    "/Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/gdd-log.md",
+    "/Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/handoffs/general-purpose/2026-10-31-T62.json"
+  ],
+  "open_questions": [
+    "T61 (owner playtest, feeds T62) is still queued, so the owner's feedback on storage fill, blocked routes, rating bars and ship count is not in this GDD.",
+    "Should local Sell orders draw from Space Storage (a code change), since stock moved there is not sold today?",
+    "Does permit_margin_bonus do anything, given the system 2 margin is said to be baked into prices?"
+  ],
+  "handoff": "gdd.md already matched the built route model from the 2026-10-31 T91 pass, so this pass made smaller fixes: the First 4 cycles text now states the current route flow and marks the older route-screen wording as planned for T15; Space Storage is marked as built as skill A1 with the open Sell-order question; a ship types note records the one built type (data/ships.json) and the Hauler cut; permit_margin_bonus and Ship Upgrades are marked open or planned; the 80-seed sim snapshot is marked superseded by the 2026-10-28 run. No numbers or balance values changed. Partial because T61 owner feedback is missing. gdd-skills.md was not edited because the brief does not name it. Nothing was committed."
+}
