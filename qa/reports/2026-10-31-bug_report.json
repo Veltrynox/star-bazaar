@@ -1,0 +1,13 @@
+[
+  {
+    "run_id": "2026-10-31-T122-T132-bots-vis2",
+    "seed": 1,
+    "strategy": "always_expand",
+    "issue_type": "dominant_strategy",
+    "severity": "medium",
+    "steps": "From the repo root: GODOT=/Applications/Godot.app/Contents/MacOS/Godot STRATEGIES='decent always_expand' SEEDS='1 2 3 4 5' TAG=vis LIMIT=150 qa/bots/run_batch.sh <out_dir>. Fast clock, default choice. Compare results_*.jsonl per seed.",
+    "expected": "always_expand is a distinct counter-strategy (no reserve, buys whenever cash allows). Either it loses or wins for a different reason than decent, so the strategy comparison means something.",
+    "actual": "always_expand wins on all 5 seeds and matches decent exactly on every seed: same final_cash (9498, 8826, 8538, 9730, 8773), same win cycle (26, 26, 25, 26, 26), same 4 ships, same 4 routes, same ship_buys. Decent's reserve (1000 cr) and lane cap never change the outcome in this build. Sloppy and never_expand lose at cycle 30 on all seeds. Bot-side or balance question: needs a check of whether decent is really limited, not a game crash.",
+    "owner_agent": "qa-analyst"
+  }
+]

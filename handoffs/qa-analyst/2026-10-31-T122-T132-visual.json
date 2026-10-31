@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "agent": "qa-analyst",
+  "date": "2026-10-31",
+  "task": "Visual verification of T122, T123, T124, T126 and T132 (sun and planet flare)",
+  "status": "partial",
+  "files_changed": [
+    "qa/reports/2026-10-31-bug_report.json",
+    "qa/bots/sun_check.gd",
+    "handoffs/qa-analyst/2026-10-31-T122-T132-visual.json"
+  ],
+  "usage_note": "~20%",
+  "open_questions": [
+    "UNKNOWN: whether the windowed Godot run can render at all from this sandbox (XPC and sandbox_extension errors, no frames in 10+ minutes). Needs a run outside the sandbox or with a display, to get the five screenshots.",
+    "UNKNOWN: whether always_expand is meant to differ from decent (bot identical to decent on 5 seeds).",
+    "UNKNOWN: release export binary not built or run; release gate checked in code only."
+  ],
+  "handoff": "Windowed screenshot run BLOCKED in this sandbox: no SHOT lines, no PNGs, no frames after 10+ min (sandbox_extension Operation not permitted, XPC Connection Invalid). Visual checks for T122, T123, T124, T126 and T132 are NOT CHECKED. Headless checks only: T132 sun script loads 64 frames and drives sun_flare (flare 0 to 0.507, frame advances each step); sun_flare is registered in project.godot. Bot batch, 4 strategies x 5 seeds, 0 crashes, 0 script errors (only a sandbox get_system_ca_certificates noErr line). Decent wins cycles 25 to 26 (pacing OK). Sloppy and never_expand lose at 30. always_expand identical to decent (medium, bot or balance). Debug menu gated by OS.is_debug_build() in main.gd. The sun work is uncommitted. Next: rerun the screenshot harness outside the sandbox, then shoot T122, T123, T124, T126, T132.",
+  "details": {
+    "results": [
+      { "strategy": "decent", "final_cash": 9498, "cycle_reached": 26, "outcome": "win" },
+      { "strategy": "decent", "final_cash": 8826, "cycle_reached": 26, "outcome": "win" },
+      { "strategy": "decent", "final_cash": 8538, "cycle_reached": 25, "outcome": "win" },
+      { "strategy": "decent", "final_cash": 9730, "cycle_reached": 26, "outcome": "win" },
+      { "strategy": "decent", "final_cash": 8773, "cycle_reached": 26, "outcome": "win" },
+      { "strategy": "sloppy", "final_cash": 3088, "cycle_reached": 30, "outcome": "loss" },
+      { "strategy": "sloppy", "final_cash": 3639, "cycle_reached": 30, "outcome": "loss" },
+      { "strategy": "sloppy", "final_cash": 4103, "cycle_reached": 30, "outcome": "loss" },
+      { "strategy": "sloppy", "final_cash": 1203, "cycle_reached": 30, "outcome": "loss" },
+      { "strategy": "sloppy", "final_cash": 3806, "cycle_reached": 30, "outcome": "loss" },
+      { "strategy": "always_expand", "final_cash": 9498, "cycle_reached": 26, "outcome": "win" },
+      { "strategy": "always_expand", "final_cash": 8826, "cycle_reached": 26, "outcome": "win" },
+      { "strategy": "always_expand", "final_cash": 8538, "cycle_reached": 25, "outcome": "win" },
+      { "strategy": "always_expand", "final_cash": 9730, "cycle_reached": 26, "outcome": "win" },
+      { "strategy": "always_expand", "final_cash": 8773, "cycle_reached": 26, "outcome": "win" },
+      { "strategy": "never_expand", "final_cash": 4554, "cycle_reached": 30, "outcome": "loss" },
+      { "strategy": "never_expand", "final_cash": 4454, "cycle_reached": 30, "outcome": "loss" },
+      { "strategy": "never_expand", "final_cash": 4891, "cycle_reached": 30, "outcome": "loss" },
+      { "strategy": "never_expand", "final_cash": 1871, "cycle_reached": 30, "outcome": "loss" },
+      { "strategy": "never_expand", "final_cash": 4190, "cycle_reached": 30, "outcome": "loss" }
+    ],
+    "task_checks": [
+      { "task": "T122", "verdict": "NOT CHECKED", "evidence": "windowed run blocked; code exists in game/main.gd (pause button, icon-only)" },
+      { "task": "T123", "verdict": "NOT CHECKED", "evidence": "windowed run blocked; speed buttons built unconditionally (game/main.gd _build_speed_buttons, sticky via time_speed saved); no visual check" },
+      { "task": "T124", "verdict": "NOT CHECKED", "evidence": "windowed run blocked; no tutorial-label screenshot; no script errors in bot logs" },
+      { "task": "T126", "verdict": "NOT CHECKED", "evidence": "windowed run blocked; skill_point_pop.gd created on first use; no script errors in bot logs" },
+      { "task": "T132", "verdict": "NOT CHECKED visually; headless logic PASS", "evidence": "qa/bots/sun_check.gd: SUNCHK flare_min=0.000 flare_max=0.507 frame_pos_changes=240 levels=64; sun_flare in project.godot [shader_globals]; 128 files in art/sun/frames (64 png plus import)" }
+    ],
+    "release_gate": "PASS in code: main.gd creates debug_menu only when debug_tools_allowed(OS.is_debug_build()) is true. Export binary not built or run.",
+    "screenshots": [],
+    "blocked_evidence": [
+      "/Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar: windowed run printed sandbox_extension_issue_file_to_process ... Operation not permitted and NSXPC Connection Invalid, then no SHOT lines (two runs, both stopped)",
+      "Bot logs: /tmp/claude-501/bots-2026-10-31/ (vis_*.log, vis2_*.log); only non-game error is the sandbox noErr line from get_system_ca_certificates"
+    ],
+    "bots": {
+      "seeds": [1, 2, 3, 4, 5],
+      "runs": 20,
+      "crashes": 0,
+      "frozen": 0,
+      "script_errors": 0
+    }
+  }
+}
