@@ -8,10 +8,7 @@ const EndingPicker := preload("res://game/ending_picker.gd")
 const BRANCHES := ["A", "B", "C"]
 
 static func ids_in(branch: String) -> Array:
-	var out := []
-	for i in EndingPicker.branch_size(branch):
-		out.append("%s%d" % [branch, i + 1])
-	return out
+	return EndingPicker.branch_ids(branch)
 
 static func all_ids() -> Array:
 	var out := []
@@ -19,12 +16,13 @@ static func all_ids() -> Array:
 		out.append_array(ids_in(b))
 	return out
 
-## Each node needs the one above it in its branch; C3 also needs A1.
+## Each node needs the one before it in its branch's id list; C3 also needs A1.
 static func prereqs(id: String) -> Array:
 	var out := []
-	var n := int(id.substr(1))
-	if n > 1:
-		out.append("%s%d" % [id.substr(0, 1), n - 1])
+	var chain := ids_in(id.substr(0, 1))
+	var at := chain.find(id)
+	if at > 0:
+		out.append(chain[at - 1])
 	if id == "C3":
 		out.append("A1")
 	return out
