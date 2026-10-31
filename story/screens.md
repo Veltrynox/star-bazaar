@@ -121,7 +121,7 @@ Routes are one way. To send stock both ways, make a second route back.
 TUT_C4_SKILLS | 110 | Cycle 4, if a skill point is held
 You have skill points. Open Skills and learn something.
 TUT_PERMIT_C1 | 110 | Any cycle after the first, once a skill point is held and Permit Charter (C1) is not learned
-Permit Charter (C1) is the first skill that opens another system. A permit costs credits and skill points.
+Permit Charter (C1) lets you buy permits. A permit opens a new system. It costs credits and skill points.
 TUT_C4_FREE | 110 | Cycle 4, end of tutorial
 That is all the guidance there is. The Plan has nothing to add.
 
@@ -193,7 +193,7 @@ WORLD_S2P3_DESC | 110 | Planet 3 of system 2, planet tooltip | A damp outpost of
 WORLD_S2P4_NAME | 24 | System 2 planet 4 (S2-P4, consumer market) | Quillon
 WORLD_S2P4_DESC | 110 | Planet 4 of system 2, planet tooltip | A market world that makes nothing and wants both goods. Quillon pays on time, in forms.
 PERMIT_S2_NAME | 24 | Permit list, system 2 entry | Permit: Dunmere Reach
-PERMIT_S2_DESC | 110 | Permit list, system 2 description | Opens Dunmere Reach to the company. Needs Permit Charter (C1). Costs credits and skill points.
+PERMIT_S2_DESC | 110 | Permit list, system 2 description | Opens Dunmere Reach for routes. Needs Permit Charter (C1). Costs credits and skill points.
 PERMIT_S2_BTN | 24 | Permit list, buy button | Buy permit
 NOT_PERMIT_S2 | 110 | Notice, permit for system 2 bought | Permit bought. Dunmere Reach is open: four new planets.
 SS_POST_NAME | 24 | Space Storage post, name | Space Storage
@@ -227,7 +227,7 @@ MENU_HINT_LOCKED | 110 | Game menu, tooltip on a locked entry | Not available ye
 BTN_CLOSE | 24 | Galaxy view, close button | Close
 EVT_HINT_CHOICE_OFF | 110 | Event popup, tooltip on a choice that cannot be taken now | Not available now.
 PERMIT_COST_LINE | 110 | Skill screen, permit cost line; {credits} and {points} are filled in | Cost: {credits} credits and {points} skill points.
-PERMIT_NEEDS_C1 | 110 | Skill screen, permit line when Permit Charter (C1) is missing | Needs Permit Charter (C1).
+PERMIT_NEEDS_C1 | 110 | Skill screen, permit line when Permit Charter (C1) is missing | Needs Permit Charter (C1) to buy permits.
 PERMIT_NO_CREDITS | 110 | Skill screen, permit line when credits are short | Not enough credits.
 
 ## Skill effects made real (2026-10-31, Alpha): Long Haul, Event Forecast, Market Ledger, Price Whisper

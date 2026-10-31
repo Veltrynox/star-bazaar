@@ -397,7 +397,7 @@
  },
  {
   "id": "TUT_PERMIT_C1",
-  "text": "Permit Charter (C1) is the first skill that opens another system. A permit costs credits and skill points.",
+  "text": "Permit Charter (C1) lets you buy permits. A permit opens a new system. It costs credits and skill points.",
   "max": 110,
   "place": "Any cycle after the first, once a skill point is held and Permit Charter (C1) is not learned"
  },
@@ -655,7 +655,7 @@
  },
  {
   "id": "PERMIT_S2_DESC",
-  "text": "Opens Dunmere Reach to the company. Needs Permit Charter (C1). Costs credits and skill points.",
+  "text": "Opens Dunmere Reach for routes. Needs Permit Charter (C1). Costs credits and skill points.",
   "max": 110,
   "place": "Permit list, system 2 description"
  },
@@ -799,7 +799,7 @@
  },
  {
   "id": "PERMIT_NEEDS_C1",
-  "text": "Needs Permit Charter (C1).",
+  "text": "Needs Permit Charter (C1) to buy permits.",
   "max": 110,
   "place": "Skill screen, permit line when Permit Charter (C1) is missing"
  },
@@ -1411,13 +1411,13 @@
  },
  {
   "id": "SK_C1_FLAVOUR",
-  "text": "The Bureau opens the sky one form at a time. This is the first form.",
+  "text": "No ship leaves the home sky without a charter. This is the charter.",
   "max": 90,
   "place": "Skill screen, detail panel"
  },
  {
   "id": "SK_C1_PLAIN",
-  "text": "Unlocks permits. Each permit opens a new system to your routes and costs credits and skill points.",
+  "text": "Lets you buy permits. A permit opens a new system for routes. It costs credits and skill points.",
   "max": 110,
   "place": "Skill screen, detail panel"
  },
@@ -1483,7 +1483,7 @@
  },
  {
   "id": "EV17_BODY",
-  "text": "The wreck of a hundred ships has settled into orbit over {planet}, hull plates and spent tanks turning slowly. A contractor will sweep it for a fee. The Bureau filed the wreck as unowned, which is how it stayed up there.",
+  "text": "The wreck of a hundred ships has settled into orbit over {planet}, hull plates and spent tanks turning slowly. A contractor will sweep it for a fee. The Bureau filed it as unowned, which is why it is still up there.",
   "max": 280,
   "place": "choice body"
  },
@@ -1519,7 +1519,7 @@
  },
  {
   "id": "EV17_PAID",
-  "text": "The contractor swept the orbit and filed the receipt. Routes from {planet} carry their full load again. The wreck went somewhere. The receipt does not say where.",
+  "text": "The contractor swept the orbit and filed the receipt. Routes from {planet} carry their full load again. The wreck went somewhere. The receipt does not say where, and you stopped asking.",
   "max": 280,
   "place": "popup"
  },
@@ -1531,7 +1531,7 @@
  },
  {
   "id": "EV17_LEFT",
-  "text": "You left the wreck. Ships from {planet} thread around it and carry less. The offer stays open. The wreck turns slowly, in no hurry to leave.",
+  "text": "You left the wreck. Ships from {planet} thread around it and carry less. The offer stays open. The wreck turns slowly, in no hurry to leave. Neither are you.",
   "max": 280,
   "place": "popup"
  },
@@ -1543,7 +1543,7 @@
  },
  {
   "id": "EV18_BODY",
-  "text": "Engineers want to shade part of the sun with a shield. The residents hate it and say so in writing. It would reshape the markets on planets you can buy later: some goods get cheaper, while profit and energy rise. What you already own stays as it is.",
+  "text": "Engineers want to put a shield across part of the sun. The residents hate it and say so in writing, at length. It would reshape the markets on planets you can buy later: some goods get cheaper, while profit and energy rise. What you already own stays as it is.",
   "max": 280,
   "place": "choice body"
  },
@@ -1579,7 +1579,7 @@
  },
  {
   "id": "EV18_BUILT",
-  "text": "The shield is up and the sky is dimmer. Residents are furious and have filed it in triplicate. On planets you can buy later, some goods get cheaper while profit and energy climb. Planets you own are untouched.",
+  "text": "The shield is up and the sky is dimmer. Residents are furious and have filed it in triplicate, in the dark. On planets you can buy later, some goods get cheaper while profit and energy climb. Planets you own are untouched.",
   "max": 280,
   "place": "popup"
  },
@@ -1603,7 +1603,7 @@
  },
  {
   "id": "EV19_BODY",
-  "text": "Nomad families live on the asteroids you could mine. They are not on the Common Ledger, which the Bureau takes as a personal failing. Evict them and the rock is yours. Or let them stay and keep their lamps burning.",
+  "text": "Nomad families live on the asteroids you could mine. They are not on the Common Ledger, which the Bureau takes as a personal failing. Evict them and the rock is yours. Or let them stay, and let their lamps burn.",
   "max": 280,
   "place": "choice body"
  },
@@ -1639,7 +1639,7 @@
  },
  {
   "id": "EV19_EVICTED",
-  "text": "The nomads left on the next tide, quietly. The rock is yours to mine. Some did not go far, and they now keep ships and a grudge. Pirates rise.",
+  "text": "The nomads left on the next tide, without a word. The rock is yours to mine. Some did not go far, and now they keep ships and a grudge. Pirates rise.",
   "max": 280,
   "place": "popup"
  },
@@ -1663,7 +1663,7 @@
  },
  {
   "id": "EV19_PIRATES",
-  "text": "Pirates now work the lanes, and fewer cargoes get through. Trade volume falls while they stay. The Bureau has opened a file on them. It is a thin file.",
+  "text": "Pirates now work the lanes, and fewer cargoes get through. Trade volume falls while they stay. The Bureau has opened a file on them. It is a thin file, and so is the fleet behind it.",
   "max": 280,
   "place": "popup"
  },
@@ -1687,7 +1687,7 @@
  },
  {
   "id": "EV20_BODY",
-  "text": "A rock is coming in on a slow path, and the Bureau has noticed it the way it notices everything: late. The state can turn it aside for a fee. The form for refusing is shorter. The dark outside has started to look closer.",
+  "text": "A rock is coming in on a slow path, and the Bureau noticed it the way it notices everything: late. The state can turn it aside for a fee. The form for refusing is shorter. The dark outside looks closer.",
   "max": 280,
   "place": "choice body"
  },
@@ -1741,7 +1741,7 @@
  },
  {
   "id": "EV20_HIT_DESTROYED",
-  "text": "The asteroid struck {planet}. Your company storage there is gone, and what it held with it. The Bureau has recorded the loss as an adjustment of the Common Ledger.",
+  "text": "The asteroid struck {planet}. Your company storage there is gone, and what it held with it. The Bureau has recorded the loss as an adjustment of the Common Ledger. Nobody said sorry.",
   "max": 280,
   "place": "popup"
  },
@@ -1759,7 +1759,7 @@
  },
  {
   "id": "EV20_MISS",
-  "text": "The asteroid passed the system and kept going. Nothing was hit and nothing changes. The Bureau has withdrawn its warning, with regret.",
+  "text": "The asteroid passed the system and kept going. Nothing was hit and nothing changes. The Bureau withdrew its warning, with regret, and kept the form.",
   "max": 280,
   "place": "popup"
  }

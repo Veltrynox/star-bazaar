@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-10-31",
+  "task": "T124",
+  "status": "done",
+  "files_changed": [
+    "none"
+  ],
+  "open_questions": "none",
+  "handoff": "Story lines for the guided tutorial already exist in story/screens.md: TUT_G1_SELECT (planet), TUT_G2_BUY, TUT_G3_SEND (Send to...), TUT_G4_SELL, TUT_G5_SKILLS, TUT_G6_DONE. All within 110 characters and use no invented mechanics. I added none. The programmer can wire these ids as they are."
+}

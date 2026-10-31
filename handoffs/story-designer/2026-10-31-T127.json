@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-10-31",
+  "task": "T127",
+  "status": "done",
+  "files_changed": [
+    "story/skills.md",
+    "story/screens.md",
+    "data/story_text.json",
+    "data/events.json"
+  ],
+  "open_questions": "none",
+  "handoff": "Permit Charter text rewritten: SK_C1_FLAVOUR, SK_C1_PLAIN, TUT_PERMIT_C1, PERMIT_S2_DESC, PERMIT_NEEDS_C1. The wording now says plainly that C1 lets you buy permits and a permit opens a system. No stamp wording was left in the C1 text. Data rebuilt with tools/build_story.py, 0 skipped. No code needed; the programmer only needs to rebuild or reload story_text.json."
+}
