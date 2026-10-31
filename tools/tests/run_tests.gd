@@ -990,39 +990,49 @@ func _test_every_ending() -> void:
 		await _free_main(m)
 	_wipe_user()
 
-# ---- Full-tier endings reachable in play: system 2 opened and reached, Logistics fully learned ----
+# ---- Full-tier endings reachable in play: system 2 opened and reached, a branch fully learned ----
 func _test_full_endings() -> void:
+	# [skills to learn in order, expected id suffix]; each set fully learns its branch (X = two branches)
+	var sets := [
+		[["A1", "A2", "A4", "A5"], "L"],
+		[["B1", "B2", "B3", "B4"], "R"],
+		[["A1", "C1", "C2", "C3", "C4"], "E"],
+		[["A1", "A2", "A4", "A5", "B1", "B2", "B3", "B4"], "X"],
+	]
 	for side in ["RELEASE", "CORP"]:
-		_wipe_user()
-		var m: Control = await _new_main()
-		m._dismiss_preface()
-		var bal: Dictionary = m.balance
-		m.cash = 50000
-		m.skill_points = 100
-		m.learned_skills.append("C1")
-		var pr: Dictionary = m.buy_permit(2)
-		check(pr["ok"] and m.open_systems.has(2), "full: system 2 permit bought (%s)" % side, str(pr))
-		m.set_local_order(3, "food", "buy", true)
-		check(m.systems_reached == 2, "full: system 2 reached by an order (%s)" % side)
-		m.pts_planets = [0, 1, 2]
-		m.pts_pairs = ["0-1"]
-		m.skill_points = 100
-		var all_ok := true
-		for id in ["A1", "A2", "A4", "A5"]:
-			if not m.learn_skill(id)["ok"]:
-				all_ok = false
-		check(all_ok and m.learned_skills.has("A5"), "full: Logistics learned in tree order (%s)" % side, str(m.learned_skills))
-		check(m.ending_inputs()["all_systems_reached"], "full: all open systems reached (%s)" % side)
-		m.cash = int(bal["win_cash"])
-		m._end_cycle()
-		await process_frame
-		var ended := []
-		m.run_ended.connect(func(sd, id): ended.append([sd, id]))
-		m._on_choice(side)
-		var want := "END_REL_FULL_L" if side == "RELEASE" else "END_CORP_FULL_L"
-		check(ended.size() == 1 and ended[0][1] == want, "full: %s ends with %s" % [side, want], str(ended))
-		check(StoryText.has_text(want + "_EPI") and m.end_screen != null, "full: end screen and epilogue shown (%s)" % side)
-		await _free_main(m)
+		for set_ in sets:
+			_wipe_user()
+			var m: Control = await _new_main()
+			m._dismiss_preface()
+			var bal: Dictionary = m.balance
+			m.cash = 50000
+			m.skill_points = 100
+			m.learned_skills.append("C1")
+			var pr: Dictionary = m.buy_permit(2)
+			check(pr["ok"] and m.open_systems.has(2), "full: system 2 permit bought (%s)" % side, str(pr))
+			m.set_local_order(3, "food", "buy", true)
+			check(m.systems_reached == 2, "full: system 2 reached by an order (%s)" % side)
+			m.learned_skills.erase("C1")
+			m.pts_planets = [0, 1, 2]
+			m.pts_pairs = ["0-1"]
+			m.skill_points = 100
+			var all_ok := true
+			for id in set_[0]:
+				if not m.learn_skill(id)["ok"]:
+					all_ok = false
+			check(all_ok, "full: %s set learned in tree order (%s)" % [set_[1], side], str(m.learned_skills))
+			check(m.ending_inputs()["all_systems_reached"], "full: all open systems reached (%s)" % side)
+			m.cash = int(bal["win_cash"])
+			m._end_cycle()
+			await process_frame
+			var ended := []
+			m.run_ended.connect(func(sd, id): ended.append([sd, id]))
+			m._on_choice(side)
+			var key := "REL" if side == "RELEASE" else "CORP"
+			var want := "END_%s_FULL_%s" % [key, set_[1]]
+			check(ended.size() == 1 and ended[0][1] == want, "full: %s with %s ends with %s" % [side, set_[1], want], str(ended))
+			check(StoryText.has_text(want) and StoryText.has_text(want + "_EPI") and m.end_screen != null, "full: text and epilogue exist (%s %s)" % [side, set_[1]])
+			await _free_main(m)
 	_wipe_user()
 
 # ---- T13: debug menu QA controls ----
