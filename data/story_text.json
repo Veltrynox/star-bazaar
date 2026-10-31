@@ -846,6 +846,18 @@
   "place": "Skill screen, permit entry, shown once Survey Beacon (C2) is learned and before the permit is bought; {names} is a list of planet names"
  },
  {
+  "id": "LBL_UNKNOWN",
+  "text": "?",
+  "max": 24,
+  "place": "Galaxy view, label for a system not yet permitted"
+ },
+ {
+  "id": "PLANET_UNHAPPY",
+  "text": "Resident unhappiness: {value}",
+  "max": 110,
+  "place": "Planet panel, resident unhappiness line when above zero; {value} is a percent"
+ },
+ {
   "id": "SK_HEADER",
   "text": "Skills",
   "max": 24,

@@ -48,7 +48,7 @@ func rebuild() -> void:
 	_header(p)
 	box.add_child(_label("Abundant: %s.  Shortage: %s." % [_txt(p.get("abundant")), _txt(p.get("scarce"))]))
 	var unhappy: float = main.shield.unhappiness(planet_index)  # T101: only planets bought after the shield
-	if unhappy > 0.0:  # FALLBACK: no story id yet (PLANET_UNHAPPY); plain text until the story designer adds it
+	if unhappy > 0.0:
 		box.add_child(_label(StoryText.get_or("PLANET_UNHAPPY", "Resident unhappiness: {value}", {"value": "%d%%" % roundi(unhappy * 100.0)})))
 	var pend: Dictionary = main.pending
 	if not pend.is_empty():

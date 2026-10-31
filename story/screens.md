@@ -237,3 +237,7 @@ LBL_PRICE_HISTORY | 110 | Planet panel, Market Ledger (B1), under the prices; {p
 LBL_PRICE_HISTORY_NONE | 110 | Planet panel, Market Ledger (B1), before the first cycle closes | Recent sell prices: none yet.
 LBL_NEXT_PRICE | 110 | Planet panel, Price Whisper (B3), prices for the next cycle; {buy} and {sell} are credits | Next cycle: {buy} cr to buy, {sell} cr to sell.
 LBL_PERMIT_PLANETS | 110 | Skill screen, permit entry, shown once Survey Beacon (C2) is learned and before the permit is bought; {names} is a list of planet names | Planets in this system: {names}.
+
+## Last fallbacks (2026-10-31, Alpha)
+LBL_UNKNOWN | 24 | Galaxy view, label for a system not yet permitted | ?
+PLANET_UNHAPPY | 110 | Planet panel, resident unhappiness line when above zero; {value} is a percent | Resident unhappiness: {value}
