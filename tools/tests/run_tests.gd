@@ -35,6 +35,7 @@ func _run() -> void:
 	await _test_shield()
 	await _test_asteroid()
 	await _test_full_endings()
+	await _test_every_ending()
 	await _test_debug_menu()
 	print("TOTAL pass=%d fail=%d" % [passed, failed])
 	quit(1 if failed > 0 else 0)
@@ -953,6 +954,40 @@ func _test_systems() -> void:
 	m.engine.settle(m.cash)
 	check(str(rec["state"]) == "stalled", "space: no backup without A1", str(rec["state"]))
 	await _free_main(m)
+	_wipe_user()
+
+# ---- Every ending class reachable through the game's own win path (end of cycle -> choice -> answer) ----
+func _test_every_ending() -> void:
+	# [side, learned skills, last cycle?, expected ending]
+	var cases := [
+		["RELEASE", ["A1"], false, "END_BARE_HANDS"],
+		["RELEASE", ["A1", "A2"], true, "END_LAST_LIGHT"],
+		["RELEASE", ["B1", "B2", "B3", "B4"], false, "END_COLD_LEDGER"],
+		["RELEASE", ["B1", "B2"], false, "END_ENOUGH"],
+		["RELEASE", ["C1", "C2"], false, "END_OWN_HORIZON"],
+		["RELEASE", ["A1", "A2"], false, "END_SLOW_HARBOR"],
+		["CORP", ["A1"], false, "END_CORP_BARE"],
+		["CORP", ["A1", "A2"], false, "END_CORP_LOGI"],
+		["CORP", ["B1", "B2"], false, "END_CORP_RES"],
+		["CORP", ["C1", "C2"], false, "END_CORP_EXP"],
+		["CORP", ["A2", "B2"], false, "END_CORP_MIX"],
+	]
+	for c in cases:
+		_wipe_user()
+		var m: Control = await _new_main()
+		m._dismiss_preface()
+		var bal: Dictionary = m.balance
+		m.learned_skills = c[1].duplicate()
+		m.cash = int(bal["win_cash"])
+		if c[2]:
+			m.cycle = int(bal["win_cycle"])
+		m._end_cycle()
+		var ended := []
+		m.run_ended.connect(func(sd, id): ended.append([sd, id]))
+		m._on_choice(c[0])
+		var ok: bool = ended.size() == 1 and ended[0][1] == c[3] and StoryText.has_text(c[3])
+		check(ok, "endings: %s with %s -> %s" % [c[0], str(c[1]), c[3]], str(ended))
+		await _free_main(m)
 	_wipe_user()
 
 # ---- Full-tier endings reachable in play: system 2 opened and reached, Logistics fully learned ----
