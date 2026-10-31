@@ -224,7 +224,7 @@
         "T53",
         "T82"
       ],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 30,
       "window": "QA lane, after T53 and T82; with T80 if ready",
       "brief": "Re-run the four strategies with fast-forward and timer runs, seeds 1 to 5, on the route build with permits absent. Report final_cash, cycle_reached and outcome per strategy, win-boundary probes, softlocks, dominant strategy, timer vs fast-forward gap, and pacing against balance targets. Flag crashes. Handoff: handoffs/qa-analyst/<date>-T47.json.",
@@ -265,7 +265,7 @@
       "depends_on": [
         "T15"
       ],
-      "status": "queued",
+      "status": "partial",
       "turn_cap": 40,
       "window": "W9 galaxy window (solo), after T15",
       "brief": "Visual element, not gameplay. Build the galaxy generator per GDD section 5: scatter points, bake a low-res density grid, pick suns, propagate light once at scene generation. Keep within a macOS frame budget and report frame_time_ms.",
@@ -280,7 +280,7 @@
         "T15",
         "T85"
       ],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 50,
       "window": "Gameplay lane, last, after T85",
       "brief": "Game Control menu reads and writes data/balance.json (values and targets), plus event control (frequency, list, trigger, multiplier from T12), plus route level and route keys (ship_cap, saturation, orders fields). Stripped from release builds. One menu only: extend the T33 debug menu.",
@@ -320,7 +320,7 @@
       "depends_on": [
         "T61"
       ],
-      "status": "queued",
+      "status": "partial",
       "turn_cap": 25,
       "window": "After T61",
       "brief": "Update gdd.md and gdd-log.md to the implemented, owner-approved model: one-way routes, planet storage and 5-level rating, blocked and stalled rules, space storage (later), ship types, skill tree and expansion points. Replace the old route screen and saturation sections. Log every edit.",
