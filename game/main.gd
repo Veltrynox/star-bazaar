@@ -1237,6 +1237,8 @@ func _open_event_notice(id: String) -> void:
 	add_child(event_notice)
 	event_notice.show_event(events.title_of(id, args), events.body_of(id, args), line, labels, StoryText.get_text("MENU_CONTINUE"), off, "asteroid" if id == "EV20" else "")
 	event_notice.confirmed.connect(_on_event_confirmed.bind(id))
+	if id == "EV20":
+		map.hex_ring.show_ring(true)  # T110
 
 ## Credits a choice costs (debris fee, shield, asteroid deflection), 0 when free.
 func _choice_fee(kind: String) -> int:
@@ -1275,6 +1277,8 @@ func _debris_popup(ch, override: Dictionary = {}) -> void:
 	save_now()
 
 func _on_event_confirmed(choice: int, id: String) -> void:
+	if id == "EV20":
+		map.hex_ring.show_ring(false)  # T110
 	if choice >= 0:
 		var choices: Array = events.choices_of(id)
 		if choice < choices.size():

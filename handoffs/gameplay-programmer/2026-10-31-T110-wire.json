@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-10-31",
+  "task": "T110",
+  "status": "done",
+  "files_changed": ["game/map.gd", "game/main.gd", "handoffs/gameplay-programmer/2026-10-31-T110-wire.json"],
+  "open_questions": "none",
+  "handoff": "hex_ring.gd is now a child of the map root at the sun position (game/map.gd _add_sun), radius set from sun_radius and rebuilt when the sun radius changes. It is hidden by default. game/main.gd calls map.hex_ring.show_ring(true) where the EV20 notice opens (after show_event) and show_ring(false) at the top of _on_event_confirmed for EV20, the existing close hook. No balance values or story text changed. tools/tests/run.sh: pass=422 fail=0. Visual check not done (headless); owner should view the ring during an asteroid event."
+}

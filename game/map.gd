@@ -36,6 +36,7 @@ var pitch_min_deg := 20.0        # angle above the plane; never goes below it
 var pitch_max_deg := 80.0
 var sun_radius := 0.75
 var sun_node: Node3D  # T132: animated 3D sun
+var hex_ring: Node3D  # T110: hexagon ring around the sun, shown during EV20
 var key_light: DirectionalLight3D
 var planet_scale := 1.0          # multiplies PLANET_RADIUS (visual size and click radius)
 var keys_enabled := true         # T33: debug menu turns this off while typing in a field
@@ -259,6 +260,10 @@ func _add_sun(pos: Vector3) -> void:
 	sun_node.position = pos
 	focus_sun_pos = pos
 	add_child(sun_node)
+	hex_ring = load("res://art/sun/hex_ring.gd").new()
+	hex_ring.radius = sun_radius
+	hex_ring.position = pos
+	add_child(hex_ring)  # hidden until show_ring(true)
 
 ## T28: show or hide the pulsing "click me" halo around planet `index`.
 func set_hint(index: int, on: bool) -> void:
@@ -360,6 +365,9 @@ func apply_tunables() -> void:
 		planet_labels[i].position = positions[i] + Vector3(0, -(planet_radius() + 0.5), 0)
 	if sun_node != null:
 		sun_node.set_radius(sun_radius)
+	if hex_ring != null:
+		hex_ring.radius = sun_radius
+		hex_ring.rebuild()
 	if hint != null:  # rebuilt at the new size on the next set_hint call
 		hint.queue_free()
 		hint = null

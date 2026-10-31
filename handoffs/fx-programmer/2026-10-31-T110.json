@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "agent": "fx-programmer",
+  "date": "2026-10-31",
+  "task": "T110",
+  "status": "partial",
+  "files_changed": ["art/sun/hex_ring.gd", "handoffs/fx-programmer/2026-10-31-T110.json"],
+  "open_questions": ["Wiring: the owner or gameplay-programmer must add hex_ring.gd as a child of the sun in game/map.gd and call show_ring(true) when EV20 is shown and show_ring(false) when it closes; I did not edit map.gd or main.gd.", "Procedural lines used (no artist asset needed); the brief's 'small visual extras the owner listed' were not in the brief text, so only the ring, outline and spokes exist."],
+  "handoff": "Added art/sun/hex_ring.gd, a Node3D that draws a honeycomb of hexagons around the sun: one central hexagon, six neighbours, a large outline hexagon and six spokes, as line primitives in one ImmediateMesh (one draw call, no shader file, no texture). Amber colour above 1.0 for the glow path, additive, slow spin, fades in and out. API: set radius, call rebuild() if it changes, then show_ring(bool). Visible only after show_ring(true). It is not wired into the game yet. frame_time_ms not measured (no GPU window). The owner must do the visual check."
+}
