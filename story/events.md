@@ -4,91 +4,91 @@ Format: ID | title (max 32) | tag | kind, then text (max 280). Appears in the ev
 Tags are from the brief only: [price up: planet, commodity], [price down: ...], [planet closed: planet]. Effect size and duration are the Economy Designer's. Planet closed means closed for a while; routes touching it are blocked. The Plan, quotas and the Bureau are story only and change nothing.
 Kind: P = plain price news, Q = quiet musing, I = ironic. Dread = one small odd detail.
 
-EV01 | Energy glut at Voltara | [price down: Voltara, energy] | P
-Voltara's reactors beat their quota by a wide margin, and nobody asked for the surplus. Energy there costs less to buy and pays less to sell. The Plan calls it a triumph. The reactors hum a little louder, as if pleased.
+EV01 | Voltara's reactors overflow | [price down: Voltara, energy] | P
+Voltara's reactors ran past quota and kept running. Nobody ordered the surplus, so energy there is cheap now, and the reactors hum louder, pleased with themselves. Buy while the Plan argues about it.
 
-EV02 | Blight on Tillam's terraces | [price up: Tillam, food] | P
-A blight went through the Tillam terraces, grey and fast, and the leaves came away like paper. Food there costs more and pays more. The committee will study it. The terraces will not wait for the study.
+EV02 | Grey blight on Tillam's terraces | [price up: Tillam, food] | P
+A grey blight is eating Tillam's terraces. Leaves come apart like wet paper. Food there is dear now and pays well. The committee will study the blight. The blight will not wait for the committee.
 
-EV03 | A good harvest at Ashgate | [price down: Ashgate, food] | P
-Ashgate's harvest came in above the Plan. Food there costs less to buy and pays less to sell. A surplus is a fine thing to share, and a poor thing to sell. The Bureau has issued a form for gratitude.
+EV03 | Ashgate's harvest comes in heavy | [price down: Ashgate, food] | P
+Ashgate brought in more than the Plan allowed for. Food there is cheap to buy and pays little to sell. A surplus is a gift to the Commons. A surplus that nobody moves is a loss, and someone has to move it.
 
-EV04 | Voltara goes hungry | [price up: Voltara, food] | P
-The crews on Voltara work long shifts and eat what arrives. Less arrived. Food there costs more and pays more. Rations were reduced equally for everyone, which is what makes it fair and not what makes it better.
+EV04 | Voltara's crews go hungry | [price up: Voltara, food] | P
+Voltara's crews are on long shifts and short rations. Less food arrived than was counted. Food there costs more and pays more. The Bureau cut every ration by the same amount, which it calls fair. Hungry people call it hunger.
 
-EV05 | Cold season on Tillam | [price up: Tillam, energy] | P
-A cold season on Tillam. The heaters run day and night, so energy there costs more and pays more. Frost forms on the inside of the ducts, in patterns no one has agreed to explain.
+EV05 | Frost on Tillam | [price up: Tillam, energy] | P
+Winter came early to Tillam. The heaters run day and night, so energy there costs more and pays more. Frost has begun to grow inside the ducts, in patterns no one has agreed to explain. Someone must keep the lights on.
 
-EV06 | Ashgate lights its furnaces | [price up: Ashgate, energy] | P
-Ashgate's foundries restarted all at once to meet the new plan. Energy there costs more and pays more. The furnaces are very bright. Nobody asked where the energy would come from. That is where a small company comes in.
+EV06 | Ashgate lights every furnace | [price up: Ashgate, energy] | P
+Ashgate restarted every foundry at once to meet a plan that arrived this morning. Energy there costs more and pays more. The furnaces glare through the smoke. Nobody asked where the energy comes from. Someone with a ship will carry it.
 
-EV07 | Tillam stops work | [planet closed: Tillam] | P
-Tillam's dock workers stopped work over a dispute the committee calls a misunderstanding. The port is closed for a while. Routes touching Tillam are blocked until it reopens. The ships do not take sides.
+EV07 | Tillam's docks go on strike | [planet closed: Tillam] | P
+The dock crews of Tillam walked out, and the committee calls it a misunderstanding. The port is closed for a while. Routes touching Tillam are blocked until it reopens. The ships wait outside, and they do not take sides.
 
 EV08 | Ashgate seals its port | [planet closed: Ashgate] | P
-Ashgate sealed its port after something unnamed was found in the lower docks, and the doctors say little. It reopens when they say so. Routes touching Ashgate are blocked until then. Caution is shared equally, including by you.
+Something was found in Ashgate's lower docks, and the doctors will say only that the port is closed. It reopens when they say so. Routes touching Ashgate are blocked until then. Caution is shared equally, and so is the fear.
 
-EV09 | Voltara's grid fails | [planet closed: Voltara] | I
-A fault in Voltara's grid took the port with it. The planet that powers everyone cannot keep its own lights on. Closed for a while. Routes touching Voltara are blocked until it reopens. The Plan will be revised, backwards.
+EV09 | Voltara goes dark | [planet closed: Voltara] | I
+A fault in Voltara's grid took the port down with it. The planet that powers everyone cannot keep its own lights on. Closed for a while. Routes touching Voltara are blocked until it reopens. The Plan will be revised, backwards.
 
-EV10 | The lender walks the market | [price down: Tillam, energy] | Q
-A lender's agent walked Tillam's market, and everyone sold what they had to settle. Energy there costs less and pays less for now. Even in a society that owns everything together, someone has found a way to owe.
+EV10 | A lender walks Tillam's market | [price down: Tillam, energy] | Q
+A lender's agent walked Tillam's market and bought up every debt in sight. Sellers settled what they owed and sold what they had. Energy there costs less and pays less for now. Even a society that owns everything together can find a way to owe.
 
-EV11 | A foreman says enough | [price down: Ashgate, energy] | Q
-An Ashgate foreman declared that the shift had made enough and sent everyone home. Energy there costs less and pays less. Enough is a number the Plan does not print. It spread through the docks faster than the form to stop it.
+EV11 | Ashgate's foreman says enough | [price down: Ashgate, energy] | Q
+An Ashgate foreman looked at the numbers, declared the shift had made enough, and sent the crews home. Energy there costs less and pays less. Enough is a figure the Plan does not print. The word moved through the docks faster than any form.
 
-EV12 | Good news travels slowly | [price up: Voltara, energy] | Q
-Word from other systems arrives late, and Voltara's buyers stopped waiting for it. They bought, so energy there costs more and pays more. Out past the beacons the dark is patient. It has always been the one thing nobody has to share.
+EV12 | Voltara buys before the news | [price up: Voltara, energy] | Q
+Word from the other systems arrives late, and Voltara's buyers would not wait for it. They bought, so energy there costs more and pays more. Out past the beacons the dark is patient. It is the one thing nobody has been asked to share.
 
-EV13 | A family buys the table | [price up: Ashgate, food] | Q
-A family with old credits bought Ashgate's food contracts, all of them, quietly. Food there costs more and pays more. The Commons owns everything together, and a family has found the part that is still for sale. You are in no position to judge.
+EV13 | A family buys Ashgate's food | [price up: Ashgate, food] | Q
+A family with old credits quietly bought up Ashgate's food contracts, all of them. Food there costs more and pays more. The Commons owns everything together, and here is a part still for sale. You are in no position to judge.
 
 EV14 | The inspector's count | [price down: Voltara, food] | I
-An inspector counted Voltara's food stores and found them sufficient, on a form. The market believed the form, so food there costs less and pays less. The crews are still hungry, but correctly accounted for.
+An inspector counted Voltara's food stores and found them sufficient, on a form. The market believed the form, so food there costs less and pays less. The crews are still hungry, now correctly accounted for.
 
-EV15 | A festival of founders | [price up: Tillam, food] | I
-Tillam declared a festival to honour its founding, though three committees claim to be the founders. Food there costs more and pays more. Everyone agrees on the feast. Nobody agrees on who is hosting, so everyone is.
+EV15 | Tillam's festival of founders | [price up: Tillam, food] | I
+Tillam declared a festival to honour its founders. Three committees claim to be them. Food there costs more and pays more. Everyone agrees on the feast. Nobody agrees who is hosting, so everyone is, and nobody is clearing the tables.
 
-EV16 | A half-empty ship departs | [price down: Tillam, food] | Q
-A ship left Tillam half empty, bound for a rock no one has charted. Those who stayed sold spare food to afford staying. Food there costs less and pays less. The departure form was filed in advance. The return form was not.
+EV16 | A ship leaves Tillam half empty | [price down: Tillam, food] | Q
+A ship left Tillam half empty, bound for a rock nobody has charted. The people who stayed sold their spare food to pay for staying. Food there costs less and pays less. The departure form was filed in advance. The return form was not.
 
 # Events, choice events (draft 1, T96 T100 T103 T108, 2026-10-28)
 
 Format: ID | place | tag, then text. Choice events use the choice screen limits: title max 40, body max 280, button max 28, effect line max 90. Outcome texts are event popups: title max 32, text max 280, shown under NOT_EVENT_PREFIX with BTN_OK. No numbers: the game inserts any amount through a placeholder. Tags name the effect in words as the owner described it; the Economy Designer sets size and duration. Planet = {planet}.
 
 ## Debris in orbit [route efficiency down: {planet}, while the debris stays]
-EV17_TITLE | choice title | Debris over {planet}
-EV17_BODY | choice body | A cloud of broken hull and spent tanks has settled into orbit over {planet}. A contractor offers to clear it for a fee. The Bureau has filed the debris as "unowned", which is how it stayed.
+EV17_TITLE | choice title | Wreckage is circling {planet}
+EV17_BODY | choice body | The wreck of a hundred ships has settled into orbit over {planet}, hull plates and spent tanks turning slowly. A contractor will sweep it for a fee. The Bureau filed the wreck as unowned, which is how it stayed up there.
 EV17_PAY_BTN | button | Pay the fee
 EV17_PAY_EFF | effect line | Pay the fee. The debris is cleared and routes from {planet} run as before.
 EV17_LEAVE_BTN | button | Leave the debris
 EV17_LEAVE_EFF | effect line | Routes from {planet} carry less while the debris stays. It does not clear itself.
 EV17_PAID_TITLE | popup title | Orbit over {planet} is clear
-EV17_PAID | popup | The contractor swept the orbit and signed the form. Routes from {planet} carry their full load again. The debris went somewhere. The form does not say where.
+EV17_PAID | popup | The contractor swept the orbit and filed the receipt. Routes from {planet} carry their full load again. The wreck went somewhere. The receipt does not say where.
 EV17_LEFT_TITLE | popup title | Debris stays over {planet}
-EV17_LEFT | popup | You left the debris. Ships from {planet} thread around it and carry less. The offer stays open. The debris turns slowly, in no hurry.
+EV17_LEFT | popup | You left the wreck. Ships from {planet} thread around it and carry less. The offer stays open. The wreck turns slowly, in no hurry to leave.
 
 ## Solar shield [shield built: affects only planets the player can buy later; residents unhappy]
-EV18_TITLE | choice title | A shield for the sun
-EV18_BODY | choice body | Engineers propose a partial shield over the sun. Residents dislike it. It would change the resource mix on planets you can buy later: some resources fall, and you earn more profit and energy there. Planets you already own are not affected.
+EV18_TITLE | choice title | Shade the sun
+EV18_BODY | choice body | Engineers want to shade part of the sun with a shield. The residents hate it and say so in writing. It would reshape the markets on planets you can buy later: some goods get cheaper, while profit and energy rise. What you already own stays as it is.
 EV18_BUILD_BTN | button | Build the shield
 EV18_BUILD_EFF | effect line | Planets you can buy later change: some resources drop, profit and energy rise.
-EV18_SKIP_BTN | button | Do not build
+EV18_SKIP_BTN | button | Leave the sun alone
 EV18_SKIP_EFF | effect line | Nothing changes. The sun keeps its full light.
 EV18_BUILT_TITLE | popup title | The shield is up
-EV18_BUILT | popup | The shield is in place. Residents are unhappy and say so, in writing. On planets you can buy later, some resources fall, and profit and energy rise. Planets you own are unchanged. The sky is a little dimmer.
+EV18_BUILT | popup | The shield is up and the sky is dimmer. Residents are furious and have filed it in triplicate. On planets you can buy later, some goods get cheaper while profit and energy climb. Planets you own are untouched.
 EV18_SKIPPED_TITLE | popup title | The shield stays on paper
-EV18_SKIPPED | popup | The plans go back into the cabinet. Residents are relieved and file no thanks. Nothing changes in any market.
+EV18_SKIPPED | popup | The plans go back in a drawer. The residents are relieved and file no thanks. Nothing changes in any market.
 
 ## Nomads and pirates [choice: evict nomads or let them stay; pirates reduce trade volume; hire to clear pirates, at a cost]
 EV19_TITLE | choice title | Nomads on the asteroids
-EV19_BODY | choice body | Nomad families live on the asteroids you could mine. They have no entry on the Common Ledger, which the Bureau regards as a personal failing. You can evict them and mine the rock, or let them stay.
+EV19_BODY | choice body | Nomad families live on the asteroids you could mine. They are not on the Common Ledger, which the Bureau takes as a personal failing. Evict them and the rock is yours. Or let them stay and keep their lamps burning.
 EV19_EVICT_BTN | button | Evict the nomads
 EV19_EVICT_EFF | effect line | The asteroids open for mining. Some nomads turn to piracy, and pirates rise.
 EV19_STAY_BTN | button | Let them stay
 EV19_STAY_EFF | effect line | The asteroids stay closed to mining. No pirates come of it.
 EV19_EVICTED_TITLE | popup title | The asteroids are cleared
-EV19_EVICTED | popup | The nomads left on the next tide, quietly. The rock is yours to mine. Some of them did not go far, and they now keep ships and a grudge. Pirates rise.
+EV19_EVICTED | popup | The nomads left on the next tide, quietly. The rock is yours to mine. Some did not go far, and they now keep ships and a grudge. Pirates rise.
 EV19_STAYED_TITLE | popup title | The nomads stay
 EV19_STAYED | popup | You let the nomads stay. Their lamps burn on the rock, small and steady. The asteroids remain closed to mining.
 EV19_PIRATES_TITLE | popup title | Pirates reduce trade
@@ -98,7 +98,7 @@ EV19_HIRE_EFF | effect line | Pay to have the pirates cleared. It costs credits 
 
 ## Asteroid approach [warning; pay the state: no skill point, no reputation; decline: 50/50 bad outcome or nothing; bad outcome is storage destroyed or storage capacity cut]
 EV20_TITLE | choice title | An asteroid is approaching
-EV20_BODY | choice body | The Bureau reports an asteroid on a slow path toward the system. The state can deflect it for a payment. The form for refusing is shorter than the form for paying. The dark outside has begun to look closer.
+EV20_BODY | choice body | A rock is coming in on a slow path, and the Bureau has noticed it the way it notices everything: late. The state can turn it aside for a fee. The form for refusing is shorter. The dark outside has started to look closer.
 EV20_PAY_BTN | button | Pay the state
 EV20_PAY_EFF | effect line | Cost: payment to the state. Asteroid dealt with. The company gains one expansion point.
 EV20_DECLINE_BTN | button | Decline

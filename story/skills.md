@@ -38,8 +38,8 @@ Plain: Shows the next event one cycle before it happens.
 
 ## Expansion (reach)
 C1 | Permit Charter
-Flavour: A stamp is also a kind of door. Keep the stamp warm.
-Plain: Lets you buy permits to open new systems. Permits cost skill points and credits.
+Flavour: The Bureau opens the sky one form at a time. This is the first form.
+Plain: Unlocks permits. Each permit opens a new system to your routes and costs credits and skill points.
 
 C2 | Survey Beacon
 Flavour: Better to know a place before it counts you.

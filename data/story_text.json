@@ -858,6 +858,48 @@
   "place": "Planet panel, resident unhappiness line when above zero; {value} is a percent"
  },
  {
+  "id": "NOT_SKILL_POP_TITLE",
+  "text": "Skill point earned: +{points}",
+  "max": 32,
+  "place": "Pop-up title when expansion points are earned; {points} is the number earned"
+ },
+ {
+  "id": "TUT_G1_SELECT",
+  "text": "Click a planet. Its panel shows what it makes, what it lacks and what it sells for.",
+  "max": 110,
+  "place": "Guided step 1, until a planet is clicked"
+ },
+ {
+  "id": "TUT_G2_BUY",
+  "text": "Turn Buy on beside a good. Each cycle the company buys it here, into storage.",
+  "max": 110,
+  "place": "Guided step 2, until Buy is on for a good"
+ },
+ {
+  "id": "TUT_G3_SEND",
+  "text": "On that storage row, click Send to..., then click another planet. Stock moves there each cycle.",
+  "max": 110,
+  "place": "Guided step 3, until a route exists"
+ },
+ {
+  "id": "TUT_G4_SELL",
+  "text": "Turn Sell on at the other planet. The company sells what arrives, at that planet's price.",
+  "max": 110,
+  "place": "Guided step 4, until Sell is on somewhere"
+ },
+ {
+  "id": "TUT_G5_SKILLS",
+  "text": "Skill points come from planets, routes and systems. Open Skills and learn one.",
+  "max": 110,
+  "place": "Guided step 5, until a skill is learned"
+ },
+ {
+  "id": "TUT_G6_DONE",
+  "text": "That is the loop: buy, move, sell, learn. The guidance stops here. The Plan has nothing to add.",
+  "max": 110,
+  "place": "Guided step 6, after step 5"
+ },
+ {
   "id": "SK_HEADER",
   "text": "Skills",
   "max": 24,
@@ -1321,13 +1363,13 @@
  },
  {
   "id": "SK_C1_FLAVOUR",
-  "text": "A stamp is also a kind of door. Keep the stamp warm.",
+  "text": "The Bureau opens the sky one form at a time. This is the first form.",
   "max": 90,
   "place": "Skill screen, detail panel"
  },
  {
   "id": "SK_C1_PLAIN",
-  "text": "Lets you buy permits to open new systems. Permits cost skill points and credits.",
+  "text": "Unlocks permits. Each permit opens a new system to your routes and costs credits and skill points.",
   "max": 110,
   "place": "Skill screen, detail panel"
  },
@@ -1387,13 +1429,13 @@
  },
  {
   "id": "EV17_TITLE",
-  "text": "Debris over {planet}",
+  "text": "Wreckage is circling {planet}",
   "max": 40,
   "place": "choice title"
  },
  {
   "id": "EV17_BODY",
-  "text": "A cloud of broken hull and spent tanks has settled into orbit over {planet}. A contractor offers to clear it for a fee. The Bureau has filed the debris as \"unowned\", which is how it stayed.",
+  "text": "The wreck of a hundred ships has settled into orbit over {planet}, hull plates and spent tanks turning slowly. A contractor will sweep it for a fee. The Bureau filed the wreck as unowned, which is how it stayed up there.",
   "max": 280,
   "place": "choice body"
  },
@@ -1429,7 +1471,7 @@
  },
  {
   "id": "EV17_PAID",
-  "text": "The contractor swept the orbit and signed the form. Routes from {planet} carry their full load again. The debris went somewhere. The form does not say where.",
+  "text": "The contractor swept the orbit and filed the receipt. Routes from {planet} carry their full load again. The wreck went somewhere. The receipt does not say where.",
   "max": 280,
   "place": "popup"
  },
@@ -1441,19 +1483,19 @@
  },
  {
   "id": "EV17_LEFT",
-  "text": "You left the debris. Ships from {planet} thread around it and carry less. The offer stays open. The debris turns slowly, in no hurry.",
+  "text": "You left the wreck. Ships from {planet} thread around it and carry less. The offer stays open. The wreck turns slowly, in no hurry to leave.",
   "max": 280,
   "place": "popup"
  },
  {
   "id": "EV18_TITLE",
-  "text": "A shield for the sun",
+  "text": "Shade the sun",
   "max": 32,
   "place": "choice title"
  },
  {
   "id": "EV18_BODY",
-  "text": "Engineers propose a partial shield over the sun. Residents dislike it. It would change the resource mix on planets you can buy later: some resources fall, and you earn more profit and energy there. Planets you already own are not affected.",
+  "text": "Engineers want to shade part of the sun with a shield. The residents hate it and say so in writing. It would reshape the markets on planets you can buy later: some goods get cheaper, while profit and energy rise. What you already own stays as it is.",
   "max": 280,
   "place": "choice body"
  },
@@ -1471,7 +1513,7 @@
  },
  {
   "id": "EV18_SKIP_BTN",
-  "text": "Do not build",
+  "text": "Leave the sun alone",
   "max": 28,
   "place": "button"
  },
@@ -1489,7 +1531,7 @@
  },
  {
   "id": "EV18_BUILT",
-  "text": "The shield is in place. Residents are unhappy and say so, in writing. On planets you can buy later, some resources fall, and profit and energy rise. Planets you own are unchanged. The sky is a little dimmer.",
+  "text": "The shield is up and the sky is dimmer. Residents are furious and have filed it in triplicate. On planets you can buy later, some goods get cheaper while profit and energy climb. Planets you own are untouched.",
   "max": 280,
   "place": "popup"
  },
@@ -1501,7 +1543,7 @@
  },
  {
   "id": "EV18_SKIPPED",
-  "text": "The plans go back into the cabinet. Residents are relieved and file no thanks. Nothing changes in any market.",
+  "text": "The plans go back in a drawer. The residents are relieved and file no thanks. Nothing changes in any market.",
   "max": 280,
   "place": "popup"
  },
@@ -1513,7 +1555,7 @@
  },
  {
   "id": "EV19_BODY",
-  "text": "Nomad families live on the asteroids you could mine. They have no entry on the Common Ledger, which the Bureau regards as a personal failing. You can evict them and mine the rock, or let them stay.",
+  "text": "Nomad families live on the asteroids you could mine. They are not on the Common Ledger, which the Bureau takes as a personal failing. Evict them and the rock is yours. Or let them stay and keep their lamps burning.",
   "max": 280,
   "place": "choice body"
  },
@@ -1549,7 +1591,7 @@
  },
  {
   "id": "EV19_EVICTED",
-  "text": "The nomads left on the next tide, quietly. The rock is yours to mine. Some of them did not go far, and they now keep ships and a grudge. Pirates rise.",
+  "text": "The nomads left on the next tide, quietly. The rock is yours to mine. Some did not go far, and they now keep ships and a grudge. Pirates rise.",
   "max": 280,
   "place": "popup"
  },
@@ -1597,7 +1639,7 @@
  },
  {
   "id": "EV20_BODY",
-  "text": "The Bureau reports an asteroid on a slow path toward the system. The state can deflect it for a payment. The form for refusing is shorter than the form for paying. The dark outside has begun to look closer.",
+  "text": "A rock is coming in on a slow path, and the Bureau has noticed it the way it notices everything: late. The state can turn it aside for a fee. The form for refusing is shorter. The dark outside has started to look closer.",
   "max": 280,
   "place": "choice body"
  },

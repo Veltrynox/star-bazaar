@@ -241,3 +241,14 @@ LBL_PERMIT_PLANETS | 110 | Skill screen, permit entry, shown once Survey Beacon 
 ## Last fallbacks (2026-10-31, Alpha)
 LBL_UNKNOWN | 24 | Galaxy view, label for a system not yet permitted | ?
 PLANET_UNHAPPY | 110 | Planet panel, resident unhappiness line when above zero; {value} is a percent | Resident unhappiness: {value}
+
+## Skill point pop-up (2026-10-31, owner item 5)
+NOT_SKILL_POP_TITLE | 32 | Pop-up title when expansion points are earned; {points} is the number earned | Skill point earned: +{points}
+
+## Guided first steps (T124, 2026-10-31, owner item 3; shown one at a time, each moves on when done)
+TUT_G1_SELECT | 110 | Guided step 1, until a planet is clicked | Click a planet. Its panel shows what it makes, what it lacks and what it sells for.
+TUT_G2_BUY | 110 | Guided step 2, until Buy is on for a good | Turn Buy on beside a good. Each cycle the company buys it here, into storage.
+TUT_G3_SEND | 110 | Guided step 3, until a route exists | On that storage row, click Send to..., then click another planet. Stock moves there each cycle.
+TUT_G4_SELL | 110 | Guided step 4, until Sell is on somewhere | Turn Sell on at the other planet. The company sells what arrives, at that planet's price.
+TUT_G5_SKILLS | 110 | Guided step 5, until a skill is learned | Skill points come from planets, routes and systems. Open Skills and learn one.
+TUT_G6_DONE | 110 | Guided step 6, after step 5 | That is the loop: buy, move, sell, learn. The guidance stops here. The Plan has nothing to add.
