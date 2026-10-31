@@ -1,58 +1,58 @@
 [
  {
   "id": "EV01",
-  "title": "Energy glut at Voltara",
+  "title": "Voltara's reactors overflow",
   "tag": "[price down: Voltara, energy]",
   "kind": "P",
-  "text": "Voltara's reactors beat their quota by a wide margin, and nobody asked for the surplus. Energy there costs less to buy and pays less to sell. The Plan calls it a triumph. The reactors hum a little louder, as if pleased.",
+  "text": "Voltara's reactors ran past quota and kept running. Nobody ordered the surplus, so energy there is cheap now, and the reactors hum louder, pleased with themselves. Buy while the Plan argues about it.",
   "choices": []
  },
  {
   "id": "EV02",
-  "title": "Blight on Tillam's terraces",
+  "title": "Grey blight on Tillam's terraces",
   "tag": "[price up: Tillam, food]",
   "kind": "P",
-  "text": "A blight went through the Tillam terraces, grey and fast, and the leaves came away like paper. Food there costs more and pays more. The committee will study it. The terraces will not wait for the study.",
+  "text": "A grey blight is eating Tillam's terraces. Leaves come apart like wet paper. Food there is dear now and pays well. The committee will study the blight. The blight will not wait for the committee.",
   "choices": []
  },
  {
   "id": "EV03",
-  "title": "A good harvest at Ashgate",
+  "title": "Ashgate's harvest comes in heavy",
   "tag": "[price down: Ashgate, food]",
   "kind": "P",
-  "text": "Ashgate's harvest came in above the Plan. Food there costs less to buy and pays less to sell. A surplus is a fine thing to share, and a poor thing to sell. The Bureau has issued a form for gratitude.",
+  "text": "Ashgate brought in more than the Plan allowed for. Food there is cheap to buy and pays little to sell. A surplus is a gift to the Commons. A surplus that nobody moves is a loss, and someone has to move it.",
   "choices": []
  },
  {
   "id": "EV04",
-  "title": "Voltara goes hungry",
+  "title": "Voltara's crews go hungry",
   "tag": "[price up: Voltara, food]",
   "kind": "P",
-  "text": "The crews on Voltara work long shifts and eat what arrives. Less arrived. Food there costs more and pays more. Rations were reduced equally for everyone, which is what makes it fair and not what makes it better.",
+  "text": "Voltara's crews are on long shifts and short rations. Less food arrived than was counted. Food there costs more and pays more. The Bureau cut every ration by the same amount, which it calls fair. Hungry people call it hunger.",
   "choices": []
  },
  {
   "id": "EV05",
-  "title": "Cold season on Tillam",
+  "title": "Frost on Tillam",
   "tag": "[price up: Tillam, energy]",
   "kind": "P",
-  "text": "A cold season on Tillam. The heaters run day and night, so energy there costs more and pays more. Frost forms on the inside of the ducts, in patterns no one has agreed to explain.",
+  "text": "Winter came early to Tillam. The heaters run day and night, so energy there costs more and pays more. Frost has begun to grow inside the ducts, in patterns no one has agreed to explain. Someone must keep the lights on.",
   "choices": []
  },
  {
   "id": "EV06",
-  "title": "Ashgate lights its furnaces",
+  "title": "Ashgate lights every furnace",
   "tag": "[price up: Ashgate, energy]",
   "kind": "P",
-  "text": "Ashgate's foundries restarted all at once to meet the new plan. Energy there costs more and pays more. The furnaces are very bright. Nobody asked where the energy would come from. That is where a small company comes in.",
+  "text": "Ashgate restarted every foundry at once to meet a plan that arrived this morning. Energy there costs more and pays more. The furnaces glare through the smoke. Nobody asked where the energy comes from. Someone with a ship will carry it.",
   "choices": []
  },
  {
   "id": "EV07",
-  "title": "Tillam stops work",
+  "title": "Tillam's docks go on strike",
   "tag": "[planet closed: Tillam]",
   "kind": "P",
-  "text": "Tillam's dock workers stopped work over a dispute the committee calls a misunderstanding. The port is closed for a while. Routes touching Tillam are blocked until it reopens. The ships do not take sides.",
+  "text": "The dock crews of Tillam walked out, and the committee calls it a misunderstanding. The port is closed for a while. Routes touching Tillam are blocked until it reopens. The ships wait outside, and they do not take sides.",
   "choices": []
  },
  {
@@ -60,47 +60,47 @@
   "title": "Ashgate seals its port",
   "tag": "[planet closed: Ashgate]",
   "kind": "P",
-  "text": "Ashgate sealed its port after something unnamed was found in the lower docks, and the doctors say little. It reopens when they say so. Routes touching Ashgate are blocked until then. Caution is shared equally, including by you.",
+  "text": "Something was found in Ashgate's lower docks, and the doctors will say only that the port is closed. It reopens when they say so. Routes touching Ashgate are blocked until then. Caution is shared equally, and so is the fear.",
   "choices": []
  },
  {
   "id": "EV09",
-  "title": "Voltara's grid fails",
+  "title": "Voltara goes dark",
   "tag": "[planet closed: Voltara]",
   "kind": "I",
-  "text": "A fault in Voltara's grid took the port with it. The planet that powers everyone cannot keep its own lights on. Closed for a while. Routes touching Voltara are blocked until it reopens. The Plan will be revised, backwards.",
+  "text": "A fault in Voltara's grid took the port down with it. The planet that powers everyone cannot keep its own lights on. Closed for a while. Routes touching Voltara are blocked until it reopens. The Plan will be revised, backwards.",
   "choices": []
  },
  {
   "id": "EV10",
-  "title": "The lender walks the market",
+  "title": "A lender walks Tillam's market",
   "tag": "[price down: Tillam, energy]",
   "kind": "Q",
-  "text": "A lender's agent walked Tillam's market, and everyone sold what they had to settle. Energy there costs less and pays less for now. Even in a society that owns everything together, someone has found a way to owe.",
+  "text": "A lender's agent walked Tillam's market and bought up every debt in sight. Sellers settled what they owed and sold what they had. Energy there costs less and pays less for now. Even a society that owns everything together can find a way to owe.",
   "choices": []
  },
  {
   "id": "EV11",
-  "title": "A foreman says enough",
+  "title": "Ashgate's foreman says enough",
   "tag": "[price down: Ashgate, energy]",
   "kind": "Q",
-  "text": "An Ashgate foreman declared that the shift had made enough and sent everyone home. Energy there costs less and pays less. Enough is a number the Plan does not print. It spread through the docks faster than the form to stop it.",
+  "text": "An Ashgate foreman looked at the numbers, declared the shift had made enough, and sent the crews home. Energy there costs less and pays less. Enough is a figure the Plan does not print. The word moved through the docks faster than any form.",
   "choices": []
  },
  {
   "id": "EV12",
-  "title": "Good news travels slowly",
+  "title": "Voltara buys before the news",
   "tag": "[price up: Voltara, energy]",
   "kind": "Q",
-  "text": "Word from other systems arrives late, and Voltara's buyers stopped waiting for it. They bought, so energy there costs more and pays more. Out past the beacons the dark is patient. It has always been the one thing nobody has to share.",
+  "text": "Word from the other systems arrives late, and Voltara's buyers would not wait for it. They bought, so energy there costs more and pays more. Out past the beacons the dark is patient. It is the one thing nobody has been asked to share.",
   "choices": []
  },
  {
   "id": "EV13",
-  "title": "A family buys the table",
+  "title": "A family buys Ashgate's food",
   "tag": "[price up: Ashgate, food]",
   "kind": "Q",
-  "text": "A family with old credits bought Ashgate's food contracts, all of them, quietly. Food there costs more and pays more. The Commons owns everything together, and a family has found the part that is still for sale. You are in no position to judge.",
+  "text": "A family with old credits quietly bought up Ashgate's food contracts, all of them. Food there costs more and pays more. The Commons owns everything together, and here is a part still for sale. You are in no position to judge.",
   "choices": []
  },
  {
@@ -108,23 +108,23 @@
   "title": "The inspector's count",
   "tag": "[price down: Voltara, food]",
   "kind": "I",
-  "text": "An inspector counted Voltara's food stores and found them sufficient, on a form. The market believed the form, so food there costs less and pays less. The crews are still hungry, but correctly accounted for.",
+  "text": "An inspector counted Voltara's food stores and found them sufficient, on a form. The market believed the form, so food there costs less and pays less. The crews are still hungry, now correctly accounted for.",
   "choices": []
  },
  {
   "id": "EV15",
-  "title": "A festival of founders",
+  "title": "Tillam's festival of founders",
   "tag": "[price up: Tillam, food]",
   "kind": "I",
-  "text": "Tillam declared a festival to honour its founding, though three committees claim to be the founders. Food there costs more and pays more. Everyone agrees on the feast. Nobody agrees on who is hosting, so everyone is.",
+  "text": "Tillam declared a festival to honour its founders. Three committees claim to be them. Food there costs more and pays more. Everyone agrees on the feast. Nobody agrees who is hosting, so everyone is, and nobody is clearing the tables.",
   "choices": []
  },
  {
   "id": "EV16",
-  "title": "A half-empty ship departs",
+  "title": "A ship leaves Tillam half empty",
   "tag": "[price down: Tillam, food]",
   "kind": "Q",
-  "text": "A ship left Tillam half empty, bound for a rock no one has charted. Those who stayed sold spare food to afford staying. Food there costs less and pays less. The departure form was filed in advance. The return form was not.",
+  "text": "A ship left Tillam half empty, bound for a rock nobody has charted. The people who stayed sold their spare food to pay for staying. Food there costs less and pays less. The departure form was filed in advance. The return form was not.",
   "choices": []
  },
  {
