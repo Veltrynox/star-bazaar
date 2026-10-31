@@ -43,6 +43,9 @@ extends SceneTree
 ##   --force-goal=<cycle>    turns on the debug "Force goal at cycle end" toggle at that cycle
 ##                           (debug builds only; QA reaches the choice early)
 ##   --inject=<cycle>:<credits>  QA test input: credits added at the start of that cycle
+##   --skills=<id,id,...>    only these skills may be learned (empty value: none). Default: all.
+##   --skill-order=<id,...>  learn these first, in this order, then the rest in tree order.
+##   --permit=<system id>    buy that system's permit as soon as the game allows it (needs C1).
 ##
 ## Run (from the repo root, or through qa/bots/run_batch.sh which also uses a scratch HOME):
 ##   HOME=<scratch dir> tools/godot/Godot.app/Contents/MacOS/Godot --headless --path . \
@@ -72,6 +75,9 @@ var inject_cycle := -1
 var inject_cash := 0
 var bad_args := false
 var skip_skills: Array = []  # QA option --skip-skill=A3,... (never learn these ids)
+var only_skills: Array = []  # QA option --skills=... (empty: every skill may be learned)
+var skill_order: Array = []  # QA option --skill-order=... (learned first, in this order)
+var permit_sid := -1  # QA option --permit=<system id>
 var rng := RandomNumberGenerator.new()
 var main: Node = null
 var phase := 0
@@ -125,6 +131,12 @@ func _initialize() -> void:
 			force_cycle = int(arg.trim_prefix("--force-goal="))
 		elif arg.begins_with("--skip-skill="):
 			skip_skills = Array(arg.trim_prefix("--skip-skill=").split(","))
+		elif arg.begins_with("--skills="):
+			only_skills = _csv(arg.trim_prefix("--skills="))
+		elif arg.begins_with("--skill-order="):
+			skill_order = _csv(arg.trim_prefix("--skill-order="))
+		elif arg.begins_with("--permit="):
+			permit_sid = int(arg.trim_prefix("--permit="))
 		elif arg.begins_with("--inject="):
 			var parts := arg.trim_prefix("--inject=").split(":")
 			inject_cycle = int(parts[0])
@@ -295,6 +307,7 @@ func _decide(c: int) -> void:
 		_buy_ship_at(_mission_planet(), c)  # tutorial: the first ship is bought at the mission planet
 	if strategy != "sloppy":
 		_learn_skills()
+	_buy_wanted_permit()
 	var plan := _plan()
 	_expand(plan, c)
 	var active := _sync_lanes(plan)
@@ -496,13 +509,50 @@ func _set_order(p: int, c: String, role: String, on: bool) -> void:
 
 ## Skills cost points only (no cash). Learns in tree order, restarting after each purchase so
 ## prerequisites unlock. Uses the same call as the skill screen.
+func _csv(text: String) -> Array:
+	var out: Array = []
+	for part in text.split(","):
+		if part.strip_edges() != "":
+			out.append(part.strip_edges())
+	return out
+
+
+## QA: buy the --permit system as soon as the game allows it. Returns true when it bought.
+func _buy_wanted_permit() -> bool:
+	if permit_sid < 0 or main.open_systems.has(permit_sid):
+		return false
+	if not bool(main.can_buy_permit(permit_sid).get("ok", false)):
+		return false
+	var r: Dictionary = main.buy_permit(permit_sid)
+	if r.get("ok", false):
+		notes.append("permit %d bought at cycle %d" % [permit_sid, main.cycle])
+		_count("permit_buy", main.cycle)
+	return bool(r.get("ok", false))
+
+
+## QA: skill points held back for the --permit system (only once C1 is learned, since C1 unlocks permits).
+func _permit_reserve() -> int:
+	if permit_sid < 0 or main.open_systems.has(permit_sid) or not main.learned_skills.has("C1"):
+		return 0
+	return _permit_points()
+
+
+func _permit_points() -> int:
+	return int(main.balance.get("permit_points_2", 0)) if permit_sid == 2 else int(main.balance.get("permit_points_3", 0))
+
+
 func _learn_skills() -> void:
 	var learned := true
+	var order: Array = skill_order + SkillTree.all_ids()
 	while learned:
 		learned = false
-		for id in SkillTree.all_ids():
+		for id in order:
 			if main.learned_skills.has(id) or skip_skills.has(id):
 				continue
+			if not only_skills.is_empty() and not only_skills.has(id):
+				continue
+			if _permit_reserve() > 0 and main.skill_points - SkillTree.cost(main.balance, id) < _permit_reserve():
+				continue  # QA: keep the points the wanted permit needs
 			var r: Dictionary = main.learn_skill(id)
 			if r["ok"]:
 				skills_learned.append([main.cycle, id])
