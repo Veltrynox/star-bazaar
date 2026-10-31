@@ -234,3 +234,4 @@ EVT_NEXT_DUE | 110 | Notice, Event Forecast (B4), posted one cycle before an eve
 LBL_PRICE_HISTORY | 110 | Planet panel, Market Ledger (B1), under the prices; {prices} is a list of sell prices | Recent sell prices: {prices}.
 LBL_PRICE_HISTORY_NONE | 110 | Planet panel, Market Ledger (B1), before the first cycle closes | Recent sell prices: none yet.
 LBL_NEXT_PRICE | 110 | Planet panel, Price Whisper (B3), prices for the next cycle; {buy} and {sell} are credits | Next cycle: {buy} cr to buy, {sell} cr to sell.
+LBL_PERMIT_PLANETS | 110 | Skill screen, permit entry, shown once Survey Beacon (C2) is learned and before the permit is bought; {names} is a list of planet names | Planets in this system: {names}.

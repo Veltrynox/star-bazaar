@@ -834,6 +834,12 @@
   "place": "Planet panel, Price Whisper (B3), prices for the next cycle; {buy} and {sell} are credits"
  },
  {
+  "id": "LBL_PERMIT_PLANETS",
+  "text": "Planets in this system: {names}.",
+  "max": 110,
+  "place": "Skill screen, permit entry, shown once Survey Beacon (C2) is learned and before the permit is bought; {names} is a list of planet names"
+ },
+ {
   "id": "SK_HEADER",
   "text": "Skills",
   "max": 24,
@@ -1321,7 +1327,7 @@
  },
  {
   "id": "SK_C2_PLAIN",
-  "text": "Shows the planets of a permitted system before your first visit.",
+  "text": "Shows the planets of a system before you buy its permit.",
   "max": 110,
   "place": "Skill screen, detail panel"
  },

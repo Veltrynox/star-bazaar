@@ -43,7 +43,7 @@ Plain: Lets you buy permits to open new systems. Permits cost skill points and c
 
 C2 | Survey Beacon
 Flavour: Better to know a place before it counts you.
-Plain: Shows the planets of a permitted system before your first visit.
+Plain: Shows the planets of a system before you buy its permit.
 
 C3 | Long Haul
 Flavour: Distance is only a long way of saying not yet, and not on the ledger.

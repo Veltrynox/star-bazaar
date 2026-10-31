@@ -1008,6 +1008,16 @@ func _test_skill_effects() -> void:
 	var cap1: int = m.storage.capacity_of(key0)
 	check(cap1 == int(round(float(cap0) * (1.0 + float(bal["skill_A2_capacity"])))) and cap1 > cap0, "A2: planet storage capacity raised by skill_A2_capacity", "%d -> %d" % [cap0, cap1])
 	check(m.storage.capacity_of("system:1") == int(bal["space_storage_capacity"]), "A2: Space Storage capacity unchanged")
+	# C2 Survey Beacon: planet names of a system shown in its permit entry before the permit
+	m.learned_skills.append("C2")
+	m.skill_screen.refresh()
+	var seen_txt := ""
+	for lbl in _labels(m.skill_screen.permit_box, []):
+		if lbl.text.contains("Brannock"):
+			seen_txt = lbl.text
+	check(seen_txt.contains("Brannock") and seen_txt.contains("Quillon"), "C2: permit entry lists system 2 planets before the permit", seen_txt)
+	m.learned_skills.erase("C2")
+	m.skill_screen.refresh()
 	# C4 Colonial Rights: permit price, through the same function the permit uses
 	m.learned_skills.append("C1")
 	check(m.permit_cost(2) == int(bal["permit_2_cost"]), "C4: permit at data price without C4")

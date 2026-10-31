@@ -130,6 +130,15 @@ func _build_permits() -> void:
 		desc.text = StoryText.get_text(str(sys.get("permit_desc_id", "")))
 		info.add_child(desc)
 		var v: Dictionary = main.can_buy_permit(int(sid))
+		if main.has_skill("C2") and not main.open_systems.has(int(sid)):  # C2 Survey Beacon: planets seen before the permit
+			var names := []
+			for p in main.Systems.planets_of(int(sid)):
+				names.append(str(p["name"]))
+			var seen := Label.new()
+			seen.theme_type_variation = "LabelSmall"
+			seen.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			seen.text = StoryText.get_text("LBL_PERMIT_PLANETS", {"names": ", ".join(names)})
+			info.add_child(seen)
 		var cost_l := Label.new()
 		cost_l.theme_type_variation = "LabelSmall"
 		# FALLBACK: no story ids for the permit cost line or the reasons; plain text until the story designer adds them
