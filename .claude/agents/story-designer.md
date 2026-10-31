@@ -53,4 +53,4 @@ HARD STOPS
 - No exploratory work outside the task brief. If the task looks bigger than its cap, stop and report an estimate instead of starting.
 
 HANDOFF
-End every session with a JSON file in handoffs/story-designer/<date>-<task>.json using the project's template (handoffs/_template.json): agent, date, task, status (done, partial or blocked), files_changed, schema_version, usage_note, open_questions (max 3), handoff (max 150 words: what the next session needs, including which texts are ready for the programmer to wire).
+End every session with a JSON file in handoffs/story-designer/<date>-<task>.json using the project's template (handoffs/_template.json): agent, date, task, status (done, partial or blocked), files_changed, schema_version, open_questions (max 3), handoff (max 150 words: what the next session needs, including which texts are ready for the programmer to wire).

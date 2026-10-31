@@ -1,10 +1,6 @@
 # Star Bazaar: project state
 Keep under 40 lines. Workflow: gdd-process.md. Detail in handoffs.
 
-## Meter
-- 2026-10-26 (owner): session 67% (resets 1pm America/Toronto); weekly 9% (resets Nov 1).
-- 2026-10-28: owner has not reported a figure. UNKNOWN. Start nothing at about 80% of a window. UNKNOWN: whether the 68% cap uses per-agent 24h (36%) or weekly (9%).
-
 ## Queue (detail: schedule.json)
 - Done 2026-10-28: T90, T92, T93, T97.
 - Running, handoff file MISSING (stay running): T96, T99, T100, T102, T103, T107, T108.

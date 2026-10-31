@@ -18,7 +18,6 @@ Every agent session ends with a handoff. A handoff is the only thing the next se
 | `task` | One line, copied from the task `title` in `schedule.json`. |
 | `status` | `done`, `partial` or `blocked`. |
 | `files_changed` | Paths relative to the project root. Empty list if none. |
-| `usage_note` | Rough percent of the meter used this session, for example `"~15%"`. |
 | `open_questions` | Maximum 3 strings. Use `"UNKNOWN"` for anything not known, and list it here. Empty list if none. |
 | `handoff` | Maximum 150 words. What the next session needs, and nothing else. |
 | `details` | Agent-specific data. See below. Keep the keys listed for that agent. |
@@ -41,7 +40,6 @@ Prose is limited to 200 words, except `handoff`, which is limited to 150.
 - **producer**
   - `started`, `stopped`: lists of `task_id`.
   - `blocked`: list of `{ "task_id", "reason" }`.
-  - `meter_reported`: the figure the owner gave at the start of the window.
 
 ## Example
 
@@ -53,7 +51,6 @@ Prose is limited to 200 words, except `handoff`, which is limited to 150.
   "task": "Retune food margin to hit win window",
   "status": "done",
   "files_changed": ["data/balance.json"],
-  "usage_note": "~8%",
   "open_questions": ["UNKNOWN: whether saturation applies per route or per system"],
   "handoff": "food_sell raised to 21. Bot sims now win at cycles 26 to 28. Next: check the always-expand strategy still loses.",
   "details": {

@@ -35,4 +35,4 @@ Context rules: your task is in the launch prompt; if not, run `python3 tools/tas
 - Never re-read a file already read this session. No exploratory work.
 - Unknowns: "UNKNOWN" under `open_questions`. Prose max 200 words.
 - Stop when done or at the turn cap with a handoff; if the task is bigger than its cap, report the estimate to the Producer.
-- End every session with the envelope: agent, date, task, status (done | partial | blocked), files_changed, schema_version, usage_note, open_questions (max 3), handoff (max 150 words).
+- End every session with the envelope: agent, date, task, status (done | partial | blocked), files_changed, schema_version, open_questions (max 3), handoff (max 150 words).

@@ -12,19 +12,17 @@ Project brief (for every agent):
 What it is: Star Bazaar is a single-player space trading game for macOS, built in Godot.
 
 1. Producer - Claude Haiku
-  Role: Plans the work. It turns the build plan into an ordered task queue, keeps schedule.json and state.md up to date, tracks the owner's meter and the 80% stop rule, advises which task runs next, and archives old handoffs. Finished tasks move to handoffs/archive/schedule-done.json to keep schedule.json small. The main session (the agent the owner talks to) is the owner's single point of contact and starts the work agents. The Producer may also start agents when the main session or the owner asks. A start only counts once the agent's handoff file exists, so the Producer must stay alive and check for the file before it ends. It never marks a task running or done without that evidence.
-  Input: The GDD build steps, agent handoffs, the owner's meter report and requests from the main session.
+  Role: Plans the work. It turns the build plan into an ordered task queue, keeps schedule.json and state.md up to date, advises which task runs next, archives old handoffs, and writes each goal's log.md and report.md. Finished tasks move to handoffs/archive/schedule-done.json to keep schedule.json small. The main session (the agent the owner talks to) is the owner's single point of contact and starts the work agents. The Producer may also start agents when the main session or the owner asks. A start only counts once the agent's handoff file exists, so the Producer must stay alive and check for the file before it ends. It never marks a task running or done without that evidence.
+  Input: The GDD build steps, agent handoffs, goal blackboards and requests from the main session.
   Output: A schedule.json file with the task, owner, dependencies and status for each item, a state.md file, and the archive of old handoffs.
-  Effect: Work happens in the right order, the budget never runs out mid-task, and every status in the queue is backed by a handoff file and changed files.
-  Weekly limits of the subscription: 2%
-  Why it exists: Real studios have a producer, not a separate budget person. The budget controller is folded in here: the owner reads the meter and the Producer schedules around it. Status claims need file evidence because in two windows the Producer recorded agents as running when none were alive and no files had changed.
+  Effect: Work happens in the right order, and every status in the queue is backed by a handoff file and changed files.
+  Why it exists: Real studios have a producer. Status claims need file evidence because in two windows the Producer recorded agents as running when none were alive and no files had changed.
 
 2. Systems & Economy Designer - Claude Sonnet
   Role: Owns every number in the game: prices, margins, maintenance, saturation, permits and event effects. It runs a headless paper simulation to test them.
   Input: The balance table, planet data and the QA reports.
   Output: A versioned balance.json file and a short note on what changed and why.
   Effect: Trading stays profitable but never trivial, and the win lands around cycles 25–28.
-  Weekly limits of the subscription: 6%
   Why it exists: The whole game is an economy. If the numbers are wrong, no amount of code or art saves it.
 
 3. Gameplay Programmer - Claude Sonnet
@@ -32,7 +30,6 @@ What it is: Star Bazaar is a single-player space trading game for macOS, built i
   Input: The task brief, the relevant GDD sections, balance.json and the Godot project files.
   Output: Complete Godot scripts and scenes, plus a playable build at the end of each step.
   Effect: Creates the backbone of the game, so every step ends with something the player can play.
-  Weekly limits of the subscription: 40%
   Why it exists: Someone has to build the game. This agent also absorbs UI and platform work, because in Godot both are just scenes and project settings.
 
 4. Technical Artist, Galaxy Builder - Claude Sonnet (essential)
@@ -40,7 +37,6 @@ What it is: Star Bazaar is a single-player space trading game for macOS, built i
   Input: The Godot project, the target look (map screenshot) and a performance budget for macOS.
   Output: A generator script, baked point and grid data, and the shader or material setup.
   Effect: Gives the game its signature look, where distant and hidden stars fall into darkness. The map reads as space, not a spreadsheet.
-  Weekly limits of the subscription: 10%
   Why it exists: This is specialised tech-art work. It has no overlap with gameplay code, so it can run in parallel.
 
 5. QA Analyst - Claude Haiku
@@ -48,7 +44,6 @@ What it is: Star Bazaar is a single-player space trading game for macOS, built i
   Input: The latest build, the bot scripts and the previous report.
   Output: A bug_report.json file with run_id, strategy, final cash, cycle reached, issue_type and severity.
   Effect: Broken or unwinnable runs never reach a human playtester, and balance claims are checked against real runs.
-  Weekly limits of the subscription: 5%
   Why it exists: The agents that build and balance the game shouldn't grade their own work. Studios keep QA separate for exactly that reason.
 
 The Producer keeps one rolling state.md file with only the last 5 handoffs.
@@ -56,9 +51,6 @@ The Producer moves older handoffs into an archive folder that no agent reads by 
 ========================================
 4. CONSTRAINTS
 ========================================
-Agents together may use at most 68% of the weekly meter. The other 32% is reserved and never assigned to an agent.
-The six agents' weekly limits in Section 3 add up to 68%: the four Sonnet agents hold 61% and the two Haiku agents hold 7%.
-
 Hard stops (written into every agent prompt):
   - Stop when the task is done, not when time runs out.
   - Stop at the turn cap even if unfinished; write a handoff
@@ -75,7 +67,6 @@ Every agent ends its session with this envelope, in a JSON file:
   status:         done | partial | blocked
   files_changed:  <list of paths>
   schema_version: <version of any JSON written>
-  usage_note:     <rough % of meter used this session>
   open_questions: <max 3 bullets, or "none">
   handoff:        <max 150 words: what the next session needs>
 
@@ -87,22 +78,19 @@ Rules:
   - Code (Programmer only): full files, no partial snippets,
     one file per change block.
 
-Pro limits come in 5-hour session windows plus the weekly meter, not
-requests per minute. Plan around windows:
-
-  - The Gameplay Programmer gets its own window. Nothing else runs
-    in that window.
-  - Agents are batched: up to 4 per window, run in this order:
-    Economy Designer -> QA Analyst.
-  - Stop starting new agent work when the owner reports a window has
-    passed ~80%; finish the current task and write the handoff. No agent
-    can read the meter, so the owner checks it. The Producer tracks this
-    rule and advises; the main session starts the agents.
   - A task counts as running or done only when the agent's handoff file
     exists and its files_changed are real.
-  - Max 2 agent windows per day, leaving room for my own use.
-  - If a window limit is hit mid-task, the agent's handoff is the
-    restart point. No re-running from scratch.
+  - If a session stops mid-task, the agent's handoff is the restart
+    point. No re-running from scratch.
+
+Goal blackboard (see goals/README.md):
+  - Each /goal run has a folder goals/<goal-slug>/ with blackboard.json
+    (facts, decisions, open questions, claims, artifacts), log.md (one
+    plain-sentence entry per agent step) and report.md (5 lines or fewer).
+  - Agents read the blackboard when their brief lists it, and append only
+    their own entries. They never edit another agent's entries.
+  - The Producer, or the main session, writes log.md and report.md when the
+    goal finishes, then links the result from state.md.
 
 Rules:
   - Start every session fresh with a brief: max 300 words plus the
