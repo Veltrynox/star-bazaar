@@ -1,6 +1,6 @@
 # Skills (draft 2, tone rework)
 
-Format: ID | name (max 24) | flavour (max 90) | plain meaning (max 110). Appears on the skill screen: name on the node, flavour then plain line in the detail panel. Costs and values are shown by the game from data, never written here. Prerequisites as in gdd-skills.md: each node needs the one above it in its branch; C3 also needs A1. The plain line is the only line that states the effect.
+Format: ID | name (max 24) | flavour (max 90) | plain meaning (max 110). Appears on the skill screen: name on the node, flavour then plain line in the detail panel. Costs and values are shown by the game from data, never written here. Prerequisites as in gdd-skills.md: each node needs the one above it in its branch; C3 also needs C2 and A1; C4 needs C2. The plain line is the only line that states the effect.
 
 ## Logistics (how goods move and are kept)
 A1 | Space Storage
@@ -9,32 +9,32 @@ Plain: Unlocks Space Storage, one large company storage per system. Planet stora
 
 A2 | Deep Holds
 Flavour: A shelf is a promise that something will be there. The Plan loves a shelf.
-Plain: Raises the capacity of Company storage on planets.
+Plain: Planet storage holds 50% more. A planet closed by an event reopens one cycle sooner.
 
 A4 | Quick Loading
-Flavour: Dock time is shared time. Spend less of it.
-Plain: A route moves more goods each cycle.
+Flavour: Dock time is shared time. Spend less of it, and the hull hums less.
+Plain: Each ship moves 18 units a cycle instead of 16.
 
 A5 | Drydock Deals
 Flavour: Every machine is a slow bill with wings, and it hums while it waits.
-Plain: Lowers Ship upkeep.
+Plain: Ship upkeep is 30% lower: 14 credits a cycle instead of 20.
 
 ## Research (understanding the market and the sky)
 B1 | Market Ledger
 Flavour: The Common Ledger records everything but prices. Keep your own.
-Plain: Shows the price history of each planet in its panel.
+Plain: Shows each planet's price trend, marks the best route partner, warns when a route's margin is below upkeep.
 
 B2 | Standing Orders
-Flavour: A good form is one you only file once.
-Plain: Local Buy and Sell orders handle more goods per cycle.
+Flavour: A good form is one you only file once. The Bureau will not mind.
+Plain: Buy and Sell orders handle 60 units a cycle instead of 40.
 
 B3 | Price Whisper
 Flavour: Prices move before people do. Listen to the walls.
-Plain: Shows the expected price move for the next cycle before it happens.
+Plain: Shows next cycle's prices. Goods sell for 8% more per unit.
 
 B4 | Event Forecast
 Flavour: The sky has moods. The Plan pretends not to notice them.
-Plain: Shows the next event one cycle before it happens.
+Plain: Warns one cycle before an event. Price events name planet and commodity. Closed planets reopen a cycle sooner.
 
 ## Expansion (reach)
 C1 | Permit Charter
@@ -43,15 +43,15 @@ Plain: Unlocks permits. Each permit opens a new system to your routes and costs 
 
 C2 | Survey Beacon
 Flavour: Better to know a place before it counts you.
-Plain: Shows the planets of a system before you buy its permit.
+Plain: Press Survey on a system to see its planets and base prices. Its permit then costs 1 skill point less.
 
 C3 | Long Haul
 Flavour: Distance is only a long way of saying not yet, and not on the ledger.
-Plain: Allows routes between systems. Needs Space Storage (A1).
+Plain: Routes can run between systems. Needs Survey Beacon (C2) and Space Storage (A1).
 
 C4 | Colonial Rights
 Flavour: The second door is always cheaper than the first, and filed in fewer copies.
-Plain: Lowers the credit price of later permits.
+Plain: Permits cost 20% fewer credits. Needs Survey Beacon (C2).
 
 ## Screen strings
 SK_HEADER | 24 | Skill screen title | Skills

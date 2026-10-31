@@ -233,6 +233,12 @@ PERMIT_NO_CREDITS | 110 | Skill screen, permit line when credits are short | Not
 ## Skill effects made real (2026-10-31, Alpha): Long Haul, Event Forecast, Market Ledger, Price Whisper
 NOT_ROUTE_NEEDS_C3 | 110 | Route between two systems without Long Haul (C3) | Routes between systems need Long Haul (C3).
 EVT_NEXT_DUE | 110 | Notice, Event Forecast (B4), posted one cycle before an event | An event is due next cycle.
+EVT_NEXT_DUE_PRICE | 110 | Notice, Event Forecast (B4), price event due next cycle; direction is "rise" or "fall" | Next cycle: {commodity} will {direction} at {planet}.
+EVT_NEXT_DUE_CLOSED | 110 | Notice, Event Forecast (B4), closure due next cycle | Next cycle: {planet} will close.
+LBL_BEST_PARTNER | 110 | Planet panel, Market Ledger (B1), best route partner | Best partner: {planet} ({margin} cr per unit).
+NOT_ROUTE_BELOW_UPKEEP | 110 | Notice, Market Ledger (B1), new route margin is below its upkeep | This route earns {margin} cr a cycle and costs {cost}. It will run at a loss.
+LBL_SURVEY_PRICES | 110 | Skill screen permit info, base prices after a survey; f = food, e = energy, b = buy, s = sell | {planet}: Food {fb}/{fs} cr, Energy {eb}/{es} cr (buy/sell).
+BTN_SURVEY | 24 | Skill screen permit info, Survey button (Survey Beacon C2) | Survey (1 point cheaper)
 LBL_PRICE_HISTORY | 110 | Planet panel, Market Ledger (B1), under the prices; {prices} is a list of sell prices | Recent sell prices: {prices}.
 LBL_PRICE_HISTORY_NONE | 110 | Planet panel, Market Ledger (B1), before the first cycle closes | Recent sell prices: none yet.
 LBL_NEXT_PRICE | 110 | Planet panel, Price Whisper (B3), prices for the next cycle; {buy} and {sell} are credits | Next cycle: {buy} cr to buy, {sell} cr to sell.

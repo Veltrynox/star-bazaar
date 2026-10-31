@@ -822,6 +822,42 @@
   "place": "Notice, Event Forecast (B4), posted one cycle before an event"
  },
  {
+  "id": "EVT_NEXT_DUE_PRICE",
+  "text": "Next cycle: {commodity} will {direction} at {planet}.",
+  "max": 110,
+  "place": "Notice, Event Forecast (B4), price event due next cycle; direction is \"rise\" or \"fall\""
+ },
+ {
+  "id": "EVT_NEXT_DUE_CLOSED",
+  "text": "Next cycle: {planet} will close.",
+  "max": 110,
+  "place": "Notice, Event Forecast (B4), closure due next cycle"
+ },
+ {
+  "id": "LBL_BEST_PARTNER",
+  "text": "Best partner: {planet} ({margin} cr per unit).",
+  "max": 110,
+  "place": "Planet panel, Market Ledger (B1), best route partner"
+ },
+ {
+  "id": "NOT_ROUTE_BELOW_UPKEEP",
+  "text": "This route earns {margin} cr a cycle and costs {cost}. It will run at a loss.",
+  "max": 110,
+  "place": "Notice, Market Ledger (B1), new route margin is below its upkeep"
+ },
+ {
+  "id": "LBL_SURVEY_PRICES",
+  "text": "{planet}: Food {fb}/{fs} cr, Energy {eb}/{es} cr (buy/sell).",
+  "max": 110,
+  "place": "Skill screen permit info, base prices after a survey; f = food, e = energy, b = buy, s = sell"
+ },
+ {
+  "id": "BTN_SURVEY",
+  "text": "Survey (1 point cheaper)",
+  "max": 24,
+  "place": "Skill screen permit info, Survey button (Survey Beacon C2)"
+ },
+ {
   "id": "LBL_PRICE_HISTORY",
   "text": "Recent sell prices: {prices}.",
   "max": 110,
@@ -1255,7 +1291,7 @@
  },
  {
   "id": "SK_A2_PLAIN",
-  "text": "Raises the capacity of Company storage on planets.",
+  "text": "Planet storage holds 50% more. A planet closed by an event reopens one cycle sooner.",
   "max": 110,
   "place": "Skill screen, detail panel"
  },
@@ -1267,13 +1303,13 @@
  },
  {
   "id": "SK_A4_FLAVOUR",
-  "text": "Dock time is shared time. Spend less of it.",
+  "text": "Dock time is shared time. Spend less of it, and the hull hums less.",
   "max": 90,
   "place": "Skill screen, detail panel"
  },
  {
   "id": "SK_A4_PLAIN",
-  "text": "A route moves more goods each cycle.",
+  "text": "Each ship moves 18 units a cycle instead of 16.",
   "max": 110,
   "place": "Skill screen, detail panel"
  },
@@ -1291,7 +1327,7 @@
  },
  {
   "id": "SK_A5_PLAIN",
-  "text": "Lowers Ship upkeep.",
+  "text": "Ship upkeep is 30% lower: 14 credits a cycle instead of 20.",
   "max": 110,
   "place": "Skill screen, detail panel"
  },
@@ -1309,7 +1345,7 @@
  },
  {
   "id": "SK_B1_PLAIN",
-  "text": "Shows the price history of each planet in its panel.",
+  "text": "Shows each planet's price trend, marks the best route partner, warns when a route's margin is below upkeep.",
   "max": 110,
   "place": "Skill screen, detail panel"
  },
@@ -1321,13 +1357,13 @@
  },
  {
   "id": "SK_B2_FLAVOUR",
-  "text": "A good form is one you only file once.",
+  "text": "A good form is one you only file once. The Bureau will not mind.",
   "max": 90,
   "place": "Skill screen, detail panel"
  },
  {
   "id": "SK_B2_PLAIN",
-  "text": "Local Buy and Sell orders handle more goods per cycle.",
+  "text": "Buy and Sell orders handle 60 units a cycle instead of 40.",
   "max": 110,
   "place": "Skill screen, detail panel"
  },
@@ -1345,7 +1381,7 @@
  },
  {
   "id": "SK_B3_PLAIN",
-  "text": "Shows the expected price move for the next cycle before it happens.",
+  "text": "Shows next cycle's prices. Goods sell for 8% more per unit.",
   "max": 110,
   "place": "Skill screen, detail panel"
  },
@@ -1363,7 +1399,7 @@
  },
  {
   "id": "SK_B4_PLAIN",
-  "text": "Shows the next event one cycle before it happens.",
+  "text": "Warns one cycle before an event. Price events name planet and commodity. Closed planets reopen a cycle sooner.",
   "max": 110,
   "place": "Skill screen, detail panel"
  },
@@ -1399,7 +1435,7 @@
  },
  {
   "id": "SK_C2_PLAIN",
-  "text": "Shows the planets of a system before you buy its permit.",
+  "text": "Press Survey on a system to see its planets and base prices. Its permit then costs 1 skill point less.",
   "max": 110,
   "place": "Skill screen, detail panel"
  },
@@ -1417,7 +1453,7 @@
  },
  {
   "id": "SK_C3_PLAIN",
-  "text": "Allows routes between systems. Needs Space Storage (A1).",
+  "text": "Routes can run between systems. Needs Survey Beacon (C2) and Space Storage (A1).",
   "max": 110,
   "place": "Skill screen, detail panel"
  },
@@ -1435,7 +1471,7 @@
  },
  {
   "id": "SK_C4_PLAIN",
-  "text": "Lowers the credit price of later permits.",
+  "text": "Permits cost 20% fewer credits. Needs Survey Beacon (C2).",
   "max": 110,
   "place": "Skill screen, detail panel"
  },
