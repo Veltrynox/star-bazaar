@@ -1,0 +1,68 @@
+[
+  {
+    "run_id": "2026-10-31-T94",
+    "seed": "1-5",
+    "strategy": "always_expand",
+    "issue_type": "dominant_strategy",
+    "severity": "medium",
+    "steps": "TAG=nat STRATEGIES='decent sloppy always_expand never_expand' SEEDS='1 2 3 4 5' EXTRA='' run_batch.sh <out>. Natural run, no force goal, alt choice.",
+    "expected": "A non-decent strategy should not win the goal at the same cycle and cash as decent without a clear design reason (sloppy and never_expand are expected to lose).",
+    "actual": "always_expand wins 5/5 (END_ENOUGH on seeds 1,3,5 and END_CORP_MIX on seeds 2,4) at cycles 25-26 with final cash identical to decent on every seed (8538-9730). Triggers the medium rule; it is not better than decent, but it is not penalised either.",
+    "owner_agent": "economy-designer"
+  },
+  {
+    "run_id": "2026-10-31-T94",
+    "seed": "1-5",
+    "strategy": "decent",
+    "issue_type": "pacing",
+    "severity": "medium",
+    "steps": "TAG=permit2 STRATEGIES=decent SEEDS='1 2 3 4 5' EXTRA='--permit=2 --skills=C1,C2,C4,A1,C3' run_batch.sh <out>. Natural run, no force goal. Permit bought automatically (decisions permit_buy 1 per run).",
+    "expected": "Decent with the system 2 permit reaches the goal in the same window as the system 1 path (cycles 25-26 in the nat batch), or the design says the permit path is slower.",
+    "actual": "Seeds 1,3,5 win at cycles 29-30 (END_REL_FULL_E, cash 8750-9900); seed 2 wins at cycle 30 (END_CORP_FULL_E, cash 8742); seed 4 LOSES at cycle 30 with cash 6597. The permit path finishes at the window edge and can miss it.",
+    "owner_agent": "economy-designer"
+  },
+  {
+    "run_id": "2026-10-31-T94",
+    "seed": "1-5",
+    "strategy": "decent and always_expand",
+    "issue_type": "expectation_mismatch",
+    "severity": "low",
+    "steps": "Same as the natural run above (TAG=nat).",
+    "expected": "Brief for T94 expects the natural goal NOT to be reached (T54 on hold).",
+    "actual": "Natural goal IS reached by decent and always_expand on 10/10 seeds (cycles 25-26). gdd.md section 'System 1 win path' (2026-10-31) says 15 of 16 seeds. The brief expectation is stale.",
+    "owner_agent": "producer"
+  },
+  {
+    "run_id": "2026-10-31-T94",
+    "seed": "1-5",
+    "strategy": "never_expand",
+    "issue_type": "seed_variance",
+    "severity": "low",
+    "steps": "TAG=last_cor / last_rel (and _corr, _relr): STRATEGIES=never_expand SEEDS='1 2 3 4 5' EXTRA='--choice=CORP --force-goal=30 --skills=A1,A2'.",
+    "expected": "Same skill list and same forced goal give the same ending on each seed, or the seed dependence is documented.",
+    "actual": "Seeds 1-2 learn A1 (cycle 6 or 14) and A2 and end END_CORP_LOGI / END_LAST_LIGHT. Seeds 3-5 learn no skill and end END_CORP_BARE / END_BARE_HANDS. The seed changes events (event_rows differ by seed), which changes whether the single-route path can meet the A1 gate. Not a crash; the result depends on the seed.",
+    "owner_agent": "UNKNOWN"
+  },
+  {
+    "run_id": "2026-10-31-T94",
+    "seed": "1-5",
+    "strategy": "decent",
+    "issue_type": "harness_bug",
+    "severity": "low",
+    "steps": "Any run through qa/bots/bot_run.gd (e.g. TAG=permit2 EXTRA='--permit=2 --skills=C1,C2,C4,A1,C3'). Read RESULT.permits_bought.",
+    "expected": "permits_bought holds the real number of permits bought.",
+    "actual": "bot_run.gd hard-codes permits_bought to null (line ~766, comment says no permit feature in this build). The real count is in decisions_by_kind.permit_buy. Owned by QA; not fixed here.",
+    "owner_agent": "qa-analyst"
+  },
+  {
+    "run_id": "2026-10-31-T94",
+    "seed": "1-5",
+    "strategy": "decent",
+    "issue_type": "engine_log_noise",
+    "severity": "low",
+    "steps": "Any run, e.g. TAG=none_rel STRATEGIES=decent SEEDS=1 EXTRA='--choice=RELEASE --force-goal=12 --skills=none'. Read the log.",
+    "expected": "Headless run prints no engine errors.",
+    "actual": "Every run (290/290) prints 'ERROR: Condition \"ret != noErr\" is true. Returning: \"\"'. Likely an audio or OS call in headless mode; not traced to game code. Outcomes are correct.",
+    "owner_agent": "UNKNOWN"
+  }
+]

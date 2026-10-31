@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "agent": "qa-analyst",
+  "date": "2026-10-31",
+  "task": "T94",
+  "status": "partial",
+  "files_changed": [
+    "qa/reports/2026-10-31-T94-bug_report.json",
+    "qa/reports/2026-10-31-T94-runs.jsonl",
+    "handoffs/qa-analyst/2026-10-31-T94.json"
+  ],
+  "open_questions": [
+    "UNKNOWN: Space Storage post per system, transfer and broken-route support (A1 closure bridge) not verified; no harness probe reads post state or route income during a closure. Needs a targeted probe.",
+    "UNKNOWN: 66 event instances last 1-2 cycles (not 3); not checked whether they are truncated at run end.",
+    "UNKNOWN: Release export not built, so no check of the exported binary; EPI ending texts not checked as distinct screens."
+  ],
+  "handoff": "T94 partial, 290 headless runs (qa/reports/2026-10-31-T94-runs.jsonl). Force goal: all 9 END_CORP_* and all 10 Release endings reached; recording and reload: no double count, 120 reload runs clean; loss counted (END_LOSS). Choice screen once at the goal, no softlock. Natural: decent and always_expand win 10/10 at cycles 25-26 (brief said no); sloppy and never_expand lose 10/10 at 30. Permit path (decent + permit 2): wins 29-30, one loss (seed 4). Events: 3-cycle durations, first vs decline changes cash on 4 of 5 seeds. Lambda error from T80 not reproduced. Bugs: 6 (medium: always_expand dominance, permit pacing). Harness: permits_bought hardcoded null. Not done: Space Storage post, transfer, broken route, release export.",
+  "details": {
+    "results": [
+      {
+        "group": "force goal, 11 configs x 2 sides x reload/no reload (n=5 each)",
+        "outcome": "win",
+        "endings": "all 9 CORP and all 10 Release reached",
+        "cash": "8500-10398",
+        "cycle": "12, 18-20, 25"
+      },
+      {
+        "group": "natural decent (n=5)",
+        "outcome": "win",
+        "endings": "END_ENOUGH, END_CORP_MIX",
+        "cash": "8538-9730",
+        "cycle": "25-26"
+      },
+      {
+        "group": "natural always_expand (n=5)",
+        "outcome": "win",
+        "endings": "same as decent",
+        "cash": "same as decent",
+        "cycle": "25-26"
+      },
+      {
+        "group": "natural sloppy (n=5)",
+        "outcome": "loss",
+        "endings": "END_LOSS",
+        "cash": "1203-4103",
+        "cycle": 30
+      },
+      {
+        "group": "natural never_expand (n=5)",
+        "outcome": "loss",
+        "endings": "END_LOSS",
+        "cash": "1871-4891",
+        "cycle": 30
+      },
+      {
+        "group": "decent + permit 2 natural (n=5)",
+        "outcome": "4 win, 1 loss",
+        "endings": "END_REL_FULL_E x3, END_CORP_FULL_E, END_LOSS",
+        "cash": "6597-9900",
+        "cycle": "29-30"
+      },
+      {
+        "group": "timer clock, decent force 12 (n=5)",
+        "outcome": "win",
+        "endings": "END_BARE_HANDS",
+        "cash": 8500,
+        "cycle": 12
+      }
+    ]
+  }
+}
