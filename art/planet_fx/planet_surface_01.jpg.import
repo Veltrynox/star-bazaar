@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://b7p1gdbsx7pxw"
-path="res://.godot/imported/arrow_mid.png-3f6a91dfab02485893c8d77002ac9665.ctex"
+uid="uid://d2b7jjr4gc1sj"
+path="res://.godot/imported/planet_surface_01.jpg-8768ed6570b9627c56da2ea5725901a0.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/route/arrow_mid.png"
-dest_files=["res://.godot/imported/arrow_mid.png-3f6a91dfab02485893c8d77002ac9665.ctex"]
+source_file="res://art/planet_fx/planet_surface_01.jpg"
+dest_files=["res://.godot/imported/planet_surface_01.jpg-8768ed6570b9627c56da2ea5725901a0.ctex"]
 
 [params]
 
@@ -23,7 +23,7 @@ compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=false
+mipmaps/generate=true
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""

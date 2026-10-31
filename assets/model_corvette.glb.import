@@ -4,12 +4,12 @@ importer="scene"
 importer_version=1
 type="PackedScene"
 uid="uid://b67rh3u2y3x65"
-path="res://.godot/imported/star_bazaar_corvette.glb-da914f5bc6416db3eaf54b40ba65bc28.scn"
+path="res://.godot/imported/model_corvette.glb-5b5beb319950f30892000caecbb183c8.scn"
 
 [deps]
 
-source_file="res://assets/star_bazaar_corvette.glb"
-dest_files=["res://.godot/imported/star_bazaar_corvette.glb-da914f5bc6416db3eaf54b40ba65bc28.scn"]
+source_file="res://assets/model_corvette.glb"
+dest_files=["res://.godot/imported/model_corvette.glb-5b5beb319950f30892000caecbb183c8.scn"]
 
 [params]
 
