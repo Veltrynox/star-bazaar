@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-10-31",
+  "task": "T13",
+  "status": "done",
+  "files_changed": ["game/debug_menu.gd", "game/events.gd", "tools/tests/run_tests.gd", "handoffs/gameplay-programmer/2026-10-31-T13.json"],
+  "open_questions": ["Saturation was removed from the game (no such rule), so there is no saturation key to edit; the menu says so. OK to leave?", "Route 'orders' is an empty hook; the menu shows it and can clear it, not edit it. Fine?"],
+  "handoff": "The T33 debug menu (backtick key, debug builds only) now has Control sections. Events: frequency (event_interval), price multiplier (event_price_pct), price and closure cycles, a checkbox list to keep events out of the random pick (runtime only, events.debug_off), and the existing fire-event trigger. Routes: ship_cap spin, a per-route dump of ship, level and orders, clear route orders, clear local orders, plus the existing set-level. Save button writes live values and targets to data/balance.json, other keys kept and whole numbers written as ints, so an untouched save leaves the file byte-identical (tested). Try it: run game, press backtick, scroll to Control. Gated by debug_tools_allowed / OS.is_debug_build. Tests: 0 fail."
+}

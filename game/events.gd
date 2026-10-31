@@ -10,6 +10,7 @@ const StoryText := preload("res://game/story_text.gd")
 const PATH := "res://data/events.json"
 
 var balance: Dictionary = {}
+var debug_off: Array = []  # T13: event ids the debug menu keeps out of the random pick; runtime only, never saved
 var planets: Array = []
 var defs: Array = []
 var by_id: Dictionary = {}
@@ -156,7 +157,7 @@ func available(id: String, cycle: int) -> bool:
 func random_id(skip: Array = [], cycle: int = 0) -> String:
 	var pool: Array = []
 	for d in defs:
-		if not skip.has(str(d["id"])) and available(str(d["id"]), cycle):
+		if not skip.has(str(d["id"])) and not debug_off.has(str(d["id"])) and available(str(d["id"]), cycle):
 			pool.append(d)
 	if pool.is_empty():
 		return ""

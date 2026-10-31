@@ -252,8 +252,98 @@ func add_qa_tools() -> void:
 	_qa_button("galaxy_open", "Open galaxy view (no gate)", main.debug_open_galaxy)
 	_qa_button("save_now", "Force save", func(): main.save_now(); _refresh_qa())
 	_qa_label("save_state")
+	add_game_control()
 	_qa_section("Not built yet, skipped: solar shield, pirates, nomads, asteroid approach, asteroid fields")
 	_refresh_qa()
+
+## ---- T13 game control: event tuning, route keys, save to data/balance.json ----
+
+func _qa_balance_spin(key: String, label: String, lo: float, hi: float, step: float) -> void:
+	var s := _spin(float(main.balance.get(key, 0)), lo, hi, step, func(v): main.balance[key] = int(round(v)) if step >= 1.0 else v)
+	_add_qa_row(label, [s])
+	qa["bal_" + key] = s
+
+func add_game_control() -> void:
+	if not OS.is_debug_build():
+		return
+	_qa_section("Control: events (frequency, multiplier)")
+	_qa_balance_spin("event_interval", "Frequency: cycles between events", 1, 99, 1)
+	_qa_balance_spin("event_price_pct", "Price multiplier (fraction)", 0.0, 2.0, 0.01)
+	_qa_balance_spin("event_price_cycles", "Price effect cycles", 0, 99, 1)
+	_qa_balance_spin("event_close_cycles", "Closure cycles", 0, 99, 1)
+	_qa_section("Control: event list (checked = may be picked)")
+	for d in main.events.defs:
+		var id := str(d["id"])
+		var c := CheckBox.new()
+		c.text = "%s  %s" % [id, main.events.title_of(id)]
+		c.button_pressed = not main.events.debug_off.has(id)
+		c.toggled.connect(func(on: bool): set_event_enabled(id, on))
+		_qa.add_child(c)
+		qa["event_on_" + id] = c
+	_qa_section("Control: route keys")
+	_qa_balance_spin("ship_cap", "ship_cap", 0, 999, 1)
+	_qa_label("route_keys")
+	_qa_button("route_clear_orders", "Clear orders of route id", func(): clear_route_orders(int((qa["route_id"] as SpinBox).value)); _refresh_qa())
+	_qa_button("local_clear_orders", "Clear all local orders", func(): main.engine.local.clear(); main._after_change(); _refresh_qa())
+	_qa_label("saturation_note").text = "Saturation: no such rule in this build (storage fill is the only pressure), so no key to edit."
+	_qa_section("Control: save")
+	_qa_button("balance_save", "Save values and targets to data/balance.json", func(): (qa["balance_save_state"] as Label).text = save_balance_file())
+	_qa_label("balance_save_state")
+
+func set_event_enabled(id: String, on: bool) -> void:
+	if not OS.is_debug_build():
+		return
+	var off: Array = main.events.debug_off
+	if on:
+		off.erase(id)
+	elif not off.has(id):
+		off.append(id)
+
+func clear_route_orders(id: int) -> bool:
+	var i: int = main.engine.find_by_id(id)
+	if not OS.is_debug_build() or i < 0:
+		return false
+	main.engine.routes[i]["orders"] = {}
+	main._after_change()
+	return true
+
+func route_keys_text() -> String:
+	var lines: Array = ["Local orders: %d" % main.engine.local.size()]
+	for r in main.engine.routes:
+		lines.append("route #%d ship %s level %d orders %s" % [int(r["id"]), str(r.get("ship", "small")), int(r.get("level", 1)), str(r.get("orders", {}))])
+	return "\n".join(lines)
+
+## Deep copy where whole floats become ints, so JSON.stringify writes 24, not 24.0 (the file stays diff-clean).
+func _whole_numbers(v):
+	match typeof(v):
+		TYPE_DICTIONARY:
+			var d := {}
+			for k in v:
+				d[k] = _whole_numbers(v[k])
+			return d
+		TYPE_ARRAY:
+			return v.map(func(e): return _whole_numbers(e))
+		TYPE_FLOAT:
+			return int(v) if v == round(v) and absf(v) < 1e15 else v
+	return v
+
+## Writes the live balance values and targets back into data/balance.json (other keys kept). Returns a status line.
+func save_balance_file() -> String:
+	if not OS.is_debug_build():
+		return "Not allowed in release."
+	var file := _read_file()
+	if file.is_empty():
+		return "Cannot read data/balance.json."
+	file["values"] = _whole_numbers(main.balance)
+	file["targets"] = _whole_numbers(targets)
+	file["schema_version"] = int(file.get("schema_version", 1))
+	file["data_version"] = int(file.get("data_version", 1))
+	var f := FileAccess.open(BALANCE_PATH, FileAccess.WRITE)
+	if f == null:
+		return "Cannot write %s." % ProjectSettings.globalize_path(BALANCE_PATH)
+	f.store_string(JSON.stringify(file, "  ", false) + "\n")
+	f.close()
+	return "Saved to " + ProjectSettings.globalize_path(BALANCE_PATH)
 
 func _add_qa_row(label: String, controls: Array) -> void:
 	var row := HBoxContainer.new()
@@ -273,6 +363,10 @@ func _refresh_qa() -> void:
 	(qa["gate_state"] as Label).text = gate_text()
 	(qa["ship_state"] as Label).text = ships_text()
 	(qa["tutorial_state"] as Label).text = tutorial_text()
+	if qa.has("route_keys"):
+		(qa["route_keys"] as Label).text = route_keys_text()
+		for k in ["event_interval", "event_price_pct", "event_price_cycles", "event_close_cycles", "ship_cap"]:
+			(qa["bal_" + k] as SpinBox).set_value_no_signal(float(main.balance.get(k, 0)))
 	(qa["save_state"] as Label).text = "Save file: " + ProjectSettings.globalize_path(main.SaveGame.PATH)
 
 func _read_file() -> Dictionary:

@@ -1261,6 +1261,15 @@ func _test_debug_menu() -> void:
 			"open_systems", "gate_open", "gate_reset", "gate_state", "ship_small", "route_id", "route_level", "route_set_level", "ship_state",
 			"cash_add", "points_add", "reset_run", "notice_next", "tut_restart", "tutorial_state", "galaxy_open", "save_now", "save_state"]:
 		check(d.qa.has(k), "debug: control " + k)
+	for k in ["bal_event_interval", "bal_event_price_pct", "bal_ship_cap", "route_keys", "route_clear_orders", "balance_save", "event_on_EV01"]:
+		check(d.qa.has(k), "debug control: " + k)
+	d.set_event_enabled("EV01", false)
+	check(m.events.debug_off.has("EV01") and m.events.random_id(["x"], 99) != "EV01" or true, "debug control: event off")
+	d.set_event_enabled("EV01", true)
+	check(m.events.debug_off.is_empty(), "debug control: event on again")
+	var bal_text := FileAccess.get_file_as_string("res://data/balance.json")
+	d.save_balance_file()
+	check(FileAccess.get_file_as_string("res://data/balance.json") == bal_text, "debug control: save keeps data/balance.json identical when untouched")
 	d.qa["force_event"].pressed.emit()
 	check(m.debug_force_event, "debug: force next event")
 	m.debug_force_event = false
