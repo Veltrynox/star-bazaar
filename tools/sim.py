@@ -42,7 +42,7 @@ R1, R2 = routes_in(1), routes_in(2)
 ALL = R1
 def pair(r): return frozenset((r[0], r[1]))
 TREE = {"A1": None, "A2": "A1", "A4": "A2", "A5": "A4", "B1": None, "B2": "B1", "B3": "B2", "B4": "B3",
-        "C1": None, "C2": "C1", "C3": "C2", "C4": "C3"}
+        "C1": None, "C2": "C1", "C3": "C2", "C4": "C2"}
 def cost(s): return V["skill_cost_" + s]
 BUILDS = {
  "none": [], "logistics": ["A1", "A2", "A4", "A5"], "research": ["B1", "B2", "B3", "B4"],
