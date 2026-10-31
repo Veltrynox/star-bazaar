@@ -949,6 +949,17 @@
       "window": "UI lane. Visual feedback only; uses existing fonts and theme colours. Owner checks the look.",
       "brief": "When a planet earns money in a cycle (credits from its routes and standing orders), show a short green \"+N\" number above that planet on the 3D map. It rises a little and fades out over about 1.5 to 2 seconds. Several planets can show one at a time. The number is the credits that planet gained in the last cycle (use the game's own income figure, do not recompute balance). Make it pretty: a clean mono number with a soft glow, using the theme's green (find the existing green token in the theme; do not add new art). It must not block clicks, and it must be off or hidden when there is no income. Keep it readable at macOS window size. Handoff: handoffs/ui-programmer/<date>-T133.json.",
       "owner_note": "Created by producer 2026-10-31 from owner request (planet income popup). Visual check by owner."
+    },
+    {
+      "task_id": "T134",
+      "title": "Send to button visible on planet panel with zero storage (owner request 2026-10-31)",
+      "owner_agent": "ui-programmer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 15,
+      "window": "UI lane. Small.",
+      "brief": "On the planet panel, the \"Send to...\" control is only shown on a storage row that has stock. The owner wants it visible from the start, even when the planet has zero storage of a resource, so the player can chain a route right away and plan from the start. Show \"Send to...\" on each resource row (or wherever it is offered now) even at zero stock, and make it work the same way it does with stock (it starts the pending route; the route then needs the source to have stock to move anything, which the game already handles). Keep the existing route rules (cross-system needs C3, a route needs a destination planet, and the game's checks). If zero stock means the route cannot run yet, show a short hint in the existing notice style rather than hiding the button. No new art. Handoff: handoffs/ui-programmer/<date>-T134.json.",
+      "owner_note": "Created by producer 2026-10-31 from owner request. Visual check by owner."
     }
   ],
   "done_task_ids": [
