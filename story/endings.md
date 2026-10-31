@@ -7,7 +7,7 @@ Reward is only the quality of the text: no badge, no trophy, no extra item. Rich
 - Bare: only system 1 reached AND no skill learned other than A1 (or none). Plain, short, generic, no named consequences. Max 350.
 - Partial: anything between Bare and Full. Max 700. Names the dominant branch's mood, no places beyond the player's own company.
 - Full: every open system reached (a first route or storage in each; the game already counts this for expansion points) AND at least one branch fully learned. Max 1000, names Voltara, Tillam and Ashgate, and has a separate epilogue line (id ending in _EPI, max 140). Key branch = the fully learned branch; two or more fully learned = the "whole" variant.
-Note: systems 2 and 3 are on hold, so Full cannot be reached in the current build. The texts say "every system on the chart" and stay valid.
+Note: system 2 (Dunmere Reach) is in the Alpha, so Full is reachable: open system 2 (permit, Permit Charter C1), reach it, and fully learn one branch. System 3 is on hold, so "every open system" means systems 1 and 2 today. The texts say "every system on the chart" and stay valid.
 Note: Full texts do not name specific events. The game does not store which events were seen (see ideas.md 1).
 
 ## Inputs the game already knows
