@@ -434,7 +434,7 @@
         "T80",
         "T85"
       ],
-      "status": "queued",
+      "status": "partial",
       "turn_cap": 40,
       "window": "QA lane, after T79, T12 and T85 (max 4 per window)",
       "brief": "Use the T78 force-goal control. Run both branches on seeds 1 to 5 (fast-forward; timer where practical). For each run record choice, ending id, cycle and cash. Check: the choice screen appears once at the goal; the recording adds one count per answered win; reload does not double count; a loss adds exactly one LOSS count; no softlock at the choice or ending screen; every END_CORP_* and every Release ending is reached at least once (list any unreached id and why). Also one natural run per strategy: report whether the goal is reached (expected no, T54 on hold). Do not change code, data or balance. Handoff: handoffs/qa-analyst/<date>-T80.json. Owner 2026-10-27: also cover events (T12: price and closure last 3 cycles; choice effects apply) and system 2 (T85: permit purchase, Space Storage post per system, transfer, support of a broken route). Report each as its own section.",
