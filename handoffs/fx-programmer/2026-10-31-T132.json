@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "agent": "fx-programmer",
+  "date": "2026-10-31",
+  "task": "T132",
+  "status": "done",
+  "files_changed": ["tools/cut_sun.gd", "art/sun/sun_flare.gd", "art/sun/sun.gdshader", "art/planet_fx/planet_sphere.gdshader", "game/map.gd"],
+  "open_questions": ["Owner: do the visual check of the sun and the planet light change on screen. frame_time_ms was not measured (no GPU window here)."],
+  "handoff": "On review, T132 was already built by earlier sun tasks, so no new edits were made this run. tools/cut_sun.gd cuts the three 8x8 sheets into 64 frames each in art/sun/frames. art/sun/sun_flare.gd builds the 3D sun: 8 additive planes plus an HDR core, playing the frames as one array texture. It sets the global shader parameter sun_flare from frame brightness. planet_sphere.gdshader raises its key light by up to 60 percent with sun_flare, and the map's key light goes from 1.0 to 1.5. game/map.gd places the sun. Budget: 9 draw calls, 192 frames loaded once. Headless tests: 406 pass, 0 fail. Not checked: the look on screen, frame time. The owner must do the visual check."
+}
