@@ -1,0 +1,310 @@
+{
+  "schema_version": 1,
+  "agent": "qa-analyst",
+  "date": "2026-10-31",
+  "task": "QA bot runs on full build",
+  "status": "partial",
+  "files_changed": [
+    "qa/reports/2026-10-31-T17-bug_report.json",
+    "qa/reports/2026-10-31-T17-runs.jsonl",
+    "handoffs/qa-analyst/2026-10-31-T17.json"
+  ],
+  "open_questions": [
+    "UNKNOWN: is the fast vs timer clock economy divergence (same seed, different cash) by design?",
+    "UNKNOWN: should decent buy permits (brief says yes; bot_run.gd says none in this build)?",
+    "UNKNOWN: release export runtime check; macOS release template binary missing, so only static gating was checked."
+  ],
+  "handoff": "T17 partial. 32 runs (qa/reports/2026-10-31-T17-runs.jsonl): fast seeds 1-5 and timer seeds 1-3 for all four strategies. No crash, softlock or script error. Decent wins 25-26 (fast) and 26-27 (timer); sloppy and never_expand lose at cycle 30 with win check and stats OK. Reruns are deterministic. Known findings re-checked: always_expand equals decent (confirmed, medium); the ret != noErr noise is environment; permits_bought null is a harness gap. Four entries in the bug report: dominant strategy, clock divergence, release export unverified, decent buys no permits. Did not run tests/run.sh, edited no code, did not commit. Ending coverage on natural runs is 3 of 18 endings.",
+  "details": {
+    "results": [
+      {
+        "strategy": "decent",
+        "final_cash": 9498,
+        "cycle_reached": 26,
+        "outcome": "win",
+        "clock": "fast",
+        "seed": 1,
+        "ending": "END_ENOUGH"
+      },
+      {
+        "strategy": "decent",
+        "final_cash": 8826,
+        "cycle_reached": 26,
+        "outcome": "win",
+        "clock": "fast",
+        "seed": 2,
+        "ending": "END_CORP_MIX"
+      },
+      {
+        "strategy": "decent",
+        "final_cash": 8538,
+        "cycle_reached": 25,
+        "outcome": "win",
+        "clock": "fast",
+        "seed": 3,
+        "ending": "END_ENOUGH"
+      },
+      {
+        "strategy": "decent",
+        "final_cash": 9730,
+        "cycle_reached": 26,
+        "outcome": "win",
+        "clock": "fast",
+        "seed": 4,
+        "ending": "END_CORP_MIX"
+      },
+      {
+        "strategy": "decent",
+        "final_cash": 8773,
+        "cycle_reached": 26,
+        "outcome": "win",
+        "clock": "fast",
+        "seed": 5,
+        "ending": "END_ENOUGH"
+      },
+      {
+        "strategy": "sloppy",
+        "final_cash": 3088,
+        "cycle_reached": 30,
+        "outcome": "loss",
+        "clock": "fast",
+        "seed": 1,
+        "ending": "END_LOSS"
+      },
+      {
+        "strategy": "sloppy",
+        "final_cash": 3639,
+        "cycle_reached": 30,
+        "outcome": "loss",
+        "clock": "fast",
+        "seed": 2,
+        "ending": "END_LOSS"
+      },
+      {
+        "strategy": "sloppy",
+        "final_cash": 4103,
+        "cycle_reached": 30,
+        "outcome": "loss",
+        "clock": "fast",
+        "seed": 3,
+        "ending": "END_LOSS"
+      },
+      {
+        "strategy": "sloppy",
+        "final_cash": 1203,
+        "cycle_reached": 30,
+        "outcome": "loss",
+        "clock": "fast",
+        "seed": 4,
+        "ending": "END_LOSS"
+      },
+      {
+        "strategy": "sloppy",
+        "final_cash": 3806,
+        "cycle_reached": 30,
+        "outcome": "loss",
+        "clock": "fast",
+        "seed": 5,
+        "ending": "END_LOSS"
+      },
+      {
+        "strategy": "always_expand",
+        "final_cash": 9498,
+        "cycle_reached": 26,
+        "outcome": "win",
+        "clock": "fast",
+        "seed": 1,
+        "ending": "END_ENOUGH"
+      },
+      {
+        "strategy": "always_expand",
+        "final_cash": 8826,
+        "cycle_reached": 26,
+        "outcome": "win",
+        "clock": "fast",
+        "seed": 2,
+        "ending": "END_CORP_MIX"
+      },
+      {
+        "strategy": "always_expand",
+        "final_cash": 8538,
+        "cycle_reached": 25,
+        "outcome": "win",
+        "clock": "fast",
+        "seed": 3,
+        "ending": "END_ENOUGH"
+      },
+      {
+        "strategy": "always_expand",
+        "final_cash": 9730,
+        "cycle_reached": 26,
+        "outcome": "win",
+        "clock": "fast",
+        "seed": 4,
+        "ending": "END_CORP_MIX"
+      },
+      {
+        "strategy": "always_expand",
+        "final_cash": 8773,
+        "cycle_reached": 26,
+        "outcome": "win",
+        "clock": "fast",
+        "seed": 5,
+        "ending": "END_ENOUGH"
+      },
+      {
+        "strategy": "never_expand",
+        "final_cash": 4554,
+        "cycle_reached": 30,
+        "outcome": "loss",
+        "clock": "fast",
+        "seed": 1,
+        "ending": "END_LOSS"
+      },
+      {
+        "strategy": "never_expand",
+        "final_cash": 4454,
+        "cycle_reached": 30,
+        "outcome": "loss",
+        "clock": "fast",
+        "seed": 2,
+        "ending": "END_LOSS"
+      },
+      {
+        "strategy": "never_expand",
+        "final_cash": 4891,
+        "cycle_reached": 30,
+        "outcome": "loss",
+        "clock": "fast",
+        "seed": 3,
+        "ending": "END_LOSS"
+      },
+      {
+        "strategy": "never_expand",
+        "final_cash": 1871,
+        "cycle_reached": 30,
+        "outcome": "loss",
+        "clock": "fast",
+        "seed": 4,
+        "ending": "END_LOSS"
+      },
+      {
+        "strategy": "never_expand",
+        "final_cash": 4190,
+        "cycle_reached": 30,
+        "outcome": "loss",
+        "clock": "fast",
+        "seed": 5,
+        "ending": "END_LOSS"
+      },
+      {
+        "strategy": "decent",
+        "final_cash": 8802,
+        "cycle_reached": 26,
+        "outcome": "win",
+        "clock": "timer",
+        "seed": 1,
+        "ending": "END_ENOUGH"
+      },
+      {
+        "strategy": "decent",
+        "final_cash": 8670,
+        "cycle_reached": 26,
+        "outcome": "win",
+        "clock": "timer",
+        "seed": 2,
+        "ending": "END_CORP_MIX"
+      },
+      {
+        "strategy": "decent",
+        "final_cash": 8552,
+        "cycle_reached": 27,
+        "outcome": "win",
+        "clock": "timer",
+        "seed": 3,
+        "ending": "END_ENOUGH"
+      },
+      {
+        "strategy": "sloppy",
+        "final_cash": 3088,
+        "cycle_reached": 30,
+        "outcome": "loss",
+        "clock": "timer",
+        "seed": 1,
+        "ending": "END_LOSS"
+      },
+      {
+        "strategy": "sloppy",
+        "final_cash": 3639,
+        "cycle_reached": 30,
+        "outcome": "loss",
+        "clock": "timer",
+        "seed": 2,
+        "ending": "END_LOSS"
+      },
+      {
+        "strategy": "sloppy",
+        "final_cash": 4103,
+        "cycle_reached": 30,
+        "outcome": "loss",
+        "clock": "timer",
+        "seed": 3,
+        "ending": "END_LOSS"
+      },
+      {
+        "strategy": "always_expand",
+        "final_cash": 8802,
+        "cycle_reached": 26,
+        "outcome": "win",
+        "clock": "timer",
+        "seed": 1,
+        "ending": "END_ENOUGH"
+      },
+      {
+        "strategy": "always_expand",
+        "final_cash": 8670,
+        "cycle_reached": 26,
+        "outcome": "win",
+        "clock": "timer",
+        "seed": 2,
+        "ending": "END_CORP_MIX"
+      },
+      {
+        "strategy": "always_expand",
+        "final_cash": 8552,
+        "cycle_reached": 27,
+        "outcome": "win",
+        "clock": "timer",
+        "seed": 3,
+        "ending": "END_ENOUGH"
+      },
+      {
+        "strategy": "never_expand",
+        "final_cash": 3851,
+        "cycle_reached": 30,
+        "outcome": "loss",
+        "clock": "timer",
+        "seed": 1,
+        "ending": "END_LOSS"
+      },
+      {
+        "strategy": "never_expand",
+        "final_cash": 4223,
+        "cycle_reached": 30,
+        "outcome": "loss",
+        "clock": "timer",
+        "seed": 2,
+        "ending": "END_LOSS"
+      },
+      {
+        "strategy": "never_expand",
+        "final_cash": 4707,
+        "cycle_reached": 30,
+        "outcome": "loss",
+        "clock": "timer",
+        "seed": 3,
+        "ending": "END_LOSS"
+      }
+    ]
+  }
+}
