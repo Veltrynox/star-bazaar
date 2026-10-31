@@ -938,6 +938,17 @@
       "window": "FX lane. Source sheet: art/Solar Flare Evolution Sprite Sheet.png (8 by 8 grid of frames). Owner asked for FX here, overriding the no-new-fx rule for this item only.",
       "brief": "Cut the sheet into frames with a script (keep the script in tools/). Then build a 3D sun in Godot from the frames: an animated texture on a sphere, with the flare motion driven by the frame sequence. The sun's flare events should brighten or shift the light on the planets. Keep the frame budget for macOS. Handoff: handoffs/fx-programmer/<date>-T132.json.",
       "owner_note": "Created by main session 2026-10-31 from the owner's list (11 items). Owner decides scope; no code yet."
+    },
+    {
+      "task_id": "T133",
+      "title": "Planet income popup: +N green number above the planet each cycle (owner request 2026-10-31)",
+      "owner_agent": "ui-programmer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 15,
+      "window": "UI lane. Visual feedback only; uses existing fonts and theme colours. Owner checks the look.",
+      "brief": "When a planet earns money in a cycle (credits from its routes and standing orders), show a short green \"+N\" number above that planet on the 3D map. It rises a little and fades out over about 1.5 to 2 seconds. Several planets can show one at a time. The number is the credits that planet gained in the last cycle (use the game's own income figure, do not recompute balance). Make it pretty: a clean mono number with a soft glow, using the theme's green (find the existing green token in the theme; do not add new art). It must not block clicks, and it must be off or hidden when there is no income. Keep it readable at macOS window size. Handoff: handoffs/ui-programmer/<date>-T133.json.",
+      "owner_note": "Created by producer 2026-10-31 from owner request (planet income popup). Visual check by owner."
     }
   ],
   "done_task_ids": [
