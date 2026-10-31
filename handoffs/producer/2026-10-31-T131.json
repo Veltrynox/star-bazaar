@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "agent": "producer",
+  "date": "2026-10-31",
+  "task": "T131",
+  "status": "partial",
+  "files_changed": [
+    "media/README.md",
+    "media/docs/doc_agent_crew.pdf",
+    "media/docs/doc_design_system.zip",
+    "media/docs/doc_gdd.pdf",
+    "art/source/sun_sheet_v01.png",
+    "art/source/sun_sheet_v01.png.import",
+    "art/source/sun_sheet_v02.png",
+    "art/source/sun_sheet_v02.png.import",
+    "art/source/sun_sheet_v03.png",
+    "art/source/sun_sheet_v03.png.import",
+    "art/route/route_arrow_head.png",
+    "art/route/route_arrow_head.png.import",
+    "art/route/route_arrow_mid.png",
+    "art/route/route_arrow_mid.png.import",
+    "art/route/route_arrow_tail.png",
+    "art/route/route_arrow_tail.png.import",
+    "game/route_line.gd",
+    "tools/cut_sun.gd",
+    "tools/sun_crop/make_sheets.py",
+    "handoffs/producer/2026-10-31-T131.json"
+  ],
+  "open_questions": [
+    "Test B3 'sold price raised by skill_B3_margin' fails (6 -> 6) on the balance v17 margin of 0.08 in data/balance.json. It is a balance value, not a path issue; owner or economy-designer to decide.",
+    "game/income_popup.gd.uid was created by the headless import and is untracked. Commit it with the move or leave it out?",
+    "Deferred moves: art/textures/*, art/make_icons.py and art/make_ui.py (need path fixes), art/style.md and art/NAMING.md (fx-programmer.md names style.md), icon.svg (project.godot)."
+  ],
+  "handoff": "T131 folder layout. Moved with git mv (staged, not committed): media/doc_*.pdf and .zip to media/docs/; art/sun_sheet_v01..03 (+.import) to art/source/; assets/route/route_arrow_* (+.import) to art/route/, matching art/NAMING.md. Updated refs in game/route_line.gd, tools/cut_sun.gd, tools/sun_crop/make_sheets.py and the .import source_file lines; headless import regenerated the cache. Proposed layout is in media/README.md. Stayed: media/refs, assets/model_corvette.*, art/planet_fx, art/sun, art/textures, dcc, design, icon.svg. Test run: 417 pass, 1 fail (B3 margin, balance-driven, pre-existing). Main session: commit, update schedule.json T131 to done or partial, and remove assets/route/.claude if desired."
+}
