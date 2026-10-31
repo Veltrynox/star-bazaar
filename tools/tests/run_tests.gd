@@ -892,6 +892,18 @@ func _test_systems() -> void:
 	check(m.commodities.size() == 2, "sys2: Quillon none/both do not add commodities", str(m.commodities))
 	# permit chain
 	check(m.can_buy_permit(2)["reason"] == "skill", "sys2: permit needs C1")
+	# T128: edge arrow
+	var req_steps: Array = []
+	m._missing_chain("C1", req_steps)
+	var at: Dictionary = m.skill_arrow_target()
+	if req_steps.size() == 1:
+		check(str(at.get("mode", "")) == "skills" and at["steps"] == ["C1"] and m.skill_arrow.visible == (not at.is_empty()), "arrow: C1 reachable shows the skills arrow")
+	else:
+		check(at.is_empty() and not m.skill_arrow.visible or str(at.get("mode", "")) == "skills", "arrow: hidden until C1 is reachable", str(at))
+	m._on_skill_arrow()
+	check(m.skill_screen.visible == (not at.is_empty()), "arrow: click opens the skill screen")
+	m.skill_screen.close_screen()
+	check(m.skill_screen.highlight.is_empty(), "arrow: highlight cleared on close")
 	check(m.can_buy_permit(3)["reason"] == "unknown", "sys2: system 3 does not exist")
 	m.learned_skills.append("C1")
 	m.cash = 0
@@ -906,6 +918,9 @@ func _test_systems() -> void:
 	check(m.map.planets.size() == 7 and m.trade.planets.size() == 7 and m.events.planets.size() == 7, "sys2: planets appear everywhere")
 	check(m.last_notice == StoryText.get_text("NOT_PERMIT_S2") or m.notice_queue.has(StoryText.get_text("NOT_PERMIT_S2")), "sys2: permit notice")
 	check(m.can_buy_permit(2)["reason"] == "owned" and not m.buy_permit(2)["ok"], "sys2: permit bought once")
+	check(str(m.skill_arrow_target().get("mode", "")) == "view" and m.skill_arrow_target()["system"] == 2, "arrow: permit held points at the other system")
+	m._on_skill_arrow()
+	check(m.view_system == 2 and str(m.skill_arrow_target()["mode"]) == "view" and m.skill_arrow_target()["system"] == 1, "arrow: click moves the view, arrow then points back")
 	check(m.trade.price(3, "food_buy") == 11 and m.trade.price(6, "energy_sell") == 34, "sys2: prices from data")
 	# reach point once per system
 	m.cash = 5000

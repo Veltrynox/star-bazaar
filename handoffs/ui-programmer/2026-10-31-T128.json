@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-10-31",
+  "task": "T128",
+  "status": "done",
+  "files_changed": ["game/main.gd", "game/skill_screen.gd", "story/screens.md", "data/story_text.json", "tools/tests/run_tests.gd", "handoffs/ui-programmer/2026-10-31-T128.json"],
+  "usage_note": "Small task, one session.",
+  "open_questions": [
+    "ARTIST: the arrow uses the theme's chevron icon as a placeholder; it needs a real minimal arrow icon (and a left-pointing or rotated variant for going back). No new art was added.",
+    "Position: the arrow sits mid-height just left of the right column, not on the planet ring itself. Owner: is that the right spot, or should it follow the system's direction in 3D?"
+  ],
+  "handoff": "Edge arrow button in the 3D view (main.gd skill_arrow, skill_arrow_target). Hidden until the permit skill (C1) is learnable or learned and a system is unbought. Click opens Skills with the missing steps lit and the first selected (skill_screen.open_highlight). With the permit held, click moves the camera to the other open system and the arrow then points back. Tooltips: new story ids MAP_ARROW_PERMIT and MAP_ARROW_SYSTEM (story/screens.md, story rebuilt). Tests 382/382 (5 new). Not checked by eye: arrow position/size and the lit skill buttons. Git was not used; commit/push left to the caller.",
+  "details": {"see_in_a_minute": "Start a game, earn a point so C1 is learnable: arrow appears left of the right column. Click it: Skills opens with C1 lit. Debug-grant permit 2: arrow stays, click moves between systems."}
+}
