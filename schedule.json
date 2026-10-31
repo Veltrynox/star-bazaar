@@ -960,6 +960,17 @@
       "window": "UI lane. Small.",
       "brief": "On the planet panel, the \"Send to...\" control is only shown on a storage row that has stock. The owner wants it visible from the start, even when the planet has zero storage of a resource, so the player can chain a route right away and plan from the start. Show \"Send to...\" on each resource row (or wherever it is offered now) even at zero stock, and make it work the same way it does with stock (it starts the pending route; the route then needs the source to have stock to move anything, which the game already handles). Keep the existing route rules (cross-system needs C3, a route needs a destination planet, and the game's checks). If zero stock means the route cannot run yet, show a short hint in the existing notice style rather than hiding the button. No new art. Handoff: handoffs/ui-programmer/<date>-T134.json.",
       "owner_note": "Created by producer 2026-10-31 from owner request. Visual check by owner."
+    },
+    {
+      "task_id": "T135",
+      "title": "Planet atmosphere glow: smooth 0-1-0 ramp from the planet edge (owner request 2026-10-31)",
+      "owner_agent": "fx-programmer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 15,
+      "window": "FX lane. Visual; owner checks the look.",
+      "brief": "The planet's blue atmosphere glow is not uniform. The bright blue ring at the planet edge does not start from the same value as the planet's edge, so the glow looks like a hard band. Make the glow a clean ramp: at the planet's limb the glow value equals the planet's edge value, it peaks there, and it fades smoothly to zero outward, so the profile reads 0 to 1 to 0 with no hard ring. Use the existing atmosphere shader (art/planet_fx/planet_sphere_atmosphere.gdshader and the glow shader, whichever draws the ring) and its named constants; no new art. Keep the planets' colours from the palette. Check that all planet variants use the same ramp. Handoff: handoffs/fx-programmer/<date>-T135.json.",
+      "owner_note": "Created by producer 2026-10-31 from owner request (atmosphere ring). Visual check by owner."
     }
   ],
   "done_task_ids": [
