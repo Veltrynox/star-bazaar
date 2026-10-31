@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://canucff4recs"
-path="res://.godot/imported/route_arrow_tail.png-a1f3f8a61a5d6a69129f740aab6e19a5.ctex"
+uid="uid://c2fegogeax4vn"
+path="res://.godot/imported/sun_sheet_v02.png-08e690be4780b0776df7b713b8f8c63b.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/route/route_arrow_tail.png"
-dest_files=["res://.godot/imported/route_arrow_tail.png-a1f3f8a61a5d6a69129f740aab6e19a5.ctex"]
+source_file="res://art/source/sun_sheet_v02.png"
+dest_files=["res://.godot/imported/sun_sheet_v02.png-08e690be4780b0776df7b713b8f8c63b.ctex"]
 
 [params]
 
