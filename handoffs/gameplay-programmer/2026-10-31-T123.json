@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-10-31",
+  "task": "T123",
+  "status": "done",
+  "files_changed": ["tools/tests/run_tests.gd"],
+  "open_questions": "none",
+  "handoff": "Verified existing code in game/main.gd against the brief, no code fix needed. Speed buttons 1x/2x/6x/12x are built in the top bar (not debug-gated), sticky (time_speed only changes via set_speed), untouched by pause/resume, saved as time_speed in collect_state and restored in apply_state (old saves and bad values become 1x). It only scales cycle_elapsed in _process, so balance and cycle length are unchanged; the cash forecast already divides by time_speed. Added tests for pause/resume, save, bad value and restore. Full suite: 0 fail. Try: run the game, click 6x, pause, resume, speed stays."
+}

@@ -850,8 +850,22 @@ func _test_ships() -> void:
 	check(not m.can_connect(0, 1, c)["ok"], "T58: no free ship, no route")
 	var st: Dictionary = m.collect_state()
 	check(not st.has("large_ships"), "T58: save has no large_ships")
+	var hk := 0
+	for k in bal.keys():
+		if str(k).begins_with("hauler_"):
+			hk += 1
+	check(hk == 0 and Sh.KINDS.size() == 1, "T89: hauler cut, no hauler_* keys and no hauler ship type (not applicable)")
 	e.from_array([{"a": 0, "b": 1, "c": c, "ship": "large"}], 1)
 	check(e.routes.size() == 1 and str(e.routes[0]["ship"]) == "small", "T58: old save with a large route loads as small")
+	# T123: speed is sticky, survives pause/resume, saved and restored, only the four values
+	m.set_speed(6.0)
+	m.set_paused(true)
+	m.set_paused(false)
+	check(m.time_speed == 6.0 and m.collect_state()["time_speed"] == 6.0, "T123: speed survives pause and resume, is saved")
+	m.set_speed(7.0)
+	check(m.time_speed == 1.0, "T123: bad speed becomes 1x")
+	m.apply_state({"time_speed": 12.0})
+	check(m.time_speed == 12.0, "T123: speed restored on load")
 	await _free_main(m)
 	_wipe_user()
 

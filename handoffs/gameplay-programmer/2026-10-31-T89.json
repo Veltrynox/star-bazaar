@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-10-31",
+  "task": "T89",
+  "status": "done",
+  "files_changed": ["tools/tests/run_tests.gd"],
+  "open_questions": "none",
+  "handoff": "Not applicable. The owner cut the Hauler and skill A3 on 2026-10-28 (gdd.md ship types section). data/ships.json has only the small ship, data/balance.json has no hauler_* keys (removed in v13), and game/ships.gd already states the Hauler was cut. I did not invent a ship type. Added a test (T89) that fails if a hauler_* key or a second ship type appears, so the cut is recorded in tests as well as code. Full suite: 0 fail. If the owner brings the Hauler back, this task needs new keys from the economy designer first."
+}
