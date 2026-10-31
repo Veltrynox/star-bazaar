@@ -922,7 +922,7 @@
       "title": "Folder layout: media, references and assets (owner item 10)",
       "owner_agent": "producer",
       "depends_on": [],
-      "status": "queued",
+      "status": "partial",
       "turn_cap": 15,
       "window": "Housekeeping. Do it between agent runs so no one has files open.",
       "brief": "The folders are messy. Propose a layout (for example media/ for documents and branding, media/refs for reference images, assets/ for game-ready files) and move files with git mv so history is kept. Before moving: find every reference (scenes, .import files, uid files, scripts, handoffs, gdd docs) and update paths. Run the test suite after the move. Do not move art/planet_fx or any file a scene loads without fixing its references. Handoff: handoffs/producer/<date>-T131.json.",
