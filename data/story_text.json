@@ -762,6 +762,48 @@
   "place": "System panel, heading above the resource row (stock sell prices of main commodities)"
  },
  {
+  "id": "MENU_GALAXY",
+  "text": "Galaxy",
+  "max": 24,
+  "place": "Game rail button tooltip, galaxy view (shown once system 2 is open)"
+ },
+ {
+  "id": "MENU_HINT_LOCKED",
+  "text": "Not available yet.",
+  "max": 110,
+  "place": "Game menu, tooltip on a locked entry"
+ },
+ {
+  "id": "BTN_CLOSE",
+  "text": "Close",
+  "max": 24,
+  "place": "Galaxy view, close button"
+ },
+ {
+  "id": "EVT_HINT_CHOICE_OFF",
+  "text": "Not available now.",
+  "max": 110,
+  "place": "Event popup, tooltip on a choice that cannot be taken now"
+ },
+ {
+  "id": "PERMIT_COST_LINE",
+  "text": "Cost: {credits} credits and {points} skill points.",
+  "max": 110,
+  "place": "Skill screen, permit cost line; {credits} and {points} are filled in"
+ },
+ {
+  "id": "PERMIT_NEEDS_C1",
+  "text": "Needs Permit Charter (C1).",
+  "max": 110,
+  "place": "Skill screen, permit line when Permit Charter (C1) is missing"
+ },
+ {
+  "id": "PERMIT_NO_CREDITS",
+  "text": "Not enough credits.",
+  "max": 110,
+  "place": "Skill screen, permit line when credits are short"
+ },
+ {
   "id": "SK_HEADER",
   "text": "Skills",
   "max": 24,

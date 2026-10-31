@@ -217,3 +217,13 @@ LBL_PAUSED | 24 | Top bar state label, game paused | Paused
 LBL_RUNNING | 24 | Top bar state label, game running | Running
 LBL_GAME_OVER | 24 | End screen header area, run lost | Game over
 LBL_MAIN_RESOURCES | 24 | System panel, heading above the resource row (stock sell prices of main commodities) | Main resources
+
+## Fallback texts closed (2026-10-31, Alpha)
+These ids were read with a plain English fallback in game/. Now they come from story text, so the voice matches the rest.
+MENU_GALAXY | 24 | Game rail button tooltip, galaxy view (shown once system 2 is open) | Galaxy
+MENU_HINT_LOCKED | 110 | Game menu, tooltip on a locked entry | Not available yet.
+BTN_CLOSE | 24 | Galaxy view, close button | Close
+EVT_HINT_CHOICE_OFF | 110 | Event popup, tooltip on a choice that cannot be taken now | Not available now.
+PERMIT_COST_LINE | 110 | Skill screen, permit cost line; {credits} and {points} are filled in | Cost: {credits} credits and {points} skill points.
+PERMIT_NEEDS_C1 | 110 | Skill screen, permit line when Permit Charter (C1) is missing | Needs Permit Charter (C1).
+PERMIT_NO_CREDITS | 110 | Skill screen, permit line when credits are short | Not enough credits.
