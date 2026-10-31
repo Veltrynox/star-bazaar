@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-10-31",
+  "task": "T80-lambda",
+  "status": "done",
+  "files_changed": ["game/ui.gd"],
+  "open_questions": "none",
+  "handoff": "Real game bug, not harness. Ui.scroll_wrap queued fit.call_deferred(); fit captured panel, sc and content. When the old screen was freed (end screen replaced after the win choice, scene reload) before the deferred call ran, the call hit freed captures and Godot printed 'Lambda capture ... was freed' (index 0, 2, 3). Fix: fit now holds WeakRefs and returns if any is gone. The window size_changed hook is also dropped on tree_exiting, so no stale handler stays on the root viewport. Seed 5 decent with --reload-choice now prints no lambda errors. tools/tests/run.sh: 406 pass, 0 fail."
+}

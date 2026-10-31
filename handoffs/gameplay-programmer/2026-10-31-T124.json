@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-10-31",
+  "task": "T124",
+  "status": "done",
+  "files_changed": [],
+  "open_questions": "none",
+  "handoff": "No new code needed: the guided steps already exist in game/main.gd (commit 0bcc551): TUT_GUIDE holds TUT_G1_SELECT to TUT_G6_DONE, tut_step is saved, and _tut_advance() runs on every _refresh and _after_change. Each step waits for the action: planet selected, a Buy order on, a route exists, a Sell order on, a skill learned. Step 6 shows once, and the guide ends. Old saves skip the guide. Debug menu Restart tutorial resets it. Verified by reading the code; tools/tests/run.sh ends at 0 fail (406 pass). Try: new game, click a planet, turn Buy on, Send to another planet, Sell there, open Skills and learn one."
+}

@@ -102,21 +102,41 @@ static func scroll_wrap(panel: Container, content: Control, reserved: float) -> 
 	gutter.add_child(content)
 	sc.add_child(gutter)
 	panel.add_child(sc)
+	# Weak refs: a deferred call can land after the panel is freed (scene reload, end screen replaced), and a
+	# lambda that captured a freed node errors before its body runs.
+	var w_panel: WeakRef = weakref(panel)
+	var w_sc: WeakRef = weakref(sc)
+	var w_content: WeakRef = weakref(content)
 	var fit := func() -> void:
-		if not is_instance_valid(panel) or not panel.is_inside_tree():
+		var p: Container = w_panel.get_ref()
+		var s: ScrollContainer = w_sc.get_ref()
+		var c: Control = w_content.get_ref()
+		if p == null or s == null or c == null or not p.is_inside_tree():
 			return
 		var frame := 0.0
-		if panel.has_theme_stylebox("panel"):
-			frame = panel.get_theme_stylebox("panel").get_minimum_size().y
-		var avail := panel.get_viewport_rect().size.y - reserved - frame
-		sc.custom_minimum_size.y = maxf(80.0, minf(content.get_combined_minimum_size().y, avail))
+		if p.has_theme_stylebox("panel"):
+			frame = p.get_theme_stylebox("panel").get_minimum_size().y
+		var avail := p.get_viewport_rect().size.y - reserved - frame
+		s.custom_minimum_size.y = maxf(80.0, minf(c.get_combined_minimum_size().y, avail))
 	var later := func() -> void: fit.call_deferred()
 	content.minimum_size_changed.connect(later)
 	panel.tree_entered.connect(later)
 	panel.visibility_changed.connect(later)
+	# The window's size_changed outlives the panel: hook it only while the panel is in the tree, and drop it
+	# on exit, else a resize after the game is freed calls a lambda whose captures are gone.
+	var hook := func() -> void:
+		var p: Container = w_panel.get_ref()
+		var vp: Viewport = p.get_viewport() if p != null else null
+		if vp != null and not vp.size_changed.is_connected(later):
+			vp.size_changed.connect(later)
+	var unhook := func() -> void:
+		var p: Container = w_panel.get_ref()
+		var vp: Viewport = p.get_viewport() if p != null else null
+		if vp != null and vp.size_changed.is_connected(later):
+			vp.size_changed.disconnect(later)
+	panel.tree_entered.connect(hook)
+	panel.tree_exiting.connect(unhook)
 	if panel.is_inside_tree():
-		panel.get_viewport().size_changed.connect(later)
-	else:
-		panel.tree_entered.connect(func(): panel.get_viewport().size_changed.connect(later), CONNECT_ONE_SHOT)
+		hook.call()
 	later.call()
 	return sc
