@@ -17,6 +17,8 @@ uniform vec4 pale_col : source_color = vec4(0.70, 0.62, 1.00, 1.0);
 uniform vec3 key_dir = vec3(-0.5, 0.5, 0.7);      // object space, towards the sun
 uniform vec4 key_color : source_color = vec4(1.00, 0.76, 0.42, 1.0);  // warm gold
 uniform float key_strength = 1.4;
+// T132: solar flare level from the 3D sun (0 calm, 1 peak). Set globally by art/sun/sun_flare.gd.
+global uniform float sun_flare;
 uniform vec3 rim_dir = vec3(0.5, -0.3, -0.8);     // object space, towards the rim light (far side)
 uniform vec4 rim_color : source_color = vec4(0.37, 0.66, 1.00, 1.0);  // cool complement of the gold; also the Fresnel tint
 uniform float rim_strength = 1.2;
@@ -65,7 +67,7 @@ void fragment() {
 		// Key light: sun side only, with a crisp shadow contour on the terminator.
 		float nk = dot(n, normalize(key_dir));
 		float lit = smoothstep(-shadow_soft, shadow_soft, nk);
-		vec3 key = key_color.rgb * key_strength * pow(max(nk, 0.0), 0.6) * lit;
+		vec3 key = key_color.rgb * key_strength * (1.0 + 0.6 * sun_flare) * pow(max(nk, 0.0), 0.6) * lit;
 		float amb = ambient * (1.0 - shadow_darkness);
 		col = base * (amb + key);
 
