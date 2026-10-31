@@ -172,6 +172,38 @@ func set_local(planet: int, c: String, role: String, on: bool) -> Dictionary:
 func local_price(planet: int, c: String, role: String) -> int:
 	return trade.price(planet, c + "_" + role)
 
+## Credits per unit a Sell order or a route's delivery earns. B3 Price Whisper adds skill_B3_margin; unlearned = the plain price.
+func sold_price(planet: int, c: String) -> int:
+	var p := local_price(planet, c, "sell")
+	if p > 0 and learned.has("B3"):
+		return roundi(float(p) * (1.0 + float(balance.get("skill_B3_margin", 0.0))))
+	return p
+
+## Credits per cycle a route earns on this lane: units a ship moves times (sell price at the far end, with B3, minus buy price here).
+func route_margin(src: int, dst: int, c: String) -> int:
+	var b: int = trade.price(src, c + "_buy")
+	var s: int = sold_price(dst, c)
+	if b < 0 or s < 0:
+		return 0
+	return units_per_cycle() * (s - b)
+
+## B1 Market Ledger: true when the lane earns less per cycle than it costs (trip and upkeep).
+func margin_below_upkeep(src: int, dst: int, c: String) -> bool:
+	return route_margin(src, dst, c) < fixed_cost()
+
+## B1 Market Ledger: the open planet where carrying c from here earns most per unit, {planet, margin}; planet -1 when none pays.
+func best_partner(src: int, c: String) -> Dictionary:
+	var best := {"planet": -1, "margin": 0}
+	for i in trade.planets.size():
+		if i == src or not check_connection(src, i, c)["ok"]:
+			continue
+		var buy: int = trade.price(src, c + "_buy")
+		var sell: int = sold_price(i, c)
+		var m: int = sell - buy
+		if buy >= 0 and sell >= 0 and m > int(best["margin"]):
+			best = {"planet": i, "margin": m}
+	return best
+
 ## Units and credits a local order would handle now with `cash`. {n, credits (signed), state}.
 func _local_calc(planet: int, c: String, role: String, cash: int) -> Dictionary:
 	var key: String = storage.planet_key(planet)
@@ -193,7 +225,7 @@ func _local_calc(planet: int, c: String, role: String, cash: int) -> Dictionary:
 	if have <= 0:
 		return {"n": 0, "credits": 0, "state": "Storage empty."}
 	var m: int = mini(local_amount(), have)
-	return {"n": m, "credits": m * price, "state": "Selling."}
+	return {"n": m, "credits": m * sold_price(planet, c), "state": "Selling."}
 
 # ---- routes ----
 
@@ -347,7 +379,7 @@ func _run_local(o: Dictionary, role: String, cash: int, out: Array) -> int:
 			r["credits"] = -n * local_price(planet, c, role)
 		else:
 			n = storage.remove(key, c, n)
-			r["credits"] = n * local_price(planet, c, role)
+			r["credits"] = n * sold_price(planet, c)
 	o[role + "_state"] = r["state"]
 	out.append({"planet": planet, "c": c, "role": role, "n": n, "paid": int(r["credits"]), "state": r["state"]})
 	return int(r["credits"])

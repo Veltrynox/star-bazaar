@@ -124,7 +124,7 @@ func _build_permits() -> void:
 	for sid in main.Systems.ids():
 		var sys: Dictionary = main.Systems.get_system(int(sid))
 		var cost: int = main.permit_cost(int(sid))
-		var pts: int = main.Systems.permit_points(main.balance, int(sid))
+		var pts: int = main.permit_points(int(sid))
 		var row := HBoxContainer.new()
 		row.add_theme_constant_override("separation", 12)
 		permit_box.add_child(row)
@@ -150,6 +150,20 @@ func _build_permits() -> void:
 			seen.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 			seen.text = StoryText.get_text("LBL_PERMIT_PLANETS", {"names": ", ".join(names)})
 			info.add_child(seen)
+			if main.is_surveyed(int(sid)):  # base prices of each planet, once surveyed
+				for p in main.Systems.planets_of(int(sid)):
+					var bp: Dictionary = p.get("base_prices", {})
+					var pl := Label.new()
+					pl.theme_type_variation = "LabelSmall"
+					pl.text = StoryText.get_or("LBL_SURVEY_PRICES", "{planet}: Food {fb}/{fs} cr, Energy {eb}/{es} cr (buy/sell).",
+						{"planet": p["name"], "fb": bp.get("food_buy", "-"), "fs": bp.get("food_sell", "-"), "eb": bp.get("energy_buy", "-"), "es": bp.get("energy_sell", "-")})
+					info.add_child(pl)
+			else:
+				var sv := Button.new()
+				sv.text = StoryText.get_or("BTN_SURVEY", "Survey (1 point cheaper)")
+				var sid_s: int = int(sid)
+				sv.pressed.connect(func(): main.survey_system(sid_s))
+				info.add_child(sv)
 		var cost_l := Label.new()
 		cost_l.theme_type_variation = "LabelSmall"
 		# FALLBACK: no story ids for the permit cost line or the reasons; plain text until the story designer adds them

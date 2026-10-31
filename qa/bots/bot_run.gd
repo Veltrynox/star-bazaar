@@ -43,7 +43,7 @@ extends SceneTree
 ##   --force-goal=<cycle>    turns on the debug "Force goal at cycle end" toggle at that cycle
 ##                           (debug builds only; QA reaches the choice early)
 ##   --inject=<cycle>:<credits>  QA test input: credits added at the start of that cycle
-##   --skills=<id,id,...>    only these skills may be learned (empty value: none). Default: all.
+##   --skills=<id,id,...>    only these skills may be learned (empty value or none: no skill). Default: all.
 ##   --skill-order=<id,...>  learn these first, in this order, then the rest in tree order.
 ##   --permit=<system id>    buy that system's permit as soon as the game allows it (needs C1).
 ##
@@ -135,6 +135,8 @@ func _initialize() -> void:
 			skip_skills = Array(arg.trim_prefix("--skip-skill=").split(","))
 		elif arg.begins_with("--skills="):
 			only_skills = _csv(arg.trim_prefix("--skills="))
+			if only_skills.is_empty():  # --skills= or --skills=none: no skill may be learned (empty alone means all)
+				only_skills = ["NONE"]
 		elif arg.begins_with("--skill-order="):
 			skill_order = _csv(arg.trim_prefix("--skill-order="))
 		elif arg.begins_with("--permit="):

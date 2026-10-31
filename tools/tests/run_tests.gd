@@ -437,7 +437,7 @@ func _test_main() -> void:
 	e.learned = ["A5"]
 	check(e.fixed_cost() < f0, "skills: A5 lowers upkeep")
 	e.learned = ["A1", "A2", "B1", "B3", "B4", "C1", "C2", "C3", "C4"]
-	check(e.units_per_cycle() == u0 and e.local_amount() == l0 and e.fixed_cost() == f0, "skills: other skills do not change engine numbers (B3 margin is not wired in code yet)")
+	check(e.units_per_cycle() == u0 and e.local_amount() == l0 and e.fixed_cost() == f0, "skills: other skills do not change engine numbers (B3 margin only touches sell credits)")
 	e.learned = m.learned_skills
 	await _free_main(m)
 	await _test_skill_screen()
@@ -465,6 +465,9 @@ func _test_skill_screen() -> void:
 	check(not r["ok"] and r["reason"] == "locked" and m.skill_points == 10, "skills: locked skill cannot be learned, points kept")
 	r = m.learn_skill("C3")
 	check(not r["ok"] and r["reason"] == "locked", "skills: C3 locked at start")
+	check(ST.state([], "C4") == "locked" and ST.state(["C2"], "C4") == "available" and ST.prereqs("C4") == ["C2"], "skills: C4 locked before C2, available after C2 without C3")
+	r = m.learn_skill("C4")
+	check(not r["ok"] and r["reason"] == "locked", "skills: C4 locked at start")
 	var cost_a1 := int(bal["skill_cost_A1"])
 	# A1 gate (owner decision 2026-10-28)
 	var pts0: Array = m.pts_planets.duplicate()
@@ -1083,18 +1086,99 @@ func _test_skill_effects() -> void:
 	m.notice_queue = []
 	m.last_notice = ""
 	m._end_cycle()
-	check(m.cycle == 4 and (m.last_notice == StoryText.get_text("EVT_NEXT_DUE") or m.notice_queue.has(StoryText.get_text("EVT_NEXT_DUE"))), "B4: warning posted in the cycle before an event")
+	var fc_seen := _has_forecast_notice(m)
+	check(m.cycle == 4 and fc_seen, "B4: warning posted in the cycle before an event")
 	m.learned_skills.erase("B4")
 	m.cash = 1000
 	m.cycle = 4
 	m.notice_queue = []
 	m.last_notice = ""
 	m._end_cycle()
-	check(not (m.last_notice == StoryText.get_text("EVT_NEXT_DUE") or m.notice_queue.has(StoryText.get_text("EVT_NEXT_DUE"))), "B4: no warning without the skill")
+	check(not _has_forecast_notice(m), "B4: no warning without the skill")
 	m.learned_skills.append("B4")
 	m.learned_skills.erase("B4")
+	# B3 Price Whisper margin: sell credits rise by skill_B3_margin, only with the skill
+	var eng: RefCounted = m.engine
+	var plain: int = eng.local_price(0, "energy", "sell")
+	eng.learned = []
+	check(eng.sold_price(0, "energy") == plain, "B3: no margin without the skill")
+	eng.learned = ["B3"]
+	var boosted: int = eng.sold_price(0, "energy")
+	check(boosted == roundi(float(plain) * (1.0 + float(bal["skill_B3_margin"]))) and boosted > plain, "B3: sold price raised by skill_B3_margin", "%d -> %d" % [plain, boosted])
+	m.storage.add(key0, "energy", 10)
+	var sale: Dictionary = eng._local_calc(0, "energy", "sell", 1000)
+	check(int(sale["credits"]) == int(sale["n"]) * boosted and int(sale["n"]) > 0, "B3: a Sell order pays the margin per unit", str(sale))
+	eng.learned = []
+	check(int(eng._local_calc(0, "energy", "sell", 1000)["credits"]) == int(sale["n"]) * plain, "B3: unlearned Sell order pays the plain price")
+	# B3 on a route lane: per-unit earnings at the far end carry the margin; the route itself only pays upkeep, so no double count
+	eng.learned = []
+	var rm0: int = eng.route_margin(0, 1, "energy")
+	eng.learned = ["B3"]
+	var rm1: int = eng.route_margin(0, 1, "energy")
+	var far: int = eng.sold_price(1, "energy")
+	var near: int = m.trade.price(0, "energy_buy")
+	check(rm1 == eng.units_per_cycle() * (far - near) and rm1 > rm0, "B3: route lane margin uses the B3 sell price per unit", "%d -> %d" % [rm0, rm1])
+	check(eng.payout_of(eng.new_record(0, 1, "energy")) <= 0, "B3: route settlement adds no credits itself (Sell order pays once)")
+	eng.learned = m.learned_skills
+	# B1 Market Ledger: warning when the route margin is below its upkeep, trend arrow, best partner
+	var bp: Dictionary = m.trade.planets[1]["base_prices"]
+	var keep_sell = bp["energy_sell"]
+	bp["energy_sell"] = 1
+	check(eng.margin_below_upkeep(0, 1, "energy"), "B1: a lane that earns less than its cost is flagged")
+	m.notice_queue = []
+	m.last_notice = ""
+	m._advance_notice()
+	check(not m.route_margin_notice(0, 1, "energy"), "B1: no warning without the skill")
+	m.learned_skills.append("B1")
+	eng.learned = m.learned_skills
+	check(m.route_margin_notice(0, 1, "energy") and m.last_notice.contains(str(eng.fixed_cost())), "B1: route setup warns when margin is below upkeep", m.last_notice)
+	bp["energy_sell"] = int(keep_sell) + 500
+	m._advance_notice()
+	m.notice_queue = []
+	check(not eng.margin_below_upkeep(0, 1, "energy") and not m.route_margin_notice(0, 1, "energy"), "B1: no warning on a paying lane")
+	check(int(eng.best_partner(0, "energy")["planet"]) == 1, "B1: best partner is the planet that pays most")
+	bp["energy_sell"] = keep_sell
+	m.price_history["0|energy"] = [10, 12]
+	check(m.price_trend(0, "energy") == 1 and m.price_history_line(0, "energy").ends_with("\u2191"), "B1: trend arrow up on a rising history")
+	m.price_history["0|energy"] = [12, 10]
+	check(m.price_trend(0, "energy") == -1, "B1: trend down on a falling history")
+	m.learned_skills.erase("B1")
+	eng.learned = m.learned_skills
+	# C2 Survey Beacon: permit skill points one lower once the system is surveyed
+	var sys3: int = 2
+	m.open_systems.erase(sys3)  # the permit bought above is taken back so the survey can be tried
+	check(m.Systems.ids().has(sys3) and not m.open_systems.has(sys3), "C2: system not permitted")
+	var pts0: int = m.Systems.permit_points(bal, sys3)
+	check(not m.survey_system(sys3) and m.permit_points(sys3) == pts0, "C2: no survey and no discount without the skill")
+	m.learned_skills.append("C2")
+	check(m.permit_points(sys3) == pts0 and not m.is_surveyed(sys3), "C2: no discount before the survey")
+	check(m.survey_system(sys3) and m.is_surveyed(sys3) and m.permit_points(sys3) == pts0 - 1, "C2: surveyed system permit costs 1 point less", "%d" % m.permit_points(sys3))
+	check(m.collect_state()["surveyed"] == [sys3], "C2: survey kept in the save")
+	var sv_txt := ""
+	m.skill_screen.refresh()
+	for lbl in _labels(m.skill_screen.permit_box, []):
+		sv_txt += lbl.text + "|"
+	check(sv_txt.contains("Energy") and sv_txt.contains("Brannock"), "C2: surveyed system shows planet base prices", sv_txt)
+	m.learned_skills.erase("C2")
+	check(m.permit_points(sys3) == pts0, "C2: discount gone without the skill")
+	check(m.permit_points(2) == m.Systems.permit_points(bal, 2), "C1 permit points back at the data value without C2")
+	# B4 forecast names planet and commodity for a price event
+	m.events.by_id["ZZ_TEST"] = {"id": "ZZ_TEST", "tag": "[price up: %s, energy]" % m.planet_name(0)}
+	var ft: String = m.forecast_text("ZZ_TEST")
+	check(StoryText.has_text("EVT_NEXT_DUE_PRICE") == ft.contains(m.planet_name(0)) and (not StoryText.has_text("EVT_NEXT_DUE_PRICE") and ft == StoryText.get_text("EVT_NEXT_DUE") or ft.contains("Energy")), "B4: forecast names planet and commodity once the text exists, else the plain warning", ft)
+	m.events.by_id.erase("ZZ_TEST")
 	await _free_main(m)
 	_wipe_user()
+
+## True when a notice is the B4 forecast: the plain warning or the named "Next cycle: ..." text.
+func _has_forecast_notice(m) -> bool:
+	var all: Array = m.notice_queue.duplicate()
+	all.append(m.last_notice)
+	for n in all:
+		var t := str(n)
+		if t == StoryText.get_text("EVT_NEXT_DUE") or t.begins_with("Next cycle:"):
+			return true
+	return false
 
 # ---- Idle state is not a softlock: a standing order is a legal income action with one ship and no route ----
 func _test_idle_actions() -> void:

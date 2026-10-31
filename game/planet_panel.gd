@@ -151,6 +151,12 @@ func _row(c: String, prices: Dictionary, pend: Dictionary) -> Control:
 		h.text = main.price_history_line(planet_index, c)
 		h.theme_type_variation = "LabelSmall"
 		info.add_child(h)
+		var bpl: String = main.best_partner_line(planet_index, c)
+		if bpl != "":
+			var bl := Label.new()
+			bl.text = bpl
+			bl.theme_type_variation = "LabelSmall"
+			info.add_child(bl)
 	if main.has_skill("B3"):  # Price Whisper: the prices the next cycle starts with
 		var nb: int = main.trade.price(planet_index, c + "_buy", true)
 		var ns: int = main.trade.price(planet_index, c + "_sell", true)

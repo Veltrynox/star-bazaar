@@ -21,6 +21,8 @@ static func prereqs(id: String) -> Array:
 	var out := []
 	var chain := ids_in(id.substr(0, 1))
 	var at := chain.find(id)
+	if id == "C4":  # owner/main decision 2026-10-31: Colonial Rights needs only Survey Beacon, so it is reachable before the second permit
+		return ["C2"]
 	if at > 0:
 		out.append(chain[at - 1])
 	if id == "C3":

@@ -186,7 +186,8 @@ func collect_state() -> Dictionary:
 		"choice_pending": choice_pending, "learned_skills": learned_skills, "systems_reached": systems_reached,
 		"time_speed": time_speed, "skill_points": skill_points, "pts_planets": pts_planets, "pts_pairs": pts_pairs, "events": events.to_dict(),
 			"open_systems": open_systems, "reached_ids": reached_ids, "galaxy_seen": galaxy_seen, "tut_step": tut_step,
-		"shield": shield.to_dict(), "storage_cuts": storage.cuts_to_dict(), "price_history": price_history}
+		"shield": shield.to_dict(), "storage_cuts": storage.cuts_to_dict(), "price_history": price_history,
+		"forecast_id": forecast_id, "surveyed": surveyed_systems}
 
 func apply_state(s: Dictionary) -> void:
 	shield.from_dict(s.get("shield"))  # T101: old saves: no shield
@@ -215,6 +216,8 @@ func apply_state(s: Dictionary) -> void:
 	engine.learned = learned_skills
 	_sync_skill_effects()
 	price_history = s.get("price_history", {}) if typeof(s.get("price_history")) == TYPE_DICTIONARY else {}
+	forecast_id = str(s.get("forecast_id", ""))
+	surveyed_systems = _int_array(s.get("surveyed"))
 	_ensure_posts()
 	systems_reached = maxi(1, int(s.get("systems_reached", 1)))
 	skill_points = maxi(0, int(s.get("skill_points", 0)))
@@ -344,6 +347,27 @@ func permit_cost(sid: int) -> int:
 		c = floori(float(c) * (1.0 - float(balance.get("skill_C4_permit_discount", 0.0))))
 	return c
 
+## C2 Survey Beacon: systems whose planets have been surveyed (saved). Surveying needs the skill and is free.
+var surveyed_systems: Array = []
+
+func is_surveyed(sid: int) -> bool:
+	return has_skill("C2") and surveyed_systems.has(sid)
+
+func survey_system(sid: int) -> bool:
+	if not has_skill("C2") or open_systems.has(sid) or not Systems.ids().has(sid) or surveyed_systems.has(sid):
+		return false
+	surveyed_systems.append(sid)
+	if skill_screen != null:
+		skill_screen.refresh()
+	return true
+
+## Expansion points a permit costs: the data value, one less once the system is surveyed (C2), never below 1.
+func permit_points(sid: int) -> int:
+	var p := Systems.permit_points(balance, sid)
+	if is_surveyed(sid) and p > 1:
+		p -= 1
+	return p
+
 ## {ok, reason}; reason is "", "owned", "skill", "credits", "points", "over" or "unknown".
 func can_buy_permit(sid: int) -> Dictionary:
 	if not Systems.ids().has(sid):
@@ -356,7 +380,7 @@ func can_buy_permit(sid: int) -> Dictionary:
 		return {"ok": false, "reason": "skill"}
 	if cash < permit_cost(sid):
 		return {"ok": false, "reason": "credits"}
-	if skill_points < Systems.permit_points(balance, sid):
+	if skill_points < permit_points(sid):
 		return {"ok": false, "reason": "points"}
 	return {"ok": true, "reason": ""}
 
@@ -366,7 +390,7 @@ func buy_permit(sid: int) -> Dictionary:
 	if not v["ok"]:
 		return v
 	cash -= permit_cost(sid)
-	skill_points -= Systems.permit_points(balance, sid)
+	skill_points -= permit_points(sid)
 	_open_system(sid)
 	post_notice(StoryText.get_text(str(Systems.get_system(sid).get("permit_notice_id", "NOT_PERMIT_S2"))))
 	if skill_screen != null:
@@ -440,7 +464,32 @@ func price_history_line(planet: int, c: String) -> String:
 	var parts := []
 	for v in arr:
 		parts.append(str(v))
-	return StoryText.get_text("LBL_PRICE_HISTORY", {"prices": ", ".join(parts)})
+	return StoryText.get_text("LBL_PRICE_HISTORY", {"prices": ", ".join(parts)}) + " " + price_trend_arrow(planet, c)
+
+## B1 Market Ledger: trend of the kept sell prices, newest against oldest: 1 up, -1 down, 0 flat or too few.
+func price_trend(planet: int, c: String) -> int:
+	var arr: Array = price_history.get("%d|%s" % [planet, c], [])
+	if arr.size() < 2:
+		return 0
+	return signi(int(arr[-1]) - int(arr[0]))
+
+func price_trend_arrow(planet: int, c: String) -> String:
+	return ["\u2193", "\u2192", "\u2191"][price_trend(planet, c) + 1]
+
+## B1 Market Ledger: text of the best route partner for c from this planet, "" when none pays.
+func best_partner_line(planet: int, c: String) -> String:
+	var b: Dictionary = engine.best_partner(planet, c)
+	if int(b["planet"]) < 0:
+		return ""
+	return StoryText.get_or("LBL_BEST_PARTNER", "Best partner: {planet} ({margin} cr per unit).", {"planet": planet_name(int(b["planet"])), "margin": int(b["margin"])})
+
+## B1 Market Ledger: at route setup, a warning when the lane earns less per cycle than it costs. True when posted.
+func route_margin_notice(src: int, dst: int, c: String) -> bool:
+	if not has_skill("B1") or not engine.margin_below_upkeep(src, dst, c):
+		return false
+	post_notice(StoryText.get_or("NOT_ROUTE_BELOW_UPKEEP", "This route earns {margin} cr a cycle and costs {cost}. It will run at a loss.",
+		{"margin": engine.route_margin(src, dst, c), "cost": engine.fixed_cost()}))
+	return true
 
 func open_skills() -> void:
 	if preface != null or game_over:
@@ -530,6 +579,7 @@ func _on_planet_clicked(index: int) -> void:
 			var pending_planet: int = int(pending["planet"])
 			cancel_pending()
 			post_notice(StoryText.get_text("NOT_ROUTE_MADE", {"planet_a": planet_name(int(pending_planet)), "planet_b": planet_name(index)}) if cnt <= 1 else StoryText.get_text("NOT_LANE_SHIP_ADDED"))
+			route_margin_notice(pending_planet, index, str(r["c"]))  # B1 Market Ledger
 			selected_planet = index
 			planet_panel.show_planet(index)
 			return
@@ -957,13 +1007,29 @@ func _end_cycle() -> void:
 	events.tick()  # T12: effects that ran this cycle age
 	cycle += 1
 	_sync_closed()
-	if has_skill("B4") and events.due(cycle + 1):  # B4 Event Forecast: one cycle of warning
-		post_notice(StoryText.get_text("EVT_NEXT_DUE"))
+	if has_skill("B4") and events.due(cycle + 1):  # B4 Event Forecast: one cycle of warning, naming planet and commodity
+		forecast_id = events.random_id(["EV18"] if shield.decided else [], cycle + 1)
+		post_notice(forecast_text(forecast_id))
 	if events.due(cycle) or (OS.is_debug_build() and debug_force_event):
 		debug_force_event = false
-		fire_event(events.random_id(["EV18"] if shield.decided else [], cycle))
+		var fid: String = forecast_id if forecast_id != "" and events.by_id.has(forecast_id) else events.random_id(["EV18"] if shield.decided else [], cycle)
+		forecast_id = ""
+		fire_event(fid)
 	_tut_cycle()
 	save_now()
+
+## B4 Event Forecast: the event picked ahead of its cycle (saved); it is the one that fires.
+var forecast_id: String = ""
+
+## Warning text for a coming event: names the planet and commodity when the event has them, else the plain warning.
+func forecast_text(id: String) -> String:
+	var eff: Dictionary = events.effect_of_event(id)
+	var kind := str(eff.get("kind", ""))
+	if kind in ["up", "down"]:
+		return StoryText.get_or("EVT_NEXT_DUE_PRICE", StoryText.get_text("EVT_NEXT_DUE"), {"planet": planet_name(int(eff["planet"])), "commodity": str(eff["c"]).capitalize(), "direction": "rise" if kind == "up" else "fall"})
+	if kind == "closed":
+		return StoryText.get_or("EVT_NEXT_DUE_CLOSED", StoryText.get_text("EVT_NEXT_DUE"), {"planet": planet_name(int(eff["planet"]))})
+	return StoryText.get_text("EVT_NEXT_DUE")
 
 ## T77: pause and show the win choice. The cycle stays the cycle the goal was reached in.
 func _show_choice() -> void:
