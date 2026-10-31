@@ -35,6 +35,8 @@ func _run() -> void:
 	await _test_shield()
 	await _test_asteroid()
 	await _test_full_endings()
+	await _test_idle_actions()
+	await _test_skill_effects()
 	await _test_every_ending()
 	await _test_debug_menu()
 	print("TOTAL pass=%d fail=%d" % [passed, failed])
@@ -988,6 +990,101 @@ func _test_every_ending() -> void:
 		var ok: bool = ended.size() == 1 and ended[0][1] == c[3] and StoryText.has_text(c[3])
 		check(ok, "endings: %s with %s -> %s" % [c[0], str(c[1]), c[3]], str(ended))
 		await _free_main(m)
+	_wipe_user()
+
+# ---- Skill effects that were text only before 2026-10-31: A2, C3, C4, B1, B3, B4 ----
+func _test_skill_effects() -> void:
+	_wipe_user()
+	var m: Control = await _new_main()
+	m._dismiss_preface()
+	var bal: Dictionary = m.balance
+	var key0: String = m.storage.planet_key(0)
+	# A2 Deep Holds through learn_skill (A2 needs A1)
+	var cap0: int = m.storage.capacity_of(key0)
+	m.skill_points = 10
+	m.pts_planets = [0, 1, 2]
+	m.pts_pairs = ["0-1"]
+	check(m.learn_skill("A1")["ok"] and m.learn_skill("A2")["ok"], "A2: learned after A1")
+	var cap1: int = m.storage.capacity_of(key0)
+	check(cap1 == int(round(float(cap0) * (1.0 + float(bal["skill_A2_capacity"])))) and cap1 > cap0, "A2: planet storage capacity raised by skill_A2_capacity", "%d -> %d" % [cap0, cap1])
+	check(m.storage.capacity_of("system:1") == int(bal["space_storage_capacity"]), "A2: Space Storage capacity unchanged")
+	# C4 Colonial Rights: permit price, through the same function the permit uses
+	m.learned_skills.append("C1")
+	check(m.permit_cost(2) == int(bal["permit_2_cost"]), "C4: permit at data price without C4")
+	m.learned_skills.append("C4")
+	check(m.permit_cost(2) == floori(float(bal["permit_2_cost"]) * (1.0 - float(bal["skill_C4_permit_discount"]))), "C4: permit price lowered by skill_C4_permit_discount")
+	m.learned_skills.erase("C4")
+	# C3 Long Haul: a route from system 1 to system 2 needs it
+	m.cash = 50000
+	m.skill_points = 100
+	check(m.buy_permit(2)["ok"], "C3: system 2 permit bought")
+	var r: Dictionary = m.engine.check_connection(0, 3, "energy")
+	check(not r["ok"] and r["reason"] == StoryText.get_text("NOT_ROUTE_NEEDS_C3"), "C3: cross-system route refused without Long Haul", str(r))
+	check(m.engine.check_connection(3, 4, "energy")["ok"], "C3: a route inside system 2 needs no Long Haul")
+	m.learned_skills.append("C3")
+	check(m.engine.check_connection(0, 3, "energy")["ok"], "C3: cross-system route allowed with Long Haul")
+	m.learned_skills.erase("C3")
+	# B1 Market Ledger: history kept at cycle end, saved, shown as text
+	check(m.price_history_line(0, "energy") == StoryText.get_text("LBL_PRICE_HISTORY_NONE"), "B1: no history before a cycle closes")
+	m.cash = 1000
+	m.cycle = 1
+	m._end_cycle()
+	m._end_cycle()
+	var hist: Array = m.price_history.get("0|energy", [])
+	check(hist.size() == 2 and int(hist[-1]) == m.trade.price(0, "energy_sell"), "B1: sell price recorded at each cycle end", str(hist))
+	var st: Dictionary = m.collect_state()
+	check(st.has("price_history") and st["price_history"].has("0|energy"), "B1: history in the save")
+	check(m.price_history_line(0, "energy").contains(str(hist[0])), "B1: history line shows the prices")
+	# B3 Price Whisper: effects that still run next cycle, not the ones that end now
+	var base_e: int = m.trade.price(0, "energy_sell")
+	m.events.active = [{"id": "EV01", "kind": "down", "planet": 0, "c": "energy", "left": 1, "age": 0}]
+	check(m.trade.price(0, "energy_sell") != base_e and m.trade.price(0, "energy_sell", true) == base_e, "B3: an effect that ends now is not in the next-cycle price")
+	m.events.active = [{"id": "EV01", "kind": "down", "planet": 0, "c": "energy", "left": 2, "age": 0}]
+	check(m.trade.price(0, "energy_sell", true) == m.trade.price(0, "energy_sell"), "B3: an effect that runs one more cycle is in the next-cycle price")
+	m.events.active = []
+	# B4 Event Forecast: one cycle ahead of a due event (events come on cycles 5, 9, 13, ...)
+	# the warning comes while cycle 4 is running; the event itself starts cycle 5
+	m.learned_skills.append("B4")
+	m.cash = 1000  # the C3 test left cash above the win goal, which would open the choice instead of ending the cycle
+	m.cycle = 3
+	m.notice_queue = []
+	m.last_notice = ""
+	m._end_cycle()
+	check(m.cycle == 4 and (m.last_notice == StoryText.get_text("EVT_NEXT_DUE") or m.notice_queue.has(StoryText.get_text("EVT_NEXT_DUE"))), "B4: warning posted in the cycle before an event")
+	m.learned_skills.erase("B4")
+	m.cash = 1000
+	m.cycle = 4
+	m.notice_queue = []
+	m.last_notice = ""
+	m._end_cycle()
+	check(not (m.last_notice == StoryText.get_text("EVT_NEXT_DUE") or m.notice_queue.has(StoryText.get_text("EVT_NEXT_DUE"))), "B4: no warning without the skill")
+	m.learned_skills.append("B4")
+	m.learned_skills.erase("B4")
+	await _free_main(m)
+	_wipe_user()
+
+# ---- Idle state is not a softlock: a standing order is a legal income action with one ship and no route ----
+func _test_idle_actions() -> void:
+	_wipe_user()
+	var m: Control = await _new_main()
+	m._dismiss_preface()
+	m.cash = 1068
+	m.ships = 1
+	m.skill_points = 0
+	var key: String = m.storage.planet_key(0)
+	var r: Dictionary = m.set_local_order(0, "energy", "buy", true)
+	check(r["ok"], "idle: a Buy order is accepted with one ship and no routes", str(r))
+	var cash0: int = m.cash
+	m._end_cycle()
+	var stock: int = m.storage.amount(key, "energy")
+	check(stock > 0 and m.cash < cash0, "idle: Buy order fills storage and spends credits (stock %d)" % stock)
+	m.set_local_order(0, "energy", "buy", false)
+	var sell: Dictionary = m.set_local_order(0, "energy", "sell", true)
+	check(sell["ok"], "idle: a Sell order at the stocked planet is accepted")
+	var cash1: int = m.cash
+	m._end_cycle()
+	check(m.cash > cash1 or m.storage.amount(key, "energy") < stock, "idle: Sell order turns stock into credits")
+	await _free_main(m)
 	_wipe_user()
 
 # ---- Full-tier endings reachable in play: system 2 opened and reached, a branch fully learned ----
