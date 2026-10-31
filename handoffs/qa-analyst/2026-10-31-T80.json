@@ -1,0 +1,227 @@
+{
+  "schema_version": 1,
+  "agent": "qa-analyst",
+  "date": "2026-10-31",
+  "task": "QA run, system 1: both branches, endings reached, recording and reload",
+  "status": "done",
+  "files_changed": [
+    "qa/bots/bot_run.gd",
+    "qa/reports/2026-10-31-T80-bug_report.json",
+    "qa/reports/2026-10-31-T80-runs.jsonl",
+    "handoffs/qa-analyst/2026-10-31-T80.json"
+  ],
+  "open_questions": [
+    "UNKNOWN: cause of 'Lambda capture freed' errors on the reload path (harness free() or game code); needs a real Continue-path check.",
+    "UNKNOWN: 16 first-pass runs without the reload note; not reproduced on rerun (80/80).",
+    "UNKNOWN: double answer of the win choice (no guard in main._on_choice) not tested."
+  ],
+  "handoff": "T80 done. 170 runs (qa/reports/2026-10-31-T80-runs.jsonl), 5 bug entries. Choice shown once at the goal in all runs; RunStats +1 per answered win and +1 LOSS on loss; reload at the choice (every choice run) does not double count. All 8 END_CORP_* and all 10 Release endings reached (FULL needs permit 2 and C1). Events: price and closure effects last 3 cycles; choice effects change cash on 4 of 5 seeds. Natural: decent and always_expand win 5/5 at cycles 25-26 with identical results; sloppy and never_expand lose 5/5 at cycle 30. High: Lambda-freed script error, seed 5 reload runs (cause open). System 2 section moved to T94, not run. Release export not built; debug menu gated by is_debug_build.",
+  "details": {
+    "results": [
+      {
+        "strategy": "decent natural (n=5)",
+        "final_cash": "8538-9730",
+        "cycle_reached": "25-26",
+        "outcome": "win (END_CORP_MIX, END_ENOUGH)"
+      },
+      {
+        "strategy": "always_expand natural (n=5)",
+        "final_cash": "8538-9730",
+        "cycle_reached": "25-26",
+        "outcome": "win (END_CORP_MIX, END_ENOUGH)"
+      },
+      {
+        "strategy": "sloppy natural (n=5)",
+        "final_cash": "1203-4103",
+        "cycle_reached": "30-30",
+        "outcome": "loss (END_LOSS)"
+      },
+      {
+        "strategy": "never_expand natural (n=5)",
+        "final_cash": "1871-4891",
+        "cycle_reached": "30-30",
+        "outcome": "loss (END_LOSS)"
+      },
+      {
+        "strategy": "evd (decent, n=5, endings END_CORP_MIX, END_ENOUGH)",
+        "final_cash": "8538-9294",
+        "cycle_reached": "25-30",
+        "outcome": "win"
+      },
+      {
+        "strategy": "evf (decent, n=5, endings END_CORP_MIX, END_ENOUGH)",
+        "final_cash": "8538-9730",
+        "cycle_reached": "25-26",
+        "outcome": "win"
+      },
+      {
+        "strategy": "f_fulle_CORP (decent, n=5, endings END_CORP_FULL_E)",
+        "final_cash": "8500-8500",
+        "cycle_reached": 25,
+        "outcome": "win"
+      },
+      {
+        "strategy": "f_fulle_RELEASE (decent, n=5, endings END_REL_FULL_E)",
+        "final_cash": "8500-8500",
+        "cycle_reached": 25,
+        "outcome": "win"
+      },
+      {
+        "strategy": "f_fulll_CORP (decent, n=5, endings END_CORP_FULL_L)",
+        "final_cash": "8537-10079",
+        "cycle_reached": "18-19",
+        "outcome": "win"
+      },
+      {
+        "strategy": "f_fulll_RELEASE (decent, n=5, endings END_REL_FULL_L)",
+        "final_cash": "8537-10079",
+        "cycle_reached": "18-19",
+        "outcome": "win"
+      },
+      {
+        "strategy": "f_fullr_CORP (decent, n=5, endings END_CORP_FULL_R)",
+        "final_cash": "8656-10398",
+        "cycle_reached": "18-20",
+        "outcome": "win"
+      },
+      {
+        "strategy": "f_fullr_RELEASE (decent, n=5, endings END_REL_FULL_R)",
+        "final_cash": "8656-10398",
+        "cycle_reached": "18-20",
+        "outcome": "win"
+      },
+      {
+        "strategy": "f_fullx_CORP (decent, n=5, endings END_CORP_FULL_X)",
+        "final_cash": "8500-8500",
+        "cycle_reached": 25,
+        "outcome": "win"
+      },
+      {
+        "strategy": "f_fullx_RELEASE (decent, n=5, endings END_REL_FULL_X)",
+        "final_cash": "8500-8500",
+        "cycle_reached": 25,
+        "outcome": "win"
+      },
+      {
+        "strategy": "m_a1_CORP (decent, n=5, endings END_CORP_BARE)",
+        "final_cash": "8500-8500",
+        "cycle_reached": 12,
+        "outcome": "win"
+      },
+      {
+        "strategy": "m_a1_RELEASE (decent, n=5, endings END_BARE_HANDS)",
+        "final_cash": "8500-8500",
+        "cycle_reached": 12,
+        "outcome": "win"
+      },
+      {
+        "strategy": "m_a1a2_CORP (decent, n=5, endings END_CORP_LOGI)",
+        "final_cash": "8500-8500",
+        "cycle_reached": 12,
+        "outcome": "win"
+      },
+      {
+        "strategy": "m_a1a2_RELEASE (decent, n=5, endings END_SLOW_HARBOR)",
+        "final_cash": "8500-8500",
+        "cycle_reached": 12,
+        "outcome": "win"
+      },
+      {
+        "strategy": "m_a1b1_CORP (decent, n=5, endings END_CORP_MIX)",
+        "final_cash": "8500-8500",
+        "cycle_reached": 12,
+        "outcome": "win"
+      },
+      {
+        "strategy": "m_a1b1_RELEASE (decent, n=5, endings END_ENOUGH)",
+        "final_cash": "8500-8500",
+        "cycle_reached": 12,
+        "outcome": "win"
+      },
+      {
+        "strategy": "m_b1234_CORP (decent, n=5, endings END_CORP_RES)",
+        "final_cash": "8500-8500",
+        "cycle_reached": 12,
+        "outcome": "win"
+      },
+      {
+        "strategy": "m_b1234_RELEASE (decent, n=5, endings END_COLD_LEDGER)",
+        "final_cash": "8500-8500",
+        "cycle_reached": 12,
+        "outcome": "win"
+      },
+      {
+        "strategy": "m_b1b2_CORP (decent, n=5, endings END_CORP_RES)",
+        "final_cash": "8500-8500",
+        "cycle_reached": 12,
+        "outcome": "win"
+      },
+      {
+        "strategy": "m_b1b2_RELEASE (decent, n=5, endings END_ENOUGH)",
+        "final_cash": "8500-8500",
+        "cycle_reached": 12,
+        "outcome": "win"
+      },
+      {
+        "strategy": "m_c1c2_CORP (decent, n=5, endings END_CORP_EXP)",
+        "final_cash": "8500-8500",
+        "cycle_reached": 12,
+        "outcome": "win"
+      },
+      {
+        "strategy": "m_c1c2_RELEASE (decent, n=5, endings END_OWN_HORIZON)",
+        "final_cash": "8500-8500",
+        "cycle_reached": 12,
+        "outcome": "win"
+      },
+      {
+        "strategy": "m_last_CORP (never_expand, n=5, endings END_CORP_BARE, END_CORP_LOGI)",
+        "final_cash": "8500-8500",
+        "cycle_reached": 30,
+        "outcome": "win"
+      },
+      {
+        "strategy": "m_last_RELEASE (never_expand, n=5, endings END_BARE_HANDS, END_LAST_LIGHT)",
+        "final_cash": "8500-8500",
+        "cycle_reached": 30,
+        "outcome": "win"
+      },
+      {
+        "strategy": "m_none_CORP (decent, n=5, endings END_CORP_BARE)",
+        "final_cash": "8500-8500",
+        "cycle_reached": 12,
+        "outcome": "win"
+      },
+      {
+        "strategy": "m_none_RELEASE (decent, n=5, endings END_BARE_HANDS)",
+        "final_cash": "8500-8500",
+        "cycle_reached": 12,
+        "outcome": "win"
+      },
+      {
+        "strategy": "t80corp (decent, n=5, endings END_CORP_MIX)",
+        "final_cash": "8500-8500",
+        "cycle_reached": 12,
+        "outcome": "win"
+      },
+      {
+        "strategy": "t80rel (decent, n=5, endings END_ENOUGH)",
+        "final_cash": "8500-8500",
+        "cycle_reached": 12,
+        "outcome": "win"
+      },
+      {
+        "strategy": "t80tcorp (decent, n=5, endings END_CORP_MIX)",
+        "final_cash": "8500-8500",
+        "cycle_reached": 12,
+        "outcome": "win"
+      },
+      {
+        "strategy": "t80trel (decent, n=5, endings END_ENOUGH)",
+        "final_cash": "8500-8500",
+        "cycle_reached": 12,
+        "outcome": "win"
+      }
+    ]
+  }
+}

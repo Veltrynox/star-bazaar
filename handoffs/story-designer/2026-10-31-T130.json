@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-10-31",
+  "task": "T130",
+  "status": "done",
+  "files_changed": [
+    "story/events.md",
+    "data/story_text.json",
+    "data/events.json"
+  ],
+  "open_questions": "none",
+  "handoff": "EV01 to EV16 and the choice events EV17 to EV20 rewritten bolder; effects, tags, numbers and ids are unchanged. Price events now say costs more/less and pays more/less in every text. Build ran with 0 skipped. EV19 is not in events.json by build design (existing). Texts are ready; nothing to wire."
+}
