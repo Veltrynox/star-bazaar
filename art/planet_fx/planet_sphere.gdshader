@@ -32,6 +32,7 @@ uniform float relief = 0.6;                           // relief strength: how fa
 uniform float disp_amount = 0.0;                 // vertex displacement along the normal, in planet radii (total range, centred on 0)
 uniform float term_shift = 0.45;                  // height moves the terminator: high ground keeps the sun longer (0 = off)
 uniform float relief_shade = 0.75;                 // cavity shading: low ground is darkened by this much (0 = off)
+uniform float disp_mid = 0.3;                      // typical height of the shipped maps (mean grey is 0.27 to 0.32, not 0.5): the zero point of cavity and terminator shift
 uniform vec4 glow_col : source_color = vec4(0.60, 0.75, 1.00, 1.0);
 uniform float glow_mask_strength = 1.1;
 uniform float lights_strength = 1.5;
@@ -98,8 +99,8 @@ void fragment() {
 		vec3 east = normalize(cross(vec3(0.0, 1.0, 0.0), n) + vec3(1e-4, 0.0, 0.0));
 		vec3 south = cross(n, east);  // v grows towards the south pole
 		nb = normalize(n - relief * (hu * east + hv * south));
-		hshift = (h0 - 0.5) * term_shift;
-		cavity = 1.0 - relief_shade * (1.0 - smoothstep(0.1, 0.8, h0));
+		hshift = (h0 - disp_mid) * term_shift;  // centred on the map's own mean, so an average texel does not shift or darken
+		cavity = 1.0 - relief_shade * (1.0 - smoothstep(0.0, disp_mid, h0));  // 1.0 at an average texel, darker only in real pits
 	}
 
 	float NdV = clamp(dot(NORMAL, VIEW), 0.0, 1.0);
