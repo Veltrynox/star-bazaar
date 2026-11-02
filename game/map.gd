@@ -212,18 +212,28 @@ func _add_orbit_rings(center: Vector3, sys: int = 1) -> void:
 ## its centre is "off" planet radii beyond it, and off - w/2 stays above 1.0 so the inner edge clears the outermost sphere.
 ## Flat (y = 0), no clearance mask. Opacity: ALPHA = texture alpha x layer alpha (0.5): the brightest grains reach 50%.
 const DUST_SPEED := 0.0       # static ring: no rotation (uniform kept at 0)
-const DUST_LAYERS := [        # y and off and w in planet radii (off = band centre beyond the outermost orbit); tint = lerp sun colour to white
-	{"name": "OrbitDust",  "y": 0.0, "off": 1.60, "w": 0.35,  "a": 0.5, "tint": 0.10, "alt": false, "win": Vector2(0.2, 0.8), "ang": 2.1},  # narrow bright (was 0.70)
-	{"name": "OrbitDust2", "y": 0.0, "off": 2.20, "w": 0.125, "a": 0.5, "tint": 0.55, "alt": true,  "win": Vector2(0.4, 0.7), "ang": 4.0},  # thin outer (was 0.25)
+const DUST_LAYERS := [        # y and off and w in planet radii; tint = lerp sun colour to white; "off"/"w" are the fallback for systems without DUST_SLOTS
+	{"name": "OrbitDust",  "y": 0.0, "off": 1.10, "w": 0.35,  "a": 0.5, "tint": 0.10, "alt": false, "win": Vector2(0.2, 0.8), "ang": 2.1},
+	{"name": "OrbitDust2", "y": 0.0, "off": 1.80, "w": 0.125, "a": 0.5, "tint": 0.55, "alt": true,  "win": Vector2(0.4, 0.7), "ang": 4.0},
 ]
+## Per-system slots, one per layer: r = orbit radius in world units, y and w in planet radii. Chosen from the real orbit radii
+## (system 1: 3, 5, 5; system 2: 2.81, 2.97, 3.82, 3.99; planet_radius() 1.04). Slot 0 sits between the sun and the innermost planet,
+## slot 1 in the gap of system 1 (r 4, lifted 0.29 radii so it passes above the spheres) and just outside system 2 (its gaps are under 0.9).
+const DUST_SLOTS := {
+	1: [{"r": 1.70, "y": 0.0, "w": 0.30}, {"r": 4.00, "y": 0.29, "w": 0.15}],
+	2: [{"r": 1.60, "y": 0.0, "w": 0.20}, {"r": 5.15, "y": 0.0, "w": 0.20}],
+}
 func _add_orbit_dust(parent: Node3D, center: Vector3, sys: int) -> void:
 	for L in DUST_LAYERS:
 		_add_dust_layer(parent, center, sys, L)
 
 func _add_dust_layer(parent: Node3D, center: Vector3, sys: int, L: Dictionary) -> void:
 	var rad := planet_radius()
-	var width: float = float(L["w"]) * rad
-	var y: float = float(L["y"]) * rad
+	var slot: Dictionary = {}
+	if DUST_SLOTS.has(sys):
+		slot = DUST_SLOTS[sys][DUST_LAYERS.find(L)]
+	var width: float = float(slot.get("w", L["w"])) * rad
+	var y: float = float(slot.get("y", L["y"])) * rad
 	var segs := 192
 	var rseg := 1  # radial steps: only the two edges (no clearance mask)
 	var r_max := 0.0  # orbit radius of the outermost planet of this system
@@ -234,7 +244,7 @@ func _add_dust_layer(parent: Node3D, center: Vector3, sys: int, L: Dictionary) -
 	var uvs := PackedVector2Array()
 	var idx := PackedInt32Array()
 	if r_max >= 0.01:  # one annulus per system, outside every planet sphere
-		var r := r_max + float(L["off"]) * rad
+		var r: float = float(slot["r"]) if not slot.is_empty() else r_max + float(L["off"]) * rad
 		var r0 := maxf(r - width * 0.5, 0.01)
 		var r1 := maxf(r + width * 0.5, r0 + 0.001)
 		var base := verts.size()

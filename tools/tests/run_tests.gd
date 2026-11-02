@@ -1584,7 +1584,7 @@ func _test_planet_size() -> void:
 	check(geo_ok and up_ok and vis_ok, "dust: every layer mesh has vertices, indices, real area, a material and is visible", dump)
 	var src := FileAccess.get_file_as_string("res://art/planet_fx/orbit_dust.gdshader")
 	check(src.contains("cull_disabled") and src.contains("depth_draw_never") and not src.contains("cull_back"), "dust: shader draws both sides and writes no depth")
-	var brighten := 2.2
+	var brighten := 1.1
 	for n in [1, 2]:
 		var img: Image = load("res://art/textures/planets/asteroid%d.png" % n).get_image()
 		var mx := 0.0
@@ -1600,7 +1600,7 @@ func _test_planet_size() -> void:
 		var med: float = lums[lums.size() / 2]
 		var out_med := minf((0.4 + med) * brighten, 2.0) * 0.5   # grey channel: albedo x alpha at the median visible texel (alpha 0.5)
 		var out_max := minf((0.4 + mx) * brighten, 2.0) * 0.5
-		check(out_med > 0.5 and out_max <= 1.0 and out_max > 0.8, "dust: asteroid%d final value over black median %.2f brightest %.2f" % [n, out_med, out_max])
+		check(out_med > 0.25 and out_med < 0.45 and out_max <= 0.8 and out_max > 0.4, "dust: asteroid%d final value over black median %.2f brightest %.2f" % [n, out_med, out_max])
 	var ratio0: float = map.label_drop() / map.planet_radius()
 	var route_r0: float = map.route_lines.values()[0].radius if not map.route_lines.is_empty() else -1.0
 	m.debug_menu._set_planet_scale(2.0)

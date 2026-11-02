@@ -9,7 +9,7 @@ uniform float tex_out = 0.96;
 uniform float alpha = 1.0;         // overall opacity multiplier on the texture-driven alpha (opacity of the brightest grains; map.gd sets 0.5)
 uniform float ring_width = 0.5;    // world width of the band (same as the mesh; kept for tests and tuning)
 uniform float ang_offset = 0.0;    // static angular shift of the texture (radians), so layers on one texture do not look alike
-uniform float brighten = 2.2;      // PNG dust is lum 0.1 to 0.3 (median 0.2): at 50% alpha over black the old colour gave about 0.27, near invisible; 2.2 gives median 0.68, brightest 1.0
+uniform float brighten = 1.1;      // PNG dust is lum 0.1 to 0.3 (median 0.2): halved from 2.2 (too bright); at 50% alpha over black the median grain is about 0.33
 uniform float speed = 0.0;         // unused: the ring is static (kept at 0 so the parameter stays readable)
 
 void fragment() {
