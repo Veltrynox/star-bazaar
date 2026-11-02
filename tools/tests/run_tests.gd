@@ -1171,7 +1171,7 @@ func _test_systems() -> void:
 		for yy in range(0, img.get_height(), 8):
 			for xx in range(0, img.get_width(), 8):
 				var px := img.get_pixel(xx, yy)
-				if smoothstep(0.02, 0.18, px.r * 0.3 + px.g * 0.59 + px.b * 0.11) * 0.9 > 0.02:
+				if smoothstep(0.02, 0.18, px.r * 0.3 + px.g * 0.59 + px.b * 0.11) * 0.5 > 0.02:
 					lit += 1
 		belts_ok = belts_ok and holder and lit > 1000
 	check(belts_ok, "belts: each belt mesh is visible in its planet sphere and has non-zero alpha texels")

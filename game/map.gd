@@ -64,7 +64,7 @@ uniform vec4 key_color : source_color = vec4(1.0, 0.76, 0.42, 1.0);
 uniform sampler2D ring_tex : filter_linear_mipmap, repeat_disable;  // asteroid1/2.png: dusty ring on black
 uniform float tex_in = 0.38;     // belt radius is remapped onto the part of the PNG that holds dust (set per file in _add_belt)
 uniform float tex_out = 0.96;
-uniform float brighten = 3.0;   // PNG dust is lum 0.1 to 0.3 (dark): at 1.2 with alpha 0.2 the grains were about 5% of the sky colour, invisible
+uniform float brighten = 3.5;   // PNG dust is lum 0.1 to 0.3 (dark): at 1.2 with alpha 0.2 the grains were about 5% of the sky colour, invisible; 3.5 keeps them readable at alpha 0.5
 varying vec3 wpos;
 varying vec3 ctr;
 void vertex() {
@@ -87,7 +87,7 @@ void fragment() {
 	float lit = 0.25 + 0.75 * pow(l, 0.6);
 	vec3 col = tex * brighten * (0.1 + key_color.rgb * lit * 1.3);
 	ALBEDO = col;
-	ALPHA = a * 0.9;   // measured: 55% (belt 1) and 33% (belt 2) of the texels pass, mean alpha 0.5 to 0.6; thin, but visible
+	ALPHA = a * 0.5;   // 50% transparent at the brightest grains (a = 1 for lum >= 0.18), lower in the gaps: the planet and the sky show through
 }
 """
 var planet_spheres: Array[MeshInstance3D] = []
