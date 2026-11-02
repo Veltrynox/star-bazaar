@@ -290,7 +290,7 @@ func _make_planet(i: int) -> void:
 	l.outline_size = 12
 	l.modulate = Ui.col("ink")
 	l.outline_modulate = Ui.col("panel_100")
-	l.position = pos + Vector3(0, -(planet_radius() + 0.5), 0)
+	l.position = pos + Vector3(0, -label_drop(), 0)
 	add_child(l)
 	planet_labels.append(l)
 
@@ -483,6 +483,12 @@ func _load_planets() -> Array:
 			PlanetTypes.apply(pl)
 	return parsed["planets"]
 
+## Name label sits below the visible planet: the outer glow shell is 0.56 of the sphere scale (planet_sphere.tscn), plus a gap.
+const PLANET_VISIBLE := 0.56
+const LABEL_GAP := 0.15
+func label_drop() -> float:
+	return planet_radius() * PLANET_VISIBLE + LABEL_GAP
+
 func planet_radius() -> float:
 	return PLANET_RADIUS * planet_scale
 
@@ -497,7 +503,7 @@ func apply_tunables() -> void:
 	for sp in planet_spheres:
 		sp.scale = Vector3.ONE * planet_radius()
 	for i in planet_labels.size():
-		planet_labels[i].position = positions[i] + Vector3(0, -(planet_radius() + 0.5), 0)
+		planet_labels[i].position = positions[i] + Vector3(0, -label_drop(), 0)
 	for id in suns:
 		suns[id].set_radius(sun_radius)
 	if hex_ring != null:
