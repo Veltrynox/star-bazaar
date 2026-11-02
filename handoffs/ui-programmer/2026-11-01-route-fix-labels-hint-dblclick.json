@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-01",
+  "task": "owner UI requests: route regression, route text, planet labels, system hint buttons, double click to galaxy",
+  "status": "done",
+  "files_changed": ["game/route_line.gd", "game/ui.gd", "game/map.gd", "game/main.gd", "handoffs/ui-programmer/2026-11-01-route-fix-labels-hint-dblclick.json"],
+  "open_questions": [
+    "Headless run prints SCRIPT ERROR 'duplicate on null' at art/planet_fx/planet_sphere.gd:235 from the fx-programmer's uncommitted edit (Clouds node override material); not from these changes. run.sh would flag it until fixed.",
+    "Guided system hint: Next moves one guided step, Skip ends the whole guide (tut_step saved). Confirm that is the wanted meaning.",
+    "Double click on empty map space opens the galaxy view; a double click on a planet or route does not."
+  ],
+  "handoff": "Route lines were invisible because the shader's edge varying took abs(UV.y) per vertex, so it interpolated to a constant and alpha was 0 everywhere; now signed, abs in fragment. Route tag 11 px mono (font_size 30 -> 44 at pixel_size 0.00022). Planet labels: Jost 13 px, ink, outline panel_100 (font 40/pixel 0.0008/outline 8 -> font 52/pixel 0.00022/outline 12, new Ui.sans_font). Guided system hint got Skip and Next (Got it on the last step) using BTN_NEXT, BTN_GOT_IT, SCR_PREFACE_SKIP. Map emits empty_double_clicked; main opens the galaxy view. Tests 498 pass, 0 fail. Not checked by eye: all of it.",
+  "details": {
+    "size_formula": "Label3D fixed_size: em on screen = font_size * pixel_size * (P11/2) of frame height; P11 = 1/tan(22.5 deg) = 2.414 at fov 45, so 1 design px (of 941) = 1/1135.9 em-units.",
+    "route_tag": {"old": "font 30 x 0.0008 = about 27 px in the 941 frame", "new": "11 px (design .ds-routetag 11/14 JetBrains Mono 400)", "outline": "10 -> 8"},
+    "planet_label": {"old": "font 40 x 0.0008 = about 36 px, default font", "new": "13 px Jost Regular (map-label 400 13/16), colour ink, outline panel_100", "not_matched": "type line (11 px ink-muted), yields row with icons and 0.04em letter spacing are not in the 3D label; text-shadow approximated by outline"},
+    "screens_to_check": "System view: route lines with dash and chevron, route tag size, planet name size; first game: Skip/Next under guided hint; double click empty space in system view.",
+    "git": "used CLT git with GIT_CONFIG_NOSYSTEM=1"
+  }
+}
