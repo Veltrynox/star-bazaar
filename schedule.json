@@ -971,6 +971,17 @@
       "window": "FX lane. Visual; owner checks the look.",
       "brief": "The planet's blue atmosphere glow is not uniform. The bright blue ring at the planet edge does not start from the same value as the planet's edge, so the glow looks like a hard band. Make the glow a clean ramp: at the planet's limb the glow value equals the planet's edge value, it peaks there, and it fades smoothly to zero outward, so the profile reads 0 to 1 to 0 with no hard ring. Use the existing atmosphere shader (art/planet_fx/planet_sphere_atmosphere.gdshader and the glow shader, whichever draws the ring) and its named constants; no new art. Keep the planets' colours from the palette. Check that all planet variants use the same ramp. Handoff: handoffs/fx-programmer/<date>-T135.json.",
       "owner_note": "Created by producer 2026-10-31 from owner request (atmosphere ring). Visual check by owner."
+    },
+    {
+      "task_id": "T136",
+      "title": "Reword the mission line on the planet panel (owner review of the planet panel)",
+      "owner_agent": "ui-programmer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 15,
+      "window": "UI lane, after the current UI round. Small.",
+      "brief": "The planet/mission panel still shows the line \"Mission: Buy a ship\". Buying a ship now happens through \"Send to...\" or the ship panel, so the line is out of date. Pick clearer wording that matches the new flow and replace the line. Take the wording from story/screens.md or the story text loader (data/story_text.json via game/story_text.gd); do not hard-code new text in the panel. If the change needs a new or changed story id, list the id, its meaning and max length in the handoff for the story-designer rather than inventing text. Do not change the mission logic or any numbers. Handoff: handoffs/ui-programmer/<date>-T136.json.",
+      "owner_note": "Source: owner's review of the planet panel (2026-11-01). Not started; queued after the current UI round."
     }
   ],
   "done_task_ids": [
