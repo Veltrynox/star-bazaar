@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "agent": "fx-programmer",
+  "date": "2026-11-01",
+  "task": "owner review: visible displacement, fresnel 0.1, complementary rim light opposite the sun",
+  "status": "done, visual check pending (owner)",
+  "files_changed": [
+    "art/planet_fx/planet_sphere.gdshader",
+    "art/planet_fx/planet_sphere.gd"
+  ],
+  "open_questions": [
+    "Owner: tune relief, relief_shade, rim_strength, rim_hue_offset by eye. Nothing was looked at on a GPU."
+  ],
+  "handoff": "Displacement was declared but never used in the shader; it now bends the key-light normal and darkens low ground. Fresnel default 0.1 (shader, planet_sphere.gd; atmosphere shell uses the same export). Rim is on for every planet (the 70 percent random pick is bypassed), sits on the side opposite key_dir (shader uses -key_dir, so it follows the sun set by map.gd), colour = hue of the palette mid colour rotated by rim_hue_offset.",
+  "details": {
+    "new_uniforms_shader": {"relief_shade": 0.6},
+    "changed_uniforms_shader": {"relief": "1.2 -> 14.0", "fres_strength": "0.68 -> 0.1", "rim_strength": "1.2 -> 1.6"},
+    "removed": "rim_dir (shader uniform and planet_sphere.gd export); the rim now uses -key_dir. Fresnel tint is pale_col instead of rim_color.",
+    "new_exports_planet_sphere_gd": {"relief": 14.0, "relief_shade": 0.6, "rim_auto": true, "rim_hue_offset": "0.5 (complementary; 0.4167 or 0.5833 split-complementary)", "rim_color": "FFA05E, used only when rim_auto is false", "fresnel_strength": 0.1, "rim_strength": 1.6},
+    "tests": "tools/tests/run_tests.gd: 442 pass, 0 fail. Planet instances for volcanic, ocean, moon, temperate load headless with the new parameters set.",
+    "not_checked": "Dummy renderer: shader parse error caught and fixed (const E clash), but no GPU compile and no visual check. Relief sign and strength, rim brightness and colour are unverified."
+  }
+}
