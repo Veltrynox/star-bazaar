@@ -1,0 +1,20 @@
+{
+ "schema_version": 1,
+ "agent": "ui-programmer",
+ "date": "2026-11-01",
+ "task": "owner-ui-requests",
+ "status": "done",
+ "files_changed": [
+  "game/main.gd",
+  "game/map.gd",
+  "game/galaxy_view.gd",
+  "game/skill_point_pop.gd",
+  "tools/tests/run_tests.gd"
+ ],
+ "open_questions": [
+  "Producer: record the design note that locked systems may show as a grey preview in the 3D map (with a grey arrow); the old rule was hidden until unlocked.",
+  "Artist: needs a real galaxy icon; the rail uses the existing 'planet' icon token for now.",
+  "Owner: with the settings button gone from the rail, the game menu opens only by Esc. Want another entry point?"
+ ],
+ "handoff": "1) Skill learned notice now lives two cycle ends (long_notices, LONG_NOTICE_ENDS=2 in main.gd); skill point pop hold 2.2 s to 5 s (still dismissable by click or key). 2) 2D edge arrow button removed. map.gd set_system_arrows() makes one 3D cone arrow per system pointing from the focus toward it (amber open, grey locked, hidden when focus is near) and grey translucent preview spheres for locked systems, removed when a permit opens the system. No gameplay data changed; skill_arrow_target() logic kept, unused by UI. 3. Rail: galaxy button always visible, settings button removed, skills kept. Galaxy view now opens with one system; its tutorial lines wait for system 2. Headless tests 425 pass, project loads. Not checked by eye: arrow size, placement, grey tone, rail layout. Git commits d39973f, ca8b3fc, 7721362."
+}
