@@ -7,6 +7,7 @@ const StoryText := preload("res://game/story_text.gd")
 ## Content is rebuilt on demand (planet click, any route change, cycle end), never per frame.
 ## Reads everything from main (set via setup()). Unknown values are shown as text, never invented.
 
+signal salvage_requested(commodity: String)  # N5
 signal order_requested(commodity: String, role: String)  # role: "buy" or "sell" (toggles the local order)
 signal send_requested(commodity: String)  # "Send to..." on a storage row
 signal buy_send_requested(commodity: String)  # Buy toggle on a resource row: standing buy order only
@@ -149,6 +150,14 @@ func _row(c: String, prices: Dictionary, pend: Dictionary) -> Control:
 	t.text = "%s: %s   %s: %s" % [StoryText.get_text("LBL_BUY_PRICE"), _price(buy), StoryText.get_text("LBL_SELL_PRICE"), _price(sell)]
 	t.theme_type_variation = "LabelSmall"
 	info.add_child(t)
+	for a in main.events.active:  # P1: a price event on this row shows its direction and the cycles it has left
+		if str(a["kind"]) in ["up", "down"] and int(a["planet"]) == planet_index and str(a["c"]) == str(c):
+			var ev := Label.new()
+			ev.name = "PriceEvent_" + str(c)
+			var arrow := "↑" if str(a["kind"]) == "up" else "↓"
+			ev.text = StoryText.get_or("LBL_PRICE_EVENT", "{arrow} Event, {cycles} cycles left", {"arrow": arrow, "cycles": int(a["left"])})
+			ev.theme_type_variation = "LabelAccent"
+			info.add_child(ev)
 	if main.has_skill("B1"):  # Market Ledger: recent sell prices
 		var h := Label.new()
 		h.text = main.price_history_line(planet_index, c)
@@ -168,12 +177,37 @@ func _row(c: String, prices: Dictionary, pend: Dictionary) -> Control:
 			nx.text = StoryText.get_text("LBL_NEXT_PRICE", {"buy": nb, "sell": ns})
 			nx.theme_type_variation = "LabelSmall"
 			info.add_child(nx)
+	if main.storage.amount(main.storage.planet_key(planet_index), str(c)) <= 0:  # Send to... has nothing to move yet
+		var empty := Label.new()
+		empty.name = "StorageEmpty_" + str(c)
+		empty.text = StoryText.get_or("LBL_STORAGE_EMPTY", "Storage empty. Send to... will wait for stock.")
+		empty.theme_type_variation = "LabelBad"
+		info.add_child(empty)
+	var salv: String = main.engine.salvage_reason(planet_index, c)
+	if salv != "":  # N5: stuck stock can be sold off for a share of the Sell price
+		var so: Dictionary = main.engine.salvage_offer(planet_index, c)
+		var sl := Label.new()
+		sl.name = "Salvage_" + str(c)
+		if salv == "full":
+			sl.text = StoryText.get_or("LBL_SALVAGE_STORAGE_FULL", "Salvage: {n} now (storage full). Sell order pays {m}.", {"n": so["n"], "m": so["m"]})
+		else:
+			sl.text = StoryText.get_or("LBL_SALVAGE_NO_BUYER", "Salvage: {n} now (no buyer on your lanes). Sell order pays {m}.", {"n": so["n"], "m": so["m"]})
+		sl.theme_type_variation = "LabelAccent"
+		info.add_child(sl)
 	for role in ["buy", "sell"]:
 		if main.engine.local_on(planet_index, c, role):
 			var st := Label.new()
 			st.text = "%s order: %s" % [role.capitalize(), main.engine.local_state(planet_index, c, role)]
 			st.theme_type_variation = "LabelAccent"
 			info.add_child(st)
+	var mp: Dictionary = main.engine.mixed_preview(planet_index)
+	if mp.has(c):
+		var ml := Label.new()
+		var pct: float = float(mp[c]["pct"])
+		ml.text = StoryText.get_or("LBL_MIXED_LOAD", "Mixed load +{n}% (max {cap} credits)", {"n": str(int(pct)) if is_equal_approx(pct, floorf(pct)) else str(pct), "cap": int(main.balance.get("bundle_bonus_cap", 0))})
+		ml.name = "MixedLoadLabel"
+		ml.theme_type_variation = "LabelAccent"
+		info.add_child(ml)
 	row.add_child(info)
 	# One combined action replaces the separate Buy button: it buys here every cycle and sends the goods on a route.
 	var sell_on: bool = main.engine.local_on(planet_index, c, "sell")
@@ -186,6 +220,13 @@ func _row(c: String, prices: Dictionary, pend: Dictionary) -> Control:
 	sb.tooltip_text = "Not traded here." if sell_price == null else ("Standing sell order. Press to stop." if sell_on else "Standing sell order each cycle.")
 	sb.pressed.connect(func(): order_requested.emit(c, "sell"))
 	row.add_child(sb)
+	if salv != "":
+		var sv := Button.new()
+		sv.name = "SalvageButton_" + str(c)
+		sv.theme_type_variation = "ButtonSmall"
+		sv.text = StoryText.get_or("BTN_SALVAGE", "Salvage")
+		sv.pressed.connect(func(): salvage_requested.emit(c))
+		row.add_child(sv)
 	var acts := HBoxContainer.new()
 	acts.add_theme_constant_override("separation", 8)
 	var buy_on: bool = main.engine.local_on(planet_index, c, "buy")
@@ -239,15 +280,28 @@ func _storage_section() -> void:
 		l.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		row.add_child(l)
-		var send := Button.new()
-		send.theme_type_variation = "ButtonSmall"
-		var sending: bool = not main.pending.is_empty() and main.pending["planet"] == planet_index and main.pending["c"] == str(c)
-		send.text = StoryText.get_text("BTN_SEND") + ("*" if sending else "")
-		send.tooltip_text = "Move this stock to another planet's storage with a ship."
-		var cc: String = str(c)
-		send.pressed.connect(func(): send_requested.emit(cc))
-		row.add_child(send)
 		box.add_child(row)
+		if main.split_targets(planet_index, str(c)).size() >= 2:  # N2: two lanes with ships can be split
+			box.add_child(_split_row(str(c)))
+
+## N2: the two split picks for a storage row: half and half, or 3/4 and 1/4 (first destination takes the larger share).
+func _split_row(c: String) -> Control:
+	var row := HBoxContainer.new()
+	row.name = "SplitRow"
+	row.add_theme_constant_override("separation", 8)
+	var half := Button.new()
+	half.name = "SplitHalfButton"
+	half.theme_type_variation = "ButtonSmall"
+	half.text = StoryText.get_or("BTN_SPLIT_HALF", "Split half and half")
+	half.pressed.connect(func(): main.begin_split(c, 0.5))
+	row.add_child(half)
+	var three := Button.new()
+	three.name = "SplitThreeQuarterButton"
+	three.theme_type_variation = "ButtonSmall"
+	three.text = StoryText.get_or("BTN_SPLIT_THREE", "Split 3/4 and 1/4")
+	three.pressed.connect(func(): main.begin_split(c, 0.75))
+	row.add_child(three)
+	return row
 
 ## T85: Space Storage of this planet's system (skill A1): stock per commodity, no orders on it.
 func _space_section() -> void:
@@ -351,6 +405,9 @@ func _connections() -> void:
 		for k in ships.size():
 			var v: Dictionary = ships[k]
 			box.add_child(_ship_row(v, k + 1, ships.size()))
+			var mv: Dictionary = main.move_offer(int(v["id"])) if str(v["status"]) == "blocked" else {}
+			if not mv.is_empty():
+				box.add_child(_move_line(int(v["id"]), mv))
 			if int(v["id"]) == selected_route:
 				selected_ok = true
 		if main.engine.lane_full(int(first["a"]), int(first["b"]), str(first["c"])):
@@ -420,6 +477,34 @@ func _upgrade_line(first: Dictionary) -> Control:
 			main.post_notice(str(r["reason"])))
 	row.add_child(b)
 	return row
+
+## P2: under a ship stranded by a closed planet. The player may press Move ship; nothing moves by itself.
+func _move_line(id: int, offer: Dictionary) -> Control:
+	var box_m := VBoxContainer.new()
+	box_m.name = "MoveLine"
+	box_m.add_theme_constant_override("separation", 4)
+	var l := Label.new()
+	l.name = "MoveOffer"
+	l.theme_type_variation = "LabelSmall"
+	l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	l.text = StoryText.get_or("LBL_BEST_OPEN_ROUTE", "Best open route: +{net} per cycle", {"net": int(offer["net"])})
+	box_m.add_child(l)
+	if bool(offer["setup_lost"]):
+		var lost := Label.new()
+		lost.name = "MoveSetupLost"
+		lost.theme_type_variation = "LabelWarn"
+		lost.text = StoryText.get_or("LBL_SETUP_LOST", "Setup lost")
+		box_m.add_child(lost)
+	var b := Button.new()
+	b.name = "MoveShipButton"
+	b.theme_type_variation = "ButtonSmall"
+	b.text = StoryText.get_or("BTN_MOVE_SHIP", "Move ship")
+	b.pressed.connect(func():
+		var r: Dictionary = main.move_ship(id)
+		if not r["ok"]:
+			main.post_notice(str(r["reason"])))
+	box_m.add_child(b)
+	return box_m
 
 func _lane_has(ships: Array, id: int) -> bool:
 	for v in ships:

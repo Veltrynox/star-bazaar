@@ -14,7 +14,7 @@ func setup(bal: Dictionary, plist: Array) -> void:
 	planets = plist
 
 ## Price of a key such as "energy_buy" at planet i, or -1 if missing/UNKNOWN.
-func price(i: int, key: String, next_cycle: bool = false) -> int:
+func price(i: int, key: String, next_cycle: bool = false, no_events: bool = false) -> int:
 	if i < 0 or i >= planets.size() or typeof(planets[i]) != TYPE_DICTIONARY:
 		return -1
 	var prices = planets[i].get("base_prices")
@@ -25,7 +25,7 @@ func price(i: int, key: String, next_cycle: bool = false) -> int:
 		return -1
 	if key.ends_with("_buy") or key.ends_with("_sell"):
 		var f := 1.0
-		if events != null:  # T12: event price factor on both prices
+		if events != null and not no_events:  # T12: event price factor on both prices
 			f *= float(events.price_factor(i, key.substr(0, key.rfind("_")), next_cycle))
 		if shield != null:  # T101: shield mix and profit factors, planets bought later only
 			f *= float(shield.price_factor(i, key))
@@ -38,6 +38,14 @@ func price(i: int, key: String, next_cycle: bool = false) -> int:
 func margin(from: int, to: int, c: String) -> int:
 	var b := price(from, c + "_buy")
 	var s := price(to, c + "_sell")
+	if b < 0 or s < 0:
+		return 0
+	return s - b
+
+## P1: the same margin once every price event has ended (read-only; shield factors stay).
+func margin_after_events(from: int, to: int, c: String) -> int:
+	var b := price(from, c + "_buy", false, true)
+	var s := price(to, c + "_sell", false, true)
 	if b < 0 or s < 0:
 		return 0
 	return s - b

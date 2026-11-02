@@ -20,12 +20,14 @@ var trade: RefCounted
 var storage: RefCounted
 var commodities: Array = []
 var routes: Array = []        # Array of route records (Dictionary)
+var mix: Dictionary = {}      # N3: planet -> {goods, bonus} sold so far this cycle
 var local: Dictionary = {}    # "<planet>|<c>" -> {planet, c, buy, sell, buy_state, sell_state}
 var next_id: int = 1
 var closed_planets: Array = []  # planet indexes closed (permits/events hook); runtime only
 var debris_planets: Array = []  # T98: planets with debris; routes from them carry less (runtime, set by main)
 var shield: RefCounted = null  # T101: solar shield (shield.gd), set by main
 var learned: Array = []  # T82: learned skill ids, set by main; effects come from balance.json keys
+var split_budget: Dictionary = {}  # N2: runtime, set at the start of each settle: lane key -> units its split share may take
 
 func setup(bal: Dictionary, trade_logic: RefCounted, commodity_list: Array, storage_ref: RefCounted) -> void:
 	balance = bal
@@ -37,11 +39,12 @@ func reset() -> void:
 	routes = []
 	local = {}
 	next_id = 1
+	split_budget = {}
 
 func new_record(src_planet: int, dst_planet: int, c: String) -> Dictionary:
 	return {"id": 0, "src": "planet:%d" % src_planet, "dst": "planet:%d" % dst_planet,
 		"a": src_planet, "b": dst_planet, "c": c, "ships": 1, "ship": "small", "level": 1, "orders": {},
-		"fresh": 1.0, "state": "running", "reason": ""}
+		"fresh": 1.0, "state": "running", "reason": "", "split_to": -1, "split_share": 0.0}
 
 func find_by_id(id: int) -> int:
 	for i in routes.size():
@@ -206,6 +209,28 @@ func set_local(planet: int, c: String, role: String, on: bool) -> Dictionary:
 func local_price(planet: int, c: String, role: String) -> int:
 	return trade.price(planet, c + "_" + role)
 
+## N5: why Salvage is offered for c in this planet's storage: "" (not offered), "no_buyer" or "full". Needs stock and a sell price here.
+func salvage_reason(planet: int, c: String) -> String:
+	var key: String = storage.planet_key(planet)
+	if storage.amount(key, c) <= 0 or sold_price(planet, c) <= 0:
+		return ""
+	var buyer: bool = local_on(planet, c, "sell")  # a standing Sell order here already moves the stock
+	for rec in routes:
+		if buyer:
+			break
+		if str(rec["src"]) == key and str(rec["c"]) == c and planet_open(int(rec["b"])) and local_on(int(rec["b"]), c, "sell"):
+			buyer = true
+	if not buyer:
+		return "no_buyer"
+	return "full" if storage.is_full(key, c) else ""
+
+## N5: credits for what the Sell order would pay on this planet's stock (m) and for the salvage sale (n = salvage_share of it).
+func salvage_offer(planet: int, c: String) -> Dictionary:
+	var units: int = storage.amount(storage.planet_key(planet), c)
+	var m: int = units * sold_price(planet, c)
+	var share: float = minf(float(balance.get("salvage_share", 0.4)), 0.99)  # always below a Sell order
+	return {"units": units, "n": mini(roundi(float(m) * share), maxi(m - 1, 0)), "m": m}
+
 ## Credits per unit a Sell order or a route's delivery earns. B3 Price Whisper adds skill_B3_margin; unlearned = the plain price.
 func sold_price(planet: int, c: String) -> int:
 	var p := local_price(planet, c, "sell")
@@ -336,6 +361,9 @@ func planned_units(rec: Dictionary) -> int:
 	if shield != null:  # T101: energy gain at planets bought after the shield
 		eff *= float(shield.unit_factor(int(rec["a"]), c))
 	var units := floori(units_per_cycle(rec) * clampf(float(rec["fresh"]), 0.0, 1.0) * eff)
+	var lim := _split_limit(rec)  # N2: a split lane takes no more than its share of the stock
+	if lim >= 0:
+		units = mini(units, lim)
 	return maxi(0, mini(units, mini(src_available(rec), storage.space(str(rec["dst"]), c))))
 
 ## Projected net credits of the next cycle (display and cash forecast): the ship cost while it can move stock.
@@ -357,6 +385,37 @@ func local_preview(cash: int) -> Array:
 			out.append(["%s %s at %s" % [role.capitalize(), o["c"], _pname(int(o["planet"]))], int(r["credits"]), str(r["state"])])
 	return out
 
+## N3 Mixed load (code name: bundle bonus). Bonus credits for a sale of `revenue` at a planet that already sold
+## `goods_before` distinct goods this cycle with `bonus_before` bonus paid. First good gets none; per-planet cap.
+func mixed_bonus(revenue: int, goods_before: int, bonus_before: int) -> int:
+	if goods_before < 1 or revenue <= 0:
+		return 0
+	var cap := int(balance.get("bundle_bonus_cap", 0))
+	return clampi(floori(revenue * float(balance.get("bundle_bonus_pct", 0.0))), 0, maxi(cap - bonus_before, 0))
+
+## Applied percent of a mixed load bonus for a sale (after the cap), 0 when none.
+static func mixed_pct(bonus: int, revenue: int) -> float:
+	return snappedf(100.0 * bonus / revenue, 0.1) if revenue > 0 and bonus > 0 else 0.0
+
+## Per good at this planet: {c: {bonus, revenue, pct}} for the Sell orders that would earn a bonus this cycle.
+func mixed_preview(planet: int) -> Dictionary:
+	var out := {}
+	var goods := 0
+	var paid := 0
+	for o in local.values():
+		if int(o["planet"]) != planet or not o["sell"]:
+			continue
+		var r := _local_calc(planet, str(o["c"]), "sell", 0)
+		if int(r["n"]) <= 0:
+			continue
+		var rev := int(r["credits"])
+		var b := mixed_bonus(rev, goods, paid)
+		if b > 0:
+			out[str(o["c"])] = {"bonus": b, "revenue": rev, "pct": mixed_pct(b, rev)}
+		goods += 1
+		paid += b
+	return out
+
 func _pname(i: int) -> String:
 	return str(trade.planets[i].get("name", trade.planets[i].get("id", "?"))) if i >= 0 and i < trade.planets.size() else "?"
 
@@ -371,9 +430,11 @@ func settle(cash: int) -> Dictionary:
 	var delta := 0
 	var upkeep_paid := 0
 	var orders: Array = local.values()
+	mix = {}
 	for o in orders:  # 1 local buys
 		if o["buy"]:
 			delta += _run_local(o, "buy", cash + delta, loc)
+	_begin_split_budget()
 	for rec in routes:  # 2 routes
 		var was: String = str(rec["state"])
 		var paid := _settle_one(rec, cash + delta)
@@ -391,6 +452,7 @@ func settle(cash: int) -> Dictionary:
 	for o in orders:  # 3 local sells
 		if o["sell"]:
 			delta += _run_local(o, "sell", cash + delta, loc)
+	split_budget = {}
 	return {"delta": delta, "results": results, "local": loc, "newly_blocked": newly, "newly_stalled": newly_stalled,
 		"upkeep": upkeep_paid, "gross": delta + upkeep_paid}
 
@@ -428,6 +490,11 @@ func _run_local(o: Dictionary, role: String, cash: int, out: Array) -> int:
 				took += storage.remove(sk, c, n - took)
 			n = took
 			r["credits"] = n * sold_price(planet, c)
+			var m: Dictionary = mix.get(planet, {"goods": 0, "bonus": 0})
+			if n > 0:
+				var b := mixed_bonus(int(r["credits"]), int(m["goods"]), int(m["bonus"]))
+				r["credits"] = int(r["credits"]) + b
+				mix[planet] = {"goods": int(m["goods"]) + 1, "bonus": int(m["bonus"]) + b}
 	o[role + "_state"] = r["state"]
 	out.append({"planet": planet, "c": c, "role": role, "n": n, "paid": int(r["credits"]), "state": r["state"]})
 	return int(r["credits"])
@@ -469,10 +536,122 @@ func _settle_one(rec: Dictionary, cash: int) -> int:
 	if from_planet < moved and sk != "":
 		from_planet += storage.remove(sk, c, moved - from_planet)
 	storage.add(dst, c, from_planet)
+	_spend_split(rec, moved)  # N2
 	rec["bonus"] = level_bonus(rec, from_planet)  # T145: credited by settle() on top of the ship cost
 	rec["state"] = "running"
 	rec["reason"] = ""
 	return -fixed
+
+## P2: the best open lane a closed-planet route's ship could move to, {a, b, net, setup_lost}; {} when none pays.
+## window = closure cycles left on the closed planet. net = the new lane's per-cycle net (route_margin at level 1
+## minus fixed_cost), scaled by (window - travel_cycles) / window: the idle transit cycles are taken out of the
+## closure window. setup_lost is true when the route carries an upgrade, which a moved ship loses.
+func best_open_lane(rec: Dictionary, window: int) -> Dictionary:
+	var c := str(rec["c"])
+	var idle: float = trade.travel_cycles()
+	if window <= 0 or float(window) <= idle:
+		return {}
+	var fixed := fixed_cost(rec)
+	var best := {}
+	var best_net := 0
+	for i in trade.planets.size():
+		for j in trade.planets.size():
+			if i == j or not planet_open(i) or not planet_open(j):
+				continue
+			if not check_connection(i, j, c)["ok"] or lane_full(i, j, c):
+				continue
+			var cand := new_record(i, j, c)
+			if src_available(cand) <= 0 or (_dest_full(cand) and not has_outflow(j, c)):
+				continue
+			var gross := route_margin(i, j, c)
+			var net := floori(float(gross - fixed) * (float(window) - idle) / float(window))
+			if gross - fixed > 0 and net > best_net:
+				best_net = net
+				best = {"a": i, "b": j, "net": net, "setup_lost": int(rec.get("level", 1)) >= 2}
+	return best
+
+## P2: moves the stranded route record at index i onto lane a -> b. Keeps its id and its ship; the upgrade is lost.
+func move_route(i: int, a: int, b: int) -> void:
+	var rec: Dictionary = routes[i]
+	var n := new_record(a, b, str(rec["c"]))
+	rec["a"] = a
+	rec["b"] = b
+	rec["src"] = n["src"]
+	rec["dst"] = n["dst"]
+	rec["level"] = 1
+	rec["state"] = "running"
+	rec["reason"] = ""
+
+## N2: a split Send divides the stock of one source and commodity between two lanes that already have ships.
+## Every ship record of a split lane holds split_to (the partner lane's destination) and split_share (its fixed share).
+## The first destination takes the share, the second takes the rest. Each leg still pays its own fixed cost.
+
+## N2: the lane's split {to, share}, {} when the lane is not split.
+func lane_split(src_planet: int, dst_planet: int, c: String) -> Dictionary:
+	for r in routes:
+		if r["a"] == src_planet and r["b"] == dst_planet and r["c"] == c and float(r["split_share"]) > 0.0:
+			return {"to": int(r["split_to"]), "share": float(r["split_share"])}
+	return {}
+
+## N2: splits the source stock of c: first takes share, second takes 1 - share. Both lanes must already have ships.
+func set_split(src_planet: int, first: int, second: int, c: String, share: float) -> void:
+	_set_lane_split(src_planet, first, c, second, share)
+	_set_lane_split(src_planet, second, c, first, 1.0 - share)
+
+func _set_lane_split(src_planet: int, dst_planet: int, c: String, to: int, share: float) -> void:
+	for r in routes:
+		if r["a"] == src_planet and r["b"] == dst_planet and r["c"] == c:
+			r["split_to"] = to
+			r["split_share"] = share
+
+## N2: a share as a fraction for the Send line: "1/4", "1/2" or "3/4".
+static func share_label(share: float) -> String:
+	return {0.25: "1/4", 0.5: "1/2", 0.75: "3/4"}.get(snappedf(share, 0.01), "%d%%" % roundi(share * 100.0))
+
+static func _lane_key(src_planet: int, dst_planet: int, c: String) -> String:
+	return "%d>%d|%s" % [src_planet, dst_planet, c]
+
+## N2: once per cycle, before routes move: each valid split lane may take its share of the stock its source holds now.
+func _begin_split_budget() -> void:
+	split_budget = {}
+	for rec in routes:
+		var key := _lane_key(int(rec["a"]), int(rec["b"]), str(rec["c"]))
+		if not split_budget.has(key):
+			var lim := _split_limit(rec)
+			if lim >= 0:
+				split_budget[key] = lim
+
+## N2: the most units this lane may take from its source this cycle; -1 when the lane is not a valid split.
+## A valid split has a partner lane that points back at it. When the partner cannot take stock, all of the source stock is open.
+func _split_limit(rec: Dictionary) -> int:
+	var a := int(rec["a"])
+	var b := int(rec["b"])
+	var c := str(rec["c"])
+	var key := _lane_key(a, b, c)
+	if split_budget.has(key):
+		return int(split_budget[key])
+	var sp := lane_split(a, b, c)
+	if sp.is_empty():
+		return -1
+	var to := int(sp["to"])
+	var back := lane_split(a, to, c)
+	if back.is_empty() or int(back["to"]) != b or lane_count(a, to, c) <= 0:
+		return -1
+	if _split_partner_blocked(a, to, c):
+		return src_available(rec)
+	return floori(float(src_available(rec)) * float(sp["share"]))
+
+## N2: true when the partner lane cannot take stock this cycle: a closed planet, or a full destination with no outflow.
+func _split_partner_blocked(a: int, to: int, c: String) -> bool:
+	if not planet_open(a) or not planet_open(to):
+		return true
+	return storage.is_full(storage.planet_key(to), c) and not has_outflow(to, c)
+
+## N2: the units a moved split lane has used of its budget.
+func _spend_split(rec: Dictionary, units: int) -> void:
+	var key := _lane_key(int(rec["a"]), int(rec["b"]), str(rec["c"]))
+	if split_budget.has(key):
+		split_budget[key] = maxi(0, int(split_budget[key]) - units)
 
 ## Saved form / restore. Restore validates against planet count and the owned ship count.
 func to_array() -> Array:
@@ -514,6 +693,8 @@ func from_array(saved, owned_ships: int) -> void:
 		rec["level"] = maxi(1, int(s.get("level", 1)))
 		rec["state"] = str(s.get("state", "running"))
 		rec["reason"] = str(s.get("reason", ""))
-		rec["fresh"] = clampf(float(s.get("fresh", 1.0)), 0.0, 1.0) if typeof(s.get("fresh")) != TYPE_ARRAY else 1.0
+		rec["split_to"] = int(s.get("split_to", -1))  # N2
+		rec["split_share"] = clampf(float(s.get("split_share", 0.0)), 0.0, 1.0)
+		rec["fresh"] =clampf(float(s.get("fresh", 1.0)), 0.0, 1.0) if typeof(s.get("fresh")) != TYPE_ARRAY else 1.0
 		routes.append(rec)
 		next_id = maxi(next_id, int(rec["id"]) + 1)

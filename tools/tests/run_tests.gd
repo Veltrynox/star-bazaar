@@ -37,6 +37,7 @@ func _run() -> void:
 	await _test_galaxy_view()
 	_test_route_tag()
 	await _test_energy_then_food()
+	await _test_salvage()
 	await _test_system_suns()
 	await _test_shield()
 	await _test_asteroid()
@@ -46,6 +47,10 @@ func _run() -> void:
 	await _test_every_ending()
 	await _test_debug_menu()
 	await _test_planet_size()
+	await _test_price_event()
+	await _test_route_move()
+	await _test_split_send()
+	await _test_mixed_load()
 	print("TOTAL pass=%d fail=%d" % [passed, failed])
 	quit(1 if failed > 0 else 0)
 
@@ -1834,6 +1839,182 @@ func _test_route_tag() -> void:
 	check(ln.tag.position.distance_to(ln.tag_pos) < 0.001 and absf(ln.tag_pos.x - 3.0) < 0.5, "route tag: sits at the middle of the arc", str(ln.tag_pos))
 	ln.queue_free()
 
+## P1: a price event on a planet row shows its arrow and the cycles it has left; the line goes when the event ends.
+func _test_price_event() -> void:
+	_wipe_user()
+	var m: Control = await _new_main()
+	m._dismiss_preface()
+	var n: int = m.events.price_cycles()
+	m.events.active = []
+	m.events.start_timed("EV01", {"kind": "up", "planet": 0, "c": "energy", "amount": 0})
+	m.planet_panel.show_planet(0)
+	var ln := _find_named(m.planet_panel, "PriceEvent_energy") as Label
+	check(ln != null and ln.text.begins_with("↑") and ln.text.contains("%d cycles left" % n), "P1: up event shows arrow and cycles left", ln.text if ln else "missing")
+	check(_find_named(m.planet_panel, "PriceEvent_food") == null, "P1: no event line on a commodity the event does not move")
+	m.events.tick()
+	m.planet_panel.show_planet(0)
+	ln = _find_named(m.planet_panel, "PriceEvent_energy") as Label
+	check(ln != null and ln.text.contains("%d cycles left" % (n - 1)), "P1: cycles left count goes down each cycle", ln.text if ln else "missing")
+	m.events.active = []
+	m.events.start_timed("EV03", {"kind": "down", "planet": 0, "c": "energy", "amount": 0})
+	m.planet_panel.show_planet(0)
+	ln = _find_named(m.planet_panel, "PriceEvent_energy") as Label
+	check(ln != null and ln.text.begins_with("↓"), "P1: down event shows a down arrow", ln.text if ln else "missing")
+	for i in range(n):
+		m.events.tick()
+	m.planet_panel.show_planet(0)
+	check(_find_named(m.planet_panel, "PriceEvent_energy") == null, "P1: no event line once the event has ended")
+	# P1: per-destination margins while a Send is pending
+	var pm := _find_named(m, "PendingMargins") as Label
+	check(pm != null and not pm.visible, "P1: no margin lines when no Send is pending")
+	m.events.active = []
+	m.events.start_timed("EV01", {"kind": "up", "planet": 1, "c": "energy", "amount": 0})
+	var mnow: int = m.trade.margin(0, 1, "energy")
+	var mafter: int = m.trade.margin_after_events(0, 1, "energy")
+	check(mnow > mafter, "P1: an up event on the destination lifts the margin now above the margin after", "%d %d" % [mnow, mafter])
+	m.events.active = []
+	check(m.trade.margin_after_events(0, 1, "energy") == m.trade.margin(0, 1, "energy"), "P1: with no event both margins match")
+	m.events.start_timed("EV01", {"kind": "up", "planet": 1, "c": "energy", "amount": 0})
+	m.selected_planet = 0
+	m._on_send("energy")
+	check(pm.visible and pm.text.contains("%d per unit now, %d after" % [mnow, mafter]), "P1: pending Send shows margin now and after the event", pm.text)
+	m.cancel_pending()
+	check(not pm.visible, "P1: margin lines vanish when the Send is cancelled")
+	await _free_main(m)
+
+# ---- P2: a route stranded by a closed planet offers an optional Move ship; nothing moves by itself ----
+func _test_route_move() -> void:
+	_wipe_user()
+	var m: Control = await _new_main()
+	m._dismiss_preface()
+	var e = m.engine
+	var ti: int = m.events.planet_index("Tillam")
+	m.cash = 100000
+	var r: Dictionary = m.send_stock_buying(ti, m.events.planet_index("Voltara"), "food")
+	check(r["ok"], "P2: route from Tillam made", str(r.get("reason", "")))
+	if not r["ok"]:
+		await _free_main(m)
+		return
+	var rid: int = int(r["id"])
+	var ri: int = e.find_by_id(rid)
+	for p in m.trade.planets.size():  # stock at every planet so the open lanes can carry
+		m.storage.add(m.storage.planet_key(p), "food", 60)
+	m.events.active = []
+	m.events.start_timed("EV07", {"kind": "closed", "planet": ti, "c": "", "amount": 0})
+	m._sync_closed()
+	check(e.status_of(e.routes[ri]) == "blocked", "P2: closed planet blocks the route")
+	var off: Dictionary = m.move_offer(rid)
+	check(not off.is_empty() and int(off["net"]) > 0, "P2: an open lane is offered with a positive net", str(off))
+	if off.is_empty():
+		await _free_main(m)
+		return
+	check(int(off["a"]) != ti and int(off["b"]) != ti and e.planet_open(int(off["a"])) and e.planet_open(int(off["b"])), "P2: offered lane avoids the closed planet")
+	var W: float = float(m.events.close_cycles())
+	var idle: float = m.trade.travel_cycles()
+	var expect := floori(float(e.route_margin(int(off["a"]), int(off["b"]), "food") - e.fixed_cost(e.routes[ri])) * (W - idle) / W)
+	check(int(off["net"]) == expect, "P2: net is the new lane's per-cycle net less the idle transit cycles", "%d vs %d" % [int(off["net"]), expect])
+	check(not bool(off["setup_lost"]), "P2: no setup lost on a plain route")
+	m.events.tick()
+	check(int(e.routes[ri]["a"]) == ti, "P2: nothing moves on its own when a cycle passes")
+	m.events.active[0]["left"] = 1
+	check(m.move_offer(rid).is_empty(), "P2: no offer when the closure ends within the idle transit cycles")
+	m.events.active[0]["left"] = 2
+	e.routes[ri]["level"] = 2
+	check(bool(m.move_offer(rid).get("setup_lost", false)), "P2: an upgraded route shows Setup lost")
+	m.planet_panel.show_planet(ti)
+	check(_find_named(m.planet_panel, "MoveSetupLost") != null, "P2: panel shows Setup lost on an upgraded route")
+	e.routes[ri]["level"] = 1
+	m.planet_panel.show_planet(ti)
+	check(_find_named(m.planet_panel, "MoveSetupLost") == null and _find_named(m.planet_panel, "MoveShipButton") != null, "P2: panel offers Move ship without Setup lost")
+	check(_find_named(m.planet_panel, "MoveOffer") is Label and (_find_named(m.planet_panel, "MoveOffer") as Label).text.begins_with("Best open route: +"), "P2: panel line reads Best open route")
+	var routes_before: int = e.routes.size()
+	var ships_before: int = m.ships
+	var res: Dictionary = m.move_ship(rid)
+	check(res["ok"] and e.routes.size() == routes_before and m.ships == ships_before, "P2: Move ship keeps the route id count and the ship count")
+	var moved: Dictionary = e.routes[e.find_by_id(rid)]
+	check(int(moved["a"]) == int(off["a"]) and int(moved["b"]) == int(off["b"]) and e.status_of(moved) == "running", "P2: ship now runs the offered lane")
+	check(m.move_offer(rid).is_empty() and not m.move_ship(rid)["ok"], "P2: a moved route is not offered or moved again")
+	await _free_main(m)
+	_wipe_user()
+
+# ---- N2: a split Send divides one source's stock between two lanes at a fixed share; each leg still pays its cost ----
+func _test_split_send() -> void:
+	_wipe_user()
+	var m: Control = await _new_main()
+	m._dismiss_preface()
+	var e = m.engine
+	var ti: int = m.events.planet_index("Tillam")
+	m.cash = 100000
+	var dests: Array = []
+	for j in m.trade.planets.size():
+		if dests.size() >= 2:
+			break
+		if j != ti and m.send_stock_buying(ti, j, "food")["ok"]:
+			dests.append(j)
+	check(dests.size() == 2, "N2: two lanes with ships from Tillam", str(dests))
+	if dests.size() < 2:
+		await _free_main(m)
+		return
+	var d1: int = dests[0]
+	var d2: int = dests[1]
+	var r1: Dictionary = {}
+	var r2: Dictionary = {}
+	for r in e.routes:
+		if int(r["a"]) == ti and int(r["b"]) == d1:
+			r1 = r
+		if int(r["a"]) == ti and int(r["b"]) == d2:
+			r2 = r
+	check(m.split_targets(ti, "food").size() == 2, "N2: a split is offered from a planet with two lanes with ships")
+	check(e.share_label(0.75) == "3/4" and e.share_label(0.5) == "1/2" and e.share_label(0.25) == "1/4", "N2: share labels read 3/4, 1/2, 1/4")
+	e.set_split(ti, d1, d2, "food", 0.75)
+	var s1: Dictionary = e.lane_split(ti, d1, "food")
+	var s2: Dictionary = e.lane_split(ti, d2, "food")
+	check(int(s1.get("to", -1)) == d2 and is_equal_approx(float(s1.get("share", 0.0)), 0.75), "N2: first destination takes 3/4, partner is the second")
+	check(int(s2.get("to", -1)) == d1 and is_equal_approx(float(s2.get("share", 0.0)), 0.25), "N2: second destination takes 1/4")
+	# stock: twice one ship's units, so the 1/4 leg is held back and the 3/4 leg is not
+	var pk: String = m.storage.planet_key(ti)
+	var have: int = m.storage.amount(pk, "food")
+	if have > 0:
+		m.storage.remove(pk, "food", have)
+	var units: int = e.units_per_cycle(r1)
+	m.storage.add(pk, "food", 2 * units)
+	var u1: int = e.planned_units(r1)
+	var u2: int = e.planned_units(r2)
+	check(u1 == units and u2 < units and u2 == floori(float(2 * units) * 0.25), "N2: the 3/4 leg moves a full ship load, the 1/4 leg only its share", "%d %d (ship %d)" % [u1, u2, units])
+	var b1: int = m.storage.amount(m.storage.planet_key(d1), "food")
+	var b2: int = m.storage.amount(m.storage.planet_key(d2), "food")
+	var res: Dictionary = e.settle(m.cash)
+	check(m.storage.amount(m.storage.planet_key(d1), "food") - b1 == u1 and m.storage.amount(m.storage.planet_key(d2), "food") - b2 == u2, "N2: settle moves exactly the planned units on each leg")
+	var paid_ok := true
+	for v in res["results"]:
+		if int(v["a"]) == ti:
+			var rr: Dictionary = e.routes[e.find_by_id(int(v["id"]))]
+			if int(v["paid"]) != -e.fixed_cost(rr):
+				paid_ok = false
+	check(paid_ok, "N2: each leg still pays its trip and upkeep cost")
+	check(e.split_budget.is_empty(), "N2: the cycle's split budget is cleared after settle")
+	e.closed_planets.append(d2)
+	check(e._split_limit(r1) == e.src_available(r1), "N2: a closed partner lets the other lane take all the stock")
+	e.closed_planets.erase(d2)
+	var saved: Array = e.to_array()
+	e.from_array(saved, m.ships)
+	var s3: Dictionary = e.lane_split(ti, d1, "food")
+	check(not s3.is_empty() and is_equal_approx(float(s3["share"]), 0.75), "N2: the split survives a save and restore")
+	m.selected_planet = ti
+	m.planet_panel.show_planet(ti)
+	check(_find_named(m.planet_panel, "SplitHalfButton") != null and _find_named(m.planet_panel, "SplitThreeQuarterButton") != null, "N2: the panel offers both splits on a row with two lanes")
+	m.begin_split("food", 0.5)
+	check(m.pending.has("split"), "N2: a split pick starts a two-click order")
+	m._on_planet_clicked(ti)
+	check(m.pending.has("split") and not m.pending.has("first"), "N2: the source planet is not picked as a destination")
+	m._on_planet_clicked(d1)
+	m._on_planet_clicked(d2)
+	check(m.pending.is_empty(), "N2: the second destination completes the split")
+	var t1: Dictionary = e.lane_split(ti, d1, "food")
+	check(not t1.is_empty() and is_equal_approx(float(t1["share"]), 0.5) and int(t1["to"]) == d2, "N2: the picked order sets half and half, first destination first", "%s d1=%d d2=%d pending=%s" % [str(t1), d1, d2, str(m.pending)])
+	await _free_main(m)
+	_wipe_user()
+
 # ---- each system has its own sun (system 2 blue); system 1 keeps the orange one ----
 func _test_system_suns() -> void:
 	_wipe_user()
@@ -1905,5 +2086,131 @@ func _test_energy_then_food() -> void:
 	m._on_send("food")
 	m._on_planet_clicked(1)
 	check(e.routes.size() == 3 and str(e.routes[2]["c"]) == "food", "energy then food: food route in the energy direction is made too")
+	await _free_main(m)
+	_wipe_user()
+
+## N5: Salvage sale for stuck stock.
+func _test_salvage() -> void:
+	var m: Control = await _new_main()
+	m._dismiss_preface()
+	var e = m.engine
+	var share: float = float(m.balance["salvage_share"])
+	check(share > 0.0 and share < 1.0, "salvage: salvage_share is between 0 and 1", str(share))
+	var key: String = m.storage.planet_key(0)
+	m.storage.ensure(key)
+	var c := "energy"
+	var cap: int = m.storage.capacity_of(key)
+	# Stock, no order, no route: no buyer.
+	m.storage.stock[key][c] = 10
+	check(e.salvage_reason(0, c) == "no_buyer", "salvage: offered with no buyer on the lanes")
+	var offer: Dictionary = e.salvage_offer(0, c)
+	var price: int = e.sold_price(0, c)
+	check(int(offer["m"]) == 10 * price and int(offer["n"]) == roundi(10.0 * price * share), "salvage: amount is salvage_share times the Sell price", str(offer))
+	check(int(offer["n"]) < int(offer["m"]), "salvage: never beats a Sell order")
+	# A standing Sell order is a buyer: not offered while storage has room.
+	m.set_local_order(0, c, "sell", true)
+	check(e.salvage_reason(0, c) == "", "salvage: not offered with a Sell order and room in storage")
+	# Storage full: offered even with a buyer.
+	m.storage.stock[key][c] = cap
+	check(e.salvage_reason(0, c) == "full", "salvage: offered when storage is full")
+	m.set_local_order(0, c, "sell", false)
+	# Empty storage: nothing to salvage.
+	m.storage.stock[key][c] = 0
+	check(e.salvage_reason(0, c) == "", "salvage: not offered with empty storage")
+	# Click: stock leaves storage, cash rises by N, one-off.
+	m.storage.stock[key][c] = 10
+	var cash0: int = m.cash
+	var n: int = int(e.salvage_offer(0, c)["n"])
+	var r: Dictionary = m.salvage_stock(0, c)
+	check(r["ok"] and m.cash == cash0 + n and m.storage.amount(key, c) == 0, "salvage: sale credits cash and empties the stock", str(r))
+	check(not m.salvage_stock(0, c)["ok"] and m.cash == cash0 + n, "salvage: second click does nothing")
+	await _free_main(m)
+	_wipe_user()
+
+# ---- N3: Mixed load bonus (code name: bundle bonus) ----
+func _test_mixed_load() -> void:
+	var m: Control = await _new_main()
+	m._dismiss_preface()
+	var e = m.engine
+	var pct: float = float(m.balance["bundle_bonus_pct"])
+	var cap: int = int(m.balance["bundle_bonus_cap"])
+	var key: String = m.storage.planet_key(0)
+	m.storage.ensure(key)
+	var goods: Array = []
+	for c in e.commodities:
+		if e.local_price(0, c, "sell") > 0:
+			goods.append(c)
+	check(goods.size() >= 2, "N3: planet 0 buys at least two goods", str(goods))
+	if goods.size() < 2:
+		await _free_main(m)
+		return
+	var a: String = goods[0]
+	var b: String = goods[1]
+	e.local.clear()
+	m.storage.stock[key][a] = 10
+	m.storage.stock[key][b] = 10
+	e.local_of(0, a, true)["sell"] = true
+	# One good: no bonus, no row line.
+	check(e.mixed_preview(0).is_empty(), "N3: one good has no bonus preview")
+	var one: Dictionary = e.settle(0)
+	var rev_a: int = int(one["local"][0]["paid"])
+	check(rev_a == int(one["local"][0]["n"]) * e.sold_price(0, a) and rev_a > 0, "N3: one good sells at the normal price", str(one["local"]))
+	# Two goods: first none, second +pct of its revenue (below the cap).
+	m.storage.stock[key][a] = 10
+	m.storage.stock[key][b] = 10
+	e.local_of(0, b, true)["sell"] = true
+	var calc_b: int = int(e._local_calc(0, b, "sell", 0)["credits"])
+	var want_b: int = floori(calc_b * pct)
+	var cap0: int = int(e.balance["bundle_bonus_cap"])
+	e.balance["bundle_bonus_cap"] = 1000000
+	var two: Dictionary = e.settle(0)
+	var pa := 0
+	var pb := 0
+	for l in two["local"]:
+		if l["c"] == a: pa = int(l["paid"])
+		if l["c"] == b: pb = int(l["paid"])
+	check(pa == rev_a and pb == calc_b + want_b and want_b > 0, "N3: second good gets pct of its revenue, first none", "%d %d %d %d" % [pa, pb, calc_b, want_b])
+	# Cap: 150 per planet per cycle, applied percent drops below 5.
+	e.balance["bundle_bonus_cap"] = 1
+	m.storage.stock[key][a] = 10
+	m.storage.stock[key][b] = 10
+	var prev: Dictionary = e.mixed_preview(0)
+	check(prev.has(b) and int(prev[b]["bonus"]) == 1 and float(prev[b]["pct"]) < pct * 100.0, "N3: preview shows the capped percent, not 5", str(prev))
+	var capped: Dictionary = e.settle(0)
+	var total_bonus := 0
+	for l in capped["local"]:
+		if l["c"] == b: total_bonus = int(l["paid"]) - calc_b
+	check(total_bonus == 1, "N3: bonus is capped per planet per cycle", str(total_bonus))
+	e.balance["bundle_bonus_cap"] = cap0
+	check(cap0 == cap and cap == 150, "N3: cap comes from balance (150)")
+	# Row line only when it applies, with the capped percent.
+	m.storage.stock[key][a] = 10
+	m.storage.stock[key][b] = 10
+	m.planet_panel.show_planet(0)
+	await get_root().get_tree().process_frame
+	var ml: Node = _find_named(m.planet_panel, "MixedLoadLabel")
+	check(ml != null and ml.text.begins_with("Mixed load +") and "150" in ml.text and not ("undle" in ml.text), "N3: Sell row shows the Mixed load line", ml.text if ml else "none")
+	e.balance["bundle_bonus_cap"] = 1
+	m.planet_panel.show_planet(0)
+	await get_root().get_tree().process_frame
+	ml = _find_named(m.planet_panel, "MixedLoadLabel")
+	check(ml != null and not ("+5%" in ml.text), "N3: row line never shows 5% when the cap cut it", ml.text if ml else "none")
+	e.balance["bundle_bonus_cap"] = cap0
+	e.local_of(0, b, true)["sell"] = false
+	m.planet_panel.show_planet(0)
+	await get_root().get_tree().process_frame
+	check(_find_named(m.planet_panel, "MixedLoadLabel") == null, "N3: no row line with one good")
+	# Per cycle: next cycle starts fresh, a single good gets nothing.
+	e.local_of(0, b, true)["sell"] = true
+	m.storage.stock[key][a] = 10
+	m.storage.stock[key][b] = 10
+	e.settle(0)
+	m.storage.stock[key][a] = 10
+	m.storage.stock[key][b] = 0
+	var nxt: Dictionary = e.settle(0)
+	var got := 0
+	for l in nxt["local"]:
+		if l["c"] == a: got = int(l["paid"])
+	check(got == int(nxt["local"][0]["n"]) * e.sold_price(0, a) and nxt["local"].size() >= 1, "N3: bonus does not carry over to the next cycle", str(nxt["local"]))
 	await _free_main(m)
 	_wipe_user()

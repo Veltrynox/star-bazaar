@@ -114,6 +114,7 @@ var debug_menu: PanelContainer  # T33: null in release builds; T34 adds its butt
 var selected_planet: int = -1
 var pending: Dictionary = {}  # T68: "Send to..." waiting for a destination {planet, c}; empty when none
 var pending_label: Label
+var pending_margins: Label  # P1: per-destination margins while a plain Send to... is pending
 var last_local: Array = []  # T68: local order results of the last cycle end
 var income_popup: Control  # T133 green +N above planets
 var mission_planet: int = -1  # planet that sells the first ship (abundant energy, scarce food)
@@ -134,6 +135,7 @@ func _ready() -> void:
 	add_child(planet_panel)
 	planet_panel.setup(self)
 	planet_panel.order_requested.connect(_on_order)
+	planet_panel.salvage_requested.connect(_on_salvage)
 	planet_panel.send_requested.connect(_on_send)
 	planet_panel.buy_send_requested.connect(_on_buy_send)
 	planet_panel.remove_requested.connect(_remove_requested)
@@ -611,6 +613,9 @@ func _to_menu() -> void:
 	get_tree().change_scene_to_file("res://game/main_menu.tscn")
 
 func _on_planet_clicked(index: int) -> void:
+	if pending.has("split"):  # N2: a split takes two clicks, first then second destination
+		_on_split_click(index)
+		return
 	if not pending.is_empty():
 		if index < 0 or index >= map.planets.size():
 			cancel_pending()
@@ -716,12 +721,53 @@ func _pending_changed() -> void:
 	map.set_pending(int(pending["planet"]) if not pending.is_empty() else -1)
 	if pending_label != null:
 		pending_label.visible = not pending.is_empty()
-		if not pending.is_empty():
+		if pending.has("split"):  # N2
+			var sp_args := {"commodity": str(pending["c"]).capitalize(), "planet": planet_name(int(pending["planet"]))}
+			pending_label.text = StoryText.get_or("LBL_SPLIT_PICK_SECOND", "Split {commodity} from {planet}: now click the second destination. (Esc to cancel)", sp_args) if pending.has("first") else StoryText.get_or("LBL_SPLIT_PICK_FIRST", "Split {commodity} from {planet}: click the first destination. (Esc to cancel)", sp_args)
+		elif not pending.is_empty():
 			pending_label.text = "Send %s from %s: click the destination planet. (Esc to cancel)" % [
 				pending["c"], planet_name(int(pending["planet"]))]
+	_refresh_pending_margins()
 	_refresh_panel()
 
+## P1: one line per reachable destination: margin per unit now, and after the price events end when one moves it.
+func pending_margin_lines() -> Array:
+	var out: Array = []
+	if pending.is_empty() or pending.has("split"):
+		return out
+	var src := int(pending["planet"])
+	var c := str(pending["c"])
+	for i in trade.planets.size():
+		if i == src or not bool(engine.check_connection(src, i, c)["ok"]):
+			continue
+		var now: int = trade.margin(src, i, c)
+		var after: int = trade.margin_after_events(src, i, c)
+		var args := {"planet": planet_name(i), "now": now, "after": after}
+		if now == after:
+			out.append(StoryText.get_or("LBL_MARGIN_NOW", "{planet}: margin {now} per unit", args))
+		else:
+			out.append(StoryText.get_or("LBL_MARGIN_AFTER_EVENT", "{planet}: margin {now} per unit now, {after} after the event", args))
+	return out
+
+func _refresh_pending_margins() -> void:
+	if pending_margins == null:
+		return
+	var lines := pending_margin_lines()
+	pending_margins.visible = not lines.is_empty()
+	pending_margins.text = "\n".join(lines)
+
 func _build_pending_label() -> void:
+	pending_margins = Label.new()
+	pending_margins.name = "PendingMargins"
+	pending_margins.set_anchors_and_offsets_preset(Control.PRESET_CENTER_BOTTOM)
+	pending_margins.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	pending_margins.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	pending_margins.offset_bottom = -92  # just above the pending banner
+	pending_margins.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	pending_margins.theme_type_variation = "LabelSmall"
+	pending_margins.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	pending_margins.visible = false
+	add_child(pending_margins)
 	pending_label = Label.new()
 	pending_label.set_anchors_and_offsets_preset(Control.PRESET_CENTER_BOTTOM)
 	pending_label.grow_horizontal = Control.GROW_DIRECTION_BOTH
@@ -858,6 +904,51 @@ func send_stock_buying(src: int, dst: int, c: String) -> Dictionary:
 	r["bought"] = bought
 	return r
 
+## N2: destinations of commodity c that this planet already sends to with an assigned ship (one entry per lane).
+func split_targets(planet: int, c: String) -> Array:
+	var out: Array = []
+	for r in engine.routes:
+		var b := int(r["b"])
+		if int(r["a"]) == planet and str(r["c"]) == c and not out.has(b):
+			out.append(b)
+	return out
+
+## N2: "Split half and half" (1/2, 1/2) or "Split 3/4 and 1/4" (3/4, 1/4) on a storage row: the next two planets clicked
+## are the destinations, first then second. Needs two lanes with ships from the selected planet.
+func begin_split(c: String, share: float) -> void:
+	if selected_planet < 0 or game_over or split_targets(selected_planet, c).size() < 2:
+		return
+	pending = {"planet": selected_planet, "c": c, "split": share}
+	_pending_changed()
+
+## N2: one click of a split pick. Both destinations must already have a ship from the source planet.
+func _on_split_click(index: int) -> void:
+	var src := int(pending["planet"])
+	var c := str(pending["c"])
+	if index < 0 or index >= map.planets.size():
+		cancel_pending()
+		return
+	if index == src or (pending.has("first") and index == int(pending["first"])):
+		post_notice("Pick a different planet as the destination.")
+		return
+	if engine.lane_count(src, index, c) <= 0:
+		post_notice(StoryText.get_or("NOT_SPLIT_NEEDS_LANES", "A split needs a ship already on both lanes."))
+		return
+	if not pending.has("first"):
+		pending["first"] = index
+		_pending_changed()
+		return
+	var first := int(pending["first"])
+	var share := float(pending["split"])
+	cancel_pending()
+	engine.set_split(src, first, index, c, share)
+	post_notice(StoryText.get_or("LBL_SPLIT_LINE", "{a} {sa}, {b} {sb}", {
+		"a": planet_name(first), "sa": RouteEngine.share_label(share),
+		"b": planet_name(index), "sb": RouteEngine.share_label(1.0 - share)}))
+	_route_beat(first, index)
+	selected_planet = src
+	planet_panel.show_planet(src)
+
 ## T68: standing local order at a planet (no ship). role "buy" or "sell". Returns {ok, reason}.
 func set_local_order(planet: int, c: String, role: String, on: bool) -> Dictionary:
 	if game_over:
@@ -870,6 +961,26 @@ func set_local_order(planet: int, c: String, role: String, on: bool) -> Dictiona
 			_note_system(planet)
 		_after_change()
 	return r
+
+## N5: one-off salvage sale of the stock in a planet's storage. Returns {ok, reason, credits}.
+func salvage_stock(planet: int, c: String) -> Dictionary:
+	if game_over:
+		return {"ok": false, "reason": "The game is over.", "credits": 0}
+	if engine.salvage_reason(planet, c) == "":
+		return {"ok": false, "reason": StoryText.get_or("LBL_SALVAGE_NA", "Salvage is not offered now."), "credits": 0}
+	var offer: Dictionary = engine.salvage_offer(planet, c)
+	var took: int = storage.remove(storage.planet_key(planet), c, int(offer["units"]))
+	var credits: int = int(offer["n"]) if took == int(offer["units"]) else 0
+	cash += credits
+	_after_change()
+	return {"ok": true, "reason": "", "credits": credits}
+
+func _on_salvage(c: String) -> void:
+	if selected_planet < 0:
+		return
+	var r := salvage_stock(selected_planet, c)
+	if not r["ok"]:
+		post_notice(str(r["reason"]))
 
 func toggle_local(planet: int, c: String, role: String) -> Dictionary:
 	return set_local_order(planet, c, role, not engine.local_on(planet, c, role))
@@ -899,6 +1010,39 @@ func remove_connection(id: int) -> Dictionary:
 	if i < 0:
 		return {"ok": false, "reason": "No such route."}
 	engine.routes.remove_at(i)
+	_after_change()
+	return {"ok": true, "reason": ""}
+
+## P2: cycles the closure of a route's planet has left (0 when neither end is closed now).
+func closure_left(rec: Dictionary) -> int:
+	var n := 0
+	for a in events.active:
+		var p := int(a["planet"])
+		if a["kind"] == "closed" and (p == int(rec["a"]) or p == int(rec["b"])) and engine.closed_planets.has(p):
+			n = maxi(n, int(a["left"]))
+	return n
+
+## P2: the optional Move ship offer for a route blocked by a closed planet, {a, b, net, setup_lost} or {}.
+func move_offer(id: int) -> Dictionary:
+	var i: int = engine.find_by_id(id)
+	if i < 0:
+		return {}
+	var rec: Dictionary = engine.routes[i]
+	return engine.best_open_lane(rec, closure_left(rec))
+
+## P2: Move ship, pressed by the player only; never automatic. Costs no cash, only the idle transit cycles. {ok, reason}.
+func move_ship(id: int) -> Dictionary:
+	if game_over:
+		return {"ok": false, "reason": "The game is over."}
+	var i: int = engine.find_by_id(id)
+	if i < 0:
+		return {"ok": false, "reason": "No such route."}
+	var offer := move_offer(id)
+	if offer.is_empty():
+		return {"ok": false, "reason": "No open route pays for this ship."}
+	engine.move_route(i, int(offer["a"]), int(offer["b"]))
+	storage.ensure(str(engine.routes[i]["src"]))
+	storage.ensure(str(engine.routes[i]["dst"]))
 	_after_change()
 	return {"ok": true, "reason": ""}
 
