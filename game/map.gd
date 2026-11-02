@@ -210,14 +210,14 @@ func _add_orbit_rings(center: Vector3, sys: int = 1) -> void:
 ## the thin layers the other one. Static (no rotation). Children of the ring node, so they show and hide with it.
 ## Flat (y = 0 for every layer) and no clearance mask: the bands pass through the planet centres, and the part inside a sphere is hidden by the
 ## sphere's own depth (the body writes depth and draws first), so no band shows over a planet.
-## Opacity: texture alpha x 0.5 x layer alpha; the layers overlap to about 50% at the densest spot.
+## Opacity: ALPHA = texture alpha x layer alpha (0.5): the brightest grains of every layer reach 50%.
 const DUST_SPEED := 0.0       # static ring: no rotation (uniform kept at 0)
 const DUST_WIDTH := 1.875     # width of layer 0 in planet radii (the wide faint layer; the size test reads it)
 const DUST_LAYERS := [        # y and off and width in planet radii (off = radial centre shift from the orbit); tint = lerp sun colour to white
-	{"name": "OrbitDust",  "y": 0.0,  "off": 0.0,   "w": 1.875, "a": 0.4, "tint": 0.30, "alt": false, "win": Vector2(0.0, 1.0), "ang": 0.0},  # wide faint
-	{"name": "OrbitDust2", "y": 0.0,  "off": 0.0,   "w": 0.70,  "a": 0.8, "tint": 0.10, "alt": false, "win": Vector2(0.2, 0.8), "ang": 2.1},  # narrow bright
-	{"name": "OrbitDust3", "y": 0.0,  "off": 0.85,  "w": 0.25,  "a": 0.7, "tint": 0.55, "alt": true,  "win": Vector2(0.4, 0.7), "ang": 4.0},  # thin outer
-	{"name": "OrbitDust4", "y": 0.0,  "off": -0.80, "w": 0.30,  "a": 0.7, "tint": 0.75, "alt": true,  "win": Vector2(0.1, 0.4), "ang": 1.0},  # thin inner
+	{"name": "OrbitDust",  "y": 0.0,  "off": 0.0,   "w": 1.875, "a": 0.5, "tint": 0.30, "alt": false, "win": Vector2(0.0, 1.0), "ang": 0.0},  # wide faint
+	{"name": "OrbitDust2", "y": 0.0,  "off": 0.0,   "w": 0.70,  "a": 0.5, "tint": 0.10, "alt": false, "win": Vector2(0.2, 0.8), "ang": 2.1},  # narrow bright
+	{"name": "OrbitDust3", "y": 0.0,  "off": 0.85,  "w": 0.25,  "a": 0.5, "tint": 0.55, "alt": true,  "win": Vector2(0.4, 0.7), "ang": 4.0},  # thin outer
+	{"name": "OrbitDust4", "y": 0.0,  "off": -0.80, "w": 0.30,  "a": 0.5, "tint": 0.75, "alt": true,  "win": Vector2(0.1, 0.4), "ang": 1.0},  # thin inner
 ]
 func _add_orbit_dust(parent: Node3D, center: Vector3, sys: int) -> void:
 	for L in DUST_LAYERS:
