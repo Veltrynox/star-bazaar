@@ -1,7 +1,8 @@
 shader_type spatial;
-render_mode unshaded, blend_mix, cull_back, depth_draw_never;
-// Cloud shell: a sphere just above the surface (about 1.02 of the body radius), alpha from the cloud texture brightness
-// (white clouds on black). The UV slides along the equator with TIME (speed), so the clouds drift over the body.
+render_mode unshaded, blend_premul_alpha, cull_back, depth_draw_never;
+// Cloud shell: a sphere just above the surface (about 1.02 of the body radius). The texture has no alpha channel (white clouds
+// on black), so it is a light mask and the shell is screen-blended: blend_premul_alpha gives out = src + dst * (1 - a) with
+// src = lit colour * a, i.e. screen with a scalar mask. Black cloud texels add nothing, the planet texture shows through. The UV slides along the equator with TIME (speed), so the clouds drift over the body.
 // Lit by key_dir with the same sun-side gate as the Fresnel crescent, so the night side is nearly dark and it does not look flat.
 // The body shader (planet_sphere.gdshader) samples the same texture with the same speed and scale to cast the cloud shadows.
 uniform sampler2D cloud_tex : filter_linear_mipmap, repeat_enable;
@@ -34,6 +35,6 @@ void fragment() {
 	float nk = dot(n, normalize(key_dir));
 	float side = smoothstep(fres_side - 0.25, fres_side + 0.6, nk);
 	vec3 lit = cloud_col.rgb * mix(vec3(ambient), key_color.rgb * 1.1 + 0.25, side);
-	ALBEDO = lit;
+	ALBEDO = lit * a;  // premultiplied: screen-style, dark mask = no change to the surface below
 	ALPHA = a;
 }
