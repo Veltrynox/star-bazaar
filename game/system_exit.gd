@@ -2,7 +2,8 @@ extends Control
 ## Next solar system, drawn over the system map as in the design pack (screens/SystemView.html, "locked exit"):
 ## a lock icon with the system's name and how it opens, and a thin dotted line that fades out toward the current
 ## system. The marker sits where the next system lies in the world; when that is off screen, the marker and the line
-## are both hidden (nothing is pinned to the edge). Nothing here takes clicks.
+## are both hidden (nothing is pinned to the edge). An open system shows an amber arrow and a click moves the player
+## there; a locked one shows the grey lock and a click only says why it is locked. Clicks are read in _input.
 
 const StoryText := preload("res://game/story_text.gd")
 const Systems := preload("res://game/systems.gd")
@@ -18,12 +19,17 @@ const DOT_STEP := 5.0
 
 var main: Control
 var target_sid: int = -1
+const HIT_RADIUS := 26.0
 
 func setup(main_node: Control) -> void:
 	main = main_node
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	visible = false
+
+## System 1 (planets.json, always open) and every system of systems.json.
+func all_ids() -> Array:
+	return [1] + Systems.ids()
 
 ## First system that is not open yet (-1 when every system is open).
 func next_locked() -> int:
@@ -54,25 +60,50 @@ func _center(sid: int) -> Variant:
 func _screen(world: Vector3) -> Vector2:
 	return main.map.camera.unproject_position(world)
 
-## {marker: Vector2, from: Vector2} in screen pixels, or {} when there is nothing to show.
-func layout() -> Dictionary:
+## Every other system as {sid, marker, from, locked} in screen pixels; those off screen are left out.
+func markers() -> Array:
+	var out := []
 	if main == null or main.map == null or main.map.camera == null:
-		return {}
-	var sid := next_locked()
-	if sid < 0:
-		return {}
-	var c_to = _center(sid)
+		return out
 	var c_from = _center(int(main.view_system))
-	if c_to == null or c_from == null:
-		return {}
+	if c_from == null:
+		return out
 	var rect := Rect2(Vector2(AREA_LEFT, AREA_TOP), get_viewport_rect().size - Vector2(AREA_LEFT + AREA_RIGHT, AREA_TOP + AREA_BOTTOM))
 	if rect.size.x < 50.0 or rect.size.y < 50.0:
-		return {}
+		return out
 	var a: Vector2 = _screen(c_from).clamp(rect.position, rect.end)
-	var b: Vector2 = _screen(c_to)
-	if not on_screen(b, main.map.camera.is_position_behind(c_to), get_viewport_rect().size):
-		return {}
-	return {"sid": sid, "marker": b, "from": a}
+	for sid in all_ids():
+		if int(sid) == int(main.view_system):
+			continue
+		var c_to = _center(int(sid))
+		if c_to == null:
+			continue
+		var b: Vector2 = _screen(c_to)
+		if not on_screen(b, main.map.camera.is_position_behind(c_to), get_viewport_rect().size):
+			continue
+		out.append({"sid": int(sid), "marker": b, "from": a, "locked": not main.open_systems.has(int(sid))})
+	return out
+
+## The first marker as {sid, marker, from, locked}, or {} when nothing is shown.
+func layout() -> Dictionary:
+	var m := markers()
+	return {} if m.is_empty() else m[0]
+
+## Marker of system `sid` under a screen point, or -1.
+func hit_test(point: Vector2) -> int:
+	for m in markers():
+		if (m["marker"] as Vector2).distance_to(point) <= HIT_RADIUS:
+			return int(m["sid"])
+	return -1
+
+func _input(event: InputEvent) -> void:
+	if not visible or not (event is InputEventMouseButton) or not event.pressed or event.button_index != MOUSE_BUTTON_LEFT:
+		return
+	var sid := hit_test(event.position)
+	if sid < 0:
+		return
+	get_viewport().set_input_as_handled()  # the map must not read this click as an empty-space click
+	main.enter_system_from_view(sid)
 
 ## True when the target's screen point is inside the camera view (and in front of the camera).
 ## Off screen means no marker and no line at all: nothing is pinned to the edge.
@@ -80,36 +111,46 @@ static func on_screen(point: Vector2, behind: bool, view: Vector2) -> bool:
 	return not behind and Rect2(Vector2(EDGE_MARGIN, EDGE_MARGIN), view - Vector2(EDGE_MARGIN, EDGE_MARGIN) * 2.0).has_point(point)
 
 func _process(_delta: float) -> void:
-	var on: bool = main != null and main.map != null and main.map.visible and next_locked() >= 0
+	var on: bool = main != null and main.map != null and main.map.visible and Systems.ids().size() > 0
 	if on != visible:
 		visible = on
 	if visible:
 		queue_redraw()
 
 func _draw() -> void:
-	var info := layout()
-	if info.is_empty():
-		return
-	target_sid = int(info["sid"])
+	for info in markers():
+		_draw_marker(info)
+
+func _draw_marker(info: Dictionary) -> void:
+	var sid := int(info["sid"])
+	var locked: bool = info["locked"]
+	target_sid = sid
 	var m: Vector2 = info["marker"]
 	var from: Vector2 = info["from"]
 	var dir := (from - m)
 	var span := minf(dir.length(), LINE_LEN)
 	if span > 1.0:
 		dir = dir.normalized()
-		var warm := Ui.col("ink")
+		var warm := Ui.col("ink") if locked else Ui.col("star_warm")
 		var d := 14.0  # start just clear of the icon
 		while d < span:
 			var col := Color(warm.r, warm.g, warm.b, LINE_ALPHA * (1.0 - d / span))
 			draw_line(m + dir * d, m + dir * (d + 2.0), col, 1.0, true)
 			d += DOT_STEP
-	var subtle := Ui.col("ink_subtle")
-	var icon := Ui.icon("lock")
-	if icon != null:
-		draw_texture_rect(icon, Rect2(m - Vector2(8, 8), Vector2(16, 16)), false, subtle)
+	var tint := Ui.col("ink_subtle") if locked else Ui.col("star_warm")
+	if locked:
+		var icon := Ui.icon("lock")
+		if icon != null:
+			draw_texture_rect(icon, Rect2(m - Vector2(8, 8), Vector2(16, 16)), false, tint)
+	else:
+		_draw_arrow(m, (m - info["from"]).normalized() if (m - info["from"]).length() > 1.0 else Vector2.RIGHT, tint)
 	var font := get_theme_default_font()
-	var name_s := Systems.name_of(target_sid)
-	var how := StoryText.get_or("LBL_SYSTEM_N", "System {n} · {how}", {"n": target_sid,
-		"how": StoryText.get_or("LBL_LOCKED_HOW", "permit or skill")})
-	draw_string(font, m + Vector2(18, -1), name_s, HORIZONTAL_ALIGNMENT_LEFT, -1, 13, subtle)
-	draw_string(font, m + Vector2(18, 14), how, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, subtle)
+	var how := StoryText.get_or("LBL_SYSTEM_N", "System {n} · {how}", {"n": sid,
+		"how": StoryText.get_or("LBL_LOCKED_HOW", "permit or skill") if locked else StoryText.get_or("LBL_OPEN_HOW", "click to travel")})
+	draw_string(font, m + Vector2(18, -1), Systems.name_of(sid), HORIZONTAL_ALIGNMENT_LEFT, -1, 13, tint)
+	draw_string(font, m + Vector2(18, 14), how, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, tint)
+
+## Filled arrowhead pointing along `dir` (away from the current system).
+func _draw_arrow(at: Vector2, dir: Vector2, col: Color) -> void:
+	var side := Vector2(-dir.y, dir.x)
+	draw_colored_polygon(PackedVector2Array([at + dir * 10.0, at - dir * 7.0 + side * 8.0, at - dir * 3.0, at - dir * 7.0 - side * 8.0]), col)
