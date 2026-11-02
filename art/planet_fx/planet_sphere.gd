@@ -6,6 +6,9 @@ extends MeshInstance3D
 ## Lighting is a separate setting: 70% key light plus rim light, 30% key light only. The Fresnel edge is a soft sun-side crescent on every planet.
 ## Set use_id = false to force variant and rim_light by hand.
 
+## Owner: stripped planet body (beauty map + Fresnel + rim only). false brings back clouds, streaks and ring (also set the full material in the tscn and show Glow and Atmosphere).
+const SIMPLE := true
+
 const FX := preload("res://art/planet_fx/planet_fx.gd")
 
 ## Per-type surface table: beauty (colour), disp (height, relief), optional glow mask and lights mask.
@@ -328,7 +331,7 @@ func _apply() -> void:
 		am.set_shader_parameter("key_dir", key_dir)
 	var clouds := get_node_or_null("Clouds") as MeshInstance3D
 	if clouds:
-		clouds.visible = beauty and tt.has("clouds")
+		clouds.visible = beauty and tt.has("clouds") and not SIMPLE
 		var cm := clouds.get_surface_override_material(0) as ShaderMaterial
 		if cm and clouds.visible:
 			cm.set_shader_parameter("cloud_tex", cached_tex(tt["clouds"]))
@@ -341,7 +344,7 @@ func _apply() -> void:
 	var streaks := get_node_or_null("Streaks") as MeshInstance3D
 	if streaks:
 		# Streak shell: cloudy planets only (no glow mask on cloudy any more).
-		streaks.visible = planet_type == STREAKS_TYPE
+		streaks.visible = planet_type == STREAKS_TYPE and not SIMPLE
 		var sm := streaks.get_surface_override_material(0) as ShaderMaterial
 		if sm:
 			sm.set_shader_parameter("streak_col", p.pale)
@@ -351,7 +354,7 @@ func _apply() -> void:
 ## Ring for types with a "ring" entry (moon): one quad child, built once, shares the cached ring texture.
 func _apply_ring(tt: Dictionary) -> void:
 	var ring := get_node_or_null("Ring") as MeshInstance3D
-	if not tt.has("ring"):
+	if SIMPLE or not tt.has("ring"):
 		if ring:
 			ring.visible = false
 		return
