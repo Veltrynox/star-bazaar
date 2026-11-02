@@ -43,6 +43,9 @@ extends SceneTree
 ##   --force-goal=<cycle>    turns on the debug "Force goal at cycle end" toggle at that cycle
 ##                           (debug builds only; QA reaches the choice early)
 ##   --inject=<cycle>:<credits>  QA test input: credits added at the start of that cycle
+##   --close-at=<cycle>      QA closure (T94): the first route's source planet is closed from that cycle (timed, like an event).
+##   --keep-closed           T94: a route touching a closed planet is kept while its lane stays profitable (not dropped).
+##                           The RESULT line gets a "closure" record: closed and bridged cycles, what each route paid.
 ##   --skills=<id,id,...>    only these skills may be learned (empty value or none: no skill). Default: all.
 ##   --skill-order=<id,...>  learn these first, in this order, then the rest in tree order.
 ##   --permit=<system id>    buy that system's permit as soon as the game allows it (needs C1).
@@ -123,6 +126,16 @@ var event_policy := "first"  # --event-policy=first|decline
 var probe := ""  # --probe=s2: per cycle, Space Storage posts, system stock and closures (system 2 check)
 var close_at := -1  # --close-at=<cycle>: QA injection, closes the first route's source planet from that cycle
 var close_planet := -1
+var keep_closed := false  # --keep-closed (T94): a route touching a closed planet is kept while its lane stays profitable
+var play_cycle := -1  # the cycle being played; routes_settled results belong to it
+var route_ids_before: Array = []  # ids of routes touching close_planet at the start of the cycle, before decisions
+var closure_cycles: Array = []  # play cycles in which close_planet was closed at settle (no bridge)
+var bridged_cycles: Array = []  # play cycles in which the closure timer ran but a skill bridged it (route should run)
+var closure_routes: Dictionary = {}  # route id -> per-route record (see _on_routes_settled)
+var closure_drops: Array = []  # [cycle, route id] routes touching close_planet that were gone at settle during a closure
+var closure_start_ids: Array = []  # route ids touching close_planet when the closure first applied
+var closed_order_units := 0  # units traded by Buy or Sell orders at close_planet while it was closed (must stay 0)
+var closed_order_rows := 0  # order rows at close_planet with a non-zero trade while closed (must stay 0)
 var probe_rows: Array = []
 var events_resolved := 0  # events answered by _resolve_events (0 while the hook is a stub)
 
@@ -155,6 +168,8 @@ func _initialize() -> void:
 			probe = arg.trim_prefix("--probe=")
 		elif arg.begins_with("--close-at="):
 			close_at = int(arg.trim_prefix("--close-at="))
+		elif arg == "--keep-closed":
+			keep_closed = true
 		elif arg.begins_with("--permit="):
 			permit_sid = int(arg.trim_prefix("--permit="))
 		elif arg.begins_with("--inject="):
@@ -194,6 +209,7 @@ func _process(_delta: float) -> bool:
 		main.set_process(false)  # the bot owns the clock; engine frames must not add time
 		main.cycle_ended.connect(_on_cycle_ended)
 		main.run_ended.connect(_on_run_ended)
+		main.routes_settled.connect(_on_routes_settled)
 		win_cash = int(main.balance.get("win_cash", 0))
 		win_cycle = int(main.balance.get("win_cycle", 0))
 		stats_before = RunStats.load_stats()
@@ -214,6 +230,8 @@ func _play_cycle() -> void:
 		notes.append("QA closure of planet %d from cycle %d" % [close_planet, close_at])
 	main.set_paused(true)
 	var c: int = main.cycle
+	play_cycle = c
+	route_ids_before = _route_ids_at(close_planet)
 	if c == inject_cycle:
 		main.cash += inject_cash
 		notes.append("injected %d credits at cycle %d (QA test input)" % [inject_cash, c])
@@ -349,7 +367,7 @@ func _mission_planet() -> int:
 
 ## Profitable lanes: buy at a (Buy order at a, stock into a's storage), move to b ("Send to..."),
 ## sell at b. Profit per cycle = (sell_b - buy_a) * units - route fixed cost.
-func _ranked_lanes() -> Array:
+func _ranked_lanes(ignore_closed := false) -> Array:
 	var out: Array = []
 	var units: int = mini(int(main.engine.local_amount()), int(main.engine.units_per_cycle()))
 	var fixed: int = int(main.engine.fixed_cost())
@@ -358,7 +376,7 @@ func _ranked_lanes() -> Array:
 		var cs := str(c)
 		for a in n:
 			for b in n:
-				if a == b or not main.engine.planet_open(a) or not main.engine.planet_open(b):
+				if a == b or (not ignore_closed and (not main.engine.planet_open(a) or not main.engine.planet_open(b))):
 					continue
 				var bp: int = main.trade.price(a, cs + "_buy")
 				var sp: int = main.trade.price(b, cs + "_sell")
@@ -444,11 +462,13 @@ func _buy_ship_at(p: int, c: int) -> void:
 ## Returns the lanes that have a route now.
 func _sync_lanes(plan: Array) -> Array:
 	if strategy != "sloppy":
+		# T94 --keep-closed: a route is kept while its lane is profitable, closure or not (the game then blocks it and pays 0)
+		var keep_lanes: Array = _ranked_lanes(true) if keep_closed else plan
 		for rec in main.engine.routes.duplicate(true):
 			var a := int(rec["a"])
 			var b := int(rec["b"])
 			var c := str(rec["c"])
-			var keep: bool = _in_plan(a, b, c, plan) and not bool(main.storage.is_full(str(rec["dst"]), c))
+			var keep: bool = _in_plan(a, b, c, keep_lanes) and not bool(main.storage.is_full(str(rec["dst"]), c))
 			if not keep:
 				_remove_route(int(rec["id"]))
 	var active: Array = []
@@ -681,6 +701,7 @@ func _reload_game() -> void:
 	main.set_process(false)
 	main.cycle_ended.connect(_on_cycle_ended)
 	main.run_ended.connect(_on_run_ended)
+	main.routes_settled.connect(_on_routes_settled)
 	notes.append("reloaded from save at the win choice (cycle %d, cash %d)" % [before_cycle, before_cash])
 	if main.cycle != before_cycle or main.cash != before_cash or main.ships != before_ships:
 		reload_ok = false
@@ -733,6 +754,151 @@ func _probe_row(cycle: int) -> Array:
 			t += int(main.storage.amount(pk, str(c)))
 		planet_stock[str(sid)] = int(planet_stock.get(str(sid), 0)) + t
 	return [cycle, main.cash, posts, space, planet_stock, main.engine.closed_planets.duplicate(), main.engine.routes.size()]
+
+
+## T94: runs at each settle (end of cycle, before the cycle counter moves). Classes for a route touching close_planet:
+## closed (the planet is closed at settle: GDD says the route pays 0 and costs 0), bridged (the closure timer runs
+## but a skill covers this cycle: the route still runs), otherwise open. Records what each route paid per class.
+func _on_routes_settled(results: Array, _delta: int) -> void:
+	if close_planet < 0 or play_cycle < 0:
+		return
+	var closed_now: bool = main.engine.closed_planets.has(close_planet)
+	var bridged_now: bool = not closed_now and _timed_closure_active()
+	if closed_now and closure_cycles.is_empty():
+		closure_start_ids = route_ids_before.duplicate()
+	if closed_now and not closure_cycles.has(play_cycle):
+		closure_cycles.append(play_cycle)
+	if bridged_now and not bridged_cycles.has(play_cycle):
+		bridged_cycles.append(play_cycle)
+	# Orders at the closed planet: the GDD says every order touching it idles (pays 0, moves 0 units).
+	for row in main.last_local:
+		if closed_now and int(row["planet"]) == close_planet:
+			closed_order_units += int(row["n"])
+			if int(row["n"]) != 0 or int(row["paid"]) != 0:
+				closed_order_rows += 1
+				_issue("closure_income", play_cycle, "%s order at closed planet %d moved %d units for %d cr (should be 0)" % [str(row["role"]), close_planet, int(row["n"]), int(row["paid"])])
+	var seen := {}
+	for v in results:
+		var a := int(v["a"])
+		var b := int(v["b"])
+		if a != close_planet and b != close_planet:
+			continue
+		var id := int(v["id"])
+		seen[id] = true
+		var status := str(v["status"])
+		var paid := int(v["paid"])
+		var rec: Dictionary = closure_routes.get(id, {"id": id, "a": a, "b": b, "c": str(v["c"]),
+			"closed_cycles": 0, "closed_paid": 0, "closed_statuses": [], "bridged_cycles": 0, "bridged_paid": 0,
+			"pre_closure_paid": 0, "resumed_cycle": -1, "resumed_status": "", "resumed_paid": 0,
+			"closed_dst_sell": 0, "bridged_dst_sell": 0, "open_dst_sell": 0})
+		# Destination sells of this route's commodity at its far end: this is where route stock turns into cash.
+		var dst_sell := 0
+		var dst: int = b
+		for row in main.last_local:
+			if str(row["role"]) == "sell" and int(row["planet"]) == dst and str(row["c"]) == str(v["c"]):
+				dst_sell += int(row["paid"])
+		if closed_now:
+			rec["closed_cycles"] = int(rec["closed_cycles"]) + 1
+			rec["closed_paid"] = int(rec["closed_paid"]) + paid
+			rec["closed_dst_sell"] = int(rec["closed_dst_sell"]) + dst_sell
+			if not (rec["closed_statuses"] as Array).has(status):
+				(rec["closed_statuses"] as Array).append(status)
+			if paid != 0:
+				_issue("closure_income", play_cycle, "route %d %s %d->%d paid %d while planet %d was closed (status %s)" % [id, str(v["c"]), a, b, paid, close_planet, status])
+		elif bridged_now:
+			rec["bridged_cycles"] = int(rec["bridged_cycles"]) + 1
+			rec["bridged_paid"] = int(rec["bridged_paid"]) + paid
+			rec["bridged_dst_sell"] = int(rec["bridged_dst_sell"]) + dst_sell
+			# A block by another planet's closure (a separate event) is not this closure's business.
+			if status == "blocked" and not _other_end_closed(a, b):
+				_issue("income_stopped_bridged", play_cycle, "route %d %s %d->%d blocked in a bridged closure cycle (reason %s)" % [id, str(v["c"]), a, b, str(v["reason"])])
+		else:
+			if int(rec["closed_cycles"]) == 0:
+				rec["pre_closure_paid"] = paid
+				rec["open_dst_sell"] = int(rec["open_dst_sell"]) + dst_sell
+			elif int(rec["resumed_cycle"]) < 0:
+				rec["resumed_cycle"] = play_cycle
+				rec["resumed_status"] = status
+				rec["resumed_paid"] = paid
+				if status == "blocked" and not _other_end_closed(a, b):
+					_issue("income_not_resumed", play_cycle, "route %d %s %d->%d still blocked after planet %d reopened (reason %s)" % [id, str(v["c"]), a, b, close_planet, str(v["reason"])])
+		closure_routes[id] = rec
+	if closed_now or bridged_now:
+		for id in route_ids_before:
+			if not seen.has(int(id)):
+				closure_drops.append([play_cycle, int(id)])
+				if keep_closed:
+					_issue("route_dropped_closed", play_cycle, "route %d touching closed planet %d was gone at settle (keep-closed run)" % [int(id), close_planet])
+
+
+## True when an end of the route (a or b) is closed by any closure (another event may close the other planet).
+func _other_end_closed(a: int, b: int) -> bool:
+	return main.engine.closed_planets.has(a) or main.engine.closed_planets.has(b)
+
+
+## Route ids touching planet p (empty for p < 0).
+func _route_ids_at(p: int) -> Array:
+	var out: Array = []
+	if p < 0:
+		return out
+	for rec in main.engine.routes:
+		if int(rec["a"]) == p or int(rec["b"]) == p:
+			out.append(int(rec["id"]))
+	return out
+
+
+## True while the QA closure timer for close_planet is active (closed now, or bridged by a skill).
+func _timed_closure_active() -> bool:
+	for a in main.events.active:
+		if str(a.get("kind", "")) == "closed" and int(a.get("planet", -1)) == close_planet:
+			return true
+	return false
+
+
+## Closure summary for the RESULT line: how many routes earned during the closure and how many earned nothing.
+func _closure_summary() -> Dictionary:
+	var earned := 0
+	var nothing := 0
+	var kept := 0
+	var own_paid_pos := 0
+	var routes: Array = []
+	for id in closure_start_ids:
+		var rec: Dictionary = closure_routes.get(int(id), {})
+		if rec.is_empty():
+			continue
+		kept += 1
+	for id in closure_routes:
+		var rec: Dictionary = closure_routes[id]
+		if int(rec["closed_cycles"]) > 0:
+			if int(rec["closed_dst_sell"]) > 0 or int(rec["closed_paid"]) > 0:
+				earned += 1
+			else:
+				nothing += 1
+			if int(rec["closed_paid"]) > 0:
+				own_paid_pos += 1
+		routes.append(rec)
+	return {
+		"keep_closed": keep_closed,
+		"closed_cycle_list": closure_cycles,
+		"bridged_cycle_list": bridged_cycles,
+		"routes_at_closure": closure_start_ids,
+		"routes_seen_in_closure": kept,
+		"routes_earned_in_closure": earned,
+		"routes_earned_nothing": nothing,
+		"routes_own_paid_positive_in_closure": own_paid_pos,
+		"closed_order_units": closed_order_units,
+		"closed_order_rows": closed_order_rows,
+		"closed_income_total": _sum_closed_paid(),
+		"drops": closure_drops,
+		"routes": routes,
+	}
+
+
+func _sum_closed_paid() -> int:
+	var t := 0
+	for id in closure_routes:
+		t += int(closure_routes[id]["closed_paid"])
+	return t
 
 
 func _on_run_ended(side: String, ending_id: String) -> void:
@@ -819,6 +985,7 @@ func _finish() -> bool:
 		"probe": probe_rows,
 		"close_at": close_at,
 		"close_planet": close_planet,
+		"closure": _closure_summary() if close_planet >= 0 else {},
 	}
 	print("RESULT " + JSON.stringify(result))
 	quit(0)

@@ -9,14 +9,16 @@
     "qa/reports/2026-11-01-bug_report.json",
     "qa/reports/2026-11-01-runs.jsonl",
     "qa/reports/2026-11-01-summary.json",
+    "qa/reports/2026-11-01-T94-closure-runs.jsonl",
+    "qa/reports/2026-11-01-T94-closure-bug_report.json",
     "handoffs/qa-analyst/2026-11-01-T94.json"
   ],
   "open_questions": [
-    "UNKNOWN: release export runtime check blocked in sandbox (Godot export exits 1: temp folder under /var/folders not writable, code signing entitlements). Needs a run outside the sandbox.",
-    "UNKNOWN: route income during a closure is not measured; the bot drops routes at a closed planet. Needs a sloppy-style probe.",
+    "UNKNOWN: release export runtime check blocked in sandbox (Godot export exits 1: temp folder under /var/folders not writable, code signing). Needs a run outside the sandbox; T94 stays partial until then.",
+    "UNKNOWN: gdd.md lines 68 and 80 say routes pay net income each cycle; code routes only move stock and pay their cost, and cash comes from Sell orders at the destination. Intended? (QA logs spec_question, low.)",
     "UNKNOWN: old-save Space Storage migration not covered (no old-save fixture)."
   ],
-  "handoff": "T94 stays PARTIAL (schedule.json not changed). 371 counted headless playthroughs, 0 crashes, 0 freezes, win/loss checks 371/371. Harness fix: bot still called the removed planet panel Buy ship button (cfd3ecc); now uses ship_panel.buy_requested. System 2: no post before A1, posts per open system with A1, permit 2 bought, stock transfers at rate 1, closure bridge covers one cycle with A1. All 9 CORP and all 10 Release endings reached. Top problems: engine ret!=noErr log line in every run (low); decent and always_expand identical on 55/55 seeds (medium); permit path ends at cycles 29-30, one loss (medium); Space Storage stock never sold (medium, owner call); decent misses goal 4/65 (medium). Sloppy and never_expand: 0 wins in 80. Bug report: qa/reports/2026-11-01-bug_report.json.",
+  "handoff": "T94 PARTIAL (schedule.json unchanged). Route-income gap closed: bot option --keep-closed keeps routes touching a closed planet (decent and always_expand, closure at cycle 10, seeds 1-20 each). Closed cycles: 0 credit to all 68 routes per strategy, 0 units traded at the closed planet, 0 issues. Bridged cycles (A1/A2/B4) the route still runs (cost only, sells flow). Without bridge: 3 closed cycles (10-12), 0 credit. Reopen: routes run again. Baseline without keep drops all 62 routes at the closure. Win/loss: keep decent 17/3, always_expand 17/3, no-skill 9/11, baseline 17/3. 0 crash, 0 freeze, 0 script errors in 80 runs. Export check still blocked in sandbox, so T94 stays partial. Files: qa/reports/2026-11-01-T94-closure-runs.jsonl, qa/reports/2026-11-01-T94-closure-bug_report.json.",
   "details": {
     "results": [
       {
@@ -45,6 +47,13 @@
       {
         "group": "force goal and reload, 160 runs",
         "result": "all win; reload 10/10 stats_ok"
+      },
+      {
+        "group": "closure at cycle 10, seeds 1-20 (T94 closure batch)",
+        "decent_keep": "17 win, 3 loss (7,19,20)",
+        "always_expand_keep": "17 win, 3 loss",
+        "decent_keep_no_skills": "9 win, 11 loss",
+        "decent_baseline_no_keep": "17 win, 3 loss; all routes dropped"
       }
     ],
     "system_2_probe": {
@@ -73,6 +82,66 @@
       "frozen": 0,
       "softlock_flags": 0,
       "excluded": "1 pre-fix smoke run and 9 superseded probe runs"
+    },
+    "closure_check": {
+      "scenario": "--close-at=10 --keep-closed (and baseline without keep; --skills=none for no bridge)",
+      "groups": [
+        {
+          "group": "keep, decent seeds 1-20",
+          "win": 17,
+          "loss": 3,
+          "loss_seeds": [
+            7,
+            19,
+            20
+          ],
+          "routes_at_closure": 68,
+          "routes_own_credit_in_closure_nonzero": 0,
+          "closed_cycles": "12 (10, 11 bridged)",
+          "order_units_at_closed_planet": 0,
+          "issues": 0
+        },
+        {
+          "group": "keep, always_expand seeds 1-20",
+          "win": 17,
+          "loss": 3,
+          "loss_seeds": [
+            7,
+            19,
+            20
+          ],
+          "routes_at_closure": 68,
+          "routes_own_credit_in_closure_nonzero": 0,
+          "closed_cycles": "12 (10, 11 bridged)",
+          "order_units_at_closed_planet": 0,
+          "issues": 0
+        },
+        {
+          "group": "keep, decent seeds 1-20, no skills (--skills=none, no bridge)",
+          "win": 9,
+          "loss": 11,
+          "routes_at_closure": 68,
+          "routes_own_credit_in_closure_nonzero": 0,
+          "closed_cycles": "10, 11, 12 (3 = event_close_cycles)",
+          "order_units_at_closed_planet": 0,
+          "issues": 0
+        },
+        {
+          "group": "baseline without --keep-closed, decent seeds 1-20",
+          "win": 17,
+          "loss": 3,
+          "routes_at_closure": 62,
+          "routes_dropped_at_closure": "all 62 (72 drops incl. a second event closure at cycle 23 in seeds 3 and 17)",
+          "issues": 0
+        }
+      ],
+      "closed_income_total": 0,
+      "closed_order_units": 0,
+      "crash": 0,
+      "frozen": 0,
+      "script_errors": 0,
+      "bridge_rule": "gdd.md line 104: each of A1, A2, B4 bridges one closed cycle (observed: 2 skills -> closed 12 only; 0 skills -> 10-12)",
+      "attribution_note": "4 route-records show destination sells during closure from shared stock at an open planet; route's own credit 0"
     }
   }
 }
