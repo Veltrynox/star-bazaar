@@ -1418,9 +1418,8 @@ func debug_restart_tutorial() -> void:
 	_refresh()
 
 func debug_open_galaxy() -> void:
-	if OS.is_debug_build() and galaxy_view != null:
-		galaxy_view.visible = true
-		galaxy_view.queue_redraw()
+	if OS.is_debug_build() and galaxy_view != null and not galaxy_view.visible:
+		galaxy_view.open_view()
 
 ## Fresh run: reloads the scene as a new game (the autosave is not read).
 func debug_reset_run() -> void:

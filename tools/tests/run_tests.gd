@@ -32,6 +32,7 @@ func _run() -> void:
 	await _test_ships()
 	await _test_notice_queue()
 	await _test_systems()
+	await _test_galaxy_view()
 	await _test_shield()
 	await _test_asteroid()
 	await _test_full_endings()
@@ -209,6 +210,48 @@ func _test_stats_file() -> void:
 	check(int(RunStats.load_stats()["runs"]) == 0, "stats: wrong-shape JSON reads as fresh")
 
 # ---- 4. main scene ----
+func _test_galaxy_view() -> void:
+	_wipe_user()
+	var m: Control = await _new_main()
+	m._dismiss_preface()
+	var g: Control = m.galaxy_view
+	check(g.open_view() and g.visible, "galaxy: opens with one system open")
+	check(g.tut_step == -1 and not g.tut_panel.visible, "galaxy: no tutorial until system 2 is open")
+	check(g.selected_sys == 1 and g.side.visible, "galaxy: the current system is selected, panel shown")
+	g.selected_sys = 2  # a locked system: uncharted panel with a disabled Open system and the reason
+	g._build_side()
+	var found_disabled := false
+	for n in g.side_box.get_children():
+		if n is Button and (n as Button).disabled:
+			found_disabled = true
+	check(found_disabled, "galaxy: uncharted system has a disabled Open system button")
+	g.queue_redraw()  # the draw code runs for open and uncharted systems
+	await process_frame
+	g.close_view()
+	m._open_system(2)
+	m.galaxy_seen = false
+	check(g.open_view() and g.tut_step == 0 and g.tut_panel.visible and m.galaxy_seen, "galaxy: tutorial starts at line 1 once system 2 is open")
+	g.tut_step = 1
+	g._build_tutorial()
+	g.queue_redraw()
+	await process_frame
+	g.tut_step = 3
+	g._build_tutorial()
+	g.selected_sys = 2
+	g._build_side()
+	g.queue_redraw()
+	await process_frame
+	check(g.side_box.get_child_count() > 3, "galaxy: open system panel lists planets and routes")
+	var chosen: Array = []
+	g.system_chosen.connect(func(id): chosen.append(id))
+	for n in g.side_box.get_children():
+		if n is Button and not (n as Button).disabled and (n as Button).text == StoryText.get_or("BTN_OPEN_SYSTEM", "Open system"):
+			(n as Button).pressed.emit()
+	check(chosen == [2], "galaxy: Open system asks main to zoom into the system", str(chosen))
+	g.close_view()
+	check(g.open_view() and g.tut_step == -1, "galaxy: tutorial does not come back")
+	await _free_main(m)
+
 func _new_main() -> Control:
 	var m: Control = load(MAIN_SCENE).instantiate()
 	root.add_child(m)
