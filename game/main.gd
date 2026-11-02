@@ -93,6 +93,8 @@ var right_col: VBoxContainer  # holds the notification board and the ship panel
 var cash_forecast: PanelContainer  # T40
 var mission_label: Label
 var tutorial_label: Label  # T15: first 4 cycles hint on the board
+var tut_actions: HBoxContainer  # Skip and Next under the guided hint, as in the galaxy view tutorial
+var tut_next: Button
 var tut_first: Dictionary = {}  # T15: one-time triggers already used this session
 ## T124 guided first steps: index into TUT_GUIDE; TUT_GUIDE.size() means done. Saved.
 const TUT_GUIDE := ["TUT_G1_SELECT", "TUT_G2_BUY", "TUT_G3_SEND", "TUT_G4_SELL", "TUT_G5_SKILLS", "TUT_G6_DONE"]
@@ -1844,6 +1846,20 @@ func _tut_show(ids: Array) -> void:
 	var t := "\n".join(parts).strip_edges()
 	tutorial_label.text = t
 	tutorial_label.visible = t != "" and (cycle <= 4 or tut_step < TUT_GUIDE.size()) and not game_over
+	if tut_actions != null:  # Skip and Next only while the guided steps run
+		tut_actions.visible = tutorial_label.visible and tut_step < TUT_GUIDE.size()
+		if tut_step < TUT_GUIDE.size():
+			tut_next.text = StoryText.get_or("BTN_GOT_IT", "Got it") if tut_step == TUT_GUIDE.size() - 1 else StoryText.get_or("BTN_NEXT", "Next")
+
+## Next steps the guided hint on by one line; Skip closes it. Same buttons and wording as the galaxy view tutorial.
+func _tut_next() -> void:
+	if tut_step < TUT_GUIDE.size():
+		tut_step += 1
+		_tut_show([])
+
+func _tut_skip() -> void:
+	tut_step = TUT_GUIDE.size()
+	_tut_show([])
 
 ## T124: moves the guided tutorial on when the player has done the current step. Called on every change.
 func _tut_advance() -> void:
@@ -1928,6 +1944,21 @@ func _build_board() -> void:
 	tutorial_label.theme_type_variation = "LabelInfo"
 	tutorial_label.visible = false
 	box.add_child(tutorial_label)
+	tut_actions = HBoxContainer.new()
+	tut_actions.alignment = BoxContainer.ALIGNMENT_END
+	tut_actions.add_theme_constant_override("separation", 8)
+	tut_actions.visible = false
+	var tut_skip := Button.new()
+	tut_skip.theme_type_variation = "ButtonGhost"
+	tut_skip.text = StoryText.get_or("SCR_PREFACE_SKIP", "Skip")
+	tut_skip.pressed.connect(_tut_skip)
+	tut_actions.add_child(tut_skip)
+	tut_next = Button.new()
+	tut_next.theme_type_variation = "ButtonPrimary"
+	tut_next.text = StoryText.get_or("BTN_NEXT", "Next")
+	tut_next.pressed.connect(_tut_next)
+	tut_actions.add_child(tut_next)
+	box.add_child(tut_actions)
 	notice_label = Label.new()
 	notice_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	notice_label.visible = false
