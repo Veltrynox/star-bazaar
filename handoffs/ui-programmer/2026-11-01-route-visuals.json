@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-01",
+  "task": "route-visuals-match-design",
+  "status": "done",
+  "files_changed": ["game/route_line.gd", "game/galaxy_view.gd", "handoffs/ui-programmer/2026-11-01-route-visuals.json"],
+  "open_questions": ["Design draws routes centre to centre; the game keeps a 1.06 x planet-radius gap so lines do not cross the 3D planets. Keep?", "Arc bow is 0.2 of the chord (design uses a hand-set control point per route); no exact match possible."],
+  "handoff": "System routes now sized in design pixels (1672x941 frame), not world units: 1.5 px line at opacity .5, dashed 5/5 px when waiting, solid red when blocked, chevron path M-4-4 L2 0 L-4 4 at full strength. Ships ping-pong 4%-96% at 0.07 per second, head 2.6 px then six trail dots (2-0.2j px, 1.2% spacing), ink out, ink-muted back, warn parked at 90% when waiting; clock stops while paused. Galaxy lanes: dashes now 4/4 px along the curve, head dot radius 2. Shaders could not be run headless; check by eye.",
+  "details": {"how_to_see": "Open a system with a route, then the galaxy view; unpause and pause."}
+}

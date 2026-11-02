@@ -334,10 +334,23 @@ func _draw_curve(a: Vector2, c: Vector2, b: Vector2, col: Color, w: float, dashe
 	if not dashed:
 		draw_polyline(pts, col, w, true)
 		return
-	var k := 0
-	while k + 1 < pts.size():
-		draw_line(pts[k], pts[k + 1], col, w, true)
-		k += 2
+	# design: stroke-dasharray 4 4, measured along the curve
+	var on := true
+	var left := 4.0
+	for k in pts.size() - 1:
+		var p0: Vector2 = pts[k]
+		var p1: Vector2 = pts[k + 1]
+		var seg := p0.distance_to(p1)
+		var at := 0.0
+		while at < seg:
+			var step := minf(left, seg - at)
+			if on:
+				draw_line(p0.lerp(p1, at / seg), p0.lerp(p1, (at + step) / seg), col, w, true)
+			at += step
+			left -= step
+			if left <= 0.0001:
+				on = not on
+				left = 4.0
 
 func _draw_dashed(a: Vector2, b: Vector2, col: Color, w: float) -> void:
 	draw_dashed_line(a, b, col, w, 5.0, true)
@@ -498,7 +511,7 @@ func _draw_ships(ln: Dictionary, layout: Dictionary, n: int, s: float) -> void:
 			var pos := _bez(cv[0], cv[1], cv[2], uu)
 			if j == 0:
 				var col := ink if running and not back else (Ui.col("ink_muted") if running else Ui.col("signal_warn"))
-				draw_circle(pos, 2.2, col)
+				draw_circle(pos, 2.0, col)
 			elif running:
 				var a := (0.22 if back else 0.4) - float(j) * 0.07
 				draw_circle(pos, maxf(1.5 - float(j) * 0.2, 0.6), Color(ink.r, ink.g, ink.b, maxf(a, 0.05)))
