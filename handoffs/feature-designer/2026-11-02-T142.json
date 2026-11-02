@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "agent": "feature-designer",
+  "date": "2026-11-02",
+  "task": "T142",
+  "status": "done",
+  "files_changed": [
+    "design/proposals/2026-11-02-first-pass.md",
+    "handoffs/feature-designer/2026-11-02-T142.json"
+  ],
+  "open_questions": [
+    "Owner: approve, change or drop each of the 5 proposals in design/proposals/2026-11-02-first-pass.md.",
+    "Owner: proposal 5, which stranded rule (stipend equal to ship price, or Space stock counted in the stranded check)?",
+    "Owner: proposal 4, should Expansion matter before system 3 is decided (state.md question c)?"
+  ],
+  "handoff": "First-pass proposals for the buy/send split (T140) and the latest QA. Ranked: 1 route row says where its money lands (ui-programmer, S); 2 idle stock shows its next step after the buy/send split (ui-programmer, S); 3 a full lane offers a route upgrade instead of one more ship (gameplay-programmer, M; numbers from economy-designer); 4 the Expansion branch changes something before system 3 (gameplay-programmer, M); 5 stranded rule matches the new economy (gameplay-programmer, S). Nothing built or approved. No game code, balance, story, gdd.md or schedule.json edited.",
+  "details": {
+    "proposals": [
+      {
+        "id": "P1",
+        "title": "Route row says where its money lands",
+        "problem": "Route shows net income per cycle, but it pays only when the destination has an enabled Sell order.",
+        "owner_agent": "ui-programmer",
+        "size": "S",
+        "questions": ["UNKNOWN: does the route row already say this?"]
+      },
+      {
+        "id": "P2",
+        "title": "Idle stock shows its next step (after the buy/send split)",
+        "problem": "T140 Buy alone fills storage with no route or destination; stock has no visible way to earn.",
+        "owner_agent": "ui-programmer",
+        "size": "S",
+        "questions": ["UNKNOWN: should idle stock decay or cap? (economy-designer)"]
+      },
+      {
+        "id": "P3",
+        "title": "A full lane offers a route upgrade instead of one more ship",
+        "problem": "decent and always_expand play identically (55/55 paired seeds); extra ships past the lane cap do nothing. balance.json upgrade_cost and upgrade_margin_bonus exist but no code reads them.",
+        "owner_agent": "gameplay-programmer",
+        "size": "M",
+        "questions": ["UNKNOWN: late-game cash sink or early choice? Numbers from economy-designer."]
+      },
+      {
+        "id": "P4",
+        "title": "The Expansion branch changes something before system 3",
+        "problem": "Expansion has no income effect while systems 2 and 3 are on hold; one branch is cosmetic in play.",
+        "owner_agent": "gameplay-programmer",
+        "size": "M",
+        "questions": ["Owner: does Expansion need to matter before system 3 is decided (state.md c)?"]
+      },
+      {
+        "id": "P5",
+        "title": "Stranded rule matches the new economy",
+        "problem": "GDD says the stipend equals one ship; balance has ship_price 900 and rescue_stipend 1000. The stranded check reads planet storage only, ignoring Space stock sold since T139.",
+        "owner_agent": "gameplay-programmer",
+        "size": "S",
+        "questions": ["Owner: stipend equal to ship price, or count Space stock in the stranded check?"]
+      }
+    ],
+    "evidence": {
+      "qa_summary": "qa/reports/2026-11-01-summary.json",
+      "qa_critic": "qa/reports/2026-11-01-critic.md",
+      "t139": "handoffs/gameplay-programmer/2026-11-01-T139.json",
+      "economy_handoff": "handoffs/economy-designer/2026-10-31-skill-tree-r2.json",
+      "t140_source": "tools/tests/run_tests.gd lines 1058 and 1061 (T140 test names; the T140 brief is not in the repo)"
+    }
+  }
+}

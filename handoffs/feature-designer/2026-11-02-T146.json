@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "agent": "feature-designer",
+  "date": "2026-11-02",
+  "task": "T146",
+  "status": "done",
+  "files_changed": ["design/proposals/2026-11-02-trade-mechanics.md"],
+  "open_questions": [
+    "UNKNOWN: should saturation also apply to buy prices?",
+    "UNKNOWN: should contracts replace some events or sit alongside them?",
+    "UNKNOWN: does a backhaul circuit need one ship or two?"
+  ],
+  "handoff": "Four ranked trade-mechanics proposals, mechanics only. Waiting for owner answers; nothing approved or built.",
+  "details": {
+    "proposals": [
+      {"id": 1, "title": "Saturation: selling pushes the price down, then it recovers", "problem": "Same price at any volume makes the best lane permanent and extra ships a pure multiplier.", "owner_agent": "economy-designer, gameplay-programmer", "size": "M", "questions": ["Does saturation also apply to buy prices?"]},
+      {"id": 2, "title": "Delivery contracts: a one-off order with a deadline and a premium", "problem": "Every cycle is the same decision; nothing asks for a specific delivery.", "owner_agent": "gameplay-programmer", "size": "M", "questions": ["Replace some events or sit alongside them?"]},
+      {"id": 3, "title": "Sell floor: a Sell order waits for a price you set", "problem": "Idle stock exists but price never matters, so there is no reason to hold it.", "owner_agent": "gameplay-programmer, ui-programmer", "size": "S", "questions": ["Per-order setting or fixed low/normal/high?"]},
+      {"id": 4, "title": "Backhaul: two opposite routes on one pair share trip cost", "problem": "Routes are one-way with an empty return, so no trade circuit forms.", "owner_agent": "gameplay-programmer", "size": "M", "questions": ["One ship or two per circuit?"]}
+    ]
+  }
+}

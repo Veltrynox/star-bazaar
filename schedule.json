@@ -1019,6 +1019,102 @@
       "window": "Gameplay lane, owner answer 2026-11-01. Start by main session. Goes with T64 (unstopped the same day).",
       "brief": "Owner answer 2026-11-01 (d). A sell order at a planet, or a sell order at a Space Storage post, draws its stock from the stock stored in that system's Space Storage. Use the existing storage and order code; add no new numbers and no new text (story ids only, flag any missing id for the story-designer). Save and load are unchanged in shape. Check with a headless run that a sell order empties Space Storage stock and that a route that broke still gets support as T85 defines. Handoff: handoffs/gameplay-programmer/<date>-T139.json.",
       "owner_note": "Owner answer 2026-11-01 (d). Producer added 2026-11-01. Unstop of T64 is recorded on T64."
+    },
+    {
+      "task_id": "T140",
+      "title": "Buy works on its own: standing buy order without a route; Send to... is optional",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [],
+      "status": "done",
+      "turn_cap": 40,
+      "window": "Gameplay lane, owner request 2026-11-02. Start by main session.",
+      "brief": "Owner request 2026-11-02: sending is mandatory today. Today the planet panel has one button, \"Buy and send to...\" (planet_panel.gd, handler main.gd _on_buy_send), which sets a standing buy order and then needs a destination click to make a route. Change it so buying and sending are separate choices: (1) a standing buy order at a planet works on its own, with no route and no destination needed (use the existing set_local_order / local buy code in main.gd and route_engine.gd); (2) sending is optional: a route can be made from a planet's storage to another planet at any time through the existing Send to flow, with or without a buy order. Keep every existing rule: cross-system needs C3, one ship per route, ship purchase and upkeep, the route checks. Buy-only goods must show up in storage and be sellable through the existing sell orders. Do not change numbers or add text: flag any missing story id for the story-designer. Check headless that (a) a buy order alone fills storage with no route, (b) a route still works with no buy order when storage has stock, (c) the old combined path still works. Save/load shape unchanged. Handoff: handoffs/gameplay-programmer/<date>-T140.json. T141 (planet panel buttons) waits on this task.",
+      "owner_note": "Owner request 2026-11-02. Added by main session; producer to confirm."
+    },
+    {
+      "task_id": "T141",
+      "title": "Planet panel: separate Buy and optional Send to... buttons",
+      "owner_agent": "ui-programmer",
+      "depends_on": [
+        "T140"
+      ],
+      "status": "done",
+      "turn_cap": 15,
+      "window": "UI lane. Small. Start after T140 is done.",
+      "brief": "Follows T140. On each resource row of the planet panel, replace the combined \"Buy and send to...\" button with two separate controls: a Buy toggle (standing buy order, shows \"Buy: on\" and Stop buying, no destination step) and an optional \"Send to...\" that starts the route flow as today. Both must be usable independently. Keep the existing tooltips' style and notice text, reuse StoryText ids where they exist (BTN_BUY_SEND, LBL_BUY_SEND_TIP), flag any new ids for the story-designer rather than inventing text. No new art. Handoff: handoffs/ui-programmer/<date>-T141.json. Visual check by owner. Note from T140: the resource-row button in planet_panel.gd still uses BTN_BUY_SEND (\"Buy and send to...\") and its tooltip still says it sends. It now only buys. Relabel it to the Buy text (StoryText id BTN_BUY if it exists; otherwise flag it for the story-designer and use the nearest existing id). main.gd _on_buy_send now only sets the standing buy order; begin_buy_and_send(c) keeps the old combined path for tests only and no button calls it.",
+      "owner_note": "Owner request 2026-11-02. Added by main session; producer to confirm."
+    },
+    {
+      "task_id": "T142",
+      "title": "Feature designer: first pass on new features and improvements to existing mechanics",
+      "owner_agent": "feature-designer",
+      "depends_on": [],
+      "status": "done",
+      "turn_cap": 25,
+      "window": "Design lane, no code. Runs in parallel with T140.",
+      "brief": "Read state.md, the latest QA report under qa/reports/, and the latest handoffs of gameplay-programmer and economy-designer. Find where the buy/send split (T140) leaves gaps or new choices. Write up to 5 ranked proposals per your agent rules: new features that fit the core loop, and improvements to existing mechanics (dead choices, dominant strategies, slow stretches, unclear feedback). Write design/proposals/2026-11-02-first-pass.md and handoffs/feature-designer/2026-11-02-T142.json. Owner approves; nothing is built from this task.",
+      "owner_note": "Owner request 2026-11-02 (new agent). Added by main session; producer to confirm."
+    },
+    {
+      "task_id": "T143",
+      "title": "Route row says where its money lands (feature proposal 1, approved 2026-11-02)",
+      "owner_agent": "ui-programmer",
+      "depends_on": [
+        "T141"
+      ],
+      "status": "done",
+      "turn_cap": 15,
+      "window": "UI lane. Small. Start after T141.",
+      "brief": "Owner approved proposal 1 (design/proposals/2026-11-02-first-pass.md). Add one line to each route row: \"Pays when [planet] has a standing Sell order\", with its on/off state. If off, one control turns on that Sell order using the existing order toggle. First confirm whether the route row already says this; if it does, report that and stop. Story text: flag new StoryText ids for the story-designer, do not invent text. Must fit the macOS window size. Handoff: handoffs/ui-programmer/<date>-T143.json.",
+      "owner_note": "Owner approved 2026-11-02. Added by main session; producer to confirm."
+    },
+    {
+      "task_id": "T144",
+      "title": "Economy: route upgrade numbers and lane cap (feature proposal 3, approved 2026-11-02)",
+      "owner_agent": "economy-designer",
+      "depends_on": [],
+      "status": "done",
+      "turn_cap": 20,
+      "window": "Economy lane. Start first; T145 waits on it.",
+      "brief": "Owner approved proposal 3 in principle (design/proposals/2026-11-02-first-pass.md). Set the numbers for a route upgrade (level 2, margin bonus) that a full lane offers in place of one more ship. Existing keys upgrade_cost (600) and upgrade_margin_bonus (0.25) in data/balance.json are unread by code today. Check their interaction with B3, permits and ship price 900, and the permit-path pacing from T137. Run tools/sim.py for decent, sloppy, always-expand and never-expand. Targets as in your agent file. Report whether always-expand and decent still play identically, and whether the upgrade changes that. Handoff: handoffs/economy-designer/<date>-T144.json.",
+      "owner_note": "Owner approved 2026-11-02. Added by main session; producer to confirm."
+    },
+    {
+      "task_id": "T145",
+      "title": "Route upgrade: full lane offers upgrade instead of one more ship (feature proposal 3)",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [
+        "T144"
+      ],
+      "status": "done",
+      "turn_cap": 40,
+      "window": "Gameplay lane. Start after T144 numbers are set.",
+      "brief": "Owner approved proposal 3. When a lane is full (lane cap binds), the route offers \"Upgrade route\" (level 2, margin bonus using the values set in T144) instead of an extra ship. Use the existing route level field and upgrade keys in data/balance.json. Ships and upgrades compete for the same cash. Keep all existing route rules. The UI button is added by ui-programmer as a follow-up task. Add a headless test that a full lane gets the upgrade and the margin rises. Handoff: handoffs/gameplay-programmer/<date>-T145.json. Numbers from T144 (done): upgrade_cost 900 (was 600), upgrade_margin_bonus 0.25 unchanged. Only a level 2 upgrade is tuned. Note: the economy designer's sim (tools/sim.py --real --upg) shows always-expand and decent still tie at cycle 25; that is a separate open item.",
+      "owner_note": "Owner approved 2026-11-02. Added by main session; producer to confirm."
+    },
+    {
+      "task_id": "T146",
+      "title": "Feature designer: ideas to make trade mechanics more interesting (owner request 2026-11-02)",
+      "owner_agent": "feature-designer",
+      "depends_on": [],
+      "status": "done",
+      "turn_cap": 25,
+      "window": "Design lane, no code. Runs alongside the gameplay and UI tasks.",
+      "brief": "Owner request 2026-11-02: think about how to make trade mechanics more interesting. Read state.md, the trade section of gdd.md (grep for route, order, price, margin, saturation, event), the latest QA summary under qa/reports/, and design/proposals/2026-11-02-first-pass.md so you do not repeat it. Write up to 5 ranked proposals, each with the player's new choice, risk, and owner agent and size. Mechanics only: no code, no numbers, no story text. Write design/proposals/2026-11-02-trade-mechanics.md and handoffs/feature-designer/2026-11-02-T146.json. The owner approves; nothing is built from this task.",
+      "owner_note": "Owner request 2026-11-02. Added by main session; producer to confirm."
+    },
+    {
+      "task_id": "T147",
+      "title": "Route upgrade: planet route panel button, shown only on a full lane (follow-up to T145)",
+      "owner_agent": "ui-programmer",
+      "depends_on": [
+        "T145"
+      ],
+      "status": "done",
+      "turn_cap": 15,
+      "window": "UI lane. Small. Start after T145.",
+      "brief": "Follows T145. Add an \"Upgrade route\" button, shown only on a full lane (where the lane cap binds, so the route offers an upgrade in place of one more ship). Show the cost (upgrade_cost, 900) and the margin bonus, and show it as taken once the route is level 2. Reuse existing StoryText ids where possible; flag any new ids for the story-designer. Handoff: handoffs/ui-programmer/<date>-T147.json.",
+      "owner_note": "Added by main session 2026-11-02 for the approved route upgrade (proposal 3)."
     }
   ],
   "done_task_ids": [
