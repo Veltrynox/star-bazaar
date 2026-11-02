@@ -896,10 +896,11 @@ func _push_routes_to_map() -> void:
 		if lanes.has(k):
 			var e: Dictionary = lanes[k]
 			e["ships"] = int(e["ships"]) + 1
+			e["net"] = int(e["net"]) + engine.payout_of(rec)
 			if st == "running":
 				e["status"] = st
 			continue
-		var e2 := {"id": rec["id"], "a": rec["a"], "b": rec["b"], "ships": 1, "status": st}
+		var e2 := {"id": rec["id"], "a": rec["a"], "b": rec["b"], "ships": 1, "status": st, "net": engine.payout_of(rec)}
 		lanes[k] = e2
 		list.append(e2)
 	map.set_routes(list)

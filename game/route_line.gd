@@ -4,6 +4,8 @@ extends MeshInstance3D
 ## Waiting (stalled) routes are dashed signal-warn; blocked routes are solid red. The two directions of a pair
 ## bow to opposite sides on their own, since the bow is taken to the left of travel.
 
+const StoryText := preload("res://game/story_text.gd")
+
 const GAP := 1.06             # line starts this far (x planet radius) from planet centres
 const BOW := 0.2              # arch height as a share of the line length
 const LINE_PX := 1.5          # design: stroke-width 1.5 (px in the 1672x941 frame)
@@ -27,6 +29,8 @@ uniform float chev = 0.0;
 uniform vec3 chev_t = vec3(1.0, 0.0, 0.0);
 uniform vec3 chev_s = vec3(0.0, 0.0, 1.0);
 varying float along;
+varying float edge_px;
+const float AA_PX = 0.5;
 void vertex() {
 	vec3 base = VERTEX;
 	vec3 v0 = (MODELVIEW_MATRIX * vec4(base, 1.0)).xyz;
@@ -37,14 +41,17 @@ void vertex() {
 	vec3 vp = (MODELVIEW_MATRIX * vec4(base, 1.0)).xyz;
 	vec3 t = normalize((MODELVIEW_MATRIX * vec4(NORMAL, 0.0)).xyz);
 	vec3 side = normalize(cross(t, normalize(vp)));
-	vp += side * UV.y * half_px * wpp;
+	vp += side * UV.y * (half_px + AA_PX) * wpp;
+	edge_px = abs(UV.y) * (half_px + AA_PX);
 	POSITION = PROJECTION_MATRIX * vec4(vp, 1.0);
 	along = COLOR.r / wpp;
 }
 void fragment() {
-	float on = 1.0;
+	float on = clamp(half_px + AA_PX - edge_px, 0.0, 1.0);  // soft 1 px edge across the line
 	if (dash > 0.5) {
-		on = step(fract(along / (dash_px * 2.0)), 0.5);
+		float a = along / (dash_px * 2.0);
+		float dd = abs(fract(a + 0.25) - 0.5);
+		on *= clamp((0.25 - dd) / max(fwidth(a), 0.0001) + 0.5, 0.0, 1.0);  // soft dash ends
 	}
 	ALBEDO = modulate.rgb;
 	ALPHA = modulate.a * on;
@@ -165,6 +172,7 @@ func setup(id: int, a: int, b: int, pos_a: Vector3, pos_b: Vector3, planet_radiu
 	_add_strip(am, 0.0, total, STEPS)
 	# chevron at the middle: the design's path "M-4 -4 L2 0 L-4 4" (px, stroke 1.5), rotated to the line
 	var mid := _at(total * 0.5)
+	tag_pos = mid[0]
 	var tan: Vector3 = mid[1]
 	var sd := tan.cross(Vector3.UP).normalized()
 	_chev_t = tan
@@ -190,6 +198,9 @@ func setup(id: int, a: int, b: int, pos_a: Vector3, pos_b: Vector3, planet_radiu
 		samples.append(_bez(float(i) / float(SAMPLES)))
 	_setup_dots(total)
 	set_style("running", 1)
+
+var tag: Label3D            # the route tag at the middle of the arc
+var tag_pos := Vector3.ZERO
 
 func _bez(t: float) -> Vector3:
 	var u := 1.0 - t
@@ -323,7 +334,8 @@ func _commit(am: ArrayMesh, verts: PackedVector3Array, tans: PackedVector3Array,
 	am.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
 
 ## Tint from route status: running = commodity colour, stalled (waiting) = dashed warn, blocked = solid red.
-func set_style(status: String, ships: int, commodity: String = "") -> void:
+func set_style(status: String, ships: int, commodity: String = "", net: int = 0) -> void:
+	_set_tag(status, ships, net)
 	var waiting := status != "running" and status != "blocked"
 	if _dots != null:  # ship dots while running; a waiting lane keeps one parked warn-coloured ship
 		var n := mini(ships, DOT_MAX) if (status == "running" or waiting) else 0
@@ -343,6 +355,35 @@ func set_style(status: String, ships: int, commodity: String = "") -> void:
 		c.a = LINE_ALPHA if si == 0 else 1.0  # design: the line is at .5, the chevron at full strength
 		mats[si].set_shader_parameter("modulate", c)
 		mats[si].set_shader_parameter("dash", 1.0 if (si == 0 and waiting) else 0.0)
+
+## Route tag text as in the design (SystemView route tag): "2 ships · +286", or the status when not running.
+static func tag_text(status: String, ships: int, net: int) -> String:
+	if status == "blocked":
+		return StoryText.get_or("LBL_ROUTE_BLOCKED", "Blocked")
+	if status != "running":
+		return StoryText.get_or("ST_WAITING_ROOM", "Waiting for room")
+	var n := StoryText.get_or("LBL_ROUTE_SHIP_ONE", "{n} ship", {"n": ships}) if ships == 1 else StoryText.get_or("LBL_ROUTE_SHIP_MANY", "{n} ships", {"n": ships})
+	var sg := "\u2212%d" % -net if net < 0 else "+%d" % net
+	return "%s \u00b7 %s" % [n, sg]
+
+func _set_tag(status: String, ships: int, net: int) -> void:
+	if tag == null:
+		tag = Label3D.new()
+		tag.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+		tag.no_depth_test = true
+		tag.fixed_size = true
+		tag.pixel_size = 0.0008
+		tag.font = Ui.mono_font()
+		tag.font_size = 30  # design 11 px mono; planet names are 40
+		tag.outline_size = 10
+		tag.outline_modulate = Ui.col("panel_100")
+		tag.position = tag_pos
+		tag.render_priority = 2
+		tag.outline_render_priority = 1
+		add_child(tag)
+	tag.text = tag_text(status, ships, net)
+	var ok := status == "running"
+	tag.modulate = Ui.col("ink") if ok else (Ui.col("signal_bad") if status == "blocked" else Ui.col("signal_warn"))
 
 ## Ship clock stops while the game is paused, as in the design.
 func _process(delta: float) -> void:

@@ -35,6 +35,7 @@ func _run() -> void:
 	await _test_notice_queue()
 	await _test_systems()
 	await _test_galaxy_view()
+	_test_route_tag()
 	await _test_shield()
 	await _test_asteroid()
 	await _test_full_endings()
@@ -1693,3 +1694,17 @@ func _test_asteroid() -> void:
 	m.apply_state(st)
 	check(m.storage.capacity_of(Storage.planet_key(1)) < cap1 and m.storage.capacity_of(Storage.planet_key(2)) == cap0, "asteroid: cuts saved and loaded")
 	await _free_main(m)
+
+# ---- route tag: text over the middle of each route line (design SystemView route tag) ----
+func _test_route_tag() -> void:
+	var ln = load("res://game/route_line.gd").new()
+	root.add_child(ln)
+	ln.setup(1, 0, 1, Vector3(0, 0, 0), Vector3(6, 0, 0), 0.5)
+	ln.set_style("running", 2, "energy", 118)
+	check(ln.tag != null and ln.tag.text == "2 ships \u00b7 +118", "route tag: running shows ships and net", str(ln.tag.text if ln.tag else ""))
+	ln.set_style("running", 1, "food", -40)
+	check(ln.tag.text == "1 ship \u00b7 \u221240", "route tag: one ship, negative net with a real minus", ln.tag.text)
+	ln.set_style("stalled", 1, "food", 0)
+	check(ln.tag.text == "Waiting for room", "route tag: waiting shows its status", ln.tag.text)
+	check(ln.tag.position.distance_to(ln.tag_pos) < 0.001 and absf(ln.tag_pos.x - 3.0) < 0.5, "route tag: sits at the middle of the arc", str(ln.tag_pos))
+	ln.queue_free()
