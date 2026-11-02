@@ -7,26 +7,26 @@
 [ext_resource type="Material" path="res://art/planet_fx/planet_sphere_atmosphere_material.tres" id="5"]
 
 [sub_resource type="SphereMesh" id="m"]
-radius = 1.0
-height = 2.0
+radius = 0.5
+height = 1.0
 radial_segments = 128
 rings = 64
 
 [sub_resource type="SphereMesh" id="g"]
-radius = 1.12
-height = 2.24
+radius = 0.56
+height = 1.12
 radial_segments = 64
 rings = 32
 
 [sub_resource type="SphereMesh" id="s"]
-radius = 1.03
-height = 2.06
+radius = 0.515
+height = 1.03
 radial_segments = 128
 rings = 64
 
 [sub_resource type="SphereMesh" id="a"]
-radius = 1.045
-height = 2.09
+radius = 0.5225
+height = 1.045
 radial_segments = 96
 rings = 48
 
