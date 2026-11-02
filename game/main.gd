@@ -47,6 +47,7 @@ var open_systems: Array = [1]  # T85: system ids opened by a permit (system 1 is
 var galaxy_seen := false  # T105: galaxy tutorial lines already shown, saved
 var galaxy_view: Control  # T105 overlay
 var galaxy_button: Button
+var system_exit: Control  # lock icon and fading line to the next locked system
 var view_system := 1  # T128: system the map camera was last put on
 var reached_ids: Array = []  # T85: systems past the first that already gave the reach point, saved
 
@@ -112,6 +113,9 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE  # let clicks reach the 3D map (T04)
 	map = load("res://game/map.gd").new()
 	add_child(map)  # T20 map, added before UI so the bar draws on top
+	system_exit = load("res://game/system_exit.gd").new()  # lock and fading line to the next, locked system
+	add_child(system_exit)
+	system_exit.setup(self)
 	_build_ui()
 	planet_panel = load("res://game/planet_panel.gd").new()
 	add_child(planet_panel)

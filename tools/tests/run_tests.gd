@@ -214,6 +214,17 @@ func _test_galaxy_view() -> void:
 	_wipe_user()
 	var m: Control = await _new_main()
 	m._dismiss_preface()
+	await process_frame
+	var ex: Control = m.system_exit
+	var lay: Dictionary = ex.layout()
+	check(ex.visible and ex.next_locked() == 2 and not lay.is_empty(), "exit: the locked next system gets a lock marker", str(lay))
+	if not lay.is_empty():
+		var area := Rect2(Vector2(ex.AREA_LEFT, ex.AREA_TOP), ex.get_viewport_rect().size - Vector2(ex.AREA_LEFT + ex.AREA_RIGHT, ex.AREA_TOP + ex.AREA_BOTTOM))
+		check(area.grow(1.0).has_point(lay["marker"]), "exit: the marker stays in the free middle area", str(lay["marker"]))
+	m.open_systems = [1, 2]
+	await process_frame
+	check(ex.next_locked() == -1 and not ex.visible, "exit: no marker once every system is open")
+	m.open_systems = [1]
 	var g: Control = m.galaxy_view
 	check(g.open_view() and g.visible, "galaxy: opens with one system open")
 	check(g.get_global_rect().size == m.get_viewport_rect().size and g.get_index() == m.get_child_count() - 1, "galaxy: is a full screen on top of the map screen")
