@@ -140,6 +140,12 @@ func _ready() -> void:
 	_add_sun(focus)
 	_add_orbit_rings(focus, 1)
 	_update_camera()
+	# Camera lens glare around the current system's sun (art/planet_fx/lens_glare.gd); the quad draws under the UI.
+	var glare: CanvasLayer = load("res://art/planet_fx/lens_glare.gd").new()
+	glare.camera = camera
+	glare.source_pos = func() -> Variant: return sun_positions.get(view_system) if suns.has(view_system) and suns[view_system].visible else null
+	glare.source_brightness = func() -> float: return 0.75 + 0.5 * float(suns[view_system].flare) if suns.has(view_system) else 1.0
+	add_child(glare)
 
 ## Orbit rings: thin circles on the ground plane through each planet, centred on the sun, plus one dashed
 ## outer ring. The camera pitch gives the tilt. Colours: theme tokens line_200 / line_100.

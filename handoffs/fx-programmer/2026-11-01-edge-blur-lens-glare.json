@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "agent": "fx-programmer",
+  "date": "2026-11-01",
+  "task": "10 px soft planet edge; camera lens glare around the sun",
+  "status": "done, not rendered (no GPU here)",
+  "files_changed": [
+    "art/planet_fx/planet_sphere.gdshader",
+    "art/planet_fx/planet_sphere_material.tres",
+    "art/planet_fx/planet_sphere.gd",
+    "art/planet_fx/lens_glare.gdshader",
+    "art/planet_fx/lens_glare.gd",
+    "game/map.gd (7 lines after _add_orbit_rings in _ready: creates the glare node)"
+  ],
+  "open_questions": [
+    "Only the sun is a glare source; bright planet highlights are not (one source keeps it to one quad).",
+    "The glare does not hide when a planet is in front of the sun (no occlusion test)."
+  ],
+  "handoff": "Edge: body shader fades alpha over edge_px (default 10) screen pixels inward at the limb; pixel size comes from the projection matrix, so it holds at any zoom. Body is now blend_mix with depth_draw_always and render_priority -1 so shells still draw after it. Glare: lens_glare.gd (CanvasLayer -1, one ColorRect) projects the sun to the screen each frame; shader draws halo, streak, ghosts. Check by eye: edge look and shell sorting where planets overlap, glare strength, ghost placement.",
+  "details": {
+    "edge_px": "planet_sphere.gd export edge_blur_px, default 10, 0 = hard edge",
+    "glare": "strength 0.5, streak_len 0.45, ghost_count 4 (max 6), ghost_strength 0.35 (exports on lens_glare.gd)"
+  }
+}
