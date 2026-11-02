@@ -6,6 +6,7 @@ render_mode blend_mix, unshaded;
 
 uniform float strength : hint_range(0.0, 0.5) = 0.06;
 uniform float fps = 24.0;       // grain refresh rate; film-like, not per-frame flicker
+uniform float grain_size = 1.2; // grain cell size in screen pixels (1.0 = one grain per pixel)
 
 // Cheap 2D hash (no sin), returns 0..1.
 float hash12(vec2 p) {
@@ -15,7 +16,7 @@ float hash12(vec2 p) {
 }
 
 void fragment() {
-	vec2 px = floor(FRAGCOORD.xy);
+	vec2 px = floor(FRAGCOORD.xy / grain_size);
 	float f = floor(TIME * fps);
 	// Offset the lattice per frame so the pattern is not a shifted copy of the last one.
 	vec2 off = vec2(fract(f * 0.7548777), fract(f * 0.5698403)) * 512.0;
