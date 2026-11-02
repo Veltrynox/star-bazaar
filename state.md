@@ -23,7 +23,7 @@
 
 ## Goals and reports
 - skill-tree-progression: done 2026-10-31 (goals/skill-tree-progression/report.md). Owner points open. Art director 2026-11-01: qa/reports/2026-11-01-art-director.md.
-- feature-exploration-2026-11-02: partial; agreed P1, P2, N3; P2 done, P1 partial, N3 needs owner keys, N1 not built; 574 pass (goals/feature-exploration-2026-11-02/log.md, report.md; blackboard finished 2026-11-02).
+- feature-exploration-2026-11-02: partial; agreed P1, P2, N11, N12; P1, P2, N11 done, N12 needs owner key steady_lane_cycles; 673 pass (goals/feature-exploration-2026-11-02/log.md, report.md; blackboard finished 2026-11-02).
 
 ## Latest handoff per agent
 - gameplay-programmer: handoffs/gameplay-programmer/2026-11-02-N2.json (also P2, P3)

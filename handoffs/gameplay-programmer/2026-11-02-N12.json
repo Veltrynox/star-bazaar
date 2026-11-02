@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-02",
+  "task": "N12 Steady Lane goal",
+  "status": "needs-owner",
+  "files_changed": [
+    "goals/feature-exploration-2026-11-02/blackboard.json"
+  ],
+  "open_questions": [
+    "Owner: approve new balance key steady_lane_cycles = 5 in data/balance.json?",
+    "Story-designer: add 'Steady lane' and 'Lane keeper' to story/voice.md, plus text ids for the goal line, route tag and end stat."
+  ],
+  "handoff": "Stopped before implementing: N12 needs the new key steady_lane_cycles (5), which the rules say needs owner approval. Once approved, build the per-route profit-cycle counter (sales > Buy cost + trip_cost + maintenance share; reset on closure or missed cycle), goal line, Lane keeper tag and end stat, with a headless test.",
+  "details": {
+    "new_keys": [
+      "steady_lane_cycles"
+    ],
+    "tests_run": "none"
+  }
+}

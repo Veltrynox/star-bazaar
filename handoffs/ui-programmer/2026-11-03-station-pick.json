@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-03",
+  "task": "station-pick",
+  "status": "done",
+  "files_changed": ["game/main.gd", "tools/tests/run_tests.gd", "handoffs/ui-programmer/2026-11-03-station-pick.json"],
+  "open_questions": ["Tests not run (lead runs them). No margin notice or route beat for station picks (they take planet indexes). Banner text still says 'destination planet' (hard-coded in main.gd, not changed)."],
+  "handoff": "main._on_station_clicked: with a plain Send to pending, the click calls send_stock_buying(src, station_dst(sid), c) like a planet click; refusal shows the engine reason and keeps the pick; success clears pending, handles buy-order and ship-bought notices, posts NOT_ROUTE_MADE. Split picks ignore the station click. No pending: opens Space Storage as before. Not checked by eye.",
+  "details": {"tests": ["station pick: a pending Send to completes with the station as destination", "station pick: a split pick is not completed by the station"]}
+}

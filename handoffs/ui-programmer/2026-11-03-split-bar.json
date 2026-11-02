@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-03",
+  "task": "split-bar",
+  "status": "done",
+  "files_changed": ["game/planet_panel.gd", "game/main.gd", "game/route_engine.gd", "tools/tests/run_tests.gd", "handoffs/ui-programmer/2026-11-03-split-bar.json"],
+  "open_questions": [
+    "Station lanes: split_targets only lists lanes with a planet destination (b >= 0), so a Space Storage lane is not offered for a split. Should it be?",
+    "With three or more lanes the bar uses the existing split pair, else the first two lanes. No pair picker was built (not in the brief). OK?",
+    "Layout is stacked (names row, [-] slider [+] row, Stop/Done row) to fit the panel width, not the single line in the proposal. OK?"
+  ],
+  "handoff": "Option A built. Storage row with 2+ lanes shows one Split toggle; it opens a bar at 50/50 (sets the engine at once). Slider 10-90 plus [-]/[+] in 10-point steps; Done keeps the split, Stop split clears it (engine.clear_split). Route rows of split lanes show a 'Split N%' tag in lane colour (orange first, green second); hovering a tag brightens the bar. Engine rule: lane_split returns {} and clears stale shares when the partner lane has no ship, so _split_limit gives the surviving lane all stock. Removed begin_split, _on_split_click, the 'split' pending key and the old buttons. Station pick untouched. Tests: 635 pass, 0 fail. Not checked by eye: bar layout and width, tag colours, hover brightening, slider drag feel. No git run.",
+  "details": {
+    "new_story_ids": {"BTN_SPLIT_BAR": "Split", "LBL_SPLIT_BAR_STOP": "Stop split", "LBL_SPLIT_TAG": "Split {share}%", "BTN_SPLIT_DONE": "Done (extra, fallback used)"},
+    "screens": "Planet panel: open a planet with two ships on two lanes of one good, Storage section, press Split.",
+    "unused_ids_now": ["BTN_SPLIT_HALF", "BTN_SPLIT_THREE", "LBL_SPLIT_PICK_FIRST", "LBL_SPLIT_PICK_SECOND", "LBL_SPLIT_LINE", "NOT_SPLIT_NEEDS_LANES"]
+  }
+}

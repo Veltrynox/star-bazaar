@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-03",
+  "task": "space-storage-view",
+  "status": "done",
+  "files_changed": ["game/space_storage_view.gd", "game/main.gd", "tools/tests/run_tests.gd"],
+  "open_questions": [
+    "Story designer: add ids SS_BTN_CLOSE (Close) and SS_LBL_CAPACITY (Capacity: %d per commodity). SS_POST_NAME is used with a fallback. Code uses fallbacks until then."
+  ],
+  "handoff": "A click on a station or its marker now opens a centred Space Storage panel for that system: title, system name, capacity line, one RatingBar row per commodity, Close button (Esc also closes). Without a post it posts the locked reason instead. It refreshes at cycle end and closes when a planet is clicked. The route/destination pick guard is kept. Tests: 622 pass, 0 fail. Not checked by eye: panel layout, position, overlap with other panels. Git not used.",
+  "details": {
+    "how_to_see": "Learn A1, click the station in a system with a post.",
+    "new_text_ids": ["SS_BTN_CLOSE", "SS_LBL_CAPACITY"]
+  }
+}

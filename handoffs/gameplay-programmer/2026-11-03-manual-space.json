@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-03",
+  "task": "manual-space",
+  "status": "done",
+  "files_changed": ["game/route_engine.gd", "game/main.gd", "game/planet_panel.gd", "game/debug_menu.gd", "tools/tests/run_tests.gd"],
+  "open_questions": ["Station picker UI: should the Send to flow accept a click on the station marker (small change in main._on_station_clicked while a send is pending)?"],
+  "handoff": "feed_space and its call are removed; Space Storage no longer fills by itself. balance planet_to_space_rate is now unused (kept). A station is a send destination: dst value -sid (main.station_dst(sid)), route dst key system:<sid>. Same ship, lane, trip cost, upkeep and fixed_cost. Refused with trade_locked_reason when space_post_open(sid) is false. A station send never draws the Space Storage backup. A full station reads blocked (no outflow). No route line is drawn on the map for station routes. UI not built: today the Send to pick is a planet click only; picking the station needs a small UI change (in send-pending mode, a click on the station marker calls send_stock_buying(src, station_dst(sid), c)). Tests added: 'space manual: ...' (5 checks) in run_tests.gd; the old feed test was replaced. run.sh not run.",
+  "details": {
+    "new_story_ids": ["LBL_SPACE_STORAGE_NAME (optional, fallback 'Space Storage'; name shown for the station end of a route)"],
+    "tests": ["space manual: the automatic feed is gone", "space manual: no stock moves into Space Storage by itself over several cycles", "space manual: a send to a station with no open post is refused, nothing changes", "space manual: a send to the station makes a route", "space manual: a ship sent to the station moves stock into it", "space manual: a send to the station costs trip and upkeep like any route"],
+    "unused_balance_key": "planet_to_space_rate"
+  }
+}

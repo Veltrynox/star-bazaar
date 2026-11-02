@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-02",
+  "task": "N11",
+  "status": "done",
+  "files_changed": [
+    "game/main.gd",
+    "game/planet_panel.gd",
+    "game/route_engine.gd",
+    "tools/tests/run_tests.gd",
+    "goals/feature-exploration-2026-11-02/blackboard.json"
+  ],
+  "open_questions": [
+    "story-designer: add ids GOAL_SECOND_LANE ('Optional: open system 2 (permit {n}), then sell a lot there.'), TITLE_SECOND_LANE ('Cross-system trader') and NOTE_SECOND_LANE ('Your first sale here crossed the system line.') to data/story_text.json; code uses these council texts as fallbacks.",
+    "The goal line is appended to the one-line top bar goal text and may be trimmed with an ellipsis at narrow widths; the full text is the tooltip. Not checked by eye.",
+    "The line still shows the permit price after system 2 is opened until the first sale there; hide it once open?"
+  ],
+  "handoff": "N11 done. main.gd: second_lane_planet (saved as second_lane), second_lane_active/line (permit_cost(2), so C4 discount applies), _check_second_lane ticks only on a Sell order sale or an N9 stop sale at a system 2 planet, never on the permit; no cash or points. Line shows once ships>0 and cycle>1. planet_panel.gd shows title and note on that planet. route_engine.gd results now carry stop and stop_sale. 13 new tests, suite 673 pass 0 fail. Git not used.",
+  "details": {
+    "how_to_see": "Start a run, buy a ship, pass cycle 1: top bar goal shows the Optional line. Debug menu: unlock system 2, enable a Sell order at a system 2 planet; after the sale the line goes and the planet panel shows the note.",
+    "not_checked_by_eye": [
+      "top bar width",
+      "planet panel note"
+    ]
+  }
+}

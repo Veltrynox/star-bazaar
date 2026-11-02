@@ -102,12 +102,19 @@ const PRIOR = `Already decided, do not propose again or re-agree these:
 - Rejected in round 1: P4 (supplier standing), P5 (route insurance), P6 (bulk hauler ship class).
 Use ids that do not already appear in council.json (the next free N number).`
 
+// Optional focus from the caller (Workflow args: {focus: "..."}). When set, it replaces the default trade-mechanics brief.
+const FOCUS = (args && typeof args === 'object' && args.focus) ? args.focus : ''
+
+// Version stamp: every run logs this first, so a run on an old copy is visible in the log.
+const SCRIPT_VERSION = 'sonnet, focus argument, prior-decisions list (2026-11-03)'
+log(`feature-exploration ${SCRIPT_VERSION}; model sonnet on every agent`)
+
 // ---- Propose -------------------------------------------------------------
 phase('Propose')
 const proposed = await agent(
   `You are the Feature Designer. Follow .claude/agents/feature-designer.md. ${COMMON}
 ${PRIOR}
-Propose three NEW ideas, tag NEW: added trade mechanics that give the player a new decision inside buy, optional send and sell. Each must not take a choice away from the main loop, force a new step, or depend on system 3. Do not repeat anything in design/proposals/ or anything listed above. Read the reviews in council.json first and avoid their failure reasons: a steady single supplier dominates, a near-mandatory cash sink, a second hull that blurs the shipyard. Append each as kind "proposal" with its tag, player choice, main-loop effect, risk, owner agent, size, and whether it needs new balance keys or new text. Return the three in the schema.`,
+${FOCUS || 'Propose three NEW ideas, tag NEW: added trade mechanics that give the player a new decision inside buy, optional send and sell.'} Each must not take a choice away from the main loop, force a new step, or depend on system 3. Do not repeat anything in design/proposals/ or anything listed above. Read the reviews in council.json first and avoid their failure reasons: a steady single supplier dominates, a near-mandatory cash sink, a second hull that blurs the shipyard. Append each as kind "proposal" with its tag, player choice, main-loop effect, risk, owner agent, size, and whether it needs new balance keys or new text. Return the three in the schema.`,
   { label: 'propose', schema: proposalSchema, model: 'sonnet' },
 )
 const ideas = proposed?.proposals ?? []

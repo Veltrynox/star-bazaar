@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-03",
+  "task": "a1-gate",
+  "status": "done",
+  "files_changed": [
+    "game/main.gd",
+    "game/skill_tree.gd",
+    "game/debug_menu.gd",
+    "tools/tests/run_tests.gd"
+  ],
+  "open_questions": [
+    "Story designer must rewrite SK_A1_GATE (data/story_text.json): it still says every first-system planet visited plus a first route; the rule is now two routes on any planet."
+  ],
+  "handoff": "A1 Space Storage gate is now pts_pairs.size() >= 2 (pts_pairs gets one entry per new planet pair, not per cycle). pts_planets still feeds expansion points. Debug 'Set A1 gate' now adds routes 0-1 and 0-2. Tests updated (old route-only fixtures now use two pairs); run.sh: 590 pass, 0 fail. Permits/open_systems untouched. Try: debug menu QA, clear gate, make two routes, open skill screen, A1 becomes available.",
+  "details": {
+    "new_gate": "pts_pairs.size() >= 2"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-03",
+  "task": "points-button",
+  "status": "done",
+  "files_changed": ["game/main.gd", "tools/tests/run_tests.gd"],
+  "open_questions": [],
+  "handoff": "The top bar skill points figure (icon, caption, count) is now the button that opens Skills: a flat button with a pointing-hand cursor lies over the row (points_button holds the row, points_hit is the button). It calls toggle_skills. Tooltip is MENU_SKILLS plus ' *' when a skill is affordable; the whole figure tints star_warm then. Count-up and pop on points_label unchanged. Separate Skills button removed; the K key hint stays beside the figure, K shortcut and menu entry unchanged. Test updated. Not checked by eye: the figure's layout, tint and hover feel in the top bar. Git not used.",
+  "details": {"see_in_under_a_minute": "Run game, click the Skill points figure in the top bar; Skills opens. Hover shows tooltip."}
+}

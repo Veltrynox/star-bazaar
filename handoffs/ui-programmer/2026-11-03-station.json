@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-03",
+  "task": "station",
+  "status": "done",
+  "files_changed": ["game/station.gd (new)", "game/map.gd", "game/main.gd", "tools/tests/run_tests.gd", "handoffs/ui-programmer/2026-11-03-station.json"],
+  "open_questions": [
+    "Story ids needed (fallbacks in code): LBL_STATION_BUILT 'Space station built. Click it to open Space Storage.', LBL_STATION_MARKER 'Space Storage', TIP_STATION_MARKER 'Space Storage'.",
+    "star_bazaar_station.glb has no .import file yet: open the project in the Godot editor once so it imports; until then the station is an empty node (logic, marker and click still work). Size/position/spin are consts: station.gd SPIN_DEG_PER_SEC, MAP_RADIUS; map.gd STATION_OFFSET.",
+    "Git not available to me; nothing committed."
+  ],
+  "handoff": "One station per open system once A1 is learned (main._ensure_stations, called from _ensure_posts, so it also runs when a system opens). Built once, scales in over 1.5 s, one notice per build, spins in station.gd _process. Placed beside the system's sun. Saved as station_systems (list of system ids); old saves with A1 get stations on load with no notice. A Button marker (ButtonSmall, tooltip) sits above each station, hidden when off screen or in another system. Clicking the marker or the station (map.pick_station, 40 px) calls _on_planet_clicked on the system's first planet, so it opens that planet's panel, which contains the existing Space Storage section; no new screen. Ignored while a route pick is pending. Not checked by eye: marker placement, station size, the model itself. Tests: 599 pass, 0 fail (9 new station checks). Trade code untouched."
+}

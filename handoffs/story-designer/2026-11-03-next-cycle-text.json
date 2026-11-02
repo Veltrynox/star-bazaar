@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-11-03",
+  "task": "next-cycle-text",
+  "status": "done",
+  "files_changed": ["story/screens.md", "story/voice.md", "data/story_text.json"],
+  "open_questions": [],
+  "handoff": "Added LBL_NEXT_CYCLE (max 48): 'Next cycle: +{in} -{out} = {after}'. Placeholders {in}, {out}, {after} added to story/voice.md. Built with tools/build_story.py (exit 0); text is in data/story_text.json. Ready for the programmer to wire in the storage view.",
+  "details": {}
+}

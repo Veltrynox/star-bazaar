@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-03",
+  "task": "test-fix",
+  "status": "done",
+  "files_changed": ["tools/tests/run_tests.gd", "handoffs/gameplay-programmer/2026-11-03-test-fix.json"],
+  "open_questions": [],
+  "handoff": "All 32+ failures were tests encoding old rules; no game code changed, no real bug found. Permit-first: tests now learn C1 before A1/A2 (skills points check, A1 gate checks, station, trade gate post, A2/skill-effects). Full endings: C1 stays learned instead of being erased, sets skip already-known ids. The station and post failures were only because A1 was refused without C1; once learned the stations and posts build correctly. B3 Sell and B1 partner failures were not reproducible (state-dependent) and pass now. Final: TOTAL pass=618 fail=0.",
+  "details": {}
+}

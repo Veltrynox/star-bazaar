@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "agent": "feature-designer",
+  "date": "2026-11-03",
+  "task": "split-control",
+  "status": "done",
+  "files_changed": ["design/proposals/2026-11-03-split-control.md"],
+  "open_questions": ["UNKNOWN: drag vs snap steps and min share (economy-designer)", "UNKNOWN: warning when a lane loses its ship", "UNKNOWN: text for toggle and tags (story-designer)"],
+  "handoff": "Two options for the split control; Option A (split bar on storage row) recommended. Awaiting owner.",
+  "details": {
+    "proposals": [
+      {"id": "A", "title": "Split bar on the storage row", "problem": "Two buttons and two blind map clicks hide what is set", "owner_agent": "ui-programmer", "size": "M", "questions": ["drag or snap steps", "lane loses ship"]},
+      {"id": "B", "title": "Split per route row", "problem": "Same", "owner_agent": "ui-programmer", "size": "S-M", "questions": ["partner link visibility"]}
+    ]
+  }
+}

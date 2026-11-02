@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-03",
+  "task": "next-cycle-layout",
+  "status": "done",
+  "files_changed": [
+    "game/planet_panel.gd",
+    "game/space_storage_view.gd",
+    "tools/tests/run_tests.gd",
+    "handoffs/ui-programmer/2026-11-03-next-cycle-layout.json"
+  ],
+  "open_questions": [],
+  "handoff": "Next-cycle label now is the last child of each storage HBoxContainer row (bar, name, label), size_flags_horizontal SHRINK_END, vertically centred, so the row is no taller. Same in planet panel and Space Storage view. Still hidden when in and out are 0; colours and text unchanged. Tests added: hidden at 0, visible with sell order, last child of row. Not checked by eye: whether the row fits at the default panel width with long numbers. Git not used.",
+  "details": {
+    "screens": [
+      "planet panel storage section",
+      "Space Storage view"
+    ],
+    "how_to_see": "Open a planet with stock, set a sell order; label shows at right of the commodity row."
+  }
+}

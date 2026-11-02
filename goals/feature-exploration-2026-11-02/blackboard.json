@@ -261,6 +261,141 @@
       "ref": "N3",
       "status": "blocked",
       "text": "N3 is not built: it needs two new balance keys, bundle_bonus_pct 0.05 and bundle_bonus_cap 150, which are absent from data/balance.json and need owner approval before they are added."
+    },
+    {
+      "id": "C-UI-P1-RUN4",
+      "agent": "ui-programmer",
+      "date": "2026-11-02",
+      "kind": "claim",
+      "ref": "P1",
+      "status": "running",
+      "text": "Re-checking P1 (event arrow and cycles left on price rows; Send to... pending margin now and after) on branch new-features-test; verifying the existing working-tree code and headless tests before any change."
+    },
+    {
+      "id": "C-UI-P1-RUN4-DONE",
+      "agent": "ui-programmer",
+      "date": "2026-11-02",
+      "kind": "claim",
+      "ref": "P1",
+      "status": "done",
+      "text": "P1 is done on new-features-test: the price-row event arrow and cycles left and the Send to... pending margin now and after are both built and tested (sh tools/tests/run.sh 640 pass, 0 fail, 10 P1 checks); story ids LBL_PRICE_EVENT, LBL_MARGIN_NOW and LBL_MARGIN_AFTER_EVENT are in story_text.json; no balance keys added; nothing committed."
+    },
+    {
+      "id": "C-GP-P2-RUN1",
+      "agent": "gameplay-programmer",
+      "date": "2026-11-02",
+      "kind": "claim",
+      "ref": "P2",
+      "status": "running",
+      "text": "Building P2 (optional 'Move ship' on blocked route rows after an event closes a planet, with live net 'Best open route: +N per cycle') on new-features-test; no balance keys expected since cost uses travel_cycles_per_leg and existing keys."
+    },
+    {
+      "id": "C-GP-P2-RUN4-DONE",
+      "agent": "gameplay-programmer",
+      "date": "2026-11-02",
+      "kind": "claim",
+      "ref": "P2",
+      "status": "done",
+      "text": "P2 Move ship is verified on new-features-test: no balance keys, no code change needed this pass; sh tools/tests/run.sh gives 640 pass, 0 fail, 15 P2 checks; LBL_BEST_OPEN_ROUTE, LBL_SETUP_LOST and BTN_MOVE_SHIP are now in story_text.json for story-designer to confirm. Nothing committed."
+    },
+    {
+      "id": "C-GP-P3-RUN2",
+      "agent": "gameplay-programmer",
+      "date": "2026-11-02",
+      "kind": "claim",
+      "ref": "P3",
+      "status": "running",
+      "text": "Checking P3 (Buy order Small, Normal and Large sizes, Large capped at free storage) on new-features-test again, to see whether order_step_small and order_step_large now exist before any code."
+    },
+    {
+      "id": "C-GP-P3-RUN2-DONE",
+      "agent": "gameplay-programmer",
+      "date": "2026-11-02",
+      "kind": "claim",
+      "ref": "P3",
+      "status": "blocked",
+      "text": "P3 stops as needs-owner: order_step_small and order_step_large are still absent from data/balance.json with no owner approval recorded, so no keys or code were added and the git tree is unchanged for P3."
+    },
+    {
+      "id": "C-GP-N7-RUN1",
+      "agent": "gameplay-programmer",
+      "date": "2026-11-02",
+      "kind": "claim",
+      "ref": "N7",
+      "status": "running",
+      "text": "Checking N7 (Express send, one leg arrives this cycle for express_fee_pct 0.5 of trip_cost) on new-features-test, to see whether express_fee_pct exists in data/balance.json before any code."
+    },
+    {
+      "id": "C-GP-N7-RUN1-DONE",
+      "agent": "gameplay-programmer",
+      "date": "2026-11-02",
+      "kind": "claim",
+      "ref": "N7",
+      "status": "blocked",
+      "text": "N7 stops as needs-owner: express_fee_pct is absent from data/balance.json and has no recorded owner approval, so no keys, code or tests were added and the git tree is unchanged for N7."
+    },
+    {
+      "id": "C-GP-N9",
+      "agent": "gameplay-programmer",
+      "date": "2026-11-02",
+      "kind": "claim",
+      "ref": "N9",
+      "status": "running",
+      "text": "Building N9 Stop-over sale on new-features-test: stop on path reuses trip_cost and travel_cycles_per_leg, sells up to order_amount at the stop, carries the rest; no new balance keys."
+    },
+    {
+      "id": "C-GP-P2-RECHECK",
+      "agent": "gameplay-programmer",
+      "date": "2026-11-02",
+      "kind": "claim",
+      "ref": "P2",
+      "status": "running",
+      "text": "Re-checking P2 (optional Move ship on a closed-planet route row) on new-features-test; no new balance keys, running the headless suite."
+    },
+    {
+      "id": "C-GP-P2-RECHECK-DONE",
+      "agent": "gameplay-programmer",
+      "date": "2026-11-02",
+      "kind": "claim",
+      "ref": "P2",
+      "status": "done",
+      "text": "P2 verified with no code change: Move ship and Best open route: +N per cycle are in place, no new keys, headless suite passes 660 and 0 fail; ids LBL_BEST_OPEN_ROUTE, LBL_SETUP_LOST and BTN_MOVE_SHIP are for story-designer to confirm."
+    },
+    {
+      "id": "C-UI-N11",
+      "agent": "ui-programmer",
+      "date": "2026-11-02",
+      "kind": "claim",
+      "ref": "N11",
+      "status": "running",
+      "text": "Building N11 Second Lane goal on new-features-test: optional goal line, first-sale-in-system-2 title and planet note, permit cost read live; no new balance keys."
+    },
+    {
+      "id": "C-UI-N11-DONE",
+      "agent": "ui-programmer",
+      "date": "2026-11-02",
+      "kind": "claim",
+      "ref": "N11",
+      "status": "done",
+      "text": "N11 built with no new keys and the suite passes 673 and 0 fail; new text ids GOAL_SECOND_LANE, TITLE_SECOND_LANE and NOTE_SECOND_LANE are for story-designer to add with the council wording."
+    },
+    {
+      "id": "C-GP-N12",
+      "agent": "gameplay-programmer",
+      "date": "2026-11-02",
+      "kind": "claim",
+      "ref": "N12",
+      "status": "running",
+      "text": "Starting N12 Steady Lane goal on new-features-test; checking whether it needs new balance keys."
+    },
+    {
+      "id": "C-GP-N12-BLOCKED",
+      "agent": "gameplay-programmer",
+      "date": "2026-11-02",
+      "kind": "claim",
+      "ref": "N12",
+      "status": "blocked",
+      "text": "N12 not built: it needs the new key steady_lane_cycles 5 in data/balance.json, which needs owner approval; no code, text or balance changed, and 'Steady lane' and 'Lane keeper' still need adding to story/voice.md."
     }
   ],
   "artifacts": [

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-03",
+  "task": "permit-first",
+  "status": "done",
+  "files_changed": ["game/skill_tree.gd", "game/main.gd", "game/skill_screen.gd", "tools/tests/run_tests.gd"],
+  "open_questions": ["Story designer: add LBL_LOCKED_PERMIT_FIRST (fallback 'Learn Permit Charter (C1) first.') to story_text.json and story/*.md.", "Other tests that learn skills without C1 (for example A1 at the space and station tests) may now fail; the lead's test run will show them."],
+  "handoff": "Interpretation: the mandatory permit step is TUT_PERMIT_C1; passing it means C1 Permit Charter is learned. Until then every skill except C1 is locked (A1 included). Rule: SkillTree.permit_first_blocks, fed by skill_ctx 'c1_learned'; state() returns locked, can_learn returns reason 'locked' plus why 'permit_first'. Skill screen shows the LBL_LOCKED_PERMIT_FIRST line and tooltip. C1 keeps no prerequisite and its normal cost. Saves that already hold a later skill keep it; only new learns are blocked. Pure callers without the ctx key stay open. No balance changes. Tests added: 'permit first: ...' (6 checks) in the skills block; the existing block now learns C1 first.",
+  "details": {}
+}

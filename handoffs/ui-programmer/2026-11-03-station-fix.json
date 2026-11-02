@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-03",
+  "task": "station-fix",
+  "status": "done",
+  "files_changed": ["game/station.gd", "handoffs/ui-programmer/2026-11-03-station-fix.json"],
+  "open_questions": ["UNKNOWN: if the model is still white, the GLB may have no COLOR_0 attribute; the artist should check the export. Not checked by eye. Git and tests not run."],
+  "handoff": "station.gd: MAP_RADIUS 0.55 -> 0.1833 (one third). After instancing, _apply_vertex_colors walks MeshInstance3D nodes and sets a StandardMaterial3D with vertex_color_use_as_albedo on each surface (override material, existing material duplicated if standard, albedo forced white). Spin and marker unchanged (marker lives in map.gd, uses STATION_MARKER_LIFT, not the model size). Could not view the game, so colour and size are unchecked by eye; headless and tests not run per instruction.",
+  "details": {}
+}

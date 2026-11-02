@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-11-02",
+  "task": "feature-exploration-N7-N9-review",
+  "status": "done",
+  "files_changed": [
+    "goals/feature-exploration-2026-11-02/council.json (appended R-S10, A-S10, R-S11, R-S12, A-S12 only)",
+    "handoffs/story-designer/2026-11-02-N7-N9-review.json"
+  ],
+  "open_questions": [
+    "Owner: add 'Express', 'Stop at' and 'Swap' to story/voice.md glossary before any of them is wired.",
+    "Economy/feature: define the base of the Swap share and the delivery cost before N8 is resubmitted."
+  ],
+  "handoff": "Votes: N7 agree-with-change (A-S10), N8 disagree (R-S11, resubmit with share base), N9 agree-with-change (A-S12). Ready texts for the programmer once the owner accepts: Send row 'Express: pay N to arrive this cycle, not the next.' (shown only when the normal leg would wait a cycle); picker 'Stop at A: sell up to N here, carry the rest to B.' (shown only on the path to the destination). Labels: 'Express', 'Stop at'. Not ready: Swap row text, which needs the share base. All N and A figures are read live from the game; no numbers invented here. No game code, data or balance was changed.",
+  "details": {
+    "council_entries_added": 5,
+    "ids_note": "R-S7 to R-S9 were already used for N4 to N6, so new ids continue at R-S10 to R-S12."
+  }
+}

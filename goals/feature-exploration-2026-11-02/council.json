@@ -1225,6 +1225,639 @@
       "ref": "N3",
       "vote": "agree",
       "text": "Final vote, agree as written: 'Mixed load +N% (max 150 credits)' now shows the cap, so no number is hidden, and 'Mixed load' goes into story/voice.md before use with 'bundle' never in player text."
+    },
+    {
+      "id": "N7",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "proposal",
+      "tag": "NEW",
+      "title": "Express send: pay to skip the wait on one leg",
+      "text": "On a Send to... order the player can pay a one-off express fee to make that one leg arrive in the cycle it leaves instead of the next, so a high-margin lane earns sooner.",
+      "player_choice": "Pay the express fee to get this load paid a cycle early, or send it on the normal leg at no extra cost.",
+      "main_loop_effect": "Adds an optional fee inside the existing Send step; the normal leg stays the default and costs nothing, so the old play is unchanged and still wins.",
+      "risk": "A fee below one cycle of lane income makes express a near-mandatory cash sink; keep the fee a percentage of trip_cost, offer it once per send, and check in the sim that always-expand does not win sooner.",
+      "owner_agent": "gameplay-programmer",
+      "size": "M",
+      "needs_numbers": "yes (one new key express_fee_pct; economy-designer sets it and the sim check)",
+      "needs_text": "yes (one button label 'Express' and one row line with the fee and the cycle saved)"
+    },
+    {
+      "id": "N8",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "proposal",
+      "tag": "NEW",
+      "title": "Swap stock at a planet's Sell row",
+      "text": "On a Sell row the player can trade a unit of one good for a unit of another good that a buyer on one of their lanes takes, at a fixed share of the sell price and with no cash changing hands.",
+      "player_choice": "Sell this good for cash now, swap it for a good that still has a buyer on your lanes, or hold it.",
+      "main_loop_effect": "Adds a no-cash option inside the existing Sell step; cash Sell orders keep paying full price and stay the best choice when a buyer exists, so the old play is unchanged.",
+      "risk": "Swap can become a loop of goods that always beats cash if the rate is too high; the rate must stay below 1 minus the trip_cost share of a lane, and the sim must show no swap chain pays more than a direct sell. Overlaps N5 (salvage) only in trigger, not in payment.",
+      "owner_agent": "gameplay-programmer",
+      "size": "M",
+      "needs_numbers": "yes (one new key swap_rate_pct; economy-designer sets it and the loop check)",
+      "needs_text": "yes (one label 'Swap' and one row line naming the good received and the share)"
+    },
+    {
+      "id": "N9",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "proposal",
+      "tag": "NEW",
+      "title": "Stop-over sale on a route",
+      "text": "A Send to... order can name one stop on the way, where the ship sells part of its load at that planet's Sell price if the planet has an enabled Sell order for the good, then carries the rest on to the destination.",
+      "player_choice": "Sell part of the load early at a stop, or carry the whole load to the destination as before.",
+      "main_loop_effect": "Adds an optional stop inside the existing Send and Sell steps; a direct send is still the default and needs no extra choice, so the old play is unchanged.",
+      "risk": "The stop adds a leg and a second trip_cost, so it only pays when the stop's price is high; if it never pays, nobody uses it, and if it always pays it replaces direct routes, so the sim must check both. Overlaps N2 (split send) only in purpose: it is sequential, not two destinations at once.",
+      "owner_agent": "gameplay-programmer",
+      "size": "M",
+      "needs_numbers": "no new keys if the stop reuses trip_cost and travel_cycles_per_leg; economy-designer confirms the sim",
+      "needs_text": "yes (one label 'Stop at' and one row line naming the stop and the units sold there)"
+    },
+    {
+      "id": "R-E13",
+      "agent": "economy-designer",
+      "date": "2026-11-02",
+      "kind": "review",
+      "ref": "N7",
+      "vote": "agree-with-change",
+      "text": "Express is a sound speed option that saves one cycle per send, but its fee must be a share of trip_cost, not a flat sum, or it becomes a near-mandatory cash sink early on.",
+      "checklist": "Strengthens buy-send-sell: yes, adds a speed choice inside Send. Old way wins: yes, the normal leg is free and unchanged. New keys: yes, express_fee_pct (owner approval needed). Pacing: moves the win earlier; always-expand is the strategy most likely to gain. The sim has no express strategy, so no win-cycle claim is made. Balance.json not changed."
+    },
+    {
+      "id": "A-E12",
+      "agent": "economy-designer",
+      "date": "2026-11-02",
+      "kind": "amend",
+      "ref": "N7",
+      "text": "Express costs express_fee_pct 0.5 of trip_cost per send (one new key, starting value, not simulated; owner approval needed), is offered only when the leg would otherwise wait a cycle, and can be bought once per send; before merge the sim must add an express strategy and show always-expand does not reach the win before cycle 22."
+    },
+    {
+      "id": "R-E14",
+      "agent": "economy-designer",
+      "date": "2026-11-02",
+      "kind": "review",
+      "ref": "N8",
+      "vote": "disagree",
+      "text": "Swap is underspecified (the base of the share and the delivery cost of the received good are not defined), and a goods-for-goods trade with no cash is a second arbitrage path the sim cannot check, so it needs a rewrite before it can be tuned.",
+      "checklist": "Strengthens: partly, it gives stuck stock an exit. Old way wins: yes. New keys: yes, swap_rate_pct, plus a loop bound that depends on trip_cost. Pacing: unknown; it delays cash, which works against win_cash 8500, and a swap chain could beat a direct sell. Sim: no swap model exists. Can be resubmitted with the share base and loop bound stated."
+    },
+    {
+      "id": "R-E15",
+      "agent": "economy-designer",
+      "date": "2026-11-02",
+      "kind": "review",
+      "ref": "N9",
+      "vote": "agree-with-change",
+      "text": "A stop-over is sound and needs no new keys, but the stop must cost a full extra leg so that a direct send stays the default.",
+      "checklist": "Strengthens: yes, adds a sequential stop inside Send and Sell. Old way wins: yes, a direct send has no extra leg. New keys: none if the stop reuses trip_cost and travel_cycles_per_leg (1). Pacing: likely a small shift for mid-game routes that pass a buyer; the sim has no stop model, so no win-cycle claim is made. Balance.json not changed."
+    },
+    {
+      "id": "A-E13",
+      "agent": "economy-designer",
+      "date": "2026-11-02",
+      "kind": "amend",
+      "ref": "N9",
+      "text": "A stop costs one extra trip_cost and travel_cycles_per_leg on its leg (existing keys, no new keys), sells only up to that planet's Sell order amount, and is offered only where the stop lies on the path to the destination; before merge the sim must add a stop strategy and show direct sends still win with no shift to the 26-30 no-skill window."
+    },
+    {
+      "id": "R-S10",
+      "agent": "story-designer",
+      "date": "2026-11-02",
+      "kind": "review",
+      "ref": "N7",
+      "vote": "agree-with-change",
+      "text": "Express reads as a rush fee a trading house would charge, and the normal leg stays free and first, but the fee must be stated on the row: draft 'Express: pay N to arrive this cycle, not the next.'"
+    },
+    {
+      "id": "A-S10",
+      "agent": "story-designer",
+      "date": "2026-11-02",
+      "kind": "amend",
+      "ref": "N7",
+      "text": "Use the button label 'Express' (add it to the story/voice.md glossary before use) and the Send row line 'Express: pay N to arrive this cycle, not the next.' with N read live, shown only when the normal leg would wait a cycle, and the normal Send button keeps no extra words."
+    },
+    {
+      "id": "R-S11",
+      "agent": "story-designer",
+      "date": "2026-11-02",
+      "kind": "review",
+      "ref": "N8",
+      "vote": "disagree",
+      "text": "Barter for goods with no cash is a strong trade-world image, but the text cannot yet tell the player what they receive because the share's base and the received good's delivery cost are undefined, which breaks the rule never to make the player guess; resubmit with the base stated, and a draft would be 'Swap: give 1 [good], get [share] of its Sell price in [good]. No cash.'"
+    },
+    {
+      "id": "R-S12",
+      "agent": "story-designer",
+      "date": "2026-11-02",
+      "kind": "review",
+      "ref": "N9",
+      "vote": "agree-with-change",
+      "text": "A stop on the way where the ship sells part of its load is a plain, believable trade-route detail that needs no new terms, but the stop's cap must be on the row so the player sees how many units sell there; draft 'Stop at Ashgate: sell up to N here, carry the rest to Tillam.'"
+    },
+    {
+      "id": "A-S12",
+      "agent": "story-designer",
+      "date": "2026-11-02",
+      "kind": "amend",
+      "ref": "N9",
+      "text": "Use the label 'Stop at' (add it to the story/voice.md glossary before use) and the picker line 'Stop at A: sell up to N here, carry the rest to B.' with A, B and N read live, shown only where the stop lies on the path to the destination and never with the word 'waypoint' or 'bundle'."
+    },
+    {
+      "id": "RS-N7-E",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "response",
+      "ref": "A-E12",
+      "text": "Accept: Express costs express_fee_pct 0.5 of trip_cost once per send, offered only when the leg would otherwise wait a cycle, with an express sim strategy required before any win-cycle claim."
+    },
+    {
+      "id": "RS-N7-S",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "response",
+      "ref": "A-S10",
+      "text": "Accept: the 'Express' label and the row line 'Express: pay N to arrive this cycle, not the next.' with N read live, shown only when the normal leg would wait a cycle."
+    },
+    {
+      "id": "AM-N7",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "amended",
+      "ref": "A-E12, A-S10",
+      "text": "On a Send to... order the player can pay an Express fee of express_fee_pct 0.5 of trip_cost (one new key, starting value, not simulated, owner approval needed) to make that one leg arrive in the cycle it leaves instead of the next; the offer appears only when the normal leg would otherwise wait a cycle, can be bought once per send, and the row reads 'Express: pay N to arrive this cycle, not the next.' with N read live, labelled 'Express' (added to story/voice.md before use), the normal Send keeps no extra words, and the sim must add an express strategy and show always-expand does not reach the win before cycle 22."
+    },
+    {
+      "id": "RS-N8-E",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "response",
+      "ref": "R-E14",
+      "text": "Decline: the swap share's base and the delivery cost of the received good are still undefined, and goods-for-goods trade with no cash is a second arbitrage path the sim cannot check, so N8 is not built and may be resubmitted with the share base, a loop bound tied to trip_cost and a swap_rate_pct key."
+    },
+    {
+      "id": "RS-N8-S",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "response",
+      "ref": "R-S11",
+      "text": "Decline: the player cannot yet be told what they receive because the share base and the received good's delivery cost are undefined, so N8 is not built and may be resubmitted with those stated."
+    },
+    {
+      "id": "RS-N9-E",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "response",
+      "ref": "A-E13",
+      "text": "Accept: a stop costs one extra trip_cost and travel_cycles_per_leg on its leg using existing keys, sells only up to that planet's Sell order amount, and is offered only where the stop lies on the path, with a stop sim strategy required before merge."
+    },
+    {
+      "id": "RS-N9-S",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "response",
+      "ref": "A-S12",
+      "text": "Accept: the label 'Stop at' and the picker line 'Stop at A: sell up to N here, carry the rest to B.' with A, B and N read live, shown only where the stop lies on the path to the destination."
+    },
+    {
+      "id": "AM-N9",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "amended",
+      "ref": "A-E13, A-S12",
+      "text": "A Send to... order can name one stop on the way where the ship sells part of its load, up to that planet's Sell order amount for the good (N, read live) and only if the planet has an enabled Sell order for it, then carries the rest on to the destination; the stop costs one extra trip_cost and travel_cycles_per_leg on its leg (existing keys, no new keys), is offered only where the stop lies on the path to the destination, and the picker line reads 'Stop at A: sell up to N here, carry the rest to B.' with A, B and N read live, labelled 'Stop at' (added to story/voice.md before use) and never called 'waypoint' or 'bundle'; before merge the sim must add a stop strategy and show direct sends still win with no shift to the 26-30 no-skill window."
+    },
+    {
+      "id": "V-F-P1-r5",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "vote",
+      "ref": "P1",
+      "vote": "agree",
+      "text": "Final vote, agree as written: the event arrow with cycles left and the margin now and after in the Send to... picker add information only, remove no step, and leave old play unchanged."
+    },
+    {
+      "id": "V-F-P2-r5",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "vote",
+      "ref": "P2",
+      "vote": "agree",
+      "text": "Final vote, agree to AM-P2 as written: an optional 'Move ship' with 'Best open route: +N per cycle' net of travel_cycles_per_leg idle cycles, 'Setup lost' only when a setup is really lost, and never an automatic move."
+    },
+    {
+      "id": "V-F-P3-r5",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "vote",
+      "ref": "P3",
+      "vote": "agree",
+      "text": "Final vote, agree to AM-P3 as written: Small, Normal (default) and Large at order_step_small 0.5 and order_step_large 1.5, Large capped at free storage, with owner approval for the two keys."
+    },
+    {
+      "id": "V-F-N7",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "vote",
+      "ref": "N7",
+      "vote": "agree",
+      "text": "Final vote, agree to AM-N7 as written: one Express fee of express_fee_pct 0.5 of trip_cost per send, offered only when the leg would wait a cycle, with the 'Express' label in story/voice.md and an express sim strategy showing always-expand does not win before cycle 22."
+    },
+    {
+      "id": "V-F-N9",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "vote",
+      "ref": "N9",
+      "vote": "agree",
+      "text": "Final vote, agree to AM-N9 as written: one stop sells up to the planet's Sell order amount and costs one extra trip_cost and travel_cycles_per_leg with no new keys, labelled 'Stop at' in story/voice.md, with a stop sim strategy showing direct sends still win."
+    },
+    {
+      "id": "V-E-P1-r5",
+      "agent": "economy-designer",
+      "date": "2026-11-02",
+      "kind": "vote",
+      "ref": "P1",
+      "vote": "agree",
+      "text": "Agree as written: the event arrow, cycles-left count and Margin now and after figures read existing event timers and balance.json keys, with no new keys and no balance change."
+    },
+    {
+      "id": "V-E-P2-r5",
+      "agent": "economy-designer",
+      "date": "2026-11-02",
+      "kind": "vote",
+      "ref": "P2",
+      "vote": "agree",
+      "text": "Agree as written: the optional Move ship costs travel_cycles_per_leg idle cycles, shows income net of that loss, is never automatic, and leaves waiting a valid play, so closures are not trivial."
+    },
+    {
+      "id": "V-E-P3-r5",
+      "agent": "economy-designer",
+      "date": "2026-11-02",
+      "kind": "vote",
+      "ref": "P3",
+      "vote": "agree",
+      "text": "Agree as written: Small, Normal and Large at order_step_small 0.5 and order_step_large 1.5 with Large capped at free storage, subject to owner approval of the two new keys and a sim check before any tuning."
+    },
+    {
+      "id": "V-E-N7-r5",
+      "agent": "economy-designer",
+      "date": "2026-11-02",
+      "kind": "vote",
+      "ref": "N7",
+      "vote": "agree",
+      "text": "Agree as written: Express costs express_fee_pct 0.5 of trip_cost, is offered only when the leg would wait a cycle, is bought once per send, and needs owner approval of the new key plus an express sim strategy that keeps always-expand from winning before cycle 22."
+    },
+    {
+      "id": "V-E-N9-r5",
+      "agent": "economy-designer",
+      "date": "2026-11-02",
+      "kind": "vote",
+      "ref": "N9",
+      "vote": "agree",
+      "text": "Agree as written: a stop sells up to the planet's Sell order amount and costs one extra trip_cost and travel_cycles_per_leg with existing keys only, so the sim must add a stop strategy and confirm direct sends still win with no shift to the 26-30 window."
+    },
+    {
+      "id": "V-S-P1-r5",
+      "agent": "story-designer",
+      "date": "2026-11-02",
+      "kind": "vote",
+      "ref": "P1",
+      "vote": "agree",
+      "text": "Agree as written: the arrow and cycles-left count on an event-moved planet row and the Margin now and Margin after columns in the Send to... picker read in one line and hide no number."
+    },
+    {
+      "id": "V-S-P2-r5",
+      "agent": "story-designer",
+      "date": "2026-11-02",
+      "kind": "vote",
+      "ref": "P2",
+      "vote": "agree",
+      "text": "Agree as written: the optional 'Move ship' button and 'Best open route: +N per cycle', with N read live and net of the idle cycles, tell the player what a move gains, and 'Setup lost' appears only when a setup is really lost."
+    },
+    {
+      "id": "V-S-P3-r5",
+      "agent": "story-designer",
+      "date": "2026-11-02",
+      "kind": "vote",
+      "ref": "P3",
+      "vote": "agree",
+      "text": "Agree as written: 'Small', 'Normal' (default) and 'Large' are short sentence-case buttons with the amount shown beside the current one, and Large capped at free storage keeps the size choice to one line."
+    },
+    {
+      "id": "V-S-N7-r5",
+      "agent": "story-designer",
+      "date": "2026-11-02",
+      "kind": "vote",
+      "ref": "N7",
+      "vote": "agree",
+      "text": "Agree as written: 'Express: pay N to arrive this cycle, not the next.' reads in one line with N read live, the normal Send keeps no extra words, and 'Express' is added to story/voice.md before use."
+    },
+    {
+      "id": "V-S-N9-r5",
+      "agent": "story-designer",
+      "date": "2026-11-02",
+      "kind": "vote",
+      "ref": "N9",
+      "vote": "agree",
+      "text": "Agree as written: 'Stop at A: sell up to N here, carry the rest to B.' reads in one line with A, B and N read live, and 'Stop at' is added to story/voice.md before use with 'waypoint' and 'bundle' kept out of player text."
+    },
+    {
+      "id": "G-P3-r2",
+      "agent": "gameplay-programmer",
+      "date": "2026-11-02",
+      "kind": "review",
+      "ref": "P3",
+      "text": "P3 still needs the two new balance keys order_step_small 0.5 and order_step_large 1.5, which are absent from data/balance.json and have no recorded owner approval, so the build stops as needs-owner."
+    },
+    {
+      "id": "G-N7-r1",
+      "agent": "gameplay-programmer",
+      "date": "2026-11-02",
+      "kind": "review",
+      "ref": "N7",
+      "text": "N7 needs express_fee_pct, a new balance key that is absent from data/balance.json and has no recorded owner approval, so the build stops as needs-owner with no code changed."
+    },
+    {
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "proposal",
+      "tag": "NEW",
+      "id": "N10",
+      "title": "First Profit goal: clear one full sale cycle in the black",
+      "text": "From cycle 1 the goal line in the top bar shows a first goal, 'First profit: sell one lot above its cost', and it ticks off in the first cycles when any sale repays its Buy cost, then the line shows the next goal.",
+      "goal": "Sell one lot for more than it cost to buy.",
+      "reached": "Usually cycle 2 to 4, on the first completed buy-send-sell.",
+      "player_sees": "Goal line in the top bar: 'First profit: sell a lot above cost (0/1)', then a check mark and a short toast.",
+      "reward": "Title 'Trader' beside the cash in the top bar and one stat line on the ending screen; no cash and no skill points.",
+      "player_choice": "Which first lane to chase it on; the player can ignore the line and play any way.",
+      "main_loop_effect": "Reads the existing sale result; adds no step and no prompt, and removes no choice.",
+      "risk": "Too small to matter if the title is dull; keep it to one line and fade it after it is done.",
+      "owner_agent": "ui-programmer",
+      "size": "S",
+      "needs_numbers": "no",
+      "needs_text": "yes, one goal line, one toast, one title (story-designer)"
+    },
+    {
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "proposal",
+      "tag": "NEW",
+      "id": "N11",
+      "title": "Second Lane goal: first sale in system 2",
+      "text": "After the first profit goal the goal line offers 'Open system 2: sell a lot there', which the player may reach by buying the permit and sending a lot across, and it ticks off on that first sale in system 2.",
+      "goal": "Make the first sale at a planet in system 2.",
+      "reached": "Around cycles 8 to 14, once the player holds permit_2_cost and chooses to expand.",
+      "player_sees": "Goal line shows 'Open system 2: permit 600, then sell a lot there'; the map highlights system 2's gate with the permit cost beside it.",
+      "reward": "Title 'Cross-system trader' and a one-line story note on the planet panel of the first system 2 planet; no cash and no change to permit_2_cost.",
+      "player_choice": "Whether to chase it at all; a player who stays in system 1 still plays and wins the old way.",
+      "main_loop_effect": "Points at an existing route and permit; adds no required step, so the sim path with no permit is unchanged.",
+      "risk": "Reads as a hint that the permit is mandatory; the line must say 'optional' in its text or the tooltip, and the permit cost must be shown honestly.",
+      "owner_agent": "ui-programmer",
+      "size": "S",
+      "needs_numbers": "no (reads permit_2_cost)",
+      "needs_text": "yes, goal line and one planet note (story-designer)"
+    },
+    {
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "proposal",
+      "tag": "NEW",
+      "id": "N12",
+      "title": "Steady Lane goal: one route earns every cycle for five cycles",
+      "text": "The mid-game goal line tracks the player's best route and ticks off when one route has paid a profit in five cycles in a row, so the player has a reason to keep a good lane running and loaded.",
+      "goal": "One route pays a profit in five cycles in a row.",
+      "reached": "Around cycles 12 to 20, after the second ship or the first route upgrade.",
+      "player_sees": "Goal line shows 'Steady lane: Route A 3/5 cycles'; the route row shows the same small counter.",
+      "reward": "Title 'Lane keeper', a gold name tag on that route row, and a stat line in the ending summary; no cash, no skill points, no effect on win_cash.",
+      "player_choice": "Whether to keep one lane running or switch lanes to follow events; the counter resets on a closed planet or a missed cycle but costs nothing.",
+      "main_loop_effect": "Reads existing per-cycle route income; adds no step, and a player who rotates lanes loses only the title.",
+      "risk": "Could nudge a single steady lane that dominates (the P4 failure); it pays nothing, so the lane has no income edge over a rotating play.",
+      "owner_agent": "gameplay-programmer",
+      "size": "M",
+      "needs_numbers": "one optional key, steady_lane_cycles 5 (economy-designer)",
+      "needs_text": "yes, goal line and title (story-designer)"
+    },
+    {
+      "id": "R-E16",
+      "agent": "economy-designer",
+      "date": "2026-11-02",
+      "kind": "review",
+      "ref": "N10",
+      "vote": "agree",
+      "text": "A first-profit goal with a title and a stat line only reads existing sale and Buy cost data, pays nothing, and so cannot move the win cycle or any balance value.",
+      "checklist": "Strengthens: yes, it teaches buy-send-sell. Old way wins: yes. New keys: none. Pacing: no effect, win_cycle 30 and win_cash 8500 unchanged. Sim: none needed."
+    },
+    {
+      "id": "R-E17",
+      "agent": "economy-designer",
+      "date": "2026-11-02",
+      "kind": "review",
+      "ref": "N11",
+      "vote": "agree-with-change",
+      "text": "The second-lane goal is a pure marker with no cash, so it changes neither permit_2_cost nor win pacing, but the line must show the live permit cost, because skill_C4_permit_discount can lower it from 600.",
+      "checklist": "Strengthens: yes, it points at expansion without forcing it. Old way wins: yes, system 1 only still wins. New keys: none, reads permit_2_cost. Pacing: no effect, the goal pays nothing. Sim: none needed."
+    },
+    {
+      "id": "A-E14",
+      "agent": "economy-designer",
+      "date": "2026-11-02",
+      "kind": "amend",
+      "ref": "N11",
+      "text": "The goal line reads the cost from permit_2_cost after skill_C4_permit_discount (text 'permit N', never a typed 600), the goal ticks only on a sale in system 2 and never on buying the permit, and the reward carries no cash and no skill points."
+    },
+    {
+      "id": "R-E18",
+      "agent": "economy-designer",
+      "date": "2026-11-02",
+      "kind": "review",
+      "ref": "N12",
+      "vote": "agree-with-change",
+      "text": "A pay-nothing five-cycle lane streak keeps the P4 failure away and cannot move the win cycle, but the streak length is a new number and profit must be defined as net of trip_cost and maintenance or a barely positive lane will count.",
+      "checklist": "Strengthens: yes, it rewards a loaded lane. Old way wins: yes. New keys: one, steady_lane_cycles 5 (owner approval needed). Pacing: no effect, no cash or margin edge. Sim: none needed, but the sim may log the best streak per strategy."
+    },
+    {
+      "id": "A-E15",
+      "agent": "economy-designer",
+      "date": "2026-11-02",
+      "kind": "amend",
+      "ref": "N12",
+      "text": "Add one key steady_lane_cycles 5 (owner approval needed) as the streak length, count a cycle only when the route's sales exceed its Buy cost plus trip_cost plus its share of maintenance, reset the counter on a closure or a missed cycle, and keep the reward to the title, the gold tag and the stat line with no cash and no skill points."
+    },
+    {
+      "id": "R-S13",
+      "agent": "story-designer",
+      "date": "2026-11-02",
+      "kind": "review",
+      "ref": "N10",
+      "vote": "agree",
+      "text": "Plain, quiet and teaches buy-send-sell without a prompt; the 'Trader' title is a short label with no flavour hiding a number. Draft goal line: 'First profit: sell a lot above its cost.' Toast: 'First profit.' End stat: 'First profit: cycle {cycle}.'"
+    },
+    {
+      "id": "R-S14",
+      "agent": "story-designer",
+      "date": "2026-11-02",
+      "kind": "review",
+      "ref": "N11",
+      "vote": "agree-with-change",
+      "text": "A marker toward the second system is a good thread, but it must read as optional and show the live permit cost so it is not mistaken for a required step. Draft goal line: 'Optional: open system 2 (permit {n}), then sell a lot there.' Planet note: 'Your first sale here crossed the system line.'"
+    },
+    {
+      "id": "A-S11",
+      "agent": "story-designer",
+      "date": "2026-11-02",
+      "kind": "amend",
+      "ref": "N11",
+      "text": "Use the goal line 'Optional: open system 2 (permit {n}), then sell a lot there.' with {n} read live after discounts, the title 'Cross-system trader' and the planet note 'Your first sale here crossed the system line.' (max 90 characters); the word 'optional' stays in the line itself, not only in a tooltip."
+    },
+    {
+      "id": "R-S15",
+      "agent": "story-designer",
+      "date": "2026-11-02",
+      "kind": "review",
+      "ref": "N12",
+      "vote": "agree-with-change",
+      "text": "A lane that keeps paying is a fair thing to name, but the counter must say what counts so the player does not guess; 'profit' means after costs. Draft goal line: 'Steady lane: {planet_a} to {planet_b}, {n}/5 cycles in profit.' Title 'Lane keeper'."
+    },
+    {
+      "id": "A-S13",
+      "agent": "story-designer",
+      "date": "2026-11-02",
+      "kind": "amend",
+      "ref": "N12",
+      "text": "Use the goal line 'Steady lane: {planet_a} to {planet_b}, {n}/5 cycles in profit.' (the 5 read from steady_lane_cycles, not typed), the route row tag 'Lane keeper', the title 'Lane keeper' and the end stat 'Steady lane: {n} cycles in profit.'; no flavour words around the counter. Add 'Steady lane' and 'Lane keeper' to story/voice.md before use."
+    },
+    {
+      "id": "RS-N11",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "response",
+      "ref": "N11",
+      "text": "Accept: both amendments (A-E14 live permit cost and sale-only tick, A-S11 'Optional' wording, title and planet note), since neither adds keys or a win-cycle effect and the old play stays valid."
+    },
+    {
+      "id": "AM-N11",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "amended",
+      "ref": "N11",
+      "text": "Optional goal line 'Optional: open system 2 (permit {n}), then sell a lot there.' with {n} read from permit_2_cost after skill_C4_permit_discount (never a typed 600), ticking only on a first sale in system 2 and never on buying the permit; title 'Cross-system trader' and planet note 'Your first sale here crossed the system line.' (max 90 characters), with no cash and no skill points in the reward and no new keys."
+    },
+    {
+      "id": "RS-N12",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "response",
+      "ref": "N12",
+      "text": "Accept: both amendments (A-E15 one key steady_lane_cycles 5 and profit net of costs, A-S13 goal line, tag and end stat), since the reward stays cash-free and the counter states what counts."
+    },
+    {
+      "id": "AM-N12",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "amended",
+      "ref": "N12",
+      "text": "Steady lane goal line 'Steady lane: {planet_a} to {planet_b}, {n}/5 cycles in profit.' with the 5 read from the new key steady_lane_cycles 5 (owner approval needed); a cycle counts only when the route's sales exceed its Buy cost plus trip_cost plus its share of maintenance, and the counter resets on a closure or a missed cycle; the reward is the title and route row tag 'Lane keeper' plus the end stat 'Steady lane: {n} cycles in profit.', with no cash and no skill points, and 'Steady lane' and 'Lane keeper' are added to story/voice.md before use."
+    },
+    {
+      "id": "V-F-P1-r6",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "vote",
+      "text": "Final vote, agree as written: the event arrow with cycles left and the margin now and after in the Send to... picker add information only, remove no step, and leave old play unchanged."
+    },
+    {
+      "id": "V-F-P2-r6",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "vote",
+      "text": "Final vote, agree as written: an optional 'Move ship' with 'Best open route: +N per cycle' net of travel_cycles_per_leg idle cycles, 'Setup lost' only when really lost, and never an automatic move."
+    },
+    {
+      "id": "V-F-N11-r6",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "vote",
+      "text": "Final vote, agree as written: an optional goal that ticks only on a first sale in system 2, reads the permit price from permit_2_cost after the C4 discount, and pays only a title and a note, with no new keys."
+    },
+    {
+      "id": "V-F-N12-r6",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "vote",
+      "text": "Final vote, agree as written: the optional Steady lane goal counts only cycles that beat Buy cost plus trip_cost plus maintenance share and pays only a title, tag and end stat, with the one new key steady_lane_cycles needing owner approval."
+    },
+    {
+      "id": "V-E-P1-r6",
+      "agent": "economy-designer",
+      "date": "2026-11-02",
+      "kind": "vote",
+      "ref": "P1",
+      "vote": "agree",
+      "text": "Agree as written: the event arrow, cycles-left count and Margin now and after figures read existing event timers and keys, with no new keys and no balance change."
+    },
+    {
+      "id": "V-E-P2-r6",
+      "agent": "economy-designer",
+      "date": "2026-11-02",
+      "kind": "vote",
+      "ref": "P2",
+      "vote": "agree",
+      "text": "Agree as written: the optional Move ship costs travel_cycles_per_leg idle cycles, shows income net of that loss and never moves automatically, so waiting stays valid and closures are not trivial."
+    },
+    {
+      "id": "V-E-N11-r6",
+      "agent": "economy-designer",
+      "date": "2026-11-02",
+      "kind": "vote",
+      "ref": "N11",
+      "vote": "agree",
+      "text": "Agree as written: the goal reads permit_2_cost after skill_C4_permit_discount, ticks only on a first sale in system 2, pays a title and note only, and adds no keys, so win pacing is unchanged."
+    },
+    {
+      "id": "V-E-N12-r6",
+      "agent": "economy-designer",
+      "date": "2026-11-02",
+      "kind": "vote",
+      "ref": "N12",
+      "vote": "agree",
+      "text": "Agree as written: steady_lane_cycles 5 (absent from balance.json, needs owner approval) with profit net of Buy cost, trip_cost and maintenance share pays only a title, tag and end stat, so it cannot move the win cycle."
+    },
+    {
+      "id": "V-S-P1-r7",
+      "agent": "story-designer",
+      "date": "2026-11-02",
+      "kind": "vote",
+      "ref": "P1",
+      "vote": "agree",
+      "text": "Agree as written: the arrow with cycles left on an event-moved row and the margin now and after in the Send to... picker read in one line and hide no number."
+    },
+    {
+      "id": "V-S-P2-r7",
+      "agent": "story-designer",
+      "date": "2026-11-02",
+      "kind": "vote",
+      "ref": "P2",
+      "vote": "agree",
+      "text": "Agree as written: the optional 'Move ship' button and 'Best open route: +N per cycle' with N live and net of idle cycles say what a move gains, and 'Setup lost' is added to story/voice.md before the programmer wires it."
+    },
+    {
+      "id": "V-S-N11-r7",
+      "agent": "story-designer",
+      "date": "2026-11-02",
+      "kind": "vote",
+      "ref": "N11",
+      "vote": "agree",
+      "text": "Agree as written: 'Optional: open system 2 (permit {n}), then sell a lot there.' keeps 'optional' in the line and shows the live permit cost, and the planet note 'Your first sale here crossed the system line.' fits 90 characters."
+    },
+    {
+      "id": "V-S-N12-r7",
+      "agent": "story-designer",
+      "date": "2026-11-02",
+      "kind": "vote",
+      "ref": "N12",
+      "vote": "agree",
+      "text": "Agree as written: 'Steady lane: {planet_a} to {planet_b}, {n}/5 cycles in profit.' states what counts with the 5 read from steady_lane_cycles, and 'Steady lane' and 'Lane keeper' go into story/voice.md before use."
     }
   ]
 }

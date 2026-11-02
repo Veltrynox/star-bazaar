@@ -3,26 +3,24 @@
   "agent": "gameplay-programmer",
   "date": "2026-11-02",
   "task": "P3",
-  "status": "blocked",
+  "status": "needs-owner",
   "files_changed": [
-    "goals/feature-exploration-2026-11-02/council.json",
     "goals/feature-exploration-2026-11-02/blackboard.json",
+    "goals/feature-exploration-2026-11-02/council.json",
     "handoffs/gameplay-programmer/2026-11-02-P3.json"
   ],
   "open_questions": [
-    "Owner approval needed for two new balance keys, order_step_small 0.5 and order_step_large 1.5 in data/balance.json; P3 stopped before any change."
+    "owner: approve two new keys in data/balance.json, order_step_small 0.5 and order_step_large 1.5 (times order_amount), so P3 can be built.",
+    "economy-designer: after approval, run the sim with the Small and Large sizes and confirm Large stays capped at free storage."
   ],
-  "handoff": "P3 (Buy order size steps: Small, Normal default, Large) is not built. The idea needs two new balance keys, order_step_small 0.5 and order_step_large 1.5 times order_amount, which the owner has not approved and which are not in data/balance.json, so per the brief the keys were not added and the work stopped. Nothing is playable from this task and no code, balance or test files were changed. Blackboard claims and a G-P3 council review entry were appended. Once the owner approves the keys, the next step is to add them to data/balance.json, read order_amount at runtime, add the Small, Normal and Large buttons with the amount beside the current one, cap Large at free storage, add a headless test, and run sh tools/tests/run.sh. Story text would reuse the Small, Normal and Large labels and needs a story-designer check.",
+  "handoff": "P3 (Buy order Small, Normal and Large sizes) was not built. It needs two new balance keys, order_step_small 0.5 and order_step_large 1.5, which are absent from data/balance.json and have no recorded owner approval, so the rule to not add new keys was followed. No code, test, story text or balance change was made for P3. Once the owner approves the keys, the work is: add the two keys, add the Small, Normal and Large order size choice to the Buy order with Normal as default, cap Large at free storage, reuse existing StoryText ids for the labels, and add a headless test. Nothing was committed or pushed.",
   "details": {
-    "what_is_playable": "Nothing new.",
-    "how_to_try": "Not applicable.",
-    "council_entries_appended": [
-      "G-P3"
-    ],
-    "blackboard_claims_appended": [
-      "C-GP-P3",
-      "C-GP-P3-DONE"
-    ],
-    "tests": "Not run; task stopped before implementation."
+    "keys_needed": {
+      "order_step_small": 0.5,
+      "order_step_large": 1.5
+    },
+    "base_key": "order_amount (data/balance.json, currently 40)",
+    "code_changed": false,
+    "tests_run": false
   }
 }

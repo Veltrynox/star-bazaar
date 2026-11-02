@@ -2,32 +2,25 @@
   "schema_version": 1,
   "agent": "ui-programmer",
   "date": "2026-11-02",
-  "task": "P1: Price rows show the event and when it ends",
-  "status": "partial",
-  "files_changed": [
-    "game/planet_panel.gd",
-    "tools/tests/run_tests.gd",
-    "goals/feature-exploration-2026-11-02/blackboard.json",
-    "goals/feature-exploration-2026-11-02/council.json"
-  ],
-  "open_questions": [
-    "UNKNOWN: story-designer to supply text id LBL_PRICE_EVENT ('{arrow} Event, {cycles} cycles left'); code uses this plain fallback, and '1 cycles left' needs a singular form.",
-    "UNKNOWN: where the per-destination margin list (Margin now / Margin after) should live, since Send to... picks a destination by clicking the map and has no list today.",
-    "gameplay-programmer to add a helper giving route margin with the current event price effect removed; UI must not compute it."
-  ],
-  "handoff": "The event arrow and cycles-left row on price rows (planet_panel.gd _row) were already in the working tree when this run started; I verified them, they pass five P1 tests, and sh tools/tests/run.sh gives 565 pass, 0 fail. Not done: the Send to... margin picker. There is no destination list (the destination is a map click with a one-line pending label), and margin after the event needs a gameplay-side helper. No balance keys added. New text id LBL_PRICE_EVENT is waiting for story-designer; fallback used. Not checked by eye: the arrow row fits the planet panel at default size. Git was not run (sandbox xcode-select error).",
+  "task": "P1",
+  "status": "done",
+  "files_changed": ["game/planet_panel.gd", "game/main.gd", "game/trade.gd", "tools/tests/run_tests.gd", "handoffs/ui-programmer/2026-11-02-P1.json"],
+  "open_questions": [],
+  "handoff": "P1 is built on new-features-test. Planet market rows: a price event on the row shows an arrow and cycles left (LBL_PRICE_EVENT, plain fallback) and the line goes when the event ends (planet_panel.gd). Send to...: while a plain Send is pending, a label above the pending banner lists each reachable destination with margin now and margin after the event (LBL_MARGIN_NOW, LBL_MARGIN_AFTER_EVENT; main.gd pending_margin_lines). The after-event value comes from trade.margin_after_events, a read-only helper that ignores event factors and keeps shield factors. No balance keys added or changed. Headless suite: sh tools/tests/run.sh gives 640 pass, 0 fail, including 10 P1 checks. Not checked by eye: the event label on crowded planet rows, and the margin label's position above the pending banner. Git not run; nothing committed.",
   "details": {
-    "screens_changed": [
-      "Planet panel price rows (game/planet_panel.gd)"
+    "tests": [
+      "P1: up event shows arrow and cycles left",
+      "P1: no event line on a commodity the event does not move",
+      "P1: cycles left count goes down each cycle",
+      "P1: down event shows a down arrow",
+      "P1: no event line once the event has ended",
+      "P1: no margin lines when no Send is pending",
+      "P1: an up event on the destination lifts the margin now above the margin after",
+      "P1: with no event both margins match",
+      "P1: pending Send shows margin now and after the event",
+      "P1: margin lines vanish when the Send is cancelled"
     ],
-    "how_to_see": "Start a run, select a planet, and trigger a price-up or price-down event (or use the debug menu). The event's commodity row shows an arrow and 'Event, N cycles left'.",
-    "not_checked_by_eye": [
-      "Arrow row fit at default window size",
-      "Picker (not built)"
-    ],
-    "new_text_ids": [
-      "LBL_PRICE_EVENT"
-    ],
-    "new_balance_keys": []
+    "story_ids": ["LBL_PRICE_EVENT", "LBL_MARGIN_NOW", "LBL_MARGIN_AFTER_EVENT"],
+    "story_ids_in_story_text": true
   }
 }

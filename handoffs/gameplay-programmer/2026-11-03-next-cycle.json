@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-03",
+  "task": "next-cycle",
+  "status": "done",
+  "files_changed": [
+    "game/route_engine.gd",
+    "game/planet_panel.gd",
+    "game/space_storage_view.gd",
+    "tools/tests/run_tests.gd"
+  ],
+  "open_questions": [
+    "Add story_text id LBL_NEXT_CYCLE = \"Next cycle: +{in} -{out} = {after}\" (code has the same fallback). Keep the {in}, {out}, {after} tokens.",
+    "The line is hidden when nothing moves for that commodity (in and out both 0). Show it always?",
+    "Pre-existing, not mine: space_storage_view.gd line 62 prints a String formatting error when SS_LBL_CAPACITY in story text has no %d (seen in test_stations log)."
+  ],
+  "handoff": "RouteEngine.project_storage(key, c, cash) returns {in, out, after, capacity} for planet:<i> or system:<sid>. It replays the cycle order (local buys, routes, local sells) on a scratch copy of the stock, using the same helpers as settle (local_amount, planned-unit cap now split out as _route_cap, split limits, Space Storage backup). It never writes state. Approximations: cash of other commodities' orders is not tracked (live cash is used), Mixed load and level bonuses ignored (credits only). There is no station feed any more, so none is projected. Shown as a small rich-text line under each storage row in the planet panel and the Space Storage view (in green, out red, signal colours). Tests: 640 pass, 0 fail.",
+  "details": {
+    "story_text_ids": ["LBL_NEXT_CYCLE"],
+    "ui_helper": "PlanetPanel.next_cycle_label(main, key, c)"
+  }
+}

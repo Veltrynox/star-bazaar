@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-03",
+  "task": "station-scale",
+  "status": "done",
+  "files_changed": ["game/station.gd", "game/map.gd"],
+  "open_questions": [
+    "Marker lift 0.45 is scaled in proportion to the radius, not checked by eye; tune if it floats too high or low."
+  ],
+  "handoff": "Station MAP_RADIUS halved 0.1833 -> 0.0917 (station.gd). STATION_MARKER_LIFT in map.gd lowered 0.9 -> 0.45 (same ratio to radius). Marker label already reads LBL_STATION_MARKER = 'Space Storage' (single line, same text as SS_POST_NAME); no second line exists, so no code change. Spin, build logic, click handler and Space Storage view untouched. Not checked by eye; no git, no tests run (lead runs them).",
+  "details": {
+    "map_radius": {"old": 0.1833, "new": 0.0917},
+    "marker_lift": {"old": 0.9, "new": 0.45},
+    "marker_label": "Space Storage"
+  }
+}

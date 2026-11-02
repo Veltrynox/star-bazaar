@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "agent": "economy-designer",
+  "date": "2026-11-03",
+  "task": "permit-points",
+  "status": "done",
+  "files_changed": ["goals/feature-exploration-2026-11-02/permit-points.md", "handoffs/economy-designer/2026-11-03-permit-points.json"],
+  "open_questions": [
+    "Owner approval: permit_points_2 3 -> 2 (recommended)? balance.json not edited.",
+    "UNKNOWN: did the owner see reason 'points' or 'credits' (600 vs ship 900)?",
+    "Sim decent no-skill median is 25 (no events 23), below the 26-30 window; always expand + C1 wins. Retune separately?"
+  ],
+  "handoff": "No balance change made. Points: one route pair = 4 (home 1, planet 1, route 2); C1 1 + permit 3 = 4, zero spare, so any other skill (A1) blocks the permit. Option A permit_points_2 3->2 (recommended): decent medians unchanged (no skills 25, logistics 24, research 23); sloppy, always expand, never expand still lose. Option B skill_points_route 2->3: logistics median 20, full tree 18, too early. Sim baseline already outside the window; see note.",
+  "details": {
+    "options": [
+      {"key": "permit_points_2", "old": 3, "new": 2, "reason": "leave 1 spare point after C1 on the first route"},
+      {"key": "skill_points_route", "old": 2, "new": 3, "reason": "more points per route; speeds whole tree"}
+    ],
+    "sim_median_win_60_seeds": {
+      "now": {"decent_none": 25, "logistics": 24, "research": 23, "permit_only": 24, "full": 21},
+      "A": {"decent_none": 25, "logistics": 24, "research": 23, "permit_only": 24, "full": 23},
+      "B": {"decent_none": 25, "logistics": 20, "research": 22, "permit_only": 24, "full": 18}
+    },
+    "losers": "sloppy, always expand, never expand lose in all runs; always expand + C1 wins (24) in all runs",
+    "note": "goals/feature-exploration-2026-11-02/permit-points.md"
+  }
+}

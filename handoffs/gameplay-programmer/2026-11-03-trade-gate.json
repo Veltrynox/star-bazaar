@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-03",
+  "task": "trade-gate",
+  "status": "done",
+  "files_changed": [
+    "game/main.gd",
+    "game/route_engine.gd",
+    "game/planet_panel.gd",
+    "tools/tests/run_tests.gd"
+  ],
+  "open_questions": [
+    "Story designer: add LBL_TRADE_NEEDS_STATION to data/story_text.json (code falls back to 'Needs a Space Storage in this system.').",
+    "Old saves: a second system open with no post yet is locked (orders stay saved but do nothing, state shows the reason) until its station is built. Save format unchanged."
+  ],
+  "handoff": "Helper main.system_trade_open(planet): true for system 1, else space_post_open(system). Refused with LBL_TRADE_NEEDS_STATION: set_local_order on=true (Buy/Sell; turning off stays allowed), can_connect (covers send_stock, send_stock_buying, route creation) when source or destination is locked, and the cycle: engine.trade_gate makes _local_calc skip locked planets (n=0, state shows reason). Planet panel Buy, Sell, Send to are disabled with the reason tooltip (named BuyButton_/SellButton_/SendButton_). Two older sys2/full tests now learn A1 and set up the post before ordering. run.sh: 612 pass, 0 fail. GLB import worked: star_bazaar_station.glb.import created."
+}

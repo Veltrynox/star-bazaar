@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-02",
+  "task": "Express send: pay to skip the wait on one leg (N7)",
+  "status": "blocked",
+  "files_changed": [
+    "goals/feature-exploration-2026-11-02/blackboard.json",
+    "goals/feature-exploration-2026-11-02/council.json",
+    "handoffs/gameplay-programmer/2026-11-02-N7.json"
+  ],
+  "open_questions": [
+    "UNKNOWN: owner approval for new balance key express_fee_pct (starting value 0.5 of trip_cost, not simulated)"
+  ],
+  "handoff": "N7 not built. It needs one new balance key, express_fee_pct 0.5, which is absent from data/balance.json with no owner approval, so per the task rule no key was added. Once the owner approves, economy-designer or the owner adds the key; then gameplay-programmer can build the Express fee on a Send to... order (offered only when the normal leg would wait a cycle, once per send, row line 'Express: pay N to arrive this cycle, not the next.' with N live, label 'Express' which must first be added to story/voice.md), plus an express sim strategy showing always-expand does not win before cycle 22. Story-designer must confirm the 'Express' label and row line text. No code, data or tests changed.",
+  "details": {
+    "playable": "None. N7 not built.",
+    "how_to_try": "Not applicable."
+  }
+}
