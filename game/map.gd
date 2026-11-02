@@ -216,9 +216,14 @@ func _make_planet(i: int) -> void:
 	l.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	l.no_depth_test = true
 	l.fixed_size = true
-	l.pixel_size = 0.0008
-	l.font_size = 40
-	l.outline_size = 8
+	# Design map-label: Jost 400 13 px, ink, text-shadow 0 1 6 black, in the 941 px frame. fixed_size puts the em at
+	# font_size * pixel_size * (P11 / 2) of the frame height (P11 = 1 / tan(22.5 deg) at fov 45); 13 px -> 0.01144 em.
+	l.pixel_size = 0.00022
+	l.font = Ui.sans_font()
+	l.font_size = 52
+	l.outline_size = 12
+	l.modulate = Ui.col("ink")
+	l.outline_modulate = Ui.col("panel_100")
 	l.position = pos + Vector3(0, -(planet_radius() + 0.5), 0)
 	add_child(l)
 	planet_labels.append(l)

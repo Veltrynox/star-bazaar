@@ -31,6 +31,13 @@ static func mono_font() -> Font:
 		return t.get_font("font", "LabelReadout")
 	return ThemeDB.fallback_font
 
+## Sans face (Jost) for map text, from the theme's Label font.
+static func sans_font() -> Font:
+	var t := ThemeDB.get_project_theme()
+	if t != null and t.has_font("font", "Label"):
+		return t.get_font("font", "Label")
+	return ThemeDB.fallback_font
+
 ## Artist texture from art/textures/ui/ (name without extension); null when the file is not there yet.
 static func ui_texture(name: String) -> Texture2D:
 	for ext in ["png", "webp", "jpg"]:
