@@ -86,6 +86,18 @@ func net_forecast() -> int:
 		net -= int(l[1])
 	return net
 
+## Credits leaving per cycle (the Expenses block of the forecast): costs of standing orders and route trips plus upkeep.
+func expenses_total() -> int:
+	if main == null:
+		return 0
+	var total := 0
+	for l in order_lines():
+		if int(l[1]) < 0:
+			total -= int(l[1])
+	for l in route_expense_lines():
+		total += int(l[1])
+	return total
+
 ## Called by main.gd _refresh() every frame; rebuilds the lines while open.
 func refresh() -> void:
 	if not visible or main == null:

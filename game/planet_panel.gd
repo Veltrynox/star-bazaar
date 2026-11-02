@@ -26,11 +26,11 @@ func setup(m: Control) -> void:
 
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
-	position = Vector2(76, 56)  # right of the icon rail
+	position = Vector2(76, 76)  # right of the icon rail, below the top bar
 	custom_minimum_size = Vector2(320, 0)
 	box = VBoxContainer.new()
 	box.add_theme_constant_override("separation", 6)
-	Ui.scroll_wrap(self, box, 56.0 + 12.0)  # long panels scroll instead of leaving the window
+	Ui.scroll_wrap(self, box, 76.0 + 70.0)  # clear of the top bar and the key hints  # long panels scroll instead of leaving the window
 	visible = false
 
 func show_planet(index: int, route_id: int = -1) -> void:

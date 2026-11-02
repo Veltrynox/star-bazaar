@@ -69,6 +69,12 @@ var delta_label: Label
 var state_label: Label
 var cash_box: HBoxContainer  # click target for the cash forecast
 var skills_button: Button
+var menu_button: Button  # top left, opens the Esc menu
+var expenses_label: Label
+var points_label: Label
+var system_label: Label
+var system_hint: Label
+var run_desc_label: Label
 
 var map: Node3D
 var planet_panel: PanelContainer
@@ -678,9 +684,10 @@ func _pending_changed() -> void:
 
 func _build_pending_label() -> void:
 	pending_label = Label.new()
-	pending_label.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
-	pending_label.position.y = 64
+	pending_label.set_anchors_and_offsets_preset(Control.PRESET_CENTER_BOTTOM)
 	pending_label.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	pending_label.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	pending_label.offset_bottom = -64  # route hint, just above the legend
 	pending_label.theme_type_variation = "LabelAccent"
 	pending_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	pending_label.visible = false
@@ -1511,14 +1518,27 @@ func _build_ui() -> void:
 	var bar := PanelContainer.new()
 	bar.theme_type_variation = "PanelBar"
 	bar.set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
+	bar.mouse_filter = Control.MOUSE_FILTER_PASS
 	add_child(bar)
 	top_bar = bar
 	var box := HBoxContainer.new()
-	box.add_theme_constant_override("separation", 20)
+	box.add_theme_constant_override("separation", 24)
 	bar.add_child(box)
-	# left: resource counters (cash with a muted per-cycle delta, expansion points)
+	# top left: the menu icon (opens the same menu as Esc)
+	menu_button = Button.new()
+	menu_button.theme_type_variation = "ButtonGhost"
+	menu_button.icon = Ui.icon("mark")
+	menu_button.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	menu_button.add_theme_constant_override("icon_max_width", 24)
+	menu_button.custom_minimum_size = Vector2(40, 40)
+	menu_button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	menu_button.tooltip_text = StoryText.get_or("BTN_MENU", "Menu") + " (Esc)"
+	menu_button.pressed.connect(game_menu_toggle)
+	box.add_child(menu_button)
+	# cash with a muted per-cycle delta (click opens the forecast)
 	cash_box = HBoxContainer.new()
 	cash_box.add_theme_constant_override("separation", 6)
+	cash_box.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	box.add_child(cash_box)
 	cash_box.add_child(_bar_icon("cash"))
 	cash_label = Label.new()
@@ -1527,16 +1547,36 @@ func _build_ui() -> void:
 	delta_label = Label.new()
 	delta_label.theme_type_variation = "LabelNumberMuted"
 	cash_box.add_child(delta_label)
-	# right: goal, cycle, state, pause (amber). The goal text takes the free space and shortens if the window is narrow.
+	# goal: takes the free space and shortens if the window is narrow
 	goal_label = Label.new()
-	goal_label.theme_type_variation = "LabelSmall"
+	goal_label.theme_type_variation = "LabelMuted"
 	goal_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	goal_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	goal_label.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	goal_label.clip_text = true
 	goal_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	box.add_child(goal_label)
+	# expenses per cycle and expansion points, as inline stats
+	var ex := _stat_inline("expenses", "LBL_EXPENSES", "Expenses")
+	expenses_label = ex[1]
+	box.add_child(ex[0])
+	var pt := _stat_inline("skills", "LBL_SKILL_POINTS", "Skill points")
+	points_label = pt[1]
+	box.add_child(pt[0])
+	# Skills (K), in the top bar
+	var sk := HBoxContainer.new()
+	sk.add_theme_constant_override("separation", 4)
+	sk.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	skills_button = Button.new()
+	skills_button.theme_type_variation = "ButtonSmall"
+	skills_button.text = StoryText.get_or("MENU_SKILLS", "Skills")
+	skills_button.pressed.connect(toggle_skills)
+	sk.add_child(skills_button)
+	sk.add_child(Ui.kbd("K"))
+	box.add_child(sk)
+	# cycle, progress, speed
 	cycle_label = Label.new()
 	cycle_label.theme_type_variation = "LabelNumber"
+	cycle_label.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	box.add_child(cycle_label)
 	progress = ProgressBar.new()
 	progress.show_percentage = false
@@ -1545,23 +1585,121 @@ func _build_ui() -> void:
 	progress.custom_minimum_size = Vector2(90, 3)
 	progress.max_value = 1.0
 	box.add_child(progress)
-	state_label = Label.new()
-	state_label.theme_type_variation = "LabelCaption"
-	box.add_child(state_label)
 	_build_speed_buttons(box)
-	pause_button = Button.new()
-	pause_button.theme_type_variation = "ButtonPrimary"
-	pause_button.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	pause_button.expand_icon = true
-	pause_button.custom_minimum_size = Vector2(36, 28)
-	pause_button.pressed.connect(toggle_pause)
-	box.add_child(pause_button)
-	var menu_button := Button.new()
-	menu_button.theme_type_variation = "ButtonGhost"
-	menu_button.text = StoryText.get_text("MENU_MAIN")
-	menu_button.pressed.connect(_to_menu)
-	box.add_child(menu_button)
 	_build_rail()
+	_build_hud()
+
+## Icon, caption and a number, inline in the top bar. Returns [row, number label].
+func _stat_inline(icon_token: String, story_id: String, fallback: String) -> Array:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 8)
+	row.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	row.add_child(_bar_icon(icon_token))
+	var cap := Label.new()
+	cap.text = StoryText.get_or(story_id, fallback)
+	cap.theme_type_variation = "LabelMuted"
+	row.add_child(cap)
+	var n := Label.new()
+	n.theme_type_variation = "LabelNumber"
+	row.add_child(n)
+	return [row, n]
+
+## Along the edges of the system screen, as in SystemView.html: system name top middle, key hints bottom left,
+## route hints bottom middle, run state (Space) bottom right. None of it takes map clicks except the run card.
+func _build_hud() -> void:
+	var head := VBoxContainer.new()
+	head.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
+	head.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	head.offset_top = 76
+	head.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	system_label = Label.new()
+	system_label.theme_type_variation = "LabelCaption"
+	system_label.add_theme_font_size_override("font_size", 14)
+	system_label.add_theme_color_override("font_color", Ui.col("ink_muted"))
+	system_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	system_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	head.add_child(system_label)
+	system_hint = Label.new()
+	system_hint.theme_type_variation = "LabelSmall"
+	system_hint.add_theme_color_override("font_color", Ui.col("ink_subtle"))
+	system_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	system_hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	head.add_child(system_hint)
+	add_child(head)
+	# key hints, bottom left
+	var keys := HFlowContainer.new()
+	keys.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_LEFT)
+	keys.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	keys.offset_left = 20
+	keys.offset_bottom = -20
+	keys.custom_minimum_size = Vector2(340, 0)
+	keys.add_theme_constant_override("h_separation", 16)
+	keys.add_theme_constant_override("v_separation", 8)
+	keys.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var hints := [
+		[[], "KEY_ZOOM", "Wheel Zoom"],
+		[["W", "A", "S", "D"], "KEY_PAN", "Pan"],
+		[[], "KEY_ORBIT", "Right-drag Orbit"],
+		[["K"], "MENU_SKILLS", "Skills"],
+		[["Esc"], "KEY_MENU", "Menu"]]
+	for h in hints:
+		var item := HBoxContainer.new()
+		item.add_theme_constant_override("separation", 6)
+		item.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		for k in h[0]:
+			item.add_child(Ui.kbd(str(k)))
+		var l := Label.new()
+		l.text = StoryText.get_or(str(h[1]), str(h[2]))
+		l.theme_type_variation = "LabelSmall"
+		l.add_theme_color_override("font_color", Ui.col("ink_subtle"))
+		l.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		item.add_child(l)
+		keys.add_child(item)
+	add_child(keys)
+	# route hints, bottom middle
+	var legend: HBoxContainer = load("res://game/route_legend.gd").new()
+	legend.set_anchors_and_offsets_preset(Control.PRESET_CENTER_BOTTOM)
+	legend.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	legend.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	legend.offset_bottom = -30
+	add_child(legend)
+	# run state card, bottom right: click or Space
+	var card := PanelContainer.new()
+	card.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT)
+	card.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	card.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	card.offset_right = -20
+	card.offset_bottom = -20
+	card.custom_minimum_size = Vector2(320, 56)
+	card.gui_input.connect(func(ev: InputEvent) -> void:
+		if ev is InputEventMouseButton and ev.pressed and ev.button_index == MOUSE_BUTTON_LEFT:
+			toggle_pause())
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 12)
+	card.add_child(row)
+	pause_button = Button.new()
+	pause_button.theme_type_variation = "ButtonSmall"
+	pause_button.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	pause_button.add_theme_constant_override("icon_max_width", 16)
+	pause_button.custom_minimum_size = Vector2(32, 32)
+	pause_button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	pause_button.pressed.connect(toggle_pause)
+	row.add_child(pause_button)
+	var txt := VBoxContainer.new()
+	txt.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	txt.add_theme_constant_override("separation", 0)
+	txt.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	state_label = Label.new()
+	state_label.add_theme_font_size_override("font_size", 14)
+	state_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	txt.add_child(state_label)
+	run_desc_label = Label.new()
+	run_desc_label.theme_type_variation = "LabelSmall"
+	run_desc_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	txt.add_child(run_desc_label)
+	row.add_child(txt)
+	row.add_child(Ui.kbd("Space"))
+	add_child(card)
 
 func _bar_icon(token: String) -> TextureRect:
 	var t := TextureRect.new()
@@ -1583,8 +1721,6 @@ func _build_rail() -> void:
 	var col := VBoxContainer.new()
 	col.add_theme_constant_override("separation", 6)
 	rail.add_child(col)
-	skills_button = _rail_button("skills", "MENU_SKILLS", "Skills", toggle_skills)
-	col.add_child(skills_button)
 	galaxy_button = _rail_button("planet", "MENU_GALAXY", "Galaxy", toggle_galaxy) 
 	col.add_child(galaxy_button)  # always shown: the galaxy view also lists locked systems as uncharted
 
@@ -1617,21 +1753,34 @@ func _refresh() -> void:
 	cycle_label.text = "%d / %d" % [cycle, int(balance.get("win_cycle", 0))]
 	cycle_label.tooltip_text = "Cycle"
 	if game_over:
-		state_label.text = StoryText.get_or("LBL_GAME_OVER", "Game over").to_upper()
+		state_label.text = StoryText.get_or("LBL_GAME_OVER", "Game over")
+		run_desc_label.text = ""
 	elif paused:
-		state_label.text = StoryText.get_or("LBL_PAUSED", "Paused").to_upper()
+		state_label.text = StoryText.get_or("LBL_PAUSED", "Paused") + "."
+		run_desc_label.text = StoryText.get_or("LBL_PAUSED_DESC", "Nothing earns while paused.")
 	else:
-		state_label.text = StoryText.get_or("LBL_RUNNING", "Running").to_upper()
+		state_label.text = StoryText.get_or("LBL_RUNNING", "Running") + "."
+		run_desc_label.text = StoryText.get_or("LBL_RUNNING_DESC", "Routes run on their own.")
 	progress.value = cycle_elapsed / _cycle_seconds()
 	pause_button.text = ""  # icon only (owner item 1)
 	pause_button.tooltip_text = StoryText.get_or("MENU_RESUME", "Resume") if paused else StoryText.get_or("MENU_PAUSE", "Pause")
 	pause_button.icon = Ui.icon("play" if paused else "pause")
+	pause_button.modulate = Ui.col("signal_warn") if paused else Color.WHITE
 	for i in speed_buttons.size():
 		speed_buttons[i].button_pressed = SPEEDS[i] == time_speed
 	var star := " *" if SkillTree.any_affordable(learned_skills, skill_points, balance, skill_ctx()) else ""
 	skills_button.tooltip_text = StoryText.get_text("MENU_SKILLS") + star
 	skills_button.icon = Ui.icon("skills")
 	skills_button.modulate = Ui.col("star_warm") if star != "" else Color.WHITE
+	points_label.text = str(skill_points)
+	expenses_label.text = "%d" % (cash_forecast.expenses_total() if cash_forecast != null else 0)
+	var sid: int = view_system
+	var n_pl := 0
+	for q in map.planets:
+		if int(q.get("system", 1)) == sid:
+			n_pl += 1
+	system_label.text = Systems.name_of(sid).to_upper()
+	system_hint.text = StoryText.get_or("LBL_SYSTEM_HINT", "System {n} · {count} planets", {"n": sid, "count": n_pl})
 	if galaxy_view != null:
 		galaxy_view.refresh()
 	if cash_forecast != null:
@@ -1710,30 +1859,25 @@ func _build_board() -> void:
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	scroll.set_anchors_and_offsets_preset(Control.PRESET_RIGHT_WIDE)
 	# 240 px of content plus room for the scrollbar, so the board is never clipped at its right edge.
-	scroll.offset_left = -(12.0 + 240.0 + 16.0)
-	scroll.offset_right = -12
-	scroll.offset_top = 56
-	scroll.offset_bottom = -12
+	scroll.offset_left = -(20.0 + 320.0 + 16.0)
+	scroll.offset_right = -20
+	scroll.offset_top = 76  # below the top bar, as in the design pack
+	scroll.offset_bottom = -(20.0 + 56.0 + 12.0)  # above the run state card
 	add_child(scroll)
-	if top_bar != null:  # start below the top bar, whatever height the theme gives it
-		var fit_top := func() -> void:
-			scroll.offset_top = top_bar.size.y + 8.0
-		top_bar.resized.connect(fit_top)
-		fit_top.call_deferred()
 	right_col = VBoxContainer.new()
 	right_col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	right_col.add_theme_constant_override("separation", 12)
 	scroll.add_child(right_col)
 	var board := PanelContainer.new()
 	board.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	board.custom_minimum_size = Vector2(240, 0)
+	board.custom_minimum_size = Vector2(320, 0)
 	right_col.add_child(board)
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", 8)
 	board.add_child(box)
 	var title := Label.new()
-	title.text = "Notifications"
-	title.theme_type_variation = "LabelTitle"
+	title.text = StoryText.get_or("LBL_NOTIFICATIONS", "Notifications").to_upper()
+	title.theme_type_variation = "LabelCaption"
 	box.add_child(title)
 	mission_label = Label.new()
 	mission_label.text = "Mission: Buy a ship"

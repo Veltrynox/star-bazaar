@@ -11,13 +11,13 @@ var upkeep_label: Label
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_PASS  # T58: buy buttons live here
-	custom_minimum_size = Vector2(240, 0)  # sits in main.gd right_col under the board
+	custom_minimum_size = Vector2(320, 0)  # sits in main.gd right_col under the board
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", 8)
 	add_child(box)
 	var title := Label.new()
-	title.text = "Ships"
-	title.theme_type_variation = "LabelTitle"
+	title.text = StoryText.get_or("LBL_SHIPS", "Ships").to_upper()
+	title.theme_type_variation = "LabelCaption"
 	box.add_child(title)
 	label = Label.new()
 	box.add_child(label)
