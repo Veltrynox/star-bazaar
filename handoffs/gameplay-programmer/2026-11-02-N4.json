@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-02",
+  "task": "N4",
+  "status": "blocked",
+  "files_changed": [
+    "goals/feature-exploration-2026-11-02/council.json",
+    "goals/feature-exploration-2026-11-02/blackboard.json",
+    "handoffs/gameplay-programmer/2026-11-02-N4.json"
+  ],
+  "open_questions": [
+    "Owner: approve the new balance key pay_on_sale_premium 0.1 (starting value, not simulated) for data/balance.json, as in AM-N4 and A-E9. Economy-designer to own the value once approved.",
+    "Story-designer: confirm the label 'Pay on sale' and the Buy row line 'Pay on sale: +N per unit, repaid from sales of this stock. Unsold stock owes nothing.' are added to story/voice.md before build (text is approved in council, no new text id invented)."
+  ],
+  "handoff": "N4 Pay on sale lot at Buy is not built. Council text AM-N4 is agreed by feature, economy and story designers, but it adds one new balance key, pay_on_sale_premium 0.1, which is not in data/balance.json; per the task rule the key was not added and the build stopped. Nothing in game/, data/ or tests was changed. Build plan once approved: offer Pay on sale on a Buy order only while cash is below the existing ship_price key and the planet has no other open Pay on sale lot; the lot costs pay_on_sale_premium more per unit; repay in full from that stock's sale proceeds; owe nothing on unsold stock; Buy row line shown only while the offer is open with N read live; expose the key in the debug menu; add a headless test. Text 'Pay on sale' needs story/voice.md first. Status: needs-owner.",
+  "details": {
+    "council_ref": "AM-N4",
+    "needs_owner_key": "pay_on_sale_premium 0.1",
+    "existing_key_used": "ship_price",
+    "tests": "not run for N4 change (no code changed); sh tools/tests/run.sh not run in this session"
+  }
+}

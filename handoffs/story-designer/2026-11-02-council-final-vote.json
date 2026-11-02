@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-11-02",
+  "task": "council-final-vote",
+  "status": "done",
+  "files_changed": [
+    "goals/feature-exploration-2026-11-02/council.json"
+  ],
+  "open_questions": [
+    "Owner: confirm the labels 'Pay on sale', 'Salvage' and 'Lock price' and the term 'Setup lost' may be added to story/voice.md glossary (required before use by the proposals; not yet added)."
+  ],
+  "handoff": "Final votes appended as agree for P1, P2, P3, N4, N5 and N6 (ids V-S-P1-final, V-S-P2-final, V-S-P3-final, V-S-N4, V-S-N5, V-S-N6). No story text is ready to wire yet: the Buy row, Sell row, Send to picker and Move ship lines are drafted in the council amendments and must be copied into story/screens.md and story/voice.md before the programmer wires them. Glossary entries 'Pay on sale', 'Salvage', 'Lock price' and 'Setup lost' are not yet in story/voice.md. Nothing committed or pushed.",
+  "details": {
+    "votes": {
+      "P1": "agree",
+      "P2": "agree",
+      "P3": "agree",
+      "N4": "agree",
+      "N5": "agree",
+      "N6": "agree"
+    }
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-11-02",
+  "task": "N3-text",
+  "status": "done",
+  "files_changed": [
+    "data/story_text.json",
+    "story/voice.md"
+  ],
+  "open_questions": [
+    "tools/tests/run.sh failed intermittently in 'win:' stats tests (4 runs, 3 flaky, 1 clean pass); likely another agent running tests in the same scratch HOME at once. Please rerun once the other agent is idle."
+  ],
+  "handoff": "Added LBL_MIXED_LOAD (max 48, 36 used) to data/story_text.json: 'Mixed load +{n}% (max {cap} credits)'. Show on the planet Sell row only when the bonus applies. {n} is the applied percent after the cap, {cap} the credit cap read live from bundle_bonus_cap. Glossary entry 'Mixed load' and the {cap} placeholder added to story/voice.md. The word bundle appears in no player text. Programmer must wire the id and fill both placeholders.",
+  "details": {}
+}

@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-02",
+  "task": "P2",
+  "status": "done",
+  "files_changed": [
+    "game/route_engine.gd",
+    "game/main.gd",
+    "game/planet_panel.gd",
+    "tools/tests/run_tests.gd",
+    "goals/feature-exploration-2026-11-02/blackboard.json",
+    "handoffs/gameplay-programmer/2026-11-02-P2.json"
+  ],
+  "open_questions": [
+    "story-designer: add StoryText entries for LBL_BEST_OPEN_ROUTE ('Best open route: +{net} per cycle'), LBL_SETUP_LOST ('Setup lost') and BTN_MOVE_SHIP ('Move ship'); none exist in story/ yet, the game currently uses these fallback strings.",
+    "economy-designer: confirm the window scaling for N, net x (closure cycles left - travel_cycles_per_leg) / closure cycles left, as coded in route_engine.gd best_open_lane."
+  ],
+  "handoff": "P2 is built on new-features-test. When an event closes a planet, a route whose ship is blocked shows an optional 'Move ship' button under the route row, with 'Best open route: +N per cycle'. N is the best open lane's per-cycle net, scaled by the closure cycles left minus travel_cycles_per_leg idle cycles, and is recomputed live. 'Setup lost' appears only when the route has an upgrade (level 2 or more), since move_route resets the level to 1. Nothing moves automatically; Move ship keeps the route id and ship count, costs no cash and is hidden once the ship has moved or the closure ends within the transit window. No balance keys added; balance.json untouched. Try it: open a planet with a route, close it with an event (EV07 in the tests), and the blocked route row offers the move. Headless suite: sh tools/tests/run.sh gives 565 pass, 0 fail, including 15 P2 checks. The git working tree also holds uncommitted changes from other tasks (P1, N2) in the same files; they are not separated here.",
+  "details": {
+    "tests": "tools/tests/run_tests.gd _test_route_move (15 P2 checks)",
+    "new_keys": [],
+    "new_story_ids": [
+      "LBL_BEST_OPEN_ROUTE",
+      "LBL_SETUP_LOST",
+      "BTN_MOVE_SHIP"
+    ]
+  }
+}

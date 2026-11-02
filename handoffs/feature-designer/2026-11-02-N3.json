@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "agent": "feature-designer",
+  "date": "2026-11-02",
+  "task": "N3",
+  "status": "needs-owner",
+  "files_changed": [
+    "goals/feature-exploration-2026-11-02/blackboard.json"
+  ],
+  "open_questions": [
+    "Owner: approve new keys bundle_bonus_pct 0.05 and bundle_bonus_cap 150 in data/balance.json (starting values, not simulated)?"
+  ],
+  "handoff": "N3 Mixed load bonus not built: it needs two new balance keys, which the brief forbids adding without the owner. Once approved, economy-designer adds the keys and a bundle sim strategy (cap included, decent play in cycles 26-30), gameplay-programmer builds the bonus and the Sell row line 'Mixed load +N% (max 150 credits)', and story-designer adds 'Mixed load' to story/voice.md and a StoryText id for the row.",
+  "details": {
+    "needs_keys": [
+      "bundle_bonus_pct",
+      "bundle_bonus_cap"
+    ],
+    "new_text_ids": [
+      "Sell row Mixed load line (id for story-designer)"
+    ],
+    "tests": "not run, no code changed"
+  }
+}

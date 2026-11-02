@@ -1,0 +1,1230 @@
+{
+  "schema_version": 1,
+  "goal_slug": "feature-exploration-2026-11-02",
+  "rules": [
+    "Shared council blackboard. Append-only: add entries, never edit or delete another agent's entry.",
+    "Each entry has an id, agent, date, kind (proposal | review | amend | vote | decision), ref and text (one sentence).",
+    "A proposal id is P<n>. Its tag is IMPROVE or NEW. Votes: agree | agree-with-change | disagree. A change is only accepted as text in an amend entry.",
+    "An idea is built only if the latest vote from feature-designer, economy-designer and story-designer is agree (or agree-with-change where the amend is accepted by the proposer)."
+  ],
+  "test_for_each_idea": [
+    "Does it strengthen buy-send-sell, routes, cash or the win, rather than replace them?",
+    "Can the player still play the old way and win (no forced new step)?",
+    "Is it simple enough to read in one line in the UI?",
+    "Can economy-designer tune it with existing keys in data/balance.json, or does it need new numbers, and which?",
+    "Is there story text needed, and is it one line?"
+  ],
+  "entries": [
+    {
+      "id": "P1",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "proposal",
+      "tag": "IMPROVE",
+      "title": "Price rows show the event and when it ends",
+      "text": "A planet row whose price is moved by an event shows an arrow and the number of cycles left, and the Send to... picker shows each destination's margin now and after the event ends.",
+      "player_choice": "Whether to start, keep or wait on a lane whose margin is temporary.",
+      "main_loop_effect": "Adds information to buy-send-sell; removes no step; old play is unchanged.",
+      "risk": "Clutter on crowded rows; keep to one arrow and one number.",
+      "owner_agent": "ui-programmer",
+      "size": "S",
+      "needs_numbers": "no (reads event_price_cycles and the live event timer)",
+      "needs_text": "no"
+    },
+    {
+      "id": "P2",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "proposal",
+      "tag": "IMPROVE",
+      "title": "Closed planet offers a one-click reroute",
+      "text": "When an event closes a planet, the blocked route row shows a Move button that points the stranded ship at the best open lane it could take, with the net income shown; pressing it is optional.",
+      "player_choice": "Ride out the closure or move the ship to a worse lane for a few cycles.",
+      "main_loop_effect": "Keeps routes earning through events; the player can still ignore it and wait.",
+      "risk": "Could make closures trivial; only offer it, never auto-move, and show the lost setup if any.",
+      "owner_agent": "gameplay-programmer",
+      "size": "M",
+      "needs_numbers": "no",
+      "needs_text": "yes (one button label and one status line)"
+    },
+    {
+      "id": "P3",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "proposal",
+      "tag": "IMPROVE",
+      "title": "Buy order size steps",
+      "text": "A Buy order gets three sizes (small, normal, large) set from the existing order_amount, so the player can match a planet's buying to what its onward routes actually carry.",
+      "player_choice": "Buy more to feed a many-ship lane, or buy less to avoid a full storage and wasted upkeep.",
+      "main_loop_effect": "Fixes the idle or 'storage full' state without adding a new step; default stays normal.",
+      "risk": "Larger sizes could outrun lane capacity and fill storage; economy-designer must check the sim.",
+      "owner_agent": "gameplay-programmer",
+      "size": "S",
+      "needs_numbers": "yes (order step multipliers, new keys; base is order_amount)",
+      "needs_text": "no"
+    },
+    {
+      "id": "P4",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "proposal",
+      "tag": "NEW",
+      "title": "Supplier standing: a lane you keep buying from gets cheaper",
+      "text": "A planet you buy from for many cycles in a row builds standing, which lowers its buy price a little per tier and resets slowly if you stop buying.",
+      "player_choice": "Stay on one supplier for a better margin, or move around to chase events and lose the discount.",
+      "main_loop_effect": "Adds a reward to steady buy-send-sell and a cost to hopping; a new player can ignore it.",
+      "risk": "Could make one lane dominant; cap the discount and make it drop, not vanish, when the buy order is off.",
+      "owner_agent": "economy-designer",
+      "size": "M",
+      "needs_numbers": "yes (cycles per tier, discount per tier, max tier, decay; all new keys)",
+      "needs_text": "yes (tier name lines)"
+    },
+    {
+      "id": "P5",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "proposal",
+      "tag": "NEW",
+      "title": "Route insurance paid in cash",
+      "text": "The player can pay a one-time fee on a route so it keeps paying at a reduced rate while a planet is closed or a price event hits it.",
+      "player_choice": "Spend cash now for steadier income, or save it for ships and upgrades and risk a bad event.",
+      "main_loop_effect": "A cash sink that protects the route income without changing how routes earn.",
+      "risk": "Overlaps the closure-bridge skills; must stay cash-only and never touch skill points.",
+      "owner_agent": "economy-designer",
+      "size": "M",
+      "needs_numbers": "yes (fee, covered share, duration; new keys)",
+      "needs_text": "yes (one line for the offer and one for the payout)"
+    },
+    {
+      "id": "P6",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "proposal",
+      "tag": "NEW",
+      "title": "Bulk hauler ship class",
+      "text": "The shipyard offers a second hull that costs more, carries more cargo and pays higher maintenance; a route holds one class per ship.",
+      "player_choice": "Buy two standard ships for a wide lane or one hauler for a lane with few order units left.",
+      "main_loop_effect": "Adds a ship choice inside the existing invest step; the standard ship stays enough to win.",
+      "risk": "Could dominate if cargo gain beats price; ship_cap and lane pools need a re-check.",
+      "owner_agent": "gameplay-programmer",
+      "size": "L",
+      "needs_numbers": "yes (hauler price, cargo, maintenance, trip cost; new keys)",
+      "needs_text": "yes (class name and one description line)"
+    },
+    {
+      "id": "R-S1",
+      "agent": "story-designer",
+      "date": "2026-11-02",
+      "kind": "review",
+      "ref": "P1",
+      "vote": "agree",
+      "text": "Clear and quiet: one arrow and one number tell the player the margin is temporary. Text draft: row tag 'Event, 3 cycles left'; picker columns 'Margin now' and 'Margin after'."
+    },
+    {
+      "id": "R-S2",
+      "agent": "story-designer",
+      "date": "2026-11-02",
+      "kind": "review",
+      "ref": "P2",
+      "vote": "agree-with-change",
+      "text": "Helps without removing choice, but the text must say what the player gets. Draft: button 'Move ship', status line 'Best open route: +40 per cycle' (number live from the game, not fixed)."
+    },
+    {
+      "id": "R-S3",
+      "agent": "story-designer",
+      "date": "2026-11-02",
+      "kind": "review",
+      "ref": "P3",
+      "vote": "agree",
+      "text": "Plain control that reads in one line. Draft: Buy order size buttons 'Small', 'Normal', 'Large', with the current one marked and the amount shown beside it."
+    },
+    {
+      "id": "R-S4",
+      "agent": "story-designer",
+      "date": "2026-11-02",
+      "kind": "review",
+      "ref": "P4",
+      "vote": "disagree",
+      "text": "A Buy price that falls for a hidden reason makes the player guess what changed it; tier names would be flavour hiding a number, which the voice rules forbid, and it adds a state to track on every planet. Needs tier names plus a plain line for the discount, too much for one line."
+    },
+    {
+      "id": "R-S5",
+      "agent": "story-designer",
+      "date": "2026-11-02",
+      "kind": "review",
+      "ref": "P5",
+      "vote": "agree-with-change",
+      "text": "A cash sink with a clear promise is easy to tell, but 'insurance' is a new term. Draft: offer 'Route cover: pay 120, keeps this route paying at a reduced rate during a closure or price event', payout notice 'Route cover paid out on Voltara to Tillam.' (figures from the economy designer)."
+    },
+    {
+      "id": "R-S6",
+      "agent": "story-designer",
+      "date": "2026-11-02",
+      "kind": "review",
+      "ref": "P6",
+      "vote": "disagree",
+      "text": "The game already names a small Skerrit and a large Voruun Hauler, so a second hull called 'hauler' blurs the glossary and the shipyard choice; two classes per route also adds a rule the player must remember. Would need class names and a description line that avoid the existing two."
+    },
+    {
+      "id": "A-S2",
+      "agent": "story-designer",
+      "date": "2026-11-02",
+      "kind": "amend",
+      "ref": "P2",
+      "text": "Use the exact button label 'Move ship' (not 'Move') and the status line 'Best open route: +N per cycle' with N read live; show 'Setup lost' only if the game actually loses a setup."
+    },
+    {
+      "id": "A-S5",
+      "agent": "story-designer",
+      "date": "2026-11-02",
+      "kind": "amend",
+      "ref": "P5",
+      "text": "Name the feature 'Route cover' (add to story/voice.md glossary before use), never 'insurance'; offer line 'Route cover: pay N to keep this route paying at a reduced rate during a closure or price event.' and payout line 'Route cover paid out on A to B.'"
+    },
+    {
+      "id": "R-E1",
+      "agent": "economy-designer",
+      "date": "2026-11-02",
+      "kind": "review",
+      "ref": "P1",
+      "vote": "agree",
+      "text": "Pure information on existing event timers; no balance effect.",
+      "checklist": "Strengthens buy-send-sell: yes. Old way wins: yes, nothing forced. New keys: none (event_price_cycles). Pacing/dominance: no shift."
+    },
+    {
+      "id": "R-E2",
+      "agent": "economy-designer",
+      "date": "2026-11-02",
+      "kind": "review",
+      "ref": "P2",
+      "vote": "agree-with-change",
+      "text": "Fine if the move is not free, otherwise closures (event_close_cycles 3) become trivial.",
+      "checklist": "Strengthens: yes. Old way wins: yes, waiting stays valid. New keys: none if cost uses travel_cycles_per_leg and trip_cost. Pacing: small risk of making closures harmless; dominance: none if move has a cost."
+    },
+    {
+      "id": "R-E3",
+      "agent": "economy-designer",
+      "date": "2026-11-02",
+      "kind": "review",
+      "ref": "P3",
+      "vote": "agree-with-change",
+      "text": "Useful fix for idle storage, but the sizes need two new keys and a storage cap.",
+      "checklist": "Strengthens: yes, no new step, default normal. Old way wins: yes. New keys: yes, small and large multipliers of order_amount (owner approval needed). Pacing: large size can overfill storage and add upkeep, so cap at free storage; no dominance expected."
+    },
+    {
+      "id": "R-E4",
+      "agent": "economy-designer",
+      "date": "2026-11-02",
+      "kind": "review",
+      "ref": "P4",
+      "vote": "disagree",
+      "text": "Five new keys and a discount that stacks on margins makes the steady single supplier dominant and shifts pacing earlier.",
+      "checklist": "Strengthens: yes in theory. Old way wins: yes. New keys: yes, cycles per tier, discount per tier, max tier, decay, plus tier text. Pacing: any buy discount cuts the 26-30 no-skill win window; dominant strategy risk is high and needs a full sim rebuild."
+    },
+    {
+      "id": "R-E5",
+      "agent": "economy-designer",
+      "date": "2026-11-02",
+      "kind": "review",
+      "ref": "P5",
+      "vote": "disagree",
+      "text": "A cash sink that overlaps the closure-bridge skills and adds three new keys while win_cash is the goal.",
+      "checklist": "Strengthens: partly, protects income. Old way wins: yes. New keys: yes, fee, covered share, duration. Pacing: reduces variance that events (event_interval 4) are meant to create, and double-covers skills C-branch; decent play would always insure, so near-mandatory."
+    },
+    {
+      "id": "R-E6",
+      "agent": "economy-designer",
+      "date": "2026-11-02",
+      "kind": "review",
+      "ref": "P6",
+      "vote": "disagree",
+      "text": "Large scope, four new keys, and it collides with ship_cap 24, ship_price 900 and lane pools that are tuned to the win window.",
+      "checklist": "Strengthens: adds an invest choice, not a loop step. Old way wins: yes. New keys: yes, hauler price, cargo, maintenance, trip cost (hauler keys were removed in v13). Pacing: a cargo-per-credit edge makes it dominant; a worse one makes it dead; needs sim support for two classes."
+    },
+    {
+      "id": "A-E2",
+      "agent": "economy-designer",
+      "date": "2026-11-02",
+      "kind": "amend",
+      "ref": "P2",
+      "text": "Move costs the ship travel_cycles_per_leg idle cycles in transit (no income that leg) and shows the net income after that loss; pressing it is optional and never automatic."
+    },
+    {
+      "id": "A-E3",
+      "agent": "economy-designer",
+      "date": "2026-11-02",
+      "kind": "amend",
+      "ref": "P3",
+      "text": "Add two keys, order_step_small 0.5 and order_step_large 1.5 (times order_amount, owner approval needed), and cap the large order at free storage so it can never overfill."
+    },
+    {
+      "id": "RS-P2a",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "response",
+      "ref": "A-E2",
+      "text": "Accept: a Move costs the ship travel_cycles_per_leg idle cycles and the shown income is net of that loss, which keeps closures from going trivial."
+    },
+    {
+      "id": "RS-P2b",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "response",
+      "ref": "A-S2",
+      "text": "Accept: button reads 'Move ship', status reads 'Best open route: +N per cycle' with N live, and 'Setup lost' shows only if a setup is really lost."
+    },
+    {
+      "id": "RS-P3",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "response",
+      "ref": "A-E3",
+      "text": "Accept: sizes are order_step_small 0.5 and order_step_large 1.5 times order_amount (owner approval for the keys), and Large is capped at free storage."
+    },
+    {
+      "id": "RS-P5",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "response",
+      "ref": "A-S5",
+      "text": "Decline: the wording is good but the economy objection stands (near-mandatory, overlaps the closure-bridge skills, three new keys), so P5 stays dropped and 'Route cover' is not added to the glossary."
+    },
+    {
+      "id": "AM-P2",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "amended",
+      "ref": "P2",
+      "text": "When an event closes a planet, the blocked route row shows an optional 'Move ship' button with the line 'Best open route: +N per cycle' (N live and net of the ship's travel_cycles_per_leg idle cycles in transit, 'Setup lost' shown only if a setup is really lost); it never moves a ship automatically."
+    },
+    {
+      "id": "AM-P3",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "amended",
+      "ref": "P3",
+      "text": "A Buy order gets 'Small', 'Normal' (default) and 'Large' sizes at order_step_small 0.5 and order_step_large 1.5 times order_amount (two new keys, owner approval needed), with the amount shown beside the current one and Large capped at free storage."
+    },
+    {
+      "id": "N1",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "proposal",
+      "tag": "NEW",
+      "title": "Fine lot grade at Buy",
+      "text": "A Buy order can be set to Standard (the default) or Fine, where a Fine lot costs more per unit at the source and sells for more only at a few planets that pay for it, so the player chooses where the extra cash goes.",
+      "player_choice": "Pay more per unit for Fine stock that sells higher on a chosen lane, or keep buying Standard as before.",
+      "main_loop_effect": "Adds a grade choice inside the existing Buy step; Standard stays the default, so the old buy-send-sell play is unchanged and still wins.",
+      "risk": "Fine could dominate if its sell premium outruns its buy premium on the lanes it reaches; limit Fine sales to a few buyer planets and sim it against Standard.",
+      "owner_agent": "gameplay-programmer",
+      "size": "M",
+      "needs_numbers": "yes (fine buy premium, fine sell premium, and a buyer-planet list in planets.json; new keys, owner approval needed; economy-designer sets them)",
+      "needs_text": "yes (grade names Standard and Fine, and one line stating the Fine price difference)"
+    },
+    {
+      "id": "N2",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "proposal",
+      "tag": "NEW",
+      "title": "Split a Send across two destinations",
+      "text": "When sending stock from a planet, the player can split one Send to... order between two destinations at a fixed share (half and half, or three quarters and a quarter), so the stock fills two lanes at once.",
+      "player_choice": "Send all stock down the best lane, or split it so one full lane does not hold the rest back.",
+      "main_loop_effect": "Adds an optional second destination inside the existing Send step; a single send works exactly as now.",
+      "risk": "Players may read a split as two orders, and a thin split can under-feed a lane; it overlaps the first-pass full-lane idea in purpose but costs no cash and gives no level, so ship count and lane cap rules need a recheck.",
+      "owner_agent": "gameplay-programmer",
+      "size": "M",
+      "needs_numbers": "no (shares fixed in code at half or three quarters; no new keys proposed)",
+      "needs_text": "yes (one line in the Send to... picker, such as 'Split between two routes')"
+    },
+    {
+      "id": "N3",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "proposal",
+      "tag": "NEW",
+      "title": "Bundle bonus when two goods sell together",
+      "text": "Selling two different goods at the same planet in the same cycle pays a small bonus on both, so the player chooses which stock to sell together and where.",
+      "player_choice": "Hold stock until a second good can sell with it at the same planet, or sell each good alone at its normal price.",
+      "main_loop_effect": "Adds a bonus inside the existing Sell step; single sales keep the normal price, so the old way still wins.",
+      "risk": "Bundles could beat single sales once two goods flow, so the bonus must stay small and capped, and it must show on the Sell row or it reads as a hidden rule.",
+      "owner_agent": "gameplay-programmer",
+      "size": "S",
+      "needs_numbers": "yes (one new bundle bonus key with a cap; economy-designer sets it)",
+      "needs_text": "yes (one line on the planet Sell row, such as 'Bundle +N%')"
+    },
+    {
+      "id": "R-SN1",
+      "agent": "story-designer",
+      "date": "2026-11-02",
+      "kind": "review",
+      "ref": "N1",
+      "vote": "agree-with-change",
+      "text": "A buyer who pays more for better stock is a clear world reason and fits the trade voice, but the Buy and Sell rows must show the number, so a draft is 'Fine: pay +N per unit' on the Buy row and 'Fine buyer: +N per unit' on the Sell row."
+    },
+    {
+      "id": "A-SN1",
+      "agent": "story-designer",
+      "date": "2026-11-02",
+      "kind": "amend",
+      "ref": "N1",
+      "text": "Use the grade names 'Standard' (default) and 'Fine', the Buy row line 'Fine: pay +N per unit', and the Sell row line 'Fine buyer: +N per unit' shown only on planets that buy Fine, with no other grade words."
+    },
+    {
+      "id": "R-SN2",
+      "agent": "story-designer",
+      "date": "2026-11-02",
+      "kind": "review",
+      "ref": "N2",
+      "vote": "agree-with-change",
+      "text": "Splitting a load between two routes is plain and fits a trading company, but the picker must state the shares so the player does not guess, with draft picker entries 'Split half and half' and 'Split 3/4 and 1/4'."
+    },
+    {
+      "id": "A-SN2",
+      "agent": "story-designer",
+      "date": "2026-11-02",
+      "kind": "amend",
+      "ref": "N2",
+      "text": "Use the picker entries 'Split half and half' and 'Split 3/4 and 1/4', and the Send line 'A 1/2, B 1/2' (or 'A 3/4, B 1/4') with the two destination names in the chosen order, never the words 'order split' or 'bundle'."
+    },
+    {
+      "id": "R-SN3",
+      "agent": "story-designer",
+      "date": "2026-11-02",
+      "kind": "review",
+      "ref": "N3",
+      "vote": "agree-with-change",
+      "text": "A bonus for a mixed load gives a clear trader's reason to hold stock, but 'Bundle' is a shop term that does not suit the voice, so a draft is 'Mixed load +N%' on the Sell row, shown only when the second good sells in the same cycle."
+    },
+    {
+      "id": "A-SN3",
+      "agent": "story-designer",
+      "date": "2026-11-02",
+      "kind": "amend",
+      "ref": "N3",
+      "text": "Rename the bonus 'Mixed load' (add it to the story/voice.md glossary before use), show 'Mixed load +N% (max M%)' on the Sell row only when it applies, and never call it 'bundle' in any text."
+    },
+    {
+      "id": "R-E7",
+      "agent": "economy-designer",
+      "date": "2026-11-02",
+      "kind": "review",
+      "ref": "N1",
+      "vote": "agree-with-change",
+      "text": "Fine grade is a sound sell-side choice that leaves Standard as the default, but the premiums must be set so Fine does not beat Standard on the lanes it reaches.",
+      "checklist": "Strengthens buy-send-sell: yes. Old way wins: yes, Standard is default and no existing strategy changes. New keys: yes, fine_buy_premium and fine_sell_premium (owner approval), plus a buyer-planet list per good in planets.json. Pacing: not measurable yet, the four sim strategies never buy Fine, so a Fine strategy must be added before any win-cycle claim. Balance.json not changed."
+    },
+    {
+      "id": "A-E4",
+      "agent": "economy-designer",
+      "date": "2026-11-02",
+      "kind": "amend",
+      "ref": "N1",
+      "text": "Add two keys, fine_buy_premium 0.3 and fine_sell_premium 0.4 (starting values, not simulated; owner approval needed), so a Fine lot costs 30% more per unit at the source and sells for 40% more only at the buyer planets listed for that good in planets.json, and the sim must add a Fine strategy that does not beat the decent Standard strategy on final cash."
+    },
+    {
+      "id": "R-E8",
+      "agent": "economy-designer",
+      "date": "2026-11-02",
+      "kind": "review",
+      "ref": "N2",
+      "vote": "agree-with-change",
+      "text": "A split Send needs no new keys and costs no cash, but as proposed it could help the sloppy overloaded-route strategy, which must keep losing.",
+      "checklist": "Strengthens buy-send-sell: yes, uses idle lane capacity. Old way wins: yes, a single Send is unchanged. New keys: none. Pacing and dominance: the sloppy strategy (one overloaded route) is the most exposed, since splitting stock relieves overload; each leg still pays trip_cost, so cost does not fall. Win cycle: not moved by the proposal itself, but needs a split strategy in the sim. Balance.json not changed."
+    },
+    {
+      "id": "A-E5",
+      "agent": "economy-designer",
+      "date": "2026-11-02",
+      "kind": "amend",
+      "ref": "N2",
+      "text": "A split Send is allowed only from a planet where both destination lanes already have an assigned ship, the shares are fixed at 0.5 and 0.75 of the stock with no new keys, every leg still pays trip_cost, and the sim must add a split strategy and confirm the sloppy strategy still loses."
+    },
+    {
+      "id": "R-E9",
+      "agent": "economy-designer",
+      "date": "2026-11-02",
+      "kind": "review",
+      "ref": "N3",
+      "vote": "agree-with-change",
+      "text": "A small capped bundle bonus is a reasonable reward for multi-good flow, but it is effectively a margin bonus and needs its own keys and a sim check before it is accepted.",
+      "checklist": "Strengthens buy-send-sell: yes, rewards selling choices in the Sell step. Old way wins: yes, single sales keep the normal price. New keys: yes, bundle_bonus_pct and bundle_bonus_cap (owner approval). Pacing: a bonus on every second good sold acts like upgrade_margin_bonus 0.25 and permit_margin_bonus 0.5 on part of the sales, so it could pull the 26-30 decent window earlier. Balance.json not changed."
+    },
+    {
+      "id": "A-E6",
+      "agent": "economy-designer",
+      "date": "2026-11-02",
+      "kind": "amend",
+      "ref": "N3",
+      "text": "Add two keys, bundle_bonus_pct 0.05 and bundle_bonus_cap 150 credits per planet per cycle (starting values, not simulated; owner approval needed), paying the bonus only on the second and later distinct good sold at one planet in one cycle, shown as 'Bundle +N%' on the Sell row, and the sim must add a bundle strategy that keeps decent play in cycles 26-30."
+    },
+    {
+      "id": "RS-N1",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "response",
+      "ref": "N1",
+      "text": "Accept: both amendments, with Standard as the default grade, the grade names and row lines from A-SN1, and the starting values 0.3 and 0.4 from A-E4 as unsimulated starting values, with the Fine sim strategy required before any win-cycle claim."
+    },
+    {
+      "id": "AM-N1",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "amended",
+      "ref": "N1",
+      "text": "A Buy order can be set to Standard (default) or Fine; a Fine lot costs fine_buy_premium 0.3 (30%) more per unit at the source and sells for fine_sell_premium 0.4 (40%) more only at the buyer planets listed for that good in planets.json, shown as 'Fine: pay +N per unit' on the Buy row and 'Fine buyer: +N per unit' on the Sell row of those planets only, using the grade names 'Standard' and 'Fine' and no other grade words; the two keys are starting values, not simulated, and need owner approval, and the sim must add a Fine strategy that does not beat the decent Standard strategy on final cash."
+    },
+    {
+      "id": "RS-N2",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "response",
+      "ref": "N2",
+      "text": "Accept: both amendments, the picker and Send wording from A-SN2 and the restriction from A-E5 to lanes that already have an assigned ship, with fixed 0.5 and 0.75 shares and a sim check that the sloppy strategy still loses."
+    },
+    {
+      "id": "AM-N2",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "amended",
+      "ref": "N2",
+      "text": "From a planet where both destination lanes already have an assigned ship, one Send to... order can split the stock between two destinations at a fixed share, 'Split half and half' (1/2, 1/2) or 'Split 3/4 and 1/4' (3/4, 1/4), with the Send line 'A 1/2, B 1/2' (or 'A 3/4, B 1/4') naming the two destinations in the chosen order; every leg still pays trip_cost, no new keys are needed, and the sim must add a split strategy and confirm the sloppy one-overloaded-route strategy still loses."
+    },
+    {
+      "id": "RS-N3",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "response",
+      "ref": "N3",
+      "text": "Accept in part: the mechanic from A-E6 and the name 'Mixed load' from A-SN3 stand, but the '(max M%)' suffix is declined because the cap is credits per planet per cycle rather than a percent, and the economy label 'Bundle +N%' is replaced by 'Mixed load +N%' because the voice rules forbid the word 'bundle' in player text."
+    },
+    {
+      "id": "AM-N3",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "amended",
+      "ref": "N3",
+      "text": "Selling two different goods at the same planet in the same cycle pays a bonus of bundle_bonus_pct 0.05 (5%) on the second and later distinct good, capped at bundle_bonus_cap 150 credits per planet per cycle (starting values, not simulated, owner approval needed), shown on the planet Sell row as 'Mixed load +N%' only when it applies; 'Mixed load' is added to story/voice.md before use and the word 'bundle' never appears in player text, and the sim must add a bundle strategy that keeps decent play in cycles 26-30."
+    },
+    {
+      "id": "V-F-P1",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "vote",
+      "ref": "P1",
+      "vote": "agree",
+      "text": "Agree as written: the event arrow and cycles-left count plus the margin now/after columns add information only, remove no step, and leave old play unchanged."
+    },
+    {
+      "id": "V-F-P2",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "vote",
+      "ref": "P2",
+      "vote": "agree",
+      "text": "Agree to the revised AM-P2 text: an optional 'Move ship' with live net income, idle-cycle cost, and 'Setup lost' only when real, never automatic, so closures stay a real choice."
+    },
+    {
+      "id": "V-F-P3",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "vote",
+      "ref": "P3",
+      "vote": "agree",
+      "text": "Agree to the revised AM-P3 text: Small, Normal (default) and Large order sizes at the two new keys, with Large capped at free storage and owner approval for the keys."
+    },
+    {
+      "id": "V-F-N1",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "vote",
+      "ref": "N1",
+      "vote": "agree",
+      "text": "Agree to the revised AM-N1 text: Standard stays the default, Fine costs 30% more at source and sells 40% more only at listed buyer planets, with the Fine sim strategy required before any win-cycle claim."
+    },
+    {
+      "id": "V-F-N2",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "vote",
+      "ref": "N2",
+      "vote": "agree",
+      "text": "Agree to the revised AM-N2 text: a fixed 1/2 or 3/4 split only from a planet whose two destination lanes already have ships, every leg still paying trip_cost, with a sim check that the sloppy strategy still loses."
+    },
+    {
+      "id": "V-F-N3",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "vote",
+      "ref": "N3",
+      "vote": "agree",
+      "text": "Agree to the revised AM-N3 text: 'Mixed load' bonus of 5% on the second and later distinct good, capped at 150 per planet per cycle, shown only when it applies, with a bundle sim strategy checked in cycles 26-30."
+    },
+    {
+      "id": "V-S-P1",
+      "agent": "story-designer",
+      "date": "2026-11-02",
+      "kind": "vote",
+      "ref": "P1",
+      "vote": "agree",
+      "text": "Agree: the row tag 'Event, N cycles left' and the picker columns 'Margin now' and 'Margin after' read in one line and stay quiet, so the player can see the margin is temporary."
+    },
+    {
+      "id": "V-S-P2",
+      "agent": "story-designer",
+      "date": "2026-11-02",
+      "kind": "vote",
+      "ref": "P2",
+      "vote": "agree",
+      "text": "Agree: the optional 'Move ship' button and the line 'Best open route: +N per cycle' with N read live tell the player what the move gains, and 'Setup lost' appears only when a setup is really lost."
+    },
+    {
+      "id": "V-S-P3",
+      "agent": "story-designer",
+      "date": "2026-11-02",
+      "kind": "vote",
+      "ref": "P3",
+      "vote": "agree",
+      "text": "Agree: 'Small', 'Normal' and 'Large' are short sentence-case buttons with the amount shown beside the current one, so the size choice reads in one line."
+    },
+    {
+      "id": "V-S-N1",
+      "agent": "story-designer",
+      "date": "2026-11-02",
+      "kind": "vote",
+      "ref": "N1",
+      "vote": "agree",
+      "text": "Agree: 'Standard' and 'Fine' are the only grade words, and the Buy and Sell row lines show the price difference only on the planets that buy Fine, so the player is never left to guess what the grade does."
+    },
+    {
+      "id": "V-S-N2",
+      "agent": "story-designer",
+      "date": "2026-11-02",
+      "kind": "vote",
+      "ref": "N2",
+      "vote": "agree",
+      "text": "Agree: 'Split half and half' and 'Split 3/4 and 1/4' are clear picker entries, and the Send line 'A 1/2, B 1/2' (or 'A 3/4, B 1/4') names both destinations and their shares, so the player does not have to guess."
+    },
+    {
+      "id": "V-S-N3",
+      "agent": "story-designer",
+      "date": "2026-11-02",
+      "kind": "vote",
+      "ref": "N3",
+      "vote": "disagree",
+      "text": "Disagree: the Sell row would show only 'Mixed load +N%' while the bonus stops at a hidden 150-credit cap per planet per cycle, which breaks the rule never to hide a number; it would pass if the row also showed the cap, for example 'Mixed load +N% (max 150 credits)'."
+    },
+    {
+      "id": "A-E7",
+      "agent": "economy-designer",
+      "date": "2026-11-02",
+      "kind": "amend",
+      "ref": "N1",
+      "text": "The per-good buyer-planet list in planets.json is a new field that needs owner approval together with fine_buy_premium and fine_sell_premium, and the sim gate compares Fine with Standard on the same buyer lanes, because a Fine unit earns more than a Standard unit there whenever its sale price is above 75% of its buy price."
+    },
+    {
+      "id": "A-E8",
+      "agent": "economy-designer",
+      "date": "2026-11-02",
+      "kind": "amend",
+      "ref": "N3",
+      "text": "The Sell row shows the applied percent after the 150-credit cap, so 'Mixed load +N%' never shows 5% when the cap has cut the bonus, and the bundle sim strategy is measured with the cap included."
+    },
+    {
+      "id": "V-E-P1",
+      "agent": "economy-designer",
+      "date": "2026-11-02",
+      "kind": "vote",
+      "ref": "P1",
+      "vote": "agree",
+      "text": "Agree as written: the event arrow and cycles-left count read existing event timers and balance.json keys, with no new keys and no balance change."
+    },
+    {
+      "id": "V-E-P2",
+      "agent": "economy-designer",
+      "date": "2026-11-02",
+      "kind": "vote",
+      "ref": "P2",
+      "vote": "agree",
+      "text": "Agree as written: the optional Move ship costs travel_cycles_per_leg idle cycles, shows income net of that loss, and is never automatic, so waiting stays a valid play and closures are not trivial."
+    },
+    {
+      "id": "V-E-P3",
+      "agent": "economy-designer",
+      "date": "2026-11-02",
+      "kind": "vote",
+      "ref": "P3",
+      "vote": "agree",
+      "text": "Agree as written: Small, Normal and Large at order_step_small 0.5 and order_step_large 1.5 with Large capped at free storage, subject to owner approval of the two keys and a sim check before any tuning."
+    },
+    {
+      "id": "V-E-N1",
+      "agent": "economy-designer",
+      "date": "2026-11-02",
+      "kind": "vote",
+      "ref": "N1",
+      "vote": "agree-with-change",
+      "text": "Agree with the change in A-E7: Fine is a sound sell-side choice with Standard as default, but the buyer list needs owner approval and the sim gate must compare Fine against Standard on the same lanes."
+    },
+    {
+      "id": "V-E-N2",
+      "agent": "economy-designer",
+      "date": "2026-11-02",
+      "kind": "vote",
+      "ref": "N2",
+      "vote": "agree",
+      "text": "Agree as written: the fixed 1/2 and 3/4 split is allowed only from a planet whose two lanes already hold ships, every leg pays trip_cost, and the sim must confirm the sloppy one-route strategy still loses."
+    },
+    {
+      "id": "V-E-N3",
+      "agent": "economy-designer",
+      "date": "2026-11-02",
+      "kind": "vote",
+      "ref": "N3",
+      "vote": "agree-with-change",
+      "text": "Agree with the change in A-E8: the 5% Mixed load bonus capped at 150 per planet per cycle is acceptable only if the Sell row shows the applied percent after the cap, and the bundle sim strategy must keep decent play in cycles 26-30."
+    },
+    {
+      "id": "G-P2",
+      "agent": "gameplay-programmer",
+      "date": "2026-11-02",
+      "kind": "review",
+      "ref": "P2",
+      "text": "Built P2 with no new balance keys: 'Move ship' on a closed-planet route row, 'Best open route: +N per cycle' scaled by the closure window minus travel_cycles_per_leg, and 'Setup lost' only when the route carries an upgrade; the three new StoryText ids LBL_BEST_OPEN_ROUTE, LBL_SETUP_LOST and BTN_MOVE_SHIP need story-designer entries.",
+      "checklist": {
+        "strengthens_loop": "yes, routes keep earning through closures",
+        "old_way_wins": "yes, Move ship is optional and nothing moves automatically",
+        "one_line_ui": "yes, one button and one status line",
+        "keys": "none new; uses travel_cycles_per_leg, trip_cost, maintenance and the live closure timer",
+        "story": "three new ids, one line each; approved council text used as fallback"
+      },
+      "open_for_economy": "Confirm the window scaling (net x (closure cycles left - travel_cycles_per_leg) / closure cycles left) for N."
+    },
+    {
+      "id": "N4",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "proposal",
+      "tag": "NEW",
+      "title": "Pay on sale lot at Buy",
+      "text": "A Buy order can be set to Pay on sale, where the lot costs a small premium per unit and its cost is repaid from the sale proceeds of that stock, so a cash-short player can buy now and pay later.",
+      "player_choice": "Pay a premium per unit to keep cash free now, or pay list price now as before.",
+      "main_loop_effect": "Adds a payment option inside the existing Buy step; list-price Buy stays the default, so the old play is unchanged and no step is forced.",
+      "risk": "Early cash relief could make the first cycles easy; allow one open Pay on sale lot per planet, offer it only while cash is below one ship price, and owe nothing on stock never sold.",
+      "owner_agent": "gameplay-programmer",
+      "size": "M",
+      "needs_numbers": "yes (one premium key and one cash threshold key, new in data/balance.json; economy-designer sets them; owner approval needed)",
+      "needs_text": "yes (label 'Pay on sale' and one line stating the premium and that sales repay it; story-designer)"
+    },
+    {
+      "id": "N5",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "proposal",
+      "tag": "NEW",
+      "title": "Salvage sale for stuck stock",
+      "text": "Any planet with free storage takes stock at a salvage price, a fixed share of its Sell order price, so a player whose storage is full or whose lane has no buyer can clear space at a known loss.",
+      "player_choice": "Take a sure salvage loss now to free storage and cash, or hold the stock for a Sell order later.",
+      "main_loop_effect": "Adds an exit inside the existing Sell step; Sell orders still pay the full price and stay the best option, so the old play is unchanged, and a full-storage stall gets a way out.",
+      "risk": "Could become a safe fallback that makes holding stock pointless; keep the salvage share low and show the loss on the row so it never reads as a hidden rule.",
+      "owner_agent": "gameplay-programmer",
+      "size": "S",
+      "needs_numbers": "yes (one salvage share key, new in data/balance.json; economy-designer sets it and checks it never beats a Sell order)",
+      "needs_text": "yes (Sell row line such as 'Salvage: sell for N now' with the loss shown; story-designer)"
+    },
+    {
+      "id": "N6",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "proposal",
+      "tag": "NEW",
+      "title": "Price lock fee at Buy",
+      "text": "A Buy order can pay a small fee to lock the source's current buy price until the next cycle, so a player who expects a price rise from an event can buy at today's price.",
+      "player_choice": "Pay the lock fee to buy at today's price next cycle, or buy at whatever price the planet shows then.",
+      "main_loop_effect": "Adds an optional fee inside the existing Buy step; buying at the live price stays the default, so no step is forced and the old play is unchanged.",
+      "risk": "The fee could become a near-mandatory cash sink on volatile planets; keep it small, allow one lock per planet per cycle, and do not offer it when the price is already falling.",
+      "owner_agent": "gameplay-programmer",
+      "size": "S",
+      "needs_numbers": "yes (one fee key, new in data/balance.json; economy-designer sets it and checks it against the win window; owner approval needed)",
+      "needs_text": "yes (button label such as 'Lock price' and one line stating the fee; story-designer)"
+    },
+    {
+      "id": "R-E10",
+      "agent": "economy-designer",
+      "date": "2026-11-02",
+      "kind": "review",
+      "ref": "N4",
+      "vote": "agree-with-change",
+      "text": "Pay on sale is a sound early-cash option, but it agrees only with amendment A-E9, which reuses ship_price as the cash threshold and adds one premium key that the sim must check against the second-ship target and the win window."
+    },
+    {
+      "id": "A-E9",
+      "agent": "economy-designer",
+      "date": "2026-11-02",
+      "kind": "amend",
+      "ref": "N4",
+      "text": "Pay on sale is offered only while cash is below the existing ship_price key, with one open lot per planet, the premium set by one new key pay_on_sale_premium 0.1 (starting value, not simulated; owner approval needed), the lot repaid in full from the sale proceeds of that stock, and nothing owed on stock never sold."
+    },
+    {
+      "id": "R-E11",
+      "agent": "economy-designer",
+      "date": "2026-11-02",
+      "kind": "review",
+      "ref": "N5",
+      "vote": "agree-with-change",
+      "text": "Salvage gives stuck stock a known exit, but it agrees only with amendment A-E10, because an open salvage door would let the sloppy overloaded-route strategy survive where it must lose."
+    },
+    {
+      "id": "A-E10",
+      "agent": "economy-designer",
+      "date": "2026-11-02",
+      "kind": "amend",
+      "ref": "N5",
+      "text": "Salvage is offered on a Sell row only when the good has no open buyer on any lane or the origin planet storage is full, pays salvage_share 0.4 of the Sell order price (one new key, starting value, not simulated; owner approval needed; it must stay below 1 so a Sell order always pays more), and the sim gate must confirm that sloppy and always-expand still lose."
+    },
+    {
+      "id": "R-E12",
+      "agent": "economy-designer",
+      "date": "2026-11-02",
+      "kind": "review",
+      "ref": "N6",
+      "vote": "agree-with-change",
+      "text": "A price lock is useful on event-driven planets, but it agrees only with amendment A-E11, which ties the offer to an active event raise so the fee cannot become a routine cash sink."
+    },
+    {
+      "id": "A-E11",
+      "agent": "economy-designer",
+      "date": "2026-11-02",
+      "kind": "amend",
+      "ref": "N6",
+      "text": "Lock price is offered only while an event has raised that planet buy price, costs lock_fee_pct 0.05 of the order cost at the locked price (one new key, starting value, not simulated; owner approval needed), allows one lock per planet per cycle, and is hidden while the price is falling."
+    },
+    {
+      "id": "R-S7",
+      "agent": "story-designer",
+      "date": "2026-11-02",
+      "kind": "review",
+      "ref": "N4",
+      "vote": "agree-with-change",
+      "text": "A trade house that fronts a lot and takes its repayment from sales is a clear world reason and leaves list-price Buy as the plain choice, but the Buy row must state the premium and the repayment, so a draft line is 'Pay on sale: +N per unit, repaid from sales of this stock.'"
+    },
+    {
+      "id": "A-S7",
+      "agent": "story-designer",
+      "date": "2026-11-02",
+      "kind": "amend",
+      "ref": "N4",
+      "text": "Use the button label 'Pay on sale' (add it to the story/voice.md glossary before use) and the Buy row line 'Pay on sale: +N per unit, repaid from sales of this stock. Unsold stock owes nothing.' with N read live, shown only while the offer is open."
+    },
+    {
+      "id": "R-S8",
+      "agent": "story-designer",
+      "date": "2026-11-02",
+      "kind": "review",
+      "ref": "N5",
+      "vote": "agree-with-change",
+      "text": "A salvage yard that takes stuck stock at a known loss is a strong trade-world detail and gives a way out with no forced step, but the Sell row must name the reason and show the loss beside the Sell order price, so a draft is 'Salvage: N now (no buyer on your lanes). Sell order pays M.'"
+    },
+    {
+      "id": "A-S8",
+      "agent": "story-designer",
+      "date": "2026-11-02",
+      "kind": "amend",
+      "ref": "N5",
+      "text": "Use the label 'Salvage' (add it to the story/voice.md glossary before use) and show the Sell row line 'Salvage: N now (no buyer on your lanes). Sell order pays M.' or 'Salvage: N now (storage full). Sell order pays M.', with N and M read live and the line shown only while the offer is open."
+    },
+    {
+      "id": "R-S9",
+      "agent": "story-designer",
+      "date": "2026-11-02",
+      "kind": "review",
+      "ref": "N6",
+      "vote": "agree-with-change",
+      "text": "A paid price hold reads clearly as a trader's quote and fits the voice, but the Buy row must state both the fee and the price it locks, so a draft is 'Lock price: pay F to buy at N next cycle.'"
+    },
+    {
+      "id": "A-S9",
+      "agent": "story-designer",
+      "date": "2026-11-02",
+      "kind": "amend",
+      "ref": "N6",
+      "text": "Use the label 'Lock price' (add it to the story/voice.md glossary before use) and the Buy row line 'Lock price: pay F to buy at N next cycle.' with F and N read live, shown only while the planet price is up after an event and never while it is falling."
+    },
+    {
+      "id": "RS-N4",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "response",
+      "ref": "N4",
+      "text": "Accept: both the economy amendment A-E9 (ship_price as the cash threshold, one open lot per planet, pay_on_sale_premium 0.1 as an unsimulated starting value) and the story amendment A-S7 (row line and 'Pay on sale' label) stand, with list-price Buy as the default."
+    },
+    {
+      "id": "RS-N5",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "response",
+      "ref": "N5",
+      "text": "Accept: the economy limits in A-E10 (offered only with no open buyer on any lane or full origin storage, salvage_share 0.4 below 1) and the story row line in A-S8 both stand, so a Sell order always pays more and the loss is shown."
+    },
+    {
+      "id": "RS-N6",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "response",
+      "ref": "N6",
+      "text": "Accept: the economy limits in A-E11 (offered only while an event has raised the planet buy price, lock_fee_pct 0.05, one lock per planet per cycle, hidden while the price falls) and the story row line in A-S9 both stand, with the fee and locked price shown on the Buy row."
+    },
+    {
+      "id": "AM-N4",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "amended",
+      "ref": "N4",
+      "text": "A Buy order can be set to Pay on sale, offered only while cash is below the existing ship_price key and only while the planet has no other open Pay on sale lot; the lot costs pay_on_sale_premium 0.1 more per unit (one new key, starting value, not simulated, owner approval needed), is repaid in full from the sale proceeds of that stock, and owes nothing on stock never sold; the Buy row reads 'Pay on sale: +N per unit, repaid from sales of this stock. Unsold stock owes nothing.' with N read live, labelled 'Pay on sale' and shown only while the offer is open, and the label is added to story/voice.md before use."
+    },
+    {
+      "id": "AM-N5",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "amended",
+      "ref": "N5",
+      "text": "A Sell row offers Salvage only when the good has no open buyer on any lane or the origin planet storage is full, paying salvage_share 0.4 of the Sell order price (one new key, starting value, not simulated, must stay below 1, owner approval needed); the row reads 'Salvage: N now (no buyer on your lanes). Sell order pays M.' or 'Salvage: N now (storage full). Sell order pays M.' with N and M read live, labelled 'Salvage' and shown only while the offer is open, the label is added to story/voice.md before use, and the sim must confirm the sloppy and always-expand strategies still lose."
+    },
+    {
+      "id": "AM-N6",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "amended",
+      "ref": "N6",
+      "text": "A Buy order can pay lock_fee_pct 0.05 of the order cost (one new key, starting value, not simulated, owner approval needed) to lock the planet's current buy price until the next cycle, offered only while an event has raised that planet's buy price, one lock per planet per cycle, and hidden while the price is falling; the Buy row reads 'Lock price: pay F to buy at N next cycle.' with F and N read live, labelled 'Lock price', and the label is added to story/voice.md before use."
+    },
+    {
+      "id": "V-F-P1-final",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "vote",
+      "ref": "P1",
+      "vote": "agree",
+      "text": "Final vote, agree as written: the event arrow with cycles left and the Margin now and Margin after columns in the Send to... picker add information only, remove no step, and leave old play unchanged."
+    },
+    {
+      "id": "V-F-P2-final",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "vote",
+      "ref": "P2",
+      "vote": "agree",
+      "text": "Final vote, agree to AM-P2 as written: an optional 'Move ship' button, 'Best open route: +N per cycle' net of travel_cycles_per_leg idle cycles, 'Setup lost' only when a setup is really lost, and never an automatic move."
+    },
+    {
+      "id": "V-F-P3-final",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "vote",
+      "ref": "P3",
+      "vote": "agree",
+      "text": "Final vote, agree to AM-P3 as written: Small, Normal (default) and Large at order_step_small 0.5 and order_step_large 1.5, Large capped at free storage, and owner approval for the two keys."
+    },
+    {
+      "id": "V-F-N4",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "vote",
+      "ref": "N4",
+      "vote": "agree",
+      "text": "Agree to AM-N4 as written: Pay on sale is offered only while cash is below ship_price and the planet has no other open lot, costs pay_on_sale_premium 0.1 per unit, is repaid only from that stock's sales, and needs the 'Pay on sale' label in story/voice.md before use."
+    },
+    {
+      "id": "V-F-N5",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "vote",
+      "ref": "N5",
+      "vote": "agree",
+      "text": "Agree to AM-N5 as written: Salvage is offered only with no open buyer on any lane or full origin storage, pays salvage_share 0.4 of the Sell order price (kept below 1), and needs the 'Salvage' label in story/voice.md and a sim check that sloppy and always-expand still lose."
+    },
+    {
+      "id": "V-F-N6",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "vote",
+      "ref": "N6",
+      "vote": "agree",
+      "text": "Agree to AM-N6 as written: Lock price costs lock_fee_pct 0.05 of the order cost, is offered only after an event raises the planet buy price, allows one lock per planet per cycle, is hidden while the price falls, and needs the 'Lock price' label in story/voice.md before use."
+    },
+    {
+      "id": "V-E-P1-final",
+      "agent": "economy-designer",
+      "date": "2026-11-02",
+      "kind": "vote",
+      "ref": "P1",
+      "vote": "agree",
+      "text": "Final vote, agree as written: the event arrow and cycles-left count and the Margin now and Margin after figures read existing event timers and balance.json keys, with no new keys and no balance change."
+    },
+    {
+      "id": "V-E-P2-final",
+      "agent": "economy-designer",
+      "date": "2026-11-02",
+      "kind": "vote",
+      "ref": "P2",
+      "vote": "agree",
+      "text": "Final vote, agree to AM-P2 as written: the optional Move ship costs travel_cycles_per_leg (1) idle cycles and shows income net of that loss, it is never automatic, and waiting stays a valid play."
+    },
+    {
+      "id": "V-E-P3-final",
+      "agent": "economy-designer",
+      "date": "2026-11-02",
+      "kind": "vote",
+      "ref": "P3",
+      "vote": "agree",
+      "text": "Final vote, agree to AM-P3 as written: Small, Normal and Large at order_step_small 0.5 and order_step_large 1.5 with Large capped at free storage, tunable with existing keys once the two new keys have owner approval and a sim run."
+    },
+    {
+      "id": "V-E-N4-final",
+      "agent": "economy-designer",
+      "date": "2026-11-02",
+      "kind": "vote",
+      "ref": "N4",
+      "vote": "agree",
+      "text": "Final vote, agree to AM-N4 as written: Pay on sale is gated by ship_price and one open lot per planet, costs pay_on_sale_premium 0.1 per unit, is repaid only from that stock sales, and owes nothing on unsold stock, with the two new keys and the label needing owner approval and story/voice.md before use."
+    },
+    {
+      "id": "V-E-N5-final",
+      "agent": "economy-designer",
+      "date": "2026-11-02",
+      "kind": "vote",
+      "ref": "N5",
+      "vote": "agree",
+      "text": "Final vote, agree to AM-N5 as written: Salvage is offered only with no open buyer or full origin storage, pays salvage_share 0.4 of the Sell order price (kept below 1 so Sell always pays more), and the sim must confirm sloppy and always-expand still lose."
+    },
+    {
+      "id": "V-E-N6-final",
+      "agent": "economy-designer",
+      "date": "2026-11-02",
+      "kind": "vote",
+      "ref": "N6",
+      "vote": "agree",
+      "text": "Final vote, agree to AM-N6 as written: Lock price costs lock_fee_pct 0.05 against an event raise of event_price_pct 0.2 over event_price_cycles 3, is offered only while an event raises the buy price, allows one lock per planet per cycle, and is hidden while the price falls."
+    },
+    {
+      "id": "V-S-P1-final",
+      "agent": "story-designer",
+      "date": "2026-11-02",
+      "kind": "vote",
+      "ref": "P1",
+      "text": "Final vote, agree as written: the arrow with cycles left on an event-moved planet row and the Margin now and Margin after columns in the Send to... picker read in one line, stay quiet, and need no text beyond those short labels."
+    },
+    {
+      "id": "V-S-P2-final",
+      "agent": "story-designer",
+      "date": "2026-11-02",
+      "kind": "vote",
+      "ref": "AM-P2",
+      "text": "Final vote, agree to AM-P2 as written: the optional 'Move ship' button and 'Best open route: +N per cycle' with N read live tell the player what the move gains, and 'Setup lost' appears only when a setup is really lost; 'Setup lost' is added to story/voice.md before the programmer wires it."
+    },
+    {
+      "id": "V-S-P3-final",
+      "agent": "story-designer",
+      "date": "2026-11-02",
+      "kind": "vote",
+      "ref": "AM-P3",
+      "text": "Final vote, agree to AM-P3 as written: 'Small', 'Normal' and 'Large' are short sentence-case buttons with the amount shown beside the current one and Large capped at free storage, so the size choice reads in one line."
+    },
+    {
+      "id": "V-S-N4",
+      "agent": "story-designer",
+      "date": "2026-11-02",
+      "kind": "vote",
+      "ref": "AM-N4",
+      "text": "Agree to AM-N4 as written: the Buy row line 'Pay on sale: +N per unit, repaid from sales of this stock. Unsold stock owes nothing.' states the cost and the repayment plainly, and 'Pay on sale' is added to story/voice.md before use."
+    },
+    {
+      "id": "V-S-N5",
+      "agent": "story-designer",
+      "date": "2026-11-02",
+      "kind": "vote",
+      "ref": "AM-N5",
+      "text": "Agree to AM-N5 as written: 'Salvage' and its two Sell row lines name the reason (no buyer on your lanes, or storage full) and the amount paid against the Sell order, so the player is never left to guess why the offer appears."
+    },
+    {
+      "id": "V-S-N6",
+      "agent": "story-designer",
+      "date": "2026-11-02",
+      "kind": "vote",
+      "ref": "AM-N6",
+      "text": "Agree to AM-N6 as written: 'Lock price: pay F to buy at N next cycle.' states the fee and the locked price in one line, and the offer appears only while an event has raised the planet's buy price, with 'Lock price' added to story/voice.md before use."
+    },
+    {
+      "id": "RU-P1",
+      "agent": "ui-programmer",
+      "date": "2026-11-02",
+      "kind": "review",
+      "ref": "P1",
+      "text": "Arrow and cycles-left row on event-moved planet rows is built and tested; the Send to... margin picker is partial because it needs a destination list and a gameplay helper for margin after the event."
+    },
+    {
+      "id": "G-P3",
+      "agent": "gameplay-programmer",
+      "date": "2026-11-02",
+      "kind": "review",
+      "ref": "P3",
+      "text": "P3 needs two new balance keys (order_step_small 0.5, order_step_large 1.5) that the owner has not approved and that are absent from data/balance.json, so the build is stopped with status needs-owner and no code is changed."
+    },
+    {
+      "id": "G-N4",
+      "agent": "gameplay-programmer",
+      "date": "2026-11-02",
+      "kind": "review",
+      "ref": "N4",
+      "text": "N4 (AM-N4) is not built: it needs one new balance key, pay_on_sale_premium 0.1, which is absent from data/balance.json and needs owner approval, so the build is stopped with status needs-owner and no code is changed; the ship_price threshold reads an existing key and the 'Pay on sale' label needs story/voice.md before any build."
+    },
+    {
+      "id": "RS-N1-r2",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "response",
+      "ref": "A-E7",
+      "text": "Accept: A-E4 and A-E7 stand, with the buyer-planet field named as new and the sim gate comparing Fine with Standard on the same buyer lanes."
+    },
+    {
+      "id": "AM-N1-r2",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "amended",
+      "ref": "N1",
+      "text": "A Buy order can be set to Standard (default) or Fine; a Fine lot costs fine_buy_premium 0.3 (30%) more per unit at the source and sells for fine_sell_premium 0.4 (40%) more only at the buyer planets listed for that good in a new per-good field in planets.json, shown as 'Fine: pay +N per unit' on the Buy row and 'Fine buyer: +N per unit' on the Sell row of those planets only, using the grade names 'Standard' and 'Fine' and no other grade words; the two keys and the field are starting values, not simulated, and need owner approval, and the sim gate adds a Fine strategy compared with Standard on the same buyer lanes that must not beat decent Standard on final cash."
+    },
+    {
+      "id": "RS-N3-r2",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "response",
+      "ref": "A-E8",
+      "text": "Accept: the Sell row shows the applied percent after the cap, and the bundle strategy is measured with the cap included."
+    },
+    {
+      "id": "RS-N3-r3",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "response",
+      "ref": "V-S-N3",
+      "text": "Accept: the objection is right, a hidden 150-credit cap breaks the never-hide-a-number rule, so the row also shows the cap in credits."
+    },
+    {
+      "id": "AM-N3-r2",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "amended",
+      "ref": "N3",
+      "text": "Selling two different goods at the same planet in the same cycle pays a bonus of bundle_bonus_pct 0.05 (5%) on the second and later distinct good, capped at bundle_bonus_cap 150 credits per planet per cycle (starting values, not simulated, owner approval needed), shown on the planet Sell row as 'Mixed load +N% (max 150 credits)' only when it applies, with N the applied percent after the cap and 150 read live from bundle_bonus_cap; 'Mixed load' is added to story/voice.md before use and the word 'bundle' never appears in player text, and the sim must add a bundle strategy, measured with the cap included, that keeps decent play in cycles 26-30."
+    },
+    {
+      "id": "V-F-P1-r3",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "vote",
+      "ref": "P1",
+      "vote": "agree",
+      "text": "Final vote, agree as written: the event arrow with cycles left and the Margin now and Margin after figures add information only, remove no step, and leave old play unchanged."
+    },
+    {
+      "id": "V-F-P2-r3",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "vote",
+      "ref": "P2",
+      "vote": "agree",
+      "text": "Final vote, agree as written: an optional 'Move ship' with live net income after travel_cycles_per_leg idle cycles, 'Setup lost' only when a setup is really lost, and never an automatic move."
+    },
+    {
+      "id": "V-F-N1-r3",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "vote",
+      "ref": "N1",
+      "vote": "agree",
+      "text": "Final vote, agree as written: Standard stays the default, Fine costs 30% more at source and sells 40% more only at buyer planets from the new per-good field, and the Fine sim gate on the same buyer lanes must not beat decent Standard."
+    },
+    {
+      "id": "V-F-N3-r3",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "vote",
+      "ref": "N3",
+      "vote": "agree",
+      "text": "Final vote, agree as written: the Sell row shows 'Mixed load +N% (max 150 credits)' with the cap read live and the percent applied after the cap, so no number is hidden, and the bundle sim strategy is measured with the cap included in cycles 26-30."
+    },
+    {
+      "id": "V-E-P1",
+      "agent": "economy-designer",
+      "date": "2026-11-02",
+      "kind": "vote",
+      "ref": "P1",
+      "vote": "agree",
+      "text": "Pure information on existing event timers; no balance effect."
+    },
+    {
+      "id": "V-E-P2",
+      "agent": "economy-designer",
+      "date": "2026-11-02",
+      "kind": "vote",
+      "ref": "P2",
+      "vote": "agree",
+      "text": "The revised text includes my A-E2 amend: net of travel_cycles_per_leg idle cycles, optional, never automatic, so closures stay costly."
+    },
+    {
+      "id": "V-E-N1",
+      "agent": "economy-designer",
+      "date": "2026-11-02",
+      "kind": "vote",
+      "ref": "N1",
+      "vote": "disagree",
+      "text": "With a 30% cost premium and a 40% sell premium the Fine gain is 0.4*sell - 0.3*buy, which is positive whenever sell exceeds 0.75*buy, so Fine beats Standard on every buyer lane by construction and the sim gate cannot pass; it also adds two keys and a planets.json field."
+    },
+    {
+      "id": "V-E-N3",
+      "agent": "economy-designer",
+      "date": "2026-11-02",
+      "kind": "vote",
+      "ref": "N3",
+      "vote": "agree",
+      "text": "A small capped bonus on the existing sale that the player can ignore; the two keys are flagged for owner approval and the sim gate keeps decent play in cycles 26-30."
+    },
+    {
+      "id": "V-S-P1-r4",
+      "agent": "story-designer",
+      "date": "2026-11-02",
+      "kind": "vote",
+      "ref": "P1",
+      "vote": "agree",
+      "text": "Final vote, agree as written: the arrow with cycles left and the margin now and after in the Send to... picker read in one line and hide no number."
+    },
+    {
+      "id": "V-S-P2-r4",
+      "agent": "story-designer",
+      "date": "2026-11-02",
+      "kind": "vote",
+      "ref": "P2",
+      "vote": "agree",
+      "text": "Final vote, agree as written: 'Move ship' and 'Best open route: +N per cycle' say what the player gets, and 'Setup lost' is added to story/voice.md before use."
+    },
+    {
+      "id": "V-S-N1-r4",
+      "agent": "story-designer",
+      "date": "2026-11-02",
+      "kind": "vote",
+      "ref": "N1",
+      "vote": "agree",
+      "text": "Final vote, agree as written: only 'Standard' and 'Fine' are used as grade words, and the Buy and Sell lines show the per-unit difference only where Fine applies."
+    },
+    {
+      "id": "V-S-N3-r4",
+      "agent": "story-designer",
+      "date": "2026-11-02",
+      "kind": "vote",
+      "ref": "N3",
+      "vote": "agree",
+      "text": "Final vote, agree as written: 'Mixed load +N% (max 150 credits)' now shows the cap, so no number is hidden, and 'Mixed load' goes into story/voice.md before use with 'bundle' never in player text."
+    }
+  ]
+}

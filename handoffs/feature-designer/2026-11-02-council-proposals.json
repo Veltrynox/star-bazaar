@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "agent": "feature-designer",
+  "date": "2026-11-02",
+  "task": "council-proposals",
+  "status": "done",
+  "files_changed": [
+    "goals/feature-exploration-2026-11-02/council.json",
+    "handoffs/feature-designer/2026-11-02-council-proposals.json"
+  ],
+  "open_questions": [],
+  "handoff": "Appended P1-P6 to council.json (P1-P3 IMPROVE, P4-P6 NEW). No game code or balance touched. All proposals avoid system 3.",
+  "details": {
+    "proposals": [
+      {
+        "id": "P1",
+        "title": "Price rows show the event and when it ends",
+        "owner_agent": "ui-programmer",
+        "size": "S"
+      },
+      {
+        "id": "P2",
+        "title": "Closed planet offers a one-click reroute",
+        "owner_agent": "gameplay-programmer",
+        "size": "M"
+      },
+      {
+        "id": "P3",
+        "title": "Buy order size steps",
+        "owner_agent": "gameplay-programmer",
+        "size": "S"
+      },
+      {
+        "id": "P4",
+        "title": "Supplier standing: a lane you keep buying from gets cheaper",
+        "owner_agent": "economy-designer",
+        "size": "M"
+      },
+      {
+        "id": "P5",
+        "title": "Route insurance paid in cash",
+        "owner_agent": "economy-designer",
+        "size": "M"
+      },
+      {
+        "id": "P6",
+        "title": "Bulk hauler ship class",
+        "owner_agent": "gameplay-programmer",
+        "size": "L"
+      }
+    ]
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-02",
+  "task": "P1-margins",
+  "status": "done",
+  "files_changed": ["game/main.gd", "game/trade.gd", "tools/tests/run_tests.gd", "handoffs/ui-programmer/2026-11-02-P1-margins.json"],
+  "open_questions": [
+    "Story designer: add LBL_MARGIN_NOW ('{planet}: margin {now} per unit') and LBL_MARGIN_AFTER_EVENT ('{planet}: margin {now} per unit now, {after} after the event'). Code uses fallbacks until then.",
+    "Margin shown is per unit from trade prices (as on the planet rows), not credits per cycle with B3; say if you want the route_margin figure instead."
+  ],
+  "handoff": "While a plain Send to... is pending (not Split), a small centred label named PendingMargins sits above the pending banner with one line per reachable destination. Lines show the per-unit margin now; if a price event moves that lane, they add the margin after the event ends. Closed or unreachable planets are skipped. The label hides when the Send is cancelled or made. Added read-only trade.margin_after_events() and a no_events flag on trade.price(); no trade logic or balance change. Tests: 579 pass, 0 fail (5 new P1 checks). Not checked by eye: label position and overlap with the legend and long destination lists. Git not used. Note: two concurrent test runs sharing one scratch TMPDIR give false fails.",
+  "details": {"new_text_ids": ["LBL_MARGIN_NOW", "LBL_MARGIN_AFTER_EVENT"], "tests": {"pass": 579, "fail": 0}}
+}

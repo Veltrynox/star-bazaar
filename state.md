@@ -22,18 +22,18 @@
 4. Nomads: field link and clearing (skill or paid); planet types (T104, T111, T113, T115).
 
 ## Goals and reports
-- skill-tree-progression: done 2026-10-31 (goals/skill-tree-progression/report.md). Owner points open.
-- Art director 2026-11-01: qa/reports/2026-11-01-art-director.md.
+- skill-tree-progression: done 2026-10-31 (goals/skill-tree-progression/report.md). Owner points open. Art director 2026-11-01: qa/reports/2026-11-01-art-director.md.
+- feature-exploration-2026-11-02: partial; agreed P1, P2, N3; P2 done, P1 partial, N3 needs owner keys, N1 not built; 574 pass (goals/feature-exploration-2026-11-02/log.md, report.md; blackboard finished 2026-11-02).
 
 ## Latest handoff per agent
-- gameplay-programmer: handoffs/gameplay-programmer/2026-11-01-system-suns.json
+- gameplay-programmer: handoffs/gameplay-programmer/2026-11-02-N2.json (also P2, P3)
 - economy-designer: handoffs/economy-designer/2026-10-31-skill-tree-r2.json
 - story-designer: handoffs/story-designer/2026-10-31-T124.json
-- ui-programmer: handoffs/ui-programmer/2026-11-01-T136.json
+- ui-programmer: handoffs/ui-programmer/2026-11-02-P1.json
 - artist: handoffs/artist/2026-11-01-T110.json
 - fx-programmer: handoffs/fx-programmer/2026-11-01-edge-blur-lens-glare.json
 - galaxy-builder: handoffs/galaxy-builder/2026-11-01-star-brightness.json
 - juice-programmer: handoffs/juice-programmer/2026-11-01-points-and-cycle-beats.json
 - qa-analyst: handoffs/qa-analyst/2026-11-01-T94.json
 - general-purpose: handoffs/general-purpose/2026-10-31-T62.json
-- producer: handoffs/producer/2026-11-01.json
+- producer: handoffs/producer/2026-11-02.json

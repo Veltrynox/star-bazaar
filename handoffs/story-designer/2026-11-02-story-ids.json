@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-11-02",
+  "task": "story-ids",
+  "status": "done",
+  "files_changed": [
+    "data/story_text.json",
+    "story/voice.md"
+  ],
+  "open_questions": [],
+  "handoff": "Added: LBL_PRICE_EVENT, LBL_BEST_OPEN_ROUTE, LBL_SETUP_LOST, BTN_MOVE_SHIP, LBL_STORAGE_EMPTY, LBL_SALVAGE_NO_BUYER, LBL_SALVAGE_STORAGE_FULL, BTN_SALVAGE, LBL_SALVAGE_NA. Salvage texts verified identical to the code fallbacks in N5. voice.md has Salvage and new placeholders. Tests pass.",
+  "details": {}
+}

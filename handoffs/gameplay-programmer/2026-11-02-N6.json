@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-02",
+  "task": "N6",
+  "status": "blocked",
+  "files_changed": [],
+  "open_questions": [
+    "UNKNOWN: Owner approval for one new balance key lock_fee_pct 0.05 (starting value, not simulated) in data/balance.json. Economy-designer sets it, as A-E11 requires. Build N6 once approved."
+  ],
+  "handoff": "N6 Price lock fee at Buy is not built: AM-N6 needs one new balance key, lock_fee_pct 0.05, which is absent from data/balance.json. Per the task, no keys were added. No code, test or story change was made. Ready to build once the owner approves lock_fee_pct: Buy row offer 'Lock price: pay F to buy at N next cycle.' (label 'Lock price', needs story/voice.md glossary entry first), offered only while an event raises the planet buy price, one lock per planet per cycle, hidden while the price falls. Story-designer must add the 'Lock price' glossary line before implementation. Reuses existing keys event_price_pct 0.2 and event_price_cycles 3.",
+  "details": {
+    "status_detail": "needs-owner",
+    "branch": "new-features-test",
+    "committed": false,
+    "headless_tests": "not run, no code change",
+    "new_text_ids": [],
+    "story_voice_change": false
+  }
+}

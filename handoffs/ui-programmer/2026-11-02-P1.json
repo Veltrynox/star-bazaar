@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-02",
+  "task": "P1: Price rows show the event and when it ends",
+  "status": "partial",
+  "files_changed": [
+    "game/planet_panel.gd",
+    "tools/tests/run_tests.gd",
+    "goals/feature-exploration-2026-11-02/blackboard.json",
+    "goals/feature-exploration-2026-11-02/council.json"
+  ],
+  "open_questions": [
+    "UNKNOWN: story-designer to supply text id LBL_PRICE_EVENT ('{arrow} Event, {cycles} cycles left'); code uses this plain fallback, and '1 cycles left' needs a singular form.",
+    "UNKNOWN: where the per-destination margin list (Margin now / Margin after) should live, since Send to... picks a destination by clicking the map and has no list today.",
+    "gameplay-programmer to add a helper giving route margin with the current event price effect removed; UI must not compute it."
+  ],
+  "handoff": "The event arrow and cycles-left row on price rows (planet_panel.gd _row) were already in the working tree when this run started; I verified them, they pass five P1 tests, and sh tools/tests/run.sh gives 565 pass, 0 fail. Not done: the Send to... margin picker. There is no destination list (the destination is a map click with a one-line pending label), and margin after the event needs a gameplay-side helper. No balance keys added. New text id LBL_PRICE_EVENT is waiting for story-designer; fallback used. Not checked by eye: the arrow row fits the planet panel at default size. Git was not run (sandbox xcode-select error).",
+  "details": {
+    "screens_changed": [
+      "Planet panel price rows (game/planet_panel.gd)"
+    ],
+    "how_to_see": "Start a run, select a planet, and trigger a price-up or price-down event (or use the debug menu). The event's commodity row shows an arrow and 'Event, N cycles left'.",
+    "not_checked_by_eye": [
+      "Arrow row fit at default window size",
+      "Picker (not built)"
+    ],
+    "new_text_ids": [
+      "LBL_PRICE_EVENT"
+    ],
+    "new_balance_keys": []
+  }
+}

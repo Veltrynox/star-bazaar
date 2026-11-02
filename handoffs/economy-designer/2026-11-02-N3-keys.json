@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "agent": "economy-designer",
+  "date": "2026-11-02",
+  "task": "N3-keys",
+  "status": "done",
+  "files_changed": ["data/balance.json", "tools/sim.py", "handoffs/economy-designer/2026-11-02-N3-keys.json"],
+  "open_questions": [
+    "Bonus is 0 in the sim: the decent bundle picks never sell two goods at one planet, so bundle equals decent. Is a forced-mix bundle line wanted?",
+    "tools/tests/run.sh failed once in 3 runs (win: second run recorded, user://stats.json), then passed 579/0; flaky and unrelated to balance keys."
+  ],
+  "handoff": "Added bundle_bonus_pct 0.05 and bundle_bonus_cap 150 after ship_price; data_version 19 to 20. sim.py has a bundle strategy (decent whose income adds the capped Mixed load bonus: 2nd and later distinct good at one destination, pct of its revenue, min cap per planet per cycle). Gate passes: bundle identical to decent in every mode.",
+  "details": {
+    "keys_added": {"bundle_bonus_pct": {"old": null, "new": 0.05, "reason": "A-E6/AM-N3-r2 starting value"}, "bundle_bonus_cap": {"old": null, "new": 150, "reason": "A-E8/AM-N3-r2 cap in credits per planet per cycle"}},
+    "sim_no_events": {"decent": "23 (8729)", "bundle": "23 (8729)", "always_expand": "loss (1096)", "sloppy": "loss (922)", "never": "loss (4061)"},
+    "sim_real_upg_mc200": {"decent": "86% win, 23/27/30 min/med/max", "bundle": "86% win, 23/27/30", "always_expand": "86% win, 23/27/30", "sloppy": "0%", "never": "0%"},
+    "sim_default_mc200": {"decent": "95%, 21/25/30", "bundle": "95%, 21/25/30", "always_expand": "0%", "sloppy": "0%"},
+    "tests": "pass=579 fail=0 on final run; one earlier run pass=578 fail=1 (stats file, flaky)"
+  }
+}

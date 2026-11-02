@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-02",
+  "task": "N2 Split a Send across two destinations",
+  "status": "done",
+  "files_changed": [
+    "game/route_engine.gd",
+    "game/main.gd",
+    "game/planet_panel.gd",
+    "tools/sim.py",
+    "tools/tests/run_tests.gd",
+    "goals/feature-exploration-2026-11-02/blackboard.json",
+    "handoffs/gameplay-programmer/2026-11-02-N2.json"
+  ],
+  "open_questions": [
+    "UNKNOWN: the paper sim's decent purchases never put two lanes on one source, so the split lines match decent exactly; the split effect is only visible in the game (scarce stock), not in steady-state sim numbers.",
+    "UNKNOWN: story-designer must add ids BTN_SPLIT_HALF, BTN_SPLIT_THREE, LBL_SPLIT_PICK_FIRST, LBL_SPLIT_PICK_SECOND, LBL_SPLIT_LINE and NOT_SPLIT_NEEDS_LANES; code uses fallbacks until then."
+  ],
+  "handoff": "N2 split Send is built and tested (sh tools/tests/run.sh: 565 pass, 0 fail). On a storage row with two lanes that already have ships, 'Split half and half' or 'Split 3/4 and 1/4' starts a two-click pick (first destination, then second); the first takes the share and the second takes the rest. Each lane's per-cycle take is capped at its share of the source stock at cycle start; if the partner lane is closed or full with no outflow, the open lane may take all of it. Each leg still pays its fixed cost. Shares are fixed, no new balance keys. Sim has split and split34 lines: both win at cycle 23 like decent, sloppy still loses. New text ids need story-designer (fallbacks in code). Files game/route_engine.gd, game/main.gd and game/planet_panel.gd also hold other agents' uncommitted work on this branch. Nothing committed.",
+  "details": {
+    "playable": "From a planet with two lanes carrying the same commodity (each with a ship), a storage row offers 'Split half and half' or 'Split 3/4 and 1/4'. Click the first destination, then the second. The first gets 1/2 or 3/4 of the source stock per cycle, the second the rest.",
+    "how_to_try": [
+      "Start a game, buy ships and make two routes from Tillam (food) to two other planets in system 1.",
+      "Select Tillam, press 'Split 3/4 and 1/4' on the Food storage row, click the first destination, then the second.",
+      "The notice reads '<first> 3/4, <second> 1/4'. Next cycle the first lane moves a full ship load and the second lane is held to 1/4 of the stock while stock is short."
+    ]
+  }
+}

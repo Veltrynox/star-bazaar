@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-02",
+  "task": "N5",
+  "status": "done",
+  "files_changed": ["data/balance.json (salvage_share 0.4 only)", "game/route_engine.gd", "game/main.gd", "game/planet_panel.gd", "tools/tests/run_tests.gd", "handoffs/gameplay-programmer/2026-11-02-N5.json"],
+  "open_questions": ["Buyer rule used: a Sell order on at this planet, or a route from this planet's storage whose destination has an open planet with a Sell order for the good. Salvage pays on the whole stock in one click. Is that the intended 'no open buyer on any lane'?"],
+  "handoff": "Salvage button and line appear on a Sell row when the planet has stock and (no buyer, or storage full). Pays salvage_share (0.4) times stock times the Sell price (B3 included), removes the stock, one-off. Engine: salvage_reason, salvage_offer; main: salvage_stock. Payout is capped below the Sell value. Tests: 574 pass, 0 fail (the 'Parse JSON failed' line in the log is from the stats test, not this change). Sim: sloppy overload loss (922), always expand loss (1096); sim does not model salvage so results are unchanged. Story ids used with fallbacks: LBL_SALVAGE_NO_BUYER, LBL_SALVAGE_STORAGE_FULL, BTN_SALVAGE, LBL_SALVAGE_NA.",
+  "details": {
+    "story_ids_needed": {
+      "LBL_SALVAGE_NO_BUYER": "Salvage: {n} now (no buyer on your lanes). Sell order pays {m}.",
+      "LBL_SALVAGE_STORAGE_FULL": "Salvage: {n} now (storage full). Sell order pays {m}.",
+      "BTN_SALVAGE": "Salvage",
+      "LBL_SALVAGE_NA": "Salvage is not offered now."
+    },
+    "tests": {"pass": 574, "fail": 0},
+    "sim": {"sloppy_overload": "loss", "always_expand": "loss", "always_expand_C1": "win cycle 23"}
+  }
+}

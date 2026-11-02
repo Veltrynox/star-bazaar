@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-02",
+  "task": "N3",
+  "status": "done",
+  "files_changed": ["game/route_engine.gd", "game/planet_panel.gd", "tools/tests/run_tests.gd"],
+  "open_questions": ["Sim (tools/sim.py) has no mixed load strategy yet; economy-designer must check decent play stays in cycles 26-30 (A-E6)."],
+  "handoff": "Mixed load bonus built. Local Sell orders at one planet: 2nd and later distinct good gets bundle_bonus_pct of its revenue, total per planet per cycle capped at bundle_bonus_cap (route_engine mixed_bonus, per-cycle mix state reset in settle). Planet panel shows a MixedLoadLabel under the good only when the bonus applies, with the percent after the cap. Tests: 11 new N3 checks; full suite 590 pass, 0 fail (first run had a flaky stats.json win failure, rerun clean).",
+  "details": {
+    "story_ids_needed": ["LBL_MIXED_LOAD"],
+    "fallback": "Mixed load +{n}% (max {cap} credits)",
+    "args": "n = applied percent after cap, cap = bundle_bonus_cap"
+  }
+}

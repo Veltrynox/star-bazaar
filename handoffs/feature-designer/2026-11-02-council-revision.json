@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "agent": "feature-designer",
+  "date": "2026-11-02",
+  "task": "council-revision",
+  "status": "done",
+  "files_changed": [
+    "goals/feature-exploration-2026-11-02/council.json"
+  ],
+  "open_questions": [],
+  "handoff": "Responded to A-E2, A-S2, A-E3 (accept) and A-S5 (decline); appended AM-P2 and AM-P3. P5 stays dropped.",
+  "details": {
+    "responses": {
+      "A-E2": "accept",
+      "A-S2": "accept",
+      "A-E3": "accept",
+      "A-S5": "decline"
+    },
+    "amended": [
+      "AM-P2",
+      "AM-P3"
+    ]
+  }
+}

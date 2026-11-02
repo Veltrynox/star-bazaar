@@ -1,0 +1,280 @@
+{
+  "schema_version": 1,
+  "goal": "Explore three improvements to existing mechanics and three new mechanics that deepen trade without taking away from the main loop; implement only the ideas the council agrees on.",
+  "goal_slug": "feature-exploration-2026-11-02",
+  "started": "2026-11-02",
+  "finished": "2026-11-02",
+  "facts": [
+    {
+      "id": "F1",
+      "agent": "main",
+      "date": "2026-11-02",
+      "text": "Main loop: buy a resource, optionally send it to another planet's storage, sell it at a Sell order; income funds ships and upgrades; win on cycle and cash."
+    },
+    {
+      "id": "F2",
+      "agent": "main",
+      "date": "2026-11-02",
+      "text": "Already proposed and not to repeat: idle-stock next step, route pays-when line, full-lane upgrade (approved, built), saturation, delivery contracts, sell floor, backhaul (see design/proposals/)."
+    }
+  ],
+  "decisions": [
+    {
+      "id": "D1",
+      "agent": "main",
+      "date": "2026-11-02",
+      "text": "The council (council.json in this folder) decides which ideas are built. An idea is built only when feature-designer, economy-designer and story-designer all vote agree on its final text. Implementation goes on branch new-features-test."
+    }
+  ],
+  "open_questions": [
+    {
+      "id": "Q1",
+      "agent": "main",
+      "date": "2026-11-02",
+      "text": "Is system 3 needed? Owner has put it on hold; council ideas must not depend on it.",
+      "status": "open",
+      "answer": ""
+    }
+  ],
+  "claims": [
+    {
+      "id": "C-UI-P1",
+      "agent": "ui-programmer",
+      "date": "2026-11-02",
+      "kind": "claim",
+      "ref": "P1",
+      "status": "running",
+      "text": "Building P1 (price rows show the event arrow and cycles left; Send to... picker margin now and after) on branch new-features-test, with a headless test."
+    },
+    {
+      "id": "C-UI-P1-DONE",
+      "agent": "ui-programmer",
+      "date": "2026-11-02",
+      "kind": "claim",
+      "ref": "P1",
+      "status": "partial",
+      "text": "Price-row event arrow and cycles left are built and tested (534 pass); the Send to... picker margin now/after is not built, waiting on a margin-after-event value from gameplay-programmer and a picker design, and story id LBL_PRICE_EVENT is needed."
+    },
+    {
+      "id": "C-GP-P2",
+      "agent": "gameplay-programmer",
+      "date": "2026-11-02",
+      "kind": "claim",
+      "ref": "P2",
+      "status": "running",
+      "text": "Building P2 (closed planet offers an optional 'Move ship' on the blocked route row, with 'Best open route: +N per cycle' net of travel_cycles_per_leg idle cycles) on branch new-features-test, with a headless test."
+    },
+    {
+      "id": "C-GP-P2-DONE",
+      "agent": "gameplay-programmer",
+      "date": "2026-11-02",
+      "kind": "claim",
+      "ref": "P2",
+      "status": "done",
+      "text": "P2 Move ship is built on new-features-test with a headless test (P2 checks pass; sh tools/tests/run.sh 549 pass, 0 fail); new text ids LBL_BEST_OPEN_ROUTE, LBL_SETUP_LOST and BTN_MOVE_SHIP are waiting for story-designer."
+    },
+    {
+      "id": "C-GP-P3",
+      "agent": "gameplay-programmer",
+      "date": "2026-11-02",
+      "kind": "claim",
+      "ref": "P3",
+      "status": "running",
+      "text": "Checking P3 (Buy order Small, Normal and Large sizes, Large capped at free storage) on branch new-features-test before any code, since it needs two new balance keys."
+    },
+    {
+      "id": "C-GP-P3-DONE",
+      "agent": "gameplay-programmer",
+      "date": "2026-11-02",
+      "kind": "claim",
+      "ref": "P3",
+      "status": "blocked",
+      "text": "P3 is blocked as needs-owner: it needs two new balance keys, order_step_small 0.5 and order_step_large 1.5, which need owner approval, so no keys or code were added and balance.json is unchanged."
+    },
+    {
+      "id": "C-GP-N2",
+      "agent": "gameplay-programmer",
+      "date": "2026-11-02",
+      "kind": "claim",
+      "ref": "N2",
+      "status": "running",
+      "text": "Building N2 (split one Send to... across two destinations at 1/2 or 3/4 from a planet whose two lanes already have ships, Send line 'A 1/2, B 1/2') on branch new-features-test, with a headless test and a sim split strategy."
+    },
+    {
+      "id": "C-GP-N2-DONE",
+      "agent": "gameplay-programmer",
+      "date": "2026-11-02",
+      "kind": "claim",
+      "ref": "N2",
+      "status": "done",
+      "text": "N2 split Send is built on new-features-test with a headless test (sh tools/tests/run.sh 565 pass, 0 fail); sim has split and split34 lines (both win at cycle 23, sloppy still loses). New text ids BTN_SPLIT_HALF, BTN_SPLIT_THREE, LBL_SPLIT_PICK_FIRST, LBL_SPLIT_PICK_SECOND, LBL_SPLIT_LINE and NOT_SPLIT_NEEDS_LANES are waiting for story-designer; code uses fallbacks."
+    },
+    {
+      "id": "C-UI-P1",
+      "agent": "ui-programmer",
+      "date": "2026-11-02",
+      "kind": "claim",
+      "ref": "P1",
+      "status": "running",
+      "text": "Building P1 (event arrow and cycles left on event-moved price rows; Send to... picker shows Margin now and Margin after) on branch new-features-test with a headless test; no new balance keys expected."
+    },
+    {
+      "id": "C-UI-P1-DONE",
+      "agent": "ui-programmer",
+      "date": "2026-11-02",
+      "kind": "claim",
+      "ref": "P1",
+      "status": "partial",
+      "text": "P1 is partial: the event arrow and cycles-left row (LBL_PRICE_EVENT, plain fallback) is in game/planet_panel.gd with five passing headless tests, but the Send to... margin-now and margin-after picker is not built because no destination list exists and margin-after needs a gameplay helper; no balance keys changed, nothing committed."
+    },
+    {
+      "id": "C-GP-P2-RUN2",
+      "agent": "gameplay-programmer",
+      "date": "2026-11-02",
+      "kind": "claim",
+      "ref": "P2",
+      "status": "running",
+      "text": "Re-checking and finishing P2 (optional Move ship on closed-planet route row, net live income, Setup lost only when real) on branch new-features-test; verifying existing working-tree code and headless test before any change."
+    },
+    {
+      "id": "C-GP-P2-RUN2-DONE",
+      "agent": "gameplay-programmer",
+      "date": "2026-11-02",
+      "kind": "claim",
+      "ref": "P2",
+      "status": "done",
+      "text": "P2 Move ship is in place on new-features-test (verified, no new code needed); sh tools/tests/run.sh gives 565 pass, 0 fail, including 15 P2 checks. Story-designer needs entries for LBL_BEST_OPEN_ROUTE, LBL_SETUP_LOST and BTN_MOVE_SHIP, which are not in story/ yet."
+    },
+    {
+      "id": "C-GP-P3",
+      "agent": "gameplay-programmer",
+      "date": "2026-11-02",
+      "kind": "claim",
+      "ref": "P3",
+      "status": "running",
+      "text": "Starting P3 Buy order size steps (Small, Normal, Large) on new-features-test; checking whether the two new keys order_step_small and order_step_large are approved before any change."
+    },
+    {
+      "id": "C-GP-P3-DONE",
+      "agent": "gameplay-programmer",
+      "date": "2026-11-02",
+      "kind": "claim",
+      "ref": "P3",
+      "status": "blocked",
+      "text": "needs-owner: P3 Buy order size steps needs owner approval for two new keys, order_step_small 0.5 and order_step_large 1.5; no code, balance or test changes made, and no commit."
+    },
+    {
+      "id": "C-GP-N4",
+      "agent": "gameplay-programmer",
+      "date": "2026-11-02",
+      "kind": "claim",
+      "ref": "N4",
+      "status": "running",
+      "text": "Starting N4 (Pay on sale lot at Buy, final text AM-N4) on branch new-features-test; checking the balance keys first, since pay_on_sale_premium is not yet in data/balance.json."
+    },
+    {
+      "id": "C-GP-N4-DONE",
+      "agent": "gameplay-programmer",
+      "date": "2026-11-02",
+      "kind": "claim",
+      "ref": "N4",
+      "status": "blocked",
+      "text": "N4 blocked, needs-owner: AM-N4 needs the new balance key pay_on_sale_premium 0.1 (owner approval), which is not in data/balance.json, so no code, test or handoff for the Buy option was built; ship_price is the existing threshold key."
+    },
+    {
+      "id": "C-GP-N5",
+      "agent": "gameplay-programmer",
+      "date": "2026-11-02",
+      "kind": "claim",
+      "ref": "N5",
+      "status": "running",
+      "text": "Starting N5 (Salvage sale for stuck stock) on branch new-features-test; checking whether the salvage_share key exists before building."
+    },
+    {
+      "id": "C-GP-N5-BLOCKED",
+      "agent": "gameplay-programmer",
+      "date": "2026-11-02",
+      "kind": "claim",
+      "ref": "N5",
+      "status": "blocked",
+      "text": "N5 needs the new balance key salvage_share 0.4 (owner approval needed) in data/balance.json, which gameplay-programmer must not add; status needs-owner, nothing implemented, no new story ids and no story/voice.md change, and the Salvage label still waits for owner approval of the key."
+    },
+    {
+      "id": "C-GP-N6",
+      "agent": "gameplay-programmer",
+      "date": "2026-11-02",
+      "kind": "claim",
+      "ref": "N6",
+      "status": "running",
+      "text": "Starting N6 (Price lock fee at Buy) on branch new-features-test; checking whether lock_fee_pct exists in data/balance.json before building."
+    },
+    {
+      "id": "C-GP-N6-BLOCKED",
+      "agent": "gameplay-programmer",
+      "date": "2026-11-02",
+      "kind": "claim",
+      "ref": "N6",
+      "status": "blocked",
+      "text": "N6 blocked, needs-owner: AM-N6 needs the new balance key lock_fee_pct 0.05 (owner approval needed), which is absent from data/balance.json and gameplay-programmer must not add it; nothing implemented, no test, no new story ids and no story/voice.md change; 'Lock price' label waits for owner approval of the key."
+    },
+    {
+      "id": "C-UI-P1-RUN3-DONE",
+      "agent": "ui-programmer",
+      "date": "2026-11-02",
+      "kind": "claim",
+      "ref": "P1",
+      "status": "partial",
+      "text": "P1 stays partial: the event arrow and cycles-left row is built with five passing tests (sh tools/tests/run.sh 574 pass, 0 fail), but the Send to... margin now/after picker is not built because it needs a gameplay-side margin-after-event helper and a destination list; no balance keys added, LBL_PRICE_EVENT waits for story-designer."
+    },
+    {
+      "id": "C-GP-P2-RUN3",
+      "agent": "gameplay-programmer",
+      "date": "2026-11-02",
+      "kind": "claim",
+      "ref": "P2",
+      "status": "running",
+      "text": "Third pass on P2 (optional Move ship on closed-planet route row): verifying the existing working-tree code and tests on new-features-test."
+    },
+    {
+      "id": "C-GP-P2-RUN3-DONE",
+      "agent": "gameplay-programmer",
+      "date": "2026-11-02",
+      "kind": "claim",
+      "ref": "P2",
+      "status": "done",
+      "text": "P2 Move ship is verified in place with no new balance keys; sh tools/tests/run.sh gives 574 pass, 0 fail, and LBL_BEST_OPEN_ROUTE, LBL_SETUP_LOST and BTN_MOVE_SHIP still wait for story-designer."
+    },
+    {
+      "id": "C-FD-N3",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "claim",
+      "ref": "N3",
+      "status": "running",
+      "text": "Starting N3 (Mixed load bonus) on branch new-features-test; first checking whether bundle_bonus_pct and bundle_bonus_cap already exist in data/balance.json."
+    },
+    {
+      "id": "C-FD-N3-DONE",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "kind": "claim",
+      "ref": "N3",
+      "status": "blocked",
+      "text": "N3 is not built: it needs two new balance keys, bundle_bonus_pct 0.05 and bundle_bonus_cap 150, which are absent from data/balance.json and need owner approval before they are added."
+    }
+  ],
+  "artifacts": [
+    {
+      "id": "A1",
+      "agent": "main",
+      "path": "goals/feature-exploration-2026-11-02/council.json",
+      "kind": "file"
+    },
+    {
+      "id": "A2",
+      "agent": "main",
+      "path": "goals/feature-exploration/WORKFLOW.md",
+      "kind": "file"
+    }
+  ]
+}

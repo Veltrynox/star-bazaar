@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-11-02",
+  "task": "council-review",
+  "status": "done",
+  "files_changed": [
+    "goals/feature-exploration-2026-11-02/council.json"
+  ],
+  "open_questions": [
+    "P5: owner to confirm 'Route cover' as a glossary term.",
+    "P2/P5 sample numbers in drafts are placeholders; real values come from the game."
+  ],
+  "handoff": "Reviewed P1-P6 as R-S1..R-S6. Agree: P1, P3. Agree-with-change: P2 (A-S2), P5 (A-S5, term Route cover). Disagree: P4 (hidden discount), P6 (clashes with Skerrit and Voruun Hauler). Draft text lines are inside each review. If P5 is built, add Route cover to story/voice.md first. No story files written.",
+  "details": {}
+}
