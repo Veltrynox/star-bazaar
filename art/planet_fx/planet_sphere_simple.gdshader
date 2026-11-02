@@ -19,7 +19,7 @@ uniform float fres_power = 3.0;
 uniform sampler2D disp_tex : filter_linear_mipmap, repeat_enable;  // greyscale height map, for the relief
 uniform bool use_disp = false;
 uniform float relief = 0.6;          // normal-map scale: how far the height gradient bends the normal (0 = flat)
-uniform float shadow_ambient = 0.16; // brightness floor of the dark side (0 = black, 1 = no shadow)
+uniform float shadow_ambient = 0.08; // brightness floor of the dark side (0 = black, 1 = no shadow)
 uniform float term_soft = 0.30;      // terminator softness in dot(n, sun); wider = softer edge
 uniform float bump_gain = 1.5;       // how much the bumped normal changes the lit brightness
 
