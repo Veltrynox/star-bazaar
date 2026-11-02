@@ -297,11 +297,12 @@ func _test_galaxy_view() -> void:
 	await process_frame
 	check(m.top_bar.is_ancestor_of(m.menu_button) and m.top_bar.is_ancestor_of(m.skills_button), "hud: menu icon and Skills sit in the top bar")
 	check(m.menu_button.get_parent().get_child(0) == m.menu_button, "hud: menu icon is first, top left")
-	check(not m.top_bar.is_ancestor_of(m.state_label) and not m.top_bar.is_ancestor_of(m.pause_button), "hud: run state is a card, not in the top bar")
+	check(m.top_bar.is_ancestor_of(m.pause_button), "hud: pause icon sits in the top bar, top right")
+	check(m.pause_button.get_parent().get_child(m.pause_button.get_parent().get_child_count() - 1) == m.pause_button, "hud: pause icon is the last item, far right")
 	m.set_paused(false)
-	var running_text: String = m.state_label.text
+	var running_icon: Texture2D = m.pause_button.icon
 	m.set_paused(true)
-	check(m.state_label.text != running_text and m.run_desc_label.text != "", "hud: run card text follows pause")
+	check(m.pause_button.icon != running_icon and m.pause_button.text == "", "hud: pause icon swaps to play when paused, icon only")
 	check(m.expenses_label.text.is_valid_int() and m.points_label.text == str(m.skill_points), "hud: expenses and skill points read from the game")
 	var ex: Control = m.system_exit
 	var lay: Dictionary = ex.layout()

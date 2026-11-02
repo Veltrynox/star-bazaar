@@ -67,7 +67,6 @@ var skill_screen: PanelContainer  # T71, hidden until opened
 var game_menu: PanelContainer  # T71, hidden until opened
 var cash_label: Label
 var delta_label: Label
-var state_label: Label
 var cash_box: HBoxContainer  # click target for the cash forecast
 var skills_button: Button
 var menu_button: Button  # top left, opens the Esc menu
@@ -75,7 +74,6 @@ var expenses_label: Label
 var points_label: Label
 var system_label: Label
 var system_hint: Label
-var run_desc_label: Label
 
 var map: Node3D
 var planet_panel: PanelContainer
@@ -1613,6 +1611,15 @@ func _build_ui() -> void:
 	progress.max_value = 1.0
 	box.add_child(progress)
 	_build_speed_buttons(box)
+	# run state, top right: one icon, pause bars while running, play triangle while paused (click or Space)
+	pause_button = Button.new()
+	pause_button.theme_type_variation = "ButtonSmall"
+	pause_button.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	pause_button.add_theme_constant_override("icon_max_width", 16)
+	pause_button.custom_minimum_size = Vector2(32, 32)
+	pause_button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	pause_button.pressed.connect(toggle_pause)
+	box.add_child(pause_button)
 	_build_rail()
 	_build_hud()
 
@@ -1632,7 +1639,7 @@ func _stat_inline(icon_token: String, story_id: String, fallback: String) -> Arr
 	return [row, n]
 
 ## Along the edges of the system screen, as in SystemView.html: system name top middle, key hints bottom left,
-## route hints bottom middle, run state (Space) bottom right. None of it takes map clicks except the run card.
+## route hints bottom middle. None of it takes map clicks.
 func _build_hud() -> void:
 	var head := VBoxContainer.new()
 	head.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
@@ -1690,43 +1697,6 @@ func _build_hud() -> void:
 	legend.grow_vertical = Control.GROW_DIRECTION_BEGIN
 	legend.offset_bottom = -30
 	add_child(legend)
-	# run state card, bottom right: click or Space
-	var card := PanelContainer.new()
-	card.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT)
-	card.grow_horizontal = Control.GROW_DIRECTION_BEGIN
-	card.grow_vertical = Control.GROW_DIRECTION_BEGIN
-	card.offset_right = -20
-	card.offset_bottom = -20
-	card.custom_minimum_size = Vector2(320, 56)
-	card.gui_input.connect(func(ev: InputEvent) -> void:
-		if ev is InputEventMouseButton and ev.pressed and ev.button_index == MOUSE_BUTTON_LEFT:
-			toggle_pause())
-	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 12)
-	card.add_child(row)
-	pause_button = Button.new()
-	pause_button.theme_type_variation = "ButtonSmall"
-	pause_button.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	pause_button.add_theme_constant_override("icon_max_width", 16)
-	pause_button.custom_minimum_size = Vector2(32, 32)
-	pause_button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	pause_button.pressed.connect(toggle_pause)
-	row.add_child(pause_button)
-	var txt := VBoxContainer.new()
-	txt.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	txt.add_theme_constant_override("separation", 0)
-	txt.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	state_label = Label.new()
-	state_label.add_theme_font_size_override("font_size", 14)
-	state_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	txt.add_child(state_label)
-	run_desc_label = Label.new()
-	run_desc_label.theme_type_variation = "LabelSmall"
-	run_desc_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	txt.add_child(run_desc_label)
-	row.add_child(txt)
-	row.add_child(Ui.kbd("Space"))
-	add_child(card)
 
 func _bar_icon(token: String) -> TextureRect:
 	var t := TextureRect.new()
@@ -1779,18 +1749,10 @@ func _refresh() -> void:
 	delta_label.text = "%+d" % net
 	cycle_label.text = "%d / %d" % [cycle, int(balance.get("win_cycle", 0))]
 	cycle_label.tooltip_text = "Cycle"
-	if game_over:
-		state_label.text = StoryText.get_or("LBL_GAME_OVER", "Game over")
-		run_desc_label.text = ""
-	elif paused:
-		state_label.text = StoryText.get_or("LBL_PAUSED", "Paused") + "."
-		run_desc_label.text = StoryText.get_or("LBL_PAUSED_DESC", "Nothing earns while paused.")
-	else:
-		state_label.text = StoryText.get_or("LBL_RUNNING", "Running") + "."
-		run_desc_label.text = StoryText.get_or("LBL_RUNNING_DESC", "Routes run on their own.")
 	progress.value = cycle_elapsed / _cycle_seconds()
 	pause_button.text = ""  # icon only (owner item 1)
-	pause_button.tooltip_text = StoryText.get_or("MENU_RESUME", "Resume") if paused else StoryText.get_or("MENU_PAUSE", "Pause")
+	pause_button.disabled = game_over
+	pause_button.tooltip_text = (StoryText.get_or("MENU_RESUME", "Resume") if paused else StoryText.get_or("MENU_PAUSE", "Pause")) + " (Space)"
 	pause_button.icon = Ui.icon("play" if paused else "pause")
 	pause_button.modulate = Ui.col("signal_warn") if paused else Color.WHITE
 	for i in speed_buttons.size():
