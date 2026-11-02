@@ -1158,6 +1158,23 @@ func _test_systems() -> void:
 	for i in m.map.planet_spheres.size():
 		vis_ok = vis_ok and (m.map.planet_spheres[i].visible == (int(m.map.planets[i]["system"]) == 1)) and (m.map.planet_labels[i].visible == (int(m.map.planets[i]["system"]) == 1))
 	check(vis_ok and m.map.sun_node.visible, "systems: in system 1 only its planets and labels show")
+	# Belts: every belt quad is a visible child of its sphere and its texture has dust that survives the shader alpha (smoothstep 0.02..0.18 of luminance, discard below 0.02).
+	var belts_ok: bool = not m.map.belt_materials.is_empty()
+	for bi in m.map.belt_materials:
+		var bm: ShaderMaterial = m.map.belt_materials[bi]
+		var holder: bool = false
+		for ch in m.map.planet_spheres[bi].get_children():
+			if ch is MeshInstance3D and (ch as MeshInstance3D).mesh.material == bm and (ch as MeshInstance3D).visible:
+				holder = true
+		var img: Image = (bm.get_shader_parameter("ring_tex") as Texture2D).get_image()
+		var lit := 0
+		for yy in range(0, img.get_height(), 8):
+			for xx in range(0, img.get_width(), 8):
+				var px := img.get_pixel(xx, yy)
+				if smoothstep(0.02, 0.18, px.r * 0.3 + px.g * 0.59 + px.b * 0.11) * 0.9 > 0.02:
+					lit += 1
+		belts_ok = belts_ok and holder and lit > 1000
+	check(belts_ok, "belts: each belt mesh is visible in its planet sphere and has non-zero alpha texels")
 	check(m.map.pick_planet(m.map.camera.unproject_position(m.map.positions[3])) != 3, "systems: a hidden planet of the other system cannot be picked")
 	m.map.focus += Vector3(500.0, 0.0, 500.0)
 	m.map.clamp_focus()

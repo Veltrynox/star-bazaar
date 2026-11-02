@@ -64,7 +64,7 @@ uniform vec4 key_color : source_color = vec4(1.0, 0.76, 0.42, 1.0);
 uniform sampler2D ring_tex : filter_linear_mipmap, repeat_disable;  // asteroid1/2.png: dusty ring on black
 uniform float tex_in = 0.38;     // belt radius is remapped onto the part of the PNG that holds dust (set per file in _add_belt)
 uniform float tex_out = 0.96;
-uniform float brighten = 1.2;   // was 2.4: thinner, less dense look
+uniform float brighten = 3.0;   // PNG dust is lum 0.1 to 0.3 (dark): at 1.2 with alpha 0.2 the grains were about 5% of the sky colour, invisible
 varying vec3 wpos;
 varying vec3 ctr;
 void vertex() {
@@ -80,14 +80,14 @@ void fragment() {
 	vec2 uv = 0.5 + 0.5 * mix(tex_in, tex_out, t) * vec2(cos(ang), sin(ang));
 	vec3 tex = texture(ring_tex, uv).rgb;
 	float edge = smoothstep(0.0, 0.08, t) * smoothstep(1.0, 0.92, t);
-	float a = edge * smoothstep(0.03, 0.30, dot(tex, vec3(0.3, 0.59, 0.11)));   // black background and gaps are transparent
+	float a = edge * smoothstep(0.02, 0.18, dot(tex, vec3(0.3, 0.59, 0.11)));   // black background and gaps are transparent
 	if (a < 0.02) discard;
 	vec3 n = vec3(0.0, 1.0, 0.0);
 	float l = abs(dot(n, normalize(key_dir)));
 	float lit = 0.25 + 0.75 * pow(l, 0.6);
 	vec3 col = tex * brighten * (0.1 + key_color.rgb * lit * 1.3);
 	ALBEDO = col;
-	ALPHA = a * 0.5;   // grains above lum 0.3 reach 0.5 alpha, faint dust is fainter; the PNG dust is mostly lum 0.1 to 0.3, so 0.12..0.45 hid it
+	ALPHA = a * 0.9;   // measured: 55% (belt 1) and 33% (belt 2) of the texels pass, mean alpha 0.5 to 0.6; thin, but visible
 }
 """
 var planet_spheres: Array[MeshInstance3D] = []
@@ -583,6 +583,7 @@ func _add_belt(i: int, sph: MeshInstance3D, h: int) -> void:
 	mat.set_shader_parameter("ring_tex", sph.get_script().cached_tex("res://art/textures/planets/asteroid%d.png" % ring_no))
 	mat.set_shader_parameter("tex_in", 0.38 if ring_no == 1 else 0.62)
 	mat.set_shader_parameter("tex_out", 0.96 if ring_no == 1 else 0.97)
+	mat.render_priority = 1  # after the planet body (-1) and glow shells
 	quad.material = mat
 	var mi := MeshInstance3D.new()
 	mi.mesh = quad
