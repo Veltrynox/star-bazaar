@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-01",
+  "task": "T136",
+  "status": "done",
+  "files_changed": [
+    "game/main.gd",
+    "schedule.json"
+  ],
+  "open_questions": [
+    "Story-designer: add id LBL_MISSION_FIRST (mission board line shown while the company owns no ship; max 40 chars). Current plain fallback: 'Mission: Send stock to another planet'. Owner may prefer other wording."
+  ],
+  "handoff": "Mission board line 'Mission: Buy a ship' (main.gd, two places) now reads StoryText id LBL_MISSION_FIRST with fallback 'Mission: Send stock to another planet', matching the Send to... flow. The id is not in story_text.json yet, so the fallback shows. No other reference to the old wording in game code; the test only checks buttons. Tests: pass=507 fail=0 (run with a private TMPDIR, since the shared scratch dir collides with other agents' runs). Not seen by eye; check: start a new game, the board top right shows the line while ships are 0. No git run by me beyond the commit."
+}

@@ -977,7 +977,7 @@
       "title": "Reword the mission line on the planet panel (owner review of the planet panel)",
       "owner_agent": "ui-programmer",
       "depends_on": [],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 15,
       "window": "UI lane, after the current UI round. Small.",
       "brief": "The planet/mission panel still shows the line \"Mission: Buy a ship\". Buying a ship now happens through \"Send to...\" or the ship panel, so the line is out of date. Pick clearer wording that matches the new flow and replace the line. Take the wording from story/screens.md or the story text loader (data/story_text.json via game/story_text.gd); do not hard-code new text in the panel. If the change needs a new or changed story id, list the id, its meaning and max length in the handoff for the story-designer rather than inventing text. Do not change the mission logic or any numbers. Handoff: handoffs/ui-programmer/<date>-T136.json.",
@@ -1053,7 +1053,8 @@
     "T90",
     "T92",
     "T93",
-    "T97"
+    "T97",
+    "T136"
   ],
   "done_archive": "handoffs/archive/schedule-done-2026-10-27-3.json"
 }

@@ -41,6 +41,7 @@ var choice_pending: bool = false  # T77: win choice shown and not answered yet (
 var end_screen: ColorRect  # T77 overlay, null when none
 var learned_skills: Array = []  # T77/T71: learned skill ids ("A1"...), saved
 var systems_reached: int = 1  # T77: systems with a first route or storage; only system 1 exists today
+var _last_points: int = -1  # juice: the points shown last refresh (-1 before the first)
 var skill_points: int = 0  # T82: expansion points earned (top bar label stays "Skill points")
 var pts_planets: Array = []  # planet indexes that already gave a point
 var pts_pairs: Array = []  # "a-b" (a<b) planet pairs that already gave points
@@ -1111,6 +1112,8 @@ func _end_cycle() -> void:
 	_push_routes_to_map()
 	_refresh_panel()
 	cycle_ended.emit(cycle)
+	Juice.pop(cycle_label, 1.12)  # the economy turned over: income has landed
+	Juice.flash(cycle_label, Ui.col("star_warm"))
 	var win_cash := int(balance.get("win_cash", 0))
 	var win_cycle := int(balance.get("win_cycle", 0))
 	if OS.is_debug_build() and debug_force_goal:  # T78: QA reaches the choice
@@ -1820,7 +1823,10 @@ func _refresh() -> void:
 	skills_button.tooltip_text = StoryText.get_text("MENU_SKILLS") + star
 	skills_button.icon = Ui.icon("skills")
 	skills_button.modulate = Ui.col("star_warm") if star != "" else Color.WHITE
-	points_label.text = str(skill_points)
+	if _last_points >= 0 and skill_points != _last_points:
+		Juice.pop(points_label)  # points earned or spent: a small swell beside the count
+	_last_points = skill_points
+	Juice.count_to(points_label, skill_points, "%d", Ui.col("star_warm"))  # counts up (warm flash) and down when spent
 	expenses_label.text = "%d" % (cash_forecast.expenses_total() if cash_forecast != null else 0)
 	var sid: int = view_system
 	var n_pl := 0
@@ -1839,7 +1845,7 @@ func _refresh() -> void:
 		var target: int = mission_planet if ships == 0 else -1  # halo on the planet that sells the first ship
 		map.set_hint(target, target >= 0)
 		mission_label.visible = ships == 0
-		mission_label.text = "Mission: Buy a ship"
+		mission_label.text = StoryText.get_or("LBL_MISSION_FIRST", "Mission: Send stock to another planet")
 
 ## T15: tutorial line(s) on the board, cycles 1 to 4 only. Ids load from the story loader.
 func _tut_show(ids: Array) -> void:
@@ -1942,7 +1948,7 @@ func _build_board() -> void:
 	title.theme_type_variation = "LabelCaption"
 	box.add_child(title)
 	mission_label = Label.new()
-	mission_label.text = "Mission: Buy a ship"
+	mission_label.text = StoryText.get_or("LBL_MISSION_FIRST", "Mission: Send stock to another planet")
 	mission_label.theme_type_variation = "LabelAccent"
 	mission_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	box.add_child(mission_label)
