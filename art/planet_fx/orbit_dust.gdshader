@@ -9,14 +9,15 @@ uniform float tex_out = 0.96;
 uniform float alpha = 1.0;         // overall opacity multiplier on the texture-driven alpha (opacity of the brightest grains; map.gd sets 0.5)
 uniform float ring_width = 0.5;    // world width of the band (same as the mesh; kept for tests and tuning)
 uniform float ang_offset = 0.0;    // static angular shift of the texture (radians), so layers on one texture do not look alike
+uniform float brighten = 2.2;      // PNG dust is lum 0.1 to 0.3 (median 0.2): at 50% alpha over black the old colour gave about 0.27, near invisible; 2.2 gives median 0.68, brightest 1.0
 uniform float speed = 0.0;         // unused: the ring is static (kept at 0 so the parameter stays readable)
 
 void fragment() {
 	float ang = UV.x * TAU + ang_offset;   // fixed angle, no rotation; a circular image has no seam
 	vec2 uv = 0.5 + 0.5 * mix(tex_in, tex_out, UV.y) * vec2(cos(ang), sin(ang));
 	vec3 tex = texture(ring_tex, uv).rgb;
-	float edge = smoothstep(0.0, 0.2, UV.y) * smoothstep(1.0, 0.8, UV.y);  // soft inner and outer falloff
+	float edge = smoothstep(0.0, 0.2, UV.y) * (1.0 - smoothstep(0.8, 1.0, UV.y));  // soft inner and outer falloff
 	float a = edge * smoothstep(0.02, 0.12, dot(tex, vec3(0.3, 0.59, 0.11)));  // black background and gaps are transparent
-	ALBEDO = dust_color.rgb * (0.4 + tex);
+	ALBEDO = min(dust_color.rgb * (0.4 + tex) * brighten, vec3(2.0));  // capped so albedo x 50% alpha never passes 1.0 (no glow bloom on the ring)
 	ALPHA = clamp(a * alpha, 0.0, 1.0);  // alpha = opacity of the brightest grains (0.5 = 50%)
 }
