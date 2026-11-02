@@ -235,20 +235,52 @@ static func texture_index_for_id(id: String) -> int:
 static func rim_for_id(id: String) -> bool:
 	return id_unit(id, 2) >= KEY_ONLY_SHARE
 
-## Pole tilt away from the anti-sun axis, degrees. The pole (local Y) sits this far from the point opposite the sun.
-const POLE_TILT_DEG := 25.0
+## The sphere's top pole (local +Y) must sit in the shadow: dot(top, sun) = -POLE_SUN_DOT (below -0.5, clearly night side).
+## The bottom pole (-Y) is the opposite end and then faces the sun, so the pole axis is turned until the bottom pole is hidden from the map camera.
+const POLE_SUN_DOT := 0.52
+## Map camera range (same as map.gd yaw_min_deg ... pitch_max_deg), used to hide the bottom pole.
+const CAM_YAW_DEG := [-45.0, -22.5, 0.0, 22.5, 45.0]
+const CAM_PITCH_DEG := [20.0, 50.0, 80.0]
 
-## World-space unit vector from the pole axis: opposite the sun, tilted POLE_TILT_DEG towards a per-planet azimuth (from planet_id).
+## Unit vectors from the planet towards the camera for the sampled yaw and pitch (map.gd: (sin yaw cos pitch, sin pitch, cos yaw cos pitch)).
+static func camera_dirs() -> Array:
+	var out := []
+	for yd in CAM_YAW_DEG:
+		for pd in CAM_PITCH_DEG:
+			var y := deg_to_rad(yd)
+			var p := deg_to_rad(pd)
+			out.append(Vector3(sin(y) * cos(p), sin(p), cos(y) * cos(p)))
+	return out
+
+## World-space unit vector of the top pole. It lies on the cone dot(top, sun) = -POLE_SUN_DOT around the anti-sun axis. The azimuth on that cone
+## is searched (72 steps): the best ones keep the bottom pole furthest behind the limb (min over the camera range of dot(top, cam) as large
+## as possible); among those within 0.12 of the best, planet_id picks one, so it is deterministic and planets differ.
 static func pole_dir(sun_w: Vector3, id: String) -> Vector3:
 	var s := sun_w.normalized()
 	var ref := Vector3.UP if absf(s.dot(Vector3.UP)) < 0.95 else Vector3.RIGHT
 	var u := s.cross(ref).normalized()
 	var w := s.cross(u)
-	var a := id_unit(id, 5) * TAU
-	var t := deg_to_rad(POLE_TILT_DEG)
-	return (-s * cos(t) + (u * cos(a) + w * sin(a)) * sin(t)).normalized()
+	var sn := sqrt(1.0 - POLE_SUN_DOT * POLE_SUN_DOT)
+	var cams := camera_dirs()
+	var cand: Array = []
+	var score: Array = []
+	var best := -2.0
+	for n in 72:
+		var a := TAU * float(n) / 72.0
+		var t := (-s * POLE_SUN_DOT + (u * cos(a) + w * sin(a)) * sn).normalized()
+		var m := 2.0
+		for c in cams:
+			m = minf(m, t.dot(c))
+		cand.append(t)
+		score.append(m)
+		best = maxf(best, m)
+	var ok: Array = []
+	for n in 72:
+		if score[n] >= best - 0.12:
+			ok.append(cand[n])
+	return ok[int(id_unit(id, 5) * ok.size()) % ok.size()]
 
-## Aims the sun at the sphere: turns the sphere so its pole lies in the shadow (dot(pole, sun) = -cos(tilt) < 0, far from the lit side),
+## Aims the sun at the sphere: turns the sphere so its top pole lies in the shadow (dot(top, sun) = -POLE_SUN_DOT) and the bottom pole is hidden from the map camera,
 ## then sets key_dir in object space. Rotation only (scale is kept); the spin around the pole is unchanged.
 func aim_sun(sun_w: Vector3) -> void:
 	var s := sun_w.normalized()
