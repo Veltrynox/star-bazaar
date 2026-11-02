@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "agent": "fx-programmer",
+  "date": "2026-11-01",
+  "task": "Reduce planet rim light by 0.5x",
+  "status": "done",
+  "files_changed": ["art/planet_fx/planet_sphere.gd", "art/planet_fx/planet_sphere.gdshader"],
+  "open_questions": [],
+  "handoff": "rim_strength default 0.2025 -> 0.10125 in export and shader. Colour, placement, crescent fresnel unchanged.",
+  "details": {}
+}

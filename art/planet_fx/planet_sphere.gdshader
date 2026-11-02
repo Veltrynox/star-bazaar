@@ -37,7 +37,7 @@ uniform float key_strength = 1.4;
 // T132: solar flare level from the 3D sun (0 calm, 1 peak). Set globally by art/sun/sun_flare.gd.
 global uniform float sun_flare;
 uniform vec4 rim_color : source_color = vec4(0.37, 0.66, 1.00, 1.0);  // set from the planet colour (complementary hue) by planet_sphere.gd
-uniform float rim_strength = 0.2025;
+uniform float rim_strength = 0.10125;
 uniform float rim_power = 2.5;
 uniform float fres_strength = 0.2;                // Fresnel crescent brightness, every planet (the rim light does the far-side edge work)
 uniform float fres_side = 0.0;                    // crescent start: sun-side dot where it begins to fade in (0 = half the limb, 0.6 = narrow sliver)
