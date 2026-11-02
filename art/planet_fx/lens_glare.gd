@@ -10,7 +10,7 @@ var source_pos: Callable            # () -> Variant: Vector3 world position, or 
 var source_color := Color(1.0, 0.75, 0.45)
 var source_brightness: Callable     # () -> float 0..1, optional (for example the sun flare level); empty = 1.0
 
-@export_range(0.0, 2.0, 0.05) var strength := 0.5:
+@export_range(0.0, 2.0, 0.05) var strength := 0.2:
 	set(v):
 		strength = v
 		_push("strength", v)
@@ -18,11 +18,11 @@ var source_brightness: Callable     # () -> float 0..1, optional (for example th
 	set(v):
 		streak_len = v
 		_push("streak_len", v)
-@export_range(0, 6) var ghost_count := 4:
+@export_range(0, 6) var ghost_count := 5:
 	set(v):
 		ghost_count = v
 		_push("ghost_count", v)
-@export_range(0.0, 2.0, 0.05) var ghost_strength := 0.35:
+@export_range(0.0, 2.0, 0.05) var ghost_strength := 0.14:
 	set(v):
 		ghost_strength = v
 		_push("ghost_strength", v)
