@@ -521,8 +521,25 @@ func open_skills() -> void:
 ## T105: click on a system in the galaxy view: close the view and put the map camera on that system.
 func _on_galaxy_system(id: int) -> void:
 	galaxy_view.close_view()
+	go_to_system(id)
+
+## Moves the player into one open system (its own space: only its planets, routes and ships show).
+## Returns false and does nothing when the system is locked or unknown.
+func go_to_system(id: int) -> bool:
+	if not open_systems.has(id):
+		return false
 	view_system = id
-	map.focus_system(id)
+	map.set_view_system(id)
+	_refresh()
+	return true
+
+## Click on a marker of another system in the 3D view: moves there when open, else says why not.
+func enter_system_from_view(id: int) -> bool:
+	if go_to_system(id):
+		return true
+	var how := StoryText.get_or("LBL_LOCKED_HOW", "permit or skill")
+	post_notice(StoryText.get_or("NOT_SYSTEM_LOCKED", "{name} is locked: {how}.", {"name": Systems.name_of(id), "how": how}))
+	return false
 
 func toggle_galaxy() -> void:
 	if preface != null or game_over:
@@ -562,9 +579,7 @@ func _on_skill_arrow() -> void:
 		if preface == null and not game_over:
 			skill_screen.open_highlight(t["steps"])
 	else:
-		view_system = int(t["system"])
-		map.focus_system(view_system)
-		_refresh()
+		go_to_system(int(t["system"]))
 
 func toggle_skills() -> void:
 	if skill_screen.visible:

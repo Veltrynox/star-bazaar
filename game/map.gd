@@ -44,6 +44,7 @@ var planet_scale := 1.0          # multiplies PLANET_RADIUS (visual size and cli
 var keys_enabled := true         # T33: debug menu turns this off while typing in a field
 
 var planets: Array = []
+var view_system := 1  # each solar system is its own space: only this system's planets, routes and sun are shown
 const BELT_INNER := 1.7   # clear of the glow shell (1.12) and the pick halo (up to 1.46), in planet radii
 const BELT_OUTER := 2.3
 const BELT_SPIN := 0.015  # turns per second about the planet's axis (shader time, no per-frame code)
@@ -235,8 +236,32 @@ func add_planets(list: Array) -> int:
 	for p in list:
 		planets.append(p)
 		_make_planet(planets.size() - 1)
-	_frame_planets()
+	_apply_view()  # the new system stays out of sight until the player moves there
 	return first
+
+## Moves the map to one system: its planets, labels, routes (and the sun for system 1) show; every other system hides.
+func set_view_system(id: int) -> void:
+	view_system = id
+	focus_system(id)
+	_apply_view()
+
+func planet_in_view(i: int) -> bool:
+	return i >= 0 and i < planets.size() and int(planets[i].get("system", 1)) == view_system
+
+func _apply_view() -> void:
+	for i in planet_spheres.size():
+		var on := planet_in_view(i)
+		planet_spheres[i].visible = on
+		if i < planet_labels.size():
+			planet_labels[i].visible = on
+	for id in route_lines:
+		var ln = route_lines[id]
+		ln.visible = planet_in_view(int(ln.pair_a)) and planet_in_view(int(ln.pair_b))
+	var rings := get_node_or_null("OrbitRings")
+	if rings != null:
+		rings.visible = view_system == 1
+	if sun_node != null:
+		sun_node.visible = view_system == 1
 
 ## T105: put the camera focus on the middle of one system's planets.
 func focus_system(id: int) -> void:
@@ -324,6 +349,7 @@ func set_routes(routes: Array) -> void:
 		if not seen.has(id):
 			route_lines[id].queue_free()
 			route_lines.erase(id)
+	_apply_view()
 
 ## Route id whose line is within a few pixels of screen_pos, or -1.
 func pick_route(screen_pos: Vector2) -> int:
@@ -425,6 +451,8 @@ func pick_planet(screen_pos: Vector2) -> int:
 	var best := -1
 	var best_t := INF
 	for i in positions.size():
+		if not planet_in_view(i):
+			continue
 		var oc := origin - positions[i]
 		var b := oc.dot(dir)
 		var c := oc.dot(oc) - planet_radius() * planet_radius()
