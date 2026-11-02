@@ -79,9 +79,15 @@ func markers() -> Array:
 		if c_to == null:
 			continue
 		var b: Vector2 = _screen(c_to)
-		if not on_screen(b, main.map.camera.is_position_behind(c_to), get_viewport_rect().size):
-			continue
-		out.append({"sid": int(sid), "marker": b, "from": a, "locked": not main.open_systems.has(int(sid))})
+		var behind: bool = main.map.camera.is_position_behind(c_to)
+		var locked: bool = not main.open_systems.has(int(sid))
+		var pinned := false
+		if not on_screen(b, behind, get_viewport_rect().size):
+			if locked:
+				continue  # a locked marker is never pinned to the edge
+			b = pin_to_rect(a, b, behind, rect)  # an open system keeps a clickable arrow at the edge
+			pinned = true
+		out.append({"sid": int(sid), "marker": b, "from": a, "locked": locked, "pinned": pinned})
 	return out
 
 ## The first marker as {sid, marker, from, locked}, or {} when nothing is shown.
@@ -104,6 +110,25 @@ func _input(event: InputEvent) -> void:
 		return
 	get_viewport().set_input_as_handled()  # the map must not read this click as an empty-space click
 	main.enter_system_from_view(sid)
+
+## Point on the border of `rect` (a is inside it) along the screen direction from a towards b; reversed when behind.
+static func pin_to_rect(a: Vector2, b: Vector2, behind: bool, rect: Rect2) -> Vector2:
+	var d := b - a
+	if behind:
+		d = -d
+	if d.length() < 0.001:
+		d = Vector2.RIGHT
+	var tx := INF
+	var ty := INF
+	if d.x > 0.0001:
+		tx = (rect.end.x - a.x) / d.x
+	elif d.x < -0.0001:
+		tx = (rect.position.x - a.x) / d.x
+	if d.y > 0.0001:
+		ty = (rect.end.y - a.y) / d.y
+	elif d.y < -0.0001:
+		ty = (rect.position.y - a.y) / d.y
+	return a + d * minf(tx, ty)
 
 ## True when the target's screen point is inside the camera view (and in front of the camera).
 ## Off screen means no marker and no line at all: nothing is pinned to the edge.
