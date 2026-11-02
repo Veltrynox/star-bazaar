@@ -4,6 +4,7 @@ extends Node3D
 ## are laid out on a ring around the origin (in the XZ plane).
 
 signal planet_clicked(index: int)  # -1 when the click hit empty space
+signal empty_double_clicked          # double click on empty space: no planet, no route (opens the galaxy view)
 signal route_clicked(id: int)      # T07b: click on a route line (no planet under the cursor)
 
 const PlanetTypes := preload("res://game/planet_types.gd")
@@ -484,6 +485,8 @@ func _unhandled_input(event: InputEvent) -> void:
 				route_clicked.emit(rid)
 				return
 		planet_clicked.emit(hit)
+		if hit < 0 and event.double_click:
+			empty_double_clicked.emit()
 
 ## Returns index of nearest planet hit by the camera ray through screen_pos, or -1.
 func pick_planet(screen_pos: Vector2) -> int:

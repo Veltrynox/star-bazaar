@@ -138,6 +138,7 @@ func _ready() -> void:
 	planet_panel.remove_requested.connect(_remove_requested)
 	map.planet_clicked.connect(_on_planet_clicked)
 	map.route_clicked.connect(_on_route_clicked)
+	map.empty_double_clicked.connect(_on_map_empty_double_click)
 	_build_board()
 	_build_pending_label()
 	income_popup = load("res://game/income_popup.gd").new()  # T133
@@ -542,6 +543,12 @@ func enter_system_from_view(id: int) -> bool:
 	var how := StoryText.get_or("LBL_LOCKED_HOW", "permit or skill")
 	post_notice(StoryText.get_or("NOT_SYSTEM_LOCKED", "{name} is locked: {how}.", {"name": Systems.name_of(id), "how": how}))
 	return false
+
+## Double click on empty map space opens the galaxy view; a single click keeps its old meaning.
+func _on_map_empty_double_click() -> void:
+	if preface != null or game_over or galaxy_view == null or galaxy_view.visible:
+		return
+	galaxy_view.open_view()
 
 func toggle_galaxy() -> void:
 	if preface != null or game_over:
