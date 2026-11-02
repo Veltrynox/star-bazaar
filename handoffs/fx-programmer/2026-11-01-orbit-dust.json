@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "agent": "fx-programmer",
+  "date": "2026-11-01",
+  "task": "Faint procedural dust band on each orbit",
+  "status": "done",
+  "files_changed": ["art/planet_fx/orbit_dust.gdshader", "game/map.gd"],
+  "open_questions": ["Owner to check by eye: faintness, grain size, drift speed"],
+  "handoff": "One merged annulus mesh per system (1 draw call) under the OrbitRings node, so it hides with it. Fragment shader makes grain, patches and soft edges from hash noise; tinted with the sun colour. Tune with DUST_ALPHA, DUST_GRAIN, DUST_SPEED, DUST_WIDTH in game/map.gd. Shader not compiled (headless dummy renderer).",
+  "details": {"draw_calls_per_system": 1, "defaults": {"alpha": 0.12, "grain_scale": 28, "speed": 0.02, "width": 0.5}}
+}
