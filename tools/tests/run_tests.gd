@@ -6,6 +6,7 @@ extends SceneTree
 const StoryText := preload("res://game/story_text.gd")
 const EndingPicker := preload("res://game/ending_picker.gd")
 const Storage := preload("res://game/storage.gd")
+const Juice := preload("res://game/juice.gd")
 const MAIN_SCENE := "res://game/main.tscn"
 
 var passed := 0
@@ -26,6 +27,7 @@ func _run() -> void:
 	_test_story_text()
 	_test_picker()
 	_test_stats_file()
+	await _test_juice()
 	await _test_main()
 	await _test_rescue_waiting()
 	await _test_events()
@@ -42,6 +44,84 @@ func _run() -> void:
 	await _test_debug_menu()
 	print("TOTAL pass=%d fail=%d" % [passed, failed])
 	quit(1 if failed > 0 else 0)
+
+# ---- 0. juice: motion helpers and pop-up / number / button states (the effects only; no timing of the look) ----
+func _test_juice() -> void:
+	check(Juice.shake_offset(0.0, 3.0) == Vector2.ZERO and Juice.shake_offset(1.0, 3.0).length() < 0.0001, "juice: nudge starts and ends at rest")
+	var peak := 0.0
+	for i in 101:
+		peak = maxf(peak, absf(Juice.shake_offset(i / 100.0, 3.0).x))
+	check(peak > 0.5 and peak <= 3.0001, "juice: nudge stays within its strength", str(peak))
+	check(Juice.count_value(0, 10, 0.0) == 0 and Juice.count_value(0, 10, 1.0) == 10, "juice: count runs from its start to its target")
+	check(Juice.count_value(0, 10, 0.5) > 5, "juice: count eases out (ahead of linear at half time)")
+	check(Juice.count_value(20, 10, 1.0) == 10, "juice: count can run down")
+	var lbl := Label.new()
+	Juice.count_to(lbl, 5, "+%d")
+	check(lbl.text == "+5", "juice: out of the tree a count shows at once", lbl.text)
+	Juice.count_to(lbl, 5, "+%d")
+	Juice.count_to(lbl, 9, "+%d")
+	check(lbl.text == "+9", "juice: a changed count shows its new value", lbl.text)
+	lbl.free()
+	var loose := Control.new()
+	Juice.leave(loose, false)
+	check(not loose.visible, "juice: leave out of the tree hides at once")
+	Juice.enter(loose)
+	check(loose.visible, "juice: enter out of the tree shows at once")
+	loose.free()
+
+	var h := Control.new()
+	root.add_child(h)
+	var lb := Label.new()
+	h.add_child(lb)
+	Juice.motion = 0.0
+	Juice.count_to(lb, 3, "+%d")
+	Juice.count_to(lb, 7, "+%d")
+	check(lb.text == "+7", "juice: motion off, a count is instant", lb.text)
+	Juice.motion = 1.0
+	Juice.count_to(lb, 20, "+%d", Color(1, 1, 0, 1))
+	await create_timer(0.7).timeout
+	check(lb.text == "+20" and lb.modulate.is_equal_approx(Color.WHITE), "juice: a count lands on its target and the tint settles", lb.text)
+
+	# a pop-up entered, left and entered again ends at rest, with nothing left offset or faded
+	var p := Control.new()
+	h.add_child(p)
+	p.position = Vector2(12, 34)
+	Juice.enter(p, Juice.ENTER_SCALE, Juice.SLIDE_PX)
+	check(p.scale.x < 1.0 and p.position.y < 34.0 and p.modulate.a < 1.0, "juice: an entry starts small, raised and clear")
+	Juice.leave(p, false)
+	Juice.enter(p, Juice.ENTER_SCALE, Juice.SLIDE_PX)
+	await create_timer(0.7).timeout
+	check(p.visible and p.scale.is_equal_approx(Vector2.ONE) and p.position.is_equal_approx(Vector2(12, 34)) and is_equal_approx(p.modulate.a, 1.0),
+		"juice: an interrupted entry ends at rest", str([p.scale, p.position, p.modulate.a]))
+	var done := [false]
+	Juice.leave(p, false, func(): done[0] = true)
+	await create_timer(0.4).timeout
+	check(not p.visible and done[0], "juice: a leave hides the control and calls its done hook")
+
+	var b := Button.new()
+	h.add_child(b)
+	Juice.press(b, true)
+	await create_timer(0.2).timeout
+	check(b.scale.x < 1.0, "juice: a press squashes the button")
+	Juice.press(b, false)
+	await create_timer(0.3).timeout
+	check(b.scale.is_equal_approx(Vector2.ONE), "juice: a release springs the button back to rest")
+
+	var n := Control.new()
+	h.add_child(n)
+	n.position = Vector2(50, 60)
+	Juice.nudge(n)
+	await create_timer(0.5).timeout
+	check(n.position.is_equal_approx(Vector2(50, 60)), "juice: a nudge returns the control to its place", str(n.position))
+
+	var fl := Label.new()
+	h.add_child(fl)
+	Juice.flash(fl, Color(1, 0.5, 0, 1))
+	await create_timer(0.5).timeout
+	check(fl.modulate.is_equal_approx(Color.WHITE), "juice: a flash settles back to its own colour", str(fl.modulate))
+	h.queue_free()
+	Juice.motion = 1.0
+	await process_frame
 
 func _read_json(path: String):
 	return JSON.parse_string(FileAccess.get_file_as_string(path))
