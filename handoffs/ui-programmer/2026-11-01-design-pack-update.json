@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-01",
+  "task": "design-pack-update",
+  "status": "partial",
+  "files_changed": [
+    "game/map.gd",
+    "game/main.gd",
+    "game/planet_panel.gd",
+    "game/galaxy_view.gd",
+    "tools/tests/run_tests.gd"
+  ],
+  "open_questions": [
+    "Story designer: ids used with plain fallbacks (list in details.missing_story_ids). Also give the galaxy view real text for 'how a system opened'.",
+    "Gameplay programmer / owner: galaxy has no coordinates, no per-planet output per cycle, no uncharted systems beyond system 2, no links data, no scroll-in-to-open. Design shows all of these with sample data; none were invented.",
+    "Owner: the mission line still says 'Mission: Buy a ship'; buying now happens inside Send to... (or the ship panel). Reword it?"
+  ],
+  "handoff": "1) System view: removed the 3D arrows and grey previews of locked systems (map.gd, main.gd). The rest of SystemView.html (new top bar, 320px panels, hex ring, route tags, locked exit marker, legend) is not built: the game frame differs, so I did not restyle it. 2) Planet panel: the Buy a ship button is gone. Connections now show a route row (To/From planet, signed net, click for costs) then a row per ship (Ship k of N, status, own Remove). New main.send_stock_buying: Send to... buys a ship first when none is free, only after the route itself is valid. Per-commodity Buy/Sell orders kept (read as gameplay, not the removed button). No RoutePanel built. 3) Galaxy view rebuilt per GalaxyView.html: territory outlines, sun, orbits, 12px planets, resource icons, routes with ship dots, uncharted dim stars on dashed links, left system panel with disabled Open system and reason, step-by-step tutorial panel, legend. Tests 436 pass. Not checked by eye: all three screens. No git push attempted yet by this file.",
+  "details": {
+    "commits": "see final reply",
+    "tests_changed": [
+      "run_tests.gd: the two 3D preview/arrow checks replaced by one 'no preview, no arrow' check",
+      "run_tests.gd: added send_stock_buying checks, planet panel check, _test_galaxy_view (8 checks)"
+    ],
+    "missing_story_ids": ["LBL_CONNECTIONS", "LBL_NO_ROUTES", "LBL_ROUTE_ROW_TIP", "LBL_ROUTE_TO", "LBL_ROUTE_FROM", "LBL_SHIP_K_OF_N", "LBL_SHIP_RUNNING", "LBL_SHIPS_FREE_HINT", "LBL_SEND_BUYS_SHIP", "LBL_GALAXY_TITLE", "LBL_GALAXY_HINT", "LBL_GALAXY_VIEW", "LBL_UNCHARTED", "LBL_UNCHARTED_SYSTEM", "LBL_NOT_OPEN", "LBL_UNCHARTED_BODY", "LBL_KNOWN", "LBL_LINKS", "LBL_OPEN_REASON", "BTN_OPEN_SYSTEM", "BTN_NEXT", "BTN_GOT_IT", "TUT_GALAXY_DONE", "LBL_SYS_FIRST", "LBL_SYS_PERMIT", "LBL_SYSTEM_N", "LBL_GALAXY_PLANETS", "LBL_GALAXY_PLANETS_WORD", "LBL_GALAXY_ROUTE_ONE", "LBL_GALAXY_ROUTE_MANY", "LBL_GALAXY_ROUTES", "LBL_GALAXY_SHIPS", "LBL_PER_CYCLE", "LBL_PER_CYCLE_UNIT", "LBL_BUYS_GOODS", "LBL_YOUR_ROUTES_HERE", "LBL_A_TO_B", "LBL_WAITING_SHORT", "LBL_BLOCKED_SHORT", "LBL_SS_OPEN", "LBL_SS_LOCKED", "LBL_LEGEND_ENERGY", "LBL_LEGEND_FOOD", "LBL_LEGEND_LINK", "LBL_LEGEND_UNCHARTED"],
+    "no_data_for": ["per-planet output per cycle (panel shows the good only)", "system coordinates (design-pack sample slots by id)", "link graph (consecutive ids)", "uncharted systems beyond system 2", "scroll-in on a system to open it", "pause banner and run-state card on the galaxy screen"],
+    "icons": "All icons used (planet, route, storage, ship, chevron, close, energy, food) already exist in design/theme/icons via the project theme; no new import needed.",
+    "how_to_see": "Run, press G or the rail galaxy button. Planet panel: click a planet, make a route with Send to... on a storage row, click the destination.",
+    "not_checked_by_eye": ["galaxy view layout and text fit", "planet panel connection rows", "tutorial panel", "overlay edge against the rail and top bar"]
+  }
+}
