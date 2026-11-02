@@ -8,6 +8,18 @@ const StoryText := preload("res://game/story_text.gd")
 const PlanetTypes := preload("res://game/planet_types.gd")
 const PATH := "res://data/systems.json"
 
+## Sun colour per system (systems.json may override with a "sun_color": "#rrggbb" key). System 1 keeps the original orange sun.
+## System 2: a blue star, hue 0.60 (216 degrees).
+const SUN_COLORS := {2: Color(0.25, 0.5, 1.0)}
+
+static func sun_color_of(id: int) -> Color:
+	var s := get_system(id)
+	if s.has("sun_color"):
+		return Color.html(str(s["sun_color"]))
+	if SUN_COLORS.has(id):
+		return SUN_COLORS[id]
+	return Color.from_hsv(0.09, 0.8, 1.0)  # same as sun_flare.gd BASE_HUE: the original sun
+
 static var _cache: Array = []
 static var _loaded := false
 

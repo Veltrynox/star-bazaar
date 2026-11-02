@@ -38,6 +38,9 @@ var pitch_min_deg := 20.0        # angle above the plane; never goes below it
 var pitch_max_deg := 80.0
 var sun_radius := 0.75
 var sun_node: Node3D  # T132: animated 3D sun
+var suns := {}         # system id -> its sun node (art/sun/sun_flare.gd); every open system has its own sun
+var sun_positions := {}  # system id -> world position of that sun
+var orbit_rings := {}    # system id -> its orbit ring mesh
 var hex_ring: Node3D  # T110: hexagon ring around the sun, shown during EV20
 var key_light: DirectionalLight3D
 var planet_scale := 1.0          # multiplies PLANET_RADIUS (visual size and click radius)
@@ -134,15 +137,19 @@ func _ready() -> void:
 		_make_planet(i)
 	_frame_planets()
 	_add_sun(focus)
-	_add_orbit_rings(focus)
+	_add_orbit_rings(focus, 1)
 	_update_camera()
 
 ## Orbit rings: thin circles on the ground plane through each planet, centred on the sun, plus one dashed
 ## outer ring. The camera pitch gives the tilt. Colours: theme tokens line_200 / line_100.
 ## Visual only: no collision, no shadows, never hit by the planet click test.
-func _add_orbit_rings(center: Vector3) -> void:
+func _add_orbit_rings(center: Vector3, sys: int = 1) -> void:
 	var inner := Ui.col("line_200")
 	var outer := Ui.col("line_100")
+	if sys != 1:  # the rings take the colour of their own sun
+		var sc := Systems.sun_color_of(sys)
+		inner = Color(inner.lerp(sc, 0.4), inner.a)
+		outer = Color(outer.lerp(sc, 0.4), outer.a)
 	var mat := StandardMaterial3D.new()
 	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	mat.vertex_color_use_as_albedo = true
@@ -150,7 +157,10 @@ func _add_orbit_rings(center: Vector3) -> void:
 	var im := ImmediateMesh.new()
 	var max_r := 0.0
 	var segs := 128
-	for p in positions:
+	for pi in positions.size():
+		if int(planets[pi].get("system", 1)) != sys:
+			continue
+		var p: Vector3 = positions[pi]
 		var r := Vector2(p.x - center.x, p.z - center.z).length()
 		if r < 0.01:
 			continue
@@ -173,10 +183,11 @@ func _add_orbit_rings(center: Vector3) -> void:
 			im.surface_add_vertex(center + Vector3(cos(a1), 0.0, sin(a1)) * ro)
 		im.surface_end()
 	var mi := MeshInstance3D.new()
-	mi.name = "OrbitRings"
+	mi.name = "OrbitRings" if sys == 1 else "OrbitRings%d" % sys
 	mi.mesh = im
 	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	add_child(mi)
+	orbit_rings[sys] = mi
 
 ## T85: one planet node (mesh + label) for planets[i]; position from x,y or the old ring layout.
 func _make_planet(i: int) -> void:
@@ -229,10 +240,18 @@ func add_planets(list: Array) -> int:
 	for p in list:
 		planets.append(p)
 		_make_planet(planets.size() - 1)
+	for p in list:  # a new system gets its own sun and orbit rings, centred on its planets
+		var sid := int(p.get("system", 1))
+		if not suns.has(sid):
+			var c := _system_center(sid)
+			_add_sun(c, sid)
+			_add_orbit_rings(c, sid)
+			for i in planets.size():
+				_aim_sphere(i)
 	_apply_view()  # the new system stays out of sight until the player moves there
 	return first
 
-## Moves the map to one system: its planets, labels, routes (and the sun for system 1) show; every other system hides.
+## Moves the map to one system: its planets, labels, routes (and its own sun and orbit rings) show; every other system hides.
 func set_view_system(id: int) -> void:
 	view_system = id
 	focus_system(id)
@@ -250,11 +269,10 @@ func _apply_view() -> void:
 	for id in route_lines:
 		var ln = route_lines[id]
 		ln.visible = planet_in_view(int(ln.pair_a)) and planet_in_view(int(ln.pair_b))
-	var rings := get_node_or_null("OrbitRings")
-	if rings != null:
-		rings.visible = view_system == 1
-	if sun_node != null:
-		sun_node.visible = view_system == 1
+	for id in orbit_rings:  # each system shows only its own sun and orbit rings
+		orbit_rings[id].visible = int(id) == view_system
+	for id in suns:
+		suns[id].visible = int(id) == view_system
 
 ## T105: put the camera focus on the middle of one system's planets.
 func focus_system(id: int) -> void:
@@ -272,18 +290,43 @@ func focus_system(id: int) -> void:
 		focus = (lo + hi) * 0.5
 
 ## Plain yellow sphere in the middle of the map (visual only, not clickable).
-func _add_sun(pos: Vector3) -> void:
-	# T132: the animated 3D sun (art/sun/sun_flare.gd); its flares drive the planets' key light.
-	sun_node = load("res://art/sun/sun_flare.gd").new()
-	sun_node.radius = sun_radius
-	sun_node.key_light = key_light
-	sun_node.position = pos
+func _add_sun(pos: Vector3, sys: int = 1) -> void:
+	# T132: the animated 3D sun (art/sun/sun_flare.gd). System 1's sun drives the planets' key light; each system's sun
+	# has its own colour (Systems.sun_color_of: system 1 orange, system 2 blue).
+	var sn: Node3D = load("res://art/sun/sun_flare.gd").new()
+	sn.radius = sun_radius
+	sn.sun_color = Systems.sun_color_of(sys)
+	if sys == 1:
+		sn.key_light = key_light
+	else:
+		sn.drives_light = false
+	sn.position = pos
+	sn.visible = sys == view_system
+	add_child(sn)
+	suns[sys] = sn
+	sun_positions[sys] = pos
+	if sys != 1:
+		return
+	sun_node = sn
 	focus_sun_pos = pos
-	add_child(sun_node)
 	hex_ring = load("res://art/sun/hex_ring.gd").new()
 	hex_ring.radius = sun_radius
 	hex_ring.position = pos
 	add_child(hex_ring)  # hidden until show_ring(true)
+
+## Middle of one system's planets on the ground plane (the sun's place).
+func _system_center(sys: int) -> Vector3:
+	var lo := Vector3.ZERO
+	var hi := Vector3.ZERO
+	var first := true
+	for i in planets.size():
+		if int(planets[i].get("system", 1)) != sys or i >= positions.size():
+			continue
+		var p := positions[i]
+		lo = p if first else Vector3(minf(lo.x, p.x), 0.0, minf(lo.z, p.z))
+		hi = p if first else Vector3(maxf(hi.x, p.x), 0.0, maxf(hi.z, p.z))
+		first = false
+	return (lo + hi) * 0.5
 
 ## T28: show or hide the pulsing "click me" halo around planet `index`.
 func set_hint(index: int, on: bool) -> void:
@@ -384,8 +427,8 @@ func apply_tunables() -> void:
 		sp.scale = Vector3.ONE * planet_radius()
 	for i in planet_labels.size():
 		planet_labels[i].position = positions[i] + Vector3(0, -(planet_radius() + 0.5), 0)
-	if sun_node != null:
-		sun_node.set_radius(sun_radius)
+	for id in suns:
+		suns[id].set_radius(sun_radius)
 	if hex_ring != null:
 		hex_ring.radius = sun_radius
 		hex_ring.rebuild()
@@ -501,7 +544,7 @@ func _add_belt(i: int, sph: MeshInstance3D, h: int) -> void:
 func _aim_sphere(i: int) -> void:
 	if i >= planet_spheres.size() or i >= positions.size():
 		return
-	var d := focus_sun_pos - positions[i]
+	var d: Vector3 = sun_positions.get(int(planets[i].get("system", 1)), focus_sun_pos) - positions[i]
 	if d.length() < 0.001:
 		return
 	d = d.normalized()

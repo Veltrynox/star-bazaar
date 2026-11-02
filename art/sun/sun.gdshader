@@ -21,12 +21,22 @@ uniform float uv_scale = 0.6;    // part of the frame this plane shows (1 = whol
 uniform float uv_rot = 0.0;      // turn of the crop, radians
 uniform float core_on = 0.0;     // 1 = this quad is the white core, not a plane
 uniform float core_value = 3.0;  // core brightness at the centre (white, above 1.0 = HDR glow)
+uniform float hue_shift = 0.0;   // turns (0..1): rotates the colour of the planes around the grey axis; 0 = the original orange sun
 uniform float glow = 0.4;        // per-plane brightness; planes add up, so keep it low (set from sun_flare.gd)
 
 void vertex() {
 	if (core_on > 0.5) {  // face the camera
 		MODELVIEW_MATRIX = VIEW_MATRIX * mat4(INV_VIEW_MATRIX[0], INV_VIEW_MATRIX[1], INV_VIEW_MATRIX[2], MODEL_MATRIX[3]);
 	}
+}
+
+vec3 hue_rotate(vec3 c, float turns) {
+	float a = turns * 6.28318530718;
+	float co = cos(a);
+	float si = sin(a) * 0.57735026919;
+	float k = (1.0 - co) / 3.0;
+	mat3 m = mat3(vec3(co + k, k + si, k - si), vec3(k - si, co + k, k + si), vec3(k + si, k - si, co + k));
+	return max(m * c, vec3(0.0));
 }
 
 // One plane's colour at plane position p (-0.5..0.5), r = 0..1 from the centre.
@@ -44,7 +54,7 @@ vec3 plane_color(vec2 p, float r) {
 	vec3 b = texture(frames, vec3(uv, layer_base + f1)).rgb;
 	a = max((a - 0.5) * SHEET_CONTRAST + 0.5, 0.0);
 	b = max((b - 0.5) * SHEET_CONTRAST + 0.5, 0.0);
-	return mix(a, b, t) * glow * fade;   // planes add up, so overlaps go above 1.0 into the HDR glow
+	return hue_rotate(mix(a, b, t), hue_shift) * glow * fade;   // planes add up, so overlaps go above 1.0 into the HDR glow
 }
 
 void fragment() {

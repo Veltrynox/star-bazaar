@@ -16,7 +16,14 @@ const FRAME_PATH := "res://art/sun/frames/%s_%02d.png"
 const FPS := 3.0           # burn speed, frames per second; the shader blends between neighbouring frames
 const FLARE_SMOOTH := 6.0  # how fast sun_flare follows the frame brightness (per second)
 
+## Hue of the original (orange) frames, in turns. A sun with another colour is the same grid rotated in hue.
+const BASE_HUE := 0.09
+
 var radius := 0.75
+var drives_light := true  # only one sun sets the global sun_flare and the key light; the others are looks only
+var sun_color := Color.from_hsv(BASE_HUE, 0.8, 1.0)  # set before add_child, or call set_sun_color after
+static var _frames_cache: Texture2DArray = null
+static var _levels_cache: Array = []
 var key_light: DirectionalLight3D  # optional: the map's key light, lit a little by the flare too
 
 var frame_pos := 0.0
@@ -53,6 +60,7 @@ func _ready() -> void:
 		mat.set_shader_parameter("frames", frames)
 		mat.set_shader_parameter("layer_base", float(PLANE_SETS[i] * FRAME_COUNT))  # first layer of this plane's sheet
 		mat.set_shader_parameter("phase", _phase(i))
+		mat.set_shader_parameter("hue_shift", hue_shift())
 		mat.set_shader_parameter("glow", PLANE_GLOW)  # was never set before: the shader default 0.4 was used
 		# Each plane shows the whole frame (scale 0.9..1.0), nudged a little (centre +-0.02) so the planes do not line up.
 		mat.set_shader_parameter("uv_center", Vector2(0.5 + (fposmod(float(i) * golden, 1.0) - 0.5) * 0.04, 0.5 + (fposmod(float(i) * golden * golden + 0.3, 1.0) - 0.5) * 0.04))
@@ -72,7 +80,18 @@ func _ready() -> void:
 	_core.material_override = cm
 	add_child(_core)
 	_layout()
-	RenderingServer.global_shader_parameter_set("sun_flare", 0.0)
+	if drives_light:
+		RenderingServer.global_shader_parameter_set("sun_flare", 0.0)
+
+## Hue turn from the orange frames to sun_color.
+func hue_shift() -> float:
+	var d := fposmod(sun_color.h - BASE_HUE, 1.0)
+	return 0.0 if d < 0.0001 or d > 0.9999 else d
+
+func set_sun_color(c: Color) -> void:
+	sun_color = c
+	for m in _mats:
+		(m as ShaderMaterial).set_shader_parameter("hue_shift", hue_shift())
 
 ## Frame offset of plane i: golden-ratio spread, so planes sharing a sheet are 15+ frames apart (storm 0,4,6; flare 1,3,7; calm 2,5).
 func _phase(i: int) -> float:
@@ -104,6 +123,8 @@ func _process(delta: float) -> void:
 		var f0 := int(frame_pos) % FRAME_COUNT
 		target = lerpf(flare_levels[f0], flare_levels[(f0 + 1) % FRAME_COUNT], frame_pos - floorf(frame_pos))
 	flare = lerpf(flare, target, clampf(delta * FLARE_SMOOTH, 0.0, 1.0))
+	if not drives_light:
+		return
 	RenderingServer.global_shader_parameter_set("sun_flare", flare)
 	if key_light != null:
 		key_light.light_energy = lerpf(1.0, 1.5, flare)
@@ -113,6 +134,9 @@ func _process(delta: float) -> void:
 ## frame_pos is the mean of the brightness of the frames the planes show then (storm lifts it most, calm least).
 ## The 64 values of one loop are scaled to 0..1, so sun_flare keeps its full range.
 func _load_frames() -> Texture2DArray:
+	if _frames_cache != null:  # every sun shares one texture and one set of levels
+		flare_levels = _levels_cache
+		return _frames_cache
 	var imgs: Array[Image] = []
 	var lum: Array = []  # [sheet][frame]
 	for s in SETS.size():
@@ -139,6 +163,8 @@ func _load_frames() -> Texture2DArray:
 		flare_levels.append(0.0 if hi <= lo else (float(v) - lo) / (hi - lo))
 	var arr := Texture2DArray.new()
 	arr.create_from_images(imgs)
+	_frames_cache = arr
+	_levels_cache = flare_levels
 	return arr
 
 ## Mean brightness of an image, sampled on a grid (cheap enough to run once at start).

@@ -10,10 +10,11 @@ const OUTER_SCALE := 2.6       # large outline hexagon, in sides
 const SPIN := 0.08             # radians per second
 const FADE := 1.5              # fade speed per second
 const HDR := 1.6               # colour multiplier, above 1.0 feeds the glow
-const COLOR := Color(1.0, 0.72, 0.35)  # warm amber warning light
+const COLOR := Color(1.0, 0.72, 0.35)  # warm amber warning light (the default; `color` can be set per sun)
 const ALPHA := 0.7
 
 var radius := 0.75
+var color := COLOR
 var _on := false
 var _fade := 0.0
 var _mat: StandardMaterial3D
@@ -39,7 +40,7 @@ func rebuild() -> void:
 	var s := radius * SIDE_PER_RADIUS
 	var im := ImmediateMesh.new()
 	im.surface_begin(Mesh.PRIMITIVE_LINES, _mat)
-	im.surface_set_color(COLOR)
+	im.surface_set_color(color)
 	_hexagon(im, Vector3.ZERO, s)
 	for k in 6:
 		var a := deg_to_rad(30.0 + 60.0 * float(k))  # neighbour centres of a honeycomb
