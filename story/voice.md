@@ -43,11 +43,12 @@ The player is "you" or "the company". Never a gender, never a name.
 - Planet names, ship names and the game name are capitalised. Branch names are capitalised: Logistics, Research, Expansion. Commodities are lower case: energy, food.
 - Story terms the Commons, the Plan, the Bureau, the Common Ledger, the Release: capitalised as shown (the Plan, the Bureau, the Commons). "five-cycle plan" is lower case.
 - Dash: use a comma or full stop, not a long dash.
-- Placeholders: {planet}, {planet_a}, {planet_b}, {commodity}, {amount}, {skill}, {cash}, {goal}, {cycle}, {branches} (count of branches with a skill learned), {systems} (count of systems reached). The last two are end screen stats only. The game fills them.
+- Placeholders: {planet}, {planet_a}, {planet_b}, {commodity}, {amount}, {skill}, {cash}, {goal}, {arrow}, {cycles}, {n}, {m}, {cycle}, {branches} (count of branches with a skill learned), {systems} (count of systems reached), {cap} (credit cap of the Mixed load bonus, LBL_MIXED_LOAD, with {n} as the applied percent). {branches} and {systems} are end screen stats only. The game fills them.
 
 ## Glossary (exact terms)
 - Branches: Logistics, Research, Expansion.
 - Company storage: the company's own storage on a planet. Space Storage: the per-system storage, a skill (A1).
+- Mixed load: the bonus for selling two or more different goods at one planet in the same cycle. Shown on the Sell row only when it applies, as "Mixed load +{n}% (max {cap} credits)". Never call it a bundle in player text. Added 2026-11-02.
 - Route: one-way link between two planets, made with "Send to..." on a storage row, run by one ship.
 - Ship upkeep: the recurring cost of a ship, shown to the player.
 - Expenses: label for what the company pays out.
@@ -62,6 +63,7 @@ The player is "you" or "the company". Never a gender, never a name.
 - Hollin Reach: system 1 (owner approved, T92).
 - System 2: Dunmere Reach (owner approved, T92). Planets: Brannock (food-rich hub), Cindrel (energy-rich), Mossfell (food-rich outpost), Quillon (consumer market, wants both goods). Texts and ids: story/screens.md, section "Systems and system 2".
 - Owner decisions (T92): the UI label "Skill points" stays on screen for expansion points. "Corporation" follows the capitalisation rule in the Story terms entry below. The end screen {branches} is a plain count.
+- Salvage: the one-time payout when goods cannot be kept or sold on the company's lanes (storage full or no buyer). Shown with the amount now and what a Sell order would pay. Plain word, no flavour. Added 2026-11-02.
 - Rescue notice: when the company has no ships and too little cash. Never "game over". Story texts may call the payment "relief".
 
 ### Story terms (new in draft 2, flavour only, never shown as a mechanic)

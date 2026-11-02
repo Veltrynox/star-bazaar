@@ -70,20 +70,32 @@ def blocked(r, ev, sk):
             cov = ("A1" in sk) + ("A2" in sk) + ("B4" in sk)
             if left > cov: return True
     return False
-def income(ships, sk, evp=(), ev=(), detail=False):
-    """steady-state net per cycle of all ships (age>=1, not blocked) with shared order pools"""
+def income(ships, sk, evp=(), ev=(), detail=False, split=0, bun=False):
+    """steady-state net per cycle of all ships (age>=1, not blocked) with shared order pools.
+    split (N2): 0 = off; else a source with two lanes gives the higher-margin lane `split` of its buy pool, the other lane 1 - split."""
     A = V["order_amount"] * (1 + V["skill_B2_order_units"] * ("B2" in sk))
     pool = {}
     items = []
     for x in ships:
         if x["age"] < 1 or blocked(x["r"], ev, sk): continue
         ru, up = ship_stats(x, sk); items.append((margin(x["r"], sk, evp, x["lv"]), ru, up, x))
-    items.sort(key=lambda t: -t[0]); tot = 0; per = []
+    items.sort(key=lambda t: -t[0]); tot = 0; per = []; rev = {}
+    lanes = {}  # (source, c) -> destinations in margin order
     for m, ru, up, x in items:
-        s, d, c = x["r"]; f = min(ru, pool.setdefault(("b", s, c), A), pool.setdefault(("s", d, c), A))
+        lst = lanes.setdefault((x["r"][0], x["r"][2]), [])
+        if x["r"][1] not in lst: lst.append(x["r"][1])
+    for m, ru, up, x in items:
+        s, d, c = x["r"]; lim = ru
+        if split and len(lanes[(s, c)]) >= 2:  # N2: split Send, fixed share of the source pool per lane
+            lim = min(ru, A * (split if lanes[(s, c)][0] == d else 1 - split))
+        f = min(lim, pool.setdefault(("b", s, c), A), pool.setdefault(("s", d, c), A))
         net = f * m - up
         if net <= 0: per.append(0); continue
         pool[("b", s, c)] -= f; pool[("s", d, c)] -= f; tot += net; per.append(net)
+        rev.setdefault(d, {}); rev[d][c] = rev[d].get(c, 0) + f * PL[d]["base_prices"][c + "_sell"]
+    if bun:  # N3 Mixed load: bonus on the 2nd and later distinct good sold at one planet in one cycle, capped per planet per cycle
+        for d, g in rev.items():
+            if len(g) >= 2: tot += min(V["bundle_bonus_cap"], V["bundle_bonus_pct"] * (sum(g.values()) - max(g.values())))
     return (tot, per) if detail else tot
 def marginal(route, nmax=10, sk=frozenset()):
     """system-1 table: net income added by the Nth ship, ships added greedily to the best marginal route"""
@@ -93,6 +105,9 @@ def marginal(route, nmax=10, sk=frozenset()):
         ships.append({"r": best, "lv": 0, "h": False, "age": 1}); t = income(ships, sk); out.append((best, t - prev)); prev = t
     return out
 def run(strat="decent", build="none", rng=None, trace=False):
+    # N3: "bundle" = decent whose income adds the Mixed load bonus (bundle_bonus_pct, bundle_bonus_cap), ships picked with the bonus counted
+    # N2: "split" buys like decent and splits each two-lane source half and half; "split34" gives 3/4 to the higher-margin lane
+    DEC = strat in ("decent", "split", "split34", "bundle"); BUN = strat == "bundle"; SPL = {"split": 0.5, "split34": 0.75}.get(strat, 0)
     cash = V["starting_credits"]; ships = []; sk = set(); pts = 0; seen = {0}; pairs = set(); ev = []; permit2 = False; sysp = set()
     pts += V["skill_points_planet"]
     for c in range(1, V["win_cycle"] + 1):
@@ -109,7 +124,7 @@ def run(strat="decent", build="none", rng=None, trace=False):
         if c == INJ[0]: cash += INJ[1]
         evp = [x for x in ev if x[0][0] != "closed"]
         def price(h): return V["ship_price"]
-        def inc_now(sh): return income(sh, sk)
+        def inc_now(sh): return income(sh, sk, split=SPL, bun=BUN)
         def new(r, h, lv=0): return {"r": r, "lv": lv, "h": h, "age": 1}
         def buy_ship(r, h):
             nonlocal cash, pts
@@ -132,13 +147,13 @@ def run(strat="decent", build="none", rng=None, trace=False):
         else:
             while True:
                 opts = []; base = inc_now(ships)
-                if strat == "decent" and len(ships) < V["ship_cap"]:
+                if DEC and len(ships) < V["ship_cap"]:
                     for r in pool_routes:
                         if REAL and any(x["r"] == r for x in ships): continue
                         for h in ([False]):
                             dv = inc_now(ships + [new(r, h)]) - base
                             if dv > 0: opts.append((dv / price(h), price(h), "route", r, h))
-                if strat == "decent" and (not REAL or UPG):
+                if DEC and (not REAL or UPG):
                     for x in ships:
                         if x["lv"] < 1:
                             x["lv"] = 1; dv = inc_now(ships) - base; x["lv"] = 0
@@ -157,7 +172,7 @@ def run(strat="decent", build="none", rng=None, trace=False):
                 else: cash -= o[1]; o[3]["lv"] = 1
             if strat == "sloppy" and ships:   # overloaded: every spare ship goes on the same route
                 while len(ships) < V["ship_cap"] and cash >= V["ship_price"]: buy_ship(ALL[0], False)
-        cash += income(ships, sk, evp, ev)
+        cash += income(ships, sk, evp, ev, split=SPL, bun=BUN)
         if trace: print(c, int(cash), len(ships), permit2)
         for x in ships: x["age"] += 1
         if RESCUE_ANY:
@@ -168,6 +183,7 @@ def run(strat="decent", build="none", rng=None, trace=False):
 LINES = [("decent no skills", "decent", "none"), ("decent logistics", "decent", "logistics"), ("decent research", "decent", "research"),
          ("decent expansion", "decent", "expansion"), ("decent permit only", "decent", "perm_only"), ("decent permit+research", "decent", "perm_research"),
          ("decent mixed L+R", "decent", "econ_mix"), ("decent full tree (ref)", "decent", "full"),
+         ("split half and half", "split", "none"), ("split 3/4 and 1/4", "split34", "none"), ("bundle (N3, capped)", "bundle", "none"),
          ("sloppy overload", "sloppy", "none"), ("always expand", "always", "none"), ("always expand+C1", "always", "perm_only"),
          ("never expand", "never", "none")]
 def main():

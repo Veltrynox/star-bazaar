@@ -1,12 +1,15 @@
 {
   "schema_version": 1,
-  "data_version": 19,
-  "source": "2026-11-02 v19: upgrade_cost 600 to 900 (T144: route upgrade level 2 offered on a full lane; at 600 decent no-skill win moves to cycle 23, below target; 900 keeps median 26). 2026-11-01 v18: ship_price 1000 to 900 (pacing retune: permit path median 26, natural decent 29/30). 2026-10-31 v17: skill-tree r2: A5 upkeep 0.2 to 0.3 (QA: 0 cycles after A4). 2026-10-31 v16: skill-tree r1: A4 0.15 to 0.125, A5 0.3 to 0.2, B3 0.12 to 0.08 (sim: each ~2-3 cycles faster if owned from start, was 3-4). 2026-10-31 v15: permit_2_cost 1000 to 600. Only Full-tier runs buy the permit, so base play is unchanged. Bot evidence: Full Research 4/4, Full Logistics 4/4, Full Expansion 6/8, full tree 7/8 (was 0/4 Research, 1/4 tree, with bot lane and ship bugs). Owner and economy designer to confirm. 2026-10-31 v14: skill_A2_capacity 0.5 and skill_C4_permit_discount 0.2 added (template values, owner and economy designer to confirm). 2026-10-28 v13: A3 and hauler keys removed. v12: planet_to_space_rate 3 to 1 (QA A1 leak). v11: added debris, shield, pirate, asteroid keys (owner ideas 1,3,5). Template values marked in handoff.",
+  "data_version": 20,
+  "source": "2026-11-02 v20: N3 Mixed load keys bundle_bonus_pct 0.05, bundle_bonus_cap 150 added (owner approved). 2026-11-02 v19: upgrade_cost 600 to 900 (T144: route upgrade level 2 offered on a full lane; at 600 decent no-skill win moves to cycle 23, below target; 900 keeps median 26). 2026-11-01 v18: ship_price 1000 to 900 (pacing retune: permit path median 26, natural decent 29/30). 2026-10-31 v17: skill-tree r2: A5 upkeep 0.2 to 0.3 (QA: 0 cycles after A4). 2026-10-31 v16: skill-tree r1: A4 0.15 to 0.125, A5 0.3 to 0.2, B3 0.12 to 0.08 (sim: each ~2-3 cycles faster if owned from start, was 3-4). 2026-10-31 v15: permit_2_cost 1000 to 600. Only Full-tier runs buy the permit, so base play is unchanged. Bot evidence: Full Research 4/4, Full Logistics 4/4, Full Expansion 6/8, full tree 7/8 (was 0/4 Research, 1/4 tree, with bot lane and ship bugs). Owner and economy designer to confirm. 2026-10-31 v14: skill_A2_capacity 0.5 and skill_C4_permit_discount 0.2 added (template values, owner and economy designer to confirm). 2026-10-28 v13: A3 and hauler keys removed. v12: planet_to_space_rate 3 to 1 (QA A1 leak). v11: added debris, shield, pirate, asteroid keys (owner ideas 1,3,5). Template values marked in handoff.",
   "values": {
     "cycle_minutes": 2,
     "travel_cycles_per_leg": 1,
     "starting_credits": 1800,
     "ship_price": 900,
+    "bundle_bonus_pct": 0.05,
+    "bundle_bonus_cap": 150,
+    "salvage_share": 0.4,
     "cargo": 32,
     "ship_cap": 24,
     "trip_cost": 95,
