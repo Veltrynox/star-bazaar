@@ -63,9 +63,9 @@ uniform float inner = 0.74;      // inner edge as a fraction of the quad half-wi
 uniform float spin = 0.0075;
 uniform vec3 key_dir = vec3(0.0, 0.5, 0.8);
 uniform vec4 key_color : source_color = vec4(1.0, 0.76, 0.42, 1.0);
-uniform sampler2D ring_tex : filter_linear_mipmap, repeat_disable;  // asteroid_ring_1/2.png: RGB ring on black
-uniform float tex_in = 0.32;     // the PNG ring spans 0.32 to 0.98 of its half-width; belt radius is remapped onto that
-uniform float tex_out = 0.98;
+uniform sampler2D ring_tex : filter_linear_mipmap, repeat_disable;  // asteroid1/2.png: dusty ring on black
+uniform float tex_in = 0.38;     // belt radius is remapped onto the part of the PNG that holds dust (set per file in _add_belt)
+uniform float tex_out = 0.96;
 uniform float brighten = 2.4;
 varying vec3 wpos;
 varying vec3 ctr;
@@ -647,9 +647,12 @@ func _add_belt(i: int, sph: MeshInstance3D, h: int) -> void:
 	mat.shader = sh
 	mat.set_shader_parameter("inner", BELT_INNER / BELT_OUTER)
 	mat.set_shader_parameter("spin", BELT_SPIN)
-	# Stable pick from the id hash: asteroid_ring_1 or _2, through the shared loader (each file loads once).
+	# Stable pick from the id hash: asteroid1.png (thick, dark centre) or asteroid2.png (thin grey), through the shared loader.
+	# Dust extent as a fraction of the image half-width: asteroid1 0.38 to 0.96, asteroid2 0.62 to 0.97.
 	var ring_no := ((_mix(h) >> 7) & 1) + 1
-	mat.set_shader_parameter("ring_tex", sph.get_script().cached_tex("res://art/textures/planets/asteroid_ring_%d.png" % ring_no))
+	mat.set_shader_parameter("ring_tex", sph.get_script().cached_tex("res://art/textures/planets/asteroid%d.png" % ring_no))
+	mat.set_shader_parameter("tex_in", 0.38 if ring_no == 1 else 0.62)
+	mat.set_shader_parameter("tex_out", 0.96 if ring_no == 1 else 0.97)
 	quad.material = mat
 	var mi := MeshInstance3D.new()
 	mi.mesh = quad
