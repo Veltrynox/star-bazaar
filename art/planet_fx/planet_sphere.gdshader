@@ -116,7 +116,9 @@ void fragment() {
 		col = deep_col.rgb * 0.04;
 	} else {
 		vec3 base;
-		if (variant == 3) {
+		if (use_beauty) {
+			base = pow(tex.rgb, vec3(2.2));  // beauty colour map as albedo, no palette tint (png is sRGB, the sampler is not)
+		} else if (variant == 3) {
 			base = pale_col.rgb * (0.80 + 0.20 * tone);
 		} else {
 			base = mix(deep_col.rgb, mid_col.rgb, tone);
