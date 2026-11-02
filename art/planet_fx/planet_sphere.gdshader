@@ -28,8 +28,8 @@ uniform float cloud_alpha = 0.9;
 uniform bool use_disp = false;
 uniform bool use_glow_mask = false;
 uniform bool use_lights_mask = false;
-uniform float relief = 10.0;                      // relief strength: how far the height gradient bends the key-light normal
-uniform float disp_amount = 0.015;               // vertex displacement along the normal, in planet radii (total range, centred on 0)
+uniform float relief = 0.6;                           // relief strength: how far the height gradient bends the key-light normal
+uniform float disp_amount = 0.0;                 // vertex displacement along the normal, in planet radii (total range, centred on 0)
 uniform float term_shift = 0.45;                  // height moves the terminator: high ground keeps the sun longer (0 = off)
 uniform float relief_shade = 0.75;                 // cavity shading: low ground is darkened by this much (0 = off)
 uniform vec4 glow_col : source_color = vec4(0.60, 0.75, 1.00, 1.0);
@@ -65,7 +65,7 @@ varying vec3 obj_n;
 void vertex() {
 	vec3 n0 = normalize(VERTEX);
 	obj_n = n0;  // the fragment stage works from the true sphere normal
-	if (use_disp) {
+	if (use_disp && disp_amount > 0.0) {  // off by default (disp_amount = 0): the mesh stays a true sphere
 		// Vertex displacement: the height map (centred on mid grey) pushes the vertex along the normal, so the
 		// silhouette and the terminator edge get bumps. Lod 1 keeps it smooth on the 128 x 64 mesh.
 		vec2 uv = vec2(atan(n0.x, n0.z) / TAU + 0.5, acos(clamp(n0.y, -1.0, 1.0)) / PI);
