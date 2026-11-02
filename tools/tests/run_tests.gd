@@ -1550,7 +1550,13 @@ func _test_planet_size() -> void:
 	m._dismiss_preface()
 	var map = m.map
 	check(absf(map.planet_scale - 1.3) < 0.0001 and absf(map.planet_radius() - 0.8 * 1.3) < 0.0001, "size: planets default to x1.3", "scale=%f" % map.planet_scale)
-	check(map.orbit_rings[1].get_node_or_null("OrbitDust") == null and map.orbit_rings[1].get_child_count() == 0, "size: orbit dust rings are removed (orbit lines only)")
+	var dust_ok: bool = true
+	for sys_id in map.orbit_rings:
+		var ring_node: Node3D = map.orbit_rings[sys_id]
+		for L in map.DUST_LAYERS:
+			var dn := ring_node.get_node_or_null(String(L["name"])) as MeshInstance3D
+			dust_ok = dust_ok and dn != null and dn.mesh.get_surface_count() == 1 and dn.mesh.get_aabb().size.y < 0.001 and absf(float((dn.material_override as ShaderMaterial).get_shader_parameter("speed"))) < 0.0001 and float((dn.material_override as ShaderMaterial).get_shader_parameter("alpha")) <= 0.8
+	check(dust_ok and not map.orbit_rings.is_empty(), "size: orbit dust layers are back: one flat static mesh per layer, at most 50% opaque")
 	var ratio0: float = map.label_drop() / map.planet_radius()
 	var route_r0: float = map.route_lines.values()[0].radius if not map.route_lines.is_empty() else -1.0
 	m.debug_menu._set_planet_scale(2.0)
