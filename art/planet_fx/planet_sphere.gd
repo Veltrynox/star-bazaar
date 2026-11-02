@@ -3,7 +3,7 @@ extends MeshInstance3D
 ## One sphere planet for the 3D map.
 ## Look and lighting are picked from planet_id (deterministic: the same id always gets the same look and lighting).
 ## Look: 40% streaks (glowing layer), 20% fresnel_only, 10% pale, 30% standard; city is 0% (kept in the code).
-## Lighting is a separate setting: 70% key light plus rim light, 30% key light only. The Fresnel edge is on every planet.
+## Lighting is a separate setting: 70% key light plus rim light, 30% key light only. The Fresnel edge is a soft sun-side crescent on every planet.
 ## Set use_id = false to force variant and rim_light by hand.
 
 const FX := preload("res://art/planet_fx/planet_fx.gd")
@@ -105,9 +105,14 @@ const KEY_ONLY_SHARE := 0.30
 	set(v):
 		rim_strength = v
 		_apply()
-@export_range(0.0, 3.0) var fresnel_strength: float = 0.1:
+@export_range(0.0, 3.0) var fresnel_strength: float = 0.2:
 	set(v):
 		fresnel_strength = v
+		_apply()
+## Where the crescent starts on the sun side (shader: fres_side). 0 = about half the limb, 0.6 = narrow sliver.
+@export_range(-0.5, 0.9) var fresnel_side: float = 0.0:
+	set(v):
+		fresnel_side = v
 		_apply()
 @export_range(0.5, 8.0) var fresnel_power: float = 3.0:
 	set(v):
@@ -251,6 +256,7 @@ func _apply() -> void:
 		m.set_shader_parameter("rim_strength", rim_strength)
 		m.set_shader_parameter("fres_strength", fresnel_strength)
 		m.set_shader_parameter("fres_power", fresnel_power)
+		m.set_shader_parameter("fres_side", fresnel_side)
 		m.set_shader_parameter("key_dir", key_dir)
 		m.set_shader_parameter("relief", relief)
 		m.set_shader_parameter("relief_shade", relief_shade)

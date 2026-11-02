@@ -3,7 +3,7 @@ render_mode unshaded, cull_back, depth_draw_opaque;
 // Planet surface on a sphere mesh. UVs come from the surface normal (equirect), so the texture is fixed on the sphere
 // and does not move with the camera. The surface texture is greyscale: its brightness is the tone, tinted with the
 // palette (deep, mid, pale). The key light (sun side) and the rim light (side opposite the sun) are separate terms,
-// and the Fresnel edge is on every planet.
+// and the Fresnel edge is a soft crescent on the sun side only.
 // Looks (variant): 0 standard, 1 fresnel_only, 2 city (0% of planets, uses fine_tex), 3 pale (lighter palette).
 // Beauty path (use_beauty): the texture is a colour map, used as albedo with no palette tint. The displacement map moves the
 // vertices (silhouette), bends the normal (bump) and shifts the terminator (high ground keeps the sun longer). Optional glow mask (emission on both sides, soft pulse)
@@ -39,7 +39,8 @@ global uniform float sun_flare;
 uniform vec4 rim_color : source_color = vec4(0.37, 0.66, 1.00, 1.0);  // set from the planet colour (complementary hue) by planet_sphere.gd
 uniform float rim_strength = 0.45;
 uniform float rim_power = 2.5;
-uniform float fres_strength = 0.1;                // Fresnel edge, every planet (low: the rim light does the edge work)
+uniform float fres_strength = 0.2;                // Fresnel crescent brightness, every planet (the rim light does the far-side edge work)
+uniform float fres_side = 0.0;                    // crescent start: sun-side dot where it begins to fade in (0 = half the limb, 0.6 = narrow sliver)
 uniform float fres_power = 3.0;
 uniform float shadow_darkness = 0.95;             // 0 = dark side keeps ambient, 1 = dark side is black
 uniform float shadow_soft = 0.06;
@@ -91,7 +92,9 @@ void fragment() {
 	}
 
 	float NdV = clamp(dot(NORMAL, VIEW), 0.0, 1.0);
-	float fres = pow(1.0 - NdV, fres_power) * fres_strength;  // Fresnel edge: always on
+	// Fresnel crescent: the limb glow only on the sun side, fading to nothing across the rest of the planet (like a moon edge).
+	float side = smoothstep(fres_side, fres_side + 0.7, dot(n, normalize(key_dir)));
+	float fres = pow(1.0 - NdV, fres_power) * fres_strength * side;
 
 	vec3 col;
 	if (variant == 1) {
@@ -127,7 +130,7 @@ void fragment() {
 		}
 	}
 
-	// Fresnel edge: a separate term, on every planet, key-only ones included.
+	// Fresnel crescent: a separate term, on every planet, key-only ones included.
 	col += pale_col.rgb * fres;
 
 	// Grain: +/- grain_amount on the final colour, from a hash of the screen pixel.
