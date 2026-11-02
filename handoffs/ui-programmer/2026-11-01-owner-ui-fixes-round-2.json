@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-01",
+  "task": "owner-ui-fixes-round-2",
+  "status": "partial",
+  "files_changed": [
+    "project.godot",
+    "game/galaxy_view.gd",
+    "game/main.gd",
+    "game/planet_panel.gd",
+    "game/ship_panel.gd",
+    "game/cash_forecast.gd",
+    "game/ui.gd",
+    "game/system_exit.gd",
+    "game/route_legend.gd",
+    "design/theme/star_bazaar.tres",
+    "tools/build_theme.py",
+    "tools/tests/run_tests.gd"
+  ],
+  "open_questions": [
+    "Story designer: ids used with fallbacks, please add (list in details.missing_story_ids). TUT_G2_BUY still tells the player to press Buy.",
+    "Owner: the planet 'Buy and send to...' sets a standing buy order when the destination is chosen; 'Stop buying' appears only while that order is on. OK, or should stopping live elsewhere?",
+    "Owner: top bar has no cash-progress track under the goal line (design has one); the existing bar there is cycle progress. Keep?"
+  ],
+  "handoff": "1) Viewport 1920x1080 (macOS export has no own size). 2) Galaxy view is a full-screen opaque screen with its own starfield, top-left Back (Esc and G too), moved on top; map keys off while open; K closes it. 3/4) Theme: panels radius 10, panel-100 fill, line-200 border, fading top bar, numbers 14, small buttons 12. System screen: menu icon top-left (opens Esc menu), Skills + K and Expenses/Skill points stats in top bar, board 320px at top 76, key hints bottom-left, route legend bottom-middle, pending route hint above it, run-state card (Space) bottom-right, system name top-middle. 5) Per-resource Buy replaced by Buy and send to...; Sell kept. 6) system_exit.gd: lock, name and dotted fading line to the next locked system. Tests 450 pass. Nothing checked by eye. theme .tres hand-edited, not regenerated. No push attempted by this file.",
+  "details": {
+    "commits": "see final reply",
+    "tests_changed": [
+      "added galaxy full-screen/back checks, exit marker checks, hud checks, buy-and-send checks; no existing check changed"
+    ],
+    "missing_story_ids": [
+      "BTN_BACK",
+      "BTN_MENU",
+      "BTN_BUY_SEND",
+      "BTN_STOP_BUY",
+      "LBL_BUY_SEND_TIP",
+      "LBL_LOCKED_HOW",
+      "LBL_SYSTEM_HINT",
+      "LBL_LEGEND_WAITING",
+      "LBL_LEGEND_SHIP",
+      "LBL_PAUSED_DESC",
+      "LBL_RUNNING_DESC",
+      "LBL_NOTIFICATIONS",
+      "LBL_SHIPS",
+      "KEY_ZOOM",
+      "KEY_PAN",
+      "KEY_ORBIT",
+      "KEY_MENU"
+    ],
+    "how_to_see": "Run the game: top bar, bottom hints, run card; click a planet for Buy and send to...; press G for the galaxy screen and Back; the lock marker is at the edge of the middle area toward system 2.",
+    "not_checked_by_eye": [
+      "every screen: no running game could be seen",
+      "lock marker position and dotted line",
+      "top bar gradient and spacing at 1920x1080",
+      "planet panel height against key hints",
+      "galaxy screen margins at 1920x1080",
+      "text fit of Buy and send to... row (320 px panel)"
+    ],
+    "notes": "Expenses stat is the sum of the forecast dropdown expense lines (cash_forecast.expenses_total). Planet panel stays at x=76 (rail on the left). Not done: RoutePanel, hex ring, paused banner. Mission line wording untouched. art/planet_fx changes in the tree belong to another agent and were not committed."
+  }
+}
