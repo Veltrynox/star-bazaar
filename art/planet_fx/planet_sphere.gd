@@ -120,12 +120,12 @@ const KEY_ONLY_SHARE := 0.30
 		_apply()
 @export_group("Displacement")
 ## How strongly the height map bends the light on the surface (shader: relief).
-@export_range(0.0, 80.0) var relief: float = 36.0:
+@export_range(0.0, 80.0) var relief: float = 20.0:
 	set(v):
 		relief = v
 		_apply()
-## Vertex displacement in planet radii, total range (shader: disp_amount). 0.05 = plus/minus 2.5 percent of the radius.
-@export_range(0.0, 0.2) var disp_amount: float = 0.05:
+## Vertex displacement in planet radii, total range (shader: disp_amount). 0.03 = plus/minus 1.5 percent of the radius.
+@export_range(0.0, 0.2) var disp_amount: float = 0.03:
 	set(v):
 		disp_amount = v
 		_apply()
