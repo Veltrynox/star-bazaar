@@ -101,7 +101,7 @@ const KEY_ONLY_SHARE := 0.30
 	set(v):
 		rim_color = v
 		_apply()
-@export_range(0.0, 3.0) var rim_strength: float = 0.225:
+@export_range(0.0, 3.0) var rim_strength: float = 0.2025:
 	set(v):
 		rim_strength = v
 		_apply()
