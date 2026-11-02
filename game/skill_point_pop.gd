@@ -3,7 +3,7 @@ extends Control
 ## ring that opens and fades. Owner item 5. Never blocks clicks (mouse filter IGNORE) and fades by itself.
 ## Drawing only: no textures, no new art. Shown by main.gd through show_points().
 
-const HOLD_SECONDS := 2.2
+const HOLD_SECONDS := 5.0
 const FADE_SECONDS := 0.6
 
 var _ring_t: float = 1.0  # 0 at the start of the splash, 1 when it has finished

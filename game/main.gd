@@ -430,7 +430,10 @@ func learn_skill(id: String) -> Dictionary:
 	_sync_skill_effects()
 	_sync_closed()
 	_ensure_posts()
-	post_notice(StoryText.get_text("NOT_SKILL_LEARNED", {"skill": SkillTree.skill_name(id)}))
+	var learned_text := StoryText.get_text("NOT_SKILL_LEARNED", {"skill": SkillTree.skill_name(id)})
+	if not long_notices.has(learned_text):
+		long_notices.append(learned_text)
+	post_notice(learned_text)
 	if skill_screen != null:
 		skill_screen.refresh()
 	_after_change()
@@ -836,6 +839,8 @@ func _after_change() -> void:
 	save_now()
 
 const NOTICE_QUEUE_MAX := 6
+const LONG_NOTICE_ENDS := 2  # a "skill learned" notice stays through two cycle ends
+var long_notices: Array = []  # texts that get LONG_NOTICE_ENDS
 var notice_queue: Array = []  # texts waiting behind the one on screen
 var shown_notice: String = ""  # text on the notice line now ("" when none)
 
@@ -853,7 +858,7 @@ func post_notice(text: String) -> void:
 
 func _show_notice(text: String) -> void:
 	shown_notice = text
-	notice_ends_left = 1  # advances at the next cycle end
+	notice_ends_left = LONG_NOTICE_ENDS if long_notices.has(text) else 1  # advances at the next cycle end
 	if notice_label != null:
 		notice_label.text = text
 		notice_label.visible = true
@@ -861,6 +866,10 @@ func _show_notice(text: String) -> void:
 func _advance_notice() -> void:
 	if shown_notice == "":
 		return
+	notice_ends_left -= 1
+	if notice_ends_left > 0:
+		return
+	long_notices.erase(shown_notice)
 	if not notice_queue.is_empty():
 		_show_notice(str(notice_queue.pop_front()))
 		return
