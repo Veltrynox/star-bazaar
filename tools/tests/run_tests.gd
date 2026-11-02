@@ -1242,6 +1242,24 @@ func _test_systems() -> void:
 	check(m.storage.amount("system:2", "energy") == 0, "space: systems are separate")
 	m.storage.add("system:1", "energy", 100000)
 	check(m.storage.amount("system:1", "energy") == int(bal["space_storage_capacity"]), "space: capacity is a hard cap")
+	# T64: a Sell order draws from Space Storage (planet storage first, then the post)
+	m.storage.ensure("planet:1")
+	m.storage.stock["planet:1"]["energy"] = 0
+	m.storage.stock["system:1"]["energy"] = 30
+	m.cash = 1000
+	m.set_local_order(1, "energy", "sell", true)
+	var sr: Dictionary = m.engine.settle(m.cash)
+	var sold_n: int = 30 - m.storage.amount("system:1", "energy")
+	var paid_in := 0
+	for v in sr["local"]:
+		if str(v["role"]) == "sell" and int(v["planet"]) == 1:
+			paid_in += int(v["paid"])
+	check(sold_n > 0 and paid_in > 0, "space: a Sell order sells stock held in Space Storage and pays", "sold %d paid %d" % [sold_n, paid_in])
+	m.storage.stock["planet:1"]["energy"] = 5
+	m.storage.stock["system:1"]["energy"] = 30
+	m.engine.settle(m.cash)
+	check(m.storage.amount("planet:1", "energy") == 0 and m.storage.amount("system:1", "energy") > 30 - m.engine.local_amount() - 1, "space: planet storage is sold first", str(m.storage.amount("system:1", "energy")))
+	m.set_local_order(1, "energy", "sell", false)
 	# backup: route runs with an empty source planet storage
 	m.storage.stock["planet:0"]["energy"] = 0
 	m.storage.stock["system:1"]["energy"] = 100

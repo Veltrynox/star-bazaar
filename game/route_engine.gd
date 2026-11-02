@@ -221,7 +221,7 @@ func _local_calc(planet: int, c: String, role: String, cash: int) -> Dictionary:
 		if n <= 0:
 			return {"n": 0, "credits": 0, "state": "Not enough cash."}
 		return {"n": n, "credits": -n * price, "state": "Buying."}
-	var have: int = storage.amount(key, c)
+	var have: int = sell_available(planet, c)  # owner 2026-11-01: a Sell also draws from Space Storage
 	if have <= 0:
 		return {"n": 0, "credits": 0, "state": "Storage empty."}
 	var m: int = mini(local_amount(), have)
@@ -254,6 +254,12 @@ func src_available(rec: Dictionary) -> int:
 	var c := str(rec["c"])
 	var n: int = storage.amount(str(rec["src"]), c)
 	var sk := space_key_for(int(rec["a"]))
+	return n + (storage.amount(sk, c) if sk != "" else 0)
+
+## Stock a local Sell order can take at a planet: its storage plus the Space Storage of its system.
+func sell_available(planet: int, c: String) -> int:
+	var n: int = storage.amount(storage.planet_key(planet), c)
+	var sk := space_key_for(planet)
 	return n + (storage.amount(sk, c) if sk != "" else 0)
 
 func _dest_full(rec: Dictionary) -> bool:
@@ -378,7 +384,11 @@ func _run_local(o: Dictionary, role: String, cash: int, out: Array) -> int:
 			n = storage.add(key, c, n)  # first trade establishes the storage
 			r["credits"] = -n * local_price(planet, c, role)
 		else:
-			n = storage.remove(key, c, n)
+			var took: int = storage.remove(key, c, n)  # planet storage first, Space Storage covers the rest
+			var sk := space_key_for(planet)
+			if sk != "" and took < n:
+				took += storage.remove(sk, c, n - took)
+			n = took
 			r["credits"] = n * sold_price(planet, c)
 	o[role + "_state"] = r["state"]
 	out.append({"planet": planet, "c": c, "role": role, "n": n, "paid": int(r["credits"]), "state": r["state"]})
