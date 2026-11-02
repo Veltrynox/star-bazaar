@@ -848,6 +848,32 @@ func _test_ships() -> void:
 	var r: Dictionary = m.send_stock(0, 1, c)
 	check(r["ok"] and e.routes.size() == 1 and str(e.routes[0]["ship"]) == "small", "T58: route auto-assigned the small ship")
 	check(not m.can_connect(0, 1, c)["ok"], "T58: no free ship, no route")
+	# Send to... buys a ship when none is free (the planet panel has no separate Buy ship button)
+	var cash_before: int = m.cash
+	m.ships = 1
+	var rb: Dictionary = m.send_stock_buying(0, 2, c)
+	check(rb["ok"] and rb["bought"] and m.ships == 2 and e.routes.size() == 2 and m.cash == cash_before - int(bal["ship_price"]), "send: no free ship buys one, then makes the route")
+	m.planet_panel.show_planet(0, int(e.routes[0]["id"]))  # builds route rows, ship rows and the detail block
+	var texts: Array = []
+	var stack: Array = [m.planet_panel]
+	while not stack.is_empty():
+		var n: Node = stack.pop_back()
+		if n is Button:
+			texts.append((n as Button).text)
+		stack.append_array(n.get_children())
+	var buy_btn := false
+	for tx in texts:
+		if str(tx).begins_with("Buy a ship"):
+			buy_btn = true
+	check(not buy_btn and texts.has(StoryText.get_text("BTN_REMOVE")), "planet panel: no Buy ship button, ships have their own Remove")
+	m.cash = int(bal["ship_price"]) - 1
+	var rb2: Dictionary = m.send_stock_buying(1, 2, c)
+	check(not rb2["ok"] and m.ships == 2 and e.routes.size() == 2, "send: no free ship and no cash makes no route and buys nothing")
+	m.cash = 10000
+	var rb3: Dictionary = m.send_stock_buying(0, 0, c)
+	check(not rb3["ok"] and m.ships == 2, "send: a route that cannot be made buys no ship")
+	m.ships = 1
+	e.routes.remove_at(1)
 	var st: Dictionary = m.collect_state()
 	check(not st.has("large_ships"), "T58: save has no large_ships")
 	var hk := 0

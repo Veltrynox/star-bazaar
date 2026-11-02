@@ -128,7 +128,6 @@ func _ready() -> void:
 	income_popup.setup(map)
 	ship_panel = load("res://game/ship_panel.gd").new()
 	right_col.add_child(ship_panel)
-	planet_panel.buy_ship_requested.connect(_buy_ship)
 	ship_panel.buy_requested.connect(_buy_ship_kind)
 	mission_planet = _find_mission_planet()
 	commodities = _commodities(map.planets)
@@ -577,13 +576,15 @@ func _on_planet_clicked(index: int) -> void:
 			post_notice("Pick a different planet as the destination.")
 			return
 		else:
-			var r := send_stock(int(pending["planet"]), index, str(pending["c"]))
+			var r := send_stock_buying(int(pending["planet"]), index, str(pending["c"]))
 			if not r["ok"]:
 				post_notice(str(r["reason"]))  # pending stays so the player can pick another planet
 				return
 			var cnt: int = engine.lane_count(int(pending["planet"]), index, str(r["c"]))
 			var pending_planet: int = int(pending["planet"])
 			cancel_pending()
+			if bool(r.get("bought", false)):
+				post_notice(StoryText.get_text("NOT_SHIP_BOUGHT"))
 			post_notice(StoryText.get_text("NOT_ROUTE_MADE", {"planet_a": planet_name(int(pending_planet)), "planet_b": planet_name(index)}) if cnt <= 1 else StoryText.get_text("NOT_LANE_SHIP_ADDED"))
 			route_margin_notice(pending_planet, index, str(r["c"]))  # B1 Market Ledger
 			selected_planet = index
@@ -673,9 +674,6 @@ func _remove_requested(id: int) -> void:
 	if r["ok"]:
 		post_notice(StoryText.get_text("NOT_ROUTE_REMOVED", {"planet_a": a, "planet_b": b}))
 
-func _buy_ship() -> void:
-	_buy_ship_kind("small")
-
 func _buy_ship_kind(kind: String) -> void:
 	var r := buy_ship(kind)
 	post_notice(StoryText.get_text("NOT_SHIP_BOUGHT") if r["ok"] else str(r["reason"]))
@@ -733,6 +731,25 @@ func can_connect(src: int, dst: int, c: String) -> Dictionary:
 func send_stock(src: int, dst: int, c: String) -> Dictionary:
 	var r := _connect(src, dst, c)
 	r["c"] = c
+	return r
+
+## "Send to..." from the planet panel: one action that buys a ship when none is free, then makes the route.
+## Route problems are checked first, so no ship is bought for a route that cannot be made. {ok, reason, id, c, bought}.
+func send_stock_buying(src: int, dst: int, c: String) -> Dictionary:
+	var bought := false
+	if free_ships() <= 0:
+		var chk: Dictionary = can_connect(src, dst, c)
+		if chk["reason"] != StoryText.get_text("NOT_SHIP_FREE"):  # a route problem other than "no ship"
+			chk["c"] = c
+			chk["bought"] = false
+			return chk
+		var b := can_buy_ship("small")
+		if not b["ok"]:
+			return {"ok": false, "reason": b["reason"], "c": c, "bought": false}
+		buy_ship("small")
+		bought = true
+	var r := send_stock(src, dst, c)
+	r["bought"] = bought
 	return r
 
 ## T68: standing local order at a planet (no ship). role "buy" or "sell". Returns {ok, reason}.

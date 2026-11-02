@@ -2,11 +2,11 @@ extends PanelContainer
 const StoryText := preload("res://game/story_text.gd")
 ## T04 / T68: planet panel. Per commodity a row: name, prices, order status and Buy / Sell toggles
 ## (standing local orders, no ship needed). Company storage rows (once established) have a 5-line
-## bar and "Send to..." (creates a one-way route to another planet's storage). Then connections.
+## bar and "Send to..." (creates a one-way route to another planet's storage; it buys a ship first when none is
+## free, so there is no separate Buy ship button). Then connections: a row per route, a row per ship.
 ## Content is rebuilt on demand (planet click, any route change, cycle end), never per frame.
 ## Reads everything from main (set via setup()). Unknown values are shown as text, never invented.
 
-signal buy_ship_requested
 signal order_requested(commodity: String, role: String)  # role: "buy" or "sell" (toggles the local order)
 signal send_requested(commodity: String)  # "Send to..." on a storage row
 signal remove_requested(route_id: int)
@@ -60,14 +60,13 @@ func rebuild() -> void:
 		cancel.text = "Cancel"
 		cancel.pressed.connect(func(): main.cancel_pending())
 		box.add_child(cancel)
-	_selected_block()
 	var prices = p.get("base_prices")
 	for c in main.commodities:
 		box.add_child(_row(str(c), prices if typeof(prices) == TYPE_DICTIONARY else {}, pend))
 	_storage_section()
 	_space_section()
 	_connections()
-	_ship_button()
+	_ship_hint()
 	size = Vector2.ZERO
 
 ## Title, subtitle, planet thumbnails, Main resources row.
@@ -246,87 +245,176 @@ func _space_section() -> void:
 		row.add_child(l)
 		box.add_child(row)
 
-## T65: the connection picked by clicking its line, with Remove.
-func _selected_block() -> void:
-	if selected_route < 0:
-		return
-	for v in main.connections_at(planet_index):
-		if int(v["id"]) != selected_route:
-			continue
-		var l := _label("Selected: %s %s > %s [%s]" % [str(v["c"]).capitalize(),
-			main.planet_name(int(v["a"])), main.planet_name(int(v["b"])), v["status"]])
-		l.theme_type_variation = "LabelAccent"
-		box.add_child(l)
-		var rm := Button.new()
-		rm.theme_type_variation = "ButtonDanger"
-		rm.text = "Remove this connection"
-		var rid: int = selected_route
-		rm.pressed.connect(func(): remove_requested.emit(rid))
-		box.add_child(rm)
-		return
-	selected_route = -1
+## Real minus sign and a plus on positive numbers (design pack).
+func _signed(n: int) -> String:
+	if n > 0:
+		return "+%d" % n
+	if n < 0:
+		return "\u2212%d" % -n
+	return "0"
 
+## Connections as in the design pack: one row per route (to / from planet, net, click to open its costs), then one
+## row per ship ("Ship k of N", status, its own Remove). Records of the same lane (same source, destination, goods)
+## are the ships of one route.
 func _connections() -> void:
 	var list: Array = main.connections_at(planet_index)
-	if list.is_empty():
-		return
-	box.add_child(HSeparator.new())
-	box.add_child(_label("Connections:"))
+	var lanes: Array = []  # [{first: record view, ships: [views]}] in order of first appearance
 	for v in list:
-		var row := HBoxContainer.new()
+		var key := "%d|%d|%s" % [int(v["a"]), int(v["b"]), str(v["c"])]
+		var found := false
+		for ln in lanes:
+			if ln["key"] == key:
+				ln["ships"].append(v)
+				found = true
+				break
+		if not found:
+			lanes.append({"key": key, "ships": [v]})
+	var cap := Label.new()
+	cap.text = StoryText.get_or("LBL_CONNECTIONS", "Connections").to_upper()
+	cap.theme_type_variation = "LabelCaption"
+	box.add_child(HSeparator.new())
+	box.add_child(cap)
+	if lanes.is_empty():
+		var none := _label(StoryText.get_or("LBL_NO_ROUTES", "No routes yet."))
+		none.theme_type_variation = "LabelSmall"
+		box.add_child(none)
+		selected_route = -1
+		return
+	var selected_ok := false
+	for ln in lanes:
+		var ships: Array = ln["ships"]
+		var first: Dictionary = ships[0]
+		var out: bool = int(first["a"]) == planet_index
+		var other: String = main.planet_name(int(first["b"]) if out else int(first["a"]))
+		var net := 0
+		for s in ships:
+			net += int(s["net"])
+		var row := RouteRow.new()
+		row.tooltip_text = StoryText.get_or("LBL_ROUTE_ROW_TIP", "Show this route's costs.")
+		var ic := TextureRect.new()
+		ic.texture = Ui.icon(str(first["c"]))
+		ic.custom_minimum_size = Vector2(18, 18)
+		ic.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		ic.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		ic.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		ic.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var cc := Ui.col("commodity_" + str(first["c"]))
+		ic.modulate = cc if cc != Color.WHITE else Ui.col("ink")
+		row.add_child(ic)
 		var l := Label.new()
+		l.text = StoryText.get_or("LBL_ROUTE_TO" if out else "LBL_ROUTE_FROM", "To {planet}" if out else "From {planet}", {"planet": other})
 		l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		l.custom_minimum_size = Vector2(220, 0)
-		var dirs: String = "%s > %s" % [main.planet_name(int(v["a"])), main.planet_name(int(v["b"]))]
-		var st: String = v["status"]
-		l.text = "%s: %s [%s]" % [str(v["c"]).capitalize(), dirs, st]
-		var lane_n: int = main.engine.lane_count(int(v["a"]), int(v["b"]), str(v["c"]))
-		if lane_n > 1:  # T87
-			l.text += " " + "%s %d/%d" % [StoryText.get_text("LBL_LANE_SHIP"), main.engine.lane_index(v), lane_n]
-		if st != "running" and str(v["reason"]) != "":
-			l.text += "\n" + str(v["reason"])
-		elif st == "running":
-			var up: int = main.engine.upkeep_part()
-			var trip: int = main.engine.trip_part()
-			var paying: bool = int(v["net"]) < 0
-			l.text += "\n  %s: -%d\n  %s: -%d\n  %s: %+d/cycle" % [
-				StoryText.get_text("LBL_TRIP_COST"), trip if paying else 0,
-				StoryText.get_text("LBL_SHIP_UPKEEP"), up if paying else 0,
-				StoryText.get_text("LBL_NET"), int(v["net"])]
-		if st == "blocked":
-			l.theme_type_variation = "LabelBad"
-		elif st == "stalled":
-			l.theme_type_variation = "LabelWarn"
+		l.clip_text = true
+		l.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		row.add_child(l)
-		var rm := Button.new()
-		rm.theme_type_variation = "ButtonDanger"
-		rm.text = StoryText.get_text("BTN_REMOVE")
-		var rid: int = int(v["id"])
-		rm.pressed.connect(func(): remove_requested.emit(rid))
-		row.add_child(rm)
+		var nl := Label.new()
+		nl.text = _signed(net)
+		nl.theme_type_variation = "LabelGood" if net > 0 else ("LabelBad" if net < 0 else "LabelNumberMuted")
+		nl.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		row.add_child(nl)
+		var first_id: int = int(first["id"])
+		row.pressed.connect(func():
+			selected_route = -1 if selected_route == first_id else first_id
+			rebuild())
 		box.add_child(row)
+		for k in ships.size():
+			var v: Dictionary = ships[k]
+			box.add_child(_ship_row(v, k + 1, ships.size()))
+			if int(v["id"]) == selected_route:
+				selected_ok = true
+		if selected_route == first_id or _lane_has(ships, selected_route):
+			_route_detail(first)
+	if not selected_ok:
+		selected_route = -1
 
-func _ship_button() -> void:
+func _lane_has(ships: Array, id: int) -> bool:
+	for v in ships:
+		if int(v["id"]) == id:
+			return true
+	return false
+
+## One ship of a route: icon, "Ship k of N", status, Remove.
+func _ship_row(v: Dictionary, k: int, n: int) -> Control:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 8)
+	var pad := Control.new()
+	pad.custom_minimum_size = Vector2(12, 0)
+	row.add_child(pad)
+	var ic := TextureRect.new()
+	ic.texture = Ui.icon("ship")
+	ic.custom_minimum_size = Vector2(16, 16)
+	ic.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	ic.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	ic.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	ic.modulate = Ui.col("ink_muted")
+	row.add_child(ic)
+	var info := VBoxContainer.new()
+	info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var name_l := Label.new()
+	name_l.text = StoryText.get_or("LBL_SHIP_K_OF_N", "Ship {k} of {n}", {"k": k, "n": n})
+	info.add_child(name_l)
+	var st: String = v["status"]
+	var sl := Label.new()
+	sl.theme_type_variation = "LabelSmall"
+	sl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	sl.custom_minimum_size = Vector2(150, 0)
+	if st == "running":
+		sl.text = StoryText.get_or("LBL_SHIP_RUNNING", "Running.")
+	elif st == "stalled":
+		sl.text = StoryText.get_text("ST_WAITING_ROOM") + "."
+		sl.theme_type_variation = "LabelWarn"
+	else:
+		sl.text = str(v["reason"]) if str(v["reason"]) != "" else st.capitalize()
+		sl.theme_type_variation = "LabelBad"
+	info.add_child(sl)
+	row.add_child(info)
+	var rm := Button.new()
+	rm.theme_type_variation = "ButtonSmall"
+	rm.text = StoryText.get_text("BTN_REMOVE")
+	var rid: int = int(v["id"])
+	rm.pressed.connect(func(): remove_requested.emit(rid))
+	row.add_child(rm)
+	return row
+
+## Costs of the route picked in the list (same figures the game already used per connection).
+func _route_detail(v: Dictionary) -> void:
+	var st: String = v["status"]
+	var l := _label("")
+	l.theme_type_variation = "LabelSmall"
+	if st != "running" and str(v["reason"]) != "":
+		l.text = str(v["reason"])
+	elif st == "running":
+		var up: int = main.engine.upkeep_part()
+		var trip: int = main.engine.trip_part()
+		var paying: bool = int(v["net"]) < 0
+		l.text = "%s: \u2212%d\n%s: \u2212%d\n%s: %s / cycle" % [
+			StoryText.get_text("LBL_TRIP_COST"), trip if paying else 0,
+			StoryText.get_text("LBL_SHIP_UPKEEP"), up if paying else 0,
+			StoryText.get_text("LBL_NET"), _signed(int(v["net"]))]
+	if l.text != "":
+		box.add_child(l)
+
+## Under the actions: free ships and upkeep, and that Send to... buys a ship when none is free.
+func _ship_hint() -> void:
 	var price := int(main.balance.get("ship_price", 0))
 	var cap := int(main.balance.get("ship_cap", 0))
 	box.add_child(HSeparator.new())
-	var b := Ui.primary_button("Buy a ship (%d cr)" % price, "ship")
-	b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var free: int = main.free_ships()
+	var h := _label(StoryText.get_or("LBL_SHIPS_FREE_HINT", "Free ships: {free}. Ship upkeep {upkeep} / cycle each.",
+		{"free": free, "upkeep": main.engine.upkeep_part()}))
+	h.theme_type_variation = "LabelSmall"
+	box.add_child(h)
+	if free > 0:
+		return
 	var reason := ""
 	if main.ships >= cap:
 		reason = "Ship limit reached (%d)." % cap
 	elif main.cash < price:
 		reason = "Not enough credits."
-	b.disabled = reason != ""
-	b.tooltip_text = reason
-	b.pressed.connect(func(): buy_ship_requested.emit())
-	box.add_child(b)
-	if reason != "":
-		var n := _label(reason)
-		n.theme_type_variation = "LabelBad"
-		box.add_child(n)
-	box.add_child(_label("Ships: %d, free: %d" % [main.ships, main.free_ships()]))
+	var n := _label(reason if reason != "" else StoryText.get_or("LBL_SEND_BUYS_SHIP",
+		"No free ship. Send to... buys one for {price} credits.", {"price": price}))
+	n.theme_type_variation = "LabelBad" if reason != "" else "LabelSmall"
+	box.add_child(n)
 
 func _label(text: String) -> Label:
 	var l := Label.new()
@@ -339,6 +427,25 @@ func _txt(v) -> String:
 	if v == null:
 		return "UNKNOWN"
 	return str(v).capitalize() if str(v) != "UNKNOWN" else "UNKNOWN"
+
+## A clickable route row: hover highlights it, click emits pressed.
+class RouteRow extends HBoxContainer:
+	signal pressed
+	var _hover := false
+	func _init() -> void:
+		add_theme_constant_override("separation", 8)
+		mouse_filter = Control.MOUSE_FILTER_STOP
+		mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+		custom_minimum_size = Vector2(0, 28)
+		mouse_entered.connect(func(): _hover = true; queue_redraw())
+		mouse_exited.connect(func(): _hover = false; queue_redraw())
+	func _draw() -> void:
+		if _hover:
+			draw_rect(Rect2(Vector2(-4, 0), size + Vector2(8, 0)), Ui.col("panel_200"), true)
+	func _gui_input(event: InputEvent) -> void:
+		if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+			pressed.emit()
+			accept_event()
 
 ## Vertical rating bar: 5 stacked lines, bottom first lit, 5 lit = full storage.
 class RatingBar extends Control:
