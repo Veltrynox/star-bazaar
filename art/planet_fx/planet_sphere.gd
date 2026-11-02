@@ -42,6 +42,8 @@ enum Variant { STANDARD, FRESNEL_ONLY, CITY, PALE, STREAKS }
 ## Share of planets per look (sums to 1.0 with the city share at 0).
 const LOOK_STREAKS := 0.40
 const LOOK_FRESNEL := 0.20
+## Owner: the spinning streak shell shows only on this planet type (cloudy); hidden on every other type.
+const STREAKS_TYPE := "cloudy"
 const LOOK_PALE := 0.10
 const LOOK_CITY := 0.0
 const KEY_ONLY_SHARE := 0.30
@@ -284,8 +286,8 @@ func _apply() -> void:
 		am.set_shader_parameter("key_dir", key_dir)
 	var streaks := get_node_or_null("Streaks") as MeshInstance3D
 	if streaks:
-		# Cloudy kept the streak shell hidden while it had a glow mask; keep it hidden now the mask is gone.
-		streaks.visible = look == Variant.STREAKS and not (beauty and (tt.has("glow") or planet_type == "cloudy"))
+		# Streak shell: cloudy planets only (no glow mask on cloudy any more).
+		streaks.visible = planet_type == STREAKS_TYPE
 		var sm := streaks.get_surface_override_material(0) as ShaderMaterial
 		if sm:
 			sm.set_shader_parameter("streak_col", p.pale)
