@@ -1,0 +1,17 @@
+{
+ "schema_version": 1,
+ "agent": "ui-programmer",
+ "date": "2026-11-01",
+ "task": "pause-icon-and-nav-toggle",
+ "status": "done",
+ "files_changed": [
+  "game/main.gd",
+  "tools/tests/run_tests.gd"
+ ],
+ "open_questions": [
+  "Story: ids BTN_NAV_HIDE and BTN_NAV_SHOW are missing (tooltips use plain fallbacks 'Hide navigation' / 'Show navigation').",
+  "Owner: item 2 read as hide the left rail and the bottom-left key hints; the top bar (cash, cycle, Skills) stays. Want the top bar hidden too?",
+  "Owner: hide state lasts for the app session only, not saved to disk. Save it?"
+ ],
+ "handoff": "1) Bottom-right run card (state text, description, Space key) removed. A 32px icon button now sits at the far right of the top bar: pause bars while running, play triangle (warm tint) while paused, disabled on game over; tooltip says Pause/Resume (Space). Space still works. Icons from design/theme/icons (same as design pack). 2) New 32px toggle bottom-left (back icon to hide, chevron to show); hides left rail and key hints with the Juice enter/leave motion; key hints moved right to make room. Choice kept in a static var for the session. Tests: removed the run-card text check, added pause icon and nav toggle checks; 472 pass. Not checked by eye: top-right spacing, toggle position against key hints, motion. Git via CLT git."
+}
