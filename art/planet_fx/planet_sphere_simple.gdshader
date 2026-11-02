@@ -1,8 +1,8 @@
 shader_type spatial;
-render_mode unshaded, cull_back, depth_draw_always;
+render_mode unshaded, blend_mix, cull_back, depth_draw_always;
 // Stripped planet body: beauty map as albedo, plus the Fresnel crescent and the rim light, nothing else.
 // Key-light shadow side (soft terminator, ambient floor) and height-gradient relief on the lit side (no geometry change).
-// No clouds, no grain, no palette tint, no soft edge. The lit colour is the PNG colour
+// No clouds, no grain, no palette tint. Soft edge: alpha fades over edge_px screen pixels at the limb (same method as planet_sphere.gdshader). The lit colour is the PNG colour
 // (source_color: the sampler converts sRGB to linear, the unshaded output converts it back, so it shows as in the file).
 // The Fresnel and rim code is copied unchanged from planet_sphere.gdshader (same uniforms, same defaults).
 // The sun direction key_dir is used only to place the crescent and the rim (object space, towards the sun).
@@ -21,6 +21,7 @@ uniform bool use_disp = false;
 uniform float relief = 0.6;          // normal-map scale: how far the height gradient bends the normal (0 = flat)
 uniform float shadow_ambient = 0.07; // LINEAR floor of the dark side (0 = black, 1 = no shadow). Output is sRGB-encoded, so 0.07 shows as 0.07^(1/2.2) = 0.3 on screen
 uniform float term_soft = 0.30;      // terminator softness in dot(n, sun); wider = softer edge
+uniform float edge_px = 10.0;        // soft limb edge width in screen pixels (0 = hard edge)
 uniform float bump_gain = 1.5;       // how much the bumped normal changes the lit brightness
 
 // Cloud layer (earth-like types: lush, agrarian, ocean): screen-style light mask, the same blend as the cloud shell
@@ -96,5 +97,15 @@ void fragment() {
 	}
 	col += pale_col.rgb * fres;
 
+	// Soft edge: distance from the limb in screen pixels (view-space radius minus distance from the centre, over the pixel size).
+	float edge_a = 1.0;
+	if (edge_px > 0.0) {
+		float pix = (PROJECTION_MATRIX[3][3] > 0.5) ? 2.0 / (PROJECTION_MATRIX[1][1] * VIEWPORT_SIZE.y) : -VERTEX.z * 2.0 / (PROJECTION_MATRIX[1][1] * VIEWPORT_SIZE.y);
+		vec3 centre = (VIEW_MATRIX * MODEL_MATRIX[3]).xyz;
+		float radius = length(MODEL_MATRIX[0].xyz) * 0.5;  // mesh radius is 0.5
+		float d_px = (radius - length(VERTEX.xy - centre.xy)) / pix;
+		edge_a = smoothstep(0.0, 1.0, d_px / edge_px);
+	}
+	ALPHA = edge_a;
 	ALBEDO = min(col, vec3(2.0));
 }
