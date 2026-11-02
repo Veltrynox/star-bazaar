@@ -311,9 +311,19 @@ func _test_galaxy_view() -> void:
 		check(Rect2(Vector2.ZERO, ex.get_viewport_rect().size).has_point(lay["marker"]), "exit: a shown marker is inside the camera view", str(lay["marker"]))
 	var vw := Vector2(1920, 1080)
 	check(ex.on_screen(Vector2(900, 500), false, vw) and not ex.on_screen(Vector2(2500, 500), false, vw) and not ex.on_screen(Vector2(-10, 500), false, vw) and not ex.on_screen(Vector2(900, 500), true, vw), "exit: off screen or behind the camera hides the marker (no edge pin)")
+	var vs0: int = m.view_system
+	check(not m.go_to_system(2) and not m.enter_system_from_view(2) and m.view_system == vs0 and m.map.view_system == 1, "exit: a locked target does not move the player")
+	if not lay.is_empty():
+		var ev := InputEventMouseButton.new()
+		ev.button_index = MOUSE_BUTTON_LEFT
+		ev.pressed = true
+		ev.position = lay["marker"]
+		check(ex.hit_test(ev.position) == 2 and lay["locked"], "exit: the locked marker is hit by a click on it, shown as locked")
+		ex._input(ev)
+		check(m.view_system == 1, "exit: clicking the locked marker stays in the system")
 	m.open_systems = [1, 2]
 	await process_frame
-	check(ex.next_locked() == -1 and not ex.visible, "exit: no marker once every system is open")
+	check(ex.next_locked() == -1 and ex.markers().all(func(k): return not k["locked"]), "exit: no locked marker once every system is open")
 	m.open_systems = [1]
 	var g: Control = m.galaxy_view
 	check(g.open_view() and g.visible, "galaxy: opens with one system open")
@@ -1126,11 +1136,48 @@ func _test_systems() -> void:
 	var r: Dictionary = m.buy_permit(2)
 	check(r["ok"] and m.cash == 50 and m.skill_points == 1 and m.open_systems.has(2), "sys2: permit spends permit_2_cost and permit_points_2")
 	check(m.map.planets.size() == 7 and m.trade.planets.size() == 7 and m.events.planets.size() == 7, "sys2: planets appear everywhere")
+	var apart: bool = m.view_system == 1 and m.map.view_system == 1
+	for i in m.map.planet_spheres.size():
+		apart = apart and (m.map.planet_spheres[i].visible == (int(m.map.planets[i]["system"]) == 1))
+	check(apart, "systems: buying a permit does not show the other system's planets in the current system")
 	check(m.last_notice == StoryText.get_text("NOT_PERMIT_S2") or m.notice_queue.has(StoryText.get_text("NOT_PERMIT_S2")), "sys2: permit notice")
 	check(m.can_buy_permit(2)["reason"] == "owned" and not m.buy_permit(2)["ok"], "sys2: permit bought once")
 	check(str(m.skill_arrow_target().get("mode", "")) == "view" and m.skill_arrow_target()["system"] == 2, "arrow: permit held points at the other system")
 	m._on_skill_arrow()
 	check(m.view_system == 2 and str(m.skill_arrow_target()["mode"]) == "view" and m.skill_arrow_target()["system"] == 1, "arrow: click moves the view, arrow then points back")
+	m._refresh()
+	check(m.go_to_system(1) and m.view_system == 1 and m.map.view_system == 1, "systems: going back to system 1 works")
+	var vis_ok := true
+	for i in m.map.planet_spheres.size():
+		vis_ok = vis_ok and (m.map.planet_spheres[i].visible == (int(m.map.planets[i]["system"]) == 1)) and (m.map.planet_labels[i].visible == (int(m.map.planets[i]["system"]) == 1))
+	check(vis_ok and m.map.sun_node.visible, "systems: in system 1 only its planets and labels show")
+	check(m.map.pick_planet(m.map.camera.unproject_position(m.map.positions[3])) != 3, "systems: a hidden planet of the other system cannot be picked")
+	var ex2: Control = m.system_exit
+	var old_size := root.size
+	root.size = Vector2i(2400, 1200)  # wide enough for the marker area
+	m.map.zoom = 0.6
+	m.map.focus = Vector3(7, 0, 0)
+	m.map._update_camera()
+	await process_frame
+	var mk: Dictionary = ex2.layout()
+	check(not mk.is_empty(), "exit: with both systems in view the marker of the other system is laid out")
+	if not mk.is_empty():
+		var ev2 := InputEventMouseButton.new()
+		ev2.button_index = MOUSE_BUTTON_LEFT
+		ev2.pressed = true
+		ev2.position = mk["marker"]
+		ex2._input(ev2)
+		check(m.view_system == int(mk["sid"]) and m.map.view_system == m.view_system, "exit: clicking the arrow moves to the target system")
+		m.go_to_system(1)
+	root.size = old_size
+	check(m.enter_system_from_view(2) and m.view_system == 2 and m.map.view_system == 2, "exit: an open target moves the player on click")
+	vis_ok = true
+	for i in m.map.planet_spheres.size():
+		vis_ok = vis_ok and (m.map.planet_spheres[i].visible == (int(m.map.planets[i]["system"]) == 2))
+	check(vis_ok and not m.map.sun_node.visible, "systems: in system 2 only its planets show, not system 1 and its sun")
+	m._on_galaxy_system(1)
+	check(m.view_system == 1 and m.map.planet_spheres[0].visible and not m.map.planet_spheres[3].visible, "galaxy: choosing an open system moves there")
+	m.go_to_system(2)
 	m._refresh()
 	check(m.galaxy_button.visible and m.galaxy_view.available(), "rail: galaxy button always shown")
 	var nav_before: bool = m.nav_hidden

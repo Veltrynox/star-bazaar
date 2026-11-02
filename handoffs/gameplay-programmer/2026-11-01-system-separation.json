@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-01",
+  "task": "system-separation",
+  "status": "done",
+  "files_changed": ["game/map.gd", "game/main.gd", "game/system_exit.gd", "tools/tests/run_tests.gd"],
+  "open_questions": [
+    "Story ids NOT_SYSTEM_LOCKED and LBL_OPEN_HOW are not in the story data yet; English fallbacks are used. Doc-manager to add them?",
+    "Arrow hides when the other system is off screen (as the old lock did). Should it pin to the screen edge instead, so you can always click back?"
+  ],
+  "handoff": "Root cause: all systems lived in one 3D scene at their data x,y; buying a permit added the planets and reframed the camera to the box around all planets, so system 2 sat in system 1's view. Now map.view_system hides every planet, label, route line, sun and rings not in the current system, and picking ignores hidden planets. main.go_to_system(id) is the one move (galaxy view, skill arrow, and the 3D arrow). system_exit.gd draws an amber arrow for an open system and the grey lock for a locked one; a click on it moves, or posts a lock notice. Try: buy permit (stay in system 1, no system 2 planets), click the amber arrow or use the galaxy view to travel.",
+  "details": {"tests": "tools/tests/run.sh: 482 pass, 0 fail"}
+}
