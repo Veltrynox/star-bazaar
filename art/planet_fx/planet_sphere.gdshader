@@ -146,11 +146,10 @@ void fragment() {
 			col = mix(col, city_col.rgb * city_strength, smoothstep(0.80, 0.92, fine) * (1.0 - lit));
 		}
 
-		// Rim light: separate far-side light, added (not multiplied) so the dark side keeps a visible edge.
+		// Rim light: same moon-like crescent shape as the Fresnel (same side weight, falloff and thickness), added
+		// (not multiplied) so the edge stays visible. Uses fres_side and fres_power so the two always match.
 		if (use_rim) {
-			float nr = dot(n, -normalize(key_dir));  // the rim sits opposite the sun
-			float far = smoothstep(-0.2, 0.8, nr);
-			col += rim_color.rgb * rim_strength * far * pow(1.0 - NdV, rim_power);
+			col += rim_color.rgb * rim_strength * pow(1.0 - NdV, fres_power * mix(1.8, 0.8, side)) * side;
 		}
 	}
 
