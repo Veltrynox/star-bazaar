@@ -29,7 +29,7 @@ const NEAR_CLEAR := 1.5         # camera distance where a star is fully hidden (
 const NEAR_FULL := 8.0          # camera distance where a star reaches full brightness
 const PLANET_AREA_RADIUS := 25.0 # stars inside this radius get the brightness cap below
 const NEAR_MAX_BRIGHT := 0.6    # brightness cap for stars inside the planet area, keeps planets/labels the focus
-const MASTER_INTENSITY := 1.1   # global brightness multiplier
+const MASTER_INTENSITY := 0.55  # global brightness multiplier
 const TINT_COOL := Color(0.65, 0.78, 1.0)
 const TINT_WHITE := Color(1.0, 1.0, 1.0)
 const TINT_WARM := Color(1.0, 0.82, 0.62)
@@ -53,14 +53,14 @@ const DENSITY_NORM_PERCENTILE := 0.97  # density at this rank maps to 1.0
 # --- Halo (soft glow on the brightest few stars; same fade as the points, one extra draw call) ---
 const HALO_COUNT := 40          # how many of the brightest (post-dust) stars get a halo
 const HALO_SIZE := 4.5          # halo quad size as a multiple of the star's point size
-const HALO_INTENSITY := 0.35    # halo peak brightness (below the map glow threshold of 1.0, so it never double-blooms)
+const HALO_INTENSITY := 0.175   # halo peak brightness (below the map glow threshold of 1.0, so it never double-blooms)
 const HALO_FALLOFF := 3.0       # higher = tighter, softer core-to-edge falloff
 
 # --- Spikes (four-arm cross flare on a seeded ~10% of stars) ---
 const SPIKE_CHANCE := 0.10      # share of stars that get spikes
 const SPIKE_SEED_OFFSET := 7919 # separate RNG (SEED + this) so star positions/colours and the bake are unchanged
 const SPIKE_SIZE := 8.0         # spike quad size as a multiple of the star's point size
-const SPIKE_INTENSITY := 0.9
+const SPIKE_INTENSITY := 0.45
 const SPIKE_LENGTH_FALLOFF := 2.0  # along-arm fade (higher = shorter arms)
 const SPIKE_WIDTH := 28.0       # across-arm sharpness (higher = thinner arms)
 const SPIKE_COLOR_BLUE := Color(0.6, 0.75, 1.0)  # each spiked star gets a colour between this and white
