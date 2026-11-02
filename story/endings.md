@@ -32,7 +32,7 @@ Optional: final cash shown as END_STAT_LINE on every win screen, not used for se
 ## Release endings (Bare max 350, Partial max 700, Full max 1000; shown on the end screen)
 
 END_BARE_HANDS | Mood: plain, ironic | Name: The Cheapest Road | Bare, max 350
-You did it the plain way: buy, sell, repeat. The Release came through stamped, and the Bureau did not look up. The planet is yours, uncounted and quiet. The Commons will list you as a clerical error. You can live with that. The door is open. Walk through it.
+You did it the plain way: buy, sell, repeat. The Release came through stamped, and the Bureau did not look up. The planet is yours, uncounted and quiet. The Commons will list you as a clerical error. You were right for a simple reason, which is rarer than a clever one. The door is open. Walk through it.
 
 END_LAST_LIGHT | Mood: bittersweet | Name: The Last Light
 The Plan was almost closed. In the final cycle the numbers lined up and the goal was met with nothing to spare. The clerk stamped your Release as the lights in the office went down for the night. You earned the planet, and the memory of every cycle you spent counting. Standing on it now you feel more relief than joy, then a little more joy than you expected. Some things only count when they nearly do not.
@@ -47,7 +47,7 @@ END_SLOW_HARBOR | Mood: quiet, comforting, a little uneasy | Name: The Slow Harb
 You built a company that holds. Well-kept hulls, deep holds, goods moving on time. The cash goal came the way tides do. The Release came with a note: the Commons thanks you for your service and asks that the supply line stay open. You put down a small dock, a bench and a light on your own ground. A ship arrives every few days with exactly what you ordered. It is escape, mostly. You have never been anywhere you were so little in a hurry to leave.
 
 END_ENOUGH | Mood: reflective, balanced | Name: Enough
-You learned a little of everything and bet on nothing in particular. The goal came anyway, and with it the Release, and a planet no ledger has yet counted. Standing on it you notice the question the whole voyage was built to postpone: what is the amount that is enough? You have it now. You are not sure it was the amount you named at the start. The Commons would say enough is shared. The sky has no opinion. You sit down, and for a while decide not to count.
+You learned a little of everything and bet on nothing in particular. The goal came anyway, and with it the Release, and a planet no ledger has yet counted. Standing on it you notice the question the whole voyage was built to postpone: what is enough? Nothing is lacking to the one who has enough, the old saying goes. The Commons would say enough is shared. The sky has no opinion. You sit down, and for a while decide not to count.
 
 END_STAT_LINE | 110 | End screen, under the ending text (every win, both sides; shown before any _EPI line)
 Goal reached in cycle {cycle} with {cash} credits.
@@ -132,7 +132,7 @@ Every ending id above is stable and may be stored with the side chosen: side REL
 ## Loss ending (max 600)
 
 END_LOSS | Mood: sober, gently absorbed | Name: The Plan Closes
-The Plan closed before the goal was met. The Release was never filed. The Bureau is very kind about it. Your company is entered in the Common Ledger, your ships assigned to the common good, and your name given a quota that is fair and equal and exactly the size of everyone else's. No one is cruel. The sky is as large as it was, and it did not notice. A different company, a different run, might read the prices sooner. Count what you have. It is more than you started with, and less than you needed.
+The Plan closed before the goal was met. The Release was never filed. The Bureau is very kind about it. Your company is entered in the Common Ledger, your ships assigned to the common good, and your name given a quota that is fair and equal and exactly the size of everyone else's. No one is cruel. A clerk reads the closing form aloud and adds that nothing here was ever owed to you. The sky did not notice. Count what you have. It is more than you started with, and less than you needed.
 
 END_LOSS_STAT | 110 | End screen, under the loss text
 Cash reached: {cash}. Cash goal: {goal}.
@@ -156,7 +156,7 @@ END_TITLE_CORP | 40 | End screen heading, Corporation side
 Entered in the Common Ledger
 
 END_SIGN_REL | 140 | End screen, after the ending text and any epilogue, Release side
-The Bureau stamps the form and reaches for the next one. You are no longer on the ledger.
+The Bureau stamps the form and reaches for the next one. You are no longer on the ledger. Empty hands in, empty hands out, a little tired.
 
 END_SIGN_CORP | 140 | End screen, after the ending text and any epilogue, Corporation side
 The Bureau stamps the entry. The company stays on the ledger and the work goes on, somewhere past this page.

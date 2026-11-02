@@ -1135,7 +1135,7 @@
  },
  {
   "id": "END_BARE_HANDS",
-  "text": "You did it the plain way: buy, sell, repeat. The Release came through stamped, and the Bureau did not look up. The planet is yours, uncounted and quiet. The Commons will list you as a clerical error. You can live with that. The door is open. Walk through it.",
+  "text": "You did it the plain way: buy, sell, repeat. The Release came through stamped, and the Bureau did not look up. The planet is yours, uncounted and quiet. The Commons will list you as a clerical error. You were right for a simple reason, which is rarer than a clever one. The door is open. Walk through it.",
   "max": 350,
   "place": "Ending: The Cheapest Road"
  },
@@ -1165,7 +1165,7 @@
  },
  {
   "id": "END_ENOUGH",
-  "text": "You learned a little of everything and bet on nothing in particular. The goal came anyway, and with it the Release, and a planet no ledger has yet counted. Standing on it you notice the question the whole voyage was built to postpone: what is the amount that is enough? You have it now. You are not sure it was the amount you named at the start. The Commons would say enough is shared. The sky has no opinion. You sit down, and for a while decide not to count.",
+  "text": "You learned a little of everything and bet on nothing in particular. The goal came anyway, and with it the Release, and a planet no ledger has yet counted. Standing on it you notice the question the whole voyage was built to postpone: what is enough? Nothing is lacking to the one who has enough, the old saying goes. The Commons would say enough is shared. The sky has no opinion. You sit down, and for a while decide not to count.",
   "max": 700,
   "place": "Ending: Enough"
  },
@@ -1303,7 +1303,7 @@
  },
  {
   "id": "END_LOSS",
-  "text": "The Plan closed before the goal was met. The Release was never filed. The Bureau is very kind about it. Your company is entered in the Common Ledger, your ships assigned to the common good, and your name given a quota that is fair and equal and exactly the size of everyone else's. No one is cruel. The sky is as large as it was, and it did not notice. A different company, a different run, might read the prices sooner. Count what you have. It is more than you started with, and less than you needed.",
+  "text": "The Plan closed before the goal was met. The Release was never filed. The Bureau is very kind about it. Your company is entered in the Common Ledger, your ships assigned to the common good, and your name given a quota that is fair and equal and exactly the size of everyone else's. No one is cruel. A clerk reads the closing form aloud and adds that nothing here was ever owed to you. The sky did not notice. Count what you have. It is more than you started with, and less than you needed.",
   "max": 600,
   "place": "Ending: The Plan Closes"
  },
@@ -1327,7 +1327,7 @@
  },
  {
   "id": "END_SIGN_REL",
-  "text": "The Bureau stamps the form and reaches for the next one. You are no longer on the ledger.",
+  "text": "The Bureau stamps the form and reaches for the next one. You are no longer on the ledger. Empty hands in, empty hands out, a little tired.",
   "max": 140,
   "place": "End screen, after the ending text and any epilogue, Release side"
  },
@@ -1609,7 +1609,7 @@
  },
  {
   "id": "EV17_BODY",
-  "text": "The wreck of a hundred ships has settled into orbit over {planet}, hull plates and spent tanks turning slowly. A contractor will sweep it for a fee. The Bureau filed it as unowned, which is why it is still up there.",
+  "text": "The wreck of a hundred ships has settled into orbit over {planet}, hull plates and spent tanks turning slowly. A contractor will sweep it for a fee. The Bureau filed it as unowned, which is why it is still up there. The old fleets left their shortcuts behind.",
   "max": 280,
   "place": "choice body"
  },
@@ -1645,7 +1645,7 @@
  },
  {
   "id": "EV17_PAID",
-  "text": "The contractor swept the orbit and filed the receipt. Routes from {planet} carry their full load again. The wreck went somewhere. The receipt does not say where, and you stopped asking.",
+  "text": "The contractor swept the orbit and filed the receipt. Routes from {planet} carry their full load again. The wreck went somewhere. The receipt does not say where. The debt is real only while the paper is, and you stopped asking.",
   "max": 280,
   "place": "popup"
  },
@@ -1657,7 +1657,7 @@
  },
  {
   "id": "EV17_LEFT",
-  "text": "You left the wreck. Ships from {planet} thread around it and carry less. The offer stays open. The wreck turns slowly, in no hurry to leave. Neither are you.",
+  "text": "You left the wreck. Ships from {planet} thread around it and carry less. The offer stays open. The wreck turns slowly, a stone that has kept its place longer than any city. Neither it nor you is in a hurry.",
   "max": 280,
   "place": "popup"
  },
@@ -1705,7 +1705,7 @@
  },
  {
   "id": "EV18_BUILT",
-  "text": "The shield is up and the sky is dimmer. Residents are furious and have filed it in triplicate, in the dark. On planets you can buy later, some goods get cheaper while profit and energy climb. Planets you own are untouched.",
+  "text": "The shield is up and the sky is dimmer. Residents are furious and have filed it in triplicate, in the dark. On planets you can buy later, some goods get cheaper while profit and energy climb. Planets you own are untouched. The engineers call the slow ones to keep up.",
   "max": 280,
   "place": "popup"
  },
@@ -1717,7 +1717,7 @@
  },
  {
   "id": "EV18_SKIPPED",
-  "text": "The plans go back in a drawer. The residents are relieved and file no thanks. Nothing changes in any market.",
+  "text": "The plans go back in a drawer. The residents are relieved and file no thanks. Nothing changes in any market. An engineer asks what the rush was, and no one has an answer.",
   "max": 280,
   "place": "popup"
  },
@@ -1729,7 +1729,7 @@
  },
  {
   "id": "EV19_BODY",
-  "text": "Nomad families live on the asteroids you could mine. They are not on the Common Ledger, which the Bureau takes as a personal failing. Evict them and the rock is yours. Or let them stay, and let their lamps burn.",
+  "text": "Nomad families live on the asteroids you could mine. They are not on the Common Ledger, which the Bureau takes as a personal failing. They count their people by who shares the meal. Evict them and the rock is yours. Or let them stay, and let their lamps burn.",
   "max": 280,
   "place": "choice body"
  },
@@ -1765,7 +1765,7 @@
  },
  {
   "id": "EV19_EVICTED",
-  "text": "The nomads left on the next tide, without a word. The rock is yours to mine. Some did not go far, and now they keep ships and a grudge. Pirates rise.",
+  "text": "The nomads left on the next tide, without a word. The rock is yours to mine. Some did not go far, and now they keep ships and a grudge. Pirates rise. The empty tables were left set.",
   "max": 280,
   "place": "popup"
  },
@@ -1777,7 +1777,7 @@
  },
  {
   "id": "EV19_STAYED",
-  "text": "You let the nomads stay. Their lamps burn on the rock, small and steady. The asteroids remain closed to mining.",
+  "text": "You let the nomads stay. Their lamps burn on the rock, small and steady, and they share a meal with the first ship that docks. The asteroids remain closed to mining.",
   "max": 280,
   "place": "popup"
  },
@@ -1789,7 +1789,7 @@
  },
  {
   "id": "EV19_PIRATES",
-  "text": "Pirates now work the lanes, and fewer cargoes get through. Trade volume falls while they stay. The Bureau has opened a file on them. It is a thin file, and so is the fleet behind it.",
+  "text": "Pirates now work the lanes, and fewer cargoes get through. Trade volume falls while they stay. The Bureau has opened a file on them. It is a thin file, and so is the fleet behind it. Obedience is cheaper than love, and lasts as long.",
   "max": 280,
   "place": "popup"
  },
@@ -1813,7 +1813,7 @@
  },
  {
   "id": "EV20_BODY",
-  "text": "A rock is coming in on a slow path, and the Bureau noticed it the way it notices everything: late. The state can turn it aside for a fee. The form for refusing is shorter. The dark outside looks closer.",
+  "text": "A rock is coming in on a slow path, and the Bureau noticed it the way it notices everything: late. The state can turn it aside for a fee. The form for refusing is shorter. The dark outside looks closer. The rule says wait. The rock says otherwise.",
   "max": 280,
   "place": "choice body"
  },
@@ -1849,7 +1849,7 @@
  },
  {
   "id": "EV20_PAID",
-  "text": "The state turned the rock aside and sent a receipt. The company gains one expansion point for the trouble. The asteroid drifts on, toward someone else's sky.",
+  "text": "The state turned the rock aside and sent a receipt. The company gains one expansion point for the trouble. The asteroid drifts on, toward someone else's sky. A law is only as strong as the person who says: this is the law.",
   "max": 280,
   "place": "popup"
  },
@@ -1867,13 +1867,13 @@
  },
  {
   "id": "EV20_HIT_DESTROYED",
-  "text": "The asteroid struck {planet}. Your company storage there is gone, and what it held with it. The Bureau has recorded the loss as an adjustment of the Common Ledger. Nobody said sorry.",
+  "text": "The asteroid struck {planet}. Your company storage there is gone, and what it held with it. The Bureau has recorded the loss as an adjustment of the Common Ledger. Nobody said sorry. Death takes what a life would still have held.",
   "max": 280,
   "place": "popup"
  },
  {
   "id": "EV20_HIT_CAPACITY",
-  "text": "The asteroid grazed {planet}. Your company storage there is cracked and holds less than before. The Bureau has recorded the damage as \"partial\".",
+  "text": "The asteroid grazed {planet}. Your company storage there is cracked and holds less than before. The Bureau has recorded the damage as \"partial\". The crack runs through the wall in a straight, patient line.",
   "max": 280,
   "place": "popup"
  },
@@ -1885,7 +1885,7 @@
  },
  {
   "id": "EV20_MISS",
-  "text": "The asteroid passed the system and kept going. Nothing was hit and nothing changes. The Bureau withdrew its warning, with regret, and kept the form.",
+  "text": "The asteroid passed the system and kept going. Nothing was hit and nothing changes. The Bureau withdrew its warning, with regret, and kept the form. You could have been struck right now. Let that decide how you read the next notice.",
   "max": 280,
   "place": "popup"
  }
