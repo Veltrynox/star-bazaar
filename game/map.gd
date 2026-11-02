@@ -29,11 +29,13 @@ const PLANET_SPHERE := preload("res://art/planet_fx/planet_sphere.tscn")  # unit
 const START_YAW_DEG := 0.0
 const START_PITCH_DEG := 45.0
 const ORBIT_MOUSE_SENS := 0.3    # degrees per pixel of right-drag
+const PAN_LIMIT_MIN := 6.0       # floor for the pan limit radius (world units)
 const ORBIT_KEY_SPEED := 60.0    # degrees per second for arrow keys
 
 # T33 tunables (live-editable, runtime only, never saved)
 var zoom_min := 0.25
 var zoom_max := 3.0
+var pan_margin := 1.3             # camera focus may stray this many times the outermost planet's orbit radius from the system centre
 var yaw_min_deg := -45.0
 var yaw_max_deg := 45.0
 var pitch_min_deg := 20.0        # angle above the plane; never goes below it
@@ -311,6 +313,7 @@ func _frame_planets() -> void:
 			lo = Vector3(minf(lo.x, p.x), 0.0, minf(lo.z, p.z))
 			hi = Vector3(maxf(hi.x, p.x), 0.0, maxf(hi.z, p.z))
 		focus = (lo + hi) * 0.5
+	clamp_focus()
 
 ## T85: a permitted system appears. Appends IN PLACE (trade, events and the engine share this array)
 ## so indexes of earlier planets never change. Returns the index of the first new planet.
@@ -367,6 +370,26 @@ func focus_system(id: int) -> void:
 		first = false
 	if not first:
 		focus = (lo + hi) * 0.5
+		if id == view_system:
+			clamp_focus()
+
+## Radius (XZ plane) the camera focus may stray from the view system's centre: furthest planet from the centre x pan_margin, with a floor.
+func pan_limit() -> float:
+	var c := _system_center(view_system)
+	var far := 0.0
+	for i in planets.size():
+		if int(planets[i].get("system", 1)) == view_system and i < positions.size():
+			far = maxf(far, Vector2(positions[i].x - c.x, positions[i].z - c.z).length())
+	return maxf(far * pan_margin, PAN_LIMIT_MIN)
+
+## Keeps the focus within pan_limit() of the view system's centre, on the ground plane.
+func clamp_focus() -> void:
+	var c := _system_center(view_system)
+	var d := Vector3(focus.x - c.x, 0.0, focus.z - c.z)
+	var lim := pan_limit()
+	if d.length() > lim:
+		d = d.normalized() * lim
+		focus = Vector3(c.x + d.x, focus.y, c.z + d.z)
 
 ## Plain yellow sphere in the middle of the map (visual only, not clickable).
 func _add_sun(pos: Vector3, sys: int = 1) -> void:
@@ -544,6 +567,7 @@ func _process(delta: float) -> void:
 		var right := Vector3(cos(yaw), 0, -sin(yaw))
 		var fwd := Vector3(-sin(yaw), 0, -cos(yaw))
 		focus += (right * dir.x - fwd * dir.y) * PAN_SPEED * delta / zoom
+		clamp_focus()
 	var rot := Vector2(_axis(KEY_LEFT, KEY_RIGHT), _axis(KEY_DOWN, KEY_UP))
 	if rot != Vector2.ZERO:
 		_orbit_by(rot.x * ORBIT_KEY_SPEED * delta, rot.y * ORBIT_KEY_SPEED * delta)

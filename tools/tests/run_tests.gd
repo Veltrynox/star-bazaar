@@ -1159,6 +1159,11 @@ func _test_systems() -> void:
 		vis_ok = vis_ok and (m.map.planet_spheres[i].visible == (int(m.map.planets[i]["system"]) == 1)) and (m.map.planet_labels[i].visible == (int(m.map.planets[i]["system"]) == 1))
 	check(vis_ok and m.map.sun_node.visible, "systems: in system 1 only its planets and labels show")
 	check(m.map.pick_planet(m.map.camera.unproject_position(m.map.positions[3])) != 3, "systems: a hidden planet of the other system cannot be picked")
+	m.map.focus += Vector3(500.0, 0.0, 500.0)
+	m.map.clamp_focus()
+	var pc: Vector3 = m.map._system_center(m.map.view_system)
+	check(Vector2(m.map.focus.x - pc.x, m.map.focus.z - pc.z).length() <= m.map.pan_limit() + 0.001 and m.map.pan_limit() >= m.map.PAN_LIMIT_MIN, "camera: focus stays within the pan limit of the system centre")
+	m.map.focus_system(m.map.view_system)
 	var ex2: Control = m.system_exit
 	var old_size := root.size
 	root.size = Vector2i(2400, 1200)  # wide enough for the marker area

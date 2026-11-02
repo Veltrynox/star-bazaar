@@ -18,6 +18,7 @@ const StoryText := preload("res://game/story_text.gd")
 const MAP_TUNABLES := [
 	["zoom_min", "ZOOM_MIN", 0.05, 10.0, 0.05],
 	["zoom_max", "ZOOM_MAX", 0.1, 20.0, 0.05],
+	["pan_margin", "Pan limit margin (x outer orbit)", 1.0, 5.0, 0.05],
 	["yaw_min_deg", "Orbit yaw min (deg)", -180.0, 180.0, 1.0],
 	["yaw_max_deg", "Orbit yaw max (deg)", -180.0, 180.0, 1.0],
 	["pitch_min_deg", "Orbit pitch min (deg)", 1.0, 89.0, 1.0],
