@@ -7,7 +7,7 @@ extends SceneTree
 ##   planet_panel.order_requested (Buy / Sell standing local order toggle)
 ##   planet_panel.send_requested ("Send to..." on a storage row)
 ##   planet_panel.remove_requested (Remove on a route)
-##   planet_panel.buy_ship_requested (ship button)
+##   ship_panel.buy_requested (ship button; the planet panel Buy ship button was removed in cfd3ecc)
 ##   end_screen.chosen (Release / Stay as a Corporation buttons on the choice screen)
 ##
 ## Each cycle, while the game is paused:
@@ -120,6 +120,10 @@ var cycle_rows: Array = []  # [cycle, cash, ships, routes]
 var decision_at: Dictionary = {}  # cycle -> real player actions taken in that cycle (metrics)
 var decision_kinds: Dictionary = {}  # kind -> count (metrics)
 var event_policy := "first"  # --event-policy=first|decline
+var probe := ""  # --probe=s2: per cycle, Space Storage posts, system stock and closures (system 2 check)
+var close_at := -1  # --close-at=<cycle>: QA injection, closes the first route's source planet from that cycle
+var close_planet := -1
+var probe_rows: Array = []
 var events_resolved := 0  # events answered by _resolve_events (0 while the hook is a stub)
 
 
@@ -147,6 +151,10 @@ func _initialize() -> void:
 				only_skills = ["NONE"]
 		elif arg.begins_with("--skill-order="):
 			skill_order = _csv(arg.trim_prefix("--skill-order="))
+		elif arg.begins_with("--probe="):
+			probe = arg.trim_prefix("--probe=")
+		elif arg.begins_with("--close-at="):
+			close_at = int(arg.trim_prefix("--close-at="))
 		elif arg.begins_with("--permit="):
 			permit_sid = int(arg.trim_prefix("--permit="))
 		elif arg.begins_with("--inject="):
@@ -198,6 +206,12 @@ func _process(_delta: float) -> bool:
 
 
 func _play_cycle() -> void:
+	if close_at == main.cycle and close_planet < 0 and not main.engine.routes.is_empty():
+		# QA injection at the start of the cycle, like a real event: the same timed closure the events hook starts.
+		close_planet = int(main.engine.routes[0]["a"])
+		main.events.start_timed("QA_CLOSE", {"kind": "closed", "planet": close_planet, "c": "", "amount": 0})
+		main._sync_closed()
+		notes.append("QA closure of planet %d from cycle %d" % [close_planet, close_at])
 	main.set_paused(true)
 	var c: int = main.cycle
 	if c == inject_cycle:
@@ -419,7 +433,7 @@ func _expand(plan: Array, c: int) -> void:
 func _buy_ship_at(p: int, c: int) -> void:
 	var before: int = main.ships
 	_select(p)
-	main.planet_panel.buy_ship_requested.emit()
+	main.ship_panel.buy_requested.emit("small")
 	if main.ships > before:
 		ship_buys.append([c, p, main.ships])
 		_count("ship_buy", c)
@@ -694,6 +708,31 @@ func _on_cycle_ended(cycle: int) -> void:
 	expect_over = main.debug_force_goal or main.cash >= win_cash or cycle >= win_cycle
 	if expect_over and first_over_cycle < 0:
 		first_over_cycle = cycle
+	if probe != "":
+		probe_rows.append(_probe_row(cycle))
+
+
+## QA probe row: [cycle, cash, {sid: [open, post open]}, {sid: space stock}, {sid: planet stock}, closed planets, routes].
+func _probe_row(cycle: int) -> Array:
+	var posts := {}
+	var space := {}
+	var planet_stock := {}
+	for sid in [1, 2, 3]:
+		posts[str(sid)] = [main.open_systems.has(sid), main.space_post_open(sid)]
+	for sid in main.open_systems:
+		var key: String = main.storage.system_key(int(sid))
+		var t := 0
+		for c in main.commodities:
+			t += int(main.storage.amount(key, str(c)))
+		space[str(sid)] = t
+	for i in main.map.planets.size():
+		var sid: int = main.system_of(i)
+		var pk: String = main.storage.planet_key(i)
+		var t := 0
+		for c in main.commodities:
+			t += int(main.storage.amount(pk, str(c)))
+		planet_stock[str(sid)] = int(planet_stock.get(str(sid), 0)) + t
+	return [cycle, main.cash, posts, space, planet_stock, main.engine.closed_planets.duplicate(), main.engine.routes.size()]
 
 
 func _on_run_ended(side: String, ending_id: String) -> void:
@@ -763,7 +802,7 @@ func _finish() -> bool:
 		"skills_learned": skills_learned,
 		"skill_log": skill_log,
 		"skill_points_left": main.skill_points,
-		"permits_bought": null,  # no permit feature in this build; null, not 0, so it is not read as a result
+		"permits_bought": int(decision_kinds.get("permit_buy", 0)),
 		"dead_from_cycle": dead_from,
 		"stats_ok": stats_ok,
 		"end_screen_ok": end_screen_ok,
@@ -777,6 +816,9 @@ func _finish() -> bool:
 		"decisions_by_kind": decision_kinds,
 		"skip_skills": skip_skills,
 		"events_resolved": events_resolved,
+		"probe": probe_rows,
+		"close_at": close_at,
+		"close_planet": close_planet,
 	}
 	print("RESULT " + JSON.stringify(result))
 	quit(0)

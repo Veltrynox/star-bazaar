@@ -1,0 +1,122 @@
+[
+  {
+    "run_id": "2026-11-01-T94-and-playthroughs",
+    "seed": "1",
+    "strategy": "decent",
+    "issue_type": "harness_break",
+    "severity": "high",
+    "status": "fixed in qa/bots/bot_run.gd (this commit)",
+    "steps": "Before the fix: TAG=smoke STRATEGIES=decent SEEDS=1 EXTRA='' qa/bots/run_batch.sh <out> with the game at commit cfd3ecc or later.",
+    "expected": "decent buys ships from cycle 1 and wins at cycle 26 (END_ENOUGH, cash 9498 on seed 1, as before cfd3ecc).",
+    "actual": "0 ships, 0 routes, LOSS at cycle 30, softlock flag from cycle 1; 60 'Invalid access to property buy_ship_requested on PanelContainer (planet_panel.gd)' script errors. cfd3ecc removed the planet panel Buy ship button; the bot still called it. After the fix (ship_panel.buy_requested) decent seed 1 wins at 26 again.",
+    "owner_agent": "qa-analyst"
+  },
+  {
+    "run_id": "2026-11-01-T94-and-playthroughs",
+    "seed": "1-30 (all)",
+    "strategy": "all four",
+    "issue_type": "engine_log_noise",
+    "severity": "low",
+    "status": "open",
+    "steps": "Any headless run, e.g. TAG=nat STRATEGIES=decent SEEDS=1 qa/bots/run_batch.sh <out>; read the log.",
+    "expected": "Headless run prints no engine errors.",
+    "actual": "371 of 371 runs print 'ERROR: Condition \"ret != noErr\" is true. Returning: \"\"'. Outcomes are correct. Same as the 2026-10-31 run; cause not traced (audio or OS call in headless mode).",
+    "owner_agent": "UNKNOWN"
+  },
+  {
+    "run_id": "2026-11-01-T94-and-playthroughs",
+    "seed": "1-30 (nat); 1-10 (decline); 1-15 (permit)",
+    "strategy": "decent and always_expand",
+    "issue_type": "dominant_strategy",
+    "severity": "medium",
+    "status": "open",
+    "steps": "TAG=nat STRATEGIES='decent always_expand' SEEDS='1..30' qa/bots/run_batch.sh <out>; the same pairs in TAG=decl (--event-policy=decline) and TAG=perm (--permit=2 --skill-order=C1,C2,C4,A1,C3).",
+    "expected": "Two different expansion strategies give different outcomes, or the design says they are the same.",
+    "actual": "always_expand is identical to decent on all 55 paired seeds (same cash, cycle, ending, 4 ships). Both are capped at ship_cap (4 ships) and reach the same lanes, so the bot cannot tell them apart. Per the rule, always_expand winning 28/30 natural seeds is flagged. Not better than decent. sloppy and never_expand win 0 of 80 (0/40 natural+decline each), so no non-decent strategy dominates.",
+    "owner_agent": "economy-designer"
+  },
+  {
+    "run_id": "2026-11-01-T94-and-playthroughs",
+    "seed": "7, 20",
+    "strategy": "decent",
+    "issue_type": "pacing",
+    "severity": "medium",
+    "status": "open",
+    "steps": "TAG=nat STRATEGIES=decent SEEDS='1..30' qa/bots/run_batch.sh <out>, no force goal, alt choice.",
+    "expected": "Decent reaches the goal inside the window (cycles about 22 to 30) on most seeds; the 2026-10-31 design note says 15 of 16.",
+    "actual": "Natural decent: 28 of 30 win (2 wins at cycles 19 and 21, before cycle 22). 2 LOSS at cycle 30: seed 7 cash 7139, seed 20 cash 8454 (goal 8500). Seed 7 also loses under the closure check (TAG=close, cash 7332). Decent loses 4 of 65 decent runs.",
+    "owner_agent": "economy-designer"
+  },
+  {
+    "run_id": "2026-11-01-T94-and-playthroughs",
+    "seed": "1-15 (loss on 15)",
+    "strategy": "decent and always_expand",
+    "issue_type": "pacing",
+    "severity": "medium",
+    "status": "open",
+    "steps": "TAG=perm STRATEGIES='decent always_expand' SEEDS='1..15' EXTRA='--permit=2 --skill-order=C1,C2,C4,A1,C3' qa/bots/run_batch.sh <out>.",
+    "expected": "The system 2 permit path reaches the goal in the same window as the system 1 path, or the design says it is slower.",
+    "actual": "permits_bought = 1 in all 30 runs. Decent wins 14 of 15, all at cycles 29 or 30 (window edge). Seed 15 LOSES at cycle 30 with cash 6149 (same for always_expand).",
+    "owner_agent": "economy-designer"
+  },
+  {
+    "run_id": "2026-11-01-T94-and-playthroughs",
+    "seed": "1-3 (s2a/s2c), 1-10 (close)",
+    "strategy": "decent",
+    "issue_type": "design_gap_observed",
+    "severity": "medium",
+    "status": "open (owner design call in gdd.md)",
+    "steps": "TAG=s2c STRATEGIES=decent SEEDS='1 2 3' EXTRA='--skills=A1,B1,B2 --probe=s2 --close-at=10' qa/bots/run_batch.sh <out>; read probe rows (space stock per system).",
+    "expected": "Space Storage stock is either sold or drawn by routes, or the design says it waits for a sell path.",
+    "actual": "Space Storage stock grows and is never sold: system 1 holds 42, 46 and 67 units at the end of the seed 1, 2, 3 runs; 28 to 60 units in the 10 closure runs. 16 of 16 runs with a post end with stock above 0. Matches the open design call (gdd.md: local Sell orders read planet storage only).",
+    "owner_agent": "producer"
+  },
+  {
+    "run_id": "2026-11-01-T94-and-playthroughs",
+    "seed": "1-10",
+    "strategy": "decent",
+    "issue_type": "harness_limitation",
+    "severity": "low",
+    "status": "open (QA lane)",
+    "steps": "TAG=close STRATEGIES=decent SEEDS='1..10' EXTRA='--close-at=10 --probe=s2' qa/bots/run_batch.sh <out>.",
+    "expected": "Route income during a closure is measured (the bridge covers one closed cycle with A1).",
+    "actual": "The bot's plan drops routes at a closed planet (its profit reads 0), so routes_open falls to 0 at cycle 12 in 10 of 10 runs. Closed-planet timing is measured (closed for cycles 11 and 12 with A1, 10 to 12 without), but route income through a closure is not. Needs a sloppy-style probe (sloppy never removes its lane).",
+    "owner_agent": "qa-analyst"
+  },
+  {
+    "run_id": "2026-11-01-T94-and-playthroughs",
+    "seed": "1-10 (nat, decline, close)",
+    "strategy": "decent",
+    "issue_type": "harness_log_duplicate",
+    "severity": "low",
+    "status": "open (QA lane)",
+    "steps": "Read event_rows of any natural run that wins at cycle 23 (e.g. TAG=nat seed 9).",
+    "expected": "Each active event appears once per cycle in event_rows.",
+    "actual": "10 event instances show a cycle logged twice (ages 0,1,2,2), so a 3-cycle event looks 4 cycles long. Event durations are otherwise 3 cycles (price up and down, closed). 44 instances of 1 cycle occur only at the last logged cycle of a run (truncation, not a bug).",
+    "owner_agent": "qa-analyst"
+  },
+  {
+    "run_id": "2026-11-01-T94-and-playthroughs",
+    "seed": "n/a",
+    "strategy": "decent",
+    "issue_type": "coverage_gap",
+    "severity": "medium",
+    "status": "blocked in this sandbox",
+    "steps": "Godot 4.7.2 headless --export-release 'macOS' <scratch>/StarBazaar.app (tools/godot/Godot.app), then launch the exported binary.",
+    "expected": "A release export exists and runs; the debug menu is absent (debug_tools_allowed() is false, main.gd line ~191).",
+    "actual": "Export exits 1: the editor temp folder under /var/folders is not writable in the sandbox and code signing cannot create its entitlements file. The pck (78 MB) was written but the exported binary cannot load it. Debug-menu absence is only checked statically (menu created only when debug_tools_allowed(); force goal and debug events gated on OS.is_debug_build()).",
+    "owner_agent": "qa-analyst"
+  },
+  {
+    "run_id": "2026-11-01-T94-and-playthroughs",
+    "seed": "1-5",
+    "strategy": "decent",
+    "issue_type": "expectation_mismatch",
+    "severity": "low",
+    "status": "open",
+    "steps": "TAG=nat STRATEGIES=decent SEEDS='1..5' qa/bots/run_batch.sh <out>.",
+    "expected": "Brief for T94 expects the natural goal NOT to be reached (T54 on hold).",
+    "actual": "Decent reaches the goal in 28 of 30 natural seeds (cycles 19 to 30). The brief expectation is stale.",
+    "owner_agent": "producer"
+  }
+]
