@@ -23,6 +23,15 @@ uniform float shadow_ambient = 0.3;  // brightness floor of the dark side (0 = b
 uniform float term_soft = 0.30;      // terminator softness in dot(n, sun); wider = softer edge
 uniform float bump_gain = 1.5;       // how much the bumped normal changes the lit brightness
 
+// Cloud layer (earth-like types: lush, agrarian, ocean): screen-style light mask, the same blend as the cloud shell
+// (planet_sphere_clouds.gdshader): out = 1 - (1 - col) * (1 - mask * light); black texels add nothing. Drifts with TIME.
+uniform bool use_clouds = false;
+uniform sampler2D cloud_tex : filter_linear_mipmap, repeat_enable;  // white clouds on black, no alpha
+uniform float cloud_speed = 0.003;   // uv per second (about 5.5 minutes per lap)
+uniform float cloud_alpha = 0.9;
+uniform vec4 cloud_col : source_color = vec4(1.0, 1.0, 1.0, 1.0);
+uniform float cloud_ambient = 0.12;  // cloud brightness on the night side
+
 varying vec3 obj_n;
 
 void vertex() {
@@ -55,6 +64,17 @@ void fragment() {
 		shade *= clamp(1.0 + bump_gain * (dot(nb, k) - nk) * lit, 0.3, 1.7);
 	}
 	col *= shade;
+
+	// Clouds: screen blend of the lit cloud mask over the shaded body (sun-side gate like the cloud shell).
+	if (use_clouds) {
+		vec2 cuv = uv + vec2(TIME * cloud_speed, 0.0);
+		float c = textureGrad(cloud_tex, cuv, dx, dy).r;
+		if (use_clouds) {
+			float a = smoothstep(0.05, 0.85, c) * cloud_alpha;
+			vec3 light = cloud_col.rgb * mix(cloud_ambient, 1.0, lit);
+			col = vec3(1.0) - (vec3(1.0) - col) * (vec3(1.0) - light * a);
+		}
+	}
 
 	float NdV = clamp(dot(NORMAL, VIEW), 0.0, 1.0);
 	// Fresnel crescent: limb glow on the sun side only (unchanged).

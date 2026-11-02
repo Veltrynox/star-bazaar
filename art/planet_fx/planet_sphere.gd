@@ -9,6 +9,10 @@ extends MeshInstance3D
 ## Owner: stripped planet body (beauty map + Fresnel + rim only). false brings back clouds, streaks and ring (also set the full material in the tscn and show Glow and Atmosphere).
 const SIMPLE := true
 
+## Owner: cloud layer in the simple body for the earth-like types, storm glow for the stormy type (cloudy). Both read planet_cloud.png.
+const CLOUD_TYPES := ["lush", "agrarian", "ocean"]
+const CLOUD_TEX := "res://art/textures/planets/planet_cloud.png"
+
 const FX := preload("res://art/planet_fx/planet_fx.gd")
 
 ## Per-type surface table: beauty (colour), disp (height, relief), optional glow mask and lights mask.
@@ -282,6 +286,13 @@ func _apply() -> void:
 			m.set_shader_parameter("cloud_speed", cloud_speed)
 			m.set_shader_parameter("cloud_scale", float(cloud_scale))
 			m.set_shader_parameter("cloud_alpha", cloud_alpha)
+		if SIMPLE:
+			var cl: bool = beauty and planet_type in CLOUD_TYPES
+			m.set_shader_parameter("use_clouds", cl)
+			if cl:
+				m.set_shader_parameter("cloud_tex", cached_tex(CLOUD_TEX))
+				m.set_shader_parameter("cloud_speed", cloud_speed)
+				m.set_shader_parameter("cloud_alpha", cloud_alpha)
 		m.set_shader_parameter("use_glow_mask", beauty and tt.has("glow"))
 		m.set_shader_parameter("use_lights_mask", beauty and tt.has("lights"))
 		if beauty and tt.has("disp"):
