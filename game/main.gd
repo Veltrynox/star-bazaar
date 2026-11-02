@@ -688,13 +688,22 @@ func _on_send(c: String) -> void:
 	if storage.amount(storage.planet_key(selected_planet), c) <= 0:  # T134: allowed, but say it will wait
 		post_notice(StoryText.get_text("NOT_ROUTE_STALLED", {"commodity": c.capitalize(), "planet": planet_name(selected_planet)}))
 
-## "Buy and send to..." pressed on a resource row: like Send to..., and when the destination is chosen the planet also
-## gets a standing buy order for the goods, so the route has stock to carry.
+## Buy pressed on a resource row: a standing buy order on its own, no route and no destination needed.
+## Sending is separate (Send to... on a storage row, with or without a buy order).
 func _on_buy_send(c: String) -> void:
 	if selected_planet < 0 or game_over:
 		return
-	if not pending.is_empty() and pending["planet"] == selected_planet and pending["c"] == c and bool(pending.get("buy", false)):
+	if not pending.is_empty():
 		cancel_pending()
+	if engine.local_on(selected_planet, c, "buy"):
+		return  # already buying; Stop buying turns it off
+	var r := set_local_order(selected_planet, c, "buy", true)
+	if not r["ok"]:
+		post_notice(str(r["reason"]))
+
+## Combined path kept: buy order now plus a route once a destination is clicked.
+func begin_buy_and_send(c: String) -> void:
+	if selected_planet < 0 or game_over:
 		return
 	pending = {"planet": selected_planet, "c": c, "buy": true}
 	_pending_changed()
@@ -789,9 +798,39 @@ func can_connect(src: int, dst: int, c: String) -> Dictionary:
 	var r: Dictionary = engine.check_connection(src, dst, c)
 	if not r["ok"]:
 		return r
+	if engine.lane_full(src, dst, c):  # T145: a full lane takes an upgrade, not one more ship
+		return {"ok": false, "reason": "This lane is full. Upgrade the route instead of adding a ship."}
 	if free_ships() <= 0:
 		return {"ok": false, "reason": StoryText.get_text("NOT_SHIP_FREE")}
 	return {"ok": true, "reason": ""}
+
+## T145: Upgrade route (level 2) on a full lane. Ships and upgrades draw on the same cash.
+func can_upgrade_route(id: int) -> Dictionary:
+	if game_over:
+		return {"ok": false, "reason": "The game is over."}
+	var i: int = engine.find_by_id(id)
+	if i < 0:
+		return {"ok": false, "reason": "No such route."}
+	var r: Dictionary = engine.routes[i]
+	if int(r.get("level", 1)) >= 2:
+		return {"ok": false, "reason": "Already upgraded."}
+	if not engine.lane_full(int(r["a"]), int(r["b"]), str(r["c"])):
+		return {"ok": false, "reason": "Only a full lane can be upgraded."}
+	var cost := int(balance.get("upgrade_cost", 0))
+	if cash < cost:
+		return {"ok": false, "reason": "Not enough cash to upgrade the route (%d cr)." % cost}
+	return {"ok": true, "reason": ""}
+
+## Upgrades the whole lane of route `id` to level 2 and charges upgrade_cost once. {ok, reason}.
+func upgrade_route(id: int) -> Dictionary:
+	var r := can_upgrade_route(id)
+	if not r["ok"]:
+		return r
+	var rec: Dictionary = engine.routes[engine.find_by_id(id)]
+	cash -= int(balance.get("upgrade_cost", 0))
+	engine.set_lane_level(int(rec["a"]), int(rec["b"]), str(rec["c"]), 2)
+	_after_change()
+	return r
 
 ## One-way route that moves commodity c from the storage at `src` to the storage at `dst` (one auto-assigned ship).
 ## Returns {ok, reason, id, c}.

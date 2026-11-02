@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-02",
+  "task": "T143",
+  "status": "done",
+  "files_changed": ["game/planet_panel.gd", "tools/tests/run_tests.gd", "handoffs/ui-programmer/2026-11-02-T143.json"],
+  "open_questions": [
+    "Story-designer: new ids needed (code uses plain fallbacks now): LBL_ROUTE_PAYS ({planet}, {state}), LBL_ORDER_ON, LBL_ORDER_OFF, LBL_ROUTE_PAYS_TIP ({planet}), LBL_ROUTE_PAYS_NO.",
+    "Visual check on macOS is for the owner: line wraps beside the Sell button in the 288 px panel; not seen by eye."
+  ],
+  "handoff": "Confirmed the route row did not say this. Added a pays line under each lane row in planet_panel.gd (_pays_line): 'Pays when [planet] has a standing Sell order: on/off'. Off is shown in the bad colour with a Sell button (existing BTN_SELL) that calls main.toggle_local at the destination; disabled with a tooltip when the goods are not traded there. Line wraps, min width 150. Tests: sh tools/tests/run.sh gives 518 pass, 0 fail, including four new T143 checks. The two ERROR lines in the log (select/sh, JSON parse) are sandbox noise from the runner. No git run.",
+  "details": {"how_to_see": "Make a route, click the source planet, look under each route row in Connections."}
+}

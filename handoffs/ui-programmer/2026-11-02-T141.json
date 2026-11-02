@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-02",
+  "task": "T141",
+  "status": "done",
+  "files_changed": ["game/planet_panel.gd", "tools/tests/run_tests.gd"],
+  "open_questions": [
+    "Story-designer: tooltips for Buy toggle and the resource-row Send to... are still plain English fallbacks in code (same as the Sell tooltip style); ids needed, e.g. TIP_BUY_ORDER_OFF, TIP_BUY_ORDER_ON, TIP_SEND_ROW. The old BTN_BUY_SEND and LBL_BUY_SEND_TIP are now unused.",
+    "Owner: the resource-row Send to... uses the existing send_requested flow (moves storage stock, stalled notice if empty), the same as the storage row. Confirm that is the wanted meaning."
+  ],
+  "handoff": "Each resource row now has a Buy toggle (BTN_BUY, shows 'Buy: on' when active, press again to stop; standing order only, no destination) and a separate Send to... (BTN_SEND, existing route flow, '*' while pending). The Stop buying ghost button stays when the buy order is on. Both work independently. Not checked by eye: row width with Buy: on, Send to... and Stop buying side by side. Git not used.",
+  "details": {
+    "tests": "sh tools/tests/run.sh: 514 pass, 0 fail. Replaced the old panel test (one combined button per resource) with T141 check: one Buy and one Send to... per resource, no combined label. godot --headless --quit loads with no script errors (one unrelated macOS 'ret != noErr' line)."
+  }
+}

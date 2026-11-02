@@ -9,7 +9,7 @@ const StoryText := preload("res://game/story_text.gd")
 
 signal order_requested(commodity: String, role: String)  # role: "buy" or "sell" (toggles the local order)
 signal send_requested(commodity: String)  # "Send to..." on a storage row
-signal buy_send_requested(commodity: String)  # "Buy and send to..." on a resource row: standing buy order plus a route
+signal buy_send_requested(commodity: String)  # Buy toggle on a resource row: standing buy order only
 signal remove_requested(route_id: int)
 
 var COL_LIT: Color = Ui.col("star_warm")
@@ -188,14 +188,23 @@ func _row(c: String, prices: Dictionary, pend: Dictionary) -> Control:
 	row.add_child(sb)
 	var acts := HBoxContainer.new()
 	acts.add_theme_constant_override("separation", 8)
+	var buy_on: bool = main.engine.local_on(planet_index, c, "buy")
 	var bs := Button.new()
 	bs.theme_type_variation = "ButtonSmall"
-	var sending: bool = not pend.is_empty() and int(pend["planet"]) == planet_index and str(pend["c"]) == c and bool(pend.get("buy", false))
-	bs.text = StoryText.get_or("BTN_BUY_SEND", "Buy and send to...") + ("*" if sending else "")
+	bs.toggle_mode = true
+	bs.button_pressed = buy_on
+	bs.text = StoryText.get_text("BTN_BUY") + (": on" if buy_on else "")
 	bs.disabled = buy == null
-	bs.tooltip_text = "Not traded here." if buy == null else StoryText.get_or("LBL_BUY_SEND_TIP", "Buys this goods here every cycle and sends it to the planet you click next.")
+	bs.tooltip_text = "Not traded here." if buy == null else ("Standing buy order. Press to stop." if buy_on else "Standing buy order each cycle.")
 	bs.pressed.connect(func(): buy_send_requested.emit(c))
 	acts.add_child(bs)
+	var sd := Button.new()
+	sd.theme_type_variation = "ButtonSmall"
+	var sending: bool = not pend.is_empty() and int(pend["planet"]) == planet_index and str(pend["c"]) == c
+	sd.text = StoryText.get_text("BTN_SEND") + ("*" if sending else "")
+	sd.tooltip_text = "Move this stock to another planet's storage with a ship."
+	sd.pressed.connect(func(): send_requested.emit(c))
+	acts.add_child(sd)
 	if main.engine.local_on(planet_index, c, "buy"):
 		var stop := Button.new()
 		stop.theme_type_variation = "ButtonGhost"
@@ -338,15 +347,79 @@ func _connections() -> void:
 			selected_route = -1 if selected_route == first_id else first_id
 			rebuild())
 		box.add_child(row)
+		box.add_child(_pays_line(int(first["b"]), str(first["c"])))
 		for k in ships.size():
 			var v: Dictionary = ships[k]
 			box.add_child(_ship_row(v, k + 1, ships.size()))
 			if int(v["id"]) == selected_route:
 				selected_ok = true
+		if main.engine.lane_full(int(first["a"]), int(first["b"]), str(first["c"])):
+			box.add_child(_upgrade_line(first))
 		if selected_route == first_id or _lane_has(ships, selected_route):
 			_route_detail(first)
 	if not selected_ok:
 		selected_route = -1
+
+## T143: where the route's money lands. A route pays only when its destination has a standing Sell order for the goods.
+## One control turns that order on (the existing local-order toggle at the destination).
+func _pays_line(dest: int, c: String) -> Control:
+	var on: bool = main.engine.local_on(dest, c, "sell")
+	var row := HBoxContainer.new()
+	row.name = "PaysLine"
+	var l := Label.new()
+	var state: String = StoryText.get_or("LBL_ORDER_ON", "on") if on else StoryText.get_or("LBL_ORDER_OFF", "off")
+	l.text = StoryText.get_or("LBL_ROUTE_PAYS", "Pays when {planet} has a standing Sell order: {state}", {"planet": main.planet_name(dest), "state": state})
+	l.theme_type_variation = "LabelSmall" if on else "LabelBad"
+	l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	l.custom_minimum_size = Vector2(150, 0)
+	l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(l)
+	if not on:
+		var b := Button.new()
+		b.name = "PaysSellButton"
+		b.text = StoryText.get_text("BTN_SELL")
+		b.disabled = main.engine.check_local(dest, c, "sell")["ok"] == false
+		b.tooltip_text = StoryText.get_or("LBL_ROUTE_PAYS_TIP", "Turn on the Sell order at {planet}.", {"planet": main.planet_name(dest)}) if not b.disabled else StoryText.get_or("LBL_ROUTE_PAYS_NO", "Not traded there.")
+		b.pressed.connect(func():
+			var r: Dictionary = main.toggle_local(dest, c, "sell")
+			if not r["ok"]:
+				main.post_notice(str(r["reason"])))
+		row.add_child(b)
+	return row
+
+## T147: shown only on a full lane (the caller checks engine.lane_full). Enable and tooltip come from
+## main.can_upgrade_route; once the lane is level 2 it reads as taken.
+func _upgrade_line(first: Dictionary) -> Control:
+	var cost := int(main.balance.get("upgrade_cost", 0))
+	var bonus_pct := roundi(float(main.balance.get("upgrade_margin_bonus", 0.0)) * 100.0)
+	var row := HBoxContainer.new()
+	row.name = "UpgradeLine"
+	row.add_theme_constant_override("separation", 8)
+	var l := Label.new()
+	l.theme_type_variation = "LabelSmall"
+	l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	l.custom_minimum_size = Vector2(150, 0)
+	l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	if main.engine.lane_level(int(first["a"]), int(first["b"]), str(first["c"])) >= 2:
+		l.name = "UpgradeRouteTaken"
+		l.text = StoryText.get_or("LBL_ROUTE_UPGRADED", "Route upgraded: +{pct}% margin.", {"pct": bonus_pct})
+		row.add_child(l)
+		return row
+	l.text = StoryText.get_or("LBL_ROUTE_UPGRADE_INFO", "Full lane. Upgrade: {cost} credits for +{pct}% margin.", {"cost": cost, "pct": bonus_pct})
+	row.add_child(l)
+	var rid: int = int(first["id"])
+	var chk: Dictionary = main.can_upgrade_route(rid)
+	var b := Button.new()
+	b.name = "UpgradeRouteButton"
+	b.text = StoryText.get_or("BTN_UPGRADE_ROUTE", "Upgrade route")
+	b.disabled = not chk["ok"]
+	b.tooltip_text = StoryText.get_or("LBL_ROUTE_UPGRADE_TIP", "Raise this lane's margin for {cost} credits.", {"cost": cost}) if chk["ok"] else str(chk["reason"])
+	b.pressed.connect(func():
+		var r: Dictionary = main.upgrade_route(rid)
+		if not r["ok"]:
+			main.post_notice(str(r["reason"])))
+	row.add_child(b)
+	return row
 
 func _lane_has(ships: Array, id: int) -> bool:
 	for v in ships:

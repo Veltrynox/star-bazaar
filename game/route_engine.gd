@@ -64,6 +64,40 @@ func lane_count(src_planet: int, dst_planet: int, c: String) -> int:
 			n += 1
 	return n
 
+## T145: a lane is full when its ships already move all that the source's standing Buy order can feed
+## per cycle (ships x units per cycle >= local_amount). Another ship would add nothing; the route is upgraded instead.
+func lane_full(src_planet: int, dst_planet: int, c: String) -> bool:
+	var n := lane_count(src_planet, dst_planet, c)
+	return n > 0 and n * units_per_cycle() >= local_amount()
+
+## T145: route level of a lane (all ships of a lane share one level).
+func lane_level(src_planet: int, dst_planet: int, c: String) -> int:
+	var lv := 1
+	for r in routes:
+		if r["a"] == src_planet and r["b"] == dst_planet and r["c"] == c:
+			lv = maxi(lv, int(r.get("level", 1)))
+	return lv
+
+## T145: true when the lane is full and still below the top tuned level (2): the route offers "Upgrade route".
+func lane_upgrade_offered(src_planet: int, dst_planet: int, c: String) -> bool:
+	return lane_full(src_planet, dst_planet, c) and lane_level(src_planet, dst_planet, c) < 2
+
+## T145: sets every ship of the lane to the level.
+func set_lane_level(src_planet: int, dst_planet: int, c: String, level: int) -> void:
+	for r in routes:
+		if r["a"] == src_planet and r["b"] == dst_planet and r["c"] == c:
+			r["level"] = level
+
+## T145: extra credits a delivery of `units` earns from the route level: per-unit margin x upgrade_margin_bonus x (level - 1).
+func level_bonus(rec: Dictionary, units: int) -> int:
+	var lv := int(rec.get("level", 1))
+	if lv < 2 or units <= 0:
+		return 0
+	var per: int = sold_price(int(rec["b"]), str(rec["c"])) - local_price(int(rec["a"]), str(rec["c"]), "buy")
+	if per <= 0 or local_price(int(rec["a"]), str(rec["c"]), "buy") < 0:
+		return 0
+	return roundi(float(units * per) * float(balance.get("upgrade_margin_bonus", 0.0)) * float(lv - 1))
+
 ## T87: 1-based position of this record among the ships of its lane.
 func lane_index(rec: Dictionary) -> int:
 	var n := 0
@@ -180,12 +214,15 @@ func sold_price(planet: int, c: String) -> int:
 	return p
 
 ## Credits per cycle a route earns on this lane: units a ship moves times (sell price at the far end, with B3, minus buy price here).
-func route_margin(src: int, dst: int, c: String) -> int:
+func route_margin(src: int, dst: int, c: String, level: int = 1) -> int:
 	var b: int = trade.price(src, c + "_buy")
 	var s: int = sold_price(dst, c)
 	if b < 0 or s < 0:
 		return 0
-	return units_per_cycle() * (s - b)
+	var m: int = units_per_cycle() * (s - b)
+	if level >= 2 and m > 0:  # T145: route upgrade
+		m = roundi(float(m) * (1.0 + float(balance.get("upgrade_margin_bonus", 0.0)) * float(level - 1)))
+	return m
 
 ## B1 Market Ledger: true when the lane earns less per cycle than it costs (trip and upkeep).
 func margin_below_upkeep(src: int, dst: int, c: String) -> bool:
@@ -340,7 +377,8 @@ func settle(cash: int) -> Dictionary:
 	for rec in routes:  # 2 routes
 		var was: String = str(rec["state"])
 		var paid := _settle_one(rec, cash + delta)
-		delta += paid
+		var bonus := int(rec.get("bonus", 0))
+		delta += paid + bonus
 		if paid < 0:
 			upkeep_paid += upkeep_part(rec)
 		if rec["state"] == "blocked" and was != "blocked":
@@ -349,7 +387,7 @@ func settle(cash: int) -> Dictionary:
 			newly_stalled.append(rec)
 		rec["fresh"] = 1.0
 		results.append({"id": rec["id"], "a": rec["a"], "b": rec["b"], "c": rec["c"], "ships": 1,
-			"net": paid, "paid": paid, "status": rec["state"], "reason": rec["reason"]})
+			"net": paid + bonus, "paid": paid + bonus, "status": rec["state"], "reason": rec["reason"]})
 	for o in orders:  # 3 local sells
 		if o["sell"]:
 			delta += _run_local(o, "sell", cash + delta, loc)
@@ -395,6 +433,7 @@ func _run_local(o: Dictionary, role: String, cash: int, out: Array) -> int:
 	return int(r["credits"])
 
 func _settle_one(rec: Dictionary, cash: int) -> int:
+	rec["bonus"] = 0
 	var c := str(rec["c"])
 	var src := str(rec["src"])
 	var dst := str(rec["dst"])
@@ -430,6 +469,7 @@ func _settle_one(rec: Dictionary, cash: int) -> int:
 	if from_planet < moved and sk != "":
 		from_planet += storage.remove(sk, c, moved - from_planet)
 	storage.add(dst, c, from_planet)
+	rec["bonus"] = level_bonus(rec, from_planet)  # T145: credited by settle() on top of the ship cost
 	rec["state"] = "running"
 	rec["reason"] = ""
 	return -fixed

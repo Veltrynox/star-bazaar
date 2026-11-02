@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-02",
+  "task": "T140",
+  "status": "done",
+  "files_changed": ["game/main.gd", "tools/tests/run_tests.gd"],
+  "open_questions": ["T141: the resource-row button is still labelled BTN_BUY_SEND 'Buy and send to...' and its tooltip says it sends; it now only sets the standing buy order. Relabel to BTN_BUY (story-designer may need a tooltip id). Panel signal is still buy_send_requested."],
+  "handoff": "Pressing the resource-row button (_on_buy_send) now sets a standing buy order at once: no pending state, no destination click. Sending is separate: Send to... on a storage row works with or without a buy order (existing flow, unchanged, stalled notice if empty). The old combined path is kept as main.begin_buy_and_send(c) (pending with buy flag, _on_planet_clicked unchanged); no UI button calls it now. Save/load shape unchanged; no numbers or text changed. Tests: sh tools/tests/run.sh, 514 pass, 0 fail; godot --headless --quit loads clean.",
+  "details": {
+    "tests": "T140 check: Buy alone sets order, no pending, route count unchanged. Idle test: buy order fills storage (stock 40) with no route. Existing send_stock tests cover route with no buy order. Combined path tests (buy and send, energy then food) switched to begin_buy_and_send and pass."
+  }
+}

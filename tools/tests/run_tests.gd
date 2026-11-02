@@ -753,6 +753,15 @@ func _labels(n: Node, out: Array) -> Array:
 	return out
 
 
+func _find_named(n: Node, nm: String) -> Node:
+	for ch in n.get_children():
+		if ch.name == nm and not ch.is_queued_for_deletion():
+			return ch
+		var f := _find_named(ch, nm)
+		if f != null:
+			return f
+	return null
+
 func _texts(n: Node) -> Array:
 	var out := []
 	for l in _labels(n, []):
@@ -869,6 +878,53 @@ func _test_rescue_waiting() -> void:
 	var rr: Dictionary = e.settle(5000)
 	check(st.amount(b_key, c) == pool, "T87: two ships move the shared pool, never more than it holds", "moved=%d pool=%d" % [st.amount(b_key, c), pool])
 	check(int(rr["gross"]) - int(rr["delta"]) >= 0 and e.routes.size() == 2, "T87: both ships kept")
+	# T145: a full lane gets the upgrade and the margin rises
+	e.local.clear()
+	e.routes = []
+	var n_full: int = ceili(float(e.local_amount()) / float(maxi(1, e.units_per_cycle())))
+	for k in n_full:
+		var fr: Dictionary = e.new_record(0, 1, c)
+		fr["id"] = 21 + k
+		e.routes.append(fr)
+	m.ships = n_full + 1
+	m.cash = 5000
+	check(e.lane_full(0, 1, c) and e.lane_upgrade_offered(0, 1, c), "T145: lane is full and offers the upgrade")
+	check(not m.can_connect(0, 1, c)["ok"], "T145: a full lane refuses one more ship")
+	var m1: int = e.route_margin(0, 1, c)
+	var cost: int = int(m.balance["upgrade_cost"])
+	# T147: button on a full lane, absent on a lane that is not full, taken after the upgrade
+	m.planet_panel.show_planet(0, 21)
+	var ub: Button = _find_named(m.planet_panel, "UpgradeRouteButton") as Button
+	check(ub != null and not ub.disabled and _find_named(m.planet_panel, "UpgradeRouteTaken") == null, "T147: full lane shows an enabled Upgrade route button")
+	m.cash = cost - 1
+	m.planet_panel.show_planet(0, 21)
+	ub = _find_named(m.planet_panel, "UpgradeRouteButton") as Button
+	check(ub != null and ub.disabled and ub.tooltip_text != "", "T147: button disabled with a reason when cash is short")
+	m.cash = 5000
+	var short0: Dictionary = e.new_record(2, 3, c)
+	short0["id"] = 41
+	e.routes.append(short0)
+	m.planet_panel.show_planet(2, 41)
+	check(_find_named(m.planet_panel, "UpgradeRouteButton") == null and _find_named(m.planet_panel, "UpgradeLine") == null, "T147: a lane that is not full shows no upgrade button")
+	e.routes.erase(short0)
+	m.planet_panel.show_planet(0, 21)
+	(_find_named(m.planet_panel, "UpgradeRouteButton") as Button).pressed.emit()
+	check(e.lane_level(0, 1, c) == 2 and m.cash == 5000 - cost, "T147: pressing the button upgrades the lane")
+	m.cash = 5000 + cost  # restore for the checks below
+	e.set_lane_level(0, 1, c, 1)
+	m.cash = 5000
+	var up: Dictionary = m.upgrade_route(21)
+	m.planet_panel.show_planet(0, 21)
+	check(_find_named(m.planet_panel, "UpgradeRouteButton") == null and _find_named(m.planet_panel, "UpgradeRouteTaken") != null, "T147: upgraded lane shows it as taken, no button")
+	check(up["ok"] and m.cash == 5000 - cost and e.lane_level(0, 1, c) == 2, "T145: upgrade charges upgrade_cost once and sets level 2", str(up))
+	var m2: int = e.route_margin(0, 1, c, 2)
+	if m1 > 0:
+		check(m2 > m1 and m2 == roundi(float(m1) * (1.0 + float(m.balance["upgrade_margin_bonus"]))), "T145: margin rises by upgrade_margin_bonus", "%d -> %d" % [m1, m2])
+	check(not m.upgrade_route(21)["ok"] and not e.lane_upgrade_offered(0, 1, c), "T145: no second upgrade")
+	var short: Dictionary = e.new_record(2, 3, c)
+	short["id"] = 40
+	e.routes.append(short)
+	check(not e.lane_full(2, 3, c) and not m.upgrade_route(40)["ok"], "T145: a lane that is not full cannot be upgraded")
 	await _free_main(m)
 	_wipe_user()
 
@@ -1039,14 +1095,27 @@ func _test_ships() -> void:
 		if str(tx).begins_with("Buy a ship"):
 			buy_btn = true
 	check(not buy_btn and texts.has(StoryText.get_text("BTN_REMOVE")), "planet panel: no Buy ship button, ships have their own Remove")
-	var plain_buy := false
+	var buys := 0
+	var sends := 0
 	var combined := 0
 	for tx in texts:
-		if str(tx).begins_with(StoryText.get_text("BTN_BUY")) and not str(tx).begins_with(StoryText.get_or("BTN_BUY_SEND", "Buy and send to...")):
-			plain_buy = true
-		if str(tx).begins_with(StoryText.get_or("BTN_BUY_SEND", "Buy and send to...")):
+		var t := str(tx)
+		if t.begins_with(StoryText.get_or("BTN_BUY_SEND", "Buy and send to...")):
 			combined += 1
-	check(not plain_buy and combined == m.commodities.size(), "planet panel: no separate Buy button, one Buy and send to per resource")
+		elif t.begins_with(StoryText.get_text("BTN_BUY")):
+			buys += 1
+		if t.begins_with(StoryText.get_text("BTN_SEND")):
+			sends += 1
+	check(combined == 0 and buys == m.commodities.size() and sends >= m.commodities.size(), "T141 planet panel: separate Buy toggle and Send to... per resource, no combined button")
+	# T143: each route row says where its money lands, with a control to turn the destination Sell order on
+	var pays := _find_named(m.planet_panel, "PaysLine")
+	check(pays != null and _find_named(pays, "PaysSellButton") != null, "T143: route row has a pays line with a Sell control while the destination Sell is off")
+	var dst: int = int(e.routes[0]["b"])
+	check(not m.engine.local_on(dst, c, "sell"), "T143: destination Sell starts off")
+	(_find_named(pays, "PaysSellButton") as Button).pressed.emit()
+	check(m.engine.local_on(dst, c, "sell"), "T143: the control turns the destination Sell order on")
+	m.planet_panel.show_planet(0, int(e.routes[0]["id"]))
+	check(_find_named(m.planet_panel, "PaysSellButton") == null or _find_named(m.planet_panel, "PaysSellButton") != _find_named(pays, "PaysSellButton"), "T143: panel rebuilt after toggle")
 	m.cash = int(bal["ship_price"]) - 1
 	var rb2: Dictionary = m.send_stock_buying(1, 2, c)
 	check(not rb2["ok"] and m.ships == 2 and e.routes.size() == 2, "send: no free ship and no cash makes no route and buys nothing")
@@ -1055,6 +1124,9 @@ func _test_ships() -> void:
 	check(not rb3["ok"] and m.ships == 2, "send: a route that cannot be made buys no ship")
 	m.selected_planet = 1
 	m._on_buy_send(c)
+	check(m.pending.is_empty() and e.local_on(1, c, "buy") and e.routes.size() == 2, "T140: Buy alone sets a standing buy order, no route, no destination")
+	m.set_local_order(1, c, "buy", false)
+	m.begin_buy_and_send(c)
 	check(not m.pending.is_empty() and bool(m.pending["buy"]) and not e.local_on(1, c, "buy"), "buy and send: waits for a destination, no order yet")
 	m._on_planet_clicked(2)
 	check(m.pending.is_empty() and e.routes.size() == 3 and e.local_on(1, c, "buy"), "buy and send: destination makes the route and the standing buy order")
@@ -1497,7 +1569,7 @@ func _test_idle_actions() -> void:
 	var cash0: int = m.cash
 	m._end_cycle()
 	var stock: int = m.storage.amount(key, "energy")
-	check(stock > 0 and m.cash < cash0, "idle: Buy order fills storage and spends credits (stock %d)" % stock)
+	check(stock > 0 and m.cash < cash0, "idle: Buy order fills storage and spends credits (stock %d) [T140: buy alone, no route]" % stock)
 	m.set_local_order(0, "energy", "buy", false)
 	var sell: Dictionary = m.set_local_order(0, "energy", "sell", true)
 	check(sell["ok"], "idle: a Sell order at the stocked planet is accepted")
@@ -1814,19 +1886,19 @@ func _test_energy_then_food() -> void:
 	var e = m.engine
 	# The first route buys the first ship; the second ship is not affordable yet (cash set just below ship_price).
 	m.selected_planet = 0
-	m._on_buy_send("energy")
+	m.begin_buy_and_send("energy")
 	m._on_planet_clicked(1)
 	check(e.routes.size() == 1 and m.pending.is_empty(), "energy then food: energy route made, nothing pending")
 	m.cash = int(m.balance["ship_price"]) - 1  # one credit short of a second ship (start cash alone buys two at ship_price 900)
 	m.selected_planet = 1
-	m._on_buy_send("food")
+	m.begin_buy_and_send("food")
 	m._on_planet_clicked(0)
 	check(e.routes.size() == 1 and not m.pending.is_empty() and m.shown_notice.begins_with("Not enough cash for a new ship"), "energy then food: no cash for a second ship shows the reason at once, not behind Route made", m.shown_notice)
 	m.cancel_pending()
 	# With the cash for a second ship the food route back is made (same pair, other commodity).
 	m.cash = 10000
 	m.selected_planet = 1
-	m._on_buy_send("food")
+	m.begin_buy_and_send("food")
 	m._on_planet_clicked(0)
 	check(e.routes.size() == 2 and str(e.routes[1]["c"]) == "food" and int(e.routes[1]["a"]) == 1 and int(e.routes[1]["b"]) == 0 and m.pending.is_empty(), "energy then food: food route back is made")
 	m.selected_planet = 0

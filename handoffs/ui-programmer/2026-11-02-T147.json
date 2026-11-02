@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-02",
+  "task": "T147",
+  "status": "done",
+  "files_changed": ["game/planet_panel.gd", "tools/tests/run_tests.gd", "handoffs/ui-programmer/2026-11-02-T147.json"],
+  "open_questions": [
+    "story-designer: new ids needed, currently plain fallbacks in code: BTN_UPGRADE_ROUTE (button, 'Upgrade route'), LBL_ROUTE_UPGRADE_INFO (needs {cost}, {pct}), LBL_ROUTE_UPGRADE_TIP (needs {cost}), LBL_ROUTE_UPGRADED (needs {pct}; the 'taken' line). Disabled reasons come from main.can_upgrade_route, which are English strings in main.gd, not story ids (gameplay-programmer).",
+    "Owner questions on bonus meaning and full-lane definition are still open. The panel reads only engine.lane_full, engine.lane_level, main.can_upgrade_route, upgrade_cost and upgrade_margin_bonus, so it follows any change there. The bonus shows as a percent of margin (+25%).",
+    "Cash forecast and route-row payout still do not include the bonus (T145 question 3). Not changed here."
+  ],
+  "handoff": "Planet panel: each lane whose engine.lane_full is true gets an upgrade line under its ship rows (before the cost detail). Level 1: small text with cost and bonus percent, plus an 'Upgrade route' button; disabled with the can_upgrade_route reason as tooltip when it fails (for example short of cash). Level 2: the line reads as taken, no button. Lanes that are not full show nothing. Pressing calls main.upgrade_route; a refusal goes to post_notice. See it: debug menu, set ships, make 3 energy routes on one lane (full at 16 units x 3 vs 40), open the source planet. Not checked by eye: line width and wrapping in the 320 px panel.",
+  "details": {
+    "tested": "sh tools/tests/run.sh: 529 pass, 0 fail (5 new T147 checks: enabled on full lane, disabled with reason when cash short, absent on non-full lane, press upgrades, taken after upgrade). Headless project load shows no script errors (only a macOS noErr line from the sandbox).",
+    "not_checked_by_eye": ["planet panel upgrade line layout"],
+    "git": "Git not used in the sandbox; nothing committed."
+  }
+}

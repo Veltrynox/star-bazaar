@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-02",
+  "task": "T145",
+  "status": "done",
+  "files_changed": ["game/route_engine.gd", "game/main.gd", "tools/tests/run_tests.gd"],
+  "open_questions": [
+    "UNKNOWN lane cap: the build had no lane cap (T87 allows many ships per lane; the sim assumes one). I defined 'full' as ships x units_per_cycle >= local_amount (the Buy order that feeds it, 40 per cycle = 3 ships at 16 units). Owner/economy: confirm, or re-run the sim with this cap (the sim cap is one ship per lane).",
+    "Route income is paid only by Sell orders, so the margin bonus is paid as extra credits on delivery: units moved x (sell price at destination - buy price at source) x 0.25. Is that the intended meaning?",
+    "Cash forecast and route-row payout_of do not yet show the bonus (kept unchanged so upkeep checks do not flip). Ask ui-programmer in T147?"
+  ],
+  "handoff": "Full lane now offers an upgrade instead of a ship. Engine: lane_full, lane_level, lane_upgrade_offered, set_lane_level, level_bonus; route_margin takes an optional level. Main: can_upgrade_route(id), upgrade_route(id) charges upgrade_cost once and sets level 2 on every ship of the lane. can_connect refuses another ship on a full lane with a reason that points to the upgrade. settle() credits level_bonus on delivery. Level saves through the existing record. UI button is T147. Try: debug menu sets ships, or run the test; headless test T145 (6 checks) passes, full suite 524 pass 0 fail, project loads with no script errors.",
+  "details": {"tested": "sh tools/tests/run.sh (524 pass, 0 fail); godot --headless --quit shows no script errors"}
+}
