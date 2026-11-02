@@ -620,7 +620,7 @@ func _on_planet_clicked(index: int) -> void:
 		else:
 			var r := send_stock_buying(int(pending["planet"]), index, str(pending["c"]))
 			if not r["ok"]:
-				post_notice(str(r["reason"]))  # pending stays so the player can pick another planet
+				post_notice_now(str(r["reason"]))  # pending stays so the player can pick another planet
 				return
 			var cnt: int = engine.lane_count(int(pending["planet"]), index, str(r["c"]))
 			var pending_planet: int = int(pending["planet"])
@@ -773,7 +773,7 @@ func can_buy_ship(kind: String = "small") -> Dictionary:
 	if ships >= int(balance.get("ship_cap", 0)):
 		return {"ok": false, "reason": "Ship cap reached."}
 	if cash < Ships.price(kind, balance):
-		return {"ok": false, "reason": "Not enough cash for a ship."}
+		return {"ok": false, "reason": "Not enough cash for a new ship (%d cr). Each route needs its own ship; wait for income or remove a route." % Ships.price(kind, balance)}
 	return {"ok": true, "reason": ""}
 
 ## T58: auto-assignment. One ship type remains (small).
@@ -937,6 +937,14 @@ func post_notice(text: String) -> void:
 			if notice_queue.size() > NOTICE_QUEUE_MAX:
 				notice_queue.pop_front()
 	else:
+		_show_notice(text)
+	notice_posted.emit(text)
+
+## A refusal the player just caused: shown at once (notices otherwise advance only at a cycle end, so the
+## refusal sat in the queue behind "Route made" and the click looked dead).
+func post_notice_now(text: String) -> void:
+	last_notice = text
+	if shown_notice != text:
 		_show_notice(text)
 	notice_posted.emit(text)
 

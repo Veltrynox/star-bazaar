@@ -36,6 +36,7 @@ func _run() -> void:
 	await _test_systems()
 	await _test_galaxy_view()
 	_test_route_tag()
+	await _test_energy_then_food()
 	await _test_system_suns()
 	await _test_shield()
 	await _test_asteroid()
@@ -1787,3 +1788,31 @@ func _test_system_suns() -> void:
 	check(s2.visible and not s1.visible and map.orbit_rings[2].visible and not map.orbit_rings[1].visible, "suns: view of system 2 shows only its sun")
 	check(s1.position == pos1 and absf(s1.hue_shift()) < 0.0001, "suns: system 1 sun unmoved and unshifted after system 2 opens")
 	await _free_main(m)
+
+## Owner bug: after an energy route, the food route back between the same two planets must be possible.
+func _test_energy_then_food() -> void:
+	var m: Control = await _new_main()
+	m._dismiss_preface()
+	var e = m.engine
+	# Real start cash (1800): the first route buys the first ship, the second ship is not affordable yet.
+	m.selected_planet = 0
+	m._on_buy_send("energy")
+	m._on_planet_clicked(1)
+	check(e.routes.size() == 1 and m.pending.is_empty(), "energy then food: energy route made, nothing pending")
+	m.selected_planet = 1
+	m._on_buy_send("food")
+	m._on_planet_clicked(0)
+	check(e.routes.size() == 1 and not m.pending.is_empty() and m.shown_notice.begins_with("Not enough cash for a new ship"), "energy then food: no cash for a second ship shows the reason at once, not behind Route made", m.shown_notice)
+	m.cancel_pending()
+	# With the cash for a second ship the food route back is made (same pair, other commodity).
+	m.cash = 10000
+	m.selected_planet = 1
+	m._on_buy_send("food")
+	m._on_planet_clicked(0)
+	check(e.routes.size() == 2 and str(e.routes[1]["c"]) == "food" and int(e.routes[1]["a"]) == 1 and int(e.routes[1]["b"]) == 0 and m.pending.is_empty(), "energy then food: food route back is made")
+	m.selected_planet = 0
+	m._on_send("food")
+	m._on_planet_clicked(1)
+	check(e.routes.size() == 3 and str(e.routes[2]["c"]) == "food", "energy then food: food route in the energy direction is made too")
+	await _free_main(m)
+	_wipe_user()
