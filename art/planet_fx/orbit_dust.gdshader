@@ -8,10 +8,10 @@ uniform float tex_in = 0.38;       // band edges mapped onto the part of the PNG
 uniform float tex_out = 0.96;
 uniform float alpha = 0.5;         // overall faintness
 uniform float ring_width = 0.5;    // world width of the band (same as the mesh; kept for tests and tuning)
-uniform float speed = 0.005;       // drift: turns per second around the orbit
+uniform float speed = 0.0;         // unused: the ring is static (kept at 0 so the parameter stays readable)
 
 void fragment() {
-	float ang = UV.x * TAU + TIME * speed * TAU;   // a circular image has no seam
+	float ang = UV.x * TAU;   // fixed angle, no rotation; a circular image has no seam
 	vec2 uv = 0.5 + 0.5 * mix(tex_in, tex_out, UV.y) * vec2(cos(ang), sin(ang));
 	vec3 tex = texture(ring_tex, uv).rgb;
 	float edge = smoothstep(0.0, 0.2, UV.y) * smoothstep(1.0, 0.8, UV.y);  // soft inner and outer falloff

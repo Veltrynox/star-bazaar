@@ -1536,7 +1536,7 @@ func _test_planet_size() -> void:
 		return map.orbit_rings[sys].get_node("OrbitDust").material_override
 	check(absf(map.planet_scale - 1.3) < 0.0001 and absf(map.planet_radius() - 0.8 * 1.3) < 0.0001, "size: planets default to x1.3", "scale=%f" % map.planet_scale)
 	check(absf(dust.call(1).get_shader_parameter("ring_width") - 1.875 * map.planet_radius()) < 0.0001, "size: dust band is 3 x the old width, at the new size")
-	check(absf(dust.call(1).get_shader_parameter("speed") - 0.005) < 0.0001, "size: dust drifts 4 x slower (0.005)")
+	check(absf(dust.call(1).get_shader_parameter("speed")) < 0.0001, "size: dust ring is static (speed 0)")
 	var ratio0: float = map.label_drop() / map.planet_radius()
 	var route_r0: float = map.route_lines.values()[0].radius if not map.route_lines.is_empty() else -1.0
 	m.debug_menu._set_planet_scale(2.0)

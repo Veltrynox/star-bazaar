@@ -55,12 +55,10 @@ var planets: Array = []
 var view_system := 1  # each solar system is its own space: only this system's planets, routes and sun are shown
 const BELT_INNER := 1.7   # clear of the glow shell (1.12) and the pick halo (up to 1.46), in planet radii
 const BELT_OUTER := 2.9   # belt width x2: was 1.7 to 2.3 (0.6 wide), now 1.7 to 2.9 (1.2 wide); inner edge unchanged so it stays clear of the glow and halo
-const BELT_SPIN := 0.0075  # turns per second about the planet's axis (shader time, no per-frame code)
-## Flat ring quad with a circular mask. The asteroid ring PNG is sampled by (radius, angle + TIME), so the belt turns on the GPU.
+## Flat ring quad with a circular mask. The asteroid ring PNG is sampled by (radius, angle), static.
 const BELT_SHADER := """shader_type spatial;
 render_mode unshaded, blend_mix, cull_disabled, depth_draw_never;
 uniform float inner = 0.74;      // inner edge as a fraction of the quad half-width
-uniform float spin = 0.0075;
 uniform vec3 key_dir = vec3(0.0, 0.5, 0.8);
 uniform vec4 key_color : source_color = vec4(1.0, 0.76, 0.42, 1.0);
 uniform sampler2D ring_tex : filter_linear_mipmap, repeat_disable;  // asteroid1/2.png: dusty ring on black
@@ -78,7 +76,7 @@ void fragment() {
 	float r = length(q);
 	float t = (r - inner) / (1.0 - inner);
 	if (t < 0.0 || t > 1.0) discard;
-	float ang = atan(q.y, q.x) + TIME * spin * TAU;   // turns on the GPU; a circular image has no seam
+	float ang = atan(q.y, q.x);   // fixed angle, no rotation; a circular image has no seam
 	vec2 uv = 0.5 + 0.5 * mix(tex_in, tex_out, t) * vec2(cos(ang), sin(ang));
 	vec3 tex = texture(ring_tex, uv).rgb;
 	float edge = smoothstep(0.0, 0.08, t) * smoothstep(1.0, 0.92, t);
@@ -210,7 +208,7 @@ func _add_orbit_rings(center: Vector3, sys: int = 1) -> void:
 ## the asteroid ring PNG (odd systems asteroid1, even systems asteroid2) mapped by radius in art/planet_fx/orbit_dust.gdshader.
 ## Child of the ring node, so it shows and hides with it.
 const DUST_ALPHA := 0.5       # faintness (texture is already sparse)
-const DUST_SPEED := 0.005     # drift, turns per second (slow rotation with TIME)
+const DUST_SPEED := 0.0       # static ring: no rotation (uniform kept at 0)
 const DUST_WIDTH := 1.875     # band width in planet radii (was 0.5 world units at radius 0.8 = 0.625 radii; x3)
 func _add_orbit_dust(parent: Node3D, center: Vector3, sys: int) -> void:
 	var width := DUST_WIDTH * planet_radius()  # the band grows with the planets
@@ -650,7 +648,6 @@ func _add_belt(i: int, sph: MeshInstance3D, h: int) -> void:
 	var mat := ShaderMaterial.new()
 	mat.shader = sh
 	mat.set_shader_parameter("inner", BELT_INNER / BELT_OUTER)
-	mat.set_shader_parameter("spin", BELT_SPIN)
 	# Stable pick from the id hash: asteroid1.png (thick, dark centre) or asteroid2.png (thin grey), through the shared loader.
 	# Dust extent as a fraction of the image half-width: asteroid1 0.38 to 0.96, asteroid2 0.62 to 0.97.
 	var ring_no := ((_mix(h) >> 7) & 1) + 1
