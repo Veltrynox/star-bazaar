@@ -19,7 +19,8 @@ const START_ZOOM := 1.0
 const PAN_SPEED := 10.0          # world units per second at zoom 1
 const LAYOUT_RADIUS := 6.0       # ring radius for the simple layout (world units)
 const MAP_UNIT_SCALE := 0.02     # world units per map unit in planets.json (old ring: 300 map units = 6 world units)
-const PLANET_RADIUS := 0.8
+const PLANET_RADIUS := 0.8       # base radius (before planet_scale)
+const PLANET_SIZE := 1.3         # planet size multiplier: planets are x1.3 the old size; the debug menu starts here
 const BASE_DISTANCE := 16.0      # camera distance from focus point at zoom 1
 const CAMERA_FOV := 45.0
 const PLANET_SPHERE := preload("res://art/planet_fx/planet_sphere.tscn")  # unit-radius sphere; scaled to planet_radius()
@@ -42,9 +43,10 @@ var sun_node: Node3D  # T132: animated 3D sun
 var suns := {}         # system id -> its sun node (art/sun/sun_flare.gd); every open system has its own sun
 var sun_positions := {}  # system id -> world position of that sun
 var orbit_rings := {}    # system id -> its orbit ring mesh
+var orbit_centers := {}  # system id -> centre of its orbit rings (the sun's place), for rebuilding the dust
 var hex_ring: Node3D  # T110: hexagon ring around the sun, shown during EV20
 var key_light: DirectionalLight3D
-var planet_scale := 1.0          # multiplies PLANET_RADIUS (visual size and click radius)
+var planet_scale := PLANET_SIZE  # multiplies PLANET_RADIUS (visual size, click radius, route start, names, halos, dust)
 var keys_enabled := true         # T33: debug menu turns this off while typing in a field
 
 var planets: Array = []
@@ -195,15 +197,17 @@ func _add_orbit_rings(center: Vector3, sys: int = 1) -> void:
 	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	add_child(mi)
 	orbit_rings[sys] = mi
+	orbit_centers[sys] = center
 	_add_orbit_dust(mi, center, sys)
 
 ## Faint dust band on each orbit that exists: ONE merged flat annulus mesh per system (1 draw call), with
 ## fine grain made in art/planet_fx/orbit_dust.gdshader. Child of the ring node, so it shows and hides with it.
 const DUST_ALPHA := 0.12      # faintness
 const DUST_GRAIN := 28.0      # grains per world unit
-const DUST_SPEED := 0.02      # drift speed
-const DUST_WIDTH := 0.5       # band width in world units
+const DUST_SPEED := 0.005     # drift speed (was 0.02: x4 slower)
+const DUST_WIDTH := 1.875     # band width in planet radii (was 0.5 world units at radius 0.8 = 0.625 radii; x3)
 func _add_orbit_dust(parent: Node3D, center: Vector3, sys: int) -> void:
+	var width := DUST_WIDTH * planet_radius()  # the band grows with the planets
 	var verts := PackedVector3Array()
 	var uvs := PackedVector2Array()
 	var cols := PackedColorArray()
@@ -216,14 +220,14 @@ func _add_orbit_dust(parent: Node3D, center: Vector3, sys: int) -> void:
 		var r := Vector2(p.x - center.x, p.z - center.z).length()
 		if r < 0.01:
 			continue
-		var r0 := maxf(r - DUST_WIDTH * 0.5, 0.01)
+		var r0 := maxf(r - width * 0.5, 0.01)
 		var base := verts.size()
 		for s in segs + 1:
 			var u := float(s) / float(segs)
 			var a := TAU * u
 			var d := Vector3(cos(a), 0.0, sin(a))
 			verts.append(center + d * r0)
-			verts.append(center + d * (r + DUST_WIDTH * 0.5))
+			verts.append(center + d * (r + width * 0.5))
 			uvs.append(Vector2(u, 0.0))
 			uvs.append(Vector2(u, 1.0))
 			cols.append(Color(r / 10.0, 0, 0))
@@ -247,7 +251,7 @@ func _add_orbit_dust(parent: Node3D, center: Vector3, sys: int) -> void:
 	mat.set_shader_parameter("alpha", DUST_ALPHA)
 	mat.set_shader_parameter("grain_scale", DUST_GRAIN)
 	mat.set_shader_parameter("speed", DUST_SPEED)
-	mat.set_shader_parameter("ring_width", DUST_WIDTH)
+	mat.set_shader_parameter("ring_width", width)
 	var dm := MeshInstance3D.new()
 	dm.name = "OrbitDust"
 	dm.mesh = am
@@ -485,9 +489,9 @@ func _load_planets() -> Array:
 
 ## Name label sits below the visible planet: the outer glow shell is 0.56 of the sphere scale (planet_sphere.tscn), plus a gap.
 const PLANET_VISIBLE := 0.56
-const LABEL_GAP := 0.15
+const LABEL_GAP := 0.15          # gap at the base size; scaled with the planet below
 func label_drop() -> float:
-	return planet_radius() * PLANET_VISIBLE + LABEL_GAP
+	return planet_radius() * (PLANET_VISIBLE + LABEL_GAP / PLANET_RADIUS)
 
 func planet_radius() -> float:
 	return PLANET_RADIUS * planet_scale
@@ -509,9 +513,16 @@ func apply_tunables() -> void:
 	if hex_ring != null:
 		hex_ring.radius = sun_radius
 		hex_ring.rebuild()
-	if hint != null:  # rebuilt at the new size on the next set_hint call
-		hint.queue_free()
-		hint = null
+	for h in [hint, pending_hint]:  # halos resize in place (same position)
+		if h != null:
+			h.setup(planet_radius())
+	for id in orbit_rings:  # the dust band is as wide as a planet radius: rebuild it at the new size
+		var ring: Node3D = orbit_rings[id]
+		var old := ring.get_node_or_null("OrbitDust")
+		if old != null:
+			ring.remove_child(old)
+			old.queue_free()
+		_add_orbit_dust(ring, orbit_centers[id], int(id))
 	for id in route_lines.keys():  # route lines start at the planet surface: rebuild at the new size
 		route_lines[id].queue_free()
 	route_lines.clear()
