@@ -112,6 +112,17 @@ const KEY_ONLY_SHARE := 0.30
 	set(v):
 		rim_dir = v
 		_apply()
+@export_group("Displacement")
+## How strongly the height map bends the light on the surface (shader: relief).
+@export_range(0.0, 40.0) var relief: float = 14.0:
+	set(v):
+		relief = v
+		_apply()
+## Darkening of low ground (shader: relief_shade).
+@export_range(0.0, 1.0) var relief_shade: float = 0.6:
+	set(v):
+		relief_shade = v
+		_apply()
 @export_group("Shadow, city and grain")
 @export_range(0.0, 1.0) var shadow_darkness: float = 0.95:
 	set(v):
@@ -221,6 +232,8 @@ func _apply() -> void:
 		m.set_shader_parameter("fres_power", fresnel_power)
 		m.set_shader_parameter("key_dir", key_dir)
 		m.set_shader_parameter("rim_dir", rim_dir)
+		m.set_shader_parameter("relief", relief)
+		m.set_shader_parameter("relief_shade", relief_shade)
 		m.set_shader_parameter("shadow_darkness", shadow_darkness)
 		m.set_shader_parameter("city_col", city_color)
 		m.set_shader_parameter("grain_amount", grain_amount)

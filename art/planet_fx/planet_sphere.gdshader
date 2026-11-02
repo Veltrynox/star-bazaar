@@ -19,7 +19,8 @@ uniform sampler2D lights_tex : filter_linear_mipmap, repeat_enable;   // white c
 uniform bool use_disp = false;
 uniform bool use_glow_mask = false;
 uniform bool use_lights_mask = false;
-uniform float relief = 1.2;                       // relief strength (subtle)
+uniform float relief = 14.0;                      // relief strength: how far the height gradient bends the key-light normal
+uniform float relief_shade = 0.6;                 // cavity shading: low ground is darkened by this much (0 = off)
 uniform vec4 glow_col : source_color = vec4(0.60, 0.75, 1.00, 1.0);
 uniform float glow_mask_strength = 1.1;
 uniform float lights_strength = 1.5;
@@ -63,6 +64,21 @@ void fragment() {
 	vec4 tex = textureGrad(surface_tex, uv, dx, dy);
 	float tone = tex.r;
 
+	// Displacement: the height map bends the normal (bumps catch the sun, slopes away from it fall dark) and
+	// darkens the low ground. Two offset samples give the gradient in the east and north directions.
+	vec3 nb = n;
+	float cavity = 1.0;
+	if (use_disp) {
+		const float EPS = 0.0025;
+		float h0 = textureGrad(disp_tex, uv, dx, dy).r;
+		float hu = textureGrad(disp_tex, uv + vec2(EPS, 0.0), dx, dy).r - textureGrad(disp_tex, uv - vec2(EPS, 0.0), dx, dy).r;
+		float hv = textureGrad(disp_tex, uv + vec2(0.0, EPS), dx, dy).r - textureGrad(disp_tex, uv - vec2(0.0, EPS), dx, dy).r;
+		vec3 east = normalize(cross(vec3(0.0, 1.0, 0.0), n) + vec3(1e-4, 0.0, 0.0));
+		vec3 south = cross(n, east);  // v grows towards the south pole
+		nb = normalize(n - relief * (hu * east + hv * south));
+		cavity = 1.0 - relief_shade * (1.0 - smoothstep(0.1, 0.8, h0));
+	}
+
 	float NdV = clamp(dot(NORMAL, VIEW), 0.0, 1.0);
 	float fres = pow(1.0 - NdV, fres_power) * fres_strength;  // Fresnel edge: always on
 
@@ -80,11 +96,11 @@ void fragment() {
 		}
 
 		// Key light: sun side only, with a crisp shadow contour on the terminator.
-		float nk = dot(n, normalize(key_dir));
+		float nk = dot(nb, normalize(key_dir));
 		float lit = smoothstep(-shadow_soft, shadow_soft, nk);
 		vec3 key = key_color.rgb * key_strength * (1.0 + 0.6 * sun_flare) * pow(max(nk, 0.0), 0.6) * lit;
 		float amb = ambient * (1.0 - shadow_darkness);
-		col = base * (amb + key);
+		col = base * (amb + key) * cavity;
 
 		if (variant == 2) {
 			// City lights on the dark side (not in the distribution: 0%).
