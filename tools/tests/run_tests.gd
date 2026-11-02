@@ -1812,11 +1812,12 @@ func _test_energy_then_food() -> void:
 	var m: Control = await _new_main()
 	m._dismiss_preface()
 	var e = m.engine
-	# Real start cash (1800): the first route buys the first ship, the second ship is not affordable yet.
+	# The first route buys the first ship; the second ship is not affordable yet (cash set just below ship_price).
 	m.selected_planet = 0
 	m._on_buy_send("energy")
 	m._on_planet_clicked(1)
 	check(e.routes.size() == 1 and m.pending.is_empty(), "energy then food: energy route made, nothing pending")
+	m.cash = int(m.balance["ship_price"]) - 1  # one credit short of a second ship (start cash alone buys two at ship_price 900)
 	m.selected_planet = 1
 	m._on_buy_send("food")
 	m._on_planet_clicked(0)

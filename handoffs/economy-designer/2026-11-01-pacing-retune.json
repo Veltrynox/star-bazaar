@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "agent": "economy-designer",
+  "date": "2026-11-01",
+  "task": "pacing-retune",
+  "status": "done",
+  "files_changed": ["data/balance.json", "tools/tests/run_tests.gd", "handoffs/economy-designer/2026-11-01-pacing-retune.json", "qa/reports/2026-11-01-pacing-retune.md"],
+  "open_questions": [
+    "Seed 7 still misses the goal on the natural and closure paths (cash 7139 at cycle 30 before the change). 29/30 natural, 19/20 closure. Accept or tune seed 7 specifically?",
+    "Bot runs used game code at commit 87fc76e (an isolated copy). The working tree holds uncommitted route_engine.gd changes (route income) that were not tested; re-run the pacing batch once they land."
+  ],
+  "handoff": "ship_price 1000 to 900 is the only change (data_version 18). Natural decent 29/30 wins (was 28/30), win cycles 20-29, median 22. Permit path 20/20 wins (was 14/15), cycles 23-28, median 26 (was 29-30). Closure 19/20. permit_2_cost 600 to 300 or 150 was tried and gave no gain, so it stays. Targets unchanged.",
+  "details": {
+    "test_edit": "tools/tests/run_tests.gd _test_energy_then_food: sets cash to ship_price - 1 after the first route, because start cash 1800 now buys two ships at 900. Same intent, one line.",
+    "changed_keys": [{"key": "ship_price", "old": 1000, "new": 900, "reason": "cheaper ships compound faster; the permit path buys about 22 ships and was starved of cash, natural buys 4"}],
+    "tried_rejected": [
+      "ship_price 910 or starting_credits 1799: the gain comes from the start cash buying TWO ships at cycle 1 (2 x 900 = 1800); at 910 permit path falls back to 29-30 and wins only 12/20. The gain is a cliff, not a slope. Owner to confirm two ships at start is acceptable",
+      "ship_price 950, maintenance 40, upgrade_cost 400: permit path stays at 29-30",
+      "ship_price 800: natural wins at 20-23, too early against the 22 check",
+      "trip_cost 95 to 70: natural faster, permit path unchanged (29-30)",
+      "permit_2_cost 300 and 150: permit median unchanged within noise",
+      "permit_points_2 3 to 2: bot lost every permit run"
+    ],
+    "sim": {
+      "natural_decent_seeds_1_30": {"win": 29, "loss": 1, "loss_seeds": [7], "win_cycles": "20-29", "median": 22},
+      "permit_decent_seeds_1_20": {"win": 20, "loss": 0, "win_cycles": "23-28", "median": 26},
+      "closure_decent_seeds_1_20": {"win": 19, "loss": 1, "loss_seeds": [7], "win_cycles": "21-30"}
+    },
+    "not_run": "sloppy, always_expand, never_expand were not re-run; sloppy and never_expand lost 30/30 at the old price and the cheaper ship does not change lane limits (always_expand equals decent by design today)."
+  }
+}
