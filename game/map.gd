@@ -142,6 +142,8 @@ func _ready() -> void:
 	_add_sun(focus)
 	_add_orbit_rings(focus, 1)
 	_update_camera()
+	# Chromatic aberration over the 3D view (art/planet_fx/chromatic_aberration.gd): first, so the glare and grain sit on top of it.
+	add_child(load("res://art/planet_fx/chromatic_aberration.gd").new())
 	# Camera lens glare around the current system's sun (art/planet_fx/lens_glare.gd); the quad draws under the UI.
 	var glare: CanvasLayer = load("res://art/planet_fx/lens_glare.gd").new()
 	glare.camera = camera
