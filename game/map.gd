@@ -528,7 +528,8 @@ func _update_camera() -> void:
 	camera.look_at(focus, Vector3.UP)
 	_update_fx()
 
-## Points the sphere's key light (object space, no rotation, so world space) from planet i towards the sun.
+## Aims planet i's sphere at its sun: pole into the shadow, key light towards the sun (only when the direction changes).
+var sphere_sun := {}  # planet index -> last world sun direction
 func _aim_sphere(i: int) -> void:
 	if i >= planet_spheres.size() or i >= positions.size():
 		return
@@ -536,8 +537,9 @@ func _aim_sphere(i: int) -> void:
 	if d.length() < 0.001:
 		return
 	d = d.normalized()
-	if not d.is_equal_approx(planet_spheres[i].key_dir):
-		planet_spheres[i].key_dir = d
+	if not d.is_equal_approx(sphere_sun.get(i, Vector3.ZERO)):
+		sphere_sun[i] = d
+		planet_spheres[i].aim_sun(d)  # turns the pole into the shadow and sets key_dir in object space
 
 func _update_fx() -> void:
 	for i in planet_spheres.size():

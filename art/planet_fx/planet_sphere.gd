@@ -235,6 +235,31 @@ static func texture_index_for_id(id: String) -> int:
 static func rim_for_id(id: String) -> bool:
 	return id_unit(id, 2) >= KEY_ONLY_SHARE
 
+## Pole tilt away from the anti-sun axis, degrees. The pole (local Y) sits this far from the point opposite the sun.
+const POLE_TILT_DEG := 25.0
+
+## World-space unit vector from the pole axis: opposite the sun, tilted POLE_TILT_DEG towards a per-planet azimuth (from planet_id).
+static func pole_dir(sun_w: Vector3, id: String) -> Vector3:
+	var s := sun_w.normalized()
+	var ref := Vector3.UP if absf(s.dot(Vector3.UP)) < 0.95 else Vector3.RIGHT
+	var u := s.cross(ref).normalized()
+	var w := s.cross(u)
+	var a := id_unit(id, 5) * TAU
+	var t := deg_to_rad(POLE_TILT_DEG)
+	return (-s * cos(t) + (u * cos(a) + w * sin(a)) * sin(t)).normalized()
+
+## Aims the sun at the sphere: turns the sphere so its pole lies in the shadow (dot(pole, sun) = -cos(tilt) < 0, far from the lit side),
+## then sets key_dir in object space. Rotation only (scale is kept); the spin around the pole is unchanged.
+func aim_sun(sun_w: Vector3) -> void:
+	var s := sun_w.normalized()
+	var y := pole_dir(s, planet_id)
+	var x := y.cross(s).normalized()  # pole x sun: perpendicular to both, stable for a given sun and pole
+	var z := x.cross(y)
+	quaternion = Basis(x, y, z).get_rotation_quaternion()
+	var local := Vector3(s.dot(x), s.dot(y), s.dot(z))
+	if not local.is_equal_approx(key_dir):
+		key_dir = local
+
 func _ready() -> void:
 	if not Engine.is_editor_hint():
 		for node in [self, get_node_or_null("Glow"), get_node_or_null("Atmosphere"), get_node_or_null("Streaks"), get_node_or_null("Clouds")]:

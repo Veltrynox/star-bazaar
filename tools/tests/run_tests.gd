@@ -1744,6 +1744,15 @@ func _test_system_suns() -> void:
 	check(map.suns.size() == 1 and map.suns.has(1) and map.suns[1].visible, "suns: system 1 has its sun at the start")
 	var s1 = map.suns[1]
 	check(absf(s1.hue_shift()) < 0.0001 and absf(s1.sun_color.h - 0.09) < 0.01 and s1.drives_light and s1 == map.sun_node, "suns: system 1 sun unchanged (orange, no hue shift)")
+	var pole_ok: bool = map.planet_spheres.size() > 0
+	var pole_info: String = ""
+	for i in map.planet_spheres.size():
+		var sp = map.planet_spheres[i]
+		var sun_w: Vector3 = (map.sun_positions.get(int(map.planets[i].get("system", 1)), map.focus_sun_pos) - map.positions[i]).normalized()
+		var pole_w: Vector3 = sp.global_transform.basis.y.normalized()
+		pole_ok = pole_ok and pole_w.dot(sun_w) < -0.8 and sp.key_dir.y < -0.8 and absf(sp.scale.x - map.planet_radius()) < 0.0001
+		pole_info += " %s:%.2f" % [map.planets[i]["id"], pole_w.dot(sun_w)]
+	check(pole_ok, "planet pole: the sphere's pole axis points away from the sun (in shadow); scale unchanged", pole_info)
 	var pos1: Vector3 = s1.position
 	m.open_systems.append(2)
 	map.add_planets(m.Systems.planets_of(2))
