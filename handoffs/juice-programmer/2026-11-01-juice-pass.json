@@ -1,0 +1,115 @@
+{
+  "schema_version": 1,
+  "agent": "juice-programmer",
+  "date": "2026-11-01",
+  "task": "Juice pass: pop-up, notice, number, button and event feel",
+  "status": "done",
+  "files_changed": [
+    "game/juice.gd",
+    "game/skill_point_pop.gd",
+    "game/income_popup.gd",
+    "game/event_notice.gd",
+    "game/ship_panel.gd",
+    "game/main.gd",
+    "tools/tests/run_tests.gd",
+    "handoffs/juice-programmer/2026-11-01-juice-pass.json"
+  ],
+  "open_questions": [
+    "UNKNOWN: whether the owner wants the motion strength exposed in the debug menu (Juice.motion is code-only now)",
+    "UNKNOWN: how the event ring and top-bar flash read under the event scrim, needs an eye check"
+  ],
+  "handoff": "Juice helper game/juice.gd (tunables at top, static motion 0..1). Pop-ups fade and grow in, notices fade, numbers count up, buttons squash on press, route and event beats ring planets and flash the top bar. Hold times unchanged (skill pop 5 s). No state changes. Headless suite 469/469 (one notice test now waits 0.4 s for the fade). Needs an eye check of every duration. Ideas below, none built.",
+  "details": {
+    "animations": [
+      {
+        "what": "Skill point pop-up card",
+        "effect": "grows from 0.92 and drops 10 px, fade in",
+        "seconds": 0.22,
+        "exit": "click fades it out, 0.16 s"
+      },
+      {
+        "what": "Event notice",
+        "effect": "scrim fades in, card grows from 0.92",
+        "seconds": 0.22,
+        "exit": "fade and shrink to 0.97, 0.16 s; input passes through at once"
+      },
+      {
+        "what": "Notification board line",
+        "effect": "fades in from 0.96 scale",
+        "seconds": 0.18,
+        "exit": "fades out, 0.16 s, then text clears"
+      },
+      {
+        "what": "Income +N above planets",
+        "effect": "counts 0 to N, pops from half size",
+        "seconds": 0.45,
+        "exit": "unchanged (1.8 s life)"
+      },
+      {
+        "what": "Cash top bar",
+        "effect": "counts to new value; green flash on a rise",
+        "seconds": 0.45,
+        "exit": "flash 0.3 s"
+      },
+      {
+        "what": "Every button",
+        "effect": "squash to 0.94 on press, spring back on release",
+        "seconds": "0.06 in, 0.16 out",
+        "exit": "none"
+      },
+      {
+        "what": "Ship count label",
+        "effect": "warm flash when the count rises",
+        "seconds": 0.3,
+        "exit": "none"
+      },
+      {
+        "what": "Event fires",
+        "effect": "top bar warm flash and 3 px nudge; ring on the planet the event touches",
+        "seconds": "0.3 / 0.24 / 0.9",
+        "exit": "none"
+      },
+      {
+        "what": "Route made",
+        "effect": "green ring opens at both planets",
+        "seconds": 0.9,
+        "exit": "none"
+      }
+    ],
+    "hooks": [
+      "main.gd: Juice.install_press in _ready; _dismiss_event_notice, _event_beat, _route_beat, _clear_notice_label",
+      "event_notice.gd: dismiss() and _confirm() (a button cannot confirm twice during the exit)",
+      "skill_point_pop.gd: show uses Juice.stop/enter, click uses Juice.leave",
+      "ship_panel.gd: _last_count, flash on rise"
+    ],
+    "ideas": [
+      {
+        "idea": "Idle pulse on the next useful action (Buy ship while ships are 0)",
+        "reason": "The mission halo is only on the 3D map; a soft pulse on the button keeps the eye on the next step."
+      },
+      {
+        "idea": "Small reward beat when a skill is learned (Skills button flash plus the skill point count dropping)",
+        "reason": "Learning a skill is the biggest choice and today it is one notice line."
+      },
+      {
+        "idea": "Nudge the board line when a route is blocked or stalled",
+        "reason": "Blocked routes are silent until the player reads the board."
+      },
+      {
+        "idea": "Cycle-end pulse on the cycle counter",
+        "reason": "Marks the economy turning over, so the player knows when income landed."
+      },
+      {
+        "idea": "Planet panel fades and slides in on selection",
+        "reason": "Gives selection a clear beat without changing the layout."
+      }
+    ],
+    "not_checked_by_eye": [
+      "Every duration and ease above, and whether the button squash is too strong",
+      "Skill pop-up drop direction and position on the window",
+      "Event ring and top-bar flash under the event scrim",
+      "Income +N count-up overlapping neighbouring labels",
+      "Notice text legibility during its fade"
+    ]
+  }
+}
