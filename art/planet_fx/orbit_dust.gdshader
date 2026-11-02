@@ -1,7 +1,7 @@
 shader_type spatial;
 render_mode unshaded, blend_mix, depth_draw_never, cull_disabled, shadows_disabled;
 // Orbit dust: the asteroid ring PNG (dusty ring on black) laid on a flat annulus, mapped by radius like the planet belt.
-// Mesh inputs: UV.x = angle / TAU, UV.y = 0..1 across the band, COLOR.a = clearance mask (0 near a planet sphere, 1 clear).
+// Mesh inputs: UV.x = angle / TAU, UV.y = 0..1 across the band. Flat, static, no clearance mask.
 uniform vec4 dust_color : source_color = vec4(1.0, 0.8, 0.55, 1.0); // set to the sun colour
 uniform sampler2D ring_tex : filter_linear_mipmap, repeat_disable;  // asteroid1/2.png
 uniform float tex_in = 0.38;       // band edges mapped onto the part of the PNG that holds dust (set per file in map.gd)
@@ -18,5 +18,5 @@ void fragment() {
 	float edge = smoothstep(0.0, 0.2, UV.y) * smoothstep(1.0, 0.8, UV.y);  // soft inner and outer falloff
 	float a = edge * smoothstep(0.02, 0.12, dot(tex, vec3(0.3, 0.59, 0.11)));  // black background and gaps are transparent
 	ALBEDO = dust_color.rgb * (0.4 + tex);
-	ALPHA = clamp(a * 0.5 * alpha * COLOR.a, 0.0, 1.0);  // 50% transparent
+	ALPHA = clamp(a * 0.5 * alpha, 0.0, 1.0);  // 50% transparent
 }
