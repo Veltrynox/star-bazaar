@@ -48,7 +48,6 @@ mesh = SubResource("g")
 surface_material_override/0 = ExtResource("3")
 
 [node name="Atmosphere" type="MeshInstance3D" parent="."]
-visible = false
 mesh = SubResource("a")
 surface_material_override/0 = ExtResource("5")
 

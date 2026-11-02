@@ -6,7 +6,7 @@ extends MeshInstance3D
 ## Lighting is a separate setting: 70% key light plus rim light, 30% key light only. The Fresnel edge is a soft sun-side crescent on every planet.
 ## Set use_id = false to force variant and rim_light by hand.
 
-## Owner: stripped planet body (beauty map + Fresnel + rim only). false brings back clouds, streaks and ring (also set the full material in the tscn and show Glow and Atmosphere).
+## Owner: stripped planet body (beauty map + Fresnel + rim only). false brings back clouds, streaks and ring (also set the full material in the tscn and show Glow). The Fresnel Atmosphere shell is visible in both modes.
 const SIMPLE := true
 
 ## Owner: cloud layer in the simple body for the earth-like types, storm glow for the stormy type (cloudy). Both read planet_cloud.png.
