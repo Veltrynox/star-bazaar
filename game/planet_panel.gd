@@ -19,6 +19,9 @@ var COL_RED: Color = Ui.col("signal_bad")
 
 var main: Control
 var planet_index: int = -1
+var split_open: String = ""  # commodity whose split bar is open ("" = none)
+var _split_bar: Control = null
+var _split_tags: Dictionary = {}  # lane destination -> its "Split 60%" tag label
 var selected_route: int = -1  # T65: connection picked by clicking its line
 var box: VBoxContainer
 
@@ -35,6 +38,8 @@ func _ready() -> void:
 	visible = false
 
 func show_planet(index: int, route_id: int = -1) -> void:
+	if index != planet_index:
+		split_open = ""
 	planet_index = index
 	selected_route = route_id
 	visible = true
@@ -46,8 +51,15 @@ func rebuild() -> void:
 	for c in box.get_children():
 		box.remove_child(c)
 		c.queue_free()
+	_split_bar = null
+	_split_tags = {}
 	var p: Dictionary = main.map.planets[planet_index]
 	_header(p)
+	if main.second_lane_planet == planet_index:  # N11: the first sale in system 2 happened here
+		var sl := _label("%s: %s" % [StoryText.get_or("TITLE_SECOND_LANE", "Cross-system trader"), StoryText.get_or("NOTE_SECOND_LANE", "Your first sale here crossed the system line.")])
+		sl.name = "SecondLaneNote"
+		sl.theme_type_variation = "LabelAccent"
+		box.add_child(sl)
 	box.add_child(_label("Abundant: %s.  Shortage: %s." % [_txt(p.get("abundant")), _txt(p.get("scarce"))]))
 	var unhappy: float = main.shield.unhappiness(planet_index)  # T101: only planets bought after the shield
 	if unhappy > 0.0:
@@ -211,13 +223,19 @@ func _row(c: String, prices: Dictionary, pend: Dictionary) -> Control:
 	row.add_child(info)
 	# One combined action replaces the separate Buy button: it buys here every cycle and sends the goods on a route.
 	var sell_on: bool = main.engine.local_on(planet_index, c, "sell")
+	var locked: bool = not main.system_trade_open(planet_index)
+	var lock_tip: String = main.trade_locked_reason()
 	var sell_price = sell
 	var sb := Button.new()
+	sb.name = "SellButton_" + str(c)
 	sb.toggle_mode = true
 	sb.button_pressed = sell_on
 	sb.text = StoryText.get_text("BTN_SELL") + (": on" if sell_on else "")
 	sb.disabled = sell_price == null
 	sb.tooltip_text = "Not traded here." if sell_price == null else ("Standing sell order. Press to stop." if sell_on else "Standing sell order each cycle.")
+	if locked:
+		sb.disabled = true
+		sb.tooltip_text = lock_tip
 	sb.pressed.connect(func(): order_requested.emit(c, "sell"))
 	row.add_child(sb)
 	if salv != "":
@@ -237,6 +255,10 @@ func _row(c: String, prices: Dictionary, pend: Dictionary) -> Control:
 	bs.text = StoryText.get_text("BTN_BUY") + (": on" if buy_on else "")
 	bs.disabled = buy == null
 	bs.tooltip_text = "Not traded here." if buy == null else ("Standing buy order. Press to stop." if buy_on else "Standing buy order each cycle.")
+	if locked:
+		bs.disabled = true
+		bs.tooltip_text = lock_tip
+	bs.name = "BuyButton_" + str(c)
 	bs.pressed.connect(func(): buy_send_requested.emit(c))
 	acts.add_child(bs)
 	var sd := Button.new()
@@ -244,6 +266,10 @@ func _row(c: String, prices: Dictionary, pend: Dictionary) -> Control:
 	var sending: bool = not pend.is_empty() and int(pend["planet"]) == planet_index and str(pend["c"]) == c
 	sd.text = StoryText.get_text("BTN_SEND") + ("*" if sending else "")
 	sd.tooltip_text = "Move this stock to another planet's storage with a ship."
+	if locked:
+		sd.disabled = true
+		sd.tooltip_text = lock_tip
+	sd.name = "SendButton_" + str(c)
 	sd.pressed.connect(func(): send_requested.emit(c))
 	acts.add_child(sd)
 	if main.engine.local_on(planet_index, c, "buy"):
@@ -280,28 +306,153 @@ func _storage_section() -> void:
 		l.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		row.add_child(l)
+		var nc := next_cycle_label(main, key, str(c))
+		if nc != null:
+			row.add_child(nc)  # right end of the same row
 		box.add_child(row)
 		if main.split_targets(planet_index, str(c)).size() >= 2:  # N2: two lanes with ships can be split
 			box.add_child(_split_row(str(c)))
+			if split_open == str(c):
+				box.add_child(_split_bar_for(str(c)))
+		elif split_open == str(c):
+			split_open = ""
 
-## N2: the two split picks for a storage row: half and half, or 3/4 and 1/4 (first destination takes the larger share).
+## Owner 2026-11-03: small label at the right end of a storage row, "Next cycle: +12 -5 = 47" (in green, out red).
+## Null when nothing moves. Read-only: uses RouteEngine.project_storage.
+static func next_cycle_label(main_node: Control, key: String, c: String) -> Control:
+	var pr: Dictionary = main_node.engine.project_storage(key, c, int(main_node.cash))
+	var n_in := int(pr["in"])
+	var n_out := int(pr["out"])
+	if n_in <= 0 and n_out <= 0:
+		return null
+	var rt := RichTextLabel.new()
+	rt.name = "NextCycle_" + c
+	rt.bbcode_enabled = true
+	rt.fit_content = true
+	rt.scroll_active = false
+	rt.autowrap_mode = TextServer.AUTOWRAP_OFF
+	rt.size_flags_horizontal = Control.SIZE_SHRINK_END
+	rt.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	rt.add_theme_font_size_override("normal_font_size", 12)
+	rt.add_theme_color_override("default_color", Ui.col("ink_muted"))
+	var good := "[color=#%s]%d[/color]" % [Ui.col("signal_good").to_html(false), n_in]
+	var bad := "[color=#%s]%d[/color]" % [Ui.col("signal_bad").to_html(false), n_out]
+	var t: String = StoryText.get_or("LBL_NEXT_CYCLE", "Next cycle: +{in} -{out} = {after}")
+	rt.text = t.replace("{in}", good).replace("{out}", bad).replace("{after}", str(int(pr["after"])))
+	return rt
+
+## Split bar: the colour of the first (0) or second (1) lane of a split.
+func _lane_colour(i: int) -> Color:
+	return Ui.col("commodity_energy" if i == 0 else "commodity_food")
+
+## Split bar: the "Split" toggle on a storage row with two lanes with ships.
 func _split_row(c: String) -> Control:
 	var row := HBoxContainer.new()
 	row.name = "SplitRow"
-	row.add_theme_constant_override("separation", 8)
-	var half := Button.new()
-	half.name = "SplitHalfButton"
-	half.theme_type_variation = "ButtonSmall"
-	half.text = StoryText.get_or("BTN_SPLIT_HALF", "Split half and half")
-	half.pressed.connect(func(): main.begin_split(c, 0.5))
-	row.add_child(half)
-	var three := Button.new()
-	three.name = "SplitThreeQuarterButton"
-	three.theme_type_variation = "ButtonSmall"
-	three.text = StoryText.get_or("BTN_SPLIT_THREE", "Split 3/4 and 1/4")
-	three.pressed.connect(func(): main.begin_split(c, 0.75))
-	row.add_child(three)
+	var b := Button.new()
+	b.name = "SplitButton"
+	b.theme_type_variation = "ButtonSmall"
+	b.text = StoryText.get_or("BTN_SPLIT_BAR", "Split")
+	b.toggle_mode = true
+	b.button_pressed = split_open == c
+	b.pressed.connect(func():
+		split_open = "" if split_open == c else c
+		if split_open == c and main.engine.lane_split(planet_index, int(main.split_pair(planet_index, c)[0]), c).is_empty():
+			main.set_split_percent(planet_index, c, 50)  # the bar starts at 50/50
+		rebuild())
+	row.add_child(b)
 	return row
+
+## Split bar: "Ore 12/40", the two lane names with their shares, a slider with [-] and [+], Done and Stop split.
+func _split_bar_for(c: String) -> Control:
+	var pair: Array = main.split_pair(planet_index, c)
+	var vb := VBoxContainer.new()
+	vb.name = "SplitBar"
+	vb.add_theme_constant_override("separation", 4)
+	_split_bar = vb
+	var key: String = main.storage.planet_key(planet_index)
+	var head := _label("%s  %d/%d" % [c.capitalize(), main.storage.amount(key, c), main.storage.capacity_of(key)])
+	head.theme_type_variation = "LabelSmall"
+	vb.add_child(head)
+	var names := HBoxContainer.new()
+	var l1 := Label.new()
+	l1.name = "SplitFirstLabel"
+	l1.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	l1.clip_text = true
+	l1.add_theme_color_override("font_color", _lane_colour(0))
+	names.add_child(l1)
+	var l2 := Label.new()
+	l2.name = "SplitSecondLabel"
+	l2.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	l2.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	l2.clip_text = true
+	l2.add_theme_color_override("font_color", _lane_colour(1))
+	names.add_child(l2)
+	vb.add_child(names)
+	var ctl := HBoxContainer.new()
+	ctl.add_theme_constant_override("separation", 6)
+	var minus := Button.new()
+	minus.name = "SplitMinus"
+	minus.theme_type_variation = "ButtonSmall"
+	minus.text = "\u2212"
+	ctl.add_child(minus)
+	var sl := HSlider.new()
+	sl.name = "SplitSlider"
+	sl.min_value = 10
+	sl.max_value = 90
+	sl.step = 1
+	sl.value = main.split_percent(planet_index, c)
+	sl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	sl.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	sl.custom_minimum_size = Vector2(120, 20)
+	ctl.add_child(sl)
+	var plus := Button.new()
+	plus.name = "SplitPlus"
+	plus.theme_type_variation = "ButtonSmall"
+	plus.text = "+"
+	ctl.add_child(plus)
+	vb.add_child(ctl)
+	var acts := HBoxContainer.new()
+	acts.add_theme_constant_override("separation", 8)
+	var stop := Button.new()
+	stop.name = "SplitStop"
+	stop.theme_type_variation = "ButtonSmall"
+	stop.text = StoryText.get_or("LBL_SPLIT_BAR_STOP", "Stop split")
+	acts.add_child(stop)
+	var done := Button.new()
+	done.name = "SplitDone"
+	done.theme_type_variation = "ButtonSmall"
+	done.text = StoryText.get_or("BTN_SPLIT_DONE", "Done")
+	acts.add_child(done)
+	vb.add_child(acts)
+	var n1: String = main.planet_name(int(pair[0]))
+	var n2: String = main.planet_name(int(pair[1]))
+	var refresh := func(v: float):
+		l1.text = "%s %d%%" % [n1, int(v)]
+		l2.text = "%d%% %s" % [100 - int(v), n2]
+		_update_split_tags(c)
+	refresh.call(sl.value)
+	sl.value_changed.connect(func(v: float):
+		main.set_split_percent(planet_index, c, int(v))
+		refresh.call(float(main.split_percent(planet_index, c))))
+	minus.pressed.connect(func(): sl.value = maxf(10.0, sl.value - 10.0))
+	plus.pressed.connect(func(): sl.value = minf(90.0, sl.value + 10.0))
+	stop.pressed.connect(func():
+		main.clear_split(planet_index, c)
+		split_open = ""
+		rebuild())
+	done.pressed.connect(func():
+		split_open = ""
+		rebuild())
+	return vb
+
+## Split bar: re-text the lane tags in place (the slider must not be rebuilt while it is dragged).
+func _update_split_tags(c: String) -> void:
+	for d in _split_tags:
+		var t: Label = _split_tags[d]
+		var sp: Dictionary = main.engine.lane_split(planet_index, int(d), c)
+		if not sp.is_empty():
+			t.text = StoryText.get_or("LBL_SPLIT_TAG", "Split {share}%", {"share": roundi(float(sp["share"]) * 100.0)})
 
 ## T85: Space Storage of this planet's system (skill A1): stock per commodity, no orders on it.
 func _space_section() -> void:
@@ -391,6 +542,21 @@ func _connections() -> void:
 		l.clip_text = true
 		l.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		row.add_child(l)
+		if out:
+			var sp: Dictionary = main.engine.lane_split(planet_index, int(first["b"]), str(first["c"]))
+			if not sp.is_empty():
+				var pair: Array = main.split_pair(planet_index, str(first["c"]))
+				var tag := Label.new()
+				tag.name = "SplitTag"
+				tag.theme_type_variation = "LabelSmall"
+				tag.text = StoryText.get_or("LBL_SPLIT_TAG", "Split {share}%", {"share": roundi(float(sp["share"]) * 100.0)})
+				tag.add_theme_color_override("font_color", _lane_colour(0 if not pair.is_empty() and int(pair[0]) == int(first["b"]) else 1))
+				tag.mouse_filter = Control.MOUSE_FILTER_PASS
+				tag.mouse_entered.connect(func(): if _split_bar != null: _split_bar.modulate = Color(1.4, 1.4, 1.4))
+				tag.mouse_exited.connect(func(): if _split_bar != null: _split_bar.modulate = Color.WHITE)
+				row.add_child(tag)
+				if str(first["c"]) == split_open:
+					_split_tags[int(first["b"])] = tag
 		var nl := Label.new()
 		nl.text = _signed(net)
 		nl.theme_type_variation = "LabelGood" if net > 0 else ("LabelBad" if net < 0 else "LabelNumberMuted")
@@ -401,7 +567,8 @@ func _connections() -> void:
 			selected_route = -1 if selected_route == first_id else first_id
 			rebuild())
 		box.add_child(row)
-		box.add_child(_pays_line(int(first["b"]), str(first["c"])))
+		if int(first["b"]) >= 0:
+			box.add_child(_pays_line(int(first["b"]), str(first["c"])))
 		for k in ships.size():
 			var v: Dictionary = ships[k]
 			box.add_child(_ship_row(v, k + 1, ships.size()))

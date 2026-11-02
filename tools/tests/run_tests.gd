@@ -32,6 +32,7 @@ func _run() -> void:
 	await _test_rescue_waiting()
 	await _test_events()
 	await _test_ships()
+	await _test_next_cycle()
 	await _test_notice_queue()
 	await _test_systems()
 	await _test_galaxy_view()
@@ -39,6 +40,8 @@ func _run() -> void:
 	await _test_energy_then_food()
 	await _test_salvage()
 	await _test_system_suns()
+	await _test_stations()
+	await _test_trade_gate()
 	await _test_shield()
 	await _test_asteroid()
 	await _test_full_endings()
@@ -51,6 +54,8 @@ func _run() -> void:
 	await _test_route_move()
 	await _test_split_send()
 	await _test_mixed_load()
+	await _test_stop_sale()
+	await _test_second_lane()
 	print("TOTAL pass=%d fail=%d" % [passed, failed])
 	quit(1 if failed > 0 else 0)
 
@@ -312,7 +317,12 @@ func _test_galaxy_view() -> void:
 	var m: Control = await _new_main()
 	m._dismiss_preface()
 	await process_frame
-	check(m.top_bar.is_ancestor_of(m.menu_button) and m.top_bar.is_ancestor_of(m.skills_button), "hud: menu icon and Skills sit in the top bar")
+	check(m.top_bar.is_ancestor_of(m.menu_button) and m.top_bar.is_ancestor_of(m.points_button), "hud: menu icon and skill points button sit in the top bar")
+	m.points_hit.pressed.emit()
+	await process_frame
+	check(m.skill_screen != null and m.skill_screen.visible, "hud: pressing the skill points figure opens the skill screen")
+	m.toggle_skills()
+	await process_frame
 	check(m.menu_button.get_parent().get_child(0) == m.menu_button, "hud: menu icon is first, top left")
 	check(m.top_bar.is_ancestor_of(m.pause_button), "hud: pause icon sits in the top bar, top right")
 	check(m.pause_button.get_parent().get_child(m.pause_button.get_parent().get_child_count() - 1) == m.pause_button, "hud: pause icon is the last item, far right")
@@ -638,9 +648,11 @@ func _test_skill_screen() -> void:
 	# cost and points
 	m.skill_points = 0
 	m.pts_planets = [0, 1, 2]
-	m.pts_pairs = ["0-1"]
+	m.pts_pairs = ["0-1", "0-2"]
+	m.learned_skills.append("C1")  # permit first: with C1 known, the points check is what refuses A1
 	var r: Dictionary = m.learn_skill("A1")
-	check(not r["ok"] and r["reason"] == "points" and m.learned_skills.is_empty(), "skills: not enough points blocks learning")
+	check(not r["ok"] and r["reason"] == "points" and m.learned_skills == ["C1"], "skills: not enough points blocks learning")
+	m.learned_skills.clear()
 	m.skill_points = 10
 	r = m.learn_skill("A2")
 	check(not r["ok"] and r["reason"] == "locked" and m.skill_points == 10, "skills: locked skill cannot be learned, points kept")
@@ -650,37 +662,54 @@ func _test_skill_screen() -> void:
 	r = m.learn_skill("C4")
 	check(not r["ok"] and r["reason"] == "locked", "skills: C4 locked at start")
 	var cost_a1 := int(bal["skill_cost_A1"])
-	# A1 gate (owner decision 2026-10-28)
+	# A1 gate (owner decision 2026-11-03): two routes, any planet
 	var pts0: Array = m.pts_planets.duplicate()
 	var pairs0: Array = m.pts_pairs.duplicate()
-	m.pts_planets = [0, 1]
+	m.pts_planets = [0, 1, 2]
 	m.pts_pairs = []
-	check(not m.a1_gate_open() and not m.learn_skill("A1")["ok"] and m.learn_skill("A1")["reason"] == "locked", "A1 gate: locked before visits and route")
+	check(not m.a1_gate_open() and m.learn_skill("A1")["reason"] == "locked", "A1 gate: all planets visited but no route is locked")
 	m.pts_planets = [0, 1, 2]
-	check(not m.a1_gate_open() and m.learn_skill("A1")["reason"] == "locked", "A1 gate: all planets but no route is still locked")
-	m.pts_planets = [0, 1]
 	m.pts_pairs = ["0-1"]
-	check(not m.a1_gate_open() and m.learn_skill("A1")["reason"] == "locked", "A1 gate: route but a planet unvisited is still locked")
-	m.pts_planets = [0, 1, 2]
-	check(m.a1_gate_open() and SkillTree.state([], "A1", m.skill_ctx()) == "available", "A1 gate: available after all planets and a route")
+	check(not m.a1_gate_open() and m.learn_skill("A1")["reason"] == "locked", "A1 gate: one route is still locked")
+	m.learned_skills.append("C1")  # permit first: the gate alone decides A1 from here
+	m.pts_planets = [0, 1]
+	m.pts_pairs = ["0-1", "1-3"]
+	check(m.a1_gate_open() and SkillTree.state([], "A1", m.skill_ctx()) == "available", "A1 gate: two routes open it, no other planet visits needed")
+	m.pts_planets = []
+	m.pts_pairs = ["4-5", "6-7"]
+	check(m.a1_gate_open() and SkillTree.state([], "A1", m.skill_ctx()) == "available", "A1 gate: opens on any planets, not just system 1")
+	m.learned_skills.clear()
 	m.pts_planets = pts0
 	m.pts_pairs = pairs0
 	m.pts_planets = [0, 1, 2]
-	m.pts_pairs = ["0-1"]
+	m.pts_pairs = ["0-1", "0-2"]
+	# permit first: with no C1, nothing else can be learned
+	m.skill_points = 100
 	r = m.learn_skill("A1")
-	check(r["ok"] and m.learned_skills == ["A1"] and m.skill_points == 10 - cost_a1, "skills: learning spends skill_cost_A1")
+	check(not r["ok"] and r["reason"] == "locked" and r.get("why", "") == "permit_first" and m.learned_skills.is_empty() and m.skill_points == 100, "permit first: A1 locked without C1, with reason")
+	r = m.learn_skill("B1")
+	check(not r["ok"] and r["reason"] == "locked" and r.get("why", "") == "permit_first", "permit first: B1 locked without C1, with reason")
+	check(ST.state([], "B1", m.skill_ctx()) == "locked" and ST.state([], "C1", m.skill_ctx()) == "available", "permit first: skill screen state locks others, C1 available")
+	check(ST.state(["A1"], "A1", {"c1_learned": false}) == "learned", "permit first: an already learned skill is not revoked")
+	r = m.learn_skill("C1")
+	check(r["ok"] and m.learned_skills == ["C1"] and m.skill_points == 100 - int(bal["skill_cost_C1"]), "permit first: C1 learnable first at its normal cost")
+	r = m.learn_skill("B1")
+	check(r["ok"], "permit first: B1 learnable after C1")
+	m.learned_skills.erase("B1")
+	m.skill_points = 10
+	r = m.learn_skill("A1")
+	check(r["ok"] and m.learned_skills == ["C1", "A1"] and m.skill_points == 10 - cost_a1, "skills: learning spends skill_cost_A1")
 	check(m.last_notice == StoryText.get_text("NOT_SKILL_LEARNED", {"skill": StoryText.get_text("SK_A1_NAME")}), "skills: learn posts the skill notice", m.last_notice)
 	r = m.learn_skill("A1")
 	check(not r["ok"] and r["reason"] == "known" and m.skill_points == 10 - cost_a1, "skills: a learned skill is not charged twice")
 	m.learn_skill("A2")
-	check(m.learned_skills == ["A1", "A2"], "skills: A2 learnable after A1")
+	check(m.learned_skills == ["C1", "A1", "A2"], "skills: A2 learnable after A1")
 	m.learn_skill("A5")
 	check(not m.learned_skills.has("A5"), "skills: A5 needs A4")
 	m.skill_points = 50
 	for id in ["A4", "A5"]:
 		m.learn_skill(id)
 	check(m.engine.learned.has("A4") and m.engine.learned == m.learned_skills, "skills: engine sees learned skills (A4)")
-	m.learn_skill("C1")
 	m.learn_skill("C2")
 	m.learn_skill("C3")
 	check(m.learned_skills.has("C3"), "skills: C3 after C2 and A1")
@@ -1062,6 +1091,61 @@ func _test_events() -> void:
 	await _free_main(m)
 
 ## T58: ship types, purchase, auto-assignment, upkeep and cargo per type, save and restore.
+func _test_next_cycle() -> void:
+	_wipe_user()
+	var m: Control = await _new_main()
+	m._dismiss_preface()
+	var e = m.engine
+	var st = m.storage
+	var c := "energy"
+	m.cash = 100000
+	st.ensure("planet:0")
+	st.ensure("system:1")
+	st.add("planet:0", c, 60)
+	# sell order shows the out amount
+	var o: Dictionary = m.set_local_order(0, c, "sell", true)
+	var pk0: Dictionary = e.project_storage("planet:0", c, m.cash)
+	var want: int = mini(e.local_amount(), 60)
+	if o["ok"]:
+		check(int(pk0["out"]) == want and int(pk0["in"]) == 0 and int(pk0["after"]) == 60 - want and int(pk0["capacity"]) == st.capacity_of("planet:0"), "next cycle: a sell order shows the out amount", str(pk0))
+	else:
+		check(false, "next cycle: sell order could not be set", str(o))
+	# route from a planet into a station shows in for the station
+	var rec: Dictionary = e.new_record(0, -1, c)
+	rec["id"] = e.next_id
+	e.next_id += 1
+	e.routes.append(rec)
+	var ps: Dictionary = e.project_storage("system:1", c, m.cash)
+	check(int(ps["in"]) > 0 and int(ps["after"]) == int(ps["in"]) and int(ps["capacity"]) == st.capacity_of("system:1"), "next cycle: a route into a station shows in", str(ps))
+	# no state change
+	var stock0: Dictionary = st.to_dict()
+	var cash0: int = m.cash
+	var routes0: Array = e.to_array()
+	var local0: Array = e.local_to_array()
+	e.project_storage("planet:0", c, m.cash)
+	e.project_storage("system:1", c, m.cash)
+	check(st.to_dict() == stock0 and m.cash == cash0 and e.to_array() == routes0 and e.local_to_array() == local0, "next cycle: projection changes no stock, cash, routes or orders")
+	# full storage is clamped to capacity
+	e.routes.clear()
+	e.local.clear()
+	st.add("system:1", c, st.space("system:1", c))
+	e.routes.append(rec)
+	var pf: Dictionary = e.project_storage("system:1", c, m.cash)
+	check(int(pf["after"]) == st.capacity_of("system:1") and int(pf["in"]) == 0, "next cycle: a full storage is clamped to capacity", str(pf))
+	# the panel row builds; the label sits in the same row as the bar and name, hidden when nothing moves
+	e.routes.clear()
+	e.local.clear()
+	m.planet_panel.show_planet(0)
+	check(m.planet_panel.find_child("NextCycle_" + c, true, false) == null, "next cycle: hidden when in and out are both 0")
+	var o2: Dictionary = m.set_local_order(0, c, "sell", true)
+	if o2["ok"]:
+		m.planet_panel.show_planet(0)
+		var nc1: Node = m.planet_panel.find_child("NextCycle_" + c, true, false)
+		var par: Node = nc1.get_parent() if nc1 != null else null
+		check(nc1 != null, "next cycle: visible with a sell order and stock")
+		check(par is HBoxContainer and par.get_child_count() == 3 and par.get_child(par.get_child_count() - 1) == nc1, "next cycle: label is the last child of the storage row, not a sibling below it")
+	await _free_main(m)
+
 func _test_ships() -> void:
 	_wipe_user()
 	var m: Control = await _new_main()
@@ -1290,10 +1374,13 @@ func _test_systems() -> void:
 	m.cash = 5000
 	var pts: int = m.skill_points
 	var sys0: int = m.systems_reached
+	m.learned_skills.append("A1")  # trade gate: system 2 needs its Space Storage post
+	m.storage.ensure(Storage.system_key(2))
 	r = m.set_local_order(3, "food", "buy", true)
 	check(r["ok"] and m.systems_reached == sys0 + 1, "sys2: first order in system 2 reaches it")
 	m.set_local_order(4, "energy", "buy", true)
 	check(m.systems_reached == sys0 + 1, "sys2: reach counted once")
+	m.learned_skills.erase("A1")
 	# round trip save
 	var st: Dictionary = m.collect_state()
 	check(st["open_systems"].has(2), "sys2: open_systems saved")
@@ -1305,17 +1392,40 @@ func _test_systems() -> void:
 	# Space Storage
 	check(not m.space_post_open(1) and not m.space_post_open(2), "space: no post before A1")
 	m.pts_planets = [0, 1, 2]
-	m.pts_pairs = ["0-1"]
+	m.pts_pairs = ["0-1", "0-2"]
 	m.skill_points = 50
 	check(m.learn_skill("A1")["ok"], "space: A1 learnable after the gate")
 	check(m.space_post_open(1) and m.space_post_open(2), "space: one post per open system after A1")
 	check(m.storage.capacity_of("system:1") == int(bal["space_storage_capacity"]), "space: capacity from balance")
-	# feed at planet_to_space_rate, after sells
+	# manual Space Storage (owner 2026-11-03): nothing fills it by itself; only a ship sent to it does
 	m.storage.ensure("planet:0")
 	m.storage.add("planet:0", "energy", 60)
-	m.engine.feed_space()
-	var rate := int(bal["planet_to_space_rate"])
-	check(m.storage.amount("system:1", "energy") == rate and m.storage.amount("planet:0", "energy") == 60 - rate, "space: planet feeds the post at planet_to_space_rate")
+	check(not m.engine.has_method("feed_space"), "space manual: the automatic feed is gone")
+	m.cash = 5000
+	m.ships = 3
+	for _i in 4:
+		m.engine.settle(m.cash)
+	check(m.storage.amount("system:1", "energy") == 0 and m.storage.amount("planet:0", "energy") == 60, "space manual: no stock moves into Space Storage by itself over several cycles")
+	var routes_n: int = m.engine.routes.size()
+	var saved_post: Dictionary = (m.storage.stock["system:2"] as Dictionary).duplicate(true)
+	m.storage.stock.erase("system:2")
+	if not m.learned_skills.has("C3"):
+		m.learned_skills.append("C3")  # cross-system routes need Long Haul; this check is about the post only
+	var refused: Dictionary = m.send_stock(0, m.station_dst(2), "energy")
+	check(not refused["ok"] and refused["reason"] == m.trade_locked_reason() and m.engine.routes.size() == routes_n and m.storage.amount("planet:0", "energy") == 60, "space manual: a send to a station with no open post is refused, nothing changes", str(refused))
+	m.storage.stock["system:2"] = saved_post
+	var sent: Dictionary = m.send_stock(0, m.station_dst(1), "energy")
+	check(sent["ok"] and m.engine.routes.size() == routes_n + 1 and str(m.engine.routes[routes_n]["dst"]) == "system:1", "space manual: a send to the station makes a route", str(sent))
+	var srec: Dictionary = m.engine.routes[routes_n]
+	srec["fresh"] = 1.0
+	var cash_before: int = m.cash
+	m.engine.settle(m.cash)
+	var moved: int = m.storage.amount("system:1", "energy")
+	check(moved > 0 and m.storage.amount("planet:0", "energy") == 60 - moved and str(srec["state"]) == "running", "space manual: a ship sent to the station moves stock into it", "moved %d state %s" % [moved, str(srec["state"])])
+	check(m.engine.payout_of(srec) == -m.engine.fixed_cost(srec) and m.engine.fixed_cost(srec) > 0, "space manual: a send to the station costs trip and upkeep like any route")
+	m.remove_connection(int(srec["id"]))
+	m.storage.stock["system:1"]["energy"] = 0
+	m.storage.stock["planet:0"]["energy"] = 60 - moved
 	check(m.storage.amount("system:2", "energy") == 0, "space: systems are separate")
 	m.storage.add("system:1", "energy", 100000)
 	check(m.storage.amount("system:1", "energy") == int(bal["space_storage_capacity"]), "space: capacity is a hard cap")
@@ -1400,8 +1510,8 @@ func _test_skill_effects() -> void:
 	var cap0: int = m.storage.capacity_of(key0)
 	m.skill_points = 10
 	m.pts_planets = [0, 1, 2]
-	m.pts_pairs = ["0-1"]
-	check(m.learn_skill("A1")["ok"] and m.learn_skill("A2")["ok"], "A2: learned after A1")
+	m.pts_pairs = ["0-1", "0-2"]
+	check(m.learn_skill("C1")["ok"] and m.learn_skill("A1")["ok"] and m.learn_skill("A2")["ok"], "A2: learned after A1")
 	var cap1: int = m.storage.capacity_of(key0)
 	check(cap1 == int(round(float(cap0) * (1.0 + float(bal["skill_A2_capacity"])))) and cap1 > cap0, "A2: planet storage capacity raised by skill_A2_capacity", "%d -> %d" % [cap0, cap1])
 	check(m.storage.capacity_of("system:1") == int(bal["space_storage_capacity"]), "A2: Space Storage capacity unchanged")
@@ -1604,14 +1714,19 @@ func _test_full_endings() -> void:
 			m.learned_skills.append("C1")
 			var pr: Dictionary = m.buy_permit(2)
 			check(pr["ok"] and m.open_systems.has(2), "full: system 2 permit bought (%s)" % side, str(pr))
+			m.learned_skills.append("A1")  # trade gate: post open in system 2
+			m.storage.ensure(Storage.system_key(2))
 			m.set_local_order(3, "food", "buy", true)
+			m.learned_skills.erase("A1")
 			check(m.systems_reached == 2, "full: system 2 reached by an order (%s)" % side)
-			m.learned_skills.erase("C1")
+			# permit first: C1 stays learned (it unlocks every other skill)
 			m.pts_planets = [0, 1, 2]
-			m.pts_pairs = ["0-1"]
+			m.pts_pairs = ["0-1", "0-2"]
 			m.skill_points = 100
 			var all_ok := true
 			for id in set_[0]:
+				if m.learned_skills.has(id):
+					continue
 				if not m.learn_skill(id)["ok"]:
 					all_ok = false
 			check(all_ok, "full: %s set learned in tree order (%s)" % [set_[1], side], str(m.learned_skills))
@@ -2002,20 +2117,93 @@ func _test_split_send() -> void:
 	check(not s3.is_empty() and is_equal_approx(float(s3["share"]), 0.75), "N2: the split survives a save and restore")
 	m.selected_planet = ti
 	m.planet_panel.show_planet(ti)
-	check(_find_named(m.planet_panel, "SplitHalfButton") != null and _find_named(m.planet_panel, "SplitThreeQuarterButton") != null, "N2: the panel offers both splits on a row with two lanes")
-	m.begin_split("food", 0.5)
-	check(m.pending.has("split"), "N2: a split pick starts a two-click order")
-	m._on_planet_clicked(ti)
-	check(m.pending.has("split") and not m.pending.has("first"), "N2: the source planet is not picked as a destination")
-	m._on_planet_clicked(d1)
-	m._on_planet_clicked(d2)
-	check(m.pending.is_empty(), "N2: the second destination completes the split")
-	var t1: Dictionary = e.lane_split(ti, d1, "food")
-	check(not t1.is_empty() and is_equal_approx(float(t1["share"]), 0.5) and int(t1["to"]) == d2, "N2: the picked order sets half and half, first destination first", "%s d1=%d d2=%d pending=%s" % [str(t1), d1, d2, str(m.pending)])
+	check(_find_named(m.planet_panel, "SplitButton") != null and _find_named(m.planet_panel, "SplitBar") == null, "split bar: a row with two lanes offers one Split button, the bar is closed")
+	check(not m.has_method("begin_split") and not m.has_method("_on_split_click"), "split bar: the old two-click pick no longer exists")
+	e.clear_split(ti, "food")
+	check(e.lane_split(ti, d1, "food").is_empty() and e.lane_split(ti, d2, "food").is_empty(), "split bar: clear_split removes both lanes' split")
+	_find_named(m.planet_panel, "SplitButton").pressed.emit()
+	check(_find_named(m.planet_panel, "SplitBar") != null, "split bar: the Split button opens the bar")
+	var sl: HSlider = _find_named(m.planet_panel, "SplitSlider")
+	var q1: Dictionary = e.lane_split(ti, d1, "food")
+	check(sl != null and int(sl.value) == 50 and not q1.is_empty() and is_equal_approx(float(q1["share"]), 0.5), "split bar: the bar starts at 50/50")
+	sl.value = 70
+	var w1: Dictionary = e.lane_split(ti, d1, "food")
+	var w2: Dictionary = e.lane_split(ti, d2, "food")
+	check(is_equal_approx(float(w1["share"]), 0.7) and is_equal_approx(float(w2["share"]), 0.3), "split bar: 70/30 gives the lanes 0.7 and 0.3", str([w1, w2]))
+	_find_named(m.planet_panel, "SplitPlus").pressed.emit()
+	check(is_equal_approx(float(e.lane_split(ti, d1, "food")["share"]), 0.8), "split bar: + steps 10 points")
+	for _i in 5:
+		_find_named(m.planet_panel, "SplitPlus").pressed.emit()
+	check(is_equal_approx(float(e.lane_split(ti, d1, "food")["share"]), 0.9) and is_equal_approx(float(e.lane_split(ti, d2, "food")["share"]), 0.1), "split bar: each lane keeps at least 10%")
+	check(_find_named(m.planet_panel, "SplitTag") != null, "split bar: split lanes show a tag on their route row")
+	_find_named(m.planet_panel, "SplitDone").pressed.emit()
+	check(_find_named(m.planet_panel, "SplitBar") == null and not e.lane_split(ti, d1, "food").is_empty(), "split bar: Done closes the bar and keeps the split")
+	_find_named(m.planet_panel, "SplitButton").pressed.emit()
+	_find_named(m.planet_panel, "SplitStop").pressed.emit()
+	check(e.lane_split(ti, d1, "food").is_empty() and e.lane_split(ti, d2, "food").is_empty() and _find_named(m.planet_panel, "SplitBar") == null, "split bar: Stop split clears it")
+	m.set_split_percent(ti, "food", 60)
+	var gone := -1
+	for i in e.routes.size():
+		if int(e.routes[i]["a"]) == ti and int(e.routes[i]["b"]) == d2:
+			gone = i
+			break
+	e.routes.remove_at(gone)
+	check(e.lane_split(ti, d1, "food").is_empty() and e._split_limit(r1) == -1, "split bar: a lane losing its ship ends the split, the other lane takes all stock")
 	await _free_main(m)
 	_wipe_user()
 
 # ---- each system has its own sun (system 2 blue); system 1 keeps the orange one ----
+func _test_stations() -> void:
+	var m = await _new_main()
+	m._dismiss_preface()
+	check(m.station_systems.is_empty() and m.map.stations.is_empty(), "station: none before A1")
+	m.open_systems = [1, 2]
+	m._open_system(2)
+	check(m.station_systems.is_empty(), "station: none before A1 even with system 2 open")
+	m.pts_planets = [0, 1, 2]
+	m.pts_pairs = ["0-1", "0-2"]
+	m.skill_points = 50
+	check(m.learn_skill("C1")["ok"] and m.learn_skill("A1")["ok"], "station: A1 learned")
+	check(m.station_systems.has(1) and m.station_systems.has(2) and m.map.stations.size() == 2, "station: one per open system after A1")
+	m._ensure_stations()
+	m._ensure_posts()
+	check(m.station_systems.size() == 2 and m.map.stations.size() == 2 and m.station_markers.size() == 2, "station: no duplicates on a second call")
+	check(m.map.add_station(1) == false, "station: map refuses a second station")
+	var st: Dictionary = m.collect_state()
+	check(st["station_systems"] == [1, 2], "station: flag saved", str(st["station_systems"]))
+	await _free_main(m)
+	m = await _new_main()
+	m._dismiss_preface()
+	m.apply_state(JSON.parse_string(JSON.stringify(st)))
+	check(m.station_systems == [1, 2] and m.map.stations.size() == 2, "station: save round-trips", str(m.station_systems))
+	var old: Dictionary = st.duplicate()
+	old.erase("station_systems")
+	m.apply_state(old)
+	check(m.station_systems == [1, 2] and m.map.stations.size() == 2, "station: old save with A1 builds them on load")
+	# Space Storage view: the station click opens it, not the planet panel
+	var ssv = m.space_storage_view
+	m.planet_panel.visible = false
+	m._on_station_clicked(2)
+	check(m.space_post_open(2) and ssv.visible and ssv.system_id == 2 and not m.planet_panel.visible, "station view: click opens the Space Storage view, not the planet panel")
+	var rows_ok: bool = true
+	for c in m.commodities:
+		rows_ok = rows_ok and ssv.box.find_child("Row_" + str(c), true, false) != null
+	check(rows_ok and not m.commodities.is_empty(), "station view: one row per commodity")
+	ssv.close_view()
+	check(not ssv.visible, "station view: closes")
+	# a pending plain Send to picks the station instead of opening the view
+	m.cash = 5000
+	m.ships = 3
+	var pick_n: int = m.engine.routes.size()
+	m.pending = {"planet": 0, "c": "energy"}
+	m._on_station_clicked(1)
+	check(m.pending.is_empty() and not m.space_storage_view.visible and m.engine.routes.size() == pick_n + 1 and str(m.engine.routes[pick_n]["dst"]) == "system:1", "station pick: a pending Send to completes with the station as destination", "routes %d" % m.engine.routes.size())
+	m.pending = {}
+	m.storage.stock.erase(Storage.system_key(2))
+	m._on_station_clicked(2)
+	check(not m.space_post_open(2) and not ssv.visible and m.last_notice == m.trade_locked_reason(), "station view: refused with the locked reason without a post")
+	await _free_main(m)
+
 func _test_system_suns() -> void:
 	_wipe_user()
 	var m: Control = await _new_main()
@@ -2214,3 +2402,172 @@ func _test_mixed_load() -> void:
 	check(got == int(nxt["local"][0]["n"]) * e.sold_price(0, a) and nxt["local"].size() >= 1, "N3: bonus does not carry over to the next cycle", str(nxt["local"]))
 	await _free_main(m)
 	_wipe_user()
+
+## Owner 2026-11-03: trading outside system 1 needs that system's Space Storage post.
+func _test_trade_gate() -> void:
+	var m = await _new_main()
+	m._dismiss_preface()
+	m.open_systems = [1, 2]
+	m._open_system(2)
+	var home := -1
+	var far := -1
+	for i in m.map.planets.size():
+		var sid := int(m.map.planets[i].get("system", 1))
+		var ok_c: bool = m.trade.price(i, "energy_buy") >= 0 and m.trade.price(i, "energy_sell") >= 0
+		if sid == 1 and home < 0 and ok_c: home = i
+		if sid == 2 and far < 0 and ok_c: far = i
+	var c := "energy"
+	m.cash = 5000
+	m.ships = 2
+	m.learned_skills.append("C3")  # Long Haul, so only the gate can refuse a cross-system route
+	check(m.system_trade_open(home) and not m.system_trade_open(far), "gate: home open, second system locked without a post")
+	check(m.set_local_order(home, c, "buy", true)["ok"], "gate: home Buy works without a post")
+	check(m.set_local_order(home, c, "sell", true)["ok"], "gate: home Sell works without a post")
+	var cash0: int = m.cash
+	var rb: Dictionary = m.set_local_order(far, c, "buy", true)
+	var rs: Dictionary = m.set_local_order(far, c, "sell", true)
+	check(not rb["ok"] and not rs["ok"] and rb["reason"] == m.trade_locked_reason(), "gate: second system refuses Buy and Sell", str(rb))
+	check(not m.engine.local_on(far, c, "buy") and not m.engine.local_on(far, c, "sell") and m.cash == cash0, "gate: refused orders change nothing")
+	var stock0: int = m.storage.amount(m.storage.planet_key(home), c)
+	var rt: Dictionary = m.send_stock_buying(home, far, c)
+	var rt2: Dictionary = m.send_stock_buying(far, home, c)
+	check(not rt["ok"] and not rt2["ok"] and rt["reason"] == m.trade_locked_reason(), "gate: Send to refused to and from a locked system", str(rt))
+	check(m.cash == cash0 and m.engine.routes.is_empty() and m.storage.amount(m.storage.planet_key(home), c) == stock0, "gate: refused Send changes no cash, ships, routes or stock")
+	# panel buttons
+	m.planet_panel.show_planet(far)
+	var names := ["BuyButton_" + c, "SellButton_" + c, "SendButton_" + c]
+	var all_off := true
+	for nm in names:
+		var b = _find_named(m.planet_panel, nm)
+		if b == null or not b.disabled or b.tooltip_text != m.trade_locked_reason():
+			all_off = false
+	check(all_off, "gate: panel disables Buy, Sell and Send to with the reason on a locked system")
+	m.planet_panel.show_planet(home)
+	var hb = _find_named(m.planet_panel, "BuyButton_" + c)
+	check(hb != null and not hb.disabled, "gate: panel keeps home Buy enabled")
+	# open the post
+	m.pts_planets = [0, 1, 2]
+	m.pts_pairs = ["0-1", "0-2"]
+	m.skill_points = 50
+	m.learn_skill("C1")
+	m.learn_skill("A1")
+	check(m.space_post_open(2) and m.system_trade_open(far), "gate: post open after A1")
+	check(m.set_local_order(far, c, "buy", true)["ok"] and m.set_local_order(far, c, "sell", true)["ok"], "gate: second system Buy and Sell work once the post is open")
+	var ro: Dictionary = m.send_stock_buying(home, far, c)
+	check(ro["ok"], "gate: Send to works once the post is open", str(ro))
+	m.planet_panel.show_planet(far)
+	var open_b = _find_named(m.planet_panel, "BuyButton_" + c)
+	check(open_b != null and not open_b.disabled, "gate: panel enables Buy once the post is open")
+	await _free_main(m)
+
+# ---- N9: a Send to... can name one stop on the path; the stop sells up to its Sell order amount and the rest goes on ----
+func _test_stop_sale() -> void:
+	_wipe_user()
+	var m: Control = await _new_main()
+	m._dismiss_preface()
+	var e = m.engine
+	var src := 0  # Voltara
+	var dst := 1  # Tillam
+	var stop := 2  # Ashgate, moved onto the Voltara-Tillam line for this test only
+	var c := "energy"
+	m.map.planets[stop]["x"] = 0
+	m.map.planets[stop]["y"] = 80
+	m.cash = 100000
+	check(e.stop_on_path(src, stop, dst) and not e.stop_on_path(src, dst, stop) and not e.stop_on_path(src, src, dst), "N9: a planet between src and dst is on the path, the ends are not")
+	check(e.stop_candidates(src, dst, c).is_empty(), "N9: no stop is offered while the stop has no Sell order for the commodity")
+	var ro: Dictionary = m.set_local_order(stop, c, "sell", true)
+	check(ro["ok"] and e.stop_candidates(src, dst, c).has(stop) and e.stop_candidates(src, dst, c).size() == 1, "N9: an enabled Sell order at the stop offers it", str(ro))
+	var line: String = m.stop_line(stop, dst)
+	check(line == "Stop at Ashgate: sell up to %d here, carry the rest to Tillam." % int(e.balance["order_amount"]), "N9: the picker line reads 'Stop at A: sell up to N here, carry the rest to B.'", line)
+	m.pending = {"planet": src, "c": c}
+	check(m.pending_margin_lines().has(line), "N9: the picker lists the stop line under its destination")
+	m._on_planet_clicked(dst)
+	check(m.pending.has("dest") and int(m.pending["dest"]) == dst and e.routes.is_empty(), "N9: the first click picks the destination and sends nothing yet")
+	m._on_planet_clicked(stop)
+	check(e.routes.size() == 1 and int(e.routes[0]["stop"]) == stop and int(e.routes[0]["b"]) == dst, "N9: the second click on the stop makes a route to the destination with that stop")
+	check(not m.send_stock_buying(src, dst, c, src)["ok"], "N9: a stop that is not offered is refused before a ship is bought")
+	check(m.send_stock_buying(src, dst, c)["ok"] and int(e.routes[e.routes.size() - 1]["stop"]) == -1, "N9: a direct send still works next to the stop route")
+	var rs: Dictionary = e.routes[0]
+	var direct: Dictionary = e.new_record(src, dst, c)
+	check(e.fixed_cost(rs) == 2 * e.trip_part() + e.upkeep_part(rs) and e.fixed_cost(direct) == e.trip_part() + e.upkeep_part(direct), "N9: a stop pays one extra trip cost")
+	check(e.units_per_cycle(rs) < e.units_per_cycle(direct) and e.units_per_cycle(rs) == floori(float(m.balance["cargo"]) / (4.0 * e.trade.travel_cycles())), "N9: the stop leg adds one travel leg, so the stop route moves fewer units")
+	# settle: the stop keeps up to its Sell order amount from the load, the rest is carried on
+	var orig_amount: int = int(e.balance["order_amount"])
+	e.balance["order_amount"] = 3
+	var sk: String = m.storage.planet_key(src)
+	m.storage.ensure(sk)
+	var have: int = m.storage.amount(sk, c)
+	if have > 0:
+		m.storage.remove(sk, c, have)
+	m.storage.add(sk, c, 200)
+	var moved: int = e.planned_units(rs)
+	var dk: String = m.storage.planet_key(dst)
+	var d0: int = m.storage.amount(dk, c)
+	var s0: int = m.storage.amount(m.storage.planet_key(stop), c)
+	var paid: int = e._settle_one(rs, m.cash)
+	var sold_want := mini(moved, 3)
+	check(moved > 3 and m.storage.amount(dk, c) - d0 == moved - sold_want, "N9: the stop keeps up to its order amount, the rest arrives at the destination", "moved %d" % moved)
+	check(paid + int(rs["bonus"]) == -e.fixed_cost(rs) + sold_want * e.sold_price(stop, c), "N9: the stop sale is paid on top of the stop route's cost")
+	check(m.storage.amount(m.storage.planet_key(stop), c) == s0, "N9: the stop sells from the ship's load, not from company storage")
+	m.set_local_order(stop, c, "sell", false)
+	m.storage.add(sk, c, 200)
+	var moved2: int = e.planned_units(rs)
+	var d1: int = m.storage.amount(dk, c)
+	e._settle_one(rs, m.cash)
+	check(m.storage.amount(dk, c) - d1 == moved2 and int(rs["bonus"]) == 0, "N9: with the stop's Sell order off the load goes on whole")
+	m.set_local_order(stop, c, "sell", true)
+	e.balance["order_amount"] = orig_amount
+	var saved: Array = e.to_array()
+	e.from_array(saved, 10)
+	var kept := false
+	for r in e.routes:
+		if int(r["stop"]) == stop:
+			kept = true
+	check(kept, "N9: the stop survives a save and restore")
+	var bad: Array = saved.duplicate(true)
+	bad[0]["stop"] = src
+	e.from_array(bad, 10)
+	check(int(e.routes[0]["stop"]) == -1, "N9: a saved stop that is not on the path is dropped on load")
+	await _free_main(m)
+
+func _test_second_lane() -> void:
+	_wipe_user()
+	var m: Control = await _new_main()
+	m._dismiss_preface()
+	check(not m.second_lane_active(), "N11: the optional line is hidden before the first ship and cycle")
+	m.ships = 1
+	m.cycle = 3
+	check(m.second_lane_active(), "N11: the optional line shows once the player is trading")
+	var base: int = m.permit_cost(2)
+	check(base == int(m.balance["permit_2_cost"]) and m.second_lane_line().contains("Optional") and m.second_lane_line().contains(str(base)), "N11: the line says Optional and shows the live permit cost", m.second_lane_line())
+	m.learned_skills = ["C4"]
+	var disc: int = m.permit_cost(2)
+	check(disc < base and m.second_lane_line().contains(str(disc)), "N11: the line shows the permit cost after the C4 discount", m.second_lane_line())
+	m.learned_skills = []
+	m._refresh()
+	check(m.goal_label.text.contains("Optional"), "N11: the goal line carries the optional text")
+	m.debug_grant_permit(2)  # buying (granting) the permit never ticks the goal
+	var p2 := -1
+	var p1 := 0
+	for i in m.map.planets.size():
+		if int(m.map.planets[i].get("system", 1)) == 2 and p2 < 0:
+			p2 = i
+	check(p2 >= 0 and m.second_lane_planet == -1, "N11: opening system 2 does not tick the goal")
+	m._check_second_lane({"local": [{"planet": p1, "role": "sell", "n": 5, "paid": 50}, {"planet": p2, "role": "buy", "n": 5, "paid": -50}, {"planet": p2, "role": "sell", "n": 0, "paid": 0}], "results": [{"stop": p2, "stop_sale": 0}]})
+	check(m.second_lane_planet == -1, "N11: a system 1 sale, a system 2 buy and an empty sale do not tick it")
+	m._check_second_lane({"local": [{"planet": p2, "role": "sell", "n": 4, "paid": 40}], "results": []})
+	check(m.second_lane_planet == p2 and not m.second_lane_active(), "N11: a sale in system 2 ticks the goal and hides the line")
+	var cash0: int = m.cash
+	var pts0: int = m.skill_points
+	m._check_second_lane({"local": [], "results": [{"stop": p2 + 1, "stop_sale": 9}]})
+	check(m.second_lane_planet == p2 and m.cash == cash0 and m.skill_points == pts0, "N11: the goal ticks once and pays no cash or skill points")
+	var st: Dictionary = m.collect_state()
+	check(int(st["second_lane"]) == p2, "N11: the tick is saved")
+	m.second_lane_planet = -1
+	m.apply_state(st)
+	check(m.second_lane_planet == p2, "N11: the tick survives a save and load")
+	m.planet_panel.show_planet(p2)
+	check(m.planet_panel.box.get_node_or_null("SecondLaneNote") != null, "N11: the planet panel shows the title and note on that planet")
+	m.planet_panel.show_planet(p1)
+	check(m.planet_panel.box.get_node_or_null("SecondLaneNote") == null, "N11: other planets show no note")
+	await _free_main(m)

@@ -4,7 +4,6 @@ extends Node3D
 ## are laid out on a ring around the origin (in the XZ plane).
 
 signal planet_clicked(index: int)  # -1 when the click hit empty space
-signal empty_double_clicked          # double click on empty space: no planet, no route (opens the galaxy view)
 signal route_clicked(id: int)      # T07b: click on a route line (no planet under the cursor)
 
 const PlanetTypes := preload("res://game/planet_types.gd")
@@ -65,6 +64,12 @@ var pending_hint: MeshInstance3D  # T57 halo on the planet with a pending connec
 var hint: MeshInstance3D  # T28 pulsing halo, null until first requested
 var route_lines: Dictionary = {}  # T07b: route id -> route_line.gd node
 var _route_list: Array = []       # last list given to set_routes (rebuilt after tunable changes)
+
+signal station_clicked(system_id: int)
+const STATION_OFFSET := Vector3(2.4, 0.0, -2.4)  # from the system's sun
+const STATION_PICK_PX := 40.0
+const STATION_MARKER_LIFT := 0.45
+var stations := {}  # system id -> game/station.gd node
 
 func _ready() -> void:
 	RenderingServer.set_default_clear_color(Color.BLACK)
@@ -251,6 +256,8 @@ func _apply_view() -> void:
 	for id in route_lines:
 		var ln = route_lines[id]
 		ln.visible = planet_in_view(int(ln.pair_a)) and planet_in_view(int(ln.pair_b))
+	for id in stations:
+		stations[id].visible = int(id) == view_system
 	for id in orbit_rings:  # each system shows only its own sun and orbit rings
 		orbit_rings[id].visible = int(id) == view_system
 	for id in suns:
@@ -484,13 +491,51 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 		var hit := pick_planet(event.position)
 		if hit < 0:
+			var sid := pick_station(event.position)
+			if sid >= 0:
+				station_clicked.emit(sid)
+				return
 			var rid := pick_route(event.position)
 			if rid >= 0:
 				route_clicked.emit(rid)
 				return
 		planet_clicked.emit(hit)
-		if hit < 0 and event.double_click:
-			empty_double_clicked.emit()
+
+## Space station of one system: built once, placed beside the sun. Returns false if it already exists.
+func add_station(sid: int, animate: bool = true) -> bool:
+	if stations.has(sid):
+		return false
+	var st: Node3D = load("res://game/station.gd").new()
+	st.system_id = sid
+	st.position = sun_positions.get(sid, Vector3.ZERO) + STATION_OFFSET
+	st.visible = sid == view_system
+	add_child(st)
+	stations[sid] = st
+	st.build_in(animate)
+	return true
+
+func clear_stations() -> void:
+	for sid in stations:
+		stations[sid].queue_free()
+	stations.clear()
+
+## Screen position of the marker above a station, or null when it should be hidden.
+func station_marker_pos(sid: int) -> Variant:
+	if not stations.has(sid) or sid != view_system or camera == null:
+		return null
+	var w: Vector3 = stations[sid].position + Vector3(0, STATION_MARKER_LIFT, 0)
+	if camera.is_position_behind(w):
+		return null
+	var p := camera.unproject_position(w)
+	return p if get_viewport().get_visible_rect().grow(-4.0).has_point(p) else null
+
+func pick_station(screen_pos: Vector2) -> int:
+	for sid in stations:
+		if sid != view_system or camera.is_position_behind(stations[sid].position):
+			continue
+		if camera.unproject_position(stations[sid].position).distance_to(screen_pos) <= STATION_PICK_PX:
+			return int(sid)
+	return -1
 
 ## Returns index of nearest planet hit by the camera ray through screen_pos, or -1.
 func pick_planet(screen_pos: Vector2) -> int:

@@ -39,16 +39,23 @@ static func missing_prereqs(learned: Array, id: String) -> Array:
 			out.append(p)
 	return out
 
-## Owner decision 2026-10-28: A1 Space Storage opens only after all system 1 planets are visited and one route is made.
+## A1 gate (owner decision 2026-11-03): A1 Space Storage opens only after two routes are made, on any planet.
 ## ctx = {"a1_open": bool}; no key means open (pure callers and old tests).
 static func gate_open(ctx: Dictionary, id: String) -> bool:
 	return id != "A1" or bool(ctx.get("a1_open", true))
+
+## Permit first (owner decision 2026-11-03): until C1 Permit Charter is learned, every other skill is locked.
+## ctx = {"c1_learned": bool}; no key means open (pure callers and old tests). Already learned skills stay learned.
+static func permit_first_blocks(learned: Array, ctx: Dictionary, id: String) -> bool:
+	return id != "C1" and not bool(ctx.get("c1_learned", true)) and not learned.has("C1")
 
 ## "learned", "available" (prerequisites met) or "locked".
 static func state(learned: Array, id: String, ctx: Dictionary = {}) -> String:
 	if learned.has(id):
 		return "learned"
 	if not gate_open(ctx, id):
+		return "locked"
+	if permit_first_blocks(learned, ctx, id):
 		return "locked"
 	return "available" if missing_prereqs(learned, id).is_empty() else "locked"
 
@@ -63,7 +70,10 @@ static func can_learn(learned: Array, points: int, balance: Dictionary, id: Stri
 		"learned":
 			return {"ok": false, "reason": "known"}
 		"locked":
-			return {"ok": false, "reason": "locked"}
+			var out := {"ok": false, "reason": "locked"}
+			if permit_first_blocks(learned, ctx, id):
+				out["why"] = "permit_first"
+			return out
 	if points < cost(balance, id):
 		return {"ok": false, "reason": "points"}
 	return {"ok": true, "reason": ""}

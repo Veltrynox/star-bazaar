@@ -117,7 +117,7 @@ func add_routes_dump() -> void:
 		var lines: Array = []
 		for r in main.get_routes():
 			lines.append("#%d %s > %s %s lvl %d net %d (%s) %s" % [r["id"],
-				main.map.planets[r["a"]].get("name", "?"), main.map.planets[r["b"]].get("name", "?"),
+				main.planet_name(int(r["a"])), main.planet_name(int(r["b"])),
 				r["c"], r["level"], r["net"], r["status"], r["reason"]])
 		l.text = "\n".join(lines) if not lines.is_empty() else "No routes.")
 	add_tool(b)
@@ -170,7 +170,7 @@ func event_state_text() -> String:
 	return "\n".join(lines)
 
 func gate_text() -> String:
-	return "A1 gate %s. Planets visited %s, routes made %d. Space Storage posts: %s" % ["OPEN" if main.a1_gate_open() else "closed",
+	return "A1 gate %s (needs 2 routes). Planets visited %s, routes made %d. Space Storage posts: %s" % ["OPEN" if main.a1_gate_open() else "closed",
 		str(main.pts_planets), main.pts_pairs.size(), str(main.open_systems.filter(func(s): return main.space_post_open(int(s))))]
 
 func ships_text() -> String:
@@ -219,8 +219,8 @@ func add_qa_tools() -> void:
 	_qa_button("grant_permit", "Grant permit (free)", func(): main.debug_grant_permit(_sel(po)); _refresh_qa())
 	_qa_label("open_systems")
 	_qa_section("QA: Space Storage")
-	_qa_button("gate_open", "Set A1 gate: visited + route made", func(): main.debug_set_a1_gate(true); _refresh_qa())
-	_qa_button("gate_reset", "Clear A1 gate inputs", func(): main.debug_set_a1_gate(false); _refresh_qa())
+	_qa_button("gate_open", "Set A1 gate: two routes made", func(): main.debug_set_a1_gate(true); _refresh_qa())
+	_qa_button("gate_reset", "Clear A1 gate inputs (routes and planets)", func(): main.debug_set_a1_gate(false); _refresh_qa())
 	_qa_label("gate_state")
 	_qa_section("QA: ships and routes")
 	_qa_button("ship_small", "Add small ship (free)", func(): main.debug_add_ship("small"); _refresh_qa())

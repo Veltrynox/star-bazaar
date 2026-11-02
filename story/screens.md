@@ -87,7 +87,7 @@ SK_BTN_LEARNED | 24 | Learn button, disabled on a learned skill | Learned
 SK_BTN_LOCKED | 24 | Learn button, disabled on a locked skill | Locked
 SK_LABEL_EFFECT | 24 | Detail panel label above the plain line | What it changes
 SK_LABEL_NEEDS_POINTS | 60 | Detail panel, available but too costly | Not enough skill points.
-SK_A1_GATE | 110 | Skill screen, detail panel of Space Storage (A1) while locked | Space Storage opens once you have visited every planet in the first system and made a first route.
+SK_A1_GATE | 110 | Skill screen, detail panel of Space Storage (A1) while locked | Space Storage opens once you have made two routes, on any planets.
 
 ## Mission board hints (right side board)
 MB_01 | 110 | Mission board, cycle 1
@@ -262,3 +262,34 @@ TUT_G6_DONE | 110 | Guided step 6, after step 5 | That is the loop: buy, move, s
 ## Map edge arrow (T128, owner item 7)
 MAP_ARROW_PERMIT | 50 | Tooltip of the arrow at the edge of the 3D map when a permit or system can be opened; click opens Skills with the steps lit | A new system is within reach. Open Skills.
 MAP_ARROW_SYSTEM | 50 | Tooltip of the same arrow once the permit is held; click moves the view to the other system | Go to the other system.
+
+## Market, route and salvage labels (added 2026-11-02)
+LBL_PRICE_EVENT | 40 | Planet market row, during a price event; {arrow} is the price direction | {arrow} Event, {cycles} cycles left
+LBL_BEST_OPEN_ROUTE | 50 | Blocked route row, when an event closes a planet; {n} is net profit per cycle | Best open route: +{n} per cycle
+LBL_SETUP_LOST | 60 | Move ship warning, only when a setup is really lost by moving | Moving loses this setup.
+BTN_MOVE_SHIP | 24 | Blocked route row, moves the ship to the best open route | Move to best route
+LBL_STORAGE_EMPTY | 110 | Commodity row warning, when company storage there is empty | Storage empty. Send to... will wait for stock.
+LBL_SALVAGE_NO_BUYER | 110 | Sell row, salvage line, no buyer | Salvage: {n} now (no buyer on your lanes). Sell order pays {m}.
+LBL_SALVAGE_STORAGE_FULL | 110 | Sell row, salvage line, storage full | Salvage: {n} now (storage full). Sell order pays {m}.
+BTN_SALVAGE | 24 | Sell row, salvage button | Salvage
+LBL_SALVAGE_NA | 110 | Notice, when salvage is not available | Salvage is not offered now.
+LBL_MIXED_LOAD | 70 | Route row, mixed load bonus | Mixed load +{n}% (max {cap} credits)
+LBL_MARGIN_NOW | 70 | Planet market row, current margin | {planet}: margin {now} per unit
+LBL_MARGIN_AFTER_EVENT | 90 | Planet market row, margin during an event | {planet}: margin {now} per unit now, {after} after the event
+
+## Space Storage station (added 2026-11-02)
+LBL_STATION_BUILT | 80 | Notice, after a Space Storage station is built | Space station built. Click it to open Space Storage.
+LBL_STATION_MARKER | 32 | Map marker label above a station | Space Storage
+TIP_STATION_MARKER | 32 | Map marker tooltip | Space Storage
+LBL_TRADE_NEEDS_STATION | 60 | Buy, Sell or Send to button in a system without its station | Needs a Space Storage in this system.
+
+## Locked skills and Space Storage view (added 2026-11-02)
+LBL_LOCKED_PERMIT_FIRST | 60 | Skill screen, a skill locked until Permit Charter (C1) is learned | Learn Permit Charter (C1) first.
+SS_BTN_CLOSE | 16 | Space Storage view, close button | Close
+SS_LBL_CAPACITY | 48 | Space Storage view, capacity line | Capacity: {cap} per commodity
+
+## Route end names (added 2026-11-02)
+LBL_SPACE_STORAGE_NAME | 32 | Route row, name of the station end of a route | Space Storage
+
+## Storage projection (added 2026-11-03)
+LBL_NEXT_CYCLE | 48 | Storage view, projected stock after the next cycle | Next cycle: +{in} -{out} = {after}

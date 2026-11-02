@@ -218,6 +218,8 @@ func _build_detail() -> void:
 	if id == "A1" and not learned.has("A1") and not main.a1_gate_open():
 		_label(StoryText.get_text("SK_A1_GATE"))
 	var verdict := SkillTree.can_learn(learned, main.skill_points, main.balance, id, main.skill_ctx())
+	if verdict.get("why", "") == "permit_first":
+		_label(StoryText.get_or("LBL_LOCKED_PERMIT_FIRST", "Learn Permit Charter (C1) first."))
 	if verdict["reason"] == "points":
 		_label(StoryText.get_text("SK_LABEL_NEEDS_POINTS"))
 	if id == "C1" and main.unowned_systems().is_empty():
@@ -240,7 +242,9 @@ func _build_detail() -> void:
 				var names := []
 				for p in need:
 					names.append(SkillTree.skill_name(p))
-				if not names.is_empty():
+				if verdict.get("why", "") == "permit_first":
+					learn_button.tooltip_text = StoryText.get_or("LBL_LOCKED_PERMIT_FIRST", "Learn Permit Charter (C1) first.")
+				elif not names.is_empty():
 					learn_button.tooltip_text = StoryText.get_text("SK_NEEDS", {"skill": ", ".join(names)})
 	learn_button.pressed.connect(_ask_confirm)
 	detail_box.add_child(learn_button)

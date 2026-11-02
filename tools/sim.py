@@ -14,7 +14,7 @@ Points: planet_first_visit, new pair, (system points unused in system 1). Skills
 --upg (with --real): lane cap stays, decent may buy one route upgrade (level 1) per ship.
 --real: mirrors the build as of 2026-10-27 (one ship per lane, no upgrades, no permit); --inject=C:N adds N cash at cycle C (QA input). Lane-limited mode reproduces the QA bot (decent +1000: 8701).
 Win: cash>=win_cash at cycle end. Loss: cycle win_cycle ends below. Rescue: no ships and cash<ship_price -> stipend."""
-import json, os, re, random, statistics, sys, itertools
+import json, os, re, random, statistics, sys, itertools, math
 R = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 J = lambda p: json.load(open(os.path.join(R, p)))
 V = J("data/balance.json")["values"]; PL = J("data/planets.json")["planets"]; EVS = J("data/events.json")
@@ -27,6 +27,16 @@ S2 = J("tools/system2.json")["planets"]
 NAME = [p["name"] for p in PL]
 for p in PL: p["system"] = 1
 PL = PL + S2          # indices 0-2 system 1, 3-6 system 2
+STOP_PX = 40.0        # N9: mirrors route_engine.gd STOP_PATH_PX (map px from the src-dst line)
+if "--stop-fixture" in sys.argv: PL[2]["x"], PL[2]["y"] = 0, 80  # test only: Ashgate moved onto the Voltara-Tillam line
+def on_path(s, k, d):
+    """N9: stop k lies strictly between s and d, within STOP_PX of their straight line (mirrors stop_on_path)."""
+    if len({s, k, d}) < 3: return False
+    ax, ay = PL[s]["x"], PL[s]["y"]; bx, by = PL[d]["x"] - ax, PL[d]["y"] - ay
+    px, py = PL[k]["x"] - ax, PL[k]["y"] - ay; L2 = bx * bx + by * by
+    t = (px * bx + py * by) / L2
+    return 0 < t < 1 and math.hypot(px - t * bx, py - t * by) <= STOP_PX
+STOPS = [(r, k) for r in [] for k in []]  # filled below once R1 exists
 def parse(e):
     m = re.match(r"\[(price (?:up|down)): (\w+), (\w+)\]", e["tag"])
     if m: return (m.group(1), NAME.index(m.group(2)), m.group(3))
@@ -40,6 +50,7 @@ def routes_in(sysn):
             if PL[s]["base_prices"].get(c + "_buy") and PL[d]["base_prices"].get(c + "_sell")
             and PL[d]["base_prices"][c + "_sell"] > PL[s]["base_prices"][c + "_buy"]]
 R1, R2 = routes_in(1), routes_in(2)
+STOPS = [(r, k) for r in R1 for k in range(3) if on_path(r[0], k, r[1]) and PL[k]["base_prices"].get(r[2] + "_sell")]  # N9 stop options, system 1
 ALL = R1
 def pair(r): return frozenset((r[0], r[1]))
 TREE = {"A1": None, "A2": "A1", "A4": "A2", "A5": "A4", "B1": None, "B2": "B1", "B3": "B2", "B4": "B3",
@@ -63,6 +74,7 @@ def ship_stats(x, sk):
     h = x["h"]
     ru = V["cargo"] / (2 * V["travel_cycles_per_leg"]) * (1 + V["skill_A4_route_units"] * ("A4" in sk))
     up = (V["trip_cost"] + V["maintenance"] / V["maintenance_interval"]) * (1 - V["skill_A5_upkeep"] * ("A5" in sk))
+    if x.get("stop") is not None: ru /= 2; up += V["trip_cost"]  # N9: one more leg (half the units) and one more trip cost
     return ru, up
 def blocked(r, ev, sk):
     for (k, p, c), left in ev:
@@ -86,6 +98,13 @@ def income(ships, sk, evp=(), ev=(), detail=False, split=0, bun=False):
         if x["r"][1] not in lst: lst.append(x["r"][1])
     for m, ru, up, x in items:
         s, d, c = x["r"]; lim = ru
+        if x.get("stop") is not None:  # N9 stop: sells up to order amount A at the stop (base prices, own pool-free), carries the rest on
+            k = x["stop"]; f = min(lim, pool.setdefault(("b", s, c), A)); sold = min(f, A)
+            rest = min(f - sold, pool.setdefault(("s", d, c), A)); bought = sold + rest
+            net = sold * PL[k]["base_prices"][c + "_sell"] + rest * PL[d]["base_prices"][c + "_sell"] - bought * PL[s]["base_prices"][c + "_buy"] - up
+            if net <= 0: per.append(0); continue
+            pool[("b", s, c)] -= bought; pool[("s", d, c)] -= rest; tot += net; per.append(net)
+            continue
         if split and len(lanes[(s, c)]) >= 2:  # N2: split Send, fixed share of the source pool per lane
             lim = min(ru, A * (split if lanes[(s, c)][0] == d else 1 - split))
         f = min(lim, pool.setdefault(("b", s, c), A), pool.setdefault(("s", d, c), A))
@@ -107,7 +126,7 @@ def marginal(route, nmax=10, sk=frozenset()):
 def run(strat="decent", build="none", rng=None, trace=False):
     # N3: "bundle" = decent whose income adds the Mixed load bonus (bundle_bonus_pct, bundle_bonus_cap), ships picked with the bonus counted
     # N2: "split" buys like decent and splits each two-lane source half and half; "split34" gives 3/4 to the higher-margin lane
-    DEC = strat in ("decent", "split", "split34", "bundle"); BUN = strat == "bundle"; SPL = {"split": 0.5, "split34": 0.75}.get(strat, 0)
+    DEC = strat in ("decent", "split", "split34", "bundle", "stop"); BUN = strat == "bundle"; SPL = {"split": 0.5, "split34": 0.75}.get(strat, 0)
     cash = V["starting_credits"]; ships = []; sk = set(); pts = 0; seen = {0}; pairs = set(); ev = []; permit2 = False; sysp = set()
     pts += V["skill_points_planet"]
     for c in range(1, V["win_cycle"] + 1):
@@ -125,10 +144,10 @@ def run(strat="decent", build="none", rng=None, trace=False):
         evp = [x for x in ev if x[0][0] != "closed"]
         def price(h): return V["ship_price"]
         def inc_now(sh): return income(sh, sk, split=SPL, bun=BUN)
-        def new(r, h, lv=0): return {"r": r, "lv": lv, "h": h, "age": 1}
-        def buy_ship(r, h):
+        def new(r, h, lv=0, k=None): return {"r": r, "lv": lv, "h": h, "age": 1, "stop": k}
+        def buy_ship(r, h, k=None):
             nonlocal cash, pts
-            cash -= price(h); ships.append({"r": r, "lv": 0, "h": h, "age": 0})
+            cash -= price(h); ships.append({"r": r, "lv": 0, "h": h, "age": 0, "stop": k})
             for p in (r[0], r[1]):
                 if p not in seen:
                     seen.add(p); pts += V["skill_points_planet"]
@@ -152,22 +171,26 @@ def run(strat="decent", build="none", rng=None, trace=False):
                         if REAL and any(x["r"] == r for x in ships): continue
                         for h in ([False]):
                             dv = inc_now(ships + [new(r, h)]) - base
-                            if dv > 0: opts.append((dv / price(h), price(h), "route", r, h))
+                            if dv > 0: opts.append((dv / price(h), price(h), "route", r, h, None))
+                    if strat == "stop":  # N9: a route with one stop on the way is an option next to the direct one
+                        for r, k in STOPS:
+                            dv = inc_now(ships + [new(r, False, 0, k)]) - base
+                            if dv > 0: opts.append((dv / price(False), price(False), "route", r, False, k))
                 if DEC and (not REAL or UPG):
                     for x in ships:
                         if x["lv"] < 1:
                             x["lv"] = 1; dv = inc_now(ships) - base; x["lv"] = 0
-                            if dv > 0: opts.append((dv / V["upgrade_cost"], V["upgrade_cost"], "up", x, None))
+                            if dv > 0: opts.append((dv / V["upgrade_cost"], V["upgrade_cost"], "up", x, None, None))
                     if "C1" in sk and not permit2 and pts >= V["permit_points_2"] and len(ships) < V["ship_cap"]:
                         dv = max(inc_now(ships + [new(r, False)]) - base for r in R2)
                         # a permit is useless without a ship there: judge permit + first ship together
-                        if dv > 0 and cash >= V["permit_2_cost"] + V["ship_price"]: opts.append((dv / (V["permit_2_cost"] + V["ship_price"]), V["permit_2_cost"] + V["ship_price"], "permit", None, None))
+                        if dv > 0 and cash >= V["permit_2_cost"] + V["ship_price"]: opts.append((dv / (V["permit_2_cost"] + V["ship_price"]), V["permit_2_cost"] + V["ship_price"], "permit", None, None, None))
                 if strat in ("never", "sloppy") and not ships and cash >= V["ship_price"]:
                     buy_ship(ALL[0], False); continue
                 if not opts: break
                 opts.sort(key=lambda o: -o[0]); o = opts[0]; rem = V["win_cycle"] - c
                 if o[0] * rem < 1.0 or cash < o[1]: break
-                if o[2] == "route": buy_ship(o[3], o[4])
+                if o[2] == "route": buy_ship(o[3], o[4], o[5])
                 elif o[2] == "permit": permit2 = True; cash -= V["permit_2_cost"]; pts -= V["permit_points_2"]; pool_routes = R1 + R2
                 else: cash -= o[1]; o[3]["lv"] = 1
             if strat == "sloppy" and ships:   # overloaded: every spare ship goes on the same route
@@ -184,7 +207,7 @@ LINES = [("decent no skills", "decent", "none"), ("decent logistics", "decent", 
          ("decent expansion", "decent", "expansion"), ("decent permit only", "decent", "perm_only"), ("decent permit+research", "decent", "perm_research"),
          ("decent mixed L+R", "decent", "econ_mix"), ("decent full tree (ref)", "decent", "full"),
          ("split half and half", "split", "none"), ("split 3/4 and 1/4", "split34", "none"), ("bundle (N3, capped)", "bundle", "none"),
-         ("sloppy overload", "sloppy", "none"), ("always expand", "always", "none"), ("always expand+C1", "always", "perm_only"),
+         ("decent + stop (N9)", "stop", "none"), ("sloppy overload", "sloppy", "none"), ("always expand", "always", "none"), ("always expand+C1", "always", "perm_only"),
          ("never expand", "never", "none")]
 def main():
     a = sys.argv; mc = int(a[a.index("--mc") + 1]) if "--mc" in a else 0; seed = int(a[a.index("--seed") + 1]) if "--seed" in a else 1

@@ -9,6 +9,9 @@ signal routes_settled(results: Array, total: int)
 ## T56: a route just became blocked (destination storage full or planet closed).
 signal route_blocked(id: int, text: String)
 signal notice_posted(text: String)
+var station_systems: Array = []  # ids of systems that have a space station
+var station_markers := {}  # system id -> Button
+var _loading_state := false
 ## T77: the single place T78 listens to. side is "RELEASE", "CORP" or "LOSS"; ending_id is the END_* id.
 signal run_ended(side: String, ending_id: String)
 
@@ -69,11 +72,13 @@ var event_notice: ColorRect  # T12 paused event notification, null when none
 var event_feed_label: Label  # T12 this run's events on the board
 
 var skill_screen: PanelContainer  # T71, hidden until opened
+var space_storage_view: PanelContainer  # station click, hidden until opened
 var game_menu: PanelContainer  # T71, hidden until opened
 var cash_label: Label
 var delta_label: Label
 var cash_box: HBoxContainer  # click target for the cash forecast
-var skills_button: Button
+var points_button: MarginContainer  # top bar: the skill points figure, opens Skills
+var points_hit: Button
 var menu_button: Button  # top left, opens the Esc menu
 var expenses_label: Label
 var points_label: Label
@@ -141,7 +146,7 @@ func _ready() -> void:
 	planet_panel.remove_requested.connect(_remove_requested)
 	map.planet_clicked.connect(_on_planet_clicked)
 	map.route_clicked.connect(_on_route_clicked)
-	map.empty_double_clicked.connect(_on_map_empty_double_click)
+	map.station_clicked.connect(_on_station_clicked)
 	_build_board()
 	_build_pending_label()
 	income_popup = load("res://game/income_popup.gd").new()  # T133
@@ -161,12 +166,16 @@ func _ready() -> void:
 	storage.setup(balance, map.planets.size(), commodities)
 	engine.setup(balance, trade, commodities, storage)
 	engine.learned = learned_skills
+	engine.trade_gate = Callable(self, "system_trade_open")
 	cash_forecast = load("res://game/cash_forecast.gd").new()  # T40: money text dropdown
 	add_child(cash_forecast)
 	cash_forecast.setup(self, cash_box)
 	skill_screen = load("res://game/skill_screen.gd").new()
 	add_child(skill_screen)
 	skill_screen.setup(self)
+	space_storage_view = load("res://game/space_storage_view.gd").new()
+	add_child(space_storage_view)
+	space_storage_view.setup(self)
 	game_menu = load("res://game/game_menu.gd").new()
 	add_child(game_menu)
 	game_menu.setup(self)
@@ -210,9 +219,16 @@ func collect_state() -> Dictionary:
 		"time_speed": time_speed, "skill_points": skill_points, "pts_planets": pts_planets, "pts_pairs": pts_pairs, "events": events.to_dict(),
 			"open_systems": open_systems, "reached_ids": reached_ids, "galaxy_seen": galaxy_seen, "tut_step": tut_step,
 		"shield": shield.to_dict(), "storage_cuts": storage.cuts_to_dict(), "price_history": price_history,
-		"forecast_id": forecast_id, "surveyed": surveyed_systems}
+		"forecast_id": forecast_id, "surveyed": surveyed_systems, "station_systems": station_systems,
+		"second_lane": second_lane_planet}
 
 func apply_state(s: Dictionary) -> void:
+	_loading_state = true
+	map.clear_stations()
+	for m in station_markers.values():
+		m.queue_free()
+	station_markers.clear()
+	station_systems = []
 	shield.from_dict(s.get("shield"))  # T101: old saves: no shield
 	storage.cuts_from_dict(s.get("storage_cuts"))  # T109: old saves: no cuts
 	for sid in _int_array(s.get("open_systems")):  # T85: permitted systems first, so planet indexes exist for routes
@@ -241,7 +257,16 @@ func apply_state(s: Dictionary) -> void:
 	price_history = s.get("price_history", {}) if typeof(s.get("price_history")) == TYPE_DICTIONARY else {}
 	forecast_id = str(s.get("forecast_id", ""))
 	surveyed_systems = _int_array(s.get("surveyed"))
-	_ensure_posts()
+	second_lane_planet = int(s.get("second_lane", -1))  # N11; old saves: not reached
+	if second_lane_planet >= map.planets.size() or (second_lane_planet >= 0 and system_of(second_lane_planet) != SECOND_LANE_SYSTEM):
+		second_lane_planet = -1
+	for sid in _int_array(s.get("station_systems")):  # saved stations come back without the build-in or notice
+		if not station_systems.has(sid) and _system_planets_present(sid):
+			station_systems.append(sid)
+			map.add_station(sid, false)
+			_make_station_marker(sid)
+	_ensure_posts()  # old saves with A1: stations for every open system, no notice
+	_loading_state = false
 	systems_reached = maxi(1, int(s.get("systems_reached", 1)))
 	skill_points = maxi(0, int(s.get("skill_points", 0)))
 	pts_planets = _int_array(s.get("pts_planets"))
@@ -307,6 +332,8 @@ func _award_planet(p: int) -> void:
 
 func _award_route(a: int, b: int) -> void:
 	_award_planet(a)
+	if b < 0:  # a send to Space Storage is not a planet pair
+		return
 	_award_planet(b)
 	var k := "%d-%d" % [mini(a, b), maxi(a, b)]
 	if pts_pairs.has(k):
@@ -351,6 +378,67 @@ func _ensure_posts() -> void:
 		return
 	for sid in open_systems:
 		storage.ensure(Storage.system_key(int(sid)))
+	_ensure_stations()
+
+## Space stations: one per open system once A1 is learned; built once, kept in station_systems (saved).
+## One notice per build, none while a save loads.
+func _ensure_stations() -> void:
+	if not has_skill("A1"):
+		return
+	var built := false
+	for sid in open_systems:
+		var id := int(sid)
+		if station_systems.has(id) or not _system_planets_present(id):
+			continue
+		station_systems.append(id)
+		map.add_station(id, not _loading_state)
+		_make_station_marker(id)
+		built = true
+	if built and not _loading_state:
+		post_notice(StoryText.get_or("LBL_STATION_BUILT", "Space station built. Click it to open Space Storage."))
+
+func _make_station_marker(id: int) -> void:
+	if station_markers.has(id):
+		return
+	var b := Button.new()
+	b.theme_type_variation = "ButtonSmall"
+	b.text = StoryText.get_or("LBL_STATION_MARKER", "Space Storage")
+	b.tooltip_text = StoryText.get_or("TIP_STATION_MARKER", "Space Storage")
+	b.visible = false
+	b.pressed.connect(_on_station_clicked.bind(id))
+	add_child(b)
+	station_markers[id] = b
+
+func _update_station_markers() -> void:
+	for id in station_markers:
+		var b: Button = station_markers[id]
+		var p = map.station_marker_pos(int(id))
+		b.visible = p != null
+		if p != null:
+			b.position = (p as Vector2) - Vector2(b.size.x * 0.5, b.size.y)
+
+## Click on a station or its marker: opens the Space Storage view of that system (refused with the locked reason without a post).
+func _on_station_clicked(sid: int) -> void:
+	if not pending.is_empty():  # a plain Send to picks the station as its destination
+		var src: int = int(pending["planet"])
+		var r := send_stock_buying(src, station_dst(sid), str(pending["c"]))
+		if not r["ok"]:
+			post_notice_now(str(r["reason"]))  # pending stays so the player can pick another destination
+			return
+		var wants_buy: bool = bool(pending.get("buy", false))
+		cancel_pending()
+		if wants_buy and not engine.local_on(src, str(r["c"]), "buy"):
+			var bo := set_local_order(src, str(r["c"]), "buy", true)
+			if not bo["ok"]:
+				post_notice(str(bo["reason"]))
+		if bool(r.get("bought", false)):
+			post_notice(StoryText.get_text("NOT_SHIP_BOUGHT"))
+		post_notice(StoryText.get_text("NOT_ROUTE_MADE", {"planet_a": planet_name(src), "planet_b": StoryText.get_or("LBL_STATION_MARKER", "Space Storage")}))
+		return
+	if not space_post_open(sid):
+		post_notice_now(trade_locked_reason())
+		return
+	space_storage_view.open_for(sid)
 
 func space_post_open(system_id: int) -> bool:
 	return has_skill("A1") and storage.established(Storage.system_key(system_id))
@@ -363,12 +451,51 @@ func unowned_systems() -> Array:
 			out.append(sid)
 	return out
 
+## Owner 2026-11-03: trading in a system other than 1 needs that system's Space Storage post.
+func system_trade_open(planet: int) -> bool:
+	var sid := system_of(planet)
+	return sid == 1 or space_post_open(sid)
+
+func trade_locked_reason() -> String:
+	return StoryText.get_or("LBL_TRADE_NEEDS_STATION", "Needs a Space Storage in this system.")
+
 ## Credit price of a permit: the data price, less skill C4 Colonial Rights (balance skill_C4_permit_discount).
 func permit_cost(sid: int) -> int:
 	var c := Systems.permit_cost(balance, sid)
 	if has_skill("C4"):
 		c = floori(float(c) * (1.0 - float(balance.get("skill_C4_permit_discount", 0.0))))
 	return c
+
+## N11 Second Lane: optional goal, the first sale at a planet of system 2. Saved as the planet index (-1 = not yet).
+## Reads the permit price live (after the C4 discount). Pays a title and a planet note only: no cash, no points.
+const SECOND_LANE_SYSTEM := 2
+var second_lane_planet: int = -1
+
+func second_lane_active() -> bool:
+	return second_lane_planet < 0 and Systems.ids().has(SECOND_LANE_SYSTEM) and ships > 0 and cycle > 1
+
+func second_lane_line() -> String:
+	return StoryText.get_or("GOAL_SECOND_LANE", "Optional: open system 2 (permit {n}), then sell a lot there.", {"n": permit_cost(SECOND_LANE_SYSTEM)})
+
+## Ticks on a sale (local Sell order or a route stop) at a system 2 planet; buying the permit never ticks it.
+func _check_second_lane(r: Dictionary) -> void:
+	if second_lane_planet >= 0:
+		return
+	var hit := -1
+	for v in r["local"]:
+		if str(v["role"]) == "sell" and int(v["n"]) > 0 and int(v["paid"]) > 0 and system_of(int(v["planet"])) == SECOND_LANE_SYSTEM:
+			hit = int(v["planet"])
+			break
+	if hit < 0:
+		for v in r["results"]:
+			if int(v.get("stop_sale", 0)) > 0 and int(v.get("stop", -1)) >= 0 and system_of(int(v["stop"])) == SECOND_LANE_SYSTEM:
+				hit = int(v["stop"])
+				break
+	if hit < 0:
+		return
+	second_lane_planet = hit
+	if planet_panel != null and planet_panel.visible:
+		planet_panel.rebuild()
 
 ## C2 Survey Beacon: systems whose planets have been surveyed (saved). Surveying needs the skill and is free.
 var surveyed_systems: Array = []
@@ -428,16 +555,13 @@ func _note_system(planet: int) -> void:
 		reached_ids.append(sid)
 		reach_system()
 
-## Owner decision 2026-10-28: A1 needs every system 1 planet visited (pts_planets) and one route made (pts_pairs).
+## A1 gate (owner decision 2026-11-03): Space Storage opens once the player has made two distinct routes, on any planet.
+## pts_pairs gets one entry per new planet pair (see _award_route), so its size is the number of routes made.
 func a1_gate_open() -> bool:
-	var n := mini(3, map.planets.size())
-	for i in n:
-		if not pts_planets.has(i):
-			return false
-	return not pts_pairs.is_empty()
+	return pts_pairs.size() >= 2
 
 func skill_ctx() -> Dictionary:
-	return {"a1_open": a1_gate_open()}
+	return {"a1_open": a1_gate_open(), "c1_learned": learned_skills.has("C1")}
 
 ## T71: learn a skill. Spends skill points, saves, posts the notice. Returns {ok, reason}.
 func learn_skill(id: String) -> Dictionary:
@@ -547,12 +671,6 @@ func enter_system_from_view(id: int) -> bool:
 	post_notice(StoryText.get_or("NOT_SYSTEM_LOCKED", "{name} is locked: {how}.", {"name": Systems.name_of(id), "how": how}))
 	return false
 
-## Double click on empty map space opens the galaxy view; a single click keeps its old meaning.
-func _on_map_empty_double_click() -> void:
-	if preface != null or game_over or galaxy_view == null or galaxy_view.visible:
-		return
-	galaxy_view.open_view()
-
 func toggle_galaxy() -> void:
 	if preface != null or game_over:
 		return
@@ -613,9 +731,8 @@ func _to_menu() -> void:
 	get_tree().change_scene_to_file("res://game/main_menu.tscn")
 
 func _on_planet_clicked(index: int) -> void:
-	if pending.has("split"):  # N2: a split takes two clicks, first then second destination
-		_on_split_click(index)
-		return
+	if space_storage_view != null:
+		space_storage_view.close_view()  # one view at a time
 	if not pending.is_empty():
 		if index < 0 or index >= map.planets.size():
 			cancel_pending()
@@ -623,12 +740,27 @@ func _on_planet_clicked(index: int) -> void:
 			post_notice("Pick a different planet as the destination.")
 			return
 		else:
-			var r := send_stock_buying(int(pending["planet"]), index, str(pending["c"]))
+			var src: int = int(pending["planet"])
+			var c: String = str(pending["c"])
+			var dst := index
+			var stop := -1
+			if pending.has("dest"):  # N9: destination already picked; this click names its stop, or the destination again sends direct
+				dst = int(pending["dest"])
+				if index != dst:
+					if not engine.stop_candidates(src, dst, c).has(index):
+						post_notice(StoryText.get_or("NOT_STOP_PICK_AGAIN", "Click a stop from the picker, or the destination again."))
+						return
+					stop = index
+			elif not engine.stop_candidates(src, index, c).is_empty():
+				pending["dest"] = index  # N9: a stop is on the way; the next click names it or sends direct
+				_pending_changed()
+				return
+			var r := send_stock_buying(src, dst, c, stop)
 			if not r["ok"]:
 				post_notice_now(str(r["reason"]))  # pending stays so the player can pick another planet
 				return
-			var cnt: int = engine.lane_count(int(pending["planet"]), index, str(r["c"]))
-			var pending_planet: int = int(pending["planet"])
+			var cnt: int = engine.lane_count(src, dst, str(r["c"]))
+			var pending_planet: int = src
 			var wants_buy: bool = bool(pending.get("buy", false))
 			cancel_pending()
 			if wants_buy and not engine.local_on(pending_planet, str(r["c"]), "buy"):
@@ -637,11 +769,13 @@ func _on_planet_clicked(index: int) -> void:
 					post_notice(str(bo["reason"]))
 			if bool(r.get("bought", false)):
 				post_notice(StoryText.get_text("NOT_SHIP_BOUGHT"))
-			post_notice(StoryText.get_text("NOT_ROUTE_MADE", {"planet_a": planet_name(int(pending_planet)), "planet_b": planet_name(index)}) if cnt <= 1 else StoryText.get_text("NOT_LANE_SHIP_ADDED"))
-			route_margin_notice(pending_planet, index, str(r["c"]))  # B1 Market Ledger
-			_route_beat(pending_planet, index)
-			selected_planet = index
-			planet_panel.show_planet(index)
+			post_notice(StoryText.get_text("NOT_ROUTE_MADE", {"planet_a": planet_name(int(pending_planet)), "planet_b": planet_name(dst)}) if cnt <= 1 else StoryText.get_text("NOT_LANE_SHIP_ADDED"))
+			if stop >= 0:
+				post_notice(stop_line(stop, dst))  # N9
+			route_margin_notice(pending_planet, dst, str(r["c"]))  # B1 Market Ledger
+			_route_beat(pending_planet, dst)
+			selected_planet = dst
+			planet_panel.show_planet(dst)
 			return
 	if index < 0 or index >= map.planets.size():
 		selected_planet = -1
@@ -672,6 +806,8 @@ func _refresh_panel() -> void:
 	_tut_advance()  # T124: selecting a planet is a guided step
 	if selected_planet >= 0:
 		planet_panel.rebuild()
+	if space_storage_view != null:
+		space_storage_view.refresh()
 
 ## T68: Buy / Sell toggled on a resource row of the selected planet (standing local order, no ship).
 func _on_order(c: String, role: String) -> void:
@@ -721,9 +857,8 @@ func _pending_changed() -> void:
 	map.set_pending(int(pending["planet"]) if not pending.is_empty() else -1)
 	if pending_label != null:
 		pending_label.visible = not pending.is_empty()
-		if pending.has("split"):  # N2
-			var sp_args := {"commodity": str(pending["c"]).capitalize(), "planet": planet_name(int(pending["planet"]))}
-			pending_label.text = StoryText.get_or("LBL_SPLIT_PICK_SECOND", "Split {commodity} from {planet}: now click the second destination. (Esc to cancel)", sp_args) if pending.has("first") else StoryText.get_or("LBL_SPLIT_PICK_FIRST", "Split {commodity} from {planet}: click the first destination. (Esc to cancel)", sp_args)
+		if pending.has("dest"):  # N9: destination picked, a stop is on the way
+			pending_label.text = "Click the stop in the picker, or %s again for a direct send. (Esc to cancel)" % planet_name(int(pending["dest"]))
 		elif not pending.is_empty():
 			pending_label.text = "Send %s from %s: click the destination planet. (Esc to cancel)" % [
 				pending["c"], planet_name(int(pending["planet"]))]
@@ -733,12 +868,14 @@ func _pending_changed() -> void:
 ## P1: one line per reachable destination: margin per unit now, and after the price events end when one moves it.
 func pending_margin_lines() -> Array:
 	var out: Array = []
-	if pending.is_empty() or pending.has("split"):
+	if pending.is_empty():
 		return out
 	var src := int(pending["planet"])
 	var c := str(pending["c"])
 	for i in trade.planets.size():
 		if i == src or not bool(engine.check_connection(src, i, c)["ok"]):
+			continue
+		if pending.has("dest") and i != int(pending["dest"]):  # N9: once a destination is picked, only its lines
 			continue
 		var now: int = trade.margin(src, i, c)
 		var after: int = trade.margin_after_events(src, i, c)
@@ -747,7 +884,13 @@ func pending_margin_lines() -> Array:
 			out.append(StoryText.get_or("LBL_MARGIN_NOW", "{planet}: margin {now} per unit", args))
 		else:
 			out.append(StoryText.get_or("LBL_MARGIN_AFTER_EVENT", "{planet}: margin {now} per unit now, {after} after the event", args))
+		for k in engine.stop_candidates(src, i, c):  # N9: one picker line per stop on the way
+			out.append(stop_line(int(k), i))
 	return out
+
+## N9: picker line for a stop on the way to dst: 'Stop at A: sell up to N here, carry the rest to B.' (A, B, N read live).
+func stop_line(stop: int, dst: int) -> String:
+	return StoryText.get_or("LBL_STOP_AT_LINE", "Stop at {stop}: sell up to {n} here, carry the rest to {planet}.", {"stop": planet_name(stop), "n": engine.local_amount(), "planet": planet_name(dst)})
 
 func _refresh_pending_margins() -> void:
 	if pending_margins == null:
@@ -844,6 +987,8 @@ func can_connect(src: int, dst: int, c: String) -> Dictionary:
 	var r: Dictionary = engine.check_connection(src, dst, c)
 	if not r["ok"]:
 		return r
+	if not system_trade_open(src) or (dst >= 0 and not system_trade_open(dst)) or (dst < 0 and not space_post_open(-dst)):
+		return {"ok": false, "reason": trade_locked_reason()}
 	if engine.lane_full(src, dst, c):  # T145: a full lane takes an upgrade, not one more ship
 		return {"ok": false, "reason": "This lane is full. Upgrade the route instead of adding a ship."}
 	if free_ships() <= 0:
@@ -878,17 +1023,23 @@ func upgrade_route(id: int) -> Dictionary:
 	_after_change()
 	return r
 
+## Destination value for a send to the Space Storage of system sid: pass it as `dst` to send_stock / can_connect.
+static func station_dst(sid: int) -> int:
+	return -sid
+
 ## One-way route that moves commodity c from the storage at `src` to the storage at `dst` (one auto-assigned ship).
 ## Returns {ok, reason, id, c}.
-func send_stock(src: int, dst: int, c: String) -> Dictionary:
-	var r := _connect(src, dst, c)
+func send_stock(src: int, dst: int, c: String, stop: int = -1) -> Dictionary:
+	var r := _connect(src, dst, c, stop)
 	r["c"] = c
 	return r
 
 ## "Send to..." from the planet panel: one action that buys a ship when none is free, then makes the route.
 ## Route problems are checked first, so no ship is bought for a route that cannot be made. {ok, reason, id, c, bought}.
-func send_stock_buying(src: int, dst: int, c: String) -> Dictionary:
+func send_stock_buying(src: int, dst: int, c: String, stop: int = -1) -> Dictionary:
 	var bought := false
+	if stop >= 0 and not engine.stop_candidates(src, dst, c).has(stop):  # N9: checked before any ship is bought
+		return {"ok": false, "reason": StoryText.get_or("NOT_STOP_PICK_AGAIN", "Click a stop from the picker, or the destination again."), "c": c, "bought": false}
 	if free_ships() <= 0:
 		var chk: Dictionary = can_connect(src, dst, c)
 		if chk["reason"] != StoryText.get_text("NOT_SHIP_FREE"):  # a route problem other than "no ship"
@@ -900,7 +1051,7 @@ func send_stock_buying(src: int, dst: int, c: String) -> Dictionary:
 			return {"ok": false, "reason": b["reason"], "c": c, "bought": false}
 		buy_ship("small")
 		bought = true
-	var r := send_stock(src, dst, c)
+	var r := send_stock(src, dst, c, stop)
 	r["bought"] = bought
 	return r
 
@@ -909,50 +1060,47 @@ func split_targets(planet: int, c: String) -> Array:
 	var out: Array = []
 	for r in engine.routes:
 		var b := int(r["b"])
-		if int(r["a"]) == planet and str(r["c"]) == c and not out.has(b):
+		if b >= 0 and int(r["a"]) == planet and str(r["c"]) == c and not out.has(b):
 			out.append(b)
 	return out
 
-## N2: "Split half and half" (1/2, 1/2) or "Split 3/4 and 1/4" (3/4, 1/4) on a storage row: the next two planets clicked
-## are the destinations, first then second. Needs two lanes with ships from the selected planet.
-func begin_split(c: String, share: float) -> void:
-	if selected_planet < 0 or game_over or split_targets(selected_planet, c).size() < 2:
-		return
-	pending = {"planet": selected_planet, "c": c, "split": share}
-	_pending_changed()
+## Split bar: the two lanes a bar on this storage row sets: the lanes of an existing split, else the first two lanes with ships.
+func split_pair(planet: int, c: String) -> Array:
+	var t := split_targets(planet, c)
+	if t.size() < 2:
+		return []
+	for d in t:
+		var sp: Dictionary = engine.lane_split(planet, int(d), c)
+		if not sp.is_empty() and t.has(int(sp["to"])):
+			return [int(d), int(sp["to"])]
+	return [t[0], t[1]]
 
-## N2: one click of a split pick. Both destinations must already have a ship from the source planet.
-func _on_split_click(index: int) -> void:
-	var src := int(pending["planet"])
-	var c := str(pending["c"])
-	if index < 0 or index >= map.planets.size():
-		cancel_pending()
+## Split bar: the first lane's share in whole percent (50 when no split is set).
+func split_percent(planet: int, c: String) -> int:
+	var pair := split_pair(planet, c)
+	if pair.is_empty():
+		return 50
+	var sp: Dictionary = engine.lane_split(planet, int(pair[0]), c)
+	return 50 if sp.is_empty() else roundi(float(sp["share"]) * 100.0)
+
+## Split bar: live setting. first_pct is the first lane's percent (each lane keeps at least 10); the second gets the rest.
+func set_split_percent(planet: int, c: String, first_pct: int) -> void:
+	var pair := split_pair(planet, c)
+	if pair.is_empty() or game_over:
 		return
-	if index == src or (pending.has("first") and index == int(pending["first"])):
-		post_notice("Pick a different planet as the destination.")
-		return
-	if engine.lane_count(src, index, c) <= 0:
-		post_notice(StoryText.get_or("NOT_SPLIT_NEEDS_LANES", "A split needs a ship already on both lanes."))
-		return
-	if not pending.has("first"):
-		pending["first"] = index
-		_pending_changed()
-		return
-	var first := int(pending["first"])
-	var share := float(pending["split"])
-	cancel_pending()
-	engine.set_split(src, first, index, c, share)
-	post_notice(StoryText.get_or("LBL_SPLIT_LINE", "{a} {sa}, {b} {sb}", {
-		"a": planet_name(first), "sa": RouteEngine.share_label(share),
-		"b": planet_name(index), "sb": RouteEngine.share_label(1.0 - share)}))
-	_route_beat(first, index)
-	selected_planet = src
-	planet_panel.show_planet(src)
+	var pct := clampi(first_pct, 10, 90)
+	engine.set_split(planet, int(pair[0]), int(pair[1]), c, float(pct) / 100.0)
+
+## Split bar: "Stop split".
+func clear_split(planet: int, c: String) -> void:
+	engine.clear_split(planet, c)
 
 ## T68: standing local order at a planet (no ship). role "buy" or "sell". Returns {ok, reason}.
 func set_local_order(planet: int, c: String, role: String, on: bool) -> Dictionary:
 	if game_over:
 		return {"ok": false, "reason": "The game is over."}
+	if on and not system_trade_open(planet):
+		return {"ok": false, "reason": trade_locked_reason()}
 	var r: Dictionary = engine.set_local(planet, c, role, on)
 	if r["ok"]:
 		if on:
@@ -985,11 +1133,12 @@ func _on_salvage(c: String) -> void:
 func toggle_local(planet: int, c: String, role: String) -> Dictionary:
 	return set_local_order(planet, c, role, not engine.local_on(planet, c, role))
 
-func _connect(src: int, dst: int, c: String) -> Dictionary:
+func _connect(src: int, dst: int, c: String, stop: int = -1) -> Dictionary:
 	var r := can_connect(src, dst, c)
 	if not r["ok"]:
 		return r
 	var rec: Dictionary = engine.new_record(src, dst, c)
+	rec["stop"] = stop if stop >= 0 and engine.stop_candidates(src, dst, c).has(stop) else -1  # N9
 	rec["id"] = engine.next_id
 	rec["ship"] = pick_ship(src, dst, c)  # T58
 	engine.next_id += 1
@@ -1075,6 +1224,8 @@ func route_net(id: int) -> int:
 	return engine.payout_of(engine.routes[i]) if i >= 0 else 0
 
 func planet_name(i: int) -> String:
+	if i < 0 and i > -1000:  # a station destination, -system id
+		return StoryText.get_or("LBL_SPACE_STORAGE_NAME", "Space Storage")
 	if i < 0 or i >= map.planets.size():
 		return "?"
 	return str(map.planets[i].get("name", map.planets[i].get("id", "?")))
@@ -1174,6 +1325,7 @@ func _settle_routes() -> Array:
 		route_blocked.emit(int(rec["id"]), text)
 	for rec in r["newly_stalled"]:
 		post_notice(StoryText.get_text("NOT_ROUTE_STALLED", {"commodity": str(rec["c"]), "planet": planet_name(int(rec["a"]))}))
+	_check_second_lane(r)
 	routes_settled.emit(r["results"], int(r["delta"]))
 	_show_income(r)
 	return r["results"]
@@ -1272,6 +1424,7 @@ func _cycle_seconds() -> float:
 	return float(balance.get("cycle_minutes", 2)) * 60.0
 
 func _process(delta: float) -> void:
+	_update_station_markers()
 	if paused or game_over:
 		return
 	cycle_elapsed += delta * time_speed
@@ -1297,7 +1450,7 @@ func debug_advance_cycle() -> int:
 func _end_cycle() -> void:
 	_advance_notice()  # the board notice lives for one cycle, then the next queued one shows
 	_settle_routes()
-	engine.feed_space()  # T85: planet storage into Space Storage at planet_to_space_rate
+	# Space Storage fills only by a ship sent to it (send_stock with a station destination); planet_to_space_rate is unused.
 	_check_stranded()
 	_record_prices()  # B1 Market Ledger history
 	_push_routes_to_map()
@@ -1667,7 +1820,7 @@ func debug_set_route_level(id: int, level: int) -> bool:
 	_after_change()
 	return true
 
-## Sets the A1 gate inputs: planets visited and a route made.
+## Sets the A1 gate input: two routes made (A1 gate, owner decision 2026-11-03).
 func debug_set_a1_gate(open: bool) -> void:
 	if not OS.is_debug_build():
 		return
@@ -1675,8 +1828,9 @@ func debug_set_a1_gate(open: bool) -> void:
 		for i in mini(3, map.planets.size()):
 			if not pts_planets.has(i):
 				pts_planets.append(i)
-		if pts_pairs.is_empty():
-			pts_pairs.append("0-1")
+		for k in ["0-1", "0-2"]:
+			if not pts_pairs.has(k):
+				pts_pairs.append(k)
 	else:
 		pts_planets = []
 		pts_pairs = []
@@ -1751,6 +1905,8 @@ func _unhandled_input(event: InputEvent) -> void:
 			galaxy_view.close_view()
 		elif skill_screen.visible:
 			skill_screen.close_screen()
+		elif space_storage_view.visible:
+			space_storage_view.close_view()
 		elif game_menu.visible:
 			game_menu.close_menu()
 		else:
@@ -1809,16 +1965,20 @@ func _build_ui() -> void:
 	box.add_child(ex[0])
 	var pt := _stat_inline("skills", "LBL_SKILL_POINTS", "Skill points")
 	points_label = pt[1]
-	box.add_child(pt[0])
-	# Skills (K), in the top bar
+	# the skill points figure is the button that opens Skills (K); a flat button lies over the row
 	var sk := HBoxContainer.new()
 	sk.add_theme_constant_override("separation", 4)
 	sk.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	skills_button = Button.new()
-	skills_button.theme_type_variation = "ButtonSmall"
-	skills_button.text = StoryText.get_or("MENU_SKILLS", "Skills")
-	skills_button.pressed.connect(toggle_skills)
-	sk.add_child(skills_button)
+	points_button = MarginContainer.new()
+	points_button.add_child(pt[0])
+	var hit := Button.new()
+	hit.flat = true
+	hit.focus_mode = Control.FOCUS_NONE
+	hit.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	hit.pressed.connect(toggle_skills)
+	points_button.add_child(hit)
+	points_hit = hit
+	sk.add_child(points_button)
 	sk.add_child(Ui.kbd("K"))
 	box.add_child(sk)
 	# cycle, progress, speed
@@ -1997,6 +2157,10 @@ func _refresh() -> void:
 	_tut_advance()
 	goal_label.text = StoryText.get_text("LBL_GOAL", {"goal": int(balance.get("win_cash", 0)),
 		"cycle": int(balance.get("win_cycle", 0)), "cash": cash})
+	goal_label.tooltip_text = ""
+	if second_lane_active():  # N11: the optional line follows the goal; the full text is also the tooltip
+		goal_label.tooltip_text = goal_label.text + "  " + second_lane_line()
+		goal_label.text = goal_label.tooltip_text
 	Juice.count_to(cash_label, cash, "%d", Ui.col("signal_good"))  # counts up; a rise flashes green
 	var net: int = cash_forecast.net_forecast() if cash_forecast != null else 0
 	delta_label.text = "%+d" % net
@@ -2011,9 +2175,8 @@ func _refresh() -> void:
 	for i in speed_buttons.size():
 		speed_buttons[i].button_pressed = SPEEDS[i] == time_speed
 	var star := " *" if SkillTree.any_affordable(learned_skills, skill_points, balance, skill_ctx()) else ""
-	skills_button.tooltip_text = StoryText.get_text("MENU_SKILLS") + star
-	skills_button.icon = Ui.icon("skills")
-	skills_button.modulate = Ui.col("star_warm") if star != "" else Color.WHITE
+	points_hit.tooltip_text = StoryText.get_text("MENU_SKILLS") + star
+	points_button.modulate = Ui.col("star_warm") if star != "" else Color.WHITE
 	if _last_points >= 0 and skill_points != _last_points:
 		Juice.pop(points_label)  # points earned or spent: a small swell beside the count
 	_last_points = skill_points

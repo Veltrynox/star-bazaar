@@ -307,7 +307,7 @@
  },
  {
   "id": "SK_A1_GATE",
-  "text": "Space Storage opens once you have visited every planet in the first system and made a first route.",
+  "text": "Space Storage opens once you have made two routes, on any planets.",
   "max": 110,
   "place": "Skill screen, detail panel of Space Storage (A1) while locked"
  },
@@ -946,6 +946,132 @@
   "text": "Go to the other system.",
   "max": 50,
   "place": "Tooltip of the same arrow once the permit is held; click moves the view to the other system"
+ },
+ {
+  "id": "LBL_PRICE_EVENT",
+  "text": "{arrow} Event, {cycles} cycles left",
+  "max": 40,
+  "place": "Planet market row, during a price event; {arrow} is the price direction"
+ },
+ {
+  "id": "LBL_BEST_OPEN_ROUTE",
+  "text": "Best open route: +{n} per cycle",
+  "max": 50,
+  "place": "Blocked route row, when an event closes a planet; {n} is net profit per cycle"
+ },
+ {
+  "id": "LBL_SETUP_LOST",
+  "text": "Moving loses this setup.",
+  "max": 60,
+  "place": "Move ship warning, only when a setup is really lost by moving"
+ },
+ {
+  "id": "BTN_MOVE_SHIP",
+  "text": "Move to best route",
+  "max": 24,
+  "place": "Blocked route row, moves the ship to the best open route"
+ },
+ {
+  "id": "LBL_STORAGE_EMPTY",
+  "text": "Storage empty. Send to... will wait for stock.",
+  "max": 110,
+  "place": "Commodity row warning, when company storage there is empty"
+ },
+ {
+  "id": "LBL_SALVAGE_NO_BUYER",
+  "text": "Salvage: {n} now (no buyer on your lanes). Sell order pays {m}.",
+  "max": 110,
+  "place": "Sell row, salvage line, no buyer"
+ },
+ {
+  "id": "LBL_SALVAGE_STORAGE_FULL",
+  "text": "Salvage: {n} now (storage full). Sell order pays {m}.",
+  "max": 110,
+  "place": "Sell row, salvage line, storage full"
+ },
+ {
+  "id": "BTN_SALVAGE",
+  "text": "Salvage",
+  "max": 24,
+  "place": "Sell row, salvage button"
+ },
+ {
+  "id": "LBL_SALVAGE_NA",
+  "text": "Salvage is not offered now.",
+  "max": 110,
+  "place": "Notice, when salvage is not available"
+ },
+ {
+  "id": "LBL_MIXED_LOAD",
+  "text": "Mixed load +{n}% (max {cap} credits)",
+  "max": 70,
+  "place": "Route row, mixed load bonus"
+ },
+ {
+  "id": "LBL_MARGIN_NOW",
+  "text": "{planet}: margin {now} per unit",
+  "max": 70,
+  "place": "Planet market row, current margin"
+ },
+ {
+  "id": "LBL_MARGIN_AFTER_EVENT",
+  "text": "{planet}: margin {now} per unit now, {after} after the event",
+  "max": 90,
+  "place": "Planet market row, margin during an event"
+ },
+ {
+  "id": "LBL_STATION_BUILT",
+  "text": "Space station built. Click it to open Space Storage.",
+  "max": 80,
+  "place": "Notice, after a Space Storage station is built"
+ },
+ {
+  "id": "LBL_STATION_MARKER",
+  "text": "Space Storage",
+  "max": 32,
+  "place": "Map marker label above a station"
+ },
+ {
+  "id": "TIP_STATION_MARKER",
+  "text": "Space Storage",
+  "max": 32,
+  "place": "Map marker tooltip"
+ },
+ {
+  "id": "LBL_TRADE_NEEDS_STATION",
+  "text": "Needs a Space Storage in this system.",
+  "max": 60,
+  "place": "Buy, Sell or Send to button in a system without its station"
+ },
+ {
+  "id": "LBL_LOCKED_PERMIT_FIRST",
+  "text": "Learn Permit Charter (C1) first.",
+  "max": 60,
+  "place": "Skill screen, a skill locked until Permit Charter (C1) is learned"
+ },
+ {
+  "id": "SS_BTN_CLOSE",
+  "text": "Close",
+  "max": 16,
+  "place": "Space Storage view, close button"
+ },
+ {
+  "id": "SS_LBL_CAPACITY",
+  "text": "Capacity: {cap} per commodity",
+  "max": 48,
+  "place": "Space Storage view, capacity line"
+ },
+ {
+  "id": "LBL_SPACE_STORAGE_NAME",
+  "text": "Space Storage",
+  "max": 32,
+  "place": "Route row, name of the station end of a route"
+ },
+ {
+  "id": "LBL_NEXT_CYCLE",
+  "text": "Next cycle: +{in} -{out} = {after}",
+  "max": 48,
+  "place": "Storage view, projected stock after the next cycle"
  },
  {
   "id": "SK_HEADER",

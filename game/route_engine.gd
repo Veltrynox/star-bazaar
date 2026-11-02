@@ -26,6 +26,7 @@ var next_id: int = 1
 var closed_planets: Array = []  # planet indexes closed (permits/events hook); runtime only
 var debris_planets: Array = []  # T98: planets with debris; routes from them carry less (runtime, set by main)
 var shield: RefCounted = null  # T101: solar shield (shield.gd), set by main
+var trade_gate: Callable = Callable()  # owner 2026-11-03: planet -> bool, false when its system has no Space Storage post (set by main)
 var learned: Array = []  # T82: learned skill ids, set by main; effects come from balance.json keys
 var split_budget: Dictionary = {}  # N2: runtime, set at the start of each settle: lane key -> units its split share may take
 
@@ -42,9 +43,11 @@ func reset() -> void:
 	split_budget = {}
 
 func new_record(src_planet: int, dst_planet: int, c: String) -> Dictionary:
-	return {"id": 0, "src": "planet:%d" % src_planet, "dst": "planet:%d" % dst_planet,
+	# Manual Space Storage: a negative dst_planet is a station, -system id; dst is then that system's Space Storage key.
+	var dkey: String = storage.system_key(-dst_planet) if dst_planet < 0 else "planet:%d" % dst_planet
+	return {"id": 0, "src": "planet:%d" % src_planet, "dst": dkey,
 		"a": src_planet, "b": dst_planet, "c": c, "ships": 1, "ship": "small", "level": 1, "orders": {},
-		"fresh": 1.0, "state": "running", "reason": "", "split_to": -1, "split_share": 0.0}
+		"fresh": 1.0, "state": "running", "reason": "", "split_to": -1, "split_share": 0.0, "stop": -1}
 
 func find_by_id(id: int) -> int:
 	for i in routes.size():
@@ -96,6 +99,8 @@ func level_bonus(rec: Dictionary, units: int) -> int:
 	var lv := int(rec.get("level", 1))
 	if lv < 2 or units <= 0:
 		return 0
+	if int(rec["b"]) < 0:  # a send to Space Storage sells nothing
+		return 0
 	var per: int = sold_price(int(rec["b"]), str(rec["c"])) - local_price(int(rec["a"]), str(rec["c"]), "buy")
 	if per <= 0 or local_price(int(rec["a"]), str(rec["c"]), "buy") < 0:
 		return 0
@@ -130,7 +135,8 @@ func planet_open(i: int) -> bool:
 
 ## Units a ship moves per cycle.
 func units_per_cycle(rec = null) -> int:
-	var base := float(trade.capacity()) / (2.0 * maxf(0.0001, trade.travel_cycles()))
+	var legs := 2.0 if has_stop(rec) else 1.0  # N9: a stop adds one more leg of travel
+	var base := float(trade.capacity()) / (2.0 * maxf(0.0001, trade.travel_cycles()) * legs)
 	base *= Ships.cargo_mult(kind_of(rec), balance)  # T58
 	if learned.has("A4"):
 		base *= 1.0 + float(balance.get("skill_A4_route_units", 0))
@@ -146,7 +152,7 @@ func local_amount() -> int:
 
 ## Fixed cost per cycle of a route that moves stock (trip + ship upkeep).
 func fixed_cost(rec = null) -> int:
-	return trip_part() + upkeep_part(rec)
+	return trip_part() * (2 if has_stop(rec) else 1) + upkeep_part(rec)  # N9: a stop pays one more trip cost
 
 ## T69: trip cost part of the fixed cost.
 func trip_part() -> int:
@@ -162,6 +168,8 @@ func upkeep_part(rec = null) -> int:
 ## T70: outflow at a destination = an enabled local Sell order for the commodity there, or an
 ## outgoing route from that storage for the commodity. Only then a full storage will drain.
 func has_outflow(dst_planet: int, c: String) -> bool:
+	if dst_planet < 0:  # Space Storage: nothing drains it by itself
+		return false
 	if local_on(dst_planet, c, "sell"):
 		return true
 	for r in routes:
@@ -274,6 +282,8 @@ func _local_calc(planet: int, c: String, role: String, cash: int) -> Dictionary:
 		return {"n": 0, "credits": 0, "state": "Planet closed."}
 	if price < 0:
 		return {"n": 0, "credits": 0, "state": "Not traded here."}
+	if trade_gate.is_valid() and not bool(trade_gate.call(planet)):
+		return {"n": 0, "credits": 0, "state": StoryText.get_or("LBL_TRADE_NEEDS_STATION", "Needs a Space Storage in this system.")}
 	if role == "buy":
 		if storage.space(key, c) <= 0:
 			return {"n": 0, "credits": 0, "state": StoryText.get_text("NOT_STORAGE_FULL")}
@@ -293,6 +303,8 @@ func _local_calc(planet: int, c: String, role: String, cash: int) -> Dictionary:
 
 ## Checks a new route (without the owned-ship pool; main adds that). {ok, reason}.
 func check_connection(src: int, dst: int, c: String) -> Dictionary:
+	if dst < 0:  # manual Space Storage: dst = -system id
+		return _check_station(src, -dst, c)
 	if src == dst or src < 0 or dst < 0 or src >= trade.planets.size() or dst >= trade.planets.size():
 		return {"ok": false, "reason": "Pick two different planets."}
 	if not commodities.has(c):
@@ -302,6 +314,81 @@ func check_connection(src: int, dst: int, c: String) -> Dictionary:
 	if int(trade.planets[src].get("system", 1)) != int(trade.planets[dst].get("system", 1)) and not learned.has("C3"):
 		return {"ok": false, "reason": StoryText.get_text("NOT_ROUTE_NEEDS_C3")}  # C3 Long Haul
 	return {"ok": true, "reason": ""}  # T87: a second ship on the same lane is allowed
+
+## A send to the Space Storage of system sid. Open post is checked by main (space_post_open).
+func _check_station(src: int, sid: int, c: String) -> Dictionary:
+	if src < 0 or src >= trade.planets.size():
+		return {"ok": false, "reason": "Pick a planet to send from."}
+	if not commodities.has(c):
+		return {"ok": false, "reason": "Unknown commodity."}
+	if not planet_open(src):
+		return {"ok": false, "reason": "A planet on this route is closed."}
+	var known := false
+	for p in trade.planets:
+		if int(p.get("system", 1)) == sid:
+			known = true
+	if not known:
+		return {"ok": false, "reason": "No such system."}
+	if int(trade.planets[src].get("system", 1)) != sid and not learned.has("C3"):
+		return {"ok": false, "reason": StoryText.get_text("NOT_ROUTE_NEEDS_C3")}
+	return {"ok": true, "reason": ""}
+
+## True when the route's destination is a Space Storage.
+static func to_station(rec: Dictionary) -> bool:
+	return int(rec["b"]) < 0
+
+## A planet end is open; a station end has no planet to close.
+func dst_open(rec: Dictionary) -> bool:
+	return int(rec["b"]) < 0 or planet_open(int(rec["b"]))
+
+## N9 Stop-over sale: a route may name one stop on its path (rec["stop"], -1 when none).
+## A planet counts as on the path when it lies strictly between src and dst and within STOP_PATH_PX map px of their line.
+const STOP_PATH_PX := 40.0  # N9: tuning constant for the path test, not a balance key (owner to confirm)
+
+static func has_stop(rec) -> bool:
+	return typeof(rec) == TYPE_DICTIONARY and int(rec.get("stop", -1)) >= 0
+
+## N9: true when planet `stop` lies on the path from src to dst (map position, see STOP_PATH_PX).
+func stop_on_path(src: int, stop: int, dst: int) -> bool:
+	var n: int = trade.planets.size()
+	if src < 0 or dst < 0 or stop < 0 or src >= n or dst >= n or stop >= n or src == dst or stop == src or stop == dst:
+		return false
+	var a := _map_pos(src)
+	var ab := _map_pos(dst) - a
+	var len2 := ab.length_squared()
+	if len2 <= 0.0:
+		return false
+	var p := _map_pos(stop)
+	var t := (p - a).dot(ab) / len2
+	if t <= 0.0 or t >= 1.0:
+		return false
+	return p.distance_to(a + ab * t) <= STOP_PATH_PX
+
+func _map_pos(i: int) -> Vector2:
+	var p = trade.planets[i]
+	if typeof(p) != TYPE_DICTIONARY:
+		return Vector2.ZERO
+	return Vector2(float(p.get("x", 0)), float(p.get("y", 0)))
+
+## N9: stops offered for a send src -> dst of commodity c: on the path, open, trading, with an enabled Sell order for c.
+func stop_candidates(src: int, dst: int, c: String) -> Array:
+	var out: Array = []
+	for i in trade.planets.size():
+		if not stop_on_path(src, i, dst) or not planet_open(i) or not local_on(i, c, "sell"):
+			continue
+		if sold_price(i, c) <= 0 or (trade_gate.is_valid() and not bool(trade_gate.call(i))):
+			continue
+		if check_connection(src, i, c)["ok"] and check_connection(i, dst, c)["ok"]:
+			out.append(i)
+	return out
+
+## N9: a route's stop still buys: open, trading, and its Sell order for the commodity is on. Otherwise the load goes on whole.
+func stop_open(rec: Dictionary) -> bool:
+	var k := int(rec.get("stop", -1))
+	if k < 0:
+		return false
+	var c := str(rec["c"])
+	return planet_open(k) and local_on(k, c, "sell") and sold_price(k, c) > 0 and (not trade_gate.is_valid() or bool(trade_gate.call(k)))
 
 ## T70: full destination, no source stock check: true when the route cannot add a unit now.
 ## T85: Space Storage of the source planet's system, "" when there is none (needs skill A1 and an established post).
@@ -316,6 +403,8 @@ func src_available(rec: Dictionary) -> int:
 	var c := str(rec["c"])
 	var n: int = storage.amount(str(rec["src"]), c)
 	var sk := space_key_for(int(rec["a"]))
+	if sk == str(rec["dst"]):  # a send to the station never draws from it
+		sk = ""
 	return n + (storage.amount(sk, c) if sk != "" else 0)
 
 ## Stock a local Sell order can take at a planet: its storage plus the Space Storage of its system.
@@ -330,7 +419,7 @@ func _dest_full(rec: Dictionary) -> bool:
 ## Live state for display: closed planets and a full destination without outflow read blocked;
 ## a full destination with outflow reads waiting (neutral); otherwise the stored state.
 func status_of(rec: Dictionary) -> String:
-	if not planet_open(int(rec["a"])) or not planet_open(int(rec["b"])):
+	if not planet_open(int(rec["a"])) or not dst_open(rec):
 		return "blocked"
 	if _dest_full(rec):
 		if not has_outflow(int(rec["b"]), str(rec["c"])):
@@ -340,7 +429,7 @@ func status_of(rec: Dictionary) -> String:
 	return str(rec["state"])
 
 func reason_of(rec: Dictionary) -> String:
-	if not planet_open(int(rec["a"])) or not planet_open(int(rec["b"])):
+	if not planet_open(int(rec["a"])) or not dst_open(rec):
 		return "A planet on this route is closed."
 	if _dest_full(rec):
 		if not has_outflow(int(rec["b"]), str(rec["c"])):
@@ -355,6 +444,11 @@ static func waiting_text() -> String:
 ## T70: units the route would really move now (partial loads allowed).
 func planned_units(rec: Dictionary) -> int:
 	var c := str(rec["c"])
+	return maxi(0, mini(_route_cap(rec), mini(src_available(rec), storage.space(str(rec["dst"]), c))))
+
+## Units a route may move per cycle before stock and room limits (efficiency, freshness, split share).
+func _route_cap(rec: Dictionary) -> int:
+	var c := str(rec["c"])
 	var eff := 1.0
 	if debris_planets.has(int(rec["a"])):  # T98: debris at the source planet
 		eff = 1.0 - float(balance.get("debris_route_penalty", 0.0))
@@ -364,7 +458,98 @@ func planned_units(rec: Dictionary) -> int:
 	var lim := _split_limit(rec)  # N2: a split lane takes no more than its share of the stock
 	if lim >= 0:
 		units = mini(units, lim)
-	return maxi(0, mini(units, mini(src_available(rec), storage.space(str(rec["dst"]), c))))
+	return units
+
+## Read-only projection of one storage key and commodity over the next cycle. Runs the cycle order
+## (local buys, routes, local sells) on a scratch copy of the stock; nothing in the game changes.
+## {in, out, after, capacity}. `cash` bounds buys and route costs (default: unlimited). Approximations:
+## the cash of other commodities' orders is not tracked, split budgets use the live stock, and Mixed load
+## and level bonuses (credits only) are ignored.
+func project_storage(key: String, c: String, cash: int = 1 << 40) -> Dictionary:
+	var cap: int = storage.capacity_of(key)
+	var shadow := {}
+	var tally := {"in": 0, "out": 0}
+	var cur := cash
+	var get_amt := func(k: String) -> int:
+		return int(shadow[k]) if shadow.has(k) else storage.amount(k, c)
+	var put := func(k: String, n: int) -> void:
+		shadow[k] = int(get_amt.call(k)) + n
+		if k == key:
+			tally["in"] += n
+	var take := func(k: String, n: int) -> void:
+		shadow[k] = int(get_amt.call(k)) - n
+		if k == key:
+			tally["out"] += n
+	var orders: Array = local.values()
+	for o in orders:  # 1 local buys
+		if str(o["c"]) != c or not o["buy"]:
+			continue
+		var p := int(o["planet"])
+		var price := local_price(p, c, "buy")
+		if not planet_open(p) or price < 0 or (trade_gate.is_valid() and not bool(trade_gate.call(p))):
+			continue
+		var pk: String = storage.planet_key(p)
+		var n: int = mini(local_amount(), storage.capacity_of(pk) - int(get_amt.call(pk)))
+		if price > 0:
+			n = mini(n, floori(float(maxi(cur, 0)) / price))
+		if n > 0:
+			put.call(pk, n)
+			cur -= n * price
+	var budget := {}  # split lanes: the live share, spent as lanes move
+	for rec in routes:
+		if str(rec["c"]) != c:
+			continue
+		var lk := _lane_key(int(rec["a"]), int(rec["b"]), c)
+		if not budget.has(lk):
+			var lim := _split_limit(rec)
+			if lim >= 0:
+				budget[lk] = lim
+	for rec in routes:  # 2 routes
+		if str(rec["c"]) != c or not planet_open(int(rec["a"])) or not dst_open(rec):
+			continue
+		var src := str(rec["src"])
+		var dst := str(rec["dst"])
+		var sk := space_key_for(int(rec["a"]))
+		if sk == dst:
+			sk = ""
+		var have: int = int(get_amt.call(src)) + (int(get_amt.call(sk)) if sk != "" else 0)
+		var room: int = storage.capacity_of(dst) - int(get_amt.call(dst))
+		if have <= 0 or room <= 0 or cur < fixed_cost(rec):
+			continue
+		var lk := _lane_key(int(rec["a"]), int(rec["b"]), c)
+		var units := _route_cap(rec)
+		if budget.has(lk):
+			units = mini(units, int(budget[lk]))
+		var moved: int = maxi(0, mini(units, mini(have, room)))
+		if moved <= 0:
+			continue
+		cur -= fixed_cost(rec)
+		if budget.has(lk):
+			budget[lk] = maxi(0, int(budget[lk]) - moved)
+		var from_planet: int = mini(moved, int(get_amt.call(src)))
+		if from_planet > 0:
+			take.call(src, from_planet)
+		if sk != "" and from_planet < moved:
+			take.call(sk, moved - from_planet)
+		put.call(dst, moved)
+	for o in orders:  # 3 local sells
+		if str(o["c"]) != c or not o["sell"]:
+			continue
+		var p := int(o["planet"])
+		if not planet_open(p) or local_price(p, c, "sell") < 0 or (trade_gate.is_valid() and not bool(trade_gate.call(p))):
+			continue
+		var pk: String = storage.planet_key(p)
+		var sk := space_key_for(p)
+		var have: int = int(get_amt.call(pk)) + (int(get_amt.call(sk)) if sk != "" else 0)
+		var n: int = mini(local_amount(), have)
+		if n <= 0:
+			continue
+		var from_planet: int = mini(n, int(get_amt.call(pk)))
+		if from_planet > 0:
+			take.call(pk, from_planet)
+		if sk != "" and from_planet < n:
+			take.call(sk, n - from_planet)
+	return {"in": int(tally["in"]), "out": int(tally["out"]), "after": clampi(int(get_amt.call(key)), 0, cap), "capacity": cap}
 
 ## Projected net credits of the next cycle (display and cash forecast): the ship cost while it can move stock.
 func payout_of(rec: Dictionary) -> int:
@@ -448,30 +633,13 @@ func settle(cash: int) -> Dictionary:
 			newly_stalled.append(rec)
 		rec["fresh"] = 1.0
 		results.append({"id": rec["id"], "a": rec["a"], "b": rec["b"], "c": rec["c"], "ships": 1,
-			"net": paid + bonus, "paid": paid + bonus, "status": rec["state"], "reason": rec["reason"]})
+			"net": paid + bonus, "paid": paid + bonus, "stop": int(rec.get("stop", -1)), "stop_sale": int(rec.get("stop_sale", 0)), "status": rec["state"], "reason": rec["reason"]})
 	for o in orders:  # 3 local sells
 		if o["sell"]:
 			delta += _run_local(o, "sell", cash + delta, loc)
 	split_budget = {}
 	return {"delta": delta, "results": results, "local": loc, "newly_blocked": newly, "newly_stalled": newly_stalled,
 		"upkeep": upkeep_paid, "gross": delta + upkeep_paid}
-
-## T85: after the cycle's orders and routes, each planet storage of a system with a Space Storage passes up to
-## planet_to_space_rate units per commodity into it (what is left over, never before the sells).
-func feed_space() -> void:
-	if not learned.has("A1"):
-		return
-	var rate := int(balance.get("planet_to_space_rate", 0))
-	for i in trade.planets.size():
-		var sk := space_key_for(i)
-		var pk: String = storage.planet_key(i)
-		if sk == "" or not storage.established(pk):
-			continue
-		for c in commodities:
-			var n := mini(rate, mini(storage.amount(pk, c), storage.space(sk, c)))
-			if n > 0:
-				storage.remove(pk, c, n)
-				storage.add(sk, c, n)
 
 func _run_local(o: Dictionary, role: String, cash: int, out: Array) -> int:
 	var planet := int(o["planet"])
@@ -501,10 +669,11 @@ func _run_local(o: Dictionary, role: String, cash: int, out: Array) -> int:
 
 func _settle_one(rec: Dictionary, cash: int) -> int:
 	rec["bonus"] = 0
+	rec["stop_sale"] = 0
 	var c := str(rec["c"])
 	var src := str(rec["src"])
 	var dst := str(rec["dst"])
-	if not planet_open(int(rec["a"])) or not planet_open(int(rec["b"])):
+	if not planet_open(int(rec["a"])) or not dst_open(rec):
 		rec["state"] = "blocked"
 		rec["reason"] = "A planet on this route is closed."
 		return 0
@@ -533,11 +702,20 @@ func _settle_one(rec: Dictionary, cash: int) -> int:
 		return 0
 	var from_planet: int = storage.remove(src, c, moved)  # T85: the planet storage first, Space Storage covers the rest
 	var sk := space_key_for(int(rec["a"]))
+	if sk == dst:  # a send to the station never draws from it
+		sk = ""
 	if from_planet < moved and sk != "":
 		from_planet += storage.remove(sk, c, moved - from_planet)
-	storage.add(dst, c, from_planet)
+	var carried := from_planet
+	var sale := 0
+	if stop_open(rec):  # N9: the stop buys up to its Sell order amount; the rest is carried on
+		var sold := mini(from_planet, local_amount())
+		sale = sold * sold_price(int(rec["stop"]), c)
+		carried = from_planet - sold
+	storage.add(dst, c, carried)
 	_spend_split(rec, moved)  # N2
-	rec["bonus"] = level_bonus(rec, from_planet)  # T145: credited by settle() on top of the ship cost
+	rec["stop_sale"] = sale  # N11: read by main to spot a first sale in system 2
+	rec["bonus"] = level_bonus(rec, carried) + sale  # T145: credited by settle() on top of the ship cost; N9: stop sale
 	rec["state"] = "running"
 	rec["reason"] = ""
 	return -fixed
@@ -587,11 +765,23 @@ func move_route(i: int, a: int, b: int) -> void:
 ## The first destination takes the share, the second takes the rest. Each leg still pays its own fixed cost.
 
 ## N2: the lane's split {to, share}, {} when the lane is not split.
+## The split ends when the partner lane has lost its ship: the stale share is cleared, so all remaining stock goes to this lane.
 func lane_split(src_planet: int, dst_planet: int, c: String) -> Dictionary:
 	for r in routes:
 		if r["a"] == src_planet and r["b"] == dst_planet and r["c"] == c and float(r["split_share"]) > 0.0:
-			return {"to": int(r["split_to"]), "share": float(r["split_share"])}
+			var to := int(r["split_to"])
+			if lane_count(src_planet, to, c) <= 0:
+				clear_split(src_planet, c)
+				return {}
+			return {"to": to, "share": float(r["split_share"])}
 	return {}
+
+## Split bar: "Stop split" - every lane of this source and commodity goes back to normal sends.
+func clear_split(src_planet: int, c: String) -> void:
+	for r in routes:
+		if r["a"] == src_planet and r["c"] == c:
+			r["split_to"] = -1
+			r["split_share"] = 0.0
 
 ## N2: splits the source stock of c: first takes share, second takes 1 - share. Both lanes must already have ships.
 func set_split(src_planet: int, first: int, second: int, c: String, share: float) -> void:
@@ -695,6 +885,8 @@ func from_array(saved, owned_ships: int) -> void:
 		rec["reason"] = str(s.get("reason", ""))
 		rec["split_to"] = int(s.get("split_to", -1))  # N2
 		rec["split_share"] = clampf(float(s.get("split_share", 0.0)), 0.0, 1.0)
+		var stop := int(s.get("stop", -1))  # N9
+		rec["stop"] = stop if stop_on_path(a, stop, b) else -1
 		rec["fresh"] =clampf(float(s.get("fresh", 1.0)), 0.0, 1.0) if typeof(s.get("fresh")) != TYPE_ARRAY else 1.0
 		routes.append(rec)
 		next_id = maxi(next_id, int(rec["id"]) + 1)
