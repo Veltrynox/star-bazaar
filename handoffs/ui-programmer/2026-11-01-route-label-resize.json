@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-01",
+  "task": "route-start-and-label-after-planet-resize",
+  "status": "partial",
+  "files_changed": ["game/route_line.gd", "game/map.gd"],
+  "open_questions": ["Route start still looks black? The shader reads clean (colour and alpha are constant along the arc), so the cause was not found by reading; please send a screenshot if it persists."],
+  "handoff": "Route start GAP 1.06 -> 0.6 of sphere scale (0.848 -> 0.48 world at R 0.8; glow shell is 0.448, body 0.4). Label drop R+0.5 (1.3) -> 0.56R+0.15 (0.598) via map.label_drop(). Route tag at arc midpoint unchanged. Tests 498 pass, 0 fail. Not rendered; check by eye.",
+  "details": {"black_start_cause": "not proven; shader has no colour or alpha fade at the start. Likely the old start sat inside the planet glow/atmosphere shells or under the dark outline of the planet label."}
+}

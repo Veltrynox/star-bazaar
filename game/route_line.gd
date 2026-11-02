@@ -6,7 +6,7 @@ extends MeshInstance3D
 
 const StoryText := preload("res://game/story_text.gd")
 
-const GAP := 1.06             # line starts this far (x planet radius) from planet centres
+const GAP := 0.6              # line starts this far (x sphere scale) from planet centres: just outside the 0.56 glow shell of the halved planet (was 1.06)
 const BOW := 0.2              # arch height as a share of the line length
 const LINE_PX := 1.5          # design: stroke-width 1.5 (px in the 1672x941 frame)
 const LINE_ALPHA := 0.5       # design: opacity .5
