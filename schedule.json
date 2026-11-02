@@ -424,7 +424,7 @@
       "turn_cap": 60,
       "window": "UNSTOPPED by owner 2026-11-01 (answer d). Still waits for T63 (depends_on). Sell rule is T139.",
       "brief": "One bigger storage per system, unlocked later; planets transfer into it slowly; it supports a broken route for a while; storage-to-storage links move goods between systems; click it to see and remove connections. Needs the owner's go and T63 numbers.",
-      "owner_note": "Owner direction 2026-10-27 (route redesign). Abstract numbers only; owner plays then refines. Producer 2026-10-27: Space Storage scope moved to T85 at the owner's request. Owner 2026-11-01: unstopped (answer d); sell orders draw from Space Storage stock (T139). Still gated by T63."
+      "owner_note": "Owner direction 2026-10-27 (route redesign). Abstract numbers only; owner plays then refines. Producer 2026-10-27: Space Storage scope moved to T85 at the owner's request. Owner 2026-11-01: unstopped (answer d); sell orders draw from Space Storage stock (T139). Still gated by T63. T139 done 2026-11-01: the sell rule is in. T64 stays queued: it still waits for T63, and its links and click-to-remove scope is not rechecked."
     },
     {
       "task_id": "T94",
@@ -1014,7 +1014,7 @@
       "depends_on": [
         "T85"
       ],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 40,
       "window": "Gameplay lane, owner answer 2026-11-01. Start by main session. Goes with T64 (unstopped the same day).",
       "brief": "Owner answer 2026-11-01 (d). A sell order at a planet, or a sell order at a Space Storage post, draws its stock from the stock stored in that system's Space Storage. Use the existing storage and order code; add no new numbers and no new text (story ids only, flag any missing id for the story-designer). Save and load are unchanged in shape. Check with a headless run that a sell order empties Space Storage stock and that a route that broke still gets support as T85 defines. Handoff: handoffs/gameplay-programmer/<date>-T139.json.",

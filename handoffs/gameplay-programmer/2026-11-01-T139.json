@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-01",
+  "task": "T139",
+  "status": "done",
+  "files_changed": ["game/route_engine.gd", "tools/tests/run_tests.gd", "schedule.json", "qa/reports/2026-11-01-T139-space-sell.md", "handoffs/gameplay-programmer/2026-11-01-T139.json"],
+  "open_questions": [
+    "Rescue stipend check (main._any_sellable) still reads planet storage only, so a player whose only stock sits in Space Storage can still be rescued. Keep it (the bot relied on it) or count Space stock too? Counting it made all 20 bot runs lose.",
+    "T64 stays queued (waits for T63). Do you want it closed now that sell orders and routes both use the post?"
+  ],
+  "handoff": "A local Sell order now takes stock from the planet storage first, then from the Space Storage of that planet's system (needs A1 and an open post). Same 16-per-cycle order size and same price; no new numbers, no save change. Try it: new game, learn A1, put 30 energy in system:1 via the debug menu, set a Sell order at a planet, end a cycle: the post stock falls and cash rises. Sell status text still says 'Storage empty.' when both are empty; that and the Sell line for post stock need story-designer text (existing fallback used). A Sell order 'at a post' does not exist as a separate order in the code, so only planet Sell orders were changed. Tests: fail=0 (513).",
+  "details": {"rule": "route_engine.sell_available(planet, c) = planet storage + Space Storage of the system; _local_calc uses it; _run_local removes planet first then post.", "bot_20_seeds_decent": {"before_end_stock_total": 861, "after_end_stock_total": 48, "posts_with_stock_before": "20/20", "posts_with_stock_after": "20/20 (1 to 2 units each, fed after the last sell)"}}
+}
