@@ -2,7 +2,11 @@ shader_type spatial;
 render_mode unshaded, blend_mix, cull_back, depth_draw_always;
 // Stripped planet body: beauty map as albedo, plus the Fresnel crescent and the rim light, nothing else.
 // Key-light shadow side (soft terminator, ambient floor) and height-gradient relief on the lit side (no geometry change).
-// No clouds, no grain, no palette tint. Soft edge: alpha fades over edge_px screen pixels at the limb (same method as planet_sphere.gdshader). The lit colour is the PNG colour
+// No clouds, no grain, no palette tint. Soft edge OUTSIDE the limb: the body is solid out to its true limb, and a halo feather of edge_px screen pixels
+// melts into the background beyond it. Method: the vertex stage inflates the sphere by edge_px pixels; the fragment stage rebuilds the TRUE sphere
+// normal from the screen position (hull normal x inflation), so the body shading, texture, Fresnel and rim stay as before, and pixels beyond the true
+// limb get the limb colour with alpha falling to 0 at the hull edge. Depth of the halo is the centre plane, so it never hides the atmosphere shell or belts.
+// The lit colour is the PNG colour
 // (source_color: the sampler converts sRGB to linear, the unshaded output converts it back, so it shows as in the file).
 // The Fresnel and rim code is copied unchanged from planet_sphere.gdshader (same uniforms, same defaults).
 // The sun direction key_dir is used only to place the crescent and the rim (object space, towards the sun).
@@ -21,7 +25,7 @@ uniform bool use_disp = false;
 uniform float relief = 0.6;          // normal-map scale: how far the height gradient bends the normal (0 = flat)
 uniform float shadow_ambient = 0.07; // LINEAR floor of the dark side (0 = black, 1 = no shadow). Output is sRGB-encoded, so 0.07 shows as 0.07^(1/2.2) = 0.3 on screen
 uniform float term_soft = 0.30;      // terminator softness in dot(n, sun); wider = softer edge
-uniform float edge_px = 10.0;        // soft limb edge width in screen pixels (0 = hard edge)
+uniform float edge_px = 10.0;        // halo feather width OUTSIDE the limb in screen pixels (0 = hard edge)
 uniform float bump_gain = 1.5;       // how much the bumped normal changes the lit brightness
 
 // Cloud layer (earth-like types: lush, agrarian, ocean): screen-style light mask, the same blend as the cloud shell
@@ -37,14 +41,26 @@ uniform bool use_storm_glow = false;
 uniform vec4 storm_col : source_color = vec4(0.66, 0.77, 1.0, 1.0);  // set from the palette glow colour
 uniform float storm_strength = 0.6;  // modest; above 1.0 would go into the HDR glow
 
-varying vec3 obj_n;
+varying float hull;  // inflation of the mesh: (true radius + edge_px pixels) / true radius
 
 void vertex() {
-	obj_n = normalize(VERTEX);  // true sphere normal for the fragment stage
+	hull = 1.0;
+	if (edge_px > 0.0) {
+		vec3 c = (VIEW_MATRIX * MODEL_MATRIX[3]).xyz;  // sphere centre in view space
+		float pix = (PROJECTION_MATRIX[3][3] > 0.5) ? 2.0 / (PROJECTION_MATRIX[1][1] * VIEWPORT_SIZE.y) : abs(c.z) * 2.0 / (PROJECTION_MATRIX[1][1] * VIEWPORT_SIZE.y);  // world size of one pixel at the centre
+		float radius = length(MODEL_MATRIX[0].xyz) * 0.5;  // mesh radius is 0.5
+		hull = 1.0 + edge_px * pix / radius;
+		VERTEX *= hull;  // uniform inflation about the centre (model space)
+	}
 }
 
 void fragment() {
-	vec3 n = normalize(obj_n);
+	// True sphere normal from the screen position: the hull normal's lateral part times the inflation (view space), z from the unit length.
+	vec2 lat = normalize(NORMAL).xy * hull;
+	float lat_len = length(lat);
+	if (lat_len > 1.0) lat /= lat_len;  // beyond the true limb (halo): the limb normal
+	float NdV = sqrt(max(1.0 - dot(lat, lat), 0.0));  // true N.V, 0 at and beyond the limb
+	vec3 n = normalize(inverse(mat3(MODEL_MATRIX)) * (mat3(INV_VIEW_MATRIX) * vec3(lat, NdV)));  // object space
 	// Equirect UV from the normal, derivatives fixed at the atan wrap so there is no seam line.
 	vec2 uv = vec2(atan(n.x, n.z) / TAU + 0.5, acos(clamp(n.y, -1.0, 1.0)) / PI);
 	vec2 dx = dFdx(uv);
@@ -85,7 +101,6 @@ void fragment() {
 		}
 	}
 
-	float NdV = clamp(dot(NORMAL, VIEW), 0.0, 1.0);
 	// Fresnel crescent: limb glow on the sun side only (unchanged).
 	float side = smoothstep(fres_side, fres_side + 0.6, dot(n, normalize(key_dir)));
 	side *= side;
@@ -97,16 +112,13 @@ void fragment() {
 	}
 	col += pale_col.rgb * fres;
 
-	// Soft edge: distance from the limb in screen pixels (view-space radius minus distance from the centre, over the pixel size).
-	float edge_a = 1.0;
-	if (edge_px > 0.0) {
-		float pix = (PROJECTION_MATRIX[3][3] > 0.5) ? 2.0 / (PROJECTION_MATRIX[1][1] * VIEWPORT_SIZE.y) : -VERTEX.z * 2.0 / (PROJECTION_MATRIX[1][1] * VIEWPORT_SIZE.y);
-		vec3 centre = (VIEW_MATRIX * MODEL_MATRIX[3]).xyz;
-		float radius = length(MODEL_MATRIX[0].xyz) * 0.5;  // mesh radius is 0.5
-		float d_px = (radius - length(VERTEX.xy - centre.xy)) / pix;
-		edge_a = smoothstep(0.0, 1.0, d_px / edge_px);
-	}
-	edge_a = max(edge_a, smoothstep(0.3, 0.5, NdV));  // guard: facing the camera (NdV > 0.5) is always opaque, whatever the pixel-distance maths gives
+	// Halo: 0 inside the true limb, 1 at the hull edge (edge_px pixels out). Solid body, soft feather outside.
+	float t = (hull > 1.0) ? clamp((lat_len - 1.0) / (hull - 1.0), 0.0, 1.0) : 0.0;
+	float edge_a = 1.0 - smoothstep(0.0, 1.0, t);
+	edge_a = max(edge_a, smoothstep(0.3, 0.5, NdV));  // guard: facing the camera (true NdV > 0.5) is always opaque
 	ALPHA = edge_a;
 	ALBEDO = min(col, vec3(2.0));
+	// Halo depth = the sphere's centre plane (never nearer than the true limb), so the atmosphere shell, belts and dust still draw over it.
+	vec4 cc = PROJECTION_MATRIX * (VIEW_MATRIX * MODEL_MATRIX[3]);
+	DEPTH = (t > 0.0) ? cc.z / cc.w : FRAGCOORD.z;
 }
