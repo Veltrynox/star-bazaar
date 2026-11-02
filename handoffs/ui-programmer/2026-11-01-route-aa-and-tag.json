@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-01",
+  "task": "route-aa-and-tag",
+  "status": "done",
+  "files_changed": ["project.godot", "game/route_line.gd", "game/map.gd", "game/main.gd", "tools/tests/run_tests.gd"],
+  "open_questions": [
+    "Story ids LBL_ROUTE_SHIP_ONE ('{n} ship'), LBL_ROUTE_SHIP_MANY ('{n} ships') and LBL_ROUTE_BLOCKED ('Blocked') are missing; English fallbacks are used. ST_WAITING_ROOM exists and is used.",
+    "The tag has no pill background or commodity icon yet (Label3D cannot draw them); wanted as a follow-up?"
+  ],
+  "handoff": "Anti-aliasing: msaa_3d=4x in project.godot; the route shader now has a soft 1 px edge (ribbon widened 0.5 px each side, coverage ramp) and fwidth-smoothed dash ends. Width, colour, alpha and dash length unchanged. Route tag: a Label3D at the arc midpoint with 'N ships · +net' (real minus for negative), or 'Waiting for room' in signal-warn, or 'Blocked' in signal-bad. Net is summed per lane in main._push_routes_to_map from engine.payout_of. Tests 488 pass. Not checked by eye.",
+  "details": {
+    "design_matched": ["tag text format 'N ship(s) · +net' / 'Waiting for room'", "tag at the midpoint of the line", "mono font, ink colour, signal-warn when waiting", "real minus sign"],
+    "design_not_matched": ["pill background panel-100 with line-100 border and radius-full", "12 px commodity icon in the tag", "per-route tag offsets (r1 -58,-2; r2 0,16; r3 0,-16)", "click on the tag opens RoutePanel", "11 px size is a guess: font_size 30 at pixel_size 0.0008 fixed_size, not measured"],
+    "galaxy_view": "The design's GalaxyView has no route tags, so none were added there.",
+    "note": "Tag outline uses panel_100 to keep it readable over the line. Git not available via plain command; used CLT git."
+  }
+}
