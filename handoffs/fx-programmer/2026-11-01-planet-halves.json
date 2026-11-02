@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "agent": "fx-programmer",
+  "date": "2026-11-01",
+  "task": "Halve rim, displacement, planet visual size, belt alpha and spin",
+  "status": "done",
+  "files_changed": ["art/planet_fx/planet_sphere.gd", "art/planet_fx/planet_sphere.gdshader", "art/planet_fx/planet_sphere.tscn", "art/planet_fx/planet_sphere_ring.gdshader", "game/map.gd"],
+  "open_questions": ["Belt and moon ring stay at their old radii in sphere units, so they now sit twice as far from the visible planet. Say if they should shrink too."],
+  "handoff": "rim_strength 0.10125 -> 0.050625; disp_amount 0.03 -> 0.015; relief 20 -> 10; visual size: mesh radii in planet_sphere.tscn halved (body 1.0->0.5, glow 1.12->0.56, atmosphere 1.045->0.5225, streaks 1.03->0.515), node scale and pick radius unchanged; belt alpha 0.95 -> 0.475, BELT_SPIN 0.015 -> 0.0075 (map.gd const and belt shader default); moon ring alpha 0.95 -> 0.475, spin 0.01 -> 0.005.",
+  "details": {}
+}

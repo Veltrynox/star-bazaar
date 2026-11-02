@@ -47,12 +47,12 @@ var planets: Array = []
 var view_system := 1  # each solar system is its own space: only this system's planets, routes and sun are shown
 const BELT_INNER := 1.7   # clear of the glow shell (1.12) and the pick halo (up to 1.46), in planet radii
 const BELT_OUTER := 2.3
-const BELT_SPIN := 0.015  # turns per second about the planet's axis (shader time, no per-frame code)
+const BELT_SPIN := 0.0075  # turns per second about the planet's axis (shader time, no per-frame code)
 ## Flat ring quad with a circular mask. The asteroid ring PNG is sampled by (radius, angle + TIME), so the belt turns on the GPU.
 const BELT_SHADER := """shader_type spatial;
 render_mode unshaded, blend_mix, cull_disabled, depth_draw_never;
 uniform float inner = 0.74;      // inner edge as a fraction of the quad half-width
-uniform float spin = 0.015;
+uniform float spin = 0.0075;
 uniform vec3 key_dir = vec3(0.0, 0.5, 0.8);
 uniform vec4 key_color : source_color = vec4(1.0, 0.76, 0.42, 1.0);
 uniform sampler2D ring_tex : filter_linear_mipmap, repeat_disable;  // asteroid_ring_1/2.png: RGB ring on black
@@ -81,7 +81,7 @@ void fragment() {
 	float lit = 0.25 + 0.75 * pow(l, 0.6);
 	vec3 col = tex * brighten * (0.1 + key_color.rgb * lit * 1.3);
 	ALBEDO = col;
-	ALPHA = a * 0.95;
+	ALPHA = a * 0.475;
 }
 """
 var planet_spheres: Array[MeshInstance3D] = []

@@ -8,7 +8,7 @@ uniform vec4 key_color : source_color = vec4(1.0, 0.76, 0.42, 1.0);
 uniform float inner = 0.32;
 uniform float outer = 0.98;
 uniform float brighten = 2.4;
-uniform float spin = 0.01;
+uniform float spin = 0.005;
 varying vec3 wpos;
 varying vec3 ctr;
 varying float rad;  // planet radius in world units (the quad is a child of the scaled sphere)
@@ -34,5 +34,5 @@ void fragment() {
 	float dist = length(rel - k * along);
 	float shadow = (along < 0.0) ? smoothstep(0.9, 1.1, dist / rad) : 1.0;
 	ALBEDO = col * key_color.rgb * mix(0.25, 1.0, shadow);
-	ALPHA = a * 0.95;
+	ALPHA = a * 0.475;
 }
