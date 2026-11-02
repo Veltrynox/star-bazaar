@@ -106,6 +106,7 @@ void fragment() {
 		float d_px = (radius - length(VERTEX.xy - centre.xy)) / pix;
 		edge_a = smoothstep(0.0, 1.0, d_px / edge_px);
 	}
+	edge_a = max(edge_a, smoothstep(0.3, 0.5, NdV));  // guard: facing the camera (NdV > 0.5) is always opaque, whatever the pixel-distance maths gives
 	ALPHA = edge_a;
 	ALBEDO = min(col, vec3(2.0));
 }

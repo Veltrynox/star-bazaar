@@ -80,14 +80,14 @@ void fragment() {
 	vec2 uv = 0.5 + 0.5 * mix(tex_in, tex_out, t) * vec2(cos(ang), sin(ang));
 	vec3 tex = texture(ring_tex, uv).rgb;
 	float edge = smoothstep(0.0, 0.08, t) * smoothstep(1.0, 0.92, t);
-	float a = edge * smoothstep(0.12, 0.45, dot(tex, vec3(0.3, 0.59, 0.11)));   // black background and gaps are transparent
+	float a = edge * smoothstep(0.03, 0.30, dot(tex, vec3(0.3, 0.59, 0.11)));   // black background and gaps are transparent
 	if (a < 0.02) discard;
 	vec3 n = vec3(0.0, 1.0, 0.0);
 	float l = abs(dot(n, normalize(key_dir)));
 	float lit = 0.25 + 0.75 * pow(l, 0.6);
 	vec3 col = tex * brighten * (0.1 + key_color.rgb * lit * 1.3);
 	ALBEDO = col;
-	ALPHA = a * 0.5;   // 0.5 at the brightest grains, lower in the gaps
+	ALPHA = a * 0.5;   // grains above lum 0.3 reach 0.5 alpha, faint dust is fainter; the PNG dust is mostly lum 0.1 to 0.3, so 0.12..0.45 hid it
 }
 """
 var planet_spheres: Array[MeshInstance3D] = []

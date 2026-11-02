@@ -3,4 +3,5 @@
 [ext_resource type="Shader" path="res://art/planet_fx/planet_sphere_simple.gdshader" id="1"]
 
 [resource]
+render_priority = -1
 shader = ExtResource("1")
