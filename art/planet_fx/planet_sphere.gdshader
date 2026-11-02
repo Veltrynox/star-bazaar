@@ -19,8 +19,8 @@ uniform sampler2D lights_tex : filter_linear_mipmap, repeat_enable;   // white c
 uniform bool use_disp = false;
 uniform bool use_glow_mask = false;
 uniform bool use_lights_mask = false;
-uniform float relief = 20.0;                      // relief strength: how far the height gradient bends the key-light normal
-uniform float disp_amount = 0.03;               // vertex displacement along the normal, in planet radii (total range, centred on 0)
+uniform float relief = 10.0;                      // relief strength: how far the height gradient bends the key-light normal
+uniform float disp_amount = 0.015;               // vertex displacement along the normal, in planet radii (total range, centred on 0)
 uniform float term_shift = 0.45;                  // height moves the terminator: high ground keeps the sun longer (0 = off)
 uniform float relief_shade = 0.75;                 // cavity shading: low ground is darkened by this much (0 = off)
 uniform vec4 glow_col : source_color = vec4(0.60, 0.75, 1.00, 1.0);
