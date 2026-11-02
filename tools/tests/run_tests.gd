@@ -1133,6 +1133,13 @@ func _test_systems() -> void:
 	check(m.view_system == 2 and str(m.skill_arrow_target()["mode"]) == "view" and m.skill_arrow_target()["system"] == 1, "arrow: click moves the view, arrow then points back")
 	m._refresh()
 	check(m.galaxy_button.visible and m.galaxy_view.available(), "rail: galaxy button always shown")
+	var nav_before: bool = m.nav_hidden
+	m.toggle_navigation()
+	await create_timer(0.6).timeout
+	check(m.nav_hidden != nav_before and not m.nav_rail.visible and not m.nav_keys.visible and m.nav_toggle.visible, "nav: toggle hides rail and key hints, toggle stays")
+	m.toggle_navigation()
+	await create_timer(0.6).timeout
+	check(m.nav_rail.visible and m.nav_keys.visible and m.nav_hidden == nav_before, "nav: toggle brings them back")
 	check(m.trade.price(3, "food_buy") == 11 and m.trade.price(6, "energy_sell") == 34, "sys2: prices from data")
 	# reach point once per system
 	m.cash = 5000

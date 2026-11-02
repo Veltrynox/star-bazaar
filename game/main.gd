@@ -48,6 +48,10 @@ var open_systems: Array = [1]  # T85: system ids opened by a permit (system 1 is
 var galaxy_seen := false  # T105: galaxy tutorial lines already shown, saved
 var galaxy_view: Control  # T105 overlay
 var galaxy_button: Button
+var nav_rail: PanelContainer  # left rail, hidden with the navigation toggle
+var nav_keys: Control  # key hints, bottom left, hidden with the navigation toggle
+var nav_toggle: Button  # bottom left, always visible
+static var nav_hidden: bool = false  # kept for the session (not saved to disk)
 var system_exit: Control  # lock icon and fading line to the next locked system
 var view_system := 1  # T128: system the map camera was last put on
 var reached_ids: Array = []  # T85: systems past the first that already gave the reach point, saved
@@ -1664,7 +1668,7 @@ func _build_hud() -> void:
 	var keys := HFlowContainer.new()
 	keys.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_LEFT)
 	keys.grow_vertical = Control.GROW_DIRECTION_BEGIN
-	keys.offset_left = 20
+	keys.offset_left = 64  # leaves room for the navigation toggle
 	keys.offset_bottom = -20
 	keys.custom_minimum_size = Vector2(340, 0)
 	keys.add_theme_constant_override("h_separation", 16)
@@ -1690,6 +1694,20 @@ func _build_hud() -> void:
 		item.add_child(l)
 		keys.add_child(item)
 	add_child(keys)
+	nav_keys = keys
+	# navigation toggle, bottom left: hides or shows the rail and key hints, map gets the full screen
+	nav_toggle = Button.new()
+	nav_toggle.theme_type_variation = "ButtonSmall"
+	nav_toggle.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	nav_toggle.add_theme_constant_override("icon_max_width", 16)
+	nav_toggle.custom_minimum_size = Vector2(32, 32)
+	nav_toggle.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_LEFT)
+	nav_toggle.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	nav_toggle.offset_left = 20
+	nav_toggle.offset_bottom = -20
+	nav_toggle.pressed.connect(toggle_navigation)
+	add_child(nav_toggle)
+	_apply_navigation()
 	# route hints, bottom middle
 	var legend: HBoxContainer = load("res://game/route_legend.gd").new()
 	legend.set_anchors_and_offsets_preset(Control.PRESET_CENTER_BOTTOM)
@@ -1697,6 +1715,21 @@ func _build_hud() -> void:
 	legend.grow_vertical = Control.GROW_DIRECTION_BEGIN
 	legend.offset_bottom = -30
 	add_child(legend)
+
+func toggle_navigation() -> void:
+	nav_hidden = not nav_hidden
+	_apply_navigation()
+
+func _apply_navigation() -> void:
+	for n in [nav_rail, nav_keys]:
+		if n == null:
+			continue
+		if nav_hidden:
+			Juice.leave(n)
+		else:
+			Juice.enter(n)
+	nav_toggle.icon = Ui.icon("chevron" if nav_hidden else "back")
+	nav_toggle.tooltip_text = StoryText.get_or("BTN_NAV_SHOW", "Show navigation") if nav_hidden else StoryText.get_or("BTN_NAV_HIDE", "Hide navigation")
 
 func _bar_icon(token: String) -> TextureRect:
 	var t := TextureRect.new()
@@ -1715,6 +1748,7 @@ func _build_rail() -> void:
 	rail.set_anchors_and_offsets_preset(Control.PRESET_CENTER_LEFT)
 	rail.offset_left = 10
 	add_child(rail)
+	nav_rail = rail
 	var col := VBoxContainer.new()
 	col.add_theme_constant_override("separation", 6)
 	rail.add_child(col)
