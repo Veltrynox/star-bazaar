@@ -64,7 +64,7 @@ uniform vec4 key_color : source_color = vec4(1.0, 0.76, 0.42, 1.0);
 uniform sampler2D ring_tex : filter_linear_mipmap, repeat_disable;  // asteroid1/2.png: dusty ring on black
 uniform float tex_in = 0.38;     // belt radius is remapped onto the part of the PNG that holds dust (set per file in _add_belt)
 uniform float tex_out = 0.96;
-uniform float brighten = 2.4;
+uniform float brighten = 1.2;   // was 2.4: thinner, less dense look
 varying vec3 wpos;
 varying vec3 ctr;
 void vertex() {
@@ -80,14 +80,14 @@ void fragment() {
 	vec2 uv = 0.5 + 0.5 * mix(tex_in, tex_out, t) * vec2(cos(ang), sin(ang));
 	vec3 tex = texture(ring_tex, uv).rgb;
 	float edge = smoothstep(0.0, 0.08, t) * smoothstep(1.0, 0.92, t);
-	float a = edge * smoothstep(0.02, 0.12, dot(tex, vec3(0.3, 0.59, 0.11)));   // black background and gaps are transparent
+	float a = edge * smoothstep(0.12, 0.45, dot(tex, vec3(0.3, 0.59, 0.11)));   // black background and gaps are transparent
 	if (a < 0.02) discard;
 	vec3 n = vec3(0.0, 1.0, 0.0);
 	float l = abs(dot(n, normalize(key_dir)));
 	float lit = 0.25 + 0.75 * pow(l, 0.6);
 	vec3 col = tex * brighten * (0.1 + key_color.rgb * lit * 1.3);
 	ALBEDO = col;
-	ALPHA = a * 0.5;   // 50% transparent
+	ALPHA = a * 0.5;   // 0.5 at the brightest grains, lower in the gaps
 }
 """
 var planet_spheres: Array[MeshInstance3D] = []
