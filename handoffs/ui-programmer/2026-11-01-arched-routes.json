@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-01",
+  "task": "arched-routes",
+  "status": "done",
+  "files_changed": ["game/route_line.gd", "game/map.gd", "handoffs/ui-programmer/2026-11-01-arched-routes.json"],
+  "open_questions": ["Line thickness HALF_W=0.022 world units and arch BOW=0.2 of length are estimates for the design's 1.5 px line; owner to confirm by eye."],
+  "handoff": "System-screen route lines are now arched quadratic curves (bow to the left of travel, so opposite directions of a pair bow apart). Look follows SystemView.html: thin line, commodity colour at 50% opacity, a small chevron at the middle, dashed signal-warn when waiting, solid signal-bad when blocked, ship dots with trails following the curve. The arrow art textures are no longer used. Galaxy view lanes were already arched and were not changed. map.gd passes the route commodity to set_style. No test asserted straight lines. Not checked by eye: thickness, arch height, chevron size, dash spacing, click picking along the curve.",
+  "details": {"how_to_see": "Start a run, build routes between planets on the system screen; set one waiting to see the dashes."}
+}

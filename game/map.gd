@@ -319,7 +319,7 @@ func set_routes(routes: Array) -> void:
 			add_child(line)
 			line.setup(id, a, b, positions[a], positions[b], planet_radius(), half)
 			route_lines[id] = line
-		line.set_style(str(r.get("status", "running")), int(r.get("ships", 1)))
+		line.set_style(str(r.get("status", "running")), int(r.get("ships", 1)), str(r.get("c", "")))
 	for id in route_lines.keys():
 		if not seen.has(id):
 			route_lines[id].queue_free()
