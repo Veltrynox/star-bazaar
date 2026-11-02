@@ -53,8 +53,8 @@ var keys_enabled := true         # T33: debug menu turns this off while typing i
 
 var planets: Array = []
 var view_system := 1  # each solar system is its own space: only this system's planets, routes and sun are shown
-const BELT_INNER := 1.7   # clear of the glow shell (1.12) and the pick halo (up to 1.46), in planet radii
-const BELT_OUTER := 2.9   # belt width x2: was 1.7 to 2.3 (0.6 wide), now 1.7 to 2.9 (1.2 wide); inner edge unchanged so it stays clear of the glow and halo
+const BELT_INNER := 0.85  # in sphere units (planet radii; the visible body is about 0.5): halved from 1.7, clears the body, may overlap the glow shell
+const BELT_OUTER := 1.45  # halved from 2.9: the belt is twice as close to the planet, same 0.6 width in these units
 ## Flat ring quad with a circular mask. The asteroid ring PNG is sampled by (radius, angle), static.
 const BELT_SHADER := """shader_type spatial;
 render_mode unshaded, blend_mix, cull_disabled, depth_draw_never;
