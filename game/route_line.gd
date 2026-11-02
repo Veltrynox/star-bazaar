@@ -372,10 +372,12 @@ func _set_tag(status: String, ships: int, net: int) -> void:
 		tag.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 		tag.no_depth_test = true
 		tag.fixed_size = true
-		tag.pixel_size = 0.0008
+		# fixed_size: on-screen height = font_size * pixel_size * (P11 / 2) of the frame, P11 = 1 / tan(22.5 deg) at fov 45.
+		# Design: 11 px mono in the 941 px frame -> 11 / 1135.9 = 0.00968 em; drawn at 4x font size for sharp glyphs.
+		tag.pixel_size = 0.00022
 		tag.font = Ui.mono_font()
-		tag.font_size = 30  # design 11 px mono; planet names are 40
-		tag.outline_size = 10
+		tag.font_size = 44
+		tag.outline_size = 8
 		tag.outline_modulate = Ui.col("panel_100")
 		tag.position = tag_pos
 		tag.render_priority = 2
