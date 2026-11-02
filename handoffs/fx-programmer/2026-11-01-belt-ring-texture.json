@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "agent": "fx-programmer",
+  "date": "2026-11-01",
+  "task": "Asteroid belts use the asteroid ring textures",
+  "status": "done",
+  "files_changed": ["game/map.gd"],
+  "open_questions": ["Owner to check by eye: ring brightness (brighten 2.4), radial squash of the texture onto the thin belt, transparent gaps."],
+  "handoff": "BELT_SHADER now samples asteroid_ring_1/2.png by radius (belt 0..1 remapped to PNG 0.32..0.98) and angle plus TIME*spin; black background and gaps are transparent via luminance. Texture pick: ((_mix(h)>>7)&1)+1 from the planet id hash, loaded through PlanetSphere cached_tex. Size, tilt and key-light shading unchanged. Moon ring (planet_sphere_ring.gdshader) untouched. Shader not compiled here (headless only).",
+  "details": {}
+}

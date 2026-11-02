@@ -48,22 +48,19 @@ var view_system := 1  # each solar system is its own space: only this system's p
 const BELT_INNER := 1.7   # clear of the glow shell (1.12) and the pick halo (up to 1.46), in planet radii
 const BELT_OUTER := 2.3
 const BELT_SPIN := 0.015  # turns per second about the planet's axis (shader time, no per-frame code)
-## Flat ring quad with a circular mask. Noise is sampled by (radius, angle + TIME), so the belt turns on the GPU.
+## Flat ring quad with a circular mask. The asteroid ring PNG is sampled by (radius, angle + TIME), so the belt turns on the GPU.
 const BELT_SHADER := """shader_type spatial;
 render_mode unshaded, blend_mix, cull_disabled, depth_draw_never;
 uniform float inner = 0.74;      // inner edge as a fraction of the quad half-width
 uniform float spin = 0.015;
 uniform vec3 key_dir = vec3(0.0, 0.5, 0.8);
 uniform vec4 key_color : source_color = vec4(1.0, 0.76, 0.42, 1.0);
-uniform vec4 dust_col : source_color = vec4(0.45, 0.40, 0.34, 1.0);
-uniform vec4 rock_col : source_color = vec4(0.72, 0.68, 0.62, 1.0);
+uniform sampler2D ring_tex : filter_linear_mipmap, repeat_disable;  // asteroid_ring_1/2.png: RGB ring on black
+uniform float tex_in = 0.32;     // the PNG ring spans 0.32 to 0.98 of its half-width; belt radius is remapped onto that
+uniform float tex_out = 0.98;
+uniform float brighten = 2.4;
 varying vec3 wpos;
 varying vec3 ctr;
-float h21(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
-float vnoise(vec2 p) {
-	vec2 i = floor(p); vec2 f = fract(p); f = f * f * (3.0 - 2.0 * f);
-	return mix(mix(h21(i), h21(i + vec2(1, 0)), f.x), mix(h21(i + vec2(0, 1)), h21(i + vec2(1, 1)), f.x), f.y);
-}
 void vertex() {
 	wpos = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
 	ctr = (MODEL_MATRIX * vec4(0.0, 0.0, 0.0, 1.0)).xyz;
@@ -73,22 +70,18 @@ void fragment() {
 	float r = length(q);
 	float t = (r - inner) / (1.0 - inner);
 	if (t < 0.0 || t > 1.0) discard;
-	float ang = atan(q.y, q.x) / TAU + TIME * spin;
-	// Pattern wraps around the angle: sample on a circle of noise so there is no seam.
-	vec2 c = vec2(cos(ang * TAU), sin(ang * TAU));
-	float n1 = vnoise(c * 12.0 + vec2(t * 18.0, 0.0));
-	float n2 = vnoise(c * 44.0 + vec2(t * 80.0, 7.0));
-	float bands = 0.5 + 0.5 * sin(t * 40.0 + n1 * 5.0);
-	float dens = n1 * 0.55 + n2 * 0.45;
-	float edge = smoothstep(0.0, 0.12, t) * smoothstep(1.0, 0.8, t);
-	float a = smoothstep(0.38, 0.62, dens * 0.7 + bands * 0.45) * edge;   // gaps where the mix is low
+	float ang = atan(q.y, q.x) + TIME * spin * TAU;   // turns on the GPU; a circular image has no seam
+	vec2 uv = 0.5 + 0.5 * mix(tex_in, tex_out, t) * vec2(cos(ang), sin(ang));
+	vec3 tex = texture(ring_tex, uv).rgb;
+	float edge = smoothstep(0.0, 0.08, t) * smoothstep(1.0, 0.92, t);
+	float a = edge * smoothstep(0.02, 0.12, dot(tex, vec3(0.3, 0.59, 0.11)));   // black background and gaps are transparent
 	if (a < 0.02) discard;
 	vec3 n = vec3(0.0, 1.0, 0.0);
 	float l = abs(dot(n, normalize(key_dir)));
 	float lit = 0.25 + 0.75 * pow(l, 0.6);
-	vec3 col = mix(dust_col.rgb, rock_col.rgb, n2) * (0.1 + key_color.rgb * lit * 1.3);
+	vec3 col = tex * brighten * (0.1 + key_color.rgb * lit * 1.3);
 	ALBEDO = col;
-	ALPHA = a * 0.9;
+	ALPHA = a * 0.95;
 }
 """
 var planet_spheres: Array[MeshInstance3D] = []
@@ -493,6 +486,9 @@ func _add_belt(i: int, sph: MeshInstance3D, h: int) -> void:
 	mat.shader = sh
 	mat.set_shader_parameter("inner", BELT_INNER / BELT_OUTER)
 	mat.set_shader_parameter("spin", BELT_SPIN)
+	# Stable pick from the id hash: asteroid_ring_1 or _2, through the shared loader (each file loads once).
+	var ring_no := ((_mix(h) >> 7) & 1) + 1
+	mat.set_shader_parameter("ring_tex", sph.get_script().cached_tex("res://art/textures/planets/asteroid_ring_%d.png" % ring_no))
 	quad.material = mat
 	var mi := MeshInstance3D.new()
 	mi.mesh = quad
