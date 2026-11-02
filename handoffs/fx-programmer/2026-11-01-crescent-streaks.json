@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "agent": "fx-programmer",
+  "date": "2026-11-01",
+  "task": "Rim light -10 percent, true sun-side crescent fresnel, streak shell on cloudy only",
+  "status": "done",
+  "files_changed": ["art/planet_fx/planet_sphere.gd", "art/planet_fx/planet_sphere.gdshader", "art/planet_fx/planet_sphere_atmosphere.gdshader", "art/planet_fx/planet_sphere_glow.gdshader"],
+  "open_questions": ["Owner must check the crescent by eye: thickness at the sun limb, horn taper, and that no ring remains on the far side."],
+  "handoff": "rim_strength 0.225 -> 0.2025 (export and shader), tunable 0..3. Ring source found: the atmosphere shell and the glow shell weighted the whole limb with mix(1, 0.5+0.5*dot, sun_bias=0.5), so the far side kept half strength and a full ring showed. Both now use the body's crescent gate (smoothstep on dot(normal, sun), squared) with sun_bias default 1.0, and read fres_side (set from fresnel_side in planet_sphere.gd). The body edge uses the same squared gate and a power that drops from 1.8x to 0.8x of fres_power towards the sun limb, so it is thick at the sun limb and thin at the horns. Rim light (opposite the sun, one-sided) and the fresnel_only variant use the same single fres term, so no other ring. Streaks shell: visible only when planet_type == cloudy (const STREAKS_TYPE), hidden on every other type; the look roll no longer gates it; cloudy glow mask stays removed. Not checked by eye (no GPU window).",
+  "details": {"streak_types": ["cloudy"]}
+}
