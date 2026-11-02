@@ -42,12 +42,12 @@ void vertex() {
 	vec3 t = normalize((MODELVIEW_MATRIX * vec4(NORMAL, 0.0)).xyz);
 	vec3 side = normalize(cross(t, normalize(vp)));
 	vp += side * UV.y * (half_px + AA_PX) * wpp;
-	edge_px = abs(UV.y) * (half_px + AA_PX);
+	edge_px = UV.y * (half_px + AA_PX);  // signed: abs() per vertex would interpolate to a constant
 	POSITION = PROJECTION_MATRIX * vec4(vp, 1.0);
 	along = COLOR.r / wpp;
 }
 void fragment() {
-	float on = clamp(half_px + AA_PX - edge_px, 0.0, 1.0);  // soft 1 px edge across the line
+	float on = clamp(half_px + AA_PX - abs(edge_px), 0.0, 1.0);  // soft 1 px edge across the line
 	if (dash > 0.5) {
 		float a = along / (dash_px * 2.0);
 		float dd = abs(fract(a + 0.25) - 0.5);
