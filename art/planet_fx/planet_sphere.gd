@@ -185,6 +185,12 @@ const KEY_ONLY_SHARE := 0.30
 	set(v):
 		cloud_shadow_offset = v
 		_apply()
+@export_group("Soft edge")
+## Width of the gradient that fades the planet edge into the background, in screen pixels (shader: edge_px). 0 = hard edge.
+@export_range(0.0, 40.0, 0.5) var edge_blur_px: float = 10.0:
+	set(v):
+		edge_blur_px = v
+		_apply()
 @export_group("Glow, atmosphere and streaks")
 @export_range(0.0, 3.0) var glow_strength: float = 1.6:
 	set(v):
@@ -302,6 +308,7 @@ func _apply() -> void:
 		m.set_shader_parameter("shadow_darkness", shadow_darkness)
 		m.set_shader_parameter("city_col", city_color)
 		m.set_shader_parameter("grain_amount", grain_amount)
+		m.set_shader_parameter("edge_px", edge_blur_px)
 	_apply_ring(tt)
 	var glow := get_node_or_null("Glow") as MeshInstance3D
 	var gm := glow.get_surface_override_material(0) as ShaderMaterial if glow else null

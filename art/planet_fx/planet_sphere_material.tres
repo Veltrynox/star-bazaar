@@ -4,5 +4,6 @@
 [ext_resource type="Texture2D" path="res://art/planet_fx/planet_sphere_tone.png" id="2"]
 
 [resource]
+render_priority = -1
 shader = ExtResource("1")
 shader_parameter/fine_tex = ExtResource("2")

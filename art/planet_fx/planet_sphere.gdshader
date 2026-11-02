@@ -1,5 +1,5 @@
 shader_type spatial;
-render_mode unshaded, cull_back, depth_draw_opaque;
+render_mode unshaded, blend_mix, cull_back, depth_draw_always;
 // Planet surface on a sphere mesh. UVs come from the surface normal (equirect), so the texture is fixed on the sphere
 // and does not move with the camera. The surface texture is greyscale: its brightness is the tone, tinted with the
 // palette (deep, mid, pale). The key light (sun side) and the rim light (side opposite the sun) are separate terms,
@@ -9,6 +9,8 @@ render_mode unshaded, cull_back, depth_draw_opaque;
 // vertices (silhouette), bends the normal (bump) and shifts the terminator (high ground keeps the sun longer). Optional glow mask (emission on both sides, soft pulse)
 // and lights mask (dark side only, small warm twinkle). Emission stays under about 2.0 (bloom-safe).
 // Unshaded, so the final colour is written to ALBEDO directly.
+// Soft edge: the body fades to transparent over edge_px screen pixels at the limb (a gradient into the background).
+// The body is in the blend pass but still writes depth; its material has render_priority -1 so it draws before the shells.
 
 uniform sampler2D surface_tex : filter_linear_mipmap, repeat_enable;  // greyscale surface, set per planet from the texture list
 uniform sampler2D fine_tex : filter_linear_mipmap, repeat_enable;     // old generated tone map: B = fine grain (city specks only)
@@ -55,6 +57,8 @@ uniform float ambient = 0.03;
 uniform vec4 city_col : source_color = vec4(1.00, 0.82, 0.48, 1.0);
 uniform float city_strength = 1.6;
 uniform float grain_amount = 0.10;                // 10 percent grain over the final colour
+
+uniform float edge_px = 10.0;                     // soft edge width in screen pixels (0 = hard edge)
 
 varying vec3 obj_n;
 
@@ -156,5 +160,16 @@ void fragment() {
 	// Grain: +/- grain_amount on the final colour, from a hash of the screen pixel.
 	float g = fract(sin(dot(FRAGCOORD.xy, vec2(12.9898, 78.233))) * 43758.5453);
 	col *= 1.0 + (g - 0.5) * 2.0 * grain_amount;
+	// Soft edge. Distance from the limb in screen pixels: planet radius minus the fragment's distance from the centre
+	// (view space), divided by the size of one pixel at this depth (perspective or orthographic camera).
+	float edge_a = 1.0;
+	if (edge_px > 0.0) {
+		float pix = (PROJECTION_MATRIX[3][3] > 0.5) ? 2.0 / (PROJECTION_MATRIX[1][1] * VIEWPORT_SIZE.y) : -VERTEX.z * 2.0 / (PROJECTION_MATRIX[1][1] * VIEWPORT_SIZE.y);
+		vec3 centre = (VIEW_MATRIX * MODEL_MATRIX[3]).xyz;
+		float radius = length(MODEL_MATRIX[0].xyz) * 0.5;  // mesh radius is 0.5
+		float d_px = (radius - length(VERTEX.xy - centre.xy)) / pix;
+		edge_a = smoothstep(0.0, 1.0, d_px / edge_px);
+	}
+	ALPHA = edge_a;
 	ALBEDO = use_beauty ? min(col, vec3(2.0)) : clamp(col, 0.0, 1.0);  // beauty path may carry HDR emission
 }
