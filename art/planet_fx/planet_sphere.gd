@@ -87,15 +87,25 @@ const KEY_ONLY_SHARE := 0.30
 		key_strength = v
 		_apply()
 @export_group("Rim light and Fresnel")
-@export var rim_color: Color = Color("5EA8FF"):
+## true: rim colour = hue of the planet colour rotated by rim_hue_offset (colour wheel). false: use rim_color.
+@export var rim_auto: bool = true:
+	set(v):
+		rim_auto = v
+		_apply()
+## 0.5 complementary; 0.4167 or 0.5833 split-complementary (150 degrees either side).
+@export_range(0.0, 1.0) var rim_hue_offset: float = 0.5:
+	set(v):
+		rim_hue_offset = v
+		_apply()
+@export var rim_color: Color = Color("FFA05E"):
 	set(v):
 		rim_color = v
 		_apply()
-@export_range(0.0, 3.0) var rim_strength: float = 1.2:
+@export_range(0.0, 3.0) var rim_strength: float = 1.6:
 	set(v):
 		rim_strength = v
 		_apply()
-@export_range(0.0, 3.0) var fresnel_strength: float = 0.68:
+@export_range(0.0, 3.0) var fresnel_strength: float = 0.1:
 	set(v):
 		fresnel_strength = v
 		_apply()
@@ -107,10 +117,6 @@ const KEY_ONLY_SHARE := 0.30
 @export var key_dir: Vector3 = Vector3(-0.5, 0.5, 0.7):
 	set(v):
 		key_dir = v
-		_apply()
-@export var rim_dir: Vector3 = Vector3(0.5, -0.3, -0.8):
-	set(v):
-		rim_dir = v
 		_apply()
 @export_group("Displacement")
 ## How strongly the height map bends the light on the surface (shader: relief).
@@ -186,12 +192,17 @@ func _ready() -> void:
 				mi.set_surface_override_material(0, mi.get_surface_override_material(0).duplicate())
 	_apply()
 
+## Colour wheel rim: rotate the hue of the base colour by offset (0.5 = complement), keep it saturated and bright.
+static func rim_complement(base: Color, offset: float) -> Color:
+	return Color.from_hsv(fposmod(base.h + offset, 1.0), maxf(base.s, 0.55), maxf(base.v, 0.95))
+
 func _apply() -> void:
 	if not is_inside_tree():
 		return
 	var p: Dictionary = FX.PRESETS[FX.palette_name(planet_type, rarity)]
 	var look: Variant = look_for_id(planet_id) if use_id else variant
-	var rim_on: bool = rim_for_id(planet_id) if use_id else rim_light
+	var rim_on := true  # rim light on every planet; it sits opposite the sun (shader uses -key_dir)
+	var rim_col: Color = rim_complement(p.mid, rim_hue_offset) if rim_auto else rim_color
 	# Shader variant: streaks use the standard surface plus the streak shell.
 	var shader_variant := 0
 	match look:
@@ -226,12 +237,11 @@ func _apply() -> void:
 		m.set_shader_parameter("pale_col", p.pale)
 		m.set_shader_parameter("key_color", key_color)
 		m.set_shader_parameter("key_strength", key_strength)
-		m.set_shader_parameter("rim_color", rim_color)
+		m.set_shader_parameter("rim_color", rim_col)
 		m.set_shader_parameter("rim_strength", rim_strength)
 		m.set_shader_parameter("fres_strength", fresnel_strength)
 		m.set_shader_parameter("fres_power", fresnel_power)
 		m.set_shader_parameter("key_dir", key_dir)
-		m.set_shader_parameter("rim_dir", rim_dir)
 		m.set_shader_parameter("relief", relief)
 		m.set_shader_parameter("relief_shade", relief_shade)
 		m.set_shader_parameter("shadow_darkness", shadow_darkness)

@@ -2,7 +2,7 @@ shader_type spatial;
 render_mode unshaded, cull_back, depth_draw_opaque;
 // Planet surface on a sphere mesh. UVs come from the surface normal (equirect), so the texture is fixed on the sphere
 // and does not move with the camera. The surface texture is greyscale: its brightness is the tone, tinted with the
-// palette (deep, mid, pale). The key light (sun side) and the rim light (far side, optional) are separate terms,
+// palette (deep, mid, pale). The key light (sun side) and the rim light (side opposite the sun) are separate terms,
 // and the Fresnel edge is on every planet.
 // Looks (variant): 0 standard, 1 fresnel_only, 2 city (0% of planets, uses fine_tex), 3 pale (lighter palette).
 // Beauty path (use_beauty): the texture is a colour map, used as albedo with no palette tint. The displacement map gives
@@ -34,11 +34,10 @@ uniform vec4 key_color : source_color = vec4(1.00, 0.76, 0.42, 1.0);  // warm go
 uniform float key_strength = 1.4;
 // T132: solar flare level from the 3D sun (0 calm, 1 peak). Set globally by art/sun/sun_flare.gd.
 global uniform float sun_flare;
-uniform vec3 rim_dir = vec3(0.5, -0.3, -0.8);     // object space, towards the rim light (far side)
-uniform vec4 rim_color : source_color = vec4(0.37, 0.66, 1.00, 1.0);  // cool complement of the gold; also the Fresnel tint
-uniform float rim_strength = 1.2;
+uniform vec4 rim_color : source_color = vec4(0.37, 0.66, 1.00, 1.0);  // set from the planet colour (complementary hue) by planet_sphere.gd
+uniform float rim_strength = 1.6;
 uniform float rim_power = 2.5;
-uniform float fres_strength = 0.68;               // Fresnel edge, every planet
+uniform float fres_strength = 0.1;                // Fresnel edge, every planet (low: the rim light does the edge work)
 uniform float fres_power = 3.0;
 uniform float shadow_darkness = 0.95;             // 0 = dark side keeps ambient, 1 = dark side is black
 uniform float shadow_soft = 0.06;
@@ -110,14 +109,14 @@ void fragment() {
 
 		// Rim light: separate far-side light, added (not multiplied) so the dark side keeps a visible edge.
 		if (use_rim) {
-			float nr = dot(n, normalize(rim_dir));
-			float far = 0.25 + 0.75 * clamp(nr * 0.5 + 0.5, 0.0, 1.0);
+			float nr = dot(n, -normalize(key_dir));  // the rim sits opposite the sun
+			float far = smoothstep(-0.2, 0.8, nr);
 			col += rim_color.rgb * rim_strength * far * pow(1.0 - NdV, rim_power);
 		}
 	}
 
 	// Fresnel edge: a separate term, on every planet, key-only ones included.
-	col += rim_color.rgb * fres;
+	col += pale_col.rgb * fres;
 
 	// Grain: +/- grain_amount on the final colour, from a hash of the screen pixel.
 	float g = fract(sin(dot(FRAGCOORD.xy, vec2(12.9898, 78.233))) * 43758.5453);
