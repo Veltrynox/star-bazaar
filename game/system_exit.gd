@@ -1,8 +1,8 @@
 extends Control
 ## Next solar system, drawn over the system map as in the design pack (screens/SystemView.html, "locked exit"):
 ## a lock icon with the system's name and how it opens, and a thin dotted line that fades out toward the current
-## system. The marker sits where the next system lies in the world; when that is off screen it stays on the nearest
-## edge of the free middle area (between the left and right panels). Nothing here takes clicks.
+## system. The marker sits where the next system lies in the world; when that is off screen, the marker and the line
+## are both hidden (nothing is pinned to the edge). Nothing here takes clicks.
 
 const StoryText := preload("res://game/story_text.gd")
 const Systems := preload("res://game/systems.gd")
@@ -11,6 +11,7 @@ const AREA_LEFT := 430.0  # clear of the planet panel and the rail
 const AREA_RIGHT := 520.0  # clear of the board (the label runs right of the marker)
 const AREA_TOP := 110.0
 const AREA_BOTTOM := 150.0  # clear of the legend and key hints
+const EDGE_MARGIN := 24.0  # the lock icon must fit inside the view
 const LINE_LEN := 190.0
 const LINE_ALPHA := 0.3
 const DOT_STEP := 5.0
@@ -69,27 +70,14 @@ func layout() -> Dictionary:
 		return {}
 	var a: Vector2 = _screen(c_from).clamp(rect.position, rect.end)
 	var b: Vector2 = _screen(c_to)
-	var d := b - a
-	if main.map.camera.is_position_behind(c_to):
-		d = -d
-	if d.length() < 1.0:
-		d = Vector2(1, 0)
-	var k := 1.0 if (main.map.camera.is_position_behind(c_to) == false and rect.has_point(b)) else INF
-	if k == INF:
-		var kx := INF
-		var ky := INF
-		if d.x > 0.001:
-			kx = (rect.end.x - a.x) / d.x
-		elif d.x < -0.001:
-			kx = (rect.position.x - a.x) / d.x
-		if d.y > 0.001:
-			ky = (rect.end.y - a.y) / d.y
-		elif d.y < -0.001:
-			ky = (rect.position.y - a.y) / d.y
-		k = minf(kx, ky)
-		if k == INF or k < 0.0:
-			k = 0.0
-	return {"sid": sid, "marker": a + d * minf(k, 1.0e6), "from": a}
+	if not on_screen(b, main.map.camera.is_position_behind(c_to), get_viewport_rect().size):
+		return {}
+	return {"sid": sid, "marker": b, "from": a}
+
+## True when the target's screen point is inside the camera view (and in front of the camera).
+## Off screen means no marker and no line at all: nothing is pinned to the edge.
+static func on_screen(point: Vector2, behind: bool, view: Vector2) -> bool:
+	return not behind and Rect2(Vector2(EDGE_MARGIN, EDGE_MARGIN), view - Vector2(EDGE_MARGIN, EDGE_MARGIN) * 2.0).has_point(point)
 
 func _process(_delta: float) -> void:
 	var on: bool = main != null and main.map != null and main.map.visible and next_locked() >= 0

@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-01",
+  "task": "lock-marker-offscreen",
+  "status": "done",
+  "files_changed": ["game/system_exit.gd", "tools/tests/run_tests.gd"],
+  "open_questions": [],
+  "handoff": "The lock marker no longer pins to the edge of the free area. It sits on the next locked system and shows only while that system is inside the camera view (24 px margin) and in front of the camera. When it is off screen both the marker and the dotted line are hidden, so nothing is drawn. Icon, label and line style are unchanged when visible. Test changed: 'exit: the marker stays in the free middle area' replaced by 'a shown marker is inside the camera view', 'the locked next system gets a lock marker' reduced to next_locked()==2 (the default camera may not show system 2), plus a new on_screen() check. Tests 450 pass. Not checked by eye: where system 2 appears on screen and the marker at the view edges. Git not run by sandbox default; CLT git used.",
+  "details": {
+    "how_to_see": "Run the game; pan or zoom so system 2 leaves the view: marker and line vanish; bring it back: they appear at the system.",
+    "not_checked_by_eye": ["marker and line when the target is near a panel or the view edge"]
+  }
+}

@@ -225,10 +225,11 @@ func _test_galaxy_view() -> void:
 	check(m.expenses_label.text.is_valid_int() and m.points_label.text == str(m.skill_points), "hud: expenses and skill points read from the game")
 	var ex: Control = m.system_exit
 	var lay: Dictionary = ex.layout()
-	check(ex.visible and ex.next_locked() == 2 and not lay.is_empty(), "exit: the locked next system gets a lock marker", str(lay))
+	check(ex.next_locked() == 2, "exit: the next locked system is system 2")
 	if not lay.is_empty():
-		var area := Rect2(Vector2(ex.AREA_LEFT, ex.AREA_TOP), ex.get_viewport_rect().size - Vector2(ex.AREA_LEFT + ex.AREA_RIGHT, ex.AREA_TOP + ex.AREA_BOTTOM))
-		check(area.grow(1.0).has_point(lay["marker"]), "exit: the marker stays in the free middle area", str(lay["marker"]))
+		check(Rect2(Vector2.ZERO, ex.get_viewport_rect().size).has_point(lay["marker"]), "exit: a shown marker is inside the camera view", str(lay["marker"]))
+	var vw := Vector2(1920, 1080)
+	check(ex.on_screen(Vector2(900, 500), false, vw) and not ex.on_screen(Vector2(2500, 500), false, vw) and not ex.on_screen(Vector2(-10, 500), false, vw) and not ex.on_screen(Vector2(900, 500), true, vw), "exit: off screen or behind the camera hides the marker (no edge pin)")
 	m.open_systems = [1, 2]
 	await process_frame
 	check(ex.next_locked() == -1 and not ex.visible, "exit: no marker once every system is open")
