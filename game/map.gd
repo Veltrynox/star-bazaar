@@ -45,7 +45,7 @@ var sun_node: Node3D  # T132: animated 3D sun
 var suns := {}         # system id -> its sun node (art/sun/sun_flare.gd); every open system has its own sun
 var sun_positions := {}  # system id -> world position of that sun
 var orbit_rings := {}    # system id -> its orbit ring mesh
-var orbit_centers := {}  # system id -> centre of its orbit rings (the sun's place), for rebuilding the dust
+var orbit_centers := {}  # system id -> centre of its orbit rings (the sun's place),
 var hex_ring: Node3D  # T110: hexagon ring around the sun, shown during EV20
 var key_light: DirectionalLight3D
 var planet_scale := PLANET_SIZE  # multiplies PLANET_RADIUS (visual size, click radius, route start, names, halos, dust)
@@ -202,101 +202,6 @@ func _add_orbit_rings(center: Vector3, sys: int = 1) -> void:
 	add_child(mi)
 	orbit_rings[sys] = mi
 	orbit_centers[sys] = center
-	_add_orbit_dust(mi, center, sys)
-
-## Faint dust on each orbit that exists: DUST_LAYERS merged flat annulus meshes per system (one draw call each),
-## on different heights, widths and radial offsets, with the asteroid ring PNGs mapped by radius in
-## art/planet_fx/orbit_dust.gdshader. Layers 0 and 1 use the system's texture (odd systems asteroid1, even asteroid2),
-## the thin layers the other one. Static (no rotation). Children of the ring node, so they show and hide with it.
-## Clipping: every layer sits above or below the planet plane (y offset) AND its vertex alpha (COLOR.a) fades to 0
-## wherever a vertex is closer than DUST_CLEAR planet radii (3D distance) to any planet of the system, so no band crosses a sphere.
-## Opacity: texture alpha x 0.5 x layer alpha; the layers overlap to about 50% at the densest spot.
-const DUST_SPEED := 0.0       # static ring: no rotation (uniform kept at 0)
-const DUST_WIDTH := 1.875     # width of layer 0 in planet radii (the wide faint layer; the size test reads it)
-const DUST_CLEAR := 1.15      # radii: inside this 3D distance from a planet centre the band is fully faded
-const DUST_FADE := 0.9        # radii: the fade-in length beyond DUST_CLEAR
-const DUST_LAYERS := [        # y and off and width in planet radii (off = radial centre shift from the orbit); tint = lerp sun colour to white
-	{"name": "OrbitDust",  "y": -0.30, "off": 0.0,   "w": 1.875, "a": 0.4, "tint": 0.30, "alt": false, "win": Vector2(0.0, 1.0), "ang": 0.0},  # wide faint
-	{"name": "OrbitDust2", "y": 0.20,  "off": 0.0,   "w": 0.70,  "a": 0.8, "tint": 0.10, "alt": false, "win": Vector2(0.2, 0.8), "ang": 2.1},  # narrow bright
-	{"name": "OrbitDust3", "y": 0.45,  "off": 0.85,  "w": 0.25,  "a": 0.7, "tint": 0.55, "alt": true,  "win": Vector2(0.4, 0.7), "ang": 4.0},  # thin outer
-	{"name": "OrbitDust4", "y": -0.55, "off": -0.80, "w": 0.30,  "a": 0.7, "tint": 0.75, "alt": true,  "win": Vector2(0.1, 0.4), "ang": 1.0},  # thin inner
-]
-func _add_orbit_dust(parent: Node3D, center: Vector3, sys: int) -> void:
-	for L in DUST_LAYERS:
-		_add_dust_layer(parent, center, sys, L)
-
-func _add_dust_layer(parent: Node3D, center: Vector3, sys: int, L: Dictionary) -> void:
-	var rad := planet_radius()
-	var width: float = float(L["w"]) * rad
-	var y: float = float(L["y"]) * rad
-	var segs := 192
-	var rseg := 4  # radial steps: the clearance mask needs more than the two edge vertices
-	var members: Array[Vector3] = []  # every planet of this system (neighbouring orbit bands can overlap a planet too)
-	for pi in positions.size():
-		if int(planets[pi].get("system", 1)) == sys:
-			members.append(positions[pi])
-	var verts := PackedVector3Array()
-	var uvs := PackedVector2Array()
-	var cols := PackedColorArray()
-	var idx := PackedInt32Array()
-	for p in members:
-		var r := Vector2(p.x - center.x, p.z - center.z).length() + float(L["off"]) * rad
-		if r < 0.01:
-			continue
-		var r0 := maxf(r - width * 0.5, 0.01)
-		var r1 := maxf(r + width * 0.5, r0 + 0.001)
-		var base := verts.size()
-		for s in segs + 1:
-			var u := float(s) / float(segs)
-			var a := TAU * u
-			var d := Vector3(cos(a), 0.0, sin(a))
-			for k in rseg + 1:
-				var v := float(k) / float(rseg)
-				var pos := center + d * lerpf(r0, r1, v) + Vector3(0.0, y, 0.0)
-				var clear := 1.0
-				for m in members:
-					clear = minf(clear, smoothstep(DUST_CLEAR * rad, (DUST_CLEAR + DUST_FADE) * rad, pos.distance_to(m)))
-				verts.append(pos)
-				uvs.append(Vector2(u, v))
-				cols.append(Color(1, 1, 1, clear))
-		for s in segs:
-			for k in rseg:
-				var i := base + s * (rseg + 1) + k
-				var j := i + rseg + 1
-				idx.append_array([i, i + 1, j, i + 1, j + 1, j])
-	if verts.is_empty():
-		return
-	var arr := []
-	arr.resize(Mesh.ARRAY_MAX)
-	arr[Mesh.ARRAY_VERTEX] = verts
-	arr[Mesh.ARRAY_TEX_UV] = uvs
-	arr[Mesh.ARRAY_COLOR] = cols
-	arr[Mesh.ARRAY_INDEX] = idx
-	var am := ArrayMesh.new()
-	am.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arr)
-	var mat := ShaderMaterial.new()
-	mat.shader = load("res://art/planet_fx/orbit_dust.gdshader")
-	mat.set_shader_parameter("dust_color", Systems.sun_color_of(sys).lerp(Color.WHITE, float(L["tint"])))
-	mat.set_shader_parameter("alpha", float(L["a"]))
-	mat.set_shader_parameter("speed", DUST_SPEED)
-	mat.set_shader_parameter("ang_offset", float(L["ang"]))
-	mat.set_shader_parameter("ring_width", width)
-	# Odd systems asteroid1.png, even asteroid2.png for the main layers; the thin layers take the other file. Dust extents as _add_belt.
-	var ring_no := 1 if sys % 2 == 1 else 2
-	if bool(L["alt"]):
-		ring_no = 3 - ring_no
-	var tin := 0.38 if ring_no == 1 else 0.62
-	var tout := 0.96 if ring_no == 1 else 0.97
-	var win: Vector2 = L["win"]  # the layer samples only this slice of the dust (different radial part per layer)
-	mat.set_shader_parameter("ring_tex", load("res://art/textures/planets/asteroid%d.png" % ring_no))
-	mat.set_shader_parameter("tex_in", lerpf(tin, tout, win.x))
-	mat.set_shader_parameter("tex_out", lerpf(tin, tout, win.y))
-	var dm := MeshInstance3D.new()
-	dm.name = L["name"]
-	dm.mesh = am
-	dm.material_override = mat
-	dm.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	parent.add_child(dm)
 
 ## T85: one planet node (mesh + label) for planets[i]; position from x,y or the old ring layout.
 func _make_planet(i: int) -> void:
@@ -576,14 +481,6 @@ func apply_tunables() -> void:
 	for h in [hint, pending_hint]:  # halos resize in place (same position)
 		if h != null:
 			h.setup(planet_radius())
-	for id in orbit_rings:  # the dust band is as wide as a planet radius: rebuild it at the new size
-		var ring: Node3D = orbit_rings[id]
-		for L in DUST_LAYERS:  # every dust layer
-			var old := ring.get_node_or_null(String(L["name"]))
-			if old != null:
-				ring.remove_child(old)
-				old.queue_free()
-		_add_orbit_dust(ring, orbit_centers[id], int(id))
 	for id in route_lines.keys():  # route lines start at the planet surface: rebuild at the new size
 		route_lines[id].queue_free()
 	route_lines.clear()
@@ -669,7 +566,7 @@ func _update_camera() -> void:
 	camera.look_at(focus, Vector3.UP)
 	_update_fx()
 
-## Flat textured ring in the sphere's unit space (scales with the planet), tilted a little. One quad, one shader.
+## Flat textured ring in the sphere's unit space (scales with the planet), almost flat (1 to 2.5 degrees). One quad, one shader.
 func _add_belt(i: int, sph: MeshInstance3D, h: int) -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = h
@@ -690,7 +587,7 @@ func _add_belt(i: int, sph: MeshInstance3D, h: int) -> void:
 	var mi := MeshInstance3D.new()
 	mi.mesh = quad
 	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	mi.rotation_degrees = Vector3(rng.randf_range(10.0, 25.0), 0.0, rng.randf_range(-10.0, 10.0))
+	mi.rotation_degrees = Vector3(rng.randf_range(1.0, 2.5), 0.0, rng.randf_range(-1.0, 1.0))  # almost flat: tilt amplitude 10x smaller
 	sph.add_child(mi)
 	belt_materials[i] = mat
 

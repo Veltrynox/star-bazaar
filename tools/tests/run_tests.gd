@@ -1532,17 +1532,13 @@ func _test_planet_size() -> void:
 	var m: Control = await _new_main()
 	m._dismiss_preface()
 	var map = m.map
-	var dust := func(sys: int) -> ShaderMaterial:
-		return map.orbit_rings[sys].get_node("OrbitDust").material_override
 	check(absf(map.planet_scale - 1.3) < 0.0001 and absf(map.planet_radius() - 0.8 * 1.3) < 0.0001, "size: planets default to x1.3", "scale=%f" % map.planet_scale)
-	check(absf(dust.call(1).get_shader_parameter("ring_width") - 1.875 * map.planet_radius()) < 0.0001, "size: dust band is 3 x the old width, at the new size")
-	check(absf(dust.call(1).get_shader_parameter("speed")) < 0.0001, "size: dust ring is static (speed 0)")
+	check(map.orbit_rings[1].get_node_or_null("OrbitDust") == null and map.orbit_rings[1].get_child_count() == 0, "size: orbit dust rings are removed (orbit lines only)")
 	var ratio0: float = map.label_drop() / map.planet_radius()
 	var route_r0: float = map.route_lines.values()[0].radius if not map.route_lines.is_empty() else -1.0
 	m.debug_menu._set_planet_scale(2.0)
 	check(absf(map.planet_radius() - 1.6) < 0.0001, "size: debug menu sets the radius")
 	check(absf(map.label_drop() / map.planet_radius() - ratio0) < 0.0001, "size: names keep their place relative to the planet")
-	check(absf(dust.call(1).get_shader_parameter("ring_width") - 1.875 * 1.6) < 0.0001, "size: dust band follows the debug size")
 	check(map.planet_labels[0].position.y < map.positions[0].y - 1.6 * 0.56, "size: names sit below the bigger planet")
 	if route_r0 >= 0.0:
 		var r1: float = map.route_lines.values()[0].radius
