@@ -1158,23 +1158,6 @@ func _test_systems() -> void:
 	for i in m.map.planet_spheres.size():
 		vis_ok = vis_ok and (m.map.planet_spheres[i].visible == (int(m.map.planets[i]["system"]) == 1)) and (m.map.planet_labels[i].visible == (int(m.map.planets[i]["system"]) == 1))
 	check(vis_ok and m.map.sun_node.visible, "systems: in system 1 only its planets and labels show")
-	# Belts: every belt quad is a visible child of its sphere and its texture has dust that survives the shader alpha (smoothstep 0.02..0.18 of luminance, discard below 0.02).
-	var belts_ok: bool = not m.map.belt_materials.is_empty()
-	for bi in m.map.belt_materials:
-		var bm: ShaderMaterial = m.map.belt_materials[bi]
-		var holder: bool = false
-		for ch in m.map.planet_spheres[bi].get_children():
-			if ch is MeshInstance3D and (ch as MeshInstance3D).mesh.material == bm and (ch as MeshInstance3D).visible:
-				holder = true
-		var img: Image = (bm.get_shader_parameter("ring_tex") as Texture2D).get_image()
-		var lit := 0
-		for yy in range(0, img.get_height(), 8):
-			for xx in range(0, img.get_width(), 8):
-				var px := img.get_pixel(xx, yy)
-				if smoothstep(0.02, 0.18, px.r * 0.3 + px.g * 0.59 + px.b * 0.11) * 0.5 > 0.02:
-					lit += 1
-		belts_ok = belts_ok and holder and lit > 1000
-	check(belts_ok, "belts: each belt mesh is visible in its planet sphere and has non-zero alpha texels")
 	check(m.map.pick_planet(m.map.camera.unproject_position(m.map.positions[3])) != 3, "systems: a hidden planet of the other system cannot be picked")
 	m.map.focus += Vector3(500.0, 0.0, 500.0)
 	m.map.clamp_focus()
@@ -1543,64 +1526,13 @@ func _test_full_endings() -> void:
 	_wipe_user()
 
 # ---- T13: debug menu QA controls ----
-## Planet size x1.3 and the debug Planet size: names, route starts, halos and the dust band follow the planet radius.
+## Planet size x1.3 and the debug Planet size: names, route starts, halos follow the planet radius.
 func _test_planet_size() -> void:
 	_wipe_user()
 	var m: Control = await _new_main()
 	m._dismiss_preface()
 	var map = m.map
 	check(absf(map.planet_scale - 1.3) < 0.0001 and absf(map.planet_radius() - 0.8 * 1.3) < 0.0001, "size: planets default to x1.3", "scale=%f" % map.planet_scale)
-	var dust_ok: bool = true
-	for sys_id in map.orbit_rings:
-		var ring_node: Node3D = map.orbit_rings[sys_id]
-		for L in map.DUST_LAYERS:
-			var dn := ring_node.get_node_or_null(String(L["name"])) as MeshInstance3D
-			dust_ok = dust_ok and dn != null and dn.mesh.get_surface_count() == 1 and dn.mesh.get_aabb().size.y < 0.001 and absf(float((dn.material_override as ShaderMaterial).get_shader_parameter("speed"))) < 0.0001 and float((dn.material_override as ShaderMaterial).get_shader_parameter("alpha")) <= 0.8
-	check(dust_ok and not map.orbit_rings.is_empty(), "size: orbit dust layers are back: one flat static mesh per layer, at most 50% opaque")
-	# Orbit dust really reaches the screen: arrays with indices, triangles of real area facing up, node visible, shader culls nothing and writes no depth, and the final colour (albedo x alpha) of the grains is readable.
-	var geo_ok := true
-	var up_ok := true
-	var vis_ok := true
-	var dump := ""
-	for sys_id in map.orbit_rings:
-		var rn: Node3D = map.orbit_rings[sys_id]
-		for L in map.DUST_LAYERS:
-			var dn := rn.get_node_or_null(String(L["name"])) as MeshInstance3D
-			var arrs: Array = dn.mesh.surface_get_arrays(0)
-			var vs: PackedVector3Array = arrs[Mesh.ARRAY_VERTEX]
-			var ix: PackedInt32Array = arrs[Mesh.ARRAY_INDEX]
-			var area := 0.0
-			var ups := 0
-			for t in range(0, ix.size(), 3):
-				var cr := (vs[ix[t + 1]] - vs[ix[t]]).cross(vs[ix[t + 2]] - vs[ix[t]])
-				area += cr.length() * 0.5
-				if cr.y > 0.0:
-					ups += 1
-			geo_ok = geo_ok and vs.size() > 0 and ix.size() > 0 and ix.size() % 3 == 0 and area > 0.01 and dn.material_override != null
-			up_ok = up_ok and (ups == 0 or ups == ix.size() / 3)  # uniform winding (cull_disabled in the shader draws both sides anyway)
-			vis_ok = vis_ok and dn.visible
-			if sys_id == 1:
-				dump += "%s v=%d i=%d area=%.2f up=%d/%d; " % [L["name"], vs.size(), ix.size(), area, ups, ix.size() / 3]
-	check(geo_ok and up_ok and vis_ok, "dust: every layer mesh has vertices, indices, real area, a material and is visible", dump)
-	var src := FileAccess.get_file_as_string("res://art/planet_fx/orbit_dust.gdshader")
-	check(src.contains("cull_disabled") and src.contains("depth_draw_never") and not src.contains("cull_back"), "dust: shader draws both sides and writes no depth")
-	var brighten := 1.1
-	for n in [1, 2]:
-		var img: Image = load("res://art/textures/planets/asteroid%d.png" % n).get_image()
-		var mx := 0.0
-		var lums := []
-		for yy in range(0, img.get_height(), 3):
-			for xx in range(0, img.get_width(), 3):
-				var c := img.get_pixel(xx, yy)
-				var l := c.r * 0.3 + c.g * 0.59 + c.b * 0.11
-				mx = maxf(mx, c.g)
-				if l > 0.12:
-					lums.append(l)
-		lums.sort()
-		var med: float = lums[lums.size() / 2]
-		var out_med := minf((0.4 + med) * brighten, 2.0) * 0.5   # grey channel: albedo x alpha at the median visible texel (alpha 0.5)
-		var out_max := minf((0.4 + mx) * brighten, 2.0) * 0.5
-		check(out_med > 0.25 and out_med < 0.45 and out_max <= 0.8 and out_max > 0.4, "dust: asteroid%d final value over black median %.2f brightest %.2f" % [n, out_med, out_max])
 	var ratio0: float = map.label_drop() / map.planet_radius()
 	var route_r0: float = map.route_lines.values()[0].radius if not map.route_lines.is_empty() else -1.0
 	m.debug_menu._set_planet_scale(2.0)

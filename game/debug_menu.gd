@@ -417,7 +417,7 @@ func _build() -> void:
 			main.map.apply_tunables())])
 
 ## Planet size (x): a slider and a box for the same value, and a button back to the default x1.3.
-## Planets, route starts, names, halos and the dust band all follow it (map.apply_tunables rebuilds them).
+## Planets, route starts, names and halos all follow it (map.apply_tunables rebuilds them).
 func _planet_size_rows() -> void:
 	var label := Label.new()
 	label.text = "Planet size (x, 1.0 = old size)"
