@@ -36,6 +36,7 @@ func _run() -> void:
 	await _test_systems()
 	await _test_galaxy_view()
 	_test_route_tag()
+	await _test_system_suns()
 	await _test_shield()
 	await _test_asteroid()
 	await _test_full_endings()
@@ -1708,3 +1709,29 @@ func _test_route_tag() -> void:
 	check(ln.tag.text == "Waiting for room", "route tag: waiting shows its status", ln.tag.text)
 	check(ln.tag.position.distance_to(ln.tag_pos) < 0.001 and absf(ln.tag_pos.x - 3.0) < 0.5, "route tag: sits at the middle of the arc", str(ln.tag_pos))
 	ln.queue_free()
+
+# ---- each system has its own sun (system 2 blue); system 1 keeps the orange one ----
+func _test_system_suns() -> void:
+	_wipe_user()
+	var m: Control = await _new_main()
+	m._dismiss_preface()
+	var map = m.map
+	check(map.suns.size() == 1 and map.suns.has(1) and map.suns[1].visible, "suns: system 1 has its sun at the start")
+	var s1 = map.suns[1]
+	check(absf(s1.hue_shift()) < 0.0001 and absf(s1.sun_color.h - 0.09) < 0.01 and s1.drives_light and s1 == map.sun_node, "suns: system 1 sun unchanged (orange, no hue shift)")
+	var pos1: Vector3 = s1.position
+	m.open_systems.append(2)
+	map.add_planets(m.Systems.planets_of(2))
+	check(map.suns.size() == 2 and map.suns.has(2), "suns: system 2 gets its own sun")
+	var s2 = map.suns[2]
+	check(s2 != s1 and s2.position.distance_to(pos1) > 1.0 and s2.position.distance_to(map._system_center(2)) < 0.001, "suns: system 2 sun sits at the middle of its own planets", str(s2.position))
+	var h: float = s2.sun_color.h
+	check(h > 0.55 and h < 0.68 and s2.sun_color.s > 0.4 and not s2.drives_light, "suns: system 2 sun is blue", "hue %.3f" % h)
+	check(absf(s2.hue_shift() - (h - 0.09)) < 0.0001, "suns: system 2 grid is hue-shifted to its colour")
+	check(map.orbit_rings.has(1) and map.orbit_rings.has(2), "suns: each system has orbit rings")
+	map.set_view_system(1)
+	check(s1.visible and not s2.visible and map.orbit_rings[1].visible and not map.orbit_rings[2].visible, "suns: view of system 1 shows only its sun")
+	map.set_view_system(2)
+	check(s2.visible and not s1.visible and map.orbit_rings[2].visible and not map.orbit_rings[1].visible, "suns: view of system 2 shows only its sun")
+	check(s1.position == pos1 and absf(s1.hue_shift()) < 0.0001, "suns: system 1 sun unmoved and unshifted after system 2 opens")
+	await _free_main(m)

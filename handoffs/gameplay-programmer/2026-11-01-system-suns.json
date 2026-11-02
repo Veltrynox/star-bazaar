@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-01",
+  "task": "system-suns",
+  "status": "done",
+  "files_changed": ["art/sun/sun.gdshader", "art/sun/sun_flare.gd", "art/sun/hex_ring.gd", "game/systems.gd", "game/map.gd", "tools/tests/run_tests.gd", "handoffs/gameplay-programmer/2026-11-01-system-suns.json"],
+  "open_questions": ["Blue is Color(0.25,0.5,1.0), hue 0.61, set in game/systems.gd SUN_COLORS (data/systems.json may override with sun_color). Owner may want it more cyan or deeper."],
+  "handoff": "Every open system now has its own sun and orbit rings, at the middle of its planets. System 1 is unchanged (orange, drives key light and flare). System 2's sun is the same grid hue-rotated by the shader (hue_shift uniform) to blue; its orbit rings are tinted 40% toward the sun colour. Only the viewed system's sun and rings show. Frames are cached so a second sun costs no reload. Tests: 498 pass, 0 fail (new _test_system_suns).",
+  "details": {"try": "Buy the system 2 permit, open system 2: blue sun at its centre; back to system 1: orange sun."}
+}
