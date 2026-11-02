@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "agent": "economy-designer",
+  "date": "2026-11-02",
+  "task": "T144",
+  "status": "done",
+  "files_changed": ["data/balance.json", "tools/sim.py"],
+  "open_questions": [
+    "Owner: is the upgrade a late cash sink or an early choice? At 900 it acts as a mid-game sink; at 600 it moves natural decent no-skill win to cycle 23 (below the 26-30 target).",
+    "Permit path median drops from 26 (T137) to 24 with upgrades (min 22); still above the cycle-22 early-win check but no longer near the cliff. Retune ship_price or win_cash if the owner wants 26 back.",
+    "Gameplay: one upgrade level only (level 2) is modelled; multiple levels are not tuned."
+  ],
+  "handoff": "Route upgrade numbers set: upgrade_cost 600 to 900 (equals ship_price, one price for both choices), upgrade_margin_bonus stays 0.25 (additive on route margin, multiplied with B3 and permit bonus as in sim.margin). data_version 19. sim.py got a --upg flag (with --real): lane cap stays and decent may buy one upgrade per ship. Always-expand never upgrades. Result: decent and always-expand no longer play identically (decent 26 median, always 26 median but decent wins earlier with skills; see details). Always-expand without permit still WINS in real mode (cycle 25, 85 percent): that was already true before T144, the lane cap makes it identical to decent without upgrades, and with upgrades decent beats it by 0-2 cycles only at no-skills. UI/gameplay: sell upgrade only on a full lane.",
+  "details": {
+    "changes": [
+      {"key": "upgrade_cost", "old": 600, "new": 900, "reason": "600 pulled no-skill decent win to cycle 23 (no events) / median 25; 900 keeps median 26 and no-event win 25"},
+      {"key": "upgrade_margin_bonus", "old": 0.25, "new": 0.25, "reason": "unchanged; 0.15 makes the upgrade never worth buying, 0.35 adds too little at 1200"},
+      {"key": "data_version", "old": 18, "new": 19, "reason": "bump"}
+    ],
+    "sim_results": {
+      "mode": "--real --upg, 300 seeds with events; no-event cash and win cycle first",
+      "decent": {"cash": 8952, "win_cycle": 25, "event_win_pct": 85, "event_min_median_max": "23/26/30"},
+      "sloppy": {"cash": 922, "win_cycle": null, "result": "loss"},
+      "always_expand": {"cash": 8892, "win_cycle": 25, "event_win_pct": 85, "event_min_median_max": "23/26/30", "note": "wins in real mode (lane cap); pre-existing, not caused by T144"},
+      "never_expand": {"cash": 4061, "win_cycle": null, "result": "loss"},
+      "decent_permit_only": {"cash": 9378, "win_cycle": 23, "event_median": 24, "baseline_without_upgrade_median": 26},
+      "decent_full_tree": {"win_cycle": 19, "event_median": 19, "target": "19-23"},
+      "decent_research": {"win_cycle": 23, "event_median": 25, "target": "22-26"},
+      "decent_logistics": {"win_cycle": 20, "event_median": 20},
+      "second_ship": "cycle 2 (3rd at cycle 6 in trace)",
+      "sweep_decent_no_skills_event_median": {"600/0.25": 25, "600/0.15": 27, "900/0.25": 26, "1200/0.25": 27, "1200/0.35": 26}
+    },
+    "decent_vs_always": "With upgrades decent and always-expand differ only slightly at no skills (win cycle 25 both, cash 8952 vs 8892; median 26 both). Upgrade gains show with skills/permit: decent research 23 vs lane-capped baseline 22 to 25 depends on seed. The upgrade does not by itself make always-expand lose; that needs a different fix (for example a saturation or upkeep change), not tuned here."
+  }
+}

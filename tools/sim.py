@@ -11,13 +11,14 @@ Model (per cycle, one ship = one src->dst commodity c leg, steady state; any num
 Events (every event_interval cycles, one random of events.json): price up/down = factor on that planet+commodity buy and sell
   prices for event_price_cycles; closed = planet blocked for event_close_cycles (A1/A2/B4 each cover one cycle of it).
 Points: planet_first_visit, new pair, (system points unused in system 1). Skills cost points; no credits.
+--upg (with --real): lane cap stays, decent may buy one route upgrade (level 1) per ship.
 --real: mirrors the build as of 2026-10-27 (one ship per lane, no upgrades, no permit); --inject=C:N adds N cash at cycle C (QA input). Lane-limited mode reproduces the QA bot (decent +1000: 8701).
 Win: cash>=win_cash at cycle end. Loss: cycle win_cycle ends below. Rescue: no ships and cash<ship_price -> stipend."""
 import json, os, re, random, statistics, sys, itertools
 R = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 J = lambda p: json.load(open(os.path.join(R, p)))
 V = J("data/balance.json")["values"]; PL = J("data/planets.json")["planets"]; EVS = J("data/events.json")
-REAL = "--real" in sys.argv; RESCUE_ANY = "--rescue-any" in sys.argv; INJ = (0, 0)
+REAL = "--real" in sys.argv; UPG = "--upg" in sys.argv; RESCUE_ANY = "--rescue-any" in sys.argv; INJ = (0, 0)
 for _a in sys.argv:
     if _a.startswith("--inject="): INJ = tuple(int(x) for x in _a[9:].split(":"))
     if _a.startswith("--set="):
@@ -137,7 +138,7 @@ def run(strat="decent", build="none", rng=None, trace=False):
                         for h in ([False]):
                             dv = inc_now(ships + [new(r, h)]) - base
                             if dv > 0: opts.append((dv / price(h), price(h), "route", r, h))
-                if strat == "decent" and not REAL:
+                if strat == "decent" and (not REAL or UPG):
                     for x in ships:
                         if x["lv"] < 1:
                             x["lv"] = 1; dv = inc_now(ships) - base; x["lv"] = 0
