@@ -115,6 +115,7 @@ var mission_planet: int = -1  # planet that sells the first ship (abundant energ
 
 func _ready() -> void:
 	Ui.install_cursors(get_tree())
+	Juice.install_press(get_tree())
 	balance = _load_balance()
 	cash = int(balance.get("starting_credits", 0))
 	mouse_filter = Control.MOUSE_FILTER_IGNORE  # let clicks reach the 3D map (T04)
@@ -1753,7 +1754,7 @@ func _refresh() -> void:
 	_tut_advance()
 	goal_label.text = StoryText.get_text("LBL_GOAL", {"goal": int(balance.get("win_cash", 0)),
 		"cycle": int(balance.get("win_cycle", 0)), "cash": cash})
-	cash_label.text = str(cash)
+	Juice.count_to(cash_label, cash, "%d", Ui.col("signal_good"))  # counts up; a rise flashes green
 	var net: int = cash_forecast.net_forecast() if cash_forecast != null else 0
 	delta_label.text = "%+d" % net
 	cycle_label.text = "%d / %d" % [cycle, int(balance.get("win_cycle", 0))]
