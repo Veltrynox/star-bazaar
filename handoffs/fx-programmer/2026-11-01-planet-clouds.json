@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "agent": "fx-programmer",
+  "date": "2026-11-01",
+  "task": "Cloud layer with cast shadows on cloudy planets",
+  "status": "done",
+  "files_changed": ["art/planet_fx/planet_sphere.gd", "art/planet_fx/planet_sphere.gdshader", "art/planet_fx/planet_sphere.tscn", "art/planet_fx/planet_sphere_clouds.gdshader", "art/planet_fx/planet_sphere_clouds_material.tres", "art/textures/planets/planet_cloud.png.import"],
+  "open_questions": ["Not rendered (headless only): check drift speed, shadow offset and look by eye."],
+  "handoff": "New Clouds shell (radius 0.511, 1.022 of body) with planet_sphere_clouds.gdshader; alpha from cloud brightness, UV slides with TIME. Body shader darkens the key light by one cloud sample shifted toward key_dir. Only the cloudy type has a clouds entry in TYPE_TEXTURES; add 'clouds': TP + 'planet_cloud.png' to any other type to enable it. Exports: cloud_speed 0.003, cloud_alpha 0.9, cloud_scale 1, cloud_shadow 0.55, cloud_shadow_offset 0.04. Also fixed vertex displacement to keep the mesh radius (it forced radius 1.0 and ignored the halved size).",
+  "details": {}
+}
