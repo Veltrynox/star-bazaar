@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "agent": "fx-programmer",
+  "date": "2026-11-01",
+  "task": "owner feedback: gentler displacement, Fresnel as a soft sun-side crescent",
+  "status": "done, visual check pending (owner)",
+  "files_changed": [
+    "art/planet_fx/planet_sphere.gdshader",
+    "art/planet_fx/planet_sphere.gd"
+  ],
+  "open_questions": [
+    "Owner: check by eye that the crescent reads at map size; tune fresnel_strength, fresnel_side, fresnel_power. Atmosphere shell shares fresnel_strength (now 0.2), check it is not too bright."
+  ],
+  "handoff": "Fresnel limb glow is multiplied by a sun-side mask smoothstep(fres_side, fres_side+0.7, dot(n, key_dir)), so it is a crescent on the lit limb and zero on the far side. Rim light (complementary colour, opposite the sun) unchanged, it sits on the opposite limb so there is no conflict.",
+  "details": {
+    "new_defaults": {"disp_amount": "0.05 -> 0.03", "relief": "36.0 -> 20.0", "fres_strength / fresnel_strength": "0.1 -> 0.2 (half the limb is now masked, 0.1 would not read)", "fres_side / fresnel_side": "0.0 (new; 0.6 = narrow sliver)"},
+    "tests": "tools/tests/run.sh: 472 pass, 0 fail. planet_sphere.gd instantiated headless for volcanic, ocean, moon, temperate with no script errors.",
+    "not_checked": "Dummy renderer: no shader compile on GPU, shader parameters read back null, no visual check. Crescent width and brightness unverified."
+  }
+}
