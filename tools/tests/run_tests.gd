@@ -122,6 +122,14 @@ func _test_juice() -> void:
 	Juice.flash(fl, Color(1, 0.5, 0, 1))
 	await create_timer(0.5).timeout
 	check(fl.modulate.is_equal_approx(Color.WHITE), "juice: a flash settles back to its own colour", str(fl.modulate))
+	var pp := Label.new()
+	h.add_child(pp)
+	pp.size = Vector2(40, 20)
+	Juice.pop(pp)
+	await create_timer(0.1).timeout
+	check(pp.scale.x > 1.0, "juice: a pop swells the label")
+	await create_timer(0.4).timeout
+	check(pp.scale.is_equal_approx(Vector2.ONE), "juice: a pop settles back to scale 1", str(pp.scale))
 	h.queue_free()
 	Juice.motion = 1.0
 	await process_frame

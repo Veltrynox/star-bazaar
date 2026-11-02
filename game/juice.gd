@@ -24,6 +24,8 @@ const NUDGE_PX := 3.0            # a screen nudge: horizontal shake amplitude
 const NUDGE_SECONDS := 0.24
 const PING_SECONDS := 0.9        # a ring opens from a planet and fades
 const PING_RADIUS := 56.0
+const POP_SCALE := 1.18          # a value pop: the label swells to this scale and settles back
+const POP_SECONDS := 0.22
 
 const NO_TINT := Color(1.0, 1.0, 1.0, 0.0)  # alpha 0 means count_to does not flash
 
@@ -32,6 +34,7 @@ const CH_PRESS := "press"
 const CH_COUNT := "count"
 const CH_FLASH := "flash"
 const CH_NUDGE := "nudge"
+const CH_POP := "pop"
 
 const _META_TW := "juice_tw_"
 const _META_RESET := "juice_reset_"
@@ -261,6 +264,19 @@ static func flash(c: CanvasItem, tint: Color, seconds: float = FLASH_SECONDS) ->
 	var tw := _begin(c, CH_FLASH, func() -> void: c.modulate = base)
 	c.modulate = tint
 	tw.tween_property(c, "modulate", base, _seconds(seconds)).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+
+## Value pop: a label or icon swells about its centre and settles back (out then back-out). Marks a number that
+## just changed in a way the player earned or spent. Rests at scale 1.
+static func pop(c: Control, strength: float = POP_SCALE) -> void:
+	if not _active(c):
+		return
+	var tw := _begin(c, CH_POP, func() -> void: c.scale = Vector2.ONE)
+	var peak := 1.0 + (strength - 1.0) * motion
+	var up := _seconds(POP_SECONDS * 0.35)
+	tw.tween_method(func(v: float) -> void: _set_scale(c, v), 1.0, peak, up) \
+		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	tw.tween_method(func(v: float) -> void: _set_scale(c, v), peak, 1.0, _seconds(POP_SECONDS * 0.65)) \
+		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 ## Small screen nudge: a few quick sideways shakes that die away and leave the control where it was.
 static func nudge(c: Control, px: float = NUDGE_PX) -> void:
