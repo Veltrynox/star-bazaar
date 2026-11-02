@@ -1,5 +1,6 @@
 extends Control
 ## T03: cycle timer + top bar. Values come from data/balance.json at runtime.
+const Juice := preload("res://game/juice.gd")
 
 signal cycle_ended(cycle: int)
 ## T07: emitted at every cycle end after routes paid. results: Array of
@@ -908,6 +909,7 @@ func _show_notice(text: String) -> void:
 	if notice_label != null:
 		notice_label.text = text
 		notice_label.visible = true
+		Juice.enter(notice_label, 0.96, 0.0, true)
 
 func _advance_notice() -> void:
 	if shown_notice == "":
@@ -923,8 +925,12 @@ func _advance_notice() -> void:
 	last_notice = ""
 	notice_ends_left = 0
 	if notice_label != null:
+		Juice.leave(notice_label, false, Callable(self, "_clear_notice_label"))
+
+## Runs when the board notice has faded out: the text is cleared once it is no longer seen.
+func _clear_notice_label() -> void:
+	if notice_label != null:
 		notice_label.text = ""
-		notice_label.visible = false
 
 ## Settles every route once (called from _end_cycle). Returns the results array.
 func _settle_routes() -> Array:

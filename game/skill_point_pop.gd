@@ -3,7 +3,8 @@ extends Control
 ## ring that opens and fades. Owner item 5. Never blocks clicks (mouse filter IGNORE) and fades by itself.
 ## Drawing only: no textures, no new art. Shown by main.gd through show_points().
 
-const HOLD_SECONDS := 5.0
+const Juice := preload("res://game/juice.gd")
+const HOLD_SECONDS := 5.0  # owner's hold time: unchanged (the pop-up was lengthened on purpose)
 const FADE_SECONDS := 0.6
 
 var _ring_t: float = 1.0  # 0 at the start of the splash, 1 when it has finished
@@ -11,6 +12,7 @@ var _card: PanelContainer
 var _title: Label
 var _reason: Label
 var _tween: Tween
+var _dismissing := false  # a click is fading it out now
 
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -41,9 +43,12 @@ func _ready() -> void:
 func show_points(points: int, reason: String, title: String) -> void:
 	_title.text = title
 	_reason.text = reason
+	_dismissing = false
+	Juice.stop(self)  # a pop-up still leaving is settled first
 	modulate.a = 1.0
 	visible = true
 	_ring_t = 0.0
+	Juice.enter(_card, Juice.ENTER_SCALE, Juice.SLIDE_PX)
 	if _tween != null and _tween.is_valid():
 		_tween.kill()
 	_tween = create_tween()
@@ -52,12 +57,13 @@ func show_points(points: int, reason: String, title: String) -> void:
 	_tween.tween_callback(func(): visible = false)
 	queue_redraw()
 
-## Dismiss: any click or key hides it (the input still reaches the game, so play is never blocked).
+## Dismiss: any click or key fades it out (the input still reaches the game, so play is never blocked).
 func _input(event: InputEvent) -> void:
-	if visible and _ring_t > 0.15 and ((event is InputEventMouseButton and event.pressed) or (event is InputEventKey and event.pressed and not event.echo)):
+	if visible and not _dismissing and _ring_t > 0.15 and ((event is InputEventMouseButton and event.pressed) or (event is InputEventKey and event.pressed and not event.echo)):
+		_dismissing = true
 		if _tween != null and _tween.is_valid():
 			_tween.kill()
-		visible = false
+		Juice.leave(self)
 
 func _process(_delta: float) -> void:
 	if visible:

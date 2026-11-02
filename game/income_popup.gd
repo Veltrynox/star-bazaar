@@ -2,6 +2,7 @@ extends Control
 ## T133: green "+N" above a planet on the 3D map when it earned credits in a cycle. Rises and fades in
 ## about 1.8 s. Visual only: never takes clicks, nothing is shown when there is no income.
 
+const Juice := preload("res://game/juice.gd")
 const LIFE := 1.8
 const RISE := 36.0  # pixels over the life
 
@@ -34,6 +35,8 @@ func show_gains(gains: Dictionary) -> void:
 		l.add_theme_constant_override("shadow_offset_x", 0)
 		l.add_theme_constant_override("shadow_offset_y", 1)
 		add_child(l)
+		Juice.count_from(l, 0, n, "+%d")  # the gain counts up from zero
+		Juice.enter(l, 0.5, 0.0, false)  # and pops in: grows from half size, no fade (_process owns alpha)
 		items.append({"label": l, "planet": int(p), "age": 0.0})
 	set_process(not items.is_empty())
 

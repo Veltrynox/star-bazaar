@@ -1071,7 +1071,9 @@ func _test_notice_queue() -> void:
 	m._advance_notice()
 	check(m.notice_label.text == "third", "notice: third shows last")
 	m._advance_notice()
-	check(m.shown_notice == "" and not m.notice_label.visible and m.last_notice == "", "notice: line clears when queue empty")
+	check(m.shown_notice == "" and m.last_notice == "", "notice: line clears when queue empty")
+	await create_timer(0.4).timeout  # the board line fades out first (juice)
+	check(not m.notice_label.visible and m.notice_label.text == "", "notice: the board line fades out and hides")
 	for i in 10:
 		m.post_notice("n%d" % i)
 	check(m.notice_queue.size() <= m.NOTICE_QUEUE_MAX, "notice: queue is capped")

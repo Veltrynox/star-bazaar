@@ -3,11 +3,13 @@ extends ColorRect
 ## line is plain text with the NOT_EVENT_PREFIX story text. Continue, or one button per choice.
 
 const StoryText := preload("res://game/story_text.gd")
+const Juice := preload("res://game/juice.gd")
 
 signal confirmed(choice: int)  # -1 = Continue, otherwise the choice index
 
 var first_enabled := -1  # index of the first choice button that is not disabled; -1 when none (or Continue only)
 var enabled_choices: Array = []  # indexes of every choice button that is not disabled, in order (QA reads these)
+var _dismissed := false  # set when the exit fade starts: a button still focused cannot confirm a second time
 
 func show_event(title: String, text: String, effect_line: String, choices: Array, continue_text: String, disabled: Array = [], art: String = "") -> void:
 	color = Ui.col("scrim_soft")
@@ -45,7 +47,7 @@ func show_event(title: String, text: String, effect_line: String, choices: Array
 		var b := Button.new()
 		b.theme_type_variation = "ButtonPrimary"
 		b.text = continue_text
-		b.pressed.connect(func(): confirmed.emit(-1))
+		b.pressed.connect(func(): _confirm(-1))
 		box.add_child(b)
 		first = b
 	else:
@@ -57,7 +59,7 @@ func show_event(title: String, text: String, effect_line: String, choices: Array
 				b.tooltip_text = StoryText.get_or("EVT_HINT_CHOICE_OFF", "Not available now.")
 			b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 			var idx := i
-			b.pressed.connect(func(): confirmed.emit(idx))
+			b.pressed.connect(func(): _confirm(idx))
 			box.add_child(b)
 			if not b.disabled:
 				enabled_choices.append(idx)
@@ -66,6 +68,20 @@ func show_event(title: String, text: String, effect_line: String, choices: Array
 				first_enabled = idx
 	if first != null:
 		first.grab_focus()
+	# entry beat: the scrim fades in and the card grows into place
+	Juice.enter(self, 1.0, 0.0, true)
+	Juice.enter(card, Juice.ENTER_SCALE)
+
+## Closes the notice with a short fade and frees it. Input passes through at once, so the exit never holds play up.
+func dismiss() -> void:
+	_dismissed = true
+	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	Juice.leave(self, true)
+
+## A choice or Continue was pressed: emit once, and not at all once the notice is being dismissed.
+func _confirm(choice: int) -> void:
+	if not _dismissed:
+		confirmed.emit(choice)
 
 ## T109: a dashed approach path and an irregular polygon rock on it. Drawn, no texture.
 class AsteroidArt extends Control:
