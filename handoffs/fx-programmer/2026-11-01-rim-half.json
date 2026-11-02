@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "agent": "fx-programmer",
+  "date": "2026-11-01",
+  "task": "Halve planet rim light strength",
+  "status": "done",
+  "files_changed": ["art/planet_fx/planet_sphere.gd", "art/planet_fx/planet_sphere.gdshader"],
+  "open_questions": [],
+  "handoff": "rim_strength default 0.45 -> 0.225 (shader and export). Still tunable 0..3. Rim colour, placement and crescent fresnel unchanged.",
+  "details": {}
+}
