@@ -140,3 +140,32 @@ static func scroll_wrap(panel: Container, content: Control, reserved: float) -> 
 		hook.call()
 	later.call()
 	return sc
+
+## Key cap chip as in the design pack (.ds-kbd): small mono text in a bordered chip with a thicker bottom edge.
+static func kbd(text: String) -> PanelContainer:
+	var pc := PanelContainer.new()
+	pc.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	pc.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = col("panel_200")
+	sb.border_color = col("line_200")
+	sb.border_width_left = 1
+	sb.border_width_top = 1
+	sb.border_width_right = 1
+	sb.border_width_bottom = 2
+	sb.set_corner_radius_all(3)
+	sb.content_margin_left = 5
+	sb.content_margin_right = 5
+	sb.content_margin_top = 1
+	sb.content_margin_bottom = 1
+	pc.add_theme_stylebox_override("panel", sb)
+	pc.custom_minimum_size = Vector2(20, 20)
+	var l := Label.new()
+	l.text = text
+	l.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	l.add_theme_font_override("font", mono_font())
+	l.add_theme_font_size_override("font_size", 11)
+	l.add_theme_color_override("font_color", col("ink_muted"))
+	pc.add_child(l)
+	return pc

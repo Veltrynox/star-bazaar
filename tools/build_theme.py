@@ -116,7 +116,7 @@ SM = (SP["space-2"] + 2, SP["space-1"])
 button_type("ButtonSmall", box("panel-100", "line-200", 1, RAD["radius-md"], SM), box("panel-200", "line-300", 1, RAD["radius-md"], SM),
             box("panel-300", "line-300", 1, RAD["radius-md"], SM), box("panel-100", "line-100", 1, RAD["radius-md"], SM),
             box("panel-100", "star-warm", 1, RAD["radius-md"], SM), "ink", "ink")
-P("ButtonSmall", "font_sizes/font_size", 13)
+P("ButtonSmall", "font_sizes/font_size", 12)
 
 # Labels
 P("Label", "fonts/font", F["body"]); P("Label", "font_sizes/font_size", px(TY["body"]))
@@ -137,16 +137,16 @@ label_var("LabelGood", "body", px(TY["body"]), "signal-good")
 label_var("LabelWarn", "body", px(TY["body"]), "signal-warn")
 label_var("LabelBad", "body", px(TY["body"]), "signal-bad")
 label_var("LabelReadout", "readout", px(TY["readout"]), "cash")
-label_var("LabelNumber", "number", 15, "ink")
+label_var("LabelNumber", "number", 14, "ink")
 label_var("LabelNumberMuted", "number", 12, "ink-muted")
-label_var("LabelNumberAccent", "number", 15, "star-warm")
+label_var("LabelNumberAccent", "number", 14, "star-warm")
 
 # Panels: glass = dark translucent, 1 px light border, 8 px corners
 GLASS_M = (SP["space-4"], SP["space-4"] - 4)
-def glass(alpha=0.78, radius=8, margin=GLASS_M, shadow=True):
-    b = ['bg_color = ' + col("void-100", alpha)]
+def glass(alpha=0.76, radius=RAD["radius-lg"], margin=GLASS_M, shadow=True):
+    b = ['bg_color = ' + col("panel-100", alpha)]
     b += ['border_width_%s = 1' % s for s in ("left", "top", "right", "bottom")]
-    b.append('border_color = ' + col("ink", 0.16))
+    b.append('border_color = ' + col("line-200"))
     for c in ("top_left", "top_right", "bottom_right", "bottom_left"): b.append('corner_radius_%s = %d' % (c, radius))
     b += ['content_margin_left = %d' % margin[0], 'content_margin_top = %d' % margin[1],
           'content_margin_right = %d' % margin[0], 'content_margin_bottom = %d' % margin[1], 'anti_aliasing = true']
@@ -155,9 +155,12 @@ def glass(alpha=0.78, radius=8, margin=GLASS_M, shadow=True):
 props.append("")
 P("PanelContainer", "styles/panel", glass())
 props.append('PanelBar/base_type = &"PanelContainer"')
-P("PanelBar", "styles/panel", glass(0.55, 0, (SP["space-5"] - 8, 6), shadow=False))
+# top bar: fades from solid to clear, as the design pack's top bar (gradient texture)
+_g = add_sub("Gradient", ["offsets = PackedFloat32Array(0, 1)", "colors = PackedColorArray(%s, %s)" % (col("void-100", 0.94)[6:-1], col("void-100", 0.0)[6:-1])])
+_t = add_sub("GradientTexture2D", ["gradient = " + _g, "width = 8", "height = 64", "fill_from = Vector2(0, 0)", "fill_to = Vector2(0, 1)"])
+P("PanelBar", "styles/panel", add_sub("StyleBoxTexture", ["content_margin_left = 20.0", "content_margin_top = 10.0", "content_margin_right = 20.0", "content_margin_bottom = 10.0", "texture = " + _t]))
 props.append('PanelFlat/base_type = &"PanelContainer"')
-P("PanelFlat", "styles/panel", glass(0.6, 8, GLASS_M, shadow=False))
+P("PanelFlat", "styles/panel", glass(0.76, 8, GLASS_M, shadow=False))
 props.append('PanelRail/base_type = &"PanelContainer"')
 P("PanelRail", "styles/panel", glass(0.7, 16, (6, 8)))
 P("Panel", "styles/panel", glass(0.78, 8, (SP["space-4"], SP["space-4"])))
