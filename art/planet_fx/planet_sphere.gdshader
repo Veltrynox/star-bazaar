@@ -16,6 +16,13 @@ uniform bool use_beauty = false;                  // true: surface_tex is a colo
 uniform sampler2D disp_tex : filter_linear_mipmap, repeat_enable;     // greyscale height, relief on the key light
 uniform sampler2D glow_tex : filter_linear_mipmap, repeat_enable;     // white streaks on black, emission
 uniform sampler2D lights_tex : filter_linear_mipmap, repeat_enable;   // white city lights on black, dark side only
+uniform sampler2D cloud_tex : filter_linear_mipmap, repeat_enable;    // white clouds on black: casts the cloud shadow (same drift as the cloud shell)
+uniform bool use_cloud_shadow = false;
+uniform float cloud_shadow = 0.55;                // shadow strength on the key light (0 = off)
+uniform float cloud_shadow_offset = 0.04;         // how far the shadow slides away from the cloud, towards the sun (cloud height)
+uniform float cloud_speed = 0.003;                // keep equal to the cloud shell speed
+uniform float cloud_scale = 1.0;
+uniform float cloud_alpha = 0.9;
 uniform bool use_disp = false;
 uniform bool use_glow_mask = false;
 uniform bool use_lights_mask = false;
@@ -59,7 +66,7 @@ void vertex() {
 		// silhouette and the terminator edge get bumps. Lod 1 keeps it smooth on the 128 x 64 mesh.
 		vec2 uv = vec2(atan(n0.x, n0.z) / TAU + 0.5, acos(clamp(n0.y, -1.0, 1.0)) / PI);
 		float h = textureLod(disp_tex, uv, 1.0).r;
-		VERTEX = n0 * (1.0 + (h - 0.5) * disp_amount);
+		VERTEX = n0 * length(VERTEX) * (1.0 + (h - 0.5) * disp_amount);  // keep the mesh radius (the planet is halved in the scene)
 	}
 }
 
@@ -115,7 +122,17 @@ void fragment() {
 		// Key light: sun side only, with a crisp shadow contour on the terminator.
 		float nk = dot(nb, normalize(key_dir)) + hshift;
 		float lit = smoothstep(-shadow_soft, shadow_soft, nk);
-		vec3 key = key_color.rgb * key_strength * (1.0 + 0.6 * sun_flare) * pow(max(nk, 0.0), 0.6) * lit;
+		// Cloud shadow: a cloud at height h throws its shadow away from the sun, so the shadow at this point is the
+		// cloud found a step towards the sun (tangent part of key_dir). One texture sample, lod 1 (no wrap seam).
+		float cshade = 1.0;
+		if (use_cloud_shadow) {
+			vec3 kd = normalize(key_dir);
+			vec3 sn = normalize(n + (kd - n * dot(kd, n)) * cloud_shadow_offset);
+			vec2 suv = vec2(atan(sn.x, sn.z) / TAU + 0.5 + TIME * cloud_speed, acos(clamp(sn.y, -1.0, 1.0)) / PI);
+			float cc = smoothstep(0.05, 0.85, textureLod(cloud_tex, suv * cloud_scale, 1.0).r) * cloud_alpha;
+			cshade = 1.0 - cloud_shadow * cc;
+		}
+		vec3 key = key_color.rgb * key_strength * (1.0 + 0.6 * sun_flare) * pow(max(nk, 0.0), 0.6) * lit * cshade;
 		float amb = ambient * (1.0 - shadow_darkness);
 		col = base * (amb + key) * cavity;
 

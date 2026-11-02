@@ -9,11 +9,12 @@ extends MeshInstance3D
 const FX := preload("res://art/planet_fx/planet_fx.gd")
 
 ## Per-type surface table: beauty (colour), disp (height, relief), optional glow mask and lights mask.
+## Optional "clouds" key: a drifting cloud shell above the surface plus cloud shadows on the body. Add one line to give it to a type.
 ## Types not in the table fall back to the old greyscale SURFACE_TEXTURES entry with the palette tint.
 const TP := "res://art/textures/planets/"
 const TYPE_TEXTURES := {
 	"volcanic": {"beauty": TP + "planet_volcanic_beauty.png", "disp": TP + "planet_volcanic_displacement_1.png"},
-	"cloudy": {"beauty": TP + "planet_cloudy_beauty.png", "disp": TP + "planet_cloudy_displacement.png"},
+	"cloudy": {"beauty": TP + "planet_cloudy_beauty.png", "disp": TP + "planet_cloudy_displacement.png", "clouds": TP + "planet_cloud.png"},
 	"desert": {"beauty": TP + "planet_desert_beauty.png", "disp": TP + "planet_desert_displacement.png"},
 	"lush": {"beauty": TP + "planet_lush_beauty.png", "disp": TP + "planet_lush_displacement.png"},
 	"agrarian": {"beauty": TP + "planet_agrarian_beauty.png", "disp": TP + "planet_agrarian_displacement.png"},
@@ -159,6 +160,31 @@ const KEY_ONLY_SHARE := 0.30
 	set(v):
 		grain_amount = v
 		_apply()
+@export_group("Clouds (types with a clouds entry)")
+## Drift in uv per second (0.003 is about one lap in 5.5 minutes). Negative drifts the other way.
+@export_range(-0.05, 0.05, 0.0005) var cloud_speed: float = 0.003:
+	set(v):
+		cloud_speed = v
+		_apply()
+@export_range(0.0, 1.0) var cloud_alpha: float = 0.9:
+	set(v):
+		cloud_alpha = v
+		_apply()
+## Texture repeats around the planet (whole numbers keep the seam closed).
+@export_range(1, 4) var cloud_scale: int = 1:
+	set(v):
+		cloud_scale = v
+		_apply()
+## Darkening of the surface under the clouds (key light only).
+@export_range(0.0, 1.0) var cloud_shadow: float = 0.55:
+	set(v):
+		cloud_shadow = v
+		_apply()
+## Shadow slide towards the sun (cloud height, in sphere radii).
+@export_range(0.0, 0.2) var cloud_shadow_offset: float = 0.04:
+	set(v):
+		cloud_shadow_offset = v
+		_apply()
 @export_group("Glow, atmosphere and streaks")
 @export_range(0.0, 3.0) var glow_strength: float = 1.6:
 	set(v):
@@ -203,7 +229,7 @@ static func rim_for_id(id: String) -> bool:
 
 func _ready() -> void:
 	if not Engine.is_editor_hint():
-		for node in [self, get_node_or_null("Glow"), get_node_or_null("Atmosphere"), get_node_or_null("Streaks")]:
+		for node in [self, get_node_or_null("Glow"), get_node_or_null("Atmosphere"), get_node_or_null("Streaks"), get_node_or_null("Clouds")]:
 			var mi := node as MeshInstance3D
 			if mi and mi.get_surface_override_material_count() > 0:
 				mi.set_surface_override_material(0, mi.get_surface_override_material(0).duplicate())
@@ -238,6 +264,15 @@ func _apply() -> void:
 		m.set_shader_parameter("surface_tex", cached_tex(tt["beauty"] if beauty else SURFACE_TEXTURES[tex_i]))
 		m.set_shader_parameter("fine_tex", cached_tex(FINE_TEXTURE))
 		m.set_shader_parameter("use_disp", beauty and tt.has("disp"))
+		var has_clouds: bool = beauty and tt.has("clouds")
+		m.set_shader_parameter("use_cloud_shadow", has_clouds)
+		if has_clouds:
+			m.set_shader_parameter("cloud_tex", cached_tex(tt["clouds"]))
+			m.set_shader_parameter("cloud_shadow", cloud_shadow)
+			m.set_shader_parameter("cloud_shadow_offset", cloud_shadow_offset)
+			m.set_shader_parameter("cloud_speed", cloud_speed)
+			m.set_shader_parameter("cloud_scale", float(cloud_scale))
+			m.set_shader_parameter("cloud_alpha", cloud_alpha)
 		m.set_shader_parameter("use_glow_mask", beauty and tt.has("glow"))
 		m.set_shader_parameter("use_lights_mask", beauty and tt.has("lights"))
 		if beauty and tt.has("disp"):
@@ -284,6 +319,18 @@ func _apply() -> void:
 		am.set_shader_parameter("fres_power", fresnel_power)
 		am.set_shader_parameter("fres_side", fresnel_side)
 		am.set_shader_parameter("key_dir", key_dir)
+	var clouds := get_node_or_null("Clouds") as MeshInstance3D
+	if clouds:
+		clouds.visible = beauty and tt.has("clouds")
+		var cm := clouds.get_surface_override_material(0) as ShaderMaterial
+		if cm and clouds.visible:
+			cm.set_shader_parameter("cloud_tex", cached_tex(tt["clouds"]))
+			cm.set_shader_parameter("key_dir", key_dir)
+			cm.set_shader_parameter("key_color", key_color)
+			cm.set_shader_parameter("speed", cloud_speed)
+			cm.set_shader_parameter("alpha", cloud_alpha)
+			cm.set_shader_parameter("cloud_scale", float(cloud_scale))
+			cm.set_shader_parameter("fres_side", fresnel_side)
 	var streaks := get_node_or_null("Streaks") as MeshInstance3D
 	if streaks:
 		# Streak shell: cloudy planets only (no glow mask on cloudy any more).

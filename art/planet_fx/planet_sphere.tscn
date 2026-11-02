@@ -1,10 +1,11 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=11 format=3]
 
 [ext_resource type="Script" path="res://art/planet_fx/planet_sphere.gd" id="1"]
 [ext_resource type="Material" path="res://art/planet_fx/planet_sphere_material.tres" id="2"]
 [ext_resource type="Material" path="res://art/planet_fx/planet_sphere_glow_material.tres" id="3"]
 [ext_resource type="Material" path="res://art/planet_fx/planet_sphere_streaks_material.tres" id="4"]
 [ext_resource type="Material" path="res://art/planet_fx/planet_sphere_atmosphere_material.tres" id="5"]
+[ext_resource type="Material" path="res://art/planet_fx/planet_sphere_clouds_material.tres" id="6"]
 
 [sub_resource type="SphereMesh" id="m"]
 radius = 0.5
@@ -23,6 +24,12 @@ radius = 0.515
 height = 1.03
 radial_segments = 128
 rings = 64
+
+[sub_resource type="SphereMesh" id="c"]
+radius = 0.511
+height = 1.022
+radial_segments = 96
+rings = 48
 
 [sub_resource type="SphereMesh" id="a"]
 radius = 0.5225
@@ -47,3 +54,8 @@ surface_material_override/0 = ExtResource("5")
 visible = false
 mesh = SubResource("s")
 surface_material_override/0 = ExtResource("4")
+
+[node name="Clouds" type="MeshInstance3D" parent="."]
+visible = false
+mesh = SubResource("c")
+surface_material_override/0 = ExtResource("6")
