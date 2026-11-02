@@ -313,6 +313,7 @@ func _add_sun(pos: Vector3, sys: int = 1) -> void:
 	focus_sun_pos = pos
 	hex_ring = load("res://art/sun/hex_ring.gd").new()
 	hex_ring.radius = sun_radius
+	hex_ring.color = Systems.sun_color_of(sys).lerp(Color.WHITE, 0.25)  # T110: ring takes the sun's colour, a little lighter
 	hex_ring.position = pos
 	add_child(hex_ring)  # hidden until show_ring(true)
 

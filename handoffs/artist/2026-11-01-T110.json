@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "agent": "artist",
+  "date": "2026-11-01",
+  "task": "T110",
+  "status": "done_pending_owner_look",
+  "files_changed": ["game/map.gd", "handoffs/artist/2026-11-01-T110.json", "schedule.json"],
+  "open_questions": ["The brief's 'small visual extras the owner listed' are not written anywhere in the repo; only the ring, outline and spokes exist. Owner: name any extra and it will be added.", "On-screen look not checked (no GPU window): line width is 1 px by design (line primitives); frame_time_ms not measured, cost is one draw call."],
+  "handoff": "Checked art/sun/hex_ring.gd by reading. Wiring is already in place: map.gd _add_sun builds hex_ring on the system 1 sun; main.gd calls show_ring(true) when EV20 shows and show_ring(false) when it is confirmed. Fade: 1.5/s, hidden at fade 0 (the first frame after show_ring(true) raises fade before the hide check, so it shows). Rebuild on sun radius change is wired. Change: ring colour now comes from the sun (Systems.sun_color_of(sys) lightened 25 percent) instead of a fixed amber, set before add_child so rebuild uses it. Values kept: side 1.6 sun radii, outer outline 2.6 sides, spin 0.08 rad/s, HDR 1.6 (glow path), alpha 0.7, additive, unshaded, no shadows. Planets, lens glare, grain, shadows, poles and route colours untouched."
+}
