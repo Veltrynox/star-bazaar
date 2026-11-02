@@ -1,0 +1,10 @@
+{
+  "agent": "story-designer",
+  "date": "2026-11-02",
+  "task": "reference-rewrite",
+  "status": "done",
+  "files_changed": ["data/events.json", "data/story_text.json", "story/events.md", "story/endings.md"],
+  "schema_version": 1,
+  "open_questions": ["Reference ideas that need choices or new events (stone, summit, chess ruling, etc.) are not built. Owner: want any as new choice events?"],
+  "handoff": "22 price and closed events and 15 choice-event texts rewritten in place, same ids, tags and effects. Ending texts END_BARE_HANDS, END_ENOUGH, END_LOSS and sign-off END_SIGN_REL updated. Preface kept as it was (the reference added nothing that fit in 700 characters). All lengths checked, JSON parses. Programmer: texts in data/story_text.json and data/events.json are already updated, nothing to wire."
+}
