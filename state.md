@@ -1,38 +1,39 @@
-# Star Bazaar: project state
-Keep under 40 lines. Workflow: gdd-process.md. Detail in handoffs.
+# Star Bazaar: project state (under 40 lines; workflow gdd-process.md; updated 2026-11-01)
 
-## Queue (detail: schedule.json)
-- Done 2026-10-28: T90, T92, T93, T97.
-- Running, handoff file MISSING (stay running): T96, T99, T100, T102, T103, T107, T108.
-- Next build: T79 (tests; deps met). Then T71, T69+T70, T87, T58, T12.
-- Ready now (queued, deps met): T79, T53 (QA), T119 (story), T117 (doc), T59 (owner).
-- Scope: System 1 Hollin Reach; System 2 Dunmere Reach in scope; System 3 ON HOLD.
-- Idea chain: 1 debris (T96-T98), 2 shield (T99-T101; flag T121), 3 pirates (T102-T104), 4 zoom (T119, T106, T118, T105), 5 asteroid (T107-T110; reward T120), 6 fields (T111-T113), 7 dots and textures (T114-T115).
-- Blocked: T104, T105, T111, T113, T115. Deferred (owner: wait): effect-wording check, not scheduled. Stopped: T11, T14, T54, T60, T64.
+## Queue (schedule.json, 78 tasks)
+- Done 52, queued 11, partial 6, blocked 5, stopped 4, running 0.
+- Partial: T5, T17, T94, T62, T117, T131. Blocked: T104, T111, T113, T115, T125.
+- Next (start by main session): T137 pacing, T138 GDD route income, T139 Space Storage sells. T64 unstopped, gated by T63.
 
-## Owner decisions 2026-10-28
-- Shield: hidden "shield built" flag for the ending picker (T121, queued, NOT ready).
-- No shield wording in any ending (note in T100). T100's habitability ending line is not to be written.
-- Asteroid paid option: one research point as an event reward, not bought with money (T108, T109, T120).
+## Owner answers 2026-11-01
+- (a) Route income: the code is right. GDD fixed to match: routes earn through destination sell orders (T138).
+- (b) Pacing: retune. Permit path must not end at cycles 29-30 of 30. Decent reaches the goal in more runs (T137).
+- (c) System 3: is it needed? Art director: a later addition. OPEN, pending owner confirmation.
+- (d) Space Storage: sell orders draw from its stock. T64 unstopped (T139, T64).
 
-## Standing rules
-- Money never buys skill points; idea 5 paid option grants no skill point or reputation.
-- Debris lowers route efficiency while it stays; paying clears it (fee T97).
-- Shield affects only planets buyable later. Pirates cut trade volume; hired clearing costs money.
-- Zoom opens only after system 2 is opened; introduced via tutorial (T119, T15).
+## Owner decisions 2026-10-28 and standing rules
+- Shield flag hidden, read only by the ending picker (T121 done); no shield wording in endings. Asteroid paid option: one research point, no skill point or reputation.
+- Money never buys skill points. Debris lowers route efficiency; paying clears it. Shield affects only buyable planets; pirates cut trade volume; zoom opens after system 2 (T119).
 
 ## Open questions for owner
-1. Is the idea 5 research point a skill point? Conflicts with "no skill point" unless Research is separate. UNKNOWN.
-2. Does "money never buys skill points" cover all spending? (T97, T99, T107, T111)
-3. Nomads: mine a field without a clearing skill, or move T113 before T104? Field clearing skill or paid only? Planet types (T115).
-4. Build the shield flag now (T121)?
+1. Is system 3 needed (on hold; art director: later addition)? UNKNOWN until owner confirms.
+2. Is the asteroid research point a skill point? The 2026-10-28 answer says no. UNKNOWN.
+3. Does "money never buys skill points" cover all spending? (T97, T99, T107, T111)
+4. Nomads: field link and clearing (skill or paid); planet types (T104, T111, T113, T115).
 
-## Goals
-- skill-tree-progression: done 2026-10-31 (report: goals/skill-tree-progression/report.md). Open for owner: point sink after permit 2, B2, C4 usefulness, C3 slowdown.
+## Goals and reports
+- skill-tree-progression: done 2026-10-31 (goals/skill-tree-progression/report.md). Owner points open.
+- Art director 2026-11-01: qa/reports/2026-11-01-art-director.md.
 
 ## Latest handoff per agent
-- gameplay-programmer: handoffs/gameplay-programmer/2026-10-28-T93.json
-- economy-designer: handoffs/economy-designer/2026-10-28-ideas.json (T97)
-- story-designer: handoffs/story-designer/2026-10-28-T92.json
-- producer: handoffs/producer/2026-10-28-batch.json
-- qa-analyst, galaxy-builder, general-purpose, artist: none yet
+- gameplay-programmer: handoffs/gameplay-programmer/2026-11-01-system-suns.json
+- economy-designer: handoffs/economy-designer/2026-10-31-skill-tree-r2.json
+- story-designer: handoffs/story-designer/2026-10-31-T124.json
+- ui-programmer: handoffs/ui-programmer/2026-11-01-T136.json
+- artist: handoffs/artist/2026-11-01-T110.json
+- fx-programmer: handoffs/fx-programmer/2026-11-01-edge-blur-lens-glare.json
+- galaxy-builder: handoffs/galaxy-builder/2026-11-01-star-brightness.json
+- juice-programmer: handoffs/juice-programmer/2026-11-01-points-and-cycle-beats.json
+- qa-analyst: handoffs/qa-analyst/2026-11-01-T94.json
+- general-purpose: handoffs/general-purpose/2026-10-31-T62.json
+- producer: handoffs/producer/2026-11-01.json

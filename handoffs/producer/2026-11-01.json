@@ -1,0 +1,26 @@
+{
+  "agent": "producer",
+  "date": "2026-11-01",
+  "task": "Rename critic to art director; record owner answers a-d; queue follow-up tasks; art director run",
+  "status": "partial",
+  "started": [],
+  "stopped": [],
+  "unstopped": ["T64"],
+  "queued": [
+    {"task_id": "T137", "owner_agent": "economy-designer", "why": "Owner answer (b): pacing retune; permit path must not end at cycles 29-30; decent reaches the goal in more runs."},
+    {"task_id": "T138", "owner_agent": "general-purpose", "why": "Owner answer (a): GDD route income fixed to destination sell orders (code is right)."},
+    {"task_id": "T139", "owner_agent": "gameplay-programmer", "why": "Owner answer (d): sell orders draw from Space Storage stock. Goes with T64."}
+  ],
+  "blocked": [
+    {"task_id": "T104", "why": "Still blocked on the nomad field link (owner question 4). No change."},
+    {"task_id": "T125", "why": "Still blocked: owner has not named the replacement skill. No change."}
+  ],
+  "open_questions": [
+    "System 3 needed? Art director recommends a later addition; owner to confirm. UNKNOWN.",
+    "Is the asteroid research point a skill point? UNKNOWN.",
+    "Does 'money never buys skill points' cover all spending? UNKNOWN."
+  ],
+  "not_done": "Handoff archive move (handoffs beyond the latest 5) not run this session; no agent handoff was read or moved.",
+  "commits": ["86a7acb (rename to art director)"],
+  "schema_version": 1
+}

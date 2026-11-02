@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "date": "2026-10-28",
+  "date": "2026-11-01",
   "tasks": [
     {
       "task_id": "T79",
@@ -420,11 +420,11 @@
       "depends_on": [
         "T63"
       ],
-      "status": "stopped",
+      "status": "queued",
       "turn_cap": 60,
-      "window": "SUPERSEDED by T85 (2026-10-27)",
+      "window": "UNSTOPPED by owner 2026-11-01 (answer d). Still waits for T63 (depends_on). Sell rule is T139.",
       "brief": "One bigger storage per system, unlocked later; planets transfer into it slowly; it supports a broken route for a while; storage-to-storage links move goods between systems; click it to see and remove connections. Needs the owner's go and T63 numbers.",
-      "owner_note": "Owner direction 2026-10-27 (route redesign). Abstract numbers only; owner plays then refines. Producer 2026-10-27: Space Storage scope moved to T85 at the owner's request. Stays stopped."
+      "owner_note": "Owner direction 2026-10-27 (route redesign). Abstract numbers only; owner plays then refines. Producer 2026-10-27: Space Storage scope moved to T85 at the owner's request. Owner 2026-11-01: unstopped (answer d); sell orders draw from Space Storage stock (T139). Still gated by T63."
     },
     {
       "task_id": "T94",
@@ -982,6 +982,43 @@
       "window": "UI lane, after the current UI round. Small.",
       "brief": "The planet/mission panel still shows the line \"Mission: Buy a ship\". Buying a ship now happens through \"Send to...\" or the ship panel, so the line is out of date. Pick clearer wording that matches the new flow and replace the line. Take the wording from story/screens.md or the story text loader (data/story_text.json via game/story_text.gd); do not hard-code new text in the panel. If the change needs a new or changed story id, list the id, its meaning and max length in the handoff for the story-designer rather than inventing text. Do not change the mission logic or any numbers. Handoff: handoffs/ui-programmer/<date>-T136.json.",
       "owner_note": "Source: owner's review of the planet panel (2026-11-01). Not started; queued after the current UI round."
+    },
+    {
+      "task_id": "T137",
+      "title": "Pacing retune: permit path must not end at cycles 29-30; decent reaches the goal in more runs (owner answer b)",
+      "owner_agent": "economy-designer",
+      "depends_on": [
+        "T47"
+      ],
+      "status": "queued",
+      "turn_cap": 25,
+      "window": "Economy lane, owner answer 2026-11-01. Start by main session.",
+      "brief": "Owner answer 2026-11-01 (b). Retune data/balance.json (and planets.json only if needed) so that (1) the permit path does not end at cycles 29 or 30 of the 30-cycle run; (2) the 'decent' strategy reaches the goal in more runs on seeds 1 to 5 than it does now (read the newest QA summary for the baseline). Log every change with old, new and reason. Run tools/sim.py before and after. Do not change the win condition, the cash goal, the ending picker or the route rules. Handoff: handoffs/economy-designer/<date>-T137.json with before and after counts for decent and the permit cycle.",
+      "owner_note": "Owner answer 2026-11-01 (b): retune pacing. Art director agrees the permit path must not end at 29-30. Does not start T54 (still stopped)."
+    },
+    {
+      "task_id": "T138",
+      "title": "GDD: route income earned through destination sell orders (owner answer a)",
+      "owner_agent": "general-purpose",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 15,
+      "window": "Doc lane, owner answer 2026-11-01. No game code. Start by main session.",
+      "brief": "Owner answer 2026-11-01 (a). The code is right; the GDD is stale. Routes earn through the destination planet's sell orders. Update gdd.md only where it says how route income is earned: grep for route income, route pay, sell order and destination, then read only those sections. Describe the rule as the code does it (check game/route_engine.gd and the planet sell order code before writing). Change no numbers. Log the edit in gdd-log.md. Handoff: handoffs/general-purpose/<date>-T138.json. T62 (partial) keeps the rest of the route GDD; this task covers the income rule only.",
+      "owner_note": "Owner answer 2026-11-01 (a). Producer added 2026-11-01."
+    },
+    {
+      "task_id": "T139",
+      "title": "Space Storage: sell orders draw from stock stored in Space Storage (owner answer d)",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [
+        "T85"
+      ],
+      "status": "queued",
+      "turn_cap": 40,
+      "window": "Gameplay lane, owner answer 2026-11-01. Start by main session. Goes with T64 (unstopped the same day).",
+      "brief": "Owner answer 2026-11-01 (d). A sell order at a planet, or a sell order at a Space Storage post, draws its stock from the stock stored in that system's Space Storage. Use the existing storage and order code; add no new numbers and no new text (story ids only, flag any missing id for the story-designer). Save and load are unchanged in shape. Check with a headless run that a sell order empties Space Storage stock and that a route that broke still gets support as T85 defines. Handoff: handoffs/gameplay-programmer/<date>-T139.json.",
+      "owner_note": "Owner answer 2026-11-01 (d). Producer added 2026-11-01. Unstop of T64 is recorded on T64."
     }
   ],
   "done_task_ids": [
