@@ -93,8 +93,11 @@ void fragment() {
 
 	float NdV = clamp(dot(NORMAL, VIEW), 0.0, 1.0);
 	// Fresnel crescent: the limb glow only on the sun side, fading to nothing across the rest of the planet (like a moon edge).
-	float side = smoothstep(fres_side, fres_side + 0.7, dot(n, normalize(key_dir)));
-	float fres = pow(1.0 - NdV, fres_power) * fres_strength * side;
+	// side = sun-facing weight from the terminator (dot(normal, sun)); squared so the horns taper to nothing, 0 on the far side.
+	// The edge is also thicker where side is high (lower power) and thins towards the horns.
+	float side = smoothstep(fres_side, fres_side + 0.6, dot(n, normalize(key_dir)));
+	side *= side;
+	float fres = pow(1.0 - NdV, fres_power * mix(1.8, 0.8, side)) * fres_strength * side;
 
 	vec3 col;
 	if (variant == 1) {

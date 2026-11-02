@@ -12,7 +12,8 @@ uniform float density = 0.9;                      // overall haze, scales the wh
 uniform float fres_strength = 0.68;               // must match planet_sphere.gdshader
 uniform float fres_power = 3.0;                   // must match planet_sphere.gdshader
 uniform float shell_radius = 1.035;               // must match the Atmosphere mesh radius
-uniform float sun_bias = 0.5;
+uniform float fres_side = 0.0;                    // must match planet_sphere.gdshader
+uniform float sun_bias = 1.0;                     // 1 = crescent only, 0 = full ring
 
 void vertex() {
 	obj_n = normalize(VERTEX);
@@ -27,7 +28,9 @@ void fragment() {
 	// Outside the limb (1 < rho < shell_radius): equal to fres_strength at the limb, then a smooth fade to zero.
 	float outside = fres_strength * (1.0 - smoothstep(1.0, shell_radius, rho));
 	float falloff = mix(inside, outside, step(1.0, rho));
-	float sun = 0.5 + 0.5 * dot(normalize(obj_n), normalize(key_dir));
+	// Same crescent gate as the body: sun side only, nothing on the far side (sun_bias 1 = pure crescent, no ring).
+	float sun = smoothstep(fres_side, fres_side + 0.6, dot(normalize(obj_n), normalize(key_dir)));
+	sun *= sun;
 	ALBEDO = scatter_col.rgb;
 	ALPHA = clamp(falloff * density * mix(1.0, sun, sun_bias), 0.0, 1.0);
 }

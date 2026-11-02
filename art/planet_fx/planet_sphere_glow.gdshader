@@ -11,7 +11,8 @@ uniform float strength = 1.6;
 uniform float power = 1.2;                       // fade shape: higher = tighter glow
 uniform float edge_value = 0.68;                  // must match fres_strength in planet_sphere.gdshader
 uniform float shell_radius = 1.12;                // must match the Glow mesh radius
-uniform float sun_bias = 0.5;
+uniform float fres_side = 0.0;                    // must match planet_sphere.gdshader
+uniform float sun_bias = 1.0;                     // 1 = crescent only, 0 = full ring
 
 void vertex() {
 	obj_n = normalize(VERTEX);
@@ -22,7 +23,8 @@ void fragment() {
 	float rho = shell_radius * sqrt(1.0 - nv * nv);
 	// 1 at the limb, 0 at the shell edge; rho < 1 is hidden by the planet, so clamp keeps it flat there.
 	float ramp = pow(1.0 - smoothstep(1.0, shell_radius, max(rho, 1.0)), power);
-	float sun = 0.5 + 0.5 * dot(normalize(obj_n), normalize(key_dir));
+	float sun = smoothstep(fres_side, fres_side + 0.6, dot(normalize(obj_n), normalize(key_dir)));  // crescent gate, as the body
+	sun *= sun;
 	// strength / 1.6 keeps the old strength slider as a multiplier around the matched edge value.
 	ALBEDO = glow_col.rgb * edge_value * ramp * mix(1.0, sun, sun_bias) * (strength / 1.6);
 }

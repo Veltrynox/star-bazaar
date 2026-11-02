@@ -272,6 +272,7 @@ func _apply() -> void:
 		gm.set_shader_parameter("glow_col", p.glow)
 		gm.set_shader_parameter("strength", glow_strength)
 		gm.set_shader_parameter("key_dir", key_dir)
+		gm.set_shader_parameter("fres_side", fresnel_side)
 	var atmo := get_node_or_null("Atmosphere") as MeshInstance3D
 	var am := atmo.get_surface_override_material(0) as ShaderMaterial if atmo else null
 	if am:
@@ -279,6 +280,7 @@ func _apply() -> void:
 		am.set_shader_parameter("density", atmosphere_density)
 		am.set_shader_parameter("fres_strength", fresnel_strength)
 		am.set_shader_parameter("fres_power", fresnel_power)
+		am.set_shader_parameter("fres_side", fresnel_side)
 		am.set_shader_parameter("key_dir", key_dir)
 	var streaks := get_node_or_null("Streaks") as MeshInstance3D
 	if streaks:
