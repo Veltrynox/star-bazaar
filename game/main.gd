@@ -499,6 +499,8 @@ func route_margin_notice(src: int, dst: int, c: String) -> bool:
 func open_skills() -> void:
 	if preface != null or game_over:
 		return
+	if galaxy_view != null and galaxy_view.visible:
+		galaxy_view.close_view()  # one screen at a time
 	skill_screen.open_screen()
 
 ## T105: click on a system in the galaxy view: close the view and put the map camera on that system.

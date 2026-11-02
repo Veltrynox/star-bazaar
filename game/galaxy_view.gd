@@ -37,24 +37,22 @@ var _hit: Array = []  # [{id, pos, r, open}]
 var _hover_id: int = -1
 var _clock: float = 0.0
 var _tex_cache: Dictionary = {}
+var _stars: Array = []  # Vector3(x 0..1, y 0..1, brightness 0..1)
 
 func setup(main_node: Control) -> void:
 	main = main_node
 	visible = false
 	mouse_filter = Control.MOUSE_FILTER_STOP
-	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	offset_left = 76.0  # keep the icon rail and the top bar usable
-	offset_top = 56.0
-	if main.top_bar != null:
-		var fit_top := func() -> void:
-			offset_top = main.top_bar.size.y
-		main.top_bar.resized.connect(fit_top)
-		fit_top.call_deferred()
+	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)  # a separate full screen: it covers the map, top bar and rail
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 41
+	for i in 360:  # starfield, seed and density as in the design pack (normalised positions)
+		_stars.append(Vector3(rng.randf(), rng.randf(), rng.randf()))
 	# heading
 	var head := VBoxContainer.new()
 	head.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
 	head.grow_horizontal = Control.GROW_DIRECTION_BOTH
-	head.offset_top = 16
+	head.offset_top = 20
 	head.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	title_label = Label.new()
 	title_label.theme_type_variation = "LabelTitle"
@@ -69,31 +67,30 @@ func setup(main_node: Control) -> void:
 	add_child(head)
 	# left: selected system
 	side = PanelContainer.new()
-	side.position = Vector2(12, 12)
+	side.position = Vector2(20, 76)
 	side.custom_minimum_size = Vector2(SIDE_W, 0)
 	side_box = VBoxContainer.new()
 	side_box.add_theme_constant_override("separation", 10)
-	Ui.scroll_wrap(side, side_box, 56.0 + 24.0)
+	Ui.scroll_wrap(side, side_box, 76.0 + 40.0)
 	add_child(side)
 	# right: tutorial (only while it runs)
 	tut_panel = PanelContainer.new()
 	tut_panel.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
-	tut_panel.offset_left = -(SIDE_W + 12.0)
-	tut_panel.offset_right = -12.0
-	tut_panel.offset_top = 60.0
+	tut_panel.offset_left = -(SIDE_W + 20.0)
+	tut_panel.offset_right = -20.0
+	tut_panel.offset_top = 76.0
 	tut_box = VBoxContainer.new()
 	tut_box.add_theme_constant_override("separation", 8)
 	tut_panel.add_child(tut_box)
 	tut_panel.visible = false
 	add_child(tut_panel)
-	# close, top right
+	# Back, top left: returns to the screen that opened the galaxy view
 	close_button = Button.new()
-	close_button.text = StoryText.get_or("BTN_CLOSE", "Close")
-	close_button.icon = Ui.icon("close")
-	close_button.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
-	close_button.offset_left = -(SIDE_W + 12.0)
-	close_button.offset_right = -12.0
-	close_button.offset_top = 12.0
+	close_button.text = StoryText.get_or("BTN_BACK", "Back")
+	close_button.icon = Ui.icon("back")
+	close_button.theme_type_variation = "ButtonGhost"
+	close_button.position = Vector2(20, 16)
+	close_button.custom_minimum_size = Vector2(110, 40)
 	close_button.pressed.connect(close_view)
 	add_child(close_button)
 	_build_legend()
@@ -139,6 +136,10 @@ func open_view() -> bool:
 	if visible or not available():
 		return false
 	visible = true
+	if get_parent() != null:
+		get_parent().move_child(self, -1)  # on top of every panel of the map screen
+	if "keys_enabled" in main.map:
+		main.map.keys_enabled = false  # W A S D must not pan the hidden map
 	tut_step = -1
 	if not main.galaxy_seen and has_second_system():  # the tutorial waits until there is a second system
 		main.galaxy_seen = true
@@ -153,6 +154,8 @@ func close_view() -> void:
 	if not visible:
 		return
 	visible = false
+	if "keys_enabled" in main.map:
+		main.map.keys_enabled = true
 	closed.emit()
 
 func toggle_view() -> void:
@@ -342,7 +345,10 @@ func _draw_dashed(a: Vector2, b: Vector2, col: Color, w: float) -> void:
 # ---------------------------------------------------------------- drawing
 
 func _draw() -> void:
-	draw_rect(Rect2(Vector2.ZERO, size), Color(0.02, 0.03, 0.07, 0.94))
+	draw_rect(Rect2(Vector2.ZERO, size), Ui.col("void_000"))  # opaque: nothing of the map shows through
+	for st in _stars:
+		var a: float = 0.2 + 0.6 * st.z
+		draw_circle(Vector2(st.x * size.x, st.y * size.y), 0.6 + st.z * 0.9, Color(1.0, 0.96, 0.9, a))
 	_hit = []
 	var sans := get_theme_default_font()
 	var mono := Ui.mono_font()

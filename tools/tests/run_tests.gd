@@ -216,6 +216,8 @@ func _test_galaxy_view() -> void:
 	m._dismiss_preface()
 	var g: Control = m.galaxy_view
 	check(g.open_view() and g.visible, "galaxy: opens with one system open")
+	check(g.get_global_rect().size == m.get_viewport_rect().size and g.get_index() == m.get_child_count() - 1, "galaxy: is a full screen on top of the map screen")
+	check(g.close_button.text == StoryText.get_or("BTN_BACK", "Back") and not m.map.keys_enabled, "galaxy: Back button, map keys off while open")
 	check(g.tut_step == -1 and not g.tut_panel.visible, "galaxy: no tutorial until system 2 is open")
 	check(g.selected_sys == 1 and g.side.visible, "galaxy: the current system is selected, panel shown")
 	g.selected_sys = 2  # a locked system: uncharted panel with a disabled Open system and the reason
@@ -228,6 +230,7 @@ func _test_galaxy_view() -> void:
 	g.queue_redraw()  # the draw code runs for open and uncharted systems
 	await process_frame
 	g.close_view()
+	check(m.map.keys_enabled, "galaxy: Back gives the map its keys again")
 	m._open_system(2)
 	m.galaxy_seen = false
 	check(g.open_view() and g.tut_step == 0 and g.tut_panel.visible and m.galaxy_seen, "galaxy: tutorial starts at line 1 once system 2 is open")
