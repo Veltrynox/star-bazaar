@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "agent": "fx-programmer",
+  "date": "2026-11-01",
+  "task": "owner review: subtler rim light, visible displacement",
+  "status": "done, visual check pending (owner)",
+  "files_changed": [
+    "art/planet_fx/planet_sphere.gdshader",
+    "art/planet_fx/planet_sphere.gd",
+    "art/planet_fx/planet_sphere.tscn"
+  ],
+  "open_questions": [
+    "Owner: check by eye that the silhouette bumps and the terminator edge show the terrain; tune disp_amount, relief, term_shift. Nothing was looked at on a GPU."
+  ],
+  "handoff": "Chosen: real vertex displacement (silhouette) plus bump plus terminator shift. Vertex stage samples disp_tex (textureLod 1) and moves the vertex by (h-0.5)*disp_amount along the normal. Fragment keeps the sphere normal for UV, adds a stronger bump (relief), and shifts the lit threshold by (h-0.5)*term_shift so high ground keeps the sun past the terminator. Height maps exist for volcanic, cloudy, desert, lush, agrarian, ocean, moon, urban. Types without one (temperate and any other type not in TYPE_TEXTURES) use the greyscale fallback and are flat.",
+  "details": {
+    "new_defaults": {"rim_strength": "1.6 -> 0.45", "relief": "14 -> 36", "relief_shade": "0.6 -> 0.75", "disp_amount": "new, 0.05 (plus/minus 2.5 percent of radius)", "term_shift": "new, 0.45"},
+    "scene": "Streaks shell radius 1.01 -> 1.03, atmosphere shell 1.035 -> 1.045, so peaks do not poke through them.",
+    "unchanged": "fresnel 0.1, complementary rim colour",
+    "tests": "tools/tests/run_tests.gd: 467 pass, 1 fail ('notice: line clears when queue empty'), caused by the juice agent's uncommitted game/event_notice.gd edits, not by planet files.",
+    "not_checked": "No GPU compile (dummy renderer, shader_parameter reads return null headless), no visual check of the displacement amount or rim brightness."
+  }
+}
