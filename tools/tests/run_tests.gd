@@ -913,7 +913,7 @@ func _test_systems() -> void:
 	# permit chain
 	check(m.can_buy_permit(2)["reason"] == "skill", "sys2: permit needs C1")
 	m._refresh()
-	check(m.map.system_previews.has(2) and m.map.system_arrows.has(2), "3D: locked system 2 shows a grey preview and an arrow")
+	check(not ("system_previews" in m.map) and not ("system_arrows" in m.map), "3D: no next-system preview or arrow in the system view")
 	# T128: edge arrow
 	var req_steps: Array = []
 	m._missing_chain("C1", req_steps)
@@ -944,7 +944,6 @@ func _test_systems() -> void:
 	m._on_skill_arrow()
 	check(m.view_system == 2 and str(m.skill_arrow_target()["mode"]) == "view" and m.skill_arrow_target()["system"] == 1, "arrow: click moves the view, arrow then points back")
 	m._refresh()
-	check(not m.map.system_previews.has(2) and m.map.system_center(2) != null, "3D: preview is replaced by the real system once open")
 	check(m.galaxy_button.visible and m.galaxy_view.available(), "rail: galaxy button always shown")
 	check(m.trade.price(3, "food_buy") == 11 and m.trade.price(6, "energy_sell") == 34, "sys2: prices from data")
 	# reach point once per system

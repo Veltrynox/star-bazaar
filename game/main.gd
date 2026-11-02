@@ -1547,7 +1547,7 @@ func _build_rail() -> void:
 	skills_button = _rail_button("skills", "MENU_SKILLS", "Skills", toggle_skills)
 	col.add_child(skills_button)
 	galaxy_button = _rail_button("planet", "MENU_GALAXY", "Galaxy", toggle_galaxy) 
-	col.add_child(galaxy_button)  # always shown: the galaxy view also previews locked systems
+	col.add_child(galaxy_button)  # always shown: the galaxy view also lists locked systems as uncharted
 
 func game_menu_toggle() -> void:
 	if game_menu == null:
@@ -1593,8 +1593,6 @@ func _refresh() -> void:
 	skills_button.tooltip_text = StoryText.get_text("MENU_SKILLS") + star
 	skills_button.icon = Ui.icon("skills")
 	skills_button.modulate = Ui.col("star_warm") if star != "" else Color.WHITE
-	if map != null:
-		map.set_system_arrows(open_systems, view_system)  # 3D arrows and grey previews of locked systems
 	if galaxy_view != null:
 		galaxy_view.refresh()
 	if cash_forecast != null:
