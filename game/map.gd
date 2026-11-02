@@ -7,6 +7,8 @@ signal planet_clicked(index: int)  # -1 when the click hit empty space
 signal route_clicked(id: int)      # T07b: click on a route line (no planet under the cursor)
 
 const PlanetTypes := preload("res://game/planet_types.gd")
+const Systems := preload("res://game/systems.gd")
+const Shield := preload("res://game/shield.gd")
 const PLANETS_PATH := "res://data/planets.json"
 
 # Zoom bounds are not in gdd.md: defaults for owner decision.
@@ -265,6 +267,116 @@ func _add_sun(pos: Vector3) -> void:
 	hex_ring.position = pos
 	add_child(hex_ring)  # hidden until show_ring(true)
 
+## ---- 3D arrows to solar systems, and grey previews of locked ones ----
+const ARROW_DIST := 4.5          # arrow distance from the focus point on the ground plane (world units at zoom 1)
+const ARROW_HIDE_DIST := 7.0     # no arrow for a system whose centre is this close to the focus
+const ARROW_LIFT := 0.3
+const ARROW_COLOR_OPEN := Color(1.0, 0.8, 0.35)
+const ARROW_COLOR_LOCKED := Color(0.55, 0.57, 0.62)
+const PREVIEW_COLOR := Color(0.45, 0.47, 0.52, 0.55)
+var system_arrows: Dictionary = {}   # system id -> MeshInstance3D arrow
+var system_previews: Dictionary = {} # locked system id -> Node3D holding grey planet spheres
+var _arrow_open: Array = [1]
+
+## Called by main.gd on every refresh. `open` = system ids opened by a permit (1 always). Systems in
+## data/systems.json that are not open show as grey previews, with a grey arrow; open ones show normally.
+func set_system_arrows(open: Array, _view: int = 1) -> void:
+	_arrow_open = open
+	for sid in Systems.ids():
+		var locked: bool = not open.has(sid)
+		if locked and not system_previews.has(sid):
+			_make_preview(sid)
+		elif not locked and system_previews.has(sid):
+			system_previews[sid].queue_free()
+			system_previews.erase(sid)
+		if not system_arrows.has(sid):
+			system_arrows[sid] = _make_arrow()
+		_tint_arrow(system_arrows[sid], locked)
+	if not system_arrows.has(1):
+		system_arrows[1] = _make_arrow()
+		_tint_arrow(system_arrows[1], false)
+	_update_arrows()
+
+func _make_preview(sid: int) -> void:
+	var holder := Node3D.new()
+	var mat := StandardMaterial3D.new()
+	mat.albedo_color = PREVIEW_COLOR
+	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	mat.roughness = 1.0
+	for p in Systems.planets_of(sid):
+		if not Shield.habitable(p) or not p.has("x") or not p.has("y"):
+			continue
+		var m := MeshInstance3D.new()
+		var sm := SphereMesh.new()
+		sm.radius = planet_radius()
+		sm.height = planet_radius() * 2.0
+		m.mesh = sm
+		m.material_override = mat
+		m.position = Vector3(float(p["x"]), 0.0, float(p["y"])) * MAP_UNIT_SCALE
+		m.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		holder.add_child(m)
+	add_child(holder)
+	system_previews[sid] = holder
+
+func _make_arrow() -> MeshInstance3D:
+	var a := MeshInstance3D.new()
+	var cone := CylinderMesh.new()  # cone: top radius 0, points along +Y until rotated in _update_arrows
+	cone.top_radius = 0.0
+	cone.bottom_radius = 0.28
+	cone.height = 0.8
+	a.mesh = cone
+	var mat := StandardMaterial3D.new()
+	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	a.material_override = mat
+	a.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	a.visible = false
+	add_child(a)
+	return a
+
+func _tint_arrow(a: MeshInstance3D, locked: bool) -> void:
+	(a.material_override as StandardMaterial3D).albedo_color = ARROW_COLOR_LOCKED if locked else ARROW_COLOR_OPEN
+
+## World-space centre of a system on the ground plane: its live planets when open, else its preview data.
+func system_center(sid: int) -> Variant:
+	var lo := Vector3.ZERO
+	var hi := Vector3.ZERO
+	var first := true
+	var pts: Array = []
+	for i in planets.size():
+		if int(planets[i].get("system", 1)) == sid and i < positions.size():
+			pts.append(positions[i])
+	if pts.is_empty() and system_previews.has(sid):
+		for c in system_previews[sid].get_children():
+			pts.append(c.position)
+	for p in pts:
+		lo = p if first else Vector3(minf(lo.x, p.x), 0.0, minf(lo.z, p.z))
+		hi = p if first else Vector3(maxf(hi.x, p.x), 0.0, maxf(hi.z, p.z))
+		first = false
+	return null if first else (lo + hi) * 0.5
+
+## One arrow per system, floating between the focus and the system, pointing at it. Hidden when the focus is already there.
+func _update_arrows() -> void:
+	for sid in system_arrows:
+		var a: MeshInstance3D = system_arrows[sid]
+		var c = system_center(int(sid))
+		if c == null:
+			a.visible = false
+			continue
+		var to: Vector3 = Vector3(c.x - focus.x, 0.0, c.z - focus.z)
+		if to.length() < ARROW_HIDE_DIST / zoom:
+			a.visible = false
+			continue
+		var dir := to.normalized()
+		var s := 1.0 / zoom
+		a.visible = true
+		a.scale = Vector3.ONE * s
+		a.position = Vector3(focus.x, ARROW_LIFT, focus.z) + dir * ARROW_DIST * s
+		# cone tip is +Y: tilt it to lie along dir
+		var up := Vector3.UP
+		var axis := up.cross(dir)
+		var ang := up.angle_to(dir)  # PI/2 for a flat direction
+		a.basis = Basis(axis.normalized(), ang).scaled(Vector3.ONE * s) if axis.length() > 0.001 else Basis().scaled(Vector3.ONE * s)
+
 ## T28: show or hide the pulsing "click me" halo around planet `index`.
 func set_hint(index: int, on: bool) -> void:
 	if not on or index < 0 or index >= positions.size():
@@ -450,6 +562,7 @@ func _update_camera() -> void:
 	camera.position = focus + offset
 	camera.look_at(focus, Vector3.UP)
 	_update_fx()
+	_update_arrows()
 
 ## Flat textured ring in the sphere's unit space (scales with the planet), tilted a little. One quad, one shader.
 func _add_belt(i: int, sph: MeshInstance3D, h: int) -> void:

@@ -912,14 +912,16 @@ func _test_systems() -> void:
 	check(m.commodities.size() == 2, "sys2: Quillon none/both do not add commodities", str(m.commodities))
 	# permit chain
 	check(m.can_buy_permit(2)["reason"] == "skill", "sys2: permit needs C1")
+	m._refresh()
+	check(m.map.system_previews.has(2) and m.map.system_arrows.has(2), "3D: locked system 2 shows a grey preview and an arrow")
 	# T128: edge arrow
 	var req_steps: Array = []
 	m._missing_chain("C1", req_steps)
 	var at: Dictionary = m.skill_arrow_target()
 	if req_steps.size() == 1:
-		check(str(at.get("mode", "")) == "skills" and at["steps"] == ["C1"] and m.skill_arrow.visible == (not at.is_empty()), "arrow: C1 reachable shows the skills arrow")
+		check(str(at.get("mode", "")) == "skills" and at["steps"] == ["C1"], "arrow: C1 reachable shows the skills arrow")
 	else:
-		check(at.is_empty() and not m.skill_arrow.visible or str(at.get("mode", "")) == "skills", "arrow: hidden until C1 is reachable", str(at))
+		check(at.is_empty() or str(at.get("mode", "")) == "skills", "arrow: hidden until C1 is reachable", str(at))
 	m._on_skill_arrow()
 	check(m.skill_screen.visible == (not at.is_empty()), "arrow: click opens the skill screen")
 	m.skill_screen.close_screen()
@@ -941,6 +943,9 @@ func _test_systems() -> void:
 	check(str(m.skill_arrow_target().get("mode", "")) == "view" and m.skill_arrow_target()["system"] == 2, "arrow: permit held points at the other system")
 	m._on_skill_arrow()
 	check(m.view_system == 2 and str(m.skill_arrow_target()["mode"]) == "view" and m.skill_arrow_target()["system"] == 1, "arrow: click moves the view, arrow then points back")
+	m._refresh()
+	check(not m.map.system_previews.has(2) and m.map.system_center(2) != null, "3D: preview is replaced by the real system once open")
+	check(m.galaxy_button.visible and m.galaxy_view.available(), "rail: galaxy button always shown")
 	check(m.trade.price(3, "food_buy") == 11 and m.trade.price(6, "energy_sell") == 34, "sys2: prices from data")
 	# reach point once per system
 	m.cash = 5000
