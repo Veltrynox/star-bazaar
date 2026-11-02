@@ -4,7 +4,7 @@ extends CanvasLayer
 
 const SHADER := preload("res://art/planet_fx/film_grain.gdshader")
 
-@export_range(0.0, 0.5, 0.001) var strength := 0.048:
+@export_range(0.0, 0.5, 0.001) var strength := 0.016:
 	set(v):
 		strength = v
 		if _mat:
