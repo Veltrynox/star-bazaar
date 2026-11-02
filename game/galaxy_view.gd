@@ -1,5 +1,5 @@
 extends Control
-## T105: galaxy overview (2D overlay). Opens only after system 2 is open. Shows explored systems, links,
+## T105: galaxy overview (2D overlay). Shows explored systems, links,
 ## resource icons by each planet and the player's routes. Click a system to focus the map on it.
 ## Layout: systems in a row by id (no galaxy coordinates in data); links join consecutive ids.
 
@@ -43,15 +43,19 @@ func setup(main_node: Control) -> void:
 	close_button.pressed.connect(close_view)
 	add_child(close_button)
 
-## True once system 2 (any system past the first) is open.
+## The overview always opens now (the left-rail galaxy icon is always shown); locked systems show as "?".
 func available() -> bool:
+	return true
+
+## True once system 2 (any system past the first) is open.
+func has_second_system() -> bool:
 	return main.open_systems.size() > 1
 
 func open_view() -> bool:
 	if visible or not available():
 		return false
 	visible = true
-	if not main.galaxy_seen:
+	if not main.galaxy_seen and has_second_system():  # tutorial lines wait until there is a second system
 		main.galaxy_seen = true
 		var parts: Array = []
 		for id in TUT_IDS:

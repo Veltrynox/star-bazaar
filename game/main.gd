@@ -1546,11 +1546,8 @@ func _build_rail() -> void:
 	rail.add_child(col)
 	skills_button = _rail_button("skills", "MENU_SKILLS", "Skills", toggle_skills)
 	col.add_child(skills_button)
-	galaxy_button = _rail_button("planet", "MENU_GALAXY", "Galaxy", toggle_galaxy)  # T105: shown once system 2 is open
-	galaxy_button.visible = false
-	col.add_child(galaxy_button)
-	var menu_rail := _rail_button("mark", "MENU_MAIN", "Menu", game_menu_toggle)
-	col.add_child(menu_rail)
+	galaxy_button = _rail_button("planet", "MENU_GALAXY", "Galaxy", toggle_galaxy) 
+	col.add_child(galaxy_button)  # always shown: the galaxy view also previews locked systems
 
 func game_menu_toggle() -> void:
 	if game_menu == null:
@@ -1596,8 +1593,6 @@ func _refresh() -> void:
 	skills_button.tooltip_text = StoryText.get_text("MENU_SKILLS") + star
 	skills_button.icon = Ui.icon("skills")
 	skills_button.modulate = Ui.col("star_warm") if star != "" else Color.WHITE
-	if galaxy_button != null:
-		galaxy_button.visible = open_systems.size() > 1
 	if map != null:
 		map.set_system_arrows(open_systems, view_system)  # 3D arrows and grey previews of locked systems
 	if galaxy_view != null:
