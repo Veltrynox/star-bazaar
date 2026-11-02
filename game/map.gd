@@ -87,7 +87,7 @@ void fragment() {
 	float lit = 0.25 + 0.75 * pow(l, 0.6);
 	vec3 col = tex * brighten * (0.1 + key_color.rgb * lit * 1.3);
 	ALBEDO = col;
-	ALPHA = a * 0.475;
+	ALPHA = a * 0.5;   // 50% transparent
 }
 """
 var planet_spheres: Array[MeshInstance3D] = []
@@ -207,7 +207,7 @@ func _add_orbit_rings(center: Vector3, sys: int = 1) -> void:
 ## Faint dust band on each orbit that exists: ONE merged flat annulus mesh per system (1 draw call), with
 ## the asteroid ring PNG (odd systems asteroid1, even systems asteroid2) mapped by radius in art/planet_fx/orbit_dust.gdshader.
 ## Child of the ring node, so it shows and hides with it.
-const DUST_ALPHA := 0.5       # faintness (texture is already sparse)
+const DUST_ALPHA := 1.0       # multiplier on the texture alpha; the shader already applies the 50% (final dust alpha = texture alpha x 0.5)
 const DUST_SPEED := 0.0       # static ring: no rotation (uniform kept at 0)
 const DUST_WIDTH := 1.875     # band width in planet radii (was 0.5 world units at radius 0.8 = 0.625 radii; x3)
 func _add_orbit_dust(parent: Node3D, center: Vector3, sys: int) -> void:
