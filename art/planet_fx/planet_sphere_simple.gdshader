@@ -31,6 +31,10 @@ uniform float cloud_speed = 0.003;   // uv per second (about 5.5 minutes per lap
 uniform float cloud_alpha = 0.9;
 uniform vec4 cloud_col : source_color = vec4(1.0, 1.0, 1.0, 1.0);
 uniform float cloud_ambient = 0.12;  // cloud brightness on the night side
+// Storm glow (the cloudy type only): the bright swirls of the same texture add soft light on top of the body.
+uniform bool use_storm_glow = false;
+uniform vec4 storm_col : source_color = vec4(0.66, 0.77, 1.0, 1.0);  // set from the palette glow colour
+uniform float storm_strength = 0.6;  // modest; above 1.0 would go into the HDR glow
 
 varying vec3 obj_n;
 
@@ -66,13 +70,17 @@ void fragment() {
 	col *= shade;
 
 	// Clouds: screen blend of the lit cloud mask over the shaded body (sun-side gate like the cloud shell).
-	if (use_clouds) {
+	if (use_clouds || use_storm_glow) {
 		vec2 cuv = uv + vec2(TIME * cloud_speed, 0.0);
 		float c = textureGrad(cloud_tex, cuv, dx, dy).r;
 		if (use_clouds) {
 			float a = smoothstep(0.05, 0.85, c) * cloud_alpha;
 			vec3 light = cloud_col.rgb * mix(cloud_ambient, 1.0, lit);
 			col = vec3(1.0) - (vec3(1.0) - col) * (vec3(1.0) - light * a);
+		}
+		if (use_storm_glow) {
+			// Additive soft light on the bright swirls only, on both sides of the terminator (it glows).
+			col += storm_col.rgb * smoothstep(0.55, 0.95, c) * storm_strength;
 		}
 	}
 

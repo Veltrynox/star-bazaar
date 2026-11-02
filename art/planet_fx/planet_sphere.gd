@@ -11,6 +11,7 @@ const SIMPLE := true
 
 ## Owner: cloud layer in the simple body for the earth-like types, storm glow for the stormy type (cloudy). Both read planet_cloud.png.
 const CLOUD_TYPES := ["lush", "agrarian", "ocean"]
+const STORM_TYPE := "cloudy"
 const CLOUD_TEX := "res://art/textures/planets/planet_cloud.png"
 
 const FX := preload("res://art/planet_fx/planet_fx.gd")
@@ -288,11 +289,14 @@ func _apply() -> void:
 			m.set_shader_parameter("cloud_alpha", cloud_alpha)
 		if SIMPLE:
 			var cl: bool = beauty and planet_type in CLOUD_TYPES
+			var st: bool = beauty and planet_type == STORM_TYPE
 			m.set_shader_parameter("use_clouds", cl)
-			if cl:
+			m.set_shader_parameter("use_storm_glow", st)
+			if cl or st:
 				m.set_shader_parameter("cloud_tex", cached_tex(CLOUD_TEX))
 				m.set_shader_parameter("cloud_speed", cloud_speed)
 				m.set_shader_parameter("cloud_alpha", cloud_alpha)
+				m.set_shader_parameter("storm_col", p.glow)
 		m.set_shader_parameter("use_glow_mask", beauty and tt.has("glow"))
 		m.set_shader_parameter("use_lights_mask", beauty and tt.has("lights"))
 		if beauty and tt.has("disp"):
