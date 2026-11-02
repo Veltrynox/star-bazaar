@@ -144,6 +144,11 @@ func _ready() -> void:
 	_update_camera()
 	# Chromatic aberration over the 3D view (art/planet_fx/chromatic_aberration.gd): first, so the glare and grain sit on top of it.
 	add_child(load("res://art/planet_fx/chromatic_aberration.gd").new())
+	# Screen-space soft edge: blurs a 10 px ring outside each planet disc (art/planet_fx/edge_blur.gd); after the aberration, before the glare and grain.
+	var edge_blur: CanvasLayer = load("res://art/planet_fx/edge_blur.gd").new()
+	edge_blur.camera = camera
+	edge_blur.spheres = planet_spheres
+	add_child(edge_blur)
 	# Camera lens glare around the current system's sun (art/planet_fx/lens_glare.gd); the quad draws under the UI.
 	var glare: CanvasLayer = load("res://art/planet_fx/lens_glare.gd").new()
 	glare.camera = camera
