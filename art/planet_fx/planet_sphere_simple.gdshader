@@ -19,7 +19,7 @@ uniform float fres_power = 3.0;
 uniform sampler2D disp_tex : filter_linear_mipmap, repeat_enable;  // greyscale height map, for the relief
 uniform bool use_disp = false;
 uniform float relief = 0.6;          // normal-map scale: how far the height gradient bends the normal (0 = flat)
-uniform float shadow_ambient = 0.3;  // brightness floor of the dark side (0 = black, 1 = no shadow)
+uniform float shadow_ambient = 0.07; // LINEAR floor of the dark side (0 = black, 1 = no shadow). Output is sRGB-encoded, so 0.07 shows as 0.07^(1/2.2) = 0.3 on screen
 uniform float term_soft = 0.30;      // terminator softness in dot(n, sun); wider = softer edge
 uniform float bump_gain = 1.5;       // how much the bumped normal changes the lit brightness
 
@@ -30,7 +30,7 @@ uniform sampler2D cloud_tex : filter_linear_mipmap, repeat_enable;  // white clo
 uniform float cloud_speed = 0.003;   // uv per second (about 5.5 minutes per lap)
 uniform float cloud_alpha = 0.9;
 uniform vec4 cloud_col : source_color = vec4(1.0, 1.0, 1.0, 1.0);
-uniform float cloud_ambient = 0.12;  // cloud brightness on the night side
+uniform float cloud_ambient = 0.0;   // cloud brightness on the night side (0: clouds do not light the shadow side)
 // Storm glow (the cloudy type only): the bright swirls of the same texture add soft light on top of the body.
 uniform bool use_storm_glow = false;
 uniform vec4 storm_col : source_color = vec4(0.66, 0.77, 1.0, 1.0);  // set from the palette glow colour
@@ -79,8 +79,8 @@ void fragment() {
 			col = vec3(1.0) - (vec3(1.0) - col) * (vec3(1.0) - light * a);
 		}
 		if (use_storm_glow) {
-			// Additive soft light on the bright swirls only, on both sides of the terminator (it glows).
-			col += storm_col.rgb * smoothstep(0.55, 0.95, c) * storm_strength;
+			// Additive soft light on the bright swirls only, gated by the lit term so the shadow side stays dark.
+			col += storm_col.rgb * smoothstep(0.55, 0.95, c) * storm_strength * lit;
 		}
 	}
 
