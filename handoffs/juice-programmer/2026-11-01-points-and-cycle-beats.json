@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "agent": "juice-programmer",
+  "date": "2026-11-01",
+  "task": "Two juice ideas: skill point count and swell, cycle-end pulse",
+  "status": "done",
+  "files_changed": ["game/juice.gd", "game/main.gd", "tools/tests/run_tests.gd", "handoffs/juice-programmer/2026-11-01-points-and-cycle-beats.json"],
+  "open_questions": [],
+  "handoff": "Idea 1: the skill point count in the top bar counts up (warm flash) or down when spent and swells to 1.18 for 0.22 s (new Juice.pop, POP_SCALE/POP_SECONDS tunables). Why: earning and spending the biggest currency was an instant text swap. Idea 2: the cycle counter pops (1.12) and flashes warm when a cycle ends. Why: marks the moment income lands. Both obey Juice.motion (0 = old behaviour). No state or text changes; hooks: main.gd _last_points var, calls in _refresh and _end_cycle. Tests: suite 507/507 (the win-run tests fail intermittently when another agent shares the scratch HOME; they failed on a clean tree too). Not checked by eye: swell size on the top bar layout (pop scales about the centre inside a container), warm flash legibility on the points label, cycle flash overlapping the progress bar.",
+  "details": {"hooks": ["main.gd: _last_points, Juice.pop/count_to on points_label in _refresh, Juice.pop/flash on cycle_label in _end_cycle"], "ideas": ["Pulse the Buy ship button while ships are 0", "Nudge the board line when a route is blocked"]}
+}
