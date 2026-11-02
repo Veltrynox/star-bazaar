@@ -1112,6 +1112,8 @@ func _end_cycle() -> void:
 	_push_routes_to_map()
 	_refresh_panel()
 	cycle_ended.emit(cycle)
+	Juice.pop(cycle_label, 1.12)  # the economy turned over: income has landed
+	Juice.flash(cycle_label, Ui.col("star_warm"))
 	var win_cash := int(balance.get("win_cash", 0))
 	var win_cycle := int(balance.get("win_cycle", 0))
 	if OS.is_debug_build() and debug_force_goal:  # T78: QA reaches the choice
