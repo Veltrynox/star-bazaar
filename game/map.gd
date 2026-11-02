@@ -207,10 +207,10 @@ func _add_orbit_rings(center: Vector3, sys: int = 1) -> void:
 	_add_orbit_dust(mi, center, sys)
 
 ## Faint dust band on each orbit that exists: ONE merged flat annulus mesh per system (1 draw call), with
-## fine grain made in art/planet_fx/orbit_dust.gdshader. Child of the ring node, so it shows and hides with it.
-const DUST_ALPHA := 0.12      # faintness
-const DUST_GRAIN := 28.0      # grains per world unit
-const DUST_SPEED := 0.005     # drift speed (was 0.02: x4 slower)
+## the asteroid ring PNG (odd systems asteroid1, even systems asteroid2) mapped by radius in art/planet_fx/orbit_dust.gdshader.
+## Child of the ring node, so it shows and hides with it.
+const DUST_ALPHA := 0.5       # faintness (texture is already sparse)
+const DUST_SPEED := 0.005     # drift, turns per second (slow rotation with TIME)
 const DUST_WIDTH := 1.875     # band width in planet radii (was 0.5 world units at radius 0.8 = 0.625 radii; x3)
 func _add_orbit_dust(parent: Node3D, center: Vector3, sys: int) -> void:
 	var width := DUST_WIDTH * planet_radius()  # the band grows with the planets
@@ -255,9 +255,13 @@ func _add_orbit_dust(parent: Node3D, center: Vector3, sys: int) -> void:
 	mat.shader = load("res://art/planet_fx/orbit_dust.gdshader")
 	mat.set_shader_parameter("dust_color", Systems.sun_color_of(sys).lerp(Color.WHITE, 0.3))
 	mat.set_shader_parameter("alpha", DUST_ALPHA)
-	mat.set_shader_parameter("grain_scale", DUST_GRAIN)
 	mat.set_shader_parameter("speed", DUST_SPEED)
 	mat.set_shader_parameter("ring_width", width)
+	# One texture per system (one draw call): odd systems asteroid1.png, even systems asteroid2.png. Same dust extents as _add_belt.
+	var ring_no := 1 if sys % 2 == 1 else 2
+	mat.set_shader_parameter("ring_tex", load("res://art/textures/planets/asteroid%d.png" % ring_no))
+	mat.set_shader_parameter("tex_in", 0.38 if ring_no == 1 else 0.62)
+	mat.set_shader_parameter("tex_out", 0.96 if ring_no == 1 else 0.97)
 	var dm := MeshInstance3D.new()
 	dm.name = "OrbitDust"
 	dm.mesh = am
