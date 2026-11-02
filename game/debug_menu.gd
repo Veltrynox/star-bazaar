@@ -23,7 +23,6 @@ const MAP_TUNABLES := [
 	["pitch_min_deg", "Orbit pitch min (deg)", 1.0, 89.0, 1.0],
 	["pitch_max_deg", "Orbit pitch max (deg)", 1.0, 89.0, 1.0],
 	["sun_radius", "SUN_RADIUS", 0.1, 10.0, 0.1],
-	["planet_scale", "Planet scale", 0.2, 5.0, 0.05],
 ]
 
 var main: Control        # game/main.gd; owns balance and map
@@ -403,6 +402,8 @@ func _reset() -> void:
 func _build() -> void:
 	for c in _body.get_children():
 		c.queue_free()
+	_section("Planet size")  # at the top, so it is not buried under the balance rows
+	_planet_size_rows()
 	_section("Balance values")
 	_add_dict(main.balance, 0)
 	_section("Balance targets")
@@ -413,6 +414,38 @@ func _build() -> void:
 		_add_row(str(t[1]), [_spin(main.map.get(prop), t[2], t[3], t[4], func(v):
 			main.map.set(prop, v)
 			main.map.apply_tunables())])
+
+## Planet size (x): a slider and a box for the same value, and a button back to the default x1.3.
+## Planets, route starts, names, halos and the dust band all follow it (map.apply_tunables rebuilds them).
+func _planet_size_rows() -> void:
+	var label := Label.new()
+	label.text = "Planet size (x, 1.0 = old size)"
+	_body.add_child(label)
+	var sl := HSlider.new()
+	sl.min_value = 0.2
+	sl.max_value = 3.0
+	sl.step = 0.01
+	sl.custom_minimum_size = Vector2(160, 0)
+	sl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var sp := _spin(main.map.planet_scale, 0.2, 5.0, 0.01, func(v):
+		sl.set_value_no_signal(clampf(v, sl.min_value, sl.max_value))
+		_set_planet_scale(v))
+	sl.value = clampf(main.map.planet_scale, sl.min_value, sl.max_value)
+	sl.value_changed.connect(func(v):
+		sp.set_value_no_signal(v)
+		_set_planet_scale(v))
+	var reset := Button.new()
+	reset.text = "x%.1f" % main.map.PLANET_SIZE
+	reset.pressed.connect(func(): sp.value = main.map.PLANET_SIZE)
+	var row := HBoxContainer.new()
+	row.add_child(sl)
+	row.add_child(sp)
+	row.add_child(reset)
+	_body.add_child(row)
+
+func _set_planet_scale(v: float) -> void:
+	main.map.planet_scale = v
+	main.map.apply_tunables()
 
 func _section(text: String) -> void:
 	var l := Label.new()
