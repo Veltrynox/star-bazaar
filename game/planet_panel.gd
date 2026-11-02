@@ -9,6 +9,7 @@ const StoryText := preload("res://game/story_text.gd")
 
 signal order_requested(commodity: String, role: String)  # role: "buy" or "sell" (toggles the local order)
 signal send_requested(commodity: String)  # "Send to..." on a storage row
+signal buy_send_requested(commodity: String)  # "Buy and send to..." on a resource row: standing buy order plus a route
 signal remove_requested(route_id: int)
 
 var COL_LIT: Color = Ui.col("star_warm")
@@ -130,7 +131,10 @@ func _header(p: Dictionary) -> void:
 		box.add_child(res)
 
 func _row(c: String, prices: Dictionary, pend: Dictionary) -> Control:
+	var wrap := VBoxContainer.new()
+	wrap.add_theme_constant_override("separation", 6)
 	var row := HBoxContainer.new()
+	wrap.add_child(row)
 	row.add_theme_constant_override("separation", 8)
 	var info := VBoxContainer.new()
 	info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -171,18 +175,35 @@ func _row(c: String, prices: Dictionary, pend: Dictionary) -> Control:
 			st.theme_type_variation = "LabelAccent"
 			info.add_child(st)
 	row.add_child(info)
-	for role in ["buy", "sell"]:
-		var b := Button.new()
-		var price = buy if role == "buy" else sell
-		var on: bool = main.engine.local_on(planet_index, c, role)
-		b.toggle_mode = true
-		b.button_pressed = on
-		b.text = StoryText.get_text("BTN_BUY" if role == "buy" else "BTN_SELL") + (": on" if on else "")
-		b.disabled = price == null
-		b.tooltip_text = "Not traded here." if price == null else ("Standing %s order. Press to stop." % role if on else "Standing %s order each cycle." % role)
-		b.pressed.connect(func(): order_requested.emit(c, role))
-		row.add_child(b)
-	return row
+	# One combined action replaces the separate Buy button: it buys here every cycle and sends the goods on a route.
+	var sell_on: bool = main.engine.local_on(planet_index, c, "sell")
+	var sell_price = sell
+	var sb := Button.new()
+	sb.toggle_mode = true
+	sb.button_pressed = sell_on
+	sb.text = StoryText.get_text("BTN_SELL") + (": on" if sell_on else "")
+	sb.disabled = sell_price == null
+	sb.tooltip_text = "Not traded here." if sell_price == null else ("Standing sell order. Press to stop." if sell_on else "Standing sell order each cycle.")
+	sb.pressed.connect(func(): order_requested.emit(c, "sell"))
+	row.add_child(sb)
+	var acts := HBoxContainer.new()
+	acts.add_theme_constant_override("separation", 8)
+	var bs := Button.new()
+	bs.theme_type_variation = "ButtonSmall"
+	var sending: bool = not pend.is_empty() and int(pend["planet"]) == planet_index and str(pend["c"]) == c and bool(pend.get("buy", false))
+	bs.text = StoryText.get_or("BTN_BUY_SEND", "Buy and send to...") + ("*" if sending else "")
+	bs.disabled = buy == null
+	bs.tooltip_text = "Not traded here." if buy == null else StoryText.get_or("LBL_BUY_SEND_TIP", "Buys this goods here every cycle and sends it to the planet you click next.")
+	bs.pressed.connect(func(): buy_send_requested.emit(c))
+	acts.add_child(bs)
+	if main.engine.local_on(planet_index, c, "buy"):
+		var stop := Button.new()
+		stop.theme_type_variation = "ButtonGhost"
+		stop.text = StoryText.get_or("BTN_STOP_BUY", "Stop buying")
+		stop.pressed.connect(func(): order_requested.emit(c, "buy"))
+		acts.add_child(stop)
+	wrap.add_child(acts)
+	return wrap
 
 ## A missing price is a data gap (planets.json), shown as text, never invented.
 func _price(v) -> String:

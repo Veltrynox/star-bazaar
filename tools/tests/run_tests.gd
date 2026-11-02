@@ -912,12 +912,25 @@ func _test_ships() -> void:
 		if str(tx).begins_with("Buy a ship"):
 			buy_btn = true
 	check(not buy_btn and texts.has(StoryText.get_text("BTN_REMOVE")), "planet panel: no Buy ship button, ships have their own Remove")
+	var plain_buy := false
+	var combined := 0
+	for tx in texts:
+		if str(tx).begins_with(StoryText.get_text("BTN_BUY")) and not str(tx).begins_with(StoryText.get_or("BTN_BUY_SEND", "Buy and send to...")):
+			plain_buy = true
+		if str(tx).begins_with(StoryText.get_or("BTN_BUY_SEND", "Buy and send to...")):
+			combined += 1
+	check(not plain_buy and combined == m.commodities.size(), "planet panel: no separate Buy button, one Buy and send to per resource")
 	m.cash = int(bal["ship_price"]) - 1
 	var rb2: Dictionary = m.send_stock_buying(1, 2, c)
 	check(not rb2["ok"] and m.ships == 2 and e.routes.size() == 2, "send: no free ship and no cash makes no route and buys nothing")
 	m.cash = 10000
 	var rb3: Dictionary = m.send_stock_buying(0, 0, c)
 	check(not rb3["ok"] and m.ships == 2, "send: a route that cannot be made buys no ship")
+	m.selected_planet = 1
+	m._on_buy_send(c)
+	check(not m.pending.is_empty() and bool(m.pending["buy"]) and not e.local_on(1, c, "buy"), "buy and send: waits for a destination, no order yet")
+	m._on_planet_clicked(2)
+	check(m.pending.is_empty() and e.routes.size() == 3 and e.local_on(1, c, "buy"), "buy and send: destination makes the route and the standing buy order")
 	m.ships = 1
 	e.routes.remove_at(1)
 	var st: Dictionary = m.collect_state()

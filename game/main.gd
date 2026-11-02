@@ -118,6 +118,7 @@ func _ready() -> void:
 	planet_panel.setup(self)
 	planet_panel.order_requested.connect(_on_order)
 	planet_panel.send_requested.connect(_on_send)
+	planet_panel.buy_send_requested.connect(_on_buy_send)
 	planet_panel.remove_requested.connect(_remove_requested)
 	map.planet_clicked.connect(_on_planet_clicked)
 	map.route_clicked.connect(_on_route_clicked)
@@ -584,7 +585,12 @@ func _on_planet_clicked(index: int) -> void:
 				return
 			var cnt: int = engine.lane_count(int(pending["planet"]), index, str(r["c"]))
 			var pending_planet: int = int(pending["planet"])
+			var wants_buy: bool = bool(pending.get("buy", false))
 			cancel_pending()
+			if wants_buy and not engine.local_on(pending_planet, str(r["c"]), "buy"):
+				var bo := set_local_order(pending_planet, str(r["c"]), "buy", true)
+				if not bo["ok"]:
+					post_notice(str(bo["reason"]))
 			if bool(r.get("bought", false)):
 				post_notice(StoryText.get_text("NOT_SHIP_BOUGHT"))
 			post_notice(StoryText.get_text("NOT_ROUTE_MADE", {"planet_a": planet_name(int(pending_planet)), "planet_b": planet_name(index)}) if cnt <= 1 else StoryText.get_text("NOT_LANE_SHIP_ADDED"))
@@ -641,6 +647,17 @@ func _on_send(c: String) -> void:
 	_pending_changed()
 	if storage.amount(storage.planet_key(selected_planet), c) <= 0:  # T134: allowed, but say it will wait
 		post_notice(StoryText.get_text("NOT_ROUTE_STALLED", {"commodity": c.capitalize(), "planet": planet_name(selected_planet)}))
+
+## "Buy and send to..." pressed on a resource row: like Send to..., and when the destination is chosen the planet also
+## gets a standing buy order for the goods, so the route has stock to carry.
+func _on_buy_send(c: String) -> void:
+	if selected_planet < 0 or game_over:
+		return
+	if not pending.is_empty() and pending["planet"] == selected_planet and pending["c"] == c and bool(pending.get("buy", false)):
+		cancel_pending()
+		return
+	pending = {"planet": selected_planet, "c": c, "buy": true}
+	_pending_changed()
 
 func cancel_pending() -> void:
 	pending = {}
