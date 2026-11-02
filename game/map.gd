@@ -189,6 +189,65 @@ func _add_orbit_rings(center: Vector3, sys: int = 1) -> void:
 	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	add_child(mi)
 	orbit_rings[sys] = mi
+	_add_orbit_dust(mi, center, sys)
+
+## Faint dust band on each orbit that exists: ONE merged flat annulus mesh per system (1 draw call), with
+## fine grain made in art/planet_fx/orbit_dust.gdshader. Child of the ring node, so it shows and hides with it.
+const DUST_ALPHA := 0.12      # faintness
+const DUST_GRAIN := 28.0      # grains per world unit
+const DUST_SPEED := 0.02      # drift speed
+const DUST_WIDTH := 0.5       # band width in world units
+func _add_orbit_dust(parent: Node3D, center: Vector3, sys: int) -> void:
+	var verts := PackedVector3Array()
+	var uvs := PackedVector2Array()
+	var cols := PackedColorArray()
+	var idx := PackedInt32Array()
+	var segs := 96
+	for pi in positions.size():
+		if int(planets[pi].get("system", 1)) != sys:
+			continue
+		var p: Vector3 = positions[pi]
+		var r := Vector2(p.x - center.x, p.z - center.z).length()
+		if r < 0.01:
+			continue
+		var r0 := maxf(r - DUST_WIDTH * 0.5, 0.01)
+		var base := verts.size()
+		for s in segs + 1:
+			var u := float(s) / float(segs)
+			var a := TAU * u
+			var d := Vector3(cos(a), 0.0, sin(a))
+			verts.append(center + d * r0)
+			verts.append(center + d * (r + DUST_WIDTH * 0.5))
+			uvs.append(Vector2(u, 0.0))
+			uvs.append(Vector2(u, 1.0))
+			cols.append(Color(r / 10.0, 0, 0))
+			cols.append(Color(r / 10.0, 0, 0))
+		for s in segs:
+			var i := base + s * 2
+			idx.append_array([i, i + 1, i + 2, i + 1, i + 3, i + 2])
+	if verts.is_empty():
+		return
+	var arr := []
+	arr.resize(Mesh.ARRAY_MAX)
+	arr[Mesh.ARRAY_VERTEX] = verts
+	arr[Mesh.ARRAY_TEX_UV] = uvs
+	arr[Mesh.ARRAY_COLOR] = cols
+	arr[Mesh.ARRAY_INDEX] = idx
+	var am := ArrayMesh.new()
+	am.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arr)
+	var mat := ShaderMaterial.new()
+	mat.shader = load("res://art/planet_fx/orbit_dust.gdshader")
+	mat.set_shader_parameter("dust_color", Systems.sun_color_of(sys).lerp(Color.WHITE, 0.3))
+	mat.set_shader_parameter("alpha", DUST_ALPHA)
+	mat.set_shader_parameter("grain_scale", DUST_GRAIN)
+	mat.set_shader_parameter("speed", DUST_SPEED)
+	mat.set_shader_parameter("ring_width", DUST_WIDTH)
+	var dm := MeshInstance3D.new()
+	dm.name = "OrbitDust"
+	dm.mesh = am
+	dm.material_override = mat
+	dm.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	parent.add_child(dm)
 
 ## T85: one planet node (mesh + label) for planets[i]; position from x,y or the old ring layout.
 func _make_planet(i: int) -> void:
