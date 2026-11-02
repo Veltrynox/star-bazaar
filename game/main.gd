@@ -607,6 +607,7 @@ func _on_planet_clicked(index: int) -> void:
 				post_notice(StoryText.get_text("NOT_SHIP_BOUGHT"))
 			post_notice(StoryText.get_text("NOT_ROUTE_MADE", {"planet_a": planet_name(int(pending_planet)), "planet_b": planet_name(index)}) if cnt <= 1 else StoryText.get_text("NOT_LANE_SHIP_ADDED"))
 			route_margin_notice(pending_planet, index, str(r["c"]))  # B1 Market Ledger
+			_route_beat(pending_planet, index)
 			selected_planet = index
 			planet_panel.show_planet(index)
 			return
@@ -705,6 +706,13 @@ func _remove_requested(id: int) -> void:
 	var r := remove_connection(id)
 	if r["ok"]:
 		post_notice(StoryText.get_text("NOT_ROUTE_REMOVED", {"planet_a": a, "planet_b": b}))
+
+## Route made: both ends ring once, so the new lane is seen to start and land.
+func _route_beat(a: int, b: int) -> void:
+	for idx in [a, b]:
+		var sp = Juice.planet_screen(map, idx)
+		if sp != null:
+			Juice.ping(self, sp, Ui.col("signal_good"))
 
 func _buy_ship_kind(kind: String) -> void:
 	var r := buy_ship(kind)
@@ -1272,12 +1280,12 @@ func fire_event(id: String) -> void:
 		_apply_effect(id, events.effect_of_event(id))
 	paused = true
 	_refresh_event_feed()
+	_event_beat()
 	_open_event_notice(id)
 	_refresh()
 
 func _open_event_notice(id: String) -> void:
-	if event_notice != null:
-		event_notice.queue_free()
+	_dismiss_event_notice()
 	var ev: Dictionary = events.by_id[id]
 	var choices: Array = events.choices_of(id)
 	var args := {"planet": planet_name(events.pending_planet)} if events.pending_planet >= 0 else {}
@@ -1301,6 +1309,22 @@ func _open_event_notice(id: String) -> void:
 	event_notice.confirmed.connect(_on_event_confirmed.bind(id))
 	if id == "EV20":
 		map.hex_ring.show_ring(true)  # T110
+
+## Closes the event notice with a short fade. The game carries on at once: the reference is cleared here.
+func _dismiss_event_notice() -> void:
+	if event_notice != null:
+		event_notice.dismiss()
+		event_notice = null
+
+## Event beat: the top bar flashes warm and nudges, and the planet an event touches rings once.
+func _event_beat() -> void:
+	if top_bar != null:
+		Juice.flash(top_bar, Ui.col("star_warm").lightened(0.4))
+		Juice.nudge(top_bar)
+	if events.pending_planet >= 0:
+		var sp = Juice.planet_screen(map, events.pending_planet)
+		if sp != null:
+			Juice.ping(self, sp, Ui.col("signal_bad"))
 
 ## Credits a choice costs (debris fee, shield, asteroid deflection), 0 when free.
 func _choice_fee(kind: String) -> int:
@@ -1326,14 +1350,12 @@ func _debris_popup(ch, override: Dictionary = {}) -> void:
 		args = override["args"]
 	events.pending_id = ""
 	events.pending_planet = -1
-	if event_notice != null:
-		event_notice.queue_free()
+	_dismiss_event_notice()
 	event_notice = load("res://game/event_notice.gd").new()
 	add_child(event_notice)
 	event_notice.show_event(StoryText.get_text(title_id, args), StoryText.get_text(body_id, args), "", [], StoryText.get_text("BTN_OK"))
 	event_notice.confirmed.connect(func(_c: int):
-		event_notice.queue_free()
-		event_notice = null
+		_dismiss_event_notice()
 		_refresh()
 		save_now())
 	save_now()
@@ -1348,9 +1370,7 @@ func _on_event_confirmed(choice: int, id: String) -> void:
 			_debris_popup(choices[choice], over)
 			return
 	events.pending_id = ""
-	if event_notice != null:
-		event_notice.queue_free()
-		event_notice = null
+	_dismiss_event_notice()
 	_refresh()
 	save_now()
 

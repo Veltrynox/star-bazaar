@@ -3,11 +3,13 @@ extends PanelContainer
 
 const StoryText := preload("res://game/story_text.gd")
 const Ships := preload("res://game/ships.gd")
+const Juice := preload("res://game/juice.gd")
 
 signal buy_requested(kind: String)
 var buy_buttons: Dictionary = {}  # kind -> Button
 var label: Label
 var upkeep_label: Label
+var _last_count := -1  # -1 until the first count, so a loaded save does not flash
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_PASS  # T58: buy buttons live here
@@ -59,3 +61,6 @@ func set_upkeep(main: Control) -> void:
 
 func set_count(ships: int, cap: int) -> void:
 	label.text = "Ships: %d / %d" % [ships, cap]
+	if _last_count >= 0 and ships > _last_count:  # a purchase or a new lane: the count flashes warm
+		Juice.flash(label, Ui.col("star_warm"))
+	_last_count = ships
