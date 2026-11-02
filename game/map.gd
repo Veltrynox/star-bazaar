@@ -204,20 +204,17 @@ func _add_orbit_rings(center: Vector3, sys: int = 1) -> void:
 	orbit_centers[sys] = center
 	_add_orbit_dust(mi, center, sys)
 
-## Faint dust on each orbit that exists: DUST_LAYERS merged flat annulus meshes per system (one draw call each),
-## on different widths and radial offsets, with the asteroid ring PNGs mapped by radius in
-## art/planet_fx/orbit_dust.gdshader. Layers 0 and 1 use the system's texture (odd systems asteroid1, even asteroid2),
-## the thin layers the other one. Static (no rotation). Children of the ring node, so they show and hide with it.
-## Flat (y = 0 for every layer) and no clearance mask: the bands pass through the planet centres, and the part inside a sphere is hidden by the
-## sphere's own depth (the body writes depth and draws first), so no band shows over a planet.
-## Opacity: ALPHA = texture alpha x layer alpha (0.5): the brightest grains of every layer reach 50%.
+## Thin dust rings of each system: DUST_LAYERS merged flat annulus meshes per system (one draw call each, 2 per system),
+## with the asteroid ring PNGs mapped by radius in art/planet_fx/orbit_dust.gdshader. Layer 0 uses the system's texture
+## (odd systems asteroid1, even asteroid2), the thin layer the other one. Static (no rotation). Children of the ring node.
+## No band crosses a planet: the planets' spheres (planet_radius()) cover every radius from the innermost orbit - 1 radius to the
+## outermost orbit + 1 radius (the gaps between orbits are under one diameter), so each ring sits outside the outermost orbit:
+## its centre is "off" planet radii beyond it, and off - w/2 stays above 1.0 so the inner edge clears the outermost sphere.
+## Flat (y = 0), no clearance mask. Opacity: ALPHA = texture alpha x layer alpha (0.5): the brightest grains reach 50%.
 const DUST_SPEED := 0.0       # static ring: no rotation (uniform kept at 0)
-const DUST_WIDTH := 1.875     # width of layer 0 in planet radii (the wide faint layer; the size test reads it)
-const DUST_LAYERS := [        # y and off and width in planet radii (off = radial centre shift from the orbit); tint = lerp sun colour to white
-	{"name": "OrbitDust",  "y": 0.0,  "off": 0.0,   "w": 1.875, "a": 0.5, "tint": 0.30, "alt": false, "win": Vector2(0.0, 1.0), "ang": 0.0},  # wide faint
-	{"name": "OrbitDust2", "y": 0.0,  "off": 0.0,   "w": 0.70,  "a": 0.5, "tint": 0.10, "alt": false, "win": Vector2(0.2, 0.8), "ang": 2.1},  # narrow bright
-	{"name": "OrbitDust3", "y": 0.0,  "off": 0.85,  "w": 0.25,  "a": 0.5, "tint": 0.55, "alt": true,  "win": Vector2(0.4, 0.7), "ang": 4.0},  # thin outer
-	{"name": "OrbitDust4", "y": 0.0,  "off": -0.80, "w": 0.30,  "a": 0.5, "tint": 0.75, "alt": true,  "win": Vector2(0.1, 0.4), "ang": 1.0},  # thin inner
+const DUST_LAYERS := [        # y and off and w in planet radii (off = band centre beyond the outermost orbit); tint = lerp sun colour to white
+	{"name": "OrbitDust",  "y": 0.0, "off": 1.60, "w": 0.35,  "a": 0.5, "tint": 0.10, "alt": false, "win": Vector2(0.2, 0.8), "ang": 2.1},  # narrow bright (was 0.70)
+	{"name": "OrbitDust2", "y": 0.0, "off": 2.20, "w": 0.125, "a": 0.5, "tint": 0.55, "alt": true,  "win": Vector2(0.4, 0.7), "ang": 4.0},  # thin outer (was 0.25)
 ]
 func _add_orbit_dust(parent: Node3D, center: Vector3, sys: int) -> void:
 	for L in DUST_LAYERS:
@@ -229,17 +226,15 @@ func _add_dust_layer(parent: Node3D, center: Vector3, sys: int, L: Dictionary) -
 	var y: float = float(L["y"]) * rad
 	var segs := 192
 	var rseg := 1  # radial steps: only the two edges (no clearance mask)
-	var members: Array[Vector3] = []  # every planet of this system (one annulus each, all merged into one mesh)
+	var r_max := 0.0  # orbit radius of the outermost planet of this system
 	for pi in positions.size():
 		if int(planets[pi].get("system", 1)) == sys:
-			members.append(positions[pi])
+			r_max = maxf(r_max, Vector2(positions[pi].x - center.x, positions[pi].z - center.z).length())
 	var verts := PackedVector3Array()
 	var uvs := PackedVector2Array()
 	var idx := PackedInt32Array()
-	for p in members:
-		var r := Vector2(p.x - center.x, p.z - center.z).length() + float(L["off"]) * rad
-		if r < 0.01:
-			continue
+	if r_max >= 0.01:  # one annulus per system, outside every planet sphere
+		var r := r_max + float(L["off"]) * rad
 		var r0 := maxf(r - width * 0.5, 0.01)
 		var r1 := maxf(r + width * 0.5, r0 + 0.001)
 		var base := verts.size()
@@ -568,7 +563,7 @@ func apply_tunables() -> void:
 	for h in [hint, pending_hint]:  # halos resize in place (same position)
 		if h != null:
 			h.setup(planet_radius())
-	for id in orbit_rings:  # the dust band is as wide as a planet radius: rebuild it at the new size
+	for id in orbit_rings:  # the dust rings are sized in planet radii: rebuild it at the new size
 		var ring: Node3D = orbit_rings[id]
 		for L in DUST_LAYERS:  # every dust layer
 			var old := ring.get_node_or_null(String(L["name"]))
