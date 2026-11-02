@@ -5,8 +5,8 @@ render_mode unshaded, cull_back, depth_draw_opaque;
 // palette (deep, mid, pale). The key light (sun side) and the rim light (side opposite the sun) are separate terms,
 // and the Fresnel edge is on every planet.
 // Looks (variant): 0 standard, 1 fresnel_only, 2 city (0% of planets, uses fine_tex), 3 pale (lighter palette).
-// Beauty path (use_beauty): the texture is a colour map, used as albedo with no palette tint. The displacement map gives
-// subtle relief on the key light (height gradient bends the normal). Optional glow mask (emission on both sides, soft pulse)
+// Beauty path (use_beauty): the texture is a colour map, used as albedo with no palette tint. The displacement map moves the
+// vertices (silhouette), bends the normal (bump) and shifts the terminator (high ground keeps the sun longer). Optional glow mask (emission on both sides, soft pulse)
 // and lights mask (dark side only, small warm twinkle). Emission stays under about 2.0 (bloom-safe).
 // Unshaded, so the final colour is written to ALBEDO directly.
 
@@ -19,8 +19,10 @@ uniform sampler2D lights_tex : filter_linear_mipmap, repeat_enable;   // white c
 uniform bool use_disp = false;
 uniform bool use_glow_mask = false;
 uniform bool use_lights_mask = false;
-uniform float relief = 14.0;                      // relief strength: how far the height gradient bends the key-light normal
-uniform float relief_shade = 0.6;                 // cavity shading: low ground is darkened by this much (0 = off)
+uniform float relief = 36.0;                      // relief strength: how far the height gradient bends the key-light normal
+uniform float disp_amount = 0.05;                // vertex displacement along the normal, in planet radii (total range, centred on 0)
+uniform float term_shift = 0.45;                  // height moves the terminator: high ground keeps the sun longer (0 = off)
+uniform float relief_shade = 0.75;                 // cavity shading: low ground is darkened by this much (0 = off)
 uniform vec4 glow_col : source_color = vec4(0.60, 0.75, 1.00, 1.0);
 uniform float glow_mask_strength = 1.1;
 uniform float lights_strength = 1.5;
@@ -49,7 +51,15 @@ uniform float grain_amount = 0.10;                // 10 percent grain over the f
 varying vec3 obj_n;
 
 void vertex() {
-	obj_n = normalize(VERTEX);
+	vec3 n0 = normalize(VERTEX);
+	obj_n = n0;  // the fragment stage works from the true sphere normal
+	if (use_disp) {
+		// Vertex displacement: the height map (centred on mid grey) pushes the vertex along the normal, so the
+		// silhouette and the terminator edge get bumps. Lod 1 keeps it smooth on the 128 x 64 mesh.
+		vec2 uv = vec2(atan(n0.x, n0.z) / TAU + 0.5, acos(clamp(n0.y, -1.0, 1.0)) / PI);
+		float h = textureLod(disp_tex, uv, 1.0).r;
+		VERTEX = n0 * (1.0 + (h - 0.5) * disp_amount);
+	}
 }
 
 void fragment() {
@@ -67,6 +77,7 @@ void fragment() {
 	// darkens the low ground. Two offset samples give the gradient in the east and north directions.
 	vec3 nb = n;
 	float cavity = 1.0;
+	float hshift = 0.0;  // height-driven terminator shift
 	if (use_disp) {
 		const float EPS = 0.0025;
 		float h0 = textureGrad(disp_tex, uv, dx, dy).r;
@@ -75,6 +86,7 @@ void fragment() {
 		vec3 east = normalize(cross(vec3(0.0, 1.0, 0.0), n) + vec3(1e-4, 0.0, 0.0));
 		vec3 south = cross(n, east);  // v grows towards the south pole
 		nb = normalize(n - relief * (hu * east + hv * south));
+		hshift = (h0 - 0.5) * term_shift;
 		cavity = 1.0 - relief_shade * (1.0 - smoothstep(0.1, 0.8, h0));
 	}
 
@@ -95,7 +107,7 @@ void fragment() {
 		}
 
 		// Key light: sun side only, with a crisp shadow contour on the terminator.
-		float nk = dot(nb, normalize(key_dir));
+		float nk = dot(nb, normalize(key_dir)) + hshift;
 		float lit = smoothstep(-shadow_soft, shadow_soft, nk);
 		vec3 key = key_color.rgb * key_strength * (1.0 + 0.6 * sun_flare) * pow(max(nk, 0.0), 0.6) * lit;
 		float amb = ambient * (1.0 - shadow_darkness);

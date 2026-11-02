@@ -19,14 +19,14 @@ radial_segments = 64
 rings = 32
 
 [sub_resource type="SphereMesh" id="s"]
-radius = 1.01
-height = 2.02
+radius = 1.03
+height = 2.06
 radial_segments = 128
 rings = 64
 
 [sub_resource type="SphereMesh" id="a"]
-radius = 1.035
-height = 2.07
+radius = 1.045
+height = 2.09
 radial_segments = 96
 rings = 48
 

@@ -120,12 +120,22 @@ const KEY_ONLY_SHARE := 0.30
 		_apply()
 @export_group("Displacement")
 ## How strongly the height map bends the light on the surface (shader: relief).
-@export_range(0.0, 40.0) var relief: float = 14.0:
+@export_range(0.0, 80.0) var relief: float = 36.0:
 	set(v):
 		relief = v
 		_apply()
+## Vertex displacement in planet radii, total range (shader: disp_amount). 0.05 = plus/minus 2.5 percent of the radius.
+@export_range(0.0, 0.2) var disp_amount: float = 0.05:
+	set(v):
+		disp_amount = v
+		_apply()
+## How far height moves the terminator (shader: term_shift).
+@export_range(0.0, 1.0) var term_shift: float = 0.45:
+	set(v):
+		term_shift = v
+		_apply()
 ## Darkening of low ground (shader: relief_shade).
-@export_range(0.0, 1.0) var relief_shade: float = 0.6:
+@export_range(0.0, 1.0) var relief_shade: float = 0.75:
 	set(v):
 		relief_shade = v
 		_apply()
@@ -244,6 +254,8 @@ func _apply() -> void:
 		m.set_shader_parameter("key_dir", key_dir)
 		m.set_shader_parameter("relief", relief)
 		m.set_shader_parameter("relief_shade", relief_shade)
+		m.set_shader_parameter("disp_amount", disp_amount)
+		m.set_shader_parameter("term_shift", term_shift)
 		m.set_shader_parameter("shadow_darkness", shadow_darkness)
 		m.set_shader_parameter("city_col", city_color)
 		m.set_shader_parameter("grain_amount", grain_amount)
