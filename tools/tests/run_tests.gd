@@ -1744,15 +1744,25 @@ func _test_system_suns() -> void:
 	check(map.suns.size() == 1 and map.suns.has(1) and map.suns[1].visible, "suns: system 1 has its sun at the start")
 	var s1 = map.suns[1]
 	check(absf(s1.hue_shift()) < 0.0001 and absf(s1.sun_color.h - 0.09) < 0.01 and s1.drives_light and s1 == map.sun_node, "suns: system 1 sun unchanged (orange, no hue shift)")
+	# Top pole (+Y) in the shadow: dot(top, sun) < -0.5. Bottom pole (-Y) faces the sun, so it must be hidden from the map camera:
+	# dot(bottom, camera) < 0 over the whole yaw/pitch range. Where the sun is on the camera side this is geometrically impossible
+	# (planet_3, s2_p3), so the bottom pole may only graze the limb there: dot(bottom, camera) < 0.25 (pole at least 75 deg off the view axis).
 	var pole_ok: bool = map.planet_spheres.size() > 0
 	var pole_info: String = ""
 	for i in map.planet_spheres.size():
 		var sp = map.planet_spheres[i]
 		var sun_w: Vector3 = (map.sun_positions.get(int(map.planets[i].get("system", 1)), map.focus_sun_pos) - map.positions[i]).normalized()
-		var pole_w: Vector3 = sp.global_transform.basis.y.normalized()
-		pole_ok = pole_ok and pole_w.dot(sun_w) < -0.8 and sp.key_dir.y < -0.8 and absf(sp.scale.x - map.planet_radius()) < 0.0001
-		pole_info += " %s:%.2f" % [map.planets[i]["id"], pole_w.dot(sun_w)]
-	check(pole_ok, "planet pole: the sphere's pole axis points away from the sun (in shadow); scale unchanged", pole_info)
+		var top_w: Vector3 = sp.global_transform.basis.y.normalized()
+		var worst := -2.0  # largest dot(bottom, camera) over the camera range (dense grid)
+		for yi in 19:
+			for pi_ in 13:
+				var yw := deg_to_rad(lerpf(map.yaw_min_deg, map.yaw_max_deg, yi / 18.0))
+				var pt := deg_to_rad(lerpf(map.pitch_min_deg, map.pitch_max_deg, pi_ / 12.0))
+				var cam := Vector3(sin(yw) * cos(pt), sin(pt), cos(yw) * cos(pt))
+				worst = maxf(worst, (-top_w).dot(cam))
+		pole_ok = pole_ok and top_w.dot(sun_w) < -0.5 and absf(sp.key_dir.y - top_w.dot(sun_w)) < 0.001 and worst < 0.25 and absf(sp.scale.x - map.planet_radius()) < 0.0001
+		pole_info += " %s:top.sun %.2f bottom.cam<=%.2f" % [map.planets[i]["id"], top_w.dot(sun_w), worst]
+	check(pole_ok, "planet pole: top pole in shadow (dot sun < -0.5), bottom pole hidden from the camera range (or grazing the limb); scale unchanged", pole_info)
 	var pos1: Vector3 = s1.position
 	m.open_systems.append(2)
 	map.add_planets(m.Systems.planets_of(2))
