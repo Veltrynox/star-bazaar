@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "agent": "fx-programmer",
+  "date": "2026-11-01",
+  "task": "Remove planet_glowing_mask.png from cloudy planets",
+  "status": "done",
+  "files_changed": ["art/planet_fx/planet_sphere.gd"],
+  "open_questions": ["The rotating glow on other planets is the Streaks shell (planet_sphere_streaks.gdshader, spins with TIME), not the mask. Should it also go for beauty-texture planets?"],
+  "handoff": "Cloudy no longer has a glow entry in TYPE_TEXTURES. The surface shader declares glow_tex/use_glow_mask but never samples them, so the mask had no visible effect. Glow code path kept for future masks. Streaks shell stays hidden on cloudy as before. Texture file kept. Headless only, look not checked by eye.",
+  "details": {}
+}

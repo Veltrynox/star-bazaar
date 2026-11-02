@@ -13,7 +13,7 @@ const FX := preload("res://art/planet_fx/planet_fx.gd")
 const TP := "res://art/textures/planets/"
 const TYPE_TEXTURES := {
 	"volcanic": {"beauty": TP + "planet_volcanic_beauty.png", "disp": TP + "planet_volcanic_displacement_1.png"},
-	"cloudy": {"beauty": TP + "planet_cloudy_beauty.png", "disp": TP + "planet_cloudy_displacement.png", "glow": TP + "planet_glowing_mask.png"},
+	"cloudy": {"beauty": TP + "planet_cloudy_beauty.png", "disp": TP + "planet_cloudy_displacement.png"},
 	"desert": {"beauty": TP + "planet_desert_beauty.png", "disp": TP + "planet_desert_displacement.png"},
 	"lush": {"beauty": TP + "planet_lush_beauty.png", "disp": TP + "planet_lush_displacement.png"},
 	"agrarian": {"beauty": TP + "planet_agrarian_beauty.png", "disp": TP + "planet_agrarian_displacement.png"},
@@ -282,7 +282,8 @@ func _apply() -> void:
 		am.set_shader_parameter("key_dir", key_dir)
 	var streaks := get_node_or_null("Streaks") as MeshInstance3D
 	if streaks:
-		streaks.visible = look == Variant.STREAKS and not (beauty and tt.has("glow"))
+		# Cloudy kept the streak shell hidden while it had a glow mask; keep it hidden now the mask is gone.
+		streaks.visible = look == Variant.STREAKS and not (beauty and (tt.has("glow") or planet_type == "cloudy"))
 		var sm := streaks.get_surface_override_material(0) as ShaderMaterial
 		if sm:
 			sm.set_shader_parameter("streak_col", p.pale)
