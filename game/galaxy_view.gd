@@ -3,7 +3,7 @@ extends Control
 ## components/GalaxyView). Open systems are soft territory outlines with their sun, faint orbits, planets (12 px),
 ## a commodity icon beside each planet that makes something, and the player's routes with ship dots.
 ## Systems not open yet show as small dim "Uncharted" stars on dashed links. A left panel describes the selected
-## system; a right panel runs the one-time three-step tutorial. Everything is read from main; nothing is invented.
+## system; the one-time three-step tutorial is a floating card beside what each step is about. Everything is read from main; nothing is invented.
 ## There are no galaxy coordinates in the data: systems sit on a fixed layout by id (design-pack sample slots) and
 ## links join consecutive ids.
 
@@ -27,8 +27,10 @@ var main: Control
 var close_button: Button
 var side: PanelContainer
 var side_box: VBoxContainer
-var tut_panel: PanelContainer
+var tut_panel: PanelContainer  # the floating tutorial card (placed beside the step's target)
 var tut_box: VBoxContainer
+var tut_hl: Panel  # pulsing outline over the target
+var tut_arrow: Polygon2D  # pointer from the card to the target
 var title_label: Label
 var hint_label: Label
 var tut_step: int = -1  # -1 none this opening, 0..2 lines, 3 = done note
@@ -73,17 +75,16 @@ func setup(main_node: Control) -> void:
 	side_box.add_theme_constant_override("separation", 10)
 	Ui.scroll_wrap(side, side_box, 76.0 + 40.0)
 	add_child(side)
-	# right: tutorial (only while it runs)
+	# tutorial: a floating card, outline and pointer, placed in _tut_place (only while it runs)
 	tut_panel = PanelContainer.new()
-	tut_panel.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
-	tut_panel.offset_left = -(SIDE_W + 20.0)
-	tut_panel.offset_right = -20.0
-	tut_panel.offset_top = 76.0
+	tut_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE  # the buttons inside still take clicks
+	tut_panel.custom_minimum_size = Vector2(main.TUT_CARD_W, 0)
 	tut_box = VBoxContainer.new()
 	tut_box.add_theme_constant_override("separation", 8)
 	tut_panel.add_child(tut_box)
 	tut_panel.visible = false
-	add_child(tut_panel)
+	tut_hl = main.tut_make_hl()
+	tut_arrow = main.tut_make_arrow()
 	# Back, top left: returns to the screen that opened the galaxy view
 	close_button = Button.new()
 	close_button.text = StoryText.get_or("BTN_BACK", "Back")
@@ -94,6 +95,9 @@ func setup(main_node: Control) -> void:
 	close_button.pressed.connect(close_view)
 	add_child(close_button)
 	_build_legend()
+	add_child(tut_hl)  # last: above the panels and the legend
+	add_child(tut_panel)
+	add_child(tut_arrow)
 
 func _build_legend() -> void:
 	var legend := HBoxContainer.new()
@@ -173,6 +177,8 @@ func _process(delta: float) -> void:
 		return
 	if not main.paused:
 		_clock += delta
+	if tut_panel.visible:
+		_tut_place()
 	queue_redraw()
 
 func _sys_ids() -> Array:
@@ -752,51 +758,107 @@ func _build_open_side(sid: int) -> void:
 	b.pressed.connect(func(): system_chosen.emit(sid))
 	side_box.add_child(b)
 
-# ---------------------------------------------------------------- right panel (tutorial, shown once)
+# ---------------------------------------------------------------- tutorial card (shown once, beside its target)
+
+func _tut_system_k() -> int:
+	var ids := _sys_ids()
+	for k in ids.size():
+		if main.open_systems.has(ids[k]):
+			return k
+	return -1
+
+## Screen rect the current step is about: INTRO the first open system, ICONS its resource icons, ROUTES a route line
+## (the system again when there is none).
+func _tut_target() -> Rect2:
+	var k := _tut_system_k()
+	if k < 0:
+		return Rect2()
+	var c := _sys_center(k)
+	var R := _sys_radius() * 0.85
+	var sys_rect := Rect2(c - Vector2(R, R * 0.8), Vector2(R, R * 0.8) * 2.0)
+	var sid: int = _sys_ids()[k]
+	var layout := _planet_layout()
+	if tut_step == 1:
+		var box := Rect2()
+		var have := false
+		for i in _system_data(sid)["planets"]:
+			if not layout.has(i) or str(main.map.planets[i].get("abundant", "")) == "":
+				continue
+			var r := Rect2((layout[i]["pos"] as Vector2) + Vector2(5, -19), Vector2(13, 13))
+			box = r if not have else box.merge(r)
+			have = true
+		if have:
+			return box.grow(6.0)
+	elif tut_step == 2:
+		var s := _scale()
+		for sid2 in _sys_ids():
+			if not main.open_systems.has(sid2):
+				continue
+			var lanes: Array = _system_data(sid2)["lanes"]
+			for n in lanes.size():
+				var ln: Dictionary = lanes[n]
+				if not layout.has(ln["a"]) or not layout.has(ln["b"]):
+					continue
+				if int(main.map.planets[ln["a"]].get("system", 1)) != sid2:
+					continue
+				var cv := _lane_curve(ln, layout, n, s)
+				var lo: Vector2 = cv[0]
+				var hi: Vector2 = cv[0]
+				for u in 17:
+					var p := _bez(cv[0], cv[1], cv[2], float(u) / 16.0)
+					lo = Vector2(minf(lo.x, p.x), minf(lo.y, p.y))
+					hi = Vector2(maxf(hi.x, p.x), maxf(hi.y, p.y))
+				return Rect2(lo, hi - lo).grow(10.0)
+	return sys_rect
+
+## Called every frame while the card shows, so it follows a resized window: card beside the target, outline, pointer.
+func _tut_place() -> void:
+	var a := _tut_target()
+	tut_hl.visible = a.size != Vector2.ZERO
+	tut_arrow.visible = false
+	tut_panel.size = Vector2(main.TUT_CARD_W, 0.0)  # height shrinks to what the text needs
+	if a.size == Vector2.ZERO:
+		tut_panel.position = Vector2((size.x - tut_panel.size.x) * 0.5, 84.0)
+		return
+	var k := 0.5 + 0.5 * sin(_clock * 4.0)
+	tut_hl.position = a.position
+	tut_hl.size = a.size
+	tut_hl.modulate.a = lerpf(0.55, 1.0, k)
+	var avoid: Array = [a]
+	if side.visible:
+		avoid.append(Rect2(side.position, side.size).grow(4.0))
+	avoid.append(Rect2(close_button.position, close_button.size).grow(4.0))
+	main.tut_place_beside(tut_panel, tut_arrow, a, avoid, a.get_center(), ["right", "left", "below", "above"])
 
 func _build_tutorial() -> void:
 	for c in tut_box.get_children():
 		tut_box.remove_child(c)
 		c.queue_free()
-	tut_panel.visible = tut_step >= 0
-	if tut_step < 0:
+	tut_panel.visible = tut_step >= 0 and tut_step < TUT_IDS.size()  # the finished state shows nothing
+	if not tut_panel.visible:
+		tut_hl.visible = false
+		tut_arrow.visible = false
 		return
 	var head := HBoxContainer.new()
-	var cap := _caption(StoryText.get_or("LBL_GALAXY_VIEW", "Galaxy view"))
+	var cap := _caption(StoryText.get_or("TUT_HEADER", "Tutorial"))
 	cap.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	head.add_child(cap)
-	for i in TUT_IDS.size():
-		var bar := ColorRect.new()
-		bar.custom_minimum_size = Vector2(18, 3)
-		bar.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-		bar.color = Ui.col("star_warm") if i <= tut_step else Ui.col("panel_300")
-		head.add_child(bar)
-		if i < TUT_IDS.size() - 1:
-			var gap := Control.new()
-			gap.custom_minimum_size = Vector2(4, 0)
-			head.add_child(gap)
+	var cnt := Label.new()
+	cnt.theme_type_variation = "LabelNumberMuted"
+	cnt.text = StoryText.get_or("TUT_STEP_COUNT", "{n} of {total}", {"n": tut_step + 1, "total": TUT_IDS.size()})
+	head.add_child(cnt)
 	tut_box.add_child(head)
-	if tut_step >= TUT_IDS.size():
-		var done := _wrapped(StoryText.get_or("TUT_GALAXY_DONE", "Galaxy view tutorial done."), "LabelGood")
-		tut_box.add_child(done)
-		return
-	for i in TUT_IDS.size():
-		var row := HBoxContainer.new()
-		row.add_theme_constant_override("separation", 8)
-		var n := Label.new()
-		n.text = str(i + 1)
-		n.theme_type_variation = "LabelNumberAccent" if i == tut_step else "LabelNumberMuted"
-		n.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
-		row.add_child(n)
-		var t := Label.new()
-		t.text = StoryText.get_or(TUT_IDS[i], "", {})
-		t.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		t.custom_minimum_size = Vector2(SIDE_W - 64.0, 0)
-		t.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		if i != tut_step:
-			t.theme_type_variation = "LabelMuted"
-		row.add_child(t)
-		tut_box.add_child(row)
+	var t := Label.new()
+	t.text = StoryText.get_or(TUT_IDS[tut_step], "", {})
+	t.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	tut_box.add_child(t)
+	var why := StoryText.get_or(TUT_IDS[tut_step] + "_WHY", "", {})
+	if why != "":
+		var w := Label.new()
+		w.text = why
+		w.theme_type_variation = "LabelMuted"
+		w.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		tut_box.add_child(w)
 	var acts := HBoxContainer.new()
 	acts.alignment = BoxContainer.ALIGNMENT_END
 	acts.add_theme_constant_override("separation", 8)
@@ -818,6 +880,7 @@ func _build_tutorial() -> void:
 		queue_redraw())
 	acts.add_child(nxt)
 	tut_box.add_child(acts)
+	_tut_place()
 
 # ---------------------------------------------------------------- input
 

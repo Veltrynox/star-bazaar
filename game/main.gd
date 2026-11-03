@@ -2821,7 +2821,6 @@ func _tut_place_card(key: String, c: Control) -> void:
 	tut_card.size = Vector2(TUT_CARD_W, 0.0)  # height shrinks to what the text needs
 	var cs := tut_card.size
 	var vp := get_viewport_rect().size
-	var field := Rect2(Vector2(TUT_EDGE, TUT_EDGE), vp - Vector2(TUT_EDGE, TUT_EDGE) * 2.0)
 	var a := _tut_anchor_rect(key, c)
 	if a.size == Vector2.ZERO:  # nothing to point at: a fixed spot under the top bar, middle of the window
 		tut_card.position = Vector2((vp.x - cs.x) * 0.5, 84.0)
@@ -2833,9 +2832,18 @@ func _tut_place_card(key: String, c: Control) -> void:
 	var sc := right_col.get_parent() as Control if right_col != null else null
 	if sc != null and not sc.get_global_rect().intersects(a):
 		avoid.append(sc.get_global_rect().grow(4.0))
-	var ty: float = (c.get_global_rect().get_center().y if c != null else a.get_center().y)
-	var tx: float = (c.get_global_rect().get_center().x if c != null else a.get_center().x)
+	var tpt: Vector2 = c.get_global_rect().get_center() if c != null else a.get_center()
 	var order: Array = ["below", "right", "left", "above"] if a.position.y < 90.0 and a.size.y < 120.0 else ["right", "left", "below", "above"]
+	tut_place_beside(tut_card, tut_arrow, a, avoid, tpt, order)
+
+## Shared by the board card and the galaxy view card: puts `card` beside the rect `a` on the first side in `order` with
+## room (inside the window, clear of every rect in `avoid`), and points `arrow` from the gap at `tpt`. Both use window coordinates.
+func tut_place_beside(card: Control, arrow: Polygon2D, a: Rect2, avoid: Array, tpt: Vector2, order: Array) -> void:
+	var cs := card.size
+	var vp := get_viewport_rect().size
+	var field := Rect2(Vector2(TUT_EDGE, TUT_EDGE), vp - Vector2(TUT_EDGE, TUT_EDGE) * 2.0)
+	var tx := tpt.x
+	var ty := tpt.y
 	var best := Vector2.ZERO
 	var best_side := ""
 	for side in order:
@@ -2858,7 +2866,7 @@ func _tut_place_card(key: String, c: Control) -> void:
 			best_side = side
 		if clear:
 			break
-	tut_card.position = best
+	card.position = best
 	# pointer: a small triangle in the gap, tip toward the target
 	var tip := Vector2.ZERO
 	var rot := 0.0
@@ -2871,9 +2879,30 @@ func _tut_place_card(key: String, c: Control) -> void:
 			tip = Vector2(clampf(tx, best.x + 14.0, best.x + cs.x - 14.0), a.end.y + 2.0); rot = -PI * 0.5
 		"above":
 			tip = Vector2(clampf(tx, best.x + 14.0, best.x + cs.x - 14.0), a.position.y - 2.0); rot = PI * 0.5
-	tut_arrow.visible = true
-	tut_arrow.position = tip
-	tut_arrow.rotation = rot
+	arrow.visible = true
+	arrow.position = tip
+	arrow.rotation = rot
+
+## The pulsing outline panel and the pointer triangle, built once per owner (board and galaxy view look the same).
+func tut_make_hl() -> Panel:
+	var hl := Panel.new()
+	hl.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	hl.z_index = 50
+	hl.visible = false
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color(0, 0, 0, 0)
+	sb.border_color = Ui.col("star_warm")
+	sb.set_border_width_all(2)
+	sb.set_corner_radius_all(4)
+	hl.add_theme_stylebox_override("panel", sb)
+	return hl
+
+func tut_make_arrow() -> Polygon2D:
+	var ar := Polygon2D.new()  # triangle with its tip at the origin, pointing along +x before rotation
+	ar.polygon = PackedVector2Array([Vector2(0, 0), Vector2(-14, -9), Vector2(-14, 9)])
+	ar.color = Ui.col("star_warm")
+	ar.visible = false
+	return ar
 
 ## T124: moves the guided tutorial on when the player has done the current step. Called on every change.
 func _tut_advance() -> void:
@@ -3023,21 +3052,9 @@ func _build_board() -> void:
 	tut_actions.add_child(tut_next)
 	cbox.add_child(tut_actions)
 	# pulsing outline drawn over the control the step is about
-	tut_hl = Panel.new()
-	tut_hl.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	tut_hl.z_index = 50
-	tut_hl.visible = false
-	var sb := StyleBoxFlat.new()
-	sb.bg_color = Color(0, 0, 0, 0)
-	sb.border_color = Ui.col("star_warm")
-	sb.set_border_width_all(2)
-	sb.set_corner_radius_all(4)
-	tut_hl.add_theme_stylebox_override("panel", sb)
+	tut_hl = tut_make_hl()
 	add_child(tut_hl)
-	tut_arrow = Polygon2D.new()  # triangle with its tip at the origin, pointing along +x before rotation
-	tut_arrow.polygon = PackedVector2Array([Vector2(0, 0), Vector2(-14, -9), Vector2(-14, 9)])
-	tut_arrow.color = Ui.col("star_warm")
-	tut_arrow.visible = false
+	tut_arrow = tut_make_arrow()
 	add_child(tut_arrow)
 	notice_label = Label.new()
 	notice_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
