@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Star Bazaar paper sim v4 (v3 + shared order pools per planet+commodity, many ships per route, system 2). Run from repo root: python3 tools/sim.py [--mc N] [--seed S]
+"""NOTE 2026-11-03: this sim NO LONGER MODELS SKILLS. The four market trees (data/skills.json) are not read and no skill effect changes any number here; "C1" and "B1" below are only free unlock flags (permit to system 2, ore clusters). Mentions of A/B/C skills in this docstring are history. It is a cash-curve tool only.
+Star Bazaar paper sim v4 (v3 + shared order pools per planet+commodity, many ships per route, system 2). Run from repo root: python3 tools/sim.py [--mc N] [--seed S]
 Reads data/balance.json, data/planets.json, data/events.json (tags only). No game code is read.
 Model (per cycle, one ship = one src->dst commodity c leg, steady state; any number of ships per route):
   v4: buy order at (src,c) and sell order at (dst,c) are SHARED POOLS of order_amount*(1+B2) units/cycle across all ships;
@@ -71,15 +72,10 @@ RC1, RC2 = [r for r in _R1 if isc(r)], [r for r in _R2 if isc(r)]
 STOPS = [(r, k) for r in R1 for k in range(3) if on_path(r[0], k, r[1]) and PL[k]["base_prices"].get(r[2] + "_sell")]  # N9 stop options, system 1
 ALL = R1
 def pair(r): return frozenset((r[0], r[1]))
-TREE = {"A1": None, "A2": "A1", "A4": "A2", "A5": "A4", "B1": None, "B2": "B1", "B3": "B2", "B4": "B3",
-        "C1": None, "C2": "C1", "C3": "C2", "C4": "C2"}
-def cost(s): return V["skill_cost_" + s]
-BUILDS = {
- "none": [], "logistics": ["A1", "A2", "A4", "A5"], "research": ["B1", "B2", "B3", "B4"],
- "expansion": ["C1", "C2", "C3", "C4"], "econ_mix": ["B1", "B2", "A1", "A2", "B3", "A4", "A5", "B4"],
- "log_first": ["A1", "A2", "A4", "B1", "B2", "A5", "B3", "B4"],
- "perm_only": ["C1"], "mining": ["B1"], "perm_research": ["C1", "B1", "B2", "B3", "B4"],
- "full": list(TREE)}
+# Unlock flags only (no skills): C1 = permit to system 2, B1 = ore clusters. Free, no points.
+TREE = {"C1": None, "B1": None}
+def cost(s): return 0
+BUILDS = {"none": [], "perm_only": ["C1"], "mining": ["B1"], "full": list(TREE)}
 def margin(r, sk, ev, lv):
     s, d, c = r; buy = PL[s]["base_prices"][c + "_buy"]; sell = PL[d]["base_prices"][c + "_sell"]
     for (k, p, cc), _ in ev:
@@ -87,23 +83,23 @@ def margin(r, sk, ev, lv):
             f = 1 + V.get("event_pct_" + c, V["event_price_pct"]) * (1 if k == "price up" else -1)
             if p == s: buy *= f
             if p == d: sell *= f
-    return (sell - buy) * (1 + V["skill_B3_margin"] * ("B3" in sk)) * (1 + V["upgrade_margin_bonus"] * lv)
+    return (sell - buy) * (1 + V["upgrade_margin_bonus"] * lv)
 def ship_stats(x, sk):
     h = x["h"]
-    ru = V["cargo"] / (2 * V["travel_cycles_per_leg"]) * (1 + V["skill_A4_route_units"] * ("A4" in sk))
-    up = (V["trip_cost"] + V["maintenance"] / V["maintenance_interval"]) * (1 - V["skill_A5_upkeep"] * ("A5" in sk))
+    ru = V["cargo"] / (2 * V["travel_cycles_per_leg"])
+    up = (V["trip_cost"] + V["maintenance"] / V["maintenance_interval"])
     if x.get("stop") is not None: ru /= 2; up += V["trip_cost"]  # N9: one more leg (half the units) and one more trip cost
     return ru, up
 def blocked(r, ev, sk):
     for (k, p, c), left in ev:
         if k == "closed" and p in (r[0], r[1]):
-            cov = ("A1" in sk) + ("A2" in sk) + ("B4" in sk)
+            cov = 0
             if left > cov: return True
     return False
 def income(ships, sk, evp=(), ev=(), detail=False, split=0, bun=False, consume=False):
     """steady-state net per cycle of all ships (age>=1, not blocked) with shared order pools.
     split (N2): 0 = off; else a source with two lanes gives the higher-margin lane `split` of its buy pool, the other lane 1 - split."""
-    A = V["order_amount"] * (1 + V["skill_B2_order_units"] * ("B2" in sk))
+    A = V["order_amount"]
     pool = {}
     items = []
     for x in ships:
@@ -255,7 +251,7 @@ for _e in EVS:
         MEV.append(("closed", MN.index(_m.group(1)), None) if _m and _m.group(1) in MN[:3] else
                    ("fee", -1, "debris_clear_fee") if "route efficiency" in _t else ("fee", -1, "shield_build_cost") if "shield" in _t else
                    ("fee", -1, "asteroid_deflect_cost") if "asteroid" in _t else ("noop", -1, None))
-MTREE = {"A1": [], "A2": ["A1"], "A4": ["A2"], "A5": ["A4"], "B1": [], "B2": ["B1"], "B3": ["B2"], "B4": ["B3"], "C1": [], "C2": ["C1"], "C3": ["C2", "A1"], "C4": ["C2"]}
+MTREE = {"C1": [], "B1": []}  # unlock flags only, no skills
 MORDER = list(MTREE)
 CLUS = [(1, i) for i in range(int(V["mining_clusters_s1"]))] + [(2, i) for i in range(int(V["mining_clusters_s2"]))]
 def mirror(strat="decent", rng=None, trace=False, permit=None, noevents=False, sched=None):
@@ -267,7 +263,7 @@ def mirror(strat="decent", rng=None, trace=False, permit=None, noevents=False, s
     clusters = {}   # (sys,i) -> left
     for k in CLUS: clusters[k] = V["mining_cluster_richness"]
     budget = {}; permit_c = None
-    order_pref = ["C1"] if not AE else ["C1", "C3", "A1", "A2"]
+    order_pref = ["C1"]
     if MF: order_pref = ["B1"]
     def award_planet(p):
         nonlocal pts
@@ -293,11 +289,11 @@ def mirror(strat="decent", rng=None, trace=False, permit=None, noevents=False, s
         return max(0, int(round(v * f))) if ev else int(v)
     def sold(p, c):
         v = price(p, c + "_sell")
-        return int(round(v * (1 + V["skill_B3_margin"]))) if v > 0 and "B3" in skills else v
-    def upc(): return math.floor(V["cargo"] / (2.0 * V["travel_cycles_per_leg"]) * (1 + V["skill_A4_route_units"] * ("A4" in skills)))
-    def lamt(): return math.floor(V["order_amount"] * (1 + V["skill_B2_order_units"] * ("B2" in skills)))
-    def fixed(): return math.floor(V["trip_cost"] / V["travel_cycles_per_leg"]) + math.floor(V["maintenance"] * (1 - V["skill_A5_upkeep"] * ("A5" in skills)) / V["maintenance_interval"])
-    def cap(): return int(round(100 * (1 + V["skill_A2_capacity"] * ("A2" in skills))))
+        return v
+    def upc(): return math.floor(V["cargo"] / (2.0 * V["travel_cycles_per_leg"]))
+    def lamt(): return math.floor(V["order_amount"])
+    def fixed(): return math.floor(V["trip_cost"] / V["travel_cycles_per_leg"]) + math.floor(V["maintenance"] / V["maintenance_interval"])
+    def cap(): return 100
     def amt(p, c): return stock.get((p, c), 0)
     def add(p, c, n):
         n = max(0, min(n, cap() - amt(p, c))); stock[(p, c)] = amt(p, c) + n; return n
@@ -311,7 +307,7 @@ def mirror(strat="decent", rng=None, trace=False, permit=None, noevents=False, s
                     if a == b or not popen(a) or not popen(b): continue
                     bp = price(a, c + "_buy"); sp = price(b, c + "_sell")
                     if bp <= 0 or sp < 0: continue
-                    if MP[a]["system"] != MP[b]["system"] and "C3" not in skills: continue
+                    if MP[a]["system"] != MP[b]["system"] and "C1" not in skills: continue
                     pr = (sp - bp) * u - fx
                     if pr * 10 >= V["ship_price"]: out.append({"a": a, "b": b, "c": c, "profit": pr})
         out.sort(key=lambda x: -x["profit"]); return out
@@ -322,7 +318,7 @@ def mirror(strat="decent", rng=None, trace=False, permit=None, noevents=False, s
             best = None
             for b in range(nplanets()):
                 if not popen(b): continue
-                if MP[b]["system"] != k[0] and "C3" not in skills: continue
+                if MP[b]["system"] != k[0] and "C1" not in skills: continue
                 sp = price(b, "ore_sell")
                 if sp <= 0: continue
                 pr = sp * u - fx
@@ -401,12 +397,11 @@ def mirror(strat="decent", rng=None, trace=False, permit=None, noevents=False, s
                 for s in ids:
                     if s in skills or (s == "B1" and skipB1) or (s == "B1" and False): continue
                     if any(q not in skills for q in MTREE[s]): continue
-                    if s not in ("A1", "C1") and not ("A1" in skills and "C1" in skills): continue   # owner 2026-11-02: first row gates the rest
-                    res = (V["permit_points_2"] - ("C2" in skills) if (permit and "C1" in skills and 2 not in opened) else 0)
+                    res = (V["permit_points_2"] if (permit and "C1" in skills and 2 not in opened) else 0)
                     if pts - cost(s) < 0 or (res and pts - cost(s) < res): continue
                     pts -= cost(s); skills.add(s); again = True; break
         if permit and 2 not in opened and "C1" in skills:
-            pc = math.floor(V["permit_2_cost"] * (1 - V["skill_C4_permit_discount"] * ("C4" in skills))); ppnt = max(1, V["permit_points_2"] - ("C2" in skills))
+            pc = V["permit_2_cost"]; ppnt = max(1, V["permit_points_2"])
             if pts >= ppnt and cash >= pc and cash >= pc + 400: cash -= pc; pts -= ppnt; opened.append(2); permit_c = c
         pl = plan()
         def missing(): return sum(1 for l in pl if find(l["a"], l["b"], l["c"]) is None)
@@ -512,15 +507,14 @@ def main_settle(a):
             st, 100 * len(w) / mc, "%d/%d/%d" % (min(w), statistics.median(w), max(w)) if w else "-", statistics.median(s3), statistics.median(c3),
             statistics.median([r["cash"] for r in rs]), statistics.median([r["ships"] for r in rs])))
 
-LINES = [("decent no skills", "decent", "none"), ("decent logistics", "decent", "logistics"), ("decent research", "decent", "research"),
-         ("decent expansion", "decent", "expansion"), ("decent permit only", "decent", "perm_only"), ("decent permit+research", "decent", "perm_research"),
-         ("decent mixed L+R", "decent", "econ_mix"), ("decent full tree (ref)", "decent", "full"), ("decent B1 only (mining)", "decent", "mining"), ("mining_focus (B1, clusters first)", "mining_focus", "mining"),
+LINES = [("decent no skills", "decent", "none"), ("decent permit only", "decent", "perm_only"),
+         ("decent B1 only (mining)", "decent", "mining"), ("mining_focus (B1, clusters first)", "mining_focus", "mining"),
          ("split half and half", "split", "none"), ("split 3/4 and 1/4", "split34", "none"), ("bundle (N3, capped)", "bundle", "none"),
          ("decent + stop (N9)", "stop", "none"), ("sloppy overload", "sloppy", "none"), ("always expand", "always", "none"), ("always expand+C1", "always", "perm_only"),
          ("never expand", "never", "none")]
 def main():
     a = sys.argv; mc = int(a[a.index("--mc") + 1]) if "--mc" in a else 0; seed = int(a[a.index("--seed") + 1]) if "--seed" in a else 1
-    print("win_cash %d / %d cycles | order_amount %d cargo %d ship_cap %d | tree cost %d" % (V["win_cash"], V["win_cycle"], V["order_amount"], V["cargo"], V["ship_cap"], sum(cost(s) for s in TREE)))
+    print("win_cash %d / %d cycles | order_amount %d cargo %d ship_cap %d" % (V["win_cash"], V["win_cycle"], V["order_amount"], V["cargo"], V["ship_cap"]))
     print("system 1 marginal net per ship N (best route each):", " ".join("%d:%s %.0f" % (i + 1, "".join(NAME[r[0]][0] + NAME[r[1]][0] + r[2][0] for r in [rr]), m) for i, (rr, m) in enumerate(marginal(None))))
     print("%-24s %8s %6s %7s %5s %5s" % ("line (no events)", "cash", "win_c", "skills", "pts", "ships"))
     for n, s, b in LINES:
