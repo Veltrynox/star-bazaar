@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-03",
+  "task": "skills-compact",
+  "status": "done",
+  "files_changed": ["game/skill_screen.gd"],
+  "open_questions": [],
+  "handoff": "Skills window made smaller and more spaced. VERTICAL_LAYOUT := true confirmed as default (stacked branches in the vertical scroll); old layout kept behind the toggle. New constants at top of skill_screen.gd: FONT_SIZE 10 (was 12), FONT_SIZE_TITLE 15 (was 18), NODE_BTN_H 50 (was 62), CELL_W 200 (was 250), NODE_GAP_H 18 (was 6, between nodes in a row; also used in old layout), NODE_GAP_V 14 (was 6, between rows within a branch), BRANCH_GAP 30 (was 10), CELL_GAP 5 (was 2, inside a node cell). Opaque panel, lock reasons, prerequisite lines and tier_rows/depth/depth_rows untouched. Headless tests: 1169 pass, 0 fail. Not checked by eye: whether the 10px text fits in 50px buttons and whether prerequisite lines still read with wider gaps.",
+  "details": {}
+}

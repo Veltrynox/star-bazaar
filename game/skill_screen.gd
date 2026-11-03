@@ -14,7 +14,15 @@ const TECH_TINT := Color(0.72, 0.88, 1.0)
 
 ## true: branches stacked top to bottom, depth rows inside each (page scrolls vertically only).
 ## false: the old layout, one row per depth with the branches side by side.
-const VERTICAL_LAYOUT := true
+const VERTICAL_LAYOUT := true  # true: stacked branches in a vertical scroll; false: old wide layout
+const FONT_SIZE := 10
+const FONT_SIZE_TITLE := 15
+const NODE_BTN_H := 50.0
+const CELL_W := 200.0
+const NODE_GAP_H := 18  # between nodes in a row
+const NODE_GAP_V := 14  # between rows of a branch
+const BRANCH_GAP := 30  # between branches
+const CELL_GAP := 5  # inside a node cell
 
 signal closed
 
@@ -166,10 +174,10 @@ func setup(main_node: Control) -> void:
 
 ## Branch sections stacked top to bottom; inside each, one row per depth (row 0 = no prerequisites).
 func _build_vertical(rows: VBoxContainer) -> void:
-	rows.add_theme_constant_override("separation", 10)
+	rows.add_theme_constant_override("separation", BRANCH_GAP)
 	for b in SkillTree.BRANCHES:
 		var sec := VBoxContainer.new()
-		sec.add_theme_constant_override("separation", 6)
+		sec.add_theme_constant_override("separation", NODE_GAP_V)
 		rows.add_child(sec)
 		var cap := _caption(StoryText.get_text("SK_TAB_" + b.to_upper()))
 		if b != "fnd":
@@ -181,12 +189,12 @@ func _build_vertical(rows: VBoxContainer) -> void:
 			if not r.has(b):
 				continue
 			var row := HBoxContainer.new()
-			row.add_theme_constant_override("separation", 6)
+			row.add_theme_constant_override("separation", NODE_GAP_H)
 			sec.add_child(row)
 			for id in r[b]:
 				var cell := _node_cell(id)
 				cell.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN  # fixed width, rows line up on the left
-				cell.custom_minimum_size.x = 250.0
+				cell.custom_minimum_size.x = CELL_W
 				row.add_child(cell)
 
 func _build_horizontal(rows: VBoxContainer) -> void:
@@ -209,7 +217,7 @@ func _build_horizontal(rows: VBoxContainer) -> void:
 				cap.mouse_filter = Control.MOUSE_FILTER_STOP
 			grp.add_child(cap)
 			var cells_row := HBoxContainer.new()
-			cells_row.add_theme_constant_override("separation", 6)
+			cells_row.add_theme_constant_override("separation", NODE_GAP_H)
 			grp.add_child(cells_row)
 			for id in ids:
 				cells_row.add_child(_node_cell(id))
@@ -218,9 +226,9 @@ func _build_horizontal(rows: VBoxContainer) -> void:
 func _shrink(n: Node) -> void:
 	if n is Label:
 		var big: bool = (n as Label).theme_type_variation == "LabelTitle"
-		(n as Label).add_theme_font_size_override("font_size", 18 if big else 12)
+		(n as Label).add_theme_font_size_override("font_size", FONT_SIZE_TITLE if big else FONT_SIZE)
 	elif n is Button or n is MenuButton:
-		n.add_theme_font_size_override("font_size", 12)
+		n.add_theme_font_size_override("font_size", FONT_SIZE)
 	for c in n.get_children():
 		_shrink(c)
 
@@ -234,9 +242,9 @@ func _node_cell(id: String) -> Control:
 	var cell := VBoxContainer.new()
 	cell.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	cell.size_flags_stretch_ratio = 1.0
-	cell.add_theme_constant_override("separation", 2)
+	cell.add_theme_constant_override("separation", CELL_GAP)
 	var btn := Button.new()
-	btn.custom_minimum_size = Vector2(0, 62)
+	btn.custom_minimum_size = Vector2(0, NODE_BTN_H)
 	btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	btn.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	btn.clip_text = true
