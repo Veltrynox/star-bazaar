@@ -35,7 +35,7 @@ var _core: MeshInstance3D
 var _shader: Shader
 
 const PLANES := 8           # grid planes in the shell (8 draw calls); fewer planes keep the structure visible
-const PLANE_GLOW := 0.9     # per-plane brightness; planes add up (8 x 0.9 = 7.2 at full overlap), above 1.0 feeds the glow
+const PLANE_GLOW := 0.65    # per-plane brightness (was 0.9, muted 2026-11-02); planes add up (8 x 0.65 = 5.2 at full overlap), above 1.0 feeds the glow
 const CORE_VALUE := 3.0     # white core brightness at the centre (HDR, above 1.0); radius and falloff are CORE_RADIUS and CORE_FALLOFF in sun.gdshader
 const PLANE_SPAN := 3.0     # plane size in sun radii (flares reach past the disc)
 

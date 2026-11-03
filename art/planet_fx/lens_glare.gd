@@ -10,7 +10,7 @@ var source_pos: Callable            # () -> Variant: Vector3 world position, or 
 var source_color := Color(1.0, 0.75, 0.45)
 var source_brightness: Callable     # () -> float 0..1, optional (for example the sun flare level); empty = 1.0
 
-@export_range(0.0, 2.0, 0.05) var strength := 0.1:
+@export_range(0.0, 2.0, 0.05) var strength := 0.07:  # was 0.1 (muted 2026-11-02)
 	set(v):
 		strength = v
 		_push("strength", v)
@@ -22,7 +22,7 @@ var source_brightness: Callable     # () -> float 0..1, optional (for example th
 	set(v):
 		ghost_count = v
 		_push("ghost_count", v)
-@export_range(0.0, 2.0, 0.05) var ghost_strength := 0.07:
+@export_range(0.0, 2.0, 0.05) var ghost_strength := 0.05:  # was 0.07 (muted 2026-11-02)
 	set(v):
 		ghost_strength = v
 		_push("ghost_strength", v)

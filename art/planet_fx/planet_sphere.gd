@@ -28,8 +28,23 @@ const TYPE_TEXTURES := {
 	"agrarian": {"beauty": TP + "planet_agrarian_beauty.png", "disp": TP + "planet_agrarian_displacement.png"},
 	"ocean": {"beauty": TP + "planet_ocean_beauty.png", "disp": TP + "planet_ocean_displacement.png"},
 	"moon": {"beauty": TP + "planet_moon_beauty.png", "disp": TP + "planet_moon_displacement.png", "ring": TP + "asteroid_ring_1.png"},
+	"dead": {"beauty": TP + "planet_toxic_beauty.png"},  # dead worlds (Cinderrest, Greywake): own shader, see DEAD_MATERIAL
 	"urban": {"beauty": TP + "planet_with_lights_beauty.png", "disp": TP + "planet_with_lights_displacement.png", "lights": TP + "planet_lights_mask.png"},
 }
+## Dead worlds: planet_type "dead" or an id starting "dead_" (dead_1 Cinderrest, dead_2 Greywake). They use the inverse-Fresnel body shader
+## (dark matte limb, thin dim rim) and no atmosphere shell. Variant per id: uv_shift (turn of the map), hue_shift, saturation, brightness.
+const DEAD_TYPE := "dead"
+const DEAD_ID_PREFIX := "dead_"
+const DEAD_MATERIAL := preload("res://art/planet_fx/planet_sphere_dead_material.tres")
+const DEAD_VARIANTS := {
+	"dead_1": {"uv_shift": 0.0, "hue_shift": 0.0, "saturation": 1.0, "brightness": 1.0},        # Cinderrest: the texture as painted
+	"dead_2": {"uv_shift": 0.45, "hue_shift": -0.06, "saturation": 0.55, "brightness": 0.9},    # Greywake: other terrain, cooler and greyer
+}
+const DEAD_VARIANT_DEFAULT := {"uv_shift": 0.2, "hue_shift": 0.0, "saturation": 0.8, "brightness": 1.0}
+
+static func is_dead(id: String, type: String) -> bool:
+	return type == DEAD_TYPE or id.begins_with(DEAD_ID_PREFIX)
+
 ## Old fallback (greyscale equirectangular) for types without a table entry.
 const SURFACE_TEXTURES := ["res://art/planet_fx/planet_surface_01.jpg"]
 ## Loaded textures by path: each file is loaded once for all planets.
@@ -293,6 +308,8 @@ func aim_sun(sun_w: Vector3) -> void:
 		key_dir = local
 
 func _ready() -> void:
+	if is_dead(planet_id, planet_type):
+		set_surface_override_material(0, DEAD_MATERIAL)  # duplicated just below, so each dead world has its own parameters
 	if not Engine.is_editor_hint():
 		for node in [self, get_node_or_null("Glow"), get_node_or_null("Atmosphere"), get_node_or_null("Streaks"), get_node_or_null("Clouds")]:
 			var mi := node as MeshInstance3D
@@ -306,6 +323,9 @@ static func rim_complement(base: Color, offset: float) -> Color:
 
 func _apply() -> void:
 	if not is_inside_tree():
+		return
+	if is_dead(planet_id, planet_type):
+		_apply_dead()
 		return
 	var p: Dictionary = FX.PRESETS[FX.palette_name(planet_type, rarity)]
 	var look: Variant = look_for_id(planet_id) if use_id else variant
@@ -417,6 +437,21 @@ func _apply() -> void:
 			sm.set_shader_parameter("key_dir", key_dir)
 
 ## Ring for types with a "ring" entry (moon): one quad child, built once, shares the cached ring texture.
+## Dead world: only the body shader runs. Atmosphere, glow, streaks, clouds and ring shells are hidden.
+func _apply_dead() -> void:
+	var m := get_surface_override_material(0) as ShaderMaterial
+	if m == null or m.shader == null or not m.shader.resource_path.ends_with("planet_sphere_dead.gdshader"):
+		return  # the live material is not the dead one yet (the swap happens in _ready)
+	m.set_shader_parameter("surface_tex", cached_tex(TYPE_TEXTURES[DEAD_TYPE]["beauty"]))
+	m.set_shader_parameter("key_dir", key_dir)
+	var v: Dictionary = DEAD_VARIANTS.get(planet_id, DEAD_VARIANT_DEFAULT)
+	for k in v:
+		m.set_shader_parameter(k, v[k])
+	for nm in ["Glow", "Atmosphere", "Streaks", "Clouds", "Ring"]:
+		var shell := get_node_or_null(nm) as MeshInstance3D
+		if shell:
+			shell.visible = false
+
 func _apply_ring(tt: Dictionary) -> void:
 	var ring := get_node_or_null("Ring") as MeshInstance3D
 	if SIMPLE or not tt.has("ring"):
