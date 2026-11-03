@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-11-03",
+  "task": "skill-text",
+  "status": "done",
+  "files_changed": ["story/skills.md", "story/screens.md", "story/voice.md", "data/story_text.json", "handoffs/story-designer/2026-11-03-skill-text.json"],
+  "open_questions": [
+    "Plain lines use size words only, so MIL_5, LUX_7 use {m} and {n} (cycles) placeholders; the game must fill them or the lines need rewording.",
+    "Old A/B/C text kept until the cleanup request.",
+    "Crafted-at-workshop line (_CRAFT) is per tech node; the generic SK_CRAFTED can replace it if the UI wants one label."
+  ],
+  "handoff": "All 31 nodes have text, built into data/story_text.json (531 entries, tests pass 1034/0). Node ids: SK_<node>_NAME, _FLAVOUR, _PLAIN with node in FND_STORAGE, FND_PERMIT, FND_PROSPECT, MIL_1..7, LUX_1..7, MIN_1..7, BIO_1..7. Tech nodes (x_2, x_4, x_6) also have SK_<node>_CRAFT with {n}, {goal}. Screen ids: SK_TAB_FND/MIL/LUX/MIN/BIO, SK_KIND_SKILL, SK_KIND_TECH, SK_CRAFTED ({n},{goal}), SK_LOCKED_NEEDS ({name}), SK_NOT_ENOUGH, SK_POINTS_COUNTER ({n}), SK_TECH_DONE ({name}), SK_TECH_NO_POINTS, MKT_MIL_ID, MKT_LUX_ID, MKT_MIN_ID, MKT_BIO_ID. Existing SK_HEADER is the title Skills. Placeholders in plain lines: {goal}, {m}, {n}.",
+  "details": {}
+}

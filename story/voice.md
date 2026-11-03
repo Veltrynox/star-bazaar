@@ -80,3 +80,10 @@ The player is "you" or "the company". Never a gender, never a name.
 
 - Dead worlds open late (2026-11-03): they unlock at cycle 15 (a balance value, never written in running text; the game fills {n}). Before that the planet panel says it is closed until then. Mining Cinderrest needs Cold Survey (M1), mining Greywake needs Deep Cut (M2), both in Research after Prospecting (B1). Fabrication Licence (F1) unlocks the fabric.
 - Fabric: the machine at the trading post that turns dross and nullglass into Lattice Plate (id plate, working name; running text: plate). Null Core: an item built once from plate and nullglass, fitted to one ship. Plate and Null Core are working names, owner decides. Fitted ship: the ship that carries the Null Core. Added 2026-11-03.
+
+### Four markets (added 2026-11-03, from design/proposals/2026-11-03-four-markets-story.md)
+- Markets: Military, Luxury, Minerals, Biotech, always capitalised. Foundations: the three small unlocks (Space Storage, Permit Charter, Prospecting). Trees replace the branches Logistics, Research, Expansion once the old code is removed.
+- Skill: costs skill points. Tech: costs no points, finishes by crafting at the market's workshop. Capstone: the last skill of a market.
+- Rivals: the three other companies in a market. Never "bots" or "AI" in player text.
+- Size words in skill lines: a little (small), clearly (medium), sharply (large, rivals only). No raw numbers; the game fills {n}, {m}, {goal} (units to craft), {name} (node name).
+- Skill and tech node limits: name 24, flavour 90, plain line 110, craft-progress line 60 (_CRAFT). Screen labels 24 to 60, notices 110.

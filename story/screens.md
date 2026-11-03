@@ -379,3 +379,22 @@ LBL_SHARE_YOU | 24 | Market share rows and end screen readout, the player's row 
 LBL_COMP_TITLE | 24 | Competitors menu heading, game menu entry and share panel button | Competitors
 LBL_COMP_SHARE | 24 | Competitors table column, current market share | Share
 LBL_COMP_TREND | 24 | Competitors table column, change over the last 5 cycles | Last 5 cycles
+
+## Four-market skill screen (added 2026-11-03; labels plain, no flavour)
+SK_TAB_FND | 24 | Skill screen, tab or column title | Foundations
+SK_TAB_MIL | 24 | Skill screen, tab or column title | Military
+SK_TAB_LUX | 24 | Skill screen, tab or column title | Luxury
+SK_TAB_MIN | 24 | Skill screen, tab or column title | Minerals
+SK_TAB_BIO | 24 | Skill screen, tab or column title | Biotech
+SK_KIND_SKILL | 24 | Skill screen, node kind tag for a skill | Skill
+SK_KIND_TECH | 24 | Skill screen, node kind tag for a tech | Tech
+SK_CRAFTED | 40 | Skill screen, tech progress, {n} units made, {goal} units needed | Crafted {n} of {goal}
+SK_LOCKED_NEEDS | 60 | Skill screen, detail panel of a locked node | Locked: needs {name}
+SK_NOT_ENOUGH | 40 | Skill screen, Learn button or detail panel when points are short | Not enough points
+SK_POINTS_COUNTER | 40 | Skill screen and top bar, points counter | Skill points: {n}
+SK_TECH_DONE | 110 | Notice when a tech completes | Tech finished: {name}.
+SK_TECH_NO_POINTS | 110 | Detail panel of a tech node | A tech costs no points. It finishes by crafting.
+MKT_MIL_ID | 110 | Market identity line, tab tooltip or Competitors panel | Steady buyers and big volume. The only market where you can hit a rival directly.
+MKT_LUX_ID | 110 | Market identity line | Few units and huge price swings. Timing and events win it.
+MKT_MIN_ID | 110 | Market identity line | Bulk, mining and smelting. Slow to build and hard to dislodge.
+MKT_BIO_ID | 110 | Market identity line | Slow compounding. Labs and stored stock grow over time, and events can hurt.

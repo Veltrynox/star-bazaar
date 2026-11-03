@@ -1536,6 +1536,108 @@
   "place": "Competitors table column, change over the last 5 cycles"
  },
  {
+  "id": "SK_TAB_FND",
+  "text": "Foundations",
+  "max": 24,
+  "place": "Skill screen, tab or column title"
+ },
+ {
+  "id": "SK_TAB_MIL",
+  "text": "Military",
+  "max": 24,
+  "place": "Skill screen, tab or column title"
+ },
+ {
+  "id": "SK_TAB_LUX",
+  "text": "Luxury",
+  "max": 24,
+  "place": "Skill screen, tab or column title"
+ },
+ {
+  "id": "SK_TAB_MIN",
+  "text": "Minerals",
+  "max": 24,
+  "place": "Skill screen, tab or column title"
+ },
+ {
+  "id": "SK_TAB_BIO",
+  "text": "Biotech",
+  "max": 24,
+  "place": "Skill screen, tab or column title"
+ },
+ {
+  "id": "SK_KIND_SKILL",
+  "text": "Skill",
+  "max": 24,
+  "place": "Skill screen, node kind tag for a skill"
+ },
+ {
+  "id": "SK_KIND_TECH",
+  "text": "Tech",
+  "max": 24,
+  "place": "Skill screen, node kind tag for a tech"
+ },
+ {
+  "id": "SK_CRAFTED",
+  "text": "Crafted {n} of {goal}",
+  "max": 40,
+  "place": "Skill screen, tech progress, {n} units made, {goal} units needed"
+ },
+ {
+  "id": "SK_LOCKED_NEEDS",
+  "text": "Locked: needs {name}",
+  "max": 60,
+  "place": "Skill screen, detail panel of a locked node"
+ },
+ {
+  "id": "SK_NOT_ENOUGH",
+  "text": "Not enough points",
+  "max": 40,
+  "place": "Skill screen, Learn button or detail panel when points are short"
+ },
+ {
+  "id": "SK_POINTS_COUNTER",
+  "text": "Skill points: {n}",
+  "max": 40,
+  "place": "Skill screen and top bar, points counter"
+ },
+ {
+  "id": "SK_TECH_DONE",
+  "text": "Tech finished: {name}.",
+  "max": 110,
+  "place": "Notice when a tech completes"
+ },
+ {
+  "id": "SK_TECH_NO_POINTS",
+  "text": "A tech costs no points. It finishes by crafting.",
+  "max": 110,
+  "place": "Detail panel of a tech node"
+ },
+ {
+  "id": "MKT_MIL_ID",
+  "text": "Steady buyers and big volume. The only market where you can hit a rival directly.",
+  "max": 110,
+  "place": "Market identity line, tab tooltip or Competitors panel"
+ },
+ {
+  "id": "MKT_LUX_ID",
+  "text": "Few units and huge price swings. Timing and events win it.",
+  "max": 110,
+  "place": "Market identity line"
+ },
+ {
+  "id": "MKT_MIN_ID",
+  "text": "Bulk, mining and smelting. Slow to build and hard to dislodge.",
+  "max": 110,
+  "place": "Market identity line"
+ },
+ {
+  "id": "MKT_BIO_ID",
+  "text": "Slow compounding. Labs and stored stock grow over time, and events can hurt.",
+  "max": 110,
+  "place": "Market identity line"
+ },
+ {
   "id": "SK_M1_NAME",
   "text": "Cold Survey",
   "max": 24,
@@ -1648,6 +1750,636 @@
   "text": "Skills cost skill points, never credits.",
   "max": 110,
   "place": "Skill screen footer"
+ },
+ {
+  "id": "SK_FND_STORAGE_NAME",
+  "text": "Space Storage",
+  "max": 24,
+  "place": "Skill screen, node name"
+ },
+ {
+  "id": "SK_FND_STORAGE_FLAVOUR",
+  "text": "One great hold in the sky, held in common, quietly kept by you.",
+  "max": 90,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_FND_STORAGE_PLAIN",
+  "text": "Unlocks Space Storage, one large company storage per system. Planet storage feeds it slowly.",
+  "max": 110,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_FND_PERMIT_NAME",
+  "text": "Permit Charter",
+  "max": 24,
+  "place": "Skill screen, node name"
+ },
+ {
+  "id": "SK_FND_PERMIT_FLAVOUR",
+  "text": "No ship leaves the home sky without a charter. This is the charter.",
+  "max": 90,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_FND_PERMIT_PLAIN",
+  "text": "Lets you buy permits for new systems and run routes between systems.",
+  "max": 110,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_FND_PROSPECT_NAME",
+  "text": "Prospecting",
+  "max": 24,
+  "place": "Skill screen, node name"
+ },
+ {
+  "id": "SK_FND_PROSPECT_FLAVOUR",
+  "text": "The Commons owns every rock. It has not counted the ones nobody has looked at.",
+  "max": 90,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_FND_PROSPECT_PLAIN",
+  "text": "Lets routes start at asteroid clusters and shows how much ore each cluster holds.",
+  "max": 110,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_MIL_1_NAME",
+  "text": "Drydock Deals",
+  "max": 24,
+  "place": "Skill screen, node name"
+ },
+ {
+  "id": "SK_MIL_1_FLAVOUR",
+  "text": "Every machine is a slow bill with wings. Cut the bill.",
+  "max": 90,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_MIL_1_PLAIN",
+  "text": "Ship upkeep is clearly lower. Unlocks the Munitions Line and pulse cells.",
+  "max": 110,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_MIL_2_NAME",
+  "text": "Cell Casting",
+  "max": 24,
+  "place": "Skill screen, node name"
+ },
+ {
+  "id": "SK_MIL_2_FLAVOUR",
+  "text": "A cell is a small sun with a rule printed on it.",
+  "max": 90,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_MIL_2_PLAIN",
+  "text": "Tech: craft {goal} units at the Munitions Line. Military volume up a little.",
+  "max": 110,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_MIL_2_CRAFT",
+  "text": "Munitions Line crafts: {n} of {goal}",
+  "max": 60,
+  "place": "Skill screen, tech node progress line"
+ },
+ {
+  "id": "SK_MIL_3_NAME",
+  "text": "Quick Loading",
+  "max": 24,
+  "place": "Skill screen, node name"
+ },
+ {
+  "id": "SK_MIL_3_FLAVOUR",
+  "text": "Dock time is shared time. Spend less of it.",
+  "max": 90,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_MIL_3_PLAIN",
+  "text": "Routes carrying Military goods move a little more each cycle.",
+  "max": 110,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_MIL_4_NAME",
+  "text": "Armour Plating",
+  "max": 24,
+  "place": "Skill screen, node name"
+ },
+ {
+  "id": "SK_MIL_4_FLAVOUR",
+  "text": "Plate a hull and the quarrel goes elsewhere.",
+  "max": 90,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_MIL_4_PLAIN",
+  "text": "Tech: craft {goal} units. Unlocks hull armour. Military goods sell for a little more.",
+  "max": 110,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_MIL_4_CRAFT",
+  "text": "Munitions Line crafts: {n} of {goal}",
+  "max": 60,
+  "place": "Skill screen, tech node progress line"
+ },
+ {
+  "id": "SK_MIL_5_NAME",
+  "text": "Embargo Desk",
+  "max": 24,
+  "place": "Skill screen, node name"
+ },
+ {
+  "id": "SK_MIL_5_FLAVOUR",
+  "text": "A polite desk with a very long reach.",
+  "max": 90,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_MIL_5_PLAIN",
+  "text": "Every {m} cycles, pick one rival: its Military strength falls sharply for {n} cycles.",
+  "max": 110,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_MIL_6_NAME",
+  "text": "Contract Doctrine",
+  "max": 24,
+  "place": "Skill screen, node name"
+ },
+ {
+  "id": "SK_MIL_6_FLAVOUR",
+  "text": "Write the terms first. The sky respects a clause.",
+  "max": 90,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_MIL_6_PLAIN",
+  "text": "Tech: craft {goal} units. Military price events against you hit clearly weaker.",
+  "max": 110,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_MIL_6_CRAFT",
+  "text": "Munitions Line crafts: {n} of {goal}",
+  "max": 60,
+  "place": "Skill screen, tech node progress line"
+ },
+ {
+  "id": "SK_MIL_7_NAME",
+  "text": "Standing Fleet",
+  "max": 24,
+  "place": "Skill screen, node name"
+ },
+ {
+  "id": "SK_MIL_7_FLAVOUR",
+  "text": "A fleet that is always there needs no speech.",
+  "max": 90,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_MIL_7_PLAIN",
+  "text": "Capstone. All rivals' Military growth is cut in half for the rest of the run.",
+  "max": 110,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_LUX_1_NAME",
+  "text": "Price Whisper",
+  "max": 24,
+  "place": "Skill screen, node name"
+ },
+ {
+  "id": "SK_LUX_1_FLAVOUR",
+  "text": "Prices move before people do. Listen to the walls.",
+  "max": 90,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_LUX_1_PLAIN",
+  "text": "Shows next cycle's prices. Luxury goods sell for a little more. Unlocks the Atelier and cut glimmers.",
+  "max": 110,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_LUX_2_NAME",
+  "text": "Fine Finishing",
+  "max": 24,
+  "place": "Skill screen, node name"
+ },
+ {
+  "id": "SK_LUX_2_FLAVOUR",
+  "text": "A good edge earns a second look. A third earns a price.",
+  "max": 90,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_LUX_2_PLAIN",
+  "text": "Tech: craft {goal} units at the Atelier. Luxury price-up events pay clearly more.",
+  "max": 110,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_LUX_2_CRAFT",
+  "text": "Atelier crafts: {n} of {goal}",
+  "max": 60,
+  "place": "Skill screen, tech node progress line"
+ },
+ {
+  "id": "SK_LUX_3_NAME",
+  "text": "Event Forecast",
+  "max": 24,
+  "place": "Skill screen, node name"
+ },
+ {
+  "id": "SK_LUX_3_FLAVOUR",
+  "text": "The sky has moods. The Plan pretends not to notice them.",
+  "max": 90,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_LUX_3_PLAIN",
+  "text": "Warns one cycle before an event. Works in all four markets.",
+  "max": 110,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_LUX_4_NAME",
+  "text": "Cask Cellar",
+  "max": 24,
+  "place": "Skill screen, node name"
+ },
+ {
+  "id": "SK_LUX_4_FLAVOUR",
+  "text": "Some things improve in the dark. So do some excuses.",
+  "max": 90,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_LUX_4_PLAIN",
+  "text": "Tech: craft {goal} units. Unlocks vintage casks. Stored Luxury stock keeps its value when a planet closes.",
+  "max": 110,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_LUX_4_CRAFT",
+  "text": "Atelier crafts: {n} of {goal}",
+  "max": 60,
+  "place": "Skill screen, tech node progress line"
+ },
+ {
+  "id": "SK_LUX_5_NAME",
+  "text": "Patron's List",
+  "max": 24,
+  "place": "Skill screen, node name"
+ },
+ {
+  "id": "SK_LUX_5_FLAVOUR",
+  "text": "The right name on the right list is worth a ship.",
+  "max": 90,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_LUX_5_PLAIN",
+  "text": "Sales at a planet with a price-up event count clearly more volume toward your Luxury share.",
+  "max": 110,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_LUX_6_NAME",
+  "text": "Hallmark",
+  "max": 24,
+  "place": "Skill screen, node name"
+ },
+ {
+  "id": "SK_LUX_6_FLAVOUR",
+  "text": "A stamp from your hand makes a stone worth more.",
+  "max": 90,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_LUX_6_PLAIN",
+  "text": "Tech: craft {goal} units. Luxury goods sell for clearly more.",
+  "max": 110,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_LUX_6_CRAFT",
+  "text": "Atelier crafts: {n} of {goal}",
+  "max": 60,
+  "place": "Skill screen, tech node progress line"
+ },
+ {
+  "id": "SK_LUX_7_NAME",
+  "text": "Guild Seal",
+  "max": 24,
+  "place": "Skill screen, node name"
+ },
+ {
+  "id": "SK_LUX_7_FLAVOUR",
+  "text": "Buy the client, not the goods. The guild keeps a form for it.",
+  "max": 90,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_LUX_7_PLAIN",
+  "text": "Capstone. Once per run, pick a rival: its Luxury strength falls sharply for {n} cycles.",
+  "max": 110,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_MIN_1_NAME",
+  "text": "Fabrication Licence",
+  "max": 24,
+  "place": "Skill screen, node name"
+ },
+ {
+  "id": "SK_MIN_1_FLAVOUR",
+  "text": "A licence to make one good plate from two bad rocks. Stamped in triplicate.",
+  "max": 90,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_MIN_1_PLAIN",
+  "text": "Unlocks the Fabric and the Smelter, and ingot. Needs Prospecting.",
+  "max": 110,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_MIN_2_NAME",
+  "text": "Smelting",
+  "max": 24,
+  "place": "Skill screen, node name"
+ },
+ {
+  "id": "SK_MIN_2_FLAVOUR",
+  "text": "Heat is honest. It only asks what you put in.",
+  "max": 90,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_MIN_2_PLAIN",
+  "text": "Tech: craft {goal} units at the Smelter. Minerals volume up a little. Ore loads take no order space.",
+  "max": 110,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_MIN_2_CRAFT",
+  "text": "Smelter crafts: {n} of {goal}",
+  "max": 60,
+  "place": "Skill screen, tech node progress line"
+ },
+ {
+  "id": "SK_MIN_3_NAME",
+  "text": "Cold Survey",
+  "max": 24,
+  "place": "Skill screen, node name"
+ },
+ {
+  "id": "SK_MIN_3_FLAVOUR",
+  "text": "A rock no one lives on still has a ledger line. Someone must read it.",
+  "max": 90,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_MIN_3_PLAIN",
+  "text": "Lets routes start at Cinderrest and mine dross. Cluster yield up a little. Dead worlds open later.",
+  "max": 110,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_MIN_4_NAME",
+  "text": "Alloying",
+  "max": 24,
+  "place": "Skill screen, node name"
+ },
+ {
+  "id": "SK_MIN_4_FLAVOUR",
+  "text": "Two metals agree if you hold them hot enough.",
+  "max": 90,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_MIN_4_PLAIN",
+  "text": "Tech: craft {goal} units. Unlocks seam alloy. Minerals workshops make one more batch a cycle.",
+  "max": 110,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_MIN_4_CRAFT",
+  "text": "Smelter crafts: {n} of {goal}",
+  "max": 60,
+  "place": "Skill screen, tech node progress line"
+ },
+ {
+  "id": "SK_MIN_5_NAME",
+  "text": "Deep Cut",
+  "max": 24,
+  "place": "Skill screen, node name"
+ },
+ {
+  "id": "SK_MIN_5_FLAVOUR",
+  "text": "Under the dust lies glass that hums. The Bureau has no form for it yet.",
+  "max": 90,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_MIN_5_PLAIN",
+  "text": "Lets routes start at Greywake and mine nullglass. Needs Cold Survey.",
+  "max": 110,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_MIN_6_NAME",
+  "text": "Lattice Works",
+  "max": 24,
+  "place": "Skill screen, node name"
+ },
+ {
+  "id": "SK_MIN_6_FLAVOUR",
+  "text": "A good lattice forgives the one who made it.",
+  "max": 90,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_MIN_6_PLAIN",
+  "text": "Tech: craft {goal} units. Each Minerals batch yields one more unit.",
+  "max": 110,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_MIN_6_CRAFT",
+  "text": "Smelter crafts: {n} of {goal}",
+  "max": 60,
+  "place": "Skill screen, tech node progress line"
+ },
+ {
+  "id": "SK_MIN_7_NAME",
+  "text": "Cornered Seam",
+  "max": 24,
+  "place": "Skill screen, node name"
+ },
+ {
+  "id": "SK_MIN_7_FLAVOUR",
+  "text": "The last seam in reach belongs to someone. Now it is you.",
+  "max": 90,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_MIN_7_PLAIN",
+  "text": "Capstone. All rivals' Minerals strength falls clearly for the rest of the run.",
+  "max": 110,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_BIO_1_NAME",
+  "text": "Standing Orders",
+  "max": 24,
+  "place": "Skill screen, node name"
+ },
+ {
+  "id": "SK_BIO_1_FLAVOUR",
+  "text": "A good form is one you only file once. The Bureau will not mind.",
+  "max": 90,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_BIO_1_PLAIN",
+  "text": "Buy and Sell orders move clearly more units a cycle. Unlocks the Culture Lab and bio-gel.",
+  "max": 110,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_BIO_2_NAME",
+  "text": "Culture Banks",
+  "max": 24,
+  "place": "Skill screen, node name"
+ },
+ {
+  "id": "SK_BIO_2_FLAVOUR",
+  "text": "Something grows in the dark and asks for nothing. For now.",
+  "max": 90,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_BIO_2_PLAIN",
+  "text": "Tech: craft {goal} units at the Culture Lab. Biotech stock in planet storage grows each cycle, to a cap.",
+  "max": 110,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_BIO_2_CRAFT",
+  "text": "Culture Lab crafts: {n} of {goal}",
+  "max": 60,
+  "place": "Skill screen, tech node progress line"
+ },
+ {
+  "id": "SK_BIO_3_NAME",
+  "text": "Seed Bank",
+  "max": 24,
+  "place": "Skill screen, node name"
+ },
+ {
+  "id": "SK_BIO_3_FLAVOUR",
+  "text": "A shelf is a promise that something will be there.",
+  "max": 90,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_BIO_3_PLAIN",
+  "text": "Planet storage holds clearly more.",
+  "max": 110,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_BIO_4_NAME",
+  "text": "Gene Splicing",
+  "max": 24,
+  "place": "Skill screen, node name"
+ },
+ {
+  "id": "SK_BIO_4_FLAVOUR",
+  "text": "A small cut, a small stitch. The vat hums approval.",
+  "max": 90,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_BIO_4_PLAIN",
+  "text": "Tech: craft {goal} units. Unlocks gene seed.",
+  "max": 110,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_BIO_4_CRAFT",
+  "text": "Culture Lab crafts: {n} of {goal}",
+  "max": 60,
+  "place": "Skill screen, tech node progress line"
+ },
+ {
+  "id": "SK_BIO_5_NAME",
+  "text": "Clinic Contracts",
+  "max": 24,
+  "place": "Skill screen, node name"
+ },
+ {
+  "id": "SK_BIO_5_FLAVOUR",
+  "text": "A clinic pays slowly, which the Bureau calls trust.",
+  "max": 90,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_BIO_5_PLAIN",
+  "text": "Biotech share counts a longer span of cycles, so it moves more steadily.",
+  "max": 110,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_BIO_6_NAME",
+  "text": "Hardy Strains",
+  "max": 24,
+  "place": "Skill screen, node name"
+ },
+ {
+  "id": "SK_BIO_6_FLAVOUR",
+  "text": "A strain that survives the form survives most things.",
+  "max": 90,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_BIO_6_PLAIN",
+  "text": "Tech: craft {goal} units. Biotech events cost you a little less. A closed planet reopens a cycle sooner.",
+  "max": 110,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_BIO_6_CRAFT",
+  "text": "Culture Lab crafts: {n} of {goal}",
+  "max": 60,
+  "place": "Skill screen, tech node progress line"
+ },
+ {
+  "id": "SK_BIO_7_NAME",
+  "text": "Patent Wall",
+  "max": 24,
+  "place": "Skill screen, node name"
+ },
+ {
+  "id": "SK_BIO_7_FLAVOUR",
+  "text": "A wall made of paper outlasts one made of stone.",
+  "max": 90,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_BIO_7_PLAIN",
+  "text": "Capstone. All rivals' Biotech strength falls clearly for the rest of the run.",
+  "max": 110,
+  "place": "Skill screen, detail panel"
  },
  {
   "id": "END_MIL_GOOD_TITLE",
