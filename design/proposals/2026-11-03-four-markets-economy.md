@@ -412,7 +412,7 @@ Cell order: Gets / Costs / Bot / dir. A bot UP (boost) sits in Costs and is alwa
 | BIO_B3 | cash +300 / vol -5% 5 cy / bot_2 str -18%, bot_3 gro -20% / -8 | vol +5% 6 cy / cash -300 / bot_2 str -5%, bot_3 gro -10% / +10 |
 | BIO_B4 | price +8% 8 cy / vol -5% 4 cy / bot_2 str -18% / +11 | cash +600 / upkeep +20% 8 cy / bot_2 str -10%, bot_3 str -10% / -12 |
 
-Counts (QA data check, core dir column): the + option is opt_a in 14 of 28 steps; the option with the larger bot cut is + in 15 of 28; every option has at least one Get and one Cost (0 empty cells, checked over all 56). 8 options carry a bot boost, each with its own cost in addition: MIL_A1 b (vol -5% 3 cy), MIL_A3 a (upkeep +20% 4 cy), LUX_A1 b (vol -5% 3 cy), LUX_B2 b (price -8% 3 cy), LUX_B3 b (vol -5% 4 cy), MIN_A3 a (cash -150), BIO_A3 b (vol -5% 3 cy), BIO_B2 b (upkeep +20% 4 cy). Shared one-time pool: 40 events (28 kept + 12 new); it carries no balance numbers here.
+Counts (QA data check, core dir column): the + option is opt_a in 14 of 28 steps; the option with the larger bot cut is + in 15 of 28; every option has at least one Get and one Cost (0 empty cells, checked over all 56). 8 options carry a bot boost, each with its own cost in addition: MIL_A1 b (vol -5% 3 cy), MIL_A3 a (upkeep +20% 4 cy), LUX_A1 b (vol -5% 3 cy), LUX_B2 b (price -8% 3 cy), LUX_B3 b (vol -5% 4 cy), MIN_A3 a (cash -150), BIO_A3 b (vol -5% 3 cy), BIO_B2 b (upkeep +20% 4 cy). Shared one-time pool: 36 events (24 kept + 12 new); it carries no balance numbers here.
 
 ### 8.3 Direction keys
 

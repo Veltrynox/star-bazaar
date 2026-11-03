@@ -1,8 +1,8 @@
 # Four Markets: the new goal, the new trees, the new endings
 
-> Part of the Four Markets pack. Where the docs disagree, `2026-11-03-four-markets-summary.md` (reconciliation table R1 to R21) decides.
+> Part of the Four Markets pack. Where the docs disagree, `2026-11-03-four-markets-summary.md` (reconciliation table R1 to R27) decides.
 
-Date: 2026-11-03. Author: feature-designer. Status: CORE DESIGN. Section 9 questions are answered (owner answers are in the summary); section 10 is history. economy-designer and story-designer build on this file next, so ids and names below are fixed and will not be renamed. Display names (goods, bots, ending titles) are working names; story-designer finalises text. No balance numbers are set here except structure; where a size is written (S/M/L, "small/medium/large") economy-designer maps it to a value in data/balance.json.
+Date: 2026-11-03. Author: feature-designer. Status: CORE DESIGN. Section 9 questions are answered (owner answers are in the summary); there is no section 10 (the handoff history lives in git and the handoff json). economy-designer and story-designer build on this file next, so ids and names below are fixed and will not be renamed. Display names (goods, bots, ending titles) are working names; story-designer finalises text. No balance numbers are set here except structure; where a size is written (S/M/L, "small/medium/large") economy-designer maps it to a value in data/balance.json.
 
 Owner decisions this file follows: replace the old A/B/C tree and the old endings; keep existing shared events as the one-time pool; share = player sales / total sales per market over a rolling window; win = over 50% share in one market; lose = bankruptcy (ship repossession) or being shut out (player under 10% share in every market); 3 bots seen only on a stats graph; markets are abstract categories, never map objects; spreading must fail by numbers; crafting feeds markets (Minerals and Biotech most).
 
@@ -92,7 +92,7 @@ Order of checks at the end of every cycle: win first, then swept, then bankrupt 
 | Id | Working name | Lean | Notes |
 |---|---|---|---|
 | bot_1 | Harrow Combine | mil, min | heavy volume, slow growth |
-| bot_2 | Velvet Concord | lux, bio | spiky volume (swings with events), medium growth |
+| bot_2 | Velvet Concord | lux, bio | medium growth, same 10% noise as the other bots |
 | bot_3 | Ostrel Syndicate | all four evenly | low per-market volume, steady; the sweep threat |
 
 Per bot, per market, three stats (fixed names), all set by economy-designer: `strength` (base volume per cycle in base-value units), `growth` (added to strength per cycle), `tier` (1-4; each tier multiplies strength; tier rises on a fixed schedule per bot, set in economy section 4: bot_1 cycles 13 and 27, bot_2 11 and 24, bot_3 14 and 28). Volume each cycle = strength x tier multiplier x small seeded noise (+-10%).
@@ -217,7 +217,7 @@ Saves: old saves do not load into the new goal (see Q2).
 - Every step has 2 options (internal ids `opt_a`, `opt_b`; a third `opt_c` only where a step truly has three honest answers, same rules). The player sees plain in-fiction buttons and an effect line. No label, colour, icon or wording marks an option as fair, ruthless, safe, bold, kind or cruel. The ORDER of the buttons is shuffled per run (seeded), so position carries no meaning. The effect line states what the option gives, what it costs and the bot change in words, never the nudge.
 - Every option gives the player something and costs the player something (4.5). Cost types: cash, volume for a few cycles, ship upkeep, a price dip, a paused workshop, tech progress forgone, or a BOOST to a bot. Rule R-BOT (fixed): every option changes at least one bot stat (strength, growth or tier) in that market. Tier is only ever cut (-1), never raised; boosts are strength or growth.
 - Timing: the player effect and the bot effect apply AT ONCE when the choice is made, and the result popup shows immediately. There are no delayed effects. Minerals chain A keeps its existing follow-up events (EV30, EV31, EV33, EV34, EV36, EV37) only as an optional second flavour popup after `dead_follow_cycles`; they add no player cost, no nudge and no further effect beyond what economy 8.2 lists; every other chain has none.
-- Hidden direction value `dir_<mkt>`: one per market, both chains feed it. Integer, scale -100 to +100 (reachable range about -63 to +63), starts 0, never shown. Positive leans toward `END_<MKT>_GOOD`, negative toward `END_<MKT>_BAD` (internal names for the two ending texts only). Each option has a signed nudge in the table of 4.3. Base size by step, varied by option: A1 4-6, A2 5-7, A3 6-8, B1 6-8, B2 7-9, B3 8-10, B4 10-12. Late steps are a little heavier, but no step is big: even after the modifiers a single nudge is capped at `dir_nudge_cap` 14.
+- Hidden direction value `dir_<mkt>`: one per market, both chains feed it. Integer, scale -100 to +100 (reachable range about -62 to +64), starts 0, never shown. Positive leans toward `END_<MKT>_GOOD`, negative toward `END_<MKT>_BAD` (internal names for the two ending texts only). Each option has a signed nudge in the table of 4.3. Base size by step, varied by option: A1 4-6, A2 5-7, A3 6-8, B1 6-8, B2 7-9, B3 8-10, B4 10-12. Late steps are a little heavier, but no step is big: even after the modifiers a single nudge is capped at `dir_nudge_cap` 14.
 - Accumulation: `dir_<mkt>` = sum of all applied nudges of both chains, in firing order. Modifiers, applied in this order to each nudge: (1) echo: if the previous step of the SAME chain pushed the same sign, multiply by 1.25 (floor). (2) late swing: at B3 and B4 only, if `|dir|` is 25 or more before this step and this nudge points AGAINST the current sign, multiply by 1.5 (floor). (3) cap at 14. Echo and swing stack (echo first). Echo makes staying the course in a chain compound. Swing lets a committed run turn late, but only by pushing against a lean in both B3 and B4.
 - Ending rule: on a win in market M read `dir_M`: above 0 or equal to 0 = `END_<MKT>_GOOD`; below 0 = `END_<MKT>_BAD`. The sign of the whole sum decides, never the last nudge. No dead band, no in-between rule, no narrow-win ending. No step fired = 0 = good. Missing steps count 0.
 - What the numbers do (all 128 option paths per market, order A1..A3 then B1..B4):
@@ -226,17 +226,18 @@ Saves: old saves do not load into the new goal (see Q2).
 |---|---|---|---|---|
 | MIL | -60 | +61 | 50% | 5 of 7 for sure good; 2 or fewer for sure bad; 3 or 4 can go either way |
 | LUX | -62 | +61 | 49% | same |
-| MIN | -63 | +63 | 52% | same |
+| MIN | -62 | +64 | 53% | same |
 | BIO | -62 | +62 | 54% | same |
 
-  By number of + picks the dir range is: 0 picks -60..-63; 1: -33..-52; 2: -11..-37; 3: -22..+7; 4: -7..+22; 5: +11..+37; 6: +34..+52; 7: +61..+63. So three to four steps of the chain are the redirect zone, five agreeing steps settle it. No single nudge can move dir by more than 14; about 60% of paths are already fixed before B4 (|dir| above 14) and in the other ~40% B4 sits within reach of the zero line (the sign rule has to be decided somewhere). Economy re-checks these on the real step order.
+  By number of + picks the dir range is: 0 picks -60..-62; 1: -33..-51; 2: -11..-37; 3: -22..+7; 4: -7..+22; 5: +11..+38; 6: +34..+53; 7: +61..+64. So three to four steps of the chain are the redirect zone, five agreeing steps settle it. No single nudge can move dir by more than 14; about 60% of paths are already fixed before B4 (|dir| above 14) and in the other ~40% B4 sits within reach of the zero line (the sign rule has to be decided somewhere). Economy re-checks these on the real step order.
 - Hidden record: nothing about `dir_<mkt>`, signs, counts or any "lean" word appears on any screen, log line, tooltip or the end screen. Epilogue lines may say what the player DID (a tech, a bot cut), never count or label choices.
-- State carried per market: `dir_<mkt>` (int), `<mkt>_steps_done`, `<mkt>_last_sign` (sign of the last applied nudge, used for the echo), `<mkt>_bot_marked` (the bot whose stat the chosen option changed most; tie goes to the lower bot number), `<mkt>_rival_broken` (true if a bot's tier in that market was cut). Texts for steps 2+ have two body variants keyed to the option id picked in the previous step of the same chain. B1 has one body.
-- Triggers (min 3 cycles between steps of a market; common raws never count, R5): A1 first sale in the market after cycle 4; A2 share 15% or 6 cycles after A1; A3 tech _2 done or share 25%; B1 skill _3 learned or share 30%; B2 4 cycles after B1; B3 share 40% or tech _4 done; B4 share 45%. B4 therefore always fires before a 50% win is possible.
+- State carried per market: `dir_<mkt>` (int), `<mkt>_steps_done`, `<mkt>_last_sign` (sign of the last applied nudge, used for the echo), `<mkt>_bot_marked` (summary R7: the bot with the biggest CUT from the option just chosen; boosts never count, a tier cut counts as medium, a tie goes to the lower bot number), `<mkt>_rival_broken` (boolean: true if a bot's tier in that market was cut) and `<mkt>_rival_broken_bot` (which bot dropped a tier; empty if none; EPI_RIVAL reads it). Texts for steps 2+ have two body variants keyed to the option id picked in the previous step of the same chain. B1 has one body.
+- Triggers (min 3 cycles between steps of a market; common raws never count, R5): A1 first sale in the market after cycle 4; A2 share 15% or 6 cycles after A1; A3 tech _2 done or share 25%; B1 skill _3 learned or share 30%; B2 4 cycles after B1; B3 share 40% or tech _4 done; B4 share 45%. B4 therefore always fires before a 50% win is possible in the sim; the game also enforces it (next bullet).
+- Win gate: a market's win (early or final) is not declared until that market's B4 has fired, or cycle 38 is reached. If B4 has not fired by then (the 3-cycle gap, a share that never reached 45%, or a busy event slot delayed it), the win is allowed from cycle 38 and the ending uses `dir` as it stands (unfired steps count 0). The gate also covers the 3-cycle gap and the one-event-per-cycle slot: a chain step always takes the slot before a pool event, so a waiting B4 fires first; while the gate holds, the 5-cycle hold counter keeps counting, so the win fires the cycle B4 resolves if the hold is already met.
 
 ### 4.3 Chain table: situations and direction nudges (single source for `dir`)
 
-Gets, Costs and Bot cells (player gain, player cost, bot stat change) are NOT repeated here: economy section 8.2 (`-economy.md`) holds them and wins on every number except `dir`. Every option there keeps one player gain, one player cost and at least one bot stat change (R-BOT). THIS table is the single source for the hidden `dir` nudge; economy mirrors it into its 8.2 and the 56 `dir_<mkt>_<step>_<a|b>` keys. Situations are plain operational one-liners: they name no ending theme and no moral quality; story-designer writes the in-fiction text around them and must keep it equally neutral. Triggers are those of 4.2 (R5 applies). Nudge = base value before echo, swing and cap. A bot already at tier 1 takes strength M down instead of a tier cut (R8).
+Gets, Costs and Bot cells (player gain, player cost, bot stat change) are NOT repeated here: economy section 8.2 (`-economy.md`) holds them and wins on every number except `dir`. Every option there keeps one player gain, one player cost and at least one bot stat change (R-BOT). THIS table is the single source for the hidden `dir` nudge; economy mirrors it into its 8.2 and the 56 `dir_<mkt>_<step>_<a|b>` keys. Situations are plain operational one-liners: they name no ending theme, no moral quality and none of the words, objects or images of the ending texts in story section 2.2 (checked for all 28: no cough, wall, hall, seam-as-last-resort, licence, vault or supplier-of-record echoes). Where an existing event (EV29, EV32, EV35) already has its own text, the line here is only the neutral label; story-designer reworks that text to stay neutral; story-designer writes the in-fiction text around them and must keep it equally neutral. Triggers are those of 4.2 (R5 applies). Nudge = base value before echo, swing and cap. A bot already at tier 1 takes strength M down instead of a tier cut (R8).
 
 **Military**
 
@@ -244,11 +245,11 @@ Gets, Costs and Bot cells (player gain, player cost, bot stat change) are NOT re
 |---|---|---|---|---|
 | MIL_A1 | first sale in Military | a buyer asks for a standing delivery contract | +6 | -4 |
 | MIL_A2 | share 15% | two buyers in one region ask for the same stock in the same cycle | +7 | -6 |
-| MIL_A3 | tech _2 done | a broker offers a batch of recorded orders for sale | +8 | -7 |
+| MIL_A3 | tech _2 done | a broker offers to sell a list of buyers | +8 | -7 |
 | MIL_B1 | skill _3 learned | a buyer needs a batch refitted on a short deadline | -6 | +7 |
 | MIL_B2 | 4 cycles after B1 | a standards office queries a part in the refitted batch | -9 | +7 |
 | MIL_B3 | share 40% | a trade fair offers you a stall | -9 | +8 |
-| MIL_B4 | share 45% | a large buyer asks you to set the terms of a long supply agreement | -11 | +10 |
+| MIL_B4 | share 45% | a large buyer asks you for a quote on a multi-cycle order | -11 | +10 |
 
 **Luxury**
 
@@ -257,8 +258,8 @@ Gets, Costs and Bot cells (player gain, player cost, bot stat change) are NOT re
 | LUX_A1 | first sale in Luxury | a buyer asks for the first batch of every cycle | -4 | +6 |
 | LUX_A2 | share 15% | a skilled finisher is between workshops and takes offers | -6 | +5 |
 | LUX_A3 | tech _2 done | a buyer returns a competitor's batch | -8 | +7 |
-| LUX_B1 | skill _3 learned | a hall books an evening and asks for stock | +7 | -6 |
-| LUX_B2 | 4 cycles after B1 | the hall's list of buyers becomes public | +9 | -8 |
+| LUX_B1 | skill _3 learned | a venue books a date and asks for stock | +7 | -6 |
+| LUX_B2 | 4 cycles after B1 | the venue's list of buyers becomes public | +9 | -8 |
 | LUX_B3 | share 40% | a buyer asks for a fixed price for a set period | +9 | -10 |
 | LUX_B4 | share 45% | a trade body offers you a seat on its board | +10 | -11 |
 
@@ -266,34 +267,37 @@ Gets, Costs and Bot cells (player gain, player cost, bot stat change) are NOT re
 
 | Id | Trigger | Situation (neutral) | opt_a dir | opt_b dir |
 |---|---|---|---|---|
-| MIN_A1 | first sale in Minerals (EV29) | crews at Cinderrest report illness | +4 | -6 |
-| MIN_A2 | share 15% (EV32) | a wall at Greywake shows cracks | +7 | -6 |
-| MIN_A3 | tech _2 done (EV35) | a competitor sends word about the route to the cluster | -7 | +8 |
+| MIN_A1 | first sale in Minerals (EV29) | a Cinderrest crew reports a problem at the site | +4 | -6 |
+| MIN_A2 | share 15% (EV32) | the Greywake site reports a structural fault | +7 | -6 |
+| MIN_A3 | tech _2 done (EV35) | a competitor sends word about the route to the cluster | +7 | -8 |
 | MIN_B1 | skill _3 learned | two claims are filed on the same seam | -8 | +8 |
-| MIN_B2 | 4 cycles after B1 | a smelter crew pauses work over terms | +7 | -9 |
+| MIN_B2 | 4 cycles after B1 | a smelter crew pauses work over terms | -7 | +9 |
 | MIN_B3 | share 40% | a bidder offers a price for your stock | +9 | -8 |
-| MIN_B4 | share 45% | another seam comes within reach of your ships | -11 | +12 |
+| MIN_B4 | share 45% | a new survey result lists another deposit in range of your ships | -11 | +12 |
 
 **Biotech**
 
 | Id | Trigger | Situation (neutral) | opt_a dir | opt_b dir |
 |---|---|---|---|---|
-| BIO_A1 | first sale in Biotech | a sample of an unknown blight reaches your depot | -4 | +6 |
-| BIO_A2 | share 15% | a clinic asks for a batch of your seed lines | -7 | +5 |
-| BIO_A3 | tech _2 done | a lab reports a containment fault | +7 | -7 |
-| BIO_B1 | skill _3 learned | a clinic needs a rare strain on a deadline | +6 | -7 |
-| BIO_B2 | 4 cycles after B1 | a strain in storage changes during testing | -9 | +9 |
-| BIO_B3 | share 40% | a registry offers to record your seed lines | -8 | +10 |
-| BIO_B4 | share 45% | a storage vault offers you space and terms | +11 | -12 |
+| BIO_A1 | first sale in Biotech | a sample from an unknown source reaches your depot | -4 | +6 |
+| BIO_A2 | share 15% | a buyer asks to take a batch from your stock for testing | -7 | +5 |
+| BIO_A3 | tech _2 done | a lab reports a containment fault | -7 | +7 |
+| BIO_B1 | skill _3 learned | a buyer needs a rare strain by a deadline | +6 | -7 |
+| BIO_B2 | 4 cycles after B1 | a strain in storage changes during testing | +9 | -9 |
+| BIO_B3 | share 40% | an exchange offers you a numbered slot for your output | -8 | +10 |
+| BIO_B4 | share 45% | a storage firm offers space for your stock at set terms | +11 | -12 |
 
-Pattern check (QA data check, passes): opt_a is + in 14 of 28 steps (MIL 3, LUX 4, MIN 4, BIO 3); in every step position (A1..B4) opt_a is + in exactly 2 of the 4 markets; the cash-paying option is + in 10 of 19 steps (MIL 3/5, LUX 2/4, MIN 3/5, BIO 2/5); the tech option is + in 4 of 9; the option with the larger bot cut (economy 8.2 cut score: strength % plus half the growth %, tier cut counted as 10, boosts subtracted; ties skipped) is + in 11 of 22. Per market the sum of + sizes and the sum of - sizes are within 2 points. Nothing about gain type, size or button order predicts the sign.
+Pattern check (recounted from economy 8.2 as it stands, QA data check): opt_a is + in 14 of 28 steps (MIL 3, LUX 4, MIN 4, BIO 3); in every step position (A1..B4) opt_a is + in exactly 2 of the 4 markets. The option that GAINS cash is + in 10 of 19 steps (MIL 3/5, LUX 2/4, MIN 3/5, BIO 2/5). The option that COSTS cash is + in 10 of 22 (MIL 3/6, LUX 1/4, MIN 4/8, BIO 2/4); in LUX it leans negative, accepted as small sample. The tech option is + in 4 of 9. The option with the larger bot cut (strength % plus half the growth %, tier cut counted as 10, boosts subtracted, ties skipped) is + in 11 of 22. Per market the sum of + sizes and the sum of - sizes are within 2 points (MIL 53/52, LUX 53/53, MIN 56/54, BIO 54/54). Nothing about gain type, size or button order predicts the sign.
+Changed in this pass (economy mirrors exactly these 8 values, nothing else): MIN_A3 -7/+8 becomes +7/-8; MIN_B2 +7/-9 becomes -7/+9; BIO_A3 +7/-7 becomes -7/+7; BIO_B2 -9/+9 becomes +9/-9.
 
 ### 4.4 Shared one-time pool
 
-Kept (28, fire once per run): EV01 to EV16 (price and closure events, 16), EV17 (debris), EV19, EV20 (asteroid), EV21, EV22, EV24, EV25, EV26, EV28 (goods events), BE01, BE02, BE03 (the three bonus events). 16 + 1 + 1 + 1 + 6 + 3 = 28. Balance and text stay; a bot stat is optional.
-Retired (1): EV18 (shield offer), with the old endings (owner approved with Q2).
+Kept (24, fire once per run), checked against data/events.json: EV01 to EV16 (16, kinds P, I, Q), EV17 (debris, kind C), EV20 (asteroid, kind C), EV21, EV22, EV24, EV25, EV26, EV28 (6, goods events). 16 + 1 + 1 + 6 = 24. All 24 exist in data/events.json today.
+Not in the pool (not in data/events.json): EV19 (nomads) exists only as unused text in story_text and story/events.md; BE01, BE02, BE03 (branching events) exist only as draft text in story/events.md; EV23 and EV27 do not exist anywhere. They are dropped from this goal; story-designer or owner may revive any of them later as new pool events (extra cost: data row plus text plus effect code, not budgeted here).
+Not pool, kept with chains: EV29, EV32, EV35 (the three Minerals chain A steps, kind C) and their follow-up popups EV30, EV31, EV33, EV34, EV36, EV37.
+Retired (1): EV18 (shield offer), with the old endings (owner approved with Q2). data/events.json today has 34 rows: 24 pool + 3 chain steps + 6 follow-ups + EV18.
 New simple events (12): three per market, `EV40` to `EV51`, each a single price or closure event for the new goods or workshops (a Sunmusk glut, a Pulse Cell recall, a smelter outage, a Culture Lab quarantine). Format as EV01-16; no choice needed, and if one has a choice it follows R-BOT.
-Pool size 40 (28 + 12; this fixes R9, which said 25 + 12). Minerals chain A (EV29, EV32, EV35 and their follow-ups) is counted with the chains, not the pool. At `event_interval` 4 the run draws about 10 pool events over 40 cycles, so the pool never runs dry; chain steps (7 per market) add about 7 for a focused player.
+Pool size 36 (24 kept + 12 new). This replaces R9's 25 + 12 and my earlier 28 + 12. At `event_interval` 4 the run draws about 10 pool events over 40 cycles, so the pool never runs dry; chain steps (7 per market) add about 7 for a focused player.
 
 ### 4.5 Why no option is dominant
 
@@ -349,7 +353,7 @@ Per cycle the game stores V_p and each bot's V for all four markets (80 numbers 
 ## 8. What this touches (for later goals)
 
 Data (economy-designer):
-- data/balance.json: remove `win_cash`; set `win_cycle` 40; add `rescue_max`, `dir_nudge_cap`, `share_window`, `win_hold_cycles`, `win_earliest_cycle`, `sweep_hold_cycles`, `market_overhead`, `cross_load_trip_mult`, `bot_gap_growth`, `skill_points_share_20`, `skill_points_share_35`, `workshop_*_build_cost`, `workshop_batches_per_cycle`, `tech_goal_2/4/6`, per-node `skill_cost_<id>` and effect keys, per-bot `bot_<n>_<mkt>_strength/growth/tier_schedule`, event hit sizes S/M/L; drop old skill keys and shield keys (or keep if Q5).
+- data/balance.json (key names as economy section 9): remove `win_cash`, the old skill keys and all shield keys (EV18 retirement is decided); set `win_cycle` 40; add `rescue_max` 2, `dir_nudge_cap` 14, `dir_*` keys, `share_window`, `share_window_bio_bonus`, `win_share_pct`, `win_hold_cycles`, `win_earliest_cycle`, `sweep_hold_cycles`, `sweep_earliest_cycle`, `sweep_share_pct`, `market_overhead`, `market_active_pct`, `cross_load_trip_mult`, `bot_gap_growth`, `bot_gap_share_pct`, `bot_noise_pct`, `bot_scale`, `bot_tier_mult_1..4`, per-bot `bot_<b>_<m>_strength/growth` and `bot_<b>_tier_cycle_1/2`, `skill_points_share_20/35`, a single `workshop_build_cost` (900), `workshop_batches_per_cycle`, `tech_goal_2/4/6`, `salvage_share` (existing), per-node `skill_cost_<id>` and effect keys, event hit and option effect sizes (`event_*` keys).
 - New data/goods.json (id, market, tier, kind, recipe), data/markets.json, data/bots.json, data/skills.json rewrite (Foundations plus 28 nodes), data/events.json (28 chain rows, 12 pool rows, once-only flag, bot effect fields), data/planets.json and systems.json prices for 11 goods, data/planet_types.json for trade-good sources, tools/sim.py (market model, bots, overhead), pace targets.
 Code (gameplay-programmer): new market/share/bot module (per-cycle volume, window, hold, win and lose checks), goal/stats hooks in run_stats.gd, trade.gd (goods list beyond 8, sales tagging by market), route_engine.gd (cross_load rule, bundle bonus per market), generalise fabric.gd to workshops, a tech progress tracker, events.gd (hidden `dir_<mkt>`, nudges with echo and late-swing, shuffled option order, steps, once-only pool, bot effect tag with up/down, chain triggers, R-BOT), data fields `opt_a`/`opt_b`/`opt_c` with `dir`, rewrite skill_tree.gd and ending_picker.gd, end_screen.gd flow, remove the Release/Corporation choice, save_game.gd (new version), cash_forecast.gd (goal line), debug_menu.gd (Force goal becomes Force market share), planet_panel.gd and ship_panel.gd for new goods and workshops.
 UI (ui-programmer): skill screen redesigned (Foundations row plus four market columns, tech nodes show craft progress), Standings menu and top-bar chip, goal line text, workshop panel, end screen, tutorial copy, notices.
@@ -366,19 +370,3 @@ Art (artist, optional): market icons, goods icons.
 4. Soft ending `END_OUTCOMPETED`: no separate owner answer; stays as designed. The old "one bot over 50% everywhere" loss was replaced by the approved swept rule (R3).
 5. Shield (EV18): retired (see Q2).
 6. Names: undecided; judged in play. Names stay as in the story doc.
-
-## 10. Handoff to economy and story (first direction redesign) [HISTORY ONLY, superseded by 4.2 and 4.3; the second-pass changes are in the handoff json 2026-11-03-four-markets-direction.json]
-
-Economy-designer must change in `2026-11-03-four-markets-economy.md` and its data plan:
-1. (History) The per-step stance bonus and fee are gone. Sizes for option gets/costs: volume S 0.05, M 0.10; cash S 150, M 300, L 600; define price S/M for events and `upkeep_up_S/M`.
-2. Replace every "Open"/"Hard" column, the Open-vs-Hard win table (section 3 and 8 rows, line 94 and 130 "Best share (hard)") with a sim over option paths: win rate and median cycle across all 2^7 paths per market, plus a random-path and a "chain-committed" path. Targets: every path inside the 56-98% focused window; no option dominant (4.5).
-3. Map each table cell of 4.3 (gets, costs, bot, nudge) to values; add bot UP hits (`event_hit_strength_up_S/M`, `event_hit_growth_up_S`) alongside the down sizes. Set `dir_` keys: nudge per option (28 x 2 values, default the table), `dir_echo_mult` 1.25, `dir_swing_mult` 1.5, `dir_swing_threshold` 40, `dir_good_min` 10, `dir_bad_max` -10, `dir_min` -100, `dir_max` 100.
-4. Recheck bot totals: with options now boosting some bots, bot strength at cycle 36 per market changes; reconcile the "5.3k Open / 3.9k Hard" lines.
-5. Note a QA data check: "+ option is opt_a in about half the steps; bigger bot hit option + in about half".
-
-Story-designer must change in `2026-11-03-four-markets-story.md`:
-1. Rewrite every Military chain button, effect line and flags block (A1 to B4, results): no "Open"/"Hard" internally in text files; buttons are neutral in-fiction verbs; delete the "Open verbs of sharing / Hard verbs of taking" style rule (section 4.2); the effect line states gets, costs and bot change in words (including a bot boost) and never hints at the ending.
-2. Replace flags with `dir_mil`, `mil_steps_done`, `mil_last_sign`, `mil_bot_marked`, `mil_rival_broken`; body variants key off the previous option id (`opt_a`/`opt_b`), not Open/Hard.
-3. Remove `END_STAT_RECORD` (Open/Hard counts) and the "Open" and "Hard" mentions; end-screen stance lines in END_*_GOOD/BAD headings become "dir 10 or more" / "dir -10 or less" in the notes only; text must not claim the player was fair or ruthless as a judged fact, only what the world shows.
-4. Check the endings' flavour lines do not count or label choices; the B4 step asks its question without a visibly right answer.
-5. Write Luxury, Minerals and Biotech chains from the 4.3 tables (buttons neutral, bodies per previous option).

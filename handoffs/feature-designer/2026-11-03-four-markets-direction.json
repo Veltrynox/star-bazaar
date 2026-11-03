@@ -3,7 +3,7 @@
   "task_id": "four-markets-direction",
   "date": "2026-11-03",
   "status": "done",
-  "summary": "Direction redesign, pass 2 (reviewer fixes A-F) applied to the core doc: smaller nudges with a cap, sign-of-sum ending rule, re-signed balanced dir table, neutral situations, pool recount, win/loss order and rescue default.",
+  "summary": "Pass 3 (second reviewer): R27 header, R7 marked bot and rival_broken_bot, recounted pattern checks with 4 steps re-signed (8 dir values), key names, bot_2 noise, pool recounted to 24 + 12 = 36 from data/events.json, win gate, section 10 deleted, 12 situations reworded.",
   "files_changed": [
     "design/proposals/2026-11-03-four-markets.md",
     "handoffs/feature-designer/2026-11-03-four-markets-direction.json"
@@ -14,7 +14,7 @@
       "nudge_base": "A1 4-6, A2 5-7, A3 6-8, B1 6-8, B2 7-9, B3 8-10, B4 10-12; cap dir_nudge_cap 14",
       "modifiers": "echo x1.25 (floor) if previous step of the same chain had the same sign; then late swing x1.5 (floor) at B3/B4 when |dir| >= 25 before the step and the nudge opposes the sign; then cap 14. Echo and swing stack in that order.",
       "ending": "dir >= 0 good, dir < 0 bad; sign of the whole sum, no band, no last-nudge tiebreak; no step fired = good",
-      "paths": "5 of 7 agreeing picks give a sure result, 3-4 can go either way; good share 50/49/52/54% (mil/lux/min/bio); B4 alone can flip the ending in about 40% of paths (|dir| within reach of zero), none in the other 60%",
+      "paths": "good share 50/49/53/54% (mil/lux/min/bio); 5 of 7 agreeing picks settle it; B4 alone flips about 40% of paths",
       "dir_table": {
         "MIL_A1": {
           "opt_a": 6,
@@ -81,16 +81,16 @@
           "opt_b": -6
         },
         "MIN_A3": {
-          "opt_a": -7,
-          "opt_b": 8
+          "opt_a": 7,
+          "opt_b": -8
         },
         "MIN_B1": {
           "opt_a": -8,
           "opt_b": 8
         },
         "MIN_B2": {
-          "opt_a": 7,
-          "opt_b": -9
+          "opt_a": -7,
+          "opt_b": 9
         },
         "MIN_B3": {
           "opt_a": 9,
@@ -109,16 +109,16 @@
           "opt_b": 5
         },
         "BIO_A3": {
-          "opt_a": 7,
-          "opt_b": -7
+          "opt_a": -7,
+          "opt_b": 7
         },
         "BIO_B1": {
           "opt_a": 6,
           "opt_b": -7
         },
         "BIO_B2": {
-          "opt_a": -9,
-          "opt_b": 9
+          "opt_a": 9,
+          "opt_b": -9
         },
         "BIO_B3": {
           "opt_a": -8,
@@ -129,14 +129,15 @@
           "opt_b": -12
         }
       },
-      "pattern_checks": "opt_a + in 14/28 (3,4,4,3); each step position 2 of 4; cash option + in 10/19; tech option + in 4/9; larger-bot-cut option + in 11/22",
+      "pattern_checks": "opt_a + 14/28; each position 2 of 4; cash-GAIN option + 10/19; cash-COST option + 10/22 (MIL 3/6, LUX 1/4, MIN 4/8, BIO 2/4); tech + 4/9; larger bot cut + 11/22; per-market +/- size sums within 2",
       "other_fixes": [
         "pool: 28 kept (EV01-16, EV17, EV19, EV20, EV21, EV22, EV24, EV25, EV26, EV28, BE01-BE03) + 12 new = 40; EV18 retired (fixes R9)",
         "check order win, swept, bankrupt; rescue: repossession first, no stipend in a repossession cycle, only first two stipends paid (rescue_max 2), stipend never ends the run",
         "timing: all effects at once, immediate result popup; Minerals chain A follow-ups kept as optional flavour popups only",
         "names Ostrel Syndicate, Seam Alloy; tech goals 9/18/12; cross_load 1.5; tier schedule 13/27, 11/24, 14/28; median win 27-28; tier hits -1 only",
         "core 4.3 now holds only id, trigger, neutral situation, dir; Gets/Costs/Bot live in economy 8.2"
-      ]
+      ],
+      "range": "about -62..+64"
     },
     "proposals": [],
     "stale_in_other_docs": [
@@ -145,21 +146,44 @@
       "four-markets-summary.md: R6, R7, R8, R11 and Q3 wording"
     ],
     "economy_must_change": [
-      "Mirror the dir column of core 4.3 into 8.2 and the 56 keys dir_<mkt>_<step>_<a|b> (all old dir values are replaced)",
-      "Keys: add dir_nudge_cap 14; dir_swing_threshold 25 (was 40); dir_good_min 0; delete dir_bad_max; dir_min -100, dir_max 100, dir_echo_mult 1.25, dir_swing_mult 1.5 stay; add rescue_max 2",
-      "Rewrite 8.3: dir mean/sd and good-ending share (now about 50% per market, range -63..+63) and recheck that ending class does not predict win rate; rerun the sim only if dir affects nothing else (it does not)",
-      "Fix counts in 8.2 (opt_a + count, bigger-cut + count) to the new pattern; remove 'dir values are core nudges unchanged'",
-      "Open question 7: adopt the default (repossession first, rescue_max 2); core section 2 now states it",
-      "Drop tier +1 boosts (core has tier only -1)",
-      "Pool size 40 not 37"
+      "Mirror the 8 changed dir values (MIN_A3, MIN_B2, BIO_A3, BIO_B2) in 8.2 and the nudge keys; nothing else in the dir column changes",
+      "Keys as before: dir_nudge_cap 14, dir_swing_threshold 25, dir_good_min 0, no dir_bad_max, rescue_max 2",
+      "Update 8.3: MIN range -62..+64, good share 50/49/53/54%; cash-gain 10/19 and cash-cost 10/22 counts in 8.2 pattern line",
+      "Pool size 36 (24 + 12)",
+      "Add win gate (B4 fired or cycle 38) to any sim that checks win cycles"
     ],
     "story_must_change": [
-      "END conditions: GOOD if dir >= 0, BAD if dir < 0 (replace 'dir 10 or more / -10 or less' and any last-nudge tiebreak text)",
-      "Delete EPI_NARROW and any epilogue keyed to a tie or last nudge (R17 closed: no such line)",
-      "Replace every situation/trigger phrase for the 28 steps with the neutral one-liners of core 4.3; flagged phrases (supply both sides, who it answers to, exclusive first pick, poached or paid, rival's flaw, crew paid off, last seam, open seed, patent request, seed bank door) must not appear in buttons or effect lines either",
-      "Result popup is immediate; remove any wording of delayed effects except Minerals A optional follow-ups",
-      "Names Ostrel Syndicate, Seam Alloy where still old"
-    ]
+      "Use the 12 changed neutral situations above; keep EV29, EV32, EV35 own text neutral (core only changes the label)",
+      "END_<MKT> conditions: GOOD dir >= 0, BAD dir < 0; no EPI_NARROW",
+      "EPI_RIVAL reads <mkt>_rival_broken_bot",
+      "Names Ostrel Syndicate, Seam Alloy"
+    ],
+    "dir_changes_pass3": "Exactly 8 values: MIN_A3 -7/+8 -> +7/-8; MIN_B2 +7/-9 -> -7/+9; BIO_A3 +7/-7 -> -7/+7; BIO_B2 -9/+9 -> +9/-9. Economy 8.2 mirrors these only.",
+    "pool": {
+      "kept_24_in_data_events_json": "EV01-EV16, EV17, EV20, EV21, EV22, EV24, EV25, EV26, EV28",
+      "not_in_data": "EV19 (unused story text only), BE01-BE03 (draft text in story/events.md only); EV23, EV27 do not exist; dropped from this goal",
+      "kept_with_chains": "EV29, EV32, EV35 plus follow-ups EV30, EV31, EV33, EV34, EV36, EV37",
+      "retired": "EV18",
+      "new": "EV40-EV51 (12)",
+      "total": 36
+    },
+    "gate": "Win not declared until that market's B4 fired or cycle 38; from 38 win allowed with dir as it stands; B4 takes the event slot before pool events; hold counter keeps counting",
+    "flags": "added <mkt>_rival_broken_bot; <mkt>_bot_marked follows R7",
+    "situations_changed": {
+      "MIL_A3": "a broker offers to sell a list of buyers",
+      "MIL_B4": "a large buyer asks you for a quote on a multi-cycle order",
+      "LUX_B1": "a venue books a date and asks for stock",
+      "LUX_B2": "the venue's list of buyers becomes public",
+      "MIN_A1": "a Cinderrest crew reports a problem at the site",
+      "MIN_A2": "the Greywake site reports a structural fault",
+      "MIN_B4": "a new survey result lists another deposit in range of your ships",
+      "BIO_A1": "a sample from an unknown source reaches your depot",
+      "BIO_A2": "a buyer asks to take a batch from your stock for testing",
+      "BIO_B1": "a buyer needs a rare strain by a deadline",
+      "BIO_B3": "an exchange offers you a numbered slot for your output",
+      "BIO_B4": "a storage firm offers space for your stock at set terms"
+    },
+    "summary_must_change": "R9: pool is 24 kept + 12 new = 36 (not 25 + 12, not 28 + 12). R14/R22: unchanged beyond the 8 dir values. Add the win gate (B4 fired or cycle 38)."
   },
   "open_questions": [
     "UNKNOWN: B4 alone flips the ending in about 40% of paths (|dir| near zero); owner may prefer a dead band, which would then need a rule for the middle.",

@@ -14,7 +14,7 @@ For owner approval. No game code. Three docs make up the pack (plus this file); 
 3. Spreading penalty: overhead 150 x (n-1)^2 per cycle plus 1.5x trip cost for mixed cross-market loads. Net cash at cycle 40: 23.9k with 1 market, 18.8k with 2, -7.8k with 3, -26.7k with 4. In the sim, 3-market and 4-market spreads and every split of 75/25 or worse won 0 of 240 runs; an 85/15 split won 10 of 240 (4.2%).
 4. Bots: bot_1..3 (named in the story doc), per-market strength, growth and tier, gap rule, event hits S/M/L: economy section 4.
 5. Trees: 7 nodes per market (4 skills, 3 tech by crafting) plus 3 Foundations; old 15 skills mapped: core section 3, costs in economy section 5.
-6. Events: two chains per market (3 and 4 steps), two choices each, every choice changes a bot stat (rule R-BOT), shared pool of 28 existing plus 12 new = 40 (EV18 retired): core section 4.
+6. Events: two chains per market (3 and 4 steps), two choices each, every choice changes a bot stat (rule R-BOT), shared pool of 24 existing plus 12 new = 36 (EV18 retired): core section 4.
 7. Endings: END_<MKT>_GOOD and _BAD for each market, plus END_BANKRUPT, END_SWEPT, END_OUTCOMPETED: core section 6, full text in story section 2.
 8. Military sample chain, fully written: story section 3.
 
@@ -31,7 +31,7 @@ These are my defaults so the pack is consistent. Each is listed again as an open
 | R6 | "Variant chosen by the last choice" is ambiguous | Per chain, keyed to the option id picked in the previous step of the same chain. B1 has one body. |
 | R7 | Which bot is "marked" and ties | The bot with the biggest cut from the last option chosen; boosts never count, a tier cut counts as medium; a tie goes to the lower bot number. |
 | R8 | Tier cut wording on a bot already at the lowest tier | The game fills {cut} and {cut_std} with tier wording, or "loses strength clearly" at the lowest tier. Tier epilogue fires only if a tier really dropped. |
-| R9 | Shared pool counts disagreed (25 vs 24 listed) | Pool = 28 kept (EV01 to EV17, EV19 to EV22, EV24 to EV26, EV28, BE01 to BE03; EV18 retired) + 12 new (EV40 to EV51) = 40. |
+| R9 | Shared pool counts disagreed (25 vs 24 listed) | Pool = 24 kept (the pool rows that exist in data/events.json; EV19, BE01 to BE03 are draft text only, EV23 and EV27 do not exist; EV18 retired) + 12 new (EV40 to EV51) = 36 (recounted in R27 pass, core section 4 decides). |
 | R10 | Names: Dunmere Syndicate vs Dunmere Reach, Lattice Alloy vs Lattice Plate | Ostrel Syndicate, Seam Alloy (story doc). |
 | R11 | End screen must not reveal the hidden record | No counts, labels or direction on the end screen. `END_STAT_RECORD` is removed. |
 | R12 | Win rate is knife-edge (+-8% bot strength flips 100% to 0%) | Add one global `bot_scale` key so QA can tune; target focused win rate 56 to 98% as measured on the paper model, to be re-checked on the real game. |
