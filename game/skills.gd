@@ -205,14 +205,14 @@ static func stock_growth(m: String) -> Dictionary:
 			cap += _key(e, "cap_key")
 	return {} if rate <= 0.0 else {"rate": rate, "cap": cap}
 
-## stock_protect: stored stock of market m keeps its value when a planet closes (flag; nothing in the game loses it yet).
+## stock_protect: stored stock of market m is not trimmed when an asteroid hit cuts a planet storage (Storage.cut_capacity).
 static func stock_protect(m: String) -> bool:
 	for e in _eff("stock_protect"):
 		if _hits(e, m):
 			return true
 	return false
 
-## ore_free_slots: ore loads take no cargo or order space (flag; the game has no shared slots yet).
+## ore_free_slots: ore Buy and Sell orders ignore the order-size cap (RouteEngine.local_amount("ore")).
 static func ore_free_slots() -> bool:
 	return not _eff("ore_free_slots").is_empty()
 

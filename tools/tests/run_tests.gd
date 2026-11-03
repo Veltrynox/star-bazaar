@@ -2389,6 +2389,32 @@ func _test_skill_effects() -> void:
 	check(eng.fixed_cost() < f0, "hooks: upkeep_mult (MIL_1) lowers the ship upkeep")
 	check(m.clusters.yield_per_cycle() == floori(float(bal["mining_yield_per_cycle"]) * (1.0 + float(bal["skill_MIN_3_yield"]))) and m.clusters.yield_per_cycle() > y0, "hooks: cluster_yield_pct (MIN_3) raises mining yield")
 	m.learned_skills = []
+	# MIN_2 ore_free_slots: an ore order ignores the order-size cap
+	var ore_l0: int = eng.local_amount("ore")
+	m.learned_skills = ["MIN_2"]
+	var ore_l1: int = eng.local_amount("ore")
+	check(ore_l0 == eng.local_amount() and ore_l1 > ore_l0 * 100 and eng.local_amount("energy") == ore_l0, "MIN_2: ore orders are no longer capped by the order size (%d -> %d), other goods are" % [ore_l0, ore_l1])
+	m.learned_skills = []
+	# LUX_4 stock_protect: Luxury stock survives an asteroid cut of the storage
+	var lux_good := ""
+	for g in ["silk", "chips", "energy", "food"]:
+		if Markets.market_of(g) == "lux":
+			lux_good = g
+			break
+	var sk := "planet:2"
+	var cap_before: int = m.storage.capacity_of(sk)
+	m.storage.add(sk, lux_good, cap_before)
+	m.storage.cut_capacity(sk, 0.5)
+	var lux_cut: int = m.storage.amount(sk, lux_good)
+	m.storage.cuts.erase(sk)
+	m.storage.stock[sk][lux_good] = cap_before
+	m.learned_skills = ["LUX_4"]
+	m.storage.cut_capacity(sk, 0.5)
+	var lux_kept: int = m.storage.amount(sk, lux_good)
+	check(lux_good != "" and lux_cut < cap_before and lux_kept == cap_before and m.storage.space(sk, lux_good) == 0, "LUX_4: Luxury stock is trimmed by a storage cut without the skill (%d) and kept with it (%d)" % [lux_cut, lux_kept])
+	m.storage.cuts.erase(sk)
+	m.storage.stock.erase(sk)
+	m.learned_skills = []
 	m.events.active = [{"id": "T1", "kind": "up", "planet": 0, "c": "silk", "left": 3, "age": 0}, {"id": "T2", "kind": "down", "planet": 0, "c": "energy", "left": 3, "age": 0}]
 	var up0: float = m.events.price_factor(0, "silk")
 	var dn0: float = m.events.price_factor(0, "energy")

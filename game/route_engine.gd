@@ -180,10 +180,16 @@ func units_per_cycle(rec = null, good: String = "") -> int:
 		base *= Skills.route_capacity_mult(Markets.market_of(carried))
 	return floori(base)
 
+## MIN_2: an ore order is limited by storage room, cash and stock only, not by the order-size cap.
+const ORE_UNCAPPED := 1000000
+
 ## Units a local Buy / Sell order handles per cycle (T82: order_amount, own key; order_size_pct skills raise it).
 ## Shared pool: one order record per planet + commodity and role, so routes touching that storage share it.
-func local_amount() -> int:
-	return floori(float(balance.get("order_amount", 0)) * Skills.order_size_mult())
+func local_amount(good: String = "") -> int:
+	var base := floori(float(balance.get("order_amount", 0)) * Skills.order_size_mult())
+	if good == "ore" and Skills.ore_free_slots():  # MIN_2: ore does not count against the order-size cap
+		return ORE_UNCAPPED
+	return base
 
 ## Fixed cost per cycle of a route that moves stock (trip + ship upkeep).
 func fixed_cost(rec = null) -> int:
@@ -392,7 +398,7 @@ func _local_calc(planet: int, c: String, role: String, cash: int) -> Dictionary:
 	if role == "buy":
 		if storage.space(key, c) <= 0:
 			return {"n": 0, "credits": 0, "state": StoryText.get_text("NOT_STORAGE_FULL")}
-		var n: int = mini(local_amount(), storage.space(key, c))
+		var n: int = mini(local_amount(c), storage.space(key, c))
 		if price > 0:
 			n = mini(n, floori(float(maxi(cash, 0)) / price))
 		if n <= 0:
@@ -401,7 +407,7 @@ func _local_calc(planet: int, c: String, role: String, cash: int) -> Dictionary:
 	var have: int = sell_available(planet, c)  # owner 2026-11-01: a Sell also draws from Space Storage
 	if have <= 0:
 		return {"n": 0, "credits": 0, "state": "Storage empty."}
-	var m: int = mini(local_amount(), have)
+	var m: int = mini(local_amount(c), have)
 	return {"n": m, "credits": m * sold_price(planet, c), "state": "Selling."}
 
 # ---- routes ----
@@ -650,7 +656,7 @@ func project_storage(key: String, c: String, cash: int = 1 << 40) -> Dictionary:
 		if not planet_open(p) or price < 0 or (trade_gate.is_valid() and not bool(trade_gate.call(p))):
 			continue
 		var pk: String = storage.planet_key(p)
-		var n: int = mini(local_amount(), storage.capacity_of(pk) - int(get_amt.call(pk)))
+		var n: int = mini(local_amount(c), maxi(0, storage.capacity_of(pk) - int(get_amt.call(pk))))
 		if price > 0:
 			n = mini(n, floori(float(maxi(cur, 0)) / price))
 		if n > 0:
@@ -676,7 +682,7 @@ func project_storage(key: String, c: String, cash: int = 1 << 40) -> Dictionary:
 		var have: int = int(get_amt.call(src)) + (int(get_amt.call(sk)) if sk != "" else 0)
 		if from_cluster(rec):
 			have = src_available(rec)
-		var room: int = storage.capacity_of(dst) - int(get_amt.call(dst))
+		var room: int = maxi(0, storage.capacity_of(dst) - int(get_amt.call(dst)))
 		if have <= 0 or room <= 0 or cur < fixed_cost(rec):
 			continue
 		var lk := _lane_key(int(rec["a"]), int(rec["b"]), c)
@@ -704,7 +710,7 @@ func project_storage(key: String, c: String, cash: int = 1 << 40) -> Dictionary:
 		var pk: String = storage.planet_key(p)
 		var sk := space_key_for(p)
 		var have: int = int(get_amt.call(pk)) + (int(get_amt.call(sk)) if sk != "" else 0)
-		var n: int = mini(local_amount(), have)
+		var n: int = mini(local_amount(c), have)
 		if n <= 0:
 			continue
 		var from_planet: int = mini(n, int(get_amt.call(pk)))
@@ -819,8 +825,8 @@ func forecast(cash: int) -> Dictionary:
 		elif trade_gate.is_valid() and not bool(trade_gate.call(p)):
 			state = StoryText.get_or("LBL_TRADE_NEEDS_STATION", "Needs a Space Storage in this system.")
 		else:
-			var room: int = storage.capacity_of(pk) - int(amt.call(pk, c))
-			var n: int = mini(local_amount(), room)
+			var room: int = maxi(0, storage.capacity_of(pk) - int(amt.call(pk, c)))
+			var n: int = mini(local_amount(c), room)
 			if room <= 0:
 				state = StoryText.get_text("NOT_STORAGE_FULL")
 			else:
@@ -851,7 +857,7 @@ func forecast(cash: int) -> Dictionary:
 		if not src_open(rec) or not dst_open(rec):
 			line["status"] = "blocked"
 			continue
-		var room: int = storage.capacity_of(dst) - int(amt.call(dst, c))
+		var room: int = maxi(0, storage.capacity_of(dst) - int(amt.call(dst, c)))
 		if room <= 0:
 			line["status"] = "blocked" if not has_outflow(int(rec["b"]), c) else "waiting"
 			continue
@@ -884,7 +890,7 @@ func forecast(cash: int) -> Dictionary:
 			if sk != "" and from_planet < moved:
 				shadow[sk + "|" + c] = int(amt.call(sk, c)) - (moved - from_planet)
 			if stop_open(rec):
-				var sold := mini(moved, local_amount())
+				var sold := mini(moved, local_amount(c))
 				sale = sold * sold_price(int(rec["stop"]), c)
 				carried = moved - sold
 		shadow[dst + "|" + c] = int(amt.call(dst, c)) + carried
@@ -914,7 +920,7 @@ func forecast(cash: int) -> Dictionary:
 			if have <= 0:
 				state = "Storage empty."
 			else:
-				var n: int = mini(local_amount(), have)
+				var n: int = mini(local_amount(c), have)
 				var from_planet: int = mini(n, int(amt.call(pk, c)))
 				shadow[pk + "|" + c] = int(amt.call(pk, c)) - from_planet
 				if sk != "" and from_planet < n:
@@ -1095,7 +1101,7 @@ func _settle_one(rec: Dictionary, cash: int) -> int:
 	var carried := from_planet
 	var sale := 0
 	if stop_open(rec):  # N9: the stop buys up to its Sell order amount; the rest is carried on
-		var sold := mini(from_planet, local_amount())
+		var sold := mini(from_planet, local_amount(c))
 		sale = sold * sold_price(int(rec["stop"]), c)
 		carried = from_planet - sold
 		_note_sale(c, sold, int(rec["stop"]))

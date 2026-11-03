@@ -45,6 +45,8 @@ func cut_capacity(key: String, pct: float) -> void:
 	if not stock.has(key):
 		return
 	for c in commodities:
+		if Skills.stock_protect(Markets.market_of(str(c))):  # LUX_4: Luxury stock survives the cut
+			continue
 		stock[key][c] = mini(amount(key, c), capacity_of(key))
 
 func cuts_to_dict() -> Dictionary:
@@ -71,7 +73,7 @@ func amount(key: String, c: String) -> int:
 	return int(stock[key].get(c, 0))
 
 func space(key: String, c: String) -> int:
-	return capacity_of(key) - amount(key, c)
+	return maxi(0, capacity_of(key) - amount(key, c))
 
 ## Adds up to n units (buy order filling the storage). Returns units actually stored.
 func add(key: String, c: String, n: int) -> int:
