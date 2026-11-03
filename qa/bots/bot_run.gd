@@ -31,6 +31,8 @@ extends SceneTree
 ##   sloppy        one lane, locked at cycle 1: never re-planned, never removed, even when blocked;
 ##                 buys no ship beyond the lane's one; learns no skills.
 ##   never_expand  one lane (best profit), the tutorial ship only, forever; learns skills.
+##   local_focus   QA 2026-11-03: no routes, no ships beyond the tutorial one. Buy and Sell orders on every open planet
+##                 that trades a --market good (local orders move order_amount units a cycle without a ship). learns skills.
 ##
 ## Options (after --):
 ##   --strategy=decent|sloppy|always_expand|never_expand|mining_focus
@@ -39,6 +41,8 @@ extends SceneTree
 ##   --event-policy=first|decline   how event notices are answered (see _event_pick)
 ##   --clock=fast|timer
 ##   --choice=alt|RELEASE|CORP   alt: odd seed RELEASE, even seed CORP (default alt)
+##   --local-orders          QA 2026-11-03: also Buy and Sell on every focus-market planet, whatever the strategy
+##   --market=mil|lux|min|bio  market focus (QA 2026-11-03): only goods of that market are traded (lanes and clusters)
 ##   --force-goal=<cycle>    turns on the debug "Force market share" (mil) at that cycle
 ##                           (debug builds only; QA reaches the choice early)
 ##   --inject=<cycle>:<credits>  QA test input: credits added at the start of that cycle
@@ -63,7 +67,7 @@ extends SceneTree
 const MAIN_SCENE := "res://game/main.tscn"
 const SaveGame := preload("res://game/save_game.gd")
 const SkillTree := preload("res://game/skill_tree.gd")
-const STRATEGIES := ["decent", "sloppy", "always_expand", "never_expand", "mining_focus", "dead_run"]
+const STRATEGIES := ["decent", "sloppy", "always_expand", "never_expand", "mining_focus", "dead_run", "local_focus"]
 const DECENT_LANES := 24  # no lane cap, matching tools/sim.py decent (ship_cap is the only limit)
 const DECENT_FROM_CYCLE := 1  # buy from the first cycle, matching tools/sim.py decent
 const DECENT_RESERVE := 0  # no cash reserve, matching tools/sim.py decent
@@ -147,6 +151,9 @@ var closure_start_ids: Array = []  # route ids touching close_planet when the cl
 var closed_order_units := 0  # units traded by Buy or Sell orders at close_planet while it was closed (must stay 0)
 var closed_order_rows := 0  # order rows at close_planet with a non-zero trade while closed (must stay 0)
 var probe_rows: Array = []
+var local_orders := false  # --local-orders: Buy and Sell on every focus-market planet, on top of any strategy
+var market_focus := ""  # --market=<id>: trade only goods of this market (empty: all goods)
+var share_rows: Array = []  # per cycle end: [cycle, [share per Markets.ids], cash] (market readout for QA)
 var events_resolved := 0  # events answered by _resolve_events (0 while the hook is a stub)
 
 
@@ -180,6 +187,10 @@ func _initialize() -> void:
 			close_at = int(arg.trim_prefix("--close-at="))
 		elif arg == "--keep-closed":
 			keep_closed = true
+		elif arg == "--local-orders":
+			local_orders = true
+		elif arg.begins_with("--market="):
+			market_focus = arg.trim_prefix("--market=")
 		elif arg == "--no-permit":
 			default_permit = false
 		elif arg.begins_with("--permit="):
@@ -369,6 +380,8 @@ func _ranked_lanes(ignore_closed := false) -> Array:
 	var n: int = main.trade.planets.size()
 	for c in main.engine.commodities:
 		var cs := str(c)
+		if market_focus != "" and Markets.market_of(cs) != market_focus:
+			continue
 		for a in n:
 			for b in n:
 				if a == b or (not ignore_closed and (not main.engine.planet_open(a) or not main.engine.planet_open(b))):
@@ -405,6 +418,8 @@ func _plan() -> Array:
 			return _mining_plan(ranked)
 		"never_expand":
 			return ranked.slice(0, mini(1, ranked.size()))
+		"local_focus":
+			return []  # no lanes: the orders are set in _apply_orders
 		"decent":
 			return ranked.slice(0, mini(DECENT_LANES, ranked.size()))
 		_:  # always_expand
@@ -532,6 +547,8 @@ func _remove_route(id: int) -> void:
 ## Buy / Sell toggles. Each role is on only at the lane's ends: buy at a, sell at b.
 func _apply_orders(active: Array) -> void:
 	var want := {}
+	if strategy == "local_focus" or local_orders:
+		_local_focus_want(want)
 	for lane in active:
 		if _buy_wanted(int(lane["a"]), str(lane["c"])):
 			want["%d|%s|buy" % [int(lane["a"]), str(lane["c"])]] = true
@@ -551,6 +568,23 @@ func _apply_orders(active: Array) -> void:
 	for key in want.keys():
 		var parts: PackedStringArray = str(key).split("|")
 		_set_order(int(parts[0]), parts[1], parts[2], true)
+
+
+## local_focus: Buy and Sell on every open planet that trades a focus good (buy price > 0, sell price >= 0).
+func _local_focus_want(want: Dictionary) -> void:
+	for c in main.engine.commodities:
+		var cs := str(c)
+		if market_focus != "" and Markets.market_of(cs) != market_focus:
+			continue
+		for p in main.trade.planets.size():
+			if not main.engine.planet_open(p):
+				continue
+			if DeadWorlds.is_dead(main.trade.planets[p]) and (main.cycle < main.dead_unlock_cycle() or not main.has_skill("M2" if str(main.trade.planets[p].get("id", "")) == "dead_2" else "M1")):
+				continue  # the game refuses orders at a dead world until it opens and its skill is learned (Cold Survey M1, Deep Cut M2)
+			if int(main.trade.price(p, cs + "_buy")) > 0:
+				want["%d|%s|buy" % [p, cs]] = true
+			if int(main.trade.price(p, cs + "_sell")) >= 0:
+				want["%d|%s|sell" % [p, cs]] = true
 
 
 ## QA: the planet index that sells plate (Voltara, the one with a plate_sell price). Index 0 in data/planets.json.
@@ -721,7 +755,7 @@ func _mining_plan(ranked: Array) -> Array:
 ## T161: one ore lane per live cluster (best open destination, same system unless C3). Ore is free at the cluster.
 func _cluster_lanes() -> Array:
 	var out: Array = []
-	if not main.engine.commodities.has("ore"):
+	if not main.engine.commodities.has("ore") or (market_focus != "" and Markets.market_of("ore") != market_focus):
 		return out
 	var units: int = mini(int(main.engine.units_per_cycle()), int(main.clusters.yield_per_cycle()))
 	var fixed: int = int(main.engine.fixed_cost())
@@ -1048,11 +1082,20 @@ func _log_events() -> void:
 func _on_cycle_ended(cycle: int) -> void:
 	ended_count += 1
 	last_ended = cycle
+	share_rows.append([cycle, _shares_now(), main.cash])
 	expect_over = cycle >= win_cycle or not Markets.verdict(cycle).is_empty()  # win, swept or the last cycle
 	if expect_over and first_over_cycle < 0:
 		first_over_cycle = cycle
 	if probe != "":
 		probe_rows.append(_probe_row(cycle))
+
+
+## Player share of every market now (order = Markets.ids), rounded to 0.1%.
+func _shares_now() -> Array:
+	var out: Array = []
+	for m in Markets.ids:
+		out.append(snappedf(Markets.share(m), 0.001))
+	return out
 
 
 ## QA probe row: [cycle, cash, {sid: [open, post open]}, {sid: space stock}, {sid: planet stock}, closed planets, routes].
@@ -1319,6 +1362,12 @@ func _finish() -> bool:
 		"skip_skills": skip_skills,
 		"events_resolved": events_resolved,
 		"probe": probe_rows,
+		"market_focus": market_focus,
+		"market_ids": Markets.ids,
+		"share_rows": share_rows,
+		"final_shares": _shares_now(),
+		"final_best": Markets.best(),
+		"win_streaks": Markets.win_streak,
 		"close_at": close_at,
 		"close_planet": close_planet,
 		"closure": _closure_summary() if close_planet >= 0 else {},
