@@ -204,6 +204,18 @@ func _test_share_graph() -> void:
 	var CP := load("res://game/competitors_panel.gd")
 	check(CP.trend_text(0.056).ends_with("6") and CP.trend_text(-0.03).ends_with("3") and CP.trend_text(0.001) == "-", "competitors: trend text")
 	check(StoryText.has_text("LBL_COMP_TITLE") and StoryText.has_text("LBL_COMP_SHARE") and StoryText.has_text("LBL_COMP_TREND"), "story: competitors ids present")
+	var cp = CP.new()
+	var bal_c = _read_json("res://data/balance.json")["values"]
+	Markets.reset(bal_c, 3)
+	Chains.reset(bal_c, 3)
+	check(cp.log_lines("mil").is_empty(), "competitors log: empty before any chain choice")
+	Chains.apply_option("MIL_A1", "opt_a", 6)
+	var ll: Array = cp.log_lines("mil")
+	check(ll.size() > 0 and str(ll[0]).begins_with("Cycle 6:"), "competitors log: entry after Chains.apply_option", str(ll))
+	check(StoryText.has_text("LBL_COMP_NONE") and StoryText.has_text("LBL_COMP_EVENTS") and StoryText.has_text("LBL_COMP_CYCLE"), "story: competitors log ids present")
+	cp.free()
+	Chains.reset(bal_c, 0)
+	Markets.reset(bal_c, 0)
 
 func _test_story_text() -> void:
 	var list = _read_json("res://data/story_text.json")

@@ -2324,6 +2324,8 @@ func _apply_chain_choice(choice: int, id: String) -> void:
 	cash += int(res["cash"])
 	for t in res["tech"]:
 		craft_units(str(t[0]), int(t[1]))
+	if competitors_panel != null:
+		competitors_panel.refresh()
 	if Chains.market_of(id) == "min":
 		events.schedule_chain_follow(id, opt, cycle)
 	events.pending_id = ""

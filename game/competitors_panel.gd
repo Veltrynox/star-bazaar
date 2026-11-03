@@ -62,6 +62,7 @@ var _legend: HBoxContainer
 var _table: GridContainer
 var _hdr_share: Label
 var _hdr_trend: Label
+var _log_box: VBoxContainer
 
 ## Player first, then the bots. Colour-blind-safe set from the theme tokens, with different widths.
 static func line_color(i: int) -> Color:
@@ -120,6 +121,18 @@ func setup(main_node: Control) -> void:
 	_table.add_theme_constant_override("h_separation", 18)
 	_table.add_theme_constant_override("v_separation", 4)
 	_root.add_child(_table)
+	var log_head := Label.new()
+	log_head.text = StoryText.get_or("LBL_COMP_EVENTS", "Recent moves")
+	log_head.theme_type_variation = "LabelMuted"
+	_root.add_child(log_head)
+	_log_box = VBoxContainer.new()
+	_log_box.add_theme_constant_override("separation", 3)
+	var log_scroll := ScrollContainer.new()
+	log_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	log_scroll.custom_minimum_size = Vector2(0, 96)
+	_log_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	log_scroll.add_child(_log_box)
+	_root.add_child(log_scroll)
 	if not Markets.ids.is_empty():
 		_market = str(Markets.ids[0])
 
@@ -153,6 +166,17 @@ func rows_for(m: String) -> Array:
 	for k in Bots.IDS.size():
 		rows.append({"name": Bots.bot_name(Bots.IDS[k]), "values": s["bots"][k], "share": Markets.bot_share(Bots.IDS[k], m)})
 	return rows
+
+## Log lines of market m, newest first: "Cycle 7: Harrow Combine: Military strength down". Empty list when nothing happened.
+func log_lines(m: String) -> Array:
+	var out := []
+	var entries: Array = Chains.rival_log()
+	for i in range(entries.size() - 1, -1, -1):
+		var e: Dictionary = entries[i]
+		if str(e.get("market", "")) != m:
+			continue
+		out.append("%s %s" % [StoryText.get_or("LBL_COMP_CYCLE", "Cycle {n}:", {"n": int(e["cycle"])}), Chains.rival_phrase(e)])
+	return out
 
 func refresh() -> void:
 	if main == null or not visible or _market == "":
@@ -196,6 +220,7 @@ func refresh() -> void:
 		var t := _cell(trend_text(d), "LabelNumber", true)
 		if roundi(d * 100.0) != 0:
 			t.add_theme_color_override("font_color", Ui.col("signal_good") if d > 0.0 else Ui.col("signal_bad"))
+	_refresh_log()
 
 func _cell(text: String, variation: String, right: bool) -> Label:
 	var l := Label.new()
@@ -205,3 +230,22 @@ func _cell(text: String, variation: String, right: bool) -> Label:
 		l.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	_table.add_child(l)
 	return l
+
+func _refresh_log() -> void:
+	for c in _log_box.get_children():
+		_log_box.remove_child(c)
+		c.queue_free()
+	var lines := log_lines(_market)
+	if lines.is_empty():
+		var n := Label.new()
+		n.text = StoryText.get_or("LBL_COMP_NONE", "No rival moves yet.")
+		n.theme_type_variation = "LabelSmall"
+		_log_box.add_child(n)
+		return
+	for t in lines:
+		var l := Label.new()
+		l.text = str(t)
+		l.theme_type_variation = "LabelSmall"
+		l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		_log_box.add_child(l)
