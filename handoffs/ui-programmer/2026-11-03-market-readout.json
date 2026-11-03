@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-03",
+  "task": "market-readout",
+  "status": "done",
+  "files_changed": [
+    "game/share_panel.gd",
+    "game/main.gd",
+    "game/end_screen.gd",
+    "story/screens.md",
+    "data/story_text.json",
+    "tools/tests/run_tests.gd",
+    "handoffs/ui-programmer/2026-11-03-market-readout.json"
+  ],
+  "open_questions": [
+    "story-designer: story/screens.md was edited (data/story_text.json is built from it, so editing the json alone is reverted by tools/build_story.py): old LBL_GOAL and the Choice screen section removed, LBL_GOAL_MARKETS added. Please confirm. story/voice.md and endings.md still mention the cash goal and CHOICE_CORP.",
+    "story-designer: ids the UI uses with plain fallbacks, not yet in story: LBL_SHARE_TITLE (Market share), LBL_SHARE_HOLD (Held {n} of {total} cycles), LBL_SPREAD_COST (Spreading cost per cycle: {n}), LBL_SHARE_YOU (You). Bot names are still the TODO names in bots.gd.",
+    "UNKNOWN: the chip sits at the right end of the expanding goal label, not directly beside it. Move it next to the goal text?"
+  ],
+  "handoff": "Top bar: goal line now shows LBL_GOAL_MARKETS and a ghost-button chip (best market and share, dash with no volume; click or M opens the panel). New game/share_panel.gd: a row per market with the share bar and 50% mark, bot shares as small text, hold line when above 50%, spreading cost line when 2+ markets active. It refreshes in main._refresh, closes on Esc, and closes when skills or the galaxy open. End screen shows a box with the win market share and the three bots (main passes stats.market). Old goal and choice story rows removed. Tests: 1005 pass, 0 fail (4 new). Seen by screenshot: top bar, panel, end screen. Not checked: narrow window, second-lane line with the chip, hold line above 50%.",
+  "details": {
+    "how_to_see": "Run the game, press M (or click the chip in the top bar). Esc closes. End screen: debug menu force market share."
+  }
+}
