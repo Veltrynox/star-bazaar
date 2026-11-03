@@ -12,15 +12,15 @@
     "Late cash is worth ~0 (12k unspent): B3/B4 cash trade-offs only balance by retuning bot sizes; owner may add a late cash sink (upgrade_cost 900 to 1500) instead.",
     "85/15 split still wins 4.6% (11/240) and medians land at cycle 26-28, not 28-36; accept, or raise market_active_pct to 0.15 / bot_scale to ~0.88 (win rate then 45-70%)?",
     "Tier -1 cells fire before the bot's first tier-up and become strength M (R8): store tier cuts as a persistent offset? (about +5 points for those options, not applied)",
-    "Repossession vs rescue stipend (game/main.gd _check_stranded pays 1000 unlimited): smallest rule = repossess first, no stipend that cycle, pay only 2 stipends (new key rescue_max 2). Needs owner approval."
+    "Path-level gap: all-opt_b beats all-opt_a by 20/22/27 points in mil/lux/min (0 in bio) though every step is within 10 and all 512 paths are 57.5-97.5%: acceptable?"
   ],
-  "handoff": "Open/Hard removed (open_volume_bonus, hard_fee, all stance tables). Sim over all 128 option paths per market (200 seeds, common seeds), bot_scale 0.85, bot_2_lux_strength 1700 to 1900. Mean focused win 77/88/84/72% (mil/lux/min/bio), median win cycle 26-28, final share 51-54% for every path class, 499 of 512 paths in 56-98%. Step deltas now -10..+7 points (were up to -37); 24 option cells retuned. Core table cells mapped to numbers (section 8). data/balance.json untouched. MIL_B3 opt_b now has cost cash -150 (every option has Gets and Costs). S1/S2 now ADOPTED rules; END_SWEPT reachable only for a repossessed 4-market spreader (84% with 2 ships left), never focused.",
+  "handoff": "Open/Hard removed (open_volume_bonus, hard_fee, all stance tables). Sim over all 128 option paths per market (200 seeds, common seeds), bot_scale 0.85, bot_2_lux_strength 1700 to 1900. Mean focused win 77/88/84/72% (mil/lux/min/bio), median win cycle 26-28, final share 51-54% for every path class, 499 of 512 paths in 56-98%. Step deltas now -10..+7 points (were up to -37); 24 option cells retuned. Core table cells mapped to numbers (section 8). data/balance.json untouched. MIL_B3 opt_b now has cost cash -150 (every option has Gets and Costs). S1/S2 now ADOPTED rules; END_SWEPT reachable only for a repossessed 4-market spreader (84% with 2 ships left), never focused. Window fix: all 512 paths now 57.5-97.5%; 85/15 wins 10/240. Direction rerun: new dir table and rules mirrored; 9 options got an own cost; all 512 paths 57.5-97.5%; rescue_max 2 adopted.",
   "details": {
     "balance_keys_proposed": {
       "bot_scale": 0.85,
       "bot_2_lux_strength": {
         "old": 1700,
-        "new": 1900
+        "new": 2015
       },
       "event_volume_S": 0.05,
       "event_volume_M": 0.1,
@@ -47,9 +47,8 @@
       "event_hit_tier": 1,
       "dir_echo_mult": 1.25,
       "dir_swing_mult": 1.5,
-      "dir_swing_threshold": 40,
-      "dir_good_min": 10,
-      "dir_bad_max": -10,
+      "dir_swing_threshold": 25,
+      "dir_good_min": 0,
       "dir_min": -100,
       "dir_max": 100,
       "win_focus_cycles": [
@@ -60,7 +59,13 @@
       "option_step_spread_max": 10,
       "sweep_hold_cycles": 3,
       "sweep_share_pct": 0.1,
-      "sweep_earliest_cycle": 25
+      "sweep_earliest_cycle": 25,
+      "bot_2_bio_strength": {
+        "old": 1170,
+        "new": 1100
+      },
+      "dir_nudge_cap": 14,
+      "rescue_max": 2
     },
     "keys_removed": [
       "open_volume_bonus",
@@ -68,90 +73,90 @@
     ],
     "dir_nudge_keys": {
       "dir_mil_A1_a": 6,
-      "dir_mil_A1_b": -8,
-      "dir_mil_A2_a": -9,
-      "dir_mil_A2_b": 10,
-      "dir_mil_A3_a": 12,
-      "dir_mil_A3_b": -14,
-      "dir_mil_B1_a": -10,
-      "dir_mil_B1_b": 8,
-      "dir_mil_B2_a": 11,
-      "dir_mil_B2_b": -13,
-      "dir_mil_B3_a": -16,
-      "dir_mil_B3_b": 14,
-      "dir_mil_B4_a": 24,
-      "dir_mil_B4_b": -26,
-      "dir_lux_A1_a": 5,
-      "dir_lux_A1_b": -7,
-      "dir_lux_A2_a": -9,
-      "dir_lux_A2_b": 10,
-      "dir_lux_A3_a": -12,
-      "dir_lux_A3_b": 13,
-      "dir_lux_B1_a": 9,
-      "dir_lux_B1_b": -10,
-      "dir_lux_B2_a": -11,
-      "dir_lux_B2_b": 12,
-      "dir_lux_B3_a": 15,
-      "dir_lux_B3_b": -14,
-      "dir_lux_B4_a": -25,
-      "dir_lux_B4_b": 26,
-      "dir_min_A1_a": 7,
+      "dir_mil_A1_b": -4,
+      "dir_mil_A2_a": 7,
+      "dir_mil_A2_b": -6,
+      "dir_mil_A3_a": 8,
+      "dir_mil_A3_b": -7,
+      "dir_mil_B1_a": -6,
+      "dir_mil_B1_b": 7,
+      "dir_mil_B2_a": -9,
+      "dir_mil_B2_b": 7,
+      "dir_mil_B3_a": -9,
+      "dir_mil_B3_b": 8,
+      "dir_mil_B4_a": -11,
+      "dir_mil_B4_b": 10,
+      "dir_lux_A1_a": -4,
+      "dir_lux_A1_b": 6,
+      "dir_lux_A2_a": -6,
+      "dir_lux_A2_b": 5,
+      "dir_lux_A3_a": -8,
+      "dir_lux_A3_b": 7,
+      "dir_lux_B1_a": 7,
+      "dir_lux_B1_b": -6,
+      "dir_lux_B2_a": 9,
+      "dir_lux_B2_b": -8,
+      "dir_lux_B3_a": 9,
+      "dir_lux_B3_b": -10,
+      "dir_lux_B4_a": 10,
+      "dir_lux_B4_b": -11,
+      "dir_min_A1_a": 4,
       "dir_min_A1_b": -6,
-      "dir_min_A2_a": -9,
-      "dir_min_A2_b": 10,
-      "dir_min_A3_a": 13,
-      "dir_min_A3_b": -12,
-      "dir_min_B1_a": -9,
+      "dir_min_A2_a": 7,
+      "dir_min_A2_b": -6,
+      "dir_min_A3_a": -7,
+      "dir_min_A3_b": 8,
+      "dir_min_B1_a": -8,
       "dir_min_B1_b": 8,
-      "dir_min_B2_a": 11,
-      "dir_min_B2_b": -10,
-      "dir_min_B3_a": -14,
-      "dir_min_B3_b": 16,
-      "dir_min_B4_a": -24,
-      "dir_min_B4_b": 25,
-      "dir_bio_A1_a": 6,
-      "dir_bio_A1_b": -7,
-      "dir_bio_A2_a": -8,
-      "dir_bio_A2_b": 9,
-      "dir_bio_A3_a": 12,
-      "dir_bio_A3_b": -13,
-      "dir_bio_B1_a": -10,
-      "dir_bio_B1_b": 9,
-      "dir_bio_B2_a": 11,
-      "dir_bio_B2_b": -12,
-      "dir_bio_B3_a": -15,
-      "dir_bio_B3_b": 14,
-      "dir_bio_B4_a": 25,
-      "dir_bio_B4_b": -24
+      "dir_min_B2_a": 7,
+      "dir_min_B2_b": -9,
+      "dir_min_B3_a": 9,
+      "dir_min_B3_b": -8,
+      "dir_min_B4_a": -11,
+      "dir_min_B4_b": 12,
+      "dir_bio_A1_a": -4,
+      "dir_bio_A1_b": 6,
+      "dir_bio_A2_a": -7,
+      "dir_bio_A2_b": 5,
+      "dir_bio_A3_a": 7,
+      "dir_bio_A3_b": -7,
+      "dir_bio_B1_a": 6,
+      "dir_bio_B1_b": -7,
+      "dir_bio_B2_a": -9,
+      "dir_bio_B2_b": 9,
+      "dir_bio_B3_a": -8,
+      "dir_bio_B3_b": 10,
+      "dir_bio_B4_a": 11,
+      "dir_bio_B4_b": -12
     },
     "sim_results": {
       "mean_focused_win_rate": {
-        "mil": 0.77,
-        "lux": 0.88,
-        "min": 0.84,
-        "bio": 0.72
+        "mil": 0.76,
+        "lux": 0.82,
+        "min": 0.83,
+        "bio": 0.79
       },
       "best_to_worst_path": {
         "mil": [
-          0.94,
-          0.57
+          0.925,
+          0.575
         ],
         "lux": [
-          0.99,
-          0.58
+          0.95,
+          0.575
         ],
         "min": [
-          0.97,
+          0.975,
           0.61
         ],
         "bio": [
-          0.89,
-          0.51
+          0.895,
+          0.585
         ]
       },
       "median_win_cycle": {
         "mil": 27,
-        "lux": 26,
+        "lux": 27,
         "min": 28,
         "bio": 28
       },
@@ -163,38 +168,38 @@
         "mil": [
           -7,
           -9,
-          2,
-          2,
+          0,
+          3,
           -3,
-          7,
+          6,
           -10
         ],
         "lux": [
-          5,
-          -6,
+          7,
+          -9,
           -1,
-          -5,
-          -7,
           -6,
-          -8
+          -4,
+          -2,
+          -9
         ],
         "min": [
-          5,
+          6,
           -8,
-          -5,
+          -6,
           -7,
           -5,
           0,
           -9
         ],
         "bio": [
-          5,
-          7,
-          -3,
+          4,
           6,
-          -10,
-          -1,
-          -6
+          -2,
+          4,
+          -9,
+          -2,
+          -5
         ]
       },
       "flagged_before_retune": {
@@ -214,8 +219,8 @@
         "share": "44-46%"
       },
       "spread_wins_of_240": {
-        "100%": 193,
-        "85/15": 11,
+        "100%": 194,
+        "85/15": 10,
         "75/25": 0,
         "60/40": 0,
         "50/50": 0,
@@ -224,19 +229,68 @@
       },
       "bots_total_c33_36": {
         "mil": 3989,
-        "lux": 5270,
+        "lux": 5374,
         "min": 3574,
-        "bio": 3961
+        "bio": 3913
       },
       "bots_total_c17_20": {
         "mil": 3123,
-        "lux": 4103,
+        "lux": 4171,
         "min": 2882,
-        "bio": 3005
+        "bio": 2945
       },
       "plus_is_opt_a": "14 of 28",
-      "bigger_bot_cut_is_plus": "14 of 28",
-      "boost_options": 8
+      "bigger_bot_cut_is_plus": "15 of 28",
+      "boost_options": 8,
+      "paths_outside_56_98": 0,
+      "all_b_vs_all_a_win": {
+        "mil": [
+          0.88,
+          0.68
+        ],
+        "lux": [
+          0.9,
+          0.68
+        ],
+        "min": [
+          0.95,
+          0.68
+        ],
+        "bio": [
+          0.82,
+          0.82
+        ]
+      },
+      "good_vs_bad_ending_win": {
+        "mil": [
+          0.75,
+          0.77
+        ],
+        "lux": [
+          0.79,
+          0.84
+        ],
+        "min": [
+          0.86,
+          0.81
+        ],
+        "bio": [
+          0.79,
+          0.79
+        ]
+      },
+      "dir_sd": {
+        "mil": 22.8,
+        "lux": 23.4,
+        "min": 23.9,
+        "bio": 23.9
+      },
+      "good_ending_share": {
+        "mil": 0.5,
+        "lux": 0.49,
+        "min": 0.52,
+        "bio": 0.54
+      }
     },
     "skill_point_margin": "unchanged: options give no points; 21 supply vs 13 (one market) / 23 (two), dabbler 22",
     "sim_script": "scratchpad only (/private/tmp/claude-501/-Volumes-Work-Gamedev-Projects-AgentCourse-star-bazaar/ed07d136-777e-45ce-9242-e5c72c67bf29/scratchpad/dirsim.py, analyze.py, final.py); port to tools/sim.py in the data goal",
@@ -248,6 +302,28 @@
       "4mkt_25each_2ships_from_c20": 0.84,
       "4mkt_25each_1ship_from_c20": 1.0,
       "3mkt_33each_2ships_from_c25": 0.005
+    },
+    "window_fix_2026-11-03": {
+      "keys": {
+        "bot_2_lux_strength": "1900->2015",
+        "bot_2_bio_strength": "1170->1100"
+      },
+      "cells": {
+        "LUX_B2 opt_a bot": "bot_3 gro -30% -> bot_2 str -5% + bot_3 gro -30%",
+        "LUX_B3 opt_b bot": "bot_1 str -10%, bot_2 str -10% -> bot_1 str -5%, bot_2 str -5% (boost kept)",
+        "LUX_B4 opt_b": "bot_3 str -10% -> -5% (vol +5% rest, bot_2 str -10% unchanged)"
+      }
+    },
+    "own_cost_fix_2026-11-03": {
+      "MIL_A1 b": "+vol -5% 3cy",
+      "MIL_A3 a": "+upkeep +20% 4cy",
+      "MIL_B3 b": "+cash -150",
+      "LUX_A1 b": "+vol -5% 3cy",
+      "LUX_B2 b": "+price -8% 3cy",
+      "LUX_B3 b": "+vol -5% 4cy; boost moved to bot_3 str +5%, cuts bot_1 str -5% and bot_2 str -5%",
+      "MIN_A3 a": "+cash -150",
+      "BIO_A3 b": "+vol -5% 3cy",
+      "BIO_B2 b": "+upkeep +20% 4cy"
     }
   }
 }

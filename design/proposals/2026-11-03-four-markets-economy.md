@@ -1,8 +1,8 @@
 # Four Markets: economy numbers
 
-> Part of the Four Markets pack. Where the docs disagree, `2026-11-03-four-markets-summary.md` (reconciliation table R1 to R13) decides.
+> Part of the Four Markets pack. Where the docs disagree, `2026-11-03-four-markets-summary.md` (reconciliation table R1 to R27) decides.
 
-Date: 2026-11-03. Author: economy-designer. Status: PROPOSAL. `data/balance.json` is NOT edited; this file is the spec for the later data goal. Core design: `design/proposals/2026-11-03-four-markets.md` (ids fixed, not renamed). All numbers below come from a paper model written for this task (player volume ramp + 3 bots + the 28 chain steps from the core doc with neutral options opt_a / opt_b and the hidden `dir_<mkt>` rules, seeded noise, 60-200 seeds per case; direction rerun 2026-11-03 replaced the Open/Hard tables with all 2^7 option paths per market). The sim script lives in the session scratchpad only; porting it into `tools/sim.py` is part of the data goal (section 9). Stated limits: the player model is a ramp (ships at cycles 1/5/9/13/17, per-ship volume from the existing 16 units a cycle), not the Godot route engine, so QA bots must re-check every win cycle here.
+Date: 2026-11-03. Author: economy-designer. Status: PROPOSAL. `data/balance.json` is NOT edited; this file is the spec for the later data goal. Core design: `design/proposals/2026-11-03-four-markets.md` (ids fixed, not renamed). All numbers below come from a paper model written for this task (player volume ramp + 3 bots + the 28 chain steps from the core doc with neutral options opt_a / opt_b and the hidden `dir_<mkt>` rules, seeded noise, 60-200 seeds per case; direction rerun 2026-11-03 (history: the earlier Open/Hard stance tables were replaced by all 2^7 option paths per market)). The sim script lives in the session scratchpad only; porting it into `tools/sim.py` is part of the data goal (section 9). Stated limits: the player model is a ramp (ships at cycles 1/5/9/13/17, per-ship volume from the existing 16 units a cycle), not the Godot route engine, so QA bots must re-check every win cycle here.
 
 ## 1. Goods: price, cost, size, margin, recipes
 
@@ -97,21 +97,23 @@ Focused player, full tree, all 2^7 = 128 option paths per market, 200 seeds per 
 
 | Path class | mil | lux | min | bio |
 |---|---|---|---|---|
-| all 128 paths, mean (random path) | 77% / 27 / 52% | 88% / 26 / 52% | 84% / 28 / 52% | 72% / 28 / 51% |
-| best path to worst path | 94% to 57% | 99% to 58% | 97% to 61% | 89% to 51% |
-| paths ending good (dir 10 or more) | 72% / 27 / 52% | 91% / 26 / 52% | 87% / 28 / 53% | 68% / 28 / 51% |
-| paths ending bad (dir -10 or less) | 82% / 27 / 53% | 84% / 26 / 52% | 80% / 28 / 52% | 76% / 28 / 52% |
-| chain-committed: the + option every step | 70% / 27 / 51% | 96% / 26 / 52% | 94% / 27 / 53% | 58% / 29 / 51% |
-| chain-committed: the - option every step | 88% / 27 / 53% | 80% / 25 / 51% | 74% / 29 / 52% | 80% / 27 / 52% |
-| opt_a every step | 70% / 27 / 52% | 70% / 28 / 51% | 68% / 30 / 51% | 76% / 31 / 51% |
-| opt_b every step | 88% / 27 / 53% | 99% / 24 / 53% | 95% / 27 / 54% | 80% / 27 / 52% |
-| max own volume at every step | 79% / 27 / 52% | 94% / 25 / 52% | 88% / 29 / 53% | 88% / 28 / 52% |
-| max bot cut at every step | 80% / 29 / 52% | 90% / 27 / 52% | 85% / 29 / 52% | 70% / 29 / 51% |
-| max cash at every step | 82% / 26 / 52% | 96% / 26 / 53% | 86% / 29 / 52% | 71% / 27 / 51% |
+| all 128 paths, mean (random path) | 76% / 27 / 52% | 82% / 27 / 52% | 83% / 28 / 52% | 79% / 28 / 52% |
+| best path to worst path | 92.5% to 57.5% | 95% to 57.5% | 97.5% to 61% | 89.5% to 58.5% |
+| paths ending good (dir 0 or more) | 75% / 28 / 52% | 79% / 27 / 51% | 86% / 29 / 53% | 79% / 27 / 52% |
+| paths ending bad (dir below 0) | 77% / 27 / 52% | 84% / 27 / 52% | 81% / 28 / 52% | 79% / 29 / 52% |
+| chain-committed: the + option every step | 72% / 28 / 51% | 73% / 27 / 51% | 92% / 29 / 53% | 86% / 26 / 52% |
+| chain-committed: the - option every step | 82% / 26 / 53% | 90% / 27 / 52% | 78% / 28 / 52% | 84% / 31 / 52% |
+| opt_a every step | 68% / 27 / 51% | 68% / 29 / 51% | 68% / 30 / 51% | 82% / 30 / 51% |
+| opt_b every step | 88% / 27 / 53% | 90% / 25 / 52% | 95% / 27 / 54% | 82% / 27 / 52% |
+| max own volume at every step | 77% / 27 / 52% | 87% / 25 / 51% | 88% / 29 / 53% | 89% / 28 / 52% |
+| max bot cut at every step | 80% / 29 / 52% | 76% / 27 / 51% | 85% / 29 / 52% | 77% / 28 / 51% |
+| max cash at every step | 78% / 26 / 52% | 88% / 27 / 52% | 86% / 29 / 52% | 80% / 27 / 52% |
 
-Reading: all path classes win between 58% and 99% (best-worst across all 512 market paths: 99% to 51%; 5 of 512 paths are under the 56% floor (Biotech) and 8 are over 98% (Luxury), so the 56-98% claim holds for 499 of 512 paths and for every named class except Luxury with opt_b at every step, which wins 99%); the median win cycle is 24-31 in every class; final share is 51-54% for every class. A focused skill-complete player wins at cycle 26-28 in the median, floor 24 by the hold rule; the old "27-39" band is gone because the stance volume bonus no longer exists. With no events (no steps) the same player ends at 44-46% and wins 3-9% of runs: the steps decide the win, as designed. With low skill (volume bonus +10%) a focused player wins rarely: skills are required. A win never fired before B4: 0 of 19,794 mil wins, 22,536 lux, 21,469 min, 18,558 bio (core 4.2 holds).
+Reading: every one of the 512 market paths wins between 57.5% and 97.5% (per market: mil 57.5-92.5%, lux 57.5-95%, min 61-97.5%, bio 58.5-89.5%; per-market mean 76 / 82 / 83 / 79%), so 0 of 512 paths fall outside the owner-approved 56-98% window, and every named class sits between 68% and 95%. The median win cycle is 24-32 for single paths and 27-28 per market, final share 51-54% for every class. A focused skill-complete player wins at cycle 27-28 in the median, floor 24 by the hold rule (core 2.1 states medians 27-28, no 28-36 target). With no events (no steps) the same player ends at 44-46% and wins 3-9% of runs: the steps decide the win, as designed. With low skill (volume bonus +10%) a focused player wins rarely: skills are required. A win never fired before B4: 0 of 19,562 mil wins, 20,870 lux, 21,317 min, 20,199 bio (core 4.2 holds).
 
-Class gaps: good versus bad ending 72 vs 82 (mil), 91 vs 84 (lux), 87 vs 80 (min), 68 vs 76 (bio): at most 10 points and the sign differs by market, so no ending is the easier one.
+Path-level gap, reported as it is: each step is balanced to within 10 points, but the small biases add up. The path of all opt_b versus the path of all opt_a wins 88 vs 68% (mil, gap 20), 90 vs 68% (lux, 22), 95 vs 68% (min, 27) and 82 vs 82% (bio, 0). Best path to worst path is 35 / 37 / 36 / 31 points wide. The "+ every step" path versus the "- every step" path: 72 vs 82 (mil), 73 vs 90 (lux), 92 vs 78 (min), 86 vs 84 (bio). Screen order is shuffled per run, so a player cannot play "always the second button", but a player who reads each effect line and takes the stronger option in Luxury and Minerals does win more often than one who plays the weaker ones; no option set wins outright (every path is 57.5-97.5%).
+
+Class gaps: good (dir 0 or more) versus bad ending 75 vs 77 (mil), 79 vs 84 (lux), 86 vs 81 (min), 79 vs 79 (bio): at most 5 points and the sign differs by market, so ending class does not predict the win rate.
 
 ### 2.2 No dominant option: step-by-step spread and retune
 
@@ -119,17 +121,17 @@ For each step the win-rate delta = mean win rate of the 64 paths with opt_a at t
 
 | Step | mil | lux | min | bio |
 |---|---|---|---|---|
-| A1 | -7 | +5 | +5 | +5 |
-| A2 | -9 | -6 | -8 | +7 |
-| A3 | +2 | -1 | -5 | -3 |
-| B1 | +2 | -5 | -7 | +6 |
-| B2 | -3 | -7 | -5 | -10 |
-| B3 | +7 | -6 | 0 | -1 |
-| B4 | -10 | -8 | -9 | -6 |
+| A1 | -7 | +7 | +6 | +4 |
+| A2 | -9 | -9 | -8 | +6 |
+| A3 | 0 | -1 | -6 | -2 |
+| B1 | +3 | -6 | -7 | +4 |
+| B2 | -3 | -4 | -5 | -9 |
+| B3 | +6 | -2 | 0 | -2 |
+| B4 | -10 | -9 | -9 | -5 |
 
-Spread: -10 to +7 points, largest 10 (MIL_B4, BIO_B2), mean of absolute deltas 5.5; the + dir option is opt_a in 14 of 28 steps and the option with the larger bot cut is + in 14 of 28, so neither position, size nor bot cut predicts the ending. Delta sign is not constant in any market.
+Spread: -10 to +7 points, largest 10 (MIL_B4), mean of absolute deltas 5.3; the + dir option is opt_a in 14 of 28 steps and the option with the larger bot cut is + in 15 of 28, so neither position, size nor bot cut predicts the ending. Delta sign is not constant in any market (but see the path-level gap in 2.1).
 
-Before the retune (first pass with the core 4.3 cells) steps beyond 10 points were: MIL_B2 -13, MIL_B3 +10, LUX_A2 -11, LUX_B2 -10, LUX_B4 -16, MIN_A2 -11, MIN_B3 -33, MIN_B4 -19, BIO_B2 -12, BIO_B3 -22 (all because the better option had a volume or a strength cut and the other paid in cash, which is worth nothing late, or hit a minor bot, or used a growth cut that is worth about a quarter of a strength cut). The smallest retunes of Gets / Costs / Bot (24 cells; dir untouched), each listed as core cell to new cell:
+Before the retune (first pass with the core 4.3 cells) steps beyond 10 points were: MIL_B2 -13, MIL_B3 +10, LUX_A2 -11, LUX_B2 -10, LUX_B4 -16, MIN_A2 -11, MIN_B3 -33, MIN_B4 -19, BIO_B2 -12, BIO_B3 -22 (all because the better option had a volume or a strength cut and the other paid in cash, which is worth nothing late, or hit a minor bot, or used a growth cut that is worth about a quarter of a strength cut). The smallest retunes of Gets / Costs / Bot (25 rows), each listed as core cell to new cell:
 
 | Cell | Core 4.3 | Retuned | Why |
 |---|---|---|---|
@@ -140,12 +142,12 @@ Before the retune (first pass with the core 4.3 cells) steps beyond 10 points we
 | MIL_B4 a bot | bot_1 gro M down | bot_1 str M down | growth cut too weak late |
 | MIL_B4 b bot | bot_3 str M down | bot_3 str S down | b ahead by 10 |
 | LUX_A2 a bot | bot_2 gro S down | bot_2 gro L down | a lagged |
-| LUX_B2 a bot | bot_3 gro S down | bot_3 gro L down | a lagged |
+| LUX_B2 a bot | bot_3 gro S down | bot_3 gro L down, plus bot_2 str S down (window fix) | a lagged; adds the lead bot so Luxury paths stay under 98% |
 | LUX_B2 b costs | bot_2 str S UP | bot_2 str M UP | b ahead |
 | LUX_B3 a bot | bot_2 gro M down | bot_2 gro L down | a lagged |
-| LUX_B3 b bot | bot_2 str M down | bot_2 str S down | b ahead |
+| LUX_B3 b bot | bot_2 str M down, bot_1 str M down | bot_2 str S down, bot_1 str S down, boost on bot_3 str S UP (own cost added, see below) | b ahead; window fix; boost and cut no longer on the same bot |
 | LUX_B4 a bot | bot_2 str M down | bot_2 str L down | a lagged by 16-19 |
-| LUX_B4 b gets | vol +M rest | vol +S rest | b ahead |
+| LUX_B4 b gets and bot | vol +M rest; bot_3 str M down | vol +S rest; bot_3 str S down | b ahead; window fix |
 | MIN_A2 a bot | bot_3 gro S down | bot_3 gro M down | a lagged |
 | MIN_B2 b bot | bot_1 str M down | bot_1 str S down | b ahead |
 | MIN_B3 a bot | bot_1 str S UP, bot_3 str S down | bot_1 str L down, bot_3 str S down | cash +L is worthless late, option lagged by 33 |
@@ -159,7 +161,23 @@ Before the retune (first pass with the core 4.3 cells) steps beyond 10 points we
 | BIO_B3 b gets | vol +S rest | vol +S 6 cy | b ahead |
 | BIO_B4 a bot | bot_2 str M down | bot_2 str L down | a lagged |
 
-Calibration changes for this run: `bot_scale` 0.85 (new global key, owner approved), `bot_2_lux_strength` 1700 to 1900 (the lux player's 42 bv per unit made Luxury win at cycle 24 on every path), jitter assumptions in section 4. MIL_B3 b and MIN_B3 a are no longer boosts (MIL_B3 b now pays cash S 150 as its cost), so 8 of 28 steps carry a boost (was 10); R-BOT still holds (every option changes at least one bot stat).
+Own costs added (owner rule: every option gives and costs the player something; a rival boost alone is not a player cost). Each boost option now also pays a small own cost; MIL_B3 b had none and got cash S. New cells (full text in 8.2):
+
+| Option | Added own cost | Bot cells |
+|---|---|---|
+| MIL_A1 b | vol -5% 3 cy | unchanged (bot_3 str +5% boost, bot_1 str -5%) |
+| MIL_A3 a | upkeep +20% 4 cy | unchanged |
+| MIL_B3 b | cash -150 | unchanged |
+| LUX_A1 b | vol -5% 3 cy | unchanged |
+| LUX_B2 b | price -8% 3 cy | unchanged |
+| LUX_B3 b | vol -5% 4 cy | boost moved to bot_3 str +5%; cuts bot_1 str -5% and bot_2 str -5% (the old boost and cut on bot_1 cancelled) |
+| MIN_A3 a | cash -150 | unchanged |
+| BIO_A3 b | vol -5% 3 cy | unchanged |
+| BIO_B2 b | upkeep +20% 4 cy | unchanged |
+
+After these cells and the new dir table the sim was re-run in full (200 seeds, 128 paths per market): results in 2.1 and 2.2 are the final ones, no further bot key moved.
+
+Calibration changes for this run: `bot_scale` 0.85 (new global key, owner approved), `bot_2_lux_strength` 1700 to 2015 (the lux player's 42 bv per unit made Luxury win at cycle 24 on every path), jitter assumptions in section 4. Window fix (13 of 512 paths were outside 56-98%): `bot_2_lux_strength` 1900 to 2015 (Luxury paths were 58-99%, mean 88%), `bot_2_bio_strength` 1170 to 1100 (Biotech paths were 51-89%, mean 72%), plus the three Luxury cell changes above (LUX_B2 a, LUX_B3 b, LUX_B4 b) to narrow the Luxury spread from 41 to 40 points. MIL_B3 b and MIN_B3 a are no longer boosts, so 8 of 28 options carry a boost (was 10), each with an own cost; R-BOT still holds (every option changes at least one bot stat).
 
 Spreading numbers (the sim with the same chains): see the table in section 3.
 
@@ -180,12 +198,12 @@ Examples, 5 ships (cap), NET 150 a ship, workshops built at cycles 10/16/22/28, 
 
 | Markets | Overhead per cycle | Total overhead, 40 cycles | Cash at cycle 40 | Best share ever, median (max) | Wins |
 |---|---|---|---|---|---|
-| 1 | 0 | 0 | 23,900 | 52% (59%) | 193 / 240 |
-| 2 (85/15) | 150 | 5,250 | 18,800 | 46% (53%) | 11 / 240 |
+| 1 | 0 | 0 | 23,900 | 52% (59%) | 194 / 240 |
+| 2 (85/15) | 150 | 5,250 | 18,800 | 46% (53%) | 10 / 240 |
 | 3 | 600 | 18,300 | -7,800 (3 ships repossessed) | 25% (30%) | 0 / 240 |
 | 4 | 1,350 | 35,550 | -26,700 (3 ships repossessed) | 20% (24%) | 0 / 240 |
 
-Cash column: option cash cells add at most +-1.5k to the cash at cycle 40 (seven steps at 150-600), about 6% of 23.9k, left unchanged. Focus beats dabbling in cash (23.9k versus 18.8k for just two) and in share (52% versus 46%). The 85/15 split leaks 4.6% wins (Open question 4). Mixed-cargo example: two markets in one route load costs 30 extra per leg; with 5 routes that is 150 a cycle, about as much as one overhead step, so it hurts but is not the main brake. A player can sit at 5% of volume in a side market to avoid overhead; that player has no real second market (5% of 5000 is 250 bv). Left as is.
+Cash column: option cash cells add at most +-1.5k to the cash at cycle 40 (seven steps at 150-600), about 6% of 23.9k, left unchanged. Focus beats dabbling in cash (23.9k versus 18.8k for just two) and in share (52% versus 46%). The 85/15 split leaks 4.2% wins (Open question 4). Mixed-cargo example: two markets in one route load costs 30 extra per leg; with 5 routes that is 150 a cycle, about as much as one overhead step, so it hurts but is not the main brake. A player can sit at 5% of volume in a side market to avoid overhead; that player has no real second market (5% of 5000 is 250 bv). Left as is.
 
 Gap-rule effect when ignoring a market (player absent, bots only): bot totals per market grow from 2.2-3.3k at cycle 1 to 5.0-5.9k at cycle 20 and 7.9-9.5k at cycle 40, so a market entered at cycle 25 needs 5k+ bv to just reach 40% (a full fleet gives ~5k). It does not get cheap.
 
@@ -198,28 +216,28 @@ s0 (strength, bv per cycle) / g (growth per cycle):
 | Bot | Personality | mil | lux | min | bio | Tier-ups at |
 |---|---|---|---|---|---|---|
 | bot_1 Harrow Combine | heavy, slow | 1690 / 22 | 600 / 5 | 1410 / 22 | 410 / 5 | 13, 27 |
-| bot_2 Velvet Concord | lux and bio, faster growth | 440 / 8 | 1900 / 38 | 370 / 8 | 1170 / 38 | 11, 24 |
-| bot_3 Dunmere Syndicate | even, steady, high growth off-lean | 630 / 18 | 860 / 18 | 530 / 18 | 590 / 18 | 14, 28 |
+| bot_2 Velvet Concord | lux and bio, faster growth | 440 / 8 | 2015 / 38 | 370 / 8 | 1100 / 38 | 11, 24 |
+| bot_3 Ostrel Syndicate | even, steady, high growth off-lean | 630 / 18 | 860 / 18 | 530 / 18 | 590 / 18 | 14, 28 |
 
-Market totals at start (before `bot_scale`): mil 2.8k, lux 3.4k (bot_2 lux strength 1700 to 1900, see 2.2), min 2.5k, bio 2.2k. Lux is bigger because its player price per unit is higher (PV lux 42 vs mil 34, min 30, bio 32 bv per unit in the model).
+Market totals at start (before `bot_scale`): mil 2.8k, lux 3.5k (bot_2 lux strength 1700 to 2015, bio bot_2 strength 1170 to 1100, see 2.2), min 2.5k, bio 2.2k. Lux is bigger because its player price per unit is higher (PV lux 42 vs mil 34, min 30, bio 32 bv per unit in the model).
 
 Bot growth curve (bots only, no event hits, gap rule active because the player is absent, before `bot_scale`; multiply by 0.85 for the game), total bv per cycle:
 
 | Cycle | mil | lux | min | bio |
 |---|---|---|---|---|
-| 1 | 2784 | 3483 | 2485 | 2195 |
-| 5 | 3153 | 3843 | 2580 | 2463 |
-| 10 | 3564 | 4271 | 3131 | 2986 |
-| 15 | 4426 | 5722 | 4113 | 4438 |
-| 20 | 5397 | 6075 | 4381 | 4975 |
-| 25 | 6285 | 7532 | 5650 | 5915 |
-| 30 | 7418 | 8630 | 6884 | 7219 |
-| 35 | 8123 | 8754 | 6889 | 7490 |
-| 40 | 8564 | 9752 | 8087 | 7940 |
+| 1 | 2784 | 3598 | 2485 | 2125 |
+| 5 | 3153 | 3958 | 2580 | 2393 |
+| 10 | 3564 | 4386 | 3131 | 2916 |
+| 15 | 4426 | 5860 | 4113 | 4354 |
+| 20 | 5397 | 6213 | 4381 | 4891 |
+| 25 | 6285 | 7693 | 5650 | 5817 |
+| 30 | 7418 | 8791 | 6884 | 7121 |
+| 35 | 8123 | 8915 | 6889 | 7392 |
+| 40 | 8564 | 9913 | 8087 | 7842 |
 
 Per bot in mil (cycles 1/10/20/30/40): bot_1 1716 / 2161 / 2941 / 3733 / 4333; bot_2 446 / 551 / 969 / 1427 / 1616; bot_3 621 / 851 / 1486 / 2257 / 2613.
 
-Bots with a focused player and the option paths (this is what the player faces), after `bot_scale` 0.85, mean over 128 paths x 20 seeds, per cycle: Military 2.4k at cycle 1, 3.1k (range 2.9-3.3k) at cycles 17-20, 4.0k (3.8-4.2k) at cycles 33-36; Luxury 4.1k / 5.3k; Minerals 2.9k / 3.6k; Biotech 3.0k / 4.0k. With no steps fired the same bots are 3.5k / 4.8k (mil), 4.6k / 6.5k (lux), 3.2k / 4.4k (min), 3.3k / 4.8k (bio) and the focused player ends at 44-46% share and wins 3-9% of runs. The old per-stance bot totals are retired: a random path is 4.0k scaled (4.7k before `bot_scale`), and the player side is 4.2k at cycle 36 because only the volume gets of the chosen options count.
+Bots with a focused player and the option paths (this is what the player faces), after `bot_scale` 0.85, mean over 128 paths x 20 seeds, per cycle: Military 2.4k at cycle 1, 3.1k (range 2.9-3.3k) at cycles 17-20, 4.0k (3.8-4.2k) at cycles 33-36; Luxury 4.2k / 5.4k; Minerals 2.9k / 3.6k; Biotech 2.9k / 3.9k. With no steps fired the same bots are 3.5k / 4.8k (mil), 4.7k / 6.6k (lux), 3.2k / 4.4k (min), 3.3k / 4.7k (bio) and the focused player ends at 44-46% share and wins 3-9% of runs. A random path is 4.0k scaled (4.7k before `bot_scale`), and the player side is 4.2k at cycle 36 because only the volume gets of the chosen options count.
 
 Gap rule: `bot_gap_growth` 12 per cycle while player share is under 10% (a market the player ignores gets +12 on each bot, so +36 total a cycle, ~+1.1k by cycle 30).
 
@@ -309,27 +327,27 @@ Focused credit curve (NET 150 a ship, ships bought at 1/5/9/13/17, one workshop 
 
 Second ship by cycle 5-6 (existing target is ~6). Spending sinks: 4 ships 3,600, workshop 900, permits 600 + 1,500, upgrades 900 each (5 = 4,500): about 11k; roughly 12k remains unspent at cycle 40. Cash is therefore no longer a constraint for a focused player, which is intended (it is fuel), but it means the win threshold no longer limits pace; share does.
 
-Bankruptcy (adopted rules R4 and R3, owner approved, core section 2). Repossession: when cash is negative after upkeep and overhead, the newest ship is repossessed each cycle and `salvage_share` x `ship_price` (0.4 x 900 = 360, existing keys) is credited; the run ends in END_BANKRUPT when no ship is left and cash is still negative. Swept: the player's share is under `sweep_share_pct` 0.10 in all four markets at the end of 3 consecutive cycles (`sweep_hold_cycles`) from `sweep_earliest_cycle` 25; the end screen names the leading bot. Bankruptcy risk is real only if the player spreads: 3 markets go cash-negative at cycle 25, 4 markets at cycle 20 (table in section 3; 3 ships repossessed in both). How often END_SWEPT fires (200 runs each, random option paths, `bot_scale` 0.85, same sim as section 2): focused 0%; 4 markets at 25 each with the fleet intact 0% (each market holds about 20% share); 3 markets at 33 each (fourth ignored) 0% (about 24% in the played ones); 4 markets at 25 each after repossession down to 2 ships from cycle 20: 84%; down to 1 ship: 100%; 3 markets at 33 each with 2 ships left from cycle 25: 0.5% (it ends in END_BANKRUPT instead). So END_SWEPT is reachable only for a four-market spreader whose fleet has been repossessed, never for a focused player, and a 3-market spreader loses by bankruptcy. How repossession meets today's rescue is Open question 7.
+Bankruptcy (adopted rules R4 and R3, owner approved, core section 2). Repossession: when cash is negative after upkeep and overhead, the newest ship is repossessed each cycle and `salvage_share` x `ship_price` (0.4 x 900 = 360, existing keys) is credited; the run ends in END_BANKRUPT when no ship is left and cash is still negative. Swept: the player's share is under `sweep_share_pct` 0.10 in all four markets at the end of 3 consecutive cycles (`sweep_hold_cycles`) from `sweep_earliest_cycle` 25; the end screen names the leading bot. Bankruptcy risk is real only if the player spreads: 3 markets go cash-negative at cycle 25, 4 markets at cycle 20 (table in section 3; 3 ships repossessed in both). How often END_SWEPT fires (200 runs each, random option paths, `bot_scale` 0.85, same sim as section 2): focused 0%; 4 markets at 25 each with the fleet intact 0% (each market holds about 20% share); 3 markets at 33 each (fourth ignored) 0% (about 24% in the played ones); 4 markets at 25 each after repossession down to 2 ships from cycle 20: 84%; down to 1 ship: 100%; 3 markets at 33 each with 2 ships left from cycle 25: 0.5% (it ends in END_BANKRUPT instead). So END_SWEPT is reachable only for a four-market spreader whose fleet has been repossessed, never for a focused player, and a 3-market spreader loses by bankruptcy. How repossession meets today's rescue is the adopted default in Open question 7 (repossession first, no stipend in a repossession cycle, `rescue_max` 2).
 
 ## 7. Where the core structure breaks the balance, and the smallest fix
 
 - S1 (ADOPTED, R4). Bankrupt = the newest ship is repossessed each cycle while cash is negative after upkeep and overhead, `salvage_share` x `ship_price` (360) is credited, and the run ends when no ship is left and cash is still negative. Without it END_BANKRUPT would be dead code (stranded needs zero ships and ships are never lost). Modelled in section 3 (3 ships repossessed in the 3 and 4 market runs).
 - S2 (ADOPTED, R3). Swept = player share under `sweep_share_pct` 0.10 in all four markets at the end of 3 consecutive cycles (`sweep_hold_cycles`) from `sweep_earliest_cycle` 25. The core rule "one bot over 50% in every market" cannot fire (bot_1 holds 20-45% in its off markets, bot_3 8-30% everywhere); `bot_gap_growth` 120 was rejected (bots snowball and kill the focused win). Fire rates are in section 6.
 - S3. Tech 15/30/20 units is too slow (the capstone arrives after cycle 35); retuned to 9/18/12.
-- S4. Price skills (MIL_4, LUX_1, LUX_6) cannot raise share because share uses base prices (core rule). They pay in credits only; they are real but weak when cash is unused. They stay as small unlocks; the alternative is a 2% share boost on price-up sales, which the owner can add (Q3).
+- S4. Price skills (MIL_4, LUX_1, LUX_6) cannot raise share because share uses base prices (core rule). They pay in credits only; they are real but weak when cash is unused. They stay as small unlocks; the alternative is a 2% share boost on price-up sales, which the owner can add (decided: price skills are cash perks only, no share effect).
 - S5. The pass window is steep with respect to bot strength. Resolved by the approved global key `bot_scale` (0.85); with the player and bot jitter now in the sim, 0.84 gives mean win rates 86 / 91 / 89 / 79% and 0.86 gives 78 / 85 / 81 / 69% (mil / lux / min / bio, after the first retune pass), so +-0.02 moves each market about 8-10 points, no cliff. QA still re-checks on the real game.
 - S6. Cash piles up (12k unused) for focused players. Smallest fix: leave. Alternative sink: `upgrade_cost` 900 -> 1500 or `workshop_build_cost` 1500; the model above does not need it.
 
-## 8. Event choice effects: every cell mapped to numbers (replaces Open/Hard)
+## 8. Event choice effects: every cell mapped to numbers
 
-The Open/Hard stance, `open_volume_bonus` and `hard_fee` are removed. Every step has two neutral options `opt_a` / `opt_b`; each option has Gets, Costs, Bot and a hidden `dir` nudge. Cash and price effects are paid in cash only; share counts base prices, so only volume, tech and bot cells move share.
+History: the earlier per-step stance bonus and fee keys are removed. Every step has two neutral options `opt_a` / `opt_b`; each option has Gets, Costs, Bot and a hidden `dir` nudge. Cash and price effects are paid in cash only; share counts base prices, so only volume, tech and bot cells move share.
 
 ### 8.1 Unit map (core 4.3 words to keys)
 
 | Cell word | Key | Value | Notes |
 |---|---|---|---|
 | volume S / M | `event_volume_S` / `_M` | 0.05 / 0.10 | multiplies the player's volume in that market for "n cy" or "rest" (to cycle 40); stacks multiplicatively; a negative is the same size |
-| cash S / M / L | `event_cash_S/M/L` | 150 / 300 / 600 | one time; sign shows gain or fee (M equals the old `hard_fee`) |
+| cash S / M / L | `event_cash_S/M/L` | 150 / 300 / 600 | one time; sign shows gain or fee  |
 | price S / M | `event_price_S` / `_M` | 0.08 / 0.15 | of the market's sell prices for n cy; a "price dip" is the same size negative; worth about 20 / 37 credits per ship per cycle (8% / 15% of the 245 gross margin) |
 | ship upkeep up S / M | `event_upkeep_S` / `_M` | 0.20 / 0.40 | of ship upkeep 75: +15 / +30 per ship per cycle |
 | route trip cost S | `event_trip_S` | 0.33 | of `trip_cost` 60 = 20 per cycle, one route, up or down |
@@ -344,67 +362,67 @@ The Open/Hard stance, `open_volume_bonus` and `hard_fee` are removed. Every step
 
 ### 8.2 All 28 steps, with numbers (final, after the retunes in 2.2)
 
-Cell order: Gets / Costs / Bot / dir. A bot UP (boost) sits in Costs. Sizes are per 8.1. `dir` values are the core table nudges, unchanged.
+Cell order: Gets / Costs / Bot / dir. A bot UP (boost) sits in Costs and is always paired with an own cost. Sizes are per 8.1. The `dir` column is the core 4.3 table (single source, feature handoff 2026-11-03): all earlier dir values are replaced.
 
 **MIL**
 
 | Id | opt_a: Gets / Costs / Bot / dir | opt_b: Gets / Costs / Bot / dir |
 |---|---|---|
-| MIL_A1 | vol +5% 8 cy / cash -150 / bot_1 gro -10% / +6 | cash +300 / bot_3 str +5% (boost) / bot_1 str -5% / -8 |
-| MIL_A2 | price +8% 6 cy / upkeep +20% 6 cy / bot_3 gro -10% / -9 | tech +3 / cash -300 / bot_1 tier -1 / +10 |
-| MIL_A3 | cash +150, vol +5% 4 cy / bot_3 str +5% (boost) / bot_1 str -10% / +12 | tech +4 / cash -300 / bot_1 str -5%, bot_3 gro -10% / -14 |
-| MIL_B1 | cash +300 / upkeep +40% 8 cy / bot_1 str -18% / -10 | vol +5% rest / cash -300 / bot_3 gro -10% / +8 |
-| MIL_B2 | price +8% 8 cy / one route trip cost +33% 4 cy / bot_2 str -5% / +11 | cash +150 / vol -5% 3 cy / bot_1 str -5% / -13 |
-| MIL_B3 | vol +5% 5 cy / cash -300 / bot_3 str -10% / -16 | tech +4 / cash -150 / bot_2 str -5%, bot_1 gro -10%, bot_2 gro -10%, bot_3 gro -10% / +14 |
-| MIL_B4 | price +8% 8 cy / vol -5% 4 cy / bot_1 str -10% / +24 | cash +600 / upkeep +40% 8 cy / bot_1 str -10%, bot_3 str -5% / -26 |
+| MIL_A1 | vol +5% 8 cy / cash -150 / bot_1 gro -10% / +6 | cash +300 / vol -5% 3 cy, bot_3 str +5% (boost) / bot_1 str -5% / -4 |
+| MIL_A2 | price +8% 6 cy / upkeep +20% 6 cy / bot_3 gro -10% / +7 | tech +3 / cash -300 / bot_1 tier -1 / -6 |
+| MIL_A3 | cash +150, vol +5% 4 cy / upkeep +20% 4 cy, bot_3 str +5% (boost) / bot_1 str -10% / +8 | tech +4 / cash -300 / bot_1 str -5%, bot_3 gro -10% / -7 |
+| MIL_B1 | cash +300 / upkeep +40% 8 cy / bot_1 str -18% / -6 | vol +5% rest / cash -300 / bot_3 gro -10% / +7 |
+| MIL_B2 | price +8% 8 cy / one route trip cost +33% 4 cy / bot_2 str -5% / -9 | cash +150 / vol -5% 3 cy / bot_1 str -5% / +7 |
+| MIL_B3 | vol +5% 5 cy / cash -300 / bot_3 str -10% / -9 | tech +4 / cash -150 / bot_2 str -5%, bot_1 gro -10%, bot_2 gro -10%, bot_3 gro -10% / +8 |
+| MIL_B4 | price +8% 8 cy / vol -5% 4 cy / bot_1 str -10% / -11 | cash +600 / upkeep +40% 8 cy / bot_1 str -10%, bot_3 str -5% / +10 |
 
 **LUX**
 
 | Id | opt_a: Gets / Costs / Bot / dir | opt_b: Gets / Costs / Bot / dir |
 |---|---|---|
-| LUX_A1 | price +8% 6 cy / vol -5% 4 cy / bot_2 str -5% / +5 | cash +300 / bot_2 gro +10% (boost) / bot_3 str -5% / -7 |
-| LUX_A2 | tech +3 / cash -300 / bot_2 gro -30% / -9 | vol +5% rest / price -8% 3 cy / bot_2 tier -1 / +10 |
-| LUX_A3 | price +15% 4 cy / cash -150 / bot_2 str -18% 3 cy / -12 | vol +5% 6 cy / price -8% 3 cy / bot_3 str -5% / +13 |
-| LUX_B1 | cash +300 / vol -5% 4 cy / bot_2 gro -10% / +9 | vol +10% 5 cy / cash -300 / bot_2 str -10% / -10 |
-| LUX_B2 | tech +3 / price -8% 3 cy / bot_3 gro -30% / -11 | cash +150 / bot_2 str +10% (boost) / bot_2 tier -1 / +12 |
-| LUX_B3 | price +15% 6 cy / vol -5% 6 cy / bot_2 gro -30% / +15 | cash +300 / bot_1 str +5% (boost) / bot_1 str -10%, bot_2 str -5% / -14 |
-| LUX_B4 | price +8% 8 cy / cash -300 / bot_2 str -18% / -25 | vol +5% rest / price -8% 8 cy / bot_2 str -10%, bot_3 str -10% / +26 |
+| LUX_A1 | price +8% 6 cy / vol -5% 4 cy / bot_2 str -5% / -4 | cash +300 / vol -5% 3 cy, bot_2 gro +10% (boost) / bot_3 str -5% / +6 |
+| LUX_A2 | tech +3 / cash -300 / bot_2 gro -30% / -6 | vol +5% rest / price -8% 3 cy / bot_2 tier -1 / +5 |
+| LUX_A3 | price +15% 4 cy / cash -150 / bot_2 str -18% 3 cy / -8 | vol +5% 6 cy / price -8% 3 cy / bot_3 str -5% / +7 |
+| LUX_B1 | cash +300 / vol -5% 4 cy / bot_2 gro -10% / +7 | vol +10% 5 cy / cash -300 / bot_2 str -10% / -6 |
+| LUX_B2 | tech +3 / price -8% 3 cy / bot_2 str -5%, bot_3 gro -30% / +9 | cash +150 / price -8% 3 cy, bot_2 str +10% (boost) / bot_2 tier -1 / -8 |
+| LUX_B3 | price +15% 6 cy / vol -5% 6 cy / bot_2 gro -30% / +9 | cash +300 / vol -5% 4 cy, bot_3 str +5% (boost) / bot_1 str -5%, bot_2 str -5% / -10 |
+| LUX_B4 | price +8% 8 cy / cash -300 / bot_2 str -18% / +10 | vol +5% rest / price -8% 8 cy / bot_2 str -10%, bot_3 str -5% / -11 |
 
 **MIN**
 
 | Id | opt_a: Gets / Costs / Bot / dir | opt_b: Gets / Costs / Bot / dir |
 |---|---|---|
-| MIN_A1 | cash +150 / vol -5% 5 cy / bot_1 gro -10% / +7 | vol +5% 5 cy / cash -300 / bot_1 str -5% / -6 |
-| MIN_A2 | vol +5% 6 cy / cash -300 / bot_3 gro -20% / -9 | cash +150 / vol -5% 3 cy / bot_1 str -10% / +10 |
-| MIN_A3 | one route trip cost -33% 6 cy / bot_3 str +5% (boost) / bot_1 str -5% / +13 | vol +10% 4 cy / cash -150, upkeep +20% 4 cy / bot_1 tier -1 / -12 |
-| MIN_B1 | cash +300 / vol -5% 4 cy / bot_1 gro -10% / -9 | tech +4 / cash -300 / bot_1 str -10% / +8 |
-| MIN_B2 | price +8% 6 cy / workshop idle 2 cy / bot_3 gro -10% / +11 | workshop batches +1 for 4 cy / cash -300 / bot_1 str -5% / -10 |
-| MIN_B3 | cash +600 / vol -10% 2 cy / bot_1 str -18%, bot_3 str -5% / -14 | vol +5% 6 cy / cash -150 / bot_1 str -10% / +16 |
-| MIN_B4 | price +8% 8 cy / cash -300 / bot_1 str -18% / -24 | vol +5% rest, cash +300 / upkeep +20% 8 cy / bot_1 str -10%, bot_3 str -5% / +25 |
+| MIN_A1 | cash +150 / vol -5% 5 cy / bot_1 gro -10% / +4 | vol +5% 5 cy / cash -300 / bot_1 str -5% / -6 |
+| MIN_A2 | vol +5% 6 cy / cash -300 / bot_3 gro -20% / +7 | cash +150 / vol -5% 3 cy / bot_1 str -10% / -6 |
+| MIN_A3 | one route trip cost -33% 6 cy / cash -150, bot_3 str +5% (boost) / bot_1 str -5% / -7 | vol +10% 4 cy / cash -150, upkeep +20% 4 cy / bot_1 tier -1 / +8 |
+| MIN_B1 | cash +300 / vol -5% 4 cy / bot_1 gro -10% / -8 | tech +4 / cash -300 / bot_1 str -10% / +8 |
+| MIN_B2 | price +8% 6 cy / workshop idle 2 cy / bot_3 gro -10% / +7 | workshop batches +1 for 4 cy / cash -300 / bot_1 str -5% / -9 |
+| MIN_B3 | cash +600 / vol -10% 2 cy / bot_1 str -18%, bot_3 str -5% / +9 | vol +5% 6 cy / cash -150 / bot_1 str -10% / -8 |
+| MIN_B4 | price +8% 8 cy / cash -300 / bot_1 str -18% / -11 | vol +5% rest, cash +300 / upkeep +20% 8 cy / bot_1 str -10%, bot_3 str -5% / +12 |
 
 **BIO**
 
 | Id | opt_a: Gets / Costs / Bot / dir | opt_b: Gets / Costs / Bot / dir |
 |---|---|---|
-| BIO_A1 | tech +3 / cash -150 / bot_2 gro -10% / +6 | cash +300 / price -8% 3 cy / bot_2 str -5% / -7 |
-| BIO_A2 | vol +5% rest / cash -300 / bot_3 gro -10% / -8 | tech +3 / vol -5% 4 cy / bot_2 tier -1 / +9 |
-| BIO_A3 | price +8% 4 cy / workshop idle 2 cy / bot_2 str -5% / +12 | cash +300 / bot_3 str +5% (boost) / bot_2 str -10% / -13 |
-| BIO_B1 | vol +10% 5 cy / cash -300 / bot_2 str -10% / -10 | tech +4 / upkeep +20% 6 cy / bot_3 str -5% / +9 |
-| BIO_B2 | price +8% 6 cy / vol -5% 4 cy / bot_2 gro -20% / +11 | cash +150 / bot_2 str +5% (boost) / bot_3 tier -1 / -12 |
-| BIO_B3 | cash +300 / vol -5% 5 cy / bot_2 str -18%, bot_3 gro -20% / -15 | vol +5% 6 cy / cash -300 / bot_2 str -5%, bot_3 gro -10% / +14 |
-| BIO_B4 | price +8% 8 cy / vol -5% 4 cy / bot_2 str -18% / +25 | cash +600 / upkeep +20% 8 cy / bot_2 str -10%, bot_3 str -10% / -24 |
+| BIO_A1 | tech +3 / cash -150 / bot_2 gro -10% / -4 | cash +300 / price -8% 3 cy / bot_2 str -5% / +6 |
+| BIO_A2 | vol +5% rest / cash -300 / bot_3 gro -10% / -7 | tech +3 / vol -5% 4 cy / bot_2 tier -1 / +5 |
+| BIO_A3 | price +8% 4 cy / workshop idle 2 cy / bot_2 str -5% / +7 | cash +300 / vol -5% 3 cy, bot_3 str +5% (boost) / bot_2 str -10% / -7 |
+| BIO_B1 | vol +10% 5 cy / cash -300 / bot_2 str -10% / +6 | tech +4 / upkeep +20% 6 cy / bot_3 str -5% / -7 |
+| BIO_B2 | price +8% 6 cy / vol -5% 4 cy / bot_2 gro -20% / -9 | cash +150 / upkeep +20% 4 cy, bot_2 str +5% (boost) / bot_3 tier -1 / +9 |
+| BIO_B3 | cash +300 / vol -5% 5 cy / bot_2 str -18%, bot_3 gro -20% / -8 | vol +5% 6 cy / cash -300 / bot_2 str -5%, bot_3 gro -10% / +10 |
+| BIO_B4 | price +8% 8 cy / vol -5% 4 cy / bot_2 str -18% / +11 | cash +600 / upkeep +20% 8 cy / bot_2 str -10%, bot_3 str -10% / -12 |
 
-Counts (QA data check): the + option is opt_a in 14 of 28 steps; the option with the larger bot cut is + in 14 of 28 steps; 8 options carry a bot boost (MIL_A1 b, MIL_A3 a, LUX_A1 b, LUX_B2 b, LUX_B3 b, MIN_A3 a, BIO_A3 b, BIO_B2 b).
+Counts (QA data check, core dir column): the + option is opt_a in 14 of 28 steps; the option with the larger bot cut is + in 15 of 28; every option has at least one Get and one Cost (0 empty cells, checked over all 56). 8 options carry a bot boost, each with its own cost in addition: MIL_A1 b (vol -5% 3 cy), MIL_A3 a (upkeep +20% 4 cy), LUX_A1 b (vol -5% 3 cy), LUX_B2 b (price -8% 3 cy), LUX_B3 b (vol -5% 4 cy), MIN_A3 a (cash -150), BIO_A3 b (vol -5% 3 cy), BIO_B2 b (upkeep +20% 4 cy). Shared one-time pool: 40 events (28 kept + 12 new); it carries no balance numbers here.
 
 ### 8.3 Direction keys
 
-`dir_min` -100, `dir_max` 100, `dir_good_min` 10, `dir_bad_max` -10, `dir_echo_mult` 1.25 (floor; same sign as the previous step of the same chain), `dir_swing_mult` 1.5 (floor; B3 and B4, only for a nudge against the current lean), `dir_swing_threshold` 40. Nudge keys: `dir_<mkt>_<step>_<a|b>`, 56 values, the dir column above (A1 5-8, A2 8-10, A3 10-14, B1 8-10, B2 10-12, B3 14-16, B4 24-26). Checked in the sim: the dir sum has mean -5.5 / +1.3 / +3.1 / -1.6 and sd 42 over all 128 paths (mil/lux/min/bio); the good ending comes in 45 / 52 / 53 / 48% of runs; an ending class is reachable from every start.
+`dir_min` -100, `dir_max` 100, `dir_good_min` 0 (dir 0 or more = good, below 0 = bad; `dir_bad_max` is deleted: the sign of the whole sum decides, no band, no last-nudge tiebreak), `dir_nudge_cap` 14, `dir_echo_mult` 1.25 (floor; same sign as the previous step of the same chain), `dir_swing_mult` 1.5 (floor; B3 and B4 only, for a nudge against the current sign), `dir_swing_threshold` 25 (|dir| before the step). Order per nudge: echo 1.25, then swing 1.5, then cap 14. `rescue_max` 2 (section 6). Nudge keys: `dir_<mkt>_<step>_<a|b>`, 56 values, the dir column above (base A1 4-6, A2 5-7, A3 6-8, B1 6-8, B2 7-9, B3 8-10, B4 10-12). Sim check over all 128 paths per market (200 seeds): dir ranges about -63 to +63; mean 0.5 / -0.3 / 0.0 / 0.0 and sd 22.8 / 23.4 / 23.9 / 23.9 (mil/lux/min/bio); the good ending (dir 0 or more) is 50 / 49 / 52 / 54% of runs. Ending class does not predict win rate: good-ending paths win 75 / 79 / 86 / 79% and bad-ending 77 / 84 / 81 / 79% (gaps 2, 5, 5, 0 points, all under 10); median final share 51-53% in both classes.
 
 ## 9. Proposed `values` (new keys, example values)
 
 Remove: `win_cash`, `skill_A*`, `skill_B*`, `skill_C*`, `skill_cost_A1..F1` (old tree), `skill_cost_M1/M2/F1`, `full_ref_points_per_cycle` (stale), shield_* (if Q5 retire). Set `win_cycle` 40.
 
-New: `share_window` 8, `share_window_bio_bonus` 12, `win_share_pct` 0.50, `win_hold_cycles` 5, `win_earliest_cycle` 20, `sweep_hold_cycles` 3, `sweep_earliest_cycle` 25, `sweep_share_pct` 0.10, `market_overhead` 150, `market_active_pct` 0.05, `cross_load_trip_mult` 1.5, `bot_gap_growth` 12, `bot_gap_share_pct` 0.10, `bot_noise_pct` 0.10, `bot_tier_mult_1..4` 1.0 / 1.2 / 1.4 / 1.7, `event_hit_strength_S/M/L` 0.05 / 0.10 / 0.18, `event_hit_growth_S/M/L` 0.10 / 0.20 / 0.30, `event_hit_tier` 1, `bot_scale` 0.85, `event_volume_S/M` 0.05 / 0.10, `event_cash_S/M/L` 150 / 300 / 600, `event_price_S/M` 0.08 / 0.15, `event_upkeep_S/M` 0.20 / 0.40, `event_trip_S` 0.33, `event_tech_3/4` 3 / 4, `event_idle_cycles` 2, `event_hit_strength_up_S/M` 0.05 / 0.10, `event_hit_growth_up_S` 0.10, `dir_echo_mult` 1.25, `dir_swing_mult` 1.5, `dir_swing_threshold` 40, `dir_good_min` 10, `dir_bad_max` -10, `dir_min` -100, `dir_max` 100, 56 nudge keys `dir_<mkt>_<step>_<a|b>` (section 8.3), `workshop_build_cost` 900, `workshop_batches_per_cycle` 1, `size_slots_M` 2, `size_slots_L` 3, `tech_goal_2/4/6` 9 / 18 / 12, `skill_points_share_20/35` 1 / 2, `skill_points_route` 1, `skill_points_system` 2, `permit_points_2` 2, `permit_points_3` 2, per-node `skill_cost_*` and `skill_<NODE>_*` (section 5), `<good>_batch_out` (ingot 3, alloy 2, cells 3, armour 3, cask 3, gems 2, gel 3, seed 2), recipe inputs `<workshop>_in_<good>` per the table, `event_pct_<good>` (1.2), `bot_<b>_<m>_strength/growth` and `bot_<b>_tier_cycle_1/2` (section 4; `bot_2_lux_strength` 1900). `tools/sim.py` needs the market model; the scratchpad model used here is the starting point.
+New: `share_window` 8, `share_window_bio_bonus` 12, `win_share_pct` 0.50, `win_hold_cycles` 5, `win_earliest_cycle` 20, `sweep_hold_cycles` 3, `sweep_earliest_cycle` 25, `sweep_share_pct` 0.10, `market_overhead` 150, `market_active_pct` 0.05, `cross_load_trip_mult` 1.5, `bot_gap_growth` 12, `bot_gap_share_pct` 0.10, `bot_noise_pct` 0.10, `bot_tier_mult_1..4` 1.0 / 1.2 / 1.4 / 1.7, `event_hit_strength_S/M/L` 0.05 / 0.10 / 0.18, `event_hit_growth_S/M/L` 0.10 / 0.20 / 0.30, `event_hit_tier` 1, `bot_scale` 0.85, `event_volume_S/M` 0.05 / 0.10, `event_cash_S/M/L` 150 / 300 / 600, `event_price_S/M` 0.08 / 0.15, `event_upkeep_S/M` 0.20 / 0.40, `event_trip_S` 0.33, `event_tech_3/4` 3 / 4, `event_idle_cycles` 2, `event_hit_strength_up_S/M` 0.05 / 0.10, `event_hit_growth_up_S` 0.10, `dir_echo_mult` 1.25, `dir_swing_mult` 1.5, `dir_swing_threshold` 25, `dir_good_min` 0, `dir_nudge_cap` 14, `dir_min` -100, `dir_max` 100, `rescue_max` 2, 56 nudge keys `dir_<mkt>_<step>_<a|b>` (section 8.3), `workshop_build_cost` 900, `workshop_batches_per_cycle` 1, `size_slots_M` 2, `size_slots_L` 3, `tech_goal_2/4/6` 9 / 18 / 12, `skill_points_share_20/35` 1 / 2, `skill_points_route` 1, `skill_points_system` 2, `permit_points_2` 2, `permit_points_3` 2, per-node `skill_cost_*` and `skill_<NODE>_*` (section 5), `<good>_batch_out` (ingot 3, alloy 2, cells 3, armour 3, cask 3, gems 2, gel 3, seed 2), recipe inputs `<workshop>_in_<good>` per the table, `event_pct_<good>` (1.2), `bot_<b>_<m>_strength/growth` and `bot_<b>_tier_cycle_1/2` (section 4; `bot_2_lux_strength` 2015, `bot_2_bio_strength` 1100). `tools/sim.py` needs the market model; the scratchpad model used here is the starting point.
 
 Targets block: `win_focus_cycles` [25, 30] (path medians 26-28), `win_earliest_possible` 24, `second_ship_cycle` 6, `spread_win_rate_max` 0.05 (see Q4), `option_step_spread_max` 10 (win-rate points between the two options of any step).
 
@@ -415,7 +433,8 @@ Owner answers already applied: S1 and S2 approved (core summary Q5), price skill
 1. **Late cash is worth nothing (core 4.2/4.3, B3 and B4 and some A steps).** After about cycle 16 a focused player has 12k unspent (section 6), so "cash +L / upkeep up / price dip" costs and gets are worth about 0 to share. Un-retuned, MIN_B3 favoured the option with volume and a tier cut by 37 win-rate points. Smallest fix: done by retuning bot sizes (section 2.2), no structure change. Owner choice if wanted: give cash a late sink (upgrade_cost 900 to 1500) so cash gets stay real; not needed for the sim.
 2. **Growth hits are about a quarter as strong as strength hits late (core 4.3 sizes).** "growth M down" at a step that fires near cycle 18 removes 20% of 22 a cycle for ~10 cycles; "strength M down" removes 10% of the whole bot at once. Smallest fix: when two options differ in size class, treat a growth cut as one size smaller than a strength cut. Applied as bot retunes in 2.2 (growth S to M/L where the option lagged; MIL_B4 and MIN_B4 growth M became strength M and L).
 3. **Tier -1 cells fire before the bot's first tier-up (cycle 11-14) in most paths (core 4.3, R8).** A tier cut on a tier-1 bot becomes "strength M down" (R8), so MIL_A2 b, LUX_A2 b, LUX_B2 b, MIN_A3 b, BIO_A2 b and BIO_B2 b are mostly strength cuts. Smallest fix: store tier cuts as a persistent offset applied when the schedule tier is read (floor 1), so the cut bites at cycle 11-14. Not applied; it makes those options ~5 points stronger, so tell me before the data goal.
-4. **85/15 two-market split wins 4.6% (11 of 240).** Overhead is capped in effect (ramp delay saturates): the "spread never wins" target is missed by 5 points. Smallest fix: leave (a player who keeps 85% in one market is a focused player), or set `market_active_pct` 0.15 so a 15% side market counts as active at once. Needs owner choice.
-5. **Win cycle (core 2.1 target 28-36 passes) lands at 25-30 (medians 26-28).** To push medians to 28-30 `bot_scale` must go to about 0.88, which drops the mean win rate to 45-70%, under the 56% floor for some paths. Accepted: win window 25-30. Owner: acceptable?
-6. **Dir tiebreak**: ending class and win rate are not tied (good-ending paths win 72/91/87/68%, bad-ending 82/84/80/76% in mil/lux/min/bio), so no ending is "easier"; no change needed. Listed only so QA checks it on the real game.
-7. **Repossession versus today's rescue stipend.** The game's `_check_stranded` (game/main.gd) pays `rescue_stipend` 1000 once a cycle, with no limit, whenever the player has no ships and cash under `ship_price`, or cash is under a route's fixed cost with no net income. A negative-cash spreader with ships would be paid 1000 every stalled cycle, which hides the repossession (4-market overhead is 1,350 a cycle) and never counts toward a third stranding. Smallest rule: run the repossession check first; no stipend in a cycle where a ship was repossessed; count each stipend as one stranding and pay only the first two (core section 2: third = END_BANKRUPT). Needs owner approval; keys: `rescue_stipend` stays 1000, new counter key `rescue_max` 2.
+4. **85/15 two-market split wins 4.2% (10 of 240).** Overhead is capped in effect (ramp delay saturates): the "spread never wins" target is missed by 5 points. Smallest fix: leave (a player who keeps 85% in one market is a focused player), or set `market_active_pct` 0.15 so a 15% side market counts as active at once. Needs owner choice.
+5. **Median win cycle is 27-28 (core 2.1 states medians 27-28; there is no 28-36 target any more).** Pushing medians to 28-30 needs `bot_scale` near 0.88, which drops mean win rates to 45-70%, under the 56% floor for some paths. Not done.
+6. **Ending class does not predict the win rate (checked).** With the sign-of-sum rule (dir 0 or more = good) good-ending paths win 75 / 79 / 86 / 79% and bad-ending paths 77 / 84 / 81 / 79% in mil / lux / min / bio, at most 5 points apart (table 2.1). QA re-checks on the real game.
+7. **ADOPTED default (core section 2, no decision needed): repossession versus the rescue stipend.** The game's `_check_stranded` (game/main.gd) pays `rescue_stipend` 1000 once a cycle with no limit. New rule: the repossession check runs first; no stipend in a cycle where a ship was repossessed; only the first two stipends are paid (`rescue_max` 2); the stipend never ends the run, bankruptcy only comes from repossession with no ship left and cash still negative. For the data goal: add `rescue_max` 2 and a stipend counter.
+8. **Path-level gap (2.1).** The all-opt_b path wins 20 / 22 / 27 points more often than all-opt_a in mil / lux / min, 0 in bio, though every step is within 10 points and no path leaves 56-98%. Owner: acceptable (steps are balanced, the screen order is shuffled), or ask for a flatter set?
