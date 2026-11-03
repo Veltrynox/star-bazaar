@@ -1464,6 +1464,54 @@
   "place": "Ships panel and Buy ship tooltip, purchase refused to keep cash for open routes; {floor} is the cash that must stay"
  },
  {
+  "id": "LBL_TIPS",
+  "text": "Tips",
+  "max": 24,
+  "place": "Right board title, game tips"
+ },
+ {
+  "id": "BTN_SKIP_TUTORIAL",
+  "text": "Skip tutorial",
+  "max": 24,
+  "place": "Tutorial card and galaxy view tutorial, ends the whole tutorial"
+ },
+ {
+  "id": "TIP_BOARD_1",
+  "text": "A route should earn more than its ship costs in upkeep. Check Expenses.",
+  "max": 110,
+  "place": "Tips board, rotates one per cycle"
+ },
+ {
+  "id": "TIP_BOARD_2",
+  "text": "Routes are one way. To send stock both ways, make a second route back.",
+  "max": 110,
+  "place": "Tips board"
+ },
+ {
+  "id": "TIP_BOARD_3",
+  "text": "When Company storage is full, Buy waits. Sell or send stock on to make room.",
+  "max": 110,
+  "place": "Tips board"
+ },
+ {
+  "id": "TIP_BOARD_4",
+  "text": "Prices change each cycle. Open a planet to see today's Buy and Sell prices.",
+  "max": 110,
+  "place": "Tips board"
+ },
+ {
+  "id": "TIP_BOARD_5",
+  "text": "Space pauses the game. Pause to plan, then press Space again.",
+  "max": 110,
+  "place": "Tips board"
+ },
+ {
+  "id": "TIP_BOARD_6",
+  "text": "Skill points come from planets, routes and systems. Spend them in Skills (K).",
+  "max": 110,
+  "place": "Tips board"
+ },
+ {
   "id": "SK_M1_NAME",
   "text": "Cold Survey",
   "max": 24,

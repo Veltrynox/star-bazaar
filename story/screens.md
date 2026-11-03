@@ -371,3 +371,13 @@ SS_FABRIC_NO_INPUTS | 110 | Space Storage panel, fabric lacks inputs; {items} li
 
 ## Ship purchase refusal (added 2026-11-03)
 NOT_SHIP_KEEP_CASH | 110 | Ships panel and Buy ship tooltip, purchase refused to keep cash for open routes; {floor} is the cash that must stay | Not enough spare cash. Keep {floor} credits to run your routes.
+
+## Tutorial panels and game tips (2026-11-03, owner: tutorial beside its button, right board for tips only)
+LBL_TIPS | 24 | Right board title, game tips | Tips
+BTN_SKIP_TUTORIAL | 24 | Tutorial card and galaxy view tutorial, ends the whole tutorial | Skip tutorial
+TIP_BOARD_1 | 110 | Tips board, rotates one per cycle | A route should earn more than its ship costs in upkeep. Check Expenses.
+TIP_BOARD_2 | 110 | Tips board | Routes are one way. To send stock both ways, make a second route back.
+TIP_BOARD_3 | 110 | Tips board | When Company storage is full, Buy waits. Sell or send stock on to make room.
+TIP_BOARD_4 | 110 | Tips board | Prices change each cycle. Open a planet to see today's Buy and Sell prices.
+TIP_BOARD_5 | 110 | Tips board | Space pauses the game. Pause to plan, then press Space again.
+TIP_BOARD_6 | 110 | Tips board | Skill points come from planets, routes and systems. Spend them in Skills (K).
