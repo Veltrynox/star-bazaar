@@ -1,0 +1,25 @@
+{
+ "schema_version": 1,
+ "agent": "economy-designer",
+ "date": "2026-11-03",
+ "task": "skill-data",
+ "status": "done",
+ "files_changed": [
+  "data/skills.json",
+  "data/goods.json",
+  "data/balance.json",
+  "handoffs/economy-designer/2026-11-03-skill-data.json"
+ ],
+ "open_questions": [
+  "UNKNOWN: planets for crafted goods and the s2 wanters of rivets/musk/spores beyond s2_p4 are my placement (economy doc names only 'system 2'); programmer or owner may move them.",
+  "UNKNOWN: skill point supply (21 vs 13 needed) is unverified on the real game.",
+  "MIL_1 upkeep 0.20 and cost 1 (was A5 0.3 cost 2) per economy 5; core calls it M (0.15); economy value kept."
+ ],
+ "handoff": "Added data/skills.json (3 FND + 28 nodes, vocabulary at top, numbers by balance key only), data/goods.json (19 goods, 5 workshops incl fabric, planet_prices not yet in planets/systems json), and 60+ new balance keys (data_version 36). No old key removed or changed. tools/sim.py still runs, results unchanged (decent 30758 at c40). All three JSON files load under python3 -I.",
+ "details": {
+  "balance_keys_added": "skill_cost_<31 ids> (1/2/3/4, tech 0, FND 1), tech_goal_2/4/6 9/18/12, skill_points_share_20/35 1/2, skill_size_s/m/l 0.08/0.15/0.30, skill_MIL_1_upkeep 0.2, skill_MIL_3_route_units 0.125, skill_MIL_4_price 0.06, skill_MIL_5_hit 0.18/_every 8/_cycles 3, skill_MIL_6_event_cut 0.5, skill_MIL_7_growth_mult 0.5, skill_LUX_1_price 0.06, skill_LUX_2_event_bonus 0.5, skill_LUX_6_price 0.12, skill_LUX_7_hit 0.18/_cycles 5, skill_MIN_3_yield 0.25, skill_MIN_4_batches 1, skill_MIN_6_batch_bonus 1, skill_MIN_7_strength_cut 0.1, skill_BIO_1_order_units 0.3, skill_BIO_2_stock_growth 0.02/_cap 0.2, skill_BIO_3_capacity 0.5, skill_BIO_6_event_cut 0.25, skill_BIO_7_strength_cut 0.1, workshop_build_cost 900, workshop_batches_per_cycle 1, size_slots_M 2, size_slots_L 3, <good>_batch_out x8, event_pct_<good> x11",
+  "vocabulary": "upkeep_mult, volume_pct, route_capacity_pct, sale_price_pct, event_cut_pct, event_bonus_pct, storage_cap_pct, order_size_pct, workshop_batches, batch_yield, unlock(workshop|good|feature), bot_strength_pct(chosen_bot|all_bots, duration_key, cooldown_key, once_per_run, permanent), bot_growth_mult, share_window, reveal_prices, event_warning, mine_unlock, cluster_yield_pct, stock_growth_pct, stock_protect, ore_free_slots, reopen_sooner. Full definitions in data/skills.json vocabulary.",
+  "skill_size_note": "skill_size_s/m/l used by MIL_2, MIN_2 (S) and LUX_5 (M); other nodes use own keys because economy values differ from S/M/L.",
+  "old_keys_to_remove_with_code": "skill_cost_A1..C4,M1,M2,F1, skill_A2_capacity, skill_C4_permit_discount, skill_A4_route_units, skill_B2_order_units, skill_B3_margin, skill_A5_upkeep, permit_points/skill_points_route|system retunes not applied (economy 5 suggests route 1, system 2, permit_points_2/3 2/2; left unchanged, owner/programmer to confirm)"
+ }
+}

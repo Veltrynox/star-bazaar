@@ -1,0 +1,614 @@
+{
+ "schema_version": 1,
+ "data_version": 1,
+ "source": "2026-11-03 skill-data (economy-designer): four market trees per design/proposals/2026-11-03-four-markets.md section 3 and four-markets-economy.md section 5. Replaces the old A/B/C/M/F tree (the programmer removes the old data with the code).",
+ "vocabulary": {
+  "_how": "effect = {type, target, ...}. Numbers are never stored here: key / duration_key / cooldown_key / cap_key name a data/balance.json value. cost 0 = tech node (researched by crafting; goal = balance[tech_goal_key] units made by that market's workshop(s), counted from when prereqs are met). cost is also in balance skill_cost_<id> (balance is authoritative). 'extra' = more effects applied with the same node. prereqs: all listed ids must be learned/researched. target: market id (mil|lux|min|bio), 'all', 'ships', 'planet_storage', 'feature', 'workshop', 'good'.",
+  "types": {
+   "upkeep_mult": "ship upkeep (trip cost and maintenance) x (1 - balance[key])",
+   "volume_pct": "share volume of target market x (1 + balance[key]); optional condition 'sale_at_price_up_planet' = only sales at a planet with a price-up event",
+   "route_capacity_pct": "units per cycle on routes carrying target-market goods x (1 + balance[key])",
+   "sale_price_pct": "sale price of target-market goods x (1 + balance[key]); cash only, share_effect false = share still uses base values",
+   "event_cut_pct": "price/damage events against the player in target market reduced by balance[key] (0.5 = half)",
+   "event_bonus_pct": "price-up events in target market pay + balance[key] of their pct (0.5 = +50%)",
+   "storage_cap_pct": "capacity of target (planet storage) x (1 + balance[key])",
+   "order_size_pct": "Buy and Sell order amount x (1 + balance[key])",
+   "workshop_batches": "workshop batches per cycle in target market + balance[key]",
+   "batch_yield": "units out of each batch in target market + balance[key]",
+   "unlock": "unlocks target kind id: workshop (smelter|munitions|atelier|culture_lab|fabric), good (goods.json id), feature (space_storage|permit_routes|cluster_routes)",
+   "bot_strength_pct": "bot strength in target market down balance[key]. pick chosen_bot = player chooses one bot; all_bots = every bot. duration_key = cycles it lasts; cooldown_key = cycles between uses; once_per_run; permanent = rest of run",
+   "bot_growth_mult": "bot growth in target market x balance[key]; pick all_bots; permanent",
+   "share_window": "share window of target market = balance[key] cycles instead of share_window",
+   "reveal_prices": "next-cycle prices shown for 'cycles' cycles ahead",
+   "event_warning": "next event announced 'cycles' cycles early",
+   "mine_unlock": "allows mining good id at place (planet id)",
+   "cluster_yield_pct": "mining yield per cluster x (1 + balance[key])",
+   "stock_growth_pct": "stock held in where (planet_storage) of target market grows balance[key] per cycle, up to balance[cap_key] of the stored amount",
+   "stock_protect": "stored target-market stock keeps its value when a planet closes (on planet_closed)",
+   "ore_free_slots": "ore loads take no cargo/order space",
+   "reopen_sooner": "a closed planet reopens 'cycles' cycles sooner"
+  }
+ },
+ "nodes": [
+  {
+   "id": "FND_STORAGE",
+   "market": "fnd",
+   "kind": "skill",
+   "tier": 1,
+   "prereqs": [],
+   "cost": 1,
+   "effect": {
+    "type": "unlock",
+    "target": "feature",
+    "id": "space_storage"
+   }
+  },
+  {
+   "id": "FND_PERMIT",
+   "market": "fnd",
+   "kind": "skill",
+   "tier": 1,
+   "prereqs": [],
+   "cost": 1,
+   "effect": {
+    "type": "unlock",
+    "target": "feature",
+    "id": "permit_routes"
+   }
+  },
+  {
+   "id": "FND_PROSPECT",
+   "market": "fnd",
+   "kind": "skill",
+   "tier": 1,
+   "prereqs": [],
+   "cost": 1,
+   "effect": {
+    "type": "unlock",
+    "target": "feature",
+    "id": "cluster_routes"
+   }
+  },
+  {
+   "id": "MIL_1",
+   "market": "mil",
+   "kind": "skill",
+   "tier": 1,
+   "prereqs": [],
+   "cost": 1,
+   "effect": {
+    "type": "upkeep_mult",
+    "target": "ships",
+    "key": "skill_MIL_1_upkeep"
+   },
+   "extra": [
+    {
+     "type": "unlock",
+     "target": "workshop",
+     "id": "munitions"
+    },
+    {
+     "type": "unlock",
+     "target": "good",
+     "id": "cells"
+    }
+   ]
+  },
+  {
+   "id": "MIL_2",
+   "market": "mil",
+   "kind": "tech",
+   "tier": 2,
+   "prereqs": [
+    "MIL_1"
+   ],
+   "cost": 0,
+   "effect": {
+    "type": "volume_pct",
+    "target": "mil",
+    "key": "skill_size_s"
+   },
+   "tech_goal_key": "tech_goal_2"
+  },
+  {
+   "id": "MIL_3",
+   "market": "mil",
+   "kind": "skill",
+   "tier": 2,
+   "prereqs": [
+    "MIL_1"
+   ],
+   "cost": 2,
+   "effect": {
+    "type": "route_capacity_pct",
+    "target": "mil",
+    "key": "skill_MIL_3_route_units"
+   }
+  },
+  {
+   "id": "MIL_4",
+   "market": "mil",
+   "kind": "tech",
+   "tier": 3,
+   "prereqs": [
+    "MIL_2"
+   ],
+   "cost": 0,
+   "effect": {
+    "type": "sale_price_pct",
+    "target": "mil",
+    "key": "skill_MIL_4_price",
+    "share_effect": false
+   },
+   "tech_goal_key": "tech_goal_4",
+   "extra": [
+    {
+     "type": "unlock",
+     "target": "good",
+     "id": "armour"
+    }
+   ]
+  },
+  {
+   "id": "MIL_5",
+   "market": "mil",
+   "kind": "skill",
+   "tier": 3,
+   "prereqs": [
+    "MIL_3"
+   ],
+   "cost": 3,
+   "effect": {
+    "type": "bot_strength_pct",
+    "target": "mil",
+    "pick": "chosen_bot",
+    "key": "skill_MIL_5_hit",
+    "duration_key": "skill_MIL_5_cycles",
+    "cooldown_key": "skill_MIL_5_every"
+   }
+  },
+  {
+   "id": "MIL_6",
+   "market": "mil",
+   "kind": "tech",
+   "tier": 4,
+   "prereqs": [
+    "MIL_4",
+    "MIL_5"
+   ],
+   "cost": 0,
+   "effect": {
+    "type": "event_cut_pct",
+    "target": "mil",
+    "key": "skill_MIL_6_event_cut"
+   },
+   "tech_goal_key": "tech_goal_6"
+  },
+  {
+   "id": "MIL_7",
+   "market": "mil",
+   "kind": "skill",
+   "tier": 5,
+   "prereqs": [
+    "MIL_6"
+   ],
+   "cost": 4,
+   "effect": {
+    "type": "bot_growth_mult",
+    "target": "mil",
+    "pick": "all_bots",
+    "key": "skill_MIL_7_growth_mult",
+    "permanent": true
+   }
+  },
+  {
+   "id": "LUX_1",
+   "market": "lux",
+   "kind": "skill",
+   "tier": 1,
+   "prereqs": [],
+   "cost": 1,
+   "effect": {
+    "type": "sale_price_pct",
+    "target": "lux",
+    "key": "skill_LUX_1_price",
+    "share_effect": false
+   },
+   "extra": [
+    {
+     "type": "reveal_prices",
+     "target": "all",
+     "cycles": 1
+    },
+    {
+     "type": "unlock",
+     "target": "workshop",
+     "id": "atelier"
+    },
+    {
+     "type": "unlock",
+     "target": "good",
+     "id": "gems"
+    }
+   ]
+  },
+  {
+   "id": "LUX_2",
+   "market": "lux",
+   "kind": "tech",
+   "tier": 2,
+   "prereqs": [
+    "LUX_1"
+   ],
+   "cost": 0,
+   "effect": {
+    "type": "event_bonus_pct",
+    "target": "lux",
+    "key": "skill_LUX_2_event_bonus"
+   },
+   "tech_goal_key": "tech_goal_2"
+  },
+  {
+   "id": "LUX_3",
+   "market": "lux",
+   "kind": "skill",
+   "tier": 2,
+   "prereqs": [
+    "LUX_1"
+   ],
+   "cost": 2,
+   "effect": {
+    "type": "event_warning",
+    "target": "all",
+    "cycles": 1
+   }
+  },
+  {
+   "id": "LUX_4",
+   "market": "lux",
+   "kind": "tech",
+   "tier": 3,
+   "prereqs": [
+    "LUX_2"
+   ],
+   "cost": 0,
+   "effect": {
+    "type": "unlock",
+    "target": "good",
+    "id": "cask"
+   },
+   "tech_goal_key": "tech_goal_4",
+   "extra": [
+    {
+     "type": "stock_protect",
+     "target": "lux",
+     "on": "planet_closed"
+    }
+   ]
+  },
+  {
+   "id": "LUX_5",
+   "market": "lux",
+   "kind": "skill",
+   "tier": 3,
+   "prereqs": [
+    "LUX_3"
+   ],
+   "cost": 3,
+   "effect": {
+    "type": "volume_pct",
+    "target": "lux",
+    "key": "skill_size_m",
+    "condition": "sale_at_price_up_planet"
+   }
+  },
+  {
+   "id": "LUX_6",
+   "market": "lux",
+   "kind": "tech",
+   "tier": 4,
+   "prereqs": [
+    "LUX_4",
+    "LUX_5"
+   ],
+   "cost": 0,
+   "effect": {
+    "type": "sale_price_pct",
+    "target": "lux",
+    "key": "skill_LUX_6_price",
+    "share_effect": false
+   },
+   "tech_goal_key": "tech_goal_6"
+  },
+  {
+   "id": "LUX_7",
+   "market": "lux",
+   "kind": "skill",
+   "tier": 5,
+   "prereqs": [
+    "LUX_6"
+   ],
+   "cost": 4,
+   "effect": {
+    "type": "bot_strength_pct",
+    "target": "lux",
+    "pick": "chosen_bot",
+    "key": "skill_LUX_7_hit",
+    "duration_key": "skill_LUX_7_cycles",
+    "once_per_run": true
+   }
+  },
+  {
+   "id": "MIN_1",
+   "market": "min",
+   "kind": "skill",
+   "tier": 1,
+   "prereqs": [
+    "FND_PROSPECT"
+   ],
+   "cost": 1,
+   "effect": {
+    "type": "unlock",
+    "target": "workshop",
+    "id": "smelter"
+   },
+   "extra": [
+    {
+     "type": "unlock",
+     "target": "workshop",
+     "id": "fabric"
+    },
+    {
+     "type": "unlock",
+     "target": "good",
+     "id": "ingot"
+    }
+   ]
+  },
+  {
+   "id": "MIN_2",
+   "market": "min",
+   "kind": "tech",
+   "tier": 2,
+   "prereqs": [
+    "MIN_1"
+   ],
+   "cost": 0,
+   "effect": {
+    "type": "volume_pct",
+    "target": "min",
+    "key": "skill_size_s"
+   },
+   "tech_goal_key": "tech_goal_2",
+   "extra": [
+    {
+     "type": "ore_free_slots",
+     "target": "min"
+    }
+   ]
+  },
+  {
+   "id": "MIN_3",
+   "market": "min",
+   "kind": "skill",
+   "tier": 2,
+   "prereqs": [
+    "MIN_1"
+   ],
+   "cost": 2,
+   "effect": {
+    "type": "cluster_yield_pct",
+    "target": "min",
+    "key": "skill_MIN_3_yield"
+   },
+   "extra": [
+    {
+     "type": "mine_unlock",
+     "id": "dross",
+     "place": "dead_1"
+    }
+   ]
+  },
+  {
+   "id": "MIN_4",
+   "market": "min",
+   "kind": "tech",
+   "tier": 3,
+   "prereqs": [
+    "MIN_2"
+   ],
+   "cost": 0,
+   "effect": {
+    "type": "workshop_batches",
+    "target": "min",
+    "key": "skill_MIN_4_batches"
+   },
+   "tech_goal_key": "tech_goal_4",
+   "extra": [
+    {
+     "type": "unlock",
+     "target": "good",
+     "id": "alloy"
+    }
+   ]
+  },
+  {
+   "id": "MIN_5",
+   "market": "min",
+   "kind": "skill",
+   "tier": 3,
+   "prereqs": [
+    "MIN_3"
+   ],
+   "cost": 3,
+   "effect": {
+    "type": "mine_unlock",
+    "id": "nullglass",
+    "place": "dead_2"
+   }
+  },
+  {
+   "id": "MIN_6",
+   "market": "min",
+   "kind": "tech",
+   "tier": 4,
+   "prereqs": [
+    "MIN_4",
+    "MIN_5"
+   ],
+   "cost": 0,
+   "effect": {
+    "type": "batch_yield",
+    "target": "min",
+    "key": "skill_MIN_6_batch_bonus"
+   },
+   "tech_goal_key": "tech_goal_6"
+  },
+  {
+   "id": "MIN_7",
+   "market": "min",
+   "kind": "skill",
+   "tier": 5,
+   "prereqs": [
+    "MIN_6"
+   ],
+   "cost": 4,
+   "effect": {
+    "type": "bot_strength_pct",
+    "target": "min",
+    "pick": "all_bots",
+    "key": "skill_MIN_7_strength_cut",
+    "permanent": true
+   }
+  },
+  {
+   "id": "BIO_1",
+   "market": "bio",
+   "kind": "skill",
+   "tier": 1,
+   "prereqs": [],
+   "cost": 1,
+   "effect": {
+    "type": "order_size_pct",
+    "target": "all",
+    "key": "skill_BIO_1_order_units"
+   },
+   "extra": [
+    {
+     "type": "unlock",
+     "target": "workshop",
+     "id": "culture_lab"
+    },
+    {
+     "type": "unlock",
+     "target": "good",
+     "id": "gel"
+    }
+   ]
+  },
+  {
+   "id": "BIO_2",
+   "market": "bio",
+   "kind": "tech",
+   "tier": 2,
+   "prereqs": [
+    "BIO_1"
+   ],
+   "cost": 0,
+   "effect": {
+    "type": "stock_growth_pct",
+    "target": "bio",
+    "key": "skill_BIO_2_stock_growth",
+    "cap_key": "skill_BIO_2_stock_cap",
+    "where": "planet_storage"
+   },
+   "tech_goal_key": "tech_goal_2"
+  },
+  {
+   "id": "BIO_3",
+   "market": "bio",
+   "kind": "skill",
+   "tier": 2,
+   "prereqs": [
+    "BIO_1"
+   ],
+   "cost": 2,
+   "effect": {
+    "type": "storage_cap_pct",
+    "target": "planet_storage",
+    "key": "skill_BIO_3_capacity"
+   }
+  },
+  {
+   "id": "BIO_4",
+   "market": "bio",
+   "kind": "tech",
+   "tier": 3,
+   "prereqs": [
+    "BIO_2"
+   ],
+   "cost": 0,
+   "effect": {
+    "type": "unlock",
+    "target": "good",
+    "id": "seed"
+   },
+   "tech_goal_key": "tech_goal_4"
+  },
+  {
+   "id": "BIO_5",
+   "market": "bio",
+   "kind": "skill",
+   "tier": 3,
+   "prereqs": [
+    "BIO_3"
+   ],
+   "cost": 3,
+   "effect": {
+    "type": "share_window",
+    "target": "bio",
+    "key": "share_window_bio_bonus"
+   }
+  },
+  {
+   "id": "BIO_6",
+   "market": "bio",
+   "kind": "tech",
+   "tier": 4,
+   "prereqs": [
+    "BIO_4",
+    "BIO_5"
+   ],
+   "cost": 0,
+   "effect": {
+    "type": "event_cut_pct",
+    "target": "bio",
+    "key": "skill_BIO_6_event_cut"
+   },
+   "tech_goal_key": "tech_goal_6",
+   "extra": [
+    {
+     "type": "reopen_sooner",
+     "cycles": 1
+    }
+   ]
+  },
+  {
+   "id": "BIO_7",
+   "market": "bio",
+   "kind": "skill",
+   "tier": 5,
+   "prereqs": [
+    "BIO_6"
+   ],
+   "cost": 4,
+   "effect": {
+    "type": "bot_strength_pct",
+    "target": "bio",
+    "pick": "all_bots",
+    "key": "skill_BIO_7_strength_cut",
+    "permanent": true
+   }
+  }
+ ]
+}

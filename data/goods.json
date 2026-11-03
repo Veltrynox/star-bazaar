@@ -1,0 +1,450 @@
+{
+ "schema_version": 1,
+ "data_version": 1,
+ "source": "2026-11-03 skill-data (economy-designer): 19 goods (8 old tagged as data/markets.json, 11 new) per four-markets.md 1.1-1.3 and four-markets-economy.md section 1. planet_prices are NOT yet in planets.json/systems.json: the programmer wires them in (key style <good>_buy = player pays, <good>_sell = player receives, same as planets.json). Sell price of crafted goods = base price (share base value). Crafted goods placement (Voltara and s2_p4, buy = sell x 1.12) is mine; economy doc gives no planets. size_slots: S 1, M 2, L 3 (balance size_slots_M/L). batch_out also in balance <good>_batch_out.",
+ "workshops": [
+  {
+   "id": "fabric",
+   "market": "min",
+   "cost_key": "fabric_build_cost",
+   "existing": true,
+   "unlocked_by": "MIN_1"
+  },
+  {
+   "id": "smelter",
+   "market": "min",
+   "cost_key": "workshop_build_cost",
+   "unlocked_by": "MIN_1"
+  },
+  {
+   "id": "munitions",
+   "market": "mil",
+   "cost_key": "workshop_build_cost",
+   "unlocked_by": "MIL_1"
+  },
+  {
+   "id": "atelier",
+   "market": "lux",
+   "cost_key": "workshop_build_cost",
+   "unlocked_by": "LUX_1"
+  },
+  {
+   "id": "culture_lab",
+   "market": "bio",
+   "cost_key": "workshop_build_cost",
+   "unlocked_by": "BIO_1"
+  }
+ ],
+ "batches_per_cycle_key": "workshop_batches_per_cycle",
+ "goods": [
+  {
+   "id": "energy",
+   "market": "mil",
+   "tier": 1,
+   "kind": "trade",
+   "size": "S",
+   "recipe": null,
+   "workshop": null,
+   "batch_out": 0,
+   "sell_price": null,
+   "buy_price": null,
+   "planet_prices": {},
+   "note": "common raw; prices stay in planets.json/systems.json",
+   "existing": true
+  },
+  {
+   "id": "food",
+   "market": "bio",
+   "tier": 1,
+   "kind": "trade",
+   "size": "S",
+   "recipe": null,
+   "workshop": null,
+   "batch_out": 0,
+   "sell_price": null,
+   "buy_price": null,
+   "planet_prices": {},
+   "note": "common raw",
+   "existing": true
+  },
+  {
+   "id": "chips",
+   "market": "mil",
+   "tier": 2,
+   "kind": "trade",
+   "size": "S",
+   "recipe": null,
+   "workshop": null,
+   "batch_out": 0,
+   "sell_price": null,
+   "buy_price": null,
+   "planet_prices": {},
+   "existing": true
+  },
+  {
+   "id": "silk",
+   "market": "lux",
+   "tier": 2,
+   "kind": "trade",
+   "size": "S",
+   "recipe": null,
+   "workshop": null,
+   "batch_out": 0,
+   "sell_price": null,
+   "buy_price": null,
+   "planet_prices": {},
+   "existing": true
+  },
+  {
+   "id": "ore",
+   "market": "min",
+   "tier": 1,
+   "kind": "mined",
+   "size": "S",
+   "recipe": null,
+   "workshop": null,
+   "batch_out": 0,
+   "sell_price": null,
+   "buy_price": null,
+   "planet_prices": {},
+   "note": "common raw",
+   "existing": true
+  },
+  {
+   "id": "dross",
+   "market": "min",
+   "tier": 2,
+   "kind": "mined",
+   "size": "S",
+   "recipe": null,
+   "workshop": null,
+   "batch_out": 0,
+   "sell_price": null,
+   "buy_price": null,
+   "planet_prices": {},
+   "existing": true
+  },
+  {
+   "id": "nullglass",
+   "market": "min",
+   "tier": 2,
+   "kind": "mined",
+   "size": "S",
+   "recipe": null,
+   "workshop": null,
+   "batch_out": 0,
+   "sell_price": null,
+   "buy_price": null,
+   "planet_prices": {},
+   "existing": true
+  },
+  {
+   "id": "plate",
+   "market": "min",
+   "tier": 3,
+   "kind": "crafted",
+   "size": "S",
+   "recipe": {
+    "dross": 2,
+    "nullglass": 1
+   },
+   "workshop": "fabric",
+   "batch_out": 1,
+   "sell_price": 120,
+   "buy_price": 135,
+   "planet_prices": {
+    "planet_1": {
+     "plate_buy": 135,
+     "plate_sell": 120
+    }
+   },
+   "note": "already built; Fabric stays the plate station",
+   "existing": true
+  },
+  {
+   "id": "rivets",
+   "market": "mil",
+   "tier": 2,
+   "kind": "trade",
+   "size": "S",
+   "recipe": null,
+   "workshop": null,
+   "batch_out": 0,
+   "sell_price": 42,
+   "buy_price": 20,
+   "planet_prices": {
+    "planet_1": {
+     "rivets_buy": 20,
+     "rivets_sell": 17
+    },
+    "s2_p4": {
+     "rivets_sell": 42
+    },
+    "s2_p2": {
+     "rivets_sell": 40
+    }
+   },
+   "note": "made Voltara, wanted system 2"
+  },
+  {
+   "id": "cells",
+   "market": "mil",
+   "tier": 3,
+   "kind": "crafted",
+   "size": "M",
+   "recipe": {
+    "energy": 2,
+    "chips": 1
+   },
+   "workshop": "munitions",
+   "batch_out": 3,
+   "sell_price": 70,
+   "buy_price": 78,
+   "planet_prices": {
+    "planet_1": {
+     "cells_buy": 78,
+     "cells_sell": 70
+    },
+    "s2_p4": {
+     "cells_buy": 78,
+     "cells_sell": 70
+    }
+   },
+   "cash_cost_per_unit": 12
+  },
+  {
+   "id": "armour",
+   "market": "mil",
+   "tier": 4,
+   "kind": "crafted",
+   "size": "L",
+   "recipe": {
+    "cells": 3,
+    "chips": 1
+   },
+   "workshop": "munitions",
+   "batch_out": 3,
+   "sell_price": 180,
+   "buy_price": 202,
+   "planet_prices": {
+    "planet_1": {
+     "armour_buy": 202,
+     "armour_sell": 180
+    },
+    "s2_p4": {
+     "armour_buy": 202,
+     "armour_sell": 180
+    }
+   },
+   "cash_cost_per_unit": 18
+  },
+  {
+   "id": "musk",
+   "market": "lux",
+   "tier": 2,
+   "kind": "trade",
+   "size": "S",
+   "recipe": null,
+   "workshop": null,
+   "batch_out": 0,
+   "sell_price": 40,
+   "buy_price": 18,
+   "planet_prices": {
+    "planet_2": {
+     "musk_buy": 18,
+     "musk_sell": 15
+    },
+    "s2_p4": {
+     "musk_sell": 40
+    },
+    "s2_p1": {
+     "musk_sell": 38
+    }
+   },
+   "note": "made Tillam, wanted system 2"
+  },
+  {
+   "id": "cask",
+   "market": "lux",
+   "tier": 3,
+   "kind": "crafted",
+   "size": "M",
+   "recipe": {
+    "food": 3
+   },
+   "workshop": "atelier",
+   "batch_out": 3,
+   "sell_price": 72,
+   "buy_price": 81,
+   "planet_prices": {
+    "planet_1": {
+     "cask_buy": 81,
+     "cask_sell": 72
+    },
+    "s2_p4": {
+     "cask_buy": 81,
+     "cask_sell": 72
+    }
+   },
+   "cash_cost_per_unit": 12
+  },
+  {
+   "id": "gems",
+   "market": "lux",
+   "tier": 4,
+   "kind": "crafted",
+   "size": "L",
+   "recipe": {
+    "ore": 2,
+    "silk": 1
+   },
+   "workshop": "atelier",
+   "batch_out": 2,
+   "sell_price": 130,
+   "buy_price": 146,
+   "planet_prices": {
+    "planet_1": {
+     "gems_buy": 146,
+     "gems_sell": 130
+    },
+    "s2_p4": {
+     "gems_buy": 146,
+     "gems_sell": 130
+    }
+   },
+   "cash_cost_per_unit": 12
+  },
+  {
+   "id": "ingot",
+   "market": "min",
+   "tier": 2,
+   "kind": "crafted",
+   "size": "S",
+   "recipe": {
+    "ore": 2
+   },
+   "workshop": "smelter",
+   "batch_out": 3,
+   "sell_price": 36,
+   "buy_price": 40,
+   "planet_prices": {
+    "planet_1": {
+     "ingot_buy": 40,
+     "ingot_sell": 36
+    },
+    "s2_p4": {
+     "ingot_buy": 40,
+     "ingot_sell": 36
+    }
+   },
+   "cash_cost_per_unit": 0
+  },
+  {
+   "id": "alloy",
+   "market": "min",
+   "tier": 4,
+   "kind": "crafted",
+   "size": "L",
+   "recipe": {
+    "plate": 1,
+    "ingot": 2
+   },
+   "workshop": "smelter",
+   "batch_out": 2,
+   "sell_price": 160,
+   "buy_price": 179,
+   "planet_prices": {
+    "planet_1": {
+     "alloy_buy": 179,
+     "alloy_sell": 160
+    },
+    "s2_p4": {
+     "alloy_buy": 179,
+     "alloy_sell": 160
+    }
+   },
+   "cash_cost_per_unit": 5
+  },
+  {
+   "id": "spores",
+   "market": "bio",
+   "tier": 2,
+   "kind": "trade",
+   "size": "S",
+   "recipe": null,
+   "workshop": null,
+   "batch_out": 0,
+   "sell_price": 36,
+   "buy_price": 16,
+   "planet_prices": {
+    "planet_2": {
+     "spores_buy": 16,
+     "spores_sell": 13
+    },
+    "planet_3": {
+     "spores_buy": 16,
+     "spores_sell": 13
+    },
+    "s2_p4": {
+     "spores_sell": 36
+    },
+    "s2_p2": {
+     "spores_sell": 34
+    }
+   },
+   "note": "made Tillam and Ashgate, wanted system 2"
+  },
+  {
+   "id": "gel",
+   "market": "bio",
+   "tier": 3,
+   "kind": "crafted",
+   "size": "M",
+   "recipe": {
+    "food": 2,
+    "spores": 1
+   },
+   "workshop": "culture_lab",
+   "batch_out": 3,
+   "sell_price": 74,
+   "buy_price": 83,
+   "planet_prices": {
+    "planet_1": {
+     "gel_buy": 83,
+     "gel_sell": 74
+    },
+    "s2_p4": {
+     "gel_buy": 83,
+     "gel_sell": 74
+    }
+   },
+   "cash_cost_per_unit": 13
+  },
+  {
+   "id": "seed",
+   "market": "bio",
+   "tier": 4,
+   "kind": "crafted",
+   "size": "L",
+   "recipe": {
+    "gel": 2,
+    "spores": 1
+   },
+   "workshop": "culture_lab",
+   "batch_out": 2,
+   "sell_price": 190,
+   "buy_price": 213,
+   "planet_prices": {
+    "planet_1": {
+     "seed_buy": 213,
+     "seed_sell": 190
+    },
+    "s2_p4": {
+     "seed_buy": 213,
+     "seed_sell": 190
+    }
+   },
+   "cash_cost_per_unit": 21
+  }
+ ]
+}
