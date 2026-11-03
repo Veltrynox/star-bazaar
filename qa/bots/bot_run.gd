@@ -155,6 +155,14 @@ var local_orders := false  # --local-orders: Buy and Sell on every focus-market 
 var market_focus := ""  # --market=<id>: trade only goods of this market (empty: all goods)
 var share_rows: Array = []  # per cycle end: [cycle, [share per Markets.ids], cash] (market readout for QA)
 var events_resolved := 0  # events answered by _resolve_events (0 while the hook is a stub)
+var workshops_built: Array = []  # QA 2026-11-03: [cycle, workshop id] per workshop the bot built
+var craft_totals: Dictionary = {}  # QA 2026-11-03: workshop id -> {good: units made} over the run (main.workshops.made)
+var bot_skill_log: Array = []  # QA 2026-11-03: [cycle, skill id, bot, until, ok, reason] per activation attempt
+var bot_skill_rows: Array = []  # QA 2026-11-03: [play cycle, skill id, bot, strength_mult in its market] while a bot skill is live
+var feed_log: Array = []  # QA 2026-11-03: [cycle, source planet, good, ok, reason] feed routes to the station (logged on change)
+var feed_why: Dictionary = {}  # QA 2026-11-03: good -> last refusal reason
+var live_bot_skills: Dictionary = {}  # skill id -> {bot, market, until} for the bot skill in effect
+const WORKSHOP_CASH := 300  # QA 2026-11-03: cash the bot keeps after it builds a workshop
 
 
 func _initialize() -> void:
@@ -272,6 +280,7 @@ func _play_cycle() -> void:
 	events_resolved += _resolve_events()
 	if not main.pending.is_empty():
 		main.cancel_pending()
+	_tally_craft()  # the last cycle's workshop run (made is reset at each run)
 	_decide(c)
 	if strategy == "dead_run":
 		_dead_probe(c)  # R2: gate refusals, fabric build
@@ -360,9 +369,13 @@ func _decide(c: int) -> void:
 		_buy_spare_ships(c)  # T161 follow-up: ships whenever cash allows, before skills and routes
 	if strategy != "sloppy":
 		_learn_skills()
+		_workshop_turn(c)  # QA 2026-11-03: build the workshops of the focus once their node is learned
+	_bot_skill_turn(c)  # QA 2026-11-03: a ready bot skill is used on the leading bot
 	_buy_wanted_permit()
 	var plan := _plan()
 	_expand(plan, c)
+	if strategy != "sloppy":
+		_workshop_feed(c)  # QA 2026-11-03: workshop input routes to the station, before the planned lanes sync
 	var active := _sync_lanes(plan)
 	_apply_orders(active)
 
@@ -484,6 +497,8 @@ func _sync_lanes(plan: Array) -> Array:
 			var keep: bool = _in_plan(a, b, c, keep_lanes) and not bool(main.storage.is_full(str(rec["dst"]), c))
 			if strategy == "dead_run" and b < 0 and (c == "dross" or c == "nullglass") and (a == int(dead_ids.get("dead_1", -9)) or a == int(dead_ids.get("dead_2", -9))):
 				keep = not bool(main.storage.is_full(str(rec["dst"]), c))  # R3: the scripted chain routes feed the fabric, the planner does not plan them
+			if b < 0 and _workshop_inputs().has(c):
+				keep = not bool(main.storage.is_full(str(rec["dst"]), c))  # QA 2026-11-03: workshop feed routes to the station
 			if not keep:
 				_remove_route(int(rec["id"]))
 	var active: Array = []
@@ -547,6 +562,7 @@ func _apply_orders(active: Array) -> void:
 	var want := {}
 	if strategy == "local_focus" or local_orders:
 		_local_focus_want(want)
+	_workshop_want(want)  # QA 2026-11-03: inputs bought and outputs sold at system 1 for built workshops
 	for lane in active:
 		if _buy_wanted(int(lane["a"]), str(lane["c"])):
 			want["%d|%s|buy" % [int(lane["a"]), str(lane["c"])]] = true
@@ -621,6 +637,140 @@ func _set_order(p: int, c: String, role: String, on: bool) -> void:
 			role, c, p, "on" if on else "off", main.last_notice])
 	else:
 		_count("order_change", main.cycle)
+
+
+## QA 2026-11-03: workshops. Builds each workshop of the focus (every workshop with no focus) once its node is learned and
+## cash covers the build cost plus WORKSHOP_CASH. Built workshops craft from system 1 storage.
+func _workshop_turn(c: int) -> void:
+	for id in main.workshops.IDS:
+		if market_focus != "" and str(main.workshops.market_of(id)) != market_focus:
+			continue
+		var v: Dictionary = main.can_build_workshop(id)
+		if not bool(v["ok"]) or int(main.cash) < int(main.workshops.build_cost(id)) + WORKSHOP_CASH:
+			continue
+		var r: Dictionary = main.build_workshop(id)
+		if bool(r["ok"]):
+			workshops_built.append([c, id])
+			_count("workshop_build", c)
+
+
+## QA 2026-11-03: workshop inputs reach system 1 storage only over a route into the station (send to Space Storage).
+## Inputs: every open recipe input of a built workshop. Buy at the source of each feed route; Sell the outputs that no
+## other open recipe uses as an input at system 1 planets (a Sell draws from the station too).
+func _workshop_inputs() -> Array:
+	var out: Array = []
+	for id in main.workshops.IDS:
+		if not bool(main.workshops.built.get(id, false)):
+			continue
+		for g in main.workshops.open_recipes(id):
+			for c in Goods.recipe(str(g)).keys():
+				if not out.has(str(c)):
+					out.append(str(c))
+	return out
+
+
+func _workshop_outputs() -> Array:
+	var out: Array = []
+	var inputs := _workshop_inputs()
+	for id in main.workshops.IDS:
+		if not bool(main.workshops.built.get(id, false)):
+			continue
+		for g in main.workshops.open_recipes(id):
+			if not inputs.has(str(g)) and not out.has(str(g)):
+				out.append(str(g))
+	return out
+
+
+func _workshop_want(want: Dictionary) -> void:
+	if int(main.cash) < int(main.engine.fixed_cost()):
+		return
+	for c in _workshop_inputs():
+		for rec in main.engine.routes:
+			if int(rec["b"]) < 0 and int(rec["a"]) >= 0 and str(rec["c"]) == c:
+				want["%d|%s|buy" % [int(rec["a"]), c]] = true
+	for g in _workshop_outputs():
+		for p in main.trade.planets.size():
+			if int(main.trade.planets[p].get("system", 1)) == 1 and main.engine.planet_open(p) and int(main.trade.price(p, g + "_sell")) > 0:
+				want["%d|%s|sell" % [p, g]] = true
+
+
+func _buyable(p: int, c: String) -> bool:
+	if not main.engine.planet_open(p) or int(main.trade.price(p, c + "_buy")) <= 0:
+		return false
+	return not (DeadWorlds.is_dead(main.trade.planets[p]) and (main.cycle < main.dead_unlock_cycle() or not main.has_skill(DeadWorlds.skill_for(main.trade.planets[p]))))
+
+
+## One feed route per workshop input good, from the first open planet that buys it. Refusals are logged once per reason.
+func _workshop_feed(c_turn: int) -> void:
+	for c in _workshop_inputs():
+		var fed := false
+		for rec in main.engine.routes:
+			if int(rec["b"]) < 0 and str(rec["c"]) == c:
+				fed = true
+		if fed:
+			continue
+		var cands: Array = []  # source nodes: planets that buy the good, then clusters (free ore, no buy order)
+		for p in main.trade.planets.size():
+			if _buyable(p, c):
+				cands.append(p)
+		if main.clusters != null:
+			for i in main.clusters.items.size():
+				if main.clusters.valid(i):
+					cands.append(main.clusters.node_id(i))
+		for p in cands:
+			var ok: Dictionary = main.can_connect(int(p), -1, c)
+			if not bool(ok["ok"]) and str(ok["reason"]).begins_with("No ship") and _free_weakest_lane(c_turn, c):
+				ok = main.can_connect(p, -1, c)  # a planned lane gave up its ship for the feed (the trading post comes first)
+			if bool(ok["ok"]):
+				var rc: Dictionary = main._connect(int(p), -1, c)
+				feed_log.append([c_turn, p, c, bool(rc.get("ok", false)), "route to station"])
+				break
+			var why := str(ok["reason"])
+			if feed_why.get(c, "") != why:
+				feed_why[c] = why
+				feed_log.append([c_turn, p, c, false, why])
+
+
+## QA 2026-11-03: a feed route with no free ship closes the lowest-net planet route (once a cycle), as the Fabric chain does.
+func _free_weakest_lane(c_turn: int, good: String) -> bool:
+	var weakest := -1
+	var weakest_net := 1 << 30
+	for r in main.engine.routes:
+		if int(r["b"]) < 0 or int(r["a"]) < 0:
+			continue  # feed routes and cluster routes are not closed for a feed
+		var net: int = main.route_net(int(r["id"]))
+		if net < weakest_net:
+			weakest_net = net
+			weakest = int(r["id"])
+	if weakest < 0:
+		return false
+	feed_log.append([c_turn, -1, good, true, "closed route %d (net %d) for a feed" % [weakest, weakest_net]])
+	_remove_route(weakest)
+	return true
+
+
+## QA 2026-11-03: stores the craft units of the last workshop run (main.workshops.made) into craft_totals.
+func _tally_craft() -> void:
+	for id in main.workshops.IDS:
+		var made: Dictionary = main.workshops.made.get(id, {})
+		for g in made.keys():
+			var per: Dictionary = craft_totals.get(id, {})
+			per[g] = int(per.get(g, 0)) + int(made[g])
+			craft_totals[id] = per
+
+
+## QA 2026-11-03: a learned bot skill (bot_strength_pct: MIL_5, LUX_7, MIN_7, BIO_7) is used whenever it is ready, on the leading bot.
+## Every attempt is logged. Activation goes through Skills.activate_bot_skill, the call the skill screen makes.
+func _bot_skill_turn(c: int) -> void:
+	for id in Skills.bot_skill_ids():
+		if not Skills.bot_skill_ready(id):
+			continue
+		var bot := Markets.leading_bot()
+		var r: Dictionary = Skills.activate_bot_skill(id, bot)
+		bot_skill_log.append([c, id, bot, int(r.get("until", -1)), bool(r["ok"]), str(r.get("reason", ""))])
+		if bool(r["ok"]):
+			live_bot_skills[id] = {"bot": bot, "market": str(SkillTree.node(id).get("market", "")), "until": int(r["until"])}
+			_count("bot_skill", c)
 
 
 ## Skills cost points only (no cash). Learns in tree order, restarting after each purchase so
@@ -1079,6 +1229,12 @@ func _on_cycle_ended(cycle: int) -> void:
 	ended_count += 1
 	last_ended = cycle
 	share_rows.append([cycle, _shares_now(), main.cash])
+	for id in live_bot_skills.keys():  # QA 2026-11-03: the bot's strength in the skill's market for the next cycle
+		var d: Dictionary = live_bot_skills[id]
+		var m: Dictionary = Markets.bot_mods(int(d["bot"]), str(d["market"]), cycle + 1)
+		bot_skill_rows.append([cycle + 1, id, int(d["bot"]), snappedf(float(m["strength_mult"]), 0.0001)])
+		if cycle + 1 > int(d["until"]) + 1:
+			live_bot_skills.erase(id)
 	expect_over = cycle >= win_cycle or not Markets.verdict(cycle).is_empty()  # win, swept or the last cycle
 	if expect_over and first_over_cycle < 0:
 		first_over_cycle = cycle
@@ -1274,6 +1430,7 @@ func _issue(kind: String, cycle: int, detail: String) -> void:
 
 ## Checks made once the run is over: stats, autosave and end screen; then the RESULT line.
 func _finish() -> bool:
+	_tally_craft()  # the final cycle's workshop run
 	if dead_from >= 0:
 		_issue("softlock", dead_from, "idle from cycle %d: %d cycles with no cash or stock change until the end (cash %d, ships %d, routes %d, Buy/Sell orders on %d, closed planets %d)" % [
 			dead_from, IDLE_AFTER, main.cash, main.ships, main.engine.routes.size(), _orders_on(), main.engine.closed_planets.size()])
@@ -1367,6 +1524,15 @@ func _finish() -> bool:
 		"close_at": close_at,
 		"close_planet": close_planet,
 		"closure": _closure_summary() if close_planet >= 0 else {},
+		"workshops_built": workshops_built,
+		"workshop_state": main.workshops.state,
+		"workshop_reason": main.workshops.reason,
+		"craft_totals": craft_totals,
+		"tech_done": SkillTree.all_ids().filter(func(t): return SkillTree.is_tech(str(t)) and main.learned_skills.has(t)),
+		"skills_owned": main.learned_skills,
+		"bot_skill_log": bot_skill_log,
+		"bot_skill_rows": bot_skill_rows,
+		"feed_log": feed_log,
 	}
 	print("RESULT " + JSON.stringify(result))
 	quit(0)
