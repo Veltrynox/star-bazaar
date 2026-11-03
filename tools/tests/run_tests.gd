@@ -401,7 +401,7 @@ func _test_galaxy_view() -> void:
 	g._build_tutorial()
 	m.tut_step = 2
 	for b in _buttons(g.tut_box, []):
-		if (b as Button).text == StoryText.get_or("SCR_PREFACE_SKIP", "Skip"):
+		if (b as Button).text == StoryText.get_or("BTN_SKIP_TUTORIAL", "Skip tutorial"):
 			(b as Button).pressed.emit()
 	check(m.tut_step == m.TUT_GUIDE.size() and g.tut_step == g.TUT_IDS.size(), "galaxy: Skip ends the guided tutorial too")
 	g.tut_step = 1
@@ -484,7 +484,41 @@ func _test_tutorial_steps() -> void:
 	# the tutorial card is its own panel, never part of the notifications board
 	var board: Node = m.notice_label.get_parent().get_parent()
 	check(m.tut_card != null and m.tut_card.visible and not board.is_ancestor_of(m.tut_card) and not board.is_ancestor_of(m.tutorial_label) and not board.is_ancestor_of(m.tut_actions), "tutorial card: not a child of the notifications board")
-	check(m.tut_card.get_parent() == m.right_col and m.tut_count.text == "1 of 10", "tutorial card: sits in the right column with a step count", m.tut_count.text)
+	check(m.tut_card.get_parent() == m and not m.right_col.is_ancestor_of(m.tut_card) and m.tut_count.text == "1 of 10", "tutorial card: floats outside the right column, with a step count", m.tut_count.text)
+	check(m.tip_label.visible and m.tip_label.text != "" and board.is_ancestor_of(m.tip_label), "tips: the right board shows a game tip")
+	var tip_all: String = m.tip_label.text
+	for k in 6:
+		m.cycle = 1 + k
+		m._tut_cycle()
+		check(m.tip_label.text != "" and StoryText.has_text(m.TIP_IDS[k]), "tips: tip %d has story text" % (k + 1))
+	m.cycle = 1
+	m._tut_cycle()
+	check(not tip_all.contains("Click") and m.tutorial_label.get_parent().get_parent() == m.tut_card, "tips: no tutorial text on the board")
+	# the card sits beside its target, inside the window, not over it, and not over the planet panel
+	m.debug_restart_tutorial()
+	m.selected_planet = 1
+	m.planet_panel.show_planet(1)
+	m.planet_panel.visible = true
+	m.tut_step = 1
+	m._tut_show()
+	await process_frame
+	await process_frame
+	var tgt: Control = m._tut_target_node("buy")
+	var vpr := Rect2(Vector2.ZERO, m.get_viewport_rect().size)
+	var cr: Rect2 = m.tut_card.get_global_rect()
+	check(tgt != null and vpr.encloses(cr) and not cr.intersects(tgt.get_global_rect()) and not cr.intersects(m.planet_panel.get_global_rect()), "tutorial card: beside the Buy button, in the window, clear of it and its panel", str(cr))
+	check(m.tut_arrow.visible and m.tut_card.mouse_filter == Control.MOUSE_FILTER_IGNORE and m.tut_hl.mouse_filter == Control.MOUSE_FILTER_IGNORE, "tutorial card: pointer shows, outline lets clicks through")
+	m.tut_step = 4
+	m._tut_show()
+	await process_frame
+	cr = m.tut_card.get_global_rect()
+	check(vpr.encloses(cr) and not cr.intersects(m.cash_box.get_global_rect()), "tutorial card: expenses step puts the card under the top bar cash, clear of it", str(cr))
+	var skips := 0
+	for b in _buttons(m.tut_actions, []):
+		if (b as Button).text == StoryText.get_or("BTN_SKIP_TUTORIAL", "Skip tutorial"):
+			skips += 1
+	check(skips == 1, "tutorial card: Skip tutorial button is on the card")
+	m.debug_restart_tutorial()
 	# every guided step names a highlight target that exists for it (or the planet)
 	m.debug_restart_tutorial()
 	m.selected_planet = 1
@@ -1791,13 +1825,9 @@ func _test_skill_effects() -> void:
 	var cap1: int = m.storage.capacity_of(key0)
 	check(cap1 == int(round(float(cap0) * (1.0 + float(bal["skill_A2_capacity"])))) and cap1 > cap0, "A2: planet storage capacity raised by skill_A2_capacity", "%d -> %d" % [cap0, cap1])
 	check(m.storage.capacity_of("system:1") == int(bal["space_storage_capacity"]), "A2: Space Storage capacity unchanged")
-	# tutorial: the permit line once, when a point is held and C1 is not learned
 	m.cycle = 6
 	m.skill_points = 1
 	m.learned_skills.erase("C1")
-	m.tut_first.erase("permit")
-	m._tut_cycle()
-	check(m.tut_first.has("permit") and StoryText.has_text("TUT_PERMIT_C1"), "tutorial: permit line shown once for C1")
 	m.skill_points = 0
 	# C2 Survey Beacon: planet names of a system shown in its permit entry before the permit
 	m.learned_skills.append("C2")
