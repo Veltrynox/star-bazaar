@@ -171,13 +171,13 @@
   "id": "BTN_SELL",
   "text": "Sell",
   "max": 24,
-  "place": "Planet panel resource row"
+  "place": "Right-click menu on resource button"
  },
  {
   "id": "BTN_SEND",
   "text": "Send to...",
   "max": 24,
-  "place": "Storage row"
+  "place": "Right-click menu on resource button"
  },
  {
   "id": "BTN_LEARN",
@@ -207,7 +207,13 @@
   "id": "LBL_COMPANY_STORAGE",
   "text": "Company storage",
   "max": 24,
-  "place": "Planet panel"
+  "place": "Planet panel (unused in panel now)"
+ },
+ {
+  "id": "LBL_RMB_MORE",
+  "text": "Right-click for Send to, Sell and more.",
+  "max": 60,
+  "place": "Resource button tooltip, planet panel"
  },
  {
   "id": "LBL_SHIP_UPKEEP",
@@ -5380,11 +5386,5 @@
   "text": "Rivals: none of the three changes in {market}.",
   "max": 90,
   "place": "pool event rivals line, {market} filled by the game"
- },
- {
-  "id": "LBL_RMB_MORE",
-  "text": "Right-click for Send to, Sell and more.",
-  "max": 60,
-  "place": "Resource button tooltip, planet panel"
  }
 ]
