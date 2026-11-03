@@ -1,6 +1,6 @@
 # Four Markets: story texts and style guide
 
-> Part of the Four Markets pack. Where the docs disagree, `2026-11-03-four-markets-summary.md` (reconciliation table R1 to R13) decides.
+> Part of the Four Markets pack. Where the docs disagree, `2026-11-03-four-markets-summary.md` (reconciliation table R1 to R27) decides.
 
 Date: 2026-11-03. Author: story-designer. Builds on design/proposals/2026-11-03-four-markets.md (ids fixed there). Status: PROPOSAL, nothing is wired and no file outside this one and the handoff was touched. Text blocks use the format "ID | max chars | where" with the text on the next line, so a script can check them. Texts contain no digits; every number comes from a placeholder the game fills.
 
@@ -168,7 +168,7 @@ Tech finished: {skill}.
 
 ## 2. Endings
 
-Selection and conditions: as the core doc, section 6 (hidden dir value, thresholds 10 and -10, last nudge decides between). Every text below follows voice.md and uses placeholders only for names and numbers. The ending screen order: heading, ending name, text, epilogue lines (up to four, in the order below), sign-off, stats block, run over line, buttons.
+Selection and conditions: as the core doc, section 6 (hidden dir value; the sign of the whole sum decides). Every text below follows voice.md and uses placeholders only for names and numbers. The ending screen order: heading, ending name, text, epilogue lines (up to four, in the order below), sign-off, stats block, run over line, buttons.
 
 ### 2.1 End screen strings
 
@@ -187,7 +187,7 @@ The stats block has three rows only: market held, final share, rival shares. END
 
 ### 2.2 Market endings (max 1000)
 
-Condition for every GOOD ending: the win market M fired and dir_M is 10 or more, or dir_M is between -9 and 9 and the last nudge applied in M was positive, or no step in M fired. Condition for every BAD ending: dir_M is -10 or less, or between -9 and 9 with the last nudge negative. These notes are for the programmer only; no number, count or stance word is shown. The texts describe what the world shows after the win, never what kind of owner the player was, so they read right when the result came from a mixed chain. They also never say "you chose" or "you kept".
+Condition for every GOOD ending: the win market M fired and dir_M is 0 or more (a market with no step fired counts as 0). Condition for every BAD ending: dir_M is below 0. The sign of the whole sum decides; there is no band, no last-nudge rule and no in-between ending. These notes are for the programmer only; no number, count or stance word is shown. The texts describe what the world shows after the win, never what kind of owner the player was, so they read right when the result came from a mixed chain. They also never say "you chose" or "you kept".
 
 END_MIL_GOOD_NAME | 40 | End screen, ending name
 The Quiet Fleets
@@ -242,18 +242,17 @@ END_SWEPT | 600 | End screen, player share under a tenth in all four markets for
 For three cycles running, your company held less than a tenth of every market, and the Bureau has stopped listing you as a competitor. {bot}, the strongest of the three rivals, fills the shelves where yours stood. Your ships still run, and your orders are still taken, politely, at counters that are no longer yours. The Standings graph shows your line on the floor in all four markets. Nothing cruel was done. A market is a room, and you were not in it. The Plan thanked {bot} for its service.
 
 END_OUTCOMPETED_NAME | 40 | End screen, ending name
-A Fair Share
+No Market Held
 END_OUTCOMPETED | 700 | End screen, cycle limit with no market over half (soft ending; {market} best market, {share} its share, {bot} the strongest rival)
 The window closed with no market held. Your best was {market}, at {share}% of it, and the strongest of the three rivals was {bot}. You did not lose. The company is solvent, the ships run, and the Bureau lists you as a participant, a word with no weight. A spread of small shares does not add up to a market. A single market, held all the way, does. The sky has no opinion. It never needed one.
 
-### 2.4 Epilogue lines (max 140; up to four shown, in this order; they work from the win market's capstone, tech count, tier cut and tiebreak, never from choice counts)
+### 2.4 Epilogue lines (max 140; up to four shown, in this order; they work from the win market's capstone, tech count and tier cut, never from choice counts or the direction value)
 
 1. Capstone line, only if the capstone of the win market is learned (one per market).
 2. Tech line, always (by number of tech done in the win market, zero to three).
 3. Rival line, only if rival_broken is true for the win market, meaning a tier really dropped (in Military only MIL_A2 opt_b can do it; {bot} = the bot whose tier dropped; use the marked bot of that market only if the tier cut was its last cut).
-4. Narrow line, only if the win market ended on the tiebreak (dir between -9 and 9). Same line for good and bad outcomes; it names no direction.
-5. Second market line, only if another market is over a quarter share (one line per second market).
-If more than four apply, drop the lowest-numbered priority from the end (line 5 first). No line states or implies a count of choices or a type of choice.
+4. Second market line, only if another market is over a quarter share (one line per second market).
+If more than four apply, drop from the end (line 4 first). No line states or implies a count of choices, a type of choice or the direction value.
 
 EPI_CAP_MIL | 140 | Epilogue 1, Military, capstone learned
 The Standing Fleet kept every rival's growth held down to the last cycle. Nobody asked how.
@@ -273,22 +272,20 @@ EPI_TECH_3 | 140 | Epilogue 2, all three techs done
 All three techs came out of the {workshop}. The board has run out of things to approve.
 EPI_RIVAL | 140 | Epilogue 3, a rival was cut a tier in the win market
 {bot} was cut down a tier in {market} and has not come back. Its letters are shorter now.
-EPI_NARROW | 140 | Epilogue 4, win market decided by the tiebreak, good or bad
-The file could have read either way. The last page settled it, and the clerks have already filed it.
-EPI_SECOND_MIL | 140 | Epilogue 5, Military is the second market over a quarter
+EPI_SECOND_MIL | 140 | Epilogue 4, Military is the second market over a quarter
 Military ran second, past a quarter of its market. The fleets noticed, and kept your number.
-EPI_SECOND_LUX | 140 | Epilogue 5, Luxury is second
+EPI_SECOND_LUX | 140 | Epilogue 4, Luxury is second
 Luxury ran second, past a quarter of its market. The masks at the gala came from you.
-EPI_SECOND_MIN | 140 | Epilogue 5, Minerals is second
+EPI_SECOND_MIN | 140 | Epilogue 4, Minerals is second
 Minerals ran second, past a quarter of its market. The dust remembers you anyway.
-EPI_SECOND_BIO | 140 | Epilogue 5, Biotech is second
+EPI_SECOND_BIO | 140 | Epilogue 4, Biotech is second
 Biotech ran second, past a quarter of its market. A vat in a back room has your name on it.
 
 ## 3. Sample chain: Military
 
 Rewritten for the direction scheme (core doc 4.2, 4.3, 10). Every step has two options, internal ids opt_a and opt_b; the game shuffles the button order per run. The player sees a neutral in-fiction button and a three-part effect line (Get, Cost, Rivals). After choosing, a result popup and one or two Standings lines. The option effects follow the FINAL economy table, section 8.2 of 2026-11-03-four-markets-economy.md (summary R15: the economy table wins over core 4.3). The hidden nudges (dir_mil) stay in the core and economy tables and are not repeated here, so no text file next to the story can leak them. No text hints at them.
 
-Effect line format (fixed): "Get: <gain>. Cost: <cost>. Rivals: <bot change>." Three parts, always in this order. A boost to a bot is a Cost and is named in the Cost part; cuts go in the Rivals part. Numbers come from placeholders only: {cash_in} and {cash_out} (credits), {n} (units of tech progress), {cut} (the tier-cut phrase, see below). Volume, price and upkeep sizes are words: S "a little", M "clearly", L "sharply" (bots) or "a lot" (player cash or volume, never needed here). Duration words: "for a while" (about 4 to 8 cycles), "for a few cycles" (2 to 4), "for the rest of the run".
+Effect line format (fixed): "Get: <gain>. Cost: <cost>. Rivals: <bot change>." Three parts, always in this order. A boost to a bot is a Cost and is named in the Cost part; cuts go in the Rivals part. Numbers come from placeholders only: {cash_in} and {cash_out} (credits), {n} (units of tech progress), {cut} (the tier-cut phrase, see below). Volume, price and upkeep sizes are words: S "a little", M "clearly", L "sharply" (bots) or "a lot" (player cash or volume, never needed here). Duration words: "for a while" (4 to 8 cycles), "for a few cycles" (2 to 3), "for the rest of the run". Effects apply at once when the choice is made; no text says or implies a delay.
 
 Tier cut phrase (answers R8): wherever a step cuts a tier, the game fills {cut} in the effect line and {cut_std} in the Standings line. {cut} = "drops a tier" or, if that bot is already at the lowest tier, "loses strength clearly". {cut_std} = "moved down a tier" or "strength down clearly". Results use neutral wording ("cut back") that is true for both. The tier-cut epilogue line fires only if a tier actually dropped (mil_rival_broken). In Military the only tier cut is MIL_A2 opt_b.
 
@@ -307,11 +304,11 @@ A garrison on Ashgate's high ring has bought your first Military cargo and wants
 MIL_A1_OPA_BTN | 28 | Button, opt_a
 Sign the long contract
 MIL_A1_OPA_EFF | 200 | Effect line, opt_a
-Get: Military volume up a little for a while. Cost: {cash_out} credits deposit. Rivals: Harrow Combine's Military growth falls a little.
+Get: Military volume up a little for a while. Cost: {cash_out} credits for the deposit on the long contract. Rivals: Harrow Combine's Military growth falls a little.
 MIL_A1_OPB_BTN | 28 | Button, opt_b
 Sell the cargo by the lot
 MIL_A1_OPB_EFF | 200 | Effect line, opt_b
-Get: {cash_in} credits now. Cost: Ostrel Syndicate gains a little Military strength. Rivals: Harrow Combine's Military strength falls a little.
+Get: {cash_in} credits now. Cost: Military volume down a little for a few cycles; Ostrel Syndicate gains a little strength. Rivals: Harrow Combine's Military strength falls a little.
 MIL_A1_OPA_RES_TITLE | 32 | Result popup title, opt_a
 The long contract is signed
 MIL_A1_OPA_RES | 280 | Result popup, opt_a
@@ -321,7 +318,7 @@ Harrow Combine, Military: growth down a little.
 MIL_A1_OPB_RES_TITLE | 32 | Result popup title, opt_b
 Sold by the lot
 MIL_A1_OPB_RES | 280 | Result popup, opt_b
-The garrison bought the whole cargo and paid at the dock. With no standing contract, the berth it freed was filled by an Ostrel Syndicate clerk within the hour. Harrow Combine's Military strength falls a little, and Ostrel's rises a little. Nobody argued with the cash.
+The garrison bought the whole cargo and paid at the dock. Your own orders dipped for a few cycles while the berth stood empty. With no standing contract, an Ostrel Syndicate clerk filled the berth at once. Harrow's Military strength falls a little, and Ostrel's rises a little.
 MIL_A1_OPB_STD | 90 | Standings line 1, opt_b
 Harrow Combine, Military: strength down a little.
 MIL_A1_OPB_STD2 | 90 | Standings line 2, opt_b
@@ -332,15 +329,15 @@ Ostrel Syndicate, Military: strength up a little.
 MIL_A2_TITLE | 40 | Choice screen title
 A border post asks for supply
 MIL_A2_BODY_A | 280 | Body after opt_a of MIL_A1
-Word is that your long contract keeps its dates. A border post between two fleets that do not speak asks for a supplier. You could supply both fleets, or arm one. Harrow Combine serves one of them. Ostrel Syndicate carries the messages. The post has one dock and two flags.
+Your long contract with the garrison is in force. A border post between two fleets that do not speak asks for a supplier. You could supply both fleets, or one. Harrow Combine serves one of them. Ostrel Syndicate carries the messages. The post has one dock and two flags.
 MIL_A2_BODY_B | 280 | Body after opt_b of MIL_A1
-Word is that you sell by the lot and leave no strings. A border post between two fleets that do not speak asks for a supplier. You could supply both fleets, or arm one. Harrow Combine serves one of them. Ostrel Syndicate carries the messages. The post has one dock and two flags.
+You sold the garrison its cargo by the lot. A border post between two fleets that do not speak asks for a supplier. You could supply both fleets, or one. Harrow Combine serves one of them. Ostrel Syndicate carries the messages. The post has one dock and two flags.
 MIL_A2_OPA_BTN | 28 | Button, opt_a
 Supply both fleets
 MIL_A2_OPA_EFF | 200 | Effect line, opt_a
 Get: Military price up a little for a while. Cost: Ship upkeep rises a little for a while. Rivals: Ostrel Syndicate's Military growth falls a little.
 MIL_A2_OPB_BTN | 28 | Button, opt_b
-Supply one fleet only
+Supply one fleet
 MIL_A2_OPB_EFF | 200 | Effect line, opt_b
 Get: {n} units of tech progress at the Munitions Line. Cost: {cash_out} credits for the stock. Rivals: Harrow Combine {cut} in Military.
 MIL_A2_OPA_RES_TITLE | 32 | Result popup title, opt_a
@@ -350,9 +347,9 @@ Both fleets signed, each told the other had signed too, and both checked. Your h
 MIL_A2_OPA_STD | 90 | Standings line, opt_a
 Ostrel Syndicate, Military: growth down a little.
 MIL_A2_OPB_RES_TITLE | 32 | Result popup title, opt_b
-One fleet is armed
+One fleet is supplied
 MIL_A2_OPB_RES | 280 | Result popup, opt_b
-You armed the fleet Harrow Combine does not serve, and its engineers left their notes on your bench. Harrow's client fell behind its own line, and Harrow was cut back in Military: smaller orders, smaller crews. The stock cost you. The post calls it a correction.
+You supplied the fleet Harrow Combine does not serve, and its engineers left their notes on your bench. Harrow's client fell behind its own line, and Harrow was cut back in Military: smaller orders, smaller crews. The stock cost you. The post logged it as a change of supplier.
 MIL_A2_OPB_STD | 90 | Standings line, opt_b
 Harrow Combine, Military: {cut_std}.
 
@@ -361,29 +358,29 @@ Harrow Combine, Military: {cut_std}.
 MIL_A3_TITLE | 40 | Choice screen title
 A quartermaster sells a ledger
 MIL_A3_BODY_A | 280 | Body after opt_a of MIL_A2
-The post's quartermaster has seen you serve both flags, and he is nervous about it. He waits at the dock with a case. In it is Harrow Combine's ledger of clients, prices and berths, copied by hand. A ledger, he says, is only a list until someone reads it aloud.
+You supplied both fleets. The post's quartermaster waits at the dock with a case. In it is Harrow Combine's ledger of clients, prices and berths, copied by hand. He names a price, and says a ledger is only a list until someone reads it.
 MIL_A3_BODY_B | 280 | Body after opt_b of MIL_A2
-The post's quartermaster has seen you arm one flag, and he is useful about it. He waits at the dock with a case. In it is Harrow Combine's ledger of clients, prices and berths, copied by hand. He names a price, and asks only that you remember who sold it.
+You supplied one fleet. The post's quartermaster waits at the dock with a case. In it is Harrow Combine's ledger of clients, prices and berths, copied by hand. He names a price, and says a ledger is only a list until someone reads it.
 MIL_A3_OPA_BTN | 28 | Button, opt_a
-Trade on the ledger
+Hand it to your buyers
 MIL_A3_OPA_EFF | 200 | Effect line, opt_a
-Get: {cash_in} credits and Military volume up a little for a few cycles. Cost: Ostrel Syndicate gains a little Military strength. Rivals: Harrow Combine's Military strength falls clearly.
+Get: {cash_in} credits; Military volume up a little for a while. Cost: Ship upkeep up a little for a while; Ostrel Syndicate gains a little strength. Rivals: Harrow Combine's strength falls clearly.
 MIL_A3_OPB_BTN | 28 | Button, opt_b
-Study the ledger
+Hand it to your workshop
 MIL_A3_OPB_EFF | 200 | Effect line, opt_b
 Get: {n} units of tech progress at the Munitions Line. Cost: {cash_out} credits to the quartermaster. Rivals: Harrow Combine's Military strength and Ostrel Syndicate's growth fall a little.
 MIL_A3_OPA_RES_TITLE | 32 | Result popup title, opt_a
-The ledger is put to work
+The ledger goes to buyers
 MIL_A3_OPA_RES | 280 | Result popup, opt_a
-Your buyers read the ledger and walked into every client Harrow Combine had counted on. Cash came in and orders rose for a few cycles. Harrow's Military strength falls clearly. The case was copied twice before it was closed, and one copy reached Ostrel Syndicate.
+Your buyers read the ledger and called on the clients it listed. Cash came in and orders rose, and the extra hulls raise Ship upkeep a little for a while. Harrow's Military strength falls clearly. The case was copied twice, and one copy reached Ostrel Syndicate.
 MIL_A3_OPA_STD | 90 | Standings line 1, opt_a
 Harrow Combine, Military: strength down clearly.
 MIL_A3_OPA_STD2 | 90 | Standings line 2, opt_a
 Ostrel Syndicate, Military: strength up a little.
 MIL_A3_OPB_RES_TITLE | 32 | Result popup title, opt_b
-The ledger is studied
+The ledger goes to the shop
 MIL_A3_OPB_RES | 280 | Result popup, opt_b
-You paid for the case and read it at the Munitions Line. It listed every part Harrow Combine bought and how each was cast, and your crews learned from it. Harrow's Military strength falls a little. Ostrel Syndicate, whose orders were in it too, grows more slowly.
+Your workshop read the ledger and compared its parts and casting notes with your own. Tech progress came in. Harrow's Military strength falls a little, and Ostrel Syndicate, whose orders were listed too, grows more slowly. You paid the quartermaster.
 MIL_A3_OPB_STD | 90 | Standings line 1, opt_b
 Harrow Combine, Military: strength down a little.
 MIL_A3_OPB_STD2 | 90 | Standings line 2, opt_b
@@ -421,46 +418,46 @@ Ostrel Syndicate, Military: growth down a little.
 MIL_B2_TITLE | 40 | Choice screen title
 The refit breaks a clause
 MIL_B2_BODY_A | 280 | Body after opt_a of MIL_B1
-The refit was rushed, and a treaty clause bans one fitting you installed in haste. The office will review it and every fleet that carries it. You may submit your refit, or file the change late. Velvet Concord's parade squadrons carry it. So do Harrow Combine's older fleets.
+The refit ran in one rush shift, and a treaty clause bans one fitting you installed. The office will review every fleet that carries it. You may send the part for review, or swap it and refile. Velvet Concord's parade squadrons carry it. So do Harrow Combine's older fleets.
 MIL_B2_BODY_B | 280 | Body after opt_b of MIL_B1
-The refit ran to schedule, but a treaty clause bans one fitting you installed on time. The office will review it and every fleet that carries it. You may submit your refit, or file the change late. Velvet Concord's parade squadrons carry it. So do Harrow Combine's older fleets.
+The refit ran over the booked weeks, and a treaty clause bans one fitting you installed. The office will review every fleet that carries it. You may send the part for review, or swap it and refile. Velvet Concord's parade squadrons carry it. So do Harrow Combine's older fleets.
 MIL_B2_OPA_BTN | 28 | Button, opt_a
-Submit the refit to review
+Send the part for review
 MIL_B2_OPA_EFF | 200 | Effect line, opt_a
-Get: Military price up a little for a while. Cost: one route's trip cost rises a little for a few cycles. Rivals: Velvet Concord's Military strength falls a little.
+Get: Military price up a little for a while. Cost: one route's trip cost rises clearly for a while. Rivals: Velvet Concord's Military strength falls a little.
 MIL_B2_OPB_BTN | 28 | Button, opt_b
-File the change late
+Swap the part and refile
 MIL_B2_OPB_EFF | 200 | Effect line, opt_b
-Get: {cash_in} credits for the stripped part. Cost: Military volume down a little for a few cycles. Rivals: Harrow Combine's Military strength falls a little.
+Get: {cash_in} credits for the old part. Cost: Military volume down a little for a few cycles. Rivals: Harrow Combine's Military strength falls a little.
 MIL_B2_OPA_RES_TITLE | 32 | Result popup title, opt_a
-The office reviews the refit
+The office reviews the part
 MIL_B2_OPA_RES | 280 | Result popup, opt_a
-You submitted the refit. The office read your forms, then everyone else's. Velvet Concord, whose parade squadrons carry the same part, lost contracts while checked, and its Military strength falls a little. The cleared stamp lifts prices for a while. One route sat in a queue.
+You sent the part for review. The office read your forms, then everyone else's. Velvet Concord, whose parade squadrons carry the same part, lost contracts, and its Military strength falls a little. The cleared stamp lifts prices for a while. One route sat in a queue.
 MIL_B2_OPA_STD | 90 | Standings line, opt_a
 Velvet Concord, Military: strength down a little.
 MIL_B2_OPB_RES_TITLE | 32 | Result popup title, opt_b
-The change is filed late
+The part is swapped
 MIL_B2_OPB_RES | 280 | Result popup, opt_b
-You stripped the part, sold it back and filed late. The office, short of a name, read Harrow Combine's older fleets under the same clause. Harrow's Military strength falls a little, and its fleets stood idle for the review. Your ships waited for new fittings.
+You swapped the part, sold the old one and refiled. The office read Harrow Combine's older fleets under the same clause. Harrow's Military strength falls a little, and its fleets stood idle for the review. Your ships waited for new fittings.
 MIL_B2_OPB_STD | 90 | Standings line, opt_b
 Harrow Combine, Military: strength down a little.
 
 ### MIL_B3 (chain B, step 3). Trigger: share 40% or tech MIL_4 done
 
 MIL_B3_TITLE | 40 | Choice screen title
-An arms fair sends an invitation
+An arms fair offers a stall
 MIL_B3_BODY_A | 280 | Body after opt_a of MIL_B2
-The office has finished its review, and the arms fair wants you in the main hall. Ostrel Syndicate keeps a stand there every year, small and always full. You may buy the main hall for the week, or take a modest stand beside Ostrel's. Velvet Concord will be at the gala next door.
+The office has finished its review of the part, and the arms fair offers you a stall. Ostrel Syndicate keeps a stand there every year, small and always full. Velvet Concord holds a gala next door. You may buy the main hall for the week, or take a corner stand beside Ostrel's.
 MIL_B3_BODY_B | 280 | Body after opt_b of MIL_B2
-The arms fair invites you with the care people give a lit fuse. Your late filing is the talk of the corridors. Ostrel Syndicate keeps a stand there every year, small and always full. You may buy the main hall for the week, or take a modest stand beside Ostrel's.
+The office has closed the file on the refiled part, and the arms fair offers you a stall. Ostrel Syndicate keeps a stand there every year, small and always full. Velvet Concord holds a gala next door. You may buy the main hall for the week, or take a corner stand beside Ostrel's.
 MIL_B3_OPA_BTN | 28 | Button, opt_a
 Buy the main hall
 MIL_B3_OPA_EFF | 200 | Effect line, opt_a
-Get: Military volume up a little for a while. Cost: {cash_out} credits for the hall. Rivals: Ostrel Syndicate's Military strength falls clearly.
+Get: Military volume up a little for a while. Cost: {cash_out} credits for the main hall. Rivals: Ostrel Syndicate's Military strength falls clearly.
 MIL_B3_OPB_BTN | 28 | Button, opt_b
-Take a modest stand
+Take a corner stand
 MIL_B3_OPB_EFF | 200 | Effect line, opt_b
-Get: {n} units of tech progress at the Munitions Line. Cost: {cash_out} credits for the stand. Rivals: Velvet Concord's Military strength and all three rivals' Military growth fall a little.
+Get: {n} units of tech progress. Cost: {cash_out} credits for the stand. Rivals: Velvet Concord's strength and all three rivals' growth fall a little in Military.
 MIL_B3_OPA_RES_TITLE | 32 | Result popup title, opt_a
 The main hall is yours
 MIL_B3_OPA_RES | 280 | Result popup, opt_a
@@ -468,9 +465,9 @@ You bought the hall for the week. Buyers walked past empty stands to reach yours
 MIL_B3_OPA_STD | 90 | Standings line, opt_a
 Ostrel Syndicate, Military: strength down clearly.
 MIL_B3_OPB_RES_TITLE | 32 | Result popup title, opt_b
-A modest stand
+A corner stand
 MIL_B3_OPB_RES | 280 | Result popup, opt_b
-You took a plain stand beside Ostrel's and listened more than you sold. The stand fee was small. Two engineers from the next stand talked shop for an hour. Velvet Concord, whose gala crowd walked past, loses a little Military strength, and all three rivals grow more slowly.
+You took a corner stand beside Ostrel's and listened more than you sold. The stand fee was small. Two engineers from the next stand talked shop for an hour. Velvet Concord, whose gala crowd walked past, loses a little Military strength, and all three rivals grow more slowly.
 MIL_B3_OPB_STD | 90 | Standings line 1, opt_b
 All three rivals, Military: growth down a little.
 MIL_B3_OPB_STD2 | 90 | Standings line 2, opt_b
@@ -479,23 +476,23 @@ Velvet Concord, Military: strength down a little.
 ### MIL_B4 (chain B, step 4). Trigger: share 45%. Always fires before a win is possible
 
 MIL_B4_TITLE | 40 | Choice screen title
-The fleets ask who sets the roster
+A buyer asks you to set terms
 MIL_B4_BODY_A | 280 | Body after opt_a of MIL_B3
-The fleets you supply now run on your schedule and your price. Their admiral asks, with the care of a man testing ice, who should set the roster: each garrison, or your desk. {bot} has lost ground to you and watches from the door. Either answer will be written down.
+The fleets you supply run on your schedule and your price. A large buyer asks you to set the terms of a long supply agreement: the roster of deliveries can be set by each garrison, or by your desk. {bot} has lost ground to you and watches from the door.
 MIL_B4_BODY_B | 280 | Body after opt_b of MIL_B3
-The fleets you supply now run on what you sell and what you learned. Their admiral asks, with the care of a man testing ice, who should set the roster: each garrison, or your desk. {bot} has lost ground to you and watches from the door. Either answer will be written down.
+The fleets you supply run on what you sell and what you learned. A large buyer asks you to set the terms of a long supply agreement: the roster of deliveries can be set by each garrison, or by your desk. {bot} has lost ground to you and watches from the door.
 MIL_B4_OPA_BTN | 28 | Button, opt_a
-Roster by garrison
+Garrisons set the roster
 MIL_B4_OPA_EFF | 200 | Effect line, opt_a
-Get: Military price up a little for a while. Cost: Military volume down a little for a few cycles. Rivals: Harrow Combine's Military strength falls clearly.
+Get: Military price up a little for a while. Cost: Military volume down a little for a while. Rivals: Harrow Combine's Military strength falls clearly.
 MIL_B4_OPB_BTN | 28 | Button, opt_b
-Roster by contract
+Your desk sets the roster
 MIL_B4_OPB_EFF | 200 | Effect line, opt_b
 Get: {cash_in} credits. Cost: Ship upkeep rises clearly for a while. Rivals: Harrow Combine's Military strength falls clearly; Ostrel Syndicate's falls a little.
 MIL_B4_OPA_RES_TITLE | 32 | Result popup title, opt_a
 Each garrison sets its roster
 MIL_B4_OPA_RES | 280 | Result popup, opt_a
-Each garrison now draws its own roster and calls on you by the week. Orders thinned for a few cycles while the rosters were written. After that they settled at a better price. Harrow Combine had counted on the fleets as its client, and its Military strength falls clearly.
+Each garrison now draws its own roster and calls on you by the week. Orders thinned for a while as the rosters were written, then settled at a better price. Harrow Combine had counted on the fleets as its client, and its Military strength falls clearly.
 MIL_B4_OPA_STD | 90 | Standings line, opt_a
 Harrow Combine, Military: strength down clearly.
 MIL_B4_OPB_RES_TITLE | 32 | Result popup title, opt_b
@@ -523,16 +520,16 @@ Check against R-BOT and the trade-off rule: all 14 options change at least one b
 
 Apply to every chain step in Luxury, Minerals and Biotech, and to any later choice event.
 
-1. No moral labels. Buttons, effect lines, bodies and results never use good, bad, right, wrong, fair, unfair, ruthless, kind, cruel, honest, dirty, safe, risky, bold, greedy, generous, selfish, noble, open or closed as a verdict on an option. Words like "fair" may appear only inside the fiction as something a character says, never as the narrator's judgement of the player's act.
-2. Buttons are two in-fiction actions, same length class (within about four characters of each other), same grammar (two verb phrases, or two noun phrases), no adjective that praises or blames. Do not pair a soft verb with a hard verb. Pair like with like: "Roster by garrison" and "Roster by contract"; "Sign the long contract" and "Sell the cargo by the lot".
+1. No moral labels. Buttons, effect lines, bodies and results never use good, bad, right, wrong, fair, unfair, ruthless, kind, cruel, honest, dirty, safe, risky, bold, greedy, generous, selfish, noble, open or closed as a verdict on an option. Words like "fair" may appear only inside the fiction as something a character says, never as the narrator's judgement of the player's act. Also banned on options: virtue or vice adjectives such as modest, plain, humble, quiet, polite, late, rushed, careful, hasty. The noun "arms fair" (a trade show) is allowed; "fair" is banned only as a verdict and in titles.
+2. Buttons are two in-fiction actions, same length class (within about four characters of each other), same grammar (two verb phrases, or two noun phrases), no adjective that praises or blames. Do not pair a soft verb with a hard verb, a cooperative verb with a delinquent one, or a button about peace with one about taking sides. Pair like with like: "Garrisons set the roster" and "Your desk sets the roster"; "Send the part for review" and "Swap the part and refile".
 3. Effect lines use the fixed three-part format "Get: ... Cost: ... Rivals: ...", the same order and about the same length for both options of a step. State the cost as plainly as the gain: same type size, same verb strength, same sentence shape. A boost to a bot goes in the Cost part ("Ostrel Syndicate gains a little Military strength"). Never write "but", "however" or "at least"; never put a cost in a smaller or later sentence than its gain.
-4. Size words for effects: S "a little", M "clearly", L "sharply" (bots) or "a lot" (player). Durations: "for a while", "for a few cycles", "for the rest of the run". Numbers only from placeholders {cash_in}, {cash_out}, {n}; tier cuts only via {cut} and {cut_std}.
+4. Size words for effects: S "a little", M "clearly", L "sharply" (bots) or "a lot" (player). Durations: "for a while" (4 to 8 cycles), "for a few cycles" (2 to 3), "for the rest of the run". Numbers only from placeholders {cash_in}, {cash_out}, {n}; tier cuts only via {cut} and {cut_std}. Effects apply at once; never write that something will happen later, soon, in time or after a delay.
 5. Use the trade-off pairs of core 4.5 as the shape of each step, and name which currencies trade: cash now vs steady volume; tech vs cash; bot cut vs your own dip; price vs volume; boost one bot vs weaken two; and in B3 and B4, permanent gain with a short dip vs large cash with higher upkeep. One option gets one currency, the other gets a different one. Never both options pay out in the same currency.
 6. Bodies are neutral. They set the scene, name the stakes of both options and the bots involved, and end on the question or an odd detail, not on a hint. The two body variants (after opt_a, after opt_b) mention what happened last in plain facts: what the player signed, bought, filed, paid. They never say what that shows about the player.
-7. Chain B step 4 asks the question the ending is about, but in operational words, so that both answers sound like a defensible rota or a ledger line. Suggested pairs: Luxury, who keeps the guest list (the gallery or the guild desk); Minerals, who sets the pace of the seam (the crew rota or the buyer's schedule); Biotech, who files the seed (each clinic or your lab). Do not use words that name the ending (commons, open, locked, wall, cage, strip, harvest).
+7. Chain B step 4 follows the one-line situation in core 4.3 (Military: a large buyer asks you to set the terms of a long supply agreement; Luxury: a trade body offers a seat on its board; Minerals: another seam comes within reach of your ships; Biotech: a storage vault offers space and terms). The step names no ending theme and no word from the ending titles. Buttons name two operational ways to answer, parallel in shape, for example "Garrisons set the roster" and "Your desk sets the roster". Write each in the same register as a rota or a ledger line; never as whether to share, hold, lock or open.
 8. Results do not judge and do not teach. They say what happened, to whom, with the bot change in words, then one dry or odd line.
 9. Competitor effects: see 4.3. Pace: the same Get, Cost, Rivals order on every option.
-10. Checks before a text is accepted: grep for the banned words of rule 1 in all chain files; compare character counts of the two buttons and the two effect lines of each step; read the pair aloud and check that it is not obvious which one a player who liked the ending would pick.
+10. Checks before a text is accepted: grep for the banned words of rule 1 in all chain files; compare character counts of the two buttons and the two effect lines of each step (within about 20 percent); compare the tone of the two results and the two body variants; read the pair aloud and check that it is not obvious which one a player who liked the ending would pick.
 
 ### 4.3 Competitor effects
 
@@ -575,10 +572,11 @@ Answers to the earlier consistency issues, under the direction scheme:
 
 Open questions:
 
-1. Effect lines say "a little" or "clearly" for volume, price and upkeep, but show credits and tech units as numbers. Show percentages too (placeholders {vol}, {price}, {upkeep}), or keep words? The "never hide a number" rule favours numbers; the effect line limit of 200 may have to grow to 230 if so.
-2. The B4 buttons ("Roster by garrison" and "Roster by contract") are operational, but "contract" still sounds colder than "garrison". The same is likely in the other markets. Owner may want a playtest read before the other three chains are written.
-3. EPI_NARROW appears when the market ended on the tiebreak (dir between -9 and 9). It does not say good or bad, but a sharp player may infer that the last choice mattered. Keep it, or cut it?
-4. A strong lean that the last two steps turn is not detected by the epilogues. A run that leaned one way and ended the other reads from the ending text alone. A dedicated "turned late" line would need the game to expose the sign of dir_<mkt> before B3. Not written.
-5. Names remain undecided (owner answer 7): Ostrel Syndicate, Seam Alloy, and the renamed endings The Lit Gallery and The Full Racks (the old names had the word Open in them).
-6. The Standings lines for a boosted bot ("strength up a little") are visible, honest and fit the core rule, but the player will read a boost as a mistake in hindsight. Intended?
-7. Pool events and shared texts that mention a Release, a Corporation or a cash goal still need the later rewrite (unchanged from before).
+1. Effect lines say "a little" or "clearly" for volume, price and upkeep, but show credits and tech units as numbers. Show percentages too (placeholders), or keep words? The effect line limit of 200 would grow to about 230.
+2. MIL_B1: opt_a (cash now and a sharp rival cut, paid with upkeep) still reads stronger on the effect lines than opt_b (small steady volume for cash). The numbers are economy's; the lines already state both costs as plainly as the gains. Owner or economy may want to even the cells.
+3. MIL_A1 opt_b and MIL_A3 opt_a now carry their own player costs (economy 8.2 final cells); the effect lines, results and Standings are updated. Growth cuts of 10 percent are worded "a little" and strength cuts of 10 percent "clearly" (economy's cut score counts growth at half); economy should confirm that convention.
+4. The rule "no mention of delay" removes the old wording of Minerals chain A follow-ups (EV30, EV31, EV33, EV34, EV36, EV37) only as flavour; they must read as a second popup, not as a consequence. Needs a check when the Minerals chain is written.
+5. The end screen shows only the sign of the whole sum, so a market won after a mixed chain can end bad. The ending texts describe the world, not the player; owner may still want one neutral epilogue line for a late change of course, which would need the game to expose that fact (not written).
+6. Names remain undecided (owner answer 7): Ostrel Syndicate, Seam Alloy, and the renamed endings The Lit Gallery, The Full Racks, The Floor of Every Graph and No Market Held.
+7. Standings lines for a boosted bot ("strength up a little", A1 opt_b and A3 opt_a) are honest, but the player may read a boost as a mistake in hindsight. Intended?
+8. Pool events: the six EV40 to EV50 samples name no ending theme and carry no choice, so they are unchanged. Texts that mention a Release, a Corporation or a cash goal still need the later rewrite.
