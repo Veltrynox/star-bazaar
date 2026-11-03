@@ -24,7 +24,8 @@ var trade: RefCounted
 var storage: RefCounted
 var commodities: Array = []
 var routes: Array = []        # Array of route records (Dictionary)
-var mix: Dictionary = {}      # N3: planet -> {goods, bonus} sold so far this cycle
+var mix: Dictionary = {}      # N3: planet -> {goods, bonus, mk} sold so far this cycle (mk: markets seen, common raws left out)
+var sales_units: Dictionary = {}  # Four Markets: good -> units sold this settle (Sell orders and stop sales); main feeds Markets
 var local: Dictionary = {}    # "<planet>|<c>" -> {planet, c, buy, sell, buy_state, sell_state}
 var next_id: int = 1
 var closed_planets: Array = []  # planet indexes closed (permits/events hook); runtime only
@@ -191,7 +192,45 @@ func fixed_cost(rec = null) -> int:
 	var tp := trip_part()
 	if has_core(rec):  # Null Core: the fitted ship's trips cost null_core_trip_mult of normal
 		tp = floori(float(tp) * float(balance.get("null_core_trip_mult", 1.0)))
+	if is_cross_load(rec):  # Four Markets: a load of 2+ markets on one lane pays cross_load_trip_mult on trip cost
+		tp = floori(float(tp) * float(balance.get("cross_load_trip_mult", 1.0)))
 	return tp * (2 if has_stop(rec) else 1) + upkeep_part(rec)  # N9: a stop pays one more trip cost
+
+## Four Markets: markets (common raws left out) carried by the routes on rec's lane (same a and b, any good).
+func lane_markets(rec) -> Array:
+	var out: Array = []
+	if rec == null or not (rec is Dictionary) or not rec.has("a"):
+		return out
+	for r in routes:
+		if int(r["a"]) == int(rec["a"]) and int(r["b"]) == int(rec["b"]):
+			var m := _mk(str(r["c"]))
+			if m != "" and not out.has(m):
+				out.append(m)
+	return out
+
+## Four Markets: true when the lane of rec carries goods of two or more markets.
+func is_cross_load(rec) -> bool:
+	return lane_markets(rec).size() >= 2
+
+## Four Markets: market of a good for the cross-load and bundle rules; "" for common raws and unknown goods.
+func _mk(c: String) -> String:
+	return "" if Markets.is_common(c) else Markets.market_of(c)
+
+## Four Markets: would adding good c to the markets already seen at a planet make the load mixed (2+ markets)?
+func _cross_with(seen: Array, c: String) -> bool:
+	var m := _mk(c)
+	return (seen.size() + (1 if (m != "" and not seen.has(m)) else 0)) >= 2
+
+func _add_mk(seen: Array, c: String) -> Array:
+	var m := _mk(c)
+	var out := seen.duplicate()
+	if m != "" and not out.has(m):
+		out.append(m)
+	return out
+
+func _note_sale(c: String, n: int) -> void:
+	if n > 0:
+		sales_units[c] = int(sales_units.get(c, 0)) + n
 
 ## T69: trip cost part of the fixed cost.
 func trip_part() -> int:
@@ -880,18 +919,18 @@ func forecast(cash: int) -> Dictionary:
 				if sk != "" and from_planet < n:
 					shadow[sk + "|" + c] = int(amt.call(sk, c)) - (n - from_planet)
 				credits = n * sold_price(p, c)
-				var m: Dictionary = mixed.get(p, {"goods": 0, "bonus": 0})
-				var b := mixed_bonus(credits, int(m["goods"]), int(m["bonus"]))
+				var m: Dictionary = mixed.get(p, {"goods": 0, "bonus": 0, "mk": []})
+				var b := mixed_bonus(credits, int(m["goods"]), int(m["bonus"]), _cross_with(m["mk"], c))
 				credits += b
-				mixed[p] = {"goods": int(m["goods"]) + 1, "bonus": int(m["bonus"]) + b}
+				mixed[p] = {"goods": int(m["goods"]) + 1, "bonus": int(m["bonus"]) + b, "mk": _add_mk(m["mk"], c)}
 		delta += credits
 		loc.append({"label": "Sell %s at %s" % [c, _pname(p)], "role": "sell", "planet": p, "c": c, "credits": credits, "state": state})
 	return {"local": loc, "routes": res, "delta": delta}
 
 ## N3 Mixed load (code name: bundle bonus). Bonus credits for a sale of `revenue` at a planet that already sold
 ## `goods_before` distinct goods this cycle with `bonus_before` bonus paid. First good gets none; per-planet cap.
-func mixed_bonus(revenue: int, goods_before: int, bonus_before: int) -> int:
-	if goods_before < 1 or revenue <= 0:
+func mixed_bonus(revenue: int, goods_before: int, bonus_before: int, cross: bool = false) -> int:
+	if goods_before < 1 or revenue <= 0 or cross:  # Four Markets: the bonus is for single-market loads only
 		return 0
 	var cap := int(balance.get("bundle_bonus_cap", 0))
 	return clampi(floori(revenue * float(balance.get("bundle_bonus_pct", 0.0))), 0, maxi(cap - bonus_before, 0))
@@ -905,6 +944,7 @@ func mixed_preview(planet: int) -> Dictionary:
 	var out := {}
 	var goods := 0
 	var paid := 0
+	var seen: Array = []
 	for o in local.values():
 		if int(o["planet"]) != planet or not o["sell"]:
 			continue
@@ -912,11 +952,12 @@ func mixed_preview(planet: int) -> Dictionary:
 		if int(r["n"]) <= 0:
 			continue
 		var rev := int(r["credits"])
-		var b := mixed_bonus(rev, goods, paid)
+		var b := mixed_bonus(rev, goods, paid, _cross_with(seen, str(o["c"])))
 		if b > 0:
 			out[str(o["c"])] = {"bonus": b, "revenue": rev, "pct": mixed_pct(b, rev)}
 		goods += 1
 		paid += b
+		seen = _add_mk(seen, str(o["c"]))
 	return out
 
 func _pname(i: int) -> String:
@@ -934,6 +975,7 @@ func settle(cash: int) -> Dictionary:
 	var upkeep_paid := 0
 	var orders: Array = local.values()
 	mix = {}
+	sales_units = {}
 	var amt_now := func(k: String, c: String) -> int: return storage.amount(k, c)
 	for o in orders:  # 1 local buys; they may not spend the fixed cost of a route that runs this cycle
 		if o["buy"]:
@@ -982,11 +1024,12 @@ func _run_local(o: Dictionary, role: String, cash: int, out: Array) -> int:
 				took += storage.remove(sk, c, n - took)
 			n = took
 			r["credits"] = n * sold_price(planet, c)
-			var m: Dictionary = mix.get(planet, {"goods": 0, "bonus": 0})
+			var m: Dictionary = mix.get(planet, {"goods": 0, "bonus": 0, "mk": []})
 			if n > 0:
-				var b := mixed_bonus(int(r["credits"]), int(m["goods"]), int(m["bonus"]))
+				var b := mixed_bonus(int(r["credits"]), int(m["goods"]), int(m["bonus"]), _cross_with(m["mk"], c))
 				r["credits"] = int(r["credits"]) + b
-				mix[planet] = {"goods": int(m["goods"]) + 1, "bonus": int(m["bonus"]) + b}
+				mix[planet] = {"goods": int(m["goods"]) + 1, "bonus": int(m["bonus"]) + b, "mk": _add_mk(m["mk"], c)}
+				_note_sale(c, n)
 	o[role + "_state"] = r["state"]
 	out.append({"planet": planet, "c": c, "role": role, "n": n, "paid": int(r["credits"]), "state": r["state"]})
 	return int(r["credits"])
@@ -1053,6 +1096,7 @@ func _settle_one(rec: Dictionary, cash: int) -> int:
 		var sold := mini(from_planet, local_amount())
 		sale = sold * sold_price(int(rec["stop"]), c)
 		carried = from_planet - sold
+		_note_sale(c, sold)
 	storage.add(dst, c, carried)
 	_spend_split(rec, moved)  # N2
 	rec["stop_sale"] = sale  # N11: read by main to spot a first sale in system 2
