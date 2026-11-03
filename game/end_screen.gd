@@ -44,15 +44,42 @@ func _label(box: Control, text: String, size: int = 0, center: bool = false) -> 
 	box.add_child(l)
 	return l
 
+func _readout(box: Control, market: String) -> void:
+	Markets.best()  # makes sure the registry is loaded
+	if market == "" or not Markets.ids.has(market):
+		if Markets.ids.is_empty():
+			return
+		market = str(Markets.ids[0])
+	var panel := PanelContainer.new()
+	box.add_child(panel)
+	var col := VBoxContainer.new()
+	col.add_theme_constant_override("separation", 6)
+	panel.add_child(col)
+	var rows := [[str(Markets.names.get(market, market)) + " (" + StoryText.get_or("LBL_SHARE_YOU", "You") + ")", Markets.share(market)]]
+	for b in Bots.IDS:
+		rows.append([Bots.bot_name(b), Markets.bot_share(b, market)])
+	for r in rows:
+		var line := HBoxContainer.new()
+		col.add_child(line)
+		var n := Label.new()
+		n.text = str(r[0])
+		n.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		line.add_child(n)
+		var v := Label.new()
+		v.theme_type_variation = "LabelNumber"
+		v.text = "%d%%" % roundi(float(r[1]) * 100.0)
+		line.add_child(v)
+
 ## Ending screen. side: "WIN", "LOSS" or "SOFT". stat is one plain line (win market and share, leading rival, best market).
 ## TODO story: ending texts for the Four Markets ids are not written yet; a plain stub line stands in (marked TODO story).
-## TODO UI: the ui-programmer builds the final readout (win market, share, the three bots).
+## The readout under the text: the market (stats.market, else the first), the player's share and the three bots.
 func show_ending(ending_id: String, side: String, stats: Dictionary, stat: String = "") -> void:
 	var box := _box()
 	_label(box, StoryText.get_or(ending_id + "_TITLE", ending_id), 30, true)
 	_label(box, StoryText.get_or(ending_id, "TODO story: ending text for %s." % ending_id))
 	if stat != "":
 		_label(box, stat)
+	_readout(box, str(stats.get("market", "")))
 	for pair in [["END_STAT_CYCLES", "cycle"], ["END_STAT_CASH", "cash"]]:
 		_label(box, "%s: %s" % [StoryText.get_text(pair[0]), str(stats.get(pair[1], 0))])
 	_label(box, StoryText.get_text("END_RUN_OVER"))
