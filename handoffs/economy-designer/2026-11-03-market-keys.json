@@ -13,7 +13,7 @@
     "UNKNOWN: new-good prices (rivets, musk, spores, ingot, alloy, cells, armour, cask, gems, gel, seed) are not in planets.json yet; not invented here.",
     "tier cut persistent offset (summary open Q3) needs a sim re-run in Goal 2; not applied."
   ],
-  "handoff": "Added 61 new keys to data/balance.json (data_version 33), nothing removed or changed; win_cycle 30 and win_cash 14000 stay until the programmer swaps code. win_cycle_markets 40 is the new win-by-cycle key. Share volume = units x base sell price. Existing goods: read data/planets.json planets[].base_prices (<good>_sell keys, e.g. energy_sell 8, food_sell 26, plate_sell 120). Economy doc section 1 gives one sell price per good (energy 24-34, food 26-35, chips 36-38, silk 48, ore 12-16, dross 15-18, nullglass 25-29, plate 120). Volume base price for new goods: UNKNOWN in data, see economy section 1 table.",
+  "handoff": "Added 51 new keys to data/balance.json (data_version 33), nothing removed or changed; win_cycle 30 and win_cash 14000 stay until the programmer swaps code. win_cycle_markets 40 is the new win-by-cycle key. Share volume = units x base sell price. Existing goods: read data/planets.json planets[].base_prices (<good>_sell keys, e.g. energy_sell 8, food_sell 26, plate_sell 120). Economy doc section 1 gives one sell price per good (energy 24-34, food 26-35, chips 36-38, silk 48, ore 12-16, dross 15-18, nullglass 25-29, plate 120). Volume base price for new goods: UNKNOWN in data, see economy section 1 table.",
   "details": {
     "added_keys": {
       "win_share_pct": 0.5,
