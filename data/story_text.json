@@ -1951,7 +1951,7 @@
  },
  {
   "id": "SK_LUX_4_PLAIN",
-  "text": "Tech: craft {goal} units. Unlocks vintage casks. Stored Luxury stock keeps its value when a planet closes.",
+  "text": "Tech: craft {goal} units. Unlocks vintage casks. Luxury stock survives asteroid cuts to storage.",
   "max": 110,
   "place": "Skill screen, detail panel"
  },
@@ -2053,7 +2053,7 @@
  },
  {
   "id": "SK_MIN_2_PLAIN",
-  "text": "Tech: craft {goal} units at the Smelter. Minerals volume up a little. Ore loads take no order space.",
+  "text": "Tech: craft {goal} units at the Smelter. Minerals volume up a little. Ore orders ignore the size cap.",
   "max": 110,
   "place": "Skill screen, detail panel"
  },

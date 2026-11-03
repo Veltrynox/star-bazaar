@@ -72,7 +72,7 @@ SK_LUX_3_PLAIN | 110 | Skill screen, detail panel | Warns one cycle before an ev
 
 SK_LUX_4_NAME | 24 | Skill screen, node name | Cask Cellar
 SK_LUX_4_FLAVOUR | 90 | Skill screen, detail panel | Some things improve in the dark. So do some excuses.
-SK_LUX_4_PLAIN | 110 | Skill screen, detail panel | Tech: craft {goal} units. Unlocks vintage casks. Stored Luxury stock keeps its value when a planet closes.
+SK_LUX_4_PLAIN | 110 | Skill screen, detail panel | Tech: craft {goal} units. Unlocks vintage casks. Luxury stock survives asteroid cuts to storage.
 SK_LUX_4_CRAFT | 60 | Skill screen, tech node progress line | Atelier crafts: {n} of {goal}
 
 SK_LUX_5_NAME | 24 | Skill screen, node name | Patron's List
@@ -94,7 +94,7 @@ SK_MIN_1_PLAIN | 110 | Skill screen, detail panel | Unlocks the Fabric and the S
 
 SK_MIN_2_NAME | 24 | Skill screen, node name | Smelting
 SK_MIN_2_FLAVOUR | 90 | Skill screen, detail panel | Heat is honest. It only asks what you put in.
-SK_MIN_2_PLAIN | 110 | Skill screen, detail panel | Tech: craft {goal} units at the Smelter. Minerals volume up a little. Ore loads take no order space.
+SK_MIN_2_PLAIN | 110 | Skill screen, detail panel | Tech: craft {goal} units at the Smelter. Minerals volume up a little. Ore orders ignore the size cap.
 SK_MIN_2_CRAFT | 60 | Skill screen, tech node progress line | Smelter crafts: {n} of {goal}
 
 SK_MIN_3_NAME | 24 | Skill screen, node name | Cold Survey

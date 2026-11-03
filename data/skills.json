@@ -24,8 +24,8 @@
    "mine_unlock": "allows mining good id at place (planet id)",
    "cluster_yield_pct": "mining yield per cluster x (1 + balance[key])",
    "stock_growth_pct": "stock held in where (planet_storage) of target market grows balance[key] per cycle, up to balance[cap_key] of the stored amount",
-   "stock_protect": "stored target-market stock keeps its value when a planet closes (on planet_closed)",
-   "ore_free_slots": "ore loads take no cargo/order space",
+   "stock_protect": "stored target-market stock is not trimmed when an asteroid hit cuts a planet storage (on storage_cut)",
+   "ore_free_slots": "ore Buy and Sell orders ignore the order-size cap (limited by storage room, cash and stock)",
    "reopen_sooner": "a closed planet reopens 'cycles' cycles sooner"
   }
  },
@@ -282,7 +282,7 @@
     {
      "type": "stock_protect",
      "target": "lux",
-     "on": "planet_closed"
+     "on": "storage_cut"
     }
    ]
   },
