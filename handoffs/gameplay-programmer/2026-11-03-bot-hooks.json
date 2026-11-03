@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-03",
+  "task": "bot-hooks",
+  "status": "done",
+  "files_changed": ["game/bots.gd", "game/markets.gd", "game/events.gd", "game/main.gd", "data/balance.json", "tools/tests/run_tests.gd", "handoffs/gameplay-programmer/2026-11-03-bot-hooks.json"],
+  "open_questions": [
+    "UNKNOWN: economy-designer to confirm event_hit_s/m/l = 0.05/0.10/0.20 (added by me as placeholders, balance v35).",
+    "UNKNOWN: growth hit is a percent change of the bot's growth (growth_mult); growth_add (absolute per-cycle) exists in the API but no hit uses it yet. Growth change is applied to the whole growth x cycle term, so the next volume steps at once (history untouched). OK?"
+  ],
+  "handoff": "Code only, no UI, existing Markets API unchanged (additions only). API: Markets.hit_bot(b, m, stat, amount) -> bool (strength/growth: signed fraction, multiplicative stacking; tier: int step, stored offset clamped -3..3, effective tier clamped 1..4 in Bots.tier); Markets.bot_mods(b, m) -> {strength_mult, growth_mult, growth_add, tier_offset}; Markets.size_pct(S|M|L) reads balance event_hit_s/m/l. Bots.volume got growth_mult and growth_add params. Hits apply from the next end_cycle; history never rewritten. Events: a choice may carry bot_effect [{bot, market, stat, amount|size}] (size gives the percent, sign from amount, default -); handled by events.apply_bot_effect, called from main._on_event_confirmed. Save: Markets.to_dict now has optional key mods; tier_off, gap, vp, vb already saved; save VERSION stays 2, v2 saves without mods load with defaults. Bots create no nodes (only a RandomNumberGenerator); a test greps for it. Tests: 1034 pass, 0 fail (17 new bot hooks checks). Note: concurrent Godot runs by other agents killed my runs with 143; rerun until clean.",
+  "details": {"api": ["Markets.hit_bot", "Markets.bot_mods", "Markets.size_pct", "Events.apply_bot_effect", "Bots.volume(..., tier_offset, strength_mult, growth_mult, growth_add)"], "balance_keys_added": ["event_hit_s", "event_hit_m", "event_hit_l"], "tests": {"pass": 1034, "fail": 0}}
+}
