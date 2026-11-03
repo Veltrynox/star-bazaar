@@ -1,0 +1,121 @@
+{
+ "schema_version": 1,
+ "agent": "economy-designer",
+ "date": "2026-11-03",
+ "task": "endings-retune",
+ "status": "partial",
+ "files_changed": [
+  "data/balance.json",
+  "handoffs/economy-designer/2026-11-03-endings-retune.json"
+ ],
+ "open_questions": [
+  "Lux is untested: no bot can trade Luxury (silk/musk sell only in system 2, bot with permit collapses). Lux bots left at the uniform 0.22 scale; needs a bot that can reach lux before its win rate is known.",
+  "Owner: system 1 trades only energy (mil) and food (bio); lux and min goods exist only in system 2 or by mining/crafting. OK, or add silk/musk/ore buy prices to planet_1..3 (needs approval)?",
+  "Wins land at c26-28 on a flat player volume (about 700 bv); bots grow, so share peaks c6-15 and falls. Calibration fits a weak bot, so a human with 5 ships and crafting may win too easily. Re-tune after the code fixes."
+ ],
+ "handoff": "Diagnosis: 5.5% was a bot/code gap on top of a scale mismatch. Real player volume is ~600-800 bv a cycle (3 ships, energy lanes at 24 bv, no crafting, 14-16k cash idle) vs a 2.7-4k paper ramp, while rivals were 2.4-4.6k. Retune: bot_scale 0.22, bio rivals x0.65, min rivals x0.4, win_earliest_cycle 22 (data_version 39). Result: decent --no-permit wins mil, bio; mining_focus wins min; tests pass=1165 fail=0. Default decent (permit 2) and spread still end SWEPT at c34-35: code gaps listed in details.code_gaps.",
+ "details": {
+  "changed_keys": {
+   "bot_scale": {
+    "old": 0.85,
+    "new": 0.22
+   },
+   "bot_{1,2,3}_bio_strength/growth": {
+    "old": "x1",
+    "new": "x0.65"
+   },
+   "bot_{1,2,3}_min_strength/growth": {
+    "old": "x1",
+    "new": "x0.4"
+   },
+   "win_earliest_cycle": {
+    "old": 20,
+    "new": 22,
+    "reason": "earliest win c26 (22+hold 5-1) instead of c24"
+   },
+   "data_version": {
+    "old": 38,
+    "new": 39
+   }
+  },
+  "diagnosis": [
+   "decent mil good seed 1 at 0.85: share 21% at c5, falls to 5.5% at c27 as player volume stays ~600 while rivals grow 22/cycle and tier up. 3 ships, 3 routes.",
+   "decent --no-permit (same seed): cash climbs to 16k unspent, share 50% at c9-14, 38% at c40, END_OUTCOMPETED. So the economy works; the permit path is what kills the default bot (cash 0 from c16, repossession, share 0).",
+   "Share formula and window are fine; only the rival-to-player volume ratio was off."
+  ],
+  "sim_results": {
+   "note": "real bot runs, fast clock, seeds 1-3 (rivals differ little by seed so results are near identical per seed), tools/sim.py not used (no market model)",
+   "mil_decent_good_nopermit": {
+    "win_rate": "3/3",
+    "win_cycles": [
+     26,
+     26,
+     26
+    ],
+    "ending": "END_MIL_GOOD",
+    "share": "0.52-0.53"
+   },
+   "mil_decent_bad_nopermit": {
+    "win_rate": "3/3",
+    "win_cycles": [
+     26,
+     26,
+     26
+    ],
+    "ending": "END_MIL_BAD",
+    "share": "0.52-0.53"
+   },
+   "bio_decent_good_nopermit": {
+    "win_rate": "3/3",
+    "win_cycles": [
+     26,
+     26,
+     26
+    ],
+    "ending": "END_BIO_GOOD"
+   },
+   "bio_decent_bad_nopermit": {
+    "win_rate": "3/3",
+    "win_cycles": [
+     26,
+     26,
+     26
+    ],
+    "ending": "END_BIO_BAD"
+   },
+   "min_mining_focus_good": {
+    "win_rate": "3/3",
+    "win_cycles": [
+     26,
+     26,
+     26
+    ],
+    "ending": "END_MIN_GOOD"
+   },
+   "min_mining_focus_bad": {
+    "win_rate": "3/3",
+    "win_cycles": [
+     28,
+     28,
+     28
+    ],
+    "ending": "END_MIN_BAD"
+   },
+   "lux": "UNTESTED: decent --market=lux --permit=2 ends SWEPT c27 with 0 routes, share 0",
+   "median_win_cycle": 26,
+   "spread_nopermit_good": "bio win c27 (seed1), OUTCOMPETED c40 (seed2, bio 46 mil 41), SWEPT c27 (seed3). Spread bot only finds mil and bio lanes, so it is a 2-market focus, not the real four-way spread.",
+   "spread_permit_good_or_bad": "END_SWEPT c35 (good) and c27 (bad), all shares ~0",
+   "decent_default_permit_mil_good": "END_SWEPT c34, shares 0 (collapse)",
+   "sloppy / always_expand / never_expand (good chains)": "OUTCOMPETED c40 (sloppy mil 16-23%), OUTCOMPETED/SWEPT c37-40 (always_expand), SWEPT c27 (never_expand)",
+   "passive": "END_SWEPT c27",
+   "tests": "tools/tests/run_tests.gd pass=1165 fail=0, no test edited"
+  },
+  "code_gaps": [
+   "bot_run.gd _ranked_lanes: lane profit uses (sell-buy) x engine.local_amount/units_per_cycle() not the route's own units (cargo / round trip travel). After the permit it picks cross-system lanes (energy 8 to 34) whose real volume is tiny; cash drops to 0, ships are repossessed, share 0. Use route-specific units per cycle.",
+   "bot_run.gd PAYBACK rule yields only 2 bio lanes and 3 mil lanes; ship_cap is 5 and 14-16k cash sits idle. A focused bot should buy ships to the cap.",
+   "bot_run.gd: munitions workshop built but craft_totals is {} on the --no-permit run and 15 armour in 27 cycles on the default run; the bot does not feed or run crafting (armour batch 540 bv would be most of the player volume).",
+   "bot_run.gd: no lux lane at all (silk/musk sell only in system 2; musk_buy planet_2); lux bot needs permit + a working cross-system lane or atelier crafting.",
+   "Game design/code to confirm: spread with the permit goes SWEPT at c35 although it trades (volume collapses with cash); sweep should not fire on a player with ships and cash."
+  ]
+ }
+}
