@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-03",
+  "task": "skills-window-look",
+  "status": "done",
+  "files_changed": ["game/skill_screen.gd", "handoffs/ui-programmer/2026-11-03-skills-window-look.json"],
+  "open_questions": [
+    "Not checked by eye: panel opacity, font sizes (12 px, title 18) and button height (62) are my guesses; tell me if they are still too big.",
+    "The market identity line (MKT_*_ID) is no longer shown under each market name; it is now a tooltip on the branch caption. Say if it should return."
+  ],
+  "handoff": "Skills window (game/skill_screen.gd): panel stylebox now forced to alpha 1.0; all labels and buttons set to 12 px (title 18), node buttons 62 px high instead of 84, detail strip smaller. Layout is now one row per depth across all branches: row 0 holds every skill or tech with no prerequisites (Foundations and tier 1 of each market), lower rows hold locked ones by depth, each group under its branch caption. Prerequisite lines still drawn from cell positions. Lock text (SK_LOCKED_NEEDS or SK_BTN_LOCKED) still shows on each button and in the detail strip; skill_tree.gd untouched, so a new Space Storage lock shown through the existing status line will display. Headless tests ran with no script errors or FAILs. Added static helpers depth() and depth_rows(); tier_rows() kept for tests.",
+  "details": {"how_to_see": "Press K in game; look at the top row and the dark background."}
+}

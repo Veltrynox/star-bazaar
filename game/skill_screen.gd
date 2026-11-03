@@ -49,6 +49,30 @@ static func tier_rows(branch: String) -> Array:
 		out.append(by_tier[k])
 	return out
 
+## Depth of a node: 0 when it has no prerequisites (learnable right away), else 1 + the deepest prerequisite.
+static func depth(id: String) -> int:
+	var d := 0
+	for p in SkillTree.prereqs(id):
+		if SkillTree.has(p):
+			d = maxi(d, depth(p) + 1)
+	return d
+
+## Rows by depth across all branches: [{branch: [ids]}, ...]; row 0 holds everything with no prerequisites.
+static func depth_rows() -> Array:
+	var out := []
+	for b in SkillTree.BRANCHES:
+		for id in SkillTree.ids_in(b):
+			var d := depth(id)
+			while out.size() <= d:
+				out.append({})
+			if not out[d].has(b):
+				out[d][b] = []
+			if SkillTree.is_tech(id):
+				out[d][b].push_front(id)
+			else:
+				out[d][b].append(id)
+	return out
+
 ## "learned", "locked", "researching" (a tech with prerequisites met), "points" (skill, too few points) or "learnable".
 static func node_state(learned: Array, points: int, balance: Dictionary, id: String) -> String:
 	match SkillTree.state(learned, id):
@@ -104,21 +128,35 @@ func setup(main_node: Control) -> void:
 	help.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	help.text = StoryText.get_or("LBL_SKILL_POINTS_HELP", "Skill points: 1 for each planet you first trade with, 2 for each new route between two planets, 3 for each new system you reach.")
 	_root.add_child(help)
-	# Foundations row
-	_root.add_child(_caption(StoryText.get_text("SK_TAB_FND")))
-	var fnd := HBoxContainer.new()
-	fnd.add_theme_constant_override("separation", 16)
-	_root.add_child(fnd)
-	for id in SkillTree.ids_in("fnd"):
-		fnd.add_child(_node_cell(id))
-	# Four market columns
-	var cols := HBoxContainer.new()
-	cols.add_theme_constant_override("separation", 20)
-	_root.add_child(cols)
-	for b in SkillTree.MARKETS:
-		cols.add_child(_market_column(b))
+	# One row per depth: row 0 = everything learnable right away, lower rows = locked behind prerequisites
+	var rows := VBoxContainer.new()
+	rows.add_theme_constant_override("separation", 6)
+	_root.add_child(rows)
+	for r in depth_rows():
+		var row := HBoxContainer.new()
+		row.add_theme_constant_override("separation", 14)
+		rows.add_child(row)
+		for b in SkillTree.BRANCHES:
+			if not r.has(b):
+				continue
+			var ids: Array = r[b]
+			var grp := VBoxContainer.new()
+			grp.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			grp.size_flags_stretch_ratio = float(ids.size())
+			grp.add_theme_constant_override("separation", 2)
+			row.add_child(grp)
+			var cap := _caption(StoryText.get_text("SK_TAB_" + b.to_upper()))
+			if b != "fnd":
+				cap.tooltip_text = StoryText.get_text("MKT_%s_ID" % b.to_upper())
+				cap.mouse_filter = Control.MOUSE_FILTER_STOP
+			grp.add_child(cap)
+			var cells_row := HBoxContainer.new()
+			cells_row.add_theme_constant_override("separation", 6)
+			grp.add_child(cells_row)
+			for id in ids:
+				cells_row.add_child(_node_cell(id))
 	detail_box = VBoxContainer.new()
-	detail_box.custom_minimum_size = Vector2(0, 150)
+	detail_box.custom_minimum_size = Vector2(0, 110)
 	detail_box.add_theme_constant_override("separation", 4)
 	_root.add_child(detail_box)
 	permit_box = VBoxContainer.new()
@@ -127,39 +165,28 @@ func setup(main_node: Control) -> void:
 	var foot := Label.new()
 	foot.text = StoryText.get_text("SK_NO_CREDITS")
 	_root.add_child(foot)
+	# fully opaque background (the theme panel is translucent)
+	var sb: StyleBox = get_theme_stylebox("panel").duplicate()
+	if sb is StyleBoxFlat:
+		var c: Color = (sb as StyleBoxFlat).bg_color
+		(sb as StyleBoxFlat).bg_color = Color(c.r, c.g, c.b, 1.0)
+	else:
+		var f := StyleBoxFlat.new()
+		f.bg_color = Ui.col("panel_200")
+		f.set_content_margin_all(12)
+		sb = f
+	add_theme_stylebox_override("panel", sb)
+	_shrink(self)
 
-func _market_column(b: String) -> VBoxContainer:
-	var col := VBoxContainer.new()
-	col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	col.size_flags_stretch_ratio = 1.0
-	col.add_theme_constant_override("separation", 10)
-	var h := _caption(StoryText.get_text("SK_TAB_" + b.to_upper()))
-	col.add_child(h)
-	var ident := Label.new()
-	ident.theme_type_variation = "LabelSmall"
-	ident.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	ident.custom_minimum_size = Vector2(0, 40)
-	ident.text = StoryText.get_text("MKT_%s_ID" % b.to_upper())
-	col.add_child(ident)
-	for ids in tier_rows(b):
-		var row := HBoxContainer.new()
-		row.add_theme_constant_override("separation", 8)
-		col.add_child(row)
-		if ids.size() == 1:
-			row.add_child(_spacer())
-			row.add_child(_node_cell(ids[0]))
-			row.add_child(_spacer())
-		else:
-			for id in ids:
-				row.add_child(_node_cell(id))
-	return col
-
-func _spacer() -> Control:
-	var s := Control.new()
-	s.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	s.size_flags_stretch_ratio = 0.5
-	s.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	return s
+## Smaller type for the whole window (the theme sizes are too large for 30 nodes).
+func _shrink(n: Node) -> void:
+	if n is Label:
+		var big: bool = (n as Label).theme_type_variation == "LabelTitle"
+		(n as Label).add_theme_font_size_override("font_size", 18 if big else 12)
+	elif n is Button or n is MenuButton:
+		n.add_theme_font_size_override("font_size", 12)
+	for c in n.get_children():
+		_shrink(c)
 
 func _caption(text: String) -> Label:
 	var l := Label.new()
@@ -173,7 +200,7 @@ func _node_cell(id: String) -> Control:
 	cell.size_flags_stretch_ratio = 1.0
 	cell.add_theme_constant_override("separation", 2)
 	var btn := Button.new()
-	btn.custom_minimum_size = Vector2(0, 84)
+	btn.custom_minimum_size = Vector2(0, 62)
 	btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	btn.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	btn.clip_text = true
@@ -238,6 +265,9 @@ func _status_line(id: String, st: String) -> String:
 			return StoryText.get_text("SK_CRAFTED", {"n": int(p.get("n", 0)), "goal": int(p.get("goal", 0))})
 		"points":
 			return StoryText.get_text("SK_NOT_ENOUGH")
+	var lock: String = main.skill_lock_reason(id)
+	if lock != "":
+		return lock
 	return StoryText.get_text("SK_COST", {"amount": SkillTree.cost(main.balance, id)})
 
 func refresh() -> void:
@@ -266,6 +296,7 @@ func refresh() -> void:
 			bar.value = float(p.get("n", 0))
 		_build_use_row(id, st)
 	_build_detail()
+	_shrink(detail_box)
 	_build_permits()
 	_root.queue_redraw()
 	call_deferred("_redraw_links")
@@ -324,6 +355,7 @@ func _build_use_row(id: String, st: String) -> void:
 		l.theme_type_variation = "LabelSmall"
 		l.text = StoryText.get_or("SK_BOT_USED", "Used this run.") if left == -1 else StoryText.get_or("SK_BOT_COOLDOWN", "Ready in {n} cycles.", {"n": left})
 		row.add_child(l)
+	_shrink(row)
 
 var use_buttons: Dictionary = {}  # bot skill id -> MenuButton while ready
 
@@ -379,6 +411,7 @@ func _build_permits() -> void:
 		var id_i: int = int(sid)
 		btn.pressed.connect(func(): main.buy_permit(id_i))
 		row.add_child(btn)
+	_shrink(permit_box)
 
 # ---- detail strip ----
 
