@@ -1,0 +1,1413 @@
+{
+  "schema_version": 1,
+  "agent": "qa-analyst",
+  "date": "2026-11-03",
+  "task": "market-foundation",
+  "status": "done",
+  "files_changed": [
+    "qa/run_game.sh",
+    "qa/bots/bot_run.gd",
+    "qa/reports/2026-11-03-market-foundation-runs.jsonl",
+    "qa/reports/2026-11-03-market-foundation-bug_report.json",
+    "handoffs/qa-analyst/2026-11-03-market-foundation.json"
+  ],
+  "open_questions": [
+    "UNKNOWN: is a win meant to be reachable at ship_cap 5? No run exceeded 50% (best 0.415 at cycle 28).",
+    "UNKNOWN: should local Buy and Sell orders (no ship) keep a no-route player out of the sweep? never_expand with local orders ends soft at 40 instead of swept at 27.",
+    "UNKNOWN: END_BANKRUPT was not reached in about 30 runs; needs cash below zero with the last ship repossessed, and the sweep usually fires first."
+  ],
+  "handoff": "Market-foundation QA, 52 windowed runs (qa/run_game.sh + bot_run.gd). Req 1 FAIL: no domination win. Best military 0.415 at cycle 28 (decent, local orders); plain decent focus peaks 0.36 to 0.39 at cycles 15 to 17; no run above 50% from cycle 20. Req 2 PASS: END_SWEPT at cycle 27 (sloppy, never_expand), soft END_OUTCOMPETED at 40 (29 runs); END_BANKRUPT not reached. Req 3 PARTIAL: game/ and visible goal and choice clean; data/story_text.json still holds old END_REL/END_CORP/END_LOSS rows (unused); new endings show TODO placeholder text. Req 4 PASS: tests 1005 pass, 0 fail. Harness: run_game.sh forwards args; bot_run.gd gained --market, --local-orders, local_focus and share rows. Bugs: 8 entries in qa/reports/2026-11-03-market-foundation-bug_report.json. Runs: qa/reports/2026-11-03-market-foundation-runs.jsonl. No .md report written.",
+  "details": {
+    "requirements": {
+      "1_domination_win": {
+        "result": "FAIL",
+        "reason": "No run reached a >50% share for 5 cycles from cycle 20 or at the cycle 40 check. Best real share in the win window: military 0.415 (cycle 28, focus_decent_mil_local_s1); biotech 0.336 (cycle 22, focus_decent_bio_s2); luxury 0.112 (cycle 20); minerals 0.002 (cycle 20). Plain military focus peaks 0.358 to 0.394 at cycles 15 to 17 over 5 seeds. Limit: ship_cap 5 and bot volume ~1.5x the player's at peak. Forced win for the path check only: see win_path."
+      },
+      "2_loss": {
+        "result": "PASS",
+        "reason": "END_SWEPT at cycle 27 (sloppy seeds 1-3, never_expand seeds 1-2, focus runs); END_SWEPT at 37 (always_expand mil seed 3, rule-consistent). Soft END_OUTCOMPETED at cycle 40 in 29 runs. END_BANKRUPT not reached (about 30 spread runs)."
+      },
+      "3_old_goal_gone": {
+        "result": "PARTIAL",
+        "game": "PASS (no win_cash or win_cycle; no LBL_GOAL; the Release/Corporation picker is gone; ending_picker.gd now only holds skill-branch helpers; Release and Corporation appear only in comments and run_stats.gd notes)",
+        "visible_ui": "PASS for the goal line and choice screen (LBL_GOAL_MARKETS only). FAIL for ending text: new endings have no story rows, so the end screen shows the raw id and 'TODO story: ending text for END_*'.",
+        "data": "FAIL: data/story_text.json still has END_REL_*, END_CORP_*, END_LOSS ('Cash goal: {goal}'), END_TITLE_REL/CORP, END_SIGN_*, END_STAT_LINE rows. Not read by game code. Also tools/sim.py (win_cash) and qa/bots/metrics.py (force_goal_cycle) still reference the old goal."
+      },
+      "4_tests": {
+        "result": "PASS",
+        "totals": "TOTAL pass=1005 fail=0, exit 0 (sh tools/tests/run.sh)"
+      }
+    },
+    "results": [
+      {
+        "strategy": "decent",
+        "final_cash": 44065,
+        "cycle_reached": 40,
+        "outcome": "loss",
+        "run": "decent_s1",
+        "seed": 1,
+        "market_focus": null,
+        "local_orders": false,
+        "force_goal_cycle": null,
+        "ending_id": "END_OUTCOMPETED",
+        "ships": 5,
+        "final_shares": {
+          "mil": 0.175,
+          "lux": 0.072,
+          "min": 0.0,
+          "bio": 0.05
+        },
+        "peak_share": {
+          "mil": 0.248,
+          "lux": 0.112,
+          "min": 0.0,
+          "bio": 0.095
+        },
+        "issue_count": 0
+      },
+      {
+        "strategy": "decent",
+        "final_cash": 46908,
+        "cycle_reached": 40,
+        "outcome": "loss",
+        "run": "decent_s2",
+        "seed": 2,
+        "market_focus": null,
+        "local_orders": false,
+        "force_goal_cycle": null,
+        "ending_id": "END_OUTCOMPETED",
+        "ships": 5,
+        "final_shares": {
+          "mil": 0.119,
+          "lux": 0.074,
+          "min": 0.0,
+          "bio": 0.095
+        },
+        "peak_share": {
+          "mil": 0.25,
+          "lux": 0.111,
+          "min": 0.0,
+          "bio": 0.114
+        },
+        "issue_count": 0
+      },
+      {
+        "strategy": "decent",
+        "final_cash": 41061,
+        "cycle_reached": 40,
+        "outcome": "loss",
+        "run": "decent_s3",
+        "seed": 3,
+        "market_focus": null,
+        "local_orders": false,
+        "force_goal_cycle": null,
+        "ending_id": "END_OUTCOMPETED",
+        "ships": 5,
+        "final_shares": {
+          "mil": 0.179,
+          "lux": 0.072,
+          "min": 0.0,
+          "bio": 0.049
+        },
+        "peak_share": {
+          "mil": 0.235,
+          "lux": 0.107,
+          "min": 0.0,
+          "bio": 0.084
+        },
+        "issue_count": 0
+      },
+      {
+        "strategy": "sloppy",
+        "final_cash": 4497,
+        "cycle_reached": 27,
+        "outcome": "loss",
+        "run": "sloppy_s1",
+        "seed": 1,
+        "market_focus": null,
+        "local_orders": false,
+        "force_goal_cycle": null,
+        "ending_id": "END_SWEPT",
+        "ships": 1,
+        "final_shares": {
+          "mil": 0.076,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.0
+        },
+        "peak_share": {
+          "mil": 0.136,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.0
+        },
+        "issue_count": 0
+      },
+      {
+        "strategy": "sloppy",
+        "final_cash": 4656,
+        "cycle_reached": 27,
+        "outcome": "loss",
+        "run": "sloppy_s2",
+        "seed": 2,
+        "market_focus": null,
+        "local_orders": false,
+        "force_goal_cycle": null,
+        "ending_id": "END_SWEPT",
+        "ships": 1,
+        "final_shares": {
+          "mil": 0.055,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.0
+        },
+        "peak_share": {
+          "mil": 0.141,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.0
+        },
+        "issue_count": 0
+      },
+      {
+        "strategy": "sloppy",
+        "final_cash": 4879,
+        "cycle_reached": 27,
+        "outcome": "loss",
+        "run": "sloppy_s3",
+        "seed": 3,
+        "market_focus": null,
+        "local_orders": false,
+        "force_goal_cycle": null,
+        "ending_id": "END_SWEPT",
+        "ships": 1,
+        "final_shares": {
+          "mil": 0.083,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.0
+        },
+        "peak_share": {
+          "mil": 0.144,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.0
+        },
+        "issue_count": 0
+      },
+      {
+        "strategy": "always_expand",
+        "final_cash": 20215,
+        "cycle_reached": 40,
+        "outcome": "loss",
+        "run": "always_expand_s1",
+        "seed": 1,
+        "market_focus": null,
+        "local_orders": false,
+        "force_goal_cycle": null,
+        "ending_id": "END_OUTCOMPETED",
+        "ships": 5,
+        "final_shares": {
+          "mil": 0.088,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.112
+        },
+        "peak_share": {
+          "mil": 0.206,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.154
+        },
+        "issue_count": 0
+      },
+      {
+        "strategy": "always_expand",
+        "final_cash": 23250,
+        "cycle_reached": 40,
+        "outcome": "loss",
+        "run": "always_expand_s2",
+        "seed": 2,
+        "market_focus": null,
+        "local_orders": false,
+        "force_goal_cycle": null,
+        "ending_id": "END_OUTCOMPETED",
+        "ships": 5,
+        "final_shares": {
+          "mil": 0.126,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.113
+        },
+        "peak_share": {
+          "mil": 0.191,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.193
+        },
+        "issue_count": 0
+      },
+      {
+        "strategy": "always_expand",
+        "final_cash": 20907,
+        "cycle_reached": 40,
+        "outcome": "loss",
+        "run": "always_expand_s3",
+        "seed": 3,
+        "market_focus": null,
+        "local_orders": false,
+        "force_goal_cycle": null,
+        "ending_id": "END_OUTCOMPETED",
+        "ships": 5,
+        "final_shares": {
+          "mil": 0.111,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.111
+        },
+        "peak_share": {
+          "mil": 0.235,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.169
+        },
+        "issue_count": 0
+      },
+      {
+        "strategy": "never_expand",
+        "final_cash": 2597,
+        "cycle_reached": 27,
+        "outcome": "loss",
+        "run": "never_expand_s1",
+        "seed": 1,
+        "market_focus": null,
+        "local_orders": false,
+        "force_goal_cycle": null,
+        "ending_id": "END_SWEPT",
+        "ships": 1,
+        "final_shares": {
+          "mil": 0.076,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.0
+        },
+        "peak_share": {
+          "mil": 0.136,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.0
+        },
+        "issue_count": 0
+      },
+      {
+        "strategy": "never_expand",
+        "final_cash": 6285,
+        "cycle_reached": 27,
+        "outcome": "loss",
+        "run": "never_expand_s2",
+        "seed": 2,
+        "market_focus": null,
+        "local_orders": false,
+        "force_goal_cycle": null,
+        "ending_id": "END_SWEPT",
+        "ships": 1,
+        "final_shares": {
+          "mil": 0.084,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.0
+        },
+        "peak_share": {
+          "mil": 0.141,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.088
+        },
+        "issue_count": 0
+      },
+      {
+        "strategy": "never_expand",
+        "final_cash": 6687,
+        "cycle_reached": 27,
+        "outcome": "loss",
+        "run": "never_expand_s3",
+        "seed": 3,
+        "market_focus": null,
+        "local_orders": false,
+        "force_goal_cycle": null,
+        "ending_id": "END_SWEPT",
+        "ships": 1,
+        "final_shares": {
+          "mil": 0.095,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.0
+        },
+        "peak_share": {
+          "mil": 0.144,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.0
+        },
+        "issue_count": 0
+      },
+      {
+        "strategy": "decent",
+        "final_cash": 50551,
+        "cycle_reached": 40,
+        "outcome": "loss",
+        "run": "focus_decent_mil_s1",
+        "seed": 1,
+        "market_focus": "mil",
+        "local_orders": false,
+        "force_goal_cycle": null,
+        "ending_id": "END_OUTCOMPETED",
+        "ships": 5,
+        "final_shares": {
+          "mil": 0.274,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.0
+        },
+        "peak_share": {
+          "mil": 0.389,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.0
+        },
+        "issue_count": 0
+      },
+      {
+        "strategy": "always_expand",
+        "final_cash": 9996,
+        "cycle_reached": 40,
+        "outcome": "loss",
+        "run": "focus_always_expand_mil_s1",
+        "seed": 1,
+        "market_focus": "mil",
+        "local_orders": false,
+        "force_goal_cycle": null,
+        "ending_id": "END_OUTCOMPETED",
+        "ships": 5,
+        "final_shares": {
+          "mil": 0.106,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.0
+        },
+        "peak_share": {
+          "mil": 0.22,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.0
+        },
+        "issue_count": 0
+      },
+      {
+        "strategy": "decent",
+        "final_cash": 1200,
+        "cycle_reached": 27,
+        "outcome": "softlock",
+        "run": "focus_decent_lux_s1",
+        "seed": 1,
+        "market_focus": "lux",
+        "local_orders": false,
+        "force_goal_cycle": null,
+        "ending_id": "END_SWEPT",
+        "ships": 1,
+        "final_shares": {
+          "mil": 0.0,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.0
+        },
+        "peak_share": {
+          "mil": 0.0,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.0
+        },
+        "issue_count": 1
+      },
+      {
+        "strategy": "always_expand",
+        "final_cash": 300,
+        "cycle_reached": 27,
+        "outcome": "softlock",
+        "run": "focus_always_expand_lux_s1",
+        "seed": 1,
+        "market_focus": "lux",
+        "local_orders": false,
+        "force_goal_cycle": null,
+        "ending_id": "END_SWEPT",
+        "ships": 2,
+        "final_shares": {
+          "mil": 0.0,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.0
+        },
+        "peak_share": {
+          "mil": 0.0,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.0
+        },
+        "issue_count": 1
+      },
+      {
+        "strategy": "decent",
+        "final_cash": 300,
+        "cycle_reached": 27,
+        "outcome": "softlock",
+        "run": "focus_decent_min_s1",
+        "seed": 1,
+        "market_focus": "min",
+        "local_orders": false,
+        "force_goal_cycle": null,
+        "ending_id": "END_SWEPT",
+        "ships": 2,
+        "final_shares": {
+          "mil": 0.0,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.0
+        },
+        "peak_share": {
+          "mil": 0.0,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.0
+        },
+        "issue_count": 1
+      },
+      {
+        "strategy": "always_expand",
+        "final_cash": 300,
+        "cycle_reached": 27,
+        "outcome": "softlock",
+        "run": "focus_always_expand_min_s1",
+        "seed": 1,
+        "market_focus": "min",
+        "local_orders": false,
+        "force_goal_cycle": null,
+        "ending_id": "END_SWEPT",
+        "ships": 2,
+        "final_shares": {
+          "mil": 0.0,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.0
+        },
+        "peak_share": {
+          "mil": 0.0,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.0
+        },
+        "issue_count": 1
+      },
+      {
+        "strategy": "decent",
+        "final_cash": 35164,
+        "cycle_reached": 40,
+        "outcome": "loss",
+        "run": "focus_decent_bio_s1",
+        "seed": 1,
+        "market_focus": "bio",
+        "local_orders": false,
+        "force_goal_cycle": null,
+        "ending_id": "END_OUTCOMPETED",
+        "ships": 5,
+        "final_shares": {
+          "mil": 0.0,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.238
+        },
+        "peak_share": {
+          "mil": 0.0,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.312
+        },
+        "issue_count": 0
+      },
+      {
+        "strategy": "always_expand",
+        "final_cash": 10337,
+        "cycle_reached": 40,
+        "outcome": "loss",
+        "run": "focus_always_expand_bio_s1",
+        "seed": 1,
+        "market_focus": "bio",
+        "local_orders": false,
+        "force_goal_cycle": null,
+        "ending_id": "END_OUTCOMPETED",
+        "ships": 5,
+        "final_shares": {
+          "mil": 0.0,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.118
+        },
+        "peak_share": {
+          "mil": 0.0,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.232
+        },
+        "issue_count": 0
+      },
+      {
+        "strategy": "mining_focus",
+        "final_cash": 564,
+        "cycle_reached": 27,
+        "outcome": "softlock",
+        "run": "focus_mining_focus_min_s1",
+        "seed": 1,
+        "market_focus": "min",
+        "local_orders": false,
+        "force_goal_cycle": null,
+        "ending_id": "END_SWEPT",
+        "ships": 4,
+        "final_shares": {
+          "mil": 0.0,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.0
+        },
+        "peak_share": {
+          "mil": 0.0,
+          "lux": 0.0,
+          "min": 0.175,
+          "bio": 0.0
+        },
+        "issue_count": 1
+      },
+      {
+        "strategy": "decent",
+        "final_cash": 50434,
+        "cycle_reached": 40,
+        "outcome": "loss",
+        "run": "focus_decent_mil_s2",
+        "seed": 2,
+        "market_focus": "mil",
+        "local_orders": false,
+        "force_goal_cycle": null,
+        "ending_id": "END_OUTCOMPETED",
+        "ships": 5,
+        "final_shares": {
+          "mil": 0.272,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.0
+        },
+        "peak_share": {
+          "mil": 0.394,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.0
+        },
+        "issue_count": 0
+      },
+      {
+        "strategy": "decent",
+        "final_cash": 48220,
+        "cycle_reached": 40,
+        "outcome": "loss",
+        "run": "focus_decent_mil_s3",
+        "seed": 3,
+        "market_focus": "mil",
+        "local_orders": false,
+        "force_goal_cycle": null,
+        "ending_id": "END_OUTCOMPETED",
+        "ships": 5,
+        "final_shares": {
+          "mil": 0.28,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.0
+        },
+        "peak_share": {
+          "mil": 0.376,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.0
+        },
+        "issue_count": 0
+      },
+      {
+        "strategy": "decent",
+        "final_cash": 47639,
+        "cycle_reached": 40,
+        "outcome": "loss",
+        "run": "focus_decent_mil_s4",
+        "seed": 4,
+        "market_focus": "mil",
+        "local_orders": false,
+        "force_goal_cycle": null,
+        "ending_id": "END_OUTCOMPETED",
+        "ships": 5,
+        "final_shares": {
+          "mil": 0.282,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.0
+        },
+        "peak_share": {
+          "mil": 0.358,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.0
+        },
+        "issue_count": 0
+      },
+      {
+        "strategy": "decent",
+        "final_cash": 43687,
+        "cycle_reached": 40,
+        "outcome": "loss",
+        "run": "focus_decent_mil_s5",
+        "seed": 5,
+        "market_focus": "mil",
+        "local_orders": false,
+        "force_goal_cycle": null,
+        "ending_id": "END_OUTCOMPETED",
+        "ships": 5,
+        "final_shares": {
+          "mil": 0.262,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.0
+        },
+        "peak_share": {
+          "mil": 0.357,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.0
+        },
+        "issue_count": 0
+      },
+      {
+        "strategy": "always_expand",
+        "final_cash": 11873,
+        "cycle_reached": 40,
+        "outcome": "loss",
+        "run": "focus_always_expand_mil_s2",
+        "seed": 2,
+        "market_focus": "mil",
+        "local_orders": false,
+        "force_goal_cycle": null,
+        "ending_id": "END_OUTCOMPETED",
+        "ships": 5,
+        "final_shares": {
+          "mil": 0.126,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.0
+        },
+        "peak_share": {
+          "mil": 0.215,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.0
+        },
+        "issue_count": 0
+      },
+      {
+        "strategy": "always_expand",
+        "final_cash": 6199,
+        "cycle_reached": 37,
+        "outcome": "loss",
+        "run": "focus_always_expand_mil_s3",
+        "seed": 3,
+        "market_focus": "mil",
+        "local_orders": false,
+        "force_goal_cycle": null,
+        "ending_id": "END_SWEPT",
+        "ships": 5,
+        "final_shares": {
+          "mil": 0.084,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.0
+        },
+        "peak_share": {
+          "mil": 0.217,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.0
+        },
+        "issue_count": 0
+      },
+      {
+        "strategy": "decent",
+        "final_cash": 40588,
+        "cycle_reached": 40,
+        "outcome": "loss",
+        "run": "focus_decent_bio_s2",
+        "seed": 2,
+        "market_focus": "bio",
+        "local_orders": false,
+        "force_goal_cycle": null,
+        "ending_id": "END_OUTCOMPETED",
+        "ships": 5,
+        "final_shares": {
+          "mil": 0.0,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.237
+        },
+        "peak_share": {
+          "mil": 0.0,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.336
+        },
+        "issue_count": 0
+      },
+      {
+        "strategy": "decent",
+        "final_cash": 35438,
+        "cycle_reached": 40,
+        "outcome": "loss",
+        "run": "focus_decent_bio_s3",
+        "seed": 3,
+        "market_focus": "bio",
+        "local_orders": false,
+        "force_goal_cycle": null,
+        "ending_id": "END_OUTCOMPETED",
+        "ships": 5,
+        "final_shares": {
+          "mil": 0.0,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.223
+        },
+        "peak_share": {
+          "mil": 0.0,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.308
+        },
+        "issue_count": 0
+      },
+      {
+        "strategy": "local_focus",
+        "final_cash": 152,
+        "cycle_reached": 31,
+        "outcome": "loss",
+        "run": "focus_local_mil_s1",
+        "seed": 1,
+        "market_focus": "mil",
+        "local_orders": false,
+        "force_goal_cycle": null,
+        "ending_id": "END_SWEPT",
+        "ships": 1,
+        "final_shares": {
+          "mil": 0.064,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.0
+        },
+        "peak_share": {
+          "mil": 0.394,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.0
+        },
+        "issue_count": 0
+      },
+      {
+        "strategy": "local_focus",
+        "final_cash": 54,
+        "cycle_reached": 40,
+        "outcome": "loss",
+        "run": "focus_local_mil_s2",
+        "seed": 2,
+        "market_focus": "mil",
+        "local_orders": false,
+        "force_goal_cycle": null,
+        "ending_id": "END_OUTCOMPETED",
+        "ships": 1,
+        "final_shares": {
+          "mil": 0.092,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.0
+        },
+        "peak_share": {
+          "mil": 0.412,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.0
+        },
+        "issue_count": 0
+      },
+      {
+        "strategy": "decent",
+        "final_cash": 3491,
+        "cycle_reached": 40,
+        "outcome": "loss",
+        "run": "focus_decent_mil_local_s1",
+        "seed": 1,
+        "market_focus": "mil",
+        "local_orders": true,
+        "force_goal_cycle": null,
+        "ending_id": "END_OUTCOMPETED",
+        "ships": 5,
+        "final_shares": {
+          "mil": 0.39,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.0
+        },
+        "peak_share": {
+          "mil": 0.415,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.0
+        },
+        "issue_count": 0
+      },
+      {
+        "strategy": "decent",
+        "final_cash": 156,
+        "cycle_reached": 27,
+        "outcome": "loss",
+        "run": "focus_decent_mil_local_s2",
+        "seed": 2,
+        "market_focus": "mil",
+        "local_orders": true,
+        "force_goal_cycle": null,
+        "ending_id": "END_SWEPT",
+        "ships": 5,
+        "final_shares": {
+          "mil": 0.026,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.0
+        },
+        "peak_share": {
+          "mil": 0.301,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.0
+        },
+        "issue_count": 0
+      },
+      {
+        "strategy": "decent",
+        "final_cash": 3214,
+        "cycle_reached": 40,
+        "outcome": "loss",
+        "run": "focus_decent_mil_local_s3",
+        "seed": 3,
+        "market_focus": "mil",
+        "local_orders": true,
+        "force_goal_cycle": null,
+        "ending_id": "END_OUTCOMPETED",
+        "ships": 5,
+        "final_shares": {
+          "mil": 0.374,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.0
+        },
+        "peak_share": {
+          "mil": 0.404,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.0
+        },
+        "issue_count": 0
+      },
+      {
+        "strategy": "decent",
+        "final_cash": 17853,
+        "cycle_reached": 24,
+        "outcome": "win",
+        "run": "forced_win_decent_s1",
+        "seed": 1,
+        "market_focus": null,
+        "local_orders": false,
+        "force_goal_cycle": 1,
+        "ending_id": "END_MIL_GOOD",
+        "ships": 5,
+        "final_shares": {
+          "mil": 0.996,
+          "lux": 0.104,
+          "min": 0.0,
+          "bio": 0.076
+        },
+        "peak_share": {
+          "mil": 0.998,
+          "lux": 0.112,
+          "min": 0.0,
+          "bio": 0.095
+        },
+        "issue_count": 0
+      },
+      {
+        "strategy": "local_focus",
+        "final_cash": 158,
+        "cycle_reached": 30,
+        "outcome": "loss",
+        "run": "spread_local_all_s1",
+        "seed": 1,
+        "market_focus": null,
+        "local_orders": false,
+        "force_goal_cycle": null,
+        "ending_id": "END_SWEPT",
+        "ships": 1,
+        "final_shares": {
+          "mil": 0.065,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.002
+        },
+        "peak_share": {
+          "mil": 0.394,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.011
+        },
+        "issue_count": 0
+      },
+      {
+        "strategy": "decent",
+        "final_cash": 218,
+        "cycle_reached": 27,
+        "outcome": "loss",
+        "run": "spread_decent_local_s1",
+        "seed": 1,
+        "market_focus": null,
+        "local_orders": true,
+        "force_goal_cycle": null,
+        "ending_id": "END_SWEPT",
+        "ships": 3,
+        "final_shares": {
+          "mil": 0.036,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.012
+        },
+        "peak_share": {
+          "mil": 0.289,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.037
+        },
+        "issue_count": 0
+      },
+      {
+        "strategy": "decent",
+        "final_cash": 196,
+        "cycle_reached": 27,
+        "outcome": "loss",
+        "run": "spread_decent_local_s2",
+        "seed": 2,
+        "market_focus": null,
+        "local_orders": true,
+        "force_goal_cycle": null,
+        "ending_id": "END_SWEPT",
+        "ships": 5,
+        "final_shares": {
+          "mil": 0.038,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.014
+        },
+        "peak_share": {
+          "mil": 0.313,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.032
+        },
+        "issue_count": 0
+      },
+      {
+        "strategy": "always_expand",
+        "final_cash": 77,
+        "cycle_reached": 27,
+        "outcome": "loss",
+        "run": "spread_always_expand_local_s1",
+        "seed": 1,
+        "market_focus": null,
+        "local_orders": true,
+        "force_goal_cycle": null,
+        "ending_id": "END_SWEPT",
+        "ships": 5,
+        "final_shares": {
+          "mil": 0.019,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.009
+        },
+        "peak_share": {
+          "mil": 0.289,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.037
+        },
+        "issue_count": 0
+      },
+      {
+        "strategy": "always_expand",
+        "final_cash": 1932,
+        "cycle_reached": 40,
+        "outcome": "loss",
+        "run": "spread_always_expand_local_s2",
+        "seed": 2,
+        "market_focus": null,
+        "local_orders": true,
+        "force_goal_cycle": null,
+        "ending_id": "END_OUTCOMPETED",
+        "ships": 5,
+        "final_shares": {
+          "mil": 0.258,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.024
+        },
+        "peak_share": {
+          "mil": 0.29,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.032
+        },
+        "issue_count": 2
+      },
+      {
+        "strategy": "mining_focus",
+        "final_cash": 36,
+        "cycle_reached": 27,
+        "outcome": "loss",
+        "run": "spread_mining_focus_local_s1",
+        "seed": 1,
+        "market_focus": null,
+        "local_orders": true,
+        "force_goal_cycle": null,
+        "ending_id": "END_SWEPT",
+        "ships": 5,
+        "final_shares": {
+          "mil": 0.02,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.004
+        },
+        "peak_share": {
+          "mil": 0.277,
+          "lux": 0.0,
+          "min": 0.175,
+          "bio": 0.008
+        },
+        "issue_count": 0
+      },
+      {
+        "strategy": "mining_focus",
+        "final_cash": 1637,
+        "cycle_reached": 40,
+        "outcome": "loss",
+        "run": "spread_mining_focus_local_s2",
+        "seed": 2,
+        "market_focus": null,
+        "local_orders": true,
+        "force_goal_cycle": null,
+        "ending_id": "END_OUTCOMPETED",
+        "ships": 5,
+        "final_shares": {
+          "mil": 0.214,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.008
+        },
+        "peak_share": {
+          "mil": 0.279,
+          "lux": 0.0,
+          "min": 0.17,
+          "bio": 0.014
+        },
+        "issue_count": 0
+      },
+      {
+        "strategy": "dead_run",
+        "final_cash": 78,
+        "cycle_reached": 27,
+        "outcome": "loss",
+        "run": "spread_dead_run_local_s1",
+        "seed": 1,
+        "market_focus": null,
+        "local_orders": true,
+        "force_goal_cycle": null,
+        "ending_id": "END_SWEPT",
+        "ships": 5,
+        "final_shares": {
+          "mil": 0.012,
+          "lux": 0.0,
+          "min": 0.001,
+          "bio": 0.002
+        },
+        "peak_share": {
+          "mil": 0.289,
+          "lux": 0.0,
+          "min": 0.002,
+          "bio": 0.035
+        },
+        "issue_count": 0
+      },
+      {
+        "strategy": "dead_run",
+        "final_cash": 52,
+        "cycle_reached": 27,
+        "outcome": "loss",
+        "run": "spread_dead_run_local_s2",
+        "seed": 2,
+        "market_focus": null,
+        "local_orders": true,
+        "force_goal_cycle": null,
+        "ending_id": "END_SWEPT",
+        "ships": 5,
+        "final_shares": {
+          "mil": 0.02,
+          "lux": 0.0,
+          "min": 0.001,
+          "bio": 0.0
+        },
+        "peak_share": {
+          "mil": 0.314,
+          "lux": 0.0,
+          "min": 0.002,
+          "bio": 0.032
+        },
+        "issue_count": 0
+      },
+      {
+        "strategy": "never_expand",
+        "final_cash": 172,
+        "cycle_reached": 27,
+        "outcome": "loss",
+        "run": "spread_never_expand_local_s1",
+        "seed": 1,
+        "market_focus": null,
+        "local_orders": true,
+        "force_goal_cycle": null,
+        "ending_id": "END_SWEPT",
+        "ships": 1,
+        "final_shares": {
+          "mil": 0.046,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.015
+        },
+        "peak_share": {
+          "mil": 0.394,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.026
+        },
+        "issue_count": 0
+      },
+      {
+        "strategy": "never_expand",
+        "final_cash": 1826,
+        "cycle_reached": 40,
+        "outcome": "loss",
+        "run": "spread_never_expand_local_s2",
+        "seed": 2,
+        "market_focus": null,
+        "local_orders": true,
+        "force_goal_cycle": null,
+        "ending_id": "END_OUTCOMPETED",
+        "ships": 1,
+        "final_shares": {
+          "mil": 0.247,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.013
+        },
+        "peak_share": {
+          "mil": 0.401,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.02
+        },
+        "issue_count": 0
+      },
+      {
+        "strategy": "never_expand",
+        "final_cash": 1270,
+        "cycle_reached": 40,
+        "outcome": "loss",
+        "run": "spread_never_expand_local_s3",
+        "seed": 3,
+        "market_focus": null,
+        "local_orders": true,
+        "force_goal_cycle": null,
+        "ending_id": "END_OUTCOMPETED",
+        "ships": 1,
+        "final_shares": {
+          "mil": 0.22,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.005
+        },
+        "peak_share": {
+          "mil": 0.407,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.021
+        },
+        "issue_count": 0
+      },
+      {
+        "strategy": "never_expand",
+        "final_cash": 890,
+        "cycle_reached": 40,
+        "outcome": "loss",
+        "run": "spread_never_expand_local_s4",
+        "seed": 4,
+        "market_focus": null,
+        "local_orders": true,
+        "force_goal_cycle": null,
+        "ending_id": "END_OUTCOMPETED",
+        "ships": 1,
+        "final_shares": {
+          "mil": 0.194,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.007
+        },
+        "peak_share": {
+          "mil": 0.395,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.021
+        },
+        "issue_count": 0
+      },
+      {
+        "strategy": "never_expand",
+        "final_cash": 872,
+        "cycle_reached": 40,
+        "outcome": "loss",
+        "run": "spread_never_expand_local_s5",
+        "seed": 5,
+        "market_focus": null,
+        "local_orders": true,
+        "force_goal_cycle": null,
+        "ending_id": "END_OUTCOMPETED",
+        "ships": 1,
+        "final_shares": {
+          "mil": 0.186,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.008
+        },
+        "peak_share": {
+          "mil": 0.393,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.02
+        },
+        "issue_count": 0
+      },
+      {
+        "strategy": "sloppy",
+        "final_cash": 1490,
+        "cycle_reached": 40,
+        "outcome": "loss",
+        "run": "spread_sloppy_local_s1",
+        "seed": 1,
+        "market_focus": null,
+        "local_orders": true,
+        "force_goal_cycle": null,
+        "ending_id": "END_OUTCOMPETED",
+        "ships": 1,
+        "final_shares": {
+          "mil": 0.273,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.003
+        },
+        "peak_share": {
+          "mil": 0.394,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.021
+        },
+        "issue_count": 0
+      },
+      {
+        "strategy": "sloppy",
+        "final_cash": 1524,
+        "cycle_reached": 40,
+        "outcome": "loss",
+        "run": "spread_sloppy_local_s2",
+        "seed": 2,
+        "market_focus": null,
+        "local_orders": true,
+        "force_goal_cycle": null,
+        "ending_id": "END_OUTCOMPETED",
+        "ships": 1,
+        "final_shares": {
+          "mil": 0.244,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.003
+        },
+        "peak_share": {
+          "mil": 0.401,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.02
+        },
+        "issue_count": 0
+      },
+      {
+        "strategy": "sloppy",
+        "final_cash": 1273,
+        "cycle_reached": 40,
+        "outcome": "loss",
+        "run": "spread_sloppy_local_s3",
+        "seed": 3,
+        "market_focus": null,
+        "local_orders": true,
+        "force_goal_cycle": null,
+        "ending_id": "END_OUTCOMPETED",
+        "ships": 1,
+        "final_shares": {
+          "mil": 0.225,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.002
+        },
+        "peak_share": {
+          "mil": 0.407,
+          "lux": 0.0,
+          "min": 0.0,
+          "bio": 0.021
+        },
+        "issue_count": 0
+      }
+    ],
+    "win_path": "Forced check (debug, --force-goal=1, decent seed 1): WIN at cycle 24, END_MIL_GOOD, share 0.996. Matches the 5-cycle hold from cycle 20. Not a domination win.",
+    "release_export": "Static check only: debug_tools_allowed() = OS.is_debug_build() (main.gd 2297); debug menu not created in release (main.gd 247); Force market share gated by OS.is_debug_build() (main.gd 1870). UNKNOWN: no release export was built in this run.",
+    "harness_changes": [
+      "qa/run_game.sh: forwards args after the script path (use: qa/run_game.sh res://qa/bots/bot_run.gd -- --strategy=... --seed=...). Was one arg only.",
+      "bot_run.gd: --market=mil|lux|min|bio (trade only that market's goods); --local-orders (Buy and Sell on every focus-market planet, any strategy); new strategy local_focus (no routes); RESULT gets share_rows (per cycle: shares for mil, lux, min, bio, and cash), final_shares, final_best, win_streaks, market_focus, market_ids.",
+      "Base strategies unchanged; the new options only apply when given."
+    ],
+    "notes": [
+      "Runs were windowed via qa/run_game.sh, with the default HOME (CLAUDE.md forbids HOME=). Each run calls SaveGame.clear() and adds 1 to RunStats in the owner's real user data dir: any autosave was cleared and the stats now include about 52 bot runs.",
+      "Pacing (decent won before 22 or after 30): not assessable, decent never wins.",
+      "Dominance flag: no strategy wins, so no dominant-win flag. Local orders are flagged as a possible exploit (bug MF-05).",
+      "Share values in share_rows are rounded to 0.001; the sweep check at 25 is consistent with the game within rounding.",
+      "The Markets rule window is 8 cycles; bio window bonus not active (BIO_5 not built)."
+    ],
+    "bugs_file": "qa/reports/2026-11-03-market-foundation-bug_report.json",
+    "runs_file": "qa/reports/2026-11-03-market-foundation-runs.jsonl",
+    "report_md": "Not written: the QA rule forbids report .md files. The runs table is in details.results, and the per-run detail is in the runs jsonl."
+  }
+}
