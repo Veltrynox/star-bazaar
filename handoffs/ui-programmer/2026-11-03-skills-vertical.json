@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-03",
+  "task": "skills-vertical",
+  "status": "done",
+  "files_changed": ["game/skill_screen.gd"],
+  "open_questions": ["Owner: does the vertical layout read better? If not, set VERTICAL_LAYOUT := false at the top of game/skill_screen.gd to get the old layout back."],
+  "handoff": "Skills window now stacks the branches top to bottom (Foundations, then each market), each with a caption and a separator. Inside a branch, nodes sit in depth rows (row 0 = no prerequisites first, deeper rows lower), fixed 250px wide cells aligned left. The whole window already scrolled vertically only (Ui.scroll_wrap, horizontal disabled), so no horizontal scroll. Opaque panel, 12px type, lock reasons, prerequisite lines and detail strip are unchanged. Old layout kept behind const VERTICAL_LAYOUT (false = old). Static helpers tier_rows, depth, depth_rows untouched. Headless tests: pass=1169 fail=0.",
+  "details": {
+    "how_to_see": "Run the game, press K. Scroll with the wheel inside the window.",
+    "not_checked_by_eye": "Whole window: no skill-screen bot exists, so layout, link lines across rows and 250px cell fit were not seen. Note: 'learnable now' is still the depth-0 row per branch, not grouped across branches as in the old layout."
+  }
+}

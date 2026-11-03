@@ -12,6 +12,10 @@ var COL_SHORT: Color = Color(0.82, 0.82, 0.82)
 var COL_LOCKED: Color = Ui.col("ink_subtle") * 1.4
 const TECH_TINT := Color(0.72, 0.88, 1.0)
 
+## true: branches stacked top to bottom, depth rows inside each (page scrolls vertically only).
+## false: the old layout, one row per depth with the branches side by side.
+const VERTICAL_LAYOUT := true
+
 signal closed
 
 var main: Control
@@ -128,10 +132,64 @@ func setup(main_node: Control) -> void:
 	help.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	help.text = StoryText.get_or("LBL_SKILL_POINTS_HELP", "Skill points: 1 for each planet you first trade with, 2 for each new route between two planets, 3 for each new system you reach.")
 	_root.add_child(help)
-	# One row per depth: row 0 = everything learnable right away, lower rows = locked behind prerequisites
+	# Tree area: row 0 = everything with no prerequisites, lower rows = locked behind prerequisites
 	var rows := VBoxContainer.new()
 	rows.add_theme_constant_override("separation", 6)
 	_root.add_child(rows)
+	if VERTICAL_LAYOUT:
+		_build_vertical(rows)
+	else:
+		_build_horizontal(rows)
+	detail_box = VBoxContainer.new()
+	detail_box.custom_minimum_size = Vector2(0, 110)
+	detail_box.add_theme_constant_override("separation", 4)
+	_root.add_child(detail_box)
+	permit_box = VBoxContainer.new()
+	permit_box.add_theme_constant_override("separation", 4)
+	_root.add_child(permit_box)
+	var foot := Label.new()
+	foot.text = StoryText.get_text("SK_NO_CREDITS")
+	_root.add_child(foot)
+	# fully opaque background (the theme panel is translucent)
+	var sb: StyleBox = get_theme_stylebox("panel").duplicate()
+	if sb is StyleBoxFlat:
+		var c: Color = (sb as StyleBoxFlat).bg_color
+		(sb as StyleBoxFlat).bg_color = Color(c.r, c.g, c.b, 1.0)
+	else:
+		var f := StyleBoxFlat.new()
+		f.bg_color = Ui.col("panel_200")
+		f.set_content_margin_all(12)
+		sb = f
+	add_theme_stylebox_override("panel", sb)
+	_shrink(self)
+
+
+## Branch sections stacked top to bottom; inside each, one row per depth (row 0 = no prerequisites).
+func _build_vertical(rows: VBoxContainer) -> void:
+	rows.add_theme_constant_override("separation", 10)
+	for b in SkillTree.BRANCHES:
+		var sec := VBoxContainer.new()
+		sec.add_theme_constant_override("separation", 6)
+		rows.add_child(sec)
+		var cap := _caption(StoryText.get_text("SK_TAB_" + b.to_upper()))
+		if b != "fnd":
+			cap.tooltip_text = StoryText.get_text("MKT_%s_ID" % b.to_upper())
+			cap.mouse_filter = Control.MOUSE_FILTER_STOP
+		sec.add_child(cap)
+		sec.add_child(HSeparator.new())
+		for r in depth_rows():
+			if not r.has(b):
+				continue
+			var row := HBoxContainer.new()
+			row.add_theme_constant_override("separation", 6)
+			sec.add_child(row)
+			for id in r[b]:
+				var cell := _node_cell(id)
+				cell.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN  # fixed width, rows line up on the left
+				cell.custom_minimum_size.x = 250.0
+				row.add_child(cell)
+
+func _build_horizontal(rows: VBoxContainer) -> void:
 	for r in depth_rows():
 		var row := HBoxContainer.new()
 		row.add_theme_constant_override("separation", 14)
@@ -155,28 +213,6 @@ func setup(main_node: Control) -> void:
 			grp.add_child(cells_row)
 			for id in ids:
 				cells_row.add_child(_node_cell(id))
-	detail_box = VBoxContainer.new()
-	detail_box.custom_minimum_size = Vector2(0, 110)
-	detail_box.add_theme_constant_override("separation", 4)
-	_root.add_child(detail_box)
-	permit_box = VBoxContainer.new()
-	permit_box.add_theme_constant_override("separation", 4)
-	_root.add_child(permit_box)
-	var foot := Label.new()
-	foot.text = StoryText.get_text("SK_NO_CREDITS")
-	_root.add_child(foot)
-	# fully opaque background (the theme panel is translucent)
-	var sb: StyleBox = get_theme_stylebox("panel").duplicate()
-	if sb is StyleBoxFlat:
-		var c: Color = (sb as StyleBoxFlat).bg_color
-		(sb as StyleBoxFlat).bg_color = Color(c.r, c.g, c.b, 1.0)
-	else:
-		var f := StyleBoxFlat.new()
-		f.bg_color = Ui.col("panel_200")
-		f.set_content_margin_all(12)
-		sb = f
-	add_theme_stylebox_override("panel", sb)
-	_shrink(self)
 
 ## Smaller type for the whole window (the theme sizes are too large for 30 nodes).
 func _shrink(n: Node) -> void:
