@@ -65,3 +65,4 @@ Story rules: the three pairs use the existing story voice (story/voice.md). Keep
 ## Decision 2026-11-03: the dead chain is a permit-tier path
 
 Nullglass is sold only at Greywake (dead_2), which is in system 2 and behind the permit. A player without the permit never gets nullglass, so plate and the Null Core need the permit. This is by design: the chain is the second-tier path, and the bot shows it completes on the permit path (plate and Null Core in 7 of 8 seeds, decent default still wins 8 of 8). Option kept open for the owner: add a nullglass source in system 1 (new content, not a balance value).
+Owner approved this on 2026-11-03: the dead chain is a permit-tier path, and no nullglass source is added in system 1.
