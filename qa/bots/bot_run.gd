@@ -8,7 +8,6 @@ extends SceneTree
 ##   planet_panel.send_requested ("Send to..." on a storage row)
 ##   planet_panel.remove_requested (Remove on a route)
 ##   ship_panel.buy_requested (ship button; the planet panel Buy ship button was removed in cfd3ecc)
-##   end_screen.chosen (Release / Stay as a Corporation buttons on the choice screen)
 ##
 ## Each cycle, while the game is paused:
 ##   0. events: _resolve_events answers any open event notice (first enabled choice, else Continue)
@@ -19,11 +18,10 @@ extends SceneTree
 ## Then the cycle ends. --clock=fast runs main.debug_advance_cycle() once.
 ## --clock=timer runs main._process in 1 to 45 s chunks until the cycle counter moves.
 ##
-## Win: at a cycle end with cash >= win_cash the choice screen waits. The bot picks a side by
-## emitting end_screen.chosen. Loss: the window ends (win_cycle) below win_cash.
-## Checks at every cycle end: game_over matches the expected end (cash, cycle, force toggle);
-## the choice screen shows exactly when cash >= win_cash; exactly one run_ended per run; the
-## unanswered choice is in the save; RunStats gets +1 run, +1 side, +1 ending; the autosave is
+## Win: a market share over the win line held long enough (Four Markets); loss: swept, bankrupt, or the soft ending at win_cycle_markets.
+## Checks at every cycle end: a win, swept or the last cycle ends the run (force toggle: debug Force market share, mil);
+## a win, swept or the last cycle ends the run; exactly one run_ended per run; the
+## RunStats gets +1 run, +1 side, +1 ending; the autosave is
 ## cleared after the run; the end screen has content.
 ##
 ## Strategies (names fixed):
@@ -41,7 +39,7 @@ extends SceneTree
 ##   --event-policy=first|decline   how event notices are answered (see _event_pick)
 ##   --clock=fast|timer
 ##   --choice=alt|RELEASE|CORP   alt: odd seed RELEASE, even seed CORP (default alt)
-##   --force-goal=<cycle>    turns on the debug "Force goal at cycle end" toggle at that cycle
+##   --force-goal=<cycle>    turns on the debug "Force market share" (mil) at that cycle
 ##                           (debug builds only; QA reaches the choice early)
 ##   --inject=<cycle>:<credits>  QA test input: credits added at the start of that cycle
 ##   --close-at=<cycle>      QA closure (T94): the first route's source planet is closed from that cycle (timed, like an event).
@@ -98,7 +96,6 @@ var main: Node = null
 var phase := 0
 var steps := 0
 var hung := false
-var win_cash := 0
 var win_cycle := 0
 var ended_count := 0
 var last_ended := -1
@@ -234,8 +231,7 @@ func _process(_delta: float) -> bool:
 		main.cycle_ended.connect(_on_cycle_ended)
 		main.run_ended.connect(_on_run_ended)
 		main.routes_settled.connect(_on_routes_settled)
-		win_cash = int(main.balance.get("win_cash", 0))
-		win_cycle = int(main.balance.get("win_cycle", 0))
+		win_cycle = int(main.balance.get("win_cycle_markets", 0))
 		stats_before = RunStats.load_stats()
 		phase = 2
 		return false
@@ -260,8 +256,8 @@ func _play_cycle() -> void:
 		main.cash += inject_cash
 		notes.append("injected %d credits at cycle %d (QA test input)" % [inject_cash, c])
 	if c == force_cycle:
-		main.debug_force_goal = true
-		notes.append("debug force-goal toggle on at cycle %d (QA; same as the debug menu)" % c)
+		main.debug_force_market = "mil"
+		notes.append("debug force market share (mil) on at cycle %d (QA; same as the debug menu)" % c)
 	events_resolved += _resolve_events()
 	if not main.pending.is_empty():
 		main.cancel_pending()
@@ -280,8 +276,6 @@ func _play_cycle() -> void:
 	_log_events()
 	if not hung:
 		_check_idle(c, sig_before)
-	if not hung and main.choice_pending:
-		_resolve_choice()
 	main.set_paused(true)
 
 
@@ -337,42 +331,14 @@ func _check_cycle_result(c: int, ended_before: int) -> void:
 		_issue("softlock", c, "advance did not end exactly one cycle (cycle_ended fired %d times)" % (ended_count - ended_before))
 		hung = true
 		return
-	if main.game_over != expect_over:
-		_issue("win_loss_check", c, "game_over=%s but expected %s (cash %d, win_cash %d, cycle %d, win_cycle %d, force %s)" % [
-			main.game_over, expect_over, main.cash, win_cash, last_ended, win_cycle, main.debug_force_goal])
-		hung = true
-		return
-	if main.game_over and (main.cash >= win_cash) != main.choice_pending:
-		_issue("win_loss_check", c, "choice screen %s but cash %d vs win_cash %d" % [
-			"pending" if main.choice_pending else "absent", main.cash, win_cash])
+	if expect_over and not main.game_over:  # a win, swept or the last cycle must end the run (bankrupt can end it too: not predicted here)
+		_issue("win_loss_check", c, "game still running but expected over (cash %d, cycle %d, win_cycle %d, force %s)" % [
+			main.cash, last_ended, win_cycle, main.debug_force_market])
 		hung = true
 		return
 	if not main.game_over and main.cycle != last_ended + 1:
 		_issue("cycle_count", c, "cycle counter %d after ending cycle %d, expected %d" % [main.cycle, last_ended, last_ended + 1])
 		hung = true
-
-
-## The win choice: the bot answers through the end screen's own signal, then checks the save.
-func _resolve_choice() -> void:
-	choice_cycle = main.cycle
-	if main.end_screen == null:
-		_issue("choice_missing", choice_cycle, "choice_pending is set but no end screen exists")
-		hung = true
-		return
-	var saved := SaveGame.load_state()
-	if not bool(saved.get("choice_pending", false)):
-		_issue("save_mismatch", choice_cycle, "unanswered win choice is not in the save (a reload would skip it)")
-	if reload_at_choice and not reloaded:
-		_reload_game()
-	choice_side = _pick_side()
-	main.end_screen.chosen.emit(choice_side)
-	_count("win_choice", choice_cycle)
-
-
-func _pick_side() -> String:
-	if choice_policy == "RELEASE" or choice_policy == "CORP":
-		return choice_policy
-	return "RELEASE" if seed_value % 2 == 1 else "CORP"
 
 
 ## Player-style decisions while paused. One fixed order every cycle.
@@ -1065,9 +1031,6 @@ func _reload_game() -> void:
 	if main.cycle != before_cycle or main.cash != before_cash or main.ships != before_ships:
 		reload_ok = false
 		_issue("reload_state", before_cycle, "reload changed state: cycle %d -> %d, cash %d -> %d, ships %d -> %d" % [before_cycle, main.cycle, before_cash, main.cash, before_ships, main.ships])
-	if not main.choice_pending or main.end_screen == null:
-		reload_ok = false
-		_issue("reload_choice", before_cycle, "choice did not come back after reload (choice_pending %s, end screen %s)" % [main.choice_pending, main.end_screen != null])
 	choice_cycle = main.cycle
 
 
@@ -1085,7 +1048,7 @@ func _log_events() -> void:
 func _on_cycle_ended(cycle: int) -> void:
 	ended_count += 1
 	last_ended = cycle
-	expect_over = main.debug_force_goal or main.cash >= win_cash or cycle >= win_cycle
+	expect_over = cycle >= win_cycle or not Markets.verdict(cycle).is_empty()  # win, swept or the last cycle
 	if expect_over and first_over_cycle < 0:
 		first_over_cycle = cycle
 	if probe != "":
@@ -1279,7 +1242,7 @@ func _finish() -> bool:
 	var final_cash: int = main.cash
 	var outcome := "softlock"
 	if main.game_over and run_end_count == 1:
-		outcome = "loss" if run_side == "LOSS" else "win"
+		outcome = run_side.to_lower()  # win, loss or soft
 		_check_run_record()
 	elif main.game_over:
 		_issue("softlock", end_cycle, "game over but run_ended fired %d times (choice never answered?)" % run_end_count)

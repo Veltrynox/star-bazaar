@@ -29,6 +29,8 @@ func _run() -> void:
 	_test_story_text()
 	_test_picker()
 	_test_stats_file()
+	_test_markets()
+	await _test_market_rules()
 	await _test_juice()
 	await _test_main()
 	await _test_rescue_waiting()
@@ -48,10 +50,8 @@ func _run() -> void:
 	await _test_trade_gate()
 	await _test_shield()
 	await _test_asteroid()
-	await _test_full_endings()
 	await _test_idle_actions()
 	await _test_skill_effects()
-	await _test_every_ending()
 	await _test_debug_menu()
 	await _test_planet_size()
 	await _test_route_offset()
@@ -211,83 +211,19 @@ func _test_story_text() -> void:
 			for m in rx2.search_all(FileAccess.get_file_as_string("res://game/" + fn)):
 				if not m.get_string(1).ends_with("_"):  # prefixes (END_TITLE_ + side) are added below
 					wanted[m.get_string(1)] = true
-	for k in ["REL", "CORP"]:
-		for p in ["END_TITLE_", "END_SIGN_"]:
-			wanted[p + k] = true
-	for id in ["CHOICE_RELEASE", "CHOICE_CORP", "CHOICE_RELEASE_EFFECT", "CHOICE_CORP_EFFECT",
-			"END_STAT_CYCLES", "END_STAT_CASH", "END_STAT_BRANCHES", "END_STAT_SYSTEMS",
-			"END_BTN_NEW", "END_BTN_MENU", "END_BTN_QUIT", "END_LOSS"]:
+	for id in ["END_STAT_CYCLES", "END_STAT_CASH", "END_BTN_NEW", "END_BTN_MENU", "END_BTN_QUIT", "END_RUN_OVER"]:
 		wanted[id] = true
-	for ending in _all_endings():
-		wanted[ending] = true
 	var missing := []
 	for id in wanted:
 		if not seen.has(id):
 			missing.append(id)
 	check(missing.is_empty(), "story: every id the game asks for exists (%d ids)" % wanted.size(), str(missing))
-	check(StoryText.get_text("LBL_GOAL", {"goal": 9000}).contains("9000"), "story: LBL_GOAL fills goal")
-	check(StoryText.ending_name("END_ENOUGH") != "END_ENOUGH", "story: ending_name reads place field")
 	var events = _read_json("res://data/events.json")
 	check(typeof(events) == TYPE_ARRAY and events.size() > 0, "story: events.json loads")
 
-func _all_endings() -> Array:
-	var out := ["END_BARE_HANDS", "END_LAST_LIGHT", "END_COLD_LEDGER", "END_OWN_HORIZON", "END_SLOW_HARBOR", "END_ENOUGH",
-		"END_CORP_BARE", "END_CORP_LOGI", "END_CORP_RES", "END_CORP_EXP", "END_CORP_MIX"]
-	for s in ["L", "R", "E", "X"]:
-		out.append("END_REL_FULL_" + s)
-		out.append("END_CORP_FULL_" + s)
-	return out
-
-# ---- 2. ending picker ----
-func _full(b: String) -> Array:
-	var out := []
-	for i in EndingPicker.branch_size(b):
-		out.append("%s%d" % [b, i + 1])
-	return out
-
-func _inp(learned: Array, sys: int = 2, all_sys: bool = false, last: bool = false) -> Dictionary:
-	return {"learned": learned, "systems_reached": sys, "all_systems_reached": all_sys, "last_cycle": last}
-
+# ---- 2. skill branch helpers (the old ending picker was removed with the cash goal) ----
 func _test_picker() -> void:
 	check(EndingPicker.branch_size("A") > 0 and EndingPicker.branch_size("B") > 0 and EndingPicker.branch_size("C") > 0, "picker: branch sizes read from story ids")
-	var P := EndingPicker
-	# Release tiers
-	check(P.pick_release(_inp(["A1"], 1)) == "END_BARE_HANDS", "release: bare hands (A1 only, 1 system)")
-	check(not P.shield_built({}) and P.shield_built({"shield_built": true}), "T121: hidden shield flag read by picker")
-	var _si := _inp(["A1", "A2"]); _si["shield_built"] = true
-	check(P.pick_release(_si) == P.pick_release(_inp(["A1", "A2"])), "T121: flag changes no ending row")
-	check(P.pick_release(_inp([], 1)) == "END_BARE_HANDS", "release: bare hands (nothing learned)")
-	check(P.pick_release(_inp(_full("A"), 3, true)) == "END_REL_FULL_L", "release: full L")
-	check(P.pick_release(_inp(_full("B"), 3, true)) == "END_REL_FULL_R", "release: full R")
-	check(P.pick_release(_inp(_full("C"), 3, true)) == "END_REL_FULL_E", "release: full E")
-	check(P.pick_release(_inp(_full("A") + _full("B"), 3, true)) == "END_REL_FULL_X", "release: full X (two branches)")
-	check(P.pick_release(_inp(["A1", "A2"], 2, false, true)) == "END_LAST_LIGHT", "release: last light")
-	check(P.pick_release(_inp(["B1", "B2", "B3", "B4"])) == "END_COLD_LEDGER", "release: cold ledger (B dominant with B4)")
-	check(P.pick_release(_inp(["B1", "B2"])) == "END_ENOUGH", "release: B dominant without B4 falls to enough")
-	check(P.pick_release(_inp(["C1", "C2"])) == "END_OWN_HORIZON", "release: own horizon")
-	check(P.pick_release(_inp(["A1", "A2"])) == "END_SLOW_HARBOR", "release: slow harbor")
-	check(P.pick_release(_inp(["A2", "B1"])) == "END_ENOUGH", "release: default when tied")
-	# first match wins
-	check(P.pick_release(_inp(_full("A"), 3, true, true)) == "END_REL_FULL_L", "release: full beats last light")
-	check(P.pick_release(_inp(["A1"], 1, false, true)) == "END_BARE_HANDS", "release: bare beats last light")
-	check(P.pick_release(_inp(["B1", "B4"], 2, false, true)) == "END_LAST_LIGHT", "release: last light beats cold ledger")
-	# Corp
-	check(P.pick_corp(_inp(["A1"], 1)) == "END_CORP_BARE", "corp: bare")
-	check(P.pick_corp(_inp(_full("A"), 3, true)) == "END_CORP_FULL_L", "corp: full L")
-	check(P.pick_corp(_inp(_full("B"), 3, true)) == "END_CORP_FULL_R", "corp: full R")
-	check(P.pick_corp(_inp(_full("C"), 3, true)) == "END_CORP_FULL_E", "corp: full E")
-	check(P.pick_corp(_inp(_full("B") + _full("C"), 3, true)) == "END_CORP_FULL_X", "corp: full X")
-	check(P.pick_corp(_inp(["A2", "A3"])) == "END_CORP_LOGI", "corp: logistics")
-	check(P.pick_corp(_inp(["B2", "B3"])) == "END_CORP_RES", "corp: research")
-	check(P.pick_corp(_inp(["C2", "C3"])) == "END_CORP_EXP", "corp: expansion")
-	check(P.pick_corp(_inp(["A2", "B2"])) == "END_CORP_MIX", "corp: mix default")
-	check(P.pick_corp(_inp(_full("A"), 3, false)) == "END_CORP_LOGI", "corp: full branch but not all systems -> not full")
-	# every ending id the picker can return exists in story text
-	var all_ok := true
-	for e in _all_endings():
-		if not StoryText.has_text(e):
-			all_ok = false
-	check(all_ok, "picker: every ending id has story text")
 
 # ---- 3. stats file ----
 func _test_stats_file() -> void:
@@ -596,120 +532,172 @@ func _test_main() -> void:
 	var m: Control = await _new_main()
 	m._dismiss_preface()
 	var bal: Dictionary = m.balance
-	var win_cash := int(bal["win_cash"])
-	var win_cycle := int(bal["win_cycle"])
+	var win_cycle := int(bal["win_cycle_markets"])
+	check(not bal.has("win_cash") and not bal.has("win_cycle"), "goal: old win_cash and win_cycle keys are gone")
+	check(win_cycle == 40, "goal: run length is win_cycle_markets (40)")
 
-	# --- choice screen ---
-	m.cash = win_cash
-	m._end_cycle()
-	await process_frame
-	check(m.game_over and m.choice_pending, "win: goal at cycle end opens the choice and stops the game")
-	check(m.end_screen != null, "win: end screen shown")
-	var btns := _buttons(m.end_screen, [])
-	var texts := []
-	for b in btns:
-		texts.append(b.text)
-	check(btns.size() == 2 and texts.has(StoryText.get_text("CHOICE_RELEASE")) and texts.has(StoryText.get_text("CHOICE_CORP")), "win: choice screen has exactly Release and Corporation", str(texts))
-	check(_stats_runs() == 0, "win: nothing recorded while choice is open")
-	check(FileAccess.file_exists("user://autosave.json"), "win: unanswered choice is saved")
-	var cyc: int = m.cycle
+	# --- win by holding a market (forced share): from win_earliest_cycle, held win_hold_cycles ---
+	_wipe_user()
+	check(m.debug_force_market == "", "force-share: off by default")
+	check(not m.collect_state().has("debug_force_market"), "force-share: not saved")
+	m.debug_force_market = "mil"
+	m.cycle = int(bal["win_earliest_cycle"]) - 2
 	var ended := []
 	m.run_ended.connect(func(side, id): ended.append([side, id]))
-	btns[0].pressed.emit()
+	for i in 2:
+		m._end_cycle()
+	check(not m.game_over, "win: not before win_earliest_cycle")
+	var guard := 0
+	while not m.game_over and guard < 10:
+		m._end_cycle()
+		guard += 1
 	await process_frame
-	check(ended.size() == 1 and ended[0][0] == "RELEASE" and ended[0][1] == "END_BARE_HANDS", "win: Release answered gives ending", str(ended))
-	check(_stats_runs() == 1, "win: answered choice adds exactly one run")
-	check(m.cycle == cyc, "win: cycle unchanged after answer")
-	check(not FileAccess.file_exists("user://autosave.json"), "win: save cleared after answer")
-	m._on_choice("RELEASE")
-	m._finish("RELEASE", "END_ENOUGH", "")
-	await process_frame
-	check(_stats_runs() == 1, "win: repeated finish in the same run does not double count")
-	var d = _read_json("user://stats.json")
-	check(int(d["choices"].get("RELEASE", 0)) == 1, "win: choice side counted once", str(d))
+	var want_end := int(bal["win_earliest_cycle"]) + int(bal["win_hold_cycles"]) - 1
+	check(m.game_over and m.cycle == want_end, "win: held win_hold_cycles from win_earliest_cycle ends at cycle %d" % want_end, str(m.cycle))
+	check(ended.size() == 1 and ended[0][0] == "WIN" and ended[0][1] == "END_MIL_GOOD", "win: END_MIL_GOOD (placeholder ending per market)", str(ended))
+	check(m.end_screen != null and _stats_runs() == 1, "win: end screen shown, run recorded once")
+	check(not FileAccess.file_exists("user://autosave.json"), "win: save cleared")
 	await _free_main(m)
-
-	# corp path with skills
 	m = await _new_main()
+	check(m.debug_force_market == "", "force-share: resets in a new run")
 	m._dismiss_preface()
-	m.learned_skills = ["C1", "C2"]
-	m.cash = win_cash
-	m._end_cycle()
-	await process_frame
-	var ended2 := []
-	m.run_ended.connect(func(side, id): ended2.append([side, id]))
-	m.end_screen.chosen.emit("CORP")
-	await process_frame
-	check(ended2.size() == 1 and ended2[0][1] == "END_CORP_EXP", "win: Corporation answered gives corp ending", str(ended2))
-	check(_stats_runs() == 2, "win: second run recorded, total 2")
+	var has_opt := false
+	for n in _find_option_buttons(m.debug_menu, []):
+		if n.get_item_text(0).contains("Force market share"):
+			has_opt = true
+	check(has_opt, "force-share: debug menu has the selector (replaces Force goal)")
 	await _free_main(m)
 
-	# reload of an unanswered choice does not record
-	m = await _new_main()
-	m._dismiss_preface()
-	m.cash = win_cash
-	m._end_cycle()
-	await process_frame
-	var before := _stats_runs()
-	await _free_main(m)
-	root.get_node_or_null("x")
-	m = load(MAIN_SCENE).instantiate()
-	m.set_meta("x", 1)
-	preload("res://game/save_game.gd").continue_requested = true
-	root.add_child(m)
-	await process_frame
-	check(m.choice_pending and m.end_screen != null, "win: unanswered choice returns after reload")
-	check(_stats_runs() == before, "win: reload does not record")
-	await _free_main(m)
-
-	# --- loss path ---
+	# --- swept: under sweep_share_pct in all four markets for sweep_hold_cycles from sweep_earliest_cycle ---
 	_wipe_user()
 	m = await _new_main()
 	m._dismiss_preface()
-	m.cash = 100
-	m.cycle = win_cycle
 	var ended3 := []
 	m.run_ended.connect(func(side, id): ended3.append([side, id]))
+	m.cycle = int(bal["sweep_earliest_cycle"]) - 1
+	m._end_cycle()
+	check(not m.game_over and Markets.sweep_streak == 0, "swept: nothing before sweep_earliest_cycle")
+	for i in int(bal["sweep_hold_cycles"]) - 1:
+		m._end_cycle()
+	check(not m.game_over, "swept: not before sweep_hold_cycles")
 	m._end_cycle()
 	await process_frame
-	check(m.game_over and not m.choice_pending, "loss: window end without goal ends the run, no choice")
-	check(ended3.size() == 1 and ended3[0][0] == "LOSS" and ended3[0][1] == "END_LOSS", "loss: END_LOSS reached", str(ended3))
-	var ld = _read_json("user://stats.json")
-	check(_stats_runs() == 1 and int(ld["choices"].get("LOSS", 0)) == 1 and int(ld["endings"].get("END_LOSS", 0)) == 1 and str(ld["last"]["side"]) == "LOSS", "loss: recorded as choices.LOSS / endings.END_LOSS (owner decision)", str(ld))
+	check(m.game_over and ended3.size() == 1 and ended3[0][0] == "LOSS" and ended3[0][1] == "END_SWEPT", "swept: END_SWEPT after the hold", str(ended3))
 	await _free_main(m)
 
-	# --- not the end yet: cycle advances ---
-	m = await _new_main()
-	m._dismiss_preface()
-	m.cash = 100
-	m.cycle = 3
-	m._end_cycle()
-	check(not m.game_over and m.cycle == 4, "cycle: below goal and before window end just advances")
-	await _free_main(m)
-
-	# --- force goal ---
+	# --- soft ending at the last cycle with no market over 50% ---
 	_wipe_user()
 	m = await _new_main()
 	m._dismiss_preface()
-	check(m.debug_force_goal == false, "force-goal: off by default")
-	check(not m.collect_state().has("debug_force_goal"), "force-goal: not saved")
-	m.cash = 10
-	m.cycle = 2
-	m._end_cycle()
-	check(not m.choice_pending, "force-goal off: low cash gives no choice")
-	m.debug_force_goal = true
+	var ended4 := []
+	m.run_ended.connect(func(side, id): ended4.append([side, id]))
+	m.cycle = win_cycle
 	m._end_cycle()
 	await process_frame
-	check(m.choice_pending and m.cash >= win_cash, "force-goal on: cash raised to win_cash and choice opens")
+	check(m.game_over and ended4.size() == 1 and ended4[0][0] == "SOFT" and ended4[0][1] == "END_OUTCOMPETED", "soft: END_OUTCOMPETED at the last cycle", str(ended4))
 	await _free_main(m)
+
+	# --- bankrupt: newest ship repossessed each cycle, salvage credited, ends with no ship and cash negative ---
+	_wipe_user()
 	m = await _new_main()
-	check(m.debug_force_goal == false, "force-goal: resets in a new run")
 	m._dismiss_preface()
-	var has_toggle := false
-	for b in _buttons(m.debug_menu, []):
-		if b is CheckButton and b.text.contains("Force goal"):
-			has_toggle = true
-	check(has_toggle, "force-goal: debug menu has the toggle")
+	var salvage := floori(float(bal["salvage_share"]) * float(bal["ship_price"]))
+	m.ships = 2
+	m.cash = -500
+	m.cycle = 3
+	var ended5 := []
+	m.run_ended.connect(func(side, id): ended5.append([side, id]))
+	m._end_cycle()
+	check(m.ships == 1 and m.cash == -500 + salvage and not m.game_over, "bankrupt: one ship repossessed, salvage_share x ship_price credited, no stipend that cycle", "%d %d" % [m.ships, m.cash])
+	check(m.rescues_paid == 0 and m.repossessions == 1, "bankrupt: counters (no rescue paid, one repossession)")
+	m.cash = -(salvage + 100)
+	m._end_cycle()
+	await process_frame
+	check(m.game_over and ended5.size() == 1 and ended5[0][1] == "END_BANKRUPT", "bankrupt: no ship left and cash still negative ends the run", str(ended5))
+	await _free_main(m)
+	# a repossession that clears the debt does not end the run
+	m = await _new_main()
+	m._dismiss_preface()
+	m.ships = 1
+	m.cash = -100
+	m.cycle = 3
+	m._end_cycle()
+	check(not m.game_over and m.ships == 0 and m.cash == salvage - 100, "bankrupt: debt covered by salvage keeps the run alive", "%d %d" % [m.ships, m.cash])
+	await _free_main(m)
+	# the newest route's ship goes first
+	m = await _new_main()
+	m._dismiss_preface()
+	m.ships = 2
+	var r1: Dictionary = m.engine.new_record(0, 1, "energy")
+	r1["id"] = 1
+	var r2: Dictionary = m.engine.new_record(0, 1, "food")
+	r2["id"] = 2
+	m.engine.routes = [r1, r2]
+	m.cash = -10
+	m._repossess_newest()
+	check(m.ships == 1 and m.engine.routes.size() == 1 and int(m.engine.routes[0]["id"]) == 1, "bankrupt: the newest route is the one repossessed")
+	await _free_main(m)
+
+	# --- rescue cap ---
+	m = await _new_main()
+	m._dismiss_preface()
+	m.ships = 0
+	m.cash = int(bal["ship_price"]) - 1
+	m.rescues_paid = int(bal["rescue_max"])
+	m.last_rescue_cycle = -1
+	m._check_stranded()
+	check(m.cash == int(bal["ship_price"]) - 1, "rescue: no stipend after rescue_max stipends")
+	m.rescues_paid = 0
+	m._check_stranded()
+	check(m.cash > int(bal["ship_price"]) and m.rescues_paid == 1, "rescue: stipend counts toward rescue_max")
+	await _free_main(m)
+
+	# --- save: version flag, market state round trip, old saves dropped ---
+	_wipe_user()
+	m = await _new_main()
+	m._dismiss_preface()
+	Markets.add_sale("silk", 4)
+	m.cycle = 6
+	m._end_cycle()
+	m.rescues_paid = 1
+	var sv: Dictionary = m.collect_state()
+	check(sv.has("markets") and sv.has("rescues_paid") and sv.has("repossessions") and not sv.has("choice_pending"), "save: market volumes, bot state and counters are saved")
+	check(preload("res://game/save_game.gd").VERSION >= 2, "save: version flag is 2 or more")
+	var vol_before: Array = Markets.history("lux").duplicate()
+	var bot_before: Array = Markets.bot_history(2, "lux").duplicate()
+	Markets.reset(bal, 0)
+	m.apply_state(JSON.parse_string(JSON.stringify(sv)))
+	var bot_after: Array = Markets.bot_history(2, "lux")
+	var same := Markets.history("lux") == vol_before and bot_after.size() == bot_before.size() and Markets.run_seed == int(sv["markets"]["seed"])
+	for i in bot_after.size():
+		same = same and absf(float(bot_after[i]) - float(bot_before[i])) < 0.001
+	check(same, "save: market state round trip keeps volumes, bots and seed")
+	check(m.rescues_paid == 1, "save: rescue counter round trip")
+	var SG := preload("res://game/save_game.gd")
+	var f := FileAccess.open(SG.PATH, FileAccess.WRITE)
+	f.store_string(JSON.stringify({"version": 1, "state": {"cycle": 5}}))
+	f.close()
+	check(SG.load_state().is_empty() and SG.dropped_old and SG.old_save_message() != "", "save: a version 1 save is dropped with a message")
+	SG.write_state({"cycle": 5})
+	check(not SG.load_state().is_empty() and not SG.dropped_old, "save: a current save loads")
+	await _free_main(m)
+
+	# --- volume tracking through the game: a Sell order counts units x base_value; Buy and storage do not ---
+	_wipe_user()
+	m = await _new_main()
+	m._dismiss_preface()
+	m.ships = 1
+	var key0: String = m.storage.planet_key(0)
+	m.storage.add(key0, "energy", 10)
+	check(m.set_local_order(0, "energy", "sell", true)["ok"], "volume: Sell order accepted")
+	m._end_cycle()
+	var left: int = m.storage.amount(key0, "energy")
+	var sold := 10 - left
+	check(sold > 0 and is_equal_approx(float(Markets.history("mil")[0]), float(sold * Markets.value_of("energy"))), "volume: units sold x base_value counted in the market of the good", "%d %s" % [sold, str(Markets.history("mil"))])
+	m.set_local_order(0, "energy", "sell", false)
+	m.set_local_order(0, "energy", "buy", true)
+	m._end_cycle()
+	check(is_equal_approx(float(Markets.history("mil")[1]), 0.0), "volume: a Buy order is not a sale")
 	await _free_main(m)
 
 	# --- expansion points ---
@@ -937,25 +925,214 @@ func _test_skill_screen() -> void:
 	check(m.engine.learned == m.learned_skills, "skills: engine learned follows after load")
 	m.apply_state({"cycle": 1})
 	check(m.learned_skills.is_empty(), "skills: old save starts with no skills (A1 must be earned)")
-	# ending picker feed
-	m.learned_skills = ["A1", "A2", "B1"]
-	check(m.ending_inputs()["learned"] == ["A1", "A2", "B1"], "skills: ending picker sees learned skills")
-	m.cash = int(bal["win_cash"])
-	m._end_cycle()
-	await process_frame
-	var picked := []
-	m.run_ended.connect(func(side, id): picked.append(id))
-	m.end_screen.chosen.emit("RELEASE")
-	await process_frame
-	check(picked.size() == 1 and picked[0] == EndingPicker.pick_release(m.ending_inputs()), "skills: choice still resolves through the picker", str(picked))
-	var all_text := ""
-	for b in _labels(m.end_screen, []):
-		all_text += b.text + "|"
-	check(all_text.contains("%s: %s, %s" % [StoryText.get_text("END_STAT_BRANCHES"), StoryText.get_text("SK_BRANCH_A"), StoryText.get_text("SK_BRANCH_B")]), "skills: end screen lists learned branch names", all_text)
-	var tiers = _read_json("user://stats.json")
-	check(typeof(tiers) == TYPE_DICTIONARY and tiers["last"]["tier"] == "Partial" and int(tiers["tiers"]["Partial"]) >= 1, "stats: win records tier Partial", str(tiers))
-	check(EndingPicker.tier({"learned": ["A1"]}) == "Bare" and EndingPicker.tier({"learned": ["A1", "A2"]}) == "Partial", "picker: tier Bare/Partial")
 	await _free_main(m)
+
+func _find_option_buttons(n: Node, out: Array) -> Array:
+	if n is OptionButton:
+		out.append(n)
+	for c in n.get_children():
+		_find_option_buttons(c, out)
+	return out
+
+# ---- Four Markets: registry, volumes, share, bots, win, swept, overhead (static module) ----
+func _bal() -> Dictionary:
+	return _read_json("res://data/balance.json")["values"]
+
+func _mean_sell(good: String) -> int:
+	var vals := []
+	for path in ["res://data/planets.json", "res://data/systems.json"]:
+		_collect_sell(_read_json(path), good + "_sell", vals)
+	return roundi(float(vals.reduce(func(a, b): return a + b, 0)) / float(vals.size())) if not vals.is_empty() else -1
+
+func _collect_sell(o, key: String, out: Array) -> void:
+	if typeof(o) == TYPE_DICTIONARY:
+		if typeof(o.get("base_prices")) == TYPE_DICTIONARY and (o["base_prices"].get(key) is int or o["base_prices"].get(key) is float):
+			out.append(o["base_prices"][key])
+		for v in o.values():
+			_collect_sell(v, key, out)
+	elif typeof(o) == TYPE_ARRAY:
+		for v in o:
+			_collect_sell(v, key, out)
+
+## Runs cycles from..to with `cur` filled by fill(cycle) -> Dictionary market -> volume.
+func _run_cycles(from: int, to: int, fill: Callable) -> Dictionary:
+	var v := {}
+	for c in range(from, to + 1):
+		var f: Dictionary = fill.call(c)
+		for m in f:
+			Markets.cur[m] = float(f[m])
+		Markets.end_cycle(c)
+		v = Markets.verdict(c)
+		if not v.is_empty():
+			return {"cycle": c, "v": v}
+	return {"cycle": to, "v": {}}
+
+func _test_markets() -> void:
+	var bal := _bal()
+	Markets.load_data()
+	check(Markets.ids == ["mil", "lux", "min", "bio"] and Markets.names["mil"] == "Military" and Markets.names["bio"] == "Biotech", "markets: four markets with display names")
+	var goods := ["energy", "food", "chips", "silk", "ore", "dross", "nullglass", "plate"]
+	var all_one := true
+	for g in goods:
+		var n := 0
+		for m in Markets.ids:
+			if Markets.goods_of[m].has(g):
+				n += 1
+		if n != 1 or Markets.market_of(g) == "":
+			all_one = false
+	check(all_one, "markets: every good maps to exactly one market")
+	check(Markets.market_of("energy") == "mil" and Markets.market_of("food") == "bio" and Markets.market_of("chips") == "mil" and Markets.market_of("silk") == "lux" and Markets.market_of("ore") == "min" and Markets.market_of("dross") == "min" and Markets.market_of("nullglass") == "min" and Markets.market_of("plate") == "min", "markets: tagging per core 1.1")
+	var total := 0
+	for m in Markets.ids:
+		total += Markets.goods_of[m].size()
+	check(total == goods.size(), "markets: no good listed twice or left out", str(total))
+	var base_ok := true
+	for g in goods:
+		if Markets.value_of(g) != _mean_sell(g) or Markets.value_of(g) <= 0:
+			base_ok = false
+	check(base_ok, "markets: base_value is the rounded mean of <good>_sell over the planets")
+	check(Markets.is_common("energy") and Markets.is_common("food") and Markets.is_common("ore") and not Markets.is_common("silk"), "markets: common raws are energy, food, ore")
+	# volume tracking
+	Markets.reset(bal, 7)
+	Markets.add_sale("silk", 10)
+	Markets.add_sale("energy", 5)
+	Markets.add_sale("energy", 0)
+	Markets.add_sale("unknown_good", 5)
+	check(is_equal_approx(float(Markets.cur["lux"]), 10.0 * Markets.value_of("silk")) and is_equal_approx(float(Markets.cur["mil"]), 5.0 * Markets.value_of("energy")), "volume: units x base_value per market")
+	check(is_equal_approx(float(Markets.cur_active["mil"]), 0.0) and float(Markets.cur_active["lux"]) > 0.0, "volume: common raws stay out of the active volume")
+	Markets.end_cycle(1)
+	check(is_equal_approx(float(Markets.history("lux")[0]), 350.0) and float(Markets.cur["lux"]) == 0.0, "volume: the cycle is stored and the counter cleared")
+	# share formula with the window
+	Markets.reset(bal, 7)
+	check(Markets.share("mil") == 0.0 and Markets.best()["market"] == "", "share: 0 with no volume, best is empty")
+	var w := int(bal["share_window"])
+	Markets.vp["mil"] = []
+	Markets.vb["mil"] = []
+	for i in w + 2:
+		Markets.vp["mil"].append(5000.0 if i < 2 else 100.0)  # two old cycles outside the window
+		Markets.vb["mil"].append([100.0, 100.0, 100.0] if i >= 2 else [1.0, 1.0, 1.0])
+	check(absf(Markets.share("mil") - 0.25) < 0.0001, "share: V_p / (V_p + bots) over the last share_window cycles only", str(Markets.share("mil")))
+	check(w == 8 and not Markets.bio_bonus and Markets.window_for("bio") == 8, "share: bio uses share_window until BIO_5 exists")
+	var bs := 0.0
+	for b in Bots.IDS:
+		bs += Markets.bot_share(b, "mil")
+	check(absf(bs + Markets.share("mil") - 1.0) < 0.0001, "share: player and bot shares add to 1")
+	check(Markets.best()["market"] == "mil" and absf(float(Markets.best()["share"]) - 0.25) < 0.0001, "share: best() gives the market and share")
+	# bots: determinism, tiers, noise bound, gap rule
+	check(Bots.volume(bal, 5, 1, "mil", 9) == Bots.volume(bal, 5, 1, "mil", 9) and Bots.volume(bal, 5, 1, "mil", 9) != Bots.volume(bal, 6, 1, "mil", 9), "bots: same seed gives the same volume, another seed another")
+	check(Bots.tier(bal, 1, 12) == 1 and Bots.tier(bal, 1, 13) == 2 and Bots.tier(bal, 1, 26) == 2 and Bots.tier(bal, 1, 27) == 3 and Bots.tier(bal, 2, 11) == 2 and Bots.tier(bal, 3, 28) == 3, "bots: tier-ups at bot_<b>_tier_cycle_1 and 2")
+	var noise_ok := true
+	for c in range(1, 41):
+		var raw := (float(bal["bot_1_mil_strength"]) + float(bal["bot_1_mil_growth"]) * c) * float(bal["bot_tier_mult_%d" % Bots.tier(bal, 1, c)]) * float(bal["bot_scale"])
+		var ratio := Bots.volume(bal, 3, 1, "mil", c) / raw
+		if ratio < 1.0 - float(bal["bot_noise_pct"]) - 0.0001 or ratio > 1.0 + float(bal["bot_noise_pct"]) + 0.0001:
+			noise_ok = false
+	check(noise_ok, "bots: volume = (strength + growth x cycle) x tier x scale within +-bot_noise_pct")
+	Markets.reset(bal, 11)
+	_run_cycles(1, 30, func(c): return {})
+	var a1: Array = Markets.bot_history(1, "lux").duplicate()
+	var total1 := Markets.total_volume("mil")
+	Markets.reset(bal, 11)
+	_run_cycles(1, 30, func(c): return {})
+	check(a1 == Markets.bot_history(1, "lux") and is_equal_approx(total1, Markets.total_volume("mil")), "bots: a whole run is deterministic per seed")
+	Markets.reset(bal, 12)
+	_run_cycles(1, 30, func(c): return {})
+	check(a1 != Markets.bot_history(1, "lux"), "bots: another seed gives another run")
+	Markets.reset(bal, 11)
+	_run_cycles(1, 5, func(c): return {})
+	check(is_equal_approx(float(Markets.gap["1|mil"]), 2.0 * float(bal["bot_gap_growth"])), "bots: gap growth from cycle 4 while the player is under bot_gap_share_pct", str(Markets.gap))
+	Markets.reset(bal, 11)
+	_run_cycles(1, 5, func(c): return {"mil": 1000000.0})
+	check(not Markets.gap.has("1|mil") and Markets.gap.has("1|lux"), "bots: no gap growth where the player holds a share")
+	# win hold
+	Markets.reset(bal, 3)
+	var hold := int(bal["win_hold_cycles"])
+	var first_win := int(bal["win_earliest_cycle"]) + hold - 1
+	var r := _run_cycles(1, 40, func(c): return {"min": 1000000.0})
+	check(int(r["cycle"]) == first_win and r["v"]["kind"] == "win" and r["v"]["market"] == "min", "win: share over win_share_pct for win_hold_cycles from win_earliest_cycle (cycle %d)" % first_win, str(r))
+	Markets.reset(bal, 3)
+	var save_pct = bal["win_share_pct"]
+	r = _run_cycles(1, first_win - 1, func(c): return {"min": 1000000.0})
+	bal["win_share_pct"] = 2.0  # one cycle under the line breaks the streak
+	r = _run_cycles(first_win, first_win, func(c): return {"min": 1000000.0})
+	bal["win_share_pct"] = save_pct
+	check(int(Markets.win_streak["min"]) == 0 and r["v"].is_empty(), "win: a cycle under the line resets the hold")
+	r = _run_cycles(first_win + 1, first_win + hold - 1, func(c): return {"min": 1000000.0})
+	check(r["v"].is_empty(), "win: the hold starts again after a break")
+	r = _run_cycles(first_win + hold, first_win + hold, func(c): return {"min": 1000000.0})
+	check(r["v"].get("kind", "") == "win", "win: fires after win_hold_cycles in a row again")
+	# final check at cycle 40: highest qualifying market wins
+	Markets.reset(bal, 3)
+	r = _run_cycles(1, 39, func(c): return {})
+	check(r["v"].get("kind", "") != "win", "win: no win without volume")
+	r = _run_cycles(40, 40, func(c): return {"mil": 1000000.0, "lux": 9000000.0})
+	check(r["v"].get("kind", "") == "win" and r["v"]["market"] == "lux" and Markets.timed_out(40), "win: final check at the last cycle, the highest share wins")
+	# swept
+	Markets.reset(bal, 3)
+	var se := int(bal["sweep_earliest_cycle"])
+	var sh := int(bal["sweep_hold_cycles"])
+	r = _run_cycles(1, se + sh - 2, func(c): return {})
+	check(r["v"].is_empty(), "swept: not before sweep_earliest_cycle + hold")
+	r = _run_cycles(se + sh - 1, se + sh - 1, func(c): return {})
+	check(r["v"].get("kind", "") == "swept" and int(r["v"]["bot"]) in Bots.IDS, "swept: under sweep_share_pct everywhere for sweep_hold_cycles", str(r))
+	Markets.reset(bal, 3)
+	r = _run_cycles(1, se + sh + 3, func(c): return {"lux": 3000.0} if c >= se - 3 else {})
+	check(r["v"].get("kind", "") != "swept", "swept: one market over sweep_share_pct is enough to stay in")
+	# overhead and active markets
+	Markets.reset(bal, 3)
+	var oh := int(bal["market_overhead"])
+	var cases := [[1, 0], [2, 1], [3, 4], [4, 9]]
+	for cs in cases:
+		for i in Markets.ids.size():
+			Markets.vp_active[Markets.ids[i]] = [100.0] if i < int(cs[0]) else []
+		check(Markets.n_active() == int(cs[0]) and Markets.overhead() == oh * int(cs[1]), "overhead: %d active markets pay market_overhead x %d" % [cs[0], cs[1]], str(Markets.overhead()))
+	Markets.vp_active["mil"] = [1000.0]
+	Markets.vp_active["lux"] = [10.0]  # about 1 percent of the volume: not active
+	Markets.vp_active["min"] = []
+	Markets.vp_active["bio"] = []
+	check(Markets.n_active() == 1 and Markets.overhead() == 0, "overhead: a market under market_active_pct is not active")
+	Markets.vp_active["mil"] = []
+	Markets.vp_active["lux"] = []
+	check(Markets.n_active() == 0 and Markets.overhead() == 0, "overhead: no volume means no overhead")
+	Markets.reset(bal, 3)
+
+# ---- Four Markets: spreading rules in the route engine ----
+func _test_market_rules() -> void:
+	_wipe_user()
+	var m: Control = await _new_main()
+	m._dismiss_preface()
+	var bal: Dictionary = m.balance
+	var e = m.engine
+	var mult := float(bal["cross_load_trip_mult"])
+	var up: int = e.upkeep_part(null)
+	var trip: int = e.trip_part()
+	var rc: Dictionary = e.new_record(0, 1, "chips")
+	rc["id"] = 1
+	e.routes = [rc]
+	check(e.fixed_cost(rc) == trip + up, "cross-load: a single-market lane pays the plain trip cost", "%d vs %d" % [e.fixed_cost(rc), trip + up])
+	var rs: Dictionary = e.new_record(0, 1, "silk")
+	rs["id"] = 2
+	e.routes = [rc, rs]
+	check(e.is_cross_load(rc) and e.fixed_cost(rc) == floori(float(trip) * mult) + up, "cross-load: goods of two markets on one lane pay cross_load_trip_mult on trip cost", "%d" % e.fixed_cost(rc))
+	var re_: Dictionary = e.new_record(0, 1, "energy")
+	re_["id"] = 3
+	e.routes = [rc, re_]
+	check(not e.is_cross_load(rc) and e.fixed_cost(rc) == trip + up, "cross-load: a common raw does not make a load mixed")
+	var rl: Dictionary = e.new_record(2, 3, "silk")
+	rl["id"] = 4
+	e.routes = [rc, rl]
+	check(not e.is_cross_load(rc), "cross-load: goods on different lanes do not mix")
+	e.routes = []
+	check(e.mixed_bonus(1000, 1, 0, false) > 0 and e.mixed_bonus(1000, 1, 0, true) == 0, "bundle: the bonus is for single-market loads only")
+	check(e._cross_with(["mil"], "silk") and not e._cross_with(["mil"], "chips") and not e._cross_with(["mil"], "food") and not e._cross_with([], "silk"), "bundle: a second market (not a common raw) mixes the load")
+	# a planet that sells chips and silk the same cycle gets no bonus; chips and plate-free same-market goods keep it
+	e.local = {}
+	e.mix = {}
+	var key0: String = m.storage.planet_key(0)
+	var shown: Dictionary = e.mixed_preview(0)
+	check(shown.is_empty(), "bundle: no preview without sell orders")
+	await _free_main(m)
+	_wipe_user()
 
 func _labels(n: Node, out: Array) -> Array:
 	if n is Label:
@@ -1004,6 +1181,7 @@ func _test_rescue_waiting() -> void:
 	m.ships = 1
 	m.cash = int(bal["starting_credits"])
 	m.last_rescue_cycle = -1
+	m.rescues_paid = 0
 	m._check_stranded()
 	check(m.cash == int(bal["starting_credits"]), "rescue: default start cash is never rescued")
 	# no ships and cash below a ship
@@ -1015,6 +1193,7 @@ func _test_rescue_waiting() -> void:
 	m.ships = 2
 	m.cash = 1
 	m.last_rescue_cycle = -1
+	m.rescues_paid = 0
 	m._check_stranded()
 	check(m.cash == 1 + stip, "rescue: cash below fixed cost, no route running, nothing sellable pays")
 	m._check_stranded()
@@ -1022,6 +1201,7 @@ func _test_rescue_waiting() -> void:
 	# sellable stock blocks the rescue
 	m.cash = 1
 	m.last_rescue_cycle = -1
+	m.rescues_paid = 0
 	st.ensure(st.planet_key(0))
 	st.add(st.planet_key(0), c, 5)
 	e.local_of(0, c, true)["sell"] = true
@@ -1047,6 +1227,7 @@ func _test_rescue_waiting() -> void:
 	rec["state"] = "running"
 	m.cash = fixed + 5
 	m.last_rescue_cycle = -1
+	m.rescues_paid = 0
 	m.last_net = 0
 	m.prev_net = 10
 	m._check_stranded()
@@ -1056,6 +1237,7 @@ func _test_rescue_waiting() -> void:
 	check(m.cash == fixed + 5 + stip, "rescue: cash below all routes' fixed cost, 2 flat cycles pays the stipend")
 	m.cash = fixed * 2 + 1
 	m.last_rescue_cycle = -1
+	m.rescues_paid = 0
 	m._check_stranded()
 	check(m.cash == fixed * 2 + 1, "rescue: cash covering all routes' fixed cost is not rescued")
 	# ship cash floor: after the price, cash must cover every open route's fixed cost
@@ -1788,40 +1970,6 @@ func _test_systems() -> void:
 	await _free_main(m)
 	_wipe_user()
 
-# ---- Every ending class reachable through the game's own win path (end of cycle -> choice -> answer) ----
-func _test_every_ending() -> void:
-	# [side, learned skills, last cycle?, expected ending]
-	var cases := [
-		["RELEASE", ["A1"], false, "END_BARE_HANDS"],
-		["RELEASE", ["A1", "A2"], true, "END_LAST_LIGHT"],
-		["RELEASE", ["B1", "B2", "B3", "B4"], false, "END_COLD_LEDGER"],
-		["RELEASE", ["B1", "B2"], false, "END_ENOUGH"],
-		["RELEASE", ["C1", "C2"], false, "END_OWN_HORIZON"],
-		["RELEASE", ["A1", "A2"], false, "END_SLOW_HARBOR"],
-		["CORP", ["A1"], false, "END_CORP_BARE"],
-		["CORP", ["A1", "A2"], false, "END_CORP_LOGI"],
-		["CORP", ["B1", "B2"], false, "END_CORP_RES"],
-		["CORP", ["C1", "C2"], false, "END_CORP_EXP"],
-		["CORP", ["A2", "B2"], false, "END_CORP_MIX"],
-	]
-	for c in cases:
-		_wipe_user()
-		var m: Control = await _new_main()
-		m._dismiss_preface()
-		var bal: Dictionary = m.balance
-		m.learned_skills = c[1].duplicate()
-		m.cash = int(bal["win_cash"])
-		if c[2]:
-			m.cycle = int(bal["win_cycle"])
-		m._end_cycle()
-		var ended := []
-		m.run_ended.connect(func(sd, id): ended.append([sd, id]))
-		m._on_choice(c[0])
-		var ok: bool = ended.size() == 1 and ended[0][1] == c[3] and StoryText.has_text(c[3])
-		check(ok, "endings: %s with %s -> %s" % [c[0], str(c[1]), c[3]], str(ended))
-		await _free_main(m)
-	_wipe_user()
-
 # ---- Skill effects that were text only before 2026-10-31: A2, C3, C4, B1, B3, B4 ----
 func _test_skill_effects() -> void:
 	_wipe_user()
@@ -2005,56 +2153,6 @@ func _test_idle_actions() -> void:
 	m._end_cycle()
 	check(m.cash > cash1 or m.storage.amount(key, "energy") < stock, "idle: Sell order turns stock into credits")
 	await _free_main(m)
-	_wipe_user()
-
-# ---- Full-tier endings reachable in play: system 2 opened and reached, a branch fully learned ----
-func _test_full_endings() -> void:
-	# [skills to learn in order, expected id suffix]; each set fully learns its branch (X = two branches)
-	var sets := [
-		[["A1", "A2", "A4", "A5"], "L"],
-		[["A1", "B1", "B2", "B3", "B4"], "R"],
-		[["A1", "C1", "C2", "C3", "C4"], "E"],
-		[["A1", "A2", "A4", "A5", "B1", "B2", "B3", "B4"], "X"],
-	]
-	for side in ["RELEASE", "CORP"]:
-		for set_ in sets:
-			_wipe_user()
-			var m: Control = await _new_main()
-			m._dismiss_preface()
-			var bal: Dictionary = m.balance
-			m.cash = 50000
-			m.skill_points = 100
-			m.learned_skills.append("C1")
-			var pr: Dictionary = m.buy_permit(2)
-			check(pr["ok"] and m.open_systems.has(2), "full: system 2 permit bought (%s)" % side, str(pr))
-			m.learned_skills.append("A1")  # trade gate: post open in system 2
-			m.storage.ensure(Storage.system_key(2))
-			m.set_local_order(4, "food", "buy", true)
-			m.learned_skills.erase("A1")
-			check(m.systems_reached == 2, "full: system 2 reached by an order (%s)" % side)
-			# permit first: C1 stays learned (it unlocks every other skill)
-			m.pts_planets = [0, 1, 2]
-			m.pts_pairs = ["0-1", "0-2"]
-			m.skill_points = 100
-			var all_ok := true
-			for id in set_[0]:
-				if m.learned_skills.has(id):
-					continue
-				if not m.learn_skill(id)["ok"]:
-					all_ok = false
-			check(all_ok, "full: %s set learned in tree order (%s)" % [set_[1], side], str(m.learned_skills))
-			check(m.ending_inputs()["all_systems_reached"], "full: all open systems reached (%s)" % side)
-			m.cash = int(bal["win_cash"])
-			m._end_cycle()
-			await process_frame
-			var ended := []
-			m.run_ended.connect(func(sd, id): ended.append([sd, id]))
-			m._on_choice(side)
-			var key := "REL" if side == "RELEASE" else "CORP"
-			var want := "END_%s_FULL_%s" % [key, set_[1]]
-			check(ended.size() == 1 and ended[0][1] == want, "full: %s with %s ends with %s" % [side, set_[1], want], str(ended))
-			check(StoryText.has_text(want) and StoryText.has_text(want + "_EPI") and m.end_screen != null, "full: text and epilogue exist (%s %s)" % [side, set_[1]])
-			await _free_main(m)
 	_wipe_user()
 
 # ---- T13: debug menu QA controls ----

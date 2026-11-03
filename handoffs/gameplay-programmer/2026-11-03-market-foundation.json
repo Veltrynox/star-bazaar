@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-03",
+  "task": "market-foundation",
+  "status": "done",
+  "files_changed": [
+    "data/markets.json",
+    "data/balance.json",
+    "game/markets.gd",
+    "game/bots.gd",
+    "game/route_engine.gd",
+    "game/main.gd",
+    "game/end_screen.gd",
+    "game/ending_picker.gd",
+    "game/debug_menu.gd",
+    "game/save_game.gd",
+    "game/main_menu.gd",
+    "game/story_text.gd",
+    "qa/bots/bot_run.gd",
+    "tools/tests/run_tests.gd",
+    "handoffs/gameplay-programmer/2026-11-03-market-foundation.json"
+  ],
+  "open_questions": [
+    "base_value mean uses planets.json AND systems.json: chips, silk and nullglass are only priced in systems.json, so planets.json alone gives no value. OK?",
+    "Cross-load reading: a 'load' = routes on the same lane (same a and b); common raws (energy, food, ore) never make a load mixed, and bundle bonus is blocked when 2+ non-raw markets sell at one planet in a cycle. Confirm with feature-designer.",
+    "Not touched, still reference the old goal: tools/sim.py (win_cash/win_cycle, will KeyError), tools/build_story.py ending sizes, story_text.json old END_*/CHOICE_*/LBL_GOAL texts (story goal 6), qa/bots/metrics.py force_goal_cycle field name. Who updates them?"
+  ],
+  "handoff": "Four Markets foundation is in. data/markets.json + game/markets.gd (registry, per-cycle volumes, window share, win/swept verdict, overhead) + game/bots.gd (seeded deterministic bots, tiers, gap rule). Sales tracked from Sell orders and route stop sales (route_engine.sales_units fed to Markets in main._settle_routes). Old cash goal removed (win_cash/win_cycle deleted from balance.json, choice screen, picker, tests). Endings: END_<MKT>_GOOD, END_SWEPT, END_BANKRUPT, END_OUTCOMPETED with TODO story stub text. Bankrupt repossession, rescue_max, overhead, cross-load, save version 2 (old saves dropped, menu message). Debug 'Force goal' replaced by 'Force market share' selector. Headless tests: 1001 pass, 0 fail. Not verified: a windowed or bot playthrough (qa/run_game.sh does not forward bot args), so real win rates are unchecked.",
+  "details": {
+    "tests": "sh tools/tests/run.sh -> TOTAL pass=1001 fail=0",
+    "ui_api": {
+      "Markets.names": "id -> display name (mil, lux, min, bio)",
+      "Markets.ids": "market ids in order",
+      "Markets.share(m)": "player share over the window, 0 with no volume",
+      "Markets.best()": "{market, share}; market is '' while the player has no volume",
+      "Markets.bot_share(b, m)": "b is 1..3; Bots.bot_name(b), Bots.IDS",
+      "Markets.history(m) / bot_history(b, m)": "per-cycle volumes, index = cycle - 1, for the Standings graph",
+      "Markets.win_streak[m], Markets.sweep_streak": "consecutive cycle-ends toward win / swept",
+      "Markets.n_active(), active_markets(), overhead()": "spreading penalty readout",
+      "Markets.market_of(good), value_of(good), is_common(good)": "registry",
+      "main.rescues_paid, main.repossessions, main.ships": "counters",
+      "signal main.run_ended(side, ending_id)": "side is WIN, LOSS or SOFT",
+      "end screen": "end_screen.show_ending(id, side, stats, stat): stub only, UI to build the final readout; goal_label in main._refresh is a plain placeholder line (LBL_GOAL_MARKETS fallback)"
+    },
+    "decisions": [
+      "Check order each cycle end: Markets.end_cycle, overhead, verdict (win then swept), bankrupt step, soft END_OUTCOMPETED at win_cycle_markets, then rescue stipend only if no repossession that cycle.",
+      "Gap rule uses the share at the previous cycle end; bot noise is a hash of (seed, bot, market, cycle) so saves reload to the same numbers. --seed=<int> fixes it.",
+      "n_active and overhead ignore common raws (summary R5): energy, food, ore never count as a market. Overhead = market_overhead x max(n-1,0)^2.",
+      "Rescue stipend now capped at rescue_max (2) per run; repossession credits salvage_share x ship_price; newest = a free ship first, else the route with the highest id.",
+      "balance.json was re-serialised by the existing debug 'save balance' test (1.0 became 1); no value changed. Removed keys: win_cash, win_cycle; data_version 34.",
+      "qa/bots/bot_run.gd patched to compile and judge the new end (choice and reload-at-choice checks removed); not run."
+    ]
+  }
+}
