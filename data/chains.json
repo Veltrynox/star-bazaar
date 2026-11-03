@@ -1085,7 +1085,6 @@
       },
       "requires_prev_step": false,
       "min_gap_key": "chain_min_gap",
-      "legacy_event_id": "EV29",
       "opt_a": {
         "dir": 4,
         "gets": [
@@ -1156,7 +1155,6 @@
       },
       "requires_prev_step": true,
       "min_gap_key": "chain_min_gap",
-      "legacy_event_id": "EV32",
       "opt_a": {
         "dir": 7,
         "gets": [
@@ -1227,7 +1225,6 @@
       },
       "requires_prev_step": true,
       "min_gap_key": "chain_min_gap",
-      "legacy_event_id": "EV35",
       "opt_a": {
         "dir": 7,
         "gets": [
@@ -2621,19 +2618,15 @@
   },
   "pool_kept_note": "24 kept pool events: EV01-EV16, EV17, EV20, EV21, EV22, EV24, EV25, EV26, EV28. bot_effect is optional and small: price-up events slow the lead bot of the good's market (growth S down); EV20 asteroid hits bot_1 min growth S; closures, glut events and EV17 have none.",
   "pool_retired": [
-    "EV18"
-  ],
-  "chain_followups_minerals_a": [
+    "EV18",
+    "EV29",
     "EV30",
     "EV31",
+    "EV32",
     "EV33",
     "EV34",
+    "EV35",
     "EV36",
     "EV37"
-  ],
-  "chain_legacy_steps": {
-    "MIN_A1": "EV29",
-    "MIN_A2": "EV32",
-    "MIN_A3": "EV35"
-  }
+  ]
 }

@@ -4408,7 +4408,7 @@ func _test_chains() -> void:
 				if not bal.has(str(e["key"])):
 					keys_ok = false
 	check(count_a == 12 and count_b == 16 and keys_ok and rival_ok, "chains: every step has its balance keys and every option a bot change", "%d %d %s %s" % [count_a, count_b, keys_ok, rival_ok])
-	check(data["pool_new"].size() == 12 and Chains.pool_kept.size() == 24 and Chains.retired == ["EV18"], "chains: pool 24 kept + 12 new, EV18 retired")
+	check(data["pool_new"].size() == 12 and Chains.pool_kept.size() == 24 and Chains.retired.size() == 10 and Chains.retired[0] == "EV18", "chains: pool 24 kept + 12 new, EV18 and EV29 to EV37 retired")
 	# every option applies and logs at least one rival change
 	var logs_ok := true
 	for sid in Chains.step_ids():
@@ -4605,7 +4605,7 @@ func _test_chains() -> void:
 	for d in ev.defs:
 		if Chains.in_pool(str(d["id"])):
 			in_pool += 1
-	check(in_pool == 36 and not Chains.in_pool("EV18") and not Chains.in_pool("EV29") and not Chains.in_pool("EV30") and ev.by_id.has("EV40") and ev.by_id.has("MIL_A1"), "pool: 24 kept + 12 new, no EV18, no Minerals chain events", str(in_pool))
+	check(in_pool == 36 and not Chains.in_pool("EV18") and not Chains.in_pool("EV29") and not Chains.in_pool("EV30") and not ev.by_id.has("EV29") and not ev.by_id.has("EV30") and not ev.by_id.has("EV37") and Chains.retired.has("EV29") and ev.by_id.has("EV40") and ev.by_id.has("MIL_A1"), "pool: 24 kept + 12 new, no EV18, no Minerals chain events", str(in_pool))
 	m.events.debug_off = []
 	var drawn := {}
 	var dup := false

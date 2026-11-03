@@ -2179,7 +2179,7 @@ func fire_event(id: String) -> void:
 		return
 	events.record(id, cycle, events.pending_planet)
 	events.pending_id = id
-	if events.choices_of(id).is_empty() and not events.is_flavour(id):
+	if events.choices_of(id).is_empty():
 		_apply_effect(id, events.effect_of_event(id))
 	if Chains.in_pool(id):  # shared pool: the optional small bot effect applies at once and is logged
 		Chains.apply_pool(id, cycle)
@@ -2211,7 +2211,7 @@ func _open_event_notice(id: String) -> void:
 		off.append(fee > 0 and cash < fee)
 		if typeof(ch) == TYPE_DICTIONARY and ch.has("eff_id"):
 			effs.append(StoryText.get_text(str(ch["eff_id"]), args))
-	var line := (effect_line(events.effect_of_event(id)) if not events.is_flavour(id) else "") if choices.is_empty() else "\n".join(effs)
+	var line := effect_line(events.effect_of_event(id)) if choices.is_empty() else "\n".join(effs)
 	var rv := Chains.pool_rivals_line(id)
 	if rv != "":
 		line = (line + "\n" + rv).strip_edges()
@@ -2326,8 +2326,6 @@ func _apply_chain_choice(choice: int, id: String) -> void:
 		craft_units(str(t[0]), int(t[1]))
 	if competitors_panel != null:
 		competitors_panel.refresh()
-	if Chains.market_of(id) == "min":
-		events.schedule_chain_follow(id, opt, cycle)
 	events.pending_id = ""
 	_dismiss_event_notice()
 	event_notice = load("res://game/event_notice.gd").new()

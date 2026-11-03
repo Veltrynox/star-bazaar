@@ -244,20 +244,6 @@ func schedule_follow(ch, cycle: int) -> bool:
 	scheduled.append({"id": str(ch["follow_id"]), "due": cycle + maxi(1, after)})
 	return true
 
-## Minerals chain A: after a step's choice the optional flavour popup of the matching old choice (EV29 first choice -> EV30 ...)
-## is scheduled dead_follow_cycles later. opt_a is the first choice of the legacy event, opt_b the second. No effect, no nudge.
-func schedule_chain_follow(step_id: String, opt_id: String, cycle: int) -> bool:
-	var old := str(Chains.legacy.get(step_id, ""))
-	var chs := choices_of(old)
-	var idx := 0 if opt_id == "opt_a" else 1
-	if old == "" or idx >= chs.size():
-		return false
-	return schedule_follow({"follow_id": str(chs[idx].get("follow_id", "")) if typeof(chs[idx]) == TYPE_DICTIONARY else ""}, cycle)
-
-## True for the optional flavour popups: they show text only, whatever their data tag says.
-func is_flavour(id: String) -> bool:
-	return Chains.followups.has(id)
-
 ## The first scheduled event due at this cycle (due <= cycle), removed from the list; "" when none.
 func take_due(cycle: int) -> String:
 	for i in scheduled.size():

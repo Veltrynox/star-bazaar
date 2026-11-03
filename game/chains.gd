@@ -25,8 +25,6 @@ static var step_by_id: Dictionary = {}
 static var pool_new: Dictionary = {}  # id -> pool_new entry
 static var pool_kept: Dictionary = {} # id -> {market, bot_effect}
 static var retired: Array = []
-static var followups: Array = []      # Minerals A flavour popups (EV30 ...)
-static var legacy: Dictionary = {}    # step id -> old event id
 static var _loaded := false
 
 static var bal: Dictionary = {}
@@ -46,8 +44,6 @@ static func load_data() -> void:
 	pool_new = {}
 	pool_kept = {}
 	retired = []
-	followups = []
-	legacy = {}
 	var parsed = JSON.parse_string(FileAccess.get_file_as_string(PATH)) if FileAccess.file_exists(PATH) else null
 	if typeof(parsed) != TYPE_DICTIONARY:
 		push_error("Chains: %s missing or bad." % PATH)
@@ -61,8 +57,6 @@ static func load_data() -> void:
 	if typeof(pk) == TYPE_DICTIONARY:
 		pool_kept = pk
 	retired = parsed.get("pool_retired", [])
-	followups = parsed.get("chain_followups_minerals_a", [])
-	legacy = parsed.get("chain_legacy_steps", {})
 
 static func _ensure() -> void:
 	if not _loaded:
