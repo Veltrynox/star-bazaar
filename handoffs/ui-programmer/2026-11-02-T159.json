@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-02",
+  "task": "T159",
+  "status": "partial",
+  "files_changed": [
+    "game/map.gd",
+    "game/main.gd",
+    "game/route_legend.gd",
+    "tools/tests/run_tests.gd",
+    "goals/trade-goods-asteroid-mining/blackboard.json"
+  ],
+  "open_questions": [
+    "UNKNOWN: cluster risk. No risk value exists in clusters.gd, main.gd or balance.json (ore lanes reuse debris and pirate keys), so the cluster card shows yield and ore left but no risk line. Gameplay-programmer to expose one if wanted.",
+    "Story ids missing from story_text.json, fallbacks in use: LBL_CLUSTER_INFO, LBL_CLUSTER_INFO_YIELD, LBL_CLUSTER_NAME, LBL_CLUSTER_LEFT, NOT_MINING_NEEDS_SKILL, LBL_LEGEND_SILK/CHIPS/ORE. Remaining story task: LBL_BEST_PARTNER, NOT_ROUTE_BELOW_UPKEEP, LBL_PRICE_HISTORY* rows in story/screens.md still say Market Ledger (B1); not edited.",
+    "UNKNOWN: look on screen. Cluster card position (76,76, 320 wide, same as planet panel), pack click radius and the 7-item route legend width at the default window were not seen. Split-bar lane colours are still energy/food by lane index (not commodity); left as is."
+  ],
+  "handoff": "Already generic (no change): planet panel rows, storage and cargo rows, ship upkeep rows, Space Storage view and event text all loop main.commodities and use Ui.good_name/commodity_col, so silk, chips and ore show with GOOD_*_NAME (T154) and fallback colours. Skill screen is data driven: B1 shows SK_B1_NAME (Prospecting) via SkillTree.skill_name, so no row code needed. Added: map click on an asteroid pack (map.cluster_clicked, pick_cluster) opens a cluster card in main.gd with WORLD_CL_* name and desc, yield per cycle, ore left only with B1; Esc or Close or a planet click hides it. Route legend gains silk, chips and ore entries. Git not used (not available).",
+  "details": {
+    "tests": "sh tools/tests/run.sh: TOTAL pass=709 fail=0 (706 before; 3 new T159 checks: card shows yield, far click picks nothing, planet click hides card). No failures.",
+    "not_checked_by_eye": [
+      "cluster card",
+      "pack picking",
+      "route legend with 7 items",
+      "skill screen B1 row",
+      "planet panel with new goods"
+    ]
+  }
+}

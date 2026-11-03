@@ -1,0 +1,168 @@
+{
+  "schema_version": 1,
+  "agent": "qa-analyst",
+  "date": "2026-11-02",
+  "task": "T161",
+  "status": "done",
+  "files_changed": [
+    "qa/bots/bot_run.gd",
+    "qa/reports/2026-11-02-trade-goods-asteroid-mining.md",
+    "qa/reports/2026-11-02-bug_report.json",
+    "qa/reports/2026-11-02-trade-goods-asteroid-mining-runs.jsonl",
+    "handoffs/qa-analyst/2026-11-02-T161.json",
+    "goals/trade-goods-asteroid-mining/blackboard.json"
+  ],
+  "open_questions": [
+    "UNKNOWN: layout and visuals (cluster card, pack look, legend width, planet panel at window size) were not captured by bots.",
+    "UNKNOWN: release export not verified (export to scratch failed in sandbox); static check only.",
+    "UNKNOWN: why EV20 and EV26 never fired in 25 runs, and dead choices (not tracked)."
+  ],
+  "handoff": "Dead worlds QA (fast, seeds 1-8). 1 decent 3 of 8 PASS (round 2: 2 of 8). 2 gate: Cinderrest refused 'Needs Cold Survey.' then allowed after M1 PASS; Greywake NOT TESTED (no permit in dead_run). 3 danger rises +1 per running cycle and caps at 5 PASS; stall rule UNKNOWN. 4 FAIL: part-one events EV29/32/35 not in events.json; part two fires without part one. 5 fabric refused before F1 and built once for 1000 PASS; no inputs, 0 plates (FAIL). 6 Greywake nullglass route NOT REACHED. 7 no crash in batch PASS; one earlier smoke parse error (asteroid asset) UNKNOWN; always_expand seed 4 idle. Dead_run 0 of 8 wins. Mining 6 of 8, always 4 of 8 (were 7, 5). No code or balance changed. Report: qa/reports/2026-11-02-trade-goods-asteroid-mining.md (section Dead worlds); bugs: qa/reports/2026-11-02-bug_report.json; runs: qa/reports/2026-11-02-dead-worlds-runs.jsonl.",
+  "details": {
+    "runs_required": [
+      {
+        "strategy": "decent",
+        "seed": 1,
+        "ending": "END_REL_FULL_X",
+        "outcome": "win",
+        "cycle": 29,
+        "final_cash": 8517,
+        "ships": 23,
+        "permits": 1
+      },
+      {
+        "strategy": "always_expand",
+        "seed": 1,
+        "ending": "END_REL_FULL_X",
+        "outcome": "win",
+        "cycle": 29,
+        "final_cash": 8517,
+        "ships": 23,
+        "permits": 1
+      },
+      {
+        "strategy": "mining_focus",
+        "seed": 1,
+        "ending": "END_LOSS",
+        "outcome": "loss",
+        "cycle": 30,
+        "final_cash": 1007,
+        "ships": 24,
+        "permits": 1,
+        "ore_taken": 88
+      }
+    ],
+    "supplementary": "decent wins 1,2,5,6,8 losses 3,4,7 (at 30); always_expand identical to decent; mining_focus wins 2,3,5,7,8 losses 1,4,6 (at 30); timer decent seed 1 win 30 cash 10948",
+    "crashes": 0,
+    "softlocks": 0,
+    "frozen": 0,
+    "sim_t160": {
+      "decent": "98% median 24",
+      "always_expand": "0%",
+      "mining_focus": "52% median 29"
+    },
+    "bugs": "8 entries in qa/reports/2026-11-02-bug_report.json",
+    "bot_changes": [
+      "mining_focus strategy",
+      "second destination click for stop picker",
+      "RESULT tallies: lane_cycles, cluster_lane_cycles, ore_taken, clusters_left_end"
+    ],
+    "tests": "sh tools/tests/run.sh not run (QA only)",
+    "always_expand_v2": {
+      "seeds_1_8": "0 of 8 wins, all END_LOSS at 30",
+      "distinct_from_decent": true,
+      "evidence": "seed 1 ship buys 1,1,2,3,4,6,7,10 vs decent 1,1,3,4,7,8,10,10; permit not bought in seeds 1,5,7"
+    },
+    "decent_v2": "seeds 1-8: wins 1,2,5,6,8; losses 3,4,7 (same as v1)",
+    "mining_focus_v2": "seeds 1-8: wins 2,3,5,7,8; losses 1,4,6 (same as v1)",
+    "v3": {
+      "decent": "0/8 wins, idle deadlocks seeds 1,4,6,7",
+      "always_expand": "0/8, idle deadlocks 3,5,6,7,8",
+      "mining_focus": "0/8, warning streaks all seeds",
+      "cash_3_8_seed1_decent": [
+        547,
+        554,
+        853,
+        851,
+        169,
+        438
+      ],
+      "cash_3_8_seed1_always": [
+        200,
+        221,
+        276,
+        229,
+        301,
+        305
+      ]
+    },
+    "v4": {
+      "decent": "0/8, idle seeds 2,5",
+      "always_expand": "0/8, idle seed 5",
+      "mining_focus": "0/8, no idle, streaks all seeds",
+      "runs_file": "qa/reports/2026-11-02-trade-goods-asteroid-mining-v4-runs.jsonl"
+    },
+    "v5": {
+      "decent": "0/8, ship3 cycles 10-16, cash c3 198",
+      "always_expand": "0/8, idle 0",
+      "mining_focus": "0/8, streak flags 19, warn cycles 189",
+      "runs_file": "qa/reports/2026-11-02-trade-goods-asteroid-mining-v5-runs.jsonl",
+      "criteria": {
+        "1": "FAIL",
+        "2": "FAIL",
+        "3": "FAIL",
+        "4": "PASS",
+        "5": "PASS"
+      }
+    },
+    "alpha_round1": {
+      "decent": "1/8 wins (seed 4, 27)",
+      "always_expand": "3/8 wins (3:30, 5:29, 7:26)",
+      "mining_focus": "1/8 wins (seed 2, 28), 7 idle",
+      "never_expand": "0/8",
+      "sloppy": "0/8",
+      "criteria": {
+        "1": "FAIL",
+        "2": "PASS",
+        "3": "FAIL",
+        "4": "PASS",
+        "5": "PASS",
+        "6": "FAIL (idle), PASS (crash, streaks)"
+      }
+    },
+    "alpha_round2": {
+      "decent": "2/8 (28, 29); idle seed 7",
+      "always_expand": "5/8 (25,30,27,27,27)",
+      "mining_focus": "7/8 (23,24,25,26,29,30,23 median 25); B1 at cycle 1; clusters 5 of 5",
+      "never_expand": "0/8",
+      "sloppy": "0/8",
+      "criteria": {
+        "1": "FAIL",
+        "2": "PASS (decent, always); mining c3 628",
+        "3": "FAIL (speed clause)",
+        "4": "PASS",
+        "5": "PASS",
+        "6": "FAIL (decent seed 7 idle), PASS otherwise"
+      }
+    },
+    "dead_worlds": {
+      "decent": "3/8 (30,25,28)",
+      "mining_focus": "6/8",
+      "always_expand": "4/8",
+      "dead_run": "0/8; M1 cycles 8-10, M2 12-22, F1 seed 6 only",
+      "gate": "Cinderrest refused 'Needs Cold Survey.'; Greywake not tested",
+      "danger": "+1 per running cycle, cap 5 in all dead_run runs",
+      "events": "EV29/32/35 absent from events.json; EV30/31/37 fire without part one",
+      "fabric": "refused skill before F1; built seed 6 cycle 21 for 1000; no inputs",
+      "criteria": {
+        "1": "PASS",
+        "2": "PARTIAL",
+        "3": "PASS (stall rule UNKNOWN)",
+        "4": "FAIL",
+        "5": "PARTIAL",
+        "6": "NOT REACHED",
+        "7": "PASS (batch), one smoke parse error UNKNOWN"
+      }
+    }
+  }
+}

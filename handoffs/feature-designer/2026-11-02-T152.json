@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "agent": "feature-designer",
+  "date": "2026-11-02",
+  "task": "T152",
+  "status": "done",
+  "files_changed": [
+    "design/proposals/2026-11-02-trade-goods-asteroid-mining.md",
+    "goals/trade-goods-asteroid-mining/blackboard.json"
+  ],
+  "open_questions": [
+    "Names Starsilk, Logic Cores, Rock Ore acceptable?",
+    "Trend and warning in base game or behind a skill?",
+    "Depleted clusters ever return?",
+    "UNKNOWN: trade map 2D or 3D?"
+  ],
+  "handoff": "Proposal written; all decisions open for owner review. T153 sets numbers.",
+  "details": {
+    "proposal": "design/proposals/2026-11-02-trade-goods-asteroid-mining.md",
+    "decisions": [
+      "D1 goods silk, chips, ore",
+      "D2 planets: silk Tillam->Voltara, chips Voltara->Ashgate, ore clusters->Voltara",
+      "D3 ore free, clusters deplete, no respawn",
+      "D4 clusters start routes",
+      "D5 B1 -> Prospecting; trend and warning to base game; best partner to B3",
+      "D6 luxury in system 2 too",
+      "D7 EV20 reused, pay leaves a cluster",
+      "D8 T149 goods absorbed"
+    ],
+    "proposals": [
+      {
+        "id": "P1",
+        "title": "Three goods",
+        "problem": "Only two goods",
+        "owner_agent": "economy-designer/gameplay-programmer",
+        "size": "M",
+        "questions": [
+          "names"
+        ]
+      },
+      {
+        "id": "P2",
+        "title": "Asteroid mining",
+        "problem": "Map has nothing between planets",
+        "owner_agent": "gameplay-programmer/galaxy-builder",
+        "size": "L",
+        "questions": [
+          "respawn",
+          "2D or 3D"
+        ]
+      },
+      {
+        "id": "P3",
+        "title": "Prospecting replaces B1",
+        "problem": "B1 only readouts",
+        "owner_agent": "gameplay-programmer",
+        "size": "S",
+        "questions": [
+          "base-game trend"
+        ]
+      },
+      {
+        "id": "P4",
+        "title": "Events EV21-EV28",
+        "problem": "New goods need events",
+        "owner_agent": "story-designer",
+        "size": "M",
+        "questions": []
+      }
+    ]
+  }
+}

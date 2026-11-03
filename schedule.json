@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "date": "2026-11-01",
+  "date": "2026-11-02",
   "tasks": [
     {
       "task_id": "T79",
@@ -1115,6 +1115,191 @@
       "window": "UI lane. Small. Start after T145.",
       "brief": "Follows T145. Add an \"Upgrade route\" button, shown only on a full lane (where the lane cap binds, so the route offers an upgrade in place of one more ship). Show the cost (upgrade_cost, 900) and the margin bonus, and show it as taken once the route is level 2. Reuse existing StoryText ids where possible; flag any new ids for the story-designer. Handoff: handoffs/ui-programmer/<date>-T147.json.",
       "owner_note": "Added by main session 2026-11-02 for the approved route upgrade (proposal 3)."
+    },
+    {
+      "task_id": "T148",
+      "title": "Run variety: starting charters (one bonus, one drawback) and endings that reflect play style",
+      "owner_agent": "story-designer",
+      "depends_on": [
+        "T72"
+      ],
+      "status": "queued",
+      "turn_cap": 30,
+      "window": "Story lane, after owner skill and ending brief (T72). Mostly story work, with a small data hook for charters.",
+      "brief": "From the feature-designer proposal 2026-11-02 (depth-and-interest, idea 7). Propose 3 starting charters, each with one bonus and one drawback, and a short charter text. Write endings that read the player's style (for example how they traded, which routes they ran, whether they cleared debris or used storage), not only which skills were learned. Keep one voice across all texts. Do not change balance numbers: list any number you need from the economy designer as a question. Handoff: handoffs/story-designer/<date>-T148.json listing charters, endings and open numbers.",
+      "owner_note": "Owner asked for run variety through charters and style-based endings. Balance of the charters is for economy-designer after this task."
+    },
+    {
+      "task_id": "T149",
+      "title": "Content depth in system 1: more planets and goods, and event follow-ups",
+      "owner_agent": "feature-designer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 15,
+      "window": "Design lane. Proposal first; no data or code changes until the owner approves the count.",
+      "brief": "System 1 has 3 planets and 2 goods; events are rare notices with little follow-up. Propose a costed set: how many planets and goods to add to system 1, and which events should get a follow-up (a second notice or a choice with a visible result later). Check against the existing planets.json, goods and event data first. Write a proposal in design/proposals/ dated 2026-11-02. Do not change balance numbers or write code. Handoff: handoffs/feature-designer/2026-11-02-T149.json with the proposal path and open questions for the owner.",
+      "owner_note": "Owner: content is thin. Decide the count with the owner before any data work, which will be a new task. Goods part absorbed by goal trade-goods-asteroid-mining (T152-T161); keep only planets and follow-up events here unless the owner says otherwise."
+    },
+    {
+      "task_id": "T150",
+      "title": "Commodity chains: process two raw goods into a refined good",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [],
+      "status": "blocked",
+      "turn_cap": 60,
+      "window": "Hold. Start only after living prices (saturation and drift) is built and in the game.",
+      "brief": "From the feature-designer proposal 2026-11-02 (depth-and-interest, idea 3). A processing order turns two raw goods into one refined good. Decision: sell raw or process. Needs a design proposal and a sim check (processing beats raw only with a second lane) before any code. Do not start until the living prices task exists and is done.",
+      "owner_note": "Owner liked this idea. Blocked until prices move; no living-prices task exists yet, so create it before unblocking."
+    },
+    {
+      "task_id": "T151",
+      "title": "Make Expansion matter in system 1 (one skill with a real effect)",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [
+        "T72"
+      ],
+      "status": "queued",
+      "turn_cap": 25,
+      "window": "Gameplay lane, after the owner's skills per branch (T72). Size S–M.",
+      "brief": "From the feature-designer proposal 2026-11-02 (depth-and-interest, idea 6). Give one Expansion skill a real effect in system 1, such as an extra order slot or an event preview with a choice, so Expansion competes with Logistics for the same points. Economy numbers come from economy-designer (T63 for points). Compare win cycles by branch with tools/sim.py before and after. Handoff: handoffs/gameplay-programmer/<date>-T151.json.",
+      "owner_note": "Owner to choose the skill effect (order slot or event preview) in T72 before build. Overlaps with B4 and C4; check both."
+    },
+    {
+      "task_id": "T152",
+      "title": "Goods and mining proposal: 3 new goods (luxury, asteroid-mining good, tech) and the mining skill that replaces B1",
+      "owner_agent": "feature-designer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 25,
+      "window": "Goal trade-goods-asteroid-mining (owner, 2026-11-02). Run in order; each task starts only when the main session sets it running. Design lane, no code. First task.",
+      "brief": "Read the goal entry in goals/trade-goods-asteroid-mining/blackboard.json, state.md, data/planets.json, data/events.json (sample only), and the gdd.md sections on goods, events and skills (grep first). Propose: (1) three goods: one luxury, one tech good, one asteroid-mining good; for each, which planets buy and sell it, the margin idea, and why it adds a choice. (2) Asteroid mining as a mechanic: clusters on the map as sources, how a route or order harvests them, risk reused from the existing asteroid event (EV20: asteroid_deflect_cost, asteroid_storage_loss_pct) so the mechanic does not duplicate it. (3) The mining skill that replaces B1 Market Ledger in the Research branch: name, plain effect, and what happens to B1's price trend and route-margin warning. (4) Two events per new good, with at least one follow-up. (5) Whether the goods part of T149 is absorbed here. No numbers beyond order-of-magnitude ranges. Handoff: handoffs/feature-designer/2026-11-02-T152.json.",
+      "owner_note": "OWNER DECISIONS NEEDED before T153: (a) the 3 goods and which planets carry them; (b) the mining skill that replaces B1 (approve the proposal); (c) T149 goods part absorbed here (producer proposes yes); (d) whether the luxury good is sold only in system 2 or also system 1. Names are owner-approved only."
+    },
+    {
+      "task_id": "T153",
+      "title": "Quick numbers for the 3 new goods, mining yield and cluster supply (sim first)",
+      "owner_agent": "economy-designer",
+      "depends_on": [
+        "T152"
+      ],
+      "status": "queued",
+      "turn_cap": 30,
+      "window": "Goal trade-goods-asteroid-mining (owner, 2026-11-02). Run in order; each task starts only when the main session sets it running. Economy lane, after owner approves T152.",
+      "brief": "Read the T152 handoff and approved decisions in goals/trade-goods-asteroid-mining/blackboard.json. Set starting numbers only: base_prices per planet for each new good (planets.json format), margin and saturation for each, mining yield per cluster per cycle and cluster count, luxury and tech sell-price swing, and the price effect size each event will use (values only, no event text). Put new keys in data/balance.json with a source line. Run tools/sim.py for the decent baseline (no mining, no new goods) and for the decent strategy with the new goods, and report whether any new good is dominant. Check that the mining skill does not pay more than a trade route. Handoff: handoffs/economy-designer/2026-11-02-T153.json. Name any value you could not check as UNKNOWN.",
+      "owner_note": "Numbers are template values until the owner confirms in T161 QA. Do not touch code or event text."
+    },
+    {
+      "task_id": "T154",
+      "title": "Story text: 3 new goods, 6 events (2 per good) and the mining skill text",
+      "owner_agent": "story-designer",
+      "depends_on": [
+        "T152",
+        "T153"
+      ],
+      "status": "queued",
+      "turn_cap": 30,
+      "window": "Goal trade-goods-asteroid-mining (owner, 2026-11-02). Run in order; each task starts only when the main session sets it running. Story lane, after T152 and T153.",
+      "brief": "Read the T152 and T153 handoffs. Write: good names and short descriptions for the 3 new goods (story_text.json ids); the 6 events in data/events.json (title, tag in the existing [price up: planet, good] format, body text, choices where the design has them); the mining skill name, flavour and plain line for the skill screen (story/skills.md row, replacing B1 Market Ledger's row); and one line for each new cluster on the map. Match the existing voice. Event tags must use only tag kinds the events parser already reads (check game/events.gd). Do not change numbers. Handoff: handoffs/story-designer/2026-11-02-T154.json.",
+      "owner_note": "The skill row must keep the B1 slot id only if the owner approves; otherwise new id and the skill tree change goes to T158."
+    },
+    {
+      "task_id": "T155",
+      "title": "Code: add the 3 goods to data, trade, storage, routes and events parsing",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [
+        "T153",
+        "T154"
+      ],
+      "status": "queued",
+      "turn_cap": 40,
+      "window": "Goal trade-goods-asteroid-mining (owner, 2026-11-02). Run in order; each task starts only when the main session sets it running. Gameplay lane, after T153 and T154.",
+      "brief": "Read the T153 and T154 handoffs. Add the 3 goods to data/planets.json base_prices and the new keys to data/balance.json as set in T153, and make trade.gd, storage.gd, route_engine.gd, main.gd and events.gd handle any commodity id (grep for hard-coded \"energy\" and \"food\" first; replace with the data list where needed). Events parser must accept the new good names from data/events.json. Mining good harvest is NOT built here (T156). Keep all existing behaviour for energy and food. Run the tests under tools/tests and report. Handoff: handoffs/gameplay-programmer/2026-11-02-T155.json.",
+      "owner_note": "Keep saves that have energy and food loading. Note any save-format change in the handoff."
+    },
+    {
+      "task_id": "T156",
+      "title": "Code: asteroid clusters as data, harvest logic and the mining good yield",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [
+        "T153",
+        "T155"
+      ],
+      "status": "queued",
+      "turn_cap": 40,
+      "window": "Goal trade-goods-asteroid-mining (owner, 2026-11-02). Run in order; each task starts only when the main session sets it running. Gameplay lane, after T155.",
+      "brief": "Read the T153 handoff and the T155 handoff. Create data/asteroid_clusters.json: each cluster has id, system, map position, pack radius, count, and the yield good. Build the harvest rule: a route or order to a cluster planet collects the mining good, with the existing asteroid event (EV20, storage cut) as the only risk. Use only balance keys set in T153. Expose cluster list to the map (for T157) and to the planet panel. Do not render anything here. Add tests for yield and risk. Handoff: handoffs/gameplay-programmer/2026-11-02-T156.json.",
+      "owner_note": "Reuse the existing asteroid code path (events.gd asteroid_roll, main.gd asteroid_decline). Do not add a second asteroid event."
+    },
+    {
+      "task_id": "T157",
+      "title": "Visual: GPU-instanced spherical asteroid packs on the map",
+      "owner_agent": "galaxy-builder",
+      "depends_on": [
+        "T156"
+      ],
+      "status": "queued",
+      "turn_cap": 40,
+      "window": "Goal trade-goods-asteroid-mining (owner, 2026-11-02). Run in order; each task starts only when the main session sets it running. Galaxy lane, after T156. Use fx-programmer only if a shader is needed and the owner approves it.",
+      "brief": "Read the T156 handoff and data/asteroid_clusters.json. Check whether the trade map (game/map.gd, galaxy_view.gd) is 2D or 3D before choosing a method. Draw each cluster as a spherical pack of asteroids using instanced rendering (MultiMesh or equivalent), one draw call per pack, with per-instance scale and rotation from a seed. Keep the macOS frame budget (report measured frame time at one cluster count and at the maximum). Clusters are visible on the map, placed by the cluster data, and do not block clicks on planets. Handoff: handoffs/galaxy-builder/2026-11-02-T157.json.",
+      "owner_note": "If the map is 2D and an instanced 3D pack needs a new shader, stop and report it as a request for fx-programmer; do not write a shader here."
+    },
+    {
+      "task_id": "T158",
+      "title": "Code: replace B1 Market Ledger with the asteroid mining skill",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [
+        "T154",
+        "T156"
+      ],
+      "status": "queued",
+      "turn_cap": 40,
+      "window": "Goal trade-goods-asteroid-mining (owner, 2026-11-02). Run in order; each task starts only when the main session sets it running. Gameplay lane, after T154 and T156.",
+      "brief": "Read the T154 and T156 handoffs and the B1 code: route_engine.gd (margin_below_upkeep, best route), main.gd (price history, trend, route margin notice, _record_prices), planet_panel.gd (price history line), story/skills.md and game/skill_tree.gd. Remove the B1 id from the skill tree and add the mining skill in the same Research slot, with the effect set in T153 (mining yield or harvest bonus). Decide with the T152 proposal what happens to the price trend and the route warning (kept as base, or moved to another skill); do not drop them silently. Keep saves that own B1 loading without error. Run tests. Handoff: handoffs/gameplay-programmer/2026-11-02-T158.json.",
+      "owner_note": "Owner must approve the replacement in T152 before this starts. T72 (owner skills per branch) is queued and may change the Research branch; check its status and tell the main session if it conflicts."
+    },
+    {
+      "task_id": "T159",
+      "title": "UI: goods, mining skill row and cluster info in the planet and route panels",
+      "owner_agent": "ui-programmer",
+      "depends_on": [
+        "T155",
+        "T157",
+        "T158"
+      ],
+      "status": "queued",
+      "turn_cap": 25,
+      "window": "Goal trade-goods-asteroid-mining (owner, 2026-11-02). Run in order; each task starts only when the main session sets it running. UI lane, after T155, T157 and T158.",
+      "brief": "Read the T155, T157 and T158 handoffs. Check first whether the planet panel and route rows already list goods generically; if they do, say so and only fix what is missing. Show the 3 new goods in the planet panel, cargo and route rows; show the mining skill row on the skill screen; add a cluster info line (yield, risk) when a cluster is selected on the map. Use StoryText ids from T154. Check at the macOS window size. Handoff: handoffs/ui-programmer/2026-11-02-T159.json.",
+      "owner_note": "Flag any new StoryText ids for the story-designer rather than writing text."
+    },
+    {
+      "task_id": "T160",
+      "title": "Sim check of the built goods and mining numbers before QA (no dominant strategy)",
+      "owner_agent": "economy-designer",
+      "depends_on": [
+        "T155",
+        "T156",
+        "T158"
+      ],
+      "status": "queued",
+      "turn_cap": 25,
+      "window": "Goal trade-goods-asteroid-mining (owner, 2026-11-02). Run in order; each task starts only when the main session sets it running. Economy lane, after the code tasks.",
+      "brief": "Read the T153 handoff and the T155, T156, T158 handoffs. Run tools/sim.py on the built data for three strategies: decent (no mining), always_expand (buys expansion early, no mining), and mining_focus (mining skill, clusters harvested first). Report cycles to win per strategy, and any strategy that wins much earlier or never. Change numbers only in data/balance.json or data/planets.json with a source line, and only if a sim result needs it. Handoff: handoffs/economy-designer/2026-11-02-T160.json.",
+      "owner_note": "Keep the decent pacing target from T137 (win cycle around 26 median) unless the owner changed it."
+    },
+    {
+      "task_id": "T161",
+      "title": "QA: full playthrough start to finish for 3 strategies (decent, always_expand, mining_focus)",
+      "owner_agent": "qa-analyst",
+      "depends_on": [
+        "T159",
+        "T160"
+      ],
+      "status": "queued",
+      "turn_cap": 40,
+      "window": "Goal trade-goods-asteroid-mining (owner, 2026-11-02). Run in order; each task starts only when the main session sets it running. QA lane, last task. Task is finished when this report exists.",
+      "brief": "Run the full game from start to finish (win or loss ending) three times with bots under qa/bots: strategy 1 decent (balanced trade, no mining); strategy 2 always_expand (ships and expansion first, no mining); strategy 3 mining_focus (mining skill, clusters harvested first, new goods traded). For each run record: ending, cycle reached, crashes, softlocks, goods traded per good, mining yield, event hits and any dead choice. Compare with the T160 sim. Report any dominant strategy as a finding. Write qa/reports/2026-11-02-trade-goods-asteroid-mining.md and handoff handoffs/qa-analyst/2026-11-02-T161.json. Do not fix code or change balance.",
+      "owner_note": "The owner's acceptance test for this goal is this task."
     }
   ],
   "done_task_ids": [

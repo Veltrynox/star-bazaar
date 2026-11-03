@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-11-02",
+  "task": "gap-fix",
+  "status": "done",
+  "files_changed": ["data/story_text.json", "data/events.json", "handoffs/story-designer/2026-11-02-gap-fix.json"],
+  "open_questions": [
+    "Event banners art/event_banners/<id>.webp missing for EV29 to EV37 (nine events); test 'banners' fails until art exists or the test is relaxed.",
+    "design/proposals/2026-11-02-trade-goods-asteroid-mining.md still says Market Ledger; not in story/ or data/, left alone.",
+    "Danger, credit cost, load loss and income cut effects of EV29/32/35 are requests only (no tag); owner decides if wired."
+  ],
+  "handoff": "No new text was needed: all 12 cluster and legend ids and the retitled B3/base-game rows were already in story/screens.md (lines 238-243, 319-330); data/ was stale. Running tools/build_story.py regenerated both files: 'story_text.json: 376 entries; events.json: 34 events; skipped: 0'. EV29 (on_mine dead_1), EV32 (dead_2), EV35 (both) now have events with follow-ups EV30/31/33/34/36/37. events.json parses. No Market Ledger left in story/ or data/. Tests: pass=898 fail=7; the 7 are sys2 commodity list, dead skills costs, four fabric/plate balance checks, and missing event banners.",
+  "details": {
+    "build": "story_text.json: 376 entries; events.json: 34 events; skipped: 0",
+    "tests": "tools/tests/run.sh: pass=898 fail=7"
+  }
+}

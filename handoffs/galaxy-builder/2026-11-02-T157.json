@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "agent": "galaxy-builder",
+  "date": "2026-11-02",
+  "task": "T157",
+  "status": "done",
+  "files_changed": [
+    "game/galaxy/asteroid_packs.gd",
+    "game/map.gd",
+    "game/main.gd",
+    "tools/tests/run_tests.gd",
+    "goals/trade-goods-asteroid-mining/blackboard.json"
+  ],
+  "open_questions": [
+    "UNKNOWN: frame time on macOS. Godot runs headless here (no renderer) and no GUI session, so nothing was profiled. Cost by construction: one draw call per pack, 24 instances of an 8x4 sphere (about 56 triangles each) = about 1.3k triangles per pack; 2 packs in system 1, 3 in system 2 (maximum in this data), only the viewed system draws. Owner or QA to read the frame time in a windowed run.",
+    "UNKNOWN: look on screen (rock size, colour, pack width vs planets) was not seen; all values are exported vars on game/galaxy/asteroid_packs.gd (rock_min, rock_max, squash, flatten, rock_color, spin_speed) and the cluster positions are still T156 template values.",
+    "Edits outside game/galaxy/: map.gd (node + set_clusters + view hook, 3 spots) and main.gd (_all_cluster_packs, one call in _push_routes_to_map) were needed to place packs; flag if the owner wants them done by gameplay-programmer instead."
+  ],
+  "handoff": "Decision: the trade map is 3D (game/map.gd is a Node3D with Camera3D, planets on the XZ plane, world = map units x 0.02); game/galaxy_view.gd is only the 2D galaxy overview Control and is not touched. So no new shader: packs use SphereMesh + StandardMaterial3D in a MultiMeshInstance3D, no fx-programmer request. Each cluster is one MultiMesh (one draw call), per-instance position inside a flattened sphere, rotation and lumpy scale from hash(cluster id) ^ seed_salt, so packs are identical every time. Thinning sets visible_instance_count from main.clusters_in_system(sid)['visible']; surviving rocks stay put. Packs follow cycle end, load and event spawns because they sync in _push_routes_to_map. No collision nodes; map picking is ray maths on planets, so clicks are unaffected.",
+  "details": {
+    "map_dimension": "3D (Node3D map). galaxy_view.gd is a 2D overview Control.",
+    "seed": "hash(cluster id) ^ (seed_salt * 7919), seed_salt default 1",
+    "instances": "count per cluster from data/asteroid_clusters.json (24 base, 12 for the EV20 cluster); max 3 packs in view (system 2)",
+    "exposed_parameters": ["map_unit_scale", "seed_salt", "rock_min", "rock_max", "squash", "flatten", "rock_color", "rock_roughness", "mesh_segments", "spin_speed"],
+    "screenshot": "UNKNOWN: none taken (no windowed run available)",
+    "tests": "sh tools/tests/run.sh: TOTAL pass=706 fail=0 (was 701; 5 new T157 checks: one pack per cluster, MultiMesh counts and thinning, seeded repeat, view system, no collision). Output also shows environment-only lines: macOS 'ret != noErr' and several 'Parameter material is null' errors that were present before the T157 test ran."
+  }
+}

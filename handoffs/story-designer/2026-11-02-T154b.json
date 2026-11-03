@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-11-02",
+  "task": "T154b",
+  "status": "done",
+  "files_changed": [
+    "story/screens.md",
+    "data/story_text.json",
+    "goals/trade-goods-asteroid-mining/blackboard.json"
+  ],
+  "open_questions": [],
+  "handoff": "Retitled place notes only; no text values or numbers changed. LBL_BEST_PARTNER now says Price Whisper (B3). NOT_ROUTE_BELOW_UPKEEP, LBL_PRICE_HISTORY and LBL_PRICE_HISTORY_NONE now say base game. Section header in screens.md retitled. build_story.py: story_text.json: 331 entries; events.json: 25 events; skipped: 0. Only remaining Market Ledger hit is a code comment in game/planet_panel.gd:181 (not mine to edit). Claims C12 running and done appended to the blackboard.",
+  "details": {
+    "ids_changed": {
+      "story/screens.md and data/story_text.json": ["LBL_BEST_PARTNER", "NOT_ROUTE_BELOW_UPKEEP", "LBL_PRICE_HISTORY", "LBL_PRICE_HISTORY_NONE"],
+      "story/screens.md only": ["section header line 233"]
+    }
+  }
+}

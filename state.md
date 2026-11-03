@@ -1,6 +1,6 @@
-# Star Bazaar: project state (under 40 lines; workflow gdd-process.md; updated 2026-11-01)
+# Star Bazaar: project state (under 40 lines; workflow gdd-process.md; updated 2026-11-02)
 
-## Queue (schedule.json, 78 tasks)
+## Queue (schedule.json, 100 tasks). Goal trade-goods-asteroid-mining: T152-T161 built (partial, QA fails pacing; owner decisions open, goals/trade-goods-asteroid-mining/report.md).
 - Done 52, queued 11, partial 6, blocked 5, stopped 4, running 0.
 - Partial: T5, T17, T94, T62, T117, T131. Blocked: T104, T111, T113, T115, T125.
 - Next (start by main session): T137 pacing, T138 GDD route income, T139 Space Storage sells. T64 unstopped, gated by T63.
@@ -36,4 +36,4 @@
 - juice-programmer: handoffs/juice-programmer/2026-11-01-points-and-cycle-beats.json
 - qa-analyst: handoffs/qa-analyst/2026-11-01-T94.json
 - general-purpose: handoffs/general-purpose/2026-10-31-T62.json
-- producer: handoffs/producer/2026-11-02.json
+- producer: handoffs/producer/2026-11-02-trade-goods.json

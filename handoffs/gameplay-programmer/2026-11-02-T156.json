@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-02",
+  "task": "T156",
+  "status": "done",
+  "files_changed": [
+    "data/asteroid_clusters.json",
+    "game/clusters.gd",
+    "game/route_engine.gd",
+    "game/main.gd",
+    "game/planet_panel.gd",
+    "tools/tests/run_tests.gd",
+    "goals/trade-goods-asteroid-mining/blackboard.json"
+  ],
+  "open_questions": [
+    "UNKNOWN: pirate lane risk is not in the game yet (pirate_volume_penalty is read nowhere), so ore lanes carry only the debris risk, applied at the delivery planet since a cluster has no source planet.",
+    "UNKNOWN: new story ids with English fallbacks (add to story): NOT_MINING_NEEDS_SKILL, NOT_CLUSTER_ONLY_ORE, NOT_CLUSTER_EMPTY, ST_CLUSTER_EMPTY, ST_CLUSTER_SHARED, LBL_CLUSTER_NAME, LBL_CLUSTER_LEFT.",
+    "UNKNOWN: cluster positions and pack counts in data/asteroid_clusters.json are template values; T157 may move them."
+  ],
+  "handoff": "A cluster starts a route like a planet node. Node id = Clusters.node_id(i) = -(1000+i), stored in route 'a'; src key 'cluster:<id>'. main.send_from_cluster(node, dst) buys a ship if needed. Skill hook: Clusters.MINING_SKILL ('B1') checked in RouteEngine.check_cluster and main.can_mine(); T158 only needs B1 to become Prospecting. Each cluster gives mining_yield_per_cycle per cycle shared by its ships, never more than is left; empty cluster stalls its lane, never refills. EV20 pay spawns one small cluster (mining_event_cluster_richness) beside a planet chosen by cycle number (no RNG). Ore parked at a planet is cut by the existing cut_capacity. Map API for T157: main.clusters_in_system(sid) gives index, node, id, system, x, y (planets.json units), radius, count, visible (thins with richness), left, max.",
+  "details": {
+    "new_data": "data/asteroid_clusters.json: 5 clusters (2 system 1, 3 system 2), fields id, system, x, y, radius, count, good; event_cluster shape for the EV20 cluster. The first mining_clusters_sN entries of a system are active.",
+    "save_format": "New top-level key 'clusters': {left: {cluster id: units}, spawned: [full records]}. Old saves without it load with all clusters full. Cluster routes save as normal routes (a = -1000-index, b = planet, c = ore); they load without the skill check and stay when the cluster is empty (stalled). Spawned cluster indexes come after base clusters, so node ids stay stable.",
+    "not_done": "No rendering, no lane-closed tag, no EV26 refill, no second asteroid event. Debug menu: no new spins (all mining keys are balance keys, edited by the generic balance editor). Ore at cluster routes gives no pts_pairs points, only the delivery planet point.",
+    "tests": "sh tools/tests/run.sh: TOTAL pass=699 fail=0 (was 675 after T155; 24 T156 checks: counts, fields, skill gate, one-ship yield, trip cost, thinning, shared yield cap, full lane refused, last units, depletion without refill, empty cluster routes refused, save/load, debris, panel line, EV20 pay and decline, spawned save/load, parked ore cut). The headless load prints one macOS 'ret != noErr' line, environment only."
+  }
+}

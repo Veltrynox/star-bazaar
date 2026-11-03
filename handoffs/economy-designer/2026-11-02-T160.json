@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "agent": "economy-designer",
+  "date": "2026-11-02",
+  "task": "T160",
+  "status": "done",
+  "files_changed": [
+    "tools/sim.py",
+    "goals/trade-goods-asteroid-mining/blackboard.json"
+  ],
+  "open_questions": [
+    "UNKNOWN: sim uses template cluster positions and no route distance, so real T157 cluster placement is not simulated; EV20, EV26, EV27 are not simulated.",
+    "Always-expand+C1 median 21 (min 20) beats decent median 24 and breaks the no-win-before-22 target; pre-existing, flagged in T153; owner call (C1 cost / permit_points_2).",
+    "Decent median is 24, not the T137 target of about 26 (it was 25 before T153); owner note says keep pacing, so not changed."
+  ],
+  "handoff": "No numbers changed. Added mining_focus to tools/sim.py (sim only, no game code). 200 seeds: decent median 24 (21-30, 98%); mining_focus median 29 (27-30, 52% win), slower than decent, so mining is not dominant; always_expand loses 0%; always_expand+C1 median 21 (20-27, 100%) wins earliest, pre-existing flagged path.",
+  "details": {
+    "commands": [
+      "python3 tools/sim.py --goods --mc 200  (same output before and after the sim edit for all pre-existing lines)"
+    ],
+    "sim_change": "tools/sim.py: new strategy mining_focus (build B1): cluster routes sorted first when buying; a ship on a cluster whose remaining ore cannot pay a trip (left*11 <= trip_cost) is moved to the best core route. Game code untouched. Without it the first try deadlocked (ships stuck on ore remnant, 427 cash, loss), which was a sim artefact.",
+    "results_200_seeds_events": {
+      "decent (no mining)": "win 98%, median 24, min 21, max 30",
+      "always_expand (no mining)": "win 0%",
+      "mining_focus": "win 52%, median 29, min 27, max 30",
+      "decent B1 only (mining, ref)": "win 98%, median 25, min 23, max 30",
+      "always_expand+C1": "win 100%, median 21, min 20, max 27",
+      "sloppy / never_expand": "win 0%"
+    },
+    "results_no_events": {
+      "decent": "win 23, cash 8729",
+      "always_expand": "loss 1501",
+      "mining_focus": "win 30, cash 9064",
+      "always_expand+C1": "win 21, cash 9393"
+    },
+    "number_changes": "none (before and after identical); balance.json data_version 21 and planets.json 6 unchanged",
+    "dominance_verdict": "Mining is not dominant: mining_focus is 5 cycles slower than decent and wins half the time, because 2 clusters in system 1 give 240 ore and ore pays 11 per unit. No strategy wins much earlier except always_expand+C1 (pre-existing). always_expand without C1 never wins. Only no-win-before-22 target broken: always_expand+C1 min 20."
+  }
+}

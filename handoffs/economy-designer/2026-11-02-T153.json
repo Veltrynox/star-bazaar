@@ -1,0 +1,172 @@
+{
+  "schema_version": 1,
+  "agent": "economy-designer",
+  "date": "2026-11-02",
+  "task": "T153",
+  "status": "done",
+  "files_changed": [
+    "data/balance.json",
+    "data/planets.json",
+    "tools/system2.json",
+    "tools/sim.py",
+    "goals/trade-goods-asteroid-mining/blackboard.json"
+  ],
+  "open_questions": [
+    "UNKNOWN: EV26 refill and EV27 lane-closed are not simulated; the pay-out cluster (EV20) is not simulated.",
+    "UNKNOWN: system 2 silk/chips/ore prices and the 3 system-2 clusters are template values; sim has no real cluster positions or route distance (T157).",
+    "Always-expand+C1 already wins in the baseline (22/24 median); with goods it is 1-2 cycles faster (min 20). Pre-existing, owner call."
+  ],
+  "handoff": "Goods and mining keys added as template values. Margins first set at 14-18 pushed decent to cycle 21, so they were cut to 10 (silk, chips) and ore pays 11 free. Decent medians move at most 1 cycle earlier. No new good is dominant. Mining nets 61 per ship-cycle against 125-157 for core trade.",
+  "details": {
+    "balance_json": {
+      "data_version": {
+        "old": 20,
+        "new": 21
+      },
+      "new_keys": {
+        "mining_clusters_s1": [
+          null,
+          2
+        ],
+        "mining_clusters_s2": [
+          null,
+          3
+        ],
+        "mining_cluster_richness": [
+          null,
+          120
+        ],
+        "mining_yield_per_cycle": [
+          null,
+          20
+        ],
+        "mining_event_cluster_richness": [
+          null,
+          60
+        ],
+        "ore_refill_units": [
+          null,
+          40
+        ],
+        "ore_survey_fee": [
+          null,
+          150
+        ],
+        "event_pct_silk": [
+          null,
+          0.35
+        ],
+        "event_pct_chips": [
+          null,
+          0.25
+        ],
+        "event_pct_ore": [
+          null,
+          0.3
+        ]
+      },
+      "reasons": {
+        "mining_clusters_s1/s2": "proposal: 2 in system 1, more in system 2",
+        "mining_cluster_richness": "units per cluster; 2 clusters = 240 units = about 7.5 ship-cycles for 2 ships",
+        "mining_yield_per_cycle": "units one cluster gives per cycle (above ship load 16, so one ship is cargo-limited, two ships share)",
+        "mining_event_cluster_richness": "EV20 pay-out cluster, half size",
+        "ore_refill_units": "EV26 rich seam refill",
+        "ore_survey_fee": "EV26 fee to take it",
+        "event_pct_*": "price effect of every event on that good (EV21-25, EV28); other goods keep event_price_pct 0.2; EV27 reuses event_close_cycles"
+      }
+    },
+    "planets_json": {
+      "data_version": {
+        "old": 5,
+        "new": 6
+      },
+      "new_base_prices": {
+        "Voltara": {
+          "silk_sell": 30,
+          "chips_buy": 16,
+          "chips_sell": 14,
+          "ore_sell": 11
+        },
+        "Tillam": {
+          "silk_buy": 20,
+          "silk_sell": 18,
+          "chips_sell": 20
+        },
+        "Ashgate": {
+          "silk_sell": 24,
+          "chips_sell": 26,
+          "ore_sell": 6
+        }
+      },
+      "margins": {
+        "silk Tillam->Voltara": 10,
+        "silk Tillam->Ashgate": 4,
+        "chips Voltara->Ashgate": 10,
+        "chips Voltara->Tillam": 4,
+        "ore (free) Voltara": 11,
+        "ore Ashgate": 6
+      },
+      "system2_in_tools_system2_json": "silk s2_p1 buy 24 -> s2_p4 sell 48 (24); chips s2_p2 buy 18 -> s2_p4 38 (20), s2_p3 36 (18); ore s2_p2 sell 16, s2_p4 12"
+    },
+    "sim_changes": "tools/sim.py: --goods flag adds the three goods, virtual ore clusters (free, finite, need B1), per-good event swings, synthetic events EV21-25 and EV28 price swings; line 'decent B1 only (mining)'. Without --goods output is identical to before.",
+    "first_try": "margins 14-18: decent no skills 21 (was 23), decent logistics 18; rejected.",
+    "sim_no_events": {
+      "before_baseline": {
+        "decent": "win 23, cash 8729",
+        "decent_research": "22",
+        "sloppy": "loss 922",
+        "always_expand": "loss 1096",
+        "never_expand": "loss 4061",
+        "always_expand_C1": "win 23"
+      },
+      "after_goods_and_mining": {
+        "decent": "win 23, cash 8729",
+        "decent_B1_only_mining": "win 24, cash 8723",
+        "decent_research": "22",
+        "decent_full_tree": "23 (was 21)",
+        "sloppy": "loss 922",
+        "always_expand": "loss 1501",
+        "never_expand": "loss 4061",
+        "always_expand_C1": "win 21 (was 23)"
+      }
+    },
+    "sim_200_seeds_median_win_cycle": {
+      "before": {
+        "decent": "25 (95%)",
+        "logistics": 24,
+        "research": 23,
+        "B1_only": 25,
+        "full_tree": 21,
+        "always_expand_C1": 24,
+        "sloppy_always_never": "0%"
+      },
+      "after": {
+        "decent": "24 (98%)",
+        "logistics": 24,
+        "research": 23,
+        "B1_only_mining": 25,
+        "full_tree": 23,
+        "always_expand_C1": 22,
+        "sloppy_always_never": "0%"
+      }
+    },
+    "marginal_net_per_ship_cycle_system1": "core trade 157,157,125,125; then silk 45, chips 45 (ship 5-8); ore 61 (16 units x 11 - 115 upkeep, only while a cluster lasts)",
+    "dominance_check": {
+      "silk": "not dominant, 45 net per ship vs 125-157 core",
+      "chips": "not dominant, 45",
+      "ore": "not dominant: 61 per ship-cycle, total net of 2 clusters about 900 credits (about 11% of win_cash 8500); ore ship cap by Voltara pool 40 units (about 2.5 ships)",
+      "mining_vs_trade": "mining pays less than a core trade route; mining-only start (B1 only) wins 24/25 median vs 23/24 without it",
+      "overall": "no new dominant strategy; sloppy, always-expand, never-expand still lose"
+    },
+    "warnings": [
+      "Early-win check: decent runs reach min cycle 20-22 in MC (same as baseline 21); always-expand+C1 min 20 (baseline 22). Pre-existing permit path.",
+      "Sim bot keeps ships on a depleted cluster idle at zero cost; real ships would cost trip_cost until reassigned (UNKNOWN)."
+    ],
+    "not_checked": [
+      "EV26, EV27, EV20 cluster pay-out",
+      "real cluster distances and route length",
+      "new events' real frequency inside event_interval (sim adds 6 synthetic price events to the pool, which dilutes old ones)",
+      "system-2 mining and goods beyond the sim model"
+    ]
+  }
+}

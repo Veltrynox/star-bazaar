@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-02",
+  "task": "T158",
+  "status": "done",
+  "files_changed": [
+    "game/planet_panel.gd",
+    "game/main.gd",
+    "game/route_engine.gd",
+    "game/clusters.gd",
+    "tools/tests/run_tests.gd",
+    "goals/trade-goods-asteroid-mining/blackboard.json"
+  ],
+  "open_questions": [
+    "UNKNOWN: story_text.json 'place' notes and screens.md still say Market Ledger (B1) for LBL_BEST_PARTNER, NOT_ROUTE_BELOW_UPKEEP, LBL_PRICE_HISTORY*; story-designer to retitle (best partner now B3, the other three base game).",
+    "UNKNOWN: B1 text promises 'shows how much ore each has left'; implemented as the planet panel cluster line (amount hidden without B1, name plus 'needs Prospecting' hint shown). Map-side cluster amounts (T157) should use main.can_mine().",
+    "T72 check: status queued (owner, no answers yet); Research branch unchanged, so no conflict now. If T72 moves or removes B1, Clusters.MINING_SKILL is the one hook."
+  ],
+  "handoff": "B1 id kept; it is now Prospecting (text from T154 SK_B1_*). Mining gate unchanged (Clusters.MINING_SKILL, can_mine). Planet panel: price history and trend arrow always shown; best-partner line moved under B3 Price Whisper; route low-margin notice posts with no skill. Cluster note shows 'X of Y left' only with B1. No new ids needed beyond T156 fallbacks. Save format: no change; saves owning B1 load as before (it now also grants mining). Old saves keep price_history.",
+  "details": {
+    "tests": "sh tools/tests/run.sh: TOTAL pass=701 fail=0 (was 699; replaced the 'no warning without the skill' check, added 3 T158 checks). Direct godot call is blocked in the sandbox; the suite loads the project.",
+    "unchanged_skill_tree": "game/skill_tree.gd is data driven; no id removed."
+  }
+}

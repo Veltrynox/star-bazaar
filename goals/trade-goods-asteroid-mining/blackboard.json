@@ -1,0 +1,483 @@
+{
+  "schema_version": 1,
+  "goal": "Add 3 more goods to trade (one luxury, one asteroid-mining good, one tech good) with events; run quick numbers; replace the Market Ledger skill (B1) with an asteroid mining skill; add GPU-instanced spherical asteroid packs to the map; QA plays the full game start to finish with 3 strategies.",
+  "goal_slug": "trade-goods-asteroid-mining",
+  "started": "2026-11-02",
+  "finished": null,
+  "facts": [
+    {
+      "id": "F1",
+      "agent": "producer",
+      "date": "2026-11-02",
+      "text": "Today goods are energy and food only (data/planets.json base_prices, data/balance.json)."
+    },
+    {
+      "id": "F2",
+      "agent": "producer",
+      "date": "2026-11-02",
+      "text": "Existing asteroid mechanic is event EV20 with asteroid_deflect_cost 800 and asteroid_storage_loss_pct 0.5 in data/balance.json, handled in game/events.gd and game/main.gd; the mining goal reuses it."
+    },
+    {
+      "id": "F3",
+      "agent": "producer",
+      "date": "2026-11-02",
+      "text": "Market Ledger is skill B1 (story/skills.md, game/main.gd, game/planet_panel.gd, game/route_engine.gd)."
+    },
+    {
+      "id": "F4",
+      "agent": "producer",
+      "date": "2026-11-02",
+      "text": "T149 (content depth) goods part is absorbed by this goal; its planets and follow-up events stay queued."
+    },
+    {
+      "id": "F5",
+      "agent": "producer",
+      "date": "2026-11-02",
+      "text": "T151 (Expansion skill) does not overlap: it touches Expansion, this goal touches Research slot B1; T72 (owner skills per branch) gates both and must be checked in T158."
+    }
+  ],
+  "decisions": [
+    {
+      "id": "D1",
+      "agent": "producer",
+      "date": "2026-11-02",
+      "text": "Plan: T152 proposal, T153 numbers, T154 story text, T155 goods code, T156 mining logic, T157 cluster rendering, T158 B1 swap, T159 UI, T160 sim check, T161 QA with three strategies (decent, always_expand, mining_focus)."
+    },
+    {
+      "id": "D2",
+      "agent": "producer",
+      "date": "2026-11-02",
+      "text": "Owner approves T152 (goods, mining skill, T149 absorption) before T153 starts."
+    },
+    {
+      "id": "D3",
+      "agent": "producer",
+      "date": "2026-11-02",
+      "text": "fx-programmer is not in the queue; galaxy-builder does the instancing and fx-programmer is called only if a shader is needed and approved."
+    },
+    {
+      "id": "D4",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "text": "Goods: silk (luxury, Tillam to Voltara), chips (tech, Voltara to Ashgate), ore (mining, clusters to Voltara); working names."
+    },
+    {
+      "id": "D5",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "text": "Mining: clusters start a route, ore is free, clusters deplete and only EV20 pay-out adds one; reuses deflect cost and storage loss keys."
+    },
+    {
+      "id": "D6",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "text": "B1 becomes Prospecting; price trend and low-margin warning go to base game, best-partner marker moves to B3."
+    },
+    {
+      "id": "D7",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "text": "Luxury good also in system 2 by default; T149 goods part absorbed; new events EV21 to EV28 listed."
+    },
+    {
+      "id": "D8",
+      "agent": "main",
+      "date": "2026-11-02",
+      "text": "Goal ships six events, two per good (EV21, EV22, EV24, EV25, EV26, EV28); EV23 and EV27 deferred; EV26 price-only; no lane-closed tag or cluster refill path."
+    }
+  ],
+  "open_questions": [
+    {
+      "id": "Q1",
+      "agent": "producer",
+      "date": "2026-11-02",
+      "text": "Which 3 goods exist and which planets carry them (owner, after T152).",
+      "status": "open",
+      "answer": ""
+    },
+    {
+      "id": "Q2",
+      "agent": "producer",
+      "date": "2026-11-02",
+      "text": "Which skill replaces B1, and what happens to the price trend and route warning (owner, after T152).",
+      "status": "open",
+      "answer": ""
+    },
+    {
+      "id": "Q3",
+      "agent": "producer",
+      "date": "2026-11-02",
+      "text": "Is the luxury good in system 1 only, or in system 2 too (owner, after T152).",
+      "status": "open",
+      "answer": ""
+    },
+    {
+      "id": "Q4",
+      "agent": "producer",
+      "date": "2026-11-02",
+      "text": "Is the trade map 2D or 3D (galaxy-builder checks in T157).",
+      "status": "open",
+      "answer": ""
+    },
+    {
+      "id": "Q5",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "text": "Working names Starsilk, Logic Cores, Rock Ore acceptable?",
+      "status": "open",
+      "answer": ""
+    },
+    {
+      "id": "Q6",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "text": "Trend and warning in base game, or behind a skill?",
+      "status": "open",
+      "answer": ""
+    },
+    {
+      "id": "Q7",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "text": "Should depleted clusters ever return?",
+      "status": "open",
+      "answer": ""
+    },
+    {
+      "id": "Q8",
+      "agent": "story-designer",
+      "date": "2026-11-02",
+      "text": "UNKNOWN: EV23 and EV27 not written; EV26 is price-only because cluster refill and lane closed tags are not read by game/events.gd.",
+      "status": "open",
+      "answer": ""
+    }
+  ],
+  "claims": [
+    {
+      "id": "C1",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "task": "T152",
+      "status": "running"
+    },
+    {
+      "id": "C1",
+      "agent": "feature-designer",
+      "date": "2026-11-02",
+      "task": "T152",
+      "status": "done"
+    },
+    {
+      "id": "C2",
+      "agent": "economy-designer",
+      "date": "2026-11-02",
+      "task": "T153",
+      "status": "running"
+    },
+    {
+      "id": "C2",
+      "agent": "economy-designer",
+      "date": "2026-11-02",
+      "task": "T153",
+      "status": "done"
+    },
+    {
+      "id": "C3",
+      "agent": "story-designer",
+      "date": "2026-11-02",
+      "task": "T154",
+      "status": "running"
+    },
+    {
+      "id": "C3",
+      "agent": "story-designer",
+      "date": "2026-11-02",
+      "task": "T154",
+      "status": "done"
+    },
+    {
+      "id": "C4",
+      "agent": "gameplay-programmer",
+      "date": "2026-11-02",
+      "task": "T155",
+      "status": "running"
+    },
+    {
+      "id": "C4",
+      "agent": "gameplay-programmer",
+      "date": "2026-11-02",
+      "task": "T155",
+      "status": "done"
+    },
+    {
+      "id": "C5",
+      "agent": "gameplay-programmer",
+      "date": "2026-11-02",
+      "task": "T156",
+      "status": "running"
+    },
+    {
+      "id": "C5",
+      "agent": "gameplay-programmer",
+      "date": "2026-11-02",
+      "task": "T156",
+      "status": "done"
+    },
+    {
+      "id": "C6",
+      "agent": "gameplay-programmer",
+      "date": "2026-11-02",
+      "task": "T158",
+      "status": "running"
+    },
+    {
+      "id": "C6",
+      "agent": "gameplay-programmer",
+      "date": "2026-11-02",
+      "task": "T158",
+      "status": "done"
+    },
+    {
+      "id": "C7",
+      "agent": "galaxy-builder",
+      "date": "2026-11-02",
+      "task": "T157",
+      "status": "running"
+    },
+    {
+      "id": "C7",
+      "agent": "galaxy-builder",
+      "date": "2026-11-02",
+      "task": "T157",
+      "status": "done"
+    },
+    {
+      "id": "C10",
+      "agent": "ui-programmer",
+      "date": "2026-11-02",
+      "task": "T159",
+      "status": "running"
+    },
+    {
+      "id": "C11",
+      "agent": "economy-designer",
+      "date": "2026-11-02",
+      "task": "T160",
+      "status": "running"
+    },
+    {
+      "id": "C11",
+      "agent": "economy-designer",
+      "date": "2026-11-02",
+      "task": "T160",
+      "status": "done"
+    },
+    {
+      "id": "C10",
+      "agent": "ui-programmer",
+      "date": "2026-11-02",
+      "task": "T159",
+      "status": "partial"
+    },
+    {
+      "id": "C12",
+      "agent": "story-designer",
+      "date": "2026-11-02",
+      "task": "T154b",
+      "status": "running"
+    },
+    {
+      "id": "C12",
+      "agent": "story-designer",
+      "date": "2026-11-02",
+      "task": "T154b",
+      "status": "done"
+    },
+    {
+      "id": "C13",
+      "agent": "qa-analyst",
+      "date": "2026-11-02",
+      "task": "T161",
+      "status": "running"
+    },
+    {
+      "id": "C13",
+      "agent": "qa-analyst",
+      "date": "2026-11-02",
+      "task": "T161",
+      "status": "done"
+    },
+    {
+      "id": "C14",
+      "agent": "qa-analyst",
+      "date": "2026-11-02",
+      "task": "T161-followup",
+      "status": "running"
+    },
+    {
+      "id": "C14",
+      "agent": "qa-analyst",
+      "date": "2026-11-02",
+      "task": "T161-followup",
+      "status": "done"
+    },
+    {
+      "id": "C15",
+      "agent": "qa-analyst",
+      "date": "2026-11-02",
+      "task": "T161-reserve-rerun",
+      "status": "running"
+    },
+    {
+      "id": "C15",
+      "agent": "qa-analyst",
+      "date": "2026-11-02",
+      "task": "T161-reserve-rerun",
+      "status": "done"
+    },
+    {
+      "id": "C16",
+      "agent": "qa-analyst",
+      "date": "2026-11-02",
+      "task": "T161-v4-rerun",
+      "status": "running"
+    },
+    {
+      "id": "C16",
+      "agent": "qa-analyst",
+      "date": "2026-11-02",
+      "task": "T161-v4-rerun",
+      "status": "done"
+    },
+    {
+      "id": "C17",
+      "agent": "qa-analyst",
+      "date": "2026-11-02",
+      "task": "T161-v5-rerun",
+      "status": "running"
+    },
+    {
+      "id": "C17",
+      "agent": "qa-analyst",
+      "date": "2026-11-02",
+      "task": "T161-v5-rerun",
+      "status": "done"
+    },
+    {
+      "id": "C18",
+      "agent": "qa-analyst",
+      "date": "2026-11-02",
+      "task": "alpha-round1",
+      "status": "running"
+    },
+    {
+      "id": "C18",
+      "agent": "qa-analyst",
+      "date": "2026-11-02",
+      "task": "alpha-round1",
+      "status": "done"
+    },
+    {
+      "id": "C19",
+      "agent": "qa-analyst",
+      "date": "2026-11-02",
+      "task": "alpha-round2",
+      "status": "running"
+    },
+    {
+      "id": "C19",
+      "agent": "qa-analyst",
+      "date": "2026-11-02",
+      "task": "alpha-round2",
+      "status": "done"
+    },
+    {
+      "id": "C20",
+      "agent": "qa-analyst",
+      "date": "2026-11-02",
+      "task": "dead-worlds-qa",
+      "status": "running"
+    },
+    {
+      "id": "C20",
+      "agent": "qa-analyst",
+      "date": "2026-11-02",
+      "task": "dead-worlds-qa",
+      "status": "done"
+    }
+  ],
+  "artifacts": [
+    {
+      "id": "A1",
+      "agent": "producer",
+      "path": "schedule.json",
+      "kind": "file"
+    },
+    {
+      "id": "A2",
+      "agent": "producer",
+      "path": "goals/trade-goods-asteroid-mining/blackboard.json",
+      "kind": "file"
+    },
+    {
+      "id": "A3",
+      "agent": "feature-designer",
+      "path": "design/proposals/2026-11-02-trade-goods-asteroid-mining.md",
+      "kind": "file"
+    },
+    {
+      "id": "A4",
+      "agent": "economy-designer",
+      "path": "handoffs/economy-designer/2026-11-02-T153.json",
+      "kind": "file"
+    },
+    {
+      "id": "A5",
+      "agent": "story-designer",
+      "path": "handoffs/story-designer/2026-11-02-T154.json",
+      "kind": "file"
+    },
+    {
+      "id": "A6",
+      "agent": "gameplay-programmer",
+      "path": "handoffs/gameplay-programmer/2026-11-02-T155.json",
+      "kind": "file"
+    },
+    {
+      "id": "A7",
+      "agent": "gameplay-programmer",
+      "path": "handoffs/gameplay-programmer/2026-11-02-T156.json",
+      "kind": "file"
+    },
+    {
+      "id": "A8",
+      "agent": "galaxy-builder",
+      "path": "handoffs/galaxy-builder/2026-11-02-T157.json",
+      "kind": "file"
+    },
+    {
+      "id": "A9",
+      "agent": "economy-designer",
+      "path": "handoffs/economy-designer/2026-11-02-T160.json",
+      "kind": "file"
+    },
+    {
+      "id": "A10",
+      "agent": "ui-programmer",
+      "path": "handoffs/ui-programmer/2026-11-02-T159.json",
+      "kind": "file"
+    },
+    {
+      "id": "A11",
+      "agent": "qa-analyst",
+      "path": "handoffs/qa-analyst/2026-11-02-T161.json",
+      "kind": "file"
+    },
+    {
+      "id": "A12",
+      "agent": "qa-analyst",
+      "path": "qa/reports/2026-11-02-trade-goods-asteroid-mining.md",
+      "kind": "file"
+    }
+  ]
+}

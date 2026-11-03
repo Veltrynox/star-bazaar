@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-11-02",
+  "task": "T154",
+  "status": "partial",
+  "files_changed": [
+    "story/events.md",
+    "story/skills.md",
+    "story/screens.md",
+    "story/voice.md",
+    "data/events.json",
+    "data/story_text.json",
+    "goals/trade-goods-asteroid-mining/blackboard.json"
+  ],
+  "open_questions": [
+    "EV23 (silk glut) and EV27 (rockfall, lane closed) not written: EV27 needs an unread tag; EV23 would be a seventh event. Owner decides.",
+    "UNKNOWN: EV26 is price-only [price down: Voltara, ore]; the refill and survey-fee choice needs tags and a choice-event path that do not exist.",
+    "Does B1 keep its slot id? Old LBL_* rows in screens.md still say Market Ledger (B1); T158 should retitle them."
+  ],
+  "handoff": "Texts built with tools/build_story.py: 'story_text.json: 331 entries; events.json: 25 events; skipped: 0'. Added events EV21, EV22, EV24, EV25, EV26, EV28 (tags price up/down only, planet and good ids silk, chips, ore as in planets.json). Added GOOD_SILK/CHIPS/ORE_NAME and _DESC, WORLD_CL_S1A/S1B/S2A/S2B/S2C _NAME and _DESC in screens.md. Changed B1 to Prospecting (name, flavour, plain; SK_B1_*). Glossary entry added in voice.md. Names Starsilk, Logic Cores, Rock Ore kept. Programmer wires GOOD_* and WORLD_CL_* ids; none are read by the game yet.",
+  "details": {
+    "ids_added": [
+      "EV21",
+      "EV22",
+      "EV24",
+      "EV25",
+      "EV26",
+      "EV28",
+      "GOOD_SILK_NAME",
+      "GOOD_SILK_DESC",
+      "GOOD_CHIPS_NAME",
+      "GOOD_CHIPS_DESC",
+      "GOOD_ORE_NAME",
+      "GOOD_ORE_DESC",
+      "WORLD_CL_S1A_NAME",
+      "WORLD_CL_S1A_DESC",
+      "WORLD_CL_S1B_NAME",
+      "WORLD_CL_S1B_DESC",
+      "WORLD_CL_S2A_NAME",
+      "WORLD_CL_S2A_DESC",
+      "WORLD_CL_S2B_NAME",
+      "WORLD_CL_S2B_DESC",
+      "WORLD_CL_S2C_NAME",
+      "WORLD_CL_S2C_DESC"
+    ],
+    "ids_changed": [
+      "SK_B1_NAME",
+      "SK_B1_FLAVOUR",
+      "SK_B1_PLAIN"
+    ],
+    "build": "story_text.json: 331 entries; events.json: 25 events; skipped: 0",
+    "EV20": "checked, not duplicated; no pay-out cluster text written (no mechanic text asked)"
+  }
+}

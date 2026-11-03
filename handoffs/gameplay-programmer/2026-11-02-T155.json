@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-02",
+  "task": "T155",
+  "status": "done",
+  "files_changed": [
+    "game/events.gd",
+    "game/main.gd",
+    "game/ui.gd",
+    "game/galaxy_view.gd",
+    "game/planet_panel.gd",
+    "game/route_line.gd",
+    "game/space_storage_view.gd",
+    "game/ship_panel.gd",
+    "tools/tests/run_tests.gd",
+    "goals/trade-goods-asteroid-mining/blackboard.json"
+  ],
+  "open_questions": [
+    "UNKNOWN: theme has no commodity_silk/chips/ore colours or icons; Ui.commodity_col uses fallback colours, icons are skipped. Design to supply tokens.",
+    "UNKNOWN: legend (galaxy_view, route_legend) lists only energy and food routes; split-bar lane colours still energy/food. Left for the UI task.",
+    "Debug menu has no per-key spin for the new balance keys beyond existing generic balance editor; T156 adds mining keys when used."
+  ],
+  "handoff": "data/planets.json and balance.json already held T153 values (v6, v21), so no data edit. Trade, storage, route_engine and main were already driven by the commodity list from planet data; no change needed. Added: per-good event swing events.pct(c) reading event_pct_<good> (energy and food keep event_price_pct), Ui.commodity_col with fallbacks, Ui.good_name (GOOD_*_NAME, fallback capitalised id), galaxy_view icon gate no longer limited to energy/food. Events parser already accepted any good. Mining harvest not built.",
+  "details": {
+    "save_format": "No change. Old saves with energy and food load; storage fills missing goods with fresh stock; price_history gains keys for new goods.",
+    "tests": "sh tools/tests/run.sh: TOTAL pass=675 fail=0 (first run after edits had 1 fail, sys2 commodity count expected 2; test updated to the five goods; two T155 tests added). Headless load clean.",
+    "decision": "D8 recorded in blackboard by main; EV23, EV27 not built."
+  }
+}
