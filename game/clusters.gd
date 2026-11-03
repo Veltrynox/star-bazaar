@@ -7,8 +7,6 @@ extends RefCounted
 
 const PATH := "res://data/asteroid_clusters.json"
 const BASE := 1000  # node ids <= -BASE are clusters (-1 .. -999 are Space Storage stations: -system id)
-## Skill that unlocks routing from a cluster. B1 is Prospecting since T158.
-const MINING_SKILL := "B1"
 const NEAR_PX := 260.0  # map units: a cluster within this distance of a planet is "near" it (panel line); display only
 
 var balance: Dictionary = {}
@@ -76,7 +74,7 @@ func system_of(i: int) -> int:
 
 ## Units one cluster gives per cycle, shared by every ship on it (mining_yield_per_cycle).
 func yield_per_cycle() -> int:
-	return int(balance.get("mining_yield_per_cycle", 0))
+	return floori(float(balance.get("mining_yield_per_cycle", 0)) * Skills.cluster_yield_mult())
 
 ## Takes up to n units, never more than is left. Returns the units taken.
 func take(i: int, n: int) -> int:

@@ -1,10 +1,9 @@
 extends RefCounted
 ## Dead worlds (design/proposals/2026-11-02-dead-planets.md): rock planets that can be mined once their skill
 ## is learned, with a danger meter. A planet is a dead world when its id starts with "dead_" or its type is "dead".
-## Skill gate: SKILLS maps planet id to skill id. Numbers: balance.json dead_danger_max (0..5), dead_danger_rise
+## Skill gate: the mine_unlock effects in data/skills.json map a planet id to a skill id (Skills.mine_skill_for). Numbers: balance.json dead_danger_max (0..5), dead_danger_rise
 ## (per cycle a running route mines the world). The meter is saved by main under "danger" ({planet id: value}).
 
-const SKILLS := {"dead_1": "M1", "dead_2": "M2"}
 const ID_PREFIX := "dead_"
 
 var balance: Dictionary = {}
@@ -19,7 +18,7 @@ static func is_dead(p) -> bool:
 
 ## Skill needed to mine this world ("" when the world needs none or is not a dead world).
 static func skill_for(p) -> String:
-	return str(SKILLS.get(str(p.get("id", "")), "")) if is_dead(p) else ""
+	return Skills.mine_skill_for(str(p.get("id", ""))) if is_dead(p) else ""
 
 func max_danger() -> int:
 	return maxi(0, int(balance.get("dead_danger_max", 5)))

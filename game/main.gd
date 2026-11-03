@@ -46,7 +46,13 @@ var rescues_paid: int = 0  # Four Markets: stranded stipends paid this run (capp
 var repossessions: int = 0  # ships repossessed this run, saved
 var repossessed_cycle: int = -1  # cycle of the last repossession (no stipend in that cycle)
 var end_screen: ColorRect  # T77 overlay, null when none
-var learned_skills: Array = []  # T77/T71: learned skill ids ("A1"...), saved
+## Learned skill ids (FND_STORAGE, MIL_1 ... finished techs included), saved. The array is Skills.learned itself: appending
+## or assigning here changes the real set (the setter copies into it).
+var learned_skills: Array:
+	get:
+		return Skills.learned
+	set(v):
+		Skills.set_learned(v.duplicate())
 var systems_reached: int = 1  # T77: systems with a first route or storage; only system 1 exists today
 var _last_points: int = -1  # juice: the points shown last refresh (-1 before the first)
 var skill_points: int = 0  # T82: expansion points earned (top bar label stays "Skill points")
@@ -162,6 +168,8 @@ func _ready() -> void:
 	Juice.install_press(get_tree())
 	balance = _load_balance()
 	cash = int(balance.get("starting_credits", 0))
+	Skills.reset(balance)  # four market skills: new run; a loaded save overwrites it
+	Tech.reset()
 	Markets.reset(balance, Markets.default_seed())  # Four Markets: new run; a loaded save overwrites it
 	mouse_filter = Control.MOUSE_FILTER_IGNORE  # let clicks reach the 3D map (T04)
 	map = load("res://game/map.gd").new()
@@ -204,7 +212,6 @@ func _ready() -> void:
 	dead.setup(balance)
 	fabric.setup(balance)
 	engine.clusters = clusters
-	engine.learned = learned_skills
 	engine.trade_gate = Callable(self, "system_trade_open")
 	engine.positions_fn = func() -> Array: return map.positions  # route offset: planet world positions
 	_sync_dead_lock()
@@ -267,11 +274,11 @@ func _ready() -> void:
 func collect_state() -> Dictionary:
 	return {"cycle": cycle, "cycle_elapsed": cycle_elapsed, "cash": cash, "paused": paused, "ships": ships,
 		"routes": engine.to_array(), "storage": storage.to_dict(), "orders": engine.local_to_array(),
-		"markets": Markets.to_dict(), "rescues_paid": rescues_paid, "repossessions": repossessions, "learned_skills": learned_skills, "systems_reached": systems_reached,
+		"markets": Markets.to_dict(), "rescues_paid": rescues_paid, "repossessions": repossessions, "learned_skills": learned_skills.duplicate(), "skills": Skills.to_dict(), "tech": Tech.to_dict(), "systems_reached": systems_reached,
 		"time_speed": time_speed, "skill_points": skill_points, "pts_planets": pts_planets, "pts_pairs": pts_pairs, "events": events.to_dict(),
 			"open_systems": open_systems, "reached_ids": reached_ids, "galaxy_seen": galaxy_seen, "tut_step": tut_step, "tut_ver": TUT_VER,
 		"shield": shield.to_dict(), "storage_cuts": storage.cuts_to_dict(), "price_history": price_history,
-		"forecast_id": forecast_id, "surveyed": surveyed_systems, "station_systems": station_systems,
+		"forecast_id": forecast_id, "station_systems": station_systems,
 		"second_lane": second_lane_planet, "clusters": clusters.to_dict(), "danger": dead.to_dict(), "fabric": fabric.to_dict()}
 
 func apply_state(s: Dictionary) -> void:
@@ -303,13 +310,12 @@ func apply_state(s: Dictionary) -> void:
 	time_speed = _speed_or_default(s.get("time_speed", 1.0))  # old saves: x1
 	cash = int(s.get("cash", cash))
 	ships = clampi(int(s.get("ships", 0)), 0, int(balance.get("ship_cap", 0)))
-	learned_skills = []
+	Skills.reset(balance)
 	if typeof(s.get("learned_skills")) == TYPE_ARRAY:
-		for id in s["learned_skills"]:
-			if SkillTree.all_ids().has(str(id)) and not learned_skills.has(str(id)):
-				learned_skills.append(str(id))
-	# Saves without a skills key start with none: Space Storage must be earned via skill A1.
-	engine.learned = learned_skills
+		learned_skills = s["learned_skills"]  # unknown ids are dropped by the setter
+	Skills.from_dict(s.get("skills"))
+	Tech.from_dict(s.get("tech"))
+	# Saves without a skills key start with none: Space Storage must be earned via FND_STORAGE.
 	_sync_skill_effects()
 	_sync_dead_lock()  # dead worlds still shut at this cycle: saved routes and orders to them are dropped
 	clusters.from_dict(s.get("clusters"))  # T156: before the routes, which may start at a cluster; old saves: all full
@@ -319,7 +325,6 @@ func apply_state(s: Dictionary) -> void:
 	# T51: old saves may hold cargo, ship_planet, dest, flight_left, mission_step; ignored.
 	price_history = s.get("price_history", {}) if typeof(s.get("price_history")) == TYPE_DICTIONARY else {}
 	forecast_id = str(s.get("forecast_id", ""))
-	surveyed_systems = _int_array(s.get("surveyed"))
 	second_lane_planet = int(s.get("second_lane", -1))  # N11; old saves: not reached
 	if second_lane_planet >= map.planets.size() or (second_lane_planet >= 0 and system_of(second_lane_planet) != SECOND_LANE_SYSTEM):
 		second_lane_planet = -1
@@ -328,7 +333,7 @@ func apply_state(s: Dictionary) -> void:
 			station_systems.append(sid)
 			map.add_station(sid, false)
 			_make_station_marker(sid)
-	_ensure_posts()  # old saves with A1: stations for every open system, no notice
+	_ensure_posts()  # old saves with FND_STORAGE: stations for every open system, no notice
 	_loading_state = false
 	systems_reached = maxi(1, int(s.get("systems_reached", 1)))
 	skill_points = maxi(0, int(s.get("skill_points", 0)))
@@ -442,18 +447,18 @@ func _system_planets_present(id: int) -> bool:
 			return true
 	return false
 
-## Space Storage post: one per open system, exists once skill A1 is learned (the A1 gate itself is unchanged).
+## Space Storage post: one per open system, exists once skill FND_STORAGE is learned.
 func _ensure_posts() -> void:
-	if not has_skill("A1"):
+	if not has_skill("FND_STORAGE"):
 		return
 	for sid in open_systems:
 		storage.ensure(Storage.system_key(int(sid)))
 	_ensure_stations()
 
-## Space stations: one per open system once A1 is learned; built once, kept in station_systems (saved).
+## Space stations: one per open system once FND_STORAGE is learned; built once, kept in station_systems (saved).
 ## One notice per build, none while a save loads.
 func _ensure_stations() -> void:
-	if not has_skill("A1"):
+	if not has_skill("FND_STORAGE"):
 		return
 	var built := false
 	for sid in open_systems:
@@ -511,7 +516,7 @@ func _on_station_clicked(sid: int) -> void:
 	space_storage_view.open_for(sid)
 
 func space_post_open(system_id: int) -> bool:
-	return has_skill("A1") and storage.established(Storage.system_key(system_id))
+	return has_skill("FND_STORAGE") and storage.established(Storage.system_key(system_id))
 
 ## Systems with a permit entry that is not bought yet.
 func unowned_systems() -> Array:
@@ -528,19 +533,16 @@ func system_trade_open(planet: int) -> bool:
 
 func trade_locked_reason() -> String:
 	var t := StoryText.get_or("LBL_TRADE_NEEDS_STATION", "Needs a Space Storage in this system.")
-	if not has_skill("A1"):  # QA 2026-11-03: the post comes with A1; say so, a permit alone does not open trade
-		t += " " + StoryText.get_or("LBL_TRADE_NEEDS_A1", "Learn Space Storage (A1) first.")
+	if not has_skill("FND_STORAGE"):  # QA 2026-11-03: the post comes with Space Storage; say so, a permit alone does not open trade
+		t += " " + StoryText.get_or("LBL_TRADE_NEEDS_A1", "Learn Space Storage first.")
 	return t
 
-## Credit price of a permit: the data price, less skill C4 Colonial Rights (balance skill_C4_permit_discount).
+## Credit price of a permit: the data price (Colonial Rights is gone: no discount).
 func permit_cost(sid: int) -> int:
-	var c := Systems.permit_cost(balance, sid)
-	if has_skill("C4"):
-		c = floori(float(c) * (1.0 - float(balance.get("skill_C4_permit_discount", 0.0))))
-	return c
+	return Systems.permit_cost(balance, sid)
 
 ## N11 Second Lane: optional goal, the first sale at a planet of system 2. Saved as the planet index (-1 = not yet).
-## Reads the permit price live (after the C4 discount). Pays a title and a planet note only: no cash, no points.
+## Reads the permit price live. Pays a title and a planet note only: no cash, no points.
 const SECOND_LANE_SYSTEM := 2
 var second_lane_planet: int = -1
 
@@ -570,26 +572,16 @@ func _check_second_lane(r: Dictionary) -> void:
 	if planet_panel != null and planet_panel.visible:
 		planet_panel.rebuild()
 
-## C2 Survey Beacon: systems whose planets have been surveyed (saved). Surveying needs the skill and is free.
-var surveyed_systems: Array = []
+## Survey Beacon is gone (core 3.5): these two stay only so the old skill screen still loads; the screen rebuild removes them.
+func is_surveyed(_sid: int) -> bool:
+	return false
 
-func is_surveyed(sid: int) -> bool:
-	return has_skill("C2") and surveyed_systems.has(sid)
+func survey_system(_sid: int) -> bool:
+	return false
 
-func survey_system(sid: int) -> bool:
-	if not has_skill("C2") or open_systems.has(sid) or not Systems.ids().has(sid) or surveyed_systems.has(sid):
-		return false
-	surveyed_systems.append(sid)
-	if skill_screen != null:
-		skill_screen.refresh()
-	return true
-
-## Expansion points a permit costs: the data value, one less once the system is surveyed (C2), never below 1.
+## Expansion points a permit costs: the data value.
 func permit_points(sid: int) -> int:
-	var p := Systems.permit_points(balance, sid)
-	if is_surveyed(sid) and p > 1:
-		p -= 1
-	return p
+	return Systems.permit_points(balance, sid)
 
 ## {ok, reason}; reason is "", "owned", "skill", "credits", "points", "over" or "unknown".
 func can_buy_permit(sid: int) -> Dictionary:
@@ -599,7 +591,7 @@ func can_buy_permit(sid: int) -> Dictionary:
 		return {"ok": false, "reason": "over"}
 	if open_systems.has(sid):
 		return {"ok": false, "reason": "owned"}
-	if not has_skill(str(Systems.get_system(sid).get("requires_skill", "C1"))):
+	if not has_skill(required_skill(sid)):
 		return {"ok": false, "reason": "skill"}
 	if cash < permit_cost(sid):
 		return {"ok": false, "reason": "credits"}
@@ -621,6 +613,10 @@ func buy_permit(sid: int) -> Dictionary:
 	_after_change()
 	return v
 
+## Skill a system's permit needs: systems.json still says "C1", which is FND_PERMIT now.
+func required_skill(sid: int) -> String:
+	return SkillTree.legacy_id(str(Systems.get_system(sid).get("requires_skill", "FND_PERMIT")))
+
 ## First order or route that touches a planet of a new system gives the system point (once per system).
 func _note_system(planet: int) -> void:
 	var sid := system_of(planet)
@@ -628,13 +624,12 @@ func _note_system(planet: int) -> void:
 		reached_ids.append(sid)
 		reach_system()
 
-## A1 gate (owner decision 2026-11-03): Space Storage opens once the player has made two distinct routes, on any planet.
-## pts_pairs gets one entry per new planet pair (see _award_route), so its size is the number of routes made.
+## Kept for the old skill screen (no gates now: the Foundations are free from cycle 1). The rebuild removes it.
 func a1_gate_open() -> bool:
-	return pts_pairs.size() >= 2
+	return true
 
 func skill_ctx() -> Dictionary:
-	return {"a1_open": a1_gate_open(), "c1_learned": learned_skills.has("C1")}
+	return {}
 
 ## T71: learn a skill. Spends skill points, saves, posts the notice. Returns {ok, reason}.
 func learn_skill(id: String) -> Dictionary:
@@ -642,7 +637,7 @@ func learn_skill(id: String) -> Dictionary:
 	if not v["ok"]:
 		return v
 	skill_points -= SkillTree.cost(balance, id)
-	learned_skills.append(id)
+	Skills.add_learned(id)
 	_sync_skill_effects()
 	_sync_closed()
 	_ensure_posts()
@@ -655,13 +650,30 @@ func learn_skill(id: String) -> Dictionary:
 	_after_change()
 	return v
 
-## T71: effect hook. Systems ask main.has_skill("A4") etc.; effect numbers stay in balance.json.
+## Effect hook for ids: main.has_skill("FND_STORAGE"). Effect numbers stay in balance.json (see Skills).
 func has_skill(id: String) -> bool:
-	return learned_skills.has(id)
+	return Skills.is_learned(id)
 
-## Skill effects that live on other objects: A2 Deep Holds raises planet storage capacity.
+## Posts the SK_TECH_DONE notice for every tech finished since the last call, and refreshes what the skills drive.
+func _post_tech_done() -> void:
+	var ids := Tech.take_done()
+	for id in ids:
+		post_notice(StoryText.get_text("SK_TECH_DONE", {"name": SkillTree.skill_name(str(id))}))
+	if not ids.is_empty():
+		_sync_skill_effects()
+		_sync_closed()
+		if skill_screen != null:
+			skill_screen.refresh()
+
+## Units crafted in a market's workshop count toward that market's techs (Tech.add_crafted), with the notice.
+## Workshops call this; the debug menu has an action for testing.
+func craft_units(market: String, units: int) -> void:
+	Tech.add_crafted(market, units)
+	_post_tech_done()
+
+## Skill effects that live on other objects: storage_cap_pct (BIO_3) raises planet storage capacity.
 func _sync_skill_effects() -> void:
-	storage.capacity_mult = 1.0 + float(balance.get("skill_A2_capacity", 0.0)) if has_skill("A2") else 1.0
+	storage.capacity_mult = Skills.storage_cap_mult()
 
 ## Sell prices of each planet's goods, newest last, kept at each cycle end. Saved; no screen reads them now.
 const PRICE_HISTORY_LEN := 5
@@ -680,7 +692,7 @@ func _record_prices() -> void:
 				arr.pop_front()
 			price_history[k] = arr
 
-## B3 Price Whisper (moved from B1 in T158): text of the best route partner for c from this planet, "" when none pays.
+## LUX_1 Price Whisper: text of the best route partner for c from this planet, "" when none pays.
 func best_partner_line(planet: int, c: String) -> String:
 	var b: Dictionary = engine.best_partner(planet, c)
 	if int(b["planet"]) < 0:
@@ -739,7 +751,7 @@ func skill_arrow_target() -> Dictionary:
 		return {}
 	var open := unowned_systems()
 	if not open.is_empty():
-		var req := str(Systems.get_system(int(open[0])).get("requires_skill", "C1"))
+		var req := required_skill(int(open[0]))
 		if has_skill(req):
 			return {"mode": "skills", "steps": []}
 		if SkillTree.state(learned_skills, req, skill_ctx()) == "available":
@@ -884,7 +896,7 @@ func _hide_cluster_info() -> void:
 	if cluster_info != null:
 		cluster_info.visible = false
 
-## T159: click on an asteroid pack. Shows name, what it gives per cycle and, with B1 Prospecting, what is left. Risk: no value exists yet (open question).
+## T159: click on an asteroid pack. Shows name, what it gives per cycle and, with FND_PROSPECT, what is left. Risk: no value exists yet (open question).
 func _on_cluster_clicked(index: int) -> void:
 	if space_storage_view != null:
 		space_storage_view.close_view()
@@ -1621,11 +1633,11 @@ func fabric_inputs_unrouted() -> Array:
 			out.append(c)
 	return out
 
-## Fabric: can it be built now? {ok, reason}: "skill" (F1 not learned), "post" (no trading post in system 1), "built", "inputs" (a input has no route here), "credits".
+## Fabric: can it be built now? {ok, reason}: "skill" (MIN_1 not learned), "post" (no trading post in system 1), "built", "inputs" (a input has no route here), "credits".
 func can_build_fabric() -> Dictionary:
 	if fabric.built:
 		return {"ok": false, "reason": "built"}
-	if not has_skill("F1"):
+	if not has_skill("MIN_1"):
 		return {"ok": false, "reason": "skill"}
 	if not station_systems.has(Fabric.SYSTEM):
 		return {"ok": false, "reason": "post"}
@@ -1647,11 +1659,11 @@ func build_fabric() -> Dictionary:
 	_after_change()
 	return v
 
-## Null Core: can it be built now? {ok, reason}: "max" (one per run), "skill" (F1), "post", "stock" (plate and nullglass at the trading post), "credits".
+## Null Core: can it be built now? {ok, reason}: "max" (one per run), "skill" (MIN_1), "post", "stock" (plate and nullglass at the trading post), "credits".
 func can_build_core() -> Dictionary:
 	if fabric.core_made >= fabric.core_max():
 		return {"ok": false, "reason": "max"}
-	if not has_skill("F1"):
+	if not has_skill("MIN_1"):
 		return {"ok": false, "reason": "skill"}
 	if not station_systems.has(Fabric.SYSTEM):
 		return {"ok": false, "reason": "post"}
@@ -1738,7 +1750,7 @@ func _settle_routes() -> Array:
 	last_local = r["local"]
 	cash += int(r["delta"])
 	for c in engine.sales_units:  # Four Markets: Sell orders and stop sales count toward share
-		Markets.add_sale(str(c), int(engine.sales_units[c]))
+		Markets.add_sale(str(c), int(engine.sales_units[c]), int(engine.sales_up_units.get(c, 0)))
 	prev_net = last_net
 	last_net = int(r["delta"])
 	last_summary = "%s %d, %s %d, %s %+d" % [StoryText.get_text("LBL_GROSS"), int(r["gross"]),
@@ -1888,11 +1900,16 @@ func _end_cycle() -> void:
 	_settle_routes()
 	_tick_danger()
 	fabric.run(storage)
+	Skills.grow_stock(storage)  # BIO_2: Biotech stock in planet storage grows
+	_post_tech_done()  # techs the fabric just finished
 	_count_idle_cycles()
 	# Space Storage fills only by a ship sent to it (send_stock with a station destination); planet_to_space_rate is unused.
 	if OS.is_debug_build() and debug_force_market != "":  # debug: a huge sale in that market this cycle
 		Markets.cur[debug_force_market] = float(Markets.cur.get(debug_force_market, 0.0)) + 1000000.0
 	Markets.end_cycle(cycle)  # bots and window share
+	for a in Skills.award_share_points():  # first time a market share reaches 20% / 35%: points, once per market
+		_add_points(int(a["points"]))
+		_point_notice(StoryText.get_or("NOT_SKILL_REASON_SHARE", "Your {market} share passed {pct}%.", {"market": Markets.names.get(a["market"], a["market"]), "pct": int(a["step"])}))
 	var overhead := Markets.overhead()  # spreading penalty, paid like upkeep
 	if overhead > 0:
 		cash -= overhead
@@ -1918,7 +1935,7 @@ func _end_cycle() -> void:
 	_sync_closed()
 	if dead_unlock_cycle() > 1 and cycle == dead_unlock_cycle():  # the dead worlds open now
 		post_notice(StoryText.get_or("DEAD_UNLOCK", "Dead worlds are open."))
-	if has_skill("B4") and events.due(cycle + 1):  # B4 Event Forecast: one cycle of warning, naming planet and commodity
+	if Skills.warning_cycles() > 0 and events.due(cycle + 1):  # LUX_3 Event Forecast: one cycle of warning, naming planet and commodity
 		forecast_id = events.random_id(["EV18"] if shield.decided else [], cycle + 1)
 		post_notice(forecast_text(forecast_id))
 	var sched_id: String = events.take_due(cycle) if (event_notice == null and not game_over) else ""  # R1: part 2 events come from the schedule
@@ -2019,6 +2036,8 @@ func _finish(side: String, ending_id: String, stat: String) -> void:
 	game_over = true
 	SaveGame.clear()
 	var stats := {"cycle": cycle, "cash": cash, "market": str(Markets.best()["market"])}
+	if side == "WIN":  # core 6: capstone, techs done, second market ... for the flavour lines of the win ending
+		stats["flavour"] = EndingPicker.inputs(str(stats["market"]), balance)
 	if share_panel != null:
 		share_panel.close_screen()
 	_open_end_screen().show_ending(ending_id, side, stats, stat)
@@ -2029,13 +2048,9 @@ func _finish(side: String, ending_id: String, stat: String) -> void:
 
 ## ---- T12 events ----
 
-## Closed cycles covered by skills: Space Storage (A1), Deep Holds (A2), Event Forecast (B4).
+## Closed cycles a skill skips: reopen_sooner (BIO_6 Hardy Strains).
 func _closed_bridge() -> int:
-	var n := 0
-	for id in ["A1", "A2", "B4"]:
-		if has_skill(id):
-			n += 1
-	return n
+	return Skills.reopen_sooner()
 
 ## Dead worlds open at balance dead_unlock_cycle (15). Before it they are locked: no route, order or send from or to them.
 func dead_unlock_cycle() -> int:
@@ -2147,9 +2162,9 @@ func _spawn_event_cluster() -> int:
 	var pl: int = int(opts[cycle % opts.size()])
 	return clusters.spawn_small(system_of(pl), float(map.planets[pl].get("x", 0)), float(map.planets[pl].get("y", 0)))
 
-## T156: the skill check that unlocks routing from a cluster. B1 is Prospecting (T158); Clusters.MINING_SKILL is the one place to change.
+## T156: the skill check that unlocks routing from a cluster: FND_PROSPECT (feature cluster_routes).
 func can_mine() -> bool:
-	return has_skill(Clusters.MINING_SKILL)
+	return Skills.unlocked("cluster_routes")
 
 ## T156 for T157 (map): clusters of a system with ore left, each {index, node, id, system, x, y, radius, count, visible, left, max, good, spawned}.
 func clusters_in_system(sid: int) -> Array:
@@ -2369,24 +2384,6 @@ func debug_set_route_level(id: int, level: int) -> bool:
 	engine.routes[i]["level"] = maxi(1, level)
 	_after_change()
 	return true
-
-## Sets the A1 gate input: two routes made (A1 gate, owner decision 2026-11-03).
-func debug_set_a1_gate(open: bool) -> void:
-	if not OS.is_debug_build():
-		return
-	if open:
-		for i in mini(3, map.planets.size()):
-			if not pts_planets.has(i):
-				pts_planets.append(i)
-		for k in ["0-1", "0-2"]:
-			if not pts_pairs.has(k):
-				pts_pairs.append(k)
-	else:
-		pts_planets = []
-		pts_pairs = []
-	if skill_screen != null:
-		skill_screen.refresh()
-	_after_change()
 
 func debug_restart_tutorial() -> void:
 	if not OS.is_debug_build():
@@ -2848,8 +2845,8 @@ func _tut_target_node(key: String) -> Control:
 		"expenses": c = cash_box
 		"skills": c = points_button
 		"permit":
-			if skill_screen != null and skill_screen.visible and skill_screen.node_buttons.has("C1"):
-				c = skill_screen.node_buttons["C1"]
+			if skill_screen != null and skill_screen.visible and skill_screen.node_buttons.has("FND_PERMIT"):
+				c = skill_screen.node_buttons["FND_PERMIT"]
 			else:
 				c = points_button  # the Skills window is closed: point at the button that opens it
 	if c != null and c.is_visible_in_tree() and c.size.x > 0.0:
@@ -3046,7 +3043,7 @@ func _tut_step_done(i: int) -> bool:
 		7:
 			return not learned_skills.is_empty()
 		8:
-			return has_skill("C1")
+			return has_skill("FND_PERMIT")
 	return false
 
 ## A step whose state can never be reached from here is passed over, so the tutorial never blocks.
@@ -3055,7 +3052,7 @@ func _tut_step_skipped(i: int) -> bool:
 		7:  # no skill point held and nothing learned: nothing to teach yet
 			return skill_points <= 0 and learned_skills.is_empty()
 		8:  # the permit line needs a held point
-			return skill_points <= 0 and not has_skill("C1")
+			return skill_points <= 0 and not has_skill("FND_PERMIT")
 	return false
 
 ## Game tips on the right board: one short tip per cycle, rotating. Never tutorial text.

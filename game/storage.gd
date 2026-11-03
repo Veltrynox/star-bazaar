@@ -31,7 +31,7 @@ func established(key: String) -> bool:
 static func planet_key(i: int) -> String:
 	return "planet:%d" % i
 
-var capacity_mult := 1.0  # A2 Deep Holds: planet containers only; main sets it from the learned skills
+var capacity_mult := 1.0  # BIO_3 (storage_cap_pct): planet containers only; main sets it from Skills
 
 ## Seam for space storage: override per container kind here (e.g. "system:" bigger).
 func capacity_of(key: String) -> int:

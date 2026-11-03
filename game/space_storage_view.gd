@@ -81,9 +81,9 @@ func refresh() -> void:
 	_fabric_rows()
 	size = Vector2.ZERO
 
-## Fabric block, only in system 1 once F1 is learned: build button with the cost, then the recipe and its status.
+## Fabric block, only in system 1 once MIN_1 is learned: build button with the cost, then the recipe and its status.
 func _fabric_rows() -> void:
-	if system_id != main.Fabric.SYSTEM or not main.has_skill("F1"):
+	if system_id != main.Fabric.SYSTEM or not main.has_skill("MIN_1"):
 		return
 	var f = main.fabric
 	var unrouted: Array = [] if f.built else main.fabric_inputs_unrouted()

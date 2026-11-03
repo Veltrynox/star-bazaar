@@ -31,8 +31,6 @@ static var mods: Dictionary = {}        # "b|m" -> {strength_mult, growth_mult, 
 static var win_streak: Dictionary = {}  # market -> consecutive cycle-ends over win_share_pct
 static var sweep_streak: int = 0
 static var cycles: int = 0              # cycles recorded
-## True once the BIO_5 effect exists (later goal). Until then the window is share_window for every market.
-static var bio_bonus: bool = false
 
 static func load_data() -> void:
 	_loaded = true
@@ -107,21 +105,21 @@ static func value_of(good: String) -> int:
 	return int(base_value.get(good, 0))
 
 ## Counts a sale of `units` of `good` into the current cycle: units x base_value. Sell orders and route-delivery sales only.
-static func add_sale(good: String, units: int) -> void:
+## up_units = how many of the units were sold at a planet with a price-up event (LUX_5 counts those extra).
+## Volume skills raise share volume only; the sale price skills never reach here (share uses base_value).
+static func add_sale(good: String, units: int, up_units: int = 0) -> void:
 	_ensure()
 	var m := market_of(good)
 	if m == "" or units <= 0 or not cur.has(m):
 		return
-	var v := float(units * value_of(good))
+	var v := float(units * value_of(good)) * Skills.volume_mult(m)
+	v += float(mini(up_units, units) * value_of(good)) * Skills.volume_bonus_price_up(m)
 	cur[m] = float(cur[m]) + v
 	if not is_common(good):
 		cur_active[m] = float(cur_active[m]) + v
 
 static func window_for(m: String) -> int:
-	var w := int(bal.get("share_window", 8))
-	if bio_bonus and m == "bio":
-		w = int(bal.get("share_window_bio_bonus", w))
-	return w
+	return Skills.share_window(m, int(bal.get("share_window", 8)))
 
 static func _sum_window(arr: Array, w: int, idx: int = -1) -> float:
 	var t := 0.0
@@ -188,24 +186,42 @@ static func bot_history(b: int, m: String) -> Array:
 static func size_pct(size: String) -> float:
 	return float(bal.get("event_hit_%s" % size.to_lower(), 0.0)) if ["S", "M", "L"].has(size.to_upper()) else 0.0
 
-## Modifiers of bot b in market m (a copy; neutral values when never hit).
-static func bot_mods(b: int, m: String) -> Dictionary:
-	var out := {"strength_mult": 1.0, "growth_mult": 1.0, "growth_add": 0.0, "tier_offset": 0}
+## Stored modifiers of bot b in market m (a copy, neutral when never hit), with the list of temporary hits.
+static func _raw_mods(b: int, m: String) -> Dictionary:
+	var out := {"strength_mult": 1.0, "growth_mult": 1.0, "growth_add": 0.0, "tier_offset": 0, "temps": []}
 	var d = mods.get("%d|%s" % [b, m])
 	if typeof(d) == TYPE_DICTIONARY:
 		for k in out.keys():
 			if d.has(k):
-				out[k] = d[k]
+				out[k] = d[k].duplicate() if k == "temps" else d[k]
+	return out
+
+## Modifiers of bot b in market m (a copy; neutral values when never hit). Temporary hits (hit_bot with until) count
+## while cycle <= until; cycle -1 means the cycle now under way. Skill effects that last the whole run are not stored
+## here (Skills.bot_strength_mult / bot_growth_mult are applied in end_cycle).
+static func bot_mods(b: int, m: String, cycle: int = -1) -> Dictionary:
+	var out := _raw_mods(b, m)
+	var now := cycles + 1 if cycle < 0 else cycle
+	for t in out["temps"]:
+		if now <= int(t["until"]):
+			var k := "strength_mult" if str(t["stat"]) == "strength" else "growth_mult"
+			out[k] = maxf(0.0, float(out[k]) * (1.0 + float(t["amount"])))
+	out.erase("temps")
 	return out
 
 ## Event hit on bot b in market m. stat "strength" or "growth": amount is a signed fraction (-0.15 = -15%), multiplies
 ## (stacking). stat "tier": amount is an int step (-1), offset clamped to -3..3 (effective tier is clamped to 1..4 in Bots.tier).
 ## Applies from the next end_cycle on; recorded history is never rewritten. Returns false for a bad bot, market or stat.
-static func hit_bot(b: int, m: String, stat: String, amount: float) -> bool:
+## until >= 0 makes a strength or growth hit temporary: it counts through that cycle number, then expires (saved).
+static func hit_bot(b: int, m: String, stat: String, amount: float, until: int = -1) -> bool:
 	_ensure()
 	if not Bots.IDS.has(b) or not ids.has(m):
 		return false
-	var d := bot_mods(b, m)
+	var d := _raw_mods(b, m)
+	if until >= 0 and (stat == "strength" or stat == "growth"):
+		d["temps"].append({"stat": stat, "amount": amount, "until": until})
+		mods["%d|%s" % [b, m]] = d
+		return true
 	match stat:
 		"strength":
 			d["strength_mult"] = maxf(0.0, float(d["strength_mult"]) * (1.0 + amount))
@@ -228,14 +244,20 @@ static func end_cycle(cycle: int) -> void:
 			var k := "%d|%s" % [b, m]
 			if cycle > 3 and prev < float(bal.get("bot_gap_share_pct", 0.0)):
 				gap[k] = float(gap.get(k, 0.0)) + float(bal.get("bot_gap_growth", 0.0))
-			var md := bot_mods(b, m)
+			var md := bot_mods(b, m, cycle)
 			row.append(Bots.volume(bal, run_seed, b, m, cycle, float(gap.get(k, 0.0)), int(tier_off.get(str(b), 0)) + int(md["tier_offset"]),
-				float(md["strength_mult"]), float(md["growth_mult"]), float(md["growth_add"])))
+				float(md["strength_mult"]) * Skills.bot_strength_mult(m), float(md["growth_mult"]) * Skills.bot_growth_mult(m), float(md["growth_add"])))
 		vb[m].append(row)
 		vp[m].append(float(cur[m]))
 		vp_active[m].append(float(cur_active[m]))
 		cur[m] = 0.0
 		cur_active[m] = 0.0
+	for k in mods.keys():  # temporary hits that ran through this cycle are over
+		var left := []
+		for t in mods[k].get("temps", []):
+			if int(t["until"]) > cycle:
+				left.append(t)
+		mods[k]["temps"] = left
 	cycles += 1
 	var win_pct := float(bal.get("win_share_pct", 0.5))
 	var earliest := int(bal.get("win_earliest_cycle", 0))
@@ -331,7 +353,10 @@ static func from_dict(d, balance: Dictionary) -> void:
 		for k in d["mods"].keys():
 			var src = d["mods"][k]
 			if typeof(src) == TYPE_DICTIONARY:
+				var temps := []
+				for t in src.get("temps", []):
+					temps.append({"stat": str(t["stat"]), "amount": float(t["amount"]), "until": int(t["until"])})
 				mods[str(k)] = {"strength_mult": float(src.get("strength_mult", 1.0)), "growth_mult": float(src.get("growth_mult", 1.0)),
-					"growth_add": float(src.get("growth_add", 0.0)), "tier_offset": int(src.get("tier_offset", 0))}
+					"growth_add": float(src.get("growth_add", 0.0)), "tier_offset": int(src.get("tier_offset", 0)), "temps": temps}
 	sweep_streak = int(d.get("sweep_streak", 0))
 	cycles = int(d.get("cycles", 0))

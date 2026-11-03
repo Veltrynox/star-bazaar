@@ -319,15 +319,27 @@ func random_id(skip: Array = [], cycle: int = 0) -> String:
 		return ""
 	return str(pool[rng.randi_range(0, pool.size() - 1)]["id"])
 
+## True when a price-up event runs at planet for commodity c (LUX_5 counts sales there extra).
+func price_up_at(planet: int, c: String) -> bool:
+	for a in active:
+		if a["kind"] == "up" and int(a["planet"]) == planet and str(a["c"]) == c:
+			return true
+	return false
+
 ## Factor on both buy and sell price of commodity c at a planet. next_cycle = the factor after one tick
-## (only effects with cycles left after this one; B3 Price Whisper shows it).
+## (only effects with cycles left after this one; LUX_1 Price Whisper shows it). Skills: event_bonus_pct makes price-up
+## events pay more, event_cut_pct makes price-down events weaker, by the market of c.
 func price_factor(planet: int, c: String, next_cycle: bool = false) -> float:
 	var f := 1.0
 	for a in active:
 		if next_cycle and int(a["left"]) < 2:
 			continue
 		if a["kind"] != "closed" and int(a["planet"]) == planet and str(a["c"]) == c:
-			f *= 1.0 + pct(c) * (1.0 if a["kind"] == "up" else -1.0)
+			var m := Markets.market_of(c)
+			if a["kind"] == "up":
+				f *= 1.0 + pct(c) * (1.0 + Skills.event_bonus(m))
+			else:
+				f *= 1.0 - pct(c) * (1.0 - Skills.event_cut(m))
 	return f
 
 ## Start a timed effect (price or closed). One-off effects need main: see apply_oneoff.
@@ -388,7 +400,7 @@ func tick() -> void:
 			keep.append(a)
 	active = keep
 
-## Planets closed right now. bridged = number of closed cycles covered by skills (A1, A2, B4).
+## Planets closed right now. bridged = closed cycles skipped (the reopen_sooner skills, BIO_6).
 func closed_list(bridged: int) -> Array:
 	var out: Array = []
 	for a in active:

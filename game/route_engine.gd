@@ -25,6 +25,7 @@ var storage: RefCounted
 var commodities: Array = []
 var routes: Array = []        # Array of route records (Dictionary)
 var mix: Dictionary = {}      # N3: planet -> {goods, bonus, mk} sold so far this cycle (mk: markets seen, common raws left out)
+var sales_up_units: Dictionary = {}  # good -> units of sales_units sold at a planet with a price-up event this settle
 var sales_units: Dictionary = {}  # Four Markets: good -> units sold this settle (Sell orders and stop sales); main feeds Markets
 var local: Dictionary = {}    # "<planet>|<c>" -> {planet, c, buy, sell, buy_state, sell_state}
 var next_id: int = 1
@@ -38,7 +39,6 @@ var dead_locked: Array = []  # planet indexes of dead worlds that are not open y
 var pirates_active := false  # runtime: true while a pirate volume cut is on (no pirate system yet; the Null Core is immune to it)
 var trade_gate: Callable = Callable()  # owner 2026-11-03: planet -> bool, false when its system has no Space Storage post (set by main)
 var positions_fn: Callable = Callable()  # route offset: () -> Array of world positions (Vector3) per planet index, set by main from the map
-var learned: Array = []  # T82: learned skill ids, set by main; effects come from balance.json keys
 var clusters: RefCounted = null  # T156: asteroid clusters (clusters.gd), set by main; null = no mining
 var cluster_budget: Dictionary = {}  # T156: runtime, set at the start of each settle: cluster index -> units it may still give this cycle
 var fare_paid := false  # runtime, per settle: true once a route has run this cycle (see fare_for)
@@ -159,7 +159,7 @@ func dead_skill_reason(src: int) -> String:
 	if src < 0 or src >= trade.planets.size():
 		return ""
 	var need := DeadWorlds.skill_for(trade.planets[src])
-	if need != "" and not learned.has(need):
+	if need != "" and not Skills.is_learned(need):
 		return StoryText.get_or("NOT_DEAD_NEEDS_SKILL", "Needs {skill}.", {"skill": SkillTree.skill_name(need)})
 	return ""
 
@@ -170,22 +170,20 @@ static func has_core(rec) -> bool:
 func planet_open(i: int) -> bool:
 	return i >= 0 and i < trade.planets.size() and not closed_planets.has(i)
 
-## Units a ship moves per cycle.
-func units_per_cycle(rec = null) -> int:
+## Units a ship moves per cycle. A route record (or a good id) lets route_capacity_pct skills apply to that market.
+func units_per_cycle(rec = null, good: String = "") -> int:
 	var legs := 2.0 if has_stop(rec) else 1.0  # N9: a stop adds one more leg of travel
 	var base := float(trade.capacity()) / (2.0 * maxf(0.0001, trade.travel_cycles()) * legs)
 	base *= Ships.cargo_mult(kind_of(rec), balance)  # T58
-	if learned.has("A4"):
-		base *= 1.0 + float(balance.get("skill_A4_route_units", 0))
+	var carried := good if good != "" else (str(rec.get("c", "")) if typeof(rec) == TYPE_DICTIONARY else "")
+	if carried != "":
+		base *= Skills.route_capacity_mult(Markets.market_of(carried))
 	return floori(base)
 
-## Units a local Buy / Sell order handles per cycle (T82: order_amount, own key; B2 raises it).
+## Units a local Buy / Sell order handles per cycle (T82: order_amount, own key; order_size_pct skills raise it).
 ## Shared pool: one order record per planet + commodity and role, so routes touching that storage share it.
 func local_amount() -> int:
-	var base := float(balance.get("order_amount", 0))
-	if learned.has("B2"):
-		base *= 1.0 + float(balance.get("skill_B2_order_units", 0))
-	return floori(base)
+	return floori(float(balance.get("order_amount", 0)) * Skills.order_size_mult())
 
 ## Fixed cost per cycle of a route that moves stock (trip + ship upkeep).
 func fixed_cost(rec = null) -> int:
@@ -228,9 +226,11 @@ func _add_mk(seen: Array, c: String) -> Array:
 		out.append(m)
 	return out
 
-func _note_sale(c: String, n: int) -> void:
+func _note_sale(c: String, n: int, planet: int = -1) -> void:
 	if n > 0:
 		sales_units[c] = int(sales_units.get(c, 0)) + n
+		if planet >= 0 and trade.events != null and trade.events.price_up_at(planet, c):  # LUX_5 counts these extra
+			sales_up_units[c] = int(sales_up_units.get(c, 0)) + n
 
 ## T69: trip cost part of the fixed cost.
 func trip_part() -> int:
@@ -261,8 +261,7 @@ func offset_maint_mult(rec = null) -> float:
 func upkeep_part(rec = null) -> int:
 	var upkeep := float(balance.get("maintenance", 0)) * Ships.upkeep_mult(kind_of(rec), balance)  # T58
 	upkeep *= offset_maint_mult(rec)
-	if learned.has("A5"):
-		upkeep *= 1.0 - float(balance.get("skill_A5_upkeep", 0))
+	upkeep *= Skills.upkeep_mult()
 	return floori(upkeep / maxf(1.0, float(balance.get("maintenance_interval", 1))))
 
 ## T70: outflow at a destination = an enabled local Sell order for the commodity there, or an
@@ -343,11 +342,13 @@ func salvage_offer(planet: int, c: String) -> Dictionary:
 	var share: float = minf(float(balance.get("salvage_share", 0.4)), 0.99)  # always below a Sell order
 	return {"units": units, "n": mini(roundi(float(m) * share), maxi(m - 1, 0)), "m": m}
 
-## Credits per unit a Sell order or a route's delivery earns. B3 Price Whisper adds skill_B3_margin; unlearned = the plain price.
+## Credits per unit a Sell order or a route's delivery earns. sale_price_pct skills raise it (cash only: share volume
+## uses base values, Markets.add_sale); no skill = the plain price.
 func sold_price(planet: int, c: String) -> int:
 	var p := local_price(planet, c, "sell")
-	if p > 0 and learned.has("B3"):
-		return roundi(float(p) * (1.0 + float(balance.get("skill_B3_margin", 0.0))))
+	var f := Skills.sale_price_mult(Markets.market_of(c))
+	if p > 0 and f != 1.0:
+		return roundi(float(p) * f)
 	return p
 
 ## Credits per cycle a route earns on this lane: units a ship moves times (sell price at the far end, with B3, minus buy price here).
@@ -356,7 +357,7 @@ func route_margin(src: int, dst: int, c: String, level: int = 1) -> int:
 	var s: int = sold_price(dst, c)
 	if b < 0 or s < 0:
 		return 0
-	var m: int = units_per_cycle() * (s - b)
+	var m: int = units_per_cycle(null, c) * (s - b)
 	if level >= 2 and m > 0:  # T145: route upgrade
 		m = roundi(float(m) * (1.0 + float(balance.get("upgrade_margin_bonus", 0.0)) * float(level - 1)))
 	return m
@@ -365,7 +366,7 @@ func route_margin(src: int, dst: int, c: String, level: int = 1) -> int:
 func margin_below_upkeep(src: int, dst: int, c: String) -> bool:
 	return route_margin(src, dst, c) < fixed_cost()
 
-## B3 Price Whisper (moved from B1 in T158): the open planet where carrying c from here earns most per unit, {planet, margin}; planet -1 when none pays.
+## LUX_1 Price Whisper: the open planet where carrying c from here earns most per unit, {planet, margin}; planet -1 when none pays.
 func best_partner(src: int, c: String) -> Dictionary:
 	var best := {"planet": -1, "margin": 0}
 	for i in trade.planets.size():
@@ -423,17 +424,17 @@ func check_connection(src: int, dst: int, c: String, new_route: bool = true) -> 
 		return {"ok": false, "reason": dead_lock_reason(dst)}
 	if new_route and dead_skill_reason(src) != "":  # dead world: mining needs its skill (M1 Cold Survey, M2 Deep Cut); saved routes stay
 		return {"ok": false, "reason": dead_skill_reason(src)}
-	if int(trade.planets[src].get("system", 1)) != int(trade.planets[dst].get("system", 1)) and not learned.has("C3"):
-		return {"ok": false, "reason": StoryText.get_text("NOT_ROUTE_NEEDS_C3")}  # C3 Long Haul
+	if int(trade.planets[src].get("system", 1)) != int(trade.planets[dst].get("system", 1)) and not Skills.unlocked("permit_routes"):
+		return {"ok": false, "reason": StoryText.get_text("NOT_ROUTE_NEEDS_C3")}
 	return {"ok": true, "reason": ""}  # T87: a second ship on the same lane is allowed
 
 ## T156: a route that starts at a cluster. Needs the mining skill, a known cluster that still has ore (new routes only),
-## a planet destination that is open, and C3 for another system. Ore is free to load; the cost is the lane (fixed_cost).
+## a planet destination that is open, and FND_PERMIT for another system. Ore is free to load; the cost is the lane (fixed_cost).
 func check_cluster(node: int, dst: int, c: String, new_route: bool = true) -> Dictionary:
 	var i := Clusters.index_of(node)
 	if clusters == null or not clusters.valid(i):
 		return {"ok": false, "reason": "No such cluster."}
-	if new_route and not learned.has(Clusters.MINING_SKILL):  # a saved route loads before the skills do and stays
+	if new_route and not Skills.unlocked("cluster_routes"):  # a saved route loads before the skills do and stays
 		return {"ok": false, "reason": StoryText.get_or("NOT_MINING_NEEDS_SKILL", "Mining needs the Prospecting skill.")}
 	if c != clusters.good_of(i) or not commodities.has(c):
 		return {"ok": false, "reason": StoryText.get_or("NOT_CLUSTER_ONLY_ORE", "This cluster gives ore only.")}
@@ -445,7 +446,7 @@ func check_cluster(node: int, dst: int, c: String, new_route: bool = true) -> Di
 		return {"ok": false, "reason": "A planet on this route is closed."}
 	if dead_lock_reason(dst) != "":
 		return {"ok": false, "reason": dead_lock_reason(dst)}
-	if clusters.system_of(i) != int(trade.planets[dst].get("system", 1)) and not learned.has("C3"):
+	if clusters.system_of(i) != int(trade.planets[dst].get("system", 1)) and not Skills.unlocked("permit_routes"):
 		return {"ok": false, "reason": StoryText.get_text("NOT_ROUTE_NEEDS_C3")}
 	return {"ok": true, "reason": ""}
 
@@ -482,7 +483,7 @@ func _check_station(src: int, sid: int, c: String) -> Dictionary:
 			known = true
 	if not known:
 		return {"ok": false, "reason": "No such system."}
-	if int(trade.planets[src].get("system", 1)) != sid and not learned.has("C3"):
+	if int(trade.planets[src].get("system", 1)) != sid and not Skills.unlocked("permit_routes"):
 		return {"ok": false, "reason": StoryText.get_text("NOT_ROUTE_NEEDS_C3")}
 	return {"ok": true, "reason": ""}
 
@@ -544,9 +545,9 @@ func stop_open(rec: Dictionary) -> bool:
 	return planet_open(k) and local_on(k, c, "sell") and sold_price(k, c) > 0 and (not trade_gate.is_valid() or bool(trade_gate.call(k)))
 
 ## T70: full destination, no source stock check: true when the route cannot add a unit now.
-## T85: Space Storage of the source planet's system, "" when there is none (needs skill A1 and an established post).
+## T85: Space Storage of the source planet's system, "" when there is none (needs FND_STORAGE and an established post).
 func space_key_for(planet: int) -> String:
-	if not learned.has("A1") or planet < 0 or planet >= trade.planets.size():
+	if not Skills.unlocked("space_storage") or planet < 0 or planet >= trade.planets.size():
 		return ""
 	var k: String = storage.system_key(int(trade.planets[planet].get("system", 1)))
 	return k if storage.established(k) else ""
@@ -976,6 +977,7 @@ func settle(cash: int) -> Dictionary:
 	var orders: Array = local.values()
 	mix = {}
 	sales_units = {}
+	sales_up_units = {}
 	var amt_now := func(k: String, c: String) -> int: return storage.amount(k, c)
 	for o in orders:  # 1 local buys; they may not spend the fixed cost of a route that runs this cycle
 		if o["buy"]:
@@ -1029,7 +1031,7 @@ func _run_local(o: Dictionary, role: String, cash: int, out: Array) -> int:
 				var b := mixed_bonus(int(r["credits"]), int(m["goods"]), int(m["bonus"]), _cross_with(m["mk"], c))
 				r["credits"] = int(r["credits"]) + b
 				mix[planet] = {"goods": int(m["goods"]) + 1, "bonus": int(m["bonus"]) + b, "mk": _add_mk(m["mk"], c)}
-				_note_sale(c, n)
+				_note_sale(c, n, planet)
 	o[role + "_state"] = r["state"]
 	out.append({"planet": planet, "c": c, "role": role, "n": n, "paid": int(r["credits"]), "state": r["state"]})
 	return int(r["credits"])
@@ -1096,7 +1098,7 @@ func _settle_one(rec: Dictionary, cash: int) -> int:
 		var sold := mini(from_planet, local_amount())
 		sale = sold * sold_price(int(rec["stop"]), c)
 		carried = from_planet - sold
-		_note_sale(c, sold)
+		_note_sale(c, sold, int(rec["stop"]))
 	storage.add(dst, c, carried)
 	_spend_split(rec, moved)  # N2
 	rec["stop_sale"] = sale  # N11: read by main to spot a first sale in system 2

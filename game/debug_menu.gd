@@ -3,7 +3,7 @@ extends PanelContainer
 ## map/camera tunables. Toggle with the backtick key. Debug builds only (main.gd creates
 ## it only when OS.is_debug_build()), so release exports never show it.
 ##
-## T13 QA section (add_qa_tools): events, debris, permits, A1 gate, ships, cash and points, notices,
+## T13 QA section (add_qa_tools): events, debris, permits, skills and tech, ships, cash and points, notices,
 ## tutorial, galaxy view, save. Every balance key stays editable below (ship_cap, saturation, orders...).
 ## Edits are runtime only: balance values are changed in place in main.balance (the same
 ## Dictionary trade.gd reads), targets in a private copy, map tunables on the map node.
@@ -172,9 +172,17 @@ func event_state_text() -> String:
 	lines.append("Pending: %s  Force next: %s" % [ev.pending_id if ev.pending_id != "" else "none", str(main.debug_force_event)])
 	return "\n".join(lines)
 
-func gate_text() -> String:
-	return "A1 gate %s (needs 2 routes). Planets visited %s, routes made %d. Space Storage posts: %s" % ["OPEN" if main.a1_gate_open() else "closed",
-		str(main.pts_planets), main.pts_pairs.size(), str(main.open_systems.filter(func(s): return main.space_post_open(int(s))))]
+## Skills and tech state: learned ids, tech progress (crafted of goal), bot skills and Space Storage posts.
+func skills_text() -> String:
+	var lines: Array = ["Learned: " + (", ".join(main.learned_skills) if not main.learned_skills.is_empty() else "none") + ". Points: %d" % main.skill_points]
+	for id in SkillTree.all_ids():
+		if SkillTree.is_tech(id) and Tech.is_active(id):
+			var pr := Tech.progress(id)
+			lines.append("Researching %s: %d of %d" % [id, int(pr["n"]), int(pr["goal"])])
+	for id in Skills.bot_skill_ids():
+		lines.append("Bot skill %s: %s" % [id, "ready" if Skills.bot_skill_ready(id) else "wait %d" % Skills.bot_skill_cooldown(id)])
+	lines.append("Space Storage posts: " + str(main.open_systems.filter(func(s): return main.space_post_open(int(s)))))
+	return "\n".join(lines)
 
 func ships_text() -> String:
 	var lines: Array = ["Ships %d/%d, free %d" % [main.ships, int(main.balance.get("ship_cap", 0)),
@@ -222,9 +230,18 @@ func add_qa_tools() -> void:
 	_qa_button("grant_permit", "Grant permit (free)", func(): main.debug_grant_permit(_sel(po)); _refresh_qa())
 	_qa_label("open_systems")
 	_qa_section("QA: Space Storage")
-	_qa_button("gate_open", "Set A1 gate: two routes made", func(): main.debug_set_a1_gate(true); _refresh_qa())
-	_qa_button("gate_reset", "Clear A1 gate inputs (routes and planets)", func(): main.debug_set_a1_gate(false); _refresh_qa())
-	_qa_label("gate_state")
+	_qa_section("QA: skills and tech")
+	var cm := OptionButton.new()
+	for mid in Markets.ids:
+		cm.add_item(str(Markets.names[mid]))
+		cm.set_item_metadata(cm.item_count - 1, str(mid))
+	_qa.add_child(cm)
+	qa["craft_market"] = cm
+	var cn := _spin(3, 1, 100, 1, func(_v): pass)
+	_add_qa_row("Crafted units", [cn])
+	qa["craft_units"] = cn
+	_qa_button("craft_add", "Add crafted units (counts toward that market's techs)", func(): main.craft_units(str(cm.get_item_metadata(cm.selected)), int(cn.value)); _refresh_qa())
+	_qa_label("skill_state")
 	_qa_section("QA: ships and routes")
 	_qa_button("ship_small", "Add small ship (free)", func(): main.debug_add_ship("small"); _refresh_qa())
 	var rid := _spin(1, 1, 9999, 1, func(_v): pass)
@@ -363,7 +380,7 @@ func _refresh_qa() -> void:
 		return
 	(qa["event_state"] as Label).text = event_state_text()
 	(qa["open_systems"] as Label).text = "Open systems: " + str(main.open_systems)
-	(qa["gate_state"] as Label).text = gate_text()
+	(qa["skill_state"] as Label).text = skills_text()
 	(qa["ship_state"] as Label).text = ships_text()
 	(qa["tutorial_state"] as Label).text = tutorial_text()
 	if qa.has("route_keys"):

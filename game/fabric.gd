@@ -1,7 +1,7 @@
 extends RefCounted
 ## The fabric (design/proposals/2026-11-02-dead-planets.md sections 3 and 4): a standing order at the trading post
 ## (the system 1 space station) that turns dross and nullglass into Lattice Plate (id "plate", placeholder name).
-## Needs skill F1, then a one-time build cost. Every number is in balance.json: fabric_build_cost, fabric_in_dross,
+## Needs skill MIN_1, then a one-time build cost. Every number is in balance.json: fabric_build_cost, fabric_in_dross,
 ## fabric_in_nullglass, fabric_out_plate, fabric_batches_per_cycle. The fabric moves goods only inside the company
 ## storage (system 1 Space Storage); it never moves credits during a cycle, so forecast and settle agree.
 ## Saved by main under "fabric": {built, state, reason}. Old saves: not built.
@@ -75,6 +75,7 @@ func run(storage: RefCounted) -> void:
 			storage.remove(key, c, need_of(c))
 		made += storage.add(key, OUTPUT, out_n)
 	if made > 0:
+		Tech.add_crafted(Markets.market_of(OUTPUT), made)  # plate is a Minerals good: counts toward the Minerals techs
 		state = "running"
 		reason = ""
 	else:

@@ -155,7 +155,7 @@ func _row(c: String, prices: Dictionary, pend: Dictionary) -> Control:
 			ev.text = StoryText.get_or("LBL_PRICE_EVENT", "{arrow} Event, {cycles} cycles left", {"arrow": arrow, "cycles": int(a["left"])})
 			ev.theme_type_variation = "LabelAccent"
 			row.add_child(ev)
-	if main.has_skill("B3"):  # Price Whisper: best partner and the prices the next cycle starts with
+	if Skills.reveal_cycles() > 0:  # LUX_1 Price Whisper: best partner and the prices the next cycle starts with
 		var bpl: String = main.best_partner_line(planet_index, c)
 		if bpl != "":
 			var bl := Label.new()
@@ -439,7 +439,7 @@ func _update_split_tags(c: String) -> void:
 		if not sp.is_empty():
 			t.text = StoryText.get_or("LBL_SPLIT_TAG", "Split {share}%", {"share": roundi(float(sp["share"]) * 100.0)})
 
-## T85: Space Storage of this planet's system (skill A1): stock per commodity, no orders on it.
+## T85: Space Storage of this planet's system (skill FND_STORAGE): stock per commodity, no orders on it.
 func _space_section() -> void:
 	var sid: int = int(main.map.planets[planet_index].get("system", 1))
 	if not main.space_post_open(sid):
