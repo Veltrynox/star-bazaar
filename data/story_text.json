@@ -901,63 +901,129 @@
  },
  {
   "id": "TUT_G1_SELECT",
-  "text": "Click a planet. Its panel shows what it makes, what it lacks and what it sells for.",
-  "max": 110,
+  "text": "Click the ringed planet.",
+  "max": 60,
   "place": "Guided step 1, until a planet is clicked"
  },
  {
-  "id": "TUT_G2_BUY",
-  "text": "Turn Buy on beside a good. Each cycle the company buys it here, into storage.",
+  "id": "TUT_G1_SELECT_WHY",
+  "text": "Its panel shows what it sells, what it buys and what the company can trade there.",
   "max": 110,
+  "place": "Guided step, why it matters (second line of the card)"
+ },
+ {
+  "id": "TUT_G2_BUY",
+  "text": "Press Buy on a good you want to trade.",
+  "max": 60,
   "place": "Guided step 2, until Buy is on for a good"
  },
  {
-  "id": "TUT_G3_SEND",
-  "text": "On that storage row, click Send to..., then click another planet. Stock moves there each cycle.",
+  "id": "TUT_G2_BUY_WHY",
+  "text": "A Buy order fills your storage on this planet each cycle.",
   "max": 110,
+  "place": "Guided step, why it matters (second line of the card)"
+ },
+ {
+  "id": "TUT_G3_SEND",
+  "text": "Press Send to... and pick a planet.",
+  "max": 60,
   "place": "Guided step 3, until a route exists"
  },
  {
-  "id": "TUT_G4_ROUTE_PAY",
-  "text": "A route earns when its goods sell at the destination. Turn Sell on there.",
+  "id": "TUT_G3_SEND_WHY",
+  "text": "Pick a planet that wants the good. A route carries your goods there by ship.",
   "max": 110,
+  "place": "Guided step, why it matters (second line of the card)"
+ },
+ {
+  "id": "TUT_G4_ROUTE_PAY",
+  "text": "Let the route sell at the destination.",
+  "max": 60,
   "place": "Guided step 4, until a route has sold goods"
  },
  {
-  "id": "TUT_G5_UPKEEP",
-  "text": "Each ship costs Ship upkeep every cycle. The total is shown in Expenses.",
+  "id": "TUT_G4_ROUTE_PAY_WHY",
+  "text": "The route earns when it sells there. That is where your money comes from.",
   "max": 110,
+  "place": "Guided step, why it matters (second line of the card)"
+ },
+ {
+  "id": "TUT_G5_UPKEEP",
+  "text": "Find Ship upkeep under Expenses.",
+  "max": 60,
   "place": "Guided step 5, after a ship is working"
  },
  {
-  "id": "TUT_G6_SELL",
-  "text": "Turn Sell on beside a good. Stock leaves Company storage and the company is paid.",
+  "id": "TUT_G5_UPKEEP_WHY",
+  "text": "A ship costs money every cycle, so a route must earn more than it costs.",
   "max": 110,
+  "place": "Guided step, why it matters (second line of the card)"
+ },
+ {
+  "id": "TUT_G6_SELL",
+  "text": "Press Sell at the destination.",
+  "max": 60,
   "place": "Guided step 6, until the first Sell order"
  },
  {
-  "id": "TUT_G7_STORAGE",
-  "text": "Company storage holds your stock. When it is full, Buy waits until there is room.",
+  "id": "TUT_G6_SELL_WHY",
+  "text": "A Sell order turns your stock into credits.",
   "max": 110,
+  "place": "Guided step, why it matters (second line of the card)"
+ },
+ {
+  "id": "TUT_G7_STORAGE",
+  "text": "Watch the Company storage bar.",
+  "max": 60,
   "place": "Guided step 7, storage"
  },
  {
-  "id": "TUT_G8_SKILLS",
-  "text": "Open Skills and learn one. Skill points come from planets, routes and systems.",
+  "id": "TUT_G7_STORAGE_WHY",
+  "text": "Company storage holds your goods on a planet. When it is full, Buy waits.",
   "max": 110,
+  "place": "Guided step, why it matters (second line of the card)"
+ },
+ {
+  "id": "TUT_G8_SKILLS",
+  "text": "Open Skills and learn one.",
+  "max": 60,
   "place": "Guided step 8, until a skill is learned"
  },
  {
-  "id": "TUT_G9_PERMIT",
-  "text": "Permit Charter (C1) lets you buy a permit that opens a new system.",
+  "id": "TUT_G8_SKILLS_WHY",
+  "text": "Spend an expansion point. Skills unlock bigger storage, longer routes and the permit.",
   "max": 110,
+  "place": "Guided step, why it matters (second line of the card)"
+ },
+ {
+  "id": "TUT_G9_PERMIT",
+  "text": "Learn Permit Charter (C1).",
+  "max": 60,
   "place": "Guided step 9, permits"
  },
  {
-  "id": "TUT_G10_DONE",
-  "text": "That is the loop: buy, move, sell, learn. The guidance stops here. You are on your own.",
+  "id": "TUT_G9_PERMIT_WHY",
+  "text": "It lets you open a new system, and a new system has more planets to trade with.",
   "max": 110,
+  "place": "Guided step, why it matters (second line of the card)"
+ },
+ {
+  "id": "TUT_G10_DONE",
+  "text": "The tutorial is done. The rest is yours.",
+  "max": 60,
   "place": "Guided step 10, the last"
+ },
+ {
+  "id": "TUT_HEADER",
+  "text": "Tutorial",
+  "max": 24,
+  "place": "Header of the guided tutorial card"
+ },
+ {
+  "id": "TUT_STEP_COUNT",
+  "text": "{n} of {total}",
+  "max": 24,
+  "place": "Tutorial card, step counter; {n} is the step, {total} the number of steps"
  },
  {
   "id": "MAP_ARROW_PERMIT",

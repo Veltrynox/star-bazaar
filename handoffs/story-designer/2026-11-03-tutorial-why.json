@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-11-03",
+  "task": "tutorial-why",
+  "status": "done",
+  "files_changed": ["story/screens.md", "story/voice.md", "data/story_text.json"],
+  "open_questions": [],
+  "handoff": "Rewrote TUT_G1_SELECT to TUT_G10_DONE so each line says what to click and why (max 110 chars, all within limit). Added TUT_HEADER = 'Tutorial' (max 24) for the card header. No old tutorial line says it is shown in notifications. Built with tools/build_story.py. Split into step line (max 60) plus _WHY (max 110, G1-G9) and TUT_STEP_COUNT. Programmer: wire TUT_HEADER as the card header.",
+  "details": {}
+}

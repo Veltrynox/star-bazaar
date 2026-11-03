@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-03",
+  "task": "tutorial-card",
+  "status": "partial",
+  "files_changed": ["game/main.gd", "game/planet_panel.gd", "tools/tests/run_tests.gd", "handoffs/ui-programmer/2026-11-03-tutorial-card.json"],
+  "open_questions": [
+    "Story ids needed: <step id>_WHY (for example TUT_G2_BUY_WHY) for the why line, and TUT_STEP_COUNT ('{n} of {total}'). TUT_HEADER already exists. Until then the why line is hidden and the count uses the English fallback.",
+    "Top bar has no Expenses line (expenses live in the cash popup), so TUT_G5_UPKEEP outlines the cash block in the top bar. Is that right?",
+    "Not checked on screen: card position and look, outline alignment and pulse, ring on the planet. Git not used."
+  ],
+  "handoff": "Card: own PanelContainer at the top of the right column, above the Notifications board, below the top bar, clear of the map. Header TUT_HEADER (caption), 'n of 10' at the right, step line, why line (hidden until story ids exist), Skip (ghost) and Next (primary). Notifications now hold only notices. Highlight: pulsing star_warm outline Panel (main.gd tut_hl) follows the control each frame; hides when the step ends or the control is hidden; clicks pass through. Map: 1 planet ring (selected planet, else mission planet), 2 Buy button, 3 Send button, 4 route row in planet panel (else ship panel line), 5 top bar cash block, 6 Sell button, 7 first storage row, 8 Skills button (points figure), 9 Permit Charter in Skills window (window closed: Skills button), 10 none. Control not on screen (no planet selected, scrolled out): ring on the planet instead. Tests: 1025 pass, 0 fail."
+}

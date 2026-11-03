@@ -252,16 +252,27 @@ PLANET_UNHAPPY | 110 | Planet panel, resident unhappiness line when above zero; 
 NOT_SKILL_POP_TITLE | 32 | Pop-up title when expansion points are earned; {points} is the number earned | Skill point earned: +{points}
 
 ## Guided first steps (T124, 2026-10-31, owner item 3; shown one at a time, each moves on when done)
-TUT_G1_SELECT | 110 | Guided step 1, until a planet is clicked | Click a planet. Its panel shows what it makes, what it lacks and what it sells for.
-TUT_G2_BUY | 110 | Guided step 2, until Buy is on for a good | Turn Buy on beside a good. Each cycle the company buys it here, into storage.
-TUT_G3_SEND | 110 | Guided step 3, until a route exists | On that storage row, click Send to..., then click another planet. Stock moves there each cycle.
-TUT_G4_ROUTE_PAY | 110 | Guided step 4, until a route has sold goods | A route earns when its goods sell at the destination. Turn Sell on there.
-TUT_G5_UPKEEP | 110 | Guided step 5, after a ship is working | Each ship costs Ship upkeep every cycle. The total is shown in Expenses.
-TUT_G6_SELL | 110 | Guided step 6, until the first Sell order | Turn Sell on beside a good. Stock leaves Company storage and the company is paid.
-TUT_G7_STORAGE | 110 | Guided step 7, storage | Company storage holds your stock. When it is full, Buy waits until there is room.
-TUT_G8_SKILLS | 110 | Guided step 8, until a skill is learned | Open Skills and learn one. Skill points come from planets, routes and systems.
-TUT_G9_PERMIT | 110 | Guided step 9, permits | Permit Charter (C1) lets you buy a permit that opens a new system.
-TUT_G10_DONE | 110 | Guided step 10, the last | That is the loop: buy, move, sell, learn. The guidance stops here. You are on your own.
+TUT_G1_SELECT | 60 | Guided step 1, until a planet is clicked | Click the ringed planet.
+TUT_G1_SELECT_WHY | 110 | Guided step, why it matters (second line of the card) | Its panel shows what it sells, what it buys and what the company can trade there.
+TUT_G2_BUY | 60 | Guided step 2, until Buy is on for a good | Press Buy on a good you want to trade.
+TUT_G2_BUY_WHY | 110 | Guided step, why it matters (second line of the card) | A Buy order fills your storage on this planet each cycle.
+TUT_G3_SEND | 60 | Guided step 3, until a route exists | Press Send to... and pick a planet.
+TUT_G3_SEND_WHY | 110 | Guided step, why it matters (second line of the card) | Pick a planet that wants the good. A route carries your goods there by ship.
+TUT_G4_ROUTE_PAY | 60 | Guided step 4, until a route has sold goods | Let the route sell at the destination.
+TUT_G4_ROUTE_PAY_WHY | 110 | Guided step, why it matters (second line of the card) | The route earns when it sells there. That is where your money comes from.
+TUT_G5_UPKEEP | 60 | Guided step 5, after a ship is working | Find Ship upkeep under Expenses.
+TUT_G5_UPKEEP_WHY | 110 | Guided step, why it matters (second line of the card) | A ship costs money every cycle, so a route must earn more than it costs.
+TUT_G6_SELL | 60 | Guided step 6, until the first Sell order | Press Sell at the destination.
+TUT_G6_SELL_WHY | 110 | Guided step, why it matters (second line of the card) | A Sell order turns your stock into credits.
+TUT_G7_STORAGE | 60 | Guided step 7, storage | Watch the Company storage bar.
+TUT_G7_STORAGE_WHY | 110 | Guided step, why it matters (second line of the card) | Company storage holds your goods on a planet. When it is full, Buy waits.
+TUT_G8_SKILLS | 60 | Guided step 8, until a skill is learned | Open Skills and learn one.
+TUT_G8_SKILLS_WHY | 110 | Guided step, why it matters (second line of the card) | Spend an expansion point. Skills unlock bigger storage, longer routes and the permit.
+TUT_G9_PERMIT | 60 | Guided step 9, permits | Learn Permit Charter (C1).
+TUT_G9_PERMIT_WHY | 110 | Guided step, why it matters (second line of the card) | It lets you open a new system, and a new system has more planets to trade with.
+TUT_G10_DONE | 60 | Guided step 10, the last | The tutorial is done. The rest is yours.
+TUT_HEADER | 24 | Header of the guided tutorial card | Tutorial
+TUT_STEP_COUNT | 24 | Tutorial card, step counter; {n} is the step, {total} the number of steps | {n} of {total}
 
 ## Map edge arrow (T128, owner item 7)
 MAP_ARROW_PERMIT | 50 | Tooltip of the arrow at the edge of the 3D map when a permit or system can be opened; click opens Skills with the steps lit | A new system is within reach. Open Skills.

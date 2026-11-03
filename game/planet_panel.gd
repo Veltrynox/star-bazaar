@@ -269,6 +269,7 @@ func _storage_section() -> void:
 		var bar := RatingBar.new()
 		bar.level = main.storage.rating(key, str(c))
 		row.add_child(bar)
+		row.set_meta("tut_target", "storage")  # the guided tutorial outlines this row
 		row.add_child(Ui.good_icon(str(c), 16))
 		var l := Label.new()
 		l.text = "%s  %d/%d" % [Ui.good_name(str(c)), main.storage.amount(key, str(c)), cap]
@@ -510,6 +511,7 @@ func _connections() -> void:
 		for s in ships:
 			net += int(s["net"])
 		var row := RouteRow.new()
+		row.set_meta("tut_target", "route")  # the guided tutorial outlines this row
 		row.tooltip_text = StoryText.get_or("LBL_ROUTE_ROW_TIP", "Show this route's costs.")
 		var ic := TextureRect.new()
 		ic.texture = Ui.icon(str(first["c"]))

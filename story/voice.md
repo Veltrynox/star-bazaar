@@ -43,7 +43,7 @@ The player is "you" or "the company". Never a gender, never a name.
 - Planet names, ship names and the game name are capitalised. Branch names are capitalised: Logistics, Research, Expansion. Commodities are lower case: energy, food.
 - Story terms the Commons, the Plan, the Bureau, the Common Ledger, the Release: capitalised as shown (the Plan, the Bureau, the Commons). "five-cycle plan" is lower case.
 - Dash: use a comma or full stop, not a long dash.
-- Placeholders: {planet}, {planet_a}, {planet_b}, {commodity}, {amount}, {skill}, {cash}, {goal}, {arrow}, {cycles}, {n}, {m}, {cycle}, {branches} (count of branches with a skill learned), {systems} (count of systems reached), {cap} (credit cap of the Mixed load bonus, LBL_MIXED_LOAD, with {n} as the applied percent), {in} (units arriving next cycle), {out} (units leaving next cycle), {after} (stock after next cycle, LBL_NEXT_CYCLE). {branches} and {systems} are end screen stats only. The game fills them.
+- Placeholders: {planet}, {planet_a}, {planet_b}, {commodity}, {amount}, {skill}, {cash}, {goal}, {arrow}, {cycles}, {n}, {m}, {total}, {cycle}, {branches} (count of branches with a skill learned), {systems} (count of systems reached), {cap} (credit cap of the Mixed load bonus, LBL_MIXED_LOAD, with {n} as the applied percent), {in} (units arriving next cycle), {out} (units leaving next cycle), {after} (stock after next cycle, LBL_NEXT_CYCLE). {branches} and {systems} are end screen stats only. The game fills them.
 
 ## Glossary (exact terms)
 - Branches: Logistics, Research, Expansion.

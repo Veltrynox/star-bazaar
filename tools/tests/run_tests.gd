@@ -481,6 +481,45 @@ func _test_tutorial_steps() -> void:
 	check(m.tut_step == 4 or m.engine.routes.is_empty(), "tutorial steps: upkeep waits for a cycle with a route")
 	m.debug_restart_tutorial()
 	check(m.tut_step <= 1 and m.tut_skipped.is_empty(), "tutorial steps: restart goes back to the start")
+	# the tutorial card is its own panel, never part of the notifications board
+	var board: Node = m.notice_label.get_parent().get_parent()
+	check(m.tut_card != null and m.tut_card.visible and not board.is_ancestor_of(m.tut_card) and not board.is_ancestor_of(m.tutorial_label) and not board.is_ancestor_of(m.tut_actions), "tutorial card: not a child of the notifications board")
+	check(m.tut_card.get_parent() == m.right_col and m.tut_count.text == "1 of 10", "tutorial card: sits in the right column with a step count", m.tut_count.text)
+	# every guided step names a highlight target that exists for it (or the planet)
+	m.debug_restart_tutorial()
+	m.selected_planet = 1
+	m.planet_panel.show_planet(1)
+	m.planet_panel.visible = true
+	await process_frame
+	m.skill_screen.open_screen()
+	await process_frame
+	check(m.TUT_TARGET.size() == G.size(), "tutorial highlight: one target per step")
+	for i in G.size():
+		if m.TUT_TARGET[i] == "":
+			continue
+		m.tut_step = i
+		var hk: String = m._tut_highlight_key()
+		var ok: bool = hk == "planet" or m._tut_target_node(hk) != null
+		check(ok, "tutorial highlight: %s has a target in the scene or falls back to the planet" % G[i], hk)
+	m.tut_step = 4
+	check(m._tut_highlight_key() == "expenses" and m._tut_target_node("expenses") == m.cash_box, "tutorial highlight: expenses step outlines the top bar cash")
+	m.tut_step = 1
+	check(m._tut_target_node("buy") != null and m._tut_highlight_key() == "buy", "tutorial highlight: buy step outlines the Buy button")
+	m.tut_step = 7
+	check(m._tut_target_node("skills") == m.points_button, "tutorial highlight: skills step outlines the Skills button")
+	m.tut_step = 8
+	check(m._tut_target_node("permit") == m.skill_screen.node_buttons["C1"], "tutorial highlight: permit step outlines Permit Charter in the Skills window")
+	m.tut_step = 1
+	m._tut_update_highlight()
+	check(m.tut_hl.visible, "tutorial highlight: outline shows over the control")
+	m.planet_panel.visible = false
+	m.skill_screen.close_screen()
+	m.selected_planet = -1
+	check(m._tut_highlight_key() == "planet", "tutorial highlight: no planet panel falls back to the planet ring")
+	m.tut_step = 9
+	check(m._tut_highlight_key() == "", "tutorial highlight: last step has none")
+	m._tut_skip()
+	check(m.tut_step == G.size() and not m.tut_card.visible and not m.tut_hl.visible, "tutorial card: Skip ends the tutorial and hides card and outline")
 	await _free_main(m)
 
 func _new_main() -> Control:

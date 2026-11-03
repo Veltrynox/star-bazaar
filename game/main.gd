@@ -105,6 +105,10 @@ var mission_label: Label
 var tutorial_label: Label  # T15: first 4 cycles hint on the board
 var tut_actions: HBoxContainer  # Skip and Next under the guided hint, as in the galaxy view tutorial
 var tut_next: Button
+var tut_card: PanelContainer  # the guided tutorial card: its own panel at the top of the right column, not on the notifications board
+var tut_count: Label  # "2 of 10"
+var tut_why: Label  # the step's why line (story id <step id>_WHY), hidden when the story has none
+var tut_hl: Panel  # pulsing accent outline over the control the current step is about
 var tut_first: Dictionary = {}  # T15: one-time triggers already used this session
 ## T124 guided first steps: index into TUT_GUIDE; TUT_GUIDE.size() means done. Saved.
 const TUT_GUIDE := ["TUT_G1_SELECT", "TUT_G2_BUY", "TUT_G3_SEND", "TUT_G4_ROUTE_PAY", "TUT_G5_UPKEEP", "TUT_G6_SELL", "TUT_G7_STORAGE", "TUT_G8_SKILLS", "TUT_G9_PERMIT", "TUT_G10_DONE"]
@@ -1806,6 +1810,7 @@ func _cycle_seconds() -> float:
 	return float(balance.get("cycle_minutes", 2)) * 60.0
 
 func _process(delta: float) -> void:
+	_tut_update_highlight()
 	_update_station_markers()
 	_update_sell_offer_box()
 	if paused or game_over:
@@ -2660,6 +2665,8 @@ func _refresh() -> void:
 		ship_panel.set_count(ships, int(balance.get("ship_cap", 0)))
 		ship_panel.set_upkeep(self)
 		var target: int = mission_planet if ships == 0 else -1  # halo on the planet that sells the first ship
+		if tut_card != null and tut_card.visible and _tut_ring_planet() >= 0:
+			target = _tut_ring_planet()  # the guided step is about the map planet
 		map.set_hint(target, target >= 0)
 		mission_label.visible = ships == 0
 		mission_label.text = StoryText.get_or("LBL_MISSION_FIRST", "Mission: Send stock to another planet")
@@ -2676,6 +2683,15 @@ func _tut_show(ids: Array) -> void:
 	var t := "\n".join(parts).strip_edges()
 	tutorial_label.text = t
 	tutorial_label.visible = t != "" and (cycle <= 4 or tut_step < TUT_GUIDE.size()) and not game_over
+	if tut_card != null:
+		tut_card.visible = tutorial_label.visible
+		var guided: bool = tut_step < TUT_GUIDE.size()
+		tut_count.visible = guided
+		tut_why.text = StoryText.get_or(TUT_GUIDE[tut_step] + "_WHY", "", {}) if guided else ""
+		tut_why.visible = tut_why.text != ""
+		if guided:
+			tut_count.text = StoryText.get_or("TUT_STEP_COUNT", "{n} of {total}", {"n": tut_step + 1, "total": TUT_GUIDE.size()})
+	_tut_update_highlight()
 	if tut_actions != null:  # Skip and Next only while the guided steps run
 		tut_actions.visible = tutorial_label.visible and tut_step < TUT_GUIDE.size()
 		if tut_step < TUT_GUIDE.size():
@@ -2690,6 +2706,84 @@ func _tut_next() -> void:
 func _tut_skip() -> void:
 	tut_step = TUT_GUIDE.size()
 	_tut_show([])
+
+## Which control each guided step is about. "planet" = the pulsing ring on the map planet, "" = nothing.
+const TUT_TARGET := ["planet", "buy", "send", "route", "expenses", "sell", "storage", "skills", "permit", ""]
+
+func _tut_first_named(root: Node, prefix: String) -> Control:
+	var found: Control = null
+	for n in root.find_children(prefix + "*", "Control", true, false):
+		var c := n as Control
+		if c == null or not c.is_visible_in_tree():
+			continue
+		if c is BaseButton and (c as BaseButton).disabled:
+			found = found if found != null else c  # an enabled one is preferred
+			continue
+		return c
+	return found
+
+## The control for a target key, or null when it is not on screen at this moment.
+func _tut_target_node(key: String) -> Control:
+	var c: Control = null
+	match key:
+		"buy": c = _tut_first_named(planet_panel, "BuyButton_")
+		"send": c = _tut_first_named(planet_panel, "SendButton_")
+		"sell": c = _tut_first_named(planet_panel, "SellButton_")
+		"storage":
+			for n in planet_panel.find_children("*", "HBoxContainer", true, false):
+				if n.has_meta("tut_target") and n.get_meta("tut_target") == "storage" and (n as Control).is_visible_in_tree():
+					c = n
+					break
+		"route":
+			for n in planet_panel.find_children("*", "HBoxContainer", true, false):
+				if n.has_meta("tut_target") and n.get_meta("tut_target") == "route" and (n as Control).is_visible_in_tree():
+					c = n
+					break
+			if c == null and ship_panel != null and ship_panel.label != null and ship_panel.label.is_visible_in_tree():
+				c = ship_panel.label  # no planet panel route row: the ship panel line
+		"expenses": c = cash_box
+		"skills": c = points_button
+		"permit":
+			if skill_screen != null and skill_screen.visible and skill_screen.node_buttons.has("C1"):
+				c = skill_screen.node_buttons["C1"]
+			else:
+				c = points_button  # the Skills window is closed: point at the button that opens it
+	if c != null and c.is_visible_in_tree() and c.size.x > 0.0:
+		var sc := right_col.get_parent() as Control if right_col != null else null
+		if sc != null and sc.is_ancestor_of(c) and not sc.get_global_rect().encloses(c.get_global_rect()):
+			return null  # scrolled out of the column
+		return c
+	return null
+
+## "planet" when the step is about the map planet, or when its control is not on screen now. "" = no highlight.
+func _tut_highlight_key() -> String:
+	if tut_step >= TUT_TARGET.size() or TUT_TARGET[tut_step] == "":
+		return ""
+	var key: String = TUT_TARGET[tut_step]
+	if key != "planet" and _tut_target_node(key) == null:
+		return "planet"
+	return key
+
+## Map planet the ring marks for the current step: the selected one, else the mission planet.
+func _tut_ring_planet() -> int:
+	if _tut_highlight_key() != "planet":
+		return -1
+	return selected_planet if selected_planet >= 0 else mission_planet
+
+func _tut_update_highlight() -> void:
+	if tut_hl == null:
+		return
+	var key := _tut_highlight_key()
+	var c: Control = _tut_target_node(key) if key != "" and key != "planet" else null
+	if c == null or game_over or tut_card == null or not tut_card.visible:
+		tut_hl.visible = false
+		return
+	var r := c.get_global_rect().grow(3.0)
+	tut_hl.visible = true
+	tut_hl.global_position = r.position
+	tut_hl.size = r.size
+	var k := 0.5 + 0.5 * sin(Time.get_ticks_msec() / 1000.0 * 3.0)
+	tut_hl.modulate.a = lerpf(0.55, 1.0, k)
 
 ## T124: moves the guided tutorial on when the player has done the current step. Called on every change.
 func _tut_advance() -> void:
@@ -2801,10 +2895,35 @@ func _build_board() -> void:
 	mission_label.theme_type_variation = "LabelAccent"
 	mission_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	box.add_child(mission_label)
+	# The guided tutorial has its own card above the notifications board, same look as the galaxy tutorial card.
+	tut_card = PanelContainer.new()
+	tut_card.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	tut_card.custom_minimum_size = Vector2(320, 0)
+	tut_card.visible = false
+	right_col.add_child(tut_card)
+	right_col.move_child(tut_card, 0)
+	var cbox := VBoxContainer.new()
+	cbox.add_theme_constant_override("separation", 8)
+	tut_card.add_child(cbox)
+	var head := HBoxContainer.new()
+	var cap := Label.new()
+	cap.text = StoryText.get_or("TUT_HEADER", "Tutorial").to_upper()
+	cap.theme_type_variation = "LabelCaption"
+	cap.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	head.add_child(cap)
+	tut_count = Label.new()
+	tut_count.theme_type_variation = "LabelNumberMuted"
+	head.add_child(tut_count)
+	cbox.add_child(head)
 	tutorial_label = Label.new()
 	tutorial_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	tutorial_label.visible = false  # default Label, as the current step text in the galaxy view tutorial
-	box.add_child(tutorial_label)
+	cbox.add_child(tutorial_label)
+	tut_why = Label.new()
+	tut_why.theme_type_variation = "LabelMuted"
+	tut_why.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	tut_why.visible = false
+	cbox.add_child(tut_why)
 	tut_actions = HBoxContainer.new()
 	tut_actions.alignment = BoxContainer.ALIGNMENT_END
 	tut_actions.add_theme_constant_override("separation", 8)
@@ -2819,9 +2938,19 @@ func _build_board() -> void:
 	tut_next.text = StoryText.get_or("BTN_NEXT", "Next")
 	tut_next.pressed.connect(_tut_next)
 	tut_actions.add_child(tut_next)
-	box.add_child(tut_actions)
-	box.move_child(tutorial_label, 1)  # the guided hint sits right under the title, above the mission line
-	box.move_child(tut_actions, 2)
+	cbox.add_child(tut_actions)
+	# pulsing outline drawn over the control the step is about
+	tut_hl = Panel.new()
+	tut_hl.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	tut_hl.z_index = 50
+	tut_hl.visible = false
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color(0, 0, 0, 0)
+	sb.border_color = Ui.col("star_warm")
+	sb.set_border_width_all(2)
+	sb.set_corner_radius_all(4)
+	tut_hl.add_theme_stylebox_override("panel", sb)
+	add_child(tut_hl)
 	notice_label = Label.new()
 	notice_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	notice_label.visible = false
