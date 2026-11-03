@@ -9,7 +9,7 @@ extends SceneTree
 const MAIN := "res://game/main.tscn"
 const StoryText := preload("res://game/story_text.gd")
 const StorageS := preload("res://game/storage.gd")
-const OUT := "/private/tmp/claude-501/-Volumes-Work-Gamedev-Projects-AgentCourse-star-bazaar/e657de9b-7184-467c-b331-f4e3ea64a780/scratchpad/tutorial-shots/"
+const OUT := "/private/tmp/claude-501/-Volumes-Work-Gamedev-Projects-AgentCourse-star-bazaar/ed07d136-777e-45ce-9242-e5c72c67bf29/scratchpad/shots/"
 const SRC := 0
 
 var fails: Array = []
@@ -114,8 +114,8 @@ func _act(m: Control, i: int) -> bool:
 			m.skill_points = maxi(m.skill_points, 1)
 			return true
 		7:  # learn a skill, then keep one point for the permit step
-			var r: Dictionary = m.learn_skill("A1")
-			log_("     learn A1: ok=%s %s" % [str(r.get("ok", false)), str(r.get("reason", ""))])
+			var r: Dictionary = m.learn_skill("B1")
+			log_("     learn B1: ok=%s %s" % [str(r.get("ok", false)), str(r.get("reason", ""))])
 			m.skill_points = maxi(m.skill_points, 1)
 			return not m.learned_skills.is_empty()
 		8:  # permit C1
@@ -171,7 +171,7 @@ func _run() -> void:
 	await _play(m, "B", 3)
 	check(m.tut_step == 3, "run B reaches step 4 before Skip (tut_step %d)" % m.tut_step)
 	await shot("B_board_step04_before_skip")
-	var skip := _find_btn(m.tut_actions, StoryText.get_or("SCR_PREFACE_SKIP", "Skip"))
+	var skip := _find_btn(m.tut_actions, StoryText.get_or("BTN_SKIP_TUTORIAL", "Skip tutorial"))
 	check(skip != null, "run B: Skip button visible on board step 4")
 	if skip != null:
 		skip.pressed.emit()
@@ -224,7 +224,7 @@ func _run() -> void:
 	await process_frame
 	check(g.tut_step == 1, "run D: galaxy at step 2 before Skip")
 	await shot("D_galaxy_step2_before_skip")
-	var gskip := _find_btn(g.tut_box, StoryText.get_or("SCR_PREFACE_SKIP", "Skip"))
+	var gskip := _find_btn(g.tut_box, StoryText.get_or("BTN_SKIP_TUTORIAL", "Skip tutorial"))
 	check(gskip != null, "run D: Skip visible on galaxy step 2")
 	if gskip != null:
 		gskip.pressed.emit()
