@@ -1,8 +1,9 @@
 {
   "schema_version": 1,
   "data_version": 1,
-  "source": "2026-11-02 T156: cluster positions are map units (same as planets.json x,y), template values until T157 sees them on the map. Richness, yield and how many clusters are active come from balance.json: mining_cluster_richness, mining_yield_per_cycle, mining_clusters_s1, mining_clusters_s2 (the first N clusters of a system in this list are active). count = pack instances T157 draws at full richness; they thin as ore is taken. event_cluster = shape of the small cluster EV20 leaves when the player pays (richness: mining_event_cluster_richness).",
+  "source": "2026-11-02 T156: cluster positions are map units (same as planets.json x,y), template values until T157 sees them on the map. Richness, yield and how many clusters are active come from balance.json: mining_cluster_richness, mining_yield_per_cycle, mining_clusters_s1, mining_clusters_s2 (the first N clusters of a system in this list are active). count = pack instances T157 draws at full richness; they thin as ore is taken. cluster_stretch = how many times longer a pack is along its orbit tangent than across the radius (owner 2026-11-03, placeholder 1.6). event_cluster = shape of the small cluster EV20 leaves when the player pays (richness: mining_event_cluster_richness).",
   "good": "ore",
+  "cluster_stretch": 1.6,
   "event_cluster": {"radius": 30, "count": 12},
   "clusters": [
     {"id": "c1_1", "system": 1, "x": -110, "y": -70, "radius": 45, "count": 24, "good": "ore"},

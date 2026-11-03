@@ -1,5 +1,5 @@
 extends Node3D
-## T157: spherical packs of asteroids on the trade map. One MultiMeshInstance3D per cluster = one draw call per pack.
+## T157: ellipsoid packs (long axis along the orbit tangent, cluster_stretch) of asteroids on the trade map. One MultiMeshInstance3D per cluster = one draw call per pack.
 ## Per-instance position, rotation and scale come from a seed (hash of the cluster id + seed_salt), so a pack looks the same
 ## every time. The pack thins from the end of the list as ore is taken (visible_instance_count), so the surviving rocks stay put.
 ## Standard material, no shader, no collision: the map's click tests are maths on planets, so packs never block them.
@@ -12,11 +12,12 @@ extends Node3D
 @export var rock_max := 0.02             # was 0.16, then 0.04
 @export var squash := 0.45                # 0 = round rocks, 1 = very lumpy: per-axis scale varies by up to this share
 @export var flatten := 0.5                # pack height as a share of its width (0.5 = a disc-ish sphere)
+@export var cluster_stretch := 1.6       # fallback when the cluster dictionary has no "stretch" (data/asteroid_clusters.json cluster_stretch)
 @export var rock_color := Color(1.0, 1.0, 1.0)  # tints the rock texture; white = texture colours as they are
 @export var rock_roughness := 0.95
 @export var spin_speed := 0.0             # degrees per second the whole pack turns; 0 = still
 
-# Rock model: assets/asteroid_asset/asteroid.obj decimated to 400 tris (was 20480) by tools in the asteroid_asset folder.
+# Rock model: assets/asteroid_asset/asteroid_low.obj, from asteroid.obj decimated to 400 tris (was 20480) by tools in the asteroid_asset folder.
 # Normalised so the furthest vertex sits at radius 1.0, the same radius the old SphereMesh had.
 const ROCK_MESH := preload("res://assets/asteroid_asset/asteroid_low.obj")
 const ROCK_TEXTURE := preload("res://assets/asteroid_asset/material_512.png")
@@ -25,6 +26,18 @@ var packs := {}  # cluster id -> {mm: MultiMeshInstance3D, system: int, max: int
 var _mesh: Mesh
 var _mat: StandardMaterial3D
 var view_system := 1
+var sun_positions := {}  # system id -> world position of its sun (map.gd fills it); the orbit centre. Missing = world origin
+
+## World-plane unit vector along the orbit at a cluster (perpendicular to the radius from the system centre).
+## Falls back to +X when the cluster sits on the centre.
+func tangent_of(c: Dictionary) -> Vector3:
+	var centre: Vector3 = sun_positions.get(int(c["system"]), Vector3.ZERO)
+	var rad := Vector3(float(c["x"]), 0.0, float(c["y"])) * map_unit_scale - centre
+	rad.y = 0.0
+	if rad.length() < 0.0001:
+		return Vector3.RIGHT
+	rad = rad.normalized()
+	return Vector3(-rad.z, 0.0, rad.x)
 
 func _ready() -> void:
 	_mesh = ROCK_MESH
@@ -40,7 +53,8 @@ func sync(clusters: Array) -> void:
 		var id := str(c["id"])
 		seen[id] = true
 		var n := maxi(1, int(c["count"]))
-		if not packs.has(id) or int(packs[id]["max"]) != n:
+		# rebuilt too when the system centre moved (the sun is placed after the packs exist), since the tangent follows it
+		if not packs.has(id) or int(packs[id]["max"]) != n or not (packs[id]["tangent"] as Vector3).is_equal_approx(tangent_of(c)):
 			_build(id, c, n)
 		var mmi: MultiMeshInstance3D = packs[id]["mm"]
 		mmi.multimesh.visible_instance_count = clampi(int(c.get("visible", n)), 0, n)
@@ -67,22 +81,29 @@ func _build(id: String, c: Dictionary, n: int) -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = hash(id) ^ (seed_salt * 7919)
 	var r := float(c["radius"]) * map_unit_scale * pack_scale
+	var stretch := maxf(1.0, float(c.get("stretch", cluster_stretch)))
+	var tdir := tangent_of(c)
+	var points := PackedVector3Array()  # local rock positions, kept for tests (the MultiMesh cannot be read back headless)
+	var rad_dir := Vector3(tdir.z, 0.0, -tdir.x)  # unit vector away from the centre
 	for i in n:
 		var p := Vector3(rng.randf_range(-1, 1), rng.randf_range(-1, 1), rng.randf_range(-1, 1))
 		while p.length_squared() > 1.0:  # uniform inside the unit sphere
 			p = Vector3(rng.randf_range(-1, 1), rng.randf_range(-1, 1), rng.randf_range(-1, 1))
 		p.y *= flatten
+		p.x *= stretch  # x = along the tangent, z = across the radius; rocks keep their own shape
 		var s := rng.randf_range(rock_min, rock_max)
 		var sc := Vector3(1.0 + rng.randf_range(-squash, squash), 1.0 + rng.randf_range(-squash, squash), 1.0 + rng.randf_range(-squash, squash)) * s
 		var basis := Basis.from_euler(Vector3(rng.randf() * TAU, rng.randf() * TAU, rng.randf() * TAU)) * Basis.from_scale(sc)
-		mm.set_instance_transform(i, Transform3D(basis, p * r))
+		var pos := (tdir * p.x + rad_dir * p.z + Vector3.UP * p.y) * r
+		points.append(pos)
+		mm.set_instance_transform(i, Transform3D(basis, pos))
 	var mmi := MultiMeshInstance3D.new()
 	mmi.multimesh = mm
 	mmi.material_override = _mat
 	mmi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	mmi.position = Vector3(float(c["x"]), 0.0, float(c["y"])) * map_unit_scale
 	add_child(mmi)
-	packs[id] = {"mm": mmi, "system": int(c["system"]), "max": n}
+	packs[id] = {"mm": mmi, "system": int(c["system"]), "max": n, "tangent": tdir, "points": points, "stretch": stretch}
 
 func _process(delta: float) -> void:
 	if spin_speed != 0.0:

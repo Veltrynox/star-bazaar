@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "agent": "galaxy-builder",
+  "date": "2026-11-03",
+  "task": "cluster-ellipse",
+  "status": "partial",
+  "files_changed": ["game/galaxy/asteroid_packs.gd", "game/clusters.gd", "game/map.gd", "data/asteroid_clusters.json", "tools/tests/run_tests.gd"],
+  "open_questions": ["UNKNOWN: on-screen look not seen; I cannot view the screen (headless only).", "UNKNOWN: full tools/tests/run.sh aborts after 'B4: forecast...' (Parameter material is null in the dummy renderer) and shows route_engine.gd:212 'a' errors plus win/planet-pole FAILs from other agents' in-progress edits, so the new test was run in a trimmed copy of run_tests.gd (pack tests only): pass=18 fail=0.", "UNKNOWN: the click radius is the full data radius (0.9 world) while the drawn pack is 0.1125 wide; the ellipse test keeps that mismatch."],
+  "handoff": "Packs are ellipsoids. New key cluster_stretch = 1.6 (top level of data/asteroid_clusters.json, read by clusters.gd, passed as c['stretch'] in list(); asteroid_packs.gd exports cluster_stretch as fallback). Rock positions: x (tangent) multiplied by stretch, z (radius direction) unchanged; rocks keep their own shape; rng order, count and thinning unchanged, so same id gives the same pack. Orbit centre = the system's sun (map.sun_positions, shared with asteroid_packs.sun_positions); tangent_of(c) is perpendicular to the radius from it. Packs rebuild if the sun moves (the sun is placed after the packs). Click area: ellipsoid test in map.pick_cluster (ray un-stretched along the tangent, then sphere of radius r), so it reaches r*1.6 along the tangent and r across. Tests: added 'Cluster ellipse: long axis along the orbit tangent' and 'click area reaches 1.4 radii along the tangent but not 2.4'. Packs keep 'points' for tests since MultiMesh cannot be read back headless."
+}
