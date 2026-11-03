@@ -1,0 +1,54 @@
+{
+  "agent": "economy-designer",
+  "date": "2026-11-03",
+  "task": "endings-retune-r2",
+  "status": "done",
+  "schema_version": 1,
+  "files_changed": ["data/balance.json"],
+  "open_questions": [
+    "Focus runs with the same chains are near-deterministic (seeds differ only through chain picks and events); bot results are bimodal, so 8 seeds give coarse rates. QA should add real noise (see issues).",
+    "Workshops: recommend NOT raising output for share; keep 1 batch a cycle. A lane ship earns ~560 a cycle vs 540 base for a workshop batch, so workshops are a parity side-path and a sink for cash; making them dominant would hurt the spread/expand balance. Revisit only if bio stays cash-starved.",
+    "ship_cap 5 feed cost: recommend keeping 5. A lux/min full feed taking 3 of 5 ships is the intended tension (lux 88 pct to 41 pct with crafting); let the player choose raw lanes or crafting. If a human playtest finds lux crafting never worthwhile, raise ship_cap to 6, not workshop output."
+  ],
+  "handoff": "balance.json data_version 40: all bot_<n>_<market>_strength and _growth multiplied by market (mil x1.4, lux x2.6, min x1.8, bio x1.25), bot_scale stays 0.22, win_earliest_cycle 22 to 23. Focus bot now wins about 85-90 pct, median cycle 26-29, shares 52-76 pct. Spread and mining_focus never win. Default decent wins 2 of 8 (mil). Tests pass=1165 fail=0 (one earlier run showed a stats-file JSON fail while batches ran in parallel; it was not repeatable). No test edits. Code issues: --event-policy=decline gave results identical to first (no effect on runs); seeds barely vary. Not committed.",
+  "details": {
+    "keys_changed": {
+      "data_version": "39 to 40",
+      "bot_*_mil_strength/growth": "x1.4 (bot_1 1690/22 to 2366/30.8, etc, all 3 bots)",
+      "bot_*_lux_strength/growth": "x2.6 (bot_2 2015/38 to 5239/98.8)",
+      "bot_*_min_strength/growth": "x1.8 (bot_1 564/8.8 to 1015.2/15.84)",
+      "bot_*_bio_strength/growth": "x1.25 (bot_1 266.5/3.2 to 333.12/4)",
+      "win_earliest_cycle": "22 to 23 (focus median win 26 to 27 for mil)",
+      "source": "note added"
+    },
+    "sim_results": {
+      "method": "fast clock, seeds 1-8, ship_cap 5, bot_run.gd; win = any GOOD/BAD market ending",
+      "before_v39": "all 12 focus setups 8/8 wins at 57-88 pct, median c26-29",
+      "after_v40": {
+        "mil good": "8/8 c27 share 59 END_MIL_GOOD",
+        "mil bad": "6/8 c27 share 58 (2 SWEPT)",
+        "mil random": "7/8 c27 share 59 (4 good, 3 bad, 1 OUTCOMPETED)",
+        "lux good": "8/8 c27.5 share 76",
+        "lux bad": "4/8 c30.5 share 53 (4 OUTCOMPETED)",
+        "lux random": "6/8 c27.5 share 73 (5 good, 1 bad, 2 OUTCOMPETED)",
+        "min good": "8/8 c28.5 share 60",
+        "min bad": "8/8 c28 share 61",
+        "min random": "8/8 c29.5 share 60 (4 good, 4 bad)",
+        "bio good": "7/8 c27 share 52 (1 OUTCOMPETED)",
+        "bio bad": "8/8 c27 share 61",
+        "bio random": "6/8 c28 share 54 (4 good, 2 bad, 2 OUTCOMPETED)",
+        "default decent random chains": "2/8 MIL_GOOD c27, 6 OUTCOMPETED",
+        "spread": "0/8 (7 OUTCOMPETED, 1 BANKRUPT)",
+        "mining_focus": "0/8 (8 OUTCOMPETED)",
+        "event-policy decline (4 markets, random chains)": "identical to first policy, no effect"
+      },
+      "overall_focus_win_rate": "about 85 pct (79 of 96 random/good/bad runs: 82 pct to 100 pct per setup, lux bad lowest at 50 pct); bad chains still win in every market"
+    },
+    "code_design_issues": [
+      "bot --event-policy=decline has no visible effect on results",
+      "seeds 1-8 near-identical for fixed chains; add noise (event timing or lane tie-breaks) in the bot",
+      "mil bad ends END_SWEPT in 2 of 8: sweep rule can fire on a focus run with share >10 pct earlier; check sweep logic when the bad chain nudge lowers mil share",
+      "default decent (no market focus) now only 2 of 8 wins: acceptable, but QA bot default does not pick a market"
+    ]
+  }
+}
