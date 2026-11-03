@@ -74,18 +74,21 @@ Known gap, handled in the later goals: the preface, goal line, tutorial, mission
 - An independent reviewer read all four files in full (40 findings). Contradictions, stale text and neutrality problems found were fixed (R9 to R27). The Military chains were re-read against economy 8.2 after the fixes.
 - Luxury, Minerals and Biotech chain TEXTS are not written (Goal 5); only their option numbers (economy 8.2), neutral situations and direction values (core 4.3) exist, plus the style guide rules. Their neutrality can only be checked when the texts exist.
 
-## Open questions for the owner
-1. Late cash is nearly worthless: a focused player has about 12k unspent after cycle 16, so late cash gets and costs (e.g. MIL_B4 b +600) barely matter. Options: add a late cash sink (upgrade cost 900 to 1500), or give late steps non-cash costs. Which?
-2. Path-level gap: no single step is dominant (max 10 points), but a player who always takes the stronger-for-share option wins more: all opt_b vs all opt_a is 88 vs 68 (mil), 90 vs 68 (lux), 95 vs 68 (min), 82 vs 82 (bio). Button order is shuffled so position cannot be exploited, but is a 20 to 27 point gap between consistent strategies acceptable?
-3. Tier -1 cuts on bots fire before the bot's first tier-up (cycles 11 to 14), so they act as strength cuts. A persistent tier offset fixes it and makes those options about 5 points stronger. Apply?
-4. An 85/15 spread still wins 4.2% of runs. Leave it, or raise `market_active_pct` to 0.15?
-5. Effect lines show credits and tech units as numbers but volume, price and upkeep as size words. Make all numbers (line limit about 230)?
-6. Boosted bots show as "strength up" in the Standings; a player may read that as a mistake in hindsight. Intended?
-7. Button order is shuffled per run. Acceptable for the UI build?
-8. Win medians land at cycles 27 to 28 (core first said 28 to 36). Accept?
-9. About 40% of runs can still be flipped by the last step (B4), since dir can sit near zero. Accept, or add a rule that a lean must exceed a small band before it counts?
-10. A strong lean turned late by the last steps is not detected by the epilogues (needs the game to expose the sign of `dir` before B3). Skip?
-11. Is "Your desk sets the roster" colder than "Garrisons set the roster" in MIL_B4? Playtest before the other three chains are written?
-12. END_SWEPT can only fire for a four-market spreader whose fleet is already repossessed (84% with 2 ships left, 100% with 1; focused 0%); a three-market spreader goes bankrupt instead. Accept that swept is rare?
-13. MIL_B1 opt_a still reads stronger than opt_b on the effect lines. Accept, or ask economy to even the cells?
-14. Names (3 bots, goods, 4 renamed endings including "The Floor of Every Graph" and "No Market Held") stay as in the story doc until you judge them in play.
+## Open questions: decided by the main session (owner asked for defaults, 2026-11-03)
+The owner delegated these. Each is a default that can be overruled any time; those marked RE-CHECK are verified in the real-game bot runs (Goals 2 and 3).
+1. Late cash is worth little: leave as is. RE-CHECK in the real game; if unspent cash stays above 10k after cycle 16, add an upgrade cost sink then.
+2. 20 to 27 point gap between consistent strategies: accept. Reading the effect lines and picking the stronger option should pay a little.
+3. Tier -1 cuts: apply a persistent tier offset. Economy re-simulates in Goal 2 (needed because it shifts those options about 5 points).
+4. 85/15 spread wins 4.2%: leave `market_active_pct` at its current value.
+5. Effect lines: keep size words for volume, price and upkeep (shorter lines, 200 character limit stays).
+6. "Strength up" on boosted bots in Standings: intended.
+7. Button order shuffled per run: accepted for the UI build.
+8. Win medians at cycles 27 to 28: accepted.
+9. B4 can flip about 40% of runs: accepted, no band.
+10. Epilogues for a lean turned late: skipped.
+11. "Your desk sets the roster" vs "Garrisons set the roster": playtest before the other three chains are written.
+12. END_SWEPT is rare: accepted.
+13. MIL_B1 opt_a reads stronger: accepted.
+14. Names (bots, goods, endings): unchanged until judged in play.
+
+Still needs the owner: only the go-ahead for Goal 2 (real-game build and bot runs) and a read of the Military chains in play.
