@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-03",
+  "task": "goods-workshops",
+  "status": "done",
+  "files_changed": [
+    "game/goods.gd (new)",
+    "game/workshops.gd (new)",
+    "game/fabric.gd",
+    "game/map.gd",
+    "game/systems.gd",
+    "game/main.gd",
+    "game/planet_panel.gd",
+    "data/markets.json",
+    "story/screens.md",
+    "data/story_text.json (generated)",
+    "tools/tests/run_tests.gd",
+    "handoffs/gameplay-programmer/2026-11-03-goods-workshops.json"
+  ],
+  "open_questions": [
+    "UNKNOWN: goods.json cash_cost_per_unit (cells 12, armour 18 ...) is not charged; workshops move no credits per cycle, like the Fabric, so forecast and settle agree. Say if crafting should cost credits.",
+    "UNKNOWN: a batch picks the highest-tier open recipe it has inputs for (armour before cells). Owner may want a chosen recipe per workshop instead.",
+    "UNKNOWN: workshop UI sits on planet panels of system 1 (trading post is system 1); Fabric UI stays in the Space Storage view."
+  ],
+  "handoff": "The 11 new goods are tagged in data/markets.json (base_value = mean sell) and priced: Goods.merge_prices adds goods.json planet_prices to every planet loaded by Map and Systems, so trade, storage, routes and events (event_pct_<good>) see them with no other change. Workshops (smelter, munitions, atelier, culture_lab) are built once at the trading post for workshop_build_cost once their node is learned, craft in company storage each cycle, and report units to main.craft_units. Fabric gets the same batch and yield bonuses. Tests: TOTAL pass=1147 fail=0.",
+  "details": {
+    "api": [
+      "Goods (static): ids(), entry(id), recipe(id), recipes_of(workshop), batch_out(id, bal), good_open(id) (gated by an unlock node), recipe_ok(id), recipe_text(id, bal), workshop(id), merge_prices(planet)",
+      "Workshops (instance main.workshops, game/workshops.gd): IDS, built/state/reason/made dicts, is_unlocked(id), build_cost(id), batches(id), out_units(good), open_recipes(id), run(storage, craft_callable), made_text(id), to_dict/from_dict (save key 'workshops')",
+      "main: can_build_workshop(id) -> {ok, reason: unknown|built|skill|post|credits}, build_workshop(id); cycle end runs workshops.run(storage, craft_units)",
+      "Fabric: batches() adds Skills.workshop_batches('min'); plate output adds Skills.batch_yield('min')"
+    ],
+    "NOT_WIRED": [
+      "cash_cost_per_unit from goods.json (see question 1)",
+      "No input-route precondition for new workshops (the Fabric still requires routed inputs to build)",
+      "Windowed bot run (qa/run_game.sh) not run: it pkills Godot and would kill other agents' test runs. bot_run.gd only loops main.commodities and treats missing prices as -1, so new goods need no change, but a real bot run is untested.",
+      "Ui.COMMODITY_FALLBACK has no colours for the new goods (icons are white)",
+      "Event text pct for new goods uses the existing per-good key path; no separate copy"
+    ],
+    "tests_changed": [
+      "markets goods list and base value now use goods.json (19 goods); sys2 commodity order and T141 panel button count updated for the new goods",
+      "new _test_workshops: tagging, prices, recipe_ok, gating, build/credits/post, recipe run, tech feed, gated armour, MIN_4 batches, MIN_6 yield, cycle tick, panel section, save round trip"
+    ],
+    "story_ids_added": "WS_<SMELTER|MUNITIONS|ATELIER|CULTURE_LAB>_NAME, LBL_WORKSHOPS, BTN_WORKSHOP_BUILD, LBL_WORKSHOP_BATCHES, LBL_WORKSHOP_MADE, LBL_WORKSHOP_STALLED, NOT_WORKSHOP_BUILT (story/screens.md, Workshops block)"
+  }
+}
