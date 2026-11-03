@@ -18,6 +18,11 @@ import json, os, re, random, statistics, sys, itertools, math
 R = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 J = lambda p: json.load(open(os.path.join(R, p)))
 V = J("data/balance.json")["values"]; PL = J("data/planets.json")["planets"]; EVS = J("data/events.json")
+# 2026-11-03: the cash goal (win_cash, win_cycle) was removed from balance.json. This sim is now a plain "run to
+# win_cycle_markets cycles, report cash" mode: win_cash is an unreachable sentinel so no run ever wins, and the
+# win_c column shows "-". The real market-share model lives in game/markets.gd; the paper model is in
+# design/proposals/2026-11-03-four-markets-economy.md. Old win-cycle targets no longer apply here.
+V.setdefault("win_cycle", V["win_cycle_markets"]); V.setdefault("win_cash", 10 ** 12)
 GOODS = "--goods" in sys.argv; REAL = "--real" in sys.argv; UPG = "--upg" in sys.argv; RESCUE_ANY = "--rescue-any" in sys.argv; INJ = (0, 0)
 for _a in sys.argv:
     if _a.startswith("--inject="): INJ = tuple(int(x) for x in _a[9:].split(":"))

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "agent": "economy-designer",
+  "date": "2026-11-03",
+  "task": "sim-after-goal-swap",
+  "status": "done",
+  "files_changed": ["tools/sim.py", "handoffs/economy-designer/2026-11-03-sim-after-goal-swap.json"],
+  "open_questions": ["sim header still prints 'win_cash 1000000000000' (sentinel); cosmetic, fix when sim gets a market-share mode"],
+  "handoff": "tools/sim.py runs again: after loading balance it sets win_cycle = win_cycle_markets (40) and win_cash = 1e12 sentinel, so every line runs 40 cycles and reports cash, never wins. Comment points to game/markets.gd (real model) and design/proposals/2026-11-03-four-markets-economy.md (paper model). Verified: python3 -I tools/sim.py and --settle --mc 5 both run. qa/bots/metrics.py only uses .get() on force_goal_cycle, no error, unchanged. tools/build_story.py runs fine, no old goal ids. No balance values changed. Win-cycle targets no longer apply to this sim; total sales not reported (sim has no sales counter).",
+  "details": {"sim_decent_no_skills_cash_c40": 30758, "sim_sloppy": 10517, "sim_always_expand": 26468, "sim_never_expand": 7011}
+}
