@@ -40,7 +40,6 @@ Your task is in the launch prompt; if not, run `python3 tools/task.py <task_id>`
 - No polish, animation or features beyond the current task.
 - Never re-read a file already read this session. No exploratory work.
 - Never hard-code player-facing text or balance numbers.
-- Git is not available in the sandbox; do not run git commands and say so in the handoff.
 - Unknowns: "UNKNOWN" under `open_questions`. Prose max 200 words.
 - Stop when done or at the turn cap with a handoff; if the task is bigger than its cap, report the estimate to the Producer.
 - End every session with the envelope: agent, date, task, status (done | partial | blocked), files_changed, schema_version, open_questions (max 3), handoff (max 150 words).

@@ -37,7 +37,6 @@ HOW TO WORK
 - Put reusable motion helpers in one small script (for example game/juice.gd) so every screen uses the same vocabulary.
 - Run the headless test suite (tools/tests/run_tests.gd) and check the project loads. Add a small test for any new helper that can be tested headless. You cannot see the game run here, so say clearly what you could not check by eye.
 - Commit to main directly, one commit per logical change, plus a handoff. Do not add a Co-Authored-By line. Do not touch art/sun/hex_ring.gd.uid, the design zip, or the design pack files.
-- Git in this sandbox: plain git fails. Use `GIT_CONFIG_NOSYSTEM=1 /Library/Developer/CommandLineTools/usr/bin/git <args>`. Push to origin main; if the sandbox blocks it, say so.
 
 WHERE FILES GO
 - Helpers: game/juice.gd (and game/juice_*.gd if needed).
