@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "agent": "general-purpose",
+  "date": "2026-11-03",
+  "task": "Event banners renamed to lowercase ids (owner decision): art/event_banners, media/refs/event_banners, art/source/event_banners_fullres; event ids in data/events.json stay uppercase",
+  "status": "done",
+  "files_changed": [
+    "/Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/game/main.gd",
+    "/Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/game/event_notice.gd",
+    "/Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/tools/tests/run_tests.gd",
+    "/Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/art/README.md",
+    "/Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/media/README.md",
+    "/Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/design/art/NAMING.md",
+    "/Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/art/event_banners/ (68 .webp + 68 .import renamed, ev01 to ev37, lowercase)",
+    "/Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/media/refs/event_banners/ (68 .jpg + 68 .import renamed)",
+    "/Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/art/source/event_banners_fullres/ (18 .png + 18 .import renamed)"
+  ],
+  "open_questions": [],
+  "handoff": "Banner files are now lowercase (ev01.webp ... ev37.webp, same for .jpg and .png copies, and their .import sidecars). game/main.gd _event_art lowercases the id to build the path, so EV01 loads art/event_banners/ev01.webp. game/event_notice.gd compares the lowercase path for the EV20 asteroid fallback. tools/tests/run_tests.gd banner test checks <lowercase id>.webp. No banner path in tools/build_story.py or other scripts. Docs: art/README.md (exception removed, lowercase stated), media/README.md, design/art/NAMING.md section 8 (exception replaced by the decision). Import cache regenerated with Godot --import; .import files now hold the new ctex names. Tests: TOTAL pass=965 fail=0 (run in an isolated TMPDIR; a concurrent run sharing the scratch HOME produced spurious win failures).",
+  "details": {
+    "files_renamed": 154,
+    "renamed_breakdown": {
+      "art/event_banners": 68,
+      "media/refs/event_banners": 68,
+      "art/source/event_banners_fullres": 18
+    },
+    "references_changed": {
+      "game/main.gd": 1,
+      "game/event_notice.gd": 1,
+      "tools/tests/run_tests.gd": 2,
+      "art/README.md": 2,
+      "media/README.md": 1,
+      "design/art/NAMING.md": 3
+    },
+    "tests": "TOTAL pass=965 fail=0",
+    "not_touched": [
+      "handoffs/* (historical records keep the old names)",
+      "game/fabric.gd",
+      "game/space_storage_view.gd",
+      "git index (nothing staged or committed)"
+    ],
+    "git_note": "Renames done with mv; old uppercase paths no longer exist, so git will show them as deleted plus untracked until staged by the owner."
+  }
+}

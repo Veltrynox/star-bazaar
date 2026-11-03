@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-03",
+  "task": "fabric-block",
+  "status": "done",
+  "files_changed": ["game/main.gd", "game/space_storage_view.gd", "tools/tests/run_tests.gd", "handoffs/gameplay-programmer/2026-11-03-fabric-block.json"],
+  "usage_note": "Headless tests 965 pass, 0 fail.",
+  "open_questions": [],
+  "handoff": "main.fabric_inputs_unrouted() lists dross/nullglass with no route into system:1 storage (routes only, stock ignored). can_build_fabric() now returns reason 'inputs' (after skill and post, before credits). Space Storage panel: the build button is disabled and its tooltip plus the FabricInputs line show SS_FABRIC_NO_INPUTS naming the unrouted goods. Saves unchanged: an already built fabric stays built, old saves load as before. Tests: _test_fabric adds refused with no routes, one route not enough, allowed with both; the existing build test now adds both routes first (it expected the early build) and a built-stays-built check. Try: learn F1, open the station in system 1 with no routes: button greyed; send dross and nullglass there: it enables. Note: the shared scratchpad TMPDIR gave random win-test failures when another agent ran tests at once; use a private subfolder."
+}

@@ -1537,7 +1537,21 @@ func _tick_danger() -> void:
 				ids.append(pid)
 	dead.tick(ids)
 
-## Fabric: can it be built now? {ok, reason}: "skill" (F1 not learned), "post" (no trading post in system 1), "built", "credits".
+## Fabric inputs (dross, nullglass) with no route into the system 1 Space Storage. Routes only, stock does not count.
+func fabric_inputs_unrouted() -> Array:
+	var key: String = storage.system_key(Fabric.SYSTEM)
+	var out: Array = []
+	for c in Fabric.INPUTS:
+		var fed := false
+		for rec in engine.routes:
+			if str(rec["dst"]) == key and str(rec["c"]) == c:
+				fed = true
+				break
+		if not fed:
+			out.append(c)
+	return out
+
+## Fabric: can it be built now? {ok, reason}: "skill" (F1 not learned), "post" (no trading post in system 1), "built", "inputs" (a input has no route here), "credits".
 func can_build_fabric() -> Dictionary:
 	if fabric.built:
 		return {"ok": false, "reason": "built"}
@@ -1545,6 +1559,8 @@ func can_build_fabric() -> Dictionary:
 		return {"ok": false, "reason": "skill"}
 	if not station_systems.has(Fabric.SYSTEM):
 		return {"ok": false, "reason": "post"}
+	if not fabric_inputs_unrouted().is_empty():
+		return {"ok": false, "reason": "inputs"}
 	if cash < fabric.build_cost():
 		return {"ok": false, "reason": "credits"}
 	return {"ok": true, "reason": ""}
@@ -2097,7 +2113,7 @@ func _open_event_notice(id: String) -> void:
 
 ## Banner path for an event id; EV20 keeps its drawn asteroid when the file is missing.
 func _event_art(id: String) -> String:
-	var path := "res://art/event_banners/%s.webp" % id
+	var path := "res://art/event_banners/%s.webp" % id.to_lower()  # files are lowercase; ids stay uppercase
 	if ResourceLoader.exists(path):
 		return path
 	return "asteroid" if id == "EV20" else ""

@@ -86,6 +86,7 @@ func _fabric_rows() -> void:
 	if system_id != main.Fabric.SYSTEM or not main.has_skill("F1"):
 		return
 	var f = main.fabric
+	var unrouted: Array = [] if f.built else main.fabric_inputs_unrouted()
 	var head := Label.new()
 	head.name = "FabricLine"
 	head.theme_type_variation = "LabelCaption"
@@ -103,7 +104,7 @@ func _fabric_rows() -> void:
 		st.name = "FabricStatus"
 		st.text = ("made %d plate" % f.made) if f.state == "running" else (f.reason if f.state == "stalled" else "ready")
 		box.add_child(st)
-	var miss := _inputs_unreached(f)
+	var miss: Array = unrouted if not unrouted.is_empty() else _inputs_unreached(f)
 	if not miss.is_empty():  # QA 2026-11-03: fabric can be built before its inputs have a route
 		var ml := Label.new()
 		ml.name = "FabricInputs"

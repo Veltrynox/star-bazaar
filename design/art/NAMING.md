@@ -28,7 +28,7 @@ Status: APPLIED (2026-11-03, folder reorganisation). Folder map and where to fin
 | `doc_` | documents and archives | `doc_gdd.pdf` | `media/docs/` |
 | `ref_` | reference images | `ref_volcanic_crust_01.jpg` | `media/refs/` |
 
-Not in the table yet (see section 8): event banners (`art/event_banners/EV01.webp`) and the 3D station model (`assets/space_station/star_bazaar_station.glb`).
+Not in the table yet (see section 8): event banners (`art/event_banners/ev01.webp`) and the 3D station model (`assets/space_station/star_bazaar_station.glb`).
 
 ## 4. Fixed word lists
 - Colour and state: `amber`, `grey`, `blue` (research accent), `on`, `off`.
@@ -52,9 +52,7 @@ Not in the table yet (see section 8): event banners (`art/event_banners/EV01.web
 `media/` holds documents, archives and reference images only. Nothing in `media/` is game-ready: the game never loads from it, and `export_presets.cfg` already excludes `media/*` from builds. Godot imports `media/refs` images (their `.import` files exist); a `.gdignore` file in `media/refs` would stop that. Option only, not applied.
 
 ## 8. Exceptions until the owner decides
-- Event banners: `art/event_banners/EV01.webp` ... `EV37.webp`. The names are the event ids from `data/events.json` (uppercase), which the code and tests look up by id. The naming rule wants lowercase and a prefix. Kept as they are. Options for the owner: a new `event_` prefix with lowercase ids, or keep the ids as the one exception.
-- `media/refs/event_banners/EV01.jpg` ... `EV37.jpg`: same ids, not `ref_` names. Kept with the same reason.
-- `art/source/event_banners_fullres/EV29.png` ... `EV37.png`: same.
+- Event banners (owner decision 2026-11-03): lowercase event ids, no prefix. `art/event_banners/ev01.webp` ... `ev37.webp`, `media/refs/event_banners/ev01.jpg` ... `ev37.jpg`, `art/source/event_banners_fullres/ev29.png` ... `ev37.png`. The event ids in `data/events.json` stay uppercase (`EV01`); the loader in `game/main.gd` lowercases the id to build the path.
 - `assets/space_station/star_bazaar_station.glb`: the model_ prefix would put it under the export exclude (`assets/model_*`), so it would not ship. Kept until the export rule is changed.
 - `assets/asteroid_asset/`: the folder name is the old name. The model is in its own folder, so the layout rule holds.
 - `art/sun/frames/<subject>/sun_NN.png`: allowed by section 2. Raw cuts in `art/source/sun_frames_raw/` keep their original `sun_<subject>_NN.png` names.

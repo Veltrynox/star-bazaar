@@ -3002,10 +3002,10 @@ func _test_event_banners() -> void:
 		evs = evs.get("events", [])
 	var missing: Array = []
 	for e in evs:
-		var p := "res://art/event_banners/%s.webp" % str(e["id"])
+		var p := "res://art/event_banners/%s.webp" % str(e["id"]).to_lower()
 		if not FileAccess.file_exists(p) and not ResourceLoader.exists(p):
 			missing.append(str(e["id"]))
-	check(evs.size() > 0 and missing.is_empty(), "banners: every event in events.json has art/event_banners/<id>.webp", str(missing))
+	check(evs.size() > 0 and missing.is_empty(), "banners: every event in events.json has art/event_banners/<lowercase id>.webp", str(missing))
 
 
 ## Owner bug 2026-11-02: the cash forecast must equal what the next cycle really pays, including goods a route
@@ -3347,11 +3347,19 @@ func _test_fabric() -> void:
 	m.learned_skills.append("F1")
 	m._ensure_stations()
 	check(m.station_systems.has(1), "fabric: trading post (system 1 station) exists with A1")
+	# build blocked until dross and nullglass both have a route into the trading post
+	check(m.can_build_fabric()["reason"] == "inputs" and not m.build_fabric()["ok"] and not m.fabric.built and m.cash == 5000, "fabric: build refused with no input routes, nothing paid")
+	m.engine.routes.append(m.engine.new_record(0, -1, "dross"))
+	check(m.can_build_fabric()["reason"] == "inputs", "fabric: one input route is not enough")
+	m.engine.routes.append(m.engine.new_record(0, -1, "nullglass"))
+	check(m.can_build_fabric()["ok"], "fabric: allowed once both inputs have a route")
 	m.cash = fabric_cost - 1
 	check(m.can_build_fabric()["reason"] == "credits", "fabric: refused without the build cost in credits")
 	m.cash = 5000
 	check(m.build_fabric()["ok"] and m.cash == 5000 - fabric_cost and m.fabric.built, "fabric: builds after F1, build cost paid", str(m.cash))
 	check(not m.build_fabric()["ok"] and m.cash == 5000 - fabric_cost, "fabric: paid once, a second build is refused")
+	m.engine.routes.clear()  # built stays built when routes go; later checks start route-free
+	check(m.fabric.built, "fabric: an already built fabric stays built without routes")
 	var key: String = m.storage.system_key(1)
 	m.storage.ensure(key)
 	# stalls without inputs

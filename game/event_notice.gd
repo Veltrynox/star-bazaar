@@ -52,7 +52,7 @@ func show_event(title: String, text: String, effect_line: String, choices: Array
 			wrapped = true
 	if not wrapped:
 		Ui.scroll_wrap(card, box, 48.0)  # many choices or long text scroll inside the window
-		if art == "asteroid" or art == "res://art/event_banners/EV20.webp":  # T109: fallback when no banner file
+		if art == "asteroid" or art == "res://art/event_banners/ev20.webp":  # T109: fallback when no banner file
 			box.add_child(AsteroidArt.new())
 	var t := Label.new()
 	t.text = title
