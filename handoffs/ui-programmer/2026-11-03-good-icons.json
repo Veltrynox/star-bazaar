@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-03",
+  "task": "good-icons",
+  "status": "done",
+  "files_changed": ["tools/make_icons.py", "game/ui.gd", "tools/tests/run_tests.gd", "art/icons/icon_<good>_64.svg and .import for the 14 new goods", "handoffs/ui-programmer/2026-11-03-good-icons.json"],
+  "open_questions": [
+    "Not checked by eye: the 14 new glyphs at 16-18 px and their tint colours are unseen. Please look at the goods list and route labels.",
+    "design/art/style.md and art/README.md and NAMING.md still list only silk, chips, ore as placeholders; doc-manager should update them. Also the commodity_<good> theme tokens in design/theme/star_bazaar.tres exist only for energy and food, the new colours are Ui.COMMODITY_FALLBACK entries."
+  ],
+  "handoff": "PLACEHOLDER line-glyph SVGs (same style as silk/chips/ore: 24px grid, near-white stroke 1.5, tinted by Ui.good_icon) added for dross, nullglass, plate, rivets, cells, armour, musk, cask, gems, ingot, alloy, spores, gel, seed. All 19 goods now resolve: energy and food PNG, silk/chips/ore existing SVG, the 14 above new. tools/make_icons.py now also writes the SVGs (silk and ore regenerate identically, chips kept hand-made). Ui.COMMODITY_FALLBACK has a colour for each new good. Godot --import run, .import files exist. New test _test_good_icons checks icon and colour for every Goods.ids(). Suite: pass=1207 fail=0.",
+  "details": {}
+}

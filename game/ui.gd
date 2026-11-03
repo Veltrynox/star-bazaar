@@ -10,7 +10,14 @@ static func col(token: String) -> Color:
 	return Color.WHITE
 
 ## Route/label colour of a good. Theme token commodity_<good> if present, else a fallback for the T155 goods.
-const COMMODITY_FALLBACK := {"silk": Color(0.72, 0.55, 0.85), "chips": Color(0.35, 0.75, 0.85), "ore": Color(0.62, 0.58, 0.52)}
+const COMMODITY_FALLBACK := {
+	"silk": Color(0.72, 0.55, 0.85), "chips": Color(0.35, 0.75, 0.85), "ore": Color(0.62, 0.58, 0.52),
+	"dross": Color(0.45, 0.42, 0.40), "nullglass": Color(0.55, 0.60, 0.95), "plate": Color(0.60, 0.68, 0.75),
+	"rivets": Color(0.78, 0.50, 0.38), "cells": Color(0.30, 0.85, 0.72), "armour": Color(0.48, 0.58, 0.70),
+	"musk": Color(0.80, 0.42, 0.62), "cask": Color(0.62, 0.42, 0.28), "gems": Color(0.90, 0.38, 0.55),
+	"ingot": Color(0.78, 0.74, 0.62), "alloy": Color(0.42, 0.68, 0.80), "spores": Color(0.62, 0.45, 0.80),
+	"gel": Color(0.40, 0.80, 0.90), "seed": Color(0.78, 0.72, 0.40),
+}
 static func commodity_col(c: String) -> Color:
 	var t := ThemeDB.get_project_theme()
 	if t != null and t.has_color("commodity_" + c, "Colors"):
@@ -35,13 +42,13 @@ static func icon(token: String) -> Texture2D:
 	var t := ThemeDB.get_project_theme()
 	if t != null and t.has_icon(token, "Icons"):
 		return t.get_icon(token, "Icons")
-	# Goods without a theme icon (silk, chips, ore): placeholder SVGs in art/icons/
+	# Goods without a theme icon (all but energy and food): placeholder SVGs in art/icons/
 	var p := "res://art/icons/icon_%s_64.svg" % token
 	if ResourceLoader.exists(p):
 		return load(p) as Texture2D
 	return null
 
-## Small tinted icon for a good (energy, food, silk, chips, ore). Never takes mouse input.
+## Small tinted icon for a good (every good). Never takes mouse input.
 static func good_icon(c: String, px: int = 18) -> TextureRect:
 	var ic := TextureRect.new()
 	ic.texture = icon(c)

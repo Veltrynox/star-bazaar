@@ -27,6 +27,7 @@ func _initialize() -> void:
 	_run.call_deferred()
 
 func _run() -> void:
+	_test_good_icons()
 	_test_story_text()
 	_test_share_helpers()
 	_test_share_graph()
@@ -4716,3 +4717,8 @@ func _learn_storage(m) -> Dictionary:
 	m.trade_income_total = t
 	m._sync_earn()
 	return r
+
+func _test_good_icons() -> void:
+	for g in Goods.ids():
+		check(Ui.icon(g) != null, "icons: good %s resolves to an icon" % g)
+		check(Ui.commodity_col(g) != Color.WHITE, "icons: good %s has a commodity colour" % g)
