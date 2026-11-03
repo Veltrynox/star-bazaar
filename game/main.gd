@@ -2835,7 +2835,7 @@ func _tut_place_card(key: String, c: Control) -> void:
 		avoid.append(sc.get_global_rect().grow(4.0))
 	var ty: float = (c.get_global_rect().get_center().y if c != null else a.get_center().y)
 	var tx: float = (c.get_global_rect().get_center().x if c != null else a.get_center().x)
-	var order: Array = ["below", "right", "left", "above"] if a.position.y < 90.0 else ["right", "left", "below", "above"]
+	var order: Array = ["below", "right", "left", "above"] if a.position.y < 90.0 and a.size.y < 120.0 else ["right", "left", "below", "above"]
 	var best := Vector2.ZERO
 	var best_side := ""
 	for side in order:
