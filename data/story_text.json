@@ -1638,6 +1638,2298 @@
   "place": "Notice, a skill point earned when a market share passes a step; {market} is the market, {pct} the step"
  },
  {
+  "id": "EV_MIL_A1_TITLE",
+  "text": "A garrison offers a standing contract",
+  "max": 40,
+  "place": "MIL_A1 choice screen title"
+ },
+ {
+  "id": "EV_MIL_A1_BODY",
+  "text": "A garrison on Ashgate's high ring has bought your first Military cargo and wants more. The quartermaster offers a standing contract, or a sale by the lot. {bot1} supplies the garrison today and stands to lose ground either way. The ink on the form is still wet.",
+  "max": 280,
+  "place": "MIL_A1 choice screen body (one body)"
+ },
+ {
+  "id": "EV_MIL_A1_OPA_BTN",
+  "text": "Sign the contract",
+  "max": 28,
+  "place": "MIL_A1 button, opt_a"
+ },
+ {
+  "id": "EV_MIL_A1_OPA_EFF",
+  "text": "Get: Military volume up a little for a while. Cost: {cash_out} credits as the deposit to the garrison. Rivals: {bot1}'s Military growth falls a little.",
+  "max": 200,
+  "place": "MIL_A1 effect line, opt_a"
+ },
+ {
+  "id": "EV_MIL_A1_OPA_RES_TITLE",
+  "text": "The contract is signed",
+  "max": 32,
+  "place": "MIL_A1 result popup title, opt_a"
+ },
+ {
+  "id": "EV_MIL_A1_OPA_RES",
+  "text": "The garrison signed and kept its old supplier as a second source. Your orders now arrive on a schedule, and the deposit is paid. {bot}'s Military growth falls a little. The quartermaster filed the page twice. The ink dried the colour of rust.",
+  "max": 280,
+  "place": "MIL_A1 result popup, opt_a; {bot} is bot_1"
+ },
+ {
+  "id": "EV_MIL_A1_OPA_STD",
+  "text": "{bot1}, Military: growth down a little.",
+  "max": 90,
+  "place": "MIL_A1 rival line 1, opt_a"
+ },
+ {
+  "id": "EV_MIL_A1_OPB_BTN",
+  "text": "Sell by the lot",
+  "max": 28,
+  "place": "MIL_A1 button, opt_b"
+ },
+ {
+  "id": "EV_MIL_A1_OPB_EFF",
+  "text": "Get: {cash_in} credits now. Cost: Military volume down a little for a few cycles; {bot3} gains a little Military strength. Rivals: {bot1}'s Military strength falls a little.",
+  "max": 200,
+  "place": "MIL_A1 effect line, opt_b"
+ },
+ {
+  "id": "EV_MIL_A1_OPB_RES_TITLE",
+  "text": "Sold by the lot",
+  "max": 32,
+  "place": "MIL_A1 result popup title, opt_b"
+ },
+ {
+  "id": "EV_MIL_A1_OPB_RES",
+  "text": "The garrison bought the whole cargo and paid at the dock. Your own orders dipped for a few cycles while the berth stood empty, and {bot3} filled the berth and gains a little Military strength. {bot}'s Military strength falls a little.",
+  "max": 280,
+  "place": "MIL_A1 result popup, opt_b; {bot} is bot_1"
+ },
+ {
+  "id": "EV_MIL_A1_OPB_STD",
+  "text": "{bot1}, Military: strength down a little.",
+  "max": 90,
+  "place": "MIL_A1 rival line 1, opt_b"
+ },
+ {
+  "id": "EV_MIL_A1_OPB_STD2",
+  "text": "{bot3}, Military: strength up a little.",
+  "max": 90,
+  "place": "MIL_A1 rival line 2, opt_b"
+ },
+ {
+  "id": "EV_MIL_A2_TITLE",
+  "text": "Two fleets ask for the same stock",
+  "max": 40,
+  "place": "MIL_A2 choice screen title"
+ },
+ {
+  "id": "EV_MIL_A2_BODY_A",
+  "text": "Your standing contract with the garrison is in force. Two fleets at a border post, which do not speak, ask for the same stock in the same cycle. {bot1} serves one of them. {bot3} carries the messages. Orders can be filled in dock order, or by contract term.",
+  "max": 280,
+  "place": "MIL_A2 choice screen body after opt_a of MIL_A1"
+ },
+ {
+  "id": "EV_MIL_A2_BODY_B",
+  "text": "You sold the garrison its cargo by the lot. Two fleets at a border post, which do not speak, ask for the same stock in the same cycle. {bot1} serves one of them. {bot3} carries the messages. Orders can be filled in dock order, or by contract term.",
+  "max": 280,
+  "place": "MIL_A2 choice screen body after opt_b of MIL_A1"
+ },
+ {
+  "id": "EV_MIL_A2_OPA_BTN",
+  "text": "Fill orders by dock",
+  "max": 28,
+  "place": "MIL_A2 button, opt_a"
+ },
+ {
+  "id": "EV_MIL_A2_OPA_EFF",
+  "text": "Get: Military price up a little for a while. Cost: Ship upkeep rises a little for a while. Rivals: {bot3}'s Military growth falls a little.",
+  "max": 200,
+  "place": "MIL_A2 effect line, opt_a"
+ },
+ {
+  "id": "EV_MIL_A2_OPA_RES_TITLE",
+  "text": "Orders filled by dock",
+  "max": 32,
+  "place": "MIL_A2 result popup title, opt_a"
+ },
+ {
+  "id": "EV_MIL_A2_OPA_RES",
+  "text": "Orders went out in dock order, and both fleets were supplied, each told the other had been too. Your hulls keep two sets of berths, so Ship upkeep rises for a while. {bot}, the go-between, finds the post needs one less, and its Military growth falls a little.",
+  "max": 280,
+  "place": "MIL_A2 result popup, opt_a; {bot} is bot_3"
+ },
+ {
+  "id": "EV_MIL_A2_OPA_STD",
+  "text": "{bot3}, Military: growth down a little.",
+  "max": 90,
+  "place": "MIL_A2 rival line 1, opt_a"
+ },
+ {
+  "id": "EV_MIL_A2_OPB_BTN",
+  "text": "Fill orders by term",
+  "max": 28,
+  "place": "MIL_A2 button, opt_b"
+ },
+ {
+  "id": "EV_MIL_A2_OPB_EFF",
+  "text": "Get: {n} units of tech progress at the Munitions Line. Cost: {cash_out} credits for the stock. Rivals: {bot1} {cut} in Military.",
+  "max": 200,
+  "place": "MIL_A2 effect line, opt_b"
+ },
+ {
+  "id": "EV_MIL_A2_OPB_RES_TITLE",
+  "text": "Orders filled by term",
+  "max": 32,
+  "place": "MIL_A2 result popup title, opt_b"
+ },
+ {
+  "id": "EV_MIL_A2_OPB_RES",
+  "text": "Orders went out by contract term, and the fleet that {bot1} does not serve held the better terms. Its engineers left their notes on your bench. {bot}'s client fell behind its own line, and {bot} was cut back in Military. The stock cost you.",
+  "max": 280,
+  "place": "MIL_A2 result popup, opt_b; {bot} is bot_1"
+ },
+ {
+  "id": "EV_MIL_A2_OPB_STD",
+  "text": "{bot1}, Military: {cut_std}.",
+  "max": 90,
+  "place": "MIL_A2 rival line 1, opt_b"
+ },
+ {
+  "id": "EV_MIL_A3_TITLE",
+  "text": "A quartermaster sells a ledger",
+  "max": 40,
+  "place": "MIL_A3 choice screen title"
+ },
+ {
+  "id": "EV_MIL_A3_BODY_A",
+  "text": "Your orders went out in dock order. The post's quartermaster waits at the dock with a case. In it is {bot1}'s ledger of clients, prices and berths, copied by hand. He names a price, and says a ledger is only a list until someone reads it.",
+  "max": 280,
+  "place": "MIL_A3 choice screen body after opt_a of MIL_A2"
+ },
+ {
+  "id": "EV_MIL_A3_BODY_B",
+  "text": "Your orders went out by contract term. The post's quartermaster waits at the dock with a case. In it is {bot1}'s ledger of clients, prices and berths, copied by hand. He names a price, and says a ledger is only a list until someone reads it.",
+  "max": 280,
+  "place": "MIL_A3 choice screen body after opt_b of MIL_A2"
+ },
+ {
+  "id": "EV_MIL_A3_OPA_BTN",
+  "text": "Hand it to your buyers",
+  "max": 28,
+  "place": "MIL_A3 button, opt_a"
+ },
+ {
+  "id": "EV_MIL_A3_OPA_EFF",
+  "text": "Get: {cash_in} credits; Military volume up a little for a while. Cost: Ship upkeep up a little for a while; {bot3} gains a little Military strength. Rivals: {bot1}'s Military strength falls clearly.",
+  "max": 200,
+  "place": "MIL_A3 effect line, opt_a"
+ },
+ {
+  "id": "EV_MIL_A3_OPA_RES_TITLE",
+  "text": "The ledger goes to buyers",
+  "max": 32,
+  "place": "MIL_A3 result popup title, opt_a"
+ },
+ {
+  "id": "EV_MIL_A3_OPA_RES",
+  "text": "Your buyers read the ledger and called on the clients it listed. Cash came in and orders rose, and the extra hulls raise Ship upkeep a little for a while. {bot}'s Military strength falls clearly. The case was copied twice, and one copy reached {bot3}.",
+  "max": 280,
+  "place": "MIL_A3 result popup, opt_a; {bot} is bot_1"
+ },
+ {
+  "id": "EV_MIL_A3_OPA_STD",
+  "text": "{bot1}, Military: strength down clearly.",
+  "max": 90,
+  "place": "MIL_A3 rival line 1, opt_a"
+ },
+ {
+  "id": "EV_MIL_A3_OPA_STD2",
+  "text": "{bot3}, Military: strength up a little.",
+  "max": 90,
+  "place": "MIL_A3 rival line 2, opt_a"
+ },
+ {
+  "id": "EV_MIL_A3_OPB_BTN",
+  "text": "Hand it to your workshop",
+  "max": 28,
+  "place": "MIL_A3 button, opt_b"
+ },
+ {
+  "id": "EV_MIL_A3_OPB_EFF",
+  "text": "Get: {n} units of tech progress at the Munitions Line. Cost: {cash_out} credits to the quartermaster. Rivals: {bot1}'s Military strength and {bot3}'s Military growth fall a little.",
+  "max": 200,
+  "place": "MIL_A3 effect line, opt_b"
+ },
+ {
+  "id": "EV_MIL_A3_OPB_RES_TITLE",
+  "text": "The ledger goes to the shop",
+  "max": 32,
+  "place": "MIL_A3 result popup title, opt_b"
+ },
+ {
+  "id": "EV_MIL_A3_OPB_RES",
+  "text": "Your workshop read the ledger and compared its parts and casting notes with your own. Tech progress came in. {bot}'s Military strength falls a little, and {bot3}, whose orders were listed too, grows more slowly. You paid the quartermaster.",
+  "max": 280,
+  "place": "MIL_A3 result popup, opt_b; {bot} is bot_1"
+ },
+ {
+  "id": "EV_MIL_A3_OPB_STD",
+  "text": "{bot1}, Military: strength down a little.",
+  "max": 90,
+  "place": "MIL_A3 rival line 1, opt_b"
+ },
+ {
+  "id": "EV_MIL_A3_OPB_STD2",
+  "text": "{bot3}, Military: growth down a little.",
+  "max": 90,
+  "place": "MIL_A3 rival line 2, opt_b"
+ },
+ {
+  "id": "EV_MIL_B1_TITLE",
+  "text": "A fleet needs a refit fast",
+  "max": 40,
+  "place": "MIL_B1 choice screen title"
+ },
+ {
+  "id": "EV_MIL_B1_BODY",
+  "text": "A fleet on the high ring must be refitted before the next treaty review, and every drydock is booked. The admiral will pay for berths. {bot1} holds most of them, and {bot3} counts on the spare slips. Hull plates wait in the dark.",
+  "max": 280,
+  "place": "MIL_B1 choice screen body (one body)"
+ },
+ {
+  "id": "EV_MIL_B1_OPA_BTN",
+  "text": "Take the main berths",
+  "max": 28,
+  "place": "MIL_B1 button, opt_a"
+ },
+ {
+  "id": "EV_MIL_B1_OPA_EFF",
+  "text": "Get: {cash_in} credits now. Cost: Ship upkeep rises clearly for a while. Rivals: {bot1}'s Military strength falls sharply.",
+  "max": 200,
+  "place": "MIL_B1 effect line, opt_a"
+ },
+ {
+  "id": "EV_MIL_B1_OPA_RES_TITLE",
+  "text": "The berths are taken",
+  "max": 32,
+  "place": "MIL_B1 result popup title, opt_a"
+ },
+ {
+  "id": "EV_MIL_B1_OPA_RES",
+  "text": "You took the berths that {bot1} held and refitted the fleet there. The admiral paid at once. Your ships ran extra shifts, and Ship upkeep rises for a while. {bot}'s slips stand empty and its Military strength falls sharply. The plates were still warm when signed for.",
+  "max": 280,
+  "place": "MIL_B1 result popup, opt_a; {bot} is bot_1"
+ },
+ {
+  "id": "EV_MIL_B1_OPA_STD",
+  "text": "{bot1}, Military: strength down sharply.",
+  "max": 90,
+  "place": "MIL_B1 rival line 1, opt_a"
+ },
+ {
+  "id": "EV_MIL_B1_OPB_BTN",
+  "text": "Take the spare slips",
+  "max": 28,
+  "place": "MIL_B1 button, opt_b"
+ },
+ {
+  "id": "EV_MIL_B1_OPB_EFF",
+  "text": "Get: Military volume up a little for the rest of the run. Cost: {cash_out} credits for the slips. Rivals: {bot3}'s Military growth falls a little.",
+  "max": 200,
+  "place": "MIL_B1 effect line, opt_b"
+ },
+ {
+  "id": "EV_MIL_B1_OPB_RES_TITLE",
+  "text": "The spare slips are taken",
+  "max": 32,
+  "place": "MIL_B1 result popup title, opt_b"
+ },
+ {
+  "id": "EV_MIL_B1_OPB_RES",
+  "text": "You paid for the spare slips that {bot3} had counted on and refitted the fleet there. The slips are yours to keep, so your Military volume rises. {bot}'s Military growth falls a little. The plates came back with a faint ring in them.",
+  "max": 280,
+  "place": "MIL_B1 result popup, opt_b; {bot} is bot_3"
+ },
+ {
+  "id": "EV_MIL_B1_OPB_STD",
+  "text": "{bot3}, Military: growth down a little.",
+  "max": 90,
+  "place": "MIL_B1 rival line 1, opt_b"
+ },
+ {
+  "id": "EV_MIL_B2_TITLE",
+  "text": "A treaty office queries a part",
+  "max": 40,
+  "place": "MIL_B2 choice screen title"
+ },
+ {
+  "id": "EV_MIL_B2_BODY_A",
+  "text": "You refitted at the berths {bot1} held, and a treaty office queries one fitting in the batch. It will review every fleet that carries the part. You may send the part for review, or swap it and refile. {bot2}'s parade squadrons carry it. So do {bot1}'s older fleets.",
+  "max": 280,
+  "place": "MIL_B2 choice screen body after opt_a of MIL_B1"
+ },
+ {
+  "id": "EV_MIL_B2_BODY_B",
+  "text": "You refitted at the spare slips, and a treaty office queries one fitting in the batch. It will review every fleet that carries the part. You may send the part for review, or swap it and refile. {bot2}'s parade squadrons carry it. So do {bot1}'s older fleets.",
+  "max": 280,
+  "place": "MIL_B2 choice screen body after opt_b of MIL_B1"
+ },
+ {
+  "id": "EV_MIL_B2_OPA_BTN",
+  "text": "Send the part for review",
+  "max": 28,
+  "place": "MIL_B2 button, opt_a"
+ },
+ {
+  "id": "EV_MIL_B2_OPA_EFF",
+  "text": "Get: Military price up a little for a while. Cost: one route's trip cost rises a little for a while. Rivals: {bot2}'s Military strength falls a little.",
+  "max": 200,
+  "place": "MIL_B2 effect line, opt_a"
+ },
+ {
+  "id": "EV_MIL_B2_OPA_RES_TITLE",
+  "text": "The office reviews the part",
+  "max": 32,
+  "place": "MIL_B2 result popup title, opt_a"
+ },
+ {
+  "id": "EV_MIL_B2_OPA_RES",
+  "text": "You sent the part for review. The office read your forms, then everyone else's. {bot}, whose parade squadrons carry the same part, lost contracts, and its Military strength falls a little. The cleared stamp lifts prices for a while. One route sat in a queue.",
+  "max": 280,
+  "place": "MIL_B2 result popup, opt_a; {bot} is bot_2"
+ },
+ {
+  "id": "EV_MIL_B2_OPA_STD",
+  "text": "{bot2}, Military: strength down a little.",
+  "max": 90,
+  "place": "MIL_B2 rival line 1, opt_a"
+ },
+ {
+  "id": "EV_MIL_B2_OPB_BTN",
+  "text": "Swap the part and refile",
+  "max": 28,
+  "place": "MIL_B2 button, opt_b"
+ },
+ {
+  "id": "EV_MIL_B2_OPB_EFF",
+  "text": "Get: {cash_in} credits for the old part. Cost: Military volume down a little for a few cycles. Rivals: {bot1}'s Military strength falls a little.",
+  "max": 200,
+  "place": "MIL_B2 effect line, opt_b"
+ },
+ {
+  "id": "EV_MIL_B2_OPB_RES_TITLE",
+  "text": "The part is swapped",
+  "max": 32,
+  "place": "MIL_B2 result popup title, opt_b"
+ },
+ {
+  "id": "EV_MIL_B2_OPB_RES",
+  "text": "You swapped the part, sold the old one and refiled. The office read {bot1}'s older fleets under the same clause. {bot}'s Military strength falls a little, and its fleets stood idle for the review. Your ships waited for new fittings.",
+  "max": 280,
+  "place": "MIL_B2 result popup, opt_b; {bot} is bot_1"
+ },
+ {
+  "id": "EV_MIL_B2_OPB_STD",
+  "text": "{bot1}, Military: strength down a little.",
+  "max": 90,
+  "place": "MIL_B2 rival line 1, opt_b"
+ },
+ {
+  "id": "EV_MIL_B3_TITLE",
+  "text": "A trade show offers a stall",
+  "max": 40,
+  "place": "MIL_B3 choice screen title"
+ },
+ {
+  "id": "EV_MIL_B3_BODY_A",
+  "text": "The office has finished its review of the part, and a trade show offers you a stall. {bot3} keeps a stand there every year, always full. {bot2} holds a gala next door. You may buy the main hall for the week, or take the east stand beside {bot3}'s.",
+  "max": 280,
+  "place": "MIL_B3 choice screen body after opt_a of MIL_B2"
+ },
+ {
+  "id": "EV_MIL_B3_BODY_B",
+  "text": "The office has filed its ruling on the refiled part, and a trade show offers you a stall. {bot3} keeps a stand there every year, always full. {bot2} holds a gala next door. You may buy the main hall for the week, or take the east stand beside {bot3}'s.",
+  "max": 280,
+  "place": "MIL_B3 choice screen body after opt_b of MIL_B2"
+ },
+ {
+  "id": "EV_MIL_B3_OPA_BTN",
+  "text": "Buy the main hall",
+  "max": 28,
+  "place": "MIL_B3 button, opt_a"
+ },
+ {
+  "id": "EV_MIL_B3_OPA_EFF",
+  "text": "Get: Military volume up a little for a while. Cost: {cash_out} credits for the main hall. Rivals: {bot3}'s Military strength falls clearly.",
+  "max": 200,
+  "place": "MIL_B3 effect line, opt_a"
+ },
+ {
+  "id": "EV_MIL_B3_OPA_RES_TITLE",
+  "text": "The main hall is yours",
+  "max": 32,
+  "place": "MIL_B3 result popup title, opt_a"
+ },
+ {
+  "id": "EV_MIL_B3_OPA_RES",
+  "text": "You bought the hall for the week. Buyers walked past empty stands to reach yours, and your orders rose for a while. {bot} sold from the corridor, and its Military strength falls clearly. The fee was paid on the day. The hall echoed after the last buyer left.",
+  "max": 280,
+  "place": "MIL_B3 result popup, opt_a; {bot} is bot_3"
+ },
+ {
+  "id": "EV_MIL_B3_OPA_STD",
+  "text": "{bot3}, Military: strength down clearly.",
+  "max": 90,
+  "place": "MIL_B3 rival line 1, opt_a"
+ },
+ {
+  "id": "EV_MIL_B3_OPB_BTN",
+  "text": "Take the east stand",
+  "max": 28,
+  "place": "MIL_B3 button, opt_b"
+ },
+ {
+  "id": "EV_MIL_B3_OPB_EFF",
+  "text": "Get: {n} units of tech progress. Cost: {cash_out} credits for the stand. Rivals: {bot2}'s strength and all three rivals' growth fall a little in Military.",
+  "max": 200,
+  "place": "MIL_B3 effect line, opt_b"
+ },
+ {
+  "id": "EV_MIL_B3_OPB_RES_TITLE",
+  "text": "The east stand",
+  "max": 32,
+  "place": "MIL_B3 result popup title, opt_b"
+ },
+ {
+  "id": "EV_MIL_B3_OPB_RES",
+  "text": "You took the east stand beside {bot3}'s. The stand fee was paid on the day. Two engineers from the next stand talked shop for an hour. {bot2}, whose gala crowd walked past, loses a little Military strength, and all three rivals, {bot} among them, grow more slowly.",
+  "max": 280,
+  "place": "MIL_B3 result popup, opt_b; {bot} is bot_1"
+ },
+ {
+  "id": "EV_MIL_B3_OPB_STD",
+  "text": "All three rivals, Military: growth down a little.",
+  "max": 90,
+  "place": "MIL_B3 rival line 1, opt_b"
+ },
+ {
+  "id": "EV_MIL_B3_OPB_STD2",
+  "text": "{bot2}, Military: strength down a little.",
+  "max": 90,
+  "place": "MIL_B3 rival line 2, opt_b"
+ },
+ {
+  "id": "EV_MIL_B4_TITLE",
+  "text": "A buyer asks you to set terms",
+  "max": 40,
+  "place": "MIL_B4 choice screen title"
+ },
+ {
+  "id": "EV_MIL_B4_BODY_A",
+  "text": "Your week in the main hall brought the fleets to you. A large buyer asks you to set the terms of a supply agreement for many cycles: deliveries can be rostered by garrison, or by week. {bot} has lost ground to you and watches from the door.",
+  "max": 280,
+  "place": "MIL_B4 choice screen body after opt_a of MIL_B3"
+ },
+ {
+  "id": "EV_MIL_B4_BODY_B",
+  "text": "Your days at the east stand brought the fleets to you. A large buyer asks you to set the terms of a supply agreement for many cycles: deliveries can be rostered by garrison, or by week. {bot} has lost ground to you and watches from the door.",
+  "max": 280,
+  "place": "MIL_B4 choice screen body after opt_b of MIL_B3"
+ },
+ {
+  "id": "EV_MIL_B4_OPA_BTN",
+  "text": "Roster by garrison",
+  "max": 28,
+  "place": "MIL_B4 button, opt_a"
+ },
+ {
+  "id": "EV_MIL_B4_OPA_EFF",
+  "text": "Get: Military price up a little for a while. Cost: Military volume down a little for a while. Rivals: {bot1}'s Military strength falls clearly.",
+  "max": 200,
+  "place": "MIL_B4 effect line, opt_a"
+ },
+ {
+  "id": "EV_MIL_B4_OPA_RES_TITLE",
+  "text": "Rostered by garrison",
+  "max": 32,
+  "place": "MIL_B4 result popup title, opt_a"
+ },
+ {
+  "id": "EV_MIL_B4_OPA_RES",
+  "text": "Deliveries are now rostered by garrison. Orders thinned for a while as the rosters were written, and the price of standing orders rose. {bot} had counted on the fleets as its client, and its Military strength falls clearly.",
+  "max": 280,
+  "place": "MIL_B4 result popup, opt_a; {bot} is bot_1"
+ },
+ {
+  "id": "EV_MIL_B4_OPA_STD",
+  "text": "{bot1}, Military: strength down clearly.",
+  "max": 90,
+  "place": "MIL_B4 rival line 1, opt_a"
+ },
+ {
+  "id": "EV_MIL_B4_OPB_BTN",
+  "text": "Roster by week",
+  "max": 28,
+  "place": "MIL_B4 button, opt_b"
+ },
+ {
+  "id": "EV_MIL_B4_OPB_EFF",
+  "text": "Get: {cash_in} credits. Cost: Ship upkeep rises clearly for a while. Rivals: {bot1}'s Military strength falls clearly; {bot3}'s falls a little.",
+  "max": 200,
+  "place": "MIL_B4 effect line, opt_b"
+ },
+ {
+  "id": "EV_MIL_B4_OPB_RES_TITLE",
+  "text": "Rostered by week",
+  "max": 32,
+  "place": "MIL_B4 result popup title, opt_b"
+ },
+ {
+  "id": "EV_MIL_B4_OPB_RES",
+  "text": "Deliveries are now rostered by week from your desk, and the fleets are held ready. A large payment arrived. Hulls kept ready cost more to keep, and Ship upkeep rises for a while. {bot}'s Military strength falls clearly, and {bot3}'s a little.",
+  "max": 280,
+  "place": "MIL_B4 result popup, opt_b; {bot} is bot_1"
+ },
+ {
+  "id": "EV_MIL_B4_OPB_STD",
+  "text": "{bot1}, Military: strength down clearly.",
+  "max": 90,
+  "place": "MIL_B4 rival line 1, opt_b"
+ },
+ {
+  "id": "EV_MIL_B4_OPB_STD2",
+  "text": "{bot3}, Military: strength down a little.",
+  "max": 90,
+  "place": "MIL_B4 rival line 2, opt_b"
+ },
+ {
+  "id": "EV_LUX_A1_TITLE",
+  "text": "A patron asks for first pick",
+  "max": 40,
+  "place": "LUX_A1 choice screen title"
+ },
+ {
+  "id": "EV_LUX_A1_BODY",
+  "text": "A patron on Quillon's gallery ring wants the first batch of every cycle, before any other buyer sees the crate. {bot2} supplies the patron today, and {bot3} keeps a counter on the same ring. You may set a first-pick price, or sell one first lot outright.",
+  "max": 280,
+  "place": "LUX_A1 choice screen body (one body)"
+ },
+ {
+  "id": "EV_LUX_A1_OPA_BTN",
+  "text": "Set a first-pick price",
+  "max": 28,
+  "place": "LUX_A1 button, opt_a"
+ },
+ {
+  "id": "EV_LUX_A1_OPA_EFF",
+  "text": "Get: Luxury price up a little for a while. Cost: Luxury volume down a little for a while. Rivals: {bot2}'s Luxury strength falls a little.",
+  "max": 200,
+  "place": "LUX_A1 effect line, opt_a"
+ },
+ {
+  "id": "EV_LUX_A1_OPA_RES_TITLE",
+  "text": "The first pick is priced",
+  "max": 32,
+  "place": "LUX_A1 result popup title, opt_a"
+ },
+ {
+  "id": "EV_LUX_A1_OPA_RES",
+  "text": "The patron agreed a first-pick price, and the crates now go to the gallery ring before the shelves. Fewer reach the general counters, so volume dips for a while. {bot} lost the patron's first look, and its Luxury strength falls a little. The patron sniffed every lid.",
+  "max": 280,
+  "place": "LUX_A1 result popup, opt_a; {bot} is bot_2"
+ },
+ {
+  "id": "EV_LUX_A1_OPA_STD",
+  "text": "{bot2}, Luxury: strength down a little.",
+  "max": 90,
+  "place": "LUX_A1 rival line 1, opt_a"
+ },
+ {
+  "id": "EV_LUX_A1_OPB_BTN",
+  "text": "Sell one first lot",
+  "max": 28,
+  "place": "LUX_A1 button, opt_b"
+ },
+ {
+  "id": "EV_LUX_A1_OPB_EFF",
+  "text": "Get: {cash_in} credits now. Cost: Luxury volume down a little for a few cycles; {bot2} grows a little faster in Luxury. Rivals: {bot3}'s Luxury strength falls a little.",
+  "max": 200,
+  "place": "LUX_A1 effect line, opt_b"
+ },
+ {
+  "id": "EV_LUX_A1_OPB_RES_TITLE",
+  "text": "The first lot is sold",
+  "max": 32,
+  "place": "LUX_A1 result popup title, opt_b"
+ },
+ {
+  "id": "EV_LUX_A1_OPB_RES",
+  "text": "The patron paid for one first lot at the dock and the cash arrived the same hour. Shelves stood bare for a few cycles. {bot2} supplied the patron's next lot and grows a little faster in Luxury, while {bot} finds its counter on the ring emptier and its strength falls a little.",
+  "max": 280,
+  "place": "LUX_A1 result popup, opt_b; {bot} is bot_3"
+ },
+ {
+  "id": "EV_LUX_A1_OPB_STD",
+  "text": "{bot3}, Luxury: strength down a little.",
+  "max": 90,
+  "place": "LUX_A1 rival line 1, opt_b"
+ },
+ {
+  "id": "EV_LUX_A1_OPB_STD2",
+  "text": "{bot2}, Luxury: growth up a little.",
+  "max": 90,
+  "place": "LUX_A1 rival line 2, opt_b"
+ },
+ {
+  "id": "EV_LUX_A2_TITLE",
+  "text": "A master finisher takes offers",
+  "max": 40,
+  "place": "LUX_A2 choice screen title"
+ },
+ {
+  "id": "EV_LUX_A2_BODY_A",
+  "text": "The patron's first pick is priced and the crates go out. A master finisher has left a guild atelier and takes offers for a season's work. {bot2} wants the hands for its own gem room. You may hire the finisher, or take the finisher's pieces on contract.",
+  "max": 280,
+  "place": "LUX_A2 choice screen body after opt_a of LUX_A1"
+ },
+ {
+  "id": "EV_LUX_A2_BODY_B",
+  "text": "The patron has bought its first lot. A master finisher has left a guild atelier and takes offers for a season's work. {bot2} wants the hands for its own gem room. You may hire the finisher, or take the finisher's pieces on contract.",
+  "max": 280,
+  "place": "LUX_A2 choice screen body after opt_b of LUX_A1"
+ },
+ {
+  "id": "EV_LUX_A2_OPA_BTN",
+  "text": "Hire the finisher",
+  "max": 28,
+  "place": "LUX_A2 button, opt_a"
+ },
+ {
+  "id": "EV_LUX_A2_OPA_EFF",
+  "text": "Get: {n} units of tech progress at the Atelier. Cost: {cash_out} credits in fees. Rivals: {bot2}'s Luxury growth falls sharply.",
+  "max": 200,
+  "place": "LUX_A2 effect line, opt_a"
+ },
+ {
+  "id": "EV_LUX_A2_OPA_RES_TITLE",
+  "text": "The finisher joins the atelier",
+  "max": 32,
+  "place": "LUX_A2 result popup title, opt_a"
+ },
+ {
+  "id": "EV_LUX_A2_OPA_RES",
+  "text": "The finisher took a bench in your atelier and showed the crew a cut they had not seen. Tech progress came in, and the fees were paid. {bot} had planned the hands for its gem room, and its Luxury growth falls sharply. The old bench still bears chalk marks.",
+  "max": 280,
+  "place": "LUX_A2 result popup, opt_a; {bot} is bot_2"
+ },
+ {
+  "id": "EV_LUX_A2_OPA_STD",
+  "text": "{bot2}, Luxury: growth down sharply.",
+  "max": 90,
+  "place": "LUX_A2 rival line 1, opt_a"
+ },
+ {
+  "id": "EV_LUX_A2_OPB_BTN",
+  "text": "Take the pieces",
+  "max": 28,
+  "place": "LUX_A2 button, opt_b"
+ },
+ {
+  "id": "EV_LUX_A2_OPB_EFF",
+  "text": "Get: Luxury volume up a little for the rest of the run. Cost: Luxury price down a little for a few cycles. Rivals: {bot2} {cut} in Luxury.",
+  "max": 200,
+  "place": "LUX_A2 effect line, opt_b"
+ },
+ {
+  "id": "EV_LUX_A2_OPB_RES_TITLE",
+  "text": "Pieces on contract",
+  "max": 32,
+  "place": "LUX_A2 result popup title, opt_b"
+ },
+ {
+  "id": "EV_LUX_A2_OPB_RES",
+  "text": "The finisher's pieces came to you on contract and fill your counters, priced a little low for a few cycles. {bot} lost the finisher's work and was cut back in Luxury: fewer crates, fewer buyers. The gems came with a hallmark in an unknown hand.",
+  "max": 280,
+  "place": "LUX_A2 result popup, opt_b; {bot} is bot_2"
+ },
+ {
+  "id": "EV_LUX_A2_OPB_STD",
+  "text": "{bot2}, Luxury: {cut_std}.",
+  "max": 90,
+  "place": "LUX_A2 rival line 1, opt_b"
+ },
+ {
+  "id": "EV_LUX_A3_TITLE",
+  "text": "A buyer returns a rival's batch",
+  "max": 40,
+  "place": "LUX_A3 choice screen title"
+ },
+ {
+  "id": "EV_LUX_A3_BODY_A",
+  "text": "The finisher is at your atelier. A buyer has sent back a whole batch of {bot2}'s work and asks you to fill the order. The buyer will pay a premium for a name, or give a place on its list for a price a little low. {bot3} keeps a table at the buyer's door.",
+  "max": 280,
+  "place": "LUX_A3 choice screen body after opt_a of LUX_A2"
+ },
+ {
+  "id": "EV_LUX_A3_BODY_B",
+  "text": "The finisher's pieces are on your counters. A buyer has sent back a whole batch of {bot2}'s work and asks you to fill the order. The buyer will pay a premium for a name, or give a place on its list for a price a little low. {bot3} keeps a table at the buyer's door.",
+  "max": 280,
+  "place": "LUX_A3 choice screen body after opt_b of LUX_A2"
+ },
+ {
+  "id": "EV_LUX_A3_OPA_BTN",
+  "text": "Fill the order by name",
+  "max": 28,
+  "place": "LUX_A3 button, opt_a"
+ },
+ {
+  "id": "EV_LUX_A3_OPA_EFF",
+  "text": "Get: Luxury price up clearly for a while. Cost: {cash_out} credits for the hallmarks. Rivals: {bot2}'s Luxury strength falls sharply for a few cycles.",
+  "max": 200,
+  "place": "LUX_A3 effect line, opt_a"
+ },
+ {
+  "id": "EV_LUX_A3_OPA_RES_TITLE",
+  "text": "Filled by name",
+  "max": 32,
+  "place": "LUX_A3 result popup title, opt_a"
+ },
+ {
+  "id": "EV_LUX_A3_OPA_RES",
+  "text": "You filled the order under your own mark and the buyer paid the premium. The hallmarks cost credits. {bot}, whose batch was sent back, loses Luxury strength sharply for a few cycles. The returned crates sit in the buyer's cellar, unopened.",
+  "max": 280,
+  "place": "LUX_A3 result popup, opt_a; {bot} is bot_2"
+ },
+ {
+  "id": "EV_LUX_A3_OPA_STD",
+  "text": "{bot2}, Luxury: strength down sharply for a few cycles.",
+  "max": 90,
+  "place": "LUX_A3 rival line 1, opt_a"
+ },
+ {
+  "id": "EV_LUX_A3_OPB_BTN",
+  "text": "Fill the order by list",
+  "max": 28,
+  "place": "LUX_A3 button, opt_b"
+ },
+ {
+  "id": "EV_LUX_A3_OPB_EFF",
+  "text": "Get: Luxury volume up a little for a while. Cost: Luxury price down a little for a few cycles. Rivals: {bot3}'s Luxury strength falls a little.",
+  "max": 200,
+  "place": "LUX_A3 effect line, opt_b"
+ },
+ {
+  "id": "EV_LUX_A3_OPB_RES_TITLE",
+  "text": "Filled by list",
+  "max": 32,
+  "place": "LUX_A3 result popup title, opt_b"
+ },
+ {
+  "id": "EV_LUX_A3_OPB_RES",
+  "text": "You filled the order for a place on the buyer's list, at a price a little low for a few cycles. The list sends its friends, so your orders rose for a while. {bot}, whose table stood by the door, loses a little Luxury strength.",
+  "max": 280,
+  "place": "LUX_A3 result popup, opt_b; {bot} is bot_3"
+ },
+ {
+  "id": "EV_LUX_A3_OPB_STD",
+  "text": "{bot3}, Luxury: strength down a little.",
+  "max": 90,
+  "place": "LUX_A3 rival line 1, opt_b"
+ },
+ {
+  "id": "EV_LUX_B1_TITLE",
+  "text": "A venue books a date",
+  "max": 40,
+  "place": "LUX_B1 choice screen title"
+ },
+ {
+  "id": "EV_LUX_B1_BODY",
+  "text": "A pavilion on the Quillon ring has booked a date for a masked evening and wants stock for it: silk, sunmusk, cut glimmers. {bot2} supplies the pavilion's cellar, and {bot3} stands ready with samples. You may sell the venue its stock, or stock the stalls yourself.",
+  "max": 280,
+  "place": "LUX_B1 choice screen body (one body)"
+ },
+ {
+  "id": "EV_LUX_B1_OPA_BTN",
+  "text": "Sell the venue its stock",
+  "max": 28,
+  "place": "LUX_B1 button, opt_a"
+ },
+ {
+  "id": "EV_LUX_B1_OPA_EFF",
+  "text": "Get: {cash_in} credits now. Cost: Luxury volume down a little for a while. Rivals: {bot2}'s Luxury growth falls a little.",
+  "max": 200,
+  "place": "LUX_B1 effect line, opt_a"
+ },
+ {
+  "id": "EV_LUX_B1_OPA_RES_TITLE",
+  "text": "The venue buys its stock",
+  "max": 32,
+  "place": "LUX_B1 result popup title, opt_a"
+ },
+ {
+  "id": "EV_LUX_B1_OPA_RES",
+  "text": "The venue bought its stock outright and paid on the night. Your own counters ran thin while the crates were gone. {bot}'s cellar supply lost the date, and its Luxury growth falls a little. The masks in the pavilion all faced the door.",
+  "max": 280,
+  "place": "LUX_B1 result popup, opt_a; {bot} is bot_2"
+ },
+ {
+  "id": "EV_LUX_B1_OPA_STD",
+  "text": "{bot2}, Luxury: growth down a little.",
+  "max": 90,
+  "place": "LUX_B1 rival line 1, opt_a"
+ },
+ {
+  "id": "EV_LUX_B1_OPB_BTN",
+  "text": "Stock the stalls yourself",
+  "max": 28,
+  "place": "LUX_B1 button, opt_b"
+ },
+ {
+  "id": "EV_LUX_B1_OPB_EFF",
+  "text": "Get: Luxury volume up clearly for a while. Cost: {cash_out} credits for the stalls. Rivals: {bot2}'s Luxury strength falls clearly.",
+  "max": 200,
+  "place": "LUX_B1 effect line, opt_b"
+ },
+ {
+  "id": "EV_LUX_B1_OPB_RES_TITLE",
+  "text": "Your stalls fill the evening",
+  "max": 32,
+  "place": "LUX_B1 result popup title, opt_b"
+ },
+ {
+  "id": "EV_LUX_B1_OPB_RES",
+  "text": "Your stalls stood in the pavilion all evening, and buyers came to them first. The stalls cost credits, and your orders rose for a while. {bot} found its crates unwanted, and its Luxury strength falls clearly. A mask with nothing behind it hung on every pillar.",
+  "max": 280,
+  "place": "LUX_B1 result popup, opt_b; {bot} is bot_2"
+ },
+ {
+  "id": "EV_LUX_B1_OPB_STD",
+  "text": "{bot2}, Luxury: strength down clearly.",
+  "max": 90,
+  "place": "LUX_B1 rival line 1, opt_b"
+ },
+ {
+  "id": "EV_LUX_B2_TITLE",
+  "text": "The venue's list goes public",
+  "max": 40,
+  "place": "LUX_B2 choice screen title"
+ },
+ {
+  "id": "EV_LUX_B2_BODY_A",
+  "text": "You sold the venue its stock. Now the pavilion's list of buyers has been posted on a wall for a day, every name and every order. {bot3} copied it by the hour, and {bot2} denied there was a list. You may study the list at your atelier, or sell your copy.",
+  "max": 280,
+  "place": "LUX_B2 choice screen body after opt_a of LUX_B1"
+ },
+ {
+  "id": "EV_LUX_B2_BODY_B",
+  "text": "You stocked the venue's stalls. Now the pavilion's list of buyers has been posted on a wall for a day, every name and every order. {bot3} copied it by the hour, and {bot2} denied there was a list. You may study the list at your atelier, or sell your copy.",
+  "max": 280,
+  "place": "LUX_B2 choice screen body after opt_b of LUX_B1"
+ },
+ {
+  "id": "EV_LUX_B2_OPA_BTN",
+  "text": "Study the list",
+  "max": 28,
+  "place": "LUX_B2 button, opt_a"
+ },
+ {
+  "id": "EV_LUX_B2_OPA_EFF",
+  "text": "Get: {n} units of tech progress at the Atelier. Cost: Luxury price down a little for a few cycles. Rivals: {bot2}'s Luxury strength falls a little; {bot3}'s growth falls sharply.",
+  "max": 200,
+  "place": "LUX_B2 effect line, opt_a"
+ },
+ {
+  "id": "EV_LUX_B2_OPA_RES_TITLE",
+  "text": "The list is studied",
+  "max": 32,
+  "place": "LUX_B2 result popup title, opt_a"
+ },
+ {
+  "id": "EV_LUX_B2_OPA_RES",
+  "text": "Your atelier read the names against the orders and learned which cuts the buyers asked for. Tech progress came in, and prices dipped a little for a few cycles as buyers saw your hand. {bot2}'s Luxury strength falls a little, and {bot}'s Luxury growth falls sharply.",
+  "max": 280,
+  "place": "LUX_B2 result popup, opt_a; {bot} is bot_3"
+ },
+ {
+  "id": "EV_LUX_B2_OPA_STD",
+  "text": "{bot3}, Luxury: growth down sharply.",
+  "max": 90,
+  "place": "LUX_B2 rival line 1, opt_a"
+ },
+ {
+  "id": "EV_LUX_B2_OPA_STD2",
+  "text": "{bot2}, Luxury: strength down a little.",
+  "max": 90,
+  "place": "LUX_B2 rival line 2, opt_a"
+ },
+ {
+  "id": "EV_LUX_B2_OPB_BTN",
+  "text": "Sell your copy",
+  "max": 28,
+  "place": "LUX_B2 button, opt_b"
+ },
+ {
+  "id": "EV_LUX_B2_OPB_EFF",
+  "text": "Get: {cash_in} credits. Cost: Luxury price down a little for a few cycles; {bot2} gains Luxury strength clearly. Rivals: {bot2} {cut} in Luxury.",
+  "max": 200,
+  "place": "LUX_B2 effect line, opt_b"
+ },
+ {
+  "id": "EV_LUX_B2_OPB_RES_TITLE",
+  "text": "The copy is sold",
+  "max": 32,
+  "place": "LUX_B2 result popup title, opt_b"
+ },
+ {
+  "id": "EV_LUX_B2_OPB_RES",
+  "text": "You sold your copy to the table that offered most, and the cash came in. {bot} was the buyer and gains Luxury strength clearly, though its own name stood on the list, so it is cut back too. Prices dipped a little for a few cycles. A pale square marks the wall.",
+  "max": 280,
+  "place": "LUX_B2 result popup, opt_b; {bot} is bot_2"
+ },
+ {
+  "id": "EV_LUX_B2_OPB_STD",
+  "text": "{bot2}, Luxury: {cut_std}.",
+  "max": 90,
+  "place": "LUX_B2 rival line 1, opt_b"
+ },
+ {
+  "id": "EV_LUX_B2_OPB_STD2",
+  "text": "{bot2}, Luxury: strength up clearly.",
+  "max": 90,
+  "place": "LUX_B2 rival line 2, opt_b"
+ },
+ {
+  "id": "EV_LUX_B3_TITLE",
+  "text": "A buyer asks for a fixed price",
+  "max": 40,
+  "place": "LUX_B3 choice screen title"
+ },
+ {
+  "id": "EV_LUX_B3_BODY_A",
+  "text": "You studied the list. A buyer of masks and glimmers asks you to name one price and hold it for a set period. {bot2} would sell to the buyer at floating rates, and {bot1} would take any contract that moves stock. You may fix the price, or sell the lot at today's rate.",
+  "max": 280,
+  "place": "LUX_B3 choice screen body after opt_a of LUX_B2"
+ },
+ {
+  "id": "EV_LUX_B3_BODY_B",
+  "text": "You sold your copy of the list. A buyer of masks and glimmers asks you to name one price and hold it for a set period. {bot2} would sell to the buyer at floating rates, and {bot1} would take any contract that moves stock. You may fix the price, or sell the lot at today's rate.",
+  "max": 280,
+  "place": "LUX_B3 choice screen body after opt_b of LUX_B2"
+ },
+ {
+  "id": "EV_LUX_B3_OPA_BTN",
+  "text": "Fix the price for a term",
+  "max": 28,
+  "place": "LUX_B3 button, opt_a"
+ },
+ {
+  "id": "EV_LUX_B3_OPA_EFF",
+  "text": "Get: Luxury price up clearly for a while. Cost: Luxury volume down a little for a while. Rivals: {bot2}'s Luxury growth falls sharply.",
+  "max": 200,
+  "place": "LUX_B3 effect line, opt_a"
+ },
+ {
+  "id": "EV_LUX_B3_OPA_RES_TITLE",
+  "text": "The price is fixed",
+  "max": 32,
+  "place": "LUX_B3 result popup title, opt_a"
+ },
+ {
+  "id": "EV_LUX_B3_OPA_RES",
+  "text": "The buyer signed one price for the whole term, and your counters held it. Your own volume eased for a while, since casual buyers stayed away. {bot}'s floating rates could not follow, and its Luxury growth falls sharply. The contract carries a stamp shaped like a mask.",
+  "max": 280,
+  "place": "LUX_B3 result popup, opt_a; {bot} is bot_2"
+ },
+ {
+  "id": "EV_LUX_B3_OPA_STD",
+  "text": "{bot2}, Luxury: growth down sharply.",
+  "max": 90,
+  "place": "LUX_B3 rival line 1, opt_a"
+ },
+ {
+  "id": "EV_LUX_B3_OPB_BTN",
+  "text": "Sell the lot at today's rate",
+  "max": 28,
+  "place": "LUX_B3 button, opt_b"
+ },
+ {
+  "id": "EV_LUX_B3_OPB_EFF",
+  "text": "Get: {cash_in} credits now. Cost: Luxury volume down a little for a while; {bot3} gains a little Luxury strength. Rivals: {bot1}'s and {bot2}'s Luxury strength falls a little.",
+  "max": 200,
+  "place": "LUX_B3 effect line, opt_b"
+ },
+ {
+  "id": "EV_LUX_B3_OPB_RES_TITLE",
+  "text": "The lot is sold",
+  "max": 32,
+  "place": "LUX_B3 result popup title, opt_b"
+ },
+ {
+  "id": "EV_LUX_B3_OPB_RES",
+  "text": "You sold the lot at the day's rate and the cash came in. Your shelves ran lean for a while. {bot3} picked up what the buyer still wanted and gains a little Luxury strength, while {bot} and {bot2} each lose a little. The buyer left with the crates and no receipt.",
+  "max": 280,
+  "place": "LUX_B3 result popup, opt_b; {bot} is bot_1"
+ },
+ {
+  "id": "EV_LUX_B3_OPB_STD",
+  "text": "{bot1} and {bot2}, Luxury: strength down a little.",
+  "max": 90,
+  "place": "LUX_B3 rival line 1, opt_b"
+ },
+ {
+  "id": "EV_LUX_B3_OPB_STD2",
+  "text": "{bot3}, Luxury: strength up a little.",
+  "max": 90,
+  "place": "LUX_B3 rival line 2, opt_b"
+ },
+ {
+  "id": "EV_LUX_B4_TITLE",
+  "text": "A trade body offers a seat",
+  "max": 40,
+  "place": "LUX_B4 choice screen title"
+ },
+ {
+  "id": "EV_LUX_B4_BODY_A",
+  "text": "Your fixed price held through the term, and the guild noticed. The Guild of Masks, a trade body, offers you a seat on its board. {bot2} holds the chair, and {bot3} sits by the door. You may take the pricing desk, or the stock desk. Both meet weekly behind a gilt screen.",
+  "max": 280,
+  "place": "LUX_B4 choice screen body after opt_a of LUX_B3"
+ },
+ {
+  "id": "EV_LUX_B4_BODY_B",
+  "text": "You sold the lot at the day's rate, and the guild noticed. The Guild of Masks, a trade body, offers you a seat on its board. {bot2} holds the chair, and {bot3} sits by the door. You may take the pricing desk, or the stock desk. Both meet weekly behind a gilt screen.",
+  "max": 280,
+  "place": "LUX_B4 choice screen body after opt_b of LUX_B3"
+ },
+ {
+  "id": "EV_LUX_B4_OPA_BTN",
+  "text": "Take the pricing desk",
+  "max": 28,
+  "place": "LUX_B4 button, opt_a"
+ },
+ {
+  "id": "EV_LUX_B4_OPA_EFF",
+  "text": "Get: Luxury price up a little for a while. Cost: {cash_out} credits in dues for the pricing seat. Rivals: {bot2}'s Luxury strength falls sharply.",
+  "max": 200,
+  "place": "LUX_B4 effect line, opt_a"
+ },
+ {
+  "id": "EV_LUX_B4_OPA_RES_TITLE",
+  "text": "The pricing desk is yours",
+  "max": 32,
+  "place": "LUX_B4 result popup title, opt_a"
+ },
+ {
+  "id": "EV_LUX_B4_OPA_RES",
+  "text": "You took the pricing desk and the dues were paid on the day. The guild's price sheets now carry your marks, and prices rose a little for a while. {bot} sat in the chair and watched its Luxury strength fall sharply. The sheets are printed on gilt-edged paper.",
+  "max": 280,
+  "place": "LUX_B4 result popup, opt_a; {bot} is bot_2"
+ },
+ {
+  "id": "EV_LUX_B4_OPA_STD",
+  "text": "{bot2}, Luxury: strength down sharply.",
+  "max": 90,
+  "place": "LUX_B4 rival line 1, opt_a"
+ },
+ {
+  "id": "EV_LUX_B4_OPB_BTN",
+  "text": "Take the stock desk",
+  "max": 28,
+  "place": "LUX_B4 button, opt_b"
+ },
+ {
+  "id": "EV_LUX_B4_OPB_EFF",
+  "text": "Get: Luxury volume up a little for the rest of the run. Cost: Luxury price down a little for a while. Rivals: {bot2}'s strength falls clearly; {bot3}'s a little.",
+  "max": 200,
+  "place": "LUX_B4 effect line, opt_b"
+ },
+ {
+  "id": "EV_LUX_B4_OPB_RES_TITLE",
+  "text": "The stock desk is yours",
+  "max": 32,
+  "place": "LUX_B4 result popup title, opt_b"
+ },
+ {
+  "id": "EV_LUX_B4_OPB_RES",
+  "text": "You took the stock desk and the schedules came to your hand. Volume rose for the rest of the run, and prices eased a little for a while. {bot}'s Luxury strength falls clearly, and {bot3}'s a little. The desk has a bell that no one rings.",
+  "max": 280,
+  "place": "LUX_B4 result popup, opt_b; {bot} is bot_2"
+ },
+ {
+  "id": "EV_LUX_B4_OPB_STD",
+  "text": "{bot2}, Luxury: strength down clearly.",
+  "max": 90,
+  "place": "LUX_B4 rival line 1, opt_b"
+ },
+ {
+  "id": "EV_LUX_B4_OPB_STD2",
+  "text": "{bot3}, Luxury: strength down a little.",
+  "max": 90,
+  "place": "LUX_B4 rival line 2, opt_b"
+ },
+ {
+  "id": "EV_MIN_A1_TITLE",
+  "text": "Cinderrest reports a fault",
+  "max": 40,
+  "place": "MIN_A1 choice screen title"
+ },
+ {
+  "id": "EV_MIN_A1_BODY",
+  "text": "The Cinderrest crew reports that the lift cable has frayed and the lamps drop out on the lower level. {bot1} runs the next shaft and has offered to lend its crew and cable, for a price. You may sell the lower level, or replace the cable.",
+  "max": 280,
+  "place": "MIN_A1 choice screen body (one body)"
+ },
+ {
+  "id": "EV_MIN_A1_OPA_BTN",
+  "text": "Sell the lower level",
+  "max": 28,
+  "place": "MIN_A1 button, opt_a"
+ },
+ {
+  "id": "EV_MIN_A1_OPA_EFF",
+  "text": "Get: {cash_in} credits now. Cost: Minerals volume down a little for a while. Rivals: {bot1}'s Minerals growth falls a little.",
+  "max": 200,
+  "place": "MIN_A1 effect line, opt_a"
+ },
+ {
+  "id": "EV_MIN_A1_OPA_RES_TITLE",
+  "text": "The lower level is sold",
+  "max": 32,
+  "place": "MIN_A1 result popup title, opt_a"
+ },
+ {
+  "id": "EV_MIN_A1_OPA_RES",
+  "text": "A buyer took the lower level and paid on the lift. Your crew works the upper cuts, so volume dipped for a while. {bot} wanted the level and cut elsewhere, and its Minerals growth falls a little. The lamps below still burn, for no one.",
+  "max": 280,
+  "place": "MIN_A1 result popup, opt_a; {bot} is bot_1"
+ },
+ {
+  "id": "EV_MIN_A1_OPA_STD",
+  "text": "{bot1}, Minerals: growth down a little.",
+  "max": 90,
+  "place": "MIN_A1 rival line 1, opt_a"
+ },
+ {
+  "id": "EV_MIN_A1_OPB_BTN",
+  "text": "Replace the cable",
+  "max": 28,
+  "place": "MIN_A1 button, opt_b"
+ },
+ {
+  "id": "EV_MIN_A1_OPB_EFF",
+  "text": "Get: Minerals volume up a little for a while. Cost: {cash_out} credits for the cable. Rivals: {bot1}'s Minerals strength falls a little.",
+  "max": 200,
+  "place": "MIN_A1 effect line, opt_b"
+ },
+ {
+  "id": "EV_MIN_A1_OPB_RES_TITLE",
+  "text": "The cable is replaced",
+  "max": 32,
+  "place": "MIN_A1 result popup title, opt_b"
+ },
+ {
+  "id": "EV_MIN_A1_OPB_RES",
+  "text": "A new cable went down and the lamps held. The cable cost credits, and the crew cut more for a while. {bot} had counted on a lent crew, and its Minerals strength falls a little. The old cable lies coiled at the shaft head, still warm.",
+  "max": 280,
+  "place": "MIN_A1 result popup, opt_b; {bot} is bot_1"
+ },
+ {
+  "id": "EV_MIN_A1_OPB_STD",
+  "text": "{bot1}, Minerals: strength down a little.",
+  "max": 90,
+  "place": "MIN_A1 rival line 1, opt_b"
+ },
+ {
+  "id": "EV_MIN_A2_TITLE",
+  "text": "Greywake reports a fault",
+  "max": 40,
+  "place": "MIN_A2 choice screen title"
+ },
+ {
+  "id": "EV_MIN_A2_BODY_A",
+  "text": "You sold the lower level at Cinderrest. Now the Greywake crew reports that a roof beam in the main cut has cracked, and the glass beneath rings in the teeth. {bot3} works the next cut and wants the same beams. You may brace the beam, or sell the cut.",
+  "max": 280,
+  "place": "MIN_A2 choice screen body after opt_a of MIN_A1"
+ },
+ {
+  "id": "EV_MIN_A2_BODY_B",
+  "text": "You replaced the lift cable at Cinderrest. Now the Greywake crew reports that a roof beam in the main cut has cracked, and the glass beneath rings in the teeth. {bot3} works the next cut and wants the same beams. You may brace the beam, or sell the cut.",
+  "max": 280,
+  "place": "MIN_A2 choice screen body after opt_b of MIN_A1"
+ },
+ {
+  "id": "EV_MIN_A2_OPA_BTN",
+  "text": "Brace the beam",
+  "max": 28,
+  "place": "MIN_A2 button, opt_a"
+ },
+ {
+  "id": "EV_MIN_A2_OPA_EFF",
+  "text": "Get: Minerals volume up a little for a while. Cost: {cash_out} credits for the bracing. Rivals: {bot3}'s Minerals growth falls clearly.",
+  "max": 200,
+  "place": "MIN_A2 effect line, opt_a"
+ },
+ {
+  "id": "EV_MIN_A2_OPA_RES_TITLE",
+  "text": "The beam is braced",
+  "max": 32,
+  "place": "MIN_A2 result popup title, opt_a"
+ },
+ {
+  "id": "EV_MIN_A2_OPA_RES",
+  "text": "Braces went in row by row and the cut kept working for your crews. It cost credits, and volume rose for a while. {bot} had waited for the beams, and its Minerals growth falls clearly. The crack stopped, and the glass went on ringing.",
+  "max": 280,
+  "place": "MIN_A2 result popup, opt_a; {bot} is bot_3"
+ },
+ {
+  "id": "EV_MIN_A2_OPA_STD",
+  "text": "{bot3}, Minerals: growth down clearly.",
+  "max": 90,
+  "place": "MIN_A2 rival line 1, opt_a"
+ },
+ {
+  "id": "EV_MIN_A2_OPB_BTN",
+  "text": "Sell the cut",
+  "max": 28,
+  "place": "MIN_A2 button, opt_b"
+ },
+ {
+  "id": "EV_MIN_A2_OPB_EFF",
+  "text": "Get: {cash_in} credits now. Cost: Minerals volume down a little for a few cycles. Rivals: {bot1}'s Minerals strength falls clearly.",
+  "max": 200,
+  "place": "MIN_A2 effect line, opt_b"
+ },
+ {
+  "id": "EV_MIN_A2_OPB_RES_TITLE",
+  "text": "The cut is sold",
+  "max": 32,
+  "place": "MIN_A2 result popup title, opt_b"
+ },
+ {
+  "id": "EV_MIN_A2_OPB_RES",
+  "text": "A buyer took the cut with the crack in it and paid on the day. Your crews moved to other work, so volume dipped for a few cycles. {bot} had bid on the same cut, and its Minerals strength falls clearly. The buyer inspected the crack, briefly.",
+  "max": 280,
+  "place": "MIN_A2 result popup, opt_b; {bot} is bot_1"
+ },
+ {
+  "id": "EV_MIN_A2_OPB_STD",
+  "text": "{bot1}, Minerals: strength down clearly.",
+  "max": 90,
+  "place": "MIN_A2 rival line 1, opt_b"
+ },
+ {
+  "id": "EV_MIN_A3_TITLE",
+  "text": "A rival sends word of a route",
+  "max": 40,
+  "place": "MIN_A3 choice screen title"
+ },
+ {
+  "id": "EV_MIN_A3_BODY_A",
+  "text": "The beam at Greywake is braced. A hauler of {bot3}'s fleet sends word of a route to an unclaimed ore cluster: its chart, for a price. {bot1} runs the same lane in force. You may buy the chart, or add extra hulls to the lane.",
+  "max": 280,
+  "place": "MIN_A3 choice screen body after opt_a of MIN_A2"
+ },
+ {
+  "id": "EV_MIN_A3_BODY_B",
+  "text": "The cut at Greywake is sold. A hauler of {bot3}'s fleet sends word of a route to an unclaimed ore cluster: its chart, for a price. {bot1} runs the same lane in force. You may buy the chart, or add extra hulls to the lane.",
+  "max": 280,
+  "place": "MIN_A3 choice screen body after opt_b of MIN_A2"
+ },
+ {
+  "id": "EV_MIN_A3_OPA_BTN",
+  "text": "Buy the chart",
+  "max": 28,
+  "place": "MIN_A3 button, opt_a"
+ },
+ {
+  "id": "EV_MIN_A3_OPA_EFF",
+  "text": "Get: one route's trip cost falls a little for a while. Cost: {cash_out} credits for the chart; {bot3} gains a little Minerals strength. Rivals: {bot1}'s Minerals strength falls a little.",
+  "max": 200,
+  "place": "MIN_A3 effect line, opt_a"
+ },
+ {
+  "id": "EV_MIN_A3_OPA_RES_TITLE",
+  "text": "The chart is bought",
+  "max": 32,
+  "place": "MIN_A3 result popup title, opt_a"
+ },
+ {
+  "id": "EV_MIN_A3_OPA_RES",
+  "text": "You bought the chart and ran one route by it. Trip cost fell a little for a while, and the chart cost credits. The hauler sold the same chart to its own fleet, so {bot3} gains a little Minerals strength. {bot} lost its lead on the lane, and its strength falls a little.",
+  "max": 280,
+  "place": "MIN_A3 result popup, opt_a; {bot} is bot_1"
+ },
+ {
+  "id": "EV_MIN_A3_OPA_STD",
+  "text": "{bot1}, Minerals: strength down a little.",
+  "max": 90,
+  "place": "MIN_A3 rival line 1, opt_a"
+ },
+ {
+  "id": "EV_MIN_A3_OPA_STD2",
+  "text": "{bot3}, Minerals: strength up a little.",
+  "max": 90,
+  "place": "MIN_A3 rival line 2, opt_a"
+ },
+ {
+  "id": "EV_MIN_A3_OPB_BTN",
+  "text": "Add extra hulls",
+  "max": 28,
+  "place": "MIN_A3 button, opt_b"
+ },
+ {
+  "id": "EV_MIN_A3_OPB_EFF",
+  "text": "Get: Minerals volume up clearly for a while. Cost: {cash_out} credits and Ship upkeep up a little for a while. Rivals: {bot1} {cut} in Minerals.",
+  "max": 200,
+  "place": "MIN_A3 effect line, opt_b"
+ },
+ {
+  "id": "EV_MIN_A3_OPB_RES_TITLE",
+  "text": "Extra hulls on the lane",
+  "max": 32,
+  "place": "MIN_A3 result popup title, opt_b"
+ },
+ {
+  "id": "EV_MIN_A3_OPB_RES",
+  "text": "You sent extra hulls down the lane and the crews cut harder for a while. The hulls cost credits and raise Ship upkeep a little for a while. {bot} was cut back in Minerals, its lane crews pushed to the edge of the chart. The wakes behind your hulls crossed and recrossed.",
+  "max": 280,
+  "place": "MIN_A3 result popup, opt_b; {bot} is bot_1"
+ },
+ {
+  "id": "EV_MIN_A3_OPB_STD",
+  "text": "{bot1}, Minerals: {cut_std}.",
+  "max": 90,
+  "place": "MIN_A3 rival line 1, opt_b"
+ },
+ {
+  "id": "EV_MIN_B1_TITLE",
+  "text": "Two claims on one seam",
+  "max": 40,
+  "place": "MIN_B1 choice screen title"
+ },
+ {
+  "id": "EV_MIN_B1_BODY",
+  "text": "Your crew and a crew of {bot1} filed a claim on the same seam in the same hour, and the Bureau stamped both. The arbiter asks for a sale or a survey. You may sell your claim, or pay for a survey that proves the cut.",
+  "max": 280,
+  "place": "MIN_B1 choice screen body (one body)"
+ },
+ {
+  "id": "EV_MIN_B1_OPA_BTN",
+  "text": "Sell your claim",
+  "max": 28,
+  "place": "MIN_B1 button, opt_a"
+ },
+ {
+  "id": "EV_MIN_B1_OPA_EFF",
+  "text": "Get: {cash_in} credits now. Cost: Minerals volume down a little for a while. Rivals: {bot1}'s Minerals growth falls a little.",
+  "max": 200,
+  "place": "MIN_B1 effect line, opt_a"
+ },
+ {
+  "id": "EV_MIN_B1_OPA_RES_TITLE",
+  "text": "Your claim is sold",
+  "max": 32,
+  "place": "MIN_B1 result popup title, opt_a"
+ },
+ {
+  "id": "EV_MIN_B1_OPA_RES",
+  "text": "The arbiter's buyer took your claim and paid on the spot. Your crews moved to other cuts, so volume dipped for a while. {bot} kept the seam, and its Minerals growth falls a little as the buyer set terms. The stamp on your copy was still wet.",
+  "max": 280,
+  "place": "MIN_B1 result popup, opt_a; {bot} is bot_1"
+ },
+ {
+  "id": "EV_MIN_B1_OPA_STD",
+  "text": "{bot1}, Minerals: growth down a little.",
+  "max": 90,
+  "place": "MIN_B1 rival line 1, opt_a"
+ },
+ {
+  "id": "EV_MIN_B1_OPB_BTN",
+  "text": "Pay for a survey",
+  "max": 28,
+  "place": "MIN_B1 button, opt_b"
+ },
+ {
+  "id": "EV_MIN_B1_OPB_EFF",
+  "text": "Get: {n} units of tech progress at the Smelter. Cost: {cash_out} credits for the survey. Rivals: {bot1}'s Minerals strength falls clearly.",
+  "max": 200,
+  "place": "MIN_B1 effect line, opt_b"
+ },
+ {
+  "id": "EV_MIN_B1_OPB_RES_TITLE",
+  "text": "The survey proves the cut",
+  "max": 32,
+  "place": "MIN_B1 result popup title, opt_b"
+ },
+ {
+  "id": "EV_MIN_B1_OPB_RES",
+  "text": "The survey cut a test core through the seam and your smelter ran it. Tech progress came in, and the survey was paid. {bot}'s claim failed the core, and its Minerals strength falls clearly. The core was warm and had a thread of glass in it.",
+  "max": 280,
+  "place": "MIN_B1 result popup, opt_b; {bot} is bot_1"
+ },
+ {
+  "id": "EV_MIN_B1_OPB_STD",
+  "text": "{bot1}, Minerals: strength down clearly.",
+  "max": 90,
+  "place": "MIN_B1 rival line 1, opt_b"
+ },
+ {
+  "id": "EV_MIN_B2_TITLE",
+  "text": "The smelter crew stops work",
+  "max": 40,
+  "place": "MIN_B2 choice screen title"
+ },
+ {
+  "id": "EV_MIN_B2_BODY_A",
+  "text": "You sold your claim, and now the crew at your smelter has stopped work and wants new terms. {bot3} has offered the crew a place. You may hold the terms and let the furnace cool, or pay for a double shift to keep it lit.",
+  "max": 280,
+  "place": "MIN_B2 choice screen body after opt_a of MIN_B1"
+ },
+ {
+  "id": "EV_MIN_B2_BODY_B",
+  "text": "You paid for the survey, and now the crew at your smelter has stopped work and wants new terms. {bot3} has offered the crew a place. You may hold the terms and let the furnace cool, or pay for a double shift to keep it lit.",
+  "max": 280,
+  "place": "MIN_B2 choice screen body after opt_b of MIN_B1"
+ },
+ {
+  "id": "EV_MIN_B2_OPA_BTN",
+  "text": "Hold the terms",
+  "max": 28,
+  "place": "MIN_B2 button, opt_a"
+ },
+ {
+  "id": "EV_MIN_B2_OPA_EFF",
+  "text": "Get: Minerals price up a little for a while. Cost: the Smelter stands idle for a few cycles. Rivals: {bot3}'s Minerals growth falls a little.",
+  "max": 200,
+  "place": "MIN_B2 effect line, opt_a"
+ },
+ {
+  "id": "EV_MIN_B2_OPA_RES_TITLE",
+  "text": "The terms hold",
+  "max": 32,
+  "place": "MIN_B2 result popup title, opt_a"
+ },
+ {
+  "id": "EV_MIN_B2_OPA_RES",
+  "text": "You held the terms and the crew left the furnace to cool. Ingots grew scarce, so prices rose a little for a while, and the Smelter stood idle for a few cycles. {bot} had offered the crew a place, and its Minerals growth falls a little. The slag ticked as it shrank.",
+  "max": 280,
+  "place": "MIN_B2 result popup, opt_a; {bot} is bot_3"
+ },
+ {
+  "id": "EV_MIN_B2_OPA_STD",
+  "text": "{bot3}, Minerals: growth down a little.",
+  "max": 90,
+  "place": "MIN_B2 rival line 1, opt_a"
+ },
+ {
+  "id": "EV_MIN_B2_OPB_BTN",
+  "text": "Pay a double shift",
+  "max": 28,
+  "place": "MIN_B2 button, opt_b"
+ },
+ {
+  "id": "EV_MIN_B2_OPB_EFF",
+  "text": "Get: one more batch a cycle at the Smelter for a while. Cost: {cash_out} credits in shift pay. Rivals: {bot1}'s Minerals strength falls a little.",
+  "max": 200,
+  "place": "MIN_B2 effect line, opt_b"
+ },
+ {
+  "id": "EV_MIN_B2_OPB_RES_TITLE",
+  "text": "A double shift runs",
+  "max": 32,
+  "place": "MIN_B2 result popup title, opt_b"
+ },
+ {
+  "id": "EV_MIN_B2_OPB_RES",
+  "text": "You paid for a double shift and the furnace stayed lit. The Smelter makes one more batch a cycle for a while, and the pay cost credits. {bot} counted on a cooled furnace, and its Minerals strength falls a little. The night crew did not look at the day crew.",
+  "max": 280,
+  "place": "MIN_B2 result popup, opt_b; {bot} is bot_1"
+ },
+ {
+  "id": "EV_MIN_B2_OPB_STD",
+  "text": "{bot1}, Minerals: strength down a little.",
+  "max": 90,
+  "place": "MIN_B2 rival line 1, opt_b"
+ },
+ {
+  "id": "EV_MIN_B3_TITLE",
+  "text": "A bidder prices your stock",
+  "max": 40,
+  "place": "MIN_B3 choice screen title"
+ },
+ {
+  "id": "EV_MIN_B3_BODY_A",
+  "text": "You held the terms at the smelter. A bidder offers a price for all your ingot in storage, to be hauled today. {bot1} is the bidder's usual supplier, and {bot3} has asked for the leftovers. You may sell the whole stock, or take a standing buyer.",
+  "max": 280,
+  "place": "MIN_B3 choice screen body after opt_a of MIN_B2"
+ },
+ {
+  "id": "EV_MIN_B3_BODY_B",
+  "text": "You paid for a double shift at the smelter. A bidder offers a price for all your ingot in storage, to be hauled today. {bot1} is the bidder's usual supplier, and {bot3} has asked for the leftovers. You may sell the whole stock, or take a standing buyer.",
+  "max": 280,
+  "place": "MIN_B3 choice screen body after opt_b of MIN_B2"
+ },
+ {
+  "id": "EV_MIN_B3_OPA_BTN",
+  "text": "Sell the whole stock",
+  "max": 28,
+  "place": "MIN_B3 button, opt_a"
+ },
+ {
+  "id": "EV_MIN_B3_OPA_EFF",
+  "text": "Get: {cash_in} credits now. Cost: Minerals volume down clearly for a few cycles. Rivals: {bot1}'s Minerals strength falls sharply; {bot3}'s falls a little.",
+  "max": 200,
+  "place": "MIN_B3 effect line, opt_a"
+ },
+ {
+  "id": "EV_MIN_B3_OPA_RES_TITLE",
+  "text": "The stock is sold",
+  "max": 32,
+  "place": "MIN_B3 result popup title, opt_a"
+ },
+ {
+  "id": "EV_MIN_B3_OPA_RES",
+  "text": "The bidder hauled the whole stock away and paid on the dock. Your storage stood empty, and volume fell clearly for a few cycles. {bot}'s usual contract went with it, so its Minerals strength falls sharply, and {bot3}'s a little. The racks rang as they emptied.",
+  "max": 280,
+  "place": "MIN_B3 result popup, opt_a; {bot} is bot_1"
+ },
+ {
+  "id": "EV_MIN_B3_OPA_STD",
+  "text": "{bot1}, Minerals: strength down sharply.",
+  "max": 90,
+  "place": "MIN_B3 rival line 1, opt_a"
+ },
+ {
+  "id": "EV_MIN_B3_OPA_STD2",
+  "text": "{bot3}, Minerals: strength down a little.",
+  "max": 90,
+  "place": "MIN_B3 rival line 2, opt_a"
+ },
+ {
+  "id": "EV_MIN_B3_OPB_BTN",
+  "text": "Take a standing buyer",
+  "max": 28,
+  "place": "MIN_B3 button, opt_b"
+ },
+ {
+  "id": "EV_MIN_B3_OPB_EFF",
+  "text": "Get: Minerals volume up a little for a while. Cost: {cash_out} credits to the buyer's broker. Rivals: {bot1}'s Minerals strength falls clearly.",
+  "max": 200,
+  "place": "MIN_B3 effect line, opt_b"
+ },
+ {
+  "id": "EV_MIN_B3_OPB_RES_TITLE",
+  "text": "A standing buyer signs",
+  "max": 32,
+  "place": "MIN_B3 result popup title, opt_b"
+ },
+ {
+  "id": "EV_MIN_B3_OPB_RES",
+  "text": "The standing buyer signed and sends a ship each cycle. Volume rose for a while, and the broker was paid in credits. {bot} lost the buyer's custom, and its Minerals strength falls clearly. The buyer's ship has no name on its hull.",
+  "max": 280,
+  "place": "MIN_B3 result popup, opt_b; {bot} is bot_1"
+ },
+ {
+  "id": "EV_MIN_B3_OPB_STD",
+  "text": "{bot1}, Minerals: strength down clearly.",
+  "max": 90,
+  "place": "MIN_B3 rival line 1, opt_b"
+ },
+ {
+  "id": "EV_MIN_B4_TITLE",
+  "text": "A new deposit is in range",
+  "max": 40,
+  "place": "MIN_B4 choice screen title"
+ },
+ {
+  "id": "EV_MIN_B4_BODY_A",
+  "text": "You sold your whole ingot stock. Now a survey lists another deposit within reach of your ships, and {bot1} has already sent a charter crew. You may file the claim and pay the survey office, or lease the claim to a crew on terms.",
+  "max": 280,
+  "place": "MIN_B4 choice screen body after opt_a of MIN_B3"
+ },
+ {
+  "id": "EV_MIN_B4_BODY_B",
+  "text": "You took a standing buyer. Now a survey lists another deposit within reach of your ships, and {bot1} has already sent a charter crew. You may file the claim and pay the survey office, or lease the claim to a crew on terms.",
+  "max": 280,
+  "place": "MIN_B4 choice screen body after opt_b of MIN_B3"
+ },
+ {
+  "id": "EV_MIN_B4_OPA_BTN",
+  "text": "File the claim",
+  "max": 28,
+  "place": "MIN_B4 button, opt_a"
+ },
+ {
+  "id": "EV_MIN_B4_OPA_EFF",
+  "text": "Get: Minerals price up a little for a while. Cost: {cash_out} credits to the survey office for the filing. Rivals: {bot1}'s Minerals strength falls sharply.",
+  "max": 200,
+  "place": "MIN_B4 effect line, opt_a"
+ },
+ {
+  "id": "EV_MIN_B4_OPA_RES_TITLE",
+  "text": "The claim is filed",
+  "max": 32,
+  "place": "MIN_B4 result popup title, opt_a"
+ },
+ {
+  "id": "EV_MIN_B4_OPA_RES",
+  "text": "You filed the claim and the office stamped it. The filing cost credits, and prices rose a little for a while as your ore came to market. {bot}'s charter crew found your marker at the site, and its Minerals strength falls sharply. The deposit lay under the rock, unmoved.",
+  "max": 280,
+  "place": "MIN_B4 result popup, opt_a; {bot} is bot_1"
+ },
+ {
+  "id": "EV_MIN_B4_OPA_STD",
+  "text": "{bot1}, Minerals: strength down sharply.",
+  "max": 90,
+  "place": "MIN_B4 rival line 1, opt_a"
+ },
+ {
+  "id": "EV_MIN_B4_OPB_BTN",
+  "text": "Lease the claim",
+  "max": 28,
+  "place": "MIN_B4 button, opt_b"
+ },
+ {
+  "id": "EV_MIN_B4_OPB_EFF",
+  "text": "Get: {cash_in} credits and Minerals volume up a little for the rest of the run. Cost: Ship upkeep up a little for a while. Rivals: {bot1}'s strength falls clearly; {bot3}'s a little.",
+  "max": 200,
+  "place": "MIN_B4 effect line, opt_b"
+ },
+ {
+  "id": "EV_MIN_B4_OPB_RES_TITLE",
+  "text": "The claim is leased",
+  "max": 32,
+  "place": "MIN_B4 result popup title, opt_b"
+ },
+ {
+  "id": "EV_MIN_B4_OPB_RES",
+  "text": "You leased the claim to a crew and the first payment arrived. Your ships carry its ore, so volume rose, and Ship upkeep rises a little for a while. {bot}'s Minerals strength falls clearly, and {bot3}'s a little, as both lost the lease. The lease has a clause about the weather.",
+  "max": 280,
+  "place": "MIN_B4 result popup, opt_b; {bot} is bot_1"
+ },
+ {
+  "id": "EV_MIN_B4_OPB_STD",
+  "text": "{bot1}, Minerals: strength down clearly.",
+  "max": 90,
+  "place": "MIN_B4 rival line 1, opt_b"
+ },
+ {
+  "id": "EV_MIN_B4_OPB_STD2",
+  "text": "{bot3}, Minerals: strength down a little.",
+  "max": 90,
+  "place": "MIN_B4 rival line 2, opt_b"
+ },
+ {
+  "id": "EV_BIO_A1_TITLE",
+  "text": "An unlabelled sample arrives",
+  "max": 40,
+  "place": "BIO_A1 choice screen title"
+ },
+ {
+  "id": "EV_BIO_A1_BODY",
+  "text": "A sealed sample reached your depot at Mossfell from a source no form names. It is damp and cold, and a colour no one has a name for. {bot2} has asked to buy it unseen. You may study the sample at your culture lab, or sell it as it came.",
+  "max": 280,
+  "place": "BIO_A1 choice screen body (one body)"
+ },
+ {
+  "id": "EV_BIO_A1_OPA_BTN",
+  "text": "Study the sample",
+  "max": 28,
+  "place": "BIO_A1 button, opt_a"
+ },
+ {
+  "id": "EV_BIO_A1_OPA_EFF",
+  "text": "Get: {n} units of tech progress at the Culture Lab. Cost: {cash_out} credits for the tests. Rivals: {bot2}'s Biotech growth falls a little.",
+  "max": 200,
+  "place": "BIO_A1 effect line, opt_a"
+ },
+ {
+  "id": "EV_BIO_A1_OPA_RES_TITLE",
+  "text": "The sample is studied",
+  "max": 32,
+  "place": "BIO_A1 result popup title, opt_a"
+ },
+ {
+  "id": "EV_BIO_A1_OPA_RES",
+  "text": "The lab ran the sample through its vats and logged every reading. Tech progress came in, and the tests cost credits. {bot} had hoped to buy the sample unseen, and its Biotech growth falls a little. The vat took on a faint green and kept it.",
+  "max": 280,
+  "place": "BIO_A1 result popup, opt_a; {bot} is bot_2"
+ },
+ {
+  "id": "EV_BIO_A1_OPA_STD",
+  "text": "{bot2}, Biotech: growth down a little.",
+  "max": 90,
+  "place": "BIO_A1 rival line 1, opt_a"
+ },
+ {
+  "id": "EV_BIO_A1_OPB_BTN",
+  "text": "Sell the sample",
+  "max": 28,
+  "place": "BIO_A1 button, opt_b"
+ },
+ {
+  "id": "EV_BIO_A1_OPB_EFF",
+  "text": "Get: {cash_in} credits now. Cost: Biotech price down a little for a few cycles. Rivals: {bot2}'s Biotech strength falls a little.",
+  "max": 200,
+  "place": "BIO_A1 effect line, opt_b"
+ },
+ {
+  "id": "EV_BIO_A1_OPB_RES_TITLE",
+  "text": "The sample is sold",
+  "max": 32,
+  "place": "BIO_A1 result popup title, opt_b"
+ },
+ {
+  "id": "EV_BIO_A1_OPB_RES",
+  "text": "The sample was sold as it came, and the cash arrived the same day. Buyers read the odd colour as a warning, so prices dipped a little for a few cycles. {bot} bought nothing, and its Biotech strength falls a little. Nobody asked what it was.",
+  "max": 280,
+  "place": "BIO_A1 result popup, opt_b; {bot} is bot_2"
+ },
+ {
+  "id": "EV_BIO_A1_OPB_STD",
+  "text": "{bot2}, Biotech: strength down a little.",
+  "max": 90,
+  "place": "BIO_A1 rival line 1, opt_b"
+ },
+ {
+  "id": "EV_BIO_A2_TITLE",
+  "text": "A buyer asks to test a batch",
+  "max": 40,
+  "place": "BIO_A2 choice screen title"
+ },
+ {
+  "id": "EV_BIO_A2_BODY_A",
+  "text": "Your lab studied the sample. Now a clinic buyer asks to draw a batch from your stock for testing, and will report what it finds. {bot2} supplies the clinic's other wards, and {bot3} wants the test data. You may fund the clinic's tests, or run them at your lab.",
+  "max": 280,
+  "place": "BIO_A2 choice screen body after opt_a of BIO_A1"
+ },
+ {
+  "id": "EV_BIO_A2_BODY_B",
+  "text": "You sold the sample. Now a clinic buyer asks to draw a batch from your stock for testing, and will report what it finds. {bot2} supplies the clinic's other wards, and {bot3} wants the test data. You may fund the clinic's tests, or run them at your lab.",
+  "max": 280,
+  "place": "BIO_A2 choice screen body after opt_b of BIO_A1"
+ },
+ {
+  "id": "EV_BIO_A2_OPA_BTN",
+  "text": "Fund the clinic's tests",
+  "max": 28,
+  "place": "BIO_A2 button, opt_a"
+ },
+ {
+  "id": "EV_BIO_A2_OPA_EFF",
+  "text": "Get: Biotech volume up a little for the rest of the run. Cost: {cash_out} credits toward the tests. Rivals: {bot3}'s Biotech growth falls a little.",
+  "max": 200,
+  "place": "BIO_A2 effect line, opt_a"
+ },
+ {
+  "id": "EV_BIO_A2_OPA_RES_TITLE",
+  "text": "The clinic runs the tests",
+  "max": 32,
+  "place": "BIO_A2 result popup title, opt_a"
+ },
+ {
+  "id": "EV_BIO_A2_OPA_RES",
+  "text": "The clinic drew its batch and ran the tests in its own lab. Your funding cost credits, and the clinic keeps ordering, so volume rose for the rest of the run. {bot} wanted the test data, and its Biotech growth falls a little. The report came back in triplicate, all copies damp.",
+  "max": 280,
+  "place": "BIO_A2 result popup, opt_a; {bot} is bot_3"
+ },
+ {
+  "id": "EV_BIO_A2_OPA_STD",
+  "text": "{bot3}, Biotech: growth down a little.",
+  "max": 90,
+  "place": "BIO_A2 rival line 1, opt_a"
+ },
+ {
+  "id": "EV_BIO_A2_OPB_BTN",
+  "text": "Run the tests at your lab",
+  "max": 28,
+  "place": "BIO_A2 button, opt_b"
+ },
+ {
+  "id": "EV_BIO_A2_OPB_EFF",
+  "text": "Get: {n} units of tech progress at the Culture Lab. Cost: Biotech volume down a little for a while. Rivals: {bot2} {cut} in Biotech.",
+  "max": 200,
+  "place": "BIO_A2 effect line, opt_b"
+ },
+ {
+  "id": "EV_BIO_A2_OPB_RES_TITLE",
+  "text": "The tests run at your lab",
+  "max": 32,
+  "place": "BIO_A2 result popup title, opt_b"
+ },
+ {
+  "id": "EV_BIO_A2_OPB_RES",
+  "text": "Your lab ran the tests on the held batch, and the vats gave tech progress. The batch left the shelves, so volume dipped for a while. {bot} was cut back in Biotech as the clinic's wards moved to your results. The cultures grew slowly, on schedule.",
+  "max": 280,
+  "place": "BIO_A2 result popup, opt_b; {bot} is bot_2"
+ },
+ {
+  "id": "EV_BIO_A2_OPB_STD",
+  "text": "{bot2}, Biotech: {cut_std}.",
+  "max": 90,
+  "place": "BIO_A2 rival line 1, opt_b"
+ },
+ {
+  "id": "EV_BIO_A3_TITLE",
+  "text": "A lab reports a fault",
+  "max": 40,
+  "place": "BIO_A3 choice screen title"
+ },
+ {
+  "id": "EV_BIO_A3_BODY_A",
+  "text": "The clinic's tests ran on your funding. A lab on Brannock reports a containment fault: a vat seal has begun to weep. {bot2} sources strains from that lab, and {bot3} offers to buy its stock. You may pause your culture lab for a check, or sell the stock in that line.",
+  "max": 280,
+  "place": "BIO_A3 choice screen body after opt_a of BIO_A2"
+ },
+ {
+  "id": "EV_BIO_A3_BODY_B",
+  "text": "The tests ran at your lab. A lab on Brannock reports a containment fault: a vat seal has begun to weep. {bot2} sources strains from that lab, and {bot3} offers to buy its stock. You may pause your culture lab for a check, or sell the stock in that line.",
+  "max": 280,
+  "place": "BIO_A3 choice screen body after opt_b of BIO_A2"
+ },
+ {
+  "id": "EV_BIO_A3_OPA_BTN",
+  "text": "Pause the lab for a check",
+  "max": 28,
+  "place": "BIO_A3 button, opt_a"
+ },
+ {
+  "id": "EV_BIO_A3_OPA_EFF",
+  "text": "Get: Biotech price up a little for a while. Cost: the Culture Lab stands idle for a few cycles. Rivals: {bot2}'s Biotech strength falls a little.",
+  "max": 200,
+  "place": "BIO_A3 effect line, opt_a"
+ },
+ {
+  "id": "EV_BIO_A3_OPA_RES_TITLE",
+  "text": "The lab is paused",
+  "max": 32,
+  "place": "BIO_A3 result popup title, opt_a"
+ },
+ {
+  "id": "EV_BIO_A3_OPA_RES",
+  "text": "You paused your culture lab and had every seal checked. Stock grew scarce, so prices rose a little for a while, and the lab stood idle for a few cycles. {bot}'s strains came from the weeping vat, and its Biotech strength falls a little. A drop gathered on a seal and held.",
+  "max": 280,
+  "place": "BIO_A3 result popup, opt_a; {bot} is bot_2"
+ },
+ {
+  "id": "EV_BIO_A3_OPA_STD",
+  "text": "{bot2}, Biotech: strength down a little.",
+  "max": 90,
+  "place": "BIO_A3 rival line 1, opt_a"
+ },
+ {
+  "id": "EV_BIO_A3_OPB_BTN",
+  "text": "Sell the stock in that line",
+  "max": 28,
+  "place": "BIO_A3 button, opt_b"
+ },
+ {
+  "id": "EV_BIO_A3_OPB_EFF",
+  "text": "Get: {cash_in} credits now. Cost: Biotech volume down a little for a few cycles; {bot3} gains a little Biotech strength. Rivals: {bot2}'s Biotech strength falls clearly.",
+  "max": 200,
+  "place": "BIO_A3 effect line, opt_b"
+ },
+ {
+  "id": "EV_BIO_A3_OPB_RES_TITLE",
+  "text": "The stock is sold",
+  "max": 32,
+  "place": "BIO_A3 result popup title, opt_b"
+ },
+ {
+  "id": "EV_BIO_A3_OPB_RES",
+  "text": "You sold the stock in the affected line and the cash arrived at once. The shelves stood bare for a few cycles. {bot3} bought the surplus and gains a little Biotech strength, while {bot}'s strength falls clearly as its supply line came under the notice.",
+  "max": 280,
+  "place": "BIO_A3 result popup, opt_b; {bot} is bot_2"
+ },
+ {
+  "id": "EV_BIO_A3_OPB_STD",
+  "text": "{bot2}, Biotech: strength down clearly.",
+  "max": 90,
+  "place": "BIO_A3 rival line 1, opt_b"
+ },
+ {
+  "id": "EV_BIO_A3_OPB_STD2",
+  "text": "{bot3}, Biotech: strength up a little.",
+  "max": 90,
+  "place": "BIO_A3 rival line 2, opt_b"
+ },
+ {
+  "id": "EV_BIO_B1_TITLE",
+  "text": "A buyer needs a rare strain",
+  "max": 40,
+  "place": "BIO_B1 choice screen title"
+ },
+ {
+  "id": "EV_BIO_B1_BODY",
+  "text": "A hospital ring on Tillam needs a rare strain by the end of the cycle, and the cold chain is tight. {bot2} holds the stock, and {bot3} offers to carry it. You may buy the grower's stock, or culture the strain at your lab and send extra hulls.",
+  "max": 280,
+  "place": "BIO_B1 choice screen body (one body)"
+ },
+ {
+  "id": "EV_BIO_B1_OPA_BTN",
+  "text": "Buy the grower's stock",
+  "max": 28,
+  "place": "BIO_B1 button, opt_a"
+ },
+ {
+  "id": "EV_BIO_B1_OPA_EFF",
+  "text": "Get: Biotech volume up clearly for a while. Cost: {cash_out} credits for the grower's stock. Rivals: {bot2}'s Biotech strength falls clearly.",
+  "max": 200,
+  "place": "BIO_B1 effect line, opt_a"
+ },
+ {
+  "id": "EV_BIO_B1_OPA_RES_TITLE",
+  "text": "The stock is bought",
+  "max": 32,
+  "place": "BIO_B1 result popup title, opt_a"
+ },
+ {
+  "id": "EV_BIO_B1_OPA_RES",
+  "text": "You bought the grower's stock and shipped it as it was. The purchase cost credits, and the hospital's order kept your volume up for a while. {bot} held the only other stock, and its Biotech strength falls clearly. The crates sweated in the hold the whole way.",
+  "max": 280,
+  "place": "BIO_B1 result popup, opt_a; {bot} is bot_2"
+ },
+ {
+  "id": "EV_BIO_B1_OPA_STD",
+  "text": "{bot2}, Biotech: strength down clearly.",
+  "max": 90,
+  "place": "BIO_B1 rival line 1, opt_a"
+ },
+ {
+  "id": "EV_BIO_B1_OPB_BTN",
+  "text": "Culture it at your lab",
+  "max": 28,
+  "place": "BIO_B1 button, opt_b"
+ },
+ {
+  "id": "EV_BIO_B1_OPB_EFF",
+  "text": "Get: {n} units of tech progress at the Culture Lab. Cost: Ship upkeep rises a little for a while. Rivals: {bot3}'s Biotech strength falls a little.",
+  "max": 200,
+  "place": "BIO_B1 effect line, opt_b"
+ },
+ {
+  "id": "EV_BIO_B1_OPB_RES_TITLE",
+  "text": "The lab cultures the strain",
+  "max": 32,
+  "place": "BIO_B1 result popup title, opt_b"
+ },
+ {
+  "id": "EV_BIO_B1_OPB_RES",
+  "text": "Your lab grew the strain from a seed and the extra hulls carried it. Tech progress came in, and Ship upkeep rises a little for a while. {bot} offered to carry the order and was passed over, so its Biotech strength falls a little. The strain came up a green nobody ordered.",
+  "max": 280,
+  "place": "BIO_B1 result popup, opt_b; {bot} is bot_3"
+ },
+ {
+  "id": "EV_BIO_B1_OPB_STD",
+  "text": "{bot3}, Biotech: strength down a little.",
+  "max": 90,
+  "place": "BIO_B1 rival line 1, opt_b"
+ },
+ {
+  "id": "EV_BIO_B2_TITLE",
+  "text": "A strain changes in storage",
+  "max": 40,
+  "place": "BIO_B2 choice screen title"
+ },
+ {
+  "id": "EV_BIO_B2_BODY_A",
+  "text": "You bought the grower's stock. Now one strain in your storage has changed during testing: it grows faster and has taken a darker shade. {bot2} would like a sample, and {bot3} asks what the change is worth. You may relabel the batch, or sell it as a new line.",
+  "max": 280,
+  "place": "BIO_B2 choice screen body after opt_a of BIO_B1"
+ },
+ {
+  "id": "EV_BIO_B2_BODY_B",
+  "text": "You cultured the strain at your lab. Now one strain in your storage has changed during testing: it grows faster and has taken a darker shade. {bot2} would like a sample, and {bot3} asks what the change is worth. You may relabel the batch, or sell it as a new line.",
+  "max": 280,
+  "place": "BIO_B2 choice screen body after opt_b of BIO_B1"
+ },
+ {
+  "id": "EV_BIO_B2_OPA_BTN",
+  "text": "Relabel the batch",
+  "max": 28,
+  "place": "BIO_B2 button, opt_a"
+ },
+ {
+  "id": "EV_BIO_B2_OPA_EFF",
+  "text": "Get: Biotech price up a little for a while. Cost: Biotech volume down a little for a while. Rivals: {bot2}'s Biotech growth falls clearly.",
+  "max": 200,
+  "place": "BIO_B2 effect line, opt_a"
+ },
+ {
+  "id": "EV_BIO_B2_OPA_RES_TITLE",
+  "text": "The batch is relabelled",
+  "max": 32,
+  "place": "BIO_B2 result popup title, opt_a"
+ },
+ {
+  "id": "EV_BIO_B2_OPA_RES",
+  "text": "You relabelled the batch and held it for study. The new line fetched a little more for a while, and your own volume dipped as stock stayed back. {bot}'s sample requests were refused, so its Biotech growth falls clearly. In the vat the darker shade has not faded.",
+  "max": 280,
+  "place": "BIO_B2 result popup, opt_a; {bot} is bot_2"
+ },
+ {
+  "id": "EV_BIO_B2_OPA_STD",
+  "text": "{bot2}, Biotech: growth down clearly.",
+  "max": 90,
+  "place": "BIO_B2 rival line 1, opt_a"
+ },
+ {
+  "id": "EV_BIO_B2_OPB_BTN",
+  "text": "Sell it as a new line",
+  "max": 28,
+  "place": "BIO_B2 button, opt_b"
+ },
+ {
+  "id": "EV_BIO_B2_OPB_EFF",
+  "text": "Get: {cash_in} credits now. Cost: Ship upkeep rises a little for a while; {bot2} gains a little Biotech strength. Rivals: {bot3} {cut} in Biotech.",
+  "max": 200,
+  "place": "BIO_B2 effect line, opt_b"
+ },
+ {
+  "id": "EV_BIO_B2_OPB_RES_TITLE",
+  "text": "Sold as a new line",
+  "max": 32,
+  "place": "BIO_B2 result popup title, opt_b"
+ },
+ {
+  "id": "EV_BIO_B2_OPB_RES",
+  "text": "You sold the batch as a new line, and the cash came in. Extra hulls carried it, so Ship upkeep rises a little for a while. {bot2} bought a sample and gains a little Biotech strength, while {bot} is cut back, its old line undercut. The buyer asked for a second batch.",
+  "max": 280,
+  "place": "BIO_B2 result popup, opt_b; {bot} is bot_3"
+ },
+ {
+  "id": "EV_BIO_B2_OPB_STD",
+  "text": "{bot3}, Biotech: {cut_std}.",
+  "max": 90,
+  "place": "BIO_B2 rival line 1, opt_b"
+ },
+ {
+  "id": "EV_BIO_B2_OPB_STD2",
+  "text": "{bot2}, Biotech: strength up a little.",
+  "max": 90,
+  "place": "BIO_B2 rival line 2, opt_b"
+ },
+ {
+  "id": "EV_BIO_B3_TITLE",
+  "text": "An exchange offers a slot",
+  "max": 40,
+  "place": "BIO_B3 choice screen title"
+ },
+ {
+  "id": "EV_BIO_B3_BODY_A",
+  "text": "You relabelled the batch. A culture exchange offers you a numbered slot for your output, with a seat at the call each cycle. {bot2} holds the first slot, and {bot3} the second. You may list your output now, or buy a slot outright.",
+  "max": 280,
+  "place": "BIO_B3 choice screen body after opt_a of BIO_B2"
+ },
+ {
+  "id": "EV_BIO_B3_BODY_B",
+  "text": "You sold the batch as a new line. A culture exchange offers you a numbered slot for your output, with a seat at the call each cycle. {bot2} holds the first slot, and {bot3} the second. You may list your output now, or buy a slot outright.",
+  "max": 280,
+  "place": "BIO_B3 choice screen body after opt_b of BIO_B2"
+ },
+ {
+  "id": "EV_BIO_B3_OPA_BTN",
+  "text": "List your output now",
+  "max": 28,
+  "place": "BIO_B3 button, opt_a"
+ },
+ {
+  "id": "EV_BIO_B3_OPA_EFF",
+  "text": "Get: {cash_in} credits now. Cost: Biotech volume down a little for a while. Rivals: {bot2}'s Biotech strength falls sharply; {bot3}'s growth falls clearly.",
+  "max": 200,
+  "place": "BIO_B3 effect line, opt_a"
+ },
+ {
+  "id": "EV_BIO_B3_OPA_RES_TITLE",
+  "text": "The output is listed",
+  "max": 32,
+  "place": "BIO_B3 result popup title, opt_a"
+ },
+ {
+  "id": "EV_BIO_B3_OPA_RES",
+  "text": "Your output went on the exchange list and the first payment cleared. Fewer lots stayed for private buyers, so volume dipped for a while. {bot} lost its first slot's edge, and its Biotech strength falls sharply, while {bot3}'s growth falls clearly. Every crate bears a slot number.",
+  "max": 280,
+  "place": "BIO_B3 result popup, opt_a; {bot} is bot_2"
+ },
+ {
+  "id": "EV_BIO_B3_OPA_STD",
+  "text": "{bot2}, Biotech: strength down sharply.",
+  "max": 90,
+  "place": "BIO_B3 rival line 1, opt_a"
+ },
+ {
+  "id": "EV_BIO_B3_OPA_STD2",
+  "text": "{bot3}, Biotech: growth down clearly.",
+  "max": 90,
+  "place": "BIO_B3 rival line 2, opt_a"
+ },
+ {
+  "id": "EV_BIO_B3_OPB_BTN",
+  "text": "Buy a slot outright",
+  "max": 28,
+  "place": "BIO_B3 button, opt_b"
+ },
+ {
+  "id": "EV_BIO_B3_OPB_EFF",
+  "text": "Get: Biotech volume up a little for a while. Cost: {cash_out} credits for the slot. Rivals: {bot2}'s Biotech strength and {bot3}'s Biotech growth fall a little.",
+  "max": 200,
+  "place": "BIO_B3 effect line, opt_b"
+ },
+ {
+  "id": "EV_BIO_B3_OPB_RES_TITLE",
+  "text": "A slot is bought",
+  "max": 32,
+  "place": "BIO_B3 result popup title, opt_b"
+ },
+ {
+  "id": "EV_BIO_B3_OPB_RES",
+  "text": "You bought a slot at the call and the price was paid in credits. Your lots now sell on schedule, and volume rose for a while. {bot} loses a little Biotech strength and {bot3} a little growth, as the call split their buyers. The bell at the call is struck by hand.",
+  "max": 280,
+  "place": "BIO_B3 result popup, opt_b; {bot} is bot_2"
+ },
+ {
+  "id": "EV_BIO_B3_OPB_STD",
+  "text": "{bot2}, Biotech: strength down a little.",
+  "max": 90,
+  "place": "BIO_B3 rival line 1, opt_b"
+ },
+ {
+  "id": "EV_BIO_B3_OPB_STD2",
+  "text": "{bot3}, Biotech: growth down a little.",
+  "max": 90,
+  "place": "BIO_B3 rival line 2, opt_b"
+ },
+ {
+  "id": "EV_BIO_B4_TITLE",
+  "text": "A storage firm offers space",
+  "max": 40,
+  "place": "BIO_B4 choice screen title"
+ },
+ {
+  "id": "EV_BIO_B4_BODY_A",
+  "text": "Your output is listed on the exchange. A storage firm offers cold racks for your stock at set terms. {bot2} keeps its seed in the firm's racks, and {bot3} rents the aisle beside it. You may rent racks by the cycle, or sell the firm your first claim to the aisle.",
+  "max": 280,
+  "place": "BIO_B4 choice screen body after opt_a of BIO_B3"
+ },
+ {
+  "id": "EV_BIO_B4_BODY_B",
+  "text": "You hold a slot at the exchange call. A storage firm offers cold racks for your stock at set terms. {bot2} keeps its seed in the firm's racks, and {bot3} rents the aisle beside it. You may rent racks by the cycle, or sell the firm your first claim to the aisle.",
+  "max": 280,
+  "place": "BIO_B4 choice screen body after opt_b of BIO_B3"
+ },
+ {
+  "id": "EV_BIO_B4_OPA_BTN",
+  "text": "Rent racks by the cycle",
+  "max": 28,
+  "place": "BIO_B4 button, opt_a"
+ },
+ {
+  "id": "EV_BIO_B4_OPA_EFF",
+  "text": "Get: Biotech price up a little for a while. Cost: Biotech volume down a little for a while. Rivals: {bot2}'s Biotech strength falls sharply.",
+  "max": 200,
+  "place": "BIO_B4 effect line, opt_a"
+ },
+ {
+  "id": "EV_BIO_B4_OPA_RES_TITLE",
+  "text": "The racks are rented",
+  "max": 32,
+  "place": "BIO_B4 result popup title, opt_a"
+ },
+ {
+  "id": "EV_BIO_B4_OPA_RES",
+  "text": "You rented racks by the cycle, and your seed stayed cold on the firm's shelves. Held stock lifted prices a little for a while, and volume dipped as it waited. {bot} lost its place at the front, and its Biotech strength falls sharply. The racks hum at a pace that suits them.",
+  "max": 280,
+  "place": "BIO_B4 result popup, opt_a; {bot} is bot_2"
+ },
+ {
+  "id": "EV_BIO_B4_OPA_STD",
+  "text": "{bot2}, Biotech: strength down sharply.",
+  "max": 90,
+  "place": "BIO_B4 rival line 1, opt_a"
+ },
+ {
+  "id": "EV_BIO_B4_OPB_BTN",
+  "text": "Sell the first claim",
+  "max": 28,
+  "place": "BIO_B4 button, opt_b"
+ },
+ {
+  "id": "EV_BIO_B4_OPB_EFF",
+  "text": "Get: {cash_in} credits now. Cost: Ship upkeep rises a little for a while. Rivals: {bot2}'s and {bot3}'s Biotech strength falls clearly.",
+  "max": 200,
+  "place": "BIO_B4 effect line, opt_b"
+ },
+ {
+  "id": "EV_BIO_B4_OPB_RES_TITLE",
+  "text": "The first claim is sold",
+  "max": 32,
+  "place": "BIO_B4 result popup title, opt_b"
+ },
+ {
+  "id": "EV_BIO_B4_OPB_RES",
+  "text": "You sold the firm your first claim to the aisle, and a large payment cleared. Your ships work the new routes, so Ship upkeep rises a little for a while. {bot} and {bot3} both lost the aisle, and each loses Biotech strength clearly. One lamp lights it, and does not flicker.",
+  "max": 280,
+  "place": "BIO_B4 result popup, opt_b; {bot} is bot_2"
+ },
+ {
+  "id": "EV_BIO_B4_OPB_STD",
+  "text": "{bot2} and {bot3}, Biotech: strength down clearly.",
+  "max": 90,
+  "place": "BIO_B4 rival line 1, opt_b"
+ },
+ {
+  "id": "CH_EFFECT_LINE",
+  "text": "Get: {get}. Cost: {cost}. Rivals: {rivals}.",
+  "max": 200,
+  "place": "Effect line template for any option the game builds itself (the id game/chains.gd reads); {get}, {cost} and {rivals} are phrases without a final full stop"
+ },
+ {
+  "id": "EV_EFF_NO_RIVALS",
+  "text": "Rivals: no change in {market} strength or growth.",
+  "max": 90,
+  "place": "Effect line, Rivals part of an event that changes no rival"
+ },
+ {
+  "id": "LBL_COMP_EVENTS",
+  "text": "Recent moves",
+  "max": 24,
+  "place": "Competitors menu, heading of the log of rival changes"
+ },
+ {
+  "id": "LBL_COMP_NONE",
+  "text": "No rival moves yet.",
+  "max": 40,
+  "place": "Competitors menu, log is empty"
+ },
+ {
+  "id": "LBL_COMP_MOVE_STR_DOWN",
+  "text": "{bot}: {market} strength down",
+  "max": 60,
+  "place": "Competitors log line, a rival's strength fell; also used when a tier cut lands on a rival at the lowest tier"
+ },
+ {
+  "id": "LBL_COMP_MOVE_STR_UP",
+  "text": "{bot}: {market} strength up",
+  "max": 60,
+  "place": "Competitors log line, a rival's strength rose"
+ },
+ {
+  "id": "LBL_COMP_MOVE_GRO_DOWN",
+  "text": "{bot}: {market} growth down",
+  "max": 60,
+  "place": "Competitors log line, a rival's growth fell"
+ },
+ {
+  "id": "LBL_COMP_MOVE_GRO_UP",
+  "text": "{bot}: {market} growth up",
+  "max": 60,
+  "place": "Competitors log line, a rival's growth rose"
+ },
+ {
+  "id": "LBL_COMP_MOVE_TIER_DOWN",
+  "text": "{bot}: {market} tier down",
+  "max": 60,
+  "place": "Competitors log line, a rival really dropped a tier"
+ },
+ {
   "id": "SK_HEADER",
   "text": "Skills",
   "max": 24,
@@ -2430,6 +4722,102 @@
   "place": "End screen button"
  },
  {
+  "id": "EPI_CAP_MIL",
+  "text": "The Standing Fleet kept every rival's growth held down to the last cycle. Nobody asked how.",
+  "max": 140,
+  "place": "Epilogue 1, win Military, capstone learned"
+ },
+ {
+  "id": "EPI_CAP_LUX",
+  "text": "You bought one rival's best client with a handshake and a gift. The guild filed it as courtesy.",
+  "max": 140,
+  "place": "Epilogue 1, win Luxury, capstone learned"
+ },
+ {
+  "id": "EPI_CAP_MIN",
+  "text": "The last seam in reach was yours, and the rivals worked the rest. They do not mention it.",
+  "max": 140,
+  "place": "Epilogue 1, win Minerals, capstone learned"
+ },
+ {
+  "id": "EPI_CAP_BIO",
+  "text": "The Patent Wall stands. The rivals' vats run slower behind it, and the clerks call that quality control.",
+  "max": 140,
+  "place": "Epilogue 1, win Biotech, capstone learned"
+ },
+ {
+  "id": "EPI_TECH_0",
+  "text": "The {workshop} never finished a tech. It ran on habit and steady hands.",
+  "max": 140,
+  "place": "Epilogue 2, no tech done in the win market"
+ },
+ {
+  "id": "EPI_TECH_1",
+  "text": "One tech came out of the {workshop}. It is mentioned in the minutes.",
+  "max": 140,
+  "place": "Epilogue 2, one tech done"
+ },
+ {
+  "id": "EPI_TECH_2",
+  "text": "Two techs came out of the {workshop}. The third is still on the board.",
+  "max": 140,
+  "place": "Epilogue 2, two techs done"
+ },
+ {
+  "id": "EPI_TECH_3",
+  "text": "All three techs came out of the {workshop}. The board has run out of things to approve.",
+  "max": 140,
+  "place": "Epilogue 2, all three techs done"
+ },
+ {
+  "id": "EPI_RIVAL_MIL",
+  "text": "{bot} lost a tier in Military and has not come back. Its letters are shorter now.",
+  "max": 140,
+  "place": "Epilogue 3, a rival lost a tier in Military ({bot})"
+ },
+ {
+  "id": "EPI_RIVAL_LUX",
+  "text": "{bot} lost a tier in Luxury. Its masks are still worn, by fewer faces.",
+  "max": 140,
+  "place": "Epilogue 3, a rival lost a tier in Luxury ({bot})"
+ },
+ {
+  "id": "EPI_RIVAL_MIN",
+  "text": "{bot} lost a tier in Minerals. Its crews cut the same rock, with less to show.",
+  "max": 140,
+  "place": "Epilogue 3, a rival lost a tier in Minerals ({bot})"
+ },
+ {
+  "id": "EPI_RIVAL_BIO",
+  "text": "{bot} lost a tier in Biotech. Its vats run on, and its clinics ask for less.",
+  "max": 140,
+  "place": "Epilogue 3, a rival lost a tier in Biotech ({bot})"
+ },
+ {
+  "id": "EPI_SECOND_MIL",
+  "text": "Military ran second, past a quarter of its market. The fleets noticed, and kept your number.",
+  "max": 140,
+  "place": "Epilogue 4, Military is a second market over a quarter share"
+ },
+ {
+  "id": "EPI_SECOND_LUX",
+  "text": "Luxury ran second, past a quarter of its market. The masks at the gala came from you.",
+  "max": 140,
+  "place": "Epilogue 4, Luxury is a second market over a quarter share"
+ },
+ {
+  "id": "EPI_SECOND_MIN",
+  "text": "Minerals ran second, past a quarter of its market. The dust remembers you anyway.",
+  "max": 140,
+  "place": "Epilogue 4, Minerals is a second market over a quarter share"
+ },
+ {
+  "id": "EPI_SECOND_BIO",
+  "text": "Biotech ran second, past a quarter of its market. A vat in a back room has your name on it.",
+  "max": 140,
+  "place": "Epilogue 4, Biotech is a second market over a quarter share"
+ },
+ {
   "id": "EV17_TITLE",
   "text": "Wreckage is circling {planet}",
   "max": 40,
@@ -2896,5 +5284,221 @@
   "text": "You ran the lane hard. Dross at Cinderrest costs more and pays more while you hold the lead. Income rises, and the danger rises on both dead worlds. The rival's lights fell behind and went out, one by one.",
   "max": 280,
   "place": "popup"
+ },
+ {
+  "id": "EV40_TITLE",
+  "text": "Rivet guns pile up at Voltara",
+  "max": 32,
+  "place": "pool event title"
+ },
+ {
+  "id": "EV40_BODY",
+  "text": "Voltara's foundry made more rivet guns than the garrisons ordered, and the surplus is stacked to the roof. Rivet guns there cost less and pay less. A clerk has asked whether a surplus is a kind of order. The stacks tick as they cool.",
+  "max": 280,
+  "place": "pool event text"
+ },
+ {
+  "id": "EV40_EFF",
+  "text": "Rivals: no change in {market} strength or growth.",
+  "max": 90,
+  "place": "pool event rivals line, {market} filled by the game"
+ },
+ {
+  "id": "EV41_TITLE",
+  "text": "Pulse cells are recalled",
+  "max": 32,
+  "place": "pool event title"
+ },
+ {
+  "id": "EV41_BODY",
+  "text": "A batch of pulse cells ran hot in the field, and the maker pulled the lot. Pulse cells at Ashgate cost more and pay more while the shelves stay bare. The recall notice says no one was harmed. It says so twice. The cells in storage hum a note too low to name.",
+  "max": 280,
+  "place": "pool event text"
+ },
+ {
+  "id": "EV41_EFF",
+  "text": "Rivals: {market} strength and growth stay as they were.",
+  "max": 90,
+  "place": "pool event rivals line, {market} filled by the game"
+ },
+ {
+  "id": "EV42_TITLE",
+  "text": "Hull armour waits at Quillon",
+  "max": 32,
+  "place": "pool event title"
+ },
+ {
+  "id": "EV42_BODY",
+  "text": "A shipment of hull armour reached Quillon with no buyer, since the garrisons had ordered plate of another gauge. Hull armour there costs less and pays less. The Bureau filed the plates as spare courage. They stand in the corridor, cold to the touch.",
+  "max": 280,
+  "place": "pool event text"
+ },
+ {
+  "id": "EV42_EFF",
+  "text": "Rivals: none of the three changes in {market}.",
+  "max": 90,
+  "place": "pool event rivals line, {market} filled by the game"
+ },
+ {
+  "id": "EV43_TITLE",
+  "text": "A glut of sunmusk",
+  "max": 32,
+  "place": "pool event title"
+ },
+ {
+  "id": "EV43_BODY",
+  "text": "A convoy of sunmusk reached Quillon on one tide, and nobody had ordered it. Sunmusk there costs less and pays less. The scent hangs in the corridors, and the buyers cannot agree what it smells of. The Bureau calls that variety.",
+  "max": 280,
+  "place": "pool event text"
+ },
+ {
+  "id": "EV43_EFF",
+  "text": "Rivals: no change in {market} strength or growth.",
+  "max": 90,
+  "place": "pool event rivals line, {market} filled by the game"
+ },
+ {
+  "id": "EV44_TITLE",
+  "text": "The cask cellar sours",
+  "max": 32,
+  "place": "pool event title"
+ },
+ {
+  "id": "EV44_BODY",
+  "text": "A cellar at Voltara lost a season of casks to a warm spell, and the guild counted every one twice. Vintage casks there cost more and pay more while the shelves are bare. The empties still smell of what they held. So do the clerks.",
+  "max": 280,
+  "place": "pool event text"
+ },
+ {
+  "id": "EV44_EFF",
+  "text": "Rivals: {market} strength and growth stay as they were.",
+  "max": 90,
+  "place": "pool event rivals line, {market} filled by the game"
+ },
+ {
+  "id": "EV45_TITLE",
+  "text": "Cut glimmers sell out",
+  "max": 32,
+  "place": "pool event title"
+ },
+ {
+  "id": "EV45_BODY",
+  "text": "A wedding season sold every cut glimmer at Quillon in a day. Cut glimmers there cost more and pay more while the cutters catch up. The jewellers' lamps burn all night. In one shop a stone hums very softly, and is not for sale.",
+  "max": 280,
+  "place": "pool event text"
+ },
+ {
+  "id": "EV45_EFF",
+  "text": "Rivals: none of the three changes in {market}.",
+  "max": 90,
+  "place": "pool event rivals line, {market} filled by the game"
+ },
+ {
+  "id": "EV46_TITLE",
+  "text": "The smelter goes cold",
+  "max": 32,
+  "place": "pool event title"
+ },
+ {
+  "id": "EV46_BODY",
+  "text": "Voltara's smelter lost its heat to a cracked line, and the casting stopped. Ingot there costs more and pays more until the furnace is lit again. The crew stand by the dead furnace. The metal inside still ticks as it shrinks.",
+  "max": 280,
+  "place": "pool event text"
+ },
+ {
+  "id": "EV46_EFF",
+  "text": "Rivals: no change in {market} strength or growth.",
+  "max": 90,
+  "place": "pool event rivals line, {market} filled by the game"
+ },
+ {
+  "id": "EV47_TITLE",
+  "text": "Seam alloy piles up at Quillon",
+  "max": 32,
+  "place": "pool event title"
+ },
+ {
+  "id": "EV47_BODY",
+  "text": "A convoy of seam alloy reached Quillon on one tide, and the builders had already bought. Seam alloy there costs less and pays less. The bales are stacked to the lamps, and a clerk is counting them for the third time. The count has not improved.",
+  "max": 280,
+  "place": "pool event text"
+ },
+ {
+  "id": "EV47_EFF",
+  "text": "Rivals: {market} strength and growth stay as they were.",
+  "max": 90,
+  "place": "pool event rivals line, {market} filled by the game"
+ },
+ {
+  "id": "EV48_TITLE",
+  "text": "Ashgate wants girders",
+  "max": 32,
+  "place": "pool event title"
+ },
+ {
+  "id": "EV48_BODY",
+  "text": "Ashgate's builders drew a new ring of homes in a single week, and every furnace is asked for ingot. Ingot there costs more and pays more. The draughtsmen call the plan final. The ingots on the dock ring faintly when the wind turns.",
+  "max": 280,
+  "place": "pool event text"
+ },
+ {
+  "id": "EV48_EFF",
+  "text": "Rivals: none of the three changes in {market}.",
+  "max": 90,
+  "place": "pool event rivals line, {market} filled by the game"
+ },
+ {
+  "id": "EV49_TITLE",
+  "text": "Quarantine at the culture lab",
+  "max": 32,
+  "place": "pool event title"
+ },
+ {
+  "id": "EV49_BODY",
+  "text": "A culture in Brannock's lab grew a colour it was not supposed to, and the doctors closed the port to look at it. Routes touching Brannock are blocked for a while. The form says contained. The vats say nothing and go on growing.",
+  "max": 280,
+  "place": "pool event text"
+ },
+ {
+  "id": "EV49_EFF",
+  "text": "Rivals: no change in {market} strength or growth.",
+  "max": 90,
+  "place": "pool event rivals line, {market} filled by the game"
+ },
+ {
+  "id": "EV50_TITLE",
+  "text": "Spores come in cheap",
+  "max": 32,
+  "place": "pool event title"
+ },
+ {
+  "id": "EV50_BODY",
+  "text": "A damp season at Mossfell raised spores in every crate, more than anyone could sell. Spore cultures there cost less and pay less. The growers say a surplus is only an ambition that lost its form. The crates sweat in rows.",
+  "max": 280,
+  "place": "pool event text"
+ },
+ {
+  "id": "EV50_EFF",
+  "text": "Rivals: {market} strength and growth stay as they were.",
+  "max": 90,
+  "place": "pool event rivals line, {market} filled by the game"
+ },
+ {
+  "id": "EV51_TITLE",
+  "text": "Gene seed is rationed",
+  "max": 32,
+  "place": "pool event title"
+ },
+ {
+  "id": "EV51_BODY",
+  "text": "A clinic ring at Quillon rationed gene seed after one failed batch, and every ward asked for double its share. Gene seed there costs more and pays more. The ration form has a line for reasons and a line for exceptions. Only the second is full.",
+  "max": 280,
+  "place": "pool event text"
+ },
+ {
+  "id": "EV51_EFF",
+  "text": "Rivals: none of the three changes in {market}.",
+  "max": 90,
+  "place": "pool event rivals line, {market} filled by the game"
  }
 ]

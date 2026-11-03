@@ -4,6 +4,61 @@ Format: ID | title (max 32) | tag | kind, then text (max 280). Appears in the ev
 Tags are from the brief only: [price up: planet, commodity], [price down: ...], [planet closed: planet]. Effect size and duration are the Economy Designer's. Planet closed means closed for a while; routes touching it are blocked. The Plan, quotas and the Bureau are story only and change nothing.
 Kind: P = plain price news, Q = quiet musing, I = ironic. Dread = one small odd detail.
 
+## Chain placeholders (market chains, ids EV_<step>_..., text in story/screens.md; added 2026-11-03)
+
+The game fills these in chain text. No text contains a digit; every number comes from a placeholder.
+
+| Placeholder | Filled with | Used in |
+|---|---|---|
+| {bot1}, {bot2}, {bot3} | Display names of the three rivals (bot_1 Harrow Combine, bot_2 Velvet Concord, bot_3 Ostrel Syndicate), from STD_BOT1_NAME to STD_BOT3_NAME. Never hard-coded in chain text, so a rename needs no text edit. | bodies, effect lines, results, rival lines |
+| {bot} | The marked bot of the option just chosen (R7: biggest CUT, boosts never count, tier cut counts as clearly, strength and growth count the same, a tie goes to the lower bot number). Table below. In a result text it always names a bot the option cut. In a step 2+ body of Military B4 it names the marked bot of the previous Military step. | results, MIL_B4 bodies |
+| {cash_in}, {cash_out} | Credits gained or paid by the option, number only (150, 300 or 600 from economy 8.1). | effect lines |
+| {n} | Units of tech progress the option gives, number only (3 or 4). | effect lines |
+| {cut} | In an effect line: "drops a tier", or "loses strength clearly" when that rival is at the lowest tier. Sentence shape: "<Bot> {cut} in <Market>." | effect lines |
+| {cut_std} | In a rival line: "moved down a tier", or "strength down clearly" at the lowest tier. | rival lines (_STD) |
+| {market} | Market display name. | EV_EFF_NO_RIVALS, pool rivals lines, log lines, epilogue lines |
+| {get}, {cost}, {rivals} | Phrases for the template CH_EFFECT_LINE (Get / Cost / Rivals, 200 characters). Same size words as the written effect lines. Only for lines the game builds itself; the written EV_<step>_OP?_EFF lines are final and need no template. | CH_EFFECT_LINE |
+| {workshop}, {share}, {bots} | As in story/voice.md. | endings |
+
+Size words (fixed): volume, price and upkeep up or down 5 or 8 or 20 percent or one trip cost of a third = "a little"; 10 or 15 or 40 percent = "clearly". Rival strength 5 percent or growth 10 percent = "a little"; strength 10 percent or growth 20 percent = "clearly"; strength 18 percent or growth 30 percent = "sharply". A tier cut is only ever {cut} or {cut_std}. A boost to a rival is a Cost and reads "gains a little <Market> strength" or "grows a little faster in <Market>"; the matching rival line says "strength up a little" or "growth up a little". Durations: 2 to 3 cycles "for a few cycles", 4 to 8 cycles "for a while", to cycle 40 "for the rest of the run". A timed rival hit says "for a few cycles".
+
+Rival effect is visible in every step three ways: the effect line (Rivals part), the result text (the marked bot as {bot}, other changed rivals by {bot1} to {bot3}) and one or two rival lines (_STD, _STD2) shown under the result and written into the Competitors log (LBL_COMP_MOVE_*). Cuts come before boosts in the rival lines. The tier result text says "cut back", which is true at any tier; the rival line carries {cut_std}.
+
+Marked bot per option (R7), computed by hand from economy 8.2; the game computes it itself and must agree:
+
+| Step | opt_a {bot} | opt_b {bot} |
+|---|---|---|
+| MIL_A1 | Harrow Combine | Harrow Combine |
+| MIL_A2 | Ostrel Syndicate | Harrow Combine |
+| MIL_A3 | Harrow Combine | Harrow Combine |
+| MIL_B1 | Harrow Combine | Ostrel Syndicate |
+| MIL_B2 | Velvet Concord | Harrow Combine |
+| MIL_B3 | Ostrel Syndicate | Harrow Combine |
+| MIL_B4 | Harrow Combine | Harrow Combine |
+| LUX_A1 | Velvet Concord | Ostrel Syndicate |
+| LUX_A2 | Velvet Concord | Velvet Concord |
+| LUX_A3 | Velvet Concord | Ostrel Syndicate |
+| LUX_B1 | Velvet Concord | Velvet Concord |
+| LUX_B2 | Ostrel Syndicate | Velvet Concord |
+| LUX_B3 | Velvet Concord | Harrow Combine |
+| LUX_B4 | Velvet Concord | Velvet Concord |
+| MIN_A1 | Harrow Combine | Harrow Combine |
+| MIN_A2 | Ostrel Syndicate | Harrow Combine |
+| MIN_A3 | Harrow Combine | Harrow Combine |
+| MIN_B1 | Harrow Combine | Harrow Combine |
+| MIN_B2 | Ostrel Syndicate | Harrow Combine |
+| MIN_B3 | Harrow Combine | Harrow Combine |
+| MIN_B4 | Harrow Combine | Harrow Combine |
+| BIO_A1 | Velvet Concord | Velvet Concord |
+| BIO_A2 | Ostrel Syndicate | Velvet Concord |
+| BIO_A3 | Velvet Concord | Velvet Concord |
+| BIO_B1 | Velvet Concord | Ostrel Syndicate |
+| BIO_B2 | Velvet Concord | Ostrel Syndicate |
+| BIO_B3 | Velvet Concord | Velvet Concord |
+| BIO_B4 | Velvet Concord | Velvet Concord |
+
+Neutrality checks run on all 28 steps (script, not the game): no digit, no banned verdict word (good, bad, right, wrong, fair, safe, risky, bold, kind, open, closed, quiet, polite, late, long, short, small, big, plain, clean and the rest of 4.2 rule 1), no "but", "however" or "at least" in any text; button lengths within 5 characters, effect lines and results within 25 percent of each other. Each step's pair shares one grammar and one length class. The old Minerals chain events EV29 to EV37 stay in this file until the chain is wired; their choice texts name stances (Keep mining, Share the lane) and must be retired with the Open and Hard framing, not reused.
+
 EV01 | Voltara's reactors run wild | [price down: Voltara, energy] | P
 A monitor proved the reactors could run far past the safe-hours rule. The rule was wrong, not the machine, said the night shift. Energy at Voltara costs less and pays less. The day shift wants the rule back. The cores hum on.
 
@@ -302,3 +357,71 @@ The rival kept to its lane and sent a chart of Greywake's safe cuts. Nullglass a
 ### follow-up of EV35_RACE, 4 cycles later
 EV37 | The rival cuts you off | [price down: Cinderrest, dross] | I
 The rival did not forgive the race. Its crews flooded Cinderrest with cheap salt, and dross there costs less and pays less. Your ships still dock, and nobody looks at them. In the dust the rival's lamps move in a line, all together.
+
+# Events, shared pool EV40 to EV51 (added 2026-11-03)
+
+Twelve one-time pool events for the new goods and workshops, three per market (Military EV40 to EV42, Luxury EV43 to EV45, Minerals EV46 to EV48, Biotech EV49 to EV51). Each fires once per run. They are NOT rows in data/events.json yet: the build writes only text ids (EV<nn>_TITLE max 32, EV<nn>_BODY max 280, EV<nn>_EFF max 90, the rivals line). The tag and kind sit in the table below for the economy and gameplay tasks that add the rows and the art. Planets are suggestions; the economy designer maps them to the planets that trade the good.
+Pool events carry no bot effect (core 4.4), so every rivals line says that no rival changes. If a pool event ever gets a bot effect, rewrite its EV<nn>_EFF line first.
+
+| Id | Tag | Kind |
+|---|---|---|
+| EV40 | [price down: Voltara, rivets] | P |
+| EV41 | [price up: Ashgate, cells] | Q |
+| EV42 | [price down: Quillon, armour] | I |
+| EV43 | [price down: Quillon, musk] | I |
+| EV44 | [price up: Voltara, cask] | Q |
+| EV45 | [price up: Quillon, gems] | P |
+| EV46 | [price up: Voltara, ingot] | P |
+| EV47 | [price down: Quillon, alloy] | I |
+| EV48 | [price up: Ashgate, ingot] | P |
+| EV49 | [planet closed: Brannock] | I |
+| EV50 | [price down: Mossfell, spores] | Q |
+| EV51 | [price up: Quillon, seed] | Q |
+
+EV40_TITLE | pool event title | Rivet guns pile up at Voltara
+EV40_BODY | pool event text | Voltara's foundry made more rivet guns than the garrisons ordered, and the surplus is stacked to the roof. Rivet guns there cost less and pay less. A clerk has asked whether a surplus is a kind of order. The stacks tick as they cool.
+EV40_EFF | pool event rivals line, {market} filled by the game | Rivals: no change in {market} strength or growth.
+
+EV41_TITLE | pool event title | Pulse cells are recalled
+EV41_BODY | pool event text | A batch of pulse cells ran hot in the field, and the maker pulled the lot. Pulse cells at Ashgate cost more and pay more while the shelves stay bare. The recall notice says no one was harmed. It says so twice. The cells in storage hum a note too low to name.
+EV41_EFF | pool event rivals line, {market} filled by the game | Rivals: {market} strength and growth stay as they were.
+
+EV42_TITLE | pool event title | Hull armour waits at Quillon
+EV42_BODY | pool event text | A shipment of hull armour reached Quillon with no buyer, since the garrisons had ordered plate of another gauge. Hull armour there costs less and pays less. The Bureau filed the plates as spare courage. They stand in the corridor, cold to the touch.
+EV42_EFF | pool event rivals line, {market} filled by the game | Rivals: none of the three changes in {market}.
+
+EV43_TITLE | pool event title | A glut of sunmusk
+EV43_BODY | pool event text | A convoy of sunmusk reached Quillon on one tide, and nobody had ordered it. Sunmusk there costs less and pays less. The scent hangs in the corridors, and the buyers cannot agree what it smells of. The Bureau calls that variety.
+EV43_EFF | pool event rivals line, {market} filled by the game | Rivals: no change in {market} strength or growth.
+
+EV44_TITLE | pool event title | The cask cellar sours
+EV44_BODY | pool event text | A cellar at Voltara lost a season of casks to a warm spell, and the guild counted every one twice. Vintage casks there cost more and pay more while the shelves are bare. The empties still smell of what they held. So do the clerks.
+EV44_EFF | pool event rivals line, {market} filled by the game | Rivals: {market} strength and growth stay as they were.
+
+EV45_TITLE | pool event title | Cut glimmers sell out
+EV45_BODY | pool event text | A wedding season sold every cut glimmer at Quillon in a day. Cut glimmers there cost more and pay more while the cutters catch up. The jewellers' lamps burn all night. In one shop a stone hums very softly, and is not for sale.
+EV45_EFF | pool event rivals line, {market} filled by the game | Rivals: none of the three changes in {market}.
+
+EV46_TITLE | pool event title | The smelter goes cold
+EV46_BODY | pool event text | Voltara's smelter lost its heat to a cracked line, and the casting stopped. Ingot there costs more and pays more until the furnace is lit again. The crew stand by the dead furnace. The metal inside still ticks as it shrinks.
+EV46_EFF | pool event rivals line, {market} filled by the game | Rivals: no change in {market} strength or growth.
+
+EV47_TITLE | pool event title | Seam alloy piles up at Quillon
+EV47_BODY | pool event text | A convoy of seam alloy reached Quillon on one tide, and the builders had already bought. Seam alloy there costs less and pays less. The bales are stacked to the lamps, and a clerk is counting them for the third time. The count has not improved.
+EV47_EFF | pool event rivals line, {market} filled by the game | Rivals: {market} strength and growth stay as they were.
+
+EV48_TITLE | pool event title | Ashgate wants girders
+EV48_BODY | pool event text | Ashgate's builders drew a new ring of homes in a single week, and every furnace is asked for ingot. Ingot there costs more and pays more. The draughtsmen call the plan final. The ingots on the dock ring faintly when the wind turns.
+EV48_EFF | pool event rivals line, {market} filled by the game | Rivals: none of the three changes in {market}.
+
+EV49_TITLE | pool event title | Quarantine at the culture lab
+EV49_BODY | pool event text | A culture in Brannock's lab grew a colour it was not supposed to, and the doctors closed the port to look at it. Routes touching Brannock are blocked for a while. The form says contained. The vats say nothing and go on growing.
+EV49_EFF | pool event rivals line, {market} filled by the game | Rivals: no change in {market} strength or growth.
+
+EV50_TITLE | pool event title | Spores come in cheap
+EV50_BODY | pool event text | A damp season at Mossfell raised spores in every crate, more than anyone could sell. Spore cultures there cost less and pay less. The growers say a surplus is only an ambition that lost its form. The crates sweat in rows.
+EV50_EFF | pool event rivals line, {market} filled by the game | Rivals: {market} strength and growth stay as they were.
+
+EV51_TITLE | pool event title | Gene seed is rationed
+EV51_BODY | pool event text | A clinic ring at Quillon rationed gene seed after one failed batch, and every ward asked for double its share. Gene seed there costs more and pays more. The ration form has a line for reasons and a line for exceptions. Only the second is full.
+EV51_EFF | pool event rivals line, {market} filled by the game | Rivals: none of the three changes in {market}.

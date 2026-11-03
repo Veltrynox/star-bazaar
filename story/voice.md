@@ -87,3 +87,13 @@ The player is "you" or "the company". Never a gender, never a name.
 - Rivals: the three other companies in a market. Never "bots" or "AI" in player text.
 - Size words in skill lines: a little (small), clearly (medium), sharply (large, rivals only). No raw numbers; the game fills {n}, {m}, {goal} (units to craft), {name} (node name).
 - Skill and tech node limits: name 24, flavour 90, plain line 110, craft-progress line 60 (_CRAFT). Screen labels 24 to 60, notices 110.
+
+### Market chains (added 2026-11-03, chain text goal)
+- Chain limits: step title 40, body 280, button 28, effect line 200 (Get, Cost, Rivals), result title 32, result text 280, rival line 90, epilogue line 140, rival log line 60. Pool event: title 32, text 280, rivals line 90.
+- Effect line shape, always: "Get: ... Cost: ... Rivals: ..." in that order, three sentences, same shape for both options. A boost to a rival is a Cost. No "but", "however" or "at least".
+- Option buttons are two verb phrases of nearly equal length (within 5 characters). No verdict words in any chain text: good, bad, right, wrong, fair, unfair, safe, risky, bold, kind, cruel, open, closed, quiet, polite, late, long, short, small, big, plain, clean. A text never says what an option shows about the player.
+- Rivals: always by name or by a placeholder ({bot1} Harrow Combine, {bot2} Velvet Concord, {bot3} Ostrel Syndicate, {bot} the marked bot of the option). Never "bot" or "AI" in player text.
+- Rival lines: "<Bot>, <Market>: strength down a little." or "growth up clearly." For a tier cut: "<Bot>, <Market>: {cut_std}." The Competitors log uses "{bot}: {market} strength down" and the like (LBL_COMP_MOVE_*).
+- Size words: a little (small), clearly (medium), sharply (large, rivals only). Durations: for a few cycles (2 to 3), for a while (4 to 8), for the rest of the run. Credits and tech units come only from {cash_in}, {cash_out} and {n}.
+- New placeholders: {bot}, {bot1}, {bot2}, {bot3}, {cash_in}, {cash_out}, {cut}, {cut_std}, {get}, {cost}, {rivals}, {market}, {workshop}, {share}, {bots}. Documented in story/events.md, section "Chain placeholders".
+- Terms: Rivals (the three other companies); Competitors (the menu that lists them and their recent moves); the Atelier, the Smelter, the Munitions Line, the Culture Lab (workshops; capitalised as names, lower case in running text). Not "Standings" in player text; the old working name is retired.

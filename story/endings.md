@@ -70,3 +70,55 @@ Main menu
 
 END_BTN_QUIT | 24 | End screen button
 Quit game
+
+## Epilogue lines (added 2026-11-03; max 140; up to four shown, in this order)
+Shown under the ending text of the win market. They say what the company did (a capstone, a tech, a tier cut, a second market), never how many choices were of a kind, never a direction or a stance. If more than four apply, drop from the end. Placeholders: {workshop} (the win market's workshop), {bot} (the rival whose tier dropped; mil/lux/min/bio_rival_broken_bot), {market} (display name). The 11 ending ids are unchanged.
+Order: 1 capstone (only if the win market's capstone is learned), 2 tech (always, by techs done in the win market), 3 rival (only if a tier really dropped in the win market), 4 second market (only if another market is over a quarter share; one line per second market).
+
+EPI_CAP_MIL | 140 | Epilogue 1, win Military, capstone learned
+The Standing Fleet kept every rival's growth held down to the last cycle. Nobody asked how.
+
+EPI_CAP_LUX | 140 | Epilogue 1, win Luxury, capstone learned
+You bought one rival's best client with a handshake and a gift. The guild filed it as courtesy.
+
+EPI_CAP_MIN | 140 | Epilogue 1, win Minerals, capstone learned
+The last seam in reach was yours, and the rivals worked the rest. They do not mention it.
+
+EPI_CAP_BIO | 140 | Epilogue 1, win Biotech, capstone learned
+The Patent Wall stands. The rivals' vats run slower behind it, and the clerks call that quality control.
+
+EPI_TECH_0 | 140 | Epilogue 2, no tech done in the win market
+The {workshop} never finished a tech. It ran on habit and steady hands.
+
+EPI_TECH_1 | 140 | Epilogue 2, one tech done
+One tech came out of the {workshop}. It is mentioned in the minutes.
+
+EPI_TECH_2 | 140 | Epilogue 2, two techs done
+Two techs came out of the {workshop}. The third is still on the board.
+
+EPI_TECH_3 | 140 | Epilogue 2, all three techs done
+All three techs came out of the {workshop}. The board has run out of things to approve.
+
+EPI_RIVAL_MIL | 140 | Epilogue 3, a rival lost a tier in Military ({bot})
+{bot} lost a tier in Military and has not come back. Its letters are shorter now.
+
+EPI_RIVAL_LUX | 140 | Epilogue 3, a rival lost a tier in Luxury ({bot})
+{bot} lost a tier in Luxury. Its masks are still worn, by fewer faces.
+
+EPI_RIVAL_MIN | 140 | Epilogue 3, a rival lost a tier in Minerals ({bot})
+{bot} lost a tier in Minerals. Its crews cut the same rock, with less to show.
+
+EPI_RIVAL_BIO | 140 | Epilogue 3, a rival lost a tier in Biotech ({bot})
+{bot} lost a tier in Biotech. Its vats run on, and its clinics ask for less.
+
+EPI_SECOND_MIL | 140 | Epilogue 4, Military is a second market over a quarter share
+Military ran second, past a quarter of its market. The fleets noticed, and kept your number.
+
+EPI_SECOND_LUX | 140 | Epilogue 4, Luxury is a second market over a quarter share
+Luxury ran second, past a quarter of its market. The masks at the gala came from you.
+
+EPI_SECOND_MIN | 140 | Epilogue 4, Minerals is a second market over a quarter share
+Minerals ran second, past a quarter of its market. The dust remembers you anyway.
+
+EPI_SECOND_BIO | 140 | Epilogue 4, Biotech is a second market over a quarter share
+Biotech ran second, past a quarter of its market. A vat in a back room has your name on it.
