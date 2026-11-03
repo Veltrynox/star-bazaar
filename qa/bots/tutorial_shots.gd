@@ -234,4 +234,27 @@ func _run() -> void:
 	check(m.tut_step == m.TUT_GUIDE.size(), "run D: galaxy Skip also ends the guided board tutorial (tut_step %d)" % m.tut_step)
 	await shot("D_galaxy_after_skip")
 	await _free(m)
+	# Run E: galaxy step 3 with a real route on the map.
+	log_("== Run E: galaxy step 3 with a route")
+	m = await _new_main()
+	m._on_planet_clicked(SRC)
+	for c in m.commodities:
+		m.toggle_local(SRC, c, "buy")
+		if _any_buy(m):
+			break
+	for dst in range(1, m.map.planets.size()):
+		if m.send_stock_buying(SRC, dst, m.commodities[0]).get("ok", false):
+			break
+	m._end_cycle()
+	m._open_system(2)
+	g = m.galaxy_view
+	g.tut_step = 2
+	g.open_view()
+	g.tut_step = 2
+	g._build_tutorial()
+	await process_frame
+	await process_frame
+	check(not m.engine.routes.is_empty(), "run E: a route exists")
+	await shot("E_galaxy_step3_route")
+	await _free(m)
 	log_("== done, %d failure(s)" % fails.size())
