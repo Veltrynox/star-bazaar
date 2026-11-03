@@ -3,22 +3,167 @@
   "task_id": "four-markets-direction",
   "date": "2026-11-03",
   "status": "done",
-  "summary": "Replaced Open/Hard stance with a hidden per-market direction value dir_<mkt> in design/proposals/2026-11-03-four-markets.md. Neutral options opt_a/opt_b per step, each with a gain, a cost, a bot stat change and a hidden signed nudge. Ending thresholds, echo and late-swing rules, 28-step option table, 'Why no option is dominant', and a handoff list for economy and story are in the core doc.",
-  "files_changed": ["design/proposals/2026-11-03-four-markets.md", "handoffs/feature-designer/2026-11-03-four-markets-direction.json"],
+  "summary": "Direction redesign, pass 2 (reviewer fixes A-F) applied to the core doc: smaller nudges with a cap, sign-of-sum ending rule, re-signed balanced dir table, neutral situations, pool recount, win/loss order and rescue default.",
+  "files_changed": [
+    "design/proposals/2026-11-03-four-markets.md",
+    "handoffs/feature-designer/2026-11-03-four-markets-direction.json"
+  ],
   "details": {
     "direction": {
-      "value": "dir_<mkt>, int -100..+100, hidden, one per market, both chains feed it",
-      "nudges": "A1 5-8, A2 8-10, A3 10-14, B1 8-10, B2 10-12, B3 14-16, B4 24-26, signs mixed",
-      "modifiers": "echo x1.25 if previous step in the same chain had the same sign; late swing x1.5 on the opposing nudge at B3/B4 when |dir| >= 40",
-      "thresholds": "dir >= 10 good; dir <= -10 bad; between: sign of last nudge decides; no step seen = good",
-      "end_screen": "no counts, labels or direction shown"
+      "value": "dir_<mkt>, int, reachable about -63..+63, hidden, both chains feed it",
+      "nudge_base": "A1 4-6, A2 5-7, A3 6-8, B1 6-8, B2 7-9, B3 8-10, B4 10-12; cap dir_nudge_cap 14",
+      "modifiers": "echo x1.25 (floor) if previous step of the same chain had the same sign; then late swing x1.5 (floor) at B3/B4 when |dir| >= 25 before the step and the nudge opposes the sign; then cap 14. Echo and swing stack in that order.",
+      "ending": "dir >= 0 good, dir < 0 bad; sign of the whole sum, no band, no last-nudge tiebreak; no step fired = good",
+      "paths": "5 of 7 agreeing picks give a sure result, 3-4 can go either way; good share 50/49/52/54% (mil/lux/min/bio); B4 alone can flip the ending in about 40% of paths (|dir| within reach of zero), none in the other 60%",
+      "dir_table": {
+        "MIL_A1": {
+          "opt_a": 6,
+          "opt_b": -4
+        },
+        "MIL_A2": {
+          "opt_a": 7,
+          "opt_b": -6
+        },
+        "MIL_A3": {
+          "opt_a": 8,
+          "opt_b": -7
+        },
+        "MIL_B1": {
+          "opt_a": -6,
+          "opt_b": 7
+        },
+        "MIL_B2": {
+          "opt_a": -9,
+          "opt_b": 7
+        },
+        "MIL_B3": {
+          "opt_a": -9,
+          "opt_b": 8
+        },
+        "MIL_B4": {
+          "opt_a": -11,
+          "opt_b": 10
+        },
+        "LUX_A1": {
+          "opt_a": -4,
+          "opt_b": 6
+        },
+        "LUX_A2": {
+          "opt_a": -6,
+          "opt_b": 5
+        },
+        "LUX_A3": {
+          "opt_a": -8,
+          "opt_b": 7
+        },
+        "LUX_B1": {
+          "opt_a": 7,
+          "opt_b": -6
+        },
+        "LUX_B2": {
+          "opt_a": 9,
+          "opt_b": -8
+        },
+        "LUX_B3": {
+          "opt_a": 9,
+          "opt_b": -10
+        },
+        "LUX_B4": {
+          "opt_a": 10,
+          "opt_b": -11
+        },
+        "MIN_A1": {
+          "opt_a": 4,
+          "opt_b": -6
+        },
+        "MIN_A2": {
+          "opt_a": 7,
+          "opt_b": -6
+        },
+        "MIN_A3": {
+          "opt_a": -7,
+          "opt_b": 8
+        },
+        "MIN_B1": {
+          "opt_a": -8,
+          "opt_b": 8
+        },
+        "MIN_B2": {
+          "opt_a": 7,
+          "opt_b": -9
+        },
+        "MIN_B3": {
+          "opt_a": 9,
+          "opt_b": -8
+        },
+        "MIN_B4": {
+          "opt_a": -11,
+          "opt_b": 12
+        },
+        "BIO_A1": {
+          "opt_a": -4,
+          "opt_b": 6
+        },
+        "BIO_A2": {
+          "opt_a": -7,
+          "opt_b": 5
+        },
+        "BIO_A3": {
+          "opt_a": 7,
+          "opt_b": -7
+        },
+        "BIO_B1": {
+          "opt_a": 6,
+          "opt_b": -7
+        },
+        "BIO_B2": {
+          "opt_a": -9,
+          "opt_b": 9
+        },
+        "BIO_B3": {
+          "opt_a": -8,
+          "opt_b": 10
+        },
+        "BIO_B4": {
+          "opt_a": 11,
+          "opt_b": -12
+        }
+      },
+      "pattern_checks": "opt_a + in 14/28 (3,4,4,3); each step position 2 of 4; cash option + in 10/19; tech option + in 4/9; larger-bot-cut option + in 11/22",
+      "other_fixes": [
+        "pool: 28 kept (EV01-16, EV17, EV19, EV20, EV21, EV22, EV24, EV25, EV26, EV28, BE01-BE03) + 12 new = 40; EV18 retired (fixes R9)",
+        "check order win, swept, bankrupt; rescue: repossession first, no stipend in a repossession cycle, only first two stipends paid (rescue_max 2), stipend never ends the run",
+        "timing: all effects at once, immediate result popup; Minerals chain A follow-ups kept as optional flavour popups only",
+        "names Ostrel Syndicate, Seam Alloy; tech goals 9/18/12; cross_load 1.5; tier schedule 13/27, 11/24, 14/28; median win 27-28; tier hits -1 only",
+        "core 4.3 now holds only id, trigger, neutral situation, dir; Gets/Costs/Bot live in economy 8.2"
+      ]
     },
     "proposals": [],
-    "stale_in_other_docs": ["four-markets-economy.md: open_volume_bonus, hard_fee, Open/Hard win tables, lines 76-101, 130, 171, 188-195, 270, 276", "four-markets-story.md: Open/Hard rules lines 20, 285-287, 514-520, END_STAT_RECORD, stance endings, MIL chain flags and variants", "four-markets-summary.md: R6, R7, R8, R11 and Q3 wording"]
+    "stale_in_other_docs": [
+      "four-markets-economy.md: open_volume_bonus, hard_fee, Open/Hard win tables, lines 76-101, 130, 171, 188-195, 270, 276",
+      "four-markets-story.md: Open/Hard rules lines 20, 285-287, 514-520, END_STAT_RECORD, stance endings, MIL chain flags and variants",
+      "four-markets-summary.md: R6, R7, R8, R11 and Q3 wording"
+    ],
+    "economy_must_change": [
+      "Mirror the dir column of core 4.3 into 8.2 and the 56 keys dir_<mkt>_<step>_<a|b> (all old dir values are replaced)",
+      "Keys: add dir_nudge_cap 14; dir_swing_threshold 25 (was 40); dir_good_min 0; delete dir_bad_max; dir_min -100, dir_max 100, dir_echo_mult 1.25, dir_swing_mult 1.5 stay; add rescue_max 2",
+      "Rewrite 8.3: dir mean/sd and good-ending share (now about 50% per market, range -63..+63) and recheck that ending class does not predict win rate; rerun the sim only if dir affects nothing else (it does not)",
+      "Fix counts in 8.2 (opt_a + count, bigger-cut + count) to the new pattern; remove 'dir values are core nudges unchanged'",
+      "Open question 7: adopt the default (repossession first, rescue_max 2); core section 2 now states it",
+      "Drop tier +1 boosts (core has tier only -1)",
+      "Pool size 40 not 37"
+    ],
+    "story_must_change": [
+      "END conditions: GOOD if dir >= 0, BAD if dir < 0 (replace 'dir 10 or more / -10 or less' and any last-nudge tiebreak text)",
+      "Delete EPI_NARROW and any epilogue keyed to a tie or last nudge (R17 closed: no such line)",
+      "Replace every situation/trigger phrase for the 28 steps with the neutral one-liners of core 4.3; flagged phrases (supply both sides, who it answers to, exclusive first pick, poached or paid, rival's flaw, crew paid off, last seam, open seed, patent request, seed bank door) must not appear in buttons or effect lines either",
+      "Result popup is immediate; remove any wording of delayed effects except Minerals A optional follow-ups",
+      "Names Ostrel Syndicate, Seam Alloy where still old"
+    ]
   },
   "open_questions": [
-    "UNKNOWN: whether the economy sim keeps all 2^7 paths per market inside the 56-98% window with option boosts to bots.",
-    "UNKNOWN: whether shuffled button order is acceptable to UI (a per-run seeded shuffle).",
-    "UNKNOWN: owner view on the last-nudge tiebreak in the -9..+9 band."
+    "UNKNOWN: B4 alone flips the ending in about 40% of paths (|dir| near zero); owner may prefer a dead band, which would then need a rule for the middle.",
+    "UNKNOWN: whether economy keeps swing threshold 25 or retunes after its sim.",
+    "UNKNOWN: summary R9, R14 (thresholds, nudge sizes, tiebreak), R17 and Q4 wording must be updated by the coordinator."
   ]
 }
