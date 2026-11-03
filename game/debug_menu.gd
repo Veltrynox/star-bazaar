@@ -82,12 +82,15 @@ func add_next_cycle_button() -> void:
 	b.pressed.connect(main.debug_advance_cycle)
 	add_tool(b)
 
-## T78: force the win goal at the end of the current cycle; shows the stats file path.
-func add_force_goal() -> void:
-	var b := CheckButton.new()
-	b.text = "Force goal at cycle end"
-	b.toggled.connect(func(on: bool): main.debug_force_goal = on)
-	add_tool(b)
+## Force market share: a huge player sale in the chosen market at every cycle end, so its share goes over the win line
+## (the win then fires after win_hold_cycles from win_earliest_cycle). Runtime only. Shows the stats file path.
+func add_force_share() -> void:
+	var ob := OptionButton.new()
+	ob.add_item("Force market share: off")
+	for m in Markets.ids:
+		ob.add_item("Force market share: " + str(Markets.names[m]))
+	ob.item_selected.connect(func(i: int): main.debug_force_market = "" if i == 0 else str(Markets.ids[i - 1]))
+	add_tool(ob)
 	var l := Label.new()
 	l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	l.text = "Stats: " + RunStats.global_path()

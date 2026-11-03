@@ -12,7 +12,7 @@ signal notice_posted(text: String)
 var station_systems: Array = []  # ids of systems that have a space station
 var station_markers := {}  # system id -> Button
 var _loading_state := false
-## T77: the single place T78 listens to. side is "RELEASE", "CORP" or "LOSS"; ending_id is the END_* id.
+## The single place QA listens to. side is "WIN", "LOSS" or "SOFT"; ending_id is the END_* id.
 signal run_ended(side: String, ending_id: String)
 
 const BALANCE_PATH := "res://data/balance.json"
@@ -21,7 +21,6 @@ const Trade := preload("res://game/trade.gd")
 const RouteEngine := preload("res://game/route_engine.gd")
 const Storage := preload("res://game/storage.gd")
 const StoryText := preload("res://game/story_text.gd")
-const EndingPicker := preload("res://game/ending_picker.gd")
 const SkillTree := preload("res://game/skill_tree.gd")
 const Events := preload("res://game/events.gd")
 const Shield := preload("res://game/shield.gd")
@@ -35,7 +34,7 @@ var balance: Dictionary = {}
 var cash: int = 0
 var cycle: int = 1          # current cycle, 1-based
 var cycle_elapsed: float = 0.0  # seconds into current cycle
-var debug_force_goal: bool = false  # T78: debug-only, runtime only, never saved
+var debug_force_market: String = ""  # debug-only, runtime only, never saved: market id whose share is forced up at cycle end
 var debug_force_event: bool = false  # T13: debug-only, fire a random event at the next cycle start, then clears
 var run_recorded: bool = false  # T78: a run is recorded once
 var time_speed: float = 1.0  # clock multiplier chosen in the top bar (1, 2, 6 or 12); saved, sticky until changed
@@ -43,7 +42,9 @@ const SPEEDS := [1.0, 2.0, 6.0, 12.0]
 var speed_buttons: Array = []
 var paused: bool = true  # T23: game starts paused after the preface
 var game_over: bool = false
-var choice_pending: bool = false  # T77: win choice shown and not answered yet (saved)
+var rescues_paid: int = 0  # Four Markets: stranded stipends paid this run (capped by rescue_max), saved
+var repossessions: int = 0  # ships repossessed this run, saved
+var repossessed_cycle: int = -1  # cycle of the last repossession (no stipend in that cycle)
 var end_screen: ColorRect  # T77 overlay, null when none
 var learned_skills: Array = []  # T77/T71: learned skill ids ("A1"...), saved
 var systems_reached: int = 1  # T77: systems with a first route or storage; only system 1 exists today
@@ -158,6 +159,7 @@ func _ready() -> void:
 	Juice.install_press(get_tree())
 	balance = _load_balance()
 	cash = int(balance.get("starting_credits", 0))
+	Markets.reset(balance, Markets.default_seed())  # Four Markets: new run; a loaded save overwrites it
 	mouse_filter = Control.MOUSE_FILTER_IGNORE  # let clicks reach the 3D map (T04)
 	map = load("res://game/map.gd").new()
 	add_child(map)  # T20 map, added before UI so the bar draws on top
@@ -243,7 +245,7 @@ func _ready() -> void:
 		debug_menu.setup(self)
 		debug_menu.add_next_cycle_button()
 		debug_menu.add_routes_dump()
-		debug_menu.add_force_goal()
+		debug_menu.add_force_share()
 		debug_menu.add_event_trigger()
 		debug_menu.add_qa_tools()  # T13
 	_push_routes_to_map()
@@ -254,7 +256,7 @@ func _ready() -> void:
 func collect_state() -> Dictionary:
 	return {"cycle": cycle, "cycle_elapsed": cycle_elapsed, "cash": cash, "paused": paused, "ships": ships,
 		"routes": engine.to_array(), "storage": storage.to_dict(), "orders": engine.local_to_array(),
-		"choice_pending": choice_pending, "learned_skills": learned_skills, "systems_reached": systems_reached,
+		"markets": Markets.to_dict(), "rescues_paid": rescues_paid, "repossessions": repossessions, "learned_skills": learned_skills, "systems_reached": systems_reached,
 		"time_speed": time_speed, "skill_points": skill_points, "pts_planets": pts_planets, "pts_pairs": pts_pairs, "events": events.to_dict(),
 			"open_systems": open_systems, "reached_ids": reached_ids, "galaxy_seen": galaxy_seen, "tut_step": tut_step, "tut_ver": TUT_VER,
 		"shield": shield.to_dict(), "storage_cuts": storage.cuts_to_dict(), "price_history": price_history,
@@ -283,6 +285,9 @@ func apply_state(s: Dictionary) -> void:
 			tut_step = TUT_OLD_MAP[maxi(0, tut_step)] if tut_step < TUT_OLD_MAP.size() else TUT_GUIDE.size()
 	tut_step = clampi(tut_step, 0, TUT_GUIDE.size())
 	cycle = maxi(1, int(s.get("cycle", 1)))
+	Markets.from_dict(s.get("markets"), balance)
+	rescues_paid = int(s.get("rescues_paid", 0))
+	repossessions = int(s.get("repossessions", 0))
 	cycle_elapsed = clampf(float(s.get("cycle_elapsed", 0.0)), 0.0, _cycle_seconds())
 	time_speed = _speed_or_default(s.get("time_speed", 1.0))  # old saves: x1
 	cash = int(s.get("cash", cash))
@@ -334,8 +339,6 @@ func apply_state(s: Dictionary) -> void:
 	paused = true  # always resume paused
 	if events.pending_id != "":  # T12: an unconfirmed event notice comes back (effects already applied unless a choice)
 		_open_event_notice(events.pending_id)
-	if bool(s.get("choice_pending", false)):  # T77: an unanswered choice comes back
-		_show_choice()
 
 func _int_array(v) -> Array:
 	var out: Array = []
@@ -758,7 +761,7 @@ func toggle_skills() -> void:
 		open_skills()
 
 func save_now() -> void:
-	if preface != null or (game_over and not choice_pending):
+	if preface != null or game_over:
 		return
 	SaveGame.write_state(collect_state())
 
@@ -1694,6 +1697,8 @@ func _settle_routes() -> Array:
 	var r: Dictionary = engine.settle(cash)
 	last_local = r["local"]
 	cash += int(r["delta"])
+	for c in engine.sales_units:  # Four Markets: Sell orders and stop sales count toward share
+		Markets.add_sale(str(c), int(engine.sales_units[c]))
 	prev_net = last_net
 	last_net = int(r["delta"])
 	last_summary = "%s %d, %s %d, %s %+d" % [StoryText.get_text("LBL_GROSS"), int(r["gross"]),
@@ -1733,8 +1738,8 @@ func _blocked_text(rec: Dictionary) -> String:
 ## T46 / T95: stranded = (no ships and cash below ship_price) OR (cash below one route's fixed cost,
 ## no net income last cycle or no route running, and no local Sell order with stock). Pays rescue_stipend, once per cycle, never a loss.
 func _check_stranded() -> void:
-	if last_rescue_cycle == cycle:
-		return
+	if last_rescue_cycle == cycle or repossessed_cycle == cycle or rescues_paid >= int(balance.get("rescue_max", 2)):
+		return  # Four Markets: no stipend in a repossession cycle, and only the first rescue_max are paid
 	var stuck := ships == 0 and cash < int(balance.get("ship_price", 0))
 	if not stuck and cash < engine.fixed_cost() and (last_net <= 0 or not _any_route_running()) and not _any_sellable():
 		stuck = true
@@ -1743,6 +1748,7 @@ func _check_stranded() -> void:
 		stuck = true
 	if stuck:
 		last_rescue_cycle = cycle
+		rescues_paid += 1
 		var amount := int(balance.get("rescue_stipend", 0))
 		cash += amount
 		post_notice(StoryText.get_text("NOT_DEAD_RESCUE", {"amount": amount}))
@@ -1844,23 +1850,28 @@ func _end_cycle() -> void:
 	fabric.run(storage)
 	_count_idle_cycles()
 	# Space Storage fills only by a ship sent to it (send_stock with a station destination); planet_to_space_rate is unused.
-	_check_stranded()
+	if OS.is_debug_build() and debug_force_market != "":  # debug: a huge sale in that market this cycle
+		Markets.cur[debug_force_market] = float(Markets.cur.get(debug_force_market, 0.0)) + 1000000.0
+	Markets.end_cycle(cycle)  # bots and window share
+	var overhead := Markets.overhead()  # spreading penalty, paid like upkeep
+	if overhead > 0:
+		cash -= overhead
+		post_notice(StoryText.get_or("NOT_MARKET_OVERHEAD", "Market overhead: {n} credits for running {m} markets.", {"n": overhead, "m": Markets.n_active()}))
+	var outcome := Markets.verdict(cycle)  # win first, then swept, then bankrupt
+	if outcome.is_empty():
+		outcome = _bankrupt_step()
+		if outcome.is_empty() and Markets.timed_out(cycle):
+			outcome = {"kind": "outcompeted"}
+	if outcome.is_empty() or str(outcome["kind"]) == "repossessed":
+		_check_stranded()
 	_record_prices()  # price history
 	_push_routes_to_map()
 	_refresh_panel()
 	cycle_ended.emit(cycle)
 	Juice.pop(cycle_label, 1.12)  # the economy turned over: income has landed
 	Juice.flash(cycle_label, Ui.col("star_warm"))
-	var win_cash := int(balance.get("win_cash", 0))
-	var win_cycle := int(balance.get("win_cycle", 0))
-	if OS.is_debug_build() and debug_force_goal:  # T78: QA reaches the choice
-		cash = maxi(cash, win_cash)
-	if cash >= win_cash:  # T77: pause and ask
-		_show_choice()
-		save_now()  # keeps the unanswered choice for a reload
-		return
-	if cycle >= win_cycle:  # T77: window ended without the goal
-		_finish("LOSS", "END_LOSS", StoryText.get_text("END_LOSS_STAT", {"cash": cash, "goal": win_cash}))
+	if not outcome.is_empty() and str(outcome["kind"]) != "repossessed":
+		_finish_outcome(outcome)
 		return
 	events.tick()  # T12: effects that ran this cycle age
 	cycle += 1
@@ -1897,13 +1908,6 @@ func forecast_text(id: String) -> String:
 		return StoryText.get_or("EVT_NEXT_DUE_CLOSED", StoryText.get_text("EVT_NEXT_DUE"), {"planet": planet_name(int(eff["planet"]))})
 	return StoryText.get_text("EVT_NEXT_DUE")
 
-## T77: pause and show the win choice. The cycle stays the cycle the goal was reached in.
-func _show_choice() -> void:
-	game_over = true
-	choice_pending = true
-	_open_end_screen().show_choice()
-	end_screen.chosen.connect(_on_choice)
-
 func _open_end_screen() -> ColorRect:
 	if end_screen != null:
 		end_screen.queue_free()
@@ -1914,37 +1918,71 @@ func _open_end_screen() -> ColorRect:
 	end_screen.quit_pressed.connect(func(): get_tree().quit())
 	return end_screen
 
-func ending_inputs() -> Dictionary:
-	return {"learned": learned_skills, "systems_reached": systems_reached,
-		"all_systems_reached": systems_reached >= systems_in_game() and systems_in_game() > 1,
-		"last_cycle": cycle >= int(balance.get("win_cycle", 0)),
-		"shield_built": shield.built}  # T121 hidden flag
+## Bankrupt step (after upkeep and overhead): cash below zero repossesses the newest ship and credits salvage_share x
+## ship_price; the run ends when no ship is left and cash is still negative. Returns {} (fine), {kind: "repossessed"} or {kind: "bankrupt"}.
+func _bankrupt_step() -> Dictionary:
+	if cash >= 0:
+		return {}
+	var out := {}
+	if ships > 0:
+		_repossess_newest()
+		out = {"kind": "repossessed"}
+	if ships <= 0 and cash < 0:
+		return {"kind": "bankrupt"}
+	return out
 
-func _on_choice(side: String) -> void:
-	choice_pending = false
-	var ending := EndingPicker.pick_release(ending_inputs()) if side == "RELEASE" else EndingPicker.pick_corp(ending_inputs())
-	_finish(side, ending, "")
+## Removes the newest ship: a free one first, else the route with the highest id (its ship).
+func _repossess_newest() -> void:
+	if free_ships() <= 0 and not engine.routes.is_empty():
+		var newest := 0
+		for i in engine.routes.size():
+			if int(engine.routes[i]["id"]) > int(engine.routes[newest]["id"]):
+				newest = i
+		engine.routes.remove_at(newest)
+	ships = maxi(0, ships - 1)
+	var credit := floori(float(balance.get("salvage_share", 0.4)) * float(Ships.price("small", balance)))
+	cash += credit
+	repossessions += 1
+	repossessed_cycle = cycle
+	post_notice(StoryText.get_or("NOT_REPOSSESSED", "Cash ran out. The newest ship was repossessed: +{n} credits.", {"n": credit}))
+	_after_change()
 
-## T77: the run is over. An answered choice is not kept: the save is cleared.
+## Ending id for an outcome. TODO story: win endings are all _GOOD until the dir split (later goal).
+func ending_id_of(outcome: Dictionary) -> String:
+	match str(outcome.get("kind", "")):
+		"win":
+			return "END_%s_GOOD" % str(outcome["market"]).to_upper()
+		"swept":
+			return "END_SWEPT"
+		"bankrupt":
+			return "END_BANKRUPT"
+	return "END_OUTCOMPETED"
+
+func _finish_outcome(outcome: Dictionary) -> void:
+	var kind := str(outcome["kind"])
+	var best := Markets.best()
+	var stat := ""
+	var side := "LOSS"
+	if kind == "win":
+		side = "WIN"
+		stat = "%s: %d%%" % [Markets.names[outcome["market"]], roundi(float(outcome["share"]) * 100.0)]
+	elif kind == "swept":
+		stat = "%s: %s" % [StoryText.get_or("END_LEADING_BOT", "Leading rival"), Bots.bot_name(int(outcome["bot"]))]
+	elif kind == "outcompeted":
+		side = "SOFT"
+		var bm := str(best["market"])
+		stat = "%s: %d%%" % [Markets.names.get(bm, "-"), roundi(float(best["share"]) * 100.0)]
+	_finish(side, ending_id_of(outcome), stat)
+
+## The run is over: the save is cleared, the end screen shows the ending.
 func _finish(side: String, ending_id: String, stat: String) -> void:
 	game_over = true
-	choice_pending = false
 	SaveGame.clear()
-	var names := []
-	var counts := EndingPicker.counts(learned_skills)
-	for b in EndingPicker.BRANCHES:
-		if int(counts[b]) > 0:
-			names.append(StoryText.get_text("SK_BRANCH_" + b))
-	# FALLBACK: story id for "None" is requested from story-designer; used once it exists
-	var none_id := "END_STAT" + "_NONE"
-	var none_text: String = StoryText.get_text(none_id) if StoryText.has_text(none_id) else "None"
-	var branches: String = ", ".join(names) if not names.is_empty() else none_text
-	var stats := {"cycle": cycle, "cash": cash, "branches": branches, "systems": systems_reached}
+	var stats := {"cycle": cycle, "cash": cash}
 	_open_end_screen().show_ending(ending_id, side, stats, stat)
-	if not run_recorded:  # T78: local record, once per run
+	if not run_recorded:  # local record, once per run
 		run_recorded = true
-		var tier := "" if side == "LOSS" else EndingPicker.tier(ending_inputs())
-		RunStats.record(side, ending_id, cycle, cash, tier)
+		RunStats.record(side, ending_id, cycle, cash, "")
 	run_ended.emit(side, ending_id)
 
 ## ---- T12 events ----
@@ -2626,8 +2664,9 @@ func _refresh() -> void:
 	if goal_label == null:
 		return
 	_tut_advance()
-	goal_label.text = StoryText.get_text("LBL_GOAL", {"goal": int(balance.get("win_cash", 0)),
-		"cycle": int(balance.get("win_cycle", 0)), "cash": cash})
+	var best := Markets.best()  # TODO UI: the ui-programmer replaces this line with the share readout
+	goal_label.text = StoryText.get_or("LBL_GOAL_MARKETS", "Hold over {pct}% of one market for {n} cycles. Best: {best}", {"pct": roundi(float(balance.get("win_share_pct", 0.5)) * 100.0),
+		"n": int(balance.get("win_hold_cycles", 5)), "best": "%s %d%%" % [Markets.names.get(str(best["market"]), "-"), roundi(float(best["share"]) * 100.0)]})
 	goal_label.tooltip_text = ""
 	if second_lane_active():  # N11: the optional line follows the goal; the full text is also the tooltip
 		goal_label.tooltip_text = goal_label.text + "  " + second_lane_line()
@@ -2635,7 +2674,7 @@ func _refresh() -> void:
 	Juice.count_to(cash_label, cash, "%d", Ui.col("signal_good"))  # counts up; a rise flashes green
 	var net: int = cash_forecast.net_forecast() if cash_forecast != null else 0
 	delta_label.text = "%+d" % net
-	cycle_label.text = "%d / %d" % [cycle, int(balance.get("win_cycle", 0))]
+	cycle_label.text = "%d / %d" % [cycle, int(balance.get("win_cycle_markets", 0))]
 	cycle_label.tooltip_text = "Cycle"
 	progress.value = cycle_elapsed / _cycle_seconds()
 	pause_button.text = ""  # icon only (owner item 1)

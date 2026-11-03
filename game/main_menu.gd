@@ -37,7 +37,7 @@ func _ready() -> void:
 	var cont := Button.new()
 	cont.text = StoryText.get_text("MENU_CONTINUE")
 	if not SaveGame.exists():
-		cont.tooltip_text = StoryText.get_text("MENU_HINT_CONTINUE_OFF")
+		cont.tooltip_text = SaveGame.old_save_message() if SaveGame.dropped_old else StoryText.get_text("MENU_HINT_CONTINUE_OFF")
 	cont.pressed.connect(_continue)
 	box.add_child(cont)
 	var new_game := Button.new()
@@ -75,7 +75,7 @@ func _continue() -> void:
 			_no_save_label = Label.new()
 			_no_save_label.theme_type_variation = "LabelWarn"
 			_no_save_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-			_no_save_label.text = StoryText.get_text("NOT_NO_SAVE")
+			_no_save_label.text = SaveGame.old_save_message() if SaveGame.dropped_old else StoryText.get_text("NOT_NO_SAVE")
 			_cont_box.add_child(_no_save_label)
 		return
 	SaveGame.continue_requested = true

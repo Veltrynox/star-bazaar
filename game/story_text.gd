@@ -1,6 +1,6 @@
 extends RefCounted
 ## T76: story texts from data/story_text.json (built by tools/build_story.py from story/*.md).
-## Use: StoryText.get_text("NOT_SAVED") or StoryText.get_text("LBL_GOAL", {"goal": 9000}).
+## Use: StoryText.get_text("NOT_SAVED") or StoryText.get_text("NOT_ROUTE_STALLED", {"commodity": "ore", "planet": "Home"}).
 ## Named get_text because Object already has get(). A missing id logs an error and returns the id.
 
 const PATH := "res://data/story_text.json"

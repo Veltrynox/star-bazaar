@@ -1,10 +1,9 @@
 extends ColorRect
-## T77: full-screen overlay for the win choice and the end screens. Texts from StoryText only.
+## Full-screen overlay for the end screens. Texts from StoryText only.
 ## No close button; the game below stays stopped (main.game_over is true while this is shown).
 
 const StoryText := preload("res://game/story_text.gd")
 
-signal chosen(side: String)       # choice screen: "RELEASE" or "CORP"
 signal new_game_pressed
 signal menu_pressed
 signal quit_pressed
@@ -45,39 +44,17 @@ func _label(box: Control, text: String, size: int = 0, center: bool = false) -> 
 	box.add_child(l)
 	return l
 
-func show_choice() -> void:
-	var box := _box()
-	_label(box, StoryText.get_text("CHOICE_TITLE"), 30, true)
-	_label(box, StoryText.get_text("CHOICE_TEXT"))
-	var first: Button = null
-	for pair in [["CHOICE_RELEASE", "RELEASE"], ["CHOICE_CORP", "CORP"]]:
-		var b := Button.new()
-		b.theme_type_variation = "ButtonPrimary"
-		b.text = StoryText.get_text(pair[0])
-		var side: String = pair[1]
-		b.pressed.connect(func(): chosen.emit(side))
-		box.add_child(b)
-		_label(box, StoryText.get_text(pair[0] + "_EFFECT"))
-		if first == null:
-			first = b
-	first.grab_focus()
-
-## Win: side "RELEASE" or "CORP"; stats has cycle, cash, branches, systems.
-## Loss: side "LOSS"; stat is the filled END_LOSS_STAT text. Layout per story/endings.md.
+## Ending screen. side: "WIN", "LOSS" or "SOFT". stat is one plain line (win market and share, leading rival, best market).
+## TODO story: ending texts for the Four Markets ids are not written yet; a plain stub line stands in (marked TODO story).
+## TODO UI: the ui-programmer builds the final readout (win market, share, the three bots).
 func show_ending(ending_id: String, side: String, stats: Dictionary, stat: String = "") -> void:
 	var box := _box()
-	if side == "LOSS":
-		_label(box, StoryText.get_text(ending_id))
+	_label(box, StoryText.get_or(ending_id + "_TITLE", ending_id), 30, true)
+	_label(box, StoryText.get_or(ending_id, "TODO story: ending text for %s." % ending_id))
+	if stat != "":
 		_label(box, stat)
-	else:
-		var key := "REL" if side == "RELEASE" else "CORP"
-		_label(box, StoryText.get_text("END_TITLE_" + key), 30, true)
-		_label(box, StoryText.get_text(ending_id))
-		if StoryText.has_text(ending_id + "_EPI"):
-			_label(box, StoryText.get_text(ending_id + "_EPI"))
-		_label(box, StoryText.get_text("END_SIGN_" + key))
-		for pair in [["END_STAT_CYCLES", "cycle"], ["END_STAT_CASH", "cash"], ["END_STAT_BRANCHES", "branches"], ["END_STAT_SYSTEMS", "systems"]]:
-			_label(box, "%s: %s" % [StoryText.get_text(pair[0]), str(stats.get(pair[1], 0))])
+	for pair in [["END_STAT_CYCLES", "cycle"], ["END_STAT_CASH", "cash"]]:
+		_label(box, "%s: %s" % [StoryText.get_text(pair[0]), str(stats.get(pair[1], 0))])
 	_label(box, StoryText.get_text("END_RUN_OVER"))
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 12)
