@@ -29,6 +29,7 @@ const Systems := preload("res://game/systems.gd")
 const Clusters := preload("res://game/clusters.gd")
 const DeadWorlds := preload("res://game/dead_worlds.gd")
 const Fabric := preload("res://game/fabric.gd")
+const WorkshopsScript := preload("res://game/workshops.gd")
 
 var balance: Dictionary = {}
 var cash: int = 0
@@ -143,6 +144,7 @@ var trade: RefCounted = Trade.new()  # price/margin logic for T07
 var commodities: Array = []
 var storage: RefCounted = Storage.new()  # T55 planet stock
 var engine: RefCounted = RouteEngine.new()  # T07 route records and math
+var workshops: RefCounted = WorkshopsScript.new()  # smelter, munitions, atelier, culture lab; saved under "workshops"
 var fabric: RefCounted = Fabric.new()  # the fabric at the trading post, saved under "fabric"
 var dead: RefCounted = DeadWorlds.new()  # dead worlds: danger meter per planet id, saved under "danger"
 var clusters: RefCounted = Clusters.new()  # T156 asteroid clusters (ore sources), saved
@@ -211,6 +213,7 @@ func _ready() -> void:
 	clusters.setup(balance)  # T156
 	dead.setup(balance)
 	fabric.setup(balance)
+	workshops.setup(balance)
 	engine.clusters = clusters
 	engine.trade_gate = Callable(self, "system_trade_open")
 	engine.positions_fn = func() -> Array: return map.positions  # route offset: planet world positions
@@ -279,7 +282,7 @@ func collect_state() -> Dictionary:
 			"open_systems": open_systems, "reached_ids": reached_ids, "galaxy_seen": galaxy_seen, "tut_step": tut_step, "tut_ver": TUT_VER,
 		"shield": shield.to_dict(), "storage_cuts": storage.cuts_to_dict(), "price_history": price_history,
 		"forecast_id": forecast_id, "station_systems": station_systems,
-		"second_lane": second_lane_planet, "clusters": clusters.to_dict(), "danger": dead.to_dict(), "fabric": fabric.to_dict()}
+		"second_lane": second_lane_planet, "clusters": clusters.to_dict(), "danger": dead.to_dict(), "fabric": fabric.to_dict(), "workshops": workshops.to_dict()}
 
 func apply_state(s: Dictionary) -> void:
 	_loading_state = true
@@ -350,6 +353,7 @@ func apply_state(s: Dictionary) -> void:
 	events.from_dict(s.get("events"))  # old saves: no events and no scheduled follow-ups
 	dead.from_dict(s.get("danger"))  # old saves: no meter
 	fabric.from_dict(s.get("fabric"))  # old saves: not built
+	workshops.from_dict(s.get("workshops"))
 	_sync_closed()
 	_refresh_event_feed()
 	paused = true  # always resume paused
@@ -1659,6 +1663,31 @@ func build_fabric() -> Dictionary:
 	_after_change()
 	return v
 
+## Workshop (smelter, munitions, atelier, culture_lab): can it be built now? {ok, reason}: "unknown", "built", "skill", "post", "credits".
+func can_build_workshop(id: String) -> Dictionary:
+	if not WorkshopsScript.IDS.has(id):
+		return {"ok": false, "reason": "unknown"}
+	if workshops.built[id]:
+		return {"ok": false, "reason": "built"}
+	if not workshops.is_unlocked(id):
+		return {"ok": false, "reason": "skill"}
+	if not station_systems.has(WorkshopsScript.SYSTEM):
+		return {"ok": false, "reason": "post"}
+	if cash < workshops.build_cost(id):
+		return {"ok": false, "reason": "credits"}
+	return {"ok": true, "reason": ""}
+
+func build_workshop(id: String) -> Dictionary:
+	var v := can_build_workshop(id)
+	if not v["ok"]:
+		return v
+	cash -= workshops.build_cost(id)
+	workshops.built[id] = true
+	workshops.state[id] = "idle"
+	post_notice(StoryText.get_or("NOT_WORKSHOP_BUILT", "{workshop} built at the trading post.", {"workshop": StoryText.get_or("WS_" + id.to_upper() + "_NAME", id.capitalize())}))
+	_after_change()
+	return v
+
 ## Null Core: can it be built now? {ok, reason}: "max" (one per run), "skill" (MIN_1), "post", "stock" (plate and nullglass at the trading post), "credits".
 func can_build_core() -> Dictionary:
 	if fabric.core_made >= fabric.core_max():
@@ -1900,6 +1929,7 @@ func _end_cycle() -> void:
 	_settle_routes()
 	_tick_danger()
 	fabric.run(storage)
+	workshops.run(storage, Callable(self, "craft_units"))
 	Skills.grow_stock(storage)  # BIO_2: Biotech stock in planet storage grows
 	_post_tech_done()  # techs the fabric just finished
 	_count_idle_cycles()

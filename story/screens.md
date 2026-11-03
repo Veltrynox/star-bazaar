@@ -398,3 +398,15 @@ MKT_MIL_ID | 110 | Market identity line, tab tooltip or Competitors panel | Stea
 MKT_LUX_ID | 110 | Market identity line | Few units and huge price swings. Timing and events win it.
 MKT_MIN_ID | 110 | Market identity line | Bulk, mining and smelting. Slow to build and hard to dislodge.
 MKT_BIO_ID | 110 | Market identity line | Slow compounding. Labs and stored stock grow over time, and events can hurt.
+
+## Workshops (added 2026-11-03)
+WS_SMELTER_NAME | 30 | Workshop name, planet panel and notices | Smelter
+WS_MUNITIONS_NAME | 30 | Workshop name, planet panel and notices | Munitions Line
+WS_ATELIER_NAME | 30 | Workshop name, planet panel and notices | Atelier
+WS_CULTURE_LAB_NAME | 30 | Workshop name, planet panel and notices | Culture Lab
+LBL_WORKSHOPS | 30 | Planet panel, title of the workshop section | Workshops
+BTN_WORKSHOP_BUILD | 50 | Planet panel, build button; {workshop} name, {cost} credits | Build {workshop} ({cost} cr)
+LBL_WORKSHOP_BATCHES | 50 | Planet panel, built workshop; {n} batches each cycle | Batches this cycle: {n}
+LBL_WORKSHOP_MADE | 60 | Planet panel, built workshop; {items} is what the last cycle made | Last cycle: {items}
+LBL_WORKSHOP_STALLED | 60 | Planet panel, built workshop that made nothing; {why} is the missing input | Stalled: {why}
+NOT_WORKSHOP_BUILT | 80 | Board notice after building; {workshop} is the workshop name | {workshop} built at the trading post.

@@ -1638,6 +1638,66 @@
   "place": "Market identity line"
  },
  {
+  "id": "WS_SMELTER_NAME",
+  "text": "Smelter",
+  "max": 30,
+  "place": "Workshop name, planet panel and notices"
+ },
+ {
+  "id": "WS_MUNITIONS_NAME",
+  "text": "Munitions Line",
+  "max": 30,
+  "place": "Workshop name, planet panel and notices"
+ },
+ {
+  "id": "WS_ATELIER_NAME",
+  "text": "Atelier",
+  "max": 30,
+  "place": "Workshop name, planet panel and notices"
+ },
+ {
+  "id": "WS_CULTURE_LAB_NAME",
+  "text": "Culture Lab",
+  "max": 30,
+  "place": "Workshop name, planet panel and notices"
+ },
+ {
+  "id": "LBL_WORKSHOPS",
+  "text": "Workshops",
+  "max": 30,
+  "place": "Planet panel, title of the workshop section"
+ },
+ {
+  "id": "BTN_WORKSHOP_BUILD",
+  "text": "Build {workshop} ({cost} cr)",
+  "max": 50,
+  "place": "Planet panel, build button; {workshop} name, {cost} credits"
+ },
+ {
+  "id": "LBL_WORKSHOP_BATCHES",
+  "text": "Batches this cycle: {n}",
+  "max": 50,
+  "place": "Planet panel, built workshop; {n} batches each cycle"
+ },
+ {
+  "id": "LBL_WORKSHOP_MADE",
+  "text": "Last cycle: {items}",
+  "max": 60,
+  "place": "Planet panel, built workshop; {items} is what the last cycle made"
+ },
+ {
+  "id": "LBL_WORKSHOP_STALLED",
+  "text": "Stalled: {why}",
+  "max": 60,
+  "place": "Planet panel, built workshop that made nothing; {why} is the missing input"
+ },
+ {
+  "id": "NOT_WORKSHOP_BUILT",
+  "text": "{workshop} built at the trading post.",
+  "max": 80,
+  "place": "Board notice after building; {workshop} is the workshop name"
+ },
+ {
   "id": "SK_M1_NAME",
   "text": "Cold Survey",
   "max": 24,
