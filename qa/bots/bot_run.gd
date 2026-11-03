@@ -175,6 +175,7 @@ const BANKRUPT_FROM := 8  # bankrupt: cash is spent down to 0 at every turn from
 var bankrupt_floor := -300  # --bankrupt-floor=<n>: cash after the QA overspend (negative: positive floors never went bankrupt, cash was never short)
 var passive_lanes := 0  # --passive-lanes=<n>: passive keeps the n best lanes (default 0) and no extra ship
 var drained := 0  # bankrupt: credits debited by the QA overspend
+const FEED_SHIPS := 2  # QA 2026-11-03: ships a workshop's feed routes may take (a lane ship earns more than a longer chain)
 const WORKSHOP_CASH := 300  # QA 2026-11-03: cash the bot keeps after it builds a workshop
 
 
@@ -231,6 +232,11 @@ func _initialize() -> void:
 	# QA 2026-11-03: the decent default is a human path: it buys the system 2 permit (FND_PERMIT + 600) as soon as it can afford it.
 	if (strategy == "decent" or strategy == "spread") and permit_sid < 0 and default_permit:
 		permit_sid = 2
+	if market_focus != "" and skill_order.is_empty() and ["decent", "spread"].has(strategy):
+		skill_order = ["FND_STORAGE", "FND_PERMIT"] + (["FND_PROSPECT"] if market_focus == "min" else []) + (["LUX_1", "LUX_4"] if market_focus == "lux" else [])  # QA 2026-11-03: a focus run learns its own market tree first
+		for sid in SkillTree.all_ids():
+			if str(SkillTree.node(sid).get("market", "")) == market_focus:
+				skill_order.append(sid)
 	if strategy == "mining_focus" and skill_order.is_empty():
 		skill_order = ["FND_PROSPECT", "MIN_1", "MIN_3", "MIN_5"]  # mining_focus: Prospecting first, then the Minerals tree in order
 	if strategy == "dead_run" and skill_order.is_empty():
@@ -407,6 +413,8 @@ func _check_cycle_result(c: int, ended_before: int) -> void:
 
 ## Player-style decisions while paused. One fixed order every cycle.
 func _decide(c: int) -> void:
+	if c == 20 and OS.get_environment("BOT_DIAG") != "":
+		_diag_dump(c)
 	if main.ships == 0:
 		_buy_ship_at(_mission_planet(), c)  # tutorial: the first ship is bought at the mission planet
 	if strategy == "always_expand":
@@ -438,29 +446,62 @@ func _mission_planet() -> int:
 ## Profitable lanes: buy at a (Buy order at a, stock into a's storage), move to b ("Send to..."),
 ## sell at b. Profit per cycle = (sell_b - buy_a) * units - route fixed cost.
 func _ranked_lanes(ignore_closed := false, worst := false) -> Array:
+	var out := _ranked_lanes_for(market_focus, ignore_closed, worst)
+	if out.is_empty() and market_focus != "" and not worst:
+		# QA 2026-11-03: no lane of the focus market is open yet (silk and musk trade only in system 2, behind the permit).
+		# Bootstrap on any lane: it earns the cash and the skill points the permit costs.
+		out = _ranked_lanes_for("", ignore_closed, worst)
+	return out
+
+
+func _ranked_lanes_for(focus: String, ignore_closed: bool, worst: bool) -> Array:
 	var out: Array = []
-	var units: int = mini(int(main.engine.local_amount()), int(main.engine.units_per_cycle()))
-	var fixed: int = int(main.engine.fixed_cost())
 	var n: int = main.trade.planets.size()
+	var ship_price: int = int(main.balance.get("ship_price", 0))
+	# QA 2026-11-03: surplus cash lets any lane with a real profit take a ship (ships up to ship_cap); lanes already running stay.
+	var surplus: bool = int(main.cash) >= 2 * ship_price + main.engine.routes.size() * int(main.engine.fixed_cost())
+	var poor_out: Array = []
+	var feed_goods: Array = _workshop_inputs()
 	for c in main.engine.commodities:
 		var cs := str(c)
-		if market_focus != "" and Markets.market_of(cs) != market_focus:
+		if focus != "" and Markets.market_of(cs) != focus:
 			continue
+		# Real volume: the units a ship of this good moves per cycle (skills included), capped by the order size.
+		var units: int = mini(int(main.engine.local_amount(cs)), int(main.engine.units_per_cycle(null, cs)))
 		for a in n:
 			for b in n:
 				if a == b or (not ignore_closed and (not main.engine.planet_open(a) or not main.engine.planet_open(b))):
 					continue
 				var bp: int = main.trade.price(a, cs + "_buy")
-				var sp: int = main.trade.price(b, cs + "_sell")
+				var sp: int = int(main.engine.sold_price(b, cs))
 				if bp <= 0 or sp < 0:
 					continue
+				if not worst and not _lane_usable(a, b, cs):
+					continue
+				if not worst and feed_goods.has(cs) and int(main.trade.planets[b].get("system", 1)) == 1:
+					continue  # QA 2026-11-03: a Sell in system 1 draws the Space Storage empty; that stock is the workshop's input
+				# Real fixed cost of this very lane (route offset raises the upkeep of long lanes).
+				var fixed: int = int(main.engine.fixed_cost(main.engine.new_record(a, b, cs)))
+				var poor: bool = not worst and bp * units > int(main.cash) and int(main.storage.amount(main.storage.planet_key(a), cs)) < units
 				var profit: int = (sp - bp) * units - fixed
-				# A lane is worth a ship only if one cycle's profit pays the ship back within PAYBACK_CYCLES.
-				var ship_price: int = int(main.balance.get("ship_price", 0))
-				if (worst or profit * PAYBACK_CYCLES >= ship_price) and not _cross_system_blocked(a, b):  # cross-system routes need no skill now
-					out.append({"a": a, "b": b, "c": cs, "profit": profit})
+				# A lane is worth a ship if one cycle's profit pays the ship back within PAYBACK_CYCLES, or (surplus cash, or the lane runs) if it earns at all.
+				var ok: bool = profit * PAYBACK_CYCLES >= ship_price
+				if not ok and profit > 0 and (surplus or main.engine.find_same(a, b, cs) >= 0):
+					ok = true
+				if (worst or ok) and not _cross_system_blocked(a, b):  # cross-system routes need no skill now
+					# QA 2026-11-03: a lane whose Buy of one shipment is beyond the cash idles for want of cash; it is used only when no other lane exists.
+					(poor_out if poor else out).append({"a": a, "b": b, "c": cs, "profit": profit, "units": units})
+	if out.is_empty():
+		out = poor_out
 	out.sort_custom(func(x, y): return x["profit"] < y["profit"] if worst else x["profit"] > y["profit"])
 	return out
+
+
+## QA 2026-11-03: a lane the game would let a player build (open systems, trade post, permit), ignoring the free-ship check.
+func _lane_usable(a: int, b: int, cs: String) -> bool:
+	if not bool(main.engine.check_connection(a, b, cs, main.engine.find_same(a, b, cs) < 0).get("ok", false)):
+		return false
+	return main.system_trade_open(a) and main.system_trade_open(b)
 
 
 ## Routes between systems need no skill any more (Long Haul is gone).
@@ -490,7 +531,52 @@ func _spread_plan(ranked: Array) -> Array:
 	return out
 
 
+func _lane_key(lane: Dictionary) -> String:
+	return "%d|%d|%s" % [int(lane["a"]), int(lane["b"]), str(lane["c"])]
+
+
+## QA 2026-11-03: ships up to ship_cap. When the base plan has fewer lanes than ship_cap, the best lanes take a second and third ship
+## (the game allows up to lane_full: ships x units per cycle against the order size); each extra ship counts its own extra units.
+func _fill_extra(plan: Array) -> Array:
+	var cap := maxi(1, int(main.balance.get("ship_cap", 1)))
+	var out: Array = plan.duplicate()
+	if out.size() >= cap:
+		return out
+	var order: int = int(main.engine.local_amount())
+	var fixed: int = int(main.engine.fixed_cost())
+	var extras: Array = []
+	for lane in plan:
+		if int(lane["a"]) <= -1000:
+			continue
+		var per_unit := 0
+		var cs := str(lane["c"])
+		var u1: int = maxi(1, int(main.engine.units_per_cycle(null, cs)))
+		var margin: int = int(main.engine.sold_price(int(lane["b"]), cs)) - int(main.trade.price(int(lane["a"]), cs + "_buy"))
+		for k in range(1, 3):  # ship k+1 on the lane
+			var extra_units: int = mini(order, (k + 1) * u1) - mini(order, k * u1)
+			if extra_units <= 0:
+				break
+			var e: Dictionary = lane.duplicate()
+			e["k"] = k
+			e["profit"] = extra_units * margin - fixed
+			if int(e["profit"]) > 0:
+				extras.append(e)
+	extras.sort_custom(func(x, y): return int(x["profit"]) > int(y["profit"]) if int(x["k"]) == int(y["k"]) else int(x["k"]) < int(y["k"]))
+	for e in extras:
+		if out.size() >= cap:
+			break
+		out.append(e)
+	return out
+
+
 func _plan() -> Array:
+	var base := _plan_base()
+	if ["decent", "mining_focus", "spread", "dead_run", "always_expand"].has(strategy):
+		return _fill_extra(base)
+	return base
+
+
+func _plan_base() -> Array:
 	if strategy == "bankrupt":
 		var worst := _ranked_lanes(false, bankrupt_worst)  # bankrupt_worst: the unprofitable lanes first (they rarely run: no cash for them)
 		return _spread_plan(worst).slice(0, maxi(1, int(main.balance.get("ship_cap", 1))))  # all four markets: the overhead bleeds cash too
@@ -520,8 +606,11 @@ func _plan() -> Array:
 
 func _missing_lanes(plan: Array) -> int:
 	var k := 0
+	var counts := {}
 	for lane in plan:
-		if main.engine.find_same(int(lane["a"]), int(lane["b"]), str(lane["c"])) < 0:
+		var key := _lane_key(lane)
+		counts[key] = int(counts.get(key, 0)) + 1
+		if main.engine.lane_count(int(lane["a"]), int(lane["b"]), str(lane["c"])) < int(counts[key]):
 			k += 1
 	return k
 
@@ -570,28 +659,40 @@ func _sync_lanes(plan: Array) -> Array:
 	if strategy != "sloppy":
 		# T94 --keep-closed: a route is kept while its lane is profitable, closure or not (the game then blocks it and pays 0)
 		var keep_lanes: Array = _ranked_lanes(true) if keep_closed else plan
+		var planned := {}  # lane key -> ships the plan wants on it (QA 2026-11-03: a lane may carry up to three)
+		for pl in keep_lanes:
+			planned[_lane_key(pl)] = int(planned.get(_lane_key(pl), 0)) + 1
+		var seen := {}
 		for rec in main.engine.routes.duplicate(true):
 			var a := int(rec["a"])
 			var b := int(rec["b"])
 			var c := str(rec["c"])
-			var keep: bool = _in_plan(a, b, c, keep_lanes) and not bool(main.storage.is_full(str(rec["dst"]), c))
+			var rkey := "%d|%d|%s" % [a, b, c]
+			seen[rkey] = int(seen.get(rkey, 0)) + 1
+			var keep: bool = int(planned.get(rkey, 0)) >= int(seen[rkey]) and not bool(main.storage.is_full(str(rec["dst"]), c))
 			if strategy == "dead_run" and b < 0 and (c == "dross" or c == "nullglass") and (a == int(dead_ids.get("dead_1", -9)) or a == int(dead_ids.get("dead_2", -9))):
 				keep = not bool(main.storage.is_full(str(rec["dst"]), c))  # R3: the scripted chain routes feed the fabric, the planner does not plan them
 			if b < 0 and _workshop_inputs().has(c):
 				keep = not bool(main.storage.is_full(str(rec["dst"]), c))  # QA 2026-11-03: workshop feed routes to the station
+			if a <= -1000 and c == "ore" and b == _ore_dock() and _workshop_inputs().has("ore"):
+				keep = true  # QA 2026-11-03: the cluster leg of the ore feed
 			if not keep:
 				_remove_route(int(rec["id"]))
 	var active: Array = []
+	var want_count := {}
 	for lane in plan:
 		var a2 := int(lane["a"])
 		var b2 := int(lane["b"])
 		var c2 := str(lane["c"])
-		if main.engine.find_same(a2, b2, c2) < 0:
+		var want_n: int = int(want_count.get(_lane_key(lane), 0)) + 1
+		want_count[_lane_key(lane)] = want_n
+		if main.engine.lane_count(a2, b2, c2) < want_n:
 			if main.free_ships() <= 0 or main.storage.is_full(main.storage.planet_key(b2), c2):
 				continue
 			if not _build_route(lane):
 				continue
-		active.append(lane)
+		if not _in_plan(a2, b2, c2, active):
+			active.append(lane)
 	return active
 
 
@@ -611,12 +712,13 @@ func _build_route(lane: Dictionary) -> bool:
 	var b := int(lane["b"])
 	var c := str(lane["c"])
 	var check: Dictionary = main.can_connect(a, b, c)
+	var n_before: int = main.engine.lane_count(a, b, c)
 	_select(a)
 	main.planet_panel.send_requested.emit(c)
 	main.map.planet_clicked.emit(b)
-	if main.engine.find_same(a, b, c) < 0 and not main.pending.is_empty() and main.pending.has("dest"):
+	if main.engine.lane_count(a, b, c) <= n_before and not main.pending.is_empty() and main.pending.has("dest"):
 		main.map.planet_clicked.emit(b)  # T161: a stop is on the way, so the first click only picked the destination; the second sends direct
-	if main.engine.find_same(a, b, c) >= 0:
+	if main.engine.lane_count(a, b, c) > n_before:
 		lanes_built += 1
 		_count("route_open", main.cycle)
 		return true
@@ -725,8 +827,20 @@ func _workshop_turn(c: int) -> void:
 	for id in main.workshops.IDS:
 		if market_focus != "" and str(main.workshops.market_of(id)) != market_focus:
 			continue
+		if market_focus == "" and not workshops_built.is_empty():
+			continue  # no focus: one workshop only (each one's feed routes take ships)
 		var v: Dictionary = main.can_build_workshop(id)
-		if not bool(v["ok"]) or int(main.cash) < int(main.workshops.build_cost(id)) + WORKSHOP_CASH:
+		if not bool(v["ok"]):
+			continue
+		var open_goods: Array = main.workshops.open_recipes(id)
+		var feedable := false
+		for g in open_goods:
+			feedable = feedable or _feed_ships(str(g), open_goods) <= FEED_SHIPS
+		if not feedable:
+			continue  # nothing this workshop can make now is feedable with the ships it may take
+		# QA 2026-11-03: ships first (they earn more per credit); the workshop is built at ship_cap, or when cash covers it plus two ships.
+		var spare: int = WORKSHOP_CASH if int(main.ships) >= int(main.balance.get("ship_cap", 1)) else 2 * int(main.balance.get("ship_price", 0))
+		if int(main.cash) < int(main.workshops.build_cost(id)) + spare:
 			continue
 		var r: Dictionary = main.build_workshop(id)
 		if bool(r["ok"]):
@@ -737,27 +851,79 @@ func _workshop_turn(c: int) -> void:
 ## QA 2026-11-03: workshop inputs reach system 1 storage only over a route into the station (send to Space Storage).
 ## Inputs: every open recipe input of a built workshop. Buy at the source of each feed route; Sell the outputs that no
 ## other open recipe uses as an input at system 1 planets (a Sell draws from the station too).
-func _workshop_inputs() -> Array:
+## Raw goods (not made by the recipe chain itself) a good needs, found through its in-house intermediates.
+func _recipe_raws(g: String, open_goods: Array) -> Array:
 	var out: Array = []
-	for id in main.workshops.IDS:
-		if not bool(main.workshops.built.get(id, false)):
-			continue
-		for g in main.workshops.open_recipes(id):
-			for c in Goods.recipe(str(g)).keys():
-				if not out.has(str(c)):
-					out.append(str(c))
+	for c in Goods.recipe(g).keys():
+		var cs := str(c)
+		if open_goods.has(cs):
+			for r in _recipe_raws(cs, open_goods):
+				if not out.has(r):
+					out.append(r)
+		elif not out.has(cs):
+			out.append(cs)
 	return out
 
 
-func _workshop_outputs() -> Array:
+## Ships the feed routes of a good need: one per raw input, two for ore (a cluster leg and a planet-to-station leg).
+func _feed_ships(g: String, open_goods: Array) -> int:
+	var n := 0
+	for r in _recipe_raws(g, open_goods):
+		n += 2 if str(r) == "ore" else 1
+	return n
+
+
+## The goods the bot makes: per built workshop the highest-tier open recipe whose feed fits FEED_SHIPS ships (the rest of the
+## fleet keeps trading), with the in-house intermediates it consumes.
+func _workshop_made() -> Array:
 	var out: Array = []
-	var inputs := _workshop_inputs()
 	for id in main.workshops.IDS:
 		if not bool(main.workshops.built.get(id, false)):
 			continue
-		for g in main.workshops.open_recipes(id):
-			if not inputs.has(str(g)) and not out.has(str(g)):
+		var open_goods: Array = main.workshops.open_recipes(id)
+		var picked := ""
+		for i in range(open_goods.size() - 1, -1, -1):  # highest tier first
+			if _feed_ships(str(open_goods[i]), open_goods) <= FEED_SHIPS:
+				picked = str(open_goods[i])
+				break
+		if picked == "":
+			continue
+		for g in [picked] + _intermediates(picked, open_goods):
+			if not out.has(str(g)):
 				out.append(str(g))
+	return out
+
+
+func _intermediates(g: String, open_goods: Array) -> Array:
+	var out: Array = []
+	for c in Goods.recipe(g).keys():
+		if open_goods.has(str(c)):
+			out.append(str(c))
+			out.append_array(_intermediates(str(c), open_goods))
+	return out
+
+
+## Raw inputs bought from planets: recipe inputs of open recipes that no built workshop makes itself (cells feed armour in house).
+func _workshop_inputs() -> Array:
+	var out: Array = []
+	var made := _workshop_made()
+	for g in made:
+		for c in Goods.recipe(str(g)).keys():
+			if not out.has(str(c)) and not made.has(str(c)):
+				out.append(str(c))
+	return out
+
+
+## Goods sold: made goods that no open recipe uses as an input (the top of each chain).
+func _workshop_outputs() -> Array:
+	var out: Array = []
+	var made := _workshop_made()
+	var used: Array = []
+	for g in made:
+		used.append_array(Goods.recipe(str(g)).keys())
+	for g in made:
+		if not used.has(str(g)):
+			out.append(str(g))
 	return out
 
 
@@ -766,7 +932,7 @@ func _workshop_want(want: Dictionary) -> void:
 		return
 	for c in _workshop_inputs():
 		for rec in main.engine.routes:
-			if int(rec["b"]) < 0 and int(rec["a"]) >= 0 and str(rec["c"]) == c:
+			if int(rec["b"]) < 0 and int(rec["a"]) >= 0 and str(rec["c"]) == c and int(main.trade.price(int(rec["a"]), c + "_buy")) > 0:
 				want["%d|%s|buy" % [int(rec["a"]), c]] = true
 	for g in _workshop_outputs():
 		for p in main.trade.planets.size():
@@ -787,20 +953,24 @@ func _workshop_feed(c_turn: int) -> void:
 		for rec in main.engine.routes:
 			if int(rec["b"]) < 0 and str(rec["c"]) == c:
 				fed = true
-		if fed:
+		if fed or not _feed_worthwhile(c):
 			continue
-		var cands: Array = []  # source nodes: planets that buy the good, then clusters (free ore, no buy order)
+		if c == "ore":
+			_feed_ore(c_turn)
+			continue
+		var cands: Array = []  # source nodes: the planets that buy the good, cheapest first
 		for p in main.trade.planets.size():
 			if _buyable(p, c):
 				cands.append(p)
-		if main.clusters != null:
-			for i in main.clusters.items.size():
-				if main.clusters.valid(i):
-					cands.append(main.clusters.node_id(i))
+		cands.sort_custom(func(x, y): return int(main.trade.price(x, c + "_buy")) < int(main.trade.price(y, c + "_buy")))
 		for p in cands:
 			var ok: Dictionary = main.can_connect(int(p), -1, c)
-			if not bool(ok["ok"]) and str(ok["reason"]).begins_with("No ship") and _free_weakest_lane(c_turn, c):
-				ok = main.can_connect(p, -1, c)  # a planned lane gave up its ship for the feed (the trading post comes first)
+			if not bool(ok["ok"]) and str(ok["reason"]).begins_with("No ship"):
+				if bool(main.can_buy_ship()["ok"]):
+					_buy_ship_at(_mission_planet(), c_turn)  # QA 2026-11-03: a ship for the feed when cash allows
+					ok = main.can_connect(int(p), -1, c)
+				elif int(main.ships) >= int(main.balance.get("ship_cap", 1)) and _free_weakest_lane(c_turn, c):
+					ok = main.can_connect(int(p), -1, c)  # at ship_cap a planned lane gives up its ship for the feed
 			if bool(ok["ok"]):
 				var rc: Dictionary = main._connect(int(p), -1, c)
 				feed_log.append([c_turn, p, c, bool(rc.get("ok", false)), "route to station"])
@@ -809,6 +979,84 @@ func _workshop_feed(c_turn: int) -> void:
 			if feed_why.get(c, "") != why:
 				feed_why[c] = why
 				feed_log.append([c_turn, p, c, false, why])
+
+
+## QA 2026-11-03: ore for a workshop. No planet sells ore, so a player mines it: cluster -> system 1 planet that buys ore, then
+## planet -> Space Storage. Opens the missing leg each turn (a ship is bought when cash allows).
+func _feed_ore(c_turn: int) -> void:
+	if not main.can_mine():
+		return
+	var x := _ore_dock()
+	if x < 0:
+		return
+	var has_cluster_leg := false
+	for rec in main.engine.routes:
+		if int(rec["a"]) <= -1000 and int(rec["b"]) == x:
+			has_cluster_leg = true
+	if not has_cluster_leg:
+		var best_node := 0
+		for sid in [1, 2]:
+			for cl in main.clusters_in_system(sid):
+				if int(cl["left"]) > 0 and best_node == 0 and (sid == 1 or main.open_systems.has(sid)):
+					best_node = int(cl["node"])  # cluster nodes are negative ids (Clusters.BASE)
+		if best_node == 0:
+			return
+		if main.free_ships() <= 0 and bool(main.can_buy_ship()["ok"]):
+			_buy_ship_at(x, c_turn)
+		if main.free_ships() <= 0 and int(main.ships) >= int(main.balance.get("ship_cap", 1)):
+			_free_weakest_lane(c_turn, "ore")
+		if main.free_ships() > 0:
+			var r: Dictionary = main.send_from_cluster(best_node, x)
+			feed_log.append([c_turn, best_node, "ore", bool(r.get("ok", false)), "cluster leg to planet %d" % x])
+		return
+	if main.free_ships() <= 0 and bool(main.can_buy_ship()["ok"]):
+		_buy_ship_at(x, c_turn)
+	if main.free_ships() <= 0 and int(main.ships) >= int(main.balance.get("ship_cap", 1)):
+		_free_weakest_lane(c_turn, "ore")
+	var ok: Dictionary = main.can_connect(x, -1, "ore")
+	if bool(ok["ok"]):
+		var rc: Dictionary = main._connect(x, -1, "ore")
+		feed_log.append([c_turn, x, "ore", bool(rc.get("ok", false)), "route to station"])
+
+
+## A raw input is fed only when some open recipe that uses it has every other raw input sourced (a silk feed is waste with no ore).
+func _feed_worthwhile(c: String) -> bool:
+	var made := _workshop_made()
+	for g in made:
+		var rec: Dictionary = Goods.recipe(str(g))
+		if not rec.has(c):
+			continue
+		var all_ok := true
+		for r in rec.keys():
+			var rs := str(r)
+			if made.has(rs) or rs == c:
+				continue
+			if rs == "ore":
+				var ore_in := false
+				for r2 in main.engine.routes:
+					ore_in = ore_in or (int(r2["b"]) < 0 and str(r2["c"]) == "ore")
+				if not (main.can_mine() and _ore_dock() >= 0 and ore_in):  # the ore feed is built first
+					all_ok = false
+			else:
+				var src := false
+				for p in main.trade.planets.size():
+					src = src or _buyable(p, rs)
+				if not src:
+					all_ok = false
+		if all_ok:
+			return true
+	return false
+
+
+## The planet an ore cluster route lands at, else the system 1 planet that buys ore (the dock of the ore feed), -1 when none.
+func _ore_dock() -> int:
+	for rec in main.engine.routes:  # a cluster route that already lands in system 1 is the dock
+		if int(rec["a"]) <= -1000 and int(rec["b"]) >= 0 and str(rec["c"]) == "ore":
+			return int(rec["b"])
+	for p in main.trade.planets.size():
+		if int(main.trade.planets[p].get("system", 1)) == 1 and main.engine.planet_open(p) and int(main.trade.price(p, "ore_sell")) > 0:
+			return p
+	return -1
 
 
 ## QA 2026-11-03: a feed route with no free ship closes the lowest-net planet route (once a cycle), as the Fabric chain does.
@@ -989,13 +1237,15 @@ func _cluster_lanes() -> Array:
 	var fixed: int = int(main.engine.fixed_cost())
 	var n: int = main.trade.planets.size()
 	for sid in [1, 2]:
+		if sid != 1 and not main.open_systems.has(sid):
+			continue  # QA 2026-11-03: clusters of a system without a permit cannot be mined
 		for cl in main.clusters_in_system(sid):
 			if int(cl["left"]) <= 0:
 				continue
 			var node: int = int(cl["node"])
 			var best := {}
 			for b in n:
-				if not main.engine.planet_open(b):
+				if not main.engine.planet_open(b) or not main.system_trade_open(b) or not bool(main.engine.check_connection(node, b, "ore", true).get("ok", false)):
 					continue
 				var sp: int = main.trade.price(b, "ore_sell")
 				if sp <= 0:
