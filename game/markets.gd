@@ -27,6 +27,7 @@ static var cur: Dictionary = {}         # this cycle so far: market -> volume
 static var cur_active: Dictionary = {}
 static var gap: Dictionary = {}         # "b|m" -> accumulated gap growth
 static var tier_off: Dictionary = {}    # "b" -> persistent tier offset (events, later goal)
+static var mods: Dictionary = {}        # "b|m" -> {strength_mult, growth_mult, growth_add, tier_offset} from event hits
 static var win_streak: Dictionary = {}  # market -> consecutive cycle-ends over win_share_pct
 static var sweep_streak: int = 0
 static var cycles: int = 0              # cycles recorded
@@ -81,6 +82,7 @@ static func reset(balance: Dictionary, seed_value: int = 0) -> void:
 	cur_active = {}
 	gap = {}
 	tier_off = {}
+	mods = {}
 	win_streak = {}
 	sweep_streak = 0
 	cycles = 0
@@ -182,6 +184,40 @@ static func bot_history(b: int, m: String) -> Array:
 		out.append(float(row[b - 1]))
 	return out
 
+## Event hit size word to a fraction: "S" / "M" / "L" read balance event_hit_s / _m / _l (0 for anything else).
+static func size_pct(size: String) -> float:
+	return float(bal.get("event_hit_%s" % size.to_lower(), 0.0)) if ["S", "M", "L"].has(size.to_upper()) else 0.0
+
+## Modifiers of bot b in market m (a copy; neutral values when never hit).
+static func bot_mods(b: int, m: String) -> Dictionary:
+	var out := {"strength_mult": 1.0, "growth_mult": 1.0, "growth_add": 0.0, "tier_offset": 0}
+	var d = mods.get("%d|%s" % [b, m])
+	if typeof(d) == TYPE_DICTIONARY:
+		for k in out.keys():
+			if d.has(k):
+				out[k] = d[k]
+	return out
+
+## Event hit on bot b in market m. stat "strength" or "growth": amount is a signed fraction (-0.15 = -15%), multiplies
+## (stacking). stat "tier": amount is an int step (-1), offset clamped to -3..3 (effective tier is clamped to 1..4 in Bots.tier).
+## Applies from the next end_cycle on; recorded history is never rewritten. Returns false for a bad bot, market or stat.
+static func hit_bot(b: int, m: String, stat: String, amount: float) -> bool:
+	_ensure()
+	if not Bots.IDS.has(b) or not ids.has(m):
+		return false
+	var d := bot_mods(b, m)
+	match stat:
+		"strength":
+			d["strength_mult"] = maxf(0.0, float(d["strength_mult"]) * (1.0 + amount))
+		"growth":
+			d["growth_mult"] = maxf(0.0, float(d["growth_mult"]) * (1.0 + amount))
+		"tier":
+			d["tier_offset"] = clampi(int(d["tier_offset"]) + int(roundf(amount)), -3, 3)
+		_:
+			return false
+	mods["%d|%s" % [b, m]] = d
+	return true
+
 ## Closes the cycle: bot volumes (gap rule first), player volume from add_sale, win and sweep streaks.
 static func end_cycle(cycle: int) -> void:
 	_ensure()
@@ -192,7 +228,9 @@ static func end_cycle(cycle: int) -> void:
 			var k := "%d|%s" % [b, m]
 			if cycle > 3 and prev < float(bal.get("bot_gap_share_pct", 0.0)):
 				gap[k] = float(gap.get(k, 0.0)) + float(bal.get("bot_gap_growth", 0.0))
-			row.append(Bots.volume(bal, run_seed, b, m, cycle, float(gap.get(k, 0.0)), int(tier_off.get(str(b), 0))))
+			var md := bot_mods(b, m)
+			row.append(Bots.volume(bal, run_seed, b, m, cycle, float(gap.get(k, 0.0)), int(tier_off.get(str(b), 0)) + int(md["tier_offset"]),
+				float(md["strength_mult"]), float(md["growth_mult"]), float(md["growth_add"])))
 		vb[m].append(row)
 		vp[m].append(float(cur[m]))
 		vp_active[m].append(float(cur_active[m]))
@@ -258,7 +296,7 @@ static func overhead() -> int:
 
 static func to_dict() -> Dictionary:
 	return {"seed": run_seed, "vp": vp, "vp_active": vp_active, "vb": vb, "cur": cur, "cur_active": cur_active, "gap": gap,
-		"tier_off": tier_off, "win_streak": win_streak, "sweep_streak": sweep_streak, "cycles": cycles}
+		"tier_off": tier_off, "mods": mods, "win_streak": win_streak, "sweep_streak": sweep_streak, "cycles": cycles}
 
 static func from_dict(d, balance: Dictionary) -> void:
 	reset(balance, 0)
@@ -289,5 +327,11 @@ static func from_dict(d, balance: Dictionary) -> void:
 	if typeof(d.get("tier_off")) == TYPE_DICTIONARY:
 		for k in d["tier_off"].keys():
 			tier_off[str(k)] = int(d["tier_off"][k])
+	if typeof(d.get("mods")) == TYPE_DICTIONARY:
+		for k in d["mods"].keys():
+			var src = d["mods"][k]
+			if typeof(src) == TYPE_DICTIONARY:
+				mods[str(k)] = {"strength_mult": float(src.get("strength_mult", 1.0)), "growth_mult": float(src.get("growth_mult", 1.0)),
+					"growth_add": float(src.get("growth_add", 0.0)), "tier_offset": int(src.get("tier_offset", 0))}
 	sweep_streak = int(d.get("sweep_streak", 0))
 	cycles = int(d.get("cycles", 0))

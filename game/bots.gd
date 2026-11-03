@@ -27,9 +27,9 @@ static func noise(bal: Dictionary, run_seed: int, b: int, m: String, cycle: int)
 	var n := float(bal.get("bot_noise_pct", 0.0))
 	return 1.0 + r.randf_range(-n, n)
 
-## gap: accumulated gap growth for this bot and market. strength_mult: event hits (later goal), 1.0 now.
-static func volume(bal: Dictionary, run_seed: int, b: int, m: String, cycle: int, gap: float = 0.0, tier_offset: int = 0, strength_mult: float = 1.0) -> float:
+## gap: accumulated gap growth for this bot and market. strength_mult, growth_mult, growth_add, tier_offset: event hits (Markets.hit_bot), neutral defaults.
+static func volume(bal: Dictionary, run_seed: int, b: int, m: String, cycle: int, gap: float = 0.0, tier_offset: int = 0, strength_mult: float = 1.0, growth_mult: float = 1.0, growth_add: float = 0.0) -> float:
 	var s := float(bal.get("bot_%d_%s_strength" % [b, m], 0.0)) * strength_mult
-	var g := float(bal.get("bot_%d_%s_growth" % [b, m], 0.0))
+	var g := float(bal.get("bot_%d_%s_growth" % [b, m], 0.0)) * growth_mult + growth_add
 	var mult := float(bal.get("bot_tier_mult_%d" % tier(bal, b, cycle, tier_offset), 1.0))
 	return (s + g * cycle + gap) * mult * noise(bal, run_seed, b, m, cycle) * float(bal.get("bot_scale", 1.0))
