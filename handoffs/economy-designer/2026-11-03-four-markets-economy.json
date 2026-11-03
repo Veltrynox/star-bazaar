@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "agent": "economy-designer",
+  "date": "2026-11-03",
+  "task": "four-markets-economy",
+  "status": "done",
+  "files_changed": [
+    "design/proposals/2026-11-03-four-markets-economy.md",
+    "handoffs/economy-designer/2026-11-03-four-markets-economy.json"
+  ],
+  "open_questions": [
+    "Approve S1: repossess newest ship while cash is negative (salvage_share x ship_price = 360) so END_BANKRUPT can fire?",
+    "Approve S2: END_SWEPT = player share under 10% in all four markets for 3 cycles from cycle 25 (the core rule cannot fire: no bot is over 50% in all four)?",
+    "Approve new key bot_scale and accept a focused win rate of 56-98% (knife-edge: +/-8% bot strength swings it 100% to 0%)?"
+  ],
+  "handoff": "Proposal only; balance.json untouched. Paper model (ramped player vs 3 bots with the 28 chain steps, 60-100 seeds): focused skill-complete player wins in 26-39 (median 27-39 by market and Open/Hard mix); no events cut means 49-50% and no win; all spreads (85/15 down to 25x4) win 0 of 60, best share 46% down to 17%. Cash at cycle 40: 1 market 23.9k, 2 markets 18.8k, 3 markets -7.8k, 4 markets -26.7k. Skill points: supply ~21 vs 13 needed for one market and 23 for two. Needs owner decisions on S1 and S2 (END_BANKRUPT and END_SWEPT cannot fire as written). Next: data goal writes balance.json, goods.json, bots.json and ports the model into tools/sim.py; QA runs 100 real seeds.",
+  "details": {
+    "proposal": "design/proposals/2026-11-03-four-markets-economy.md",
+    "changed_keys_proposed": {
+      "win_cycle": {"old": 30, "new": 40, "reason": "core doc run length"},
+      "win_cash": {"old": 14000, "new": "removed", "reason": "goal is market share"},
+      "skill_points_route": {"old": 2, "new": 1, "reason": "keep two full markets unaffordable"},
+      "skill_points_system": {"old": 3, "new": 2, "reason": "same"},
+      "permit_points_2": {"old": 3, "new": 2, "reason": "same"},
+      "permit_points_3": {"old": 4, "new": 2, "reason": "same"},
+      "market_overhead": {"old": null, "new": 150, "reason": "3 markets cash-negative by cycle 25"},
+      "cross_load_trip_mult": {"old": null, "new": 1.5, "reason": "mixed load costs 90 per leg instead of 60"},
+      "workshop_build_cost": {"old": null, "new": 900, "reason": "one ship; Fabric stays 600"},
+      "tech_goal_2_4_6": {"old": "15/30/20", "new": "9/18/12", "reason": "capstone reachable by ~cycle 27"},
+      "share_window": {"old": null, "new": 8, "reason": "core"},
+      "bot_gap_growth": {"old": null, "new": 12, "reason": "ignored markets reach 8-9k bots by cycle 40"}
+    },
+    "bot_strength_growth": {
+      "bot_1": {"mil": [1690, 22], "lux": [600, 5], "min": [1410, 22], "bio": [410, 5], "tier_cycles": [13, 27]},
+      "bot_2": {"mil": [440, 8], "lux": [1700, 38], "min": [370, 8], "bio": [1170, 38], "tier_cycles": [11, 24]},
+      "bot_3": {"mil": [630, 18], "lux": [860, 18], "min": [530, 18], "bio": [590, 18], "tier_cycles": [14, 28]}
+    },
+    "sim_results": {
+      "focused_win_rate_median_cycle": {
+        "mil": {"open": "86% / 39", "hard": "98% / 36", "mixed": "98% / 27.5"},
+        "lux": {"open": "74% / 29.5", "hard": "57% / 31", "mixed": "95% / 28"},
+        "min": {"open": "56% / 30", "hard": "16% / 33.5", "mixed": "100% / 28"},
+        "bio": {"open": "59% / 28", "hard": "23% / 28", "mixed": "100% / 27"}
+      },
+      "spread_wins": "0 of 60 for 85/15, 75/25, 60/40, 50/50, 33x3, 25x4",
+      "cash_cycle_40": {"1_market": 23890, "2_markets": 18760, "3_markets": -7833, "4_markets": -26684}
+    },
+    "structural_problems": ["S1 END_BANKRUPT unreachable", "S2 END_SWEPT unreachable", "S3 tech goals too slow", "S4 price skills do not affect share", "S5 knife-edge win rate", "S6 cash piles up"]
+  }
+}
