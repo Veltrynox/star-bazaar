@@ -93,6 +93,8 @@ var planet_panel: PanelContainer
 var cluster_info: PanelContainer  # T159: info card of the asteroid cluster clicked on the map
 var cluster_info_index: int = -1
 var goal_label: Label
+var share_chip: Button  # best market and share; opens the share panel (M)
+var share_panel: PanelContainer
 var cycle_label: Label
 var pause_button: Button
 var progress: ProgressBar
@@ -211,6 +213,9 @@ func _ready() -> void:
 	skill_screen = load("res://game/skill_screen.gd").new()
 	add_child(skill_screen)
 	skill_screen.setup(self)
+	share_panel = load("res://game/share_panel.gd").new()
+	add_child(share_panel)
+	share_panel.setup(self)
 	for n in [tut_card, tut_arrow]:  # above the Skills window (the permit step points into it), below menus and popups
 		move_child(n, skill_screen.get_index() + 1)
 	space_storage_view = load("res://game/space_storage_view.gd").new()
@@ -689,6 +694,8 @@ func open_skills() -> void:
 		return
 	if galaxy_view != null and galaxy_view.visible:
 		galaxy_view.close_view()  # one screen at a time
+	if share_panel != null:
+		share_panel.close_screen()
 	skill_screen.open_screen()
 
 ## T105: click on a system in the galaxy view: close the view and put the map camera on that system.
@@ -753,6 +760,16 @@ func _on_skill_arrow() -> void:
 			skill_screen.open_highlight(t["steps"])
 	else:
 		go_to_system(int(t["system"]))
+
+func toggle_share_panel() -> void:
+	if share_panel.visible:
+		share_panel.close_screen()
+	elif preface == null and not game_over:
+		if galaxy_view != null and galaxy_view.visible:
+			galaxy_view.close_view()
+		if skill_screen.visible:
+			skill_screen.close_screen()
+		share_panel.open_screen()
 
 func toggle_skills() -> void:
 	if skill_screen.visible:
@@ -1978,7 +1995,9 @@ func _finish_outcome(outcome: Dictionary) -> void:
 func _finish(side: String, ending_id: String, stat: String) -> void:
 	game_over = true
 	SaveGame.clear()
-	var stats := {"cycle": cycle, "cash": cash}
+	var stats := {"cycle": cycle, "cash": cash, "market": str(Markets.best()["market"])}
+	if share_panel != null:
+		share_panel.close_screen()
 	_open_end_screen().show_ending(ending_id, side, stats, stat)
 	if not run_recorded:  # local record, once per run
 		run_recorded = true
@@ -2415,6 +2434,8 @@ func _unhandled_input(event: InputEvent) -> void:
 			galaxy_view.close_view()
 		elif skill_screen.visible:
 			skill_screen.close_screen()
+		elif share_panel.visible:
+			share_panel.close_screen()
 		elif space_storage_view.visible:
 			space_storage_view.close_view()
 		elif cluster_info != null and cluster_info.visible:
@@ -2427,6 +2448,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		toggle_galaxy()
 	elif event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_K:
 		toggle_skills()
+	elif event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_M:
+		toggle_share_panel()
 	elif event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_SPACE and not game_menu.visible:
 		toggle_pause()
 
@@ -2471,6 +2494,12 @@ func _build_ui() -> void:
 	goal_label.clip_text = true
 	goal_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	box.add_child(goal_label)
+	share_chip = Button.new()
+	share_chip.theme_type_variation = "ButtonGhost"
+	share_chip.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	share_chip.focus_mode = Control.FOCUS_NONE
+	share_chip.pressed.connect(toggle_share_panel)
+	box.add_child(share_chip)
 	# expansion points as an inline stat (expenses live in the cash popup)
 	var pt := _stat_inline("skills", "LBL_SKILL_POINTS", "Skill points")
 	points_label = pt[1]
@@ -2664,9 +2693,11 @@ func _refresh() -> void:
 	if goal_label == null:
 		return
 	_tut_advance()
-	var best := Markets.best()  # TODO UI: the ui-programmer replaces this line with the share readout
-	goal_label.text = StoryText.get_or("LBL_GOAL_MARKETS", "Hold over {pct}% of one market for {n} cycles. Best: {best}", {"pct": roundi(float(balance.get("win_share_pct", 0.5)) * 100.0),
-		"n": int(balance.get("win_hold_cycles", 5)), "best": "%s %d%%" % [Markets.names.get(str(best["market"]), "-"), roundi(float(best["share"]) * 100.0)]})
+	goal_label.text = StoryText.get_or("LBL_GOAL_MARKETS", "Goal: more than {pct}% of one market", {"pct": roundi(float(balance.get("win_share_pct", 0.5)) * 100.0)})
+	share_chip.text = share_panel.chip_text(Markets.best(), Markets.names) if share_panel != null else "-"
+	share_chip.tooltip_text = StoryText.get_or("LBL_SHARE_TITLE", "Market share") + " (M)"
+	if share_panel != null:
+		share_panel.refresh()
 	goal_label.tooltip_text = ""
 	if second_lane_active():  # N11: the optional line follows the goal; the full text is also the tooltip
 		goal_label.tooltip_text = goal_label.text + "  " + second_lane_line()

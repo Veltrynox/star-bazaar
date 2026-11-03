@@ -27,6 +27,7 @@ func _initialize() -> void:
 
 func _run() -> void:
 	_test_story_text()
+	_test_share_helpers()
 	_test_picker()
 	_test_stats_file()
 	_test_markets()
@@ -175,6 +176,14 @@ func _wipe_user() -> void:
 			DirAccess.remove_absolute("user://" + f)
 
 # ---- 1. story text ----
+func _test_share_helpers() -> void:
+	var SP := load("res://game/share_panel.gd")
+	var names := {"mil": "Military"}
+	check(SP.chip_text({"market": "", "share": 0.0}, names) == "-", "share chip: dash with no volume")
+	check(SP.chip_text({"market": "mil", "share": 0.344}, names) == "Military 34%", "share chip: market and percent")
+	check(SP.pct_text(0.5) == "50%", "share pct text")
+	check(not StoryText.has_text("LBL_GOAL") and StoryText.has_text("LBL_GOAL_MARKETS"), "story: old goal row gone, markets goal present")
+
 func _test_story_text() -> void:
 	var list = _read_json("res://data/story_text.json")
 	check(typeof(list) == TYPE_ARRAY and list.size() > 0, "story: data loads")
