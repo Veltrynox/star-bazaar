@@ -1,28 +1,38 @@
+class_name EndingPicker
 extends RefCounted
-## Skill branch helpers (A = Logistics, B = Research, C = Expansion), used by skill_tree.gd until the skill-tree rewrite.
-## The old Release/Corporation ending picker was removed with the cash goal (Four Markets); endings come from main.gd.
-## Branch sizes are counted from the SK_<id>_NAME story ids, so no number is hard-coded.
+## Inputs of a win ending (core 6): which ending id fires and the flavour lines inside it. Read at the win from the
+## learned skills (Skills) and the market shares (Markets); the end screen gets the dictionary from inputs().
+## Direction good/bad is a later goal: the ending id is END_<MKT>_GOOD until then (TODO story).
+## rival_broken stays false until the event chains that set it exist.
 
-const StoryText := preload("res://game/story_text.gd")
-const BRANCHES := ["A", "B", "C"]
+const SECOND_KEY := "ending_second_market_pct"  # balance: the second-best market counts from this share (0.25)
 
-## Skill ids of one branch that have a story name, in numeric order. Ids can have gaps
-## (A3 was cut, so Logistics is A1, A2, A4, A5), so this counts real ids, not a running number.
-static func branch_ids(b: String) -> Array:
+## Tech nodes of a market, in tree order.
+static func techs_of(market: String) -> Array:
 	var out := []
-	for n in range(1, 10):
-		var id := "%s%d" % [b, n]
-		if StoryText.has_text("SK_%s_NAME" % id):
+	for id in SkillTree.ids_in(market):
+		if SkillTree.is_tech(id):
 			out.append(id)
 	return out
 
-static func branch_size(b: String) -> int:
-	return branch_ids(b).size()
-
-static func counts(learned: Array) -> Dictionary:
-	var c := {"A": 0, "B": 0, "C": 0}
-	for id in learned:
-		var b := str(id).substr(0, 1)
-		if c.has(b):
-			c[b] += 1
-	return c
+## Dictionary for the end screen:
+## {market, ending_id, capstone (MKT_7 learned), tech_done (0..3), rival_broken (stub, false),
+##  second_market ("" when none), second_share, second_over (second-best market over ending_second_market_pct)}.
+static func inputs(market: String, balance: Dictionary) -> Dictionary:
+	var mk := market.to_lower()
+	var done := 0
+	for id in techs_of(mk):
+		if Skills.is_learned(id):
+			done += 1
+	var second := ""
+	var second_share := 0.0
+	for m in Markets.ids:
+		if m == mk:
+			continue
+		var s := Markets.share(m)
+		if s > second_share:
+			second = m
+			second_share = s
+	return {"market": mk, "ending_id": "END_%s_GOOD" % mk.to_upper(), "capstone": Skills.is_learned("%s_7" % mk.to_upper()),
+		"tech_done": done, "rival_broken": false, "second_market": second, "second_share": second_share,
+		"second_over": second != "" and second_share > float(balance.get(SECOND_KEY, 0.25))}
