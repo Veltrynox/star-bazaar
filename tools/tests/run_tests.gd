@@ -865,8 +865,9 @@ func _test_skill_screen_ui() -> void:
 	check(m.skill_screen.node_buttons.size() == 31, "skill screen: one button per node", str(m.skill_screen.node_buttons.size()))
 	m.skill_points = 9
 	m.skill_screen.select("MIL_1")
-	m.skill_screen.confirm_learn()
-	check(m.has_skill("MIL_1") and m.skill_screen.node_buttons["MIL_1"].text.contains(StoryText.get_text("SK_BTN_LEARNED")), "skill screen: learn by Yes spends points and shows learned")
+	check(m.skill_screen.confirm_row_absent(), "skill screen: no separate confirm step")
+	m.skill_screen.learn_button.pressed.emit()
+	check(m.has_skill("MIL_1") and m.skill_screen.node_buttons["MIL_1"].text.contains(StoryText.get_text("SK_BTN_LEARNED")), "skill screen: Learn button learns in one click, spends points and shows learned")
 	Skills.learned.append_array(["MIL_3", "MIL_5"])
 	m.skill_screen.refresh()
 	check(m.skill_screen.use_rows["MIL_5"].visible and m.skill_screen.use_buttons.has("MIL_5"), "skill screen: learned bot skill shows its Use menu")
@@ -1872,18 +1873,18 @@ func _test_next_cycle() -> void:
 	e.routes.append(rec)
 	var pf: Dictionary = e.project_storage("system:1", c, m.cash)
 	check(int(pf["after"]) == st.capacity_of("system:1") and int(pf["in"]) == 0, "next cycle: a full storage is clamped to capacity", str(pf))
-	# the panel row builds; the label sits in the same row as the bar and name, hidden when nothing moves
+	# the panel has no Next cycle line; the amount is in the resource button tooltip when something moves
 	e.routes.clear()
 	e.local.clear()
 	m.planet_panel.show_planet(0)
-	check(m.planet_panel.find_child("NextCycle_" + c, true, false) == null, "next cycle: hidden when in and out are both 0")
+	var bt0 := m.planet_panel.find_child("BuyButton_" + c, true, false) as Button
+	check(m.planet_panel.find_child("NextCycle_" + c, true, false) == null and bt0 != null and not bt0.tooltip_text.contains("Next cycle"), "next cycle: no panel line, no tooltip text when in and out are both 0")
 	var o2: Dictionary = m.set_local_order(0, c, "sell", true)
 	if o2["ok"]:
 		m.planet_panel.show_planet(0)
-		var nc1: Node = m.planet_panel.find_child("NextCycle_" + c, true, false)
-		var par: Node = nc1.get_parent() if nc1 != null else null
-		check(nc1 != null, "next cycle: visible with a sell order and stock")
-		check(par is VBoxContainer and par.get_parent() is VBoxContainer and par.get_parent().find_child("BuyButton_" + c, false, false) != null, "next cycle: label sits in the status lines under its resource button")
+		var bt1 := m.planet_panel.find_child("BuyButton_" + c, true, false) as Button
+		check(m.planet_panel.find_child("NextCycle_" + c, true, false) == null, "next cycle: no separate line in the panel")
+		check(bt1 != null and bt1.tooltip_text.contains("Next cycle"), "next cycle: the resource button tooltip shows it with a sell order and stock", str(bt1.tooltip_text if bt1 != null else ""))
 	await _free_main(m)
 
 func _test_ships() -> void:
@@ -1993,10 +1994,11 @@ func _test_ships() -> void:
 	check(cap_l != null and cap_l.get_parent() == buy_b and cap_l.text.contains("/"), "resource button: shows stored/capacity", str(cap_l.text if cap_l != null else ""))
 	check(buy_b != null and buy_b.tooltip_text.to_lower().contains("right-click"), "resource button: tooltip hints at right-click")
 	var pr_l := _find_named(m.planet_panel, "Prices_" + c) as Label
-	check(pr_l != null and pr_l.get_parent() == buy_b and pr_l.text.contains(StoryText.get_text("BTN_BUY")) and pr_l.text.contains(StoryText.get_text("BTN_SELL")) and not buy_b.text.contains(" 1"), "resource button: second row shows Buy and Sell prices, row 1 has no price", str(pr_l.text if pr_l != null else ""))
+	check(pr_l != null and pr_l.get_parent() == buy_b and pr_l.text.contains(" / ") and not pr_l.text.contains(StoryText.get_text("BTN_BUY")) and not pr_l.text.contains(StoryText.get_text("BTN_SELL")) and not buy_b.text.contains(" 1"), "resource button: second row shows plain buy / sell numbers, row 1 has no price", str(pr_l.text if pr_l != null else ""))
 	m.planet_panel.show_planet(1)
 	var bb := _find_named(m.planet_panel, "BuyButton_" + c) as Button
-	check(bb != null and bb.button_pressed and bb.tooltip_text.contains("Press to stop"), "buy toggle: the resource button is pressed while the order is on")
+	check(bb != null and bb.button_pressed and bb.tooltip_text.contains("Press to stop") and bb.tooltip_text.contains("Buy order:"), "buy toggle: the resource button is pressed while the order is on, tooltip has the order state")
+	check(not _labels(m.planet_panel, []).any(func(l): return l.text.begins_with("Buy order:")), "buy toggle: no Buy order status line in the panel")
 	var stop_n := 0
 	for b in _all_buttons(m.planet_panel):
 		if b.text == bb.text:

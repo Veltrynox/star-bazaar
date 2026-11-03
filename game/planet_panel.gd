@@ -171,7 +171,7 @@ func _row(c: String, prices: Dictionary, pend: Dictionary) -> Control:
 			nx.text = StoryText.get_text("LBL_NEXT_PRICE", {"buy": nb, "sell": ns})
 			nx.theme_type_variation = "LabelSmall"
 			info.add_child(nx)
-	for role in ["buy", "sell"]:
+	for role in ["sell"]:  # the buy order state is in the resource button tooltip and its pressed toggle
 		if main.engine.local_on(planet_index, c, role):
 			var st := Label.new()
 			st.text = "%s order: %s" % [role.capitalize(), main.engine.local_state(planet_index, c, role)]
@@ -213,6 +213,11 @@ func _row(c: String, prices: Dictionary, pend: Dictionary) -> Control:
 	bs.pressed.connect(func(): buy_send_requested.emit(c))
 	if sell_p != null and buy != null:
 		bs.tooltip_text += "\n" + StoryText.get_or("LBL_SELL_PRICE", "Sell price") + ": " + _price(sell_p)
+	if buy_on:
+		bs.tooltip_text += "\n" + "Buy order: " + str(main.engine.local_state(planet_index, c, "buy"))
+	var nc_tip := next_cycle_text(main, main.storage.planet_key(planet_index), str(c))
+	if nc_tip != "":
+		bs.tooltip_text += "\n" + nc_tip
 	bs.tooltip_text += "\n" + StoryText.get_or("LBL_RMB_MORE", "Right-click for Send to, Sell and more.")
 	_reserve_right(bs, CAP_MARGIN, PRICE_ROW_H)
 	var key: String = main.storage.planet_key(planet_index)
@@ -230,7 +235,7 @@ func _row(c: String, prices: Dictionary, pend: Dictionary) -> Control:
 	bs.add_child(cap_l)
 	var pr_l := Label.new()  # row 2: tiny buy and sell prices (what the player pays and receives)
 	pr_l.name = "Prices_" + str(c)
-	pr_l.text = "%s %s  %s %s" % [StoryText.get_text("BTN_BUY"), _price(buy), StoryText.get_text("BTN_SELL"), _price(sell_p)]
+	pr_l.text = "%s / %s" % [_price(buy), _price(sell_p)]
 	pr_l.theme_type_variation = "LabelSmall"
 	pr_l.add_theme_font_size_override("font_size", 10)
 	pr_l.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -252,10 +257,6 @@ func _row(c: String, prices: Dictionary, pend: Dictionary) -> Control:
 	var salv_l: Control = _salvage_line(str(c))
 	if salv_l != null:
 		info.add_child(salv_l)
-	var key2: String = main.storage.planet_key(planet_index)
-	var nc := next_cycle_label(main, key2, str(c))
-	if nc != null:
-		info.add_child(nc)
 	if info.get_child_count() > 0:
 		wrap.add_child(info)
 	return wrap
@@ -331,7 +332,7 @@ func _lane_splits() -> void:
 		elif split_open == str(c):
 			split_open = ""
 
-## Owner 2026-11-03: small label at the right end of a storage row, "Next cycle: +12 -5 = 47" (in green, out red).
+## Owner 2026-11-03: small label "Next cycle: +12 -5 = 47" (in green, out red). Used by the storage view.
 ## Null when nothing moves. Read-only: uses RouteEngine.project_storage.
 static func next_cycle_label(main_node: Control, key: String, c: String) -> Control:
 	var pr: Dictionary = main_node.engine.project_storage(key, c, int(main_node.cash))
@@ -354,6 +355,17 @@ static func next_cycle_label(main_node: Control, key: String, c: String) -> Cont
 	var t: String = StoryText.get_or("LBL_NEXT_CYCLE", "Next cycle: +{in} -{out} = {after}")
 	rt.text = t.replace("{in}", good).replace("{out}", bad).replace("{after}", str(int(pr["after"])))
 	return rt
+
+## Owner 2026-11-03: next-cycle line for the resource button tooltip, "Next cycle: +12 -5 = 47".
+## Empty when nothing moves. Read-only: uses RouteEngine.project_storage.
+static func next_cycle_text(main_node: Control, key: String, c: String) -> String:
+	var pr: Dictionary = main_node.engine.project_storage(key, c, int(main_node.cash))
+	var n_in := int(pr["in"])
+	var n_out := int(pr["out"])
+	if n_in <= 0 and n_out <= 0:
+		return ""
+	var t: String = StoryText.get_or("LBL_NEXT_CYCLE", "Next cycle: +{in} -{out} = {after}")
+	return t.replace("{in}", str(n_in)).replace("{out}", str(n_out)).replace("{after}", str(int(pr["after"])))
 
 ## Split bar: the colour of the first (0) or second (1) lane of a split.
 func _lane_colour(i: int) -> Color:

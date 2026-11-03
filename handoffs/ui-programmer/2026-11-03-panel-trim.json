@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-03",
+  "task": "panel-trim",
+  "status": "done",
+  "files_changed": ["game/planet_panel.gd", "tools/tests/run_tests.gd"],
+  "open_questions": [],
+  "handoff": "Planet panel: the Buy order status line and the Next cycle line are gone from under the resource buttons. The button tooltip now adds 'Buy order: <state>' (when ON) and 'Next cycle: +in -out = after' (when stock moves); ON stays visible via the pressed toggle. Price row now '10 / 8', dash for a missing price; tooltip keeps labelled prices. Sell order status line kept (no button toggle shows it). Button height kept at 46: it still holds the name row and price row. PlanetPanel.next_cycle_label kept because space_storage_view.gd uses it. Tests updated; headless run 1218 pass, 0 fail. Not checked by eye. data/story_text.json not changed. Note: game/skill_screen.gd also shows modified, not by me.",
+  "details": {"screens": ["planet panel"], "how_to_see": "Open a planet, hover a resource button, toggle Buy."}
+}
