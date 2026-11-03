@@ -102,10 +102,12 @@ var top_bar: PanelContainer
 var right_col: VBoxContainer  # holds the notification board and the ship panel
 var cash_forecast: PanelContainer  # T40
 var mission_label: Label
-var tutorial_label: Label  # T15: first 4 cycles hint on the board
+var tutorial_label: Label  # the current step's line on the floating tutorial card
+var tip_label: Label  # game tip on the right board
+var tut_arrow: Polygon2D  # pointer from the card to the target
 var tut_actions: HBoxContainer  # Skip and Next under the guided hint, as in the galaxy view tutorial
 var tut_next: Button
-var tut_card: PanelContainer  # the guided tutorial card: its own panel at the top of the right column, not on the notifications board
+var tut_card: PanelContainer  # the guided tutorial card: floats beside the control the step is about
 var tut_count: Label  # "2 of 10"
 var tut_why: Label  # the step's why line (story id <step id>_WHY), hidden when the story has none
 var tut_hl: Panel  # pulsing accent outline over the control the current step is about
@@ -207,6 +209,8 @@ func _ready() -> void:
 	skill_screen = load("res://game/skill_screen.gd").new()
 	add_child(skill_screen)
 	skill_screen.setup(self)
+	for n in [tut_card, tut_arrow]:  # above the Skills window (the permit step points into it), below menus and popups
+		move_child(n, skill_screen.get_index() + 1)
 	space_storage_view = load("res://game/space_storage_view.gd").new()
 	add_child(space_storage_view)
 	space_storage_view.setup(self)
@@ -227,7 +231,8 @@ func _ready() -> void:
 		_award_planet(maxi(mission_planet, 0))  # T82: the home planet counts at start
 		_quiet_points = false
 		_build_preface()
-		_tut_show(["TUT_C1_PLANET"])
+		_tut_show()
+		_tut_cycle()
 	else:
 		apply_state(saved)  # T26: resume paused, no preface
 		post_notice(StoryText.get_text("NOT_LOADED"))
@@ -823,7 +828,6 @@ func _on_planet_clicked(index: int) -> void:
 		return
 	selected_planet = index
 	planet_panel.show_planet(index)
-	_tut_once("row", ["TUT_C1_ROW"])
 
 ## T159: story id suffix of a base cluster ("c1_1" -> "S1A"); "" for clusters made by events.
 func _cluster_story_key(cl: Dictionary) -> String:
@@ -1301,7 +1305,6 @@ func set_local_order(planet: int, c: String, role: String, on: bool) -> Dictiona
 	var r: Dictionary = engine.set_local(planet, c, role, on)
 	if r["ok"]:
 		if on:
-			_tut_once("order_" + role, ["TUT_C1_BUY" if role == "buy" else "TUT_C1_SELL"])
 			_award_planet(planet)
 			_note_system(planet)
 		_after_change()
@@ -1351,7 +1354,6 @@ func _connect(src: int, dst: int, c: String, stop: int = -1) -> Dictionary:
 	if not mining:
 		storage.ensure(str(rec["src"]))  # T65: first order at a planet establishes its company storage
 	storage.ensure(str(rec["dst"]))
-	_tut_once("route", ["TUT_C2_ROUTE_DONE"])
 	_after_change()
 	_mine_event(src)
 	return {"ok": true, "reason": "", "id": rec["id"]}
@@ -2316,7 +2318,7 @@ func debug_restart_tutorial() -> void:
 	cycle = 1
 	_sync_dead_lock()
 	cycle_elapsed = 0.0
-	_tut_show(["TUT_C1_PLANET"])
+	_tut_show()
 	_refresh()
 
 func debug_open_galaxy() -> void:
@@ -2671,41 +2673,44 @@ func _refresh() -> void:
 		mission_label.visible = ships == 0
 		mission_label.text = StoryText.get_or("LBL_MISSION_FIRST", "Mission: Send stock to another planet")
 
-## T15: tutorial line(s) on the board, cycles 1 to 4 only. Ids load from the story loader.
-func _tut_show(ids: Array) -> void:
+## The guided tutorial card: text of the current step, step count, Skip and Next. Ids load from the story loader.
+func _tut_show(_ids: Array = []) -> void:
 	if tutorial_label == null:
 		return
-	var parts: Array = []
-	if tut_step < TUT_GUIDE.size():  # T124: while the guided steps run, their line is the only tutorial line
-		ids = [TUT_GUIDE[tut_step]]
-	for id in ids:
-		parts.append(StoryText.get_or(str(id), str(TUT_FALLBACK.get(str(id), "")), {}))
-	var t := "\n".join(parts).strip_edges()
+	var guided: bool = tut_step < TUT_GUIDE.size()
+	var t := ""
+	if guided:
+		var id: String = TUT_GUIDE[tut_step]
+		t = StoryText.get_or(id, str(TUT_FALLBACK.get(id, "")), {}).strip_edges()
 	tutorial_label.text = t
-	tutorial_label.visible = t != "" and (cycle <= 4 or tut_step < TUT_GUIDE.size()) and not game_over
+	tutorial_label.visible = t != "" and guided and not game_over
 	if tut_card != null:
 		tut_card.visible = tutorial_label.visible
-		var guided: bool = tut_step < TUT_GUIDE.size()
 		tut_count.visible = guided
 		tut_why.text = StoryText.get_or(TUT_GUIDE[tut_step] + "_WHY", "", {}) if guided else ""
 		tut_why.visible = tut_why.text != ""
 		if guided:
 			tut_count.text = StoryText.get_or("TUT_STEP_COUNT", "{n} of {total}", {"n": tut_step + 1, "total": TUT_GUIDE.size()})
-	_tut_update_highlight()
 	if tut_actions != null:  # Skip and Next only while the guided steps run
-		tut_actions.visible = tutorial_label.visible and tut_step < TUT_GUIDE.size()
-		if tut_step < TUT_GUIDE.size():
+		tut_actions.visible = tutorial_label.visible
+		if guided:
 			tut_next.text = StoryText.get_or("BTN_GOT_IT", "Got it") if tut_step == TUT_GUIDE.size() - 1 else StoryText.get_or("BTN_NEXT", "Next")
+	_tut_update_highlight()
 
 ## Next steps the guided hint on by one line; Skip closes it. Same buttons and wording as the galaxy view tutorial.
 func _tut_next() -> void:
 	if tut_step < TUT_GUIDE.size():
 		tut_step += 1
-		_tut_show([])
+		_tut_show()
 
+## Skip ends the whole tutorial, the galaxy view one too (it never starts once skipped). Saved as tut_step = size.
 func _tut_skip() -> void:
 	tut_step = TUT_GUIDE.size()
-	_tut_show([])
+	galaxy_seen = true
+	if galaxy_view != null and galaxy_view.tut_step >= 0 and galaxy_view.tut_step < galaxy_view.TUT_IDS.size():
+		galaxy_view.tut_step = galaxy_view.TUT_IDS.size()
+		galaxy_view._build_tutorial()
+	_tut_show()
 
 ## Which control each guided step is about. "planet" = the pulsing ring on the map planet, "" = nothing.
 const TUT_TARGET := ["planet", "buy", "send", "route", "expenses", "sell", "storage", "skills", "permit", ""]
@@ -2775,15 +2780,100 @@ func _tut_update_highlight() -> void:
 		return
 	var key := _tut_highlight_key()
 	var c: Control = _tut_target_node(key) if key != "" and key != "planet" else null
-	if c == null or game_over or tut_card == null or not tut_card.visible:
+	var shown: bool = tut_card != null and tut_card.visible and not game_over and not (galaxy_view != null and galaxy_view.visible)
+	if c == null or not shown:
 		tut_hl.visible = false
+	else:
+		var r := c.get_global_rect().grow(3.0)
+		tut_hl.visible = true
+		tut_hl.global_position = r.position
+		tut_hl.size = r.size
+		var k := 0.5 + 0.5 * sin(Time.get_ticks_msec() / 1000.0 * 3.0)
+		tut_hl.modulate.a = lerpf(0.55, 1.0, k)
+	_tut_place_card(key, c)
+
+const TUT_CARD_W := 300.0
+const TUT_GAP := 18.0  # card to target; the pointer sits in this gap
+const TUT_EDGE := 8.0
+
+## Screen rect the card keeps clear: the target, or the whole panel the target sits in.
+func _tut_anchor_rect(key: String, c: Control) -> Rect2:
+	if c != null:
+		if planet_panel != null and planet_panel.visible and planet_panel.is_ancestor_of(c):
+			return planet_panel.get_global_rect().grow(4.0)
+		var sc := right_col.get_parent() as Control if right_col != null else null
+		if sc != null and sc.is_ancestor_of(c):
+			return sc.get_global_rect().grow(4.0)
+		return c.get_global_rect().grow(6.0)
+	if key == "planet":
+		var i := _tut_ring_planet()
+		if i >= 0 and map.camera != null and i < map.positions.size() and map.planet_in_view(i) and not map.camera.is_position_behind(map.positions[i]):
+			var p: Vector2 = map.camera.unproject_position(map.positions[i])
+			return Rect2(p - Vector2(40, 40), Vector2(80, 80))
+	return Rect2()
+
+## Puts the card beside the target on a side with room, inside the window, clear of the other panels, with a pointer.
+func _tut_place_card(key: String, c: Control) -> void:
+	if tut_card == null or not tut_card.visible:
+		if tut_arrow != null:
+			tut_arrow.visible = false
 		return
-	var r := c.get_global_rect().grow(3.0)
-	tut_hl.visible = true
-	tut_hl.global_position = r.position
-	tut_hl.size = r.size
-	var k := 0.5 + 0.5 * sin(Time.get_ticks_msec() / 1000.0 * 3.0)
-	tut_hl.modulate.a = lerpf(0.55, 1.0, k)
+	tut_card.size = Vector2(TUT_CARD_W, 0.0)  # height shrinks to what the text needs
+	var cs := tut_card.size
+	var vp := get_viewport_rect().size
+	var field := Rect2(Vector2(TUT_EDGE, TUT_EDGE), vp - Vector2(TUT_EDGE, TUT_EDGE) * 2.0)
+	var a := _tut_anchor_rect(key, c)
+	if a.size == Vector2.ZERO:  # nothing to point at: a fixed spot under the top bar, middle of the window
+		tut_card.position = Vector2((vp.x - cs.x) * 0.5, 84.0)
+		tut_arrow.visible = false
+		return
+	var avoid: Array = [a]
+	if planet_panel != null and planet_panel.visible and not planet_panel.get_global_rect().intersects(a):
+		avoid.append(planet_panel.get_global_rect().grow(4.0))
+	var sc := right_col.get_parent() as Control if right_col != null else null
+	if sc != null and not sc.get_global_rect().intersects(a):
+		avoid.append(sc.get_global_rect().grow(4.0))
+	var ty: float = (c.get_global_rect().get_center().y if c != null else a.get_center().y)
+	var tx: float = (c.get_global_rect().get_center().x if c != null else a.get_center().x)
+	var order: Array = ["below", "right", "left", "above"] if a.position.y < 90.0 else ["right", "left", "below", "above"]
+	var best := Vector2.ZERO
+	var best_side := ""
+	for side in order:
+		var pos := Vector2.ZERO
+		match side:
+			"right": pos = Vector2(a.end.x + TUT_GAP, ty - cs.y * 0.5)
+			"left": pos = Vector2(a.position.x - TUT_GAP - cs.x, ty - cs.y * 0.5)
+			"below": pos = Vector2(tx - cs.x * 0.5, a.end.y + TUT_GAP)
+			"above": pos = Vector2(tx - cs.x * 0.5, a.position.y - TUT_GAP - cs.y)
+		pos.x = clampf(pos.x, field.position.x, maxf(field.position.x, field.end.x - cs.x))
+		pos.y = clampf(pos.y, field.position.y, maxf(field.position.y, field.end.y - cs.y))
+		var r := Rect2(pos, cs)
+		var clear := true
+		for av in avoid:
+			if r.intersects(av):
+				clear = false
+				break
+		if best_side == "" or clear:
+			best = pos
+			best_side = side
+		if clear:
+			break
+	tut_card.position = best
+	# pointer: a small triangle in the gap, tip toward the target
+	var tip := Vector2.ZERO
+	var rot := 0.0
+	match best_side:
+		"right":
+			tip = Vector2(a.end.x + 2.0, clampf(ty, best.y + 14.0, best.y + cs.y - 14.0)); rot = PI
+		"left":
+			tip = Vector2(a.position.x - 2.0, clampf(ty, best.y + 14.0, best.y + cs.y - 14.0)); rot = 0.0
+		"below":
+			tip = Vector2(clampf(tx, best.x + 14.0, best.x + cs.x - 14.0), a.end.y + 2.0); rot = -PI * 0.5
+		"above":
+			tip = Vector2(clampf(tx, best.x + 14.0, best.x + cs.x - 14.0), a.position.y - 2.0); rot = PI * 0.5
+	tut_arrow.visible = true
+	tut_arrow.position = tip
+	tut_arrow.rotation = rot
 
 ## T124: moves the guided tutorial on when the player has done the current step. Called on every change.
 func _tut_advance() -> void:
@@ -2840,28 +2930,18 @@ func _tut_step_skipped(i: int) -> bool:
 			return skill_points <= 0 and not has_skill("C1")
 	return false
 
-## Shows `ids` the first time `key` fires (cycles 1 to 4).
-func _tut_once(key: String, ids: Array) -> void:
-	if cycle > 4 or tut_first.has(key):
-		return
-	tut_first[key] = true
-	_tut_show(ids)
+## Game tips on the right board: one short tip per cycle, rotating. Never tutorial text.
+const TIP_IDS := ["TIP_BOARD_1", "TIP_BOARD_2", "TIP_BOARD_3", "TIP_BOARD_4", "TIP_BOARD_5", "TIP_BOARD_6"]
 
-## Called at the start of each cycle (and after a load): the line set for that cycle.
+func _tip_text() -> String:
+	var i: int = (maxi(cycle, 1) - 1) % TIP_IDS.size()
+	return StoryText.get_or(TIP_IDS[i], "", {})
+
+## Called at the start of each cycle (and after a load): the tip for that cycle.
 func _tut_cycle() -> void:
-	match cycle:
-		2:
-			_tut_show(["TUT_C2_UPKEEP"] if ships > 0 else [])
-		3:
-			_tut_show(["TUT_C3_STORAGE", "TUT_C3_ONEWAY"])
-		4:
-			_tut_show((["TUT_C4_SKILLS"] if skill_points > 0 else []) + ["TUT_C4_FREE"])
-		_:
-			if not tut_first.has("permit") and skill_points > 0 and not has_skill("C1"):  # the way to system 2, once
-				tut_first["permit"] = true
-				_tut_show(["TUT_PERMIT_C1"])
-			else:
-				_tut_show([])
+	if tip_label != null:
+		tip_label.text = _tip_text()
+		tip_label.visible = tip_label.text != "" and not game_over
 
 ## T24: notification board, right side, text only. GDD section 2 'First 4 cycles'.
 func _build_board() -> void:
@@ -2887,7 +2967,7 @@ func _build_board() -> void:
 	box.add_theme_constant_override("separation", 8)
 	board.add_child(box)
 	var title := Label.new()
-	title.text = StoryText.get_or("LBL_NOTIFICATIONS", "Notifications").to_upper()
+	title.text = StoryText.get_or("LBL_TIPS", "Tips").to_upper()
 	title.theme_type_variation = "LabelCaption"
 	box.add_child(title)
 	mission_label = Label.new()
@@ -2895,13 +2975,16 @@ func _build_board() -> void:
 	mission_label.theme_type_variation = "LabelAccent"
 	mission_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	box.add_child(mission_label)
-	# The guided tutorial has its own card above the notifications board, same look as the galaxy tutorial card.
+	tip_label = Label.new()
+	tip_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	tip_label.theme_type_variation = "LabelMuted"
+	box.add_child(tip_label)
+	# The guided tutorial is its own floating card, placed beside the control the step is about (see _tut_place_card).
 	tut_card = PanelContainer.new()
-	tut_card.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	tut_card.custom_minimum_size = Vector2(320, 0)
+	tut_card.mouse_filter = Control.MOUSE_FILTER_IGNORE  # the buttons inside still take clicks
+	tut_card.custom_minimum_size = Vector2(TUT_CARD_W, 0)
 	tut_card.visible = false
-	right_col.add_child(tut_card)
-	right_col.move_child(tut_card, 0)
+	add_child(tut_card)
 	var cbox := VBoxContainer.new()
 	cbox.add_theme_constant_override("separation", 8)
 	tut_card.add_child(cbox)
@@ -2930,7 +3013,7 @@ func _build_board() -> void:
 	tut_actions.visible = false
 	var tut_skip := Button.new()
 	tut_skip.theme_type_variation = "ButtonGhost"
-	tut_skip.text = StoryText.get_or("SCR_PREFACE_SKIP", "Skip")
+	tut_skip.text = StoryText.get_or("BTN_SKIP_TUTORIAL", "Skip tutorial")
 	tut_skip.pressed.connect(_tut_skip)
 	tut_actions.add_child(tut_skip)
 	tut_next = Button.new()
@@ -2951,6 +3034,11 @@ func _build_board() -> void:
 	sb.set_corner_radius_all(4)
 	tut_hl.add_theme_stylebox_override("panel", sb)
 	add_child(tut_hl)
+	tut_arrow = Polygon2D.new()  # triangle with its tip at the origin, pointing along +x before rotation
+	tut_arrow.polygon = PackedVector2Array([Vector2(0, 0), Vector2(-14, -9), Vector2(-14, 9)])
+	tut_arrow.color = Ui.col("star_warm")
+	tut_arrow.visible = false
+	add_child(tut_arrow)
 	notice_label = Label.new()
 	notice_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	notice_label.visible = false

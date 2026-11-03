@@ -802,7 +802,7 @@ func _build_tutorial() -> void:
 	acts.add_theme_constant_override("separation", 8)
 	var skip := Button.new()
 	skip.theme_type_variation = "ButtonGhost"
-	skip.text = StoryText.get_or("SCR_PREFACE_SKIP", "Skip")
+	skip.text = StoryText.get_or("BTN_SKIP_TUTORIAL", "Skip tutorial")
 	skip.pressed.connect(func():
 		tut_step = TUT_IDS.size()
 		main._tut_skip()  # Skip ends the whole guided tutorial too
