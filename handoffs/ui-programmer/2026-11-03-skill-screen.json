@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-03",
+  "task": "skill-screen",
+  "status": "done",
+  "files_changed": ["game/skill_screen.gd", "tools/tests/run_tests.gd (new _test_skill_screen_ui)", "qa/gui/skills_shot.gd (new)", "handoffs/ui-programmer/2026-11-03-skill-screen.json"],
+  "open_questions": [
+    "Story ids missing (fallback text used): SK_BOT_USE ('Use on...'), SK_BOT_USED ('Used this run.'), SK_BOT_COOLDOWN ('Ready in {n} cycles.'). PERMIT_NEEDS_C1 still names C1.",
+    "Bots.NAMES are still working names in code (TODO story), shown in the Use menu.",
+    "main.gd shims skill_ctx, a1_gate_open, is_surveyed, survey_system, SkillTree.FIRST_ROW/in_first_row are NOT removed: main.gd, bot_run.gd and run_tests.gd still call them. Gameplay-programmer to remove with those callers."
+  ],
+  "handoff": "Skill screen rebuilt: Foundations row, four market columns in tier order (tech left, skill right) with prerequisite lines, skill vs tech tag and blue tint, tech progress bar, states learned/learnable/locked/not enough points, detail strip with Learn plus Yes/No confirm, MenuButton 'Use on...' for learned bot skills (MIL_5, LUX_7) with cooldown note. node_buttons keyed by id; open/close/open_highlight unchanged. Permit list kept (only place to buy permits), Survey part dropped. Tests pass except T158 (goods work in progress, not this task). Screenshot checked by eye: qa/run_game.sh res://qa/gui/skills_shot.gd -- <dir>. Not checked: a window smaller than 1920x1080, a bot skill after cooldown, hover tooltips, highlight (tutorial) look. Page scrolls slightly at 1080 high (detail and permits below the trees).",
+  "details": {"see_in_a_minute": "Press K in game, or run the shot script."}
+}

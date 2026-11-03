@@ -1,38 +1,90 @@
 extends PanelContainer
-## T71: skill tree screen (gdd-skills.md section 6). Three branch columns, detail panel, Learn with confirm.
+## Skill screen for the four market trees: a Foundations row on top, then one column per market with its
+## seven nodes in tier order, linked by prerequisite lines. Skills and techs look different (tint and tag).
+## A detail strip shows the selected node with Learn and a confirm step. Learned bot skills get a Use menu.
 ## Does not pause the game. Open/close is owned by main.gd (K, Esc, Skills button).
 
 const StoryText := preload("res://game/story_text.gd")
 const SkillTree := preload("res://game/skill_tree.gd")
 var COL_LEARNED: Color = Ui.col("star_warm")
 var COL_AVAILABLE: Color = Color.WHITE
+var COL_SHORT: Color = Color(0.82, 0.82, 0.82)
 var COL_LOCKED: Color = Ui.col("ink_subtle") * 1.4
+const TECH_TINT := Color(0.72, 0.88, 1.0)
 
 signal closed
 
 var main: Control
 var selected: String = ""
-var node_buttons: Dictionary = {}
+var node_buttons: Dictionary = {}  # node id -> Button (the tutorial highlight reads ["FND_PERMIT"])
+var cells: Dictionary = {}  # node id -> the VBox holding the button (and its Use row)
+var use_rows: Dictionary = {}  # node id -> HBox for bot skills
+var bars: Dictionary = {}  # tech id -> ProgressBar
 var points_label: Label
 var detail_box: VBoxContainer
 var learn_button: Button
 var confirm_row: HBoxContainer
 var confirm_label: Label
+var permit_box: VBoxContainer
+var highlight: Array = []  # skill ids to point at (the steps to a permit), cleared on close
 var _root: VBoxContainer
-var permit_box: VBoxContainer  # T85: permits list under the tree
-var highlight: Array = []  # T128: skill ids to point at (the steps to a permit), cleared on close
+
+# ---- pure helpers (tested headless) ----
+
+## Tier rows of one branch: [[ids of tier 1], [ids of tier 2], ...]; inside a row techs come first (left slot).
+static func tier_rows(branch: String) -> Array:
+	var by_tier := {}
+	for id in SkillTree.ids_in(branch):
+		var t := SkillTree.tier(id)
+		if not by_tier.has(t):
+			by_tier[t] = []
+		if SkillTree.is_tech(id):
+			by_tier[t].push_front(id)
+		else:
+			by_tier[t].append(id)
+	var keys := by_tier.keys()
+	keys.sort()
+	var out := []
+	for k in keys:
+		out.append(by_tier[k])
+	return out
+
+## "learned", "locked", "researching" (a tech with prerequisites met), "points" (skill, too few points) or "learnable".
+static func node_state(learned: Array, points: int, balance: Dictionary, id: String) -> String:
+	match SkillTree.state(learned, id):
+		"learned":
+			return "learned"
+		"locked":
+			return "locked"
+	if SkillTree.is_tech(id):
+		return "researching"
+	return "learnable" if points >= SkillTree.cost(balance, id) else "points"
+
+## Numbers for the {m} (cooldown) and {n} (cycles) placeholders of a bot skill's plain line, plus {goal}.
+static func plain_args(balance: Dictionary, id: String) -> Dictionary:
+	var args := {"goal": SkillTree.tech_goal(balance, id), "m": 0, "n": 0}
+	for e in SkillTree.effects(id):
+		if e.has("cooldown_key"):
+			args["m"] = int(balance.get(str(e["cooldown_key"]), 0))
+		if e.has("duration_key"):
+			args["n"] = int(balance.get(str(e["duration_key"]), 0))
+	return args
+
+# ---- build ----
 
 func setup(main_node: Control) -> void:
 	main = main_node
 	visible = false
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	set_anchors_and_offsets_preset(Control.PRESET_CENTER)
-	custom_minimum_size = Vector2(minf(760.0, get_viewport_rect().size.x - 24.0), 0)
+	custom_minimum_size = Vector2(minf(1500.0, get_viewport_rect().size.x - 24.0), 0)
 	grow_horizontal = Control.GROW_DIRECTION_BOTH
 	grow_vertical = Control.GROW_DIRECTION_BOTH
 	_root = VBoxContainer.new()
-	_root.add_theme_constant_override("separation", 10)
-	Ui.scroll_wrap(self, _root, 24.0)  # taller than the window: the tree scrolls
+	_root.add_theme_constant_override("separation", 8)
+	Ui.scroll_wrap(self, _root, 24.0)  # taller than the window: the page scrolls, nothing nested
+	_root.draw.connect(_draw_links)
+	_root.sort_children.connect(_root.queue_redraw)
 	var head := HBoxContainer.new()
 	_root.add_child(head)
 	var title := Label.new()
@@ -52,32 +104,21 @@ func setup(main_node: Control) -> void:
 	help.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	help.text = StoryText.get_or("LBL_SKILL_POINTS_HELP", "Skill points: 1 for each planet you first trade with, 2 for each new route between two planets, 3 for each new system you reach.")
 	_root.add_child(help)
-	# Row 1: Space Storage (A1) and Permit Charter (C1). Row 2: every other skill, locked until both are learned.
-	_root.add_child(_row_caption(StoryText.get_or("LBL_SKILLS_ROW_FIRST", "Start here")))
-	var first := HBoxContainer.new()
-	first.add_theme_constant_override("separation", 16)
-	_root.add_child(first)
-	for id in SkillTree.FIRST_ROW:
-		first.add_child(_node_button(id))
-	_root.add_child(_row_caption(StoryText.get_or("LBL_SKILLS_ROW_SECOND", "Unlocks after Space Storage and Permit Charter")))
+	# Foundations row
+	_root.add_child(_caption(StoryText.get_text("SK_TAB_FND")))
+	var fnd := HBoxContainer.new()
+	fnd.add_theme_constant_override("separation", 16)
+	_root.add_child(fnd)
+	for id in SkillTree.ids_in("fnd"):
+		fnd.add_child(_node_cell(id))
+	# Four market columns
 	var cols := HBoxContainer.new()
-	cols.add_theme_constant_override("separation", 16)
+	cols.add_theme_constant_override("separation", 20)
 	_root.add_child(cols)
-	for b in SkillTree.BRANCHES:
-		var col := VBoxContainer.new()
-		col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		col.add_theme_constant_override("separation", 6)
-		cols.add_child(col)
-		var h := Label.new()
-		h.text = StoryText.get_text("SK_BRANCH_" + b)
-		h.theme_type_variation = "LabelCaption"
-		h.text = h.text.to_upper()
-		col.add_child(h)
-		for id in SkillTree.ids_in(b):
-			if not SkillTree.in_first_row(id):
-				col.add_child(_node_button(id))
+	for b in SkillTree.MARKETS:
+		cols.add_child(_market_column(b))
 	detail_box = VBoxContainer.new()
-	detail_box.custom_minimum_size = Vector2(0, 190)
+	detail_box.custom_minimum_size = Vector2(0, 150)
 	detail_box.add_theme_constant_override("separation", 4)
 	_root.add_child(detail_box)
 	permit_box = VBoxContainer.new()
@@ -87,19 +128,78 @@ func setup(main_node: Control) -> void:
 	foot.text = StoryText.get_text("SK_NO_CREDITS")
 	_root.add_child(foot)
 
-func _row_caption(text: String) -> Label:
+func _market_column(b: String) -> VBoxContainer:
+	var col := VBoxContainer.new()
+	col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	col.size_flags_stretch_ratio = 1.0
+	col.add_theme_constant_override("separation", 10)
+	var h := _caption(StoryText.get_text("SK_TAB_" + b.to_upper()))
+	col.add_child(h)
+	var ident := Label.new()
+	ident.theme_type_variation = "LabelSmall"
+	ident.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	ident.custom_minimum_size = Vector2(0, 40)
+	ident.text = StoryText.get_text("MKT_%s_ID" % b.to_upper())
+	col.add_child(ident)
+	for ids in tier_rows(b):
+		var row := HBoxContainer.new()
+		row.add_theme_constant_override("separation", 8)
+		col.add_child(row)
+		if ids.size() == 1:
+			row.add_child(_spacer())
+			row.add_child(_node_cell(ids[0]))
+			row.add_child(_spacer())
+		else:
+			for id in ids:
+				row.add_child(_node_cell(id))
+	return col
+
+func _spacer() -> Control:
+	var s := Control.new()
+	s.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	s.size_flags_stretch_ratio = 0.5
+	s.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	return s
+
+func _caption(text: String) -> Label:
 	var l := Label.new()
 	l.text = text.to_upper()
 	l.theme_type_variation = "LabelCaption"
 	return l
 
-func _node_button(id: String) -> Button:
+func _node_cell(id: String) -> Control:
+	var cell := VBoxContainer.new()
+	cell.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	cell.size_flags_stretch_ratio = 1.0
+	cell.add_theme_constant_override("separation", 2)
 	var btn := Button.new()
-	btn.custom_minimum_size = Vector2(0, 48)
+	btn.custom_minimum_size = Vector2(0, 84)
 	btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	btn.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	btn.clip_text = true
 	btn.pressed.connect(select.bind(id))
+	cell.add_child(btn)
 	node_buttons[id] = btn
-	return btn
+	cells[id] = cell
+	if SkillTree.is_tech(id):
+		var bar := ProgressBar.new()
+		bar.show_percentage = false
+		bar.custom_minimum_size = Vector2(0, 8)
+		bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		bar.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)
+		bar.offset_top = -12.0
+		bar.offset_left = 6.0
+		bar.offset_right = -6.0
+		bar.offset_bottom = -4.0
+		btn.add_child(bar)
+		bars[id] = bar
+	var use := HBoxContainer.new()
+	use.visible = false
+	cell.add_child(use)
+	use_rows[id] = use
+	return cell
+
+# ---- open / close ----
 
 func open_screen() -> void:
 	visible = true
@@ -112,7 +212,7 @@ func close_screen() -> void:
 		highlight = []
 		closed.emit()
 
-## T128: open the screen with the given steps lit; the first one not yet learned is selected.
+## Open the screen with the given steps lit; the first one is selected.
 func open_highlight(ids: Array) -> void:
 	highlight = ids.duplicate()
 	selected = str(ids[0]) if not ids.is_empty() else ""
@@ -124,23 +224,117 @@ func select(id: String) -> void:
 	_hide_confirm()
 	refresh()
 
+# ---- refresh ----
+
+func _status_line(id: String, st: String) -> String:
+	match st:
+		"learned":
+			return StoryText.get_text("SK_BTN_LEARNED")
+		"locked":
+			var need := SkillTree.missing_prereqs(main.learned_skills, id)
+			return StoryText.get_text("SK_LOCKED_NEEDS", {"name": SkillTree.skill_name(str(need[0]))}) if not need.is_empty() else StoryText.get_text("SK_BTN_LOCKED")
+		"researching":
+			var p: Dictionary = Tech.progress(id)
+			return StoryText.get_text("SK_CRAFTED", {"n": int(p.get("n", 0)), "goal": int(p.get("goal", 0))})
+		"points":
+			return StoryText.get_text("SK_NOT_ENOUGH")
+	return StoryText.get_text("SK_COST", {"amount": SkillTree.cost(main.balance, id)})
 
 func refresh() -> void:
 	if main == null:
 		return
 	var learned: Array = main.learned_skills
-	points_label.text = "%s: %d" % [StoryText.get_text("SK_POINTS_LEFT"), main.skill_points]
+	points_label.text = StoryText.get_text("SK_POINTS_COUNTER", {"n": main.skill_points})
 	for id in node_buttons:
-		var st := SkillTree.state(learned, id, main.skill_ctx())
+		var st := node_state(learned, main.skill_points, main.balance, id)
+		var tech := SkillTree.is_tech(id)
 		var btn: Button = node_buttons[id]
-		btn.text = "%s\n%s" % [SkillTree.skill_name(id), StoryText.get_text("SK_STATE_" + st.to_upper())]
-		btn.self_modulate = COL_LEARNED if st == "learned" else (COL_AVAILABLE if st == "available" else COL_LOCKED)
+		var kind := StoryText.get_text("SK_KIND_TECH" if tech else "SK_KIND_SKILL")
+		btn.text = "%s\n%s\n%s" % [SkillTree.skill_name(id), kind, _status_line(id, st)]
+		var col := COL_LEARNED if st == "learned" else (COL_AVAILABLE if st in ["learnable", "researching"] else (COL_SHORT if st == "points" else COL_LOCKED))
+		if tech and st != "locked" and st != "learned":
+			col = col * TECH_TINT
+		btn.self_modulate = col
 		if highlight.has(id) and st != "learned":
-			btn.self_modulate = COL_LEARNED * 1.5  # T128: lit step on the way to a permit
+			btn.self_modulate = COL_LEARNED * 1.5  # lit step on the way to a permit
+		btn.tooltip_text = "%s\n%s" % [SkillTree.skill_name(id), StoryText.get_or("SK_%s_PLAIN" % id, "", plain_args(main.balance, id))]
+		if bars.has(id):
+			var bar: ProgressBar = bars[id]
+			var p: Dictionary = Tech.progress(id)
+			bar.visible = st == "researching"
+			bar.max_value = maxf(1.0, float(p.get("goal", 1)))
+			bar.value = float(p.get("n", 0))
+		_build_use_row(id, st)
 	_build_detail()
 	_build_permits()
+	_root.queue_redraw()
+	call_deferred("_redraw_links")
 
-## T85: one entry per system with a permit. Buying needs C1, credits and expansion points.
+func _redraw_links() -> void:
+	if _root != null and is_instance_valid(_root):
+		_root.queue_redraw()
+
+## Prerequisite lines under the buttons: down from the prerequisite, across, down into the node.
+func _draw_links() -> void:
+	if main == null:
+		return
+	var origin := _root.get_global_rect().position
+	var learned: Array = main.learned_skills
+	for id in cells:
+		for p in SkillTree.prereqs(id):
+			if not cells.has(p):
+				continue
+			var a: Control = cells[p]
+			var b: Control = cells[id]
+			if not a.is_visible_in_tree() or not b.is_visible_in_tree():
+				continue
+			var ra := a.get_global_rect()
+			var rb := b.get_global_rect()
+			var p0 := Vector2(ra.position.x + ra.size.x * 0.5, ra.end.y) - origin
+			var p1 := Vector2(rb.position.x + rb.size.x * 0.5, rb.position.y) - origin
+			var my := (p0.y + p1.y) * 0.5
+			var col := COL_LEARNED if learned.has(p) else COL_LOCKED
+			_root.draw_polyline(PackedVector2Array([p0, Vector2(p0.x, my), Vector2(p1.x, my), p1]), col, 2.0)
+
+## Bot skills (Embargo Desk, Guild Seal): a Use menu when ready, else the cooldown or used note.
+func _build_use_row(id: String, st: String) -> void:
+	var row: HBoxContainer = use_rows[id]
+	for c in row.get_children():
+		row.remove_child(c)
+		c.queue_free()
+	row.visible = false
+	use_buttons.erase(id)
+	if st != "learned" or not Skills.bot_skill_ids().has(id):
+		return
+	row.visible = true
+	var left := Skills.bot_skill_cooldown(id)
+	if left == 0:
+		var mb := MenuButton.new()
+		mb.text = StoryText.get_or("SK_BOT_USE", "Use on...")
+		mb.flat = false
+		mb.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		var pop := mb.get_popup()
+		for b in Bots.IDS:
+			pop.add_item(Bots.bot_name(b), b)
+		pop.id_pressed.connect(func(bot: int) -> void: _use_bot(id, bot))
+		row.add_child(mb)
+		use_buttons[id] = mb
+	else:
+		var l := Label.new()
+		l.theme_type_variation = "LabelSmall"
+		l.text = StoryText.get_or("SK_BOT_USED", "Used this run.") if left == -1 else StoryText.get_or("SK_BOT_COOLDOWN", "Ready in {n} cycles.", {"n": left})
+		row.add_child(l)
+
+var use_buttons: Dictionary = {}  # bot skill id -> MenuButton while ready
+
+## Called by the Use menu (tests call it directly).
+func _use_bot(id: String, bot: int) -> Dictionary:
+	var r: Dictionary = Skills.activate_bot_skill(id, bot)
+	refresh()
+	return r
+
+# ---- permits (the only place a system permit is bought) ----
+
 func _build_permits() -> void:
 	for c in permit_box.get_children():
 		permit_box.remove_child(c)
@@ -165,29 +359,6 @@ func _build_permits() -> void:
 		desc.text = StoryText.get_text(str(sys.get("permit_desc_id", "")))
 		info.add_child(desc)
 		var v: Dictionary = main.can_buy_permit(int(sid))
-		if main.has_skill("C2") and not main.open_systems.has(int(sid)):  # C2 Survey Beacon: planets seen before the permit
-			var names := []
-			for p in main.Systems.planets_of(int(sid)):
-				names.append(str(p["name"]))
-			var seen := Label.new()
-			seen.theme_type_variation = "LabelSmall"
-			seen.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-			seen.text = StoryText.get_text("LBL_PERMIT_PLANETS", {"names": ", ".join(names)})
-			info.add_child(seen)
-			if main.is_surveyed(int(sid)):  # base prices of each planet, once surveyed
-				for p in main.Systems.planets_of(int(sid)):
-					var bp: Dictionary = p.get("base_prices", {})
-					var pl := Label.new()
-					pl.theme_type_variation = "LabelSmall"
-					pl.text = StoryText.get_or("LBL_SURVEY_PRICES", "{planet}: Food {fb}/{fs} cr, Energy {eb}/{es} cr (buy/sell).",
-						{"planet": p["name"], "fb": bp.get("food_buy", "-"), "fs": bp.get("food_sell", "-"), "eb": bp.get("energy_buy", "-"), "es": bp.get("energy_sell", "-")})
-					info.add_child(pl)
-			else:
-				var sv := Button.new()
-				sv.text = StoryText.get_or("BTN_SURVEY", "Survey (1 point cheaper)")
-				var sid_s: int = int(sid)
-				sv.pressed.connect(func(): main.survey_system(sid_s))
-				info.add_child(sv)
 		var cost_l := Label.new()
 		cost_l.theme_type_variation = "LabelSmall"
 		# FALLBACK: no story ids for the permit cost line or the reasons; plain text until the story designer adds them
@@ -209,6 +380,8 @@ func _build_permits() -> void:
 		btn.pressed.connect(func(): main.buy_permit(id_i))
 		row.add_child(btn)
 
+# ---- detail strip ----
+
 func _label(text: String, size: int = 0) -> Label:
 	var l := Label.new()
 	l.text = text
@@ -224,56 +397,47 @@ func _build_detail() -> void:
 		detail_box.remove_child(c)
 	learn_button = null
 	confirm_row = null
-	if selected == "":
+	if selected == "" or not SkillTree.has(selected):
 		_label(StoryText.get_text("SK_NONE_SELECTED"))
 		return
 	var id := selected
 	var learned: Array = main.learned_skills
-	_label(SkillTree.skill_name(id), 20)
-	_label(StoryText.get_or("SK_%s_FLAVOUR" % id, ""))
-	_label(StoryText.get_text("SK_LABEL_EFFECT") + ": " + StoryText.get_or("SK_%s_PLAIN" % id, ""))
-	_label(StoryText.get_text("SK_COST", {"amount": SkillTree.cost(main.balance, id)}))
+	var tech := SkillTree.is_tech(id)
+	_label("%s  (%s)" % [SkillTree.skill_name(id), StoryText.get_text("SK_KIND_TECH" if tech else "SK_KIND_SKILL")], 20)
+	_label(SkillTree.flavour(id))
+	_label(StoryText.get_text("SK_LABEL_EFFECT") + ": " + StoryText.get_or("SK_%s_PLAIN" % id, "", plain_args(main.balance, id)))
+	var st := node_state(learned, main.skill_points, main.balance, id)
+	if tech:
+		var p: Dictionary = Tech.progress(id)
+		var craft := StoryText.get_or("SK_%s_CRAFT" % id, "", {"n": int(p.get("n", 0)), "goal": int(p.get("goal", 0))})
+		_label(craft if craft != "" else StoryText.get_text("SK_CRAFTED", {"n": int(p.get("n", 0)), "goal": int(p.get("goal", 0))}))
+		_label(StoryText.get_text("SK_TECH_NO_POINTS"))
+	else:
+		_label(StoryText.get_text("SK_COST", {"amount": SkillTree.cost(main.balance, id)}))
 	var need := SkillTree.missing_prereqs(learned, id)
-	if not need.is_empty():
-		var names := []
-		for p in need:
-			names.append(SkillTree.skill_name(p))
+	var names := []
+	for p in need:
+		names.append(SkillTree.skill_name(p))
+	if not names.is_empty():
 		_label(StoryText.get_text("SK_NEEDS", {"skill": ", ".join(names)}))
-	if id == "A1" and not learned.has("A1") and not main.a1_gate_open():
-		_label(StoryText.get_text("SK_A1_GATE"))
-	var verdict := SkillTree.can_learn(learned, main.skill_points, main.balance, id, main.skill_ctx())
-	if verdict.get("why", "") == "permit_first":
-		_label(StoryText.get_or("LBL_LOCKED_PERMIT_FIRST", "Learn Permit Charter (C1) first."))
-	elif verdict.get("why", "") == "first_row":
-		_label(StoryText.get_or("LBL_LOCKED_FIRST_ROW", "Learn Space Storage (A1) and Permit Charter (C1) first."))
-	if verdict["reason"] == "points":
-		_label(StoryText.get_text("SK_LABEL_NEEDS_POINTS"))
-	if id == "C1" and main.unowned_systems().is_empty():
-		_label(StoryText.get_text("NOT_SKILL_NO_SYSTEMS"))
+	if st == "points":
+		_label(StoryText.get_text("SK_NOT_ENOUGH"))
+	if tech:
+		return  # a tech is finished by crafting, nothing to click
 	learn_button = Button.new()
 	learn_button.theme_type_variation = "ButtonPrimary"
-	match verdict["reason"]:
-		"known":
+	match st:
+		"learned":
 			learn_button.text = StoryText.get_text("SK_BTN_LEARNED")
 		"locked":
 			learn_button.text = StoryText.get_text("SK_BTN_LOCKED")
 		_:
 			learn_button.text = StoryText.get_text("BTN_LEARN")
-	learn_button.disabled = not verdict["ok"]
-	if learn_button.disabled:  # reason on hover, from ids that already exist
-		match verdict["reason"]:
-			"points":
-				learn_button.tooltip_text = StoryText.get_text("SK_LABEL_NEEDS_POINTS")
-			"locked":
-				var names := []
-				for p in need:
-					names.append(SkillTree.skill_name(p))
-				if verdict.get("why", "") == "permit_first":
-					learn_button.tooltip_text = StoryText.get_or("LBL_LOCKED_PERMIT_FIRST", "Learn Permit Charter (C1) first.")
-				elif verdict.get("why", "") == "first_row":
-					learn_button.tooltip_text = StoryText.get_or("LBL_LOCKED_FIRST_ROW", "Learn Space Storage (A1) and Permit Charter (C1) first.")
-				elif not names.is_empty():
-					learn_button.tooltip_text = StoryText.get_text("SK_NEEDS", {"skill": ", ".join(names)})
+	learn_button.disabled = st != "learnable"
+	if st == "points":
+		learn_button.tooltip_text = StoryText.get_text("SK_NOT_ENOUGH")
+	elif st == "locked" and not names.is_empty():
+		learn_button.tooltip_text = StoryText.get_text("SK_NEEDS", {"skill": ", ".join(names)})
 	learn_button.pressed.connect(_ask_confirm)
 	detail_box.add_child(learn_button)
 	confirm_row = HBoxContainer.new()

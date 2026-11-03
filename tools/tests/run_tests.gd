@@ -67,6 +67,7 @@ func _run() -> void:
 	await _test_dead_choice_effects()
 	await _test_dead_unlock_and_core()
 	await _test_fabric()
+	await _test_workshops()
 	await _test_price_event()
 	await _test_route_move()
 	await _test_split_send()
@@ -815,10 +816,36 @@ func _test_main() -> void:
 	check(int(bal["skill_points_route"]) == 1 and int(bal["skill_points_system"]) == 2 and int(bal["permit_points_2"]) == 2 and int(bal["permit_points_3"]) == 2, "skills: economy retunes applied (route 1, system 2, permits 2/2)")
 	await _free_main(m)
 	await _test_skill_screen()
+	await _test_skill_screen_ui()
 	_test_skills_core()
 	_wipe_user()
 
 # ---- 5. skills: learning through main (T71, four market trees) ----
+func _test_skill_screen_ui() -> void:
+	_wipe_user()
+	var SS = load("res://game/skill_screen.gd")
+	var bal := _bal()
+	check(SS.tier_rows("mil") == [["MIL_1"], ["MIL_2", "MIL_3"], ["MIL_4", "MIL_5"], ["MIL_6"], ["MIL_7"]], "skill screen: tier rows put the tech left of the skill", str(SS.tier_rows("mil")))
+	check(SS.tier_rows("fnd").size() == 1 and SS.tier_rows("fnd")[0].size() == 3, "skill screen: Foundations are one row of three")
+	check(SS.node_state([], 5, bal, "MIL_1") == "learnable" and SS.node_state([], 0, bal, "MIL_1") == "points", "skill screen: learnable vs not enough points")
+	check(SS.node_state([], 9, bal, "MIL_3") == "locked" and SS.node_state(["MIL_1"], 9, bal, "MIL_2") == "researching" and SS.node_state(["MIL_1", "MIL_2"], 0, bal, "MIL_2") == "learned", "skill screen: locked, researching, learned")
+	check(int(SS.plain_args(bal, "MIL_5")["m"]) == int(bal["skill_MIL_5_every"]) and int(SS.plain_args(bal, "MIL_5")["n"]) == int(bal["skill_MIL_5_cycles"]), "skill screen: bot skill plain line gets cooldown and cycles")
+	var m: Control = await _new_main()
+	m._dismiss_preface()
+	m.skill_screen.open_screen()
+	check(m.skill_screen.node_buttons.size() == 31, "skill screen: one button per node", str(m.skill_screen.node_buttons.size()))
+	m.skill_points = 9
+	m.skill_screen.select("MIL_1")
+	m.skill_screen.confirm_learn()
+	check(m.has_skill("MIL_1") and m.skill_screen.node_buttons["MIL_1"].text.contains(StoryText.get_text("SK_BTN_LEARNED")), "skill screen: learn by Yes spends points and shows learned")
+	Skills.learned.append_array(["MIL_3", "MIL_5"])
+	m.skill_screen.refresh()
+	check(m.skill_screen.use_rows["MIL_5"].visible and m.skill_screen.use_buttons.has("MIL_5"), "skill screen: learned bot skill shows its Use menu")
+	var r: Dictionary = m.skill_screen._use_bot("MIL_5", 1)
+	check(r["ok"] and not m.skill_screen.use_buttons.has("MIL_5") and m.skill_screen.use_rows["MIL_5"].visible, "skill screen: using it swaps the menu for the cooldown note")
+	m.skill_screen.close_screen()
+	await _free_main(m)
+
 func _test_skill_screen() -> void:
 	_wipe_user()
 	var m: Control = await _new_main()
@@ -1121,8 +1148,12 @@ func _bal() -> Dictionary:
 
 func _mean_sell(good: String) -> int:
 	var vals := []
-	for path in ["res://data/planets.json", "res://data/systems.json"]:
-		_collect_sell(_read_json(path), good + "_sell", vals)
+	var all_planets: Array = _read_json("res://data/planets.json")["planets"].duplicate(true)
+	for sy in _read_json("res://data/systems.json")["systems"]:
+		all_planets.append_array(sy["planets"].duplicate(true))
+	for pl in all_planets:
+		Goods.merge_prices(pl)  # goods.json prices count like the data files
+		_collect_sell(pl, good + "_sell", vals)
 	return roundi(float(vals.reduce(func(a, b): return a + b, 0)) / float(vals.size())) if not vals.is_empty() else -1
 
 func _collect_sell(o, key: String, out: Array) -> void:
@@ -1228,7 +1259,7 @@ func _test_markets() -> void:
 	var bal := _bal()
 	Markets.load_data()
 	check(Markets.ids == ["mil", "lux", "min", "bio"] and Markets.names["mil"] == "Military" and Markets.names["bio"] == "Biotech", "markets: four markets with display names")
-	var goods := ["energy", "food", "chips", "silk", "ore", "dross", "nullglass", "plate"]
+	var goods: Array = Goods.ids()  # the 19 goods of data/goods.json
 	var all_one := true
 	for g in goods:
 		var n := 0
@@ -1876,7 +1907,11 @@ func _test_ships() -> void:
 			buys += 1
 		if t.begins_with(StoryText.get_text("BTN_SEND")):
 			sends += 1
-	check(combined == 0 and buys == m.commodities.size() and sends >= m.commodities.size(), "T141 planet panel: separate Buy toggle and Send to... per resource, no combined button")
+	var traded_n := 0
+	for c2 in m.commodities:
+		if m.trade.price(0, str(c2) + "_buy") >= 0 or m.trade.price(0, str(c2) + "_sell") >= 0:
+			traded_n += 1
+	check(combined == 0 and buys == traded_n and sends >= traded_n, "T141 planet panel: separate Buy toggle and Send to... per resource, no combined button")
 	# T143: each route row says where its money lands, with a control to turn the destination Sell order on
 	var pays := _find_named(m.planet_panel, "PaysLine")
 	check(pays != null and _find_named(pays, "PaysSellButton") != null, "T143: route row has a pays line with a Sell control while the destination Sell is off")
@@ -2045,7 +2080,7 @@ func _test_systems() -> void:
 	for p in m.Systems.planets_of(2):
 		names.append(p["name"])
 	check(names == ["Brannock", "Cindrel", "Mossfell", "Quillon", "Greywake"], "sys2: planet names from story ids", str(names))
-	check(m.commodities == ["energy", "food", "ore", "dross", "plate"], "sys2: system 1 goods at start (silk and chips are system 2 goods since system tiers)", str(m.commodities))
+	check(m.commodities == ["energy", "food", "ore", "dross", "plate", "rivets", "cells", "armour", "cask", "gems", "ingot", "alloy", "gel", "seed", "musk", "spores"], "sys2: system 1 goods at start (silk and chips are system 2 goods since system tiers)", str(m.commodities))
 	# permit chain
 	check(m.can_buy_permit(2)["reason"] == "skill", "sys2: permit needs C1")
 	m._refresh()
@@ -4411,4 +4446,109 @@ func _test_dead_unlock_and_core() -> void:
 	# the core returns to the hold when its route is removed
 	m.remove_connection(int(r0["id"]))
 	check(m.core_route_id() == -1 and m.fabric.core_made == 1, "null core: removing the route frees the core, still one built")
+	await _free_main(m)
+
+
+# ---- goods and workshops (four markets part 2) ----
+func _test_workshops() -> void:
+	_wipe_user()
+	var m: Control = await _new_main()
+	m._dismiss_preface()
+	m.cash = 5000
+	# tagging and prices
+	var good_ids: Array = Goods.ids()
+	var tagged := good_ids.size() == 19
+	for g in good_ids:
+		if Markets.market_of(str(g)) != str(Goods.entry(str(g))["market"]) or Markets.value_of(str(g)) <= 0:
+			tagged = false
+	check(tagged, "goods: all 19 goods tagged in markets.json with a base value")
+	var no_cross := true
+	for g in good_ids:
+		if not Goods.recipe_ok(str(g)):
+			no_cross = false
+	check(no_cross, "goods: every recipe uses common raws and own-market goods only")
+	var p1 := -1
+	var p2 := -1
+	for i in m.map.planets.size():
+		if str(m.map.planets[i].get("id", "")) == "planet_1":
+			p1 = i
+		if str(m.map.planets[i].get("id", "")) == "planet_2":
+			p2 = i
+	check(p1 >= 0 and m.trade.price(p1, "cells_buy", false, true) == 78 and m.trade.price(p1, "cells_sell", false, true) == 70, "goods: new good prices reach the trade lookup")
+	check(m.trade.price(p2, "musk_buy", false, true) == 18 and m.commodities.has("cells") and m.commodities.has("spores"), "goods: planet prices and the commodity list carry the new goods")
+	check(m.balance.has("event_pct_cells") and m.events.pct_for("cells") == float(m.balance["event_pct_cells"]) if m.events.has_method("pct_for") else m.balance.has("event_pct_cells"), "goods: event_pct key exists for a new good")
+	# unlock gating
+	var key: String = m.storage.system_key(1)
+	check(m.can_build_workshop("munitions")["reason"] == "skill" and not m.build_workshop("munitions")["ok"] and m.cash == 5000, "workshop: refused before its node, nothing paid")
+	m.learned_skills.append("MIL_1")
+	check(m.can_build_workshop("munitions")["reason"] == "post", "workshop: needs the trading post")
+	m.learned_skills.append("FND_STORAGE")
+	m._ensure_stations()
+	check(m.can_build_workshop("smelter")["reason"] == "skill" and m.can_build_workshop("munitions")["ok"], "workshop: only the unlocked one can be built")
+	var cost: int = int(m.balance["workshop_build_cost"])
+	m.cash = cost - 1
+	check(m.can_build_workshop("munitions")["reason"] == "credits", "workshop: refused without the build cost")
+	m.cash = 5000
+	check(m.build_workshop("munitions")["ok"] and m.cash == 5000 - cost and m.workshops.built["munitions"], "workshop: build cost paid once")
+	check(not m.build_workshop("munitions")["ok"] and m.cash == 5000 - cost, "workshop: a second build is refused")
+	# recipe run: cells = 2 energy + 1 chips -> batch_out, armour not open yet
+	Tech.reset()
+	m.workshops.run(m.storage, Callable(m, "craft_units"))
+	check(m.workshops.state["munitions"] == "stalled" and m.workshops.reason["munitions"] == "needs energy", "workshop: stalls on a missing input", m.workshops.reason["munitions"])
+	m.storage.add(key, "energy", 5)
+	m.storage.add(key, "chips", 2)
+	m.workshops.run(m.storage, Callable(m, "craft_units"))
+	var out_n: int = int(m.balance["cells_batch_out"])
+	check(m.workshops.state["munitions"] == "running" and m.storage.amount(key, "cells") == out_n and m.storage.amount(key, "energy") == 3 and m.storage.amount(key, "chips") == 1, "workshop: recipe consumes inputs and yields the batch", str(m.storage.to_dict().get(key, {})))
+	# craft_units feeds tech: MIL_2 is active after MIL_1
+	check(int(Tech.progress("MIL_2")["n"]) == out_n, "workshop: crafted units count toward the market's tech", str(Tech.progress("MIL_2")))
+	# gated good: armour closed until MIL_4 is finished
+	m.storage.add(key, "cells", 3)
+	m.storage.add(key, "chips", 1)
+	m.workshops.run(m.storage, Callable(m, "craft_units"))
+	check(m.storage.amount(key, "armour") == 0, "workshop: a good whose unlock node is not learned is not made")
+	Skills.add_learned("MIL_2")
+	Skills.add_learned("MIL_4")
+	m.storage.add(key, "energy", 0)
+	m.workshops.run(m.storage, Callable(m, "craft_units"))
+	check(m.storage.amount(key, "armour") == int(m.balance["armour_batch_out"]), "workshop: armour made once MIL_4 is learned (highest tier first)", str(m.storage.to_dict().get(key, {})))
+	# batch bonuses: MIN_4 adds a batch, MIN_6 adds yield (smelter, ore -> ingot)
+	m.learned_skills.append("FND_PROSPECT")
+	m.learned_skills.append("MIN_1")
+	m.cash = 5000
+	check(m.build_workshop("smelter")["ok"], "workshop: smelter builds after MIN_1")
+	m.storage.add(key, "ore", 20)
+	var ingot_out: int = int(m.balance["ingot_batch_out"])
+	check(m.workshops.batches("smelter") == int(m.balance["workshop_batches_per_cycle"]), "workshop: base batches from balance")
+	m.workshops.run(m.storage, Callable(m, "craft_units"))
+	check(m.storage.amount(key, "ingot") == ingot_out and m.storage.amount(key, "ore") == 18, "workshop: smelter 2 ore -> ingots")
+	Skills.add_learned("MIN_4")
+	check(m.workshops.batches("smelter") == int(m.balance["workshop_batches_per_cycle"]) + int(m.balance["skill_MIN_4_batches"]), "workshop: MIN_4 adds batches")
+	var ing0: int = m.storage.amount(key, "ingot")
+	m.workshops.run(m.storage, Callable(m, "craft_units"))
+	check(m.storage.amount(key, "ingot") == ing0 + 2 * ingot_out and m.storage.amount(key, "ore") == 14, "workshop: two batches in a cycle with MIN_4")
+	Skills.add_learned("MIN_6")
+	var bonus: int = int(m.balance["skill_MIN_6_batch_bonus"])
+	check(m.workshops.out_units("ingot") == ingot_out + bonus, "workshop: MIN_6 adds yield per batch")
+	ing0 = m.storage.amount(key, "ingot")
+	m.workshops.run(m.storage, Callable(m, "craft_units"))
+	check(m.storage.amount(key, "ingot") == ing0 + 2 * (ingot_out + bonus), "workshop: yield bonus reaches storage")
+	# the fabric shares the bonuses
+	check(m.fabric.batches() == int(m.balance["fabric_batches_per_cycle"]) + int(m.balance["skill_MIN_4_batches"]), "fabric: MIN_4 batches apply too")
+	# cycle tick runs the workshops
+	m.storage.add(key, "ore", 4)
+	var ing1: int = m.storage.amount(key, "ingot")
+	m.debug_advance_cycle()
+	check(m.storage.amount(key, "ingot") > ing1, "workshop: runs on the cycle tick")
+	# planet panel shows the section
+	m.planet_panel.show_planet(p1)
+	check(m.planet_panel.box.find_child("Workshop_smelter", true, false) != null and m.planet_panel.box.find_child("WorkshopBuild_atelier", true, false) == null, "workshop: planet panel lists unlocked workshops only")
+	# save and load
+	var st: Dictionary = m.collect_state()
+	m.workshops.built["munitions"] = false
+	m.workshops.built["smelter"] = false
+	m.apply_state(JSON.parse_string(JSON.stringify(st)))
+	check(m.workshops.built["munitions"] and m.workshops.built["smelter"] and not m.workshops.built["atelier"], "workshop: save round trip keeps built workshops")
+	m.apply_state({"cycle": 1})
+	check(not m.workshops.built["munitions"], "workshop: an old save has none built")
 	await _free_main(m)
