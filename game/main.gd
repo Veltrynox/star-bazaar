@@ -107,8 +107,22 @@ var tut_actions: HBoxContainer  # Skip and Next under the guided hint, as in the
 var tut_next: Button
 var tut_first: Dictionary = {}  # T15: one-time triggers already used this session
 ## T124 guided first steps: index into TUT_GUIDE; TUT_GUIDE.size() means done. Saved.
-const TUT_GUIDE := ["TUT_G1_SELECT", "TUT_G2_BUY", "TUT_G3_SEND", "TUT_G4_SELL", "TUT_G5_SKILLS", "TUT_G6_DONE"]
+const TUT_GUIDE := ["TUT_G1_SELECT", "TUT_G2_BUY", "TUT_G3_SEND", "TUT_G4_ROUTE_PAY", "TUT_G5_UPKEEP", "TUT_G6_SELL", "TUT_G7_STORAGE", "TUT_G8_SKILLS", "TUT_G9_PERMIT", "TUT_G10_DONE"]
+## Old saves (no tut_ver) counted 6 steps: select, buy, send, sell, skills, done. Old index -> new index.
+const TUT_OLD_MAP := [0, 1, 2, 5, 7, 9]
+const TUT_VER := 2
+## English fallbacks until the story text ids exist in the story files.
+const TUT_FALLBACK := {
+	"TUT_G4_ROUTE_PAY": "A route earns when its goods sell at the destination. Wait for the cycle to end and watch your cash.",
+	"TUT_G5_UPKEEP": "Each ship has upkeep every cycle. It is listed under Expenses.",
+	"TUT_G6_SELL": "Turn Sell on at the other planet. The company sells what arrives, at that planet's price.",
+	"TUT_G7_STORAGE": "Company storage holds your stock at each planet. When it is full, Buy waits until there is room.",
+	"TUT_G8_SKILLS": "Skill points come from planets, routes and systems. Open Skills and learn one.",
+	"TUT_G9_PERMIT": "The Permit Charter (C1) lets you open a new system. Learn it when you are ready to expand.",
+	"TUT_G10_DONE": "That is the loop: buy, move, sell, learn. The guidance stops here.",
+}
 var tut_step: int = 0
+var tut_skipped: Array = []  # ids of guided steps passed over automatically (their state was never reached)
 var trade: RefCounted = Trade.new()  # price/margin logic for T07
 var commodities: Array = []
 var storage: RefCounted = Storage.new()  # T55 planet stock
@@ -233,7 +247,7 @@ func collect_state() -> Dictionary:
 		"routes": engine.to_array(), "storage": storage.to_dict(), "orders": engine.local_to_array(),
 		"choice_pending": choice_pending, "learned_skills": learned_skills, "systems_reached": systems_reached,
 		"time_speed": time_speed, "skill_points": skill_points, "pts_planets": pts_planets, "pts_pairs": pts_pairs, "events": events.to_dict(),
-			"open_systems": open_systems, "reached_ids": reached_ids, "galaxy_seen": galaxy_seen, "tut_step": tut_step,
+			"open_systems": open_systems, "reached_ids": reached_ids, "galaxy_seen": galaxy_seen, "tut_step": tut_step, "tut_ver": TUT_VER,
 		"shield": shield.to_dict(), "storage_cuts": storage.cuts_to_dict(), "price_history": price_history,
 		"forecast_id": forecast_id, "surveyed": surveyed_systems, "station_systems": station_systems,
 		"second_lane": second_lane_planet, "clusters": clusters.to_dict(), "danger": dead.to_dict(), "fabric": fabric.to_dict()}
@@ -253,6 +267,11 @@ func apply_state(s: Dictionary) -> void:
 	reached_ids = _int_array(s.get("reached_ids"))
 	galaxy_seen = bool(s.get("galaxy_seen", false))
 	tut_step = int(s.get("tut_step", TUT_GUIDE.size()))  # old saves: guided steps skipped (already past cycle 1)
+	if int(s.get("tut_ver", 1)) < TUT_VER and tut_step < TUT_OLD_MAP.size():  # old numbering: map to the new steps
+		tut_step = TUT_OLD_MAP[maxi(0, tut_step)]
+	elif int(s.get("tut_ver", 1)) < TUT_VER:
+		tut_step = TUT_GUIDE.size()
+	tut_step = clampi(tut_step, 0, TUT_GUIDE.size())
 	cycle = maxi(1, int(s.get("cycle", 1)))
 	cycle_elapsed = clampf(float(s.get("cycle_elapsed", 0.0)), 0.0, _cycle_seconds())
 	time_speed = _speed_or_default(s.get("time_speed", 1.0))  # old saves: x1
@@ -2286,6 +2305,7 @@ func debug_restart_tutorial() -> void:
 		return
 	tut_first = {}
 	tut_step = 0
+	tut_skipped = []
 	galaxy_seen = false
 	cycle = 1
 	_sync_dead_lock()
@@ -2651,7 +2671,7 @@ func _tut_show(ids: Array) -> void:
 	if tut_step < TUT_GUIDE.size():  # T124: while the guided steps run, their line is the only tutorial line
 		ids = [TUT_GUIDE[tut_step]]
 	for id in ids:
-		parts.append(StoryText.get_or(str(id), "", {}))
+		parts.append(StoryText.get_or(str(id), str(TUT_FALLBACK.get(str(id), "")), {}))
 	var t := "\n".join(parts).strip_edges()
 	tutorial_label.text = t
 	tutorial_label.visible = t != "" and (cycle <= 4 or tut_step < TUT_GUIDE.size()) and not game_over
@@ -2673,12 +2693,19 @@ func _tut_skip() -> void:
 ## T124: moves the guided tutorial on when the player has done the current step. Called on every change.
 func _tut_advance() -> void:
 	var moved := false
-	while tut_step < TUT_GUIDE.size() and _tut_step_done(tut_step):
-		tut_step += 1
+	while tut_step < TUT_GUIDE.size():
+		if _tut_step_done(tut_step):
+			tut_step += 1
+		elif _tut_step_skipped(tut_step):
+			tut_skipped.append(TUT_GUIDE[tut_step])
+			tut_step += 1
+		else:
+			break
 		moved = true
 	if moved:
 		_tut_show([])
 
+## Every step is decided from game state, never from a timer.
 func _tut_step_done(i: int) -> bool:
 	match i:
 		0:
@@ -2687,10 +2714,35 @@ func _tut_step_done(i: int) -> bool:
 			return engine.local.values().any(func(o): return bool(o["buy"]))
 		2:
 			return not engine.routes.is_empty()
-		3:
+		3:  # the route was paid: a cycle ended with it open, or its destination already has a Sell order
+			if engine.routes.is_empty():
+				return false
+			if cycle >= 2:
+				return true
+			var dsts: Array = engine.routes.map(func(r): return str(r["dst"]))
+			return engine.local.keys().any(func(k): return dsts.has(str(k)) and bool(engine.local[k]["sell"]))
+		4:  # a first cycle has ended with a route open
+			return cycle >= 2 and not engine.routes.is_empty()
+		5:
 			return engine.local.values().any(func(o): return bool(o["sell"]))
-		4:
+		6:  # some planet's storage holds stock
+			for k in storage.stock.keys():
+				if not str(k).begins_with("system") and storage.stock[k].values().any(func(n): return int(n) > 0):
+					return true
+			return false
+		7:
 			return not learned_skills.is_empty()
+		8:
+			return has_skill("C1")
+	return false
+
+## A step whose state can never be reached from here is passed over, so the tutorial never blocks.
+func _tut_step_skipped(i: int) -> bool:
+	match i:
+		7:  # no skill point held and nothing learned: nothing to teach yet
+			return skill_points <= 0 and learned_skills.is_empty()
+		8:  # the permit line needs a held point
+			return skill_points <= 0 and not has_skill("C1")
 	return false
 
 ## Shows `ids` the first time `key` fires (cycles 1 to 4).
@@ -2750,8 +2802,7 @@ func _build_board() -> void:
 	box.add_child(mission_label)
 	tutorial_label = Label.new()
 	tutorial_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	tutorial_label.theme_type_variation = "LabelInfo"
-	tutorial_label.visible = false
+	tutorial_label.visible = false  # default Label, as the current step text in the galaxy view tutorial
 	box.add_child(tutorial_label)
 	tut_actions = HBoxContainer.new()
 	tut_actions.alignment = BoxContainer.ALIGNMENT_END

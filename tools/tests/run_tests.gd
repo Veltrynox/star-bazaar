@@ -38,6 +38,7 @@ func _run() -> void:
 	await _test_notice_queue()
 	await _test_systems()
 	await _test_galaxy_view()
+	await _test_tutorial_steps()
 	_test_route_tag()
 	await _test_ship_clock()
 	await _test_energy_then_food()
@@ -398,6 +399,13 @@ func _test_galaxy_view() -> void:
 	check(g.open_view() and g.tut_step == 0 and g.tut_panel.visible and m.galaxy_seen, "galaxy: tutorial starts at line 1 once system 2 is open")
 	g.tut_step = 1
 	g._build_tutorial()
+	m.tut_step = 2
+	for b in _buttons(g.tut_box, []):
+		if (b as Button).text == StoryText.get_or("SCR_PREFACE_SKIP", "Skip"):
+			(b as Button).pressed.emit()
+	check(m.tut_step == m.TUT_GUIDE.size() and g.tut_step == g.TUT_IDS.size(), "galaxy: Skip ends the guided tutorial too")
+	g.tut_step = 1
+	g._build_tutorial()
 	g.queue_redraw()
 	await process_frame
 	g.tut_step = 3
@@ -415,6 +423,52 @@ func _test_galaxy_view() -> void:
 	check(chosen == [2], "galaxy: Open system asks main to zoom into the system", str(chosen))
 	g.close_view()
 	check(g.open_view() and g.tut_step == -1, "galaxy: tutorial does not come back")
+	await _free_main(m)
+
+func _test_tutorial_steps() -> void:
+	var m: Control = await _new_main()
+	var G: Array = m.TUT_GUIDE
+	check(G == ["TUT_G1_SELECT", "TUT_G2_BUY", "TUT_G3_SEND", "TUT_G4_ROUTE_PAY", "TUT_G5_UPKEEP", "TUT_G6_SELL", "TUT_G7_STORAGE", "TUT_G8_SKILLS", "TUT_G9_PERMIT", "TUT_G10_DONE"], "tutorial steps: order")
+	# skip at step 3 ends the tutorial for good, also after save and load
+	m.tut_step = 3
+	m._tut_skip()
+	check(m.tut_step == G.size(), "tutorial steps: skip at step 3 ends the guide")
+	var st: Dictionary = JSON.parse_string(JSON.stringify(m.collect_state()))
+	m.apply_state(st)
+	m._tut_advance()
+	check(m.tut_step == G.size(), "tutorial steps: skip stays after save and load")
+	# old save: tut_step 4 meant skills; the new numbering puts skills at 7
+	var old: Dictionary = st.duplicate(true)
+	old.erase("tut_ver")
+	old["tut_step"] = 4
+	m.skill_points = 1
+	m.learned_skills = []
+	old["skill_points"] = 1
+	old["learned_skills"] = []
+	m.apply_state(old)
+	check(G[m.tut_step] == "TUT_G8_SKILLS", "tutorial steps: old save step 4 loads into skills", str(m.tut_step))
+	old["tut_step"] = 5
+	m.apply_state(old)
+	check(G[m.tut_step] == "TUT_G10_DONE", "tutorial steps: old save step 5 loads into done")
+	old["tut_step"] = 3
+	m.apply_state(old)
+	check(G[m.tut_step] == "TUT_G6_SELL", "tutorial steps: old save step 3 (sell) maps to sell")
+	# a step with no state reached is skipped automatically
+	m.skill_points = 0
+	m.learned_skills = []
+	m.tut_skipped = []
+	m.tut_step = 7
+	m._tut_advance()
+	check(G[m.tut_step] == "TUT_G10_DONE" and m.tut_skipped == ["TUT_G8_SKILLS", "TUT_G9_PERMIT"], "tutorial steps: skills and permit skipped with no point", str(m.tut_skipped))
+	m.skill_points = 1
+	m.tut_step = 7
+	m._tut_advance()
+	check(m.tut_step == 7, "tutorial steps: skills step waits while a point is held")
+	m.tut_step = 4
+	m._tut_advance()
+	check(m.tut_step == 4 or m.engine.routes.is_empty(), "tutorial steps: upkeep waits for a cycle with a route")
+	m.debug_restart_tutorial()
+	check(m.tut_step <= 1 and m.tut_skipped.is_empty(), "tutorial steps: restart goes back to the start")
 	await _free_main(m)
 
 func _new_main() -> Control:

@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-03",
+  "task": "tutorial-steps",
+  "status": "done",
+  "files_changed": ["game/main.gd", "tools/tests/run_tests.gd"],
+  "open_questions": [
+    "Story designer: add TUT_G4_ROUTE_PAY, TUT_G5_UPKEEP, TUT_G6_SELL, TUT_G7_STORAGE, TUT_G8_SKILLS, TUT_G9_PERMIT, TUT_G10_DONE to story text and remove TUT_G4_SELL, TUT_G5_SKILLS, TUT_G6_DONE (English fallbacks are in main.gd TUT_FALLBACK).",
+    "Galaxy view Skip only ends the galaxy panel (it already works and never returns); it does not end the guided board tutorial. Should it?"
+  ],
+  "handoff": "Steps in order (index, id, done when): 0 TUT_G1_SELECT planet selected; 1 TUT_G2_BUY a Buy order exists; 2 TUT_G3_SEND a route exists; 3 TUT_G4_ROUTE_PAY route exists and (cycle>=2 or a route destination has Sell on); 4 TUT_G5_UPKEEP cycle>=2 with a route; 5 TUT_G6_SELL a Sell order exists; 6 TUT_G7_STORAGE some planet storage holds stock; 7 TUT_G8_SKILLS a skill learned; 8 TUT_G9_PERMIT C1 learned; 9 TUT_G10_DONE (Got it/Next/Skip). Automatic skips (recorded in main.tut_skipped): skills when no point held and nothing learned; permit when no point held and C1 not learned. Skip (_tut_skip) saves tut_step=size at any step; save has new tut_ver=2. Old saves without tut_ver map old index 0,1,2,3,4,5 to 0,1,2,5,7,9 (TUT_OLD_MAP); saves with no tut_step stay finished. Debug Restart tutorial also clears tut_skipped. Tests: new _test_tutorial_steps; run.sh total pass=997 fail=0."
+}

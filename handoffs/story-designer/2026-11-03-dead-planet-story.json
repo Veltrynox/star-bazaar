@@ -51,7 +51,14 @@
       "SS_NULL_CORE_BUILD",
       "LBL_TRADE_NEEDS_A1",
       "SS_FABRIC_NO_INPUTS",
-      "NOT_SHIP_KEEP_CASH"
+      "NOT_SHIP_KEEP_CASH",
+      "TUT_G4_ROUTE_PAY",
+      "TUT_G5_UPKEEP",
+      "TUT_G6_SELL",
+      "TUT_G7_STORAGE",
+      "TUT_G8_SKILLS",
+      "TUT_G9_PERMIT",
+      "TUT_G10_DONE"
     ],
     "wire": [
       "DEAD_UNLOCK: notice when the cycle counter reaches the dead-world unlock cycle",
@@ -63,6 +70,11 @@
       "LBL_TRADE_NEEDS_A1 on a stalled system 2 lane without A1; SS_FABRIC_NO_INPUTS ({items}) on the Space Storage panel when fabric inputs are missing (worded 'Missing inputs', not 'not reached yet', for clarity)",
       "NOT_SHIP_KEEP_CASH ({floor}) on the ships panel and Buy ship tooltip when a purchase would leave too little cash for open routes"
     ],
-    "stale_docs": "design/proposals/2026-11-02-dead-planets.md section 1 ('available from the start') is stale, doc owner to fix; see report for other files"
+    "stale_docs": "design/proposals/2026-11-02-dead-planets.md section 1 ('available from the start') is stale, doc owner to fix; see report for other files",
+    "removed_ids": [
+      "TUT_G4_SELL",
+      "TUT_G5_SKILLS",
+      "TUT_G6_DONE"
+    ]
   }
 }

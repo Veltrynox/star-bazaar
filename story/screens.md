@@ -255,9 +255,13 @@ NOT_SKILL_POP_TITLE | 32 | Pop-up title when expansion points are earned; {point
 TUT_G1_SELECT | 110 | Guided step 1, until a planet is clicked | Click a planet. Its panel shows what it makes, what it lacks and what it sells for.
 TUT_G2_BUY | 110 | Guided step 2, until Buy is on for a good | Turn Buy on beside a good. Each cycle the company buys it here, into storage.
 TUT_G3_SEND | 110 | Guided step 3, until a route exists | On that storage row, click Send to..., then click another planet. Stock moves there each cycle.
-TUT_G4_SELL | 110 | Guided step 4, until Sell is on somewhere | Turn Sell on at the other planet. The company sells what arrives, at that planet's price.
-TUT_G5_SKILLS | 110 | Guided step 5, until a skill is learned | Skill points come from planets, routes and systems. Open Skills and learn one.
-TUT_G6_DONE | 110 | Guided step 6, after step 5 | That is the loop: buy, move, sell, learn. The guidance stops here. The Plan has nothing to add.
+TUT_G4_ROUTE_PAY | 110 | Guided step 4, until a route has sold goods | A route earns when its goods sell at the destination. Turn Sell on there.
+TUT_G5_UPKEEP | 110 | Guided step 5, after a ship is working | Each ship costs Ship upkeep every cycle. The total is shown in Expenses.
+TUT_G6_SELL | 110 | Guided step 6, until the first Sell order | Turn Sell on beside a good. Stock leaves Company storage and the company is paid.
+TUT_G7_STORAGE | 110 | Guided step 7, storage | Company storage holds your stock. When it is full, Buy waits until there is room.
+TUT_G8_SKILLS | 110 | Guided step 8, until a skill is learned | Open Skills and learn one. Skill points come from planets, routes and systems.
+TUT_G9_PERMIT | 110 | Guided step 9, permits | Permit Charter (C1) lets you buy a permit that opens a new system.
+TUT_G10_DONE | 110 | Guided step 10, the last | That is the loop: buy, move, sell, learn. The guidance stops here. You are on your own.
 
 ## Map edge arrow (T128, owner item 7)
 MAP_ARROW_PERMIT | 50 | Tooltip of the arrow at the edge of the 3D map when a permit or system can be opened; click opens Skills with the steps lit | A new system is within reach. Open Skills.

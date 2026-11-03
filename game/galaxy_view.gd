@@ -785,8 +785,7 @@ func _build_tutorial() -> void:
 		row.add_theme_constant_override("separation", 8)
 		var n := Label.new()
 		n.text = str(i + 1)
-		n.theme_type_variation = "LabelNumber"
-		n.add_theme_color_override("font_color", Ui.col("signal_info") if i == tut_step else Ui.col("ink_subtle"))
+		n.theme_type_variation = "LabelNumberAccent" if i == tut_step else "LabelNumberMuted"
 		n.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 		row.add_child(n)
 		var t := Label.new()
@@ -795,7 +794,7 @@ func _build_tutorial() -> void:
 		t.custom_minimum_size = Vector2(SIDE_W - 64.0, 0)
 		t.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		if i != tut_step:
-			t.modulate = Color(1, 1, 1, 0.45)
+			t.theme_type_variation = "LabelMuted"
 		row.add_child(t)
 		tut_box.add_child(row)
 	var acts := HBoxContainer.new()
@@ -806,6 +805,7 @@ func _build_tutorial() -> void:
 	skip.text = StoryText.get_or("SCR_PREFACE_SKIP", "Skip")
 	skip.pressed.connect(func():
 		tut_step = TUT_IDS.size()
+		main._tut_skip()  # Skip ends the whole guided tutorial too
 		_build_tutorial()
 		queue_redraw())
 	acts.add_child(skip)

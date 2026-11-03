@@ -918,22 +918,46 @@
   "place": "Guided step 3, until a route exists"
  },
  {
-  "id": "TUT_G4_SELL",
-  "text": "Turn Sell on at the other planet. The company sells what arrives, at that planet's price.",
+  "id": "TUT_G4_ROUTE_PAY",
+  "text": "A route earns when its goods sell at the destination. Turn Sell on there.",
   "max": 110,
-  "place": "Guided step 4, until Sell is on somewhere"
+  "place": "Guided step 4, until a route has sold goods"
  },
  {
-  "id": "TUT_G5_SKILLS",
-  "text": "Skill points come from planets, routes and systems. Open Skills and learn one.",
+  "id": "TUT_G5_UPKEEP",
+  "text": "Each ship costs Ship upkeep every cycle. The total is shown in Expenses.",
   "max": 110,
-  "place": "Guided step 5, until a skill is learned"
+  "place": "Guided step 5, after a ship is working"
  },
  {
-  "id": "TUT_G6_DONE",
-  "text": "That is the loop: buy, move, sell, learn. The guidance stops here. The Plan has nothing to add.",
+  "id": "TUT_G6_SELL",
+  "text": "Turn Sell on beside a good. Stock leaves Company storage and the company is paid.",
   "max": 110,
-  "place": "Guided step 6, after step 5"
+  "place": "Guided step 6, until the first Sell order"
+ },
+ {
+  "id": "TUT_G7_STORAGE",
+  "text": "Company storage holds your stock. When it is full, Buy waits until there is room.",
+  "max": 110,
+  "place": "Guided step 7, storage"
+ },
+ {
+  "id": "TUT_G8_SKILLS",
+  "text": "Open Skills and learn one. Skill points come from planets, routes and systems.",
+  "max": 110,
+  "place": "Guided step 8, until a skill is learned"
+ },
+ {
+  "id": "TUT_G9_PERMIT",
+  "text": "Permit Charter (C1) lets you buy a permit that opens a new system.",
+  "max": 110,
+  "place": "Guided step 9, permits"
+ },
+ {
+  "id": "TUT_G10_DONE",
+  "text": "That is the loop: buy, move, sell, learn. The guidance stops here. You are on your own.",
+  "max": 110,
+  "place": "Guided step 10, the last"
  },
  {
   "id": "MAP_ARROW_PERMIT",

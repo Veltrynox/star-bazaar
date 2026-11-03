@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-03",
+  "task": "tutorial-look",
+  "status": "done",
+  "files_changed": ["game/main.gd (tutorial_label construction only)", "game/galaxy_view.gd (_build_tutorial only)", "handoffs/ui-programmer/2026-11-03-tutorial-look.json"],
+  "open_questions": [
+    "Not checked by eye: wrapping and clipping reasoned from containers only (both panels 320 px wide in a 1920x1080 canvas_items viewport; labels autowrap, galaxy text min width 256). Phone width not tested.",
+    "No story id for a tutorial header; both surfaces use their existing captions (Notifications on the board, Galaxy view in the galaxy panel). Add one if a shared header is wanted.",
+    "Git not available to me; nothing committed or staged."
+  ],
+  "handoff": "Theme types now used by both surfaces: PanelContainer default style, LabelCaption header, default Label for the current step, ButtonGhost (Skip) and ButtonPrimary (Next/Got it) in an END-aligned HBox, separation 8, VBox separation 8. Changes: board hint dropped LabelInfo (blue) for the default Label, matching the galaxy step text. Galaxy step numbers no longer use hand-set colour overrides: LabelNumberAccent for the current step, LabelNumberMuted for others. Non-current galaxy steps no longer use a 0.45 modulate: they use LabelMuted. Skip and Next already shared button types and the same bottom row on both surfaces; Skip shows on every guided step (board: tut_actions visible while tut_step < TUT_GUIDE.size(); galaxy: every step before the done line) and the board row sits directly under the hint, before notice labels, so nothing covers it. Progress bars in the galaxy header still use Ui.col tokens star_warm and panel_300 (design tokens). Tests: pass=987 fail=0."
+}
