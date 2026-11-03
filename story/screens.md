@@ -230,17 +230,17 @@ PERMIT_COST_LINE | 110 | Skill screen, permit cost line; {credits} and {points} 
 PERMIT_NEEDS_C1 | 110 | Skill screen, permit line when Permit Charter (C1) is missing | Needs Permit Charter (C1) to buy permits.
 PERMIT_NO_CREDITS | 110 | Skill screen, permit line when credits are short | Not enough credits.
 
-## Skill effects made real (2026-10-31, Alpha): Long Haul, Event Forecast, Market Ledger, Price Whisper
+## Skill effects made real (2026-10-31, Alpha): Long Haul, Event Forecast, Price Whisper, base-game price history
 NOT_ROUTE_NEEDS_C3 | 110 | Route between two systems without Long Haul (C3) | Routes between systems need Long Haul (C3).
 EVT_NEXT_DUE | 110 | Notice, Event Forecast (B4), posted one cycle before an event | An event is due next cycle.
 EVT_NEXT_DUE_PRICE | 110 | Notice, Event Forecast (B4), price event due next cycle; direction is "rise" or "fall" | Next cycle: {commodity} will {direction} at {planet}.
 EVT_NEXT_DUE_CLOSED | 110 | Notice, Event Forecast (B4), closure due next cycle | Next cycle: {planet} will close.
-LBL_BEST_PARTNER | 110 | Planet panel, Market Ledger (B1), best route partner | Best partner: {planet} ({margin} cr per unit).
-NOT_ROUTE_BELOW_UPKEEP | 110 | Notice, Market Ledger (B1), new route margin is below its upkeep | This route earns {margin} cr a cycle and costs {cost}. It will run at a loss.
+LBL_BEST_PARTNER | 110 | Planet panel, Price Whisper (B3), best route partner | Best partner: {planet} ({margin} cr per unit).
+NOT_ROUTE_BELOW_UPKEEP | 110 | Notice, base game, new route margin is below its upkeep | This route earns {margin} cr a cycle and costs {cost}. It will run at a loss.
 LBL_SURVEY_PRICES | 110 | Skill screen permit info, base prices after a survey; f = food, e = energy, b = buy, s = sell | {planet}: Food {fb}/{fs} cr, Energy {eb}/{es} cr (buy/sell).
 BTN_SURVEY | 24 | Skill screen permit info, Survey button (Survey Beacon C2) | Survey (1 point cheaper)
-LBL_PRICE_HISTORY | 110 | Planet panel, Market Ledger (B1), under the prices; {prices} is a list of sell prices | Recent sell prices: {prices}.
-LBL_PRICE_HISTORY_NONE | 110 | Planet panel, Market Ledger (B1), before the first cycle closes | Recent sell prices: none yet.
+LBL_PRICE_HISTORY | 110 | Planet panel, base game, under the prices; {prices} is a list of sell prices | Recent sell prices: {prices}.
+LBL_PRICE_HISTORY_NONE | 110 | Planet panel, base game, before the first cycle closes | Recent sell prices: none yet.
 LBL_NEXT_PRICE | 110 | Planet panel, Price Whisper (B3), prices for the next cycle; {buy} and {sell} are credits | Next cycle: {buy} cr to buy, {sell} cr to sell.
 LBL_PERMIT_PLANETS | 110 | Skill screen, permit entry, shown once Survey Beacon (C2) is learned and before the permit is bought; {names} is a list of planet names | Planets in this system: {names}.
 
@@ -293,3 +293,38 @@ LBL_SPACE_STORAGE_NAME | 32 | Route row, name of the station end of a route | Sp
 
 ## Storage projection (added 2026-11-03)
 LBL_NEXT_CYCLE | 48 | Storage view, projected stock after the next cycle | Next cycle: +{in} -{out} = {after}
+
+## New goods and asteroid clusters (T154, 2026-11-02; names are working names, owner decides)
+GOOD_SILK_NAME | 24 | Commodity name, silk | Starsilk
+GOOD_SILK_DESC | 110 | Commodity tooltip, silk | Light, costly cloth. Made at Tillam. Voltara pays the most for it.
+GOOD_CHIPS_NAME | 24 | Commodity name, chips | Logic Cores
+GOOD_CHIPS_DESC | 110 | Commodity tooltip, chips | Small machine minds. Made at Voltara. Ashgate pays the most for them.
+GOOD_ORE_NAME | 24 | Commodity name, ore | Rock Ore
+GOOD_ORE_DESC | 110 | Commodity tooltip, ore | Raw rock from asteroid clusters. Free to take. Voltara pays the most for it.
+WORLD_CL_S1A_NAME | 24 | Asteroid cluster 1 of system 1, map label | Cinder Shoal
+WORLD_CL_S1A_DESC | 110 | Cluster 1 of system 1, tooltip | A dark drift of rock between the planets. It holds only so much, and then it is gone.
+WORLD_CL_S1B_NAME | 24 | Asteroid cluster 2 of system 1, map label | Pale Drift
+WORLD_CL_S1B_DESC | 110 | Cluster 2 of system 1, tooltip | A loose pack of pale rock. The Bureau has not counted it. It will not be counted twice.
+WORLD_CL_S2A_NAME | 24 | Asteroid cluster 1 of system 2, map label | Gantry Scatter
+WORLD_CL_S2A_DESC | 110 | Cluster 1 of system 2, tooltip | Rock around an old gantry no one claims. Ore is free here for as long as it lasts.
+WORLD_CL_S2B_NAME | 24 | Asteroid cluster 2 of system 2, map label | Old Tally
+WORLD_CL_S2B_DESC | 110 | Cluster 2 of system 2, tooltip | A pack of rock marked with old counting stripes. The counting stopped. The ore did not.
+WORLD_CL_S2C_NAME | 24 | Asteroid cluster 3 of system 2, map label | Low Teeth
+WORLD_CL_S2C_DESC | 110 | Cluster 3 of system 2, tooltip | Jagged rock low in the sky of Dunmere Reach. Take the ore before the cluster runs dry.
+
+## Owner labels: skill rows, cluster card, route legend (added 2026-11-02)
+LBL_SKILLS_ROW_FIRST | 48 | Skill screen, caption of the first row | Start here
+LBL_SKILLS_ROW_SECOND | 60 | Skill screen, caption of the second row | Opens after Space Storage and Permit Charter
+LBL_LOCKED_FIRST_ROW | 60 | Skill screen, reason line on a locked skill | Learn Space Storage (A1) and Permit Charter (C1) first.
+LBL_CLUSTER_NAME | 32 | Cluster card title and route end, cluster without its own name; fills {id} | Asteroid cluster {id}
+LBL_CLUSTER_LEFT | 60 | Planet panel, cluster line; fills {id}, {left}, {max} | Ore cluster {id}: {left} of {max} left
+LBL_CLUSTER_INFO | 80 | Cluster card, info line; fills {good}, {yield}, {left}, {max} | {good}: {yield} per cycle, {left} of {max} left.
+LBL_CLUSTER_INFO_YIELD | 60 | Cluster card, info line when mining is locked; fills {good}, {yield} | {good}: {yield} per cycle.
+NOT_MINING_NEEDS_SKILL | 110 | Notice and cluster card, mining is locked | Mining needs the Prospecting skill.
+NOT_CLUSTER_ONLY_ORE | 110 | Notice, route from a cluster with a good other than ore | A cluster gives ore only.
+NOT_CLUSTER_EMPTY | 110 | Notice, route from an empty cluster | This cluster is empty.
+ST_CLUSTER_EMPTY | 60 | Route panel, status when the cluster has run dry | Cluster empty
+ST_CLUSTER_SHARED | 60 | Route panel, status when another ship took the cycle's ore | Ore taken by another ship
+LBL_LEGEND_SILK | 24 | Route legend, silk line | Starsilk route
+LBL_LEGEND_CHIPS | 24 | Route legend, chips line | Logic Cores route
+LBL_LEGEND_ORE | 24 | Route legend, ore line | Rock Ore route

@@ -20,9 +20,9 @@ Flavour: Every machine is a slow bill with wings, and it hums while it waits.
 Plain: Ship upkeep is 30% lower: 14 credits a cycle instead of 20.
 
 ## Research (understanding the market and the sky)
-B1 | Market Ledger
-Flavour: The Common Ledger records everything but prices. Keep your own.
-Plain: Shows each planet's price trend, marks the best route partner, warns when a route's margin is below upkeep.
+B1 | Prospecting
+Flavour: The Commons owns every rock. It has not yet counted the ones nobody has looked at.
+Plain: Lets you start routes at asteroid clusters and shows how much ore each cluster still holds.
 
 B2 | Standing Orders
 Flavour: A good form is one you only file once. The Bureau will not mind.

@@ -128,6 +128,204 @@
   "choices": []
  },
  {
+  "id": "EV21",
+  "title": "Tillam's weavers down tools",
+  "tag": "[price up: Tillam, silk]",
+  "kind": "I",
+  "text": "Tillam's silk weavers downed tools over a form that counted their hours twice. Silk there costs more and pays more. An old weaver says to watch the cricket in the vat, which changes its shape when it sees another. The guild will settle.",
+  "choices": []
+ },
+ {
+  "id": "EV22",
+  "title": "Voltara holds a gala",
+  "tag": "[price up: Voltara, silk]",
+  "kind": "I",
+  "text": "Voltara's crews hold a gala to celebrate a quota met on paper. Silk there costs more and pays more. Everyone borrows a sleeve and a mask for the night, and by the second hour the crews look alike. Nothing soft has reached the foundry decks in years.",
+  "choices": []
+ },
+ {
+  "id": "EV24",
+  "title": "Fire in Voltara's foundry",
+  "tag": "[price up: Voltara, chips]",
+  "kind": "P",
+  "text": "A fire swept Voltara's core foundry and left the casting floor black. Logic cores there cost more and pay more. A cheerful report calls it a gentle step toward a better line. The ash settled on the walls in rows. Nobody has read them.",
+  "choices": []
+ },
+ {
+  "id": "EV25",
+  "title": "Ashgate recalls its tractors",
+  "tag": "[price up: Ashgate, chips]",
+  "kind": "Q",
+  "text": "Ashgate recalled its farm tractors to be retrained as safe. Logic cores there cost more and pay more. The retrained ones panic when two foremen give opposite orders. The old ones were told to keep quiet and keep going, and they do.",
+  "choices": []
+ },
+ {
+  "id": "EV26",
+  "title": "A rich seam is logged twice",
+  "tag": "[price down: Voltara, ore]",
+  "kind": "Q",
+  "text": "A survey crew found a rich seam and logged it in two offices. Ore at Voltara costs less and pays less while the news is fresh. Miners say a block down there keeps its place and shifts when nobody looks. The Commons owns it, so nobody has gone to ask.",
+  "choices": []
+ },
+ {
+  "id": "EV28",
+  "title": "Voltara's foundry wants rock",
+  "tag": "[price up: Voltara, ore]",
+  "kind": "P",
+  "text": "Voltara's foundry ordered more rock than the Plan had dreamed of. Ore there costs more and pays more. Every shortcut the founders took lies under the furnace floor, and the furnace wants more. Somebody must go and dig it.",
+  "choices": []
+ },
+ {
+  "id": "EV30",
+  "title": "The cough reaches the ships",
+  "tag": "[planet closed: Cinderrest]",
+  "kind": "I",
+  "text": "The cough rode up with the salt. A crew lies in the infirmary and the port doctor has shut Cinderrest's docks. Routes touching Cinderrest are blocked for a while. The medic reports that the dust is not hostile. It is only patient.",
+  "choices": [],
+  "random": false
+ },
+ {
+  "id": "EV31",
+  "title": "Cinderrest is quiet",
+  "tag": "[price down: Cinderrest, dross]",
+  "kind": "Q",
+  "text": "The crew rested and the cough faded. Salt cut before the pause now floods the dock, so dross at Cinderrest costs less and pays less. The shaft stayed still. The lamps were left lit below, and the dust has not touched them.",
+  "choices": [],
+  "random": false
+ },
+ {
+  "id": "EV33",
+  "title": "The wall holds",
+  "tag": "[price down: Greywake, nullglass]",
+  "kind": "Q",
+  "text": "The braces held and the crew cut clean. Nullglass keeps coming up whole, so it costs less and pays less at Greywake for a while. The Bureau claims the wall as its own work. The glass shows the crew their own faces, a little late.",
+  "choices": [],
+  "random": false
+ },
+ {
+  "id": "EV34",
+  "title": "The wall comes down",
+  "tag": "[planet closed: Greywake]",
+  "kind": "I",
+  "text": "The cracked wall gave way in the night. Nobody was under it, but the shaft is sealed. Greywake is closed for a while, and routes touching it are blocked. The fall made no sound, say the crew. They felt it in their teeth.",
+  "choices": [],
+  "random": false
+ },
+ {
+  "id": "EV36",
+  "title": "The rival keeps its word",
+  "tag": "[price up: Greywake, nullglass]",
+  "kind": "Q",
+  "text": "The rival kept to its lane and sent a chart of Greywake's safe cuts. Nullglass at Greywake costs more and pays more as the shared crews buy. Nobody signed anything. The chart's margins hold small marks, in a hand that is not quite a hand.",
+  "choices": [],
+  "random": false
+ },
+ {
+  "id": "EV37",
+  "title": "The rival cuts you off",
+  "tag": "[price down: Cinderrest, dross]",
+  "kind": "I",
+  "text": "The rival did not forgive the race. Its crews flooded Cinderrest with cheap salt, and dross there costs less and pays less. Your ships still dock, and nobody looks at them. In the dust the rival's lamps move in a line, all together.",
+  "choices": [],
+  "random": false
+ },
+ {
+  "id": "EV29",
+  "title": "",
+  "text": "",
+  "title_id": "EV29_TITLE",
+  "text_id": "EV29_BODY",
+  "tag": "",
+  "kind": "C",
+  "on_mine": "dead_1",
+  "choices": [
+   {
+    "text": "",
+    "text_id": "EV29_MINE_BTN",
+    "eff_id": "EV29_MINE_EFF",
+    "tag": "[price up: Cinderrest, dross]",
+    "popup_title_id": "EV29_MINE_TITLE",
+    "popup_id": "EV29_MINE",
+    "follow_id": "EV30",
+    "follow_after": 4
+   },
+   {
+    "text": "",
+    "text_id": "EV29_PULL_BTN",
+    "eff_id": "EV29_PULL_EFF",
+    "tag": "[planet closed: Cinderrest]",
+    "popup_title_id": "EV29_PULL_TITLE",
+    "popup_id": "EV29_PULL",
+    "follow_id": "EV31",
+    "follow_after": 4
+   }
+  ]
+ },
+ {
+  "id": "EV32",
+  "title": "",
+  "text": "",
+  "title_id": "EV32_TITLE",
+  "text_id": "EV32_BODY",
+  "tag": "",
+  "kind": "C",
+  "on_mine": "dead_2",
+  "choices": [
+   {
+    "text": "",
+    "text_id": "EV32_SHORE_BTN",
+    "eff_id": "EV32_SHORE_EFF",
+    "tag": "[price up: Greywake, nullglass]",
+    "popup_title_id": "EV32_SHORE_TITLE",
+    "popup_id": "EV32_SHORE",
+    "follow_id": "EV33",
+    "follow_after": 4
+   },
+   {
+    "text": "",
+    "text_id": "EV32_CARRY_BTN",
+    "eff_id": "EV32_CARRY_EFF",
+    "tag": "[price down: Greywake, nullglass]",
+    "popup_title_id": "EV32_CARRY_TITLE",
+    "popup_id": "EV32_CARRY",
+    "follow_id": "EV34",
+    "follow_after": 4
+   }
+  ]
+ },
+ {
+  "id": "EV35",
+  "title": "",
+  "text": "",
+  "title_id": "EV35_TITLE",
+  "text_id": "EV35_BODY",
+  "tag": "",
+  "kind": "C",
+  "on_mine": "both",
+  "choices": [
+   {
+    "text": "",
+    "text_id": "EV35_SHARE_BTN",
+    "eff_id": "EV35_SHARE_EFF",
+    "tag": "[price down: Cinderrest, dross]",
+    "popup_title_id": "EV35_SHARE_TITLE",
+    "popup_id": "EV35_SHARE",
+    "follow_id": "EV36",
+    "follow_after": 4
+   },
+   {
+    "text": "",
+    "text_id": "EV35_RACE_BTN",
+    "eff_id": "EV35_RACE_EFF",
+    "tag": "[price up: Cinderrest, dross]",
+    "popup_title_id": "EV35_RACE_TITLE",
+    "popup_id": "EV35_RACE",
+    "follow_id": "EV37",
+    "follow_after": 4
+   }
+  ]
+ },
+ {
   "id": "EV17",
   "title": "",
   "text": "",

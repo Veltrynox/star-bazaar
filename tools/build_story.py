@@ -187,6 +187,26 @@ def asteroid_event() -> dict:
                  "popup_title_id": "EV20_MISS_TITLE", "popup_id": "EV20_MISS"}]}
 
 
+# Dead-world pairs (story/events.md, "Dead worlds"): part 1 choice event, on_mine trigger, per choice a tag and a
+# part 2 follow-up (plain events EV30.. are read from the md like other plain events and get random: false below).
+DEAD_PAIRS = [
+    ("EV29", "dead_1", [("MINE", "[price up: Cinderrest, dross]", "EV30"), ("PULL", "[planet closed: Cinderrest]", "EV31")]),
+    ("EV32", "dead_2", [("SHORE", "[price up: Greywake, nullglass]", "EV33"), ("CARRY", "[price down: Greywake, nullglass]", "EV34")]),
+    ("EV35", "both", [("SHARE", "[price down: Cinderrest, dross]", "EV36"), ("RACE", "[price up: Cinderrest, dross]", "EV37")]),
+]
+
+
+def dead_events() -> list:
+    out = []
+    for eid, trig, choices in DEAD_PAIRS:
+        out.append({"id": eid, "title": "", "text": "", "title_id": f"{eid}_TITLE", "text_id": f"{eid}_BODY",
+                    "tag": "", "kind": "C", "on_mine": trig,
+                    "choices": [{"text": "", "text_id": f"{eid}_{k}_BTN", "eff_id": f"{eid}_{k}_EFF", "tag": tag,
+                                 "popup_title_id": f"{eid}_{k}_TITLE", "popup_id": f"{eid}_{k}",
+                                 "follow_id": fid, "follow_after": 4} for k, tag, fid in choices]})
+    return out
+
+
 def build_events() -> list:
     out = []
     seen = set()
@@ -213,7 +233,11 @@ def build_events() -> list:
         if not (tag.startswith("[") and tag.endswith("]")) or kind not in ("P", "Q", "I"):
             err(f"{src}: {eid} tag or kind unreadable: {tag!r} {kind!r}")
             continue
-        out.append({"id": eid, "title": title, "tag": tag, "kind": kind, "text": text, "choices": []})
+        ev = {"id": eid, "title": title, "tag": tag, "kind": kind, "text": text, "choices": []}
+        if any(eid == c[2] for _, _, cs in DEAD_PAIRS for c in cs):
+            ev["random"] = False
+        out.append(ev)
+    out.extend(dead_events())
     out.append(debris_event())
     out.append(shield_event())
     out.append(asteroid_event())

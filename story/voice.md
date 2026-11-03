@@ -60,12 +60,15 @@ The player is "you" or "the company". Never a gender, never a name.
 - Cycles: the game's time unit.
 - Ships: Skerrit (the only ship type). Working name.
 - Cash goal: the credit target that wins the game. Credits: the currency.
+- New goods (T154, working names, owner decides): Starsilk (id silk, luxury), Logic Cores (id chips, tech), Rock Ore (id ore, mined). UI shows the names; running text uses lower case: silk, logic cores, ore. Asteroid cluster: a pack of rock on the map that gives ore free until it is empty. Prospecting (B1): the skill that lets routes start at a cluster. Added 2026-11-02.
 - System 1: Voltara (abundant energy, scarce food), Tillam and Ashgate (abundant food, scarce energy).
 - Hollin Reach: system 1 (owner approved, T92).
 - System 2: Dunmere Reach (owner approved, T92). Planets: Brannock (food-rich hub), Cindrel (energy-rich), Mossfell (food-rich outpost), Quillon (consumer market, wants both goods). Texts and ids: story/screens.md, section "Systems and system 2".
 - Owner decisions (T92): the UI label "Skill points" stays on screen for expansion points. "Corporation" follows the capitalisation rule in the Story terms entry below. The end screen {branches} is a plain count.
 - Salvage: the one-time payout when goods cannot be kept or sold on the company's lanes (storage full or no buyer). Shown with the amount now and what a Sell order would pay. Plain word, no flavour. Added 2026-11-02.
 - Rescue notice: when the company has no ships and too little cash. Never "game over". Story texts may call the payment "relief".
+
+- Dead worlds (working names, owner decides): Cinderrest (system 1) and Greywake (system 2), rock worlds with a mining base and no food or energy market. Goods: Dross Salt (id dross, mined on Cinderrest) and Nullglass (id nullglass, mined on Greywake). UI shows the names; running text uses lower case: dross, nullglass. Danger: the meter that rises while a dead world is mined. Added 2026-11-02.
 
 ### Story terms (new in draft 2, flavour only, never shown as a mechanic)
 - The Commons: the shared society of the system. Owns "everything", counts all of it.

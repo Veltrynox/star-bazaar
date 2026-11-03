@@ -837,13 +837,13 @@
   "id": "LBL_BEST_PARTNER",
   "text": "Best partner: {planet} ({margin} cr per unit).",
   "max": 110,
-  "place": "Planet panel, Market Ledger (B1), best route partner"
+  "place": "Planet panel, Price Whisper (B3), best route partner"
  },
  {
   "id": "NOT_ROUTE_BELOW_UPKEEP",
   "text": "This route earns {margin} cr a cycle and costs {cost}. It will run at a loss.",
   "max": 110,
-  "place": "Notice, Market Ledger (B1), new route margin is below its upkeep"
+  "place": "Notice, base game, new route margin is below its upkeep"
  },
  {
   "id": "LBL_SURVEY_PRICES",
@@ -861,13 +861,13 @@
   "id": "LBL_PRICE_HISTORY",
   "text": "Recent sell prices: {prices}.",
   "max": 110,
-  "place": "Planet panel, Market Ledger (B1), under the prices; {prices} is a list of sell prices"
+  "place": "Planet panel, base game, under the prices; {prices} is a list of sell prices"
  },
  {
   "id": "LBL_PRICE_HISTORY_NONE",
   "text": "Recent sell prices: none yet.",
   "max": 110,
-  "place": "Planet panel, Market Ledger (B1), before the first cycle closes"
+  "place": "Planet panel, base game, before the first cycle closes"
  },
  {
   "id": "LBL_NEXT_PRICE",
@@ -1072,6 +1072,192 @@
   "text": "Next cycle: +{in} -{out} = {after}",
   "max": 48,
   "place": "Storage view, projected stock after the next cycle"
+ },
+ {
+  "id": "GOOD_SILK_NAME",
+  "text": "Starsilk",
+  "max": 24,
+  "place": "Commodity name, silk"
+ },
+ {
+  "id": "GOOD_SILK_DESC",
+  "text": "Light, costly cloth. Made at Tillam. Voltara pays the most for it.",
+  "max": 110,
+  "place": "Commodity tooltip, silk"
+ },
+ {
+  "id": "GOOD_CHIPS_NAME",
+  "text": "Logic Cores",
+  "max": 24,
+  "place": "Commodity name, chips"
+ },
+ {
+  "id": "GOOD_CHIPS_DESC",
+  "text": "Small machine minds. Made at Voltara. Ashgate pays the most for them.",
+  "max": 110,
+  "place": "Commodity tooltip, chips"
+ },
+ {
+  "id": "GOOD_ORE_NAME",
+  "text": "Rock Ore",
+  "max": 24,
+  "place": "Commodity name, ore"
+ },
+ {
+  "id": "GOOD_ORE_DESC",
+  "text": "Raw rock from asteroid clusters. Free to take. Voltara pays the most for it.",
+  "max": 110,
+  "place": "Commodity tooltip, ore"
+ },
+ {
+  "id": "WORLD_CL_S1A_NAME",
+  "text": "Cinder Shoal",
+  "max": 24,
+  "place": "Asteroid cluster 1 of system 1, map label"
+ },
+ {
+  "id": "WORLD_CL_S1A_DESC",
+  "text": "A dark drift of rock between the planets. It holds only so much, and then it is gone.",
+  "max": 110,
+  "place": "Cluster 1 of system 1, tooltip"
+ },
+ {
+  "id": "WORLD_CL_S1B_NAME",
+  "text": "Pale Drift",
+  "max": 24,
+  "place": "Asteroid cluster 2 of system 1, map label"
+ },
+ {
+  "id": "WORLD_CL_S1B_DESC",
+  "text": "A loose pack of pale rock. The Bureau has not counted it. It will not be counted twice.",
+  "max": 110,
+  "place": "Cluster 2 of system 1, tooltip"
+ },
+ {
+  "id": "WORLD_CL_S2A_NAME",
+  "text": "Gantry Scatter",
+  "max": 24,
+  "place": "Asteroid cluster 1 of system 2, map label"
+ },
+ {
+  "id": "WORLD_CL_S2A_DESC",
+  "text": "Rock around an old gantry no one claims. Ore is free here for as long as it lasts.",
+  "max": 110,
+  "place": "Cluster 1 of system 2, tooltip"
+ },
+ {
+  "id": "WORLD_CL_S2B_NAME",
+  "text": "Old Tally",
+  "max": 24,
+  "place": "Asteroid cluster 2 of system 2, map label"
+ },
+ {
+  "id": "WORLD_CL_S2B_DESC",
+  "text": "A pack of rock marked with old counting stripes. The counting stopped. The ore did not.",
+  "max": 110,
+  "place": "Cluster 2 of system 2, tooltip"
+ },
+ {
+  "id": "WORLD_CL_S2C_NAME",
+  "text": "Low Teeth",
+  "max": 24,
+  "place": "Asteroid cluster 3 of system 2, map label"
+ },
+ {
+  "id": "WORLD_CL_S2C_DESC",
+  "text": "Jagged rock low in the sky of Dunmere Reach. Take the ore before the cluster runs dry.",
+  "max": 110,
+  "place": "Cluster 3 of system 2, tooltip"
+ },
+ {
+  "id": "LBL_SKILLS_ROW_FIRST",
+  "text": "Start here",
+  "max": 48,
+  "place": "Skill screen, caption of the first row"
+ },
+ {
+  "id": "LBL_SKILLS_ROW_SECOND",
+  "text": "Opens after Space Storage and Permit Charter",
+  "max": 60,
+  "place": "Skill screen, caption of the second row"
+ },
+ {
+  "id": "LBL_LOCKED_FIRST_ROW",
+  "text": "Learn Space Storage (A1) and Permit Charter (C1) first.",
+  "max": 60,
+  "place": "Skill screen, reason line on a locked skill"
+ },
+ {
+  "id": "LBL_CLUSTER_NAME",
+  "text": "Asteroid cluster {id}",
+  "max": 32,
+  "place": "Cluster card title and route end, cluster without its own name; fills {id}"
+ },
+ {
+  "id": "LBL_CLUSTER_LEFT",
+  "text": "Ore cluster {id}: {left} of {max} left",
+  "max": 60,
+  "place": "Planet panel, cluster line; fills {id}, {left}, {max}"
+ },
+ {
+  "id": "LBL_CLUSTER_INFO",
+  "text": "{good}: {yield} per cycle, {left} of {max} left.",
+  "max": 80,
+  "place": "Cluster card, info line; fills {good}, {yield}, {left}, {max}"
+ },
+ {
+  "id": "LBL_CLUSTER_INFO_YIELD",
+  "text": "{good}: {yield} per cycle.",
+  "max": 60,
+  "place": "Cluster card, info line when mining is locked; fills {good}, {yield}"
+ },
+ {
+  "id": "NOT_MINING_NEEDS_SKILL",
+  "text": "Mining needs the Prospecting skill.",
+  "max": 110,
+  "place": "Notice and cluster card, mining is locked"
+ },
+ {
+  "id": "NOT_CLUSTER_ONLY_ORE",
+  "text": "A cluster gives ore only.",
+  "max": 110,
+  "place": "Notice, route from a cluster with a good other than ore"
+ },
+ {
+  "id": "NOT_CLUSTER_EMPTY",
+  "text": "This cluster is empty.",
+  "max": 110,
+  "place": "Notice, route from an empty cluster"
+ },
+ {
+  "id": "ST_CLUSTER_EMPTY",
+  "text": "Cluster empty",
+  "max": 60,
+  "place": "Route panel, status when the cluster has run dry"
+ },
+ {
+  "id": "ST_CLUSTER_SHARED",
+  "text": "Ore taken by another ship",
+  "max": 60,
+  "place": "Route panel, status when another ship took the cycle's ore"
+ },
+ {
+  "id": "LBL_LEGEND_SILK",
+  "text": "Starsilk route",
+  "max": 24,
+  "place": "Route legend, silk line"
+ },
+ {
+  "id": "LBL_LEGEND_CHIPS",
+  "text": "Logic Cores route",
+  "max": 24,
+  "place": "Route legend, chips line"
+ },
+ {
+  "id": "LBL_LEGEND_ORE",
+  "text": "Rock Ore route",
+  "max": 24,
+  "place": "Route legend, ore line"
  },
  {
   "id": "SK_HEADER",
@@ -1459,19 +1645,19 @@
  },
  {
   "id": "SK_B1_NAME",
-  "text": "Market Ledger",
+  "text": "Prospecting",
   "max": 24,
   "place": "Skill screen, node name"
  },
  {
   "id": "SK_B1_FLAVOUR",
-  "text": "The Common Ledger records everything but prices. Keep your own.",
+  "text": "The Commons owns every rock. It has not yet counted the ones nobody has looked at.",
   "max": 90,
   "place": "Skill screen, detail panel"
  },
  {
   "id": "SK_B1_PLAIN",
-  "text": "Shows each planet's price trend, marks the best route partner, warns when a route's margin is below upkeep.",
+  "text": "Lets you start routes at asteroid clusters and shows how much ore each cluster still holds.",
   "max": 110,
   "place": "Skill screen, detail panel"
  },
@@ -1886,6 +2072,186 @@
  {
   "id": "EV20_MISS",
   "text": "The asteroid passed the system and kept going. Nothing was hit and nothing changes. The Bureau withdrew its warning, with regret, and kept the form. You could have been struck right now. Let that decide how you read the next notice.",
+  "max": 280,
+  "place": "popup"
+ },
+ {
+  "id": "EV29_TITLE",
+  "text": "Dust in the Cinderrest shafts",
+  "max": 32,
+  "place": "choice title"
+ },
+ {
+  "id": "EV29_BODY",
+  "text": "The first crew to cut Dross Salt on Cinderrest came up coughing. The dust is fine, white and everywhere, and the medic cannot name it. The Bureau lists Cinderrest as uninhabited, so nobody there can be ill. The crew asks whether to go on.",
+  "max": 280,
+  "place": "choice body"
+ },
+ {
+  "id": "EV29_MINE_BTN",
+  "text": "Keep mining",
+  "max": 28,
+  "place": "button"
+ },
+ {
+  "id": "EV29_MINE_EFF",
+  "text": "Dross costs more and pays more at Cinderrest for a while. Danger there rises.",
+  "max": 90,
+  "place": "effect line"
+ },
+ {
+  "id": "EV29_PULL_BTN",
+  "text": "Pull the crew out",
+  "max": 28,
+  "place": "button"
+ },
+ {
+  "id": "EV29_PULL_EFF",
+  "text": "Cinderrest closes for a while. Routes touching it are blocked. Danger does not rise.",
+  "max": 90,
+  "place": "effect line"
+ },
+ {
+  "id": "EV29_MINE_TITLE",
+  "text": "The crew keeps cutting",
+  "max": 32,
+  "place": "popup title"
+ },
+ {
+  "id": "EV29_MINE",
+  "text": "The crew went back down with wet cloth over their faces. Dross at Cinderrest costs more and pays more, since fewer will cut it. The white dust settles on the lamps in even rings. The danger on Cinderrest has risen.",
+  "max": 280,
+  "place": "popup"
+ },
+ {
+  "id": "EV29_PULL_TITLE",
+  "text": "The crew comes up",
+  "max": 32,
+  "place": "popup title"
+ },
+ {
+  "id": "EV29_PULL",
+  "text": "You called the crew up. The Bureau filed the withdrawal as a rest. Cinderrest is closed for a while, and routes touching it are blocked. The danger does not grow. Below, the dust keeps settling, as if it could wait.",
+  "max": 280,
+  "place": "popup"
+ },
+ {
+  "id": "EV32_TITLE",
+  "text": "A wall falls on Greywake",
+  "max": 32,
+  "place": "choice title"
+ },
+ {
+  "id": "EV32_BODY",
+  "text": "A cut wall on Greywake shifted and the glass sang like a struck bell. Nothing has fallen yet, but the crack is long. Braces cost credits. The Bureau calls it a feature of the geology. The crew wants an answer before the next shift.",
+  "max": 280,
+  "place": "choice body"
+ },
+ {
+  "id": "EV32_SHORE_BTN",
+  "text": "Shore up the wall",
+  "max": 28,
+  "place": "button"
+ },
+ {
+  "id": "EV32_SHORE_EFF",
+  "text": "Costs credits now. Nullglass costs more and pays more at Greywake while the cut is slow.",
+  "max": 90,
+  "place": "effect line"
+ },
+ {
+  "id": "EV32_CARRY_BTN",
+  "text": "Carry on cutting",
+  "max": 28,
+  "place": "button"
+ },
+ {
+  "id": "EV32_CARRY_EFF",
+  "text": "Nullglass costs less and pays less at Greywake. Some of the load may be lost.",
+  "max": 90,
+  "place": "effect line"
+ },
+ {
+  "id": "EV32_SHORE_TITLE",
+  "text": "The wall is braced",
+  "max": 32,
+  "place": "popup title"
+ },
+ {
+  "id": "EV32_SHORE",
+  "text": "The crew set braces in rows and the wall went quiet. The work cost credits. Nullglass at Greywake costs more and pays more while the cut is slow. The glass hummed once, a low note, and then kept still.",
+  "max": 280,
+  "place": "popup"
+ },
+ {
+  "id": "EV32_CARRY_TITLE",
+  "text": "The cutting goes on",
+  "max": 32,
+  "place": "popup title"
+ },
+ {
+  "id": "EV32_CARRY",
+  "text": "You told them to cut. The wall held through the shift and nullglass flowed. It costs less and pays less at Greywake with so much on the dock. Some of the load may not survive the climb. The crack grew a little.",
+  "max": 280,
+  "place": "popup"
+ },
+ {
+  "id": "EV35_TITLE",
+  "text": "A rival eyes the dead worlds",
+  "max": 32,
+  "place": "choice title"
+ },
+ {
+  "id": "EV35_BODY",
+  "text": "A rival hauler pulls alongside with a message: Cinderrest and Greywake are not safe to cut alone. It offers a shared lane, the take split. Or you can outrun it and cut harder. Its hull has no name painted on it. The dust lies in the lane.",
+  "max": 280,
+  "place": "choice body"
+ },
+ {
+  "id": "EV35_SHARE_BTN",
+  "text": "Share the lane",
+  "max": 28,
+  "place": "button"
+ },
+ {
+  "id": "EV35_SHARE_EFF",
+  "text": "Dross costs less and pays less at Cinderrest. Your income from the dead worlds is cut.",
+  "max": 90,
+  "place": "effect line"
+ },
+ {
+  "id": "EV35_RACE_BTN",
+  "text": "Race the rival",
+  "max": 28,
+  "place": "button"
+ },
+ {
+  "id": "EV35_RACE_EFF",
+  "text": "Dross costs more and pays more at Cinderrest. Income rises, and so does danger.",
+  "max": 90,
+  "place": "effect line"
+ },
+ {
+  "id": "EV35_SHARE_TITLE",
+  "text": "The lane is shared",
+  "max": 32,
+  "place": "popup title"
+ },
+ {
+  "id": "EV35_SHARE",
+  "text": "You split the lane. The rival hauler dipped its lights twice and took the far berth. Dross at Cinderrest costs less and pays less with two crews cutting. Your income from the dead worlds is cut. Both hulls ride quieter in company.",
+  "max": 280,
+  "place": "popup"
+ },
+ {
+  "id": "EV35_RACE_TITLE",
+  "text": "You race the rival",
+  "max": 32,
+  "place": "popup title"
+ },
+ {
+  "id": "EV35_RACE",
+  "text": "You ran the lane hard. Dross at Cinderrest costs more and pays more while you hold the lead. Income rises, and so does the danger. The rival's lights fell behind and went out, one by one.",
   "max": 280,
   "place": "popup"
  }

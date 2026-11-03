@@ -52,6 +52,25 @@ Tillam declared a festival of founders, and everyone wore a founder's mask. Food
 EV16 | A ship leaves Tillam half empty | [price down: Tillam, food] | Q
 A ship left Tillam half empty, bound for a rock nobody has charted. Those who stayed sold spare food to pay for staying. Food there costs less and pays less. A letter came back, from a Tillam that chose otherwise. No one has answered it.
 
+## Goods events (T154, 2026-11-02): silk, logic cores, ore
+EV21 | Tillam's weavers down tools | [price up: Tillam, silk] | I
+Tillam's silk weavers downed tools over a form that counted their hours twice. Silk there costs more and pays more. An old weaver says to watch the cricket in the vat, which changes its shape when it sees another. The guild will settle.
+
+EV22 | Voltara holds a gala | [price up: Voltara, silk] | I
+Voltara's crews hold a gala to celebrate a quota met on paper. Silk there costs more and pays more. Everyone borrows a sleeve and a mask for the night, and by the second hour the crews look alike. Nothing soft has reached the foundry decks in years.
+
+EV24 | Fire in Voltara's foundry | [price up: Voltara, chips] | P
+A fire swept Voltara's core foundry and left the casting floor black. Logic cores there cost more and pay more. A cheerful report calls it a gentle step toward a better line. The ash settled on the walls in rows. Nobody has read them.
+
+EV25 | Ashgate recalls its tractors | [price up: Ashgate, chips] | Q
+Ashgate recalled its farm tractors to be retrained as safe. Logic cores there cost more and pay more. The retrained ones panic when two foremen give opposite orders. The old ones were told to keep quiet and keep going, and they do.
+
+EV26 | A rich seam is logged twice | [price down: Voltara, ore] | Q
+A survey crew found a rich seam and logged it in two offices. Ore at Voltara costs less and pays less while the news is fresh. Miners say a block down there keeps its place and shifts when nobody looks. The Commons owns it, so nobody has gone to ask.
+
+EV28 | Voltara's foundry wants rock | [price up: Voltara, ore] | P
+Voltara's foundry ordered more rock than the Plan had dreamed of. Ore there costs more and pays more. Every shortcut the founders took lies under the furnace floor, and the furnace wants more. Somebody must go and dig it.
+
 # Events, choice events (draft 1, T96 T100 T103 T108, 2026-10-28)
 
 Format: ID | place | tag, then text. Choice events use the choice screen limits: title max 40, body max 280, button max 28, effect line max 90. Outcome texts are event popups: title max 32, text max 280, shown under NOT_EVENT_PREFIX with BTN_OK. No numbers: the game inserts any amount through a placeholder. Tags name the effect in words as the owner described it; the Economy Designer sets size and duration. Planet = {planet}.
@@ -111,3 +130,174 @@ EV20_HIT_DESTROYED | popup | The asteroid struck {planet}. Your company storage 
 EV20_HIT_CAPACITY | popup | The asteroid grazed {planet}. Your company storage there is cracked and holds less than before. The Bureau has recorded the damage as "partial". The crack runs through the wall in a straight, patient line.
 EV20_MISS_TITLE | popup title | The asteroid passes
 EV20_MISS | popup | The asteroid passed the system and kept going. Nothing was hit and nothing changes. The Bureau withdrew its warning, with regret, and kept the form. You could have been struck right now. Let that decide how you read the next notice.
+
+# Choice events (branching) (draft 1, 2026-11-02)
+
+Three story events with 2 or 3 choices. Each choice fires one tag the code already applies now (price up, price down, planet closed; size and duration from balance). Each choice also queues a short follow-up event, which needs one NEW mechanism (request R1 below). Limits as the choice screen: title 40, body 280, button 28, effect line 90; popups: title 32, text 280. No numbers. Tags are the engine tags, copied in the form events.gd parses.
+Gates (requests R2, R3): BE01 and BE03 are system 1 only, from cycle 9. BE02 needs system 2 reached and uses silk (system 2 only). Follow-up ids end in A, B, C and are never picked at random (R1).
+
+Requests for the gameplay programmer (new, not in the code today):
+R1. Follow-up: a choice may carry "follow_id" and "follow_after" (suggest 4 cycles, economy designer sets the key). When that many cycles pass, the follow-up fires as a plain event (existing popup, its own tag, OK button). Follow-ups have "random": false and stay out of random_id(). Save pending follow-ups in the events state (id, cycle due).
+R2. "min_cycle" 9 on BE01 and BE03 (already supported by the json key).
+R3. "requires_system": 2 on BE02: not picked until the player has system 2. Not supported today.
+R4. Choice events with 3 choices: the choice screen must show three buttons (EV17 to EV20 have two).
+
+## BE01 Tillam's sealed granary [3 choices, system 1]
+BE01_TITLE | choice title | Tillam's sealed granary
+BE01_BODY | choice body | Tillam keeps a reserve of grain behind a lock that only the committee can open. Winter is close and the stores outside are thin. The committee will open it for a company that carries the grain out, and wants an answer today. The lock is old and patient.
+BE01_OPEN_BTN | button | Open it to the crowd
+BE01_OPEN_EFF | effect line | Food at Tillam costs less and pays less for a while. Tillam remembers.
+BE01_SHUT_BTN | button | Keep the lock shut
+BE01_SHUT_EFF | effect line | Food at Tillam costs more and pays more for a while. Tillam remembers.
+BE01_SEND_BTN | button | Send it to Ashgate
+BE01_SEND_EFF | effect line | Food at Ashgate costs less and pays less for a while. Ashgate remembers.
+BE01_OPEN_TITLE | popup title | The granary opens
+BE01_OPEN | popup | The lock gave way and the grain went out by hand, sack to sack. Food at Tillam costs less and pays less while the stores are full. The committee recorded it as a loan. Nobody asked who owes whom.
+BE01_SHUT_TITLE | popup title | The lock stays shut
+BE01_SHUT | popup | You declined. The lock stayed on and the queue grew in the cold. Food at Tillam costs more and pays more while it is scarce. Somewhere inside the granary something shifted, as if it also had been waiting.
+BE01_SEND_TITLE | popup title | Grain goes to Ashgate
+BE01_SEND | popup | The grain left Tillam by night, on ships that did not ask to be loaded. Food at Ashgate costs less and pays less for a while. The committee at Tillam noticed the empty shelf and wrote a short, cold note.
+
+[follow-up of BE01_OPEN, tag: price up: Tillam, energy]
+BE01A_TITLE | popup title | Tillam burns bright for you
+BE01A | popup | Tillam remembered the grain. Every heater on the terraces runs high and the committee calls it a gift. Energy at Tillam costs more and pays more for a while. The frost in the ducts has gone quiet, as if it was fed.
+
+[follow-up of BE01_SHUT, tag: planet closed: Tillam]
+BE01B_TITLE | popup title | Tillam closes its port
+BE01B | popup | The queue that waited in the cold came to the docks. Tillam's port is closed for a while, and routes touching Tillam are blocked. The crowd does not shout. It stands in rows and looks at the ships.
+
+[follow-up of BE01_SEND, tag: price up: Ashgate, energy]
+BE01C_TITLE | popup title | Ashgate returns the favour
+BE01C | popup | Ashgate remembered the grain. Its foundries run hot in thanks and the smoke leans toward your ships. Energy at Ashgate costs more and pays more for a while. A foreman left a loaf at the dock. It was still warm.
+
+## BE02 The beacon over Dunmere Reach [2 choices, system 2, silk]
+BE02_TITLE | choice title | A beacon over Dunmere Reach
+BE02_BODY | choice body | A beacon pulses over Dunmere Reach, from a rock that no chart lists. Its pattern repeats, then changes, as if it had heard the dock talk. The Bureau office at Quillon wants it logged and silenced. The crews want to answer. Your ships pass it every cycle.
+BE02_ANSWER_BTN | button | Answer the beacon
+BE02_ANSWER_EFF | effect line | Silk at Quillon costs more and pays more for a while. Something answers back.
+BE02_REPORT_BTN | button | Report it to the Bureau
+BE02_REPORT_EFF | effect line | Quillon closes its port to check the sky. Routes touching Quillon are blocked for a while.
+BE02_ANSWER_TITLE | popup title | The beacon is answered
+BE02_ANSWER | popup | A crew sent three pulses back. The beacon went dark, then lit again, in the same order. Quillon's buyers heard and bought silk as if a festival had been announced. Silk there costs more and pays more. Nobody has said what the festival is for.
+BE02_REPORT_TITLE | popup title | Quillon checks the sky
+BE02_REPORT | popup | The Bureau filed the beacon as a fault and closed Quillon's port to inspect the sky. Routes touching Quillon are blocked for a while. The inspectors were polite. The beacon pulsed once, as if it had read the form.
+
+[follow-up of BE02_ANSWER, tag: price up: Mossfell, food]
+BE02A_TITLE | popup title | Visitors reach Mossfell
+BE02A | popup | Small ships came in from the quiet rock and docked at Mossfell without papers. They want food and pay in odd, heavy coins. Food at Mossfell costs more and pays more for a while. They did not say their names. They stayed polite and counted the crates twice.
+
+[follow-up of BE02_REPORT, tag: price down: Quillon, silk]
+BE02B_TITLE | popup title | The inspection finds nothing
+BE02B | popup | The inspectors found no fault and Quillon's port reopened. Stock held back for the check came out all at once. Silk at Quillon costs less and pays less for a while. The beacon is still up there. The report says it is not.
+
+## BE03 A family offers cover [3 choices, system 1, Ashgate]
+BE03_TITLE | choice title | A family offers cover
+BE03_BODY | choice body | The family that bought Ashgate's food contracts sends a polite note. For a share, they will keep the docks quiet and the other traders out. They also mention how fragile a dock can be. The Bureau has no form for this. It would like one.
+BE03_ACCEPT_BTN | button | Accept their cover
+BE03_ACCEPT_EFF | effect line | Food at Ashgate costs more and pays more for a while. The family will call in the favour.
+BE03_REFUSE_BTN | button | Refuse politely
+BE03_REFUSE_EFF | effect line | Food at Ashgate costs less and pays less for a while. The family will wait.
+BE03_REPORT_BTN | button | Report to the Bureau
+BE03_REPORT_EFF | effect line | Ashgate closes its port for an audit. Routes touching Ashgate are blocked for a while.
+BE03_ACCEPT_TITLE | popup title | The family keeps the docks
+BE03_ACCEPT | popup | The family's people took the docks in the morning, in clean coats. Food at Ashgate costs more and pays more, since their prices travel with them. Everything is quiet. A dock this quiet has an owner.
+BE03_REFUSE_TITLE | popup title | The note is declined
+BE03_REFUSE | popup | You sent back a polite no. The family sent back a polite nod. Food at Ashgate costs less and pays less as their buyers step back to watch. Nobody was threatened. Everyone knows what was not said.
+BE03_REPORT_TITLE | popup title | The Bureau opens a file
+BE03_REPORT | popup | The Bureau thanked you in writing and closed Ashgate's port for an audit. Routes touching Ashgate are blocked for a while. The audit will take its own time. The family has been told who filed.
+
+[follow-up of BE03_ACCEPT, tag: planet closed: Ashgate]
+BE03A_TITLE | popup title | The family calls its favour
+BE03A | popup | The family closed Ashgate's docks to every ship but its own, and sent you the bill for the quiet. Routes touching Ashgate are blocked for a while. The note was courteous. A favour is a debt that keeps its place.
+
+[follow-up of BE03_REFUSE, tag: price down: Ashgate, energy]
+BE03B_TITLE | popup title | The family waits
+BE03B | popup | The family did nothing, which was its answer. Its buyers stayed away from the furnaces and energy at Ashgate costs less and pays less for a while. A courier sits in a booth on the dock, reading and never turning a page.
+
+[follow-up of BE03_REPORT, tag: price up: Ashgate, chips]
+BE03C_TITLE | popup title | The audit ends, parts are short
+BE03C | popup | The audit ended and Ashgate's port is open. The family's contracts were frozen and the repair shops cannot get spares. Logic cores at Ashgate cost more and pay more for a while. The Bureau stamped the file closed. The family kept its copy.
+
+# Events, dead worlds: Cinderrest and Greywake (draft 1, 2026-11-02)
+
+Source: design/proposals/2026-11-02-dead-planets.md, section 5. Three pairs. Part 1 is a choice event (EV29, EV32, EV35, same id scheme as EV17 to EV20, title max 32 here, body 280, button 28, effect line 90). Part 2 is a plain event per choice (EV30, EV31, EV33, EV34, EV36, EV37), shown as a popup under NOT_EVENT_PREFIX with BTN_OK. Part 2 fires 4 cycles after the choice. Part 2 events must have random: false (R1). No numbers: amounts come from balance.
+Names Cinderrest, Greywake, Dross Salt (running text: dross) and Nullglass (running text: nullglass) are working names, see voice.md.
+Effects named only in words below that the parser does not read today (danger, credit cost, load loss, income cut) are requests in the handoff, not tags.
+
+| Part 1 | Choice | Immediate tag | Also needs (request) | Part 2 |
+|---|---|---|---|---|
+| EV29 Cinderrest | Keep mining | [price up: Cinderrest, dross] | danger +1 | EV30 |
+| EV29 Cinderrest | Pull the crew out | [planet closed: Cinderrest] | none (closure is the tag) | EV31 |
+| EV32 Greywake | Shore up the wall | [price up: Greywake, nullglass] | credit cost | EV33 |
+| EV32 Greywake | Carry on cutting | [price down: Greywake, nullglass] | chance of load loss | EV34 |
+| EV35 both | Share the lane | [price down: Cinderrest, dross] | income from dead worlds cut | EV36 |
+| EV35 both | Race the rival | [price up: Cinderrest, dross] | income up, danger up | EV37 |
+
+| Part 2 | Follows | Tag |
+|---|---|---|
+| EV30 | EV29 Keep mining | [planet closed: Cinderrest] |
+| EV31 | EV29 Pull out | [price down: Cinderrest, dross] |
+| EV33 | EV32 Shore up | [price down: Greywake, nullglass] |
+| EV34 | EV32 Carry on | [planet closed: Greywake] |
+| EV36 | EV35 Share | [price up: Greywake, nullglass] |
+| EV37 | EV35 Race | [price down: Cinderrest, dross] |
+
+## Pair A: Cinderrest [fires when a route first mines Cinderrest]
+EV29_TITLE | choice title | Dust in the Cinderrest shafts
+EV29_BODY | choice body | The first crew to cut Dross Salt on Cinderrest came up coughing. The dust is fine, white and everywhere, and the medic cannot name it. The Bureau lists Cinderrest as uninhabited, so nobody there can be ill. The crew asks whether to go on.
+EV29_MINE_BTN | button | Keep mining
+EV29_MINE_EFF | effect line | Dross costs more and pays more at Cinderrest for a while. Danger there rises.
+EV29_PULL_BTN | button | Pull the crew out
+EV29_PULL_EFF | effect line | Cinderrest closes for a while. Routes touching it are blocked. Danger does not rise.
+EV29_MINE_TITLE | popup title | The crew keeps cutting
+EV29_MINE | popup | The crew went back down with wet cloth over their faces. Dross at Cinderrest costs more and pays more, since fewer will cut it. The white dust settles on the lamps in even rings. The danger on Cinderrest has risen.
+EV29_PULL_TITLE | popup title | The crew comes up
+EV29_PULL | popup | You called the crew up. The Bureau filed the withdrawal as a rest. Cinderrest is closed for a while, and routes touching it are blocked. The danger does not grow. Below, the dust keeps settling, as if it could wait.
+
+### follow-up of EV29_MINE, 4 cycles later
+EV30 | The cough reaches the ships | [planet closed: Cinderrest] | I
+The cough rode up with the salt. A crew lies in the infirmary and the port doctor has shut Cinderrest's docks. Routes touching Cinderrest are blocked for a while. The medic reports that the dust is not hostile. It is only patient.
+
+### follow-up of EV29_PULL, 4 cycles later
+EV31 | Cinderrest is quiet | [price down: Cinderrest, dross] | Q
+The crew rested and the cough faded. Salt cut before the pause now floods the dock, so dross at Cinderrest costs less and pays less. The shaft stayed still. The lamps were left lit below, and the dust has not touched them.
+
+## Pair B: Greywake [fires when a route first mines Greywake]
+EV32_TITLE | choice title | A wall falls on Greywake
+EV32_BODY | choice body | A cut wall on Greywake shifted and the glass sang like a struck bell. Nothing has fallen yet, but the crack is long. Braces cost credits. The Bureau calls it a feature of the geology. The crew wants an answer before the next shift.
+EV32_SHORE_BTN | button | Shore up the wall
+EV32_SHORE_EFF | effect line | Costs credits now. Nullglass costs more and pays more at Greywake while the cut is slow.
+EV32_CARRY_BTN | button | Carry on cutting
+EV32_CARRY_EFF | effect line | Nullglass costs less and pays less at Greywake. Some of the load may be lost.
+EV32_SHORE_TITLE | popup title | The wall is braced
+EV32_SHORE | popup | The crew set braces in rows and the wall went quiet. The work cost credits. Nullglass at Greywake costs more and pays more while the cut is slow. The glass hummed once, a low note, and then kept still.
+EV32_CARRY_TITLE | popup title | The cutting goes on
+EV32_CARRY | popup | You told them to cut. The wall held through the shift and nullglass flowed. It costs less and pays less at Greywake with so much on the dock. Some of the load may not survive the climb. The crack grew a little.
+
+### follow-up of EV32_SHORE, 4 cycles later
+EV33 | The wall holds | [price down: Greywake, nullglass] | Q
+The braces held and the crew cut clean. Nullglass keeps coming up whole, so it costs less and pays less at Greywake for a while. The Bureau claims the wall as its own work. The glass shows the crew their own faces, a little late.
+
+### follow-up of EV32_CARRY, 4 cycles later
+EV34 | The wall comes down | [planet closed: Greywake] | I
+The cracked wall gave way in the night. Nobody was under it, but the shaft is sealed. Greywake is closed for a while, and routes touching it are blocked. The fall made no sound, say the crew. They felt it in their teeth.
+
+## Pair C: both dead worlds [fires when both Cinderrest and Greywake have been mined]
+EV35_TITLE | choice title | A rival eyes the dead worlds
+EV35_BODY | choice body | A rival hauler pulls alongside with a message: Cinderrest and Greywake are not safe to cut alone. It offers a shared lane, the take split. Or you can outrun it and cut harder. Its hull has no name painted on it. The dust lies in the lane.
+EV35_SHARE_BTN | button | Share the lane
+EV35_SHARE_EFF | effect line | Dross costs less and pays less at Cinderrest. Your income from the dead worlds is cut.
+EV35_RACE_BTN | button | Race the rival
+EV35_RACE_EFF | effect line | Dross costs more and pays more at Cinderrest. Income rises, and so does danger.
+EV35_SHARE_TITLE | popup title | The lane is shared
+EV35_SHARE | popup | You split the lane. The rival hauler dipped its lights twice and took the far berth. Dross at Cinderrest costs less and pays less with two crews cutting. Your income from the dead worlds is cut. Both hulls ride quieter in company.
+EV35_RACE_TITLE | popup title | You race the rival
+EV35_RACE | popup | You ran the lane hard. Dross at Cinderrest costs more and pays more while you hold the lead. Income rises, and so does the danger. The rival's lights fell behind and went out, one by one.
+
+### follow-up of EV35_SHARE, 4 cycles later
+EV36 | The rival keeps its word | [price up: Greywake, nullglass] | Q
+The rival kept to its lane and sent a chart of Greywake's safe cuts. Nullglass at Greywake costs more and pays more as the shared crews buy. Nobody signed anything. The chart's margins hold small marks, in a hand that is not quite a hand.
+
+### follow-up of EV35_RACE, 4 cycles later
+EV37 | The rival cuts you off | [price down: Cinderrest, dross] | I
+The rival did not forgive the race. Its crews flooded Cinderrest with cheap salt, and dross there costs less and pays less. Your ships still dock, and nobody looks at them. In the dust the rival's lamps move in a line, all together.
