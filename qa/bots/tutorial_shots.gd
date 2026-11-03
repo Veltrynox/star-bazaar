@@ -114,14 +114,14 @@ func _act(m: Control, i: int) -> bool:
 			m.skill_points = maxi(m.skill_points, 1)
 			return true
 		7:  # learn a skill, then keep one point for the permit step
-			var r: Dictionary = m.learn_skill("B1")
-			log_("     learn B1: ok=%s %s" % [str(r.get("ok", false)), str(r.get("reason", ""))])
+			var r: Dictionary = m.learn_skill("FND_PROSPECT")
+			log_("     learn FND_PROSPECT: ok=%s %s" % [str(r.get("ok", false)), str(r.get("reason", ""))])
 			m.skill_points = maxi(m.skill_points, 1)
 			return not m.learned_skills.is_empty()
-		8:  # permit C1
-			var r2: Dictionary = m.learn_skill("C1")
-			log_("     learn C1: ok=%s %s" % [str(r2.get("ok", false)), str(r2.get("reason", ""))])
-			return m.has_skill("C1")
+		8:  # permit FND_PERMIT
+			var r2: Dictionary = m.learn_skill("FND_PERMIT")
+			log_("     learn FND_PERMIT: ok=%s %s" % [str(r2.get("ok", false)), str(r2.get("reason", ""))])
+			return m.has_skill("FND_PERMIT")
 	return false
 
 ## Plays guided steps until stop_at (TUT_GUIDE index) is reached before its action, or the tutorial ends.

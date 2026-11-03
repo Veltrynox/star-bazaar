@@ -199,15 +199,15 @@ func _initialize() -> void:
 			var parts := arg.trim_prefix("--inject=").split(":")
 			inject_cycle = int(parts[0])
 			inject_cash = int(parts[1])
-	# QA 2026-11-03: the decent default is a human path: it buys the system 2 permit (C1 + 600) as soon as it can afford it.
+	# QA 2026-11-03: the decent default is a human path: it buys the system 2 permit (FND_PERMIT + 600) as soon as it can afford it.
 	if strategy == "decent" and permit_sid < 0 and default_permit:
 		permit_sid = 2
 	if strategy == "mining_focus" and skill_order.is_empty():
-		skill_order = ["B1"]  # T161: mining_focus learns Prospecting (B1) first
+		skill_order = ["FND_PROSPECT", "MIN_1", "MIN_3", "MIN_5"]  # mining_focus: Prospecting first, then the Minerals tree in order
 	if strategy == "dead_run" and skill_order.is_empty():
-		skill_order = ["B1", "C1", "A1", "M1", "M2", "C3", "F1"]  # M1 is second row: needs A1 and C1 (ROW_KEYS)  # R2 dead worlds: Cold Survey, Deep Cut, Fabrication Licence (+ prereq B1, Long Haul for system 2)
+		skill_order = ["FND_PERMIT", "FND_STORAGE", "FND_PROSPECT", "MIN_1", "MIN_2", "MIN_3", "MIN_4", "MIN_5"]  # dead_run: Foundations, then the Minerals tree (MIN_1 fabric, MIN_3 and MIN_5 open the dead worlds)
 	if strategy == "always_expand" and skill_order.is_empty():
-		skill_order = ["C1", "C3", "A1", "A2"]  # T161 follow-up: expansion (permit, long haul, storage, holds) first
+		skill_order = ["FND_PERMIT", "FND_STORAGE", "BIO_1", "BIO_2", "BIO_3"]  # expansion first: permit, storage, then Biotech
 	if not STRATEGIES.has(strategy) or not ["fast", "timer"].has(clock) or not ["alt", "RELEASE", "CORP"].has(choice_policy):
 		printerr("bot_run: bad --strategy, --clock or --choice")
 		bad_args = true
@@ -399,11 +399,9 @@ func _ranked_lanes(ignore_closed := false) -> Array:
 	return out
 
 
-## QA: the game's own rule (route_engine.gd): a route between two systems needs Long Haul (C3).
-func _cross_system_blocked(a: int, b: int) -> bool:
-	var sa := int(main.trade.planets[a].get("system", 1))
-	var sb := int(main.trade.planets[b].get("system", 1))
-	return sa != sb and not main.learned_skills.has("C3")
+## Routes between systems need no skill any more (Long Haul is gone).
+func _cross_system_blocked(_a: int, _b: int) -> bool:
+	return false
 
 
 func _plan() -> Array:
@@ -437,7 +435,7 @@ func _missing_lanes(plan: Array) -> int:
 
 ## Ship purchases per strategy. Buys happen at the lane source (the ship button sits on the panel).
 func _expand(plan: Array, c: int) -> void:
-	if strategy == "dead_run" and permit_sid >= 0 and not main.open_systems.has(permit_sid) and main.learned_skills.has("C1") \
+	if strategy == "dead_run" and permit_sid >= 0 and not main.open_systems.has(permit_sid) and main.learned_skills.has("FND_PERMIT") \
 			and int(main.cash) < int(main.permit_cost(permit_sid)) + 150:
 		return  # R2: dead_run saves cash for the system 2 permit before buying more ships
 	var price: int = int(main.balance.get("ship_price", 0))
@@ -579,8 +577,8 @@ func _local_focus_want(want: Dictionary) -> void:
 		for p in main.trade.planets.size():
 			if not main.engine.planet_open(p):
 				continue
-			if DeadWorlds.is_dead(main.trade.planets[p]) and (main.cycle < main.dead_unlock_cycle() or not main.has_skill("M2" if str(main.trade.planets[p].get("id", "")) == "dead_2" else "M1")):
-				continue  # the game refuses orders at a dead world until it opens and its skill is learned (Cold Survey M1, Deep Cut M2)
+			if DeadWorlds.is_dead(main.trade.planets[p]) and (main.cycle < main.dead_unlock_cycle() or not main.has_skill(DeadWorlds.skill_for(main.trade.planets[p]))):
+				continue  # the game refuses orders at a dead world until it opens and its skill is learned (DeadWorlds.skill_for)
 			if int(main.trade.price(p, cs + "_buy")) > 0:
 				want["%d|%s|buy" % [p, cs]] = true
 			if int(main.trade.price(p, cs + "_sell")) >= 0:
@@ -641,8 +639,8 @@ func _buy_wanted_permit() -> bool:
 		return false
 	if not bool(main.can_buy_permit(permit_sid).get("ok", false)):
 		return false
-	if not main.learned_skills.has("A1") and not skip_skills.has("A1") and (only_skills.is_empty() or only_skills.has("A1")):
-		return false  # QA fix 2026-11-03: A1 comes first; the permit points must not be spent before A1 is learned
+	if not main.learned_skills.has("FND_STORAGE") and not skip_skills.has("FND_STORAGE") and (only_skills.is_empty() or only_skills.has("FND_STORAGE")):
+		return false  # Space Storage comes first; the permit points must not be spent before it is learned
 	var keep := 0 if strategy == "dead_run" else PERMIT_WORKING_CASH  # R2: dead_run buys the system 2 permit as soon as affordable
 	if int(main.cash) < int(main.permit_cost(permit_sid)) + keep:  # QA: keep cash to buy stock after the permit
 		return false
@@ -653,9 +651,9 @@ func _buy_wanted_permit() -> bool:
 	return bool(r.get("ok", false))
 
 
-## QA: skill points held back for the --permit system (only once C1 is learned, since C1 unlocks permits).
+## QA: skill points held back for the --permit system (only once FND_PERMIT is learned, since it unlocks permits).
 func _permit_reserve() -> int:
-	if permit_sid < 0 or main.open_systems.has(permit_sid) or not main.learned_skills.has("C1"):
+	if permit_sid < 0 or main.open_systems.has(permit_sid) or not main.learned_skills.has("FND_PERMIT"):
 		return 0
 	return _permit_points()
 
@@ -674,7 +672,7 @@ func _learn_skills() -> void:
 				continue
 			if not only_skills.is_empty() and not only_skills.has(id):
 				continue
-			if id != "A1" and _permit_reserve() > 0 and main.skill_points - SkillTree.cost(main.balance, id) < _permit_reserve():
+			if id != "FND_STORAGE" and _permit_reserve() > 0 and main.skill_points - SkillTree.cost(main.balance, id) < _permit_reserve():
 				continue  # QA: keep the points the wanted permit needs
 			var r: Dictionary = main.learn_skill(id)
 			if r["ok"]:
@@ -768,8 +766,6 @@ func _cluster_lanes() -> Array:
 			var best := {}
 			for b in n:
 				if not main.engine.planet_open(b):
-					continue
-				if int(main.trade.planets[b].get("system", 1)) != sid and not main.learned_skills.has("C3"):
 					continue
 				var sp: int = main.trade.price(b, "ore_sell")
 				if sp <= 0:
@@ -948,7 +944,7 @@ func _dead_probe(c: int) -> void:
 	# all standing routes take the ships, so the script closes its weakest route (a normal Remove) to free one, at most 3 times.
 	if c >= main.dead_unlock_cycle():
 		_chain_route(c, "dead_1", "dross", "chain_dross", true)
-		if main.has_skill("C3"):
+		if dead_ids.has("dead_2") and main.has_skill(DeadWorlds.skill_for(main.trade.planets[int(dead_ids["dead_2"])])):
 			_chain_route(c, "dead_2", "nullglass", "chain_nullglass", true)
 		# the chain source fills from a standing Buy order at the dead world (the mining), as a player sets it
 		for pid_c in [["dead_1", "dross"], ["dead_2", "nullglass"]]:
@@ -984,9 +980,9 @@ func _dead_probe(c: int) -> void:
 		if dead_last.get("permit", "") != pk and (c <= 3 or c % 5 == 0):
 			dead_last["permit"] = pk
 			dead_log.append([c, "permit 2", "", -1, bool(pv.get("ok", false)), "%s cash %d cost %d" % [str(pv.get("reason", "")), int(main.cash), int(main.permit_cost(2))]])
-	for sk in ["M1", "M2", "F1"]:
+	for sk in ["MIN_1", "MIN_3", "MIN_5"]:
 		if not main.learned_skills.has(sk):
-			var lv: Dictionary = SkillTree.can_learn(main.learned_skills, main.skill_points, main.balance, sk, main.skill_ctx())
+			var lv: Dictionary = SkillTree.can_learn(main.learned_skills, main.skill_points, main.balance, sk)
 			var lk := "skill|%s|%s" % [sk, str(lv.get("reason", "")) + str(lv.get("why", ""))]
 			if dead_last.get(sk, "") != lk:
 				dead_last[sk] = lk

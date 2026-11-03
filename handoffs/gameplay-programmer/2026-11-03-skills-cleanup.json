@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-03",
+  "task": "skills-cleanup",
+  "status": "done",
+  "files_changed": ["game/main.gd", "game/skill_tree.gd", "game/save_game.gd", "game/skill_screen.gd", "game/route_engine.gd", "data/systems.json", "qa/bots/bot_run.gd", "qa/bots/tutorial_shots.gd", "tools/tests/run_tests.gd", "handoffs/gameplay-programmer/2026-11-03-skills-cleanup.json"],
+  "open_questions": [
+    "Story ids still carry old names (LBL_TRADE_NEEDS_A1, PERMIT_NEEDS_C1, NOT_ROUTE_NEEDS_C3): story-designer to rename or confirm; code still uses them.",
+    "tools/sim.py (old balance simulator) still models A/B/C skills; not in scope, retire or rewrite?",
+    "Bots: Long Haul is gone so _cross_system_blocked is now always false; fine unless a new cross-system gate is added."
+  ],
+  "handoff": "Removed main.skill_ctx, a1_gate_open, is_surveyed, survey_system, SkillTree.FIRST_ROW/in_first_row/legacy_id and the ctx params on SkillTree.state/can_learn/any_affordable. systems.json now says FND_PERMIT; main.required_skill reads it directly. LEGACY and LEGACY_COST moved into save_game.gd (the migration is the only place with old ids; its test in run_tests.gd uses them as input). bot_run.gd: mining_focus, dead_run and always_expand learn new ids; dead-world skill read from DeadWorlds.skill_for; MIN_1/3/5 progress logged. Tests: TOTAL pass=1147 fail=0. Final grep over game/ qa/bots tools/tests data/*.json for shims and old ids: only save_game.gd (map) and run_tests.gd lines 1119-1122 (migration test input).",
+  "details": {}
+}

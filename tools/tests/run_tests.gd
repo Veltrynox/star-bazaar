@@ -2082,7 +2082,7 @@ func _test_systems() -> void:
 	check(names == ["Brannock", "Cindrel", "Mossfell", "Quillon", "Greywake"], "sys2: planet names from story ids", str(names))
 	check(m.commodities == ["energy", "food", "ore", "dross", "plate", "rivets", "cells", "armour", "cask", "gems", "ingot", "alloy", "gel", "seed", "musk", "spores"], "sys2: system 1 goods at start (silk and chips are system 2 goods since system tiers)", str(m.commodities))
 	# permit chain
-	check(m.can_buy_permit(2)["reason"] == "skill", "sys2: permit needs C1")
+	check(m.can_buy_permit(2)["reason"] == "skill", "sys2: permit needs FND_PERMIT")
 	m._refresh()
 	check(not ("system_previews" in m.map) and not ("system_arrows" in m.map), "3D: no next-system preview or arrow in the system view")
 	# T128: edge arrow
@@ -2092,7 +2092,7 @@ func _test_systems() -> void:
 	if req_steps.size() == 1:
 		check(str(at.get("mode", "")) == "skills" and at["steps"] == ["FND_PERMIT"], "arrow: FND_PERMIT reachable shows the skills arrow")
 	else:
-		check(at.is_empty() or str(at.get("mode", "")) == "skills", "arrow: hidden until C1 is reachable", str(at))
+		check(at.is_empty() or str(at.get("mode", "")) == "skills", "arrow: hidden until FND_PERMIT is reachable", str(at))
 	m._on_skill_arrow()
 	check(m.skill_screen.visible == (not at.is_empty()), "arrow: click opens the skill screen")
 	m.skill_screen.close_screen()
@@ -2187,12 +2187,12 @@ func _test_systems() -> void:
 	m.apply_state(st)
 	check(m.map.planets.size() == 9 and m.open_systems.has(2) and m.engine.local_on(4, "food", "buy"), "sys2: load restores system and order")
 	# Space Storage
-	check(not m.space_post_open(1) and not m.space_post_open(2), "space: no post before A1")
+	check(not m.space_post_open(1) and not m.space_post_open(2), "space: no post before FND_STORAGE")
 	m.pts_planets = [0, 1, 2]
 	m.pts_pairs = ["0-1", "0-2"]
 	m.skill_points = 50
-	check(m.learn_skill("FND_STORAGE")["ok"], "space: A1 learnable after the gate")
-	check(m.space_post_open(1) and m.space_post_open(2), "space: one post per open system after A1")
+	check(m.learn_skill("FND_STORAGE")["ok"], "space: FND_STORAGE learnable after the gate")
+	check(m.space_post_open(1) and m.space_post_open(2), "space: one post per open system after FND_STORAGE")
 	check(m.storage.capacity_of("system:1") == int(bal["space_storage_capacity"]), "space: capacity from balance")
 	# manual Space Storage (owner 2026-11-03): nothing fills it by itself; only a ship sent to it does
 	m.storage.ensure("planet:0")
@@ -2258,11 +2258,11 @@ func _test_systems() -> void:
 	check(str(rec["state"]) == "running" and m.storage.amount("system:1", "energy") < before, "space: post backs a route with an empty source", str(rec["state"]))
 	m.learned_skills.erase("FND_STORAGE")
 	m.engine.settle(m.cash)
-	check(str(rec["state"]) == "stalled", "space: no backup without A1", str(rec["state"]))
+	check(str(rec["state"]) == "stalled", "space: no backup without FND_STORAGE", str(rec["state"]))
 	await _free_main(m)
 	_wipe_user()
 
-# ---- Skill effects that were text only before 2026-10-31: A2, C3, C4, B1, B3, B4 ----
+# ---- Skill effects that were text only before 2026-10-31: BIO_3, FND_PERMIT, FND_PROSPECT, LUX_1, LUX_3 ----
 func _test_skill_effects() -> void:
 	_wipe_user()
 	var m: Control = await _new_main()
@@ -2286,49 +2286,49 @@ func _test_skill_effects() -> void:
 	# FND_PERMIT (Long Haul folded in): a route from system 1 to system 2 needs it
 	m.cash = 50000
 	m.skill_points = 100
-	check(m.buy_permit(2)["ok"], "C3: system 2 permit bought")
+	check(m.buy_permit(2)["ok"], "FND_PERMIT: system 2 permit bought")
 	m.learned_skills.erase("FND_PERMIT")
 	var r: Dictionary = m.engine.check_connection(0, 4, "energy")
-	check(not r["ok"] and r["reason"] == StoryText.get_text("NOT_ROUTE_NEEDS_C3"), "C3: cross-system route refused without permit routes", str(r))
-	check(m.engine.check_connection(4, 5, "energy")["ok"], "C3: a route inside system 2 needs no Permit Charter")
+	check(not r["ok"] and r["reason"] == StoryText.get_text("NOT_ROUTE_NEEDS_C3"), "FND_PERMIT: cross-system route refused without permit routes", str(r))
+	check(m.engine.check_connection(4, 5, "energy")["ok"], "FND_PERMIT: a route inside system 2 needs no Permit Charter")
 	m.learned_skills.append("FND_PERMIT")
-	check(m.engine.check_connection(0, 4, "energy")["ok"], "C3: cross-system route allowed with FND_PERMIT")
+	check(m.engine.check_connection(0, 4, "energy")["ok"], "FND_PERMIT: cross-system route allowed with FND_PERMIT")
 	m.learned_skills.erase("FND_PERMIT")
-	# B1 Market Ledger: history kept at cycle end, saved, shown as text
+	# FND_PROSPECT Market Ledger: history kept at cycle end, saved, shown as text
 	m.cash = 1000
 	m.cycle = 1
 	m._end_cycle()
 	m._end_cycle()
 	var hist: Array = m.price_history.get("0|energy", [])
-	check(hist.size() == 2 and int(hist[-1]) == m.trade.price(0, "energy_sell"), "B1: sell price recorded at each cycle end", str(hist))
+	check(hist.size() == 2 and int(hist[-1]) == m.trade.price(0, "energy_sell"), "FND_PROSPECT: sell price recorded at each cycle end", str(hist))
 	var st: Dictionary = m.collect_state()
-	check(st.has("price_history") and st["price_history"].has("0|energy"), "B1: history in the save")
+	check(st.has("price_history") and st["price_history"].has("0|energy"), "FND_PROSPECT: history in the save")
 	m.planet_panel.show_planet(0)
 	check(not _labels(m.planet_panel, []).any(func(l): return l.text.begins_with("Recent sell prices")), "price history: no history line on the planet panel")
-	# B3 Price Whisper: effects that still run next cycle, not the ones that end now
+	# LUX_1 Price Whisper: effects that still run next cycle, not the ones that end now
 	var base_e: int = m.trade.price(0, "energy_sell")
 	m.events.active = [{"id": "EV01", "kind": "down", "planet": 0, "c": "energy", "left": 1, "age": 0}]
 	check(m.trade.price(0, "energy_sell") != base_e and m.trade.price(0, "energy_sell", true) == base_e, "MIL_4: an effect that ends now is not in the next-cycle price")
 	m.events.active = [{"id": "EV01", "kind": "down", "planet": 0, "c": "energy", "left": 2, "age": 0}]
 	check(m.trade.price(0, "energy_sell", true) == m.trade.price(0, "energy_sell"), "MIL_4: an effect that runs one more cycle is in the next-cycle price")
 	m.events.active = []
-	# B4 Event Forecast: one cycle ahead of a due event (events come on cycles 5, 9, 13, ...)
+	# LUX_3 Event Forecast: one cycle ahead of a due event (events come on cycles 5, 9, 13, ...)
 	# the warning comes while cycle 4 is running; the event itself starts cycle 5
 	m.learned_skills.append("LUX_3")
-	m.cash = 1000  # the C3 test left cash above the win goal, which would open the choice instead of ending the cycle
+	m.cash = 1000  # the FND_PERMIT test left cash above the win goal, which would open the choice instead of ending the cycle
 	m.cycle = 3
 	m.notice_queue = []
 	m.last_notice = ""
 	m._end_cycle()
 	var fc_seen := _has_forecast_notice(m)
-	check(m.cycle == 4 and fc_seen, "B4: warning posted in the cycle before an event")
+	check(m.cycle == 4 and fc_seen, "LUX_3: warning posted in the cycle before an event")
 	m.learned_skills.erase("LUX_3")
 	m.cash = 1000
 	m.cycle = 4
 	m.notice_queue = []
 	m.last_notice = ""
 	m._end_cycle()
-	check(not _has_forecast_notice(m), "B4: no warning without the skill")
+	check(not _has_forecast_notice(m), "LUX_3: no warning without the skill")
 	m.learned_skills.append("LUX_3")
 	m.learned_skills.erase("LUX_3")
 	# MIL_4 sale price: sell credits rise by skill_MIL_4_price (energy is a Military good), only with the skill
@@ -2345,20 +2345,20 @@ func _test_skill_effects() -> void:
 	check(int(sale["credits"]) == int(sale["n"]) * boosted and int(sale["n"]) > 0, "MIL_4: a Sell order pays the margin per unit", str(sale))
 	m.learned_skills.erase("MIL_4")
 	check(int(eng._local_calc(0, "energy", "sell", 1000)["credits"]) == int(sale["n"]) * plain, "MIL_4: unlearned Sell order pays the plain price")
-	# B3 on a route lane: per-unit earnings at the far end carry the margin; the route itself only pays upkeep, so no double count
+	# LUX_1 on a route lane: per-unit earnings at the far end carry the margin; the route itself only pays upkeep, so no double count
 	var rm0: int = eng.route_margin(0, 1, "energy")
 	m.learned_skills.append("MIL_4")
 	var rm1: int = eng.route_margin(0, 1, "energy")
 	var far: int = eng.sold_price(1, "energy")
 	var near: int = m.trade.price(0, "energy_buy")
-	check(rm1 == eng.units_per_cycle(null, "energy") * (far - near) and rm1 > rm0, "MIL_4: route lane margin uses the B3 sell price per unit", "%d -> %d" % [rm0, rm1])
+	check(rm1 == eng.units_per_cycle(null, "energy") * (far - near) and rm1 > rm0, "MIL_4: route lane margin uses the LUX_1 sell price per unit", "%d -> %d" % [rm0, rm1])
 	check(eng.payout_of(eng.new_record(0, 1, "energy")) <= 0, "MIL_4: route settlement adds no credits itself (Sell order pays once)")
 	m.learned_skills.erase("MIL_4")
-	# T158 (base game since B1 became Prospecting): warning when the route margin is below its upkeep, trend arrow, best partner
+	# T158 (base game since FND_PROSPECT became Prospecting): warning when the route margin is below its upkeep, trend arrow, best partner
 	var bp: Dictionary = m.trade.planets[1]["base_prices"]
 	var keep_sell = bp["energy_sell"]
 	bp["energy_sell"] = 1
-	check(eng.margin_below_upkeep(0, 1, "energy"), "B1: a lane that earns less than its cost is flagged")
+	check(eng.margin_below_upkeep(0, 1, "energy"), "FND_PROSPECT: a lane that earns less than its cost is flagged")
 	m.notice_queue = []
 	m.last_notice = ""
 	m._advance_notice()
@@ -2366,16 +2366,16 @@ func _test_skill_effects() -> void:
 	bp["energy_sell"] = int(keep_sell) + 500
 	m._advance_notice()
 	m.notice_queue = []
-	check(not eng.margin_below_upkeep(0, 1, "energy") and not m.route_margin_notice(0, 1, "energy"), "B1: no warning on a paying lane")
+	check(not eng.margin_below_upkeep(0, 1, "energy") and not m.route_margin_notice(0, 1, "energy"), "FND_PROSPECT: no warning on a paying lane")
 	check(int(eng.best_partner(0, "energy")["planet"]) == 1, "T158: best partner is the planet that pays most")
 	bp["energy_sell"] = keep_sell
 	check(not m.has_method("price_trend") and not m.has_method("price_history_line"), "price history: trend and history display helpers are gone")
 	m.learned_skills.erase("FND_PROSPECT")
-	check(m.permit_points(2) == m.Systems.permit_points(bal, 2) and not m.is_surveyed(2), "permit points stay at the data value (Survey Beacon is gone)")
-	# B4 forecast names planet and commodity for a price event
+	check(m.permit_points(2) == m.Systems.permit_points(bal, 2), "permit points stay at the data value")
+	# LUX_3 forecast names planet and commodity for a price event
 	m.events.by_id["ZZ_TEST"] = {"id": "ZZ_TEST", "tag": "[price up: %s, energy]" % m.planet_name(0)}
 	var ft: String = m.forecast_text("ZZ_TEST")
-	check(StoryText.has_text("EVT_NEXT_DUE_PRICE") == ft.contains(m.planet_name(0)) and (not StoryText.has_text("EVT_NEXT_DUE_PRICE") and ft == StoryText.get_text("EVT_NEXT_DUE") or ft.contains("Energy")), "B4: forecast names planet and commodity once the text exists, else the plain warning", ft)
+	check(StoryText.has_text("EVT_NEXT_DUE_PRICE") == ft.contains(m.planet_name(0)) and (not StoryText.has_text("EVT_NEXT_DUE_PRICE") and ft == StoryText.get_text("EVT_NEXT_DUE") or ft.contains("Energy")), "LUX_3: forecast names planet and commodity once the text exists, else the plain warning", ft)
 	m.events.by_id.erase("ZZ_TEST")
 	# the game hooks read Skills: route capacity, order size, upkeep, events, cluster yield, sales at a price-up planet
 	m.learned_skills = []
@@ -2405,7 +2405,7 @@ func _test_skill_effects() -> void:
 	await _free_main(m)
 	_wipe_user()
 
-## True when a notice is the B4 forecast: the plain warning or the named "Next cycle: ..." text.
+## True when a notice is the LUX_3 forecast: the plain warning or the named "Next cycle: ..." text.
 func _has_forecast_notice(m) -> bool:
 	var all: Array = m.notice_queue.duplicate()
 	all.append(m.last_notice)
@@ -3059,15 +3059,15 @@ func _test_split_send() -> void:
 func _test_stations() -> void:
 	var m = await _new_main()
 	m._dismiss_preface()
-	check(m.station_systems.is_empty() and m.map.stations.is_empty(), "station: none before A1")
+	check(m.station_systems.is_empty() and m.map.stations.is_empty(), "station: none before FND_STORAGE")
 	m.open_systems = [1, 2]
 	m._open_system(2)
-	check(m.station_systems.is_empty(), "station: none before A1 even with system 2 open")
+	check(m.station_systems.is_empty(), "station: none before FND_STORAGE even with system 2 open")
 	m.pts_planets = [0, 1, 2]
 	m.pts_pairs = ["0-1", "0-2"]
 	m.skill_points = 50
-	check(m.learn_skill("FND_PERMIT")["ok"] and m.learn_skill("FND_STORAGE")["ok"], "station: A1 learned")
-	check(m.station_systems.has(1) and m.station_systems.has(2) and m.map.stations.size() == 2, "station: one per open system after A1")
+	check(m.learn_skill("FND_PERMIT")["ok"] and m.learn_skill("FND_STORAGE")["ok"], "station: FND_STORAGE learned")
+	check(m.station_systems.has(1) and m.station_systems.has(2) and m.map.stations.size() == 2, "station: one per open system after FND_STORAGE")
 	m._ensure_stations()
 	m._ensure_posts()
 	check(m.station_systems.size() == 2 and m.map.stations.size() == 2 and m.station_markers.size() == 2, "station: no duplicates on a second call")
@@ -3082,7 +3082,7 @@ func _test_stations() -> void:
 	var old: Dictionary = st.duplicate()
 	old.erase("station_systems")
 	m.apply_state(old)
-	check(m.station_systems == [1, 2] and m.map.stations.size() == 2, "station: old save with A1 builds them on load")
+	check(m.station_systems == [1, 2] and m.map.stations.size() == 2, "station: old save with FND_STORAGE builds them on load")
 	# Space Storage view: the station click opens it, not the planet panel
 	var ssv = m.space_storage_view
 	m.planet_panel.visible = false
@@ -3364,7 +3364,7 @@ func _test_trade_gate() -> void:
 	m.skill_points = 50
 	m.learn_skill("FND_PERMIT")
 	m.learn_skill("FND_STORAGE")
-	check(m.space_post_open(2) and m.system_trade_open(far), "gate: post open after A1")
+	check(m.space_post_open(2) and m.system_trade_open(far), "gate: post open after FND_STORAGE")
 	check(m.set_local_order(far, c, "buy", true)["ok"] and m.set_local_order(far, c, "sell", true)["ok"], "gate: second system Buy and Sell work once the post is open")
 	var ro: Dictionary = m.send_stock_buying(home, far, c)
 	check(ro["ok"], "gate: Send to works once the post is open", str(ro))
@@ -3622,7 +3622,7 @@ func _test_clusters() -> void:
 	m.ships = m.engine.total_assigned()
 	m.ship_panel.set_upkeep(m)
 	check(m.free_ships() == 0 and m.ship_panel.free_label.text.contains("Send to... buys one") or m.ship_panel.free_label.text.contains("Not enough") or m.ship_panel.free_label.text.contains("limit"), "ships window: with no free ship it says what Send to... does", m.ship_panel.free_label.text)
-	# T158: B1 Prospecting shows ore left; price trend and margin warning are base game; best partner is B3
+	# T158: FND_PROSPECT Prospecting shows ore left; price trend and margin warning are base game; best partner is LUX_1
 	m.learned_skills.erase("FND_PROSPECT")
 	m.planet_panel.show_planet(0)
 	m.learned_skills.erase("FND_PROSPECT")
@@ -3894,23 +3894,23 @@ func _test_stall_rescue() -> void:
 	check(int(f2["delta"]) == int(r2["delta"]) and str(e.routes[0]["state"]) == "running", "stall: forecast equals settle for a starved loaded route", "%d vs %d" % [int(f2["delta"]), int(r2["delta"])])
 	_free_main(m)
 
-## Alpha fix 2026-11-02: mining is reachable from the start. A mining_focus-style player (B1 first) learns Prospecting
+## Alpha fix 2026-11-02: mining is reachable from the start. A mining_focus-style player (FND_PROSPECT first) learns Prospecting
 ## at cycle 1 with the start point, and again after Permit Charter without Space Storage, and can then plan an ore lane.
 func _test_mining_reachable() -> void:
 	_wipe_user()
 	var m: Control = await _new_main()
 	m._dismiss_preface()
-	check(m.skill_points >= int(m.balance["skill_cost_FND_PROSPECT"]), "mining reach: the start gives enough points for B1", str(m.skill_points))
-	check(m.learn_skill("FND_PROSPECT")["ok"] and m.can_mine(), "mining reach: B1 learned first, at cycle 1")
+	check(m.skill_points >= int(m.balance["skill_cost_FND_PROSPECT"]), "mining reach: the start gives enough points for FND_PROSPECT", str(m.skill_points))
+	check(m.learn_skill("FND_PROSPECT")["ok"] and m.can_mine(), "mining reach: FND_PROSPECT learned first, at cycle 1")
 	_free_main(m)
 	var m2: Control = await _new_main()
 	m2._dismiss_preface()
 	var cost_c1 := int(m2.balance["skill_cost_FND_PERMIT"])
-	check(m2.learn_skill("FND_PERMIT")["ok"], "mining reach: C1 first")
+	check(m2.learn_skill("FND_PERMIT")["ok"], "mining reach: FND_PERMIT first")
 	m2._add_points(int(m2.balance["skill_cost_FND_PROSPECT"]))
 	for i in 9:
 		m2.debug_advance_cycle()
-	check(m2.cycle <= 10 and m2.learn_skill("FND_PROSPECT")["ok"] and m2.can_mine(), "mining reach: B1 after C1 alone by cycle 10, no A1 needed", "cycle %d cost_c1 %d" % [m2.cycle, cost_c1])
+	check(m2.cycle <= 10 and m2.learn_skill("FND_PROSPECT")["ok"] and m2.can_mine(), "mining reach: FND_PROSPECT after FND_PERMIT alone by cycle 10, no FND_STORAGE needed", "cycle %d cost_c1 %d" % [m2.cycle, cost_c1])
 	_free_main(m2)
 
 ## Asteroid dust ring: exists, purely visual (no collision), and building/viewing it changes no game state.
@@ -4018,11 +4018,11 @@ func _test_fabric() -> void:
 	m.cash = 5000
 	var fabric_cost: int = int(m.balance.get("fabric_build_cost", 0))
 	check(m.commodities.has("plate") and fabric_cost > 0, "fabric: plate is a commodity, build cost set in balance", str(fabric_cost))
-	check(m.can_build_fabric()["reason"] == "skill" and not m.build_fabric()["ok"] and m.cash == 5000, "fabric: refused before F1, nothing paid")
+	check(m.can_build_fabric()["reason"] == "skill" and not m.build_fabric()["ok"] and m.cash == 5000, "fabric: refused before MIN_1, nothing paid")
 	m.learned_skills.append("FND_STORAGE")
 	m.learned_skills.append("MIN_1")
 	m._ensure_stations()
-	check(m.station_systems.has(1), "fabric: trading post (system 1 station) exists with A1")
+	check(m.station_systems.has(1), "fabric: trading post (system 1 station) exists with FND_STORAGE")
 	# build blocked until dross and nullglass both have a route into the trading post
 	check(m.can_build_fabric()["reason"] == "inputs" and not m.build_fabric()["ok"] and not m.fabric.built and m.cash == 5000, "fabric: build refused with no input routes, nothing paid")
 	m.engine.routes.append(m.engine.new_record(0, -1, "dross"))
@@ -4032,7 +4032,7 @@ func _test_fabric() -> void:
 	m.cash = fabric_cost - 1
 	check(m.can_build_fabric()["reason"] == "credits", "fabric: refused without the build cost in credits")
 	m.cash = 5000
-	check(m.build_fabric()["ok"] and m.cash == 5000 - fabric_cost and m.fabric.built, "fabric: builds after F1, build cost paid", str(m.cash))
+	check(m.build_fabric()["ok"] and m.cash == 5000 - fabric_cost and m.fabric.built, "fabric: builds after MIN_1, build cost paid", str(m.cash))
 	check(not m.build_fabric()["ok"] and m.cash == 5000 - fabric_cost, "fabric: paid once, a second build is refused")
 	m.engine.routes.clear()  # built stays built when routes go; later checks start route-free
 	check(m.fabric.built, "fabric: an already built fabric stays built without routes")
@@ -4088,10 +4088,10 @@ func _test_fabric() -> void:
 		if l.name == "FabricInputs" and "dross" in l.text and "nullglass" in l.text:
 			seen = true
 	check(seen, "fabric panel: lists inputs not yet reached (no route, no stock)")
-	# the locked-trade reason names A1 only while A1 is missing
-	check(not "FND_STORAGE" in m.trade_locked_reason() or not m.has_skill("FND_STORAGE"), "trade lock text: names A1 only without A1")
+	# the locked-trade reason names FND_STORAGE only while FND_STORAGE is missing
+	check(not "FND_STORAGE" in m.trade_locked_reason() or not m.has_skill("FND_STORAGE"), "trade lock text: names FND_STORAGE only without FND_STORAGE")
 	m.learned_skills.erase("FND_STORAGE")
-	check("A1" in m.trade_locked_reason(), "trade lock text: names A1 when it is not learned", m.trade_locked_reason())
+	check("Space Storage" in m.trade_locked_reason(), "trade lock text: names Space Storage when it is not learned", m.trade_locked_reason())
 	await _free_main(m)
 
 func _test_dead_world_mechanics() -> void:
@@ -4117,18 +4117,18 @@ func _test_dead_world_mechanics() -> void:
 	m.cash = 6000
 	m.ships = 3
 	var r: Dictionary = m.can_connect(d1, 0, "dross")
-	check(not r["ok"] and "Cold Survey" in str(r["reason"]), "dead gate: refused without M1 with a reason", str(r))
+	check(not r["ok"] and "Cold Survey" in str(r["reason"]), "dead gate: refused without MIN_3 with a reason", str(r))
 	m.learned_skills.append("MIN_3")
-	check(m.can_connect(d1, 0, "dross")["ok"], "dead gate: allowed with M1")
+	check(m.can_connect(d1, 0, "dross")["ok"], "dead gate: allowed with MIN_3")
 	m._open_system(2)
 	var g2: int = -1
 	for i in m.map.planets.size():
 		if str(m.map.planets[i].get("id", "")) == "dead_2":
 			g2 = i
 	var r2: Dictionary = m.engine.check_connection(g2, g2 - 1, "nullglass")
-	check(g2 >= 0 and not r2["ok"] and "Deep Cut" in str(r2["reason"]), "dead gate: Greywake refused without M2 (M1 does not open it)", str(r2))
+	check(g2 >= 0 and not r2["ok"] and "Deep Cut" in str(r2["reason"]), "dead gate: Greywake refused without MIN_5 (MIN_3 does not open it)", str(r2))
 	m.learned_skills.append("MIN_5")
-	check(m.engine.check_connection(g2, g2 - 1, "nullglass")["ok"], "dead gate: Greywake allowed with M2")
+	check(m.engine.check_connection(g2, g2 - 1, "nullglass")["ok"], "dead gate: Greywake allowed with MIN_5")
 	# danger
 	check(m.danger_of(d1) == 0 and m.danger_of(0) == 0, "danger: starts at 0")
 	m.set_local_order(d1, "dross", "buy", true)
@@ -4373,17 +4373,17 @@ func _test_dead_unlock_and_core() -> void:
 	m.debug_advance_cycle()
 	check(m.cycle == 15 and m.engine.dead_locked.is_empty(), "dead gate: open at cycle 15", str(m.cycle))
 	check(m.last_notice.begins_with("Dead worlds are open") or m.shown_notice.begins_with("Dead worlds are open") or m.notice_queue.any(func(t): return str(t).begins_with("Dead worlds are open")), "dead gate: one notice at the unlock cycle", m.last_notice)
-	check(m.can_connect(d1, 0, "dross")["ok"], "dead gate: route from Cinderrest allowed at cycle 15 with M1")
+	check(m.can_connect(d1, 0, "dross")["ok"], "dead gate: route from Cinderrest allowed at cycle 15 with MIN_3")
 	check(m.set_local_order(d1, "dross", "buy", true)["ok"], "dead gate: buy order allowed at 15")
 	# skill gate bypasses now closed
 	m.learned_skills.erase("MIN_3")
-	check(not m.engine.check_connection(d1, -1, "dross")["ok"] and not m.engine.check_local(d1, "dross", "buy")["ok"], "dead gate: send to storage and buy order need M1 too")
+	check(not m.engine.check_connection(d1, -1, "dross")["ok"] and not m.engine.check_local(d1, "dross", "buy")["ok"], "dead gate: send to storage and buy order need MIN_3 too")
 	m.learned_skills.append("MIN_3")
 	# save and load keeps a dead buy order and loads an old save with no dead data
 	m.set_local_order(d1, "dross", "buy", true)
 	var sv: Dictionary = m.collect_state()
 	m.apply_state(sv)
-	check(m.engine.local_on(d1, "dross", "buy"), "dead save: the buy order at a dead world survives load with M1")
+	check(m.engine.local_on(d1, "dross", "buy"), "dead save: the buy order at a dead world survives load with MIN_3")
 	m.apply_state({"cycle": 20, "cash": 500, "ships": 1})
 	check(m.cycle == 20 and m.danger_of(d1) == 0 and not m.fabric.built and m.fabric.core_made == 0 and m.events.scheduled.is_empty() and m.events.mods.is_empty(), "dead save: an old save with no dead data loads clean")
 	# a save made at cycle 3 holding a route from a dead world drops it
@@ -4403,7 +4403,7 @@ func _test_dead_unlock_and_core() -> void:
 	check(m.can_build_core()["reason"] == "credits", "null core: refused without the credits")
 	m.cash = 9000
 	m.learned_skills.erase("MIN_1")
-	check(m.can_build_core()["reason"] == "skill", "null core: needs F1")
+	check(m.can_build_core()["reason"] == "skill", "null core: needs MIN_1")
 	m.learned_skills.append("MIN_1")
 	var plate0: int = m.storage.amount(key, "plate")
 	check(m.build_null_core()["ok"] and m.fabric.core_made == 1 and m.cash == 9000 - int(m.balance["null_core_build_cost"]) and m.storage.amount(key, "plate") == plate0 - int(m.balance["null_core_in_plate"]), "null core: built, credits and inputs paid", str(m.cash))
