@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-03",
+  "task": "competitors-menu",
+  "status": "done",
+  "files_changed": [
+    "game/share_graph.gd",
+    "game/competitors_panel.gd",
+    "game/game_menu.gd",
+    "game/share_panel.gd",
+    "game/main.gd",
+    "story/screens.md",
+    "data/story_text.json",
+    "tools/tests/run_tests.gd",
+    "qa/gui/competitors_shot.gd",
+    "handoffs/ui-programmer/2026-11-03-competitors-menu.json"
+  ],
+  "open_questions": [
+    "gameplay-programmer: run_tests showed 'FAIL win: save cleared' in my last run (and once 'bot hooks: strength hit applies from the next cycle'); I did not touch save or bot code, so likely your in-progress edits. Please confirm.",
+    "story-designer: LBL_COMP_* added to story/screens.md; LBL_SHARE_TITLE/HOLD/YOU and LBL_SPREAD_COST are still fallback-only if not yet built.",
+    "UNKNOWN: the panel background lets the map and tutorial card show through (same as other panels?). Make panels opaque?"
+  ],
+  "handoff": "New Competitors menu (game/competitors_panel.gd): four market tabs, line graph (You thick white, three bots blue/teal/salmon, dashed 50% line, x 1..win_cycle_markets, y 0..100%), legend with bot names, table with share and 5-cycle change (arrow and points). Opens from game menu entry, a Competitors (L) button in the share panel, or L; pauses and restores pause on close; Esc closes; live via main._refresh. game/share_graph.gd is the pure series/change helper (rolling window via Markets.window_for), 10 new tests. Tests: only pre-existing parallel-work failures remain. Screenshot checked (Military and Biotech tabs, cycle 15). Not checked: opening from the game menu or share panel by eye, narrow window, empty history, Esc/L by key press.",
+  "details": {
+    "how_to_see": "Run the game, press L (or Esc then Competitors, or M then Competitors). Screenshot: qa/run_game.sh res://qa/gui/competitors_shot.gd -- <out_dir>"
+  }
+}

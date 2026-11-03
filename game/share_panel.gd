@@ -6,6 +6,7 @@ extends PanelContainer
 const StoryText := preload("res://game/story_text.gd")
 
 signal closed
+signal competitors_requested
 
 ## Draws the player's share as a bar with a mark at the win share.
 class ShareBar extends Control:
@@ -65,6 +66,11 @@ func setup(main_node: Control) -> void:
 	close.text = StoryText.get_or("SK_BTN_CLOSE", "Close")
 	close.pressed.connect(close_screen)
 	head.add_child(close)
+	var comp := Button.new()
+	comp.theme_type_variation = "ButtonGhost"
+	comp.text = StoryText.get_or("LBL_COMP_TITLE", "Competitors") + " (L)"
+	comp.pressed.connect(func(): competitors_requested.emit())
+	head.add_child(comp)
 	Markets.best()  # makes sure the registry is loaded
 	for m in Markets.ids:
 		var box := VBoxContainer.new()

@@ -95,6 +95,7 @@ var cluster_info_index: int = -1
 var goal_label: Label
 var share_chip: Button  # best market and share; opens the share panel (M)
 var share_panel: PanelContainer
+var competitors_panel: PanelContainer  # share graphs per market (L)
 var cycle_label: Label
 var pause_button: Button
 var progress: ProgressBar
@@ -216,6 +217,10 @@ func _ready() -> void:
 	share_panel = load("res://game/share_panel.gd").new()
 	add_child(share_panel)
 	share_panel.setup(self)
+	competitors_panel = load("res://game/competitors_panel.gd").new()
+	add_child(competitors_panel)
+	competitors_panel.setup(self)
+	share_panel.competitors_requested.connect(open_competitors)
 	for n in [tut_card, tut_arrow]:  # above the Skills window (the permit step points into it), below menus and popups
 		move_child(n, skill_screen.get_index() + 1)
 	space_storage_view = load("res://game/space_storage_view.gd").new()
@@ -229,6 +234,7 @@ func _ready() -> void:
 	galaxy_view.setup(self)
 	galaxy_view.system_chosen.connect(_on_galaxy_system)
 	game_menu.skills_requested.connect(open_skills)
+	game_menu.competitors_requested.connect(open_competitors)
 	game_menu.main_menu_requested.connect(_to_menu)
 	game_menu.quit_requested.connect(func(): save_now(); get_tree().quit())
 	var saved := SaveGame.load_state() if SaveGame.continue_requested else {}
@@ -770,6 +776,23 @@ func toggle_share_panel() -> void:
 		if skill_screen.visible:
 			skill_screen.close_screen()
 		share_panel.open_screen()
+
+func open_competitors() -> void:
+	if preface != null or game_over or competitors_panel.visible:
+		return
+	if galaxy_view != null and galaxy_view.visible:
+		galaxy_view.close_view()
+	if skill_screen.visible:
+		skill_screen.close_screen()
+	if share_panel.visible:
+		share_panel.close_screen()
+	competitors_panel.open_screen()
+
+func toggle_competitors() -> void:
+	if competitors_panel.visible:
+		competitors_panel.close_screen()
+	else:
+		open_competitors()
 
 func toggle_skills() -> void:
 	if skill_screen.visible:
@@ -2434,6 +2457,8 @@ func _unhandled_input(event: InputEvent) -> void:
 			galaxy_view.close_view()
 		elif skill_screen.visible:
 			skill_screen.close_screen()
+		elif competitors_panel.visible:
+			competitors_panel.close_screen()
 		elif share_panel.visible:
 			share_panel.close_screen()
 		elif space_storage_view.visible:
@@ -2450,7 +2475,9 @@ func _unhandled_input(event: InputEvent) -> void:
 		toggle_skills()
 	elif event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_M:
 		toggle_share_panel()
-	elif event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_SPACE and not game_menu.visible:
+	elif event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_L:
+		toggle_competitors()
+	elif event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_SPACE and not game_menu.visible and not competitors_panel.visible:
 		toggle_pause()
 
 func _build_ui() -> void:
@@ -2698,6 +2725,8 @@ func _refresh() -> void:
 	share_chip.tooltip_text = StoryText.get_or("LBL_SHARE_TITLE", "Market share") + " (M)"
 	if share_panel != null:
 		share_panel.refresh()
+	if competitors_panel != null:
+		competitors_panel.refresh()
 	goal_label.tooltip_text = ""
 	if second_lane_active():  # N11: the optional line follows the goal; the full text is also the tooltip
 		goal_label.tooltip_text = goal_label.text + "  " + second_lane_line()
