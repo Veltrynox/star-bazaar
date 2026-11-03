@@ -28,9 +28,11 @@ func _initialize() -> void:
 func _run() -> void:
 	_test_story_text()
 	_test_share_helpers()
+	_test_share_graph()
 	_test_picker()
 	_test_stats_file()
 	_test_markets()
+	_test_bot_hooks()
 	await _test_market_rules()
 	await _test_juice()
 	await _test_main()
@@ -183,6 +185,25 @@ func _test_share_helpers() -> void:
 	check(SP.chip_text({"market": "mil", "share": 0.344}, names) == "Military 34%", "share chip: market and percent")
 	check(SP.pct_text(0.5) == "50%", "share pct text")
 	check(not StoryText.has_text("LBL_GOAL") and StoryText.has_text("LBL_GOAL_MARKETS"), "story: old goal row gone, markets goal present")
+
+func _test_share_graph() -> void:
+	var G := load("res://game/share_graph.gd")
+	var s = G.series([10.0, 10.0, 10.0], [[10.0, 30.0, 0.0]], 2)
+	check(absf(s["player"][0] - 0.5) < 1e-6, "share graph: first cycle uses a partial window")
+	check(absf(s["player"][1] - 20.0 / 60.0) < 1e-6, "share graph: window of 2 sums cycles 1-2")
+	check(absf(s["player"][2] - 20.0 / 50.0) < 1e-6, "share graph: window drops cycle 1 at cycle 3")
+	check(absf(s["bots"][0][2] - 30.0 / 50.0) < 1e-6, "share graph: bot share over the same window")
+	var z = G.series([0.0, 0.0], [[0.0, 0.0], [0.0, 0.0]], 8)
+	check(z["player"] == [0.0, 0.0] and z["bots"][1] == [0.0, 0.0], "share graph: zero volume gives zero share")
+	check(G.series([], [[]], 8)["player"].is_empty(), "share graph: empty history")
+	var short = G.series([5.0], [[5.0]], 8)
+	check(absf(short["player"][0] - 0.5) < 1e-6, "share graph: window longer than history")
+	check(absf(G.change([0.1, 0.2, 0.3, 0.4, 0.5, 0.6], 5) - 0.5) < 1e-6, "share graph: change over 5 cycles")
+	check(absf(G.change([0.4, 0.5], 5) - 0.5) < 1e-6, "share graph: change over a short series counts from zero")
+	check(G.change([], 5) == 0.0, "share graph: change of nothing")
+	var CP := load("res://game/competitors_panel.gd")
+	check(CP.trend_text(0.056).ends_with("6") and CP.trend_text(-0.03).ends_with("3") and CP.trend_text(0.001) == "-", "competitors: trend text")
+	check(StoryText.has_text("LBL_COMP_TITLE") and StoryText.has_text("LBL_COMP_SHARE") and StoryText.has_text("LBL_COMP_TREND"), "story: competitors ids present")
 
 func _test_story_text() -> void:
 	var list = _read_json("res://data/story_text.json")
@@ -975,6 +996,82 @@ func _run_cycles(from: int, to: int, fill: Callable) -> Dictionary:
 		if not v.is_empty():
 			return {"cycle": c, "v": v}
 	return {"cycle": to, "v": {}}
+
+func _bot_run(bal: Dictionary, seed_v: int, from: int, to: int, hits: bool) -> void:
+	for c in range(from, to + 1):
+		if hits and c == 4:
+			Markets.hit_bot(1, "mil", "strength", -0.2)
+			Markets.hit_bot(2, "lux", "growth", 0.1)
+			Markets.hit_bot(3, "bio", "tier", -1)
+		Markets.cur["mil"] = 100.0 * c
+		Markets.end_cycle(c)
+
+func _test_bot_hooks() -> void:
+	var bal := _bal()
+	Markets.load_data()
+	var base := {}
+	# neutral defaults and size words
+	Markets.reset(bal, 7)
+	var d0 := Markets.bot_mods(1, "mil")
+	check(is_equal_approx(float(d0["strength_mult"]), 1.0) and int(d0["tier_offset"]) == 0 and float(d0["growth_add"]) == 0.0, "bot hooks: neutral mods by default")
+	check(is_equal_approx(Markets.size_pct("S"), 0.05) and is_equal_approx(Markets.size_pct("M"), 0.1) and is_equal_approx(Markets.size_pct("L"), 0.2) and Markets.size_pct("X") == 0.0, "bot hooks: size_pct S/M/L from balance")
+	# strength hit changes the next volume only, history stays
+	_bot_run(bal, 7, 1, 3, false)
+	var hist_before := Markets.bot_history(1, "mil").duplicate()
+	Markets.hit_bot(1, "mil", "strength", -0.2)
+	check(Markets.bot_history(1, "mil") == hist_before, "bot hooks: history not rewritten by a hit")
+	Markets.cur["mil"] = 0.0
+	Markets.end_cycle(4)
+	var hit4: float = Markets.bot_history(1, "mil")[3]
+	var exp4 := Bots.volume(bal, 7, 1, "mil", 4, float(Markets.gap.get("1|mil", 0.0)), 0, 0.8)
+	check(absf(hit4 - exp4) < 0.001 and hit4 < Bots.volume(bal, 7, 1, "mil", 4, float(Markets.gap.get("1|mil", 0.0))), "bot hooks: strength hit applies from the next cycle", "%f %f" % [hit4, exp4])
+	# stacking multiplicative
+	Markets.hit_bot(1, "mil", "strength", -0.1)
+	check(absf(float(Markets.bot_mods(1, "mil")["strength_mult"]) - 0.72) < 0.0001, "bot hooks: strength hits stack multiplicatively")
+	Markets.hit_bot(2, "lux", "growth", 0.1)
+	Markets.hit_bot(2, "lux", "growth", 0.1)
+	check(absf(float(Markets.bot_mods(2, "lux")["growth_mult"]) - 1.21) < 0.0001 and is_equal_approx(float(Markets.bot_mods(2, "mil")["growth_mult"]), 1.0), "bot hooks: growth hits stack, other markets untouched")
+	check(absf(Bots.volume(bal, 7, 2, "lux", 9, 0.0, 0, 1.0, 1.0, 5.0) - Bots.volume(bal, 7, 2, "lux", 9, 0.0, 0, 1.0, 1.0, 0.0)) > 0.0, "bot hooks: growth_add raises volume")
+	# tier: -1 lowers effective tier, clamps at 1
+	Markets.reset(bal, 7)
+	var t_late := 40
+	Markets.hit_bot(1, "mil", "tier", -1)
+	var off := int(Markets.bot_mods(1, "mil")["tier_offset"])
+	check(off == -1 and Bots.tier(bal, 1, t_late, off) == 2 and Bots.tier(bal, 1, 1, off) == 1, "bot hooks: tier hit is -1 and the effective tier stays within 1..4")
+	for i in 6:
+		Markets.hit_bot(1, "mil", "tier", -1)
+	check(int(Markets.bot_mods(1, "mil")["tier_offset"]) == -3 and Bots.tier(bal, 1, 1, -3) == 1 and Bots.tier(bal, 1, 99, 9) == 4, "bot hooks: tier offset clamped")
+	check(not Markets.hit_bot(9, "mil", "strength", 0.1) and not Markets.hit_bot(1, "zzz", "strength", 0.1) and not Markets.hit_bot(1, "mil", "bogus", 0.1), "bot hooks: bad bot, market or stat rejected")
+	# determinism and save round trip with hits over 10 cycles
+	Markets.reset(bal, 99)
+	_bot_run(bal, 99, 1, 10, true)
+	var full := JSON.stringify(Markets.to_dict())
+	Markets.reset(bal, 99)
+	_bot_run(bal, 99, 1, 10, true)
+	check(JSON.stringify(Markets.to_dict()) == full, "bot hooks: same seed and hits give identical numbers")
+	Markets.reset(bal, 99)
+	_bot_run(bal, 99, 1, 6, true)
+	var mid = JSON.parse_string(JSON.stringify(Markets.to_dict()))
+	Markets.reset(bal, 0)
+	Markets.from_dict(mid, bal)
+	check(Markets.bot_history(1, "mil").size() == 6 and absf(float(Markets.bot_mods(1, "mil")["strength_mult"]) - 0.8) < 0.0001 and int(Markets.bot_mods(3, "bio")["tier_offset"]) == -1, "bot hooks: mods and history survive save and load")
+	_bot_run(bal, 99, 7, 10, false)
+	check(JSON.stringify(Markets.to_dict()) == full, "bot hooks: a loaded run continues with identical numbers")
+	# a v2 save without mods still loads
+	var old = JSON.parse_string(JSON.stringify(mid))
+	old.erase("mods")
+	Markets.from_dict(old, bal)
+	check(Markets.bot_history(1, "mil").size() == 6 and is_equal_approx(float(Markets.bot_mods(1, "mil")["strength_mult"]), 1.0), "bot hooks: save without mods loads with defaults")
+	# events.gd bot_effect
+	var ev = preload("res://game/events.gd").new()
+	Markets.reset(bal, 5)
+	var ch := {"text": "x", "bot_effect": [{"bot": 2, "market": "min", "stat": "strength", "size": "M"}, {"bot": 3, "market": "mil", "stat": "growth", "amount": 0.2}, {"bot": 1, "market": "lux", "stat": "tier", "amount": -1}]}
+	check(ev.apply_bot_effect(ch) == 3 and absf(float(Markets.bot_mods(2, "min")["strength_mult"]) - 0.9) < 0.0001 and absf(float(Markets.bot_mods(3, "mil")["growth_mult"]) - 1.2) < 0.0001 and int(Markets.bot_mods(1, "lux")["tier_offset"]) == -1, "bot hooks: events.gd bot_effect applies size, amount and tier hits")
+	check(ev.apply_bot_effect({"text": "none"}) == 0 and ev.apply_bot_effect("plain") == 0, "bot hooks: choices without bot_effect do nothing")
+	# bots are numbers only: no nodes
+	var src := FileAccess.get_file_as_string("res://game/bots.gd") + FileAccess.get_file_as_string("res://game/markets.gd")
+	check(not src.contains("Node.new") and not src.contains("add_child") and not src.contains("Sprite") and not src.contains("preload(\"res://game/map"), "bot hooks: bots.gd and markets.gd create no nodes")
+	Markets.reset(bal, 0)
 
 func _test_markets() -> void:
 	var bal := _bal()

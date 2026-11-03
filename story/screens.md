@@ -374,3 +374,8 @@ LBL_SHARE_TITLE | 24 | Market share panel heading | Market share
 LBL_SHARE_HOLD | 40 | Market share panel, cycles the player has held the lead | Held {n} of {total} cycles
 LBL_SPREAD_COST | 40 | Market panel, cost of holding several markets | Spreading cost per cycle: {n}
 LBL_SHARE_YOU | 24 | Market share rows and end screen readout, the player's row | You
+
+## Competitors menu (added 2026-11-03)
+LBL_COMP_TITLE | 24 | Competitors menu heading, game menu entry and share panel button | Competitors
+LBL_COMP_SHARE | 24 | Competitors table column, current market share | Share
+LBL_COMP_TREND | 24 | Competitors table column, change over the last 5 cycles | Last 5 cycles

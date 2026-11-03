@@ -1518,6 +1518,24 @@
   "place": "Market share rows and end screen readout, the player's row"
  },
  {
+  "id": "LBL_COMP_TITLE",
+  "text": "Competitors",
+  "max": 24,
+  "place": "Competitors menu heading, game menu entry and share panel button"
+ },
+ {
+  "id": "LBL_COMP_SHARE",
+  "text": "Share",
+  "max": 24,
+  "place": "Competitors table column, current market share"
+ },
+ {
+  "id": "LBL_COMP_TREND",
+  "text": "Last 5 cycles",
+  "max": 24,
+  "place": "Competitors table column, change over the last 5 cycles"
+ },
+ {
   "id": "SK_M1_NAME",
   "text": "Cold Survey",
   "max": 24,
