@@ -80,7 +80,6 @@ LBL_TRIP_COST | 24 | Route panel, cost of one trip on a route | Trip cost
 ST_WAITING_ROOM | 24 | Route panel, status of a route that waits because the destination is full | Waiting for room
 
 ## Skill screen extras
-SK_CONFIRM | 110 | Skill screen, confirm dialog before Learn | Learn {skill}?
 SK_BTN_CLOSE | 24 | Skill screen, close button | Close
 SK_NONE_SELECTED | 110 | Skill screen, detail panel before a click | Click a skill to see what it does.
 SK_BTN_LEARNED | 24 | Learn button, disabled on a learned skill | Learned

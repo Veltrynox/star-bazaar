@@ -264,12 +264,6 @@
   "place": "Route panel, status of a route that waits because the destination is full"
  },
  {
-  "id": "SK_CONFIRM",
-  "text": "Learn {skill}?",
-  "max": 110,
-  "place": "Skill screen, confirm dialog before Learn"
- },
- {
   "id": "SK_BTN_CLOSE",
   "text": "Close",
   "max": 24,
