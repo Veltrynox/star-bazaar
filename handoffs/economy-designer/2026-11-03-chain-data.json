@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "agent": "economy-designer",
+  "date": "2026-11-03",
+  "task": "Chain data: data/chains.json for 28 market chain steps, 12 new pool events, kept pool",
+  "status": "done",
+  "files_changed": [
+    "data/chains.json",
+    "data/balance.json",
+    "tools/check_chains.py",
+    "handoffs/economy-designer/2026-11-03-chain-data.json"
+  ],
+  "open_questions": [
+    "UNKNOWN: planets for story names Quillon, Brannock, Mossfell; mapped to planet_2, planet_3, planet_2 (story text must be reworded).",
+    "UNKNOWN: which route 'one route' means for trip_cost_pct (I suggest the busiest route of that market); how the code applies the 'rest' value 99 beyond cycle 40.",
+    "dir swing key: core 4.2 names the 25 threshold dir_swing_min_abs (used); economy 8.3 called it dir_swing_threshold (not added)."
+  ],
+  "handoff": "data/chains.json: vocabulary block at top (signed values, cycles_key 99 = rest of run, player effect types, bot_effect, trigger tree), 28 steps (id, market, chain, step, trigger, requires_prev_step, min_gap_key chain_min_gap, opt_a/opt_b with dir, gets, costs, bot), pool_new EV40-51, pool_kept (24, optional small bot_effect), pool_retired EV18, Minerals A follow-ups, legacy ids EV29/32/35. 211 new chain_* keys and rule keys in balance.json (data_version 38, old keys kept; event_hit_strength_L 0.18 vs old event_hit_l 0.2). dir values follow core 4.3 (four economy 8.2 dir cells were stale: MIN_A3, MIN_B2, BIO_A3, BIO_B2). Bot boosts live in the bot list only, not in costs. Pool new numbers marked picked are mine. Run python3 -I tools/check_chains.py.",
+  "details": {
+    "changes": [
+      {
+        "key": "chain_* (211), dir_nudge_cap 14, dir_echo_mult 1.25, dir_swing_mult 1.5, dir_swing_min_abs 25, dir_min/max, dir_good_min 0, win_gate_cycle 38, chain_min_gap 3, event_hit_strength/growth/tier sizes",
+        "old": null,
+        "new": "added",
+        "reason": "economy 8.1/8.2 and core 4.2; no existing key changed"
+      }
+    ],
+    "sim_results": []
+  }
+}
