@@ -1,0 +1,35 @@
+[
+  {
+    "run_id": "cp_dead_run_1 (same pattern in cp_dead_run_2 to 8)",
+    "seed": 1,
+    "strategy": "dead_run",
+    "issue_type": "unclear_rule",
+    "severity": "medium",
+    "steps": "Headless: TMPDIR=<private> sh qa/bots/run_batch.sh <out> with STRATEGIES=dead_run SEEDS=\"1 2 3 4 5 6 7 8\" EXTRA=\"--permit=2 --skill-order=B1,C1,A1,M1,M2,F1,C3 --inject=15:1500\" (fast clock). Read plate_log in the RESULT line of cp_dead_run_1: fabric built cycle 15, Null Core fitted cycle 16, then plate column stays at 1 from cycle 16 to cycle 30 while nullglass rises 17 to 253 and dross 16 to 240 (both sit at the source cap, src132, from about cycle 19).",
+    "expected": "UNKNOWN: whether the fabric should keep producing plate after the first Null Core (one plate per fit, or a steady output). QA cannot tell from the bot output. Owner to confirm the intended plate rate.",
+    "actual": "Plate count is 1 at every cycle from 16 (seed 1), 16 (seeds 2, 3, 4, 8), 17 (seeds 5, 6), 20 (seed 7). Fabric state is running/true at the end. Inputs pile up unused. Null Core fitted in 8 of 8 seeds, so the chain itself completes; only the plate output looks flat.",
+    "owner_agent": "gameplay-programmer (producer to confirm intent)"
+  },
+  {
+    "run_id": "np_dead_run_7",
+    "seed": 7,
+    "strategy": "dead_run",
+    "issue_type": "bot_gap",
+    "severity": "low",
+    "steps": "Headless: STRATEGIES=dead_run SEEDS=\"1 2 3 4 5 6 7 8\" EXTRA=\"--permit=2\" (no --skill-order, no --inject), fast clock. Seed 7 dead_log: cycle 15 'attempt station' nullglass refused with 'Routes between systems need Long Haul (C3).' skills_learned ends at C2 (cycle 8). No nullglass route ever opens, so the fabric stays unrouted and is never built (fabric_log: refused 'inputs' at cycle 8, no 'built' entry). Seeds 1 to 6 and 8 build the fabric at cycle 15.",
+    "expected": "Fabric builds once both dross and nullglass have a route into system 1 storage (the fabric-block rule). With no C3 learned, the nullglass route is correctly refused, so the block is expected for this seed.",
+    "actual": "The fabric block holds as designed. Cause is the bot's default skill order: C3 (Long Haul) is not reached by cycle 29 in seed 7. Not a game bug and not a softlock: the player can learn C3 later, and the refusal message names the missing skill. Seed 7 ends as a win at cycle 29 anyway.",
+    "owner_agent": "qa-analyst (qa/bots/bot_run.gd dead_run default skill order)"
+  },
+  {
+    "run_id": "d1_decent_2 (also d1_decent_4)",
+    "seed": 2,
+    "strategy": "decent",
+    "issue_type": "pacing",
+    "severity": "medium",
+    "steps": "Headless: TMPDIR=<private> sh qa/bots/run_batch.sh <out> with STRATEGIES=decent SEEDS=\"1 2 3 4 5 6 7 8\" (default flags, fast clock). Seed 2 win at cycle 21 (CORP ending), seed 4 win at cycle 21 (CORP ending).",
+    "expected": "Decent player wins at about cycle 22 to 30 (rule: flag a win before about 22).",
+    "actual": "Wins at 21 in 2 of 8 seeds. Remaining wins 22, 22, 23, 23, 24, 25. Median 22.5. Owner decision 2026-11-03: pacing stays as it is, so this is recorded and not a blocker.",
+    "owner_agent": "producer (owner decision: pacing unchanged)"
+  }
+]

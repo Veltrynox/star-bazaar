@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "agent": "qa-analyst",
+  "date": "2026-11-03",
+  "task": "chain-after-fabric-block",
+  "status": "done",
+  "files_changed": [
+    "qa/reports/2026-11-03-chain-after-fabric-block.md",
+    "qa/reports/2026-11-03-bug_report-chain-after-fabric-block.json",
+    "handoffs/qa-analyst/2026-11-03-chain-after-fabric-block.json"
+  ],
+  "open_questions": [
+    "UNKNOWN: intended plate output after the first Null Core (plate stays at 1 from cycle 16 to 30 in all 8 chain seeds while inputs pile up). Owner to confirm.",
+    "UNKNOWN: why win counts rose after the fabric block (permit-only 1 to 4 of 8; chain with permit 2 to 3 of 8). Not isolated.",
+    "UNKNOWN: release binary export check (not run this batch)."
+  ],
+  "handoff": "PASS decent default: 8/8 wins, cycles 21,21,22,22,23,23,24,25, median 22.5. PASS chain with permit: plate made 8/8, Null Core fitted 8/8 (fabric built cycle 15 in seeds 1-6,8; cycle 16 in seed 7); wins 3/8 (26, 28, 28). PASS no softlock: 0 frozen, 0 crash, 0 SCRIPT ERROR or Parse Error in 24 logs. PASS tests: TOTAL pass=965 fail=0. Fabric block stopped the fabric in one seed: permit-only seed 7, nullglass route refused ('needs Long Haul C3', never learned by bot default order); not a game bug. Medium flag: plate flat at 1 after first Null Core (owner to confirm intent). Medium, owner-decided: decent wins at 21 in 2 of 8. Bug report has 3 entries.",
+  "details": {
+    "results": {
+      "decent_default": {"wins": "8/8", "win_cycles": [21, 21, 22, 22, 23, 23, 24, 25], "median": 22.5, "permit_cycles": "6-9"},
+      "dead_run_chain_permit": {"wins": "3/8", "win_cycles": [26, 28, 28], "plate_seeds": "8/8", "null_core_fitted_seeds": "8/8", "fabric_built_cycle": "15 (seeds 1-6, 8), 16 (seed 7)"},
+      "dead_run_permit_only": {"wins": "4/8", "win_cycles": [27, 29, 30, 30], "median": 29.5, "fabric_built": "7/8 (seed 7 never built)"}
+    },
+    "errors": {"SCRIPT_ERROR": 0, "Parse_Error": 0, "crash": 0, "frozen": 0, "macos_audio_line_only": true},
+    "tests": {"command": "TMPDIR=<private>/tests/tmp sh tools/tests/run.sh", "pass": 965, "fail": 0},
+    "bug_report": "qa/reports/2026-11-03-bug_report-chain-after-fabric-block.json",
+    "scratch_dirs": "<scratchpad>/chain1/decent, <scratchpad>/chain2/chain_permit, <scratchpad>/chain3/nochain, <scratchpad>/tests"
+  }
+}
