@@ -4,6 +4,7 @@ extends SceneTree
 ## Tests only read behaviour; they change no game code.
 
 const StoryText := preload("res://game/story_text.gd")
+const SaveGame := preload("res://game/save_game.gd")
 const EndingPicker := preload("res://game/ending_picker.gd")
 const Storage := preload("res://game/storage.gd")
 const Clusters := preload("res://game/clusters.gd")
@@ -253,7 +254,7 @@ func _test_story_text() -> void:
 
 # ---- 2. skill branch helpers (the old ending picker was removed with the cash goal) ----
 func _test_picker() -> void:
-	check(EndingPicker.branch_size("A") > 0 and EndingPicker.branch_size("B") > 0 and EndingPicker.branch_size("C") > 0, "picker: branch sizes read from story ids")
+	check(EndingPicker.techs_of("min") == ["MIN_2", "MIN_4", "MIN_6"], "picker: three techs per market, read from skills.json")
 
 # ---- 3. stats file ----
 func _test_stats_file() -> void:
@@ -521,7 +522,7 @@ func _test_tutorial_steps() -> void:
 	m.tut_step = 7
 	check(m._tut_target_node("skills") == m.points_button, "tutorial highlight: skills step outlines the Skills button")
 	m.tut_step = 8
-	check(m._tut_target_node("permit") == m.skill_screen.node_buttons["C1"], "tutorial highlight: permit step outlines Permit Charter in the Skills window")
+	check(m._tut_target_node("permit") == m.skill_screen.node_buttons["FND_PERMIT"], "tutorial highlight: permit step outlines Permit Charter in the Skills window")
 	m.tut_step = 1
 	m._tut_update_highlight()
 	check(m.tut_hl.visible, "tutorial highlight: outline shows over the control")
@@ -788,155 +789,85 @@ func _test_main() -> void:
 		check(false, "points: local order could be placed", str(r))
 	await _free_main(m)
 
-	# --- skill effect keys ---
+	# --- skill keys: every node has a cost key, a story name and numeric effect keys ---
 	m = await _new_main()
 	m._dismiss_preface()
-	var keys := []
-	for k in bal:
-		if str(k).begins_with("skill_") and not str(k).begins_with("skill_cost_") and not str(k).begins_with("skill_points_"):
-			keys.append(k)
-	check(keys.size() > 0, "skills: effect keys present in balance.json", str(keys))
-	var allnum := true
-	for k in keys:
-		if typeof(bal[k]) != TYPE_FLOAT and typeof(bal[k]) != TYPE_INT:
-			allnum = false
-	check(allnum, "skills: effect keys are numbers")
+	check(SkillTree.all_ids().size() == 31, "skills: 3 Foundations plus 28 market nodes", str(SkillTree.all_ids().size()))
 	var costs_ok := true
-	for s in ["A1", "A2", "A4", "A5", "B1", "B2", "B3", "B4", "C1", "C2", "C3", "C4"]:
-		if not bal.has("skill_cost_" + s) or not StoryText.has_text("SK_%s_NAME" % s):
+	var keys_ok := true
+	for id in SkillTree.all_ids():
+		if not bal.has("skill_cost_" + id) or not StoryText.has_text("SK_%s_NAME" % id):
 			costs_ok = false
-	check(costs_ok, "skills: every skill has a cost key and a story name")
-	var e = m.engine
-	e.learned = []
-	var u0: int = e.units_per_cycle()
-	var l0: int = e.local_amount()
-	var f0: int = e.fixed_cost()
-	e.learned = ["A4"]
-	check(e.units_per_cycle() == floori(float(m.trade.capacity()) / (2.0 * maxf(0.0001, m.trade.travel_cycles())) * (1.0 + float(bal["skill_A4_route_units"]))) and e.units_per_cycle() > u0, "skills: A4 raises route units by skill_A4_route_units")
-	e.learned = ["B2"]
-	check(e.local_amount() == floori(float(bal["order_amount"]) * (1.0 + float(bal["skill_B2_order_units"]))) and e.local_amount() > l0, "skills: B2 raises order units by skill_B2_order_units")
-	e.learned = ["A5"]
-	check(e.fixed_cost() < f0, "skills: A5 lowers upkeep")
-	e.learned = ["A1", "A2", "B1", "B3", "B4", "C1", "C2", "C3", "C4"]
-	check(e.units_per_cycle() == u0 and e.local_amount() == l0 and e.fixed_cost() == f0, "skills: other skills do not change engine numbers (B3 margin only touches sell credits)")
-	e.learned = m.learned_skills
+		for ef in SkillTree.effects(id):
+			for fk in ["key", "duration_key", "cooldown_key", "cap_key"]:
+				if ef.has(fk) and not (bal.has(str(ef[fk])) and (typeof(bal[str(ef[fk])]) == TYPE_FLOAT or typeof(bal[str(ef[fk])]) == TYPE_INT)):
+					keys_ok = false
+					print("  missing key ", ef[fk])
+		if SkillTree.is_tech(id) and (SkillTree.cost(bal, id) != 0 or SkillTree.tech_goal(bal, id) <= 0):
+			keys_ok = false
+	check(costs_ok, "skills: every node has a cost key and a story name")
+	check(keys_ok, "skills: every effect key named in skills.json is a number in balance.json; techs cost 0 and have a goal")
+	var old_gone := true
+	for k in bal:
+		if str(k).begins_with("skill_cost_") and not SkillTree.has(str(k).trim_prefix("skill_cost_")):
+			old_gone = false
+	check(old_gone and not bal.has("skill_A4_route_units") and not bal.has("skill_B3_margin") and not bal.has("skill_C4_permit_discount"), "skills: no old A/B/C/M/F balance keys left")
+	check(int(bal["skill_points_route"]) == 1 and int(bal["skill_points_system"]) == 2 and int(bal["permit_points_2"]) == 2 and int(bal["permit_points_3"]) == 2, "skills: economy retunes applied (route 1, system 2, permits 2/2)")
 	await _free_main(m)
 	await _test_skill_screen()
+	_test_skills_core()
 	_wipe_user()
 
-# ---- 5. skill screen and learning (T71) ----
+# ---- 5. skills: learning through main (T71, four market trees) ----
 func _test_skill_screen() -> void:
-	const ST := preload("res://game/skill_tree.gd")
 	_wipe_user()
 	var m: Control = await _new_main()
 	m._dismiss_preface()
 	var bal: Dictionary = m.balance
-	check(ST.all_ids().size() == 15, "skills: 12 story nodes (A3 cut) plus M1, M2, F1")
-	check(ST.prereqs("A1").is_empty() and ST.prereqs("A4") == ["A2"] and ST.prereqs("A5") == ["A4"] and ST.prereqs("C3") == ["C2", "A1"], "skills: prerequisites chain, C3 also needs A1")
+	check(SkillTree.prereqs("MIL_3") == ["MIL_1"] and SkillTree.prereqs("MIN_1") == ["FND_PROSPECT"] and SkillTree.prereqs("MIL_6") == ["MIL_4", "MIL_5"] and SkillTree.prereqs("BIO_7") == ["BIO_6"] and SkillTree.prereqs("FND_PERMIT").is_empty(), "skills: prerequisites follow core 3.1")
 	check(m.learned_skills.is_empty(), "skills: nothing learned at start")
-	# top bar
 	# cost and points
 	m.skill_points = 0
-	m.pts_planets = [0, 1, 2]
-	m.pts_pairs = ["0-1", "0-2"]
-	m.learned_skills.append("C1")  # permit first: with C1 known, the points check is what refuses A1
-	var r: Dictionary = m.learn_skill("A1")
-	check(not r["ok"] and r["reason"] == "points" and m.learned_skills == ["C1"], "skills: not enough points blocks learning")
-	m.learned_skills.clear()
+	var r: Dictionary = m.learn_skill("FND_STORAGE")
+	check(not r["ok"] and r["reason"] == "points" and m.learned_skills.is_empty(), "skills: not enough points blocks learning")
 	m.skill_points = 10
-	r = m.learn_skill("A2")
-	check(not r["ok"] and r["reason"] == "locked" and m.skill_points == 10, "skills: locked skill cannot be learned, points kept")
-	r = m.learn_skill("C3")
-	check(not r["ok"] and r["reason"] == "locked", "skills: C3 locked at start")
-	check(ST.state([], "C4") == "locked" and ST.state(["A1", "C1", "C2"], "C4") == "available" and ST.state(["C2"], "C4") == "locked" and ST.prereqs("C4") == ["C2"], "skills: C4 locked before C2, available after C2 without C3")
-	r = m.learn_skill("C4")
-	check(not r["ok"] and r["reason"] == "locked", "skills: C4 locked at start")
-	var cost_a1 := int(bal["skill_cost_A1"])
-	# A1 gate (owner decision 2026-11-03): two routes, any planet
-	var pts0: Array = m.pts_planets.duplicate()
-	var pairs0: Array = m.pts_pairs.duplicate()
-	m.pts_planets = [0, 1, 2]
-	m.pts_pairs = []
-	check(not m.a1_gate_open() and m.learn_skill("A1")["reason"] == "locked", "A1 gate: all planets visited but no route is locked")
-	m.pts_planets = [0, 1, 2]
-	m.pts_pairs = ["0-1"]
-	check(not m.a1_gate_open() and m.learn_skill("A1")["reason"] == "locked", "A1 gate: one route is still locked")
-	m.learned_skills.append("C1")  # permit first: the gate alone decides A1 from here
-	m.pts_planets = [0, 1]
-	m.pts_pairs = ["0-1", "1-3"]
-	check(m.a1_gate_open() and SkillTree.state([], "A1", m.skill_ctx()) == "available", "A1 gate: two routes open it, no other planet visits needed")
-	m.pts_planets = []
-	m.pts_pairs = ["4-5", "6-7"]
-	check(m.a1_gate_open() and SkillTree.state([], "A1", m.skill_ctx()) == "available", "A1 gate: opens on any planets, not just system 1")
+	r = m.learn_skill("MIL_3")
+	check(not r["ok"] and r["reason"] == "locked" and m.skill_points == 10, "skills: a skill without its prerequisite is locked, points kept")
+	r = m.learn_skill("MIL_2")
+	check(not r["ok"] and r["reason"] == "locked", "skills: tech locked before its prerequisite")
+	m.learned_skills.append("MIL_1")
+	r = m.learn_skill("MIL_2")
+	check(not r["ok"] and r["reason"] == "tech" and not m.learned_skills.has("MIL_2") and m.skill_points == 10, "skills: a tech cannot be bought, even with points")
 	m.learned_skills.clear()
-	m.pts_planets = pts0
-	m.pts_pairs = pairs0
-	m.pts_planets = [0, 1, 2]
-	m.pts_pairs = ["0-1", "0-2"]
-	# permit first: with no C1, nothing else can be learned
-	m.skill_points = 100
-	r = m.learn_skill("A1")
-	check(not r["ok"] and r["reason"] == "locked" and r.get("why", "") == "permit_first" and m.learned_skills.is_empty() and m.skill_points == 100, "permit first: A1 locked without C1, with reason")
-	r = m.learn_skill("B1")  # alpha fix 2026-11-02: Prospecting is gated by neither rule, so mining is reachable at once
-	check(r["ok"] and m.learned_skills == ["B1"] and m.skill_points == 100 - int(bal["skill_cost_B1"]), "mining gate: B1 learnable first, before C1 and A1, at its normal cost")
-	m.learned_skills.clear()
-	m.skill_points = 100
-	check(ST.state([], "B1", m.skill_ctx()) == "available" and ST.state([], "B2", m.skill_ctx()) == "locked" and ST.state([], "C1", m.skill_ctx()) == "available", "permit first: B1 and C1 available, the rest locked")
-	check(ST.state(["A1"], "A1", {"c1_learned": false}) == "learned", "permit first: an already learned skill is not revoked")
-	r = m.learn_skill("C1")
-	check(r["ok"] and m.learned_skills == ["C1"] and m.skill_points == 100 - int(bal["skill_cost_C1"]), "permit first: C1 learnable first at its normal cost")
-	r = m.learn_skill("B2")
-	check(not r["ok"] and r["reason"] == "locked" and r.get("why", "") == "first_row", "first row: B2 still locked after C1 alone, with reason")
-	check(ST.state(["C1"], "B2", m.skill_ctx()) == "locked" and ST.state(["A1", "C1", "B1"], "B2", m.skill_ctx()) == "available" and ST.state(["B1"], "B1", m.skill_ctx()) == "learned", "first row: B2 opens with A1, C1 and B1; a learned skill stays learned")
-	check(ST.first_row_blocks([], "B2") and not ST.first_row_blocks([], "A1") and not ST.first_row_blocks([], "C1") and not ST.first_row_blocks([], "B1") and ST.in_first_row("B1") and not ST.first_row_blocks(["A1", "C1"], "B2"), "first row: lock rule in skill_tree (B1 free)")
-	# the A1 gate (two routes) does not stand in the way of mining: C1 + B1 only
-	check(m.learned_skills == ["C1"] and m.learn_skill("B1")["ok"], "mining gate: B1 after C1 without A1")
-	m.learned_skills.erase("B1")
-	m.skill_points = 10
-	r = m.learn_skill("A1")
-	check(r["ok"] and m.learned_skills == ["C1", "A1"] and m.skill_points == 10 - cost_a1, "skills: learning spends skill_cost_A1")
-	check(m.last_notice == StoryText.get_text("NOT_SKILL_LEARNED", {"skill": StoryText.get_text("SK_A1_NAME")}), "skills: learn posts the skill notice", m.last_notice)
-	r = m.learn_skill("A1")
-	check(not r["ok"] and r["reason"] == "known" and m.skill_points == 10 - cost_a1, "skills: a learned skill is not charged twice")
-	m.learn_skill("A2")
-	check(m.learned_skills == ["C1", "A1", "A2"], "skills: A2 learnable after A1")
-	m.learn_skill("A5")
-	check(not m.learned_skills.has("A5"), "skills: A5 needs A4")
-	m.skill_points = 50
-	for id in ["A4", "A5"]:
-		m.learn_skill(id)
-	check(m.engine.learned.has("A4") and m.engine.learned == m.learned_skills, "skills: engine sees learned skills (A4)")
-	m.learn_skill("C2")
-	m.learn_skill("C3")
-	check(m.learned_skills.has("C3"), "skills: C3 after C2 and A1")
-	# screen
+	# Foundations are free from cycle 1, any order, at their cost
+	r = m.learn_skill("FND_PERMIT")
+	check(r["ok"] and m.learned_skills == ["FND_PERMIT"] and m.skill_points == 10 - int(bal["skill_cost_FND_PERMIT"]), "skills: Foundations open at once, learning spends skill_cost_<id>")
+	check(m.last_notice == StoryText.get_text("NOT_SKILL_LEARNED", {"skill": StoryText.get_text("SK_FND_PERMIT_NAME")}), "skills: learn posts the skill notice", m.last_notice)
+	r = m.learn_skill("FND_PERMIT")
+	check(not r["ok"] and r["reason"] == "known" and m.skill_points == 9, "skills: a learned skill is not charged twice")
+	r = m.learn_skill("MIN_1")
+	check(not r["ok"] and r["reason"] == "locked", "skills: MIN_1 needs FND_PROSPECT")
+	m.learn_skill("FND_PROSPECT")
+	r = m.learn_skill("MIN_1")
+	check(r["ok"] and m.learned_skills == ["FND_PERMIT", "FND_PROSPECT", "MIN_1"], "skills: MIN_1 after FND_PROSPECT")
+	check(Skills.learned == m.learned_skills and Skills.is_learned("MIN_1"), "skills: Skills.learned is the learned set")
+	# space storage, permits and cluster routes follow the Foundations
+	check(not m.space_post_open(1) and m.can_mine() and Skills.unlocked("permit_routes"), "skills: FND_PROSPECT opens cluster routes, FND_PERMIT permit routes, no storage yet")
+	m.learn_skill("FND_STORAGE")
+	check(m.space_post_open(1) and Skills.unlocked("space_storage"), "skills: FND_STORAGE opens the Space Storage post")
+	# the screen still opens (the rebuild is the UI task)
 	var sc: PanelContainer = m.skill_screen
 	check(not sc.visible, "skills screen: closed at start")
 	var ev := InputEventKey.new()
 	ev.keycode = KEY_K
 	ev.pressed = true
 	m._unhandled_input(ev)
-	check(sc.visible, "skills screen: K opens it")
-	check(m.paused, "skills screen: opening does not unpause (game was paused)")
+	check(sc.visible and m.paused, "skills screen: K opens it, opening does not unpause")
 	var ev2 := InputEventKey.new()
 	ev2.keycode = KEY_ESCAPE
 	ev2.pressed = true
 	m._unhandled_input(ev2)
 	check(not sc.visible and not m.game_menu.visible, "skills screen: Esc closes it, no game menu")
-	sc.open_screen()
-	sc.select("B1")
-	var bt := _buttons(sc, [])
-	var has := {}
-	for b in bt:
-		has[b.text] = true
-	check(has.has(StoryText.get_text("BTN_LEARN")), "skills screen: Learn button for an available skill")
-	var before: int = m.skill_points
-	sc.confirm_learn()
-	check(m.learned_skills.has("B1") and m.skill_points == before - int(bal["skill_cost_B1"]), "skills screen: confirm learns and spends")
-	check(sc.node_buttons["B1"].text.contains(StoryText.get_text("SK_STATE_LEARNED")), "skills screen: node shows Learned")
-	check(sc.node_buttons["B3"].text.contains(StoryText.get_text("SK_STATE_LOCKED")), "skills screen: node shows Locked")
-	check(sc.points_label.text.ends_with(str(m.skill_points)), "skills screen: header shows points left")
-	sc.close_screen()
 	# game menu
 	m.paused = false
 	m.game_menu.open_menu()
@@ -944,18 +875,238 @@ func _test_skill_screen() -> void:
 	m.game_menu.close_menu()
 	check(not m.paused, "game menu: Resume restores the earlier state")
 	m.paused = true
-	# save round trip
+	# save round trip: learned set, points, tech progress, bot skill use
+	Tech.counts["MIN_2"] = 4
+	Skills.bot_used["MIL_5"] = 3
+	Skills.share_paid["bio"] = [20]
 	var st: Dictionary = m.collect_state()
 	var learned_copy: Array = m.learned_skills.duplicate()
 	var pts: int = m.skill_points
 	m.learned_skills = []
 	m.skill_points = 0
+	Tech.reset()
+	Skills.bot_used = {}
+	Skills.share_paid = {}
 	m.apply_state(JSON.parse_string(JSON.stringify(st)))
 	check(m.learned_skills == learned_copy and m.skill_points == pts, "skills: save round trip keeps skills and points", str(m.learned_skills))
-	check(m.engine.learned == m.learned_skills, "skills: engine learned follows after load")
+	check(int(Tech.counts.get("MIN_2", 0)) == 4 and int(Skills.bot_used.get("MIL_5", 0)) == 3 and Skills.share_paid.get("bio", []) == [20], "skills: save round trip keeps tech progress, bot skill use and share points paid")
 	m.apply_state({"cycle": 1})
-	check(m.learned_skills.is_empty(), "skills: old save starts with no skills (A1 must be earned)")
+	check(m.learned_skills.is_empty() and Tech.counts.is_empty(), "skills: an old save without skills starts with none")
 	await _free_main(m)
+
+# ---- 5b. skills: tech tracker, effects, bot skills, share points, ending inputs, migration (no main needed) ----
+func _test_skills_core() -> void:
+	var bal := _bal()
+	Markets.load_data()
+	# --- tech tracker: counts only after the prerequisite is met, no pre-grinding ---
+	Skills.reset(bal)
+	Tech.reset()
+	check(Tech.add_crafted("mil", 50).is_empty() and int(Tech.progress("MIL_2")["n"]) == 0 and not Tech.progress("MIL_2")["active"], "tech: units crafted before the prerequisite do not count")
+	Skills.add_learned("MIL_1")
+	check(Tech.progress("MIL_2")["active"] and int(Tech.progress("MIL_2")["n"]) == 0 and int(Tech.progress("MIL_2")["goal"]) == int(bal["tech_goal_2"]), "tech: starts at 0 once MIL_1 is learned, goal from tech_goal_2")
+	Tech.add_crafted("lux", 5)
+	check(int(Tech.progress("MIL_2")["n"]) == 0, "tech: units of another market do not count")
+	var g2 := int(bal["tech_goal_2"])
+	Tech.add_crafted("mil", g2 - 1)
+	check(int(Tech.progress("MIL_2")["n"]) == g2 - 1 and not Skills.is_learned("MIL_2"), "tech: progress counts up")
+	var done := Tech.add_crafted("mil", 100)
+	check(done == ["MIL_2"] and Skills.is_learned("MIL_2") and Tech.take_done() == ["MIL_2"] and Tech.take_done().is_empty(), "tech: completes by itself and queues one notice")
+	check(Tech.progress("MIL_4")["active"] and int(Tech.progress("MIL_4")["n"]) == 0, "tech: the next tech opens at 0, surplus units are not carried")
+	check(not Tech.progress("MIL_6")["active"], "tech: MIL_6 needs MIL_4 and MIL_5")
+	Skills.add_learned("MIL_3")
+	Skills.add_learned("MIL_5")
+	Tech.add_crafted("mil", int(bal["tech_goal_4"]))
+	check(Skills.is_learned("MIL_4") and Tech.progress("MIL_6")["active"], "tech: MIL_6 opens when MIL_4 and MIL_5 are done")
+	Tech.take_done()
+	Tech.counts["MIL_6"] = 3
+	var td: Dictionary = Tech.to_dict()
+	Tech.reset()
+	Tech.from_dict(JSON.parse_string(JSON.stringify(td)))
+	check(int(Tech.counts.get("MIL_6", 0)) == 3, "tech: progress persists")
+	# the Fabric counts its plates toward the Minerals techs (plate is a Minerals good)
+	Skills.reset(bal)
+	Tech.reset()
+	var fab = preload("res://game/fabric.gd").new()
+	fab.setup(bal)
+	fab.built = true
+	var st2 := Storage.new()
+	st2.setup(bal, 2, ["dross", "nullglass", "plate", "energy"])
+	var fkey := Storage.system_key(1)
+	st2.ensure(fkey)
+	st2.add(fkey, "dross", 10)
+	st2.add(fkey, "nullglass", 5)
+	fab.run(st2)
+	check(fab.made > 0 and int(Tech.progress("MIN_2")["n"]) == 0, "tech: Fabric plates before MIN_1 do not count")
+	Skills.add_learned("MIN_1")
+	fab.run(st2)
+	check(fab.made > 0 and int(Tech.progress("MIN_2")["n"]) == fab.made, "tech: Fabric plates count toward the Minerals techs once MIN_1 is learned", str(Tech.progress("MIN_2")))
+	Skills.reset(bal)
+	Tech.reset()
+	# --- effects that need no main ---
+	Skills.reset(bal)
+	Markets.reset(bal, 3)
+	var base := float(Markets.value_of("energy"))
+	check(is_equal_approx(Skills.upkeep_mult(), 1.0) and is_equal_approx(Skills.storage_cap_mult(), 1.0) and is_equal_approx(Skills.order_size_mult(), 1.0) and is_equal_approx(Skills.cluster_yield_mult(), 1.0), "effects: no skills, neutral numbers")
+	Skills.add_learned("MIL_1")
+	check(is_equal_approx(Skills.upkeep_mult(), 1.0 - float(bal["skill_MIL_1_upkeep"])), "effects: upkeep_mult (MIL_1)")
+	check(Skills.unlocked("munitions") and Skills.unlocked("cells") and not Skills.unlocked("smelter"), "effects: unlock flags (MIL_1 workshop and good)")
+	Skills.add_learned("MIL_2")
+	Markets.add_sale("energy", 10)
+	check(is_equal_approx(float(Markets.cur["mil"]), 10.0 * base * (1.0 + float(bal["skill_size_s"]))), "effects: volume_pct raises share volume (MIL_2)")
+	Markets.cur["mil"] = 0.0
+	Skills.add_learned("MIL_4")
+	Markets.add_sale("energy", 10)
+	check(is_equal_approx(float(Markets.cur["mil"]), 10.0 * base * (1.0 + float(bal["skill_size_s"]))) and is_equal_approx(Skills.sale_price_mult("mil"), 1.0 + float(bal["skill_MIL_4_price"])) and is_equal_approx(Skills.sale_price_mult("lux"), 1.0), "effects: sale_price_pct has no share effect (MIL_4), other markets untouched")
+	Skills.add_learned("LUX_5")
+	Markets.add_sale("silk", 10, 4)
+	check(is_equal_approx(float(Markets.cur["lux"]), (10.0 + 4.0 * float(bal["skill_size_m"])) * float(Markets.value_of("silk"))), "effects: LUX_5 counts sales at a price-up planet extra")
+	Skills.add_learned("LUX_1")
+	Skills.add_learned("LUX_6")
+	check(is_equal_approx(Skills.sale_price_mult("lux"), 1.0 + float(bal["skill_LUX_1_price"]) + float(bal["skill_LUX_6_price"])) and Skills.reveal_cycles() == 1, "effects: sale price skills add up, LUX_1 reveals prices")
+	Skills.add_learned("LUX_3")
+	check(Skills.warning_cycles() == 1, "effects: event_warning (LUX_3)")
+	Skills.add_learned("MIL_3")
+	check(is_equal_approx(Skills.route_capacity_mult("mil"), 1.0 + float(bal["skill_MIL_3_route_units"])) and is_equal_approx(Skills.route_capacity_mult("bio"), 1.0), "effects: route_capacity_pct only for its market (MIL_3)")
+	Skills.add_learned("MIL_6")
+	Skills.add_learned("LUX_2")
+	Skills.add_learned("BIO_6")
+	check(is_equal_approx(Skills.event_cut("mil"), float(bal["skill_MIL_6_event_cut"])) and is_equal_approx(Skills.event_cut("bio"), float(bal["skill_BIO_6_event_cut"])) and is_equal_approx(Skills.event_cut("min"), 0.0) and is_equal_approx(Skills.event_bonus("lux"), float(bal["skill_LUX_2_event_bonus"])) and Skills.reopen_sooner() == 1, "effects: event_cut_pct, event_bonus_pct, reopen_sooner")
+	Skills.add_learned("BIO_1")
+	Skills.add_learned("BIO_3")
+	Skills.add_learned("BIO_5")
+	check(is_equal_approx(Skills.order_size_mult(), 1.0 + float(bal["skill_BIO_1_order_units"])) and is_equal_approx(Skills.storage_cap_mult(), 1.0 + float(bal["skill_BIO_3_capacity"])), "effects: order_size_pct and storage_cap_pct")
+	check(Markets.window_for("bio") == int(bal["share_window_bio_bonus"]) and Markets.window_for("mil") == int(bal["share_window"]), "effects: share_window (BIO_5) only for Biotech")
+	Skills.add_learned("MIN_3")
+	Skills.add_learned("MIN_4")
+	Skills.add_learned("MIN_6")
+	check(is_equal_approx(Skills.cluster_yield_mult(), 1.0 + float(bal["skill_MIN_3_yield"])) and Skills.mine_skill_for("dead_1") == "MIN_3" and Skills.mine_skill_for("dead_2") == "MIN_5" and Skills.mine_unlocked("dead_1") and not Skills.mine_unlocked("dead_2"), "effects: cluster_yield_pct and mine_unlock (MIN_3 dross, MIN_5 nullglass)")
+	check(Skills.workshop_batches("min") == int(bal["skill_MIN_4_batches"]) and Skills.workshop_batches("mil") == 0 and Skills.batch_yield("min") == int(bal["skill_MIN_6_batch_bonus"]), "effects: workshop_batches and batch_yield (flags until the workshops exist)")
+	# permanent bot effects through end_cycle
+	Skills.reset(bal)
+	Markets.reset(bal, 5)
+	Markets.end_cycle(10)
+	var plain_row: Array = Markets.vb["min"][0].duplicate()
+	var plain_mil: Array = Markets.vb["mil"][0].duplicate()
+	Skills.add_learned("MIN_7")
+	Skills.add_learned("MIL_7")
+	check(is_equal_approx(Skills.bot_strength_mult("min"), 1.0 - float(bal["skill_MIN_7_strength_cut"])) and is_equal_approx(Skills.bot_strength_mult("mil"), 1.0) and is_equal_approx(Skills.bot_growth_mult("mil"), float(bal["skill_MIL_7_growth_mult"])), "effects: capstone bot numbers (MIN_7 strength, MIL_7 growth)")
+	Markets.reset(bal, 5)
+	Markets.end_cycle(10)
+	var cut_ok := true
+	for b in 3:
+		if not float(Markets.vb["min"][0][b]) < float(plain_row[b]):
+			cut_ok = false
+	check(cut_ok, "effects: MIN_7 lowers every bot's Minerals volume in end_cycle")
+	check(float(Markets.vb["mil"][0][0]) <= float(plain_mil[0]), "effects: MIL_7 never raises bot growth")
+	# stock growth in planet storage (BIO_2): needs a Storage
+	Skills.reset(bal)
+	Markets.reset(bal, 5)
+	var stg := Storage.new()
+	stg.setup(bal, 2, ["food", "energy", "silk"])
+	var k0 := Storage.planet_key(0)
+	stg.add(k0, "food", 60)
+	stg.add(k0, "silk", 60)
+	check(Skills.grow_stock(stg) == 0 and stg.amount(k0, "food") == 60, "effects: no stock growth without BIO_2")
+	Skills.add_learned("BIO_2")
+	var g1 := Skills.grow_stock(stg)
+	check(g1 == int(floor(60.0 * float(bal["skill_BIO_2_stock_growth"]))) and stg.amount(k0, "food") == 60 + g1 and stg.amount(k0, "silk") == 60, "effects: stock_growth_pct grows Biotech stock only", str(g1))
+	for i in 40:
+		Skills.grow_stock(stg)
+	check(stg.amount(k0, "food") - 60 <= int(floor(float(stg.amount(k0, "food")) * float(bal["skill_BIO_2_stock_cap"]))), "effects: stock growth stops at the cap", str(stg.amount(k0, "food")))
+	# --- bot skills: choose a bot, expire, persist ---
+	Skills.reset(bal)
+	Markets.reset(bal, 9)
+	check(Skills.bot_skill_cooldown("MIL_5") == -2 and not Skills.bot_skill_ready("MIL_5") and Skills.activate_bot_skill("MIL_5", 1)["reason"] == "locked", "bot skill: not learned, not usable")
+	Skills.add_learned("MIL_5")
+	check(Skills.bot_skill_ids() == ["MIL_5"] and Skills.bot_skill_ready("MIL_5"), "bot skill: learned and ready")
+	check(Skills.activate_bot_skill("MIL_5", 9)["reason"] == "bot" and Skills.bot_skill_ready("MIL_5"), "bot skill: a bad bot id changes nothing")
+	var r := Skills.activate_bot_skill("MIL_5", 2)
+	var dur := int(bal["skill_MIL_5_cycles"])
+	check(r["ok"] and int(r["until"]) == dur, "bot skill: lasts skill_MIL_5_cycles cycles", str(r))
+	check(is_equal_approx(float(Markets.bot_mods(2, "mil")["strength_mult"]), 1.0 - float(bal["skill_MIL_5_hit"])) and is_equal_approx(float(Markets.bot_mods(1, "mil")["strength_mult"]), 1.0) and is_equal_approx(float(Markets.bot_mods(2, "lux")["strength_mult"]), 1.0), "bot skill: only the chosen bot in that market loses strength")
+	check(Skills.activate_bot_skill("MIL_5", 3)["reason"] == "cooldown" and Skills.bot_skill_cooldown("MIL_5") == int(bal["skill_MIL_5_every"]), "bot skill: cooldown skill_MIL_5_every")
+	# persistence of the temporary hit and the use
+	var md: Dictionary = JSON.parse_string(JSON.stringify(Markets.to_dict()))
+	var sd: Dictionary = JSON.parse_string(JSON.stringify(Skills.to_dict()))
+	Markets.from_dict(md, bal)
+	Skills.from_dict(sd)
+	check(is_equal_approx(float(Markets.bot_mods(2, "mil")["strength_mult"]), 1.0 - float(bal["skill_MIL_5_hit"])) and Skills.bot_skill_cooldown("MIL_5") == int(bal["skill_MIL_5_every"]), "bot skill: hit and use survive a save")
+	# the hit works for the cycles it lasts, then expires
+	var plain := Bots.volume(bal, 9, 2, "mil", 1, 0.0, 0, 1.0, 1.0, 0.0)
+	Markets.end_cycle(1)
+	check(absf(float(Markets.vb["mil"][0][1]) - Bots.volume(bal, 9, 2, "mil", 1, 0.0, 0, 1.0 - float(bal["skill_MIL_5_hit"]), 1.0, 0.0)) < 0.001 and float(Markets.vb["mil"][0][1]) < plain, "bot skill: the hit lowers the bot's volume while it lasts")
+	for c in range(2, dur + 1):
+		Markets.end_cycle(c)
+	check(is_equal_approx(float(Markets.bot_mods(2, "mil")["strength_mult"]), 1.0) and Markets.mods["2|mil"]["temps"].is_empty(), "bot skill: the hit expires after its cycles")
+	Markets.end_cycle(dur + 1)
+	check(absf(float(Markets.vb["mil"][dur][1]) - Bots.volume(bal, 9, 2, "mil", dur + 1, float(Markets.gap.get("2|mil", 0.0)), 0, 1.0, 1.0, 0.0)) < 0.001, "bot skill: volume is back to normal after the hit")
+	for c in range(dur + 2, int(bal["skill_MIL_5_every"]) + 1):
+		Markets.end_cycle(c)
+	check(Skills.bot_skill_ready("MIL_5") and Skills.activate_bot_skill("MIL_5", 3)["ok"], "bot skill: ready again after skill_MIL_5_every cycles")
+	# once per run (LUX_7)
+	Skills.add_learned("LUX_7")
+	check(Skills.activate_bot_skill("LUX_7", 1)["ok"] and Skills.bot_skill_cooldown("LUX_7") == -1 and Skills.activate_bot_skill("LUX_7", 2)["reason"] == "used", "bot skill: Guild Seal works once per run")
+	# --- share points: once per market and step ---
+	Skills.reset(bal)
+	Markets.reset(bal, 2)
+	Markets.vp["mil"] = [25.0]
+	Markets.vb["mil"] = [[25.0, 25.0, 25.0]]
+	var aw := Skills.award_share_points()
+	check(aw.size() == 1 and aw[0]["market"] == "mil" and int(aw[0]["step"]) == 20 and int(aw[0]["points"]) == int(bal["skill_points_share_20"]), "share points: 25% pays the 20% step", str(aw))
+	check(Skills.award_share_points().is_empty(), "share points: paid once")
+	Markets.vp["mil"] = [60.0]
+	aw = Skills.award_share_points()
+	check(aw.size() == 1 and int(aw[0]["step"]) == 35 and int(aw[0]["points"]) == int(bal["skill_points_share_35"]), "share points: 35% pays its own step", str(aw))
+	Markets.vp["mil"] = [0.0]
+	Skills.award_share_points()
+	Markets.vp["mil"] = [60.0]
+	check(Skills.award_share_points().is_empty(), "share points: reaching a step again pays nothing")
+	Markets.vp["lux"] = [100.0]
+	Markets.vb["lux"] = [[10.0, 10.0, 10.0]]
+	aw = Skills.award_share_points()
+	check(aw.size() == 2 and aw[0]["market"] == "lux" and aw[1]["market"] == "lux", "share points: another market pays on its own", str(aw))
+	var sd2: Dictionary = JSON.parse_string(JSON.stringify(Skills.to_dict()))
+	Skills.from_dict(sd2)
+	check(Skills.award_share_points().is_empty(), "share points: paid steps survive a save")
+	# --- ending inputs (core 6) ---
+	Skills.reset(bal)
+	Markets.reset(bal, 2)
+	Markets.vp["mil"] = [60.0]
+	Markets.vb["mil"] = [[10.0, 10.0, 10.0]]
+	Markets.vp["lux"] = [30.0]
+	Markets.vb["lux"] = [[10.0, 10.0, 10.0]]
+	var e0 := EndingPicker.inputs("mil", bal)
+	check(e0["ending_id"] == "END_MIL_GOOD" and not e0["capstone"] and int(e0["tech_done"]) == 0 and not e0["rival_broken"] and e0["second_market"] == "lux" and e0["second_over"], "ending inputs: no capstone, no tech, second market over the line", str(e0))
+	Skills.add_learned("MIL_2")
+	Skills.add_learned("MIL_4")
+	Skills.add_learned("MIL_7")
+	Skills.add_learned("LUX_2")
+	var e1 := EndingPicker.inputs("MIL", bal)
+	check(e1["capstone"] and int(e1["tech_done"]) == 2 and e1["market"] == "mil", "ending inputs: capstone MIL_7 and techs done in the win market only", str(e1))
+	Markets.vp["lux"] = [3.0]
+	check(not EndingPicker.inputs("mil", bal)["second_over"], "ending inputs: second market under the line")
+	Skills.add_learned("MIL_6")
+	check(int(EndingPicker.inputs("mil", bal)["tech_done"]) == 3, "ending inputs: three techs is the most")
+	# --- save migration v2 -> v3 ---
+	var v2 := {"cash": 1234, "cycle": 7, "ships": 3, "skill_points": 2, "surveyed": [2], "markets": {"seed": 5},
+		"learned_skills": ["A1", "A2", "A4", "A5", "B1", "B2", "B3", "B4", "C1", "C2", "C3", "C4", "M1", "M2", "F1", "Z9"]}
+	var mg: Dictionary = SaveGame.migrate_v2(v2)
+	check(mg["learned_skills"] == ["FND_STORAGE", "BIO_3", "MIL_3", "MIL_1", "FND_PROSPECT", "BIO_1", "LUX_1", "LUX_3", "FND_PERMIT", "MIN_3", "MIN_5", "MIN_1"], "migration: old skills map to the new ids", str(mg["learned_skills"]))
+	check(int(mg["skill_points"]) == 2 + 1 + 2 + 2 and int(mg["cash"]) == 1234 and int(mg["cycle"]) == 7 and int(mg["ships"]) == 3 and mg["markets"] == v2["markets"] and not mg.has("surveyed"), "migration: C2, C4 and the second permit skill (C3) refunded; cash, cycle, ships, markets kept", str(mg["skill_points"]))
+	check(v2["learned_skills"].size() == 16, "migration: the input dictionary is not changed")
+	_wipe_user()
+	var f := FileAccess.open(SaveGame.PATH, FileAccess.WRITE)
+	f.store_string(JSON.stringify({"version": 2, "state": v2}))
+	f.close()
+	var loaded: Dictionary = SaveGame.load_state()
+	check(SaveGame.VERSION == 3 and not loaded.is_empty() and loaded["learned_skills"].has("FND_STORAGE") and not SaveGame.dropped_old, "migration: a v2 file loads migrated")
+	f = FileAccess.open(SaveGame.PATH, FileAccess.WRITE)
+	f.store_string(JSON.stringify({"version": 1, "state": v2}))
+	f.close()
+	check(SaveGame.load_state().is_empty() and SaveGame.dropped_old, "migration: a v1 file is still dropped with the old message")
+	_wipe_user()
+	Skills.reset(bal)
+	Tech.reset()
 
 func _find_option_buttons(n: Node, out: Array) -> Array:
 	if n is OptionButton:
@@ -1118,7 +1269,7 @@ func _test_markets() -> void:
 		Markets.vp["mil"].append(5000.0 if i < 2 else 100.0)  # two old cycles outside the window
 		Markets.vb["mil"].append([100.0, 100.0, 100.0] if i >= 2 else [1.0, 1.0, 1.0])
 	check(absf(Markets.share("mil") - 0.25) < 0.0001, "share: V_p / (V_p + bots) over the last share_window cycles only", str(Markets.share("mil")))
-	check(w == 8 and not Markets.bio_bonus and Markets.window_for("bio") == 8, "share: bio uses share_window until BIO_5 exists")
+	check(w == 8 and Markets.window_for("bio") == 8, "share: bio uses share_window without BIO_5")
 	var bs := 0.0
 	for b in Bots.IDS:
 		bs += Markets.bot_share(b, "mil")
@@ -1506,9 +1657,9 @@ func _test_events() -> void:
 	check(not m.engine.check_connection(ti, vi, "food")["ok"], "events: cannot route from closed planet")
 	_buttons(m.event_notice, [])[0].pressed.emit()
 	await process_frame
-	m.learned_skills = ["A1"]
+	m.learned_skills = ["BIO_6"]
 	m._sync_closed()
-	check(not m.engine.closed_planets.has(ti), "events: A1 bridges the first closed cycle")
+	check(not m.engine.closed_planets.has(ti), "events: BIO_6 (reopen sooner) skips the first closed cycle")
 	m.learned_skills = []
 	m._sync_closed()
 	m.events.tick()
@@ -1901,10 +2052,10 @@ func _test_systems() -> void:
 	check(not ("system_previews" in m.map) and not ("system_arrows" in m.map), "3D: no next-system preview or arrow in the system view")
 	# T128: edge arrow
 	var req_steps: Array = []
-	m._missing_chain("C1", req_steps)
+	m._missing_chain("FND_PERMIT", req_steps)
 	var at: Dictionary = m.skill_arrow_target()
 	if req_steps.size() == 1:
-		check(str(at.get("mode", "")) == "skills" and at["steps"] == ["C1"], "arrow: C1 reachable shows the skills arrow")
+		check(str(at.get("mode", "")) == "skills" and at["steps"] == ["FND_PERMIT"], "arrow: FND_PERMIT reachable shows the skills arrow")
 	else:
 		check(at.is_empty() or str(at.get("mode", "")) == "skills", "arrow: hidden until C1 is reachable", str(at))
 	m._on_skill_arrow()
@@ -1912,7 +2063,7 @@ func _test_systems() -> void:
 	m.skill_screen.close_screen()
 	check(m.skill_screen.highlight.is_empty(), "arrow: highlight cleared on close")
 	check(m.can_buy_permit(3)["reason"] == "unknown", "sys2: system 3 does not exist")
-	m.learned_skills.append("C1")
+	m.learned_skills.append("FND_PERMIT")
 	m.cash = 0
 	m.skill_points = 100
 	check(m.can_buy_permit(2)["reason"] == "credits", "sys2: permit needs credits")
@@ -1985,13 +2136,13 @@ func _test_systems() -> void:
 	m.cash = 5000
 	var pts: int = m.skill_points
 	var sys0: int = m.systems_reached
-	m.learned_skills.append("A1")  # trade gate: system 2 needs its Space Storage post
+	m.learned_skills.append("FND_STORAGE")  # trade gate: system 2 needs its Space Storage post
 	m.storage.ensure(Storage.system_key(2))
 	r = m.set_local_order(4, "food", "buy", true)
 	check(r["ok"] and m.systems_reached == sys0 + 1, "sys2: first order in system 2 reaches it")
 	m.set_local_order(5, "energy", "buy", true)
 	check(m.systems_reached == sys0 + 1, "sys2: reach counted once")
-	m.learned_skills.erase("A1")
+	m.learned_skills.erase("FND_STORAGE")
 	# round trip save
 	var st: Dictionary = m.collect_state()
 	check(st["open_systems"].has(2), "sys2: open_systems saved")
@@ -2005,7 +2156,7 @@ func _test_systems() -> void:
 	m.pts_planets = [0, 1, 2]
 	m.pts_pairs = ["0-1", "0-2"]
 	m.skill_points = 50
-	check(m.learn_skill("A1")["ok"], "space: A1 learnable after the gate")
+	check(m.learn_skill("FND_STORAGE")["ok"], "space: A1 learnable after the gate")
 	check(m.space_post_open(1) and m.space_post_open(2), "space: one post per open system after A1")
 	check(m.storage.capacity_of("system:1") == int(bal["space_storage_capacity"]), "space: capacity from balance")
 	# manual Space Storage (owner 2026-11-03): nothing fills it by itself; only a ship sent to it does
@@ -2020,8 +2171,8 @@ func _test_systems() -> void:
 	var routes_n: int = m.engine.routes.size()
 	var saved_post: Dictionary = (m.storage.stock["system:2"] as Dictionary).duplicate(true)
 	m.storage.stock.erase("system:2")
-	if not m.learned_skills.has("C3"):
-		m.learned_skills.append("C3")  # cross-system routes need Long Haul; this check is about the post only
+	if not m.learned_skills.has("FND_PERMIT"):
+		m.learned_skills.append("FND_PERMIT")  # cross-system routes need Long Haul; this check is about the post only
 	var refused: Dictionary = m.send_stock(0, m.station_dst(2), "energy")
 	check(not refused["ok"] and refused["reason"] == m.trade_locked_reason() and m.engine.routes.size() == routes_n and m.storage.amount("planet:0", "energy") == 60, "space manual: a send to a station with no open post is refused, nothing changes", str(refused))
 	m.storage.stock["system:2"] = saved_post
@@ -2070,7 +2221,7 @@ func _test_systems() -> void:
 	var before: int = m.storage.amount("system:1", "energy")
 	m.engine.settle(m.cash)
 	check(str(rec["state"]) == "running" and m.storage.amount("system:1", "energy") < before, "space: post backs a route with an empty source", str(rec["state"]))
-	m.learned_skills.erase("A1")
+	m.learned_skills.erase("FND_STORAGE")
 	m.engine.settle(m.cash)
 	check(str(rec["state"]) == "stalled", "space: no backup without A1", str(rec["state"]))
 	await _free_main(m)
@@ -2083,45 +2234,31 @@ func _test_skill_effects() -> void:
 	m._dismiss_preface()
 	var bal: Dictionary = m.balance
 	var key0: String = m.storage.planet_key(0)
-	# A2 Deep Holds through learn_skill (A2 needs A1)
+	# BIO_3 Seed Bank through learn_skill (BIO_3 needs BIO_1)
 	var cap0: int = m.storage.capacity_of(key0)
 	m.skill_points = 10
-	m.pts_planets = [0, 1, 2]
-	m.pts_pairs = ["0-1", "0-2"]
-	check(m.learn_skill("C1")["ok"] and m.learn_skill("A1")["ok"] and m.learn_skill("A2")["ok"], "A2: learned after A1")
+	check(m.learn_skill("FND_PERMIT")["ok"] and m.learn_skill("FND_STORAGE")["ok"] and m.learn_skill("BIO_1")["ok"] and m.learn_skill("BIO_3")["ok"], "BIO_3: learned after BIO_1")
 	var cap1: int = m.storage.capacity_of(key0)
-	check(cap1 == int(round(float(cap0) * (1.0 + float(bal["skill_A2_capacity"])))) and cap1 > cap0, "A2: planet storage capacity raised by skill_A2_capacity", "%d -> %d" % [cap0, cap1])
-	check(m.storage.capacity_of("system:1") == int(bal["space_storage_capacity"]), "A2: Space Storage capacity unchanged")
+	check(cap1 == int(round(float(cap0) * (1.0 + float(bal["skill_BIO_3_capacity"])))) and cap1 > cap0, "BIO_3: planet storage capacity raised by skill_BIO_3_capacity", "%d -> %d" % [cap0, cap1])
+	check(m.storage.capacity_of("system:1") == int(bal["space_storage_capacity"]), "BIO_3: Space Storage capacity unchanged")
 	m.cycle = 6
 	m.skill_points = 1
-	m.learned_skills.erase("C1")
+	m.learned_skills.erase("FND_PERMIT")
 	m.skill_points = 0
-	# C2 Survey Beacon: planet names of a system shown in its permit entry before the permit
-	m.learned_skills.append("C2")
-	m.skill_screen.refresh()
-	var seen_txt := ""
-	for lbl in _labels(m.skill_screen.permit_box, []):
-		if lbl.text.contains("Brannock"):
-			seen_txt = lbl.text
-	check(seen_txt.contains("Brannock") and seen_txt.contains("Quillon"), "C2: permit entry lists system 2 planets before the permit", seen_txt)
-	m.learned_skills.erase("C2")
-	m.skill_screen.refresh()
-	# C4 Colonial Rights: permit price, through the same function the permit uses
-	m.learned_skills.append("C1")
-	check(m.permit_cost(2) == int(bal["permit_2_cost"]), "C4: permit at data price without C4")
-	m.learned_skills.append("C4")
-	check(m.permit_cost(2) == floori(float(bal["permit_2_cost"]) * (1.0 - float(bal["skill_C4_permit_discount"]))), "C4: permit price lowered by skill_C4_permit_discount")
-	m.learned_skills.erase("C4")
-	# C3 Long Haul: a route from system 1 to system 2 needs it
+	# the permit costs the data price (Colonial Rights is gone)
+	m.learned_skills.append("FND_PERMIT")
+	check(m.permit_cost(2) == int(bal["permit_2_cost"]) and m.permit_points(2) == int(bal["permit_points_2"]), "permit: data price and data points")
+	# FND_PERMIT (Long Haul folded in): a route from system 1 to system 2 needs it
 	m.cash = 50000
 	m.skill_points = 100
 	check(m.buy_permit(2)["ok"], "C3: system 2 permit bought")
+	m.learned_skills.erase("FND_PERMIT")
 	var r: Dictionary = m.engine.check_connection(0, 4, "energy")
-	check(not r["ok"] and r["reason"] == StoryText.get_text("NOT_ROUTE_NEEDS_C3"), "C3: cross-system route refused without Long Haul", str(r))
-	check(m.engine.check_connection(4, 5, "energy")["ok"], "C3: a route inside system 2 needs no Long Haul")
-	m.learned_skills.append("C3")
-	check(m.engine.check_connection(0, 4, "energy")["ok"], "C3: cross-system route allowed with Long Haul")
-	m.learned_skills.erase("C3")
+	check(not r["ok"] and r["reason"] == StoryText.get_text("NOT_ROUTE_NEEDS_C3"), "C3: cross-system route refused without permit routes", str(r))
+	check(m.engine.check_connection(4, 5, "energy")["ok"], "C3: a route inside system 2 needs no Permit Charter")
+	m.learned_skills.append("FND_PERMIT")
+	check(m.engine.check_connection(0, 4, "energy")["ok"], "C3: cross-system route allowed with FND_PERMIT")
+	m.learned_skills.erase("FND_PERMIT")
 	# B1 Market Ledger: history kept at cycle end, saved, shown as text
 	m.cash = 1000
 	m.cycle = 1
@@ -2136,13 +2273,13 @@ func _test_skill_effects() -> void:
 	# B3 Price Whisper: effects that still run next cycle, not the ones that end now
 	var base_e: int = m.trade.price(0, "energy_sell")
 	m.events.active = [{"id": "EV01", "kind": "down", "planet": 0, "c": "energy", "left": 1, "age": 0}]
-	check(m.trade.price(0, "energy_sell") != base_e and m.trade.price(0, "energy_sell", true) == base_e, "B3: an effect that ends now is not in the next-cycle price")
+	check(m.trade.price(0, "energy_sell") != base_e and m.trade.price(0, "energy_sell", true) == base_e, "MIL_4: an effect that ends now is not in the next-cycle price")
 	m.events.active = [{"id": "EV01", "kind": "down", "planet": 0, "c": "energy", "left": 2, "age": 0}]
-	check(m.trade.price(0, "energy_sell", true) == m.trade.price(0, "energy_sell"), "B3: an effect that runs one more cycle is in the next-cycle price")
+	check(m.trade.price(0, "energy_sell", true) == m.trade.price(0, "energy_sell"), "MIL_4: an effect that runs one more cycle is in the next-cycle price")
 	m.events.active = []
 	# B4 Event Forecast: one cycle ahead of a due event (events come on cycles 5, 9, 13, ...)
 	# the warning comes while cycle 4 is running; the event itself starts cycle 5
-	m.learned_skills.append("B4")
+	m.learned_skills.append("LUX_3")
 	m.cash = 1000  # the C3 test left cash above the win goal, which would open the choice instead of ending the cycle
 	m.cycle = 3
 	m.notice_queue = []
@@ -2150,39 +2287,38 @@ func _test_skill_effects() -> void:
 	m._end_cycle()
 	var fc_seen := _has_forecast_notice(m)
 	check(m.cycle == 4 and fc_seen, "B4: warning posted in the cycle before an event")
-	m.learned_skills.erase("B4")
+	m.learned_skills.erase("LUX_3")
 	m.cash = 1000
 	m.cycle = 4
 	m.notice_queue = []
 	m.last_notice = ""
 	m._end_cycle()
 	check(not _has_forecast_notice(m), "B4: no warning without the skill")
-	m.learned_skills.append("B4")
-	m.learned_skills.erase("B4")
-	# B3 Price Whisper margin: sell credits rise by skill_B3_margin, only with the skill
+	m.learned_skills.append("LUX_3")
+	m.learned_skills.erase("LUX_3")
+	# MIL_4 sale price: sell credits rise by skill_MIL_4_price (energy is a Military good), only with the skill
 	var eng: RefCounted = m.engine
 	var plain: int = eng.local_price(0, "energy", "sell")
-	eng.learned = []
-	check(eng.sold_price(0, "energy") == plain, "B3: no margin without the skill")
-	eng.learned = ["B3"]
+	m.learned_skills.erase("MIL_4")
+	check(eng.sold_price(0, "energy") == plain, "MIL_4: no margin without the skill")
+	m.learned_skills.append("MIL_4")
 	var boosted: int = eng.sold_price(0, "energy")
 	# plain can be as low as 6; an 8% margin then rounds back to the same whole credit, so only >= is safe here
-	check(boosted == roundi(float(plain) * (1.0 + float(bal["skill_B3_margin"]))) and boosted >= plain, "B3: sold price raised by skill_B3_margin", "%d -> %d" % [plain, boosted])
+	check(boosted == roundi(float(plain) * (1.0 + float(bal["skill_MIL_4_price"]))) and boosted >= plain, "MIL_4: sold price raised by skill_MIL_4_price", "%d -> %d" % [plain, boosted])
 	m.storage.add(key0, "energy", 10)
 	var sale: Dictionary = eng._local_calc(0, "energy", "sell", 1000)
-	check(int(sale["credits"]) == int(sale["n"]) * boosted and int(sale["n"]) > 0, "B3: a Sell order pays the margin per unit", str(sale))
-	eng.learned = []
-	check(int(eng._local_calc(0, "energy", "sell", 1000)["credits"]) == int(sale["n"]) * plain, "B3: unlearned Sell order pays the plain price")
+	check(int(sale["credits"]) == int(sale["n"]) * boosted and int(sale["n"]) > 0, "MIL_4: a Sell order pays the margin per unit", str(sale))
+	m.learned_skills.erase("MIL_4")
+	check(int(eng._local_calc(0, "energy", "sell", 1000)["credits"]) == int(sale["n"]) * plain, "MIL_4: unlearned Sell order pays the plain price")
 	# B3 on a route lane: per-unit earnings at the far end carry the margin; the route itself only pays upkeep, so no double count
-	eng.learned = []
 	var rm0: int = eng.route_margin(0, 1, "energy")
-	eng.learned = ["B3"]
+	m.learned_skills.append("MIL_4")
 	var rm1: int = eng.route_margin(0, 1, "energy")
 	var far: int = eng.sold_price(1, "energy")
 	var near: int = m.trade.price(0, "energy_buy")
-	check(rm1 == eng.units_per_cycle() * (far - near) and rm1 > rm0, "B3: route lane margin uses the B3 sell price per unit", "%d -> %d" % [rm0, rm1])
-	check(eng.payout_of(eng.new_record(0, 1, "energy")) <= 0, "B3: route settlement adds no credits itself (Sell order pays once)")
-	eng.learned = m.learned_skills
+	check(rm1 == eng.units_per_cycle(null, "energy") * (far - near) and rm1 > rm0, "MIL_4: route lane margin uses the B3 sell price per unit", "%d -> %d" % [rm0, rm1])
+	check(eng.payout_of(eng.new_record(0, 1, "energy")) <= 0, "MIL_4: route settlement adds no credits itself (Sell order pays once)")
+	m.learned_skills.erase("MIL_4")
 	# T158 (base game since B1 became Prospecting): warning when the route margin is below its upkeep, trend arrow, best partner
 	var bp: Dictionary = m.trade.planets[1]["base_prices"]
 	var keep_sell = bp["energy_sell"]
@@ -2199,31 +2335,38 @@ func _test_skill_effects() -> void:
 	check(int(eng.best_partner(0, "energy")["planet"]) == 1, "T158: best partner is the planet that pays most")
 	bp["energy_sell"] = keep_sell
 	check(not m.has_method("price_trend") and not m.has_method("price_history_line"), "price history: trend and history display helpers are gone")
-	m.learned_skills.erase("B1")
-	eng.learned = m.learned_skills
-	# C2 Survey Beacon: permit skill points one lower once the system is surveyed
-	var sys3: int = 2
-	m.open_systems.erase(sys3)  # the permit bought above is taken back so the survey can be tried
-	check(m.Systems.ids().has(sys3) and not m.open_systems.has(sys3), "C2: system not permitted")
-	var pts0: int = m.Systems.permit_points(bal, sys3)
-	check(not m.survey_system(sys3) and m.permit_points(sys3) == pts0, "C2: no survey and no discount without the skill")
-	m.learned_skills.append("C2")
-	check(m.permit_points(sys3) == pts0 and not m.is_surveyed(sys3), "C2: no discount before the survey")
-	check(m.survey_system(sys3) and m.is_surveyed(sys3) and m.permit_points(sys3) == pts0 - 1, "C2: surveyed system permit costs 1 point less", "%d" % m.permit_points(sys3))
-	check(m.collect_state()["surveyed"] == [sys3], "C2: survey kept in the save")
-	var sv_txt := ""
-	m.skill_screen.refresh()
-	for lbl in _labels(m.skill_screen.permit_box, []):
-		sv_txt += lbl.text + "|"
-	check(sv_txt.contains("Energy") and sv_txt.contains("Brannock"), "C2: surveyed system shows planet base prices", sv_txt)
-	m.learned_skills.erase("C2")
-	check(m.permit_points(sys3) == pts0, "C2: discount gone without the skill")
-	check(m.permit_points(2) == m.Systems.permit_points(bal, 2), "C1 permit points back at the data value without C2")
+	m.learned_skills.erase("FND_PROSPECT")
+	check(m.permit_points(2) == m.Systems.permit_points(bal, 2) and not m.is_surveyed(2), "permit points stay at the data value (Survey Beacon is gone)")
 	# B4 forecast names planet and commodity for a price event
 	m.events.by_id["ZZ_TEST"] = {"id": "ZZ_TEST", "tag": "[price up: %s, energy]" % m.planet_name(0)}
 	var ft: String = m.forecast_text("ZZ_TEST")
 	check(StoryText.has_text("EVT_NEXT_DUE_PRICE") == ft.contains(m.planet_name(0)) and (not StoryText.has_text("EVT_NEXT_DUE_PRICE") and ft == StoryText.get_text("EVT_NEXT_DUE") or ft.contains("Energy")), "B4: forecast names planet and commodity once the text exists, else the plain warning", ft)
 	m.events.by_id.erase("ZZ_TEST")
+	# the game hooks read Skills: route capacity, order size, upkeep, events, cluster yield, sales at a price-up planet
+	m.learned_skills = []
+	var u0: int = eng.units_per_cycle(null, "energy")
+	var l0: int = eng.local_amount()
+	var f0: int = eng.fixed_cost()
+	var y0: int = m.clusters.yield_per_cycle()
+	m.learned_skills = ["MIL_3", "BIO_1", "MIL_1", "MIN_3"]
+	check(eng.units_per_cycle(null, "energy") > u0 and eng.units_per_cycle(null, "silk") == u0 and eng.units_per_cycle(eng.new_record(0, 1, "energy")) == eng.units_per_cycle(null, "energy"), "hooks: route_capacity_pct (MIL_3) lifts Military routes only")
+	check(eng.local_amount() == floori(float(bal["order_amount"]) * (1.0 + float(bal["skill_BIO_1_order_units"]))) and eng.local_amount() > l0, "hooks: order_size_pct (BIO_1) raises Buy and Sell orders")
+	check(eng.fixed_cost() < f0, "hooks: upkeep_mult (MIL_1) lowers the ship upkeep")
+	check(m.clusters.yield_per_cycle() == floori(float(bal["mining_yield_per_cycle"]) * (1.0 + float(bal["skill_MIN_3_yield"]))) and m.clusters.yield_per_cycle() > y0, "hooks: cluster_yield_pct (MIN_3) raises mining yield")
+	m.learned_skills = []
+	m.events.active = [{"id": "T1", "kind": "up", "planet": 0, "c": "silk", "left": 3, "age": 0}, {"id": "T2", "kind": "down", "planet": 0, "c": "energy", "left": 3, "age": 0}]
+	var up0: float = m.events.price_factor(0, "silk")
+	var dn0: float = m.events.price_factor(0, "energy")
+	m.learned_skills = ["LUX_2", "MIL_6"]
+	check(is_equal_approx(m.events.price_factor(0, "silk"), 1.0 + m.events.pct("silk") * (1.0 + float(bal["skill_LUX_2_event_bonus"]))) and m.events.price_factor(0, "silk") > up0, "hooks: event_bonus_pct (LUX_2) makes price-up events pay more")
+	check(is_equal_approx(m.events.price_factor(0, "energy"), 1.0 - m.events.pct("energy") * (1.0 - float(bal["skill_MIL_6_event_cut"]))) and m.events.price_factor(0, "energy") > dn0, "hooks: event_cut_pct (MIL_6) weakens price-down events")
+	eng.sales_up_units = {}
+	eng.sales_units = {}
+	eng._note_sale("silk", 5, 0)
+	eng._note_sale("energy", 4, 0)
+	check(int(eng.sales_up_units.get("silk", 0)) == 5 and not eng.sales_up_units.has("energy") and int(eng.sales_units["energy"]) == 4, "hooks: sales at a planet with a price-up event are counted for LUX_5")
+	m.events.active = []
+	m.learned_skills = []
 	await _free_main(m)
 	_wipe_user()
 
@@ -2407,7 +2550,7 @@ func _test_debug_menu() -> void:
 	check(not m.debug_tools_allowed(false) and m.debug_tools_allowed(true), "debug: release build excludes the menu")
 	var d: PanelContainer = m.debug_menu
 	for k in ["force_event", "show_events", "event_state", "debris_planet", "debris_set", "debris_clear", "unlock_s2", "permit_system", "grant_permit",
-			"open_systems", "gate_open", "gate_reset", "gate_state", "ship_small", "route_id", "route_level", "route_set_level", "ship_state",
+			"open_systems", "craft_market", "craft_units", "craft_add", "skill_state", "ship_small", "route_id", "route_level", "route_set_level", "ship_state",
 			"cash_add", "points_add", "reset_run", "notice_next", "tut_restart", "tutorial_state", "galaxy_open", "save_now", "save_state"]:
 		check(d.qa.has(k), "debug: control " + k)
 	for k in ["bal_event_interval", "bal_event_price_pct", "bal_ship_cap", "route_keys", "route_clear_orders", "balance_save", "event_on_EV01"]:
@@ -2429,10 +2572,17 @@ func _test_debug_menu() -> void:
 	check(m.events.debris.is_empty(), "debug: clear debris")
 	d.qa["unlock_s2"].pressed.emit()
 	check(m.open_systems.has(2) and m.map.planets.size() == 9, "debug: unlock system 2 free")
-	d.qa["gate_open"].pressed.emit()
-	check(m.a1_gate_open() and "OPEN" in d.gate_text(), "debug: A1 gate set")
-	d.qa["gate_reset"].pressed.emit()
-	check(not m.a1_gate_open(), "debug: A1 gate cleared")
+	m.learned_skills.append("MIL_1")
+	Tech.reset()
+	d.qa["craft_market"].select(Markets.ids.find("mil"))
+	d.qa["craft_units"].value = 5
+	d.qa["craft_add"].pressed.emit()
+	check(int(Tech.progress("MIL_2")["n"]) == 5 and "Researching MIL_2: 5 of" in d.skills_text(), "debug: add crafted units counts toward the market's tech", d.skills_text())
+	d.qa["craft_units"].value = 100
+	d.qa["craft_add"].pressed.emit()
+	check(m.learned_skills.has("MIL_2") and m.last_notice == StoryText.get_text("SK_TECH_DONE", {"name": StoryText.get_text("SK_MIL_2_NAME")}), "debug: enough crafted units finish the tech and post the notice", m.last_notice)
+	m.learned_skills = []
+	Tech.reset()
 	m.cash = 0
 	d.qa["ship_small"].pressed.emit()
 	check(m.ships == 1, "debug: free ships")
@@ -2472,7 +2622,7 @@ func _test_shield() -> void:
 	m.debug_fire_event("EV18")
 	check(m.event_notice == null, "shield: offered once")
 	# system 2 opens after the shield
-	m.learned_skills.append("C1")
+	m.learned_skills.append("FND_PERMIT")
 	m.cash = 5000
 	m.skill_points = 10
 	m.buy_permit(2)
@@ -2881,7 +3031,7 @@ func _test_stations() -> void:
 	m.pts_planets = [0, 1, 2]
 	m.pts_pairs = ["0-1", "0-2"]
 	m.skill_points = 50
-	check(m.learn_skill("C1")["ok"] and m.learn_skill("A1")["ok"], "station: A1 learned")
+	check(m.learn_skill("FND_PERMIT")["ok"] and m.learn_skill("FND_STORAGE")["ok"], "station: A1 learned")
 	check(m.station_systems.has(1) and m.station_systems.has(2) and m.map.stations.size() == 2, "station: one per open system after A1")
 	m._ensure_stations()
 	m._ensure_posts()
@@ -3147,7 +3297,7 @@ func _test_trade_gate() -> void:
 	var c := "energy"
 	m.cash = 5000
 	m.ships = 2
-	m.learned_skills.append("C3")  # Long Haul, so only the gate can refuse a cross-system route
+	m.learned_skills.append("FND_PERMIT")  # Long Haul, so only the gate can refuse a cross-system route
 	check(m.system_trade_open(home) and not m.system_trade_open(far), "gate: home open, second system locked without a post")
 	check(m.set_local_order(home, c, "buy", true)["ok"], "gate: home Buy works without a post")
 	check(m.set_local_order(home, c, "sell", true)["ok"], "gate: home Sell works without a post")
@@ -3177,8 +3327,8 @@ func _test_trade_gate() -> void:
 	m.pts_planets = [0, 1, 2]
 	m.pts_pairs = ["0-1", "0-2"]
 	m.skill_points = 50
-	m.learn_skill("C1")
-	m.learn_skill("A1")
+	m.learn_skill("FND_PERMIT")
+	m.learn_skill("FND_STORAGE")
 	check(m.space_post_open(2) and m.system_trade_open(far), "gate: post open after A1")
 	check(m.set_local_order(far, c, "buy", true)["ok"] and m.set_local_order(far, c, "sell", true)["ok"], "gate: second system Buy and Sell work once the post is open")
 	var ro: Dictionary = m.send_stock_buying(home, far, c)
@@ -3268,10 +3418,6 @@ func _test_second_lane() -> void:
 	check(m.second_lane_active(), "N11: the optional line shows once the player is trading")
 	var base: int = m.permit_cost(2)
 	check(base == int(m.balance["permit_2_cost"]) and m.second_lane_line().contains("Optional") and m.second_lane_line().contains(str(base)), "N11: the line says Optional and shows the live permit cost", m.second_lane_line())
-	m.learned_skills = ["C4"]
-	var disc: int = m.permit_cost(2)
-	check(disc < base and m.second_lane_line().contains(str(disc)), "N11: the line shows the permit cost after the C4 discount", m.second_lane_line())
-	m.learned_skills = []
 	m._refresh()
 	check(m.goal_label.text.contains("Optional"), "N11: the goal line carries the optional text")
 	m.debug_grant_permit(2)  # buying (granting) the permit never ticks the goal
@@ -3382,7 +3528,7 @@ func _test_clusters() -> void:
 	var r: Dictionary = m.send_from_cluster(node, dst)
 	check(not r["ok"] and r["reason"] == StoryText.get_or("NOT_MINING_NEEDS_SKILL", "Mining needs the Prospecting skill.") and m.engine.routes.is_empty(), "T156: no mining skill, no route from a cluster", str(r))
 	check(not m.can_mine(), "T156: can_mine is false without the skill")
-	m.learned_skills.append(Clusters.MINING_SKILL)
+	m.learned_skills.append("FND_PROSPECT")
 	check(m.can_mine(), "T156: can_mine follows the mining skill hook")
 	r = m.send_from_cluster(node, dst)
 	check(r["ok"] and m.engine.routes.size() == 1 and RouteEngine.from_cluster(m.engine.routes[0]) and str(m.engine.routes[0]["src"]) == "cluster:c1_1", "T156: with the skill a cluster starts a route", str(r))
@@ -3442,9 +3588,9 @@ func _test_clusters() -> void:
 	m.ship_panel.set_upkeep(m)
 	check(m.free_ships() == 0 and m.ship_panel.free_label.text.contains("Send to... buys one") or m.ship_panel.free_label.text.contains("Not enough") or m.ship_panel.free_label.text.contains("limit"), "ships window: with no free ship it says what Send to... does", m.ship_panel.free_label.text)
 	# T158: B1 Prospecting shows ore left; price trend and margin warning are base game; best partner is B3
-	m.learned_skills.erase("B1")
+	m.learned_skills.erase("FND_PROSPECT")
 	m.planet_panel.show_planet(0)
-	m.learned_skills.erase("B1")
+	m.learned_skills.erase("FND_PROSPECT")
 	m.planet_panel.show_planet(0)
 	check(not _labels(m.planet_panel, []).any(func(l): return l.text.begins_with("Recent sell prices")), "price history: no history line on the panel, with or without a skill")
 	# EV20: pay leaves a fresh small cluster; decline does not
@@ -3719,17 +3865,17 @@ func _test_mining_reachable() -> void:
 	_wipe_user()
 	var m: Control = await _new_main()
 	m._dismiss_preface()
-	check(m.skill_points >= int(m.balance["skill_cost_B1"]), "mining reach: the start gives enough points for B1", str(m.skill_points))
-	check(m.learn_skill(Clusters.MINING_SKILL)["ok"] and m.can_mine(), "mining reach: B1 learned first, at cycle 1")
+	check(m.skill_points >= int(m.balance["skill_cost_FND_PROSPECT"]), "mining reach: the start gives enough points for B1", str(m.skill_points))
+	check(m.learn_skill("FND_PROSPECT")["ok"] and m.can_mine(), "mining reach: B1 learned first, at cycle 1")
 	_free_main(m)
 	var m2: Control = await _new_main()
 	m2._dismiss_preface()
-	var cost_c1 := int(m2.balance["skill_cost_C1"])
-	check(m2.learn_skill("C1")["ok"], "mining reach: C1 first")
-	m2._add_points(int(m2.balance["skill_cost_B1"]))
+	var cost_c1 := int(m2.balance["skill_cost_FND_PERMIT"])
+	check(m2.learn_skill("FND_PERMIT")["ok"], "mining reach: C1 first")
+	m2._add_points(int(m2.balance["skill_cost_FND_PROSPECT"]))
 	for i in 9:
 		m2.debug_advance_cycle()
-	check(m2.cycle <= 10 and m2.learn_skill(Clusters.MINING_SKILL)["ok"] and m2.can_mine(), "mining reach: B1 after C1 alone by cycle 10, no A1 needed", "cycle %d cost_c1 %d" % [m2.cycle, cost_c1])
+	check(m2.cycle <= 10 and m2.learn_skill("FND_PROSPECT")["ok"] and m2.can_mine(), "mining reach: B1 after C1 alone by cycle 10, no A1 needed", "cycle %d cost_c1 %d" % [m2.cycle, cost_c1])
 	_free_main(m2)
 
 ## Asteroid dust ring: exists, purely visual (no collision), and building/viewing it changes no game state.
@@ -3838,8 +3984,8 @@ func _test_fabric() -> void:
 	var fabric_cost: int = int(m.balance.get("fabric_build_cost", 0))
 	check(m.commodities.has("plate") and fabric_cost > 0, "fabric: plate is a commodity, build cost set in balance", str(fabric_cost))
 	check(m.can_build_fabric()["reason"] == "skill" and not m.build_fabric()["ok"] and m.cash == 5000, "fabric: refused before F1, nothing paid")
-	m.learned_skills.append("A1")
-	m.learned_skills.append("F1")
+	m.learned_skills.append("FND_STORAGE")
+	m.learned_skills.append("MIN_1")
 	m._ensure_stations()
 	check(m.station_systems.has(1), "fabric: trading post (system 1 station) exists with A1")
 	# build blocked until dross and nullglass both have a route into the trading post
@@ -3908,8 +4054,8 @@ func _test_fabric() -> void:
 			seen = true
 	check(seen, "fabric panel: lists inputs not yet reached (no route, no stock)")
 	# the locked-trade reason names A1 only while A1 is missing
-	check(not "A1" in m.trade_locked_reason() or not m.has_skill("A1"), "trade lock text: names A1 only without A1")
-	m.learned_skills.erase("A1")
+	check(not "FND_STORAGE" in m.trade_locked_reason() or not m.has_skill("FND_STORAGE"), "trade lock text: names A1 only without A1")
+	m.learned_skills.erase("FND_STORAGE")
 	check("A1" in m.trade_locked_reason(), "trade lock text: names A1 when it is not learned", m.trade_locked_reason())
 	await _free_main(m)
 
@@ -3930,16 +4076,14 @@ func _test_dead_world_mechanics() -> void:
 	check(str(g["id"]) == "dead_2" and g["name"] == "Greywake" and g["abundant"] == "nullglass" and g["base_prices"].has("nullglass_buy"), "dead: dead_2 Greywake in system 2 carries nullglass")
 	# skills
 	var ST = m.SkillTree
-	check(ST.prereqs("M1") == ["B1"] and ST.prereqs("M2") == ["M1"] and ST.prereqs("F1") == ["M1", "M2"], "dead skills: prerequisites B1, M1, M1+M2")
-	check(ST.ids_in("B").has("M1") and ST.ids_in("B").has("F1") and ST.cost(m.balance, "M1") == 1 and ST.cost(m.balance, "M2") == 2 and ST.cost(m.balance, "F1") == 2, "dead skills: Research branch, costs 1, 2, 2 (balance v29)")
-	check(ST.state(["B1"], "M1", {}) == "locked", "dead skills: M1 respects the second-row lock (only B1 is exempt)")
-	check(ST.state(["A1", "C1", "B1"], "M1", {}) == "available" and ST.state(["A1", "C1", "B1", "M1"], "F1", {}) == "locked", "dead skills: M1 opens after B1 with A1 and C1; F1 needs M2 too")
+	check(ST.prereqs("MIN_3") == ["MIN_1"] and ST.prereqs("MIN_5") == ["MIN_3"] and ST.prereqs("MIN_1") == ["FND_PROSPECT"], "dead skills: MIN_3 needs MIN_1, MIN_5 needs MIN_3, MIN_1 needs FND_PROSPECT")
+	check(ST.ids_in("min").has("MIN_3") and ST.cost(m.balance, "MIN_3") == 2 and ST.cost(m.balance, "MIN_5") == 3 and ST.cost(m.balance, "MIN_1") == 1, "dead skills: Minerals tree, costs 2, 3, 1 (balance v36)")
 	# gate
 	m.cash = 6000
 	m.ships = 3
 	var r: Dictionary = m.can_connect(d1, 0, "dross")
 	check(not r["ok"] and "Cold Survey" in str(r["reason"]), "dead gate: refused without M1 with a reason", str(r))
-	m.learned_skills.append("M1")
+	m.learned_skills.append("MIN_3")
 	check(m.can_connect(d1, 0, "dross")["ok"], "dead gate: allowed with M1")
 	m._open_system(2)
 	var g2: int = -1
@@ -3948,7 +4092,7 @@ func _test_dead_world_mechanics() -> void:
 			g2 = i
 	var r2: Dictionary = m.engine.check_connection(g2, g2 - 1, "nullglass")
 	check(g2 >= 0 and not r2["ok"] and "Deep Cut" in str(r2["reason"]), "dead gate: Greywake refused without M2 (M1 does not open it)", str(r2))
-	m.learned_skills.append("M2")
+	m.learned_skills.append("MIN_5")
 	check(m.engine.check_connection(g2, g2 - 1, "nullglass")["ok"], "dead gate: Greywake allowed with M2")
 	# danger
 	check(m.danger_of(d1) == 0 and m.danger_of(0) == 0, "danger: starts at 0")
@@ -4101,8 +4245,8 @@ func _test_dead_choice_effects() -> void:
 	m._on_event_confirmed(1, "EV32")
 	check(m.cash == 1000 - cost and m.engine.dead_loss.has(g2), "dead effects: EV32 carry on costs nothing and starts ore loss at Greywake", str(m.engine.dead_loss))
 	# ore loss: chance 1, pct 0.5 drops half of a load; expires after dead_ore_loss_cycles
-	m.learned_skills.append("M1")
-	m.learned_skills.append("M2")
+	m.learned_skills.append("MIN_3")
+	m.learned_skills.append("MIN_5")
 	m.balance["dead_ore_loss_chance"] = 1.0
 	m.balance["dead_ore_loss_pct"] = 0.5
 	m._push_dead_mods()
@@ -4166,8 +4310,8 @@ func _test_dead_unlock_and_core() -> void:
 			d1 = i
 	m.cash = 9000
 	m.ships = 3
-	m.learned_skills.append("M1")
-	m.learned_skills.append("A1")
+	m.learned_skills.append("MIN_3")
+	m.learned_skills.append("FND_STORAGE")
 	m._ensure_stations()
 	m._sync_dead_lock()
 	check(m.engine.dead_locked.has(d1), "dead gate: Cinderrest is locked at cycle 1")
@@ -4197,9 +4341,9 @@ func _test_dead_unlock_and_core() -> void:
 	check(m.can_connect(d1, 0, "dross")["ok"], "dead gate: route from Cinderrest allowed at cycle 15 with M1")
 	check(m.set_local_order(d1, "dross", "buy", true)["ok"], "dead gate: buy order allowed at 15")
 	# skill gate bypasses now closed
-	m.learned_skills.erase("M1")
+	m.learned_skills.erase("MIN_3")
 	check(not m.engine.check_connection(d1, -1, "dross")["ok"] and not m.engine.check_local(d1, "dross", "buy")["ok"], "dead gate: send to storage and buy order need M1 too")
-	m.learned_skills.append("M1")
+	m.learned_skills.append("MIN_3")
 	# save and load keeps a dead buy order and loads an old save with no dead data
 	m.set_local_order(d1, "dross", "buy", true)
 	var sv: Dictionary = m.collect_state()
@@ -4209,11 +4353,11 @@ func _test_dead_unlock_and_core() -> void:
 	check(m.cycle == 20 and m.danger_of(d1) == 0 and not m.fabric.built and m.fabric.core_made == 0 and m.events.scheduled.is_empty() and m.events.mods.is_empty(), "dead save: an old save with no dead data loads clean")
 	# a save made at cycle 3 holding a route from a dead world drops it
 	m.cycle = 3
-	var bad := {"cycle": 3, "cash": 500, "ships": 1, "learned_skills": ["M1"], "routes": [{"id": 1, "a": d1, "b": 0, "c": "dross"}]}
+	var bad := {"cycle": 3, "cash": 500, "ships": 1, "learned_skills": ["MIN_3"], "routes": [{"id": 1, "a": d1, "b": 0, "c": "dross"}]}
 	m.apply_state(bad)
 	check(m.engine.routes.is_empty(), "dead save: a route from a locked dead world is dropped on load")
 	# Null Core
-	m.apply_state({"cycle": 20, "cash": 9000, "ships": 3, "learned_skills": ["A1", "F1"]})
+	m.apply_state({"cycle": 20, "cash": 9000, "ships": 3, "learned_skills": ["FND_STORAGE", "MIN_1"]})
 	m._ensure_stations()
 	var key: String = m.storage.system_key(1)
 	m.storage.ensure(key)
@@ -4223,9 +4367,9 @@ func _test_dead_unlock_and_core() -> void:
 	m.cash = int(m.balance["null_core_build_cost"]) - 1
 	check(m.can_build_core()["reason"] == "credits", "null core: refused without the credits")
 	m.cash = 9000
-	m.learned_skills.erase("F1")
+	m.learned_skills.erase("MIN_1")
 	check(m.can_build_core()["reason"] == "skill", "null core: needs F1")
-	m.learned_skills.append("F1")
+	m.learned_skills.append("MIN_1")
 	var plate0: int = m.storage.amount(key, "plate")
 	check(m.build_null_core()["ok"] and m.fabric.core_made == 1 and m.cash == 9000 - int(m.balance["null_core_build_cost"]) and m.storage.amount(key, "plate") == plate0 - int(m.balance["null_core_in_plate"]), "null core: built, credits and inputs paid", str(m.cash))
 	m._dismiss_event_notice()

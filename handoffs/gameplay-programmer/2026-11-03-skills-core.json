@@ -1,0 +1,99 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-03",
+  "task": "skills-core",
+  "status": "done",
+  "files_changed": [
+    "game/skills.gd (new)",
+    "game/tech.gd (new)",
+    "game/skill_tree.gd",
+    "game/ending_picker.gd",
+    "game/save_game.gd",
+    "game/markets.gd",
+    "game/route_engine.gd",
+    "game/events.gd",
+    "game/clusters.gd",
+    "game/dead_worlds.gd",
+    "game/fabric.gd",
+    "game/storage.gd",
+    "game/main.gd",
+    "game/debug_menu.gd",
+    "game/planet_panel.gd",
+    "game/space_storage_view.gd",
+    "data/balance.json",
+    "tools/tests/run_tests.gd",
+    "handoffs/gameplay-programmer/2026-11-03-skills-core.json"
+  ],
+  "open_questions": [
+    "UNKNOWN: ore_free_slots needs a shared cargo/order space rule that does not exist; owner or economy-designer to say what 'ore takes no space' means before it can be wired.",
+    "UNKNOWN: stock_protect (LUX_4) has nothing to protect: stock is not lost when a planet closes today. Should closing ever cost stored stock? If not, drop the effect from skills.json.",
+    "MIL_1 upkeep applies to the maintenance part of a route's fixed cost only (as old A5 did), not the trip cost, though the vocabulary says 'trip cost and maintenance'. Say if the trip cost should be cut too."
+  ],
+  "handoff": "Four market trees run on data/skills.json. New statics: Skills (learned set, all effects, bot skills, share points), Tech (crafting tracker), SkillTree (graph and rules, pure), EndingPicker.inputs. Old A/B/C/M/F code, keys and tests are gone; the A1 gate, permit-first and first-row locks are removed (Foundations free from cycle 1). Save v3 migrates v2. Tests: TOTAL pass=1066 fail=0 (sh tools/tests/run.sh). The old skill_screen.gd still loads through compat shims and prints SK_BRANCH_<market> missing-text errors; the UI task replaces it and the shims.",
+  "details": {
+    "test_total": "pass=1066 fail=0",
+    "api": {
+      "SkillTree (game/skill_tree.gd, class_name, static, no state)": [
+        "BRANCHES ['fnd','mil','lux','min','bio'], MARKETS",
+        "all_ids() -> Array, has(id), ids_in(branch) -> Array (file order), node(id) -> Dictionary, market_of(id), tier(id), is_tech(id)",
+        "prereqs(id) -> Array, missing_prereqs(learned, id) -> Array, effects(id) -> Array (primary then extra)",
+        "cost(balance, id) -> int, tech_goal(balance, id) -> int",
+        "state(learned, id) -> 'learned'|'available'|'locked' (tech 'available' = being researched)",
+        "can_learn(learned, points, balance, id) -> {ok, reason} reason in '', unknown, known, locked, tech, points",
+        "skill_name(id), flavour(id), plain(id), craft_text(id) (SK_<id>_NAME/_FLAVOUR/_PLAIN/_CRAFT)",
+        "legacy_id(old_id), LEGACY, LEGACY_COST (old id map, used by saves and systems.json requires_skill)"
+      ],
+      "main.gd": [
+        "learn_skill(id) -> {ok, reason}  (spends points, posts NOT_SKILL_LEARNED, syncs effects)",
+        "learned_skills (property = Skills.learned), skill_points, has_skill(id)",
+        "craft_units(market, units): Tech.add_crafted + SK_TECH_DONE notice. Workshops in part 2 call this (or Tech.add_crafted then main._post_tech_done())",
+        "required_skill(system_id) -> new skill id for a permit",
+        "stats['flavour'] = EndingPicker.inputs(...) passed to the end screen on a win"
+      ],
+      "Skills (game/skills.gd, static)": [
+        "reset(balance), is_learned(id), learned (Array, never reassigned), set_learned(ids), add_learned(id), learn(id, points, balance)",
+        "unlocked(what) -> bool  (what = workshop, good or feature id: smelter, cells, space_storage, permit_routes, cluster_routes ...)",
+        "workshop_batches(market) -> int, batch_yield(market) -> int  (flags for part 2)",
+        "bot_skill_ids() -> learned choose-a-bot skills, bot_skill_ready(id) -> bool, bot_skill_cooldown(id) -> int (0 ready, -1 once-per-run used, -2 not learned), activate_bot_skill(id, bot 1..3) -> {ok, reason ('', locked, used, cooldown, bot), until}",
+        "award_share_points() -> [{market, step, points}] (main calls it every cycle end), grow_stock(storage) (BIO_2, main calls it every cycle end)",
+        "queries used by hooks: upkeep_mult, volume_mult(m), volume_bonus_price_up(m), route_capacity_mult(m), sale_price_mult(m), event_cut(m), event_bonus(m), storage_cap_mult, order_size_mult, bot_strength_mult(m), bot_growth_mult(m), share_window(m, def), reveal_cycles, warning_cycles, mine_skill_for(place), mine_unlocked(place), cluster_yield_mult, reopen_sooner, stock_growth(m), stock_protect(m), ore_free_slots",
+        "to_dict()/from_dict() saved under 'skills' (bot_used, share_paid, stock_grown)"
+      ],
+      "Tech (game/tech.gd, static)": [
+        "add_crafted(market, units) -> Array of ids finished now (counts only while the tech is active: prerequisites learned/finished, surplus dropped)",
+        "progress(id) -> {n, goal, active, done}, is_active(id), take_done() -> ids, reset(), to_dict()/from_dict() saved under 'tech'. A finished tech joins Skills.learned."
+      ],
+      "Markets": [
+        "hit_bot(b, m, stat, amount, until=-1): until >= 0 = temporary strength/growth hit, active through that cycle, then expires; saved in mods[...]['temps']",
+        "bot_mods(b, m, cycle=-1), add_sale(good, units, up_units=0), window_for(m) now reads Skills.share_window (Markets.bio_bonus removed)"
+      ],
+      "EndingPicker.inputs(market, balance)": "{market, ending_id (END_<MKT>_GOOD for now), capstone, tech_done 0..3, rival_broken (stub false), second_market, second_share, second_over}. New balance key ending_second_market_pct 0.25.",
+      "SaveGame": "VERSION 3, migrate_v2(state) static"
+    },
+    "wired_effects": "upkeep_mult (MIL_1), volume_pct incl. LUX_5 condition, route_capacity_pct, sale_price_pct (cash only; share uses base value), event_cut_pct, event_bonus_pct (both in Events.price_factor), storage_cap_pct, order_size_pct, unlock (storage, permit routes and system permits, cluster routes, fabric/core need MIN_1), bot_strength_pct chosen_bot (temp hit with expiry) and permanent (end_cycle), bot_growth_mult (end_cycle), share_window, reveal_prices (planet panel gate), event_warning (forecast), mine_unlock (dead worlds), cluster_yield_pct, stock_growth_pct, reopen_sooner (closed-planet bridge).",
+    "flags_only_until_part_2": "workshop_batches, batch_yield, unlock of workshop/good ids (Skills.unlocked / workshop_batches / batch_yield answer correctly, nothing consumes them). Only the Fabric crafts today (plate, market min).",
+    "NOT_WIRED": [
+      "ore_free_slots (MIN_2): no shared cargo or order slot rule exists in the game.",
+      "stock_protect (LUX_4): no stock loss happens when a planet closes, so there is nothing to protect.",
+      "reveal_prices cycles value is read but the panel always shows 1 cycle ahead (trade.price(..., true)); a larger value is not used.",
+      "event_warning cycles value is read only as on/off; the forecast is always 1 cycle ahead.",
+      "Event text of main.effect_line still shows the base event pct, not the cut or bonus."
+    ],
+    "decisions": [
+      "Permanent bot effects (MIN_7, BIO_7 strength, MIL_7 growth) are computed in Markets.end_cycle from Skills, not stored with hit_bot, so loading a save or learning in tests never double-applies them. Temporary hits (MIL_5, LUX_7) use Markets.hit_bot with 'until'.",
+      "Old closed-planet bridging by A1/A2/B4 is gone (not in the new data); only BIO_6 reopen_sooner bridges.",
+      "C2 Survey Beacon and C4 Colonial Rights removed: no survey, no permit discount, permit price and points are the data values.",
+      "systems.json still says requires_skill C1; main.required_skill maps it with SkillTree.legacy_id (data file is not mine).",
+      "Techs sit in the learned set once finished, so SkillTree.state/prereqs treat them like skills.",
+      "Share points: a market that jumps past both steps pays both. Points are added in main at cycle end with notice id NOT_SKILL_REASON_SHARE (get_or fallback; story id not written yet).",
+      "Old costs for refunds live in SkillTree.LEGACY_COST because the old balance keys are removed. v2 migration refunds C2 1, C4 2 and the second of C1/C3 (C3 2)."
+    ],
+    "compat_shims_for_ui_programmer_to_delete": [
+      "main.skill_ctx() returns {}, main.a1_gate_open() returns true, main.is_surveyed()/survey_system() return false, SkillTree.FIRST_ROW/in_first_row, SkillTree.state/can_learn still take a ctx argument. skill_screen.gd still uses them and the old SK_BRANCH_<A|B|C> text, so it logs missing SK_BRANCH_<fnd|mil|lux|min|bio> errors until rebuilt.",
+      "Tutorial highlight reads skill_screen.node_buttons['FND_PERMIT'] (the screen must key its buttons by node id)."
+    ],
+    "story_follow_ups": "Old texts for A/B/C skills and NOT_ROUTE_NEEDS_C3, NOT_MINING_NEEDS_SKILL, LBL_TRADE_NEEDS_A1, TUT_G9_PERMIT (mentions C1) still use the old names; story-designer cleans. New optional id: NOT_SKILL_REASON_SHARE ('Your {market} share passed {pct}%.').",
+    "debug_menu": "New 'QA: skills and tech' section: market picker, units spin, 'Add crafted units' button, skill_state label (learned ids, researching progress, bot skills). The A1 gate buttons are removed. Balance keys are still exposed by the existing balance section."
+  }
+}
