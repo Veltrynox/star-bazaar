@@ -188,6 +188,23 @@ func choice_effects(ch) -> Array:
 				out.append(e)
 	return out
 
+## Optional "bot_effect" on a choice: list of {bot, market, stat, amount | size}. size "S"/"M"/"L" gives the percent
+## (Markets.size_pct) with the sign of "amount" (default -, a hit); tier uses the int amount. Returns hits applied.
+func apply_bot_effect(ch) -> int:
+	var n := 0
+	if typeof(ch) != TYPE_DICTIONARY or typeof(ch.get("bot_effect")) != TYPE_ARRAY:
+		return 0
+	for e in ch["bot_effect"]:
+		if typeof(e) != TYPE_DICTIONARY:
+			continue
+		var stat := str(e.get("stat", ""))
+		var amt := float(e.get("amount", 0.0))
+		if e.has("size") and stat != "tier":
+			amt = Markets.size_pct(str(e["size"])) * (-1.0 if float(e.get("amount", -1.0)) < 0.0 else 1.0)
+		if Markets.hit_bot(int(e.get("bot", 0)), str(e.get("market", "")), stat, amt):
+			n += 1
+	return n
+
 func choice_effect(ch) -> Dictionary:
 	return parse_tag(str(ch.get("tag", ch.get("effect", "")))) if typeof(ch) == TYPE_DICTIONARY else {}
 
