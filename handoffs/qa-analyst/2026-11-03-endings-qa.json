@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "agent": "qa-analyst",
+  "date": "2026-11-03",
+  "task": "Final QA on endings build (data v40): 8 market endings, bankrupt, swept, outcompeted, full QA",
+  "status": "done",
+  "files_changed": [
+    "qa/reports/2026-11-03-endings-qa.md",
+    "qa/reports/2026-11-03-endings-qa-bug_report.json",
+    "qa/reports/2026-11-03-endings-qa-runs.jsonl",
+    "qa/reports/2026-11-03-endings-tests.log",
+    "qa/reports/2026-11-03-endings-end-screen-END_MIL_GOOD.png",
+    "qa/reports/2026-11-03-endings-end-screen-END_MIL_BAD.png",
+    "handoffs/qa-analyst/2026-11-03-endings-qa.json"
+  ],
+  "open_questions": [
+    "UNKNOWN: exact rival share over 50 pct. RESULT has no bot shares; the claim (bot_1 above 50 pct in swept mil runs) is a proxy from rival_strengths.",
+    "UNKNOWN: whether mil bad seeds 3 and 8 (SWEPT at c27, player 7 pct) and the c40 final-cycle wins are intended. Owner call.",
+    "Seeds 1-8 are near-identical for fixed chains (lux good seeds 1 and 2 match). Should QA add noise to the bot (economy-designer asked too)?"
+  ],
+  "handoff": "160 runs, 0 crash, 0 frozen, 0 ERROR lines, all end with RESULT. All 8 market win endings seen (MIL good 17, bad 13; LUX 8/4; MIN 8/8; BIO 13/13). BANKRUPT reached by real play once (spread seed 8, no debit; stipend skipped in repossession spiral). Swept: decent mil bad seeds 3 and 8 at c27. always_expand wins 7/8 (BIO), equal to focused decent 64/72. Decent default 2/8 with permit. 7 focus wins after c30. Tests pass=1165 fail=0. Windowed end screens for MIL_GOOD and MIL_BAD layout OK. Bugs: 6 medium, 2 low, in qa/reports/2026-11-03-endings-qa-bug_report.json.",
+  "details": {
+    "results": [
+      {"strategy": "always_expand (no focus, random chains)", "final_cash": 7970, "cycle_reached": 27, "outcome": "win", "endings": {"END_BIO_GOOD": 5, "END_BIO_BAD": 2, "END_OUTCOMPETED": 1}},
+      {"strategy": "decent mil focus, good chains", "final_cash": 10865, "cycle_reached": 27, "outcome": "win", "endings": {"END_MIL_GOOD": 8}},
+      {"strategy": "decent mil focus, bad chains", "final_cash": 9885, "cycle_reached": 27, "outcome": "win", "endings": {"END_MIL_BAD": 6, "END_SWEPT": 2}},
+      {"strategy": "decent mil focus, random chains", "final_cash": 12837, "cycle_reached": 27, "outcome": "win", "endings": {"END_MIL_GOOD": 4, "END_MIL_BAD": 3, "END_OUTCOMPETED": 1}},
+      {"strategy": "decent lux focus, good chains", "final_cash": 30080, "cycle_reached": 27, "outcome": "win", "endings": {"END_LUX_GOOD": 8}},
+      {"strategy": "decent lux focus, bad chains", "final_cash": 26152, "cycle_reached": 35, "outcome": "loss", "endings": {"END_LUX_BAD": 4, "END_OUTCOMPETED": 4}},
+      {"strategy": "decent min focus, good chains", "final_cash": 10221, "cycle_reached": 28, "outcome": "win", "endings": {"END_MIN_GOOD": 8}},
+      {"strategy": "decent min focus, bad chains", "final_cash": 8137, "cycle_reached": 28, "outcome": "win", "endings": {"END_MIN_BAD": 8}},
+      {"strategy": "decent bio focus, good chains", "final_cash": 980, "cycle_reached": 27, "outcome": "win", "endings": {"END_BIO_GOOD": 7, "END_OUTCOMPETED": 1}},
+      {"strategy": "decent bio focus, bad chains", "final_cash": 2960, "cycle_reached": 27, "outcome": "win", "endings": {"END_BIO_BAD": 8}},
+      {"strategy": "decent default (permit 2), random chains", "final_cash": 28921, "cycle_reached": 40, "outcome": "loss", "endings": {"END_MIL_GOOD": 2, "END_OUTCOMPETED": 6}},
+      {"strategy": "decent default (no permit), random chains", "final_cash": 8007, "cycle_reached": 28, "outcome": "loss", "endings": {"END_BIO_BAD": 3, "END_BIO_GOOD": 1, "END_OUTCOMPETED": 3, "END_SWEPT": 1}},
+      {"strategy": "decent mil focus, local orders", "final_cash": 2839, "cycle_reached": 27, "outcome": "win", "endings": {"END_MIL_GOOD": 3, "END_MIL_BAD": 4, "END_SWEPT": 1}},
+      {"strategy": "spread (4 markets)", "final_cash": 28849, "cycle_reached": 40, "outcome": "loss", "endings": {"END_OUTCOMPETED": 7, "END_BANKRUPT": 1}},
+      {"strategy": "mining_focus", "final_cash": 19731, "cycle_reached": 40, "outcome": "loss", "endings": {"END_OUTCOMPETED": 8}},
+      {"strategy": "sloppy", "final_cash": 7889, "cycle_reached": 40, "outcome": "loss", "endings": {"END_OUTCOMPETED": 8}},
+      {"strategy": "never_expand", "final_cash": 7008, "cycle_reached": 40, "outcome": "loss", "endings": {"END_OUTCOMPETED": 8}},
+      {"strategy": "local_focus (no routes), mil", "final_cash": 25, "cycle_reached": 40, "outcome": "loss", "endings": {"END_SWEPT": 4, "END_OUTCOMPETED": 4}},
+      {"strategy": "bankrupt (QA debit)", "final_cash": -300, "cycle_reached": 12, "outcome": "loss", "endings": {"END_BANKRUPT": 8}},
+      {"strategy": "passive (tutorial ship only)", "final_cash": 1200, "cycle_reached": 27, "outcome": "loss", "endings": {"END_SWEPT": 8}}
+    ],
+    "note_outcome": "outcome per setup: win when at least 6 of 8 seeds win, else loss. endings lists the counts. Full run data: qa/reports/2026-11-03-endings-qa-runs.jsonl.",
+    "commands": "Focus: STRATEGIES=decent SEEDS=\"1 2 3 4 5 6 7 8\" TAG=<tag> LIMIT=600 EXTRA=\"--market=<mil|lux|min|bio> --chains=<good|bad|random>\" qa/bots/run_batch.sh <out>. Others: EXTRA=\"--chains=random\" with STRATEGIES=\"sloppy always_expand never_expand\" or \"spread mining_focus bankrupt passive\"; local_focus with --market=mil; decent --market=mil --local-orders.",
+    "endings_text_check": "All 11 endings have _TITLE and body in data/story_text.json. No TODO or empty text. End screen shows title and body for MIL_GOOD and MIL_BAD (windowed, scratch harness).",
+    "release_export": "export_presets excludes qa/*, tools/*, *.md. Debug menu only when OS.is_debug_build(). No release binary built (UNKNOWN).",
+    "bugs": "qa/reports/2026-11-03-endings-qa-bug_report.json: 1 economy-designer bankrupt path (medium), 2 gameplay-programmer stipend in repossession spiral (medium), 3 economy-designer pacing late wins (medium), 4 economy-designer always_expand dominant (medium), 5 gameplay-programmer bad mil chain swept (medium), 6 economy-designer default decent win rate and unspent cash (medium), 7 gameplay-programmer stuck Waiting-for-room routes (low), 8 qa-analyst bot check false positives (low)."
+  }
+}

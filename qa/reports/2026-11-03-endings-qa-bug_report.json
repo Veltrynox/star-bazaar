@@ -1,0 +1,90 @@
+[
+  {
+    "run_id": "alt_spread_8",
+    "seed": 8,
+    "strategy": "spread",
+    "issue_type": "bankrupt_reachable_by_play",
+    "severity": "medium",
+    "steps": "STRATEGIES=spread SEEDS=8 TAG=alt EXTRA=\"--chains=random\" LIMIT=600 qa/bots/run_batch.sh <out>. No QA debit (bankrupt_drained 0). Cash: c13 1411, c14 1145, c20 522, c21 150, c22 -238 (11 lanes built, 8 removed, 5 ships bought c1-c9). Repossessions c21-c25, END_BANKRUPT at c25.",
+    "expected": "A run that overspends has a warning window and a recovery path before END_BANKRUPT, or the overspend is prevented by the buy and route guards. Bankruptcy should need a clearly bad play, not a normal expansion plan.",
+    "actual": "Normal spread play (decent expansion over four markets, no debit) falls to negative cash by c22 and ends END_BANKRUPT at c25. 1 of 8 spread runs. Route overhead and fixed costs push cash below zero after the buy guard had passed.",
+    "owner_agent": "economy-designer"
+  },
+  {
+    "run_id": "alt_spread_8",
+    "seed": 8,
+    "strategy": "spread",
+    "issue_type": "rescue_suppressed_in_repossession_spiral",
+    "severity": "medium",
+    "steps": "Same run as alt_spread_8. Each cycle from c21 cash is still below zero after the repossession, so the next cycle repossesses again. rescues_paid 1 of rescue_max 2 at the end.",
+    "expected": "The stranded-player stipend (_check_stranded) stops a spiral that cannot recover, so the run either pays a rescue or ends with a clear warning first.",
+    "actual": "main.gd _check_stranded returns early on a repossession cycle (repossessed_cycle == cycle). With cash negative every cycle, no stipend is paid during the spiral and the run goes from first negative cash to END_BANKRUPT in 4 cycles, with 5 ships repossessed.",
+    "owner_agent": "gameplay-programmer"
+  },
+  {
+    "run_id": "bio_good_2, bio_good_8, lux_bad_2, lux_bad_5, min_good_4, min_good_8, localord_2",
+    "seed": 2,
+    "strategy": "decent (market focus)",
+    "issue_type": "pacing_late_win",
+    "severity": "medium",
+    "steps": "STRATEGIES=decent SEEDS=\"1 2 3 4 5 6 7 8\" TAG=bio_good LIMIT=600 EXTRA=\"--market=bio --chains=good\" qa/bots/run_batch.sh <out> (same pattern for lux bad, min good; localord: EXTRA=\"--market=mil --chains=random --local-orders\"). Read cycle_reached from results.",
+    "expected": "Decent player wins in cycles 22-30 (economy target, win_earliest 23).",
+    "actual": "7 of 72 decent focus wins land after c30: bio_good s2 c40, bio_good s8 c37, min_good s4 c40 (3 repossessions), localord s2 c31, lux_bad s2 c31, lux_bad s5 c31, min_good s8 c31. Two are final-cycle wins at c40 (share above 50 pct on the last cycle, after the hold streak broke). Also always_expand wins at c38 and c33.",
+    "owner_agent": "economy-designer"
+  },
+  {
+    "run_id": "base_always_expand_2..8",
+    "seed": 2,
+    "strategy": "always_expand",
+    "issue_type": "dominant_strategy",
+    "severity": "medium",
+    "steps": "STRATEGIES=always_expand SEEDS=\"1 2 3 4 5 6 7 8\" TAG=base EXTRA=\"--chains=random\" LIMIT=600 qa/bots/run_batch.sh <out>.",
+    "expected": "Only market-focused play wins; a non-focused strategy wins rarely (the owner plan gives focus the win path).",
+    "actual": "always_expand (no market focus) wins 7 of 8 seeds, all through BIO (END_BIO_GOOD 5, END_BIO_BAD 2), median c27. That equals the focused decent aggregate (64 of 72, 89 pct) and beats focused mil bad (6 of 8) and lux bad (4 of 8).",
+    "owner_agent": "economy-designer"
+  },
+  {
+    "run_id": "mil_bad_3, mil_bad_8",
+    "seed": 3,
+    "strategy": "decent",
+    "issue_type": "bad_chain_swept",
+    "severity": "medium",
+    "steps": "STRATEGIES=decent SEEDS=\"1 2 3 4 5 6 7 8\" TAG=mil_bad LIMIT=600 EXTRA=\"--market=mil --chains=bad\" qa/bots/run_batch.sh <out>. Seeds 3 and 8 at c27 (also decdef seed 7 c29 bio share 7 pct).",
+    "expected": "A bad chain still wins END_MIL_BAD (economy handoff: bad chains win in every market). Sweep should only fire when the player has really lost the market.",
+    "actual": "Mil share falls from about 0.45 (c4) to 0.07 (c22-c27) in seed 3 and is similar in seed 8. END_SWEPT at c27 (loss). Seeds 1, 2, 4-7 hold 0.56-0.62 and win END_MIL_BAD. The leading bot (bot_1, mil strength 1940-2366 vs 585-926 for the other two) is above 50 pct of the market in these runs (proxy from rival_strengths, not measured). Same seed-sensitive pattern in localord seed 7 and local_focus seeds 2, 3, 6, 7.",
+    "owner_agent": "gameplay-programmer"
+  },
+  {
+    "run_id": "decdef_1..8 and decdef_permit_1..8",
+    "seed": 1,
+    "strategy": "decent (default, no focus)",
+    "issue_type": "default_player_win_rate",
+    "severity": "medium",
+    "steps": "STRATEGIES=decent SEEDS=\"1 2 3 4 5 6 7 8\" TAG=decdef_permit LIMIT=600 EXTRA=\"--chains=random\" qa/bots/run_batch.sh <out> (default: permit 2 bought). Same with --no-permit (TAG=decdef).",
+    "expected": "A decent default player (no focus) has a playable chance to win, with spare cash turned into share.",
+    "actual": "Default decent wins 2 of 8 with the permit (END_MIL_GOOD s4, s6) and 4 of 8 without it. Six runs end END_OUTCOMPETED at c40 with 24-31k cash unspent and 23-46 pct best share. Cash has no sink that moves share late in the run.",
+    "owner_agent": "economy-designer"
+  },
+  {
+    "run_id": "decdef_1, decdef_2, always_expand_6, decdef_4",
+    "seed": 6,
+    "strategy": "always_expand / decent",
+    "issue_type": "route_stuck_warning_streak",
+    "severity": "low",
+    "steps": "STRATEGIES=always_expand SEEDS=6 TAG=base EXTRA=\"--chains=random\" qa/bots/run_batch.sh <out>; see issues field in the runs file.",
+    "expected": "A lane that is blocked for more than a few cycles is removed or re-planned by the player or the game.",
+    "actual": "Route 11 shows 'Waiting for room' for 26 cycles (always_expand s6); route 7 and 8 for 24 cycles (decent s1); route 8 for 19-20 cycles (decent s2, s4). Route 2 shows 'Not enough cash' for 4 cycles early (several runs). Not a softlock; the run continues.",
+    "owner_agent": "gameplay-programmer"
+  },
+  {
+    "run_id": "alt_passive_1..8, localord_decent_4, base_all",
+    "seed": 4,
+    "strategy": "bot checks",
+    "issue_type": "qa_bot_check_false_positive",
+    "severity": "low",
+    "steps": "Read issues field of qa/reports/2026-11-03-endings-qa-runs.jsonl: passive runs carry a softlock issue from cycle 1; localord s4 carries a softlock from c24 and still wins at c27; bankrupt runs have end_cycle_ok false (expected_end_cycle -1).",
+    "expected": "The bot flags only real stalls. Passive is idle by design. A win run is not flagged after the win.",
+    "actual": "The bot's idle and end-cycle checks fire on expected endings. No game softlock was found.",
+    "owner_agent": "qa-analyst"
+  }
+]
