@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-03",
+  "task": "skills-columns",
+  "status": "done",
+  "files_changed": ["game/skill_screen.gd (_build_vertical only, plus two comments)", "handoffs/ui-programmer/2026-11-03-skills-columns.json"],
+  "open_questions": [
+    "Not checked by eye: column bands, prerequisite lines across bands, and the scroll at the macOS window size. At a 1920 wide window the expected bands are [fnd, mil] then [lux, min, bio]; on a narrower window more bands appear. Does that read well, or should the Foundations column be narrower so mil fits beside it?"
+  ],
+  "handoff": "VERTICAL_LAYOUT now builds one column per branch (5 branches: fnd, mil, lux, min, bio). Each column holds its depth rows downward, depth 0 at the top; fnd has one row of 3 nodes (636 px wide), the others 5 rows of up to 2 nodes (418 px). Columns sit side by side and wrap into bands when the width (panel minus 60 px) is exceeded, so no horizontal scroll. Cell width, fonts, gaps, opaque panel, lock reasons, detail strip, helpers and the old toggle (VERTICAL_LAYOUT false) are unchanged. Prerequisite lines use global rects, so they follow the new positions. Headless tests: pass=1169 fail=0. Nothing committed."
+}

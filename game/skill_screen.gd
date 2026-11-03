@@ -12,9 +12,9 @@ var COL_SHORT: Color = Color(0.82, 0.82, 0.82)
 var COL_LOCKED: Color = Ui.col("ink_subtle") * 1.4
 const TECH_TINT := Color(0.72, 0.88, 1.0)
 
-## true: branches stacked top to bottom, depth rows inside each (page scrolls vertically only).
+## true: one column per branch side by side (wrapping into bands if too wide), depth rows downward inside each (page scrolls vertically only).
 ## false: the old layout, one row per depth with the branches side by side.
-const VERTICAL_LAYOUT := true  # true: stacked branches in a vertical scroll; false: old wide layout
+const VERTICAL_LAYOUT := true  # true: branch columns in a vertical scroll; false: old wide layout
 const FONT_SIZE := 10
 const FONT_SIZE_TITLE := 15
 const NODE_BTN_H := 50.0
@@ -172,20 +172,41 @@ func setup(main_node: Control) -> void:
 	_shrink(self)
 
 
-## Branch sections stacked top to bottom; inside each, one row per depth (row 0 = no prerequisites).
+## One column per branch, side by side; inside a column one row per depth (row 0 = no prerequisites, at the top).
+## A column is as wide as its widest depth row. When the columns do not fit the window width they wrap into
+## several bands of columns (the page only scrolls vertically).
 func _build_vertical(rows: VBoxContainer) -> void:
 	rows.add_theme_constant_override("separation", BRANCH_GAP)
+	var d_rows := depth_rows()
+	var avail := custom_minimum_size.x - 60.0  # panel margins + scrollbar gutter
+	var band: HBoxContainer = null
+	var used := 0.0
 	for b in SkillTree.BRANCHES:
+		var widest := 1
+		for r in d_rows:
+			if r.has(b):
+				widest = maxi(widest, (r[b] as Array).size())
+		var w := widest * CELL_W + (widest - 1) * NODE_GAP_H
+		if band == null or (used + BRANCH_GAP + w > avail and used > 0.0):
+			band = HBoxContainer.new()
+			band.add_theme_constant_override("separation", BRANCH_GAP)
+			rows.add_child(band)
+			used = 0.0
+		else:
+			used += BRANCH_GAP
+		used += w
 		var sec := VBoxContainer.new()
+		sec.size_flags_vertical = Control.SIZE_SHRINK_BEGIN  # columns start at the top of the band
+		sec.custom_minimum_size.x = w
 		sec.add_theme_constant_override("separation", NODE_GAP_V)
-		rows.add_child(sec)
+		band.add_child(sec)
 		var cap := _caption(StoryText.get_text("SK_TAB_" + b.to_upper()))
 		if b != "fnd":
 			cap.tooltip_text = StoryText.get_text("MKT_%s_ID" % b.to_upper())
 			cap.mouse_filter = Control.MOUSE_FILTER_STOP
 		sec.add_child(cap)
 		sec.add_child(HSeparator.new())
-		for r in depth_rows():
+		for r in d_rows:
 			if not r.has(b):
 				continue
 			var row := HBoxContainer.new()
