@@ -20,10 +20,10 @@ const LAYOUT_RADIUS := 6.0       # ring radius for the simple layout (world unit
 const MAP_UNIT_SCALE := 0.02     # world units per map unit in planets.json (old ring: 300 map units = 6 world units)
 const PLANET_RADIUS := 0.8       # base radius (before planet_scale)
 const ORBIT_SCALE := 2.0         # planets sit this many times further from their system centre than planets.json / systems.json x,y say (the data stays as is)
-## Planet size variation: each planet is PLANET_SIZE_MIN..PLANET_SIZE_MAX of the base radius. A planet's own "size" key in
+## Planet size variation: each planet is PLANET_SIZE_MIN..PLANET_SIZE_MAX (0.715 to 1.885) of the base radius. A planet's own "size" key in
 ## the data wins; otherwise the value comes from a hash of its id, so it is the same every run. Dead worlds use the same range.
-const PLANET_SIZE_MIN := 0.55
-const PLANET_SIZE_MAX := 1.45
+const PLANET_SIZE_MIN := 0.715   # 0.55 x 1.3 (owner: planets 1.3x bigger again)
+const PLANET_SIZE_MAX := 1.885   # 1.45 x 1.3
 const PLANET_PICK_MIN := 0.75    # smallest click radius of a planet (world units), so the smallest planets stay easy to hit
 const CLUSTER_PICK_MIN := 0.3     # smallest click radius of an asteroid pack (world units); under a planet's radius
 const PLANET_SIZE := 1.3         # planet size multiplier: planets are x1.3 the old size; the debug menu starts here
