@@ -102,7 +102,12 @@ func _header(p: Dictionary) -> void:
 		var d := _label(str(p["desc"]))
 		d.theme_type_variation = "LabelSmall"
 		box.add_child(d)
-	if main.DeadWorlds.is_dead(p):  # dead world: one danger line
+	if main.DeadWorlds.is_dead(p) and main.engine.dead_locked.has(planet_index):  # not open before dead_unlock_cycle
+		var ll := _label(StoryText.get_or("PLANET_DEAD_LOCKED", "Opens at cycle {n}.", {"n": main.dead_unlock_cycle()}))
+		ll.name = "DeadLockedLine"
+		ll.theme_type_variation = "LabelAccent"
+		box.add_child(ll)
+	elif main.DeadWorlds.is_dead(p):  # dead world: one danger line
 		var dl := _label(StoryText.get_or("PLANET_DANGER", "Danger: {value} of {max}", {"value": main.danger_of(planet_index), "max": main.dead.max_danger()}))
 		dl.name = "DangerLine"
 		dl.theme_type_variation = "LabelAccent"
@@ -762,7 +767,7 @@ class RatingBar extends Control:
 			var col: Color = Ui.col("star_warm") if i < level else Ui.col("panel_300")
 			draw_line(Vector2(1, y), Vector2(size.x - 1, y), col, 3.0)
 
-## Round planet thumbnail. Uses art/textures/ui/ui_thumb_<type>.png when present, else a plain disc.
+## Round planet thumbnail. Uses art/ui/ui_thumb_<type>.png when present, else a plain disc.
 class Thumb extends Control:
 	signal pressed
 	var planet: Dictionary = {}

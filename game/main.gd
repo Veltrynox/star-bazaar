@@ -120,6 +120,7 @@ var notice_label: Label
 var last_notice: String = ""
 var last_summary: String = ""  # T69: gross, upkeep, net of the last cycle
 var last_rescue_cycle: int = -1  # T95: at most one rescue per cycle
+var prev_net: int = 0  # net of the cycle before last_net (rescue needs 2 flat cycles)
 var last_net: int = 0  # net credits of the last settled cycle (stranded check: a route that pays nothing is not healthy)
 var notice_ends_left: int = 0  # cycle ends until the board notice is cleared
 var debug_menu: PanelContainer  # T33: null in release builds; T34 adds its button via debug_menu.add_tool()
@@ -180,6 +181,7 @@ func _ready() -> void:
 	engine.clusters = clusters
 	engine.learned = learned_skills
 	engine.trade_gate = Callable(self, "system_trade_open")
+	_sync_dead_lock()
 	cash_forecast = load("res://game/cash_forecast.gd").new()  # T40: money text dropdown
 	add_child(cash_forecast)
 	cash_forecast.setup(self, cash_box)
@@ -255,11 +257,6 @@ func apply_state(s: Dictionary) -> void:
 	time_speed = _speed_or_default(s.get("time_speed", 1.0))  # old saves: x1
 	cash = int(s.get("cash", cash))
 	ships = clampi(int(s.get("ships", 0)), 0, int(balance.get("ship_cap", 0)))
-	clusters.from_dict(s.get("clusters"))  # T156: before the routes, which may start at a cluster; old saves: all full
-	engine.from_array(s.get("routes", []), ships)  # old saves: no key = zero routes
-	storage.from_dict(s.get("storage"), map.planets.size())  # old saves: fresh stock
-	engine.local_from_array(s.get("orders"))  # old saves: no local orders
-	# T51: old saves may hold cargo, ship_planet, dest, flight_left, mission_step; ignored.
 	learned_skills = []
 	if typeof(s.get("learned_skills")) == TYPE_ARRAY:
 		for id in s["learned_skills"]:
@@ -268,6 +265,12 @@ func apply_state(s: Dictionary) -> void:
 	# Saves without a skills key start with none: Space Storage must be earned via skill A1.
 	engine.learned = learned_skills
 	_sync_skill_effects()
+	_sync_dead_lock()  # dead worlds still shut at this cycle: saved routes and orders to them are dropped
+	clusters.from_dict(s.get("clusters"))  # T156: before the routes, which may start at a cluster; old saves: all full
+	engine.from_array(s.get("routes", []), ships)  # old saves: no key = zero routes
+	storage.from_dict(s.get("storage"), map.planets.size())  # old saves: fresh stock
+	engine.local_from_array(s.get("orders"))  # old saves: no local orders
+	# T51: old saves may hold cargo, ship_planet, dest, flight_left, mission_step; ignored.
 	price_history = s.get("price_history", {}) if typeof(s.get("price_history")) == TYPE_DICTIONARY else {}
 	forecast_id = str(s.get("forecast_id", ""))
 	surveyed_systems = _int_array(s.get("surveyed"))
@@ -386,6 +389,7 @@ func _open_system(id: int) -> bool:
 			if not commodities.has(c):
 				commodities.append(c)
 	_ensure_posts()
+	_sync_dead_lock()
 	return added
 
 func _system_planets_present(id: int) -> bool:
@@ -479,7 +483,10 @@ func system_trade_open(planet: int) -> bool:
 	return sid == 1 or space_post_open(sid)
 
 func trade_locked_reason() -> String:
-	return StoryText.get_or("LBL_TRADE_NEEDS_STATION", "Needs a Space Storage in this system.")
+	var t := StoryText.get_or("LBL_TRADE_NEEDS_STATION", "Needs a Space Storage in this system.")
+	if not has_skill("A1"):  # QA 2026-11-03: the post comes with A1; say so, a permit alone does not open trade
+		t += " " + StoryText.get_or("LBL_TRADE_NEEDS_A1", "Learn Space Storage (A1) first.")
+	return t
 
 ## Credit price of a permit: the data price, less skill C4 Colonial Rights (balance skill_C4_permit_discount).
 func permit_cost(sid: int) -> int:
@@ -1128,7 +1135,14 @@ func can_buy_ship(kind: String = "small") -> Dictionary:
 		return {"ok": false, "reason": "Ship cap reached."}
 	if cash < Ships.price(kind, balance):
 		return {"ok": false, "reason": "Not enough cash for a new ship (%d cr). Each route needs its own ship; wait for income or remove a route." % Ships.price(kind, balance)}
+	var floor_cash := ship_cash_floor()
+	if cash - Ships.price(kind, balance) < floor_cash:  # stall fix: keep working capital for the trips of every open route
+		return {"ok": false, "floor": true, "reason": StoryText.get_or("NOT_SHIP_KEEP_CASH", "Keep cash for trips: {floor} cr after the price.", {"floor": floor_cash})}
 	return {"ok": true, "reason": ""}
+
+## Cash that must remain after buying a ship: the fixed cost of every open route.
+func ship_cash_floor() -> int:
+	return engine.routes.size() * engine.fixed_cost()
 
 ## T58: auto-assignment. One ship type remains (small).
 func pick_ship(_src: int, _dst: int, _c: String) -> String:
@@ -1547,6 +1561,66 @@ func build_fabric() -> Dictionary:
 	_after_change()
 	return v
 
+## Null Core: can it be built now? {ok, reason}: "max" (one per run), "skill" (F1), "post", "stock" (plate and nullglass at the trading post), "credits".
+func can_build_core() -> Dictionary:
+	if fabric.core_made >= fabric.core_max():
+		return {"ok": false, "reason": "max"}
+	if not has_skill("F1"):
+		return {"ok": false, "reason": "skill"}
+	if not station_systems.has(Fabric.SYSTEM):
+		return {"ok": false, "reason": "post"}
+	var key: String = storage.system_key(Fabric.SYSTEM)
+	for c in ["plate", "nullglass"]:
+		if storage.amount(key, c) < fabric.core_in(c):
+			return {"ok": false, "reason": "stock"}
+	if cash < fabric.core_cost():
+		return {"ok": false, "reason": "credits"}
+	return {"ok": true, "reason": ""}
+
+## Builds the Null Core: plate and nullglass leave the trading post storage, credits are paid. One popup, once per run.
+func build_null_core() -> Dictionary:
+	var v := can_build_core()
+	if not v["ok"]:
+		return v
+	var key: String = storage.system_key(Fabric.SYSTEM)
+	for c in ["plate", "nullglass"]:
+		storage.remove(key, c, fabric.core_in(c))
+	cash -= fabric.core_cost()
+	fabric.core_made += 1
+	var title := StoryText.get_or("NULL_CORE_BUILD_TITLE", "The core is built")
+	var body := StoryText.get_or("NULL_CORE_BUILD", "The Null Core is built.")
+	if event_notice == null:
+		event_notice = load("res://game/event_notice.gd").new()
+		add_child(event_notice)
+		event_notice.show_event(title, body, "", [], StoryText.get_text("BTN_OK"))
+		event_notice.confirmed.connect(func(_c: int):
+			_dismiss_event_notice()
+			_refresh())
+	else:
+		post_notice(body)
+	_after_change()
+	return v
+
+## Route id whose ship carries the Null Core, -1 when none.
+func core_route_id() -> int:
+	for r in engine.routes:
+		if RouteEngine.has_core(r):
+			return int(r["id"])
+	return -1
+
+## Fits the built Null Core to the ship of route `id` (it leaves any other ship). {ok, reason}.
+func fit_core(id: int) -> Dictionary:
+	if fabric.core_made <= 0:
+		return {"ok": false, "reason": "no core"}
+	var i: int = engine.find_by_id(id)
+	if i < 0:
+		return {"ok": false, "reason": "No such route."}
+	for r in engine.routes:
+		r["core"] = false
+	engine.routes[i]["core"] = true
+	_after_change()
+	return {"ok": true, "reason": ""}
+
 ## Danger meter (0 to dead_danger_max) of planet index i; 0 for a planet that is not a dead world.
 func danger_of(i: int) -> int:
 	return dead.get_danger(str(map.planets[i].get("id", ""))) if i >= 0 and i < map.planets.size() else 0
@@ -1577,6 +1651,7 @@ func _settle_routes() -> Array:
 	var r: Dictionary = engine.settle(cash)
 	last_local = r["local"]
 	cash += int(r["delta"])
+	prev_net = last_net
 	last_net = int(r["delta"])
 	last_summary = "%s %d, %s %d, %s %+d" % [StoryText.get_text("LBL_GROSS"), int(r["gross"]),
 		StoryText.get_text("LBL_SHIP_UPKEEP"), int(r["upkeep"]), StoryText.get_text("LBL_NET"), int(r["delta"])]
@@ -1620,11 +1695,20 @@ func _check_stranded() -> void:
 	var stuck := ships == 0 and cash < int(balance.get("ship_price", 0))
 	if not stuck and cash < engine.fixed_cost() and (last_net <= 0 or not _any_route_running()) and not _any_sellable():
 		stuck = true
+	# stall fix: cash below the summed fixed cost of all open routes and no net income for 2 cycles in a row
+	if not stuck and not engine.routes.is_empty() and cash < _routes_fixed_total() and last_net <= 0 and prev_net <= 0 and not _any_sellable():
+		stuck = true
 	if stuck:
 		last_rescue_cycle = cycle
 		var amount := int(balance.get("rescue_stipend", 0))
 		cash += amount
 		post_notice(StoryText.get_text("NOT_DEAD_RESCUE", {"amount": amount}))
+
+func _routes_fixed_total() -> int:
+	var t := 0
+	for rec in engine.routes:
+		t += engine.fixed_cost(rec)
+	return t
 
 func _any_route_running() -> bool:
 	for rec in engine.routes:
@@ -1737,12 +1821,17 @@ func _end_cycle() -> void:
 	events.tick()  # T12: effects that ran this cycle age
 	cycle += 1
 	_sync_closed()
+	if dead_unlock_cycle() > 1 and cycle == dead_unlock_cycle():  # the dead worlds open now
+		post_notice(StoryText.get_or("DEAD_UNLOCK", "Dead worlds are open."))
 	if has_skill("B4") and events.due(cycle + 1):  # B4 Event Forecast: one cycle of warning, naming planet and commodity
 		forecast_id = events.random_id(["EV18"] if shield.decided else [], cycle + 1)
 		post_notice(forecast_text(forecast_id))
 	var sched_id: String = events.take_due(cycle) if (event_notice == null and not game_over) else ""  # R1: part 2 events come from the schedule
 	if sched_id != "":
+		forecast_id = ""  # the forecast promised a random event for this slot; the scheduled one took it
 		fire_event(sched_id)
+	elif events.both_events().size() > 0 and event_notice == null and not game_over:  # pair C: both worlds have had their part 1
+		fire_event(str(events.both_events()[0]))
 	elif events.due(cycle) or (OS.is_debug_build() and debug_force_event):
 		debug_force_event = false
 		var fid: String = forecast_id if forecast_id != "" and events.by_id.has(forecast_id) else events.random_id(["EV18"] if shield.decided else [], cycle)
@@ -1824,7 +1913,21 @@ func _closed_bridge() -> int:
 			n += 1
 	return n
 
+## Dead worlds open at balance dead_unlock_cycle (15). Before it they are locked: no route, order or send from or to them.
+func dead_unlock_cycle() -> int:
+	return int(balance.get("dead_unlock_cycle", 0))
+
+func _sync_dead_lock() -> void:
+	var out: Array = []
+	if cycle < dead_unlock_cycle():
+		for i in map.planets.size():
+			if DeadWorlds.is_dead(map.planets[i]):
+				out.append(i)
+	engine.dead_locked = out
+	events.locked = out
+
 func _sync_closed() -> void:
+	_sync_dead_lock()
 	engine.closed_planets = events.closed_list(_closed_bridge())
 	engine.debris_planets = events.debris.duplicate()
 
@@ -1913,7 +2016,7 @@ func _apply_effect(id: String, eff: Dictionary) -> Dictionary:
 func _spawn_event_cluster() -> int:
 	var opts: Array = []
 	for i in map.planets.size():
-		if open_systems.has(system_of(i)):
+		if open_systems.has(system_of(i)) and not engine.dead_locked.has(i):
 			opts.append(i)
 	if opts.is_empty():
 		return -1
@@ -1977,7 +2080,7 @@ func _open_event_notice(id: String) -> void:
 		var lbl: String = events.choice_text(ch, args)
 		var fee := 0
 		for e in events.choice_effects(ch):
-			fee += _choice_fee(str(e.get("kind", "")))
+			fee += _choice_fee(str(e.get("kind", "")), int(e.get("amount", 0)))
 		if fee > 0:
 			lbl = "%s (%d)" % [lbl, fee]
 		labels.append(lbl)
@@ -2016,7 +2119,7 @@ func _event_beat() -> void:
 			Juice.ping(self, sp, Ui.col("signal_bad"))
 
 ## Credits a choice costs (debris fee, shield, asteroid deflection), 0 when free.
-func _choice_fee(kind: String) -> int:
+func _choice_fee(kind: String, amount: int = 0) -> int:
 	match kind:
 		"debris_pay":
 			return events.debris_fee()
@@ -2025,7 +2128,7 @@ func _choice_fee(kind: String) -> int:
 		"asteroid_pay":
 			return events.asteroid_cost()
 		"cost":
-			return int(events.balance.get("dead_shore_cost", 0))
+			return amount
 	return 0
 
 ## T98: after a debris choice: popup with the outcome text, closed with OK.
@@ -2168,6 +2271,7 @@ func debug_restart_tutorial() -> void:
 	tut_step = 0
 	galaxy_seen = false
 	cycle = 1
+	_sync_dead_lock()
 	cycle_elapsed = 0.0
 	_tut_show(["TUT_C1_PLANET"])
 	_refresh()

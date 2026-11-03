@@ -59,6 +59,7 @@ func _run() -> void:
 	await _test_dead_world_mechanics()
 	await _test_dead_events_chain()
 	await _test_dead_choice_effects()
+	await _test_dead_unlock_and_core()
 	await _test_fabric()
 	await _test_price_event()
 	await _test_route_move()
@@ -885,6 +886,33 @@ func _test_rescue_waiting() -> void:
 	rec["state"] = "stalled"
 	m._check_stranded()
 	check(m.cash == 1 + stip, "rescue: only stalled routes count as not running")
+	# stall fix: two running routes, cash above one trip but below both fixed costs, flat for 2 cycles
+	var rec2: Dictionary = e.new_record(1, 0, c)
+	rec2["id"] = 2
+	rec2["state"] = "running"
+	e.routes = [rec, rec2]
+	rec["state"] = "running"
+	m.cash = fixed + 5
+	m.last_rescue_cycle = -1
+	m.last_net = 0
+	m.prev_net = 10
+	m._check_stranded()
+	check(m.cash == fixed + 5, "rescue: one flat cycle is not a stall")
+	m.prev_net = 0
+	m._check_stranded()
+	check(m.cash == fixed + 5 + stip, "rescue: cash below all routes' fixed cost, 2 flat cycles pays the stipend")
+	m.cash = fixed * 2 + 1
+	m.last_rescue_cycle = -1
+	m._check_stranded()
+	check(m.cash == fixed * 2 + 1, "rescue: cash covering all routes' fixed cost is not rescued")
+	# ship cash floor: after the price, cash must cover every open route's fixed cost
+	m.ships = 2
+	m.cash = int(bal["ship_price"]) + fixed * 2 - 1
+	check(not m.can_buy_ship()["ok"] and m.can_buy_ship().get("floor", false), "ship floor: refused when cash after price < routes x fixed cost")
+	m.cash = int(bal["ship_price"]) + fixed * 2
+	check(m.can_buy_ship()["ok"], "ship floor: allowed at exactly the floor")
+	e.routes = [rec]
+	rec["state"] = "running"
 	# T70 waiting vs blocked
 	m.cash = 5000
 	e.routes = [rec]
@@ -3358,12 +3386,36 @@ func _test_fabric() -> void:
 	var st2: Dictionary = m.engine.settle(m.cash)
 	var price: int = m.engine.sold_price(0, "plate")
 	check(price > 0 and int(st2["delta"]) == n_plates * price and int(fc2["delta"]) == int(st2["delta"]), "fabric: plates sell at the trading post, forecast equals settle", "%d x %d, delta %s" % [n_plates, price, st2["delta"]])
+	# QA 2026-11-03: dross held in the station sells at Voltara through a Sell order (a route into the station itself pays nothing)
+	m.storage.add(key, "dross", 10)
+	m.set_local_order(0, "dross", "sell", true)
+	var dross_before: int = m.storage.amount(key, "dross")
+	var st3: Dictionary = m.engine.settle(m.cash)
+	var dross_price: int = m.engine.sold_price(0, "dross")
+	check(dross_price > 0 and m.storage.amount(key, "dross") < dross_before and int(st3["delta"]) > 0, "chain: a Sell order at Voltara sells dross out of the station", "price %d, delta %s" % [dross_price, st3["delta"]])
+	# the station panel says which fabric inputs have no route yet
+	var ssv2 = m.space_storage_view
+	m.storage.remove(key, "dross", m.storage.amount(key, "dross"))
+	m.storage.remove(key, "nullglass", m.storage.amount(key, "nullglass"))
+	ssv2.open_for(1)
+	var lines := _labels(ssv2, [])
+	var seen := false
+	for l in lines:
+		if l.name == "FabricInputs" and "dross" in l.text and "nullglass" in l.text:
+			seen = true
+	check(seen, "fabric panel: lists inputs not yet reached (no route, no stock)")
+	# the locked-trade reason names A1 only while A1 is missing
+	check(not "A1" in m.trade_locked_reason() or not m.has_skill("A1"), "trade lock text: names A1 only without A1")
+	m.learned_skills.erase("A1")
+	check("A1" in m.trade_locked_reason(), "trade lock text: names A1 when it is not learned", m.trade_locked_reason())
 	await _free_main(m)
 
 func _test_dead_world_mechanics() -> void:
 	_wipe_user()
 	var m: Control = await _new_main()
 	m._dismiss_preface()
+	m.balance["dead_unlock_cycle"] = 1  # these tests are about skills and danger, not the cycle gate
+	m._sync_dead_lock()
 	var d1: int = -1
 	for i in m.map.planets.size():
 		if str(m.map.planets[i].get("id", "")) == "dead_1":
@@ -3505,6 +3557,8 @@ func _test_dead_choice_effects() -> void:
 	_wipe_user()
 	var m: Control = await _new_main()
 	m._dismiss_preface()
+	m.balance["dead_unlock_cycle"] = 1
+	m._sync_dead_lock()
 	var ev = m.events
 	m._open_system(2)  # Greywake joins the planet list (events share it)
 	var d1 := -1
@@ -3595,4 +3649,119 @@ func _test_dead_choice_effects() -> void:
 	m.engine._settle_one(rec, 100000)
 	var got: int = m.engine.storage.amount(str(rec["dst"]), "dross") - before
 	check(full > 1 and got == full - floori(full * 0.5), "dead effects: ore loss drops part of the load", "%d of %d" % [got, full])
+	await _free_main(m)
+
+## Dead-planets audit: cycle-15 gate, gate bypasses, Null Core, old saves.
+func _test_dead_unlock_and_core() -> void:
+	_wipe_user()
+	var m: Control = await _new_main()
+	m._dismiss_preface()
+	check(int(m.balance.get("dead_unlock_cycle", 0)) == 15, "dead gate: balance dead_unlock_cycle is 15")
+	var d1 := -1
+	for i in m.map.planets.size():
+		if str(m.map.planets[i].get("id", "")) == "dead_1":
+			d1 = i
+	m.cash = 9000
+	m.ships = 3
+	m.learned_skills.append("M1")
+	m.learned_skills.append("A1")
+	m._ensure_stations()
+	m._sync_dead_lock()
+	check(m.engine.dead_locked.has(d1), "dead gate: Cinderrest is locked at cycle 1")
+	var r: Dictionary = m.can_connect(d1, 0, "dross")
+	check(not r["ok"] and "15" in str(r["reason"]), "dead gate: route from Cinderrest refused before cycle 15, says cycle 15", str(r))
+	check(not m.can_connect(0, d1, "ore")["ok"] or m.engine.check_connection(0, d1, "ore")["reason"] != "", "dead gate: route to Cinderrest refused before cycle 15")
+	check(not m.engine.check_connection(0, d1, "ore")["ok"] and "15" in str(m.engine.check_connection(0, d1, "ore")["reason"]), "dead gate: route to a dead world refused with the cycle line")
+	check(not m.engine.check_connection(d1, -1, "dross")["ok"], "dead gate: send from Cinderrest to Space Storage refused before 15")
+	check(not m.set_local_order(d1, "dross", "buy", true)["ok"], "dead gate: a buy order at Cinderrest refused before 15")
+	var labels_text := ""
+	m.planet_panel.show_planet(d1)
+	for l in _labels(m.planet_panel, []):
+		if l.name == "DeadLockedLine":
+			labels_text = l.text
+	check(labels_text == "Opens at cycle 15.", "dead gate: panel says it opens at cycle 15", labels_text)
+	check(m.events.pick_debris_planet() != d1 or m.events.planets.size() == 1, "dead gate: debris never picks a locked dead world (spot check)")
+	var hit := 0
+	for i in 200:
+		if m.events.pick_debris_planet() == d1:
+			hit += 1
+	check(hit == 0, "dead gate: debris never picks a locked dead world over 200 picks", str(hit))
+	m.cycle = 14
+	m._sync_closed()
+	m.debug_advance_cycle()
+	check(m.cycle == 15 and m.engine.dead_locked.is_empty(), "dead gate: open at cycle 15", str(m.cycle))
+	check(m.last_notice.begins_with("Dead worlds are open") or m.shown_notice.begins_with("Dead worlds are open") or m.notice_queue.any(func(t): return str(t).begins_with("Dead worlds are open")), "dead gate: one notice at the unlock cycle", m.last_notice)
+	check(m.can_connect(d1, 0, "dross")["ok"], "dead gate: route from Cinderrest allowed at cycle 15 with M1")
+	check(m.set_local_order(d1, "dross", "buy", true)["ok"], "dead gate: buy order allowed at 15")
+	# skill gate bypasses now closed
+	m.learned_skills.erase("M1")
+	check(not m.engine.check_connection(d1, -1, "dross")["ok"] and not m.engine.check_local(d1, "dross", "buy")["ok"], "dead gate: send to storage and buy order need M1 too")
+	m.learned_skills.append("M1")
+	# save and load keeps a dead buy order and loads an old save with no dead data
+	m.set_local_order(d1, "dross", "buy", true)
+	var sv: Dictionary = m.collect_state()
+	m.apply_state(sv)
+	check(m.engine.local_on(d1, "dross", "buy"), "dead save: the buy order at a dead world survives load with M1")
+	m.apply_state({"cycle": 20, "cash": 500, "ships": 1})
+	check(m.cycle == 20 and m.danger_of(d1) == 0 and not m.fabric.built and m.fabric.core_made == 0 and m.events.scheduled.is_empty() and m.events.mods.is_empty(), "dead save: an old save with no dead data loads clean")
+	# a save made at cycle 3 holding a route from a dead world drops it
+	m.cycle = 3
+	var bad := {"cycle": 3, "cash": 500, "ships": 1, "learned_skills": ["M1"], "routes": [{"id": 1, "a": d1, "b": 0, "c": "dross"}]}
+	m.apply_state(bad)
+	check(m.engine.routes.is_empty(), "dead save: a route from a locked dead world is dropped on load")
+	# Null Core
+	m.apply_state({"cycle": 20, "cash": 9000, "ships": 3, "learned_skills": ["A1", "F1"]})
+	m._ensure_stations()
+	var key: String = m.storage.system_key(1)
+	m.storage.ensure(key)
+	check(m.can_build_core()["reason"] == "stock", "null core: refused without plate and nullglass")
+	m.storage.add(key, "plate", 2)
+	m.storage.add(key, "nullglass", 2)
+	m.cash = int(m.balance["null_core_build_cost"]) - 1
+	check(m.can_build_core()["reason"] == "credits", "null core: refused without the credits")
+	m.cash = 9000
+	m.learned_skills.erase("F1")
+	check(m.can_build_core()["reason"] == "skill", "null core: needs F1")
+	m.learned_skills.append("F1")
+	var plate0: int = m.storage.amount(key, "plate")
+	check(m.build_null_core()["ok"] and m.fabric.core_made == 1 and m.cash == 9000 - int(m.balance["null_core_build_cost"]) and m.storage.amount(key, "plate") == plate0 - int(m.balance["null_core_in_plate"]), "null core: built, credits and inputs paid", str(m.cash))
+	m._dismiss_event_notice()
+	var cash1: int = m.cash
+	check(not m.build_null_core()["ok"] and m.can_build_core()["reason"] == "max" and m.cash == cash1 and m.fabric.core_made == 1, "null core: at most one per run (null_core_max)")
+	check(int(m.collect_state()["fabric"]["core_made"]) == 1, "null core: saved")
+	# fit, trip cost, pirate immunity
+	m.ships = 3
+	var a1: Dictionary = m._connect(0, 1, "ore")
+	var a2: Dictionary = m._connect(1, 0, "energy") if a1["ok"] else {"ok": false}
+	check(m.engine.routes.size() >= 2, "null core: two routes for the test", str(a1) + str(a2))
+	var r0: Dictionary = m.engine.routes[0]
+	var r1: Dictionary = m.engine.routes[1]
+	var normal: int = m.engine.fixed_cost(r1)
+	var trip: int = m.engine.trip_part()
+	check(m.fit_core(int(r0["id"]))["ok"] and m.core_route_id() == int(r0["id"]), "null core: fitted to one chosen ship")
+	var want: int = floori(float(trip) * float(m.balance["null_core_trip_mult"])) + m.engine.upkeep_part(r0)
+	check(m.engine.fixed_cost(r0) == want and m.engine.fixed_cost(r0) < normal and m.engine.fixed_cost(r1) == normal, "null core: the fitted ship pays null_core_trip_mult of the trip cost, the other pays full", "%d vs %d" % [m.engine.fixed_cost(r0), normal])
+	check(m.fit_core(int(r1["id"]))["ok"] and not m.engine.has_core(r0) and m.core_route_id() == int(r1["id"]), "null core: only one ship carries it")
+	m.fit_core(int(r0["id"]))
+	m.engine.routes[0]["fresh"] = 1.0
+	m.engine.routes[1]["fresh"] = 1.0
+	var u_core0: int = m.engine.planned_units(r0)
+	var u_norm0: int = m.engine.planned_units(r1)
+	m.storage.add(str(r0["src"]), str(r0["c"]), 100)
+	m.storage.add(str(r1["src"]), str(r1["c"]), 100)
+	m.engine.pirates_active = true
+	var pen := float(m.balance["pirate_volume_penalty"])
+	r1["a"] = r0["a"]
+	r1["c"] = r0["c"]
+	r1["b"] = r0["b"]
+	r1["src"] = r0["src"]
+	r1["dst"] = r0["dst"]
+	var uc: int = m.engine.planned_units(r0)
+	var un: int = m.engine.planned_units(r1)
+	m.engine.pirates_active = false
+	var u_free: int = m.engine.planned_units(r1)
+	check(pen > 0.0 and uc == u_free and un < uc, "null core: pirate volume cut skips the core ship and cuts the other", "%d %d %d" % [uc, un, u_free])
+	# the core returns to the hold when its route is removed
+	m.remove_connection(int(r0["id"]))
+	check(m.core_route_id() == -1 and m.fabric.core_made == 1, "null core: removing the route frees the core, still one built")
 	await _free_main(m)

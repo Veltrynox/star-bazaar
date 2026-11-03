@@ -32,6 +32,8 @@ var shield: RefCounted = null  # T101: solar shield (shield.gd), set by main
 var dead_income: Dictionary = {}  # dead-world events: planet index -> income factor for routes out of it (runtime, set by main)
 var dead_loss: Dictionary = {}  # planet index -> {chance, pct}: a route out of it may lose part of its load (runtime, set by main)
 var loss_rng := RandomNumberGenerator.new()
+var dead_locked: Array = []  # planet indexes of dead worlds that are not open yet (before balance dead_unlock_cycle); runtime, set by main
+var pirates_active := false  # runtime: true while a pirate volume cut is on (no pirate system yet; the Null Core is immune to it)
 var trade_gate: Callable = Callable()  # owner 2026-11-03: planet -> bool, false when its system has no Space Storage post (set by main)
 var learned: Array = []  # T82: learned skill ids, set by main; effects come from balance.json keys
 var clusters: RefCounted = null  # T156: asteroid clusters (clusters.gd), set by main; null = no mining
@@ -143,6 +145,25 @@ func assigned_of(kind: String) -> int:
 static func kind_of(rec) -> String:
 	return str(rec.get("ship", "small")) if typeof(rec) == TYPE_DICTIONARY else "small"
 
+## Refusal text when planet i is a dead world that has not opened yet ("" when it is open or not a dead world).
+func dead_lock_reason(i: int) -> String:
+	if not dead_locked.has(i):
+		return ""
+	return StoryText.get_or("PLANET_DEAD_LOCKED", "Opens at cycle {n}.", {"n": int(balance.get("dead_unlock_cycle", 0))})
+
+## Skill refusal for mining at planet src ("" when allowed). Applies to every way of taking goods out of a dead world.
+func dead_skill_reason(src: int) -> String:
+	if src < 0 or src >= trade.planets.size():
+		return ""
+	var need := DeadWorlds.skill_for(trade.planets[src])
+	if need != "" and not learned.has(need):
+		return StoryText.get_or("NOT_DEAD_NEEDS_SKILL", "Needs {skill}.", {"skill": SkillTree.skill_name(need)})
+	return ""
+
+## Null Core: true when this route's ship carries it.
+static func has_core(rec) -> bool:
+	return typeof(rec) == TYPE_DICTIONARY and bool(rec.get("core", false))
+
 func planet_open(i: int) -> bool:
 	return i >= 0 and i < trade.planets.size() and not closed_planets.has(i)
 
@@ -165,7 +186,10 @@ func local_amount() -> int:
 
 ## Fixed cost per cycle of a route that moves stock (trip + ship upkeep).
 func fixed_cost(rec = null) -> int:
-	return trip_part() * (2 if has_stop(rec) else 1) + upkeep_part(rec)  # N9: a stop pays one more trip cost
+	var tp := trip_part()
+	if has_core(rec):  # Null Core: the fitted ship's trips cost null_core_trip_mult of normal
+		tp = floori(float(tp) * float(balance.get("null_core_trip_mult", 1.0)))
+	return tp * (2 if has_stop(rec) else 1) + upkeep_part(rec)  # N9: a stop pays one more trip cost
 
 ## T69: trip cost part of the fixed cost.
 func trip_part() -> int:
@@ -214,6 +238,10 @@ func check_local(planet: int, c: String, role: String) -> Dictionary:
 		return {"ok": false, "reason": "Unknown order."}
 	if trade.price(planet, c + "_" + role) < 0:
 		return {"ok": false, "reason": "%s is not traded here." % c.capitalize()}
+	if dead_lock_reason(planet) != "":
+		return {"ok": false, "reason": dead_lock_reason(planet)}
+	if role == "buy" and dead_skill_reason(planet) != "":  # buying at a dead world is mining it
+		return {"ok": false, "reason": dead_skill_reason(planet)}
 	return {"ok": true, "reason": ""}
 
 func set_local(planet: int, c: String, role: String, on: bool) -> Dictionary:
@@ -326,9 +354,12 @@ func check_connection(src: int, dst: int, c: String, new_route: bool = true) -> 
 		return {"ok": false, "reason": "Unknown commodity."}
 	if not planet_open(src) or not planet_open(dst):
 		return {"ok": false, "reason": "A planet on this route is closed."}
-	var need := DeadWorlds.skill_for(trade.planets[src])  # dead world: mining needs its skill (M1 Cold Survey, M2 Deep Cut); saved routes stay
-	if new_route and need != "" and not learned.has(need):
-		return {"ok": false, "reason": StoryText.get_or("NOT_DEAD_NEEDS_SKILL", "Needs {skill}.", {"skill": SkillTree.skill_name(need)})}
+	if dead_lock_reason(src) != "":  # dead worlds open at balance dead_unlock_cycle: no route from or to one before it (saved routes too)
+		return {"ok": false, "reason": dead_lock_reason(src)}
+	if dead_lock_reason(dst) != "":
+		return {"ok": false, "reason": dead_lock_reason(dst)}
+	if new_route and dead_skill_reason(src) != "":  # dead world: mining needs its skill (M1 Cold Survey, M2 Deep Cut); saved routes stay
+		return {"ok": false, "reason": dead_skill_reason(src)}
 	if int(trade.planets[src].get("system", 1)) != int(trade.planets[dst].get("system", 1)) and not learned.has("C3"):
 		return {"ok": false, "reason": StoryText.get_text("NOT_ROUTE_NEEDS_C3")}  # C3 Long Haul
 	return {"ok": true, "reason": ""}  # T87: a second ship on the same lane is allowed
@@ -349,6 +380,8 @@ func check_cluster(node: int, dst: int, c: String, new_route: bool = true) -> Di
 		return {"ok": false, "reason": "Pick a planet to deliver to."}
 	if not planet_open(dst):
 		return {"ok": false, "reason": "A planet on this route is closed."}
+	if dead_lock_reason(dst) != "":
+		return {"ok": false, "reason": dead_lock_reason(dst)}
 	if clusters.system_of(i) != int(trade.planets[dst].get("system", 1)) and not learned.has("C3"):
 		return {"ok": false, "reason": StoryText.get_text("NOT_ROUTE_NEEDS_C3")}
 	return {"ok": true, "reason": ""}
@@ -376,6 +409,10 @@ func _check_station(src: int, sid: int, c: String) -> Dictionary:
 		return {"ok": false, "reason": "Unknown commodity."}
 	if not planet_open(src):
 		return {"ok": false, "reason": "A planet on this route is closed."}
+	if dead_lock_reason(src) != "":
+		return {"ok": false, "reason": dead_lock_reason(src)}
+	if dead_skill_reason(src) != "":  # a send to Space Storage mines the world too (was a gate bypass)
+		return {"ok": false, "reason": dead_skill_reason(src)}
 	var known := false
 	for p in trade.planets:
 		if int(p.get("system", 1)) == sid:
@@ -510,6 +547,8 @@ func _route_cap(rec: Dictionary) -> int:
 		eff = 1.0 - float(balance.get("debris_route_penalty", 0.0))
 	if shield != null:  # T101: energy gain at planets bought after the shield
 		eff *= float(shield.unit_factor(int(rec["a"]), c)) if not from_cluster(rec) else 1.0
+	if pirates_active and not has_core(rec):  # pirates cut trade volume; the Null Core ship is immune
+		eff *= 1.0 - float(balance.get("pirate_volume_penalty", 0.0))
 	if not from_cluster(rec) and dead_income.has(int(rec["a"])):  # EV35: share the lane cuts, race raises
 		eff *= float(dead_income[int(rec["a"])])
 	var units := floori(units_per_cycle(rec) * clampf(float(rec["fresh"]), 0.0, 1.0) * eff)
@@ -1150,11 +1189,14 @@ func local_from_array(saved) -> void:
 				set_local(p, c, role, true)
 				local_of(p, c)[role + "_state"] = str(s.get(role + "_state", ""))
 
+var _core_loaded := false
+
 func from_array(saved, owned_ships: int) -> void:
 	reset()
 	if typeof(saved) != TYPE_ARRAY:
 		return
 	var left := owned_ships
+	_core_loaded = false
 	for s in saved:
 		if typeof(s) != TYPE_DICTIONARY or left <= 0 or not s.has("c"):
 			continue
@@ -1169,6 +1211,8 @@ func from_array(saved, owned_ships: int) -> void:
 		rec["level"] = maxi(1, int(s.get("level", 1)))
 		rec["state"] = str(s.get("state", "running"))
 		rec["reason"] = str(s.get("reason", ""))
+		rec["core"] = bool(s.get("core", false)) and not _core_loaded  # Null Core: at most one fitted ship
+		_core_loaded = _core_loaded or bool(rec["core"])
 		rec["split_to"] = int(s.get("split_to", -1))  # N2
 		rec["split_share"] = clampf(float(s.get("split_share", 0.0)), 0.0, 1.0)
 		var stop := int(s.get("stop", -1))  # N9

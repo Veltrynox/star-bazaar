@@ -37,6 +37,7 @@ var scheduled: Array = []
 ## Timed dead-world modifiers: {kind ("income_cut" | "income_boost" | "ore_loss"), planet (-1 = every dead world), left}.
 ## Saved under "mods"; an old save has none.
 var mods: Array = []
+var locked: Array = []  # planet indexes of dead worlds not open yet (set by main); no random event picks them
 var rng := RandomNumberGenerator.new()
 
 func setup(bal: Dictionary, plist: Array) -> void:
@@ -140,7 +141,11 @@ func pick_debris_planet() -> int:
 		return -1
 	if not debris.is_empty():
 		return int(debris[rng.randi_range(0, debris.size() - 1)])
-	return rng.randi_range(0, planets.size() - 1)
+	var opts: Array = []
+	for i in planets.size():
+		if not locked.has(i):
+			opts.append(i)
+	return int(opts[rng.randi_range(0, opts.size() - 1)]) if not opts.is_empty() else -1
 
 ## T109: seeded 50/50 roll for the asteroid decline (QA can set the seed and replay). True = bad outcome.
 func seed_rng(s: int) -> void:
@@ -277,6 +282,10 @@ func mine_events(planet_id: String) -> Array:
 		elif om != "" and (om == planet_id or om == "any") and not _fired(str(d["id"])):
 			out.append(str(d["id"]))
 	return out
+
+## Part 1 events marked "both" (pair C) that are ready: EV29 and EV32 have fired and the event has not.
+func both_events() -> Array:
+	return mine_events("").filter(func(id): return str(by_id.get(id, {}).get("on_mine", "")) == "both")
 
 func _fired(id: String) -> bool:
 	for f in feed:

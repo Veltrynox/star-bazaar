@@ -103,3 +103,44 @@ func _fabric_rows() -> void:
 		st.name = "FabricStatus"
 		st.text = ("made %d plate" % f.made) if f.state == "running" else (f.reason if f.state == "stalled" else "ready")
 		box.add_child(st)
+	var miss := _inputs_unreached(f)
+	if not miss.is_empty():  # QA 2026-11-03: fabric can be built before its inputs have a route
+		var ml := Label.new()
+		ml.name = "FabricInputs"
+		ml.theme_type_variation = "LabelCaption"
+		ml.text = StoryText.get_or("SS_FABRIC_NO_INPUTS", "Missing inputs: {items}. Send them here from a dead world.", {"items": ", ".join(miss)})
+		box.add_child(ml)
+	var cl := Label.new()  # Null Core: plate + nullglass, one per run
+	cl.name = "CoreLine"
+	cl.theme_type_variation = "LabelCaption"
+	cl.text = StoryText.get_or("LBL_NULL_CORE", "Null Core") + ": " + f.core_recipe_text()
+	box.add_child(cl)
+	if f.core_made < f.core_max():
+		var cb := Button.new()
+		cb.name = "CoreBuild"
+		cb.text = StoryText.get_or("SS_NULL_CORE_BUILD", "Build Null Core ({cost} cr)", {"cost": f.core_cost()})
+		cb.disabled = not main.can_build_core()["ok"]
+		cb.pressed.connect(func(): main.build_null_core(); refresh())
+		box.add_child(cb)
+	else:
+		var cs := Label.new()
+		cs.name = "CoreStatus"
+		cs.text = StoryText.get_or("LBL_NULL_CORE_BUILT", "Null Core built (one per run).")
+		box.add_child(cs)
+
+
+## Fabric inputs with too little stock here and no route sending them to this station: names for the panel line.
+func _inputs_unreached(f) -> Array:
+	var key: String = main.storage.system_key(system_id)
+	var out: Array = []
+	for c in f.INPUTS:
+		if main.storage.amount(key, c) >= f.need_of(c):
+			continue
+		var fed := false
+		for rec in main.engine.routes:
+			if str(rec["dst"]) == key and str(rec["c"]) == c:
+				fed = true
+				break
+		if not fed:
+			out.append(c)
+	return out

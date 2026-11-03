@@ -35,8 +35,8 @@ static func icon(token: String) -> Texture2D:
 	var t := ThemeDB.get_project_theme()
 	if t != null and t.has_icon(token, "Icons"):
 		return t.get_icon(token, "Icons")
-	# Goods without a theme icon (silk, chips, ore): placeholder SVGs in art/textures/icons/
-	var p := "res://art/textures/icons/good_%s.svg" % token
+	# Goods without a theme icon (silk, chips, ore): placeholder SVGs in art/icons/
+	var p := "res://art/icons/icon_%s_64.svg" % token
 	if ResourceLoader.exists(p):
 		return load(p) as Texture2D
 	return null
@@ -69,10 +69,10 @@ static func sans_font() -> Font:
 		return t.get_font("font", "Label")
 	return ThemeDB.fallback_font
 
-## Artist texture from art/textures/ui/ (name without extension); null when the file is not there yet.
+## Artist texture from art/ui/ (name without extension); null when the file is not there yet.
 static func ui_texture(name: String) -> Texture2D:
 	for ext in ["png", "webp", "jpg"]:
-		var p := "res://art/textures/ui/%s.%s" % [name, ext]
+		var p := "res://art/ui/%s.%s" % [name, ext]
 		if ResourceLoader.exists(p):
 			return load(p) as Texture2D
 	return null

@@ -15,6 +15,7 @@ var built := false
 var state := "idle"     # idle | running | stalled
 var reason := ""        # short stall text ("needs dross")
 var made := 0           # plates made by the last cycle
+var core_made := 0      # Null Cores built this run (at most null_core_max; rare)
 
 func setup(bal: Dictionary) -> void:
 	balance = bal
@@ -22,6 +23,7 @@ func setup(bal: Dictionary) -> void:
 	state = "idle"
 	reason = ""
 	made = 0
+	core_made = 0
 
 func build_cost() -> int:
 	return maxi(0, int(balance.get("fabric_build_cost", 1500)))
@@ -31,6 +33,19 @@ func need_of(c: String) -> int:
 
 func batches() -> int:
 	return maxi(1, int(balance.get("fabric_batches_per_cycle", 1)))
+
+## Null Core (placeholder numbers in balance.json: null_core_in_plate, null_core_in_nullglass, null_core_build_cost, null_core_max).
+func core_cost() -> int:
+	return maxi(0, int(balance.get("null_core_build_cost", 0)))
+
+func core_in(c: String) -> int:
+	return maxi(0, int(balance.get("null_core_in_" + c, 0)))
+
+func core_max() -> int:
+	return maxi(0, int(balance.get("null_core_max", 1)))
+
+func core_recipe_text() -> String:
+	return "%d plate + %d nullglass -> 1 Null Core" % [core_in("plate"), core_in("nullglass")]
 
 ## Recipe as text, e.g. "2 dross + 1 nullglass -> 1 plate".
 func recipe_text() -> String:
@@ -67,14 +82,16 @@ func run(storage: RefCounted) -> void:
 		reason = why
 
 func to_dict() -> Dictionary:
-	return {"built": built, "state": state, "reason": reason}
+	return {"built": built, "state": state, "reason": reason, "core_made": core_made}
 
 func from_dict(d) -> void:
 	built = false
 	state = "idle"
 	reason = ""
+	core_made = 0
 	if typeof(d) != TYPE_DICTIONARY:
 		return  # old saves: not built
 	built = bool(d.get("built", false))
 	state = str(d.get("state", "idle"))
 	reason = str(d.get("reason", ""))
+	core_made = clampi(int(d.get("core_made", 0)), 0, core_max())
