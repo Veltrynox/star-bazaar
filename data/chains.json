@@ -1,0 +1,2639 @@
+{
+  "schema_version": 1,
+  "data_version": 1,
+  "source": "2026-11-03 chain-data (economy-designer): per core 4.2/4.3 and economy 8.1/8.2/8.3. DATA ONLY; the Gameplay Programmer reads this. All numbers are balance keys in data/balance.json.",
+  "vocabulary": {
+    "signs": "every key value is signed in the direction of the real change: cash -150 pays 150; volume_pct -0.05 = 5% less volume; upkeep_pct +0.2 = 20% more ship upkeep; price_pct -0.08 = 8% lower sell prices; trip_cost_pct +0.33 = one route costs 33% more trip cost. Gets lists contain the good effects, costs the bad ones, but the sign is always in the value.",
+    "cycles": "cycles_key names a balance key with a cycle count; 99 means the rest of the run.",
+    "player_effect_types": {
+      "cash": "{key} one-time credits, signed",
+      "volume_pct": "{key, cycles_key} multiplies the player's volume in the step's market for n cycles; stacks multiplicatively",
+      "price_pct": "{key, cycles_key} changes the sell prices of the step's market for n cycles (cash only, share counts base prices)",
+      "upkeep_pct": "{key, cycles_key} changes ship upkeep (base maintenance) for n cycles",
+      "trip_cost_pct": "{key, cycles_key, scope one_route} changes the trip cost of ONE route (the busiest route of that market) for n cycles",
+      "tech_units": "{key} crafting progress units in that market's workshop",
+      "workshop_idle": "{cycles_key} the market's workshop makes no batch for n cycles",
+      "workshop_batches": "{key, cycles_key} extra batches per cycle for n cycles (adds to workshop_batches_per_cycle)",
+      "storage": "RESERVED, not used by any of the 28 steps (economy 8.1 has no storage cell)"
+    },
+    "bot_effect": "{bot bot_1..3, market, stat strength|growth|tier, size S|M|L (null for tier), key, direction up|down, optional cycles_key}. key resolves the size: event_hit_strength_S/M/L and event_hit_growth_S/M/L (down), event_hit_strength_up_S/M and event_hit_growth_up_S (up), event_hit_tier (tier -1; on a tier-1 bot becomes strength down M, summary R8). With cycles_key the hit is timed (strength x (1 - value) for n cycles, then restored); otherwise permanent and multiplicative. Tier is only ever cut.",
+    "trigger": "a condition tree. Atoms: first_sale_after_cycle {key}: first sale of a non-common-raw good of the market after that cycle; share_pct {key}: market share in percent has reached the value; cycles_after_prev_step {key}: n cycles since the previous step of the SAME chain fired; tech_done node id (e.g. MIL_2); skill_learned node id (e.g. MIL_3). any: [atoms] is true when one atom is true. A bare atom object is that atom. Steps with requires_prev_step true can only fire after the previous step of the same chain (A2 after A1 ...). Every step also needs min_gap (balance key chain_min_gap, 3 cycles) since the last chain step of that market, and a chain step takes the event slot before any pool event.",
+    "dir": "signed nudge base value from core 4.3 before echo, swing and cap; rules in balance keys dir_echo_mult, dir_swing_mult, dir_swing_min_abs, dir_nudge_cap. Order: echo, swing, cap. Never shown to the player.",
+    "win_gate": "a market's win is not declared before its B4 fired or cycle win_gate_cycle (38) is reached."
+  },
+  "steps": [
+    {
+      "id": "MIL_A1",
+      "market": "mil",
+      "chain": "A",
+      "step": 1,
+      "trigger": {
+        "first_sale_after_cycle": "chain_MIL_A1_trig_first_sale_cycle"
+      },
+      "requires_prev_step": false,
+      "min_gap_key": "chain_min_gap",
+      "opt_a": {
+        "dir": 6,
+        "gets": [
+          {
+            "type": "volume_pct",
+            "key": "chain_MIL_A1_a_volume_pct",
+            "cycles_key": "chain_MIL_A1_a_volume_cycles"
+          }
+        ],
+        "costs": [
+          {
+            "type": "cash",
+            "key": "chain_MIL_A1_a_cash"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_1",
+            "market": "mil",
+            "stat": "growth",
+            "size": "S",
+            "key": "event_hit_growth_S",
+            "direction": "down"
+          }
+        ]
+      },
+      "opt_b": {
+        "dir": -4,
+        "gets": [
+          {
+            "type": "cash",
+            "key": "chain_MIL_A1_b_cash"
+          }
+        ],
+        "costs": [
+          {
+            "type": "volume_pct",
+            "key": "chain_MIL_A1_b_volume_pct",
+            "cycles_key": "chain_MIL_A1_b_volume_cycles"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_3",
+            "market": "mil",
+            "stat": "strength",
+            "size": "S",
+            "key": "event_hit_strength_up_S",
+            "direction": "up"
+          },
+          {
+            "bot": "bot_1",
+            "market": "mil",
+            "stat": "strength",
+            "size": "S",
+            "key": "event_hit_strength_S",
+            "direction": "down"
+          }
+        ]
+      }
+    },
+    {
+      "id": "MIL_A2",
+      "market": "mil",
+      "chain": "A",
+      "step": 2,
+      "trigger": {
+        "any": [
+          {
+            "share_pct": "chain_MIL_A2_trig_share_pct"
+          },
+          {
+            "cycles_after_prev_step": "chain_MIL_A2_trig_after_prev_cycles"
+          }
+        ]
+      },
+      "requires_prev_step": true,
+      "min_gap_key": "chain_min_gap",
+      "opt_a": {
+        "dir": 7,
+        "gets": [
+          {
+            "type": "price_pct",
+            "key": "chain_MIL_A2_a_price_pct",
+            "cycles_key": "chain_MIL_A2_a_price_cycles"
+          }
+        ],
+        "costs": [
+          {
+            "type": "upkeep_pct",
+            "key": "chain_MIL_A2_a_upkeep_pct",
+            "cycles_key": "chain_MIL_A2_a_upkeep_cycles"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_3",
+            "market": "mil",
+            "stat": "growth",
+            "size": "S",
+            "key": "event_hit_growth_S",
+            "direction": "down"
+          }
+        ]
+      },
+      "opt_b": {
+        "dir": -6,
+        "gets": [
+          {
+            "type": "tech_units",
+            "key": "chain_MIL_A2_b_tech_units"
+          }
+        ],
+        "costs": [
+          {
+            "type": "cash",
+            "key": "chain_MIL_A2_b_cash"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_1",
+            "market": "mil",
+            "stat": "tier",
+            "size": null,
+            "key": "event_hit_tier",
+            "direction": "down"
+          }
+        ]
+      }
+    },
+    {
+      "id": "MIL_A3",
+      "market": "mil",
+      "chain": "A",
+      "step": 3,
+      "trigger": {
+        "any": [
+          {
+            "tech_done": "MIL_2"
+          },
+          {
+            "share_pct": "chain_MIL_A3_trig_share_pct"
+          }
+        ]
+      },
+      "requires_prev_step": true,
+      "min_gap_key": "chain_min_gap",
+      "opt_a": {
+        "dir": 8,
+        "gets": [
+          {
+            "type": "cash",
+            "key": "chain_MIL_A3_a_cash"
+          },
+          {
+            "type": "volume_pct",
+            "key": "chain_MIL_A3_a_volume_pct",
+            "cycles_key": "chain_MIL_A3_a_volume_cycles"
+          }
+        ],
+        "costs": [
+          {
+            "type": "upkeep_pct",
+            "key": "chain_MIL_A3_a_upkeep_pct",
+            "cycles_key": "chain_MIL_A3_a_upkeep_cycles"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_3",
+            "market": "mil",
+            "stat": "strength",
+            "size": "S",
+            "key": "event_hit_strength_up_S",
+            "direction": "up"
+          },
+          {
+            "bot": "bot_1",
+            "market": "mil",
+            "stat": "strength",
+            "size": "M",
+            "key": "event_hit_strength_M",
+            "direction": "down"
+          }
+        ]
+      },
+      "opt_b": {
+        "dir": -7,
+        "gets": [
+          {
+            "type": "tech_units",
+            "key": "chain_MIL_A3_b_tech_units"
+          }
+        ],
+        "costs": [
+          {
+            "type": "cash",
+            "key": "chain_MIL_A3_b_cash"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_1",
+            "market": "mil",
+            "stat": "strength",
+            "size": "S",
+            "key": "event_hit_strength_S",
+            "direction": "down"
+          },
+          {
+            "bot": "bot_3",
+            "market": "mil",
+            "stat": "growth",
+            "size": "S",
+            "key": "event_hit_growth_S",
+            "direction": "down"
+          }
+        ]
+      }
+    },
+    {
+      "id": "MIL_B1",
+      "market": "mil",
+      "chain": "B",
+      "step": 1,
+      "trigger": {
+        "any": [
+          {
+            "skill_learned": "MIL_3"
+          },
+          {
+            "share_pct": "chain_MIL_B1_trig_share_pct"
+          }
+        ]
+      },
+      "requires_prev_step": false,
+      "min_gap_key": "chain_min_gap",
+      "opt_a": {
+        "dir": -6,
+        "gets": [
+          {
+            "type": "cash",
+            "key": "chain_MIL_B1_a_cash"
+          }
+        ],
+        "costs": [
+          {
+            "type": "upkeep_pct",
+            "key": "chain_MIL_B1_a_upkeep_pct",
+            "cycles_key": "chain_MIL_B1_a_upkeep_cycles"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_1",
+            "market": "mil",
+            "stat": "strength",
+            "size": "L",
+            "key": "event_hit_strength_L",
+            "direction": "down"
+          }
+        ]
+      },
+      "opt_b": {
+        "dir": 7,
+        "gets": [
+          {
+            "type": "volume_pct",
+            "key": "chain_MIL_B1_b_volume_pct",
+            "cycles_key": "chain_MIL_B1_b_volume_cycles"
+          }
+        ],
+        "costs": [
+          {
+            "type": "cash",
+            "key": "chain_MIL_B1_b_cash"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_3",
+            "market": "mil",
+            "stat": "growth",
+            "size": "S",
+            "key": "event_hit_growth_S",
+            "direction": "down"
+          }
+        ]
+      }
+    },
+    {
+      "id": "MIL_B2",
+      "market": "mil",
+      "chain": "B",
+      "step": 2,
+      "trigger": {
+        "cycles_after_prev_step": "chain_MIL_B2_trig_after_prev_cycles"
+      },
+      "requires_prev_step": true,
+      "min_gap_key": "chain_min_gap",
+      "opt_a": {
+        "dir": -9,
+        "gets": [
+          {
+            "type": "price_pct",
+            "key": "chain_MIL_B2_a_price_pct",
+            "cycles_key": "chain_MIL_B2_a_price_cycles"
+          }
+        ],
+        "costs": [
+          {
+            "type": "trip_cost_pct",
+            "key": "chain_MIL_B2_a_trip_cost_pct",
+            "cycles_key": "chain_MIL_B2_a_trip_cost_cycles",
+            "scope": "one_route"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_2",
+            "market": "mil",
+            "stat": "strength",
+            "size": "S",
+            "key": "event_hit_strength_S",
+            "direction": "down"
+          }
+        ]
+      },
+      "opt_b": {
+        "dir": 7,
+        "gets": [
+          {
+            "type": "cash",
+            "key": "chain_MIL_B2_b_cash"
+          }
+        ],
+        "costs": [
+          {
+            "type": "volume_pct",
+            "key": "chain_MIL_B2_b_volume_pct",
+            "cycles_key": "chain_MIL_B2_b_volume_cycles"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_1",
+            "market": "mil",
+            "stat": "strength",
+            "size": "S",
+            "key": "event_hit_strength_S",
+            "direction": "down"
+          }
+        ]
+      }
+    },
+    {
+      "id": "MIL_B3",
+      "market": "mil",
+      "chain": "B",
+      "step": 3,
+      "trigger": {
+        "any": [
+          {
+            "share_pct": "chain_MIL_B3_trig_share_pct"
+          },
+          {
+            "tech_done": "MIL_4"
+          }
+        ]
+      },
+      "requires_prev_step": true,
+      "min_gap_key": "chain_min_gap",
+      "opt_a": {
+        "dir": -9,
+        "gets": [
+          {
+            "type": "volume_pct",
+            "key": "chain_MIL_B3_a_volume_pct",
+            "cycles_key": "chain_MIL_B3_a_volume_cycles"
+          }
+        ],
+        "costs": [
+          {
+            "type": "cash",
+            "key": "chain_MIL_B3_a_cash"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_3",
+            "market": "mil",
+            "stat": "strength",
+            "size": "M",
+            "key": "event_hit_strength_M",
+            "direction": "down"
+          }
+        ]
+      },
+      "opt_b": {
+        "dir": 8,
+        "gets": [
+          {
+            "type": "tech_units",
+            "key": "chain_MIL_B3_b_tech_units"
+          }
+        ],
+        "costs": [
+          {
+            "type": "cash",
+            "key": "chain_MIL_B3_b_cash"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_2",
+            "market": "mil",
+            "stat": "strength",
+            "size": "S",
+            "key": "event_hit_strength_S",
+            "direction": "down"
+          },
+          {
+            "bot": "bot_1",
+            "market": "mil",
+            "stat": "growth",
+            "size": "S",
+            "key": "event_hit_growth_S",
+            "direction": "down"
+          },
+          {
+            "bot": "bot_2",
+            "market": "mil",
+            "stat": "growth",
+            "size": "S",
+            "key": "event_hit_growth_S",
+            "direction": "down"
+          },
+          {
+            "bot": "bot_3",
+            "market": "mil",
+            "stat": "growth",
+            "size": "S",
+            "key": "event_hit_growth_S",
+            "direction": "down"
+          }
+        ]
+      }
+    },
+    {
+      "id": "MIL_B4",
+      "market": "mil",
+      "chain": "B",
+      "step": 4,
+      "trigger": {
+        "share_pct": "chain_MIL_B4_trig_share_pct"
+      },
+      "requires_prev_step": true,
+      "min_gap_key": "chain_min_gap",
+      "opt_a": {
+        "dir": -11,
+        "gets": [
+          {
+            "type": "price_pct",
+            "key": "chain_MIL_B4_a_price_pct",
+            "cycles_key": "chain_MIL_B4_a_price_cycles"
+          }
+        ],
+        "costs": [
+          {
+            "type": "volume_pct",
+            "key": "chain_MIL_B4_a_volume_pct",
+            "cycles_key": "chain_MIL_B4_a_volume_cycles"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_1",
+            "market": "mil",
+            "stat": "strength",
+            "size": "M",
+            "key": "event_hit_strength_M",
+            "direction": "down"
+          }
+        ]
+      },
+      "opt_b": {
+        "dir": 10,
+        "gets": [
+          {
+            "type": "cash",
+            "key": "chain_MIL_B4_b_cash"
+          }
+        ],
+        "costs": [
+          {
+            "type": "upkeep_pct",
+            "key": "chain_MIL_B4_b_upkeep_pct",
+            "cycles_key": "chain_MIL_B4_b_upkeep_cycles"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_1",
+            "market": "mil",
+            "stat": "strength",
+            "size": "M",
+            "key": "event_hit_strength_M",
+            "direction": "down"
+          },
+          {
+            "bot": "bot_3",
+            "market": "mil",
+            "stat": "strength",
+            "size": "S",
+            "key": "event_hit_strength_S",
+            "direction": "down"
+          }
+        ]
+      }
+    },
+    {
+      "id": "LUX_A1",
+      "market": "lux",
+      "chain": "A",
+      "step": 1,
+      "trigger": {
+        "first_sale_after_cycle": "chain_LUX_A1_trig_first_sale_cycle"
+      },
+      "requires_prev_step": false,
+      "min_gap_key": "chain_min_gap",
+      "opt_a": {
+        "dir": -4,
+        "gets": [
+          {
+            "type": "price_pct",
+            "key": "chain_LUX_A1_a_price_pct",
+            "cycles_key": "chain_LUX_A1_a_price_cycles"
+          }
+        ],
+        "costs": [
+          {
+            "type": "volume_pct",
+            "key": "chain_LUX_A1_a_volume_pct",
+            "cycles_key": "chain_LUX_A1_a_volume_cycles"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_2",
+            "market": "lux",
+            "stat": "strength",
+            "size": "S",
+            "key": "event_hit_strength_S",
+            "direction": "down"
+          }
+        ]
+      },
+      "opt_b": {
+        "dir": 6,
+        "gets": [
+          {
+            "type": "cash",
+            "key": "chain_LUX_A1_b_cash"
+          }
+        ],
+        "costs": [
+          {
+            "type": "volume_pct",
+            "key": "chain_LUX_A1_b_volume_pct",
+            "cycles_key": "chain_LUX_A1_b_volume_cycles"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_2",
+            "market": "lux",
+            "stat": "growth",
+            "size": "S",
+            "key": "event_hit_growth_up_S",
+            "direction": "up"
+          },
+          {
+            "bot": "bot_3",
+            "market": "lux",
+            "stat": "strength",
+            "size": "S",
+            "key": "event_hit_strength_S",
+            "direction": "down"
+          }
+        ]
+      }
+    },
+    {
+      "id": "LUX_A2",
+      "market": "lux",
+      "chain": "A",
+      "step": 2,
+      "trigger": {
+        "any": [
+          {
+            "share_pct": "chain_LUX_A2_trig_share_pct"
+          },
+          {
+            "cycles_after_prev_step": "chain_LUX_A2_trig_after_prev_cycles"
+          }
+        ]
+      },
+      "requires_prev_step": true,
+      "min_gap_key": "chain_min_gap",
+      "opt_a": {
+        "dir": -6,
+        "gets": [
+          {
+            "type": "tech_units",
+            "key": "chain_LUX_A2_a_tech_units"
+          }
+        ],
+        "costs": [
+          {
+            "type": "cash",
+            "key": "chain_LUX_A2_a_cash"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_2",
+            "market": "lux",
+            "stat": "growth",
+            "size": "L",
+            "key": "event_hit_growth_L",
+            "direction": "down"
+          }
+        ]
+      },
+      "opt_b": {
+        "dir": 5,
+        "gets": [
+          {
+            "type": "volume_pct",
+            "key": "chain_LUX_A2_b_volume_pct",
+            "cycles_key": "chain_LUX_A2_b_volume_cycles"
+          }
+        ],
+        "costs": [
+          {
+            "type": "price_pct",
+            "key": "chain_LUX_A2_b_price_pct",
+            "cycles_key": "chain_LUX_A2_b_price_cycles"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_2",
+            "market": "lux",
+            "stat": "tier",
+            "size": null,
+            "key": "event_hit_tier",
+            "direction": "down"
+          }
+        ]
+      }
+    },
+    {
+      "id": "LUX_A3",
+      "market": "lux",
+      "chain": "A",
+      "step": 3,
+      "trigger": {
+        "any": [
+          {
+            "tech_done": "LUX_2"
+          },
+          {
+            "share_pct": "chain_LUX_A3_trig_share_pct"
+          }
+        ]
+      },
+      "requires_prev_step": true,
+      "min_gap_key": "chain_min_gap",
+      "opt_a": {
+        "dir": -8,
+        "gets": [
+          {
+            "type": "price_pct",
+            "key": "chain_LUX_A3_a_price_pct",
+            "cycles_key": "chain_LUX_A3_a_price_cycles"
+          }
+        ],
+        "costs": [
+          {
+            "type": "cash",
+            "key": "chain_LUX_A3_a_cash"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_2",
+            "market": "lux",
+            "stat": "strength",
+            "size": "L",
+            "key": "event_hit_strength_L",
+            "direction": "down",
+            "cycles_key": "chain_LUX_A3_a_bot_cycles"
+          }
+        ]
+      },
+      "opt_b": {
+        "dir": 7,
+        "gets": [
+          {
+            "type": "volume_pct",
+            "key": "chain_LUX_A3_b_volume_pct",
+            "cycles_key": "chain_LUX_A3_b_volume_cycles"
+          }
+        ],
+        "costs": [
+          {
+            "type": "price_pct",
+            "key": "chain_LUX_A3_b_price_pct",
+            "cycles_key": "chain_LUX_A3_b_price_cycles"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_3",
+            "market": "lux",
+            "stat": "strength",
+            "size": "S",
+            "key": "event_hit_strength_S",
+            "direction": "down"
+          }
+        ]
+      }
+    },
+    {
+      "id": "LUX_B1",
+      "market": "lux",
+      "chain": "B",
+      "step": 1,
+      "trigger": {
+        "any": [
+          {
+            "skill_learned": "LUX_3"
+          },
+          {
+            "share_pct": "chain_LUX_B1_trig_share_pct"
+          }
+        ]
+      },
+      "requires_prev_step": false,
+      "min_gap_key": "chain_min_gap",
+      "opt_a": {
+        "dir": 7,
+        "gets": [
+          {
+            "type": "cash",
+            "key": "chain_LUX_B1_a_cash"
+          }
+        ],
+        "costs": [
+          {
+            "type": "volume_pct",
+            "key": "chain_LUX_B1_a_volume_pct",
+            "cycles_key": "chain_LUX_B1_a_volume_cycles"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_2",
+            "market": "lux",
+            "stat": "growth",
+            "size": "S",
+            "key": "event_hit_growth_S",
+            "direction": "down"
+          }
+        ]
+      },
+      "opt_b": {
+        "dir": -6,
+        "gets": [
+          {
+            "type": "volume_pct",
+            "key": "chain_LUX_B1_b_volume_pct",
+            "cycles_key": "chain_LUX_B1_b_volume_cycles"
+          }
+        ],
+        "costs": [
+          {
+            "type": "cash",
+            "key": "chain_LUX_B1_b_cash"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_2",
+            "market": "lux",
+            "stat": "strength",
+            "size": "M",
+            "key": "event_hit_strength_M",
+            "direction": "down"
+          }
+        ]
+      }
+    },
+    {
+      "id": "LUX_B2",
+      "market": "lux",
+      "chain": "B",
+      "step": 2,
+      "trigger": {
+        "cycles_after_prev_step": "chain_LUX_B2_trig_after_prev_cycles"
+      },
+      "requires_prev_step": true,
+      "min_gap_key": "chain_min_gap",
+      "opt_a": {
+        "dir": 9,
+        "gets": [
+          {
+            "type": "tech_units",
+            "key": "chain_LUX_B2_a_tech_units"
+          }
+        ],
+        "costs": [
+          {
+            "type": "price_pct",
+            "key": "chain_LUX_B2_a_price_pct",
+            "cycles_key": "chain_LUX_B2_a_price_cycles"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_2",
+            "market": "lux",
+            "stat": "strength",
+            "size": "S",
+            "key": "event_hit_strength_S",
+            "direction": "down"
+          },
+          {
+            "bot": "bot_3",
+            "market": "lux",
+            "stat": "growth",
+            "size": "L",
+            "key": "event_hit_growth_L",
+            "direction": "down"
+          }
+        ]
+      },
+      "opt_b": {
+        "dir": -8,
+        "gets": [
+          {
+            "type": "cash",
+            "key": "chain_LUX_B2_b_cash"
+          }
+        ],
+        "costs": [
+          {
+            "type": "price_pct",
+            "key": "chain_LUX_B2_b_price_pct",
+            "cycles_key": "chain_LUX_B2_b_price_cycles"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_2",
+            "market": "lux",
+            "stat": "strength",
+            "size": "M",
+            "key": "event_hit_strength_up_M",
+            "direction": "up"
+          },
+          {
+            "bot": "bot_2",
+            "market": "lux",
+            "stat": "tier",
+            "size": null,
+            "key": "event_hit_tier",
+            "direction": "down"
+          }
+        ]
+      }
+    },
+    {
+      "id": "LUX_B3",
+      "market": "lux",
+      "chain": "B",
+      "step": 3,
+      "trigger": {
+        "any": [
+          {
+            "share_pct": "chain_LUX_B3_trig_share_pct"
+          },
+          {
+            "tech_done": "LUX_4"
+          }
+        ]
+      },
+      "requires_prev_step": true,
+      "min_gap_key": "chain_min_gap",
+      "opt_a": {
+        "dir": 9,
+        "gets": [
+          {
+            "type": "price_pct",
+            "key": "chain_LUX_B3_a_price_pct",
+            "cycles_key": "chain_LUX_B3_a_price_cycles"
+          }
+        ],
+        "costs": [
+          {
+            "type": "volume_pct",
+            "key": "chain_LUX_B3_a_volume_pct",
+            "cycles_key": "chain_LUX_B3_a_volume_cycles"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_2",
+            "market": "lux",
+            "stat": "growth",
+            "size": "L",
+            "key": "event_hit_growth_L",
+            "direction": "down"
+          }
+        ]
+      },
+      "opt_b": {
+        "dir": -10,
+        "gets": [
+          {
+            "type": "cash",
+            "key": "chain_LUX_B3_b_cash"
+          }
+        ],
+        "costs": [
+          {
+            "type": "volume_pct",
+            "key": "chain_LUX_B3_b_volume_pct",
+            "cycles_key": "chain_LUX_B3_b_volume_cycles"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_3",
+            "market": "lux",
+            "stat": "strength",
+            "size": "S",
+            "key": "event_hit_strength_up_S",
+            "direction": "up"
+          },
+          {
+            "bot": "bot_1",
+            "market": "lux",
+            "stat": "strength",
+            "size": "S",
+            "key": "event_hit_strength_S",
+            "direction": "down"
+          },
+          {
+            "bot": "bot_2",
+            "market": "lux",
+            "stat": "strength",
+            "size": "S",
+            "key": "event_hit_strength_S",
+            "direction": "down"
+          }
+        ]
+      }
+    },
+    {
+      "id": "LUX_B4",
+      "market": "lux",
+      "chain": "B",
+      "step": 4,
+      "trigger": {
+        "share_pct": "chain_LUX_B4_trig_share_pct"
+      },
+      "requires_prev_step": true,
+      "min_gap_key": "chain_min_gap",
+      "opt_a": {
+        "dir": 10,
+        "gets": [
+          {
+            "type": "price_pct",
+            "key": "chain_LUX_B4_a_price_pct",
+            "cycles_key": "chain_LUX_B4_a_price_cycles"
+          }
+        ],
+        "costs": [
+          {
+            "type": "cash",
+            "key": "chain_LUX_B4_a_cash"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_2",
+            "market": "lux",
+            "stat": "strength",
+            "size": "L",
+            "key": "event_hit_strength_L",
+            "direction": "down"
+          }
+        ]
+      },
+      "opt_b": {
+        "dir": -11,
+        "gets": [
+          {
+            "type": "volume_pct",
+            "key": "chain_LUX_B4_b_volume_pct",
+            "cycles_key": "chain_LUX_B4_b_volume_cycles"
+          }
+        ],
+        "costs": [
+          {
+            "type": "price_pct",
+            "key": "chain_LUX_B4_b_price_pct",
+            "cycles_key": "chain_LUX_B4_b_price_cycles"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_2",
+            "market": "lux",
+            "stat": "strength",
+            "size": "M",
+            "key": "event_hit_strength_M",
+            "direction": "down"
+          },
+          {
+            "bot": "bot_3",
+            "market": "lux",
+            "stat": "strength",
+            "size": "S",
+            "key": "event_hit_strength_S",
+            "direction": "down"
+          }
+        ]
+      }
+    },
+    {
+      "id": "MIN_A1",
+      "market": "min",
+      "chain": "A",
+      "step": 1,
+      "trigger": {
+        "first_sale_after_cycle": "chain_MIN_A1_trig_first_sale_cycle"
+      },
+      "requires_prev_step": false,
+      "min_gap_key": "chain_min_gap",
+      "legacy_event_id": "EV29",
+      "opt_a": {
+        "dir": 4,
+        "gets": [
+          {
+            "type": "cash",
+            "key": "chain_MIN_A1_a_cash"
+          }
+        ],
+        "costs": [
+          {
+            "type": "volume_pct",
+            "key": "chain_MIN_A1_a_volume_pct",
+            "cycles_key": "chain_MIN_A1_a_volume_cycles"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_1",
+            "market": "min",
+            "stat": "growth",
+            "size": "S",
+            "key": "event_hit_growth_S",
+            "direction": "down"
+          }
+        ]
+      },
+      "opt_b": {
+        "dir": -6,
+        "gets": [
+          {
+            "type": "volume_pct",
+            "key": "chain_MIN_A1_b_volume_pct",
+            "cycles_key": "chain_MIN_A1_b_volume_cycles"
+          }
+        ],
+        "costs": [
+          {
+            "type": "cash",
+            "key": "chain_MIN_A1_b_cash"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_1",
+            "market": "min",
+            "stat": "strength",
+            "size": "S",
+            "key": "event_hit_strength_S",
+            "direction": "down"
+          }
+        ]
+      }
+    },
+    {
+      "id": "MIN_A2",
+      "market": "min",
+      "chain": "A",
+      "step": 2,
+      "trigger": {
+        "any": [
+          {
+            "share_pct": "chain_MIN_A2_trig_share_pct"
+          },
+          {
+            "cycles_after_prev_step": "chain_MIN_A2_trig_after_prev_cycles"
+          }
+        ]
+      },
+      "requires_prev_step": true,
+      "min_gap_key": "chain_min_gap",
+      "legacy_event_id": "EV32",
+      "opt_a": {
+        "dir": 7,
+        "gets": [
+          {
+            "type": "volume_pct",
+            "key": "chain_MIN_A2_a_volume_pct",
+            "cycles_key": "chain_MIN_A2_a_volume_cycles"
+          }
+        ],
+        "costs": [
+          {
+            "type": "cash",
+            "key": "chain_MIN_A2_a_cash"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_3",
+            "market": "min",
+            "stat": "growth",
+            "size": "M",
+            "key": "event_hit_growth_M",
+            "direction": "down"
+          }
+        ]
+      },
+      "opt_b": {
+        "dir": -6,
+        "gets": [
+          {
+            "type": "cash",
+            "key": "chain_MIN_A2_b_cash"
+          }
+        ],
+        "costs": [
+          {
+            "type": "volume_pct",
+            "key": "chain_MIN_A2_b_volume_pct",
+            "cycles_key": "chain_MIN_A2_b_volume_cycles"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_1",
+            "market": "min",
+            "stat": "strength",
+            "size": "M",
+            "key": "event_hit_strength_M",
+            "direction": "down"
+          }
+        ]
+      }
+    },
+    {
+      "id": "MIN_A3",
+      "market": "min",
+      "chain": "A",
+      "step": 3,
+      "trigger": {
+        "any": [
+          {
+            "tech_done": "MIN_2"
+          },
+          {
+            "share_pct": "chain_MIN_A3_trig_share_pct"
+          }
+        ]
+      },
+      "requires_prev_step": true,
+      "min_gap_key": "chain_min_gap",
+      "legacy_event_id": "EV35",
+      "opt_a": {
+        "dir": 7,
+        "gets": [
+          {
+            "type": "trip_cost_pct",
+            "key": "chain_MIN_A3_a_trip_cost_pct",
+            "cycles_key": "chain_MIN_A3_a_trip_cost_cycles",
+            "scope": "one_route"
+          }
+        ],
+        "costs": [
+          {
+            "type": "cash",
+            "key": "chain_MIN_A3_a_cash"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_3",
+            "market": "min",
+            "stat": "strength",
+            "size": "S",
+            "key": "event_hit_strength_up_S",
+            "direction": "up"
+          },
+          {
+            "bot": "bot_1",
+            "market": "min",
+            "stat": "strength",
+            "size": "S",
+            "key": "event_hit_strength_S",
+            "direction": "down"
+          }
+        ]
+      },
+      "opt_b": {
+        "dir": -8,
+        "gets": [
+          {
+            "type": "volume_pct",
+            "key": "chain_MIN_A3_b_volume_pct",
+            "cycles_key": "chain_MIN_A3_b_volume_cycles"
+          }
+        ],
+        "costs": [
+          {
+            "type": "cash",
+            "key": "chain_MIN_A3_b_cash"
+          },
+          {
+            "type": "upkeep_pct",
+            "key": "chain_MIN_A3_b_upkeep_pct",
+            "cycles_key": "chain_MIN_A3_b_upkeep_cycles"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_1",
+            "market": "min",
+            "stat": "tier",
+            "size": null,
+            "key": "event_hit_tier",
+            "direction": "down"
+          }
+        ]
+      }
+    },
+    {
+      "id": "MIN_B1",
+      "market": "min",
+      "chain": "B",
+      "step": 1,
+      "trigger": {
+        "any": [
+          {
+            "skill_learned": "MIN_3"
+          },
+          {
+            "share_pct": "chain_MIN_B1_trig_share_pct"
+          }
+        ]
+      },
+      "requires_prev_step": false,
+      "min_gap_key": "chain_min_gap",
+      "opt_a": {
+        "dir": -8,
+        "gets": [
+          {
+            "type": "cash",
+            "key": "chain_MIN_B1_a_cash"
+          }
+        ],
+        "costs": [
+          {
+            "type": "volume_pct",
+            "key": "chain_MIN_B1_a_volume_pct",
+            "cycles_key": "chain_MIN_B1_a_volume_cycles"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_1",
+            "market": "min",
+            "stat": "growth",
+            "size": "S",
+            "key": "event_hit_growth_S",
+            "direction": "down"
+          }
+        ]
+      },
+      "opt_b": {
+        "dir": 8,
+        "gets": [
+          {
+            "type": "tech_units",
+            "key": "chain_MIN_B1_b_tech_units"
+          }
+        ],
+        "costs": [
+          {
+            "type": "cash",
+            "key": "chain_MIN_B1_b_cash"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_1",
+            "market": "min",
+            "stat": "strength",
+            "size": "M",
+            "key": "event_hit_strength_M",
+            "direction": "down"
+          }
+        ]
+      }
+    },
+    {
+      "id": "MIN_B2",
+      "market": "min",
+      "chain": "B",
+      "step": 2,
+      "trigger": {
+        "cycles_after_prev_step": "chain_MIN_B2_trig_after_prev_cycles"
+      },
+      "requires_prev_step": true,
+      "min_gap_key": "chain_min_gap",
+      "opt_a": {
+        "dir": -7,
+        "gets": [
+          {
+            "type": "price_pct",
+            "key": "chain_MIN_B2_a_price_pct",
+            "cycles_key": "chain_MIN_B2_a_price_cycles"
+          }
+        ],
+        "costs": [
+          {
+            "type": "workshop_idle",
+            "cycles_key": "chain_MIN_B2_a_workshop_idle_cycles"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_3",
+            "market": "min",
+            "stat": "growth",
+            "size": "S",
+            "key": "event_hit_growth_S",
+            "direction": "down"
+          }
+        ]
+      },
+      "opt_b": {
+        "dir": 9,
+        "gets": [
+          {
+            "type": "workshop_batches",
+            "key": "chain_MIN_B2_b_workshop_batches",
+            "cycles_key": "chain_MIN_B2_b_workshop_batches_cycles"
+          }
+        ],
+        "costs": [
+          {
+            "type": "cash",
+            "key": "chain_MIN_B2_b_cash"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_1",
+            "market": "min",
+            "stat": "strength",
+            "size": "S",
+            "key": "event_hit_strength_S",
+            "direction": "down"
+          }
+        ]
+      }
+    },
+    {
+      "id": "MIN_B3",
+      "market": "min",
+      "chain": "B",
+      "step": 3,
+      "trigger": {
+        "any": [
+          {
+            "share_pct": "chain_MIN_B3_trig_share_pct"
+          },
+          {
+            "tech_done": "MIN_4"
+          }
+        ]
+      },
+      "requires_prev_step": true,
+      "min_gap_key": "chain_min_gap",
+      "opt_a": {
+        "dir": 9,
+        "gets": [
+          {
+            "type": "cash",
+            "key": "chain_MIN_B3_a_cash"
+          }
+        ],
+        "costs": [
+          {
+            "type": "volume_pct",
+            "key": "chain_MIN_B3_a_volume_pct",
+            "cycles_key": "chain_MIN_B3_a_volume_cycles"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_1",
+            "market": "min",
+            "stat": "strength",
+            "size": "L",
+            "key": "event_hit_strength_L",
+            "direction": "down"
+          },
+          {
+            "bot": "bot_3",
+            "market": "min",
+            "stat": "strength",
+            "size": "S",
+            "key": "event_hit_strength_S",
+            "direction": "down"
+          }
+        ]
+      },
+      "opt_b": {
+        "dir": -8,
+        "gets": [
+          {
+            "type": "volume_pct",
+            "key": "chain_MIN_B3_b_volume_pct",
+            "cycles_key": "chain_MIN_B3_b_volume_cycles"
+          }
+        ],
+        "costs": [
+          {
+            "type": "cash",
+            "key": "chain_MIN_B3_b_cash"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_1",
+            "market": "min",
+            "stat": "strength",
+            "size": "M",
+            "key": "event_hit_strength_M",
+            "direction": "down"
+          }
+        ]
+      }
+    },
+    {
+      "id": "MIN_B4",
+      "market": "min",
+      "chain": "B",
+      "step": 4,
+      "trigger": {
+        "share_pct": "chain_MIN_B4_trig_share_pct"
+      },
+      "requires_prev_step": true,
+      "min_gap_key": "chain_min_gap",
+      "opt_a": {
+        "dir": -11,
+        "gets": [
+          {
+            "type": "price_pct",
+            "key": "chain_MIN_B4_a_price_pct",
+            "cycles_key": "chain_MIN_B4_a_price_cycles"
+          }
+        ],
+        "costs": [
+          {
+            "type": "cash",
+            "key": "chain_MIN_B4_a_cash"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_1",
+            "market": "min",
+            "stat": "strength",
+            "size": "L",
+            "key": "event_hit_strength_L",
+            "direction": "down"
+          }
+        ]
+      },
+      "opt_b": {
+        "dir": 12,
+        "gets": [
+          {
+            "type": "volume_pct",
+            "key": "chain_MIN_B4_b_volume_pct",
+            "cycles_key": "chain_MIN_B4_b_volume_cycles"
+          },
+          {
+            "type": "cash",
+            "key": "chain_MIN_B4_b_cash"
+          }
+        ],
+        "costs": [
+          {
+            "type": "upkeep_pct",
+            "key": "chain_MIN_B4_b_upkeep_pct",
+            "cycles_key": "chain_MIN_B4_b_upkeep_cycles"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_1",
+            "market": "min",
+            "stat": "strength",
+            "size": "M",
+            "key": "event_hit_strength_M",
+            "direction": "down"
+          },
+          {
+            "bot": "bot_3",
+            "market": "min",
+            "stat": "strength",
+            "size": "S",
+            "key": "event_hit_strength_S",
+            "direction": "down"
+          }
+        ]
+      }
+    },
+    {
+      "id": "BIO_A1",
+      "market": "bio",
+      "chain": "A",
+      "step": 1,
+      "trigger": {
+        "first_sale_after_cycle": "chain_BIO_A1_trig_first_sale_cycle"
+      },
+      "requires_prev_step": false,
+      "min_gap_key": "chain_min_gap",
+      "opt_a": {
+        "dir": -4,
+        "gets": [
+          {
+            "type": "tech_units",
+            "key": "chain_BIO_A1_a_tech_units"
+          }
+        ],
+        "costs": [
+          {
+            "type": "cash",
+            "key": "chain_BIO_A1_a_cash"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_2",
+            "market": "bio",
+            "stat": "growth",
+            "size": "S",
+            "key": "event_hit_growth_S",
+            "direction": "down"
+          }
+        ]
+      },
+      "opt_b": {
+        "dir": 6,
+        "gets": [
+          {
+            "type": "cash",
+            "key": "chain_BIO_A1_b_cash"
+          }
+        ],
+        "costs": [
+          {
+            "type": "price_pct",
+            "key": "chain_BIO_A1_b_price_pct",
+            "cycles_key": "chain_BIO_A1_b_price_cycles"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_2",
+            "market": "bio",
+            "stat": "strength",
+            "size": "S",
+            "key": "event_hit_strength_S",
+            "direction": "down"
+          }
+        ]
+      }
+    },
+    {
+      "id": "BIO_A2",
+      "market": "bio",
+      "chain": "A",
+      "step": 2,
+      "trigger": {
+        "any": [
+          {
+            "share_pct": "chain_BIO_A2_trig_share_pct"
+          },
+          {
+            "cycles_after_prev_step": "chain_BIO_A2_trig_after_prev_cycles"
+          }
+        ]
+      },
+      "requires_prev_step": true,
+      "min_gap_key": "chain_min_gap",
+      "opt_a": {
+        "dir": -7,
+        "gets": [
+          {
+            "type": "volume_pct",
+            "key": "chain_BIO_A2_a_volume_pct",
+            "cycles_key": "chain_BIO_A2_a_volume_cycles"
+          }
+        ],
+        "costs": [
+          {
+            "type": "cash",
+            "key": "chain_BIO_A2_a_cash"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_3",
+            "market": "bio",
+            "stat": "growth",
+            "size": "S",
+            "key": "event_hit_growth_S",
+            "direction": "down"
+          }
+        ]
+      },
+      "opt_b": {
+        "dir": 5,
+        "gets": [
+          {
+            "type": "tech_units",
+            "key": "chain_BIO_A2_b_tech_units"
+          }
+        ],
+        "costs": [
+          {
+            "type": "volume_pct",
+            "key": "chain_BIO_A2_b_volume_pct",
+            "cycles_key": "chain_BIO_A2_b_volume_cycles"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_2",
+            "market": "bio",
+            "stat": "tier",
+            "size": null,
+            "key": "event_hit_tier",
+            "direction": "down"
+          }
+        ]
+      }
+    },
+    {
+      "id": "BIO_A3",
+      "market": "bio",
+      "chain": "A",
+      "step": 3,
+      "trigger": {
+        "any": [
+          {
+            "tech_done": "BIO_2"
+          },
+          {
+            "share_pct": "chain_BIO_A3_trig_share_pct"
+          }
+        ]
+      },
+      "requires_prev_step": true,
+      "min_gap_key": "chain_min_gap",
+      "opt_a": {
+        "dir": -7,
+        "gets": [
+          {
+            "type": "price_pct",
+            "key": "chain_BIO_A3_a_price_pct",
+            "cycles_key": "chain_BIO_A3_a_price_cycles"
+          }
+        ],
+        "costs": [
+          {
+            "type": "workshop_idle",
+            "cycles_key": "chain_BIO_A3_a_workshop_idle_cycles"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_2",
+            "market": "bio",
+            "stat": "strength",
+            "size": "S",
+            "key": "event_hit_strength_S",
+            "direction": "down"
+          }
+        ]
+      },
+      "opt_b": {
+        "dir": 7,
+        "gets": [
+          {
+            "type": "cash",
+            "key": "chain_BIO_A3_b_cash"
+          }
+        ],
+        "costs": [
+          {
+            "type": "volume_pct",
+            "key": "chain_BIO_A3_b_volume_pct",
+            "cycles_key": "chain_BIO_A3_b_volume_cycles"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_3",
+            "market": "bio",
+            "stat": "strength",
+            "size": "S",
+            "key": "event_hit_strength_up_S",
+            "direction": "up"
+          },
+          {
+            "bot": "bot_2",
+            "market": "bio",
+            "stat": "strength",
+            "size": "M",
+            "key": "event_hit_strength_M",
+            "direction": "down"
+          }
+        ]
+      }
+    },
+    {
+      "id": "BIO_B1",
+      "market": "bio",
+      "chain": "B",
+      "step": 1,
+      "trigger": {
+        "any": [
+          {
+            "skill_learned": "BIO_3"
+          },
+          {
+            "share_pct": "chain_BIO_B1_trig_share_pct"
+          }
+        ]
+      },
+      "requires_prev_step": false,
+      "min_gap_key": "chain_min_gap",
+      "opt_a": {
+        "dir": 6,
+        "gets": [
+          {
+            "type": "volume_pct",
+            "key": "chain_BIO_B1_a_volume_pct",
+            "cycles_key": "chain_BIO_B1_a_volume_cycles"
+          }
+        ],
+        "costs": [
+          {
+            "type": "cash",
+            "key": "chain_BIO_B1_a_cash"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_2",
+            "market": "bio",
+            "stat": "strength",
+            "size": "M",
+            "key": "event_hit_strength_M",
+            "direction": "down"
+          }
+        ]
+      },
+      "opt_b": {
+        "dir": -7,
+        "gets": [
+          {
+            "type": "tech_units",
+            "key": "chain_BIO_B1_b_tech_units"
+          }
+        ],
+        "costs": [
+          {
+            "type": "upkeep_pct",
+            "key": "chain_BIO_B1_b_upkeep_pct",
+            "cycles_key": "chain_BIO_B1_b_upkeep_cycles"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_3",
+            "market": "bio",
+            "stat": "strength",
+            "size": "S",
+            "key": "event_hit_strength_S",
+            "direction": "down"
+          }
+        ]
+      }
+    },
+    {
+      "id": "BIO_B2",
+      "market": "bio",
+      "chain": "B",
+      "step": 2,
+      "trigger": {
+        "cycles_after_prev_step": "chain_BIO_B2_trig_after_prev_cycles"
+      },
+      "requires_prev_step": true,
+      "min_gap_key": "chain_min_gap",
+      "opt_a": {
+        "dir": 9,
+        "gets": [
+          {
+            "type": "price_pct",
+            "key": "chain_BIO_B2_a_price_pct",
+            "cycles_key": "chain_BIO_B2_a_price_cycles"
+          }
+        ],
+        "costs": [
+          {
+            "type": "volume_pct",
+            "key": "chain_BIO_B2_a_volume_pct",
+            "cycles_key": "chain_BIO_B2_a_volume_cycles"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_2",
+            "market": "bio",
+            "stat": "growth",
+            "size": "M",
+            "key": "event_hit_growth_M",
+            "direction": "down"
+          }
+        ]
+      },
+      "opt_b": {
+        "dir": -9,
+        "gets": [
+          {
+            "type": "cash",
+            "key": "chain_BIO_B2_b_cash"
+          }
+        ],
+        "costs": [
+          {
+            "type": "upkeep_pct",
+            "key": "chain_BIO_B2_b_upkeep_pct",
+            "cycles_key": "chain_BIO_B2_b_upkeep_cycles"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_2",
+            "market": "bio",
+            "stat": "strength",
+            "size": "S",
+            "key": "event_hit_strength_up_S",
+            "direction": "up"
+          },
+          {
+            "bot": "bot_3",
+            "market": "bio",
+            "stat": "tier",
+            "size": null,
+            "key": "event_hit_tier",
+            "direction": "down"
+          }
+        ]
+      }
+    },
+    {
+      "id": "BIO_B3",
+      "market": "bio",
+      "chain": "B",
+      "step": 3,
+      "trigger": {
+        "any": [
+          {
+            "share_pct": "chain_BIO_B3_trig_share_pct"
+          },
+          {
+            "tech_done": "BIO_4"
+          }
+        ]
+      },
+      "requires_prev_step": true,
+      "min_gap_key": "chain_min_gap",
+      "opt_a": {
+        "dir": -8,
+        "gets": [
+          {
+            "type": "cash",
+            "key": "chain_BIO_B3_a_cash"
+          }
+        ],
+        "costs": [
+          {
+            "type": "volume_pct",
+            "key": "chain_BIO_B3_a_volume_pct",
+            "cycles_key": "chain_BIO_B3_a_volume_cycles"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_2",
+            "market": "bio",
+            "stat": "strength",
+            "size": "L",
+            "key": "event_hit_strength_L",
+            "direction": "down"
+          },
+          {
+            "bot": "bot_3",
+            "market": "bio",
+            "stat": "growth",
+            "size": "M",
+            "key": "event_hit_growth_M",
+            "direction": "down"
+          }
+        ]
+      },
+      "opt_b": {
+        "dir": 10,
+        "gets": [
+          {
+            "type": "volume_pct",
+            "key": "chain_BIO_B3_b_volume_pct",
+            "cycles_key": "chain_BIO_B3_b_volume_cycles"
+          }
+        ],
+        "costs": [
+          {
+            "type": "cash",
+            "key": "chain_BIO_B3_b_cash"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_2",
+            "market": "bio",
+            "stat": "strength",
+            "size": "S",
+            "key": "event_hit_strength_S",
+            "direction": "down"
+          },
+          {
+            "bot": "bot_3",
+            "market": "bio",
+            "stat": "growth",
+            "size": "S",
+            "key": "event_hit_growth_S",
+            "direction": "down"
+          }
+        ]
+      }
+    },
+    {
+      "id": "BIO_B4",
+      "market": "bio",
+      "chain": "B",
+      "step": 4,
+      "trigger": {
+        "share_pct": "chain_BIO_B4_trig_share_pct"
+      },
+      "requires_prev_step": true,
+      "min_gap_key": "chain_min_gap",
+      "opt_a": {
+        "dir": 11,
+        "gets": [
+          {
+            "type": "price_pct",
+            "key": "chain_BIO_B4_a_price_pct",
+            "cycles_key": "chain_BIO_B4_a_price_cycles"
+          }
+        ],
+        "costs": [
+          {
+            "type": "volume_pct",
+            "key": "chain_BIO_B4_a_volume_pct",
+            "cycles_key": "chain_BIO_B4_a_volume_cycles"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_2",
+            "market": "bio",
+            "stat": "strength",
+            "size": "L",
+            "key": "event_hit_strength_L",
+            "direction": "down"
+          }
+        ]
+      },
+      "opt_b": {
+        "dir": -12,
+        "gets": [
+          {
+            "type": "cash",
+            "key": "chain_BIO_B4_b_cash"
+          }
+        ],
+        "costs": [
+          {
+            "type": "upkeep_pct",
+            "key": "chain_BIO_B4_b_upkeep_pct",
+            "cycles_key": "chain_BIO_B4_b_upkeep_cycles"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_2",
+            "market": "bio",
+            "stat": "strength",
+            "size": "M",
+            "key": "event_hit_strength_M",
+            "direction": "down"
+          },
+          {
+            "bot": "bot_3",
+            "market": "bio",
+            "stat": "strength",
+            "size": "M",
+            "key": "event_hit_strength_M",
+            "direction": "down"
+          }
+        ]
+      }
+    }
+  ],
+  "pool_new": [
+    {
+      "id": "EV40",
+      "title": "Rivet guns pile up at Voltara",
+      "kind": "P",
+      "market": "mil",
+      "once": true,
+      "effect": {
+        "type": "price_pct",
+        "planet": "planet_1",
+        "good": "rivets",
+        "direction": "down",
+        "key": "event_pct_rivets",
+        "cycles_key": "event_price_cycles"
+      },
+      "bot_effect": [
+        {
+          "bot": "bot_3",
+          "market": "mil",
+          "stat": "strength",
+          "size": "S",
+          "key": "event_hit_strength_up_S",
+          "direction": "up"
+        }
+      ],
+      "numbers_source": "story"
+    },
+    {
+      "id": "EV41",
+      "title": "Pulse cells are recalled",
+      "kind": "Q",
+      "market": "mil",
+      "once": true,
+      "effect": {
+        "type": "price_pct",
+        "planet": "planet_3",
+        "good": "cells",
+        "direction": "up",
+        "key": "event_pct_cells",
+        "cycles_key": "event_price_cycles"
+      },
+      "bot_effect": [
+        {
+          "bot": "bot_1",
+          "market": "mil",
+          "stat": "growth",
+          "size": "S",
+          "key": "event_hit_growth_S",
+          "direction": "down"
+        }
+      ],
+      "numbers_source": "story"
+    },
+    {
+      "id": "EV42",
+      "title": "Armour plate is requisitioned",
+      "kind": "I",
+      "market": "mil",
+      "once": true,
+      "effect": {
+        "type": "price_pct",
+        "planet": "planet_2",
+        "good": "armour",
+        "direction": "up",
+        "key": "event_pct_armour",
+        "cycles_key": "event_price_cycles"
+      },
+      "bot_effect": [
+        {
+          "bot": "bot_1",
+          "market": "mil",
+          "stat": "growth",
+          "size": "S",
+          "key": "event_hit_growth_S",
+          "direction": "down"
+        }
+      ],
+      "numbers_source": "picked"
+    },
+    {
+      "id": "EV43",
+      "title": "A glut of sunmusk",
+      "kind": "I",
+      "market": "lux",
+      "once": true,
+      "effect": {
+        "type": "price_pct",
+        "planet": "planet_2",
+        "good": "musk",
+        "direction": "down",
+        "key": "event_pct_musk",
+        "cycles_key": "event_price_cycles"
+      },
+      "bot_effect": [
+        {
+          "bot": "bot_3",
+          "market": "lux",
+          "stat": "strength",
+          "size": "S",
+          "key": "event_hit_strength_up_S",
+          "direction": "up"
+        }
+      ],
+      "numbers_source": "story"
+    },
+    {
+      "id": "EV44",
+      "title": "Gem cutters are booked solid",
+      "kind": "Q",
+      "market": "lux",
+      "once": true,
+      "effect": {
+        "type": "price_pct",
+        "planet": "planet_3",
+        "good": "gems",
+        "direction": "up",
+        "key": "event_pct_gems",
+        "cycles_key": "event_price_cycles"
+      },
+      "bot_effect": [
+        {
+          "bot": "bot_2",
+          "market": "lux",
+          "stat": "growth",
+          "size": "S",
+          "key": "event_hit_growth_S",
+          "direction": "down"
+        }
+      ],
+      "numbers_source": "picked"
+    },
+    {
+      "id": "EV45",
+      "title": "Cask stock overflows the cellars",
+      "kind": "P",
+      "market": "lux",
+      "once": true,
+      "effect": {
+        "type": "price_pct",
+        "planet": "planet_3",
+        "good": "cask",
+        "direction": "down",
+        "key": "event_pct_cask",
+        "cycles_key": "event_price_cycles"
+      },
+      "bot_effect": [
+        {
+          "bot": "bot_3",
+          "market": "lux",
+          "stat": "strength",
+          "size": "S",
+          "key": "event_hit_strength_up_S",
+          "direction": "up"
+        }
+      ],
+      "numbers_source": "picked"
+    },
+    {
+      "id": "EV46",
+      "title": "The smelter goes cold",
+      "kind": "P",
+      "market": "min",
+      "once": true,
+      "effect": {
+        "type": "price_pct",
+        "planet": "planet_1",
+        "good": "ingot",
+        "direction": "up",
+        "key": "event_pct_ingot",
+        "cycles_key": "event_price_cycles"
+      },
+      "bot_effect": [
+        {
+          "bot": "bot_1",
+          "market": "min",
+          "stat": "growth",
+          "size": "S",
+          "key": "event_hit_growth_S",
+          "direction": "down"
+        }
+      ],
+      "numbers_source": "story"
+    },
+    {
+      "id": "EV47",
+      "title": "Alloy rolls off the line early",
+      "kind": "Q",
+      "market": "min",
+      "once": true,
+      "effect": {
+        "type": "price_pct",
+        "planet": "planet_1",
+        "good": "alloy",
+        "direction": "down",
+        "key": "event_pct_alloy",
+        "cycles_key": "event_price_cycles"
+      },
+      "bot_effect": [
+        {
+          "bot": "bot_3",
+          "market": "min",
+          "stat": "strength",
+          "size": "S",
+          "key": "event_hit_strength_up_S",
+          "direction": "up"
+        }
+      ],
+      "numbers_source": "picked"
+    },
+    {
+      "id": "EV48",
+      "title": "Fabric plate runs short",
+      "kind": "I",
+      "market": "min",
+      "once": true,
+      "effect": {
+        "type": "price_pct",
+        "planet": "planet_3",
+        "good": "plate",
+        "direction": "up",
+        "key": "event_price_pct",
+        "cycles_key": "event_price_cycles"
+      },
+      "bot_effect": [
+        {
+          "bot": "bot_1",
+          "market": "min",
+          "stat": "growth",
+          "size": "S",
+          "key": "event_hit_growth_S",
+          "direction": "down"
+        }
+      ],
+      "numbers_source": "picked"
+    },
+    {
+      "id": "EV49",
+      "title": "Quarantine at the culture lab",
+      "kind": "I",
+      "market": "bio",
+      "once": true,
+      "effect": {
+        "type": "planet_closed",
+        "planet": "planet_3",
+        "cycles_key": "event_close_cycles"
+      },
+      "bot_effect": [
+        {
+          "bot": "bot_2",
+          "market": "bio",
+          "stat": "strength",
+          "size": "S",
+          "key": "event_hit_strength_S",
+          "direction": "down"
+        }
+      ],
+      "numbers_source": "story"
+    },
+    {
+      "id": "EV50",
+      "title": "Spores come in cheap",
+      "kind": "Q",
+      "market": "bio",
+      "once": true,
+      "effect": {
+        "type": "price_pct",
+        "planet": "planet_2",
+        "good": "spores",
+        "direction": "down",
+        "key": "event_pct_spores",
+        "cycles_key": "event_price_cycles"
+      },
+      "bot_effect": [
+        {
+          "bot": "bot_3",
+          "market": "bio",
+          "stat": "strength",
+          "size": "S",
+          "key": "event_hit_strength_up_S",
+          "direction": "up"
+        }
+      ],
+      "numbers_source": "story"
+    },
+    {
+      "id": "EV51",
+      "title": "Seed stock is bought up",
+      "kind": "P",
+      "market": "bio",
+      "once": true,
+      "effect": {
+        "type": "price_pct",
+        "planet": "planet_2",
+        "good": "seed",
+        "direction": "up",
+        "key": "event_pct_seed",
+        "cycles_key": "event_price_cycles"
+      },
+      "bot_effect": [
+        {
+          "bot": "bot_2",
+          "market": "bio",
+          "stat": "growth",
+          "size": "S",
+          "key": "event_hit_growth_S",
+          "direction": "down"
+        }
+      ],
+      "numbers_source": "picked"
+    }
+  ],
+  "pool_new_note": "effects and numbers marked picked are mine (core 4.4 gives only the idea, story gives text for EV40, 41, 43, 46, 49, 50). Planets for story names Quillon, Brannock, Mossfell are mapped to existing planets (planet_2, planet_3, planet_2); story text must be reworded. bot_effect rule: shortage (price up or closure) slows the market's lead bot (growth S or strength S down); glut (price down) lifts bot_3 strength S.",
+  "pool_kept": {
+    "EV01": {
+      "market": "mil",
+      "bot_effect": []
+    },
+    "EV02": {
+      "market": "bio",
+      "bot_effect": [
+        {
+          "bot": "bot_2",
+          "market": "bio",
+          "stat": "growth",
+          "size": "S",
+          "key": "event_hit_growth_S",
+          "direction": "down"
+        }
+      ]
+    },
+    "EV03": {
+      "market": "bio",
+      "bot_effect": []
+    },
+    "EV04": {
+      "market": "bio",
+      "bot_effect": [
+        {
+          "bot": "bot_2",
+          "market": "bio",
+          "stat": "growth",
+          "size": "S",
+          "key": "event_hit_growth_S",
+          "direction": "down"
+        }
+      ]
+    },
+    "EV05": {
+      "market": "mil",
+      "bot_effect": [
+        {
+          "bot": "bot_1",
+          "market": "mil",
+          "stat": "growth",
+          "size": "S",
+          "key": "event_hit_growth_S",
+          "direction": "down"
+        }
+      ]
+    },
+    "EV06": {
+      "market": "mil",
+      "bot_effect": [
+        {
+          "bot": "bot_1",
+          "market": "mil",
+          "stat": "growth",
+          "size": "S",
+          "key": "event_hit_growth_S",
+          "direction": "down"
+        }
+      ]
+    },
+    "EV07": {
+      "market": null,
+      "bot_effect": []
+    },
+    "EV08": {
+      "market": null,
+      "bot_effect": []
+    },
+    "EV09": {
+      "market": null,
+      "bot_effect": []
+    },
+    "EV10": {
+      "market": "mil",
+      "bot_effect": []
+    },
+    "EV11": {
+      "market": "mil",
+      "bot_effect": []
+    },
+    "EV12": {
+      "market": "mil",
+      "bot_effect": [
+        {
+          "bot": "bot_1",
+          "market": "mil",
+          "stat": "growth",
+          "size": "S",
+          "key": "event_hit_growth_S",
+          "direction": "down"
+        }
+      ]
+    },
+    "EV13": {
+      "market": "bio",
+      "bot_effect": [
+        {
+          "bot": "bot_2",
+          "market": "bio",
+          "stat": "growth",
+          "size": "S",
+          "key": "event_hit_growth_S",
+          "direction": "down"
+        }
+      ]
+    },
+    "EV14": {
+      "market": "bio",
+      "bot_effect": []
+    },
+    "EV15": {
+      "market": "bio",
+      "bot_effect": [
+        {
+          "bot": "bot_2",
+          "market": "bio",
+          "stat": "growth",
+          "size": "S",
+          "key": "event_hit_growth_S",
+          "direction": "down"
+        }
+      ]
+    },
+    "EV16": {
+      "market": "bio",
+      "bot_effect": []
+    },
+    "EV21": {
+      "market": "lux",
+      "bot_effect": [
+        {
+          "bot": "bot_2",
+          "market": "lux",
+          "stat": "growth",
+          "size": "S",
+          "key": "event_hit_growth_S",
+          "direction": "down"
+        }
+      ]
+    },
+    "EV22": {
+      "market": "lux",
+      "bot_effect": [
+        {
+          "bot": "bot_2",
+          "market": "lux",
+          "stat": "growth",
+          "size": "S",
+          "key": "event_hit_growth_S",
+          "direction": "down"
+        }
+      ]
+    },
+    "EV24": {
+      "market": "mil",
+      "bot_effect": [
+        {
+          "bot": "bot_1",
+          "market": "mil",
+          "stat": "growth",
+          "size": "S",
+          "key": "event_hit_growth_S",
+          "direction": "down"
+        }
+      ]
+    },
+    "EV25": {
+      "market": "mil",
+      "bot_effect": [
+        {
+          "bot": "bot_1",
+          "market": "mil",
+          "stat": "growth",
+          "size": "S",
+          "key": "event_hit_growth_S",
+          "direction": "down"
+        }
+      ]
+    },
+    "EV26": {
+      "market": "min",
+      "bot_effect": []
+    },
+    "EV28": {
+      "market": "min",
+      "bot_effect": [
+        {
+          "bot": "bot_1",
+          "market": "min",
+          "stat": "growth",
+          "size": "S",
+          "key": "event_hit_growth_S",
+          "direction": "down"
+        }
+      ]
+    },
+    "EV17": {
+      "market": null,
+      "bot_effect": []
+    },
+    "EV20": {
+      "market": "min",
+      "bot_effect": [
+        {
+          "bot": "bot_1",
+          "market": "min",
+          "stat": "growth",
+          "size": "S",
+          "key": "event_hit_growth_S",
+          "direction": "down"
+        }
+      ]
+    }
+  },
+  "pool_kept_note": "24 kept pool events: EV01-EV16, EV17, EV20, EV21, EV22, EV24, EV25, EV26, EV28. bot_effect is optional and small: price-up events slow the lead bot of the good's market (growth S down); EV20 asteroid hits bot_1 min growth S; closures, glut events and EV17 have none.",
+  "pool_retired": [
+    "EV18"
+  ],
+  "chain_followups_minerals_a": [
+    "EV30",
+    "EV31",
+    "EV33",
+    "EV34",
+    "EV36",
+    "EV37"
+  ],
+  "chain_legacy_steps": {
+    "MIN_A1": "EV29",
+    "MIN_A2": "EV32",
+    "MIN_A3": "EV35"
+  }
+}
