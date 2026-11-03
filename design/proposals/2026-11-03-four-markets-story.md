@@ -233,13 +233,13 @@ More than half of Biotech is yours, and the seed is locked. Gene seed leaves the
 
 END_BANKRUPT_NAME | 40 | End screen, ending name
 The Ledger Closes
-END_BANKRUPT | 600 | End screen, third stranding (loss)
-The company was stranded again, with no ships and too little cash to buy one, and the Bureau had no relief left to file. The third notice is the last. Your ships are entered in the Common Ledger, and your name is given a quota that is fair and equal and exactly the size of everyone else's. A clerk reads the closing form aloud and adds that nothing here was ever owed to you. The three rivals go on selling. The Standings graph shows a flat line where you were. The sky did not notice.
+END_BANKRUPT | 600 | End screen, ship repossession ends with no ship left and cash still negative (loss)
+The company has no ships left, and the cash is still below zero. Each cycle the Bureau took the newest hull to cover the debt, and now the last is gone. Your ships are entered in the Common Ledger, and your name is given a quota that is equal and exactly the size of everyone else's. A clerk reads the closing form aloud and adds that nothing here was ever owed to you. The three rivals go on selling. The Standings graph shows a flat line where you were. The sky did not notice.
 
 END_SWEPT_NAME | 40 | End screen, ending name
-One Name on Every Row
-END_SWEPT | 600 | End screen, one bot over half of every market (loss; {bot} is the sweeping bot)
-{bot} holds more than half of every market, and the Bureau finds this very convenient. One supplier means one form instead of four. Your ships still run, and your orders are still taken, politely, at {bot}'s counters. The Standings graph shows four lines near the floor and one above everything else. No one did anything cruel. The market simply learned your name last. The sky did not notice, and the Plan thanked {bot} for its service.
+The Floor of Every Graph
+END_SWEPT | 600 | End screen, player share under a tenth in all four markets for three cycles from cycle 25 (loss; {bot} is the strongest rival)
+For three cycles running, your company held less than a tenth of every market, and the Bureau has stopped listing you as a competitor. {bot}, the strongest of the three rivals, fills the shelves where yours stood. Your ships still run, and your orders are still taken, politely, at counters that are no longer yours. The Standings graph shows your line on the floor in all four markets. Nothing cruel was done. A market is a room, and you were not in it. The Plan thanked {bot} for its service.
 
 END_OUTCOMPETED_NAME | 40 | End screen, ending name
 A Fair Share
@@ -250,7 +250,7 @@ The window closed with no market held. Your best was {market}, at {share}% of it
 
 1. Capstone line, only if the capstone of the win market is learned (one per market).
 2. Tech line, always (by number of tech done in the win market, zero to three).
-3. Rival line, only if rival_broken is true for the win market, meaning a tier really dropped ({bot} = the bot whose tier dropped; use the marked bot of that market only if the tier cut was its last cut).
+3. Rival line, only if rival_broken is true for the win market, meaning a tier really dropped (in Military only MIL_A2 opt_b can do it; {bot} = the bot whose tier dropped; use the marked bot of that market only if the tier cut was its last cut).
 4. Narrow line, only if the win market ended on the tiebreak (dir between -9 and 9). Same line for good and bad outcomes; it names no direction.
 5. Second market line, only if another market is over a quarter share (one line per second market).
 If more than four apply, drop the lowest-numbered priority from the end (line 5 first). No line states or implies a count of choices or a type of choice.
@@ -286,24 +286,24 @@ Biotech ran second, past a quarter of its market. A vat in a back room has your 
 
 ## 3. Sample chain: Military
 
-Rewritten for the direction scheme (core doc 4.2, 4.3, 10). Every step has two options, internal ids opt_a and opt_b; the game shuffles the button order per run. The player sees a neutral in-fiction button and a three-part effect line (Get, Cost, Rivals). After choosing, a result popup and one or two Standings lines. The option effects are exactly the Military rows of core 4.3; the hidden nudges (dir_mil) are in that table and are not repeated here, so no text file next to the story can leak them. No text hints at them.
+Rewritten for the direction scheme (core doc 4.2, 4.3, 10). Every step has two options, internal ids opt_a and opt_b; the game shuffles the button order per run. The player sees a neutral in-fiction button and a three-part effect line (Get, Cost, Rivals). After choosing, a result popup and one or two Standings lines. The option effects follow the FINAL economy table, section 8.2 of 2026-11-03-four-markets-economy.md (summary R15: the economy table wins over core 4.3). The hidden nudges (dir_mil) stay in the core and economy tables and are not repeated here, so no text file next to the story can leak them. No text hints at them.
 
 Effect line format (fixed): "Get: <gain>. Cost: <cost>. Rivals: <bot change>." Three parts, always in this order. A boost to a bot is a Cost and is named in the Cost part; cuts go in the Rivals part. Numbers come from placeholders only: {cash_in} and {cash_out} (credits), {n} (units of tech progress), {cut} (the tier-cut phrase, see below). Volume, price and upkeep sizes are words: S "a little", M "clearly", L "sharply" (bots) or "a lot" (player cash or volume, never needed here). Duration words: "for a while" (about 4 to 8 cycles), "for a few cycles" (2 to 4), "for the rest of the run".
 
-Tier cut phrase (answers R8): wherever a step cuts a tier, the game fills {cut} in the effect line and {cut_std} in the Standings line. {cut} = "drops a tier" or, if that bot is already at the lowest tier, "loses strength clearly". {cut_std} = "moved down a tier" or "strength down clearly". Results use neutral wording ("cut back") that is true for both. The tier-cut epilogue line fires only if a tier actually dropped (mil_rival_broken).
+Tier cut phrase (answers R8): wherever a step cuts a tier, the game fills {cut} in the effect line and {cut_std} in the Standings line. {cut} = "drops a tier" or, if that bot is already at the lowest tier, "loses strength clearly". {cut_std} = "moved down a tier" or "strength down clearly". Results use neutral wording ("cut back") that is true for both. The tier-cut epilogue line fires only if a tier actually dropped (mil_rival_broken). In Military the only tier cut is MIL_A2 opt_b.
 
 Body variants (answers R6): a body for step 2 or later in a chain has two versions, _BODY_A and _BODY_B, chosen by which option id (opt_a or opt_b) was picked in the PREVIOUS step of the SAME chain. They describe what happened, never what kind of person did it. B1 has one body. Result popups share the title of the step in the log.
 
 Marked bot (answers R7): mil_bot_marked = the bot with the biggest CUT from the last chosen option in Military (boosts never count). Size order: tier cut counts as M; L above M above S; strength and growth count the same; a tie goes to the lower bot number. Every Military option cuts at least one bot, so {bot} always names a bot that lost ground. Marked bot per option: A1 both bot_1; A2 opt_a bot_3, opt_b bot_1; A3 both bot_1; B1 opt_a bot_1, opt_b bot_3; B2 opt_a bot_2, opt_b bot_1; B3 opt_a bot_3, opt_b bot_1 (three-way tie); B4 both bot_1.
 
-Per step, game state after a choice: mil_steps_done plus one, dir_mil gets the nudge from core 4.3 (hidden), mil_last_sign is set from that nudge, mil_bot_marked as above, mil_rival_broken set to true only if a tier actually dropped (A2 opt_b, B2 opt_b). Result texts carry no nudge.
+Per step, game state after a choice: mil_steps_done plus one, dir_mil gets the nudge from economy 8.2 (hidden), mil_last_sign is set from that nudge, mil_bot_marked as above, mil_rival_broken set to true only if a tier actually dropped (in Military only MIL_A2 opt_b can cut a tier; MIL_B2 opt_b now cuts strength a little). Result texts carry no nudge.
 
 ### MIL_A1 (chain A, step 1). Trigger: first sale of a Military good, not a common raw, after cycle 4
 
 MIL_A1_TITLE | 40 | Choice screen title
 A garrison offers a long contract
 MIL_A1_BODY | 280 | Choice screen body
-A garrison on Ashgate's high ring has bought your first Military cargo and wants more. The quartermaster offers a long contract, or a clean sale by the lot. Harrow Combine supplies the garrison today and would lose its berth either way. The ink on the form is still wet.
+A garrison on Ashgate's high ring has bought your first Military cargo and wants more. The quartermaster offers a long contract, or a clean sale by the lot. Harrow Combine supplies the garrison today and stands to lose ground either way. The ink on the form is still wet.
 MIL_A1_OPA_BTN | 28 | Button, opt_a
 Sign the long contract
 MIL_A1_OPA_EFF | 200 | Effect line, opt_a
@@ -398,7 +398,7 @@ A fleet on the high ring must be refitted before the next treaty review, and eve
 MIL_B1_OPA_BTN | 28 | Button, opt_a
 Take the rush job
 MIL_B1_OPA_EFF | 200 | Effect line, opt_a
-Get: {cash_in} credits now. Cost: Ship upkeep rises clearly for the rest of the run. Rivals: Harrow Combine's Military strength falls clearly.
+Get: {cash_in} credits now. Cost: Ship upkeep rises clearly for a while. Rivals: Harrow Combine's Military strength falls sharply.
 MIL_B1_OPB_BTN | 28 | Button, opt_b
 Book the long berths
 MIL_B1_OPB_EFF | 200 | Effect line, opt_b
@@ -406,9 +406,9 @@ Get: Military volume up a little for the rest of the run. Cost: {cash_out} credi
 MIL_B1_OPA_RES_TITLE | 32 | Result popup title, opt_a
 The rush job is done
 MIL_B1_OPA_RES | 280 | Result popup, opt_a
-You bought the berths Harrow Combine held and refitted the fleet at speed. Your ships ran extra shifts, and Ship upkeep stays higher from now on. Harrow's slips stand empty and its Military strength falls clearly. The plates were still warm when signed for.
+You bought the berths Harrow Combine held and refitted the fleet at speed. Your ships ran extra shifts, and Ship upkeep rises for a while. Harrow's slips stand empty and its Military strength falls sharply. The plates were still warm when signed for.
 MIL_B1_OPA_STD | 90 | Standings line, opt_a
-Harrow Combine, Military: strength down clearly.
+Harrow Combine, Military: strength down sharply.
 MIL_B1_OPB_RES_TITLE | 32 | Result popup title, opt_b
 The berths are booked
 MIL_B1_OPB_RES | 280 | Result popup, opt_b
@@ -431,7 +431,7 @@ Get: Military price up a little for a while. Cost: one route's trip cost rises a
 MIL_B2_OPB_BTN | 28 | Button, opt_b
 File the change late
 MIL_B2_OPB_EFF | 200 | Effect line, opt_b
-Get: {cash_in} credits for the stripped part. Cost: Military volume down a little for a few cycles. Rivals: Harrow Combine {cut} in Military.
+Get: {cash_in} credits for the stripped part. Cost: Military volume down a little for a few cycles. Rivals: Harrow Combine's Military strength falls a little.
 MIL_B2_OPA_RES_TITLE | 32 | Result popup title, opt_a
 The office reviews the refit
 MIL_B2_OPA_RES | 280 | Result popup, opt_a
@@ -441,9 +441,9 @@ Velvet Concord, Military: strength down a little.
 MIL_B2_OPB_RES_TITLE | 32 | Result popup title, opt_b
 The change is filed late
 MIL_B2_OPB_RES | 280 | Result popup, opt_b
-You stripped the part, sold it back and filed late. The office, short of a name, read Harrow Combine's older fleets under the same clause. Harrow was cut back in Military and its fleets stood idle for the review. Your ships waited for new fittings. The clause has only moved.
+You stripped the part, sold it back and filed late. The office, short of a name, read Harrow Combine's older fleets under the same clause. Harrow's Military strength falls a little, and its fleets stood idle for the review. Your ships waited for new fittings.
 MIL_B2_OPB_STD | 90 | Standings line, opt_b
-Harrow Combine, Military: {cut_std}.
+Harrow Combine, Military: strength down a little.
 
 ### MIL_B3 (chain B, step 3). Trigger: share 40% or tech MIL_4 done
 
@@ -456,11 +456,11 @@ The arms fair invites you with the care people give a lit fuse. Your late filing
 MIL_B3_OPA_BTN | 28 | Button, opt_a
 Buy the main hall
 MIL_B3_OPA_EFF | 200 | Effect line, opt_a
-Get: Military volume up clearly for a while. Cost: {cash_out} credits for the hall. Rivals: Ostrel Syndicate's Military strength falls clearly.
+Get: Military volume up a little for a while. Cost: {cash_out} credits for the hall. Rivals: Ostrel Syndicate's Military strength falls clearly.
 MIL_B3_OPB_BTN | 28 | Button, opt_b
 Take a modest stand
 MIL_B3_OPB_EFF | 200 | Effect line, opt_b
-Get: {n} units of tech progress at the Munitions Line. Cost: Velvet Concord gains a little Military strength. Rivals: all three rivals' Military growth falls a little.
+Get: {n} units of tech progress at the Munitions Line. Cost: {cash_out} credits for the stand. Rivals: Velvet Concord's Military strength and all three rivals' Military growth fall a little.
 MIL_B3_OPA_RES_TITLE | 32 | Result popup title, opt_a
 The main hall is yours
 MIL_B3_OPA_RES | 280 | Result popup, opt_a
@@ -470,11 +470,11 @@ Ostrel Syndicate, Military: strength down clearly.
 MIL_B3_OPB_RES_TITLE | 32 | Result popup title, opt_b
 A modest stand
 MIL_B3_OPB_RES | 280 | Result popup, opt_b
-You took a plain stand beside Ostrel's and listened more than you sold. Two engineers from the next stand talked shop for an hour. All three rivals grow more slowly in Military, though Velvet Concord, which bought the stand opposite, picked up a little strength.
+You took a plain stand beside Ostrel's and listened more than you sold. The stand fee was small. Two engineers from the next stand talked shop for an hour. Velvet Concord, whose gala crowd walked past, loses a little Military strength, and all three rivals grow more slowly.
 MIL_B3_OPB_STD | 90 | Standings line 1, opt_b
 All three rivals, Military: growth down a little.
 MIL_B3_OPB_STD2 | 90 | Standings line 2, opt_b
-Velvet Concord, Military: strength up a little.
+Velvet Concord, Military: strength down a little.
 
 ### MIL_B4 (chain B, step 4). Trigger: share 45%. Always fires before a win is possible
 
@@ -487,25 +487,27 @@ The fleets you supply now run on what you sell and what you learned. Their admir
 MIL_B4_OPA_BTN | 28 | Button, opt_a
 Roster by garrison
 MIL_B4_OPA_EFF | 200 | Effect line, opt_a
-Get: Military price up a little for the rest of the run. Cost: Military volume down a little for a few cycles. Rivals: Harrow Combine's Military growth falls clearly.
+Get: Military price up a little for a while. Cost: Military volume down a little for a few cycles. Rivals: Harrow Combine's Military strength falls clearly.
 MIL_B4_OPB_BTN | 28 | Button, opt_b
 Roster by contract
 MIL_B4_OPB_EFF | 200 | Effect line, opt_b
-Get: {cash_in} credits. Cost: Ship upkeep rises clearly for the rest of the run. Rivals: Harrow Combine and Ostrel Syndicate lose Military strength clearly.
+Get: {cash_in} credits. Cost: Ship upkeep rises clearly for a while. Rivals: Harrow Combine's Military strength falls clearly; Ostrel Syndicate's falls a little.
 MIL_B4_OPA_RES_TITLE | 32 | Result popup title, opt_a
 Each garrison sets its roster
 MIL_B4_OPA_RES | 280 | Result popup, opt_a
-Each garrison now draws its own roster and calls on you by the week. Orders thinned for a few cycles while the rosters were written. After that they settled at a better price. Harrow Combine had counted on the fleets as its client, and its Military growth falls clearly.
+Each garrison now draws its own roster and calls on you by the week. Orders thinned for a few cycles while the rosters were written. After that they settled at a better price. Harrow Combine had counted on the fleets as its client, and its Military strength falls clearly.
 MIL_B4_OPA_STD | 90 | Standings line, opt_a
-Harrow Combine, Military: growth down clearly.
+Harrow Combine, Military: strength down clearly.
 MIL_B4_OPB_RES_TITLE | 32 | Result popup title, opt_b
 Your desk sets the roster
 MIL_B4_OPB_RES | 280 | Result popup, opt_b
-Your desk now sets the roster, and the fleets are held ready on contract terms. A large payment arrived the same week. Hulls kept ready cost more to keep, and Ship upkeep stays higher. Harrow Combine and Ostrel Syndicate lose Military strength clearly. The admiral signed.
-MIL_B4_OPB_STD | 90 | Standings line, opt_b
-Harrow Combine and Ostrel Syndicate, Military: strength down clearly.
+Your desk now sets the roster, and the fleets are held ready on contract terms. A large payment arrived. Hulls kept ready cost more to keep, and Ship upkeep rises for a while. Harrow Combine's Military strength falls clearly, and Ostrel Syndicate's a little. The admiral signed.
+MIL_B4_OPB_STD | 90 | Standings line 1, opt_b
+Harrow Combine, Military: strength down clearly.
+MIL_B4_OPB_STD2 | 90 | Standings line 2, opt_b
+Ostrel Syndicate, Military: strength down a little.
 
-Check against R-BOT and the trade-off rule: all 14 options change at least one bot stat; every option has a Get and a Cost; three options pay their Cost as a boost to a rival (A1 opt_b, A3 opt_a, B3 opt_b) and none is named safe or risky. No text names a direction. The two B4 options are written to the same length and pattern.
+Check against R-BOT and the trade-off rule: all 14 options change at least one bot stat; every option has a Get and a Cost; two options pay their Cost as a boost to a rival (A1 opt_b, A3 opt_a) and none is named safe or risky. No text names a direction. The two B4 options are written to the same length and pattern.
 
 ## 4. Style guide for the other three chains
 
