@@ -31,6 +31,10 @@ extends SceneTree
 ##   sloppy        one lane, locked at cycle 1: never re-planned, never removed, even when blocked;
 ##                 buys no ship beyond the lane's one; learns no skills.
 ##   never_expand  one lane (best profit), the tutorial ship only, forever; learns skills.
+##   spread        QA 2026-11-03: decent expansion, but lanes are taken round-robin over the four markets (no --market).
+##   bankrupt      QA 2026-11-03: buys a ship whenever one is allowed and spreads over all four markets (the overhead bleeds cash) with no skills, until repossession ends the run (END_BANKRUPT).
+##   passive       QA 2026-11-03: the tutorial ship only, no lanes (or --passive-lanes=n), no skills: the swept / outcompeted loss.
+##                 bankrupt: from cycle 8 cash is debited to --bankrupt-floor (default -300) each turn (QA overspend, like --inject).
 ##   local_focus   QA 2026-11-03: no routes, no ships beyond the tutorial one. Buy and Sell orders on every open planet
 ##                 that trades a --market good (local orders move order_amount units a cycle without a ship). learns skills.
 ##
@@ -41,6 +45,8 @@ extends SceneTree
 ##   --event-policy=first|decline   how event notices are answered (see _event_pick)
 ##   --clock=fast|timer
 ##   --choice=alt|RELEASE|CORP   alt: odd seed RELEASE, even seed CORP (default alt)
+##   --chains=first|good|bad|random  QA 2026-11-03: market chain choices. good/bad take, per step, the option whose hidden nudge
+##                           (Chains.nudge_of) pushes toward that ending flag; random uses the seed; first = event-policy as before.
 ##   --local-orders          QA 2026-11-03: also Buy and Sell on every focus-market planet, whatever the strategy
 ##   --market=mil|lux|min|bio  market focus (QA 2026-11-03): only goods of that market are traded (lanes and clusters)
 ##   --force-goal=<cycle>    turns on the debug "Force market share" (mil) at that cycle
@@ -67,7 +73,7 @@ extends SceneTree
 const MAIN_SCENE := "res://game/main.tscn"
 const SaveGame := preload("res://game/save_game.gd")
 const SkillTree := preload("res://game/skill_tree.gd")
-const STRATEGIES := ["decent", "sloppy", "always_expand", "never_expand", "mining_focus", "dead_run", "local_focus"]
+const STRATEGIES := ["decent", "sloppy", "always_expand", "never_expand", "mining_focus", "dead_run", "local_focus", "spread", "bankrupt", "passive"]
 const DECENT_LANES := 24  # no lane cap, matching tools/sim.py decent (ship_cap is the only limit)
 const DECENT_FROM_CYCLE := 1  # buy from the first cycle, matching tools/sim.py decent
 const DECENT_RESERVE := 0  # no cash reserve, matching tools/sim.py decent
@@ -152,6 +158,9 @@ var closed_order_units := 0  # units traded by Buy or Sell orders at close_plane
 var closed_order_rows := 0  # order rows at close_planet with a non-zero trade while closed (must stay 0)
 var probe_rows: Array = []
 var local_orders := false  # --local-orders: Buy and Sell on every focus-market planet, on top of any strategy
+var bankrupt_worst := false  # --bankrupt-worst: bankrupt builds the least profitable lanes instead of the spread of normal ones
+var chain_policy := "first"  # --chains=first|good|bad|random
+var chain_picks: Array = []  # [cycle, step id, option id, nudge, dir after]
 var market_focus := ""  # --market=<id>: trade only goods of this market (empty: all goods)
 var share_rows: Array = []  # per cycle end: [cycle, [share per Markets.ids], cash] (market readout for QA)
 var events_resolved := 0  # events answered by _resolve_events (0 while the hook is a stub)
@@ -162,6 +171,10 @@ var bot_skill_rows: Array = []  # QA 2026-11-03: [play cycle, skill id, bot, str
 var feed_log: Array = []  # QA 2026-11-03: [cycle, source planet, good, ok, reason] feed routes to the station (logged on change)
 var feed_why: Dictionary = {}  # QA 2026-11-03: good -> last refusal reason
 var live_bot_skills: Dictionary = {}  # skill id -> {bot, market, until} for the bot skill in effect
+const BANKRUPT_FROM := 8  # bankrupt: cash is spent down to 0 at every turn from this cycle
+var bankrupt_floor := -300  # --bankrupt-floor=<n>: cash after the QA overspend (negative: positive floors never went bankrupt, cash was never short)
+var passive_lanes := 0  # --passive-lanes=<n>: passive keeps the n best lanes (default 0) and no extra ship
+var drained := 0  # bankrupt: credits debited by the QA overspend
 const WORKSHOP_CASH := 300  # QA 2026-11-03: cash the bot keeps after it builds a workshop
 
 
@@ -195,6 +208,14 @@ func _initialize() -> void:
 			close_at = int(arg.trim_prefix("--close-at="))
 		elif arg == "--keep-closed":
 			keep_closed = true
+		elif arg.begins_with("--bankrupt-floor="):
+			bankrupt_floor = int(arg.trim_prefix("--bankrupt-floor="))
+		elif arg.begins_with("--passive-lanes="):
+			passive_lanes = int(arg.trim_prefix("--passive-lanes="))
+		elif arg == "--bankrupt-worst":
+			bankrupt_worst = true
+		elif arg.begins_with("--chains="):
+			chain_policy = arg.trim_prefix("--chains=")
 		elif arg == "--local-orders":
 			local_orders = true
 		elif arg.begins_with("--market="):
@@ -208,7 +229,7 @@ func _initialize() -> void:
 			inject_cycle = int(parts[0])
 			inject_cash = int(parts[1])
 	# QA 2026-11-03: the decent default is a human path: it buys the system 2 permit (FND_PERMIT + 600) as soon as it can afford it.
-	if strategy == "decent" and permit_sid < 0 and default_permit:
+	if (strategy == "decent" or strategy == "spread") and permit_sid < 0 and default_permit:
 		permit_sid = 2
 	if strategy == "mining_focus" and skill_order.is_empty():
 		skill_order = ["FND_PROSPECT", "MIN_1", "MIN_3", "MIN_5"]  # mining_focus: Prospecting first, then the Minerals tree in order
@@ -216,7 +237,8 @@ func _initialize() -> void:
 		skill_order = ["FND_PERMIT", "FND_STORAGE", "FND_PROSPECT", "MIN_1", "MIN_2", "MIN_3", "MIN_4", "MIN_5"]  # dead_run: Foundations, then the Minerals tree (MIN_1 fabric, MIN_3 and MIN_5 open the dead worlds)
 	if strategy == "always_expand" and skill_order.is_empty():
 		skill_order = ["FND_PERMIT", "FND_STORAGE", "BIO_1", "BIO_2", "BIO_3"]  # expansion first: permit, storage, then Biotech
-	if not STRATEGIES.has(strategy) or not ["fast", "timer"].has(clock) or not ["alt", "RELEASE", "CORP"].has(choice_policy):
+	if not STRATEGIES.has(strategy) or not ["fast", "timer"].has(clock) or not ["alt", "RELEASE", "CORP"].has(choice_policy) \
+			or not ["first", "good", "bad", "random"].has(chain_policy):
 		printerr("bot_run: bad --strategy, --clock or --choice")
 		bad_args = true
 		return
@@ -306,12 +328,34 @@ func _play_cycle() -> void:
 ## --event-policy=first (default): the first enabled choice (the paying one on EV17, EV18, EV20).
 ## --event-policy=decline: the last enabled choice (the leave / skip / decline one), so no fee is paid.
 func _event_pick(notice) -> int:
+	var cid := str(main.events.pending_id)
+	if chain_policy != "first" and cid != "" and main.events.is_chain_step(cid) and notice.enabled_choices.size() > 1:
+		return _chain_pick(cid)
 	var idx := -1
 	for i in notice.enabled_choices:
 		if event_policy == "first":
 			return i
 		idx = i
 	return idx
+
+## Chain step: the option index (in the shown order) per --chains. The bot reads the hidden nudge, it is QA.
+func _chain_pick(step_id: String) -> int:
+	var order: Array = Chains.order(step_id)
+	var best := 0
+	if chain_policy == "random":
+		best = rng.randi_range(0, order.size() - 1)
+	else:
+		var best_n := 0
+		for i in order.size():
+			var n: int = Chains.nudge_of(step_id, str(order[i]))
+			if i == 0 or (chain_policy == "good" and n > best_n) or (chain_policy == "bad" and n < best_n):
+				best = i
+				best_n = n
+	var mk: String = Chains.market_of(step_id)
+	var nudge: int = Chains.nudge_of(step_id, str(order[best]))
+	chain_picks.append([main.cycle, step_id, str(order[best]), nudge, Chains.dir_of(mk) + nudge])
+	return best
+
 
 func _resolve_events() -> int:
 	var answered := 0
@@ -367,7 +411,9 @@ func _decide(c: int) -> void:
 		_buy_ship_at(_mission_planet(), c)  # tutorial: the first ship is bought at the mission planet
 	if strategy == "always_expand":
 		_buy_spare_ships(c)  # T161 follow-up: ships whenever cash allows, before skills and routes
-	if strategy != "sloppy":
+	if strategy == "bankrupt":
+		_buy_spare_ships(c)
+	if strategy != "sloppy" and strategy != "passive" and strategy != "bankrupt":
 		_learn_skills()
 		_workshop_turn(c)  # QA 2026-11-03: build the workshops of the focus once their node is learned
 	_bot_skill_turn(c)  # QA 2026-11-03: a ready bot skill is used on the leading bot
@@ -378,6 +424,11 @@ func _decide(c: int) -> void:
 		_workshop_feed(c)  # QA 2026-11-03: workshop input routes to the station, before the planned lanes sync
 	var active := _sync_lanes(plan)
 	_apply_orders(active)
+	if strategy == "bankrupt" and c >= BANKRUPT_FROM and main.cash > bankrupt_floor:
+		# Real purchases cannot take cash below 0, so the overspend is a QA debit (like --inject, opposite sign): all cash above the floor is
+		# "spent" at the end of the bot's turn, the cycle's overhead and upkeep then push it negative, rescues and repossessions follow.
+		drained += int(main.cash) - bankrupt_floor
+		main.cash = bankrupt_floor
 
 
 func _mission_planet() -> int:
@@ -386,7 +437,7 @@ func _mission_planet() -> int:
 
 ## Profitable lanes: buy at a (Buy order at a, stock into a's storage), move to b ("Send to..."),
 ## sell at b. Profit per cycle = (sell_b - buy_a) * units - route fixed cost.
-func _ranked_lanes(ignore_closed := false) -> Array:
+func _ranked_lanes(ignore_closed := false, worst := false) -> Array:
 	var out: Array = []
 	var units: int = mini(int(main.engine.local_amount()), int(main.engine.units_per_cycle()))
 	var fixed: int = int(main.engine.fixed_cost())
@@ -406,9 +457,9 @@ func _ranked_lanes(ignore_closed := false) -> Array:
 				var profit: int = (sp - bp) * units - fixed
 				# A lane is worth a ship only if one cycle's profit pays the ship back within PAYBACK_CYCLES.
 				var ship_price: int = int(main.balance.get("ship_price", 0))
-				if profit * PAYBACK_CYCLES >= ship_price and not _cross_system_blocked(a, b):  # cross-system routes need no skill now
+				if (worst or profit * PAYBACK_CYCLES >= ship_price) and not _cross_system_blocked(a, b):  # cross-system routes need no skill now
 					out.append({"a": a, "b": b, "c": cs, "profit": profit})
-	out.sort_custom(func(x, y): return x["profit"] > y["profit"])
+	out.sort_custom(func(x, y): return x["profit"] < y["profit"] if worst else x["profit"] > y["profit"])
 	return out
 
 
@@ -417,9 +468,38 @@ func _cross_system_blocked(_a: int, _b: int) -> bool:
 	return false
 
 
+func _spread_plan(ranked: Array) -> Array:
+	var per := {}
+	for lane in ranked:
+		var m := Markets.market_of(str(lane["c"]))
+		if not per.has(m):
+			per[m] = []
+		per[m].append(lane)
+	var out: Array = []
+	var i := 0
+	while out.size() < DECENT_LANES:
+		var any := false
+		for m in Markets.ids:
+			var arr: Array = per.get(m, [])
+			if i < arr.size() and out.size() < DECENT_LANES:
+				out.append(arr[i])
+				any = true
+		if not any:
+			break
+		i += 1
+	return out
+
+
 func _plan() -> Array:
+	if strategy == "bankrupt":
+		var worst := _ranked_lanes(false, bankrupt_worst)  # bankrupt_worst: the unprofitable lanes first (they rarely run: no cash for them)
+		return _spread_plan(worst).slice(0, maxi(1, int(main.balance.get("ship_cap", 1))))  # all four markets: the overhead bleeds cash too
 	var ranked := _ranked_lanes()
 	match strategy:
+		"passive":
+			return ranked.slice(0, mini(passive_lanes, ranked.size()))  # default 0 lanes
+		"spread":
+			return _spread_plan(ranked)
 		"sloppy":
 			if locked_lane.is_empty() and not ranked.is_empty():
 				locked_lane = ranked[0]
@@ -454,13 +534,13 @@ func _expand(plan: Array, c: int) -> void:
 	var price: int = int(main.balance.get("ship_price", 0))
 	var home: int = _lane_home(plan)
 	match strategy:
-		"always_expand":
+		"always_expand", "bankrupt":
 			while _missing_lanes(plan) > main.free_ships() and main.can_buy_ship()["ok"]:
 				var before: int = main.ships
 				_buy_ship_at(home, c)
 				if main.ships == before:
 					break
-		"decent", "mining_focus", "dead_run":  # T161: mining_focus and dead_run expand like decent
+		"decent", "mining_focus", "dead_run", "spread":  # T161: mining_focus and dead_run expand like decent
 			while _missing_lanes(plan) > main.free_ships() and c >= DECENT_FROM_CYCLE \
 					and main.cash - price >= DECENT_RESERVE and main.can_buy_ship()["ok"]:
 				var before_d: int = main.ships
@@ -1242,6 +1322,40 @@ func _on_cycle_ended(cycle: int) -> void:
 		probe_rows.append(_probe_row(cycle))
 
 
+func _shares_by_market() -> Dictionary:
+	var out := {}
+	for m in Markets.ids:
+		out[str(m)] = snappedf(Markets.share(m), 0.001)
+	return out
+
+
+func _game_picks() -> Dictionary:
+	var out := {}
+	for id in Chains.picks.keys():
+		out[str(id)] = str(Chains.picks[id]["opt"])
+	return out
+
+
+func _dir_flags() -> Dictionary:
+	var out := {}
+	for m in Markets.ids:
+		out[str(m)] = Chains.ending_flag(str(m))
+	return out
+
+
+## Effective rival strength at the end: balance strength x event strength_mult, per bot and market.
+func _rival_strengths() -> Dictionary:
+	var out := {}
+	for b in [1, 2, 3]:
+		var row := {}
+		for m in Markets.ids:
+			var base := float(main.balance.get("bot_%d_%s_strength" % [b, m], 0.0))
+			var md: Dictionary = Markets.bot_mods(b, str(m), main.cycle)
+			row[str(m)] = snappedf(base * float(md["strength_mult"]), 0.1)
+		out["bot_%d" % b] = row
+	return out
+
+
 ## Player share of every market now (order = Markets.ids), rounded to 0.1%.
 func _shares_now() -> Array:
 	var out: Array = []
@@ -1519,6 +1633,18 @@ func _finish() -> bool:
 		"market_ids": Markets.ids,
 		"share_rows": share_rows,
 		"final_shares": _shares_now(),
+		"final_shares_by_market": _shares_by_market(),
+		"chains_policy": chain_policy,
+		"bankrupt_drained": drained,
+		"repossessions": main.repossessions,
+		"rescues_paid": main.rescues_paid,
+		"chain_picks": chain_picks,
+		"chain_picks_game": _game_picks(),
+		"dir_flags": _dir_flags(),
+		"dir_values": Chains.dirv.duplicate(),
+		"rival_strengths": _rival_strengths(),
+		"skills_learned_count": skills_learned.size(),
+		"tech_done_count": SkillTree.all_ids().filter(func(t): return SkillTree.is_tech(str(t)) and main.learned_skills.has(t)).size(),
 		"final_best": Markets.best(),
 		"win_streaks": Markets.win_streak,
 		"close_at": close_at,

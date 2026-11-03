@@ -1,0 +1,14 @@
+{
+  "agent": "gameplay-programmer",
+  "date": "2026-11-03",
+  "task": "bot-endings",
+  "status": "done",
+  "schema_version": 1,
+  "files_changed": ["qa/bots/bot_run.gd"],
+  "open_questions": [
+    "Every run that trades ends END_SWEPT at cycle 27 (decent mil, good and bad chains, spread, passive); no win seen. Is the sweep rule meant to fire this early?",
+    "END_BANKRUPT is unreachable by play: with no sales cash never goes below 0 and overhead is small. The bot forces it with a QA debit. Is that acceptable for QA?",
+    "END_OUTCOMPETED appeared only for bankrupt-without-drain seed 1 (spread, no skills, 10% mil); is that the intended path?"
+  ],
+  "handoff": "bot_run.gd now has --chains=first|good|bad|random (reads Chains.nudge_of per option; picks logged), strategies spread (round-robin lanes over 4 markets, decent expansion, permit 2), bankrupt (greedy ships, spread lanes, no skills, QA debit of cash to --bankrupt-floor=-300 from cycle 8), passive (tutorial ship only; --passive-lanes=n). RESULT adds ending_id, side, final_shares_by_market, rival_strengths (effective per bot and market), chain_picks, chain_picks_game, dir_flags, dir_values, skills_learned_count, tech_done(_count), repossessions, rescues_paid. Runs (seed 1, fast clock): decent mil good: END_SWEPT c27 mil 5.5%, dir +49 good, 6 picks; decent mil bad: END_SWEPT c27 mil 0%, dir -47 bad; spread: END_SWEPT c27 mil 2%; bankrupt: END_BANKRUPT c11; passive: END_SWEPT c27; bankrupt with floor 600/1200: END_OUTCOMPETED c40, mil 10-12%. No win reached; best share 12%. Commands: STRATEGIES=decent SEEDS=1 TAG=good EXTRA=\"--market=mil --chains=good\" qa/bots/run_batch.sh <out>; same with --chains=bad; STRATEGIES=\"spread bankrupt passive\" SEEDS=1 qa/bots/run_batch.sh <out>. Tests: pass=1165 fail=0."
+}
