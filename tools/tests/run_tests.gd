@@ -397,6 +397,18 @@ func _test_galaxy_view() -> void:
 	m._open_system(2)
 	m.galaxy_seen = false
 	check(g.open_view() and g.tut_step == 0 and g.tut_panel.visible and m.galaxy_seen, "galaxy: tutorial starts at line 1 once system 2 is open")
+	await process_frame
+	await process_frame
+	var vpr := Rect2(Vector2.ZERO, m.get_viewport_rect().size)
+	for st in 3:  # every step: the card floats inside the window, clear of its target, with outline and pointer
+		g.tut_step = st
+		g._build_tutorial()
+		await process_frame
+		var tgt: Rect2 = g._tut_target()
+		var cr := Rect2(g.tut_panel.position, g.tut_panel.size)
+		check(vpr.encloses(cr) and not cr.intersects(tgt) and tgt.size != Vector2.ZERO, "galaxy: step %d card inside the window, not over its target" % (st + 1), str(cr) + " vs " + str(tgt))
+		check(g.tut_hl.visible and g.tut_arrow.visible and g.tut_panel.get_parent() == g, "galaxy: step %d has outline and pointer" % (st + 1))
+		check(not g.tut_panel.position.is_equal_approx(Vector2.ZERO), "galaxy: step %d card is placed" % (st + 1))
 	g.tut_step = 1
 	g._build_tutorial()
 	m.tut_step = 2
@@ -410,6 +422,7 @@ func _test_galaxy_view() -> void:
 	await process_frame
 	g.tut_step = 3
 	g._build_tutorial()
+	check(not g.tut_panel.visible and not g.tut_hl.visible and not g.tut_arrow.visible, "galaxy: finished tutorial shows no card")
 	g.selected_sys = 2
 	g._build_side()
 	g.queue_redraw()

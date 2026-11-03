@@ -1,0 +1,16 @@
+{
+  "agent": "ui-programmer",
+  "date": "2026-11-03",
+  "task": "galaxy-tutorial-card",
+  "status": "done",
+  "schema_version": 1,
+  "files_changed": ["game/main.gd", "game/galaxy_view.gd", "tools/tests/run_tests.gd"],
+  "screens_changed": ["Galaxy view tutorial (now a floating card, outline and pointer)", "Board tutorial card (placement code shared, same look)"],
+  "how_to_see": "New game, open system 2, open the galaxy view (left rail icon): card 1 of 3 sits beside the Hollin Reach blob with a pulsing outline and a pointer. Next moves to the icons area, then the system again (no routes yet; with a route the outline hugs a route line).",
+  "what_i_saw": "Windowed driver 0 failures; tests 1046 pass 0 fail. C_galaxy_step1/2/3 at 1920x1080: card right of the target, outline and pointer visible, buttons readable, done state shows nothing. Also at a logical 1280x720 (temporary driver copy using content_scale_size, since the project stretch keeps 1920x1080 for any window): galaxy step 2 and board step 3 cards inside the window, not over their targets. In both galaxy sizes the card covers the other system's name label and link line (planets stay clear).",
+  "changes": "main.gd: tut_place_beside, tut_make_hl, tut_make_arrow shared; board placement calls them. galaxy_view.gd: tut_panel is now the card (tut_box inside), tut_hl, tut_arrow; _tut_target, _tut_place each frame; right column tutorial removed; text is current step plus optional <id>_WHY, count from TUT_STEP_COUNT. Tests: card inside window, clear of target, outline and pointer per step; done shows nothing. Driver unchanged (kept tut_box name).",
+  "not_checked_by_eye": "Step 3 with real routes (outline on a route line) not screenshotted; only covered by the test using the fallback.",
+  "git": "not available in sandbox, no git run",
+  "open_questions": ["Story: no TUT_GALAXY_*_WHY ids exist; add them if a why line is wanted.", "Card can overlap the second system's name label; accept or add avoid rects for other system labels?"],
+  "handoff": "Galaxy tutorial is a floating card beside a per-step target with pulsing outline and pointer, sharing placement code with the board card. Tests and windowed driver pass."
+}
