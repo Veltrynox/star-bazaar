@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "agent": "economy-designer",
+  "date": "2026-11-02",
+  "task": "reserve-rebalance",
+  "status": "done",
+  "files_changed": [
+    "data/balance.json",
+    "goals/owner-feedback-2026-11-02/blackboard.json",
+    "handoffs/economy-designer/2026-11-02-reserve-rebalance.json"
+  ],
+  "open_questions": [
+    "UNKNOWN: exact size of the reserve effect in the real game; the sim has no cash-settle model. +300 float is an estimate, may need 2400 (sim median 22, min 20).",
+    "UNKNOWN: whether v1 vs v4 differs only by the reserve (QA says code otherwise unchanged).",
+    "always_expand+C1 sim median 21 (min 19) breaks the no-win-before-22 target; pre-existing, owner call."
+  ],
+  "handoff": "Cause: the reserve (early cash timing). Change: starting_credits 1800 to 2100. Sim 200 seeds: decent 98% median 23. QA re-run requested.",
+  "details": {
+    "cause": "The reserve, through early cash and the ship-buy gate. v1 decent bought ship 3 at cycle 3 and ship 4 at cycle 4 (cash 100 after) and had 23 ships by cycle 29. v4 decent has cash 437-547 at cycle 3 and 442-858 at cycle 6, and buys ship 3 at cycle 7-10 and ship 4 at 8-14 (5-9 ships by cycle 30). The bot buys a ship only when cash >= ship_price (900), and with 3-4 routes the reserve (115 per route: trip 95 + upkeep 20) holds back 345-460 of that cash, and smaller Buys give less stock to sell, so cycle 3-6 income is lower. Four-cycle slip in ship 3 compounds. Not the ship cost (900 unchanged since v18), not upkeep, not route income timing in itself (settle order unchanged). v1 wins were marginal (cycles 27-29 of 30; sim says 23), so any lag of 3+ cycles turns 5/8 into 0/8.",
+    "changes": [
+      {
+        "key": "starting_credits",
+        "old": 1800,
+        "new": 2100,
+        "reason": "+300 float offsets the reserve in cycles 1-6; one-off, no late-game scaling, no new key"
+      }
+    ],
+    "also_tried_not_applied": {
+      "trip_cost 95 to 80": "mining_focus sim 4% (unstable), decent 100% median 22",
+      "ship_price 900 to 800": "decent 98% median 23, mining 72%, always_expand+C1 min 18",
+      "starting_credits 2400": "decent 100% median 22, mining 83% (too close to decent)"
+    },
+    "sim_commands": "python3 tools/sim.py --goods --mc 200",
+    "sim_before": {
+      "decent": "98% median 24 (21-30); no-events win cycle 23 cash 8729",
+      "mining_focus": "52% median 29",
+      "always_expand": "0%",
+      "always_expand+C1": "100% median 21 (20-27)",
+      "sloppy": "0%",
+      "never_expand": "0%"
+    },
+    "sim_after": {
+      "decent": "98% median 23 (21-29); no-events win cycle 22 cash 8715",
+      "mining_focus": "62% median 28 (26-30)",
+      "always_expand": "0%",
+      "always_expand+C1": "100% median 21 (19-25)",
+      "sloppy": "0%",
+      "never_expand": "0%"
+    },
+    "how_checked": "Sim cannot show the reserve (no cash-settle model). I compared QA v1 and v4 per-run cash_by_cycle and ship_buys, and used the sim only to check that the +300 float does not break targets or make mining or always_expand dominant. Mining stays 4 cycles behind decent; always_expand still 0%.",
+    "qa_rerun_request": "Seeds 1 to 8, fast clock, strategies decent, mining_focus, always_expand, same bot flags as v4. Must show: decent cash at cycle 3 above 900 or ship 3 bought by cycle 5 in at least 6 of 8 seeds; decent wins at least 5 of 8, at cycles 24-29; mining_focus wins fewer than decent; always_expand 0 of 8; warning streaks in mining runs fall (v4: 2-8 per run, 23-78 route-warn cycles). If decent is still under 4 of 8 with ship 3 on time, the cause is not the float and the next step is a reserve-aware sim model.",
+    "save_note": "starting_credits applies to new games only; existing saves keep their cash."
+  }
+}

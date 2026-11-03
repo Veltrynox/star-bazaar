@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-02",
+  "task": "dead-planets",
+  "status": "done",
+  "files_changed": [
+    "game/dead_worlds.gd (new)",
+    "game/route_engine.gd",
+    "game/skill_tree.gd",
+    "game/skill_screen.gd",
+    "game/events.gd",
+    "game/main.gd",
+    "game/planet_panel.gd",
+    "game/planet_types.gd",
+    "game/systems.gd",
+    "data/planets.json",
+    "data/systems.json",
+    "data/planet_types.json",
+    "data/balance.json",
+    "tools/tests/run_tests.gd",
+    "goals/owner-feedback-2026-11-02/blackboard.json"
+  ],
+  "data_changes": [
+    {
+      "file": "data/planets.json",
+      "data_version": "8 -> 9",
+      "change": "added dead_1 Cinderrest (type dead, abundant dross, scarce none, dross_buy 5, dross_sell 4, x -340 y -120); added dross_sell 14 at Voltara and 12 at Ashgate. Placeholders. No existing price changed."
+    },
+    {
+      "file": "data/systems.json",
+      "data_version": "none -> 2 (key added)",
+      "change": "added dead_2 Greywake (type dead, abundant nullglass, nullglass_buy 12, nullglass_sell 10, x 700 y 300, literal name); added nullglass_sell 30 at s2_p2 and 34 at s2_p4. Placeholders. Source line added."
+    },
+    {
+      "file": "data/planet_types.json",
+      "change": "new type dead (abundant none, scarce none, own_goods true: the planet row names its own resource)."
+    },
+    {
+      "file": "data/balance.json",
+      "data_version": "25 -> 26",
+      "change": "new keys skill_cost_M1 2, skill_cost_M2 3, skill_cost_F1 3 (spec), dead_danger_max 5, dead_danger_rise 1, dead_follow_cycles 4 (default delay for a follow-up). No existing value changed."
+    }
+  ],
+  "mechanics": {
+    "commodities": "dross and nullglass join the list through the planet base_prices pattern; main._open_system now appends goods a newly opened system brings (in place, engine and storage share the array).",
+    "skills": "SkillTree.EXTRA puts M1, M2, F1 in branch B (Research); prereqs B1 / M1 / M1+M2; normal locks apply (only B1 exempt). Names fall back to Cold Survey, Deep Cut, Fabrication Licence until SK_M1_NAME etc exist. EndingPicker branch counts and tiers are unchanged (M and F ids do not count toward branch B).",
+    "gate": "RouteEngine.check_connection: new route from dead_1 needs M1, from dead_2 needs M2. Reason text NOT_DEAD_NEEDS_SKILL (fallback 'Needs {skill}.'). Saved routes keep loading (new_route false).",
+    "danger": "game/dead_worlds.gd: meter 0..dead_danger_max per planet id. main._tick_danger after settle: +dead_danger_rise per world with a running route out of it (once per world). Save key danger {planet_id: value}. Planet panel line 'Danger: n of 5' (node DangerLine, text id PLANET_DANGER with fallback). main.danger_of(i), main.dead.change(id, delta).",
+    "event_hooks": "events.json keys: choice follow_id + follow_after (cycles, default balance dead_follow_cycles); event keys scheduled_only (bool) and on_mine ('dead_1', 'dead_2' or 'any': fires once when a route first starts out of that world). Any follow_id target, scheduled_only and on_mine events are kept out of the random pick. New tag [danger: Planet, +1] (negative lowers). Effect line id NOT_EVENT_EFFECT_DANGER (fallback). Schedule is saved in events.scheduled; old saves have none. Scheduled events fire at the start of the due cycle and replace that cycle's random event.",
+    "fix": "A choice without popup_id used to leave the event notice open; it now dismisses like a plain event."
+  },
+  "save_notes": "New keys danger and events.scheduled; old saves load with none. RISK: dead_1 is index 3 in planets.json, so system 2 planets moved from index 3-6 to 4-7 (Greywake 8). A save made before this build with system 2 open points routes, orders and storage at the wrong planets. System-1-only saves are unaffected. No migration written.",
+  "tests": "Added _test_dead_world_mechanics (data, skill rules, gate for both worlds, danger rise/cap/save/old save/panel line, follow-up scheduled, saved, fires once, not random). Existing tests moved by one index for system 2 and counts 3->4, 7->9, 4->5 planets, 12->15 skills. Full suite with private TMPDIR: TOTAL pass=867 fail=2. Failures: sys2 Quillon commodity list (the known one) and 'banners: every event has art' for EV30 EV31 EV33 EV34 EV36 EV37 (new story events in events.json have no banner files; not this task). Before the work: pass=824 fail=1.",
+  "left_for": {
+    "story": "Part 1 events (set on_mine and follow_id/follow_after on choices, danger tags), SK_M1/M2/F1 NAME FLAVOUR PLAIN, NOT_DEAD_NEEDS_SKILL, PLANET_DANGER, NOT_EVENT_EFFECT_DANGER, GOOD_DROSS_NAME, GOOD_NULLGLASS_NAME. Events EV30-EV37 are already in events.json as plain tag events with no follow ids; their banners are missing.",
+    "economy": "real dross and nullglass prices (all placeholders), danger rise and cap, follow-up delay, skill costs check, sim support for the new goods and skills.",
+    "fabric": "F1 has no effect yet; fabric at the trading post, the 1500 cr build cost and the sell line are not built.",
+    "fx": "nothing new; the planet visual is theirs. Icon and colour for dross and nullglass (Ui.COMMODITY_FALLBACK has none)."
+  },
+  "open_questions": [
+    "Do you want a save migration for system-2 saves made before this build (planet indexes shifted by one), or are old saves disposable?",
+    "Should a stalled route out of a dead world (no dross in storage) also raise danger, or only a running one (current)?",
+    "Dross and nullglass have buy prices at the dead world, so mining costs credits like any planet good. Should mining be free like clusters?"
+  ],
+  "handoff": "Dead worlds are in: Cinderrest and Greywake, dross and nullglass, skills M1/M2/F1 in Research, skill-gated routes, a saved danger meter with a panel line, and saved scheduled follow-ups. Story events plug in through on_mine, follow_id/follow_after and the danger tag. Suite pass=867 fail=2 (Quillon plus missing banners for new story events). Old system-2 saves have shifted planet indexes."
+}

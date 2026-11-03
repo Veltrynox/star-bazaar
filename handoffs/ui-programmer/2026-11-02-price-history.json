@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-02",
+  "task": "price-history",
+  "status": "done",
+  "files_changed": [
+    "game/main.gd",
+    "game/planet_panel.gd",
+    "goals/owner-feedback-2026-11-02/blackboard.json",
+    "tools/tests/run_tests.gd",
+    "game/route_line.gd",
+    "game/map.gd"
+  ],
+  "removed": [
+    "Price history line and trend arrow on every planet row",
+    "main.price_history_line, price_trend, price_trend_arrow (display only)",
+    "Separate Stop buying button",
+    "Rows for goods a planet does not trade",
+    "': on' suffix on Buy"
+  ],
+  "kept": [
+    "price_history recording and its save key (saves unchanged)"
+  ],
+  "buy_button": "One BuyButton_<c>. Reads Buy when off, Stop buying when on (BTN_STOP_BUY, fallback text). Each press toggles the standing buy order via toggle_local. Reading of 'buy twice': start and stop from the same button.",
+  "event_badge": "PriceEvent_<c> label moved onto the main row beside the prices (same name and text).",
+  "tests": "TOTAL pass=729 fail=1. The one fail: 'sys2: Quillon none/both add no commodity beyond the five goods' (m.commodities lacks silk/chips); in a check about commodity list, code I did not touch; likely from the system-tiers data work, not verified against a clean tree (no git).",
+  "not_checked_visually": "Whole planet panel: row width with the event badge on the main row, row spacing after hidden goods, Stop buying button width. No godot binary on PATH in sandbox; headless test run only.",
+  "git": "Not used.",
+  "open_questions": [
+    "story-designer: LBL_PRICE_HISTORY and LBL_PRICE_HISTORY_NONE (story/screens.md, data/story_text.json) are now unused; remove them. BTN_STOP_BUY has no story id; add it so the fallback is not needed.",
+    "UNKNOWN: is the sys2 commodities test failure from the tiers task? Owner of that data should confirm.",
+    "story-designer: add LBL_SELL_OFFER ('Sell {commodity} here too?')."
+  ],
+  "sell_offer": {
+    "flow": "After a Send route is made, main.sell_offer={planet,c} when sell_offer_applies (destination has a sell price, trade open, no Sell order). Destination panel shows SellOffer row with SellOfferYes/SellOfferNo. Yes calls set_local_order(dst,c,'sell',true); No, Esc, or any planet/map click clears only the offer. Route and buy order untouched. No new rule.",
+    "story_ids_wanted": [
+      "LBL_SELL_OFFER (Sell {commodity} here too?) - missing, fallback used",
+      "BTN_YES, BTN_NO exist already"
+    ],
+    "tests": "TOTAL pass=736 fail=1 (same sys2 Quillon failure as before). 7 new sell offer checks; Esc key path itself not covered by a test.",
+    "not_checked_visually": "Offer row look and position at top of the destination panel, button fit."
+  },
+  "route_reason": {
+    "fix": "route_line.reason_text(status, reason): shows the route's own reason; 'Source storage is empty.' reads LBL_NO_STOCK_SOURCE (fallback 'No stock at source'); Waiting for room only for state waiting or an empty reason on a waiting route. Used by the map tag (reason passed through main._push_routes_to_map and map.set_style) and the planet ship row. route_engine.gd untouched.",
+    "tests": "TOTAL pass=742 fail=1 (known sys2 Quillon failure). 6 new reason checks.",
+    "not_checked_visually": "Longer reason text width on the route tag and ship row."
+  },
+  "buy_chain": {
+    "flow": "Buy on -> main.pending={planet,c} so the next planet click sends the stock (send_stock_buying) -> sell offer (Yes/No) at the destination. Buy off clears nothing new. Esc (main.cancel_chain) clears pending and sell_offer together; buy order and made routes stay. Send button moved from the Buy/Sell row into the storage row of its good (SendButton_<c>, before the NextCycle label).",
+    "tests": "TOTAL pass=749 fail=1 (known sys2 Quillon). New: Buy sets pending, Esc keeps buy order, Esc clears pick + offer, planet click after Buy makes route, Send button on storage row. Old 'Buy alone leaves no pending' check changed.",
+    "unclear": "Pressing Esc with a pending chain no longer opens the game menu (same as before for pending). If the player clicks a planet that cannot take the send, the pick stays open as before. Send now shows for every stored good, including goods the planet does not trade.",
+    "not_checked_visually": "Storage row width with the Send button and NextCycle label; where the pending hint shows after Buy."
+  },
+  "route_grace_aa": {
+    "grace": "main.idle_cycles (route id -> consecutive idle cycles, runtime only, not saved) updated in _end_cycle; main.display_status() returns running for stalled/waiting until 2 idle cycles; blocked at once. Used by the map lines and by the panel ship rows. NOT_ROUTE_STALLED first-cycle notice untouched. After a load the counters start at 0 (grace again).",
+    "aa_cause": "Line shader computed the strip side as normalize(cross(tangent, view ray)); when a line is seen end-on that is zero, giving NaN and a vanished or flickering strip (dashed/waiting and solid alike). Added a fixed-axis fallback in the shader and a GDScript mirror route_line.side_vector. Chevron arms use world-fixed offsets and were not changed; art/route PNGs are not used by this shader.",
+    "tests": "TOTAL pass=757 fail=1 expected (known sys2 Quillon); see run output. Headless cannot render the shader: the test checks the mirrored side vector and that the shader has the fallback, not the pixels.",
+    "not_checked_visually": "All of the angle fix (the cause is from reading the shader, not from seeing it), dashed look, chevron at extreme angles."
+  },
+  "panel_fixes": {
+    "changed": "Abundant/Shortage line removed. Cluster line shows WORLD_CL_<key>_NAME (generic fallback LBL_CLUSTER_GENERIC 'Asteroid cluster' for event clusters), same near-planet rule, same Prospecting hint. Row prices: two small chips (cash icon + number, tooltip LBL_BUY_PRICE / LBL_SELL_PRICE), names no longer clipped, min width 70.",
+    "tests": "Full suite run, see final totals in the summary; known sys2 Quillon failure stands.",
+    "not_checked_visually": "Whether names fit at panel width 320 (set no-clip and min width 70, not measured); whether two cash icons make buy vs sell clear (order is buy then sell, tooltip tells which)."
+  },
+  "removals_late": "Cluster line, free-ship hint block and 'Storage empty' line removed from the planet panel; free-ship count and Send to... note moved to the ships window (ship_panel.free_label). Map tag and route row reasons unchanged. Main resources row (icons with numbers) removed from the header.",
+  "price_on_buttons": "Price chips removed. Buy and Sell buttons read 'Buy 10' / 'Sell 8' with the cash icon; Stop buying keeps its text. Tooltips start with Buy price: N / Sell price: N. Names keep min width 70, no clip. Button widths not checked by eye.",
+  "sell_offer_on_map": "Prompt is now main.sell_offer_box, a PanelContainer child of main placed each frame above the destination planet (camera.unproject_position, lifted 40 px, clamped to the window), hidden when the planet is off screen. Same Yes/No, Esc, click-away and applies rules. Removed from the planet panel. Not checked by eye: position, overlap with planet name or other planets, readability at default zoom.",
+  "send_size": "Buy and Send buttons share ACTION_BTN_MIN (104x28) and ButtonSmall in planet_panel.gd. Storage row fit at width 320 and the look not checked by eye."
+}

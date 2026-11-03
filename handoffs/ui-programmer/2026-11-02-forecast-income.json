@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-02",
+  "task": "forecast-income",
+  "status": "done",
+  "files_changed": [
+    "game/cash_forecast.gd",
+    "game/route_engine.gd",
+    "tools/tests/run_tests.gd",
+    "goals/owner-feedback-2026-11-02/blackboard.json",
+    "handoffs/ui-programmer/2026-11-02-forecast-income.json"
+  ],
+  "cause": "Main-session diagnosis refined: routes have no gross field (payout_of is only -cost). Route income is the Sell order at the destination, run by settle() after the routes. Old forecast priced Sell orders on current storage (empty), so +0, and missed delivered goods.",
+  "change": "New read-only RouteEngine.forecast(cash) mirrors settle order on a scratch stock (buys, routes, sells, mixed bonus, upgrade bonus, stop sale, split, Space Storage). cash_forecast uses it for order lines, net_forecast, route expenses and After cycle. Added route_income_lines (upgrade bonus and stop sale). Zero Sell lines with 'Storage empty' are hidden from Income; other zero lines keep their reason. settle() untouched.",
+  "tests": "TOTAL pass=764 fail=1 (sys2 Quillon). New _test_forecast_income: 7 checks, forecast equals settle delta, also with an upgraded lane; popup income minus expenses equals the top-bar delta; forecast changes no stock.",
+  "not_checked_visually": "Popup layout with the new income lines; top-bar delta text. Approximation: a cluster shared by several ships is not split in the forecast. Git not used.",
+  "open_questions": [
+    "gameplay-programmer: forecast() was added to game/route_engine.gd (new function only); please review and own it."
+  ]
+}

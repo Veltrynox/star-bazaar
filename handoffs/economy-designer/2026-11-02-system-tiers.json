@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "agent": "economy-designer",
+  "date": "2026-11-02",
+  "task": "system-tiers",
+  "status": "partial",
+  "files_changed": [
+    "data/planets.json",
+    "goals/owner-feedback-2026-11-02/blackboard.json"
+  ],
+  "open_questions": [
+    "UNKNOWN: events EV tagged Tillam silk (up, down), Voltara silk, Voltara chips, Ashgate chips now hit goods those planets no longer trade; text cannot change in this task. Needs retarget (system 2 planets for silk) or removal. Game behaviour on a missing price key is UNKNOWN.",
+    "Game reads system 2 prices from data/systems.json (no goods there today); tools/system2.json is sim only. Until systems.json gets the silk/ore rows below, silk and chips are untradable in the game. Chips have no home until system 3 exists (on hold, new planets need owner approval).",
+    "Owner call: ore stays at Voltara in system 1 (judgement: raw good). Alternative: mining_clusters_s1 = 0 and mining only in system 2, which kills skill B1 until the permit."
+  ],
+  "handoff": "System 1 now trades energy, food and ore (Voltara only). Silk and chips removed from system 1; energy/food prices and abundant/scarce unchanged. Sim (200 seeds, --goods): decent median 24 before and after; mining_focus 29 and 52% before and after; always_expand+C1 median 23 (was 21, now meets the 22 floor); losers still lose. Systems.json and system2.json edits are listed in details for the owner/programmer.",
+  "details": {
+    "tier_design": {
+      "system_1": "energy, food (basic) + ore at Voltara only. Ore is the rawest good, so keeping it here keeps the 2 clusters and skill B1 usable; every planet keeps energy/food routes.",
+      "system_2": "adds silk (luxury, first advanced) and ore (3 clusters). Silk is a trade, not a mined good, so it needs a developed market: system 2.",
+      "system_3": "UNKNOWN, on hold. Draft: chips (tech) plus silk at highest price, ore at highest price. Not applied: no system 3 entry anywhere (systems.json says on hold)."
+    },
+    "planets_json_changes": {
+      "planet_1 Voltara": {
+        "removed": {
+          "silk_sell": 30,
+          "chips_buy": 16,
+          "chips_sell": 14
+        },
+        "kept": "energy/food unchanged, ore_sell 11"
+      },
+      "planet_2 Tillam": {
+        "removed": {
+          "silk_buy": 20,
+          "silk_sell": 18,
+          "chips_sell": 20
+        },
+        "kept": "energy/food unchanged"
+      },
+      "planet_3 Ashgate": {
+        "removed": {
+          "silk_sell": 24,
+          "chips_sell": 26,
+          "ore_sell": 6
+        },
+        "kept": "energy/food unchanged"
+      },
+      "abundant_scarce": "no change (fields cover energy and food only)",
+      "data_version": "6 -> 7"
+    },
+    "proposed_system2_goods_for_systems_json_and_tools_system2_json (not applied, outside allowed files)": {
+      "s2_p1": {
+        "add": {
+          "silk_buy": 24,
+          "silk_sell": 22
+        }
+      },
+      "s2_p2": {
+        "add": {
+          "silk_sell": 32,
+          "ore_sell": 16
+        },
+        "remove_from_sim_file": "chips_buy 18, chips_sell 16"
+      },
+      "s2_p3": {
+        "add": {
+          "silk_buy": 26
+        },
+        "remove_from_sim_file": "chips_sell 36"
+      },
+      "s2_p4": {
+        "add": {
+          "silk_sell": 40,
+          "ore_sell": 12
+        },
+        "remove_from_sim_file": "chips_sell 38 (silk_sell was 48)"
+      },
+      "routes": "silk p1->p4 16, p1->p2 10, p3->p4 14, p3->p2 6; ore from clusters to p2 16, p4 12. Every S2 planet keeps energy/food routes."
+    },
+    "sim_before_after_200_seeds_events_goods": {
+      "decent no skills": {
+        "before": "win 98%, 21/24/30, no-event win 23 cash 8729",
+        "after": "same"
+      },
+      "mining_focus": {
+        "before": "52%, 27/29/30",
+        "after": "same"
+      },
+      "decent B1 only": {
+        "before": "98%, 23/25/30",
+        "after": "same"
+      },
+      "decent full tree": {
+        "before": "100%, 22/23/24",
+        "after": "100%, 23/23/25"
+      },
+      "always expand+C1": {
+        "before": "100%, 20/21/27",
+        "after": "100%, 22/23/29"
+      },
+      "sloppy / always expand / never expand": {
+        "before": "0% win",
+        "after": "0% win"
+      },
+      "basic goods only (no --goods)": "decent 98%, 21/24/30; always expand 0%; always expand+C1 median 24; unchanged"
+    },
+    "dominance": "No planet or system dominant: mining still slower than decent; system 2 silk margins 6-16 stay below energy/food margins 23; always_expand+C1 no longer wins before cycle 22. System 1 wins on basic goods alone (decent identical without --goods).",
+    "balance_json": "unchanged",
+    "sim_note": "Results from a scratch copy with modified planets.json and tools/system2.json; the repo tools/system2.json still holds the old chips/silk rows."
+  }
+}

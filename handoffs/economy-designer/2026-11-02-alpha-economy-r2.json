@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "agent": "economy-designer",
+  "date": "2026-11-02",
+  "task": "alpha-economy-r2",
+  "status": "done",
+  "files_changed": [
+    "data/balance.json",
+    "tools/sim.py",
+    "handoffs/economy-designer/2026-11-02-alpha-economy-r2.json",
+    "goals/owner-feedback-2026-11-02/blackboard.json"
+  ],
+  "open_questions": [
+    "OWNER: ship_cap 5 (was 24 by 2026-10-27 decision, 6 in r1) is a design decision the owner must approve; it is the real limiter, not a backstop.",
+    "UNKNOWN: mirror decent is far better than real (mirror 90% vs real 1 of 8 at cap 6). Real decent and always_expand end-cash distributions match each other (bleed to ~100-2000), so the real decent bot overbuys like always_expand; the mirror does not reproduce that. Cap 5 is a hedge, not proven.",
+    "If QA decent still wins under 6 of 8: gameplay-programmer to find why the real late game earns less than the mirror (ships 5 at cycle 15-20 vs mirror 13-16)."
+  ],
+  "handoff": "Chose option 1 (cap), tightened: ship_cap 6 to 5, win_cash 11500 to 12500, data_version 25. A buy gate was modelled in sim (buy_gate key, sim-only) and rejected: gate 300-500 at cap 6 lets always_expand win 99-100% and shifts cash at cycle 3 off 276; at cap 24 no strategy wins (12 ships, cash ~1000). So no code change is requested. Mirror 100 seeds: decent 98% median 26, always_expand 65%, sloppy and never_expand 0%, cash row 3 = 276, ship 3 median cycle 10. mining not tuned.",
+  "details": {
+    "options": [
+      "A accept cap (chosen, cap 5)",
+      "B buy gate keeping working capital: rejected by sim (see handoff)",
+      "C maintenance up: rejected, moves cash at cycle 3 off 276"
+    ],
+    "changes": [
+      {
+        "file": "data/balance.json",
+        "key": "ship_cap",
+        "old": 6,
+        "new": 5,
+        "reason": "less overbuy bleed; cap 5 mirror decent 98%"
+      },
+      {
+        "file": "data/balance.json",
+        "key": "win_cash",
+        "old": 11500,
+        "new": 12500,
+        "reason": "keeps always_expand at 65% (cap 5 raises it) and decent median 26"
+      },
+      {
+        "file": "data/balance.json",
+        "key": "data_version",
+        "old": 24,
+        "new": 25,
+        "reason": "bump"
+      }
+    ],
+    "sim_before_cap6_win11500": "decent 90% med 26, always_expand 34%, sloppy 0, never_expand 0 (real QA: decent 1/8, AE 3/8, mining 1/8)",
+    "sim_after_cap5_win12500": "decent 98% med 26 (20-30), always_expand 65% med ~25, sloppy 0%, never_expand 0%, row3 276, ship3 median 10",
+    "sim_other_variants": "cap4 win12000 decent 98% AE 84%; cap5 win13000 decent 98% AE 63%; cap5 trip95 decent 82% ship3 13; maintenance 90/120 breaks cycle-3 cash",
+    "sim_tool": "tools/sim.py: sim-only key buy_gate via --set=buy_gate=N (default 0, no effect on balance.json)",
+    "qa_run": "Repeat Alpha round 1 flags exactly: fast clock, seeds 1-8; decent --skip-skill=B1 --permit=2; mining_focus --permit=2; always_expand --skip-skill=B1 --skill-order=C1,C3,A1,A2 --permit=2; never_expand and sloppy no permit. Check decent >=6/8 wins at 22-29, row3 cash 276, ship3 by 13 in 6/8, AE <=5/8.",
+    "save_compat": "no keys added or removed; saves with more than 5 ships keep them but cannot buy more",
+    "owner_approval": "Yes: cap 5 needs owner approval (reverses the 2026-10-27 'cap is a backstop' intent)."
+  }
+}

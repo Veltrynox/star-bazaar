@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "agent": "galaxy-builder",
+  "date": "2026-11-02",
+  "task": "pack-size",
+  "status": "done",
+  "files_changed": [
+    "game/galaxy/asteroid_packs.gd",
+    "game/map.gd",
+    "goals/owner-feedback-2026-11-02/blackboard.json"
+  ],
+  "open_questions": [
+    "UNKNOWN: on-screen look not seen (no windowed run); pack width vs planet and rock dot size unchecked by eye.",
+    "UNKNOWN: whether a 0.3 world-unit click target feels right for the small packs."
+  ],
+  "handoff": "Pack spread scaled by new export pack_scale 0.25 (pack radius 0.9 -> 0.225 world; planet radius is about 1.04). rock_min 0.05->0.0125, rock_max 0.16->0.04. Placement seeds, cluster data, thinning unchanged (rng call order same; positions are scaled only). map.gd pick_cluster now uses max(radius*pack_scale, CLUSTER_PICK_MIN=0.3); it runs only after planet pick misses, and packs have no collision, so planet clicks are not blocked. Tests: TOTAL pass=749 fail=1 (known sys2 Quillon).",
+  "details": {
+    "exported_values": {
+      "pack_scale": 0.25,
+      "rock_min": 0.0125,
+      "rock_max": 0.04
+    },
+    "new_const": {
+      "map.gd CLUSTER_PICK_MIN": 0.3
+    },
+    "tests": "TOTAL pass=749 fail=1"
+  }
+}

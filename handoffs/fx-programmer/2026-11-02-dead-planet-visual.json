@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "agent": "fx-programmer",
+  "date": "2026-11-02",
+  "task": "Dead planet visual (Cinderrest dead_1, Greywake dead_2): inverse fresnel",
+  "status": "done",
+  "files_changed": [
+    "art/planet_fx/planet_sphere_dead.gdshader",
+    "art/planet_fx/planet_sphere_dead_material.tres",
+    "art/planet_fx/planet_sphere.gd",
+    "art/textures/planets/planet_toxic_beauty.png.import (made by headless import; the png had none, so load() failed)",
+    "tools/tests/run_tests.gd (_test_dead_planets)",
+    "goals/owner-feedback-2026-11-02/blackboard.json"
+  ],
+  "shader_parameters": {
+    "surface_tex": "planet_toxic_beauty.png",
+    "key_dir": "object-space sun dir, set by aim_sun",
+    "uv_shift": "0..1 turn of the map (dead_1 0.0, dead_2 0.45)",
+    "hue_shift": "turns (dead_1 0, dead_2 -0.06)",
+    "saturation": "dead_1 1.0, dead_2 0.55",
+    "brightness": "dead_1 1.0, dead_2 0.9",
+    "shadow_ambient": 0.006,
+    "term_soft": 0.3,
+    "limb_dark": "0.92 absorbed at the edge",
+    "limb_power": "2.2 falloff (higher = thinner dark band)",
+    "rim_color": "warm grey",
+    "rim_strength": "0.10 (dim, no HDR)",
+    "rim_width": "0.08 of 1-N.V"
+  },
+  "wired": "planet_sphere.gd: planet_type 'dead' or id starting 'dead_' swaps to the dead material in _ready (own copy per planet), sets texture and per-id variant (DEAD_VARIANTS), hides Atmosphere/Glow/Streaks/Clouds/Ring. map._make_planet and add_planets already build any planet from data, so aim_sun, visibility per system and pick_planet (index maths on positions) work with no change to map.gd or galaxy_view.gd.",
+  "waits_for_data": "data/planets.json / system data has no dead_1 or dead_2 yet. When the gameplay programmer adds them with x, y, system 1 and 2, they appear with the right look if the id is dead_1 / dead_2 or type is 'dead' (the type also needs a row in planet_types.json for abundant/scarce, and a galaxy_view thumb ui_thumb_dead is optional, it falls back to a coloured disc). Position comes from the data row (x,y) as for the other planets; I added no position function.",
+  "tests": "Full suite TOTAL pass=832 fail=8. New 'dead planets' 9 checks all pass (shader loads, nodes made, texture and shader per planet, no atmosphere, two worlds differ, others keep simple shader, both picked in their system). Test adds stand-in rows for dead_1/dead_2 to a test map. The 8 failures are not mine: Quillon sys2 (known), 6 'events: tag parses' for EV30/31/33/34/36/37 (story events name Cinderrest/Greywake, planets not in data yet) and 'banners: art/event_banners missing for the new events'.",
+  "not_checked": [
+    "Shader not compiled on a GPU (headless has no renderer): GLSL syntax read by eye only.",
+    "Not seen by eye: limb darkness width, rim visibility at map size, Greywake difference, texture seam after uv_shift. Tune limb_dark, limb_power, rim_strength first.",
+    "Edge blur (screen space) applies to dead planets too, as for the others."
+  ],
+  "cost": "one sphere mesh (128x64), one draw call per dead planet, no extra shells; texture planet_toxic_beauty.png already in repo."
+}

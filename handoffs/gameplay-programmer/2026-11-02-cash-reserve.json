@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-02",
+  "task": "cash-reserve",
+  "status": "done",
+  "files_changed": [
+    "game/route_engine.gd",
+    "tools/tests/run_tests.gd",
+    "goals/owner-feedback-2026-11-02/blackboard.json",
+    "handoffs/gameplay-programmer/2026-11-02-cash-reserve.json"
+  ],
+  "rule": "Before each Buy order, settle() and forecast() compute a reserve: the fixed cost (trip + upkeep) of every route that will run, taken in list order while the cash still covers it. A route counts only if both planets are open, the destination has room, and the source holds stock or an active Buy order feeds it. The Buy spends only cash above the reserve: it buys what it can fund (floor((cash - reserve)/price) units), or none when that is 0 (state Not enough cash). Routes that cannot run reserve nothing. Order of settle, prices, events, balance keys unchanged. Code: RouteEngine.route_reserve(cash, amt), _buy_feeds. FIX (QA v3 deadlock, cause confirmed by reading: a Buy-fed route reserved even when the Buy could not afford one unit after the reserve, so the Buy bought nothing and the route never ran): a route with no stock now reserves only if the feeding Buy can pay one unit out of cash minus this and earlier reserves (_buy_feeds(planet,c,afford)); otherwise it reserves 0 and the Buy spends freely, so stock arrives and the route runs next cycle.",
+  "tests": "After fix: TOTAL pass=779 fail=1 (sys2 Quillon). Weak no-stock check split into separate checks; added feeding-Buy-buys-nothing reserves 0, can-buy-one reserves fixed, cash 250 deadlock case (Buy buys or route runs, forecast equals settle, next cycle route runs).",
+  "not_measured": "Pacing. tools/sim.py has no settle model, so the effect on the decent baseline (22-26 cycles) is unmeasured. Reserve is conservative: a route fed by a Buy reserves even if the Buy ends up buying 0; reserve ignores split and cluster budgets and Sell income that arrives later in the cycle. Not played by hand. Deadlock fix not re-run through QA/sim; owner pacing re-check still needed.",
+  "economy_recheck": "Re-run pacing: Buys shrink in cash-tight cycles (early, with 1-2 routes), route trips keep running. Expect small effect, likely slightly faster. Check decent baseline stays 22-26 cycles, especially cycles 3-8.",
+  "open_questions": [
+    "Should a Buy that is cut show a note (e.g. 'Kept cash for routes') instead of buying fewer silently? Not built."
+  ]
+}

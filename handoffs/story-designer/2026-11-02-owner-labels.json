@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-11-02",
+  "task": "owner-labels",
+  "status": "done",
+  "files_changed": [
+    "story/screens.md",
+    "data/story_text.json",
+    "goals/owner-feedback-2026-11-02/blackboard.json"
+  ],
+  "open_questions": [
+    "Legend names use the good names (Starsilk, Logic Cores, Rock Ore), not the fallbacks Silk/Chips/Ore. Owner may prefer short."
+  ],
+  "handoff": "All 15 ids written in story/screens.md and built. Texts match code fallbacks except: row second caption 'Opens after...', NOT_CLUSTER_ONLY_ORE 'A cluster gives ore only.', legend uses good names. Nothing for the programmer to rewire; game already reads these ids. Ids not written: none.",
+  "details": {
+    "texts": {
+      "LBL_SKILLS_ROW_FIRST": "Start here",
+      "LBL_SKILLS_ROW_SECOND": "Opens after Space Storage and Permit Charter",
+      "LBL_LOCKED_FIRST_ROW": "Learn Space Storage (A1) and Permit Charter (C1) first.",
+      "LBL_CLUSTER_NAME": "Asteroid cluster {id}",
+      "LBL_CLUSTER_LEFT": "Ore cluster {id}: {left} of {max} left",
+      "LBL_CLUSTER_INFO": "{good}: {yield} per cycle, {left} of {max} left.",
+      "LBL_CLUSTER_INFO_YIELD": "{good}: {yield} per cycle.",
+      "NOT_MINING_NEEDS_SKILL": "Mining needs the Prospecting skill.",
+      "NOT_CLUSTER_ONLY_ORE": "A cluster gives ore only.",
+      "NOT_CLUSTER_EMPTY": "This cluster is empty.",
+      "ST_CLUSTER_EMPTY": "Cluster empty",
+      "ST_CLUSTER_SHARED": "Ore taken by another ship",
+      "LBL_LEGEND_SILK": "Starsilk route",
+      "LBL_LEGEND_CHIPS": "Logic Cores route",
+      "LBL_LEGEND_ORE": "Rock Ore route"
+    },
+    "build_output": "story_text.json: 346 entries; events.json: 25 events; skipped: 0",
+    "unwritten": []
+  }
+}

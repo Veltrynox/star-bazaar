@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "agent": "fx-programmer",
+  "date": "2026-11-02",
+  "task": "Decorative asteroid dust ring (GPU MultiMesh)",
+  "status": "done",
+  "files_changed": [
+    "art/planet_fx/asteroid_dust_ring.gd",
+    "art/planet_fx/asteroid_dust_ring.gdshader",
+    "game/map.gd",
+    "tools/tests/run_tests.gd"
+  ],
+  "open_questions": [
+    "Owner to check by eye: look, density, gap visibility, 7 rings fitting in small systems, frame time."
+  ],
+  "handoff": "Round 2: 7 rings per system (max 7, MAX_RINGS), all in one MultiMesh, 3000 grains = 6000 triangles, 1 draw call. map.gd shares the gaps between orbit lines (10% margin) among the 7 rings; each ring takes a seeded 25-90% of its slot (thin to wide) and has 1-3 seeded gaps of 0.4-1.6 rad; grains are bell-distributed so bands thin at the edges. Speed is per band so gaps keep their shape. Tests: 'dust ring' checks now include <=7 rings, differing widths, gaps, clear of orbits. Full suite TOTAL pass=817 fail=1 (known sys2 Quillon). Shader not compiled (headless). Round 3: grain size 0.0072-0.018 (60% of before), count 8000 = 16000 triangles, alpha 0.3; grains thin over 0.3 rad beside each gap so gaps stay visible. Same 7 rings, widths, gaps. Suite TOTAL pass=817 fail=1 (known Quillon). Round 4: orbit_speed 0.05 -> 0.01 rad/s at the reference radius (lap 126 s -> 628 s); per-grain variation and gaps unchanged. Round 5: orbit_speed 0.01 -> 0.001 rad/s (lap 628 s -> 6283 s, about 105 min); all else unchanged. Round 6: orbit_speed 0.001 -> 0.002 (lap about 52 min). Added Voltara planet belt (map.gd _add_planet_belt, node PlanetBeltVoltara): 2 broken bands at 1.5-1.8 and 2.0-2.4 planet radii (about 1.56-1.87 and 2.08-2.5 world units), 1500 grains = 3000 triangles, 1 draw call, no collision. No event names a belt around Voltara; matched EV28 (Voltara's foundry wants rock) as the closest, EV19/EV20 are asteroid events not tied to Voltara. Belt radius is set at build time from planet_radius(); it will not follow the debug planet size change. Suite TOTAL pass=824 fail=1 (known Quillon).",
+  "details": {
+    "count": 8000,
+    "triangles": 16000,
+    "rings": 7,
+    "grain": [
+      0.0072,
+      0.018
+    ],
+    "lap_seconds": {
+      "old": 6283,
+      "new": 3142
+    },
+    "voltara_belt": {
+      "grains": 1500,
+      "triangles": 3000,
+      "radii_in_planet_radii": [
+        [
+          1.5,
+          1.8
+        ],
+        [
+          2.0,
+          2.4
+        ]
+      ]
+    }
+  }
+}

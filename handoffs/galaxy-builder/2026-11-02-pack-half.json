@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "agent": "galaxy-builder",
+  "date": "2026-11-02",
+  "task": "pack-half",
+  "status": "done",
+  "files_changed": ["game/galaxy/asteroid_packs.gd", "goals/owner-feedback-2026-11-02/blackboard.json"],
+  "open_questions": ["UNKNOWN: on-screen look not seen (no windowed run); rock dots may be near sub-pixel at far zoom.", "UNKNOWN: whether packs at 0.1125 world radius still read as clusters."],
+  "handoff": "Packs halved again. pack_scale 0.25 -> 0.125 (pack radius 0.225 -> 0.1125 world), rock_min 0.0125 -> 0.00625, rock_max 0.04 -> 0.02. Placement seeds, rng order, thinning, data unchanged. map.gd CLUSTER_PICK_MIN stays 0.3: pick radius was already clamped to 0.3 (0.225 < 0.3), so the click target is unchanged. No test checked the old values.",
+  "details": {
+    "old": {"pack_scale": 0.25, "rock_min": 0.0125, "rock_max": 0.04},
+    "new": {"pack_scale": 0.125, "rock_min": 0.00625, "rock_max": 0.02},
+    "CLUSTER_PICK_MIN": 0.3
+  }
+}

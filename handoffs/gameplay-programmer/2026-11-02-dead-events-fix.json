@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-02",
+  "task": "dead-events-fix",
+  "status": "done",
+  "files_changed": [
+    "tools/build_story.py",
+    "game/events.gd",
+    "tools/tests/run_tests.gd",
+    "data/events.json",
+    "data/story_text.json",
+    "goals/owner-feedback-2026-11-02/blackboard.json"
+  ],
+  "open_questions": [
+    "EV29 MINE should also raise danger, EV32 SHORE cost credits, EV32 CARRY risk load loss, EV35 change dead-world income: a choice carries one tag, so these effects are not applied yet. Build a second effect key per choice?",
+    "EV35 fires with on_mine 'both': on the next first mining after EV29 and EV32 have both fired. Confirm this rule.",
+    "Five tests fail on the economy retune (skill_cost M1/M2/F1 now 1/2/2, fabric_build_cost 1000): tests still expect 2/3/3 and 1500."
+  ],
+  "handoff": "EV29, EV32, EV35 are now generated into data/events.json (choices, follow_id, follow_after 4, on_mine dead_1/dead_2/both); skipped 0. Part 2 events carry random:false and the picker (scheduled_only) honours any random:false event. New test _test_dead_events_chain covers data, no random pick over 600 picks, EV29 on first mining of Cinderrest, EV31 at +4 cycles, once only. Suite pass=898 fail=7: Quillon, missing banners (9 events now), 5 stale-balance tests (dead skills costs, fabric x4). Note: I ran git stash by mistake mid-session; it regenerated .import files for assets/asteroid_asset via godot --import (new untracked .import files)."
+}

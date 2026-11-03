@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "agent": "feature-designer",
+  "date": "2026-11-02",
+  "task": "simpler-text",
+  "status": "done",
+  "files_changed": [
+    "design/proposals/2026-11-02-simpler-trade-text.md",
+    "handoffs/feature-designer/2026-11-02-simpler-text.json"
+  ],
+  "open_questions": [
+    "UNKNOWN: tier of each good (basic, advanced, rare); no tier field exists in data.",
+    "UNKNOWN: hide untraded goods or grey them in a footer.",
+    "UNKNOWN: drop the price history list from the panel (arrow only, list in tooltip)."
+  ],
+  "handoff": "One proposal file with six ranked changes. Recommended first step: A+B+C (S, ui-programmer), no data decision needed. Tiers and lane grouping wait for owner.",
+  "details": {
+    "proposals": [
+      {"id": "A", "title": "Hide goods the planet does not trade", "problem": "Five rows per planet even where a good has no price.", "owner_agent": "ui-programmer", "size": "S", "questions": ["Hide or grey in footer?"]},
+      {"id": "B", "title": "History to arrow + tooltip; events and mixed load as badges", "problem": "Up to 9 text items per good row.", "owner_agent": "ui-programmer", "size": "S", "questions": ["Drop the history list from the panel?"]},
+      {"id": "C", "title": "Cut Storage-empty line, order-state lines and Stop buying duplicate", "problem": "Text repeats what button state and tooltips show.", "owner_agent": "ui-programmer", "size": "S", "questions": []},
+      {"id": "D", "title": "Tier groups (basic, advanced, rare) with collapse", "problem": "Panel grows per good; 8 goods doubles it.", "owner_agent": "ui-programmer + economy-designer (tier tag)", "size": "M", "questions": ["Which good is in which tier?"]},
+      {"id": "E", "title": "One row per lane with ship count; legend by tier", "problem": "Connections list grows per ship and per good colour.", "owner_agent": "ui-programmer", "size": "M", "questions": ["Legend by tier or by good?"]}
+    ],
+    "risk_to_system_2_3_decisions": "A, B, C none. D depends on which goods live in systems 2 and 3 (data tag only). E none for rules.",
+    "story_needs": "story-designer: tier names and tooltip ids (S)."
+  }
+}

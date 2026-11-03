@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-02",
+  "task": "alpha-r3",
+  "status": "done",
+  "files_changed": [
+    "tools/tests/run_tests.gd",
+    "goals/owner-feedback-2026-11-02/blackboard.json"
+  ],
+  "open_questions": [
+    "QA-analyst: the bot's _buy_wanted needs cash >= fixed_cost + price before it turns a Buy on; that rule, not the game, made decent seed 7 idle. Loosen it to price only (the engine already protects the reserve)?"
+  ],
+  "handoff": "Seed 7 idle: only Sell orders (4 flags, no Buy). The bot's own Buy rule (cash >= trip + price, with fixed_cost for one route) kept every Buy off at cash 104. Not a real-player softlock: route_reserve already gives 0 for routes with no stock and no feeding Buy, so an empty Sell order holds no cash; one Buy click with cash above one unit buys. No game code changed. Test added.",
+  "details": {
+    "cause": "Replay on the current tree (data_version 25 plus uncommitted tuning) no longer idles in seeds 1-8 (decent), so the exact round-2 state could not be dumped. From the bot code: _apply_orders adds a Buy only when _buy_wanted is true (stock < units and cash >= fixed_cost + price); Sell is always on at lane ends. issue text counts buy+sell flags, 4 flags with 4 routes = 4 Sell orders. Round 2 cash stayed 104 from cycle 15.",
+    "real_player": "No. Reserve skips routes with no stock and no feeding Buy (route_engine.route_reserve), so cash 104 is not held. A Buy at the source needs only afford >= one unit price (after reserve 0). Manual trade also works. Only stuck if cash is below the cheapest unit price, which is a loss-state rather than a bug.",
+    "fix": "none in game code; reserve protection and forecast==settle unchanged",
+    "test": "tools/tests/run_tests.gd _test_sell_only_idle: 6 checks (empty Sell holds no reserve, nothing moves with forecast==settle, one Buy at cash trip+price-1 or less moves stock, forecast==settle).",
+    "test_output": "TOTAL pass=809 fail=1 (only known sys2 Quillon: none/both add no commodity beyond the five goods)"
+  }
+}

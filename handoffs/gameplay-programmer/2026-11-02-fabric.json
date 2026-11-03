@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-02",
+  "task": "fabric",
+  "status": "done",
+  "files_changed": [
+    "game/fabric.gd (new)",
+    "game/main.gd",
+    "game/space_storage_view.gd",
+    "data/balance.json (v27)",
+    "data/planets.json (v10)",
+    "tools/tests/run_tests.gd",
+    "goals/owner-feedback-2026-11-02/blackboard.json"
+  ],
+  "recipe": "2 dross + 1 nullglass -> 1 plate per batch, 1 batch per cycle. Balance keys fabric_in_dross 2, fabric_in_nullglass 1, fabric_out_plate 1, fabric_batches_per_cycle 1.",
+  "costs": "fabric_build_cost 1500 (balance.json, source line in the v27 source text), paid once via main.build_fabric(); needs F1 and the system 1 station.",
+  "trading_post": "No separate trading post exists. The system 1 space station (Space Storage, built with A1, the 'post' in trade_gate) is used as the trading post. The fabric works on the system:1 storage (inputs from it, plates into it). Dross and nullglass reach it by sending goods to the station.",
+  "plate_prices": "plate_buy 60 and plate_sell 48 added to planet_1 (Voltara) base_prices in planets.json: placeholders. Plate is a commodity everywhere via the planet price pattern; plates in Space Storage sell through a normal Sell order at Voltara (planet storage first, station covers the rest). Sold by hand through the order, not by the fabric, so the fabric moves no credits in a cycle and forecast equals settle (tested).",
+  "behaviour": "Stall reasons: 'needs dross', 'needs nullglass', 'storage full'. Runs in _end_cycle after settle and danger. Space Storage view (system 1, F1 learned) shows recipe, a Build button with cost, and status. New text ids with fallbacks: NOT_FABRIC_BUILT, SS_FABRIC, SS_FABRIC_BUILD; GOOD_PLATE_NAME for the name.",
+  "save_notes": "New key fabric {built, state, reason}; old saves load as not built. No field renamed. Adding plate to planet_1 changes the commodity list order only at the end; storage is keyed by name.",
+  "tests": "New _test_fabric (14 checks): refused before F1, refused without credits, builds and 1500 paid once, stalls on dross and nullglass, runs with inputs, runs on the cycle tick, forecast delta equals settle delta, save and old save, plate sells. Full suite with private TMPDIR: TOTAL pass=885 fail=2 (was 867/2). Failures: sys2 Quillon commodity list (known, list now also shows plate) and banners for EV30 EV31 EV33 EV34 EV36 EV37.",
+  "economy_designer_must_set": [
+    "plate_sell and plate_buy (planets.json planet_1), real values",
+    "fabric_build_cost 1500 check",
+    "recipe amounts and batches per cycle",
+    "whether plates should sell at more places, and sim support for the fabric and plate"
+  ],
+  "open_questions": [
+    "Should the fabric sell plates by itself each cycle (then forecast must include it)?",
+    "Name for Lattice Plate (GOOD_PLATE_NAME) and an icon colour.",
+    "Is the system 1 station the trading post, or do you want a separate building?"
+  ],
+  "handoff": "Fabric built: F1 plus 1500 credits at the system 1 station, runs each cycle on Space Storage (2 dross + 1 nullglass -> 1 plate), stalls with a reason, plates sell via a Sell order at Voltara. Suite pass=885 fail=2 (known Quillon and banners)."
+}

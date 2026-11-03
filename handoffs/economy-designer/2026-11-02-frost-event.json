@@ -1,0 +1,58 @@
+{
+ "agent": "economy-designer",
+ "date": "2026-11-02",
+ "task": "frost-event",
+ "status": "partial",
+ "files_changed": [
+  "data/balance.json",
+  "handoffs/economy-designer/2026-11-02-frost-event.json",
+  "goals/owner-feedback-2026-11-02/blackboard.json"
+ ],
+ "schema_version": 1,
+ "cause": "No saturation or margin bonus is involved (game/route_engine.gd states there is no saturation rule). events.gd price_factor multiplies BOTH buy and sell by 1+pct. Real prices: Tillam sell 24*1.2=28.8 -> 29 vs Ashgate 27, only +2 per unit (+64 per 32-unit load, 7%), and Tillam buy rises to 34 too. So Tillam is above Ashgate on paper, but the edge is too small to motivate.",
+ "changes": [
+  {
+   "key": "event_pct_energy",
+   "old": "absent (energy used event_price_pct 0.2)",
+   "new": 0.35,
+   "reason": "Tillam frost sell 24*1.35=32 vs Ashgate 27: +5 per unit (+19%).",
+   "source": "owner feedback 2026-11-02; per-good pattern in game/events.gd pct()"
+  },
+  {
+   "key": "data_version",
+   "old": 22,
+   "new": 23,
+   "reason": "bump"
+  }
+ ],
+ "not_done": "4 cycles for EV05 only: event_price_cycles is a single global key, no per-event or per-good duration (events.gd price_cycles()). Same for pct: event_pct_energy applies to all six energy events (EV02-type up and down), not only EV05. Needs a code change (per-event pct/cycles field in events.json) if wanted; none added.",
+ "sim": {
+  "cmd": "python3 tools/sim.py --mc 200",
+  "baseline_v22": {
+   "decent mixed": "100% win, 20/22/27",
+   "decent B1": "98% 21/23/30",
+   "sloppy": "0%",
+   "always expand": "0%",
+   "never expand": "0%"
+  },
+  "energy_pct_0.35": {
+   "decent mixed": "100% win, 19/22/28 (min/median/max), no-event line cash 8890 win c21",
+   "decent B1": "98% 19/24/30",
+   "sloppy": "0% loss",
+   "always expand": "0% loss",
+   "never expand": "0% loss"
+  },
+  "energy_pct_0.35_plus_global_cycles_4_tested_not_kept": {
+   "decent mixed": "100% 19/22/30",
+   "decent B1": "96% 19/23/30",
+   "sloppy/always/never": "0%"
+  }
+ },
+ "dominance": "No. Frost lasts 3 of 30 cycles on one planet, no strategy flips to win; median unchanged at 22. Early tail 19 (was 20) is luck on events, listed below.",
+ "open_questions": [
+  "UNKNOWN: does owner want a per-event duration/pct field (code task for gameplay-programmer)? Without it, energy down events are also -35% and global 4 cycles would hit all events.",
+  "UNKNOWN: sim median 22 sits at the low edge of the 22-26 target and min 19 is earlier than 22; decent_mixed was already 22 before this change.",
+  "UNKNOWN: Tillam buy price also rises to 38 under frost; not changed."
+ ],
+ "handoff": "event_pct_energy 0.35 added (energy events only, up and down). Frost cycles stay 3 because duration is global; per-event keys need code. Sim pacing unchanged, no dominant strategy."
+}

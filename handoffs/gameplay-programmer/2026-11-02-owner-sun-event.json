@@ -1,0 +1,16 @@
+{
+  "agent": "gameplay-programmer",
+  "date": "2026-11-02",
+  "task": "owner-sun-event",
+  "status": "done",
+  "files_changed": ["game/events.gd", "tools/tests/run_tests.gd", "goals/owner-feedback-2026-11-02/blackboard.json"],
+  "schema_version": 1,
+  "event_id": "EV18 (Shade the sun / shield)",
+  "old_rule": "No min_cycle; eligible at the first event slot (cycle 5, then every event_interval=4).",
+  "new_rule": "Not picked before cycle 10, so first possible offer is cycle 13 of 30. Code default DEFAULT_MIN_CYCLE in game/events.gd; a min_cycle key in data/events.json overrides it. Also applies to B4 forecast (uses cycle+1).",
+  "why": "The shield only changes planets bought later (new systems via permit), so it is meaningless before the player has learned the economy and nears a permit. Third event slot gives roughly a third of the run first.",
+  "test_output": "sh tools/tests/run.sh: TOTAL pass=710 fail=0 (new check: events gate: sun event EV18 default gate). One 'Parse JSON failed' line in the log, does not fail a test.",
+  "save_compat": "No saved fields changed.",
+  "open_questions": ["UNKNOWN: cycle 10 is my pick; owner or designer may want a permit-based gate instead (needs a data/events.json or balance key).", "UNKNOWN: whether the 'Parse JSON failed' log line predates this change (not investigated)."],
+  "handoff": "Sun event EV18 now gated to cycle 10+ in game/events.gd. Test added to tools/tests/run_tests.gd. Suite 710 pass, 0 fail."
+}

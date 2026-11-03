@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "agent": "fx-programmer",
+  "date": "2026-11-02",
+  "task": "mute sun brightness, keep gain and opaque core",
+  "status": "done, not seen running",
+  "files_changed": [
+    "art/sun/sun_flare.gd",
+    "art/planet_fx/lens_glare.gd",
+    "tools/tests/run_tests.gd"
+  ],
+  "changes": {
+    "PLANE_GLOW": "0.9 -> 0.65 (sun_flare.gd, plane shells, halo/rays)",
+    "lens_glare strength": "0.1 -> 0.07 (halo, haze, rays, streaks, arc)",
+    "lens_glare ghost_strength": "0.07 -> 0.05"
+  },
+  "unchanged": {
+    "gain": "map.gd Environment.glow_intensity 0.8 treated as the gain",
+    "core": "CORE_VALUE 3.0, core radius, falloff, blend_add, no ALPHA written (alpha 1.0)",
+    "colour_shape": "hue, frames, geometry untouched"
+  },
+  "tests": "full suite pass=782 fail=1 (known sys2 Quillon); 3 new sun checks pass",
+  "not_checked": "Cannot see the running game: how calm the sun reads, whether the core still looks solid against the lower plane glow, glare strength at screen edges. hex_ring (warning light) not changed."
+}

@@ -1,0 +1,18 @@
+{
+  "agent": "ui-programmer",
+  "date": "2026-11-02",
+  "task": "zero-lines",
+  "status": "done",
+  "files_changed": [
+    "game/cash_forecast.gd",
+    "tools/tests/run_tests.gd"
+  ],
+  "schema_version": 1,
+  "open_questions": [
+    "Known sys2 Quillon test failure remains (not touched)."
+  ],
+  "handoff": "Cash forecast popup no longer lists lines worth 0 under Income or Expenses (new nonzero_lines filter applied in refresh only). Totals, After cycle, net_forecast and expenses_total are computed from the unfiltered lines, so unchanged. Expenses shows 'none' when no real costs. Stalled route reasons stay on the map and panel. Test added. Suite: pass=766 fail=1 (sys2 Quillon). Not checked by eye. No git run. route_engine.gd untouched.",
+  "screens_changed": [
+    "cash forecast popup (click top-bar money)"
+  ]
+}

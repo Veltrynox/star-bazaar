@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-02",
+  "task": "owner-feedback",
+  "status": "done",
+  "files_changed": [
+    "game/ui.gd",
+    "game/planet_panel.gd",
+    "game/space_storage_view.gd",
+    "game/skill_tree.gd",
+    "game/skill_screen.gd",
+    "tools/tests/run_tests.gd",
+    "art/textures/icons/good_silk.svg",
+    "art/textures/icons/good_chips.svg",
+    "art/textures/icons/good_ore.svg",
+    "goals/owner-feedback-2026-11-02/blackboard.json",
+    "game/main.gd"
+  ],
+  "items": {
+    "1_icons": "energy and food icons already existed in the theme (design/theme/icons). Added placeholder SVGs good_silk/chips/ore in art/textures/icons in the same 24px line style; Ui.icon falls back to them. New Ui.good_icon(c,px) is used in planet panel rows, company storage rows, Space Storage rows (panel and view). Main-resource strip and route rows already used Ui.icon, so they now show all five. Placeholders for the art director to replace. Not added: route legend (line swatches, not icons), ship panel (plain text lines), galaxy_view markers (galaxy area, they pick up icons automatically via Ui.icon).",
+    "2_planet_ui": "Each good row is now two lanes: lane 1 icon, name, 'Buy x  Sell y' compact numbers (unit 'cr' dropped, no data shown as a dash); lane 2 Buy, Send, Sell (plus Stop buying / Salvage when they apply), all small buttons. History, event, B3 and warning lines sit between, only when present.",
+    "3_skills": "skill_tree.gd: FIRST_ROW [A1,C1], in_first_row(), first_row_blocks(learned,id); state() and can_learn() lock others (why='first_row') until both learned. Learned skills stay learned, ids and saves unchanged. skill_screen.gd: row 1 A1 and C1, row 2 the other skills in branch columns, locked ones greyed, Learn disabled with reason line and tooltip. Existing permit-first and A1 gate rules kept, so A1 still needs C1.",
+    "4_followup": "B1 Prospecting moved to row 1 (FIRST_ROW A1,C1,B1; ROW_KEYS A1,C1 unlock row 2; BASIC B1 stays outside permit-first and the row lock so mining is still learnable at cycle 1). Skill points help line under the header in LabelSmall, fallback matches code: 1 per planet first used, 2 per new planet pair, 3 per new system (skill_screen.gd); story id LBL_SKILL_POINTS_HELP needs adding. Top-bar Expenses stat and expenses_label removed from main.gd; hud test updated. Suite (private TMPDIR): pass=818 fail=1, the known sys2 Quillon failure."
+  },
+  "new_story_ids_with_fallback": [
+    "LBL_SKILLS_ROW_FIRST",
+    "LBL_SKILLS_ROW_SECOND",
+    "LBL_LOCKED_FIRST_ROW",
+    "LBL_SKILL_POINTS_HELP"
+  ],
+  "tests": "sh tools/tests/run.sh with a private TMPDIR: TOTAL pass=717 fail=0 (two runs). Tests updated: next-cycle row child count 3->4 (icon), C4 state, B1 after C1 (now locked until A1), full-ending R set learns A1 first, plus new first-row checks. With the shared TMPDIR, concurrent runs by other agents made runs flaky (4 failures or truncated output).",
+  "not_checked_by_eye": "Nothing viewed. Panel minimum width 320: lane 1 (18px icon + name + 'Buy 120  Sell 140' in mono) and lane 2 (three small buttons) are reasoned to fit but not seen; Logic Cores name is clipped if tight. Icon look and tint, skill rows layout and scroll at default window size not seen. Git not used.",
+  "open_questions": [
+    "Story designer: add ids LBL_SKILLS_ROW_FIRST ('Start here'), LBL_SKILLS_ROW_SECOND ('Unlocks after Space Storage and Permit Charter'), LBL_LOCKED_FIRST_ROW ('Learn Space Storage (A1) and Permit Charter (C1) first.'); currently plain fallbacks.",
+    "Owner: A1 still needs C1 first (earlier permit-first decision). Keep?",
+    "Art director: replace placeholder good_silk/chips/ore SVGs."
+  ]
+}

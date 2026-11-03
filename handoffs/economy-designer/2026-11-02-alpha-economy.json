@@ -1,0 +1,101 @@
+{
+  "schema_version": 1,
+  "agent": "economy-designer",
+  "date": "2026-11-02",
+  "task": "alpha-economy",
+  "status": "done",
+  "files_changed": [
+    "tools/sim.py",
+    "data/balance.json",
+    "data/planets.json",
+    "handoffs/economy-designer/2026-11-02-alpha-economy.json",
+    "goals/owner-feedback-2026-11-02/blackboard.json"
+  ],
+  "open_questions": [
+    "OWNER: ship_cap 24 to 6 makes the cap the real limiter, not the shared order pools (owner 2026-10-27 called it a backstop). Cause: the QA bots buy a ship whenever cash >= price, cash after the buy is ~0, and the reserve (N routes x fixed cost) then starves every Buy. Accept 6, or ask the programmer for a smarter buy gate (keep working capital) and then raise the cap.",
+    "UNKNOWN: mirror is optimistic for mining_focus (v5 real end cash median 220, mirror 900). If QA mining wins 0 of 8, raise Voltara ore_sell 12 to 14 first.",
+    "UNKNOWN: rescue_stipend 1000 > ship_price 900 lets a bot buy a ship and be rescued (+1000) when stranded; left as is (cap 6 limits it). Old saves with more than 6 ships keep them but cannot buy more."
+  ],
+  "handoff": "Sim now mirrors settle + reserve + QA bot (python3 tools/sim.py --settle). Matches v5 real runs (cash row 3 = 198 in 24 of 24; ship 3 cycle exact 15 of 24, within 1 in 20). Tuned ship_cap 24 to 6, win_cash 8500 to 11500, trip_cost 95 to 90, Voltara ore_sell 11 to 12. Mirror 400 seeds: decent 91% median 26, mining 95% median 25, always_expand 35% median 26, sloppy/never_expand 0%. QA round 1 run below.",
+  "details": {
+    "sim_model": {
+      "command": "python3 tools/sim.py --settle [--mc N] [--seed S] [--only=a,b] [--set=key=value,...] | --trace=<strategy> | --compare <runs.jsonl>",
+      "mirrors": "route_engine.gd settle order: Buys (n = min(order, space, floor((cash - route_reserve)/price)), reserve = fixed cost of routes that will run, in list order, incl. _buy_feeds), routes (fixed cost paid from cash, stock moves src to dst, one ship per lane), Sells (min(order, stock), B3, Mixed load). main._check_stranded (rescue_stipend). Storage 100 per planet and good. Bot: tutorial ship, ranked lanes (profit*10 >= ship_price), buy ship when missing lanes > free ships and cash-price >= 0, permit at cash >= cost+400 with 3 points held, skill order, Buy order only if stock < 16 and cash >= fixed+price, cluster lanes for mining_focus. System 2 from data/systems.json, ore clusters, events from events.json (price, closure; silk/chips events are no-ops; EV17/EV18(from cycle 10)/EV20 fees paid when affordable).",
+      "not_modelled": "skill cover of closures, debris/shield/pirate effects, route removal churn, event timing gaps beyond a 12% skipped slot; effect: mirror is a little optimistic."
+    },
+    "match_to_real_v5": {
+      "cash_row_3": "198 in all 24 real runs and in the mirror (with the real event schedule).",
+      "ship3_cycle": "exact in 15 of 24, within 1 in 20 of 24, outliers +5,+6,+9 (decent seed 7, mining seed 7, always_expand seed 7: event schedule differs).",
+      "ship4_cycle": "exact in 11 of 22, mean abs diff 1.2.",
+      "end_cash_median": "decent real 516 vs mirror 399; always_expand 227 vs 150; mining_focus 220 vs 902 (mirror too good).",
+      "wins": "real 0 of 24, mirror (old values, 200 seeds) 0 of 600.",
+      "finding": "rescue_stipend triggers on stranded cash (decent seed 4 cycle 10: cash 29 then +1000). Without it the mirror deadlocked where the real game did not."
+    },
+    "changes": [
+      {
+        "file": "data/balance.json",
+        "key": "ship_cap",
+        "old": 24,
+        "new": 6,
+        "reason": "naive bots overbuy under the reserve; mirror: cap 5 decent 93%, cap 6 91%, cap 7 41%, cap 8 8% (old values)"
+      },
+      {
+        "file": "data/balance.json",
+        "key": "win_cash",
+        "old": 8500,
+        "new": 11500,
+        "reason": "single ship + permit ends ~10100 so it loses; decent median 26"
+      },
+      {
+        "file": "data/balance.json",
+        "key": "trip_cost",
+        "old": 95,
+        "new": 90,
+        "reason": "ship 3 median cycle 13 to 10; decent 84% to 92%"
+      },
+      {
+        "file": "data/planets.json",
+        "key": "Voltara base_prices.ore_sell",
+        "old": 11,
+        "new": 12,
+        "reason": "hedge for mining optimism; mining median 27 to 25"
+      },
+      {
+        "file": "data/balance.json",
+        "key": "data_version",
+        "old": 23,
+        "new": 24,
+        "reason": "bump"
+      },
+      {
+        "file": "data/planets.json",
+        "key": "data_version",
+        "old": 7,
+        "new": 8,
+        "reason": "bump"
+      }
+    ],
+    "sim_results_mirror_400_seeds": {
+      "decent": "91% wins, win cycle min 19 / p5 21 / median 26 / p95 29, ship 3 median cycle 10",
+      "mining_focus": "95% wins, median 25 (1 faster than decent, limit 3)",
+      "always_expand": "35% wins, median 26, end cash median 1200-4100",
+      "sloppy": "0%, end cash 4630",
+      "never_expand": "0%, end cash 5520",
+      "never_expand_with_permit": "0%, end cash 10100-10170 (at win_cash 10500 it ended 9950-10350; 8500 would win at 25)",
+      "before_tuning_same_model": "decent 0%, mining 0%, always_expand 0%"
+    },
+    "save_compat": "No keys added or removed; schema_version unchanged. win_cash and trip_cost are read live. ship_cap 6 with an old save holding more ships: ships stay, no new buys. starting_credits unchanged.",
+    "qa_run_round_1": {
+      "run": "qa/bots/run_batch.sh style, seeds 1 to 8, --clock=fast, strategies decent (--skip-skill=B1 --permit=2), mining_focus (--permit=2), always_expand (--skip-skill=B1 --skill-order=C1,C3,A1,A2 --permit=2), to END_REL_FULL_X/END_LOSS ending, same bot flags as v5. 24 runs.",
+      "pass": [
+        "decent wins at least 6 of 8, win cycles 22 to 29 (none before 21)",
+        "ship 3 for decent by cycle 13 in at least 6 of 8 seeds (mirror median 10); cash row 3 = 276 in all seeds (mirror prediction; 198 means trip_cost not applied)",
+        "mining_focus wins at least 4 of 8 and its median win cycle is not more than 3 below decent",
+        "always_expand wins at most 5 of 8 and at least 1 of 8 is acceptable; not faster than decent by more than 3",
+        "no idle deadlock longer than 3 cycles",
+        "also run never_expand and sloppy (no permit): both must END_LOSS at 30"
+      ],
+      "if_fail": "decent under 5 of 8 with ship 3 on time: model gap in the late game, send the RESULT lines and I refit (--compare). Decent over 7 of 8 before cycle 21: raise win_cash by 500."
+    }
+  }
+}

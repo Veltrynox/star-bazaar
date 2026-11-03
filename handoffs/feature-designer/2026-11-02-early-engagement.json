@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "agent": "feature-designer",
+  "date": "2026-11-02",
+  "task": "early-engagement",
+  "status": "done",
+  "files_changed": ["design/proposals/2026-11-02-early-engagement.md"],
+  "open_questions": [
+    "UNKNOWN: how many choice events can show before cycle 10 without repeats",
+    "UNKNOWN: the cycle where early help should stop (target 15 to 20, economy-designer sets)"
+  ],
+  "handoff": "Three proposals for a busy start that fades by cycle 15 to 20. Nothing approved. Recommend 1 first (early event front-load, S).",
+  "details": {
+    "proposals": [
+      {"id": 1, "title": "Early event front-load", "problem": "Cycles 1 to 4 have no outside input; first event slot is cycle 5 and most events have no choice", "owner_agent": "gameplay-programmer", "size": "S", "questions": ["Is a shorter wait for the first event acceptable given win-cycle risk?"]},
+      {"id": 2, "title": "Opening orders (early optional delivery jobs)", "problem": "One ship and one lane leave nothing to choose between", "owner_agent": "gameplay-programmer", "size": "M", "questions": ["First slice of full contracts or separate?", "Cash only, no points?"]},
+      {"id": 3, "title": "Lane debut bonus", "problem": "First lanes feel flat; first-pair points arrive silently", "owner_agent": "gameplay-programmer", "size": "S", "questions": ["Does it push always_expand above decent?"]}
+    ],
+    "recommended": 1
+  }
+}

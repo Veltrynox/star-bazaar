@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-02",
+  "task": "silk-events",
+  "status": "done",
+  "files_changed": [
+    "game/events.gd",
+    "tools/tests/run_tests.gd",
+    "goals/owner-feedback-2026-11-02/blackboard.json"
+  ],
+  "open_questions": [],
+  "handoff": "Events about a good (price up/down, stock) are now skipped by Events.available() unless an open planet (events.planets = permitted systems only) has <good>_buy or <good>_sell in base_prices. General, no hard-coded silk. Covers EV21/EV22 and forecasts (same path). Note: no planet in systems.json trades silk right now, so silk events never fire until data adds it. Two tests added. Full suite: pass=820 fail=1 (known sys2 Quillon)."
+}

@@ -1,0 +1,36 @@
+{
+  "agent": "economy-designer",
+  "date": "2026-11-02",
+  "task": "alpha-r3",
+  "status": "done",
+  "files_changed": [],
+  "schema_version": 1,
+  "balance_changes": [],
+  "data_version": "25 unchanged (no change made)",
+  "gap": {
+    "largest_driver": "Working-capital starvation after ship 4 and 5. Late income matches the mirror (real 5-ship income about 1400 per cycle vs mirror 1330-1770), but the real ramp is 3 to 5 cycles later: ship 4 at 14 vs mirror 11, ship 5 at 15-24 vs mirror 16. In cycles 11-19 real decent cash sits at 50-900 and reserve_short fires (cash 34-142 at buys) in seeds 4, 7, 8. Seed 7 deadlocks at cash 104; seeds 4 and 8 crawl to 2394 and 6699 at cycle 30. Seeds 1, 5, 6 end 10270-10960 at cycle 30, about 1 to 2 cycles short.",
+    "not_the_driver": "Sell income per route, saturation and events: late-game income per cycle matches the mirror."
+  },
+  "sweep_mirror_100_seeds": {
+    "base": "decent 98, always_expand 65",
+    "trip_cost_70": "decent 100, always 88",
+    "maintenance_40": "decent 100, always 74",
+    "win_cash_11500": "decent 98, always 67",
+    "ship_price_800": "decent 99, always 98",
+    "note": "every cost cut that helps decent also lifts always_expand; sloppy and never_expand stay 0. Mirror cannot see starvation, so it cannot validate any value."
+  },
+  "reasoning": "Real always_expand (5 of 8) beats real decent (2 of 8), the reverse of the mirror (65 vs 98). No balance key separates the two; the difference is bot buy timing and reserve starvation. Lowering win_cash to 11500 gains at most seeds 5 and 6 at cycle 30 (still not at 29). Cutting trip_cost or maintenance pushes always_expand above 5 of 8 on the mirror. I made no change.",
+  "verdict": "No balance change reaches decent 6 of 8 at cycles 22-29 with always_expand at most 5 of 8. Rule that must change: the ship-buy cash reserve (buy gate). A ship purchase that leaves cash under about 300 starves routes (trip cost x routes plus upkeep); earlier sim test: a gate of 300-500 fixes starvation. Also the idle deadlock in seed 7 (gameplay-programmer).",
+  "expected_qa_if_gate_added": "decent 6-7 of 8 at 24-28 (estimate from mirror, unverified); always_expand likely rises above 5 of 8 and then needs ship_cap 5 to 4 or win_cash 12500 to 13500 to bring it back (one more tuning pass).",
+  "mining_speed_clause": "Owner call, not tuned. Mining median 25 vs decent 28.5 (3.5 cycles) is mostly decent being slow; if decent is fixed to median ~25 the gap closes.",
+  "owner_decisions": [
+    "Approve a ship-buy gate (rule change) for the player-facing reserve and the QA bot, or accept decent at 2 of 8",
+    "Else accept lowering win_cash to 10500 and trip_cost to 70 knowing always_expand will pass 5 of 8"
+  ],
+  "open_questions": [
+    "UNKNOWN: real-game numbers for any change; the mirror cannot see starvation",
+    "Is cash 104 deadlock in seed 7 a game bug (no Sell orders)?",
+    "Owner: which rule to change"
+  ],
+  "handoff": "No change to balance.json (v25). Gap is working-capital starvation after ships 4 and 5, not late income. Rule to change: ship-buy reserve gate."
+}

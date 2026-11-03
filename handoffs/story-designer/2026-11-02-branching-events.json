@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-11-02",
+  "task": "branching-events",
+  "status": "done",
+  "files_changed": [
+    "story/events.md",
+    "goals/owner-feedback-2026-11-02/blackboard.json"
+  ],
+  "open_questions": [
+    "Owner: is a follow-up delay of 4 cycles right, and should the economy designer own a balance key for it?",
+    "Owner: accept request R1 (follow-up queue) as a new mechanic? Without it the follow-ups cannot fire.",
+    "Owner: BE02 needs a requires_system gate; ok to add?"
+  ],
+  "handoff": "Three branching events written in story/events.md under 'Choice events (branching)'. Immediate effects use only tags the code parses today. Follow-ups (A, B, C) are plain events needing request R1. All text lengths checked against limits. Ready to wire after R1 to R4. Tags and ids in details.",
+  "details": {
+    "events": [
+      "BE01",
+      "BE02",
+      "BE03"
+    ],
+    "choice_effects": {
+      "BE01_OPEN": {
+        "now": "[price down: Tillam, food]",
+        "follow": "BE01A"
+      },
+      "BE01_SHUT": {
+        "now": "[price up: Tillam, food]",
+        "follow": "BE01B"
+      },
+      "BE01_SEND": {
+        "now": "[price down: Ashgate, food]",
+        "follow": "BE01C"
+      },
+      "BE02_ANSWER": {
+        "now": "[price up: Quillon, silk]",
+        "follow": "BE02A"
+      },
+      "BE02_REPORT": {
+        "now": "[planet closed: Quillon]",
+        "follow": "BE02B"
+      },
+      "BE03_ACCEPT": {
+        "now": "[price up: Ashgate, food]",
+        "follow": "BE03A"
+      },
+      "BE03_REFUSE": {
+        "now": "[price down: Ashgate, food]",
+        "follow": "BE03B"
+      },
+      "BE03_REPORT": {
+        "now": "[planet closed: Ashgate]",
+        "follow": "BE03C"
+      }
+    },
+    "continuation_tags": {
+      "BE01A": "[price up: Tillam, energy]",
+      "BE01B": "[planet closed: Tillam]",
+      "BE01C": "[price up: Ashgate, energy]",
+      "BE02A": "[price up: Mossfell, food]",
+      "BE02B": "[price down: Quillon, silk]",
+      "BE03A": "[planet closed: Ashgate]",
+      "BE03B": "[price down: Ashgate, energy]",
+      "BE03C": "[price up: Ashgate, chips]"
+    },
+    "gameplay_requests": {
+      "R1": "Choice field follow_id and follow_after (suggest 4 cycles); queued follow-up fires as plain event; follow-ups random:false; saved in state.",
+      "R2": "min_cycle 9 on BE01 and BE03 (json key already works).",
+      "R3": "requires_system 2 on BE02 (not supported today).",
+      "R4": "Choice screen with 3 buttons (BE01, BE03)."
+    }
+  }
+}

@@ -1,0 +1,157 @@
+{
+ "schema_version": 1,
+ "agent": "economy-designer",
+ "date": "2026-11-02",
+ "task": "dead-planet-economy",
+ "status": "done",
+ "files_changed": [
+  "data/balance.json (v28)",
+  "data/planets.json (v11)",
+  "data/systems.json (v3)",
+  "tools/sim.py (parse skips Greywake events)",
+  "goals/owner-feedback-2026-11-02/blackboard.json",
+  "data/balance.json (v29, r2)"
+ ],
+ "open_questions": [
+  "UNKNOWN: can a route carry nullglass from Greywake (system 2) to the system 1 station? Without it the fabric cannot run in system 1.",
+  "UNKNOWN: does sell-order saturation apply to plate at Voltara (one buyer)? QA to watch plate price after 10 sells.",
+  "Dross bought at the dead world costs credits (dross_buy 4); owner decision whether mining stays paid (gameplay open question)."
+ ],
+ "handoff": "Prices set; core routes untouched. Dross ~114-132 net per ship-cycle, nullglass ~98-162, plate batch 100 net per cycle with payback 10 cycles at build cost 1000. Sim does not model dead worlds; decent unchanged at 99% win, 90% in cycles 22-27. QA must run a dead-world route end to end.",
+ "details": {
+  "changes": [
+   {
+    "key": "fabric_build_cost",
+    "file": "data/balance.json",
+    "old": 1500,
+    "new": 1000,
+    "reason": "payback 10 cycles at 100 net per batch"
+   },
+   {
+    "key": "plate_sell (planet_1)",
+    "file": "data/planets.json",
+    "old": 48,
+    "new": 120,
+    "reason": "48 was below input value (2 dross 36 + nullglass 29); 1 plate per cycle cap means price must carry the chain"
+   },
+   {
+    "key": "plate_buy (planet_1)",
+    "file": "data/planets.json",
+    "old": 60,
+    "new": 135,
+    "reason": "keeps buy/sell ratio near 1.12"
+   },
+   {
+    "key": "dross_sell Voltara",
+    "file": "data/planets.json",
+    "old": 14,
+    "new": 18,
+    "reason": "margin 14 per unit"
+   },
+   {
+    "key": "dross_sell Ashgate",
+    "file": "data/planets.json",
+    "old": 12,
+    "new": 15,
+    "reason": "margin 11 per unit"
+   },
+   {
+    "key": "dross_buy dead_1",
+    "file": "data/planets.json",
+    "old": 5,
+    "new": 4,
+    "reason": "mining cost low, margin from sell side"
+   },
+   {
+    "key": "dross_sell dead_1",
+    "file": "data/planets.json",
+    "old": 4,
+    "new": 3,
+    "reason": "keep below buy, no loop"
+   },
+   {
+    "key": "nullglass_sell s2_p2",
+    "file": "data/systems.json",
+    "old": 30,
+    "new": 25,
+    "reason": "margin 13; was 18"
+   },
+   {
+    "key": "nullglass_sell s2_p4",
+    "file": "data/systems.json",
+    "old": 34,
+    "new": 29,
+    "reason": "margin 17; was 22, beat system 1 core"
+   },
+   {
+    "key": "nullglass_sell dead_2",
+    "file": "data/systems.json",
+    "old": 10,
+    "new": 8,
+    "reason": "keep below buy 12"
+   }
+  ],
+  "source_lines": "balance.json v28, planets.json v11, systems.json v3 source fields",
+  "ship_cycle_math": "16 units/ship-cycle base (cargo 32, 2 legs), upkeep 110 (trip 90 + maintenance 20). net = 16*margin - 110, before B3 +8%.",
+  "routes": {
+   "dross Cinderrest->Voltara": "margin 14, net 114 (~128 with B3)",
+   "dross ->Ashgate": "margin 11, net 66 (~80)",
+   "nullglass Greywake->s2_p4": "margin 17, net 162",
+   "nullglass ->s2_p2": "margin 13, net 98",
+   "core energy/food": "125-157",
+   "system 2 core": "higher than nullglass, so nullglass does not beat it",
+   "plate": "120 - inputs at mine cost (2*4+12=20) = 100 per batch per cycle, no hauling per cycle: 1 dross trip feeds 8 batches"
+  },
+  "payback": "1000 / 100 = 10 cycles on mine cost. On forgone raw-sale value (2*18+29=65) value-add is 55, payback 18 cycles: a fabric built after about cycle 8 does not repay before cycle 26. Plus 8 skill points (M1 2, M2 3, F1 3) and permit 600. Fabric is a mid-game investment, not an early win route.",
+  "sim": {
+   "modeled": "No. tools/sim.py has no dead worlds, M1/M2/F1, danger or fabric. Numbers above are paper math. I fixed a crash (events naming Greywake) so --settle runs again.",
+   "settle_300_seeds": {
+    "decent": "99% win, 90% in cycles 22-27",
+    "mining_focus": "97%, 87% in 22-27",
+    "always_expand": "76%, 57% in 22-27",
+    "sloppy": "0%",
+    "never_expand": "0%"
+   },
+   "note": "These equal the pre-change baseline since the sim ignores the new goods."
+  },
+  "dominance_risk": "Plate adds at most 100 per cycle (about one core ship-cycle), capped by 1 batch per cycle. Dross adds new order pools (relief from saturation) at below-core margin. always_expand (76% already) could gain from extra pools: QA check.",
+  "qa_must_check": [
+   "decent bot with M1 route to Voltara: net per ship-cycle near 114-130",
+   "nullglass route into system 1 station works",
+   "fabric payback: cash delta over 10 cycles ~ +1000 after build",
+   "plate price after repeated sells at Voltara",
+   "decent win rate 22-27 stays 75%+ with a dead-world route; always_expand and mining_focus not above decent",
+   "danger has no price effect yet; events carry it"
+  ],
+  "r2": {
+   "blocker": "QA: nullglass route Greywake to system 1 needs C3, points did not fit.",
+   "points_math": "Chain needs B1 1, A1 1 (C3 prereq), C1 1, C2 1, C3 2, M1 2, M2 3, F1 3 = 14, plus permit_points_2 3 = 17. At full_ref 0.7 points a cycle that is cycle ~24.",
+   "changes": [
+    {
+     "key": "skill_cost_M1",
+     "old": 2,
+     "new": 1
+    },
+    {
+     "key": "skill_cost_M2",
+     "old": 3,
+     "new": 2
+    },
+    {
+     "key": "skill_cost_F1",
+     "old": 3,
+     "new": 2
+    }
+   ],
+   "reason": "Chain-only keys, so B-line, C3 and permit costs for decent and mining are untouched. New total 11 + 3 permit = 14 points, cycle ~20 at 0.7 points a cycle (paper math).",
+   "source_line": "balance.json v29 source field",
+   "sim_settle_300": {
+    "decent": "98%, median 23",
+    "mining_focus": "96%, median 25",
+    "always_expand": "75%, median 24"
+   },
+   "sim_note": "Sim does not model M1/M2/F1 or dead worlds; these equal baseline within seed noise. The point timing and the cross-system route are paper math: QA must confirm the chain finishes by about cycle 20 and that nullglass reaches the station.",
+   "rules_untouched": "reserve, locks, recipe unchanged"
+  }
+ }
+}

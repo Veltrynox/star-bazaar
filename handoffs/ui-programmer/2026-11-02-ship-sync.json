@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-02",
+  "task": "ship-sync",
+  "status": "done",
+  "files_changed": [
+    "game/route_line.gd",
+    "tools/tests/run_tests.gd"
+  ],
+  "checked": [
+    "route_line _process now sets shader clock = main._progress() (found via ancestors) and speed = 0.5 / travel_cycles_per_leg, so one leg (half the dot loop) = one cycle; pause, fast forward and cycle end follow main's clock. Dot look, phase offsets and waiting state unchanged.",
+    "Planet panel shows no per-cycle dot movement; nothing else to match."
+  ],
+  "tests": "sh tools/tests/run.sh: TOTAL pass=716 fail=1. New test _test_ship_clock (5 checks) passes. The one failure, 'win: second run recorded, total 2', is a win-save test; it varied between runs (0-2 win failures), unrelated to this change.",
+  "not_checked_visually": "Cannot see the running game; dot arrival at cycle end is verified by values, not by eye. DOT_SPEED const is now unused by the speed param after _process overrides it.",
+  "git": "Not run (unavailable in sandbox).",
+  "open_questions": [
+    "Dots now jump forward/back only if cycle changes; loading a save places dots by saved progress. Is that wanted?"
+  ]
+}

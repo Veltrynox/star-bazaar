@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-11-02",
+  "task": "dead-planet-events",
+  "status": "done",
+  "files_changed": [
+    "story/events.md",
+    "story/voice.md",
+    "goals/owner-feedback-2026-11-02/blackboard.json",
+    "data/story_text.json",
+    "data/events.json"
+  ],
+  "open_questions": [
+    "Fire rule for pair C: after both dead worlds are mined (text assumes this). Owner to confirm.",
+    "Pull-out in EV29 uses [planet closed: Cinderrest] and the SHARE/RACE/SHORE/CARRY lines name credit cost, load loss and income change: keep, or reduce to price-only lines?",
+    "Names Cinderrest, Greywake, Dross Salt, Nullglass are working names."
+  ],
+  "handoff": "Six pairs of texts built, skipped 0. Part 1 choice events EV29, EV32, EV35 (ids EV29_*, EV32_*, EV35_*). Part 2 plain events EV30, EV31, EV33, EV34, EV36, EV37, must be random:false. Table: story/events.md.",
+  "details": {
+    "choices": [
+      {
+        "part1": "EV29",
+        "choice": "MINE Keep mining",
+        "tag": "[price up: Cinderrest, dross]",
+        "needs": "danger +1",
+        "part2": "EV30 [planet closed: Cinderrest]"
+      },
+      {
+        "part1": "EV29",
+        "choice": "PULL Pull the crew out",
+        "tag": "[planet closed: Cinderrest]",
+        "needs": "none",
+        "part2": "EV31 [price down: Cinderrest, dross]"
+      },
+      {
+        "part1": "EV32",
+        "choice": "SHORE Shore up the wall",
+        "tag": "[price up: Greywake, nullglass]",
+        "needs": "credit cost",
+        "part2": "EV33 [price down: Greywake, nullglass]"
+      },
+      {
+        "part1": "EV32",
+        "choice": "CARRY Carry on cutting",
+        "tag": "[price down: Greywake, nullglass]",
+        "needs": "chance of load loss",
+        "part2": "EV34 [planet closed: Greywake]"
+      },
+      {
+        "part1": "EV35",
+        "choice": "SHARE Share the lane",
+        "tag": "[price down: Cinderrest, dross]",
+        "needs": "dead-world income cut",
+        "part2": "EV36 [price up: Greywake, nullglass]"
+      },
+      {
+        "part1": "EV35",
+        "choice": "RACE Race the rival",
+        "tag": "[price up: Cinderrest, dross]",
+        "needs": "income up, danger up",
+        "part2": "EV37 [price down: Cinderrest, dross]"
+      }
+    ],
+    "gameplay_requests": [
+      "G1 follow-up link: each choice carries follow_id and follow_after 4 (R1 in events.md); part 2 events random:false.",
+      "G2 dross and nullglass must exist as commodities before the price tags work; the dead planets must exist.",
+      "G3 danger meter +1 (EV29 MINE, EV35 RACE), credit cost (EV32 SHORE), load-loss chance (EV32 CARRY), income cut/up (EV35). Effect lines name these; if not built, edit the lines.",
+      "G4 triggers: EV29 on first mining of Cinderrest, EV32 on first mining of Greywake, EV35 once both are mined.",
+      "G5 choice popup ids follow the EV17 pattern: EVnn_<KEY>_BTN/_EFF/_TITLE and EVnn_<KEY> (key MINE, PULL, SHORE, CARRY, SHARE, RACE); build_story.py has no choice-event entries for EV29, EV32, EV35 in events.json yet (texts only in story_text.json)."
+    ]
+  }
+}

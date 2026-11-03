@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "agent": "feature-designer",
+  "date": "2026-11-02",
+  "task": "cash-warning",
+  "status": "done",
+  "files_changed": ["design/proposals/2026-11-02-route-cash-warning.md"],
+  "open_questions": [
+    "UNKNOWN: owner's case Buy-driven or true low cash; no save read",
+    "UNKNOWN: pacing effect of reserve until sim run",
+    "Should No stock at source keep its first-cycle notice while its tag waits 2 cycles?"
+  ],
+  "handoff": "Proposal written; waits for owner decision. Cause: Buy orders run before routes, Sell income after, so cash check dips for one cycle.",
+  "details": {
+    "proposals": [
+      {"id": "P1", "title": "Reserve route fixed cost from Buys, plus warn only after 2 cycles in a row, one rule for cash, waiting and no stock", "problem": "False 'Not enough cash' caused by settle order (Buy, routes, Sell)", "owner_agent": "gameplay-programmer (reserve), ui-programmer (tag), economy-designer (sim), story-designer (text)", "size": "M", "questions": ["Accept 2-cycle grace?", "Keep first-cycle stock notice?"]},
+      {"id": "P2", "title": "Display-only grace (warn after 2 cycles)", "problem": "Same", "owner_agent": "ui-programmer", "size": "S", "questions": ["Hiding one real lost trip acceptable?"]},
+      {"id": "P3", "title": "Low cash soft state", "problem": "Same", "owner_agent": "ui-programmer", "size": "S", "questions": ["Worth another label?"]}
+    ]
+  }
+}

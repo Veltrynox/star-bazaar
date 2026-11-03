@@ -1,0 +1,26 @@
+{
+  "agent": "gameplay-programmer",
+  "date": "2026-11-02",
+  "task": "alpha-fix",
+  "status": "done",
+  "files_changed": [
+    "game/skill_tree.gd",
+    "game/route_engine.gd",
+    "tools/tests/run_tests.gd",
+    "goals/owner-feedback-2026-11-02/blackboard.json"
+  ],
+  "schema_version": 1,
+  "cause_mining": "B1 sat behind two locks: permit-first (C1 first) and first-row (A1 + C1 learned). A1 needs two routes made, and the only routes that fed a mining player were cluster lanes, which need B1. Points: start gives 1 (home planet), C1 took it, the permit reserve took the next 3. Never reached 5.",
+  "change_mining": "Chosen: exempt B1 (cost 1) from both locks (SkillTree.FIRST_ROW_FREE). Smallest rule change: no new points, no economy key, no bot change. Alternatives rejected: extra point source (balance key, economy owner), cluster routes granting points (new reward path). Not dominant: B1 first delays C1/permit by one route; sim mining_focus ~ decent (95% vs 91%). B2..B4 stay behind the first row.",
+  "cause_deadlock": "Real softlock for a human too: cash below one trip fixed cost (e.g. 110) with empty storage. A Buy cannot feed (reserve takes the trip money, 0 left for goods) and the route stalls 'Not enough cash', so nothing can ever earn. Reached by buying a ship down to ~120 cash and running tiny loads at a loss.",
+  "change_deadlock": "RouteEngine.fare_for(fixed, cash, paid_yet): if cash < fixed and no route has run yet this cycle, the first route flies for the cash left (may be 0); later routes still stall. Used in settle (_settle_one, flag fare_paid) and forecast (fare_seen), so forecast == settle. route_reserve: when no other route reserves, a loaded route short of its trip reserves all remaining cash, so a Buy still cannot spend a running route's money. Reserve for normal cash unchanged. Entering the state costs a Buy-fed bootstrap: at cash < trip + one unit price the Buy may spend freely and the route then flies on a part fare.",
+  "files": "game/skill_tree.gd (FIRST_ROW_FREE, two gates), game/route_engine.gd (fare_for, fare_paid, route_reserve, _settle_one, forecast). Save format unchanged.",
+  "test_output": "sh tools/tests/run.sh: TOTAL pass=803 fail=1. The one fail is the known 'sys2: Quillon none/both add no commodity beyond the five goods'. New: 'stall:' (7 checks, incl. forecast == settle) and 'mining reach:' (4 checks, B1 at cycle 1, and after C1 without A1 by cycle 10) plus rewritten 'mining gate'/'permit first'/'first row' checks.",
+  "bot_spot_check": "Fast clock, QA round 1 flags. mining_focus seeds 1-8: 7 of 8 win (was 1), B1 learned at cycle 1, 0 idle deadlocks. always_expand seed 1: win at 25, no deadlock (was idle at 14). decent seed 6: no deadlock. decent seeds 1-8 with permit: 2 of 8 wins (pacing is the economy owner's open point). always_expand 5 of 8 wins (limit is 5). never_expand and sloppy seed 1: loss.",
+  "needs_qa": "Re-run all 40 runs of Alpha round 1. Check: (1) idle deadlocks gone; decent seed 7 still flags one, but the bot has no Buy orders on in that state (4 Sell orders only), so it is a bot issue; a player re-enabling a Buy is rescued. (2) mining_focus warning_streak flags ('Not enough cash.' 3+ cycles) now appear on 6 of 8 mining runs, because of bot ship buying; not new stalls. (3) always_expand wins 5 of 8 here, right at the 'at most 5' limit; recheck. (4) forecast popup with a part fare.",
+  "open_questions": [
+    "Should the part fare also be shown in the route tag (status stays 'running')? UI call.",
+    "Decent wins only 2 of 8 in my spot check: economy designer (ship_cap / buy gate) still open."
+  ],
+  "handoff": "B1 Prospecting is now free of the permit-first and first-row locks, so mining is reachable at cycle 1. The softlock is fixed by a part fare for the first starved route plus a reserve that keeps its cash. Suite 803 pass, 1 known fail. QA: re-run the 40 runs."
+}
