@@ -44,7 +44,16 @@ Known gap, handled in the later goals: the preface, goal line, tutorial, mission
 - Skill point supply (about 21 against 13 for one market, 23 for two) assumes 7 of 9 reachable planets and 5 route pairs. UNKNOWN until the real game confirms it.
 - Only the Military chains and 6 of the 12 new pool events are written. Luxury, Minerals, Biotech chains follow the story style guide in Goal 5.
 
-## Open questions for the owner
+## Owner answers (2026-11-03)
+1. 40 cycles: approved.
+2. Old saves dropped, EV18 retired: approved.
+3. Ending quality by Open/Hard stance and the soft END_OUTCOMPETED: explained, awaiting a yes or no.
+4. Price skills get NO share effect (cash perks only): decided.
+5. Swept (player under 10% everywhere) and bankrupt (ship repossession): explained, awaiting a yes or no.
+6. Global `bot_scale` key and the 56 to 98% focused win rate: approved.
+7. Names (bots, goods, endings): undecided, to be judged in play. Names stay as in the story doc until then.
+
+## Original open questions
 1. Run length: 40 cycles OK (was 30)?
 2. Old saves are dropped (new save version) and the shield event EV18 is retired. OK?
 3. Ending quality depends only on the Open vs Hard stance of the winning market's chains. Tie counts as good. OK? Is the soft `END_OUTCOMPETED` (no market over 50% at cycle 40) an acceptable non-win?
