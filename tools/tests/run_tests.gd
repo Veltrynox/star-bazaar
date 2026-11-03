@@ -1866,7 +1866,7 @@ func _test_next_cycle() -> void:
 		var nc1: Node = m.planet_panel.find_child("NextCycle_" + c, true, false)
 		var par: Node = nc1.get_parent() if nc1 != null else null
 		check(nc1 != null, "next cycle: visible with a sell order and stock")
-		check(par is HBoxContainer and par.get_child_count() == 5 and par.get_child(par.get_child_count() - 1) == nc1, "next cycle: label is the last child of the storage row, not a sibling below it")
+		check(par is HBoxContainer and par.get_child_count() == 6 and par.get_child(par.get_child_count() - 1) == nc1, "next cycle: label is the last child of the storage row, not a sibling below it")
 	await _free_main(m)
 
 func _test_ships() -> void:
@@ -1922,6 +1922,9 @@ func _test_ships() -> void:
 	for c2 in m.commodities:
 		if m.trade.price(0, str(c2) + "_buy") >= 0 or m.trade.price(0, str(c2) + "_sell") >= 0:
 			traded_n += 1
+	for bn in _all_buttons(m.planet_panel):
+		if str(bn.name).begins_with("BuyButton_"):
+			buys += 1
 	check(combined == 0 and buys == traded_n and sends >= traded_n, "T141 planet panel: separate Buy toggle and Send to... per resource, no combined button")
 	# T143: each route row says where its money lands, with a control to turn the destination Sell order on
 	var pays := _find_named(m.planet_panel, "PaysLine")
@@ -1973,16 +1976,20 @@ func _test_ships() -> void:
 			if ch is Label and ch.text.contains("/"):
 				in_storage = true
 	var buy_b := _find_named(m.planet_panel, "BuyButton_" + c) as Button
-	check(sbtn != null and buy_b != null and (sbtn as Button).custom_minimum_size == buy_b.custom_minimum_size and (sbtn as Button).theme_type_variation == buy_b.theme_type_variation and (sbtn as Button).custom_minimum_size.x > 0.0, "send button: same minimum size and font variation as Buy")
+	check(sbtn != null and buy_b != null and (sbtn as Button).theme_type_variation == buy_b.theme_type_variation and (sbtn as Button).custom_minimum_size.x > 0.0, "send button: same font variation as Buy, has a minimum size")
 	check(sbtn != null and in_storage and _find_named(m.planet_panel, "BuyButton_" + c).get_parent() != p1, "send button: sits on the storage row of its good, not on the Buy row")
 	m.planet_panel.show_planet(1)
 	var bb := _find_named(m.planet_panel, "BuyButton_" + c) as Button
-	check(bb != null and bb.text == StoryText.get_or("BTN_STOP_BUY", "Stop buying") and bb.button_pressed, "buy toggle: the Buy button reads Stop buying while the order is on")
+	check(bb != null and bb.button_pressed and bb.tooltip_text.contains("Press to stop"), "buy toggle: the resource button is pressed while the order is on")
 	var stop_n := 0
 	for b in _all_buttons(m.planet_panel):
 		if b.text == bb.text:
 			stop_n += 1
-	check(stop_n == 1, "buy toggle: no separate Stop buying button", str(stop_n))
+	check(stop_n == 1, "buy toggle: one button per resource", str(stop_n))
+	var sell_b := _find_named(m.planet_panel, "SellButton_" + c)
+	sbtn = _find_named(m.planet_panel, "SendButton_" + c)
+	check(sell_b != null and sell_b.get_parent() == sbtn.get_parent() and _find_named(_find_named(m.planet_panel, "BuyGrid"), "SellButton_" + c) == null, "sell button: sits in the storage row of its good, not in the buy table")
+	check(_find_named(m.planet_panel, "BuyGrid") != null and bb.get_parent().get_parent() == _find_named(m.planet_panel, "BuyGrid"), "buy table: resource buttons are cells of the BuyGrid")
 	for pi in m.trade.planets.size():
 		m.planet_panel.show_planet(pi)
 		for cc in m.commodities:
@@ -1993,7 +2000,7 @@ func _test_ships() -> void:
 	check(not e.local_on(1, c, "buy"), "buy toggle: pressing again stops the buy order")
 	m.planet_panel.show_planet(1)
 	bb = _find_named(m.planet_panel, "BuyButton_" + c) as Button
-	check(bb.text == "%s %s" % [StoryText.get_text("BTN_BUY"), str(m.map.planets[1]["base_prices"][c + "_buy"])] and not bb.button_pressed and bb.icon != null, "buy toggle: the button reads Buy and its price again after stopping, with the credits icon")
+	check(bb.text == "%s %s" % [Ui.good_name(c), str(m.map.planets[1]["base_prices"][c + "_buy"])] and not bb.button_pressed and bb.icon != null, "buy toggle: the button reads the resource name and its buy price, with its icon")
 	m._on_buy_send(c)
 	check(e.local_on(1, c, "buy"), "buy toggle: pressing a third time buys again")
 	m.set_local_order(1, c, "buy", false)

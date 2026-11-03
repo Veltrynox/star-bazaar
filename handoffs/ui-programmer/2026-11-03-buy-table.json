@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-03",
+  "task": "buy-table",
+  "status": "done",
+  "files_changed": ["game/planet_panel.gd", "tools/tests/run_tests.gd"],
+  "open_questions": [
+    "Storage rows now hold Send + Sell (+ Salvage when stuck stock) + next-cycle label, so the panel may grow wider than 320. Owner to check by eye; should Sell move to a second line under each storage row?",
+    "Buy cell text is 'Name price' with the good icon; ON state shows as pressed toggle plus the existing 'Buy order: ...' line and tooltip, not the old 'Stop buying' text. OK?"
+  ],
+  "handoff": "Headless tests pass (1209/0). Not checked by eye.",
+  "details": {
+    "a_buy_button": "Each resource is one toggle button (icon, name, buy price) named BuyButton_<good>, still emitting buy_send_requested. Old separate resource label and Buy button are merged. Order status, price events, Price Whisper and mixed-load lines sit under the button in the same grid cell.",
+    "b_sell_moved": "SellButton_<good> (same text, price, icon, tooltips, lock rules) now sits in the storage row after Send. Salvage button joins that row; the Salvage_<good> label goes under the row. Storage rows list every good, so Sell shows disabled 'Not traded here' for goods the planet does not trade.",
+    "c_table": "GridContainer named BuyGrid, BUY_COLUMNS=2 (panel is 320 wide), cell width BUY_CELL_W=140, in planet_panel.gd constants.",
+    "tutorial": "main.gd _tut_target_node finds first BuyButton_/SellButton_ by name; unchanged and still works (tests pass). The sell step now outlines a button in the storage section.",
+    "tests_updated": "Send/Buy equal-size check dropped (different sizes now); Buy text checks now check name+price and pressed state; T141 counts buttons by name; next-cycle storage row child count 5 to 6; added checks for BuyGrid and Sell in storage row. QA bots do not reference these nodes.",
+    "not_checked_by_eye": "Planet panel layout, grid cell text fit for long good names, storage row width."
+  }
+}
