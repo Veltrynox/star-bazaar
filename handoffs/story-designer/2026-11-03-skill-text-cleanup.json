@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-11-03",
+  "task": "skill-text-cleanup",
+  "status": "done",
+  "files_changed": ["story/skills.md", "story/screens.md", "story/voice.md", "data/story_text.json (generated)", "handoffs/story-designer/2026-11-03-skill-text-cleanup.json"],
+  "open_questions": [
+    "Code still reads these ids, kept and reworded without letters or old names: PERMIT_NEEDS_C1 (now 'Needs Permit Charter to buy permits.'), NOT_ROUTE_NEEDS_C3 (now 'Routes between systems need Permit Charter.'), TUT_G9_PERMIT, LBL_TRADE_NEEDS_A1, DEAD_UNLOCK, PERMIT_S2_DESC. The ids keep their old letters; rename in code if wanted. main.gd line ~138 has a fallback for TUT_G9_PERMIT that still says (C1).",
+    "Bot names are already final in game/bots.gd and match the story doc (Harrow Combine, Velvet Concord, Ostrel Syndicate); only the TODO comment is stale. No rename needed.",
+    "LBL_TRADE_NEEDS_A1 and NOT_ROUTE_NEEDS_C3 could be renamed with the code; MAP_ARROW_PERMIT is unread by code today (kept, not old text)."
+  ],
+  "handoff": "Removed old A/B/C/M/F skill text: skills.md A1-C4, SK_M*/SK_F1*, SK_BRANCH_*, SK_STATE_*; screens.md SK_POINTS_LEFT, SK_LABEL_NEEDS_POINTS, SK_A1_GATE, TUT_PERMIT_C1, BTN_SURVEY, LBL_SURVEY_PRICES, LBL_PERMIT_PLANETS, LBL_LOCKED_PERMIT_FIRST, LBL_LOCKED_FIRST_ROW, LBL_SKILLS_ROW_*. Each id was grep-checked in game/, tools/, qa/ just before deletion (none read). Added SK_BOT_USE, SK_BOT_USED, SK_BOT_COOLDOWN and NOT_SKILL_REASON_SHARE. MIL_5 {m},{n} and LUX_7 {n} are filled by skill_screen.plain_args, so they stay. Voice glossary updated: old branches gone. Build ok; tests TOTAL pass=1147 fail=0 (earlier runs were cut off by another Godot run)."
+}
