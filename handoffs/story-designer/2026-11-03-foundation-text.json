@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-11-03",
+  "task": "foundation-text",
+  "status": "done",
+  "files_changed": ["story/endings.md", "story/screens.md", "story/voice.md", "data/story_text.json"],
+  "open_questions": [
+    "The preface (screens.md) still says the player wants a Release, which now has no goal behind it. Rewrite it for market share in a later goal?",
+    "END_STAT_BRANCHES, END_STAT_SYSTEMS, END_STAT_LINE, END_LOSS_STAT and the END_REL_*, END_CORP_*, END_TITLE_*, END_SIGN_* rows were removed; nothing in game/ read them."
+  ],
+  "handoff": "Dead old-goal rows removed (END_REL_*, END_CORP_*, END_LOSS, END_LOSS_STAT, END_TITLE_*, END_SIGN_*, old tier endings, END_STAT_LINE/BRANCHES/SYSTEMS); voice.md cleaned of cash goal and Corporation. New in story/endings.md with ids matching end_screen.gd (title = <id>_TITLE, body = <id>): END_MIL/LUX/MIN/BIO_GOOD, END_BANKRUPT, END_SWEPT, END_OUTCOMPETED. Bodies carry no placeholders because show_ending passes none; the stat line and readout carry the rival and share. Added LBL_SHARE_TITLE, LBL_SHARE_HOLD, LBL_SHARE_YOU, LBL_SPREAD_COST in screens.md. BAD variants and epilogue lines are left for a later goal. data/story_text.json regenerated. The test runner was killed (exit 143) in my sandbox at random points with no FAIL; see the report."
+}
