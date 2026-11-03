@@ -4,15 +4,9 @@ extends RefCounted
 ## (event_price_pct, event_price_cycles, event_close_cycles, event_interval). Runtime effects: tools/event_effects.md.
 ## Tags: [price up: Planet, commodity]  [price down: Planet, commodity]  [planet closed: Planet]
 ## plus one-off [cash: +N] and [stock: Planet, commodity, +N] (used only by choice effects, if the data has them).
-## Dead-world choice effects (design/proposals/2026-11-02-dead-planets.md section 5):
-##   [danger: Planet, +N]            change the danger meter of a dead world
-##   [cost: balance_key]             pay balance[key] credits now (EV32 shore up: dead_shore_cost)
-##   [ore loss: Planet]              for dead_ore_loss_cycles cycles each route out of Planet may lose dead_ore_loss_pct
-##                                   of its load, with chance dead_ore_loss_chance per trip (EV32 carry on)
-##   [income: cut] / [income: boost] for dead_income_cycles cycles routes out of dead worlds carry less / more
-##                                   (dead_income_cut / dead_income_boost; EV35 share the lane / race)
-## A choice has one "tag" in the data; more effects come from an optional "extra" list of tags on the choice, or from
-## CHOICE_EXTRA below (keyed by the choice text_id) when the data has no "extra" key. Use choice_effects(ch) for all.
+## Market chains (game/chains.gd) take the chain steps and the bot effects; this file holds the shared one-time pool (24 kept
+## rows of data/events.json plus EV40-EV51 from data/chains.json), the timed price effects and the scheduled Minerals A flavour popups.
+## A choice has one "tag" in the data. Use choice_effects(ch) for all its effects.
 ## A choice is a Dictionary with "text" and optional "tag" (same tag format), or a plain String (no effect).
 
 const StoryText := preload("res://game/story_text.gd")
@@ -34,9 +28,6 @@ var pending_planet: int = -1
 ## Scheduled follow-ups (R1): {id, due}. A choice with follow_id (+ follow_after cycles) puts the id here; it fires once
 ## at the start of cycle >= due and is removed. Saved under "scheduled"; an old save has none.
 var scheduled: Array = []
-## Timed dead-world modifiers: {kind ("income_cut" | "income_boost" | "ore_loss"), planet (-1 = every dead world), left}.
-## Saved under "mods"; an old save has none.
-var mods: Array = []
 var locked: Array = []  # planet indexes of dead worlds not open yet (set by main); no random event picks them
 var rng := RandomNumberGenerator.new()
 
@@ -60,6 +51,23 @@ func setup(bal: Dictionary, plist: Array) -> void:
 		if typeof(e) == TYPE_DICTIONARY and e.has("id"):
 			defs.append(e)
 			by_id[str(e["id"])] = e
+	_add_chain_defs()
+
+## Chain data adds rows without touching data/events.json: the 12 new pool events (price or closure, text by EV<nn>_TITLE / _BODY /
+## _EFF ids, title fallback from the data) and one row per chain step (kind C, texts by EV_<step>_..., see chains.gd).
+func _add_chain_defs() -> void:
+	for id in Chains.pool_new.keys():
+		if by_id.has(id):
+			continue
+		var n: Dictionary = Chains.pool_new[id]
+		var d := {"id": id, "title": str(n.get("title", id)), "title_id": id + "_TITLE", "text_id": id + "_BODY", "text": "", "tag": "", "kind": str(n.get("kind", "P")), "choices": [], "pool_effect": n.get("effect", {})}
+		defs.append(d)
+		by_id[id] = d
+	for sid in Chains.step_ids():
+		by_id[sid] = {"id": sid, "title": sid, "text": "", "tag": "", "kind": "C", "choices": [], "chain_step": true, "market": Chains.market_of(sid)}
+
+func is_chain_step(id: String) -> bool:
+	return bool(by_id.get(id, {}).get("chain_step", false))
 
 func planet_index(pname: String) -> int:
 	for i in planets.size():
@@ -70,7 +78,7 @@ func planet_index(pname: String) -> int:
 ## Tag text to an effect {kind, planet, c, amount}; {} when it does not parse.
 func parse_tag(tag: String) -> Dictionary:
 	var re := RegEx.new()
-	re.compile("\\[\\s*(price up|price down|planet closed|cash|stock|debris|shield|asteroid|danger|cost|ore loss|income)\\s*:\\s*([^\\]]*)\\]")
+	re.compile("\\[\\s*(price up|price down|planet closed|cash|stock|debris|asteroid)\\s*:\\s*([^\\]]*)\\]")
 	var m := re.search(tag)
 	if m == null:
 		return {}
@@ -88,23 +96,9 @@ func parse_tag(tag: String) -> Dictionary:
 		"debris":
 			var d := args[0].strip_edges().to_lower()
 			return {"kind": "debris_" + d, "planet": -1, "c": "", "amount": 0} if d in ["pay", "leave"] else {}
-		"shield", "asteroid":
+		"asteroid":
 			var d2 := args[0].strip_edges().to_lower()
 			return {"kind": what + "_" + d2, "planet": -1, "c": "", "amount": 0}
-		"danger":  # [danger: Planet, +1]: change a dead world's danger meter (negative lowers it)
-			if args.size() < 2 or planet_index(args[0]) < 0:
-				return {}
-			return {"kind": "danger", "planet": planet_index(args[0]), "c": "", "amount": int(args[1].strip_edges())}
-		"cost":  # [cost: balance_key]: credits paid now
-			var key := args[0].strip_edges()
-			return {"kind": "cost", "planet": -1, "c": "", "amount": int(balance.get(key, 0))} if balance.has(key) else {}
-		"ore loss":  # [ore loss: Planet]
-			if planet_index(args[0]) < 0:
-				return {}
-			return {"kind": "ore_loss", "planet": planet_index(args[0]), "c": "", "amount": 0}
-		"income":  # [income: cut] or [income: boost]
-			var w := args[0].strip_edges().to_lower()
-			return {"kind": "income_" + w, "planet": -1, "c": "", "amount": 0} if w in ["cut", "boost"] else {}
 		"cash":
 			return {"kind": "cash", "planet": -1, "c": "", "amount": int(args[0].strip_edges())}
 		"stock":
@@ -114,6 +108,15 @@ func parse_tag(tag: String) -> Dictionary:
 	return {}
 
 func effect_of_event(id: String) -> Dictionary:
+	var pe = by_id.get(id, {}).get("pool_effect")
+	if typeof(pe) == TYPE_DICTIONARY and not pe.is_empty():  # new pool event from data/chains.json: planet by its id
+		var pi := -1
+		for i in planets.size():
+			if typeof(planets[i]) == TYPE_DICTIONARY and str(planets[i].get("id", "")) == str(pe.get("planet", "")):
+				pi = i
+		if pi < 0:
+			return {}
+		return {"kind": str(pe.get("direction", "up")), "planet": pi, "c": str(pe.get("good", "")), "amount": 0}
 	return parse_tag(str(by_id.get(id, {}).get("tag", "")))
 
 func choices_of(id: String) -> Array:
@@ -128,11 +131,15 @@ func choice_text(ch, args: Dictionary = {}) -> String:
 ## T98: title and body of an event; choice events with title_id/text_id load them by id.
 func title_of(id: String, args: Dictionary = {}) -> String:
 	var ev: Dictionary = by_id.get(id, {})
-	return StoryText.get_text(str(ev["title_id"]), args) if ev.has("title_id") else str(ev.get("title", id))
+	if is_chain_step(id):
+		return Chains.title(id)
+	return StoryText.get_or(str(ev["title_id"]), str(ev.get("title", id)), args) if ev.has("title_id") else str(ev.get("title", id))
 
 func body_of(id: String, args: Dictionary = {}) -> String:
 	var ev: Dictionary = by_id.get(id, {})
-	return StoryText.get_text(str(ev["text_id"]), args) if ev.has("text_id") else str(ev.get("text", ""))
+	if is_chain_step(id):
+		return Chains.body(id)
+	return StoryText.get_or(str(ev["text_id"]), str(ev.get("text", "")), args) if ev.has("text_id") else str(ev.get("text", ""))
 
 ## T98: debris. Picks the planet for a new debris event: one that already has debris first (the offer
 ## comes back), otherwise a random planet.
@@ -163,47 +170,10 @@ func debris_fee() -> int:
 func debris_penalty() -> float:
 	return float(balance.get("debris_route_penalty", 0.0))
 
-## Effects added to a choice on top of its "tag" (see the header). Keyed by the choice text_id.
-const CHOICE_EXTRA := {
-	"EV29_MINE_BTN": ["[danger: Cinderrest, +1]"],
-	"EV32_SHORE_BTN": ["[cost: dead_shore_cost]"],
-	"EV32_CARRY_BTN": ["[ore loss: Greywake]"],
-	"EV35_SHARE_BTN": ["[income: cut]"],
-	"EV35_RACE_BTN": ["[income: boost]", "[danger: Cinderrest, +1]", "[danger: Greywake, +1]"],
-}
-
-## All effects of a choice: the main tag first, then the extras. Each is {kind, planet, c, amount}; {} entries dropped.
+## All effects of a choice (the main tag). Each is {kind, planet, c, amount}; {} entries dropped.
 func choice_effects(ch) -> Array:
-	var out: Array = []
-	if typeof(ch) != TYPE_DICTIONARY:
-		return out
 	var first := choice_effect(ch)
-	if not first.is_empty():
-		out.append(first)
-	var extra = ch.get("extra", CHOICE_EXTRA.get(str(ch.get("text_id", "")), []))
-	if typeof(extra) == TYPE_ARRAY:
-		for t in extra:
-			var e := parse_tag(str(t))
-			if not e.is_empty():
-				out.append(e)
-	return out
-
-## Optional "bot_effect" on a choice: list of {bot, market, stat, amount | size}. size "S"/"M"/"L" gives the percent
-## (Markets.size_pct) with the sign of "amount" (default -, a hit); tier uses the int amount. Returns hits applied.
-func apply_bot_effect(ch) -> int:
-	var n := 0
-	if typeof(ch) != TYPE_DICTIONARY or typeof(ch.get("bot_effect")) != TYPE_ARRAY:
-		return 0
-	for e in ch["bot_effect"]:
-		if typeof(e) != TYPE_DICTIONARY:
-			continue
-		var stat := str(e.get("stat", ""))
-		var amt := float(e.get("amount", 0.0))
-		if e.has("size") and stat != "tier":
-			amt = Markets.size_pct(str(e["size"])) * (-1.0 if float(e.get("amount", -1.0)) < 0.0 else 1.0)
-		if Markets.hit_bot(int(e.get("bot", 0)), str(e.get("market", "")), stat, amt):
-			n += 1
-	return n
+	return [] if first.is_empty() else [first]
 
 func choice_effect(ch) -> Dictionary:
 	return parse_tag(str(ch.get("tag", ch.get("effect", "")))) if typeof(ch) == TYPE_DICTIONARY else {}
@@ -227,11 +197,6 @@ func interval() -> int:
 func due(cycle: int) -> bool:
 	return cycle > 1 and (cycle - 1) % interval() == 0
 
-## Owner 2026-11-02: the sun event (EV18, shield the sun) only reshapes planets bought later, so it means nothing
-## to a new player. Code default used when data/events.json has no "min_cycle" for it (the json key wins).
-## First event slots are cycles 5, 9, 13 (event_interval 4), so 10 means the first offer is cycle 13 of 30.
-const DEFAULT_MIN_CYCLE := {"EV18": 10}
-
 ## Event gate: an event with "min_cycle" in data/events.json is not picked before that cycle.
 ## No key = no gate. cycle <= 0 (not given) = no gate check.
 func available(id: String, cycle: int) -> bool:
@@ -240,15 +205,15 @@ func available(id: String, cycle: int) -> bool:
 		return false
 	if cycle <= 0:
 		return true
-	if ev.has("min_cycle"):
-		return cycle >= int(ev["min_cycle"])
-	return cycle >= int(DEFAULT_MIN_CYCLE.get(id, 0))
+	return cycle >= int(ev.get("min_cycle", 0))
 
 ## Owner 2026-11-02: an event about a good (price up/down, stock) is not picked while no open planet trades
 ## that good. "Open" = the planets this run knows (permitted systems only). A good is traded when a planet's
 ## base_prices has <good>_buy or <good>_sell. Events without a good are always fine.
 func good_available(id: String) -> bool:
 	var eff := effect_of_event(id)
+	if eff.is_empty() and by_id.get(id, {}).has("pool_effect"):
+		return false  # its planet is not open in this run
 	var c := str(eff.get("c", ""))
 	if c == "":
 		return true
@@ -258,11 +223,11 @@ func good_available(id: String) -> bool:
 				return true
 	return false
 
-## True for events that never come from the random pick: part 2 events (the follow_id of any choice), events
-## marked "scheduled_only" and events with "on_mine" (fired when a route first mines that dead world).
+## True for events that never come from the random pick: part 2 events (the follow_id of any choice) and events
+## marked "scheduled_only" or "random": false.
 func scheduled_only(id: String) -> bool:
 	var ev: Dictionary = by_id.get(id, {})
-	if bool(ev.get("scheduled_only", false)) or ev.has("on_mine") or (ev.has("random") and not bool(ev["random"])):
+	if bool(ev.get("scheduled_only", false)) or (ev.has("random") and not bool(ev["random"])):
 		return true
 	for d in defs:
 		for ch in choices_of(str(d["id"])):
@@ -279,6 +244,20 @@ func schedule_follow(ch, cycle: int) -> bool:
 	scheduled.append({"id": str(ch["follow_id"]), "due": cycle + maxi(1, after)})
 	return true
 
+## Minerals chain A: after a step's choice the optional flavour popup of the matching old choice (EV29 first choice -> EV30 ...)
+## is scheduled dead_follow_cycles later. opt_a is the first choice of the legacy event, opt_b the second. No effect, no nudge.
+func schedule_chain_follow(step_id: String, opt_id: String, cycle: int) -> bool:
+	var old := str(Chains.legacy.get(step_id, ""))
+	var chs := choices_of(old)
+	var idx := 0 if opt_id == "opt_a" else 1
+	if old == "" or idx >= chs.size():
+		return false
+	return schedule_follow({"follow_id": str(chs[idx].get("follow_id", "")) if typeof(chs[idx]) == TYPE_DICTIONARY else ""}, cycle)
+
+## True for the optional flavour popups: they show text only, whatever their data tag says.
+func is_flavour(id: String) -> bool:
+	return Chains.followups.has(id)
+
 ## The first scheduled event due at this cycle (due <= cycle), removed from the list; "" when none.
 func take_due(cycle: int) -> String:
 	for i in scheduled.size():
@@ -288,32 +267,18 @@ func take_due(cycle: int) -> String:
 			return id
 	return ""
 
-## Event ids with "on_mine" naming this dead world id (or "any") that have not been fired yet.
-func mine_events(planet_id: String) -> Array:
-	var out: Array = []
-	for d in defs:
-		var om := str(d.get("on_mine", ""))
-		if om == "both":  # pair C: both dead worlds have had their part 1 event
-			if _fired("EV29") and _fired("EV32") and not _fired(str(d["id"])):
-				out.append(str(d["id"]))
-		elif om != "" and (om == planet_id or om == "any") and not _fired(str(d["id"])):
-			out.append(str(d["id"]))
-	return out
-
-## Part 1 events marked "both" (pair C) that are ready: EV29 and EV32 have fired and the event has not.
-func both_events() -> Array:
-	return mine_events("").filter(func(id): return str(by_id.get(id, {}).get("on_mine", "")) == "both")
-
 func _fired(id: String) -> bool:
 	for f in feed:
 		if str(f["id"]) == id:
 			return true
 	return false
 
+## The shared pool: the 24 kept events and EV40-EV51 (data/chains.json), each at most once per run (a fired id never comes again).
 func random_id(skip: Array = [], cycle: int = 0) -> String:
 	var pool: Array = []
 	for d in defs:
-		if not skip.has(str(d["id"])) and not scheduled_only(str(d["id"])) and not debug_off.has(str(d["id"])) and available(str(d["id"]), cycle):
+		var pid := str(d["id"])
+		if Chains.in_pool(pid) and not skip.has(pid) and not scheduled_only(pid) and not debug_off.has(pid) and not _fired(pid) and available(pid, cycle):
 			pool.append(d)
 	if pool.is_empty():
 		return ""
@@ -354,44 +319,8 @@ func start_timed(id: String, eff: Dictionary) -> void:
 			return
 	active.append({"id": id, "kind": eff["kind"], "planet": int(eff["planet"]), "c": str(eff["c"]), "left": cycles, "age": 0})
 
-## Starts a dead-world modifier (income_cut, income_boost, ore_loss) for its cycle count; the same one again refreshes it.
-func start_mod(eff: Dictionary) -> void:
-	var kind := str(eff.get("kind", ""))
-	if not (kind in ["income_cut", "income_boost", "ore_loss"]):
-		return
-	var cycles := maxi(1, int(balance.get("dead_ore_loss_cycles" if kind == "ore_loss" else "dead_income_cycles", 3)))
-	for m in mods:
-		if m["kind"] == kind and int(m["planet"]) == int(eff["planet"]):
-			m["left"] = cycles
-			return
-	mods.append({"kind": kind, "planet": int(eff["planet"]), "left": cycles})
-
-## Income factor for routes out of dead world planet i (1.0 when no cut or boost runs).
-func income_factor(i: int) -> float:
-	var f := 1.0
-	for m in mods:
-		if (int(m["planet"]) == -1 or int(m["planet"]) == i):
-			if m["kind"] == "income_cut":
-				f *= 1.0 - float(balance.get("dead_income_cut", 0.0))
-			elif m["kind"] == "income_boost":
-				f *= 1.0 + float(balance.get("dead_income_boost", 0.0))
-	return f
-
-## Ore loss running at planet i: {chance, pct}, or {} when none.
-func ore_loss(i: int) -> Dictionary:
-	for m in mods:
-		if m["kind"] == "ore_loss" and (int(m["planet"]) == -1 or int(m["planet"]) == i):
-			return {"chance": float(balance.get("dead_ore_loss_chance", 0.0)), "pct": float(balance.get("dead_ore_loss_pct", 0.0))}
-	return {}
-
 ## One cycle settled: effects age and expire.
 func tick() -> void:
-	var mk: Array = []
-	for m in mods:
-		m["left"] = int(m["left"]) - 1
-		if int(m["left"]) > 0:
-			mk.append(m)
-	mods = mk
 	var keep: Array = []
 	for a in active:
 		a["left"] = int(a["left"]) - 1
@@ -412,7 +341,7 @@ func record(id: String, cycle: int, planet: int = -1) -> void:
 	feed.append({"id": id, "cycle": cycle, "planet": planet})
 
 func to_dict() -> Dictionary:
-	return {"active": active.duplicate(true), "feed": feed.duplicate(true), "pending": pending_id, "debris": debris.duplicate(), "pending_planet": pending_planet, "scheduled": scheduled.duplicate(true), "mods": mods.duplicate(true)}
+	return {"active": active.duplicate(true), "feed": feed.duplicate(true), "pending": pending_id, "debris": debris.duplicate(), "pending_planet": pending_planet, "scheduled": scheduled.duplicate(true)}
 
 func from_dict(d) -> void:
 	active = []
@@ -421,13 +350,8 @@ func from_dict(d) -> void:
 	debris = []
 	pending_planet = -1
 	scheduled = []
-	mods = []
 	if typeof(d) != TYPE_DICTIONARY:
 		return
-	if typeof(d.get("mods")) == TYPE_ARRAY:  # old saves have none
-		for m in d["mods"]:
-			if typeof(m) == TYPE_DICTIONARY and ["income_cut", "income_boost", "ore_loss"].has(str(m.get("kind", ""))):
-				mods.append({"kind": str(m["kind"]), "planet": int(m.get("planet", -1)), "left": int(m.get("left", 0))})
 	if typeof(d.get("scheduled")) == TYPE_ARRAY:  # old saves have none
 		for sc in d["scheduled"]:
 			if typeof(sc) == TYPE_DICTIONARY and by_id.has(str(sc.get("id", ""))):

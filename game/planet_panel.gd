@@ -63,9 +63,6 @@ func rebuild() -> void:
 		sl.name = "SecondLaneNote"
 		sl.theme_type_variation = "LabelAccent"
 		box.add_child(sl)
-	var unhappy: float = main.shield.unhappiness(planet_index)  # T101: only planets bought after the shield
-	if unhappy > 0.0:
-		box.add_child(_label(StoryText.get_or("PLANET_UNHAPPY", "Resident unhappiness: {value}", {"value": "%d%%" % roundi(unhappy * 100.0)})))
 	var pend: Dictionary = main.pending
 	if not pend.is_empty():
 		var pl := _label("Sending %s from %s. Click the destination planet." % [

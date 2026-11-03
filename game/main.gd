@@ -23,7 +23,6 @@ const Storage := preload("res://game/storage.gd")
 const StoryText := preload("res://game/story_text.gd")
 const SkillTree := preload("res://game/skill_tree.gd")
 const Events := preload("res://game/events.gd")
-const Shield := preload("res://game/shield.gd")
 const Ships := preload("res://game/ships.gd")
 const Systems := preload("res://game/systems.gd")
 const Clusters := preload("res://game/clusters.gd")
@@ -76,7 +75,6 @@ func systems_in_game() -> int:
 	return 1 + Systems.ids().size()
 
 var events: RefCounted = Events.new()  # T12 random events and active price effects
-var shield: RefCounted = Shield.new()  # T101 solar shield state
 const ASTEROID_REWARD_POINTS := 1  # T109: EV20_PAID gives one expansion point (no balance key)
 var asteroid_last_hit: int = -1  # T109: planet hit by the last asteroid (-1 none), runtime only
 var event_notice: ColorRect  # T12 paused event notification, null when none
@@ -173,6 +171,7 @@ func _ready() -> void:
 	Skills.reset(balance)  # four market skills: new run; a loaded save overwrites it
 	Tech.reset()
 	Markets.reset(balance, Markets.default_seed())  # Four Markets: new run; a loaded save overwrites it
+	Chains.reset(balance, Markets.run_seed)  # event chains: new run (shuffle seed from the run seed); a loaded save overwrites it
 	mouse_filter = Control.MOUSE_FILTER_IGNORE  # let clicks reach the 3D map (T04)
 	map = load("res://game/map.gd").new()
 	add_child(map)  # T20 map, added before UI so the bar draws on top
@@ -205,9 +204,6 @@ func _ready() -> void:
 	trade.setup(balance, map.planets)
 	events.setup(balance, map.planets)
 	trade.events = events
-	shield.setup(balance, map.planets)  # T101
-	trade.shield = shield
-	engine.shield = shield
 	storage.setup(balance, map.planets.size(), commodities)
 	engine.setup(balance, trade, commodities, storage)
 	clusters.setup(balance)  # T156
@@ -280,7 +276,7 @@ func collect_state() -> Dictionary:
 		"markets": Markets.to_dict(), "rescues_paid": rescues_paid, "repossessions": repossessions, "learned_skills": learned_skills.duplicate(), "skills": Skills.to_dict(), "tech": Tech.to_dict(), "systems_reached": systems_reached,
 		"time_speed": time_speed, "skill_points": skill_points, "pts_planets": pts_planets, "pts_pairs": pts_pairs, "events": events.to_dict(),
 			"open_systems": open_systems, "reached_ids": reached_ids, "galaxy_seen": galaxy_seen, "tut_step": tut_step, "tut_ver": TUT_VER,
-		"shield": shield.to_dict(), "storage_cuts": storage.cuts_to_dict(), "price_history": price_history,
+		"chains": Chains.to_dict(), "storage_cuts": storage.cuts_to_dict(), "price_history": price_history,
 		"forecast_id": forecast_id, "station_systems": station_systems,
 		"second_lane": second_lane_planet, "clusters": clusters.to_dict(), "danger": dead.to_dict(), "fabric": fabric.to_dict(), "workshops": workshops.to_dict()}
 
@@ -291,7 +287,6 @@ func apply_state(s: Dictionary) -> void:
 		m.queue_free()
 	station_markers.clear()
 	station_systems = []
-	shield.from_dict(s.get("shield"))  # T101: old saves: no shield
 	storage.cuts_from_dict(s.get("storage_cuts"))  # T109: old saves: no cuts
 	for sid in _int_array(s.get("open_systems")):  # T85: permitted systems first, so planet indexes exist for routes
 		if sid > 1 and Systems.ids().has(sid):
@@ -307,6 +302,8 @@ func apply_state(s: Dictionary) -> void:
 	tut_step = clampi(tut_step, 0, TUT_GUIDE.size())
 	cycle = maxi(1, int(s.get("cycle", 1)))
 	Markets.from_dict(s.get("markets"), balance)
+	Chains.from_dict(s.get("chains"), balance)  # a v3 save has no chain state: fresh
+	Chains.now = cycle
 	rescues_paid = int(s.get("rescues_paid", 0))
 	repossessions = int(s.get("repossessions", 0))
 	cycle_elapsed = clampf(float(s.get("cycle_elapsed", 0.0)), 0.0, _cycle_seconds())
@@ -435,7 +432,7 @@ func _open_system(id: int) -> bool:
 		open_systems.append(id)
 	var added := false
 	if not _system_planets_present(id):
-		map.add_planets(Systems.planets_of(id).filter(func(p): return Shield.habitable(p)))  # T101: habitable flag
+		map.add_planets(Systems.planets_of(id))  # T101: habitable flag
 		added = true
 		var all_goods := _commodities(map.planets)  # a system can bring a good (nullglass): add it in place, the engine and storage share this array
 		for c in all_goods:
@@ -1400,7 +1397,6 @@ func _connect(src: int, dst: int, c: String, stop: int = -1) -> Dictionary:
 		storage.ensure(str(rec["src"]))  # T65: first order at a planet establishes its company storage
 	storage.ensure(str(rec["dst"]))
 	_after_change()
-	_mine_event(src)
 	return {"ok": true, "reason": "", "id": rec["id"]}
 
 ## Removes the connection; its ship becomes free.
@@ -1738,29 +1734,7 @@ func fit_core(id: int) -> Dictionary:
 func danger_of(i: int) -> int:
 	return dead.get_danger(str(map.planets[i].get("id", ""))) if i >= 0 and i < map.planets.size() else 0
 
-## First route out of a dead world: fires the part 1 event whose data says "on_mine" for it (none until the story data has one).
-func _mine_event(src: int) -> void:
-	if src < 0 or src >= map.planets.size() or not DeadWorlds.is_dead(map.planets[src]):
-		return
-	var found: Array = events.mine_events(str(map.planets[src]["id"]))
-	if not found.is_empty():
-		fire_event(str(found[0]))
-
-## Dead-world event modifiers (income cut or boost, ore loss) go to the route engine as planet index maps.
-func _push_dead_mods() -> void:
-	engine.dead_income = {}
-	engine.dead_loss = {}
-	for i in map.planets.size():
-		if DeadWorlds.is_dead(map.planets[i]):
-			var f: float = events.income_factor(i)
-			if not is_equal_approx(f, 1.0):
-				engine.dead_income[i] = f
-			var l: Dictionary = events.ore_loss(i)
-			if not l.is_empty():
-				engine.dead_loss[i] = l
-
 func _settle_routes() -> Array:
-	_push_dead_mods()
 	var r: Dictionary = engine.settle(cash)
 	last_local = r["local"]
 	cash += int(r["delta"])
@@ -1948,21 +1922,25 @@ func _end_cycle() -> void:
 		return
 	events.tick()  # T12: effects that ran this cycle age
 	cycle += 1
+	Chains.tick(cycle)  # chain effects that ran through the last cycle expire
 	_sync_closed()
 	if dead_unlock_cycle() > 1 and cycle == dead_unlock_cycle():  # the dead worlds open now
 		post_notice(StoryText.get_or("DEAD_UNLOCK", "Dead worlds are open."))
 	if Skills.warning_cycles() > 0 and events.due(cycle + 1):  # LUX_3 Event Forecast: one cycle of warning, naming planet and commodity
-		forecast_id = events.random_id(["EV18"] if shield.decided else [], cycle + 1)
+		forecast_id = events.random_id([], cycle + 1)
 		post_notice(forecast_text(forecast_id))
-	var sched_id: String = events.take_due(cycle) if (event_notice == null and not game_over) else ""  # R1: part 2 events come from the schedule
-	if sched_id != "":
+	# One event per cycle: a chain step first, then a scheduled flavour popup, then the pool event of the slot.
+	var chain_id: String = Chains.next_step(cycle) if (event_notice == null and not game_over) else ""
+	var sched_id: String = events.take_due(cycle) if (chain_id == "" and event_notice == null and not game_over) else ""  # R1: flavour popups come from the schedule
+	if chain_id != "":
+		forecast_id = ""  # the chain step took the slot of the forecast pool event
+		fire_chain_step(chain_id)
+	elif sched_id != "":
 		forecast_id = ""  # the forecast promised a random event for this slot; the scheduled one took it
 		fire_event(sched_id)
-	elif events.both_events().size() > 0 and event_notice == null and not game_over:  # pair C: both worlds have had their part 1
-		fire_event(str(events.both_events()[0]))
 	elif events.due(cycle) or (OS.is_debug_build() and debug_force_event):
 		debug_force_event = false
-		var fid: String = forecast_id if forecast_id != "" and events.by_id.has(forecast_id) else events.random_id(["EV18"] if shield.decided else [], cycle)
+		var fid: String = forecast_id if forecast_id != "" and events.by_id.has(forecast_id) else events.random_id([], cycle)
 		forecast_id = ""
 		fire_event(fid)
 	_tut_cycle()
@@ -2020,11 +1998,11 @@ func _repossess_newest() -> void:
 	post_notice(StoryText.get_or("NOT_REPOSSESSED", "Cash ran out. The newest ship was repossessed: +{n} credits.", {"n": credit}))
 	_after_change()
 
-## Ending id for an outcome. TODO story: win endings are all _GOOD until the dir split (later goal).
+## Ending id for an outcome. A win reads the hidden chain direction of the win market: END_<MKT>_GOOD or END_<MKT>_BAD.
 func ending_id_of(outcome: Dictionary) -> String:
 	match str(outcome.get("kind", "")):
 		"win":
-			return "END_%s_GOOD" % str(outcome["market"]).to_upper()
+			return "END_%s_%s" % [str(outcome["market"]).to_upper(), Chains.ending_flag(str(outcome["market"])).to_upper()]
 		"swept":
 			return "END_SWEPT"
 		"bankrupt":
@@ -2045,13 +2023,13 @@ func _finish_outcome(outcome: Dictionary) -> void:
 		side = "SOFT"
 		var bm := str(best["market"])
 		stat = "%s: %d%%" % [Markets.names.get(bm, "-"), roundi(float(best["share"]) * 100.0)]
-	_finish(side, ending_id_of(outcome), stat)
+	_finish(side, ending_id_of(outcome), stat, str(outcome.get("market", "")))
 
 ## The run is over: the save is cleared, the end screen shows the ending.
-func _finish(side: String, ending_id: String, stat: String) -> void:
+func _finish(side: String, ending_id: String, stat: String, win_market: String = "") -> void:
 	game_over = true
 	SaveGame.clear()
-	var stats := {"cycle": cycle, "cash": cash, "market": str(Markets.best()["market"])}
+	var stats := {"cycle": cycle, "cash": cash, "market": win_market if win_market != "" else str(Markets.best()["market"])}
 	if side == "WIN":  # core 6: capstone, techs done, second market ... for the flavour lines of the win ending
 		stats["flavour"] = EndingPicker.inputs(str(stats["market"]), balance)
 	if share_panel != null:
@@ -2126,18 +2104,6 @@ func _apply_effect(id: String, eff: Dictionary) -> Dictionary:
 		"debris_leave":
 			if not events.debris.has(events.pending_planet):
 				events.debris.append(events.pending_planet)
-		"shield_build":  # T101: planets in the game now stay as they are
-			cash -= shield.cost()
-			shield.build(map.planets)
-		"shield_skip":
-			shield.skip()
-		"danger":  # [danger: Planet, +N]: raise or lower a dead world's meter
-			dead.change(str(map.planets[int(eff["planet"])].get("id", "")), int(eff["amount"]))
-		"cost":  # [cost: key]: credits paid now (the button is off when cash is short)
-			cash -= int(eff["amount"])
-		"income_cut", "income_boost", "ore_loss":
-			events.start_mod(eff)
-			_push_dead_mods()
 		"asteroid_pay":  # T109: payment to the state; the point is an event reward, not bought
 			cash -= events.asteroid_cost()
 			_spawn_event_cluster()  # T156: the rock is pulled apart: a fresh small cluster
@@ -2208,15 +2174,15 @@ func _pick_storage_planet() -> int:
 func fire_event(id: String) -> void:
 	if id == "" or not events.by_id.has(id) or game_over or event_notice != null:
 		return
-	if id == "EV18" and shield.decided:  # T101: offered once
-		return
 	events.pending_planet = events.pick_debris_planet() if id == "EV17" else -1
 	if id == "EV17" and events.pending_planet < 0:
 		return
 	events.record(id, cycle, events.pending_planet)
 	events.pending_id = id
-	if events.choices_of(id).is_empty():
+	if events.choices_of(id).is_empty() and not events.is_flavour(id):
 		_apply_effect(id, events.effect_of_event(id))
+	if Chains.in_pool(id):  # shared pool: the optional small bot effect applies at once and is logged
+		Chains.apply_pool(id, cycle)
 	paused = true
 	_refresh_event_feed()
 	_event_beat()
@@ -2225,6 +2191,9 @@ func fire_event(id: String) -> void:
 
 func _open_event_notice(id: String) -> void:
 	_dismiss_event_notice()
+	if events.is_chain_step(id):
+		_open_chain_notice(id)
+		return
 	var ev: Dictionary = events.by_id[id]
 	var choices: Array = events.choices_of(id)
 	var args := {"planet": planet_name(events.pending_planet)} if events.pending_planet >= 0 else {}
@@ -2242,7 +2211,10 @@ func _open_event_notice(id: String) -> void:
 		off.append(fee > 0 and cash < fee)
 		if typeof(ch) == TYPE_DICTIONARY and ch.has("eff_id"):
 			effs.append(StoryText.get_text(str(ch["eff_id"]), args))
-	var line := effect_line(events.effect_of_event(id)) if choices.is_empty() else "\n".join(effs)
+	var line := (effect_line(events.effect_of_event(id)) if not events.is_flavour(id) else "") if choices.is_empty() else "\n".join(effs)
+	var rv := Chains.pool_rivals_line(id)
+	if rv != "":
+		line = (line + "\n" + rv).strip_edges()
 	event_notice = load("res://game/event_notice.gd").new()
 	add_child(event_notice)
 	event_notice.show_event(events.title_of(id, args), events.body_of(id, args), line, labels, StoryText.get_text("MENU_CONTINUE"), off, _event_art(id))
@@ -2273,17 +2245,13 @@ func _event_beat() -> void:
 		if sp != null:
 			Juice.ping(self, sp, Ui.col("signal_bad"))
 
-## Credits a choice costs (debris fee, shield, asteroid deflection), 0 when free.
+## Credits a choice costs (debris fee, asteroid deflection), 0 when free.
 func _choice_fee(kind: String, amount: int = 0) -> int:
 	match kind:
 		"debris_pay":
 			return events.debris_fee()
-		"shield_build":
-			return shield.cost()
 		"asteroid_pay":
 			return events.asteroid_cost()
-		"cost":
-			return amount
 	return 0
 
 ## T98: after a debris choice: popup with the outcome text, closed with OK.
@@ -2309,7 +2277,72 @@ func _debris_popup(ch, override: Dictionary = {}) -> void:
 		save_now())
 	save_now()
 
+## ---- market chains ----
+
+## A chain step takes the event slot: records it, pauses, shows the two options (seeded order) with their effect lines.
+func fire_chain_step(id: String) -> void:
+	if game_over or event_notice != null or not Chains.has_step(id) or Chains.fired(id):
+		return
+	events.pending_planet = -1
+	events.record(id, cycle, -1)
+	events.pending_id = id
+	paused = true
+	_refresh_event_feed()
+	_event_beat()
+	_open_chain_notice(id)
+	_refresh()
+
+func _open_chain_notice(id: String) -> void:
+	var labels: Array = []
+	for opt in Chains.order(id):
+		labels.append("%s\n%s" % [Chains.button(id, opt), Chains.eff_text(id, opt)])
+	event_notice = load("res://game/event_notice.gd").new()
+	add_child(event_notice)
+	event_notice.show_event(events.title_of(id), events.body_of(id), "", labels, StoryText.get_text("MENU_CONTINUE"), [], "")
+	event_notice.confirmed.connect(_on_event_confirmed.bind(id))
+
+## The busiest route of a market for trip-cost effects: most ships, then level, then the lowest id. -1 when it has none.
+func _busiest_route(market: String) -> int:
+	var best := -1
+	var key := [-1, -1]
+	for rec in engine.routes:
+		if Markets.market_of(str(rec["c"])) != market:
+			continue
+		var k := [int(rec.get("ships", 1)), int(rec.get("level", 1))]
+		if best < 0 or k[0] > key[0] or (k[0] == key[0] and k[1] > key[1]):
+			best = int(rec["id"])
+			key = k
+	return best
+
+## A button of a chain step was pressed (index in the shown order): the option applies at once, the result popup follows.
+func _apply_chain_choice(choice: int, id: String) -> void:
+	var order: Array = Chains.order(id)
+	if choice < 0 or choice >= order.size():
+		return
+	var opt := str(order[choice])
+	var res: Dictionary = Chains.apply_option(id, opt, cycle, Callable(self, "_busiest_route"))
+	cash += int(res["cash"])
+	for t in res["tech"]:
+		craft_units(str(t[0]), int(t[1]))
+	if Chains.market_of(id) == "min":
+		events.schedule_chain_follow(id, opt, cycle)
+	events.pending_id = ""
+	_dismiss_event_notice()
+	event_notice = load("res://game/event_notice.gd").new()
+	add_child(event_notice)
+	event_notice.show_event(Chains.result_title(id, opt), Chains.result_text(id, opt, res["rivals"]), "", [], StoryText.get_text("BTN_OK"))
+	event_notice.confirmed.connect(func(_c: int):
+		_dismiss_event_notice()
+		_refresh()
+		save_now())
+	_refresh()
+	_refresh_panel()
+	save_now()
+
 func _on_event_confirmed(choice: int, id: String) -> void:
+	if events.is_chain_step(id):
+		_apply_chain_choice(choice, id)
+		return
 	if id == "EV20":
 		map.hex_ring.show_ring(false)  # T110
 	if choice >= 0:

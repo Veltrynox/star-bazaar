@@ -8,7 +8,6 @@ signal route_clicked(id: int)      # T07b: click on a route line (no planet unde
 
 const PlanetTypes := preload("res://game/planet_types.gd")
 const Systems := preload("res://game/systems.gd")
-const Shield := preload("res://game/shield.gd")
 const PLANETS_PATH := "res://data/planets.json"
 
 # Zoom bounds are not in gdd.md: defaults for owner decision.
