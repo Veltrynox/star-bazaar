@@ -307,7 +307,7 @@
  },
  {
   "id": "MB_03",
-  "text": "Move stock with a route: press Send to... and click the destination planet.",
+  "text": "Move stock with a route: right-click a resource, choose Send to, then pick the destination planet.",
   "max": 110,
   "place": "Mission board, route mission"
  },
@@ -865,7 +865,7 @@
  },
  {
   "id": "TUT_G3_SEND",
-  "text": "Press Send to... and pick a planet.",
+  "text": "Right-click the resource, choose Send to.",
   "max": 60,
   "place": "Guided step 3, until a route exists"
  },
@@ -901,7 +901,7 @@
  },
  {
   "id": "TUT_G6_SELL",
-  "text": "Press Sell at the destination.",
+  "text": "Right-click the resource there, choose Sell.",
   "max": 60,
   "place": "Guided step 6, until the first Sell order"
  },
@@ -913,7 +913,7 @@
  },
  {
   "id": "TUT_G7_STORAGE",
-  "text": "Watch the Company storage bar.",
+  "text": "Watch stored/capacity on the resource button.",
   "max": 60,
   "place": "Guided step 7, storage"
  },
@@ -5380,5 +5380,11 @@
   "text": "Rivals: none of the three changes in {market}.",
   "max": 90,
   "place": "pool event rivals line, {market} filled by the game"
+ },
+ {
+  "id": "LBL_RMB_MORE",
+  "text": "Right-click for Send to, Sell and more.",
+  "max": 60,
+  "place": "Resource button tooltip, planet panel"
  }
 ]

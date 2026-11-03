@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-11-03",
+  "task": "Update tutorial and label text for the right-click resource menu",
+  "status": "done",
+  "files_changed": ["data/story_text.json", "story/screens.md", "handoffs/story-designer/2026-11-03-rmb-text.json"],
+  "open_questions": [
+    "game/main.gd lines ~134-135 hold fallback strings for TUT_G6_SELL and TUT_G7_STORAGE; they still describe the old panel (code, not mine).",
+    "No data_version field exists in story_text.json, so nothing was bumped."
+  ],
+  "handoff": "Changed TUT_G3_SEND, TUT_G6_SELL, TUT_G7_STORAGE and MB_03 to describe right-click on the resource button (Send to, Sell, stored/capacity). Added LBL_RMB_MORE (max 60) used by game/planet_panel.gd line 212. LBL_COMPANY_STORAGE kept; marked unused in the panel in screens.md. BTN_SEND and BTN_SELL places updated in screens.md. The _WHY lines still read correctly and are unchanged. Headless tests: 1210 pass, 0 fail. Not committed.",
+  "details": {}
+}

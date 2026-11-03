@@ -62,13 +62,14 @@ BTN_YES | 24 | Dialogs | Yes
 BTN_NO | 24 | Dialogs | No
 BTN_OK | 24 | Event popup | OK
 BTN_BUY | 24 | Planet panel resource row | Buy
-BTN_SELL | 24 | Planet panel resource row | Sell
-BTN_SEND | 24 | Storage row | Send to...
+BTN_SELL | 24 | Right-click menu on resource button | Sell
+BTN_SEND | 24 | Right-click menu on resource button | Send to...
 BTN_LEARN | 24 | Skill screen | Learn
 BTN_REMOVE | 24 | Route and storage panels | Remove
 LBL_BUY_PRICE | 24 | Planet panel | Buy price
 LBL_SELL_PRICE | 24 | Planet panel | Sell price
-LBL_COMPANY_STORAGE | 24 | Planet panel | Company storage
+LBL_COMPANY_STORAGE | 24 | Planet panel (unused in panel now) | Company storage
+LBL_RMB_MORE | 60 | Resource button tooltip, planet panel | Right-click for Send to, Sell and more.
 LBL_SHIP_UPKEEP | 24 | Top bar and route panel | Ship upkeep
 LBL_EXPENSES | 24 | Top bar | Expenses
 LBL_SKILL_POINTS | 24 | Top bar, skill screen header | Skill points
@@ -92,7 +93,7 @@ Click a planet to see what it sells and what it lacks.
 MB_02 | 110 | Mission board, after the first planet panel is opened
 Compare planets. Buy where a good is cheap, sell where it is dear.
 MB_03 | 110 | Mission board, route mission
-Move stock with a route: press Send to... and click the destination planet.
+Move stock with a route: right-click a resource, choose Send to, then pick the destination planet.
 MB_04 | 110 | Mission board, route done
 First route running. A ship carries stock between the two Company storages.
 MB_05 | 110 | Mission board, later
@@ -235,15 +236,15 @@ TUT_G1_SELECT | 60 | Guided step 1, until a planet is clicked | Click the ringed
 TUT_G1_SELECT_WHY | 110 | Guided step, why it matters (second line of the card) | Its panel shows what it sells, what it buys and what the company can trade there.
 TUT_G2_BUY | 60 | Guided step 2, until Buy is on for a good | Press Buy on a good you want to trade.
 TUT_G2_BUY_WHY | 110 | Guided step, why it matters (second line of the card) | A Buy order fills your storage on this planet each cycle.
-TUT_G3_SEND | 60 | Guided step 3, until a route exists | Press Send to... and pick a planet.
+TUT_G3_SEND | 60 | Guided step 3, until a route exists | Right-click the resource, choose Send to.
 TUT_G3_SEND_WHY | 110 | Guided step, why it matters (second line of the card) | Pick a planet that wants the good. A route carries your goods there by ship.
 TUT_G4_ROUTE_PAY | 60 | Guided step 4, until a route has sold goods | Let the route sell at the destination.
 TUT_G4_ROUTE_PAY_WHY | 110 | Guided step, why it matters (second line of the card) | The route earns when it sells there. That is where your money comes from.
 TUT_G5_UPKEEP | 60 | Guided step 5, after a ship is working | Find Ship upkeep under Expenses.
 TUT_G5_UPKEEP_WHY | 110 | Guided step, why it matters (second line of the card) | A ship costs money every cycle, so a route must earn more than it costs.
-TUT_G6_SELL | 60 | Guided step 6, until the first Sell order | Press Sell at the destination.
+TUT_G6_SELL | 60 | Guided step 6, until the first Sell order | Right-click the resource there, choose Sell.
 TUT_G6_SELL_WHY | 110 | Guided step, why it matters (second line of the card) | A Sell order turns your stock into credits.
-TUT_G7_STORAGE | 60 | Guided step 7, storage | Watch the Company storage bar.
+TUT_G7_STORAGE | 60 | Guided step 7, storage | Watch stored/capacity on the resource button.
 TUT_G7_STORAGE_WHY | 110 | Guided step, why it matters (second line of the card) | Company storage holds your goods on a planet. When it is full, Buy waits.
 TUT_G8_SKILLS | 60 | Guided step 8, until a skill is learned | Open Skills and learn one.
 TUT_G8_SKILLS_WHY | 110 | Guided step, why it matters (second line of the card) | Spend an expansion point. Skills unlock bigger storage, longer routes and the permit.
