@@ -4,7 +4,7 @@
 
 Date: 2026-11-03. Author: feature-designer. Status: CORE DESIGN, WAITS FOR OWNER on the questions in section 9. economy-designer and story-designer build on this file next, so ids and names below are fixed and will not be renamed. Display names (goods, bots, ending titles) are working names; story-designer finalises text. No balance numbers are set here except structure; where a size is written (S/M/L, "small/medium/large") economy-designer maps it to a value in data/balance.json.
 
-Owner decisions this file follows: replace the old A/B/C tree and the old endings; keep existing shared events as the one-time pool; share = player sales / total sales per market over a rolling window; win = over 50% share in one market; lose = bankruptcy or one bot over 50% in every market; 3 bots seen only on a stats graph; markets are abstract categories, never map objects; spreading must fail by numbers; crafting feeds markets (Minerals and Biotech most).
+Owner decisions this file follows: replace the old A/B/C tree and the old endings; keep existing shared events as the one-time pool; share = player sales / total sales per market over a rolling window; win = over 50% share in one market; lose = bankruptcy (ship repossession) or being shut out (player under 10% share in every market); 3 bots seen only on a stats graph; markets are abstract categories, never map objects; spreading must fail by numbers; crafting feeds markets (Minerals and Biotech most).
 
 ## 0. How the loop changes (summary)
 
@@ -82,8 +82,8 @@ Win:
 - Win market = `win_market`; it picks the ending pair (section 6).
 
 Lose / non-win:
-- `END_BANKRUPT`: stranded (zero ships and cash below ship_price, existing rule) a third time. The first two keep today's rescue stipend. (Today's rescue is a setback, not a loss; this adds the real loss owner asked for.)
-- `END_SWEPT`: from cycle 20, one bot is over 50% share in all four markets at the end of 3 consecutive cycles (`sweep_hold_cycles` 3).
+- `END_BANKRUPT` (owner approved, R4): when cash is negative after upkeep and market overhead, the newest ship is repossessed each cycle and `salvage_share` x ship price (360) is credited. When no ship is left and cash is still negative, the run ends. How this meets today's stranded-rescue stipend is not decided here: open question for the owner and economy-designer.
+- `END_SWEPT` (owner approved, R3): from cycle 25, the player's share is under 10% in all four markets at the end of 3 consecutive cycles (`sweep_hold_cycles` 3). The strongest rival is named in the text.
 - `END_OUTCOMPETED`: cycle 40 reached, no market over 50%. Not a "game over" screen: a soft ending that names the player's best market and share and the leading bot, so the run still reads as a result.
 Bot behaviour is numeric only; bots never appear on the map.
 
@@ -329,8 +329,8 @@ Eight market endings plus three non-win endings. Ids fixed (`END_*`).
 | END_MIN_BAD | min | bad | Strip: the dead worlds spread |
 | END_BIO_GOOD | bio | good | Harvest: seed and cure for all |
 | END_BIO_BAD | bio | bad | Patent wall: the seed is locked |
-| END_BANKRUPT | none | loss | the third stranding; the ledger closes |
-| END_SWEPT | none | loss | one bot owns every market |
+| END_BANKRUPT | none | loss | no ship left to repossess and cash still negative; the ledger closes |
+| END_SWEPT | none | loss | player under 10% in all four markets for 3 cycles from cycle 25 |
 | END_OUTCOMPETED | none | soft | cycle 40, no market over 50% |
 
 Selection rule (first match wins): the win fires for `win_market` M. Read `dir_M` (hidden, 4.2): 10 or more = `END_<MKT>_GOOD`; -10 or less = `END_<MKT>_BAD`; between -9 and +9 the sign of the last nudge in M decides; no step seen = good. There is no tie. The chain of choices, not any one choice, makes the result: a market needs about three to four net steps one way to cross 10, and the late steps can partly turn it (4.2).
@@ -358,7 +358,7 @@ Art (artist, optional): market icons, goods icons.
 1. Run length: is 40 cycles right (the old run was 30) so trees and chains have room? Default chosen: 40.
 2. Old saves: the goal and tree change, so old saves are dropped. Acceptable? Default chosen: yes, version bump.
 3. Good/bad rule: the hidden direction value `dir_<mkt>` built by the whole chain of choices (4.2), not any one option. Thresholds 10 / -10, last nudge decides in between. Do you also want skills or share to affect it? Default chosen: no.
-4. Loss weakness: "one bot over 50% in every market" is hard to trigger. Is the soft ending `END_OUTCOMPETED` at cycle 40 an acceptable non-win? Default chosen: yes.
+4. Non-win: is the soft ending `END_OUTCOMPETED` at cycle 40 (no market over 50%) an acceptable non-win? Default chosen: yes. (The old "one bot over 50% everywhere" loss was replaced by the approved swept rule, R3.)
 5. Shield (EV18) and its planet effect: retire with the old ending, or keep as a pool event? Default chosen: retire.
 6. Names: bots, goods, ending themes are working names; OK for story-designer to settle?
 
