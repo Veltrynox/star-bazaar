@@ -348,7 +348,7 @@ NULL_CORE_FIT | 110 | Ships window, label or tooltip of the fitted ship | Null C
 BTN_FIT_NULL_CORE | 24 | Ships window, fit button on a route; {n} is the route or ship number | Fit Null Core, ship {n}
 LBL_NULL_CORE | 24 | Ships window, label of the fitted ship | Null Core
 LBL_NULL_CORE_BUILT | 24 | Space Storage window, state once the core exists | Null Core built
-SS_NULL_CORE_BUILD | 32 | Space Storage window, build button; {cost} is the credit cost (over the 24 limit of voice.md, flagged to the owner) | Build Null Core: {cost} credits
+SS_NULL_CORE_BUILD | 24 | Space Storage window, build button; {cost} is the credit cost (fits the 24 limit) | Build Null Core: {cost}
 
 ## Lane and fabric notices (added 2026-11-03)
 LBL_TRADE_NEEDS_A1 | 60 | Stalled system 2 lane when Space Storage (A1) is not learned | Learn Space Storage (A1) first.

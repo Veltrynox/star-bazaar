@@ -27,7 +27,7 @@ const TYPE_TEXTURES := {
 	"lush": {"beauty": TP + "planet_lush_beauty.png", "disp": TP + "planet_lush_displacement.png"},
 	"agrarian": {"beauty": TP + "planet_agrarian_beauty.png", "disp": TP + "planet_agrarian_displacement.png"},
 	"ocean": {"beauty": TP + "planet_ocean_beauty.png", "disp": TP + "planet_ocean_displacement.png"},
-	"moon": {"beauty": TP + "planet_moon_beauty.png", "disp": TP + "planet_moon_displacement.png", "ring": TP + "asteroid_ring_1.png"},
+	"moon": {"beauty": TP + "planet_moon_beauty.png", "disp": TP + "planet_moon_displacement.png"},
 	"dead": {"beauty": TP + "planet_toxic_beauty.png"},  # dead worlds (Cinderrest, Greywake): own shader, see DEAD_MATERIAL
 	"urban": {"beauty": TP + "planet_with_lights_beauty.png", "disp": TP + "planet_with_lights_displacement.png", "lights": TP + "planet_lights_mask.png"},
 }

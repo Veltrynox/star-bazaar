@@ -1,0 +1,34 @@
+{
+ "schema_version": 1,
+ "agent": "economy-designer",
+ "date": "2026-11-03",
+ "task": "chain-no-permit",
+ "status": "blocked",
+ "files_changed": [],
+ "open_questions": [
+  "Owner/QA: nullglass exists only at Greywake (dead_2, system 2, permit-gated). Plate needs 1 nullglass, the Null Core needs 2. Without the permit the chain cannot complete by any price. Either the QA chain config adds --permit=2 (7 of 8 seeds complete), or the owner decides nullglass must be reachable in system 1 (new planet or good: owner approval, not data tuning).",
+  "UNKNOWN: whether permit-less chain completion is a requirement at all; with the permit the Null Core is fitted 7/8 and plate made 7/8."
+ ],
+ "handoff": "No data change, no data_version bump (still 32). Cause is structural, not numeric: in the no-permit chain runs fabric is built (cycle 16) and Cinderrest dross flows, but no Greywake nullglass route can exist (system 2 closed; core_log 'refused stock' at cycle 16 in 8/8). Cash, fabric cost 600, plate_sell 120 and route pay are not the limit: cash is 1900 to 3900 at cycle 16 and 4000 to 6400 at cycle 20 with the +1500 injection. Lowering permit_2_cost cannot help because the bot never buys it. Decent default unchanged 8/8.",
+ "changes": [],
+ "bot_table_fast_clock_seeds_1_8": {
+  "before_equals_after": {
+   "chain_no_permit (STRATEGIES=dead_run, skill-order, inject 15:1500)": "4/8 wins (26,28,30,30), plate 0/8, Null Core 0/8, end cash median 13962",
+   "decent_default": "8/8 wins (21,21,22,22,23,23,24,25), end cash median 15155",
+   "chain_plus_permit2 (reference)": "2/8 wins (30,30), plate 7/8, Null Core 7/8, end cash median 10477",
+   "dead_run_permit2_no_chain (reference)": "1/8 win (29), end cash median 10413"
+  },
+  "target_check": {
+   "plate_6_of_8_no_permit": "FAIL 0/8, unreachable by data",
+   "core_5_of_8_no_permit": "FAIL 0/8, unreachable by data",
+   "chain_not_below_no_chain_by_more_than_1": "PASS, no-permit chain 4/8 wins",
+   "decent_6_of_8": "PASS 8/8",
+   "flat_cash_stall": "none seen in cash_by_cycle of the chain runs"
+  }
+ },
+ "options_for_owner_or_qa": [
+  "A: QA runs the chain with --permit=2 (a normal purchase, the way decent plays). 7/8 complete today, no data change needed.",
+  "B: make dead_run default to --permit=2 in bot_run.gd (qa-analyst).",
+  "C: owner approves a nullglass source in system 1 (new planet or lane). That is new content, not a balance value; economy designer would then price it."
+ ]
+}

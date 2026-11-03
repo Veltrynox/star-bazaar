@@ -12,7 +12,7 @@ Status: decided for build. Names and numbers are placeholders for owner review. 
 - They are planet nodes like the others: they can be routed from and sold to, but they have no food or energy market.
 - They carry only the two new dead-world resources (section 2), as abundant goods, in planets data format.
 - Visual: the planet uses the texture above, plus an inverse fresnel: a dark rim that absorbs light (the edge darkens and the limb does not glow). Done in an fx shader, no collision change.
-- Dead planets open with their system. Dead_1 is in system 1, so it is available from the start. Its mining is gated by skills (section 3), so the planet is visible but not yet useful.
+- Dead planets open with their system. Dead_1 is in system 1, but it cannot be routed from or to before cycle 15 (balance key dead_unlock_cycle). Before that the planet panel says it opens at cycle 15. Its mining is also gated by skills (section 3).
 
 ## 2. Resources
 
@@ -61,3 +61,7 @@ Story rules: the three pairs use the existing story voice (story/voice.md). Keep
 
 - Names of the two resources and the two planets (placeholders).
 - Whether the fabric product is named now or after the first run.
+
+## Decision 2026-11-03: the dead chain is a permit-tier path
+
+Nullglass is sold only at Greywake (dead_2), which is in system 2 and behind the permit. A player without the permit never gets nullglass, so plate and the Null Core need the permit. This is by design: the chain is the second-tier path, and the bot shows it completes on the permit path (plate and Null Core in 7 of 8 seeds, decent default still wins 8 of 8). Option kept open for the owner: add a nullglass source in system 1 (new content, not a balance value).

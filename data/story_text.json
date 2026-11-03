@@ -1351,9 +1351,9 @@
  },
  {
   "id": "SS_NULL_CORE_BUILD",
-  "text": "Build Null Core: {cost} credits",
-  "max": 32,
-  "place": "Space Storage window, build button; {cost} is the credit cost (over the 24 limit of voice.md, flagged to the owner)"
+  "text": "Build Null Core: {cost}",
+  "max": 24,
+  "place": "Space Storage window, build button; {cost} is the credit cost (fits the 24 limit)"
  },
  {
   "id": "LBL_TRADE_NEEDS_A1",
