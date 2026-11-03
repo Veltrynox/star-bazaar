@@ -1559,7 +1559,21 @@ func _mine_event(src: int) -> void:
 	if not found.is_empty():
 		fire_event(str(found[0]))
 
+## Dead-world event modifiers (income cut or boost, ore loss) go to the route engine as planet index maps.
+func _push_dead_mods() -> void:
+	engine.dead_income = {}
+	engine.dead_loss = {}
+	for i in map.planets.size():
+		if DeadWorlds.is_dead(map.planets[i]):
+			var f: float = events.income_factor(i)
+			if not is_equal_approx(f, 1.0):
+				engine.dead_income[i] = f
+			var l: Dictionary = events.ore_loss(i)
+			if not l.is_empty():
+				engine.dead_loss[i] = l
+
 func _settle_routes() -> Array:
+	_push_dead_mods()
 	var r: Dictionary = engine.settle(cash)
 	last_local = r["local"]
 	cash += int(r["delta"])
@@ -1861,6 +1875,11 @@ func _apply_effect(id: String, eff: Dictionary) -> Dictionary:
 			shield.skip()
 		"danger":  # [danger: Planet, +N]: raise or lower a dead world's meter
 			dead.change(str(map.planets[int(eff["planet"])].get("id", "")), int(eff["amount"]))
+		"cost":  # [cost: key]: credits paid now (the button is off when cash is short)
+			cash -= int(eff["amount"])
+		"income_cut", "income_boost", "ore_loss":
+			events.start_mod(eff)
+			_push_dead_mods()
 		"asteroid_pay":  # T109: payment to the state; the point is an event reward, not bought
 			cash -= events.asteroid_cost()
 			_spawn_event_cluster()  # T156: the rock is pulled apart: a fresh small cluster
@@ -1956,8 +1975,9 @@ func _open_event_notice(id: String) -> void:
 	var effs: Array = []
 	for ch in choices:
 		var lbl: String = events.choice_text(ch, args)
-		var kind := str(events.choice_effect(ch).get("kind", ""))
-		var fee := _choice_fee(kind)
+		var fee := 0
+		for e in events.choice_effects(ch):
+			fee += _choice_fee(str(e.get("kind", "")))
 		if fee > 0:
 			lbl = "%s (%d)" % [lbl, fee]
 		labels.append(lbl)
@@ -2004,6 +2024,8 @@ func _choice_fee(kind: String) -> int:
 			return shield.cost()
 		"asteroid_pay":
 			return events.asteroid_cost()
+		"cost":
+			return int(events.balance.get("dead_shore_cost", 0))
 	return 0
 
 ## T98: after a debris choice: popup with the outcome text, closed with OK.
@@ -2036,7 +2058,11 @@ func _on_event_confirmed(choice: int, id: String) -> void:
 		var choices: Array = events.choices_of(id)
 		if choice < choices.size():
 			events.schedule_follow(choices[choice], cycle)  # R1: a choice may schedule a later event
-			var over := _apply_effect(id, events.choice_effect(choices[choice]))
+			var over := {}
+			for eff in events.choice_effects(choices[choice]):
+				var o := _apply_effect(id, eff)
+				if not o.is_empty():
+					over = o
 			if typeof(choices[choice]) == TYPE_DICTIONARY and choices[choice].has("popup_id"):
 				_debris_popup(choices[choice], over)
 				return

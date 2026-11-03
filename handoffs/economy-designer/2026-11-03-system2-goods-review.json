@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "agent": "economy-designer",
+  "date": "2026-11-03",
+  "task": "System 2 goods price review (silk, chips, ore in data/systems.json)",
+  "status": "done",
+  "files_changed": ["handoffs/economy-designer/2026-11-03-system2-goods-review.json"],
+  "open_questions": [
+    "UNKNOWN: sim reads silk/chips from tools/system2.json (identical to systems.json), not systems.json; no real-game run of silk/chips routes yet.",
+    "mining_focus under --goods shows 2% win (sim artefact: ore sells only 12 at Voltara); not a system 2 price issue, flagged for the next mining review."
+  ],
+  "handoff": "Decision: keep all system 2 silk, chips and ore prices. Margins per unit: silk 24 (s2_p1 buy 24 to s2_p4 sell 48), chips 18-20 (s2_p2 buy 18 to s2_p3 36 or s2_p4 38), ore 4-5 above Voltara 12 at s2_p2 16. Comparable to core energy/food margins, so viable not dominant. Sim --goods, 200 seeds: decent no skills 88% win median 27 (82% median 27 without goods); always expand 66% median 28; always expand+C1 median 20 (same as without goods, pre-existing flag); sloppy and never expand lose. No value changed.",
+  "details": {
+    "changes": [],
+    "sim_results": [
+      {"strategy": "decent no skills (no events, --goods)", "final_cash": 12510, "win_cycle": 26},
+      {"strategy": "always expand (no events, --goods)", "final_cash": 12692, "win_cycle": 28},
+      {"strategy": "always expand+C1 (no events, --goods)", "final_cash": 13436, "win_cycle": 20},
+      {"strategy": "sloppy overload (--goods)", "final_cash": 4262, "win_cycle": null},
+      {"strategy": "never expand (--goods)", "final_cash": 4506, "win_cycle": null}
+    ]
+  }
+}

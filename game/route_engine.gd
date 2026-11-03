@@ -29,6 +29,9 @@ var next_id: int = 1
 var closed_planets: Array = []  # planet indexes closed (permits/events hook); runtime only
 var debris_planets: Array = []  # T98: planets with debris; routes from them carry less (runtime, set by main)
 var shield: RefCounted = null  # T101: solar shield (shield.gd), set by main
+var dead_income: Dictionary = {}  # dead-world events: planet index -> income factor for routes out of it (runtime, set by main)
+var dead_loss: Dictionary = {}  # planet index -> {chance, pct}: a route out of it may lose part of its load (runtime, set by main)
+var loss_rng := RandomNumberGenerator.new()
 var trade_gate: Callable = Callable()  # owner 2026-11-03: planet -> bool, false when its system has no Space Storage post (set by main)
 var learned: Array = []  # T82: learned skill ids, set by main; effects come from balance.json keys
 var clusters: RefCounted = null  # T156: asteroid clusters (clusters.gd), set by main; null = no mining
@@ -507,6 +510,8 @@ func _route_cap(rec: Dictionary) -> int:
 		eff = 1.0 - float(balance.get("debris_route_penalty", 0.0))
 	if shield != null:  # T101: energy gain at planets bought after the shield
 		eff *= float(shield.unit_factor(int(rec["a"]), c)) if not from_cluster(rec) else 1.0
+	if not from_cluster(rec) and dead_income.has(int(rec["a"])):  # EV35: share the lane cuts, race raises
+		eff *= float(dead_income[int(rec["a"])])
 	var units := floori(units_per_cycle(rec) * clampf(float(rec["fresh"]), 0.0, 1.0) * eff)
 	var lim := _split_limit(rec)  # N2: a split lane takes no more than its share of the stock
 	if lim >= 0:
@@ -977,6 +982,8 @@ func _settle_one(rec: Dictionary, cash: int) -> int:
 		sk = ""
 	if from_planet < moved and sk != "":
 		from_planet += storage.remove(sk, c, moved - from_planet)
+	if dead_loss.has(int(rec["a"])) and loss_rng.randf() < float(dead_loss[int(rec["a"])]["chance"]):  # EV32: part of the load is lost on the climb
+		from_planet -= floori(from_planet * float(dead_loss[int(rec["a"])]["pct"]))
 	var carried := from_planet
 	var sale := 0
 	if stop_open(rec):  # N9: the stop buys up to its Sell order amount; the rest is carried on

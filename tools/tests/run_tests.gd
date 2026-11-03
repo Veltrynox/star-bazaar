@@ -58,6 +58,7 @@ func _run() -> void:
 	await _test_dead_planets()
 	await _test_dead_world_mechanics()
 	await _test_dead_events_chain()
+	await _test_dead_choice_effects()
 	await _test_fabric()
 	await _test_price_event()
 	await _test_route_move()
@@ -3497,4 +3498,101 @@ func _test_dead_events_chain() -> void:
 	check(m.cycle == 5 and n31.call() == 1 and ev.scheduled.is_empty(), "dead events: EV31 fires once at cycle 5", "cycle %d n %d" % [m.cycle, n31.call()])
 	m._mine_event(d1)
 	check(ev.mine_events("dead_1").is_empty(), "dead events: EV29 does not fire a second time")
+	await _free_main(m)
+
+## Dead-world choice effects: danger, credit cost, ore loss, income cut and boost (EV29, EV32, EV35).
+func _test_dead_choice_effects() -> void:
+	_wipe_user()
+	var m: Control = await _new_main()
+	m._dismiss_preface()
+	var ev = m.events
+	m._open_system(2)  # Greywake joins the planet list (events share it)
+	var d1 := -1
+	var g2 := -1
+	for i in m.map.planets.size():
+		match str(m.map.planets[i].get("id", "")):
+			"dead_1":
+				d1 = i
+			"dead_2":
+				g2 = i
+	# tag parsing
+	check(ev.parse_tag("[cost: dead_shore_cost]")["amount"] == int(m.balance["dead_shore_cost"]) and ev.parse_tag("[cost: nope]").is_empty(), "dead effects: [cost: key] reads balance")
+	check(ev.parse_tag("[ore loss: Greywake]")["kind"] == "ore_loss" and ev.parse_tag("[income: cut]")["kind"] == "income_cut" and ev.parse_tag("[income: boost]")["kind"] == "income_boost" and ev.parse_tag("[income: x]").is_empty(), "dead effects: ore loss and income tags parse")
+	# EV29 keep mining: price up and danger +1; pull out: no danger
+	m.cycle = 1
+	m.fire_event("EV29")
+	m._on_event_confirmed(0, "EV29")
+	check(m.danger_of(d1) == 1, "dead effects: EV29 keep mining adds danger +1", str(m.danger_of(d1)))
+	m._dismiss_event_notice()
+	ev.pending_id = ""
+	m.fire_event("EV29")
+	m._on_event_confirmed(1, "EV29")
+	check(m.danger_of(d1) == 1, "dead effects: EV29 pull out adds no danger")
+	m._dismiss_event_notice()
+	# EV32 shore up costs credits (button off when cash is short), carry on costs none
+	m.cash = 1000
+	var cost := int(m.balance["dead_shore_cost"])
+	m._dismiss_event_notice()
+	ev.pending_id = ""
+	m.fire_event("EV32")
+	m._on_event_confirmed(0, "EV32")
+	check(m.cash == 1000 - cost, "dead effects: EV32 shore up costs dead_shore_cost", str(m.cash))
+	check(m.engine.dead_loss.is_empty(), "dead effects: shore up has no ore loss")
+	m._dismiss_event_notice()
+	ev.pending_id = ""
+	m.fire_event("EV32")
+	m._on_event_confirmed(1, "EV32")
+	check(m.cash == 1000 - cost and m.engine.dead_loss.has(g2), "dead effects: EV32 carry on costs nothing and starts ore loss at Greywake", str(m.engine.dead_loss))
+	# ore loss: chance 1, pct 0.5 drops half of a load; expires after dead_ore_loss_cycles
+	m.learned_skills.append("M1")
+	m.learned_skills.append("M2")
+	m.balance["dead_ore_loss_chance"] = 1.0
+	m.balance["dead_ore_loss_pct"] = 0.5
+	m._push_dead_mods()
+	check(abs(float(m.engine.dead_loss[g2]["pct"]) - 0.5) < 0.001, "dead effects: ore loss reads balance")
+	for i in int(m.balance["dead_ore_loss_cycles"]):
+		ev.tick()
+	m._push_dead_mods()
+	check(m.engine.dead_loss.is_empty(), "dead effects: ore loss ends after dead_ore_loss_cycles")
+	# EV35 share cuts income, race raises it and adds danger to both worlds
+	m._dismiss_event_notice()
+	ev.pending_id = ""
+	m.cash = 5000
+	m.fire_event("EV35")
+	m._on_event_confirmed(0, "EV35")
+	var cut := float(m.balance["dead_income_cut"])
+	check(m.engine.dead_income.has(d1) and m.engine.dead_income.has(g2) and abs(float(m.engine.dead_income[d1]) - (1.0 - cut)) < 0.001, "dead effects: EV35 share the lane cuts income at both dead worlds", str(m.engine.dead_income))
+	var dd1: int = m.danger_of(d1)
+	var dg2: int = m.danger_of(g2)
+	for i in int(m.balance["dead_income_cycles"]):
+		ev.tick()
+	m._push_dead_mods()
+	check(m.engine.dead_income.is_empty(), "dead effects: income cut ends after dead_income_cycles")
+	m._dismiss_event_notice()
+	ev.pending_id = ""
+	m.fire_event("EV35")
+	m._on_event_confirmed(1, "EV35")
+	var boost := float(m.balance["dead_income_boost"])
+	check(abs(float(m.engine.dead_income[d1]) - (1.0 + boost)) < 0.001, "dead effects: EV35 race raises income", str(m.engine.dead_income))
+	check(m.danger_of(d1) == dd1 + 1 and m.danger_of(g2) == dg2 + 1, "dead effects: EV35 race adds danger to both worlds", "%d %d" % [m.danger_of(d1), m.danger_of(g2)])
+	# a route out of a dead world carries less under the cut (units), and the loss drops load on settle
+	ev.mods = []
+	m._push_dead_mods()
+	m.set_local_order(d1, "dross", "buy", true)
+	m.cash = 9000
+	m.ships = 3
+	check(m._connect(d1, 0, "dross")["ok"], "dead effects: route out of Cinderrest made")
+	var rec: Dictionary = m.engine.routes[m.engine.routes.size() - 1]
+	rec["fresh"] = 1.0
+	m.engine.storage.add(str(rec["src"]), "dross", 100)
+	var full: int = m.engine.planned_units(rec)
+	m.engine.dead_income = {d1: 0.5}
+	var half: int = m.engine.planned_units(rec)
+	check(full > 1 and half == floori(full * 0.5) or half == full / 2, "dead effects: income factor scales units", "%d %d" % [full, half])
+	m.engine.dead_income = {}
+	var before: int = m.engine.storage.amount(str(rec["dst"]), "dross")
+	m.engine.dead_loss = {d1: {"chance": 1.0, "pct": 0.5}}
+	m.engine._settle_one(rec, 100000)
+	var got: int = m.engine.storage.amount(str(rec["dst"]), "dross") - before
+	check(full > 1 and got == full - floori(full * 0.5), "dead effects: ore loss drops part of the load", "%d of %d" % [got, full])
 	await _free_main(m)

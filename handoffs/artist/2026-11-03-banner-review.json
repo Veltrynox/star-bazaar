@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "agent": "artist",
+  "date": "2026-11-03",
+  "task": "Review EV29-EV37 dead-worlds event banners against the existing set",
+  "status": "done",
+  "files_changed": [],
+  "open_questions": [
+    "UNKNOWN: whether the dead-worlds banners should keep their grey, teal and amber palette or be graded toward the mauve of EV01-EV28. Owner or artist decision. Not changed here.",
+    "UNKNOWN: no banner style section exists in tools/art_director/ART_DIRECTOR.md; the style was judged against the existing set only.",
+    "UNKNOWN: the owner-sent screenshot in this session arrived without a file path and could not be viewed."
+  ],
+  "handoff": "EV29-EV37 reviewed. All nine keep the existing framing: 3:1 wide crop, foreground girders, small silhouettes, no text, dark treatment. Full-resolution PNGs have no visible watermarks. The webp and jpg files match each other and have the correct sizes (480x160 and 960x320). Palette differs from the mauve set (grey, teal, amber). No re-crop or re-export was needed, so no files were changed. Decision on palette needed before these ship. Tests: 81 pass, 0 test fail, but tools/tests/run.sh exits 1 from a GDScript parse error in game/main.gd (preexisting, not touched here).",
+  "details": {
+    "reviewed": [
+      { "id": "EV29", "decision": "keep", "note": "Mine interior, crates, lantern; dark, no text" },
+      { "id": "EV30", "decision": "keep", "note": "Depot with hauler and stretcher figures; dark" },
+      { "id": "EV31", "decision": "keep", "note": "Quarry basin, lamp rows; amber-brown" },
+      { "id": "EV32", "decision": "keep", "note": "Teal crystal wall with silhouettes; cool palette" },
+      { "id": "EV33", "decision": "keep", "note": "Crane lifting glass slabs; teal" },
+      { "id": "EV34", "decision": "keep", "note": "Shattered crystal floor; darkest of the set" },
+      { "id": "EV35", "decision": "keep", "note": "Two hulls over a dry plain, planets in sky" },
+      { "id": "EV36", "decision": "keep", "note": "Teal glass wall with panel; busy" },
+      { "id": "EV37", "decision": "keep", "note": "Conveyor and stacked cargo, warm amber" }
+    ],
+    "checks": {
+      "webp_size": "480x160 for all nine",
+      "jpg_size": "960x320 for all nine",
+      "fullres_aspect": "2172x724 (3:1), so the 3:1 export is an exact resize",
+      "watermark_check": "corners of the fullres PNGs show no marks"
+    },
+    "tests": { "pass": 81, "fail": 0, "script_errors": "GDScript parse error in game/main.gd; not caused by this review" }
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-03",
+  "task": "Dead-world choice effects: danger, credit cost, ore loss, income cut and boost (EV29, EV32, EV35)",
+  "status": "done",
+  "files_changed": [
+    "game/events.gd",
+    "game/main.gd",
+    "game/route_engine.gd",
+    "data/balance.json",
+    "tools/tests/run_tests.gd",
+    "handoffs/gameplay-programmer/2026-11-03-dead-effects.json"
+  ],
+  "open_questions": [
+    "Economy designer: set placeholders dead_shore_cost 400, dead_ore_loss_chance 0.5, dead_ore_loss_pct 0.3, dead_ore_loss_cycles 3, dead_income_cycles 3, dead_income_cut 0.25, dead_income_boost 0.25.",
+    "Story/data owner: extras live in events.gd CHOICE_EXTRA (events.json is built from story; I did not edit it). Add an \"extra\" tag list to the choices in story/events.md if you want them in data (the data key wins).",
+    "UNKNOWN: EV35 race raises danger on both worlds (text says only danger); EV32 carry on does not raise danger (text says the crack grew, no promise). Confirm."
+  ],
+  "handoff": "Wired: EV29 keep mining +1 danger Cinderrest; EV32 shore up pays dead_shore_cost (button off if cash short); EV32 carry on starts ore loss at Greywake (per trip chance, share of load lost, 3 cycles); EV35 share cuts route income from dead worlds, race raises it and adds +1 danger on both worlds. New tag kinds cost, ore loss, income (events.gd header). Timed mods saved under events 'mods'. Tests: 922 pass, 0 fail. Not wired: nothing the texts promise is left out.",
+  "details": {
+    "playable": "Part-one dead-world choices now carry their promised non-price effects.",
+    "how_to_try": "Debug menu: fire EV29, EV32, EV35 and pick each choice; watch danger on the planet panel, cash, and route income over the next 3 cycles."
+  }
+}
