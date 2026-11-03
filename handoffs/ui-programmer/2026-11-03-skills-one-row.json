@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-03",
+  "task": "skills-one-row",
+  "status": "done",
+  "files_changed": ["game/skill_screen.gd", "handoffs/ui-programmer/2026-11-03-skills-one-row.json"],
+  "open_questions": ["Not checked by eye: do the 144 px cells fit the node names (names may wrap to 2 lines; button height raised to 56) and do the prerequisite lines still read well with Foundations stacked?"],
+  "handoff": "Skills window now lays all five branches in one row, no bands. Constants in game/skill_screen.gd: CELL_W 200->144, NODE_GAP_H 18->10, BRANCH_GAP 30->20, NODE_BTN_H 50->56, FONT_SIZE unchanged at 10. New STACKED_BRANCHES=[fnd]: Foundations nodes each on their own row (one cell wide); other four branches stay 2 cells wide. Width: 9*144 + 4*10 + 4*20 = 1416, usable about 1440. Wrapping code removed; VERTICAL_LAYOUT toggle and helpers kept. The Locked: prerequisite text (SK_LOCKED_NEEDS) is no longer shown on node buttons; a locked node shows only a non-prerequisite lock reason (e.g. Space Storage earn text) or an empty third line. Detail strip Needs line and Learn button state unchanged. No test asserted the Locked text. Headless suite: pass=1169 fail=0."
+}
