@@ -32,7 +32,7 @@ func need_of(c: String) -> int:
 	return maxi(0, int(balance.get("fabric_in_" + c, 0)))
 
 func batches() -> int:
-	return maxi(1, int(balance.get("fabric_batches_per_cycle", 1)))
+	return maxi(1, int(balance.get("fabric_batches_per_cycle", 1)) + Skills.workshop_batches(Markets.market_of(OUTPUT)))  # MIN_4
 
 ## Null Core (placeholder numbers in balance.json: null_core_in_plate, null_core_in_nullglass, null_core_build_cost, null_core_max).
 func core_cost() -> int:
@@ -59,7 +59,7 @@ func run(storage: RefCounted) -> void:
 		reason = ""
 		return
 	var key: String = storage.system_key(SYSTEM)
-	var out_n := maxi(1, int(balance.get("fabric_out_plate", 1)))
+	var out_n := maxi(1, int(balance.get("fabric_out_plate", 1)) + Skills.batch_yield(Markets.market_of(OUTPUT)))  # MIN_6
 	var why := ""
 	for b in batches():
 		why = ""
