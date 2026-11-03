@@ -56,6 +56,14 @@
       "scarce": "both",
       "texture_set": "urban",
       "abundance": null
+    },
+    {
+      "id": "dead",
+      "abundant": "none",
+      "scarce": "none",
+      "texture_set": "dead",
+      "abundance": null,
+      "own_goods": true
     }
   ]
 }

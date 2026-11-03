@@ -50,6 +50,10 @@ The look comes from the galaxy-view concept art: quiet glass panels over a dark,
 | Right | NotificationBoard (320px): Mission, Event feed, Notices |
 | Bottom | KeyHints (left) · route legend (centre) · run state with Space (right) |
 
+## Galaxy view (planned)
+
+Zooming out past the systems opens the galaxy view. It keeps the same frame: TopBar, a left panel for the selected **system**, the NotificationBoard and the bottom row. Open systems are soft territory outlines with their planets, resource icons and your routes inside. Uncharted systems are dim stars on dashed links. A three-line tutorial in the NotificationBoard introduces it once. See GalaxyView.
+
 The other screens (title, preface, game menu, skill screen, choice and end screens) reuse the same panels, buttons and confirmations. The EventPopup's two-choice layout is the template for the Choice screen.
 
 ## Iconography
@@ -62,4 +66,4 @@ The mark in the top-left is a **placeholder**. Replace it with the real Star Baz
 
 - Load `tokens.css`, then `components/bundle.css` (it imports both fonts), then `components/bundle.js`. Call `StarBazaar.hydrate()` to fill `[data-icon]` elements and paint `canvas.ds-stars`. Format numbers with `StarBazaar.num(n, signed)`.
 - Selected: a reticle on the planet or a full-strength route line, the `line-300` orbit, and a `star-warm` primary action. There is only one selection at a time.
-- Planned features ([NOT BUILT] in the game) are drawn here so they can be designed: ship dots with trails, the hex ring, event choice buttons, per-type planet textures.
+- Planned features ([NOT BUILT] in the game) are drawn here so they can be designed: the galaxy view, ship dots with trails, the hex ring, event choice buttons, per-type planet textures.

@@ -1,0 +1,301 @@
+<!-- @dsCard group="Screens" height=941 width=1672 page=true subtitle="Galaxy view (planned) — zoomed out past the systems. Click a system; step through the tutorial; Space pauses." -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Galaxy View</title>
+<style>
+  body { background: var(--void-000); }
+  .screen { width: 1672px; height: 941px; outline: none; }
+  .abs { position: absolute; }
+  .galaxy-glow { position: absolute; inset: 0; pointer-events: none; background:
+    radial-gradient(ellipse 30% 22% at 52% 50%, #5a463640, transparent 70%),
+    radial-gradient(ellipse 18% 10% at 70% 30%, #5a463626, transparent 70%),
+    radial-gradient(ellipse 22% 12% at 38% 72%, #5a463622, transparent 70%); }
+  #map-svg, #ships { position: absolute; inset: 0; width: 1672px; height: 941px; pointer-events: none; }
+  #map-svg .hit { pointer-events: all; cursor: pointer; }
+  .sys { position: absolute; transform: translate(-50%, -50%); pointer-events: none; }
+  .sys .core { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); border-radius: var(--radius-full); }
+  .sys .ds-reticle { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); }
+  .syslabel { position: absolute; transform: translateX(-50%); text-align: center; white-space: nowrap; cursor: pointer; }
+  .syslabel .ds-sysname { color: var(--ink); font-size: 14px; }
+  .syslabel .meta { font: 400 11px/14px var(--font-mono); color: var(--ink-muted); margin-top: 4px; }
+  .syslabel.unk .ds-sysname { color: var(--ink-subtle); font-size: 12px; letter-spacing: .24em; }
+  .gp { position: absolute; transform: translate(-50%, -50%); display: flex; align-items: center; gap: 4px; cursor: pointer; }
+  .gp .ds-planet { width: 12px; height: 12px; font-size: 5px; }
+  .gp .res { position: absolute; left: 10px; top: -14px; width: 13px; height: 13px; }
+  .gp .res .ds-icon { width: 13px; height: 13px; filter: drop-shadow(0 0 3px #000); }
+  .gp .nm { position: absolute; left: 12px; top: 3px; font: 400 10px/12px var(--font-sans); letter-spacing: .04em; color: var(--ink-muted); white-space: nowrap; text-shadow: 0 1px 4px #000; }
+  .hl { animation: pulse 1.6s ease-in-out infinite; }
+  @keyframes pulse { 0%, 100% { filter: drop-shadow(0 0 0 transparent); } 50% { filter: drop-shadow(0 0 8px var(--signal-info)); } }
+  .paused .hl { animation: none; }
+  .legend { display: flex; gap: 20px; align-items: center; font: 400 12px/16px var(--font-sans); color: var(--ink-muted); letter-spacing: .02em; }
+  .legend span { display: inline-flex; align-items: center; gap: 8px; }
+  .legend i { width: 22px; height: 0; border-top: 2px solid; }
+  #banner { left: 836px; top: 150px; transform: translateX(-50%); z-index: 6; display: none; }
+  .paused #banner { display: inline-flex; }
+  .sysrow { display: grid; grid-template-columns: 18px 1fr auto; gap: var(--space-3); align-items: center; padding: 6px var(--space-2); border-radius: var(--radius-sm); font: 400 13px/18px var(--font-sans); }
+  .sysrow .ds-planet { width: 14px; height: 14px; font-size: 6px; justify-self: center; }
+  .sysrow .y { display: flex; gap: 8px; font: 400 12px/16px var(--font-mono); }
+  .sysrow .y span { display: inline-flex; gap: 4px; align-items: center; }
+  .sysrow .y .ds-icon { width: 12px; height: 12px; }
+  .sumgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-2); }
+  .sumgrid div { background: var(--panel-200); border-radius: var(--radius-sm); padding: var(--space-2) 10px; }
+  .sumgrid .k { font: 400 11px/14px var(--font-sans); color: var(--ink-muted); letter-spacing: .02em; white-space: nowrap; }
+  .sumgrid .v { font: 400 15px/20px var(--font-mono); margin-top: 2px; }
+  .tour { display: flex; flex-direction: column; gap: var(--space-3); }
+  .tour .step { display: grid; grid-template-columns: 18px 1fr; gap: var(--space-3); font: 400 13px/18px var(--font-sans); color: var(--ink-subtle); }
+  .tour .step b { font: 400 11px/18px var(--font-mono); color: var(--ink-subtle); text-align: center; }
+  .tour .step.on { color: var(--ink); } .tour .step.on b { color: var(--signal-info); }
+  .tour .step.done { color: var(--ink-muted); }
+  .tour .acts { display: flex; gap: var(--space-2); justify-content: flex-end; }
+</style>
+</head>
+<body>
+<div class="screen ds-space" id="scr" tabindex="0">
+  <canvas class="ds-stars" data-seed="77" data-density="0.0019"></canvas>
+  <div class="galaxy-glow"></div>
+  <svg id="map-svg" viewBox="0 0 1672 941"></svg>
+  <div id="map"></div>
+  <svg id="ships" viewBox="0 0 1672 941" style="z-index:3"></svg>
+
+  <div class="abs" style="left:836px; top:96px; transform:translateX(-50%); text-align:center">
+    <div class="ds-sysname">The galaxy</div>
+    <div class="ds-hint" style="margin-top:4px">2 of 7 systems open · scroll in on a system to trade there</div>
+  </div>
+  <div class="ds-banner abs" id="banner"><span data-icon="pause"></span>Paused. Nothing earns while paused.</div>
+
+  <!-- Top bar -->
+  <header class="ds-topbar abs" style="left:0; right:0; top:0; z-index:5">
+    <span class="ds-logo" data-icon="mark"></span>
+    <div class="ds-goal">
+      <div class="line">Goal: <b>50,000</b> by cycle <b>30</b>. Now: <b>18,420</b>.</div>
+      <div class="track"><i style="width:36.8%"></i></div>
+    </div>
+    <span class="ds-stat-inline"><span data-icon="expenses"></span>Expenses <b>548</b><small>/ cycle</small></span>
+    <span class="ds-stat-inline"><span data-icon="skills"></span>Skill points <b>1</b></span>
+    <button class="ds-btn sm">Skills <span class="ds-kbd">K</span></button>
+    <div class="ds-cycle"><div><div class="n">Cycle 14</div><div class="s ds-good" id="runlbl">Running.</div></div></div>
+  </header>
+
+  <aside class="ds-panel ds-side abs" style="left:20px; top:76px; z-index:5" id="side"></aside>
+
+  <div class="ds-keys abs" style="left:20px; bottom:20px; width:340px; z-index:5">
+    <span>Wheel Zoom in on a system</span>
+    <span><span class="ds-kbd">W</span><span class="ds-kbd">A</span><span class="ds-kbd">S</span><span class="ds-kbd">D</span> Pan</span>
+    <span><span class="ds-kbd">K</span> Skills</span>
+    <span><span class="ds-kbd">Esc</span> Menu</span>
+  </div>
+
+  <div class="legend abs" style="left:836px; bottom:30px; transform:translateX(-50%); z-index:5">
+    <span><i style="border-color:var(--commodity-energy)"></i>Energy route</span>
+    <span><i style="border-color:var(--commodity-food)"></i>Food route</span>
+    <span><i style="border-color:var(--line-300)"></i>Link</span>
+    <span><i style="border-color:var(--line-200); border-top-style:dashed"></i>Uncharted link</span>
+  </div>
+
+  <aside class="ds-panel ds-board abs" style="right:20px; top:76px; z-index:5" id="board"></aside>
+
+  <div class="ds-panel ds-runstate abs" style="right:20px; bottom:20px; width:320px; box-sizing:border-box; z-index:5" id="run" role="button" tabindex="0">
+    <span class="ic" id="runic"><span data-icon="pause"></span></span>
+    <div style="flex:1"><div class="t" id="runt">Running.</div><div class="d" id="rund">Routes run on their own.</div></div>
+    <span class="ds-kbd" style="height:24px;padding:0 10px">Space</span>
+  </div>
+</div>
+
+<script>
+(function () {
+  var SB = window.StarBazaar, num = SB.num, NS = 'http://www.w3.org/2000/svg', TILT = 0.5;
+  var LBL = { energy: 'Energy', food: 'Food' };
+  /* Sample data. Dunmere's goods are placeholders until the game defines them. */
+  var SYS = [
+    { id: 'hollin', name: 'Hollin Reach', n: 1, x: 640, y: 500, r: 150, open: true, how: 'Your first system.',
+      planets: [
+        { name: 'Voltara', cls: 'molten', rx: 50, ang: 200, makes: [['energy', 60]] },
+        { name: 'Tillam', cls: 'terran', rx: 86, ang: 35, makes: [['food', 45]] },
+        { name: 'Ashgate', cls: 'arid', rx: 120, ang: 128, makes: [] }],
+      routes: [
+        { a: 0, b: 2, c: 'energy', ships: 2, net: 286, bow: -40 },
+        { a: 1, b: 2, c: 'food', ships: 1, net: 142, bow: 40 },
+        { a: 0, b: 1, c: 'energy', ships: 1, net: -80, bow: -46, waiting: true }],
+      storage: 'Locked · permit or skill' },
+    { id: 'dunmere', name: 'Dunmere Reach', n: 2, x: 1062, y: 372, r: 160, open: true, how: 'Opened with a permit.',
+      planets: [
+        { name: 'Brannock', cls: 'arid', rx: 44, ang: 300, makes: [['food', 30]] },
+        { name: 'Cindrel', cls: 'molten', rx: 76, ang: 160, makes: [['energy', 55]] },
+        { name: 'Mossfell', cls: 'terran', rx: 106, ang: 60, makes: [['food', 50]] },
+        { name: 'Quillon', cls: 'frozen', rx: 132, ang: 250, makes: [] }],
+      routes: [{ a: 1, b: 3, c: 'energy', ships: 1, net: 118, bow: -36 }],
+      storage: 'Locked · permit or skill' },
+    { id: 'u1', x: 470, y: 238 }, { id: 'u2', x: 868, y: 742 }, { id: 'u3', x: 1232, y: 660 },
+    { id: 'u4', x: 1250, y: 150 }, { id: 'u5', x: 790, y: 236 }
+  ];
+  var LINKS = [['hollin', 'dunmere'], ['hollin', 'u1'], ['hollin', 'u2'], ['dunmere', 'u4'], ['dunmere', 'u3'], ['u2', 'u3'], ['u1', 'u5'], ['u5', 'dunmere']];
+  var byId = {}; SYS.forEach(function (s) { byId[s.id] = s; });
+  var sel = 'hollin', paused = false, step = 0;
+
+  function el(tag, attrs, parent) { var e = document.createElementNS(NS, tag); for (var k in attrs) e.setAttribute(k, attrs[k]); parent && parent.appendChild(e); return e; }
+  function ic(n, cls) { return '<span data-icon="' + n + '"' + (cls ? ' class="' + cls + '"' : '') + '></span>'; }
+  function rng(seed) { var s = seed; return function () { s = (s * 16807) % 2147483647; return s / 2147483647; }; }
+  function sysNet(s) { return s.routes.reduce(function (t, r) { return t + r.net; }, 0); }
+  function sysShips(s) { return s.routes.reduce(function (t, r) { return t + r.ships; }, 0); }
+
+  var svg = document.getElementById('map-svg');
+  /* Links between systems */
+  LINKS.forEach(function (l) {
+    var A = byId[l[0]], B = byId[l[1]], known = A.open && B.open;
+    el('line', { x1: A.x, y1: A.y, x2: B.x, y2: B.y, stroke: known ? 'var(--line-300)' : 'var(--line-200)', 'stroke-width': known ? 1.2 : 1, 'stroke-dasharray': known ? 'none' : '2 6' }, svg);
+  });
+  /* Territory of open systems: an organic outline, like the concept art */
+  SYS.forEach(function (s, i) {
+    if (!s.open) return;
+    var r = rng(31 + i * 17), pts = [], N = 14;
+    for (var k = 0; k < N; k++) { var a = k / N * Math.PI * 2, rr = s.r * (0.82 + r() * 0.3); pts.push([s.x + rr * Math.cos(a), s.y + rr * 0.8 * Math.sin(a)]); }
+    var d = 'M' + ((pts[0][0] + pts[N - 1][0]) / 2) + ' ' + ((pts[0][1] + pts[N - 1][1]) / 2);
+    for (var k2 = 0; k2 < N; k2++) { var p = pts[k2], q = pts[(k2 + 1) % N]; d += ' Q ' + p[0].toFixed(1) + ' ' + p[1].toFixed(1) + ' ' + ((p[0] + q[0]) / 2).toFixed(1) + ' ' + ((p[1] + q[1]) / 2).toFixed(1); }
+    s.region = el('path', { d: d + 'Z', fill: '#ffffff08', stroke: 'var(--line-200)', 'stroke-width': 1, 'class': 'hit' }, svg);
+    s.region.addEventListener('click', function () { select(s.id); });
+    s.planets.forEach(function (p) {
+      el('ellipse', { cx: s.x, cy: s.y, rx: p.rx, ry: p.rx * TILT, fill: 'none', stroke: 'var(--line-100)' }, svg);
+      var t = p.ang * Math.PI / 180; p.x = s.x + p.rx * Math.cos(t); p.y = s.y + p.rx * TILT * Math.sin(t);
+    });
+  });
+  /* Your routes */
+  var routeG = el('g', { id: 'routes' }, svg), shipSvg = document.getElementById('ships'), ALL = [];
+  SYS.forEach(function (s) {
+    if (!s.open) return;
+    s.routes.forEach(function (r) {
+      var A = s.planets[r.a], B = s.planets[r.b], mx = (A.x + B.x) / 2, my = (A.y + B.y) / 2, dx = B.x - A.x, dy = B.y - A.y, L = Math.hypot(dx, dy);
+      var cx = mx - dy / L * r.bow, cy = my + dx / L * r.bow;
+      r.line = el('path', { d: 'M' + A.x + ' ' + A.y + ' Q ' + cx + ' ' + cy + ' ' + B.x + ' ' + B.y, fill: 'none',
+        stroke: r.waiting ? 'var(--signal-warn)' : 'var(--commodity-' + r.c + ')', 'stroke-width': 1.6, opacity: .8, 'stroke-dasharray': r.waiting ? '4 4' : 'none' }, routeG);
+      r.len = r.line.getTotalLength(); r.ui = [];
+      for (var i = 0; i < r.ships; i++) {
+        var g = el('g', {}, shipSvg), dots = [];
+        for (var j = 0; j < 5; j++) dots.push(el('circle', { r: j ? 1.5 - j * 0.2 : 2, fill: '#ebe7df', opacity: j ? .4 - j * .07 : 1 }, g));
+        r.ui.push({ dots: dots, phase: i / r.ships });
+      }
+      ALL.push(r);
+    });
+  });
+
+  /* Stars, planets, labels */
+  var map = document.getElementById('map');
+  function drawMap() {
+    map.innerHTML = '';
+    SYS.forEach(function (s) {
+      var on = s.id === sel, d = document.createElement('div');
+      d.className = 'sys'; d.style.left = s.x + 'px'; d.style.top = s.y + 'px'; d.style.zIndex = 2;
+      var size = s.open ? 18 : 8;
+      d.innerHTML = '<div class="core" style="width:' + size + 'px;height:' + size + 'px;background:radial-gradient(circle,#fff6e6 0 25%,#f1d4a0 50%,#e6a24c00 100%);box-shadow:' + (s.open ? '0 0 24px 8px #f1d4a055' : '0 0 8px 2px #ffffff22') + ';opacity:' + (s.open ? 1 : .55) + '"></div>' +
+        (on ? '<div class="ds-reticle" style="width:' + (s.open ? 40 : 26) + 'px;height:' + (s.open ? 40 : 26) + 'px"></div>' : '');
+      map.appendChild(d);
+      if (s.region) s.region.setAttribute('stroke', on ? 'var(--line-300)' : 'var(--line-200)');
+      var lab = document.createElement('div'); lab.className = 'syslabel' + (s.open ? '' : ' unk');
+      lab.style.left = s.x + 'px'; lab.style.top = (s.y + (s.open ? s.r * 0.8 + 10 : 14)) + 'px'; lab.style.zIndex = 4;
+      lab.innerHTML = s.open
+        ? '<div class="ds-sysname">' + s.name + '</div><div class="meta">' + s.planets.length + ' planets · ' + s.routes.length + (s.routes.length > 1 ? ' routes' : ' route') + ' · <span class="' + (sysNet(s) >= 0 ? 'ds-good' : 'ds-bad') + '">' + num(sysNet(s), true) + '</span> / cycle</div>'
+        : '<div class="ds-sysname">Uncharted</div>';
+      lab.onclick = function () { select(s.id); };
+      map.appendChild(lab);
+      if (!s.open) { d.style.pointerEvents = 'auto'; d.style.cursor = 'pointer'; d.style.width = '40px'; d.style.height = '40px'; d.onclick = function () { select(s.id); }; return; }
+      s.planets.forEach(function (p, i) {
+        var g = document.createElement('div'); g.className = 'gp'; g.style.left = p.x + 'px'; g.style.top = p.y + 'px'; g.style.zIndex = 4;
+        var res = p.makes.length ? '<span class="res' + (step === 1 ? ' hl' : '') + '">' + ic(p.makes[0][0], 'ds-' + p.makes[0][0]) + '</span>' : '';
+        g.innerHTML = '<div class="ds-planet ' + p.cls + '"></div>' + res + (on ? '<span class="nm"' + (p.x < s.x ? ' style="left:auto;right:12px"' : '') + '>' + p.name + '</span>' : '');
+        g.title = p.name + (p.makes.length ? ' · makes ' + LBL[p.makes[0][0]].toLowerCase() : ' · buys goods');
+        g.onclick = function () { select(s.id); };
+        map.appendChild(g);
+      });
+    });
+    document.getElementById('routes').setAttribute('class', step === 2 ? 'hl' : '');
+  }
+
+  /* Left panel: the selected system */
+  function drawSide() {
+    var s = byId[sel], S = document.getElementById('side');
+    if (!s.open) {
+      S.innerHTML = '<div class="head"><div><h2>Uncharted system</h2><div class="sub">Not open yet</div></div><button class="ds-x" aria-label="Close">' + ic('close') + '</button></div>' +
+        '<p class="ds-muted" style="margin:0;font:400 13px/19px var(--font-sans)">Nobody you know has traded here. That may be the point.</p>' +
+        '<div class="ds-sec"><span class="ds-caption">Known</span><div class="sysrow"><span>' + ic('planet') + '</span><span class="ds-muted">Planets</span><span class="ds-mono ds-muted">?</span></div>' +
+        '<div class="sysrow"><span>' + ic('route') + '</span><span class="ds-muted">Links</span><span class="ds-mono">' + LINKS.filter(function (l) { return l.indexOf(s.id) >= 0; }).length + '</span></div></div>' +
+        '<div><button class="ds-btn" disabled style="width:100%">Open system</button><div class="ds-hint">Systems open with a permit or a skill.</div></div>';
+      SB.hydrate(S); return;
+    }
+    var rows = s.planets.map(function (p) {
+      var y = p.makes.length ? p.makes.map(function (m) { return '<span>' + ic(m[0], 'ds-' + m[0]) + m[1] + '</span>'; }).join('') : '<span class="ds-muted" style="font-family:var(--font-sans)">Buys goods</span>';
+      return '<div class="sysrow"><div class="ds-planet ' + p.cls + '"></div><span>' + p.name + '</span><span class="y">' + y + '</span></div>';
+    }).join('');
+    var routes = s.routes.map(function (r) {
+      return '<div class="route">' + ic(r.c, 'ds-' + r.c) + s.planets[r.a].name + ' to ' + s.planets[r.b].name +
+        '<span class="net ' + (r.waiting ? 'ds-warn' : r.net >= 0 ? 'ds-good' : 'ds-bad') + '">' + (r.waiting ? 'Waiting' : num(r.net, true)) + '</span></div>';
+    }).join('');
+    S.innerHTML = '<div class="head"><div><h2>' + s.name + '</h2><div class="sub">System ' + s.n + ' · ' + s.how + '</div></div><button class="ds-x" aria-label="Close">' + ic('close') + '</button></div>' +
+      '<div class="sumgrid"><div><div class="k">Routes</div><div class="v">' + s.routes.length + '</div></div><div><div class="k">Ships</div><div class="v">' + sysShips(s) + '</div></div>' +
+        '<div><div class="k">Per cycle</div><div class="v ' + (sysNet(s) >= 0 ? 'ds-good' : 'ds-bad') + '">' + num(sysNet(s), true) + '</div></div></div>' +
+      '<div class="ds-sec"><span class="ds-caption">Planets</span>' + rows + '</div>' +
+      '<div class="ds-sec"><span class="ds-caption">Your routes here</span><div class="ds-conn">' + routes + '</div></div>' +
+      '<div class="sysrow" style="padding:0"><span class="ds-subtle">' + ic('storage') + '</span><span class="ds-muted">Space Storage</span><span class="ds-subtle" style="font-size:12px">' + s.storage + '</span></div>' +
+      '<div><button class="ds-btn primary" style="width:100%">Open system' + ic('chevron') + '</button><div class="ds-hint">Or scroll in on it.</div></div>';
+    SB.hydrate(S);
+  }
+
+  /* Right board: the one-time galaxy tutorial, then notices */
+  var TOUR = ['This is the galaxy view. Each glow is a system you have opened, or one you have not.',
+    'Icons next to planets show what they make: energy or food.',
+    'Coloured lines are your own routes. The dots are your ships.'];
+  var notices = [
+    { cls: 'good', ic: 'expansion', t: 'Expansion points earned', fx: 'First route in a new system.', w: 'Cycle 13' },
+    { cls: '', ic: 'route', t: 'Route made: Cindrel to Quillon.', w: 'Cycle 13' },
+    { cls: '', ic: 'lock', t: 'Dunmere Reach opened.', w: 'Cycle 12' },
+    { cls: 'old', ic: 'notice', t: 'Game saved.', w: 'Cycle 12' }];
+  function drawBoard() {
+    var B = document.getElementById('board'), done = step >= TOUR.length;
+    var tour = done ? '<div class="ds-note good">' + ic('notice') + '<span>Galaxy view tutorial done.<span class="fx">It won’t show again.</span></span></div>'
+      : '<div class="tour">' + TOUR.map(function (t, i) { return '<div class="step ' + (i === step ? 'on' : i < step ? 'done' : '') + '"><b>' + (i + 1) + '</b><span>' + t + '</span></div>'; }).join('') +
+        '<div class="acts"><button class="ds-btn ghost sm" id="skip">Skip</button><button class="ds-btn primary sm" id="next">' + (step === TOUR.length - 1 ? 'Got it' : 'Next') + '</button></div></div>';
+    B.innerHTML =
+      '<div class="grp"><header><span class="ds-caption">Galaxy view</span><span class="ds-tut">' + TOUR.map(function (_, i) { return '<i class="' + (i <= step ? 'on' : '') + '"></i>'; }).join('') + '</span></header>' + tour + '</div>' +
+      '<div class="grp"><header><span class="ds-caption">Notices</span></header>' +
+        notices.slice(0, 4).map(function (n) { return '<div class="ds-note ' + n.cls + '">' + ic(n.ic) + '<span>' + n.t + (n.fx ? '<span class="fx">' + n.fx + '</span>' : '') + '<span class="when">' + n.w + '</span></span></div>'; }).join('') + '</div>';
+    SB.hydrate(B);
+    var nx = document.getElementById('next'), sk = document.getElementById('skip');
+    if (nx) nx.onclick = function () { step++; drawBoard(); drawMap(); SB.hydrate(map); };
+    if (sk) sk.onclick = function () { step = TOUR.length; drawBoard(); drawMap(); SB.hydrate(map); };
+  }
+
+  function select(id) { sel = id; drawMap(); drawSide(); SB.hydrate(map); }
+  function setPaused(p) {
+    paused = p;
+    document.getElementById('scr').classList.toggle('paused', p);
+    document.getElementById('run').classList.toggle('paused', p);
+    document.getElementById('runic').innerHTML = '<span class="ds-icon">' + SB.icon(p ? 'play' : 'pause') + '</span>';
+    document.getElementById('runt').textContent = p ? 'Paused.' : 'Running.';
+    document.getElementById('rund').textContent = p ? 'Nothing earns while paused.' : 'Routes run on their own.';
+    var l = document.getElementById('runlbl'); l.textContent = p ? 'Paused.' : 'Running.'; l.className = 's ' + (p ? 'ds-warn' : 'ds-good');
+    notices.unshift({ cls: p ? 'warn' : 'good', ic: p ? 'pause' : 'play', t: p ? 'Paused. Nothing earns while paused.' : 'Running.', w: 'Cycle 14' }); drawBoard();
+  }
+  document.getElementById('run').onclick = function () { setPaused(!paused); };
+  document.addEventListener('keydown', function (e) { if (e.code === 'Space') { e.preventDefault(); setPaused(!paused); } });
+
+  var clock = 2.4, last = performance.now();
+  function place(now) {
+    if (!paused) clock += (now - last) / 1000; last = now;
+    ALL.forEach(function (r) {
+      r.ui.forEach(function (s) {
+        var u, back = false;
+        if (r.waiting) u = .88; else { var c = (clock * 0.08 + s.phase) % 1; back = c > .5; u = back ? 2 - c * 2 : c * 2; u = .06 + u * .88; }
+        s.dots.forEach(function (d, j) {
+          var p = r.line.getPointAtLength(r.len * Math.max(0, Math.min(1, u + (r.waiting ? 0 : (back ? 1 : -1) * j * 0.025))));
+          d.setAttribute('cx', p.x); d.setAttribute('cy', p.y);
+          if (j) d.setAttribute('opacity', r.waiting ? 0 : (back ? .22 : .4) - j * .07);
+          else d.setAttribute('fill', r.waiting ? '#e2c05e' : back ? '#a19e97' : '#ebe7df');
+        });
+      });
+    });
+  }
+  function frame(now) { place(now); requestAnimationFrame(frame); }
+  SB.hydrate(document); select('hollin'); drawBoard(); place(performance.now());
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

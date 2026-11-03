@@ -509,14 +509,11 @@ shadow_size = 16
 shadow_offset = Vector2(0, 6)
 
 [sub_resource type="Gradient" id="gbar"]
-offsets = PackedFloat32Array(0, 1)
 colors = PackedColorArray(0.0392, 0.0471, 0.0667, 0.94, 0.0392, 0.0471, 0.0667, 0)
 
 [sub_resource type="GradientTexture2D" id="gbar_tex"]
 gradient = SubResource("gbar")
 width = 8
-height = 64
-fill_from = Vector2(0, 0)
 fill_to = Vector2(0, 1)
 
 [sub_resource type="StyleBoxTexture" id="r37"]

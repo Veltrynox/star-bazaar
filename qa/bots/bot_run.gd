@@ -35,7 +35,8 @@ extends SceneTree
 ##   never_expand  one lane (best profit), the tutorial ship only, forever; learns skills.
 ##
 ## Options (after --):
-##   --strategy=decent|sloppy|always_expand|never_expand
+##   --strategy=decent|sloppy|always_expand|never_expand|mining_focus
+##                           (mining_focus, T161: Prospecting first; cluster ore lanes first, then the trade ranking)
 ##   --seed=<int>            only drives timer chunks and the alt choice (the game has no RNG)
 ##   --event-policy=first|decline   how event notices are answered (see _event_pick)
 ##   --clock=fast|timer
@@ -63,12 +64,13 @@ extends SceneTree
 const MAIN_SCENE := "res://game/main.tscn"
 const SaveGame := preload("res://game/save_game.gd")
 const SkillTree := preload("res://game/skill_tree.gd")
-const STRATEGIES := ["decent", "sloppy", "always_expand", "never_expand"]
+const STRATEGIES := ["decent", "sloppy", "always_expand", "never_expand", "mining_focus", "dead_run"]
 const DECENT_LANES := 24  # no lane cap, matching tools/sim.py decent (ship_cap is the only limit)
 const DECENT_FROM_CYCLE := 1  # buy from the first cycle, matching tools/sim.py decent
 const DECENT_RESERVE := 0  # no cash reserve, matching tools/sim.py decent
 const PAYBACK_CYCLES := 10  # QA: a lane must pay a ship back within this many cycles
 const PERMIT_WORKING_CASH := 400  # QA: cash the --permit buy keeps back for standing buy orders
+const DeadWorlds := preload("res://game/dead_worlds.gd")
 const IDLE_AFTER := 3  # cycles in a row with no cash or stock change before it counts as a softlock
 const MAX_STEPS := 1000  # watchdog: bot cycles before a run is called a softlock
 const MAX_CHUNKS := 100000  # watchdog: timer steps inside one cycle
@@ -115,6 +117,15 @@ var ship_buys: Array = []  # [cycle, planet, ships_after]
 var skills_learned: Array = []  # [cycle, id]
 var skill_log: Array = []  # [cycle, id, points_spent] per learned skill, in learn order
 var lanes_built := 0
+var lane_cycles := {}  # T161: per good, route-cycles open at the start of each cycle (after decisions)
+var cluster_lane_cycles := 0  # T161: route-cycles that start at a cluster
+var ore_taken := 0  # T161: ore units taken from clusters (sum of drops in cluster left, new clusters not counted when first seen)
+var cluster_last_left := {}
+var danger_rows: Array = []  # R2: [cycle, danger dead_1, danger dead_2, running dead routes]
+var clusters_touched := {}  # T161 round 2: cluster indexes that gave ore
+var streak_by_route := {}  # T161 v3: consecutive cycles per route id with a cash or room warning
+var reason_warn_cycles := 0  # T161 v3: route-cycles that showed a cash or room warning
+var reserve_short := []  # T161 v3: [cycle, cash, running routes, fixed cost] where cash < fixed cost x running routes (approximate)
 var lanes_removed := 0
 var orders_changed := 0
 var notes: Array = []
@@ -176,6 +187,12 @@ func _initialize() -> void:
 			var parts := arg.trim_prefix("--inject=").split(":")
 			inject_cycle = int(parts[0])
 			inject_cash = int(parts[1])
+	if strategy == "mining_focus" and skill_order.is_empty():
+		skill_order = ["B1"]  # T161: mining_focus learns Prospecting (B1) first
+	if strategy == "dead_run" and skill_order.is_empty():
+		skill_order = ["B1", "C1", "A1", "M1", "M2", "C3", "F1"]  # M1 is second row: needs A1 and C1 (ROW_KEYS)  # R2 dead worlds: Cold Survey, Deep Cut, Fabrication Licence (+ prereq B1, Long Haul for system 2)
+	if strategy == "always_expand" and skill_order.is_empty():
+		skill_order = ["C1", "C3", "A1", "A2"]  # T161 follow-up: expansion (permit, long haul, storage, holds) first
 	if not STRATEGIES.has(strategy) or not ["fast", "timer"].has(clock) or not ["alt", "RELEASE", "CORP"].has(choice_policy):
 		printerr("bot_run: bad --strategy, --clock or --choice")
 		bad_args = true
@@ -242,6 +259,9 @@ func _play_cycle() -> void:
 	if not main.pending.is_empty():
 		main.cancel_pending()
 	_decide(c)
+	if strategy == "dead_run":
+		_dead_probe(c)  # R2: gate refusals, fabric build
+	_tally_goods()  # T161
 	cycle_rows.append([c, main.cash, main.ships, main.engine.routes.size()])
 	var sig_before := _state_sig()
 	var ended_before := ended_count
@@ -352,6 +372,8 @@ func _pick_side() -> String:
 func _decide(c: int) -> void:
 	if main.ships == 0:
 		_buy_ship_at(_mission_planet(), c)  # tutorial: the first ship is bought at the mission planet
+	if strategy == "always_expand":
+		_buy_spare_ships(c)  # T161 follow-up: ships whenever cash allows, before skills and routes
 	if strategy != "sloppy":
 		_learn_skills()
 	_buy_wanted_permit()
@@ -406,6 +428,8 @@ func _plan() -> Array:
 				locked_lane = ranked[0]
 				notes.append("sloppy locked lane %s %d->%d at cycle %d" % [locked_lane["c"], locked_lane["a"], locked_lane["b"], main.cycle])
 			return [] if locked_lane.is_empty() else [locked_lane]
+		"mining_focus":
+			return _mining_plan(ranked)
 		"never_expand":
 			return ranked.slice(0, mini(1, ranked.size()))
 		"decent":
@@ -425,8 +449,11 @@ func _missing_lanes(plan: Array) -> int:
 
 ## Ship purchases per strategy. Buys happen at the lane source (the ship button sits on the panel).
 func _expand(plan: Array, c: int) -> void:
+	if strategy == "dead_run" and permit_sid >= 0 and not main.open_systems.has(permit_sid) and main.learned_skills.has("C1") \
+			and int(main.cash) < int(main.permit_cost(permit_sid)) + 150:
+		return  # R2: dead_run saves cash for the system 2 permit before buying more ships
 	var price: int = int(main.balance.get("ship_price", 0))
-	var home: int = int(plan[0]["a"]) if not plan.is_empty() else _mission_planet()
+	var home: int = _lane_home(plan)
 	match strategy:
 		"always_expand":
 			while _missing_lanes(plan) > main.free_ships() and main.can_buy_ship()["ok"]:
@@ -434,7 +461,7 @@ func _expand(plan: Array, c: int) -> void:
 				_buy_ship_at(home, c)
 				if main.ships == before:
 					break
-		"decent":
+		"decent", "mining_focus", "dead_run":  # T161: mining_focus and dead_run expand like decent
 			while _missing_lanes(plan) > main.free_ships() and c >= DECENT_FROM_CYCLE \
 					and main.cash - price >= DECENT_RESERVE and main.can_buy_ship()["ok"]:
 				var before_d: int = main.ships
@@ -495,6 +522,8 @@ func _in_plan(a: int, b: int, c: String, plan: Array) -> bool:
 ## "Send to..." as a player does it: select the source, press Send to... on its storage row for the
 ## commodity, then click the destination planet.
 func _build_route(lane: Dictionary) -> bool:
+	if int(lane["a"]) <= -1000:  # T161: a cluster node (Clusters.BASE)
+		return _build_cluster_route(lane)
 	var a := int(lane["a"])
 	var b := int(lane["b"])
 	var c := str(lane["c"])
@@ -502,6 +531,8 @@ func _build_route(lane: Dictionary) -> bool:
 	_select(a)
 	main.planet_panel.send_requested.emit(c)
 	main.map.planet_clicked.emit(b)
+	if main.engine.find_same(a, b, c) < 0 and not main.pending.is_empty() and main.pending.has("dest"):
+		main.map.planet_clicked.emit(b)  # T161: a stop is on the way, so the first click only picked the destination; the second sends direct
 	if main.engine.find_same(a, b, c) >= 0:
 		lanes_built += 1
 		_count("route_open", main.cycle)
@@ -544,6 +575,8 @@ func _apply_orders(active: Array) -> void:
 ## can move (stock below one shipment) and only while cash covers the trip and the purchase. Sloppy keeps
 ## its Buy order on at full size with no reserve, so its stock piles up and it runs dry.
 func _buy_wanted(a: int, c: String) -> bool:
+	if a <= -1000:  # T161: clusters are free ore, no buy order
+		return false
 	if strategy == "sloppy":
 		return true
 	var units: int = mini(int(main.engine.local_amount()), int(main.engine.units_per_cycle()))
@@ -583,7 +616,8 @@ func _buy_wanted_permit() -> bool:
 		return false
 	if not bool(main.can_buy_permit(permit_sid).get("ok", false)):
 		return false
-	if int(main.cash) < int(main.permit_cost(permit_sid)) + PERMIT_WORKING_CASH:  # QA: keep cash to buy stock after the permit
+	var keep := 0 if strategy == "dead_run" else PERMIT_WORKING_CASH  # R2: dead_run buys the system 2 permit as soon as affordable
+	if int(main.cash) < int(main.permit_cost(permit_sid)) + keep:  # QA: keep cash to buy stock after the permit
 		return false
 	var r: Dictionary = main.buy_permit(permit_sid)
 	if r.get("ok", false):
@@ -678,6 +712,222 @@ func _count(kind: String, c: int) -> void:
 	decision_at[c] = int(decision_at.get(c, 0)) + 1
 	decision_kinds[kind] = int(decision_kinds.get(kind, 0)) + 1
 
+
+## T161 mining_focus: the plan is cluster ore lanes first (only with B1), then the commodity trade ranking.
+func _mining_plan(ranked: Array) -> Array:
+	var out: Array = []
+	if main.can_mine():
+		out.append_array(_cluster_lanes())
+	if main.cycle == 5:  # T161 diagnostics
+		notes.append("c5 mine=%s ore_in=%s cluster_lanes=%d ore_sell_prices=%s fixed=%d units=%d yield=%d" % [main.can_mine(), main.engine.commodities.has("ore"), out.size(), _ore_prices_text(), int(main.engine.fixed_cost()), int(main.engine.units_per_cycle()), int(main.clusters.yield_per_cycle())])
+	out.append_array(ranked)
+	var cap := maxi(1, int(main.balance.get("ship_cap", 1)))
+	return out.slice(0, mini(cap, out.size()))
+
+
+## T161: one ore lane per live cluster (best open destination, same system unless C3). Ore is free at the cluster.
+func _cluster_lanes() -> Array:
+	var out: Array = []
+	if not main.engine.commodities.has("ore"):
+		return out
+	var units: int = mini(int(main.engine.units_per_cycle()), int(main.clusters.yield_per_cycle()))
+	var fixed: int = int(main.engine.fixed_cost())
+	var n: int = main.trade.planets.size()
+	for sid in [1, 2]:
+		for cl in main.clusters_in_system(sid):
+			if int(cl["left"]) <= 0:
+				continue
+			var node: int = int(cl["node"])
+			var best := {}
+			for b in n:
+				if not main.engine.planet_open(b):
+					continue
+				if int(main.trade.planets[b].get("system", 1)) != sid and not main.learned_skills.has("C3"):
+					continue
+				var sp: int = main.trade.price(b, "ore_sell")
+				if sp <= 0:
+					continue
+				var profit: int = sp * units - fixed
+				if profit > 0 and (best.is_empty() or profit > int(best["profit"])):  # T161: ore is free, so any profit beats the 10-cycle rule used for planet lanes
+					best = {"a": node, "b": b, "c": "ore", "profit": profit}
+			if not best.is_empty():
+				out.append(best)
+	out.sort_custom(func(x, y): return x["profit"] > y["profit"])
+	return out
+
+
+## T161: the bot cannot click a cluster, so the cluster route is opened with main.send_from_cluster (what the card's route button would call).
+func _build_cluster_route(lane: Dictionary) -> bool:
+	var a := int(lane["a"])
+	var b := int(lane["b"])
+	var c := str(lane["c"])
+	main.send_from_cluster(a, b)
+	if main.engine.find_same(a, b, c) >= 0:
+		lanes_built += 1
+		_count("route_open", main.cycle)
+		return true
+	notes.append("cluster lane %d->%d did not open at cycle %d (notice: %s)" % [a, b, main.cycle, main.last_notice])
+	return false
+
+
+## T161: ships for a cluster lane are bought at its destination planet (a cluster cannot be selected).
+## T161 follow-up: always_expand buys a ship whenever cash covers the price (up to ship_cap), whether or not a lane needs it.
+func _buy_spare_ships(c: int) -> void:
+	var price: int = int(main.balance.get("ship_price", 0))
+	var cap: int = maxi(1, int(main.balance.get("ship_cap", 1)))
+	var ranked := _ranked_lanes()
+	var home: int = int(ranked[0]["a"]) if not ranked.is_empty() and int(ranked[0]["a"]) > -1000 else _mission_planet()
+	while main.ships < cap and int(main.cash) >= price and main.can_buy_ship()["ok"]:
+		var before: int = main.ships
+		_buy_ship_at(home, c)
+		if main.ships == before:
+			break
+	if main.ships >= cap or int(main.cash) < price:
+		return
+
+
+func _lane_home(plan: Array) -> int:
+	if plan.is_empty():
+		return _mission_planet()
+	var a := int(plan[0]["a"])
+	return int(plan[0]["b"]) if a <= -1000 else a
+
+
+## T161: per-good route-cycles, cluster lane-cycles and ore taken from clusters (for the mining report).
+func _tally_goods() -> void:
+	var running := 0
+	var dr := [main.cycle, -1, -1, 0]
+	for pid in dead_ids.keys():
+		var idx := 1 if pid == "dead_1" else 2
+		dr[idx] = int(main.dead.get_danger(str(pid)))
+	for rec in main.engine.routes:
+		if int(rec["a"]) >= 0 and int(rec["a"]) < main.trade.planets.size() and DeadWorlds.is_dead(main.trade.planets[int(rec["a"])]) and str(rec.get("reason", "")) == "":
+			dr[3] += 1
+	danger_rows.append(dr)
+	for rec in main.engine.routes:
+		var cc := str(rec["c"])
+		lane_cycles[cc] = int(lane_cycles.get(cc, 0)) + 1
+		if int(rec["a"]) <= -1000:
+			cluster_lane_cycles += 1
+		# T161 v3: warning streaks. reason is set by the last settle (route_engine.gd), so this reads last cycle.
+		var rid := int(rec["id"])
+		var rs := str(rec.get("reason", "")).to_lower()
+		var warn := rs.find("cash") >= 0 or rs.find("room") >= 0
+		if warn:
+			streak_by_route[rid] = int(streak_by_route.get(rid, 0)) + 1
+			reason_warn_cycles += 1
+			if int(streak_by_route[rid]) == 3:
+				_issue("warning_streak", main.cycle, "route %d shows '%s' for 3+ cycles in a row" % [rid, str(rec.get("reason", ""))])
+		else:
+			streak_by_route[rid] = 0
+			if rs == "":
+				running += 1
+	# reserve check (approximate): a running route needs its trip and upkeep (fixed cost) out of cash when the next settle runs.
+	if running > 0 and main.cash < int(main.engine.fixed_cost()) * running:
+		reserve_short.append([main.cycle, main.cash, running, int(main.engine.fixed_cost())])
+	if main.clusters == null:
+		return
+	for i in main.clusters.items.size():
+		var now: int = main.clusters.left(i)
+		if cluster_last_left.has(i):
+			var drop: int = int(cluster_last_left[i]) - now
+			if drop > 0:
+				ore_taken += drop
+				clusters_touched[i] = true
+		cluster_last_left[i] = now
+
+
+func _ore_prices_text() -> String:
+	var parts: Array = []
+	for b in main.trade.planets.size():
+		parts.append(str(main.trade.price(b, "ore_sell")))
+	return ",".join(parts)
+
+
+func cash_rows_3_8() -> Array:
+	var out: Array = []
+	for row in cycle_rows:
+		if int(row[0]) >= 3 and int(row[0]) <= 8:
+			out.append(row)
+	return out
+
+
+func _clusters_left_total() -> int:
+	var t := 0
+	if main.clusters == null:
+		return 0
+	for i in main.clusters.items.size():
+		t += main.clusters.left(i)
+	return t
+
+
+## R2 dead_run: finds the dead worlds, logs the route refusal reason when it changes, tries the fabric build.
+var dead_ids := {}
+var dead_last := {}
+var dead_log: Array = []
+var fabric_log: Array = []
+
+func _dead_probe(c: int) -> void:
+	if dead_ids.size() < 2:
+		for i in main.trade.planets.size():
+			var pid := str(main.trade.planets[i].get("id", ""))
+			if pid == "dead_1" or pid == "dead_2":
+				dead_ids[pid] = i
+	if dead_ids.size() < 2 and c == 1:
+		dead_log.append([c, "missing", str(dead_ids.keys()), main.trade.planets.size(), false, "dead world not found in trade.planets"])
+	for pid in dead_ids.keys():
+		var src: int = int(dead_ids[pid])
+		var sys_id: int = int(main.trade.planets[src].get("system", 1))
+		var com := "nullglass" if pid == "dead_2" else "dross"
+		var dst := -1
+		for j in main.trade.planets.size():
+			if j != src and int(main.trade.planets[j].get("system", 1)) == sys_id and not DeadWorlds.is_dead(main.trade.planets[j]):
+				dst = j
+				break
+		var r: Dictionary = main.can_connect(src, dst, com)
+		var key := "%s|%s|%s" % [pid, dst, str(r["reason"])]
+		if dead_last.get(pid, "") != key:
+			dead_last[pid] = key
+			dead_log.append([c, pid, com, dst, bool(r["ok"]), str(r["reason"])])
+	# nullglass from Greywake to the system 1 station (Space Storage id -1)
+	if dead_ids.has("dead_2"):
+		var rs: Dictionary = main.can_connect(int(dead_ids["dead_2"]), -1, "nullglass")
+		var k2 := "station|%s" % str(rs["reason"])
+		if dead_last.get("station", "") != k2:
+			dead_last["station"] = k2
+			dead_log.append([c, "dead_2->station", "nullglass", -1, bool(rs["ok"]), str(rs["reason"])])
+	if not main.open_systems.has(2) and permit_sid == 2:
+		var pv: Dictionary = main.can_buy_permit(2)
+		var pk := "permit|%s|%d|%d" % [str(pv.get("reason", "")), int(main.cash), int(main.permit_cost(2))]
+		if dead_last.get("permit", "") != pk and (c <= 3 or c % 5 == 0):
+			dead_last["permit"] = pk
+			dead_log.append([c, "permit 2", "", -1, bool(pv.get("ok", false)), "%s cash %d cost %d" % [str(pv.get("reason", "")), int(main.cash), int(main.permit_cost(2))]])
+	for sk in ["M1", "M2", "F1"]:
+		if not main.learned_skills.has(sk):
+			var lv: Dictionary = SkillTree.can_learn(main.learned_skills, main.skill_points, main.balance, sk, main.skill_ctx())
+			var lk := "skill|%s|%s" % [sk, str(lv.get("reason", "")) + str(lv.get("why", ""))]
+			if dead_last.get(sk, "") != lk:
+				dead_last[sk] = lk
+				dead_log.append([c, "skill " + sk, "", -1, bool(lv["ok"]), str(lv.get("reason", "")) + " " + str(lv.get("why", ""))])
+	# R2: once the fabric is built, try the nullglass route from Greywake to the system 1 station once (accepted or refused, with reason)
+	if main.fabric.built and dead_ids.has("dead_2") and not dead_last.has("attempt"):
+		dead_last["attempt"] = "1"
+		var gsrc: int = int(dead_ids["dead_2"])
+		var ra: Dictionary = main.can_connect(gsrc, -1, "nullglass")
+		if bool(ra["ok"]):
+			var sr: Dictionary = main.send_stock_buying(gsrc, -1, "nullglass")
+			dead_log.append([c, "attempt station", "nullglass", -1, bool(sr.get("ok", false)), "send: " + str(sr.get("reason", ""))])
+		else:
+			dead_log.append([c, "attempt station", "nullglass", -1, false, "refused: " + str(ra["reason"])])
+	elif not main.fabric.built and dead_ids.has("dead_2") and c == 1:
+		pass
+	var fv: Dictionary = main.can_build_fabric()
+	if bool(fv["ok"]):
+		var r2: Dictionary = main.build_fabric()
+		fabric_log.append([c, "built", bool(r2.get("ok", false))])
+	elif str(fv["reason"]) != str(dead_last.get("fab", "")):
+		dead_last["fab"] = str(fv["reason"])
+		fabric_log.append([c, "refused", str(fv["reason"])])
 
 func _select(p: int) -> void:
 	main.map.planet_clicked.emit(p)
@@ -960,6 +1210,18 @@ func _finish() -> bool:
 		"end_cycle_ok": end_cycle == first_over_cycle,
 		"cycles_ended": ended_count,
 		"ships_owned": main.ships,
+		"lane_cycles": lane_cycles,
+		"warn_route_cycles": reason_warn_cycles,
+		"reserve_short": reserve_short,
+		"cash_rows_3_8": cash_rows_3_8(),
+		"cluster_lane_cycles": cluster_lane_cycles,
+		"ore_taken": ore_taken,
+		"dead_log": dead_log,
+		"fabric_log": fabric_log,
+		"danger_rows": danger_rows,
+		"fabric_state": str(main.fabric.get("state")) + "/" + str(main.fabric.get("built")),
+		"clusters_harvested": clusters_touched.size(),
+		"clusters_left_end": _clusters_left_total(),
 		"ship_buys": ship_buys,
 		"routes_open": main.engine.routes.size(),
 		"lanes_built": lanes_built,

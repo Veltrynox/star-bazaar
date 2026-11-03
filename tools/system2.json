@@ -11,7 +11,9 @@
     "food_buy": 11,
     "food_sell": 9,
     "energy_sell": 31,
-    "energy_buy": 32
+    "energy_buy": 32,
+    "silk_buy": 24,
+    "silk_sell": 22
    },
    "x": 520,
    "y": 60
@@ -26,7 +28,10 @@
     "energy_buy": 9,
     "energy_sell": 8,
     "food_sell": 33,
-    "food_buy": 33
+    "food_buy": 33,
+    "chips_buy": 18,
+    "chips_sell": 16,
+    "ore_sell": 16
    },
    "x": 760,
    "y": 140
@@ -41,7 +46,8 @@
     "food_buy": 12,
     "food_sell": 10,
     "energy_sell": 33,
-    "energy_buy": 34
+    "energy_buy": 34,
+    "chips_sell": 36
    },
    "x": 700,
    "y": -140
@@ -56,7 +62,10 @@
     "energy_sell": 34,
     "food_sell": 34,
     "energy_buy": 35,
-    "food_buy": 35
+    "food_buy": 35,
+    "silk_sell": 48,
+    "chips_sell": 38,
+    "ore_sell": 12
    },
    "x": 900,
    "y": -20
