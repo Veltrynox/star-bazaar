@@ -47,9 +47,9 @@ Known gap, handled in the later goals: the preface, goal line, tutorial, mission
 ## Owner answers (2026-11-03)
 1. 40 cycles: approved.
 2. Old saves dropped, EV18 retired: approved.
-3. Ending quality by Open/Hard stance and the soft END_OUTCOMPETED: explained, awaiting a yes or no.
+3. CHANGE REQUESTED: choices must not be labelled or framed as obviously good or bad, and no single choice should clearly push one way; the CHAIN of choices should push the player toward an ending direction. Open/Hard labels and +1/-1 stance per step are to be redesigned (Goal 1 rerun).
 4. Price skills get NO share effect (cash perks only): decided.
-5. Swept (player under 10% everywhere) and bankrupt (ship repossession): explained, awaiting a yes or no.
+5. Swept (player under 10% everywhere) and bankrupt (ship repossession): approved.
 6. Global `bot_scale` key and the 56 to 98% focused win rate: approved.
 7. Names (bots, goods, endings): undecided, to be judged in play. Names stay as in the story doc until then.
 
