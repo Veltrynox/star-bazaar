@@ -40,7 +40,14 @@ void vertex() {
 	}
 	vec3 vp = (MODELVIEW_MATRIX * vec4(base, 1.0)).xyz;
 	vec3 t = normalize((MODELVIEW_MATRIX * vec4(NORMAL, 0.0)).xyz);
-	vec3 side = normalize(cross(t, normalize(vp)));
+	// Side of the strip. When the line is seen end-on (tangent along the view ray) the cross product
+	// collapses to zero, normalize() gives NaN and the strip vanishes or flickers: use a fixed axis then.
+	vec3 cr = cross(t, normalize(vp));
+	float crl = length(cr);
+	vec3 alt = cross(t, vec3(0.0, 1.0, 0.0));
+	float altl = length(alt);
+	if (altl < 0.001) { alt = vec3(1.0, 0.0, 0.0); altl = 1.0; }
+	vec3 side = crl > 0.02 ? cr / crl : alt / altl;
 	vp += side * UV.y * (half_px + AA_PX) * wpp;
 	edge_px = UV.y * (half_px + AA_PX);  // signed: abs() per vertex would interpolate to a constant
 	POSITION = PROJECTION_MATRIX * vec4(vp, 1.0);
@@ -333,9 +340,19 @@ func _commit(am: ArrayMesh, verts: PackedVector3Array, tans: PackedVector3Array,
 	arrays[Mesh.ARRAY_INDEX] = idx
 	am.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
 
+## GDScript mirror of the shader's side vector (view space), so tests can check it never degenerates at any angle.
+static func side_vector(t: Vector3, vp: Vector3) -> Vector3:
+	var cr := t.cross(vp.normalized())
+	if cr.length() > 0.02:
+		return cr / cr.length()
+	var alt := t.cross(Vector3.UP)
+	if alt.length() < 0.001:
+		return Vector3.RIGHT
+	return alt / alt.length()
+
 ## Tint from route status: running = commodity colour, stalled (waiting) = dashed warn, blocked = solid red.
-func set_style(status: String, ships: int, commodity: String = "", net: int = 0) -> void:
-	_set_tag(status, ships, net)
+func set_style(status: String, ships: int, commodity: String = "", net: int = 0, reason: String = "") -> void:
+	_set_tag(status, ships, net, reason)
 	var waiting := status != "running" and status != "blocked"
 	if _dots != null:  # ship dots while running; a waiting lane keeps one parked warn-coloured ship
 		var n := mini(ships, DOT_MAX) if (status == "running" or waiting) else 0
@@ -345,7 +362,7 @@ func set_style(status: String, ships: int, commodity: String = "", net: int = 0)
 		_dot_mat.set_shader_parameter("col_wait", Ui.col("signal_warn"))
 		_dot_mat.set_shader_parameter("col_out", Ui.col("ink"))
 		_dot_mat.set_shader_parameter("col_back", Ui.col("ink_muted"))
-	var col := Ui.col("commodity_" + commodity) if commodity != "" else Color(1, 1, 1)
+	var col := Ui.commodity_col(commodity) if commodity != "" else Color(1, 1, 1)
 	if status == "blocked":
 		col = Ui.col("signal_bad")
 	elif waiting:
@@ -357,16 +374,26 @@ func set_style(status: String, ships: int, commodity: String = "", net: int = 0)
 		mats[si].set_shader_parameter("dash", 1.0 if (si == 0 and waiting) else 0.0)
 
 ## Route tag text as in the design (SystemView route tag): "2 ships · +286", or the status when not running.
-static func tag_text(status: String, ships: int, net: int) -> String:
+static func tag_text(status: String, ships: int, net: int, reason: String = "") -> String:
 	if status == "blocked":
 		return StoryText.get_or("LBL_ROUTE_BLOCKED", "Blocked")
 	if status != "running":
-		return StoryText.get_or("ST_WAITING_ROOM", "Waiting for room")
+		return reason_text(status, reason)
 	var n := StoryText.get_or("LBL_ROUTE_SHIP_ONE", "{n} ship", {"n": ships}) if ships == 1 else StoryText.get_or("LBL_ROUTE_SHIP_MANY", "{n} ships", {"n": ships})
 	var sg := "\u2212%d" % -net if net < 0 else "+%d" % net
 	return "%s \u00b7 %s" % [n, sg]
 
-func _set_tag(status: String, ships: int, net: int) -> void:
+## Why a route that is not running is not moving: the route's own reason; "Waiting for room" only for the waiting state.
+static func reason_text(status: String, reason: String) -> String:
+	if reason == "Source storage is empty.":
+		return StoryText.get_or("LBL_NO_STOCK_SOURCE", "No stock at source")
+	if reason != "":
+		return reason
+	if status == "waiting":
+		return StoryText.get_or("ST_WAITING_ROOM", "Waiting for room")
+	return status.capitalize()
+
+func _set_tag(status: String, ships: int, net: int, reason: String = "") -> void:
 	if tag == null:
 		tag = Label3D.new()
 		tag.billboard = BaseMaterial3D.BILLBOARD_ENABLED
@@ -383,17 +410,24 @@ func _set_tag(status: String, ships: int, net: int) -> void:
 		tag.render_priority = 2
 		tag.outline_render_priority = 1
 		add_child(tag)
-	tag.text = tag_text(status, ships, net)
+	tag.text = tag_text(status, ships, net, reason)
 	var ok := status == "running"
 	tag.modulate = Ui.col("ink") if ok else (Ui.col("signal_bad") if status == "blocked" else Ui.col("signal_warn"))
 
-## Ship clock stops while the game is paused, as in the design.
-func _process(delta: float) -> void:
+## T-ship-sync: dots follow the game's cycle clock (main._progress), so pause, fast forward and
+## cycle end all match. One leg (half of the dot loop) takes travel_cycles_per_leg cycles.
+func _process(_delta: float) -> void:
 	if _dot_mat == null:
 		return
-	var m = get_tree().current_scene
-	if m != null and "paused" in m and not m.paused:
-		_clock += delta
+	var m = self
+	while m != null and not m.has_method("_progress"):  # the game screen is an ancestor of the map
+		m = m.get_parent()
+	if m != null:
+		_clock = float(m._progress())
+		var legs := 1.0
+		if "trade" in m and m.trade != null:
+			legs = float(m.trade.travel_cycles())
+		_dot_mat.set_shader_parameter("speed", 0.5 / maxf(legs, 0.01))
 	_dot_mat.set_shader_parameter("clock", _clock)
 
 ## Smallest on-screen distance in pixels from `screen_pos` to the line (INF if it is behind the camera).

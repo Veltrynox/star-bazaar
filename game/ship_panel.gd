@@ -9,6 +9,7 @@ signal buy_requested(kind: String)
 var buy_buttons: Dictionary = {}  # kind -> Button
 var label: Label
 var upkeep_label: Label
+var free_label: Label  # free ships, upkeep each, and what Send to... does when none is free
 var _last_count := -1  # -1 until the first count, so a loaded save does not flash
 
 func _ready() -> void:
@@ -26,6 +27,11 @@ func _ready() -> void:
 	upkeep_label = Label.new()
 	upkeep_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	box.add_child(upkeep_label)
+	free_label = Label.new()
+	free_label.name = "FreeShips"
+	free_label.theme_type_variation = "LabelSmall"
+	free_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	box.add_child(free_label)
 	for kind in Ships.KINDS:  # T58: one buy button per ship type
 		var b := Button.new()
 		b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART  # a long label wraps instead of widening the right column
@@ -45,13 +51,25 @@ func set_upkeep(main: Control) -> void:
 		var up: int = main.engine.upkeep_part(rec)
 		var pay: int = up if main.engine.payout_of(rec) < 0 else 0
 		total += pay
-		lines.append("Ship %d, %s (%s): %d" % [n, Ships.display_name(str(rec.get("ship", "small"))), str(rec["c"]).capitalize(), pay])
+		lines.append("Ship %d, %s (%s): %d" % [n, Ships.display_name(str(rec.get("ship", "small"))), Ui.good_name(str(rec["c"])), pay])
 	for kind in Ships.KINDS:
 		for i in maxi(0, main.free_of(kind)):
 			n += 1
 			lines.append("Ship %d, %s (free): 0" % [n, Ships.display_name(kind)])
 	lines.append("%s, total: %d / cycle" % [upkeep_name, total])
 	upkeep_label.text = "\n".join(lines)
+	var free: int = main.free_ships()
+	var price := int(main.balance.get("ship_price", 0))
+	var cap := int(main.balance.get("ship_cap", 0))
+	var txt: String = StoryText.get_or("LBL_SHIPS_FREE_HINT", "Free ships: {free}. Ship upkeep {upkeep} / cycle each.", {"free": free, "upkeep": main.engine.upkeep_part()})
+	if free <= 0:
+		if main.ships >= cap:
+			txt += "\n" + "Ship limit reached (%d)." % cap
+		elif main.cash >= price:
+			txt += "\n" + StoryText.get_or("LBL_SEND_BUYS_SHIP", "No free ship. Send to... buys one for {price} credits.", {"price": price})
+		else:
+			txt += "\nNot enough credits."
+	free_label.text = txt
 	for kind in Ships.KINDS:
 		var b: Button = buy_buttons[kind]
 		var r: Dictionary = main.can_buy_ship(kind)

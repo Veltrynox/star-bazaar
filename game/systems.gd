@@ -51,7 +51,7 @@ static func planets_of(id: int) -> Array:
 	var out := []
 	for p in get_system(id).get("planets", []):
 		var d: Dictionary = p.duplicate(true)
-		d["name"] = StoryText.get_text(str(d["name_id"])) if d.has("name_id") else str(d.get("id", "?"))
+		d["name"] = StoryText.get_text(str(d["name_id"])) if d.has("name_id") else str(d.get("name", d.get("id", "?")))
 		d["desc"] = StoryText.get_text(str(d["desc_id"])) if d.has("desc_id") else ""
 		d["system"] = id
 		PlanetTypes.apply(d)

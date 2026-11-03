@@ -1,6 +1,9 @@
 extends RefCounted
 const StoryText := preload("res://game/story_text.gd")
 const Ships := preload("res://game/ships.gd")
+const Clusters := preload("res://game/clusters.gd")
+const DeadWorlds := preload("res://game/dead_worlds.gd")
+const SkillTree := preload("res://game/skill_tree.gd")
 ## T68: local orders and one-way routes.
 ## Local order (per planet and commodity, toggles buy / sell): every cycle a Buy order buys up to
 ## local_amount() units at the planet's buy price into that planet's company storage (until full or
@@ -28,6 +31,9 @@ var debris_planets: Array = []  # T98: planets with debris; routes from them car
 var shield: RefCounted = null  # T101: solar shield (shield.gd), set by main
 var trade_gate: Callable = Callable()  # owner 2026-11-03: planet -> bool, false when its system has no Space Storage post (set by main)
 var learned: Array = []  # T82: learned skill ids, set by main; effects come from balance.json keys
+var clusters: RefCounted = null  # T156: asteroid clusters (clusters.gd), set by main; null = no mining
+var cluster_budget: Dictionary = {}  # T156: runtime, set at the start of each settle: cluster index -> units it may still give this cycle
+var fare_paid := false  # runtime, per settle: true once a route has run this cycle (see fare_for)
 var split_budget: Dictionary = {}  # N2: runtime, set at the start of each settle: lane key -> units its split share may take
 
 func setup(bal: Dictionary, trade_logic: RefCounted, commodity_list: Array, storage_ref: RefCounted) -> void:
@@ -45,7 +51,10 @@ func reset() -> void:
 func new_record(src_planet: int, dst_planet: int, c: String) -> Dictionary:
 	# Manual Space Storage: a negative dst_planet is a station, -system id; dst is then that system's Space Storage key.
 	var dkey: String = storage.system_key(-dst_planet) if dst_planet < 0 else "planet:%d" % dst_planet
-	return {"id": 0, "src": "planet:%d" % src_planet, "dst": dkey,
+	var skey := "planet:%d" % src_planet
+	if Clusters.is_node(src_planet):  # T156: a cluster is the source; "a" holds its node id
+		skey = "cluster:%s" % (str(clusters.items[Clusters.index_of(src_planet)]["id"]) if clusters != null and clusters.valid(Clusters.index_of(src_planet)) else "?")
+	return {"id": 0, "src": skey, "dst": dkey,
 		"a": src_planet, "b": dst_planet, "c": c, "ships": 1, "ship": "small", "level": 1, "orders": {},
 		"fresh": 1.0, "state": "running", "reason": "", "split_to": -1, "split_share": 0.0, "stop": -1}
 
@@ -74,7 +83,8 @@ func lane_count(src_planet: int, dst_planet: int, c: String) -> int:
 ## per cycle (ships x units per cycle >= local_amount). Another ship would add nothing; the route is upgraded instead.
 func lane_full(src_planet: int, dst_planet: int, c: String) -> bool:
 	var n := lane_count(src_planet, dst_planet, c)
-	return n > 0 and n * units_per_cycle() >= local_amount()
+	var feed: int = clusters.yield_per_cycle() if (Clusters.is_node(src_planet) and clusters != null) else local_amount()  # T156: a cluster feeds mining_yield_per_cycle
+	return n > 0 and n * units_per_cycle() >= feed
 
 ## T145: route level of a lane (all ships of a lane share one level).
 func lane_level(src_planet: int, dst_planet: int, c: String) -> int:
@@ -257,11 +267,11 @@ func route_margin(src: int, dst: int, c: String, level: int = 1) -> int:
 		m = roundi(float(m) * (1.0 + float(balance.get("upgrade_margin_bonus", 0.0)) * float(level - 1)))
 	return m
 
-## B1 Market Ledger: true when the lane earns less per cycle than it costs (trip and upkeep).
+## Low-margin warning (base game since T158): true when the lane earns less per cycle than it costs (trip and upkeep).
 func margin_below_upkeep(src: int, dst: int, c: String) -> bool:
 	return route_margin(src, dst, c) < fixed_cost()
 
-## B1 Market Ledger: the open planet where carrying c from here earns most per unit, {planet, margin}; planet -1 when none pays.
+## B3 Price Whisper (moved from B1 in T158): the open planet where carrying c from here earns most per unit, {planet, margin}; planet -1 when none pays.
 func best_partner(src: int, c: String) -> Dictionary:
 	var best := {"planet": -1, "margin": 0}
 	for i in trade.planets.size():
@@ -302,7 +312,9 @@ func _local_calc(planet: int, c: String, role: String, cash: int) -> Dictionary:
 # ---- routes ----
 
 ## Checks a new route (without the owned-ship pool; main adds that). {ok, reason}.
-func check_connection(src: int, dst: int, c: String) -> Dictionary:
+func check_connection(src: int, dst: int, c: String, new_route: bool = true) -> Dictionary:
+	if Clusters.is_node(src):
+		return check_cluster(src, dst, c, new_route)
 	if dst < 0:  # manual Space Storage: dst = -system id
 		return _check_station(src, -dst, c)
 	if src == dst or src < 0 or dst < 0 or src >= trade.planets.size() or dst >= trade.planets.size():
@@ -311,9 +323,47 @@ func check_connection(src: int, dst: int, c: String) -> Dictionary:
 		return {"ok": false, "reason": "Unknown commodity."}
 	if not planet_open(src) or not planet_open(dst):
 		return {"ok": false, "reason": "A planet on this route is closed."}
+	var need := DeadWorlds.skill_for(trade.planets[src])  # dead world: mining needs its skill (M1 Cold Survey, M2 Deep Cut); saved routes stay
+	if new_route and need != "" and not learned.has(need):
+		return {"ok": false, "reason": StoryText.get_or("NOT_DEAD_NEEDS_SKILL", "Needs {skill}.", {"skill": SkillTree.skill_name(need)})}
 	if int(trade.planets[src].get("system", 1)) != int(trade.planets[dst].get("system", 1)) and not learned.has("C3"):
 		return {"ok": false, "reason": StoryText.get_text("NOT_ROUTE_NEEDS_C3")}  # C3 Long Haul
 	return {"ok": true, "reason": ""}  # T87: a second ship on the same lane is allowed
+
+## T156: a route that starts at a cluster. Needs the mining skill, a known cluster that still has ore (new routes only),
+## a planet destination that is open, and C3 for another system. Ore is free to load; the cost is the lane (fixed_cost).
+func check_cluster(node: int, dst: int, c: String, new_route: bool = true) -> Dictionary:
+	var i := Clusters.index_of(node)
+	if clusters == null or not clusters.valid(i):
+		return {"ok": false, "reason": "No such cluster."}
+	if new_route and not learned.has(Clusters.MINING_SKILL):  # a saved route loads before the skills do and stays
+		return {"ok": false, "reason": StoryText.get_or("NOT_MINING_NEEDS_SKILL", "Mining needs the Prospecting skill.")}
+	if c != clusters.good_of(i) or not commodities.has(c):
+		return {"ok": false, "reason": StoryText.get_or("NOT_CLUSTER_ONLY_ORE", "This cluster gives ore only.")}
+	if new_route and clusters.left(i) <= 0:
+		return {"ok": false, "reason": StoryText.get_or("NOT_CLUSTER_EMPTY", "This cluster is empty.")}
+	if dst < 0 or dst >= trade.planets.size():
+		return {"ok": false, "reason": "Pick a planet to deliver to."}
+	if not planet_open(dst):
+		return {"ok": false, "reason": "A planet on this route is closed."}
+	if clusters.system_of(i) != int(trade.planets[dst].get("system", 1)) and not learned.has("C3"):
+		return {"ok": false, "reason": StoryText.get_text("NOT_ROUTE_NEEDS_C3")}
+	return {"ok": true, "reason": ""}
+
+## T156: true when the route starts at a cluster.
+static func from_cluster(rec) -> bool:
+	return typeof(rec) == TYPE_DICTIONARY and Clusters.is_node(int(rec.get("a", -1)))
+
+## T156: the source end is open: a planet that is not closed, or a cluster (clusters are never closed).
+func src_open(rec: Dictionary) -> bool:
+	return true if from_cluster(rec) else planet_open(int(rec["a"]))
+
+## T156: units a cluster may still give this cycle: its yield cap shared by every ship, never more than is left.
+func cluster_available(node: int) -> int:
+	var i := Clusters.index_of(node)
+	if clusters == null or not clusters.valid(i):
+		return 0
+	return mini(clusters.left(i), int(cluster_budget[i]) if cluster_budget.has(i) else clusters.yield_per_cycle())
 
 ## A send to the Space Storage of system sid. Open post is checked by main (space_post_open).
 func _check_station(src: int, sid: int, c: String) -> Dictionary:
@@ -400,6 +450,8 @@ func space_key_for(planet: int) -> String:
 
 ## T85: stock a route can draw at its source: planet storage plus the Space Storage backup of that system.
 func src_available(rec: Dictionary) -> int:
+	if from_cluster(rec):  # T156
+		return cluster_available(int(rec["a"]))
 	var c := str(rec["c"])
 	var n: int = storage.amount(str(rec["src"]), c)
 	var sk := space_key_for(int(rec["a"]))
@@ -419,7 +471,7 @@ func _dest_full(rec: Dictionary) -> bool:
 ## Live state for display: closed planets and a full destination without outflow read blocked;
 ## a full destination with outflow reads waiting (neutral); otherwise the stored state.
 func status_of(rec: Dictionary) -> String:
-	if not planet_open(int(rec["a"])) or not dst_open(rec):
+	if not src_open(rec) or not dst_open(rec):
 		return "blocked"
 	if _dest_full(rec):
 		if not has_outflow(int(rec["b"]), str(rec["c"])):
@@ -429,7 +481,7 @@ func status_of(rec: Dictionary) -> String:
 	return str(rec["state"])
 
 func reason_of(rec: Dictionary) -> String:
-	if not planet_open(int(rec["a"])) or not dst_open(rec):
+	if not src_open(rec) or not dst_open(rec):
 		return "A planet on this route is closed."
 	if _dest_full(rec):
 		if not has_outflow(int(rec["b"]), str(rec["c"])):
@@ -450,10 +502,11 @@ func planned_units(rec: Dictionary) -> int:
 func _route_cap(rec: Dictionary) -> int:
 	var c := str(rec["c"])
 	var eff := 1.0
-	if debris_planets.has(int(rec["a"])):  # T98: debris at the source planet
+	var lane_end := int(rec["b"]) if from_cluster(rec) else int(rec["a"])  # T156: an ore lane has no source planet; debris at the delivery planet counts
+	if debris_planets.has(lane_end):  # T98: debris at the source planet
 		eff = 1.0 - float(balance.get("debris_route_penalty", 0.0))
 	if shield != null:  # T101: energy gain at planets bought after the shield
-		eff *= float(shield.unit_factor(int(rec["a"]), c))
+		eff *= float(shield.unit_factor(int(rec["a"]), c)) if not from_cluster(rec) else 1.0
 	var units := floori(units_per_cycle(rec) * clampf(float(rec["fresh"]), 0.0, 1.0) * eff)
 	var lim := _split_limit(rec)  # N2: a split lane takes no more than its share of the stock
 	if lim >= 0:
@@ -505,7 +558,7 @@ func project_storage(key: String, c: String, cash: int = 1 << 40) -> Dictionary:
 			if lim >= 0:
 				budget[lk] = lim
 	for rec in routes:  # 2 routes
-		if str(rec["c"]) != c or not planet_open(int(rec["a"])) or not dst_open(rec):
+		if str(rec["c"]) != c or not src_open(rec) or not dst_open(rec):
 			continue
 		var src := str(rec["src"])
 		var dst := str(rec["dst"])
@@ -513,6 +566,8 @@ func project_storage(key: String, c: String, cash: int = 1 << 40) -> Dictionary:
 		if sk == dst:
 			sk = ""
 		var have: int = int(get_amt.call(src)) + (int(get_amt.call(sk)) if sk != "" else 0)
+		if from_cluster(rec):
+			have = src_available(rec)
 		var room: int = storage.capacity_of(dst) - int(get_amt.call(dst))
 		if have <= 0 or room <= 0 or cur < fixed_cost(rec):
 			continue
@@ -570,6 +625,201 @@ func local_preview(cash: int) -> Array:
 			out.append(["%s %s at %s" % [role.capitalize(), o["c"], _pname(int(o["planet"]))], int(r["credits"]), str(r["state"])])
 	return out
 
+## Fare a route pays this cycle. Normally the fixed cost. Stall rescue: when cash is below the fixed cost and no route has
+## run yet this cycle, the ship flies for what cash is left (it can be 0), so a broke player is never stuck for good
+## with no way to buy, run or earn. `paid_yet` is true once an earlier route ran this cycle. Returns -1 when the route stalls.
+static func fare_for(fixed: int, cash: int, paid_yet: bool) -> int:
+	if cash >= fixed:
+		return fixed
+	return -1 if paid_yet else maxi(cash, 0)
+
+## Cash a Buy order must leave alone: the fixed cost (trip + upkeep) of every route that will run this cycle, in list
+## order while `cash` still covers it. A route reserves only when its planets are open, its destination has room, and
+## its source holds stock (`amt` reads stock) or an active Buy order feeds that source. Routes that cannot run reserve 0.
+func route_reserve(cash: int, amt: Callable) -> int:
+	var left := cash
+	var total := 0
+	for rec in routes:
+		if not src_open(rec) or not dst_open(rec):
+			continue
+		var c := str(rec["c"])
+		var dst := str(rec["dst"])
+		if storage.capacity_of(dst) - int(amt.call(dst, c)) <= 0:
+			continue
+		var have := 0
+		if from_cluster(rec):
+			have = src_available(rec)
+		else:
+			var sk := space_key_for(int(rec["a"]))
+			if sk == dst:
+				sk = ""
+			have = int(amt.call(str(rec["src"]), c)) + (int(amt.call(sk, c)) if sk != "" else 0)
+		var fixed := fixed_cost(rec)
+		if not from_cluster(rec) and have <= 0 and _buy_feeds(int(rec["a"]), c, left - fixed):
+			have = 1  # fed only by a Buy that can still buy one unit after this reserve
+		if have <= 0:
+			continue
+		if left < fixed:
+			if total == 0 and left > 0:  # nothing else reserves: this route will run at a part fare (fare_for), keep that cash too
+				total = left
+				left = 0
+			continue
+		left -= fixed
+		total += fixed
+	return total
+
+## True when an active Buy order at `planet` for `c` could put stock into storage this cycle and can pay for at least
+## one unit out of `afford` (cash left after the reserve). A Buy that would buy nothing feeds nothing, so reserves nothing.
+func _buy_feeds(planet: int, c: String, afford: int) -> bool:
+	var o: Dictionary = local_of(planet, c)
+	if o.is_empty() or not o["buy"] or not planet_open(planet) or local_price(planet, c, "buy") < 0:
+		return false
+	if afford < local_price(planet, c, "buy"):
+		return false
+	if trade_gate.is_valid() and not bool(trade_gate.call(planet)):
+		return false
+	return storage.space(storage.planet_key(planet), c) > 0
+
+## Read-only forecast of the next settle() (cash forecast popup and top-bar delta). Runs the same order as
+## settle (local buys, routes, local sells) on a scratch copy of the stock, so a Sell order sees the goods the
+## routes deliver this cycle. Nothing in the game changes. Returns
+## {local: Array of {label, role, planet, c, credits (signed), state}, routes: Array of {a, b, c, status,
+## trip, upkeep (what a moving ship costs), gross (route bonus + stop sale, 0 when it moves nothing)},
+## delta: net credits, as settle() would add}. Approximation: a cluster shared by ships is not split between them.
+func forecast(cash: int) -> Dictionary:
+	var shadow := {}
+	var amt := func(k: String, c: String) -> int:
+		var sk: String = k + "|" + c
+		return int(shadow[sk]) if shadow.has(sk) else storage.amount(k, c)
+	var delta := 0
+	var loc: Array = []
+	var res: Array = []
+	var orders: Array = local.values()
+	for o in orders:  # 1 local buys
+		if not o["buy"]:
+			continue
+		var p := int(o["planet"])
+		var c := str(o["c"])
+		var price := local_price(p, c, "buy")
+		var pk: String = storage.planet_key(p)
+		var credits := 0
+		var state := "Buying."
+		if not planet_open(p):
+			state = "Planet closed."
+		elif price < 0:
+			state = "Not traded here."
+		elif trade_gate.is_valid() and not bool(trade_gate.call(p)):
+			state = StoryText.get_or("LBL_TRADE_NEEDS_STATION", "Needs a Space Storage in this system.")
+		else:
+			var room: int = storage.capacity_of(pk) - int(amt.call(pk, c))
+			var n: int = mini(local_amount(), room)
+			if room <= 0:
+				state = StoryText.get_text("NOT_STORAGE_FULL")
+			else:
+				if price > 0:
+					n = mini(n, floori(float(maxi(cash + delta - route_reserve(cash + delta, amt), 0)) / price))
+				if n <= 0:
+					state = "Not enough cash."
+				else:
+					shadow[pk + "|" + c] = int(amt.call(pk, c)) + n
+					credits = -n * price
+		delta += credits
+		loc.append({"label": "Buy %s at %s" % [c, _pname(p)], "role": "buy", "planet": p, "c": c, "credits": credits, "state": state})
+	var budget := {}
+	for rec in routes:
+		var lk := _lane_key(int(rec["a"]), int(rec["b"]), str(rec["c"]))
+		if not budget.has(lk):
+			var lim := _split_limit(rec)
+			if lim >= 0:
+				budget[lk] = lim
+	var mixed := {}  # planet -> {goods, bonus}, as settle() keeps it
+	var fare_seen := false  # as fare_paid in settle()
+	for rec in routes:  # 2 routes
+		var c := str(rec["c"])
+		var src := str(rec["src"])
+		var dst := str(rec["dst"])
+		var line := {"a": int(rec["a"]), "b": int(rec["b"]), "c": c, "status": "running", "trip": trip_part() * (2 if has_stop(rec) else 1), "upkeep": upkeep_part(rec), "gross": 0, "moves": false}
+		res.append(line)
+		if not src_open(rec) or not dst_open(rec):
+			line["status"] = "blocked"
+			continue
+		var room: int = storage.capacity_of(dst) - int(amt.call(dst, c))
+		if room <= 0:
+			line["status"] = "blocked" if not has_outflow(int(rec["b"]), c) else "waiting"
+			continue
+		var sk := space_key_for(int(rec["a"]))
+		if sk == dst:
+			sk = ""
+		var have: int = src_available(rec) if from_cluster(rec) else int(amt.call(src, c)) + (int(amt.call(sk, c)) if sk != "" else 0)
+		if have <= 0:
+			line["status"] = "stalled"
+			continue
+		var fixed := fare_for(fixed_cost(rec), cash + delta, fare_seen)
+		if fixed < 0:
+			line["status"] = "stalled"
+			continue
+		var lk := _lane_key(int(rec["a"]), int(rec["b"]), c)
+		var units := _route_cap(rec)
+		if budget.has(lk):
+			units = mini(units, int(budget[lk]))
+		var moved: int = maxi(0, mini(units, mini(have, room)))
+		if moved <= 0:
+			line["status"] = "stalled"
+			continue
+		if budget.has(lk):
+			budget[lk] = maxi(0, int(budget[lk]) - moved)
+		var carried := moved
+		var sale := 0
+		if not from_cluster(rec):
+			var from_planet: int = mini(moved, int(amt.call(src, c)))
+			shadow[src + "|" + c] = int(amt.call(src, c)) - from_planet
+			if sk != "" and from_planet < moved:
+				shadow[sk + "|" + c] = int(amt.call(sk, c)) - (moved - from_planet)
+			if stop_open(rec):
+				var sold := mini(moved, local_amount())
+				sale = sold * sold_price(int(rec["stop"]), c)
+				carried = moved - sold
+		shadow[dst + "|" + c] = int(amt.call(dst, c)) + carried
+		var gross := level_bonus(rec, carried) + sale
+		line["gross"] = gross
+		line["moves"] = true
+		delta += gross - fixed
+		fare_seen = true
+	for o in orders:  # 3 local sells
+		if not o["sell"]:
+			continue
+		var p := int(o["planet"])
+		var c := str(o["c"])
+		var pk: String = storage.planet_key(p)
+		var credits := 0
+		var state := "Selling."
+		var price := local_price(p, c, "sell")
+		if not planet_open(p):
+			state = "Planet closed."
+		elif price < 0:
+			state = "Not traded here."
+		elif trade_gate.is_valid() and not bool(trade_gate.call(p)):
+			state = StoryText.get_or("LBL_TRADE_NEEDS_STATION", "Needs a Space Storage in this system.")
+		else:
+			var sk := space_key_for(p)
+			var have: int = int(amt.call(pk, c)) + (int(amt.call(sk, c)) if sk != "" else 0)
+			if have <= 0:
+				state = "Storage empty."
+			else:
+				var n: int = mini(local_amount(), have)
+				var from_planet: int = mini(n, int(amt.call(pk, c)))
+				shadow[pk + "|" + c] = int(amt.call(pk, c)) - from_planet
+				if sk != "" and from_planet < n:
+					shadow[sk + "|" + c] = int(amt.call(sk, c)) - (n - from_planet)
+				credits = n * sold_price(p, c)
+				var m: Dictionary = mixed.get(p, {"goods": 0, "bonus": 0})
+				var b := mixed_bonus(credits, int(m["goods"]), int(m["bonus"]))
+				credits += b
+				mixed[p] = {"goods": int(m["goods"]) + 1, "bonus": int(m["bonus"]) + b}
+		delta += credits
+		loc.append({"label": "Sell %s at %s" % [c, _pname(p)], "role": "sell", "planet": p, "c": c, "credits": credits, "state": state})
+	return {"local": loc, "routes": res, "delta": delta}
+
 ## N3 Mixed load (code name: bundle bonus). Bonus credits for a sale of `revenue` at a planet that already sold
 ## `goods_before` distinct goods this cycle with `bonus_before` bonus paid. First good gets none; per-planet cap.
 func mixed_bonus(revenue: int, goods_before: int, bonus_before: int) -> int:
@@ -616,10 +866,13 @@ func settle(cash: int) -> Dictionary:
 	var upkeep_paid := 0
 	var orders: Array = local.values()
 	mix = {}
-	for o in orders:  # 1 local buys
+	var amt_now := func(k: String, c: String) -> int: return storage.amount(k, c)
+	for o in orders:  # 1 local buys; they may not spend the fixed cost of a route that runs this cycle
 		if o["buy"]:
-			delta += _run_local(o, "buy", cash + delta, loc)
+			delta += _run_local(o, "buy", cash + delta - route_reserve(cash + delta, amt_now), loc)
 	_begin_split_budget()
+	_begin_cluster_budget()
+	fare_paid = false
 	for rec in routes:  # 2 routes
 		var was: String = str(rec["state"])
 		var paid := _settle_one(rec, cash + delta)
@@ -627,6 +880,8 @@ func settle(cash: int) -> Dictionary:
 		delta += paid + bonus
 		if paid < 0:
 			upkeep_paid += upkeep_part(rec)
+		if rec["state"] == "running":
+			fare_paid = true
 		if rec["state"] == "blocked" and was != "blocked":
 			newly.append(rec)
 		if rec["state"] == "stalled" and was != "stalled" and str(rec["reason"]) == "Source storage is empty.":
@@ -638,6 +893,7 @@ func settle(cash: int) -> Dictionary:
 		if o["sell"]:
 			delta += _run_local(o, "sell", cash + delta, loc)
 	split_budget = {}
+	cluster_budget = {}
 	return {"delta": delta, "results": results, "local": loc, "newly_blocked": newly, "newly_stalled": newly_stalled,
 		"upkeep": upkeep_paid, "gross": delta + upkeep_paid}
 
@@ -673,7 +929,7 @@ func _settle_one(rec: Dictionary, cash: int) -> int:
 	var c := str(rec["c"])
 	var src := str(rec["src"])
 	var dst := str(rec["dst"])
-	if not planet_open(int(rec["a"])) or not dst_open(rec):
+	if not src_open(rec) or not dst_open(rec):
 		rec["state"] = "blocked"
 		rec["reason"] = "A planet on this route is closed."
 		return 0
@@ -683,6 +939,11 @@ func _settle_one(rec: Dictionary, cash: int) -> int:
 		rec["reason"] = "Destination storage is full."
 		return 0
 	if src_available(rec) <= 0:
+		if from_cluster(rec):  # T156: empty cluster stalls the lane; the player removes it. A cluster shared by ships may only be out of its cycle yield.
+			var empty: bool = clusters == null or clusters.left(Clusters.index_of(int(rec["a"]))) <= 0
+			rec["state"] = "stalled" if empty else "waiting"
+			rec["reason"] = StoryText.get_or("ST_CLUSTER_EMPTY", "The cluster is empty.") if empty else StoryText.get_or("ST_CLUSTER_SHARED", "Another ship took this cycle's ore.")
+			return 0
 		rec["state"] = "stalled"
 		rec["reason"] = "Source storage is empty."
 		return 0
@@ -690,8 +951,8 @@ func _settle_one(rec: Dictionary, cash: int) -> int:
 		rec["state"] = "waiting"
 		rec["reason"] = waiting_text()
 		return 0
-	var fixed := fixed_cost(rec)
-	if cash < fixed:
+	var fixed := fare_for(fixed_cost(rec), cash, fare_paid)
+	if fixed < 0:
 		rec["state"] = "stalled"
 		rec["reason"] = "Not enough cash."
 		return 0
@@ -700,6 +961,16 @@ func _settle_one(rec: Dictionary, cash: int) -> int:
 		rec["state"] = "stalled"
 		rec["reason"] = "Nothing to move."
 		return 0
+	if from_cluster(rec):  # T156: the ship loads ore free at the cluster; it thins and never refills
+		var got: int = clusters.take(Clusters.index_of(int(rec["a"])), moved)
+		var bi := Clusters.index_of(int(rec["a"]))
+		cluster_budget[bi] = maxi(0, (int(cluster_budget[bi]) if cluster_budget.has(bi) else clusters.yield_per_cycle()) - got)
+		storage.add(dst, c, got)
+		rec["stop_sale"] = 0
+		rec["bonus"] = level_bonus(rec, got)
+		rec["state"] = "running"
+		rec["reason"] = ""
+		return -fixed
 	var from_planet: int = storage.remove(src, c, moved)  # T85: the planet storage first, Space Storage covers the rest
 	var sk := space_key_for(int(rec["a"]))
 	if sk == dst:  # a send to the station never draws from it
@@ -837,6 +1108,14 @@ func _split_partner_blocked(a: int, to: int, c: String) -> bool:
 		return true
 	return storage.is_full(storage.planet_key(to), c) and not has_outflow(to, c)
 
+## T156: each cluster gives at most mining_yield_per_cycle per cycle, shared by its ships.
+func _begin_cluster_budget() -> void:
+	cluster_budget = {}
+	if clusters == null:
+		return
+	for i in clusters.items.size():
+		cluster_budget[i] = clusters.yield_per_cycle()
+
 ## N2: the units a moved split lane has used of its budget.
 func _spend_split(rec: Dictionary, units: int) -> void:
 	var key := _lane_key(int(rec["a"]), int(rec["b"]), str(rec["c"]))
@@ -875,7 +1154,7 @@ func from_array(saved, owned_ships: int) -> void:
 		var a := int(s.get("a", -1))
 		var b := int(s.get("b", -1))
 		var c := str(s["c"])
-		if not check_connection(a, b, c)["ok"]:
+		if not check_connection(a, b, c, false)["ok"]:  # T156: a saved route from an emptied cluster stays (stalled)
 			continue
 		left -= 1
 		var rec := new_record(a, b, c)  # old saves with a "large" ship type load as small

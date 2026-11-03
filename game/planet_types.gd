@@ -25,5 +25,7 @@ static func apply(p: Dictionary) -> void:
 	if not tt.has(id):
 		push_warning("Planet %s has type '%s' missing from planet_types.json" % [str(p.get("id", "?")), id])
 		return
+	if bool(tt[id].get("own_goods", false)) and p.has("abundant"):  # dead worlds: the planet row names its own resource
+		return
 	p["abundant"] = tt[id]["abundant"]
 	p["scarce"] = tt[id]["scarce"]

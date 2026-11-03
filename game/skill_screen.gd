@@ -47,6 +47,19 @@ func setup(main_node: Control) -> void:
 	close.text = StoryText.get_text("SK_BTN_CLOSE")
 	close.pressed.connect(close_screen)
 	head.add_child(close)
+	var help := Label.new()
+	help.theme_type_variation = "LabelSmall"
+	help.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	help.text = StoryText.get_or("LBL_SKILL_POINTS_HELP", "Skill points: 1 for each planet you first trade with, 2 for each new route between two planets, 3 for each new system you reach.")
+	_root.add_child(help)
+	# Row 1: Space Storage (A1) and Permit Charter (C1). Row 2: every other skill, locked until both are learned.
+	_root.add_child(_row_caption(StoryText.get_or("LBL_SKILLS_ROW_FIRST", "Start here")))
+	var first := HBoxContainer.new()
+	first.add_theme_constant_override("separation", 16)
+	_root.add_child(first)
+	for id in SkillTree.FIRST_ROW:
+		first.add_child(_node_button(id))
+	_root.add_child(_row_caption(StoryText.get_or("LBL_SKILLS_ROW_SECOND", "Unlocks after Space Storage and Permit Charter")))
 	var cols := HBoxContainer.new()
 	cols.add_theme_constant_override("separation", 16)
 	_root.add_child(cols)
@@ -61,11 +74,8 @@ func setup(main_node: Control) -> void:
 		h.text = h.text.to_upper()
 		col.add_child(h)
 		for id in SkillTree.ids_in(b):
-			var btn := Button.new()
-			btn.custom_minimum_size = Vector2(0, 48)
-			btn.pressed.connect(select.bind(id))
-			col.add_child(btn)
-			node_buttons[id] = btn
+			if not SkillTree.in_first_row(id):
+				col.add_child(_node_button(id))
 	detail_box = VBoxContainer.new()
 	detail_box.custom_minimum_size = Vector2(0, 190)
 	detail_box.add_theme_constant_override("separation", 4)
@@ -76,6 +86,20 @@ func setup(main_node: Control) -> void:
 	var foot := Label.new()
 	foot.text = StoryText.get_text("SK_NO_CREDITS")
 	_root.add_child(foot)
+
+func _row_caption(text: String) -> Label:
+	var l := Label.new()
+	l.text = text.to_upper()
+	l.theme_type_variation = "LabelCaption"
+	return l
+
+func _node_button(id: String) -> Button:
+	var btn := Button.new()
+	btn.custom_minimum_size = Vector2(0, 48)
+	btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	btn.pressed.connect(select.bind(id))
+	node_buttons[id] = btn
+	return btn
 
 func open_screen() -> void:
 	visible = true
@@ -206,8 +230,8 @@ func _build_detail() -> void:
 	var id := selected
 	var learned: Array = main.learned_skills
 	_label(SkillTree.skill_name(id), 20)
-	_label(StoryText.get_text("SK_%s_FLAVOUR" % id))
-	_label(StoryText.get_text("SK_LABEL_EFFECT") + ": " + StoryText.get_text("SK_%s_PLAIN" % id))
+	_label(StoryText.get_or("SK_%s_FLAVOUR" % id, ""))
+	_label(StoryText.get_text("SK_LABEL_EFFECT") + ": " + StoryText.get_or("SK_%s_PLAIN" % id, ""))
 	_label(StoryText.get_text("SK_COST", {"amount": SkillTree.cost(main.balance, id)}))
 	var need := SkillTree.missing_prereqs(learned, id)
 	if not need.is_empty():
@@ -220,6 +244,8 @@ func _build_detail() -> void:
 	var verdict := SkillTree.can_learn(learned, main.skill_points, main.balance, id, main.skill_ctx())
 	if verdict.get("why", "") == "permit_first":
 		_label(StoryText.get_or("LBL_LOCKED_PERMIT_FIRST", "Learn Permit Charter (C1) first."))
+	elif verdict.get("why", "") == "first_row":
+		_label(StoryText.get_or("LBL_LOCKED_FIRST_ROW", "Learn Space Storage (A1) and Permit Charter (C1) first."))
 	if verdict["reason"] == "points":
 		_label(StoryText.get_text("SK_LABEL_NEEDS_POINTS"))
 	if id == "C1" and main.unowned_systems().is_empty():
@@ -244,6 +270,8 @@ func _build_detail() -> void:
 					names.append(SkillTree.skill_name(p))
 				if verdict.get("why", "") == "permit_first":
 					learn_button.tooltip_text = StoryText.get_or("LBL_LOCKED_PERMIT_FIRST", "Learn Permit Charter (C1) first.")
+				elif verdict.get("why", "") == "first_row":
+					learn_button.tooltip_text = StoryText.get_or("LBL_LOCKED_FIRST_ROW", "Learn Space Storage (A1) and Permit Charter (C1) first.")
 				elif not names.is_empty():
 					learn_button.tooltip_text = StoryText.get_text("SK_NEEDS", {"skill": ", ".join(names)})
 	learn_button.pressed.connect(_ask_confirm)

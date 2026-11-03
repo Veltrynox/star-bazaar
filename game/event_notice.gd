@@ -23,9 +23,37 @@ func show_event(title: String, text: String, effect_line: String, choices: Array
 	var box := VBoxContainer.new()
 	box.custom_minimum_size = Vector2(560, 0)
 	box.add_theme_constant_override("separation", 16)
-	Ui.scroll_wrap(card, box, 48.0)  # many choices or long text scroll inside the window
-	if art == "asteroid":  # T109: simple polygon on an approach path
-		box.add_child(AsteroidArt.new())
+	var banner := _load_banner(art)
+	var wrapped := false
+	if banner != null:  # banner runs edge to edge: card frame margins off, the text area gets its own margins
+		var sb := card.get_theme_stylebox("panel")
+		if sb is StyleBoxFlat:
+			var flat := (sb as StyleBoxFlat).duplicate() as StyleBoxFlat
+			var ml := int(flat.content_margin_left)
+			var mr := int(flat.content_margin_right)
+			var mb := int(flat.content_margin_bottom)
+			flat.set_content_margin_all(0.0)
+			card.add_theme_stylebox_override("panel", flat)
+			var outer := VBoxContainer.new()
+			outer.add_theme_constant_override("separation", -28)  # the title sits on the foot of the fade
+			card.add_child(outer)
+			var pic := BannerArt.new()
+			pic.texture = banner
+			pic.bg = flat.bg_color
+			pic.r_tl = float(flat.corner_radius_top_left)  # same radii as the card frame
+			pic.r_tr = float(flat.corner_radius_top_right)
+			outer.add_child(pic)
+			var pad := MarginContainer.new()
+			pad.add_theme_constant_override("margin_left", ml)
+			pad.add_theme_constant_override("margin_right", mr)
+			pad.add_theme_constant_override("margin_bottom", mb)
+			outer.add_child(pad)
+			Ui.scroll_wrap(pad, box, 48.0 + BannerArt.MAX_H + float(mb))
+			wrapped = true
+	if not wrapped:
+		Ui.scroll_wrap(card, box, 48.0)  # many choices or long text scroll inside the window
+		if art == "asteroid" or art == "res://art/event_banners/EV20.webp":  # T109: fallback when no banner file
+			box.add_child(AsteroidArt.new())
 	var t := Label.new()
 	t.text = title
 	t.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -72,6 +100,13 @@ func show_event(title: String, text: String, effect_line: String, choices: Array
 	Juice.enter(self, 1.0, 0.0, true)
 	Juice.enter(card, Juice.ENTER_SCALE)
 
+## art is a res:// banner path; returns null when it is not a banner or the file is missing.
+func _load_banner(art: String) -> Texture2D:
+	if not art.begins_with("res://") or not ResourceLoader.exists(art):
+		return null
+	var res = load(art)
+	return res as Texture2D
+
 ## Closes the notice with a short fade and frees it. Input passes through at once, so the exit never holds play up.
 func dismiss() -> void:
 	_dismissed = true
@@ -100,3 +135,59 @@ class AsteroidArt extends Control:
 			pts.append(pos + v)
 		draw_colored_polygon(pts, Ui.col("signal_bad"))
 		draw_polyline(pts + PackedVector2Array([pts[0]]), Ui.col("star_warm"), 1.5)
+
+
+## Banner that fills the card width, crops top and bottom (aspect kept), and fades into the card colour at its foot.
+class BannerArt extends Control:
+	const MAX_H := 190.0  # keeps buttons on screen at phone width; the crop takes the rest
+	const MIN_H := 64.0   # 3:1 at phone width is about 100px; the minimum must stay below that
+	const FADE := 0.6     # share of the height the gradient covers
+	var texture: Texture2D
+	var r_tl := 0.0
+	var r_tr := 0.0
+	var bg := Color.BLACK  # the card's own background colour, handed in so any theme blends
+
+	func _init() -> void:
+		custom_minimum_size = Vector2(0, MIN_H)
+		size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		resized.connect(_fit)
+
+	func _fit() -> void:
+		var ratio := 3.0
+		if texture != null and texture.get_height() > 0:
+			ratio = float(texture.get_width()) / float(texture.get_height())
+		var h := clampf(size.x / ratio, MIN_H, MAX_H)
+		if absf(custom_minimum_size.y - h) > 0.5:
+			custom_minimum_size.y = h
+
+	func _bg() -> Color:
+		var c := bg
+		c.a = 1.0
+		return c
+
+	func _draw() -> void:
+		if texture == null or size.x <= 0.0 or size.y <= 0.0:
+			return
+		var ts := texture.get_size()
+		var k := maxf(size.x / ts.x, size.y / ts.y)
+		var src_size := size / k
+		var src := Rect2((ts - src_size) * 0.5, src_size)
+		var pts := PackedVector2Array()  # top corners rounded, bottom square (the fade meets the text area)
+		var rl := minf(r_tl, minf(size.x, size.y) * 0.5)
+		var rr := minf(r_tr, minf(size.x, size.y) * 0.5)
+		for i in range(0, 9):
+			var a := PI + (PI * 0.5) * float(i) / 8.0
+			pts.append(Vector2(rl, rl) + Vector2(cos(a), sin(a)) * rl)
+		for i in range(0, 9):
+			var a := PI * 1.5 + (PI * 0.5) * float(i) / 8.0
+			pts.append(Vector2(size.x - rr, rr) + Vector2(cos(a), sin(a)) * rr)
+		pts.append(Vector2(size.x, size.y))
+		pts.append(Vector2(0, size.y))
+		var uvs := PackedVector2Array()
+		for q in pts:
+			uvs.append((src.position + q / k) / ts)
+		draw_colored_polygon(pts, Color.WHITE, uvs, texture)
+		var c := _bg()
+		var clear := Color(c.r, c.g, c.b, 0.0)
+		var y0 := size.y * (1.0 - FADE)
+		draw_polygon(PackedVector2Array([Vector2(0, y0), Vector2(size.x, y0), Vector2(size.x, size.y + 1), Vector2(0, size.y + 1)]), PackedColorArray([clear, clear, c, c]))

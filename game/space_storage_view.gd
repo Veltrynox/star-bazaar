@@ -68,8 +68,9 @@ func refresh() -> void:
 		var bar := RatingBar.new()
 		bar.level = main.storage.rating(key, str(c))
 		row.add_child(bar)
+		row.add_child(Ui.good_icon(str(c), 16))
 		var l := Label.new()
-		l.text = "%s  %d/%d" % [str(c).capitalize(), main.storage.amount(key, str(c)), cap]
+		l.text = "%s  %d/%d" % [Ui.good_name(str(c)), main.storage.amount(key, str(c)), cap]
 		l.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		row.add_child(l)
@@ -77,4 +78,28 @@ func refresh() -> void:
 		if nc != null:
 			row.add_child(nc)  # right end of the same row
 		box.add_child(row)
+	_fabric_rows()
 	size = Vector2.ZERO
+
+## Fabric block, only in system 1 once F1 is learned: build button with the cost, then the recipe and its status.
+func _fabric_rows() -> void:
+	if system_id != main.Fabric.SYSTEM or not main.has_skill("F1"):
+		return
+	var f = main.fabric
+	var head := Label.new()
+	head.name = "FabricLine"
+	head.theme_type_variation = "LabelCaption"
+	head.text = StoryText.get_or("SS_FABRIC", "Fabric") + ": " + f.recipe_text()
+	box.add_child(head)
+	if not f.built:
+		var b := Button.new()
+		b.name = "FabricBuild"
+		b.text = StoryText.get_or("SS_FABRIC_BUILD", "Build fabric ({cost} cr)", {"cost": f.build_cost()})
+		b.disabled = not main.can_build_fabric()["ok"]
+		b.pressed.connect(func(): main.build_fabric(); refresh())
+		box.add_child(b)
+	else:
+		var st := Label.new()
+		st.name = "FabricStatus"
+		st.text = ("made %d plate" % f.made) if f.state == "running" else (f.reason if f.state == "stalled" else "ready")
+		box.add_child(st)

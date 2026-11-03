@@ -19,6 +19,7 @@ const PAN_SPEED := 10.0          # world units per second at zoom 1
 const LAYOUT_RADIUS := 6.0       # ring radius for the simple layout (world units)
 const MAP_UNIT_SCALE := 0.02     # world units per map unit in planets.json (old ring: 300 map units = 6 world units)
 const PLANET_RADIUS := 0.8       # base radius (before planet_scale)
+const CLUSTER_PICK_MIN := 0.3     # smallest click radius of an asteroid pack (world units); under a planet's radius
 const PLANET_SIZE := 1.3         # planet size multiplier: planets are x1.3 the old size; the debug menu starts here
 const BASE_DISTANCE := 16.0      # camera distance from focus point at zoom 1
 const CAMERA_FOV := 45.0
@@ -44,6 +45,8 @@ var sun_node: Node3D  # T132: animated 3D sun
 var suns := {}         # system id -> its sun node (art/sun/sun_flare.gd); every open system has its own sun
 var sun_positions := {}  # system id -> world position of that sun
 var orbit_rings := {}    # system id -> its orbit ring mesh
+var planet_belts := {}   # planet index -> its small decorative dust belt (Voltara)
+var dust_rings := {}     # system id -> its decorative asteroid dust ring (art/planet_fx/asteroid_dust_ring.gd)
 var hex_ring: Node3D  # T110: hexagon ring around the sun, shown during EV20
 var key_light: DirectionalLight3D
 var planet_scale := PLANET_SIZE  # multiplies PLANET_RADIUS (visual size, click radius, route start, names, halos)
@@ -66,10 +69,13 @@ var route_lines: Dictionary = {}  # T07b: route id -> route_line.gd node
 var _route_list: Array = []       # last list given to set_routes (rebuilt after tunable changes)
 
 signal station_clicked(system_id: int)
+signal cluster_clicked(index: int)  # T159: click on an asteroid pack (index in the cluster data)
+var _cluster_list: Array = []  # T159: last list given to set_clusters, for picking
 const STATION_OFFSET := Vector3(2.4, 0.0, -2.4)  # from the system's sun
 const STATION_PICK_PX := 40.0
 const STATION_MARKER_LIFT := 0.45
 var stations := {}  # system id -> game/station.gd node
+var asteroid_packs: Node3D  # T157: game/galaxy/asteroid_packs.gd, one MultiMesh per cluster
 
 func _ready() -> void:
 	RenderingServer.set_default_clear_color(Color.BLACK)
@@ -104,9 +110,13 @@ func _ready() -> void:
 		p["system"] = 1  # T85: planets.json is system 1
 	for i in planets.size():
 		_make_planet(i)
+	asteroid_packs = load("res://game/galaxy/asteroid_packs.gd").new()
+	asteroid_packs.map_unit_scale = MAP_UNIT_SCALE
+	add_child(asteroid_packs)
 	_frame_planets()
 	_add_sun(focus)
 	_add_orbit_rings(focus, 1)
+	_add_planet_belt("Voltara")
 	_update_camera()
 	# Chromatic aberration over the 3D view (art/planet_fx/chromatic_aberration.gd): first, so the glare and grain sit on top of it.
 	add_child(load("res://art/planet_fx/chromatic_aberration.gd").new())
@@ -140,6 +150,7 @@ func _add_orbit_rings(center: Vector3, sys: int = 1) -> void:
 	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	var im := ImmediateMesh.new()
 	var max_r := 0.0
+	var radii: Array[float] = []
 	var segs := 128
 	for pi in positions.size():
 		if int(planets[pi].get("system", 1)) != sys:
@@ -149,6 +160,7 @@ func _add_orbit_rings(center: Vector3, sys: int = 1) -> void:
 		if r < 0.01:
 			continue
 		max_r = maxf(max_r, r)
+		radii.append(r)
 		im.surface_begin(Mesh.PRIMITIVE_LINE_STRIP, mat)
 		im.surface_set_color(inner)
 		for s in segs + 1:
@@ -172,6 +184,64 @@ func _add_orbit_rings(center: Vector3, sys: int = 1) -> void:
 	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	add_child(mi)
 	orbit_rings[sys] = mi
+	_add_dust_ring(center, sys, radii)
+
+## Decorative dust: up to 7 broken bands (art/planet_fx/asteroid_dust_ring.gd). The gaps between orbit lines (sun edge,
+## planet orbits, dashed outer ring) are shared out between the rings, one slot per ring with a 10% margin to the lines,
+## so no band touches an orbit line. Visual only: no collision, never picked.
+const DUST_RING_COUNT := 7
+## A light dust belt round one planet (Voltara: no event names a belt there; closest is EV28 'Voltara's foundry wants rock').
+## Two thin broken bands at 1.5 to 1.8 and 2.0 to 2.4 planet radii, 1500 grains, centred on the planet, so it reads as
+## a belt round Voltara and stays well clear of the other planets. Visual only: no collision, planet picking is maths.
+func _add_planet_belt(planet_name: String) -> void:
+	for i in planets.size():
+		if str(planets[i].get("name", "")) != planet_name:
+			continue
+		var r := planet_radius()
+		var belt: MultiMeshInstance3D = load("res://art/planet_fx/asteroid_dust_ring.gd").new()
+		var bands: Array[Vector2] = [Vector2(r * 1.5, r * 1.8), Vector2(r * 2.0, r * 2.4)]
+		belt.slots = bands
+		belt.count = 1500
+		belt.seed_salt = 100 + i
+		belt.name = "PlanetBelt" + planet_name
+		belt.position = positions[i]
+		belt.visible = planet_in_view(i)
+		add_child(belt)
+		planet_belts[i] = belt
+		return
+func _add_dust_ring(center: Vector3, sys: int, radii: Array[float]) -> void:
+	if radii.is_empty():
+		return
+	var edges: Array[float] = [sun_radius * 1.5]
+	var sorted := radii.duplicate()
+	sorted.sort()
+	edges.append_array(sorted)
+	edges.append(sorted[-1] * 1.2)  # the dashed outer ring
+	var per_gap: Array[int] = []
+	per_gap.resize(edges.size() - 1)
+	per_gap.fill(0)
+	for n in DUST_RING_COUNT:  # next ring goes to the gap with the most room per ring
+		var best := 0
+		for i in per_gap.size():
+			if (edges[i + 1] - edges[i]) / (per_gap[i] + 1) > (edges[best + 1] - edges[best]) / (per_gap[best] + 1):
+				best = i
+		per_gap[best] += 1
+	var slots: Array[Vector2] = []
+	for i in per_gap.size():
+		var g: float = edges[i + 1] - edges[i]
+		var lo: float = edges[i] + g * 0.1
+		var step: float = g * 0.8 / maxi(per_gap[i], 1)
+		for k in per_gap[i]:
+			slots.append(Vector2(lo + step * k + step * 0.05, lo + step * (k + 1) - step * 0.05))
+	var ring: MultiMeshInstance3D = load("res://art/planet_fx/asteroid_dust_ring.gd").new()
+	ring.slots = slots
+	ring.seed_salt = sys
+	ring.tint = Color(0.75, 0.68, 0.6).lerp(Systems.sun_color_of(sys), 0.25)
+	ring.name = "AsteroidDustRing" if sys == 1 else "AsteroidDustRing%d" % sys
+	ring.position = center
+	ring.visible = sys == view_system
+	add_child(ring)
+	dust_rings[sys] = ring
 
 ## T85: one planet node (mesh + label) for planets[i]; position from x,y or the old ring layout.
 func _make_planet(i: int) -> void:
@@ -247,7 +317,35 @@ func set_view_system(id: int) -> void:
 func planet_in_view(i: int) -> bool:
 	return i >= 0 and i < planets.size() and int(planets[i].get("system", 1)) == view_system
 
+## T157: show the asteroid packs of the clusters given (main.clusters_in_system). Visual only.
+func set_clusters(list: Array) -> void:
+	_cluster_list = list
+	asteroid_packs.sync(list)
+
+## T159: index of the cluster of the viewed system whose pack is under the cursor (ray against a sphere of the pack radius), or -1.
+func pick_cluster(screen_pos: Vector2) -> int:
+	var origin := camera.project_ray_origin(screen_pos)
+	var dir := camera.project_ray_normal(screen_pos)
+	var best := -1
+	var best_t := INF
+	for c in _cluster_list:
+		if int(c["system"]) != view_system or int(c.get("visible", 1)) <= 0:
+			continue
+		var centre := Vector3(float(c["x"]), 0.0, float(c["y"])) * MAP_UNIT_SCALE
+		var r := float(c["radius"]) * MAP_UNIT_SCALE
+		var oc := origin - centre
+		var b := oc.dot(dir)
+		var disc := b * b - (oc.dot(oc) - r * r)
+		if disc < 0.0:
+			continue
+		var t := -b - sqrt(disc)
+		if t > 0.0 and t < best_t:
+			best_t = t
+			best = int(c["index"])
+	return best
+
 func _apply_view() -> void:
+	asteroid_packs.set_view_system(view_system)
 	for i in planet_spheres.size():
 		var on := planet_in_view(i)
 		planet_spheres[i].visible = on
@@ -260,6 +358,10 @@ func _apply_view() -> void:
 		stations[id].visible = int(id) == view_system
 	for id in orbit_rings:  # each system shows only its own sun and orbit rings
 		orbit_rings[id].visible = int(id) == view_system
+	for i in planet_belts:
+		planet_belts[i].visible = planet_in_view(int(i))
+	for id in dust_rings:
+		dust_rings[id].visible = int(id) == view_system
 	for id in suns:
 		suns[id].visible = int(id) == view_system
 
@@ -390,7 +492,7 @@ func set_routes(routes: Array) -> void:
 			add_child(line)
 			line.setup(id, a, b, positions[a], positions[b], planet_radius(), half)
 			route_lines[id] = line
-		line.set_style(str(r.get("status", "running")), int(r.get("ships", 1)), str(r.get("c", "")), int(r.get("net", 0)))
+		line.set_style(str(r.get("status", "running")), int(r.get("ships", 1)), str(r.get("c", "")), int(r.get("net", 0)), str(r.get("reason", "")))
 	for id in route_lines.keys():
 		if not seen.has(id):
 			route_lines[id].queue_free()
@@ -494,6 +596,10 @@ func _unhandled_input(event: InputEvent) -> void:
 			var sid := pick_station(event.position)
 			if sid >= 0:
 				station_clicked.emit(sid)
+				return
+			var cidx := pick_cluster(event.position)
+			if cidx >= 0:
+				cluster_clicked.emit(cidx)
 				return
 			var rid := pick_route(event.position)
 			if rid >= 0:

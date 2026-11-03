@@ -27,6 +27,9 @@ const Events := preload("res://game/events.gd")
 const Shield := preload("res://game/shield.gd")
 const Ships := preload("res://game/ships.gd")
 const Systems := preload("res://game/systems.gd")
+const Clusters := preload("res://game/clusters.gd")
+const DeadWorlds := preload("res://game/dead_worlds.gd")
+const Fabric := preload("res://game/fabric.gd")
 
 var balance: Dictionary = {}
 var cash: int = 0
@@ -80,13 +83,14 @@ var cash_box: HBoxContainer  # click target for the cash forecast
 var points_button: MarginContainer  # top bar: the skill points figure, opens Skills
 var points_hit: Button
 var menu_button: Button  # top left, opens the Esc menu
-var expenses_label: Label
 var points_label: Label
 var system_label: Label
 var system_hint: Label
 
 var map: Node3D
 var planet_panel: PanelContainer
+var cluster_info: PanelContainer  # T159: info card of the asteroid cluster clicked on the map
+var cluster_info_index: int = -1
 var goal_label: Label
 var cycle_label: Label
 var pause_button: Button
@@ -109,6 +113,9 @@ var trade: RefCounted = Trade.new()  # price/margin logic for T07
 var commodities: Array = []
 var storage: RefCounted = Storage.new()  # T55 planet stock
 var engine: RefCounted = RouteEngine.new()  # T07 route records and math
+var fabric: RefCounted = Fabric.new()  # the fabric at the trading post, saved under "fabric"
+var dead: RefCounted = DeadWorlds.new()  # dead worlds: danger meter per planet id, saved under "danger"
+var clusters: RefCounted = Clusters.new()  # T156 asteroid clusters (ore sources), saved
 var notice_label: Label
 var last_notice: String = ""
 var last_summary: String = ""  # T69: gross, upkeep, net of the last cycle
@@ -119,6 +126,7 @@ var debug_menu: PanelContainer  # T33: null in release builds; T34 adds its butt
 var selected_planet: int = -1
 var pending: Dictionary = {}  # T68: "Send to..." waiting for a destination {planet, c}; empty when none
 var pending_label: Label
+var sell_offer: Dictionary = {}  # after a Send: {planet, c} while "Sell here too?" is offered at the destination; empty when none
 var pending_margins: Label  # P1: per-destination margins while a plain Send to... is pending
 var last_local: Array = []  # T68: local order results of the last cycle end
 var income_popup: Control  # T133 green +N above planets
@@ -146,6 +154,7 @@ func _ready() -> void:
 	planet_panel.remove_requested.connect(_remove_requested)
 	map.planet_clicked.connect(_on_planet_clicked)
 	map.route_clicked.connect(_on_route_clicked)
+	map.cluster_clicked.connect(_on_cluster_clicked)  # T159
 	map.station_clicked.connect(_on_station_clicked)
 	_build_board()
 	_build_pending_label()
@@ -165,6 +174,10 @@ func _ready() -> void:
 	engine.shield = shield
 	storage.setup(balance, map.planets.size(), commodities)
 	engine.setup(balance, trade, commodities, storage)
+	clusters.setup(balance)  # T156
+	dead.setup(balance)
+	fabric.setup(balance)
+	engine.clusters = clusters
 	engine.learned = learned_skills
 	engine.trade_gate = Callable(self, "system_trade_open")
 	cash_forecast = load("res://game/cash_forecast.gd").new()  # T40: money text dropdown
@@ -220,7 +233,7 @@ func collect_state() -> Dictionary:
 			"open_systems": open_systems, "reached_ids": reached_ids, "galaxy_seen": galaxy_seen, "tut_step": tut_step,
 		"shield": shield.to_dict(), "storage_cuts": storage.cuts_to_dict(), "price_history": price_history,
 		"forecast_id": forecast_id, "surveyed": surveyed_systems, "station_systems": station_systems,
-		"second_lane": second_lane_planet}
+		"second_lane": second_lane_planet, "clusters": clusters.to_dict(), "danger": dead.to_dict(), "fabric": fabric.to_dict()}
 
 func apply_state(s: Dictionary) -> void:
 	_loading_state = true
@@ -242,6 +255,7 @@ func apply_state(s: Dictionary) -> void:
 	time_speed = _speed_or_default(s.get("time_speed", 1.0))  # old saves: x1
 	cash = int(s.get("cash", cash))
 	ships = clampi(int(s.get("ships", 0)), 0, int(balance.get("ship_cap", 0)))
+	clusters.from_dict(s.get("clusters"))  # T156: before the routes, which may start at a cluster; old saves: all full
 	engine.from_array(s.get("routes", []), ships)  # old saves: no key = zero routes
 	storage.from_dict(s.get("storage"), map.planets.size())  # old saves: fresh stock
 	engine.local_from_array(s.get("orders"))  # old saves: no local orders
@@ -279,7 +293,9 @@ func apply_state(s: Dictionary) -> void:
 		for r in engine.routes:
 			_award_route(int(r["a"]), int(r["b"]))
 		_quiet_points = false
-	events.from_dict(s.get("events"))  # old saves: no events
+	events.from_dict(s.get("events"))  # old saves: no events and no scheduled follow-ups
+	dead.from_dict(s.get("danger"))  # old saves: no meter
+	fabric.from_dict(s.get("fabric"))  # old saves: not built
 	_sync_closed()
 	_refresh_event_feed()
 	paused = true  # always resume paused
@@ -351,6 +367,8 @@ func reach_system() -> void:
 ## ---- T85 systems, permits, Space Storage ----
 
 func system_of(planet: int) -> int:
+	if Clusters.is_node(planet):  # T156: a cluster node belongs to its system
+		return clusters.system_of(Clusters.index_of(planet))
 	return int(map.planets[planet].get("system", 1)) if planet >= 0 and planet < map.planets.size() else 1
 
 ## Appends the planets of a system to the live map (no-op for system 1 or planets already present).
@@ -363,6 +381,10 @@ func _open_system(id: int) -> bool:
 	if not _system_planets_present(id):
 		map.add_planets(Systems.planets_of(id).filter(func(p): return Shield.habitable(p)))  # T101: habitable flag
 		added = true
+		var all_goods := _commodities(map.planets)  # a system can bring a good (nullglass): add it in place, the engine and storage share this array
+		for c in all_goods:
+			if not commodities.has(c):
+				commodities.append(c)
 	_ensure_posts()
 	return added
 
@@ -590,7 +612,7 @@ func has_skill(id: String) -> bool:
 func _sync_skill_effects() -> void:
 	storage.capacity_mult = 1.0 + float(balance.get("skill_A2_capacity", 0.0)) if has_skill("A2") else 1.0
 
-## B1 Market Ledger: the last few sell prices of a planet's commodity, newest last. Kept at each cycle end.
+## Sell prices of each planet's goods, newest last, kept at each cycle end. Saved; no screen reads them now.
 const PRICE_HISTORY_LEN := 5
 var price_history: Dictionary = {}  # "<planet>|<commodity>" -> Array of ints (runtime, saved)
 
@@ -607,35 +629,16 @@ func _record_prices() -> void:
 				arr.pop_front()
 			price_history[k] = arr
 
-func price_history_line(planet: int, c: String) -> String:
-	var arr: Array = price_history.get("%d|%s" % [planet, c], [])
-	if arr.is_empty():
-		return StoryText.get_text("LBL_PRICE_HISTORY_NONE")
-	var parts := []
-	for v in arr:
-		parts.append(str(v))
-	return StoryText.get_text("LBL_PRICE_HISTORY", {"prices": ", ".join(parts)}) + " " + price_trend_arrow(planet, c)
-
-## B1 Market Ledger: trend of the kept sell prices, newest against oldest: 1 up, -1 down, 0 flat or too few.
-func price_trend(planet: int, c: String) -> int:
-	var arr: Array = price_history.get("%d|%s" % [planet, c], [])
-	if arr.size() < 2:
-		return 0
-	return signi(int(arr[-1]) - int(arr[0]))
-
-func price_trend_arrow(planet: int, c: String) -> String:
-	return ["\u2193", "\u2192", "\u2191"][price_trend(planet, c) + 1]
-
-## B1 Market Ledger: text of the best route partner for c from this planet, "" when none pays.
+## B3 Price Whisper (moved from B1 in T158): text of the best route partner for c from this planet, "" when none pays.
 func best_partner_line(planet: int, c: String) -> String:
 	var b: Dictionary = engine.best_partner(planet, c)
 	if int(b["planet"]) < 0:
 		return ""
 	return StoryText.get_or("LBL_BEST_PARTNER", "Best partner: {planet} ({margin} cr per unit).", {"planet": planet_name(int(b["planet"])), "margin": int(b["margin"])})
 
-## B1 Market Ledger: at route setup, a warning when the lane earns less per cycle than it costs. True when posted.
+## Base game since T158: at route setup, a warning when the lane earns less per cycle than it costs. True when posted.
 func route_margin_notice(src: int, dst: int, c: String) -> bool:
-	if not has_skill("B1") or not engine.margin_below_upkeep(src, dst, c):
+	if not engine.margin_below_upkeep(src, dst, c):
 		return false
 	post_notice(StoryText.get_or("NOT_ROUTE_BELOW_UPKEEP", "This route earns {margin} cr a cycle and costs {cost}. It will run at a loss.",
 		{"margin": engine.route_margin(src, dst, c), "cost": engine.fixed_cost()}))
@@ -731,6 +734,9 @@ func _to_menu() -> void:
 	get_tree().change_scene_to_file("res://game/main_menu.tscn")
 
 func _on_planet_clicked(index: int) -> void:
+	_hide_cluster_info()  # T159
+	if not sell_offer.is_empty():
+		sell_offer = {}  # clicking elsewhere drops only the sell offer; the send stays
 	if space_storage_view != null:
 		space_storage_view.close_view()  # one view at a time
 	if not pending.is_empty():
@@ -772,9 +778,11 @@ func _on_planet_clicked(index: int) -> void:
 			post_notice(StoryText.get_text("NOT_ROUTE_MADE", {"planet_a": planet_name(int(pending_planet)), "planet_b": planet_name(dst)}) if cnt <= 1 else StoryText.get_text("NOT_LANE_SHIP_ADDED"))
 			if stop >= 0:
 				post_notice(stop_line(stop, dst))  # N9
-			route_margin_notice(pending_planet, dst, str(r["c"]))  # B1 Market Ledger
+			route_margin_notice(pending_planet, dst, str(r["c"]))  # low-margin warning, base game
 			_route_beat(pending_planet, dst)
 			selected_planet = dst
+			if sell_offer_applies(dst, str(r["c"])):
+				sell_offer = {"planet": dst, "c": str(r["c"])}
 			planet_panel.show_planet(dst)
 			return
 	if index < 0 or index >= map.planets.size():
@@ -785,12 +793,77 @@ func _on_planet_clicked(index: int) -> void:
 	planet_panel.show_planet(index)
 	_tut_once("row", ["TUT_C1_ROW"])
 
+## T159: story id suffix of a base cluster ("c1_1" -> "S1A"); "" for clusters made by events.
+func _cluster_story_key(cl: Dictionary) -> String:
+	var parts := str(cl["id"]).split("_")
+	if parts.size() == 2 and parts[0].begins_with("c") and parts[1].is_valid_int() and int(parts[1]) >= 1 and int(parts[1]) <= 26:
+		return "S%s%s" % [parts[0].substr(1), char(64 + int(parts[1]))]
+	return ""
+
+func _hide_cluster_info() -> void:
+	cluster_info_index = -1
+	if cluster_info != null:
+		cluster_info.visible = false
+
+## T159: click on an asteroid pack. Shows name, what it gives per cycle and, with B1 Prospecting, what is left. Risk: no value exists yet (open question).
+func _on_cluster_clicked(index: int) -> void:
+	if space_storage_view != null:
+		space_storage_view.close_view()
+	if not pending.is_empty():
+		return
+	var found := {}
+	for cl in clusters.list(0):
+		if int(cl["index"]) == index:
+			found = cl
+	if found.is_empty():
+		_hide_cluster_info()
+		return
+	selected_planet = -1
+	planet_panel.visible = false
+	cluster_info_index = index
+	if cluster_info == null:
+		cluster_info = PanelContainer.new()
+		cluster_info.position = Vector2(76, 76)
+		cluster_info.custom_minimum_size = Vector2(320, 0)
+		add_child(cluster_info)
+	for c in cluster_info.get_children():
+		cluster_info.remove_child(c)
+		c.queue_free()
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 6)
+	cluster_info.add_child(box)
+	var key := _cluster_story_key(found)
+	var title := Label.new()
+	title.theme_type_variation = "LabelAccent"
+	title.text = StoryText.get_or("WORLD_CL_%s_NAME" % key, StoryText.get_or("LBL_CLUSTER_NAME", "Asteroid cluster {id}", {"id": str(found["id"])})) if key != "" else StoryText.get_or("LBL_CLUSTER_NAME", "Asteroid cluster {id}", {"id": str(found["id"])})
+	box.add_child(title)
+	if key != "" and StoryText.has_text("WORLD_CL_%s_DESC" % key):
+		var d := Label.new()
+		d.theme_type_variation = "LabelSmall"
+		d.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		d.text = StoryText.get_text("WORLD_CL_%s_DESC" % key)
+		box.add_child(d)
+	var info := Label.new()
+	info.name = "ClusterInfoLine"
+	info.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	var args := {"good": Ui.good_name(str(found["good"])), "yield": clusters.yield_per_cycle(), "left": int(found["left"]), "max": int(found["max"])}
+	if can_mine():
+		info.text = StoryText.get_or("LBL_CLUSTER_INFO", "{good}: {yield} per cycle, {left} of {max} left.", args)
+	else:
+		info.text = "%s %s" % [StoryText.get_or("LBL_CLUSTER_INFO_YIELD", "{good}: {yield} per cycle.", args), StoryText.get_or("NOT_MINING_NEEDS_SKILL", "Mining needs the Prospecting skill.")]
+	box.add_child(info)
+	var close := Button.new()
+	close.text = StoryText.get_or("BTN_CLOSE", "Close")
+	close.pressed.connect(_hide_cluster_info)
+	box.add_child(close)
+	cluster_info.visible = true
+
 ## T65: clicking a route line selects that connection in the panel (with Remove).
 func _on_route_clicked(id: int) -> void:
 	var i: int = engine.find_by_id(id)
 	if i < 0:
 		return
-	selected_planet = int(engine.routes[i]["a"])
+	selected_planet = int(engine.routes[i]["b"]) if RouteEngine.from_cluster(engine.routes[i]) else int(engine.routes[i]["a"])  # T156: a cluster is no planet to select
 	planet_panel.show_planet(selected_planet, id)
 
 ## T28: first planet with abundant energy and scarce food, or -1.
@@ -827,20 +900,21 @@ func _on_send(c: String) -> void:
 	pending = {"planet": selected_planet, "c": c}
 	_pending_changed()
 	if storage.amount(storage.planet_key(selected_planet), c) <= 0:  # T134: allowed, but say it will wait
-		post_notice(StoryText.get_text("NOT_ROUTE_STALLED", {"commodity": c.capitalize(), "planet": planet_name(selected_planet)}))
+		post_notice(StoryText.get_text("NOT_ROUTE_STALLED", {"commodity": Ui.good_name(c), "planet": planet_name(selected_planet)}))
 
-## Buy pressed on a resource row: a standing buy order on its own, no route and no destination needed.
+## Buy pressed on a resource row (shows Stop buying while the order is on): toggles a standing buy order on its own, no route and no destination needed.
 ## Sending is separate (Send to... on a storage row, with or without a buy order).
 func _on_buy_send(c: String) -> void:
 	if selected_planet < 0 or game_over:
 		return
 	if not pending.is_empty():
 		cancel_pending()
-	if engine.local_on(selected_planet, c, "buy"):
-		return  # already buying; Stop buying turns it off
-	var r := set_local_order(selected_planet, c, "buy", true)
+	var r := toggle_local(selected_planet, c, "buy")  # one button: starts and stops the buy order
 	if not r["ok"]:
 		post_notice(str(r["reason"]))
+	elif engine.local_on(selected_planet, c, "buy"):
+		pending = {"planet": selected_planet, "c": c}  # chain: buying started, now click a planet to send the stock there
+		_pending_changed()
 
 ## Combined path kept: buy order now plus a route once a destination is clicked.
 func begin_buy_and_send(c: String) -> void:
@@ -848,6 +922,88 @@ func begin_buy_and_send(c: String) -> void:
 		return
 	pending = {"planet": selected_planet, "c": c, "buy": true}
 	_pending_changed()
+
+## The destination of a Send offers a Sell order only when it buys the good, trade is open there and no Sell order exists yet.
+func sell_offer_applies(planet: int, c: String) -> bool:
+	return trade.price(planet, c + "_sell") >= 0 and system_trade_open(planet) and not engine.local_on(planet, c, "sell")
+
+## "Sell <good> here too?" floats on the map just above the destination planet (the planet name is below it).
+var sell_offer_box: PanelContainer
+var _sell_offer_key := ""
+
+func _update_sell_offer_box() -> void:
+	if sell_offer.is_empty():
+		if sell_offer_box != null:
+			sell_offer_box.queue_free()
+			sell_offer_box = null
+			_sell_offer_key = ""
+		return
+	var pl: int = int(sell_offer["planet"])
+	var c: String = str(sell_offer["c"])
+	var key := "%d|%s" % [pl, c]
+	if sell_offer_box == null or key != _sell_offer_key:
+		if sell_offer_box != null:
+			sell_offer_box.queue_free()
+		_sell_offer_key = key
+		sell_offer_box = PanelContainer.new()
+		sell_offer_box.name = "SellOffer"
+		var h := HBoxContainer.new()
+		h.add_theme_constant_override("separation", 6)
+		sell_offer_box.add_child(h)
+		var l := Label.new()
+		l.text = StoryText.get_or("LBL_SELL_OFFER", "Sell {commodity} here too?", {"commodity": Ui.good_name(c)})
+		l.theme_type_variation = "LabelAccent"
+		h.add_child(l)
+		var yes := Button.new()
+		yes.name = "SellOfferYes"
+		yes.theme_type_variation = "ButtonSmall"
+		yes.text = StoryText.get_or("BTN_YES", "Yes")
+		yes.pressed.connect(func(): accept_sell_offer())
+		h.add_child(yes)
+		var no := Button.new()
+		no.name = "SellOfferNo"
+		no.theme_type_variation = "ButtonSmall"
+		no.text = StoryText.get_or("BTN_NO", "No")
+		no.pressed.connect(func(): dismiss_sell_offer())
+		h.add_child(no)
+		add_child(sell_offer_box)
+	var visible_here: bool = map != null and map.camera != null and pl < map.positions.size() and map.planet_in_view(pl) and not map.camera.is_position_behind(map.positions[pl])
+	sell_offer_box.visible = visible_here
+	if visible_here:
+		var sp: Vector2 = map.camera.unproject_position(map.positions[pl])
+		var sz: Vector2 = sell_offer_box.get_combined_minimum_size()
+		var lift: float = 16.0 + 24.0  # planet radius on screen plus a gap, so the box sits above the planet and clear of its name
+		var pos := Vector2(sp.x - sz.x * 0.5, sp.y - sz.y - lift)
+		var vr := get_viewport_rect()
+		pos.x = clampf(pos.x, 4.0, maxf(4.0, vr.size.x - sz.x - 4.0))
+		pos.y = clampf(pos.y, 4.0, maxf(4.0, vr.size.y - sz.y - 4.0))
+		sell_offer_box.position = pos
+
+func accept_sell_offer() -> void:
+	if sell_offer.is_empty():
+		return
+	var pl: int = int(sell_offer["planet"])
+	var c: String = str(sell_offer["c"])
+	sell_offer = {}
+	if not engine.local_on(pl, c, "sell"):
+		var r := set_local_order(pl, c, "sell", true)
+		if not r["ok"]:
+			post_notice(str(r["reason"]))
+	_refresh_panel()
+
+## Esc: ends the whole chain (the send target pick and the sell offer). Buy orders and routes already made stay.
+func cancel_chain() -> void:
+	sell_offer = {}
+	if pending.is_empty():
+		_refresh_panel()
+	else:
+		cancel_pending()  # refreshes the panel
+
+func dismiss_sell_offer() -> void:
+	if sell_offer.is_empty():
+		return
+	sell_offer = {}
+	_refresh_panel()
 
 func cancel_pending() -> void:
 	pending = {}
@@ -987,6 +1143,8 @@ func can_connect(src: int, dst: int, c: String) -> Dictionary:
 	var r: Dictionary = engine.check_connection(src, dst, c)
 	if not r["ok"]:
 		return r
+	if Clusters.is_node(src) and not open_systems.has(system_of(src)):  # T156: a cluster of a system without a permit
+		return {"ok": false, "reason": trade_locked_reason()}
 	if not system_trade_open(src) or (dst >= 0 and not system_trade_open(dst)) or (dst < 0 and not space_post_open(-dst)):
 		return {"ok": false, "reason": trade_locked_reason()}
 	if engine.lane_full(src, dst, c):  # T145: a full lane takes an upgrade, not one more ship
@@ -1138,19 +1296,25 @@ func _connect(src: int, dst: int, c: String, stop: int = -1) -> Dictionary:
 	if not r["ok"]:
 		return r
 	var rec: Dictionary = engine.new_record(src, dst, c)
+	var mining := Clusters.is_node(src)
 	rec["stop"] = stop if stop >= 0 and engine.stop_candidates(src, dst, c).has(stop) else -1  # N9
 	rec["id"] = engine.next_id
 	rec["ship"] = pick_ship(src, dst, c)  # T58
 	engine.next_id += 1
 	rec["fresh"] = clampf(1.0 - cycle_elapsed / _cycle_seconds(), 0.0, 1.0)
 	engine.routes.append(rec)
-	_award_route(src, dst)
+	if mining:  # T156: a cluster is no planet pair; only the delivery planet counts
+		_award_planet(dst)
+	else:
+		_award_route(src, dst)
 	_note_system(src)
 	_note_system(dst)
-	storage.ensure(str(rec["src"]))  # T65: first order at a planet establishes its company storage
+	if not mining:
+		storage.ensure(str(rec["src"]))  # T65: first order at a planet establishes its company storage
 	storage.ensure(str(rec["dst"]))
 	_tut_once("route", ["TUT_C2_ROUTE_DONE"])
 	_after_change()
+	_mine_event(src)
 	return {"ok": true, "reason": "", "id": rec["id"]}
 
 ## Removes the connection; its ship becomes free.
@@ -1199,7 +1363,7 @@ func move_ship(id: int) -> Dictionary:
 ## role ("buy" if `planet` is the source, "sell" if the destination, "" without a planet argument).
 func _view(rec: Dictionary, planet: int = -1) -> Dictionary:
 	var d: Dictionary = rec.duplicate(true)
-	d["status"] = engine.status_of(rec)
+	d["status"] = display_status(rec)
 	d["reason"] = engine.reason_of(rec)
 	d["net"] = engine.payout_of(rec)
 	d["role"] = "buy" if rec["a"] == planet else ("sell" if rec["b"] == planet else "")
@@ -1224,6 +1388,8 @@ func route_net(id: int) -> int:
 	return engine.payout_of(engine.routes[i]) if i >= 0 else 0
 
 func planet_name(i: int) -> String:
+	if Clusters.is_node(i):  # T156
+		return StoryText.get_or("LBL_CLUSTER_NAME", "Asteroid cluster {id}", {"id": str(clusters.items[Clusters.index_of(i)]["id"])}) if clusters.valid(Clusters.index_of(i)) else "?"
 	if i < 0 and i > -1000:  # a station destination, -system id
 		return StoryText.get_or("LBL_SPACE_STORAGE_NAME", "Space Storage")
 	if i < 0 or i >= map.planets.size():
@@ -1236,7 +1402,7 @@ func _push_routes_to_map() -> void:
 	var lanes := {}  # T87: one line per lane; ships = ships on it, status = running if any ship runs
 	for rec in engine.routes:
 		var k := "%d|%d|%s" % [rec["a"], rec["b"], rec["c"]]
-		var st: String = engine.status_of(rec)
+		var st: String = display_status(rec)
 		if lanes.has(k):
 			var e: Dictionary = lanes[k]
 			e["ships"] = int(e["ships"]) + 1
@@ -1244,10 +1410,22 @@ func _push_routes_to_map() -> void:
 			if st == "running":
 				e["status"] = st
 			continue
-		var e2 := {"id": rec["id"], "a": rec["a"], "b": rec["b"], "c": rec["c"], "ships": 1, "status": st, "net": engine.payout_of(rec)}
+		var e2 := {"id": rec["id"], "a": rec["a"], "b": rec["b"], "c": rec["c"], "ships": 1, "status": st, "net": engine.payout_of(rec), "reason": engine.reason_of(rec)}
 		lanes[k] = e2
 		list.append(e2)
 	map.set_routes(list)
+	map.set_clusters(_all_cluster_packs())  # T157: asteroid packs follow the cluster data
+
+## T157: clusters of every system in the cluster data, from clusters_in_system (packs of a system not yet visited stay hidden).
+func _all_cluster_packs() -> Array:
+	var out: Array = []
+	var seen := {}
+	for it in clusters.items:
+		var sid := int(it["system"])
+		if not seen.has(sid):
+			seen[sid] = true
+			out.append_array(clusters_in_system(sid))
+	return out
 
 func _after_change() -> void:
 	_push_routes_to_map()
@@ -1312,6 +1490,75 @@ func _clear_notice_label() -> void:
 		notice_label.text = ""
 
 ## Settles every route once (called from _end_cycle). Returns the results array.
+## Display grace (UI only, not saved): cycles in a row a route did not move. Reset when it moves.
+const WARN_AFTER_CYCLES := 2
+var idle_cycles: Dictionary = {}  # route id -> consecutive cycles not moving
+
+func _count_idle_cycles() -> void:
+	var next := {}
+	for rec in engine.routes:
+		var id := int(rec["id"])
+		if engine.status_of(rec) == "running":
+			next[id] = 0
+		else:
+			next[id] = int(idle_cycles.get(id, 0)) + 1
+	idle_cycles = next
+
+## Status a screen shows: a stalled or waiting route looks like running until it has not moved for two cycles in a row.
+## Blocked shows at once.
+func display_status(rec: Dictionary) -> String:
+	var st: String = engine.status_of(rec)
+	if st == "blocked" or st == "running":
+		return st
+	return st if int(idle_cycles.get(int(rec["id"]), 0)) >= WARN_AFTER_CYCLES else "running"
+
+## Dead worlds: a running route out of a dead world mines it, so its danger rises by dead_danger_rise each cycle.
+func _tick_danger() -> void:
+	var ids: Array = []
+	for rec in engine.routes:
+		var a := int(rec["a"])
+		if str(rec["state"]) == "running" and a >= 0 and a < map.planets.size() and DeadWorlds.is_dead(map.planets[a]):
+			var pid := str(map.planets[a]["id"])
+			if not ids.has(pid):  # two ships on one world raise it once
+				ids.append(pid)
+	dead.tick(ids)
+
+## Fabric: can it be built now? {ok, reason}: "skill" (F1 not learned), "post" (no trading post in system 1), "built", "credits".
+func can_build_fabric() -> Dictionary:
+	if fabric.built:
+		return {"ok": false, "reason": "built"}
+	if not has_skill("F1"):
+		return {"ok": false, "reason": "skill"}
+	if not station_systems.has(Fabric.SYSTEM):
+		return {"ok": false, "reason": "post"}
+	if cash < fabric.build_cost():
+		return {"ok": false, "reason": "credits"}
+	return {"ok": true, "reason": ""}
+
+## Builds the fabric: the build cost is paid once, at the trading post.
+func build_fabric() -> Dictionary:
+	var v := can_build_fabric()
+	if not v["ok"]:
+		return v
+	cash -= fabric.build_cost()
+	fabric.built = true
+	fabric.state = "idle"
+	post_notice(StoryText.get_or("NOT_FABRIC_BUILT", "Fabric built at the trading post."))
+	_after_change()
+	return v
+
+## Danger meter (0 to dead_danger_max) of planet index i; 0 for a planet that is not a dead world.
+func danger_of(i: int) -> int:
+	return dead.get_danger(str(map.planets[i].get("id", ""))) if i >= 0 and i < map.planets.size() else 0
+
+## First route out of a dead world: fires the part 1 event whose data says "on_mine" for it (none until the story data has one).
+func _mine_event(src: int) -> void:
+	if src < 0 or src >= map.planets.size() or not DeadWorlds.is_dead(map.planets[src]):
+		return
+	var found: Array = events.mine_events(str(map.planets[src]["id"]))
+	if not found.is_empty():
+		fire_event(str(found[0]))
+
 func _settle_routes() -> Array:
 	var r: Dictionary = engine.settle(cash)
 	last_local = r["local"]
@@ -1425,6 +1672,7 @@ func _cycle_seconds() -> float:
 
 func _process(delta: float) -> void:
 	_update_station_markers()
+	_update_sell_offer_box()
 	if paused or game_over:
 		return
 	cycle_elapsed += delta * time_speed
@@ -1450,9 +1698,12 @@ func debug_advance_cycle() -> int:
 func _end_cycle() -> void:
 	_advance_notice()  # the board notice lives for one cycle, then the next queued one shows
 	_settle_routes()
+	_tick_danger()
+	fabric.run(storage)
+	_count_idle_cycles()
 	# Space Storage fills only by a ship sent to it (send_stock with a station destination); planet_to_space_rate is unused.
 	_check_stranded()
-	_record_prices()  # B1 Market Ledger history
+	_record_prices()  # price history
 	_push_routes_to_map()
 	_refresh_panel()
 	cycle_ended.emit(cycle)
@@ -1475,7 +1726,10 @@ func _end_cycle() -> void:
 	if has_skill("B4") and events.due(cycle + 1):  # B4 Event Forecast: one cycle of warning, naming planet and commodity
 		forecast_id = events.random_id(["EV18"] if shield.decided else [], cycle + 1)
 		post_notice(forecast_text(forecast_id))
-	if events.due(cycle) or (OS.is_debug_build() and debug_force_event):
+	var sched_id: String = events.take_due(cycle) if (event_notice == null and not game_over) else ""  # R1: part 2 events come from the schedule
+	if sched_id != "":
+		fire_event(sched_id)
+	elif events.due(cycle) or (OS.is_debug_build() and debug_force_event):
 		debug_force_event = false
 		var fid: String = forecast_id if forecast_id != "" and events.by_id.has(forecast_id) else events.random_id(["EV18"] if shield.decided else [], cycle)
 		forecast_id = ""
@@ -1491,7 +1745,7 @@ func forecast_text(id: String) -> String:
 	var eff: Dictionary = events.effect_of_event(id)
 	var kind := str(eff.get("kind", ""))
 	if kind in ["up", "down"]:
-		return StoryText.get_or("EVT_NEXT_DUE_PRICE", StoryText.get_text("EVT_NEXT_DUE"), {"planet": planet_name(int(eff["planet"])), "commodity": str(eff["c"]).capitalize(), "direction": "rise" if kind == "up" else "fall"})
+		return StoryText.get_or("EVT_NEXT_DUE_PRICE", StoryText.get_text("EVT_NEXT_DUE"), {"planet": planet_name(int(eff["planet"])), "commodity": Ui.good_name(str(eff["c"])), "direction": "rise" if kind == "up" else "fall"})
 	if kind == "closed":
 		return StoryText.get_or("EVT_NEXT_DUE_CLOSED", StoryText.get_text("EVT_NEXT_DUE"), {"planet": planet_name(int(eff["planet"]))})
 	return StoryText.get_text("EVT_NEXT_DUE")
@@ -1568,7 +1822,7 @@ func signed_cr(v: int) -> String:
 func effect_line(eff: Dictionary) -> String:
 	if eff.is_empty():
 		return ""
-	var pct := roundi(events.pct() * 100.0)
+	var pct := roundi(events.pct(str(eff["c"])) * 100.0)
 	var args := {"planet": planet_name(int(eff["planet"])), "commodity": str(eff["c"]), "pct": pct,
 		"cycles": events.close_cycles() if eff["kind"] == "closed" else events.price_cycles(), "amount": signed_cr(int(eff["amount"])) if eff["kind"] == "cash" else "%+d" % int(eff["amount"])}
 	var body := ""
@@ -1583,6 +1837,8 @@ func effect_line(eff: Dictionary) -> String:
 			body = StoryText.get_text("NOT_EVENT_EFFECT_CASH", args)
 		"stock":
 			body = StoryText.get_text("NOT_EVENT_EFFECT_STOCK", args)
+		"danger":
+			body = StoryText.get_or("NOT_EVENT_EFFECT_DANGER", "Danger at {planet}: {amount}.", args)
 	return "%s: %s" % [StoryText.get_text("NOT_EVENT_PREFIX"), body]
 
 ## One-off effects (cash, stock). Timed ones go through events.start_timed.
@@ -1603,8 +1859,11 @@ func _apply_effect(id: String, eff: Dictionary) -> Dictionary:
 			shield.build(map.planets)
 		"shield_skip":
 			shield.skip()
+		"danger":  # [danger: Planet, +N]: raise or lower a dead world's meter
+			dead.change(str(map.planets[int(eff["planet"])].get("id", "")), int(eff["amount"]))
 		"asteroid_pay":  # T109: payment to the state; the point is an event reward, not bought
 			cash -= events.asteroid_cost()
+			_spawn_event_cluster()  # T156: the rock is pulled apart: a fresh small cluster
 			_add_points(ASTEROID_REWARD_POINTS)
 			_pending_pts = 0
 			post_notice(StoryText.get_text("EV20_REWARD"))
@@ -1630,6 +1889,35 @@ func _apply_effect(id: String, eff: Dictionary) -> Dictionary:
 	_refresh()
 	_refresh_panel()
 	return popup
+
+## T156: the fresh small cluster EV20 leaves when paid. Beside an open planet picked by the cycle number (no RNG, so seeded rolls stay as they are).
+func _spawn_event_cluster() -> int:
+	var opts: Array = []
+	for i in map.planets.size():
+		if open_systems.has(system_of(i)):
+			opts.append(i)
+	if opts.is_empty():
+		return -1
+	var pl: int = int(opts[cycle % opts.size()])
+	return clusters.spawn_small(system_of(pl), float(map.planets[pl].get("x", 0)), float(map.planets[pl].get("y", 0)))
+
+## T156: the skill check that unlocks routing from a cluster. B1 is Prospecting (T158); Clusters.MINING_SKILL is the one place to change.
+func can_mine() -> bool:
+	return has_skill(Clusters.MINING_SKILL)
+
+## T156 for T157 (map): clusters of a system with ore left, each {index, node, id, system, x, y, radius, count, visible, left, max, good, spawned}.
+func clusters_in_system(sid: int) -> Array:
+	return clusters.list(sid)
+
+## T156 for the planet panel: clusters with ore left near a planet, nearest first.
+func clusters_near_planet(planet: int) -> Array:
+	if planet < 0 or planet >= map.planets.size():
+		return []
+	return clusters.near(system_of(planet), float(map.planets[planet].get("x", 0)), float(map.planets[planet].get("y", 0)))
+
+## T156 for T157 and tests: starts an ore route from cluster `node` (Clusters.node_id(i)) to planet dst. Buys a ship if none is free, as Send to... does.
+func send_from_cluster(node: int, dst: int) -> Dictionary:
+	return send_stock_buying(node, dst, clusters.good_of(Clusters.index_of(node)))
 
 ## T109: the planet whose company storage an asteroid hits (random among established ones), -1 if none.
 func _pick_storage_planet() -> int:
@@ -1679,10 +1967,17 @@ func _open_event_notice(id: String) -> void:
 	var line := effect_line(events.effect_of_event(id)) if choices.is_empty() else "\n".join(effs)
 	event_notice = load("res://game/event_notice.gd").new()
 	add_child(event_notice)
-	event_notice.show_event(events.title_of(id, args), events.body_of(id, args), line, labels, StoryText.get_text("MENU_CONTINUE"), off, "asteroid" if id == "EV20" else "")
+	event_notice.show_event(events.title_of(id, args), events.body_of(id, args), line, labels, StoryText.get_text("MENU_CONTINUE"), off, _event_art(id))
 	event_notice.confirmed.connect(_on_event_confirmed.bind(id))
 	if id == "EV20":
 		map.hex_ring.show_ring(true)  # T110
+
+## Banner path for an event id; EV20 keeps its drawn asteroid when the file is missing.
+func _event_art(id: String) -> String:
+	var path := "res://art/event_banners/%s.webp" % id
+	if ResourceLoader.exists(path):
+		return path
+	return "asteroid" if id == "EV20" else ""
 
 ## Closes the event notice with a short fade. The game carries on at once: the reference is cleared here.
 func _dismiss_event_notice() -> void:
@@ -1740,9 +2035,11 @@ func _on_event_confirmed(choice: int, id: String) -> void:
 	if choice >= 0:
 		var choices: Array = events.choices_of(id)
 		if choice < choices.size():
+			events.schedule_follow(choices[choice], cycle)  # R1: a choice may schedule a later event
 			var over := _apply_effect(id, events.choice_effect(choices[choice]))
-			_debris_popup(choices[choice], over)
-			return
+			if typeof(choices[choice]) == TYPE_DICTIONARY and choices[choice].has("popup_id"):
+				_debris_popup(choices[choice], over)
+				return
 	events.pending_id = ""
 	_dismiss_event_notice()
 	_refresh()
@@ -1896,8 +2193,8 @@ func set_paused(value: bool) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if preface != null or event_notice != null:
 		return
-	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE and not pending.is_empty():
-		cancel_pending()
+	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE and (not sell_offer.is_empty() or not pending.is_empty()):
+		cancel_chain()
 	elif event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE:
 		if game_over:
 			return
@@ -1907,6 +2204,8 @@ func _unhandled_input(event: InputEvent) -> void:
 			skill_screen.close_screen()
 		elif space_storage_view.visible:
 			space_storage_view.close_view()
+		elif cluster_info != null and cluster_info.visible:
+			_hide_cluster_info()
 		elif game_menu.visible:
 			game_menu.close_menu()
 		else:
@@ -1959,10 +2258,7 @@ func _build_ui() -> void:
 	goal_label.clip_text = true
 	goal_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	box.add_child(goal_label)
-	# expenses per cycle and expansion points, as inline stats
-	var ex := _stat_inline("expenses", "LBL_EXPENSES", "Expenses")
-	expenses_label = ex[1]
-	box.add_child(ex[0])
+	# expansion points as an inline stat (expenses live in the cash popup)
 	var pt := _stat_inline("skills", "LBL_SKILL_POINTS", "Skill points")
 	points_label = pt[1]
 	# the skill points figure is the button that opens Skills (K); a flat button lies over the row
@@ -2181,7 +2477,6 @@ func _refresh() -> void:
 		Juice.pop(points_label)  # points earned or spent: a small swell beside the count
 	_last_points = skill_points
 	Juice.count_to(points_label, skill_points, "%d", Ui.col("star_warm"))  # counts up (warm flash) and down when spent
-	expenses_label.text = "%d" % (cash_forecast.expenses_total() if cash_forecast != null else 0)
 	var sid: int = view_system
 	var n_pl := 0
 	for q in map.planets:

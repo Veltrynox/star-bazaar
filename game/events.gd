@@ -22,6 +22,9 @@ var pending_id: String = ""  # fired, notice not yet confirmed (saved)
 ## T98: planets with debris in orbit (stays until paid), and the planet of a pending debris choice.
 var debris: Array = []
 var pending_planet: int = -1
+## Scheduled follow-ups (R1): {id, due}. A choice with follow_id (+ follow_after cycles) puts the id here; it fires once
+## at the start of cycle >= due and is removed. Saved under "scheduled"; an old save has none.
+var scheduled: Array = []
 var rng := RandomNumberGenerator.new()
 
 func setup(bal: Dictionary, plist: Array) -> void:
@@ -54,7 +57,7 @@ func planet_index(pname: String) -> int:
 ## Tag text to an effect {kind, planet, c, amount}; {} when it does not parse.
 func parse_tag(tag: String) -> Dictionary:
 	var re := RegEx.new()
-	re.compile("\\[\\s*(price up|price down|planet closed|cash|stock|debris|shield|asteroid)\\s*:\\s*([^\\]]*)\\]")
+	re.compile("\\[\\s*(price up|price down|planet closed|cash|stock|debris|shield|asteroid|danger)\\s*:\\s*([^\\]]*)\\]")
 	var m := re.search(tag)
 	if m == null:
 		return {}
@@ -75,6 +78,10 @@ func parse_tag(tag: String) -> Dictionary:
 		"shield", "asteroid":
 			var d2 := args[0].strip_edges().to_lower()
 			return {"kind": what + "_" + d2, "planet": -1, "c": "", "amount": 0}
+		"danger":  # [danger: Planet, +1]: change a dead world's danger meter (negative lowers it)
+			if args.size() < 2 or planet_index(args[0]) < 0:
+				return {}
+			return {"kind": "danger", "planet": planet_index(args[0]), "c": "", "amount": int(args[1].strip_edges())}
 		"cash":
 			return {"kind": "cash", "planet": -1, "c": "", "amount": int(args[0].strip_edges())}
 		"stock":
@@ -132,7 +139,10 @@ func debris_penalty() -> float:
 func choice_effect(ch) -> Dictionary:
 	return parse_tag(str(ch.get("tag", ch.get("effect", "")))) if typeof(ch) == TYPE_DICTIONARY else {}
 
-func pct() -> float:
+func pct(c: String = "") -> float:
+	## Per-good swing: balance key event_pct_<good> (silk, chips, ore); other goods use event_price_pct.
+	if c != "" and balance.has("event_pct_" + c):
+		return float(balance["event_pct_" + c])
 	return float(balance.get("event_price_pct", 0.0))
 
 func price_cycles() -> int:
@@ -148,16 +158,89 @@ func interval() -> int:
 func due(cycle: int) -> bool:
 	return cycle > 1 and (cycle - 1) % interval() == 0
 
+## Owner 2026-11-02: the sun event (EV18, shield the sun) only reshapes planets bought later, so it means nothing
+## to a new player. Code default used when data/events.json has no "min_cycle" for it (the json key wins).
+## First event slots are cycles 5, 9, 13 (event_interval 4), so 10 means the first offer is cycle 13 of 30.
+const DEFAULT_MIN_CYCLE := {"EV18": 10}
+
 ## Event gate: an event with "min_cycle" in data/events.json is not picked before that cycle.
 ## No key = no gate. cycle <= 0 (not given) = no gate check.
 func available(id: String, cycle: int) -> bool:
 	var ev: Dictionary = by_id.get(id, {})
-	return cycle <= 0 or not ev.has("min_cycle") or cycle >= int(ev["min_cycle"])
+	if not good_available(id):
+		return false
+	if cycle <= 0:
+		return true
+	if ev.has("min_cycle"):
+		return cycle >= int(ev["min_cycle"])
+	return cycle >= int(DEFAULT_MIN_CYCLE.get(id, 0))
+
+## Owner 2026-11-02: an event about a good (price up/down, stock) is not picked while no open planet trades
+## that good. "Open" = the planets this run knows (permitted systems only). A good is traded when a planet's
+## base_prices has <good>_buy or <good>_sell. Events without a good are always fine.
+func good_available(id: String) -> bool:
+	var eff := effect_of_event(id)
+	var c := str(eff.get("c", ""))
+	if c == "":
+		return true
+	for p in planets:
+		if typeof(p) == TYPE_DICTIONARY and typeof(p.get("base_prices")) == TYPE_DICTIONARY:
+			if p["base_prices"].has(c + "_buy") or p["base_prices"].has(c + "_sell"):
+				return true
+	return false
+
+## True for events that never come from the random pick: part 2 events (the follow_id of any choice), events
+## marked "scheduled_only" and events with "on_mine" (fired when a route first mines that dead world).
+func scheduled_only(id: String) -> bool:
+	var ev: Dictionary = by_id.get(id, {})
+	if bool(ev.get("scheduled_only", false)) or ev.has("on_mine") or (ev.has("random") and not bool(ev["random"])):
+		return true
+	for d in defs:
+		for ch in choices_of(str(d["id"])):
+			if typeof(ch) == TYPE_DICTIONARY and str(ch.get("follow_id", "")) == id:
+				return true
+	return false
+
+## Puts the follow-up of a chosen choice on the schedule: due = cycle + follow_after (default balance dead_follow_cycles).
+## Returns true when something was scheduled. An id not in the data is ignored.
+func schedule_follow(ch, cycle: int) -> bool:
+	if typeof(ch) != TYPE_DICTIONARY or not ch.has("follow_id") or not by_id.has(str(ch["follow_id"])):
+		return false
+	var after := int(ch.get("follow_after", balance.get("dead_follow_cycles", 4)))
+	scheduled.append({"id": str(ch["follow_id"]), "due": cycle + maxi(1, after)})
+	return true
+
+## The first scheduled event due at this cycle (due <= cycle), removed from the list; "" when none.
+func take_due(cycle: int) -> String:
+	for i in scheduled.size():
+		if int(scheduled[i]["due"]) <= cycle:
+			var id := str(scheduled[i]["id"])
+			scheduled.remove_at(i)
+			return id
+	return ""
+
+## Event ids with "on_mine" naming this dead world id (or "any") that have not been fired yet.
+func mine_events(planet_id: String) -> Array:
+	var out: Array = []
+	for d in defs:
+		var om := str(d.get("on_mine", ""))
+		if om == "both":  # pair C: both dead worlds have had their part 1 event
+			if _fired("EV29") and _fired("EV32") and not _fired(str(d["id"])):
+				out.append(str(d["id"]))
+		elif om != "" and (om == planet_id or om == "any") and not _fired(str(d["id"])):
+			out.append(str(d["id"]))
+	return out
+
+func _fired(id: String) -> bool:
+	for f in feed:
+		if str(f["id"]) == id:
+			return true
+	return false
 
 func random_id(skip: Array = [], cycle: int = 0) -> String:
 	var pool: Array = []
 	for d in defs:
-		if not skip.has(str(d["id"])) and not debug_off.has(str(d["id"])) and available(str(d["id"]), cycle):
+		if not skip.has(str(d["id"])) and not scheduled_only(str(d["id"])) and not debug_off.has(str(d["id"])) and available(str(d["id"]), cycle):
 			pool.append(d)
 	if pool.is_empty():
 		return ""
@@ -171,7 +254,7 @@ func price_factor(planet: int, c: String, next_cycle: bool = false) -> float:
 		if next_cycle and int(a["left"]) < 2:
 			continue
 		if a["kind"] != "closed" and int(a["planet"]) == planet and str(a["c"]) == c:
-			f *= 1.0 + pct() * (1.0 if a["kind"] == "up" else -1.0)
+			f *= 1.0 + pct(c) * (1.0 if a["kind"] == "up" else -1.0)
 	return f
 
 ## Start a timed effect (price or closed). One-off effects need main: see apply_oneoff.
@@ -208,7 +291,7 @@ func record(id: String, cycle: int, planet: int = -1) -> void:
 	feed.append({"id": id, "cycle": cycle, "planet": planet})
 
 func to_dict() -> Dictionary:
-	return {"active": active.duplicate(true), "feed": feed.duplicate(true), "pending": pending_id, "debris": debris.duplicate(), "pending_planet": pending_planet}
+	return {"active": active.duplicate(true), "feed": feed.duplicate(true), "pending": pending_id, "debris": debris.duplicate(), "pending_planet": pending_planet, "scheduled": scheduled.duplicate(true)}
 
 func from_dict(d) -> void:
 	active = []
@@ -216,8 +299,13 @@ func from_dict(d) -> void:
 	pending_id = ""
 	debris = []
 	pending_planet = -1
+	scheduled = []
 	if typeof(d) != TYPE_DICTIONARY:
 		return
+	if typeof(d.get("scheduled")) == TYPE_ARRAY:  # old saves have none
+		for sc in d["scheduled"]:
+			if typeof(sc) == TYPE_DICTIONARY and by_id.has(str(sc.get("id", ""))):
+				scheduled.append({"id": str(sc["id"]), "due": int(sc.get("due", 0))})
 	if typeof(d.get("debris")) == TYPE_ARRAY:
 		for p in d["debris"]:
 			if int(p) >= 0 and int(p) < planets.size() and not debris.has(int(p)):

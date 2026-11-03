@@ -52,39 +52,42 @@ func _line(text: String, color: Color = Color.TRANSPARENT) -> void:
 		l.add_theme_color_override("font_color", color)
 	box.add_child(l)
 
-## Order lines [text, signed credits]: local Buy (negative) and Sell (positive).
+## Order lines [text, signed credits]: local Buy (negative) and Sell (positive). Comes from the engine's
+## read-only forecast, so a Sell order counts the goods the routes deliver this same cycle.
 func order_lines() -> Array:
 	var out: Array = []
-	for l in main.engine.local_preview(main.cash):  # T68 local orders
-		out.append([str(l[0]) + ("" if str(l[2]) in ["Buying.", "Selling."] else " (" + str(l[2]).trim_suffix(".").to_lower() + ")"), int(l[1])])
+	for l in main.engine.forecast(main.cash)["local"]:
+		var st := str(l["state"])
+		out.append([str(l["label"]) + ("" if st in ["Buying.", "Selling."] else " (" + st.trim_suffix(".").to_lower() + ")"), int(l["credits"]), st])
+	return out
+
+## Route income lines [text, credits]: what each moving route earns itself (upgrade bonus, stop sale).
+## The goods it delivers are paid by the Sell orders above.
+func route_income_lines() -> Array:
+	var out: Array = []
+	for r in main.engine.forecast(main.cash)["routes"]:
+		if int(r["gross"]) > 0:
+			out.append(["%s > %s (%s)" % [main.planet_name(r["a"]), main.planet_name(r["b"]), r["c"]], int(r["gross"])])
 	return out
 
 ## Route expense lines [text, positive credits leaving]: trip cost and Ship upkeep per moving route.
 ## A waiting route shows what it really moves (0 when nothing fits).
 func route_expense_lines() -> Array:
 	var out: Array = []
-	var trip: int = main.engine.trip_part()
-	var up: int = main.engine.upkeep_part()
-	for rec in main.engine.routes:
-		var base := "%s > %s (%s)" % [main.planet_name(rec["a"]), main.planet_name(rec["b"]), rec["c"]]
-		var status: String = main.engine.status_of(rec)
-		if main.engine.payout_of(rec) < 0:
-			out.append([base + " trip cost", trip])
-			out.append([base + " " + StoryText.get_text("LBL_SHIP_UPKEEP"), up])
-		elif status != "running":
-			out.append([base + " " + status, 0])
+	for r in main.engine.forecast(main.cash)["routes"]:
+		var base := "%s > %s (%s)" % [main.planet_name(r["a"]), main.planet_name(r["b"]), r["c"]]
+		if bool(r["moves"]):
+			out.append([base + " trip cost", int(r["trip"])])
+			out.append([base + " " + StoryText.get_text("LBL_SHIP_UPKEEP"), int(r["upkeep"])])
+		elif str(r["status"]) != "running":
+			out.append([base + " " + str(r["status"]), 0])
 	return out
 
 ## Expected cash change when the current cycle ends (income minus expenses), for the top-bar delta.
 func net_forecast() -> int:
 	if main == null:
 		return 0
-	var net := 0
-	for l in order_lines():
-		net += int(l[1])
-	for l in route_expense_lines():
-		net -= int(l[1])
-	return net
+	return int(main.engine.forecast(main.cash)["delta"])
 
 ## Credits leaving per cycle (the Expenses block of the forecast): costs of standing orders and route trips plus upkeep.
 func expenses_total() -> int:
@@ -98,6 +101,14 @@ func expenses_total() -> int:
 		total += int(l[1])
 	return total
 
+## Only lines worth something are listed; a 0 line is not an income or an expense. Totals are unaffected.
+func nonzero_lines(lines: Array) -> Array:
+	var out: Array = []
+	for l in lines:
+		if int(l[1]) != 0:
+			out.append(l)
+	return out
+
 ## Called by main.gd _refresh() every frame; rebuilds the lines while open.
 func refresh() -> void:
 	if not visible or main == null:
@@ -109,10 +120,11 @@ func refresh() -> void:
 	var income: Array = []
 	var outcome: Array = []  # [text, amount], amount positive = cash leaving
 	for l in order_lines():
-		if int(l[1]) >= 0:
+		if int(l[1]) > 0 or (int(l[1]) == 0 and str(l[2]) not in ["Storage empty.", "Selling."]):
 			income.append(l)
 		else:
 			outcome.append([l[0], -int(l[1])])
+	income.append_array(route_income_lines())
 	outcome.append_array(route_expense_lines())
 	var total_in := 0
 	for l in income:
@@ -120,6 +132,8 @@ func refresh() -> void:
 	var total_out := 0
 	for l in outcome:
 		total_out += int(l[1])
+	income = nonzero_lines(income)
+	outcome = nonzero_lines(outcome)
 	var left: float = (main._cycle_seconds() - main.cycle_elapsed) / maxf(0.01, main.time_speed)
 	var timing := "paused" if main.paused else "in %ds" % ceili(left)
 	_line("Cycle %d ends %s. Now: %d" % [main.cycle, timing, cash])

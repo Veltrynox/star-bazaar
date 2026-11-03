@@ -443,10 +443,10 @@ func _draw() -> void:
 		_draw_planet(pos, p)
 		var c4 := _sys_center(ids.find(int(info2["sys"])))
 		var comm := str(p.get("abundant", ""))
-		if comm in ["energy", "food"]:
+		if comm != "":
 			var ic: Texture2D = Ui.icon(comm)
 			if ic != null:
-				var tint := Ui.col("commodity_" + comm)
+				var tint := Ui.commodity_col(comm)
 				if tut_step == 1:  # line 2 up: the resource icons pulse
 					tint = tint.lerp(Ui.col("signal_info"), pulse)
 				draw_texture_rect(ic, Rect2(pos + Vector2(5, -19), Vector2(13, 13)), false, tint)
@@ -484,7 +484,7 @@ func _lane_curve(ln: Dictionary, layout: Dictionary, n: int, s: float) -> Array:
 func _draw_lane(ln: Dictionary, layout: Dictionary, n: int, s: float, pulse: float) -> void:
 	var cv := _lane_curve(ln, layout, n, s)
 	var running: bool = str(ln["status"]) == "running"
-	var col := Ui.col("commodity_" + str(ln["c"])) if running else Ui.col("signal_warn")
+	var col := Ui.commodity_col(str(ln["c"])) if running else Ui.col("signal_warn")
 	var w := 1.6
 	if pulse >= 0.0:  # line 3 up: the routes pulse
 		col = col.lerp(Ui.col("signal_info"), pulse)
@@ -526,7 +526,7 @@ func _draw_planet(pos: Vector2, p: Dictionary) -> void:
 	if tex != null:
 		draw_texture_rect(tex, Rect2(pos - Vector2(6, 6), Vector2(12, 12)), false)
 	else:
-		var cc := Ui.col("commodity_" + str(p.get("abundant", "")))
+		var cc := Ui.commodity_col(str(p.get("abundant", "")))
 		draw_circle(pos, 6.0, (cc if cc != Color.WHITE else Ui.col("ink_muted")).darkened(0.35))
 	draw_arc(pos, 6.5, 0.0, TAU, 20, Color(1, 1, 1, 0.22), 1.0, true)
 
@@ -685,7 +685,7 @@ func _build_open_side(sid: int) -> void:
 		var row := HBoxContainer.new()
 		row.add_theme_constant_override("separation", 8)
 		var disc := Disc.new()
-		var cc := Ui.col("commodity_" + str(p.get("abundant", "")))
+		var cc := Ui.commodity_col(str(p.get("abundant", "")))
 		disc.color = (cc if cc != Color.WHITE else Ui.col("ink_muted")).darkened(0.35)
 		disc.tex = _thumb(str(p.get("type", "")))
 		row.add_child(disc)
@@ -694,10 +694,10 @@ func _build_open_side(sid: int) -> void:
 		nm.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		row.add_child(nm)
 		var comm := str(p.get("abundant", ""))
-		if comm in ["energy", "food"]:
-			row.add_child(_icon_rect(comm, 16.0, Ui.col("commodity_" + comm)))
+		if comm != "":
+			row.add_child(_icon_rect(comm, 16.0, Ui.commodity_col(comm)))
 			var cl := Label.new()
-			cl.text = comm.capitalize()
+			cl.text = Ui.good_name(comm)
 			cl.theme_type_variation = "LabelSmall"
 			row.add_child(cl)
 		else:
@@ -712,7 +712,7 @@ func _build_open_side(sid: int) -> void:
 	for ln in data["lanes"]:
 		var row2 := HBoxContainer.new()
 		row2.add_theme_constant_override("separation", 8)
-		var cc2 := Ui.col("commodity_" + str(ln["c"]))
+		var cc2 := Ui.commodity_col(str(ln["c"]))
 		row2.add_child(_icon_rect(str(ln["c"]), 16.0, cc2 if cc2 != Color.WHITE else Ui.col("ink")))
 		var rl := Label.new()
 		rl.text = StoryText.get_or("LBL_A_TO_B", "{a} to {b}", {"a": main.planet_name(int(ln["a"])), "b": main.planet_name(int(ln["b"]))})

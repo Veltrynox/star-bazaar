@@ -1,4 +1,5 @@
 class_name Ui
+const StoryText := preload("res://game/story_text.gd")
 ## Reads colours and icons from the project Theme (design/theme/star_bazaar.tres), so no screen hard-codes them.
 ## Colour names are the design-token names with "_" for "-" (e.g. "star_warm", "signal_bad", "ink_muted").
 
@@ -7,6 +8,18 @@ static func col(token: String) -> Color:
 	if t != null and t.has_color(token, "Colors"):
 		return t.get_color(token, "Colors")
 	return Color.WHITE
+
+## Route/label colour of a good. Theme token commodity_<good> if present, else a fallback for the T155 goods.
+const COMMODITY_FALLBACK := {"silk": Color(0.72, 0.55, 0.85), "chips": Color(0.35, 0.75, 0.85), "ore": Color(0.62, 0.58, 0.52)}
+static func commodity_col(c: String) -> Color:
+	var t := ThemeDB.get_project_theme()
+	if t != null and t.has_color("commodity_" + c, "Colors"):
+		return t.get_color("commodity_" + c, "Colors")
+	return COMMODITY_FALLBACK.get(c, Color.WHITE)
+
+## Display name of a good: GOOD_<ID>_NAME from story_text.json, else the capitalised id.
+static func good_name(c: String) -> String:
+	return StoryText.get_or("GOOD_" + c.to_upper() + "_NAME", c.capitalize())
 
 ## System map orbit rings: planet orbits use line-200 (#ffffff2e), the dashed outer orbit uses line-100 (#ffffff14).
 const LINE_ORBIT := "orbit_line"
@@ -22,7 +35,25 @@ static func icon(token: String) -> Texture2D:
 	var t := ThemeDB.get_project_theme()
 	if t != null and t.has_icon(token, "Icons"):
 		return t.get_icon(token, "Icons")
+	# Goods without a theme icon (silk, chips, ore): placeholder SVGs in art/textures/icons/
+	var p := "res://art/textures/icons/good_%s.svg" % token
+	if ResourceLoader.exists(p):
+		return load(p) as Texture2D
 	return null
+
+## Small tinted icon for a good (energy, food, silk, chips, ore). Never takes mouse input.
+static func good_icon(c: String, px: int = 18) -> TextureRect:
+	var ic := TextureRect.new()
+	ic.texture = icon(c)
+	ic.custom_minimum_size = Vector2(px, px)
+	ic.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	ic.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	ic.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	ic.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var cc := commodity_col(c)
+	ic.modulate = cc if cc != Color.WHITE else col("ink")
+	ic.tooltip_text = good_name(c)
+	return ic
 
 ## Mono face (JetBrains Mono) for numbers, from the theme's LabelReadout variation.
 static func mono_font() -> Font:

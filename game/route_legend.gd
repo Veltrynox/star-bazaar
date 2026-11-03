@@ -10,6 +10,9 @@ func _ready() -> void:
 	var items := [
 		["LBL_LEGEND_ENERGY", "Energy route", Ui.col("commodity_energy"), "line"],
 		["LBL_LEGEND_FOOD", "Food route", Ui.col("commodity_food"), "line"],
+		["LBL_LEGEND_SILK", "Silk route", Ui.commodity_col("silk"), "line"],  # T159: ids not in the story yet, plain fallback
+		["LBL_LEGEND_CHIPS", "Chips route", Ui.commodity_col("chips"), "line"],
+		["LBL_LEGEND_ORE", "Ore route", Ui.commodity_col("ore"), "line"],
 		["LBL_LEGEND_WAITING", "Waiting for room", Ui.col("signal_warn"), "dashed"],
 		["LBL_LEGEND_SHIP", "Ship", Ui.col("ink"), "ship"]]
 	for it in items:
