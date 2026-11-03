@@ -266,11 +266,12 @@ func apply_state(s: Dictionary) -> void:
 			_open_system(sid)
 	reached_ids = _int_array(s.get("reached_ids"))
 	galaxy_seen = bool(s.get("galaxy_seen", false))
-	tut_step = int(s.get("tut_step", TUT_GUIDE.size()))  # old saves: guided steps skipped (already past cycle 1)
-	if int(s.get("tut_ver", 1)) < TUT_VER and tut_step < TUT_OLD_MAP.size():  # old numbering: map to the new steps
-		tut_step = TUT_OLD_MAP[maxi(0, tut_step)]
-	elif int(s.get("tut_ver", 1)) < TUT_VER:
-		tut_step = TUT_GUIDE.size()
+	if not s.has("tut_step"):  # no saved step: guided tutorial starts in cycles 1 to 4, stays finished later
+		tut_step = 0 if int(s.get("cycle", 1)) <= 4 else TUT_GUIDE.size()
+	else:
+		tut_step = int(s["tut_step"])
+		if int(s.get("tut_ver", 1)) < TUT_VER:  # old numbering: map to the new steps
+			tut_step = TUT_OLD_MAP[maxi(0, tut_step)] if tut_step < TUT_OLD_MAP.size() else TUT_GUIDE.size()
 	tut_step = clampi(tut_step, 0, TUT_GUIDE.size())
 	cycle = maxi(1, int(s.get("cycle", 1)))
 	cycle_elapsed = clampf(float(s.get("cycle_elapsed", 0.0)), 0.0, _cycle_seconds())
@@ -2819,6 +2820,8 @@ func _build_board() -> void:
 	tut_next.pressed.connect(_tut_next)
 	tut_actions.add_child(tut_next)
 	box.add_child(tut_actions)
+	box.move_child(tutorial_label, 1)  # the guided hint sits right under the title, above the mission line
+	box.move_child(tut_actions, 2)
 	notice_label = Label.new()
 	notice_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	notice_label.visible = false

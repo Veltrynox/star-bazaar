@@ -428,6 +428,8 @@ func _test_galaxy_view() -> void:
 func _test_tutorial_steps() -> void:
 	var m: Control = await _new_main()
 	var G: Array = m.TUT_GUIDE
+	check(m.tut_step == 0 and m.tutorial_label.text != "" and m.tutorial_label.visible and m.tutorial_label.is_visible_in_tree(), "tutorial: fresh game shows the step 1 line", m.tutorial_label.text)
+	check(m.tut_actions.visible and m.tut_actions.is_visible_in_tree(), "tutorial: Skip and Next show on the first step")
 	check(G == ["TUT_G1_SELECT", "TUT_G2_BUY", "TUT_G3_SEND", "TUT_G4_ROUTE_PAY", "TUT_G5_UPKEEP", "TUT_G6_SELL", "TUT_G7_STORAGE", "TUT_G8_SKILLS", "TUT_G9_PERMIT", "TUT_G10_DONE"], "tutorial steps: order")
 	# skip at step 3 ends the tutorial for good, also after save and load
 	m.tut_step = 3
@@ -453,6 +455,16 @@ func _test_tutorial_steps() -> void:
 	old["tut_step"] = 3
 	m.apply_state(old)
 	check(G[m.tut_step] == "TUT_G6_SELL", "tutorial steps: old save step 3 (sell) maps to sell")
+	# a save with no tut_step: guided tutorial starts in cycles 1 to 4, finished from cycle 5
+	var none: Dictionary = st.duplicate(true)
+	none.erase("tut_step")
+	none.erase("tut_ver")
+	none["cycle"] = 3
+	m.apply_state(none)
+	check(m.tut_step == 0, "tutorial steps: save without tut_step at cycle 3 starts the guide")
+	none["cycle"] = 5
+	m.apply_state(none)
+	check(m.tut_step == G.size(), "tutorial steps: save without tut_step at cycle 5 stays finished")
 	# a step with no state reached is skipped automatically
 	m.skill_points = 0
 	m.learned_skills = []
@@ -1983,6 +1995,12 @@ func _test_planet_size() -> void:
 		check(absf(r1 - maxf(map.planet_radius(rl0.pair_a), map.planet_radius(rl0.pair_b))) < 0.0001, "size: route starts follow the debug size", "r=%f" % r1)
 	m.debug_menu._set_planet_scale(1.3)
 	check(absf(map.planet_radius() - 1.04) < 0.0001, "size: back to x1.3")
+	map.set_hint(0, true)
+	var hm = map.hint.mesh
+	check(hm is TorusMesh and not (hm is SphereMesh), "highlight: a thin ring, not a filled sphere")
+	check(hm is TorusMesh and hm.outer_radius - hm.inner_radius < map.planet_radius(0) * 0.2 and hm.inner_radius > map.planet_radius(0), "highlight: ring is thin and outside the planet")
+	check(map.hint.mat.albedo_color.is_equal_approx(Color(Ui.col("star_warm"), map.hint.mat.albedo_color.a)), "highlight: ring uses the theme accent colour")
+	map.set_hint(-1, false)
 
 ## Route offset, orbit size x2 and planet size variation (owner requests 2026-11-03).
 func _test_route_offset() -> void:

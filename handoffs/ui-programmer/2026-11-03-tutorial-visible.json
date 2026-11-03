@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-03",
+  "task": "tutorial-visible",
+  "status": "partial",
+  "files_changed": ["game/main.gd (_build_board: two move_child lines)", "game/planet_hint.gd", "tools/tests/run_tests.gd", "handoffs/ui-programmer/2026-11-03-tutorial-visible.json"],
+  "open_questions": [
+    "Root cause NOT reproduced. On a fresh game (game/main.gd:224-226 calls _tut_show, label built at :2803) the step-1 text is set, visible and in the visible tree, also after the preface is dismissed and after 5 frames; probe rect (1580,140,304x40) inside the 1920x1080 view. Not checked by eye. Likely reasons the owner sees nothing: (a) Continue was used with an autosave that has no tut_step or tut_step at the end (main.gd:269-274 treats these as tutorial done), or (b) the hint is 13 px text in the top-right board, easy to miss. Which was it?",
+    "Cannot render in this sandbox: the new ring look, its size, and the board order are unchecked on screen.",
+    "Git not available to me; nothing committed or staged."
+  ],
+  "handoff": "Test added: fresh game shows step 1 line, visible and in tree, with Skip/Next row visible. It passed before any fix, so the code path is correct. Change made anyway: the guided hint and its Skip/Next row now sit directly under the Notifications title, above the mission line (main.gd _build_board), so it is the first thing in the board. Highlight: game/planet_hint.gd was a translucent gold SphereMesh (halo, 0.10-0.40 alpha fill). It is now a thin TorusMesh ring (width 5 percent of planet radius, 1.35x radius) around the planet, unshaded, colour from theme token star_warm via Ui.col, alpha pulses 0.55-1.0, no fill. Used by set_hint and set_pending; click and selection code untouched. Tests added: ring is TorusMesh not sphere, thin and outside the planet, uses star_warm. Totals: pass=1003 fail=0."
+}
