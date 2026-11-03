@@ -228,9 +228,9 @@
   "place": "Top bar, skill screen header"
  },
  {
-  "id": "LBL_GOAL",
-  "text": "Goal: {goal} by cycle {cycle}. Now: {cash}.",
-  "max": 110,
+  "id": "LBL_GOAL_MARKETS",
+  "text": "Goal: more than {pct}% of one market",
+  "max": 60,
   "place": "Top bar goal line"
  },
  {
@@ -538,42 +538,6 @@
   "text": "Paused. Nothing earns while paused.",
   "max": 110,
   "place": "Notice"
- },
- {
-  "id": "CHOICE_TITLE",
-  "text": "The goal is met",
-  "max": 40,
-  "place": "Choice screen heading"
- },
- {
-  "id": "CHOICE_TEXT",
-  "text": "The cash goal is met. The Bureau offers two forms. The Release takes the company off the Common Ledger. Staying keeps the company on it, as a corporation. Choose once. The run ends either way.",
-  "max": 280,
-  "place": "Choice screen body"
- },
- {
-  "id": "CHOICE_RELEASE",
-  "text": "Take the Release",
-  "max": 28,
-  "place": "Button"
- },
- {
-  "id": "CHOICE_RELEASE_EFFECT",
-  "text": "The run ends here, with a Release ending.",
-  "max": 90,
-  "place": "Line under the button"
- },
- {
-  "id": "CHOICE_CORP",
-  "text": "Stay as a corporation",
-  "max": 28,
-  "place": "Button"
- },
- {
-  "id": "CHOICE_CORP_EFFECT",
-  "text": "The run ends here, with a corporate ending.",
-  "max": 90,
-  "place": "Line under the button"
  },
  {
   "id": "WORLD_SYS1_NAME",

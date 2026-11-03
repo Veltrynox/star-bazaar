@@ -72,7 +72,7 @@ LBL_COMPANY_STORAGE | 24 | Planet panel | Company storage
 LBL_SHIP_UPKEEP | 24 | Top bar and route panel | Ship upkeep
 LBL_EXPENSES | 24 | Top bar | Expenses
 LBL_SKILL_POINTS | 24 | Top bar, skill screen header | Skill points
-LBL_GOAL | 110 | Top bar goal line | Goal: {goal} by cycle {cycle}. Now: {cash}.
+LBL_GOAL_MARKETS | 60 | Top bar goal line | Goal: more than {pct}% of one market
 LBL_GROSS | 24 | Route panel and statistics, income before costs | Income before costs
 LBL_NET | 24 | Route panel and statistics, income after costs | Income after costs
 LBL_TRIP_COST | 24 | Route panel, cost of one trip on a route | Trip cost
@@ -159,25 +159,6 @@ LBL_LANE_SHIP | 24 | Connections list, a ship's place on a shared route; the gam
 NOT_LANE_SHIP_ADDED | 110 | Notice, a ship added to an existing route | Ship added to the route.
 NOT_RESUMED | 110 | Notice, game unpaused | Running.
 NOT_PAUSED | 110 | Notice | Paused. Nothing earns while paused.
-
-## Choice screen (shown once when the cash goal is met; no close button)
-CHOICE_TITLE | 40 | Choice screen heading
-The goal is met
-
-CHOICE_TEXT | 280 | Choice screen body
-The cash goal is met. The Bureau offers two forms. The Release takes the company off the Common Ledger. Staying keeps the company on it, as a corporation. Choose once. The run ends either way.
-
-CHOICE_RELEASE | 28 | Button
-Take the Release
-
-CHOICE_RELEASE_EFFECT | 90 | Line under the button
-The run ends here, with a Release ending.
-
-CHOICE_CORP | 28 | Button
-Stay as a corporation
-
-CHOICE_CORP_EFFECT | 90 | Line under the button
-The run ends here, with a corporate ending.
 
 ## Systems and system 2 (T86; names are proposals, owner decides)
 WORLD_SYS1_NAME | 24 | System 1 name, map and system labels | Hollin Reach
