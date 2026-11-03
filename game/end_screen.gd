@@ -70,13 +70,38 @@ func _readout(box: Control, market: String) -> void:
 		v.text = "%d%%" % roundi(float(r[1]) * 100.0)
 		line.add_child(v)
 
+## Epilogue lines of a win (core 6, up to 4): capstone, techs done, a rival that lost a tier, a second market over the share mark.
+## Texts by id: EPI_CAP_<MKT>, EPI_TECH_0..3, EPI_RIVAL_<MKT> ({bot}), EPI_SECOND_<MKT>. Never a count of choices or a direction.
+static func epilogue_lines(fl: Dictionary) -> Array:
+	var out := []
+	if fl.is_empty():
+		return out
+	var mk := str(fl.get("market", "")).to_upper()
+	if bool(fl.get("capstone", false)) and StoryText.has_text("EPI_CAP_" + mk):
+		out.append(StoryText.get_text("EPI_CAP_" + mk))
+	if StoryText.has_text("EPI_TECH_%d" % int(fl.get("tech_done", 0))):
+		out.append(StoryText.get_text("EPI_TECH_%d" % int(fl.get("tech_done", 0))))
+	if bool(fl.get("rival_broken", false)) and StoryText.has_text("EPI_RIVAL_" + mk):
+		out.append(StoryText.get_text("EPI_RIVAL_" + mk, {"bot": Bots.bot_name(int(fl.get("rival_broken_bot", 1)))}))
+	if bool(fl.get("second_over", false)) and StoryText.has_text("EPI_SECOND_" + str(fl.get("second_market", "")).to_upper()):
+		out.append(StoryText.get_text("EPI_SECOND_" + str(fl.get("second_market", "")).to_upper()))
+	return out
+
 ## Ending screen. side: "WIN", "LOSS" or "SOFT". stat is one plain line (win market and share, leading rival, best market).
 ## TODO story: ending texts for the Four Markets ids are not written yet; a plain stub line stands in (marked TODO story).
 ## The readout under the text: the market (stats.market, else the first), the player's share and the three bots.
 func show_ending(ending_id: String, side: String, stats: Dictionary, stat: String = "") -> void:
 	var box := _box()
-	_label(box, StoryText.get_or(ending_id + "_TITLE", ending_id), 30, true)
-	_label(box, StoryText.get_or(ending_id, "TODO story: ending text for %s." % ending_id))
+	var title_id := ending_id + "_TITLE"
+	if not StoryText.has_text(title_id) and ending_id.ends_with("_BAD"):
+		title_id = ending_id.trim_suffix("_BAD") + "_GOOD_TITLE"
+	_label(box, StoryText.get_or(title_id, ending_id), 30, true)
+	var body_id := ending_id
+	if not StoryText.has_text(body_id) and body_id.ends_with("_BAD"):  # no Bad text written yet: the Good text of the market stands in
+		body_id = body_id.trim_suffix("_BAD") + "_GOOD"
+	_label(box, StoryText.get_or(body_id, "TODO story: ending text for %s." % ending_id))
+	for line in epilogue_lines(stats.get("flavour", {})):
+		_label(box, line)
 	if stat != "":
 		_label(box, stat)
 	_readout(box, str(stats.get("market", "")))

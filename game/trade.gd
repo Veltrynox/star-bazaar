@@ -7,7 +7,6 @@ extends RefCounted
 var balance: Dictionary = {}
 var planets: Array = []
 var events: RefCounted = null  # T12: active event price effects (events.gd), null = none
-var shield: RefCounted = null  # T101: solar shield (shield.gd), null = none
 
 func setup(bal: Dictionary, plist: Array) -> void:
 	balance = bal
@@ -27,9 +26,7 @@ func price(i: int, key: String, next_cycle: bool = false, no_events: bool = fals
 		var f := 1.0
 		if events != null and not no_events:  # T12: event price factor on both prices
 			f *= float(events.price_factor(i, key.substr(0, key.rfind("_")), next_cycle))
-		if shield != null:  # T101: shield mix and profit factors, planets bought later only
-			f *= float(shield.price_factor(i, key))
-		if events != null or shield != null:
+		if events != null:
 			return maxi(0, roundi(float(v) * f))
 	return int(v)
 
@@ -42,7 +39,7 @@ func margin(from: int, to: int, c: String) -> int:
 		return 0
 	return s - b
 
-## P1: the same margin once every price event has ended (read-only; shield factors stay).
+## P1: the same margin once every price event has ended (read-only).
 func margin_after_events(from: int, to: int, c: String) -> int:
 	var b := price(from, c + "_buy", false, true)
 	var s := price(to, c + "_sell", false, true)

@@ -40,7 +40,9 @@ func is_unlocked(id: String) -> bool:
 	return Skills.unlocked(id)
 
 func batches(id: String) -> int:
-	return maxi(1, int(balance.get("workshop_batches_per_cycle", 1)) + Skills.workshop_batches(market_of(id)))
+	if Chains.workshop_idle(market_of(id)):  # an event chain pauses the workshop for some cycles
+		return 0
+	return maxi(1, int(balance.get("workshop_batches_per_cycle", 1)) + Skills.workshop_batches(market_of(id)) + Chains.workshop_extra(market_of(id)))
 
 ## Units one batch of `good` yields now.
 func out_units(good: String) -> int:
@@ -78,6 +80,8 @@ func run(storage: RefCounted, craft: Callable = Callable()) -> void:
 		recipes.reverse()  # highest tier first
 		if recipes.is_empty():
 			why = "no recipe"
+		if Chains.workshop_idle(market_of(id)):
+			why = "paused"
 		for b in batches(id):
 			var pick := ""
 			why = ""

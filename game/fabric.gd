@@ -32,7 +32,9 @@ func need_of(c: String) -> int:
 	return maxi(0, int(balance.get("fabric_in_" + c, 0)))
 
 func batches() -> int:
-	return maxi(1, int(balance.get("fabric_batches_per_cycle", 1)) + Skills.workshop_batches(Markets.market_of(OUTPUT)))  # MIN_4
+	if Chains.workshop_idle(Markets.market_of(OUTPUT)):  # event chain: the market's workshop is paused
+		return 0
+	return maxi(1, int(balance.get("fabric_batches_per_cycle", 1)) + Skills.workshop_batches(Markets.market_of(OUTPUT)) + Chains.workshop_extra(Markets.market_of(OUTPUT)))  # MIN_4
 
 ## Null Core (placeholder numbers in balance.json: null_core_in_plate, null_core_in_nullglass, null_core_build_cost, null_core_max).
 func core_cost() -> int:

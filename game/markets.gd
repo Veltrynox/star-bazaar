@@ -114,6 +114,7 @@ static func add_sale(good: String, units: int, up_units: int = 0) -> void:
 		return
 	var v := float(units * value_of(good)) * Skills.volume_mult(m)
 	v += float(mini(up_units, units) * value_of(good)) * Skills.volume_bonus_price_up(m)
+	v *= Chains.volume_mult(m)  # event chain volume effects (timed)
 	cur[m] = float(cur[m]) + v
 	if not is_common(good):
 		cur_active[m] = float(cur_active[m]) + v
@@ -279,7 +280,7 @@ static func verdict(cycle: int) -> Dictionary:
 	var final := cycle >= int(bal.get("win_cycle_markets", 40))
 	for m in ids:
 		var s := share(m)
-		if (int(win_streak.get(m, 0)) >= hold or (final and s > win_pct)) and s > best_s:
+		if (int(win_streak.get(m, 0)) >= hold or (final and s > win_pct)) and s > best_s and Chains.win_open(m, cycle):
 			best_m = m
 			best_s = s
 	if best_m != "":

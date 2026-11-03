@@ -2,8 +2,8 @@ class_name EndingPicker
 extends RefCounted
 ## Inputs of a win ending (core 6): which ending id fires and the flavour lines inside it. Read at the win from the
 ## learned skills (Skills) and the market shares (Markets); the end screen gets the dictionary from inputs().
-## Direction good/bad is a later goal: the ending id is END_<MKT>_GOOD until then (TODO story).
-## rival_broken stays false until the event chains that set it exist.
+## The ending id is END_<MKT>_GOOD or _BAD by Chains.ending_flag (the hidden chain direction; nothing of it is shown).
+## rival_broken: a rival of that market really lost a tier through a chain option (rival_broken_bot names it).
 
 const SECOND_KEY := "ending_second_market_pct"  # balance: the second-best market counts from this share (0.25)
 
@@ -16,7 +16,7 @@ static func techs_of(market: String) -> Array:
 	return out
 
 ## Dictionary for the end screen:
-## {market, ending_id, capstone (MKT_7 learned), tech_done (0..3), rival_broken (stub, false),
+## {market, ending_id, capstone (MKT_7 learned), tech_done (0..3), rival_broken, rival_broken_bot (0 none), flag ("good"|"bad"),
 ##  second_market ("" when none), second_share, second_over (second-best market over ending_second_market_pct)}.
 static func inputs(market: String, balance: Dictionary) -> Dictionary:
 	var mk := market.to_lower()
@@ -33,6 +33,6 @@ static func inputs(market: String, balance: Dictionary) -> Dictionary:
 		if s > second_share:
 			second = m
 			second_share = s
-	return {"market": mk, "ending_id": "END_%s_GOOD" % mk.to_upper(), "capstone": Skills.is_learned("%s_7" % mk.to_upper()),
-		"tech_done": done, "rival_broken": false, "second_market": second, "second_share": second_share,
+	return {"market": mk, "ending_id": "END_%s_%s" % [mk.to_upper(), Chains.ending_flag(mk).to_upper()], "flag": Chains.ending_flag(mk), "capstone": Skills.is_learned("%s_7" % mk.to_upper()),
+		"tech_done": done, "rival_broken": Chains.rival_broken(mk), "rival_broken_bot": Chains.rival_broken_bot(mk), "second_market": second, "second_share": second_share,
 		"second_over": second != "" and second_share > float(balance.get(SECOND_KEY, 0.25))}
