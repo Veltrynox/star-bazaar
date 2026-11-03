@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "agent": "general-purpose",
+  "date": "2026-11-03",
+  "task": "Doc-manager pass: update gdd.md, gdd-skills.md, gdd-log.md and state.md for the Four Markets goal (market share win, chains, 8 win endings plus loss and soft endings, Competitors menu, skill trees per market)",
+  "status": "done",
+  "files_changed": [
+    "/Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/gdd.md",
+    "/Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/gdd-skills.md",
+    "/Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/gdd-log.md",
+    "/Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/state.md",
+    "/Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/handoffs/general-purpose/2026-11-03-gdd-market-goal.json"
+  ],
+  "open_questions": [
+    "Names of rivals, goods and endings: working names until judged in play.",
+    "END_SWEPT fired early on weak play (cycle 27 at bot_scale 0.85): accept, or move sweep_earliest_cycle?",
+    "Do workshops matter for share? UNKNOWN until played.",
+    "ship_cap 5 and the cost of feeding it: is the cap right? UNKNOWN until played.",
+    "Do the Military chains read right in play?",
+    "Pace targets in balance.json 'targets' are from the cash goal; re-base UNKNOWN (economy-designer).",
+    "data/events.json still has an EV18 row and no EV40-51 rows; chains.json holds EV40-51. Is the draw wired and EV18 really gone? UNKNOWN (gameplay-programmer).",
+    "stats.json schema after the Release/Corporation side field was retired: UNKNOWN to the GDD.",
+    "Space Storage sell-from-stock (owner 2026-11-01): built status UNKNOWN; gdd.md line on Space Storage still says it is an open call.",
+    "Schedule counts and latest-handoff list in state.md are stale; producer to refresh."
+  ],
+  "handoff": "gdd.md rewritten where it conflicted with the market goal: exec summary win/loss, goal line, dead state (rescue_max, bankruptcy), new 'The market goal' section, events (chains, pool of 36, retirements), Competitors menu and Force market share, win condition, permits, story terms, endings (8 win, BANKRUPT, SWEPT, OUTCOMPETED, epilogues), economy and points. Cash goal, Release/Corporation, shield, old stances, old sim snapshot are removed or marked RETIRED. gdd-skills.md rewritten to draft 2 because draft 1 contradicted data/skills.json. Log entry and state.md updated (39 lines). All numbers are [GCM:key] tokens or taken from data files; gaps marked UNKNOWN. No code, data or story files changed, nothing committed.",
+  "details": {}
+}

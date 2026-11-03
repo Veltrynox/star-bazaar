@@ -1,39 +1,35 @@
-# Star Bazaar: project state (under 40 lines; workflow gdd-process.md; updated 2026-11-02)
+# Star Bazaar: project state (under 40 lines; workflow gdd-process.md; updated 2026-11-03)
 
-## Queue (schedule.json, 100 tasks). Goal trade-goods-asteroid-mining: T152-T161 built (partial, QA fails pacing; owner decisions open, goals/trade-goods-asteroid-mining/report.md).
-- Done 52, queued 11, partial 6, blocked 5, stopped 4, running 0.
-- Partial: T5, T17, T94, T62, T117, T131. Blocked: T104, T111, T113, T115, T125.
-- Next (start by main session): T137 pacing, T138 GDD route income, T139 Space Storage sells. T64 unstopped, gated by T63.
+## Current goal: Four Markets (design pack design/proposals/2026-11-03-four-markets*.md; endings story/endings.md)
+- Win: over 50% of one market (Military, Luxury, Minerals, Biotech) vs three rivals; 40 cycles; early win from cycle 22 (hold 5), gate win_gate_cycle 38. Old cash goal and Release/Corporation endings retired.
+- Built on branch next: market foundation, chains (28 steps), skill trees, endings, Competitors menu, QA bot (commit 16c4a05). balance.json data_version 39 (interim retune, bot_scale 0.22).
+- GDD updated 2026-11-03 (gdd.md, gdd-skills.md draft 2, gdd-log.md). Queue counts (schedule.json) were last recorded 2026-11-02 and are UNKNOWN now; producer to refresh.
+- Still on hold: system 3 (not built, tuned or tested). Space Storage: sell orders draw from its stock (owner 2026-11-01, T139/T64); built status UNKNOWN.
 
-## Owner answers 2026-11-01
-- (a) Route income: the code is right. GDD fixed to match: routes earn through destination sell orders (T138).
-- (b) Pacing: retune. Permit path must not end at cycles 29-30 of 30. Decent reaches the goal in more runs (T137).
-- (c) System 3: is it needed? Art director: a later addition. OPEN, pending owner confirmation.
-- (d) Space Storage: sell orders draw from its stock. T64 unstopped (T139, T64).
+## Standing rules
+- Money never buys skill points. Choices are neutral (no good or bad labels); the hidden chain direction picks the ending. Price skills have no share effect. Old saves dropped.
+- Retired: shield and EV18, Minerals events EV29-37, old event stances, cash goal, Release/Corporation.
 
-## Owner decisions 2026-10-28 and standing rules
-- Shield flag hidden, read only by the ending picker (T121 done); no shield wording in endings. Asteroid paid option: one research point, no skill point or reputation.
-- Money never buys skill points. Debris lowers route efficiency; paying clears it. Shield affects only buyable planets; pirates cut trade volume; zoom opens after system 2 (T119).
+## Open questions for owner (Four Markets, judged in play)
+1. Names of rivals (Harrow Combine, Velvet Concord, Ostrel Syndicate), goods and endings: working names until judged in play.
+2. END_SWEPT fires early on weak play (a swept run at cycle 27 was seen with bot_scale 0.85): is that acceptable, or move sweep_earliest_cycle?
+3. Do workshops matter for share? UNKNOWN until played (they add tech and crafted goods; the v39 retune was measured with a bot that does no crafting).
+4. ship_cap 5 and what it costs to feed five ships (trip cost, maintenance, overhead): is the cap right? UNKNOWN until played.
+5. Do the Military chains read right in play (neutral options, hidden direction)? Luxury, Minerals, Biotech chain texts follow after this check.
+6. Carried over: is system 3 needed; is the asteroid research point a skill point; does "money never buys skill points" cover all spending; nomads and planet types (T104, T111, T113, T115).
 
-## Open questions for owner
-1. Is system 3 needed (on hold; art director: later addition)? UNKNOWN until owner confirms.
-2. Is the asteroid research point a skill point? The 2026-10-28 answer says no. UNKNOWN.
-3. Does "money never buys skill points" cover all spending? (T97, T99, T107, T111)
-4. Nomads: field link and clearing (skill or paid); planet types (T104, T111, T113, T115).
+## Open data and design gaps (not owner questions)
+- Pace targets in balance.json "targets" are from the cash goal; re-base UNKNOWN.
+- data/events.json still has an EV18 row and has no EV40-51 rows; chains.json holds them (pool_new). Draw status UNKNOWN.
+- Default permit-2 bot and spread bot still collapse in QA (code gaps in the QA handoff).
+- Human win rate for a focused market: UNKNOWN (paper model and bots only).
 
 ## Goals and reports
-- skill-tree-progression: done 2026-10-31 (goals/skill-tree-progression/report.md). Owner points open. Art director 2026-11-01: qa/reports/2026-11-01-art-director.md.
-- feature-exploration-2026-11-02: partial; agreed P1, P2, N11, N12; P1, P2, N11 done, N12 needs owner key steady_lane_cycles; 673 pass (goals/feature-exploration-2026-11-02/log.md, report.md; blackboard finished 2026-11-02).
+- skill-tree-progression: done 2026-10-31 (goals/skill-tree-progression/report.md); superseded by the market trees.
+- feature-exploration-2026-11-02: partial (goals/feature-exploration-2026-11-02/report.md).
+- trade-goods-asteroid-mining: built, QA pacing failed (goals/trade-goods-asteroid-mining/report.md).
+- Four Markets goals 2 to 6: see git log on next and qa/reports/2026-11-03-market-foundation-bug_report.json.
 
 ## Latest handoff per agent
-- gameplay-programmer: handoffs/gameplay-programmer/2026-11-02-N2.json (also P2, P3)
-- economy-designer: handoffs/economy-designer/2026-10-31-skill-tree-r2.json
-- story-designer: handoffs/story-designer/2026-10-31-T124.json
-- ui-programmer: handoffs/ui-programmer/2026-11-02-P1.json
-- artist: handoffs/artist/2026-11-01-T110.json
-- fx-programmer: handoffs/fx-programmer/2026-11-01-edge-blur-lens-glare.json
-- galaxy-builder: handoffs/galaxy-builder/2026-11-01-star-brightness.json
-- juice-programmer: handoffs/juice-programmer/2026-11-01-points-and-cycle-beats.json
-- qa-analyst: handoffs/qa-analyst/2026-11-01-T94.json
-- general-purpose: handoffs/general-purpose/2026-10-31-T62.json
-- producer: handoffs/producer/2026-11-02-trade-goods.json
+- general-purpose: handoffs/general-purpose/2026-11-03-gdd-market-goal.json
+- Other agents: latest files are in handoffs/<agent>/ (list not refreshed this pass; producer to update).

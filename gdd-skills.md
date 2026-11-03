@@ -1,134 +1,130 @@
-Star Bazaar: Skill Tree, Space Storage and Game Menu (design draft 1)
-Date: 27 October 2026
+Star Bazaar: Skill Trees, Space Storage and Game Menu (design draft 2)
+Date: 3 November 2026
 Split out of gdd.md. Read only when your brief lists it. Owner: the project owner.
 
-Status: DRAFT (economy numbers set in balance.json v5, 2026-10-27; story names in story/skills.md). Owner answers 2026-10-27: branches are Logistics, Research, Expansion; Space Storage costs expansion points; permits cost expansion points; the skill screen does not pause the game. Skill names and the node list are still proposals for the owner to edit (task T72). Nothing here is built yet. Numbers are not in this file: they are [GCM:<key>] tokens that point to data/balance.json (or data/skills.json once it exists). Prices, point values and costs are the Economy Designer's job.
+Status: DRAFT 2, rewritten for the Four Markets goal. It follows data/skills.json (data_version 1) and data/balance.json (data_version 39). Draft 1 (three branches Logistics, Research, Expansion with nodes A1 to C4, 20 points) is RETIRED; its old keys were removed from balance.json. Numbers are not in this file: they are [GCM:<key>] tokens that point to data/balance.json. Names are working names from story/skills.md; the owner judges them in play.
 
 SECTION INDEX
   1. PRINCIPLES
   2. EXPANSION POINTS
-  3. THE THREE BRANCHES (Logistics, Research, Expansion)
-  4. SPACE STORAGE (the default skill)
-  5. PERMITS SKILL
+  3. THE TREES (three Foundations, four market trees)
+  4. SPACE STORAGE (FND_STORAGE)
+  5. PERMITS (FND_PERMIT)
   6. SKILL TREE SCREEN
   7. GAME MENU
   8. DATA AND CODE HOOKS
-  9. ENDINGS (to design)
+  9. ENDINGS AND THE TREES
   10. OPEN QUESTIONS
 
 ========================================
 1. PRINCIPLES
 ========================================
-Money is only for reaching the final goal (win_cash). Growth in ability comes from expansion, so skills are bought with expansion points, never with credits.
-The player earns points by doing things that grow the company (see section 2), so the tree rewards reach, not wealth.
-Every skill opens a new way to play. It never only adds a hidden number. If a skill changes a number, the screen says which number.
-There are three branches. The player can learn skills in any branch from the start, in any order the prerequisites allow. Respec is not planned.
-The tree is not required to win, but ignoring it makes the goal harder. What the player learns also shapes which ending they get (section 9). Exact balance comes after the owner plays it.
+Money buys ships, workshops and fees, never skill points. Growth in ability comes from expansion and from share, so skills are bought with skill points ("expansion points" in data keys), never with credits.
+Skills are finite and shared across markets, so the trees punish spreading: a focused run affords three Foundations and one market tree, two full markets are a stretch, four are out of reach.
+Every node opens a way to play or says which number it changes. Respec is not planned.
+Each market tree has four skills (cost points) and three tech nodes (cost no points, researched by crafting in that market's workshop).
 
 ========================================
 2. EXPANSION POINTS
 ========================================
 Points are earned once per event:
-  - First visit to a planet: [GCM:skill_points_planet] point(s).
-  - First route made between a new pair of planets: [GCM:skill_points_route] point(s).
-  - First route or storage in a new system: [GCM:skill_points_system] point(s).
-The same planet, pair or system never pays twice. Closing and re-opening a route does not pay again.
-Name: these are "expansion points" in data keys and in this file; the one on-screen name is "Skill points" (top bar and skill screen header), per the glossary in story/voice.md.
-The player starts with 0 points; the home planet (Voltara) gives the first on cycle 1 (sim assumption, not yet confirmed in code). Values: [GCM:skill_points_planet], [GCM:skill_points_route], [GCM:skill_points_system]. A route counts once per planet pair, direction ignored. System 1 has no system bonus.
-System 1 total: 3 planets plus 2 profitable pairs x 2 = 7 points (9 if the loss-making Tillam-Ashgate pair is counted). The whole tree costs 20 points (A: 1, 1, 3, 2; B: 1, 2, 2, 2; C: 1, 1, 2, 2). So system 1 buys one short branch or about 4 nodes, never the tree; the full tree needs systems 2 and 3, which are on hold.
-The top bar shows "Skill points: N" next to the Skills button. A small mark appears on the button when the player has points and a skill is available.
-A notice appears when points are earned ("+1 skill point: first visit to Tillam").
+  - First visit to a planet: [GCM:skill_points_planet].
+  - First route made between a new pair of planets, direction ignored: [GCM:skill_points_route].
+  - First route or storage in a new system: [GCM:skill_points_system] (none in system 1).
+  - First time the player's share in a market reaches 20%: [GCM:skill_points_share_20]; at 35%: [GCM:skill_points_share_35]. Once per market. This pays depth, not width.
+Permits also cost points ([GCM:permit_points_2], [GCM:permit_points_3]; system 3 on hold).
+The same planet, pair or system never pays twice. The player starts with 0 points; the home planet (Voltara) gives the first on cycle 1. On screen the name is "Skill points" (top bar and skill screen header). A notice appears when points are earned.
+Supply: the design pack estimates about 21 points over a run against 13 needed for one market and 23 for two. This assumes 7 of 9 reachable planets and 5 route pairs and is UNKNOWN until the real game confirms it.
 
 ========================================
-3. THE THREE BRANCHES
+3. THE TREES
 ========================================
-Skills below are proposals. "Cost" is in expansion points, set by the Economy Designer: [GCM:skill_cost_<id>] (balance.json has all twelve, A1, A2, A4, A5, B1 to B4, C1 to C4; A3 was cut 2026-10-28). Effect keys: A4 skill_A4_route_units; A5 skill_A5_upkeep; B2 skill_B2_order_units; B3 skill_B3_margin.
+Three Foundations (not a market, not in endings), cost [GCM:skill_cost_FND_STORAGE], [GCM:skill_cost_FND_PERMIT] and [GCM:skill_cost_FND_PROSPECT] point each, learnable from cycle 1, order free:
+  FND_STORAGE Space Storage: unlocks Space Storage (section 4).
+  FND_PERMIT Permit Charter: permits for new systems and routes between systems (section 5).
+  FND_PROSPECT Prospecting: routes may start at asteroid clusters.
 
-BRANCH A: LOGISTICS (how goods move and are kept)
-  A1 Space Storage - the first node of the branch; it costs expansion points like any skill (section 4).
-  A2 Bigger Holds - raises the capacity of company storage on planets.
-  (A3 Second Hull and the large ship were cut by the owner on 2026-10-28; A4 now follows A2.)
-  A4 Fast Loading - raises how much a route moves per cycle.
-  A5 Drydock Deals - lowers ship upkeep.
+Each market has seven nodes MKT_1 to MKT_7 (MIL, LUX, MIN, BIO) in five tiers. Skill nodes (1, 3, 5, 7) cost 1, 2, 3 and 4 points ([GCM:skill_cost_MIL_1] and so on, 10 in all). Tech nodes (2, 4, 6) cost 0 and complete by themselves after the player crafts the goal count of units in that market's workshop: [GCM:tech_goal_2], [GCM:tech_goal_4], [GCM:tech_goal_6] units, counted only from when the prerequisites are met. Prerequisites: 2 and 3 need 1; 4 needs 2; 5 needs 3; 6 needs 4 and 5; 7 needs 6. Sizes S, M, L map to [GCM:skill_size_s], [GCM:skill_size_m], [GCM:skill_size_l].
 
-BRANCH B: RESEARCH (understanding the market and the sky; the old Trade ideas live here)
-  B1 Market Ledger - shows the price history of each planet in its panel.
-  B2 Standing Orders - local Buy and Sell orders handle more per cycle.
-  B3 Price Whisper - shows the next cycle's expected price move before it happens.
-  B4 Event Forecast - shows the next event one cycle early.
-
-BRANCH C: EXPANSION (reach)
-  C1 Permit Charter - the player may buy permits for new systems (section 5).
-  C2 Survey Beacon - reveals the planets of a permitted system before the first visit.
-  C3 Long Haul - routes between systems become possible (needs the Space Storage link in section 4).
-  C4 Colonial Rights - lowers the credit price of later permits.
-
-Prerequisites: each branch is a short chain. A node needs the node above it in the same branch. C3 also needs A1. No other cross-branch links in this draft.
+Military (workshop: Munitions Line)
+  MIL_1 Drydock Deals (skill): ship upkeep lower ([GCM:skill_MIL_1_upkeep]); unlocks the Munitions Line and pulse cells.
+  MIL_2 Cell Casting (tech): Military volume up (S).
+  MIL_3 Quick Loading (skill): routes carrying Military goods move more per cycle ([GCM:skill_MIL_3_route_units]).
+  MIL_4 Armour Plating (tech): unlocks hull armour; Military sale price up ([GCM:skill_MIL_4_price], cash only, no share effect).
+  MIL_5 Embargo Desk (skill): every [GCM:skill_MIL_5_every] cycles pick one rival: its Military strength falls [GCM:skill_MIL_5_hit] for [GCM:skill_MIL_5_cycles] cycles.
+  MIL_6 Contract Doctrine (tech): Military price events against the player cut by [GCM:skill_MIL_6_event_cut].
+  MIL_7 Standing Fleet (capstone skill): all rivals' Military growth x[GCM:skill_MIL_7_growth_mult] for the rest of the run.
+Luxury (workshop: Atelier)
+  LUX_1 Price Whisper (skill): shows next cycle's prices; Luxury sale price up ([GCM:skill_LUX_1_price], cash only); unlocks the Atelier and cut glimmers.
+  LUX_2 Fine Finishing (tech): Luxury price-up events pay [GCM:skill_LUX_2_event_bonus] more.
+  LUX_3 Event Forecast (skill): the next event is announced one cycle early (all markets).
+  LUX_4 Cask Cellar (tech): unlocks vintage cask; stored Luxury stock is not trimmed when an asteroid hit cuts a planet storage.
+  LUX_5 Patron's List (skill): sales at a planet with a price-up event count extra volume (M).
+  LUX_6 Hallmark (tech): Luxury sale price up ([GCM:skill_LUX_6_price], cash only).
+  LUX_7 Guild Seal (capstone skill): once per run pick one rival: its Luxury strength falls [GCM:skill_LUX_7_hit] for [GCM:skill_LUX_7_cycles] cycles.
+Minerals (workshops: Smelter, Fabric)
+  MIN_1 Fabrication Licence (skill, needs FND_PROSPECT): unlocks the Smelter, the Fabric and ingots.
+  MIN_2 Smelting (tech): Minerals volume up (S); ore Buy and Sell orders ignore the order-size cap.
+  MIN_3 Cold Survey (skill): mine dross at Cinderrest; cluster yield up ([GCM:skill_MIN_3_yield]).
+  MIN_4 Alloying (tech): unlocks seam alloy; Minerals workshop batches per cycle +[GCM:skill_MIN_4_batches].
+  MIN_5 Deep Cut (skill): mine nullglass at Greywake.
+  MIN_6 Lattice Works (tech): each Minerals batch yields +[GCM:skill_MIN_6_batch_bonus] unit.
+  MIN_7 Cornered Seam (capstone skill): rivals' Minerals strength down [GCM:skill_MIN_7_strength_cut] for the rest of the run.
+Biotech (workshop: Culture Lab)
+  BIO_1 Standing Orders (skill): Buy and Sell orders move [GCM:skill_BIO_1_order_units] more; unlocks the Culture Lab and bio-gel.
+  BIO_2 Culture Banks (tech): Biotech stock in planet storage grows [GCM:skill_BIO_2_stock_growth] a cycle, up to [GCM:skill_BIO_2_stock_cap] of the stored amount.
+  BIO_3 Seed Bank (skill): planet storage capacity up ([GCM:skill_BIO_3_capacity]).
+  BIO_4 Gene Splicing (tech): unlocks gene seed.
+  BIO_5 Clinic Contracts (skill): the Biotech share window is [GCM:share_window_bio_bonus] cycles instead of [GCM:share_window].
+  BIO_6 Hardy Strains (tech): Biotech events against the player cut by [GCM:skill_BIO_6_event_cut]; a closed planet reopens one cycle sooner.
+  BIO_7 Patent Wall (capstone skill): rivals' Biotech strength down [GCM:skill_BIO_7_strength_cut] for the rest of the run.
+Where the data and the proposal differ in size (for example LUX_5 and MIN_7), data/skills.json and balance.json win. Old skills A1 to C4, M1, M2 and F1 are mapped or dropped as in the design pack (core 3.5): Space Storage, Permit Charter and Prospecting became Foundations; Survey Beacon and Colonial Rights were dropped.
 
 ========================================
-4. SPACE STORAGE (the first skill)
+4. SPACE STORAGE (FND_STORAGE)
 ========================================
-Space Storage is the first node of the Logistics branch and the natural first purchase. It costs expansion points ([GCM:skill_cost_A1]); it is not free. Early points come from the first planet visits and the first route, so it is reachable in the first cycles. Until it is learned the player has planet storage only.
-Gate (decision by the owner, 2026-10-28): A1 stays Locked until the player has visited all planets of system 1 (Voltara, Tillam, Ashgate) and has made at least one route; it then costs [GCM:skill_cost_A1] as usual. Saves with A1 already learned keep it.
+Space Storage is a Foundation skill, cost [GCM:skill_cost_FND_STORAGE] point. It is not free. Until it is learned the player has planet storage only.
 Rules:
-  - One space storage per system, much bigger than a planet storage. The capacity is [GCM:space_storage_capacity].
-  - It is company property and is set up on the first use, like planet storage.
-  - Planet storage is the small, abstract buffer. Planet storage transfers into the space storage slowly (rate [GCM:planet_to_space_rate]). The space storage then holds the stock.
-  - Routes can run planet to space storage and space storage to space storage (between systems, once C3 is learned).
-  - When a route breaks for any reason (no ship, blocked, a closed planet), the space storage keeps feeding the connection for a while, so a short problem does not break the trade.
-  - Clicking a space storage on the map shows its stock per commodity with the 5-line rating bar, and its connections, with a Remove button, the same as a planet.
-  - Ships still only carry goods between planets and storages.
-Build note: this replaces the earlier plan that the space storage unlocks after some time (task T64). It is unlocked by learning the skill; T64 remains the task that builds it.
+  - One space storage per system, much bigger than a planet storage. Capacity [GCM:space_storage_capacity].
+  - It is company property and is set up on first use.
+  - Planet storage transfers into it slowly (rate [GCM:planet_to_space_rate]).
+  - Routes can run planet to space storage and space storage to space storage (between systems, with FND_PERMIT).
+  - When a route breaks (no ship, blocked, a closed planet), the space storage keeps feeding the connection for a while.
+  - Clicking a space storage shows its stock per commodity with the 5-line rating bar and its connections.
+Owner answer 2026-11-01: sell orders draw from Space Storage stock (tasks T139, T64). Whether that is built is UNKNOWN to this file.
+The old gate (A1 locked until all of system 1 was visited and one route made) belonged to draft 1; whether it still applies is UNKNOWN.
 
 ========================================
-5. PERMITS SKILL
+5. PERMITS (FND_PERMIT)
 ========================================
-Permit Charter (C1) is the skill that lets the player buy permits for other systems. Without it, the permit button does not appear.
-Learning the skill does not open a system. It only allows the purchase. Each permit costs expansion points ([GCM:permit_points_2], [GCM:permit_points_3]) as well as the credits already in gdd.md ([GCM:permit_2_cost], [GCM:permit_3_cost]), and opens one system. Owner decision 2026-10-27: permits cost expansion points.
-Systems 2 and 3 are still on hold in this build (see gdd.md and state.md). Until the owner lifts the hold, the skill can be learned but there is nothing to buy; the screen says "no systems available yet".
+Permit Charter lets the player buy permits for other systems. Without it the permit button does not appear. Learning it does not open a system; each permit costs points ([GCM:permit_points_2], [GCM:permit_points_3]) and credits ([GCM:permit_2_cost], [GCM:permit_3_cost]). System 2 is in the Alpha; system 3 is on hold, so nothing exists to buy there.
 
 ========================================
 6. SKILL TREE SCREEN
 ========================================
-Opening: a "Skills" button in the top bar (hotkey K) opens the screen at any time, running or paused. Esc or the same button closes it. The game does not pause while it is open (owner decision).
-Layout: three columns, one per branch, each a vertical chain from the first skill at the top. A header shows "Skill points: N".
-Node states: learned (gold), available (bright outline, can be bought now), locked (dim, shows what it needs).
-Clicking a node shows its name, what it does in plain words, its cost and its prerequisites. A Learn button spends the points. Nothing is hidden: if a skill changes a number, the text says the number.
-The screen shows no credits. Skills never cost credits.
+A "Skills" button in the top bar (hotkey K) opens the screen at any time; Esc or the button closes it; the game does not pause (owner decision). Layout is one block for the Foundations and one tree per market, each a chain from node 1. A header shows "Skill points: N". Node states: learned, available, locked (shows what it needs), and for tech nodes a crafting progress line (SK_<node>_CRAFT, "<workshop> crafts: n of goal"). Skills that act on a rival (Embargo Desk, Guild Seal) have a "Use on..." button and show "Ready in n cycles" or "Used this run". The screen shows no credits: "Skills cost skill points, never credits."
 
 ========================================
 7. GAME MENU
 ========================================
-A menu button in the top bar (hotkey Esc) opens a short list. It is built as a list of entries so the owner can add more later without redesign.
-Entries in this draft:
-  - Resume (close the menu).
-  - Skills (opens the skill tree screen; same screen as the top-bar button).
-  - Main menu (saves, then returns to the main menu; asks for confirmation).
-  - Quit game (saves, then exits; asks for confirmation).
-Reserved slots for later, not built yet, in this order: Settings (sound, display; first, because every build needs it), Help (controls and tutorial replay), Statistics (cash history, routes), Save and load slots.
-The menu pauses the game while open. The skill tree opened from its own top-bar button does not.
+A menu button in the top bar (hotkey Esc) opens a list built so entries can be added later. Entries: Resume, Skills, Competitors (the rival graphs and Recent moves log, see gdd.md Menu UI), Main menu (saves, confirms), Quit game (saves, confirms). Reserved for later, not built: Settings, Help, Statistics, Save and load slots. The menu pauses the game; the Skills screen opened from its own button does not.
 
 ========================================
 8. DATA AND CODE HOOKS
 ========================================
-  - New file data/skills.json: id, branch, name, text, cost token, prerequisites, effect key. The code reads it; nothing is hard-coded.
-  - The game asks has_skill("<id>") wherever a skill changes a rule (for example the permit button, ship type choice, storage capacity). A skill's effect keys point to balance.json values, so the Economy Designer can retune them.
-  - Save game stores the learned skill ids and the points. Old saves start with Space Storage learned and zero points.
-  - The skill screen and the game menu are separate scenes, so the menu list can grow without touching the tree.
+  - data/skills.json holds id, market, kind, tier, prerequisites, cost, effect (type and key into balance.json) and tech_goal_key. The code reads it; nothing is hard-coded.
+  - The game asks has_skill("<id>") wherever a skill changes a rule. Effect values are balance.json keys the Economy Designer can retune.
+  - The save stores learned skills, tech progress, points and the hidden chain data; save version 2 (old saves dropped).
 
 ========================================
-9. ENDINGS (drafted in story/endings.md; wiring T77 to T80)
+9. ENDINGS AND THE TREES
 ========================================
-Update 2026-10-27: the win now ends with a choice, Release or Stay as a corporation, and each side has three tiers (Bare, Partial, Full) picked from the skills learned; see "The win choice and endings" in gdd.md and story/endings.md for the tables and ids. Inputs from the tree: learned skill ids, learned count per branch, dominant branch, branches fully learned, systems reached. Full is unreachable until systems 2 and 3 are unblocked. The Expansion branch has no income effect while they are on hold, so it only shapes the ending tier. The earlier text below is kept as history.
-The skills the player learns decide which ending they get. The cash goal stays the win condition (gdd.md); the ending is the story told when it is reached, so one run can end in different ways depending on the branch the company leaned on (for example Logistics, Research or Expansion, or a balance of all three). The loss ending is separate.
-How many endings, and how the skills pick one (a majority branch, a key skill, or a set of choices) is the owner's call. The story agent proposes wording and structure once the owner answers.
+The old tier selection from learned skills (Bare, Partial, Full) is RETIRED with the Release and Corporation endings. The ending is picked by the market won and the hidden chain direction (gdd.md, "The endings"). The trees only add epilogue lines: the capstone of the win market (if learned), the techs done in the win market, and a rival that lost a tier.
 
 ========================================
 10. OPEN QUESTIONS
 ========================================
-Answered 2026-10-27: branches are Logistics, Research, Expansion; Space Storage costs points; permits cost points; the screen does not pause the game; the first menu entry after the basics is Settings.
-Still open (task T72 for the owner):
-  1. What skills belong in each of the three branches, and which skills push toward which ending? (Drafted in story/skills.md and story/endings.md; owner to confirm.)
-  2. How many endings, and how does the tree choose one? (Drafted: 2 sides x 3 tiers, tables in story/endings.md; owner to confirm.)
-  3. Starting points: answered in the economy handoff, start at 0, first points from the first visit and route (home planet gives 1).
-  4. Expansion has no income effect while systems 2 and 3 are on hold: acceptable as an ending-only branch?
+  1. Are the tree names and sizes right in play? UNKNOWN until the owner plays.
+  2. Do workshops matter enough for share, or only for tech and cash? UNKNOWN (see state.md).
+  3. Is the point supply (about 21) right for one focused market? UNKNOWN until the real game confirms it.
+  4. System 3 is on hold: does anything in the trees point at it? None of the nodes does.
