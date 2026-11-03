@@ -13,7 +13,7 @@
  },
  {
   "id": "SCR_PREFACE",
-  "text": "Everything under this sky is shared. The air, the ducts, the hulls that creak like something asleep, and every credit anyone earns, which goes into the Common Ledger and comes back in portions. The Plan is generous. The Plan is also five cycles long, and then another five.\n\nThere is one form for leaving: a Release. It takes you off the ledger and sells you a planet nobody has counted. It is sold in credits, to fellow hands who have them.\n\nSo you have a small company, one ship's worth of cash, three planets and two goods. Buy where it is cheap. Sell where it is not. Serving the common good is encouraged. Profit, officially, is a typing error.\n\nThe sky will not notice either way.",
+  "text": "Everything under this sky is shared. The air, the ducts, the hulls that creak like something asleep, and every credit anyone earns, which goes into the Common Ledger and comes back in portions. The Plan is generous. It is also five cycles long, and then another five.\n\nFour markets: Military, Luxury, Minerals, Biotech. Each has rivals, and the Plan counts every share each cycle. Hold over half of one market and the count stops being a rumour.\n\nSo you have a small company, one ship's worth of cash, three planets and two goods. Buy where it is cheap. Sell where it is not. Serving the common good is encouraged. Profit, officially, is a typing error.\n\nWhat it costs the sky, the sky does not say.",
   "max": 700,
   "place": "Preface screen"
  },
@@ -319,7 +319,7 @@
  },
  {
   "id": "MB_05",
-  "text": "Build a second route, or learn a skill. Skills cost skill points.",
+  "text": "Build a second route, or learn a skill. Skills cost skill points. The goal: over half of one market.",
   "max": 110,
   "place": "Mission board, later"
  },
@@ -379,7 +379,7 @@
  },
  {
   "id": "TUT_C4_FREE",
-  "text": "That is all the guidance there is. The Plan has nothing to add.",
+  "text": "That is the basics. Now take over half of one market. Watch Competitors.",
   "max": 110,
   "place": "Cycle 4, end of tutorial"
  },
@@ -949,9 +949,15 @@
  },
  {
   "id": "TUT_G10_DONE",
-  "text": "The tutorial is done. The rest is yours.",
+  "text": "Goal: hold over half of one market.",
   "max": 60,
   "place": "Guided step 10, the last"
+ },
+ {
+  "id": "TUT_G10_DONE_WHY",
+  "text": "Open Competitors to see shares. Market chain choices change your rivals.",
+  "max": 110,
+  "place": "Guided step, why it matters (second line of the card)"
  },
  {
   "id": "TUT_HEADER",
@@ -4656,6 +4662,54 @@
   "place": "End screen body, win Biotech, good outcome"
  },
  {
+  "id": "END_MIL_BAD_TITLE",
+  "text": "The Full Racks",
+  "max": 40,
+  "place": "End screen heading, win Military, bad outcome"
+ },
+ {
+  "id": "END_MIL_BAD",
+  "text": "More than half of Military runs through you, and the fleets answer. Not to the Commons, and not to you exactly. They answer to the order book, and the order book answers to whoever paid last. The Bureau entered you as supplier of record and asked, very quietly, whether copies of the order forms might reach it first. They cannot. A border post has two flags now and one purchase order. You are never at the front. You only stand where the front is paid for. The racks are full and the cores hum. A great many people are armed, and the Plan has not yet decided what to call it.",
+  "max": 1000,
+  "place": "End screen body, win Military, bad outcome"
+ },
+ {
+  "id": "END_LUX_BAD_TITLE",
+  "text": "The Gilded Cage",
+  "max": 40,
+  "place": "End screen heading, win Luxury, bad outcome"
+ },
+ {
+  "id": "END_LUX_BAD",
+  "text": "More than half of Luxury is yours, and everyone wants what only you hold. Prices climb the way stairs do in a dream. Buyers who once haggled now wait, and the ones who cannot wait send guards. Your vaults are lit gold and built like a cell. The Bureau entered you as supplier of record and asked, politely, how many locks. Velvet Concord's masks hang in its empty halls. You hold everything the sky finds beautiful, and no one left may touch it unwatched. The cut glimmers hum faintly as you pass, the way glass does before it breaks.",
+  "max": 1000,
+  "place": "End screen body, win Luxury, bad outcome"
+ },
+ {
+  "id": "END_MIN_BAD_TITLE",
+  "text": "The Strip",
+  "max": 40,
+  "place": "End screen heading, win Minerals, bad outcome"
+ },
+ {
+  "id": "END_MIN_BAD",
+  "text": "More than half of Minerals comes through you, and the seams are paying for it. Cinderrest and Greywake were cut to the bone, and then to the bone beneath. White dust has reached the lamps of more rocks, and the Bureau lists every one as uninhabited. They are not. The crews work each cut to its rim until it is gone. Ingot, alloy and plate leave in long rows, and the dead worlds spread one cut at a time. Harrow Combine's crews drift off to other rock. The glass in the walls hums once, low, where it stopped being a wall.",
+  "max": 1000,
+  "place": "End screen body, win Minerals, bad outcome"
+ },
+ {
+  "id": "END_BIO_BAD_TITLE",
+  "text": "The Locked Seed",
+  "max": 40,
+  "place": "End screen heading, win Biotech, bad outcome"
+ },
+ {
+  "id": "END_BIO_BAD",
+  "text": "More than half of Biotech is yours, and the seed is locked. Gene seed leaves the culture lab under a seal and a ticket for every batch. The terraces at Tillam and the fields at Ashgate grow what you allow, on terms the Bureau calls reasonable. Nothing is withheld in anger. It is withheld by paperwork, which is quieter. Velvet Concord cannot sell what your wall will not let it copy. The vats are clean and the shelves are full. In the lab, something small and patented turns toward the light.",
+  "max": 1000,
+  "place": "End screen body, win Biotech, bad outcome"
+ },
+ {
   "id": "END_BANKRUPT_TITLE",
   "text": "The Ledger Closes",
   "max": 40,
@@ -5108,186 +5162,6 @@
  {
   "id": "EV20_MISS",
   "text": "The asteroid passed the system and kept going. Nothing was hit and nothing changes. The Bureau withdrew its warning, with regret, and kept the form. You could have been struck right now. Let that decide how you read the next notice.",
-  "max": 280,
-  "place": "popup"
- },
- {
-  "id": "EV29_TITLE",
-  "text": "Dust in the Cinderrest shafts",
-  "max": 32,
-  "place": "choice title"
- },
- {
-  "id": "EV29_BODY",
-  "text": "The first crew to cut Dross Salt on Cinderrest came up coughing. The dust is fine, white and everywhere, and the medic cannot name it. The Bureau lists Cinderrest as uninhabited, so nobody there can be ill. The crew asks whether to go on.",
-  "max": 280,
-  "place": "choice body"
- },
- {
-  "id": "EV29_MINE_BTN",
-  "text": "Keep mining",
-  "max": 28,
-  "place": "button"
- },
- {
-  "id": "EV29_MINE_EFF",
-  "text": "Dross costs more and pays more at Cinderrest for a while. Danger there rises.",
-  "max": 90,
-  "place": "effect line"
- },
- {
-  "id": "EV29_PULL_BTN",
-  "text": "Pull the crew out",
-  "max": 28,
-  "place": "button"
- },
- {
-  "id": "EV29_PULL_EFF",
-  "text": "Cinderrest closes for a while. Routes touching it are blocked. Danger does not rise.",
-  "max": 90,
-  "place": "effect line"
- },
- {
-  "id": "EV29_MINE_TITLE",
-  "text": "The crew keeps cutting",
-  "max": 32,
-  "place": "popup title"
- },
- {
-  "id": "EV29_MINE",
-  "text": "The crew went back down with wet cloth over their faces. Dross at Cinderrest costs more and pays more, since fewer will cut it. The white dust settles on the lamps in even rings. The danger on Cinderrest has risen.",
-  "max": 280,
-  "place": "popup"
- },
- {
-  "id": "EV29_PULL_TITLE",
-  "text": "The crew comes up",
-  "max": 32,
-  "place": "popup title"
- },
- {
-  "id": "EV29_PULL",
-  "text": "You called the crew up. The Bureau filed the withdrawal as a rest. Cinderrest is closed for a while, and routes touching it are blocked. The danger does not grow. Below, the dust keeps settling, as if it could wait.",
-  "max": 280,
-  "place": "popup"
- },
- {
-  "id": "EV32_TITLE",
-  "text": "A wall falls on Greywake",
-  "max": 32,
-  "place": "choice title"
- },
- {
-  "id": "EV32_BODY",
-  "text": "A cut wall on Greywake shifted and the glass sang like a struck bell. Nothing has fallen yet, but the crack is long. Braces cost credits. The Bureau calls it a feature of the geology. The crew wants an answer before the next shift.",
-  "max": 280,
-  "place": "choice body"
- },
- {
-  "id": "EV32_SHORE_BTN",
-  "text": "Shore up the wall",
-  "max": 28,
-  "place": "button"
- },
- {
-  "id": "EV32_SHORE_EFF",
-  "text": "Costs credits now. Nullglass costs more and pays more at Greywake while the cut is slow.",
-  "max": 90,
-  "place": "effect line"
- },
- {
-  "id": "EV32_CARRY_BTN",
-  "text": "Carry on cutting",
-  "max": 28,
-  "place": "button"
- },
- {
-  "id": "EV32_CARRY_EFF",
-  "text": "Nullglass costs less and pays less at Greywake. Some of the load may be lost.",
-  "max": 90,
-  "place": "effect line"
- },
- {
-  "id": "EV32_SHORE_TITLE",
-  "text": "The wall is braced",
-  "max": 32,
-  "place": "popup title"
- },
- {
-  "id": "EV32_SHORE",
-  "text": "The crew set braces in rows and the wall went quiet. The work cost credits. Nullglass at Greywake costs more and pays more while the cut is slow. The glass hummed once, a low note, and then kept still.",
-  "max": 280,
-  "place": "popup"
- },
- {
-  "id": "EV32_CARRY_TITLE",
-  "text": "The cutting goes on",
-  "max": 32,
-  "place": "popup title"
- },
- {
-  "id": "EV32_CARRY",
-  "text": "You told them to cut. The wall held through the shift and nullglass flowed. It costs less and pays less at Greywake with so much on the dock. Some of the load may not survive the climb. The crack grew a little.",
-  "max": 280,
-  "place": "popup"
- },
- {
-  "id": "EV35_TITLE",
-  "text": "A rival eyes the dead worlds",
-  "max": 32,
-  "place": "choice title"
- },
- {
-  "id": "EV35_BODY",
-  "text": "A rival hauler pulls alongside with a message: Cinderrest and Greywake are not safe to cut alone. It offers a shared lane, the take split. Or you can outrun it and cut harder. Its hull has no name painted on it. The dust lies in the lane.",
-  "max": 280,
-  "place": "choice body"
- },
- {
-  "id": "EV35_SHARE_BTN",
-  "text": "Share the lane",
-  "max": 28,
-  "place": "button"
- },
- {
-  "id": "EV35_SHARE_EFF",
-  "text": "Dross costs less and pays less at Cinderrest. Your income from the dead worlds is cut.",
-  "max": 90,
-  "place": "effect line"
- },
- {
-  "id": "EV35_RACE_BTN",
-  "text": "Race the rival",
-  "max": 28,
-  "place": "button"
- },
- {
-  "id": "EV35_RACE_EFF",
-  "text": "Dross costs more and pays more at Cinderrest. Income rises. Danger rises on both worlds.",
-  "max": 90,
-  "place": "effect line"
- },
- {
-  "id": "EV35_SHARE_TITLE",
-  "text": "The lane is shared",
-  "max": 32,
-  "place": "popup title"
- },
- {
-  "id": "EV35_SHARE",
-  "text": "You split the lane. The rival hauler dipped its lights twice and took the far berth. Dross at Cinderrest costs less and pays less with two crews cutting. Your income from the dead worlds is cut. Both hulls ride quieter in company.",
-  "max": 280,
-  "place": "popup"
- },
- {
-  "id": "EV35_RACE_TITLE",
-  "text": "You race the rival",
-  "max": 32,
-  "place": "popup title"
- },
- {
-  "id": "EV35_RACE",
-  "text": "You ran the lane hard. Dross at Cinderrest costs more and pays more while you hold the lead. Income rises, and the danger rises on both dead worlds. The rival's lights fell behind and went out, one by one.",
   "max": 280,
   "place": "popup"
  },

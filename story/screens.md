@@ -6,7 +6,7 @@ Menus, buttons, labels, notices and tutorial lines are plain. Flavour lives in t
 
 ## STORY ARC (10 lines)
 1. Title: a small company in a shared, indifferent sky.
-2. Preface: everything is shared and counted. You want a Release: a planet nobody has counted. It costs credits.
+2. Preface: everything is shared and counted. A company that holds over half of one market is hard to count as shared.
 3. First cycles: three planets, two goods. Read prices, set standing orders.
 4. Early growth: Company storage and the first expansion points. The company looks like a company, which the Commons finds suspicious.
 5. First event: the market moves without asking you.
@@ -24,13 +24,13 @@ A small company in a shared, indifferent sky.
 
 ## Preface (one block, shown before the game starts)
 SCR_PREFACE | 700 | Preface screen
-Everything under this sky is shared. The air, the ducts, the hulls that creak like something asleep, and every credit anyone earns, which goes into the Common Ledger and comes back in portions. The Plan is generous. The Plan is also five cycles long, and then another five.
+Everything under this sky is shared. The air, the ducts, the hulls that creak like something asleep, and every credit anyone earns, which goes into the Common Ledger and comes back in portions. The Plan is generous. It is also five cycles long, and then another five.
 
-There is one form for leaving: a Release. It takes you off the ledger and sells you a planet nobody has counted. It is sold in credits, to fellow hands who have them.
+Four markets: Military, Luxury, Minerals, Biotech. Each has rivals, and the Plan counts every share each cycle. Hold over half of one market and the count stops being a rumour.
 
 So you have a small company, one ship's worth of cash, three planets and two goods. Buy where it is cheap. Sell where it is not. Serving the common good is encouraged. Profit, officially, is a typing error.
 
-The sky will not notice either way.
+What it costs the sky, the sky does not say.
 SCR_PREFACE_BTN | 24 | Preface screen, continue button
 Begin
 SCR_PREFACE_SKIP | 24 | Preface screen, skip button
@@ -96,7 +96,7 @@ Move stock with a route: press Send to... and click the destination planet.
 MB_04 | 110 | Mission board, route done
 First route running. A ship carries stock between the two Company storages.
 MB_05 | 110 | Mission board, later
-Build a second route, or learn a skill. Skills cost skill points.
+Build a second route, or learn a skill. Skills cost skill points. The goal: over half of one market.
 
 ## Tutorial lines (first 4 cycles)
 TUT_C1_PLANET | 110 | Cycle 1, planet highlighted
@@ -118,7 +118,7 @@ Routes are one way. To send stock both ways, make a second route back.
 TUT_C4_SKILLS | 110 | Cycle 4, if a skill point is held
 You have skill points. Open Skills and learn something.
 TUT_C4_FREE | 110 | Cycle 4, end of tutorial
-That is all the guidance there is. The Plan has nothing to add.
+That is the basics. Now take over half of one market. Watch Competitors.
 
 ## Key notices
 NOT_ROUTE_BLOCKED_CLOSED | 110 | Notice, route touches a closed planet
@@ -249,7 +249,8 @@ TUT_G8_SKILLS | 60 | Guided step 8, until a skill is learned | Open Skills and l
 TUT_G8_SKILLS_WHY | 110 | Guided step, why it matters (second line of the card) | Spend an expansion point. Skills unlock bigger storage, longer routes and the permit.
 TUT_G9_PERMIT | 60 | Guided step 9, permits | Learn Permit Charter.
 TUT_G9_PERMIT_WHY | 110 | Guided step, why it matters (second line of the card) | It lets you open a new system, and a new system has more planets to trade with.
-TUT_G10_DONE | 60 | Guided step 10, the last | The tutorial is done. The rest is yours.
+TUT_G10_DONE | 60 | Guided step 10, the last | Goal: hold over half of one market.
+TUT_G10_DONE_WHY | 110 | Guided step, why it matters (second line of the card) | Open Competitors to see shares. Market chain choices change your rivals.
 TUT_HEADER | 24 | Header of the guided tutorial card | Tutorial
 TUT_STEP_COUNT | 24 | Tutorial card, step counter; {n} is the step, {total} the number of steps | {n} of {total}
 

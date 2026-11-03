@@ -40,7 +40,7 @@ The player is "you" or "the company". Never a gender, never a name.
 - Labels: Sentence case, no colon in the text (the UI adds it): Buy price, Sell price, Company storage, Ship upkeep, Expenses.
 - Notices and tutorial lines: sentence case, end with a full stop.
 - Planet names, ship names and the game name are capitalised. Market and foundation names are capitalised: Military, Luxury, Minerals, Biotech, Foundations. Commodities are lower case: energy, food.
-- Story terms the Commons, the Plan, the Bureau, the Common Ledger, the Release: capitalised as shown (the Plan, the Bureau, the Commons). "five-cycle plan" is lower case.
+- Story terms the Commons, the Plan, the Bureau, the Common Ledger: capitalised as shown (the Plan, the Bureau, the Commons). "five-cycle plan" is lower case.
 - Dash: use a comma or full stop, not a long dash.
 - Placeholders: {planet}, {planet_a}, {planet_b}, {commodity}, {amount}, {skill}, {cash}, {arrow}, {cycles}, {n}, {m}, {total}, {cycle}, {cap} (credit cap of the Mixed load bonus, LBL_MIXED_LOAD, with {n} as the applied percent), {in} (units arriving next cycle), {out} (units leaving next cycle), {after} (stock after next cycle, LBL_NEXT_CYCLE). The game fills them.
 
@@ -74,7 +74,7 @@ The player is "you" or "the company". Never a gender, never a name.
 - The Plan: the Commons' schedule, in five-cycle plans. Story only. It sets no quota in the game.
 - The Bureau: the polite, slow office that keeps forms and the Common Ledger.
 - Common Ledger: the Commons' record of who has what. Different from the player's cash.
-- Release: the form that takes a person off the ledger and sells them an uncounted planet. Story texts and the preface only; no mechanic and no UI label.
+- Release: retired term (old cash goal). Not used in any text.
 - Fellow hand: how people in the Commons address each other. Replaces any "comrade" wording.
 - Common good: stock phrase, used with a straight face and a raised eyebrow.
 

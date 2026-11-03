@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-11-03",
+  "task": "bad-endings-tutorial",
+  "status": "done",
+  "files_changed": ["story/endings.md", "story/screens.md", "story/game-flow.md", "story/voice.md", "data/story_text.json (built via tools/build_story.py)"],
+  "open_questions": [
+    "TUT_FALLBACK in game/main.gd still has the old TUT_G10_DONE and TUT_G8_SKILLS_WHY-era wording; the JSON text wins, fallback may be updated.",
+    "TUT_G8_SKILLS_WHY still says skills unlock the permit, fine; no market mention added there."
+  ],
+  "handoff": "Done: END_MIL/LUX/MIN/BIO_BAD and _TITLE added (design pack text, trimmed, no names of choices, no placeholders; distinct from GOOD twins and loss endings). Note about later BAD variants removed. Preface rewritten (704 -> under 700) to teach the market goal with no Release; MB_05, TUT_C4_FREE, TUT_G10_DONE (goal line) rewritten; new id TUT_G10_DONE_WHY (read automatically by main.gd via TUT_GUIDE[step]+_WHY, no code needed). LBL_GOAL_MARKETS unchanged. game-flow.md cash-goal line and voice.md Release term updated. Built with build_story.py (897 entries, skipped 0); headless tests pass=1165 fail=0. Nothing committed. Events EV29-EV37 untouched."
+}

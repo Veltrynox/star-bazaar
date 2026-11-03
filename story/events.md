@@ -273,90 +273,9 @@ BE03B | popup | The family did nothing, which was its answer. Its buyers stayed 
 BE03C_TITLE | popup title | The audit ends, parts are short
 BE03C | popup | The audit ended and Ashgate's port is open. The family's contracts were frozen and the repair shops cannot get spares. Logic cores at Ashgate cost more and pay more for a while. The Bureau stamped the file closed. The family kept its copy.
 
-# Events, dead worlds: Cinderrest and Greywake (draft 1, 2026-11-02)
+# Events, dead worlds: retired (2026-11-03)
 
-Source: design/proposals/2026-11-02-dead-planets.md, section 5. Three pairs. Part 1 is a choice event (EV29, EV32, EV35, same id scheme as EV17 to EV20, title max 32 here, body 280, button 28, effect line 90). Part 2 is a plain event per choice (EV30, EV31, EV33, EV34, EV36, EV37), shown as a popup under NOT_EVENT_PREFIX with BTN_OK. Part 2 fires 4 cycles after the choice. Part 2 events must have random: false (R1). No numbers: amounts come from balance.
-Dead worlds open at cycle 15 (balance key), so Part 1 events cannot fire before then. No text below names a cycle or implies an earlier opening.
-Names Cinderrest, Greywake, Dross Salt (running text: dross) and Nullglass (running text: nullglass) are working names, see voice.md.
-Effects named only in words below that the parser does not read today (danger, credit cost, load loss, income cut) are requests in the handoff, not tags.
-
-| Part 1 | Choice | Immediate tag | Also needs (request) | Part 2 |
-|---|---|---|---|---|
-| EV29 Cinderrest | Keep mining | [price up: Cinderrest, dross] | danger +1 | EV30 |
-| EV29 Cinderrest | Pull the crew out | [planet closed: Cinderrest] | none (closure is the tag) | EV31 |
-| EV32 Greywake | Shore up the wall | [price up: Greywake, nullglass] | credit cost | EV33 |
-| EV32 Greywake | Carry on cutting | [price down: Greywake, nullglass] | chance of load loss | EV34 |
-| EV35 both | Share the lane | [price down: Cinderrest, dross] | income from dead worlds cut | EV36 |
-| EV35 both | Race the rival | [price up: Cinderrest, dross] | income up, danger up | EV37 |
-
-| Part 2 | Follows | Tag |
-|---|---|---|
-| EV30 | EV29 Keep mining | [planet closed: Cinderrest] |
-| EV31 | EV29 Pull out | [price down: Cinderrest, dross] |
-| EV33 | EV32 Shore up | [price down: Greywake, nullglass] |
-| EV34 | EV32 Carry on | [planet closed: Greywake] |
-| EV36 | EV35 Share | [price up: Greywake, nullglass] |
-| EV37 | EV35 Race | [price down: Cinderrest, dross] |
-
-## Pair A: Cinderrest [fires when a route first mines Cinderrest]
-EV29_TITLE | choice title | Dust in the Cinderrest shafts
-EV29_BODY | choice body | The first crew to cut Dross Salt on Cinderrest came up coughing. The dust is fine, white and everywhere, and the medic cannot name it. The Bureau lists Cinderrest as uninhabited, so nobody there can be ill. The crew asks whether to go on.
-EV29_MINE_BTN | button | Keep mining
-EV29_MINE_EFF | effect line | Dross costs more and pays more at Cinderrest for a while. Danger there rises.
-EV29_PULL_BTN | button | Pull the crew out
-EV29_PULL_EFF | effect line | Cinderrest closes for a while. Routes touching it are blocked. Danger does not rise.
-EV29_MINE_TITLE | popup title | The crew keeps cutting
-EV29_MINE | popup | The crew went back down with wet cloth over their faces. Dross at Cinderrest costs more and pays more, since fewer will cut it. The white dust settles on the lamps in even rings. The danger on Cinderrest has risen.
-EV29_PULL_TITLE | popup title | The crew comes up
-EV29_PULL | popup | You called the crew up. The Bureau filed the withdrawal as a rest. Cinderrest is closed for a while, and routes touching it are blocked. The danger does not grow. Below, the dust keeps settling, as if it could wait.
-
-### follow-up of EV29_MINE, 4 cycles later
-EV30 | The cough reaches the ships | [planet closed: Cinderrest] | I
-The cough rode up with the salt. A crew lies in the infirmary and the port doctor has shut Cinderrest's docks. Routes touching Cinderrest are blocked for a while. The medic reports that the dust is not hostile. It is only patient.
-
-### follow-up of EV29_PULL, 4 cycles later
-EV31 | Cinderrest is quiet | [price down: Cinderrest, dross] | Q
-The crew rested and the cough faded. Salt cut before the pause now floods the dock, so dross at Cinderrest costs less and pays less. The shaft stayed still. The lamps were left lit below, and the dust has not touched them.
-
-## Pair B: Greywake [fires when a route first mines Greywake]
-EV32_TITLE | choice title | A wall falls on Greywake
-EV32_BODY | choice body | A cut wall on Greywake shifted and the glass sang like a struck bell. Nothing has fallen yet, but the crack is long. Braces cost credits. The Bureau calls it a feature of the geology. The crew wants an answer before the next shift.
-EV32_SHORE_BTN | button | Shore up the wall
-EV32_SHORE_EFF | effect line | Costs credits now. Nullglass costs more and pays more at Greywake while the cut is slow.
-EV32_CARRY_BTN | button | Carry on cutting
-EV32_CARRY_EFF | effect line | Nullglass costs less and pays less at Greywake. Some of the load may be lost.
-EV32_SHORE_TITLE | popup title | The wall is braced
-EV32_SHORE | popup | The crew set braces in rows and the wall went quiet. The work cost credits. Nullglass at Greywake costs more and pays more while the cut is slow. The glass hummed once, a low note, and then kept still.
-EV32_CARRY_TITLE | popup title | The cutting goes on
-EV32_CARRY | popup | You told them to cut. The wall held through the shift and nullglass flowed. It costs less and pays less at Greywake with so much on the dock. Some of the load may not survive the climb. The crack grew a little.
-
-### follow-up of EV32_SHORE, 4 cycles later
-EV33 | The wall holds | [price down: Greywake, nullglass] | Q
-The braces held and the crew cut clean. Nullglass keeps coming up whole, so it costs less and pays less at Greywake for a while. The Bureau claims the wall as its own work. The glass shows the crew their own faces, a little late.
-
-### follow-up of EV32_CARRY, 4 cycles later
-EV34 | The wall comes down | [planet closed: Greywake] | I
-The cracked wall gave way in the night. Nobody was under it, but the shaft is sealed. Greywake is closed for a while, and routes touching it are blocked. The fall made no sound, say the crew. They felt it in their teeth.
-
-## Pair C: both dead worlds [fires when both Cinderrest and Greywake have been mined]
-EV35_TITLE | choice title | A rival eyes the dead worlds
-EV35_BODY | choice body | A rival hauler pulls alongside with a message: Cinderrest and Greywake are not safe to cut alone. It offers a shared lane, the take split. Or you can outrun it and cut harder. Its hull has no name painted on it. The dust lies in the lane.
-EV35_SHARE_BTN | button | Share the lane
-EV35_SHARE_EFF | effect line | Dross costs less and pays less at Cinderrest. Your income from the dead worlds is cut.
-EV35_RACE_BTN | button | Race the rival
-EV35_RACE_EFF | effect line | Dross costs more and pays more at Cinderrest. Income rises. Danger rises on both worlds.
-EV35_SHARE_TITLE | popup title | The lane is shared
-EV35_SHARE | popup | You split the lane. The rival hauler dipped its lights twice and took the far berth. Dross at Cinderrest costs less and pays less with two crews cutting. Your income from the dead worlds is cut. Both hulls ride quieter in company.
-EV35_RACE_TITLE | popup title | You race the rival
-EV35_RACE | popup | You ran the lane hard. Dross at Cinderrest costs more and pays more while you hold the lead. Income rises, and the danger rises on both dead worlds. The rival's lights fell behind and went out, one by one.
-
-### follow-up of EV35_SHARE, 4 cycles later
-EV36 | The rival keeps its word | [price up: Greywake, nullglass] | Q
-The rival kept to its lane and sent a chart of Greywake's safe cuts. Nullglass at Greywake costs more and pays more as the shared crews buy. Nobody signed anything. The chart's margins hold small marks, in a hand that is not quite a hand.
-
-### follow-up of EV35_RACE, 4 cycles later
-EV37 | The rival cuts you off | [price down: Cinderrest, dross] | I
-The rival did not forgive the race. Its crews flooded Cinderrest with cheap salt, and dross there costs less and pays less. Your ships still dock, and nobody looks at them. In the dust the rival's lamps move in a line, all together.
+The old Minerals events EV29 to EV37 (three dead-world choice events and six follow-ups) are retired. Minerals chain A (MIN_A1 to MIN_A3) replaced them. Their text, banners and data entries are removed; ids EV29 to EV37 are not reused. See data/chains.json pool_retired.
 
 # Events, shared pool EV40 to EV51 (added 2026-11-03)
 

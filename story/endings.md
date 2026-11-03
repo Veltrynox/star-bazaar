@@ -1,9 +1,9 @@
-# Endings (Four Markets, placeholder pass 2026-11-03)
+# Endings (Four Markets, 2026-11-03)
 
 The run ends with exactly one ending. The old Release/Corporation endings, the choice screen and the cash goal are retired. The end screen (game/end_screen.gd) reads the title from <id>_TITLE and the body from <id>. It shows no counts, labels, direction or record of choices; the readout of shares is drawn by the game.
 Texts carry no placeholders: the game passes none to the ending body. The strongest rival and best market are shown by the game's own stat line and readout.
-Selection (programmer notes, never shown): win in market M gives END_<MKT>_GOOD (the BAD variants come in a later goal, until then every win is GOOD); no ship left and cash still negative gives END_BANKRUPT; the player under a tenth of every market for the sweep window gives END_SWEPT; the window closing with no market held gives END_OUTCOMPETED.
-Texts are placeholder quality: in voice, to be finalised with the BAD variants.
+Selection (programmer notes, never shown): win in market M gives END_<MKT>_GOOD (GOOD or BAD by the hidden chain direction of that market; nothing of it is shown); no ship left and cash still negative gives END_BANKRUPT; the player under a tenth of every market for the sweep window gives END_SWEPT; the window closing with no market held gives END_OUTCOMPETED.
+The BAD texts describe what the world shows after the same win. They never say the player chose anything and never judge the player.
 
 ## Market endings, good (max 1000; titles max 40)
 
@@ -30,6 +30,32 @@ The Long Harvest
 
 END_BIO_GOOD | 1000 | End screen body, win Biotech, good outcome
 More than half of Biotech passes through you, and it goes out the door. Bio-gel and gene seed reached the terraces at Tillam, the fields at Ashgate and clinics nobody had thought to supply. A cure went out on plain paper, with no licence number, and was copied by hand in rooms the Bureau never saw. Velvet Concord still sells the fine strains to those who can pay. The Plan took the credit, which is its way. In the culture lab the vats hum at the pace of something with all the time it needs.
+
+## Market endings, bad (max 1000; titles max 40)
+
+END_MIL_BAD_TITLE | 40 | End screen heading, win Military, bad outcome
+The Full Racks
+
+END_MIL_BAD | 1000 | End screen body, win Military, bad outcome
+More than half of Military runs through you, and the fleets answer. Not to the Commons, and not to you exactly. They answer to the order book, and the order book answers to whoever paid last. The Bureau entered you as supplier of record and asked, very quietly, whether copies of the order forms might reach it first. They cannot. A border post has two flags now and one purchase order. You are never at the front. You only stand where the front is paid for. The racks are full and the cores hum. A great many people are armed, and the Plan has not yet decided what to call it.
+
+END_LUX_BAD_TITLE | 40 | End screen heading, win Luxury, bad outcome
+The Gilded Cage
+
+END_LUX_BAD | 1000 | End screen body, win Luxury, bad outcome
+More than half of Luxury is yours, and everyone wants what only you hold. Prices climb the way stairs do in a dream. Buyers who once haggled now wait, and the ones who cannot wait send guards. Your vaults are lit gold and built like a cell. The Bureau entered you as supplier of record and asked, politely, how many locks. Velvet Concord's masks hang in its empty halls. You hold everything the sky finds beautiful, and no one left may touch it unwatched. The cut glimmers hum faintly as you pass, the way glass does before it breaks.
+
+END_MIN_BAD_TITLE | 40 | End screen heading, win Minerals, bad outcome
+The Strip
+
+END_MIN_BAD | 1000 | End screen body, win Minerals, bad outcome
+More than half of Minerals comes through you, and the seams are paying for it. Cinderrest and Greywake were cut to the bone, and then to the bone beneath. White dust has reached the lamps of more rocks, and the Bureau lists every one as uninhabited. They are not. The crews work each cut to its rim until it is gone. Ingot, alloy and plate leave in long rows, and the dead worlds spread one cut at a time. Harrow Combine's crews drift off to other rock. The glass in the walls hums once, low, where it stopped being a wall.
+
+END_BIO_BAD_TITLE | 40 | End screen heading, win Biotech, bad outcome
+The Locked Seed
+
+END_BIO_BAD | 1000 | End screen body, win Biotech, bad outcome
+More than half of Biotech is yours, and the seed is locked. Gene seed leaves the culture lab under a seal and a ticket for every batch. The terraces at Tillam and the fields at Ashgate grow what you allow, on terms the Bureau calls reasonable. Nothing is withheld in anger. It is withheld by paperwork, which is quieter. Velvet Concord cannot sell what your wall will not let it copy. The vats are clean and the shelves are full. In the lab, something small and patented turns toward the light.
 
 ## Loss and soft endings
 
