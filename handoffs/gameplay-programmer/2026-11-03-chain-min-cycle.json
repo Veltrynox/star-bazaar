@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-03",
+  "task": "chain-min-cycle",
+  "status": "done",
+  "files_changed": ["game/chains.gd", "data/balance.json", "tools/tests/run_tests.gd"],
+  "open_questions": [
+    "Economy designer: chain_min_cycle 6 is a placeholder; 5-7 is the sensible range. Final value yours (balance v42)."
+  ],
+  "handoff": "Reproduced headless: with a player share of 100 pct in mil at cycle 2 (rival volume tiny), MIL_B1 was eligible at cycles 2-6; with the gate only cycle 6 passes. Fix: Chains.eligible returns false when cycle < chain_min_cycle (balance key, 6, data_version 42), for every step. Pool events: events.due is cycle 5, 9, 13 (event_interval 4, cycle > 1); no event in data/events.json has min_cycle, so a random pool event CAN fire at cycle 5 (first one), not 2-4. Unchanged, not the same bug (the 4-cycle interval). qa/bots: bot_run.gd only handles chain steps by policy when they appear; no assumption of early firing found. Tests: new chain_min_cycle checks in _test_competitors area; TOTAL pass=1213+ fail=0. Chain steps that used to fire before cycle 6 now wait; chain gaps may shift later steps (B2+) by a few cycles. No commit.",
+  "details": {
+    "playable": "No chain event can appear before cycle 6; the player gets the tutorial and first routes first.",
+    "how_to_try": "Start a new game, play cycles 2-5: no chain event card. From cycle 6 a ready chain step (e.g. MIL_B1) can appear."
+  }
+}

@@ -162,10 +162,10 @@ static func trigger_ok(step_id: String, cycle: int) -> bool:
 	return _tree(step_by_id.get(step_id, {}).get("trigger", {}), step_by_id.get(step_id, {}), cycle)
 
 ## True when the step may fire this cycle: not fired, previous step fired (when required), min gap since the last step of the
-## market, trigger true. Cycle 1 never fires (the tutorial runs first).
+## market, trigger true. Cycle 1 never fires (the tutorial runs first), and no step fires before balance chain_min_cycle.
 static func eligible(step_id: String, cycle: int) -> bool:
 	_ensure()
-	if not step_by_id.has(step_id) or fired(step_id) or cycle <= 1:
+	if not step_by_id.has(step_id) or fired(step_id) or cycle <= 1 or cycle < int(_num("chain_min_cycle", 6.0)):
 		return false
 	var s: Dictionary = step_by_id[step_id]
 	if bool(s.get("requires_prev_step", false)) and not fired(prev_id(step_id)):

@@ -215,7 +215,24 @@ func _test_share_graph() -> void:
 	check(ll.size() > 0 and str(ll[0]).begins_with("Cycle 6:"), "competitors log: entry after Chains.apply_option", str(ll))
 	check(StoryText.has_text("LBL_COMP_NONE") and StoryText.has_text("LBL_COMP_EVENTS") and StoryText.has_text("LBL_COMP_CYCLE"), "story: competitors log ids present")
 	cp.free()
+	# chain_min_cycle: no step is eligible before it, even with a share trigger already true
+	Chains.reset(bal_c, 3)
+	var mc := int(bal_c.get("chain_min_cycle", 6))
+	check(mc >= 5 and mc <= 7, "chain_min_cycle: key present, 5-7", str(mc))
+	Markets.vp["mil"] = [0.0, 500.0]  # share far above 30 pct at cycle 2 (the owner-reported case)
+	Markets.vb["mil"] = []
+	check(Chains.trigger_ok("MIL_B1", 2), "chain_min_cycle: the share trigger alone is true at cycle 2")
+	var early_ok := false
+	for sid in Chains.step_ids():
+		for cy in range(1, mc):
+			if Chains.eligible(str(sid), cy):
+				early_ok = true
+	Chains.picks.clear()
+	check(Chains.eligible("MIL_B1", mc), "chain_min_cycle: MIL_B1 eligible at the gate cycle")
+	check(not early_ok, "chain_min_cycle: no chain step eligible before the gate")
+	check(not Chains.eligible("MIL_B1", mc - 1), "chain_min_cycle: MIL_B1 blocked at cycle min-1")
 	Chains.reset(bal_c, 0)
+	Markets.reset(bal_c, 0)
 	Markets.reset(bal_c, 0)
 
 func _test_story_text() -> void:
