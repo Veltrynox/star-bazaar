@@ -28,14 +28,20 @@ These are my defaults so the pack is consistent. Each is listed again as an open
 | R3 | `END_SWEPT` as written in core can never fire (no bot reaches 50% in all four) | Economy fix: swept = player share under 10% in all four markets for 3 cycles from cycle 25. |
 | R4 | `END_BANKRUPT` can never fire (ships are never lost) | Economy fix: repossess the newest ship while cash is negative and credit `salvage_share` x ship price; bankruptcy when no ship is left and cash stays negative. |
 | R5 | Energy (Military) and food (Biotech) sell from cycle 1, so two markets count as active and MIL_A1 / BIO_A1 fire at cycle 5 for everyone | Common raws (energy, food, ore) do not count toward the 5% active-market rule or toward chain triggers. |
-| R6 | "Variant chosen by the last choice" is ambiguous | Per chain: the previous step in the same chain. B1 has one body. |
-| R7 | Tie on the marked bot is undefined | Lower bot number wins the tie. |
-| R8 | Tier cut text "drops a tier" on a bot already at tier 1; MIL_A2 Open has no effect | Texts must say nothing happens to a bot at tier 1; MIL_A2 Open gets a small growth cut so R-BOT holds. |
+| R6 | "Variant chosen by the last choice" is ambiguous | Per chain, keyed to the option id picked in the previous step of the same chain. B1 has one body. |
+| R7 | Which bot is "marked" and ties | The bot with the biggest cut from the last option chosen; boosts never count, a tier cut counts as medium; a tie goes to the lower bot number. |
+| R8 | Tier cut wording on a bot already at the lowest tier | The game fills {cut} and {cut_std} with tier wording, or "loses strength clearly" at the lowest tier. Tier epilogue fires only if a tier really dropped. |
 | R9 | Shared pool says 25 kept, ids listed give 24; EV19, BE01 to BE03 not named | Keep EV19 and BE01 to BE03 in the pool as fire-once. Pool = 25 kept (EV18 retired) + 12 new. |
 | R10 | Names: Dunmere Syndicate vs Dunmere Reach, Lattice Alloy vs Lattice Plate | Ostrel Syndicate, Seam Alloy (story doc). |
-| R11 | End screen showing Open/Hard counts reveals a hidden record | Do not show the counts. |
+| R11 | End screen must not reveal the hidden record | No counts, labels or direction on the end screen. `END_STAT_RECORD` is removed. |
 | R12 | Win rate is knife-edge (+-8% bot strength flips 100% to 0%) | Add one global `bot_scale` key so QA can tune; target focused win rate 56 to 98% as measured on the paper model, to be re-checked on the real game. |
+| R12b | Bot strength scale | `bot_scale` = 0.85 in the sim, `bot_2_lux_strength` 1700 to 1900. |
 | R13 | Price skills (MIL_4, LUX_1, LUX_6) change credits only because share uses base prices | Stay cash perks (owner may choose a small share effect, see Q4). |
+| R14 | Open/Hard stance replaced (owner change, Q3) | Two neutral in-fiction options per step (`opt_a`, `opt_b`, shown in shuffled order); each gives the player something, costs something and changes at least one bot stat. Hidden `dir_<mkt>` (-100 to +100, one value per market, both chains feed it). Nudges grow late (B4 24 to 26). Echo x1.25 when the previous step in the chain pushed the same way; late swing x1.5 against the lean at B3/B4 when abs(dir) is 40 or more. Good ending at dir 10 or more, bad at -10 or less, between decided by the sign of the last nudge. No step fired = good. |
+| R15 | Core 4.3 cell values vs economy | Economy section 8 wins (24 small retunes so no step's two options differ by more than ~10 win-rate points). |
+| R16 | Effect line limit | 200 characters (was 90), format "Get / Cost / Rivals". |
+| R17 | `EPI_NARROW` epilogue when the win market was decided by the tiebreak | Added by story; owner may remove (Q4 below). |
+| R18 | Story placeholders | New: {cash_in}, {cash_out}, {n}, {cut}, {cut_std}; `{player_effect}` retired. |
 
 Known gap, handled in the later goals: the preface, goal line, tutorial, mission board lines and the whole Release/Corporation ending set are out of date for the new goal. They are a rewrite task in the endings goal (Goal 6), not in this pack.
 
@@ -47,17 +53,22 @@ Known gap, handled in the later goals: the preface, goal line, tutorial, mission
 ## Owner answers (2026-11-03)
 1. 40 cycles: approved.
 2. Old saves dropped, EV18 retired: approved.
-3. CHANGE REQUESTED: choices must not be labelled or framed as obviously good or bad, and no single choice should clearly push one way; the CHAIN of choices should push the player toward an ending direction. Open/Hard labels and +1/-1 stance per step are to be redesigned (Goal 1 rerun).
+3. Choices must not be framed as good or bad; the chain decides the direction: IMPLEMENTED as R14 in this revision. Owner to confirm the result reads right.
 4. Price skills get NO share effect (cash perks only): decided.
 5. Swept (player under 10% everywhere) and bankrupt (ship repossession): approved.
 6. Global `bot_scale` key and the 56 to 98% focused win rate: approved.
 7. Names (bots, goods, endings): undecided, to be judged in play. Names stay as in the story doc until then.
 
-## Original open questions
-1. Run length: 40 cycles OK (was 30)?
-2. Old saves are dropped (new save version) and the shield event EV18 is retired. OK?
-3. Ending quality depends only on the Open vs Hard stance of the winning market's chains. Tie counts as good. OK? Is the soft `END_OUTCOMPETED` (no market over 50% at cycle 40) an acceptable non-win?
-4. Should price skills also give a small share effect, or stay cash perks?
-5. Approve R3 (swept = player under 10% everywhere) and R4 (ship repossession) as the way the two loss endings can happen?
-6. Approve the global `bot_scale` key and a 56 to 98% focused win rate?
-7. Bot names (3), good names and ending names are settled in the story doc. Any you want changed before they spread into texts?
+## Open questions for the owner (after the revision)
+1. Late cash is worth almost nothing: a focused player has about 12k unspent after cycle 16, so cash and upkeep trade-offs at B3/B4 barely bite. Economy balanced it by retuning bot sizes. Alternative: a late cash sink (upgrade cost 900 to 1500). Which?
+2. Tier -1 cuts on bots fire before the bot's first tier-up (cycles 11 to 14), so they act as strength cuts. A persistent tier offset fixes it and makes those options about 5 points stronger. Apply?
+3. A 85/15 spread still wins 4.6% of runs. Leave it, or raise `market_active_pct` to 0.15?
+4. Keep `EPI_NARROW`? A sharp player may infer the last choice mattered.
+5. Effect lines show credits and tech units as numbers but volume, price and upkeep as size words. Make all numbers (line limit about 230)?
+6. Boosted bots show as "strength up" in the Standings. A player may read that as a mistake in hindsight. Intended?
+7. Button order is shuffled per run so a position never means anything. Acceptable for the UI build?
+8. Win medians land at cycle 26 to 28 (core said 28 to 36). Moving them later needs `bot_scale` near 0.88, which drops some path win rates below 56%. Accept 26 to 28?
+9. Between -9 and +9 the last nudge decides the ending. OK, or use a coin of the run seed?
+10. A strong lean turned late by the last two steps is not detected by the epilogues. Needs the game to expose the sign of `dir` before B3. Skip?
+11. Is "contract" colder than "garrison" in MIL_B4? Playtest before the other three chains are written?
+12. Names stay as in the story doc until you judge them in play.
