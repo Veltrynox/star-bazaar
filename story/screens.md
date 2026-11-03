@@ -328,3 +328,31 @@ ST_CLUSTER_SHARED | 60 | Route panel, status when another ship took the cycle's 
 LBL_LEGEND_SILK | 24 | Route legend, silk line | Starsilk route
 LBL_LEGEND_CHIPS | 24 | Route legend, chips line | Logic Cores route
 LBL_LEGEND_ORE | 24 | Route legend, ore line | Rock Ore route
+
+## Dead worlds: unlock, goods, Null Core (added 2026-11-03; names are working names, owner decides)
+DEAD_UNLOCK | 110 | Notice, posted when the dead worlds open | Dead worlds are open. Cinderrest needs Cold Survey (M1), Greywake needs Deep Cut (M2).
+PLANET_DEAD_LOCKED | 60 | Planet panel, dead world before it opens; {n} is the cycle | Opens at cycle {n}.
+NOT_DEAD_NEEDS_SKILL | 110 | Notice, route from a dead world without its skill; {skill} is the skill name | Mining here needs {skill}.
+GOOD_DROSS_NAME | 24 | Commodity name, dross | Dross Salt
+GOOD_DROSS_DESC | 110 | Commodity tooltip, dross | Grey salt cut on Cinderrest. Sold at the trading post, and fed to the fabric.
+GOOD_NULLGLASS_NAME | 24 | Commodity name, nullglass | Nullglass
+GOOD_NULLGLASS_DESC | 110 | Commodity tooltip, nullglass | Dark glass cut on Greywake. Sold at the trading post, and fed to the fabric.
+GOOD_PLATE_NAME | 24 | Commodity name, plate | Lattice Plate
+GOOD_PLATE_DESC | 110 | Commodity tooltip, plate | Pressed at the fabric from dross and nullglass. Needed for a Null Core.
+NULL_CORE_BUILD_TITLE | 32 | Popup title, first Null Core built (one per run) | The core is built
+NULL_CORE_BUILD | 280 | Popup text, first Null Core built (one per run) | The Null Core sat in its cradle and gave off no heat at all. Fitted, it makes one hull quiet in a way hulls are not. Nobody can say what it listens to. The Bureau has filed it under spare parts.
+NULL_CORE_FIT | 110 | Ships window, label or tooltip of the fitted ship | Null Core fitted. Lower Trip cost, and pirates cannot touch this ship.
+
+
+## Null Core buttons and labels (added 2026-11-03)
+BTN_FIT_NULL_CORE | 24 | Ships window, fit button on a route; {n} is the route or ship number | Fit Null Core, ship {n}
+LBL_NULL_CORE | 24 | Ships window, label of the fitted ship | Null Core
+LBL_NULL_CORE_BUILT | 24 | Space Storage window, state once the core exists | Null Core built
+SS_NULL_CORE_BUILD | 32 | Space Storage window, build button; {cost} is the credit cost (over the 24 limit of voice.md, flagged to the owner) | Build Null Core: {cost} credits
+
+## Lane and fabric notices (added 2026-11-03)
+LBL_TRADE_NEEDS_A1 | 60 | Stalled system 2 lane when Space Storage (A1) is not learned | Learn Space Storage (A1) first.
+SS_FABRIC_NO_INPUTS | 110 | Space Storage panel, fabric lacks inputs; {items} lists the missing goods | Missing inputs: {items}. Send them here from a dead world.
+
+## Ship purchase refusal (added 2026-11-03)
+NOT_SHIP_KEEP_CASH | 110 | Ships panel and Buy ship tooltip, purchase refused to keep cash for open routes; {floor} is the cash that must stay | Not enough spare cash. Keep {floor} credits to run your routes.

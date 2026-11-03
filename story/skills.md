@@ -53,6 +53,17 @@ C4 | Colonial Rights
 Flavour: The second door is always cheaper than the first, and filed in fewer copies.
 Plain: Permits cost 20% fewer credits. Needs Survey Beacon (C2).
 
+## Research, dead worlds (added 2026-11-03; M and F ids use the standard id format, they sit in Research after B1)
+SK_M1_NAME | 24 | Skill screen, node name | Cold Survey
+SK_M1_FLAVOUR | 90 | Skill screen, detail panel | A rock no one lives on still has a ledger line. Someone must go and read it.
+SK_M1_PLAIN | 110 | Skill screen, detail panel | Lets routes start at Cinderrest and mine dross there. Needs Prospecting (B1). Dead worlds open later.
+SK_M2_NAME | 24 | Skill screen, node name | Deep Cut
+SK_M2_FLAVOUR | 90 | Skill screen, detail panel | Under the dust lies glass that hums. The Bureau has no form for it yet.
+SK_M2_PLAIN | 110 | Skill screen, detail panel | Lets routes start at Greywake and mine nullglass there. Needs Cold Survey (M1).
+SK_F1_NAME | 24 | Skill screen, node name | Fabrication Licence
+SK_F1_FLAVOUR | 90 | Skill screen, detail panel | A licence to make one good plate from two bad rocks. Stamped in triplicate, as ever.
+SK_F1_PLAIN | 110 | Skill screen, detail panel | Unlocks the fabric: dross and nullglass make plate. Plate and nullglass make a Null Core. Needs M1 and M2.
+
 ## Screen strings
 SK_HEADER | 24 | Skill screen title | Skills
 SK_BRANCH_A | 24 | Column header | Logistics

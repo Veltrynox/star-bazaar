@@ -79,3 +79,6 @@ The player is "you" or "the company". Never a gender, never a name.
 - Fellow hand: how people in the Commons address each other. Replaces any "comrade" wording.
 - Corporation: the form of the company that stays on the Common Ledger after the cash goal (choice screen and corporate endings). Lower case in the button ("Stay as a corporation"), a plain noun in story text. Story only, never a mechanic.
 - Common good: stock phrase, used with a straight face and a raised eyebrow.
+
+- Dead worlds open late (2026-11-03): they unlock at cycle 15 (a balance value, never written in running text; the game fills {n}). Before that the planet panel says it is closed until then. Mining Cinderrest needs Cold Survey (M1), mining Greywake needs Deep Cut (M2), both in Research after Prospecting (B1). Fabrication Licence (F1) unlocks the fabric.
+- Fabric: the machine at the trading post that turns dross and nullglass into Lattice Plate (id plate, working name; running text: plate). Null Core: an item built once from plate and nullglass, fitted to one ship. Plate and Null Core are working names, owner decides. Fitted ship: the ship that carries the Null Core. Added 2026-11-03.

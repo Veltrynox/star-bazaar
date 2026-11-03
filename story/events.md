@@ -221,6 +221,7 @@ BE03C | popup | The audit ended and Ashgate's port is open. The family's contrac
 # Events, dead worlds: Cinderrest and Greywake (draft 1, 2026-11-02)
 
 Source: design/proposals/2026-11-02-dead-planets.md, section 5. Three pairs. Part 1 is a choice event (EV29, EV32, EV35, same id scheme as EV17 to EV20, title max 32 here, body 280, button 28, effect line 90). Part 2 is a plain event per choice (EV30, EV31, EV33, EV34, EV36, EV37), shown as a popup under NOT_EVENT_PREFIX with BTN_OK. Part 2 fires 4 cycles after the choice. Part 2 events must have random: false (R1). No numbers: amounts come from balance.
+Dead worlds open at cycle 15 (balance key), so Part 1 events cannot fire before then. No text below names a cycle or implies an earlier opening.
 Names Cinderrest, Greywake, Dross Salt (running text: dross) and Nullglass (running text: nullglass) are working names, see voice.md.
 Effects named only in words below that the parser does not read today (danger, credit cost, load loss, income cut) are requests in the handoff, not tags.
 
@@ -288,11 +289,11 @@ EV35_BODY | choice body | A rival hauler pulls alongside with a message: Cinderr
 EV35_SHARE_BTN | button | Share the lane
 EV35_SHARE_EFF | effect line | Dross costs less and pays less at Cinderrest. Your income from the dead worlds is cut.
 EV35_RACE_BTN | button | Race the rival
-EV35_RACE_EFF | effect line | Dross costs more and pays more at Cinderrest. Income rises, and so does danger.
+EV35_RACE_EFF | effect line | Dross costs more and pays more at Cinderrest. Income rises. Danger rises on both worlds.
 EV35_SHARE_TITLE | popup title | The lane is shared
 EV35_SHARE | popup | You split the lane. The rival hauler dipped its lights twice and took the far berth. Dross at Cinderrest costs less and pays less with two crews cutting. Your income from the dead worlds is cut. Both hulls ride quieter in company.
 EV35_RACE_TITLE | popup title | You race the rival
-EV35_RACE | popup | You ran the lane hard. Dross at Cinderrest costs more and pays more while you hold the lead. Income rises, and so does the danger. The rival's lights fell behind and went out, one by one.
+EV35_RACE | popup | You ran the lane hard. Dross at Cinderrest costs more and pays more while you hold the lead. Income rises, and the danger rises on both dead worlds. The rival's lights fell behind and went out, one by one.
 
 ### follow-up of EV35_SHARE, 4 cycles later
 EV36 | The rival keeps its word | [price up: Greywake, nullglass] | Q

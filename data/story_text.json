@@ -1260,6 +1260,174 @@
   "place": "Route legend, ore line"
  },
  {
+  "id": "DEAD_UNLOCK",
+  "text": "Dead worlds are open. Cinderrest needs Cold Survey (M1), Greywake needs Deep Cut (M2).",
+  "max": 110,
+  "place": "Notice, posted when the dead worlds open"
+ },
+ {
+  "id": "PLANET_DEAD_LOCKED",
+  "text": "Opens at cycle {n}.",
+  "max": 60,
+  "place": "Planet panel, dead world before it opens; {n} is the cycle"
+ },
+ {
+  "id": "NOT_DEAD_NEEDS_SKILL",
+  "text": "Mining here needs {skill}.",
+  "max": 110,
+  "place": "Notice, route from a dead world without its skill; {skill} is the skill name"
+ },
+ {
+  "id": "GOOD_DROSS_NAME",
+  "text": "Dross Salt",
+  "max": 24,
+  "place": "Commodity name, dross"
+ },
+ {
+  "id": "GOOD_DROSS_DESC",
+  "text": "Grey salt cut on Cinderrest. Sold at the trading post, and fed to the fabric.",
+  "max": 110,
+  "place": "Commodity tooltip, dross"
+ },
+ {
+  "id": "GOOD_NULLGLASS_NAME",
+  "text": "Nullglass",
+  "max": 24,
+  "place": "Commodity name, nullglass"
+ },
+ {
+  "id": "GOOD_NULLGLASS_DESC",
+  "text": "Dark glass cut on Greywake. Sold at the trading post, and fed to the fabric.",
+  "max": 110,
+  "place": "Commodity tooltip, nullglass"
+ },
+ {
+  "id": "GOOD_PLATE_NAME",
+  "text": "Lattice Plate",
+  "max": 24,
+  "place": "Commodity name, plate"
+ },
+ {
+  "id": "GOOD_PLATE_DESC",
+  "text": "Pressed at the fabric from dross and nullglass. Needed for a Null Core.",
+  "max": 110,
+  "place": "Commodity tooltip, plate"
+ },
+ {
+  "id": "NULL_CORE_BUILD_TITLE",
+  "text": "The core is built",
+  "max": 32,
+  "place": "Popup title, first Null Core built (one per run)"
+ },
+ {
+  "id": "NULL_CORE_BUILD",
+  "text": "The Null Core sat in its cradle and gave off no heat at all. Fitted, it makes one hull quiet in a way hulls are not. Nobody can say what it listens to. The Bureau has filed it under spare parts.",
+  "max": 280,
+  "place": "Popup text, first Null Core built (one per run)"
+ },
+ {
+  "id": "NULL_CORE_FIT",
+  "text": "Null Core fitted. Lower Trip cost, and pirates cannot touch this ship.",
+  "max": 110,
+  "place": "Ships window, label or tooltip of the fitted ship"
+ },
+ {
+  "id": "BTN_FIT_NULL_CORE",
+  "text": "Fit Null Core, ship {n}",
+  "max": 24,
+  "place": "Ships window, fit button on a route; {n} is the route or ship number"
+ },
+ {
+  "id": "LBL_NULL_CORE",
+  "text": "Null Core",
+  "max": 24,
+  "place": "Ships window, label of the fitted ship"
+ },
+ {
+  "id": "LBL_NULL_CORE_BUILT",
+  "text": "Null Core built",
+  "max": 24,
+  "place": "Space Storage window, state once the core exists"
+ },
+ {
+  "id": "SS_NULL_CORE_BUILD",
+  "text": "Build Null Core: {cost} credits",
+  "max": 32,
+  "place": "Space Storage window, build button; {cost} is the credit cost (over the 24 limit of voice.md, flagged to the owner)"
+ },
+ {
+  "id": "LBL_TRADE_NEEDS_A1",
+  "text": "Learn Space Storage (A1) first.",
+  "max": 60,
+  "place": "Stalled system 2 lane when Space Storage (A1) is not learned"
+ },
+ {
+  "id": "SS_FABRIC_NO_INPUTS",
+  "text": "Missing inputs: {items}. Send them here from a dead world.",
+  "max": 110,
+  "place": "Space Storage panel, fabric lacks inputs; {items} lists the missing goods"
+ },
+ {
+  "id": "NOT_SHIP_KEEP_CASH",
+  "text": "Not enough spare cash. Keep {floor} credits to run your routes.",
+  "max": 110,
+  "place": "Ships panel and Buy ship tooltip, purchase refused to keep cash for open routes; {floor} is the cash that must stay"
+ },
+ {
+  "id": "SK_M1_NAME",
+  "text": "Cold Survey",
+  "max": 24,
+  "place": "Skill screen, node name"
+ },
+ {
+  "id": "SK_M1_FLAVOUR",
+  "text": "A rock no one lives on still has a ledger line. Someone must go and read it.",
+  "max": 90,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_M1_PLAIN",
+  "text": "Lets routes start at Cinderrest and mine dross there. Needs Prospecting (B1). Dead worlds open later.",
+  "max": 110,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_M2_NAME",
+  "text": "Deep Cut",
+  "max": 24,
+  "place": "Skill screen, node name"
+ },
+ {
+  "id": "SK_M2_FLAVOUR",
+  "text": "Under the dust lies glass that hums. The Bureau has no form for it yet.",
+  "max": 90,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_M2_PLAIN",
+  "text": "Lets routes start at Greywake and mine nullglass there. Needs Cold Survey (M1).",
+  "max": 110,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_F1_NAME",
+  "text": "Fabrication Licence",
+  "max": 24,
+  "place": "Skill screen, node name"
+ },
+ {
+  "id": "SK_F1_FLAVOUR",
+  "text": "A licence to make one good plate from two bad rocks. Stamped in triplicate, as ever.",
+  "max": 90,
+  "place": "Skill screen, detail panel"
+ },
+ {
+  "id": "SK_F1_PLAIN",
+  "text": "Unlocks the fabric: dross and nullglass make plate. Plate and nullglass make a Null Core. Needs M1 and M2.",
+  "max": 110,
+  "place": "Skill screen, detail panel"
+ },
+ {
   "id": "SK_HEADER",
   "text": "Skills",
   "max": 24,
@@ -2227,7 +2395,7 @@
  },
  {
   "id": "EV35_RACE_EFF",
-  "text": "Dross costs more and pays more at Cinderrest. Income rises, and so does danger.",
+  "text": "Dross costs more and pays more at Cinderrest. Income rises. Danger rises on both worlds.",
   "max": 90,
   "place": "effect line"
  },
@@ -2251,7 +2419,7 @@
  },
  {
   "id": "EV35_RACE",
-  "text": "You ran the lane hard. Dross at Cinderrest costs more and pays more while you hold the lead. Income rises, and so does the danger. The rival's lights fell behind and went out, one by one.",
+  "text": "You ran the lane hard. Dross at Cinderrest costs more and pays more while you hold the lead. Income rises, and the danger rises on both dead worlds. The rival's lights fell behind and went out, one by one.",
   "max": 280,
   "place": "popup"
  }
