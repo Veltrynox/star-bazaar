@@ -42,6 +42,9 @@ These are my defaults so the pack is consistent. Each is listed again as an open
 | R16 | Effect line limit | 200 characters (was 90), format "Get / Cost / Rivals". |
 | R17 | `EPI_NARROW` epilogue when the win market was decided by the tiebreak | Added by story; owner may remove (Q4 below). |
 | R18 | Story placeholders | New: {cash_in}, {cash_out}, {n}, {cut}, {cut_std}; `{player_effect}` retired. |
+| R19 | Approved loss rules were missing from the core doc, economy section 6 and the story loss endings | Applied everywhere: bankrupt = newest ship repossessed each cycle while cash is negative (360 credited), ends when no ship is left and cash still negative; swept = player under 10% in all four markets for 3 cycles from cycle 25. END_SWEPT renamed "The Floor of Every Graph". |
+| R20 | Story Military text used first-pass numbers | Story re-aligned to economy 8.2 (B1 to B4 durations and sizes, no tier cut in B2, no Velvet boost in B3). Only MIL_A2 opt_b can cut a tier. |
+| R21 | MIL_B3 opt_b had no player cost | Added cash -150 (spread vs opt_a still 7 points). |
 
 Known gap, handled in the later goals: the preface, goal line, tutorial, mission board lines and the whole Release/Corporation ending set are out of date for the new goal. They are a rewrite task in the endings goal (Goal 6), not in this pack.
 
@@ -72,3 +75,7 @@ Known gap, handled in the later goals: the preface, goal line, tutorial, mission
 10. A strong lean turned late by the last two steps is not detected by the epilogues. Needs the game to expose the sign of `dir` before B3. Skip?
 11. Is "contract" colder than "garrison" in MIL_B4? Playtest before the other three chains are written?
 12. Names stay as in the story doc until you judge them in play.
+13. Rescue stipend vs repossession: the game pays a 1000 rescue every stalled cycle with no cap, which would hide repossession for a negative-cash spreader. Proposed: check repossession first, pay no stipend in a cycle with a repossession, and pay only the first two stipends (`rescue_max` 2). Approve?
+14. END_SWEPT can only fire for a four-market spreader whose fleet has already been repossessed (84% at 2 ships left, 100% at 1; a focused player 0%). A three-market spreader goes bankrupt instead. Accept that swept is rare?
+15. Win rate by committed policy: always taking the "+" direction option wins 70/96/94/58% (mil/lux/min/bio), always the "-" option 88/80/74/80%. No single step is dominant (max 10 points), but committing the whole chain one way swings win rate by up to 22 points and the sign differs by market. Also Luxury with opt_b every step wins 99%, above the 98% ceiling, and 13 of 512 paths sit outside 56-98%. Accept, or retune?
+16. Honest status: all figures are from the economy-designer's paper sim and were not re-run here; they need a real-game check in Goals 2 and 3.
