@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-11-03",
+  "task": "dead-planet-story",
+  "status": "done",
+  "files_changed": [
+    "story/events.md",
+    "story/skills.md",
+    "story/screens.md",
+    "story/voice.md",
+    "data/story_text.json",
+    "data/events.json"
+  ],
+  "open_questions": [
+    "Null Core direction: NULL_CORE_FIT says 'Lower Trip cost'. If the core makes trips free or costlier, edit the line. Also name and recipe (plate + nullglass) are working names.",
+    "Lattice Plate recipe in code is dross + nullglass -> plate (game/fabric.gd); F1 plain line says so. Confirm Null Core is built from plate and nullglass.",
+    "Cycle 15 notice and locked line assume the game fills {n} with the unlock cycle."
+  ],
+  "handoff": "build_story.py passes (397 texts, 34 events, 0 skipped). Changed ids: EV35_RACE_EFF and EV35_RACE (race raises danger on both dead worlds, now said). Events EV29-EV37 otherwise match the code (CHOICE_EXTRA in game/events.gd): MINE danger +1, SHORE cost 400, CARRY ore loss, SHARE income cut, RACE income boost and danger on both. No event text implied early access; a note was added to events.md. New ids: SK_M1/M2/F1 NAME, FLAVOUR, PLAIN (missing before, code fell back to English names); DEAD_UNLOCK (notice at unlock cycle, wire at cycle 15); PLANET_DEAD_LOCKED (planet panel, fill {n}); NOT_DEAD_NEEDS_SKILL; GOOD_DROSS/NULLGLASS/PLATE NAME and DESC; NULL_CORE_BUILD_TITLE and NULL_CORE_BUILD (popup, once per run); NULL_CORE_FIT (ships window tooltip). Flags: no code reads NULL_CORE_* or DEAD_UNLOCK yet; F1 line promises the fabric and Null Core, built only in part (no Null Core in the game yet). Mining danger also rises +1 each mining cycle by dead_danger_rise; EV29 effect line only says danger rises.",
+  "details": {
+    "changed_ids": [
+      "EV35_RACE_EFF",
+      "EV35_RACE"
+    ],
+    "new_ids": [
+      "SK_M1_NAME",
+      "SK_M1_FLAVOUR",
+      "SK_M1_PLAIN",
+      "SK_M2_NAME",
+      "SK_M2_FLAVOUR",
+      "SK_M2_PLAIN",
+      "SK_F1_NAME",
+      "SK_F1_FLAVOUR",
+      "SK_F1_PLAIN",
+      "DEAD_UNLOCK",
+      "PLANET_DEAD_LOCKED",
+      "NOT_DEAD_NEEDS_SKILL",
+      "GOOD_DROSS_NAME",
+      "GOOD_DROSS_DESC",
+      "GOOD_NULLGLASS_NAME",
+      "GOOD_NULLGLASS_DESC",
+      "GOOD_PLATE_NAME",
+      "GOOD_PLATE_DESC",
+      "NULL_CORE_BUILD_TITLE",
+      "NULL_CORE_BUILD",
+      "NULL_CORE_FIT",
+      "BTN_FIT_NULL_CORE",
+      "LBL_NULL_CORE",
+      "LBL_NULL_CORE_BUILT",
+      "SS_NULL_CORE_BUILD",
+      "LBL_TRADE_NEEDS_A1",
+      "SS_FABRIC_NO_INPUTS",
+      "NOT_SHIP_KEEP_CASH"
+    ],
+    "wire": [
+      "DEAD_UNLOCK: notice when the cycle counter reaches the dead-world unlock cycle",
+      "PLANET_DEAD_LOCKED: planet panel of dead_1 and dead_2 before unlock, {n} = unlock cycle",
+      "NULL_CORE_BUILD_TITLE and NULL_CORE_BUILD: popup on the first Null Core build",
+      "NULL_CORE_FIT: label or tooltip on the fitted ship in the ships window",
+      "SK_M1/M2/F1 texts now load by id; NOT_DEAD_NEEDS_SKILL, GOOD_* are looked up by existing code",
+      "BTN_FIT_NULL_CORE ({n}) ships window; LBL_NULL_CORE fitted ship label; LBL_NULL_CORE_BUILT Space Storage built state; SS_NULL_CORE_BUILD ({cost}) Space Storage build button, max 32 (over the 24 voice limit, owner to confirm)",
+      "LBL_TRADE_NEEDS_A1 on a stalled system 2 lane without A1; SS_FABRIC_NO_INPUTS ({items}) on the Space Storage panel when fabric inputs are missing (worded 'Missing inputs', not 'not reached yet', for clarity)",
+      "NOT_SHIP_KEEP_CASH ({floor}) on the ships panel and Buy ship tooltip when a purchase would leave too little cash for open routes"
+    ],
+    "stale_docs": "design/proposals/2026-11-02-dead-planets.md section 1 ('available from the start') is stale, doc owner to fix; see report for other files"
+  }
+}

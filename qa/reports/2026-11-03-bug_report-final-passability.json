@@ -1,0 +1,46 @@
+[
+  {
+    "run_id": "chain-literal-2026-11-03",
+    "seed": "1-8",
+    "strategy": "dead_run",
+    "issue_type": "dead_chain_incomplete",
+    "severity": "medium",
+    "steps": "TMPDIR=<private> STRATEGIES=dead_run SEEDS=\"1 2 3 4 5 6 7 8\" EXTRA=\"--skill-order=B1,C1,A1,M1,M2,F1,C3 --inject=15:1500\" TAG=chain LIMIT=180 sh qa/bots/run_batch.sh <out>. Read results_chain.jsonl: plate_log has no plate, core_log is [1 refused skill], [16 refused stock] in all 8 seeds, fabric_log shows fabric built at cycle 16 with no dross or nullglass route running. Without --permit=2 the bot never opens system 2 (dead_run buys the permit only with --permit).",
+    "expected": "Dead chain completes in the chain batch: plate made, Null Core fitted (acceptance line 2 of the passability brief).",
+    "actual": "0 of 8 seeds make plate or fit the Null Core. Fabric is built and then has no input. Wins 4 of 8 (seeds 2, 4, 7, 8, cycles 26-30). Cause in the bot config (no permit). Whether the game should let fabric be built with no reachable input is UNKNOWN.",
+    "owner_agent": "qa-analyst"
+  },
+  {
+    "run_id": "chain-permit-2026-11-03",
+    "seed": 7,
+    "strategy": "dead_run",
+    "issue_type": "dead_chain_incomplete",
+    "severity": "medium",
+    "steps": "TMPDIR=<private> STRATEGIES=dead_run SEEDS=\"7\" EXTRA=\"--permit=2 --skill-order=B1,C1,A1,M1,M2,F1,C3 --inject=15:1500\" TAG=chain_p2 LIMIT=180 sh qa/bots/run_batch.sh <out>. Read results_chain_p2.jsonl seed 7: fabric built at cycle 13, core_log [8 refused stock] and no later fit; plate_log at cycle 30 has the dross route only (no nullglass route).",
+    "expected": "Null Core fitted (plate route for dross and nullglass both running) once the fabric is built, as in seeds 1-6 and 8 of the same batch (fitted at cycles 16-22).",
+    "actual": "Null Core never fitted. Run ends at cycle 30 with a win (cash 14016), so the chain did not block the win here, but the chain is incomplete.",
+    "owner_agent": "gameplay-programmer"
+  },
+  {
+    "run_id": "decent-default-2026-11-03",
+    "seed": "2, 4",
+    "strategy": "decent",
+    "issue_type": "pacing",
+    "severity": "medium",
+    "steps": "TMPDIR=<private> STRATEGIES=decent SEEDS=\"1 2 3 4 5 6 7 8\" EXTRA=\"\" TAG=decent_default LIMIT=180 sh qa/bots/run_batch.sh <out>. Read results_decent_default.jsonl: choice_cycle 21 for seeds 2 and 4 (win_cash 14000 reached at cycle 21).",
+    "expected": "Decent player wins from about cycle 22 (not before), per the pacing rule (about 22 to 30).",
+    "actual": "2 of 8 wins at cycle 21. Other 6 at 22 to 25 (median 22.5). Borderline by one cycle; flagged per rule.",
+    "owner_agent": "economy-designer"
+  },
+  {
+    "run_id": "always-expand-default-2026-11-03",
+    "seed": "1, 2, 3, 4, 5, 8",
+    "strategy": "always_expand",
+    "issue_type": "dominant_strategy_check",
+    "severity": "medium",
+    "steps": "TMPDIR=<private> STRATEGIES=always_expand SEEDS=\"1 2 3 4 5 6 7 8\" EXTRA=\"\" TAG=always_default LIMIT=180 sh qa/bots/run_batch.sh <out>. Read results_always_default.jsonl: 6 of 8 wins (cycles 27 to 30), 2 losses (seeds 6, 7).",
+    "expected": "No strategy wins as a dominant path (rule: always-expand winning is flagged medium).",
+    "actual": "always_expand wins 6 of 8, cycles 27-30 (median 28.5). Decent wins 8 of 8 at cycles 21-25 with the same batch. Flagged per rule; judged NOT dominant because decent is faster and more reliable. Sim: always_expand 92%, decent 100%.",
+    "owner_agent": "economy-designer"
+  }
+]

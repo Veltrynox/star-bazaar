@@ -1,0 +1,50 @@
+{
+ "schema_version": 1,
+ "agent": "economy-designer",
+ "date": "2026-11-03",
+ "task": "dead-planet-rebalance",
+ "status": "done",
+ "files_changed": ["data/balance.json (data_version 31)"],
+ "open_questions": [
+  "UNKNOWN: does null_core_trip_mult apply to the trip part only (45 saved per cycle) or also maintenance? Math assumes trip only (route_engine.gd line 190).",
+  "UNKNOWN: effect of danger beyond the meter; the race boost 0.3 assumes danger costs something later. Re-check once danger has an effect.",
+  "UNKNOWN: whether dead-world mining is worth the points and fabric for a decent player before QA runs the chain after cycle 15; paper math only."
+ ],
+ "handoff": "Sim does not model dead worlds, so decent is unchanged: 98% win, median 23 (before and after). Dead-world values set by hand math. Fabric 1000 to 600 (gate leaves 1000 unpaid before the typical win). Null Core 250 credits + 1 plate + 2 nullglass, saves 45 per cycle, payback ~10 cycles. Event placeholders retuned. No dominant strategy. Tests 952 pass, 0 fail.",
+ "details": {
+  "changes": [
+   {"key": "fabric_build_cost", "old": 1000, "new": 600, "reason": "gate: first plate cycle 16, 100 net per batch; 1000 repays by cycle 26 (after typical win), 600 gives 800 by cycle 23"},
+   {"key": "dead_shore_cost", "old": 400, "new": 250, "reason": "just above expected ore loss of carrying on (~230 for one nullglass ship), so the choice is real; 400 was never worth paying"},
+   {"key": "dead_ore_loss_pct", "old": 0.3, "new": 0.4, "reason": "0.5 chance * 0.4 * 16 units * ~24 value * 3 cycles ~ 230 expected loss"},
+   {"key": "dead_income_cut", "old": 0.25, "new": 0.2, "reason": "share is the safe choice; cost ~50-60 per route-cycle for 3 cycles"},
+   {"key": "dead_income_boost", "old": 0.25, "new": 0.3, "reason": "race adds danger on both worlds, so it must outpay the cut"},
+   {"key": "null_core_build_cost", "old": 2000, "new": 250, "reason": "saves 45 per cycle (half of trip 90); total cost with inputs ~430, payback ~10 cycles; 2000 never repays"},
+   {"key": "null_core_in_nullglass", "old": 1, "new": 2, "reason": "needs a hauled system-2 good so it is not trivial"},
+   {"key": "data_version", "old": 30, "new": 31, "reason": "bump"}
+  ],
+  "kept": "null_core_in_plate 1, null_core_max 1, null_core_trip_mult 0.5, dead_ore_loss_chance 0.5, dead_ore_loss_cycles 3, dead_income_cycles 3, dead_unlock_cycle 15, plate prices, dross and nullglass prices, skill costs M1 1 M2 2 F1 2.",
+  "sim_settle_300_seeds_before_and_after": {
+   "decent": "98%, median 23 (20-30)",
+   "mining_focus": "95%, median 25",
+   "always_expand": "75%, median 24",
+   "sloppy": "0%",
+   "never_expand": "0%",
+   "never_expand_permit": "0%",
+   "note": "identical before and after: sim ignores all changed keys and dead worlds"
+  },
+  "hand_model_dead_world_route": {
+   "basis": "ship-cycle 16 units, upkeep 110 (trip 90 + maint 20), B3 ignored",
+   "table": [
+    {"route": "core energy/food", "net_per_ship_cycle": "125-157"},
+    {"route": "dross Cinderrest to Voltara (margin 14)", "net": 114},
+    {"route": "nullglass Greywake to s2_p4 (margin 17)", "net": 162},
+    {"route": "plate batch (fabric)", "net": "100 per cycle, no ship cost per cycle, 1 batch cap"},
+    {"route": "same ship with Null Core", "net": "+45 per cycle (e.g. dross 159)"}
+   ],
+   "timeline_decent": "cycle 15 gate opens, M1/M2/F1 (5 points) already earned by then at ~0.7 points a cycle (14 points incl permit by ~20, chain points partly earlier). Fabric 600 built ~15-16, plate from 16, core ~18, then ~5-10 cycles of use before win at 23-27.",
+   "gain_estimate": "dead chain adds roughly +100 plate + 45 core + new order pools, about 1 ship-cycle of income per cycle at best, minus 600 and 250 build costs and the hauling ships. Win moves ~1-2 cycles earlier at most."
+  },
+  "dominance": "None. Dross is below core margin; nullglass equals system-2 core; plate capped at 1 batch per cycle; core saves 45 on one ship only. Dead chain is not required: decent wins with no dead world (sim). Sloppy, never_expand 0%. always_expand 75% is unchanged from earlier, still below decent 98%.",
+  "caveat": "Paper math only for dead worlds; QA must run the chain from cycle 15 and confirm the win cycle stays in 22-27 and the fabric repays."
+ }
+}

@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "agent": "qa-analyst",
+  "date": "2026-11-03",
+  "task": "final-passability",
+  "status": "done",
+  "files_changed": [
+    "qa/bots/bot_run.gd",
+    "qa/reports/2026-11-03-final-passability.md",
+    "qa/reports/2026-11-03-bug_report-final-passability.json",
+    "qa/reports/2026-11-03-final-passability-runs.jsonl",
+    "handoffs/qa-analyst/2026-11-03-final-passability.json"
+  ],
+  "open_questions": [
+    "UNKNOWN: should the game let fabric be built when no input route is reachable (system 2 closed)? Dead_run chain without permit builds fabric and never makes plate.",
+    "UNKNOWN: chain with permit gives 2 of 8 wins here vs 3 of 8 in the economy-designer handoff (same flags, bot code changed since); not isolated.",
+    "UNKNOWN: binary-level release export check (no export build in this run; static check only)."
+  ],
+  "handoff": "FAIL on line 2. (1) Decent default now buys permit 2 when affordable (qa/bots/bot_run.gd, --no-permit to opt out): 8/8 wins, cycles 21-25, median 22.5. PASS. (2) Dead chain: literal config 0/8 plate and Null Core; with permit, Null Core fitted 7/8, wins 2/8 vs 1/8 without chain, so no measurable block. FAIL on completion. (3) No flat-cash stall (max 2 equal cycles). PASS. (4) 0 crash, 0 freeze, 0 SCRIPT/Parse Error in 48 runs. PASS. Tests pass=961 fail=0. Flags (medium): decent 2/8 wins at cycle 21; always_expand 6/8 wins (not dominant); chain seed 7 Null Core never fitted. Sim gap: bot decent about 1.5 cycles faster than sim median 24.",
+  "details": {
+    "bot_change": "decent with permit_sid unset gets permit_sid 2 (default). Side effect: skill points reserved for permit once C1 learned in decent runs.",
+    "batch_outputs": "qa/reports/2026-11-03-final-passability-runs.jsonl (RESULT lines, 6 tags x 8 seeds)",
+    "bug_report": "qa/reports/2026-11-03-bug_report-final-passability.json (4 entries)"
+  }
+}

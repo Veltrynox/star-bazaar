@@ -1,0 +1,148 @@
+{
+  "schema_version": 1,
+  "agent": "qa-analyst",
+  "date": "2026-11-03",
+  "task": "dead-planets-passability",
+  "status": "partial",
+  "files_changed": [
+    "qa/bots/bot_run.gd",
+    "qa/reports/2026-11-03-dead-planets-passability.md",
+    "qa/reports/2026-11-03-bug_report.json",
+    "qa/reports/2026-11-03-dead-planets-passability-runs.jsonl",
+    "handoffs/qa-analyst/2026-11-03-dead-planets-passability.json"
+  ],
+  "open_questions": [
+    "UNKNOWN: softlock cause at cash 110 to 216 with routes or ships idle (cash starvation or planner refusal). A can_connect probe in that state would answer it.",
+    "UNKNOWN: fabric payback at cycle 23 and EV32 shore-up vs carry-on value. The bot never sells plate and always takes the first event choice; needs a plate sell order and a per-event choice policy.",
+    "UNKNOWN: release zip not exported (static check only: export excludes tools, qa, handoffs; debug tools gated on OS.is_debug_build())."
+  ],
+  "handoff": "Suite 952 pass 0 fail. No script error, invalid or null line in about 400 logs (only the macOS ret!=noErr audio line). Cycle-15 gate PASS (refused 'Opens at cycle 15.', accepted at 15). Decent with permit 4/8 wins (28-30), 0/8 without; sim says 98%: win band FAIL. Dead chain: Cinderrest route PASS, fabric PASS, plate FAIL in 6/8 (no nullglass), Null Core built and fitted in 2/8 (seeds 5, 7). Softlocks: decent and always_expand seed 7 (cycle 12), dead_run seeds 1,2,4,7 (permit). Chain routes into Space Storage earn nothing and can drain cash (seed 1 LOSS 144). Design questions: ship_cap 5 blocks dead routes at 15 (7 of 8 seeds); fabric built before inputs. 11 bugs in 2026-11-03-bug_report.json. Bot: dead_run scripted chain, Null Core, plate log (decent paths unchanged).",
+  "details": {
+    "results": [
+      {
+        "strategy": "decent (no permit, default)",
+        "final_cash": 3081,
+        "cycle_reached": 30,
+        "outcome": "loss",
+        "win_rate": "0/8"
+      },
+      {
+        "strategy": "decent (--skip-skill=B1 --permit=2)",
+        "final_cash": 11069,
+        "cycle_reached": 29,
+        "outcome": "win",
+        "win_rate": "4/8",
+        "win_cycles": [
+          28,
+          29,
+          29,
+          30
+        ],
+        "median_win_cycle": 29
+      },
+      {
+        "strategy": "always_expand (default)",
+        "final_cash": 3491,
+        "cycle_reached": 30,
+        "outcome": "loss",
+        "win_rate": "0/8"
+      },
+      {
+        "strategy": "always_expand (--skip-skill=B1 --permit=2)",
+        "final_cash": 5928,
+        "cycle_reached": 30,
+        "outcome": "win",
+        "win_rate": "1/8"
+      },
+      {
+        "strategy": "sloppy (default)",
+        "final_cash": 4190,
+        "cycle_reached": 30,
+        "outcome": "loss",
+        "win_rate": "0/8"
+      },
+      {
+        "strategy": "never_expand (default)",
+        "final_cash": 5230,
+        "cycle_reached": 30,
+        "outcome": "loss",
+        "win_rate": "0/8"
+      },
+      {
+        "strategy": "dead_run (--permit=2, bot's own plan)",
+        "final_cash": null,
+        "cycle_reached": 30,
+        "outcome": "win",
+        "win_rate": "2/8",
+        "win_cycles": [
+          28,
+          29
+        ],
+        "softlock_seeds": [
+          1,
+          2,
+          4,
+          7
+        ]
+      },
+      {
+        "strategy": "dead_run (scripted chain, inject 15:1500, first)",
+        "final_cash": null,
+        "cycle_reached": 30,
+        "outcome": "win",
+        "win_rate": "2/8",
+        "win_cycles": [
+          29,
+          29
+        ],
+        "softlock_seeds": [
+          4
+        ]
+      },
+      {
+        "strategy": "dead_run (scripted chain, event-policy decline)",
+        "final_cash": null,
+        "cycle_reached": 30,
+        "outcome": "win",
+        "win_rate": "3/8",
+        "win_cycles": [
+          28,
+          28,
+          28
+        ]
+      }
+    ],
+    "dead_route_steps": {
+      "gate_before_15": "PASS",
+      "accepted_at_15": "PASS",
+      "M1_learned": "PASS (cycles 6 to 13)",
+      "cinderrest_route_runs": "PASS (accepted at 15, dross reaches Space Storage)",
+      "fabric_built": "PASS in 6 of 8 (cycles 13 to 17)",
+      "plate_made": "FAIL in 6 of 8 (max 11 and 7 in seeds 5 and 7)",
+      "null_core_built": "PASS in 2 of 8 (cycles 19, 23; seeds 5, 7)",
+      "null_core_fit": "PASS (routes 10 and 9)",
+      "greywake_route": "PARTIAL (accepted at 15 or 16 some seeds; source empty from cash starvation)",
+      "chain_blocks_win": "PARTIAL (seed 1 LOSS 144 with chain; decent wins that seed)"
+    },
+    "log_scan": "SCRIPT ERROR, Invalid, null instance, Parse Error: 0 lines in all logs",
+    "tests": "pass=952 fail=0 (sh tools/tests/run.sh with private TMPDIR)",
+    "sim_settle_300": {
+      "decent": "98% median 23",
+      "mining_focus": "95%",
+      "always_expand": "75% median 24",
+      "sloppy": "0%",
+      "never_expand": "0%"
+    },
+    "balance_for_economy_designer": [
+      "Chain routes into Space Storage earn 0 (T138); dross route net 0, nullglass route net -104 per cycle while the chain waits for plate sales. Check the cash path of the chain against the 2026-11-03 rebalance math (which assumed dross sold at Voltara).",
+      "Fabric payback at 23 not measured (no plate sell in bot). Paper only.",
+      "dead_shore_cost 250: EV32 choice not isolated (decline also changes EV29). Seed 1 cash 144 (first) vs 2607 (decline); seed 7 6956 vs 7811.",
+      "ship_cap 5: no free ship at cycle 15 in 7 of 8 seeds; dead routes start only by closing a standing route. Owner decision.",
+      "Decent win band: 4/8 with permit vs sim 98%. Re-check the sim-to-bot gap before any tuning."
+    ],
+    "bugs": "qa/reports/2026-11-03-bug_report.json (11 entries: high 4 softlock and 1 chain plate gap are high; medium: decent win band, chain cash drain, fabric timing, ship cap; low: notice visibility, bot plate sell gap, always_expand win)",
+    "bot_changes": "qa/bots/bot_run.gd: dead_run only. Null Core build and fit (core_log), Greywake retry, scripted chain routes with freeing up to 3 ships, Buy orders at dead worlds, plate_log per cycle, notice probe. Decent, always, sloppy and never paths unchanged.",
+    "reproduce": "TMPDIR=<private dir> STRATEGIES=dead_run SEEDS=\"5\" EXTRA=\"--permit=2 --skill-order=B1,C1,A1,M1,M2,F1,C3 --inject=15:1500\" TAG=x LIMIT=180 sh qa/bots/run_batch.sh <out dir>",
+    "no_code_changed": "No game code, data, balance or GDD changed by QA."
+  }
+}

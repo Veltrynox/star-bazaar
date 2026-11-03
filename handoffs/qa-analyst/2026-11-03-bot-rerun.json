@@ -1,0 +1,358 @@
+{
+  "schema_version": 1,
+  "agent": "qa-analyst",
+  "date": "2026-11-03",
+  "task": "bot-rerun",
+  "status": "done",
+  "files_changed": [
+    "qa/bots/bot_run.gd",
+    "qa/reports/2026-11-03-bot-rerun.md",
+    "qa/reports/2026-11-03-bot-rerun-runs.jsonl",
+    "qa/reports/2026-11-03-bug_report-bot-rerun.json",
+    "handoffs/qa-analyst/2026-11-03-bot-rerun.json"
+  ],
+  "open_questions": [
+    "UNKNOWN: which bot change (buy guard, A1 before permit, plate sell) lowered dead_run permit from 2/8 to 0/8 wins. Needs an ablation.",
+    "UNKNOWN: whether a human can exit the flat-cash stall (sell station dross at Voltara, or remove a route); not probed.",
+    "UNKNOWN: release export not rebuilt or checked in this run."
+  ],
+  "handoff": "Bot fixed: Buy order on at cash >= one trip (fixed cost, no extra reserve; engine route_reserve holds it); plate Sell at Voltara while station holds plate (index 0); A1 learned before the permit. Decent seed 7 softlock gone. 40 runs, no SCRIPT ERROR. Decent: 0/8 default, 3/8 with permit (25, 27, 29) vs sim 98%. Dead_run permit 0/8 (was 2/8, cause UNKNOWN). Chain: plate sold in seeds 2, 5, 7; Null Core in 2, 5, 7; win only seed 8. Survived softlock: flat cash 144 to 146 (dead_run seeds 1, 4 chain; 5 permit) (BR-01, high). Next: economy-designer to read BR-01 and BR-02; qa-analyst to ablate BR-04.",
+  "details": {
+    "results": [
+      {
+        "batch": "decent default",
+        "strategy": "decent",
+        "seed": 1,
+        "final_cash": 6808,
+        "cycle_reached": 30,
+        "outcome": "loss"
+      },
+      {
+        "batch": "decent default",
+        "strategy": "decent",
+        "seed": 2,
+        "final_cash": 9824,
+        "cycle_reached": 30,
+        "outcome": "loss"
+      },
+      {
+        "batch": "decent default",
+        "strategy": "decent",
+        "seed": 3,
+        "final_cash": 1030,
+        "cycle_reached": 30,
+        "outcome": "loss"
+      },
+      {
+        "batch": "decent default",
+        "strategy": "decent",
+        "seed": 4,
+        "final_cash": 7740,
+        "cycle_reached": 30,
+        "outcome": "loss"
+      },
+      {
+        "batch": "decent default",
+        "strategy": "decent",
+        "seed": 5,
+        "final_cash": 5087,
+        "cycle_reached": 30,
+        "outcome": "loss"
+      },
+      {
+        "batch": "decent default",
+        "strategy": "decent",
+        "seed": 6,
+        "final_cash": 1075,
+        "cycle_reached": 30,
+        "outcome": "loss"
+      },
+      {
+        "batch": "decent default",
+        "strategy": "decent",
+        "seed": 7,
+        "final_cash": 388,
+        "cycle_reached": 30,
+        "outcome": "loss"
+      },
+      {
+        "batch": "decent default",
+        "strategy": "decent",
+        "seed": 8,
+        "final_cash": 861,
+        "cycle_reached": 30,
+        "outcome": "loss"
+      },
+      {
+        "batch": "decent --skip-skill=B1 --permit=2",
+        "strategy": "decent",
+        "seed": 1,
+        "final_cash": 941,
+        "cycle_reached": 30,
+        "outcome": "loss"
+      },
+      {
+        "batch": "decent --skip-skill=B1 --permit=2",
+        "strategy": "decent",
+        "seed": 2,
+        "final_cash": 14159,
+        "cycle_reached": 29,
+        "outcome": "win"
+      },
+      {
+        "batch": "decent --skip-skill=B1 --permit=2",
+        "strategy": "decent",
+        "seed": 3,
+        "final_cash": 3545,
+        "cycle_reached": 30,
+        "outcome": "loss"
+      },
+      {
+        "batch": "decent --skip-skill=B1 --permit=2",
+        "strategy": "decent",
+        "seed": 4,
+        "final_cash": 10492,
+        "cycle_reached": 30,
+        "outcome": "loss"
+      },
+      {
+        "batch": "decent --skip-skill=B1 --permit=2",
+        "strategy": "decent",
+        "seed": 5,
+        "final_cash": 13574,
+        "cycle_reached": 27,
+        "outcome": "win"
+      },
+      {
+        "batch": "decent --skip-skill=B1 --permit=2",
+        "strategy": "decent",
+        "seed": 6,
+        "final_cash": 12817,
+        "cycle_reached": 25,
+        "outcome": "win"
+      },
+      {
+        "batch": "decent --skip-skill=B1 --permit=2",
+        "strategy": "decent",
+        "seed": 7,
+        "final_cash": 1220,
+        "cycle_reached": 30,
+        "outcome": "loss"
+      },
+      {
+        "batch": "decent --skip-skill=B1 --permit=2",
+        "strategy": "decent",
+        "seed": 8,
+        "final_cash": 317,
+        "cycle_reached": 30,
+        "outcome": "loss"
+      },
+      {
+        "batch": "always_expand default",
+        "strategy": "always_expand",
+        "seed": 1,
+        "final_cash": 6808,
+        "cycle_reached": 30,
+        "outcome": "loss"
+      },
+      {
+        "batch": "always_expand default",
+        "strategy": "always_expand",
+        "seed": 2,
+        "final_cash": 9824,
+        "cycle_reached": 30,
+        "outcome": "loss"
+      },
+      {
+        "batch": "always_expand default",
+        "strategy": "always_expand",
+        "seed": 3,
+        "final_cash": 1030,
+        "cycle_reached": 30,
+        "outcome": "loss"
+      },
+      {
+        "batch": "always_expand default",
+        "strategy": "always_expand",
+        "seed": 4,
+        "final_cash": 8040,
+        "cycle_reached": 30,
+        "outcome": "loss"
+      },
+      {
+        "batch": "always_expand default",
+        "strategy": "always_expand",
+        "seed": 5,
+        "final_cash": 5907,
+        "cycle_reached": 30,
+        "outcome": "loss"
+      },
+      {
+        "batch": "always_expand default",
+        "strategy": "always_expand",
+        "seed": 6,
+        "final_cash": 1075,
+        "cycle_reached": 30,
+        "outcome": "loss"
+      },
+      {
+        "batch": "always_expand default",
+        "strategy": "always_expand",
+        "seed": 7,
+        "final_cash": 388,
+        "cycle_reached": 30,
+        "outcome": "loss"
+      },
+      {
+        "batch": "always_expand default",
+        "strategy": "always_expand",
+        "seed": 8,
+        "final_cash": 861,
+        "cycle_reached": 30,
+        "outcome": "loss"
+      },
+      {
+        "batch": "dead_run --permit=2",
+        "strategy": "dead_run",
+        "seed": 1,
+        "final_cash": 2315,
+        "cycle_reached": 30,
+        "outcome": "loss"
+      },
+      {
+        "batch": "dead_run --permit=2",
+        "strategy": "dead_run",
+        "seed": 2,
+        "final_cash": 198,
+        "cycle_reached": 30,
+        "outcome": "loss"
+      },
+      {
+        "batch": "dead_run --permit=2",
+        "strategy": "dead_run",
+        "seed": 3,
+        "final_cash": 1069,
+        "cycle_reached": 30,
+        "outcome": "loss"
+      },
+      {
+        "batch": "dead_run --permit=2",
+        "strategy": "dead_run",
+        "seed": 4,
+        "final_cash": 6568,
+        "cycle_reached": 30,
+        "outcome": "loss"
+      },
+      {
+        "batch": "dead_run --permit=2",
+        "strategy": "dead_run",
+        "seed": 5,
+        "final_cash": 146,
+        "cycle_reached": 30,
+        "outcome": "loss"
+      },
+      {
+        "batch": "dead_run --permit=2",
+        "strategy": "dead_run",
+        "seed": 6,
+        "final_cash": 1069,
+        "cycle_reached": 30,
+        "outcome": "loss"
+      },
+      {
+        "batch": "dead_run --permit=2",
+        "strategy": "dead_run",
+        "seed": 7,
+        "final_cash": 1220,
+        "cycle_reached": 30,
+        "outcome": "loss"
+      },
+      {
+        "batch": "dead_run --permit=2",
+        "strategy": "dead_run",
+        "seed": 8,
+        "final_cash": 3814,
+        "cycle_reached": 30,
+        "outcome": "loss"
+      },
+      {
+        "batch": "dead_run --permit=2 --skill-order=B1,C1,A1,M1,M2,F1,C3 --inject=15:1500",
+        "strategy": "dead_run",
+        "seed": 1,
+        "final_cash": 144,
+        "cycle_reached": 30,
+        "outcome": "loss"
+      },
+      {
+        "batch": "dead_run --permit=2 --skill-order=B1,C1,A1,M1,M2,F1,C3 --inject=15:1500",
+        "strategy": "dead_run",
+        "seed": 2,
+        "final_cash": 7810,
+        "cycle_reached": 30,
+        "outcome": "loss"
+      },
+      {
+        "batch": "dead_run --permit=2 --skill-order=B1,C1,A1,M1,M2,F1,C3 --inject=15:1500",
+        "strategy": "dead_run",
+        "seed": 3,
+        "final_cash": 11347,
+        "cycle_reached": 30,
+        "outcome": "loss"
+      },
+      {
+        "batch": "dead_run --permit=2 --skill-order=B1,C1,A1,M1,M2,F1,C3 --inject=15:1500",
+        "strategy": "dead_run",
+        "seed": 4,
+        "final_cash": 144,
+        "cycle_reached": 30,
+        "outcome": "loss"
+      },
+      {
+        "batch": "dead_run --permit=2 --skill-order=B1,C1,A1,M1,M2,F1,C3 --inject=15:1500",
+        "strategy": "dead_run",
+        "seed": 5,
+        "final_cash": 8372,
+        "cycle_reached": 30,
+        "outcome": "loss"
+      },
+      {
+        "batch": "dead_run --permit=2 --skill-order=B1,C1,A1,M1,M2,F1,C3 --inject=15:1500",
+        "strategy": "dead_run",
+        "seed": 6,
+        "final_cash": 11347,
+        "cycle_reached": 30,
+        "outcome": "loss"
+      },
+      {
+        "batch": "dead_run --permit=2 --skill-order=B1,C1,A1,M1,M2,F1,C3 --inject=15:1500",
+        "strategy": "dead_run",
+        "seed": 7,
+        "final_cash": 7866,
+        "cycle_reached": 30,
+        "outcome": "loss"
+      },
+      {
+        "batch": "dead_run --permit=2 --skill-order=B1,C1,A1,M1,M2,F1,C3 --inject=15:1500",
+        "strategy": "dead_run",
+        "seed": 8,
+        "final_cash": 13056,
+        "cycle_reached": 29,
+        "outcome": "win"
+      }
+    ],
+    "bot_changes": [
+      "Buy order guard: cash >= fixed_cost (one trip), no extra reserve (engine route_reserve already holds fixed cost)",
+      "Plate Sell at plate-selling planet (plate_sell price, index 0 = Voltara) while the system storage holds plate",
+      "Permit waits for A1 unless A1 skipped or excluded; A1 exempt from permit points reserve"
+    ],
+    "report": "qa/reports/2026-11-03-bot-rerun.md",
+    "bug_report": "qa/reports/2026-11-03-bug_report-bot-rerun.json",
+    "sim_compare": {
+      "sim_decent_win": 0.98,
+      "sim_decent_median": 23,
+      "bot_decent_permit_win": "3/8",
+      "bot_decent_permit_median": 27,
+      "bot_decent_default_win": "0/8"
+    }
+  }
+}

@@ -1,0 +1,53 @@
+{
+ "schema_version": 1,
+ "agent": "economy-designer",
+ "date": "2026-11-03",
+ "task": "passability",
+ "status": "partial",
+ "files_changed": ["data/balance.json (data_version 32)"],
+ "open_questions": [
+  "UNKNOWN: dead chain payback (plate by cycle 23). Bot plate_log max is 0 in all 8 chain seeds in this batch; the bot does not make plate here, so fabric payback is still not measured. Dead values kept from the rebalance handoff.",
+  "Owner/QA: the bot's decent default never buys permit 2. The sim's decent does (cycle 10-13). Either the bot default needs --permit=2 (qa-analyst), or the win must be reachable in system 1 (which would make never_expand a win path). Which?",
+  "Gameplay programmer: stall fix needs code (spec below). Tests: 955 pass, 1 fail (fabric panel: lists inputs not yet reached); the same failure occurs with the old balance.json, so it is not from this change."
+ ],
+ "handoff": "Cause of sim vs bot gap: the sim decent buys permit 2 (C1 + 600) at cycle 10-13 and earns 1200-1600 a cycle with 5 ships across two systems. The bot default never buys it; system 1 alone is 3 planets, margin about 14, so about 570 net a cycle, median end cash 3081 vs win_cash 12500. Cash was the limit, not the win check. Second cause: fixed cost 110 a route held 550 for 5 routes before any Buy, so bot runs stalled at cash 144-300. Fix in data: trip_cost 90 to 60, maintenance 60 to 45, win_cash 12500 to 14000. Bot decent with permit now 8/8 wins (22-29); default 1/8; sim decent 100% median 24. Stall remains a code issue: see details.",
+ "details": {
+  "cause_in_plain_numbers": [
+   "sim mirror(): permit defaults to True for decent/mining_focus/always_expand/never_expand+permit. Bot decent default: permits_bought 0 in all 8 seeds.",
+   "sim decent with permit False (before): 6.5% win, end cash median 10328 (still above bot 3081). Bot with permit before: median end cash 7019 vs sim 13144.",
+   "system 1: Voltara energy 10 buy, Tillam 24 / Ashgate 27 sell; food Tillam 12 / Ashgate 11 buy, Voltara 26 sell; margin about 14, 16 units a cycle, fixed 110: about 114 net per ship, 5 ships about 570 a cycle, matches bot 550.",
+   "bot permit runs: permit at cycle 12-18 (sim 10-13); ship 3 at 11-12 (sim 6-10); cash after buying ships about 200-300 while route_reserve holds fixed cost of every route (5 x 110 = 550), so Buys get 0 and routes earn nothing: a working-capital trap.",
+   "Earlier flat 144-146 stall: two routes at 104 each = 208 held, cash 144 above one trip (rescue condition is cash < fixed_cost() of ONE route) so the stipend never fired."
+  ],
+  "changes": [
+   {"key": "trip_cost", "old": 90, "new": 60, "reason": "fixed cost of a route 110 to 80; cuts the reserve held by 5 routes from 550 to 400 and raises net per ship; bot permit 8/8"},
+   {"key": "maintenance", "old": 60, "new": 45, "reason": "same: 20 to 15 a cycle per route"},
+   {"key": "win_cash", "old": 12500, "new": 14000, "reason": "lower fixed costs lift income; 14000 keeps sim decent median at 24 (was 19 at 12500 with trip 70) and no win before cycle 18 in sim"},
+   {"key": "data_version", "old": 31, "new": 32, "reason": "bump, dated source line added"}
+  ],
+  "tried_and_dropped": [
+   "trip 50 maint 30 win 17000: sim decent 99% med 21, always_expand 38% (best split) but bot permit 6/8 and default 0/8 with hard stalls at cash 112 to 254 (dropped)",
+   "trip 70 maint 45 win 13500: bot permit 5/8, three stalls at 140-284",
+   "ship_price 1000/1100: chaotic in sim, always_expand rose to 98-99% (dropped)"
+  ],
+  "sim_before_after_settle_mc300": {
+   "before": {"decent": "98%, median 23 (20-30)", "mining_focus": "95%, median 25", "always_expand": "75%, median 24", "sloppy": "0%", "never_expand": "0%", "never_expand_permit": "0%", "decent_no_permit": "6.5%"},
+   "after": {"decent": "100%, median 24 (18-30)", "mining_focus": "100%, median 21", "always_expand": "92%, median 22", "sloppy": "0%", "never_expand": "0%", "never_expand_permit": "0%", "decent_no_permit": "73.5%, median 27"}
+  },
+  "bot_before_after_fast_clock_seeds_1_8": {
+   "decent_default_no_permit": {"before": "0/8, end cash median 3081", "after": "1/8 (cycle 30), end cash 4261-14305, median about 12.2k; seeds 1,3,5 slow (cash about 290 flat 9-20 cycles then recover)"},
+   "decent_skip_B1_permit2": {"before": "3/8 (25,27,29), median end cash 7019", "after": "8/8, win cycles 22,22,24,26,26,28,28,29 (median 26), end cash 14009-15283"},
+   "dead_run_chain_B1_C1_A1_M1_M2_F1_C3_inject_15_1500": {"before": "1/8 (cycle 29), stalls at 144 in seeds 1,4", "after": "3/8 (28,29,30), end cash 8305-15184, no flat-cash stall, seeds 3 and 5 slow"},
+   "always_expand_default": {"before": "0/8", "after": "1/8 (cycle 29)"},
+   "note": "bot n=8 per row; 95% interval wide. Bot plate_log max 0 in all chain seeds."
+  },
+  "stall_fix_recommendation_for_gameplay_programmer": {
+   "which": "cash floor on buying a ship, plus a wider rescue. Data alone cannot guarantee it: with fixed cost 55 hard stalls still occurred (cash 112 flat).",
+   "1_cash_floor": "Buy ship: refuse when cash after the price is below route_count_after_buy * fixed_cost() (all routes, including the new one), message 'Keep cash for trips.'. At 5 routes and fixed 80 the floor is 400.",
+   "2_rescue": "game/main.gd _check_stranded: replace cash < engine.fixed_cost() by cash < sum of fixed_cost of all open routes with stock or a feeding Buy, and (last_net <= 0 over 2 cycles). Pays rescue_stipend (1000, unchanged). Today cash 144 vs one trip 104 never fires.",
+   "3_route_reserve": "game/route_engine.gd route_reserve: when cash < sum of fixed, reserve only the best routes and let the rest idle (already partly done by the 'left < fixed' branch); the bot's lane churn (14 built, 10 removed in seed 1) hides this. Optional."
+  },
+  "dead_chain": "No change to dead values (fabric 600, Null Core 250 + 1 plate + 2 nullglass, shore 250, loss 0.4). The lower fixed costs make the chain cheaper to run (dross route net up 30 a cycle). Payback by cycle 23 is NOT verified (bot makes no plate). Null Core saves trip_mult 0.5 of 60 = 30 per cycle now (was 45); payback about 14 cycles on 430: still rare and marginal. Owner could raise null_core_trip_mult discount to 0.67 if wanted (UNKNOWN, not changed).",
+  "dominance": "No dominant strategy in sim: sloppy and never_expand 0%, never_expand+permit 0%, always_expand 92% vs decent 100% (close: ship_cap 5 limits both; a strong split needs fixed cost near 55 and was dropped because of bot stalls). Re-split after the stall code fix is in."
+ }
+}

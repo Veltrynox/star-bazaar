@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-03",
+  "task": "dead-planets-audit",
+  "status": "done",
+  "files_changed": [
+    "game/route_engine.gd",
+    "game/main.gd",
+    "game/events.gd",
+    "game/fabric.gd",
+    "game/planet_panel.gd",
+    "game/ship_panel.gd",
+    "game/space_storage_view.gd",
+    "data/balance.json",
+    "tools/tests/run_tests.gd",
+    "handoffs/gameplay-programmer/2026-11-03-dead-planets-audit.json"
+  ],
+  "open_questions": [
+    "Owner/economy: set placeholders null_core_build_cost 2000, null_core_in_plate 1, null_core_in_nullglass 1, null_core_trip_mult 0.5. Pirates are not built; the core immunity is wired to engine.pirates_active (false), ready for the pirate system.",
+    "Story: new ids with English fallbacks, please write: BTN_FIT_NULL_CORE ({n}), LBL_NULL_CORE, LBL_NULL_CORE_BUILT, SS_NULL_CORE_BUILD ({cost}). design/proposals/2026-11-02-dead-planets.md section 1 says dead_1 is 'available from the start': now wrong (opens at cycle 15); update it and any GDD line.",
+    "Owner: system-2 saves made before the dead-planets build have shifted planet indexes (no migration); danger has no effect beyond the meter and events: UNKNOWN if intended."
+  ],
+  "handoff": "Audit fixed 7 errors. Dead worlds are locked until balance dead_unlock_cycle (15): no route, send, order or panel use before; panel shows PLANET_DEAD_LOCKED; DEAD_UNLOCK notice posts at cycle 15. Null Core: Build at the trading post (plate + nullglass + credits, one per run), fit to one ship in the ships window; trips cost null_core_trip_mult, immune to pirate cut. Tests: 952 pass, 0 fail (use a private TMPDIR: the shared scratch dir races with other runs and gave flaky 'win' failures).",
+  "details": {
+    "audit_fixed": [
+      "Gate bypass: a send from a dead world to Space Storage skipped M1/M2 (check_station). Now gated.",
+      "Gate bypass: a Buy order at a dead world mined it without M1/M2. Now check_local refuses buy orders without the skill.",
+      "Load order: learned skills loaded after routes and orders, so a skill-gated order would be dropped on load. Skills now load first.",
+      "Debris event (EV17) could pick a dead world at random; now only unlocked planets. Event cluster spawn skips locked dead worlds too.",
+      "EV35 (pair C) fired only when a further route started from a dead world, so it could never fire. It now fires at the start of a cycle once EV29 and EV32 have fired.",
+      "Scheduled event replaced a cycle's random slot but left the B4 forecast naming a different event; forecast is cleared.",
+      "Choice fee for [cost: key] always read dead_shore_cost; now uses the parsed effect amount."
+    ],
+    "audit_ok": "M1/M2 route gates, danger tick and cap, follow-up scheduling and save, EV29/EV32/EV35 effects, timed mods save/expiry, fabric chain, old saves with no danger/fabric/events keys all checked, no error.",
+    "audit_open": [
+      "Pre-build system-2 saves have shifted indexes (known, no migration).",
+      "EV35 danger tag for Greywake is dropped silently if system 2 is not open (only reachable by debug fire).",
+      "A stalled route out of a dead world does not raise danger (earlier question)."
+    ],
+    "keys_added": {
+      "dead_unlock_cycle": 15,
+      "null_core_in_plate": 1,
+      "null_core_in_nullglass": 1,
+      "null_core_build_cost": 2000,
+      "null_core_max": 1,
+      "null_core_trip_mult": 0.5,
+      "data_version": "29 -> 30 (as 30 in file)"
+    },
+    "wired_text_ids": [
+      "DEAD_UNLOCK",
+      "PLANET_DEAD_LOCKED",
+      "NOT_DEAD_NEEDS_SKILL",
+      "NULL_CORE_BUILD_TITLE",
+      "NULL_CORE_BUILD",
+      "NULL_CORE_FIT"
+    ],
+    "gate_rules": "Locked dead worlds: refused for new routes from/to, sends to storage, any local order; saved routes and orders at a locked world are dropped on load. Skills can be learned before 15. Tutorial, events, sim hooks and skill-point awards cannot reach a dead world before 15 (all go through these checks or the debris pick).",
+    "playable": "Dead worlds open at cycle 15; Null Core buildable and fittable.",
+    "how_to_try": "Debug: add cash, learn A1/F1, put plate and nullglass in the trading post storage, open the Space Storage at system 1, press Build Null Core; the ships window then shows Fit buttons. Skip to cycle 15 to see the notice and the planet panel line change."
+  }
+}

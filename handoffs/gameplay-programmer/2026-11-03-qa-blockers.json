@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-03",
+  "task": "qa-blockers",
+  "status": "done",
+  "files_changed": [
+    "game/main.gd",
+    "game/space_storage_view.gd",
+    "tools/tests/run_tests.gd",
+    "handoffs/gameplay-programmer/2026-11-03-qa-blockers.json"
+  ],
+  "open_questions": [
+    "qa-analyst: bot_run.gd _buy_wanted needs cash >= fixed_cost + price, so at cash ~114 (fixed 110) it never sets the Buy order: bot deadlock, not a game bug. Dropping the fixed_cost term recovers decent seed 7 (cash 114 to 328 at 30) and dead_run seeds 1, 2, 7. Also the bot buys a permit and plans only system 2 lanes while A1 is not learned (seed 4). Please fix both in the bot and re-run.",
+    "Owner: a system 2 permit without skill A1 gives no trade in system 2 (owner rule 2026-11-03). Intended? The permit panel does not warn; only the lock text now names A1.",
+    "Owner/economy: fabric can be built before its inputs have a route (P3-fabric-before-inputs). Rule unchanged; panel now says which inputs are not reached. Plate sells at Voltara (plate_sell 120 in planets.json, marked placeholder); nullglass has no buyer in system 1, so it is fabric-only stock."
+  ],
+  "handoff": "No game softlock found. All three softlock entries are bot gaps: the game always left a legal action. Two small panel hints added. Tests 956 pass, 0 fail (3 new checks). No balance or data change.",
+  "details": {
+    "bug_report": {
+      "P3-decent-default-7": "not a game bug. DIAG at cycle 14: 2 routes stalled 'Source storage is empty', no Buy order at planet 0. Bot rule cash >= fixed 110 + price blocked the Buy. A Buy order costs only what cash allows, so a human can act. Probe with the guard dropped: cash 114 -> 297 at cycle 13, run continues to 30.",
+      "P3-dead_run-permit-idle": "not a game bug, same bot guard. Seeds 1, 2, 7 with the guard relaxed show no idle stretch. Seed 4 is the next entry.",
+      "P3-dead-chain-scripted-seed4": "not a game bug (bot). can_connect for every planned lane returns 'Needs a Space Storage in this system.': the bot bought the permit (3 skill points) so A1 was never learned (learned = B1, C1), and its planner ranks only system 2 lanes. System 1 lanes stay open to a human. Game change: trade_locked_reason() appends 'Learn Space Storage (A1) first.' while A1 is missing (id LBL_TRADE_NEEDS_A1 with English fallback).",
+      "P3-dead-chain-scripted-seed1": "not a bug, by design. A route into Space Storage is a pass-through (stock only, pays -trip -upkeep, no income). Income is on a Sell order at a planet in that system: Sell draws from Space Storage (sell_available). Dross sells at Voltara 18 and Ashgate 15. Nullglass has no buyer in system 1, so it is fabric input only. New test proves a Voltara dross Sell order pays out of the station. The displayed route net -104 is the route alone. Open for economy: whether dross to the station should show an expected sale.",
+      "P3-dead-chain-plate": "open, economy-designer. Game path works (fabric makes plate, tests pass). Misses come from cash and ship cap, not a game fault.",
+      "P3-fabric-before-inputs": "rule unchanged. Station panel now shows 'Inputs not reached yet: dross, nullglass. Send them here from a dead world.' when stock is short and no route feeds the station (node FabricInputs, id SS_FABRIC_NO_INPUTS fallback). Owner decision on a hard rule still open.",
+      "P3-decent-permit-win-band": "open, economy-designer (bot vs sim gap; the Buy guard bot gap above may lower the bot win rate).",
+      "P3-always_expand-permit": "open, economy-designer (table only).",
+      "P3-dead-ship-cap": "open, owner: should a dead route take a slot ahead of a standing route. Game refuses with 'No ship available'; not changed.",
+      "P3-notice-DEAD_UNLOCK": "open, low. Posted at end of cycle 14 (suite checks it). Not re-probed in a long queue.",
+      "P3-qa-bot-plate-sell": "not a game gap. Plate has a Sell order at Voltara (planet_1 plate_sell 120, tested at the fabric test). The bot sets none: qa-analyst."
+    },
+    "audit_notes_recheck": "All seven earlier audit fixes and the gate rules still hold: the 952 existing checks pass unchanged. Nothing from the audit was altered.",
+    "changes": [
+      "game/main.gd trade_locked_reason(): adds the A1 hint while A1 is not learned. Tests compare against this function, so they follow.",
+      "game/space_storage_view.gd: FabricInputs line and _inputs_unreached().",
+      "tools/tests/run_tests.gd: 3 checks (dross sold from the station, fabric inputs line, A1 text). A tried route-reason hint for an empty source was dropped: it broke the 'No stock at source' short text."
+    ],
+    "new_text_ids_for_story": ["LBL_TRADE_NEEDS_A1", "SS_FABRIC_NO_INPUTS ({list})"],
+    "how_to_try": "Debug: learn F1 and A1, open the Space Storage at system 1: the fabric block shows the inputs line. Buy the system 2 permit without A1 and try a route there: the refusal names A1."
+  }
+}

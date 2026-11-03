@@ -1,0 +1,159 @@
+[
+  {
+    "run_id": "P3-decent-default-7",
+    "seed": 7,
+    "strategy": "decent",
+    "issue_type": "softlock",
+    "severity": "high",
+    "steps": [
+      "Run TMPDIR=<private dir> STRATEGIES=decent SEEDS=\"7\" EXTRA=\"\" TAG=x LIMIT=180 sh qa/bots/run_batch.sh <out dir>",
+      " (default flags: no permit, no skill flags)",
+      "Cycle 11 cash 156, cycle 12 cash 114; from cycle 12 to 30 cash stays 114, 4 routes and 3 Buy/Sell orders stay open, no cash or stock change (softlock flag: idle from cycle 12)"
+    ],
+    "expected": "Routes keep moving stock or the player can act; cash changes or the bot can recover",
+    "actual": "Idle from cycle 12 to the end (18 cycles). Cash 114 = about one trip plus upkeep. Same state for always_expand seed 7. Ends LOSS at 30 with cash 114. Cause not isolated (cash starvation or stalled routes): UNKNOWN.",
+    "owner_agent": "economy-designer"
+  },
+  {
+    "run_id": "P3-dead_run-permit-idle",
+    "seed": "1,2,4,7",
+    "strategy": "dead_run",
+    "issue_type": "softlock",
+    "severity": "high",
+    "steps": [
+      "Run TMPDIR=<private dir> STRATEGIES=dead_run SEEDS=\"1 2 4 7\" EXTRA=\"--permit=2\" TAG=x LIMIT=180 sh qa/bots/run_batch.sh <out dir>",
+      " (fast clock)",
+      "Cycle 15 to 19: refused dead routes 'No ship available'; cash falls to about 110 to 216 and stays flat until cycle 30"
+    ],
+    "expected": "No idle stretch while routes are open; cash changes",
+    "actual": "softlock flag at cycle 19 (seed 1, cash 108, 5 routes), 10 (seed 2, cash 110, 3 routes), 20 (seed 4, cash 216, 0 routes, 4 ships), 24 (seed 7, cash 110, 5 routes). LOSS at 30 in all four.",
+    "owner_agent": "economy-designer"
+  },
+  {
+    "run_id": "P3-dead-chain-scripted-seed4",
+    "seed": 4,
+    "strategy": "dead_run",
+    "issue_type": "softlock",
+    "severity": "high",
+    "steps": [
+      "Run TMPDIR=<private dir> STRATEGIES=dead_run SEEDS=\"4\" EXTRA=\"--permit=2 --skill-order=B1,C1,A1,M1,M2,F1,C3 --inject=15:1500\" TAG=x LIMIT=180 sh qa/bots/run_batch.sh <out dir>",
+      " (scripted chain, see report section Method)",
+      "Cycle 20: a ship is bought, cash 216; from cycle 20 to 30 routes_open 0, 4 ships idle, cash 216 flat"
+    ],
+    "expected": "A route can be laid with 216 cash and 4 idle ships, or the game shows why not",
+    "actual": "No route is planned or laid; the bot's planner logs no refusal. Whether a human player could lay one (can_connect) was not probed: UNKNOWN.",
+    "owner_agent": "gameplay-programmer"
+  },
+  {
+    "run_id": "P3-dead-chain-scripted-seed1",
+    "seed": 1,
+    "strategy": "dead_run",
+    "issue_type": "cash_starvation_blocks_chain",
+    "severity": "medium",
+    "steps": [
+      "Run TMPDIR=<private dir> STRATEGIES=dead_run SEEDS=\"1\" EXTRA=\"--permit=2 --skill-order=B1,C1,A1,M1,M2,F1,C3 --inject=15:1500\" TAG=x LIMIT=180 sh qa/bots/run_batch.sh <out dir>",
+      "Cycle 15: scripted player lays Cinderrest dross to Space Storage and Greywake nullglass to Space Storage (C3 learned at 16)",
+      "Cycles 19 to 29: cash 1 to 10, 'Not enough cash' on the chain routes; dross and nullglass sources empty; plate 0; core never built"
+    ],
+    "expected": "The dead chain pays for itself or does not block the win",
+    "actual": "Chain routes into Space Storage earn nothing (route net -104 for nullglass at cycle 18 of the core2 seed 3 run (scripted)). A scripted run that lays both routes ends LOSS at 30 with cash 144, where the same seed with decent wins. Plate is never sold in the bot (no sell order at the station), so the plate income is not in the run: scripted-player gap as well as balance.",
+    "owner_agent": "economy-designer"
+  },
+  {
+    "run_id": "P3-dead-chain-plate",
+    "seed": "3,5,6,7,8",
+    "strategy": "dead_run",
+    "issue_type": "chain_output_not_reached",
+    "severity": "high",
+    "steps": [
+      "Run TMPDIR=<private dir> STRATEGIES=dead_run SEEDS=\"3 5 6 7 8\" EXTRA=\"--permit=2 --skill-order=B1,C1,A1,M1,M2,F1,C3 --inject=15:1500\" TAG=x LIMIT=180 sh qa/bots/run_batch.sh <out dir>",
+      " then read plate_log and core_log in RESULT"
+    ],
+    "expected": "Fabric makes plate from dross and nullglass; Null Core built and fitted from cycle 15 onward",
+    "actual": "Plate made in seeds 5 (max 11) and 7 (max 7) only. Seeds 3, 6, 8: nullglass never reaches Space Storage (C3 not learned, or Greywake route refused for ship/cash), fabric stalled 'needs nullglass' from its build. Null Core built and fitted in seeds 5 (cycle 19) and 7 (cycle 23). Fit works. Dross piles up unused (up to 150 to 196). Seeds 1 and 4 never produce plate (cash, see above).",
+    "owner_agent": "economy-designer"
+  },
+  {
+    "run_id": "P3-fabric-before-inputs",
+    "seed": "3,6,8",
+    "strategy": "dead_run",
+    "issue_type": "design_question",
+    "severity": "medium",
+    "steps": [
+      "Run TMPDIR=<private dir> STRATEGIES=dead_run SEEDS=\"3\" EXTRA=\"--permit=2 --skill-order=B1,C1,A1,M1,M2,F1,C3 --inject=15:1500\" TAG=x LIMIT=180 sh qa/bots/run_batch.sh <out dir>",
+      " (fabric built at cycles 13 and 14, after F1, before cycle 15)",
+      "fabric_log: [13, built]; plate_log: no dross or nullglass arrives before cycle 16"
+    ],
+    "expected": "Owner rule for fabric timing: either the build waits for the dead worlds, or the build is allowed early and the player knows the inputs are not there",
+    "actual": "600 credits go into the fabric at cycles 13 to 14 with no input route. Allowed by the game; no warning. Owner decision needed (not a bug if intended): UNKNOWN.",
+    "owner_agent": "gameplay-programmer"
+  },
+  {
+    "run_id": "P3-decent-permit-win-band",
+    "seed": "1-8",
+    "strategy": "decent",
+    "issue_type": "win_rate_below_target",
+    "severity": "medium",
+    "steps": [
+      "Run TMPDIR=<private dir> STRATEGIES=decent SEEDS=\"1 2 3 4 5 6 7 8\" EXTRA=\"--skip-skill=B1 --permit=2\" TAG=x LIMIT=180 sh qa/bots/run_batch.sh <out dir>",
+      "Compare with tools/sim.py --settle --mc 300 --seed 1"
+    ],
+    "expected": "Decent wins about 90% or more, at cycle 20 to 30 (sim: 98%, median 23)",
+    "actual": "4 of 8 wins (cycles 28, 29, 29, 30), 4 losses at 30 (cash 332 to 9055). Without the permit flag: 0 of 8. Sim and bot disagree: the mismatch was already logged (2026-11-02, trade goods report). Win cycles sit at the late edge (28 to 30).",
+    "owner_agent": "economy-designer"
+  },
+  {
+    "run_id": "P3-always_expand-permit",
+    "seed": "1-8",
+    "strategy": "always_expand",
+    "issue_type": "win_rate_below_target",
+    "severity": "low",
+    "steps": [
+      "Run TMPDIR=<private dir> STRATEGIES=always_expand SEEDS=\"1 2 3 4 5 6 7 8\" EXTRA=\"--skip-skill=B1 --permit=2\" TAG=x LIMIT=180 sh qa/bots/run_batch.sh <out dir>"
+    ],
+    "expected": "Weaker than decent (sim 75%)",
+    "actual": "1 of 8 wins (cycle 30). Not dominant. Recorded for the table only.",
+    "owner_agent": "economy-designer"
+  },
+  {
+    "run_id": "P3-dead-ship-cap",
+    "seed": "1-8",
+    "strategy": "dead_run",
+    "issue_type": "design_question",
+    "severity": "medium",
+    "steps": [
+      "Run TMPDIR=<private dir> STRATEGIES=dead_run SEEDS=\"1 2 3 4 5 6 7 8\" EXTRA=\"--permit=2\" TAG=x LIMIT=180 sh qa/bots/run_batch.sh <out dir>",
+      "Read dead_log at cycle 15 and 16"
+    ],
+    "expected": "A player can take a dead route at cycle 15 with the economy running",
+    "actual": "ship_cap 5 is full at cycle 15 in 7 of 8 seeds (seed 4 had no M1 yet). Dead routes refused 'No ship available' at cycle 15 in those 7. The planner never ranks a dead route above the standing energy, food and silk routes, so the scripted player must close a route (Remove) to make room. Owner decision: should a dead route take a slot ahead of a standing route, or is ship_cap 5 the point: UNKNOWN.",
+    "owner_agent": "economy-designer"
+  },
+  {
+    "run_id": "P3-notice-DEAD_UNLOCK",
+    "seed": "1,5",
+    "strategy": "dead_run",
+    "issue_type": "not_verified",
+    "severity": "low",
+    "steps": [
+      "Run TMPDIR=<private dir> STRATEGIES=dead_run SEEDS=\"1 5\" EXTRA=\"--permit=2 --skill-order=B1,C1,A1,M1,M2,F1,C3\" TAG=x LIMIT=180 sh qa/bots/run_batch.sh <out dir>",
+      " read dead_log notice rows at cycle 14 and 15"
+    ],
+    "expected": "DEAD_UNLOCK notice visible at cycle 15",
+    "actual": "Posted at the end of cycle 14 (main.gd line 1803 to 1804). Covered by the suite (tools/tests/run_tests.gd around line 3645: last_notice, shown or queue). In bot runs the notice queue is long (route notices), so visibility at cycle 15 was not confirmed: UNKNOWN.",
+    "owner_agent": "gameplay-programmer"
+  },
+  {
+    "run_id": "P3-qa-bot-plate-sell",
+    "seed": "5,7",
+    "strategy": "dead_run",
+    "issue_type": "bot_gap",
+    "severity": "low",
+    "steps": [
+      "Run TMPDIR=<private dir> STRATEGIES=dead_run SEEDS=\"5 7\" EXTRA=\"--permit=2 --skill-order=B1,C1,A1,M1,M2,F1,C3 --inject=15:1500\" TAG=x LIMIT=180 sh qa/bots/run_batch.sh <out dir>"
+    ],
+    "expected": "Bot can measure fabric payback (plate sold at the station)",
+    "actual": "No plate sell order is set by the bot. Fabric payback vs cycle 23 cannot be measured in the bot. Bot fix needed for the next pass (qa-analyst).",
+    "owner_agent": "qa-analyst"
+  }
+]

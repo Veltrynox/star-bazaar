@@ -1,0 +1,101 @@
+[
+  {
+    "run_id": "BR-01-flat-cash-stall",
+    "seed": "dead_run permit: 5; dead_run chain: 1, 4",
+    "strategy": "dead_run",
+    "issue_type": "softlock",
+    "severity": "high",
+    "steps": [
+      "TMPDIR=<private> STRATEGIES=dead_run SEEDS=\"5\" EXTRA=\"--permit=2\" TAG=fast LIMIT=180 sh qa/bots/run_batch.sh <out>  (seed 5: cash 146 flat cycles 21 to 30)",
+      "TMPDIR=<private> STRATEGIES=dead_run SEEDS=\"1 4\" EXTRA=\"--permit=2 --skill-order=B1,C1,A1,M1,M2,F1,C3 --inject=15:1500\" TAG=fast LIMIT=180 sh qa/bots/run_batch.sh <out>  (seed 1: cash 144 flat cycles 21 to 30; seed 4: cash 144 flat from cycle 23)",
+      "Read cash_by_cycle and plate_log in RESULT: routes 'Not enough cash.' for 2 running routes (reserve_short cash 146 vs fixed 104 x 2), dross source stock grows each cycle (free dead-world mining)"
+    ],
+    "expected": "Cash changes or the player can act (sell stock, close a route) while routes are open",
+    "actual": "Cash is flat for 7 to 10 cycles to the end with no income. Routes stall on cash below one trip plus upkeep. The bot never sells the dross it holds at the station (only plate has a sell order now). The bot's idle check counts source stock growth as progress, so the run is not flagged as a softlock (see BR-06). Human exit (Sell dross at Voltara, or Remove a route) not probed: UNKNOWN.",
+    "owner_agent": "economy-designer"
+  },
+  {
+    "run_id": "BR-02-chain-not-reached",
+    "seed": "1, 3, 4, 6, 8 (chain); 2, 5, 7 only partly",
+    "strategy": "dead_run",
+    "issue_type": "chain_output_not_reached",
+    "severity": "high",
+    "steps": [
+      "TMPDIR=<private> STRATEGIES=dead_run SEEDS=\"1 2 3 4 5 6 7 8\" EXTRA=\"--permit=2 --skill-order=B1,C1,A1,M1,M2,F1,C3 --inject=15:1500\" TAG=fast LIMIT=180 sh qa/bots/run_batch.sh <out>",
+      "Read fabric_state, plate_log, core_log, dead_log (cycle 15 rows)"
+    ],
+    "expected": "Fabric makes plate from dross and nullglass; Null Core built and fitted; plate sold at Voltara",
+    "actual": "Plate max: 1 (seeds 2, 5, 7), 0 (seeds 1, 3, 4, 6, 8). Fabric built and then stalled in seeds 3, 4, 6, 8 (no input reaches the station). Seed 3 at cycle 15: 'No ship available. Buying one needs more cash.' for dead_1 and 'Routes between systems need Long Haul (C3).' for Greywake nullglass, with cash 11347 at end, so the cause is ship slots and C3 timing, not cash. Seeds 1 and 4 end at cash 144 (BR-01). Null Core built in 2 seeds (5, 7 at cycles 19 and 23, scripted chain) and fitted. Plate sell now works, so the output is measurable but tiny.",
+    "owner_agent": "economy-designer"
+  },
+  {
+    "run_id": "BR-03-decent-win-band",
+    "seed": "1-8",
+    "strategy": "decent",
+    "issue_type": "win_rate_below_target",
+    "severity": "medium",
+    "steps": [
+      "TMPDIR=<private> STRATEGIES=decent SEEDS=\"1 2 3 4 5 6 7 8\" EXTRA=\"\" TAG=fast LIMIT=180 sh qa/bots/run_batch.sh <out>  -> 0 of 8 wins",
+      "TMPDIR=<private> STRATEGIES=decent SEEDS=\"1 2 3 4 5 6 7 8\" EXTRA=\"--skip-skill=B1 --permit=2\" TAG=fast LIMIT=180 sh qa/bots/run_batch.sh <out>  -> 3 of 8 wins (cycles 25, 27, 29)",
+      "python3 tools/sim.py --settle --mc 300 -> decent 98% win, median cycle 23 (20 to 30)"
+    ],
+    "expected": "Decent bot wins about 90% of runs at cycles 20 to 30 (sim: 98%, median 23)",
+    "actual": "Bot with permit: 38% (3 of 8; Wilson 95% about 14% to 70%), median win cycle 27. Bot without permit: 0%. Gap to sim: about 60 points of win rate and 4 cycles of median. Permit batch was 4 of 8 before the bot changes (cycles 28, 29, 29, 30); the change moved it, see BR-04.",
+    "owner_agent": "economy-designer"
+  },
+  {
+    "run_id": "BR-04-dead-permit-regression",
+    "seed": "1-8",
+    "strategy": "dead_run",
+    "issue_type": "bot_regression",
+    "severity": "medium",
+    "steps": [
+      "TMPDIR=<private> STRATEGIES=dead_run SEEDS=\"1 2 3 4 5 6 7 8\" EXTRA=\"--permit=2\" TAG=fast LIMIT=180 sh qa/bots/run_batch.sh <out>",
+      "Compare with 2026-11-03 bug report batch (dead_run --permit=2): 2 of 8 wins (cycles 28, 29)"
+    ],
+    "expected": "Bot changes do not lower wins for the dead_run permit path without a reason",
+    "actual": "0 of 8 wins now (end cash median 1145, range 146 to 6568). The three bot changes (buy guard, A1 before permit, plate sell) were all applied together; which one moved the result is UNKNOWN (not isolated, no ablation run).",
+    "owner_agent": "qa-analyst"
+  },
+  {
+    "run_id": "BR-05-always-expand-default",
+    "seed": "1-8",
+    "strategy": "always_expand",
+    "issue_type": "win_rate_below_target",
+    "severity": "low",
+    "steps": [
+      "TMPDIR=<private> STRATEGIES=always_expand SEEDS=\"1 2 3 4 5 6 7 8\" EXTRA=\"\" TAG=fast LIMIT=180 sh qa/bots/run_batch.sh <out>  -> 0 of 8 wins",
+      "python3 tools/sim.py --settle --mc 300 -> always_expand 75%"
+    ],
+    "expected": "Weaker than decent (sim 75%)",
+    "actual": "0 of 8 wins with no permit flag, end cash median 3491. Table only; always_expand with permit not rerun in this batch.",
+    "owner_agent": "economy-designer"
+  },
+  {
+    "run_id": "BR-06-idle-detector-blind",
+    "seed": "dead_run permit 5; chain 1, 4",
+    "strategy": "dead_run",
+    "issue_type": "bot_gap",
+    "severity": "low",
+    "steps": [
+      "Run BR-01 seed 5 (dead_run --permit=2): cash flat 146 from cycle 21 to 30, no softlock issue in RESULT"
+    ],
+    "expected": "Bot flags a run whose cash is flat and whose routes are stalled",
+    "actual": "_state_sig is [cash, total stock]. A growing dead-world source (free mining) changes the stock total each cycle, so the idle check never fires. Fix: count only sold or moved stock, or flag routes stalled on cash.",
+    "owner_agent": "qa-analyst"
+  },
+  {
+    "run_id": "BR-07-fabric-before-inputs",
+    "seed": "3, 4, 6, 8 (chain)",
+    "strategy": "dead_run",
+    "issue_type": "design_question",
+    "severity": "medium",
+    "steps": [
+      "TMPDIR=<private> STRATEGIES=dead_run SEEDS=\"3\" EXTRA=\"--permit=2 --skill-order=B1,C1,A1,M1,M2,F1,C3 --inject=15:1500\" TAG=fast LIMIT=180 sh qa/bots/run_batch.sh <out>",
+      "fabric_log: [13, built] in seed 3, before any dross or nullglass route"
+    ],
+    "expected": "Owner rule for fabric timing",
+    "actual": "600 credits go into the fabric at cycles 13 to 16 with no input route yet. Carried from the 2026-11-03 passability report. Owner decision: UNKNOWN.",
+    "owner_agent": "gameplay-programmer"
+  }
+]

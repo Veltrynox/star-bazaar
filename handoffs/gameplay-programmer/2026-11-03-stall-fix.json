@@ -1,0 +1,13 @@
+{
+ "schema_version": 1,
+ "agent": "gameplay-programmer",
+ "date": "2026-11-03",
+ "task": "stall-fix",
+ "status": "done",
+ "files_changed": ["game/main.gd", "game/ship_panel.gd", "game/space_storage_view.gd", "tools/tests/run_tests.gd"],
+ "open_questions": [
+  "Story designer: please add story key NOT_SHIP_KEEP_CASH (args {floor}); the code falls back to 'Keep cash for trips: {floor} cr after the price.' until it exists.",
+  "Economy designer: the floor uses the number of open routes now (task wording), not routes+1 as in your handoff. Say if you want +1."
+ ],
+ "handoff": "Tests 961 pass, 0 fail (was 955/1). (1) Failing test: SS_FABRIC_NO_INPUTS now uses the {items} placeholder in space_storage_view.gd (code used {list}, so the rewritten text printed raw); the test is unchanged. (2a) main.can_buy_ship refuses when cash minus price is below ship_cash_floor() = open routes x fixed_cost(); the reason shows in the ships panel free-ships line and as the button tooltip. (2b) _check_stranded also fires when routes exist, cash is below the summed fixed_cost of all routes, net was <= 0 for 2 cycles (new prev_net) and nothing is sellable; same stipend, once per cycle. 6 new tests. (3) Bot dead_run chain seeds 1 and 4: before cash 144 flat from cycle 21 / 23 to 30; after cash at cycle 30 is 7403 (seed 1) and 6791 (seed 4), no flat stall (dips to 280 at cycle 16 then recovers); no win by 30 cycles, run capped at 30."
+}

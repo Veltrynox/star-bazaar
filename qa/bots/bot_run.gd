@@ -50,6 +50,7 @@ extends SceneTree
 ##   --skills=<id,id,...>    only these skills may be learned (empty value or none: no skill). Default: all.
 ##   --skill-order=<id,...>  learn these first, in this order, then the rest in tree order.
 ##   --permit=<system id>    buy that system's permit as soon as the game allows it (needs C1).
+##                           decent defaults to --permit=2 (QA 2026-11-03); --no-permit turns that off.
 ##   --reload-choice         T80: at the win choice, free the game and start a new one from the save (Continue path),
 ##                           then answer. Checks the choice comes back unchanged.
 ##
@@ -91,6 +92,7 @@ var skip_skills: Array = []  # QA option --skip-skill=A3,... (never learn these 
 var only_skills: Array = []  # QA option --skills=... (empty: every skill may be learned)
 var skill_order: Array = []  # QA option --skill-order=... (learned first, in this order)
 var permit_sid := -1  # QA option --permit=<system id>
+var default_permit := true  # QA 2026-11-03: decent buys permit 2 when affordable unless --no-permit
 var rng := RandomNumberGenerator.new()
 var main: Node = null
 var phase := 0
@@ -181,12 +183,17 @@ func _initialize() -> void:
 			close_at = int(arg.trim_prefix("--close-at="))
 		elif arg == "--keep-closed":
 			keep_closed = true
+		elif arg == "--no-permit":
+			default_permit = false
 		elif arg.begins_with("--permit="):
 			permit_sid = int(arg.trim_prefix("--permit="))
 		elif arg.begins_with("--inject="):
 			var parts := arg.trim_prefix("--inject=").split(":")
 			inject_cycle = int(parts[0])
 			inject_cash = int(parts[1])
+	# QA 2026-11-03: the decent default is a human path: it buys the system 2 permit (C1 + 600) as soon as it can afford it.
+	if strategy == "decent" and permit_sid < 0 and default_permit:
+		permit_sid = 2
 	if strategy == "mining_focus" and skill_order.is_empty():
 		skill_order = ["B1"]  # T161: mining_focus learns Prospecting (B1) first
 	if strategy == "dead_run" and skill_order.is_empty():
@@ -496,6 +503,8 @@ func _sync_lanes(plan: Array) -> Array:
 			var b := int(rec["b"])
 			var c := str(rec["c"])
 			var keep: bool = _in_plan(a, b, c, keep_lanes) and not bool(main.storage.is_full(str(rec["dst"]), c))
+			if strategy == "dead_run" and b < 0 and (c == "dross" or c == "nullglass") and (a == int(dead_ids.get("dead_1", -9)) or a == int(dead_ids.get("dead_2", -9))):
+				keep = not bool(main.storage.is_full(str(rec["dst"]), c))  # R3: the scripted chain routes feed the fabric, the planner does not plan them
 			if not keep:
 				_remove_route(int(rec["id"]))
 	var active: Array = []
@@ -561,6 +570,13 @@ func _apply_orders(active: Array) -> void:
 		if _buy_wanted(int(lane["a"]), str(lane["c"])):
 			want["%d|%s|buy" % [int(lane["a"]), str(lane["c"])]] = true
 		want["%d|%s|sell" % [int(lane["b"]), str(lane["c"])]] = true
+	# QA fix 2026-11-03: plate sells at Voltara (planet_1, plate_sell in data/planets.json) so fabric payback is measurable.
+	# The Sell draws from the system 1 station; on only while the station holds plate.
+	var pl := _plate_seller()
+	if pl >= 0 and int(main.storage.amount(main.storage.system_key(int(main.trade.planets[pl].get("system", 1))), "plate")) > 0 \
+			and main.engine.planet_open(pl):
+		want["%d|plate|sell" % pl] = true
+
 	for o in main.engine.local.values().duplicate(true):
 		for role in ["buy", "sell"]:
 			var key := "%d|%s|%s" % [int(o["planet"]), str(o["c"]), role]
@@ -569,6 +585,14 @@ func _apply_orders(active: Array) -> void:
 	for key in want.keys():
 		var parts: PackedStringArray = str(key).split("|")
 		_set_order(int(parts[0]), parts[1], parts[2], true)
+
+
+## QA: the planet index that sells plate (Voltara, the one with a plate_sell price). Index 0 in data/planets.json.
+func _plate_seller() -> int:
+	for i in main.trade.planets.size():
+		if int(main.trade.price(i, "plate_sell")) >= 0:
+			return i
+	return -1
 
 
 ## Buy side of a lane. The route moves units_per_cycle a turn, so a Buy order only refills what the route
@@ -580,11 +604,12 @@ func _buy_wanted(a: int, c: String) -> bool:
 	if strategy == "sloppy":
 		return true
 	var units: int = mini(int(main.engine.local_amount()), int(main.engine.units_per_cycle()))
-	var bp: int = int(main.trade.price(a, c + "_buy"))
 	var stock: int = int(main.storage.amount(main.storage.planet_key(a), c))
-	# A Buy order buys what cash allows (engine), so one unit of cash-above-trip is enough to keep it on.
-	# Requiring a full shipment here left cash stuck at the trip cost with no trade, a deadlock.
-	return stock < units and main.cash >= int(main.engine.fixed_cost()) + maxi(bp, 1)
+	# QA fix 2026-11-03: the Buy order is on when cash covers one trip (fixed cost = trip + upkeep of one run).
+	# No extra reserve on top: the engine's route_reserve already holds the fixed cost of every running route
+	# before a Buy spends, so adding one more fixed cost here double-counted it and blocked the Buy at cash 114
+	# (fixed 110), which left routes idle. A Buy order buys only what cash allows after that reserve.
+	return stock < units and main.cash >= int(main.engine.fixed_cost())
 
 
 func _set_order(p: int, c: String, role: String, on: bool) -> void:
@@ -616,6 +641,8 @@ func _buy_wanted_permit() -> bool:
 		return false
 	if not bool(main.can_buy_permit(permit_sid).get("ok", false)):
 		return false
+	if not main.learned_skills.has("A1") and not skip_skills.has("A1") and (only_skills.is_empty() or only_skills.has("A1")):
+		return false  # QA fix 2026-11-03: A1 comes first; the permit points must not be spent before A1 is learned
 	var keep := 0 if strategy == "dead_run" else PERMIT_WORKING_CASH  # R2: dead_run buys the system 2 permit as soon as affordable
 	if int(main.cash) < int(main.permit_cost(permit_sid)) + keep:  # QA: keep cash to buy stock after the permit
 		return false
@@ -647,7 +674,7 @@ func _learn_skills() -> void:
 				continue
 			if not only_skills.is_empty() and not only_skills.has(id):
 				continue
-			if _permit_reserve() > 0 and main.skill_points - SkillTree.cost(main.balance, id) < _permit_reserve():
+			if id != "A1" and _permit_reserve() > 0 and main.skill_points - SkillTree.cost(main.balance, id) < _permit_reserve():
 				continue  # QA: keep the points the wanted permit needs
 			var r: Dictionary = main.learn_skill(id)
 			if r["ok"]:
@@ -866,6 +893,47 @@ var dead_ids := {}
 var dead_last := {}
 var dead_log: Array = []
 var fabric_log: Array = []
+var core_log: Array = []  # R3
+var plate_log: Array = []  # R3
+
+## R3: lay one dead-chain route to the system 1 station (Space Storage). Frees a ship by closing the weakest route when none is free.
+func _chain_route(c: int, pid: String, com: String, tag: String, free_ok: bool) -> void:
+	if not dead_ids.has(pid) or dead_last.has(tag) or _has_route_from(int(dead_ids[pid])):
+		return
+	var src: int = int(dead_ids[pid])
+	var ok: Dictionary = main.can_connect(src, -1, com)
+	if not bool(ok["ok"]) and free_ok and str(ok["reason"]).begins_with("No ship") and dead_last.get("frees", 0) < 3 and not main.engine.routes.is_empty():
+		var weakest := -1
+		var weakest_net := 1 << 30
+		for r in main.engine.routes:
+			if int(r["a"]) == int(dead_ids.get("dead_1", -9)) or int(r["a"]) == int(dead_ids.get("dead_2", -9)):
+				continue  # never close a dead-chain route to make room for another
+			var net: int = main.route_net(int(r["id"]))
+			if net < weakest_net:
+				weakest_net = net
+				weakest = int(r["id"])
+		if weakest < 0:
+			return
+		dead_last["frees"] = int(dead_last.get("frees", 0)) + 1
+		var rr: Dictionary = main.remove_connection(weakest)
+		dead_log.append([c, "freed ship: closed route %d (net %d) for %s" % [weakest, weakest_net, pid], com, -1, bool(rr.get("ok", false)), str(rr.get("reason", ""))])
+		ok = main.can_connect(src, -1, com)
+	if bool(ok["ok"]):
+		var rc: Dictionary = main._connect(src, -1, com)
+		dead_last[tag] = "1"
+		dead_log.append([c, "chain route " + pid + " to station", com, -1, bool(rc.get("ok", false)), "scripted route"])
+	elif str(ok["reason"]) != str(dead_dict_get(tag)):
+		dead_last[tag + "_why"] = str(ok["reason"])
+		dead_log.append([c, "chain refused " + pid, com, -1, false, str(ok["reason"])])
+
+func dead_dict_get(k: String) -> String:
+	return str(dead_last.get(k + "_why", ""))
+
+func _has_route_from(pid: int) -> bool:
+	for r in main.engine.routes:
+		if int(r["a"]) == pid:
+			return true
+	return false
 
 func _dead_probe(c: int) -> void:
 	if dead_ids.size() < 2:
@@ -873,6 +941,20 @@ func _dead_probe(c: int) -> void:
 			var pid := str(main.trade.planets[i].get("id", ""))
 			if pid == "dead_1" or pid == "dead_2":
 				dead_ids[pid] = i
+	if c == main.dead_unlock_cycle() - 1 or c == main.dead_unlock_cycle():
+		dead_log.append([c, "notice", "", -1, true, "shown: " + str(main.shown_notice) + " | queue: " + str(main.notice_queue) + " | last: " + str(main.last_notice)])  # R3: the DEAD_UNLOCK notice is posted at the unlock cycle
+	# R3 scripted player for the dead chain (dead_run only): from the unlock cycle, lay the two chain routes into the
+	# system 1 Space Storage (Cinderrest dross, then Greywake nullglass once Long Haul is learned). With ship_cap
+	# all standing routes take the ships, so the script closes its weakest route (a normal Remove) to free one, at most 3 times.
+	if c >= main.dead_unlock_cycle():
+		_chain_route(c, "dead_1", "dross", "chain_dross", true)
+		if main.has_skill("C3"):
+			_chain_route(c, "dead_2", "nullglass", "chain_nullglass", true)
+		# the chain source fills from a standing Buy order at the dead world (the mining), as a player sets it
+		for pid_c in [["dead_1", "dross"], ["dead_2", "nullglass"]]:
+			if dead_ids.has(pid_c[0]) and _has_route_from(int(dead_ids[pid_c[0]])) and not main.engine.local_on(int(dead_ids[pid_c[0]]), pid_c[1], "buy"):
+				var ro: Dictionary = main.set_local_order(int(dead_ids[pid_c[0]]), pid_c[1], "buy", true)
+				dead_log.append([c, "buy order " + pid_c[0], pid_c[1], -1, bool(ro.get("ok", false)), str(ro.get("reason", ""))])
 	if dead_ids.size() < 2 and c == 1:
 		dead_log.append([c, "missing", str(dead_ids.keys()), main.trade.planets.size(), false, "dead world not found in trade.planets"])
 	for pid in dead_ids.keys():
@@ -910,14 +992,16 @@ func _dead_probe(c: int) -> void:
 				dead_last[sk] = lk
 				dead_log.append([c, "skill " + sk, "", -1, bool(lv["ok"]), str(lv.get("reason", "")) + " " + str(lv.get("why", ""))])
 	# R2: once the fabric is built, try the nullglass route from Greywake to the system 1 station once (accepted or refused, with reason)
-	if main.fabric.built and dead_ids.has("dead_2") and not dead_last.has("attempt"):
-		dead_last["attempt"] = "1"
+	# R3: retry the Greywake nullglass route to the station every cycle until one is accepted; log each new refusal reason.
+	if dead_ids.has("dead_2") and not dead_last.has("attempt_ok") and not _has_route_from(int(dead_ids["dead_2"])):
 		var gsrc: int = int(dead_ids["dead_2"])
 		var ra: Dictionary = main.can_connect(gsrc, -1, "nullglass")
 		if bool(ra["ok"]):
 			var sr: Dictionary = main.send_stock_buying(gsrc, -1, "nullglass")
+			dead_last["attempt_ok"] = "1"
 			dead_log.append([c, "attempt station", "nullglass", -1, bool(sr.get("ok", false)), "send: " + str(sr.get("reason", ""))])
-		else:
+		elif "attempt:" + str(ra["reason"]) != str(dead_last.get("attempt", "")):
+			dead_last["attempt"] = "attempt:" + str(ra["reason"])
 			dead_log.append([c, "attempt station", "nullglass", -1, false, "refused: " + str(ra["reason"])])
 	elif not main.fabric.built and dead_ids.has("dead_2") and c == 1:
 		pass
@@ -928,6 +1012,31 @@ func _dead_probe(c: int) -> void:
 	elif str(fv["reason"]) != str(dead_last.get("fab", "")):
 		dead_last["fab"] = str(fv["reason"])
 		fabric_log.append([c, "refused", str(fv["reason"])])
+	# R3: plate and dead-chain stock per cycle: [cycle, plate, nullglass, dross] at the system 1 trading post
+	var skey: String = main.storage.system_key(1)
+	var chain_state := ""
+	for r in main.engine.routes:
+		if int(r["b"]) < 0:
+			chain_state += "%s/%s/%s/src%d;" % [str(r["c"]), str(r["state"]), str(r["reason"]), main.storage.amount("planet:%d" % int(r["a"]), str(r["c"]))]
+	plate_log.append([c, main.storage.amount(skey, "plate"), main.storage.amount(skey, "nullglass"), main.storage.amount(skey, "dross"), chain_state])
+	# R3: Null Core: build once from the trading post stock (plate and nullglass), then fit it to the first route out of a dead world
+	var cv: Dictionary = main.can_build_core()
+	if bool(cv["ok"]):
+		var r3: Dictionary = main.build_null_core()
+		core_log.append([c, "built", bool(r3.get("ok", false))])
+	elif str(cv["reason"]) != str(dead_last.get("core", "")):
+		dead_last["core"] = str(cv["reason"])
+		core_log.append([c, "refused", str(cv["reason"])])
+	if main.fabric.core_made > 0 and main.core_route_id() < 0 and not dead_last.has("fit"):
+		var fid := -1
+		for r in main.engine.routes:
+			var a: int = int(r["a"])
+			if a >= 0 and a < main.trade.planets.size() and DeadWorlds.is_dead(main.trade.planets[a]) and fid < 0:
+				fid = int(r["id"])
+		if fid >= 0:
+			dead_last["fit"] = "1"
+			var rf: Dictionary = main.fit_core(fid)
+			core_log.append([c, "fit route %d" % fid, bool(rf.get("ok", false)), str(rf.get("reason", ""))])
 
 func _select(p: int) -> void:
 	main.map.planet_clicked.emit(p)
@@ -1218,6 +1327,8 @@ func _finish() -> bool:
 		"ore_taken": ore_taken,
 		"dead_log": dead_log,
 		"fabric_log": fabric_log,
+		"core_log": core_log,
+		"plate_log": plate_log,
 		"danger_rows": danger_rows,
 		"fabric_state": str(main.fabric.get("state")) + "/" + str(main.fabric.get("built")),
 		"clusters_harvested": clusters_touched.size(),
