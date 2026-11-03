@@ -51,7 +51,7 @@ extends SceneTree
 ##                           The RESULT line gets a "closure" record: closed and bridged cycles, what each route paid.
 ##   --skills=<id,id,...>    only these skills may be learned (empty value or none: no skill). Default: all.
 ##   --skill-order=<id,...>  learn these first, in this order, then the rest in tree order.
-##   --permit=<system id>    buy that system's permit as soon as the game allows it (needs C1).
+##   --permit=<system id>    buy that system's permit as soon as the game allows it (needs FND_PERMIT).
 ##                           decent defaults to --permit=2 (QA 2026-11-03); --no-permit turns that off.
 ##   --reload-choice         T80: at the win choice, free the game and start a new one from the save (Continue path),
 ##                           then answer. Checks the choice comes back unchanged.
@@ -90,7 +90,7 @@ var reload_at_choice := false  # QA option --reload-choice: reload the game from
 var reloaded := false
 var event_rows: Array = []  # T80: per cycle, the active event effects and closed planets (for the events check)
 var reload_ok := true
-var skip_skills: Array = []  # QA option --skip-skill=A3,... (never learn these ids)
+var skip_skills: Array = []  # QA option --skip-skill=MIN_2,... (never learn these ids)
 var only_skills: Array = []  # QA option --skills=... (empty: every skill may be learned)
 var skill_order: Array = []  # QA option --skill-order=... (learned first, in this order)
 var permit_sid := -1  # QA option --permit=<system id>
@@ -393,7 +393,7 @@ func _ranked_lanes(ignore_closed := false) -> Array:
 				var profit: int = (sp - bp) * units - fixed
 				# A lane is worth a ship only if one cycle's profit pays the ship back within PAYBACK_CYCLES.
 				var ship_price: int = int(main.balance.get("ship_price", 0))
-				if profit * PAYBACK_CYCLES >= ship_price and not _cross_system_blocked(a, b):  # the game refuses cross-system routes without C3
+				if profit * PAYBACK_CYCLES >= ship_price and not _cross_system_blocked(a, b):  # cross-system routes need no skill now
 					out.append({"a": a, "b": b, "c": cs, "profit": profit})
 	out.sort_custom(func(x, y): return x["profit"] > y["profit"])
 	return out
@@ -738,7 +738,7 @@ func _count(kind: String, c: int) -> void:
 	decision_kinds[kind] = int(decision_kinds.get(kind, 0)) + 1
 
 
-## T161 mining_focus: the plan is cluster ore lanes first (only with B1), then the commodity trade ranking.
+## T161 mining_focus: the plan is cluster ore lanes first (only with FND_PROSPECT), then the commodity trade ranking.
 func _mining_plan(ranked: Array) -> Array:
 	var out: Array = []
 	if main.can_mine():
@@ -750,7 +750,7 @@ func _mining_plan(ranked: Array) -> Array:
 	return out.slice(0, mini(cap, out.size()))
 
 
-## T161: one ore lane per live cluster (best open destination, same system unless C3). Ore is free at the cluster.
+## T161: one ore lane per live cluster (best open destination, same system). Ore is free at the cluster.
 func _cluster_lanes() -> Array:
 	var out: Array = []
 	if not main.engine.commodities.has("ore") or (market_focus != "" and Markets.market_of("ore") != market_focus):

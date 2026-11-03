@@ -259,7 +259,7 @@ def skill_log_summary(recs, clock):
     learn = [r for r in _decent_clock(recs, clock) if not (r.get("skip_skills") or [])]
     with_log = [r for r in learn if "skill_log" in r]
     res = {"learn_runs": len(learn), "runs_with_skill_log": len(with_log), "skills": {}}
-    for sid in ("A1", "A2", "A3", "A4", "A5", "B1", "B2", "B3", "B4", "C1", "C2", "C3", "C4"):
+    for sid in ("FND_STORAGE", "FND_PERMIT", "FND_PROSPECT", "MIL_1", "MIL_2", "MIL_3", "MIL_4", "MIL_5", "MIL_6", "MIL_7", "LUX_1", "LUX_2", "LUX_3", "LUX_4", "LUX_5", "LUX_6", "LUX_7", "MIN_1", "MIN_2", "MIN_3", "MIN_4", "MIN_5", "MIN_6", "MIN_7", "BIO_1", "BIO_2", "BIO_3", "BIO_4", "BIO_5", "BIO_6", "BIO_7"):
         hits = [(e[0], e[2]) for r in with_log for e in r["skill_log"] if e[1] == sid]
         if not with_log:
             break
