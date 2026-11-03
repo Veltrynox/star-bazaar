@@ -14,11 +14,17 @@ const PLANETS_PATH := "res://data/planets.json"
 # Zoom bounds are not in gdd.md: defaults for owner decision.
 # T33: the tunables below are vars (zoom_min ... planet_scale) so the debug menu can edit them live.
 const ZOOM_STEP := 1.1
-const START_ZOOM := 1.0
+const START_ZOOM := 0.65        # was 1.0: planet orbits are ORBIT_SCALE x wider, so the default view backs off to keep every system in frame
 const PAN_SPEED := 10.0          # world units per second at zoom 1
 const LAYOUT_RADIUS := 6.0       # ring radius for the simple layout (world units)
 const MAP_UNIT_SCALE := 0.02     # world units per map unit in planets.json (old ring: 300 map units = 6 world units)
 const PLANET_RADIUS := 0.8       # base radius (before planet_scale)
+const ORBIT_SCALE := 2.0         # planets sit this many times further from their system centre than planets.json / systems.json x,y say (the data stays as is)
+## Planet size variation: each planet is PLANET_SIZE_MIN..PLANET_SIZE_MAX of the base radius. A planet's own "size" key in
+## the data wins; otherwise the value comes from a hash of its id, so it is the same every run. Dead worlds use the same range.
+const PLANET_SIZE_MIN := 0.55
+const PLANET_SIZE_MAX := 1.45
+const PLANET_PICK_MIN := 0.75    # smallest click radius of a planet (world units), so the smallest planets stay easy to hit
 const CLUSTER_PICK_MIN := 0.3     # smallest click radius of an asteroid pack (world units); under a planet's radius
 const PLANET_SIZE := 1.3         # planet size multiplier: planets are x1.3 the old size; the debug menu starts here
 const BASE_DISTANCE := 16.0      # camera distance from focus point at zoom 1
@@ -64,6 +70,8 @@ var zoom: float = START_ZOOM
 var yaw_deg: float = START_YAW_DEG
 var pitch_deg: float = START_PITCH_DEG
 var pending_hint: MeshInstance3D  # T57 halo on the planet with a pending connection
+var _hint_i := -1
+var _pending_i := -1
 var hint: MeshInstance3D  # T28 pulsing halo, null until first requested
 var route_lines: Dictionary = {}  # T07b: route id -> route_line.gd node
 var _route_list: Array = []       # last list given to set_routes (rebuilt after tunable changes)
@@ -112,6 +120,7 @@ func _ready() -> void:
 		_make_planet(i)
 	asteroid_packs = load("res://game/galaxy/asteroid_packs.gd").new()
 	asteroid_packs.map_unit_scale = MAP_UNIT_SCALE
+	asteroid_packs.sun_positions = sun_positions
 	add_child(asteroid_packs)
 	_frame_planets()
 	_add_sun(focus)
@@ -190,6 +199,8 @@ func _add_orbit_rings(center: Vector3, sys: int = 1) -> void:
 ## planet orbits, dashed outer ring) are shared out between the rings, one slot per ring with a 10% margin to the lines,
 ## so no band touches an orbit line. Visual only: no collision, never picked.
 const DUST_RING_COUNT := 7
+## Owner 2026-11-03: Voltara's belt was too big, scaled to half (bands were 1.5-1.8 and 2.0-2.4 planet radii).
+const BELT_SCALE := 0.5
 ## A light dust belt round one planet (Voltara: no event names a belt there; closest is EV28 'Voltara's foundry wants rock').
 ## Two thin broken bands at 1.5 to 1.8 and 2.0 to 2.4 planet radii, 1500 grains, centred on the planet, so it reads as
 ## a belt round Voltara and stays well clear of the other planets. Visual only: no collision, planet picking is maths.
@@ -197,9 +208,9 @@ func _add_planet_belt(planet_name: String) -> void:
 	for i in planets.size():
 		if str(planets[i].get("name", "")) != planet_name:
 			continue
-		var r := planet_radius()
+		var r := planet_radius(i)
 		var belt: MultiMeshInstance3D = load("res://art/planet_fx/asteroid_dust_ring.gd").new()
-		var bands: Array[Vector2] = [Vector2(r * 1.5, r * 1.8), Vector2(r * 2.0, r * 2.4)]
+		var bands: Array[Vector2] = [Vector2(r * 1.5, r * 1.8) * BELT_SCALE, Vector2(r * 2.0, r * 2.4) * BELT_SCALE]
 		belt.slots = bands
 		belt.count = 1500
 		belt.seed_salt = 100 + i
@@ -248,7 +259,9 @@ func _make_planet(i: int) -> void:
 	var n := planets.size()
 	var pos: Vector3
 	if planets[i].has("x") and planets[i].has("y"):
-		pos = Vector3(float(planets[i]["x"]), 0.0, float(planets[i]["y"])) * MAP_UNIT_SCALE
+		var raw := Vector3(float(planets[i]["x"]), 0.0, float(planets[i]["y"])) * MAP_UNIT_SCALE
+		var mid := _raw_center(int(planets[i].get("system", 1)))  # orbits grow about the system centre, which stays put
+		pos = mid + (raw - mid) * ORBIT_SCALE
 	else:
 		var a := TAU * float(i) / float(max(n, 1)) - PI / 2.0
 		pos = Vector3(cos(a), 0.0, sin(a)) * LAYOUT_RADIUS
@@ -258,7 +271,7 @@ func _make_planet(i: int) -> void:
 	sph.rarity = clampf(float(planets[i].get("rarity", 0.0)), 0.0, 1.0)
 	sph.planet_id = str(planets[i].get("id", i))  # the sphere picks its own variant and rim light from this
 	sph.position = pos
-	sph.scale = Vector3.ONE * planet_radius()
+	sph.scale = Vector3.ONE * planet_radius(i)
 	add_child(sph)
 	planet_spheres.append(sph)
 	_aim_sphere(i)
@@ -275,9 +288,23 @@ func _make_planet(i: int) -> void:
 	l.outline_size = 12
 	l.modulate = Ui.col("ink")
 	l.outline_modulate = Ui.col("panel_100")
-	l.position = pos + Vector3(0, -label_drop(), 0)
+	l.position = pos + Vector3(0, -label_drop(i), 0)
 	add_child(l)
 	planet_labels.append(l)
+
+## Middle of one system's planets from the data x,y (before ORBIT_SCALE), on the ground plane.
+func _raw_center(sys: int) -> Vector3:
+	var lo := Vector3.ZERO
+	var hi := Vector3.ZERO
+	var first := true
+	for p in planets:
+		if int(p.get("system", 1)) != sys or not p.has("x") or not p.has("y"):
+			continue
+		var v := Vector3(float(p["x"]), 0.0, float(p["y"])) * MAP_UNIT_SCALE
+		lo = v if first else Vector3(minf(lo.x, v.x), 0.0, minf(lo.z, v.z))
+		hi = v if first else Vector3(maxf(hi.x, v.x), 0.0, maxf(hi.z, v.z))
+		first = false
+	return (lo + hi) * 0.5
 
 ## Focus on the centre of the planets' bounding box on the ground plane.
 func _frame_planets() -> void:
@@ -296,7 +323,8 @@ func add_planets(list: Array) -> int:
 	var first := planets.size()
 	for p in list:
 		planets.append(p)
-		_make_planet(planets.size() - 1)
+	for k in list.size():  # all appended first: the system centre for ORBIT_SCALE needs every planet of the system
+		_make_planet(first + k)
 	for p in list:  # a new system gets its own sun and orbit rings, centred on its planets
 		var sid := int(p.get("system", 1))
 		if not suns.has(sid):
@@ -322,7 +350,7 @@ func set_clusters(list: Array) -> void:
 	_cluster_list = list
 	asteroid_packs.sync(list)
 
-## T159: index of the cluster of the viewed system whose pack is under the cursor (ray against a sphere of the pack radius), or -1.
+## T159: index of the cluster of the viewed system whose pack is under the cursor (ray against an ellipsoid: radius across the orbit radius, radius x stretch along the tangent), or -1.
 func pick_cluster(screen_pos: Vector2) -> int:
 	var origin := camera.project_ray_origin(screen_pos)
 	var dir := camera.project_ray_normal(screen_pos)
@@ -333,9 +361,14 @@ func pick_cluster(screen_pos: Vector2) -> int:
 			continue
 		var centre := Vector3(float(c["x"]), 0.0, float(c["y"])) * MAP_UNIT_SCALE
 		var r := float(c["radius"]) * MAP_UNIT_SCALE
-		var oc := origin - centre
-		var b := oc.dot(dir)
-		var disc := b * b - (oc.dot(oc) - r * r)
+		# Ellipsoid test: the pack is stretched along its orbit tangent, so squash the ray back along that axis and test a sphere.
+		var tn: Vector3 = asteroid_packs.tangent_of(c)
+		var k := maxf(1.0, float(c.get("stretch", 1.0)))
+		var o2 := _unstretch(origin - centre, tn, k)
+		var d2 := _unstretch(dir, tn, k)
+		var a2 := d2.dot(d2)
+		var b := o2.dot(d2) / a2
+		var disc := b * b - (o2.dot(o2) - r * r) / a2
 		if disc < 0.0:
 			continue
 		var t := -b - sqrt(disc)
@@ -343,6 +376,11 @@ func pick_cluster(screen_pos: Vector2) -> int:
 			best_t = t
 			best = int(c["index"])
 	return best
+
+## Divides the part of v along unit axis tn by k (ellipsoid to sphere space for pick_cluster).
+func _unstretch(v: Vector3, tn: Vector3, k: float) -> Vector3:
+	var along := v.dot(tn)
+	return v - tn * along + tn * (along / k)
 
 func _apply_view() -> void:
 	asteroid_packs.set_view_system(view_system)
@@ -446,11 +484,14 @@ func set_hint(index: int, on: bool) -> void:
 		if hint != null:
 			hint.queue_free()
 			hint = null
+			_hint_i = -1
 		return
 	if hint == null:
 		hint = load("res://game/planet_hint.gd").new()
 		add_child(hint)
-		hint.setup(planet_radius())
+	if _hint_i != index:
+		_hint_i = index
+		hint.setup(planet_radius(index))
 	hint.position = positions[index]
 
 ## T57: halo on the planet holding a pending Buy/Sell order; -1 removes it.
@@ -459,11 +500,14 @@ func set_pending(index: int) -> void:
 		if pending_hint != null:
 			pending_hint.queue_free()
 			pending_hint = null
+			_pending_i = -1
 		return
 	if pending_hint == null:
 		pending_hint = load("res://game/planet_hint.gd").new()
 		add_child(pending_hint)
-		pending_hint.setup(planet_radius())
+	if _pending_i != index:
+		_pending_i = index
+		pending_hint.setup(planet_radius(index))
 	pending_hint.position = positions[index]
 
 ## T07b: show one glowing line per route. routes: Array of {id, a, b, ships, status}.
@@ -490,7 +534,7 @@ func set_routes(routes: Array) -> void:
 		if line == null:
 			line = load("res://game/route_line.gd").new()
 			add_child(line)
-			line.setup(id, a, b, positions[a], positions[b], planet_radius(), half)
+			line.setup(id, a, b, positions[a], positions[b], maxf(planet_radius(a), planet_radius(b)), half)
 			route_lines[id] = line
 		line.set_style(str(r.get("status", "running")), int(r.get("ships", 1)), str(r.get("c", "")), int(r.get("net", 0)), str(r.get("reason", "")))
 	for id in route_lines.keys():
@@ -527,11 +571,23 @@ func _load_planets() -> Array:
 ## Name label sits below the visible planet: the outer glow shell is 0.56 of the sphere scale (planet_sphere.tscn), plus a gap.
 const PLANET_VISIBLE := 0.56
 const LABEL_GAP := 0.15          # gap at the base size; scaled with the planet below
-func label_drop() -> float:
-	return planet_radius() * (PLANET_VISIBLE + LABEL_GAP / PLANET_RADIUS)
+func label_drop(i: int = -1) -> float:
+	return planet_radius(i) * (PLANET_VISIBLE + LABEL_GAP / PLANET_RADIUS)
 
-func planet_radius() -> float:
-	return PLANET_RADIUS * planet_scale
+## Planet size factor of planet i (PLANET_SIZE_MIN..PLANET_SIZE_MAX); 1.0 for i < 0 (the plain base size).
+func size_factor(i: int) -> float:
+	if i < 0 or i >= planets.size():
+		return 1.0
+	var p: Dictionary = planets[i]
+	var u: float
+	if p.has("size"):
+		return clampf(float(p["size"]), PLANET_SIZE_MIN, PLANET_SIZE_MAX)
+	u = float(absi(str(p.get("id", i)).hash()) % 1000) / 999.0
+	return lerpf(PLANET_SIZE_MIN, PLANET_SIZE_MAX, u)
+
+## Radius of planet i (world units); without an index, the base radius.
+func planet_radius(i: int = -1) -> float:
+	return PLANET_RADIUS * planet_scale * size_factor(i)
 
 ## T33: call after changing a tunable var. Re-applies sizes and re-clamps the camera.
 func apply_tunables() -> void:
@@ -541,18 +597,19 @@ func apply_tunables() -> void:
 	zoom = clampf(zoom, zoom_min, zoom_max)
 	yaw_deg = clampf(yaw_deg, yaw_min_deg, yaw_max_deg)
 	pitch_deg = clampf(pitch_deg, pitch_min_deg, pitch_max_deg)
-	for sp in planet_spheres:
-		sp.scale = Vector3.ONE * planet_radius()
+	for k in planet_spheres.size():
+		planet_spheres[k].scale = Vector3.ONE * planet_radius(k)
 	for i in planet_labels.size():
-		planet_labels[i].position = positions[i] + Vector3(0, -label_drop(), 0)
+		planet_labels[i].position = positions[i] + Vector3(0, -label_drop(i), 0)
 	for id in suns:
 		suns[id].set_radius(sun_radius)
 	if hex_ring != null:
 		hex_ring.radius = sun_radius
 		hex_ring.rebuild()
-	for h in [hint, pending_hint]:  # halos resize in place (same position)
-		if h != null:
-			h.setup(planet_radius())
+	if hint != null:  # halos resize in place (same position)
+		hint.setup(planet_radius(_hint_i))
+	if pending_hint != null:
+		pending_hint.setup(planet_radius(_pending_i))
 	for id in route_lines.keys():  # route lines start at the planet surface: rebuild at the new size
 		route_lines[id].queue_free()
 	route_lines.clear()
@@ -654,7 +711,8 @@ func pick_planet(screen_pos: Vector2) -> int:
 			continue
 		var oc := origin - positions[i]
 		var b := oc.dot(dir)
-		var c := oc.dot(oc) - planet_radius() * planet_radius()
+		var pr := maxf(planet_radius(i), PLANET_PICK_MIN)
+		var c := oc.dot(oc) - pr * pr
 		var disc := b * b - c
 		if disc < 0.0:
 			continue

@@ -715,13 +715,18 @@ func _route_detail(v: Dictionary) -> void:
 	if st != "running" and str(v["reason"]) != "":
 		l.text = str(v["reason"])
 	elif st == "running":
-		var up: int = main.engine.upkeep_part()
+		var ri: int = main.engine.find_by_id(int(v["id"]))
+		var rec = main.engine.routes[ri] if ri >= 0 else null
+		var up: int = main.engine.upkeep_part(rec)
 		var trip: int = main.engine.trip_part()
 		var paying: bool = int(v["net"]) < 0
 		l.text = "%s: \u2212%d\n%s: \u2212%d\n%s: %s / cycle" % [
 			StoryText.get_text("LBL_TRIP_COST"), trip if paying else 0,
 			StoryText.get_text("LBL_SHIP_UPKEEP"), up if paying else 0,
 			StoryText.get_text("LBL_NET"), _signed(int(v["net"]))]
+		var off: float = main.engine.offset_of(rec)
+		if off > 0.0:  # one line: the detour round other planets or routes and what it adds to the upkeep
+			l.text += "\n" + StoryText.get_or("ROUTE_OFFSET_MAINT", "Route detour +{offset}%: upkeep +{maint}%", {"offset": roundi(off * 100.0), "maint": roundi(float(main.balance.get("route_offset_maint_pct", 0.0)) * off * 100.0)})
 	if l.text != "":
 		box.add_child(l)
 

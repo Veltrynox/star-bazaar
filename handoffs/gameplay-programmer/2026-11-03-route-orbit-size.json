@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-03",
+  "task": "route-orbit-size",
+  "status": "done",
+  "files_changed": [
+    "game/route_offset.gd (new)",
+    "game/route_engine.gd",
+    "game/map.gd",
+    "game/main.gd",
+    "game/planet_panel.gd",
+    "game/income_popup.gd",
+    "data/balance.json (4 new keys only)",
+    "tools/tests/run_tests.gd"
+  ],
+  "open_questions": [
+    "Story designer: write ROUTE_OFFSET_MAINT (args {offset}, {maint}; fallback 'Route detour +{offset}%: upkeep +{maint}%').",
+    "Economy designer: set route_offset_maint_pct 5, route_offset_min_pct 0.01, route_offset_max 0.2, route_offset_clearance 1.8 (placeholders). A detour is only a few percent longer, so maint_pct is 5 (not 0.5): at the max 0.2 upkeep is +100%, at the largest measured 0.078 it is +39%.",
+    "Asteroid packs (game/galaxy) keep their old positions and size, so they now sit nearer the sun than the planets' rings; the galaxy owner may want to scale them by ORBIT_SCALE (map.gd)."
+  ],
+  "handoff": "A) route_offset.gd measures offset = extra path length / straight length: planets within route_offset_clearance of the line force a detour, and other routes that cross it count as a detour at the crossing (routes sharing a planet, two directions of one lane count once). engine.offset_of(rec) is 0 below route_offset_min_pct and clamped at route_offset_max; upkeep_part is multiplied by 1 + route_offset_maint_pct * offset. Income and trip cost unchanged. The route detail in the planet panel shows one line from ROUTE_OFFSET_MAINT. Balance keys show in the debug menu automatically. Measured on the live map (both systems, 16 possible planet pairs): 2 pairs get an offset from planets alone, 8 when every other pair is also a route, largest 0.078. B) map.ORBIT_SCALE 2.0 scales every planet about its system centre (data unchanged, centre unchanged, offset uses these positions). Default zoom START_ZOOM 1.0 to 0.65 so the widest system fits. C) per-planet size_factor(i): data key size, else hash of id, in PLANET_SIZE_MIN..MAX 0.55-1.45 (there was no variation before); pick radius floor 0.75 world units. Tests: 987 pass, 0 fail (was 965). Not checked by eye."
+}

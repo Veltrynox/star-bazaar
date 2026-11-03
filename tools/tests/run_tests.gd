@@ -53,6 +53,7 @@ func _run() -> void:
 	await _test_every_ending()
 	await _test_debug_menu()
 	await _test_planet_size()
+	await _test_route_offset()
 	await _test_dust_ring()
 	await _test_voltara_belt()
 	await _test_dead_planets()
@@ -1921,12 +1922,124 @@ func _test_planet_size() -> void:
 	m.debug_menu._set_planet_scale(2.0)
 	check(absf(map.planet_radius() - 1.6) < 0.0001, "size: debug menu sets the radius")
 	check(absf(map.label_drop() / map.planet_radius() - ratio0) < 0.0001, "size: names keep their place relative to the planet")
-	check(map.planet_labels[0].position.y < map.positions[0].y - 1.6 * 0.56, "size: names sit below the bigger planet")
+	check(map.planet_labels[0].position.y < map.positions[0].y - map.planet_radius(0) * 0.56, "size: names sit below the bigger planet")
 	if route_r0 >= 0.0:
 		var r1: float = map.route_lines.values()[0].radius
-		check(absf(r1 - 1.6) < 0.0001, "size: route starts follow the debug size", "r=%f" % r1)
+		var rl0 = map.route_lines.values()[0]
+		check(absf(r1 - maxf(map.planet_radius(rl0.pair_a), map.planet_radius(rl0.pair_b))) < 0.0001, "size: route starts follow the debug size", "r=%f" % r1)
 	m.debug_menu._set_planet_scale(1.3)
 	check(absf(map.planet_radius() - 1.04) < 0.0001, "size: back to x1.3")
+
+## Route offset, orbit size x2 and planet size variation (owner requests 2026-11-03).
+func _test_route_offset() -> void:
+	var RO = load("res://game/route_offset.gd")
+	var pos: Array = [Vector3(0, 0, 0), Vector3(10, 0, 0), Vector3(5, 0, 0.5), Vector3(5, 0, 6), Vector3(12, 0, 0), Vector3(5, 0, -4), Vector3(5, 0, 4)]
+	var o_on: float = RO.offset(0, 1, pos, [], 1.8)
+	check(o_on > 0.01, "offset: a planet near the line makes a detour", "%.3f" % o_on)
+	var far: Array = [pos[0], pos[1], pos[3]]
+	check(RO.offset(0, 1, far, [], 1.8) == 0.0, "offset: a planet far from the line adds nothing")
+	var beyond: Array = [pos[0], pos[1], pos[4]]
+	check(RO.offset(0, 1, beyond, [], 1.8) == 0.0, "offset: a planet past the end adds nothing")
+	var cross: Array = [pos[0], pos[1], pos[5], pos[6]]
+	check(RO.offset(0, 1, cross, [[2, 3]], 1.8) > 0.0, "offset: a route crossing the line makes a detour")
+	check(RO.offset(0, 1, cross, [[0, 3]], 1.8) == 0.0, "offset: a route sharing a planet is no crossing")
+	check(RO.offset(0, 1, cross, [[2, 3], [3, 2]], 1.8) == RO.offset(0, 1, cross, [[2, 3]], 1.8), "offset: two directions of one lane cross once")
+	check(RO.offset(0, -1, pos, [], 1.8) == 0.0, "offset: no planet end, no offset")
+	var e = RouteEngine.new()
+	var bal := {"maintenance": 45, "maintenance_interval": 3, "route_offset_maint_pct": 5.0, "route_offset_min_pct": 0.01, "route_offset_max": 0.2, "route_offset_clearance": 1.8}
+	e.balance = bal
+	var rec := {"id": 1, "a": 0, "b": 1, "c": "ore", "ship": "small", "stop": -1}
+	check(e.offset_of(rec) == 0.0 and e.offset_maint_mult(rec) == 1.0, "offset: no positions, no offset")
+	var up0: int = e.upkeep_part(rec)
+	pos[2] = Vector3(5, 0, 0.0)  # dead centre: the biggest detour
+	e.positions_fn = func() -> Array: return pos
+	var off: float = e.offset_of(rec)
+	var up1: int = e.upkeep_part(rec)
+	check(off > 0.0 and up1 > up0 and absf(e.offset_maint_mult(rec) - (1.0 + 5.0 * off)) < 0.0001, "offset: maintenance rises with the offset", "%d -> %d at %.2f" % [up0, up1, off])
+	bal["route_offset_min_pct"] = 5.0
+	check(e.offset_of(rec) == 0.0 and e.upkeep_part(rec) == up0, "offset: below route_offset_min_pct nothing counts")
+	bal["route_offset_min_pct"] = 0.0
+	bal["route_offset_max"] = 0.01
+	check(absf(e.offset_of(rec) - 0.01) < 0.0001, "offset: clamped to route_offset_max")
+	check(e.offset_of({"ship": "small"}) == 0.0 and e.upkeep_part({"ship": "small"}) == up0, "offset: a plain ship record has none")
+	var rec2 := {"id": 2, "a": 1, "b": 0, "c": "ore", "ship": "small", "stop": 2}
+	bal["route_offset_max"] = 0.2
+	bal["route_offset_min_pct"] = 0.01
+	check(e.offset_of(rec2) == 0.0, "offset: a planet the route stops at is no obstacle")
+	# the live map
+	_wipe_user()
+	var m: Control = await _new_main()
+	m._dismiss_preface()
+	var map = m.map
+	var ok_orbit := true
+	var info := ""
+	for i in map.planets.size():
+		var sy: int = int(map.planets[i].get("system", 1))
+		var raw: Array = []
+		for p in map.planets:
+			if int(p.get("system", 1)) == sy:
+				raw.append(Vector2(float(p["x"]), float(p["y"])) * map.MAP_UNIT_SCALE)
+		var lo: Vector2 = raw[0]
+		var hi: Vector2 = raw[0]
+		for v in raw:
+			lo = Vector2(minf(lo.x, v.x), minf(lo.y, v.y))
+			hi = Vector2(maxf(hi.x, v.x), maxf(hi.y, v.y))
+		var mid := (lo + hi) * 0.5
+		var r_raw: float = (Vector2(float(map.planets[i]["x"]), float(map.planets[i]["y"])) * map.MAP_UNIT_SCALE - mid).length()
+		var r_now: float = Vector2(map.positions[i].x - mid.x, map.positions[i].z - mid.y).length()
+		ok_orbit = ok_orbit and absf(r_now - 2.0 * r_raw) < 0.001
+	check(ok_orbit and map.ORBIT_SCALE == 2.0, "orbits: every planet sits twice as far from its system centre")
+	var lo_f := 99.0
+	var hi_f := 0.0
+	var all_in := true
+	var small_i := 0
+	for i in map.planets.size():
+		var f: float = map.size_factor(i)
+		all_in = all_in and f >= map.PLANET_SIZE_MIN and f <= map.PLANET_SIZE_MAX
+		if f < map.size_factor(small_i):
+			small_i = i
+		lo_f = minf(lo_f, f)
+		hi_f = maxf(hi_f, f)
+	check(all_in and hi_f - lo_f > 0.3, "size: planets vary in size within the range", "%.2f to %.2f" % [lo_f, hi_f])
+	map.zoom = 1.0
+	map.focus = map.positions[small_i]
+	map._update_camera()
+	check(map.pick_planet(map.camera.unproject_position(map.positions[small_i])) == small_i and map.planet_radius(small_i) < map.planet_radius(), "size: the smallest planet can still be clicked", "planet %d r=%.2f" % [small_i, map.planet_radius(small_i)])
+	# every pair on the live map, as if each pair were one route
+	m.debug_grant_permit(2)
+	var n_off := 0
+	var n_all := 0
+	var n_cross := 0
+	var worst := 0.0
+	var lines := ""
+	for sy in [1, 2]:
+		var idx: Array = []
+		for i in map.planets.size():
+			if int(map.planets[i].get("system", 1)) == sy:
+				idx.append(i)
+		for a in idx:
+			for b in idx:
+				if a >= b:
+					continue
+				n_all += 1
+				var rid: int = 900 + a * 20 + b
+				var rec_ab := {"id": rid, "a": a, "b": b, "c": "ore", "ship": "small", "stop": -1}
+				m.engine.routes.clear()
+				var o_planets: float = m.engine.offset_of(rec_ab)  # planet obstacles only
+				for c2 in idx:
+					for d2 in idx:
+						if c2 < d2:
+							m.engine.routes.append({"id": 900 + c2 * 20 + d2, "a": c2, "b": d2, "c": "ore", "ship": "small", "stop": -1})
+				var o: float = m.engine.offset_of(rec_ab)  # with every other pair of the system as a route
+				if o_planets > 0.0:
+					n_off += 1
+				if o > 0.0:
+					n_cross += 1
+					worst = maxf(worst, o)
+					lines += " %s-%s %.3f" % [map.planets[a]["id"], map.planets[b]["id"], o]
+	m.engine.routes.clear()
+	check(true, "offset: measured on the live map: %d of %d pairs by planets, %d with every pair routed, largest %.3f" % [n_off, n_all, n_cross, worst], lines)
+	await _free_main(m)
 
 func _test_debug_menu() -> void:
 	_wipe_user()
@@ -2485,7 +2598,7 @@ func _test_system_suns() -> void:
 				var pt := deg_to_rad(lerpf(map.pitch_min_deg, map.pitch_max_deg, pi_ / 12.0))
 				var cam := Vector3(sin(yw) * cos(pt), sin(pt), cos(yw) * cos(pt))
 				worst = maxf(worst, (-top_w).dot(cam))
-		pole_ok = pole_ok and top_w.dot(sun_w) < -0.5 and absf(sp.key_dir.y - top_w.dot(sun_w)) < 0.001 and worst < 0.25 and absf(sp.scale.x - map.planet_radius()) < 0.0001
+		pole_ok = pole_ok and top_w.dot(sun_w) < -0.5 and absf(sp.key_dir.y - top_w.dot(sun_w)) < 0.001 and worst < 0.25 and absf(sp.scale.x - map.planet_radius(i)) < 0.0001
 		pole_info += " %s:top.sun %.2f bottom.cam<=%.2f" % [map.planets[i]["id"], top_w.dot(sun_w), worst]
 	check(pole_ok, "planet pole: top pole in shadow (dot sun < -0.5), bottom pole hidden from the camera range (or grazing the limb); scale unchanged", pole_info)
 	var pos1: Vector3 = s1.position
@@ -2854,6 +2967,30 @@ func _test_asteroid_packs() -> void:
 	m.map.set_view_system(1)
 	check(ap.packs[str(c0["id"])]["mm"].visible, "T157: packs show only for the viewed system")
 	check(ap.get_children().all(func(n): return not (n is CollisionObject3D)), "T157: packs have no collision, so planet clicks are never blocked")
+	# Cluster ellipse: the long axis of a pack lies along the orbit tangent (perpendicular to the radius from the sun)
+	var el_ok := true
+	var el_ratio := 0.0
+	var el_msg := ""
+	for c in m.clusters_in_system(1):
+		var tg: Vector3 = ap.tangent_of(c)
+		var centre: Vector3 = ap.sun_positions.get(1, Vector3.ZERO)
+		var rad: Vector3 = Vector3(float(c["x"]), 0.0, float(c["y"])) * ap.map_unit_scale - centre
+		el_ok = el_ok and absf(tg.dot(rad)) < 0.0001 and is_equal_approx(tg.length(), 1.0)
+		var pts: PackedVector3Array = ap.packs[str(c["id"])]["points"]
+		var ex_t := 0.0
+		var ex_r := 0.0
+		for o in pts:
+			ex_t += o.dot(tg) * o.dot(tg)
+			ex_r += o.dot(rad.normalized()) * o.dot(rad.normalized())
+		el_ratio += sqrt(ex_t / maxf(ex_r, 0.000001)) / float(m.clusters_in_system(1).size())
+		el_msg += " %.2f" % [sqrt(ex_t / maxf(ex_r, 0.000001))]
+	check(el_ok and el_ratio > 1.25, "Cluster ellipse: long axis along the orbit tangent (spread along tangent / across radius, stretch %.1f)" % float(c0["stretch"]), el_msg)
+	var pk_c: Vector3 = Vector3(float(c0["x"]), 0.0, float(c0["y"])) * ap.map_unit_scale
+	var pk_t: Vector3 = ap.tangent_of(c0)
+	var pk_r: float = float(c0["radius"]) * ap.map_unit_scale
+	var pk_in: int = m.map.pick_cluster(m.map.camera.unproject_position(pk_c + pk_t * pk_r * 1.4))
+	var pk_out: int = m.map.pick_cluster(m.map.camera.unproject_position(pk_c + pk_t * pk_r * 2.4))
+	check(pk_in == int(c0["index"]) and pk_out != int(c0["index"]), "Cluster ellipse: click area reaches 1.4 radii along the tangent but not 2.4", "%d %d" % [pk_in, pk_out])
 	# T159: a click on a cluster shows its info card; a planet click hides it
 	m._on_cluster_clicked(int(c0["index"]))
 	var info_ok: bool = m.cluster_info != null and m.cluster_info.visible and not m.planet_panel.visible

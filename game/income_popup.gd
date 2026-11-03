@@ -53,7 +53,7 @@ func _process(delta: float) -> void:
 			continue
 		keep.append(it)
 		var pi: int = it["planet"]
-		var world: Vector3 = map.positions[pi] + Vector3(0, map.planet_radius() * 1.3, 0)
+		var world: Vector3 = map.positions[pi] + Vector3(0, map.planet_radius(pi) * 1.3, 0)
 		l.visible = map.visible and not map.camera.is_position_behind(world)
 		var sp: Vector2 = map.camera.unproject_position(world)
 		var ease_t := 1.0 - pow(1.0 - t, 2.0)

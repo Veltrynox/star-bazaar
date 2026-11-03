@@ -181,6 +181,7 @@ func _ready() -> void:
 	engine.clusters = clusters
 	engine.learned = learned_skills
 	engine.trade_gate = Callable(self, "system_trade_open")
+	engine.positions_fn = func() -> Array: return map.positions  # route offset: planet world positions
 	_sync_dead_lock()
 	cash_forecast = load("res://game/cash_forecast.gd").new()  # T40: money text dropdown
 	add_child(cash_forecast)

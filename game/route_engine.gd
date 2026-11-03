@@ -4,6 +4,7 @@ const Ships := preload("res://game/ships.gd")
 const Clusters := preload("res://game/clusters.gd")
 const DeadWorlds := preload("res://game/dead_worlds.gd")
 const SkillTree := preload("res://game/skill_tree.gd")
+const RouteOffset := preload("res://game/route_offset.gd")
 ## T68: local orders and one-way routes.
 ## Local order (per planet and commodity, toggles buy / sell): every cycle a Buy order buys up to
 ## local_amount() units at the planet's buy price into that planet's company storage (until full or
@@ -35,6 +36,7 @@ var loss_rng := RandomNumberGenerator.new()
 var dead_locked: Array = []  # planet indexes of dead worlds that are not open yet (before balance dead_unlock_cycle); runtime, set by main
 var pirates_active := false  # runtime: true while a pirate volume cut is on (no pirate system yet; the Null Core is immune to it)
 var trade_gate: Callable = Callable()  # owner 2026-11-03: planet -> bool, false when its system has no Space Storage post (set by main)
+var positions_fn: Callable = Callable()  # route offset: () -> Array of world positions (Vector3) per planet index, set by main from the map
 var learned: Array = []  # T82: learned skill ids, set by main; effects come from balance.json keys
 var clusters: RefCounted = null  # T156: asteroid clusters (clusters.gd), set by main; null = no mining
 var cluster_budget: Dictionary = {}  # T156: runtime, set at the start of each settle: cluster index -> units it may still give this cycle
@@ -195,9 +197,31 @@ func fixed_cost(rec = null) -> int:
 func trip_part() -> int:
 	return floori(float(trade.trip_cost()) / maxf(0.0001, trade.travel_cycles()))
 
+## Route offset of a route record: extra path length round other planets and crossing routes, as a share of the
+## straight length (see route_offset.gd). 0.0 when the route is below route_offset_min_pct, has no positions, or
+## rec is null. Positions come from positions_fn (the map); route income never looks at this.
+func offset_of(rec = null) -> float:
+	if rec == null or not positions_fn.is_valid() or not (rec is Dictionary) or not rec.has("a") or not rec.has("b") or from_cluster(rec):
+		return 0.0
+	var pos: Array = positions_fn.call()
+	var others: Array = []
+	for r in routes:
+		if r is Dictionary and int(r.get("id", -1)) != int(rec.get("id", -2)) and not from_cluster(r):
+			others.append([int(r["a"]), int(r["b"])])
+	var skip: Array = [int(rec.get("stop", -1))]
+	var o: float = RouteOffset.offset(int(rec["a"]), int(rec["b"]), pos, others, float(balance.get("route_offset_clearance", 0.0)), skip)
+	if o < float(balance.get("route_offset_min_pct", 0.0)) or o <= 0.0:
+		return 0.0
+	return minf(o, float(balance.get("route_offset_max", 1.0)))
+
+## Upkeep multiplier from the route offset: 1 + route_offset_maint_pct * offset (offset clamped to route_offset_max).
+func offset_maint_mult(rec = null) -> float:
+	return 1.0 + float(balance.get("route_offset_maint_pct", 0.0)) * offset_of(rec)
+
 ## T69: ship upkeep part of the fixed cost (one ship per route, paid only while it moves stock).
 func upkeep_part(rec = null) -> int:
 	var upkeep := float(balance.get("maintenance", 0)) * Ships.upkeep_mult(kind_of(rec), balance)  # T58
+	upkeep *= offset_maint_mult(rec)
 	if learned.has("A5"):
 		upkeep *= 1.0 - float(balance.get("skill_A5_upkeep", 0))
 	return floori(upkeep / maxf(1.0, float(balance.get("maintenance_interval", 1))))
