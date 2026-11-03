@@ -2896,13 +2896,7 @@ func _tut_target_node(key: String) -> Control:
 	var c: Control = null
 	match key:
 		"buy": c = _tut_first_named(planet_panel, "BuyButton_")
-		"send": c = _tut_first_named(planet_panel, "SendButton_")
-		"sell": c = _tut_first_named(planet_panel, "SellButton_")
-		"storage":
-			for n in planet_panel.find_children("*", "HBoxContainer", true, false):
-				if n.has_meta("tut_target") and n.get_meta("tut_target") == "storage" and (n as Control).is_visible_in_tree():
-					c = n
-					break
+		"send", "sell", "storage": c = _tut_first_named(planet_panel, "BuyButton_")  # Send, Sell and the stock figure now live on the resource button (right-click menu)
 		"route":
 			for n in planet_panel.find_children("*", "HBoxContainer", true, false):
 				if n.has_meta("tut_target") and n.get_meta("tut_target") == "route" and (n as Control).is_visible_in_tree():

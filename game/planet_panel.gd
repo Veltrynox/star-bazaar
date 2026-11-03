@@ -11,7 +11,12 @@ const RouteLineScript := preload("res://game/route_line.gd")
 ## Buy and Send share one size so they line up (Buy sits on the order row, Send on the storage row).
 const ACTION_BTN_MIN := Vector2(104, 28)
 const BUY_COLUMNS := 2  # resource buy buttons per grid row (panel is 320 wide)
-const BUY_CELL_W := 140.0
+const BUY_CELL_W := 148.0
+const BUY_CELL_H := 36.0
+const CAP_MARGIN := 46.0  # room kept at the right end of a resource button for its stored/capacity text
+const MENU_SEND := 0
+const MENU_SELL := 1
+const MENU_SALVAGE := 2
 signal salvage_requested(commodity: String)  # N5
 signal order_requested(commodity: String, role: String)  # role: "buy" or "sell" (toggles the local order)
 signal send_requested(commodity: String)  # "Send to..." on a storage row
@@ -87,7 +92,7 @@ func rebuild() -> void:
 			continue  # a good this planet does not trade has no row
 		grid.add_child(_row(str(c), prices if typeof(prices) == TYPE_DICTIONARY else {}, pend))
 	box.add_child(grid)
-	_storage_section()
+	_lane_splits()
 	_space_section()
 	_workshop_section()
 	_connections()
@@ -184,7 +189,7 @@ func _row(c: String, prices: Dictionary, pend: Dictionary) -> Control:
 	var locked: bool = not main.system_trade_open(planet_index)
 	var bs := Button.new()
 	bs.theme_type_variation = "ButtonSmall"
-	bs.custom_minimum_size = Vector2(BUY_CELL_W, 28)
+	bs.custom_minimum_size = Vector2(BUY_CELL_W, BUY_CELL_H)
 	bs.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	bs.toggle_mode = true
 	bs.button_pressed = buy_on
@@ -193,7 +198,7 @@ func _row(c: String, prices: Dictionary, pend: Dictionary) -> Control:
 	bs.clip_text = true
 	bs.icon = Ui.icon(c)
 	bs.expand_icon = true
-	bs.add_theme_constant_override("icon_max_width", 18)
+	bs.add_theme_constant_override("icon_max_width", 22)
 	if Ui.commodity_col(str(c)) != Color.WHITE:
 		bs.add_theme_color_override("font_color", Ui.commodity_col(str(c)))  # Energy amber, Food green
 	bs.disabled = buy == null
@@ -204,101 +209,103 @@ func _row(c: String, prices: Dictionary, pend: Dictionary) -> Control:
 		bs.tooltip_text = main.trade_locked_reason()
 	bs.name = "BuyButton_" + str(c)
 	bs.pressed.connect(func(): buy_send_requested.emit(c))
+	bs.tooltip_text += "\n" + StoryText.get_or("LBL_RMB_MORE", "Right-click for Send to, Sell and more.")
+	_reserve_right(bs, CAP_MARGIN)
+	var key: String = main.storage.planet_key(planet_index)
+	var cap_l := Label.new()  # stored/capacity of this good in the company storage here, at the right end of the button
+	cap_l.name = "Capacity_" + str(c)
+	cap_l.text = "%d/%d" % [main.storage.amount(key, str(c)), main.storage.capacity_of(key)]
+	cap_l.theme_type_variation = "LabelSmall"
+	cap_l.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	cap_l.set_anchors_and_offsets_preset(Control.PRESET_RIGHT_WIDE)
+	cap_l.offset_left = -CAP_MARGIN
+	cap_l.offset_right = -4
+	cap_l.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	cap_l.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	bs.add_child(cap_l)
+	var menu := _context_menu(str(c), prices)
+	bs.add_child(menu)
+	bs.gui_input.connect(func(ev: InputEvent):
+		if ev is InputEventMouseButton and ev.pressed and ev.button_index == MOUSE_BUTTON_RIGHT:
+			menu.popup_on_parent(Rect2i(Vector2i(bs.get_global_mouse_position()), Vector2i.ZERO))
+			bs.accept_event())
 	wrap.add_child(bs)
+	var salv_l: Control = _salvage_line(str(c))
+	if salv_l != null:
+		info.add_child(salv_l)
+	var key2: String = main.storage.planet_key(planet_index)
+	var nc := next_cycle_label(main, key2, str(c))
+	if nc != null:
+		info.add_child(nc)
 	if info.get_child_count() > 0:
 		wrap.add_child(info)
 	return wrap
 
-## Sell toggle (and Salvage when it applies) for one good, added to its storage row. Salvage text goes under the row.
-func _sell_controls(c: String, row: HBoxContainer, below: VBoxContainer) -> void:
-	var prices = main.map.planets[planet_index].get("base_prices")
-	var sell = prices.get(c + "_sell") if typeof(prices) == TYPE_DICTIONARY else null
+## Extra right padding inside a button's styleboxes so its text stops before the capacity label.
+func _reserve_right(b: Button, px: float) -> void:
+	for sn in ["normal", "hover", "pressed", "hover_pressed", "disabled", "focus"]:
+		var sb: StyleBox = b.get_theme_stylebox(sn)
+		if sb == null:
+			continue
+		var d: StyleBox = sb.duplicate()
+		d.content_margin_right = maxf(sb.get_margin(SIDE_RIGHT), 0.0) + px
+		b.add_theme_stylebox_override(sn, d)
+
+## Right-click menu of a resource: Send to, Sell (a toggle) and Salvage when it applies. Item ids are MENU_*.
+func _context_menu(c: String, prices: Dictionary) -> PopupMenu:
+	var m := PopupMenu.new()
+	m.name = "ContextMenu_" + c
+	var open: bool = main.system_trade_open(planet_index)
+	var pend: Dictionary = main.pending
+	var sending: bool = not pend.is_empty() and int(pend["planet"]) == planet_index and str(pend["c"]) == c
+	m.add_item(StoryText.get_text("BTN_SEND") + ("*" if sending else ""), MENU_SEND)
+	var i_send := m.get_item_index(MENU_SEND)
+	m.set_item_tooltip(i_send, "Move this stock to another planet's storage with a ship." if open else main.trade_locked_reason())
+	m.set_item_disabled(i_send, not open)
+	var sell = prices.get(c + "_sell")
 	var sell_on: bool = main.engine.local_on(planet_index, c, "sell")
-	var sb := Button.new()
-	sb.name = "SellButton_" + str(c)
-	sb.toggle_mode = true
-	sb.button_pressed = sell_on
-	sb.text = StoryText.get_text("BTN_SELL") + (" " + _price(sell) if sell != null else "") + (": on" if sell_on else "")
-	sb.icon = Ui.icon("cash")  # the price is on the button
-	sb.expand_icon = true
-	sb.disabled = sell == null
+	m.add_check_item(StoryText.get_text("BTN_SELL") + (" " + _price(sell) if sell != null else "") + (": on" if sell_on else ""), MENU_SELL)
+	var i_sell := m.get_item_index(MENU_SELL)
+	m.set_item_checked(i_sell, sell_on)
 	var sell_tip: String = StoryText.get_or("LBL_SELL_PRICE", "Sell price") + ": " + _price(sell)
-	sb.tooltip_text = "Not traded here." if sell == null else (sell_tip + ". " + ("Standing sell order. Press to stop." if sell_on else "Standing sell order each cycle."))
-	if not main.system_trade_open(planet_index):
-		sb.disabled = true
-		sb.tooltip_text = main.trade_locked_reason()
-	sb.pressed.connect(func(): order_requested.emit(c, "sell"))
-	sb.theme_type_variation = "ButtonSmall"
-	row.add_child(sb)
+	m.set_item_tooltip(i_sell, "Not traded here." if sell == null else (sell_tip + ". " + ("Standing sell order. Press to stop." if sell_on else "Standing sell order each cycle.")))
+	m.set_item_disabled(i_sell, sell == null or not open)
+	if not open:
+		m.set_item_tooltip(i_sell, main.trade_locked_reason())
+	if main.engine.salvage_reason(planet_index, c) != "":  # N5: stuck stock can be sold off for a share of the Sell price
+		m.add_item(StoryText.get_or("BTN_SALVAGE", "Salvage"), MENU_SALVAGE)
+	m.id_pressed.connect(func(id: int):
+		if id == MENU_SEND:
+			send_requested.emit(c)
+		elif id == MENU_SELL:
+			order_requested.emit(c, "sell")
+		elif id == MENU_SALVAGE:
+			salvage_requested.emit(c))
+	return m
+
+## N5: the Salvage offer line under a resource (null when it does not apply). The action is in the right-click menu.
+func _salvage_line(c: String) -> Control:
 	var salv: String = main.engine.salvage_reason(planet_index, c)
-	if salv != "":  # N5: stuck stock can be sold off for a share of the Sell price
-		var so: Dictionary = main.engine.salvage_offer(planet_index, c)
-		var sl := Label.new()
-		sl.name = "Salvage_" + str(c)
-		if salv == "full":
-			sl.text = StoryText.get_or("LBL_SALVAGE_STORAGE_FULL", "Salvage: {n} now (storage full). Sell order pays {m}.", {"n": so["n"], "m": so["m"]})
-		else:
-			sl.text = StoryText.get_or("LBL_SALVAGE_NO_BUYER", "Salvage: {n} now (no buyer on your lanes). Sell order pays {m}.", {"n": so["n"], "m": so["m"]})
-		sl.theme_type_variation = "LabelAccent"
-		below.add_child(sl)
-		var sv := Button.new()
-		sv.name = "SalvageButton_" + str(c)
-		sv.theme_type_variation = "ButtonSmall"
-		sv.text = StoryText.get_or("BTN_SALVAGE", "Salvage")
-		sv.pressed.connect(func(): salvage_requested.emit(c))
-		row.add_child(sv)
+	if salv == "":
+		return null
+	var so: Dictionary = main.engine.salvage_offer(planet_index, c)
+	var sl := Label.new()
+	sl.name = "Salvage_" + c
+	if salv == "full":
+		sl.text = StoryText.get_or("LBL_SALVAGE_STORAGE_FULL", "Salvage: {n} now (storage full). Sell order pays {m}.", {"n": so["n"], "m": so["m"]})
+	else:
+		sl.text = StoryText.get_or("LBL_SALVAGE_NO_BUYER", "Salvage: {n} now (no buyer on your lanes). Sell order pays {m}.", {"n": so["n"], "m": so["m"]})
+	sl.theme_type_variation = "LabelAccent"
+	return sl
 
 ## A missing price is a data gap (planets.json), shown as text, never invented.
 func _price(v) -> String:
 	return str(v) if v != null else "\u2013"  # compact: no unit, no data shown as a dash
 
-## T65: company storage. T134: shown from the start (zero stock) so "Send to..." can plan a route at once.
-func _storage_section() -> void:
-	var key: String = main.storage.planet_key(planet_index)
-	box.add_child(HSeparator.new())
-	var cap: int = main.storage.capacity_of(key)
-	var title := Label.new()
-	title.text = StoryText.get_text("LBL_COMPANY_STORAGE")
-	title.theme_type_variation = "LabelStrong"
-	box.add_child(title)
-	box.add_child(_label("Capacity: %d per commodity" % cap))
+## Split rows (N2) for goods with two lanes with ships. The per-planet storage rows are gone: stock shows on each resource button.
+func _lane_splits() -> void:
 	for c in main.commodities:
-		var row := HBoxContainer.new()
-		row.add_theme_constant_override("separation", 8)
-		var bar := RatingBar.new()
-		bar.level = main.storage.rating(key, str(c))
-		row.add_child(bar)
-		row.set_meta("tut_target", "storage")  # the guided tutorial outlines this row
-		row.add_child(Ui.good_icon(str(c), 16))
-		var l := Label.new()
-		l.text = "%s  %d/%d" % [Ui.good_name(str(c)), main.storage.amount(key, str(c)), cap]
-		l.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-		l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		row.add_child(l)
-		# Send sits beside the storage numbers of its good
-		var pend: Dictionary = main.pending
-		var sd := Button.new()
-		sd.theme_type_variation = "ButtonSmall"
-		sd.custom_minimum_size = ACTION_BTN_MIN
-		var sending: bool = not pend.is_empty() and int(pend["planet"]) == planet_index and str(pend["c"]) == str(c)
-		sd.text = StoryText.get_text("BTN_SEND") + ("*" if sending else "")
-		sd.tooltip_text = "Move this stock to another planet's storage with a ship."
-		if not main.system_trade_open(planet_index):
-			sd.disabled = true
-			sd.tooltip_text = main.trade_locked_reason()
-		sd.name = "SendButton_" + str(c)
-		var cc: String = str(c)
-		sd.pressed.connect(func(): send_requested.emit(cc))
-		row.add_child(sd)
-		var below := VBoxContainer.new()
-		_sell_controls(str(c), row, below)  # Sell (and Salvage) sit with the stored goods
-		var nc := next_cycle_label(main, key, str(c))
-		if nc != null:
-			row.add_child(nc)  # right end of the same row
-		box.add_child(row)
-		if below.get_child_count() > 0:
-			box.add_child(below)
-		if main.split_targets(planet_index, str(c)).size() >= 2:  # N2: two lanes with ships can be split
+		if main.split_targets(planet_index, str(c)).size() >= 2:
 			box.add_child(_split_row(str(c)))
 			if split_open == str(c):
 				box.add_child(_split_bar_for(str(c)))

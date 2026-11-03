@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-03",
+  "task": "Planet panel: bigger resource buttons with capacity, right-click menu for Send and Sell, company storage section removed",
+  "status": "done",
+  "files_changed": ["game/planet_panel.gd", "game/main.gd (_tut_target_node: send, sell, storage keys now outline the first BuyButton_)", "tools/tests/run_tests.gd", "handoffs/ui-programmer/2026-11-03-rmb-menu.json"],
+  "open_questions": [
+    "Story text (not mine): TUT_G3_SEND 'Press Send to... and pick a planet.', TUT_G6_SELL 'Press Sell at the destination.', TUT_G7_STORAGE 'Watch the Company storage bar.' still describe buttons and a bar that are gone. They need right-click wording. Also new optional id LBL_RMB_MORE (tooltip hint, fallback 'Right-click for Send to, Sell and more.'). LBL_COMPANY_STORAGE is now unused in the panel.",
+    "Interpretation: 'company storage section' = the per-planet rows (rating bar, name n/cap, Send, Sell, Salvage, Next cycle) under the Buy grid. Removed. Kept because they carry features: Split rows (still below the grid, only when two lanes have ships), the Salvage offer line and the Next cycle label (now under their resource button). Is that right?",
+    "Not checked by eye: button size 148x36 (2 columns, 306 px in a 320 panel; may need scroll margin check), capacity text at the button's right end, right padding that keeps the name clear of it, menu position at the cursor."
+  ],
+  "handoff": "Resource buttons are 148x36, icon 22, with a stored/capacity label (Capacity_<good>) at the right end; left click still toggles Buy. Right click opens PopupMenu ContextMenu_<good> (child of BuyButton_<good>) with ids 0 Send, 1 Sell (check item, price and ': on'), 2 Salvage (only when it applies). Disabled reasons ('Not traded here.', trade-locked reason) are item tooltips. Button tooltip ends with the right-click hint. Storage section, SendButton_, SellButton_, SalvageButton_ removed. Tutorial send, sell, storage steps outline the first resource button. Tests updated; pass=1210 fail=0. qa bots did not use these nodes."
+  ,
+  "details": {}
+}

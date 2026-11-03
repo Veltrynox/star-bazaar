@@ -1866,7 +1866,7 @@ func _test_next_cycle() -> void:
 		var nc1: Node = m.planet_panel.find_child("NextCycle_" + c, true, false)
 		var par: Node = nc1.get_parent() if nc1 != null else null
 		check(nc1 != null, "next cycle: visible with a sell order and stock")
-		check(par is HBoxContainer and par.get_child_count() == 6 and par.get_child(par.get_child_count() - 1) == nc1, "next cycle: label is the last child of the storage row, not a sibling below it")
+		check(par is VBoxContainer and par.get_parent() is VBoxContainer and par.get_parent().find_child("BuyButton_" + c, false, false) != null, "next cycle: label sits in the status lines under its resource button")
 	await _free_main(m)
 
 func _test_ships() -> void:
@@ -1925,7 +1925,7 @@ func _test_ships() -> void:
 	for bn in _all_buttons(m.planet_panel):
 		if str(bn.name).begins_with("BuyButton_"):
 			buys += 1
-	check(combined == 0 and buys == traded_n and sends >= traded_n, "T141 planet panel: separate Buy toggle and Send to... per resource, no combined button")
+	check(combined == 0 and buys == traded_n and sends == 0, "T141 planet panel: one Buy toggle per resource, Send to... only in the right-click menu, no combined button")
 	# T143: each route row says where its money lands, with a control to turn the destination Sell order on
 	var pays := _find_named(m.planet_panel, "PaysLine")
 	check(pays != null and _find_named(pays, "PaysSellButton") != null, "T143: route row has a pays line with a Sell control while the destination Sell is off")
@@ -1968,16 +1968,13 @@ func _test_ships() -> void:
 	m.set_local_order(2, c, "sell", false)
 	m.selected_planet = 1
 	m.planet_panel.show_planet(1)
-	var sbtn := _find_named(m.planet_panel, "SendButton_" + c)
-	var p1: Node = sbtn.get_parent() if sbtn != null else null
-	var in_storage := false
-	if p1 != null:
-		for ch in p1.get_children():
-			if ch is Label and ch.text.contains("/"):
-				in_storage = true
+	var menu := _find_named(m.planet_panel, "ContextMenu_" + c) as PopupMenu
 	var buy_b := _find_named(m.planet_panel, "BuyButton_" + c) as Button
-	check(sbtn != null and buy_b != null and (sbtn as Button).theme_type_variation == buy_b.theme_type_variation and (sbtn as Button).custom_minimum_size.x > 0.0, "send button: same font variation as Buy, has a minimum size")
-	check(sbtn != null and in_storage and _find_named(m.planet_panel, "BuyButton_" + c).get_parent() != p1, "send button: sits on the storage row of its good, not on the Buy row")
+	check(menu != null and menu.get_parent() == buy_b and menu.get_item_index(0) >= 0 and menu.get_item_index(1) >= 0, "right-click menu: the resource button owns a menu with Send and Sell")
+	check(_find_named(m.planet_panel, "SendButton_" + c) == null and _find_named(m.planet_panel, "SellButton_" + c) == null and not _labels(m.planet_panel, []).any(func(l): return l.text == StoryText.get_text("LBL_COMPANY_STORAGE")), "right-click menu: no storage rows, no Send or Sell buttons in the panel")
+	var cap_l := _find_named(m.planet_panel, "Capacity_" + c) as Label
+	check(cap_l != null and cap_l.get_parent() == buy_b and cap_l.text.contains("/"), "resource button: shows stored/capacity", str(cap_l.text if cap_l != null else ""))
+	check(buy_b != null and buy_b.tooltip_text.to_lower().contains("right-click"), "resource button: tooltip hints at right-click")
 	m.planet_panel.show_planet(1)
 	var bb := _find_named(m.planet_panel, "BuyButton_" + c) as Button
 	check(bb != null and bb.button_pressed and bb.tooltip_text.contains("Press to stop"), "buy toggle: the resource button is pressed while the order is on")
@@ -1986,9 +1983,6 @@ func _test_ships() -> void:
 		if b.text == bb.text:
 			stop_n += 1
 	check(stop_n == 1, "buy toggle: one button per resource", str(stop_n))
-	var sell_b := _find_named(m.planet_panel, "SellButton_" + c)
-	sbtn = _find_named(m.planet_panel, "SendButton_" + c)
-	check(sell_b != null and sell_b.get_parent() == sbtn.get_parent() and _find_named(_find_named(m.planet_panel, "BuyGrid"), "SellButton_" + c) == null, "sell button: sits in the storage row of its good, not in the buy table")
 	check(_find_named(m.planet_panel, "BuyGrid") != null and bb.get_parent().get_parent() == _find_named(m.planet_panel, "BuyGrid"), "buy table: resource buttons are cells of the BuyGrid")
 	for pi in m.trade.planets.size():
 		m.planet_panel.show_planet(pi)
@@ -3330,11 +3324,13 @@ func _test_trade_gate() -> void:
 	check(m.cash == cash0 and m.engine.routes.is_empty() and m.storage.amount(m.storage.planet_key(home), c) == stock0, "gate: refused Send changes no cash, ships, routes or stock")
 	# panel buttons
 	m.planet_panel.show_planet(far)
-	var names := ["BuyButton_" + c, "SellButton_" + c, "SendButton_" + c]
 	var all_off := true
-	for nm in names:
-		var b = _find_named(m.planet_panel, nm)
-		if b == null or not b.disabled or b.tooltip_text != m.trade_locked_reason():
+	var lb = _find_named(m.planet_panel, "BuyButton_" + c)
+	if lb == null or not lb.disabled or not lb.tooltip_text.begins_with(m.trade_locked_reason()):
+		all_off = false
+	var lm := _find_named(m.planet_panel, "ContextMenu_" + c) as PopupMenu
+	for id in [0, 1]:
+		if lm == null or not lm.is_item_disabled(lm.get_item_index(id)) or lm.get_item_tooltip(lm.get_item_index(id)) != m.trade_locked_reason():
 			all_off = false
 	check(all_off, "gate: panel disables Buy, Sell and Send to with the reason on a locked system")
 	m.planet_panel.show_planet(home)
@@ -3593,8 +3589,9 @@ func _test_clusters() -> void:
 	m.planet_panel.show_planet(0)
 	m.planet_panel.show_planet(0)
 	check(m.planet_panel.box.get_node_or_null("ClusterNote") == null, "planet panel: no asteroid cluster line, even next to a cluster")
-	var sbn := _find_named(m.planet_panel, "SellButton_energy") as Button
-	check(sbn != null and sbn.text.begins_with(StoryText.get_text("BTN_SELL") + " ") and sbn.icon != null and sbn.tooltip_text.begins_with(StoryText.get_or("LBL_SELL_PRICE", "Sell price")), "panel: Sell button shows its price and the credits icon, tooltip says Sell price")
+	var sbm := _find_named(m.planet_panel, "ContextMenu_energy") as PopupMenu
+	var sbi: int = sbm.get_item_index(1) if sbm != null else -1
+	check(sbi >= 0 and sbm.get_item_text(sbi).begins_with(StoryText.get_text("BTN_SELL") + " ") and sbm.get_item_tooltip(sbi).begins_with(StoryText.get_or("LBL_SELL_PRICE", "Sell price")), "panel: Sell menu item shows its price, tooltip says Sell price")
 	check(_find_named(m.planet_panel, "PriceBuy_energy") == null and _find_named(m.planet_panel, "PriceSell_energy") == null, "panel: no separate price chips")
 	check(not _labels(m.planet_panel, []).any(func(l): return l.text.to_upper() == "MAIN RESOURCES"), "planet panel: no Main resources row")
 	check(_find_named(m.planet_panel, "StorageEmpty_energy") == null and not _labels(m.planet_panel, []).any(func(l): return l.text.begins_with("Storage empty")), "planet panel: no Storage empty line")
