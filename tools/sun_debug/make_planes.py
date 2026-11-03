@@ -71,7 +71,7 @@ data = {
               "per_plane_formulas": "33-56 (_ready), 69 (_layout)", "shader": "art/sun/sun.gdshader 16-30"},
     "planes_count": PLANES, "plane_glow": GLOW, "fps": FPS, "sets": SETS, "frame_count": FRAMES,
     "plane_span": SPAN, "radius": RADIUS,
-    "frame_url": "../../" + FRAME_PATH.replace("%s", SOURCE).replace("%02d", "{NN}"),
+    "frame_url": "../../" + FRAME_PATH.replace("%s", SOURCE[len("sun_"):]).replace("%02d", "{NN}"),
     "planes": planes,
 }
 out = os.path.dirname(__file__)
@@ -88,7 +88,7 @@ sets = {}
 for name in SETS:
     uris = []
     for i in range(FRAMES):
-        p = os.path.join(ROOT, FRAME_PATH.replace("%s", name).replace("%02d", "%02d" % i))
+        p = os.path.join(ROOT, FRAME_PATH.replace("%s", name[len("sun_"):]).replace("%02d", "%02d" % i))
         uris.append("data:image/png;base64," + base64.b64encode(open(p, "rb").read()).decode())
     sets[name] = uris
 body = ",\n".join('"%s": [\n%s\n]' % (n, ",\n".join(' "%s"' % u for u in us)) for n, us in sets.items())

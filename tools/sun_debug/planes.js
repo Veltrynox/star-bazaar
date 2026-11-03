@@ -2,20 +2,20 @@
 const SUN_DATA = {
  "source_file": "art/sun/sun_flare.gd",
  "lines": {
-  "PLANES": 30,
-  "PLANE_GLOW": 31,
+  "PLANES": 37,
+  "PLANE_GLOW": 38,
   "FPS": 16,
   "SETS": 11,
   "PLANE_SETS": 14,
   "FRAME_COUNT": 8,
-  "PLANE_SPAN": 33,
-  "radius": 19,
-  "golden": 38,
+  "PLANE_SPAN": 40,
+  "radius": 22,
+  "golden": 45,
   "per_plane_formulas": "33-56 (_ready), 69 (_layout)",
   "shader": "art/sun/sun.gdshader 16-30"
  },
  "planes_count": 8,
- "plane_glow": 0.9,
+ "plane_glow": 0.65,
  "fps": 3.0,
  "sets": [
   "sun_flare",
@@ -25,7 +25,7 @@ const SUN_DATA = {
  "frame_count": 64,
  "plane_span": 3.0,
  "radius": 0.75,
- "frame_url": "../../art/sun/frames/sun_flare_{NN}.png",
+ "frame_url": "../../art/sun/frames/flare/sun_{NN}.png",
  "planes": [
   {
    "index": 0,
@@ -49,7 +49,7 @@ const SUN_DATA = {
    "offset_z_radii": -0.05,
    "offset_z": -0.037500000000000006,
    "spin_rad_s": 0.04,
-   "glow": 0.9
+   "glow": 0.65
   },
   {
    "index": 1,
@@ -73,7 +73,7 @@ const SUN_DATA = {
    "offset_z_radii": -0.11,
    "offset_z": -0.0825,
    "spin_rad_s": -0.07,
-   "glow": 0.9
+   "glow": 0.65
   },
   {
    "index": 2,
@@ -97,7 +97,7 @@ const SUN_DATA = {
    "offset_z_radii": -0.16999999999999998,
    "offset_z": -0.1275,
    "spin_rad_s": 0.1,
-   "glow": 0.9
+   "glow": 0.65
   },
   {
    "index": 3,
@@ -121,7 +121,7 @@ const SUN_DATA = {
    "offset_z_radii": -0.05,
    "offset_z": -0.037500000000000006,
    "spin_rad_s": -0.13,
-   "glow": 0.9
+   "glow": 0.65
   },
   {
    "index": 4,
@@ -145,7 +145,7 @@ const SUN_DATA = {
    "offset_z_radii": -0.11,
    "offset_z": -0.0825,
    "spin_rad_s": 0.04,
-   "glow": 0.9
+   "glow": 0.65
   },
   {
    "index": 5,
@@ -169,7 +169,7 @@ const SUN_DATA = {
    "offset_z_radii": -0.16999999999999998,
    "offset_z": -0.1275,
    "spin_rad_s": -0.07,
-   "glow": 0.9
+   "glow": 0.65
   },
   {
    "index": 6,
@@ -193,7 +193,7 @@ const SUN_DATA = {
    "offset_z_radii": -0.05,
    "offset_z": -0.037500000000000006,
    "spin_rad_s": 0.1,
-   "glow": 0.9
+   "glow": 0.65
   },
   {
    "index": 7,
@@ -217,7 +217,7 @@ const SUN_DATA = {
    "offset_z_radii": -0.11,
    "offset_z": -0.0825,
    "spin_rad_s": -0.13,
-   "glow": 0.9
+   "glow": 0.65
   }
  ]
 };

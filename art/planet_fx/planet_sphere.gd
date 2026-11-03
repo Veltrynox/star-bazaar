@@ -12,16 +12,16 @@ const SIMPLE := true
 ## Owner: cloud layer in the simple body for the earth-like types, storm glow for the stormy type (cloudy). Both read planet_cloud.png.
 const CLOUD_TYPES := ["lush", "agrarian", "ocean"]
 const STORM_TYPE := "cloudy"
-const CLOUD_TEX := "res://art/textures/planets/planet_cloud.png"
+const CLOUD_TEX := "res://art/planet/planet_cloud.png"
 
 const FX := preload("res://art/planet_fx/planet_fx.gd")
 
 ## Per-type surface table: beauty (colour), disp (height, relief), optional glow mask and lights mask.
 ## Optional "clouds" key: a drifting cloud shell above the surface plus cloud shadows on the body. Add one line to give it to a type.
 ## Types not in the table fall back to the old greyscale SURFACE_TEXTURES entry with the palette tint.
-const TP := "res://art/textures/planets/"
+const TP := "res://art/planet/"
 const TYPE_TEXTURES := {
-	"volcanic": {"beauty": TP + "planet_volcanic_beauty.png", "disp": TP + "planet_volcanic_displacement_1.png"},
+	"volcanic": {"beauty": TP + "planet_volcanic_beauty.png", "disp": TP + "planet_volcanic_displacement_01.png"},
 	"cloudy": {"beauty": TP + "planet_cloudy_beauty.png", "disp": TP + "planet_cloudy_displacement.png", "clouds": TP + "planet_cloud.png"},
 	"desert": {"beauty": TP + "planet_desert_beauty.png", "disp": TP + "planet_desert_displacement.png"},
 	"lush": {"beauty": TP + "planet_lush_beauty.png", "disp": TP + "planet_lush_displacement.png"},
@@ -46,7 +46,7 @@ static func is_dead(id: String, type: String) -> bool:
 	return type == DEAD_TYPE or id.begins_with(DEAD_ID_PREFIX)
 
 ## Old fallback (greyscale equirectangular) for types without a table entry.
-const SURFACE_TEXTURES := ["res://art/planet_fx/planet_surface_01.jpg"]
+const SURFACE_TEXTURES := ["res://art/planet/planet_surface_01.jpg"]
 ## Loaded textures by path: each file is loaded once for all planets.
 static var _tex_cache: Dictionary = {}
 
@@ -56,7 +56,7 @@ static func cached_tex(path: String) -> Texture2D:
 	return _tex_cache[path]
 
 ## Fine grain map for the city specks and the streak layer.
-const FINE_TEXTURE := "res://art/planet_fx/planet_sphere_tone.png"
+const FINE_TEXTURE := "res://art/planet/planet_sphere_tone.png"
 
 ## Half-width of the ring quad in planet radii (the PNG ring spans 0.32 to 0.98 of it: about 1.2 to 3.7 radii).
 const RING_HALF := 3.8

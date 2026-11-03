@@ -6,7 +6,7 @@ Status: decided for build. Names and numbers are placeholders for owner review. 
 
 | Id | System | Name (placeholder) | Texture | Role |
 |---|---|---|---|---|
-| dead_1 | 1 (Hollin Reach) | Cinderrest | art/textures/planets/planet_toxic_beauty.png | dead world, mining base |
+| dead_1 | 1 (Hollin Reach) | Cinderrest | art/planet/planet_toxic_beauty.png | dead world, mining base |
 | dead_2 | 2 (Dunmere Reach) | Greywake | same texture, second variant | dead world, mining base |
 
 - They are planet nodes like the others: they can be routed from and sold to, but they have no food or energy market.

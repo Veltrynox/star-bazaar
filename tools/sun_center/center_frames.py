@@ -19,8 +19,8 @@ Method (measures the disc, not the flares):
     prediction is a misfit (a flare ring won); it is refitted near the prediction (+-3 px, radius as pass 2).
  4. Shift: the frame moves by round(frame_centre - disc_centre) whole pixels (no resampling, so no blur),
     padded with black. Radius is never changed; its spread is only reported.
-Raw frames live in art/sun/frames_raw/ (copied once, never overwritten). Centred frames go to
-art/sun/frames/ with the same names. Re-run any time; input is always the raw set.
+Raw frames live in art/source/sun_frames_raw/ (copied once, never overwritten). Centred frames go to
+art/sun/frames/<subject>/sun_NN.png (subject = flare, storm, calm). Re-run any time; input is always the raw set.
 After writing, the centred frames are measured again and that residual is printed.
 
 Usage (project root):  python3 tools/sun_center/center_frames.py [set ...]   default set: sun_flare
@@ -32,7 +32,14 @@ from pngio import read_png, write_png
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 FRAMES = os.path.join(ROOT, "art/sun/frames")
-RAW = os.path.join(ROOT, "art/sun/frames_raw")
+RAW = os.path.join(ROOT, "art/source/sun_frames_raw")
+
+
+def frame_file(name, i):
+    """Centred frame path: art/sun/frames/<subject>/sun_NN.png (name is sun_<subject>)."""
+    d = os.path.join(FRAMES, name[len("sun_"):] if name.startswith("sun_") else name)
+    os.makedirs(d, exist_ok=True)
+    return os.path.join(d, "sun_%02d.png" % i)
 COUNT = 64
 NANG = 90
 ANG = [(math.cos(math.tau * k / NANG), math.sin(math.tau * k / NANG)) for k in range(NANG)]
@@ -166,7 +173,7 @@ def main():
             f = "%s_%02d.png" % (name, i)
             rp = os.path.join(RAW, f)
             if not os.path.exists(rp):
-                shutil.copy2(os.path.join(FRAMES, f), rp)  # first run only: keep the raw cut
+                shutil.copy2(frame_file(name, i), rp)  # first run only: keep the raw cut
             raws.append(rp)
         imgs = [read_png(rp) for rp in raws]
         w, h = imgs[0][0], imgs[0][1]
@@ -176,11 +183,11 @@ def main():
             dx, dy = round(c0x - cx), round(c0y - cy)
             print("%s_%02d centre %.2f,%.2f radius %.2f (free fit %.2f) score %.1f shift %+d,%+d" % (name, i, cx, cy, r, free[i][2], s, dx, dy))
             if not dry:
-                write_png(os.path.join(FRAMES, "%s_%02d.png" % (name, i)), w, h, shifted(imgs[i][2], w, h, dx, dy))
+                write_png(frame_file(name, i), w, h, shifted(imgs[i][2], w, h, dx, dy))
         stats(name + " BEFORE (free radius)", free, w, h)
         stats(name + " BEFORE (radius held)", final, w, h)
         if not dry:
-            out = [read_png(os.path.join(FRAMES, "%s_%02d.png" % (name, i))) for i in range(COUNT)]
+            out = [read_png(frame_file(name, i)) for i in range(COUNT)]
             fa, fb = fit_set(out)
             stats(name + " AFTER  (free radius)", fa, w, h)
             stats(name + " AFTER  (radius held)", fb, w, h)

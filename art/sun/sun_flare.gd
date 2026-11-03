@@ -12,7 +12,7 @@ const SETS := ["sun_flare", "sun_storm", "sun_calm"]
 ## Sheet of each plane (index into SETS): storm, flare, calm, flare, storm, calm, storm, flare. Planes that share a sheet get
 ## phases 15+ frames apart (see _phase), so repeats never show the same frame at the same time.
 const PLANE_SETS := [1, 0, 2, 0, 1, 2, 1, 0]
-const FRAME_PATH := "res://art/sun/frames/%s_%02d.png"
+const FRAME_PATH := "res://art/sun/frames/%s/sun_%02d.png"  # one folder per sheet: flare, storm, calm
 const FPS := 3.0           # burn speed, frames per second; the shader blends between neighbouring frames
 const FLARE_SMOOTH := 6.0  # how fast sun_flare follows the frame brightness (per second)
 
@@ -142,7 +142,7 @@ func _load_frames() -> Texture2DArray:
 	for s in SETS.size():
 		var l: Array = []
 		for i in FRAME_COUNT:
-			var img: Image = (load(FRAME_PATH % [SETS[s], i]) as Texture2D).get_image()
+			var img: Image = (load(FRAME_PATH % [SETS[s].trim_prefix("sun_"), i]) as Texture2D).get_image()
 			img.convert(Image.FORMAT_RGBA8)
 			imgs.append(img)
 			l.append(_brightness(img))

@@ -5,14 +5,14 @@ extends SceneTree
 ## Reads tools/sun_crop/crop.json (origin x/y, cell_w/cell_h, gap, cols, rows, in px of the sheet, per sheet).
 ## A sheet with no entry in crop.json is reported and skipped; nothing is guessed.
 ## If crop.json is missing, or any cut frame is not the cell size, no frame is written and the exit code is 1.
-## Writes art/sun/frames/<name>_00.png .. <name>_63.png (row by row, left to right):
+## Writes art/sun/frames/<subject>/sun_00.png .. sun_63.png, subject = flare, storm or calm (row by row, left to right):
 ##   v01 -> sun_storm (strongest flares), v02 -> sun_flare (a few flares, in use), v03 -> sun_calm.
 ## The sheets in art/source/ are only read, never changed.
 
 const SHEETS := {
-	"v01": ["res://art/source/sun_sheet_v01.png", "sun_storm"],
-	"v02": ["res://art/source/sun_sheet_v02.png", "sun_flare"],
-	"v03": ["res://art/source/sun_sheet_v03.png", "sun_calm"],
+	"v01": ["res://art/source/sun_sheet_storm_8x8_v01.png", "sun_storm"],
+	"v02": ["res://art/source/sun_sheet_flare_8x8_v02.png", "sun_flare"],
+	"v03": ["res://art/source/sun_sheet_calm_8x8_v03.png", "sun_calm"],
 }
 const CROP := "res://tools/sun_crop/crop.json"
 const OUT := "res://art/sun/frames"
@@ -61,13 +61,14 @@ func _init() -> void:
 				print("cut_sun: %s %s_%02d at %s -> %dx%d %s" % [key, SHEETS[key][1], n, rect.position, frame.get_width(), frame.get_height(), "ok" if good else "WRONG SIZE, expected %dx%d" % [cw, ch]])
 				if not good:
 					failed = true
-				jobs.append(["%s/%s_%02d.png" % [OUT, SHEETS[key][1], n], frame])
+				jobs.append(["%s/%s/sun_%02d.png" % [OUT, SHEETS[key][1].trim_prefix("sun_"), n], frame])
 				n += 1
 	if failed:
 		printerr("cut_sun: check failed, no frames written.")
 		quit(1)
 		return
-	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUT))
+	for subj in ["flare", "storm", "calm"]:
+		DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUT + "/" + subj))
 	for j in jobs:
 		j[1].save_png(ProjectSettings.globalize_path(j[0]))
 	print("cut_sun: wrote %d frames" % jobs.size())
