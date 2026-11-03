@@ -17,6 +17,11 @@ static var _nodes: Array = []
 static var _by_id: Dictionary = {}
 static var _loaded := false
 
+## Space Storage must be earned (owner 2026-11-03): main syncs these two from the run before any learn check.
+const EARNED := ["FND_STORAGE"]
+static var earn_cycle: int = 1     # current cycle
+static var earn_income: int = 0    # cumulative trade income of the run (gross, before upkeep)
+
 static func _ensure() -> void:
 	if _loaded:
 		return
@@ -113,7 +118,19 @@ static func state(learned: Array, id: String) -> String:
 		return "learned"
 	return "available" if missing_prereqs(learned, id).is_empty() else "locked"
 
-## {ok, reason}: reason is "", "unknown", "known", "locked", "tech" (techs finish by crafting) or "points".
+## "" when the skill is free to learn, else a line such as "Earn 3000 credits from trade over 5 cycles (120/3000)".
+## Only the EARNED skills are gated: cycle >= earn_cycles AND earn_income >= earn_income_need (balance.json).
+static func earn_lock_reason(balance: Dictionary, id: String) -> String:
+	if not EARNED.has(id):
+		return ""
+	var cyc := int(balance.get("earn_storage_cycles", 5))
+	var need := int(balance.get("earn_storage_income", 3000))
+	if earn_cycle >= cyc and earn_income >= need:
+		return ""
+	return StoryText.get_or("SK_EARN_LOCK", "Earn {need} credits from trade over {cycles} cycles ({have}/{need}).",
+		{"need": need, "cycles": cyc, "have": mini(earn_income, need)})
+
+## {ok, reason}: reason is "", "unknown", "known", "locked", "earn" (trade income lock, see earn_lock_reason), "tech" (techs finish by crafting) or "points".
 static func can_learn(learned: Array, points: int, balance: Dictionary, id: String) -> Dictionary:
 	if not has(id):
 		return {"ok": false, "reason": "unknown"}
@@ -124,6 +141,9 @@ static func can_learn(learned: Array, points: int, balance: Dictionary, id: Stri
 			return {"ok": false, "reason": "locked"}
 	if is_tech(id):
 		return {"ok": false, "reason": "tech"}
+	var lock := earn_lock_reason(balance, id)
+	if lock != "":
+		return {"ok": false, "reason": "earn", "text": lock}
 	if points < cost(balance, id):
 		return {"ok": false, "reason": "points"}
 	return {"ok": true, "reason": ""}

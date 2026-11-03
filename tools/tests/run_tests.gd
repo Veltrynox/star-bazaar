@@ -866,9 +866,21 @@ func _test_skill_screen() -> void:
 	check(m.learned_skills.is_empty(), "skills: nothing learned at start")
 	# cost and points
 	m.skill_points = 0
-	var r: Dictionary = m.learn_skill("FND_STORAGE")
+	var r: Dictionary = _learn_storage(m)
 	check(not r["ok"] and r["reason"] == "points" and m.learned_skills.is_empty(), "skills: not enough points blocks learning")
 	m.skill_points = 10
+	r = m.learn_skill("FND_STORAGE")  # earn lock: cycle 1, no income yet
+	check(not r["ok"] and r["reason"] == "earn" and m.skill_lock_reason("FND_STORAGE") != "" and m.skill_lock_reason("MIL_1") == "", "earn: locked at start, text shown", m.skill_lock_reason("FND_STORAGE"))
+	m.cycle = 5
+	check(m.learn_skill("FND_STORAGE")["reason"] == "earn", "earn: cycle 5 alone is not enough")
+	m.trade_income_total = int(bal["earn_storage_income"])
+	m.cycle = 4
+	check(m.learn_skill("FND_STORAGE")["reason"] == "earn", "earn: income alone is not enough")
+	m.cycle = 5
+	check(m.skill_lock_reason("FND_STORAGE") == "" and m.collect_state()["trade_income_total"] == int(bal["earn_storage_income"]), "earn: both met unlocks, income saved")
+	m.cycle = 1
+	m.trade_income_total = 0
+	m._sync_earn()
 	r = m.learn_skill("MIL_3")
 	check(not r["ok"] and r["reason"] == "locked" and m.skill_points == 10, "skills: a skill without its prerequisite is locked, points kept")
 	r = m.learn_skill("MIL_2")
@@ -891,7 +903,7 @@ func _test_skill_screen() -> void:
 	check(Skills.learned == m.learned_skills and Skills.is_learned("MIN_1"), "skills: Skills.learned is the learned set")
 	# space storage, permits and cluster routes follow the Foundations
 	check(not m.space_post_open(1) and m.can_mine() and Skills.unlocked("permit_routes"), "skills: FND_PROSPECT opens cluster routes, FND_PERMIT permit routes, no storage yet")
-	m.learn_skill("FND_STORAGE")
+	_learn_storage(m)
 	check(m.space_post_open(1) and Skills.unlocked("space_storage"), "skills: FND_STORAGE opens the Space Storage post")
 	# the screen still opens (the rebuild is the UI task)
 	var sc: PanelContainer = m.skill_screen
@@ -2189,7 +2201,7 @@ func _test_systems() -> void:
 	m.pts_planets = [0, 1, 2]
 	m.pts_pairs = ["0-1", "0-2"]
 	m.skill_points = 50
-	check(m.learn_skill("FND_STORAGE")["ok"], "space: FND_STORAGE learnable after the gate")
+	check(_learn_storage(m)["ok"], "space: FND_STORAGE learnable after the gate")
 	check(m.space_post_open(1) and m.space_post_open(2), "space: one post per open system after FND_STORAGE")
 	check(m.storage.capacity_of("system:1") == int(bal["space_storage_capacity"]), "space: capacity from balance")
 	# manual Space Storage (owner 2026-11-03): nothing fills it by itself; only a ship sent to it does
@@ -2270,7 +2282,7 @@ func _test_skill_effects() -> void:
 	# BIO_3 Seed Bank through learn_skill (BIO_3 needs BIO_1)
 	var cap0: int = m.storage.capacity_of(key0)
 	m.skill_points = 10
-	check(m.learn_skill("FND_PERMIT")["ok"] and m.learn_skill("FND_STORAGE")["ok"] and m.learn_skill("BIO_1")["ok"] and m.learn_skill("BIO_3")["ok"], "BIO_3: learned after BIO_1")
+	check(m.learn_skill("FND_PERMIT")["ok"] and _learn_storage(m)["ok"] and m.learn_skill("BIO_1")["ok"] and m.learn_skill("BIO_3")["ok"], "BIO_3: learned after BIO_1")
 	var cap1: int = m.storage.capacity_of(key0)
 	check(cap1 == int(round(float(cap0) * (1.0 + float(bal["skill_BIO_3_capacity"])))) and cap1 > cap0, "BIO_3: planet storage capacity raised by skill_BIO_3_capacity", "%d -> %d" % [cap0, cap1])
 	check(m.storage.capacity_of("system:1") == int(bal["space_storage_capacity"]), "BIO_3: Space Storage capacity unchanged")
@@ -3028,7 +3040,7 @@ func _test_stations() -> void:
 	m.pts_planets = [0, 1, 2]
 	m.pts_pairs = ["0-1", "0-2"]
 	m.skill_points = 50
-	check(m.learn_skill("FND_PERMIT")["ok"] and m.learn_skill("FND_STORAGE")["ok"], "station: FND_STORAGE learned")
+	check(m.learn_skill("FND_PERMIT")["ok"] and _learn_storage(m)["ok"], "station: FND_STORAGE learned")
 	check(m.station_systems.has(1) and m.station_systems.has(2) and m.map.stations.size() == 2, "station: one per open system after FND_STORAGE")
 	m._ensure_stations()
 	m._ensure_posts()
@@ -3325,7 +3337,7 @@ func _test_trade_gate() -> void:
 	m.pts_pairs = ["0-1", "0-2"]
 	m.skill_points = 50
 	m.learn_skill("FND_PERMIT")
-	m.learn_skill("FND_STORAGE")
+	_learn_storage(m)
 	check(m.space_post_open(2) and m.system_trade_open(far), "gate: post open after FND_STORAGE")
 	check(m.set_local_order(far, c, "buy", true)["ok"] and m.set_local_order(far, c, "sell", true)["ok"], "gate: second system Buy and Sell work once the post is open")
 	var ro: Dictionary = m.send_stock_buying(home, far, c)
@@ -4691,3 +4703,16 @@ func _test_chains() -> void:
 	var feed_n: int = m.events.feed.size()
 	check(feed_n >= 1 and str(m.events.feed[feed_n - 1]["id"]) == "LUX_A1", "slot: one event in the cycle")
 	await _free_main(m)
+
+
+## Space Storage is earned (cycle and trade income): grant both, learn it, restore the cycle.
+func _learn_storage(m) -> Dictionary:
+	var c: int = m.cycle
+	var t: int = m.trade_income_total
+	m.cycle = maxi(c, int(m.balance.get("earn_storage_cycles", 5)))
+	m.trade_income_total = maxi(t, int(m.balance.get("earn_storage_income", 3000)))
+	var r: Dictionary = m.learn_skill("FND_STORAGE")
+	m.cycle = c
+	m.trade_income_total = t
+	m._sync_earn()
+	return r

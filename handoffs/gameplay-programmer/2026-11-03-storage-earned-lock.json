@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-03",
+  "task": "Lock Space Storage (FND_STORAGE) until earned by trading",
+  "status": "done",
+  "files_changed": ["game/skill_tree.gd", "game/main.gd", "game/skill_screen.gd", "data/balance.json", "tools/tests/run_tests.gd"],
+  "open_questions": [
+    "Economy designer: are earn_storage_cycles 5 and earn_storage_income 3000 (placeholders) right? 3000 is about 1.4x start cash, roughly 2 cycles of one-system net income, so it is nearly always met by cycle 5-6.",
+    "Story designer: add story id SK_EARN_LOCK with args {need}, {cycles}, {have}; the code falls back to 'Earn {need} credits from trade over {cycles} cycles ({have}/{need}).'",
+    "Income counted is gross trade income per settle (net plus upkeep, never negative), not cash. OK?"
+  ],
+  "handoff": "main.trade_income_total (saved as trade_income_total, old saves 0, reset on new game) adds the gross of each settle. SkillTree.can_learn returns {ok:false, reason:'earn', text} for FND_STORAGE until cycle >= earn_storage_cycles AND income >= earn_storage_income (balance.json, data_version 41). main.skill_lock_reason(id) returns the line or ''. skill_screen._status_line shows it (3-line edit) in place of the cost line for an available skill; ui-programmer may restyle. QA bots that learn FND_STORAGE via main.learn_skill now wait for the lock. Tests: new earn: checks; _learn_storage helper in run_tests.gd; suite pass=1169 fail=0.",
+  "details": {
+    "playable": "Space Storage cannot be learned before cycle 5 and 3000 credits of cumulative trade income; the skill node shows the progress line.",
+    "how_to_try": "New game, open Skills, see the Space Storage node show 'Earn 3000 credits from trade over 5 cycles (x/3000)'. Trade to cycle 5 with 3000 gross income and the node becomes learnable."
+  }
+}

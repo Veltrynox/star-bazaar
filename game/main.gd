@@ -33,6 +33,7 @@ const WorkshopsScript := preload("res://game/workshops.gd")
 var balance: Dictionary = {}
 var cash: int = 0
 var cycle: int = 1          # current cycle, 1-based
+var trade_income_total: int = 0  # cumulative gross trade income this run (gates Space Storage), saved
 var cycle_elapsed: float = 0.0  # seconds into current cycle
 var debug_force_market: String = ""  # debug-only, runtime only, never saved: market id whose share is forced up at cycle end
 var debug_force_event: bool = false  # T13: debug-only, fire a random event at the next cycle start, then clears
@@ -271,7 +272,7 @@ func _ready() -> void:
 ## T26: state written to the autosave. Add new keys here (see save_game.gd).
 ## Tuning values from balance.json are never saved.
 func collect_state() -> Dictionary:
-	return {"cycle": cycle, "cycle_elapsed": cycle_elapsed, "cash": cash, "paused": paused, "ships": ships,
+	return {"cycle": cycle, "trade_income_total": trade_income_total, "cycle_elapsed": cycle_elapsed, "cash": cash, "paused": paused, "ships": ships,
 		"routes": engine.to_array(), "storage": storage.to_dict(), "orders": engine.local_to_array(),
 		"markets": Markets.to_dict(), "rescues_paid": rescues_paid, "repossessions": repossessions, "learned_skills": learned_skills.duplicate(), "skills": Skills.to_dict(), "tech": Tech.to_dict(), "systems_reached": systems_reached,
 		"time_speed": time_speed, "skill_points": skill_points, "pts_planets": pts_planets, "pts_pairs": pts_pairs, "events": events.to_dict(),
@@ -301,6 +302,8 @@ func apply_state(s: Dictionary) -> void:
 			tut_step = TUT_OLD_MAP[maxi(0, tut_step)] if tut_step < TUT_OLD_MAP.size() else TUT_GUIDE.size()
 	tut_step = clampi(tut_step, 0, TUT_GUIDE.size())
 	cycle = maxi(1, int(s.get("cycle", 1)))
+	trade_income_total = maxi(0, int(s.get("trade_income_total", 0)))  # old saves: 0, earned again
+	_sync_earn()
 	Markets.from_dict(s.get("markets"), balance)
 	Chains.from_dict(s.get("chains"), balance)  # a v3 save has no chain state: fresh
 	Chains.now = cycle
@@ -618,8 +621,19 @@ func _note_system(planet: int) -> void:
 		reached_ids.append(sid)
 		reach_system()
 
+## Pushes cycle and trade income to SkillTree for the Space Storage earn lock.
+func _sync_earn() -> void:
+	SkillTree.earn_cycle = cycle
+	SkillTree.earn_income = trade_income_total
+
+## Lock line for a skill ("" = free to learn), for the skill screen.
+func skill_lock_reason(id: String) -> String:
+	_sync_earn()
+	return SkillTree.earn_lock_reason(balance, id)
+
 ## T71: learn a skill. Spends skill points, saves, posts the notice. Returns {ok, reason}.
 func learn_skill(id: String) -> Dictionary:
+	_sync_earn()
 	var v := SkillTree.can_learn(learned_skills, skill_points, balance, id)
 	if not v["ok"]:
 		return v
@@ -1738,6 +1752,8 @@ func _settle_routes() -> Array:
 	var r: Dictionary = engine.settle(cash)
 	last_local = r["local"]
 	cash += int(r["delta"])
+	trade_income_total += maxi(0, int(r["gross"]))
+	_sync_earn()
 	for c in engine.sales_units:  # Four Markets: Sell orders and stop sales count toward share
 		Markets.add_sale(str(c), int(engine.sales_units[c]), int(engine.sales_up_units.get(c, 0)))
 	prev_net = last_net
@@ -1922,6 +1938,7 @@ func _end_cycle() -> void:
 		return
 	events.tick()  # T12: effects that ran this cycle age
 	cycle += 1
+	_sync_earn()
 	Chains.tick(cycle)  # chain effects that ran through the last cycle expire
 	_sync_closed()
 	if dead_unlock_cycle() > 1 and cycle == dead_unlock_cycle():  # the dead worlds open now
@@ -2442,6 +2459,8 @@ func debug_restart_tutorial() -> void:
 	tut_skipped = []
 	galaxy_seen = false
 	cycle = 1
+	trade_income_total = 0
+	_sync_earn()
 	_sync_dead_lock()
 	cycle_elapsed = 0.0
 	_tut_show()
