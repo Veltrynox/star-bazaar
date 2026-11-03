@@ -8,7 +8,7 @@ Owner of the workflow: main session (starts agents, checks handoffs). Producer r
 
 The workflow is a saved Claude Code workflow script: `goals/feature-exploration/feature-exploration.js`. It runs the steps below as `agent()` calls, with the phases Propose, Review, Revise, Vote, Build, Test and Finish.
 
-Install it as a command (the sandbox blocked writing `.claude/workflows` from the chat, so copy it yourself):
+Install it as a command:
 
 ```
 ! mkdir -p .claude/workflows && cp goals/feature-exploration/feature-exploration.js .claude/workflows/
