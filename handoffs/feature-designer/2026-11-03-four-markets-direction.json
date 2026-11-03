@@ -1,0 +1,24 @@
+{
+  "agent": "feature-designer",
+  "task_id": "four-markets-direction",
+  "date": "2026-11-03",
+  "status": "done",
+  "summary": "Replaced Open/Hard stance with a hidden per-market direction value dir_<mkt> in design/proposals/2026-11-03-four-markets.md. Neutral options opt_a/opt_b per step, each with a gain, a cost, a bot stat change and a hidden signed nudge. Ending thresholds, echo and late-swing rules, 28-step option table, 'Why no option is dominant', and a handoff list for economy and story are in the core doc.",
+  "files_changed": ["design/proposals/2026-11-03-four-markets.md", "handoffs/feature-designer/2026-11-03-four-markets-direction.json"],
+  "details": {
+    "direction": {
+      "value": "dir_<mkt>, int -100..+100, hidden, one per market, both chains feed it",
+      "nudges": "A1 5-8, A2 8-10, A3 10-14, B1 8-10, B2 10-12, B3 14-16, B4 24-26, signs mixed",
+      "modifiers": "echo x1.25 if previous step in the same chain had the same sign; late swing x1.5 on the opposing nudge at B3/B4 when |dir| >= 40",
+      "thresholds": "dir >= 10 good; dir <= -10 bad; between: sign of last nudge decides; no step seen = good",
+      "end_screen": "no counts, labels or direction shown"
+    },
+    "proposals": [],
+    "stale_in_other_docs": ["four-markets-economy.md: open_volume_bonus, hard_fee, Open/Hard win tables, lines 76-101, 130, 171, 188-195, 270, 276", "four-markets-story.md: Open/Hard rules lines 20, 285-287, 514-520, END_STAT_RECORD, stance endings, MIL chain flags and variants", "four-markets-summary.md: R6, R7, R8, R11 and Q3 wording"]
+  },
+  "open_questions": [
+    "UNKNOWN: whether the economy sim keeps all 2^7 paths per market inside the 56-98% window with option boosts to bots.",
+    "UNKNOWN: whether shuffled button order is acceptable to UI (a per-run seeded shuffle).",
+    "UNKNOWN: owner view on the last-nudge tiebreak in the -9..+9 band."
+  ]
+}
