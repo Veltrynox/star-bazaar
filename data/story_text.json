@@ -690,16 +690,34 @@
   "place": "Galaxy view, first open"
  },
  {
+  "id": "TUT_GALAXY_INTRO_WHY",
+  "text": "Each system is its own market. Seeing them side by side shows where to grow next.",
+  "max": 110,
+  "place": "Galaxy view, why line"
+ },
+ {
   "id": "TUT_GALAXY_ICONS",
   "text": "The icons beside each system show the resources found there.",
   "max": 110,
   "place": "Galaxy view, after intro"
  },
  {
+  "id": "TUT_GALAXY_ICONS_WHY",
+  "text": "A system that has what another lacks is where a route pays best.",
+  "max": 110,
+  "place": "Galaxy view, why line"
+ },
+ {
   "id": "TUT_GALAXY_ROUTES",
   "text": "Your own trade routes are drawn on the map. Click a system to open it.",
   "max": 110,
   "place": "Galaxy view, after icons"
+ },
+ {
+  "id": "TUT_GALAXY_ROUTES_WHY",
+  "text": "Open a system to set up buy, send and sell orders there.",
+  "max": 110,
+  "place": "Galaxy view, why line"
  },
  {
   "id": "LBL_SHIP_SMALL",

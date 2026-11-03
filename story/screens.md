@@ -202,10 +202,16 @@ SS_POST_DESC | 110 | Space Storage post, one-line description | A buffer for the
 ## Tutorial: galaxy view (T119; shown once, the first time the galaxy view opens after system 2 is open)
 TUT_GALAXY_INTRO | 110 | Galaxy view, first open
 This is the galaxy view. It shows the systems you have explored and the links between them.
+TUT_GALAXY_INTRO_WHY | 110 | Galaxy view, why line
+Each system is its own market. Seeing them side by side shows where to grow next.
 TUT_GALAXY_ICONS | 110 | Galaxy view, after intro
 The icons beside each system show the resources found there.
+TUT_GALAXY_ICONS_WHY | 110 | Galaxy view, why line
+A system that has what another lacks is where a route pays best.
 TUT_GALAXY_ROUTES | 110 | Galaxy view, after icons
 Your own trade routes are drawn on the map. Click a system to open it.
+TUT_GALAXY_ROUTES_WHY | 110 | Galaxy view, why line
+Open a system to set up buy, send and sell orders there.
 
 ## Labels 2 (2026-10-28; fallback texts replaced)
 LBL_SHIP_SMALL | 24 | Ship type name, small ship (working name, owner to confirm) | Skerrit
