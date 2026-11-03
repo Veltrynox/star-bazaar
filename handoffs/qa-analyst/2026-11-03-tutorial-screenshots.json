@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "agent": "qa-analyst",
+  "date": "2026-11-03",
+  "task": "Tutorial screenshots: visual check of the guided and galaxy tutorial, end-to-end play, and Skip",
+  "status": "blocked",
+  "files_changed": [
+    "qa/bots/tutorial_shots.gd",
+    "handoffs/qa-analyst/2026-11-03-tutorial-screenshots.json"
+  ],
+  "open_questions": [
+    "UNKNOWN: whether Godot can open a rendered window at all in this sandbox (no output or PNG in two launches, see blocker)",
+    "UNKNOWN: whether the stuck Godot process from the first launch is still running; the auto-mode classifier denied pkill",
+    "UNKNOWN: all visual checks (panel style, label colours, clipping, Skip look) are unverified because no PNG was produced"
+  ],
+  "handoff": "BLOCKED: no screenshots. Godot (tools/godot/Godot.app, 4.7.2) was launched with rendering, not headless, twice with a scratch HOME. Both runs printed only the engine version and sandbox/XPC errors ('sandbox_extension_issue_file_to_process failed ... Operation not permitted') and never reached the driver's first log line or first PNG in over 6 minutes. The first run is still running and could not be killed (pkill denied). Action for the Producer or user: run `pkill -f Godot.app/Contents/MacOS/Godot` outside the sandbox, then run `HOME=<scratch>/home tools/godot/Godot.app/Contents/MacOS/Godot --path . -s res://qa/bots/tutorial_shots.gd` from a normal Terminal (outside the sandbox) to get the four runs (board play, board Skip at step 4, galaxy 3 steps, galaxy Skip at step 2). The driver is ready: qa/bots/tutorial_shots.gd, writes PNGs and driver.log to the scratchpad tutorial-shots folder, and has a 300 s watchdog. No checks were verified.",
+  "details": {
+    "results": [],
+    "blocker": "Godot does not produce output or frames from this sandbox process; the window path is not reachable (sandbox extension denied for the Godot app bundle).",
+    "driver": "qa/bots/tutorial_shots.gd",
+    "output_dir": "/private/tmp/claude-501/-Volumes-Work-Gamedev-Projects-AgentCourse-star-bazaar/e657de9b-7184-467c-b331-f4e3ea64a780/scratchpad/tutorial-shots/",
+    "planned_shots": [
+      "A_step01..A_step10 (board, one per TUT_GUIDE index, taken before the step action)",
+      "A_board_done",
+      "B_board_step04_before_skip",
+      "B_board_after_skip",
+      "C_galaxy_step1_of3, C_galaxy_step2_of3, C_galaxy_step3_of3, C_galaxy_done",
+      "D_galaxy_step2_before_skip, D_galaxy_after_skip"
+    ],
+    "not_done": "The brief asked for qa/reports/2026-11-03-tutorial-screenshots.md. Not written here: the agent rules forbid report .md files, so the findings are in this handoff and the final message instead. Visual table: all rows UNKNOWN."
+  }
+}
