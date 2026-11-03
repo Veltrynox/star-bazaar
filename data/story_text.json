@@ -1494,6 +1494,30 @@
   "place": "Tips board"
  },
  {
+  "id": "LBL_SHARE_TITLE",
+  "text": "Market share",
+  "max": 24,
+  "place": "Market share panel heading"
+ },
+ {
+  "id": "LBL_SHARE_HOLD",
+  "text": "Held {n} of {total} cycles",
+  "max": 40,
+  "place": "Market share panel, cycles the player has held the lead"
+ },
+ {
+  "id": "LBL_SPREAD_COST",
+  "text": "Spreading cost per cycle: {n}",
+  "max": 40,
+  "place": "Market panel, cost of holding several markets"
+ },
+ {
+  "id": "LBL_SHARE_YOU",
+  "text": "You",
+  "max": 24,
+  "place": "Market share rows and end screen readout, the player's row"
+ },
+ {
   "id": "SK_M1_NAME",
   "text": "Cold Survey",
   "max": 24,
@@ -1608,256 +1632,124 @@
   "place": "Skill screen footer"
  },
  {
-  "id": "END_BARE_HANDS",
-  "text": "You did it the plain way: buy, sell, repeat. The Release came through stamped, and the Bureau did not look up. The planet is yours, uncounted and quiet. The Commons will list you as a clerical error. You were right for a simple reason, which is rarer than a clever one. The door is open. Walk through it.",
-  "max": 350,
-  "place": "Ending: The Cheapest Road"
+  "id": "END_MIL_GOOD_TITLE",
+  "text": "The Quiet Fleets",
+  "max": 40,
+  "place": "End screen heading, win Military, good outcome"
  },
  {
-  "id": "END_LAST_LIGHT",
-  "text": "The Plan was almost closed. In the final cycle the numbers lined up and the goal was met with nothing to spare. The clerk stamped your Release as the lights in the office went down for the night. You earned the planet, and the memory of every cycle you spent counting. Standing on it now you feel more relief than joy, then a little more joy than you expected. Some things only count when they nearly do not.",
-  "max": 700,
-  "place": "Ending: The Last Light"
- },
- {
-  "id": "END_COLD_LEDGER",
-  "text": "You knew each price before it moved and each event before it arrived. The goal fell to you like a sum on a page, and the Release was a formality. The planet is yours, exact and silent. You look at the horizon and see a column of figures. It balances. It always balances. The Bureau has sent a kind letter, offering you a desk. You are not sure when you stopped being the one who escaped, and became the one who counts.",
-  "max": 700,
-  "place": "Ending: The Quiet Ledger"
- },
- {
-  "id": "END_OWN_HORIZON",
-  "text": "You reached further than the rest, and it paid. Every permit, every beacon and every distant pair of planets added to the map until the map had a gap in it, and the gap was yours. The Release is filed. The planet sits at the edge of what anyone has charted, beyond the reach of any form. Behind you the company hums on without you, and the Plan does not know your name. Ahead, nothing at all, which is exactly what you came for.",
-  "max": 700,
-  "place": "Ending: Own Horizon"
- },
- {
-  "id": "END_SLOW_HARBOR",
-  "text": "You built a company that holds. Well-kept hulls, deep holds, goods moving on time. The cash goal came the way tides do. The Release came with a note: the Commons thanks you for your service and asks that the supply line stay open. You put down a small dock, a bench and a light on your own ground. A ship arrives every few days with exactly what you ordered. It is escape, mostly. You have never been anywhere you were so little in a hurry to leave.",
-  "max": 700,
-  "place": "Ending: The Slow Harbor"
- },
- {
-  "id": "END_ENOUGH",
-  "text": "You learned a little of everything and bet on nothing in particular. The goal came anyway, and with it the Release, and a planet no ledger has yet counted. Standing on it you notice the question the whole voyage was built to postpone: what is enough? Nothing is lacking to the one who has enough, the old saying goes. The Commons would say enough is shared. The sky has no opinion. You sit down, and for a while decide not to count.",
-  "max": 700,
-  "place": "Ending: Enough"
- },
- {
-  "id": "END_STAT_LINE",
-  "text": "Goal reached in cycle {cycle} with {cash} credits.",
-  "max": 110,
-  "place": "End screen, under the ending text (every win, both sides; shown before any _EPI line)"
- },
- {
-  "id": "END_REL_FULL_L",
-  "text": "You built the lines first, and everything else stood on them. Deep holds at Voltara, Tillam and Ashgate, hulls that ran to time, and then the same pattern in every system on the chart. The goal came the way tides do. The Release was filed in order, and the Bureau, polite to the end, asked only that the supply stay open. You said it would. You put down a dock on your own ground, a bench and a light. A ship came in that evening with exactly what you had ordered, and the hold hummed like something asleep. Along the way you learned which shelf fills first at Tillam, which hull sulks at Ashgate, and how long Voltara can run on a full hold. None of it is written in any ledger. All of it is why the thing works. You have escaped. It is strange to be so well supplied by the thing you left.",
+  "id": "END_MIL_GOOD",
+  "text": "More than half of Military now runs through you, and the Bureau has entered the company as supplier of record. The fleets you supply do not fire. They arrive, they are seen, and the quarrel at the border post ends by itself. The terms are posted and the ledgers can be read, which is dull, and works. Nobody in the Commons sleeps better, because nobody knows how close it was. Harrow Combine still runs its foundries, smaller and watching. The garrisons write you short letters that begin with thanks and end with a requisition.",
   "max": 1000,
-  "place": "Ending: The Long Supply Line"
+  "place": "End screen body, win Military, good outcome"
  },
  {
-  "id": "END_REL_FULL_L_EPI",
-  "text": "Every few days a ship arrives on time. You have stopped minding.",
-  "max": 140,
-  "place": "End screen, after the ending text"
+  "id": "END_LUX_GOOD_TITLE",
+  "text": "The Lit Gallery",
+  "max": 40,
+  "place": "End screen heading, win Luxury, good outcome"
  },
  {
-  "id": "END_REL_FULL_R",
-  "text": "You read the sky the way others read a form. Prices at Voltara, Tillam and Ashgate, and then at every market beyond, were known to you before they moved. The goal fell the way a sum falls. The Release was filed and returned by morning, stamped, and the planet is yours. Nothing there surprises you. You check the forecast from habit, and the habit finds nothing to forecast. You remember the first cycles, when a price rise was news and not arithmetic. You miss them a little. Nobody warned you that certainty is also a kind of quiet, and that the quiet has a hum of its own. That is the cost of knowing: the horizon arrives already counted. The Bureau's letter, offering you a desk, lies unopened on the table. You have not decided what that says about you.",
+  "id": "END_LUX_GOOD",
+  "text": "More than half of Luxury moves through you, and the doors are wide. Silk and cut glimmers went where the Plan had never thought to send beauty: the dock mess, the night shift, the school on the ring. Masks that once cost a season's rations were lent at festivals and came back with a stain and a story. Velvet Concord still keeps the grand tables, though fewer people stand at them. The Bureau drafted a form for the allocation of beauty and then, to its credit, left it blank.",
   "max": 1000,
-  "place": "Ending: The Exact Distance"
+  "place": "End screen body, win Luxury, good outcome"
  },
  {
-  "id": "END_REL_FULL_R_EPI",
-  "text": "The letter stays unopened. The figures keep adding up anyway.",
-  "max": 140,
-  "place": "End screen, after the ending text"
+  "id": "END_MIN_GOOD_TITLE",
+  "text": "The Footing",
+  "max": 40,
+  "place": "End screen heading, win Minerals, good outcome"
  },
  {
-  "id": "END_REL_FULL_E",
-  "text": "Every permit, every beacon, every distant pair of planets: you charted them all, and the map ended where you wanted it to. The Release was filed from the last system anyone has a name for. The planet you bought lies beyond it, a pale rock under a patient sun, uncounted by any ledger. Behind you the company runs on, and the Plan does not know your name. Ahead there is one ridge. You put a light on it yourself. You remember Voltara as a small bright place with a loud reactor, and Tillam and Ashgate as the first two names you learned. They look very close from here, like pins on a table. You came a long way to be this alone, and you are exactly as alone as you hoped.",
+  "id": "END_MIN_GOOD",
+  "text": "More than half of Minerals comes through you, and most of it went into ground. Ingot from the smelter, alloy from the deep cuts, plate from the fabric: the next ring of homes stands on them, with floors that do not ring when walked. The crews rotate on a posted schedule. Harrow Combine still cuts, at its own pace, in its own corner. The Bureau counted the new homes and found, to its surprise, that a form existed for them. Under the floors the stone is patient. It always was.",
   "max": 1000,
-  "place": "Ending: The Far Edge"
+  "place": "End screen body, win Minerals, good outcome"
  },
  {
-  "id": "END_REL_FULL_E_EPI",
-  "text": "Out here the sky is wider than the Plan. You leave the light on anyway.",
-  "max": 140,
-  "place": "End screen, after the ending text"
+  "id": "END_BIO_GOOD_TITLE",
+  "text": "The Long Harvest",
+  "max": 40,
+  "place": "End screen heading, win Biotech, good outcome"
  },
  {
-  "id": "END_REL_FULL_X",
-  "text": "You learned more than one trade and kept every one. The lines ran, the forecasts held, the map grew past Ashgate and past the last beacon. The goal came when you were ready for it. The Release was filed without a single correction, which the clerk remarked on, politely, as unusual. The planet is yours, uncounted, with a dock, a window and a long view. Nothing in the company is a mystery to you. You could name every hold at Voltara, Tillam and Ashgate from memory, and every beacon after them. This is rarer than it sounds, and you earned it one cycle at a time. You know what enough is now, and it is not the amount you named at the start. You sit down. The sky has no opinion. For once you are glad of it.",
+  "id": "END_BIO_GOOD",
+  "text": "More than half of Biotech passes through you, and it goes out the door. Bio-gel and gene seed reached the terraces at Tillam, the fields at Ashgate and clinics nobody had thought to supply. A cure went out on plain paper, with no licence number, and was copied by hand in rooms the Bureau never saw. Velvet Concord still sells the fine strains to those who can pay. The Plan took the credit, which is its way. In the culture lab the vats hum at the pace of something with all the time it needs.",
   "max": 1000,
-  "place": "Ending: Everything Learned"
+  "place": "End screen body, win Biotech, good outcome"
  },
  {
-  "id": "END_REL_FULL_X_EPI",
-  "text": "You count nothing tonight. The Commons will have to manage without you.",
-  "max": 140,
-  "place": "End screen, after the ending text"
+  "id": "END_BANKRUPT_TITLE",
+  "text": "The Ledger Closes",
+  "max": 40,
+  "place": "End screen heading, no ship left and cash still negative (loss)"
  },
  {
-  "id": "END_CORP_BARE",
-  "text": "You stayed. The company stays on the Common Ledger, and the work goes on as before: buy, sell, repeat. The Bureau thanks you for your continued contribution. Nothing changes much, and that is the whole ending. The ships still run. The numbers still move. It is a living.",
-  "max": 350,
-  "place": "Ending: The Same Desk"
- },
- {
-  "id": "END_CORP_LOGI",
-  "text": "You stayed, and the company became part of how the Commons eats. Your holds keep the shelves full and your ships keep the dock times. The Bureau enters you in the Common Ledger as a service, with a small line of thanks. Nobody forgets what you carry, and nobody thanks you twice. The goal is behind you. The work is still in front. It is a quiet kind of power. You are needed, which is a way of belonging the forms do not mention.",
-  "max": 700,
-  "place": "Ending: The Steady Contract"
- },
- {
-  "id": "END_CORP_RES",
-  "text": "You stayed, and the company became what the Commons feared and, in quiet hours, consulted. You knew the prices before the Bureau did. Now the Bureau asks. A committee sits, a polite clerk takes notes, and your forecast becomes the Plan's. You are not in charge. You are only never wrong, which in a society that shares everything is the more awkward thing to be. The Common Ledger gives you a column of your own. It is the longest column.",
-  "max": 700,
-  "place": "Ending: The Useful Forecast"
- },
- {
-  "id": "END_CORP_EXP",
-  "text": "You stayed, and the company kept growing. Permits, beacons and far routes made a map that now includes you. The Bureau drafts a new form to describe what you have become, and then a second form, because the first did not fit. You are a corporation: a small Commons of your own, with ships, holds and a long view. The sky is as large as it was. You have only built a bigger door into it.",
-  "max": 700,
-  "place": "Ending: The Wider Charter"
- },
- {
-  "id": "END_CORP_MIX",
-  "text": "You stayed, and the company carries on as a bit of everything: some lines, some forecasts, some reach. The Bureau enters it in the Common Ledger as a going concern, which sounds like a compliment and is a classification. The ships run. The accounts balance. The Commons neither fears you nor needs you very much, and that is its own sort of freedom. Tomorrow there is a cycle, and then another.",
-  "max": 700,
-  "place": "Ending: The Going Concern"
- },
- {
-  "id": "END_CORP_FULL_L",
-  "text": "You stayed, and the company grew into the thing the Commons lives on. Holds at Voltara, Tillam and Ashgate and in every system after them, ships on time, shelves full. When a harvest failed or a reactor sulked, your stock covered it, and no one wrote that down. The Bureau gave you a seat on the supply committee, and you arrived early. Nobody calls you a corporation now. They call you the line. Once, at Tillam, a clerk asked what you were for. You said you were not sure. The clerk wrote it down as an answer. You did not escape, and you were not absorbed. You are load-bearing. In the dark the holds hum, and the lights stay on in a great many kitchens.",
-  "max": 1000,
-  "place": "Ending: The Common Table"
- },
- {
-  "id": "END_CORP_FULL_L_EPI",
-  "text": "A great many kitchens are warm tonight. None of them know your name. That is the job.",
-  "max": 140,
-  "place": "End screen, after the ending text"
- },
- {
-  "id": "END_CORP_FULL_R",
-  "text": "You stayed, and the company became the thing the Commons feared: a firm that is never surprised. You read Voltara, Tillam and Ashgate, and then every market beyond, and the forecasts came true so often that the Bureau stopped checking them. The next Plan was drafted from your figures. The one after was drafted by you, with the clerks taking notes. Voltara's reactors are scheduled by your numbers. Ashgate's harvests are sold by your numbers. Tillam's committee has stopped meeting on the days you are quiet. Nobody was forced. It was simply easier to ask. The Common Ledger lists the company as a corporation and the Plan as its client. In the cold the screens glow, and the numbers behind them are yours.",
-  "max": 1000,
-  "place": "Ending: The Unwritten Plan"
- },
- {
-  "id": "END_CORP_FULL_R_EPI",
-  "text": "The next five-cycle plan arrives with your figures in it. No one remembers asking.",
-  "max": 140,
-  "place": "End screen, after the ending text"
- },
- {
-  "id": "END_CORP_FULL_E",
-  "text": "You stayed, and the company walked outward until it had a sky of its own. Permits in every system, beacons on every ridge, routes across distances the Plan only drew in pencil. The Bureau has a form for a company this large. It is called a Commons. You are not quite one and not quite the other, and a few systems now call you when something breaks. At the far edge of the chart a light burns that you did not install. The ships you started with are the smallest thing on the books now. You keep one Skerrit in a bay, out of habit, with the lamp on. You did not build an escape. You built somewhere to escape to, with a ledger of your own.",
-  "max": 1000,
-  "place": "Ending: The Second Commons"
- },
- {
-  "id": "END_CORP_FULL_E_EPI",
-  "text": "At the far edge of the chart, someone files a form with your name at the top.",
-  "max": 140,
-  "place": "End screen, after the ending text"
- },
- {
-  "id": "END_CORP_FULL_X",
-  "text": "You stayed, and the company is all of it: the holds, the forecasts, the reach. The lines run through Voltara, Tillam and Ashgate and out into every system on the chart. The Bureau is unsure whether to fear you or thank you, and has settled on a form that does both. You are the thing the Commons feared and the thing it quietly needs, and the two turn out to be one company. You began with a few hulls and an empty ledger on Voltara. Tillam and Ashgate were the whole world then. Now they are the first two lines on a very long page, and you know the page by heart. The ships come and go. The ledger is long. Outside the glass the hull creaks, as if turning over in its sleep, and goes on.",
-  "max": 1000,
-  "place": "Ending: The Whole Machine"
- },
- {
-  "id": "END_CORP_FULL_X_EPI",
-  "text": "The Commons runs on you, and fears you, and files both under thanks.",
-  "max": 140,
-  "place": "End screen, after the ending text"
- },
- {
-  "id": "END_LOSS",
-  "text": "The Plan closed before the goal was met. The Release was never filed. The Bureau is very kind about it. Your company is entered in the Common Ledger, your ships assigned to the common good, and your name given a quota that is fair and equal and exactly the size of everyone else's. No one is cruel. A clerk reads the closing form aloud and adds that nothing here was ever owed to you. The sky did not notice. Count what you have. It is more than you started with, and less than you needed.",
+  "id": "END_BANKRUPT",
+  "text": "The company has no ships left, and the cash is still below zero. Each cycle the Bureau took the newest hull to cover the debt, and now the last is gone. Your ships are entered in the Common Ledger, and your name is given a quota that is equal and exactly the size of everyone else's. A clerk reads the closing form aloud and adds that nothing here was ever owed to you. The three rivals go on selling. The sky did not notice.",
   "max": 600,
-  "place": "Ending: The Plan Closes"
+  "place": "End screen body, no ship left and cash still negative (loss)"
  },
  {
-  "id": "END_LOSS_STAT",
-  "text": "Cash reached: {cash}. Cash goal: {goal}.",
-  "max": 110,
-  "place": "End screen, under the loss text"
- },
- {
-  "id": "END_TITLE_REL",
-  "text": "The Release is filed",
+  "id": "END_SWEPT_TITLE",
+  "text": "The Floor of Every Graph",
   "max": 40,
-  "place": "End screen heading, Release side"
+  "place": "End screen heading, player under a tenth of every market (loss)"
  },
  {
-  "id": "END_TITLE_CORP",
-  "text": "Entered in the Common Ledger",
+  "id": "END_SWEPT",
+  "text": "For three cycles running, your company held less than a tenth of every market, and the Bureau has stopped listing you as a competitor. The strongest of the three rivals fills the shelves where yours stood. Your ships still run, and your orders are still taken, politely, at counters that are no longer yours. Nothing cruel was done. A market is a room, and you were not in it.",
+  "max": 600,
+  "place": "End screen body, player under a tenth of every market for the sweep window (loss)"
+ },
+ {
+  "id": "END_OUTCOMPETED_TITLE",
+  "text": "No Market Held",
   "max": 40,
-  "place": "End screen heading, Corporation side"
+  "place": "End screen heading, window closed with no market held (soft ending)"
  },
  {
-  "id": "END_SIGN_REL",
-  "text": "The Bureau stamps the form and reaches for the next one. You are no longer on the ledger. Empty hands in, empty hands out, a little tired.",
-  "max": 140,
-  "place": "End screen, after the ending text and any epilogue, Release side"
- },
- {
-  "id": "END_SIGN_CORP",
-  "text": "The Bureau stamps the entry. The company stays on the ledger and the work goes on, somewhere past this page.",
-  "max": 140,
-  "place": "End screen, after the ending text and any epilogue, Corporation side"
+  "id": "END_OUTCOMPETED",
+  "text": "The window closed with no market held. You did not lose. The company is solvent, the ships run, and the Bureau lists you as a participant, a word with no weight. A spread of small shares does not add up to a market. A single market, held all the way, does. The sky has no opinion. It never needed one.",
+  "max": 700,
+  "place": "End screen body, window closed with no market over half (soft ending)"
  },
  {
   "id": "END_STAT_CYCLES",
   "text": "Cycles taken",
   "max": 24,
-  "place": "End screen stats label (value {cycle})"
+  "place": "End screen stats label"
  },
  {
   "id": "END_STAT_CASH",
   "text": "Final credits",
   "max": 24,
-  "place": "End screen stats label (value {cash})"
- },
- {
-  "id": "END_STAT_BRANCHES",
-  "text": "Branches learned",
-  "max": 24,
-  "place": "End screen stats label (value {branches})"
- },
- {
-  "id": "END_STAT_SYSTEMS",
-  "text": "Systems reached",
-  "max": 24,
-  "place": "End screen stats label (value {systems})"
+  "place": "End screen stats label"
  },
  {
   "id": "END_RUN_OVER",
   "text": "This run is over. Start a new game or go to the main menu.",
   "max": 110,
-  "place": "End screen, above the buttons, every ending including loss"
+  "place": "End screen, above the buttons, every ending"
  },
  {
   "id": "END_BTN_NEW",
   "text": "New game",
   "max": 24,
-  "place": "End screen buttons"
+  "place": "End screen button"
  },
  {
   "id": "END_BTN_MENU",
   "text": "Main menu",
   "max": 24,
-  "place": "End screen buttons"
+  "place": "End screen button"
  },
  {
   "id": "END_BTN_QUIT",
   "text": "Quit game",
   "max": 24,
-  "place": "End screen buttons"
+  "place": "End screen button"
  },
  {
   "id": "SK_A1_NAME",

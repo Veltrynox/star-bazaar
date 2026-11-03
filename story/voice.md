@@ -7,7 +7,7 @@ A quiet, practical observer: a small crew in a large, cold sky, inside a society
 Two inspirations, blended and kept light:
 1. Deep-space dread: cold, industrial, indifferent. Hulls that creak like something asleep, ducts that hum, dark outside the glass, machines that feel half grown. Hint at strangeness, never show a monster.
 2. Collective bureaucracy, as flavour only: the Commons, the Plan and its five-cycle plans, quotas, forms, committees, rations, the common good. Gentle wit, no lecture, no propaganda, no real-world figures, parties or slogans.
-The joke is the player: a trader chasing a cash goal inside a society that preaches sharing. The cash goal buys a Release, the way off the ledger. Story texts (preface, events, endings, skills) carry the joke and the thread: the common good, enough, debt, distance, escape. Menus, buttons, labels, notices and tutorial lines stay plain and carry none of it.
+The joke is the player: a trader chasing market share inside a society that preaches sharing. Story texts (preface, events, endings, skills) carry the joke and the thread: the common good, enough, debt, distance, escape. Menus, buttons, labels, notices and tutorial lines stay plain and carry none of it.
 The player is "you" or "the company". Never a gender, never a name.
 
 ## Do
@@ -33,8 +33,7 @@ The player is "you" or "the company". Never a gender, never a name.
 - Button, menu entry: max 24 characters.
 - Notice, tutorial line, mission hint: max 110 characters (one line, two at most).
 - Event text: max 280. Event title: max 32. Skill name: max 24. Skill flavour: max 90. Skill plain line: max 110.
-- Preface: max 700. Loss ending: max 600. Endings by tier: Bare max 350, Partial max 700, Full max 1000. Full epilogue line (_EPI): max 140.
-- Choice screen: title max 40, body max 280, button max 28, effect line max 90.
+- Preface: max 700. Loss ending: max 600. Soft ending: max 700. Market ending: max 1000. Ending title (_TITLE): max 40. Epilogue line (_EPI): max 140.
 
 ## Capitalisation and punctuation
 - Buttons and menu entries: Sentence case, no full stop ("Learn", "Main menu", "Quit game"). "Send to..." keeps its three dots.
@@ -43,7 +42,7 @@ The player is "you" or "the company". Never a gender, never a name.
 - Planet names, ship names and the game name are capitalised. Branch names are capitalised: Logistics, Research, Expansion. Commodities are lower case: energy, food.
 - Story terms the Commons, the Plan, the Bureau, the Common Ledger, the Release: capitalised as shown (the Plan, the Bureau, the Commons). "five-cycle plan" is lower case.
 - Dash: use a comma or full stop, not a long dash.
-- Placeholders: {planet}, {planet_a}, {planet_b}, {commodity}, {amount}, {skill}, {cash}, {goal}, {arrow}, {cycles}, {n}, {m}, {total}, {cycle}, {branches} (count of branches with a skill learned), {systems} (count of systems reached), {cap} (credit cap of the Mixed load bonus, LBL_MIXED_LOAD, with {n} as the applied percent), {in} (units arriving next cycle), {out} (units leaving next cycle), {after} (stock after next cycle, LBL_NEXT_CYCLE). {branches} and {systems} are end screen stats only. The game fills them.
+- Placeholders: {planet}, {planet_a}, {planet_b}, {commodity}, {amount}, {skill}, {cash}, {arrow}, {cycles}, {n}, {m}, {total}, {cycle}, {cap} (credit cap of the Mixed load bonus, LBL_MIXED_LOAD, with {n} as the applied percent), {in} (units arriving next cycle), {out} (units leaving next cycle), {after} (stock after next cycle, LBL_NEXT_CYCLE). The game fills them.
 
 ## Glossary (exact terms)
 - Branches: Logistics, Research, Expansion.
@@ -59,12 +58,12 @@ The player is "you" or "the company". Never a gender, never a name.
 - Permits: allow entry to a new system. Permit Charter (C1) unlocks them; system 2 is open in the Alpha.
 - Cycles: the game's time unit.
 - Ships: Skerrit (the only ship type). Working name.
-- Cash goal: the credit target that wins the game. Credits: the currency.
+- Credits: the currency. The goal is market share (LBL_GOAL_MARKETS); there is no cash goal.
 - New goods (T154, working names, owner decides): Starsilk (id silk, luxury), Logic Cores (id chips, tech), Rock Ore (id ore, mined). UI shows the names; running text uses lower case: silk, logic cores, ore. Asteroid cluster: a pack of rock on the map that gives ore free until it is empty. Prospecting (B1): the skill that lets routes start at a cluster. Added 2026-11-02.
 - System 1: Voltara (abundant energy, scarce food), Tillam and Ashgate (abundant food, scarce energy).
 - Hollin Reach: system 1 (owner approved, T92).
 - System 2: Dunmere Reach (owner approved, T92). Planets: Brannock (food-rich hub), Cindrel (energy-rich), Mossfell (food-rich outpost), Quillon (consumer market, wants both goods). Texts and ids: story/screens.md, section "Systems and system 2".
-- Owner decisions (T92): the UI label "Skill points" stays on screen for expansion points. "Corporation" follows the capitalisation rule in the Story terms entry below. The end screen {branches} is a plain count.
+- Owner decisions (T92): the UI label "Skill points" stays on screen for expansion points.
 - Salvage: the one-time payout when goods cannot be kept or sold on the company's lanes (storage full or no buyer). Shown with the amount now and what a Sell order would pay. Plain word, no flavour. Added 2026-11-02.
 - Rescue notice: when the company has no ships and too little cash. Never "game over". Story texts may call the payment "relief".
 
@@ -75,9 +74,8 @@ The player is "you" or "the company". Never a gender, never a name.
 - The Plan: the Commons' schedule, in five-cycle plans. Story only. It sets no quota in the game.
 - The Bureau: the polite, slow office that keeps forms and the Common Ledger.
 - Common Ledger: the Commons' record of who has what. Different from the player's cash.
-- Release: the form that takes a person off the ledger and sells them an uncounted planet. This is what the cash goal buys. In UI text keep "cash goal"; "Release" appears only in story texts and on the choice screen (CHOICE_RELEASE).
+- Release: the form that takes a person off the ledger and sells them an uncounted planet. Story texts and the preface only; no mechanic and no UI label.
 - Fellow hand: how people in the Commons address each other. Replaces any "comrade" wording.
-- Corporation: the form of the company that stays on the Common Ledger after the cash goal (choice screen and corporate endings). Lower case in the button ("Stay as a corporation"), a plain noun in story text. Story only, never a mechanic.
 - Common good: stock phrase, used with a straight face and a raised eyebrow.
 
 - Dead worlds open late (2026-11-03): they unlock at cycle 15 (a balance value, never written in running text; the game fills {n}). Before that the planet panel says it is closed until then. Mining Cinderrest needs Cold Survey (M1), mining Greywake needs Deep Cut (M2), both in Research after Prospecting (B1). Fabrication Licence (F1) unlocks the fabric.

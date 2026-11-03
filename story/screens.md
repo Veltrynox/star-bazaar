@@ -13,8 +13,8 @@ Menus, buttons, labels, notices and tutorial lines are plain. Flavour lives in t
 6. Skills: you choose what kind of company you are, Logistics, Research or Expansion.
 7. Midgame: debts, upkeep and the question of what is enough.
 8. Pressure: events test routes; the rescue notice shows the Bureau will carry you once, politely.
-9. The cash goal: the first time cash meets it at a cycle end, the Release is filed and the game ends.
-10. Ending: escaped, or half absorbed, depending on what the company leaned on. Or the Plan closes and the loss ending shows.
+9. The goal: more than half of one market. Holding it ends the run with a market ending.
+10. Ending: one of the market endings, or a loss (bankrupt, swept), or the soft ending when the window closes.
 
 ## Title
 SCR_TITLE_NAME | 24 | Title screen, big text
@@ -368,3 +368,9 @@ TIP_BOARD_3 | 110 | Tips board | When Company storage is full, Buy waits. Sell o
 TIP_BOARD_4 | 110 | Tips board | Prices change each cycle. Open a planet to see today's Buy and Sell prices.
 TIP_BOARD_5 | 110 | Tips board | Space pauses the game. Pause to plan, then press Space again.
 TIP_BOARD_6 | 110 | Tips board | Skill points come from planets, routes and systems. Spend them in Skills (K).
+
+## Market share readout (UI fallback ids, added 2026-11-03)
+LBL_SHARE_TITLE | 24 | Market share panel heading | Market share
+LBL_SHARE_HOLD | 40 | Market share panel, cycles the player has held the lead | Held {n} of {total} cycles
+LBL_SPREAD_COST | 40 | Market panel, cost of holding several markets | Spreading cost per cycle: {n}
+LBL_SHARE_YOU | 24 | Market share rows and end screen readout, the player's row | You
