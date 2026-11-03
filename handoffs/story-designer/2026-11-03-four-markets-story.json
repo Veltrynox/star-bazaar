@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-11-03",
+  "task": "four-markets-story",
+  "status": "done",
+  "files_changed": ["design/proposals/2026-11-03-four-markets-story.md", "handoffs/story-designer/2026-11-03-four-markets-story.json"],
+  "open_questions": [
+    "Energy and food are sold from cycle 1, so Military and Biotech are active at once (overhead, and MIL_A1/BIO_A1 fire at cycle 5 for everyone). Intended?",
+    "Rename Dunmere Syndicate to Ostrel Syndicate (clash with Dunmere Reach) and Lattice Alloy to Seam Alloy (clash with Lattice Plate)?",
+    "Step variants by previous step of the same chain or by last choice in the market; and how mil_bot_marked and ties are defined?"
+  ],
+  "handoff": "Proposal only, nothing wired. The doc has names (markets, 3 bots, goods, workshops), 31 node lines (name, flavour, plain), 8 market endings plus bankrupt, swept and outcompeted, epilogue lines, the full Military chains A and B with flags, a style guide for the other three chains, and 6 pool events (EV40, 41, 43, 46, 49, 50). All blocks pass the length checks. Proposed voice.md changes are in section 0 and are not applied. Next: owner answers open questions, then write Luxury, Minerals and Biotech chains, remaining 6 pool events, and rewrite preface, goal line and tutorial for the new goal. economy-designer must write the {player_effect} phrases (max 20 characters).",
+  "details": {}
+}
