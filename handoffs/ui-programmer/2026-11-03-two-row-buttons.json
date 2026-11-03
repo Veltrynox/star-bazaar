@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-03",
+  "task": "two-row-buttons",
+  "status": "done",
+  "files_changed": ["game/planet_panel.gd", "tools/tests/run_tests.gd", "handoffs/ui-programmer/2026-11-03-two-row-buttons.json"],
+  "open_questions": [
+    "Not checked by eye: button height 46 px, tiny 10 px price row, and the 144 px cells (292 px grid with 4 px gap) in the 320 px panel. Please open a planet panel to confirm.",
+    "Price row uses story ids BTN_BUY and BTN_SELL ('Buy 12  Sell 10'); a missing price shows a dash. Say if shorter words are wanted.",
+    "T158 test failed once in a full run and passed on rerun (random data, unrelated to this change)."
+  ],
+  "handoff": "Resource buttons now have two rows. Row 1: icon, name (clipped), Capacity_<good> at right. Row 2: new Label Prices_<good>, 10 px, 'Buy N  Sell M' from BTN_BUY/BTN_SELL and the existing _price dash for a missing price. Price removed from the button text (text is now just the name). Button height 36 to 46, cell width 148 to 144, grid gap 6 to 4 horizontally. _reserve_right takes a bottom reserve so the icon and name sit in row 1. Tooltip now also lists the Sell price. Node names, left-click toggle and ContextMenu_<good> unchanged. Tests: updated the buy-toggle text check, added a Prices_ check. Headless pass=1216 fail=0. Nothing committed."
+}

@@ -11,8 +11,9 @@ const RouteLineScript := preload("res://game/route_line.gd")
 ## Buy and Send share one size so they line up (Buy sits on the order row, Send on the storage row).
 const ACTION_BTN_MIN := Vector2(104, 28)
 const BUY_COLUMNS := 2  # resource buy buttons per grid row (panel is 320 wide)
-const BUY_CELL_W := 148.0
-const BUY_CELL_H := 36.0
+const BUY_CELL_W := 144.0  # 2 cells + 4 px gap = 292 px in the 320 px panel
+const BUY_CELL_H := 46.0  # row 1: icon, name, capacity; row 2: tiny prices
+const PRICE_ROW_H := 14.0
 const CAP_MARGIN := 46.0  # room kept at the right end of a resource button for its stored/capacity text
 const MENU_SEND := 0
 const MENU_SELL := 1
@@ -84,7 +85,7 @@ func rebuild() -> void:
 	var grid := GridContainer.new()
 	grid.name = "BuyGrid"
 	grid.columns = BUY_COLUMNS
-	grid.add_theme_constant_override("h_separation", 6)
+	grid.add_theme_constant_override("h_separation", 4)
 	grid.add_theme_constant_override("v_separation", 6)
 	for c in main.commodities:
 		var pd: Dictionary = prices if typeof(prices) == TYPE_DICTIONARY else {}
@@ -185,6 +186,7 @@ func _row(c: String, prices: Dictionary, pend: Dictionary) -> Control:
 		ml.theme_type_variation = "LabelAccent"
 		info.add_child(ml)
 	# The resource is the Buy button: it buys here every cycle and sends the goods on a route.
+	var sell_p = prices.get(c + "_sell")
 	var buy_on: bool = main.engine.local_on(planet_index, c, "buy")
 	var locked: bool = not main.system_trade_open(planet_index)
 	var bs := Button.new()
@@ -193,7 +195,7 @@ func _row(c: String, prices: Dictionary, pend: Dictionary) -> Control:
 	bs.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	bs.toggle_mode = true
 	bs.button_pressed = buy_on
-	bs.text = Ui.good_name(c) + (" " + _price(buy) if buy != null else "")
+	bs.text = Ui.good_name(c)
 	bs.alignment = HORIZONTAL_ALIGNMENT_LEFT
 	bs.clip_text = true
 	bs.icon = Ui.icon(c)
@@ -209,8 +211,10 @@ func _row(c: String, prices: Dictionary, pend: Dictionary) -> Control:
 		bs.tooltip_text = main.trade_locked_reason()
 	bs.name = "BuyButton_" + str(c)
 	bs.pressed.connect(func(): buy_send_requested.emit(c))
+	if sell_p != null and buy != null:
+		bs.tooltip_text += "\n" + StoryText.get_or("LBL_SELL_PRICE", "Sell price") + ": " + _price(sell_p)
 	bs.tooltip_text += "\n" + StoryText.get_or("LBL_RMB_MORE", "Right-click for Send to, Sell and more.")
-	_reserve_right(bs, CAP_MARGIN)
+	_reserve_right(bs, CAP_MARGIN, PRICE_ROW_H)
 	var key: String = main.storage.planet_key(planet_index)
 	var cap_l := Label.new()  # stored/capacity of this good in the company storage here, at the right end of the button
 	cap_l.name = "Capacity_" + str(c)
@@ -220,9 +224,24 @@ func _row(c: String, prices: Dictionary, pend: Dictionary) -> Control:
 	cap_l.set_anchors_and_offsets_preset(Control.PRESET_RIGHT_WIDE)
 	cap_l.offset_left = -CAP_MARGIN
 	cap_l.offset_right = -4
+	cap_l.offset_bottom = -PRICE_ROW_H
 	cap_l.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	cap_l.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	bs.add_child(cap_l)
+	var pr_l := Label.new()  # row 2: tiny buy and sell prices (what the player pays and receives)
+	pr_l.name = "Prices_" + str(c)
+	pr_l.text = "%s %s  %s %s" % [StoryText.get_text("BTN_BUY"), _price(buy), StoryText.get_text("BTN_SELL"), _price(sell_p)]
+	pr_l.theme_type_variation = "LabelSmall"
+	pr_l.add_theme_font_size_override("font_size", 10)
+	pr_l.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	pr_l.clip_text = true
+	pr_l.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)
+	pr_l.offset_top = -PRICE_ROW_H - 3
+	pr_l.offset_bottom = -3
+	pr_l.offset_left = 8
+	pr_l.offset_right = -4
+	pr_l.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	bs.add_child(pr_l)
 	var menu := _context_menu(str(c), prices)
 	bs.add_child(menu)
 	bs.gui_input.connect(func(ev: InputEvent):
@@ -242,7 +261,7 @@ func _row(c: String, prices: Dictionary, pend: Dictionary) -> Control:
 	return wrap
 
 ## Extra right padding inside a button's styleboxes so its text stops before the capacity label.
-func _reserve_right(b: Button, px: float) -> void:
+func _reserve_right(b: Button, px: float, bottom_px: float = 0.0) -> void:
 	for sn in ["normal", "hover", "pressed", "hover_pressed", "disabled", "focus"]:
 		var sb: StyleBox = b.get_theme_stylebox(sn)
 		if sb == null:

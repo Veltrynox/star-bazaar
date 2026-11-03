@@ -1992,6 +1992,8 @@ func _test_ships() -> void:
 	var cap_l := _find_named(m.planet_panel, "Capacity_" + c) as Label
 	check(cap_l != null and cap_l.get_parent() == buy_b and cap_l.text.contains("/"), "resource button: shows stored/capacity", str(cap_l.text if cap_l != null else ""))
 	check(buy_b != null and buy_b.tooltip_text.to_lower().contains("right-click"), "resource button: tooltip hints at right-click")
+	var pr_l := _find_named(m.planet_panel, "Prices_" + c) as Label
+	check(pr_l != null and pr_l.get_parent() == buy_b and pr_l.text.contains(StoryText.get_text("BTN_BUY")) and pr_l.text.contains(StoryText.get_text("BTN_SELL")) and not buy_b.text.contains(" 1"), "resource button: second row shows Buy and Sell prices, row 1 has no price", str(pr_l.text if pr_l != null else ""))
 	m.planet_panel.show_planet(1)
 	var bb := _find_named(m.planet_panel, "BuyButton_" + c) as Button
 	check(bb != null and bb.button_pressed and bb.tooltip_text.contains("Press to stop"), "buy toggle: the resource button is pressed while the order is on")
@@ -2011,7 +2013,8 @@ func _test_ships() -> void:
 	check(not e.local_on(1, c, "buy"), "buy toggle: pressing again stops the buy order")
 	m.planet_panel.show_planet(1)
 	bb = _find_named(m.planet_panel, "BuyButton_" + c) as Button
-	check(bb.text == "%s %s" % [Ui.good_name(c), str(m.map.planets[1]["base_prices"][c + "_buy"])] and not bb.button_pressed and bb.icon != null, "buy toggle: the button reads the resource name and its buy price, with its icon")
+	var bp_l := _find_named(bb, "Prices_" + c) as Label
+	check(bb.text == Ui.good_name(c) and bp_l != null and bp_l.text.contains(str(m.map.planets[1]["base_prices"][c + "_buy"])) and not bb.button_pressed and bb.icon != null, "buy toggle: the button reads the resource name with its icon, row 2 has the buy price")
 	m._on_buy_send(c)
 	check(e.local_on(1, c, "buy"), "buy toggle: pressing a third time buys again")
 	m.set_local_order(1, c, "buy", false)
