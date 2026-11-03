@@ -258,12 +258,6 @@
   "place": "Route panel, status of a route that waits because the destination is full"
  },
  {
-  "id": "SK_POINTS_LEFT",
-  "text": "Skill points left",
-  "max": 24,
-  "place": "Skill screen header, label before the number"
- },
- {
   "id": "SK_CONFIRM",
   "text": "Learn {skill}?",
   "max": 110,
@@ -298,18 +292,6 @@
   "text": "What it changes",
   "max": 24,
   "place": "Detail panel label above the plain line"
- },
- {
-  "id": "SK_LABEL_NEEDS_POINTS",
-  "text": "Not enough skill points.",
-  "max": 60,
-  "place": "Detail panel, available but too costly"
- },
- {
-  "id": "SK_A1_GATE",
-  "text": "Space Storage opens once you have made two routes, on any planets.",
-  "max": 110,
-  "place": "Skill screen, detail panel of Space Storage (A1) while locked"
  },
  {
   "id": "MB_01",
@@ -394,12 +376,6 @@
   "text": "You have skill points. Open Skills and learn something.",
   "max": 110,
   "place": "Cycle 4, if a skill point is held"
- },
- {
-  "id": "TUT_PERMIT_C1",
-  "text": "Permit Charter (C1) lets you buy permits. A permit opens a new system. It costs credits and skill points.",
-  "max": 110,
-  "place": "Any cycle after the first, once a skill point is held and Permit Charter (C1) is not learned"
  },
  {
   "id": "TUT_C4_FREE",
@@ -619,7 +595,7 @@
  },
  {
   "id": "PERMIT_S2_DESC",
-  "text": "Opens Dunmere Reach for routes. Needs Permit Charter (C1). Costs credits and skill points.",
+  "text": "Opens Dunmere Reach for routes. Needs Permit Charter. Costs credits and skill points.",
   "max": 110,
   "place": "Permit list, system 2 description"
  },
@@ -781,9 +757,9 @@
  },
  {
   "id": "PERMIT_NEEDS_C1",
-  "text": "Needs Permit Charter (C1) to buy permits.",
+  "text": "Needs Permit Charter to buy permits.",
   "max": 110,
-  "place": "Skill screen, permit line when Permit Charter (C1) is missing"
+  "place": "Skill screen, permit line when the Permit Charter foundation is missing"
  },
  {
   "id": "PERMIT_NO_CREDITS",
@@ -793,51 +769,39 @@
  },
  {
   "id": "NOT_ROUTE_NEEDS_C3",
-  "text": "Routes between systems need Long Haul (C3).",
+  "text": "Routes between systems need Permit Charter.",
   "max": 110,
-  "place": "Route between two systems without Long Haul (C3)"
+  "place": "Route between two systems without the Permit Charter foundation"
  },
  {
   "id": "EVT_NEXT_DUE",
   "text": "An event is due next cycle.",
   "max": 110,
-  "place": "Notice, Event Forecast (B4), posted one cycle before an event"
+  "place": "Notice, Event Forecast, posted one cycle before an event"
  },
  {
   "id": "EVT_NEXT_DUE_PRICE",
   "text": "Next cycle: {commodity} will {direction} at {planet}.",
   "max": 110,
-  "place": "Notice, Event Forecast (B4), price event due next cycle; direction is \"rise\" or \"fall\""
+  "place": "Notice, Event Forecast, price event due next cycle; direction is \"rise\" or \"fall\""
  },
  {
   "id": "EVT_NEXT_DUE_CLOSED",
   "text": "Next cycle: {planet} will close.",
   "max": 110,
-  "place": "Notice, Event Forecast (B4), closure due next cycle"
+  "place": "Notice, Event Forecast, closure due next cycle"
  },
  {
   "id": "LBL_BEST_PARTNER",
   "text": "Best partner: {planet} ({margin} cr per unit).",
   "max": 110,
-  "place": "Planet panel, Price Whisper (B3), best route partner"
+  "place": "Planet panel, Price Whisper, best route partner"
  },
  {
   "id": "NOT_ROUTE_BELOW_UPKEEP",
   "text": "This route earns {margin} cr a cycle and costs {cost}. It will run at a loss.",
   "max": 110,
   "place": "Notice, base game, new route margin is below its upkeep"
- },
- {
-  "id": "LBL_SURVEY_PRICES",
-  "text": "{planet}: Food {fb}/{fs} cr, Energy {eb}/{es} cr (buy/sell).",
-  "max": 110,
-  "place": "Skill screen permit info, base prices after a survey; f = food, e = energy, b = buy, s = sell"
- },
- {
-  "id": "BTN_SURVEY",
-  "text": "Survey (1 point cheaper)",
-  "max": 24,
-  "place": "Skill screen permit info, Survey button (Survey Beacon C2)"
  },
  {
   "id": "LBL_PRICE_HISTORY",
@@ -855,13 +819,7 @@
   "id": "LBL_NEXT_PRICE",
   "text": "Next cycle: {buy} cr to buy, {sell} cr to sell.",
   "max": 110,
-  "place": "Planet panel, Price Whisper (B3), prices for the next cycle; {buy} and {sell} are credits"
- },
- {
-  "id": "LBL_PERMIT_PLANETS",
-  "text": "Planets in this system: {names}.",
-  "max": 110,
-  "place": "Skill screen, permit entry, shown once Survey Beacon (C2) is learned and before the permit is bought; {names} is a list of planet names"
+  "place": "Planet panel, Price Whisper, prices for the next cycle; {buy} and {sell} are credits"
  },
  {
   "id": "LBL_UNKNOWN",
@@ -979,7 +937,7 @@
  },
  {
   "id": "TUT_G9_PERMIT",
-  "text": "Learn Permit Charter (C1).",
+  "text": "Learn Permit Charter.",
   "max": 60,
   "place": "Guided step 9, permits"
  },
@@ -1116,12 +1074,6 @@
   "place": "Buy, Sell or Send to button in a system without its station"
  },
  {
-  "id": "LBL_LOCKED_PERMIT_FIRST",
-  "text": "Learn Permit Charter (C1) first.",
-  "max": 60,
-  "place": "Skill screen, a skill locked until Permit Charter (C1) is learned"
- },
- {
   "id": "SS_BTN_CLOSE",
   "text": "Close",
   "max": 16,
@@ -1242,24 +1194,6 @@
   "place": "Cluster 3 of system 2, tooltip"
  },
  {
-  "id": "LBL_SKILLS_ROW_FIRST",
-  "text": "Start here",
-  "max": 48,
-  "place": "Skill screen, caption of the first row"
- },
- {
-  "id": "LBL_SKILLS_ROW_SECOND",
-  "text": "Opens after Space Storage and Permit Charter",
-  "max": 60,
-  "place": "Skill screen, caption of the second row"
- },
- {
-  "id": "LBL_LOCKED_FIRST_ROW",
-  "text": "Learn Space Storage (A1) and Permit Charter (C1) first.",
-  "max": 60,
-  "place": "Skill screen, reason line on a locked skill"
- },
- {
   "id": "LBL_CLUSTER_NAME",
   "text": "Asteroid cluster {id}",
   "max": 32,
@@ -1333,7 +1267,7 @@
  },
  {
   "id": "DEAD_UNLOCK",
-  "text": "Dead worlds are open. Cinderrest needs Cold Survey (M1), Greywake needs Deep Cut (M2).",
+  "text": "Dead worlds are open. Cinderrest needs Cold Survey, Greywake needs Deep Cut.",
   "max": 110,
   "place": "Notice, posted when the dead worlds open"
  },
@@ -1429,9 +1363,9 @@
  },
  {
   "id": "LBL_TRADE_NEEDS_A1",
-  "text": "Learn Space Storage (A1) first.",
+  "text": "Learn Space Storage first.",
   "max": 60,
-  "place": "Stalled system 2 lane when Space Storage (A1) is not learned"
+  "place": "Stalled system 2 lane when Space Storage is not learned"
  },
  {
   "id": "SS_FABRIC_NO_INPUTS",
@@ -1698,100 +1632,16 @@
   "place": "Board notice after building; {workshop} is the workshop name"
  },
  {
-  "id": "SK_M1_NAME",
-  "text": "Cold Survey",
-  "max": 24,
-  "place": "Skill screen, node name"
- },
- {
-  "id": "SK_M1_FLAVOUR",
-  "text": "A rock no one lives on still has a ledger line. Someone must go and read it.",
-  "max": 90,
-  "place": "Skill screen, detail panel"
- },
- {
-  "id": "SK_M1_PLAIN",
-  "text": "Lets routes start at Cinderrest and mine dross there. Needs Prospecting (B1). Dead worlds open later.",
+  "id": "NOT_SKILL_REASON_SHARE",
+  "text": "Your {market} share passed {pct}%.",
   "max": 110,
-  "place": "Skill screen, detail panel"
- },
- {
-  "id": "SK_M2_NAME",
-  "text": "Deep Cut",
-  "max": 24,
-  "place": "Skill screen, node name"
- },
- {
-  "id": "SK_M2_FLAVOUR",
-  "text": "Under the dust lies glass that hums. The Bureau has no form for it yet.",
-  "max": 90,
-  "place": "Skill screen, detail panel"
- },
- {
-  "id": "SK_M2_PLAIN",
-  "text": "Lets routes start at Greywake and mine nullglass there. Needs Cold Survey (M1).",
-  "max": 110,
-  "place": "Skill screen, detail panel"
- },
- {
-  "id": "SK_F1_NAME",
-  "text": "Fabrication Licence",
-  "max": 24,
-  "place": "Skill screen, node name"
- },
- {
-  "id": "SK_F1_FLAVOUR",
-  "text": "A licence to make one good plate from two bad rocks. Stamped in triplicate, as ever.",
-  "max": 90,
-  "place": "Skill screen, detail panel"
- },
- {
-  "id": "SK_F1_PLAIN",
-  "text": "Unlocks the fabric: dross and nullglass make plate. Plate and nullglass make a Null Core. Needs M1 and M2.",
-  "max": 110,
-  "place": "Skill screen, detail panel"
+  "place": "Notice, a skill point earned when a market share passes a step; {market} is the market, {pct} the step"
  },
  {
   "id": "SK_HEADER",
   "text": "Skills",
   "max": 24,
   "place": "Skill screen title"
- },
- {
-  "id": "SK_BRANCH_A",
-  "text": "Logistics",
-  "max": 24,
-  "place": "Column header"
- },
- {
-  "id": "SK_BRANCH_B",
-  "text": "Research",
-  "max": 24,
-  "place": "Column header"
- },
- {
-  "id": "SK_BRANCH_C",
-  "text": "Expansion",
-  "max": 24,
-  "place": "Column header"
- },
- {
-  "id": "SK_STATE_LEARNED",
-  "text": "Learned",
-  "max": 24,
-  "place": "Node state"
- },
- {
-  "id": "SK_STATE_AVAILABLE",
-  "text": "Available",
-  "max": 24,
-  "place": "Node state"
- },
- {
-  "id": "SK_STATE_LOCKED",
-  "text": "Locked",
-  "max": 24,
-  "place": "Node state"
  },
  {
   "id": "SK_NEEDS",
@@ -1810,6 +1660,24 @@
   "text": "Skills cost skill points, never credits.",
   "max": 110,
   "place": "Skill screen footer"
+ },
+ {
+  "id": "SK_BOT_USE",
+  "text": "Use on...",
+  "max": 24,
+  "place": "Skill screen, menu button on a learned bot skill (Embargo Desk, Guild Seal)"
+ },
+ {
+  "id": "SK_BOT_USED",
+  "text": "Used this run.",
+  "max": 40,
+  "place": "Skill screen, note on a once-per-run bot skill already used"
+ },
+ {
+  "id": "SK_BOT_COOLDOWN",
+  "text": "Ready in {n} cycles.",
+  "max": 40,
+  "place": "Skill screen, note on a bot skill that is recharging; {n} is cycles left"
  },
  {
   "id": "SK_FND_STORAGE_NAME",
@@ -2560,222 +2428,6 @@
   "text": "Quit game",
   "max": 24,
   "place": "End screen button"
- },
- {
-  "id": "SK_A1_NAME",
-  "text": "Space Storage",
-  "max": 24,
-  "place": "Skill screen, node name"
- },
- {
-  "id": "SK_A1_FLAVOUR",
-  "text": "One great hold in the sky, held in common, quietly kept by you.",
-  "max": 90,
-  "place": "Skill screen, detail panel"
- },
- {
-  "id": "SK_A1_PLAIN",
-  "text": "Unlocks Space Storage, one large company storage per system. Planet storage feeds it slowly.",
-  "max": 110,
-  "place": "Skill screen, detail panel"
- },
- {
-  "id": "SK_A2_NAME",
-  "text": "Deep Holds",
-  "max": 24,
-  "place": "Skill screen, node name"
- },
- {
-  "id": "SK_A2_FLAVOUR",
-  "text": "A shelf is a promise that something will be there. The Plan loves a shelf.",
-  "max": 90,
-  "place": "Skill screen, detail panel"
- },
- {
-  "id": "SK_A2_PLAIN",
-  "text": "Planet storage holds 50% more. A planet closed by an event reopens one cycle sooner.",
-  "max": 110,
-  "place": "Skill screen, detail panel"
- },
- {
-  "id": "SK_A4_NAME",
-  "text": "Quick Loading",
-  "max": 24,
-  "place": "Skill screen, node name"
- },
- {
-  "id": "SK_A4_FLAVOUR",
-  "text": "Dock time is shared time. Spend less of it, and the hull hums less.",
-  "max": 90,
-  "place": "Skill screen, detail panel"
- },
- {
-  "id": "SK_A4_PLAIN",
-  "text": "Each ship moves 18 units a cycle instead of 16.",
-  "max": 110,
-  "place": "Skill screen, detail panel"
- },
- {
-  "id": "SK_A5_NAME",
-  "text": "Drydock Deals",
-  "max": 24,
-  "place": "Skill screen, node name"
- },
- {
-  "id": "SK_A5_FLAVOUR",
-  "text": "Every machine is a slow bill with wings, and it hums while it waits.",
-  "max": 90,
-  "place": "Skill screen, detail panel"
- },
- {
-  "id": "SK_A5_PLAIN",
-  "text": "Ship upkeep is 30% lower: 14 credits a cycle instead of 20.",
-  "max": 110,
-  "place": "Skill screen, detail panel"
- },
- {
-  "id": "SK_B1_NAME",
-  "text": "Prospecting",
-  "max": 24,
-  "place": "Skill screen, node name"
- },
- {
-  "id": "SK_B1_FLAVOUR",
-  "text": "The Commons owns every rock. It has not yet counted the ones nobody has looked at.",
-  "max": 90,
-  "place": "Skill screen, detail panel"
- },
- {
-  "id": "SK_B1_PLAIN",
-  "text": "Lets you start routes at asteroid clusters and shows how much ore each cluster still holds.",
-  "max": 110,
-  "place": "Skill screen, detail panel"
- },
- {
-  "id": "SK_B2_NAME",
-  "text": "Standing Orders",
-  "max": 24,
-  "place": "Skill screen, node name"
- },
- {
-  "id": "SK_B2_FLAVOUR",
-  "text": "A good form is one you only file once. The Bureau will not mind.",
-  "max": 90,
-  "place": "Skill screen, detail panel"
- },
- {
-  "id": "SK_B2_PLAIN",
-  "text": "Buy and Sell orders handle 60 units a cycle instead of 40.",
-  "max": 110,
-  "place": "Skill screen, detail panel"
- },
- {
-  "id": "SK_B3_NAME",
-  "text": "Price Whisper",
-  "max": 24,
-  "place": "Skill screen, node name"
- },
- {
-  "id": "SK_B3_FLAVOUR",
-  "text": "Prices move before people do. Listen to the walls.",
-  "max": 90,
-  "place": "Skill screen, detail panel"
- },
- {
-  "id": "SK_B3_PLAIN",
-  "text": "Shows next cycle's prices. Goods sell for 8% more per unit.",
-  "max": 110,
-  "place": "Skill screen, detail panel"
- },
- {
-  "id": "SK_B4_NAME",
-  "text": "Event Forecast",
-  "max": 24,
-  "place": "Skill screen, node name"
- },
- {
-  "id": "SK_B4_FLAVOUR",
-  "text": "The sky has moods. The Plan pretends not to notice them.",
-  "max": 90,
-  "place": "Skill screen, detail panel"
- },
- {
-  "id": "SK_B4_PLAIN",
-  "text": "Warns one cycle before an event. Price events name planet and commodity. Closed planets reopen a cycle sooner.",
-  "max": 110,
-  "place": "Skill screen, detail panel"
- },
- {
-  "id": "SK_C1_NAME",
-  "text": "Permit Charter",
-  "max": 24,
-  "place": "Skill screen, node name"
- },
- {
-  "id": "SK_C1_FLAVOUR",
-  "text": "No ship leaves the home sky without a charter. This is the charter.",
-  "max": 90,
-  "place": "Skill screen, detail panel"
- },
- {
-  "id": "SK_C1_PLAIN",
-  "text": "Lets you buy permits. A permit opens a new system for routes. It costs credits and skill points.",
-  "max": 110,
-  "place": "Skill screen, detail panel"
- },
- {
-  "id": "SK_C2_NAME",
-  "text": "Survey Beacon",
-  "max": 24,
-  "place": "Skill screen, node name"
- },
- {
-  "id": "SK_C2_FLAVOUR",
-  "text": "Better to know a place before it counts you.",
-  "max": 90,
-  "place": "Skill screen, detail panel"
- },
- {
-  "id": "SK_C2_PLAIN",
-  "text": "Press Survey on a system to see its planets and base prices. Its permit then costs 1 skill point less.",
-  "max": 110,
-  "place": "Skill screen, detail panel"
- },
- {
-  "id": "SK_C3_NAME",
-  "text": "Long Haul",
-  "max": 24,
-  "place": "Skill screen, node name"
- },
- {
-  "id": "SK_C3_FLAVOUR",
-  "text": "Distance is only a long way of saying not yet, and not on the ledger.",
-  "max": 90,
-  "place": "Skill screen, detail panel"
- },
- {
-  "id": "SK_C3_PLAIN",
-  "text": "Routes can run between systems. Needs Survey Beacon (C2) and Space Storage (A1).",
-  "max": 110,
-  "place": "Skill screen, detail panel"
- },
- {
-  "id": "SK_C4_NAME",
-  "text": "Colonial Rights",
-  "max": 24,
-  "place": "Skill screen, node name"
- },
- {
-  "id": "SK_C4_FLAVOUR",
-  "text": "The second door is always cheaper than the first, and filed in fewer copies.",
-  "max": 90,
-  "place": "Skill screen, detail panel"
- },
- {
-  "id": "SK_C4_PLAIN",
-  "text": "Permits cost 20% fewer credits. Needs Survey Beacon (C2).",
-  "max": 110,
-  "place": "Skill screen, detail panel"
  },
  {
   "id": "EV17_TITLE",

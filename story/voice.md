@@ -39,14 +39,14 @@ The player is "you" or "the company". Never a gender, never a name.
 - Buttons and menu entries: Sentence case, no full stop ("Learn", "Main menu", "Quit game"). "Send to..." keeps its three dots.
 - Labels: Sentence case, no colon in the text (the UI adds it): Buy price, Sell price, Company storage, Ship upkeep, Expenses.
 - Notices and tutorial lines: sentence case, end with a full stop.
-- Planet names, ship names and the game name are capitalised. Branch names are capitalised: Logistics, Research, Expansion. Commodities are lower case: energy, food.
+- Planet names, ship names and the game name are capitalised. Market and foundation names are capitalised: Military, Luxury, Minerals, Biotech, Foundations. Commodities are lower case: energy, food.
 - Story terms the Commons, the Plan, the Bureau, the Common Ledger, the Release: capitalised as shown (the Plan, the Bureau, the Commons). "five-cycle plan" is lower case.
 - Dash: use a comma or full stop, not a long dash.
 - Placeholders: {planet}, {planet_a}, {planet_b}, {commodity}, {amount}, {skill}, {cash}, {arrow}, {cycles}, {n}, {m}, {total}, {cycle}, {cap} (credit cap of the Mixed load bonus, LBL_MIXED_LOAD, with {n} as the applied percent), {in} (units arriving next cycle), {out} (units leaving next cycle), {after} (stock after next cycle, LBL_NEXT_CYCLE). The game fills them.
 
 ## Glossary (exact terms)
-- Branches: Logistics, Research, Expansion.
-- Company storage: the company's own storage on a planet. Space Storage: the per-system storage, a skill (A1).
+- Skill trees: Foundations (Space Storage, Permit Charter, Prospecting) and four markets: Military, Luxury, Minerals, Biotech. The old branches Logistics, Research, Expansion are gone.
+- Company storage: the company's own storage on a planet. Space Storage: the per-system storage, a skill.
 - Mixed load: the bonus for selling two or more different goods at one planet in the same cycle. Shown on the Sell row only when it applies, as "Mixed load +{n}% (max {cap} credits)". Never call it a bundle in player text. Added 2026-11-02.
 - Route: one-way link between two planets, made with "Send to..." on a storage row, run by one ship.
 - Stop at: a Send to... with one stop on the way. The ship sells up to the stop's Sell order amount there, then carries the rest on. Picker line: "Stop at A: sell up to N here, carry the rest to B." Never call it a waypoint or a bundle. Added 2026-11-02.
@@ -55,7 +55,7 @@ The player is "you" or "the company". Never a gender, never a name.
 - Income before costs, Income after costs, Trip cost: route and statistics labels (LBL_GROSS, LBL_NET, LBL_TRIP_COST). "Waiting for room": route status when the destination is full (ST_WAITING_ROOM).
 - Buy price, Sell price: price labels in the planet panel. Buy and Sell on a row are standing orders, on or off.
 - Expansion points (shown as "Skill points" in the top bar): spent on skills and permits.
-- Permits: allow entry to a new system. Permit Charter (C1) unlocks them; system 2 is open in the Alpha.
+- Permits: allow entry to a new system. Permit Charter unlocks them; system 2 is open in the Alpha.
 - Cycles: the game's time unit.
 - Ships: Skerrit (the only ship type). Working name.
 - Credits: the currency. The goal is market share (LBL_GOAL_MARKETS); there is no cash goal.
@@ -78,11 +78,11 @@ The player is "you" or "the company". Never a gender, never a name.
 - Fellow hand: how people in the Commons address each other. Replaces any "comrade" wording.
 - Common good: stock phrase, used with a straight face and a raised eyebrow.
 
-- Dead worlds open late (2026-11-03): they unlock at cycle 15 (a balance value, never written in running text; the game fills {n}). Before that the planet panel says it is closed until then. Mining Cinderrest needs Cold Survey (M1), mining Greywake needs Deep Cut (M2), both in Research after Prospecting (B1). Fabrication Licence (F1) unlocks the fabric.
+- Dead worlds open late (2026-11-03): they unlock at cycle 15 (a balance value, never written in running text; the game fills {n}). Before that the planet panel says it is closed until then. Mining Cinderrest needs Cold Survey, mining Greywake needs Deep Cut, both in Minerals. Fabrication Licence unlocks the fabric.
 - Fabric: the machine at the trading post that turns dross and nullglass into Lattice Plate (id plate, working name; running text: plate). Null Core: an item built once from plate and nullglass, fitted to one ship. Plate and Null Core are working names, owner decides. Fitted ship: the ship that carries the Null Core. Added 2026-11-03.
 
 ### Four markets (added 2026-11-03, from design/proposals/2026-11-03-four-markets-story.md)
-- Markets: Military, Luxury, Minerals, Biotech, always capitalised. Foundations: the three small unlocks (Space Storage, Permit Charter, Prospecting). Trees replace the branches Logistics, Research, Expansion once the old code is removed.
+- Markets: Military, Luxury, Minerals, Biotech, always capitalised. Foundations: the three small unlocks (Space Storage, Permit Charter, Prospecting).
 - Skill: costs skill points. Tech: costs no points, finishes by crafting at the market's workshop. Capstone: the last skill of a market.
 - Rivals: the three other companies in a market. Never "bots" or "AI" in player text.
 - Size words in skill lines: a little (small), clearly (medium), sharply (large, rivals only). No raw numbers; the game fills {n}, {m}, {goal} (units to craft), {name} (node name).

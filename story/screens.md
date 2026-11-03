@@ -10,7 +10,7 @@ Menus, buttons, labels, notices and tutorial lines are plain. Flavour lives in t
 3. First cycles: three planets, two goods. Read prices, set standing orders.
 4. Early growth: Company storage and the first expansion points. The company looks like a company, which the Commons finds suspicious.
 5. First event: the market moves without asking you.
-6. Skills: you choose what kind of company you are, Logistics, Research or Expansion.
+6. Skills: you choose what kind of company you are: Military, Luxury, Minerals or Biotech.
 7. Midgame: debts, upkeep and the question of what is enough.
 8. Pressure: events test routes; the rescue notice shows the Bureau will carry you once, politely.
 9. The goal: more than half of one market. Holding it ends the run with a market ending.
@@ -79,15 +79,12 @@ LBL_TRIP_COST | 24 | Route panel, cost of one trip on a route | Trip cost
 ST_WAITING_ROOM | 24 | Route panel, status of a route that waits because the destination is full | Waiting for room
 
 ## Skill screen extras
-SK_POINTS_LEFT | 24 | Skill screen header, label before the number | Skill points left
 SK_CONFIRM | 110 | Skill screen, confirm dialog before Learn | Learn {skill}?
 SK_BTN_CLOSE | 24 | Skill screen, close button | Close
 SK_NONE_SELECTED | 110 | Skill screen, detail panel before a click | Click a skill to see what it does.
 SK_BTN_LEARNED | 24 | Learn button, disabled on a learned skill | Learned
 SK_BTN_LOCKED | 24 | Learn button, disabled on a locked skill | Locked
 SK_LABEL_EFFECT | 24 | Detail panel label above the plain line | What it changes
-SK_LABEL_NEEDS_POINTS | 60 | Detail panel, available but too costly | Not enough skill points.
-SK_A1_GATE | 110 | Skill screen, detail panel of Space Storage (A1) while locked | Space Storage opens once you have made two routes, on any planets.
 
 ## Mission board hints (right side board)
 MB_01 | 110 | Mission board, cycle 1
@@ -120,8 +117,6 @@ TUT_C3_ONEWAY | 110 | Cycle 3
 Routes are one way. To send stock both ways, make a second route back.
 TUT_C4_SKILLS | 110 | Cycle 4, if a skill point is held
 You have skill points. Open Skills and learn something.
-TUT_PERMIT_C1 | 110 | Any cycle after the first, once a skill point is held and Permit Charter (C1) is not learned
-Permit Charter (C1) lets you buy permits. A permit opens a new system. It costs credits and skill points.
 TUT_C4_FREE | 110 | Cycle 4, end of tutorial
 That is all the guidance there is. The Plan has nothing to add.
 
@@ -174,7 +169,7 @@ WORLD_S2P3_DESC | 110 | Planet 3 of system 2, planet tooltip | A damp outpost of
 WORLD_S2P4_NAME | 24 | System 2 planet 4 (S2-P4, consumer market) | Quillon
 WORLD_S2P4_DESC | 110 | Planet 4 of system 2, planet tooltip | A market world that makes nothing and wants both goods. Quillon pays on time, in forms.
 PERMIT_S2_NAME | 24 | Permit list, system 2 entry | Permit: Dunmere Reach
-PERMIT_S2_DESC | 110 | Permit list, system 2 description | Opens Dunmere Reach for routes. Needs Permit Charter (C1). Costs credits and skill points.
+PERMIT_S2_DESC | 110 | Permit list, system 2 description | Opens Dunmere Reach for routes. Needs Permit Charter. Costs credits and skill points.
 PERMIT_S2_BTN | 24 | Permit list, buy button | Buy permit
 NOT_PERMIT_S2 | 110 | Notice, permit for system 2 bought | Permit bought. Dunmere Reach is open: four new planets.
 SS_POST_NAME | 24 | Space Storage post, name | Space Storage
@@ -214,22 +209,19 @@ MENU_HINT_LOCKED | 110 | Game menu, tooltip on a locked entry | Not available ye
 BTN_CLOSE | 24 | Galaxy view, close button | Close
 EVT_HINT_CHOICE_OFF | 110 | Event popup, tooltip on a choice that cannot be taken now | Not available now.
 PERMIT_COST_LINE | 110 | Skill screen, permit cost line; {credits} and {points} are filled in | Cost: {credits} credits and {points} skill points.
-PERMIT_NEEDS_C1 | 110 | Skill screen, permit line when Permit Charter (C1) is missing | Needs Permit Charter (C1) to buy permits.
+PERMIT_NEEDS_C1 | 110 | Skill screen, permit line when the Permit Charter foundation is missing | Needs Permit Charter to buy permits.
 PERMIT_NO_CREDITS | 110 | Skill screen, permit line when credits are short | Not enough credits.
 
-## Skill effects made real (2026-10-31, Alpha): Long Haul, Event Forecast, Price Whisper, base-game price history
-NOT_ROUTE_NEEDS_C3 | 110 | Route between two systems without Long Haul (C3) | Routes between systems need Long Haul (C3).
-EVT_NEXT_DUE | 110 | Notice, Event Forecast (B4), posted one cycle before an event | An event is due next cycle.
-EVT_NEXT_DUE_PRICE | 110 | Notice, Event Forecast (B4), price event due next cycle; direction is "rise" or "fall" | Next cycle: {commodity} will {direction} at {planet}.
-EVT_NEXT_DUE_CLOSED | 110 | Notice, Event Forecast (B4), closure due next cycle | Next cycle: {planet} will close.
-LBL_BEST_PARTNER | 110 | Planet panel, Price Whisper (B3), best route partner | Best partner: {planet} ({margin} cr per unit).
+## Skill effects made real (2026-10-31, Alpha): Event Forecast, Price Whisper, base-game price history
+NOT_ROUTE_NEEDS_C3 | 110 | Route between two systems without the Permit Charter foundation | Routes between systems need Permit Charter.
+EVT_NEXT_DUE | 110 | Notice, Event Forecast, posted one cycle before an event | An event is due next cycle.
+EVT_NEXT_DUE_PRICE | 110 | Notice, Event Forecast, price event due next cycle; direction is "rise" or "fall" | Next cycle: {commodity} will {direction} at {planet}.
+EVT_NEXT_DUE_CLOSED | 110 | Notice, Event Forecast, closure due next cycle | Next cycle: {planet} will close.
+LBL_BEST_PARTNER | 110 | Planet panel, Price Whisper, best route partner | Best partner: {planet} ({margin} cr per unit).
 NOT_ROUTE_BELOW_UPKEEP | 110 | Notice, base game, new route margin is below its upkeep | This route earns {margin} cr a cycle and costs {cost}. It will run at a loss.
-LBL_SURVEY_PRICES | 110 | Skill screen permit info, base prices after a survey; f = food, e = energy, b = buy, s = sell | {planet}: Food {fb}/{fs} cr, Energy {eb}/{es} cr (buy/sell).
-BTN_SURVEY | 24 | Skill screen permit info, Survey button (Survey Beacon C2) | Survey (1 point cheaper)
 LBL_PRICE_HISTORY | 110 | Planet panel, base game, under the prices; {prices} is a list of sell prices | Recent sell prices: {prices}.
 LBL_PRICE_HISTORY_NONE | 110 | Planet panel, base game, before the first cycle closes | Recent sell prices: none yet.
-LBL_NEXT_PRICE | 110 | Planet panel, Price Whisper (B3), prices for the next cycle; {buy} and {sell} are credits | Next cycle: {buy} cr to buy, {sell} cr to sell.
-LBL_PERMIT_PLANETS | 110 | Skill screen, permit entry, shown once Survey Beacon (C2) is learned and before the permit is bought; {names} is a list of planet names | Planets in this system: {names}.
+LBL_NEXT_PRICE | 110 | Planet panel, Price Whisper, prices for the next cycle; {buy} and {sell} are credits | Next cycle: {buy} cr to buy, {sell} cr to sell.
 
 ## Last fallbacks (2026-10-31, Alpha)
 LBL_UNKNOWN | 24 | Galaxy view, label for a system not yet permitted | ?
@@ -255,7 +247,7 @@ TUT_G7_STORAGE | 60 | Guided step 7, storage | Watch the Company storage bar.
 TUT_G7_STORAGE_WHY | 110 | Guided step, why it matters (second line of the card) | Company storage holds your goods on a planet. When it is full, Buy waits.
 TUT_G8_SKILLS | 60 | Guided step 8, until a skill is learned | Open Skills and learn one.
 TUT_G8_SKILLS_WHY | 110 | Guided step, why it matters (second line of the card) | Spend an expansion point. Skills unlock bigger storage, longer routes and the permit.
-TUT_G9_PERMIT | 60 | Guided step 9, permits | Learn Permit Charter (C1).
+TUT_G9_PERMIT | 60 | Guided step 9, permits | Learn Permit Charter.
 TUT_G9_PERMIT_WHY | 110 | Guided step, why it matters (second line of the card) | It lets you open a new system, and a new system has more planets to trade with.
 TUT_G10_DONE | 60 | Guided step 10, the last | The tutorial is done. The rest is yours.
 TUT_HEADER | 24 | Header of the guided tutorial card | Tutorial
@@ -286,7 +278,6 @@ TIP_STATION_MARKER | 32 | Map marker tooltip | Space Storage
 LBL_TRADE_NEEDS_STATION | 60 | Buy, Sell or Send to button in a system without its station | Needs a Space Storage in this system.
 
 ## Locked skills and Space Storage view (added 2026-11-02)
-LBL_LOCKED_PERMIT_FIRST | 60 | Skill screen, a skill locked until Permit Charter (C1) is learned | Learn Permit Charter (C1) first.
 SS_BTN_CLOSE | 16 | Space Storage view, close button | Close
 SS_LBL_CAPACITY | 48 | Space Storage view, capacity line | Capacity: {cap} per commodity
 
@@ -315,9 +306,6 @@ WORLD_CL_S2C_NAME | 24 | Asteroid cluster 3 of system 2, map label | Low Teeth
 WORLD_CL_S2C_DESC | 110 | Cluster 3 of system 2, tooltip | Jagged rock low in the sky of Dunmere Reach. Take the ore before the cluster runs dry.
 
 ## Owner labels: skill rows, cluster card, route legend (added 2026-11-02)
-LBL_SKILLS_ROW_FIRST | 48 | Skill screen, caption of the first row | Start here
-LBL_SKILLS_ROW_SECOND | 60 | Skill screen, caption of the second row | Opens after Space Storage and Permit Charter
-LBL_LOCKED_FIRST_ROW | 60 | Skill screen, reason line on a locked skill | Learn Space Storage (A1) and Permit Charter (C1) first.
 LBL_CLUSTER_NAME | 32 | Cluster card title and route end, cluster without its own name; fills {id} | Asteroid cluster {id}
 LBL_CLUSTER_LEFT | 60 | Planet panel, cluster line; fills {id}, {left}, {max} | Ore cluster {id}: {left} of {max} left
 LBL_CLUSTER_INFO | 80 | Cluster card, info line; fills {good}, {yield}, {left}, {max} | {good}: {yield} per cycle, {left} of {max} left.
@@ -332,7 +320,7 @@ LBL_LEGEND_CHIPS | 24 | Route legend, chips line | Logic Cores route
 LBL_LEGEND_ORE | 24 | Route legend, ore line | Rock Ore route
 
 ## Dead worlds: unlock, goods, Null Core (added 2026-11-03; names are working names, owner decides)
-DEAD_UNLOCK | 110 | Notice, posted when the dead worlds open | Dead worlds are open. Cinderrest needs Cold Survey (M1), Greywake needs Deep Cut (M2).
+DEAD_UNLOCK | 110 | Notice, posted when the dead worlds open | Dead worlds are open. Cinderrest needs Cold Survey, Greywake needs Deep Cut.
 PLANET_DEAD_LOCKED | 60 | Planet panel, dead world before it opens; {n} is the cycle | Opens at cycle {n}.
 NOT_DEAD_NEEDS_SKILL | 110 | Notice, route from a dead world without its skill; {skill} is the skill name | Mining here needs {skill}.
 GOOD_DROSS_NAME | 24 | Commodity name, dross | Dross Salt
@@ -353,7 +341,7 @@ LBL_NULL_CORE_BUILT | 24 | Space Storage window, state once the core exists | Nu
 SS_NULL_CORE_BUILD | 24 | Space Storage window, build button; {cost} is the credit cost (fits the 24 limit) | Build Null Core: {cost}
 
 ## Lane and fabric notices (added 2026-11-03)
-LBL_TRADE_NEEDS_A1 | 60 | Stalled system 2 lane when Space Storage (A1) is not learned | Learn Space Storage (A1) first.
+LBL_TRADE_NEEDS_A1 | 60 | Stalled system 2 lane when Space Storage is not learned | Learn Space Storage first.
 SS_FABRIC_NO_INPUTS | 110 | Space Storage panel, fabric lacks inputs; {items} lists the missing goods | Missing inputs: {items}. Send them here from a dead world.
 
 ## Ship purchase refusal (added 2026-11-03)
@@ -410,3 +398,6 @@ LBL_WORKSHOP_BATCHES | 50 | Planet panel, built workshop; {n} batches each cycle
 LBL_WORKSHOP_MADE | 60 | Planet panel, built workshop; {items} is what the last cycle made | Last cycle: {items}
 LBL_WORKSHOP_STALLED | 60 | Planet panel, built workshop that made nothing; {why} is the missing input | Stalled: {why}
 NOT_WORKSHOP_BUILT | 80 | Board notice after building; {workshop} is the workshop name | {workshop} built at the trading post.
+
+## Skill points from share (added 2026-11-03)
+NOT_SKILL_REASON_SHARE | 110 | Notice, a skill point earned when a market share passes a step; {market} is the market, {pct} the step | Your {market} share passed {pct}%.
