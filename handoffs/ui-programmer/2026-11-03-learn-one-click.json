@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-03",
+  "task": "learn-one-click",
+  "status": "done",
+  "files_changed": ["game/skill_screen.gd", "tools/tests/run_tests.gd"],
+  "open_questions": ["SK_CONFIRM id is now unused by the screen (BTN_YES/BTN_NO still used elsewhere); story designer may retire SK_CONFIRM."],
+  "handoff": "Skills window: clicking a node still only selects it and fills the detail strip. The detail strip's Learn button now calls main.learn_skill directly; the Yes/No confirm row and its helpers were removed. Disabled states and tooltips are unchanged (not enough points, locked prerequisites, earn lock via can_learn); the learned notice comes from main.learn_skill as before. Tutorial step TUT_G8_SKILLS and qa/bots needed no change (qa/gui/skills_shot.gd only selects). Test updated to press the real Learn button and to assert no confirm row. Headless tests pass; the only output line matching ERROR is a pre-existing JSON parse note. Not checked by eye: the detail strip layout without the confirm row.",
+  "details": {"how_to_see": "Open Skills (K), click a learnable skill, click Learn: it is learned at once."}
+}

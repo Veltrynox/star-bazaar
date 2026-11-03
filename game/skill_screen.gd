@@ -1,7 +1,7 @@
 extends PanelContainer
 ## Skill screen for the four market trees: a Foundations row on top, then one column per market with its
 ## seven nodes in tier order, linked by prerequisite lines. Skills and techs look different (tint and tag).
-## A detail strip shows the selected node with Learn and a confirm step. Learned bot skills get a Use menu.
+## A detail strip shows the selected node with a Learn button that learns at once. Learned bot skills get a Use menu.
 ## Does not pause the game. Open/close is owned by main.gd (K, Esc, Skills button).
 
 const StoryText := preload("res://game/story_text.gd")
@@ -36,8 +36,6 @@ var bars: Dictionary = {}  # tech id -> ProgressBar
 var points_label: Label
 var detail_box: VBoxContainer
 var learn_button: Button
-var confirm_row: HBoxContainer
-var confirm_label: Label
 var permit_box: VBoxContainer
 var highlight: Array = []  # skill ids to point at (the steps to a permit), cleared on close
 var _root: VBoxContainer
@@ -308,12 +306,10 @@ func close_screen() -> void:
 func open_highlight(ids: Array) -> void:
 	highlight = ids.duplicate()
 	selected = str(ids[0]) if not ids.is_empty() else ""
-	_hide_confirm()
 	open_screen()
 
 func select(id: String) -> void:
 	selected = id
-	_hide_confirm()
 	refresh()
 
 # ---- refresh ----
@@ -494,7 +490,6 @@ func _build_detail() -> void:
 		c.queue_free()
 		detail_box.remove_child(c)
 	learn_button = null
-	confirm_row = null
 	if selected == "" or not SkillTree.has(selected):
 		_label(StoryText.get_text("SK_NONE_SELECTED"))
 		return
@@ -536,34 +531,17 @@ func _build_detail() -> void:
 		learn_button.tooltip_text = StoryText.get_text("SK_NOT_ENOUGH")
 	elif st == "locked" and not names.is_empty():
 		learn_button.tooltip_text = StoryText.get_text("SK_NEEDS", {"skill": ", ".join(names)})
-	learn_button.pressed.connect(_ask_confirm)
+	learn_button.pressed.connect(confirm_learn)  # one step: the Learn button learns at once
 	detail_box.add_child(learn_button)
-	confirm_row = HBoxContainer.new()
-	confirm_row.visible = false
-	detail_box.add_child(confirm_row)
-	confirm_label = Label.new()
-	confirm_label.text = StoryText.get_text("SK_CONFIRM", {"skill": SkillTree.skill_name(id)})
-	confirm_row.add_child(confirm_label)
-	var yes := Button.new()
-	yes.theme_type_variation = "ButtonPrimary"
-	yes.text = StoryText.get_text("BTN_YES")
-	yes.pressed.connect(confirm_learn)
-	confirm_row.add_child(yes)
-	var no := Button.new()
-	no.theme_type_variation = "ButtonGhost"
-	no.text = StoryText.get_text("BTN_NO")
-	no.pressed.connect(_hide_confirm)
-	confirm_row.add_child(no)
 
-func _ask_confirm() -> void:
-	if confirm_row != null:
-		confirm_row.visible = true
-
-func _hide_confirm() -> void:
-	if confirm_row != null and is_instance_valid(confirm_row):
-		confirm_row.visible = false
-
-## Called by the Yes button (tests call it directly).
+## Called by the Learn button (tests call it directly).
 func confirm_learn() -> void:
 	if selected != "":
 		main.learn_skill(selected)
+
+## True: the detail strip holds no Yes/No confirm row (tests).
+func confirm_row_absent() -> bool:
+	for c in detail_box.get_children():
+		if c is HBoxContainer:
+			return false
+	return true
