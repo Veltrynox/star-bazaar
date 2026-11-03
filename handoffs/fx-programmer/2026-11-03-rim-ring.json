@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "agent": "fx-programmer",
+  "date": "2026-11-03",
+  "task": "Shadow-side rim light and Voltara belt half size",
+  "status": "done",
+  "files_changed": [
+    "art/planet_fx/planet_sphere_simple.gdshader",
+    "art/planet_fx/planet_sphere.gdshader",
+    "art/planet_fx/planet_sphere.gd",
+    "game/map.gd"
+  ],
+  "details": {
+    "uniforms": {
+      "shadow_rim_strength": "0.05 (shader and exported var on planet_sphere.gd, range 0..1)",
+      "shadow_rim_color": "set by planet_sphere.gd: palette mid colour with hue + 0.5, same saturation and value"
+    },
+    "rim_formula": "col += shadow_rim_color * shadow_rim_strength * pow(1 - N.V, 3) * (1 - smoothstep(-0.3, 0.1, dot(n, sun)))",
+    "dead_worlds": "skipped: _apply_dead path and dead shader untouched",
+    "voltara_belt": {
+      "where": "game/map.gd _add_planet_belt (the belt is an asteroid_dust_ring.gd MultiMesh, not the planet_sphere_ring quad; volcanic type has no ring entry and SIMPLE hides the quad ring)",
+      "before_planet_radii": [[1.5, 1.8], [2.0, 2.4]],
+      "after_planet_radii": [[0.75, 0.9], [1.0, 1.2]],
+      "change": "new const BELT_SCALE := 0.5 multiplies both bands"
+    }
+  },
+  "open_questions": [
+    "Belt edit is in game/map.gd (outside art/planet_fx) because the radii live there; one const and one line.",
+    "Inner band (0.75-0.9 radii) now lies inside the sphere and is hidden by it; only the 1.0-1.2 band shows, hugging the limb. Owner may prefer scaling the gap from the surface (e.g. 1.25-1.4 and 1.5-1.7).",
+    "Not seen on screen: no GPU window. Shaders not compiled in Godot; rim strength 0.05 look unchecked."
+  ],
+  "handoff": "Suite with private TMPDIR: TOTAL pass=960 fail=10 (shared tree, other agents mid-edit). Fails: 7 'win:' stats tests, 'planet pole', 'size: names sit below', 'Cluster ellipse'. None touch the rim uniforms or belt; belt tests pass. Not checked whether the 3 map ones come from others' map.gd/clusters edits (planet pole checks key_dir and scale only, which I did not change). No shader error logged, but headless does not compile shaders for drawing."
+}

@@ -131,6 +131,11 @@ const KEY_ONLY_SHARE := 0.30
 	set(v):
 		rim_strength = v
 		_apply()
+## Weak rim on the shadow side, colour = complement of the planet base colour (hue + 0.5, same saturation and value). Not on dead worlds.
+@export_range(0.0, 1.0) var shadow_rim_strength: float = 0.05:
+	set(v):
+		shadow_rim_strength = v
+		_apply()
 @export_range(0.0, 3.0) var fresnel_strength: float = 0.2:
 	set(v):
 		fresnel_strength = v
@@ -386,6 +391,9 @@ func _apply() -> void:
 		m.set_shader_parameter("key_strength", key_strength)
 		m.set_shader_parameter("rim_color", rim_col)
 		m.set_shader_parameter("rim_strength", rim_strength)
+		var pm: Color = p.mid
+		m.set_shader_parameter("shadow_rim_color", Color.from_hsv(fposmod(pm.h + 0.5, 1.0), pm.s, pm.v))
+		m.set_shader_parameter("shadow_rim_strength", shadow_rim_strength)
 		m.set_shader_parameter("fres_strength", fresnel_strength)
 		m.set_shader_parameter("fres_power", fresnel_power)
 		m.set_shader_parameter("fres_side", fresnel_side)

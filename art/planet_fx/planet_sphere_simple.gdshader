@@ -14,6 +14,8 @@ uniform vec3 key_dir = vec3(-0.5, 0.5, 0.7);      // object space, towards the s
 uniform bool use_rim = true;
 uniform vec4 rim_color : source_color = vec4(0.37, 0.66, 1.00, 1.0);
 uniform float rim_strength = 0.0658125;  // 1.3x the earlier 0.050625
+uniform vec4 shadow_rim_color : source_color = vec4(0.37, 0.66, 1.00, 1.0);  // complement of the base colour (hue + 0.5), set by planet_sphere.gd
+uniform float shadow_rim_strength = 0.05;  // weak rim on the side away from the sun (0 = off)
 uniform float fres_strength = 0.2;
 uniform float fres_side = 0.0;
 uniform float fres_power = 3.0;
@@ -92,6 +94,10 @@ void fragment() {
 		col += rim_color.rgb * rim_strength * pow(1.0 - NdV, fres_power * mix(1.8, 0.8, side)) * side;
 	}
 	col += pale_col.rgb * fres;
+
+	// Shadow-side rim: weak Fresnel edge in the complementary colour, only where the sun dot is below about zero.
+	float dark = 1.0 - smoothstep(-0.3, 0.1, dot(n, normalize(key_dir)));
+	col += shadow_rim_color.rgb * shadow_rim_strength * pow(1.0 - NdV, 3.0) * dark;
 
 	ALBEDO = min(col, vec3(2.0));
 }

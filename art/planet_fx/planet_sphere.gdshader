@@ -49,6 +49,8 @@ global uniform float sun_flare;
 uniform vec4 rim_color : source_color = vec4(0.37, 0.66, 1.00, 1.0);  // set from the planet colour (complementary hue) by planet_sphere.gd
 uniform float rim_strength = 0.050625;
 uniform float rim_power = 2.5;
+uniform vec4 shadow_rim_color : source_color = vec4(0.37, 0.66, 1.00, 1.0);  // complement of the base colour (hue + 0.5), set by planet_sphere.gd
+uniform float shadow_rim_strength = 0.05;  // weak rim on the side away from the sun (0 = off)
 uniform float fres_strength = 0.2;                // Fresnel crescent brightness, every planet (the rim light does the far-side edge work)
 uniform float fres_side = 0.0;                    // crescent start: sun-side dot where it begins to fade in (0 = half the limb, 0.6 = narrow sliver)
 uniform float fres_power = 3.0;
@@ -158,6 +160,10 @@ void fragment() {
 
 	// Fresnel crescent: a separate term, on every planet, key-only ones included.
 	col += pale_col.rgb * fres;
+
+	// Shadow-side rim: weak Fresnel edge in the complementary colour, only where the sun dot is below about zero.
+	float dark = 1.0 - smoothstep(-0.3, 0.1, dot(n, normalize(key_dir)));
+	col += shadow_rim_color.rgb * shadow_rim_strength * pow(1.0 - NdV, 3.0) * dark;
 
 	// Grain: +/- grain_amount on the final colour, from a hash of the screen pixel.
 	float g = fract(sin(dot(FRAGCOORD.xy, vec2(12.9898, 78.233))) * 43758.5453);
