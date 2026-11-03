@@ -9,8 +9,9 @@ extends RefCounted
 
 const StoryText := preload("res://game/story_text.gd")
 const PATH := "user://autosave.json"
-## Version 2 = Four Markets (market volumes, bot state, counters). Older saves are dropped, not migrated (owner approved).
-const VERSION := 2
+## Version 2 = Four Markets (market volumes, bot state, counters). Version 3 = the four market skill trees: a v2 save is
+## migrated (old skill ids mapped, points refunded). Version 1 saves are dropped, not migrated (owner approved).
+const VERSION := 3
 const MIN_VERSION := 2
 
 ## True after load_state() found a save older than MIN_VERSION; the menu shows old_save_message().
@@ -58,6 +59,26 @@ static func clear() -> void:
 static func old_save_message() -> String:
 	return StoryText.get_or("NOT_OLD_SAVE", "Your old save is from before Four Markets and cannot continue. Start a new game.")
 
-static func _migrate(state: Dictionary, _from_version: int) -> Dictionary:
-	# No migrations yet. Add: if _from_version < 2: ... when VERSION is bumped.
+static func _migrate(state: Dictionary, from_version: int) -> Dictionary:
+	if from_version < 3:
+		return migrate_v2(state)
 	return state
+
+## v2 -> v3: cash, cycle, ships, markets and bot state stay as they are. Learned old skills map to the new ids (SkillTree.LEGACY);
+## a skill that was dropped (C2, C4), merged into one already held (C3 with C1) or unknown gives its old cost back as points.
+static func migrate_v2(state: Dictionary) -> Dictionary:
+	var out: Dictionary = state.duplicate(true)
+	var learned := []
+	var refund := 0
+	var old = out.get("learned_skills", [])
+	if typeof(old) == TYPE_ARRAY:
+		for id in old:
+			var to := str(SkillTree.LEGACY.get(str(id), ""))
+			if to == "" or learned.has(to):
+				refund += int(SkillTree.LEGACY_COST.get(str(id), 0))
+			else:
+				learned.append(to)
+	out["learned_skills"] = learned
+	out["skill_points"] = maxi(0, int(out.get("skill_points", 0))) + refund
+	out.erase("surveyed")
+	return out
