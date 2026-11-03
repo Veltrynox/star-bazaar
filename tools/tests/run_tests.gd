@@ -6,6 +6,8 @@ extends SceneTree
 const StoryText := preload("res://game/story_text.gd")
 const EndingPicker := preload("res://game/ending_picker.gd")
 const Storage := preload("res://game/storage.gd")
+const Clusters := preload("res://game/clusters.gd")
+const RouteEngine := preload("res://game/route_engine.gd")
 const Juice := preload("res://game/juice.gd")
 const MAIN_SCENE := "res://game/main.tscn"
 
@@ -37,6 +39,7 @@ func _run() -> void:
 	await _test_systems()
 	await _test_galaxy_view()
 	_test_route_tag()
+	await _test_ship_clock()
 	await _test_energy_then_food()
 	await _test_salvage()
 	await _test_system_suns()
@@ -50,12 +53,26 @@ func _run() -> void:
 	await _test_every_ending()
 	await _test_debug_menu()
 	await _test_planet_size()
+	await _test_dust_ring()
+	await _test_voltara_belt()
+	await _test_dead_planets()
+	await _test_dead_world_mechanics()
+	await _test_dead_events_chain()
+	await _test_fabric()
 	await _test_price_event()
 	await _test_route_move()
 	await _test_split_send()
 	await _test_mixed_load()
 	await _test_stop_sale()
 	await _test_second_lane()
+	await _test_forecast_income()
+	await _test_cash_reserve()
+	await _test_sell_only_idle()
+	await _test_stall_rescue()
+	await _test_mining_reachable()
+	await _test_clusters()
+	await _test_asteroid_packs()
+	_test_event_banners()
 	print("TOTAL pass=%d fail=%d" % [passed, failed])
 	quit(1 if failed > 0 else 0)
 
@@ -330,7 +347,7 @@ func _test_galaxy_view() -> void:
 	var running_icon: Texture2D = m.pause_button.icon
 	m.set_paused(true)
 	check(m.pause_button.icon != running_icon and m.pause_button.text == "", "hud: pause icon swaps to play when paused, icon only")
-	check(m.expenses_label.text.is_valid_int() and m.points_label.text == str(m.skill_points), "hud: expenses and skill points read from the game")
+	check(m.points_label.text == str(m.skill_points), "hud: skill points read from the game; no expenses item in the top bar")
 	var ex: Control = m.system_exit
 	var lay: Dictionary = ex.layout()
 	check(ex.next_locked() == 2, "exit: the next locked system is system 2")
@@ -641,7 +658,7 @@ func _test_skill_screen() -> void:
 	var m: Control = await _new_main()
 	m._dismiss_preface()
 	var bal: Dictionary = m.balance
-	check(ST.all_ids().size() == 12, "skills: 12 nodes from story ids (A3 cut)")
+	check(ST.all_ids().size() == 15, "skills: 12 story nodes (A3 cut) plus M1, M2, F1")
 	check(ST.prereqs("A1").is_empty() and ST.prereqs("A4") == ["A2"] and ST.prereqs("A5") == ["A4"] and ST.prereqs("C3") == ["C2", "A1"], "skills: prerequisites chain, C3 also needs A1")
 	check(m.learned_skills.is_empty(), "skills: nothing learned at start")
 	# top bar
@@ -658,7 +675,7 @@ func _test_skill_screen() -> void:
 	check(not r["ok"] and r["reason"] == "locked" and m.skill_points == 10, "skills: locked skill cannot be learned, points kept")
 	r = m.learn_skill("C3")
 	check(not r["ok"] and r["reason"] == "locked", "skills: C3 locked at start")
-	check(ST.state([], "C4") == "locked" and ST.state(["C2"], "C4") == "available" and ST.prereqs("C4") == ["C2"], "skills: C4 locked before C2, available after C2 without C3")
+	check(ST.state([], "C4") == "locked" and ST.state(["A1", "C1", "C2"], "C4") == "available" and ST.state(["C2"], "C4") == "locked" and ST.prereqs("C4") == ["C2"], "skills: C4 locked before C2, available after C2 without C3")
 	r = m.learn_skill("C4")
 	check(not r["ok"] and r["reason"] == "locked", "skills: C4 locked at start")
 	var cost_a1 := int(bal["skill_cost_A1"])
@@ -687,14 +704,20 @@ func _test_skill_screen() -> void:
 	m.skill_points = 100
 	r = m.learn_skill("A1")
 	check(not r["ok"] and r["reason"] == "locked" and r.get("why", "") == "permit_first" and m.learned_skills.is_empty() and m.skill_points == 100, "permit first: A1 locked without C1, with reason")
-	r = m.learn_skill("B1")
-	check(not r["ok"] and r["reason"] == "locked" and r.get("why", "") == "permit_first", "permit first: B1 locked without C1, with reason")
-	check(ST.state([], "B1", m.skill_ctx()) == "locked" and ST.state([], "C1", m.skill_ctx()) == "available", "permit first: skill screen state locks others, C1 available")
+	r = m.learn_skill("B1")  # alpha fix 2026-11-02: Prospecting is gated by neither rule, so mining is reachable at once
+	check(r["ok"] and m.learned_skills == ["B1"] and m.skill_points == 100 - int(bal["skill_cost_B1"]), "mining gate: B1 learnable first, before C1 and A1, at its normal cost")
+	m.learned_skills.clear()
+	m.skill_points = 100
+	check(ST.state([], "B1", m.skill_ctx()) == "available" and ST.state([], "B2", m.skill_ctx()) == "locked" and ST.state([], "C1", m.skill_ctx()) == "available", "permit first: B1 and C1 available, the rest locked")
 	check(ST.state(["A1"], "A1", {"c1_learned": false}) == "learned", "permit first: an already learned skill is not revoked")
 	r = m.learn_skill("C1")
 	check(r["ok"] and m.learned_skills == ["C1"] and m.skill_points == 100 - int(bal["skill_cost_C1"]), "permit first: C1 learnable first at its normal cost")
-	r = m.learn_skill("B1")
-	check(r["ok"], "permit first: B1 learnable after C1")
+	r = m.learn_skill("B2")
+	check(not r["ok"] and r["reason"] == "locked" and r.get("why", "") == "first_row", "first row: B2 still locked after C1 alone, with reason")
+	check(ST.state(["C1"], "B2", m.skill_ctx()) == "locked" and ST.state(["A1", "C1", "B1"], "B2", m.skill_ctx()) == "available" and ST.state(["B1"], "B1", m.skill_ctx()) == "learned", "first row: B2 opens with A1, C1 and B1; a learned skill stays learned")
+	check(ST.first_row_blocks([], "B2") and not ST.first_row_blocks([], "A1") and not ST.first_row_blocks([], "C1") and not ST.first_row_blocks([], "B1") and ST.in_first_row("B1") and not ST.first_row_blocks(["A1", "C1"], "B2"), "first row: lock rule in skill_tree (B1 free)")
+	# the A1 gate (two routes) does not stand in the way of mining: C1 + B1 only
+	check(m.learned_skills == ["C1"] and m.learn_skill("B1")["ok"], "mining gate: B1 after C1 without A1")
 	m.learned_skills.erase("B1")
 	m.skill_points = 10
 	r = m.learn_skill("A1")
@@ -786,6 +809,14 @@ func _labels(n: Node, out: Array) -> Array:
 		_labels(c, out)
 	return out
 
+
+func _all_buttons(n: Node) -> Array:
+	var out := []
+	if n is Button:
+		out.append(n)
+	for ch in n.get_children():
+		out.append_array(_all_buttons(ch))
+	return out
 
 func _find_named(n: Node, nm: String) -> Node:
 	for ch in n.get_children():
@@ -967,10 +998,14 @@ func _test_events() -> void:
 	_wipe_user()
 	var m: Control = await _new_main()
 	m._dismiss_preface()
+	m._open_system(2)  # story events name Greywake (system 2): its tags need the planet in the list
 	var ev = m.events
 	check(ev.defs.size() >= 19 and ev.by_id.has("EV18") and ev.by_id.has("EV20"), "events: definitions loaded from data/events.json (17 + shield + asteroid)", str(ev.defs.size()))
+	var sk: Dictionary = ev.parse_tag("[price up: Tillam, silk]")
+	check(sk.get("c") == "silk" and ev.parse_tag("[price down: Voltara, ore]").get("c") == "ore" and ev.parse_tag("[price up: Ashgate, chips]").get("c") == "chips", "T155: events parse the new goods", str(sk))
+	check(is_equal_approx(ev.pct("silk"), float(m.balance["event_pct_silk"])) and is_equal_approx(ev.pct("energy"), float(m.balance["event_pct_energy"])), "T155: per-good event pct, energy uses its own swing")
 	for e in ev.defs:
-		if str(e["id"]) == "EV17":
+		if str(e["id"]) == "EV17" or str(e.get("kind", "")) == "C":
 			continue  # choice event: effects come from its choices
 		if ev.effect_of_event(str(e["id"])).is_empty():
 			check(false, "events: tag parses for " + str(e["id"]), str(e["tag"]))
@@ -984,7 +1019,8 @@ func _test_events() -> void:
 	check(m.event_notice != null and m.paused, "events: notice shown and game paused")
 	var btns := _buttons(m.event_notice, [])
 	check(btns.size() == 1 and btns[0].text == StoryText.get_text("MENU_CONTINUE"), "events: one Continue button")
-	check(m.trade.price(vi, "energy_sell") == roundi(base_sell * (1.0 - pct)) and m.trade.price(vi, "energy_buy") == roundi(base_buy * (1.0 - pct)), "events: both prices x(1-pct)")
+	var pct_energy := float(m.balance["event_pct_energy"])  # energy has its own swing since the frost change
+	check(m.trade.price(vi, "energy_sell") == roundi(base_sell * (1.0 - pct_energy)) and m.trade.price(vi, "energy_buy") == roundi(base_buy * (1.0 - pct_energy)), "events: both prices x(1-pct)")
 	check(m.trade.price(vi, "food_sell") >= -1 and m.trade.price(ev.planet_index("Tillam"), "energy_sell") == m.trade.price(ev.planet_index("Tillam"), "energy_sell"), "events: other prices unchanged")
 	btns[0].pressed.emit()
 	await process_frame
@@ -1060,6 +1096,13 @@ func _test_events() -> void:
 	check(not m.events.due(1) and m.events.due(1 + int(m.balance["event_interval"])), "events: first event after the tutorial cycles, then every event_interval")
 	var itv := int(m.balance["event_interval"])
 	check(not m.events.due(2) and not m.events.due(itv) and m.events.due(itv + 1) and m.events.due(2 * itv + 1), "events: nothing due at cycle 2")
+	m.events.by_id["EV18"].erase("min_cycle")
+	var early18 := false
+	for i in 300:
+		for cy in [2, 5, 9]:
+			if m.events.random_id([], cy) == "EV18":
+				early18 = true
+	check(not early18 and not m.events.available("EV18", 9) and m.events.available("EV18", 10) and m.events.available("EV18", 0), "events gate: sun event EV18 default gate, never before cycle 10")
 	m.events.by_id["EV18"]["min_cycle"] = 9
 	m.events.by_id["EV20"]["min_cycle"] = 13
 	check(not m.events.available("EV18", 2) and m.events.available("EV18", 9) and m.events.available("EV01", 2) and m.events.available("EV18", 0), "events gate: min_cycle respected, missing key is open")
@@ -1074,6 +1117,23 @@ func _test_events() -> void:
 		if m.events.random_id([], 13) == "EV18":
 			seen18 = true
 	check(seen18, "events gate: gated event can be picked at min_cycle")
+	# good gate: no silk event while no open planet trades silk
+	var silk_ids: Array = []
+	for d in m.events.defs:
+		if str(m.events.effect_of_event(str(d["id"])).get("c", "")) == "silk":
+			silk_ids.append(str(d["id"]))
+	var silk_early := false
+	for i in 400:
+		if silk_ids.has(m.events.random_id([], 13)):
+			silk_early = true
+	check(silk_ids.size() >= 2 and not silk_early and not m.events.available(silk_ids[0], 13), "events good gate: no silk event while only system 1 is open", str(silk_ids))
+	m.events.planets[1]["base_prices"]["silk_buy"] = 20
+	var silk_seen := false
+	for i in 600:
+		if silk_ids.has(m.events.random_id([], 13)):
+			silk_seen = true
+	m.events.planets[1]["base_prices"].erase("silk_buy")
+	check(silk_seen and m.events.available(silk_ids[0], 13) == false, "events good gate: silk event can be picked once an open planet trades silk")
 	m.events.by_id["EV18"].erase("min_cycle")
 	m.events.by_id["EV20"].erase("min_cycle")
 	m.debug_force_event = true
@@ -1143,7 +1203,7 @@ func _test_next_cycle() -> void:
 		var nc1: Node = m.planet_panel.find_child("NextCycle_" + c, true, false)
 		var par: Node = nc1.get_parent() if nc1 != null else null
 		check(nc1 != null, "next cycle: visible with a sell order and stock")
-		check(par is HBoxContainer and par.get_child_count() == 3 and par.get_child(par.get_child_count() - 1) == nc1, "next cycle: label is the last child of the storage row, not a sibling below it")
+		check(par is HBoxContainer and par.get_child_count() == 5 and par.get_child(par.get_child_count() - 1) == nc1, "next cycle: label is the last child of the storage row, not a sibling below it")
 	await _free_main(m)
 
 func _test_ships() -> void:
@@ -1213,12 +1273,92 @@ func _test_ships() -> void:
 	check(not rb3["ok"] and m.ships == 2, "send: a route that cannot be made buys no ship")
 	m.selected_planet = 1
 	m._on_buy_send(c)
-	check(m.pending.is_empty() and e.local_on(1, c, "buy") and e.routes.size() == 2, "T140: Buy alone sets a standing buy order, no route, no destination")
+	check(e.local_on(1, c, "buy") and e.routes.size() == 2, "T140: Buy sets a standing buy order, no route yet")
+	check(not m.pending.is_empty() and int(m.pending["planet"]) == 1 and str(m.pending["c"]) == c, "chain: after Buy starts the next planet click picks the send target")
+	# Esc ends the chain, the buy order stays
+	var esc := InputEventKey.new()
+	esc.keycode = KEY_ESCAPE
+	esc.pressed = true
+	m._unhandled_input(esc)
+	check(m.pending.is_empty() and m.sell_offer.is_empty() and e.local_on(1, c, "buy") and e.routes.size() == 2 and not m.game_menu.visible, "chain: Esc cancels the send pick and keeps the buy order")
+	m.sell_offer = {"planet": 2, "c": c}
+	m.pending = {"planet": 1, "c": c}
+	m._unhandled_input(esc)
+	check(m.pending.is_empty() and m.sell_offer.is_empty() and e.local_on(1, c, "buy"), "chain: Esc cancels the pick and the sell offer together")
+	m._on_buy_send(c)
+	m._on_buy_send(c)
+	m._on_planet_clicked(2)
+	check(m.pending.is_empty() and e.routes.size() == 3 and e.local_on(1, c, "buy"), "chain: clicking a planet after Buy makes the route and keeps the buy order")
+	check(m.sell_offer.is_empty() == (m.trade.price(2, c + "_sell") < 0 or e.local_on(2, c, "sell")), "chain: the sell offer follows the send")
+	m._unhandled_input(esc)
+	check(m.sell_offer.is_empty() and e.routes.size() == 3 and e.local_on(1, c, "buy"), "chain: Esc at the sell offer keeps the route and buy order")
+	e.routes.remove_at(2)
+	m.cancel_pending()
+	m.sell_offer = {}
+	m.set_local_order(2, c, "sell", false)
+	m.selected_planet = 1
+	m.planet_panel.show_planet(1)
+	var sbtn := _find_named(m.planet_panel, "SendButton_" + c)
+	var p1: Node = sbtn.get_parent() if sbtn != null else null
+	var in_storage := false
+	if p1 != null:
+		for ch in p1.get_children():
+			if ch is Label and ch.text.contains("/"):
+				in_storage = true
+	var buy_b := _find_named(m.planet_panel, "BuyButton_" + c) as Button
+	check(sbtn != null and buy_b != null and (sbtn as Button).custom_minimum_size == buy_b.custom_minimum_size and (sbtn as Button).theme_type_variation == buy_b.theme_type_variation and (sbtn as Button).custom_minimum_size.x > 0.0, "send button: same minimum size and font variation as Buy")
+	check(sbtn != null and in_storage and _find_named(m.planet_panel, "BuyButton_" + c).get_parent() != p1, "send button: sits on the storage row of its good, not on the Buy row")
+	m.planet_panel.show_planet(1)
+	var bb := _find_named(m.planet_panel, "BuyButton_" + c) as Button
+	check(bb != null and bb.text == StoryText.get_or("BTN_STOP_BUY", "Stop buying") and bb.button_pressed, "buy toggle: the Buy button reads Stop buying while the order is on")
+	var stop_n := 0
+	for b in _all_buttons(m.planet_panel):
+		if b.text == bb.text:
+			stop_n += 1
+	check(stop_n == 1, "buy toggle: no separate Stop buying button", str(stop_n))
+	for pi in m.trade.planets.size():
+		m.planet_panel.show_planet(pi)
+		for cc in m.commodities:
+			var traded: bool = m.trade.price(pi, str(cc) + "_buy") >= 0 or m.trade.price(pi, str(cc) + "_sell") >= 0
+			check((_find_named(m.planet_panel, "BuyButton_" + str(cc)) != null) == traded, "hide: planet %d row for %s only when traded" % [pi, cc])
+	m.planet_panel.show_planet(1)
+	m._on_buy_send(c)
+	check(not e.local_on(1, c, "buy"), "buy toggle: pressing again stops the buy order")
+	m.planet_panel.show_planet(1)
+	bb = _find_named(m.planet_panel, "BuyButton_" + c) as Button
+	check(bb.text == "%s %s" % [StoryText.get_text("BTN_BUY"), str(m.map.planets[1]["base_prices"][c + "_buy"])] and not bb.button_pressed and bb.icon != null, "buy toggle: the button reads Buy and its price again after stopping, with the credits icon")
+	m._on_buy_send(c)
+	check(e.local_on(1, c, "buy"), "buy toggle: pressing a third time buys again")
 	m.set_local_order(1, c, "buy", false)
 	m.begin_buy_and_send(c)
 	check(not m.pending.is_empty() and bool(m.pending["buy"]) and not e.local_on(1, c, "buy"), "buy and send: waits for a destination, no order yet")
 	m._on_planet_clicked(2)
 	check(m.pending.is_empty() and e.routes.size() == 3 and e.local_on(1, c, "buy"), "buy and send: destination makes the route and the standing buy order")
+	# sell offer at the destination after a Send
+	var can_offer: bool = m.trade.price(2, c + "_sell") >= 0
+	check(m.sell_offer.is_empty() == (not can_offer or e.local_on(2, c, "sell")), "sell offer: made only when the destination buys the good and has no Sell order")
+	if not m.sell_offer.is_empty():
+		m._update_sell_offer_box()
+		check(_find_named(m, "SellOfferYes") != null and _find_named(m, "SellOfferNo") != null and m.sell_offer_box != null, "sell offer: Yes and No show on the map")
+		check(_find_named(m.planet_panel, "SellOfferYes") == null, "sell offer: not in the planet panel")
+		check(m.sell_offer_box.get_parent() == m, "sell offer: floats over the map, not inside the panel")
+		if m.sell_offer_box.visible:
+			var sp2: Vector2 = m.map.camera.unproject_position(m.map.positions[2])
+			check(m.sell_offer_box.position.y + m.sell_offer_box.get_combined_minimum_size().y <= sp2.y + 1.0, "sell offer: sits above the destination planet, clear of its name")
+		m._on_planet_clicked(0)
+		m._update_sell_offer_box()
+		check(m.sell_offer.is_empty() and m.sell_offer_box == null and e.routes.size() == 3 and not e.local_on(2, c, "sell"), "sell offer: clicking elsewhere drops only the offer and its box")
+	m.set_local_order(2, c, "sell", false)
+	m.sell_offer = {"planet": 2, "c": c}
+	m.dismiss_sell_offer()
+	check(m.sell_offer.is_empty() and not e.local_on(2, c, "sell") and e.routes.size() == 3, "sell offer: No keeps only the send")
+	check(m.sell_offer_applies(2, c) == can_offer, "sell offer: applies only where the good is bought")
+	if can_offer:
+		m.sell_offer = {"planet": 2, "c": c}
+		m.accept_sell_offer()
+		check(m.sell_offer.is_empty() and e.local_on(2, c, "sell"), "sell offer: Yes sets the Sell order")
+		check(not m.sell_offer_applies(2, c), "sell offer: not offered when a Sell order already exists")
+		m.set_local_order(2, c, "sell", false)
 	m.ships = 1
 	e.routes.remove_at(1)
 	var st: Dictionary = m.collect_state()
@@ -1278,13 +1418,13 @@ func _test_systems() -> void:
 	var m: Control = await _new_main()
 	m._dismiss_preface()
 	var bal: Dictionary = m.balance
-	check(m.map.planets.size() == 3 and m.open_systems == [1], "sys2: only system 1 planets at start")
-	check(m.Systems.get_system(2).get("name_id") == "WORLD_SYS2_NAME" and m.Systems.planets_of(2).size() == 4, "sys2: data format, four planets")
+	check(m.map.planets.size() == 4 and m.open_systems == [1], "sys2: only system 1 planets at start (three plus Cinderrest)")
+	check(m.Systems.get_system(2).get("name_id") == "WORLD_SYS2_NAME" and m.Systems.planets_of(2).size() == 5, "sys2: data format, four planets plus Greywake")
 	var names := []
 	for p in m.Systems.planets_of(2):
 		names.append(p["name"])
-	check(names == ["Brannock", "Cindrel", "Mossfell", "Quillon"], "sys2: planet names from story ids", str(names))
-	check(m.commodities.size() == 2, "sys2: Quillon none/both do not add commodities", str(m.commodities))
+	check(names == ["Brannock", "Cindrel", "Mossfell", "Quillon", "Greywake"], "sys2: planet names from story ids", str(names))
+	check(m.commodities == ["energy", "food", "ore", "dross", "plate"], "sys2: system 1 goods at start (silk and chips are system 2 goods since system tiers)", str(m.commodities))
 	# permit chain
 	check(m.can_buy_permit(2)["reason"] == "skill", "sys2: permit needs C1")
 	m._refresh()
@@ -1312,7 +1452,8 @@ func _test_systems() -> void:
 	m.skill_points = int(bal["permit_points_2"]) + 1
 	var r: Dictionary = m.buy_permit(2)
 	check(r["ok"] and m.cash == 50 and m.skill_points == 1 and m.open_systems.has(2), "sys2: permit spends permit_2_cost and permit_points_2")
-	check(m.map.planets.size() == 7 and m.trade.planets.size() == 7 and m.events.planets.size() == 7, "sys2: planets appear everywhere")
+	check(m.map.planets.size() == 9 and m.trade.planets.size() == 9 and m.events.planets.size() == 9, "sys2: planets appear everywhere")
+	check(m.commodities.has("silk") and m.commodities.has("chips"), "sys2: silk and chips appear when system 2 opens", str(m.commodities))
 	var apart: bool = m.view_system == 1 and m.map.view_system == 1
 	for i in m.map.planet_spheres.size():
 		apart = apart and (m.map.planet_spheres[i].visible == (int(m.map.planets[i]["system"]) == 1))
@@ -1328,7 +1469,7 @@ func _test_systems() -> void:
 	for i in m.map.planet_spheres.size():
 		vis_ok = vis_ok and (m.map.planet_spheres[i].visible == (int(m.map.planets[i]["system"]) == 1)) and (m.map.planet_labels[i].visible == (int(m.map.planets[i]["system"]) == 1))
 	check(vis_ok and m.map.sun_node.visible, "systems: in system 1 only its planets and labels show")
-	check(m.map.pick_planet(m.map.camera.unproject_position(m.map.positions[3])) != 3, "systems: a hidden planet of the other system cannot be picked")
+	check(m.map.pick_planet(m.map.camera.unproject_position(m.map.positions[4])) != 4, "systems: a hidden planet of the other system cannot be picked")
 	m.map.focus += Vector3(500.0, 0.0, 500.0)
 	m.map.clamp_focus()
 	var pc: Vector3 = m.map._system_center(m.map.view_system)
@@ -1358,7 +1499,7 @@ func _test_systems() -> void:
 		vis_ok = vis_ok and (m.map.planet_spheres[i].visible == (int(m.map.planets[i]["system"]) == 2))
 	check(vis_ok and not m.map.sun_node.visible, "systems: in system 2 only its planets show, not system 1 and its sun")
 	m._on_galaxy_system(1)
-	check(m.view_system == 1 and m.map.planet_spheres[0].visible and not m.map.planet_spheres[3].visible, "galaxy: choosing an open system moves there")
+	check(m.view_system == 1 and m.map.planet_spheres[0].visible and not m.map.planet_spheres[4].visible, "galaxy: choosing an open system moves there")
 	m.go_to_system(2)
 	m._refresh()
 	check(m.galaxy_button.visible and m.galaxy_view.available(), "rail: galaxy button always shown")
@@ -1369,16 +1510,16 @@ func _test_systems() -> void:
 	m.toggle_navigation()
 	await create_timer(0.6).timeout
 	check(m.nav_rail.visible and m.nav_keys.visible and m.nav_hidden == nav_before, "nav: toggle brings them back")
-	check(m.trade.price(3, "food_buy") == 11 and m.trade.price(6, "energy_sell") == 34, "sys2: prices from data")
+	check(m.trade.price(4, "food_buy") == 11 and m.trade.price(7, "energy_sell") == 34, "sys2: prices from data")
 	# reach point once per system
 	m.cash = 5000
 	var pts: int = m.skill_points
 	var sys0: int = m.systems_reached
 	m.learned_skills.append("A1")  # trade gate: system 2 needs its Space Storage post
 	m.storage.ensure(Storage.system_key(2))
-	r = m.set_local_order(3, "food", "buy", true)
+	r = m.set_local_order(4, "food", "buy", true)
 	check(r["ok"] and m.systems_reached == sys0 + 1, "sys2: first order in system 2 reaches it")
-	m.set_local_order(4, "energy", "buy", true)
+	m.set_local_order(5, "energy", "buy", true)
 	check(m.systems_reached == sys0 + 1, "sys2: reach counted once")
 	m.learned_skills.erase("A1")
 	# round trip save
@@ -1388,7 +1529,7 @@ func _test_systems() -> void:
 	m = await _new_main()
 	m._dismiss_preface()
 	m.apply_state(st)
-	check(m.map.planets.size() == 7 and m.open_systems.has(2) and m.engine.local_on(3, "food", "buy"), "sys2: load restores system and order")
+	check(m.map.planets.size() == 9 and m.open_systems.has(2) and m.engine.local_on(4, "food", "buy"), "sys2: load restores system and order")
 	# Space Storage
 	check(not m.space_post_open(1) and not m.space_post_open(2), "space: no post before A1")
 	m.pts_planets = [0, 1, 2]
@@ -1543,14 +1684,13 @@ func _test_skill_effects() -> void:
 	m.cash = 50000
 	m.skill_points = 100
 	check(m.buy_permit(2)["ok"], "C3: system 2 permit bought")
-	var r: Dictionary = m.engine.check_connection(0, 3, "energy")
+	var r: Dictionary = m.engine.check_connection(0, 4, "energy")
 	check(not r["ok"] and r["reason"] == StoryText.get_text("NOT_ROUTE_NEEDS_C3"), "C3: cross-system route refused without Long Haul", str(r))
-	check(m.engine.check_connection(3, 4, "energy")["ok"], "C3: a route inside system 2 needs no Long Haul")
+	check(m.engine.check_connection(4, 5, "energy")["ok"], "C3: a route inside system 2 needs no Long Haul")
 	m.learned_skills.append("C3")
-	check(m.engine.check_connection(0, 3, "energy")["ok"], "C3: cross-system route allowed with Long Haul")
+	check(m.engine.check_connection(0, 4, "energy")["ok"], "C3: cross-system route allowed with Long Haul")
 	m.learned_skills.erase("C3")
 	# B1 Market Ledger: history kept at cycle end, saved, shown as text
-	check(m.price_history_line(0, "energy") == StoryText.get_text("LBL_PRICE_HISTORY_NONE"), "B1: no history before a cycle closes")
 	m.cash = 1000
 	m.cycle = 1
 	m._end_cycle()
@@ -1559,7 +1699,8 @@ func _test_skill_effects() -> void:
 	check(hist.size() == 2 and int(hist[-1]) == m.trade.price(0, "energy_sell"), "B1: sell price recorded at each cycle end", str(hist))
 	var st: Dictionary = m.collect_state()
 	check(st.has("price_history") and st["price_history"].has("0|energy"), "B1: history in the save")
-	check(m.price_history_line(0, "energy").contains(str(hist[0])), "B1: history line shows the prices")
+	m.planet_panel.show_planet(0)
+	check(not _labels(m.planet_panel, []).any(func(l): return l.text.begins_with("Recent sell prices")), "price history: no history line on the planet panel")
 	# B3 Price Whisper: effects that still run next cycle, not the ones that end now
 	var base_e: int = m.trade.price(0, "energy_sell")
 	m.events.active = [{"id": "EV01", "kind": "down", "planet": 0, "c": "energy", "left": 1, "age": 0}]
@@ -1610,7 +1751,7 @@ func _test_skill_effects() -> void:
 	check(rm1 == eng.units_per_cycle() * (far - near) and rm1 > rm0, "B3: route lane margin uses the B3 sell price per unit", "%d -> %d" % [rm0, rm1])
 	check(eng.payout_of(eng.new_record(0, 1, "energy")) <= 0, "B3: route settlement adds no credits itself (Sell order pays once)")
 	eng.learned = m.learned_skills
-	# B1 Market Ledger: warning when the route margin is below its upkeep, trend arrow, best partner
+	# T158 (base game since B1 became Prospecting): warning when the route margin is below its upkeep, trend arrow, best partner
 	var bp: Dictionary = m.trade.planets[1]["base_prices"]
 	var keep_sell = bp["energy_sell"]
 	bp["energy_sell"] = 1
@@ -1618,20 +1759,14 @@ func _test_skill_effects() -> void:
 	m.notice_queue = []
 	m.last_notice = ""
 	m._advance_notice()
-	check(not m.route_margin_notice(0, 1, "energy"), "B1: no warning without the skill")
-	m.learned_skills.append("B1")
-	eng.learned = m.learned_skills
-	check(m.route_margin_notice(0, 1, "energy") and m.last_notice.contains(str(eng.fixed_cost())), "B1: route setup warns when margin is below upkeep", m.last_notice)
+	check(m.route_margin_notice(0, 1, "energy") and m.last_notice.contains(str(eng.fixed_cost())), "T158: route setup warns when margin is below upkeep, no skill needed", m.last_notice)
 	bp["energy_sell"] = int(keep_sell) + 500
 	m._advance_notice()
 	m.notice_queue = []
 	check(not eng.margin_below_upkeep(0, 1, "energy") and not m.route_margin_notice(0, 1, "energy"), "B1: no warning on a paying lane")
-	check(int(eng.best_partner(0, "energy")["planet"]) == 1, "B1: best partner is the planet that pays most")
+	check(int(eng.best_partner(0, "energy")["planet"]) == 1, "T158: best partner is the planet that pays most")
 	bp["energy_sell"] = keep_sell
-	m.price_history["0|energy"] = [10, 12]
-	check(m.price_trend(0, "energy") == 1 and m.price_history_line(0, "energy").ends_with("\u2191"), "B1: trend arrow up on a rising history")
-	m.price_history["0|energy"] = [12, 10]
-	check(m.price_trend(0, "energy") == -1, "B1: trend down on a falling history")
+	check(not m.has_method("price_trend") and not m.has_method("price_history_line"), "price history: trend and history display helpers are gone")
 	m.learned_skills.erase("B1")
 	eng.learned = m.learned_skills
 	# C2 Survey Beacon: permit skill points one lower once the system is surveyed
@@ -1699,7 +1834,7 @@ func _test_full_endings() -> void:
 	# [skills to learn in order, expected id suffix]; each set fully learns its branch (X = two branches)
 	var sets := [
 		[["A1", "A2", "A4", "A5"], "L"],
-		[["B1", "B2", "B3", "B4"], "R"],
+		[["A1", "B1", "B2", "B3", "B4"], "R"],
 		[["A1", "C1", "C2", "C3", "C4"], "E"],
 		[["A1", "A2", "A4", "A5", "B1", "B2", "B3", "B4"], "X"],
 	]
@@ -1716,7 +1851,7 @@ func _test_full_endings() -> void:
 			check(pr["ok"] and m.open_systems.has(2), "full: system 2 permit bought (%s)" % side, str(pr))
 			m.learned_skills.append("A1")  # trade gate: post open in system 2
 			m.storage.ensure(Storage.system_key(2))
-			m.set_local_order(3, "food", "buy", true)
+			m.set_local_order(4, "food", "buy", true)
 			m.learned_skills.erase("A1")
 			check(m.systems_reached == 2, "full: system 2 reached by an order (%s)" % side)
 			# permit first: C1 stays learned (it unlocks every other skill)
@@ -1793,7 +1928,7 @@ func _test_debug_menu() -> void:
 	d.qa["debris_clear"].pressed.emit()
 	check(m.events.debris.is_empty(), "debug: clear debris")
 	d.qa["unlock_s2"].pressed.emit()
-	check(m.open_systems.has(2) and m.map.planets.size() == 7, "debug: unlock system 2 free")
+	check(m.open_systems.has(2) and m.map.planets.size() == 9, "debug: unlock system 2 free")
 	d.qa["gate_open"].pressed.emit()
 	check(m.a1_gate_open() and "OPEN" in d.gate_text(), "debug: A1 gate set")
 	d.qa["gate_reset"].pressed.emit()
@@ -1841,15 +1976,15 @@ func _test_shield() -> void:
 	m.cash = 5000
 	m.skill_points = 10
 	m.buy_permit(2)
-	var raw: int = int(m.map.planets[3]["base_prices"]["food_sell"])
+	var raw: int = int(m.map.planets[4]["base_prices"]["food_sell"])
 	var want := roundi(raw * (1.0 - float(b["shield_food_share_shift"])) * (1.0 + float(b["shield_profit_gain"])))
-	check(m.shield.affects(3) and not m.shield.affects(0), "shield: new planets are affected, old are not")
-	check(m.trade.price(3, "food_sell") == want, "shield: food share shift and profit gain on price", "%d vs %d" % [m.trade.price(3, "food_sell"), want])
-	var rawe: int = int(m.map.planets[3]["base_prices"]["energy_buy"])
-	check(m.trade.price(3, "energy_buy") == roundi(rawe * (1.0 - float(b["shield_energy_share_shift"]))), "shield: energy share shift on buy price")
-	check(is_equal_approx(m.shield.unhappiness(3), float(b["shield_unhappiness"])), "shield: unhappiness from shield_unhappiness")
-	check(is_equal_approx(m.shield.unit_factor(3, "energy"), 1.0 + float(b["shield_energy_gain"])) and m.shield.unit_factor(0, "energy") == 1.0, "shield: energy gain only on affected planets")
-	m.planet_panel.show_planet(3)
+	check(m.shield.affects(4) and not m.shield.affects(0), "shield: new planets are affected, old are not")
+	check(m.trade.price(4, "food_sell") == want, "shield: food share shift and profit gain on price", "%d vs %d" % [m.trade.price(4, "food_sell"), want])
+	var rawe: int = int(m.map.planets[4]["base_prices"]["energy_buy"])
+	check(m.trade.price(4, "energy_buy") == roundi(rawe * (1.0 - float(b["shield_energy_share_shift"]))), "shield: energy share shift on buy price")
+	check(is_equal_approx(m.shield.unhappiness(4), float(b["shield_unhappiness"])), "shield: unhappiness from shield_unhappiness")
+	check(is_equal_approx(m.shield.unit_factor(4, "energy"), 1.0 + float(b["shield_energy_gain"])) and m.shield.unit_factor(0, "energy") == 1.0, "shield: energy gain only on affected planets")
+	m.planet_panel.show_planet(4)
 	var found := false
 	for l in _texts(m.planet_panel):
 		if l.contains("15%"):
@@ -1860,8 +1995,8 @@ func _test_shield() -> void:
 	m = await _new_main()
 	m._dismiss_preface()
 	m.apply_state(st)
-	check(m.shield.built and m.shield.affects(3) and not m.shield.affects(1), "shield: state saved and loaded")
-	check(m.trade.price(3, "food_sell") == want, "shield: price effect after reload")
+	check(m.shield.built and m.shield.affects(4) and not m.shield.affects(1), "shield: state saved and loaded")
+	check(m.trade.price(4, "food_sell") == want, "shield: price effect after reload")
 	await _free_main(m)
 	# skip path and old save
 	m = await _new_main()
@@ -1950,9 +2085,92 @@ func _test_route_tag() -> void:
 	ln.set_style("running", 1, "food", -40)
 	check(ln.tag.text == "1 ship \u00b7 \u221240", "route tag: one ship, negative net with a real minus", ln.tag.text)
 	ln.set_style("stalled", 1, "food", 0)
-	check(ln.tag.text == "Waiting for room", "route tag: waiting shows its status", ln.tag.text)
+	check(ln.tag.text == "Stalled", "route tag: stalled with no reason shows its status, not Waiting for room", ln.tag.text)
+	ln.set_style("waiting", 1, "food", 0, "Waiting for room")
+	check(ln.tag.text == "Waiting for room", "route tag: a waiting route still reads Waiting for room", ln.tag.text)
+	ln.set_style("stalled", 1, "food", 0, "Source storage is empty.")
+	check(ln.tag.text == "No stock at source", "route tag: empty source reads No stock at source", ln.tag.text)
+	ln.set_style("stalled", 1, "food", 0, "Not enough cash.")
+	check(ln.tag.text == "Not enough cash.", "route tag: other stalls show their own reason", ln.tag.text)
 	check(ln.tag.position.distance_to(ln.tag_pos) < 0.001 and absf(ln.tag_pos.x - 3.0) < 0.5, "route tag: sits at the middle of the arc", str(ln.tag_pos))
 	ln.queue_free()
+	# AA / angle: the strip side vector never collapses, even looking along the line
+	var RL = load("res://game/route_line.gd")
+	var side_ok := true
+	for ang in range(0, 181, 5):
+		var tv := Vector3(sin(deg_to_rad(ang)), 0.0, -cos(deg_to_rad(ang))).normalized()  # tangent at ang degrees to the view ray
+		var sv: Vector3 = RL.side_vector(tv, Vector3(0, 0, -10))
+		if not is_equal_approx(sv.length(), 1.0) or absf(sv.dot(tv)) > 0.001:
+			side_ok = false
+	check(side_ok, "route line: side vector has unit width at every angle, also end-on")
+	check(RL.SHADER_CODE.contains("crl > 0.02") and RL.LINE_PX * 0.5 + 0.5 >= 1.0, "route line: shader falls back when seen end-on; every style keeps at least 1 px")
+	# the planet panel ship row and the map tag use the route's real reason
+	var m: Control = await _new_main()
+	m._dismiss_preface()
+	var c := "energy"
+	m.engine.routes = [m.engine.new_record(0, 1, c)]
+	var key: String = m.storage.planet_key(0)
+	m.storage.remove(key, c, m.storage.amount(key, c))
+	m.engine.settle(m.cash)
+	check(str(m.engine.routes[0]["state"]) == "stalled", "reason: empty source route is stalled")
+	# grace: running look until two idle cycles in a row; blocked at once
+	var rid0: int = int(m.engine.routes[0]["id"])
+	m.idle_cycles = {}
+	m._count_idle_cycles()
+	check(m.display_status(m.engine.routes[0]) == "running", "grace: one idle cycle still looks like running")
+	m._count_idle_cycles()
+	check(m.display_status(m.engine.routes[0]) == "stalled", "grace: two idle cycles in a row show the warning")
+	m.idle_cycles = {rid0: 1}
+	m._push_routes_to_map()
+	check(str(m.map.route_lines.values()[0].tag.text).contains("ship"), "grace: map tag keeps the running look in grace")
+	m.idle_cycles = {rid0: 2}
+	m._push_routes_to_map()
+	check(m.map.route_lines.values()[0].tag.text == "No stock at source", "grace: map tag warns from the second cycle")
+	var dkey: String = m.storage.planet_key(1)
+	m.storage.add(dkey, c, 100000)
+	m.idle_cycles = {}
+	check(m.engine.status_of(m.engine.routes[0]) == "blocked" and m.display_status(m.engine.routes[0]) == "blocked", "grace: blocked shows at once")
+	m.storage.remove(dkey, c, m.storage.amount(dkey, c))
+	m.engine.routes[0]["state"] = "running"
+	m._count_idle_cycles()
+	check(int(m.idle_cycles[rid0]) == 0, "grace: counter resets when the route moves")
+	m.engine.routes[0]["state"] = "stalled"
+	m.engine.routes[0]["reason"] = "Source storage is empty."
+	m.idle_cycles = {rid0: 2}
+	m.planet_panel.show_planet(0)
+	var texts := _labels(m.planet_panel, []).map(func(l): return l.text)
+	check(texts.has("No stock at source") and not texts.has("Waiting for room") and not texts.has("Waiting for room."), "reason: panel says No stock at source for an empty source, not Waiting for room")
+	m.engine.routes[0]["state"] = "waiting"
+	m.engine.routes[0]["reason"] = "Waiting for room"
+	m.planet_panel.show_planet(0)
+	check(_labels(m.planet_panel, []).any(func(l): return l.text == "Waiting for room"), "reason: a waiting route still reads Waiting for room on the panel")
+	await _free_main(m)
+
+## Ship dots read the game's cycle clock: pause holds it, fast forward speeds it, one leg is one cycle.
+func _test_ship_clock() -> void:
+	var m: Control = await _new_main()
+	m._dismiss_preface()
+	m.map.set_routes([{"id": 1, "a": 0, "b": 1, "status": "running", "ships": 1, "c": "energy", "net": 1}])
+	var ln = m.map.route_lines.values()[0]
+	m.paused = true
+	var before: float = m._progress()
+	await process_frame
+	await process_frame
+	var mat: ShaderMaterial = ln._dot_mat
+	check(is_equal_approx(float(mat.get_shader_parameter("clock")), m._progress()), "ship clock: equals _progress()")
+	check(is_equal_approx(m._progress(), before), "ship clock: paused holds still")
+	m.cycle_elapsed += 1.0
+	await process_frame
+	await process_frame
+	check(is_equal_approx(float(mat.get_shader_parameter("clock")), m._progress()), "ship clock: follows cycle time")
+	m.cycle += 1
+	m.cycle_elapsed = 0.0
+	await process_frame
+	await process_frame
+	check(is_equal_approx(float(mat.get_shader_parameter("clock")), m._progress()), "ship clock: follows cycle end")
+	var legs: float = m.trade.travel_cycles()
+	check(is_equal_approx(float(mat.get_shader_parameter("speed")) * legs, 0.5), "ship clock: one leg takes travel_cycles_per_leg")
+	await _free_main(m)
 
 ## P1: a price event on a planet row shows its arrow and the cycles it has left; the line goes when the event ends.
 func _test_price_event() -> void:
@@ -2212,6 +2430,16 @@ func _test_system_suns() -> void:
 	check(map.suns.size() == 1 and map.suns.has(1) and map.suns[1].visible, "suns: system 1 has its sun at the start")
 	var s1 = map.suns[1]
 	check(absf(s1.hue_shift()) < 0.0001 and absf(s1.sun_color.h - 0.09) < 0.01 and s1.drives_light and s1 == map.sun_node, "suns: system 1 sun unchanged (orange, no hue shift)")
+	# Sun brightness mute (2026-11-02): the core stays fully opaque (no ALPHA written, alpha 1.0) and the gain is unchanged.
+	var sun_src := FileAccess.get_file_as_string("res://art/sun/sun.gdshader")
+	check(not sun_src.contains("ALPHA") and sun_src.contains("blend_add") and not sun_src.contains("transparent"), "sun: shader writes no alpha, so the core alpha stays 1.0")
+	var core_mat: ShaderMaterial = s1._core.material_override
+	check(float(core_mat.get_shader_parameter("core_value")) >= 3.0 and s1.PLANE_GLOW < 0.9, "sun: core value kept at 3.0, plane glow muted")
+	var we_gain := true
+	for n in map.get_children():
+		if n is WorldEnvironment:
+			we_gain = absf((n as WorldEnvironment).environment.glow_intensity - 0.8) < 0.0001
+	check(we_gain, "sun: scene glow gain unchanged at 0.8")
 	# Top pole (+Y) in the shadow: dot(top, sun) < -0.5. Bottom pole (-Y) faces the sun, so it must be hidden from the map camera:
 	# dot(bottom, camera) < 0 over the whole yaw/pitch range. Where the sun is on the camera side this is geometrically impossible
 	# (planet_3, s2_p3), so the bottom pole may only graze the limb there: dot(bottom, camera) < 0.25 (pole at least 75 deg off the view axis).
@@ -2570,4 +2798,703 @@ func _test_second_lane() -> void:
 	check(m.planet_panel.box.get_node_or_null("SecondLaneNote") != null, "N11: the planet panel shows the title and note on that planet")
 	m.planet_panel.show_planet(p1)
 	check(m.planet_panel.box.get_node_or_null("SecondLaneNote") == null, "N11: other planets show no note")
+	await _free_main(m)
+
+# ---- T157: instanced asteroid packs on the map ----
+func _test_asteroid_packs() -> void:
+	_wipe_user()
+	var m: Control = await _new_main()
+	m._dismiss_preface()
+	var ap: Node3D = m.map.asteroid_packs
+	var want: int = m.clusters_in_system(1).size() + m.clusters_in_system(2).size()
+	check(ap != null and ap.packs.size() == want and want > 0, "T157: one pack per cluster", "%d of %d" % [ap.packs.size() if ap != null else -1, want])
+	var ok := true
+	var one_mesh := true
+	for c in m.clusters_in_system(1):
+		var mmi: MultiMeshInstance3D = ap.packs[str(c["id"])]["mm"]
+		ok = ok and mmi.multimesh.visible_instance_count == int(c["visible"]) and mmi.multimesh.instance_count == int(c["count"])
+		one_mesh = one_mesh and mmi.multimesh.mesh != null
+	check(ok and one_mesh, "T157: each pack is one MultiMesh with count and thinning from the cluster data")
+	var c0: Dictionary = m.clusters_in_system(1)[0]
+	var t_a: Transform3D = ap.packs[str(c0["id"])]["mm"].multimesh.get_instance_transform(3)
+	ap.packs.clear()
+	ap.sync(m.clusters_in_system(1))
+	var t_b: Transform3D = ap.packs[str(c0["id"])]["mm"].multimesh.get_instance_transform(3)
+	check(t_a.is_equal_approx(t_b), "T157: the same cluster id gives the same pack (seeded)")
+	m.map.set_view_system(2)
+	m.map.set_view_system(1)
+	check(ap.packs[str(c0["id"])]["mm"].visible, "T157: packs show only for the viewed system")
+	check(ap.get_children().all(func(n): return not (n is CollisionObject3D)), "T157: packs have no collision, so planet clicks are never blocked")
+	# T159: a click on a cluster shows its info card; a planet click hides it
+	m._on_cluster_clicked(int(c0["index"]))
+	var info_ok: bool = m.cluster_info != null and m.cluster_info.visible and not m.planet_panel.visible
+	var info_line: Label = m.cluster_info.find_child("ClusterInfoLine", true, false) if m.cluster_info != null else null
+	check(info_ok and info_line != null and info_line.text.contains(str(m.clusters.yield_per_cycle())), "T159: cluster click shows the info card with the yield per cycle")
+	check(m.map.pick_cluster(Vector2(-5000, -5000)) == -1, "T159: a click far from any pack picks no cluster")
+	m._on_planet_clicked(0)
+	check(not m.cluster_info.visible, "T159: a planet click hides the cluster card")
+	await _free_main(m)
+
+# ---- T156: asteroid clusters, ore yield and risk ----
+func _test_clusters() -> void:
+	_wipe_user()
+	var m: Control = await _new_main()
+	m._dismiss_preface()
+	var b: Dictionary = m.balance
+	var cl: RefCounted = m.clusters
+	check(cl.list(1).size() == int(b["mining_clusters_s1"]) and cl.list(2).size() == int(b["mining_clusters_s2"]), "T156: cluster count per system follows mining_clusters_s1 and s2", "%d %d" % [cl.list(1).size(), cl.list(2).size()])
+	var f := true
+	for d in cl.list():
+		f = f and d.has("id") and d.has("system") and d.has("x") and d.has("y") and d.has("radius") and d.has("count") and str(d["good"]) == "ore" and int(d["left"]) == int(b["mining_cluster_richness"]) and int(d["visible"]) == int(d["count"])
+	check(f, "T156: every cluster has id, system, position, pack radius, count, ore, full richness and a full pack")
+	var dst := -1
+	for i in m.map.planets.size():
+		if m.engine.sold_price(i, "ore") > 0 and (dst < 0 or m.engine.sold_price(i, "ore") > m.engine.sold_price(dst, "ore")):
+			dst = i
+	check(dst >= 0, "T156: a planet buys ore")
+	var node: int = Clusters.node_id(0)
+	m.ships = 3
+	m.cash = 100000
+	var r: Dictionary = m.send_from_cluster(node, dst)
+	check(not r["ok"] and r["reason"] == StoryText.get_or("NOT_MINING_NEEDS_SKILL", "Mining needs the Prospecting skill.") and m.engine.routes.is_empty(), "T156: no mining skill, no route from a cluster", str(r))
+	check(not m.can_mine(), "T156: can_mine is false without the skill")
+	m.learned_skills.append(Clusters.MINING_SKILL)
+	check(m.can_mine(), "T156: can_mine follows the mining skill hook")
+	r = m.send_from_cluster(node, dst)
+	check(r["ok"] and m.engine.routes.size() == 1 and RouteEngine.from_cluster(m.engine.routes[0]) and str(m.engine.routes[0]["src"]) == "cluster:c1_1", "T156: with the skill a cluster starts a route", str(r))
+	var rich: int = int(b["mining_cluster_richness"])
+	var load_units: int = m.engine.units_per_cycle(m.engine.routes[0])
+	var cash0: int = m.cash
+	m._settle_routes()
+	check(m.storage.amount(Storage.planet_key(dst), "ore") == load_units and cl.left(0) == rich - load_units, "T156: one cycle moves one ship load of ore and the cluster loses it", "%d left %d" % [m.storage.amount(Storage.planet_key(dst), "ore"), cl.left(0)])
+	check(m.cash == cash0 - m.engine.fixed_cost(m.engine.routes[0]), "T156: ore is free to load, the lane costs trip and upkeep", "%d" % (cash0 - m.cash))
+	check(cl.visible_count(0) < int(cl.items[0]["count"]) and cl.visible_count(0) >= 1, "T156: the pack thins as ore is taken")
+	# second ship: both together never exceed mining_yield_per_cycle
+	var r2: Dictionary = m.send_from_cluster(node, dst)
+	check(r2["ok"], "T156: a second ship may share the cluster", str(r2))
+	var before: int = cl.left(0)
+	m._settle_routes()
+	var took: int = before - cl.left(0)
+	check(took == int(b["mining_yield_per_cycle"]) and took <= int(b["mining_yield_per_cycle"]), "T156: two ships share mining_yield_per_cycle", "took %d" % took)
+	check(not m.send_from_cluster(node, dst)["ok"], "T156: a third ship on a full cluster lane is refused (lane full)")
+	# depletion, no respawn
+	cl.items[0]["left"] = 5
+	var st0: int = m.storage.amount(Storage.planet_key(dst), "ore")
+	m._settle_routes()
+	check(cl.left(0) == 0 and m.storage.amount(Storage.planet_key(dst), "ore") == st0 + 5, "T156: the last 5 units are taken, no more")
+	check(cl.visible_count(0) == 0 and cl.list(1).size() == int(b["mining_clusters_s1"]) - 1, "T156: an empty cluster is drawn with no instances and drops out of the list")
+	m._settle_routes()
+	check(cl.left(0) == 0 and m.engine.routes[0]["state"] == "stalled", "T156: an empty cluster does not refill; its lane stalls", str(m.engine.routes[0]["state"]))
+	check(not m.send_from_cluster(node, dst)["ok"], "T156: no new route from an empty cluster")
+	# save and load keep the empty cluster and its route
+	var st: Dictionary = m.collect_state()
+	await _free_main(m)
+	m = await _new_main()
+	m._dismiss_preface()
+	m.apply_state(st)
+	check(m.clusters.left(0) == 0 and m.clusters.left(1) == rich and m.engine.routes.size() == 2, "T156: richness and cluster routes survive a save and load", "%d %d %d" % [m.clusters.left(0), m.clusters.left(1), m.engine.routes.size()])
+	# debris risk reuses debris_route_penalty at the delivery planet
+	m.engine.routes = [m.engine.routes[0]]
+	m.clusters.items[0]["left"] = rich
+	m.engine.debris_planets = []
+	var clean: int = m.engine.planned_units(m.engine.routes[0])
+	m.engine.debris_planets = [dst]
+	var dirty: int = m.engine.planned_units(m.engine.routes[0])
+	check(clean > 0 and dirty == floori(m.engine.units_per_cycle(m.engine.routes[0]) * (1.0 - float(b["debris_route_penalty"]))) and dirty < clean, "T156: debris at the delivery planet cuts an ore lane by debris_route_penalty", "%d vs %d" % [clean, dirty])
+	m.engine.debris_planets = []
+	# planet panel line
+	m.planet_panel.show_planet(0)
+	m.planet_panel.show_planet(0)
+	check(m.planet_panel.box.get_node_or_null("ClusterNote") == null, "planet panel: no asteroid cluster line, even next to a cluster")
+	var sbn := _find_named(m.planet_panel, "SellButton_energy") as Button
+	check(sbn != null and sbn.text.begins_with(StoryText.get_text("BTN_SELL") + " ") and sbn.icon != null and sbn.tooltip_text.begins_with(StoryText.get_or("LBL_SELL_PRICE", "Sell price")), "panel: Sell button shows its price and the credits icon, tooltip says Sell price")
+	check(_find_named(m.planet_panel, "PriceBuy_energy") == null and _find_named(m.planet_panel, "PriceSell_energy") == null, "panel: no separate price chips")
+	check(not _labels(m.planet_panel, []).any(func(l): return l.text.to_upper() == "MAIN RESOURCES"), "planet panel: no Main resources row")
+	check(_find_named(m.planet_panel, "StorageEmpty_energy") == null and not _labels(m.planet_panel, []).any(func(l): return l.text.begins_with("Storage empty")), "planet panel: no Storage empty line")
+	check(not _labels(m.planet_panel, []).any(func(l): return l.text.begins_with("Abundant") or l.text.begins_with("Free ships") or l.text.contains("No free ship")), "planet panel: no Abundant, free-ship or no-free-ship line")
+	m.ship_panel.set_upkeep(m)
+	check(m.ship_panel.free_label.text.begins_with("Free ships: %d" % m.free_ships()), "ships window: shows the free-ship count and upkeep each", m.ship_panel.free_label.text)
+	m.ships = m.engine.total_assigned()
+	m.ship_panel.set_upkeep(m)
+	check(m.free_ships() == 0 and m.ship_panel.free_label.text.contains("Send to... buys one") or m.ship_panel.free_label.text.contains("Not enough") or m.ship_panel.free_label.text.contains("limit"), "ships window: with no free ship it says what Send to... does", m.ship_panel.free_label.text)
+	# T158: B1 Prospecting shows ore left; price trend and margin warning are base game; best partner is B3
+	m.learned_skills.erase("B1")
+	m.planet_panel.show_planet(0)
+	m.learned_skills.erase("B1")
+	m.planet_panel.show_planet(0)
+	check(not _labels(m.planet_panel, []).any(func(l): return l.text.begins_with("Recent sell prices")), "price history: no history line on the panel, with or without a skill")
+	# EV20: pay leaves a fresh small cluster; decline does not
+	var n0: int = m.clusters.items.size()
+	m.cash = 5000
+	m.debug_fire_event("EV20")
+	_buttons(m.event_notice, [])[1].pressed.emit()
+	check(m.clusters.items.size() == n0, "T156: declining EV20 leaves no cluster")
+	_buttons(m.event_notice, [])[0].pressed.emit()
+	m.debug_fire_event("EV20")
+	_buttons(m.event_notice, [])[0].pressed.emit()
+	check(m.clusters.items.size() == n0 + 1 and m.clusters.left(n0) == int(b["mining_event_cluster_richness"]) and bool(m.clusters.items[n0]["spawned"]), "T156: paying EV20 leaves a small cluster of mining_event_cluster_richness")
+	_buttons(m.event_notice, [])[0].pressed.emit()
+	var st2: Dictionary = m.collect_state()
+	m.clusters.items.resize(n0)
+	m.clusters.from_dict(st2["clusters"])
+	check(m.clusters.items.size() == n0 + 1 and m.clusters.left(n0) == int(b["mining_event_cluster_richness"]), "T156: a spawned cluster is saved and loaded")
+	# EV20 storage loss reaches ore parked at a planet
+	var key: String = Storage.planet_key(dst)
+	m.storage.add(key, "ore", 90)
+	var probe := RandomNumberGenerator.new()
+	var bad_seed := 1
+	for sd in range(1, 200):
+		probe.seed = sd
+		if probe.randf() < float(b["asteroid_decline_bad_odds"]):
+			bad_seed = sd
+			break
+	m.events.seed_rng(bad_seed)
+	m.cash = 5000
+	var hits := 0
+	for k in 8:  # the hit planet is random among established ones; repeat until it is the ore planet
+		m.events.seed_rng(bad_seed + k * 0)
+		m.debug_fire_event("EV20")
+		_buttons(m.event_notice, [])[1].pressed.emit()
+		if m.asteroid_last_hit == dst:
+			hits += 1
+		_buttons(m.event_notice, [])[0].pressed.emit()
+		if hits > 0:
+			break
+	if hits > 0:
+		check(m.storage.amount(key, "ore") <= m.storage.capacity_of(key), "T156: asteroid_storage_loss_pct trims ore parked at the hit planet")
+	else:
+		check(m.storage.amount(key, "ore") <= m.storage.capacity_of(key), "T156: parked ore never exceeds the cut capacity")
+	await _free_main(m)
+
+
+func _test_event_banners() -> void:
+	var evs = _read_json("res://data/events.json")
+	if typeof(evs) == TYPE_DICTIONARY:
+		evs = evs.get("events", [])
+	var missing: Array = []
+	for e in evs:
+		var p := "res://art/event_banners/%s.webp" % str(e["id"])
+		if not FileAccess.file_exists(p) and not ResourceLoader.exists(p):
+			missing.append(str(e["id"]))
+	check(evs.size() > 0 and missing.is_empty(), "banners: every event in events.json has art/event_banners/<id>.webp", str(missing))
+
+
+## Owner bug 2026-11-02: the cash forecast must equal what the next cycle really pays, including goods a route
+## delivers to a planet with a Sell order (the storage is empty before the cycle).
+func _test_forecast_income() -> void:
+	_wipe_user()
+	var m: Control = await _new_main()
+	m._dismiss_preface()
+	var e = m.engine
+	var src := 0
+	var dst := 1
+	var c := "energy"
+	m.cash = 100000
+	m.set_local_order(dst, c, "sell", true)
+	check(m.send_stock_buying(src, dst, c)["ok"] and e.routes.size() == 1, "forecast: one running route set up")
+	var sk: String = m.storage.planet_key(src)
+	var dk: String = m.storage.planet_key(dst)
+	m.storage.ensure(sk)
+	m.storage.ensure(dk)
+	m.storage.remove(dk, c, m.storage.amount(dk, c))
+	m.storage.remove(sk, c, m.storage.amount(sk, c))
+	m.storage.add(sk, c, 200)
+	var f: Dictionary = e.forecast(m.cash)
+	var have_before: int = m.storage.amount(dk, c)
+	var sells_zero := true
+	for l in f["local"]:
+		sells_zero = sells_zero and str(l["role"]) != "sell" or int(l["credits"]) > 0
+	check(have_before == 0 and sells_zero and int(f["delta"]) > -e.fixed_cost(e.routes[0]), "forecast: the Sell order counts the goods the route delivers", str(f))
+	var snap_stock: int = m.storage.amount(sk, c)
+	e.forecast(m.cash)
+	check(m.storage.amount(sk, c) == snap_stock and m.storage.amount(dk, c) == 0, "forecast: reading it changes no stock")
+	m.cash_forecast.main = m
+	var net: int = m.cash_forecast.net_forecast()
+	var lines_in := 0
+	for l in m.cash_forecast.order_lines():
+		lines_in += int(l[1])
+	for l in m.cash_forecast.route_income_lines():
+		lines_in += int(l[1])
+	var lines_out := 0
+	for l in m.cash_forecast.route_expense_lines():
+		lines_out += int(l[1])
+	var r: Dictionary = e.settle(m.cash)
+	check(net == int(r["delta"]), "forecast: net_forecast equals the cash change settle pays", "%d vs %d" % [net, int(r["delta"])])
+	check(int(f["delta"]) == int(r["delta"]) and int(r["delta"]) > 0, "forecast: delta equals settle delta (a gain)", "%d vs %d" % [int(f["delta"]), int(r["delta"])])
+	check(lines_in - lines_out == net, "forecast: the popup's income minus expenses equals the top-bar delta", "%d - %d vs %d" % [lines_in, lines_out, net])
+	var zl: Array = m.cash_forecast.nonzero_lines([["a", 0], ["b", 5], ["c", -3], ["d", 0]])
+	check(zl.size() == 2 and str(zl[0][0]) == "b" and str(zl[1][0]) == "c", "forecast: zero-value lines are not listed", str(zl))
+	var tot_before: int = lines_in - lines_out
+	check(tot_before == net and m.cash_forecast.net_forecast() == net, "forecast: totals unchanged by hiding zero lines")
+	# a second case: route upgrade bonus
+	e.set_lane_level(src, dst, c, 2)
+	m.storage.remove(dk, c, m.storage.amount(dk, c))
+	m.storage.remove(sk, c, m.storage.amount(sk, c))
+	m.storage.add(sk, c, 200)
+	var f2: Dictionary = e.forecast(m.cash)
+	var r2: Dictionary = e.settle(m.cash)
+	check(int(f2["delta"]) == int(r2["delta"]), "forecast: equals settle with an upgraded lane", "%d vs %d" % [int(f2["delta"]), int(r2["delta"])])
+	_free_main(m)
+
+## Buy orders may not spend the fixed cost of a route that runs this cycle; forecast mirrors settle.
+func _test_cash_reserve() -> void:
+	_wipe_user()
+	var m: Control = await _new_main()
+	m._dismiss_preface()
+	var e = m.engine
+	var src := 0
+	var dst := 1
+	var c := "energy"
+	m.cash = 100000
+	check(m.send_stock_buying(src, dst, c)["ok"] and e.routes.size() == 1, "reserve: one route set up")
+	var sk: String = m.storage.planet_key(src)
+	var dk: String = m.storage.planet_key(dst)
+	m.storage.ensure(sk)
+	m.storage.ensure(dk)
+	m.storage.remove(dk, c, m.storage.amount(dk, c))
+	m.storage.remove(sk, c, m.storage.amount(sk, c))
+	m.storage.add(sk, c, 200)
+	for k in e.local.keys():
+		e.local[k]["buy"] = false
+		e.local[k]["sell"] = false
+	var c2 := ""
+	for cc in e.commodities:
+		if str(cc) != c and e.local_price(src, str(cc), "buy") > 0:
+			c2 = str(cc)
+			break
+	check(c2 != "", "reserve: a second good is bought at the source planet")
+	var price: int = e.local_price(src, c2, "buy")
+	var fixed: int = e.fixed_cost(e.routes[0])
+	var k: int = fixed / price + 3
+	check(e.local_amount() >= k, "reserve: the Buy amount covers the test case", "%d vs %d" % [e.local_amount(), k])
+	m.set_local_order(src, c2, "buy", true)
+	m.cash = k * price  # without a reserve the Buy takes it all and the route cannot pay
+	var expect_n: int = (m.cash - fixed) / price
+	var stock_before: int = m.storage.amount(sk, c2)
+	var f: Dictionary = e.forecast(m.cash)
+	var r: Dictionary = e.settle(m.cash)
+	var bought: int = m.storage.amount(sk, c2) - stock_before
+	check(bought == expect_n and expect_n < k, "reserve: the Buy buys only the cash above the reserve", "%d vs %d" % [bought, expect_n])
+	check(str(e.routes[0]["state"]) == "running" and m.cash + int(r["delta"]) >= 0, "reserve: the route still runs", str(e.routes[0]["state"]))
+	check(int(f["delta"]) == int(r["delta"]), "reserve: forecast equals settle", "%d vs %d" % [int(f["delta"]), int(r["delta"])])
+	# a route that cannot run reserves nothing: empty source, no Buy feeding it
+	m.storage.remove(sk, c, m.storage.amount(sk, c))
+	m.storage.remove(sk, c2, m.storage.amount(sk, c2))
+	var amt_now := func(kk: String, cc: String) -> int: return m.storage.amount(kk, cc)
+	check(e._buy_feeds(src, c, 1000000) == false, "reserve: no Buy feeds the energy source")
+	check(e.route_reserve(m.cash, amt_now) == 0, "reserve: a route with no stock and no feeding Buy reserves nothing")
+	# a Buy that feeds the route but cannot buy a unit after the reserve reserves nothing
+	m.set_local_order(src, c, "buy", true)
+	var pe: int = e.local_price(src, c, "buy")
+	check(e.route_reserve(fixed + pe - 1, amt_now) == 0, "reserve: a feeding Buy that buys nothing after the reserve reserves nothing")
+	check(e.route_reserve(fixed + pe, amt_now) == fixed, "reserve: a feeding Buy that can buy one unit reserves the fixed cost")
+	# deadlock: cash 250, one Buy feeding one route, empty source: the Buy buys and nothing stalls for good
+	m.set_local_order(src, c2, "buy", false)
+	m.cash = 250
+	var f2: Dictionary = e.forecast(m.cash)
+	var st0: int = m.storage.amount(sk, c)
+	var r2: Dictionary = e.settle(m.cash)
+	var st1: int = m.storage.amount(sk, c)
+	var ran1: bool = str(e.routes[0]["state"]) == "running"
+	var info := "fixed %d price %d stock %d->%d ran %s" % [fixed, pe, st0, st1, str(ran1)]
+	check(ran1 or st1 > st0, "reserve: at cash 250 the Buy buys or the route runs", info)
+	check(int(f2["delta"]) == int(r2["delta"]), "reserve: forecast equals settle at low cash", "%d vs %d" % [int(f2["delta"]), int(r2["delta"])])
+	m.cash = 250 + int(r2["delta"])
+	e.settle(m.cash)
+	check(ran1 or str(e.routes[0]["state"]) == "running", "reserve: the next cycle the route runs, no deadlock", info + " state " + str(e.routes[0]["state"]))
+	_free_main(m)
+
+
+## Alpha r3 2026-11-02: QA decent seed 7 sat idle at cash 104 with 4 routes and only Sell orders (the bot's own Buy rule
+## wanted cash above trip + price). A Sell order on an empty storage holds no reserve, and one Buy order at the
+## source gets the player going again with cash below trip + price. No game fix needed.
+func _test_sell_only_idle() -> void:
+	_wipe_user()
+	var m: Control = await _new_main()
+	m._dismiss_preface()
+	var e = m.engine
+	var src := 0
+	var dst := 1
+	var c := "energy"
+	m.cash = 100000
+	check(m.send_stock_buying(src, dst, c)["ok"] and e.routes.size() == 1, "sell-only: one route set up")
+	var sk: String = m.storage.planet_key(src)
+	var dk: String = m.storage.planet_key(dst)
+	m.storage.ensure(sk)
+	m.storage.ensure(dk)
+	for k in [sk, dk]:
+		for cc in e.commodities:
+			m.storage.remove(k, str(cc), m.storage.amount(k, str(cc)))
+	for k in e.local.keys():
+		e.local[k]["buy"] = false
+		e.local[k]["sell"] = false
+	m.set_local_order(dst, c, "sell", true)
+	var amt_now := func(kk: String, cc: String) -> int: return m.storage.amount(kk, cc)
+	var fixed: int = e.fixed_cost()
+	var pe: int = e.local_price(src, c, "buy")
+	m.cash = maxi(pe + 1, 1)
+	check(m.cash < fixed + pe, "sell-only: the test cash is below trip plus one unit", "%d vs %d" % [m.cash, fixed + pe])
+	check(e.route_reserve(m.cash, amt_now) == 0, "sell-only: an empty Sell order holds no reserve")
+	var f: Dictionary = e.forecast(m.cash)
+	var r: Dictionary = e.settle(m.cash)
+	check(int(r["delta"]) == 0 and int(f["delta"]) == 0, "sell-only: nothing moves, forecast equals settle", "%d vs %d" % [int(f["delta"]), int(r["delta"])])
+	m.set_local_order(src, c, "buy", true)
+	var f2: Dictionary = e.forecast(m.cash)
+	var tot0: int = m.storage.amount(sk, c) + m.storage.amount(dk, c)
+	var r2: Dictionary = e.settle(m.cash)
+	var tot1: int = m.storage.amount(sk, c) + m.storage.amount(dk, c)
+	check(tot1 != tot0 or int(r2["delta"]) != 0, "sell-only: one Buy order turns the idle player around", "stock %d to %d, delta %d" % [tot0, tot1, int(r2["delta"])])
+	check(int(f2["delta"]) == int(r2["delta"]), "sell-only: forecast equals settle after the Buy", "%d vs %d" % [int(f2["delta"]), int(r2["delta"])])
+	_free_main(m)
+
+
+## Alpha fix 2026-11-02: a broke player (cash below one trip, no stock) is not stuck for good. Buys may spend the cash
+## nothing else needs, and the one starved route flies for what cash is left. The reserve rule above stays.
+func _test_stall_rescue() -> void:
+	_wipe_user()
+	var m: Control = await _new_main()
+	m._dismiss_preface()
+	var e = m.engine
+	var src := 0
+	var dst := 1
+	var c := "energy"
+	m.cash = 100000
+	check(m.send_stock_buying(src, dst, c)["ok"] and e.routes.size() == 1, "stall: one route set up")
+	var sk: String = m.storage.planet_key(src)
+	var dk: String = m.storage.planet_key(dst)
+	m.storage.ensure(sk)
+	m.storage.ensure(dk)
+	m.storage.remove(sk, c, m.storage.amount(sk, c))
+	m.storage.remove(dk, c, m.storage.amount(dk, c))
+	var fixed: int = e.fixed_cost(e.routes[0])
+	check(e.fare_for(fixed, fixed, false) == fixed and e.fare_for(fixed, fixed - 1, false) == fixed - 1 and e.fare_for(fixed, 0, false) == 0 and e.fare_for(fixed, fixed - 1, true) == -1, "stall: fare_for pays the fare, a part fare only to the first route")
+	# the deadlock: cash just under one trip, empty source, a Buy on the source, a Sell on the destination
+	e.local.clear()
+	m.set_local_order(src, c, "buy", true)
+	m.set_local_order(dst, c, "sell", true)
+	m.cash = fixed - 1
+	var f: Dictionary = e.forecast(m.cash)
+	var r: Dictionary = e.settle(m.cash)
+	check(int(f["delta"]) == int(r["delta"]), "stall: forecast equals settle when broke", "%d vs %d" % [int(f["delta"]), int(r["delta"])])
+	check(str(e.routes[0]["state"]) == "running", "stall: a broke route flies on a part fare, not stalled for good", str(e.routes[0]["state"]) + " " + str(e.routes[0]["reason"]))
+	check(m.cash + int(r["delta"]) > fixed - 1, "stall: the cycle ends with more cash than it began", "%d -> %d" % [m.cash, m.cash + int(r["delta"])])
+	# the protection stays: a loaded route with cash for its trip keeps that cash from a Buy
+	m.cash = 100000
+	m.storage.add(sk, c, 20)
+	var amt_now := func(kk: String, cc: String) -> int: return m.storage.amount(kk, cc)
+	check(e.route_reserve(fixed + 5, amt_now) == fixed, "stall: with cash for one trip the reserve is the full trip")
+	check(e.route_reserve(fixed - 7, amt_now) == fixed - 7, "stall: a starved loaded route keeps its part fare from the Buys")
+	var f2: Dictionary = e.forecast(fixed - 7)
+	var r2: Dictionary = e.settle(fixed - 7)
+	check(int(f2["delta"]) == int(r2["delta"]) and str(e.routes[0]["state"]) == "running", "stall: forecast equals settle for a starved loaded route", "%d vs %d" % [int(f2["delta"]), int(r2["delta"])])
+	_free_main(m)
+
+## Alpha fix 2026-11-02: mining is reachable from the start. A mining_focus-style player (B1 first) learns Prospecting
+## at cycle 1 with the start point, and again after Permit Charter without Space Storage, and can then plan an ore lane.
+func _test_mining_reachable() -> void:
+	_wipe_user()
+	var m: Control = await _new_main()
+	m._dismiss_preface()
+	check(m.skill_points >= int(m.balance["skill_cost_B1"]), "mining reach: the start gives enough points for B1", str(m.skill_points))
+	check(m.learn_skill(Clusters.MINING_SKILL)["ok"] and m.can_mine(), "mining reach: B1 learned first, at cycle 1")
+	_free_main(m)
+	var m2: Control = await _new_main()
+	m2._dismiss_preface()
+	var cost_c1 := int(m2.balance["skill_cost_C1"])
+	check(m2.learn_skill("C1")["ok"], "mining reach: C1 first")
+	m2._add_points(int(m2.balance["skill_cost_B1"]))
+	for i in 9:
+		m2.debug_advance_cycle()
+	check(m2.cycle <= 10 and m2.learn_skill(Clusters.MINING_SKILL)["ok"] and m2.can_mine(), "mining reach: B1 after C1 alone by cycle 10, no A1 needed", "cycle %d cost_c1 %d" % [m2.cycle, cost_c1])
+	_free_main(m2)
+
+## Asteroid dust ring: exists, purely visual (no collision), and building/viewing it changes no game state.
+func _test_dust_ring() -> void:
+	_wipe_user()
+	var m: Control = await _new_main()
+	m._dismiss_preface()
+	var map = m.map
+	var ring: Node = map.get_node_or_null("AsteroidDustRing")
+	check(ring != null and ring is MultiMeshInstance3D and map.dust_rings.has(1), "dust ring: node exists on the map")
+	if ring == null:
+		return
+	check(ring.multimesh.instance_count > 0 and ring.multimesh.instance_count <= 10000, "dust ring: modest grain count", "n=%d" % ring.multimesh.instance_count)
+	check(ring.rings.size() >= 1 and ring.rings.size() <= 7, "dust ring: no more than 7 rings per system", "n=%d" % ring.rings.size())
+	var widths := {}
+	var gapped := true
+	for r in ring.rings:
+		widths[snappedf(r["outer"] - r["inner"], 0.01)] = true
+		gapped = gapped and r["gaps"].size() >= 1
+	check(widths.size() > 1 and gapped, "dust ring: rings differ in width and every ring has a gap")
+	var nodes: Array = ring.find_children("*", "CollisionObject3D", true, false)
+	check(nodes.is_empty() and not (ring is CollisionObject3D), "dust ring: no collision objects")
+	var clean := true
+	for n in map.get_children():
+		if n is CollisionObject3D:
+			clean = false
+	check(clean, "dust ring: the map has no collision objects, so picking is unaffected")
+	var radii: Array = []
+	for p in map.positions:
+		radii.append(Vector2(p.x - ring.position.x, p.z - ring.position.z).length())
+	var ok := true
+	for rg in ring.rings:
+		ok = ok and rg["inner"] < rg["outer"]
+		for r in radii:
+			ok = ok and (r < rg["inner"] or r > rg["outer"])
+	check(ok, "dust ring: the band keeps clear of every planet orbit")
+	var before := [m.cash, m.cycle, map.positions.duplicate(), map.planets.size()]
+	map.set_view_system(1)
+	map._apply_view()
+	check(m.cash == before[0] and m.cycle == before[1] and map.positions == before[2] and map.planets.size() == before[3], "dust ring: viewing it changes no game state")
+
+## Voltara dust belt: exists, no collision, viewing it changes no game state.
+func _test_dead_planets() -> void:
+	var sh = load("res://art/planet_fx/planet_sphere_dead.gdshader")
+	check(sh is Shader and (sh as Shader).code.contains("limb_dark"), "dead planets: inverse fresnel shader loads")
+	var PS = load("res://art/planet_fx/planet_sphere.gd")
+	check(PS.is_dead("dead_1", "") and PS.is_dead("x", "dead") and not PS.is_dead("planet_1", "volcanic"), "dead planets: is_dead by id prefix or type")
+	_wipe_user()
+	var m: Control = await _new_main()
+	m._dismiss_preface()
+	var map = m.map
+	var base: int = map.planet_spheres.size()
+	# The data rows come from the gameplay programmer; these stand in with the same id, type and system.
+	var first: int = map.add_planets([
+		{"id": "dead_1", "name": "Cinderrest", "type": "dead", "system": 1, "x": 0, "y": 260},
+		{"id": "dead_2", "name": "Greywake", "type": "dead", "system": 2, "x": 0, "y": 260}])
+	check(first == base and map.planet_spheres.size() == base + 2, "dead planets: two nodes made like the others", str(map.planet_spheres.size()))
+	var tex_ok := true
+	var shifts := []
+	for i in [first, first + 1]:
+		var sp = map.planet_spheres[i]
+		var mat := sp.get_surface_override_material(0) as ShaderMaterial
+		tex_ok = tex_ok and mat != null and mat.shader.resource_path.ends_with("planet_sphere_dead.gdshader")
+		var tex = mat.get_shader_parameter("surface_tex") if mat else null
+		tex_ok = tex_ok and tex != null and str(tex.resource_path).ends_with("planet_toxic_beauty.png")
+		shifts.append(mat.get_shader_parameter("uv_shift") if mat else -1.0)
+		tex_ok = tex_ok and not (sp.get_node("Atmosphere") as Node3D).visible
+	check(tex_ok, "dead planets: dead shader and planet_toxic_beauty.png, no atmosphere shell")
+	var ma := map.planet_spheres[first].get_surface_override_material(0) as ShaderMaterial
+	var mb := map.planet_spheres[first + 1].get_surface_override_material(0) as ShaderMaterial
+	check(ma != mb and shifts[0] != shifts[1] and ma.get_shader_parameter("hue_shift") != mb.get_shader_parameter("hue_shift"), "dead planets: the two worlds differ (own material, uv shift, hue)")
+	var live := map.planet_spheres[0].get_surface_override_material(0) as ShaderMaterial
+	check(live.shader.resource_path.ends_with("planet_sphere_simple.gdshader"), "dead planets: other planets keep the simple shader")
+	map.set_view_system(1)
+	var sp1: Node3D = map.planet_spheres[first]
+	check(sp1.visible, "dead planets: dead_1 shows in system 1")
+	var scr: Vector2 = map.camera.unproject_position(map.positions[first])
+	check(map.pick_planet(scr) == first, "dead planets: dead_1 is picked like the others", str(map.pick_planet(scr)))
+	map.set_view_system(2)
+	var scr2: Vector2 = map.camera.unproject_position(map.positions[first + 1])
+	check(map.planet_spheres[first + 1].visible and map.pick_planet(scr2) == first + 1, "dead planets: dead_2 shows and is picked in system 2", str(map.pick_planet(scr2)))
+	m.queue_free()
+
+func _test_voltara_belt() -> void:
+	_wipe_user()
+	var m: Control = await _new_main()
+	m._dismiss_preface()
+	var map = m.map
+	var belt: Node = map.get_node_or_null("PlanetBeltVoltara")
+	check(belt != null and belt is MultiMeshInstance3D and map.planet_belts.size() == 1, "voltara belt: node exists")
+	if belt == null:
+		return
+	check(belt.find_children("*", "CollisionObject3D", true, false).is_empty() and not (belt is CollisionObject3D), "voltara belt: no collision objects")
+	check(belt.position.is_equal_approx(map.positions[0]) and belt.multimesh.instance_count <= 2000 and belt.rings.size() <= 7, "voltara belt: centred on Voltara, light")
+	var before := [m.cash, m.cycle, map.positions.duplicate()]
+	map._apply_view()
+	check(m.cash == before[0] and m.cycle == before[1] and map.positions == before[2], "voltara belt: changes no game state")
+
+
+## Dead worlds (design/proposals/2026-11-02-dead-planets.md): data, skill gate, danger meter, scheduled follow-up.
+func _test_fabric() -> void:
+	_wipe_user()
+	var m: Control = await _new_main()
+	m._dismiss_preface()
+	m.cash = 5000
+	var fabric_cost: int = int(m.balance.get("fabric_build_cost", 0))
+	check(m.commodities.has("plate") and fabric_cost > 0, "fabric: plate is a commodity, build cost set in balance", str(fabric_cost))
+	check(m.can_build_fabric()["reason"] == "skill" and not m.build_fabric()["ok"] and m.cash == 5000, "fabric: refused before F1, nothing paid")
+	m.learned_skills.append("A1")
+	m.learned_skills.append("F1")
+	m._ensure_stations()
+	check(m.station_systems.has(1), "fabric: trading post (system 1 station) exists with A1")
+	m.cash = fabric_cost - 1
+	check(m.can_build_fabric()["reason"] == "credits", "fabric: refused without the build cost in credits")
+	m.cash = 5000
+	check(m.build_fabric()["ok"] and m.cash == 5000 - fabric_cost and m.fabric.built, "fabric: builds after F1, build cost paid", str(m.cash))
+	check(not m.build_fabric()["ok"] and m.cash == 5000 - fabric_cost, "fabric: paid once, a second build is refused")
+	var key: String = m.storage.system_key(1)
+	m.storage.ensure(key)
+	# stalls without inputs
+	m.fabric.run(m.storage)
+	check(m.fabric.state == "stalled" and m.fabric.reason == "needs dross", "fabric: stalls with 'needs dross'", m.fabric.reason)
+	m.storage.add(key, "dross", 2)
+	m.fabric.run(m.storage)
+	check(m.fabric.reason == "needs nullglass", "fabric: stalls with 'needs nullglass'", m.fabric.reason)
+	# runs with inputs
+	m.storage.add(key, "nullglass", 1)
+	m.fabric.run(m.storage)
+	check(m.fabric.state == "running" and m.storage.amount(key, "plate") == 1 and m.storage.amount(key, "dross") == 0 and m.storage.amount(key, "nullglass") == 0, "fabric: 2 dross + 1 nullglass make 1 plate")
+	# through the cycle, with forecast equal to settle
+	m.storage.add(key, "dross", 4)
+	m.storage.add(key, "nullglass", 2)
+	var fc: Dictionary = m.engine.forecast(m.cash)
+	var st: Dictionary = m.engine.settle(m.cash)
+	check(int(fc["delta"]) == int(st["delta"]), "fabric: forecast delta equals settle delta", "%s vs %s" % [fc["delta"], st["delta"]])
+	m.debug_advance_cycle()
+	check(m.storage.amount(key, "plate") == 2 and m.storage.amount(key, "dross") == 2, "fabric: runs on the cycle tick", str(m.storage.to_dict().get(key, {})))
+	# saves
+	var sv: Dictionary = m.collect_state()
+	m.fabric.from_dict(null)
+	check(not m.fabric.built, "fabric: an old save is not built")
+	m.fabric.from_dict(sv["fabric"])
+	check(m.fabric.built, "fabric: built state loads back")
+	# the plate sells
+	m.set_local_order(0, "plate", "sell", true)
+	var before: int = m.cash
+	var n_plates: int = m.storage.amount(key, "plate")
+	var fc2: Dictionary = m.engine.forecast(m.cash)
+	var st2: Dictionary = m.engine.settle(m.cash)
+	var price: int = m.engine.sold_price(0, "plate")
+	check(price > 0 and int(st2["delta"]) == n_plates * price and int(fc2["delta"]) == int(st2["delta"]), "fabric: plates sell at the trading post, forecast equals settle", "%d x %d, delta %s" % [n_plates, price, st2["delta"]])
+	await _free_main(m)
+
+func _test_dead_world_mechanics() -> void:
+	_wipe_user()
+	var m: Control = await _new_main()
+	m._dismiss_preface()
+	var d1: int = -1
+	for i in m.map.planets.size():
+		if str(m.map.planets[i].get("id", "")) == "dead_1":
+			d1 = i
+	check(d1 >= 0 and m.map.planets[d1]["name"] == "Cinderrest" and m.map.planets[d1]["abundant"] == "dross" and int(m.map.planets[d1]["system"]) == 1, "dead: dead_1 Cinderrest in system 1 carries dross", str(d1))
+	check(m.commodities.has("dross"), "dead: dross joins the commodity list")
+	var s2: Array = m.Systems.planets_of(2)
+	var g: Dictionary = s2[s2.size() - 1]
+	check(str(g["id"]) == "dead_2" and g["name"] == "Greywake" and g["abundant"] == "nullglass" and g["base_prices"].has("nullglass_buy"), "dead: dead_2 Greywake in system 2 carries nullglass")
+	# skills
+	var ST = m.SkillTree
+	check(ST.prereqs("M1") == ["B1"] and ST.prereqs("M2") == ["M1"] and ST.prereqs("F1") == ["M1", "M2"], "dead skills: prerequisites B1, M1, M1+M2")
+	check(ST.ids_in("B").has("M1") and ST.ids_in("B").has("F1") and ST.cost(m.balance, "M1") == 1 and ST.cost(m.balance, "M2") == 2 and ST.cost(m.balance, "F1") == 2, "dead skills: Research branch, costs 1, 2, 2 (balance v29)")
+	check(ST.state(["B1"], "M1", {}) == "locked", "dead skills: M1 respects the second-row lock (only B1 is exempt)")
+	check(ST.state(["A1", "C1", "B1"], "M1", {}) == "available" and ST.state(["A1", "C1", "B1", "M1"], "F1", {}) == "locked", "dead skills: M1 opens after B1 with A1 and C1; F1 needs M2 too")
+	# gate
+	m.cash = 6000
+	m.ships = 3
+	var r: Dictionary = m.can_connect(d1, 0, "dross")
+	check(not r["ok"] and "Cold Survey" in str(r["reason"]), "dead gate: refused without M1 with a reason", str(r))
+	m.learned_skills.append("M1")
+	check(m.can_connect(d1, 0, "dross")["ok"], "dead gate: allowed with M1")
+	m._open_system(2)
+	var g2: int = -1
+	for i in m.map.planets.size():
+		if str(m.map.planets[i].get("id", "")) == "dead_2":
+			g2 = i
+	var r2: Dictionary = m.engine.check_connection(g2, g2 - 1, "nullglass")
+	check(g2 >= 0 and not r2["ok"] and "Deep Cut" in str(r2["reason"]), "dead gate: Greywake refused without M2 (M1 does not open it)", str(r2))
+	m.learned_skills.append("M2")
+	check(m.engine.check_connection(g2, g2 - 1, "nullglass")["ok"], "dead gate: Greywake allowed with M2")
+	# danger
+	check(m.danger_of(d1) == 0 and m.danger_of(0) == 0, "danger: starts at 0")
+	m.set_local_order(d1, "dross", "buy", true)
+	check(m._connect(d1, 0, "dross")["ok"], "danger: route out of Cinderrest made")
+	m.debug_advance_cycle()
+	check(m.danger_of(d1) == 1, "danger: +1 after one mining cycle", str(m.danger_of(d1)))
+	m.debug_advance_cycle()
+	check(m.danger_of(d1) == 2, "danger: +1 each cycle", str(m.danger_of(d1)))
+	m.dead.change("dead_1", -1)
+	check(m.danger_of(d1) == 1 and m.dead.change("dead_1", 99) == 5, "danger: events lower it, capped at 5")
+	var st: Dictionary = m.collect_state()
+	check(int(st["danger"]["dead_1"]) == 5, "danger: saved")
+	m.dead.from_dict(null)
+	check(m.danger_of(d1) == 0, "danger: an old save has no meter, starts at 0")
+	m.dead.from_dict(st["danger"])
+	check(m.danger_of(d1) == 5, "danger: loads back")
+	var panel_text := ""
+	m.planet_panel.show_planet(d1)
+	for l in _labels(m.planet_panel, []):
+		if l.name == "DangerLine":
+			panel_text = l.text
+	check(panel_text == "Danger: 5 of 5", "danger: one line on the planet panel", panel_text)
+	# scheduled follow-up
+	var ev = m.events
+	var a := {"id": "T_PART1", "title": "p1", "tag": "", "text": "x", "choices": [{"text": "go", "tag": "[cash: +1]", "follow_id": "T_PART2", "follow_after": 2}]}
+	var b := {"id": "T_PART2", "title": "p2", "tag": "[cash: +1]", "text": "y", "choices": []}
+	for e in [a, b]:
+		ev.defs.append(e)
+		ev.by_id[e["id"]] = e
+	check(ev.scheduled_only("T_PART2") and not ev.scheduled_only("T_PART1"), "follow: part 2 is kept out of the random pick")
+	var picked := false
+	for i in 300:
+		if ev.random_id([], 20) == "T_PART2":
+			picked = true
+	check(not picked, "follow: random pick never returns a part 2 event")
+	m.cycle = 1
+	m.fire_event("T_PART1")
+	m._on_event_confirmed(0, "T_PART1")
+	check(ev.scheduled.size() == 1 and int(ev.scheduled[0]["due"]) == 3, "follow: choice schedules the event 2 cycles later", str(ev.scheduled))
+	var saved: Dictionary = ev.to_dict()
+	check(saved["scheduled"].size() == 1, "follow: schedule is saved")
+	m.debug_advance_cycle()
+	var fed := func() -> int:
+		var n := 0
+		for f in ev.feed:
+			if str(f["id"]) == "T_PART2":
+				n += 1
+		return n
+	check(m.cycle == 2 and fed.call() == 0, "follow: not before the set cycle")
+	m.debug_advance_cycle()
+	check(m.cycle == 3 and fed.call() == 1 and ev.scheduled.is_empty(), "follow: fires once at the set cycle", "cycle %d fired %d" % [m.cycle, fed.call()])
+	m._on_event_confirmed(-1, "T_PART2")
+	m.debug_advance_cycle()
+	check(fed.call() == 1, "follow: does not fire again")
+	ev.from_dict({})
+	check(ev.scheduled.is_empty(), "follow: an old save has no schedule")
+	await _free_main(m)
+
+## Dead-world event chain: part 1 choice events are in the data, random:false events are never picked at random,
+## EV29 fires on the first mining of Cinderrest and its follow-up arrives 4 cycles later.
+func _test_dead_events_chain() -> void:
+	_wipe_user()
+	var m: Control = await _new_main()
+	m._dismiss_preface()
+	var ev = m.events
+	for id in ["EV29", "EV32", "EV35"]:
+		var chs: Array = ev.choices_of(id)
+		check(ev.by_id.has(id) and chs.size() == 2 and str(chs[0].get("follow_id", "")) != "" and int(chs[0].get("follow_after", 0)) == 4 and str(chs[1].get("tag", "")) != "", "dead events: %s is in events.json with 2 choices, follow_id and follow_after 4" % id)
+	check(str(ev.choices_of("EV29")[0]["follow_id"]) == "EV30" and str(ev.choices_of("EV29")[1]["follow_id"]) == "EV31" and str(ev.by_id["EV29"].get("on_mine", "")) == "dead_1", "dead events: EV29 on_mine dead_1, follows EV30 / EV31")
+	for id in ["EV30", "EV31", "EV33", "EV34", "EV36", "EV37"]:
+		check(ev.by_id.has(id) and ev.by_id[id].get("random", true) == false, "dead events: %s is random:false" % id)
+	var t := {"id": "T_NORAND", "title": "n", "tag": "", "text": "x", "choices": [], "random": false}
+	ev.defs.append(t)
+	ev.by_id["T_NORAND"] = t
+	var bad := 0
+	for i in 600:
+		var r: String = ev.random_id([], 1 + i % 30)
+		if r == "T_NORAND" or r in ["EV29", "EV30", "EV31", "EV32", "EV33", "EV34", "EV35", "EV36", "EV37"]:
+			bad += 1
+	check(bad == 0, "dead events: a random:false event is never picked at random over 600 picks", str(bad))
+	var d1: int = -1
+	for i in m.map.planets.size():
+		if str(m.map.planets[i].get("id", "")) == "dead_1":
+			d1 = i
+	m.cycle = 1
+	m._mine_event(d1)
+	check(str(ev.pending_id) == "EV29", "dead events: first mining of Cinderrest fires EV29", str(ev.pending_id))
+	m._on_event_confirmed(1, "EV29")  # pull the crew out
+	check(ev.scheduled.size() == 1 and str(ev.scheduled[0]["id"]) == "EV31" and int(ev.scheduled[0]["due"]) == 5, "dead events: EV31 is scheduled 4 cycles later", str(ev.scheduled))
+	var n31 := func() -> int:
+		var n := 0
+		for f in ev.feed:
+			if str(f["id"]) == "EV31":
+				n += 1
+		return n
+	for i in 4:
+		m._dismiss_event_notice()
+		m.debug_advance_cycle()
+		if i < 3:
+			check(n31.call() == 0, "dead events: EV31 not before cycle 5")
+	check(m.cycle == 5 and n31.call() == 1 and ev.scheduled.is_empty(), "dead events: EV31 fires once at cycle 5", "cycle %d n %d" % [m.cycle, n31.call()])
+	m._mine_event(d1)
+	check(ev.mine_events("dead_1").is_empty(), "dead events: EV29 does not fire a second time")
 	await _free_main(m)
