@@ -12,14 +12,6 @@ const PATH := "res://data/skills.json"
 const BRANCHES := ["fnd", "mil", "lux", "min", "bio"]
 const MARKETS := ["mil", "lux", "min", "bio"]
 
-## Old A/B/C/M/F ids to the new ones (core 3.5), used to read old saves and systems.json ("requires_skill": "C1").
-## C2 and C4 were dropped; C1 and C3 both became FND_PERMIT.
-const LEGACY := {"A1": "FND_STORAGE", "A2": "BIO_3", "A4": "MIL_3", "A5": "MIL_1", "B1": "FND_PROSPECT", "B2": "BIO_1", "B3": "LUX_1",
-	"B4": "LUX_3", "C1": "FND_PERMIT", "C3": "FND_PERMIT", "M1": "MIN_3", "M2": "MIN_5", "F1": "MIN_1"}
-## What each old skill cost, for the points refund of a skill that was dropped or merged (the old balance keys are gone).
-const LEGACY_COST := {"A1": 1, "A2": 1, "A4": 3, "A5": 2, "B1": 1, "B2": 2, "B3": 2, "B4": 2, "C1": 1, "C2": 1, "C3": 2, "C4": 2, "M1": 1, "M2": 2, "F1": 2}
-## The Foundations row, kept for the old skill screen until the screen is rebuilt.
-const FIRST_ROW := ["FND_STORAGE", "FND_PERMIT", "FND_PROSPECT"]
 
 static var _nodes: Array = []
 static var _by_id: Dictionary = {}
@@ -36,13 +28,6 @@ static func _ensure() -> void:
 	_nodes = parsed.get("nodes", [])
 	for n in _nodes:
 		_by_id[str(n["id"])] = n
-
-static func in_first_row(id: String) -> bool:
-	return FIRST_ROW.has(id)
-
-## New id for an old one; ids that are already new (or unknown) come back unchanged.
-static func legacy_id(id: String) -> String:
-	return str(LEGACY.get(id, id))
 
 static func all_ids() -> Array:
 	_ensure()
@@ -122,17 +107,17 @@ static func craft_text(id: String) -> String:
 	return StoryText.get_or("SK_%s_CRAFT" % id, "") if is_tech(id) else ""
 
 ## "learned" (a skill bought or a tech finished), "available" (prerequisites met: a skill can be bought, a tech is being
-## researched) or "locked". ctx is kept for old callers and unused.
-static func state(learned: Array, id: String, _ctx: Dictionary = {}) -> String:
+## researched) or "locked".
+static func state(learned: Array, id: String) -> String:
 	if learned.has(id):
 		return "learned"
 	return "available" if missing_prereqs(learned, id).is_empty() else "locked"
 
 ## {ok, reason}: reason is "", "unknown", "known", "locked", "tech" (techs finish by crafting) or "points".
-static func can_learn(learned: Array, points: int, balance: Dictionary, id: String, ctx: Dictionary = {}) -> Dictionary:
+static func can_learn(learned: Array, points: int, balance: Dictionary, id: String) -> Dictionary:
 	if not has(id):
 		return {"ok": false, "reason": "unknown"}
-	match state(learned, id, ctx):
+	match state(learned, id):
 		"learned":
 			return {"ok": false, "reason": "known"}
 		"locked":
@@ -144,8 +129,8 @@ static func can_learn(learned: Array, points: int, balance: Dictionary, id: Stri
 	return {"ok": true, "reason": ""}
 
 ## True when at least one skill can be bought right now (drives the mark on the Skills button).
-static func any_affordable(learned: Array, points: int, balance: Dictionary, ctx: Dictionary = {}) -> bool:
+static func any_affordable(learned: Array, points: int, balance: Dictionary) -> bool:
 	for id in all_ids():
-		if can_learn(learned, points, balance, id, ctx)["ok"]:
+		if can_learn(learned, points, balance, id)["ok"]:
 			return true
 	return false

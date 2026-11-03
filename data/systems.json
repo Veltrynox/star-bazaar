@@ -14,7 +14,7 @@
       "permit_notice_id": "NOT_PERMIT_S2",
       "permit_cost_key": "permit_2_cost",
       "permit_points_key": "permit_points_2",
-      "requires_skill": "C1",
+      "requires_skill": "FND_PERMIT",
       "planets": [
         {
           "id": "s2_p1",

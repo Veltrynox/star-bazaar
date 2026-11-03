@@ -351,7 +351,7 @@ func sold_price(planet: int, c: String) -> int:
 		return roundi(float(p) * f)
 	return p
 
-## Credits per cycle a route earns on this lane: units a ship moves times (sell price at the far end, with B3, minus buy price here).
+## Credits per cycle a route earns on this lane: units a ship moves times (sell price at the far end, with the sell-price skills, minus buy price here).
 func route_margin(src: int, dst: int, c: String, level: int = 1) -> int:
 	var b: int = trade.price(src, c + "_buy")
 	var s: int = sold_price(dst, c)
@@ -422,7 +422,7 @@ func check_connection(src: int, dst: int, c: String, new_route: bool = true) -> 
 		return {"ok": false, "reason": dead_lock_reason(src)}
 	if dead_lock_reason(dst) != "":
 		return {"ok": false, "reason": dead_lock_reason(dst)}
-	if new_route and dead_skill_reason(src) != "":  # dead world: mining needs its skill (M1 Cold Survey, M2 Deep Cut); saved routes stay
+	if new_route and dead_skill_reason(src) != "":  # dead world: mining needs its skill (see DeadWorlds.skill_for); saved routes stay
 		return {"ok": false, "reason": dead_skill_reason(src)}
 	if int(trade.planets[src].get("system", 1)) != int(trade.planets[dst].get("system", 1)) and not Skills.unlocked("permit_routes"):
 		return {"ok": false, "reason": StoryText.get_text("NOT_ROUTE_NEEDS_C3")}

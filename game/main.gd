@@ -135,7 +135,7 @@ const TUT_FALLBACK := {
 	"TUT_G6_SELL": "Turn Sell on at the other planet. The company sells what arrives, at that planet's price.",
 	"TUT_G7_STORAGE": "Company storage holds your stock at each planet. When it is full, Buy waits until there is room.",
 	"TUT_G8_SKILLS": "Skill points come from planets, routes and systems. Open Skills and learn one.",
-	"TUT_G9_PERMIT": "The Permit Charter (C1) lets you open a new system. Learn it when you are ready to expand.",
+	"TUT_G9_PERMIT": "The Permit Charter lets you open a new system. Learn it when you are ready to expand.",
 	"TUT_G10_DONE": "That is the loop: buy, move, sell, learn. The guidance stops here.",
 }
 var tut_step: int = 0
@@ -576,13 +576,6 @@ func _check_second_lane(r: Dictionary) -> void:
 	if planet_panel != null and planet_panel.visible:
 		planet_panel.rebuild()
 
-## Survey Beacon is gone (core 3.5): these two stay only so the old skill screen still loads; the screen rebuild removes them.
-func is_surveyed(_sid: int) -> bool:
-	return false
-
-func survey_system(_sid: int) -> bool:
-	return false
-
 ## Expansion points a permit costs: the data value.
 func permit_points(sid: int) -> int:
 	return Systems.permit_points(balance, sid)
@@ -617,9 +610,9 @@ func buy_permit(sid: int) -> Dictionary:
 	_after_change()
 	return v
 
-## Skill a system's permit needs: systems.json still says "C1", which is FND_PERMIT now.
+## Skill a system's permit needs: systems.json names it.
 func required_skill(sid: int) -> String:
-	return SkillTree.legacy_id(str(Systems.get_system(sid).get("requires_skill", "FND_PERMIT")))
+	return str(Systems.get_system(sid).get("requires_skill", "FND_PERMIT"))
 
 ## First order or route that touches a planet of a new system gives the system point (once per system).
 func _note_system(planet: int) -> void:
@@ -628,16 +621,9 @@ func _note_system(planet: int) -> void:
 		reached_ids.append(sid)
 		reach_system()
 
-## Kept for the old skill screen (no gates now: the Foundations are free from cycle 1). The rebuild removes it.
-func a1_gate_open() -> bool:
-	return true
-
-func skill_ctx() -> Dictionary:
-	return {}
-
 ## T71: learn a skill. Spends skill points, saves, posts the notice. Returns {ok, reason}.
 func learn_skill(id: String) -> Dictionary:
-	var v := SkillTree.can_learn(learned_skills, skill_points, balance, id, skill_ctx())
+	var v := SkillTree.can_learn(learned_skills, skill_points, balance, id)
 	if not v["ok"]:
 		return v
 	skill_points -= SkillTree.cost(balance, id)
@@ -758,7 +744,7 @@ func skill_arrow_target() -> Dictionary:
 		var req := required_skill(int(open[0]))
 		if has_skill(req):
 			return {"mode": "skills", "steps": []}
-		if SkillTree.state(learned_skills, req, skill_ctx()) == "available":
+		if SkillTree.state(learned_skills, req) == "available":
 			var steps := []
 			_missing_chain(req, steps)
 			return {"mode": "skills", "steps": steps}
@@ -1982,7 +1968,7 @@ func _end_cycle() -> void:
 	_tut_cycle()
 	save_now()
 
-## B4 Event Forecast: the event picked ahead of its cycle (saved); it is the one that fires.
+## Event forecast: the event picked ahead of its cycle (saved); it is the one that fires.
 var forecast_id: String = ""
 
 ## Warning text for a coming event: names the planet and commodity when the event has them, else the plain warning.
@@ -2771,7 +2757,7 @@ func _refresh() -> void:
 	pause_button.modulate = Ui.col("signal_warn") if paused else Color.WHITE
 	for i in speed_buttons.size():
 		speed_buttons[i].button_pressed = SPEEDS[i] == time_speed
-	var star := " *" if SkillTree.any_affordable(learned_skills, skill_points, balance, skill_ctx()) else ""
+	var star := " *" if SkillTree.any_affordable(learned_skills, skill_points, balance) else ""
 	points_hit.tooltip_text = StoryText.get_text("MENU_SKILLS") + star
 	points_button.modulate = Ui.col("star_warm") if star != "" else Color.WHITE
 	if _last_points >= 0 and skill_points != _last_points:

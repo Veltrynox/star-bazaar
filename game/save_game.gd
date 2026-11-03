@@ -59,12 +59,18 @@ static func clear() -> void:
 static func old_save_message() -> String:
 	return StoryText.get_or("NOT_OLD_SAVE", "Your old save is from before Four Markets and cannot continue. Start a new game.")
 
+## Old (v2) skill ids to the new ones. The only place old ids live. C2 and C4 were dropped; C1 and C3 both became FND_PERMIT.
+const LEGACY := {"A1": "FND_STORAGE", "A2": "BIO_3", "A4": "MIL_3", "A5": "MIL_1", "B1": "FND_PROSPECT", "B2": "BIO_1", "B3": "LUX_1",
+	"B4": "LUX_3", "C1": "FND_PERMIT", "C3": "FND_PERMIT", "M1": "MIN_3", "M2": "MIN_5", "F1": "MIN_1"}
+## What each old skill cost, for the refund of one that was dropped or merged.
+const LEGACY_COST := {"A1": 1, "A2": 1, "A4": 3, "A5": 2, "B1": 1, "B2": 2, "B3": 2, "B4": 2, "C1": 1, "C2": 1, "C3": 2, "C4": 2, "M1": 1, "M2": 2, "F1": 2}
+
 static func _migrate(state: Dictionary, from_version: int) -> Dictionary:
 	if from_version < 3:
 		return migrate_v2(state)
 	return state
 
-## v2 -> v3: cash, cycle, ships, markets and bot state stay as they are. Learned old skills map to the new ids (SkillTree.LEGACY);
+## v2 -> v3: cash, cycle, ships, markets and bot state stay as they are. Learned old skills map to the new ids (LEGACY);
 ## a skill that was dropped (C2, C4), merged into one already held (C3 with C1) or unknown gives its old cost back as points.
 static func migrate_v2(state: Dictionary) -> Dictionary:
 	var out: Dictionary = state.duplicate(true)
@@ -73,9 +79,9 @@ static func migrate_v2(state: Dictionary) -> Dictionary:
 	var old = out.get("learned_skills", [])
 	if typeof(old) == TYPE_ARRAY:
 		for id in old:
-			var to := str(SkillTree.LEGACY.get(str(id), ""))
+			var to := str(LEGACY.get(str(id), ""))
 			if to == "" or learned.has(to):
-				refund += int(SkillTree.LEGACY_COST.get(str(id), 0))
+				refund += int(LEGACY_COST.get(str(id), 0))
 			else:
 				learned.append(to)
 	out["learned_skills"] = learned

@@ -365,7 +365,7 @@ func _build_permits() -> void:
 		cost_l.text = StoryText.get_or("PERMIT_COST_LINE", "Cost: {credits} credits and {points} skill points.", {"credits": cost, "points": pts})
 		match v["reason"]:
 			"skill":
-				cost_l.text += " " + StoryText.get_or("PERMIT_NEEDS_C1", "Needs Permit Charter (C1).")
+				cost_l.text += " " + StoryText.get_or("PERMIT_NEEDS_C1", "Needs Permit Charter.")
 			"credits":
 				cost_l.text += " " + StoryText.get_or("PERMIT_NO_CREDITS", "Not enough credits.")
 			"points":
