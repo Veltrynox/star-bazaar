@@ -566,6 +566,7 @@ func _load_planets() -> Array:
 	for pl in parsed["planets"]:
 		if typeof(pl) == TYPE_DICTIONARY:
 			PlanetTypes.apply(pl)
+			Goods.merge_prices(pl)  # prices of the new goods (data/goods.json)
 	return parsed["planets"]
 
 ## Name label sits below the visible planet: the outer glow shell is 0.56 of the sphere scale (planet_sphere.tscn), plus a gap.

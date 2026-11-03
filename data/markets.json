@@ -1,13 +1,29 @@
 {
   "schema_version": 1,
   "data_version": 1,
-  "source": "2026-11-03 market-foundation (gameplay-programmer): four markets, the 8 existing goods tagged per design/proposals/2026-11-03-four-markets.md section 1.1. base_value = mean of <good>_sell over every planet that defines it in data/planets.json and data/systems.json (rounded), computed once here; share volume = units sold x base_value. common_raws: energy, food, ore do not count toward the active-market rule or cross-load (summary R5). New goods are a later goal.",
+  "source": "2026-11-03 market-foundation (gameplay-programmer): four markets, the 8 existing goods tagged per design/proposals/2026-11-03-four-markets.md section 1.1. base_value = mean of <good>_sell over every planet that defines it in data/planets.json and data/systems.json (rounded), computed once here; share volume = units sold x base_value. common_raws: energy, food, ore do not count toward the active-market rule or cross-load (summary R5). 2026-11-03 goods-workshops: the 11 new goods tagged and valued the same way (mean of <good>_sell over data/goods.json planet_prices; crafted goods have one price).",
   "common_raws": ["energy", "food", "ore"],
   "markets": [
-    {"id": "mil", "name": "Military", "goods": ["energy", "chips"]},
-    {"id": "lux", "name": "Luxury", "goods": ["silk"]},
-    {"id": "min", "name": "Minerals", "goods": ["ore", "dross", "nullglass", "plate"]},
-    {"id": "bio", "name": "Biotech", "goods": ["food"]}
+    {
+      "id": "mil",
+      "name": "Military",
+      "goods": ["energy", "chips", "rivets", "cells", "armour"]
+    },
+    {
+      "id": "lux",
+      "name": "Luxury",
+      "goods": ["silk", "musk", "cask", "gems"]
+    },
+    {
+      "id": "min",
+      "name": "Minerals",
+      "goods": ["ore", "dross", "nullglass", "plate", "ingot", "alloy"]
+    },
+    {
+      "id": "bio",
+      "name": "Biotech",
+      "goods": ["food", "spores", "gel", "seed"]
+    }
   ],
   "base_value": {
     "energy": 24,
@@ -17,6 +33,17 @@
     "ore": 13,
     "dross": 12,
     "nullglass": 21,
-    "plate": 120
+    "plate": 120,
+    "rivets": 33,
+    "cells": 70,
+    "armour": 180,
+    "musk": 31,
+    "cask": 72,
+    "gems": 130,
+    "ingot": 36,
+    "alloy": 160,
+    "spores": 24,
+    "gel": 74,
+    "seed": 190
   }
 }

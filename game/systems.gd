@@ -55,6 +55,7 @@ static func planets_of(id: int) -> Array:
 		d["desc"] = StoryText.get_text(str(d["desc_id"])) if d.has("desc_id") else ""
 		d["system"] = id
 		PlanetTypes.apply(d)
+		Goods.merge_prices(d)  # prices of the new goods (data/goods.json)
 		out.append(d)
 	return out
 
