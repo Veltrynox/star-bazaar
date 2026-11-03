@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "agent": "feature-designer",
+  "date": "2026-11-03",
+  "task": "four-markets",
+  "status": "done",
+  "files_changed": [
+    "design/proposals/2026-11-03-four-markets.md",
+    "handoffs/feature-designer/2026-11-03-four-markets.json"
+  ],
+  "open_questions": [
+    "UNKNOWN: is a 40-cycle run (was 30) right for the trees and chains?",
+    "UNKNOWN: are old saves dropped, and is EV18 (shield) retired with the old endings?",
+    "UNKNOWN: should the good/bad ending depend only on Open vs Hard chain choices, and is a soft END_OUTCOMPETED an acceptable non-win?"
+  ],
+  "handoff": "Core design for four markets (mil, lux, min, bio) written in one file. Fixed ids: markets, 19 goods (8 old + 11 new), workshops, bots bot_1..3, nodes MIL/LUX/MIN/BIO _1.._7 plus FND_STORAGE/PERMIT/PROSPECT, chains <MKT>_A1..A3 and B1..B4 (Minerals A = EV29/32/35 retrofit), pool EV40-51, 11 END_* ids. Numbers left to economy-designer, text to story-designer. Awaiting owner on section 9.",
+  "details": {
+    "proposals": [
+      {
+        "id": "four-markets",
+        "title": "Four markets, share goal, per-market trees and endings",
+        "problem": "The cash goal and A/B/C tree no longer fit the owner's design; the game needs a goal with competitors and market-specific progression.",
+        "owner_agent": "economy-designer then story-designer, gameplay-programmer, ui-programmer",
+        "size": "L",
+        "questions": [
+          "Run length 40 cycles?",
+          "Drop old saves; retire EV18 shield?",
+          "Ending quality from Open/Hard stance only; soft END_OUTCOMPETED ok?"
+        ]
+      }
+    ],
+    "fixed_ids": {
+      "markets": ["mil", "lux", "min", "bio"],
+      "bots": ["bot_1", "bot_2", "bot_3"],
+      "foundations": ["FND_STORAGE", "FND_PERMIT", "FND_PROSPECT"],
+      "new_goods": ["rivets", "cells", "armour", "musk", "cask", "gems", "ingot", "alloy", "spores", "gel", "seed"],
+      "workshops": ["munitions", "atelier", "smelter", "culture_lab"],
+      "endings": ["END_MIL_GOOD", "END_MIL_BAD", "END_LUX_GOOD", "END_LUX_BAD", "END_MIN_GOOD", "END_MIN_BAD", "END_BIO_GOOD", "END_BIO_BAD", "END_BANKRUPT", "END_SWEPT", "END_OUTCOMPETED"]
+    }
+  }
+}
