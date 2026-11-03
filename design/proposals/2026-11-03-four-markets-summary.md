@@ -92,3 +92,6 @@ The owner delegated these. Each is a default that can be overruled any time; tho
 14. Names (bots, goods, endings): unchanged until judged in play.
 
 Still needs the owner: only the go-ahead for Goal 2 (real-game build and bot runs) and a read of the Military chains in play.
+
+## Goal 2 status (2026-11-03)
+Market foundation built and committed on `next`: registry, volumes, bots, share, win/loss checks, overhead, UI readout, save v2, old goal removed. Domination win is NOT reachable yet on the real game (best share 41.5% in 52 bot runs; crafting, skill bonuses and event gains are missing). Owner decision: mechanic only, tune later (`bot_scale` stays 0.85, retune when Goals 3 to 5 land). QA bugs: qa/reports/2026-11-03-market-foundation-bug_report.json.
