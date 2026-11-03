@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-03",
+  "task": "skills-last-gaps",
+  "status": "done",
+  "files_changed": [
+    "game/route_engine.gd",
+    "game/storage.gd",
+    "game/skills.gd",
+    "data/skills.json",
+    "story/skills.md",
+    "data/story_text.json",
+    "tools/sim.py",
+    "tools/tests/run_tests.gd",
+    "handoffs/gameplay-programmer/2026-11-03-skills-last-gaps.json"
+  ],
+  "open_questions": [
+    "reveal_prices and event_warning still ignore their cycles value (always 1 cycle ahead). Is that acceptable, or should data/skills.json give 1 and the vocabulary drop 'cycles'?",
+    "MIN_2 now exempts ore from the ORDER-size cap only (lane capacity units_per_cycle is unchanged: ore lanes are still limited by cargo). Wanted wider?",
+    "MIL_1 upkeep still cuts maintenance only, not trip cost (from skills-core)."
+  ],
+  "handoff": "Both unwired effects are now real. MIN_2 ore_free_slots: RouteEngine.local_amount(good) returns an uncapped amount for ore when MIN_2 is learned, so ore Buy/Sell orders (incl. stop sales) are limited only by storage room, cash and stock (40 -> uncapped). LUX_4 stock_protect: redefined from 'planet closes' (nothing ever destroys stock then) to the one real stock loss, an asteroid cut of a planet storage: Storage.cut_capacity no longer trims Luxury stock when LUX_4 is learned (Storage.space now floors at 0). skills.json 'on' = storage_cut; SK_LUX_4_PLAIN and SK_MIN_2_PLAIN rewritten, story rebuilt. No new balance keys. tools/sim.py no longer models skills (header says so; C1/B1 are free unlock flags) and runs, plain and --settle. Tests TOTAL pass=1149 fail=0, two new tests.",
+  "details": {
+    "previously_not_wired": {
+      "ore_free_slots": "WIRED, redefined narrowly: ore orders ignore the order-size cap (no shared cargo slot rule exists, so lane capacity is untouched).",
+      "stock_protect": "WIRED, redefined: protects Luxury stock from asteroid storage cuts (the only thing that destroys stored stock). Not tied to planet closure because closure never touches stock.",
+      "reveal_prices": "NOT WIRED beyond on/off: the cycles value is read but the panel always shows 1 cycle ahead.",
+      "event_warning": "NOT WIRED beyond on/off: forecast is always 1 cycle ahead.",
+      "effect_line": "NOT FIXED: main.effect_line still prints the base event pct, not the cut or bonus."
+    },
+    "tests": "MIN_2 and LUX_4 checks in tools/tests/run_tests.gd (with vs without skill: 40 -> 1000000; Luxury stock 75 -> 150 after a 50% cut)."
+  }
+}
