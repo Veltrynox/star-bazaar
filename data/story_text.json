@@ -3930,6 +3930,12 @@
   "place": "Competitors log line, a rival really dropped a tier"
  },
  {
+  "id": "LBL_COMP_CYCLE",
+  "text": "Cycle {n}:",
+  "max": 16,
+  "place": "Competitors log line, prefix with the cycle of the move"
+ },
+ {
   "id": "SK_HEADER",
   "text": "Skills",
   "max": 24,

@@ -846,3 +846,4 @@ LBL_COMP_MOVE_STR_UP | 60 | Competitors log line, a rival's strength rose | {bot
 LBL_COMP_MOVE_GRO_DOWN | 60 | Competitors log line, a rival's growth fell | {bot}: {market} growth down
 LBL_COMP_MOVE_GRO_UP | 60 | Competitors log line, a rival's growth rose | {bot}: {market} growth up
 LBL_COMP_MOVE_TIER_DOWN | 60 | Competitors log line, a rival really dropped a tier | {bot}: {market} tier down
+LBL_COMP_CYCLE | 16 | Competitors log line, prefix with the cycle of the move | Cycle {n}:

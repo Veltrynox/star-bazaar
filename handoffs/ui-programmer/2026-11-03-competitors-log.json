@@ -1,0 +1,11 @@
+{
+ "agent": "ui-programmer",
+ "date": "2026-11-03",
+ "task": "competitors-log",
+ "status": "done",
+ "files_changed": ["game/competitors_panel.gd", "game/main.gd", "tools/tests/run_tests.gd", "story/screens.md", "data/story_text.json"],
+ "schema_version": 1,
+ "open_questions": ["Not checked by eye: log box (96 px high, scrolls) and wrapping in the 620 px panel; no screenshot taken."],
+ "handoff": "Competitors panel: each market tab now has a Recent moves log under the share table, newest first, lines 'Cycle N: <Bot>: <Market> <stat> up/down' (new id LBL_COMP_CYCLE added to story/screens.md, built with build_story.py), LBL_COMP_NONE when empty. Refreshes on open, tab change, and right after Chains.apply_option in main.gd. Tests added (empty state, entry after apply_option, ids); headless suite 1165 pass, 0 fail. Not committed.",
+ "results": "tests pass=1165 fail=0"
+}
