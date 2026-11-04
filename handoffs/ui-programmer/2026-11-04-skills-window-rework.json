@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-04",
+  "task": "skills-window-rework",
+  "status": "done",
+  "files_changed": [
+    "game/skill_screen.gd",
+    "game/skill_icons.gd",
+    "tools/make_skill_icons.py",
+    "tools/make_skill_atlas.gd",
+    "art/source/ui_glyph_skill_atlas.svg",
+    "art/ui/ui_glyph_skill_atlas.png",
+    "art/README.md",
+    "design/art/NAMING.md",
+    "tools/tests/run_tests.gd"
+  ],
+  "open_questions": [
+    "Story-designer: new text ids with plain defaults in code: SK_LEARN_COST_ONE (default 'Learn  ·  {amount} point') and SK_LEARN_COST ('Learn  ·  {amount} points'). SK_COST, SK_COST_ONE and SK_LABEL_EFFECT are no longer used by the screen.",
+    "Owner: connector lines still run behind the node buttons (as before); with the wider gaps some horizontal runs cross neighbouring nodes. Reroute?",
+    "Owner: icons are stroke glyphs drawn by script; the look needs your eye (see art/ui/ui_glyph_skill_atlas.png on a dark background)."
+  ],
+  "handoff": "Detail panel: title, plain effect (no label), story line (dimmer, 9 pt), then tech/need/lock lines; the Cost line is gone. Learn button reads 'Learn  ·  N point(s)'; disabled-with-reason kept. 31 icons in one atlas (art/ui/ui_glyph_skill_atlas.png, 64 px cells), cut by game/skill_icons.gd, shown 24 px left of the node name and tinted by the node's self_modulate. Nodes are 0.9 size (50.4 x 129.6); gaps +50 percent (15/21/30/7). The tree sits in its own ScrollContainer (height = what fits, scrolls otherwise); connectors are drawn on the scrolled content; the detail strip stays fixed. Tests: 1378 pass, 0 fail. Windowed screenshot at 1920x1080 (qa/gui/skills_shot.gd): everything fits with no scrollbar, icons read, names wrap to 2 lines. Not checked by eye: the scrolling state at a small window, hover states, the 1519x908 window.",
+  "details": {
+    "see_in_a_minute": "Press K in game. Or: qa/run_game.sh res://qa/gui/skills_shot.gd -- <outdir>.",
+    "rebuild_icons": "python3 tools/make_skill_icons.py; Godot --headless --script tools/make_skill_atlas.gd; Godot --headless --import",
+    "gdd_docs": "gdd-skills.md and story/game-flow.md contain no Cost: or What it changes text, nothing to update."
+  }
+}

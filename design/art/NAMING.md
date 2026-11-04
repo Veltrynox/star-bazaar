@@ -28,6 +28,8 @@ Status: APPLIED (2026-11-03, folder reorganisation). Folder map and where to fin
 | `doc_` | documents and archives | `doc_gdd.pdf` | `media/docs/` |
 | `ref_` | reference images | `ref_volcanic_crust_01.jpg` | `media/refs/` |
 
+Atlas exception: `ui_glyph_skill_atlas.png` is one sheet of 31 skill glyphs (white, tinted in code); the cell order lives in `game/skill_icons.gd`.
+
 Not in the table yet (see section 8): event banners (`art/event_banners/ev01.webp`) and the 3D station model (`assets/space_station/star_bazaar_station.glb`).
 
 ## 4. Fixed word lists

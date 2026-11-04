@@ -5065,7 +5065,8 @@ func _test_learn_lock_and_permit_card() -> void:
 	m.skill_screen.select("FND_STORAGE")
 	var ss = m.skill_screen
 	check(ss.learn_button.disabled and _all_text(ss.detail_box).contains("100/3000"), "storage: earn-locked Learn button is disabled and the earn line is shown", _all_text(ss.detail_box))
-	check(_all_text(ss.detail_box).contains("Cost: 1 point") and not _all_text(ss.detail_box).contains("1 points"), "storage: singular point for a cost of 1")
+	check(ss.learn_button.text.contains("1 point") and not ss.learn_button.text.contains("1 points") and not _all_text(ss.detail_box).contains("Cost:"), "storage: Learn button shows the cost, singular for 1, no Cost line", ss.learn_button.text)
+	_test_skill_window_rework(m)
 	ss.confirm_learn()
 	check(not m.has_skill("FND_STORAGE") and m.skill_points == 1, "storage: earn-locked skill is not learned and keeps the point")
 	m.trade_income_total = 3000
@@ -5118,3 +5119,38 @@ func _test_learn_lock_and_permit_card() -> void:
 
 func FND3_NO_STORAGE() -> Array:
 	return ["FND_PROSPECT"]
+
+## Skills window rework: detail line order, cost on the button, icons, 0.9 sizes, scrolled tree.
+func _test_skill_window_rework(m: Control) -> void:
+	var ss = m.skill_screen
+	var SI = load("res://game/skill_icons.gd")
+	var kids: Array = ss.detail_box.get_children()
+	var texts: Array = []
+	for c in kids:
+		if c is Label:
+			texts.append(c.text)
+	var plain: String = StoryText.get_or("SK_FND_STORAGE_PLAIN", "", SS_plain(m, "FND_STORAGE"))
+	check(texts.size() >= 3 and texts[0].begins_with(SkillTree.skill_name("FND_STORAGE")) and texts[1] == plain and texts[2] == SkillTree.flavour("FND_STORAGE"), "skills window: title, then plain effect, then story line", str(texts.slice(0, 3)))
+	var all := _all_text(ss.detail_box)
+	check(not all.contains("Cost:") and not all.contains(StoryText.get_text("SK_LABEL_EFFECT")), "skills window: no Cost line and no 'What it changes' label")
+	check(ss.learn_text(1).contains("1 point") and not ss.learn_text(1).contains("points") and ss.learn_text(2).contains("2 points"), "skills window: Learn text singular and plural", ss.learn_text(1) + " / " + ss.learn_text(2))
+	var ids_ok: bool = SI.IDS.size() == 31
+	var atlas := load(SI.ATLAS_PATH) as Texture2D
+	check(atlas != null, "skill icons: atlas loads")
+	for id in SkillTree.all_ids():
+		var r: Rect2 = SI.region(id)
+		if atlas == null or r.size == Vector2.ZERO or not Rect2(Vector2.ZERO, atlas.get_size()).encloses(r):
+			ids_ok = false
+	check(ids_ok, "skill icons: every skill id has a region inside the atlas")
+	var btn_ok := true
+	for id in ss.node_buttons:
+		var b: Button = ss.node_buttons[id]
+		if b.icon == null or b.text != SkillTree.skill_name(id):
+			btn_ok = false
+	check(btn_ok, "skill icons: every node button has an icon and shows only the name")
+	var b0: Button = ss.node_buttons["FND_PERMIT"]
+	check(is_equal_approx(b0.custom_minimum_size.y, 56.0 * 0.9) and is_equal_approx(ss.CELL_W, 144.0 * 0.9), "skills window: node size is 0.9 of before")
+	check(ss.tree_scroll != null and ss.tree_scroll.is_ancestor_of(b0) and ss.tree_scroll.vertical_scroll_mode == ScrollContainer.SCROLL_MODE_AUTO and not ss.tree_scroll.is_ancestor_of(ss.detail_box), "skills window: the tree sits in a vertical scroll container, the detail strip does not")
+
+func SS_plain(m: Control, id: String) -> Dictionary:
+	return load("res://game/skill_screen.gd").plain_args(m.balance, id)

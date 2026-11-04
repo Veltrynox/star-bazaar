@@ -6,6 +6,7 @@ extends PanelContainer
 
 const StoryText := preload("res://game/story_text.gd")
 const SkillTree := preload("res://game/skill_tree.gd")
+const SkillIcons := preload("res://game/skill_icons.gd")
 var COL_LEARNED: Color = Ui.col("star_warm")
 var COL_AVAILABLE: Color = Color.WHITE
 var COL_SHORT: Color = Color(0.82, 0.82, 0.82)
@@ -17,13 +18,15 @@ const TECH_TINT := Color(0.72, 0.88, 1.0)
 const VERTICAL_LAYOUT := true  # true: branch columns in a vertical scroll; false: old wide layout
 const FONT_SIZE := 10
 const FONT_SIZE_TITLE := 15
-const NODE_BTN_H := 56.0
-const CELL_W := 144.0
+const NODE_BTN_H := 50.4  # 0.9 of the old 56
+const CELL_W := 129.6  # 0.9 of the old 144
+const ICON_PX := 24  # skill icon on the node button
+const TREE_RESERVE := 420.0  # window height kept for header, help, detail strip and footer; the tree gets the rest
 const STACKED_BRANCHES := ["fnd"]  # these branches put every node on its own row (one narrow column)
-const NODE_GAP_H := 10  # between nodes in a row
-const NODE_GAP_V := 14  # between rows of a branch
-const BRANCH_GAP := 20  # between branches
-const CELL_GAP := 5  # inside a node cell
+const NODE_GAP_H := 15  # between nodes in a row
+const NODE_GAP_V := 21  # between rows of a branch
+const BRANCH_GAP := 30  # between branches
+const CELL_GAP := 7  # inside a node cell
 
 signal closed
 
@@ -38,6 +41,8 @@ var detail_box: VBoxContainer
 var learn_button: Button
 var highlight: Array = []  # skill ids to point at (the steps to a permit), cleared on close
 var _root: VBoxContainer
+var tree_scroll: ScrollContainer  # holds the four trees; scrolls vertically when they do not fit
+var _tree: VBoxContainer  # the scrolled content, the connector lines are drawn on it
 
 # ---- pure helpers (tested headless) ----
 
@@ -117,8 +122,6 @@ func setup(main_node: Control) -> void:
 	_root = VBoxContainer.new()
 	_root.add_theme_constant_override("separation", 8)
 	Ui.scroll_wrap(self, _root, 24.0)  # taller than the window: the page scrolls, nothing nested
-	_root.draw.connect(_draw_links)
-	_root.sort_children.connect(_root.queue_redraw)
 	var head := HBoxContainer.new()
 	_root.add_child(head)
 	var title := Label.new()
@@ -141,7 +144,20 @@ func setup(main_node: Control) -> void:
 	# Tree area: row 0 = everything with no prerequisites, lower rows = locked behind prerequisites
 	var rows := VBoxContainer.new()
 	rows.add_theme_constant_override("separation", 6)
-	_root.add_child(rows)
+	_tree = rows
+	_tree.draw.connect(_draw_links)
+	_tree.sort_children.connect(_tree.queue_redraw)
+	_tree.minimum_size_changed.connect(_fit_tree.call_deferred)
+	tree_scroll = ScrollContainer.new()
+	tree_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
+	tree_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
+	tree_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	var tree_gutter := MarginContainer.new()  # keeps the last column clear of the scrollbar
+	tree_gutter.add_theme_constant_override("margin_right", 10)
+	tree_gutter.add_theme_constant_override("margin_bottom", 6)
+	tree_gutter.add_child(rows)
+	tree_scroll.add_child(tree_gutter)
+	_root.add_child(tree_scroll)
 	if VERTICAL_LAYOUT:
 		_build_vertical(rows)
 	else:
@@ -237,11 +253,19 @@ func _build_horizontal(rows: VBoxContainer) -> void:
 			for id in ids:
 				cells_row.add_child(_node_cell(id))
 
+## The tree area takes its own height when the window has room, else the window height left over (then it scrolls).
+func _fit_tree() -> void:
+	if tree_scroll == null or not is_instance_valid(tree_scroll) or not is_inside_tree():
+		return
+	var avail := get_viewport_rect().size.y - TREE_RESERVE
+	tree_scroll.custom_minimum_size.y = maxf(160.0, minf(_tree.get_combined_minimum_size().y + 8.0, avail))
+
 ## Smaller type for the whole window (the theme sizes are too large for 30 nodes).
 func _shrink(n: Node) -> void:
 	if n is Label:
 		var big: bool = (n as Label).theme_type_variation == "LabelTitle"
-		(n as Label).add_theme_font_size_override("font_size", FONT_SIZE_TITLE if big else FONT_SIZE)
+		var sz := FONT_SIZE_TITLE if big else (FONT_SIZE - 1 if n.has_meta("dim") else FONT_SIZE)
+		(n as Label).add_theme_font_size_override("font_size", sz)
 	elif n is Button or n is MenuButton:
 		n.add_theme_font_size_override("font_size", FONT_SIZE)
 	for c in n.get_children():
@@ -263,6 +287,9 @@ func _node_cell(id: String) -> Control:
 	btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	btn.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	btn.clip_text = true
+	btn.icon = SkillIcons.texture(id)
+	btn.expand_icon = true
+	btn.add_theme_constant_override("icon_max_width", ICON_PX)
 	btn.pressed.connect(select.bind(id))
 	cell.add_child(btn)
 	node_buttons[id] = btn
@@ -290,6 +317,7 @@ func _node_cell(id: String) -> Control:
 func open_screen() -> void:
 	visible = true
 	refresh()
+	_fit_tree.call_deferred()
 
 func close_screen() -> void:
 	if visible:
@@ -303,6 +331,8 @@ func open_highlight(ids: Array) -> void:
 	highlight = ids.duplicate()
 	selected = str(ids[0]) if not ids.is_empty() else ""
 	open_screen()
+	if selected != "" and node_buttons.has(selected):
+		tree_scroll.ensure_control_visible.call_deferred(node_buttons[selected])
 
 func select(id: String) -> void:
 	selected = id
@@ -338,18 +368,19 @@ func refresh() -> void:
 		_build_use_row(id, st)
 	_build_detail()
 	_shrink(detail_box)
-	_root.queue_redraw()
+	_tree.queue_redraw()
 	call_deferred("_redraw_links")
+	_fit_tree.call_deferred()
 
 func _redraw_links() -> void:
-	if _root != null and is_instance_valid(_root):
-		_root.queue_redraw()
+	if _tree != null and is_instance_valid(_tree):
+		_tree.queue_redraw()
 
 ## Prerequisite lines under the buttons: down from the prerequisite, across, down into the node.
 func _draw_links() -> void:
 	if main == null:
 		return
-	var origin := _root.get_global_rect().position
+	var origin := _tree.get_global_rect().position
 	var learned: Array = main.learned_skills
 	for id in cells:
 		for p in SkillTree.prereqs(id):
@@ -365,7 +396,7 @@ func _draw_links() -> void:
 			var p1 := Vector2(rb.position.x + rb.size.x * 0.5, rb.position.y) - origin
 			var my := (p0.y + p1.y) * 0.5
 			var col := COL_LEARNED if learned.has(p) else COL_LOCKED
-			_root.draw_polyline(PackedVector2Array([p0, Vector2(p0.x, my), Vector2(p1.x, my), p1]), col, 2.0)
+			_tree.draw_polyline(PackedVector2Array([p0, Vector2(p0.x, my), Vector2(p1.x, my), p1]), col, 2.0)
 
 ## Bot skills (Embargo Desk, Guild Seal): a Use menu when ready, else the cooldown or used note.
 func _build_use_row(id: String, st: String) -> void:
@@ -428,18 +459,16 @@ func _build_detail() -> void:
 	var learned: Array = main.learned_skills
 	var tech := SkillTree.is_tech(id)
 	_label("%s  (%s)" % [SkillTree.skill_name(id), StoryText.get_text("SK_KIND_TECH" if tech else "SK_KIND_SKILL")], 20)
-	_label(SkillTree.flavour(id))
-	_label(StoryText.get_text("SK_LABEL_EFFECT") + ": " + StoryText.get_or("SK_%s_PLAIN" % id, "", plain_args(main.balance, id)))
+	_label(StoryText.get_or("SK_%s_PLAIN" % id, "", plain_args(main.balance, id)))  # line 1: what it does
+	var story := _label(SkillTree.flavour(id))  # line 2: the story line, quieter than line 1
+	story.set_meta("dim", true)
+	story.modulate = Color(1, 1, 1, 0.7)
 	var st := node_state(learned, main.skill_points, main.balance, id)
 	if tech:
 		var p: Dictionary = Tech.progress(id)
 		var craft := StoryText.get_or("SK_%s_CRAFT" % id, "", {"n": int(p.get("n", 0)), "goal": int(p.get("goal", 0))})
 		_label(craft if craft != "" else StoryText.get_text("SK_CRAFTED", {"n": int(p.get("n", 0)), "goal": int(p.get("goal", 0))}))
 		_label(StoryText.get_text("SK_TECH_NO_POINTS"))
-	else:
-		var amount: int = SkillTree.cost(main.balance, id)
-		# code-side plural: SK_COST_ONE (singular) is optional story text, plain default until it exists
-		_label(StoryText.get_or("SK_COST_ONE", "Cost: {amount} point", {"amount": amount}) if amount == 1 else StoryText.get_text("SK_COST", {"amount": amount}))
 	var earn_lock: String = "" if (tech or st == "learned" or st == "locked") else main.skill_lock_reason(id)
 	if earn_lock != "":
 		_label(earn_lock)  # the reason a live-looking skill cannot be learned yet
@@ -461,7 +490,7 @@ func _build_detail() -> void:
 		"locked":
 			learn_button.text = StoryText.get_text("SK_BTN_LOCKED")
 		_:
-			learn_button.text = StoryText.get_text("BTN_LEARN")
+			learn_button.text = learn_text(SkillTree.cost(main.balance, id))
 	learn_button.disabled = st != "learnable" or earn_lock != ""
 	if earn_lock != "":
 		learn_button.tooltip_text = earn_lock
@@ -471,6 +500,13 @@ func _build_detail() -> void:
 		learn_button.tooltip_text = StoryText.get_text("SK_NEEDS", {"skill": ", ".join(names)})
 	learn_button.pressed.connect(confirm_learn)  # one step: the Learn button learns at once
 	detail_box.add_child(learn_button)
+
+## Learn button text with the cost in points: "Learn  ·  1 point" (singular for 1). Keys SK_LEARN_COST_ONE / SK_LEARN_COST.
+static func learn_text(amount: int) -> String:
+	var verb := StoryText.get_or("BTN_LEARN", "Learn")
+	if amount == 1:
+		return StoryText.get_or("SK_LEARN_COST_ONE", verb + "  ·  {amount} point", {"amount": amount})
+	return StoryText.get_or("SK_LEARN_COST", verb + "  ·  {amount} points", {"amount": amount})
 
 ## Called by the Learn button (tests call it directly).
 func confirm_learn() -> void:
