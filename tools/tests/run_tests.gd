@@ -556,6 +556,40 @@ func _test_tutorial_steps() -> void:
 	m.tut_step = 1
 	m._tut_update_highlight()
 	check(m.tut_hl.visible, "tutorial highlight: outline shows over the control")
+	# planet surface banners: atlas regions, header image, fade gradient, edge to edge
+	var PB := load("res://game/planet_banners.gd")
+	var atlas_tex := load(PB.ATLAS_PATH) as Texture2D
+	check(atlas_tex != null and atlas_tex.get_width() == PB.atlas_size().x and atlas_tex.get_height() == PB.atlas_size().y, "banners: atlas loads at the size the cells need")
+	var ids_ok := true
+	var pj: Variant = JSON.parse_string(FileAccess.get_file_as_string("res://data/planets.json"))
+	var sj: Variant = JSON.parse_string(FileAccess.get_file_as_string("res://data/systems.json"))
+	var all_ids: Array = []
+	for q in pj["planets"]:
+		all_ids.append(str(q["id"]))
+	for sy in sj["systems"]:
+		for q in sy["planets"]:
+			all_ids.append(str(q["id"]))
+	for pid in all_ids:
+		var r: Rect2 = PB.region(pid)
+		if not PB.has(pid) or r.size == Vector2.ZERO or not Rect2(Vector2.ZERO, Vector2(atlas_tex.get_size())).encloses(r):
+			ids_ok = false
+	check(ids_ok and all_ids.size() == 9, "banners: every planet in the data has a region inside the atlas")
+	m.planet_panel.show_planet(1)
+	await process_frame
+	await process_frame
+	var bn := _find_named(m.planet_panel, "PlanetBanner") as Control
+	var bi := _find_named(m.planet_panel, "BannerImage") as TextureRect
+	check(bn != null and bi != null and bi.material is ShaderMaterial and (bi.material as ShaderMaterial).get_shader_parameter("fade") is GradientTexture2D, "banners: planet with an image shows the banner and its fade gradient")
+	var pr: Rect2 = m.planet_panel.get_global_rect()
+	var br: Rect2 = bi.get_global_rect() if bi != null else Rect2()
+	check(bi != null and absf(br.position.x - pr.position.x - 1.0) < 1.5 and absf(br.end.x - pr.end.x + 1.0) < 1.5 and absf(br.position.y - pr.position.y - 1.0) < 1.5, "banners: the image reaches the panel's left, right and top edges", str(br, pr))
+	check(_find_named(m.planet_panel, "BuyGrid") != null and _find_named(m.planet_panel, "BannerTitle") != null, "banners: body and title still built")
+	var keep_id: String = str(m.map.planets[1]["id"])
+	m.map.planets[1]["id"] = "no_such_planet"
+	m.planet_panel.show_planet(1)
+	await process_frame
+	check(_find_named(m.planet_panel, "PlanetBanner") == null and _find_named(m.planet_panel, "BannerImage") == null and _find_named(m.planet_panel, "BuyGrid") != null, "banners: planet without an image has no banner")
+	m.map.planets[1]["id"] = keep_id
 	m.planet_panel.visible = false
 	m.skill_screen.close_screen()
 	m.selected_planet = -1

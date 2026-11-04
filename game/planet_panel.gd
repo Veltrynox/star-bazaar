@@ -34,7 +34,12 @@ var split_open: String = ""  # commodity whose split bar is open ("" = none)
 var _split_bar: Control = null
 var _split_tags: Dictionary = {}  # lane destination -> its "Split 60%" tag label
 var selected_route: int = -1  # T65: connection picked by clicking its line
-var box: VBoxContainer
+var box: VBoxContainer  # body: everything under the banner
+var outer: VBoxContainer  # banner (when the planet has one) + body margin
+var body_margin: MarginContainer
+var banner: Control = null
+const Banners := preload("res://game/planet_banners.gd")
+const GUTTER := 14.0  # Ui.scroll_wrap keeps this much clear for the scrollbar; the banner runs under it
 
 func setup(m: Control) -> void:
 	main = m
@@ -45,7 +50,13 @@ func _ready() -> void:
 	custom_minimum_size = Vector2(320, 0)
 	box = VBoxContainer.new()
 	box.add_theme_constant_override("separation", 6)
-	Ui.scroll_wrap(self, box, 76.0 + 70.0)  # clear of the top bar and the key hints  # long panels scroll instead of leaving the window
+	box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	body_margin = MarginContainer.new()
+	body_margin.add_child(box)
+	outer = VBoxContainer.new()
+	outer.add_theme_constant_override("separation", 0)
+	outer.add_child(body_margin)
+	Ui.scroll_wrap(self, outer, 76.0 + 70.0)  # clear of the top bar and the key hints  # long panels scroll instead of leaving the window
 	visible = false
 
 func show_planet(index: int, route_id: int = -1) -> void:
@@ -62,6 +73,7 @@ func rebuild() -> void:
 	for c in box.get_children():
 		box.remove_child(c)
 		c.queue_free()
+	_set_banner(str(main.map.planets[planet_index].get("id", "")))
 	_split_bar = null
 	_split_tags = {}
 	var p: Dictionary = main.map.planets[planet_index]
@@ -99,12 +111,54 @@ func rebuild() -> void:
 	_connections()
 	size = Vector2.ZERO
 
+## Surface banner at the top, edge to edge: the panel's side and top margins drop to the 1 px border, the body keeps
+## the old margins on its own. A planet without a banner keeps the plain panel.
+func _set_banner(planet_id: String) -> void:
+	if banner != null:
+		outer.remove_child(banner)
+		banner.queue_free()
+		banner = null
+	var base := get_theme_stylebox("panel", "PanelContainer")
+	banner = Banners.make(planet_id, custom_minimum_size.x)
+	if banner == null or not (base is StyleBoxFlat):
+		banner = null
+		remove_theme_stylebox_override("panel")
+		body_margin.add_theme_constant_override("margin_left", 0)
+		body_margin.add_theme_constant_override("margin_right", 0)
+		body_margin.add_theme_constant_override("margin_top", 0)
+		return
+	var sb := (base as StyleBoxFlat).duplicate() as StyleBoxFlat
+	var m := float(sb.border_width_left)
+	var side := sb.content_margin_left - m
+	sb.content_margin_left = m
+	sb.content_margin_right = m
+	sb.content_margin_top = m
+	add_theme_stylebox_override("panel", sb)
+	body_margin.add_theme_constant_override("margin_left", int(side))
+	body_margin.add_theme_constant_override("margin_right", int(side))
+	body_margin.add_theme_constant_override("margin_top", 4)
+	(banner.get_node("BannerImage") as Control).offset_right = GUTTER  # runs under the scrollbar gutter to the panel edge
+	outer.add_child(banner)
+	outer.move_child(banner, 0)
+
 ## Title, subtitle, description, planet thumbnails.
 func _header(p: Dictionary) -> void:
 	var title := Label.new()
 	title.text = str(p.get("name", p.get("id", "?")))
 	title.theme_type_variation = "LabelTitle"
-	box.add_child(title)
+	if banner != null:  # the name sits on the lower, faded part of the banner
+		title.name = "BannerTitle"
+		title.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)
+		title.offset_left = 16
+		title.offset_right = -16
+		title.offset_bottom = -2
+		title.offset_top = -34
+		title.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.8))
+		title.add_theme_constant_override("shadow_offset_x", 1)
+		title.add_theme_constant_override("shadow_offset_y", 1)
+		banner.add_child(title)
+	else:
+		box.add_child(title)
 	if main.systems_in_game() > 1:  # T85: system name once more than one system exists
 		var sys_l := _label(main.Systems.name_of(int(p.get("system", 1))))
 		sys_l.theme_type_variation = "LabelCaption"

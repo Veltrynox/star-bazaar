@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-04",
+  "task": "planet-surface-banners",
+  "status": "done",
+  "files_changed": [
+    "game/planet_banners.gd",
+    "game/planet_panel.gd",
+    "tools/make_planet_banner_atlas.gd",
+    "tools/tests/run_tests.gd",
+    "art/planet/planet_surface_banner_atlas.png",
+    "art/source/planet_surface_<id>_<name>_full.png (9, moved)",
+    "art/README.md",
+    "design/art/NAMING.md",
+    "design/star-bazaar-design-system/star-bazaar-design-system/components/PlanetPanel/README.md"
+  ],
+  "open_questions": [
+    "Image fades to alpha 0 (not to an opaque panel colour) so the 76% translucent panel body shows through with no seam; colour still blends to the Ui panel fill. OK?",
+    "Banner stays fixed while a long panel scrolls over it? Currently it scrolls away with the content (it is inside the scroll area)."
+  ],
+  "handoff": "All 9 planets (planet_1..3, dead_1, dead_2, s2_p1..4) have images; none missing. Originals moved to art/source/ (folder art/planet-surface-portraits removed, imports deleted). Atlas 1440x480 px (3x3 cells of 480x160), 1.43 MB, no mipmaps, linear. Panel: banner 120 px high, edge to edge under the 1px border, rounded top corners via shader, fade starts at 40% height to the panel fill colour (alpha to 0 at bottom). Planet name sits on the banner bottom (34 px band, shadowed); system caption, desc, thumbnails below. Banner is the first child of an outer box inside the scroll area; panel margins are overridden only when a banner exists. Tests: 1311 pass, 0 fail. One windowed screenshot of Voltara taken: banner, fade and title placement looked right, but the screenshot was dimmed by the intro overlay; other planets not seen by eye. Tweak constants in game/planet_banners.gd (HEIGHT, FADE_FROM, CELL).",
+  "details": {
+    "mapping": {
+      "planet_1": "voltara",
+      "planet_2": "tillam",
+      "planet_3": "ashgate",
+      "dead_1": "cinderrest",
+      "dead_2": "greywake",
+      "s2_p1": "brannock",
+      "s2_p2": "cindrel",
+      "s2_p3": "mossfell",
+      "s2_p4": "quillon"
+    }
+  }
+}

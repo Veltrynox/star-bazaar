@@ -11,3 +11,6 @@ Order, top to bottom:
 6. **Actions**: **Send to…** (primary) starts a route from this planet; **Buy ship** opens the ship panel. The hint under them says how many ships are free and the upkeep per ship.
 
 Left edge, 20px in, under the top bar, 320px wide. It shares its slot with the RoutePanel.
+
+**Surface banner**: when the planet has an image (`game/planet_banners.gd`), a 120px banner fills the panel top edge to edge (rounded top corners, 1px border kept) and the name sits on its lower part; the image fades into the panel fill (Ui panel colour) with a gradient.
+A planet without an image shows the plain panel header.
