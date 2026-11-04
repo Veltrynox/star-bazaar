@@ -107,6 +107,17 @@ func parse_tag(tag: String) -> Dictionary:
 			return {"kind": "stock", "planet": planet_index(args[0]), "c": args[1].strip_edges().to_lower(), "amount": int(args[2].strip_edges())}
 	return {}
 
+## Event icons: a minor event is a pure price change (price up / down, no choices, not a chain step). Everything else is important
+## (choices, chain steps, closed planets, flavour) and its icon stays until clicked.
+func is_minor(id: String) -> bool:
+	if not by_id.has(id) or is_chain_step(id) or not choices_of(id).is_empty():
+		return false
+	return str(effect_of_event(id).get("kind", "")) in ["up", "down"]
+
+## Planet an event names (price or closure effect), -1 when it names none.
+func named_planet(id: String) -> int:
+	return int(effect_of_event(id).get("planet", -1))
+
 func effect_of_event(id: String) -> Dictionary:
 	var pe = by_id.get(id, {}).get("pool_effect")
 	if typeof(pe) == TYPE_DICTIONARY and not pe.is_empty():  # new pool event from data/chains.json: planet by its id

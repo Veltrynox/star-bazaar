@@ -24,6 +24,7 @@
     "permit_margin_bonus": 0.5,
     "rescue_stipend": 1000,
     "event_interval": 4,
+    "event_icon_seconds": 12,
     "upgrade_cost": 900,
     "upgrade_margin_bonus": 0.25,
     "order_amount": 40,

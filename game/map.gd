@@ -493,6 +493,24 @@ func set_hint(index: int, on: bool) -> void:
 		hint.setup(planet_radius(index))
 	hint.position = positions[index]
 
+## Event icon click: halo on the planet the event names; -1 removes it.
+var event_hint: MeshInstance3D
+var _event_hint_i := -1
+func set_event_hint(index: int) -> void:
+	if index < 0 or index >= positions.size():
+		if event_hint != null:
+			event_hint.queue_free()
+			event_hint = null
+			_event_hint_i = -1
+		return
+	if event_hint == null:
+		event_hint = load("res://game/planet_hint.gd").new()
+		add_child(event_hint)
+	if _event_hint_i != index:
+		_event_hint_i = index
+		event_hint.setup(planet_radius(index))
+	event_hint.position = positions[index]
+
 ## T57: halo on the planet holding a pending Buy/Sell order; -1 removes it.
 func set_pending(index: int) -> void:
 	if index < 0 or index >= positions.size():

@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-04",
+  "task": "event-icons",
+  "status": "done",
+  "files_changed": ["game/event_icons.gd", "game/events.gd", "game/main.gd", "game/map.gd", "data/balance.json", "qa/bots/bot_run.gd", "tools/tests/run_tests.gd", "gdd.md", "story/game-flow.md"],
+  "open_questions": [
+    "economy-designer: new key event_icon_seconds = 12 (real seconds a minor icon lives) in data/balance.json; please own it.",
+    "Icon strip sits top centre under the system label (offset 120). Owner to judge position and look.",
+    "qa/gui/competitors_shot.gd still loops on event_notice only; harmless (no window opens by itself now)."
+  ],
+  "handoff": "Events now appear as a 34px square icon in a strip (game/event_icons.gd). Minor = price up/down with no choices (EV01-06, 10-16, 21, 22, 24-26, 28 and pool events with a price effect): icon fades after event_icon_seconds (12 s real time), no pause, effect applies anyway, not saved. Important = everything else (EV07-09 closed, EV17/18/20 choices, chain steps, flavour): icon stays, events.pending_id set (saved; icon recreated on load), blocks the next event. Click (main.open_event_icon(id)) opens the old window, pauses, moves camera to the named planet (system switch if needed) and shows a halo (map.set_event_hint); closing restores the earlier pause state. Classification is computed in events.gd is_minor(); build_story.py untouched. Debug trigger creates the icon. bot_run opens the pending important icon before answering. Tests 1290 pass, 0 fail."
+}

@@ -365,6 +365,8 @@ func _chain_pick(step_id: String) -> int:
 
 func _resolve_events() -> int:
 	var answered := 0
+	if main.event_notice == null and main.events.pending_id != "":
+		main.open_event_icon(main.events.pending_id)  # an important event waits as an icon: click it
 	while main.event_notice != null and answered < 10:
 		var notice = main.event_notice
 		notice.confirmed.emit(_event_pick(notice))  # -1 (Continue) when the event has no choices
