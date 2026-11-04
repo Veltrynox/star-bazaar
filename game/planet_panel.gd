@@ -245,6 +245,7 @@ func _row(c: String, prices: Dictionary, pend: Dictionary) -> Control:
 	pr_l.offset_bottom = -3
 	pr_l.offset_left = 8
 	pr_l.offset_right = -4
+	pr_l.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT  # under the stored/capacity number
 	pr_l.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	bs.add_child(pr_l)
 	var menu := _context_menu(str(c), prices)

@@ -314,23 +314,6 @@ func select(id: String) -> void:
 
 # ---- refresh ----
 
-func _status_line(id: String, st: String) -> String:
-	match st:
-		"learned":
-			return StoryText.get_text("SK_BTN_LEARNED")
-		"locked":
-			var need := SkillTree.missing_prereqs(main.learned_skills, id)
-			return StoryText.get_text("SK_LOCKED_NEEDS", {"name": SkillTree.skill_name(str(need[0]))}) if not need.is_empty() else StoryText.get_text("SK_BTN_LOCKED")
-		"researching":
-			var p: Dictionary = Tech.progress(id)
-			return StoryText.get_text("SK_CRAFTED", {"n": int(p.get("n", 0)), "goal": int(p.get("goal", 0))})
-		"points":
-			return StoryText.get_text("SK_NOT_ENOUGH")
-	var lock: String = main.skill_lock_reason(id)
-	if lock != "":
-		return lock
-	return StoryText.get_text("SK_COST", {"amount": SkillTree.cost(main.balance, id)})
-
 func refresh() -> void:
 	if main == null:
 		return
@@ -340,8 +323,7 @@ func refresh() -> void:
 		var st := node_state(learned, main.skill_points, main.balance, id)
 		var tech := SkillTree.is_tech(id)
 		var btn: Button = node_buttons[id]
-		var kind := StoryText.get_text("SK_KIND_TECH" if tech else "SK_KIND_SKILL")
-		btn.text = "%s\n%s\n%s" % [SkillTree.skill_name(id), kind, _status_line(id, st)]
+		btn.text = SkillTree.skill_name(id)
 		var col := COL_LEARNED if st == "learned" else (COL_AVAILABLE if st in ["learnable", "researching"] else (COL_SHORT if st == "points" else COL_LOCKED))
 		if tech and st != "locked" and st != "learned":
 			col = col * TECH_TINT
