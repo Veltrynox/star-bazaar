@@ -516,6 +516,12 @@
   "place": "Notice"
  },
  {
+  "id": "NOT_TUT_LOCKED",
+  "text": "Not yet. Follow the tutorial step, or skip the tutorial.",
+  "max": 110,
+  "place": "Notice, player clicks something the tutorial has muted"
+ },
+ {
   "id": "WORLD_SYS1_NAME",
   "text": "Hollin Reach",
   "max": 24,
@@ -841,7 +847,7 @@
  },
  {
   "id": "TUT_G1_SELECT",
-  "text": "Click the ringed planet.",
+  "text": "Click Voltara, the ringed planet.",
   "max": 60,
   "place": "Guided step 1, until a planet is clicked"
  },
@@ -853,7 +859,7 @@
  },
  {
   "id": "TUT_G2_BUY",
-  "text": "Press Buy on a good you want to trade.",
+  "text": "Press Buy on Energy.",
   "max": 60,
   "place": "Guided step 2, until Buy is on for a good"
  },
@@ -865,9 +871,15 @@
  },
  {
   "id": "TUT_G3_SEND",
-  "text": "Right-click the resource, choose Send to.",
+  "text": "Right-click Energy, choose Send to.",
   "max": 60,
   "place": "Guided step 3, until a route exists"
+ },
+ {
+  "id": "TUT_G3_PICK",
+  "text": "Click Ashgate to send Energy there.",
+  "max": 60,
+  "place": "Guided step 3, after Send to is chosen, until a destination is clicked"
  },
  {
   "id": "TUT_G3_SEND_WHY",
@@ -877,7 +889,7 @@
  },
  {
   "id": "TUT_G4_ROUTE_PAY",
-  "text": "Let the route sell at the destination.",
+  "text": "Press the lit time button, top right, to run the cycle.",
   "max": 60,
   "place": "Guided step 4, until a route has sold goods"
  },
@@ -901,7 +913,7 @@
  },
  {
   "id": "TUT_G6_SELL",
-  "text": "Right-click the resource there, choose Sell.",
+  "text": "Select Ashgate, right-click Energy, choose Sell.",
   "max": 60,
   "place": "Guided step 6, until the first Sell order"
  },

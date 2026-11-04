@@ -154,6 +154,7 @@ LBL_LANE_SHIP | 24 | Connections list, a ship's place on a shared route; the gam
 NOT_LANE_SHIP_ADDED | 110 | Notice, a ship added to an existing route | Ship added to the route.
 NOT_RESUMED | 110 | Notice, game unpaused | Running.
 NOT_PAUSED | 110 | Notice | Paused. Nothing earns while paused.
+NOT_TUT_LOCKED | 110 | Notice, player clicks something the tutorial has muted | Not yet. Follow the tutorial step, or skip the tutorial.
 
 ## Systems and system 2 (T86; names are proposals, owner decides)
 WORLD_SYS1_NAME | 24 | System 1 name, map and system labels | Hollin Reach
@@ -231,17 +232,18 @@ PLANET_UNHAPPY | 110 | Planet panel, resident unhappiness line when above zero; 
 NOT_SKILL_POP_TITLE | 32 | Pop-up title when expansion points are earned; {points} is the number earned | Skill point earned: +{points}
 
 ## Guided first steps (T124, 2026-10-31, owner item 3; shown one at a time, each moves on when done)
-TUT_G1_SELECT | 60 | Guided step 1, until a planet is clicked | Click the ringed planet.
+TUT_G1_SELECT | 60 | Guided step 1, until a planet is clicked | Click Voltara, the ringed planet.
 TUT_G1_SELECT_WHY | 110 | Guided step, why it matters (second line of the card) | Its panel shows what it sells, what it buys and what the company can trade there.
-TUT_G2_BUY | 60 | Guided step 2, until Buy is on for a good | Press Buy on a good you want to trade.
+TUT_G2_BUY | 60 | Guided step 2, until Buy is on for a good | Press Buy on Energy.
 TUT_G2_BUY_WHY | 110 | Guided step, why it matters (second line of the card) | A Buy order fills your storage on this planet each cycle.
-TUT_G3_SEND | 60 | Guided step 3, until a route exists | Right-click the resource, choose Send to.
+TUT_G3_SEND | 60 | Guided step 3, until a route exists | Right-click Energy, choose Send to.
+TUT_G3_PICK | 60 | Guided step 3, after Send to is chosen, until a destination is clicked | Click Ashgate to send Energy there.
 TUT_G3_SEND_WHY | 110 | Guided step, why it matters (second line of the card) | Pick a planet that wants the good. A route carries your goods there by ship.
-TUT_G4_ROUTE_PAY | 60 | Guided step 4, until a route has sold goods | Let the route sell at the destination.
+TUT_G4_ROUTE_PAY | 60 | Guided step 4, until a route has sold goods | Press the lit time button, top right, to run the cycle.
 TUT_G4_ROUTE_PAY_WHY | 110 | Guided step, why it matters (second line of the card) | The route earns when it sells there. That is where your money comes from.
 TUT_G5_UPKEEP | 60 | Guided step 5, after a ship is working | Find Ship upkeep under Expenses.
 TUT_G5_UPKEEP_WHY | 110 | Guided step, why it matters (second line of the card) | A ship costs money every cycle, so a route must earn more than it costs.
-TUT_G6_SELL | 60 | Guided step 6, until the first Sell order | Right-click the resource there, choose Sell.
+TUT_G6_SELL | 60 | Guided step 6, until the first Sell order | Select Ashgate, right-click Energy, choose Sell.
 TUT_G6_SELL_WHY | 110 | Guided step, why it matters (second line of the card) | A Sell order turns your stock into credits.
 TUT_G7_STORAGE | 60 | Guided step 7, storage | Watch stored/capacity on the resource button.
 TUT_G7_STORAGE_WHY | 110 | Guided step, why it matters (second line of the card) | Company storage holds your goods on a planet. When it is full, Buy waits.
