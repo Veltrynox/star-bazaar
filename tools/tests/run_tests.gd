@@ -840,9 +840,15 @@ func _test_tutorial_steps() -> void:
 	await _free_main(m)
 
 ## guided: keep the guided tutorial (and its lock) on, as in a fresh game. Default: the tutorial is already finished.
+const TEST_SEED := 20261104
+
 func _new_main(guided: bool = false) -> Control:
 	var m: Control = load(MAIN_SCENE).instantiate()
 	root.add_child(m)
+	# fixed seeds: market noise, chain shuffle and event rolls repeat from run to run
+	Markets.reset(m.balance, TEST_SEED)
+	Chains.reset(m.balance, TEST_SEED)
+	m.events.rng.seed = TEST_SEED
 	await process_frame
 	if not guided:
 		m.tut_step = m.TUT_GUIDE.size()
