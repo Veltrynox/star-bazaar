@@ -46,6 +46,7 @@ func _run() -> void:
 	await _test_systems()
 	await _test_galaxy_view()
 	await _test_tutorial_steps()
+	await _test_tutorial_lock()
 	_test_route_tag()
 	await _test_ship_clock()
 	await _test_energy_then_food()
@@ -448,11 +449,180 @@ func _test_galaxy_view() -> void:
 	check(g.open_view() and g.tut_step == -1, "galaxy: tutorial does not come back")
 	await _free_main(m)
 
+## Guided route lock: steps 0 to 5 allow only Energy, Voltara -> Ashgate, through the real entry points.
+func _test_tutorial_lock() -> void:
+	var m: Control = await _new_main(true)
+	var v: int = m._tut_idx("planet_1")
+	var a: int = m._tut_idx("planet_3")
+	var t: int = m._tut_idx("planet_2")
+	check(v >= 0 and a >= 0 and t >= 0 and v != a, "lock: Voltara, Ashgate and Tillam are found by id")
+	var chk: Dictionary = m.engine.check_connection(v, a, "energy")
+	var mg: int = m.trade.margin(v, a, "energy")
+	print("LOCK route energy Voltara->Ashgate: ok=%s margin=%d (buy %s, sell %s)" % [chk["ok"], mg, m.trade.price(v, "energy_buy"), m.trade.price(a, "energy_sell")])
+	check(bool(chk["ok"]) and mg > 0, "lock: Energy Voltara to Ashgate connects and the margin is positive", str(mg))
+	check(m.tut_step == 0 and m.tut_lock_step() == 0, "lock: fresh game locks step 0")
+	m._on_planet_clicked(a)
+	m._on_planet_clicked(t)
+	check(m.selected_planet < 0 and m.last_notice == StoryText.get_or("NOT_TUT_LOCKED", "Follow the tutorial step, or skip the tutorial."), "lock step 0: Ashgate and Tillam do not select, a notice shows", m.last_notice)
+	check(m._tut_ring_planet() == v, "lock step 0: the ring is on Voltara")
+	m._on_planet_clicked(v)
+	await process_frame
+	await process_frame
+	check(m.selected_planet == v and m.tut_step == 1, "lock step 0: Voltara selects and the guide moves on", str(m.tut_step))
+	# step 1: only Energy buy on Voltara
+	m.last_notice = ""
+	m._on_buy_send("food")
+	check(not m.engine.local_on(v, "food", "buy") and m.last_notice != "" and m.pending.is_empty(), "lock step 1: Food buy on Voltara is refused")
+	check(not bool(m.set_local_order(v, "food", "buy", true)["ok"]) and not bool(m.set_local_order(t, "energy", "buy", true)["ok"]) and not bool(m.set_local_order(v, "energy", "sell", true)["ok"]), "lock step 1: Food buy, Energy buy at Tillam and Energy sell are refused at the order entry point")
+	m._on_planet_clicked(t)
+	check(m.selected_planet == v, "lock step 1: Tillam does not select")
+	check(not bool(m.buy_ship("small")["ok"]) and m.ships == 0, "lock step 1: buying a ship is refused")
+	await process_frame
+	var bf: Button = _find_named(m.planet_panel, "BuyButton_food") as Button
+	var be: Button = _find_named(m.planet_panel, "BuyButton_energy") as Button
+	check(bf != null and be != null and bf.disabled and not be.disabled, "lock step 1: Food shows disabled, Energy stays enabled")
+	m._on_buy_send("energy")
+	await process_frame
+	await process_frame
+	check(m.engine.local_on(v, "energy", "buy") and m.tut_step == 2, "lock step 1: Energy buy on Voltara works and moves on", str(m.tut_step))
+	# step 2: only the Energy send from Voltara, to Ashgate
+	check(m._tut_picking() and m._tut_pick_planet() == a and m._tut_ring_planet() == a, "lock step 2: the pointer goes to Ashgate")
+	m.last_notice = ""
+	m._on_planet_clicked(t)
+	check(m.engine.routes.is_empty() and not m.pending.is_empty() and m.last_notice != "", "lock step 2: a click on Tillam is ignored, the send stays pending")
+	check(not bool(m.send_stock_buying(v, t, "energy")["ok"]) and not bool(m.send_stock_buying(v, a, "food")["ok"]) and m.engine.routes.is_empty(), "lock step 2: a send to Tillam or of Food is refused at the send entry point")
+	m._on_planet_clicked(a)
+	await process_frame
+	await process_frame
+	check(m.engine.routes.size() == 1 and str(m.engine.routes[0]["c"]) == "energy" and int(m.engine.routes[0]["a"]) == v and int(m.engine.routes[0]["b"]) == a, "lock step 2: Ashgate completes the Energy route")
+	check(m.tut_step == 3, "lock step 2: the guide moves to the run-time step", str(m.tut_step))
+	# step 3: time stays usable, everything else muted
+	m.last_notice = ""
+	m._on_planet_clicked(t)
+	check(m.selected_planet != t and m.last_notice != "", "lock step 3: planet clicks are muted")
+	check(not bool(m.set_local_order(a, "energy", "sell", true)["ok"]) and not bool(m.remove_connection(int(m.engine.routes[0]["id"]))["ok"]) and m.engine.routes.size() == 1, "lock step 3: Sell and route removal are muted")
+	m.set_speed(2.0)
+	m.set_paused(false)
+	check(m.time_speed == 2.0 and not m.paused, "lock step 3: the time control still works")
+	m.set_speed(1.0)
+	var cash0: int = m.cash
+	while m.cycle < 2:
+		m._end_cycle()
+	await process_frame
+	await process_frame
+	check(m.tut_step == 4, "lock step 3: a paid cycle moves to Expenses", str(m.tut_step))
+	check(m.cash > cash0 - 1 or m.cash > 0, "lock: the route is not a loss in its first cycle", "%d -> %d" % [cash0, m.cash])
+	# step 4: Expenses and time only
+	check(not bool(m.set_local_order(a, "energy", "sell", true)["ok"]), "lock step 4: Sell is still muted")
+	m.cash_forecast.anchor.gui_input.emit(_click(MOUSE_BUTTON_LEFT))
+	await process_frame
+	await process_frame
+	check(m.tut_step == 5, "lock step 4: opening Expenses moves on", str(m.tut_step))
+	# step 5: only Sell of Energy on Ashgate
+	m._on_planet_clicked(v)
+	check(m.selected_planet != v, "lock step 5: Voltara cannot be selected")
+	m._on_planet_clicked(a)
+	check(m.selected_planet == a, "lock step 5: Ashgate selects")
+	check(not bool(m.set_local_order(v, "energy", "sell", true)["ok"]) and not bool(m.set_local_order(a, "food", "sell", true)["ok"]) and not bool(m.set_local_order(a, "energy", "buy", true)["ok"]), "lock step 5: sell on Voltara, Food sell and a buy are refused")
+	m._on_order("energy", "sell")
+	await process_frame
+	await process_frame
+	check(m.engine.local_on(a, "energy", "sell") and m.tut_step >= 6, "lock step 5: Sell on Ashgate works and the guide moves on", str(m.tut_step))
+	check(m.tut_lock_step() == -1 and bool(m.set_local_order(t, "food", "buy", true)["ok"]), "lock: no lock from step 6")
+	var c1: int = m.cash
+	m._end_cycle()
+	m._end_cycle()
+	check(m.cash > 0 and m.cash != c1, "lock: happy path ends with the guide done and cash moving", "%d -> %d" % [c1, m.cash])
+	await _free_main(m)
+	# Skip releases the lock at once
+	m = await _new_main(true)
+	check(m.tut_lock_step() == 0, "lock: fresh again")
+	m._tut_skip()
+	check(m.tut_lock_step() == -1 and bool(m.set_local_order(m._tut_idx("planet_2"), "food", "buy", true)["ok"]), "lock: Skip releases the lock")
+	await _free_main(m)
+	# a save in the middle of the tutorial keeps the lock from the loaded step; a finished one has none
+	m = await _new_main(true)
+	m.tut_step = 4
+	var mid: Dictionary = JSON.parse_string(JSON.stringify(m.collect_state()))
+	m.tut_step = 0
+	m.apply_state(mid)
+	check(m.tut_step == 4 and m.tut_lock_step() == 4, "lock: a save in step 4 loads locked at step 4", str(m.tut_step))
+	mid["tut_step"] = m.TUT_GUIDE.size()
+	m.apply_state(mid)
+	check(m.tut_lock_step() == -1, "lock: a finished save loads with no lock")
+	await _free_main(m)
+	# never a lock after the game is over
+	m = await _new_main(true)
+	m.game_over = true
+	check(m.tut_lock_step() == -1, "lock: no lock when the game is over")
+	m.game_over = false
+	# missing planet data: the lock lets go
+	m.tut_step = 2
+	var saved_id: String = str(m.map.planets[m._tut_idx("planet_3")]["id"])
+	m.map.planets[m._tut_idx("planet_3")]["id"] = "zz"
+	check(m.tut_lock_step() == -1, "lock: missing Ashgate data releases the lock")
+	m.map.planets[m._tut_idx("zz")]["id"] = saved_id
+	check(m.tut_lock_step() == 2, "lock: restored data locks again")
+	await _free_main(m)
+
+func _click(btn: int) -> InputEventMouseButton:
+	var e := InputEventMouseButton.new()
+	e.button_index = btn
+	e.pressed = true
+	return e
+
 func _test_tutorial_steps() -> void:
-	var m: Control = await _new_main()
+	var m: Control = await _new_main(true)
 	var G: Array = m.TUT_GUIDE
 	check(m.tut_step == 0 and m.tutorial_label.text != "" and m.tutorial_label.visible and m.tutorial_label.is_visible_in_tree(), "tutorial: fresh game shows the step 1 line", m.tutorial_label.text)
 	check(m.tut_actions.visible and m.tut_actions.is_visible_in_tree(), "tutorial: Skip shows on the first step")
+	# clicking a planet is the step 1 action: the guide moves on at once, with no other refresh
+	m._on_planet_clicked(0)
+	await process_frame
+	check(m.tut_step >= 1, "tutorial: clicking a planet advances step 1", str(m.tut_step))
+	m.tut_step = 0
+	m.selected_planet = -1
+	await process_frame
+	# derived state: mutate the state directly, call no tutorial function, wait frames
+	m.selected_planet = 0
+	await process_frame
+	await process_frame
+	check(m.tut_step >= 1, "tutorial derived: setting selected_planet alone advances step 1", str(m.tut_step))
+	m.tut_step = 2
+	m.selected_planet = 0
+	m.pending = {}
+	await process_frame
+	await process_frame
+	var g3send: String = StoryText.get_or("TUT_G3_SEND", "", {}).strip_edges()
+	var g3pick: String = StoryText.get_or("TUT_G3_PICK", "Click the planet that wants the good.", {}).strip_edges()
+	check(m.tutorial_label.text == g3send and m._tut_highlight_key() == "send", "tutorial derived: step 3 without pending shows SEND", m.tutorial_label.text)
+	m.pending = {"planet": 0, "c": "energy"}
+	await process_frame
+	await process_frame
+	check(m.tutorial_label.text == g3pick and m._tut_highlight_key() == "planet" and m._tut_ring_planet() != 0, "tutorial derived: setting pending alone shows PICK and a planet target", m.tutorial_label.text)
+	m.pending = {}
+	await process_frame
+	await process_frame
+	check(m.tutorial_label.text == g3send and m._tut_highlight_key() == "send", "tutorial derived: clearing pending alone restores SEND and the resource target", m.tutorial_label.text)
+	m.tut_step = 3
+	m.set_paused(false)
+	await process_frame
+	await process_frame
+	check(m._tut_target_node("time") == m.speed_buttons[0], "tutorial derived: running at step 4 targets the speed button")
+	m.paused = true
+	await process_frame
+	await process_frame
+	check(m._tut_target_node("time") == m.pause_button, "tutorial derived: pausing flips the target to Play")
+	m.paused = false
+	await process_frame
+	await process_frame
+	var shows: int = m.tut_show_count
+	for _i in 6:
+		await process_frame
+	check(m.tut_show_count == shows, "tutorial derived: unchanged state does not rebuild the card", "%d -> %d" % [shows, m.tut_show_count])
+	m.tut_step = 0
+	m.selected_planet = -1
+	await process_frame
 	check(_buttons(m.tut_actions, []).size() == 1 and _buttons(m.tut_card, []).all(func(b): return (b as Button).text != StoryText.get_or("BTN_NEXT", "Next")), "tutorial: no Next button on the guided card, only Skip")
 	check(G == ["TUT_G1_SELECT", "TUT_G2_BUY", "TUT_G3_SEND", "TUT_G4_ROUTE_PAY", "TUT_G5_UPKEEP", "TUT_G6_SELL", "TUT_G7_STORAGE", "TUT_G8_SKILLS", "TUT_G9_PERMIT", "TUT_G10_DONE"], "tutorial steps: order")
 	# skip at step 3 ends the tutorial for good, also after save and load
@@ -500,18 +670,36 @@ func _test_tutorial_steps() -> void:
 	m.tut_step = 7
 	m._tut_advance()
 	check(m.tut_step == 7, "tutorial steps: skills step waits while a point is held")
+	# step 3 with a send pending: heading and target switch to the destination planet
+	m.tut_step = 2
+	m.selected_planet = 0
+	m.cancel_pending()
+	await process_frame
+	check(m.tutorial_label.text == StoryText.get_or("TUT_G3_SEND", "", {}).strip_edges(), "tutorial: send step shows TUT_G3_SEND without pending", m.tutorial_label.text)
+	m.pending = {"planet": 0, "c": "energy"}
+	m._pending_changed()
+	await process_frame
+	check(m.tutorial_label.text == StoryText.get_or("TUT_G3_PICK", "Click the planet that wants the good.", {}).strip_edges(), "tutorial: pending send shows TUT_G3_PICK", m.tutorial_label.text)
+	check(m._tut_highlight_key() == "planet" and m._tut_ring_planet() != 0, "tutorial: pending send targets a destination planet", str(m._tut_ring_planet()))
+	m.cancel_pending()
+	await process_frame
+	check(m.tutorial_label.text == StoryText.get_or("TUT_G3_SEND", "", {}).strip_edges() and m._tut_highlight_key() == "send", "tutorial: cancel restores TUT_G3_SEND and the resource target", m.tutorial_label.text)
+	m.tut_step = 0
+	m.selected_planet = -1
 	# every step moves on only by its own action
 	m.tut_flags = {}
 	m.tut_step = 4
 	m._tut_advance()
 	check(m.tut_step == 4, "tutorial steps: upkeep waits until Expenses is opened")
 	m.tut_note("expenses")
+	await process_frame
 	check(m.tut_step > 4, "tutorial steps: opening Expenses moves the upkeep step on", str(m.tut_step))
 	m.tut_flags = {}
 	m.tut_step = 6
 	m._tut_advance()
 	check(m.tut_step == 6, "tutorial steps: storage waits with no stock and no right-click")
 	m.tut_note("storage")
+	await process_frame
 	check(m.tut_step > 6, "tutorial steps: right-clicking the resource button moves the storage step on", str(m.tut_step))
 	m.skill_points = 1
 	m.learned_skills = []
@@ -585,9 +773,19 @@ func _test_tutorial_steps() -> void:
 		var hk: String = m._tut_highlight_key()
 		var ok: bool = hk == "planet" or m._tut_target_node(hk) != null
 		check(ok, "tutorial highlight: %s has a target in the scene or falls back to the planet" % G[i], hk)
+	m.tut_step = 3
+	m.set_paused(false)
+	await process_frame
+	check(m._tut_highlight_key() == "time" and m._tut_target_node("time") == m.speed_buttons[0], "tutorial highlight: route-pay step outlines the speed button")
+	m.set_paused(true)
+	await process_frame
+	check(m._tut_highlight_key() == "time" and m._tut_target_node("time") == m.pause_button, "tutorial highlight: route-pay step while paused outlines the Play button")
+	m.set_paused(false)
 	m.tut_step = 4
 	check(m._tut_highlight_key() == "expenses" and m._tut_target_node("expenses") == m.cash_box, "tutorial highlight: expenses step outlines the top bar cash")
 	m.tut_step = 1
+	m.selected_planet = m._tut_idx("planet_1")  # the guided lock points at Voltara until it is open
+	m.planet_panel.show_planet(m.selected_planet)
 	check(m._tut_target_node("buy") != null and m._tut_highlight_key() == "buy", "tutorial highlight: buy step outlines the Buy button")
 	m.tut_step = 7
 	check(m._tut_target_node("skills") == m.points_button, "tutorial highlight: skills step outlines the Skills button")
@@ -640,10 +838,14 @@ func _test_tutorial_steps() -> void:
 	check(m.tut_step == G.size() and not m.tut_card.visible and not m.tut_hl.visible, "tutorial card: Skip ends the tutorial and hides card and outline")
 	await _free_main(m)
 
-func _new_main() -> Control:
+## guided: keep the guided tutorial (and its lock) on, as in a fresh game. Default: the tutorial is already finished.
+func _new_main(guided: bool = false) -> Control:
 	var m: Control = load(MAIN_SCENE).instantiate()
 	root.add_child(m)
 	await process_frame
+	if not guided:
+		m.tut_step = m.TUT_GUIDE.size()
+		await process_frame
 	return m
 
 func _free_main(m: Control) -> void:

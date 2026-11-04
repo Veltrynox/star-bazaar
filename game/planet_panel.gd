@@ -91,6 +91,7 @@ func rebuild() -> void:
 		box.add_child(pl)
 		var cancel := Button.new()
 		cancel.text = "Cancel"
+		cancel.name = "CancelPending"
 		cancel.pressed.connect(func(): main.cancel_pending())
 		box.add_child(cancel)
 	var prices = p.get("base_prices")
@@ -109,7 +110,26 @@ func rebuild() -> void:
 	_space_section()
 	_workshop_section()
 	_connections()
+	_tut_mute()
 	size = Vector2.ZERO
+
+## Guided tutorial lock: every button but the resource rows, the pending Cancel and the Sell-here button shows disabled.
+## The rows and the Sell-here button decide for themselves (see _row and _pays_line); main.tut_allows is what refuses a click.
+func _tut_mute() -> void:
+	if not main.tut_lock_active():
+		return
+	for b in _buttons_in(box, []):
+		var n := str(b.name)
+		if n.begins_with("BuyButton_") or n == "CancelPending" or n == "PaysSellButton":
+			continue
+		(b as Button).disabled = true
+
+func _buttons_in(n: Node, out: Array) -> Array:
+	if n is Button:
+		out.append(n)
+	for c in n.get_children():
+		_buttons_in(c, out)
+	return out
 
 ## Surface banner at the top, edge to edge: the panel's side and top margins drop to the 1 px border, the body keeps
 ## the old margins on its own. A planet without a banner keeps the plain panel.
@@ -191,6 +211,8 @@ func _header(p: Dictionary) -> void:
 		t.tooltip_text = str(q.get("name", q.get("id", "?")))
 		var idx: int = i
 		t.pressed.connect(func(): main._on_planet_clicked(idx))
+		if main.tut_lock_active() and not main.tut_allows("select", idx):
+			t.modulate.a = 0.4  # guided tutorial: only the named planet can be picked
 		thumbs.add_child(t)
 	box.add_child(thumbs)
 
@@ -264,6 +286,8 @@ func _row(c: String, prices: Dictionary, pend: Dictionary) -> Control:
 		bs.disabled = true
 		bs.tooltip_text = main.trade_locked_reason()
 	bs.name = "BuyButton_" + str(c)
+	if main.tut_lock_active() and not (main.tut_allows("buy", planet_index, str(c)) or main.tut_allows("send_start", planet_index, str(c)) or main.tut_allows("sell", planet_index, str(c))):
+		bs.disabled = true  # guided tutorial: this resource is not part of the step
 	bs.pressed.connect(func(): buy_send_requested.emit(c))
 	if sell_p != null and buy != null:
 		bs.tooltip_text += "\n" + StoryText.get_or("LBL_SELL_PRICE", "Sell price") + ": " + _price(sell_p)
@@ -337,7 +361,7 @@ func _context_menu(c: String, prices: Dictionary) -> PopupMenu:
 	m.add_item(StoryText.get_text("BTN_SEND") + ("*" if sending else ""), MENU_SEND)
 	var i_send := m.get_item_index(MENU_SEND)
 	m.set_item_tooltip(i_send, "Move this stock to another planet's storage with a ship." if open else main.trade_locked_reason())
-	m.set_item_disabled(i_send, not open)
+	m.set_item_disabled(i_send, not open or not main.tut_allows("send_start", planet_index, c))
 	var sell = prices.get(c + "_sell")
 	var sell_on: bool = main.engine.local_on(planet_index, c, "sell")
 	m.add_check_item(StoryText.get_text("BTN_SELL") + (" " + _price(sell) if sell != null else "") + (": on" if sell_on else ""), MENU_SELL)
@@ -345,11 +369,12 @@ func _context_menu(c: String, prices: Dictionary) -> PopupMenu:
 	m.set_item_checked(i_sell, sell_on)
 	var sell_tip: String = StoryText.get_or("LBL_SELL_PRICE", "Sell price") + ": " + _price(sell)
 	m.set_item_tooltip(i_sell, "Not traded here." if sell == null else (sell_tip + ". " + ("Standing sell order. Press to stop." if sell_on else "Standing sell order each cycle.")))
-	m.set_item_disabled(i_sell, sell == null or not open)
+	m.set_item_disabled(i_sell, sell == null or not open or not main.tut_allows("sell", planet_index, c))
 	if not open:
 		m.set_item_tooltip(i_sell, main.trade_locked_reason())
 	if main.engine.salvage_reason(planet_index, c) != "":  # N5: stuck stock can be sold off for a share of the Sell price
 		m.add_item(StoryText.get_or("BTN_SALVAGE", "Salvage"), MENU_SALVAGE)
+		m.set_item_disabled(m.get_item_index(MENU_SALVAGE), main.tut_lock_active())
 	m.id_pressed.connect(func(id: int):
 		if id == MENU_SEND:
 			send_requested.emit(c)
@@ -732,7 +757,7 @@ func _pays_line(dest: int, c: String) -> Control:
 		var b := Button.new()
 		b.name = "PaysSellButton"
 		b.text = StoryText.get_text("BTN_SELL")
-		b.disabled = main.engine.check_local(dest, c, "sell")["ok"] == false
+		b.disabled = main.engine.check_local(dest, c, "sell")["ok"] == false or not main.tut_allows("sell", dest, c)
 		b.tooltip_text = StoryText.get_or("LBL_ROUTE_PAYS_TIP", "Turn on the Sell order at {planet}.", {"planet": main.planet_name(dest)}) if not b.disabled else StoryText.get_or("LBL_ROUTE_PAYS_NO", "Not traded there.")
 		b.pressed.connect(func():
 			var r: Dictionary = main.toggle_local(dest, c, "sell")

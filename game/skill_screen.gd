@@ -491,7 +491,7 @@ func _build_detail() -> void:
 			learn_button.text = StoryText.get_text("SK_BTN_LOCKED")
 		_:
 			learn_button.text = learn_text(SkillTree.cost(main.balance, id))
-	learn_button.disabled = st != "learnable" or earn_lock != ""
+	learn_button.disabled = st != "learnable" or earn_lock != "" or main.tut_lock_active()
 	if earn_lock != "":
 		learn_button.tooltip_text = earn_lock
 	elif st == "points":

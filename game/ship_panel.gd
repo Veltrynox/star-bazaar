@@ -87,7 +87,7 @@ func set_upkeep(main: Control) -> void:
 		var b: Button = buy_buttons[kind]
 		var r: Dictionary = main.can_buy_ship(kind)
 		b.text = "Buy %s (%d cr, upkeep %d)" % [Ships.display_name(kind), Ships.price(kind, main.balance), main.engine.upkeep_part({"ship": kind})]
-		b.disabled = not r["ok"]
+		b.disabled = not r["ok"] or main.tut_lock_active()
 		b.tooltip_text = str(r["reason"])
 
 ## Fit buttons, rebuilt only when the ships or the core change (set_upkeep runs every frame).

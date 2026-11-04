@@ -130,6 +130,9 @@ var tut_count: Label  # "2 of 10"
 var tut_why: Label  # the step's why line (story id <step id>_WHY), hidden when the story has none
 var tut_hl: Panel  # pulsing accent outline over the control the current step is about
 var tut_first: Dictionary = {}  # T15: one-time triggers already used this session
+var tut_show_count := 0  # card rebuilds, for tests
+var _tut_lock_seen := -1  # lock step the panels were last drawn for
+var _tut_sig: Array = []  # last state the card was built from
 ## T124 guided first steps: index into TUT_GUIDE; TUT_GUIDE.size() means done. Saved.
 const TUT_GUIDE := ["TUT_G1_SELECT", "TUT_G2_BUY", "TUT_G3_SEND", "TUT_G4_ROUTE_PAY", "TUT_G5_UPKEEP", "TUT_G6_SELL", "TUT_G7_STORAGE", "TUT_G8_SKILLS", "TUT_G9_PERMIT", "TUT_G10_DONE"]
 ## Old saves (no tut_ver) counted 6 steps: select, buy, send, sell, skills, done. Old index -> new index.
@@ -137,6 +140,7 @@ const TUT_OLD_MAP := [0, 1, 2, 5, 7, 9]
 const TUT_VER := 2
 ## English fallbacks until the story text ids exist in the story files.
 const TUT_FALLBACK := {
+	"TUT_G3_PICK": "Click the planet that wants the good.",
 	"TUT_G4_ROUTE_PAY": "A route earns when its goods sell at the destination. Wait for the cycle to end and watch your cash.",
 	"TUT_G5_UPKEEP": "Each ship has upkeep every cycle. It is listed under Expenses.",
 	"TUT_G6_SELL": "Turn Sell on at the other planet. The company sells what arrives, at that planet's price.",
@@ -622,6 +626,8 @@ func can_buy_permit(sid: int) -> Dictionary:
 
 ## Buys the permit: credits and expansion points, then the system's planets appear on the map.
 func buy_permit(sid: int) -> Dictionary:
+	if not tut_gate("other"):
+		return {"ok": false, "reason": tut_lock_text()}
 	var v := can_buy_permit(sid)
 	if not v["ok"]:
 		return v
@@ -672,6 +678,8 @@ func skill_lock_reason(id: String) -> String:
 
 ## T71: learn a skill. Spends skill points, saves, posts the notice. Returns {ok, reason}.
 func learn_skill(id: String) -> Dictionary:
+	if not tut_gate("other"):
+		return {"ok": false, "reason": tut_lock_text()}
 	_sync_earn()
 	var v := SkillTree.can_learn(learned_skills, skill_points, balance, id)
 	if not v["ok"]:
@@ -869,6 +877,8 @@ func _to_menu() -> void:
 	get_tree().change_scene_to_file("res://game/main_menu.tscn")
 
 func _on_planet_clicked(index: int) -> void:
+	if index >= 0 and not tut_gate("select", index):
+		return
 	_hide_cluster_info()  # T159
 	if not sell_offer.is_empty():
 		sell_offer = {}  # clicking elsewhere drops only the sell offer; the send stays
@@ -916,7 +926,7 @@ func _on_planet_clicked(index: int) -> void:
 			route_margin_notice(pending_planet, dst, str(r["c"]))  # low-margin warning, base game
 			_route_beat(pending_planet, dst)
 			selected_planet = dst
-			if sell_offer_applies(dst, str(r["c"])):
+			if sell_offer_applies(dst, str(r["c"])) and not tut_lock_active():  # the guided Sell step teaches the order
 				sell_offer = {"planet": dst, "c": str(r["c"])}
 			planet_panel.show_planet(dst)
 			return
@@ -941,6 +951,8 @@ func _hide_cluster_info() -> void:
 
 ## T159: click on an asteroid pack. Shows name, what it gives per cycle and, with FND_PROSPECT, what is left. Risk: no value exists yet (open question).
 func _on_cluster_clicked(index: int) -> void:
+	if not tut_gate("other"):
+		return
 	if space_storage_view != null:
 		space_storage_view.close_view()
 	if not pending.is_empty():
@@ -994,6 +1006,8 @@ func _on_cluster_clicked(index: int) -> void:
 
 ## T65: clicking a route line selects that connection in the panel (with Remove).
 func _on_route_clicked(id: int) -> void:
+	if not tut_gate("other"):
+		return
 	var i: int = engine.find_by_id(id)
 	if i < 0:
 		return
@@ -1010,7 +1024,6 @@ func _find_mission_planet() -> int:
 
 ## Rebuilds the planet panel (rows, connections, ship button) for the selected planet.
 func _refresh_panel() -> void:
-	_tut_advance()  # T124: selecting a planet is a guided step
 	if selected_planet >= 0:
 		planet_panel.rebuild()
 	if space_storage_view != null:
@@ -1019,6 +1032,8 @@ func _refresh_panel() -> void:
 ## T68: Buy / Sell toggled on a resource row of the selected planet (standing local order, no ship).
 func _on_order(c: String, role: String) -> void:
 	if selected_planet < 0 or game_over:
+		return
+	if not tut_gate_order(selected_planet, c, role):
 		return
 	var r := toggle_local(selected_planet, c, role)
 	if not r["ok"]:
@@ -1031,6 +1046,8 @@ func _on_send(c: String) -> void:
 	if not pending.is_empty() and pending["planet"] == selected_planet and pending["c"] == c:
 		cancel_pending()
 		return
+	if not tut_gate("send_start", selected_planet, c):
+		return
 	pending = {"planet": selected_planet, "c": c}
 	_pending_changed()
 	if storage.amount(storage.planet_key(selected_planet), c) <= 0:  # T134: allowed, but say it will wait
@@ -1040,6 +1057,8 @@ func _on_send(c: String) -> void:
 ## Sending is separate (Send to... on a storage row, with or without a buy order).
 func _on_buy_send(c: String) -> void:
 	if selected_planet < 0 or game_over:
+		return
+	if not tut_gate_order(selected_planet, c, "buy"):
 		return
 	if not pending.is_empty():
 		cancel_pending()
@@ -1053,6 +1072,8 @@ func _on_buy_send(c: String) -> void:
 ## Combined path kept: buy order now plus a route once a destination is clicked.
 func begin_buy_and_send(c: String) -> void:
 	if selected_planet < 0 or game_over:
+		return
+	if not tut_gate("send_start", selected_planet, c):
 		return
 	pending = {"planet": selected_planet, "c": c, "buy": true}
 	_pending_changed()
@@ -1247,6 +1268,11 @@ func free_of(kind: String) -> int:
 
 ## Buys one free ship of a type (default small, at ship_price). Returns {ok, reason}.
 func buy_ship(kind: String = "small") -> Dictionary:
+	if not tut_gate("other"):
+		return {"ok": false, "reason": tut_lock_text()}
+	return _buy_ship_now(kind)
+
+func _buy_ship_now(kind: String) -> Dictionary:
 	var r := can_buy_ship(kind)
 	if not r["ok"]:
 		return r
@@ -1313,6 +1339,8 @@ func can_upgrade_route(id: int) -> Dictionary:
 
 ## Upgrades the whole lane of route `id` to level 2 and charges upgrade_cost once. {ok, reason}.
 func upgrade_route(id: int) -> Dictionary:
+	if not tut_gate("other"):
+		return {"ok": false, "reason": tut_lock_text()}
 	var r := can_upgrade_route(id)
 	if not r["ok"]:
 		return r
@@ -1336,6 +1364,8 @@ func send_stock(src: int, dst: int, c: String, stop: int = -1) -> Dictionary:
 ## "Send to..." from the planet panel: one action that buys a ship when none is free, then makes the route.
 ## Route problems are checked first, so no ship is bought for a route that cannot be made. {ok, reason, id, c, bought}.
 func send_stock_buying(src: int, dst: int, c: String, stop: int = -1) -> Dictionary:
+	if not tut_gate("send", src, c, dst):
+		return {"ok": false, "reason": tut_lock_text(), "c": c, "bought": false}
 	var bought := false
 	if stop >= 0 and not engine.stop_candidates(src, dst, c).has(stop):  # N9: checked before any ship is bought
 		return {"ok": false, "reason": StoryText.get_or("NOT_STOP_PICK_AGAIN", "Click a stop from the picker, or the destination again."), "c": c, "bought": false}
@@ -1348,7 +1378,7 @@ func send_stock_buying(src: int, dst: int, c: String, stop: int = -1) -> Diction
 		var b := can_buy_ship("small")
 		if not b["ok"]:
 			return {"ok": false, "reason": b["reason"], "c": c, "bought": false}
-		buy_ship("small")
+		_buy_ship_now("small")
 		bought = true
 	var r := send_stock(src, dst, c, stop)
 	r["bought"] = bought
@@ -1387,17 +1417,23 @@ func set_split_percent(planet: int, c: String, first_pct: int) -> void:
 	var pair := split_pair(planet, c)
 	if pair.is_empty() or game_over:
 		return
+	if not tut_gate("other"):
+		return
 	var pct := clampi(first_pct, 10, 90)
 	engine.set_split(planet, int(pair[0]), int(pair[1]), c, float(pct) / 100.0)
 
 ## Split bar: "Stop split".
 func clear_split(planet: int, c: String) -> void:
+	if not tut_gate("other"):
+		return
 	engine.clear_split(planet, c)
 
 ## T68: standing local order at a planet (no ship). role "buy" or "sell". Returns {ok, reason}.
 func set_local_order(planet: int, c: String, role: String, on: bool) -> Dictionary:
 	if game_over:
 		return {"ok": false, "reason": "The game is over."}
+	if not tut_gate(role if on else "other", planet, c):
+		return {"ok": false, "reason": tut_lock_text()}
 	if on and not system_trade_open(planet):
 		return {"ok": false, "reason": trade_locked_reason()}
 	var r: Dictionary = engine.set_local(planet, c, role, on)
@@ -1412,6 +1448,8 @@ func set_local_order(planet: int, c: String, role: String, on: bool) -> Dictiona
 func salvage_stock(planet: int, c: String) -> Dictionary:
 	if game_over:
 		return {"ok": false, "reason": "The game is over.", "credits": 0}
+	if not tut_gate("other"):
+		return {"ok": false, "reason": tut_lock_text(), "credits": 0}
 	if engine.salvage_reason(planet, c) == "":
 		return {"ok": false, "reason": StoryText.get_or("LBL_SALVAGE_NA", "Salvage is not offered now."), "credits": 0}
 	var offer: Dictionary = engine.salvage_offer(planet, c)
@@ -1457,6 +1495,8 @@ func _connect(src: int, dst: int, c: String, stop: int = -1) -> Dictionary:
 
 ## Removes the connection; its ship becomes free.
 func remove_connection(id: int) -> Dictionary:
+	if not tut_gate("other"):
+		return {"ok": false, "reason": tut_lock_text()}
 	var i: int = engine.find_by_id(id)
 	if i < 0:
 		return {"ok": false, "reason": "No such route."}
@@ -1485,6 +1525,8 @@ func move_offer(id: int) -> Dictionary:
 func move_ship(id: int) -> Dictionary:
 	if game_over:
 		return {"ok": false, "reason": "The game is over."}
+	if not tut_gate("other"):
+		return {"ok": false, "reason": tut_lock_text()}
 	var i: int = engine.find_by_id(id)
 	if i < 0:
 		return {"ok": false, "reason": "No such route."}
@@ -1567,7 +1609,6 @@ func _all_cluster_packs() -> Array:
 
 func _after_change() -> void:
 	_push_routes_to_map()
-	_tut_advance()
 	_refresh()
 	_refresh_panel()
 	save_now()
@@ -1716,6 +1757,8 @@ func can_build_workshop(id: String) -> Dictionary:
 	return {"ok": true, "reason": ""}
 
 func build_workshop(id: String) -> Dictionary:
+	if not tut_gate("other"):
+		return {"ok": false, "reason": tut_lock_text()}
 	var v := can_build_workshop(id)
 	if not v["ok"]:
 		return v
@@ -1775,6 +1818,8 @@ func core_route_id() -> int:
 
 ## Fits the built Null Core to the ship of route `id` (it leaves any other ship). {ok, reason}.
 func fit_core(id: int) -> Dictionary:
+	if not tut_gate("other"):
+		return {"ok": false, "reason": tut_lock_text()}
 	if fabric.core_made <= 0:
 		return {"ok": false, "reason": "no core"}
 	var i: int = engine.find_by_id(id)
@@ -1918,6 +1963,7 @@ func _cycle_seconds() -> float:
 	return float(balance.get("cycle_minutes", 2)) * 60.0
 
 func _process(delta: float) -> void:
+	_tut_poll()
 	_tut_update_highlight()
 	_tut_tick(delta)
 	if event_icons != null:
@@ -2913,7 +2959,6 @@ func _rail_button(icon_token: String, story_id: String, fallback: String, cb: Ca
 func _refresh() -> void:
 	if goal_label == null:
 		return
-	_tut_advance()
 	goal_label.text = StoryText.get_or("LBL_GOAL_MARKETS", "Goal: more than {pct}% of one market", {"pct": roundi(float(balance.get("win_share_pct", 0.5)) * 100.0)})
 	share_chip.text = share_panel.chip_text(Markets.best(), Markets.names) if share_panel != null else "-"
 	share_chip.tooltip_text = StoryText.get_or("LBL_SHARE_TITLE", "Market share") + " (M)"
@@ -2970,10 +3015,13 @@ func _refresh() -> void:
 func _tut_show(_ids: Array = []) -> void:
 	if tutorial_label == null:
 		return
+	tut_show_count += 1
 	var guided: bool = tut_step < TUT_GUIDE.size()
 	var t := ""
 	if guided:
 		var id: String = TUT_GUIDE[tut_step]
+		if _tut_picking():
+			id = "TUT_G3_PICK"  # heading only; the why line stays on the step
 		t = StoryText.get_or(id, str(TUT_FALLBACK.get(id, "")), {}).strip_edges()
 	tutorial_label.text = t
 	tutorial_label.visible = t != "" and guided and not game_over
@@ -2990,8 +3038,7 @@ func _tut_show(_ids: Array = []) -> void:
 
 ## A guided step's action happened (key: "expenses", "storage"): remember it and move the tutorial on.
 func tut_note(key: String) -> void:
-	tut_flags[key] = true
-	_tut_advance()
+	tut_flags[key] = true  # _tut_poll sees the flag change and moves the card
 
 ## The last step has no action: it closes by itself after TUT_LAST_SECS real seconds (called from _process).
 func _tut_tick(delta: float) -> void:
@@ -3014,7 +3061,7 @@ func _tut_skip() -> void:
 	_tut_show()
 
 ## Which control each guided step is about. "planet" = the pulsing ring on the map planet, "" = nothing.
-const TUT_TARGET := ["planet", "buy", "send", "route", "expenses", "sell", "storage", "skills", "permit", ""]
+const TUT_TARGET := ["planet", "buy", "send", "time", "expenses", "sell", "storage", "skills", "permit", ""]
 
 func _tut_first_named(root: Node, prefix: String) -> Control:
 	var found: Control = null
@@ -3041,6 +3088,13 @@ func _tut_target_node(key: String) -> Control:
 					break
 			if c == null and ship_panel != null and ship_panel.label != null and ship_panel.label.is_visible_in_tree():
 				c = ship_panel.label  # no planet panel route row: the ship panel line
+		"time":
+			if paused:
+				c = pause_button  # time is stopped: the speed buttons do not resume it, so point at Play
+			else:
+				for i in speed_buttons.size():
+					if SPEEDS[i] == time_speed:
+						c = speed_buttons[i]
 		"expenses": c = cash_box
 		"skills": c = points_button
 		"permit":
@@ -3057,17 +3111,146 @@ func _tut_target_node(key: String) -> Control:
 
 ## "planet" when the step is about the map planet, or when its control is not on screen now. "" = no highlight.
 func _tut_highlight_key() -> String:
+	if _tut_picking():
+		return "planet"
 	if tut_step >= TUT_TARGET.size() or TUT_TARGET[tut_step] == "":
 		return ""
 	var key: String = TUT_TARGET[tut_step]
+	var lt := tut_lock_target()
+	if lt >= 0 and selected_planet != lt and key in ["buy", "send", "sell"]:
+		return "planet"  # the right planet is not open yet: point at it first
 	if key != "planet" and _tut_target_node(key) == null:
 		return "planet"
 	return key
 
+## ---- Guided route lock: while steps 0 to 5 run, only the one profitable route is allowed (Energy, Voltara -> Ashgate). ----
+## Derived from tut_step and state on every call; no handler switches it. Ends on skip, finish (step >= 6) and game over.
+const TUT_PLANET_FROM := "planet_1"
+const TUT_PLANET_TO := "planet_3"
+const TUT_GOOD := "energy"
+
+## Map index of a planet by its data id, or -1.
+func _tut_idx(id: String) -> int:
+	if map == null:
+		return -1
+	for i in map.planets.size():
+		if typeof(map.planets[i]) == TYPE_DICTIONARY and str(map.planets[i].get("id", "")) == id:
+			return i
+	return -1
+
+## True when the guided step cannot be done as locked (data missing, trade closed, no ship), so the lock lets go instead of blocking.
+func _tut_lock_released() -> bool:
+	var v := _tut_idx(TUT_PLANET_FROM)
+	var a := _tut_idx(TUT_PLANET_TO)
+	if v < 0 or a < 0 or not commodities.has(TUT_GOOD):
+		return true
+	match tut_step:
+		1:
+			return not (system_trade_open(v) and bool(engine.check_local(v, TUT_GOOD, "buy")["ok"]))
+		2:
+			if not bool(engine.check_connection(v, a, TUT_GOOD)["ok"]):
+				return true
+			return free_ships() <= 0 and not bool(can_buy_ship("small")["ok"])
+		3:
+			return engine.routes.is_empty()  # nothing to wait for
+		5:
+			return not (system_trade_open(a) and bool(engine.check_local(a, TUT_GOOD, "sell")["ok"]))
+	return false
+
+## The guided step the lock holds (0 to 5), or -1 when nothing is locked.
+func tut_lock_step() -> int:
+	if game_over or tut_step < 0 or tut_step > 5 or map == null or engine == null:
+		return -1
+	return -1 if _tut_lock_released() else tut_step
+
+func tut_lock_active() -> bool:
+	return tut_lock_step() >= 0
+
+## May the player do this now? Actions: select (planet), buy / sell (planet, good), send_start (planet, good),
+## send (src planet, good, dst), other (everything else). Time, Expenses, Skip and cancel are never locked.
+func tut_allows(action: String, planet: int = -1, good: String = "", dst: int = -1) -> bool:
+	var s := tut_lock_step()
+	if s < 0:
+		return true
+	var v := _tut_idx(TUT_PLANET_FROM)
+	var a := _tut_idx(TUT_PLANET_TO)
+	var e := good == TUT_GOOD
+	match action:
+		"select":
+			match s:
+				0, 1:
+					return planet == v
+				2:
+					return planet == (a if not pending.is_empty() else v)
+				5:
+					return planet == a
+			return false
+		"buy":
+			return e and planet == v and (s == 1 or s == 2)
+		"sell":
+			return e and planet == a and s == 5
+		"send_start":
+			return s == 2 and e and planet == v
+		"send":
+			return s == 2 and e and planet == v and dst == a
+	return false
+
+func tut_lock_text() -> String:
+	return StoryText.get_or("NOT_TUT_LOCKED", "Follow the tutorial step, or skip the tutorial.")
+
+## Allowed: true. Refused: posts the one short notice and returns false.
+func tut_gate(action: String, planet: int = -1, good: String = "", dst: int = -1) -> bool:
+	if tut_allows(action, planet, good, dst):
+		return true
+	post_notice_now(tut_lock_text())
+	return false
+
+## A Buy or Sell toggle: only turning the allowed order ON passes.
+func tut_gate_order(planet: int, c: String, role: String) -> bool:
+	return tut_gate(role if not engine.local_on(planet, c, role) else "other", planet, c)
+
+## Planet the locked step points at, or -1: Voltara for select/buy/send, Ashgate for the destination and the sell.
+func tut_lock_target() -> int:
+	match tut_lock_step():
+		0, 1:
+			return _tut_idx(TUT_PLANET_FROM)
+		2:
+			return _tut_idx(TUT_PLANET_TO if not pending.is_empty() else TUT_PLANET_FROM)
+		5:
+			return _tut_idx(TUT_PLANET_TO)
+	return -1
+
+## Guided send step (index 2) with a send pending: the player now has to click a destination planet.
+func _tut_picking() -> bool:
+	return tut_step == 2 and tut_step < TUT_GUIDE.size() and not pending.is_empty()
+
+## A planet that takes the pending good (same system first), or -1. Uses the engine's connection check and the trade margin.
+func _tut_pick_planet() -> int:
+	if pending.is_empty():
+		return -1
+	var src := int(pending["planet"])
+	var c := str(pending["c"])
+	if tut_lock_step() == 2:
+		return _tut_idx(TUT_PLANET_TO)  # the guided route goes to Ashgate only
+	var best := -1
+	for i in trade.planets.size():
+		if i == src or not bool(engine.check_connection(src, i, c)["ok"]) or trade.margin(src, i, c) <= 0:
+			continue
+		if system_of(i) == system_of(src):
+			return i
+		if best < 0:
+			best = i
+	return best
+
 ## Map planet the ring marks for the current step: the selected one, else the mission planet.
 func _tut_ring_planet() -> int:
+	if _tut_picking():
+		return _tut_pick_planet()
 	if _tut_highlight_key() != "planet":
 		return -1
+	var lt := tut_lock_target()
+	if lt >= 0:
+		return lt
 	return selected_planet if selected_planet >= 0 else mission_planet
 
 func _tut_update_highlight() -> void:
@@ -3199,7 +3382,48 @@ func tut_make_arrow() -> Polygon2D:
 	ar.visible = false
 	return ar
 
-## T124: moves the guided tutorial on when the player has done the current step. Called on every change.
+## The card is derived from game state: every frame a cheap signature of what it depends on is compared with the last one;
+## only when it differs does the tutorial advance and the card refresh. No handler has to call the tutorial.
+func _tut_sig_now() -> Array:
+	var sig: Array = [tut_step, game_over, tutorial_label == null]
+	sig.append(tut_lock_step())
+	if tut_step >= TUT_GUIDE.size():
+		return sig
+	var buys := 0
+	var sells := 0
+	for o in engine.local.values():
+		buys += int(bool(o["buy"]))
+		sells += int(bool(o["sell"]))
+	sig.append_array([
+		pending.is_empty(), str(pending.get("c", "")), int(pending.get("planet", -1)), selected_planet, paused, time_speed,
+		engine.routes.size(), buys, sells, tut_flags.size(), learned_skills.size(), skill_points, cycle,
+		planet_panel != null and planet_panel.visible, skill_screen != null and skill_screen.visible,
+		galaxy_view != null and galaxy_view.visible, tut_card != null and tut_card.visible])
+	if tut_step == 6:  # the only step that reads storage stock
+		var held := 0
+		for k in storage.stock.keys():
+			if not str(k).begins_with("system"):
+				for n in storage.stock[k].values():
+					held += int(n)
+		sig.append(held)
+	return sig
+
+func _tut_poll() -> void:
+	var sig := _tut_sig_now()
+	if sig == _tut_sig:
+		return
+	_tut_sig = sig
+	_tut_advance()
+	_tut_show()
+	var ls := tut_lock_step()
+	if ls != _tut_lock_seen:  # the lock moved: dim or free the panel buttons
+		_tut_lock_seen = ls
+		_refresh_panel()
+		if ship_panel != null:
+			ship_panel.set_upkeep(self)
+	_tut_sig = _tut_sig_now()  # the advance may have moved the step
+
+## T124: moves the guided tutorial on when the player has done the current step. Run by _tut_poll when the state it reads changes.
 func _tut_advance() -> void:
 	var moved := false
 	while tut_step < TUT_GUIDE.size():
