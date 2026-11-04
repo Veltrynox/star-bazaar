@@ -156,6 +156,18 @@
   "place": "Dialogs"
  },
  {
+  "id": "BTN_BACK",
+  "text": "Back",
+  "max": 24,
+  "place": "Settings screen and galaxy view, back button"
+ },
+ {
+  "id": "LBL_LANGUAGE",
+  "text": "Language",
+  "max": 24,
+  "place": "Settings screen, label of the language row (the UI adds the colon)"
+ },
+ {
   "id": "BTN_OK",
   "text": "OK",
   "max": 24,
@@ -3904,6 +3916,120 @@
   "text": "Get: {get}. Cost: {cost}. Rivals: {rivals}.",
   "max": 200,
   "place": "Effect line template for any option the game builds itself (the id game/chains.gd reads); {get}, {cost} and {rivals} are phrases without a final full stop"
+ },
+ {
+  "id": "CH_CUT",
+  "text": "drops a tier",
+  "max": 24,
+  "place": "Chain fill-in: used inside event sentences (see game/chains.gd)"
+ },
+ {
+  "id": "CH_CUT_LOW",
+  "text": "loses strength clearly",
+  "max": 32,
+  "place": "Chain fill-in: used inside event sentences (see game/chains.gd)"
+ },
+ {
+  "id": "CH_CUT_STD",
+  "text": "moved down a tier",
+  "max": 24,
+  "place": "Chain fill-in: used inside event sentences (see game/chains.gd)"
+ },
+ {
+  "id": "CH_CUT_STD_LOW",
+  "text": "strength down clearly",
+  "max": 32,
+  "place": "Chain fill-in: used inside event sentences (see game/chains.gd)"
+ },
+ {
+  "id": "CH_SIZE_S",
+  "text": "a little",
+  "max": 24,
+  "place": "Chain fill-in: used inside event sentences (see game/chains.gd)"
+ },
+ {
+  "id": "CH_SIZE_M",
+  "text": "clearly",
+  "max": 24,
+  "place": "Chain fill-in: used inside event sentences (see game/chains.gd)"
+ },
+ {
+  "id": "CH_SIZE_L",
+  "text": "sharply",
+  "max": 24,
+  "place": "Chain fill-in: used inside event sentences (see game/chains.gd)"
+ },
+ {
+  "id": "CH_RIVALS_LABEL",
+  "text": "Rivals:",
+  "max": 24,
+  "place": "Chain fill-in: used inside event sentences (see game/chains.gd)"
+ },
+ {
+  "id": "CH_FX_REST",
+  "text": "for the rest of the run",
+  "max": 32,
+  "place": "Chain fill-in: used inside event sentences (see game/chains.gd)"
+ },
+ {
+  "id": "CH_FX_CYCLES",
+  "text": "for {n} cycles",
+  "max": 24,
+  "place": "Chain fill-in: used inside event sentences (see game/chains.gd)"
+ },
+ {
+  "id": "CH_FX_CASH_IN",
+  "text": "+{cash_in} credits",
+  "max": 32,
+  "place": "Chain fill-in: used inside event sentences (see game/chains.gd)"
+ },
+ {
+  "id": "CH_FX_CASH_OUT",
+  "text": "-{cash_out} credits",
+  "max": 32,
+  "place": "Chain fill-in: used inside event sentences (see game/chains.gd)"
+ },
+ {
+  "id": "CH_FX_VOLUME",
+  "text": "Volume",
+  "max": 24,
+  "place": "Chain fill-in: used inside event sentences (see game/chains.gd)"
+ },
+ {
+  "id": "CH_FX_PRICE",
+  "text": "Sell prices",
+  "max": 24,
+  "place": "Chain fill-in: used inside event sentences (see game/chains.gd)"
+ },
+ {
+  "id": "CH_FX_UPKEEP",
+  "text": "Ship upkeep",
+  "max": 24,
+  "place": "Chain fill-in: used inside event sentences (see game/chains.gd)"
+ },
+ {
+  "id": "CH_FX_TRIP",
+  "text": "One route's trip cost",
+  "max": 32,
+  "place": "Chain fill-in: used inside event sentences (see game/chains.gd)"
+ },
+ {
+  "id": "CH_FX_BATCHES",
+  "text": "+{n} batch per cycle",
+  "max": 32,
+  "place": "Chain fill-in: used inside event sentences (see game/chains.gd)"
+ },
+ {
+  "id": "CH_FX_TECH",
+  "text": "+{n} tech progress",
+  "max": 32,
+  "place": "Chain fill-in: used inside event sentences (see game/chains.gd)"
+ },
+ {
+  "id": "CH_FX_IDLE",
+  "text": "Workshop idle",
+  "max": 24,
+  "place": "Chain fill-in: used inside event sentences (see game/chains.gd)"
  },
  {
   "id": "EV_EFF_NO_RIVALS",

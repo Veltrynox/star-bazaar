@@ -427,7 +427,7 @@ static func phrase(e: Dictionary) -> String:
 	var n := int(_num(str(e.get("cycles_key", "")), 0.0))
 	match t:
 		"cash":
-			return StoryText.get_or("CH_FX_CASH_IN" if v >= 0 else "CH_FX_CASH_OUT", "%s%d credits" % ["+" if v >= 0 else "-", absi(int(v))], {"cash_in": absi(int(v)), "cash_out": absi(int(v))})
+			return StoryText.get_or("CH_FX_CASH_IN" if v >= 0 else "CH_FX_CASH_OUT", "{sign}{n} credits", {"sign": "+" if v >= 0 else "-", "n": absi(int(v)), "cash_in": absi(int(v)), "cash_out": absi(int(v))})
 		"volume_pct":
 			return "%s %s %s" % [StoryText.get_or("CH_FX_VOLUME", "Volume"), _pct(v), _cycles_text(n)]
 		"price_pct":
@@ -441,7 +441,7 @@ static func phrase(e: Dictionary) -> String:
 		"workshop_idle":
 			return "%s %s" % [StoryText.get_or("CH_FX_IDLE", "Workshop idle"), _cycles_text(n)]
 		"workshop_batches":
-			return "%s %s" % [StoryText.get_or("CH_FX_BATCHES", "+%d batch per cycle" % int(v)), _cycles_text(n)]
+			return "%s %s" % [StoryText.get_or("CH_FX_BATCHES", "+{n} batch per cycle", {"n": int(v)}), _cycles_text(n)]
 	return ""
 
 static func size_word(size: String) -> String:

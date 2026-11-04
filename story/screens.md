@@ -60,6 +60,8 @@ MENU_CONFIRM_MAIN | 110 | Confirmation dialog | Save and return to the main menu
 MENU_CONFIRM_QUIT | 110 | Confirmation dialog | Save and quit the game?
 BTN_YES | 24 | Dialogs | Yes
 BTN_NO | 24 | Dialogs | No
+BTN_BACK | 24 | Settings screen and galaxy view, back button | Back
+LBL_LANGUAGE | 24 | Settings screen, label of the language row (the UI adds the colon) | Language
 BTN_OK | 24 | Event popup | OK
 BTN_BUY | 24 | Planet panel resource row | Buy
 BTN_SELL | 24 | Right-click menu on resource button | Sell
@@ -840,6 +842,25 @@ EV_BIO_B4_OPB_STD | 90 | BIO_B4 rival line 1, opt_b | {bot2} and {bot3}, Biotech
 
 ## Chain effect line template and rival log (added 2026-11-03)
 CH_EFFECT_LINE | 200 | Effect line template for any option the game builds itself (the id game/chains.gd reads); {get}, {cost} and {rivals} are phrases without a final full stop | Get: {get}. Cost: {cost}. Rivals: {rivals}.
+CH_CUT | 24 | Chain fill-in: used inside event sentences (see game/chains.gd) | drops a tier
+CH_CUT_LOW | 32 | Chain fill-in: used inside event sentences (see game/chains.gd) | loses strength clearly
+CH_CUT_STD | 24 | Chain fill-in: used inside event sentences (see game/chains.gd) | moved down a tier
+CH_CUT_STD_LOW | 32 | Chain fill-in: used inside event sentences (see game/chains.gd) | strength down clearly
+CH_SIZE_S | 24 | Chain fill-in: used inside event sentences (see game/chains.gd) | a little
+CH_SIZE_M | 24 | Chain fill-in: used inside event sentences (see game/chains.gd) | clearly
+CH_SIZE_L | 24 | Chain fill-in: used inside event sentences (see game/chains.gd) | sharply
+CH_RIVALS_LABEL | 24 | Chain fill-in: used inside event sentences (see game/chains.gd) | Rivals:
+CH_FX_REST | 32 | Chain fill-in: used inside event sentences (see game/chains.gd) | for the rest of the run
+CH_FX_CYCLES | 24 | Chain fill-in: used inside event sentences (see game/chains.gd) | for {n} cycles
+CH_FX_CASH_IN | 32 | Chain fill-in: used inside event sentences (see game/chains.gd) | +{cash_in} credits
+CH_FX_CASH_OUT | 32 | Chain fill-in: used inside event sentences (see game/chains.gd) | -{cash_out} credits
+CH_FX_VOLUME | 24 | Chain fill-in: used inside event sentences (see game/chains.gd) | Volume
+CH_FX_PRICE | 24 | Chain fill-in: used inside event sentences (see game/chains.gd) | Sell prices
+CH_FX_UPKEEP | 24 | Chain fill-in: used inside event sentences (see game/chains.gd) | Ship upkeep
+CH_FX_TRIP | 32 | Chain fill-in: used inside event sentences (see game/chains.gd) | One route's trip cost
+CH_FX_BATCHES | 32 | Chain fill-in: used inside event sentences (see game/chains.gd) | +{n} batch per cycle
+CH_FX_TECH | 32 | Chain fill-in: used inside event sentences (see game/chains.gd) | +{n} tech progress
+CH_FX_IDLE | 24 | Chain fill-in: used inside event sentences (see game/chains.gd) | Workshop idle
 EV_EFF_NO_RIVALS | 90 | Effect line, Rivals part of an event that changes no rival | Rivals: no change in {market} strength or growth.
 
 ## Rival changes: Competitors menu event log (added 2026-11-03)
