@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-04",
+  "task": "tut-g3-pick-state",
+  "status": "done",
+  "files_changed": ["game/main.gd", "tools/tests/run_tests.gd"],
+  "open_questions": [],
+  "handoff": "Guided step 3 (index 2) now switches while a send is pending: the card heading shows TUT_G3_PICK (fallback literal added to TUT_FALLBACK), and the pointer targets a destination planet instead of the resource button. The planet is chosen by new _tut_pick_planet(): engine.check_connection ok and trade.margin > 0, same system first, else -1 (no highlight). _pending_changed() now calls _tut_show(), so Cancel or a finished send restores TUT_G3_SEND and the resource target. The voice is still guarded by _voiced_tut (it keys on the step, so a heading switch does not replay it). The WHY line and the completion logic are unchanged. Tests: 1393 pass, 0 fail. Windowed screenshot checked: card reads 'Click the planet that wants the good.' and the pointer arrow sits on Tillam. Try it: new game, click Voltara, right-click Energy, Send to.",
+  "details": {"screenshot": "/private/tmp/claude-501/-Volumes-Work-Gamedev-Projects-AgentCourse-star-bazaar/9daa0c6f-1cc9-4df9-820d-8863b8bc8510/scratchpad/pick.png"}
+}

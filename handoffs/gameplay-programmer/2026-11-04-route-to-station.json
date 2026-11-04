@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-04",
+  "task": "Investigate: cannot build a route to the Space Storage station",
+  "status": "done",
+  "files_changed": ["game/map.gd", "game/main.gd", "tools/tests/run_tests.gd"],
+  "open_questions": ["Add story key LBL_PENDING_OR_STATION (fallback 'Or click the Space Storage station.') and localise the planet panel's 'Click the destination planet.' line?"],
+  "handoff": "The click path works. Real mouse events in a windowed run made the route with the station view open, the planet panel open and neither. Docked panels do not cover the station. Refusals show their reason in the Tips box (cash, tutorial lock, missing skill or storage) and the send stays pending. Causes: (1) BUG: a route to the station drew no line (map.set_routes skipped b<0), so it looked unbuilt. Fixed in map.gd. (2) RULE: no station exists until FND_STORAGE (earn lock), so a click on empty space cancels the send. (3) UX: the pending line never named the station. Added a hint in main.gd. (4) RULE: guided tutorial lock, shown. 1489 pass, 0 fail.",
+  "details": {
+    "playable": "While a Send to is pending, the Space Storage marker or station makes the route; the route is drawn from the planet to the station; the pending line says the station can be clicked.",
+    "how_to_try": "Learn Space Storage (needs 2000 trade income), right-click a resource on a planet, Send to, click the Space Storage marker. A line appears from the planet to the station and the route is listed in Connections."
+  }
+}

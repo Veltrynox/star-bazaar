@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-04",
+  "task": "Guided tutorial forces one profitable route: Energy Voltara to Ashgate, other controls muted",
+  "status": "done",
+  "files_changed": [
+    "game/main.gd",
+    "game/planet_panel.gd",
+    "game/ship_panel.gd",
+    "game/skill_screen.gd",
+    "tools/tests/run_tests.gd"
+  ],
+  "open_questions": [
+    "Time control is never locked (also at steps 0-2 and 5), so the player can always pause or run. OK, or mute it outside step 3/4?",
+    "Skills and Galaxy windows can still be opened during the lock; only their actions (learn, permit) are refused. OK?",
+    "tools/tests _new_main() now finishes the tutorial by default; _new_main(true) keeps it. Fine for other agents?"
+  ],
+  "handoff": "Lock derived from tut_step and state: tut_lock_step() / tut_allows(action, planet, good, dst) / tut_gate() in game/main.gd (planets by data id planet_1/planet_3, good energy, via map.planets). Gates: planet click, set_local_order, Buy/Sell/Send handlers, send_stock_buying, ship buy, upgrade, remove, move, salvage, split, workshop, fit_core, skill learn, permit, cluster/route click. Refusal posts NOT_TUT_LOCKED. Dimming: planet panel buttons and thumbnails, resource rows, menu items, ship buy, Learn. Verified at fresh start: Energy Voltara->Ashgate check_connection ok, buy 10, sell 27, margin 17 (Tillam 14). Release cases: data missing, trade closed or order not allowed, route not connectable or no ship obtainable (step 2), no route at step 3, sell not possible (step 5), game over, skip, step>=6. Suite: 1440 pass, 0 fail. T158 best-partner check failed once, passed on reruns (flaky).",
+  "details": {
+    "playable": "Steps 1 to 6 of the guided tutorial now accept only Energy buy at Voltara, send to Ashgate, run time, open Expenses, Sell Energy at Ashgate. Anything else shows the notice and the controls are dimmed. Skip tutorial always works.",
+    "how_to_try": "Start a new game. Click Tillam: notice, nothing selects. Click Voltara, press Food: refused; press Energy: moves on. Click Tillam as the destination: ignored; click Ashgate: route made. Let a cycle pass, open Expenses, select Ashgate, right-click Energy and turn Sell on. Skip tutorial frees everything at any step."
+  }
+}

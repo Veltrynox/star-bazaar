@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-11-04",
+  "task": "tut-energy-route-text",
+  "status": "done",
+  "files_changed": ["story/screens.md", "data/story_text.json"],
+  "open_questions": ["NOT_TUT_LOCKED mentions skipping the tutorial: confirm the game offers a skip control, else drop that clause.", "Voice.md writes commodities lower case; the tutorial uses Energy capitalised to match the on-screen button, as briefed."],
+  "handoff": "Reworded TUT_G1_SELECT, G2_BUY, G3_SEND, G3_PICK, G6_SELL to name Voltara, Energy and Ashgate. Added NOT_TUT_LOCKED (56 chars, max 110) after NOT_PAUSED. All _WHY lines and G4/G5/G7-G10 unchanged. build_story.py exit 0; gen_voice dry run: 0 to generate. Ready to wire; ids unchanged, NOT_TUT_LOCKED is new.",
+  "details": {}
+}

@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-04",
+  "task": "Guided tutorial derives its state from game state (polled signature) instead of handler calls",
+  "status": "done",
+  "files_changed": ["game/main.gd", "tools/tests/run_tests.gd", "handoffs/gameplay-programmer/2026-11-04-tut-derived-state.json"],
+  "open_questions": ["Galaxy-view tutorial (game/galaxy_view.gd, untouched) is still advanced by handler calls (e.g. a system click); same bug class could exist there."],
+  "handoff": "main.gd _process now calls _tut_poll(): _tut_sig_now() builds a cheap signature (tut_step, game_over, pending c/planet/empty, selected_planet, paused, time_speed, routes count, buy/sell order counts, tut_flags size, skills, points, cycle, panel/skill/galaxy visibility, stock total only at step 6). On change it runs _tut_advance() and _tut_show(); otherwise nothing (tut_show_count test counter, _voiced_tut guard intact). Removed nudge calls: _tut_advance in _on_planet_clicked, _refresh_panel, _after_change, _refresh, tut_note; _tut_show in _pending_changed. Kept: new-game reset, skip, tick, load. Effects now land one frame later. Tests: 1403 pass, 0 fail (new derived tests mutate state directly and await frames). Windowed check: click advanced step 1, pending showed PICK, clearing restored SEND.",
+  "details": {
+    "playable": "Tutorial card follows game state within a frame whatever changed it.",
+    "how_to_try": "New game, click a planet: step 2 shows. Set a send pending: card says click the destination; cancel: back to Send to."
+  }
+}

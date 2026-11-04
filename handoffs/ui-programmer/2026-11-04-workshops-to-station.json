@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-04",
+  "task": "workshops-to-station",
+  "status": "done",
+  "files_changed": [
+    "game/space_storage_view.gd",
+    "game/planet_panel.gd",
+    "tools/tests/run_tests.gd"
+  ],
+  "open_questions": [
+    "Owner: a workshop unlocked by skill (e.g. MIN_1, MIL_1) can only be built from the Space Storage view, which needs FND_STORAGE and an established storage. Until then nothing shows anywhere, so the player may not realise workshops live in the station. Want a hint (planet panel line or skill text)? Needs a story id."
+  ],
+  "handoff": "Removed _workshop_section() and its call from planet_panel.gd. space_storage_view.gd now has _workshop_rows() after the Fabric block, for system 1 only: separator, WorkshopTitle (LBL_WORKSHOPS), then Workshop_<id>, WorkshopRecipe_<g>, WorkshopStatus_<id> or WorkshopBuild_<id> (same ids and node names). Build calls main.build_workshop then refresh(); main._refresh_panel (run each cycle end) already refreshes the view, so status lines update while open. Tutorial lock and economy untouched. Tests: old planet-panel check moved to the view; added planet panel has no workshop nodes, Build disabled when cash short, Build builds and shows status, cycle refresh, system 2 shows no block. Suite 1452 pass, 0 fail. No new story ids. Windowed screenshot looked at: block fits and scrolls with the list; built and unbuilt rows read well.",
+  "details": {
+    "screens_changed": "Space Storage view (workshop block added); planet panel (workshop block removed)",
+    "how_to_see": "Learn FND_STORAGE and MIN_1 or MIL_1, click the station marker in system 1, scroll to the bottom of the view: Workshops title, Build buttons.",
+    "not_checked_by_eye": "Build press in the live window (the tutorial lock refused it in my bot; covered by tests). Windows smaller than 1920x1080."
+  }
+}

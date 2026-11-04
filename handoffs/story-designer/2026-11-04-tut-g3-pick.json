@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-11-04",
+  "task": "tut-g3-pick",
+  "status": "done",
+  "files_changed": ["story/screens.md", "data/story_text.json"],
+  "open_questions": [],
+  "handoff": "Added TUT_G3_PICK (max 60, 36 chars): 'Click the planet that wants the good.' Placed after TUT_G3_SEND in story/screens.md. No _WHY line; the card keeps TUT_G3_SEND_WHY. build_story.py exited 0 and data/story_text.json contains the id. Ready for the programmer to show it as the heading while the game waits for a destination click.",
+  "details": {}
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-11-04",
+  "task": "tut-g4-play",
+  "status": "done",
+  "files_changed": ["story/screens.md", "data/story_text.json"],
+  "open_questions": ["The Play and speed buttons are icon only; the text says 'lit time button' and relies on the highlight. Owner may prefer to name Resume."],
+  "handoff": "TUT_G4_ROUTE_PAY now reads: Press the lit time button, top right, to run the cycle. (55 of 60 characters). True when paused (highlight on Play) and when running (highlight on the current speed button). No '1x'. TUT_G4_ROUTE_PAY_WHY unchanged. build_story.py exit 0 and data/story_text.json regenerated. No code change needed; the id is the same.",
+  "details": {}
+}

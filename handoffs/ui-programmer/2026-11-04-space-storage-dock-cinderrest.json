@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-04",
+  "task": "Space Storage view docked like the planet panel; Cinderrest panel check",
+  "status": "done",
+  "files_changed": [
+    "game/space_storage_view.gd",
+    "game/planet_panel.gd",
+    "game/main.gd",
+    "tools/tests/run_tests.gd"
+  ],
+  "open_questions": [
+    "Cinderrest sphere itself is almost black on the map (art, not UI); art owner may want a rim light so the click target is findable."
+  ],
+  "handoff": "Space Storage view now sits at (76,76), 320 wide, same card style, scroll_wrap with the planet panel's reserve, so it stays on screen when small. main._on_station_clicked hides the planet panel and clears the selection on open; planet click and route click close the view. Cinderrest: could NOT reproduce a dead click or empty panel. A real mouse click on the planet registered, and the locked panel showed banner, name, system badge, 'Opens at cycle 15.', thumbs, a disabled dross row and Connections. Unlocked it showed 'Danger: 0 of 5'. What I did find: planet_panel._set_banner copied its own earlier style override on every rebuild, so the second build of any banner panel (cycle end, route change) lost its side margins and text sat on the border. Fixed by removing the override before reading the theme style. The dead planet is also near-black on the map. Tests 1446 pass, 0 fail. No new story ids.",
+  "details": {
+    "screens_changed": "Space Storage view; planet panel margins on rebuild",
+    "how_to_see": "Learn FND_STORAGE, click the station marker: view opens at the planet panel's place and the planet panel hides. Click a planet: it closes. Click Cinderrest before cycle 15: locked panel with the unlock line.",
+    "not_checked_by_eye": "Smallest window size (checked by rect maths in a test at 1920x1080 only); Space Storage Fabric block rows when MIN_1 is learned."
+  }
+}

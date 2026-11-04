@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-04",
+  "task": "Guided tutorial step 4 (TUT_G4_ROUTE_PAY) points at the time/speed button",
+  "status": "done",
+  "files_changed": ["game/main.gd", "tools/tests/run_tests.gd"],
+  "open_questions": ["Time starts paused and the 1x/2x/6x/12x buttons do not resume it, only Play does. While paused the pointer goes to the Play button, so the heading 'Press the 1x speed button' is slightly off then. Should the heading say 'press Play'?"],
+  "handoff": "TUT_TARGET index 3 changed from route to new key time. _tut_target_node('time') returns the speed button for the current speed, or pause_button (Play) while paused. Step completion, voice (_voiced_tut) and other steps are unchanged. Two tests added (unpaused: speed_buttons[0]; paused: pause_button). Headless 1395 pass, 0 fail. Windowed screenshot at step index 3 confirmed the pulsing outline and pointer sit on the Play button (fresh game is paused); the throwaway bot is deleted.",
+  "details": {
+    "playable": "At guided step 4 the card pointer and pulsing outline sit on the time control at the top right.",
+    "how_to_try": "New game, do steps 1 to 3 (planet, buy, send a route). At step 4 the top-right Play button (paused) or the current speed button (running) is outlined. Press it and let the cycle roll over."
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-11-04",
+  "task": "tut-g4-run-time",
+  "status": "done",
+  "files_changed": ["story/screens.md", "data/story_text.json"],
+  "open_questions": ["Story files have no name for the time button; I used 'the 1x speed button'. If the label changes (2x, Paused), the line needs a matching edit."],
+  "handoff": "TUT_G4_ROUTE_PAY reworded (max 60, 55 chars): 'Press the 1x speed button, top right, to end the cycle.' TUT_G4_ROUTE_PAY_WHY unchanged. No other id touched. build_story.py exited 0. Ready for the programmer; no wiring change needed since the id is the same.",
+  "details": {}
+}
