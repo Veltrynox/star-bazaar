@@ -3942,6 +3942,18 @@
   "place": "Competitors log line, prefix with the cycle of the move"
  },
  {
+  "id": "STORAGE_READY_TITLE",
+  "text": "Space Storage is available",
+  "max": 32,
+  "place": "Event window title, one-time notice when trade income unlocks the Space Storage skill (FND_STORAGE)"
+ },
+ {
+  "id": "STORAGE_READY",
+  "text": "The Bureau has stamped your form: the company has traded enough to be allowed storage in space. Learn Space Storage in the Skills window to keep stock in each open system. The stamp was still warm, and the ink moved a little.",
+  "max": 280,
+  "place": "Event window body, same notice, OK button below"
+ },
+ {
   "id": "SK_HEADER",
   "text": "Skills",
   "max": 24,

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-11-04",
+  "task": "storage-ready",
+  "status": "done",
+  "files_changed": ["story/screens.md", "data/story_text.json", "handoffs/story-designer/2026-11-04-storage-ready.json"],
+  "open_questions": [],
+  "handoff": "Two texts ready: STORAGE_READY_TITLE (max 32) and STORAGE_READY (max 280), in story/screens.md section 'Space Storage available (2026-11-04)'. They are not in events.md: build_story.py reads only EV-prefixed ids there, so plain ids go in screens.md. Build passes; data/story_text.json holds both. No digits, no placeholders. Programmer reads them by id from story_text.json.",
+  "details": {}
+}

@@ -848,3 +848,7 @@ LBL_COMP_MOVE_GRO_DOWN | 60 | Competitors log line, a rival's growth fell | {bot
 LBL_COMP_MOVE_GRO_UP | 60 | Competitors log line, a rival's growth rose | {bot}: {market} growth up
 LBL_COMP_MOVE_TIER_DOWN | 60 | Competitors log line, a rival really dropped a tier | {bot}: {market} tier down
 LBL_COMP_CYCLE | 16 | Competitors log line, prefix with the cycle of the move | Cycle {n}:
+
+## Space Storage available (2026-11-04)
+STORAGE_READY_TITLE | 32 | Event window title, one-time notice when trade income unlocks the Space Storage skill (FND_STORAGE) | Space Storage is available
+STORAGE_READY | 280 | Event window body, same notice, OK button below | The Bureau has stamped your form: the company has traded enough to be allowed storage in space. Learn Space Storage in the Skills window to keep stock in each open system. The stamp was still warm, and the ink moved a little.
