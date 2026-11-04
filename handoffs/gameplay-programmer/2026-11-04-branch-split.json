@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-04",
+  "task": "Branch split: voice and Russian localisation only on voice-localisation; next stays English-only",
+  "status": "done",
+  "files_changed": [
+    "handoffs/gameplay-programmer/2026-11-04-branch-split.json"
+  ],
+  "open_questions": [],
+  "handoff": "The work tree was split. next holds the tutorial, Space Storage dock, workshops move, route-to-station and test-seed work with no voice or Russian code. voice-localisation (from next) adds Lang, Voice, the Settings screen, the Russian build and texts, and the CH_ fill-in rows; its tree equals backup/pre-split-2026-11-04 (10373d4) exactly. main was not touched. assets/voice and tools/voice/.venv stay on disk, excluded locally in .git/info/exclude on next. Handoffs of the tutorial steps on next still mention the voiced step in their prose. Merge voice-localisation into next only if the owner wants voice back.",
+  "details": {
+    "playable": "next plays as before: English only, no voice, no Settings screen.",
+    "how_to_try": "git switch next, run the game. For voice and Russian: git switch voice-localisation."
+  }
+}
