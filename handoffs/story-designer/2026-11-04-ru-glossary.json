@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-11-04",
+  "task": "Russian localisation glossary and style guide",
+  "status": "done",
+  "files_changed": ["story/ru/GLOSSARY.md"],
+  "open_questions": [
+    "{cut} and {cut_std} are filled by the game with English phrases; Russian fill strings are needed (programmer task).",
+    "strength, growth, tier have no UI label in data/story_text.json, so the guide translates them (сила, рост, ступень). Owner to confirm.",
+    "Ship names Skerrit and Voruun Hauler and the workshop names are kept Latin or translated per the guide; owner to confirm which are shown on screen."
+  ],
+  "handoff": "story/ru/GLOSSARY.md is ready for the four translators: Latin-name rules (no inflection, apposition), decided Russian story terms with gender, address as plural vy, tone, formatting and TTS rules, 1.4x length rule, ten model lines (all within limit, placeholders intact), and an acceptance checklist. No translation beyond the ten samples. Nothing for the programmer to wire yet, except the Russian fill strings for {cut}, {cut_std} and a text-language switch for EV_ and TUT_ ids.",
+  "details": {}
+}

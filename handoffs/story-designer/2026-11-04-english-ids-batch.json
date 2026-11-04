@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-11-04",
+  "task": "english-ids-batch",
+  "status": "partial",
+  "files_changed": ["story/screens.md"],
+  "open_questions": ["story/ru/common.json CH_FX_BATCHES has no {n}; English is '+{n} batch per cycle'. Russian owner must add {n}."],
+  "handoff": "Added to story/screens.md: BTN_BACK (24), LBL_LANGUAGE (24), LBL_PENDING_OR_STATION (60, before LBL_TRADE_NEEDS_STATION), CH_FX_BATCHES (32, before CH_FX_TECH). BTN_SETTINGS NOT added: MENU_SETTINGS (Settings) already exists and the code falls back to it. No existing Back id found in data, so BTN_BACK is new (galaxy_view.gd also uses it). build_story.py exits 1 with one error only: 'story/ru/common.json: CH_FX_BATCHES: placeholders differ: English [{n}], Russian []'. Because it failed, data/story_text.json was not rewritten with the new ids (0 of 4 present); its existing diff is from earlier work. Rerun the build after the Russian entry gets {n}.",
+  "details": {}
+}

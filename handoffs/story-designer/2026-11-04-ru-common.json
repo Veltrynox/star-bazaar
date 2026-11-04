@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-11-04",
+  "task": "ru-common",
+  "status": "done",
+  "files_changed": ["story/ru/common.json"],
+  "open_questions": [
+    "Only CH_EFFECT_LINE exists in data/story_text.json; the other CH_* ids (CUT, SIZE, FX, RIVALS_LABEL) must be added to the source with English defaults from game/chains.gd before the Russian ones can load.",
+    "CH_FX_CYCLES is neutral ('на срок в циклах: {n}') because n varies and Russian numeral agreement cannot be done with one string. CH_FX_BATCHES has no placeholder in code (digit built in), so the Russian says 'Ещё одна партия за цикл'.",
+    "CH_CUT uses Latin 'tier' per owner decision 1 ('теряет tier'); frame assumed: 'компания {bot1} {cut} на рынке Military'."
+  ],
+  "handoff": "story/ru/common.json holds 48 ids: all TUT_G* and TUT_GALAXY_* lines, CH_* fill-ins, CH_FX_*, EV_EFF_NO_RIVALS. Checks passed: placeholders, digits, length, Latin words. Ready to wire once the CH_* ids exist in the source.",
+  "details": {}
+}

@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-11-04",
+  "task": "Russian translation of EV_MIN_ chain texts",
+  "status": "done",
+  "files_changed": ["story/ru/events_min.json"],
+  "open_questions": [
+    "Several texts exceed the English max but stay within 1.4x (A1_OPA_RES, A3_OPA_EFF, A3_OPA_RES, B4_OPB_EFF and others).",
+    "{cut} must be filled with a Russian third-person verb phrase (for example 'теряет strength').",
+    "Least sure: B1_OPB_EFF 'единицы технологического прогресса в Smelter'; A3_OPA_EFF 'Trip cost' kept Latin; B4_OPB_EFF word order; B4_BODY 'контора разведки'; A2_BODY 'звенит в зубах'."
+  ],
+  "handoff": "story/ru/events_min.json holds all 92 EV_MIN_ ids, ready to wire. Checks passed: same placeholders, no digits, within 1.4x max, no stray Latin. strength, growth, Smelter, Ship upkeep, Trip cost, Minerals kept Latin and never inflected. Rival lines use 'strength/growth немного ниже'. The 'cut' fill needs Russian strings.",
+  "details": {}
+}

@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-11-04",
+  "task": "ru-events-bio",
+  "status": "done",
+  "files_changed": ["story/ru/events_bio.json"],
+  "open_questions": [
+    "{cut} and {cut_std} are used as 'компания {bot} {cut} на рынке Biotech' and '{bot}, Biotech: {cut_std}': fill strings must be a 3rd person singular verb phrase and a short phrase like 'strength ниже'.",
+    "Workshop is written 'лаборатория Culture Lab' (apposition, Latin per owner decision 3); 'tech progress' is 'прогресс технологий'.",
+    "Least sure lines: A1_BODY ('пункт приёма' for depot), B1_BODY ('цепь холода', 'запасы производителя' for grower), B3_BODY ('право присутствовать на торгах' for seat at the call), B4 'первое право на ряд', B2_OPB_RES ('перебили по цене')."
+  ],
+  "handoff": "93 EV_BIO_ ids translated, all present once. Script checks pass: placeholders equal, no digits, all within 1.4x max (about 25 texts exceed soft max, none over hard limit), Latin only for glossary words (Biotech, strength, growth, Ship upkeep, Culture Lab, planets). Ready to wire from story/ru/events_bio.json. Rival lines keep strength/growth in Latin as 'Biotech: strength немного ниже'.",
+  "details": {}
+}

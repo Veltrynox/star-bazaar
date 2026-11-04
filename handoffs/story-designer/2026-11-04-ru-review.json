@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-11-04",
+  "task": "Russian copy edit of all five ru files",
+  "status": "done",
+  "files_changed": ["story/ru/events_min.json", "story/ru/events_mil.json", "story/ru/events_lux.json", "story/ru/events_bio.json", "story/ru/common.json", "story/ru/GLOSSARY.md"],
+  "open_questions": [
+    "Effect label 'Цена:' for Cost reads like a price; kept because the glossary binds it. Owner may prefer 'Затраты:' (change CH_EFFECT_LINE and every _EFF).",
+    "Percent values come from code as '+10%'; check that the TTS says them well.",
+    "Fill-ins needing a code-side plural choice: none. CH_FX_CYCLES uses 'на срок, циклов: {n}', CH_FX_BATCHES 'Партий за цикл: +{n}'. CH_FX_TECH '{n} единицы технологического прогресса' is right only for n = 2 to 4 (data has 3 and 4); CH_CUT/CH_CUT_STD/CH_SIZE_* need nothing."
+  ],
+  "handoff": "All ru files reviewed against English. Texts changed: min 44, mil 35, lux 41, bio 41, common 11. Validation script passes (placeholders, counts, digits, length, Latin, punctuation) and python3 tools/build_story.py exits 0 (421 of 421 ids). Terms unified (tech progress, workshops, hulls to ships, price effects, crew, depot, slot, cold chain, others); table added to story/ru/GLOSSARY.md under 'Terms fixed by the review'. Rival frame now 'у компании {bot} strength на рынке X ...' everywhere. CH_FX_VOLUME is 'Объём', CH_FX_TRIP 'Trip cost одного маршрута'. Ready to wire.",
+  "details": {}
+}

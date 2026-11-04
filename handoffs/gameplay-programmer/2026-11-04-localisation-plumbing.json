@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-04",
+  "task": "Localisation plumbing: language setting, Settings screen, Russian text overrides, language-aware voice",
+  "status": "done",
+  "files_changed": [
+    "game/lang.gd",
+    "game/story_text.gd",
+    "game/voice.gd",
+    "game/main_menu.gd",
+    "project.godot",
+    "tools/build_story.py",
+    "tools/tests/run_tests.gd",
+    "data/story_text_ru.json"
+  ],
+  "open_questions": [
+    "story-designer: add BTN_SETTINGS (Settings button and header; falls back to MENU_SETTINGS, then 'Settings'), LBL_LANGUAGE ('Language'), BTN_BACK ('Back'; already used by galaxy view with a fallback). MENU_VOICE exists? currently falls back to 'Voice'.",
+    "story/ru/common.json already has CH_CUT, CH_CUT_LOW, CH_CUT_STD, CH_CUT_STD_LOW, CH_SIZE_S/M/L, CH_RIVALS_LABEL and CH_FX_* but the English data only has CH_EFFECT_LINE, so build_story.py now fails with 'id is not in the English data' (sh tools/tests/run.sh stops at the build step). Story-designer must add those English ids to story/*.md, or the Russian file entries are removed.",
+    "Should game/chains.gd read those CH_ ids via StoryText so they switch to Russian? Not touched (not in brief)."
+  ],
+  "handoff": "Lang autoload (game/lang.gd: current, is_ru, set_language, reload, signal changed) saves section game/key language to user://settings.cfg. StoryText uses data/story_text_ru.json only in ru mode and only for in-scope ids EV_, TUT_G<digit>, TUT_GALAXY_, CH_ (the loader also drops others). Voice.path_for(id, lang): ru uses assets/voice/ru/<ID>.ogg only, never English. Main menu has Settings (language buttons, Voice check box and slider, Back). build_story.py writes story_text_ru.json from story/ru/*.json with all checks; python3 tools/build_story.py --selftest-ru runs fixture checks. English output unchanged. Fonts: Jost and JetBrains Mono already hold Cyrillic, nothing added. Event popup and tutorial card wrap/grow with 1.4x Russian text, no layout change. Headless suite: 1489 pass, 0 fail. Tests must read Lang/Voice via root.get_node (autoloads are not compile-time names in -s scripts).",
+  "details": {
+    "playable": "Main menu > Settings: choose English or Russian (saved at once), Voice on/off and volume (shared with the in-game menu, saved). In ru mode event and tutorial texts and voice come from the Russian table and ru voice folder when present.",
+    "how_to_try": "Run the game, press Settings, click Russian, Back, start a game: tutorial and event texts show Russian where story/ru has them (English elsewhere). Toggle Voice off in Settings: nothing is spoken, stays off after restart."
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-11-04",
+  "task": "Russian translation of the Military event chain (EV_MIL_*)",
+  "status": "done",
+  "files_changed": ["story/ru/events_mil.json"],
+  "open_questions": [
+    "Trip cost (LBL_TRIP_COST) is on screen in English and not in glossary section 1; I kept it Latin in EV_MIL_B2_OPA_EFF. Confirm.",
+    "Several bodies and results run over the English max but within 1.4x (A2 bodies, A2_OPA_RES, B2 bodies, B2_OPA_RES, B3_OPB_RES, A3_OPA_EFF). Trim if the owner wants max.",
+    "{cut} is used as 'компания {bot1} {cut} в Military' (A2_OPB_EFF): the Russian fill must be a 3rd person singular past or present verb phrase."
+  ],
+  "handoff": "story/ru/events_mil.json holds all 94 EV_MIL_ ids, checked by script: same placeholders, no digits, within 1.4x max, Latin only for on-screen words (Military, Ship upkeep, Munitions Line, Trip cost, strength, growth, Ashgate). Ready to wire. Least sure lines: (1) A2_OPA_RES, the go-between joke 'посту нужен на одного посредника меньше'; (2) A2_OPB_RES, 'компанию {bot} урезали в Military' for 'was cut back'; (3) B2_OPA_EFF, 'Trip cost' kept Latin; (4) B3_OPB_RES, 'говорили о ремесле' for 'talked shop'; (5) B4_OPB_EFF and RES, elliptical 'у компании {bot3} немного'.",
+  "details": {}
+}
