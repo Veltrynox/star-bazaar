@@ -39,7 +39,7 @@ Supply: the design pack estimates about 21 points over a run against 13 needed f
 ========================================
 3. THE TREES
 ========================================
-Three Foundations (not a market, not in endings), cost [GCM:skill_cost_FND_STORAGE], [GCM:skill_cost_FND_PERMIT] and [GCM:skill_cost_FND_PROSPECT] point each, learnable from cycle 1, order free (Space Storage also needs enough trade income, section 4):
+Three Foundations (not a market, not in endings), cost [GCM:skill_cost_FND_STORAGE], [GCM:skill_cost_FND_PERMIT] and [GCM:skill_cost_FND_PROSPECT] point each, learnable from cycle 1, order free (Space Storage also needs enough trade income, section 4): all three must be learned before any market-tree node can be learned (the first node of each tree needs them; until then every tree node shows muted and names the missing Foundations). Saves that already hold a tree skill keep it.
   FND_STORAGE Space Storage: unlocks Space Storage (section 4).
   FND_PERMIT Permit Charter: permits for new systems and routes between systems (section 5).
   FND_PROSPECT Prospecting: routes may start at asteroid clusters.

@@ -74,7 +74,11 @@
    "market": "mil",
    "kind": "skill",
    "tier": 1,
-   "prereqs": [],
+   "prereqs": [
+    "FND_STORAGE",
+    "FND_PERMIT",
+    "FND_PROSPECT"
+   ],
    "cost": 1,
    "effect": {
     "type": "upkeep_mult",
@@ -206,7 +210,11 @@
    "market": "lux",
    "kind": "skill",
    "tier": 1,
-   "prereqs": [],
+   "prereqs": [
+    "FND_STORAGE",
+    "FND_PERMIT",
+    "FND_PROSPECT"
+   ],
    "cost": 1,
    "effect": {
     "type": "sale_price_pct",
@@ -344,6 +352,8 @@
    "kind": "skill",
    "tier": 1,
    "prereqs": [
+    "FND_STORAGE",
+    "FND_PERMIT",
     "FND_PROSPECT"
    ],
    "cost": 1,
@@ -486,7 +496,11 @@
    "market": "bio",
    "kind": "skill",
    "tier": 1,
-   "prereqs": [],
+   "prereqs": [
+    "FND_STORAGE",
+    "FND_PERMIT",
+    "FND_PROSPECT"
+   ],
    "cost": 1,
    "effect": {
     "type": "order_size_pct",

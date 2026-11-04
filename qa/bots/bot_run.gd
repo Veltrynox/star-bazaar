@@ -1144,13 +1144,27 @@ func _permit_points() -> int:
 
 func _learn_skills() -> void:
 	var learned := true
-	var order: Array = skill_order + SkillTree.all_ids()
+	# Foundations first (2026-11-04): every market-tree node needs all three, so they lead the order (skill_order's own FND order kept).
+	var order: Array = []
+	for id in skill_order:
+		if SkillTree.market_of(str(id)) == "fnd" and not order.has(id):
+			order.append(id)
+	for id in SkillTree.ids_in("fnd"):
+		if not order.has(id):
+			order.append(id)
+	for id in skill_order + SkillTree.all_ids():
+		if not order.has(id):
+			order.append(id)
+	var only_branch := false
+	for id in only_skills:
+		if SkillTree.market_of(str(id)) != "fnd":
+			only_branch = true  # --only a branch skill: the Foundations it needs are allowed too
 	while learned:
 		learned = false
 		for id in order:
 			if main.learned_skills.has(id) or skip_skills.has(id):
 				continue
-			if not only_skills.is_empty() and not only_skills.has(id):
+			if not only_skills.is_empty() and not only_skills.has(id) and not (only_branch and SkillTree.market_of(str(id)) == "fnd"):
 				continue
 			if id != "FND_STORAGE" and _permit_reserve() > 0 and main.skill_points - SkillTree.cost(main.balance, id) < _permit_reserve():
 				continue  # QA: keep the points the wanted permit needs

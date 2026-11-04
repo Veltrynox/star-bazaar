@@ -883,6 +883,7 @@ func _test_main() -> void:
 	await _test_skill_screen_ui()
 	await _test_storage_ready()
 	_test_skills_core()
+	await _test_foundations_first()
 	_wipe_user()
 
 # ---- 5. skills: learning through main (T71, four market trees) ----
@@ -892,14 +893,15 @@ func _test_skill_screen_ui() -> void:
 	var bal := _bal()
 	check(SS.tier_rows("mil") == [["MIL_1"], ["MIL_2", "MIL_3"], ["MIL_4", "MIL_5"], ["MIL_6"], ["MIL_7"]], "skill screen: tier rows put the tech left of the skill", str(SS.tier_rows("mil")))
 	check(SS.tier_rows("fnd").size() == 1 and SS.tier_rows("fnd")[0].size() == 3, "skill screen: Foundations are one row of three")
-	check(SS.node_state([], 5, bal, "MIL_1") == "learnable" and SS.node_state([], 0, bal, "MIL_1") == "points", "skill screen: learnable vs not enough points")
-	check(SS.node_state([], 9, bal, "MIL_3") == "locked" and SS.node_state(["MIL_1"], 9, bal, "MIL_2") == "researching" and SS.node_state(["MIL_1", "MIL_2"], 0, bal, "MIL_2") == "learned", "skill screen: locked, researching, learned")
+	check(SS.node_state(FND3, 5, bal, "MIL_1") == "learnable" and SS.node_state(FND3, 0, bal, "MIL_1") == "points" and SS.node_state([], 5, bal, "MIL_1") == "locked", "skill screen: learnable vs not enough points")
+	check(SS.node_state(FND3, 9, bal, "MIL_3") == "locked" and SS.node_state(["MIL_1"], 9, bal, "MIL_2") == "researching" and SS.node_state(["MIL_1", "MIL_2"], 0, bal, "MIL_2") == "learned", "skill screen: locked, researching, learned")
 	check(int(SS.plain_args(bal, "MIL_5")["m"]) == int(bal["skill_MIL_5_every"]) and int(SS.plain_args(bal, "MIL_5")["n"]) == int(bal["skill_MIL_5_cycles"]), "skill screen: bot skill plain line gets cooldown and cycles")
 	var m: Control = await _new_main()
 	m._dismiss_preface()
 	m.skill_screen.open_screen()
 	check(m.skill_screen.node_buttons.size() == 31, "skill screen: one button per node", str(m.skill_screen.node_buttons.size()))
 	m.skill_points = 9
+	Skills.learned.append_array(FND3)
 	m.skill_screen.select("MIL_1")
 	check(m.skill_screen.confirm_row_absent(), "skill screen: no separate confirm step")
 	m.skill_screen.learn_button.pressed.emit()
@@ -974,7 +976,7 @@ func _test_skill_screen() -> void:
 	var m: Control = await _new_main()
 	m._dismiss_preface()
 	var bal: Dictionary = m.balance
-	check(SkillTree.prereqs("MIL_3") == ["MIL_1"] and SkillTree.prereqs("MIN_1") == ["FND_PROSPECT"] and SkillTree.prereqs("MIL_6") == ["MIL_4", "MIL_5"] and SkillTree.prereqs("BIO_7") == ["BIO_6"] and SkillTree.prereqs("FND_PERMIT").is_empty(), "skills: prerequisites follow core 3.1")
+	check(SkillTree.prereqs("MIL_3") == ["MIL_1"] and SkillTree.prereqs("MIN_1") == FND3 and SkillTree.prereqs("MIL_6") == ["MIL_4", "MIL_5"] and SkillTree.prereqs("BIO_7") == ["BIO_6"] and SkillTree.prereqs("FND_PERMIT").is_empty(), "skills: prerequisites follow core 3.1")
 	check(m.learned_skills.is_empty(), "skills: nothing learned at start")
 	# cost and points
 	m.skill_points = 0
@@ -1010,10 +1012,13 @@ func _test_skill_screen() -> void:
 	check(not r["ok"] and r["reason"] == "locked", "skills: MIN_1 needs FND_PROSPECT")
 	m.learn_skill("FND_PROSPECT")
 	r = m.learn_skill("MIN_1")
-	check(r["ok"] and m.learned_skills == ["FND_PERMIT", "FND_PROSPECT", "MIN_1"], "skills: MIN_1 after FND_PROSPECT")
+	check(not r["ok"] and r["reason"] == "locked", "skills: MIN_1 still locked with two of three Foundations")
+	_learn_storage(m)
+	r = m.learn_skill("MIN_1")
+	check(r["ok"] and m.learned_skills == ["FND_PERMIT", "FND_PROSPECT", "FND_STORAGE", "MIN_1"], "skills: MIN_1 after all three Foundations")
 	check(Skills.learned == m.learned_skills and Skills.is_learned("MIN_1"), "skills: Skills.learned is the learned set")
 	# space storage, permits and cluster routes follow the Foundations
-	check(not m.space_post_open(1) and m.can_mine() and Skills.unlocked("permit_routes"), "skills: FND_PROSPECT opens cluster routes, FND_PERMIT permit routes, no storage yet")
+	check(m.can_mine() and Skills.unlocked("permit_routes"), "skills: FND_PROSPECT opens cluster routes, FND_PERMIT permit routes")
 	_learn_storage(m)
 	check(m.space_post_open(1) and Skills.unlocked("space_storage"), "skills: FND_STORAGE opens the Space Storage post")
 	# the screen still opens (the rebuild is the UI task)
@@ -2460,7 +2465,7 @@ func _test_skill_effects() -> void:
 	# BIO_3 Seed Bank through learn_skill (BIO_3 needs BIO_1)
 	var cap0: int = m.storage.capacity_of(key0)
 	m.skill_points = 10
-	check(m.learn_skill("FND_PERMIT")["ok"] and _learn_storage(m)["ok"] and m.learn_skill("BIO_1")["ok"] and m.learn_skill("BIO_3")["ok"], "BIO_3: learned after BIO_1")
+	check(m.learn_skill("FND_PERMIT")["ok"] and m.learn_skill("FND_PROSPECT")["ok"] and _learn_storage(m)["ok"] and m.learn_skill("BIO_1")["ok"] and m.learn_skill("BIO_3")["ok"], "BIO_3: learned after BIO_1")
 	var cap1: int = m.storage.capacity_of(key0)
 	check(cap1 == int(round(float(cap0) * (1.0 + float(bal["skill_BIO_3_capacity"])))) and cap1 > cap0, "BIO_3: planet storage capacity raised by skill_BIO_3_capacity", "%d -> %d" % [cap0, cap1])
 	check(m.storage.capacity_of("system:1") == int(bal["space_storage_capacity"]), "BIO_3: Space Storage capacity unchanged")
@@ -4347,7 +4352,7 @@ func _test_dead_world_mechanics() -> void:
 	check(str(g["id"]) == "dead_2" and g["name"] == "Greywake" and g["abundant"] == "nullglass" and g["base_prices"].has("nullglass_buy"), "dead: dead_2 Greywake in system 2 carries nullglass")
 	# skills
 	var ST = m.SkillTree
-	check(ST.prereqs("MIN_3") == ["MIN_1"] and ST.prereqs("MIN_5") == ["MIN_3"] and ST.prereqs("MIN_1") == ["FND_PROSPECT"], "dead skills: MIN_3 needs MIN_1, MIN_5 needs MIN_3, MIN_1 needs FND_PROSPECT")
+	check(ST.prereqs("MIN_3") == ["MIN_1"] and ST.prereqs("MIN_5") == ["MIN_3"] and ST.prereqs("MIN_1") == FND3, "dead skills: MIN_3 needs MIN_1, MIN_5 needs MIN_3, MIN_1 needs the three Foundations")
 	check(ST.ids_in("min").has("MIN_3") and ST.cost(m.balance, "MIN_3") == 2 and ST.cost(m.balance, "MIN_5") == 3 and ST.cost(m.balance, "MIN_1") == 1, "dead skills: Minerals tree, costs 2, 3, 1 (balance v36)")
 	# gate
 	m.cash = 6000
@@ -4969,6 +4974,60 @@ func _test_chains() -> void:
 
 
 ## Space Storage is earned (trade income only): grant it, learn it, restore.
+const FND3 := ["FND_STORAGE", "FND_PERMIT", "FND_PROSPECT"]
+
+## Foundations first (owner 2026-11-04): every market-tree node needs all three Foundations.
+func _test_foundations_first() -> void:
+	var m: Control = await _new_main()
+	m._dismiss_preface()
+	var bal: Dictionary = m.balance
+	var branch := []
+	for b in SkillTree.MARKETS:
+		branch.append_array(SkillTree.ids_in(b))
+	check(branch.size() == 28, "foundations: 28 branch nodes")
+	var all_locked := true
+	var partial_locked := true
+	var chained := true
+	for id in branch:
+		if SkillTree.state([], id) != "locked":
+			all_locked = false
+		if SkillTree.state(["FND_STORAGE", "FND_PERMIT"], id) != "locked":
+			partial_locked = false
+		if SkillTree.state(FND3, id) != "available" and SkillTree.prereqs(id).has("FND_STORAGE") == false and SkillTree.prereqs(id).is_empty():
+			chained = false
+	check(all_locked, "foundations: every branch node is locked with no Foundations")
+	check(partial_locked, "foundations: two of three Foundations still locked")
+	for mk in SkillTree.MARKETS:
+		var first: String = SkillTree.ids_in(mk)[0]
+		check(SkillTree.state(FND3, first) == "available" and SkillTree.can_learn(FND3, 9, bal, first)["ok"], "foundations: %s available with all three" % first)
+		check(SkillTree.state(["FND_STORAGE", "FND_PERMIT"], first) == "locked" and SkillTree.can_learn([], 9, bal, first)["reason"] == "locked", "foundations: %s locked without them" % first)
+		check(SkillTree.missing_prereqs(["FND_PERMIT"], first) == ["FND_STORAGE", "FND_PROSPECT"], "foundations: %s needs-line lists the missing Foundations" % first)
+		check(SkillTree.cost(bal, first) == 1, "foundations: %s cost unchanged" % first)
+	# every deeper node reaches its first node, so the gate covers the whole tree
+	for id in branch:
+		var cur: String = id
+		while SkillTree.prereqs(cur).size() > 0 and not SkillTree.prereqs(cur).has("FND_STORAGE"):
+			cur = SkillTree.prereqs(cur)[0]
+		if not SkillTree.prereqs(cur).has("FND_STORAGE"):
+			chained = false
+	check(chained, "foundations: every branch node chains back to the Foundations")
+	# detail panel names the missing Foundations
+	m.skill_screen.open_screen()
+	m.skill_screen.select("MIL_1")
+	m.skill_screen.refresh()
+	check(m.skill_screen.node_buttons["MIL_1"].self_modulate == m.skill_screen.COL_LOCKED, "foundations: locked branch node is muted")
+	# Space Storage income lock gates the branches too
+	m.skill_points = 10
+	check(m.learn_skill("FND_PERMIT")["ok"] and m.learn_skill("FND_PROSPECT")["ok"], "foundations: two Foundations learned")
+	check(m.learn_skill("FND_STORAGE")["reason"] == "earn" and m.learn_skill("MIL_1")["reason"] == "locked", "foundations: income lock on Storage holds the branches back")
+	_learn_storage(m)
+	check(m.learn_skill("MIL_1")["ok"], "foundations: branch opens once Storage is earned")
+	# old save: a branch skill without Foundations is kept
+	Skills.learned.clear()
+	m.learned_skills = ["MIL_1"]
+	check(m.learned_skills.has("MIL_1") and SkillTree.state(m.learned_skills, "MIL_1") == "learned", "foundations: an old save keeps a branch skill without Foundations")
+	check((m.collect_state().get("learned_skills", []) as Array).has("MIL_1"), "foundations: saved list still carries it")
+
 func _learn_storage(m) -> Dictionary:
 	var t: int = m.trade_income_total
 	m.trade_income_total = maxi(t, int(m.balance.get("earn_storage_income", 3000)))

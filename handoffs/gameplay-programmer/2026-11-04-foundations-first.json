@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-04",
+  "task": "foundations-first",
+  "status": "done",
+  "files_changed": [
+    "data/skills.json",
+    "qa/bots/bot_run.gd",
+    "tools/tests/run_tests.gd",
+    "gdd-skills.md",
+    "story/game-flow.md",
+    "gdd-log.md",
+    "handoffs/gameplay-programmer/2026-11-04-foundations-first.json"
+  ],
+  "open_questions": [
+    "economy-designer: every branch now costs the 3 Foundation points first (focused run already needed 13 points), and the first branch skill cannot be learned before Space Storage's 3000 trade income lock; early pacing and point supply need a check.",
+    "qa-analyst: bot numbers will shift (bots now learn the three Foundations first, then the branch).",
+    "UNKNOWN: three prerequisite lines are now drawn into each tree's first node; owner to look at the Skills window for clutter."
+  ],
+  "handoff": "Data-only rule: MIL_1, LUX_1, MIN_1, BIO_1 now have prereqs FND_STORAGE, FND_PERMIT, FND_PROSPECT in data/skills.json (edited with the owner's ok in the task). All other nodes chain to their first node, so all 28 are gated. Needs-line (SK_NEEDS) names missing Foundations; locked look is the existing one. Old saves keep learned branch skills (nothing stripped; only learning is gated). Tutorial permit step unaffected. Skill window rows shift down one depth via depth(); no layout code changed. Bots (bot_run.gd _learn_skills) learn Foundations first. Tests: 1354 pass, 0 fail (new _test_foundations_first, existing tests given the Foundations). GDD, game-flow and gdd-log updated. Not committed.",
+  "details": {
+    "how_to_try": "New game, open Skills (K): all tree nodes muted; select MIL_1 to read 'Needs: ...'."
+  }
+}
