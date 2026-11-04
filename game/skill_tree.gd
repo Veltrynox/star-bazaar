@@ -117,12 +117,12 @@ static func state(learned: Array, id: String) -> String:
 		return "learned"
 	return "available" if missing_prereqs(learned, id).is_empty() else "locked"
 
-## "" when the skill is free to learn, else a line such as "Earn 3000 credits from trade (120/3000)".
+## "" when the skill is free to learn, else a line such as "Earn N credits from trade (120/N)".
 ## Only the EARNED skills are gated: earn_income >= earn_storage_income (no cycle needed) (balance.json).
 static func earn_lock_reason(balance: Dictionary, id: String) -> String:
 	if not EARNED.has(id):
 		return ""
-	var need := int(balance.get("earn_storage_income", 3000))
+	var need := int(balance.get("earn_storage_income", 2000))
 	if earn_income >= need:
 		return ""
 	return StoryText.get_or("SK_EARN_LOCK", "Earn {need} credits from trade ({have}/{need}).",

@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "agent": "economy-designer",
+  "date": "2026-11-04",
+  "task": "storage-income-2000",
+  "status": "done",
+  "files_changed": [
+    "data/balance.json",
+    "game/skill_tree.gd",
+    "game/main.gd",
+    "tools/tests/run_tests.gd",
+    "handoffs/economy-designer/2026-11-04-storage-income-2000.json"
+  ],
+  "open_questions": [
+    "Cycle at which the first branch skill arrives is UNKNOWN: sim.py does not model skill points or the earn line."
+  ],
+  "handoff": "earn_storage_income 3000 to 2000 (data_version 43 to 44, source note added). Nothing else in balance.json changed. Code defaults in game/skill_tree.gd and game/main.gd changed 3000 to 2000 to match; test at run_tests.gd now reads the key instead of 3000. gdd-skills.md already uses the token. Tests 1378 pass, 0 fail. Pacing: all three Foundations gate every branch skill, so a lower line brings the first branch skill earlier. Rough estimate: gross trade income of a decent opening is ~1000-1500 a cycle, so the line is met around cycle 2 (was ~3); unconfirmed, sim does not model it.",
+  "details": {
+    "changed_keys": {
+      "earn_storage_income": {
+        "old": 3000,
+        "new": 2000,
+        "reason": "owner request"
+      }
+    },
+    "sim": "not rerun, no economy key that sim.py uses changed"
+  }
+}

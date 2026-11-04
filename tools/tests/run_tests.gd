@@ -5064,12 +5064,12 @@ func _test_learn_lock_and_permit_card() -> void:
 	m.skill_screen.open_screen()
 	m.skill_screen.select("FND_STORAGE")
 	var ss = m.skill_screen
-	check(ss.learn_button.disabled and _all_text(ss.detail_box).contains("100/3000"), "storage: earn-locked Learn button is disabled and the earn line is shown", _all_text(ss.detail_box))
+	check(ss.learn_button.disabled and _all_text(ss.detail_box).contains("100/" + str(int(m.balance["earn_storage_income"]))), "storage: earn-locked Learn button is disabled and the earn line is shown", _all_text(ss.detail_box))
 	check(ss.learn_button.text.contains("1 point") and not ss.learn_button.text.contains("1 points") and not _all_text(ss.detail_box).contains("Cost:"), "storage: Learn button shows the cost, singular for 1, no Cost line", ss.learn_button.text)
 	_test_skill_window_rework(m)
 	ss.confirm_learn()
 	check(not m.has_skill("FND_STORAGE") and m.skill_points == 1, "storage: earn-locked skill is not learned and keeps the point")
-	m.trade_income_total = 3000
+	m.trade_income_total = int(m.balance["earn_storage_income"])
 	ss.refresh()
 	check(not ss.learn_button.disabled and not _all_text(ss.detail_box).contains("Earn "), "storage: income met, Learn enabled, no lock line")
 	m.events.pending_id = "x"

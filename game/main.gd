@@ -321,7 +321,7 @@ func apply_state(s: Dictionary) -> void:
 	cycle = maxi(1, int(s.get("cycle", 1)))
 	trade_income_total = maxi(0, int(s.get("trade_income_total", 0)))  # old saves: 0, earned again
 	_sync_earn()
-	storage_notice_done = bool(s.get("storage_notice_done", trade_income_total >= int(balance.get("earn_storage_income", 3000))))  # old saves: no notice for an already earned line
+	storage_notice_done = bool(s.get("storage_notice_done", trade_income_total >= int(balance.get("earn_storage_income", 2000))))  # old saves: no notice for an already earned line
 	Markets.from_dict(s.get("markets"), balance)
 	Chains.from_dict(s.get("chains"), balance)  # a v3 save has no chain state: fresh
 	Chains.now = cycle
