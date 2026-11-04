@@ -84,7 +84,7 @@ SK_BTN_CLOSE | 24 | Skill screen, close button | Close
 SK_NONE_SELECTED | 110 | Skill screen, detail panel before a click | Click a skill to see what it does.
 SK_BTN_LEARNED | 24 | Learn button, disabled on a learned skill | Learned
 SK_BTN_LOCKED | 24 | Learn button, disabled on a locked skill | Locked
-SK_LABEL_EFFECT | 24 | Detail panel label above the plain line | What it changes
+SK_LABEL_EFFECT | 24 | Detail panel label, unused after 2026-11-04 (plain line now shown first, no label) | What it changes
 
 ## Mission board hints (right side board)
 MB_01 | 110 | Mission board, cycle 1

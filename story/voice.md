@@ -15,7 +15,7 @@ The player is "you" or "the company". Never a gender, never a name.
 - Plain verbs: buy, sell, learn, close, open, run.
 - Short sentences. One idea per sentence.
 - In events, say the price effect in words ("costs more", "pays less") before any musing.
-- Skills: flavour line first, plain-meaning line second. The plain line names the real change.
+- Skills: plain line first (what it does, no label), flavour line second (changed 2026-11-04). The plain line names the real change and starts with a verb.
 - Bureaucratic comedy: forms, stamps, committees, quotas, "the Plan allows". Let the Bureau be polite and slow.
 - Dread in small doses: one odd sensory detail per story text at most.
 - Keep story-only ideas story-only. The Plan, quotas and the Bureau never change a number in the game.

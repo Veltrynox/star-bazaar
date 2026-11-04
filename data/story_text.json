@@ -291,7 +291,7 @@
   "id": "SK_LABEL_EFFECT",
   "text": "What it changes",
   "max": 24,
-  "place": "Detail panel label above the plain line"
+  "place": "Detail panel label, unused after 2026-11-04 (plain line now shown first, no label)"
  },
  {
   "id": "MB_01",
@@ -3987,7 +3987,7 @@
   "id": "SK_COST",
   "text": "Cost: {amount} points",
   "max": 24,
-  "place": "Detail panel label"
+  "place": "Detail panel label, unused after 2026-11-04 (cost shown by the game)"
  },
  {
   "id": "SK_NO_CREDITS",
@@ -4027,7 +4027,7 @@
  },
  {
   "id": "SK_FND_STORAGE_PLAIN",
-  "text": "Unlocks Space Storage, one large company storage per system. Planet storage feeds it slowly.",
+  "text": "Lets you keep one large company storage per system, the Space Storage. Planet storage feeds it slowly.",
   "max": 110,
   "place": "Skill screen, detail panel"
  },
@@ -4081,7 +4081,7 @@
  },
  {
   "id": "SK_MIL_1_PLAIN",
-  "text": "Ship upkeep is clearly lower. Unlocks the Munitions Line and pulse cells.",
+  "text": "Lowers Ship upkeep clearly. Unlocks the Munitions Line and pulse cells.",
   "max": 110,
   "place": "Skill screen, detail panel"
  },
@@ -4099,7 +4099,7 @@
  },
  {
   "id": "SK_MIL_2_PLAIN",
-  "text": "Tech: craft {goal} units at the Munitions Line. Military volume up a little.",
+  "text": "Raises Military volume a little. Tech: craft {goal} units at the Munitions Line.",
   "max": 110,
   "place": "Skill screen, detail panel"
  },
@@ -4123,7 +4123,7 @@
  },
  {
   "id": "SK_MIL_3_PLAIN",
-  "text": "Routes carrying Military goods move a little more each cycle.",
+  "text": "Lets routes carrying Military goods move a little more each cycle.",
   "max": 110,
   "place": "Skill screen, detail panel"
  },
@@ -4141,7 +4141,7 @@
  },
  {
   "id": "SK_MIL_4_PLAIN",
-  "text": "Tech: craft {goal} units. Unlocks hull armour. Military goods sell for a little more.",
+  "text": "Military goods sell for a little more. Unlocks hull armour. Tech: craft {goal} units.",
   "max": 110,
   "place": "Skill screen, detail panel"
  },
@@ -4165,7 +4165,7 @@
  },
  {
   "id": "SK_MIL_5_PLAIN",
-  "text": "Every {m} cycles, pick one rival: its Military strength falls sharply for {n} cycles.",
+  "text": "Lets you pick a rival every {m} cycles: its Military strength falls sharply for {n} cycles.",
   "max": 110,
   "place": "Skill screen, detail panel"
  },
@@ -4183,7 +4183,7 @@
  },
  {
   "id": "SK_MIL_6_PLAIN",
-  "text": "Tech: craft {goal} units. Military price events against you hit clearly weaker.",
+  "text": "Military price events against you hit clearly weaker. Tech: craft {goal} units.",
   "max": 110,
   "place": "Skill screen, detail panel"
  },
@@ -4207,7 +4207,7 @@
  },
  {
   "id": "SK_MIL_7_PLAIN",
-  "text": "Capstone. All rivals' Military growth is cut in half for the rest of the run.",
+  "text": "Cuts all rivals' Military growth in half for the rest of the run. Capstone.",
   "max": 110,
   "place": "Skill screen, detail panel"
  },
@@ -4243,7 +4243,7 @@
  },
  {
   "id": "SK_LUX_2_PLAIN",
-  "text": "Tech: craft {goal} units at the Atelier. Luxury price-up events pay clearly more.",
+  "text": "Luxury price-up events pay clearly more. Tech: craft {goal} units at the Atelier.",
   "max": 110,
   "place": "Skill screen, detail panel"
  },
@@ -4267,7 +4267,7 @@
  },
  {
   "id": "SK_LUX_3_PLAIN",
-  "text": "Warns one cycle before an event. Works in all four markets.",
+  "text": "Warns you one cycle before an event, in all four markets.",
   "max": 110,
   "place": "Skill screen, detail panel"
  },
@@ -4285,7 +4285,7 @@
  },
  {
   "id": "SK_LUX_4_PLAIN",
-  "text": "Tech: craft {goal} units. Unlocks vintage casks. Luxury stock survives asteroid cuts to storage.",
+  "text": "Luxury stock survives asteroid cuts to storage. Unlocks vintage casks. Tech: craft {goal} units.",
   "max": 110,
   "place": "Skill screen, detail panel"
  },
@@ -4309,7 +4309,7 @@
  },
  {
   "id": "SK_LUX_5_PLAIN",
-  "text": "Sales at a planet with a price-up event count clearly more volume toward your Luxury share.",
+  "text": "Counts sales at a planet with a price-up event as clearly more volume toward your Luxury share.",
   "max": 110,
   "place": "Skill screen, detail panel"
  },
@@ -4327,7 +4327,7 @@
  },
  {
   "id": "SK_LUX_6_PLAIN",
-  "text": "Tech: craft {goal} units. Luxury goods sell for clearly more.",
+  "text": "Luxury goods sell for clearly more. Tech: craft {goal} units.",
   "max": 110,
   "place": "Skill screen, detail panel"
  },
@@ -4351,7 +4351,7 @@
  },
  {
   "id": "SK_LUX_7_PLAIN",
-  "text": "Capstone. Once per run, pick a rival: its Luxury strength falls sharply for {n} cycles.",
+  "text": "Lets you pick a rival once per run: its Luxury strength falls sharply for {n} cycles. Capstone.",
   "max": 110,
   "place": "Skill screen, detail panel"
  },
@@ -4369,7 +4369,7 @@
  },
  {
   "id": "SK_MIN_1_PLAIN",
-  "text": "Unlocks the Fabric and the Smelter, and ingot. Needs Prospecting.",
+  "text": "Unlocks the Fabric, the Smelter and ingot. Needs Prospecting.",
   "max": 110,
   "place": "Skill screen, detail panel"
  },
@@ -4387,7 +4387,7 @@
  },
  {
   "id": "SK_MIN_2_PLAIN",
-  "text": "Tech: craft {goal} units at the Smelter. Minerals volume up a little. Ore orders ignore the size cap.",
+  "text": "Raises Minerals volume a little. Ore orders ignore the size cap. Tech: craft {goal} units at the Smelter.",
   "max": 110,
   "place": "Skill screen, detail panel"
  },
@@ -4429,7 +4429,7 @@
  },
  {
   "id": "SK_MIN_4_PLAIN",
-  "text": "Tech: craft {goal} units. Unlocks seam alloy. Minerals workshops make one more batch a cycle.",
+  "text": "Minerals workshops make one more batch a cycle. Unlocks seam alloy. Tech: craft {goal} units.",
   "max": 110,
   "place": "Skill screen, detail panel"
  },
@@ -4471,7 +4471,7 @@
  },
  {
   "id": "SK_MIN_6_PLAIN",
-  "text": "Tech: craft {goal} units. Each Minerals batch yields one more unit.",
+  "text": "Each Minerals batch yields one more unit. Tech: craft {goal} units.",
   "max": 110,
   "place": "Skill screen, detail panel"
  },
@@ -4495,7 +4495,7 @@
  },
  {
   "id": "SK_MIN_7_PLAIN",
-  "text": "Capstone. All rivals' Minerals strength falls clearly for the rest of the run.",
+  "text": "Cuts all rivals' Minerals strength clearly for the rest of the run. Capstone.",
   "max": 110,
   "place": "Skill screen, detail panel"
  },
@@ -4531,7 +4531,7 @@
  },
  {
   "id": "SK_BIO_2_PLAIN",
-  "text": "Tech: craft {goal} units at the Culture Lab. Biotech stock in planet storage grows each cycle, to a cap.",
+  "text": "Grows Biotech stock in planet storage each cycle, to a cap. Tech: craft {goal} units at the Culture Lab.",
   "max": 110,
   "place": "Skill screen, detail panel"
  },
@@ -4555,7 +4555,7 @@
  },
  {
   "id": "SK_BIO_3_PLAIN",
-  "text": "Planet storage holds clearly more.",
+  "text": "Lets planet storage hold clearly more.",
   "max": 110,
   "place": "Skill screen, detail panel"
  },
@@ -4573,7 +4573,7 @@
  },
  {
   "id": "SK_BIO_4_PLAIN",
-  "text": "Tech: craft {goal} units. Unlocks gene seed.",
+  "text": "Unlocks gene seed. Tech: craft {goal} units.",
   "max": 110,
   "place": "Skill screen, detail panel"
  },
@@ -4597,7 +4597,7 @@
  },
  {
   "id": "SK_BIO_5_PLAIN",
-  "text": "Biotech share counts a longer span of cycles, so it moves more steadily.",
+  "text": "Counts a longer span of cycles in your Biotech share, so it moves more steadily.",
   "max": 110,
   "place": "Skill screen, detail panel"
  },
@@ -4615,7 +4615,7 @@
  },
  {
   "id": "SK_BIO_6_PLAIN",
-  "text": "Tech: craft {goal} units. Biotech events cost you a little less. A closed planet reopens a cycle sooner.",
+  "text": "Biotech events cost you a little less. A closed planet reopens a cycle sooner. Tech: craft {goal} units.",
   "max": 110,
   "place": "Skill screen, detail panel"
  },
@@ -4639,7 +4639,7 @@
  },
  {
   "id": "SK_BIO_7_PLAIN",
-  "text": "Capstone. All rivals' Biotech strength falls clearly for the rest of the run.",
+  "text": "Cuts all rivals' Biotech strength clearly for the rest of the run. Capstone.",
   "max": 110,
   "place": "Skill screen, detail panel"
  },

@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-11-04",
+  "task": "skill-lines",
+  "status": "done",
+  "files_changed": ["story/skills.md", "story/screens.md", "story/voice.md", "data/story_text.json"],
+  "open_questions": [
+    "Size words vs balance.json: skill_MIL_1_upkeep 0.2 (says clearly; sizes m 0.15, l 0.30), MIL_3_route_units 0.125 (a little; s 0.08), MIN_3_yield 0.25 (a little), MIN_7_strength_cut 0.1 (clearly), BIO_3_capacity 0.5 (clearly), BIO_6_event_cut 0.25 (a little). Economy designer to confirm the words or values.",
+    "SK_COST and SK_LABEL_EFFECT are still read by game/skill_screen.gd lines 432 and 442; kept, marked unused after 2026-11-04. Delete once the ui-programmer removes the reads."
+  ],
+  "handoff": "25 of 31 _PLAIN lines rewritten (effect first, verb start, tech craft goal last, placeholders unchanged, max 105 chars). Ids unchanged; build_story.py passes (902 entries). Flavour lines (SK_<id>) all kept: none repeats the effect. Window shows line 1 = SK_<id>_PLAIN with no label, line 2 = SK_<id>. voice.md and skills.md header updated to plain-first.",
+  "details": {}
+}
