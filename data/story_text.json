@@ -3954,6 +3954,24 @@
   "place": "Event window body, same notice, OK button below"
  },
  {
+  "id": "PERMIT_WHY_TITLE",
+  "text": "Why a permit",
+  "max": 32,
+  "place": "System window (galaxy view, click a system), heading of the permit explanation"
+ },
+ {
+  "id": "PERMIT_WHY",
+  "text": "The Bureau keeps other systems closed until a company is licensed. A permit gives you the right to run routes there, with new planets and new prices. The stamp is cold, and it hums.",
+  "max": 240,
+  "place": "System window, permit explanation under the heading; numbers are shown separately"
+ },
+ {
+  "id": "PERMIT_WHY_LOCKED",
+  "text": "The Bureau will not stamp a permit yet. Learn Permit Charter in the Skills window first.",
+  "max": 140,
+  "place": "System window, shown while the system is locked and Permit Charter is not learned"
+ },
+ {
   "id": "SK_HEADER",
   "text": "Skills",
   "max": 24,

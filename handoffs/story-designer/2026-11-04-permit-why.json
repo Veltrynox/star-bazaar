@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-11-04",
+  "task": "permit-why",
+  "status": "done",
+  "files_changed": ["story/screens.md", "data/story_text.json", "handoffs/story-designer/2026-11-04-permit-why.json"],
+  "open_questions": [],
+  "handoff": "Three ids added to story/screens.md, section 'Permit explanation (2026-11-04)', built into data/story_text.json: PERMIT_WHY_TITLE (32), PERMIT_WHY (240), PERMIT_WHY_LOCKED (140). All ready to wire. PERMIT_WHY_LOCKED shows while Permit Charter is not learned; otherwise show PERMIT_WHY. No numbers in the text. Old permit lines in the Skills window (PERMIT_S2_*, PERMIT_NEEDS_C1) are untouched; the programmer may retire them.",
+  "details": {}
+}

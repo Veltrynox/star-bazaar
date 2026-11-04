@@ -852,3 +852,8 @@ LBL_COMP_CYCLE | 16 | Competitors log line, prefix with the cycle of the move | 
 ## Space Storage available (2026-11-04)
 STORAGE_READY_TITLE | 32 | Event window title, one-time notice when trade income unlocks the Space Storage skill (FND_STORAGE) | Space Storage is available
 STORAGE_READY | 280 | Event window body, same notice, OK button below | The Bureau has stamped your form: the company has traded enough to be allowed storage in space. Learn Space Storage in the Skills window to keep stock in each open system. The stamp was still warm, and the ink moved a little.
+
+## Permit explanation (2026-11-04)
+PERMIT_WHY_TITLE | 32 | System window (galaxy view, click a system), heading of the permit explanation | Why a permit
+PERMIT_WHY | 240 | System window, permit explanation under the heading; numbers are shown separately | The Bureau keeps other systems closed until a company is licensed. A permit gives you the right to run routes there, with new planets and new prices. The stamp is cold, and it hums.
+PERMIT_WHY_LOCKED | 140 | System window, shown while the system is locked and Permit Charter is not learned | The Bureau will not stamp a permit yet. Learn Permit Charter in the Skills window first.
