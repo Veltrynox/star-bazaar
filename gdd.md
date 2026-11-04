@@ -66,7 +66,7 @@ Rivals. Three computer companies that exist only as numbers (graphs and a Compet
 
 Spreading penalty. Working in several markets at once costs overhead, mixed cargo loads cost more, and skill points are finite. A focused run wins; a spread run does not.
 
-Permits and systems. System 1 (Hollin Reach) is the playable core. System 2 (Dunmere Reach) opens with a permit that needs the Permit Charter skill. System 3 is on hold.
+Permits and systems. System 1 (Hollin Reach) is the playable core. System 2 (Dunmere Reach) opens with a permit that needs the Permit Charter skill; the permit is bought in the system window (galaxy view, click the system), not in the Skills window. System 3 is on hold.
 
 Skills. Skill points come from first visits, first routes, entering new systems and share milestones in a market. Three Foundations plus four market trees (see gdd-skills.md). The on-screen name is "Skill points".
 

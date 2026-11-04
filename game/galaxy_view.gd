@@ -35,6 +35,7 @@ var title_label: Label
 var hint_label: Label
 var tut_step: int = -1  # -1 none this opening, 0..2 lines, 3 = done note
 var selected_sys: int = -1
+var permit_button: Button  # Buy permit button of the shown closed system (tests)
 var _hit: Array = []  # [{id, pos, r, open}]
 var _hover_id: int = -1
 var _clock: float = 0.0
@@ -623,6 +624,7 @@ func _build_side() -> void:
 		side.visible = false
 		return
 	side.visible = true
+	permit_button = null
 	if main.open_systems.has(selected_sys):
 		_build_open_side(selected_sys)
 	else:
@@ -637,12 +639,55 @@ func _build_uncharted_side(sid: int) -> void:
 	side_box.add_child(_info_row("planet", StoryText.get_or("LBL_GALAXY_PLANETS_WORD", "Planets"),
 		StoryText.get_or("LBL_UNKNOWN", "?"), Ui.col("ink_muted")))
 	side_box.add_child(_info_row("route", StoryText.get_or("LBL_LINKS", "Links"), str(_links_of(sid)), Ui.col("ink")))
+	if Systems.ids().has(sid):
+		_build_permit_card(sid)
+		return
 	var b := Button.new()
 	b.text = StoryText.get_or("BTN_OPEN_SYSTEM", "Open system")
 	b.disabled = true
 	b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	side_box.add_child(b)
 	side_box.add_child(_wrapped(StoryText.get_or("LBL_OPEN_REASON", "Systems open with a permit or a skill."), "LabelSmall"))
+
+## The permit window part of a closed system's card: why, price, reason it cannot be bought yet, and the Buy permit button.
+## This is the only place a permit is bought.
+func _build_permit_card(sid: int) -> void:
+	var v: Dictionary = main.can_buy_permit(sid)
+	side_box.add_child(_caption(StoryText.get_or("PERMIT_WHY_TITLE", "Permit")))
+	side_box.add_child(_wrapped(StoryText.get_or("PERMIT_WHY", "A permit is the right to route in a closed system. Without one the company cannot trade there."), "LabelSmall"))
+	if v["reason"] == "skill":
+		side_box.add_child(_wrapped(StoryText.get_or("PERMIT_WHY_LOCKED", "Learn Permit Charter in the Skills window first."), "LabelSmall"))
+	var cost_l := _wrapped(StoryText.get_or("PERMIT_COST_LINE", "Cost: {credits} credits and {points} skill points.",
+		{"credits": main.permit_cost(sid), "points": main.permit_points(sid)}), "LabelSmall")
+	side_box.add_child(cost_l)
+	var reason := ""
+	match v["reason"]:
+		"skill":
+			reason = StoryText.get_or("PERMIT_NEEDS_C1", "Needs Permit Charter.")
+		"credits":
+			reason = StoryText.get_or("PERMIT_NO_CREDITS", "Not enough credits.")
+		"points":
+			reason = StoryText.get_text("NOT_SKILL_NO_POINTS")
+	if reason != "":
+		side_box.add_child(_wrapped(reason, "LabelSmall"))
+	var btn := Button.new()
+	btn.theme_type_variation = "ButtonPrimary"
+	btn.text = StoryText.get_text(str(Systems.get_system(sid).get("permit_btn_id", "")))
+	btn.disabled = not v["ok"]
+	btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	if reason != "":
+		btn.tooltip_text = reason
+	btn.pressed.connect(func():
+		main.buy_permit(sid)
+		_rebuild_all())
+	permit_button = btn
+	side_box.add_child(btn)
+
+## Selects a system and shows its card (the 3D view opens the card of a locked system this way).
+func select_system(sid: int) -> void:
+	selected_sys = sid
+	_build_side()
+	queue_redraw()
 
 func _info_row(icon_token: String, label: String, value: String, value_col: Color) -> Control:
 	var row := HBoxContainer.new()
@@ -678,6 +723,8 @@ func _build_open_side(sid: int) -> void:
 	var data := _system_data(sid)
 	var how := StoryText.get_or("LBL_SYS_FIRST", "Your first system.") if sid == 1 else StoryText.get_or("LBL_SYS_PERMIT", "Opened with a permit.")
 	side_box.add_child(_head_row(Systems.name_of(sid), StoryText.get_or("LBL_SYSTEM_N", "System {n} · {how}", {"n": sid, "how": how})))
+	if sid != 1 and Systems.ids().has(sid):
+		side_box.add_child(_wrapped(StoryText.get_or("LBL_PERMIT_OPEN", "Permit held: open."), "LabelSmall"))
 	var tiles := HBoxContainer.new()
 	tiles.add_theme_constant_override("separation", 8)
 	tiles.add_child(_tile(StoryText.get_or("LBL_GALAXY_ROUTES", "Routes"), str((data["lanes"] as Array).size()), Ui.col("ink")))

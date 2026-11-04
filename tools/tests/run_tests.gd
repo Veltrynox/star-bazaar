@@ -375,6 +375,8 @@ func _test_galaxy_view() -> void:
 	check(ex.next_locked() == -1 and ex.markers().all(func(k): return not k["locked"]), "exit: no locked marker once every system is open")
 	m.open_systems = [1]
 	var g: Control = m.galaxy_view
+	g.close_view()
+	g.selected_sys = -1  # a locked click in the system view opens the permit card
 	check(g.open_view() and g.visible, "galaxy: opens with one system open")
 	check(g.get_global_rect().size == m.get_viewport_rect().size and g.get_index() == m.get_child_count() - 1, "galaxy: is a full screen on top of the map screen")
 	check(g.close_button.text == StoryText.get_or("BTN_BACK", "Back") and not m.map.keys_enabled, "galaxy: Back button, map keys off while open")
@@ -881,6 +883,7 @@ func _test_main() -> void:
 	await _free_main(m)
 	await _test_skill_screen()
 	await _test_skill_screen_ui()
+	await _test_learn_lock_and_permit_card()
 	await _test_storage_ready()
 	_test_skills_core()
 	await _test_foundations_first()
@@ -5040,3 +5043,78 @@ func _test_good_icons() -> void:
 	for g in Goods.ids():
 		check(Ui.icon(g) != null, "icons: good %s resolves to an icon" % g)
 		check(Ui.commodity_col(g) != Color.WHITE, "icons: good %s has a commodity colour" % g)
+
+
+# ---- 2026-11-04: earn-locked Learn button; permit bought from the galaxy card ----
+func _all_text(n: Node) -> String:
+	var t := ""
+	if n is Label or n is Button:
+		t += str(n.text) + "\n"
+	for c in n.get_children():
+		t += _all_text(c)
+	return t
+
+func _test_learn_lock_and_permit_card() -> void:
+	_wipe_user()
+	var m: Control = await _new_main()
+	m._dismiss_preface()
+	Skills.learned.append_array(FND3_NO_STORAGE())
+	m.skill_points = 1
+	m.trade_income_total = 100
+	m.skill_screen.open_screen()
+	m.skill_screen.select("FND_STORAGE")
+	var ss = m.skill_screen
+	check(ss.learn_button.disabled and _all_text(ss.detail_box).contains("100/3000"), "storage: earn-locked Learn button is disabled and the earn line is shown", _all_text(ss.detail_box))
+	check(_all_text(ss.detail_box).contains("Cost: 1 point") and not _all_text(ss.detail_box).contains("1 points"), "storage: singular point for a cost of 1")
+	ss.confirm_learn()
+	check(not m.has_skill("FND_STORAGE") and m.skill_points == 1, "storage: earn-locked skill is not learned and keeps the point")
+	m.trade_income_total = 3000
+	ss.refresh()
+	check(not ss.learn_button.disabled and not _all_text(ss.detail_box).contains("Earn "), "storage: income met, Learn enabled, no lock line")
+	m.events.pending_id = "x"
+	ss.refresh()
+	check(not ss.learn_button.disabled, "storage: a pending event does not block the button")
+	m.events.pending_id = ""
+	m.paused = true
+	ss.learn_button.pressed.emit()
+	check(m.has_skill("FND_STORAGE") and m.skill_points == 0 and ss.node_buttons["FND_STORAGE"].self_modulate.is_equal_approx(ss.COL_LEARNED), "storage: click learns it, spends the point, node shows learned colour")
+	m.paused = false
+	ss.close_screen()
+	# permits
+	var bal: Dictionary = m.balance
+	var gv = m.galaxy_view
+	gv.open_view()
+	gv.select_system(2)
+	check(gv.side.visible and gv.permit_button != null and gv.permit_button.disabled, "permit card: locked system 2 shows a disabled Buy permit button without the charter")
+	var txt := _all_text(gv.side_box)
+	check(txt.contains(StoryText.get_text("PERMIT_WHY_LOCKED")) and txt.contains(str(int(bal["permit_2_cost"]))), "permit card: shows the locked line and the price", str(bal.get("permit_2_cost")) + " " + str(txt.contains(StoryText.get_text("PERMIT_WHY_LOCKED"))))
+	m.learned_skills.append("FND_PERMIT")
+	m.cash = 0
+	m.skill_points = 5
+	gv.select_system(2)
+	check(gv.permit_button.disabled and _all_text(gv.side_box).contains(StoryText.get_or("PERMIT_NO_CREDITS", "Not enough credits.")), "permit card: not enough credits shows the reason and disables the button")
+	m.cash = int(bal["permit_2_cost"]) + 10
+	m.skill_points = 0
+	gv.select_system(2)
+	check(gv.permit_button.disabled and _all_text(gv.side_box).contains(StoryText.get_text("NOT_SKILL_NO_POINTS")), "permit card: not enough points shows the reason")
+	m.skill_points = int(bal["permit_points_2"]) + 1
+	gv.select_system(2)
+	check(not gv.permit_button.disabled, "permit card: buyable state enables the button")
+	gv.permit_button.pressed.emit()
+	check(m.open_systems.has(2) and m.cash == 10 and m.skill_points == 1, "permit card: Buy permit spends credits and points and opens the system")
+	check(gv.permit_button == null and _all_text(gv.side_box).contains("open"), "permit card: open system shows open and no buy button", _all_text(gv.side_box))
+	gv.select_system(1)
+	check(gv.permit_button == null, "permit card: system 1 has no buy button")
+	gv.close_view()
+	m.skill_screen.open_screen()
+	check(not _all_text(m.skill_screen).contains("Permit: ") and not _all_text(m.skill_screen).contains(StoryText.get_text("PERMIT_S2_BTN")), "skills window: no permit block any more")
+	m.skill_screen.close_screen()
+	await _free_main(m)
+	# locked system clicked in the 3D view shows the card
+	m = await _new_main()
+	m._dismiss_preface()
+	check(not m.enter_system_from_view(2) and m.galaxy_view.visible and m.galaxy_view.selected_sys == 2 and m.galaxy_view.permit_button != null, "permit card: a locked system clicked in the system view opens its card")
+	await _free_main(m)
+
+func FND3_NO_STORAGE() -> Array:
+	return ["FND_PROSPECT"]

@@ -775,6 +775,9 @@ func enter_system_from_view(id: int) -> bool:
 		return true
 	var how := StoryText.get_or("LBL_LOCKED_HOW", "permit or skill")
 	post_notice(StoryText.get_or("NOT_SYSTEM_LOCKED", "{name} is locked: {how}.", {"name": Systems.name_of(id), "how": how}))
+	if galaxy_view != null and Systems.ids().has(id):  # the locked system's permit window (galaxy card)
+		galaxy_view.open_view()
+		galaxy_view.select_system(id)
 	return false
 
 func toggle_galaxy() -> void:

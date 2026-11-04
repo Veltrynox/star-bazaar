@@ -1,0 +1,22 @@
+{
+ "schema_version": 1,
+ "agent": "gameplay-programmer",
+ "date": "2026-11-04",
+ "task": "learn-bug-permit-window",
+ "status": "done",
+ "files_changed": [
+  "game/skill_screen.gd",
+  "game/galaxy_view.gd",
+  "game/main.gd",
+  "tools/tests/run_tests.gd",
+  "gdd.md",
+  "story/game-flow.md"
+ ],
+ "open_questions": [
+  "Story-designer: add SK_COST_ONE ('Cost: {amount} point') so the singular is story text; code uses a plain default until then.",
+  "Story-designer: add SK_EARN_LOCK (code falls back to 'Earn {need} credits from trade ({have}/{need}).'), LBL_PERMIT_OPEN ('Permit held: open.').",
+  "Owner: judge the look of the permit card (left panel of the galaxy view, below the uncharted info)."
+ ],
+ "handoff": "Bug cause: node_state ignored the earn lock, so Space Storage showed a live Learn button while main.learn_skill refused silently. Detail panel now shows the earn line (have/3000) and disables Learn with that tooltip; singular 'Cost: 1 point' via code-side plural. Permit buying moved from the Skills window to the galaxy view card: click a closed system, see PERMIT_WHY (ids already in JSON, defaults unused), price, reason (needs charter / credits / points) and Buy permit (same can_buy_permit/buy_permit). Open systems show 'Permit held: open.' with no button. Clicking a locked system marker in the system view (enter_system_from_view) still refuses and posts the notice, and also opens the galaxy view on that system's card. Tutorial permit step still points at FND_PERMIT in Skills; its text 'Learn Permit Charter.' is still true, nothing to change. Tests 1370 pass, 0 fail. Screenshot: card sits left with heading Uncharted system, Why a permit text, cost line and a gold Buy permit button; readable, tidy. Removed old permit block (ids PERMIT_S2_NAME/DESC unused now).",
+ "details": {}
+}

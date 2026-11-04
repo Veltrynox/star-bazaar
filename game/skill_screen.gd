@@ -36,7 +36,6 @@ var bars: Dictionary = {}  # tech id -> ProgressBar
 var points_label: Label
 var detail_box: VBoxContainer
 var learn_button: Button
-var permit_box: VBoxContainer
 var highlight: Array = []  # skill ids to point at (the steps to a permit), cleared on close
 var _root: VBoxContainer
 
@@ -151,9 +150,6 @@ func setup(main_node: Control) -> void:
 	detail_box.custom_minimum_size = Vector2(0, 110)
 	detail_box.add_theme_constant_override("separation", 4)
 	_root.add_child(detail_box)
-	permit_box = VBoxContainer.new()
-	permit_box.add_theme_constant_override("separation", 4)
-	_root.add_child(permit_box)
 	var foot := Label.new()
 	foot.text = StoryText.get_text("SK_NO_CREDITS")
 	_root.add_child(foot)
@@ -342,7 +338,6 @@ func refresh() -> void:
 		_build_use_row(id, st)
 	_build_detail()
 	_shrink(detail_box)
-	_build_permits()
 	_root.queue_redraw()
 	call_deferred("_redraw_links")
 
@@ -410,54 +405,6 @@ func _use_bot(id: String, bot: int) -> Dictionary:
 	refresh()
 	return r
 
-# ---- permits (the only place a system permit is bought) ----
-
-func _build_permits() -> void:
-	for c in permit_box.get_children():
-		permit_box.remove_child(c)
-		c.queue_free()
-	for sid in main.Systems.ids():
-		var sys: Dictionary = main.Systems.get_system(int(sid))
-		var cost: int = main.permit_cost(int(sid))
-		var pts: int = main.permit_points(int(sid))
-		var row := HBoxContainer.new()
-		row.add_theme_constant_override("separation", 12)
-		permit_box.add_child(row)
-		var info := VBoxContainer.new()
-		info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		row.add_child(info)
-		var name_l := Label.new()
-		name_l.text = StoryText.get_text(str(sys.get("permit_name_id", "")))
-		name_l.theme_type_variation = "LabelStrong"
-		info.add_child(name_l)
-		var desc := Label.new()
-		desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		desc.theme_type_variation = "LabelSmall"
-		desc.text = StoryText.get_text(str(sys.get("permit_desc_id", "")))
-		info.add_child(desc)
-		var v: Dictionary = main.can_buy_permit(int(sid))
-		var cost_l := Label.new()
-		cost_l.theme_type_variation = "LabelSmall"
-		# FALLBACK: no story ids for the permit cost line or the reasons; plain text until the story designer adds them
-		cost_l.text = StoryText.get_or("PERMIT_COST_LINE", "Cost: {credits} credits and {points} skill points.", {"credits": cost, "points": pts})
-		match v["reason"]:
-			"skill":
-				cost_l.text += " " + StoryText.get_or("PERMIT_NEEDS_C1", "Needs Permit Charter.")
-			"credits":
-				cost_l.text += " " + StoryText.get_or("PERMIT_NO_CREDITS", "Not enough credits.")
-			"points":
-				cost_l.text += " " + StoryText.get_text("NOT_SKILL_NO_POINTS")
-		info.add_child(cost_l)
-		var btn := Button.new()
-		btn.text = StoryText.get_text(str(sys.get("permit_btn_id", ""))) if v["reason"] != "owned" else StoryText.get_text("SK_BTN_LEARNED")
-		btn.disabled = not v["ok"]
-		if v["reason"] != "owned":
-			btn.tooltip_text = cost_l.text  # the cost line already carries the reason
-		var id_i: int = int(sid)
-		btn.pressed.connect(func(): main.buy_permit(id_i))
-		row.add_child(btn)
-	_shrink(permit_box)
-
 # ---- detail strip ----
 
 func _label(text: String, size: int = 0) -> Label:
@@ -490,7 +437,12 @@ func _build_detail() -> void:
 		_label(craft if craft != "" else StoryText.get_text("SK_CRAFTED", {"n": int(p.get("n", 0)), "goal": int(p.get("goal", 0))}))
 		_label(StoryText.get_text("SK_TECH_NO_POINTS"))
 	else:
-		_label(StoryText.get_text("SK_COST", {"amount": SkillTree.cost(main.balance, id)}))
+		var amount: int = SkillTree.cost(main.balance, id)
+		# code-side plural: SK_COST_ONE (singular) is optional story text, plain default until it exists
+		_label(StoryText.get_or("SK_COST_ONE", "Cost: {amount} point", {"amount": amount}) if amount == 1 else StoryText.get_text("SK_COST", {"amount": amount}))
+	var earn_lock: String = "" if (tech or st == "learned" or st == "locked") else main.skill_lock_reason(id)
+	if earn_lock != "":
+		_label(earn_lock)  # the reason a live-looking skill cannot be learned yet
 	var need := SkillTree.missing_prereqs(learned, id)
 	var names := []
 	for p in need:
@@ -510,8 +462,10 @@ func _build_detail() -> void:
 			learn_button.text = StoryText.get_text("SK_BTN_LOCKED")
 		_:
 			learn_button.text = StoryText.get_text("BTN_LEARN")
-	learn_button.disabled = st != "learnable"
-	if st == "points":
+	learn_button.disabled = st != "learnable" or earn_lock != ""
+	if earn_lock != "":
+		learn_button.tooltip_text = earn_lock
+	elif st == "points":
 		learn_button.tooltip_text = StoryText.get_text("SK_NOT_ENOUGH")
 	elif st == "locked" and not names.is_empty():
 		learn_button.tooltip_text = StoryText.get_text("SK_NEEDS", {"skill": ", ".join(names)})
