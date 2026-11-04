@@ -3493,6 +3493,12 @@ func _test_stations() -> void:
 	m.planet_panel.visible = false
 	m._on_station_clicked(2)
 	check(m.space_post_open(2) and ssv.visible and ssv.system_id == 2 and not m.planet_panel.visible, "station view: click opens the Space Storage view, not the planet panel")
+	check(ssv.get_global_rect().position == m.planet_panel.get_global_rect().position and ssv.get_global_rect().position == Vector2(76, 76), "station view: docked at the planet panel's position", str(ssv.get_global_rect()))
+	check(ssv.get_global_rect().end.x <= root.get_visible_rect().size.x and ssv.get_global_rect().end.y <= root.get_visible_rect().size.y, "station view: fully on screen", str(ssv.get_global_rect()))
+	m._on_planet_clicked(0)
+	check(not ssv.visible and m.planet_panel.visible and m.selected_planet == 0, "station view: selecting a planet closes it and shows the planet panel")
+	m._on_station_clicked(2)
+	check(ssv.visible and not m.planet_panel.visible and m.selected_planet == -1, "station view: opening it hides the planet panel and the selection")
 	var rows_ok: bool = true
 	for c in m.commodities:
 		rows_ok = rows_ok and ssv.box.find_child("Row_" + str(c), true, false) != null
@@ -4702,6 +4708,13 @@ func _test_dead_unlock_and_core() -> void:
 		if l.name == "DeadLockedLine":
 			labels_text = l.text
 	check(labels_text == "Opens at cycle 15.", "dead gate: panel says it opens at cycle 15", labels_text)
+	m.planet_panel.visible = false
+	m._on_planet_clicked(d1)
+	var lock_vis := false
+	for l in _labels(m.planet_panel, []):
+		lock_vis = lock_vis or (l.name == "DeadLockedLine" and l.is_visible_in_tree() and l.text == "Opens at cycle 15.")
+	check(m.planet_panel.visible and m.selected_planet == d1 and lock_vis, "dead gate: clicking locked Cinderrest shows a visible planet panel with the unlock line")
+
 	check(m.events.pick_debris_planet() != d1 or m.events.planets.size() == 1, "dead gate: debris never picks a locked dead world (spot check)")
 	var hit := 0
 	for i in 200:
@@ -4713,6 +4726,13 @@ func _test_dead_unlock_and_core() -> void:
 	m.debug_advance_cycle()
 	check(m.cycle == 15 and m.engine.dead_locked.is_empty(), "dead gate: open at cycle 15", str(m.cycle))
 	check(m.last_notice.begins_with("Dead worlds are open") or m.shown_notice.begins_with("Dead worlds are open") or m.notice_queue.any(func(t): return str(t).begins_with("Dead worlds are open")), "dead gate: one notice at the unlock cycle", m.last_notice)
+	m._on_planet_clicked(d1)
+	var dl_found := false
+	var lock_found := false
+	for l in _labels(m.planet_panel, []):
+		dl_found = dl_found or (l.name == "DangerLine" and l.is_visible_in_tree())
+		lock_found = lock_found or l.name == "DeadLockedLine"
+	check(m.planet_panel.visible and dl_found and not lock_found and m.planet_panel.find_child("BuyButton_dross", true, false) != null, "dead gate: after the unlock Cinderrest shows its danger line and dross row, no locked line")
 	check(m.can_connect(d1, 0, "dross")["ok"], "dead gate: route from Cinderrest allowed at cycle 15 with MIN_3")
 	check(m.set_local_order(d1, "dross", "buy", true)["ok"], "dead gate: buy order allowed at 15")
 	# skill gate bypasses now closed
@@ -4880,9 +4900,30 @@ func _test_workshops() -> void:
 	var ing1: int = m.storage.amount(key, "ingot")
 	m.debug_advance_cycle()
 	check(m.storage.amount(key, "ingot") > ing1, "workshop: runs on the cycle tick")
-	# planet panel shows the section
+	# the Space Storage view of system 1 shows the section; the planet panel does not
 	m.planet_panel.show_planet(p1)
-	check(m.planet_panel.box.find_child("Workshop_smelter", true, false) != null and m.planet_panel.box.find_child("WorkshopBuild_atelier", true, false) == null, "workshop: planet panel lists unlocked workshops only")
+	check(m.planet_panel.box.find_child("WorkshopTitle", true, false) == null and m.planet_panel.box.find_child("Workshop_smelter", true, false) == null, "workshop: planet panel has no workshop UI")
+	var wv = m.space_storage_view
+	wv.open_for(1)
+	check(wv.box.find_child("WorkshopTitle", true, false) != null and wv.box.find_child("Workshop_smelter", true, false) != null and wv.box.find_child("WorkshopStatus_smelter", true, false) != null and wv.box.find_child("WorkshopBuild_atelier", true, false) == null, "workshop: station view lists unlocked workshops only")
+	# an unlocked, unbuilt workshop: Build disabled when cash is short, then builds and shows its status
+	m.learned_skills.append("MIL_1")
+	m.workshops.built["munitions"] = false
+	m.cash = 0
+	wv.refresh()
+	var wb = wv.box.find_child("WorkshopBuild_munitions", true, false)
+	check(wb != null and wb.disabled, "workshop: station Build disabled when cash is short")
+	m.cash = 5000
+	wv.refresh()
+	wb = wv.box.find_child("WorkshopBuild_munitions", true, false)
+	check(wb != null and not wb.disabled, "workshop: station Build enabled with cash")
+	wb.pressed.emit()
+	check(m.workshops.built["munitions"] and wv.box.find_child("WorkshopStatus_munitions", true, false) != null and wv.box.find_child("WorkshopBuild_munitions", true, false) == null, "workshop: pressing Build builds it and the view shows the status line")
+	m.debug_advance_cycle()
+	check(wv.box.find_child("WorkshopStatus_munitions", true, false) != null, "workshop: view refreshes on the cycle")
+	wv.open_for(2)
+	check(wv.box.find_child("WorkshopTitle", true, false) == null, "workshop: a system-2 station view has no workshop block")
+	wv.close_view()
 	# save and load
 	var st: Dictionary = m.collect_state()
 	m.workshops.built["munitions"] = false

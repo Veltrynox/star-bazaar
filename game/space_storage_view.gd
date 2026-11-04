@@ -16,13 +16,13 @@ func setup(main_node: Control) -> void:
 	main = main_node
 	visible = false
 	mouse_filter = Control.MOUSE_FILTER_STOP
-	set_anchors_and_offsets_preset(Control.PRESET_CENTER)
-	custom_minimum_size = Vector2(minf(360.0, get_viewport_rect().size.x - 24.0), 0)
-	grow_horizontal = Control.GROW_DIRECTION_BOTH
-	grow_vertical = Control.GROW_DIRECTION_BOTH
+	# Docked exactly where the planet panel sits (left of the map, right of the icon rail, below the top bar).
+	set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
+	position = Vector2(76, 76)
+	custom_minimum_size = Vector2(minf(320.0, get_viewport_rect().size.x - 76.0 - 12.0), 0)
 	box = VBoxContainer.new()
 	box.add_theme_constant_override("separation", 8)
-	add_child(box)
+	Ui.scroll_wrap(self, box, 76.0 + 70.0)  # long views scroll instead of leaving the window, same reserve as the planet panel
 
 func open_for(sid: int) -> void:
 	system_id = sid
@@ -79,6 +79,7 @@ func refresh() -> void:
 			row.add_child(nc)  # right end of the same row
 		box.add_child(row)
 	_fabric_rows()
+	_workshop_rows()
 	size = Vector2.ZERO
 
 ## Fabric block, only in system 1 once MIN_1 is learned: build button with the cost, then the recipe and its status.
@@ -128,6 +129,59 @@ func _fabric_rows() -> void:
 		cs.name = "CoreStatus"
 		cs.text = StoryText.get_or("LBL_NULL_CORE_BUILT", "Null Core built (one per run).")
 		box.add_child(cs)
+
+## Workshops (smelter, munitions, atelier, culture lab), system 1 only: those built or unlocked, with recipes and status or Build.
+func _workshop_rows() -> void:
+	if system_id != main.WorkshopsScript.SYSTEM:
+		return
+	var ws: RefCounted = main.workshops
+	var shown: Array = []
+	for id in ws.IDS:
+		if ws.built[id] or ws.is_unlocked(id):
+			shown.append(id)
+	if shown.is_empty():
+		return
+	box.add_child(HSeparator.new())
+	var title := Label.new()
+	title.name = "WorkshopTitle"
+	title.text = StoryText.get_or("LBL_WORKSHOPS", "Workshops")
+	title.theme_type_variation = "LabelStrong"
+	box.add_child(title)
+	for id in shown:
+		var nm := StoryText.get_or("WS_" + str(id).to_upper() + "_NAME", str(id).capitalize())
+		var head := _wrapped(nm)
+		head.name = "Workshop_" + str(id)
+		head.theme_type_variation = "LabelAccent"
+		box.add_child(head)
+		for g in ws.open_recipes(id):
+			var rl := _wrapped(Goods.recipe_text(str(g), main.balance))
+			rl.name = "WorkshopRecipe_" + str(g)
+			rl.theme_type_variation = "LabelSmall"
+			box.add_child(rl)
+		if ws.built[id]:
+			var line := StoryText.get_or("LBL_WORKSHOP_BATCHES", "Batches this cycle: {n}", {"n": ws.batches(id)})
+			var made: String = ws.made_text(id)
+			if made != "":
+				line += "  " + StoryText.get_or("LBL_WORKSHOP_MADE", "Last cycle: {items}", {"items": made})
+			elif ws.state[id] == "stalled":
+				line += "  " + StoryText.get_or("LBL_WORKSHOP_STALLED", "Stalled: {why}", {"why": ws.reason[id]})
+			var bl := _wrapped(line)
+			bl.name = "WorkshopStatus_" + str(id)
+			box.add_child(bl)
+		else:
+			var b := Button.new()
+			b.name = "WorkshopBuild_" + str(id)
+			b.text = StoryText.get_or("BTN_WORKSHOP_BUILD", "Build {workshop} ({cost} cr)", {"workshop": nm, "cost": ws.build_cost(id)})
+			b.disabled = not main.can_build_workshop(str(id))["ok"]
+			b.pressed.connect(func(): main.build_workshop(str(id)); refresh())
+			box.add_child(b)
+
+func _wrapped(text: String) -> Label:
+	var l := Label.new()
+	l.text = text
+	l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	l.custom_minimum_size = Vector2(288, 0)
+	return l
 
 
 ## Fabric inputs with too little stock here and no route sending them to this station: names for the panel line.

@@ -545,6 +545,8 @@ func _on_station_clicked(sid: int) -> void:
 	if not space_post_open(sid):
 		post_notice_now(trade_locked_reason())
 		return
+	selected_planet = -1  # one view at a time: the planet panel and its selection give way to Space Storage
+	planet_panel.visible = false
 	space_storage_view.open_for(sid)
 
 func space_post_open(system_id: int) -> bool:
@@ -1011,6 +1013,8 @@ func _on_route_clicked(id: int) -> void:
 	var i: int = engine.find_by_id(id)
 	if i < 0:
 		return
+	if space_storage_view != null:
+		space_storage_view.close_view()  # one view at a time
 	selected_planet = int(engine.routes[i]["b"]) if RouteEngine.from_cluster(engine.routes[i]) else int(engine.routes[i]["a"])  # T156: a cluster is no planet to select
 	planet_panel.show_planet(selected_planet, id)
 

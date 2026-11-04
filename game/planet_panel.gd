@@ -107,8 +107,6 @@ func rebuild() -> void:
 		grid.add_child(_row(str(c), prices if typeof(prices) == TYPE_DICTIONARY else {}, pend))
 	box.add_child(grid)
 	_lane_splits()
-	_space_section()
-	_workshop_section()
 	_connections()
 	_tut_mute()
 	size = Vector2.ZERO
@@ -138,6 +136,7 @@ func _set_banner(planet_id: String) -> void:
 		outer.remove_child(banner)
 		banner.queue_free()
 		banner = null
+	remove_theme_stylebox_override("panel")  # read the theme style, not our own earlier copy (a rebuild lost the side margins)
 	var base := get_theme_stylebox("panel", "PanelContainer")
 	banner = Banners.make(planet_id, custom_minimum_size.x)
 	if banner == null or not (base is StyleBoxFlat):
@@ -560,79 +559,6 @@ func _update_split_tags(c: String) -> void:
 		var sp: Dictionary = main.engine.lane_split(planet_index, int(d), c)
 		if not sp.is_empty():
 			t.text = StoryText.get_or("LBL_SPLIT_TAG", "Split {share}%", {"share": roundi(float(sp["share"]) * 100.0)})
-
-## T85: Space Storage of this planet's system (skill FND_STORAGE): stock per commodity, no orders on it.
-func _space_section() -> void:
-	var sid: int = int(main.map.planets[planet_index].get("system", 1))
-	if not main.space_post_open(sid):
-		return
-	var key: String = main.storage.system_key(sid)
-	box.add_child(HSeparator.new())
-	var title := Label.new()
-	title.text = StoryText.get_text("SS_POST_NAME")
-	title.theme_type_variation = "LabelStrong"
-	box.add_child(title)
-	var d := _label(StoryText.get_text("SS_POST_DESC"))
-	d.theme_type_variation = "LabelSmall"
-	box.add_child(d)
-	var cap: int = main.storage.capacity_of(key)
-	for c in main.commodities:
-		var row := HBoxContainer.new()
-		row.add_theme_constant_override("separation", 8)
-		var bar := RatingBar.new()
-		bar.level = main.storage.rating(key, str(c))
-		row.add_child(bar)
-		row.add_child(Ui.good_icon(str(c), 16))
-		var l := Label.new()
-		l.text = "%s  %d/%d" % [Ui.good_name(str(c)), main.storage.amount(key, str(c)), cap]
-		row.add_child(l)
-		box.add_child(row)
-
-## Workshops (smelter, munitions, atelier, culture lab) at the trading post: planets of system 1, once one is unlocked.
-func _workshop_section() -> void:
-	if int(main.map.planets[planet_index].get("system", 1)) != main.WorkshopsScript.SYSTEM:
-		return
-	var ws: RefCounted = main.workshops
-	var shown: Array = []
-	for id in ws.IDS:
-		if ws.built[id] or ws.is_unlocked(id):
-			shown.append(id)
-	if shown.is_empty():
-		return
-	box.add_child(HSeparator.new())
-	var title := Label.new()
-	title.name = "WorkshopTitle"
-	title.text = StoryText.get_or("LBL_WORKSHOPS", "Workshops")
-	title.theme_type_variation = "LabelStrong"
-	box.add_child(title)
-	for id in shown:
-		var nm := StoryText.get_or("WS_" + str(id).to_upper() + "_NAME", str(id).capitalize())
-		var head := _label(nm)
-		head.name = "Workshop_" + str(id)
-		head.theme_type_variation = "LabelAccent"
-		box.add_child(head)
-		for g in ws.open_recipes(id):
-			var rl := _label(Goods.recipe_text(str(g), main.balance))
-			rl.name = "WorkshopRecipe_" + str(g)
-			rl.theme_type_variation = "LabelSmall"
-			box.add_child(rl)
-		if ws.built[id]:
-			var line := StoryText.get_or("LBL_WORKSHOP_BATCHES", "Batches this cycle: {n}", {"n": ws.batches(id)})
-			var made: String = ws.made_text(id)
-			if made != "":
-				line += "  " + StoryText.get_or("LBL_WORKSHOP_MADE", "Last cycle: {items}", {"items": made})
-			elif ws.state[id] == "stalled":
-				line += "  " + StoryText.get_or("LBL_WORKSHOP_STALLED", "Stalled: {why}", {"why": ws.reason[id]})
-			var bl := _label(line)
-			bl.name = "WorkshopStatus_" + str(id)
-			box.add_child(bl)
-		else:
-			var b := Button.new()
-			b.name = "WorkshopBuild_" + str(id)
-			b.text = StoryText.get_or("BTN_WORKSHOP_BUILD", "Build {workshop} ({cost} cr)", {"workshop": nm, "cost": ws.build_cost(id)})
-			b.disabled = not main.can_build_workshop(str(id))["ok"]
-			b.pressed.connect(func(): main.build_workshop(str(id)); rebuild())
-			box.add_child(b)
 
 ## Real minus sign and a plus on positive numbers (design pack).
 func _signed(n: int) -> String:
