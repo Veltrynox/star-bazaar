@@ -259,7 +259,7 @@ func _row(c: String, prices: Dictionary, pend: Dictionary) -> Control:
 		bs.add_theme_color_override("font_color", Ui.commodity_col(str(c)))  # Energy amber, Food green
 	bs.disabled = buy == null
 	var buy_tip: String = StoryText.get_or("LBL_BUY_PRICE", "Buy price") + ": " + _price(buy)
-	bs.tooltip_text = "Not traded here." if buy == null else (buy_tip + ". " + ("Standing buy order. Press to stop." if buy_on else "Standing buy order each cycle."))
+	bs.tooltip_text = "Not traded here." if buy == null else (buy_tip + ". Standing buy order. Press to stop." if buy_on else buy_tip + ".")
 	if locked:
 		bs.disabled = true
 		bs.tooltip_text = main.trade_locked_reason()

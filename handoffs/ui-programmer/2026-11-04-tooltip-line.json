@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-04",
+  "task": "tooltip-line",
+  "status": "done",
+  "files_changed": ["game/planet_panel.gd"],
+  "open_questions": [],
+  "handoff": "Planet panel buy button tooltip no longer says 'Standing buy order each cycle.' Off state now reads 'Buy price: X.' then the sell line. On-state sentence 'Standing buy order. Press to stop.' kept. Not checked by eye. No test asserted the removed text.",
+  "details": {}
+}
