@@ -5,7 +5,9 @@ This script is the only writer of those two generated files.
 Fails (exit 1) on: repeated id, unreadable block.
 Over-max texts and ambiguous blocks (a designer note inside the text) are listed on stderr and left
 out of the output; exit code is 2 unless --allow-skip is given.
-Usage: python3 tools/build_story.py [--allow-skip]
+Also writes data/story_text_ru.json from story/ru/*.json (flat {"ID": "text"} objects; localised scope only,
+see check_ru). Usage: python3 tools/build_story.py [--allow-skip]
+       python3 tools/build_story.py --selftest-ru   (checks of the Russian build on temp fixtures)
 """
 import json
 import re
@@ -224,16 +226,122 @@ def build_events() -> list:
     return out
 
 
+RU_SCOPE_RE = re.compile(r"^(EV_|TUT_G\d|TUT_GALAXY_|CH_)")
+PH_RE = re.compile(r"\{[^{}]*\}")
+DIGIT_RE = re.compile(r"\d")
+
+
+def build_ru(entries: dict, ru_dir: Path):
+    """Return (list of {"id","text"}, list of problem strings, coverage text) from ru_dir/*.json."""
+    out: list = []
+    problems: list = []
+    seen: dict = {}
+    for path in sorted(ru_dir.glob("*.json")) if ru_dir.is_dir() else []:
+        rel = path.name
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except ValueError as ex:
+            problems.append(f"story/ru/{rel}: not valid JSON: {ex}")
+            continue
+        if not isinstance(data, dict):
+            problems.append(f"story/ru/{rel}: must be a flat JSON object {{id: text}}")
+            continue
+        for eid, text in data.items():
+            where = f"story/ru/{rel}: {eid}"
+            if eid in seen:
+                problems.append(f"{where}: duplicate id (also in {seen[eid]})")
+                continue
+            seen[eid] = rel
+            if not RU_SCOPE_RE.match(eid):
+                problems.append(f"{where}: id is outside the localised scope (EV_, TUT_G<digit>, TUT_GALAXY_, CH_)")
+                continue
+            if eid not in entries:
+                problems.append(f"{where}: id is not in the English data")
+                continue
+            if not isinstance(text, str) or not text.strip():
+                problems.append(f"{where}: empty text")
+                continue
+            en = entries[eid]["text"]
+            if sorted(PH_RE.findall(text)) != sorted(PH_RE.findall(en)) or set(PH_RE.findall(text)) != set(PH_RE.findall(en)):
+                problems.append(f"{where}: placeholders differ: English {sorted(set(PH_RE.findall(en)))}, Russian {sorted(set(PH_RE.findall(text)))}")
+                continue
+            en_d, ru_d = set(DIGIT_RE.findall(en)), set(DIGIT_RE.findall(text))
+            if en_d != ru_d:
+                problems.append(f"{where}: digits differ: English {sorted(en_d)}, Russian {sorted(ru_d)}")
+                continue
+            limit = int(1.4 * int(entries[eid]["max"]))
+            if len(text) > limit:
+                problems.append(f"{where}: {len(text)} chars, over {limit} (1.4 x max {entries[eid]['max']})")
+                continue
+            out.append({"id": eid, "text": text})
+    in_scope = [i for i in entries if RU_SCOPE_RE.match(i)]
+    have = sum(1 for e in out if e["id"] in set(in_scope))
+    return out, problems, f"Russian coverage: {have} of {len(in_scope)} in-scope ids"
+
+
+def selftest_ru() -> int:
+    import tempfile
+    en = {
+        "EV_A": {"id": "EV_A", "text": "Pay {cost} for 3 crates.", "max": 40},
+        "TUT_G1_X": {"id": "TUT_G1_X", "text": "Click.", "max": 10},
+        "CH_CUT": {"id": "CH_CUT", "text": "a cut of 5", "max": 20},
+        "BTN_OK": {"id": "BTN_OK", "text": "OK", "max": 10},
+    }
+    cases = [
+        ({"EV_A": "Заплатите {cost} за 3 ящика."}, None),
+        ({"CH_CUT": "доля 5"}, None),
+        ({"CH_CUT": "доля 6"}, "digits differ"),
+        ({"EV_NOPE": "x"}, "not in the English data"),
+        ({"BTN_OK": "Ладно"}, "outside the localised scope"),
+        ({"EV_A": "Заплатите {sum} за 3 ящика."}, "placeholders differ"),
+        ({"EV_A": "Заплатите {cost} за 4 ящика."}, "digits differ"),
+        ({"EV_A": "Заплатите {cost} за ящики."}, "digits differ"),
+        ({"EV_A": "  "}, "empty text"),
+        ({"TUT_G1_X": "Нажмите кнопку мыши."}, "over 14"),
+        ({"TUT_G1_X": "Жми."}, None),
+    ]
+    bad = 0
+    for data, want in cases:
+        with tempfile.TemporaryDirectory() as d:
+            (Path(d) / "a.json").write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
+            out, probs, _ = build_ru(en, Path(d))
+            ok = (not probs and len(out) == 1) if want is None else (len(probs) == 1 and want in probs[0] and not out)
+            if not ok:
+                bad += 1
+                print(f"FAIL {data}: want {want!r}, got {probs}")
+    with tempfile.TemporaryDirectory() as d:  # duplicate id across files
+        (Path(d) / "a.json").write_text('{"EV_A": "Заплатите {cost} за 3."}', encoding="utf-8")
+        (Path(d) / "b.json").write_text('{"EV_A": "Заплатите {cost} за 3."}', encoding="utf-8")
+        out, probs, _ = build_ru(en, Path(d))
+        if not (len(out) == 1 and len(probs) == 1 and "duplicate" in probs[0]):
+            bad += 1
+            print("FAIL duplicate", probs)
+    with tempfile.TemporaryDirectory() as d:  # no files
+        out, probs, _ = build_ru(en, Path(d))
+        if out or probs:
+            bad += 1
+            print("FAIL empty dir")
+    print("selftest-ru:", "FAILED" if bad else "ok")
+    return 1 if bad else 0
+
+
 def main() -> int:
+    if "--selftest-ru" in sys.argv:
+        return selftest_ru()
     allow_skip = "--allow-skip" in sys.argv
     entries: dict = {}
     build_text(entries)
     events = build_events()
+    ru_out, ru_problems, ru_cov = build_ru(entries, STORY / "ru")
     for e in errors:
         print("ERROR:", e, file=sys.stderr)
+    for r in ru_problems:
+        print("RU ERROR:", r, file=sys.stderr)
     for a in ambiguous:
         print("AMBIGUOUS (skipped):", a, file=sys.stderr)
     if errors:
+        return 1
+    if ru_problems and not allow_skip:
         return 1
     if ambiguous and not allow_skip:
         return 2
@@ -241,6 +349,9 @@ def main() -> int:
         json.dumps(list(entries.values()), indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
     (DATA / "events.json").write_text(
         json.dumps(events, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
+    (DATA / "story_text_ru.json").write_text(
+        json.dumps(ru_out, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
+    print(ru_cov)
     print(f"story_text.json: {len(entries)} entries; events.json: {len(events)} events; skipped: {len(ambiguous)}")
     return 0
 
