@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-04",
+  "task": "tutorial-no-next",
+  "status": "done",
+  "files_changed": ["game/main.gd", "game/cash_forecast.gd", "game/planet_panel.gd", "game/galaxy_view.gd", "tools/tests/run_tests.gd", "qa/bots/tutorial_shots.gd"],
+  "open_questions": ["Story-designer follow-up: BTN_NEXT and BTN_GOT_IT are now unused in game code; TUT_G5_UPKEEP, TUT_G7_STORAGE, TUT_G10_DONE and TUT_GALAXY_* lines may need wording that names the action (open Expenses, right-click the resource button, 'closes by itself', click a system)."],
+  "handoff": "Next button removed from the guided card and the galaxy tutorial; Skip stays. Steps advance on actions: 1 planet selected, 2 Buy on, 3 route exists, 4 route paid (unchanged), 5 Expenses forecast (top bar cash) opened, 6 Sell order on, 7 resource button right-clicked or stock in storage, 8 skill learned, 9 Permit Charter learned, 10 closes by itself after 12 real seconds. Galaxy lines 1 to 3 each advance on a left click on a system. Existing skip-if-done rules kept (no skill point skips 8 and 9). tut_step saves unchanged, old saves still map. Tests 1388 pass, 0 fail.",
+  "details": {}
+}

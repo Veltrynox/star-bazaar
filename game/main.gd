@@ -124,8 +124,7 @@ var mission_label: Label
 var tutorial_label: Label  # the current step's line on the floating tutorial card
 var tip_label: Label  # game tip on the right board
 var tut_arrow: Polygon2D  # pointer from the card to the target
-var tut_actions: HBoxContainer  # Skip and Next under the guided hint, as in the galaxy view tutorial
-var tut_next: Button
+var tut_actions: HBoxContainer  # Skip only: every guided step moves on by the player's own action
 var tut_card: PanelContainer  # the guided tutorial card: floats beside the control the step is about
 var tut_count: Label  # "2 of 10"
 var tut_why: Label  # the step's why line (story id <step id>_WHY), hidden when the story has none
@@ -147,6 +146,9 @@ const TUT_FALLBACK := {
 	"TUT_G10_DONE": "That is the loop: buy, move, sell, learn. The guidance stops here.",
 }
 var tut_step: int = 0
+var tut_flags: Dictionary = {}  # actions seen this session: "expenses" (forecast opened), "storage" (resource button right-clicked)
+var tut_goal_t: float = 0.0  # real seconds the last guided step has been shown
+const TUT_LAST_SECS := 12.0
 var tut_skipped: Array = []  # ids of guided steps passed over automatically (their state was never reached)
 var trade: RefCounted = Trade.new()  # price/margin logic for T07
 var commodities: Array = []
@@ -1917,6 +1919,7 @@ func _cycle_seconds() -> float:
 
 func _process(delta: float) -> void:
 	_tut_update_highlight()
+	_tut_tick(delta)
 	if event_icons != null:
 		event_icons.tick(delta)  # real time, also while paused
 	_update_station_markers()
@@ -2574,6 +2577,8 @@ func debug_restart_tutorial() -> void:
 	tut_first = {}
 	tut_step = 0
 	tut_skipped = []
+	tut_flags = {}
+	tut_goal_t = 0.0
 	galaxy_seen = false
 	cycle = 1
 	trade_income_total = 0
@@ -2979,16 +2984,24 @@ func _tut_show(_ids: Array = []) -> void:
 		tut_why.visible = tut_why.text != ""
 		if guided:
 			tut_count.text = StoryText.get_or("TUT_STEP_COUNT", "{n} of {total}", {"n": tut_step + 1, "total": TUT_GUIDE.size()})
-	if tut_actions != null:  # Skip and Next only while the guided steps run
+	if tut_actions != null:  # Skip only while the guided steps run
 		tut_actions.visible = tutorial_label.visible
-		if guided:
-			tut_next.text = StoryText.get_or("BTN_GOT_IT", "Got it") if tut_step == TUT_GUIDE.size() - 1 else StoryText.get_or("BTN_NEXT", "Next")
 	_tut_update_highlight()
 
-## Next steps the guided hint on by one line; Skip closes it. Same buttons and wording as the galaxy view tutorial.
-func _tut_next() -> void:
-	if tut_step < TUT_GUIDE.size():
-		tut_step += 1
+## A guided step's action happened (key: "expenses", "storage"): remember it and move the tutorial on.
+func tut_note(key: String) -> void:
+	tut_flags[key] = true
+	_tut_advance()
+
+## The last step has no action: it closes by itself after TUT_LAST_SECS real seconds (called from _process).
+func _tut_tick(delta: float) -> void:
+	if tut_step != TUT_GUIDE.size() - 1 or tut_card == null or not tut_card.visible:
+		tut_goal_t = 0.0
+		return
+	tut_goal_t += delta
+	if tut_goal_t >= TUT_LAST_SECS:
+		tut_goal_t = 0.0
+		tut_step = TUT_GUIDE.size()
 		_tut_show()
 
 ## Skip ends the whole tutorial, the galaxy view one too (it never starts once skipped). Saved as tut_step = size.
@@ -3217,11 +3230,13 @@ func _tut_step_done(i: int) -> bool:
 				return true
 			var dsts: Array = engine.routes.map(func(r): return str(r["dst"]))
 			return engine.local.keys().any(func(k): return dsts.has(str(k)) and bool(engine.local[k]["sell"]))
-		4:  # a first cycle has ended with a route open
-			return cycle >= 2 and not engine.routes.is_empty()
+		4:  # the Expenses forecast (top bar cash) was opened
+			return bool(tut_flags.get("expenses", false))
 		5:
 			return engine.local.values().any(func(o): return bool(o["sell"]))
-		6:  # some planet's storage holds stock
+		6:  # the resource button was right-clicked, or some planet's storage holds stock
+			if bool(tut_flags.get("storage", false)):
+				return true
 			for k in storage.stock.keys():
 				if not str(k).begins_with("system") and storage.stock[k].values().any(func(n): return int(n) > 0):
 					return true
@@ -3327,11 +3342,6 @@ func _build_board() -> void:
 	tut_skip.text = StoryText.get_or("BTN_SKIP_TUTORIAL", "Skip tutorial")
 	tut_skip.pressed.connect(_tut_skip)
 	tut_actions.add_child(tut_skip)
-	tut_next = Button.new()
-	tut_next.theme_type_variation = "ButtonPrimary"
-	tut_next.text = StoryText.get_or("BTN_NEXT", "Next")
-	tut_next.pressed.connect(_tut_next)
-	tut_actions.add_child(tut_next)
 	cbox.add_child(tut_actions)
 	# pulsing outline drawn over the control the step is about
 	tut_hl = tut_make_hl()

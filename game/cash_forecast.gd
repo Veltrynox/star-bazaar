@@ -35,6 +35,7 @@ func _on_anchor_input(event: InputEvent) -> void:
 			position = Vector2(r.position.x, r.end.y + 4)
 			visible = true
 			refresh()
+			main.tut_note("expenses")
 		anchor.accept_event()
 
 ## Click anywhere else closes it (the click is not consumed).

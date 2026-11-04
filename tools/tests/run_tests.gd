@@ -410,6 +410,17 @@ func _test_galaxy_view() -> void:
 		check(not g.tut_panel.position.is_equal_approx(Vector2.ZERO), "galaxy: step %d card is placed" % (st + 1))
 	g.tut_step = 1
 	g._build_tutorial()
+	check(_buttons(g.tut_box, []).size() == 1, "galaxy: tutorial card has Skip only, no Next")
+	g.tut_step = 0
+	g._build_tutorial()
+	var cev := InputEventMouseButton.new()
+	cev.button_index = MOUSE_BUTTON_LEFT
+	cev.pressed = true
+	cev.position = g._hit[0]["pos"]
+	g._gui_input(cev)
+	check(g.tut_step == 1, "galaxy: a system click moves the tutorial on")
+	g.tut_step = 1
+	g._build_tutorial()
 	m.tut_step = 2
 	for b in _buttons(g.tut_box, []):
 		if (b as Button).text == StoryText.get_or("BTN_SKIP_TUTORIAL", "Skip tutorial"):
@@ -441,7 +452,8 @@ func _test_tutorial_steps() -> void:
 	var m: Control = await _new_main()
 	var G: Array = m.TUT_GUIDE
 	check(m.tut_step == 0 and m.tutorial_label.text != "" and m.tutorial_label.visible and m.tutorial_label.is_visible_in_tree(), "tutorial: fresh game shows the step 1 line", m.tutorial_label.text)
-	check(m.tut_actions.visible and m.tut_actions.is_visible_in_tree(), "tutorial: Skip and Next show on the first step")
+	check(m.tut_actions.visible and m.tut_actions.is_visible_in_tree(), "tutorial: Skip shows on the first step")
+	check(_buttons(m.tut_actions, []).size() == 1 and _buttons(m.tut_card, []).all(func(b): return (b as Button).text != StoryText.get_or("BTN_NEXT", "Next")), "tutorial: no Next button on the guided card, only Skip")
 	check(G == ["TUT_G1_SELECT", "TUT_G2_BUY", "TUT_G3_SEND", "TUT_G4_ROUTE_PAY", "TUT_G5_UPKEEP", "TUT_G6_SELL", "TUT_G7_STORAGE", "TUT_G8_SKILLS", "TUT_G9_PERMIT", "TUT_G10_DONE"], "tutorial steps: order")
 	# skip at step 3 ends the tutorial for good, also after save and load
 	m.tut_step = 3
@@ -488,9 +500,35 @@ func _test_tutorial_steps() -> void:
 	m.tut_step = 7
 	m._tut_advance()
 	check(m.tut_step == 7, "tutorial steps: skills step waits while a point is held")
+	# every step moves on only by its own action
+	m.tut_flags = {}
 	m.tut_step = 4
 	m._tut_advance()
-	check(m.tut_step == 4 or m.engine.routes.is_empty(), "tutorial steps: upkeep waits for a cycle with a route")
+	check(m.tut_step == 4, "tutorial steps: upkeep waits until Expenses is opened")
+	m.tut_note("expenses")
+	check(m.tut_step > 4, "tutorial steps: opening Expenses moves the upkeep step on", str(m.tut_step))
+	m.tut_flags = {}
+	m.tut_step = 6
+	m._tut_advance()
+	check(m.tut_step == 6, "tutorial steps: storage waits with no stock and no right-click")
+	m.tut_note("storage")
+	check(m.tut_step > 6, "tutorial steps: right-clicking the resource button moves the storage step on", str(m.tut_step))
+	m.skill_points = 1
+	m.learned_skills = []
+	m.tut_step = 7
+	m._tut_advance()
+	check(m.tut_step == 7, "tutorial steps: skills waits until a skill is learned")
+	m.tut_step = 9
+	m.tut_goal_t = 0.0
+	m._tut_show()
+	m._tut_tick(m.TUT_LAST_SECS - 1.0)
+	check(m.tut_step == 9, "tutorial steps: last step stays before its time is up")
+	m._tut_tick(2.0)
+	check(m.tut_step == G.size() and not m.tut_card.visible, "tutorial steps: last step closes by itself after the timer")
+	m.tut_step = 2
+	m._tut_show()
+	m._tut_tick(100.0)
+	check(m.tut_step == 2, "tutorial steps: the timer only runs on the last step")
 	m.debug_restart_tutorial()
 	check(m.tut_step <= 1 and m.tut_skipped.is_empty(), "tutorial steps: restart goes back to the start")
 	# the tutorial card is its own panel, never part of the notifications board

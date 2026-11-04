@@ -918,14 +918,6 @@ func _build_tutorial() -> void:
 		_build_tutorial()
 		queue_redraw())
 	acts.add_child(skip)
-	var nxt := Button.new()
-	nxt.theme_type_variation = "ButtonPrimary"
-	nxt.text = StoryText.get_or("BTN_GOT_IT", "Got it") if tut_step == TUT_IDS.size() - 1 else StoryText.get_or("BTN_NEXT", "Next")
-	nxt.pressed.connect(func():
-		tut_step += 1
-		_build_tutorial()
-		queue_redraw())
-	acts.add_child(nxt)
 	tut_box.add_child(acts)
 	_tut_place()
 
@@ -953,6 +945,9 @@ func _gui_input(event: InputEvent) -> void:
 		var id := _hit_at(event.position)
 		if id >= 0:
 			selected_sys = id
+			if tut_step >= 0 and tut_step < TUT_IDS.size():  # each tutorial line moves on when a system is clicked
+				tut_step += 1
+				_build_tutorial()
 			_build_side()
 			queue_redraw()
 			accept_event()

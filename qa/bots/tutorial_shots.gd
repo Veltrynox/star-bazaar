@@ -104,7 +104,8 @@ func _act(m: Control, i: int) -> bool:
 		3:  # the route is paid: a cycle ends with it open
 			m._end_cycle()
 			return m.cycle >= 2 and not m.engine.routes.is_empty()
-		4:  # upkeep: nothing to do, the cycle end above already satisfies it
+		4:  # upkeep: open the Expenses forecast (the player's action)
+			m.tut_note("expenses")
 			return true
 		5:  # sell at the destination
 			m.toggle_local(route_dst, buy_c, "sell")
@@ -135,11 +136,9 @@ func _play(m: Control, prefix: String, stop_at: int) -> int:
 			return i
 		var name: String = m.TUT_GUIDE[i]
 		await shot("%s_step%02d_%s" % [prefix, i + 1, name])
-		if i == 9:  # G10_DONE: the Got it button
-			var got := _find_btn(m.tut_actions, StoryText.get_or("BTN_GOT_IT", "Got it"))
-			check(got != null, "%s step %d has a visible Got it button" % [prefix, i + 1])
-			if got != null:
-				got.pressed.emit()
+		if i == 9:  # G10_DONE: no button, it closes by itself after TUT_LAST_SECS
+			check(_find_btn(m.tut_actions, StoryText.get_or("BTN_NEXT", "Next")) == null, "%s last step has no Next button" % prefix)
+			m._tut_tick(m.TUT_LAST_SECS + 0.1)
 			await process_frame
 			break
 		var ok := _act(m, i)
@@ -189,24 +188,17 @@ func _run() -> void:
 	var g: Control = m.galaxy_view
 	check(g.open_view() and g.tut_step == 0, "run C: galaxy view opens at tutorial step 1")
 	await shot("C_galaxy_step1_of3")
-	var nxt := _find_btn(g.tut_box, StoryText.get_or("BTN_NEXT", "Next"))
-	check(nxt != null, "run C: Next visible on galaxy step 1")
-	if nxt != null:
-		nxt.pressed.emit()
-	await process_frame
-	await shot("C_galaxy_step2_of3")
-	nxt = _find_btn(g.tut_box, StoryText.get_or("BTN_NEXT", "Next"))
-	check(nxt != null, "run C: Next visible on galaxy step 2")
-	if nxt != null:
-		nxt.pressed.emit()
-	await process_frame
-	await shot("C_galaxy_step3_of3")
-	var got2 := _find_btn(g.tut_box, StoryText.get_or("BTN_GOT_IT", "Got it"))
-	check(got2 != null, "run C: Got it visible on galaxy step 3")
-	if got2 != null:
-		got2.pressed.emit()
-	await process_frame
-	await process_frame
+	check(_find_btn(g.tut_box, StoryText.get_or("BTN_NEXT", "Next")) == null, "run C: no Next on the galaxy card")
+	for k in 3:  # each line moves on when a system is clicked
+		var ev := InputEventMouseButton.new()
+		ev.button_index = MOUSE_BUTTON_LEFT
+		ev.pressed = true
+		var hit: Dictionary = g._hit[0]
+		ev.position = hit["pos"]
+		g._gui_input(ev)
+		await process_frame
+		if k < 2:
+			await shot("C_galaxy_step%d_of3" % (k + 2))
 	check(g.tut_step == g.TUT_IDS.size(), "run C: galaxy tutorial reaches done (tut_step %d)" % g.tut_step)
 	await shot("C_galaxy_done")
 	await _free(m)
@@ -218,9 +210,8 @@ func _run() -> void:
 	g = m.galaxy_view
 	g.open_view()
 	await process_frame
-	nxt = _find_btn(g.tut_box, StoryText.get_or("BTN_NEXT", "Next"))
-	if nxt != null:
-		nxt.pressed.emit()
+	g.tut_step = 1
+	g._build_tutorial()
 	await process_frame
 	check(g.tut_step == 1, "run D: galaxy at step 2 before Skip")
 	await shot("D_galaxy_step2_before_skip")
