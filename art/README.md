@@ -8,9 +8,10 @@ Game-ready images the game loads live here, one category per folder. Naming rule
 | `art/ui/` | UI pieces: `ui_glyph_*`, `ui_header_horizon.png`, `ui_panel_glass.png`, planet thumbnails `ui_thumb_<type>.png` | `game/ui.gd` (`Ui.ui_texture`), `game/planet_panel.gd`, `game/galaxy_view.gd` |
 | `art/planet/` | Planet surface maps `planet_<type>_beauty.png` and `_displacement.png`, `planet_cloud.png`, `planet_lights_mask.png`, `planet_glowing_mask.png`, `planet_toxic_beauty.png` (dead worlds), `planet_asteroid_01/02.png`, `planet_surface_01.jpg` (fallback), `planet_sphere_tone.png` (baked by `tools/planet_texture_gen.gd`) | `art/planet_fx/planet_sphere.gd` and its materials |
 | `art/sun/frames/<subject>/` | The 3D sun's 64 frames per sheet: `flare/`, `storm/`, `calm/`, files `sun_00.png` to `sun_63.png` | `art/sun/sun_flare.gd` (cut by `tools/cut_sun.gd`, centred by `tools/sun_center/`) |
+| `art/portraits/` | CEO portrait atlas `portrait_ceo_atlas.png` (one row, 256x320 cells, built by `tools/make_portrait_atlas.gd`; ids and cells in `game/company_portraits.gd`) | `game/company_portraits.gd`, `game/company_setup.gd`, `game/game_menu.gd` |
 | `art/route/` | Route arrow pieces `route_arrow_head/mid/tail.png` | route line |
 | `art/event_banners/` | Event banner images `ev01.webp` to `ev37.webp`, lowercase event id (the id in `data/events.json` is `EV01`; the loader lowercases it) | `game/main.gd`, `game/event_notice.gd` |
-| `art/source/` | Never loaded by the game: sun sheets `sun_sheet_<subject>_8x8_vNN.png`, raw sun frames `sun_frames_raw/`, full-size dead-world banners `event_banners_fullres/` (`ev29.png` to `ev37.png`) | `tools/cut_sun.gd` (reads the sheets), `tools/sun_center/` (reads the raw frames) |
+| `art/source/` | Never loaded by the game: sun sheets `sun_sheet_<subject>_8x8_vNN.png`, raw sun frames `sun_frames_raw/`, full-size CEO portraits `portrait_<id>_full.png` (input of the atlas tool), full-size dead-world banners `event_banners_fullres/` (`ev29.png` to `ev37.png`) | `tools/cut_sun.gd` (reads the sheets), `tools/sun_center/` (reads the raw frames) |
 | `art/planet_fx/` | Code only: planet and map effect scripts, shaders, materials (`.tres`) and scenes (`.tscn`) | `game/map.gd` |
 | `art/sun/*.gd`, `*.gdshader` | Sun code: `sun_flare.gd`, `hex_ring.gd`, `sun.gdshader` | `game/map.gd` |
 

@@ -16,6 +16,9 @@ var confirm_label: Label
 var confirm_action: String = ""
 var _was_paused := false
 var _box: VBoxContainer
+var _header: HBoxContainer
+var _portrait: TextureRect
+var _company_label: Label
 
 func setup(main_node: Control) -> void:
 	main = main_node
@@ -28,6 +31,20 @@ func setup(main_node: Control) -> void:
 	_box = VBoxContainer.new()
 	_box.add_theme_constant_override("separation", 8)
 	add_child(_box)
+	## Company header: CEO portrait and company name (set on the new company screen).
+	_header = HBoxContainer.new()
+	_header.add_theme_constant_override("separation", 10)
+	_box.add_child(_header)
+	_portrait = TextureRect.new()
+	_portrait.custom_minimum_size = Vector2(48, 60)
+	_portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	_header.add_child(_portrait)
+	_company_label = Label.new()
+	_company_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_company_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_company_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_header.add_child(_company_label)
 	## [label id, action]. Later slots (Settings, Help, ...) are added here.
 	var entries := [["MENU_RESUME", "resume"], ["MENU_SKILLS", "skills"], ["LBL_COMP_TITLE", "competitors"], ["MENU_MAIN", "main"], ["MENU_QUIT", "quit"]]
 	for e in entries:
@@ -68,6 +85,9 @@ func setup(main_node: Control) -> void:
 func open_menu() -> void:
 	if visible:
 		return
+	_company_label.text = main.company_name
+	_portrait.texture = load("res://game/company_portraits.gd").texture(main.ceo_portrait)
+	_header.visible = main.company_name != ""
 	_was_paused = main.paused
 	main.set_paused(true)  # also writes the autosave
 	main.post_notice(StoryText.get_text("NOT_SAVED"))

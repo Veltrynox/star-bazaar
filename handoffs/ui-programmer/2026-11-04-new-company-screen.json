@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-04",
+  "task": "new-company-screen",
+  "status": "done",
+  "files_changed": [
+    "game/company_setup.gd", "game/company_setup.tscn", "game/company_names.gd", "game/company_portraits.gd",
+    "game/main_menu.gd", "game/save_game.gd", "game/main.gd", "game/game_menu.gd",
+    "tools/make_portrait_atlas.gd", "tools/tests/run_tests.gd",
+    "art/portraits/portrait_ceo_atlas.png (+.import)", "art/source/portrait_ceo_{man_01,man_02,woman_01,woman_02}_full.png (+.import; moved from art/portraits, old imports removed)",
+    "design/art/NAMING.md", "art/README.md", "story/game-flow.md", "gdd.md"
+  ],
+  "open_questions": [
+    "Story keys not in story files yet (plain defaults used): SETUP_TITLE 'New company', SETUP_NAME_LABEL 'Company name', SETUP_RANDOM 'Random', SETUP_CEO_LABEL 'Choose your CEO', SETUP_START 'Start', SETUP_BACK 'Back', SETUP_NEED_NAME 'Enter a company name to start.' (Start tooltip when empty).",
+    "Company name is not shown in the top bar (no obvious free spot); only in the game menu header."
+  ],
+  "handoff": "New Game now opens res://game/company_setup.tscn (full screen, name field with Random, four CEO cards in one toggle group with amber star_warm border when selected, Back/Esc, Start disabled when empty). Start commits name and portrait to SaveGame.pending_company/pending_portrait, clears the old save (as before), loads the game; main.gd reads them once into company_name/ceo_portrait, saved in the autosave (old saves default to a generated name and first portrait, no version bump). Atlas: art/portraits/portrait_ceo_atlas.png, 1024x320, 643 KB; rerun tools/make_portrait_atlas.gd after adding an id in game/company_portraits.gd. Full-size originals moved to art/source/. Game menu shows portrait and name at top. Tests: 1305 pass, 0 fail. Not checked by eye: the setup screen layout, card look and the game-menu header. Existing non-fatal 'material is null' and JSON parse errors appear in test output.",
+  "details": {"how_to_see": "Run the game, main menu, New Game: the setup screen; press Start, Esc, then see the header in the game menu."}
+}

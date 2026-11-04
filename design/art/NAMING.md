@@ -23,6 +23,7 @@ Status: APPLIED (2026-11-03, folder reorganisation). Folder map and where to fin
 | `icon_` | `icon_<commodity key>_<size>` (key = data key) | `icon_energy_64.png` | `art/icons/` |
 | `sun_` | frame sequence or source sheet | `sun_00.png`, `sun_sheet_flare_8x8_v02.png` | `art/sun/frames/<subject>/`, `art/source/` |
 | `planet_` | planet surfaces and body maps | `planet_surface_01.jpg` | `art/planet/` |
+| `portrait_` | `portrait_<subject>[_<variant>]`; atlas `portrait_ceo_atlas.png`, full-size sources `portrait_ceo_man_01_full.png` | `art/portraits/` (atlas), `art/source/` (sources) |
 | `route_` | route arrow pieces | `route_arrow_head.png` | `art/route/` |
 | `model_` | 3D models (one folder per model) | `model_corvette.glb` | `assets/<model>/` |
 | `doc_` | documents and archives | `doc_gdd.pdf` | `media/docs/` |

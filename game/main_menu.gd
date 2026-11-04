@@ -2,6 +2,7 @@ extends Control
 ## T26: main menu. New Game and Continue (shows a notice when no save), Quit.
 
 const GAME_SCENE := "res://game/main.tscn"
+const SETUP_SCENE := "res://game/company_setup.tscn"
 const SaveGame := preload("res://game/save_game.gd")
 const StoryText := preload("res://game/story_text.gd")
 
@@ -64,10 +65,9 @@ func _new_game() -> void:
 	add_child(dlg)
 	dlg.popup_centered()
 
+## Opens the new company screen; it clears the old save and starts the game when the player presses Start.
 func _start_new() -> void:
-	SaveGame.clear()
-	SaveGame.continue_requested = false
-	get_tree().change_scene_to_file(GAME_SCENE)
+	get_tree().change_scene_to_file(SETUP_SCENE)
 
 func _continue() -> void:
 	if not SaveGame.exists():

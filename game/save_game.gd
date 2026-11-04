@@ -21,6 +21,10 @@ static var dropped_old: bool = false
 ## Set by the main menu; read once by main.gd on start.
 static var continue_requested: bool = false
 
+## Set by the company setup screen; read once by main.gd on a new game ("" = none chosen, main.gd generates a name).
+static var pending_company: String = ""
+static var pending_portrait: String = ""
+
 static func exists() -> bool:
 	return not load_state().is_empty()
 
