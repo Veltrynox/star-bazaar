@@ -29,8 +29,12 @@ const Clusters := preload("res://game/clusters.gd")
 const DeadWorlds := preload("res://game/dead_worlds.gd")
 const Fabric := preload("res://game/fabric.gd")
 const WorkshopsScript := preload("res://game/workshops.gd")
+const CompanyNames := preload("res://game/company_names.gd")
+const CompanyPortraits := preload("res://game/company_portraits.gd")
 
 var balance: Dictionary = {}
+var company_name: String = ""  # chosen on the new company screen, saved
+var ceo_portrait: String = ""  # id from company_portraits.gd, saved
 var cash: int = 0
 var cycle: int = 1          # current cycle, 1-based
 var trade_income_total: int = 0  # cumulative gross trade income this run (gates Space Storage), saved
@@ -78,7 +82,11 @@ func systems_in_game() -> int:
 var events: RefCounted = Events.new()  # T12 random events and active price effects
 const ASTEROID_REWARD_POINTS := 1  # T109: EV20_PAID gives one expansion point (no balance key)
 var asteroid_last_hit: int = -1  # T109: planet hit by the last asteroid (-1 none), runtime only
-var event_notice: ColorRect  # T12 paused event notification, null when none
+var event_notice: ColorRect  # T12 event window (opened from an icon), null when none
+var event_icons: HBoxContainer  # strip of event icons (game/event_icons.gd)
+var _event_pause_held := false  # the open event window holds the pause
+var _event_prev_paused := false  # pause state to restore when it closes
+var _event_hint_planet := -1
 var event_feed_label: Label  # T12 this run's events on the board
 
 var skill_screen: PanelContainer  # T71, hidden until opened
@@ -247,6 +255,10 @@ func _ready() -> void:
 	var saved := SaveGame.load_state() if SaveGame.continue_requested else {}
 	SaveGame.continue_requested = false
 	if saved.is_empty():
+		company_name = SaveGame.pending_company.strip_edges().left(CompanyNames.MAX_LEN) if SaveGame.pending_company.strip_edges() != "" else CompanyNames.generate()
+		ceo_portrait = CompanyPortraits.normalize(SaveGame.pending_portrait)
+		SaveGame.pending_company = ""
+		SaveGame.pending_portrait = ""
 		_quiet_points = true
 		_award_planet(maxi(mission_planet, 0))  # T82: the home planet counts at start
 		_quiet_points = false
@@ -272,7 +284,7 @@ func _ready() -> void:
 ## T26: state written to the autosave. Add new keys here (see save_game.gd).
 ## Tuning values from balance.json are never saved.
 func collect_state() -> Dictionary:
-	return {"cycle": cycle, "trade_income_total": trade_income_total, "cycle_elapsed": cycle_elapsed, "cash": cash, "paused": paused, "ships": ships,
+	return {"company_name": company_name, "ceo_portrait": ceo_portrait, "cycle": cycle, "trade_income_total": trade_income_total, "cycle_elapsed": cycle_elapsed, "cash": cash, "paused": paused, "ships": ships,
 		"routes": engine.to_array(), "storage": storage.to_dict(), "orders": engine.local_to_array(),
 		"markets": Markets.to_dict(), "rescues_paid": rescues_paid, "repossessions": repossessions, "learned_skills": learned_skills.duplicate(), "skills": Skills.to_dict(), "tech": Tech.to_dict(), "systems_reached": systems_reached,
 		"time_speed": time_speed, "skill_points": skill_points, "pts_planets": pts_planets, "pts_pairs": pts_pairs, "events": events.to_dict(),
@@ -283,6 +295,10 @@ func collect_state() -> Dictionary:
 
 func apply_state(s: Dictionary) -> void:
 	_loading_state = true
+	company_name = str(s.get("company_name", "")).strip_edges().left(CompanyNames.MAX_LEN)  # old saves: no company yet
+	if company_name == "":
+		company_name = CompanyNames.generate()
+	ceo_portrait = CompanyPortraits.normalize(str(s.get("ceo_portrait", "")))
 	map.clear_stations()
 	for m in station_markers.values():
 		m.queue_free()
@@ -357,8 +373,12 @@ func apply_state(s: Dictionary) -> void:
 	_sync_closed()
 	_refresh_event_feed()
 	paused = true  # always resume paused
-	if events.pending_id != "":  # T12: an unconfirmed event notice comes back (effects already applied unless a choice)
-		_open_event_notice(events.pending_id)
+	_dismiss_event_notice()
+	_release_event_pause()
+	while event_icons != null and event_icons.count() > 0:
+		event_icons.remove_icon(str(event_icons.entries[0]["id"]))
+	if events.pending_id != "":  # an unanswered important event comes back as its icon (effects already applied unless a choice)
+		_add_event_icon(events.pending_id, false)
 
 func _int_array(v) -> Array:
 	var out: Array = []
@@ -1876,6 +1896,8 @@ func _cycle_seconds() -> float:
 
 func _process(delta: float) -> void:
 	_tut_update_highlight()
+	if event_icons != null:
+		event_icons.tick(delta)  # real time, also while paused
 	_update_station_markers()
 	_update_sell_offer_box()
 	if paused or game_over:
@@ -1947,8 +1969,8 @@ func _end_cycle() -> void:
 		forecast_id = events.random_id([], cycle + 1)
 		post_notice(forecast_text(forecast_id))
 	# One event per cycle: a chain step first, then a scheduled flavour popup, then the pool event of the slot.
-	var chain_id: String = Chains.next_step(cycle) if (event_notice == null and not game_over) else ""
-	var sched_id: String = events.take_due(cycle) if (chain_id == "" and event_notice == null and not game_over) else ""  # R1: flavour popups come from the schedule
+	var chain_id: String = Chains.next_step(cycle) if (event_notice == null and events.pending_id == "" and not game_over) else ""
+	var sched_id: String = events.take_due(cycle) if (chain_id == "" and event_notice == null and events.pending_id == "" and not game_over) else ""  # R1: flavour popups come from the schedule
 	if chain_id != "":
 		forecast_id = ""  # the chain step took the slot of the forecast pool event
 		fire_chain_step(chain_id)
@@ -2187,24 +2209,90 @@ func _pick_storage_planet() -> int:
 			opts.append(i)
 	return int(opts[events.rng.randi_range(0, opts.size() - 1)]) if not opts.is_empty() else -1
 
-## Fires an event by id: pauses and shows the notice. Non-choice events apply their effect now.
+## Fires an event by id: shows its icon (no pause, no window). Non-choice events apply their effect now.
+## A minor (price change) icon fades out; an important one waits for a click and blocks the next event until answered.
 func fire_event(id: String) -> void:
-	if id == "" or not events.by_id.has(id) or game_over or event_notice != null:
+	if id == "" or not events.by_id.has(id) or game_over or event_notice != null or events.pending_id != "":
 		return
 	events.pending_planet = events.pick_debris_planet() if id == "EV17" else -1
 	if id == "EV17" and events.pending_planet < 0:
 		return
 	events.record(id, cycle, events.pending_planet)
-	events.pending_id = id
+	var minor: bool = events.is_minor(id)
+	events.pending_id = "" if minor else id
 	if events.choices_of(id).is_empty():
 		_apply_effect(id, events.effect_of_event(id))
 	if Chains.in_pool(id):  # shared pool: the optional small bot effect applies at once and is logged
 		Chains.apply_pool(id, cycle)
-	paused = true
 	_refresh_event_feed()
 	_event_beat()
+	_add_event_icon(id, minor)
+	_refresh()
+
+## Icon seconds for a minor event, from balance (event_icon_seconds).
+func event_icon_seconds() -> float:
+	return float(balance.get("event_icon_seconds", 12.0))
+
+func _event_planet(id: String) -> int:
+	var p: int = events.named_planet(id)
+	if p < 0 and id == events.pending_id:
+		p = events.pending_planet
+	return p
+
+func _add_event_icon(id: String, minor: bool) -> void:
+	if event_icons == null:
+		return
+	var args := {"planet": planet_name(events.pending_planet)} if events.pending_planet >= 0 else {}
+	event_icons.add_icon(id, minor, events.title_of(id, args), event_icon_seconds(), _event_planet(id))
+
+## Click on an event icon (also the QA hook): opens the event window, moves the map to the planet it names and rings that planet.
+## The window pauses the game; closing it restores the earlier pause state. Returns false when nothing opened.
+func open_event_icon(id: String) -> bool:
+	if event_notice != null or game_over or not events.by_id.has(id):
+		return false
+	var planet := -1
+	if event_icons != null:
+		planet = int(event_icons.entry(id).get("planet", -1))
+		event_icons.remove_icon(id)
+	if planet < 0:
+		planet = _event_planet(id)
+	if not _event_pause_held:
+		_event_prev_paused = paused
+		_event_pause_held = true
+	paused = true
+	_focus_event_planet(planet)
 	_open_event_notice(id)
 	_refresh()
+	return true
+
+## Moves the camera to a planet (its system when it is another one) and shows the halo on it.
+func _focus_event_planet(planet: int) -> void:
+	_event_hint_planet = -1
+	map.set_event_hint(-1)
+	if planet < 0 or planet >= map.planets.size() or planet >= map.positions.size():
+		return
+	var sys := int(map.planets[planet].get("system", 1))
+	if sys != view_system and open_systems.has(sys):
+		go_to_system(sys)
+	if not map.planet_in_view(planet):
+		return
+	map.focus = map.positions[planet]
+	map.clamp_focus()
+	map._update_camera()
+	_event_hint_planet = planet
+	map.set_event_hint(planet)
+
+## The event window closed for good: the halo goes and the pause state from before the click comes back.
+func _release_event_pause() -> void:
+	map.set_event_hint(-1)
+	_event_hint_planet = -1
+	if _event_pause_held:
+		_event_pause_held = false
+		paused = _event_prev_paused
+
+## Id of the important event waiting for a click (icon up, window closed), "" when none.
+func pending_event_icon() -> String:
+	return events.pending_id if event_notice == null else ""
 
 func _open_event_notice(id: String) -> void:
 	_dismiss_event_notice()
@@ -2290,6 +2378,7 @@ func _debris_popup(ch, override: Dictionary = {}) -> void:
 	event_notice.show_event(StoryText.get_text(title_id, args), StoryText.get_text(body_id, args), "", [], StoryText.get_text("BTN_OK"))
 	event_notice.confirmed.connect(func(_c: int):
 		_dismiss_event_notice()
+		_release_event_pause()
 		_refresh()
 		save_now())
 	save_now()
@@ -2303,10 +2392,9 @@ func fire_chain_step(id: String) -> void:
 	events.pending_planet = -1
 	events.record(id, cycle, -1)
 	events.pending_id = id
-	paused = true
 	_refresh_event_feed()
 	_event_beat()
-	_open_chain_notice(id)
+	_add_event_icon(id, false)
 	_refresh()
 
 func _open_chain_notice(id: String) -> void:
@@ -2350,6 +2438,7 @@ func _apply_chain_choice(choice: int, id: String) -> void:
 	event_notice.show_event(Chains.result_title(id, opt), Chains.result_text(id, opt, res["rivals"]), "", [], StoryText.get_text("BTN_OK"))
 	event_notice.confirmed.connect(func(_c: int):
 		_dismiss_event_notice()
+		_release_event_pause()
 		_refresh()
 		save_now())
 	_refresh()
@@ -2357,6 +2446,11 @@ func _apply_chain_choice(choice: int, id: String) -> void:
 	save_now()
 
 func _on_event_confirmed(choice: int, id: String) -> void:
+	if id != events.pending_id:  # a minor event read from its icon: nothing to answer, nothing pending to clear
+		_dismiss_event_notice()
+		_release_event_pause()
+		_refresh()
+		return
 	if events.is_chain_step(id):
 		_apply_chain_choice(choice, id)
 		return
@@ -2376,6 +2470,7 @@ func _on_event_confirmed(choice: int, id: String) -> void:
 				return
 	events.pending_id = ""
 	_dismiss_event_notice()
+	_release_event_pause()
 	_refresh()
 	save_now()
 
@@ -2673,6 +2768,12 @@ func _build_hud() -> void:
 	system_hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	head.add_child(system_hint)
 	add_child(head)
+	event_icons = load("res://game/event_icons.gd").new()
+	event_icons.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
+	event_icons.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	event_icons.offset_top = 120
+	event_icons.clicked.connect(open_event_icon)
+	add_child(event_icons)
 	# key hints, bottom left
 	var keys := HFlowContainer.new()
 	keys.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_LEFT)

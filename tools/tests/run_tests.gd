@@ -81,6 +81,7 @@ func _run() -> void:
 	await _test_clusters()
 	await _test_asteroid_packs()
 	_test_event_banners()
+	await _test_company_setup()
 	print("TOTAL pass=%d fail=%d" % [passed, failed])
 	quit(1 if failed > 0 else 0)
 
@@ -867,7 +868,7 @@ func _test_skill_screen_ui() -> void:
 	m.skill_screen.select("MIL_1")
 	check(m.skill_screen.confirm_row_absent(), "skill screen: no separate confirm step")
 	m.skill_screen.learn_button.pressed.emit()
-	check(m.has_skill("MIL_1") and m.skill_screen.node_buttons["MIL_1"].text.contains(StoryText.get_text("SK_BTN_LEARNED")), "skill screen: Learn button learns in one click, spends points and shows learned")
+	check(m.has_skill("MIL_1") and m.skill_screen.node_buttons["MIL_1"].text == SkillTree.skill_name("MIL_1"), "skill screen: Learn button learns in one click, spends points; the node shows only its name")
 	Skills.learned.append_array(["MIL_3", "MIL_5"])
 	m.skill_screen.refresh()
 	check(m.skill_screen.use_rows["MIL_5"].visible and m.skill_screen.use_buttons.has("MIL_5"), "skill screen: learned bot skill shows its Use menu")
@@ -1707,7 +1708,9 @@ func _test_events() -> void:
 	var base_sell: int = m.trade.price(vi, "energy_sell")
 	var base_buy: int = m.trade.price(vi, "energy_buy")
 	m.debug_fire_event("EV01")
-	check(m.event_notice != null and m.paused, "events: notice shown and game paused")
+	check(m.event_notice == null and m.event_icons.has_id("EV01") and m.events.pending_id == "", "events: a price event shows an icon, no window, nothing pending")
+	m.paused = false
+	check(m.open_event_icon("EV01") and m.event_notice != null and m.paused and not m.event_icons.has_id("EV01"), "events: clicking the icon opens the window and pauses")
 	var btns := _buttons(m.event_notice, [])
 	check(btns.size() == 1 and btns[0].text == StoryText.get_text("MENU_CONTINUE"), "events: one Continue button")
 	var pct_energy := float(m.balance["event_pct_energy"])  # energy has its own swing since the frost change
@@ -1715,7 +1718,7 @@ func _test_events() -> void:
 	check(m.trade.price(vi, "food_sell") >= -1 and m.trade.price(ev.planet_index("Tillam"), "energy_sell") == m.trade.price(ev.planet_index("Tillam"), "energy_sell"), "events: other prices unchanged")
 	btns[0].pressed.emit()
 	await process_frame
-	check(m.event_notice == null and m.paused, "events: Continue closes the notice")
+	check(m.event_notice == null and not m.paused, "events: Continue closes the notice and restores the pause state")
 	for i in cyc:
 		check(m.trade.price(vi, "energy_sell") != base_sell, "events: price modified in cycle %d of %d" % [i + 1, cyc])
 		m.events.tick()
@@ -1723,6 +1726,7 @@ func _test_events() -> void:
 	# EV07: Tillam closed
 	var ti: int = ev.planet_index("Tillam")
 	m.debug_fire_event("EV07")
+	m.open_event_icon("EV07")
 	check(m.engine.closed_planets.has(ti), "events: Tillam closed")
 	check(not m.engine.check_connection(ti, vi, "food")["ok"], "events: cannot route from closed planet")
 	_buttons(m.event_notice, [])[0].pressed.emit()
@@ -1745,7 +1749,63 @@ func _test_events() -> void:
 	m = await _new_main()
 	m._dismiss_preface()
 	m.apply_state(st)
-	check(m.event_notice != null and m.events.active.size() == 1 and m.events.feed.size() == 3, "events: pending notice and active effects survive a reload")
+	check(m.event_notice == null and m.events.active.size() == 1 and m.events.feed.size() == 3, "events: active effects survive a reload, a minor icon is not kept")
+	m.debug_fire_event("EV07")
+	check(m.events.pending_id == "EV07" and m.event_icons.has_id("EV07") and not bool(m.event_icons.entry("EV07")["minor"]), "events: closed planet is an important icon")
+	var st2: Dictionary = m.collect_state()
+	await _free_main(m)
+	m = await _new_main()
+	m._dismiss_preface()
+	m.apply_state(st2)
+	check(m.events.pending_id == "EV07" and m.event_icons.has_id("EV07") and m.event_notice == null, "events: a pending important icon survives save and load")
+	m.open_event_icon("EV07")
+	_buttons(m.event_notice, [])[0].pressed.emit()
+	await process_frame
+	check(m.events.pending_id == "" and m.event_notice == null, "events: answering clears the pending icon")
+	await _free_main(m)
+	# event icons: classification, expiry, pause, focus
+	m = await _new_main()
+	m._dismiss_preface()
+	var minor_ids: Array = []
+	var major_ids: Array = []
+	for e in m.events.defs:
+		(minor_ids if m.events.is_minor(str(e["id"])) else major_ids).append(str(e["id"]))
+		var is_price: bool = str(e.get("tag", "")).begins_with("[price") and (e.get("choices", []) as Array).is_empty()
+		if not e.has("chain_step") and str(e.get("tag", "")) != "":
+			check(m.events.is_minor(str(e["id"])) == is_price, "icons: classification of " + str(e["id"]))
+	for id in ["EV17", "EV18", "EV20", "EV07", "EV08", "EV09"]:
+		check(major_ids.has(id), "icons: %s is important" % id)
+	for id in ["EV01", "EV02", "EV24"]:
+		check(minor_ids.has(id), "icons: %s is minor" % id)
+	for sid in Chains.step_ids():
+		check(not m.events.is_minor(sid), "icons: chain step %s is important" % sid)
+	m.events.pending_id = ""
+	m.paused = false
+	m.debug_fire_event("EV02")
+	check(m.event_icons.has_id("EV02") and not m.paused and m.events.pending_id == "", "icons: minor event: icon, no pause")
+	m.event_icons.tick(m.event_icon_seconds() + 1.0)
+	check(not m.event_icons.has_id("EV02") and m.event_notice == null and not m.paused, "icons: minor icon expires, nothing else happens")
+	m.debug_fire_event("EV07")
+	m.event_icons.tick(m.event_icon_seconds() * 10.0)
+	check(m.event_icons.has_id("EV07") and not m.paused, "icons: important icon stays and does not pause")
+	var tilp: int = m.events.planet_index("Tillam")
+	var cam0: Vector3 = m.map.focus
+	m.paused = false
+	m.open_event_icon("EV07")
+	check(m.paused and m.map.event_hint != null and m.map.focus.distance_to(m.map.positions[tilp]) < 0.01, "icons: click pauses, focuses and rings the planet")
+	_buttons(m.event_notice, [])[0].pressed.emit()
+	await process_frame
+	check(not m.paused and m.map.event_hint == null, "icons: closing restores play and removes the ring")
+	m.cycle = 5
+	m.debug_fire_event("EV18")
+	m.debug_fire_event("EV01")
+	check(m.event_icons.count() == 1 and m.events.pending_id == "EV18", "icons: a pending important event blocks the next one")
+	m.open_event_icon("EV18")
+	_buttons(m.event_notice, [])[1].pressed.emit()
+	await process_frame
+	m.events.pending_id = ""
+	m._dismiss_event_notice()
+	m._release_event_pause()
 	await _free_main(m)
 	# T98: EV17 debris choice
 	m = await _new_main()
@@ -1754,6 +1814,7 @@ func _test_events() -> void:
 	var fee: int = int(m.balance["debris_clear_fee"])
 	m.cash = 1000
 	m.debug_fire_event("EV17")
+	m.open_event_icon("EV17")
 	var dp: int = ev.pending_planet
 	var dbtn := _buttons(m.event_notice, [])
 	check(m.event_notice != null and m.paused and dbtn.size() == 2, "debris: choice screen with two buttons")
@@ -1772,6 +1833,7 @@ func _test_events() -> void:
 	_buttons(m.event_notice, [])[0].pressed.emit()
 	check(m.event_notice == null, "debris: popup closes")
 	m.debug_fire_event("EV17")  # the offer comes back on the same planet
+	m.open_event_icon("EV17")
 	check(ev.pending_planet == dp, "debris: offer returns on the planet with debris")
 	_buttons(m.event_notice, [])[0].pressed.emit()  # pay
 	check(m.cash == 1000 - fee and ev.debris.is_empty(), "debris: paying costs debris_clear_fee once and clears it")
@@ -1779,6 +1841,7 @@ func _test_events() -> void:
 	_buttons(m.event_notice, [])[0].pressed.emit()
 	m.cash = 0
 	m.debug_fire_event("EV17")
+	m.open_event_icon("EV17")
 	check(_buttons(m.event_notice, [])[0].disabled, "debris: pay button disabled without the cash")
 	await _free_main(m)
 	# cadence
@@ -2705,6 +2768,7 @@ func _test_asteroid() -> void:
 	var cost: int = int(b["asteroid_deflect_cost"])
 	m.cash = 2000
 	m.debug_fire_event("EV20")
+	m.open_event_icon("EV20")
 	var btns := _buttons(m.event_notice, [])
 	check(m.event_notice != null and btns.size() == 2, "asteroid: choice screen with two buttons")
 	check(btns[0].text.begins_with(StoryText.get_text("EV20_PAY_BTN")) and btns[1].text == StoryText.get_text("EV20_DECLINE_BTN"), "asteroid: button texts from story ids")
@@ -2716,6 +2780,7 @@ func _test_asteroid() -> void:
 	_buttons(m.event_notice, [])[0].pressed.emit()
 	m.cash = 0
 	m.debug_fire_event("EV20")
+	m.open_event_icon("EV20")
 	check(_buttons(m.event_notice, [])[0].disabled, "asteroid: pay disabled without the cash")
 	_buttons(m.event_notice, [])[1].pressed.emit()  # decline with no storage: nothing to hit
 	check(m.asteroid_last_hit == -1 and _texts(m.event_notice).has(StoryText.get_text("EV20_MISS")), "asteroid: decline with no storage shows EV20_MISS")
@@ -2734,11 +2799,13 @@ func _test_asteroid() -> void:
 			good_seed = s
 	m.events.seed_rng(good_seed)
 	m.debug_fire_event("EV20")
+	m.open_event_icon("EV20")
 	_buttons(m.event_notice, [])[1].pressed.emit()
 	check(m.storage.capacity_of(Storage.planet_key(1)) == cap0 and _texts(m.event_notice).has(StoryText.get_text("EV20_MISS")), "asteroid: good roll changes nothing")
 	_buttons(m.event_notice, [])[0].pressed.emit()
 	m.events.seed_rng(bad_seed)
 	m.debug_fire_event("EV20")
+	m.open_event_icon("EV20")
 	_buttons(m.event_notice, [])[1].pressed.emit()
 	var cap1: int = m.storage.capacity_of(Storage.planet_key(1))
 	check(m.asteroid_last_hit == 1 and cap1 == int(round(cap0 * (1.0 - float(b["asteroid_storage_loss_pct"])))), "asteroid: bad roll cuts storage by asteroid_storage_loss_pct", "%d -> %d" % [cap0, cap1])
@@ -2747,6 +2814,7 @@ func _test_asteroid() -> void:
 	_buttons(m.event_notice, [])[0].pressed.emit()
 	m.events.seed_rng(bad_seed)  # same seed, same outcome
 	m.debug_fire_event("EV20")
+	m.open_event_icon("EV20")
 	_buttons(m.event_notice, [])[1].pressed.emit()
 	check(m.asteroid_last_hit == 1, "asteroid: same seed replays the same outcome")
 	_buttons(m.event_notice, [])[0].pressed.emit()
@@ -3633,10 +3701,12 @@ func _test_clusters() -> void:
 	var n0: int = m.clusters.items.size()
 	m.cash = 5000
 	m.debug_fire_event("EV20")
+	m.open_event_icon("EV20")
 	_buttons(m.event_notice, [])[1].pressed.emit()
 	check(m.clusters.items.size() == n0, "T156: declining EV20 leaves no cluster")
 	_buttons(m.event_notice, [])[0].pressed.emit()
 	m.debug_fire_event("EV20")
+	m.open_event_icon("EV20")
 	_buttons(m.event_notice, [])[0].pressed.emit()
 	check(m.clusters.items.size() == n0 + 1 and m.clusters.left(n0) == int(b["mining_event_cluster_richness"]) and bool(m.clusters.items[n0]["spawned"]), "T156: paying EV20 leaves a small cluster of mining_event_cluster_richness")
 	_buttons(m.event_notice, [])[0].pressed.emit()
@@ -3660,6 +3730,7 @@ func _test_clusters() -> void:
 	for k in 8:  # the hit planet is random among established ones; repeat until it is the ore planet
 		m.events.seed_rng(bad_seed + k * 0)
 		m.debug_fire_event("EV20")
+		m.open_event_icon("EV20")
 		_buttons(m.event_notice, [])[1].pressed.emit()
 		if m.asteroid_last_hit == dst:
 			hits += 1
@@ -3672,6 +3743,70 @@ func _test_clusters() -> void:
 		check(m.storage.amount(key, "ore") <= m.storage.capacity_of(key), "T156: parked ore never exceeds the cut capacity")
 	await _free_main(m)
 
+
+## New company screen: names, portrait atlas, setup scene, hand-off to main, save round trip.
+func _test_company_setup() -> void:
+	var Names := load("res://game/company_names.gd")
+	var Portraits := load("res://game/company_portraits.gd")
+	var ok_len := true
+	var ok_set := true
+	for i in 300:
+		var n: String = Names.generate(i)
+		if n == "" or n.length() > Names.MAX_LEN:
+			ok_len = false
+	check(ok_len, "company names: never empty, never over the max length")
+	check(Names.generate(7) == Names.generate(7), "company names: same seed gives same name")
+	var seen := {}
+	for i in 50:
+		seen[Names.generate(i)] = true
+	check(seen.size() > 10, "company names: different seeds give variety", str(seen.size()))
+	var atlas := load(Portraits.ATLAS_PATH) as Texture2D
+	check(atlas != null, "portraits: atlas loads")
+	if atlas != null:
+		var inside := true
+		var regs := {}
+		for id in Portraits.IDS:
+			var r: Rect2 = Portraits.region(id)
+			regs[r] = true
+			if r.position.x < 0 or r.position.y < 0 or r.end.x > atlas.get_width() or r.end.y > atlas.get_height():
+				inside = false
+		check(inside and regs.size() == Portraits.IDS.size(), "portraits: one distinct region per portrait, all inside the atlas")
+	_wipe_user()
+	var setup: Control = load("res://game/company_setup.tscn").instantiate()
+	root.add_child(setup)
+	await process_frame
+	check(setup.cards.size() == Portraits.IDS.size() and setup.selected_id == Portraits.IDS[0], "setup: four cards, first selected by default")
+	check(setup.chosen_name() != "" and not setup.start_button.disabled, "setup: name pre-filled, Start enabled")
+	var before: String = setup.name_edit.text
+	setup.random_button.pressed.emit()
+	check(setup.name_edit.text != before and setup.name_edit.text != "", "setup: Random gives another name")
+	setup.name_edit.text = "   "
+	setup.name_edit.text_changed.emit("   ")
+	check(setup.start_button.disabled, "setup: Start disabled with an empty name")
+	setup.name_edit.text = "  Test Freight Concern "
+	setup.name_edit.text_changed.emit("x")
+	setup.select("ceo_woman_02")
+	setup.commit()
+	setup.queue_free()
+	await process_frame
+	var m: Control = await _new_main()
+	check(m.company_name == "Test Freight Concern" and m.ceo_portrait == "ceo_woman_02", "setup: chosen name and portrait reach main state", m.company_name + " " + m.ceo_portrait)
+	check(SaveGame.pending_company == "", "setup: hand-off is read once")
+	var st: Dictionary = JSON.parse_string(JSON.stringify(m.collect_state()))
+	check(st.get("company_name") == "Test Freight Concern" and st.get("ceo_portrait") == "ceo_woman_02", "save: company name and portrait are saved")
+	m.company_name = ""
+	m.ceo_portrait = ""
+	m.apply_state(st)
+	check(m.company_name == "Test Freight Concern" and m.ceo_portrait == "ceo_woman_02", "save: round trip keeps company name and portrait")
+	var old := st.duplicate()
+	old.erase("company_name")
+	old.erase("ceo_portrait")
+	m.apply_state(old)
+	check(m.company_name != "" and m.company_name.length() <= Names.MAX_LEN and m.ceo_portrait == Portraits.IDS[0], "save: old save without the fields gets a generated name and the first portrait")
+	m.game_menu.open_menu()
+	check(m.game_menu._company_label.text == m.company_name and m.game_menu._portrait.texture != null, "game menu: shows company name and portrait")
+	m.game_menu.close_menu()
+	await _free_main(m)
 
 func _test_event_banners() -> void:
 	var evs = _read_json("res://data/events.json")
@@ -4182,7 +4317,7 @@ func _test_dead_world_mechanics() -> void:
 		return n
 	check(m.cycle == 2 and fed.call() == 0, "follow: not before the set cycle")
 	m.debug_advance_cycle()
-	check(m.cycle == 3 and fed.call() == 1 and ev.scheduled.is_empty(), "follow: fires once at the set cycle", "cycle %d fired %d chains %s notice %s" % [m.cycle, fed.call(), str(Chains.picks.keys()), str(_texts(m.event_notice))])
+	check(m.cycle == 3 and fed.call() == 1 and ev.scheduled.is_empty(), "follow: fires once at the set cycle", "cycle %d fired %d chains %s notice %s" % [m.cycle, fed.call(), str(Chains.picks.keys()), m.events.pending_id])
 	m._on_event_confirmed(-1, "T_PART2")
 	m.debug_advance_cycle()
 	check(fed.call() == 1, "follow: does not fire again")
@@ -4691,6 +4826,7 @@ func _test_chains() -> void:
 	m.cash = 1000
 	m.cycle = 6
 	m.fire_chain_step("MIL_A1")
+	m.open_event_icon("MIL_A1")
 	check(m.event_notice != null and m.events.pending_id == "MIL_A1", "game: a chain step opens the choice popup")
 	var btns := _buttons(m.event_notice, [])
 	check(btns.size() == 2, "game: two options", str(btns.size()))
@@ -4726,7 +4862,7 @@ func _test_chains() -> void:
 	Markets.end_cycle(6)
 	m.cycle = 8  # the end of cycle 8 starts cycle 9, an event slot of the pool
 	m.debug_advance_cycle()
-	check(m.cycle == 9 and m.events.pending_id == "LUX_A1" and m.event_notice != null, "slot: a chain step takes the event slot before the pool event", m.events.pending_id)
+	check(m.cycle == 9 and m.events.pending_id == "LUX_A1" and m.event_icons.has_id("LUX_A1"), "slot: a chain step takes the event slot before the pool event", m.events.pending_id)
 	var feed_n: int = m.events.feed.size()
 	check(feed_n >= 1 and str(m.events.feed[feed_n - 1]["id"]) == "LUX_A1", "slot: one event in the cycle")
 	await _free_main(m)
