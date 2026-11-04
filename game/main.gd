@@ -37,6 +37,7 @@ var company_name: String = ""  # chosen on the new company screen, saved
 var ceo_portrait: String = ""  # id from company_portraits.gd, saved
 var cash: int = 0
 var cycle: int = 1          # current cycle, 1-based
+var storage_notice_done: bool = false  # the Space Storage availability notice was made this run (saved)
 var trade_income_total: int = 0  # cumulative gross trade income this run (gates Space Storage), saved
 var cycle_elapsed: float = 0.0  # seconds into current cycle
 var debug_force_market: String = ""  # debug-only, runtime only, never saved: market id whose share is forced up at cycle end
@@ -284,7 +285,7 @@ func _ready() -> void:
 ## T26: state written to the autosave. Add new keys here (see save_game.gd).
 ## Tuning values from balance.json are never saved.
 func collect_state() -> Dictionary:
-	return {"company_name": company_name, "ceo_portrait": ceo_portrait, "cycle": cycle, "trade_income_total": trade_income_total, "cycle_elapsed": cycle_elapsed, "cash": cash, "paused": paused, "ships": ships,
+	return {"company_name": company_name, "ceo_portrait": ceo_portrait, "cycle": cycle, "trade_income_total": trade_income_total, "storage_notice_done": storage_notice_done, "cycle_elapsed": cycle_elapsed, "cash": cash, "paused": paused, "ships": ships,
 		"routes": engine.to_array(), "storage": storage.to_dict(), "orders": engine.local_to_array(),
 		"markets": Markets.to_dict(), "rescues_paid": rescues_paid, "repossessions": repossessions, "learned_skills": learned_skills.duplicate(), "skills": Skills.to_dict(), "tech": Tech.to_dict(), "systems_reached": systems_reached,
 		"time_speed": time_speed, "skill_points": skill_points, "pts_planets": pts_planets, "pts_pairs": pts_pairs, "events": events.to_dict(),
@@ -320,6 +321,7 @@ func apply_state(s: Dictionary) -> void:
 	cycle = maxi(1, int(s.get("cycle", 1)))
 	trade_income_total = maxi(0, int(s.get("trade_income_total", 0)))  # old saves: 0, earned again
 	_sync_earn()
+	storage_notice_done = bool(s.get("storage_notice_done", trade_income_total >= int(balance.get("earn_storage_income", 3000))))  # old saves: no notice for an already earned line
 	Markets.from_dict(s.get("markets"), balance)
 	Chains.from_dict(s.get("chains"), balance)  # a v3 save has no chain state: fresh
 	Chains.now = cycle
@@ -644,6 +646,22 @@ func _note_system(planet: int) -> void:
 ## Pushes trade income to SkillTree for the Space Storage earn lock.
 func _sync_earn() -> void:
 	SkillTree.earn_income = trade_income_total
+
+## Once per run, when trade income first meets the Space Storage line (skill not learned): an important icon that stays
+## until clicked. If another important icon is waiting, it is tried again next call (income and cycle start).
+func _check_storage_ready() -> void:
+	if storage_notice_done or game_over:
+		return
+	if learned_skills.has("FND_STORAGE"):
+		storage_notice_done = true
+		return
+	if skill_lock_reason("FND_STORAGE") != "" or events.pending_id != "" or event_notice != null:
+		return
+	storage_notice_done = true
+	events.pending_planet = -1
+	events.pending_id = Events.NOTICE_STORAGE
+	_add_event_icon(Events.NOTICE_STORAGE, false)
+	save_now()
 
 ## Lock line for a skill ("" = free to learn), for the skill screen.
 func skill_lock_reason(id: String) -> String:
@@ -1773,6 +1791,7 @@ func _settle_routes() -> Array:
 	cash += int(r["delta"])
 	trade_income_total += maxi(0, int(r["gross"]))
 	_sync_earn()
+	_check_storage_ready()
 	for c in engine.sales_units:  # Four Markets: Sell orders and stop sales count toward share
 		Markets.add_sale(str(c), int(engine.sales_units[c]), int(engine.sales_up_units.get(c, 0)))
 	prev_net = last_net
@@ -1968,6 +1987,7 @@ func _end_cycle() -> void:
 		forecast_id = events.random_id([], cycle + 1)
 		post_notice(forecast_text(forecast_id))
 	# One event per cycle: a chain step first, then a scheduled flavour popup, then the pool event of the slot.
+	_check_storage_ready()
 	var chain_id: String = Chains.next_step(cycle) if (event_notice == null and events.pending_id == "" and not game_over) else ""
 	var sched_id: String = events.take_due(cycle) if (chain_id == "" and event_notice == null and events.pending_id == "" and not game_over) else ""  # R1: flavour popups come from the schedule
 	if chain_id != "":
@@ -2554,6 +2574,7 @@ func debug_restart_tutorial() -> void:
 	galaxy_seen = false
 	cycle = 1
 	trade_income_total = 0
+	storage_notice_done = false
 	_sync_earn()
 	_sync_dead_lock()
 	cycle_elapsed = 0.0

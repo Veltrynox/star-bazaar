@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-04",
+  "task": "storage-ready",
+  "status": "done",
+  "files_changed": ["game/skill_screen.gd", "game/events.gd", "game/main.gd", "game/debug_menu.gd", "tools/tests/run_tests.gd", "gdd-skills.md", "story/game-flow.md"],
+  "open_questions": [],
+  "handoff": "Space Storage node is now COL_LOCKED while earn-locked (tooltip and detail keep the earn line). When income first reaches the line (checked after each settle and at cycle start), once per run and not if learned, an important icon STORAGE_READY appears, saved as events.pending_id, stays until clicked. Window: STORAGE_READY_TITLE / STORAGE_READY, one OK, no effect, no camera move. It lives only in events.by_id (flag notice), not in defs/pool/feed; debug trigger list skips it. Flag storage_notice_done is saved; old saves without it count as done if the line is already met. Bot already dismisses it (no choices). Story ids are already in data/story_text.json. Tests: 1325 pass, 0 fail. To try: debug-set trade income to 3000, then click the warm icon.",
+  "details": {}
+}

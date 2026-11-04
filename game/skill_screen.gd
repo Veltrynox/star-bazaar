@@ -324,6 +324,8 @@ func refresh() -> void:
 		var tech := SkillTree.is_tech(id)
 		var btn: Button = node_buttons[id]
 		btn.text = SkillTree.skill_name(id)
+		if st != "learned" and main.skill_lock_reason(id) != "":
+			st = "locked"  # earn-locked (Space Storage): muted like any locked node until the income line is met
 		var col := COL_LEARNED if st == "learned" else (COL_AVAILABLE if st in ["learnable", "researching"] else (COL_SHORT if st == "points" else COL_LOCKED))
 		if tech and st != "locked" and st != "learned":
 			col = col * TECH_TINT

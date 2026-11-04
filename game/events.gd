@@ -12,6 +12,8 @@ extends RefCounted
 const StoryText := preload("res://game/story_text.gd")
 const PATH := "res://data/events.json"
 
+## One-off notice (not a pool event, not in defs, no effect): Space Storage can be learned. Shown as an important icon.
+const NOTICE_STORAGE := "STORAGE_READY"
 var balance: Dictionary = {}
 var debug_off: Array = []  # T13: event ids the debug menu keeps out of the random pick; runtime only, never saved
 var planets: Array = []
@@ -52,6 +54,8 @@ func setup(bal: Dictionary, plist: Array) -> void:
 			defs.append(e)
 			by_id[str(e["id"])] = e
 	_add_chain_defs()
+	by_id[NOTICE_STORAGE] = {"id": NOTICE_STORAGE, "notice": true, "title": "Space Storage available", "title_id": "STORAGE_READY_TITLE",
+		"text": "Your trade has earned the right to store stock in space. Learn Space Storage in the Skills window.", "text_id": "STORAGE_READY"}
 
 ## Chain data adds rows without touching data/events.json: the 12 new pool events (price or closure, text by EV<nn>_TITLE / _BODY /
 ## _EFF ids, title fallback from the data) and one row per chain step (kind C, texts by EV_<step>_..., see chains.gd).

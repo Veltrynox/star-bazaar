@@ -84,6 +84,7 @@ Where the data and the proposal differ in size (for example LUX_5 and MIN_7), da
 4. SPACE STORAGE (FND_STORAGE)
 ========================================
 Space Storage is a Foundation skill, cost [GCM:skill_cost_FND_STORAGE] point. It is not free and it is earned: it can be learned once the company has earned enough credits from trade (no cycle condition; the amount is a balance value, [GCM:earn_storage_income]). Until it is learned the player has planet storage only.
+The Space Storage node is muted like a locked node until the trade-income line is met. The first time the line is met in a run (and the skill is not yet learned), a warm event icon appears and stays until clicked; its window says Space Storage is available. It is a one-off notice with no effect on the game.
 Rules:
   - One space storage per system, much bigger than a planet storage. Capacity [GCM:space_storage_capacity].
   - It is company property and is set up on first use.

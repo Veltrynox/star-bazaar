@@ -881,6 +881,7 @@ func _test_main() -> void:
 	await _free_main(m)
 	await _test_skill_screen()
 	await _test_skill_screen_ui()
+	await _test_storage_ready()
 	_test_skills_core()
 	_wipe_user()
 
@@ -909,6 +910,63 @@ func _test_skill_screen_ui() -> void:
 	var r: Dictionary = m.skill_screen._use_bot("MIL_5", 1)
 	check(r["ok"] and not m.skill_screen.use_buttons.has("MIL_5") and m.skill_screen.use_rows["MIL_5"].visible, "skill screen: using it swaps the menu for the cooldown note")
 	m.skill_screen.close_screen()
+	await _free_main(m)
+
+func _test_storage_ready() -> void:
+	_wipe_user()
+	var m: Control = await _new_main()
+	m._dismiss_preface()
+	var need := int(m.balance["earn_storage_income"])
+	m.skill_points = 5
+	m.skill_screen.open_screen()
+	m.skill_screen.refresh()
+	var nb: Dictionary = m.skill_screen.node_buttons
+	check(nb["FND_STORAGE"].self_modulate == nb["MIL_3"].self_modulate and nb["FND_STORAGE"].self_modulate == m.skill_screen.COL_LOCKED, "storage ready: earn-locked node is muted like a locked one")
+	m.trade_income_total = need - 1
+	m._sync_earn()
+	m._check_storage_ready()
+	check(m.events.pending_id == "" and not m.event_icons.has_id("STORAGE_READY"), "storage ready: no notice below the line")
+	m.trade_income_total = need
+	m._sync_earn()
+	m.skill_screen.refresh()
+	check(nb["FND_STORAGE"].self_modulate == m.skill_screen.COL_AVAILABLE, "storage ready: at the line with a point the node is not muted")
+	m.skill_points = 0
+	m.skill_screen.refresh()
+	check(nb["FND_STORAGE"].self_modulate == m.skill_screen.COL_SHORT, "storage ready: short of points uses the points colour")
+	m.skill_points = 5
+	m._check_storage_ready()
+	check(m.events.pending_id == "STORAGE_READY" and m.event_icons.has_id("STORAGE_READY") and m.storage_notice_done, "storage ready: icon appears once the line is met")
+	m._check_storage_ready()
+	check(m.event_icons.count() == 1, "storage ready: not shown twice")
+	var st: Dictionary = m.collect_state()
+	m.apply_state(st)
+	check(m.events.pending_id == "STORAGE_READY" and m.event_icons.count() == 1 and m.storage_notice_done, "storage ready: pending icon survives save and load, once")
+	m.paused = false
+	check(m.open_event_icon("STORAGE_READY") and m.event_notice != null and not m.event_icons.has_id("STORAGE_READY"), "storage ready: click opens the window")
+	check(m.events.title_of("STORAGE_READY") != "" and m.events.body_of("STORAGE_READY") != "" and m.events.choices_of("STORAGE_READY").is_empty(), "storage ready: title and body, no choices")
+	var cash0: int = m.cash
+	var btns := _buttons(m.event_notice, [])
+	check(btns.size() == 1, "storage ready: one OK button")
+	btns[0].pressed.emit()
+	await process_frame
+	check(m.event_notice == null and m.events.pending_id == "" and m.cash == cash0 and m.events.active.is_empty(), "storage ready: OK closes, nothing pending, no effect")
+	m._check_storage_ready()
+	m.apply_state(m.collect_state())
+	m._check_storage_ready()
+	check(m.events.pending_id == "" and m.event_icons.count() == 0, "storage ready: not repeated after dismissal or load")
+	check(StoryText.has_text("STORAGE_READY") == StoryText.has_text("STORAGE_READY_TITLE"), "storage ready: both text ids present or both absent (fallback in use)")
+	m.skill_screen.close_screen()
+	await _free_main(m)
+	# already learned: no notice
+	_wipe_user()
+	m = await _new_main()
+	m._dismiss_preface()
+	Skills.learned.append("FND_STORAGE")
+	m.learned_skills.append("FND_STORAGE")
+	m.trade_income_total = need
+	m._sync_earn()
+	m._check_storage_ready()
+	check(m.events.pending_id == "" and m.event_icons.count() == 0, "storage ready: none when already learned")
 	await _free_main(m)
 
 func _test_skill_screen() -> void:

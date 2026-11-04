@@ -100,6 +100,8 @@ func add_force_share() -> void:
 func add_event_trigger() -> void:
 	var o := OptionButton.new()
 	for id in main.events.by_id.keys():
+		if bool(main.events.by_id[id].get("notice", false)):
+			continue
 		o.add_item("%s  %s" % [id, main.events.title_of(str(id))])
 		o.set_item_metadata(o.item_count - 1, id)
 	var b := Button.new()
