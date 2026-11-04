@@ -39,7 +39,7 @@ Supply: the design pack estimates about 21 points over a run against 13 needed f
 ========================================
 3. THE TREES
 ========================================
-Three Foundations (not a market, not in endings), cost [GCM:skill_cost_FND_STORAGE], [GCM:skill_cost_FND_PERMIT] and [GCM:skill_cost_FND_PROSPECT] point each, learnable from cycle 1, order free:
+Three Foundations (not a market, not in endings), cost [GCM:skill_cost_FND_STORAGE], [GCM:skill_cost_FND_PERMIT] and [GCM:skill_cost_FND_PROSPECT] point each, learnable from cycle 1, order free (Space Storage also needs enough trade income, section 4):
   FND_STORAGE Space Storage: unlocks Space Storage (section 4).
   FND_PERMIT Permit Charter: permits for new systems and routes between systems (section 5).
   FND_PROSPECT Prospecting: routes may start at asteroid clusters.
@@ -83,7 +83,7 @@ Where the data and the proposal differ in size (for example LUX_5 and MIN_7), da
 ========================================
 4. SPACE STORAGE (FND_STORAGE)
 ========================================
-Space Storage is a Foundation skill, cost [GCM:skill_cost_FND_STORAGE] point. It is not free. Until it is learned the player has planet storage only.
+Space Storage is a Foundation skill, cost [GCM:skill_cost_FND_STORAGE] point. It is not free and it is earned: it can be learned once the company has earned enough credits from trade (no cycle condition; the amount is a balance value, [GCM:earn_storage_income]). Until it is learned the player has planet storage only.
 Rules:
   - One space storage per system, much bigger than a planet storage. Capacity [GCM:space_storage_capacity].
   - It is company property and is set up on first use.

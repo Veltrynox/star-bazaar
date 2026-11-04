@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-04",
+  "task": "storage-no-cycle-gate",
+  "status": "done",
+  "files_changed": [
+    "game/skill_tree.gd",
+    "game/main.gd",
+    "data/balance.json",
+    "tools/tests/run_tests.gd",
+    "gdd-skills.md",
+    "gdd-log.md",
+    "handoffs/gameplay-programmer/2026-11-04-storage-no-cycle-gate.json"
+  ],
+  "open_questions": [],
+  "handoff": "Space Storage (FND_STORAGE) now needs only trade income >= earn_storage_income (3000); no cycle condition. Removed earn_storage_cycles from balance.json (v43) and SkillTree.earn_cycle (only used for this gate). SK_EARN_LOCK was never in story/ (code fallback only); fallback now reads 'Earn {need} credits from trade ({have}/{need}).' Tests updated. Try: new game, skills screen, Space Storage shows the earn line until income reaches 3000, at any cycle. NOTE for economy-designer: earn_storage_cycles is gone; earn_storage_income stays a placeholder.",
+  "details": {
+    "story_note": "No story/*.md line exists for SK_EARN_LOCK; story designer may add it with args {need}, {have} (no {cycles})."
+  }
+}

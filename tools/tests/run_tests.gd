@@ -892,12 +892,11 @@ func _test_skill_screen() -> void:
 	r = m.learn_skill("FND_STORAGE")  # earn lock: cycle 1, no income yet
 	check(not r["ok"] and r["reason"] == "earn" and m.skill_lock_reason("FND_STORAGE") != "" and m.skill_lock_reason("MIL_1") == "", "earn: locked at start, text shown", m.skill_lock_reason("FND_STORAGE"))
 	m.cycle = 5
-	check(m.learn_skill("FND_STORAGE")["reason"] == "earn", "earn: cycle 5 alone is not enough")
+	check(m.learn_skill("FND_STORAGE")["reason"] == "earn", "earn: a late cycle alone is not enough")
 	m.trade_income_total = int(bal["earn_storage_income"])
-	m.cycle = 4
-	check(m.learn_skill("FND_STORAGE")["reason"] == "earn", "earn: income alone is not enough")
-	m.cycle = 5
-	check(m.skill_lock_reason("FND_STORAGE") == "" and m.collect_state()["trade_income_total"] == int(bal["earn_storage_income"]), "earn: both met unlocks, income saved")
+	m.cycle = 1
+	check(m.skill_lock_reason("FND_STORAGE") == "" and m.collect_state()["trade_income_total"] == int(bal["earn_storage_income"]), "earn: income alone unlocks at cycle 1, no cycle needed, income saved")
+	check(not bal.has("earn_storage_cycles"), "earn: earn_storage_cycles is gone from balance")
 	m.cycle = 1
 	m.trade_income_total = 0
 	m._sync_earn()
@@ -4868,14 +4867,11 @@ func _test_chains() -> void:
 	await _free_main(m)
 
 
-## Space Storage is earned (cycle and trade income): grant both, learn it, restore the cycle.
+## Space Storage is earned (trade income only): grant it, learn it, restore.
 func _learn_storage(m) -> Dictionary:
-	var c: int = m.cycle
 	var t: int = m.trade_income_total
-	m.cycle = maxi(c, int(m.balance.get("earn_storage_cycles", 5)))
 	m.trade_income_total = maxi(t, int(m.balance.get("earn_storage_income", 3000)))
 	var r: Dictionary = m.learn_skill("FND_STORAGE")
-	m.cycle = c
 	m.trade_income_total = t
 	m._sync_earn()
 	return r

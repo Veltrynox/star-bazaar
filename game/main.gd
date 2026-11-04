@@ -641,9 +641,8 @@ func _note_system(planet: int) -> void:
 		reached_ids.append(sid)
 		reach_system()
 
-## Pushes cycle and trade income to SkillTree for the Space Storage earn lock.
+## Pushes trade income to SkillTree for the Space Storage earn lock.
 func _sync_earn() -> void:
-	SkillTree.earn_cycle = cycle
 	SkillTree.earn_income = trade_income_total
 
 ## Lock line for a skill ("" = free to learn), for the skill screen.
