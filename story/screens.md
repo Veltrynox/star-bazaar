@@ -278,6 +278,7 @@ LBL_MARGIN_AFTER_EVENT | 90 | Planet market row, margin during an event | {plane
 LBL_STATION_BUILT | 80 | Notice, after a Space Storage station is built | Space station built. Click it to open Space Storage.
 LBL_STATION_MARKER | 32 | Map marker label above a station | Space Storage
 TIP_STATION_MARKER | 32 | Map marker tooltip | Space Storage
+LBL_PENDING_OR_STATION | 60 | Planet panel, appended to the pending-send line when the system has a Space Storage station | Or click the Space Storage station.
 LBL_TRADE_NEEDS_STATION | 60 | Buy, Sell or Send to button in a system without its station | Needs a Space Storage in this system.
 
 ## Locked skills and Space Storage view (added 2026-11-02)

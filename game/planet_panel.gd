@@ -85,8 +85,8 @@ func rebuild() -> void:
 		box.add_child(sl)
 	var pend: Dictionary = main.pending
 	if not pend.is_empty():
-		var pl := _label("Sending %s from %s. Click the destination planet." % [
-			pend["c"], main.planet_name(int(pend["planet"]))])
+		var pl := _label("Sending %s from %s. Click the destination planet.%s" % [
+			pend["c"], main.planet_name(int(pend["planet"])), main.pending_station_hint()])
 		pl.theme_type_variation = "LabelAccent"
 		box.add_child(pl)
 		var cancel := Button.new()

@@ -53,6 +53,7 @@ func _run() -> void:
 	await _test_salvage()
 	await _test_system_suns()
 	await _test_stations()
+	await _test_station_send()
 	await _test_trade_gate()
 	await _test_asteroid()
 	await _test_idle_actions()
@@ -3517,6 +3518,109 @@ func _test_stations() -> void:
 	m._on_station_clicked(2)
 	check(not m.space_post_open(2) and not ssv.visible and m.last_notice == m.trade_locked_reason(), "station view: refused with the locked reason without a post")
 	await _free_main(m)
+
+# ---- a pending Send to, then a real left click on the Space Storage station (owner report: cannot build a route to the station) ----
+func _station_click(m) -> void:
+	var p: Vector2 = m.map.camera.unproject_position(m.map.stations[1].position)
+	for down in [true, false]:
+		var e := InputEventMouseButton.new()
+		e.button_index = MOUSE_BUTTON_LEFT
+		e.pressed = down
+		e.position = p
+		e.global_position = p
+		m.map._unhandled_input(e)  # the map's own click handler: what the engine calls when no GUI control took the click
+	await process_frame
+
+func _station_ready(m) -> void:
+	m.cash = 5000
+	m.ships = 3
+	m.learned_skills.append("FND_STORAGE")  # no earn lock here: this is about the click, not the learning
+	m._ensure_stations()
+	m._ensure_posts()
+	m.storage.ensure("planet:0")
+	m.storage.add("planet:0", "energy", 60)
+	m.pending = {"planet": 0, "c": "energy"}
+	m._pending_changed()
+	await process_frame
+
+func _test_station_send() -> void:
+	_wipe_user()
+	var m = await _new_main()
+	m._dismiss_preface()
+	await _station_ready(m)
+	var n0: int = m.engine.routes.size()
+	var pt: Vector2 = m.map.camera.unproject_position(m.map.stations[1].position)
+	check(m.map.pick_station(pt) == 1 and m.map.pick_planet(pt) < 0, "station send: the station position picks the station, no planet")
+	check(m.pending_label.text.contains("Space Storage"), "station send: the pending line says the station can be clicked", m.pending_label.text)
+	m.planet_panel.show_planet(int(m.pending["planet"]))
+	var pend_lines: Array = _labels(m.planet_panel, []).filter(func(l): return l.text.contains("Click the destination planet."))
+	check(pend_lines.size() == 1 and pend_lines[0].text.ends_with(m.pending_station_hint().strip_edges()) and m.pending_station_hint().contains("Space Storage"), "station send: the planet panel pending line carries the same station hint", str(pend_lines.map(func(l): return l.text)))
+	var sys_keep: Array = m.station_systems.duplicate()
+	m.station_systems = []
+	check(m.pending_station_hint() == "", "station send: no hint when the pending system has no station")
+	m.planet_panel.show_planet(int(m.pending["planet"]))
+	pend_lines = _labels(m.planet_panel, []).filter(func(l): return l.text.contains("Click the destination planet."))
+	check(pend_lines.size() == 1 and not pend_lines[0].text.contains("Space Storage"), "station send: panel pending line has no station hint without a station")
+	m.station_systems = sys_keep
+	await _station_click(m)
+	check(m.pending.is_empty() and m.engine.routes.size() == n0 + 1 and str(m.engine.routes[n0]["dst"]) == "system:1", "station send: a real click on the station while pending makes the route", "routes %d" % m.engine.routes.size())
+	m.engine.routes.clear()
+	m._push_routes_to_map()
+	# the route to the station is drawn on the map
+	m.pending = {"planet": 0, "c": "energy"}
+	await _station_click(m)
+	await process_frame
+	var line_ok := false
+	for id in m.map.route_lines:
+		var ln = m.map.route_lines[id]
+		line_ok = line_ok or (int(ln.pair_b) == -1 and ln.visible)
+	check(line_ok, "station send: the route to the station gets a visible line on the map")
+	m.engine.routes.clear()
+	m._push_routes_to_map()
+	# with the planet panel open and with the station view open the click still reaches the station
+	m.selected_planet = 0
+	m.planet_panel.show_planet(0)
+	m.pending = {"planet": 0, "c": "energy"}
+	m._pending_changed()
+	await process_frame
+	await _station_click(m)
+	check(m.engine.routes.size() == 1 and m.pending.is_empty(), "station send: the open planet panel does not swallow the click")
+	m.engine.routes.clear()
+	m._push_routes_to_map()
+	m.space_storage_view.open_for(1)
+	m.pending = {"planet": 0, "c": "energy"}
+	await process_frame
+	var pr: Rect2 = m.space_storage_view.get_global_rect()
+	check(not pr.has_point(pt) and not m.planet_panel.get_global_rect().has_point(pt), "station send: the docked view and panel do not cover the station", str(pr))
+	await _station_click(m)
+	check(m.engine.routes.size() == 1 and m.pending.is_empty(), "station send: the docked station view does not swallow the click")
+	m.engine.routes.clear()
+	# refused: no Space Storage skill / no post -> the reason is shown at once and the send stays pending
+	m.space_storage_view.close_view()
+	m.pending = {"planet": 0, "c": "energy"}
+	m.learned_skills.erase("FND_STORAGE")
+	m._on_station_clicked(1)
+	check(m.engine.routes.is_empty() and not m.pending.is_empty() and m.last_notice == m.trade_locked_reason() and m.notice_label.text == m.trade_locked_reason() and m.notice_label.visible, "station send: no Space Storage skill is refused with the reason on screen", m.notice_label.text)
+	m.learned_skills.append("FND_STORAGE")
+	m.storage.stock.erase(Storage.system_key(1))
+	m._on_station_clicked(1)
+	check(m.engine.routes.is_empty() and not m.pending.is_empty() and m.notice_label.text == m.trade_locked_reason(), "station send: no established storage is refused with the reason on screen")
+	m.storage.ensure(Storage.system_key(1))
+	m.cash = 10
+	m.ships = 0
+	m._on_station_clicked(1)
+	check(m.engine.routes.is_empty() and m.notice_label.text.contains("cash") and not m.pending.is_empty(), "station send: no ship and no cash is refused with the reason on screen", m.notice_label.text)
+	await _free_main(m)
+	# guided tutorial: the lock text is shown, nothing is built
+	m = await _new_main(true)
+	m._dismiss_preface()
+	await _station_ready(m)
+	m.tut_step = 2
+	m.pending = {"planet": 0, "c": "energy"}
+	await _station_click(m)
+	check(m.engine.routes.is_empty() and not m.pending.is_empty() and m.notice_label.text == m.tut_lock_text() and m.notice_label.visible, "station send: the guided tutorial refuses with its text", m.notice_label.text)
+	await _free_main(m)
+	_wipe_user()
 
 func _test_system_suns() -> void:
 	_wipe_user()

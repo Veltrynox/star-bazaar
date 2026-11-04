@@ -390,7 +390,7 @@ func _apply_view() -> void:
 			planet_labels[i].visible = on
 	for id in route_lines:
 		var ln = route_lines[id]
-		ln.visible = planet_in_view(int(ln.pair_a)) and planet_in_view(int(ln.pair_b))
+		ln.visible = planet_in_view(int(ln.pair_a)) and (planet_in_view(int(ln.pair_b)) if int(ln.pair_b) >= 0 else -int(ln.pair_b) == view_system)
 	for id in stations:
 		stations[id].visible = int(id) == view_system
 	for id in orbit_rings:  # each system shows only its own sun and orbit rings
@@ -536,8 +536,16 @@ func set_routes(routes: Array) -> void:
 		var id := int(r["id"])
 		var a := int(r["a"])
 		var b := int(r["b"])
-		if a < 0 or b < 0 or a >= positions.size() or b >= positions.size():
+		var end_pos := Vector3.ZERO
+		if b < 0:  # a send to a Space Storage station (b = -system id): a line from the planet to its own system's station
+			var st = stations.get(-b)
+			if st == null or a < 0 or a >= positions.size() or int(planets[a].get("system", 1)) != -b:
+				continue
+			end_pos = st.position
+		elif a < 0 or a >= positions.size() or b >= positions.size():
 			continue
+		else:
+			end_pos = positions[b]
 		seen[id] = true
 		var half := false  # T68: the opposite direction exists on the same pair: each arrow covers half the line
 		for o in routes:
@@ -551,7 +559,7 @@ func set_routes(routes: Array) -> void:
 		if line == null:
 			line = load("res://game/route_line.gd").new()
 			add_child(line)
-			line.setup(id, a, b, positions[a], positions[b], maxf(planet_radius(a), planet_radius(b)), half)
+			line.setup(id, a, b, positions[a], end_pos, planet_radius(a) if b < 0 else maxf(planet_radius(a), planet_radius(b)), half)
 			route_lines[id] = line
 		line.set_style(str(r.get("status", "running")), int(r.get("ships", 1)), str(r.get("c", "")), int(r.get("net", 0)), str(r.get("reason", "")))
 	for id in route_lines.keys():
@@ -693,6 +701,8 @@ func add_station(sid: int, animate: bool = true) -> bool:
 	add_child(st)
 	stations[sid] = st
 	st.build_in(animate)
+	if not _route_list.is_empty():
+		set_routes(_route_list)  # a send to this station made before it was built (loaded game) gets its line now
 	return true
 
 func clear_stations() -> void:

@@ -1168,6 +1168,12 @@ func cancel_pending() -> void:
 	pending = {}
 	_pending_changed()
 
+## " Or click the Space Storage station." (leading space) when the pending send's system has a station, else "". Shared by the top line and the planet panel.
+func pending_station_hint() -> String:
+	if pending.is_empty() or not station_systems.has(system_of(int(pending["planet"]))):
+		return ""
+	return " " + StoryText.get_or("LBL_PENDING_OR_STATION", "Or click the Space Storage station.")
+
 func _pending_changed() -> void:
 	map.set_pending(int(pending["planet"]) if not pending.is_empty() else -1)
 	if pending_label != null:
@@ -1177,6 +1183,7 @@ func _pending_changed() -> void:
 		elif not pending.is_empty():
 			pending_label.text = "Send %s from %s: click the destination planet. (Esc to cancel)" % [
 				pending["c"], planet_name(int(pending["planet"]))]
+			pending_label.text += pending_station_hint()
 	_refresh_pending_margins()
 	_refresh_panel()
 

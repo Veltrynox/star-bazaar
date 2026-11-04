@@ -1086,6 +1086,12 @@
   "place": "Map marker tooltip"
  },
  {
+  "id": "LBL_PENDING_OR_STATION",
+  "text": "Or click the Space Storage station.",
+  "max": 60,
+  "place": "Planet panel, appended to the pending-send line when the system has a Space Storage station"
+ },
+ {
   "id": "LBL_TRADE_NEEDS_STATION",
   "text": "Needs a Space Storage in this system.",
   "max": 60,
