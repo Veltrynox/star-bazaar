@@ -70,7 +70,7 @@ func _ready() -> void:
 		var card := _make_card(id, group)
 		card_row.add_child(card)
 		cards[id] = card
-	select(Portraits.IDS[0])
+	# no default CEO: the player must pick one
 
 	var buttons := HBoxContainer.new()
 	buttons.add_theme_constant_override("separation", 12)
@@ -87,7 +87,7 @@ func _ready() -> void:
 	start_button.pressed.connect(start)
 	buttons.add_child(start_button)
 	_refresh_start()
-	start_button.grab_focus()
+	name_edit.grab_focus()  # focus the name field, so no card draws a focus highlight at open
 
 func _make_card(id: String, group: ButtonGroup) -> Button:
 	var b := Button.new()
@@ -112,7 +112,9 @@ func _make_card(id: String, group: ButtonGroup) -> Button:
 	pic.offset_right = -8
 	pic.offset_bottom = -8
 	b.add_child(pic)
-	b.pressed.connect(func(): selected_id = id)
+	b.pressed.connect(func():
+		selected_id = id
+		_refresh_start())
 	return b
 
 func _card_style(border: Color, width: int, glow: float) -> StyleBoxFlat:
@@ -127,6 +129,8 @@ func select(id: String) -> void:
 	id = Portraits.normalize(id)
 	selected_id = id
 	(cards[id] as Button).button_pressed = true
+	if start_button != null:
+		_refresh_start()
 
 func randomize_name() -> void:
 	var old := name_edit.text
@@ -142,9 +146,17 @@ func chosen_name() -> String:
 	return name_edit.text.strip_edges()
 
 func _refresh_start() -> void:
-	start_button.disabled = chosen_name() == ""
-	# FALLBACK: id SETUP_NEED_NAME not in the story files yet; plain text until the story designer adds it
-	start_button.tooltip_text = StoryText.get_or("SETUP_NEED_NAME", "Enter a company name to start.") if start_button.disabled else ""
+	var no_name := chosen_name() == ""
+	var no_ceo := selected_id == ""
+	start_button.disabled = no_name or no_ceo
+	# FALLBACK: ids SETUP_NEED_NAME / SETUP_NEED_CEO not in the story files yet; plain text until the story designer adds them
+	var tip := ""
+	if no_name:
+		tip = StoryText.get_or("SETUP_NEED_NAME", "Enter a company name to start.")
+	if no_ceo:
+		var t2 := StoryText.get_or("SETUP_NEED_CEO", "Choose a CEO to start.")
+		tip = t2 if tip == "" else tip + "\n" + t2
+	start_button.tooltip_text = tip
 
 ## Hands name and portrait to the next game start (read once by main.gd).
 func commit() -> void:
@@ -152,7 +164,7 @@ func commit() -> void:
 	SaveGame.pending_portrait = selected_id
 
 func start() -> void:
-	if chosen_name() == "":
+	if chosen_name() == "" or selected_id == "":
 		return
 	commit()
 	SaveGame.clear()  # same reset as New Game had before this screen

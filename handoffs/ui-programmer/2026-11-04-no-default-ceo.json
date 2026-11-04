@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-04",
+  "task": "no-default-ceo",
+  "status": "done",
+  "files_changed": ["game/company_setup.gd", "tools/tests/run_tests.gd", "story/game-flow.md"],
+  "open_questions": ["Story designer: add story key SETUP_NEED_CEO (default 'Choose a CEO to start.'). When both name and CEO are missing, the tooltip shows the name line, then the CEO line."],
+  "handoff": "CEO screen opens with no card selected or pressed; name field is focused so no card shows a focus ring. Start is disabled until a CEO is picked and the name is non-empty; tooltip lists what is missing. Clicking the chosen card again keeps it selected. main.gd fallback (no setup screen) still normalizes to the first portrait; tested. Not checked by eye. See it: Main menu, New Game.",
+  "details": {}
+}

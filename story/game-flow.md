@@ -3,7 +3,7 @@
 Read-only for you. This is how the player acts today. Source: owner direction and tasks T55 to T70; if a tutorial line disagrees with this file, this file wins.
 
 ## Player actions
-0. New Game opens a separate "New company" screen first: the player types a company name or presses Random, picks one of four CEO portraits, then Start begins the run (Back returns to the main menu). Menu text stays plain; no story terms.
+0. New Game opens a separate "New company" screen first: the player types a company name or presses Random, picks one of four CEO portraits (none is preselected; Start stays disabled until one is chosen), then Start begins the run (Back returns to the main menu). Menu text stays plain; no story terms.
 1. Click a planet. The planet panel lists its resource rows (energy, food). Each row shows the Buy price, the Sell price and a vertical 5-line bar: how full the company storage is for that good (5 = full).
 2. Buy and Sell on a row are standing local orders, each toggled on or off. No ship is needed. Each cycle a Buy order buys a set amount at the Buy price and adds it to the company storage on that planet; a Sell order sells stock from that storage at the Sell price. A full storage makes a Buy idle with the status "storage full" (not an error).
 3. A route is optional and only moves stock between company storages. On a storage row the player presses "Send to..." and clicks the destination planet. This makes a one-way route with one ship, assigned automatically from the ships the company owns. If no ship is free, the screen says so. Routes are NOT made by clicking Buy here and Sell there.

@@ -3866,14 +3866,20 @@ func _test_company_setup() -> void:
 	var setup: Control = load("res://game/company_setup.tscn").instantiate()
 	root.add_child(setup)
 	await process_frame
-	check(setup.cards.size() == Portraits.IDS.size() and setup.selected_id == Portraits.IDS[0], "setup: four cards, first selected by default")
-	check(setup.chosen_name() != "" and not setup.start_button.disabled, "setup: name pre-filled, Start enabled")
+	var none_pressed := true
+	for cid in setup.cards:
+		if (setup.cards[cid] as Button).button_pressed:
+			none_pressed = false
+	check(setup.cards.size() == Portraits.IDS.size() and setup.selected_id == "" and none_pressed, "setup: four cards, none selected at open")
+	check(setup.chosen_name() != "" and setup.start_button.disabled and setup.start_button.tooltip_text != "", "setup: name pre-filled but no CEO, Start disabled with a tooltip")
+	setup.cards[Portraits.IDS[1]].pressed.emit()
+	check(setup.selected_id == Portraits.IDS[1] and not setup.start_button.disabled, "setup: Start enabled after a CEO pick")
 	var before: String = setup.name_edit.text
 	setup.random_button.pressed.emit()
 	check(setup.name_edit.text != before and setup.name_edit.text != "", "setup: Random gives another name")
 	setup.name_edit.text = "   "
 	setup.name_edit.text_changed.emit("   ")
-	check(setup.start_button.disabled, "setup: Start disabled with an empty name")
+	check(setup.start_button.disabled, "setup: Start disabled with an empty name even with a CEO")
 	setup.name_edit.text = "  Test Freight Concern "
 	setup.name_edit.text_changed.emit("x")
 	setup.select("ceo_woman_02")
@@ -3883,6 +3889,9 @@ func _test_company_setup() -> void:
 	var m: Control = await _new_main()
 	check(m.company_name == "Test Freight Concern" and m.ceo_portrait == "ceo_woman_02", "setup: chosen name and portrait reach main state", m.company_name + " " + m.ceo_portrait)
 	check(SaveGame.pending_company == "", "setup: hand-off is read once")
+	var m2: Control = await _new_main()
+	check(m2.ceo_portrait == Portraits.IDS[0], "setup: no-setup start falls back to the first portrait", m2.ceo_portrait)
+	m2.queue_free()
 	var st: Dictionary = JSON.parse_string(JSON.stringify(m.collect_state()))
 	check(st.get("company_name") == "Test Freight Concern" and st.get("ceo_portrait") == "ceo_woman_02", "save: company name and portrait are saved")
 	m.company_name = ""
