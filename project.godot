@@ -15,6 +15,11 @@ run/main_scene="res://game/main_menu.tscn"
 config/features=PackedStringArray("4.7", "Mobile")
 config/icon="res://icon.svg"
 
+[autoload]
+
+Lang="*res://game/lang.gd"
+Voice="*res://game/voice.gd"
+
 [display]
 
 window/size/viewport_width=1920

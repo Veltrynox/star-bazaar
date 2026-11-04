@@ -133,6 +133,7 @@ var tut_first: Dictionary = {}  # T15: one-time triggers already used this sessi
 var tut_show_count := 0  # card rebuilds, for tests
 var _tut_lock_seen := -1  # lock step the panels were last drawn for
 var _tut_sig: Array = []  # last state the card was built from
+var _voiced_tut := -1  # guided step last spoken
 ## T124 guided first steps: index into TUT_GUIDE; TUT_GUIDE.size() means done. Saved.
 const TUT_GUIDE := ["TUT_G1_SELECT", "TUT_G2_BUY", "TUT_G3_SEND", "TUT_G4_ROUTE_PAY", "TUT_G5_UPKEEP", "TUT_G6_SELL", "TUT_G7_STORAGE", "TUT_G8_SKILLS", "TUT_G9_PERMIT", "TUT_G10_DONE"]
 ## Old saves (no tut_ver) counted 6 steps: select, buy, send, sell, skills, done. Old index -> new index.
@@ -2485,7 +2486,7 @@ func _open_chain_notice(id: String) -> void:
 		labels.append("%s\n%s" % [Chains.button(id, opt), Chains.eff_text(id, opt)])
 	event_notice = load("res://game/event_notice.gd").new()
 	add_child(event_notice)
-	event_notice.show_event(events.title_of(id), events.body_of(id), "", labels, StoryText.get_text("MENU_CONTINUE"), [], "")
+	event_notice.show_event(events.title_of(id), events.body_of(id), "", labels, StoryText.get_text("MENU_CONTINUE"), [], "", Chains.body_id(id))
 	event_notice.confirmed.connect(_on_event_confirmed.bind(id))
 
 ## The busiest route of a market for trip-cost effects: most ships, then level, then the lowest id. -1 when it has none.
@@ -2517,7 +2518,7 @@ func _apply_chain_choice(choice: int, id: String) -> void:
 	_dismiss_event_notice()
 	event_notice = load("res://game/event_notice.gd").new()
 	add_child(event_notice)
-	event_notice.show_event(Chains.result_title(id, opt), Chains.result_text(id, opt, res["rivals"]), "", [], StoryText.get_text("BTN_OK"))
+	event_notice.show_event(Chains.result_title(id, opt), Chains.result_text(id, opt, res["rivals"]), "", [], StoryText.get_text("BTN_OK"), [], "", Chains.result_id(id, opt))
 	event_notice.confirmed.connect(func(_c: int):
 		_dismiss_event_notice()
 		_release_event_pause()
@@ -3032,9 +3033,16 @@ func _tut_show(_ids: Array = []) -> void:
 	if guided:
 		var id: String = TUT_GUIDE[tut_step]
 		if _tut_picking():
-			id = "TUT_G3_PICK"  # heading only; the why line stays on the step
+			id = "TUT_G3_PICK"  # heading only; the why line and voice stay on the step
 		t = StoryText.get_or(id, str(TUT_FALLBACK.get(id, "")), {}).strip_edges()
 	tutorial_label.text = t
+	if guided and t != "" and not game_over:
+		if _voiced_tut != tut_step:  # _tut_show runs often; speak a step once
+			_voiced_tut = tut_step
+			Voice.play(TUT_GUIDE[tut_step] + "_WHY")  # the heading is on screen; only the why line is spoken
+	else:
+		_voiced_tut = -1
+		Voice.stop_prefix("TUT_")
 	tutorial_label.visible = t != "" and guided and not game_over
 	if tut_card != null:
 		tut_card.visible = tutorial_label.visible

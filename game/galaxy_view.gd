@@ -33,6 +33,7 @@ var tut_hl: Panel  # pulsing outline over the target
 var tut_arrow: Polygon2D  # pointer from the card to the target
 var title_label: Label
 var hint_label: Label
+var _voiced_step := -1
 var tut_step: int = -1  # -1 none this opening, 0..2 lines, 3 = done note
 var selected_sys: int = -1
 var permit_button: Button  # Buy permit button of the shown closed system (tests)
@@ -882,6 +883,13 @@ func _build_tutorial() -> void:
 		tut_box.remove_child(c)
 		c.queue_free()
 	tut_panel.visible = tut_step >= 0 and tut_step < TUT_IDS.size()  # the finished state shows nothing
+	if tut_panel.visible:
+		if _voiced_step != tut_step:  # the panel rebuilds often; speak a step once
+			_voiced_step = tut_step
+			Voice.play(TUT_IDS[tut_step] + "_WHY")  # the heading is on screen; only the why line is spoken
+	else:
+		_voiced_step = -1
+		Voice.stop_prefix("TUT_")
 	if not tut_panel.visible:
 		tut_hl.visible = false
 		tut_arrow.visible = false

@@ -54,6 +54,24 @@ func setup(main_node: Control) -> void:
 		b.text = StoryText.get_or(e[0], "Competitors") if e[0] == "LBL_COMP_TITLE" else StoryText.get_text(e[0])
 		b.pressed.connect(_on_entry.bind(e[1]))
 		_box.add_child(b)
+	## Voice narration: on/off and volume (persisted by the Voice autoload).
+	var vrow := HBoxContainer.new()
+	vrow.add_theme_constant_override("separation", 8)
+	var vcheck := CheckButton.new()
+	vcheck.text = StoryText.get_or("MENU_VOICE", "Voice")
+	vcheck.button_pressed = Voice.enabled
+	vcheck.toggled.connect(func(on: bool): Voice.set_enabled(on))
+	vrow.add_child(vcheck)
+	var vslide := HSlider.new()
+	vslide.min_value = 0.0
+	vslide.max_value = 1.0
+	vslide.step = 0.05
+	vslide.value = Voice.volume
+	vslide.custom_minimum_size = Vector2(110, 0)
+	vslide.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	vslide.value_changed.connect(func(v: float): Voice.set_volume(v))
+	vrow.add_child(vslide)
+	_box.add_child(vrow)
 	## Reserved slots (gdd-skills.md section 7): shown disabled until built. Slots whose story id does not exist yet are skipped.
 	for id in ["MENU_SETTINGS", "MENU_STATISTICS", "MENU_HELP", "MENU_SAVE_LOAD"]:
 		if not StoryText.has_text(id):

@@ -29,6 +29,7 @@ func _initialize() -> void:
 func _run() -> void:
 	_test_good_icons()
 	_test_story_text()
+	await _test_localisation()
 	_test_share_helpers()
 	_test_share_graph()
 	_test_picker()
@@ -182,6 +183,112 @@ func _wipe_user() -> void:
 			DirAccess.remove_absolute("user://" + f)
 
 # ---- 1. story text ----
+func _test_localisation() -> void:
+	var Lang = root.get_node("Lang")
+	var Voice = root.get_node("Voice")
+	# CH_FX_*: numbers go in as {placeholder} args, English unchanged
+	# never write the real settings: keep the file and the in-memory state, put both back at the end
+	var cfg_path := "user://settings.cfg"
+	var cfg_had := FileAccess.file_exists(cfg_path)
+	var cfg_bytes := FileAccess.get_file_as_bytes(cfg_path) if cfg_had else PackedByteArray()
+	var keep_lang: String = Lang.current()
+	var keep_voice_on: bool = Voice.enabled
+	Lang.set_language("en")  # the checks below read English, whatever the real settings say (restored at the end)
+	var keep_cbal: Dictionary = Chains.bal
+	Chains.bal = {"fx_test_one": 1, "fx_test_cycles": 3}
+	var fxb: String = Chains.phrase({"type": "workshop_batches", "key": "fx_test_one", "cycles_key": "fx_test_cycles"})
+	check(fxb == "+1 batch per cycle for 3 cycles" and not fxb.contains("{") and not fxb.contains("%"), "chains: CH_FX_BATCHES phrase keeps English, number via {n}", fxb)
+	check(Chains.phrase({"type": "tech_units", "key": "fx_test_one"}) == "+1 tech progress", "chains: CH_FX_TECH phrase keeps English")
+	Chains.bal = keep_cbal
+	var fx := "user://ru_fixture.json"
+	var f := FileAccess.open(fx, FileAccess.WRITE)
+	f.store_string(JSON.stringify([
+		{"id": "EV_MIL_A1_TITLE", "text": "Русский заголовок"},
+		{"id": "EV_MIL_A1_BODY", "text": "Тест {x} {cost}"}, {"id": "CH_EFFECT_LINE", "text": "доля"}, {"id": "CH_FX_FIX", "text": "эффект"},
+		{"id": "BTN_OK", "text": "Ладно"}, {"id": "MENU_CONTINUE", "text": "Дальше"}, {"id": "NOT_SAVED", "text": "Сохранено"}]))
+	f.close()
+	var old_path: String = StoryText.ru_path
+	StoryText.ru_path = fx
+	Lang.set_language("en")
+	var en_title := StoryText.get_text("EV_MIL_A1_TITLE")
+	check(Lang.current() == "en" and not Lang.is_ru(), "lang: English after set_language en")
+	check(StoryText.get_text("EV_MIL_A1_TITLE") == en_title and en_title != "Русский заголовок", "lang: English mode never uses the Russian table")
+	Lang.set_language("ru")
+	check(Lang.is_ru() and Lang.current() == "ru", "lang: switched to ru")
+	check(StoryText.get_text("EV_MIL_A1_TITLE") == "Русский заголовок", "lang: ru mode returns the fixture for an in-scope id")
+	check(StoryText.get_text("EV_MIL_A1_BODY", {"cost": "7"}) == "Тест {x} 7", "lang: placeholders filled in ru text")
+	check(StoryText.get_text("EV_MIL_A1_OPA_BTN") != "" and StoryText.get_text("EV_MIL_A1_OPA_BTN") != "Тест", "lang: in-scope id without ru text stays English")
+	check(StoryText.get_text("CH_EFFECT_LINE") == "доля" and StoryText.in_ru_scope("CH_FX_ANY"), "lang: CH_ fill-in ids are localised")
+	for id in ["BTN_OK", "MENU_CONTINUE", "NOT_SAVED"]:
+		check(StoryText.get_text(id) != "Ладно" and StoryText.get_text(id) != "Дальше" and StoryText.get_text(id) != "Сохранено", "lang: out-of-scope %s stays English even if the file holds it" % id)
+	check(StoryText.in_ru_scope("EV_X") and StoryText.in_ru_scope("TUT_G3_PICK_WHY") and StoryText.in_ru_scope("TUT_GALAXY_INTRO") and not StoryText.in_ru_scope("TUT_C1_ROW") and not StoryText.in_ru_scope("EVT_NEXT_DUE") and not StoryText.in_ru_scope("EV17_BODY"), "lang: scope rule")
+	# persistence across a reload of the settings file
+	var cf := ConfigFile.new()
+	cf.load("user://settings.cfg")
+	check(cf.get_value("game", "language", "") == "ru", "lang: saved to settings.cfg")
+	Lang.set_language("en")
+	var cf2 := ConfigFile.new()
+	cf2.load("user://settings.cfg")
+	cf2.set_value("game", "language", "ru")
+	cf2.save("user://settings.cfg")
+	Lang.reload()
+	check(Lang.is_ru(), "lang: persists across a reload of the settings file")
+	cf2.set_value("game", "language", "xx")
+	cf2.save("user://settings.cfg")
+	Lang.reload()
+	check(Lang.current() == "en", "lang: unknown saved code falls back to en")
+	# voice paths
+	check(Voice.path_for("EV_A", "en") == "res://assets/voice/EV_A.ogg", "voice: English path unchanged")
+	check(Voice.path_for("EV_A", "ru") == "res://assets/voice/ru/EV_A.ogg", "voice: ru path in the ru folder")
+	Lang.set_language("ru")
+	Voice.play("TUT_C1_ROW")  # an English file may exist; in ru mode only the ru folder is consulted
+	check(not Voice.is_playing(), "voice: ru mode with no ru file is silent")
+	Voice.stop()
+	# settings screen
+	var mm: Control = load("res://game/main_menu.tscn").instantiate()
+	root.add_child(mm)
+	await process_frame
+	check(mm.lang_buttons.has("en") and mm.lang_buttons.has("ru") and mm.lang_buttons["ru"].text == "Русский" and mm.lang_buttons["en"].text == "English", "settings: language buttons exist")
+	check(mm.lang_buttons["ru"].button_pressed and not mm.lang_buttons["en"].button_pressed, "settings: current language shown selected")
+	check(not mm.settings_box.visible, "settings: hidden until the Settings button is pressed")
+	mm._show_settings(true)
+	check(mm.settings_box.visible and not mm._main_box.visible, "settings: screen opens")
+	check(mm.voice_check != null and mm.voice_slider != null and mm.voice_check.text.to_lower().contains("voice"), "settings: Voice check box and slider exist")
+	var was_on: bool = Voice.enabled
+	Voice.set_enabled(true)
+	mm.voice_check.button_pressed = false
+	var cfv := ConfigFile.new()
+	cfv.load("user://settings.cfg")
+	check(not Voice.enabled and cfv.get_value("voice", "enabled", true) == false, "settings: Voice off check box silences and saves")
+	Voice.play("EV_MIL_A1_TITLE")
+	check(not Voice.is_playing(), "settings: nothing plays while voice is off")
+	mm.voice_check.button_pressed = true
+	check(Voice.enabled, "settings: Voice check box turns it back on")
+	Voice.set_enabled(was_on)
+	mm.lang_buttons["en"].pressed.emit()
+	var cf3 := ConfigFile.new()
+	cf3.load("user://settings.cfg")
+	check(Lang.current() == "en" and cf3.get_value("game", "language", "") == "en", "settings: choosing English saves and applies at once")
+	mm.queue_free()
+	await process_frame
+	StoryText.ru_path = old_path
+	Lang.set_language("en")
+	DirAccess.remove_absolute(fx)
+	if cfg_had:
+		var cfw := FileAccess.open(cfg_path, FileAccess.WRITE)
+		cfw.store_buffer(cfg_bytes)
+		cfw.close()
+	elif FileAccess.file_exists(cfg_path):
+		DirAccess.remove_absolute(cfg_path)
+	Lang.reload()
+	Voice.set_enabled(keep_voice_on)
+	if cfg_had:  # set_enabled saved again: put the original bytes back
+		var cfw2 := FileAccess.open(cfg_path, FileAccess.WRITE)
+		cfw2.store_buffer(cfg_bytes)
+		cfw2.close()
+	elif FileAccess.file_exists(cfg_path):
+		DirAccess.remove_absolute(cfg_path)
+
 func _test_share_helpers() -> void:
 	var SP := load("res://game/share_panel.gd")
 	var names := {"mil": "Military"}
@@ -601,6 +708,7 @@ func _test_tutorial_steps() -> void:
 	await process_frame
 	await process_frame
 	check(m.tutorial_label.text == g3pick and m._tut_highlight_key() == "planet" and m._tut_ring_planet() != 0, "tutorial derived: setting pending alone shows PICK and a planet target", m.tutorial_label.text)
+	check(m._voiced_tut == 2, "tutorial derived: heading switch keeps the step voiced once")
 	m.pending = {}
 	await process_frame
 	await process_frame
@@ -618,9 +726,10 @@ func _test_tutorial_steps() -> void:
 	await process_frame
 	await process_frame
 	var shows: int = m.tut_show_count
+	var voiced: int = m._voiced_tut
 	for _i in 6:
 		await process_frame
-	check(m.tut_show_count == shows, "tutorial derived: unchanged state does not rebuild the card", "%d -> %d" % [shows, m.tut_show_count])
+	check(m.tut_show_count == shows and m._voiced_tut == voiced, "tutorial derived: unchanged state does not rebuild the card or replay voice", "%d -> %d" % [shows, m.tut_show_count])
 	m.tut_step = 0
 	m.selected_planet = -1
 	await process_frame

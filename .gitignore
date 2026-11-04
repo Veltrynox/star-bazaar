@@ -6,3 +6,6 @@ tools/godot/
 build/StarBazaar.zip
 __pycache__/
 dcc/backup/
+tools/voice/.venv/
+assets/voice/
+tools/voice/models/

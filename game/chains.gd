@@ -574,6 +574,15 @@ static func body(step_id: String) -> String:
 	var suffix := "_A" if prev_option(step_id) != "opt_b" else "_B"
 	return StoryText.get_or("EV_%s_BODY%s" % [step_id, suffix], "", args)
 
+## Text id of the body shown by body(), for the voice line.
+static func body_id(step_id: String) -> String:
+	if StoryText.has_text("EV_%s_BODY" % step_id):
+		return "EV_%s_BODY" % step_id
+	return "EV_%s_BODY%s" % [step_id, "_A" if prev_option(step_id) != "opt_b" else "_B"]
+
+static func result_id(step_id: String, opt_id: String) -> String:
+	return "EV_%s_%s_RES" % [step_id, _opx(opt_id)]
+
 static func button(step_id: String, opt_id: String) -> String:
 	return StoryText.get_or("EV_%s_%s_BTN" % [step_id, _opx(opt_id)], opt_id, args_for(step_id, opt_id))
 
