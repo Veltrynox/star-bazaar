@@ -211,3 +211,13 @@ Older run entries moved from blackboard.md, oldest first.
 - Failed / did not work: nothing.
 - Files and commits: data/balance.json, gdd.md, schedule.json, blackboard.md; see git log "T212".
 - Left to do: owner or economy designer retunes the 5 later.
+
+## 2026-11-06 05:00 run: T215
+- Summary: Removed the bottom-middle route legend strip (game/route_legend.gd, its block in main.gd, three text ids only it used). Pending-destination banner kept.
+- Why this task: clear owner request, no dependencies, no visual or design decision (pure removal).
+- Approach: ui-programmer agent for the removal; I verified the diff.
+- Agent prompts: remove the route hint strip at the bottom, drop its state and own text ids, keep other hints; handoffs/ui-programmer/2026-11-06-T215.json, done.
+- Worked: sh tools/tests/run.sh pass=4017 fail=0 (agent run).
+- Failed / did not work: nothing. Not seen windowed.
+- Files and commits: game/main.gd, game/route_legend.gd(+uid) deleted, story/screens.md, data/story_text.json, schedule.json, blackboard.md; see git log "T215".
+- Left to do: owner confirms "route hint" meant the legend and not the pending banner ("Send X from Y: click the destination"); if the banner, remove it too.

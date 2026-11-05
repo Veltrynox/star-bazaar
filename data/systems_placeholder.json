@@ -3,7 +3,7 @@
   "data_version": 1,
   "placeholder": true,
   "enabled": false,
-  "note": "T176: placeholder systems 3 to 5, OFF. game/systems.gd loads them only when enabled is true (or Systems.set_placeholders(true) in a test). Every name, price and sun is temporary; economy-designer and story-designer replace them. galaxy_slot is the SLOTS index in game/galaxy_view.gd (list position). Permit cost keys reuse system 2 keys as stand-ins.",
+  "note": "T176/T210: placeholder systems 3 to 10, OFF. game/systems.gd loads them only when enabled is true (or Systems.set_placeholders(true) in a test). Every name, price and sun is temporary; economy-designer and story-designer replace them. galaxy_slot is the SLOTS index in game/galaxy_view.gd (list position). Permit cost keys reuse system 2 keys as stand-ins.",
   "systems": [
     {
       "id": 3,
@@ -206,6 +206,366 @@
           "placeholder": true,
           "name_id": "WORLD_S5P3_NAME",
           "desc_id": "WORLD_S5P3_DESC",
+          "type": "urban",
+          "role": "placeholder",
+          "abundant": "none",
+          "scarce": "both",
+          "base_prices": {
+            "energy_sell": 34,
+            "food_sell": 34,
+            "energy_buy": 35,
+            "food_buy": 35
+          },
+          "x": 900,
+          "y": -20
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "placeholder": true,
+      "note": "T176 placeholder: temporary name, sun, prices. Replace before enabling.",
+      "galaxy_slot": 5,
+      "sun_color": "#ffd23c",
+      "name_id": "WORLD_SYS6_NAME",
+      "desc_id": "WORLD_SYS6_DESC",
+      "permit_name_id": "PERMIT_S6_NAME",
+      "permit_desc_id": "PERMIT_S6_DESC",
+      "permit_btn_id": "PERMIT_S6_BTN",
+      "permit_notice_id": "NOT_PERMIT_S6",
+      "permit_cost_key": "permit_2_cost",
+      "permit_points_key": "permit_points_2",
+      "requires_skill": "FND_PERMIT",
+      "planets": [
+        {
+          "id": "s6_p1",
+          "placeholder": true,
+          "name_id": "WORLD_S6P1_NAME",
+          "desc_id": "WORLD_S6P1_DESC",
+          "type": "ocean",
+          "role": "placeholder",
+          "abundant": "food",
+          "scarce": "energy",
+          "base_prices": {
+            "food_buy": 11,
+            "food_sell": 9,
+            "energy_sell": 31,
+            "energy_buy": 32
+          },
+          "x": 520,
+          "y": 60
+        },
+        {
+          "id": "s6_p2",
+          "placeholder": true,
+          "name_id": "WORLD_S6P2_NAME",
+          "desc_id": "WORLD_S6P2_DESC",
+          "type": "desert",
+          "role": "placeholder",
+          "abundant": "energy",
+          "scarce": "food",
+          "base_prices": {
+            "energy_buy": 9,
+            "energy_sell": 8,
+            "food_sell": 33,
+            "food_buy": 33
+          },
+          "x": 760,
+          "y": 140
+        },
+        {
+          "id": "s6_p3",
+          "placeholder": true,
+          "name_id": "WORLD_S6P3_NAME",
+          "desc_id": "WORLD_S6P3_DESC",
+          "type": "urban",
+          "role": "placeholder",
+          "abundant": "none",
+          "scarce": "both",
+          "base_prices": {
+            "energy_sell": 34,
+            "food_sell": 34,
+            "energy_buy": 35,
+            "food_buy": 35
+          },
+          "x": 900,
+          "y": -20
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "placeholder": true,
+      "note": "T176 placeholder: temporary name, sun, prices. Replace before enabling.",
+      "galaxy_slot": 6,
+      "sun_color": "#3cd4ff",
+      "name_id": "WORLD_SYS7_NAME",
+      "desc_id": "WORLD_SYS7_DESC",
+      "permit_name_id": "PERMIT_S7_NAME",
+      "permit_desc_id": "PERMIT_S7_DESC",
+      "permit_btn_id": "PERMIT_S7_BTN",
+      "permit_notice_id": "NOT_PERMIT_S7",
+      "permit_cost_key": "permit_2_cost",
+      "permit_points_key": "permit_points_2",
+      "requires_skill": "FND_PERMIT",
+      "planets": [
+        {
+          "id": "s7_p1",
+          "placeholder": true,
+          "name_id": "WORLD_S7P1_NAME",
+          "desc_id": "WORLD_S7P1_DESC",
+          "type": "ocean",
+          "role": "placeholder",
+          "abundant": "food",
+          "scarce": "energy",
+          "base_prices": {
+            "food_buy": 11,
+            "food_sell": 9,
+            "energy_sell": 31,
+            "energy_buy": 32
+          },
+          "x": 520,
+          "y": 60
+        },
+        {
+          "id": "s7_p2",
+          "placeholder": true,
+          "name_id": "WORLD_S7P2_NAME",
+          "desc_id": "WORLD_S7P2_DESC",
+          "type": "desert",
+          "role": "placeholder",
+          "abundant": "energy",
+          "scarce": "food",
+          "base_prices": {
+            "energy_buy": 9,
+            "energy_sell": 8,
+            "food_sell": 33,
+            "food_buy": 33
+          },
+          "x": 760,
+          "y": 140
+        },
+        {
+          "id": "s7_p3",
+          "placeholder": true,
+          "name_id": "WORLD_S7P3_NAME",
+          "desc_id": "WORLD_S7P3_DESC",
+          "type": "urban",
+          "role": "placeholder",
+          "abundant": "none",
+          "scarce": "both",
+          "base_prices": {
+            "energy_sell": 34,
+            "food_sell": 34,
+            "energy_buy": 35,
+            "food_buy": 35
+          },
+          "x": 900,
+          "y": -20
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "placeholder": true,
+      "note": "T176 placeholder: temporary name, sun, prices. Replace before enabling.",
+      "galaxy_slot": 7,
+      "sun_color": "#ff7ac8",
+      "name_id": "WORLD_SYS8_NAME",
+      "desc_id": "WORLD_SYS8_DESC",
+      "permit_name_id": "PERMIT_S8_NAME",
+      "permit_desc_id": "PERMIT_S8_DESC",
+      "permit_btn_id": "PERMIT_S8_BTN",
+      "permit_notice_id": "NOT_PERMIT_S8",
+      "permit_cost_key": "permit_2_cost",
+      "permit_points_key": "permit_points_2",
+      "requires_skill": "FND_PERMIT",
+      "planets": [
+        {
+          "id": "s8_p1",
+          "placeholder": true,
+          "name_id": "WORLD_S8P1_NAME",
+          "desc_id": "WORLD_S8P1_DESC",
+          "type": "ocean",
+          "role": "placeholder",
+          "abundant": "food",
+          "scarce": "energy",
+          "base_prices": {
+            "food_buy": 11,
+            "food_sell": 9,
+            "energy_sell": 31,
+            "energy_buy": 32
+          },
+          "x": 520,
+          "y": 60
+        },
+        {
+          "id": "s8_p2",
+          "placeholder": true,
+          "name_id": "WORLD_S8P2_NAME",
+          "desc_id": "WORLD_S8P2_DESC",
+          "type": "desert",
+          "role": "placeholder",
+          "abundant": "energy",
+          "scarce": "food",
+          "base_prices": {
+            "energy_buy": 9,
+            "energy_sell": 8,
+            "food_sell": 33,
+            "food_buy": 33
+          },
+          "x": 760,
+          "y": 140
+        },
+        {
+          "id": "s8_p3",
+          "placeholder": true,
+          "name_id": "WORLD_S8P3_NAME",
+          "desc_id": "WORLD_S8P3_DESC",
+          "type": "urban",
+          "role": "placeholder",
+          "abundant": "none",
+          "scarce": "both",
+          "base_prices": {
+            "energy_sell": 34,
+            "food_sell": 34,
+            "energy_buy": 35,
+            "food_buy": 35
+          },
+          "x": 900,
+          "y": -20
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "placeholder": true,
+      "note": "T176 placeholder: temporary name, sun, prices. Replace before enabling.",
+      "galaxy_slot": 8,
+      "sun_color": "#b0ff3c",
+      "name_id": "WORLD_SYS9_NAME",
+      "desc_id": "WORLD_SYS9_DESC",
+      "permit_name_id": "PERMIT_S9_NAME",
+      "permit_desc_id": "PERMIT_S9_DESC",
+      "permit_btn_id": "PERMIT_S9_BTN",
+      "permit_notice_id": "NOT_PERMIT_S9",
+      "permit_cost_key": "permit_2_cost",
+      "permit_points_key": "permit_points_2",
+      "requires_skill": "FND_PERMIT",
+      "planets": [
+        {
+          "id": "s9_p1",
+          "placeholder": true,
+          "name_id": "WORLD_S9P1_NAME",
+          "desc_id": "WORLD_S9P1_DESC",
+          "type": "ocean",
+          "role": "placeholder",
+          "abundant": "food",
+          "scarce": "energy",
+          "base_prices": {
+            "food_buy": 11,
+            "food_sell": 9,
+            "energy_sell": 31,
+            "energy_buy": 32
+          },
+          "x": 520,
+          "y": 60
+        },
+        {
+          "id": "s9_p2",
+          "placeholder": true,
+          "name_id": "WORLD_S9P2_NAME",
+          "desc_id": "WORLD_S9P2_DESC",
+          "type": "desert",
+          "role": "placeholder",
+          "abundant": "energy",
+          "scarce": "food",
+          "base_prices": {
+            "energy_buy": 9,
+            "energy_sell": 8,
+            "food_sell": 33,
+            "food_buy": 33
+          },
+          "x": 760,
+          "y": 140
+        },
+        {
+          "id": "s9_p3",
+          "placeholder": true,
+          "name_id": "WORLD_S9P3_NAME",
+          "desc_id": "WORLD_S9P3_DESC",
+          "type": "urban",
+          "role": "placeholder",
+          "abundant": "none",
+          "scarce": "both",
+          "base_prices": {
+            "energy_sell": 34,
+            "food_sell": 34,
+            "energy_buy": 35,
+            "food_buy": 35
+          },
+          "x": 900,
+          "y": -20
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "placeholder": true,
+      "note": "T176 placeholder: temporary name, sun, prices. Replace before enabling.",
+      "galaxy_slot": 9,
+      "sun_color": "#ff9a3c",
+      "name_id": "WORLD_SYS10_NAME",
+      "desc_id": "WORLD_SYS10_DESC",
+      "permit_name_id": "PERMIT_S10_NAME",
+      "permit_desc_id": "PERMIT_S10_DESC",
+      "permit_btn_id": "PERMIT_S10_BTN",
+      "permit_notice_id": "NOT_PERMIT_S10",
+      "permit_cost_key": "permit_2_cost",
+      "permit_points_key": "permit_points_2",
+      "requires_skill": "FND_PERMIT",
+      "planets": [
+        {
+          "id": "s10_p1",
+          "placeholder": true,
+          "name_id": "WORLD_S10P1_NAME",
+          "desc_id": "WORLD_S10P1_DESC",
+          "type": "ocean",
+          "role": "placeholder",
+          "abundant": "food",
+          "scarce": "energy",
+          "base_prices": {
+            "food_buy": 11,
+            "food_sell": 9,
+            "energy_sell": 31,
+            "energy_buy": 32
+          },
+          "x": 520,
+          "y": 60
+        },
+        {
+          "id": "s10_p2",
+          "placeholder": true,
+          "name_id": "WORLD_S10P2_NAME",
+          "desc_id": "WORLD_S10P2_DESC",
+          "type": "desert",
+          "role": "placeholder",
+          "abundant": "energy",
+          "scarce": "food",
+          "base_prices": {
+            "energy_buy": 9,
+            "energy_sell": 8,
+            "food_sell": 33,
+            "food_buy": 33
+          },
+          "x": 760,
+          "y": 140
+        },
+        {
+          "id": "s10_p3",
+          "placeholder": true,
+          "name_id": "WORLD_S10P3_NAME",
+          "desc_id": "WORLD_S10P3_DESC",
           "type": "urban",
           "role": "placeholder",
           "abundant": "none",

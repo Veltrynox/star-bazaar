@@ -570,6 +570,46 @@
     "not": "start"
    },
    "note": "T176 placeholder: system 5 (data/systems_placeholder.json, enabled=false) is off. {not: start} is never true; replace with a real unlock (e.g. system_open:5 plus a story/skill condition) when the system is designed."
+  },
+  {
+   "kind": "feature",
+   "id": "placeholder_system_6",
+   "visible_when": {
+    "not": "start"
+   },
+   "note": "T210 placeholder: system 6 (data/systems_placeholder.json, enabled=false) is off. {not: start} is never true; replace with a real unlock (e.g. system_open:6 plus a story/skill condition) when the system is designed."
+  },
+  {
+   "kind": "feature",
+   "id": "placeholder_system_7",
+   "visible_when": {
+    "not": "start"
+   },
+   "note": "T210 placeholder: system 7 (data/systems_placeholder.json, enabled=false) is off. {not: start} is never true; replace with a real unlock (e.g. system_open:7 plus a story/skill condition) when the system is designed."
+  },
+  {
+   "kind": "feature",
+   "id": "placeholder_system_8",
+   "visible_when": {
+    "not": "start"
+   },
+   "note": "T210 placeholder: system 8 (data/systems_placeholder.json, enabled=false) is off. {not: start} is never true; replace with a real unlock (e.g. system_open:8 plus a story/skill condition) when the system is designed."
+  },
+  {
+   "kind": "feature",
+   "id": "placeholder_system_9",
+   "visible_when": {
+    "not": "start"
+   },
+   "note": "T210 placeholder: system 9 (data/systems_placeholder.json, enabled=false) is off. {not: start} is never true; replace with a real unlock (e.g. system_open:9 plus a story/skill condition) when the system is designed."
+  },
+  {
+   "kind": "feature",
+   "id": "placeholder_system_10",
+   "visible_when": {
+    "not": "start"
+   },
+   "note": "T210 placeholder: system 10 (data/systems_placeholder.json, enabled=false) is off. {not: start} is never true; replace with a real unlock (e.g. system_open:10 plus a story/skill condition) when the system is designed."
   }
  ],
  "start_state": {

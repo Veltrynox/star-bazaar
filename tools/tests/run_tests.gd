@@ -52,7 +52,7 @@ func _run() -> void:
 	await _test_good_info()
 	await _test_notice_queue()
 	await _test_systems()
-	_test_placeholder_systems()
+	await _test_placeholder_systems()
 	await _test_galaxy_view()
 	await _test_tutorial_steps()
 	await _test_tutorial_lock()
@@ -6874,7 +6874,7 @@ func _test_ships_spawn_near_bodies() -> void:
 	for sid in Systems.ids():
 		all_sys.append(int(sid))
 		m._open_system(int(sid))
-	check(all_sys == [1, 2, 3, 4, 5], "T202: systems 1 to 5 are in play", str(all_sys))
+	check(all_sys == [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], "T202: systems 1 to 10 are in play", str(all_sys))
 	for sid in all_sys:
 		if int(sid) > 1:
 			m.map.add_station(int(sid), false)
@@ -7942,17 +7942,44 @@ func _test_forecast_pure() -> void:
 
 ## T176: placeholder systems 3 to 5 stay out of normal play and load cleanly when switched on.
 func _test_placeholder_systems() -> void:
+	_wipe_user()
+	var gm: Control = await _new_main()
+	var slots: Array = gm.galaxy_view.SLOTS
+	_free_main(gm)
 	var Systems := preload("res://game/systems.gd")
 	check(not Systems.ids().has(3) and Systems.ids().size() == 1, "placeholder systems: off by default")
 	Systems.set_placeholders(true)
 	var ids: Array = Systems.ids()
-	check(ids == [2, 3, 4, 5], "placeholder systems: 3 to 5 load when switched on", str(ids))
+	check(ids == [2, 3, 4, 5, 6, 7, 8, 9, 10], "placeholder systems: 3 to 10 load when switched on", str(ids))
 	var ok := true
-	for sid in [3, 4, 5]:
+	for sid in [3, 4, 5, 6, 7, 8, 9, 10]:
 		var pl: Array = Systems.planets_of(sid)
 		ok = ok and pl.size() == 3 and bool(Systems.get_system(sid).get("placeholder", false)) and Systems.name_of(sid) != "" and Systems.sun_color_of(sid) is Color
 		for p in pl:
 			ok = ok and bool(p.get("placeholder", false)) and str(p["name"]) != "" and not str(p["name"]).begins_with("WORLD_")
 	check(ok, "placeholder systems: placeholder flag, names and planets resolve")
+	# T210: ten systems in all (system 1 is planets.json), unique ids, planet ids and text ids, slots inside SLOTS, permit keys exist
+	var bal = JSON.parse_string(FileAccess.get_file_as_string("res://data/balance.json"))
+	var seen := {}
+	var uniq := true
+	var slots_ok := ids.size() + 1 == 10
+	var keys_ok := true
+	for sid in ids:
+		var sd: Dictionary = Systems.get_system(sid)
+		uniq = uniq and not seen.has("s%d" % sid)
+		seen["s%d" % sid] = true
+		if sid >= 3:
+			var slot := int(sd.get("galaxy_slot", -1))
+			slots_ok = slots_ok and slot >= 0 and slot < slots.size() and slot == sid - 1
+			keys_ok = keys_ok and bal["values"].has(str(sd.get("permit_cost_key", "")))
+			for k in ["name_id", "desc_id", "permit_name_id", "permit_desc_id", "permit_btn_id", "permit_notice_id"]:
+				uniq = uniq and not seen.has(str(sd[k]))
+				seen[str(sd[k])] = true
+		for p in Systems.planets_of(sid):
+			uniq = uniq and not seen.has(str(p["id"]))
+			seen[str(p["id"])] = true
+	check(uniq, "placeholder systems: ids, planet ids and text ids are unique")
+	check(slots_ok and slots.size() >= 10, "placeholder systems: ten systems, galaxy_slot valid inside SLOTS")
+	check(keys_ok, "placeholder systems: permit cost keys exist in balance")
 	Systems.set_placeholders(false)
 	check(Systems.ids() == [2], "placeholder systems: off again")

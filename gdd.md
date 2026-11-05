@@ -36,6 +36,8 @@ Each cycle the player reads the income and picks the next investment:
 - a permit to open a new solar system,
 - a skill.
 
+Ten solar systems are planned in all; systems 3 to 10 exist only as hidden, switched-off placeholders (temporary names and layout) until they are designed.
+
 Then the routes earn. Every route pays its income at the end of the cycle, already net of its trip cost and maintenance. The player cannot run out of money mid-trip, and an unprofitable route idles and costs nothing.
 
 Inflow: route income, local Sell orders, events. Outflow: ships, permits, workshops, upgrades, links and the Null Core (all chosen by the player), and market overhead from spreading too wide.

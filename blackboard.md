@@ -14,16 +14,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-06 05:00 run: T215
-- Summary: Removed the bottom-middle route legend strip (game/route_legend.gd, its block in main.gd, three text ids only it used). Pending-destination banner kept.
-- Why this task: clear owner request, no dependencies, no visual or design decision (pure removal).
-- Approach: ui-programmer agent for the removal; I verified the diff.
-- Agent prompts: remove the route hint strip at the bottom, drop its state and own text ids, keep other hints; handoffs/ui-programmer/2026-11-06-T215.json, done.
-- Worked: sh tools/tests/run.sh pass=4017 fail=0 (agent run).
-- Failed / did not work: nothing. Not seen windowed.
-- Files and commits: game/main.gd, game/route_legend.gd(+uid) deleted, story/screens.md, data/story_text.json, schedule.json, blackboard.md; see git log "T215".
-- Left to do: owner confirms "route hint" meant the legend and not the pending banner ("Send X from Y: click the destination"); if the banner, remove it too.
-
 ## 2026-11-06 06:00 run: T213
 - Summary: The "Not enough cash" rule is correct at 2k cash; the message was a stale snapshot from the last cycle end, shown next to the current balance. Route row, map tag and buy row now show the needed and available amounts.
 - Why this task: real bug investigation with a clear brief, no visual or design decision, no dependencies.

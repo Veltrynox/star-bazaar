@@ -1,0 +1,18 @@
+{
+ "agent": "gameplay-programmer",
+ "date": "2026-11-06",
+ "task": "T210",
+ "status": "done",
+ "schema_version": 1,
+ "files_changed": [
+  "data/systems_placeholder.json",
+  "data/availability.json",
+  "story/screens.md",
+  "data/story_text.json",
+  "game/galaxy_view.gd",
+  "tools/tests/run_tests.gd",
+  "gdd.md"
+ ],
+ "open_questions": [],
+ "handoff": "Placeholder systems 6-10 added (ids 6-10, planets s6_p1.., enabled stays false, same shape as 3-5, permit keys reuse permit_2_*, galaxy_slot = id-1). English text ids WORLD_SYS6.. / PERMIT_S6.. / NOT_PERMIT_S6.. / WORLD_S6P1.. in story/screens.md, built with build_story.py. Never-true availability rules placeholder_system_6..10 added. galaxy_view SLOTS grew from 7 to 10 entries; slots 8-10 positions are temporary (visual, not checked windowed). Tests: placeholder test now checks 10 systems, unique ids/planet ids/text ids, slots in SLOTS, permit keys in balance; T202 test updated to 10 systems. run.sh: fail=0. Normal play unchanged."
+}
