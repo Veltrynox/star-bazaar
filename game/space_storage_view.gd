@@ -23,8 +23,13 @@ func setup(main_node: Control) -> void:
 	box = VBoxContainer.new()
 	box.add_theme_constant_override("separation", 8)
 	Ui.scroll_wrap(self, box, 76.0 + 70.0)  # long views scroll instead of leaving the window, same reserve as the planet panel
+	var sl = main.storage_link  # T171: the link block follows the engine's signals
+	for sig in [sl.link_built, sl.link_removed, sl.link_state_changed, sl.link_collapsed, sl.link_orders_changed, sl.link_transferred]:
+		sig.connect(_on_link_changed)
 
 func open_for(sid: int) -> void:
+	if sid != system_id:
+		_dlg = ""  # a link dialog does not follow to another storage
 	system_id = sid
 	visible = true
 	refresh()
@@ -139,6 +144,7 @@ func _fabric_rows() -> void:
 ## Build blocks of a cell, one function per block so a later one (portal between cells) sits beside the workshops.
 func _build_blocks() -> void:
 	_workshop_rows()
+	_link_block()
 
 ## Workshops: the ones standing in THIS cell (recipe and status) and the visible, unbuilt ones as Build buttons.
 ## Each workshop is built once per run; once built it shows only in its own cell. Visibility is Availability.workshop.
@@ -213,3 +219,288 @@ func _inputs_unreached(f) -> Array:
 		if not fed:
 			out.append(c)
 	return out
+
+# ---------------------------------------------------------------- T171 Storage Link block
+
+var _dlg: String = ""  # "" | "build" | "order": which small dialog the link block shows
+var _dlg_partner: int = -1
+var _dlg_link: int = -1
+var _dlg_good: String = ""
+var _dlg_from: int = -1
+var _dlg_amount: int = 10
+
+func _on_link_changed(_a = null, _b = null) -> void:
+	if visible:
+		refresh()
+
+func _link_ids_here() -> Array:
+	var out: Array = []
+	for id in main.storage_link.links():
+		var info: Dictionary = main.storage_link.link_info(int(id))
+		if int(info["a"]) == system_id or int(info["b"]) == system_id:
+			out.append(int(id))
+	return out
+
+## Other systems that could be a partner: open, with an established Space Storage.
+func _partners() -> Array:
+	var out: Array = []
+	for sid in main.station_systems:
+		if int(sid) != system_id and main.storage.established(main.storage.system_key(int(sid))):
+			out.append(int(sid))
+	out.sort()
+	return out
+
+func _link_block() -> void:
+	if not Availability.feature("storage_link") or not main.station_systems.has(system_id):
+		return  # hidden means not drawn at all
+	var sl = main.storage_link
+	box.add_child(HSeparator.new())
+	var head := HBoxContainer.new()
+	head.name = "LinkHead"
+	box.add_child(head)
+	var t := Label.new()
+	t.text = StoryText.get_or("SS_LINK_TITLE", "Storage Link")
+	t.theme_type_variation = "LabelStrong"
+	t.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	head.add_child(t)
+	var bb := Button.new()
+	bb.name = "LinkBuild"
+	bb.text = StoryText.get_or("SS_LINK_BTN_BUILD", "Build link...")
+	bb.disabled = _dlg == "build"
+	bb.pressed.connect(_open_build)
+	head.add_child(bb)
+	var here := _link_ids_here()
+	if here.is_empty() and _dlg == "":
+		box.add_child(_wrapped(StoryText.get_or("SS_LINK_LBL_NO_LINK", "No link yet.")))
+	if _dlg == "build":
+		_build_dialog()
+	for id in here:
+		_link_rows(int(id))
+	if _dlg == "order":
+		_order_dialog()
+
+func _sname(sid: int) -> String:
+	return main.Systems.name_of(sid)
+
+func _link_rows(id: int) -> void:
+	var sl = main.storage_link
+	var info: Dictionary = sl.link_info(id)
+	if info.is_empty():
+		return
+	var line := HBoxContainer.new()
+	line.name = "Link_%d" % id
+	box.add_child(line)
+	var ll := Label.new()
+	ll.text = StoryText.get_or("SS_LINK_LBL_LINE", "{a} <-> {b}", {"a": _sname(int(info["a"])), "b": _sname(int(info["b"]))})
+	ll.theme_type_variation = "LabelAccent"
+	ll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	line.add_child(ll)
+	var st := Label.new()
+	var sk := str(info["state"])
+	st.text = StoryText.get_or("SS_LINK_STATE_" + sk.to_upper(), sk.capitalize())
+	if sk == "dormant":
+		st.add_theme_color_override("font_color", Ui.col("signal_bad"))
+	line.add_child(st)
+	var up := _wrapped(StoryText.get_or("SS_LINK_LBL_UPKEEP", "Upkeep {n} energy per cycle", {"n": int(info["upkeep"])}))
+	up.name = "LinkUpkeep_%d" % id
+	up.theme_type_variation = "LabelSmall"
+	up.tooltip_text = StoryText.get_or("SS_LINK_TIP_UPKEEP", "")
+	up.mouse_filter = Control.MOUSE_FILTER_STOP
+	box.add_child(up)
+	if sk == "dormant":
+		var dn := _wrapped(StoryText.get_or("SS_LINK_LBL_DORMANT_NEEDS", "Dormant: needs {n} energy", {"n": int(info["upkeep"])}))
+		dn.add_theme_color_override("font_color", Ui.col("signal_bad"))
+		box.add_child(dn)
+		if int(info["cycles_left"]) >= 0:
+			box.add_child(_wrapped(StoryText.get_or("SS_LINK_LBL_COLLAPSE_IN", "Collapses in {cycles} cycles", {"cycles": int(info["cycles_left"])})))
+	var rl := _wrapped(StoryText.get_or("SS_LINK_LBL_RATE", "Rate used {n} / {m}", {"n": int(info["rate_used"]), "m": int(info["rate"])}))
+	rl.name = "LinkRate_%d" % id
+	box.add_child(rl)
+	var orders: Array = info["orders"]
+	var shown := 0
+	for i in orders.size():
+		var o: Dictionary = orders[i]
+		if not Availability.good(str(o["good"])):
+			continue  # never name a hidden good
+		shown += 1
+		var row := HBoxContainer.new()
+		row.name = "LinkOrder_%d_%d" % [id, i]
+		var eb := Button.new()
+		eb.flat = true
+		eb.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		eb.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		eb.text = StoryText.get_or("SS_LINK_LBL_ORDER_ROW", "{good}  {a} -> {b}  {n} per cycle",
+			{"good": Ui.good_name(str(o["good"])), "a": _sname(int(o["from"])), "b": _sname(int(o["to"])), "n": int(o["amount"])})
+		eb.tooltip_text = StoryText.get_or("SS_LINK_UI_BTN_EDIT_ORDER", "Click to change the amount") + "\n" + GoodInfo.block(str(o["good"]))
+		eb.pressed.connect(_open_order.bind(id, str(o["good"]), int(o["from"]), int(o["amount"])))
+		row.add_child(eb)
+		var xb := Button.new()
+		xb.text = "x"
+		xb.tooltip_text = StoryText.get_or("SS_LINK_BTN_REMOVE_ORDER", "Remove order")
+		xb.pressed.connect(func(): sl.remove_order(id, i))
+		row.add_child(xb)
+		box.add_child(row)
+	var ol := _wrapped(StoryText.get_or("SS_LINK_LBL_ORDERS", "Orders {n} / {m}", {"n": orders.size(), "m": int(sl.balance.get("link_orders_max", 4))}))
+	ol.theme_type_variation = "LabelSmall"
+	box.add_child(ol)
+	var acts := HBoxContainer.new()
+	box.add_child(acts)
+	var ab := Button.new()
+	ab.name = "LinkAddOrder_%d" % id
+	ab.text = StoryText.get_or("SS_LINK_BTN_ADD_ORDER", "Add order")
+	ab.disabled = orders.size() >= int(sl.balance.get("link_orders_max", 4))
+	if ab.disabled:
+		ab.tooltip_text = StoryText.get_or("SS_LINK_NOT_REFUSED_ORDERS", "This link has all the orders it can hold.")
+	ab.pressed.connect(_open_order.bind(id, "", int(info["a"]), 10))
+	acts.add_child(ab)
+	var rb := Button.new()
+	rb.name = "LinkRemove_%d" % id
+	rb.text = StoryText.get_or("SS_LINK_UI_BTN_REMOVE_LINK", "Remove link")
+	rb.pressed.connect(func(): sl.remove_link(id))
+	acts.add_child(rb)
+
+func _open_build() -> void:
+	var ps := _partners()
+	_dlg = "build"
+	_dlg_partner = int(ps[0]) if not ps.is_empty() else -1
+	refresh()
+
+func _open_order(id: int, good: String, from: int, amount: int) -> void:
+	var goods: Array = Availability.visible_goods(main.commodities)
+	if goods.is_empty():
+		return
+	_dlg = "order"
+	_dlg_link = id
+	_dlg_good = good if good != "" else str(goods[0])
+	_dlg_from = from
+	_dlg_amount = maxi(1, amount)
+	refresh()
+
+func _close_dialog() -> void:
+	_dlg = ""
+	refresh()
+
+func _build_dialog() -> void:
+	var sl = main.storage_link
+	var panel := VBoxContainer.new()
+	panel.name = "LinkBuildDialog"
+	panel.add_theme_constant_override("separation", 6)
+	box.add_child(panel)
+	var tl := Label.new()
+	tl.text = StoryText.get_or("SS_LINK_DLG_TITLE", "Build a Storage Link")
+	tl.theme_type_variation = "LabelAccent"
+	panel.add_child(tl)
+	panel.add_child(_wrapped(StoryText.get_or("SS_LINK_DLG_HINT", "The link is paid in goods from both storages. No credits are charged.")))
+	var ps := _partners()
+	if ps.is_empty():
+		panel.add_child(_wrapped(StoryText.get_or("SS_LINK_UI_LBL_NO_PARTNER", "No other Space Storage to link to yet.")))
+	else:
+		if not ps.has(_dlg_partner):
+			_dlg_partner = int(ps[0])
+		panel.add_child(_caption(StoryText.get_or("SS_LINK_UI_LBL_PARTNER", "Partner storage")))
+		var ob := OptionButton.new()
+		ob.name = "LinkPartner"
+		for p in ps:
+			ob.add_item(_sname(int(p)), int(p))
+		ob.select(ps.find(_dlg_partner))
+		ob.item_selected.connect(func(i): _dlg_partner = int(ps[i]); refresh())
+		panel.add_child(ob)
+		panel.add_child(_wrapped(StoryText.get_or("SS_LINK_DLG_PARTNER", "Join {a} to {b}", {"a": _sname(system_id), "b": _sname(_dlg_partner)})))
+		var c: Dictionary = sl.cost()
+		var missing: Array = []
+		for g in Availability.visible_goods(["rivets", "energy"]):  # visible goods only
+			var have: int = sl.stock_of(system_id, str(g)) + sl.stock_of(_dlg_partner, str(g))
+			var cl := _wrapped(StoryText.get_or("SS_LINK_DLG_COST", "{goods}: need {n}, have {m}", {"goods": Ui.good_name(str(g)), "n": int(c[g]), "m": have}))
+			cl.name = "LinkCost_" + str(g)
+			panel.add_child(cl)
+			if have < int(c[g]):
+				missing.append(Ui.good_name(str(g)))
+				cl.add_theme_color_override("font_color", Ui.col("signal_bad"))
+		var why: String = sl.can_build(system_id, _dlg_partner)
+		if why == "LNK_NEED_GOODS" and not missing.is_empty():
+			panel.add_child(_wrapped(StoryText.get_or("SS_LINK_DLG_SHORT", "The two storages together lack {goods}.", {"goods": ", ".join(missing)})))
+		elif why != "":
+			panel.add_child(_wrapped(StoryText.get_or(why, "")))
+		var acts := HBoxContainer.new()
+		panel.add_child(acts)
+		var ok := Button.new()
+		ok.name = "LinkConfirm"
+		ok.text = StoryText.get_or("SS_LINK_BTN_CONFIRM", "Build link")
+		ok.disabled = why != ""
+		ok.pressed.connect(func():
+			var id: int = sl.build_link(system_id, _dlg_partner)  # empty mix: paid automatically
+			if id >= 0:
+				_dlg = ""
+			refresh())
+		acts.add_child(ok)
+	var cb := Button.new()
+	cb.name = "LinkCancel"
+	cb.text = StoryText.get_or("SS_LINK_BTN_CANCEL", "Cancel")
+	cb.pressed.connect(_close_dialog)
+	if ps.is_empty():
+		panel.add_child(cb)
+	else:
+		(panel.get_child(panel.get_child_count() - 1) as HBoxContainer).add_child(cb)
+	panel.add_child(_wrapped(StoryText.get_or("SS_LINK_FLAVOUR_BUILD", "")))
+
+func _caption(text: String) -> Label:
+	var l := Label.new()
+	l.text = text
+	l.theme_type_variation = "LabelCaption"
+	return l
+
+func _order_dialog() -> void:
+	var sl = main.storage_link
+	var info: Dictionary = sl.link_info(_dlg_link)
+	if info.is_empty():
+		_dlg = ""
+		return
+	var panel := VBoxContainer.new()
+	panel.name = "LinkOrderDialog"
+	panel.add_theme_constant_override("separation", 6)
+	box.add_child(panel)
+	var goods: Array = Availability.visible_goods(main.commodities)
+	panel.add_child(_caption(StoryText.get_or("SS_LINK_LBL_GOOD", "Good")))
+	var gb := OptionButton.new()
+	gb.name = "LinkOrderGood"
+	for g in goods:
+		gb.add_item(Ui.good_name(str(g)))
+	gb.select(maxi(0, goods.find(_dlg_good)))
+	gb.item_selected.connect(func(i): _dlg_good = str(goods[i]))
+	panel.add_child(gb)
+	panel.add_child(_caption(StoryText.get_or("SS_LINK_LBL_FROM", "From")))
+	var ends := [int(info["a"]), int(info["b"])]
+	var fb := OptionButton.new()
+	fb.name = "LinkOrderFrom"
+	for e in ends:
+		fb.add_item(_sname(int(e)))
+	fb.select(maxi(0, ends.find(_dlg_from)))
+	fb.item_selected.connect(func(i): _dlg_from = int(ends[i]))
+	panel.add_child(fb)
+	panel.add_child(_caption(StoryText.get_or("SS_LINK_LBL_AMOUNT", "Per cycle")))
+	var sp := SpinBox.new()
+	sp.name = "LinkOrderAmount"
+	sp.min_value = 1
+	sp.max_value = maxi(1, int(info["rate"]))
+	sp.step = 1
+	sp.value = clampi(_dlg_amount, 1, int(sp.max_value))
+	sp.value_changed.connect(func(v): _dlg_amount = int(v))
+	panel.add_child(sp)
+	panel.add_child(_wrapped(StoryText.get_or("SS_LINK_LBL_ORDER_NOTE", "")))
+	var acts := HBoxContainer.new()
+	panel.add_child(acts)
+	var ok := Button.new()
+	ok.name = "LinkOrderSave"
+	ok.text = StoryText.get_or("SS_LINK_BTN_SAVE_ORDER", "Save order")
+	ok.pressed.connect(func():
+		var done: bool = sl.set_order(_dlg_link, _dlg_good, _dlg_from, _dlg_amount)
+		if done:
+			_dlg = ""
+		else:
+			main.post_notice(StoryText.get_or("SS_LINK_NOT_REFUSED_ORDERS", "This link has all the orders it can hold."))
+		refresh())
+	acts.add_child(ok)
+	var cb := Button.new()
+	cb.text = StoryText.get_or("SS_LINK_BTN_CANCEL", "Cancel")
+	cb.pressed.connect(_close_dialog)
+	acts.add_child(cb)
