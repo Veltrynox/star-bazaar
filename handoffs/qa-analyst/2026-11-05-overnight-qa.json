@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "agent": "qa-analyst",
+  "date": "2026-11-05",
+  "task": "overnight-qa",
+  "status": "done",
+  "files_changed": [
+    "qa/reports/2026-11-05-runs.jsonl",
+    "qa/reports/2026-11-05-metrics.json",
+    "qa/reports/2026-11-05-metrics.md",
+    "qa/reports/2026-11-05-metrics-tutorial-gate.md",
+    "qa/reports/2026-11-05-per-run-table.txt",
+    "qa/reports/2026-11-05-bot_run-skip-tutorial.patch",
+    "qa/reports/2026-11-05-overnight-qa.md",
+    "qa/reports/2026-11-05-overnight-bug_report.json",
+    "handoffs/qa-analyst/2026-11-05-overnight-qa.json"
+  ],
+  "open_questions": [
+    "UNKNOWN: can a human player be blocked by the tutorial gate at cycle 1 (OV-01, the bots cannot place a ship or order without --skip-tutorial)? Owner to check by hand.",
+    "UNKNOWN: is permit 2 meant to be required to win? No run without it won (0/15 decent, 0/5 always_expand in Military); mechanism not traced (OV-03).",
+    "UNKNOWN: why fast and timer clocks give different cash for the same seed (up to 43%, OV-07), and should share count local-order volume (OV-05)?"
+  ],
+  "handoff": "Overnight QA on HEAD fe674dc (balance v45), 183 runs, no crash, freeze or script error. Blocker: without --skip-tutorial the tutorial gate stops all planner strategies at cycle 1 (OV-01, high). With the flag (bot option added in the worktree only; patch in reports): decent wins 1/5 base, Military 5/5 (27-30), Minerals 5/5 (28-40), Biotech 5/5 (31-39), Luxury 2/5. Wins are paced by the B4 chain step for Minerals and Biotech (pacing, medium). Permit 2 is decisive (no permit, no win). Ships cap at 6 by cycle 12-16 and cash idles at 14-40k. Proposed, untested: ship_cap 8, sweep_share_pct 0.2, bot_2_lux_growth ~70, maintenance 40. No balance file or game file edited; reports copied to qa/reports (new files only).",
+  "details": {
+    "build": "HEAD fe674dc worktree; balance data_version 45; ship_cap 6; win_earliest_cycle 23; win_gate_cycle 38",
+    "results_by_strategy_base_skip_tutorial_5_seeds": {
+      "decent": "1/5 win (27); 4 soft at 40; cash 14.5k-42.4k; ships 6",
+      "always_expand": "1/5 win (38, bio gate); 4 soft; cash 6.3k-19.4k",
+      "spread": "1/5 win (33); 4 soft; cash 15.3k-42.5k",
+      "mining_focus": "0/5; 5 soft; cash 16k-19k",
+      "dead_run": "0/5; 5 soft; cash 15k-22k",
+      "never_expand": "0/5; 5 soft; 1 ship; cash 5.7k-7k",
+      "sloppy": "0/5; 5 soft (not swept); 1 ship; cash 6.3k-7.5k",
+      "local_focus": "0/5; 4 soft, 1 swept at 31; cash 26-497",
+      "bankrupt": "5/5 END_BANKRUPT at 11-12 (designed)",
+      "passive": "5/5 END_SWEPT at 27 (designed)"
+    },
+    "focus_decent_permit_default": {"mil": "5/5 at 27,27,27,29,30", "lux": "2/5 at 32,40", "min": "5/5 at 28,31,32,35,40", "bio": "5/5 at 31,32,32,36,39"},
+    "permit_check": {"decent_no_permit_base_and_mil": "0/10", "always_expand_no_permit_focus": "0/20", "always_expand_permit2_mil": "5/5 at 27,30,30,33,38"},
+    "numbers_to_check_vs_targets": "targets: no-skill 26-30, skilled 22-26, full tree 19-23, early check 22. Military in range; Minerals, Biotech, Luxury late.",
+    "proposed_changes_untested": [
+      "ship_cap 6 to 8 (test; cap binds at cycle 12-16, cash idle)",
+      "chain_BIO_B4 and chain_MIN_B4 trigger or order review (wins wait for B4)",
+      "bot_2_lux_growth 98.8 to about 70 (test)",
+      "sweep_share_pct 0.10 to 0.20 (test; one-lane play is never swept)",
+      "maintenance 45 to 40 (test, only if repossessions stay high: 7 in Minerals decent)"
+    ],
+    "bugs": "qa/reports/2026-11-05-overnight-bug_report.json: OV-01 high (tutorial gate softlock, gameplay-programmer); OV-02, OV-03, OV-04, OV-05, OV-06, OV-09 medium (economy-designer); OV-07 medium clock divergence and OV-08 medium case-sensitive banner path (gameplay-programmer); OV-10, OV-11, OV-12 low; OV-13 low (qa-analyst, passive false positive)",
+    "release_export_check": "static PASS: debug menu gated by OS.is_debug_build(); export excludes qa/ and tools/; no release build run",
+    "notes": "Worktree art/*.import files were rewritten by headless imports (not committed). Metrics tool counts soft END_OUTCOMPETED as failed and does not split by market."
+  }
+}
