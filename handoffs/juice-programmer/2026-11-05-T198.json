@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "agent": "juice-programmer",
+  "date": "2026-11-05",
+  "task": "T198",
+  "status": "done",
+  "files_changed": ["game/ship_trail.gd (new)", "game/pathfinder_view.gd", "game/rival_ships.gd", "game/map.gd"],
+  "open_questions": [
+    "Is the trail visible enough as a 1 px line? It is a fading line strip (no width); a wider ribbon is possible if it reads too thin.",
+    "Is half size right? Change PLAYER_SHIP_SCALE / RIVAL_SHIP_SCALE.",
+    "Is the click area on the ship comfortable at SHIP_PICK_PX 20 (was 30)?",
+    "Is the selection ring (now 0.25 radius) the right size around the smaller ship?"
+  ],
+  "handoff": "Engine trails added for the player ship and rivals; ships on the map are half size. Not seen running: all visuals unchecked by eye. Tests: sh tools/tests/run.sh pass=4017 fail=0. Not committed, as asked. No new test for ship_trail.gd.",
+  "details": {
+    "constants": {
+      "game/pathfinder_view.gd PLAYER_SHIP_SCALE": 0.5,
+      "game/pathfinder_view.gd FIT_RADIUS / FIT_HEIGHT": "0.45 / 0.3 times PLAYER_SHIP_SCALE; SEL_RADIUS 0.5 times it too",
+      "game/pathfinder_view.gd TRAIL_TINT": "gold (1.0, 0.8, 0.4)",
+      "game/rival_ships.gd RIVAL_SHIP_SCALE": 0.5,
+      "game/rival_ships.gd FIT_RADIUS": "0.35 times RIVAL_SHIP_SCALE",
+      "game/rival_ships.gd TRAIL_TINT": "cool blue (0.45, 0.7, 1.0)",
+      "game/ship_trail.gd": "MAX_POINTS 14, MIN_STEP 0.06, LIFE_S 0.9, START_ALPHA 0.7",
+      "game/map.gd SHIP_PICK_PX": "30 -> 20 (screen pixels)"
+    },
+    "how_it_works": "ShipTrail is a top_level MeshInstance3D (world space, so it does not inherit ship yaw or the MODEL_YAW_DEG pivot), additive unshaded, no collision, not pickable. Player trail is sampled in update_from only while not paused and state is flying, and is hidden and cleared when the ship is not in the viewed system. Rival trails are fed from advance(), which only runs while the game runs. Trail fades out when the ship stops. The no-model cone fallback is scaled too.",
+    "hooks": "none"
+  }
+}

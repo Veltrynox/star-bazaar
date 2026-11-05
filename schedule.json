@@ -1200,10 +1200,11 @@
       "depends_on": [
         "T197"
       ],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 25,
       "window": "Owner request 2026-11-05 (playtest feedback). Not started: main session sets it running.",
-      "brief": "Owner: ships have no trails, and they are probably too big. Add an engine trail behind the player's ship and the rival ships (fading line or particles, short, cheap in the frame budget, off while paused), in a different tint for the player and for rivals. Reduce the ship scale on the map (put the scale in one constant per ship kind; target a noticeably smaller ship, about half, and note the value in the handoff so the owner can adjust). Handoff handoffs/juice-programmer/2026-11-05-T198.json."
+      "brief": "Owner: ships have no trails, and they are probably too big. Add an engine trail behind the player's ship and the rival ships (fading line or particles, short, cheap in the frame budget, off while paused), in a different tint for the player and for rivals. Reduce the ship scale on the map (put the scale in one constant per ship kind; target a noticeably smaller ship, about half, and note the value in the handoff so the owner can adjust). Handoff handoffs/juice-programmer/2026-11-05-T198.json.",
+      "note": "Built 2026-11-05: game/ship_trail.gd, ship scale 0.5 (PLAYER_SHIP_SCALE, RIVAL_SHIP_SCALE), SHIP_PICK_PX 20. Not seen windowed; owner to check look."
     },
     {
       "task_id": "T199",

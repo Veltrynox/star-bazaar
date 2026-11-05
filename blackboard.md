@@ -4,7 +4,7 @@
 - discovery_enabled in data/balance.json ships at 1 (owner decision 2026-11-05); tests that need it off set it themselves.
 
 ## Left to do
-- Open build tasks from playtest: T198, T199 (T196, T197, T200, T201, T202 done). T194 done; Competitors still reachable from share panel (L), owner to say if that goes too.
+- Open build tasks from playtest: T199 (T196-T198, T200-T202 done). Owner: check T198 look windowed (trail line 1px, scale 0.5, pick 20px). T194 done; Competitors still reachable from share panel (L), owner to say if that goes too.
 - Open: T185 (visual), T178/T182 (owner-only agents), T05 (only windowed frame time missing, see T193), T166 (superseded). Owner-decision tasks T189-T193 added 2026-11-05.
 
 - Owner: ship cap 20 (T186): decide on economy retune (trip cost, maintenance tuned for 6) and look of the scrolled ship list; other panels not checked at 20 ships.
@@ -53,3 +53,13 @@
 - Failed / did not work: nothing. Only spawn/course-end points checked; ships can still fly through bodies in transit. Not seen windowed. Committed [no-gdd].
 - Files and commits: see git log "T202".
 - Left to do: owner to check dock position look windowed; path-through-body avoidance not done.
+
+## 2026-11-05 23:00 run: T198
+- Summary: Added game/ship_trail.gd (fading world-space line, gold for player, blue for rivals, paused/hidden handled); ship scale 0.5 via PLAYER_SHIP_SCALE and RIVAL_SHIP_SCALE; SHIP_PICK_PX 30 to 20.
+- Why this task: owner-specified (trail, about half size), no QA; T199 leaves marker-vs-tint open (visual).
+- Approach: one small trail script used by both ship kinds.
+- Agent prompts: juice-programmer, brief = T198 text plus no-QA, no-commit. Produced ship_trail.gd, pathfinder_view.gd, rival_ships.gd, map.gd, handoffs/juice-programmer/2026-11-05-T198.json (verified; tests pass=4017 fail=0 re-run by me).
+- Worked: build and tests.
+- Failed / did not work: nothing; not seen windowed, no test for the trail.
+- Files and commits: see git log "T198".
+- Left to do: owner: trail width/tint, size, pick radius. T199 (decide marker vs tint per competitor).
