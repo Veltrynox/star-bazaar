@@ -867,7 +867,7 @@
       "title": "Asteroid fields: area 2x, more rocks, rocks keep their size",
       "owner_agent": "galaxy-builder",
       "depends_on": [],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 35,
       "window": "Owner request 2026-11-05 (later). Not started: main session sets it running.",
       "brief": "Scale every asteroid field (the pack area/radius, data in data/ and game/galaxy/asteroid_packs.gd) by 2x, and add more rocks so the density stays about the same or a little higher. Do NOT scale the individual rocks. Check cluster route targets, click areas and labels still match the bigger field, and that routes do not cross the field badly (see T164). Keep the frame budget on macOS (GPU instancing). Screenshot check in a windowed run. Handoff handoffs/galaxy-builder/2026-11-05-T168.json."
@@ -877,7 +877,7 @@
       "title": "Design: storage link between space stations that costs resources, not money",
       "owner_agent": "feature-designer",
       "depends_on": [],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 30,
       "window": "Owner request 2026-11-05 (later). Not started: main session sets it running.",
       "brief": "Owner spec: a player can connect two space station storages with a link. The link does not cost money; it eats resources (goods) to build and/or keep, and it allows goods to be transferred between the two storages. Propose the exact rules: build cost in goods, upkeep per cycle in goods, transfer rate and capacity, one or several links per storage, what happens when the upkeep stock runs out, unlock rule in data/availability.json, how it fits the resource audit (design/proposals/2026-11-05-resource-final.md) so it gives some good a sink. Include UI sketch and tests. Write design/proposals/2026-11-05-storage-link.md and handoff handoffs/feature-designer/2026-11-05-T169.json. This replaces the open design in T165; T165 can be dropped or merged."
@@ -912,7 +912,7 @@
       "title": "Skill tree: propose more skills to fill the tree",
       "owner_agent": "feature-designer",
       "depends_on": [],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 40,
       "window": "Owner request 2026-11-05 (later). Not started: main session sets it running.",
       "brief": "Fill the skill tree with more skills (data/skills.json, 31 nodes now, see design/proposals/2026-11-05-*.md and gdd-skills.md). Find empty slots or thin branches (Military, Luxury, Minerals, Biotech and any general branch) and propose new nodes with effect, cost and which gap each fills. Use only the existing effect vocabulary unless a new type is argued. Each skill must be put to the economy-designer and qa-analyst by the main session and only kept when they agree it adds balance or interest, as in goal ship-ceo-skills-resources. Write design/proposals/2026-11-05-more-skills.md and handoff handoffs/feature-designer/2026-11-05-T172.json."
@@ -946,7 +946,7 @@
       "title": "Cinderrest and similar planets: planet-style panel with mining instead of buying",
       "owner_agent": "ui-programmer",
       "depends_on": [],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 40,
       "window": "Owner request 2026-11-05 (later). Not started: main session sets it running.",
       "brief": "Cinderrest and the other mining-type planets (find them in data/planets.json by type or by the cluster/mining flag; list them in the handoff) should open a panel that looks and behaves like the normal planet panel (game/planet_panel.gd), but where the buy side is replaced by mining: show what the planet yields, the yield per trip or cycle, risk, and a Mine action or order instead of Buy prices and amounts. Reuse the planet panel layout and the existing mining or cluster logic (game/clusters.gd, route_engine.gd) and do not add new rules; if a rule is missing, report it for gameplay-programmer. Follow the availability rule: show only goods allowed by data/availability.json, and texts need ids in story/*.md plus Russian in story/ru. Run sh tools/tests/run.sh; screenshot check in a windowed run. Handoff handoffs/ui-programmer/2026-11-05-T175.json."
@@ -966,7 +966,7 @@
       "title": "Design: pilotable ship, discovery by flying, trading posts and mining platforms",
       "owner_agent": "feature-designer",
       "depends_on": [],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 45,
       "window": "Owner request 2026-11-05 (later). Not started: main session sets it running.",
       "brief": "Owner spec: the ship the player chose at New Game (data/ships.json, 3D model in assets/ships) becomes a pilotable 3D ship on the map. The player clicks a planet, space storage, asteroid field or a point on the map and the ship flies there. When the game is paused the ship does not fly. Discovery: from now on a planet is closed until the ship has flown there; the story reason is that a trading post has to be established there. Dead planets like Cinderrest work the same way, but the player establishes a mining platform, which allows mining and 'send to' of the resources. Events are tied to establishing trading posts. Propose the rules: flight speed and travel time in cycles, how pause and game speed interact, what happens to the ship's existing route duty while it flies (is it one of the fleet or a separate scout?), cost and time to establish a trading post and a mining platform, what a post unlocks (buying, selling, routes, storage), what is known at start (system 1 home planet, which others are closed), how closed planets look on the map (unknown, no name, no goods: availability rule), flight to other systems and permits, danger and events on the way, how this interacts with the win condition, market share and the existing QA bots (they must still be able to play: say how). Write design/proposals/2026-11-05-ship-flight-discovery.md and handoff handoffs/feature-designer/2026-11-05-T177.json. Owner decides before any build."
@@ -1109,7 +1109,12 @@
     "T149",
     "T167",
     "T164",
-    "T163"
+    "T163",
+    "T169",
+    "T172",
+    "T177",
+    "T175",
+    "T168"
   ],
   "done_archive": "handoffs/archive/schedule-done-2026-10-27-3.json"
 }

@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "agent": "feature-designer",
+  "date": "2026-11-05",
+  "task": "T177",
+  "status": "done",
+  "files_changed": ["design/proposals/2026-11-05-ship-flight-discovery.md", "handoffs/feature-designer/2026-11-05-T177.json"],
+  "open_questions": [
+    "UNKNOWN: does the 2 to 3 cycle early delay keep the win window 22 to 27 (needs the explorer bot)?",
+    "UNKNOWN: flagship state inside main.gd or a new flagship.gd (gameplay-programmer)?",
+    "Owner Q1-Q7 in the proposal section 5 (start state, separate flagship, cancel refund, free first post, event outcomes, dead_unlock_cycle floor, remote building)."
+  ],
+  "handoff": "Proposal written for owner decision. Nothing approved, no code or data touched. Recommends: separate Pathfinder scout (no cargo, no cap slot, no upkeep), flight on the game clock at 400 units/cycle x ship speed, only Voltara open at start, first post free, one build at a time, platform needs MIN_3, permit opens the system gate and each planet still needs a post, balance.discovery_enabled flag keeps old tests and bots valid, explorer bot for the new rules.",
+  "details": {
+    "proposals": [
+      {
+        "id": "P1",
+        "title": "Pilotable Pathfinder, trading posts and mining platforms (discovery by flying)",
+        "problem": "The map is fully open from cycle 1, so there is no exploration and the ship the player picked is only a picture.",
+        "owner_agent": "gameplay-programmer (lead), economy-designer, story-designer, ui-programmer, juice-programmer, qa-tester",
+        "size": "L",
+        "questions": ["Start state: Voltara only or Voltara and Tillam", "Pathfinder separate from fleet or fleet ship 1", "Cancel refund rule", "Free first post and system 2 beachhead discount", "Neutral or bad event outcomes", "Keep dead_unlock_cycle floor", "Remote building allowed"]
+      }
+    ]
+  }
+}
