@@ -1385,10 +1385,11 @@
       "depends_on": [
         "T211"
       ],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 15,
       "window": "Owner request 2026-11-05 (playtest). Not started: main session sets it running.",
-      "brief": "Owner: rival ships do not need to move randomly: when a rival ship has reached its destination it idles (stays, no new random course); it moves again only when the game gives it a reason (the competitor opens or trades in another system, an event). Update game/rival_ships.gd, the tests for rival motion and gdd.md. Handoff handoffs/<agent>/2026-11-05-<id>.json."
+      "brief": "Owner: rival ships do not need to move randomly: when a rival ship has reached its destination it idles (stays, no new random course); it moves again only when the game gives it a reason (the competitor opens or trades in another system, an event). Update game/rival_ships.gd, the tests for rival motion and gdd.md. Handoff handoffs/<agent>/2026-11-05-<id>.json.",
+      "note": "Rival ships park on arrival (no new course); rival_ships.wake() on a newly opened system or an event popup starts one new leg. Tests and gdd line updated. Balance key rival_ship_wait_s now unused."
     },
     {
       "task_id": "T215",
