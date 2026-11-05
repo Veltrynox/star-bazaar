@@ -60,8 +60,8 @@ static func count_value(from: int, to: int, t: float) -> int:
 static func planet_screen(map, index: int) -> Variant:
 	if map == null or not is_instance_valid(map) or map.camera == null:
 		return null
-	if index < 0 or index >= map.positions.size():
-		return null
+	if index < 0 or index >= map.positions.size() or not map.planet_in_view(index):
+		return null  # a planet of another system is not on this screen
 	var w: Vector3 = map.positions[index]
 	if map.camera.is_position_behind(w):
 		return null

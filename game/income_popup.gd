@@ -18,8 +18,8 @@ func setup(m: Node3D) -> void:
 func show_gains(gains: Dictionary) -> void:
 	for p in gains:
 		var n: int = int(gains[p])
-		if n <= 0:
-			continue
+		if n <= 0 or not map.planet_in_view(int(p)):
+			continue  # a planet of another system: its number would float over the wrong planets
 		var l := Label.new()
 		l.text = "+%d" % n
 		l.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -40,9 +40,23 @@ func show_gains(gains: Dictionary) -> void:
 		items.append({"label": l, "planet": int(p), "age": 0.0})
 	set_process(not items.is_empty())
 
+## Drops the popups of planets outside the viewed system (called when the view changes and every frame).
+func prune() -> void:
+	if map == null:
+		return
+	var keep: Array = []
+	for it in items:
+		if map.planet_in_view(int(it["planet"])):
+			keep.append(it)
+		else:
+			(it["label"] as Label).queue_free()
+	items = keep
+	set_process(not items.is_empty())
+
 func _process(delta: float) -> void:
 	if map == null or map.camera == null:
 		return
+	prune()
 	var keep: Array = []
 	for it in items:
 		it["age"] += delta

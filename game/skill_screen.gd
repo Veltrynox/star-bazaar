@@ -21,12 +21,16 @@ const FONT_SIZE_TITLE := 15
 const NODE_BTN_H := 50.4  # 0.9 of the old 56
 const CELL_W := 129.6  # 0.9 of the old 144
 const ICON_PX := 24  # skill icon on the node button
-const TREE_RESERVE := 420.0  # window height kept for header, help, detail strip and footer; the tree gets the rest
+const TREE_RESERVE := 360.0  # window height kept for header, help, detail strip and footer; the tree gets the rest
 const STACKED_BRANCHES := ["fnd"]  # these branches put every node on its own row (one narrow column)
 const NODE_GAP_H := 15  # between nodes in a row
 const NODE_GAP_V := 21  # between rows of a branch
 const BRANCH_GAP := 30  # between branches
 const CELL_GAP := 7  # inside a node cell
+## UI-only empty slots that show the planned final size of the tree (never in data, saves, totals or navigation).
+const SHOW_PLACEHOLDERS := true  # the ONE switch: false removes every placeholder
+const PLACEHOLDER_GROWTH := 2.0  # planned tree size as a multiple of today's nodes; extra slots are added as whole rows under each branch
+const PLACEHOLDER_COL := Color(1, 1, 1, 0.16)
 
 signal closed
 
@@ -40,6 +44,7 @@ var points_label: Label
 var detail_box: VBoxContainer
 var learn_button: Button
 var highlight: Array = []  # skill ids to point at (the steps to a permit), cleared on close
+var placeholders: Array = []  # empty slot Controls (UI only, inert)
 var _root: VBoxContainer
 var tree_scroll: ScrollContainer  # holds the four trees; scrolls vertically when they do not fit
 var _tree: VBoxContainer  # the scrolled content, the connector lines are drawn on it
@@ -227,6 +232,45 @@ func _build_vertical(rows: VBoxContainer) -> void:
 					cell.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN  # fixed width, rows line up on the left
 					cell.custom_minimum_size.x = CELL_W
 					row.add_child(cell)
+		if SHOW_PLACEHOLDERS:
+			_add_placeholder_rows(sec, 1 if stacked else widest, SkillTree.ids_in(b).size())
+
+## Extra empty rows under a branch: enough slots for (PLACEHOLDER_GROWTH - 1) x its real nodes, `width` slots per row.
+func _add_placeholder_rows(sec: VBoxContainer, width: int, nodes: int) -> void:
+	for r in placeholder_row_count(nodes, width):
+		var row := HBoxContainer.new()
+		row.add_theme_constant_override("separation", NODE_GAP_H)
+		sec.add_child(row)
+		for i in width:
+			var slot := _placeholder_slot()
+			row.add_child(slot)
+			placeholders.append(slot)
+
+## Rows of placeholders for a branch with `nodes` real nodes (pure; tested).
+static func placeholder_row_count(nodes: int, width: int, enabled: bool = SHOW_PLACEHOLDERS) -> int:
+	if not enabled or width < 1:
+		return 0
+	return ceili(float(nodes) * (PLACEHOLDER_GROWTH - 1.0) / float(width))
+
+## A dashed empty frame: no text, no icon, no tooltip, ignores the mouse and cannot take focus.
+func _placeholder_slot() -> Control:
+	var c := Control.new()
+	c.custom_minimum_size = Vector2(CELL_W, NODE_BTN_H)
+	c.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	c.focus_mode = Control.FOCUS_NONE
+	c.draw.connect(func() -> void:
+		var r := Rect2(Vector2.ZERO, c.size).grow(-1.0)
+		var corners := [r.position, Vector2(r.end.x, r.position.y), r.end, Vector2(r.position.x, r.end.y)]
+		for side in 4:
+			var a: Vector2 = corners[side]
+			var b: Vector2 = corners[(side + 1) % 4]
+			var seg := a.distance_to(b)
+			var dir := (b - a) / seg
+			var t := 0.0
+			while t < seg:
+				c.draw_line(a + dir * t, a + dir * minf(t + 6.0, seg), PLACEHOLDER_COL, 1.0)
+				t += 12.0)
+	return c
 
 func _build_horizontal(rows: VBoxContainer) -> void:
 	for r in depth_rows():
