@@ -18,7 +18,7 @@ Win: cash>=win_cash at cycle end. Loss: cycle win_cycle ends below. Rescue: no s
 import json, os, re, random, statistics, sys, itertools, math
 R = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 J = lambda p: json.load(open(os.path.join(R, p)))
-V = J("data/balance.json")["values"]; PL = J("data/planets.json")["planets"]; EVS = J("data/events.json")
+V = J("data/balance.json")["values"]; PL = J("data/planets.json")["planets"]; EVS = J("data/events.json")["entries"]
 # 2026-11-03: the cash goal (win_cash, win_cycle) was removed from balance.json. This sim is now a plain "run to
 # win_cycle_markets cycles, report cash" mode: win_cash is an unreachable sentinel so no run ever wins, and the
 # win_c column shows "-". The real market-share model lives in game/markets.gd; the paper model is in

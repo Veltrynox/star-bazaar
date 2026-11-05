@@ -5,7 +5,7 @@ extends RefCounted
 
 const PATH := "res://data/story_text.json"
 
-## Russian overrides (only EV_ / TUT_G<digit> / TUT_GALAXY_ / CH_ ids). Used only while language is "ru" and the id is in this table.
+## Russian overrides (only EV_ / EV<digit> / TUT_G<digit> / TUT_GALAXY_ / CH_ / WARN_ ids; same rule as RU_SCOPE_RE in tools/build_story.py). Used only while language is "ru" and the id is in this table.
 static var ru_path: String = "res://data/story_text_ru.json"
 static var language: String = "en"
 static var _ru: Dictionary = {}
@@ -21,17 +21,25 @@ static func _load() -> void:
 	if not FileAccess.file_exists(PATH):
 		push_error("StoryText: %s is missing. Run tools/build_story.py." % PATH)
 		return
-	var parsed = JSON.parse_string(FileAccess.get_file_as_string(PATH))
-	if typeof(parsed) != TYPE_ARRAY:
+	var parsed = entries_of(JSON.parse_string(FileAccess.get_file_as_string(PATH)))
+	if parsed.is_empty():
 		push_error("StoryText: %s is not a list." % PATH)
 		return
 	for e in parsed:
 		_texts[str(e["id"])] = str(e["text"])
 		_places[str(e["id"])] = str(e.get("place", ""))
 
+## The entry list of a generated data file: {"generated": marker, "entries": [...]} (an old plain list is accepted too).
+static func entries_of(parsed) -> Array:
+	if typeof(parsed) == TYPE_DICTIONARY and typeof(parsed.get("entries")) == TYPE_ARRAY:
+		return parsed["entries"]
+	return parsed if typeof(parsed) == TYPE_ARRAY else []
+
 ## True for ids the Russian table may hold.
 static func in_ru_scope(id: String) -> bool:
-	if id.begins_with("EV_") or id.begins_with("TUT_GALAXY_") or id.begins_with("CH_"):
+	if id.length() > 2 and id.begins_with("EV") and id[2] >= "0" and id[2] <= "9":
+		return true
+	if id.begins_with("EV_") or id.begins_with("TUT_GALAXY_") or id.begins_with("CH_") or id.begins_with("WARN_"):
 		return true
 	return id.length() > 5 and id.begins_with("TUT_G") and id[5] >= "0" and id[5] <= "9"
 
@@ -46,9 +54,7 @@ static func _load_ru() -> void:
 	_ru = {}
 	if not FileAccess.file_exists(ru_path):
 		return
-	var parsed = JSON.parse_string(FileAccess.get_file_as_string(ru_path))
-	if typeof(parsed) != TYPE_ARRAY:
-		return
+	var parsed = entries_of(JSON.parse_string(FileAccess.get_file_as_string(ru_path)))
 	for e in parsed:
 		var id := str(e.get("id", ""))
 		var t := str(e.get("text", ""))

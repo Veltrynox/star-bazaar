@@ -49,6 +49,8 @@ def spoken_text(text: str, cfg: dict):
 def select_lines(cfg: dict):
     """Return (lines {id: spoken}, skipped [(id, reason)])."""
     story = json.loads((ROOT / "data" / "story_text.json").read_text(encoding="utf-8"))
+    if isinstance(story, dict):  # generated file: {"generated": marker, "entries": [...]}
+        story = story["entries"]
     include = [re.compile(p) for p in cfg["include"]]
     exclude = [re.compile(p) for p in cfg.get("exclude", [])]
     lines, skipped = {}, []
