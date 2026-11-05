@@ -4,7 +4,7 @@
 - discovery_enabled in data/balance.json ships at 1 (owner decision 2026-11-05); tests that need it off set it themselves.
 
 ## Left to do
-- Open build tasks from playtest: T198, T199, T202 (T196, T197, T200, T201 done). T194 done; Competitors still reachable from share panel (L), owner to say if that goes too.
+- Open build tasks from playtest: T198, T199 (T196, T197, T200, T201, T202 done). T194 done; Competitors still reachable from share panel (L), owner to say if that goes too.
 - Open: T185 (visual), T178/T182 (owner-only agents), T05 (only windowed frame time missing, see T193), T166 (superseded). Owner-decision tasks T189-T193 added 2026-11-05.
 
 - Owner: ship cap 20 (T186): decide on economy retune (trip cost, maintenance tuned for 6) and look of the scrolled ship list; other panels not checked at 20 ships.
@@ -53,3 +53,13 @@
 - Failed / did not work: no confirm dialog existed in code to remove (old flow was click-to-fly, Shift+click, panel button). No new test for the flow; not seen windowed. Committed [no-gdd] (gdd has no controls text).
 - Files and commits: see git log "T200".
 - Left to do: owner: deselect by left click on empty space conflicts with fly-there; no menu on storage/asteroids (add Fly here?); selected look and menu style. Add a test for the flow if wanted.
+
+## 2026-11-05 22:00 run: T202
+- Summary: Added headless test _test_ships_spawn_near_bodies (944 checks, systems 1-5, two zooms): ships never inside a body, and within radius+SPAWN_GAP at spawn. Fixed bugs it found: Pathfinder docked at planet centre (new Map.dock_point), rivals spawned inside planets/sun, old saves with ship at centre, later systems got no rivals.
+- Why this task: only open build task with no visual or owner decision; T198/T199 are visual.
+- Approach: gameplay-programmer, constants Motion.BODY_MARGIN/SPAWN_GAP in game/ship_motion.gd reused by game code.
+- Agent prompts: gameplay-programmer, brief = T202 text plus no-QA, no-commit. Produced map.gd, pathfinder.gd, rival_ships.gd, ship_motion.gd, run_tests.gd, handoffs/gameplay-programmer/2026-11-05-T202.json (verified).
+- Worked: sh tools/tests/run.sh pass=4017 fail=0 (re-run by me).
+- Failed / did not work: nothing. Only spawn/course-end points checked; ships can still fly through bodies in transit. Not seen windowed. Committed [no-gdd].
+- Files and commits: see git log "T202".
+- Left to do: owner to check dock position look windowed; path-through-body avoidance not done.

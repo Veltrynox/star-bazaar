@@ -1251,11 +1251,12 @@
       "depends_on": [
         "T196"
       ],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 25,
       "window": "Owner request 2026-11-05. Not started: main session sets it running.",
       "brief": "Add a headless test in tools/tests/run_tests.gd (runs with sh tools/tests/run.sh) that no ship is placed inside a planet, but near it. Cover every spawn path: the player's Pathfinder at New Game (home planet), after loading a save, after a ship arrives at or leaves a planet, space storage and an asteroid field, and the rival ships at start and when they pick a new course. For each position assert: (1) the distance to the centre of every planet (and dead planet, station, asteroid field) is greater than that body's radius plus a small margin (use the radius the map really draws, not a guess), so the ship is outside it; (2) at spawn the ship is within a 'near' limit of its parent body (radius plus a spawn gap constant, put the limit in one named constant and reuse it in the game code); (3) the same holds in every solar system, including the placeholder systems 3-5 when enabled, and when the map is zoomed or the system view differs. Fix any code bug the test finds (an offset constant in game/pathfinder.gd or game/rival_ships.gd is fine). Handoff handoffs/gameplay-programmer/2026-11-05-T202.json.",
-      "owner_note": "Owner asked for an assertion or unit test that the ship is not spawned inside the planet but near it."
+      "owner_note": "Owner asked for an assertion or unit test that the ship is not spawned inside the planet but near it.",
+      "note": "Test _test_ships_spawn_near_bodies added; fixed Pathfinder docking at planet centre, rival spawn inside bodies, old-save centre positions, rivals in later systems. Motion.BODY_MARGIN/SPAWN_GAP in ship_motion.gd."
     }
   ],
   "done_task_ids": [
