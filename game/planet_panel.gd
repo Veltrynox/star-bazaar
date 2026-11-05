@@ -1079,8 +1079,8 @@ class RouteRow extends HBoxContainer:
 			draw_rect(Rect2(Vector2(-4, 0), size + Vector2(8, 0)), Ui.col("panel_200"), true)
 	func _gui_input(event: InputEvent) -> void:
 		if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+			accept_event()  # before emit: pressed rebuilds the panel and removes this node, and a removed node cannot mark the event handled
 			pressed.emit()
-			accept_event()
 
 ## Vertical rating bar: 5 stacked lines, bottom first lit, 5 lit = full storage.
 class RatingBar extends Control:
@@ -1119,5 +1119,5 @@ class Thumb extends Control:
 			draw_arc(c, r + 2.0, 0.0, TAU, 40, Ui.col("star_warm"), 2.0, true)
 	func _gui_input(event: InputEvent) -> void:
 		if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+			accept_event()  # before emit: pressed rebuilds the panel and removes this node, and a removed node cannot mark the event handled
 			pressed.emit()
-			accept_event()
