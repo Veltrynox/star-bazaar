@@ -48,7 +48,7 @@ WORK ON IT UNTIL DONE
 - You, the main session, start the role agents (gameplay-programmer, ui-programmer, story-designer, feature-designer, fx-programmer, galaxy-builder, juice-programmer, general-purpose for docs) through the Agent tool, with a self-contained brief each: goal, files to read, constraints, what done means. A build task is done when it is built; do not put tests, screenshots or QA in briefs. Do small edits yourself when an agent would cost more than it saves.
 - After each agent finishes, verify its handoff file under handoffs/<agent>/ exists and that the files it lists really changed (`git status`, `git diff --stat`). A claim without file evidence is not done.
 - Follow the project rules in CLAUDE.md: Availability rule for any UI listing goods, generated files only through their tools (data/story_text*.json and data/events.json via `python3 tools/build_story.py`), conditions through game/conditions.gd, Godot commands exactly as written there. Before handing off any UI, data or story change, `sh tools/tests/run.sh` must pass; if it fails, fix it or revert your change.
-- If the change alters game mechanics, update gdd.md (short form, no balance numbers) in the same commit, because a hook blocks `git commit` when game/, data/ or story/ change without gdd.md. For a change with no design effect, put [no-gdd] in the commit command.
+- If the change alters game mechanics, update gdd.md (short form, no balance numbers) in the same commit, because a hook blocks `git commit` when game/, data/ or story/ change without gdd.md. For a change with no design effect, put [no-gdd] in the commit command. The same hook runs sh tools/tests/run.sh on any commit that changes game/, data/, story/ or tools/tests/ and blocks it on a FAIL: fix the failure; put [no-tests] in the command only for a commit with no code effect.
 - Update the task in schedule.json (status, and a note of what changed).
 - Commit your own work in several logical commits on the CURRENT branch, no Co-Authored-By line. Never push, never switch or create branches, never merge into main, never rewrite history, never delete work you did not make.
 - If you get stuck after two honest attempts, stop that task: set it to partial or stopped in schedule.json, record exactly why on the blackboard, and end the run. Do not loop and do not silently drop requirements.
@@ -68,7 +68,7 @@ Append one entry to blackboard.md, newest at the bottom, in this shape:
 - Failed / did not work: what failed, with the exact error or reason, so nobody repeats it.
 - Files and commits: files changed, commit hashes.
 - Left to do: what remains for this task and anything that needs the owner.
-Also keep two short sections at the top of the file up to date (create them if missing): "Do not repeat" (dead ends and rejected approaches, one line each) and "Left to do" (open items across runs, one line each). Keep the file readable: shorten old entries instead of letting it grow without limit.
+Also keep two short sections at the top of the file up to date (create them if missing): "Do not repeat" (dead ends and rejected approaches, one line each) and "Left to do" (open items across runs, one line each). Do not shorten, move or delete old entries: tools/blackboard.py archives them at commit time (only the last 4 runs stay), and a commit with a malformed blackboard.md is blocked, so keep the exact heading and the eight fields above in that order.
 
 FINISH
 Your last line must be exactly one of these, with nothing after it:

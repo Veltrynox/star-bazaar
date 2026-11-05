@@ -66,7 +66,11 @@
   <div class="notes">
     <div><b>Loop:</b> the owner decides, the main session briefs an agent, the agent changes files and writes a handoff, the main session reads the handoff and commits.</div>
     <div><b>Hard rule:</b> economy-designer and qa-analyst (and bots, <code>tools/sim.py</code>, retunes, sign-offs) run only when the owner asks. <code>sh tools/tests/run.sh</code> is always allowed and is not QA.</div>
-    <div><b>Commit gate:</b> a hook blocks <code>git commit</code> when <code>game/</code>, <code>data/</code> or <code>story/</code> change without <code>gdd.md</code>. Fix: start doc-manager to update the GDD from the diff, stage it, commit again. No design effect: put <code>[no-gdd]</code> in the commit command.</div>
+    <div><b>Commit gates:</b> one hook (<code>tools/gdd_sync.py</code>) runs three checks on every <code>git commit</code>, in this order. A failed check blocks the commit and tells the agent what to fix.</div>
+    <div><b>1. GDD sync:</b> <code>game/</code>, <code>data/</code> or <code>story/</code> changed without <code>gdd.md</code>. Fix: start doc-manager to update the GDD from the diff, stage it, commit again. No design effect: put <code>[no-gdd]</code> in the commit command.</div>
+    <div><b>2. Blackboard:</b> <code>tools/blackboard.py</code> moves run entries older than the last 4 from <code>blackboard.md</code> to <code>black_board.archive.md</code> and stages both (a script, never the agent; the notes are kept). A <code>blackboard.md</code> with a bad structure (title, "Do not repeat", "Left to do", run heading, the eight fields in order) blocks the commit.</div>
+    <div><b>3. Tests:</b> a commit that changes <code>game/</code>, <code>data/</code>, <code>story/</code> or <code>tools/tests/</code> runs <code>sh tools/tests/run.sh</code> and is blocked on any FAIL. No code effect: put <code>[no-tests]</code> in the commit command.</div>
+
   </div>
 </main>
 <script>
@@ -86,7 +90,8 @@ const kinds = {
 const N = {
   claude:  ['rule', 20, 250, 210, 62, 'CLAUDE.md', 'hard rules for every session'],
   briefs:  ['rule', 20, 380, 210, 62, '.claude/agents/*.md', 'one brief per role'],
-  git:     ['rule', 20, 520, 210, 96, 'git commit', 'hook: game/, data/ or story/ changes need gdd.md in the commit (tools/gdd_sync.py)'],
+  git:     ['rule', 20, 520, 210, 96, 'git commit', 'hook runs three checks first (tools/gdd_sync.py)'],
+  gates:   ['rule', 20, 630, 210, 84, 'commit checks', '1 GDD sync, 2 blackboard structure + archive, 3 tests. [no-gdd] and [no-tests] skip 1 and 3'],
 
   tests:   ['rule', 20, 140, 210, 76, 'tools/tests/run.sh', 'always allowed: build_story, then headless Godot tests. Not QA'],
   sim:     ['file', 20, 30, 210, 90, 'tools/sim.py  ★', 'paper cash-curve sim, owner by hand only. Reads data/*.json, never runs run.sh'],
@@ -136,6 +141,7 @@ const E = [
   ['a5','r','f6','l',''],
   ['a7','r','f7','l',''],
   ['group','r','f9','l','every agent ends with a handoff'],
+  ['git','b','gates','t',''],
 ];
 const EXTRA = [
   // custom: handoffs back to main for verification, drawn under the diagram
