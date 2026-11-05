@@ -87,7 +87,7 @@ signal establish_requested(planet_id: String)
 ## action menu (only the allowed actions), Esc / right-click on open space deselects.
 signal action_menu_requested(planet_id: String, screen_pos: Vector2)
 signal fly_establish_requested(planet_id: String)
-const SHIP_PICK_PX := 30.0
+const SHIP_PICK_PX := 20.0  # T198: was 30 at the old ship size; the ship is half as big, the pick area shrinks less so it stays easy to hit
 const RIGHT_CLICK_DRAG_PX := 6.0
 var ship_selected := false
 var _rc_down := false             # right button pressed on the map and not dragged yet (a drag orbits the camera)

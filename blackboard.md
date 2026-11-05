@@ -14,16 +14,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-05 18:00 run: T196
-- Summary: Pathfinder and rival ships now accelerate, brake to a stop and turn at a limited yaw rate via new game/ship_motion.gd; rivals fly to a destination, wait, pick the next. 7 placeholder balance keys (data_version 57), save VERSION 8 (v7 loads at rest).
-- Why this task: gates T197-T201, no owner decision or QA needed.
-- Approach: one shared motion step for both ship kinds rather than duplicated logic.
-- Agent prompts: gameplay-programmer, brief = T196 text plus no-QA, no-commit. Produced ship_motion.gd, pathfinder.gd, pathfinder_view.gd, rival_ships.gd, save_game.gd, balance.json, run_tests.gd, handoffs/gameplay-programmer/2026-11-05-T196.json (verified).
-- Worked: sh tools/tests/run.sh pass=2875 fail=0.
-- Failed / did not work: nothing. Not seen windowed; debug menu listing of new keys unchecked. gdd.md not edited, so committed [no-gdd] (note: ships accelerate/turn is a small design line the owner may want in gdd).
-- Files and commits: see git log "T196".
-- Left to do: T197-T201; owner to tune the placeholder motion numbers.
-
 ## 2026-11-05 19:00 run: T197
 - Summary: Ships now face their heading: per-model yaw offset MODEL_YAW_DEG in game/ships.gd (all four ship ids -90), applied via a pivot node in pathfinder_view.gd and rival_ships.gd.
 - Why this task: clear bug fix, no owner decision; unblocks T201.

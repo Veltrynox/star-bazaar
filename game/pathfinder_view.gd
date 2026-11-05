@@ -54,13 +54,16 @@ extends Node3D
 ## Model forward axis is -Z after the per-model offset of Ships.MODEL_YAW_DEG (T197); the ship is turned with rotation.y = atan2(-dx, -dz).
 
 const Ships := preload("res://game/ships.gd")  # T197: per-model yaw offset
-const FIT_RADIUS := 0.45       # horizontal footprint radius of the model in world units (planets are about 0.9 to 2.4 across)
-const FIT_HEIGHT := 0.3
+const ShipTrail := preload("res://game/ship_trail.gd")  # T198
+const PLAYER_SHIP_SCALE := 0.5  # T198: ship size on the map; 1.0 is the old size (T198 halved it). One constant for the player ship kind.
+const FIT_RADIUS := 0.45 * PLAYER_SHIP_SCALE  # horizontal footprint radius of the model in world units (planets are about 0.9 to 2.4 across)
+const FIT_HEIGHT := 0.3 * PLAYER_SHIP_SCALE
+const TRAIL_TINT := Color(1.0, 0.8, 0.4)  # T198: player trail, warm gold (rivals use a cool blue)
 const LIFT := 0.35             # ship hovers above the map plane so it clears planet spheres' lower rim
 const MARKER_RADIUS := 0.35
 const COL_LINE_MOVING := Color(1.0, 0.85, 0.5, 0.9)
 const COL_SELECTED := Color(0.55, 0.9, 1.0, 0.95)  # T200 selected look: cyan ring under the ship
-const SEL_RADIUS := 0.5
+const SEL_RADIUS := 0.5 * PLAYER_SHIP_SCALE
 const COL_LINE_PAUSED := Color(1.0, 0.85, 0.5, 0.35)
 
 var flight = null
@@ -69,6 +72,8 @@ var _holder: Node3D
 var _line: MeshInstance3D
 var _mesh: ImmediateMesh
 var _marker: MeshInstance3D
+var _trail: MeshInstance3D     # T198: engine trail
+var _last_pos := Vector3.INF
 var _sel: MeshInstance3D       # T200: ring around the ship while it is selected
 var _mat: StandardMaterial3D
 
@@ -164,6 +169,9 @@ func _ready() -> void:
 	_sel.top_level = true
 	_sel.visible = false
 	add_child(_sel)
+	_trail = ShipTrail.new()
+	_trail.tint = TRAIL_TINT
+	add_child(_trail)
 
 ## Called by map.gd every frame. Does nothing visible while the accessor is missing or discovery is off.
 func update_from(f, view_system: int, selected: bool = false) -> void:
@@ -173,6 +181,7 @@ func update_from(f, view_system: int, selected: bool = false) -> void:
 		_line.visible = false
 		_marker.visible = false
 		_sel.visible = false
+		_trail.visible = false
 		return
 	var sys := int(_call(f, "system_id", [], 1))
 	visible = sys == view_system
@@ -180,6 +189,8 @@ func update_from(f, view_system: int, selected: bool = false) -> void:
 	if not visible:
 		_marker.visible = false
 		_sel.visible = false
+		_trail.visible = false
+		_trail.clear()
 		return
 	_ensure_model(str(_call(f, "model_path", [], "")))
 	var pos: Vector3 = _call(f, "ship_position", [], Vector3.ZERO)
@@ -190,6 +201,11 @@ func update_from(f, view_system: int, selected: bool = false) -> void:
 	if has_heading:
 		rotation.y = float(f.heading())  # T196: the ship turns at a limited rate, the accessor owns the heading
 	var paused := bool(_call(f, "is_paused", [], false))
+	_trail.visible = true
+	if not paused:  # T198: nothing is sampled or redrawn while paused; the trail freezes as it is
+		var moved: bool = _last_pos != Vector3.INF and _last_pos.distance_to(pos) > 0.0005
+		_trail.push(pos + Vector3(0, LIFT, 0), get_process_delta_time(), moved and state(f) == "flying")
+	_last_pos = pos
 	var tgt = _call(f, "target", [], {})
 	_mesh.clear_surfaces()
 	_marker.visible = false
@@ -235,6 +251,7 @@ func _ensure_model(path: String) -> void:
 		cm.height = 0.4
 		cone.mesh = cm
 		cone.rotation_degrees = Vector3(-90, 0, 0)
+		_holder.scale = Vector3.ONE * PLAYER_SHIP_SCALE  # T198
 		_holder.add_child(cone)
 	else:
 		var box := _bounds(model, Transform3D.IDENTITY)  # same measured-bounds fit as game/ship_setup.gd

@@ -16,7 +16,10 @@ const Motion := preload("res://game/ship_motion.gd")  # T196
 const COUNT_DEFAULT := 3
 const SPEED_DEFAULT := 0.6      # world units per second at x1
 const LIFT := 0.35
-const FIT_RADIUS := 0.35
+const ShipTrail := preload("res://game/ship_trail.gd")  # T198
+const RIVAL_SHIP_SCALE := 0.5   # T198: ship size on the map; 1.0 is the old size (halved in T198). One constant for the rival ship kind.
+const FIT_RADIUS := 0.35 * RIVAL_SHIP_SCALE
+const TRAIL_TINT := Color(0.45, 0.7, 1.0)  # T198: rival trail, cool blue (the player's is gold)
 
 var main: Node = null
 var map: Node = null
@@ -78,9 +81,12 @@ func _build() -> void:
 		for i in maxi(0, count()):
 			var node := _make_ship(str(kinds[n % kinds.size()]))
 			add_child(node)
+			var trail := ShipTrail.new()  # T198: world-space, a sibling of the ship so it ignores the ship's yaw
+			trail.tint = TRAIL_TINT
+			add_child(trail)
 			var from := _random_point(sys)
 			_ships.append({"node": node, "system": sys, "pos": Vector2(from.x, from.z), "yaw": _rng.randf_range(-PI, PI), "speed": 0.0,
-				"to": Vector2(from.x, from.z), "wait": 0.0})
+				"to": Vector2(from.x, from.z), "wait": 0.0, "trail": trail})
 			_new_leg(_ships[_ships.size() - 1])
 			node.position = Vector3(from.x, LIFT, from.z)
 			var last: Dictionary = _ships[_ships.size() - 1]
@@ -115,6 +121,7 @@ func _make_ship(kind: String) -> Node3D:
 		cm.height = 0.35
 		cone.mesh = cm
 		cone.rotation_degrees = Vector3(-90, 0, 0)
+		holder.scale = Vector3.ONE * RIVAL_SHIP_SCALE  # T198
 		holder.add_child(cone)
 	else:
 		var box := _aabb(model, Transform3D.IDENTITY)
@@ -182,6 +189,10 @@ func advance(dt: float) -> void:
 		var p: Vector2 = s["pos"]
 		node.position = Vector3(p.x, LIFT, p.y)
 		node.rotation.y = float(s["yaw"])
+		var tr: Node = s.get("trail")  # T198: advance() only runs while the game runs, so the trail is idle when paused
+		if tr != null:
+			tr.visible = node.visible
+			tr.push(node.position, dt, float(s["speed"]) > 0.02 and node.visible)
 
 func ship_count() -> int:
 	return _ships.size()
