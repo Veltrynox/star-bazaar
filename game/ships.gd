@@ -17,11 +17,24 @@ static var fleet: String = DEFAULT
 ## added to the model so its nose points along the ship's heading (-Z at rotation.y = 0). Keyed by ship id of data/ships.json.
 const MODEL_YAW_DEG := {"small": -90.0, "bulk": -90.0, "dart": -90.0, "fleet": -90.0}
 
+## T205: where the engine exhaust sits, as a fraction of the ship's footprint radius behind its centre (along the model's tail).
+## Per model type, next to MODEL_YAW_DEG; the owner can move a trail by editing one number.
+const ENGINE_BACK := {"small": 0.9, "bulk": 0.9, "dart": 0.9, "fleet": 0.9}
+
 static var _defs: Dictionary = {}
 
 ## Yaw offset (radians) of a ship type's model; 0 for an unknown id.
 static func model_yaw(kind: String) -> float:
 	return deg_to_rad(float(MODEL_YAW_DEG.get(kind, 0.0)))
+
+static func engine_back(kind: String) -> float:
+	return float(ENGINE_BACK.get(kind, 0.9))
+
+static func engine_back_for_path(path: String) -> float:
+	for k in types():
+		if model(str(k)) == path:
+			return engine_back(str(k))
+	return 0.9
 
 ## Same, found by GLB path (for views that only know the model path).
 static func model_yaw_for_path(path: String) -> float:

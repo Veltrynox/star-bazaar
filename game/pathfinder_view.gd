@@ -204,7 +204,9 @@ func update_from(f, view_system: int, selected: bool = false) -> void:
 	_trail.visible = true
 	if not paused:  # T198: nothing is sampled or redrawn while paused; the trail freezes as it is
 		var moved: bool = _last_pos != Vector3.INF and _last_pos.distance_to(pos) > 0.0005
-		_trail.push(pos + Vector3(0, LIFT, 0), get_process_delta_time(), moved and state(f) == "flying")
+		var back := Ships.engine_back_for_path(str(_call(f, "model_path", [], ""))) * FIT_RADIUS  # T205: trail starts at the engines
+		var eng := pos + Vector3(sin(rotation.y), 0.0, cos(rotation.y)) * back
+		_trail.push(eng + Vector3(0, LIFT, 0), get_process_delta_time(), moved and state(f) == "flying")
 	_last_pos = pos
 	var tgt = _call(f, "target", [], {})
 	_mesh.clear_surfaces()

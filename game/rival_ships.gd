@@ -96,7 +96,7 @@ func _build() -> void:
 		add_child(trail)
 		var from := _random_point(sys)
 		_ships.append({"node": node, "system": sys, "pos": Vector2(from.x, from.z), "yaw": _rng.randf_range(-PI, PI), "speed": 0.0,
-			"to": Vector2(from.x, from.z), "wait": 0.0, "trail": trail, "visit": 0})
+			"to": Vector2(from.x, from.z), "wait": 0.0, "trail": trail, "kind": str(kinds[n % kinds.size()]), "visit": 0})
 		var last: Dictionary = _ships[_ships.size() - 1]
 		_new_leg(last)
 		node.position = Vector3(from.x, LIFT, from.z)
@@ -254,7 +254,9 @@ func advance(dt: float) -> void:
 		var tr: Node = s.get("trail")  # T198: advance() only runs while the game runs, so the trail is idle when paused
 		if tr != null:
 			tr.visible = node.visible
-			tr.push(node.position, dt, float(s["speed"]) > 0.02 and node.visible)
+			var yaw := float(s["yaw"])  # T205: trail starts at the engines, behind the centre
+			var eng: Vector3 = node.position + Vector3(sin(yaw), 0.0, cos(yaw)) * (Ships.engine_back(str(s.get("kind", ""))) * FIT_RADIUS)
+			tr.push(eng, dt, float(s["speed"]) > 0.02 and node.visible)
 
 ## T199: the competitor (id of Bots.IDS) that owns ship i, 0 when i is out of range.
 static func bot_of(i: int) -> int:
