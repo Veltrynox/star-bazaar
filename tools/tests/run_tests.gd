@@ -75,6 +75,7 @@ func _run() -> void:
 	await _test_dead_planets()
 	await _test_dead_world_mechanics()
 	await _test_dead_world_panel()
+	await _test_panel_thumb_switch()
 	await _test_dest_hint()
 	await _test_dead_unlock_and_core()
 	await _test_fabric()
@@ -6666,6 +6667,75 @@ func _test_dead_world_panel() -> void:
 	var before: int = m.engine.routes.size()
 	m._on_planet_clicked(d1)
 	check(m.engine.routes.size() == before and not m.pending.is_empty() and "dead world" in m.last_notice, "dead panel: a dead world as destination is refused with a reason", m.last_notice)
+	await _free_main(m)
+
+
+## T184: a click on another planet's thumbnail inside an open planet panel switches the panel to that planet (it must not close).
+var _leaked_clicks := 0
+
+func _thumb_for(pp, idx: int):
+	for t in pp.find_children("*", "Control", true, false):
+		if t.get_script() != null and "planet" in t and "selected" in t and t.planet == pp.main.map.planets[idx]:
+			return t
+	return null
+
+func _click_thumb(m: Control, t: Control) -> void:
+	var ev := InputEventMouseButton.new()
+	ev.button_index = MOUSE_BUTTON_LEFT
+	ev.pressed = true
+	ev.position = t.get_global_rect().get_center()
+	ev.global_position = ev.position
+	# The headless window has no mouse hover, so the viewport routing is done by hand: the control gets the event first,
+	# and only an event it did not mark handled reaches the map's unhandled input (where it would count as a click on empty space).
+	var kv := InputEventKey.new()
+	kv.keycode = KEY_F24
+	kv.pressed = true
+	m.get_viewport().push_input(kv)  # an unbound key: resets the viewport's handled flag
+	t._gui_input(ev)
+	if not m.get_viewport().is_input_handled():
+		m.map._unhandled_input(ev)
+		_leaked_clicks += 1
+	await process_frame
+	await process_frame
+
+func _test_panel_thumb_switch() -> void:
+	_wipe_user()
+	_leaked_clicks = 0
+	var m: Control = await _new_main()
+	m._dismiss_preface()
+	var pp = m.planet_panel
+	var d1: int = -1
+	for i in m.map.planets.size():
+		if str(m.map.planets[i].get("id", "")) == "dead_1":
+			d1 = i
+	var a := 0
+	var b := 1
+	m._on_planet_clicked(a)
+	await process_frame
+	var t = _thumb_for(pp, b)
+	check(t != null, "thumb switch: planet B has a thumbnail in A's panel")
+	if t != null:
+		await _click_thumb(m, t)
+		check(pp.visible and pp.planet_index == b and m.selected_planet == b, "thumb switch: click on B's icon shows B, panel open", "visible=%s idx=%d sel=%d" % [pp.visible, pp.planet_index, m.selected_planet])
+	t = _thumb_for(pp, b)
+	if t != null:
+		await _click_thumb(m, t)
+		check(pp.visible and pp.planet_index == b, "thumb switch: click on the same planet keeps its panel open")
+	if d1 >= 0:
+		t = _thumb_for(pp, d1)
+		check(t != null, "thumb switch: the dead planet has a thumbnail")
+		if t != null:
+			await _click_thumb(m, t)
+			check(pp.visible and pp.planet_index == d1, "thumb switch: click on a dead planet's icon shows it, panel open", "visible=%s idx=%d" % [pp.visible, pp.planet_index])
+	# storage: the Space Storage view is open and a planet is chosen from the rail/map -> storage closes, planet panel shows
+	m._on_planet_clicked(a)
+	await process_frame
+	m.space_storage_view.visible = true
+	t = _thumb_for(pp, b)
+	if t != null:
+		await _click_thumb(m, t)
+		check(pp.visible and pp.planet_index == b and not m.space_storage_view.visible, "thumb switch: with Space Storage open, B's icon shows B and storage closes")
+	check(_leaked_clicks == 0, "thumb switch: a click on an icon is marked handled, so it never reaches the map as a click on space", str(_leaked_clicks))
 	await _free_main(m)
 
 
