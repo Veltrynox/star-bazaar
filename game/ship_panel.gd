@@ -7,6 +7,8 @@ const Juice := preload("res://game/juice.gd")
 const PathfinderView := preload("res://game/pathfinder_view.gd")  # T180 accessor helpers
 
 signal buy_requested(kind: String)
+signal explore_toggled  # T206
+var explore_button: Button  # T206: exploration mode on/off; hidden unless discovery is on
 var buy_buttons: Dictionary = {}  # kind -> Button
 var label: Label
 var upkeep_label: Label
@@ -45,6 +47,12 @@ func _ready() -> void:
 	pathfinder_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	pathfinder_label.visible = false
 	box.add_child(pathfinder_label)
+	explore_button = Button.new()
+	explore_button.name = "ExploreButton"
+	explore_button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	explore_button.visible = false
+	explore_button.pressed.connect(func(): explore_toggled.emit())
+	box.add_child(explore_button)
 	free_label = Label.new()
 	free_label.name = "FreeShips"
 	free_label.theme_type_variation = "LabelSmall"
@@ -149,6 +157,8 @@ func _set_pathfinder(main: Control) -> void:
 	var f = main.map.flight if main.map != null else null
 	if not PathfinderView.active(f):
 		pathfinder_label.visible = false
+		if explore_button != null:
+			explore_button.visible = false
 		return
 	var status := StoryText.get_or("LBL_PATHFINDER_IDLE", "Pathfinder waiting")
 	if PathfinderView.state(f) == "flying":
@@ -160,3 +170,6 @@ func _set_pathfinder(main: Control) -> void:
 			status = StoryText.get_or("LBL_PATHFINDER_FLYING_UNKNOWN", "Pathfinder flying to an unknown world")
 	pathfinder_label.text = "%s\n%s\n%s" % [StoryText.get_or("LBL_PATHFINDER_NAME", "Pathfinder"), StoryText.get_or("LBL_PATHFINDER_DESC", ""), status]
 	pathfinder_label.visible = true
+	if explore_button != null:
+		explore_button.visible = true
+		explore_button.text = StoryText.get_text("BTN_EXPLORE_OFF" if bool(PathfinderView._call(f, "exploring", [], false)) else "BTN_EXPLORE_ON")

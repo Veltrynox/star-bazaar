@@ -22,6 +22,7 @@ signal build_started(planet_id: String)
 signal build_done(planet_id: String)      # a post or a platform stands now
 signal build_cancelled(planet_id: String) # the ship left during a build: credits are not refunded
 signal establish_failed(planet_id: String, reason: String) # T200: an order "fly there and establish" could not start on arrival
+signal exploration_done                   # T206: exploration mode finished: every planet of the system stands established; the mode is off
 
 const PLATFORM_SKILL := "MIN_3"  # skill that allows a mining platform (proposal 1.4)
 const DEFAULT_HOME := "planet_1"
@@ -50,6 +51,8 @@ var _posts := {}                # planet id -> true
 var _platforms := {}            # planet id -> true
 var _legacy := false            # a save from before discovery: every planet counts as established
 var _last_now := -1.0           # game time (cycles) of the last sync
+var _explore := false           # T206: exploration mode: the ship scouts and establishes every planet of its system by itself
+var _self_order := false        # T206: true while the mode itself gives an order (a manual order ends the mode)
 
 func setup(m: Node) -> void:
 	main = m
@@ -69,6 +72,7 @@ func reset() -> void:
 	_yaw = 0.0
 	_build = ""
 	_auto = ""
+	_explore = false
 	_build_total = 0.0
 	_build_left = 0.0
 	_last_now = -1.0
@@ -277,6 +281,8 @@ func eta_cycles(pid: String) -> float:
 func request_fly(t: Dictionary) -> String:
 	if not is_enabled():
 		return ""
+	if not _self_order:
+		_explore = false  # T206: a manual order ends exploration mode
 	var kind := str(t.get("kind", "point"))
 	var to := Vector3.ZERO
 	var to_sys := _sys
@@ -332,6 +338,8 @@ func request_fly(t: Dictionary) -> String:
 func request_fly_establish(pid: String) -> String:
 	if not is_enabled():
 		return ""
+	if not _self_order:
+		_explore = false  # T206
 	var i := _index_of(pid)
 	if i < 0:
 		return "bad_target"
@@ -353,6 +361,8 @@ func request_fly_establish(pid: String) -> String:
 func request_establish(pid: String) -> String:
 	if not is_enabled():
 		return ""
+	if not _self_order:
+		_explore = false  # T206
 	if _index_of(pid) < 0:
 		return "bad_target"
 	if _state == "building":
@@ -408,6 +418,8 @@ func advance(cycles: float) -> void:
 	var guard := 0
 	while left > 0.0 and guard < 16:
 		guard += 1
+		if _explore and _state == "idle" and not _explore_tick():
+			break
 		if _state == "flying" and _to_sys != _sys:
 			# a jump to another system: timed, the heading still turns toward the target at the limited rate
 			var rem := _dur - _t
@@ -430,6 +442,56 @@ func advance(cycles: float) -> void:
 				left = 0.0
 		else:
 			break
+
+## ---- T206: exploration mode ---------------------------------------------------------------------------------------
+
+func exploring() -> bool:
+	return _explore
+
+## Switches the mode. On needs discovery on; turning it on while flying or building lets that finish first.
+func set_exploring(on: bool) -> void:
+	_explore = on and is_enabled()
+
+## Planets of the ship's current system, by index, that still need the ship (not established).
+func _explore_open() -> Array:
+	var out: Array = []
+	var ps := _planets()
+	for i in ps.size():
+		if main.system_of(i) == _sys and not established(str(ps[i].get("id", ""))):
+			out.append(i)
+	return out
+
+## One decision of the mode while the ship is idle. Returns true when the ship got something to do (flight or build), false to
+## wait (no cash, no skill) or when the mode ended (everything stands: exploration_done is emitted once).
+func _explore_tick() -> bool:
+	var open := _explore_open()
+	if open.is_empty():
+		_explore = false
+		exploration_done.emit()
+		return false
+	_self_order = true
+	var started := false
+	var best := -1
+	var best_d := INF
+	for i in open:
+		var pid := str(_planets()[i].get("id", ""))
+		if _docked == pid:
+			if _is_dead(pid) and not can_platform(pid):
+				continue
+			started = request_establish(pid) == ""  # "no_cash_*": wait here and try again as time passes
+			best = -2
+			break
+		if _is_dead(pid) and discovered(pid) and not can_platform(pid):
+			continue  # surveyed but cannot be built yet (skill missing): leave it for later
+		var d := Vector2(_planet_pos(i).x - _pos.x, _planet_pos(i).z - _pos.z).length()
+		if d < best_d:
+			best_d = d
+			best = i
+	if best >= 0:
+		var t := {"kind": "planet", "pos": _planet_pos(best), "index": best}
+		started = request_fly(t) == ""  # the build starts in the next round, when the ship is docked there
+	_self_order = false
+	return started
 
 func _turn_toward(cycles: float) -> void:
 	var d := Vector2(_to.x - _pos.x, _to.z - _pos.z)
@@ -560,7 +622,7 @@ func to_dict() -> Dictionary:
 	if not _target.is_empty():
 		tgt = {"kind": str(_target.get("kind", "point")), "pos": _v(_target.get("pos", Vector3.ZERO)), "index": int(_target.get("index", -1))}
 	return {"pos": _v(_pos), "sys": _sys, "state": _state, "target": tgt, "from": _v(_from), "to": _v(_to), "to_sys": _to_sys,
-		"dur": _dur, "t": _t, "speed": _speed, "yaw": _yaw, "docked": _docked, "build": _build, "build_total": _build_total, "build_left": _build_left, "auto": _auto,
+		"dur": _dur, "t": _t, "speed": _speed, "yaw": _yaw, "docked": _docked, "build": _build, "build_total": _build_total, "build_left": _build_left, "auto": _auto, "explore": _explore,
 		"discovered": _discovered.keys(), "posts": _posts.keys(), "platforms": _platforms.keys(), "legacy": _legacy}
 
 ## A missing or bad dictionary (a save from before discovery) opens every planet, so an old run keeps working.
@@ -601,6 +663,7 @@ func from_dict(d) -> void:
 		_state = "building"
 		_docked = _build
 	_ensure_home()
+	_explore = bool(d.get("explore", false)) and is_enabled()
 	# T202: a save from before the parking spot has the ship at the planet's centre: move it to the edge
 	var di := _index_of(_docked) if _docked != "" and _state != "flying" else -1
 	if di >= 0 and Vector2(_pos.x, _pos.z).distance_to(Vector2(_planet_pos(di).x, _planet_pos(di).z)) < main.map.planet_radius(di) + Motion.BODY_MARGIN:

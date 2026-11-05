@@ -215,6 +215,7 @@ func _ready() -> void:
 	flight.build_done.connect(_on_flight_build_done)
 	flight.build_cancelled.connect(_on_flight_build_cancelled)
 	flight.establish_failed.connect(_on_flight_establish_failed)  # T200
+	flight.exploration_done.connect(_on_exploration_done)  # T206
 	events.established_fn = Callable(self, "planet_established")
 	system_exit = load("res://game/system_exit.gd").new()  # lock and fading line to the next, locked system
 	add_child(system_exit)
@@ -251,6 +252,7 @@ func _ready() -> void:
 	ship_panel = load("res://game/ship_panel.gd").new()
 	right_col.add_child(ship_panel)
 	ship_panel.buy_requested.connect(_buy_ship_kind)
+	ship_panel.explore_toggled.connect(func(): set_exploring(not flight.exploring()))  # T206
 	mission_planet = _find_mission_planet()
 	commodities = _commodities(map.planets)
 	trade.setup(balance, map.planets)
@@ -3324,6 +3326,16 @@ func _on_flight_build_done(planet_id: String) -> void:
 	post_notice(StoryText.get_or("NOT_PLATFORM_DONE" if dead else "NOT_POST_DONE", "Established at {planet}.", {"planet": planet_name(i)}))
 	on_flight_changed()
 	save_now()
+
+## T206: exploration mode. Button in the ship panel; tests and bots call set_exploring directly.
+func set_exploring(on: bool) -> void:
+	flight.set_exploring(on)
+	_refresh_panel()
+
+func _on_exploration_done() -> void:
+	post_notice(StoryText.get_text("NOT_EXPLORE_DONE"))
+	save_now()
+	_refresh_panel()
 
 func _on_flight_build_cancelled(_planet_id: String) -> void:
 	post_notice_now(StoryText.get_or("NOT_POST_LEAVE", "Leaving cancels the build."))

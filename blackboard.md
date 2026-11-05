@@ -14,16 +14,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-06 04:00 run: T212
-- Summary: Storage link upkeep was already energy only; set link_upkeep_energy from 20 to 5 per cycle (temporary), data_version 59, and reworded the gdd.md line.
-- Why this task: tiny, owner-specified, no dependencies, no visual or design decision.
-- Approach: data-only edit by me; an agent would cost more.
-- Agent prompts: none.
-- Worked: sh tools/tests/run.sh pass=4017 fail=0. Link row and forecasts read upkeep() so they follow the value.
-- Failed / did not work: nothing.
-- Files and commits: data/balance.json, gdd.md, schedule.json, blackboard.md; see git log "T212".
-- Left to do: owner or economy designer retunes the 5 later.
-
 ## 2026-11-06 05:00 run: T215
 - Summary: Removed the bottom-middle route legend strip (game/route_legend.gd, its block in main.gd, three text ids only it used). Pending-destination banner kept.
 - Why this task: clear owner request, no dependencies, no visual or design decision (pure removal).

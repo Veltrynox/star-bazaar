@@ -106,6 +106,7 @@ func _run() -> void:
 	await _test_ship_facing()
 	await _test_ships_spawn_near_bodies()
 	await _test_t211_ship_traffic()
+	await _test_t206_explore()
 	await _test_t187_ship_flight()
 	await _test_asteroid_packs()
 	_test_event_banners()
@@ -6789,6 +6790,71 @@ func _test_t211_ship_traffic() -> void:
 		pf += 1 if n == m.flight else 0
 	check(m.flight != null and m.flight.system_id() >= 1, "T211: one Pathfinder for the whole game")
 	Systems.set_placeholders(false)
+	await _free_main(m)
+
+## T206: exploration mode visits every planet of the system, waits for cash, ends on a manual order, saves, and ends with one notice.
+func _test_t206_explore() -> void:
+	var m = await _new_main(false, true)
+	m._dismiss_preface()
+	var f = m.flight
+	Skills.learned.append("MIN_3")
+	var notices: Array = []
+	m.notice_posted.connect(func(t: String): notices.append(t))
+	var done_text: String = StoryText.get_text("NOT_EXPLORE_DONE")
+	var arrived: Array = []
+	f.arrived.connect(func(pid: String): arrived.append(pid))
+	var sys1: Array = []
+	for i in m.map.planets.size():
+		if m.system_of(i) == 1:
+			sys1.append(str(m.map.planets[i]["id"]))
+	check(sys1.size() > 2, "T206: system 1 has several planets", str(sys1.size()))
+	# cash short: the ship waits at the first planet it cannot pay for
+	m.cash = 0
+	f.set_exploring(true)
+	check(f.exploring(), "T206: the mode is on")
+	for k in 600:
+		f.advance(0.05)
+	var built := sys1.filter(func(pid): return f.established(pid)).size()
+	check(f.exploring() and built < sys1.size(), "T206: with no cash the mode waits", "%d of %d" % [built, sys1.size()])
+	check(f.state() == "idle" and f.docked_at() != "", "T206: it waits at a planet", f.state())
+	# save round trip keeps the mode
+	var d: Dictionary = JSON.parse_string(JSON.stringify(f.to_dict()))
+	f.from_dict(d)
+	check(f.exploring(), "T206: the mode is saved")
+	var old: Dictionary = d.duplicate()
+	old.erase("explore")
+	f.from_dict(old)
+	check(not f.exploring(), "T206: an old save loads with the mode off")
+	f.from_dict(d)
+	# paused clock: no time, no movement
+	var pos0: Vector3 = f.ship_position()
+	f.sync(5.0)
+	f.sync(5.0)
+	check(f.ship_position() == pos0, "T206: no movement while the clock stands")
+	# cash arrives: it carries on and ends with the notice
+	m.cash = 1000000
+	for k in 4000:
+		if not f.exploring():
+			break
+		f.advance(0.05)
+	check(not f.exploring(), "T206: the mode ends by itself")
+	for pid in sys1:
+		check(f.established(pid) and f.discovered(pid), "T206: %s surveyed and established" % pid)
+		check(arrived.has(pid) or pid == f.home_id(), "T206: the ship went to %s" % pid)
+	check(notices.count(done_text) == 1, "T206: the done notice shows exactly once", str(notices.count(done_text)))
+	for k in 20:
+		f.advance(0.05)
+	check(notices.count(done_text) == 1, "T206: no second notice", str(notices.count(done_text)))
+	# a manual order ends the mode
+	f.reset()
+	f.set_exploring(true)
+	f.advance(0.01)
+	f.request_fly({"kind": "planet", "index": 1})
+	check(not f.exploring(), "T206: a manual order ends the mode")
+	f.set_exploring(true)
+	f.set_exploring(false)
+	check(not f.exploring(), "T206: the player can switch it off")
+	Skills.learned.erase("MIN_3")
 	await _free_main(m)
 
 func _test_ships_spawn_near_bodies() -> void:

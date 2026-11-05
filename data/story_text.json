@@ -4892,6 +4892,24 @@
    "place": "Notice, platform finished"
   },
   {
+   "id": "BTN_EXPLORE_ON",
+   "text": "Explore this system",
+   "max": 28,
+   "place": "Ship panel, button that starts exploration mode (the Pathfinder scouts and establishes this system by itself)"
+  },
+  {
+   "id": "BTN_EXPLORE_OFF",
+   "text": "Stop exploring",
+   "max": 28,
+   "place": "Ship panel, same button while the mode runs; pressing it stops the mode"
+  },
+  {
+   "id": "NOT_EXPLORE_DONE",
+   "text": "Exploration complete. Every world in this system is surveyed and established.",
+   "max": 110,
+   "place": "Notice, exploration mode finished: every world of the system is surveyed and established"
+  },
+  {
    "id": "NOT_FIELD_SURVEYED",
    "text": "Asteroid field surveyed.",
    "max": 110,

@@ -1027,6 +1027,9 @@ NOT_POST_LEAVE | 110 | Notice, player orders the Pathfinder away during a build 
 NOT_PATHFINDER_ARRIVED | 110 | Notice, arrival at a world; {planet} is the now-known name | The Pathfinder arrived at {planet}.
 NOT_POST_DONE | 110 | Notice, post finished; {planet} is a name | Trading post established at {planet}. You can now buy, sell, route and store there.
 NOT_PLATFORM_DONE | 110 | Notice, platform finished | Mining platform established at {planet}. You can now mine there and route what you mine.
+BTN_EXPLORE_ON | 28 | Ship panel, button that starts exploration mode (the Pathfinder scouts and establishes this system by itself) | Explore this system
+BTN_EXPLORE_OFF | 28 | Ship panel, same button while the mode runs; pressing it stops the mode | Stop exploring
+NOT_EXPLORE_DONE | 110 | Notice, exploration mode finished: every world of the system is surveyed and established | Exploration complete. Every world in this system is surveyed and established.
 NOT_FIELD_SURVEYED | 110 | Notice, the Pathfinder reached an asteroid field | Asteroid field surveyed.
 NOT_FLIGHT_EVENT | 110 | Notice before a flight event, optional | The Pathfinder reports something on the lane.
 
