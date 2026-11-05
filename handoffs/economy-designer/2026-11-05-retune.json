@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "agent": "economy-designer",
+  "date": "2026-11-05",
+  "task": "retune",
+  "status": "done",
+  "files_changed": ["data/balance.json", "qa/reports/2026-11-05-balance-retune.md", "handoffs/economy-designer/2026-11-05-retune.json"],
+  "open_questions": [
+    "win_earliest_cycle: balance 23 vs targets 22 (owner decision; wins start at 27 so no effect now).",
+    "chain_BIO_B4 / chain_MIN_B4 trigger order: wins lag the share hold (mechanic, owner).",
+    "Clock divergence OV-07 (fast vs timer) still open; numbers here are fast clock."
+  ],
+  "handoff": "Kept maintenance 45 to 40 (data_version 46). Evidence 5 seeds: Luxury decent 2/5 to 4/5, Biotech wins now 27-32, Military 5/5 at 27+, Minerals 5/5 to 4/5, base decent 1/5 to 3/5; all loss strategies still lose, bankrupt still ends c12-13. Rejected: bot_2_lux_growth 70/45/25 (no effect, 2/5 each), sweep_share_pct 0.15/0.20 (sweeps a decent Luxury run, no gain), ship_cap 8 (mixed, slower Military). Tests pass 1792/0.",
+  "details": {
+    "changes": [{"key": "maintenance", "old": 45, "new": 40, "reason": "Luxury/base decent win rate up, no dominant strategy, loss paths intact"}, {"key": "data_version", "old": 45, "new": 46, "reason": "single bump"}],
+    "rejected": [{"key": "bot_2_lux_growth", "tried": [70, 45, 25]}, {"key": "sweep_share_pct", "tried": [0.15, 0.2]}, {"key": "ship_cap", "tried": [8]}],
+    "report": "qa/reports/2026-11-05-balance-retune.md"
+  }
+}
