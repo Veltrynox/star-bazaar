@@ -326,9 +326,6 @@ NOT_CLUSTER_ONLY_ORE | 110 | Notice, route from a cluster with a good other than
 NOT_CLUSTER_EMPTY | 110 | Notice, route from an empty cluster | This cluster is empty.
 ST_CLUSTER_EMPTY | 60 | Route panel, status when the cluster has run dry | Cluster empty
 ST_CLUSTER_SHARED | 60 | Route panel, status when another ship took the cycle's ore | Ore taken by another ship
-LBL_LEGEND_SILK | 24 | Route legend, silk line | Starsilk route
-LBL_LEGEND_CHIPS | 24 | Route legend, chips line | Logic Cores route
-LBL_LEGEND_ORE | 24 | Route legend, ore line | Rock Ore route
 
 ## Dead worlds: unlock, goods, Null Core (added 2026-11-03; names are working names, owner decides)
 DEAD_UNLOCK | 110 | Notice, posted when the dead worlds open | Dead worlds are open. Cinderrest needs Cold Survey, Greywake needs Deep Cut.

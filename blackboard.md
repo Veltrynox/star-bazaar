@@ -14,16 +14,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-06 00:00 run: gap analysis (no task done)
-- Summary: Reviewed all open tasks. None can be done unattended; no new tasks added (gap analysis of 2026-11-05 already produced T189-T193).
-- Why this task: T199 needs a visual decision (marker vs tint, card look) the owner has not made; T189-T192 and T193 are marked "needs owner decision"; T178/T182 are owner-only agents; T185 is visual; T166 is superseded; T05 needs a windowed measurement.
-- Approach: skipped rather than guessing visual or design choices.
-- Agent prompts: none.
-- Worked: nothing built; no code or data touched.
-- Failed / did not work: nothing.
-- Files and commits: blackboard.md only, no commit (other uncommitted files are not mine).
-- Left to do: owner decides T199 look (marker or tint per competitor), then it can run; T189-T193 decisions.
-
 ## 2026-11-06 01:00 run: gap analysis (no task done)
 - Summary: Re-checked open tasks (T05, T166, T178, T182, T189-T193, T199). State unchanged since the 00:00 run; nothing doable unattended and no new gaps found.
 - Why this task: T199 needs a visual decision (marker vs tint, card look); T189-T193 need owner decisions; T178/T182 are owner-only agents; T166 superseded; T05 needs a windowed measurement.

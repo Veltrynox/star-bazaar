@@ -1338,7 +1338,7 @@ func _build_pending_label() -> void:
 	pending_label.set_anchors_and_offsets_preset(Control.PRESET_CENTER_BOTTOM)
 	pending_label.grow_horizontal = Control.GROW_DIRECTION_BOTH
 	pending_label.grow_vertical = Control.GROW_DIRECTION_BEGIN
-	pending_label.offset_bottom = -64  # route hint, just above the legend
+	pending_label.offset_bottom = -64  # pending banner near the bottom
 	pending_label.theme_type_variation = "LabelAccent"
 	pending_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	pending_label.visible = false
@@ -3010,8 +3010,7 @@ func _stat_inline(icon_token: String, story_id: String, fallback: String) -> Arr
 	row.add_child(n)
 	return [row, n]
 
-## Along the edges of the system screen, as in SystemView.html: system name top middle, key hints bottom left,
-## route hints bottom middle. None of it takes map clicks.
+## Along the edges of the system screen, as in SystemView.html: system name top middle, key hints bottom left. None of it takes map clicks.
 func _build_hud() -> void:
 	var head := VBoxContainer.new()
 	head.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
@@ -3082,13 +3081,6 @@ func _build_hud() -> void:
 	nav_toggle.pressed.connect(toggle_navigation)
 	add_child(nav_toggle)
 	_apply_navigation()
-	# route hints, bottom middle
-	var legend: HBoxContainer = load("res://game/route_legend.gd").new()
-	legend.set_anchors_and_offsets_preset(Control.PRESET_CENTER_BOTTOM)
-	legend.grow_horizontal = Control.GROW_DIRECTION_BOTH
-	legend.grow_vertical = Control.GROW_DIRECTION_BEGIN
-	legend.offset_bottom = -30
-	add_child(legend)
 
 func toggle_navigation() -> void:
 	nav_hidden = not nav_hidden

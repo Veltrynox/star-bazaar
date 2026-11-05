@@ -1322,24 +1322,6 @@
    "place": "Route panel, status when another ship took the cycle's ore"
   },
   {
-   "id": "LBL_LEGEND_SILK",
-   "text": "Starsilk route",
-   "max": 24,
-   "place": "Route legend, silk line"
-  },
-  {
-   "id": "LBL_LEGEND_CHIPS",
-   "text": "Logic Cores route",
-   "max": 24,
-   "place": "Route legend, chips line"
-  },
-  {
-   "id": "LBL_LEGEND_ORE",
-   "text": "Rock Ore route",
-   "max": 24,
-   "place": "Route legend, ore line"
-  },
-  {
    "id": "DEAD_UNLOCK",
    "text": "Dead worlds are open. Cinderrest needs Cold Survey, Greywake needs Deep Cut.",
    "max": 110,

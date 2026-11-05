@@ -161,3 +161,13 @@ Older run entries moved from blackboard.md, oldest first.
 - Failed / did not work: nothing; not seen windowed, no test for the trail.
 - Files and commits: see git log "T198".
 - Left to do: owner: trail width/tint, size, pick radius. T199 (decide marker vs tint per competitor).
+
+## 2026-11-06 00:00 run: gap analysis (no task done)
+- Summary: Reviewed all open tasks. None can be done unattended; no new tasks added (gap analysis of 2026-11-05 already produced T189-T193).
+- Why this task: T199 needs a visual decision (marker vs tint, card look) the owner has not made; T189-T192 and T193 are marked "needs owner decision"; T178/T182 are owner-only agents; T185 is visual; T166 is superseded; T05 needs a windowed measurement.
+- Approach: skipped rather than guessing visual or design choices.
+- Agent prompts: none.
+- Worked: nothing built; no code or data touched.
+- Failed / did not work: nothing.
+- Files and commits: blackboard.md only, no commit (other uncommitted files are not mine).
+- Left to do: owner decides T199 look (marker or tint per competitor), then it can run; T189-T193 decisions.
