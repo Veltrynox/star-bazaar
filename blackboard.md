@@ -4,6 +4,7 @@
 - discovery_enabled in data/balance.json ships at 1 (owner decision 2026-11-05); tests that need it off set it themselves.
 
 ## Left to do
+- Open build tasks from playtest: T195-T200 (T196 first, T197-T200 depend on it/each other). T194 done; Competitors still reachable from share panel (L), owner to say if that goes too.
 - Open: T185 (visual), T178/T182 (owner-only agents), T05 (only windowed frame time missing, see T193), T166 (superseded). Owner-decision tasks T189-T193 added 2026-11-05.
 
 - Owner: ship cap 20 (T186): decide on economy retune (trip cost, maintenance tuned for 6) and look of the scrolled ship list; other panels not checked at 20 ships.
@@ -92,3 +93,13 @@
 - Failed / did not work: nothing.
 - Files and commits: blackboard.md only.
 - Left to do: owner works through T189-T193.
+
+## 2026-11-05 16:00 run: T194
+- Summary: Removed the Competitors entry from the in-game main menu (game/game_menu.gd). The Competitors panel stays reachable from the share panel button (L).
+- Why this task: smallest clear playtest task, no dependencies, no visual decision; T196 is large and gates T197-T200.
+- Approach: direct edit by main session, cheaper than an agent for a two-line change.
+- Agent prompts: none.
+- Worked: sh tools/tests/run.sh pass=2856 fail=0. Committed [no-gdd]; gdd line still true (menu reachable via share panel).
+- Failed / did not work: a sed on gdd.md failed (macOS syntax), so gdd.md was not touched. No handoff file (no agent).
+- Files and commits: game/game_menu.gd, schedule.json, blackboard.md; see git log "T194".
+- Left to do: owner decides whether the share panel Competitors button also goes. Next runs: T195, then T196.

@@ -46,12 +46,12 @@ func setup(main_node: Control) -> void:
 	_company_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_header.add_child(_company_label)
 	## [label id, action]. Later slots (Settings, Help, ...) are added here.
-	var entries := [["MENU_RESUME", "resume"], ["MENU_SKILLS", "skills"], ["LBL_COMP_TITLE", "competitors"], ["MENU_MAIN", "main"], ["MENU_QUIT", "quit"]]
+	var entries := [["MENU_RESUME", "resume"], ["MENU_SKILLS", "skills"], ["MENU_MAIN", "main"], ["MENU_QUIT", "quit"]]
 	for e in entries:
 		var b := Button.new()
 		if e[1] == "resume":
 			b.theme_type_variation = "ButtonPrimary"
-		b.text = StoryText.get_or(e[0], "Competitors") if e[0] == "LBL_COMP_TITLE" else StoryText.get_text(e[0])
+		b.text = StoryText.get_text(e[0])
 		b.pressed.connect(_on_entry.bind(e[1]))
 		_box.add_child(b)
 	## Voice narration: on/off and volume (persisted by the Voice autoload).

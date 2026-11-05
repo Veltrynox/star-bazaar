@@ -1154,10 +1154,11 @@
       "title": "Remove Competitors from the main menu",
       "owner_agent": "ui-programmer",
       "depends_on": [],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 15,
       "window": "Owner request 2026-11-05 (playtest feedback). Not started: main session sets it running.",
-      "brief": "Owner: remove the Competitors entry from the main menu (title screen menu; the Competitors screen was added with Four Markets, find it in game/ and the menu code). Remove only the main-menu button and anything that opens the screen from there; keep competitor data and rival logic. If the in-game menu also has it, ask nothing: leave that and list it in the handoff. Update gdd.md line if it names the menu. Handoff handoffs/ui-programmer/2026-11-05-T194.json."
+      "brief": "Owner: remove the Competitors entry from the main menu (title screen menu; the Competitors screen was added with Four Markets, find it in game/ and the menu code). Remove only the main-menu button and anything that opens the screen from there; keep competitor data and rival logic. If the in-game menu also has it, ask nothing: leave that and list it in the handoff. Update gdd.md line if it names the menu. Handoff handoffs/ui-programmer/2026-11-05-T194.json.",
+      "note": "Removed Competitors button from the in-game menu (game/game_menu.gd). Competitors panel still opens from the share panel button (L) and key; left as is, owner may want that removed too. No handoff (done by main session)."
     },
     {
       "task_id": "T195",
