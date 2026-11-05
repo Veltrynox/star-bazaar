@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Star Bazaar workflow</title>
+<style>
+  :root {
+    --bg: #f6f6f3; --fg: #1d1f24; --muted: #5d6270; --line: #8b909c;
+    --rule: #fff1d1; --rule-b: #c9922a;
+    --person: #dce9ff; --person-b: #3b6fc4;
+    --agent: #dcf3e2; --agent-b: #2f9150;
+    --file: #ececea; --file-b: #8b8f98;
+    --gen: #ece1fa; --gen-b: #7a4fc0;
+    --group: #fafaf8;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14161a; --fg: #e8e9ec; --muted: #9aa0ad; --line: #6c7280;
+      --rule: #3a2f16; --rule-b: #d9a441;
+      --person: #1c2c47; --person-b: #6c9eef;
+      --agent: #17342358; --agent-b: #52c27a;
+      --file: #23262c; --file-b: #7c818c;
+      --gen: #2c2140; --gen-b: #a384e6;
+      --group: #181b20;
+    }
+  }
+  html, body { margin: 0; background: var(--bg); color: var(--fg);
+    font: 14px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+  main { max-width: 1120px; margin: 0 auto; padding: 20px 16px 40px; }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  p.lead { margin: 0 0 14px; color: var(--muted); }
+  .legend { display: flex; flex-wrap: wrap; gap: 8px 16px; margin: 0 0 12px; font-size: 12px; color: var(--muted); }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .legend i { width: 14px; height: 14px; border-radius: 3px; border: 1.5px solid; display: inline-block; }
+  .legend i.dash { border: 0; border-top: 2px dashed var(--line); height: 0; width: 22px; border-radius: 0; }
+  .wrap { overflow-x: auto; border: 1px solid var(--file-b); border-radius: 8px; background: var(--group); }
+  svg { display: block; min-width: 1000px; width: 100%; height: auto; }
+  .node rect { stroke-width: 1.5; }
+  .node text { fill: var(--fg); font-size: 12.5px; }
+  .node .t { font-weight: 600; }
+  .node .s { fill: var(--muted); font-size: 11px; }
+  .node { cursor: default; }
+  .edge path { fill: none; stroke: var(--line); stroke-width: 1.6; }
+  .edge.dash path { stroke-dasharray: 6 4; }
+  .edge text { fill: var(--muted); font-size: 11px; paint-order: stroke; stroke: var(--group); stroke-width: 4px; }
+  .dim { opacity: .13; }
+  .hl path { stroke: var(--fg); stroke-width: 2.4; }
+  .notes { margin-top: 14px; display: grid; gap: 8px; font-size: 13px; color: var(--muted); }
+  .notes b { color: var(--fg); }
+</style>
+</head>
+<body>
+<main>
+  <h1>Star Bazaar: how the work flows</h1>
+  <p class="lead">Agents keep no memory between sessions, so everything passes through files. Hover a box to see what it connects to.</p>
+  <div class="legend">
+    <span><i style="background:var(--rule);border-color:var(--rule-b)"></i>Rules</span>
+    <span><i style="background:var(--person);border-color:var(--person-b)"></i>People and main session</span>
+    <span><i style="background:var(--agent);border-color:var(--agent-b)"></i>Role agents</span>
+    <span><i style="background:var(--file);border-color:var(--file-b)"></i>Files and logs</span>
+    <span><i style="background:var(--gen);border-color:var(--gen-b)"></i>Generated, never edit by hand</span>
+    <span><i class="dash"></i>Owner starts by hand only</span>
+  </div>
+  <div class="wrap"><svg id="g" viewBox="0 0 1100 720" role="img" aria-label="Project workflow graph"></svg></div>
+  <div class="notes">
+    <div><b>Loop:</b> the owner decides, the main session briefs an agent, the agent changes files and writes a handoff, the main session reads the handoff and commits.</div>
+    <div><b>Hard rule:</b> economy-designer and qa-analyst (and bots, <code>tools/sim.py</code>, retunes, sign-offs) run only when the owner asks. <code>sh tools/tests/run.sh</code> is always allowed and is not QA.</div>
+    <div><b>Commit gate:</b> a hook blocks <code>git commit</code> until <code>gdd.md</code> matches <code>gdd-log.md</code>. Fix: review the GDD, add a log entry, run <code>python3 tools/gdd_sync.py --stamp</code>.</div>
+  </div>
+</main>
+<script>
+const NS = 'http://www.w3.org/2000/svg';
+const svg = document.getElementById('g');
+svg.innerHTML = '<defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--line)"/></marker></defs>';
+
+const kinds = {
+  rule:   ['--rule', '--rule-b'],
+  person: ['--person', '--person-b'],
+  agent:  ['--agent', '--agent-b'],
+  file:   ['--file', '--file-b'],
+  gen:    ['--gen', '--gen-b'],
+};
+
+// id: [kind, x, y, w, h, title, subtitle]
+const N = {
+  claude:  ['rule', 20, 250, 210, 62, 'CLAUDE.md', 'hard rules for every session'],
+  briefs:  ['rule', 20, 380, 210, 62, '.claude/agents/*.md', 'one brief per role'],
+  git:     ['rule', 20, 520, 210, 96, 'git commit', 'hook: gdd.md must match gdd-log.md (tools/gdd_sync.py)'],
+
+  tests:   ['rule', 20, 140, 210, 76, 'tools/tests/run.sh', 'always allowed: build_story, then headless Godot tests. Not QA'],
+  sim:     ['file', 20, 30, 210, 90, 'tools/sim.py  ★', 'paper cash-curve sim, owner by hand only. Reads data/*.json, never runs run.sh'],
+
+  owner:   ['person', 270, 60, 210, 76, 'Owner', 'decides everything, plays builds, approves proposals'],
+  main:    ['person', 270, 250, 210, 92, 'Main session (Claude)', 'briefs agents, reads handoffs, commits'],
+
+  group:   ['group', 520, 24, 230, 594, '', ''],
+  a1: ['agent', 530, 52, 210, 58, 'gameplay + ui programmer', 'GDScript, panels, screens'],
+  a2: ['agent', 530, 128, 210, 58, 'economy-designer  ★', 'every number in the game'],
+  a3: ['agent', 530, 204, 210, 58, 'story-designer', 'story, voice, skill names'],
+  a4: ['agent', 530, 280, 210, 58, 'feature-designer', 'proposes, owner decides'],
+  a5: ['agent', 530, 356, 210, 58, 'qa-analyst  ★', 'bot runs, bug reports'],
+  a6: ['agent', 530, 432, 210, 58, 'fx / galaxy / juice', 'shaders, background, tweens'],
+  a7: ['agent', 530, 508, 210, 58, 'general-purpose (docs)', 'GDD and change log'],
+
+  f1:  ['file', 800, 30,  270, 50, 'game/*.gd, *.tscn', 'the game code'],
+  f2:  ['file', 800, 92,  270, 50, 'data/*.json', 'balance, goods, skills, planets (data wins)'],
+  f3:  ['file', 800, 154, 270, 50, 'story/*.md, story/ru/*.json', 'text source'],
+  f4:  ['gen',  800, 216, 270, 50, 'story_text*.json, events.json', 'built by tools/build_story.py'],
+  f5:  ['file', 800, 278, 270, 50, 'design/proposals/*.md', 'dated proposals, waiting for owner'],
+  f6:  ['file', 800, 340, 270, 50, 'qa/reports/*', 'bug_report.json, runs.jsonl, screenshots'],
+  f7:  ['file', 800, 402, 270, 50, 'gdd.md, gdd-skills.md, gdd-log.md', 'design truth and change history'],
+  f8:  ['file', 800, 464, 270, 50, 'schedule.json, state.md, goals/', 'task queue, status, goal logs'],
+  f9:  ['file', 800, 526, 270, 62, 'handoffs/<agent>/<date>-<task>.json', 'fixed schema, the only memory between sessions'],
+};
+
+const E = [
+  // from, side, to, side, label, dashed
+  ['owner','b','main','t','requests, approvals'],
+  ['owner','l','sim','r','', true],
+  ['tests','b','main','t','run before handoff'],
+  ['owner','r','a2','l','', true],
+  ['owner','r','a5','l','', true],
+  ['claude','r','main','l',''],
+  ['briefs','r','group','l','role brief'],
+  ['main','r','group','l','task + brief'],
+  ['main','b','git','r','commits'],
+  ['a1','r','f1','l',''],
+  ['a6','r','f1','l',''],
+  ['a2','r','f2','l',''],
+  ['a3','r','f3','l',''],
+  ['f3','b','f4','t','build'],
+  ['f4','l','a1','r','', false, 1],
+  ['a4','r','f5','l',''],
+  ['f5','t','owner','r','owner reads', false, 2],
+  ['a5','r','f6','l',''],
+  ['a7','r','f7','l',''],
+  ['group','r','f9','l','every agent ends with a handoff'],
+];
+const EXTRA = [
+  // custom: handoffs back to main for verification, drawn under the diagram
+  ['f9','main','verify handoff'],
+];
+
+function el(tag, attrs, parent) {
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  (parent || svg).appendChild(e);
+  return e;
+}
+function anchor(id, side) {
+  const [, x, y, w, h] = N[id];
+  return { l: [x, y + h / 2], r: [x + w, y + h / 2], t: [x + w / 2, y], b: [x + w / 2, y + h] }[side];
+}
+
+const nodeEls = {}, edgeEls = [];
+
+// group box first
+{
+  const [, x, y, w, h] = N.group;
+  el('rect', { x, y, width: w, height: h, rx: 10, fill: 'none', stroke: 'var(--agent-b)', 'stroke-dasharray': '2 5', 'stroke-width': 1.5 });
+  const t = el('text', { x: x + 12, y: y - 6, fill: 'var(--agent-b)', 'font-size': 12, 'font-weight': 600 });
+  t.textContent = 'Role agents (★ = owner starts by hand only)';
+  nodeEls.group = el('g', { class: 'node' });
+}
+
+// edges
+function addEdge(from, to, d, label, dashed, lx, ly) {
+  const g = el('g', { class: 'edge' + (dashed ? ' dash' : '') });
+  el('path', { d, 'marker-end': 'url(#ar)' }, g);
+  if (label) {
+    const t = el('text', { x: lx, y: ly, 'text-anchor': 'middle' }, g);
+    t.textContent = label;
+  }
+  edgeEls.push({ g, from, to });
+}
+for (let [f, fs, t, ts, label, dashed, bend] of E) {
+  const [x1, y1] = anchor(f, fs), [x2, y2] = anchor(t, ts);
+  let d, lx = (x1 + x2) / 2, ly = (y1 + y2) / 2 - 5;
+  const horiz = (s) => s === 'l' || s === 'r';
+  if (horiz(fs) && horiz(ts)) {
+    const dx = Math.max(30, Math.abs(x2 - x1) / 2) * (fs === 'r' ? 1 : -1);
+    const dx2 = Math.max(30, Math.abs(x2 - x1) / 2) * (ts === 'l' ? -1 : 1);
+    d = `M${x1} ${y1} C${x1 + dx} ${y1} ${x2 + dx2} ${y2} ${x2} ${y2}`;
+  } else if (!horiz(fs) && !horiz(ts)) {
+    const k = Math.max(30, Math.abs(y2 - y1) / 2);
+    d = `M${x1} ${y1} C${x1} ${y1 + k * (fs === 'b' ? 1 : -1)} ${x2} ${y2 + k * (ts === 't' ? -1 : 1)} ${x2} ${y2}`;
+  } else if (!horiz(fs)) {
+    const k = Math.max(30, Math.abs(y2 - y1) / 2);
+    d = `M${x1} ${y1} C${x1} ${y1 + k * (fs === 'b' ? 1 : -1)} ${x2 + (ts === 'l' ? -60 : 60)} ${y2} ${x2} ${y2}`;
+  } else {
+    const k = Math.max(30, Math.abs(x2 - x1) / 2);
+    d = `M${x1} ${y1} C${x1 + k * (fs === 'r' ? 1 : -1)} ${y1} ${x2} ${y2 + (ts === 't' ? -60 : 60)} ${x2} ${y2}`;
+  }
+  // special routes
+  if (f === 'f4' && t === 'a1') {
+    // generated texts feed the game: go up the gap between files and agents
+    d = `M800 241 L775 241 L775 95 L742 81`; lx = 775; ly = 160;
+    label = '';
+  }
+  if (f === 'f5' && t === 'owner') {
+    d = `M935 278 C935 8 700 8 482 80`; lx = 700; ly = 6;
+  }
+  if (f === 'f3' && t === 'f4') { lx = 935 + 34; ly = 210; }
+  if (f === 'owner' && t === 'main') { lx = 375 + 44; ly = 196; }
+  if (f === 'main' && t === 'git') { d = 'M300 342 C300 420 250 540 232 568'; lx = 290; ly = 470; }
+  if (f === 'group' && t === 'f9') { lx = 775; ly = 553 + 14; label = 'handoff'; }
+  if (f === 'owner' && t === 'sim') { d = 'M270 90 C250 90 250 75 232 75'; lx = 250; ly = 84; label = ''; }
+  if (f === 'tests' && t === 'main') { d = 'M125 216 C125 240 200 250 290 250'; lx = 190; ly = 240; }
+  if (f === 'briefs') { lx = 380; ly = 404; }
+  if (f === 'main' && t === 'group') { lx = 500; ly = 280; label = 'task'; d = `M482 296 C505 296 505 296 518 296`; }
+  if (f === 'owner' && (t === 'a2' || t === 'a5')) {
+    d = t === 'a2' ? `M482 98 C560 98 480 157 528 157` : `M482 118 C500 200 440 385 528 385`;
+    lx = t === 'a2' ? 505 : 470; ly = t === 'a2' ? 140 : 300; label = t === 'a2' ? 'by hand' : '';
+  }
+  addEdge(f, t, d, label, dashed, lx, ly);
+}
+// handoff verification edge (under the diagram)
+addEdge('f9', 'main', 'M935 588 C935 690 380 700 380 344', 'main session reads the handoff before trusting it', false, 650, 696);
+
+// nodes
+for (const id in N) {
+  if (id === 'group') continue;
+  const [kind, x, y, w, h, title, sub] = N[id];
+  const g = el('g', { class: 'node' });
+  const [bg, bd] = kinds[kind];
+  el('rect', { x, y, width: w, height: h, rx: 8, fill: `var(${bg})`, stroke: `var(${bd})` }, g);
+  const t = el('text', { x: x + 10, y: y + 20, class: 't' }, g); t.textContent = title;
+  // wrap subtitle
+  const words = sub.split(' '); const lines = []; let cur = '';
+  const maxc = Math.floor((w - 20) / 5.6);
+  for (const wd of words) { if ((cur + ' ' + wd).trim().length > maxc) { lines.push(cur); cur = wd; } else cur = (cur + ' ' + wd).trim(); }
+  if (cur) lines.push(cur);
+  lines.forEach((ln, i) => { const s = el('text', { x: x + 10, y: y + 36 + i * 13, class: 's' }, g); s.textContent = ln; });
+  nodeEls[id] = g;
+  g.addEventListener('mouseenter', () => focus(id));
+  g.addEventListener('mouseleave', clear);
+}
+
+function focus(id) {
+  const linked = new Set([id]);
+  edgeEls.forEach(e => {
+    const on = e.from === id || e.to === id;
+    e.g.classList.toggle('hl', on); e.g.classList.toggle('dim', !on);
+    if (on) { linked.add(e.from); linked.add(e.to); }
+  });
+  for (const k in nodeEls) nodeEls[k].classList.toggle('dim', !linked.has(k) && !(k === 'group'));
+}
+function clear() {
+  edgeEls.forEach(e => e.g.classList.remove('hl', 'dim'));
+  for (const k in nodeEls) nodeEls[k].classList.remove('dim');
+}
+</script>
+</body>
+</html>
