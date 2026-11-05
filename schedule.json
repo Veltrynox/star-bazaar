@@ -1342,7 +1342,7 @@
       "status": "queued",
       "turn_cap": 25,
       "window": "Owner request 2026-11-05 (playtest). Not started: main session sets it running.",
-      "brief": "Owner: add 5 more temporary placeholder galaxies for the future. Read as: 5 more placeholder solar systems, after the placeholders from T176 (systems 3-5 in data/systems_placeholder.json, enabled false). Same shape, next free ids, off by default, no gameplay, shown in the galaxy overview only when enabled; check game/map.gd view_system and the galaxy overview so 10 systems do not break the view or the permit and discovery keys. If 'galaxy' means a higher level than solar system in the current overview, say so in the handoff and do the closest placeholder instead of guessing further. Handoff handoffs/<agent>/2026-11-05-<id>.json."
+      "brief": "Owner: add 5 more temporary placeholder galaxies for the future. Read as: 5 more placeholder solar systems, after the placeholders from T176 (systems 3-5 in data/systems_placeholder.json, enabled false). Same shape, next free ids, off by default, no gameplay, shown in the galaxy overview only when enabled; check game/map.gd view_system and the galaxy overview so 10 systems do not break the view or the permit and discovery keys. Owner confirmed: they are solar systems, not a higher level. Handoff handoffs/<agent>/2026-11-05-<id>.json."
     },
     {
       "task_id": "T211",
