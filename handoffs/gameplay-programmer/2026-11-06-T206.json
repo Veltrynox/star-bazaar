@@ -1,0 +1,21 @@
+{
+ "agent": "gameplay-programmer",
+ "date": "2026-11-06",
+ "task": "T206",
+ "status": "done",
+ "files_changed": [
+  "game/pathfinder.gd",
+  "game/main.gd",
+  "game/ship_panel.gd",
+  "story/screens.md",
+  "data/story_text.json",
+  "tools/tests/run_tests.gd",
+  "gdd.md"
+ ],
+ "schema_version": 1,
+ "open_questions": [
+  "Dead world without the mining skill is skipped; the mode stays on and idle until the skill is learned (it never ends by itself then). OK?",
+  "Button sits in the Ships panel under the Pathfinder card; layout is minimal and left to ui-programmer if you want it elsewhere."
+ ],
+ "handoff": "Exploration mode: Pathfinder.set_exploring / exploring / exploration_done in game/pathfinder.gd. Ship panel button Explore this system / Stop exploring (visible only with discovery on). Ship flies to the nearest unestablished planet of its system, establishes on arrival, waits for cash, ends on any manual order or the button, saves as 'explore' (old saves: off), posts NOT_EXPLORE_DONE once. Try: start a game, press the button in the Ships panel, unpause. Test _test_t206_explore added; run.sh fail=0. Not committed. Russian ids not added (no ru file for them on this branch; ru coverage line shows 2 missing)."
+}

@@ -53,3 +53,13 @@
 - Failed / did not work: nothing. Not seen windowed.
 - Files and commits: game/rival_ships.gd, tools/tests/run_tests.gd, gdd.md, schedule.json, blackboard.md; see git log "T214".
 - Left to do: owner says if other reasons should wake rivals (competitor trades in a system); balance key rival_ship_wait_s is now unused (left in data/balance.json).
+
+## 2026-11-06 09:00 run: T206
+- Summary: Added exploration mode: an Explore button in the Ships panel makes the Pathfinder fly to each unestablished planet of its system, establish the post or platform, wait for cash, and post one notice when done. Any manual order or the button ends it; state is saved.
+- Why this task: clear owner brief, no dependencies, no visual decision; other open tasks are visual, owner-only or need decisions.
+- Approach: gameplay-programmer agent in game/pathfinder.gd; I verified diff and tests.
+- Agent prompts: build the mode on existing flight/discovery/post rules, save state, notice once, test, gdd line; handoffs/gameplay-programmer/2026-11-06-T206.json, done.
+- Worked: sh tools/tests/run.sh fail=0; test _test_t206_explore added.
+- Failed / did not work: my first schedule.json write used indent 1 and reformatted the file; redone with indent 2.
+- Files and commits: game/pathfinder.gd, main.gd, ship_panel.gd, story/screens.md, data/story_text.json, tools/tests/run_tests.gd, gdd.md, handoff, schedule.json, blackboard.md; see git log "T206".
+- Left to do: owner: button placement/look in Ships panel not seen windowed; a dead world without the mining skill is skipped and the mode idles until learned; no Russian ids for the 2 new texts.

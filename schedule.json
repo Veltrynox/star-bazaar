@@ -1295,11 +1295,11 @@
       "title": "Exploration mode: the ship scouts the planets of this solar system by itself and tells you when done",
       "owner_agent": "gameplay-programmer",
       "depends_on": [],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 40,
       "window": "Owner request 2026-11-05 (playtest). Not started: main session sets it running.",
       "brief": "Owner: add an exploration mode (a button or toggle by the ship controls; ui-programmer does layout if needed). When on, the Pathfinder flies by itself through every not yet discovered planet of the CURRENT solar system, discovers it and establishes the trading post or mining platform, using the existing flight, discovery and post rules (game/pathfinder.gd) and their costs; if cash is short it waits at the planet and continues when it can pay, and exploration stops at the system edge. The player can switch it off or give a manual order at any time, which ends the mode. It follows the game clock (paused means no movement). When every planet of the system is surveyed AND its post or platform is established, show one notification (notice queue) and switch the mode off. Notification and button texts as story ids (story/*.md, story/ru/*.json, then python3 tools/build_story.py). Save the mode state. Add a headless test: mode on visits all planets and ends with the notice once. Handoff handoffs/<agent>/2026-11-05-<id>.json.",
-      "owner_note": "Depends on T200 controls, which are done."
+      "owner_note": "Built 2026-11-06: Explore button in Ships panel, Pathfinder.set_exploring, saved, notice once, test _test_t206_explore. Not seen windowed. Open: dead world without mining skill is skipped, mode idles; no Russian ids."
     },
     {
       "task_id": "T207",
