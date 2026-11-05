@@ -5,6 +5,7 @@ extends MeshInstance3D
 ## bow to opposite sides on their own, since the bow is taken to the left of travel.
 
 const StoryText := preload("res://game/story_text.gd")
+const Juice := preload("res://game/juice.gd")  # T219
 
 const GAP := 0.6              # line starts this far (x sphere scale) from planet centres: just outside the 0.56 glow shell of the halved planet (was 1.06)
 const LANE_STEP := 0.45       # sideways gap between routes on one pair, x planet radius
@@ -18,6 +19,16 @@ const SAMPLES := 16           # points used for click picking
 const LUT_N := 16             # arc-length table so dots move at even speed along the curve
 const REF_H := 941.0          # design frame height: sizes in px are scaled from it
 
+## T219 juice (visual only, game time: a paused game snaps these to their end state). All scaled by Juice.motion.
+const DRAW_SECONDS := 0.25    # a new lane grows from its source end (alpha and width), EASE_OUT
+const DRAW_WIDTH_FROM := 0.35 # line width share at the start of the draw-in
+const DRAW_SOFT := 0.12       # soft leading edge of the draw-in, as a share of the lane
+const FADE_SECONDS := 0.15    # a removed lane fades out before it is freed
+const PULSE_SECONDS := 0.5    # a dispatched ship sends one brightening band source -> destination
+const PULSE_WIDTH := 0.18     # band half-width, as a share of the lane
+const PULSE_BOOST := 0.5      # extra alpha at the band centre (on top of LINE_ALPHA)
+const PULSE_WHITE := 0.45     # share the colour is mixed towards white at the band centre
+
 ## Lines, dashes and the chevron are sized in design pixels (1672x941 frame), not world units, so they keep
 ## the same thickness at any zoom, as the SVG does.
 const SHADER_CODE := """
@@ -30,7 +41,17 @@ uniform float dash_px = 5.0;
 uniform float chev = 0.0;
 uniform vec3 chev_t = vec3(1.0, 0.0, 0.0);
 uniform vec3 chev_s = vec3(0.0, 0.0, 1.0);
+uniform float draw = 1.0;          // T219: draw-in progress 0..1 (width and reach)
+uniform float fade = 1.0;          // T219: removal fade multiplier
+uniform float pulse_at = -1.0;     // T219: dispatch band centre along the lane (< -1 or > 2 = off)
+uniform float pulse_w = 0.18;
+uniform float pulse_gain = 0.0;
+uniform float draw_w0 = 0.35;
+uniform float draw_soft = 0.12;
+uniform float pulse_boost = 0.5;
+uniform float pulse_white = 0.45;
 varying float along;
+varying float fr;
 varying float edge_px;
 const float AA_PX = 0.5;
 void vertex() {
@@ -50,20 +71,25 @@ void vertex() {
 	float altl = length(alt);
 	if (altl < 0.001) { alt = vec3(1.0, 0.0, 0.0); altl = 1.0; }
 	vec3 side = crl > 0.02 ? cr / crl : alt / altl;
-	vp += side * UV.y * (half_px + AA_PX) * wpp;
-	edge_px = UV.y * (half_px + AA_PX);  // signed: abs() per vertex would interpolate to a constant
+	float hp = half_px * mix(draw_w0, 1.0, draw);
+	vp += side * UV.y * (hp + AA_PX) * wpp;
+	edge_px = UV.y * (hp + AA_PX);
+	fr = chev > 0.5 ? 0.5 : UV.x;  // signed: abs() per vertex would interpolate to a constant
 	POSITION = PROJECTION_MATRIX * vec4(vp, 1.0);
 	along = COLOR.r / wpp;
 }
 void fragment() {
-	float on = clamp(half_px + AA_PX - abs(edge_px), 0.0, 1.0);  // soft 1 px edge across the line
+	float hp = half_px * mix(draw_w0, 1.0, draw);
+	float on = clamp(hp + AA_PX - abs(edge_px), 0.0, 1.0);  // soft 1 px edge across the line
+	on *= clamp((draw * (1.0 + draw_soft) - fr) / draw_soft, 0.0, 1.0);  // grows from the source end
 	if (dash > 0.5) {
 		float a = along / (dash_px * 2.0);
 		float dd = abs(fract(a + 0.25) - 0.5);
 		on *= clamp((0.25 - dd) / max(fwidth(a), 0.0001) + 0.5, 0.0, 1.0);  // soft dash ends
 	}
-	ALBEDO = modulate.rgb;
-	ALPHA = modulate.a * on;
+	float band = pulse_gain * clamp(1.0 - abs(fr - pulse_at) / pulse_w, 0.0, 1.0);
+	ALBEDO = mix(modulate.rgb, vec3(1.0), band * pulse_white);
+	ALPHA = min(1.0, modulate.a + band * pulse_boost) * on * fade;
 }
 """
 
@@ -83,6 +109,7 @@ uniform float lut[17];
 uniform float clock = 0.0;
 uniform float speed = 0.07;
 uniform float waiting = 0.0;
+uniform float fade = 1.0;          // T219: follows the lane's draw-in and removal fade
 uniform vec4 col_out : source_color = vec4(0.92, 0.906, 0.875, 1.0);
 uniform vec4 col_back : source_color = vec4(0.631, 0.62, 0.592, 1.0);
 uniform vec4 col_wait : source_color = vec4(0.886, 0.753, 0.369, 1.0);
@@ -121,7 +148,7 @@ void vertex() {
 void fragment() {
 	float d = length(corner);
 	ALBEDO = vcol.rgb;
-	ALPHA = vcol.a * (1.0 - smoothstep(0.7, 1.0, d));
+	ALPHA = vcol.a * (1.0 - smoothstep(0.7, 1.0, d)) * fade;
 }
 """
 
@@ -148,6 +175,23 @@ var _dot_count: int = 0
 var _chev_t := Vector3.RIGHT
 var _chev_s := Vector3.BACK
 var _clock: float = 0.0
+var _draw_t := -1.0     # T219: seconds into the draw-in, -1 idle
+var _fade_t := -1.0     # seconds into the removal fade, -1 idle
+var _pulse_t := -1.0    # seconds into the dispatch pulse, -1 idle
+var _ships_seen := -1   # ships on the lane at the last set_style (-1: not styled by the map yet)
+var _game: Node         # the game screen (has _progress), found once
+
+## ---- T219 pure curves (the headless test calls these) ----
+
+## Draw-in progress at t in 0..1: ease out cubic, 0 at the start and exactly 1 at the end.
+static func draw_curve(t: float) -> float:
+	return 1.0 - pow(1.0 - clampf(t, 0.0, 1.0), 3.0)
+
+## Dispatch band: x = centre along the lane (starts before the source, ends past the destination), y = gain
+## (0 at both ends, 1 at the middle).
+static func pulse_curve(t: float) -> Vector2:
+	var u := clampf(t, 0.0, 1.0)
+	return Vector2(lerpf(-PULSE_WIDTH, 1.0 + PULSE_WIDTH, 1.0 - pow(1.0 - u, 2.0)), sin(u * PI))
 
 func setup(id: int, a: int, b: int, pos_a: Vector3, pos_b: Vector3, planet_radius: float, is_half: bool = false, suns: Array = [], lane: float = 0.0) -> void:
 	half = is_half
@@ -218,6 +262,7 @@ func setup(id: int, a: int, b: int, pos_a: Vector3, pos_b: Vector3, planet_radiu
 		samples.append(_bez(float(i) / float(SAMPLES)))
 	_setup_dots(total)
 	set_style("running", 1)
+	_ships_seen = -1  # the first style from the map sets the count without a pulse
 
 var tag: Label3D            # the route tag at the middle of the arc (position and text carrier, drawn transparent)
 var tag2d: Label            # T163: the visible 2D twin, placed by map.gd on the layer above the edge blur
@@ -367,6 +412,9 @@ static func side_vector(t: Vector3, vp: Vector3) -> Vector3:
 ## Tint from route status: running = commodity colour, stalled (waiting) = dashed warn, blocked = solid red.
 func set_style(status: String, ships: int, commodity: String = "", net: int = 0, reason: String = "", net_ok: bool = true, cost: int = 0) -> void:
 	_set_tag(status, ships, net, reason, net_ok, cost)
+	if _ships_seen >= 0 and ships > _ships_seen:
+		pulse()  # T219: a ship was sent on this lane
+	_ships_seen = ships
 	var waiting := status != "running" and status != "blocked"
 	if _dots != null:  # ship dots while running; a waiting lane keeps one parked warn-coloured ship
 		var n := mini(ships, DOT_MAX) if (status == "running" or waiting) else 0
@@ -448,12 +496,16 @@ func _notification(what: int) -> void:
 
 ## T-ship-sync: dots follow the game's cycle clock (main._progress), so pause, fast forward and
 ## cycle end all match. One leg (half of the dot loop) takes travel_cycles_per_leg cycles.
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
 	if _dot_mat == null:
 		return
-	var m = self
-	while m != null and not m.has_method("_progress"):  # the game screen is an ancestor of the map
-		m = m.get_parent()
+	var m = _game
+	if m == null or not is_instance_valid(m):
+		m = self
+		while m != null and not m.has_method("_progress"):  # the game screen is an ancestor of the map
+			m = m.get_parent()
+		_game = m
+	_tick_juice(delta, m)
 	if m != null:
 		_clock = float(m._progress())
 		var legs := 1.0
@@ -485,3 +537,89 @@ static func _seg_dist(p: Vector2, a: Vector2, b: Vector2) -> float:
 	var l2 := ab.length_squared()
 	var t := 0.0 if l2 <= 0.0001 else clampf((p - a).dot(ab) / l2, 0.0, 1.0)
 	return p.distance_to(a + ab * t)
+
+## ---- T219 juice: draw-in, removal fade, dispatch pulse. Advance on game time; a paused game snaps to the end state. ----
+
+func _motion() -> float:
+	return Juice.motion
+
+## A new lane grows from its source end.
+func draw_in() -> void:
+	if _motion() <= 0.0 or not is_inside_tree():
+		return
+	_draw_t = 0.0
+	_apply_juice()
+
+## One brightening band runs from the source to the destination.
+func pulse() -> void:
+	if _motion() <= 0.0 or not is_inside_tree() or _fade_t >= 0.0:
+		return
+	_pulse_t = 0.0
+	_apply_juice()
+
+## The lane fades, then frees itself (and its tag). Returns true when it took over the freeing.
+func fade_out() -> bool:
+	if _motion() <= 0.0 or not is_inside_tree() or _game_paused():
+		return false
+	if tag2d != null:
+		tag2d.visible = false  # the map no longer places the tag of a leaving lane
+	_draw_t = -1.0
+	_pulse_t = -1.0
+	_fade_t = 0.0
+	_apply_juice()
+	return true
+
+func _game_paused() -> bool:
+	return _game != null and is_instance_valid(_game) and "paused" in _game and bool(_game.paused)
+
+func _tick_juice(delta: float, game: Node) -> void:
+	if _draw_t < 0.0 and _pulse_t < 0.0 and _fade_t < 0.0:
+		return
+	var mo := _motion()
+	if mo <= 0.0 or _game_paused():  # nothing animates while paused: end state
+		if _fade_t >= 0.0:
+			queue_free()
+			return
+		_draw_t = -1.0
+		_pulse_t = -1.0
+		_apply_juice()
+		return
+	var d := delta * (float(game.time_speed) if game != null and "time_speed" in game else 1.0)
+	if _draw_t >= 0.0:
+		_draw_t += d
+		if _draw_t >= DRAW_SECONDS * mo:
+			_draw_t = -1.0
+	if _pulse_t >= 0.0:
+		_pulse_t += d
+		if _pulse_t >= PULSE_SECONDS * mo:
+			_pulse_t = -1.0
+	if _fade_t >= 0.0:
+		_fade_t += d
+		if _fade_t >= FADE_SECONDS * mo:
+			queue_free()
+			return
+	_apply_juice()
+
+## Pushes the current juice state into the shader (called only while something animates, and once at the end).
+func _apply_juice() -> void:
+	var mo := _motion()
+	var draw := 1.0 if _draw_t < 0.0 else draw_curve(_draw_t / (DRAW_SECONDS * mo))
+	var fade := 1.0
+	if _fade_t >= 0.0:
+		var f := clampf(_fade_t / (FADE_SECONDS * mo), 0.0, 1.0)
+		fade = 1.0 - f * f  # ease in
+	var pc := Vector2(-9.0, 0.0)
+	if _pulse_t >= 0.0:
+		pc = pulse_curve(_pulse_t / (PULSE_SECONDS * mo))
+	for m in mats:
+		m.set_shader_parameter("draw", draw)
+		m.set_shader_parameter("fade", fade)
+		m.set_shader_parameter("pulse_at", pc.x)
+		m.set_shader_parameter("pulse_gain", pc.y)
+		m.set_shader_parameter("pulse_w", PULSE_WIDTH)
+		m.set_shader_parameter("draw_w0", DRAW_WIDTH_FROM)
+		m.set_shader_parameter("draw_soft", DRAW_SOFT)
+		m.set_shader_parameter("pulse_boost", PULSE_BOOST)
+		m.set_shader_parameter("pulse_white", PULSE_WHITE)
+	if _dot_mat != null:
+		_dot_mat.set_shader_parameter("fade", minf(draw, fade))

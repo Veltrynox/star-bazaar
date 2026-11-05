@@ -126,6 +126,16 @@ func _test_juice() -> void:
 	check(Juice.count_value(0, 10, 0.0) == 0 and Juice.count_value(0, 10, 1.0) == 10, "juice: count runs from its start to its target")
 	check(Juice.count_value(0, 10, 0.5) > 5, "juice: count eases out (ahead of linear at half time)")
 	check(Juice.count_value(20, 10, 1.0) == 10, "juice: count can run down")
+	var RL := load("res://game/route_line.gd")  # T219: lane draw-in and dispatch pulse curves
+	var rl_mono := true
+	var rl_prev := -1.0
+	for i in 21:
+		var dv: float = RL.draw_curve(i / 20.0)
+		rl_mono = rl_mono and dv >= rl_prev
+		rl_prev = dv
+	var pc0: Vector2 = RL.pulse_curve(0.0)
+	var pc1: Vector2 = RL.pulse_curve(1.0)
+	check(RL.draw_curve(0.0) == 0.0 and RL.draw_curve(1.0) == 1.0 and RL.draw_curve(0.5) > 0.5 and rl_mono and pc0.y < 0.0001 and pc1.y < 0.0001 and pc0.x < 0.0 and pc1.x > 1.0 and RL.pulse_curve(0.5).y > 0.99, "juice: lane draw-in eases out to 1 and the dispatch band starts and ends off the lane")
 	var PV := load("res://game/pathfinder_view.gd")  # T203: establish beat curves
 	check(PV.burst_ring(0.0).y == 0.0 and PV.burst_ring(1.0).y < 0.0001, "juice: establish ring starts and ends invisible")
 	check(PV.burst_ring(PV.BURST_BUILD).x <= PV.BURST_RING_MIN + 0.0001 and PV.burst_ring(1.0).x <= PV.BURST_RING_TO + 0.0001, "juice: establish ring closes in, then opens within its bounds")

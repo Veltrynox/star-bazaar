@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "agent": "juice-programmer",
+  "date": "2026-11-06",
+  "task": "T219",
+  "status": "done",
+  "files_changed": ["game/route_line.gd", "game/map.gd", "tools/tests/run_tests.gd"],
+  "open_questions": [],
+  "handoff": "Route lanes now answer the player. Draw-in: a lane made now grows from its source end (alpha reach, width 35% to 100%, soft leading edge), 0.25 s, ease-out cubic; dots and chevron fade with it. Removal: the lane fades 0.15 s (ease in), tag hidden at once, then frees itself. Dispatch: when the ship count on a lane rises, one brightening band (alpha boost + toward white) runs source to destination in 0.5 s. All tunables are constants at the top of route_line.gd (DRAW_*, FADE_SECONDS, PULSE_*) and scale with Juice.motion (0 = off). Game time only: advances with time_speed, and a paused game snaps to the end state (lane fully drawn, no band, removed lane freed at once), so nothing is ever left half drawn. Hooks: map.gd set_routes calls line.draw_in() only for route ids above the highest seen (first call after a load and rebuilds do not animate) and line.fade_out() instead of queue_free on removal; route_line.set_style pulses when ships rises (first style from the map sets the count silently). Shader gained uniforms draw, fade, pulse_*; look at rest is unchanged. Test: 'juice: lane draw-in eases out to 1 and the dispatch band starts and ends off the lane'. sh tools/tests/run.sh: pass=11277 fail=0. Not checked by eye: how the band and growing width look, and that the pulse is visible at x1 speed; a lane made while paused shows no draw-in (snaps). Idea not built: ping the lane tag on pulse.",
+  "details": {"tests": "pass=11277 fail=0", "committed": false}
+}

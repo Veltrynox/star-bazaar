@@ -76,6 +76,8 @@ var pending_hint: MeshInstance3D  # T57 halo on the planet with a pending connec
 var _hint_i := -1
 var _pending_i := -1
 var hint: MeshInstance3D  # T28 pulsing halo, null until first requested
+var _routes_seen := false   # T219: the first set_routes (load) draws no lane in
+var _max_route_id := -1     # T219: ids above it are new routes
 var route_lines: Dictionary = {}  # T07b: route id -> route_line.gd node
 var _route_list: Array = []       # last list given to set_routes (rebuilt after tunable changes)
 
@@ -693,11 +695,17 @@ func set_routes(routes: Array) -> void:
 			line.setup(id, a, b, start_pos, end_pos, start_r if b < 0 else maxf(start_r, planet_radius(b)), half, sun_list(), lane)
 			route_lines[id] = line
 			_label_layer_node().add_child(line.tag2d)
+			if _routes_seen and int(id) > _max_route_id:
+				line.draw_in()  # T219: a route made now grows from its source end (a load or a rebuild does not)
 		line.set_style(str(r.get("status", "running")), int(r.get("ships", 1)), str(r.get("c", "")), int(r.get("net", 0)), str(r.get("reason", "")), bool(r.get("net_ok", false)), int(r.get("cost", 0)))
 	for id in route_lines.keys():
 		if not seen.has(id):
-			route_lines[id].queue_free()
+			if not route_lines[id].fade_out():  # T219: fades, then frees itself (paused or no motion: freed at once)
+				route_lines[id].queue_free()
 			route_lines.erase(id)
+	for id in seen:
+		_max_route_id = maxi(_max_route_id, int(id))
+	_routes_seen = true
 	_apply_view()
 
 ## T163: lane slot of a route among all routes on the same pair (either direction), in steps, centred on 0 and signed
