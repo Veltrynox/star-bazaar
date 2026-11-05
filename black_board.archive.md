@@ -191,3 +191,13 @@ Older run entries moved from blackboard.md, oldest first.
 - Failed / did not work: nothing.
 - Files and commits: blackboard.md only, no commit.
 - Left to do: owner decides T199 look, then T189-T193.
+
+## 2026-11-06 03:00 run: T204
+- Summary: Left click on empty space with the ship selected now only drops the selection; clicks on planets, storage and asteroid fields still fly at once; right click and Esc unchanged.
+- Why this task: smallest clear, owner-specified, no visual or design decision, no dependencies.
+- Approach: edited the open-space branch in game/map.gd myself (one small edit, an agent would cost more).
+- Agent prompts: none.
+- Worked: edit; sh tools/tests/run.sh pass=4017 fail=0.
+- Failed / did not work: no new test for the click (map input is not headless-testable); the "point" kind stays in the flight API, unused by clicks. No story text needed changing.
+- Files and commits: game/map.gd, schedule.json, blackboard.md; see git log "T204".
+- Left to do: other queued tasks T203, T205-T208, T210-T218 remain open (T209 owner-only, T218 waits on T216/T217).

@@ -6589,6 +6589,27 @@ func _test_t187_ship_flight() -> void:
 	for c in rs.get_children():
 		solid = solid or c is CollisionObject3D or c.find_children("*", "CollisionObject3D", true, false).size() > 0
 	check(not solid, "T187: rival ships have no collision or pick shape")
+	rs.advance(300.0)  # T214: long enough to arrive; then every ship idles
+	var parked_all := true
+	for sh in rs._ships:
+		parked_all = parked_all and bool(sh.get("parked", false))
+	var pos_idle: Array = []
+	for c in rs.get_children():
+		pos_idle.append(c.position)
+	rs.advance(60.0)
+	var still := true
+	for k in rs.get_child_count():
+		still = still and rs.get_child(k).position == pos_idle[k]
+	check(parked_all and still, "T214: rival ships idle after arriving, no new random course")
+	rs.wake()
+	var woke := true
+	for sh in rs._ships:
+		woke = woke and not bool(sh.get("parked", false))
+	rs.advance(2.0)
+	var moved2 := false
+	for k in rs.get_child_count():
+		moved2 = moved2 or rs.get_child(k).position != pos_idle[k]
+	check(woke and moved2, "T214: wake (a system opens, an event) sends an idle ship on one new leg")
 	var sig_before := str(m.engine.routes) + str(m.cash) + str(m.ships)
 	rs.advance(30.0)
 	check(sig_before == str(m.engine.routes) + str(m.cash) + str(m.ships), "T187: rival ships change nothing in the game")
@@ -6673,19 +6694,20 @@ func _test_ship_motion() -> void:
 		var yb: float = sh["yaw"]
 		rs.advance(0.05)
 		max_dyaw = maxf(max_dyaw, absf(wrapf(float(sh["yaw"]) - yb, -PI, PI)))
-		if float(sh["wait"]) > 0.0:
+		if bool(sh.get("parked", false)):  # T214: idles on arrival
 			seen_wait = true
 			check(float(sh["speed"]) == 0.0, "T196: a rival that arrived has stopped")
 			break
-	check(seen_wait, "T196: a rival flies to its destination and waits there")
+	check(seen_wait, "T196: a rival flies to its destination and idles there")
 	check((sh["pos"] as Vector2).is_equal_approx(sh["to"]), "T196: a rival stops on its destination")
 	check(max_dyaw <= rturn * 0.05 + 0.0001, "T196: a rival turns at a limited rate", str(max_dyaw))
+	rs.wake()  # T214: a reason to move
 	for k in 200:
 		rs.advance(0.05)
 		if not (sh["to"] as Vector2).is_equal_approx(first_to):
 			seen_new = true
 			break
-	check(seen_new, "T196: after waiting a rival picks the next destination")
+	check(seen_new, "T196: after a wake a rival picks the next destination")
 	await _free_main(m)
 
 ## T202: no ship is ever inside a body, and a ship at spawn is near its parent body. Bodies are measured the way the map draws them
@@ -6754,6 +6776,8 @@ func _test_t211_ship_traffic() -> void:
 	m.map.view_system = 2
 	var in2 := 0
 	for step in 600:
+		if step % 15 == 0:
+			rs.wake()  # T214: ships idle until the game gives a reason
 		rs.advance(1.0)
 		in2 += rs._ships.filter(func(s): return int(s["system"]) == 2 and (s["node"] as Node3D).visible).size()
 		for s in rs._ships:
@@ -6845,6 +6869,8 @@ func _test_ships_spawn_near_bodies() -> void:
 		_t202_check(m, int(s0["system"]), Vector3(sp.x, 0.0, sp.y), "rival %d start (system %d)" % [si, int(s0["system"])])
 		_t202_check(m, int(s0["system"]), (s0["node"] as Node3D).position, "rival %d start node (system %d)" % [si, int(s0["system"])])
 	for step in 700:
+		if step % 15 == 0:
+			rs.wake()  # T214
 		rs.advance(1.0)
 		for si in rs._ships.size():
 			var s: Dictionary = rs._ships[si]
@@ -6858,6 +6884,8 @@ func _test_ships_spawn_near_bodies() -> void:
 	check(rs.ship_count() == Bots.IDS.size(), "T211: one rival ship per competitor", str(rs.ship_count()))
 	var seen_sys := {}
 	for step in 600:
+		if step % 15 == 0:
+			rs.wake()  # T214
 		rs.advance(1.0)
 		for s in rs._ships:
 			seen_sys[int(s["system"])] = true

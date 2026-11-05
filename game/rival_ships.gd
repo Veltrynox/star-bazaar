@@ -2,7 +2,8 @@ extends Node3D
 ## T187: rival ships flying around the map. A VISUAL ONLY: no cargo, no collision shape, no picking, no blocking, no combat, no
 ## effect on routes, prices, shares or the Pathfinder. Rivals stay numbers in the economy (Markets bots); these ships are scenery.
 ## T196: each ship picks a destination (a point over the planets of its system), speeds up from rest, turns at a limited yaw rate,
-## flies a straight course and brakes to a stop there, waits (rival_ship_wait_s), then picks the next one. No random jitter.
+## flies a straight course and brakes to a stop there. T214: it then IDLES (no new random course); it moves again only when the game
+## gives a reason: wake() (a system opened by permit, an event popup), then it flies one new leg and idles again. No random jitter.
 ## Each ship flies on the plane y = LIFT, like the
 ## Pathfinder. They move only while the game runs (main.paused false, speed follows main.time_speed), as the Pathfinder does.
 ## T211: ONE ship per competitor for the whole game (count() = number of rival bots, Bots.IDS), not one per system. It starts in
@@ -32,6 +33,8 @@ var _rng := RandomNumberGenerator.new()
 var _ships: Array = []          # {node, system, pos Vector2 (x, z), yaw, speed, to Vector2, wait (s left, > 0 = waiting)}
 const MIN_LEG := 3.0            # a new destination is at least this far (world units)
 const SUBSTEP := 0.05           # seconds per integration step
+var _seen_open: Array = [1]      # T214: open systems last seen; a new one is a reason to move
+var _event_was := false         # T214: an event popup was pending last frame (rising edge = a reason to move)
 var _built := false             # T211: the one ship per competitor exists
 
 func setup(m: Node, mp: Node) -> void:
@@ -103,6 +106,27 @@ func _move_to_system(s: Dictionary, sys: int) -> void:
 	var tr: Node = s.get("trail")
 	if tr != null:
 		tr.clear()
+
+## T214: a reason to move: every idle ship picks one new course (it may visit an opened system or head home).
+func wake() -> void:
+	for s in _ships:
+		if bool(s.get("parked", false)):
+			s["parked"] = false
+			_new_leg(s)
+
+func _check_reasons() -> void:
+	var open := open_ids()
+	var changed := open.size() != _seen_open.size()
+	for v in open:
+		if not _seen_open.has(v):
+			changed = true
+	_seen_open = open
+	var ev: bool = main != null and "events" in main and main.events != null and str(main.events.pending_id) != ""
+	if ev and not _event_was:
+		changed = true
+	_event_was = ev
+	if changed:
+		wake()
 
 func _new_leg(s: Dictionary) -> void:
 	var open := open_ids()
@@ -184,6 +208,7 @@ func advance(dt: float) -> void:
 		return
 	if not _built:
 		_build()
+	_check_reasons()
 	var view: int = int(map.view_system) if map != null else 1
 	var vmax := maxf(0.01, _bal("rival_ship_speed", SPEED_DEFAULT))
 	var accel := vmax / maxf(0.05, _bal("rival_ship_accel_s", 2.0))
@@ -202,6 +227,8 @@ func advance(dt: float) -> void:
 			n += 1
 			var h := minf(left, SUBSTEP)
 			left -= h
+			if bool(s.get("parked", false)):
+				break
 			if float(s["wait"]) > 0.0:
 				s["wait"] = float(s["wait"]) - h
 				if float(s["wait"]) <= 0.0:
@@ -212,7 +239,8 @@ func advance(dt: float) -> void:
 			s["yaw"] = r["yaw"]
 			s["speed"] = r["speed"]
 			if r["arrived"]:
-				s["wait"] = maxf(0.01, _bal("rival_ship_wait_s", 3.0))
+				s["parked"] = true  # T214: idles here until wake()
+				s["wait"] = 0.0
 		node.visible = int(s["system"]) == view
 		var p: Vector2 = s["pos"]
 		node.position = Vector3(p.x, LIFT, p.y)
