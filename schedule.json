@@ -1213,10 +1213,11 @@
       "depends_on": [
         "T196"
       ],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 30,
       "window": "Owner request 2026-11-05 (playtest feedback). Not started: main session sets it running.",
-      "brief": "Owner: rival ships are not marked and the player cannot tell what they are. Give every rival ship an owner: the competitor it belongs to (the three rivals in data, e.g. Harrow Combine, Velvet Concord, Ostrel Syndicate; check the actual names in data/ and story text) and show it with a small marker or tint per competitor. Clicking a rival ship shows a small card with the competitor's name and its market (use existing hover card style from tools/tests hover cards / game code). The ship must not block clicks on planets behind it. Texts go through story/*.md ids and Russian story/ru/*.json, then python3 tools/build_story.py. Handoff handoffs/ui-programmer/2026-11-05-T199.json."
+      "brief": "Owner: rival ships are not marked and the player cannot tell what they are. Give every rival ship an owner: the competitor it belongs to (the three rivals in data, e.g. Harrow Combine, Velvet Concord, Ostrel Syndicate; check the actual names in data/ and story text) and show it with a small marker or tint per competitor. Clicking a rival ship shows a small card with the competitor's name and its market (use existing hover card style from tools/tests hover cards / game code). The ship must not block clicks on planets behind it. Texts go through story/*.md ids and Russian story/ru/*.json, then python3 tools/build_story.py. Handoff handoffs/ui-programmer/2026-11-05-T199.json.",
+      "note": "Built 2026-11-06: per-competitor tint (RivalShips.TINTS), click within 20px opens game/rival_card.gd with name and strongest market; tests pass. Look and colours not seen windowed."
     },
     {
       "task_id": "T200",

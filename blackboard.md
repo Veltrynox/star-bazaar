@@ -4,7 +4,7 @@
 - discovery_enabled in data/balance.json ships at 1 (owner decision 2026-11-05); tests that need it off set it themselves.
 
 ## Left to do
-- Open build tasks from playtest: T199 (T196-T198, T200-T202 done). Owner: check T198 look windowed (trail line 1px, scale 0.5, pick 20px). T194 done; Competitors still reachable from share panel (L), owner to say if that goes too.
+- Open build tasks from playtest: none of T196-T202 left (T199 done 2026-11-06). Owner: check T198 look windowed (trail line 1px, scale 0.5, pick 20px). T194 done; Competitors still reachable from share panel (L), owner to say if that goes too.
 - Open: T185 (visual), T178/T182 (owner-only agents), T05 (only windowed frame time missing, see T193), T166 (superseded). Owner-decision tasks T189-T193 added 2026-11-05.
 
 - Owner: ship cap 20 (T186): decide on economy retune (trip cost, maintenance tuned for 6) and look of the scrolled ship list; other panels not checked at 20 ships.
@@ -53,3 +53,13 @@
 - Failed / did not work: nothing. Not seen windowed.
 - Files and commits: data/systems_placeholder.json, data/availability.json, story/screens.md, data/story_text.json, game/galaxy_view.gd, tools/tests/run_tests.gd, gdd.md, handoff, schedule.json, blackboard.md; see git log "T210".
 - Left to do: owner: galaxy slots 8-10 positions are temporary and unseen windowed with placeholders on; no Russian text for the new ids.
+
+## 2026-11-06 11:00 run: T199
+- Summary: Rival ships now belong to a competitor (ship i = Bots.IDS[i]) with a faint per-competitor tint; a click within 20px opens a small card with the competitor name and its strongest market. Planets behind stay clickable outside the radius.
+- Why this task: concrete owner brief, dependency done; other open tasks are owner-decision, owner-only, or design proposals.
+- Approach: ui-programmer agent reusing the DestHint card style; I verified diff and tests.
+- Agent prompts: tint per competitor, click card with name and market, no planet blocking, English ids, test; handoffs/ui-programmer/2026-11-06-T199.json, done.
+- Worked: sh tools/tests/run.sh no FAIL; _test_t199_rival_pick added.
+- Failed / did not work: nothing; 3 "Parameter material is null" engine errors also appear without the change.
+- Files and commits: game/rival_ships.gd, game/rival_card.gd, game/map.gd, game/main.gd, story/screens.md, data/story_text.json, tools/tests/run_tests.gd, gdd.md, handoff, schedule.json, blackboard.md; see git log "T199".
+- Left to do: owner: tint colours (TINTS red/violet/green, alpha 0.3), pick radius 20px and card position not seen windowed; "its market" read as strongest-share market; competitor names have no story ids; click on a ship does not pass to a planet; no Russian ids.
