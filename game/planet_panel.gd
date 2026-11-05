@@ -20,6 +20,7 @@ const MENU_SELL := 1
 const MENU_SALVAGE := 2
 signal salvage_requested(commodity: String)  # N5
 signal order_requested(commodity: String, role: String)  # role: "buy" or "sell" (toggles the local order)
+signal mine_requested(commodity: String)  # dead world: "Mine and send to..." (buy order plus a route to the clicked planet)
 signal send_requested(commodity: String)  # "Send to..." on a storage row
 signal buy_send_requested(commodity: String)  # Buy toggle on a resource row: standing buy order only
 signal remove_requested(route_id: int)
@@ -95,6 +96,7 @@ func rebuild() -> void:
 		cancel.pressed.connect(func(): main.cancel_pending())
 		box.add_child(cancel)
 	var prices = p.get("base_prices")
+	var mined: Array = []  # dead world: goods shown as rows, each gets a "Mine and send to..." button
 	var grid := GridContainer.new()
 	grid.name = "BuyGrid"
 	grid.columns = BUY_COLUMNS
@@ -104,8 +106,14 @@ func rebuild() -> void:
 		var pd: Dictionary = prices if typeof(prices) == TYPE_DICTIONARY else {}
 		if pd.get(str(c) + "_buy") == null and pd.get(str(c) + "_sell") == null:
 			continue  # a good this planet does not trade has no row
+		if not Availability.good(str(c)):
+			continue  # data/availability.json: not visible yet means no row at all
 		grid.add_child(_row(str(c), prices if typeof(prices) == TYPE_DICTIONARY else {}, pend))
+		mined.append(str(c))
 	box.add_child(grid)
+	if _dead_minable(p):
+		for c in mined:
+			box.add_child(_mine_button(str(c)))
 	_lane_splits()
 	_connections()
 	_tut_mute()
@@ -192,11 +200,18 @@ func _header(p: Dictionary) -> void:
 		ll.name = "DeadLockedLine"
 		ll.theme_type_variation = "LabelAccent"
 		box.add_child(ll)
-	elif main.DeadWorlds.is_dead(p):  # dead world: one danger line
-		var dl := _label(StoryText.get_or("PLANET_DANGER", "Danger: {value} of {max}", {"value": main.danger_of(planet_index), "max": main.dead.max_danger()}))
-		dl.name = "DangerLine"
-		dl.theme_type_variation = "LabelAccent"
-		box.add_child(dl)
+	elif main.DeadWorlds.is_dead(p):  # dead world: what is missing for mining (if anything), then the danger line (only when its availability rule is true)
+		var need_s: String = main.engine.dead_skill_reason(planet_index)
+		if need_s != "":
+			var nl := _label(need_s)
+			nl.name = "DeadNeedsSkillLine"
+			nl.theme_type_variation = "LabelAccent"
+			box.add_child(nl)
+		if Availability.feature("dead_danger_meter"):  # hidden until danger has an effect (data/availability.json)
+			var dl := _label(StoryText.get_or("PLANET_DANGER", "Danger: {value} of {max}", {"value": main.danger_of(planet_index), "max": main.dead.max_danger()}))
+			dl.name = "DangerLine"
+			dl.theme_type_variation = "LabelAccent"
+			box.add_child(dl)
 	var thumbs := HBoxContainer.new()
 	thumbs.add_theme_constant_override("separation", 8)
 	var sid: int = int(p.get("system", 1))
@@ -214,6 +229,29 @@ func _header(p: Dictionary) -> void:
 			t.modulate.a = 0.4  # guided tutorial: only the named planet can be picked
 		thumbs.add_child(t)
 	box.add_child(thumbs)
+
+## Dead world that can be mined now: open (cycle) and its skill learned.
+func _dead_minable(p: Dictionary) -> bool:
+	return main.DeadWorlds.is_dead(p) and not main.engine.dead_locked.has(planet_index) and main.engine.dead_skill_reason(planet_index) == ""
+
+## The primary action of a dead world: like Send to..., but the ship mines the good first.
+func _mine_button(c: String) -> Button:
+	var b := Button.new()
+	b.name = "MineSendButton_" + c
+	b.text = StoryText.get_or("BTN_MINE_SEND", "Mine {good} and send to...", {"good": Ui.good_name(c)})
+	b.theme_type_variation = "ButtonSmall"
+	b.custom_minimum_size = Vector2(ACTION_BTN_MIN.x, ACTION_BTN_MIN.y)
+	b.icon = Ui.icon(c)
+	b.expand_icon = true
+	b.add_theme_constant_override("icon_max_width", 18)
+	b.clip_text = true
+	if not main.system_trade_open(planet_index):
+		b.disabled = true
+		b.tooltip_text = main.trade_locked_reason()
+	elif main.tut_lock_active() and not main.tut_allows("send_start", planet_index, c):
+		b.disabled = true
+	b.pressed.connect(func(): mine_requested.emit(c))
+	return b
 
 func _row(c: String, prices: Dictionary, pend: Dictionary) -> Control:
 	# One grid cell per resource: the resource itself (icon, name, buy price) is the Buy toggle; small status lines sit under it.
@@ -284,6 +322,9 @@ func _row(c: String, prices: Dictionary, pend: Dictionary) -> Control:
 	if locked:
 		bs.disabled = true
 		bs.tooltip_text = main.trade_locked_reason()
+	if buy != null and not locked and _dead_minable(main.map.planets[planet_index]):
+		buy_tip = StoryText.get_or("LBL_MINE_ROW_TIP", "Mine here every cycle. Press to stop.")
+		bs.tooltip_text = buy_tip
 	bs.name = "BuyButton_" + str(c)
 	if main.tut_lock_active() and not (main.tut_allows("buy", planet_index, str(c)) or main.tut_allows("send_start", planet_index, str(c)) or main.tut_allows("sell", planet_index, str(c))):
 		bs.disabled = true  # guided tutorial: this resource is not part of the step
@@ -296,6 +337,9 @@ func _row(c: String, prices: Dictionary, pend: Dictionary) -> Control:
 	if nc_tip != "":
 		bs.tooltip_text += "\n" + nc_tip
 	bs.tooltip_text += "\n" + StoryText.get_or("LBL_RMB_MORE", "Right-click for Send to, Sell and more.")
+	var gi := GoodInfo.block(str(c))  # what the good is and how it is used, above the existing lines (below the lock reason)
+	if gi != "":
+		bs.tooltip_text = (bs.tooltip_text + "\n\n" + gi) if locked else (gi + "\n\n" + bs.tooltip_text)
 	_reserve_right(bs, CAP_MARGIN, PRICE_ROW_H)
 	var key: String = main.storage.planet_key(planet_index)
 	var cap_l := Label.new()  # stored/capacity of this good in the company storage here, at the right end of the button
@@ -405,6 +449,8 @@ func _price(v) -> String:
 ## Split rows (N2) for goods with two lanes with ships. The per-planet storage rows are gone: stock shows on each resource button.
 func _lane_splits() -> void:
 	for c in main.commodities:
+		if not Availability.good(str(c)):
+			continue
 		if main.split_targets(planet_index, str(c)).size() >= 2:
 			box.add_child(_split_row(str(c)))
 			if split_open == str(c):
@@ -434,7 +480,38 @@ static func next_cycle_label(main_node: Control, key: String, c: String) -> Cont
 	var bad := "[color=#%s]%d[/color]" % [Ui.col("signal_bad").to_html(false), n_out]
 	var t: String = StoryText.get_or("LBL_NEXT_CYCLE", "Next cycle: +{in} -{out} = {after}")
 	rt.text = t.replace("{in}", good).replace("{out}", bad).replace("{after}", str(int(pr["after"])))
+	rt.mouse_filter = Control.MOUSE_FILTER_STOP
+	rt.tooltip_text = next_cycle_breakdown(main_node, pr)
 	return rt
+
+## Hover text of the Next cycle line: every source (In) and use (Out) of the stock with its amount, one line each.
+## `pr` is RouteEngine.project_storage; the listed amounts add up to its in and out.
+static func next_cycle_breakdown(main_node: Control, pr: Dictionary) -> String:
+	var lines: Array = []
+	for dir in ["in", "out"]:
+		var items: Array = []
+		for p in pr.get("parts", []):
+			if str(p["dir"]) != dir:
+				continue
+			var planet: String = main_node.planet_name(int(p["planet"]))
+			var vars := {"n": str(int(p["n"])), "planet": planet}
+			var key := ""
+			match str(p["kind"]):
+				"buy":
+					key = "TIP_NC_BUY"
+				"sell":
+					key = "TIP_NC_SELL_BACKUP" if bool(p["backup"]) else "TIP_NC_SELL"
+				_:
+					var rec: Dictionary = {}
+					for r in main_node.engine.routes:
+						if int(r["id"]) == int(p["route"]):
+							rec = r
+					vars["route"] = "%s > %s (%s)" % [planet, main_node.planet_name(int(rec.get("b", -1))), Ui.good_name(str(rec.get("c", "")))]
+					key = "TIP_NC_ROUTE_BACKUP" if bool(p["backup"]) else ("TIP_NC_ROUTE_IN" if dir == "in" else "TIP_NC_ROUTE_OUT")
+			items.append(StoryText.get_text(key, vars))
+		if not items.is_empty():
+			lines.append(StoryText.get_text("TIP_NC_IN" if dir == "in" else "TIP_NC_OUT", {"list": ", ".join(items)}))
+	return "\n".join(lines)
 
 ## Owner 2026-11-03: next-cycle line for the resource button tooltip, "Next cycle: +12 -5 = 47".
 ## Empty when nothing moves. Read-only: uses RouteEngine.project_storage.

@@ -174,6 +174,8 @@ var debug_menu: PanelContainer  # T33: null in release builds; T34 adds its butt
 var selected_planet: int = -1
 var pending: Dictionary = {}  # T68: "Send to..." waiting for a destination {planet, c}; empty when none
 var pending_label: Label
+var route_warning: Control
+var dest_hint: Control
 var sell_offer: Dictionary = {}  # after a Send: {planet, c} while "Sell here too?" is offered at the destination; empty when none
 var pending_margins: Label  # P1: per-destination margins while a plain Send to... is pending
 var last_local: Array = []  # T68: local order results of the last cycle end
@@ -184,6 +186,7 @@ func _ready() -> void:
 	Ui.install_cursors(get_tree())
 	Juice.install_press(get_tree())
 	balance = _load_balance()
+	Availability.bind(self)  # data/availability.json decides what the UI shows (game/availability.gd)
 	cash = int(balance.get("starting_credits", 0))
 	Skills.reset(balance)  # four market skills: new run; a loaded save overwrites it
 	Tech.reset()
@@ -203,6 +206,7 @@ func _ready() -> void:
 	planet_panel.salvage_requested.connect(_on_salvage)
 	planet_panel.send_requested.connect(_on_send)
 	planet_panel.buy_send_requested.connect(_on_buy_send)
+	planet_panel.mine_requested.connect(begin_buy_and_send)
 	planet_panel.remove_requested.connect(_remove_requested)
 	map.planet_clicked.connect(_on_planet_clicked)
 	map.route_clicked.connect(_on_route_clicked)
@@ -210,6 +214,12 @@ func _ready() -> void:
 	map.station_clicked.connect(_on_station_clicked)
 	_build_board()
 	_build_pending_label()
+	route_warning = load("res://game/route_warning.gd").new()  # red line + cursor warning when no ship can be bought
+	add_child(route_warning)
+	route_warning.setup(self)
+	dest_hint = load("res://game/dest_hint.gd").new()  # hover card over a destination while a route is pending
+	add_child(dest_hint)
+	dest_hint.setup(self)
 	income_popup = load("res://game/income_popup.gd").new()  # T133
 	add_child(income_popup)
 	income_popup.setup(map)
@@ -482,7 +492,7 @@ func _system_planets_present(id: int) -> bool:
 
 ## Space Storage post: one per open system, exists once skill FND_STORAGE is learned.
 func _ensure_posts() -> void:
-	if not has_skill("FND_STORAGE"):
+	if not Availability.storage("space_storage"):
 		return
 	for sid in open_systems:
 		storage.ensure(Storage.system_key(int(sid)))
@@ -491,7 +501,7 @@ func _ensure_posts() -> void:
 ## Space stations: one per open system once FND_STORAGE is learned; built once, kept in station_systems (saved).
 ## One notice per build, none while a save loads.
 func _ensure_stations() -> void:
-	if not has_skill("FND_STORAGE"):
+	if not Availability.storage("space_storage"):
 		return
 	var built := false
 	for sid in open_systems:
@@ -551,7 +561,7 @@ func _on_station_clicked(sid: int) -> void:
 	space_storage_view.open_for(sid)
 
 func space_post_open(system_id: int) -> bool:
-	return has_skill("FND_STORAGE") and storage.established(Storage.system_key(system_id))
+	return Availability.storage("space_storage") and storage.established(Storage.system_key(system_id))
 
 ## Systems with a permit entry that is not bought yet.
 func unowned_systems() -> Array:
@@ -779,6 +789,8 @@ func go_to_system(id: int) -> bool:
 		return false
 	view_system = id
 	map.set_view_system(id)
+	if income_popup != null:
+		income_popup.prune()  # popups of the system just left do not follow
 	_refresh()
 	return true
 
@@ -893,6 +905,9 @@ func _on_planet_clicked(index: int) -> void:
 		elif index == int(pending["planet"]):
 			post_notice("Pick a different planet as the destination.")
 			return
+		elif DeadWorlds.is_dead(map.planets[index]):  # a dead world has no market: it can only be a source
+			post_notice_now(StoryText.get_or("NOT_DEAD_NO_DELIVERY", "Nothing is delivered to a dead world. Pick another planet."))
+			return
 		else:
 			var src: int = int(pending["planet"])
 			var c: String = str(pending["c"])
@@ -947,6 +962,16 @@ func _cluster_story_key(cl: Dictionary) -> String:
 		return "S%s%s" % [parts[0].substr(1), char(64 + int(parts[1]))]
 	return ""
 
+## "Send ore to..." on the cluster card: same pending state as a planet's Send to..., source = the cluster node.
+## The next planet clicked becomes the destination (_on_planet_clicked -> send_stock_buying); Esc or a click on empty space cancels.
+func _on_cluster_send(index: int) -> void:
+	if game_over or not clusters.valid(index):
+		return
+	var node := Clusters.node_id(index)
+	_hide_cluster_info()
+	pending = {"planet": node, "c": clusters.good_of(index)}
+	_pending_changed()
+
 func _hide_cluster_info() -> void:
 	cluster_info_index = -1
 	if cluster_info != null:
@@ -996,11 +1021,19 @@ func _on_cluster_clicked(index: int) -> void:
 	info.name = "ClusterInfoLine"
 	info.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	var args := {"good": Ui.good_name(str(found["good"])), "yield": clusters.yield_per_cycle(), "left": int(found["left"]), "max": int(found["max"])}
-	if can_mine():
+	if not Availability.feature("cluster_routes") or not Availability.good(str(found["good"])):  # data/availability.json: the ore readout waits for Prospecting
+		info.text = StoryText.get_or("NOT_MINING_NEEDS_SKILL", "Mining needs the Prospecting skill.")
+	elif can_mine():
 		info.text = StoryText.get_or("LBL_CLUSTER_INFO", "{good}: {yield} per cycle, {left} of {max} left.", args)
 	else:
 		info.text = "%s %s" % [StoryText.get_or("LBL_CLUSTER_INFO_YIELD", "{good}: {yield} per cycle.", args), StoryText.get_or("NOT_MINING_NEEDS_SKILL", "Mining needs the Prospecting skill.")]
 	box.add_child(info)
+	if Availability.feature("cluster_routes") and can_mine() and int(found["left"]) > 0 and not game_over:
+		var send := Button.new()
+		send.name = "ClusterSendButton"
+		send.text = StoryText.get_or("BTN_CLUSTER_SEND", "Send ore to...")
+		send.pressed.connect(_on_cluster_send.bind(int(found["index"])))
+		box.add_child(send)
 	var close := Button.new()
 	close.text = StoryText.get_or("BTN_CLOSE", "Close")
 	close.pressed.connect(_hide_cluster_info)
@@ -1016,6 +1049,13 @@ func _on_route_clicked(id: int) -> void:
 		return
 	if space_storage_view != null:
 		space_storage_view.close_view()  # one view at a time
+	if RouteEngine.from_cluster(engine.routes[i]) and int(engine.routes[i]["b"]) < 0:  # ore into a station: no planet at either end, show the station's storage
+		var sid := -int(engine.routes[i]["b"])
+		if space_post_open(sid):
+			selected_planet = -1
+			planet_panel.visible = false
+			space_storage_view.open_for(sid)
+		return
 	selected_planet = int(engine.routes[i]["b"]) if RouteEngine.from_cluster(engine.routes[i]) else int(engine.routes[i]["a"])  # T156: a cluster is no planet to select
 	planet_panel.show_planet(selected_planet, id)
 
@@ -1191,7 +1231,7 @@ func _pending_changed() -> void:
 ## P1: one line per reachable destination: margin per unit now, and after the price events end when one moves it.
 func pending_margin_lines() -> Array:
 	var out: Array = []
-	if pending.is_empty():
+	if pending.is_empty() or Clusters.is_node(int(pending["planet"])):  # a cluster source has no planet margin lines
 		return out
 	var src := int(pending["planet"])
 	var c := str(pending["c"])
@@ -1304,6 +1344,15 @@ func can_buy_ship(kind: String = "small") -> Dictionary:
 	if cash - Ships.price(kind, balance) < floor_cash:  # stall fix: keep working capital for the trips of every open route
 		return {"ok": false, "floor": true, "reason": StoryText.get_or("NOT_SHIP_KEEP_CASH", "Keep cash for trips: {floor} cr after the price.", {"floor": floor_cash})}
 	return {"ok": true, "reason": ""}
+
+## Route start the player cannot pay for: {planet, need, have} while a connection is pending, no free ship exists and
+## cash is short of a new ship (price plus the working-capital floor); {} otherwise (free ship, enough cash, cap, game over).
+func route_unaffordable() -> Dictionary:
+	if pending.is_empty() or game_over or free_ships() > 0:
+		return {}
+	if ships >= int(balance.get("ship_cap", 0)) or bool(can_buy_ship("small")["ok"]):
+		return {}
+	return {"planet": int(pending["planet"]), "need": Ships.price("small", balance) + ship_cash_floor(), "have": cash}
 
 ## Cash that must remain after buying a ship: the fixed cost of every open route.
 func ship_cash_floor() -> int:
@@ -1493,8 +1542,9 @@ func _connect(src: int, dst: int, c: String, stop: int = -1) -> Dictionary:
 	engine.next_id += 1
 	rec["fresh"] = clampf(1.0 - cycle_elapsed / _cycle_seconds(), 0.0, 1.0)
 	engine.routes.append(rec)
-	if mining:  # T156: a cluster is no planet pair; only the delivery planet counts
-		_award_planet(dst)
+	if mining:  # T156: a cluster is no planet pair; only the delivery planet counts (a station is no planet)
+		if dst >= 0:
+			_award_planet(dst)
 	else:
 		_award_route(src, dst)
 	_note_system(src)
@@ -1592,21 +1642,29 @@ func planet_name(i: int) -> String:
 func _push_routes_to_map() -> void:
 	var list: Array = []
 	var lanes := {}  # T87: one line per lane; ships = ships on it, status = running if any ship runs
+	var fc := {}  # route id -> forecast line: the lane label shows the same projection as the cash forecast
+	for fl in engine.forecast(cash)["routes"]:
+		fc[int(fl["id"])] = fl
 	for rec in engine.routes:
 		var k := "%d|%d|%s" % [rec["a"], rec["b"], rec["c"]]
 		var st: String = display_status(rec)
+		var fl: Dictionary = fc.get(int(rec["id"]), {})
+		var moves := bool(fl.get("moves", false))
 		if lanes.has(k):
 			var e: Dictionary = lanes[k]
 			e["ships"] = int(e["ships"]) + 1
-			e["net"] = int(e["net"]) + engine.payout_of(rec)
+			e["cost"] = int(e["cost"]) + engine.fixed_cost(rec)
+			if moves:
+				e["net"] = int(e["net"]) + int(fl["net"])
+				e["net_ok"] = true
 			if st == "running":
 				e["status"] = st
 			continue
-		var e2 := {"id": rec["id"], "a": rec["a"], "b": rec["b"], "c": rec["c"], "ships": 1, "status": st, "net": engine.payout_of(rec), "reason": engine.reason_of(rec)}
+		var e2 := {"id": rec["id"], "a": rec["a"], "b": rec["b"], "c": rec["c"], "ships": 1, "status": st, "net": int(fl["net"]) if moves else 0, "net_ok": moves, "cost": engine.fixed_cost(rec), "reason": engine.reason_of(rec)}
 		lanes[k] = e2
 		list.append(e2)
+	map.set_clusters(_all_cluster_packs())  # T157: asteroid packs follow the cluster data (before the lines: a cluster route starts at its pack)
 	map.set_routes(list)
-	map.set_clusters(_all_cluster_packs())  # T157: asteroid packs follow the cluster data
 
 ## T157: clusters of every system in the cluster data, from clusters_in_system (packs of a system not yet visited stay hidden).
 func _all_cluster_packs() -> Array:
@@ -1754,30 +1812,31 @@ func build_fabric() -> Dictionary:
 	_after_change()
 	return v
 
-## Workshop (smelter, munitions, atelier, culture_lab): can it be built now? {ok, reason}: "unknown", "built", "skill", "post", "credits".
-func can_build_workshop(id: String) -> Dictionary:
+## Workshop (smelter, munitions, atelier, culture_lab): can it be built now in the cell of system sid? {ok, reason}: "unknown", "built" (once per run, anywhere), "skill", "post" (no established cell there), "credits".
+func can_build_workshop(id: String, sid: int = WorkshopsScript.SYSTEM) -> Dictionary:
 	if not WorkshopsScript.IDS.has(id):
 		return {"ok": false, "reason": "unknown"}
 	if workshops.built[id]:
 		return {"ok": false, "reason": "built"}
 	if not workshops.is_unlocked(id):
 		return {"ok": false, "reason": "skill"}
-	if not station_systems.has(WorkshopsScript.SYSTEM):
+	if not station_systems.has(sid):
 		return {"ok": false, "reason": "post"}
 	if cash < workshops.build_cost(id):
 		return {"ok": false, "reason": "credits"}
 	return {"ok": true, "reason": ""}
 
-func build_workshop(id: String) -> Dictionary:
+func build_workshop(id: String, sid: int = WorkshopsScript.SYSTEM) -> Dictionary:
 	if not tut_gate("other"):
 		return {"ok": false, "reason": tut_lock_text()}
-	var v := can_build_workshop(id)
+	var v := can_build_workshop(id, sid)
 	if not v["ok"]:
 		return v
 	cash -= workshops.build_cost(id)
 	workshops.built[id] = true
+	workshops.system[id] = sid
 	workshops.state[id] = "idle"
-	post_notice(StoryText.get_or("NOT_WORKSHOP_BUILT", "{workshop} built at the trading post.", {"workshop": StoryText.get_or("WS_" + id.to_upper() + "_NAME", id.capitalize())}))
+	post_notice(StoryText.get_or("NOT_WORKSHOP_BUILT", "{workshop} built in {system}.", {"workshop": StoryText.get_or("WS_" + id.to_upper() + "_NAME", id.capitalize()), "system": Systems.name_of(sid)}))
 	_after_change()
 	return v
 
@@ -2210,6 +2269,8 @@ func effect_line(eff: Dictionary) -> String:
 		"stock":
 			body = StoryText.get_text("NOT_EVENT_EFFECT_STOCK", args)
 		"danger":
+			if not Availability.feature("dead_danger_meter"):  # the meter is hidden: no notice names it
+				return ""
 			body = StoryText.get_or("NOT_EVENT_EFFECT_DANGER", "Danger at {planet}: {amount}.", args)
 	return "%s: %s" % [StoryText.get_text("NOT_EVENT_PREFIX"), body]
 
@@ -2482,7 +2543,7 @@ func fire_chain_step(id: String) -> void:
 
 func _open_chain_notice(id: String) -> void:
 	var labels: Array = []
-	for opt in Chains.order(id):
+	for opt in Chains.visible_options(id):
 		labels.append("%s\n%s" % [Chains.button(id, opt), Chains.eff_text(id, opt)])
 	event_notice = load("res://game/event_notice.gd").new()
 	add_child(event_notice)
@@ -2504,7 +2565,7 @@ func _busiest_route(market: String) -> int:
 
 ## A button of a chain step was pressed (index in the shown order): the option applies at once, the result popup follows.
 func _apply_chain_choice(choice: int, id: String) -> void:
-	var order: Array = Chains.order(id)
+	var order: Array = Chains.visible_options(id)
 	if choice < 0 or choice >= order.size():
 		return
 	var opt := str(order[choice])

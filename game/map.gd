@@ -390,7 +390,7 @@ func _apply_view() -> void:
 			planet_labels[i].visible = on
 	for id in route_lines:
 		var ln = route_lines[id]
-		ln.visible = planet_in_view(int(ln.pair_a)) and (planet_in_view(int(ln.pair_b)) if int(ln.pair_b) >= 0 else -int(ln.pair_b) == view_system)
+		ln.visible = _node_system(int(ln.pair_a)) == view_system and (planet_in_view(int(ln.pair_b)) if int(ln.pair_b) >= 0 else -int(ln.pair_b) == view_system)
 	for id in stations:
 		stations[id].visible = int(id) == view_system
 	for id in orbit_rings:  # each system shows only its own sun and orbit rings
@@ -527,6 +527,20 @@ func set_pending(index: int) -> void:
 		pending_hint.setup(planet_radius(index))
 	pending_hint.position = positions[index]
 
+## Cluster entry of _cluster_list for a route node id (-1000 - index), {} when unknown.
+func _cluster_by_node(node: int) -> Dictionary:
+	for c in _cluster_list:
+		if int(c["index"]) == -node - 1000:
+			return c
+	return {}
+
+## System of a route end: a planet index or a cluster node id; -1 when unknown.
+func _node_system(n: int) -> int:
+	if n <= -1000:
+		var c := _cluster_by_node(n)
+		return int(c["system"]) if not c.is_empty() else -1
+	return int(planets[n].get("system", 1)) if n >= 0 and n < planets.size() else -1
+
 ## T07b: show one glowing line per route. routes: Array of {id, a, b, ships, status}.
 ## Lines are created once per route and only restyled afterwards; removed when the route is gone.
 func set_routes(routes: Array) -> void:
@@ -537,12 +551,25 @@ func set_routes(routes: Array) -> void:
 		var a := int(r["a"])
 		var b := int(r["b"])
 		var end_pos := Vector3.ZERO
-		if b < 0:  # a send to a Space Storage station (b = -system id): a line from the planet to its own system's station
+		var start_pos := Vector3.ZERO
+		var start_r := 0.0
+		if a <= -1000:  # a route from an asteroid cluster: the line starts at its pack
+			var cc := _cluster_by_node(a)
+			if cc.is_empty():
+				continue
+			start_pos = Vector3(float(cc["x"]), 0.0, float(cc["y"])) * MAP_UNIT_SCALE
+			start_r = float(cc["radius"]) * MAP_UNIT_SCALE
+		elif a < 0 or a >= positions.size():
+			continue
+		else:
+			start_pos = positions[a]
+			start_r = planet_radius(a)
+		if b < 0:  # a send to a Space Storage station (b = -system id): a line from the source to its own system's station
 			var st = stations.get(-b)
-			if st == null or a < 0 or a >= positions.size() or int(planets[a].get("system", 1)) != -b:
+			if st == null or _node_system(a) != -b:
 				continue
 			end_pos = st.position
-		elif a < 0 or a >= positions.size() or b >= positions.size():
+		elif b >= positions.size():
 			continue
 		else:
 			end_pos = positions[b]
@@ -559,9 +586,9 @@ func set_routes(routes: Array) -> void:
 		if line == null:
 			line = load("res://game/route_line.gd").new()
 			add_child(line)
-			line.setup(id, a, b, positions[a], end_pos, planet_radius(a) if b < 0 else maxf(planet_radius(a), planet_radius(b)), half)
+			line.setup(id, a, b, start_pos, end_pos, start_r if b < 0 else maxf(start_r, planet_radius(b)), half)
 			route_lines[id] = line
-		line.set_style(str(r.get("status", "running")), int(r.get("ships", 1)), str(r.get("c", "")), int(r.get("net", 0)), str(r.get("reason", "")))
+		line.set_style(str(r.get("status", "running")), int(r.get("ships", 1)), str(r.get("c", "")), int(r.get("net", 0)), str(r.get("reason", "")), bool(r.get("net_ok", false)), int(r.get("cost", 0)))
 	for id in route_lines.keys():
 		if not seen.has(id):
 			route_lines[id].queue_free()

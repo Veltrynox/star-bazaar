@@ -351,8 +351,8 @@ static func side_vector(t: Vector3, vp: Vector3) -> Vector3:
 	return alt / alt.length()
 
 ## Tint from route status: running = commodity colour, stalled (waiting) = dashed warn, blocked = solid red.
-func set_style(status: String, ships: int, commodity: String = "", net: int = 0, reason: String = "") -> void:
-	_set_tag(status, ships, net, reason)
+func set_style(status: String, ships: int, commodity: String = "", net: int = 0, reason: String = "", net_ok: bool = true, cost: int = 0) -> void:
+	_set_tag(status, ships, net, reason, net_ok, cost)
 	var waiting := status != "running" and status != "blocked"
 	if _dots != null:  # ship dots while running; a waiting lane keeps one parked warn-coloured ship
 		var n := mini(ships, DOT_MAX) if (status == "running" or waiting) else 0
@@ -374,13 +374,15 @@ func set_style(status: String, ships: int, commodity: String = "", net: int = 0,
 		mats[si].set_shader_parameter("dash", 1.0 if (si == 0 and waiting) else 0.0)
 
 ## Route tag text as in the design (SystemView route tag): "2 ships · +286", or the status when not running.
-static func tag_text(status: String, ships: int, net: int, reason: String = "") -> String:
+static func tag_text(status: String, ships: int, net: int, reason: String = "", net_ok: bool = true, cost: int = 0) -> String:
 	if status == "blocked":
 		return StoryText.get_or("LBL_ROUTE_BLOCKED", "Blocked")
 	if status != "running":
 		return reason_text(status, reason)
 	var n := StoryText.get_or("LBL_ROUTE_SHIP_ONE", "{n} ship", {"n": ships}) if ships == 1 else StoryText.get_or("LBL_ROUTE_SHIP_MANY", "{n} ships", {"n": ships})
-	var sg := "\u2212%d" % -net if net < 0 else "+%d" % net
+	if not net_ok:  # no projection for this lane: show its fixed running cost, marked as cost
+		return "%s \u00b7 %s" % [n, StoryText.get_or("LBL_ROUTE_COST", "cost {n}", {"n": "\u2212%d" % cost})]
+	var sg := "\u2212%d" % -net if net < 0 else ("+%d" % net if net > 0 else "0")
 	return "%s \u00b7 %s" % [n, sg]
 
 ## Why a route that is not running is not moving: the route's own reason; "Waiting for room" only for the waiting state.
@@ -393,7 +395,7 @@ static func reason_text(status: String, reason: String) -> String:
 		return StoryText.get_or("ST_WAITING_ROOM", "Waiting for room")
 	return status.capitalize()
 
-func _set_tag(status: String, ships: int, net: int, reason: String = "") -> void:
+func _set_tag(status: String, ships: int, net: int, reason: String = "", net_ok: bool = true, cost: int = 0) -> void:
 	if tag == null:
 		tag = Label3D.new()
 		tag.billboard = BaseMaterial3D.BILLBOARD_ENABLED
@@ -410,9 +412,12 @@ func _set_tag(status: String, ships: int, net: int, reason: String = "") -> void
 		tag.render_priority = 2
 		tag.outline_render_priority = 1
 		add_child(tag)
-	tag.text = tag_text(status, ships, net, reason)
+	tag.text = tag_text(status, ships, net, reason, net_ok, cost)
 	var ok := status == "running"
-	tag.modulate = Ui.col("ink") if ok else (Ui.col("signal_bad") if status == "blocked" else Ui.col("signal_warn"))
+	var tint := Ui.col("ink")  # net result: green gain, red loss, plain at zero; a cost fallback stays plain
+	if ok and net_ok:
+		tint = Ui.col("signal_good") if net > 0 else (Ui.col("signal_bad") if net < 0 else tint)
+	tag.modulate = tint if ok else (Ui.col("signal_bad") if status == "blocked" else Ui.col("signal_warn"))
 
 ## T-ship-sync: dots follow the game's cycle clock (main._progress), so pause, fast forward and
 ## cycle end all match. One leg (half of the dot loop) takes travel_cycles_per_leg cycles.

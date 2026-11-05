@@ -45,8 +45,8 @@ func setup(bal: Dictionary, plist: Array) -> void:
 	if not FileAccess.file_exists(PATH):
 		push_error("Events: %s is missing. Run tools/build_story.py." % PATH)
 		return
-	var parsed = JSON.parse_string(FileAccess.get_file_as_string(PATH))
-	if typeof(parsed) != TYPE_ARRAY:
+	var parsed: Array = StoryText.entries_of(JSON.parse_string(FileAccess.get_file_as_string(PATH)))
+	if parsed.is_empty():
 		push_error("Events: %s is not a list." % PATH)
 		return
 	for e in parsed:
@@ -54,17 +54,16 @@ func setup(bal: Dictionary, plist: Array) -> void:
 			defs.append(e)
 			by_id[str(e["id"])] = e
 	_add_chain_defs()
-	by_id[NOTICE_STORAGE] = {"id": NOTICE_STORAGE, "notice": true, "title": "Space Storage available", "title_id": "STORAGE_READY_TITLE",
-		"text": "Your trade has earned the right to store stock in space. Learn Space Storage in the Skills window.", "text_id": "STORAGE_READY"}
+	by_id[NOTICE_STORAGE] = {"id": NOTICE_STORAGE, "notice": true, "title": "STORAGE_READY_TITLE", "title_id": "STORAGE_READY_TITLE", "text_id": "STORAGE_READY"}
 
 ## Chain data adds rows without touching data/events.json: the 12 new pool events (price or closure, text by EV<nn>_TITLE / _BODY /
-## _EFF ids, title fallback from the data) and one row per chain step (kind C, texts by EV_<step>_..., see chains.gd).
+## _EFF ids) and one row per chain step (kind C, texts by EV_<step>_..., see chains.gd).
 func _add_chain_defs() -> void:
 	for id in Chains.pool_new.keys():
 		if by_id.has(id):
 			continue
 		var n: Dictionary = Chains.pool_new[id]
-		var d := {"id": id, "title": str(n.get("title", id)), "title_id": id + "_TITLE", "text_id": id + "_BODY", "text": "", "tag": "", "kind": str(n.get("kind", "P")), "choices": [], "pool_effect": n.get("effect", {})}
+		var d := {"id": id, "title": id, "title_id": id + "_TITLE", "text_id": id + "_BODY", "text": "", "tag": "", "kind": str(n.get("kind", "P")), "choices": [], "pool_effect": n.get("effect", {})}
 		defs.append(d)
 		by_id[id] = d
 	for sid in Chains.step_ids():
@@ -143,7 +142,7 @@ func choice_text(ch, args: Dictionary = {}) -> String:
 		return StoryText.get_text(str(ch["text_id"]), args)
 	return str(ch.get("text", "")) if typeof(ch) == TYPE_DICTIONARY else str(ch)
 
-## T98: title and body of an event; choice events with title_id/text_id load them by id.
+## Title and body of an event: every event row carries title_id / text_id (StoryText); a plain title/text is only a fallback for test rows.
 func title_of(id: String, args: Dictionary = {}) -> String:
 	var ev: Dictionary = by_id.get(id, {})
 	if is_chain_step(id):
@@ -212,11 +211,11 @@ func interval() -> int:
 func due(cycle: int) -> bool:
 	return cycle > 1 and (cycle - 1) % interval() == 0
 
-## Event gate: an event with "min_cycle" in data/events.json is not picked before that cycle.
-## No key = no gate. cycle <= 0 (not given) = no gate check.
+## Event gate: an event with "min_cycle" in data/events.json is not picked before that cycle; an event with "visible_when"
+## (a condition tree, game/conditions.gd) is not picked while it is false. No key = no gate. cycle <= 0 (not given) = no gate check.
 func available(id: String, cycle: int) -> bool:
 	var ev: Dictionary = by_id.get(id, {})
-	if not good_available(id):
+	if not good_available(id) or not Conditions.visible(ev, {"cycle": cycle, "planets": planets}):
 		return false
 	if cycle <= 0:
 		return true
@@ -232,11 +231,8 @@ func good_available(id: String) -> bool:
 	var c := str(eff.get("c", ""))
 	if c == "":
 		return true
-	for p in planets:
-		if typeof(p) == TYPE_DICTIONARY and typeof(p.get("base_prices")) == TYPE_DICTIONARY:
-			if p["base_prices"].has(c + "_buy") or p["base_prices"].has(c + "_sell"):
-				return true
-	return false
+	# never name a good the player cannot see yet (data/availability.json), and some open planet must price it
+	return Conditions.eval({"all": ["good_visible:" + c, "good_traded:" + c]}, {"planets": planets})
 
 ## True for events that never come from the random pick: part 2 events (the follow_id of any choice) and events
 ## marked "scheduled_only" or "random": false.
@@ -267,6 +263,10 @@ func take_due(cycle: int) -> String:
 			scheduled.remove_at(i)
 			return id
 	return ""
+
+## True when the event or chain step fired this run (feed is saved with the run; the event_fired atom reads it).
+func has_fired(id: String) -> bool:
+	return _fired(id)
 
 func _fired(id: String) -> bool:
 	for f in feed:

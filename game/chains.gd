@@ -121,45 +121,26 @@ static func _last_fired_cycle(market: String) -> int:
 			last = maxi(last, int(picks[id]["cycle"]))
 	return last
 
-static func _atom(key: String, val, step: Dictionary, cycle: int) -> bool:
-	var m := str(step["market"])
-	match key:
-		"first_sale_after_cycle":  # a sale of a non-common-raw good of the market in a cycle after this one
-			var after := int(_num(str(val)))
-			var arr: Array = Markets.vp_active.get(m, [])
-			for i in arr.size():
-				if i + 1 > after and float(arr[i]) > 0.0:
-					return true
-			return false
-		"share_pct":
-			return Markets.share(m) * 100.0 >= _num(str(val))
-		"cycles_after_prev_step":
-			var p := prev_id(str(step["id"]))
-			return p != "" and picks.has(p) and cycle - int(picks[p]["cycle"]) >= int(_num(str(val)))
-		"tech_done", "skill_learned":
-			return Skills.is_learned(str(val))
-	return false
-
-static func _tree(node, step: Dictionary, cycle: int) -> bool:
-	if typeof(node) != TYPE_DICTIONARY:
-		return false
-	if node.has("any"):
-		for n in node["any"]:
-			if _tree(n, step, cycle):
-				return true
-		return false
-	if node.has("all"):
-		for n in node["all"]:
-			if not _tree(n, step, cycle):
-				return false
-		return true
-	for k in node.keys():
-		return _atom(str(k), node[k], step, cycle)
-	return false
-
+## Trigger and visible_when of the step, both condition trees of game/conditions.gd (atoms that read the step: share_pct,
+## first_sale_after_cycle, cycles_after_prev_step). A step without visible_when is always visible.
 static func trigger_ok(step_id: String, cycle: int) -> bool:
 	_ensure()
-	return _tree(step_by_id.get(step_id, {}).get("trigger", {}), step_by_id.get(step_id, {}), cycle)
+	var ctx := cond_ctx(step_id, cycle)
+	var st: Dictionary = step_by_id.get(step_id, {})
+	return Conditions.eval(st.get("trigger", {}), ctx) and Conditions.visible(st, ctx)
+
+static func cond_ctx(step_id: String, cycle: int) -> Dictionary:
+	return {"step": step_id, "cycle": cycle, "balance": bal}
+
+## The options of a step that may be offered (their optional visible_when holds), in this run's button order.
+static func visible_options(step_id: String) -> Array:
+	_ensure()
+	var out: Array = []
+	var ctx := cond_ctx(step_id, now)
+	for o in order(step_id):
+		if Conditions.visible(step_by_id.get(step_id, {}).get(str(o), {}), ctx):
+			out.append(o)
+	return out
 
 ## True when the step may fire this cycle: not fired, previous step fired (when required), min gap since the last step of the
 ## market, trigger true. Cycle 1 never fires (the tutorial runs first), and no step fires before balance chain_min_cycle.

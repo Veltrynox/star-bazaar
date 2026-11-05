@@ -451,7 +451,7 @@ func _draw() -> void:
 		_draw_planet(pos, p)
 		var c4 := _sys_center(ids.find(int(info2["sys"])))
 		var comm := str(p.get("abundant", ""))
-		if comm != "":
+		if comm != "" and Availability.good(comm):  # data/availability.json: no icon for a good not visible yet
 			var ic: Texture2D = Ui.icon(comm)
 			if ic != null:
 				var tint := Ui.commodity_col(comm)
@@ -748,7 +748,9 @@ func _build_open_side(sid: int) -> void:
 		nm.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		row.add_child(nm)
 		var comm := str(p.get("abundant", ""))
-		if comm != "":
+		if comm != "" and not Availability.good(comm):
+			pass  # hidden good: the row shows the planet name only
+		elif comm != "":
 			row.add_child(_icon_rect(comm, 16.0, Ui.commodity_col(comm)))
 			var cl := Label.new()
 			cl.text = Ui.good_name(comm)

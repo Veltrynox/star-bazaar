@@ -443,13 +443,26 @@ func check_cluster(node: int, dst: int, c: String, new_route: bool = true) -> Di
 		return {"ok": false, "reason": StoryText.get_or("NOT_CLUSTER_ONLY_ORE", "This cluster gives ore only.")}
 	if new_route and clusters.left(i) <= 0:
 		return {"ok": false, "reason": StoryText.get_or("NOT_CLUSTER_EMPTY", "This cluster is empty.")}
-	if dst < 0 or dst >= trade.planets.size():
-		return {"ok": false, "reason": "Pick a planet to deliver to."}
-	if not planet_open(dst):
-		return {"ok": false, "reason": "A planet on this route is closed."}
-	if dead_lock_reason(dst) != "":
-		return {"ok": false, "reason": dead_lock_reason(dst)}
-	if clusters.system_of(i) != int(trade.planets[dst].get("system", 1)) and not Skills.unlocked("permit_routes"):
+	var dst_system := 0
+	if dst < 0:  # Space Storage station of system -dst (same rule as a planet: another system needs the permit routes skill)
+		dst_system = -dst
+		if not Availability.storage("space_storage"):
+			return {"ok": false, "reason": "Pick a planet to deliver to."}
+		var known := false
+		for p in trade.planets:
+			if int(p.get("system", 1)) == dst_system:
+				known = true
+		if not known:
+			return {"ok": false, "reason": "No such system."}
+	else:
+		if dst >= trade.planets.size():
+			return {"ok": false, "reason": "Pick a planet to deliver to."}
+		if not planet_open(dst):
+			return {"ok": false, "reason": "A planet on this route is closed."}
+		if dead_lock_reason(dst) != "":
+			return {"ok": false, "reason": dead_lock_reason(dst)}
+		dst_system = int(trade.planets[dst].get("system", 1))
+	if clusters.system_of(i) != dst_system and not Skills.unlocked("permit_routes"):
 		return {"ok": false, "reason": StoryText.get_text("NOT_ROUTE_NEEDS_C3")}
 	return {"ok": true, "reason": ""}
 
@@ -550,7 +563,7 @@ func stop_open(rec: Dictionary) -> bool:
 ## T70: full destination, no source stock check: true when the route cannot add a unit now.
 ## T85: Space Storage of the source planet's system, "" when there is none (needs FND_STORAGE and an established post).
 func space_key_for(planet: int) -> String:
-	if not Skills.unlocked("space_storage") or planet < 0 or planet >= trade.planets.size():
+	if not Availability.storage("space_storage") or planet < 0 or planet >= trade.planets.size():
 		return ""
 	var k: String = storage.system_key(int(trade.planets[planet].get("system", 1)))
 	return k if storage.established(k) else ""
@@ -622,24 +635,35 @@ func _route_cap(rec: Dictionary) -> int:
 
 ## Read-only projection of one storage key and commodity over the next cycle. Runs the cycle order
 ## (local buys, routes, local sells) on a scratch copy of the stock; nothing in the game changes.
-## {in, out, after, capacity}. `cash` bounds buys and route costs (default: unlimited). Approximations:
+## {in, out, after, capacity, parts}. `parts` lists every flow of `key`: {dir "in"|"out", kind "buy"|"route"|"sell", route id or -1,
+## planet, backup (true when a source or Sell draws the Space Storage because the planet's own stock is short), n}; the in
+## parts sum to `in`, the out parts to `out`. `cash` bounds buys and route costs (default: unlimited). Approximations:
 ## the cash of other commodities' orders is not tracked, split budgets use the live stock, and Mixed load
 ## and level bonuses (credits only) are ignored.
 func project_storage(key: String, c: String, cash: int = 1 << 40) -> Dictionary:
 	var cap: int = storage.capacity_of(key)
 	var shadow := {}
 	var tally := {"in": 0, "out": 0}
+	var parts: Array = []
 	var cur := cash
 	var get_amt := func(k: String) -> int:
 		return int(shadow[k]) if shadow.has(k) else storage.amount(k, c)
-	var put := func(k: String, n: int) -> void:
+	var note := func(dir: String, kind: String, rid: int, planet: int, backup: bool, n: int) -> void:
+		for p in parts:
+			if p["dir"] == dir and p["kind"] == kind and int(p["route"]) == rid and int(p["planet"]) == planet and bool(p["backup"]) == backup:
+				p["n"] = int(p["n"]) + n
+				return
+		parts.append({"dir": dir, "kind": kind, "route": rid, "planet": planet, "backup": backup, "n": n})
+	var put := func(k: String, n: int, kind: String, rid: int, planet: int) -> void:
 		shadow[k] = int(get_amt.call(k)) + n
 		if k == key:
 			tally["in"] += n
-	var take := func(k: String, n: int) -> void:
+			note.call("in", kind, rid, planet, false, n)
+	var take := func(k: String, n: int, kind: String, rid: int, planet: int, backup: bool) -> void:
 		shadow[k] = int(get_amt.call(k)) - n
 		if k == key:
 			tally["out"] += n
+			note.call("out", kind, rid, planet, backup, n)
 	var orders: Array = local.values()
 	for o in orders:  # 1 local buys
 		if str(o["c"]) != c or not o["buy"]:
@@ -653,7 +677,7 @@ func project_storage(key: String, c: String, cash: int = 1 << 40) -> Dictionary:
 		if price > 0:
 			n = mini(n, floori(float(maxi(cur, 0)) / price))
 		if n > 0:
-			put.call(pk, n)
+			put.call(pk, n, "buy", -1, p)
 			cur -= n * price
 	var budget := {}  # split lanes: the live share, spent as lanes move
 	for rec in routes:
@@ -690,10 +714,10 @@ func project_storage(key: String, c: String, cash: int = 1 << 40) -> Dictionary:
 			budget[lk] = maxi(0, int(budget[lk]) - moved)
 		var from_planet: int = mini(moved, int(get_amt.call(src)))
 		if from_planet > 0:
-			take.call(src, from_planet)
+			take.call(src, from_planet, "route", int(rec["id"]), int(rec["a"]), false)
 		if sk != "" and from_planet < moved:
-			take.call(sk, moved - from_planet)
-		put.call(dst, moved)
+			take.call(sk, moved - from_planet, "route", int(rec["id"]), int(rec["a"]), true)
+		put.call(dst, moved, "route", int(rec["id"]), int(rec["a"]))
 	for o in orders:  # 3 local sells
 		if str(o["c"]) != c or not o["sell"]:
 			continue
@@ -708,10 +732,10 @@ func project_storage(key: String, c: String, cash: int = 1 << 40) -> Dictionary:
 			continue
 		var from_planet: int = mini(n, int(get_amt.call(pk)))
 		if from_planet > 0:
-			take.call(pk, from_planet)
+			take.call(pk, from_planet, "sell", -1, p, false)
 		if sk != "" and from_planet < n:
-			take.call(sk, n - from_planet)
-	return {"in": int(tally["in"]), "out": int(tally["out"]), "after": clampi(int(get_amt.call(key)), 0, cap), "capacity": cap}
+			take.call(sk, n - from_planet, "sell", -1, p, true)
+	return {"in": int(tally["in"]), "out": int(tally["out"]), "after": clampi(int(get_amt.call(key)), 0, cap), "capacity": cap, "parts": parts}
 
 ## Projected net credits of the next cycle (display and cash forecast): the ship cost while it can move stock.
 func payout_of(rec: Dictionary) -> int:
@@ -810,6 +834,7 @@ func forecast(cash: int) -> Dictionary:
 		var price := local_price(p, c, "buy")
 		var pk: String = storage.planet_key(p)
 		var credits := 0
+		var bought := 0
 		var state := "Buying."
 		if not planet_open(p):
 			state = "Planet closed."
@@ -830,8 +855,9 @@ func forecast(cash: int) -> Dictionary:
 				else:
 					shadow[pk + "|" + c] = int(amt.call(pk, c)) + n
 					credits = -n * price
+					bought = n
 		delta += credits
-		loc.append({"label": "Buy %s at %s" % [c, _pname(p)], "role": "buy", "planet": p, "c": c, "credits": credits, "state": state})
+		loc.append({"label": "Buy %s at %s" % [c, _pname(p)], "role": "buy", "planet": p, "c": c, "credits": credits, "state": state, "n": bought, "unit": maxi(price, 0)})
 	var budget := {}
 	for rec in routes:
 		var lk := _lane_key(int(rec["a"]), int(rec["b"]), str(rec["c"]))
@@ -845,7 +871,7 @@ func forecast(cash: int) -> Dictionary:
 		var c := str(rec["c"])
 		var src := str(rec["src"])
 		var dst := str(rec["dst"])
-		var line := {"a": int(rec["a"]), "b": int(rec["b"]), "c": c, "status": "running", "trip": trip_part(rec) * (2 if has_stop(rec) else 1), "upkeep": upkeep_part(rec), "gross": 0, "moves": false}
+		var line := {"id": int(rec.get("id", -1)), "a": int(rec["a"]), "b": int(rec["b"]), "c": c, "status": "running", "trip": trip_part(rec) * (2 if has_stop(rec) else 1), "upkeep": upkeep_part(rec), "gross": 0, "moves": false, "units": 0, "paid": 0}
 		res.append(line)
 		if not src_open(rec) or not dst_open(rec):
 			line["status"] = "blocked"
@@ -890,6 +916,8 @@ func forecast(cash: int) -> Dictionary:
 		var gross := level_bonus(rec, carried) + sale
 		line["gross"] = gross
 		line["moves"] = true
+		line["units"] = moved
+		line["paid"] = fixed
 		delta += gross - fixed
 		fare_seen = true
 	for o in orders:  # 3 local sells
@@ -899,6 +927,7 @@ func forecast(cash: int) -> Dictionary:
 		var c := str(o["c"])
 		var pk: String = storage.planet_key(p)
 		var credits := 0
+		var sold_n := 0
 		var state := "Selling."
 		var price := local_price(p, c, "sell")
 		if not planet_open(p):
@@ -919,13 +948,52 @@ func forecast(cash: int) -> Dictionary:
 				if sk != "" and from_planet < n:
 					shadow[sk + "|" + c] = int(amt.call(sk, c)) - (n - from_planet)
 				credits = n * sold_price(p, c)
+				sold_n = n
 				var m: Dictionary = mixed.get(p, {"goods": 0, "bonus": 0, "mk": []})
 				var b := mixed_bonus(credits, int(m["goods"]), int(m["bonus"]), _cross_with(m["mk"], c))
 				credits += b
 				mixed[p] = {"goods": int(m["goods"]) + 1, "bonus": int(m["bonus"]) + b, "mk": _add_mk(m["mk"], c)}
 		delta += credits
-		loc.append({"label": "Sell %s at %s" % [c, _pname(p)], "role": "sell", "planet": p, "c": c, "credits": credits, "state": state})
+		loc.append({"label": "Sell %s at %s" % [c, _pname(p)], "role": "sell", "planet": p, "c": c, "credits": credits, "state": state, "n": sold_n, "unit": sold_price(p, c)})
+	_attribute_lanes(loc, res)
 	return {"local": loc, "routes": res, "delta": delta}
+
+## Lane result per cycle, added to each route line of forecast(): sale (what the units it carries fetch at the
+## destination Sell order), cost (what those units cost at the source Buy order), net = sale + gross - cost - paid.
+## Several lanes feeding one order share it by the units each carries: a lane's share of the units the order
+## really buys or sells is units * min(1, order units / units all lanes carry there). Stock that was already
+## there, mixed-load bonus and orders no lane feeds stay outside every lane (see lane_rest in the test).
+func _attribute_lanes(loc: Array, res: Array) -> void:
+	var into := {}  # "b|c" -> units all lanes carry to that destination
+	var outof := {}  # "a|c" -> units all lanes take from that source
+	for l in res:
+		l["sale"] = 0
+		l["cost"] = 0
+		l["net"] = 0
+		if not bool(l["moves"]):
+			continue
+		var kb := "%d|%s" % [int(l["b"]), str(l["c"])]
+		var ka := "%d|%s" % [int(l["a"]), str(l["c"])]
+		into[kb] = int(into.get(kb, 0)) + int(l["units"])
+		outof[ka] = int(outof.get(ka, 0)) + int(l["units"])
+	for l in res:
+		if not bool(l["moves"]):
+			continue
+		var c := str(l["c"])
+		var sale := 0
+		var cost := 0
+		for o in loc:
+			if str(o["c"]) != c:
+				continue
+			if str(o["role"]) == "sell" and int(o["planet"]) == int(l["b"]) and int(o["n"]) > 0:
+				var d := int(into["%d|%s" % [int(l["b"]), c]])
+				sale = roundi(float(int(l["units"])) * minf(1.0, float(int(o["n"])) / d) * int(o["unit"]))
+			elif str(o["role"]) == "buy" and int(o["planet"]) == int(l["a"]) and int(o["n"]) > 0:
+				var d2 := int(outof["%d|%s" % [int(l["a"]), c]])
+				cost = roundi(float(int(l["units"])) * minf(1.0, float(int(o["n"])) / d2) * int(o["unit"]))
+		l["sale"] = sale
+		l["cost"] = cost
+		l["net"] = sale + int(l["gross"]) - cost - int(l["paid"])
 
 ## N3 Mixed load (code name: bundle bonus). Bonus credits for a sale of `revenue` at a planet that already sold
 ## `goods_before` distinct goods this cycle with `bonus_before` bonus paid. First good gets none; per-planet cap.

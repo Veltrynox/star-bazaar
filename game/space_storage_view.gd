@@ -62,6 +62,8 @@ func refresh() -> void:
 	cl.text = StoryText.get_or("SS_LBL_CAPACITY", "Capacity: {cap} per commodity", {"cap": cap})
 	box.add_child(cl)
 	for c in main.commodities:
+		if not Availability.feature("space_storage_stock_rows") or not Availability.good(str(c)):
+			continue  # data/availability.json: only visible goods have a stock row
 		var row := HBoxContainer.new()
 		row.name = "Row_" + str(c)
 		row.add_theme_constant_override("separation", 8)
@@ -74,24 +76,25 @@ func refresh() -> void:
 		l.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		row.add_child(l)
+		row.tooltip_text = GoodInfo.block(str(c))  # hover: what the good is and how it is used
 		var nc: Control = PlanetPanel.next_cycle_label(main, key, str(c))
 		if nc != null:
 			row.add_child(nc)  # right end of the same row
 		box.add_child(row)
 	_fabric_rows()
-	_workshop_rows()
+	_build_blocks()
 	size = Vector2.ZERO
 
 ## Fabric block, only in system 1 once MIN_1 is learned: build button with the cost, then the recipe and its status.
 func _fabric_rows() -> void:
-	if system_id != main.Fabric.SYSTEM or not main.has_skill("MIN_1"):
+	if system_id != main.Fabric.SYSTEM or not Availability.workshop("fabric"):
 		return
 	var f = main.fabric
 	var unrouted: Array = [] if f.built else main.fabric_inputs_unrouted()
 	var head := Label.new()
 	head.name = "FabricLine"
 	head.theme_type_variation = "LabelCaption"
-	head.text = StoryText.get_or("SS_FABRIC", "Fabric") + ": " + f.recipe_text()
+	head.text = StoryText.get_or("SS_FABRIC", "Fabric") + (": " + f.recipe_text() if Availability.good("plate") else "")  # the recipe names plate, dross, nullglass
 	box.add_child(head)
 	if not f.built:
 		var b := Button.new()
@@ -106,12 +109,15 @@ func _fabric_rows() -> void:
 		st.text = ("made %d plate" % f.made) if f.state == "running" else (f.reason if f.state == "stalled" else "ready")
 		box.add_child(st)
 	var miss: Array = unrouted if not unrouted.is_empty() else _inputs_unreached(f)
+	miss = Availability.visible_goods(miss)
 	if not miss.is_empty():  # QA 2026-11-03: fabric can be built before its inputs have a route
 		var ml := Label.new()
 		ml.name = "FabricInputs"
 		ml.theme_type_variation = "LabelCaption"
 		ml.text = StoryText.get_or("SS_FABRIC_NO_INPUTS", "Missing inputs: {items}. Send them here from a dead world.", {"items": ", ".join(miss)})
 		box.add_child(ml)
+	if not Availability.feature("null_core"):
+		return
 	var cl := Label.new()  # Null Core: plate + nullglass, one per run
 	cl.name = "CoreLine"
 	cl.theme_type_variation = "LabelCaption"
@@ -130,16 +136,22 @@ func _fabric_rows() -> void:
 		cs.text = StoryText.get_or("LBL_NULL_CORE_BUILT", "Null Core built (one per run).")
 		box.add_child(cs)
 
-## Workshops (smelter, munitions, atelier, culture lab), system 1 only: those built or unlocked, with recipes and status or Build.
+## Build blocks of a cell, one function per block so a later one (portal between cells) sits beside the workshops.
+func _build_blocks() -> void:
+	_workshop_rows()
+
+## Workshops: the ones standing in THIS cell (recipe and status) and the visible, unbuilt ones as Build buttons.
+## Each workshop is built once per run; once built it shows only in its own cell. Visibility is Availability.workshop.
 func _workshop_rows() -> void:
-	if system_id != main.WorkshopsScript.SYSTEM:
-		return
 	var ws: RefCounted = main.workshops
 	var shown: Array = []
 	for id in ws.IDS:
-		if ws.built[id] or ws.is_unlocked(id):
-			shown.append(id)
-	if shown.is_empty():
+		if not Availability.workshop(str(id)):
+			continue
+		if ws.built[id] and not ws.stands_in(str(id), system_id):
+			continue  # built in another cell
+		shown.append(id)
+	if shown.is_empty() or not main.station_systems.has(system_id):
 		return
 	box.add_child(HSeparator.new())
 	var title := Label.new()
@@ -154,17 +166,14 @@ func _workshop_rows() -> void:
 		head.theme_type_variation = "LabelAccent"
 		box.add_child(head)
 		for g in ws.open_recipes(id):
-			var rl := _wrapped(Goods.recipe_text(str(g), main.balance))
+			if not Availability.good(str(g)):
+				continue  # a recipe row needs its crafted good visible
+			var rl := _wrapped(ws.recipe_line(str(g)))
 			rl.name = "WorkshopRecipe_" + str(g)
 			rl.theme_type_variation = "LabelSmall"
 			box.add_child(rl)
 		if ws.built[id]:
-			var line := StoryText.get_or("LBL_WORKSHOP_BATCHES", "Batches this cycle: {n}", {"n": ws.batches(id)})
-			var made: String = ws.made_text(id)
-			if made != "":
-				line += "  " + StoryText.get_or("LBL_WORKSHOP_MADE", "Last cycle: {items}", {"items": made})
-			elif ws.state[id] == "stalled":
-				line += "  " + StoryText.get_or("LBL_WORKSHOP_STALLED", "Stalled: {why}", {"why": ws.reason[id]})
+			var line: String = ws.status_text(id)
 			var bl := _wrapped(line)
 			bl.name = "WorkshopStatus_" + str(id)
 			box.add_child(bl)
@@ -172,8 +181,8 @@ func _workshop_rows() -> void:
 			var b := Button.new()
 			b.name = "WorkshopBuild_" + str(id)
 			b.text = StoryText.get_or("BTN_WORKSHOP_BUILD", "Build {workshop} ({cost} cr)", {"workshop": nm, "cost": ws.build_cost(id)})
-			b.disabled = not main.can_build_workshop(str(id))["ok"]
-			b.pressed.connect(func(): main.build_workshop(str(id)); refresh())
+			b.disabled = not main.can_build_workshop(str(id), system_id)["ok"]
+			b.pressed.connect(func(): main.build_workshop(str(id), system_id); refresh())
 			box.add_child(b)
 
 func _wrapped(text: String) -> Label:
