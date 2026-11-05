@@ -98,6 +98,7 @@ func _run() -> void:
 	await _test_clusters()
 	await _test_cluster_send()
 	await _test_cluster_to_station()
+	await _test_links_everywhere()
 	await _test_asteroid_packs()
 	_test_event_banners()
 	await _test_company_setup()
@@ -6261,6 +6262,202 @@ func _test_foundations_first() -> void:
 	m.learned_skills = ["MIL_1"]
 	check(m.learned_skills.has("MIL_1") and SkillTree.state(m.learned_skills, "MIL_1") == "learned", "foundations: an old save keeps a branch skill without Foundations")
 	check((m.collect_state().get("learned_skills", []) as Array).has("MIL_1"), "foundations: saved list still carries it")
+
+const DeadW = preload("res://game/dead_worlds.gd")
+
+# ---- T188: a link can be made between every pair of node types, and no node is stranded ----
+# Node types: planet, space storage, dead planet, asteroid field. Link functions: route (Main.send_stock_buying, a planet, dead
+# planet or asteroid field as source, a planet, dead planet or Space Storage as destination), storage link (StorageLink.build_link,
+# two Space Storages of different systems; there is one storage per system) and the mining platform (Pathfinder, discovery on only).
+# Every unlock is bought the way the player buys it (learn_skill, buy_permit, a Pathfinder flight and build). Each pair is tried
+# in the same system and across systems; the link must be created, saved, loaded back, and never refused.
+func _t188_learn(m, id: String, tag: String) -> void:
+	for pre in SkillTree.missing_prereqs(m.learned_skills, id):  # the player learns the chain first
+		_t188_learn(m, str(pre), tag)
+	var r: Dictionary = m.learn_skill(id)
+	check(bool(r["ok"]) or Skills.is_learned(id), "links %s: skill %s can be learned" % [tag, id], str(r))
+
+func _t188_unlock(m, tag: String) -> void:
+	m.cash = 1000000
+	m.skill_points = 100
+	m.trade_income_total = 100000
+	_t188_learn(m, "FND_PERMIT", tag)
+	var r: Dictionary = m.buy_permit(2)
+	check(bool(r["ok"]), "links %s: the system 2 permit can be bought" % tag, str(r))
+	_t188_learn(m, "FND_STORAGE", tag)
+	_t188_learn(m, "FND_PROSPECT", tag)
+	for p in m.map.planets:
+		if DeadW.is_dead(p):
+			var sk: String = Skills.mine_skill_for(str(p["id"]))
+			check(sk != "", "links %s: dead world %s has a mining skill" % [tag, str(p["id"])], sk)
+			if sk != "" and not Skills.is_learned(sk):
+				_t188_learn(m, sk, tag)
+	m.cycle = maxi(m.cycle, m.dead_unlock_cycle())
+	m._ensure_posts()
+	m._sync_closed()
+
+## Discovery on: fly to every planet and build its post or platform with the Pathfinder (the player path).
+func _t188_establish(m, tag: String) -> void:
+	for i in m.map.planets.size():
+		var pid := str(m.map.planets[i]["id"])
+		if m.flight.established(pid):
+			continue
+		var e: String = m.flight.request_fly({"kind": "planet", "index": i})
+		m.flight.finish_flight()
+		e += m.flight.request_establish(pid)
+		m.flight.finish_build()
+		check(e == "" and m.flight.established(pid), "links %s: %s can be established" % [tag, pid], e)
+	m._sync_closed()
+
+func _t188_reset(m) -> void:
+	m.engine.routes.clear()
+	m.storage_link.setup(m.balance, m.storage, m)
+	m.cash = 1000000
+	m.ships = 0
+
+func _t188_nodes(m) -> Array:
+	var out: Array = []
+	for i in m.map.planets.size():
+		var p: Dictionary = m.map.planets[i]
+		out.append({"kind": "dead" if DeadW.is_dead(p) else "planet", "id": i, "sys": int(p.get("system", 1)), "name": str(p.get("id", i))})
+	for sid in m.station_systems:
+		out.append({"kind": "storage", "id": -int(sid), "sys": int(sid), "name": "storage%d" % int(sid)})
+	for c in m.clusters.list(0):
+		out.append({"kind": "asteroid", "id": int(c["node"]), "sys": int(c["system"]), "name": "cluster " + str(c["id"]), "index": int(c["index"])})
+	return out
+
+func _t188_good(m, a: Dictionary) -> String:
+	if a["kind"] == "asteroid":
+		return str(m.clusters.good_of(int(a["index"])))
+	return "energy"
+
+## One route src -> dst through the game's own function; {ok, reason}. Checks created, saved and loaded back.
+func _t188_route(m, src: Dictionary, dst: Dictionary, tag: String) -> bool:
+	_t188_reset(m)
+	var c := _t188_good(m, src)
+	var label := "links %s: %s %s -> %s %s (%s)" % [tag, src["kind"], src["name"], dst["kind"], dst["name"], "same system" if src["sys"] == dst["sys"] else "across systems"]
+	var r: Dictionary = m.send_stock_buying(int(src["id"]), int(dst["id"]), c)
+	var rec: Dictionary = m.engine.routes[0] if m.engine.routes.size() == 1 else {}
+	var made: bool = bool(r["ok"]) and not rec.is_empty() and int(rec["a"]) == int(src["id"]) and int(rec["b"]) == int(dst["id"]) and str(rec["c"]) == c
+	check(made, label + " is created", str(r))
+	if not made:
+		return false
+	var st: Dictionary = JSON.parse_string(JSON.stringify(m.collect_state()))
+	var saved: bool = st["routes"].size() == 1 and int(st["routes"][0]["a"]) == int(src["id"]) and int(st["routes"][0]["b"]) == int(dst["id"])
+	m.engine.routes.clear()
+	m.apply_state(st)
+	var back: bool = m.engine.routes.size() == 1 and int(m.engine.routes[0]["a"]) == int(src["id"]) and int(m.engine.routes[0]["b"]) == int(dst["id"]) and str(m.engine.routes[0]["c"]) == c
+	check(saved and back, label + " is saved and loaded back", "saved %s back %s" % [saved, str(m.engine.routes)])
+	return true
+
+func _t188_storage_link(m, a: Dictionary, b: Dictionary, tag: String) -> bool:
+	_t188_reset(m)
+	var label := "links %s: storage %s <-> storage %s (across systems)" % [tag, a["name"], b["name"]]
+	for n in [a, b]:
+		var key: String = Storage.system_key(int(n["sys"]))
+		m.storage.ensure(key)
+		m.storage.add(key, "rivets", int(m.storage_link.cost()["rivets"]))
+		m.storage.add(key, "energy", int(m.storage_link.cost()["energy"]))
+	var why: String = m.storage_link.can_build(int(a["sys"]), int(b["sys"]))
+	var id: int = m.storage_link.build_link(int(a["sys"]), int(b["sys"]))
+	check(id >= 0, label + " is created", "%s %s" % [why, m.storage_link.last_reason])
+	if id < 0:
+		return false
+	var st: Dictionary = JSON.parse_string(JSON.stringify(m.collect_state()))
+	var saved: bool = st["storage_links"].size() == 1
+	m.storage_link.setup(m.balance, m.storage, m)
+	m.apply_state(st)
+	var back: bool = m.storage_link.pair_link(int(a["sys"]), int(b["sys"])) >= 0 and m.storage_link.links().size() == 1
+	check(saved and back, label + " is saved and loaded back", "saved %s links %s" % [saved, str(m.storage_link.links())])
+	return true
+
+func _t188_pass(discovery: bool) -> void:
+	_wipe_user()
+	var tag := "discovery on" if discovery else "start state"
+	var m: Control = await _new_main(false, discovery)
+	m._dismiss_preface()
+	check(int(m.balance.get("discovery_enabled", -1)) == (1 if discovery else 0), "links %s: discovery set by the test" % tag)
+	# start state: the home world links to the other living worlds of its system before any unlock
+	var home_edges := 0
+	for j in range(1, m.map.planets.size()):
+		if not DeadW.is_dead(m.map.planets[j]) and int(m.map.planets[j].get("system", 1)) == 1 and (not discovery or m.flight.established(str(m.map.planets[j]["id"]))):
+			home_edges += 1 if bool(m.can_connect(0, j, "energy")["ok"] or m.can_connect(0, j, "energy")["reason"] == StoryText.get_text("NOT_SHIP_FREE")) else 0
+	check(discovery or home_edges >= 1, "links %s: before any unlock the home world has a route to a living world" % tag, str(home_edges))
+	_t188_unlock(m, tag)
+	if discovery:
+		_t188_establish(m, tag)
+	var nodes: Array = _t188_nodes(m)
+	var kinds := {}
+	var systems := {}
+	for n in nodes:
+		kinds[n["kind"]] = true
+		systems[n["sys"]] = true
+	check(kinds.size() == 4 and systems.size() >= 2, "links %s: every node type and at least two systems exist" % tag, "%s %s" % [str(kinds.keys()), str(systems.keys())])
+	var covered := {}  # "kindA|kindB|same/cross" -> true
+	var edges: Array = []  # [i, j] pairs with a working link
+	for i in nodes.size():
+		for j in range(i + 1, nodes.size()):
+			var a: Dictionary = nodes[i]
+			var b: Dictionary = nodes[j]
+			var ok_any := false
+			var tried := false
+			var ends := [[a, b], [b, a]]
+			for e in ends:
+				var s: Dictionary = e[0]
+				var d: Dictionary = e[1]
+				if s["kind"] == "storage" or d["kind"] == "asteroid":
+					continue  # not a link direction: a storage is only a destination, a field only a source
+				tried = true
+				if _t188_route(m, s, d, tag):
+					ok_any = true
+			if a["kind"] == "storage" and b["kind"] == "storage":
+				tried = true
+				ok_any = _t188_storage_link(m, a, b, tag)
+			if a["kind"] == "asteroid" and b["kind"] == "asteroid":
+				_t188_reset(m)
+				var rr: Dictionary = m.engine.check_connection(int(a["id"]), int(b["id"]), "ore")
+				check(not rr["ok"], "links %s: two asteroid fields are not linked by design (a field only mines into a planet or storage)" % tag, str(rr))
+			if tried:
+				check(ok_any, "links %s: a link exists between %s and %s" % [tag, a["name"], b["name"]])
+			if ok_any:
+				edges.append([i, j])
+				covered["%s|%s|%s" % [minf_s(a["kind"], b["kind"]), maxf_s(a["kind"], b["kind"]), "same" if a["sys"] == b["sys"] else "cross"]] = true
+	# every pair of node types that can be linked was linked in the same system and across systems
+	var want: Array = ["planet|planet", "dead|planet", "planet|storage", "dead|storage", "asteroid|planet", "asteroid|dead", "asteroid|storage"]
+	for w in want:
+		for where in ["same", "cross"]:
+			check(covered.has(w + "|" + where), "links %s: type pair %s tried %s" % [tag, w.replace("|", " + "), where + (" system" if where == "same" else " systems")])
+	check(covered.has("storage|storage|cross"), "links %s: storage pair tried across systems (one storage per system, so no same-system pair exists)" % tag)
+	# reachability: every node can be reached from the home world by a chain of the links above
+	var seen := {0: true}
+	var queue := [0]
+	while not queue.is_empty():
+		var k: int = queue.pop_back()
+		for e in edges:
+			var o := -1
+			if int(e[0]) == k:
+				o = int(e[1])
+			elif int(e[1]) == k:
+				o = int(e[0])
+			if o >= 0 and not seen.has(o):
+				seen[o] = true
+				queue.append(o)
+	var stranded: Array = []
+	for i in nodes.size():
+		if not seen.has(i):
+			stranded.append(nodes[i]["name"])
+	check(stranded.is_empty(), "links %s: no node is stranded (reachable from the home world)" % tag, str(stranded))
+	await _free_main(m)
+
+func minf_s(x: String, y: String) -> String:
+	return x if x < y else y
+
+func maxf_s(x: String, y: String) -> String:
+	return y if x < y else x
+
+func _test_links_everywhere() -> void:
+	await _t188_pass(false)
+	await _t188_pass(true)
 
 func _learn_storage(m) -> Dictionary:
 	var t: int = m.trade_income_total
