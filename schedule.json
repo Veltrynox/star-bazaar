@@ -1360,10 +1360,11 @@
       "title": "Storage link consumes energy only, about 5 per cycle (temporary value)",
       "owner_agent": "gameplay-programmer",
       "depends_on": [],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 15,
       "window": "Owner request 2026-11-05 (playtest). Not started: main session sets it running.",
-      "brief": "Owner: the storage link should consume only energy and not much, about 5 per cycle as a TEMPORARY value. Find the storage link upkeep (game/ storage link code and data/balance.json keys; see T171) and set it to energy only, 5 per cycle, as a named balance key with a data_version bump (placeholder; the owner or economy designer retunes it later). Show it correctly on the link row and in forecasts. Update gdd.md and tests that assert the old cost. Handoff handoffs/<agent>/2026-11-05-<id>.json."
+      "brief": "Owner: the storage link should consume only energy and not much, about 5 per cycle as a TEMPORARY value. Find the storage link upkeep (game/ storage link code and data/balance.json keys; see T171) and set it to energy only, 5 per cycle, as a named balance key with a data_version bump (placeholder; the owner or economy designer retunes it later). Show it correctly on the link row and in forecasts. Update gdd.md and tests that assert the old cost. Handoff handoffs/<agent>/2026-11-05-<id>.json.",
+      "note": "link_upkeep_energy 20 -> 5 (energy only already), data_version 59, gdd.md line updated. Temporary value; owner/economy designer retunes."
     },
     {
       "task_id": "T213",

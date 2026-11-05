@@ -151,3 +151,13 @@ Older run entries moved from blackboard.md, oldest first.
 - Failed / did not work: nothing. Only spawn/course-end points checked; ships can still fly through bodies in transit. Not seen windowed. Committed [no-gdd].
 - Files and commits: see git log "T202".
 - Left to do: owner to check dock position look windowed; path-through-body avoidance not done.
+
+## 2026-11-05 23:00 run: T198
+- Summary: Added game/ship_trail.gd (fading world-space line, gold for player, blue for rivals, paused/hidden handled); ship scale 0.5 via PLAYER_SHIP_SCALE and RIVAL_SHIP_SCALE; SHIP_PICK_PX 30 to 20.
+- Why this task: owner-specified (trail, about half size), no QA; T199 leaves marker-vs-tint open (visual).
+- Approach: one small trail script used by both ship kinds.
+- Agent prompts: juice-programmer, brief = T198 text plus no-QA, no-commit. Produced ship_trail.gd, pathfinder_view.gd, rival_ships.gd, map.gd, handoffs/juice-programmer/2026-11-05-T198.json (verified; tests pass=4017 fail=0 re-run by me).
+- Worked: build and tests.
+- Failed / did not work: nothing; not seen windowed, no test for the trail.
+- Files and commits: see git log "T198".
+- Left to do: owner: trail width/tint, size, pick radius. T199 (decide marker vs tint per competitor).

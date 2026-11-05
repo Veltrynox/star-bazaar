@@ -14,16 +14,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-05 23:00 run: T198
-- Summary: Added game/ship_trail.gd (fading world-space line, gold for player, blue for rivals, paused/hidden handled); ship scale 0.5 via PLAYER_SHIP_SCALE and RIVAL_SHIP_SCALE; SHIP_PICK_PX 30 to 20.
-- Why this task: owner-specified (trail, about half size), no QA; T199 leaves marker-vs-tint open (visual).
-- Approach: one small trail script used by both ship kinds.
-- Agent prompts: juice-programmer, brief = T198 text plus no-QA, no-commit. Produced ship_trail.gd, pathfinder_view.gd, rival_ships.gd, map.gd, handoffs/juice-programmer/2026-11-05-T198.json (verified; tests pass=4017 fail=0 re-run by me).
-- Worked: build and tests.
-- Failed / did not work: nothing; not seen windowed, no test for the trail.
-- Files and commits: see git log "T198".
-- Left to do: owner: trail width/tint, size, pick radius. T199 (decide marker vs tint per competitor).
-
 ## 2026-11-06 00:00 run: gap analysis (no task done)
 - Summary: Reviewed all open tasks. None can be done unattended; no new tasks added (gap analysis of 2026-11-05 already produced T189-T193).
 - Why this task: T199 needs a visual decision (marker vs tint, card look) the owner has not made; T189-T192 and T193 are marked "needs owner decision"; T178/T182 are owner-only agents; T185 is visual; T166 is superseded; T05 needs a windowed measurement.
@@ -63,3 +53,13 @@
 - Failed / did not work: no new test for the click (map input is not headless-testable); the "point" kind stays in the flight API, unused by clicks. No story text needed changing.
 - Files and commits: game/map.gd, schedule.json, blackboard.md; see git log "T204".
 - Left to do: other queued tasks T203, T205-T208, T210-T218 remain open (T209 owner-only, T218 waits on T216/T217).
+
+## 2026-11-06 04:00 run: T212
+- Summary: Storage link upkeep was already energy only; set link_upkeep_energy from 20 to 5 per cycle (temporary), data_version 59, and reworded the gdd.md line.
+- Why this task: tiny, owner-specified, no dependencies, no visual or design decision.
+- Approach: data-only edit by me; an agent would cost more.
+- Agent prompts: none.
+- Worked: sh tools/tests/run.sh pass=4017 fail=0. Link row and forecasts read upkeep() so they follow the value.
+- Failed / did not work: nothing.
+- Files and commits: data/balance.json, gdd.md, schedule.json, blackboard.md; see git log "T212".
+- Left to do: owner or economy designer retunes the 5 later.
