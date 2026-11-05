@@ -12,7 +12,10 @@ const CompanySetup := preload("res://game/company_setup.gd")
 const PREVIEW_SIZE := Vector2(620, 460)
 const TURN_DEG_PER_SEC := 18.0
 const DRAG_RAD_PER_PX := 0.012
-const MODEL_RADIUS := 2.0
+## Preview fit: the model is scaled so its turning footprint (horizontal radius from its centre) and half height stay inside these
+## world half-extents; the camera sees about +-3.4 wide and +-2.6 high at the centre, so this keeps the ship near 55-60 percent of the box.
+const FIT_HALF_WIDTH := 2.0
+const FIT_HALF_HEIGHT := 1.15
 ## stat key -> [label id, fallback label, field in ships.json, higher_is_better]
 const STATS := [
 	["cargo", "LBL_STAT_CARGO", "Cargo", "cargo_mult", true],
@@ -185,7 +188,7 @@ func _process(delta: float) -> void:
 	if pivot != null and not dragging:
 		pivot.rotation.y += deg_to_rad(TURN_DEG_PER_SEC) * delta
 
-## Shows the type's model, centred and scaled to MODEL_RADIUS. A missing or unimported GLB leaves the preview empty.
+## Shows the type's model, centred and scaled by measured bounds (FIT_*). A missing or unimported GLB leaves the preview empty.
 func _show_model(path: String) -> void:
 	if holder != null:
 		pivot.remove_child(holder)
@@ -200,8 +203,12 @@ func _show_model(path: String) -> void:
 	holder = Node3D.new()
 	var box := _bounds(model, Transform3D.IDENTITY)
 	if box.size.length() > 0.0:
-		var r := maxf(box.size.length() * 0.5, 0.000001)
-		holder.scale = Vector3.ONE * (MODEL_RADIUS / r)
+		var rxz := 0.000001
+		for i in 8:
+			var c := box.get_endpoint(i) - box.get_center()
+			rxz = maxf(rxz, Vector2(c.x, c.z).length())
+		var ry := maxf(box.size.y * 0.5, 0.000001)
+		holder.scale = Vector3.ONE * minf(FIT_HALF_WIDTH / rxz, FIT_HALF_HEIGHT / ry)
 		model.position = -box.get_center()
 	holder.add_child(model)
 	pivot.add_child(holder)
