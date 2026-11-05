@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://b67rh3u2y3x65"
-path="res://.godot/imported/model_corvette.glb-7e05972d5d41d2c12e3fe0c4d94e3a68.scn"
+uid="uid://10prgrr72knl"
+path="res://.godot/imported/space station 3d model-2.glb-2bea7cb855a26e903c20f1342aca67c1.scn"
 
 [deps]
 
-source_file="res://assets/corvette/model_corvette.glb"
-dest_files=["res://.godot/imported/model_corvette.glb-7e05972d5d41d2c12e3fe0c4d94e3a68.scn"]
+source_file="res://assets/space_station/space station 3d model-2.glb"
+dest_files=["res://.godot/imported/space station 3d model-2.glb-2bea7cb855a26e903c20f1342aca67c1.scn"]
 
 [params]
 
