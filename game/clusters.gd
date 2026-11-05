@@ -14,7 +14,7 @@ var balance: Dictionary = {}
 var items: Array = []
 var event_shape := {"radius": 30, "count": 12}
 var default_good := "ore"
-var stretch := 1.6  # cluster_stretch in the json: pack length along the orbit tangent vs across the radius
+var stretch := 2.0  # cluster_stretch in the json: pack length along the orbit tangent vs across the radius
 
 static func node_id(i: int) -> int:
 	return -(BASE + i)
@@ -36,7 +36,7 @@ func setup(bal: Dictionary) -> void:
 		push_error("Clusters: %s is not an object." % PATH)
 		return
 	default_good = str(parsed.get("good", "ore"))
-	stretch = maxf(1.0, float(parsed.get("cluster_stretch", 1.6)))
+	stretch = maxf(1.0, float(parsed.get("cluster_stretch", 2.0)))
 	if typeof(parsed.get("event_cluster")) == TYPE_DICTIONARY:
 		event_shape = parsed["event_cluster"]
 	var taken := {}  # system -> clusters taken so far
