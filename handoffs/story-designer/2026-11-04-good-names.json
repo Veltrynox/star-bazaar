@@ -1,0 +1,10 @@
+{
+  "agent": "story-designer",
+  "date": "2026-11-04",
+  "task": "good-names",
+  "status": "done",
+  "files_changed": ["story/screens.md", "data/story_text.json", "data/events.json", "data/story_text_ru.json"],
+  "schema_version": 1,
+  "open_questions": [],
+  "handoff": "Added GOOD_<ID>_NAME rows (max 24) for the 13 goods without one: energy, food, rivets, cells, armour, musk, cask, gems, ingot, alloy, spores, gel, seed. Ui.good_name reads GOOD_<UPPER id>_NAME, so ids match; no code change needed. Trimmed GOOD_*_DESC (chips, rivets, cells, armour, ingot, alloy, spores, gel, seed) so none states the market name; the info card adds it. Rebuilt with tools/build_story.py (generated files only via the script)."
+}

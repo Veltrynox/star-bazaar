@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-04",
+  "task": "popups-per-system",
+  "status": "done",
+  "files_changed": ["game/income_popup.gd", "game/juice.gd", "game/main.gd", "tools/tests/run_tests.gd", "qa/bots/popups_system_shot.gd"],
+  "open_questions": [
+    "tools/tests/run.sh still shows FAIL win: save cleared and two good info checks (cells after MIL_1); not touched by this change, owner of those tests to check.",
+    "The windowed shot of system 2 shows 0 planets (bot opened system 2 by hand, no planets built), so it proves only that no popup floats there; the headless tests carry the proof."
+  ],
+  "handoff": "Root cause: IncomePopup positioned each label from map.positions[planet] with no check of the viewed system, and planets of all systems share one 3D space, so a system 1 gain projected onto empty space or over system 2 planets. Juice.planet_screen (route-made and event pings) had the same flaw. Fix: show_gains skips planets not in the viewed system (no queueing); prune() drops popups of other systems each frame and on go_to_system; planet_screen returns null for planets outside the view. Cross-system permit routes: income is booked at the destination planet b, so the popup shows in b's system. Checked, no change needed: planet banners (panel art, not world-placed), event icons (HUD strip), station labels and cluster labels (already gated by view_system in map.gd), sell-offer box and tutorial ring (already use planet_in_view). Tests: before the fix 4 popup checks failed, now all pass.",
+  "details": {
+    "how_to_see": "Run sh tools/tests/run.sh (popups: lines). Or qa/run_game.sh res://qa/bots/popups_system_shot.gd; shots in qa/reports/popups_system1_view_system*.png",
+    "not_checked_by_eye": "Real play with routes in both systems; the system 2 shot has no planets."
+  }
+}

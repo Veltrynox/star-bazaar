@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-04",
+  "task": "Bug: Munitions Line says needs energy though a ship delivers energy",
+  "status": "done",
+  "files_changed": [
+    "game/workshops.gd",
+    "game/space_storage_view.gd",
+    "story/screens.md",
+    "data/story_text.json",
+    "tools/tests/run_tests.gd",
+    "qa/bots/munitions_status_shot.gd",
+    "qa/reports/munitions_status.png"
+  ],
+  "open_questions": [
+    "DESIGN GAP: chips (Logic Cores, needed 1 per batch of cells) are priced only at system 2 (data/systems.json: s2_p2 chips_buy 18; s2_p3 chips_sell 36; s2_p4 chips_sell 38) and visible only once system 2 is open (availability.json). In system 1 the Munitions Line (MIL_1) can be built but never run. Should chips get a system-1 price, or MIL_1/the workshop wait for system 2? (economy-designer)",
+    "Routes out of a system (and Sell orders) draw the station as backup (T85) and settle before workshops, so a route from Voltara drained the station energy before the Munitions Line ran. Kept as is. Should workshops get first claim on the station stock, or is a drain-first order intended?",
+    "Fabric (fabric.gd) and other raw reason strings (storage full, no recipe, paused) are still raw English, not story keys; fix later?"
+  ],
+  "handoff": "Root cause: two things. (1) The stall text named only the first missing input (energy) and Batches this cycle: 1 (capacity) was printed next to Stalled. (2) The real blocker is chips, hidden and unobtainable in system 1. Energy 0: settle runs routes first, and a Voltara energy route with an empty planet store draws the station as backup (+18 in, -18 out), so the workshop later saw 0. Fix: Workshops.missing lists all missing inputs; status_text/recipe_line (workshops.gd) name visible ones, say another input for hidden ones, and drop the batch count when stalled. Order unchanged. Tests: 8 new, 1748 pass, 0 fail. Screenshot qa/reports/munitions_status.png.",
+  "details": {
+    "playable": "Space Storage workshop block shows 'Stalled: needs Energy, another input' and a recipe line that hides a hidden input's name.",
+    "how_to_try": "qa/run_game.sh res://qa/bots/munitions_status_shot.gd, or build Munitions Line (MIL_1) and open Space Storage."
+  }
+}

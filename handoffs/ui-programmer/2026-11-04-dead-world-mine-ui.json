@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-04",
+  "task": "dead-world-mine-ui",
+  "status": "done",
+  "files_changed": [
+    "game/planet_panel.gd",
+    "game/main.gd",
+    "story/screens.md",
+    "data/story_text.json (built by tools/build_story.py)",
+    "data/story_text_ru.json (built)",
+    "tools/tests/run_tests.gd",
+    "qa/bots/dead_world_shot.gd",
+    "qa/reports/dead_world_1_locked.png",
+    "qa/reports/dead_world_2_needs_skill.png",
+    "qa/reports/dead_world_3_minable.png",
+    "qa/reports/dead_world_4_pending_unaffordable.png"
+  ],
+  "open_questions": [
+    "No danger explanation text exists in the game (only the Danger line), so none was added. Story-designer: one line on what danger does? Gameplay to confirm the effect.",
+    "RouteEngine.check_connection does not refuse an open dead world as destination (only main._on_planet_clicked now does). Gameplay-programmer: add an engine-level refusal if bots or saved routes can reach it.",
+    "planet_hint.gd is only the pulsing click ring, and no planet hover tooltip with prices exists, so nothing changed there. Is a hover tooltip wanted?"
+  ],
+  "handoff": "Dead world panel now works like a planet. Locked: 'Opens at cycle N.' Open without skill: 'Mining here needs Cold Survey.' (no dross named). Skill and cycle: the dross row plus a 'Mine Dross Salt and send to...' button (begin_buy_and_send: click it, click a destination; free ship used or one bought; same refusals; red line and cursor warning via route_unaffordable). Danger line kept. Clicking a dead world as a destination posts NOT_DEAD_NO_DELIVERY and keeps the pending send. New ids in screens.md: PLANET_DANGER, BTN_MINE_SEND, LBL_MINE_ROW_TIP, NOT_DEAD_NO_DELIVERY. 6 new tests, 1682 pass 0 fail. Row tooltip on a minable dead world says mine. Screenshots checked by eye for three states plus pending state; game language in the run showed Russian for the warning line.",
+  "details": {
+    "how_to_try": "Debug: set cycle >= dead_unlock_cycle, learn MIN_3 (Cold Survey), click Cinderrest, press 'Mine Dross Salt and send to...', click Voltara. Screens: qa/bots/dead_world_shot.gd via qa/run_game.sh. Not checked: Greywake (system 2, trade-locked disabled state), tutorial lock state. Dross row looked dim in the screenshot; likely its commodity colour, not confirmed."
+  }
+}

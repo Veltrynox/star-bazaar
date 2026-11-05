@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-04",
+  "task": "station-energy-outflow",
+  "status": "done",
+  "files_changed": [
+    "game/route_engine.gd",
+    "game/planet_panel.gd",
+    "story/screens.md",
+    "data/story_text.json (generated)",
+    "tools/tests/run_tests.gd"
+  ],
+  "open_questions": [
+    "Economy-designer: option 'make backup draw opt-in' (Sell orders, and routes, draw Space Storage only if the player ticks it). Effect: a planet Sell order with a short stock would stop silently emptying the station; stock in storage would build up, but Sell income from storage-fed Sells drops unless the player opts in. Owner decides.",
+    "Should the same In/Out breakdown also go on the planet panel resource tooltip? Only the storage view line has it now."
+  ],
+  "handoff": "Root cause: not a route and not a bug. The owner's save (autosave, loaded headless) has a Sell energy order at Ashgate (planet 2) plus Buy energy at Voltara. Voltara > Space Storage (energy) brings +18 per cycle; Voltara > Ashgate brings less than the Sell order takes (order 36 vs lane 18), so the Sell order draws the shortfall from Space Storage as backup (route_engine.gd sell_available ~583, used in _local_calc line 404; project_storage mirrors it in the local sells step). Projection equals real settle (verified: station stays 0 over 3 settled cycles). Intended (owner 2026-11-01 rule). Added parts breakdown to project_storage and a hover tooltip on the Next cycle line (planet_panel.gd next_cycle_breakdown) listing each source and consumer; texts TIP_NC_* in story/screens.md. Test _test_station_energy_outflow added; suite 0 fail.",
+  "details": {}
+}

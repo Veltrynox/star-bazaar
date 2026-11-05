@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-04",
+  "task": "resource-info-rmb",
+  "status": "done",
+  "files_changed": [
+    "game/good_info.gd",
+    "game/planet_panel.gd",
+    "game/space_storage_view.gd",
+    "story/screens.md",
+    "data/story_text.json",
+    "data/story_text_ru.json",
+    "tools/tests/run_tests.gd",
+    "qa/bots/good_info_shot.gd",
+    "qa/reports/good_info_start_energy.png",
+    "qa/reports/good_info_later_cells.png",
+    "qa/reports/good_info_later_energy.png"
+  ],
+  "open_questions": [
+    "Where-to-buy/sell line was not added: no cheap visible-only source. Wanted?",
+    "Lane-split rows and the route legend were not given the card; add if wanted.",
+    "GOOD_CELLS_DESC already says 'a crafted good of the Military market', so the market line repeats it. Story-designer to trim?"
+  ],
+  "handoff": "RMB on a resource now opens its menu (unchanged) plus a wrapped info card beside it: good name, GOOD_<ID>_DESC (skipped if the id is missing), then built from goods.json: market (SK_TAB name), Made at (only if the workshop is visible), Used in (only visible goods), Space Storage line (only when stock rows are visible). Card is GoodInfo (game/good_info.gd), closes with its menu. Space Storage stock rows also show it on RMB (closes on next click). New ids LBL_GOOD_MARKET/MADE_AT/USED_IN/STORED added at end of story/screens.md and built. Tests: 0 fail (new _test_good_info). Screenshots in qa/reports. Not checked by eye: Space Storage row card, Fabric name case.",
+  "details": {
+    "how_to_try": "Start a game, click Voltara, right-click Energy: menu plus card (energy: desc and 'Military market.'). Learn MIL_1 and build Munitions Line: energy now says 'Used in: Cells.' and Cells says 'Made at: Munitions Line.' With Space Storage open, right-click a stock row.",
+    "screenshots_seen": "Start energy: card below the menu, text wraps in 280 px, no overlap with the tutorial box. Later: cells card shows three lines. In the bot the menu appears mid-screen (synthetic click, no real mouse) and looks dim because tutorial lock disables Send and Sell.",
+    "not_checked": "Space Storage row card by eye; real mouse placement near screen edges (clamped in code)."
+  }
+}
