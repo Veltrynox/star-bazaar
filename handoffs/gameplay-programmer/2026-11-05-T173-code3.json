@@ -1,0 +1,12 @@
+{
+ "agent": "gameplay-programmer",
+ "date": "2026-11-05",
+ "task": "T173-code3",
+ "status": "done",
+ "files_changed": ["game/main.gd", "tools/tests/run_tests.gd"],
+ "schema_version": 1,
+ "open_questions": [
+  "stock_protect now exists only on BIO_5 in data/skills.json (MIL_5B no longer carries it); the test reads the node from data, so it follows any change."
+ ],
+ "handoff": "Event warning is now pure. In game/main.gd _end_cycle the pool event for a slot is always drawn FORECAST_HORIZON (2) cycles ahead for every run; warning skills (LUX_3, LUX_5B, ceo man_01) only decide when the notice shows (forecast_slot, forecast_noted, both saved with defaults; no save version bump). Rng use and pool state at draw time are identical with warning 0, 1 or 2, so the event sequence is the same. New tests (_test_forecast_pure): identical 40-cycle event sequence with warning 0/1/2; MIN_5B debris cuts a Minerals lane only without the skill; stock_protect on a storage cut (node read from skills.json). Full suite: pass=1897 fail=0."
+}

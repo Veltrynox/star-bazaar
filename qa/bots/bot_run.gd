@@ -158,6 +158,7 @@ var close_at := -1  # --close-at=<cycle>: QA injection, closes the first route's
 var close_planet := -1
 var keep_closed := false  # --keep-closed (T94): a route touching a closed planet is kept while its lane stays profitable
 var play_cycle := -1  # the cycle being played; routes_settled results belong to it
+var route_units_by_market: Dictionary = {}  # QA 2026-11-05 T173: route capacity (units_per_cycle of running routes) per market, summed over settled cycles
 var route_ids_before: Array = []  # ids of routes touching close_planet at the start of the cycle, before decisions
 var closure_cycles: Array = []  # play cycles in which close_planet was closed at settle (no bridge)
 var bridged_cycles: Array = []  # play cycles in which the closure timer ran but a skill bridged it (route should run)
@@ -1757,6 +1758,11 @@ func _probe_row(cycle: int) -> Array:
 ## closed (the planet is closed at settle: GDD says the route pays 0 and costs 0), bridged (the closure timer runs
 ## but a skill covers this cycle: the route still runs), otherwise open. Records what each route paid per class.
 func _on_routes_settled(results: Array, _delta: int) -> void:
+	for rec in main.engine.routes:  # QA T173: route capacity (units per cycle of each running route) per market, summed over cycles
+		if str(rec.get("state", "")) != "running":
+			continue
+		var mk := Markets.market_of(str(rec["c"]))
+		route_units_by_market[mk] = int(route_units_by_market.get(mk, 0)) + main.engine.units_per_cycle(rec)
 	if close_planet < 0 or play_cycle < 0:
 		return
 	var closed_now: bool = main.engine.closed_planets.has(close_planet)
@@ -2038,6 +2044,7 @@ func _finish() -> bool:
 		"bot_skill_log": bot_skill_log,
 		"bot_skill_rows": bot_skill_rows,
 		"feed_log": feed_log,
+		"route_units_by_market": route_units_by_market,  # QA T173: route capacity, see var
 	}
 	print("RESULT " + JSON.stringify(result))
 	quit(0)

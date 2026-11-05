@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-05",
+  "task": "T180",
+  "status": "partial",
+  "files_changed": [
+    "game/pathfinder_view.gd",
+    "game/map.gd",
+    "game/planet_panel.gd",
+    "handoffs/ui-programmer/2026-11-05-T180.json"
+  ],
+  "open_questions": [
+    "UNVERIFIED BY EXECUTION (owner forbade tests, runs and screenshots). Nothing was loaded in Godot; read-through only. First run after T179: sh tools/tests/run.sh and a windowed shot.",
+    "T179: build an accessor (methods listed at the top of game/pathfinder_view.gd) and set main.map.flight; connect map.fly_requested(target) and map.establish_requested(planet_id); post the NOT_* notices there. Also still open: tutorial TUT_G0_* wiring, main.planet_name and route/send/order UIs for closed planets (they still use real names), ship-panel Pathfinder lines (LBL_PATHFINDER_*).",
+    "Choices to confirm: plain click on an established planet, the station or an asteroid pack also emits fly_requested; open space needs Shift+click; ship model forward axis assumed -Z; closed look is a dark translucent shell over the planet sphere."
+  ],
+  "handoff": "With map.flight null or is_enabled() false nothing changes: no ship, no shells, original names, normal panel. New game/pathfinder_view.gd holds the full interface doc (accessor methods with defaults, signals, units) plus the 3D Pathfinder: GLB fitted by measured bounds as in ship_setup.gd, heading turn, dashed flight line, target ring, faint line when paused. map.gd: closed planets get a dim shell and the name Unknown world / Unknown dark world, fly_requested and establish_requested signals, click emits. planet_panel.gd: unknown world shows flavour line, flight time, Fly here; reached world shows Establish post/platform (platform only if can_platform), cost, unlock line, progress bar; goods, thumbnails and banner of unknown worlds hidden. The panel rebuilds itself when the accessor state changes. Not checked by eye: any screen.",
+  "details": {
+    "screens": [
+      "map (closed planets, ship, path)",
+      "planet panel (closed, reached, building)"
+    ],
+    "how_to_see": "After T179: start a discovery_enabled run; Voltara is the only named planet; click a dim world, press Fly here."
+  }
+}

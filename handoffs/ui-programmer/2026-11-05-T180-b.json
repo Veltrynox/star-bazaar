@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-05",
+  "task": "T180",
+  "status": "partial",
+  "files_changed": ["game/main.gd", "game/ship_panel.gd", "game/galaxy_view.gd", "game/pathfinder_view.gd", "handoffs/ui-programmer/2026-11-05-T180-b.json"],
+  "open_questions": [
+    "UNVERIFIED BY EXECUTION (owner forbade tests and runs). Read-through only; first run: sh tools/tests/run.sh then a windowed discovery run.",
+    "T179: implement request_fly(target) and request_establish(planet_id) returning '' or a reason: fly_first | no_cash_post | no_cash_platform | busy (documented in pathfinder_view.gd). Tutorial step 0 shows TUT_G0_* until a second world is established; guided step 0 does not complete while that applies.",
+    "Not covered: route_engine.gd/trade.gd name helpers (logic files) still return real names; they are not used by the UI lists I checked."
+  ],
+  "handoff": "All inert while map.flight is null or off. main.gd: planet_name() is the single hiding point (Unknown world / Unknown dark world); _tut_g0_id()/_tut_id() swap the step 0 card to TUT_G0_FLY/BUILD/WAIT (heading, why line, voice, signature) and block step 0 completion meanwhile; fly_requested and establish_requested connect to handlers calling request_fly/request_establish and posting NOT_* notices from the reason. ship_panel.gd: a Pathfinder label (name, description, status flying/unknown/idle) shown only when enabled. galaxy_view.gd system names list and map labels use planet_name. Interface doc updated. Nothing run or seen."
+}

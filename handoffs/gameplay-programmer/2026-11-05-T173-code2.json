@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-05",
+  "task": "T173-code2",
+  "status": "done",
+  "files_changed": ["game/skills.gd", "game/skill_screen.gd", "game/skill_icons.gd", "tools/make_skill_icons.py", "art/source/ui_glyph_skill_atlas.svg", "art/ui/ui_glyph_skill_atlas.png", "tools/tests/run_tests.gd", "handoffs/gameplay-programmer/2026-11-05-T173-code2.json"],
+  "open_questions": ["The 4 new icons are quick placeholders; owner may want better art.", "Shared chosen-bot lock is stored in Skills.bot_used['_shared'] (saved with bot_used); owner answer on economy question still pending."],
+  "handoff": "Tests pass=1894 fail=0. Shared lock: Skills.shared_cooldown_left/every; any chosen-bot hit (MIL_5, LUX_7, BIO_6B) stamps it; bot_skill_cooldown returns max(own, shared), so the existing Use row shows the shared timer. The lock only exists when BIO_6B (shared_cooldown_key) is learned. FND_BULK, MIL_5B (stock_growth for mil, own cap, stock_protect) and LUX_6B were already consumed generically; new tests cover them. Icons added and atlas regenerated with the tool (38 cells, same 512x320). Skill screen: tier rows were not actually wrapping (3-cell MIL row made the tree 1930 px wide); now they wrap after 2 cells, tree min width 1350, screenshot checked at 1080 and 720 (qa/reports/skill_screen_1080_top.png), no overlap. Tests updated to 38 nodes, 34 branch nodes, Foundation row of 4."
+}

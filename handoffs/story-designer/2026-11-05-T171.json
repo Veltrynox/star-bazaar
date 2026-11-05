@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-11-05",
+  "task": "T171 storage link texts",
+  "status": "done",
+  "files_changed": ["story/screens.md", "story/ru/storage_link.json", "data/story_text.json", "data/story_text_ru.json", "data/events.json"],
+  "open_questions": [
+    "Russian: SS_ ids are outside the localised scope (build_story rejects them), so story/ru/storage_link.json is {} on purpose. Add SS_ to RU_SCOPE_RE if the owner wants Russian.",
+    "Does any code id of the gameplay-programmer collide with SS_LINK_*? Their section was not present when I wrote; keep theirs on a clash."
+  ],
+  "handoff": "45 ids in story/screens.md, section STORAGE LINK, all SS_LINK_*. Built with build_story.py (no tests run). Placeholders: {a},{b} system names; {good} one good; {goods} list of visible goods; {n},{m} numbers; {cycles}. Ids with placeholders: DLG_PARTNER a,b; DLG_COST goods,n,m; DLG_FROM a; DLG_SHORT goods; LBL_LINE a,b; LBL_UPKEEP n; LBL_RATE n,m; LBL_ORDERS n,m; LBL_ORDER_ROW good,a,b,n; LBL_DORMANT_NEEDS n; LBL_COLLAPSE_IN cycles; NOT_BUILT a,b; NOT_MOVED n,a,b; NOT_DORMANT a,b,n,cycles; NOT_COLLAPSE_WARN a,b,n; NOT_WOKE a,b; NOT_COLLAPSED a,b; NOT_NO_GOODS goods; TIP_MAP a,b; TIP_MAP_DORMANT a,b,n. No placeholders: all others (BTN_*, STATE_*, TITLE, DLG_TITLE, DLG_HINT, LBL_COLLAPSED, LBL_NO_LINK, LBL_GOOD/FROM/AMOUNT/ORDER_NOTE, NOT_REFUSED_PAIR/MAX/ORDERS/NO_STORAGE, TIP_UPKEEP, FLAVOUR_BUILD, FLAVOUR_EMPTY). Only energy is named literally; rivets come via {goods}. Show only when storage_link is visible.",
+  "details": {}
+}
