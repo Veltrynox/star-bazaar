@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "agent": "galaxy-builder",
+  "date": "2026-11-05",
+  "task": "T168",
+  "status": "done",
+  "files_changed": ["game/galaxy/asteroid_packs.gd", "data/asteroid_clusters.json", "game/clusters.gd", "qa/bots/asteroid_packs_t168_shot.gd", "qa/reports/2026-11-05-T168-asteroids.png"],
+  "open_questions": ["UNKNOWN: macOS frame time; headless-style screenshot bot reports FPS 1.0 (not a real measure). 100 rocks x 5 packs = 500 instances, one MultiMesh draw call per pack."],
+  "handoff": "Field radius 2x via pack_scale 0.125 -> 0.25 (visual spread). Rock sizes unchanged. Counts 24 -> 100 per cluster and event cluster 12 -> 50 (disc density about 4x count for 4x area, slightly higher). Click area (pick_cluster) and route start radius use the data radius (45 map units = 0.9 world), which was already much bigger than the visual field (now 0.225 across, 0.45 along tangent), so they still cover it; left unchanged. Nearest planet is 175+ map units from any cluster; field reaches about 23 map units, so no collisions. Tests: 1874 pass, 0 fail. Screenshot qa/reports/2026-11-05-T168-asteroids.png.",
+  "details": {"pack_scale": 0.25, "count": 100, "event_count": 50, "rock_size_unchanged": true}
+}

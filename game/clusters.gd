@@ -12,7 +12,7 @@ const NEAR_PX := 260.0  # map units: a cluster within this distance of a planet 
 var balance: Dictionary = {}
 ## {id, system, x, y, radius, count, good, max, left, spawned}
 var items: Array = []
-var event_shape := {"radius": 30, "count": 12}
+var event_shape := {"radius": 30, "count": 50}
 var default_good := "ore"
 var stretch := 2.0  # cluster_stretch in the json: pack length along the orbit tangent vs across the radius
 
@@ -126,7 +126,7 @@ func spawn_small(system: int, x: float, y: float) -> int:
 	var ang := float(n) * 2.1  # a different side for each new one; deterministic
 	var rich := int(balance.get("mining_event_cluster_richness", 0))
 	items.append({"id": "ev_%d" % (n + 1), "system": system, "x": x + cos(ang) * 70.0, "y": y + sin(ang) * 70.0,
-		"radius": float(event_shape.get("radius", 30)), "count": int(event_shape.get("count", 12)), "good": default_good,
+		"radius": float(event_shape.get("radius", 30)), "count": int(event_shape.get("count", 50)), "good": default_good,
 		"max": rich, "left": rich, "spawned": true})
 	return items.size() - 1
 
@@ -157,5 +157,5 @@ func from_dict(saved) -> void:
 			if typeof(d) == TYPE_DICTIONARY and d.has("id"):
 				var mx := int(d.get("max", balance.get("mining_event_cluster_richness", 0)))
 				items.append({"id": str(d["id"]), "system": int(d.get("system", 1)), "x": float(d.get("x", 0)), "y": float(d.get("y", 0)),
-					"radius": float(d.get("radius", 30)), "count": int(d.get("count", 12)), "good": str(d.get("good", default_good)),
+					"radius": float(d.get("radius", 30)), "count": int(d.get("count", 50)), "good": str(d.get("good", default_good)),
 					"max": mx, "left": clampi(int(d.get("left", 0)), 0, mx), "spawned": true})

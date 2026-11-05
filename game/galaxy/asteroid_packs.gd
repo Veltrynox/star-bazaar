@@ -7,7 +7,7 @@ extends Node3D
 
 @export var map_unit_scale := 0.02        # world units per map unit (same as map.gd MAP_UNIT_SCALE)
 @export var seed_salt := 1                # change for a different arrangement of every pack
-@export var pack_scale := 0.125           # owner 2026-11-02: shrinks the pack spread (data radius x this); was 1.0, then 0.25
+@export var pack_scale := 0.25            # owner 2026-11-05 (T168): field radius 2x (was 0.125); rocks keep their size, count x4 in the data for the same density
 @export var rock_min := 0.005            # small rock size range, world units (radius); owner 2026-11-04: 80% small, 20% big
 @export var rock_max := 0.009
 @export var big_min := 0.02              # big rocks, roughly 2.5-3x the small ones
