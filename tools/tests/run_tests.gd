@@ -103,6 +103,7 @@ func _run() -> void:
 	await _test_links_everywhere()
 	await _test_ship_motion()
 	await _test_ship_facing()
+	await _test_ships_spawn_near_bodies()
 	await _test_t187_ship_flight()
 	await _test_asteroid_packs()
 	_test_event_banners()
@@ -6657,6 +6658,142 @@ func _test_ship_motion() -> void:
 			seen_new = true
 			break
 	check(seen_new, "T196: after waiting a rival picks the next destination")
+	await _free_main(m)
+
+## T202: no ship is ever inside a body, and a ship at spawn is near its parent body. Bodies are measured the way the map draws them
+## (planet sphere scale, sun radius, station MAP_RADIUS, asteroid rocks of the pack). Limits: Motion.BODY_MARGIN (outside) and
+## Motion.near_limit (near), the same constants the game code parks ships with. Every system incl. placeholder systems 3 to 5.
+func _t202_bodies(m, sys: int) -> Array:
+	var out: Array = []
+	for i in m.map.planets.size():
+		if int(m.map.planets[i].get("system", 1)) == sys:
+			var sph: Node3D = m.map.planet_spheres[i]
+			out.append({"id": str(m.map.planets[i]["id"]), "pos": Vector2(sph.position.x, sph.position.z), "r": sph.scale.x})
+	if m.map.suns.has(sys):
+		var sn: Node3D = m.map.suns[sys]
+		out.append({"id": "sun_%d" % sys, "pos": Vector2(sn.position.x, sn.position.z), "r": float(sn.radius)})
+	if m.map.stations.has(sys):
+		var st: Node3D = m.map.stations[sys]
+		out.append({"id": "station_%d" % sys, "pos": Vector2(st.position.x, st.position.z), "r": float(preload("res://game/station.gd").MAP_RADIUS)})
+	for c in m.map._cluster_list:
+		if int(c["system"]) == sys and m.map.asteroid_packs.packs.has(str(c["id"])):
+			var pk: Dictionary = m.map.asteroid_packs.packs[str(c["id"])]
+			var mm: Node3D = pk["mm"]
+			var r := 0.0
+			for q in pk["points"]:
+				r = maxf(r, Vector2(q.x, q.z).length())
+			out.append({"id": "cluster_" + str(c["id"]), "pos": Vector2(mm.position.x, mm.position.z), "r": r})
+	return out
+
+## parent = id of the body the ship must be near ("" = any body; "-" = only the outside rule is asserted).
+func _t202_check(m, sys: int, p: Vector3, label: String, parent: String = "") -> void:
+	var Motion := preload("res://game/ship_motion.gd")
+	var v := Vector2(p.x, p.z)
+	var inside := ""
+	var near := false
+	var bs := _t202_bodies(m, sys)
+	for b in bs:
+		var d: float = v.distance_to(b["pos"])
+		if d <= float(b["r"]) + Motion.BODY_MARGIN:
+			inside = str(b["id"])
+		if (parent == "" or parent == str(b["id"])) and d <= Motion.near_limit(float(b["r"])):
+			near = true
+	check(inside == "", "T202: %s is outside every body" % label, "inside %s at %s" % [inside, str(v)])
+	if parent != "-":
+		check(near, "T202: %s is near %s (within radius + gap)" % [label, parent if parent != "" else "a body"], str(v))
+
+func _test_ships_spawn_near_bodies() -> void:
+	var Systems := preload("res://game/systems.gd")
+	var Motion := preload("res://game/ship_motion.gd")
+	Systems.set_placeholders(true)
+	var m = await _new_main(false, true)
+	m._dismiss_preface()
+	check(Motion.SPAWN_GAP > Motion.BODY_MARGIN and Motion.BODY_MARGIN > 0.0, "T202: the spawn gap is larger than the body margin")
+	var f = m.flight
+	# new game: the Pathfinder stands beside the home planet
+	_t202_check(m, 1, f.ship_position(), "new game Pathfinder", f.home_id())
+	f.reset()
+	_t202_check(m, 1, f.ship_position(), "reset Pathfinder", f.home_id())
+	# every system opened, with its station, so each kind of body exists
+	var all_sys: Array = [1]
+	for sid in Systems.ids():
+		all_sys.append(int(sid))
+		m._open_system(int(sid))
+	check(all_sys == [1, 2, 3, 4, 5], "T202: systems 1 to 5 are in play", str(all_sys))
+	for sid in all_sys:
+		if int(sid) > 1:
+			m.map.add_station(int(sid), false)
+	m.map.set_clusters(m._all_cluster_packs())
+	var packs_n: int = m.map._cluster_list.size()
+	check(packs_n > 0, "T202: asteroid fields exist", str(packs_n))
+	# save and load: a normal round trip, and an old save with the ship in the planet's centre
+	f.request_fly({"kind": "planet", "index": m.planet_index_of("planet_2")})
+	f.finish_flight()
+	var d: Dictionary = JSON.parse_string(JSON.stringify(f.to_dict()))
+	var before: Vector3 = f.ship_position()
+	f.from_dict(d)
+	check(f.ship_position().is_equal_approx(before), "T202: a save round trip keeps the ship where it was")
+	_t202_check(m, 1, f.ship_position(), "loaded Pathfinder", "planet_2")
+	var hi: int = m.planet_index_of("planet_2")
+	var centre: Vector3 = m.map.positions[hi]
+	d["pos"] = [centre.x, 0.0, centre.z]
+	f.from_dict(JSON.parse_string(JSON.stringify(d)))
+	_t202_check(m, 1, f.ship_position(), "Pathfinder loaded from a save with the ship in the planet centre", "planet_2")
+	# arrive, leave, storage and asteroid fields in every system, at two zoom levels
+	var k := 0
+	for sid in all_sys:
+		m.map.set_view_system(int(sid))
+		m.map.zoom = 3.0 if k % 2 == 0 else 0.25
+		m.map._apply_view()
+		k += 1
+		for i in m.map.planets.size():
+			if int(m.map.planets[i].get("system", 1)) != int(sid):
+				continue
+			var pid := str(m.map.planets[i]["id"])
+			var r: String = f.request_fly({"kind": "planet", "pos": m.map.positions[i], "index": i})
+			check(r == "", "T202: the Pathfinder may fly to %s" % pid, r)
+			_t202_check(m, int(f.system_id()) if f.state() != "flying" else int(sid), f.ship_position(), "Pathfinder leaving for %s" % pid, "-")
+			f.advance(0.002)
+			f.finish_flight()
+			check(f.system_id() == int(sid) and f.docked_at() == pid, "T202: the Pathfinder arrived at %s" % pid, str(f.docked_at()))
+			_t202_check(m, int(sid), f.ship_position(), "Pathfinder at %s (system %d, zoom %.2f)" % [pid, int(sid), m.map.zoom], pid)
+		if m.map.stations.has(int(sid)):
+			var st: Node3D = m.map.stations[int(sid)]
+			f.request_fly({"kind": "storage", "pos": st.position, "index": int(sid)})
+			f.finish_flight()
+			_t202_check(m, int(sid), f.ship_position(), "Pathfinder at the Space Storage of system %d" % int(sid), "station_%d" % int(sid))
+		for c in m.map._cluster_list:
+			if int(c["system"]) != int(sid):
+				continue
+			var cw: Vector3 = Vector3(float(c["x"]), 0.0, float(c["y"])) * m.map.MAP_UNIT_SCALE
+			f.request_fly({"kind": "cluster", "pos": cw, "index": int(c["index"])})
+			f.finish_flight()
+			_t202_check(m, int(sid), f.ship_position(), "Pathfinder at asteroid field %s" % str(c["id"]), "cluster_" + str(c["id"]))
+	# rival ships: at the start and on every new course
+	var rs = m.rival_ships
+	rs.advance(0.0)
+	var seen_to := {}
+	var legs := 0
+	for si in rs._ships.size():
+		var s0: Dictionary = rs._ships[si]
+		var sp: Vector2 = s0["pos"]
+		_t202_check(m, int(s0["system"]), Vector3(sp.x, 0.0, sp.y), "rival %d start (system %d)" % [si, int(s0["system"])])
+		_t202_check(m, int(s0["system"]), (s0["node"] as Node3D).position, "rival %d start node (system %d)" % [si, int(s0["system"])])
+	for step in 700:
+		rs.advance(1.0)
+		for si in rs._ships.size():
+			var s: Dictionary = rs._ships[si]
+			var to: Vector2 = s["to"]
+			if not seen_to.has(si) or not (seen_to[si] as Vector2).is_equal_approx(to):
+				seen_to[si] = to
+				legs += 1
+				_t202_check(m, int(s["system"]), Vector3(to.x, 0.0, to.y), "rival %d course %d (system %d)" % [si, legs, int(s["system"])])
+	var systems_with_rivals := {}
+	for s in rs._ships:
+		systems_with_rivals[int(s["system"])] = true
+	check(systems_with_rivals.size() == 5, "T202: every system has rival ships", str(systems_with_rivals.keys()))
+	check(legs > rs._ships.size(), "T202: rivals picked new courses", str(legs))
+	Systems.set_placeholders(false)
 	await _free_main(m)
 
 ## T201: the 3D ships face the way they fly. Pathfinder (game/pathfinder_view.gd) and rival ships (game/rival_ships.gd): the model's

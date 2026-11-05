@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-05",
+  "task": "T202",
+  "status": "done",
+  "files_changed": [
+    "game/ship_motion.gd",
+    "game/map.gd",
+    "game/pathfinder.gd",
+    "game/rival_ships.gd",
+    "tools/tests/run_tests.gd",
+    "handoffs/gameplay-programmer/2026-11-05-T202.json"
+  ],
+  "open_questions": [],
+  "handoff": "New test _test_ships_spawn_near_bodies (944 checks) covers the Pathfinder at new game, reset, save round trip, a legacy save with the ship in a planet centre, arrival and leaving for every planet, Space Storage and asteroid fields, in systems 1-5 (placeholders on) at two zoom levels, plus rival ships at start and on every new course. Bodies are measured as drawn (planet sphere scale, sun radius, station MAP_RADIUS, furthest rock). Limits are Motion.BODY_MARGIN (outside) and Motion.near_limit = radius + Motion.SPAWN_GAP (near), in game/ship_motion.gd and used by the game code. Bugs found and fixed: the Pathfinder docked at the planet centre (inside it); it now parks at radius + gap via Map.dock_point; old saves with the ship in a centre are moved out on load. Rival ships picked random points anywhere (could be inside planets or the sun); they now spawn and route to parks beside planets. Rivals for systems opened later were never created; now they are. Playable check: new game, ship sits beside Voltara; fly to a planet and it stops beside it. sh tools/tests/run.sh: pass=4017 fail=0. Nothing committed.",
+  "details": {}
+}
