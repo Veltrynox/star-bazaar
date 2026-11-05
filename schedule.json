@@ -1393,10 +1393,11 @@
       "title": "Remove the route hint UI from the bottom",
       "owner_agent": "ui-programmer",
       "depends_on": [],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 15,
       "window": "Owner request 2026-11-05 (playtest). Not started: main session sets it running.",
-      "brief": "Owner: remove the route hint UI shown at the bottom of the screen (the route hint strip; look in game/dest_hint.gd, game/planet_hint.gd, game/route_warning.gd and game/main.gd for the one at the bottom, and tell in the handoff which one it was). Remove its drawing, state and any text ids it alone uses; keep other hints (hover cards, route warnings in the panels) and the Availability rule. Update tests that look for it. Handoff handoffs/<agent>/2026-11-05-<id>.json."
+      "brief": "Owner: remove the route hint UI shown at the bottom of the screen (the route hint strip; look in game/dest_hint.gd, game/planet_hint.gd, game/route_warning.gd and game/main.gd for the one at the bottom, and tell in the handoff which one it was). Remove its drawing, state and any text ids it alone uses; keep other hints (hover cards, route warnings in the panels) and the Availability rule. Update tests that look for it. Handoff handoffs/<agent>/2026-11-05-<id>.json.",
+      "note": "Removed bottom-middle route legend strip (game/route_legend.gd) and LBL_LEGEND_SILK/CHIPS/ORE. Pending banner kept; owner to say if the banner was meant."
     },
     {
       "task_id": "T216",
