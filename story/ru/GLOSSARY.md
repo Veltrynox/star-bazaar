@@ -1,6 +1,8 @@
 # Star Bazaar: Russian glossary and style guide (ru)
 
-Draft 1, 2026-11-04. For four translators. English master: story/voice.md (every rule there holds in Russian too). Scope: only ids starting EV_ (458 chain event texts) and TUT_G1..G10, their _WHY lines, TUT_GALAXY_* and TUT_G3_PICK. The interface stays English: MENU_*, BTN_*, LBL_*, NOT_*, EVT_*, skill windows, top bar, tooltips. Do not translate those.
+Draft 1, 2026-11-04. For four translators. English master: story/voice.md (every rule there holds in Russian too). Scope: event texts (EV_, EV<nn>_, BE<nn>), chain texts (CH_), tutorial and warning texts (TUT_G1..G10 with their _WHY lines, TUT_GALAXY_*, TUT_G3_PICK, WARN_*), and the menu and screen texts: MENU_* (main menu, game menu, confirmations), SCR_* (title, tagline, preface), END_* (ending screens, stat labels, buttons) and EPI_* (epilogue lines). The rest of the interface stays English: BTN_*, LBL_*, NOT_*, TIP_*, HINT_*, EVT_*, GOOD_*, WORLD_*, SK_* skill windows, top bar, tooltips, and the mission board MB_*. MENU_SKILLS and MENU_GALAXY also stay English: they label the top bar and the side rail, which are interface. Do not translate those.
+
+The Russian menu and screen captions are Russian (Продолжить, Новая игра, Главное меню, Выйти из игры), while tutorial lines name the buttons that are still English (Skills, Settings, Galaxy). Event and tutorial texts must name a button exactly as it is on screen.
 
 ## 1. Words that stay Latin (exact on-screen spelling)
 
