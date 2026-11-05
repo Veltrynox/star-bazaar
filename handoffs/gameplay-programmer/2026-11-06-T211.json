@@ -1,0 +1,4 @@
+{"agent":"gameplay-programmer","date":"2026-11-06","task":"T211","status":"done","schema_version":1,
+"files_changed":["game/rival_ships.gd","tools/tests/run_tests.gd","gdd.md"],
+"open_questions":[],
+"handoff":"Rival scenery ships are now one per competitor (Bots.IDS, 3 ships), created once, starting in system 1. A ship may visit an opened system (main.open_systems) for 2-3 legs then returns; it is hidden unless in the viewed system and is moved home if its system is not open. Pathfinder was already a single instance (main.flight), unchanged. Balance key rival_ship_count is retired (was absent from data/balance.json, so no data edit); documented in the file header. No saved state, no save bump. Tests: new _test_t211_ship_traffic plus checks in the T202 test; full suite passes. Not committed."}

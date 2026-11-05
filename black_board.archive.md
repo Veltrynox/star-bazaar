@@ -181,3 +181,13 @@ Older run entries moved from blackboard.md, oldest first.
 - Failed / did not work: nothing.
 - Files and commits: blackboard.md only, no commit.
 - Left to do: owner decides T199 look, then T189-T193 decisions.
+
+## 2026-11-06 02:00 run: gap analysis (no task done)
+- Summary: Re-checked open tasks; state unchanged since the 01:00 run (no new commits, no owner decisions recorded). Nothing doable unattended, no new tasks added.
+- Why this task: T199 look (marker vs tint) is a visual decision for the owner; T189-T193 need owner decisions; T178/T182 are owner-only agents; T166 superseded; T05 needs a windowed measurement.
+- Approach: skipped rather than guess.
+- Agent prompts: none.
+- Worked: nothing built; no code touched.
+- Failed / did not work: nothing.
+- Files and commits: blackboard.md only, no commit.
+- Left to do: owner decides T199 look, then T189-T193.

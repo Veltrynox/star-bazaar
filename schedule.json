@@ -1350,10 +1350,11 @@
       "title": "Solar system 2: player and rival ships appear only after the system is opened; one ship each for the whole game",
       "owner_agent": "gameplay-programmer",
       "depends_on": [],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 35,
       "window": "Owner request 2026-11-05 (playtest). Not started: main session sets it running.",
-      "brief": "Owner: in solar system 2 (and later systems) the player's ship and the rival ships should be there only if the player opened the system with a permit. The player has ONE pathfinder ship for the whole game and each rival has ONE ship for the whole game; it looks like there are many in each system now (game/rival_ships.gd spawns rivals per system, game/pathfinder.gd). Make rival ships exist once per competitor (not once per system): a rival ship is shown in system 2 only while it is flying there, and only systems the player has opened by permit show any ship traffic; the Pathfinder is one ship that changes system when it jumps. Keep saves working (bump the save version if needed). Test: ship counts are 1 per owner in every state; no ships in a closed system. Update gdd.md. Handoff handoffs/<agent>/2026-11-05-<id>.json."
+      "brief": "Owner: in solar system 2 (and later systems) the player's ship and the rival ships should be there only if the player opened the system with a permit. The player has ONE pathfinder ship for the whole game and each rival has ONE ship for the whole game; it looks like there are many in each system now (game/rival_ships.gd spawns rivals per system, game/pathfinder.gd). Make rival ships exist once per competitor (not once per system): a rival ship is shown in system 2 only while it is flying there, and only systems the player has opened by permit show any ship traffic; the Pathfinder is one ship that changes system when it jumps. Keep saves working (bump the save version if needed). Test: ship counts are 1 per owner in every state; no ships in a closed system. Update gdd.md. Handoff handoffs/<agent>/2026-11-05-<id>.json.",
+      "note": "One rival ship per competitor (3), home system 1, visits opened systems only; closed systems show none; Pathfinder already single; rival_ship_count key retired. Test _test_t211_ship_traffic."
     },
     {
       "task_id": "T212",

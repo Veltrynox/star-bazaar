@@ -105,6 +105,7 @@ func _run() -> void:
 	await _test_ship_motion()
 	await _test_ship_facing()
 	await _test_ships_spawn_near_bodies()
+	await _test_t211_ship_traffic()
 	await _test_t187_ship_flight()
 	await _test_asteroid_packs()
 	_test_event_banners()
@@ -6729,6 +6730,43 @@ func _t202_check(m, sys: int, p: Vector3, label: String, parent: String = "") ->
 	if parent != "-":
 		check(near, "T202: %s is near %s (within radius + gap)" % [label, parent if parent != "" else "a body"], str(v))
 
+## T211: one rival ship per competitor in every state; a closed system shows no ships; one Pathfinder.
+func _test_t211_ship_traffic() -> void:
+	var Systems := preload("res://game/systems.gd")
+	var Bots := preload("res://game/bots.gd")
+	Systems.set_placeholders(true)
+	var m = await _new_main(false, true)
+	m._dismiss_preface()
+	var rs = m.rival_ships
+	rs.advance(0.0)
+	check(rs.ship_count() == Bots.IDS.size(), "T211: 3 rivals = 3 ships at the start", str(rs.ship_count()))
+	for step in 400:
+		rs.advance(1.0)
+		for s in rs._ships:
+			check(int(s["system"]) == 1, "T211: no rival ship in a closed system", str(s["system"]))
+	var other := 0
+	for n in m.map.get_children():
+		if n == rs:
+			continue
+		other += 1 if n.get_script() != null and str(n.get_script().resource_path).ends_with("rival_ships.gd") else 0
+	check(other == 0, "T211: one rival ship node set, not one per system")
+	m._open_system(2)
+	m.map.view_system = 2
+	var in2 := 0
+	for step in 600:
+		rs.advance(1.0)
+		in2 += rs._ships.filter(func(s): return int(s["system"]) == 2 and (s["node"] as Node3D).visible).size()
+		for s in rs._ships:
+			check(int(s["system"]) in [1, 2], "T211: ships only in opened systems", str(s["system"]))
+		check(rs.ship_count() == Bots.IDS.size(), "T211: still one ship per competitor")
+	check(in2 > 0, "T211: a rival visits the opened system", str(in2))
+	var pf := 0
+	for n in m.get_children():
+		pf += 1 if n == m.flight else 0
+	check(m.flight != null and m.flight.system_id() >= 1, "T211: one Pathfinder for the whole game")
+	Systems.set_placeholders(false)
+	await _free_main(m)
+
 func _test_ships_spawn_near_bodies() -> void:
 	var Systems := preload("res://game/systems.gd")
 	var Motion := preload("res://game/ship_motion.gd")
@@ -6815,10 +6853,18 @@ func _test_ships_spawn_near_bodies() -> void:
 				seen_to[si] = to
 				legs += 1
 				_t202_check(m, int(s["system"]), Vector3(to.x, 0.0, to.y), "rival %d course %d (system %d)" % [si, legs, int(s["system"])])
-	var systems_with_rivals := {}
-	for s in rs._ships:
-		systems_with_rivals[int(s["system"])] = true
-	check(systems_with_rivals.size() == 5, "T202: every system has rival ships", str(systems_with_rivals.keys()))
+	# T211: one ship per competitor, only in opened systems, hidden outside the viewed system
+	var Bots := preload("res://game/bots.gd")
+	check(rs.ship_count() == Bots.IDS.size(), "T211: one rival ship per competitor", str(rs.ship_count()))
+	var seen_sys := {}
+	for step in 600:
+		rs.advance(1.0)
+		for s in rs._ships:
+			seen_sys[int(s["system"])] = true
+			check(m.open_systems.has(int(s["system"])), "T211: a rival ship is only in an opened system", str(s["system"]))
+			check((s["node"] as Node3D).visible == (int(s["system"]) == int(m.map.view_system)), "T211: a rival ship shows only in its own system")
+		check(rs.ship_count() == Bots.IDS.size(), "T211: ship count stays one per competitor")
+	check(seen_sys.size() > 1, "T211: rivals visit opened systems", str(seen_sys.keys()))
 	check(legs > rs._ships.size(), "T202: rivals picked new courses", str(legs))
 	Systems.set_placeholders(false)
 	await _free_main(m)

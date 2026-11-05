@@ -5,15 +5,20 @@ extends Node3D
 ## flies a straight course and brakes to a stop there, waits (rival_ship_wait_s), then picks the next one. No random jitter.
 ## Each ship flies on the plane y = LIFT, like the
 ## Pathfinder. They move only while the game runs (main.paused false, speed follows main.time_speed), as the Pathfinder does.
-## Number per system: balance key rival_ship_count (default COUNT_DEFAULT when the key is absent; the key belongs in
-## data/balance.json, owner of that file to add it). Speed in map units per second: SPEED_DEFAULT (same note, rival_ship_speed).
+## T211: ONE ship per competitor for the whole game (count() = number of rival bots, Bots.IDS), not one per system. It starts in
+## system 1 and may fly over to a system the player opened by permit (main.open_systems) for a few legs, then comes back. It exists
+## on the map only in its current system (hidden elsewhere); a closed system never has a ship in it. The old balance key
+## rival_ship_count is retired (it was ships per system; it is not in data/balance.json). Speed in map units per second: SPEED_DEFAULT (same note, rival_ship_speed).
 ## Look (model, tint, size, trail) is NOT decided here: it uses the ship models of data/ships.json other than the player's,
 ## fitted like the Pathfinder, and a small cone when no model loads.
 
 const Ships := preload("res://game/ships.gd")
 const Motion := preload("res://game/ship_motion.gd")  # T196
 
-const COUNT_DEFAULT := 3
+const Bots := preload("res://game/bots.gd")
+const VISIT_CHANCE := 0.3       # T211: chance per new course that a ship at home visits an opened system
+const VISIT_LEGS_MIN := 2
+const VISIT_LEGS_MAX := 3
 const SPEED_DEFAULT := 0.6      # world units per second at x1
 const LIFT := 0.35
 const ShipTrail := preload("res://game/ship_trail.gd")  # T198
@@ -27,7 +32,7 @@ var _rng := RandomNumberGenerator.new()
 var _ships: Array = []          # {node, system, pos Vector2 (x, z), yaw, speed, to Vector2, wait (s left, > 0 = waiting)}
 const MIN_LEG := 3.0            # a new destination is at least this far (world units)
 const SUBSTEP := 0.05           # seconds per integration step
-var _built_sys := {}            # system id -> true once its rivals exist (a system opened later gets its own)
+var _built := false             # T211: the one ship per competitor exists
 
 func setup(m: Node, mp: Node) -> void:
 	main = m
@@ -36,20 +41,19 @@ func setup(m: Node, mp: Node) -> void:
 	name = "RivalShips"
 
 func count() -> int:
-	return int(_bal("rival_ship_count", COUNT_DEFAULT))
+	return Bots.IDS.size()
+
+## T211: systems where ship traffic may exist: system 1 and the ones opened by a permit.
+func open_ids() -> Array:
+	var out: Array = [1]
+	if main != null and "open_systems" in main:
+		for v in main.open_systems:
+			if not out.has(int(v)):
+				out.append(int(v))
+	return out
 
 func _bal(key: String, dflt: float) -> float:
 	return float(main.balance.get(key, dflt)) if main != null and "balance" in main else dflt
-
-func _systems() -> Array:
-	var out := {}
-	if map == null:
-		return []
-	for p in map.planets:
-		out[int(p.get("system", 1))] = true
-	var ks := out.keys()
-	ks.sort()
-	return ks
 
 ## T202: a random spot in system `sys` parked at a random planet of it: Motion.SPAWN_GAP outside the planet's drawn edge, never
 ## inside any body (map.dock_point turns the spot away from the sun, station and asteroid fields).
@@ -73,28 +77,47 @@ func _build() -> void:
 			kinds.append(str(k))
 	if kinds.is_empty():
 		kinds = [Ships.DEFAULT]
-	var n := _ships.size()
-	for sys in _systems():
-		if _built_sys.has(sys):
-			continue
-		_built_sys[sys] = true
-		for i in maxi(0, count()):
-			var node := _make_ship(str(kinds[n % kinds.size()]))
-			add_child(node)
-			var trail := ShipTrail.new()  # T198: world-space, a sibling of the ship so it ignores the ship's yaw
-			trail.tint = TRAIL_TINT
-			add_child(trail)
-			var from := _random_point(sys)
-			_ships.append({"node": node, "system": sys, "pos": Vector2(from.x, from.z), "yaw": _rng.randf_range(-PI, PI), "speed": 0.0,
-				"to": Vector2(from.x, from.z), "wait": 0.0, "trail": trail})
-			_new_leg(_ships[_ships.size() - 1])
-			node.position = Vector3(from.x, LIFT, from.z)
-			var last: Dictionary = _ships[_ships.size() - 1]
-			last["yaw"] = Motion.yaw_to((last["to"] as Vector2) - (last["pos"] as Vector2))  # starts facing its first course
-			node.rotation.y = float(last["yaw"])
-			n += 1
+	_built = true
+	var sys := 1
+	for n in count():
+		var node := _make_ship(str(kinds[n % kinds.size()]))
+		add_child(node)
+		var trail := ShipTrail.new()  # T198: world-space, a sibling of the ship so it ignores the ship's yaw
+		trail.tint = TRAIL_TINT
+		add_child(trail)
+		var from := _random_point(sys)
+		_ships.append({"node": node, "system": sys, "pos": Vector2(from.x, from.z), "yaw": _rng.randf_range(-PI, PI), "speed": 0.0,
+			"to": Vector2(from.x, from.z), "wait": 0.0, "trail": trail, "visit": 0})
+		var last: Dictionary = _ships[_ships.size() - 1]
+		_new_leg(last)
+		node.position = Vector3(from.x, LIFT, from.z)
+		last["yaw"] = Motion.yaw_to((last["to"] as Vector2) - (last["pos"] as Vector2))  # starts facing its first course
+		node.rotation.y = float(last["yaw"])
+
+## T211: puts a ship into system `sys` at a random spot (a visit begins or ends); its trail restarts.
+func _move_to_system(s: Dictionary, sys: int) -> void:
+	s["system"] = sys
+	var p := _random_point(sys)
+	s["pos"] = Vector2(p.x, p.z)
+	s["speed"] = 0.0
+	var tr: Node = s.get("trail")
+	if tr != null:
+		tr.clear()
 
 func _new_leg(s: Dictionary) -> void:
+	var open := open_ids()
+	if not open.has(int(s["system"])):
+		_move_to_system(s, 1)  # its system is closed: back home
+		s["visit"] = 0
+	elif int(s["visit"]) > 0:
+		s["visit"] = int(s["visit"]) - 1
+		if int(s["visit"]) == 0:
+			_move_to_system(s, 1)  # the visit is over
+	elif int(s["system"]) == 1 and open.size() > 1 and _rng.randf() < VISIT_CHANCE:
+		var others := open.duplicate()
+		others.erase(1)
+		_move_to_system(s, int(others[_rng.randi() % others.size()]))
+		s["visit"] = _rng.randi_range(VISIT_LEGS_MIN, VISIT_LEGS_MAX)
 	var from: Vector2 = s["pos"]
 	var to := from
 	for k in 8:
@@ -159,7 +182,7 @@ func _aabb(node: Node, t: Transform3D) -> AABB:
 func advance(dt: float) -> void:
 	if map == null or map.positions.is_empty():
 		return
-	if _built_sys.size() < _systems().size():
+	if not _built:
 		_build()
 	var view: int = int(map.view_system) if map != null else 1
 	var vmax := maxf(0.01, _bal("rival_ship_speed", SPEED_DEFAULT))
@@ -168,7 +191,11 @@ func advance(dt: float) -> void:
 	var turn := deg_to_rad(maxf(1.0, _bal("rival_ship_turn_deg", 45.0)))
 	for s in _ships:
 		var node: Node3D = s["node"]
-		node.visible = int(s["system"]) == view
+		if not open_ids().has(int(s["system"])):
+			_move_to_system(s, 1)
+			s["visit"] = 0
+			s["wait"] = 0.0
+			_new_leg(s)
 		var left := maxf(0.0, dt)
 		var n := 0
 		while left > 0.0 and n < 4000:
@@ -186,6 +213,7 @@ func advance(dt: float) -> void:
 			s["speed"] = r["speed"]
 			if r["arrived"]:
 				s["wait"] = maxf(0.01, _bal("rival_ship_wait_s", 3.0))
+		node.visible = int(s["system"]) == view
 		var p: Vector2 = s["pos"]
 		node.position = Vector3(p.x, LIFT, p.y)
 		node.rotation.y = float(s["yaw"])
