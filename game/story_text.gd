@@ -5,7 +5,7 @@ extends RefCounted
 
 const PATH := "res://data/story_text.json"
 
-## Russian overrides (only EV_ / EV<digit> / TUT_G<digit> / TUT_GALAXY_ / CH_ / WARN_ ids; same rule as RU_SCOPE_RE in tools/build_story.py). Used only while language is "ru" and the id is in this table.
+## Russian overrides (only EV_ / EV<digit> / BE<digit> / TUT_G<digit> / TUT_GALAXY_ / CH_ / WARN_ / MENU_ / SCR_ / END_ / EPI_ ids; same rule as RU_SCOPE_RE in tools/build_story.py). Used only while language is "ru" and the id is in this table.
 static var ru_path: String = "res://data/story_text_ru.json"
 static var language: String = "en"
 static var _ru: Dictionary = {}
@@ -39,8 +39,11 @@ static func entries_of(parsed) -> Array:
 static func in_ru_scope(id: String) -> bool:
 	if id.length() > 2 and id.begins_with("EV") and id[2] >= "0" and id[2] <= "9":
 		return true
-	if id.begins_with("EV_") or id.begins_with("TUT_GALAXY_") or id.begins_with("CH_") or id.begins_with("WARN_"):
+	if id.length() > 2 and id.begins_with("BE") and id[2] >= "0" and id[2] <= "9":
 		return true
+	for p in ["EV_", "TUT_GALAXY_", "CH_", "WARN_", "MENU_", "SCR_", "END_", "EPI_"]:
+		if id.begins_with(p):
+			return true
 	return id.length() > 5 and id.begins_with("TUT_G") and id[5] >= "0" and id[5] <= "9"
 
 static func set_language(code: String) -> void:

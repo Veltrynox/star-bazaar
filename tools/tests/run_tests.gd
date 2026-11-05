@@ -232,8 +232,9 @@ func _test_localisation() -> void:
 	check(StoryText.get_text("EV_MIL_A1_BODY", {"cost": "7"}) == "Тест {x} 7", "lang: placeholders filled in ru text")
 	check(StoryText.get_text("EV_MIL_A1_OPA_BTN") != "" and StoryText.get_text("EV_MIL_A1_OPA_BTN") != "Тест", "lang: in-scope id without ru text stays English")
 	check(StoryText.get_text("CH_EFFECT_LINE") == "доля" and StoryText.in_ru_scope("CH_FX_ANY"), "lang: CH_ fill-in ids are localised")
-	for id in ["BTN_OK", "MENU_CONTINUE", "NOT_SAVED"]:
-		check(StoryText.get_text(id) != "Ладно" and StoryText.get_text(id) != "Дальше" and StoryText.get_text(id) != "Сохранено", "lang: out-of-scope %s stays English even if the file holds it" % id)
+	for id in ["BTN_OK", "NOT_SAVED"]:
+		check(StoryText.get_text(id) != "Ладно" and StoryText.get_text(id) != "Сохранено", "lang: out-of-scope %s stays English even if the file holds it" % id)
+	check(StoryText.get_text("MENU_CONTINUE") == "Дальше" and StoryText.in_ru_scope("END_BANKRUPT") and StoryText.in_ru_scope("SCR_PREFACE") and StoryText.in_ru_scope("EPI_CAP_MIL") and StoryText.in_ru_scope("BE01_BODY"), "lang: menu, screen, ending and epilogue ids are localised")
 	check(StoryText.in_ru_scope("EV_X") and StoryText.in_ru_scope("TUT_G3_PICK_WHY") and StoryText.in_ru_scope("TUT_GALAXY_INTRO") and not StoryText.in_ru_scope("TUT_C1_ROW") and not StoryText.in_ru_scope("EVT_NEXT_DUE") and StoryText.in_ru_scope("EV17_BODY") and StoryText.in_ru_scope("EV01_TITLE"), "lang: scope rule")
 	# persistence across a reload of the settings file
 	var cf := ConfigFile.new()

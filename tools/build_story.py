@@ -10,7 +10,7 @@ Texts live in story/*.md; one id rule for all of them:
                             EVnn_TITLE (max 32) and EVnn_BODY (max 280).
       events.md, 3 fields:  ID | place | text   (choice / popup / pool texts). Max by the id suffix, see EVENT_TEXT_MAX.
   * Every text id of every event is therefore in data/story_text.json; events.json holds mechanics and text ids only.
-Russian: story/ru/*.json hold {"ID": "text"} for the localised scope (RU_SCOPE_RE: EV_, EV<digit>, TUT_G<digit>, TUT_GALAXY_, CH_, WARN_).
+Russian: story/ru/*.json hold {"ID": "text"} for the localised scope (RU_SCOPE_RE: EV_, EV<digit>, BE<digit>, TUT_G<digit>, TUT_GALAXY_, CH_, WARN_, MENU_, SCR_, END_, EPI_).
 Fails (exit 1) on: repeated id, unreadable block.
 Over-max texts and ambiguous blocks (a designer note inside the text) are listed on stderr and left
 out of the output; exit code is 2 unless --allow-skip is given.
@@ -235,7 +235,7 @@ def build_events(add) -> list:
 
 
 
-RU_SCOPE_RE = re.compile(r"^(EV_|EV\d|TUT_G\d|TUT_GALAXY_|CH_|WARN_)")
+RU_SCOPE_RE = re.compile(r"^(EV_|EV\d|BE\d|TUT_G\d|TUT_GALAXY_|CH_|WARN_|MENU_|SCR_|END_|EPI_)")
 PH_RE = re.compile(r"\{[^{}]*\}")
 DIGIT_RE = re.compile(r"\d")
 
@@ -262,7 +262,7 @@ def build_ru(entries: dict, ru_dir: Path):
                 continue
             seen[eid] = rel
             if not RU_SCOPE_RE.match(eid):
-                problems.append(f"{where}: id is outside the localised scope (EV_, EV<digit>, TUT_G<digit>, TUT_GALAXY_, CH_, WARN_)")
+                problems.append(f"{where}: id is outside the localised scope (EV_, EV<digit>, BE<digit>, TUT_G<digit>, TUT_GALAXY_, CH_, WARN_, MENU_, SCR_, END_, EPI_)")
                 continue
             if eid not in entries:
                 problems.append(f"{where}: id is not in the English data")

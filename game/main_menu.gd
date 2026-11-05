@@ -13,6 +13,7 @@ var settings_box: VBoxContainer  # Settings screen; shown instead of the main co
 var voice_check: CheckButton  # Settings: Voice on/off (Voice.enabled, saved)
 var voice_slider: HSlider
 var lang_buttons := {}  # language code -> toggle button (labels are hard-coded in their own language)
+var _texts := {}  # Control -> story id, so the labels can be set again when the language changes
 
 func _ready() -> void:
 	Ui.install_cursors(get_tree())
@@ -62,7 +63,22 @@ func _ready() -> void:
 	quit.pressed.connect(func(): get_tree().quit())
 	box.add_child(quit)
 	_build_settings(center)
+	for pair in [[title, "SCR_TITLE_NAME"], [tagline, "SCR_TITLE_TAGLINE"], [cont, "MENU_CONTINUE"], [new_game, "MENU_NEW_GAME"], [quit, "MENU_QUIT"]]:
+		_texts[pair[0]] = pair[1]
+	_cont = cont
+	Lang.changed.connect(_on_language_changed)
 	(cont if SaveGame.exists() else new_game).grab_focus()
+
+var _cont: Button
+
+## The language was switched on the Settings screen: set the menu texts again (they were built before the switch).
+func _on_language_changed(_code: String) -> void:
+	for c in _texts:
+		(c as Control).set("text", StoryText.get_text(_texts[c]))
+	if not SaveGame.exists():
+		_cont.tooltip_text = SaveGame.old_save_message() if SaveGame.dropped_old else StoryText.get_text("MENU_HINT_CONTINUE_OFF")
+	if _no_save_label != null and not SaveGame.dropped_old:
+		_no_save_label.text = StoryText.get_text("NOT_NO_SAVE")
 
 ## Settings screen: language (English / Russian) and the voice controls. Interface text stays English.
 func _build_settings(center: Container) -> void:
