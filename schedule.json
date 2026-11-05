@@ -1165,10 +1165,11 @@
       "title": "Lower the voice narrator volume by default",
       "owner_agent": "gameplay-programmer",
       "depends_on": [],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 15,
       "window": "Owner request 2026-11-05 (playtest feedback). Not started: main session sets it running.",
-      "brief": "Owner: the voice narration is too loud. Lower its default volume (Voice autoload and Settings screen, game/voice*.gd or settings code; find the default volume constant or setting, also the saved-settings default for new installs). Pick about 50 percent of the current default, keep the Settings slider working, and do not override a value a player already saved. Handoff handoffs/gameplay-programmer/2026-11-05-T195.json."
+      "brief": "Owner: the voice narration is too loud. Lower its default volume (Voice autoload and Settings screen, game/voice*.gd or settings code; find the default volume constant or setting, also the saved-settings default for new installs). Pick about 50 percent of the current default, keep the Settings slider working, and do not override a value a player already saved. Handoff handoffs/gameplay-programmer/2026-11-05-T195.json.",
+      "note": "game/voice.gd: DEFAULT_VOLUME 0.5 (was 1.0) for new installs; saved value kept; slider unchanged."
     },
     {
       "task_id": "T196",
@@ -1225,6 +1226,19 @@
       "turn_cap": 40,
       "window": "Owner request 2026-11-05 (playtest feedback). Not started: main session sets it running.",
       "brief": "Owner's control design. (1) The player selects the ship (click it; show a selected look). (2) With the ship selected, a LEFT click on a planet, space storage, asteroid field or a point in space sends it there at once; no confirm dialog (remove the current 'fly here?' question). (3) A RIGHT click on a planet, storage, asteroid, dead planet or other action object opens a small context menu with the actions that object allows for the ship: establish a trading post, establish a mining platform, establish an outpost and so on (use the existing post/platform rules from game/pathfinder.gd; show an action only when it is allowed, hidden means not drawn; the Availability rule applies). Choosing an action starts the flight automatically (no further click or confirm) and the ship establishes it on arrival. (4) Esc or clicking empty space deselects. Update the tutorial and help texts that describe the old controls (story/*.md and story/ru/*.json, then python3 tools/build_story.py). Handoff handoffs/gameplay-programmer/2026-11-05-T200.json; ui-programmer does any panel or menu layout. Update 2026-11-05 (owner): establishing an outpost (trading post or mining platform) is almost instant: on arrival it completes within a moment (about a second or two of game time) instead of the build cycles now in data/balance.json (post_first_build_cycles, post_build_cycles, platform_build_cycles in game/pathfinder.gd); set those keys to the near-instant value, bump data_version, and keep the build state and save working. The cost of a post or platform stays as it is."
+    },
+    {
+      "task_id": "T201",
+      "title": "Test: ships are rotated to face their heading",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [
+        "T197"
+      ],
+      "status": "queued",
+      "turn_cap": 25,
+      "window": "Owner request 2026-11-05. Not started: main session sets it running.",
+      "brief": "Add a headless test in tools/tests/run_tests.gd (runs with sh tools/tests/run.sh) that the 3D ships face the way they fly, so 'ships fly sideways' can never come back. For the player's Pathfinder (game/pathfinder_view.gd) and the rival ships (game/rival_ships.gd), and for every corvette model in assets/ships that the game can show: set a known heading (at least 8 directions: along +X, -X, +Z, -Z and the four diagonals, and a heading in a second solar system if its map differs), step the ship's update, then take the model node's global basis, compute its nose (forward) vector using the model's declared forward axis (the per-model yaw offset from T197) and assert it matches the heading within about 2 degrees; assert the model's up axis stays up (no roll or pitch); assert a turn toward a new course changes the nose gradually at the yaw rate from T196 (not a snap) and finishes aligned; assert a stopped or paused ship keeps its last heading. Also assert that each model's forward axis data exists for every ship id in data/ships.json so a new model cannot be added without one. Fix code bugs the test finds. Handoff handoffs/gameplay-programmer/2026-11-05-T201.json.",
+      "owner_note": "Owner asked for an assertion or unit test for ship rotation; headless test chosen so it runs on every sh tools/tests/run.sh."
     }
   ],
   "done_task_ids": [

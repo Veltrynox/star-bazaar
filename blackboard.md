@@ -4,7 +4,7 @@
 - discovery_enabled in data/balance.json ships at 1 (owner decision 2026-11-05); tests that need it off set it themselves.
 
 ## Left to do
-- Open build tasks from playtest: T195-T200 (T196 first, T197-T200 depend on it/each other). T194 done; Competitors still reachable from share panel (L), owner to say if that goes too.
+- Open build tasks from playtest: T196-T201 (T196 first, T197-T200 depend on it/each other). T194 done; Competitors still reachable from share panel (L), owner to say if that goes too.
 - Open: T185 (visual), T178/T182 (owner-only agents), T05 (only windowed frame time missing, see T193), T166 (superseded). Owner-decision tasks T189-T193 added 2026-11-05.
 
 - Owner: ship cap 20 (T186): decide on economy retune (trip cost, maintenance tuned for 6) and look of the scrolled ship list; other panels not checked at 20 ships.
@@ -103,3 +103,13 @@
 - Failed / did not work: a sed on gdd.md failed (macOS syntax), so gdd.md was not touched. No handoff file (no agent).
 - Files and commits: game/game_menu.gd, schedule.json, blackboard.md; see git log "T194".
 - Left to do: owner decides whether the share panel Competitors button also goes. Next runs: T195, then T196.
+
+## 2026-11-05 17:00 run: T195
+- Summary: Voice narration default volume lowered from 1.0 to 0.5 (const DEFAULT_VOLUME in game/voice.gd), used for new installs; a saved value is kept and the slider is unchanged.
+- Why this task: smallest open build task with no dependency or visual question; T196 is large and gates T197-T201.
+- Approach: direct edit by main session, three lines, cheaper than an agent.
+- Agent prompts: none. No handoff file (no agent).
+- Worked: sh tools/tests/run.sh pass=2856 fail=0.
+- Failed / did not work: nothing. schedule.json already had uncommitted owner additions (T200 note, T201); they were committed along with my status change.
+- Files and commits: game/voice.gd, schedule.json, blackboard.md; commit "T195 ... [no-gdd]".
+- Left to do: owner may want a different level than 0.5. Next: T196.

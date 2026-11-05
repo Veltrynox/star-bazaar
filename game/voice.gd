@@ -8,7 +8,8 @@ const DIR_RU := "res://assets/voice/ru/"
 const CFG := "user://settings.cfg"
 
 var enabled := true
-var volume := 1.0
+const DEFAULT_VOLUME := 0.5  # default for new installs; a saved value is kept
+var volume := DEFAULT_VOLUME
 var current_id := ""  # id of the line now playing, "" when none
 var _player: AudioStreamPlayer
 var _next := ""  # line queued to follow the current one (a tutorial _WHY line)
@@ -20,7 +21,7 @@ func _ready() -> void:
 	var cf := ConfigFile.new()
 	if cf.load(CFG) == OK:
 		enabled = bool(cf.get_value("voice", "enabled", true))
-		volume = clampf(float(cf.get_value("voice", "volume", 1.0)), 0.0, 1.0)
+		volume = clampf(float(cf.get_value("voice", "volume", DEFAULT_VOLUME)), 0.0, 1.0)
 	_apply_volume()
 
 func play(id: String, then_id: String = "") -> void:
