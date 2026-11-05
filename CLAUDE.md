@@ -12,6 +12,10 @@
 - A new good, workshop or storage feature needs a rule in that file first. Use `Availability` (`game/availability.gd`) in any UI that lists goods; hidden means not drawn at all.
 - Check: `sh tools/tests/run.sh` runs `_test_availability` (start state, per-rule show/hide, text scan, data lint). It must pass before any UI, data or story change is handed off.
 
+## GDD sync (commit gate)
+- `gdd.md` is the short-form design truth (no balance numbers; numbers live in `data/`). A hook (`tools/gdd_sync.py`, set in `.claude/settings.json`) blocks `git commit` when the commit changes `game/`, `data/` or `story/` and does not include `gdd.md`.
+- Fix: have doc-manager update `gdd.md` (or `gdd-skills.md`) from the diff, stage it in the same commit, commit again. For a change with no design effect (refactor, fix that already matches the GDD), put `[no-gdd]` in the commit command.
+
 ## Generated files: never edit by hand
 - `data/story_text.json`, `data/story_text_ru.json` and `data/events.json` are written only by `python3 tools/build_story.py` from `story/*.md` (English) and `story/ru/*.json` (Russian). Each carries a `generated` marker (file, source, generator, command). Edit the source, then run the command; `sh tools/tests/run.sh` also runs it first.
 - The test `generated files` in `tools/tests/run_tests.gd` rebuilds them to a temp folder and fails, naming the file and the command, if a checked-in file differs.

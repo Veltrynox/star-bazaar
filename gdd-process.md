@@ -97,14 +97,11 @@ Rules:
   - If a session stops mid-task, the agent's handoff is the restart
     point. No re-running from scratch.
 
-Goal blackboard (see goals/README.md):
-  - Each /goal run has a folder goals/<goal-slug>/ with blackboard.json
-    (facts, decisions, open questions, claims, artifacts), log.md (one
-    plain-sentence entry per agent step) and report.md (5 lines or fewer).
-  - Agents read the blackboard when their brief lists it, and append only
-    their own entries. They never edit another agent's entries.
-  - The Producer, or the main session, writes log.md and report.md when the
-    goal finishes, then links the result from state.md.
+Goal log:
+  - The goals/ folder is gone. What each /goal run did is kept in
+    schedule.json under "goal_log" (goal, dates, report lines, step log).
+  - The Producer, or the main session, adds an entry there when a goal
+    finishes, then links it from state.md.
 
 Rules:
   - Start every session fresh with a brief: max 300 words plus the
@@ -112,7 +109,7 @@ Rules:
   - Programmer: start a new session when the task changes or the
     conversation gets long; carry over only the handoff.
   - Agents do not read the whole GDD. Read only the gdd.md sections your brief lists, and take your task from the launch prompt (or `python3 tools/task.py <id>`), never the whole schedule.json.
-  - Never read handoffs/archive/, gdd-log.md or gdd-process.md unless the brief says so.
+  - Never read handoffs/archive/ or gdd-process.md unless the brief says so.
   - Agent instructions live in .claude/agents/<name>.md, one file per
     agent, written once and not retyped.
 

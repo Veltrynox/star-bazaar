@@ -1,11 +1,10 @@
 Star Bazaar: Game Design Document
-Synced with change log: game version 0.1.0 | gdd-log.md d6e2ab16 (64 entries, latest 2026-11-05) | change log: gdd-log.md
 
 This file holds the main design only. It has no balance numbers.
 - Numbers (prices, costs, caps, thresholds, timings, rival strengths, event effects, ship and CEO multipliers) live in data/balance.json, data/planets.json, data/systems.json, data/ships.json, data/ceos.json and data/goods.json and are owned by the economy designer. Where this file and the data disagree, the data wins.
 - How the player acts today (screens, flow): story/game-flow.md.
 - Skill trees, space storage, permits, game menu: gdd-skills.md.
-- Agent workflow and constraints: gdd-process.md. Change history: gdd-log.md.
+- Agent workflow and constraints: gdd-process.md.
 - Story voice and texts: story/ (voice.md, endings.md, events.md, skills.md).
 - Proposals and their status: design/proposals/.
 
@@ -73,7 +72,7 @@ Mining. Prospecting (a Foundation skill) lets a route start at an asteroid clust
 
 Dead worlds. Cinderrest (system 1, dross) and Greywake (system 2, nullglass) are rock worlds with no market of their own for food or energy. They open from a set cycle and once their skill is learned. A dead world's panel offers mining instead of buying. Each cycle a running route mines it, a danger meter rises, and events follow on a delay (income cuts or boosts, lost cargo). The meter's size and the loss rules are balance values.
 
-Rivals. Three computer companies (working names Harrow Combine, Velvet Concord, Ostrel Syndicate) that exist only as numbers (graphs and a Competitors menu, never on the map). Each has a base strength and a growth in every market, tier-ups at fixed cycles, a small seeded random noise (so a run and a reloaded save agree), and extra growth in markets where the player is absent. Events, chain choices and skills can slow them or move their tier. Numbers are in balance.json (bot_* keys).
+Rivals. Three computer companies (working names Harrow Combine, Velvet Concord, Ostrel Syndicate) that exist only as numbers (graphs and a Competitors menu); scenery rival ships also fly over each system as a visual only (no cargo, no blocking, no combat, no effect on any number). Each has a base strength and a growth in every market, tier-ups at fixed cycles, a small seeded random noise (so a run and a reloaded save agree), and extra growth in markets where the player is absent. Events, chain choices and skills can slow them or move their tier. Numbers are in balance.json (bot_* keys).
 
 Spreading penalty. Working in several markets at once costs overhead, mixed cargo loads cost more, and skill points are finite. A focused run wins; a spread run does not.
 

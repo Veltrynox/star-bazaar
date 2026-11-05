@@ -1,72 +1,59 @@
 #!/usr/bin/env python3
-"""Keep gdd.md in sync with gdd-log.md and the game version.
+"""Commit gate: design-relevant code changes must come with a GDD update.
 
-  python3 tools/gdd_sync.py --stamp   rewrite the sync line in gdd.md (line 2)
-  python3 tools/gdd_sync.py --check   exit 1 if the line is stale
-  python3 tools/gdd_sync.py --hook    Claude Code PreToolUse hook: reads the tool
-                                      call on stdin, checks only on `git commit`,
-                                      exit 2 (blocks, message goes to Claude) if stale
+  python3 tools/gdd_sync.py --check   exit 1 if the staged change touches game/, data/
+                                      or story/ and gdd.md is not part of it
+  python3 tools/gdd_sync.py --hook    Claude Code PreToolUse hook: reads the tool call
+                                      on stdin, checks only on `git commit`, exit 2
+                                      (blocks, message goes to Claude) if the GDD is missing
 
-The stamp holds the game version (project.godot config/version), the log's entry
-count, latest date and a hash of gdd-log.md. Any log change makes the stamp stale,
-so the GDD body must be reviewed (short-form mechanics state), then re-stamped.
+`git commit -a` is checked against all tracked changes instead of the index.
+Escape hatch for a change with no design effect (refactor, bug fix that matches the GDD):
+put the marker [no-gdd] in the command, e.g. in the commit message.
 """
-import hashlib, json, re, sys
+import json, re, subprocess, sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-GDD, LOG, PROJ = ROOT / "gdd.md", ROOT / "gdd-log.md", ROOT / "project.godot"
-PREFIX = "Synced with change log: "
+WATCHED = ("game/", "data/", "story/")
+GDD = "gdd.md"
+SKIP = "[no-gdd]"
+
+MSG = ("This commit changes {n} file(s) under game/, data/ or story/ (e.g. {ex}) but not gdd.md. "
+       "Start doc-manager (the docs agent) with the diff (`git diff --cached`, or `git diff HEAD` "
+       "for commit -a): it updates the short-form mechanics in gdd.md (or gdd-skills.md for skills) "
+       "to match, main design only, no balance numbers. Stage gdd.md and commit again. If the "
+       "change has no design effect, commit again with the marker [no-gdd] in the command.")
 
 
-def stamp_line():
-    m = re.search(r'^config/version="([^"]+)"', PROJ.read_text(), re.M)
-    version = m.group(1) if m else "unversioned"
-    text = LOG.read_text()
-    dates = re.findall(r"^(\d{4}-\d{2}-\d{2})", text, re.M)
-    digest = hashlib.sha1(text.encode()).hexdigest()[:8]
-    return (f"{PREFIX}game version {version} | gdd-log.md {digest} "
-            f"({len(dates)} entries, latest {max(dates)}) | change log: gdd-log.md")
+def changed(all_tracked):
+    args = ["git", "-C", str(ROOT), "diff", "--name-only"] + (["HEAD"] if all_tracked else ["--cached"])
+    out = subprocess.run(args, capture_output=True, text=True).stdout
+    return [f for f in out.splitlines() if f]
 
 
-def current():
-    lines = GDD.read_text().split("\n")
-    return lines, (lines[1] if len(lines) > 1 and lines[1].startswith(PREFIX) else None)
+def missing(all_tracked=False):
+    files = changed(all_tracked)
+    code = [f for f in files if f.startswith(WATCHED)]
+    if code and GDD not in files:
+        return MSG.format(n=len(code), ex=", ".join(code[:3]))
+    return None
 
-
-def stamp():
-    lines, cur = current()
-    new = stamp_line()
-    if cur is None:
-        lines.insert(1, new)
-    else:
-        lines[1] = new
-    GDD.write_text("\n".join(lines))
-    print(new)
-
-
-def check():
-    return current()[1] == stamp_line()
-
-
-STALE = ("gdd.md is out of sync with gdd-log.md. Before committing: (1) read the newest "
-         "gdd-log.md entries, (2) update the short-form mechanics in gdd.md to match "
-         "(main design only, no balance numbers), (3) add a gdd-log.md entry if the "
-         "change has none, (4) run `python3 tools/gdd_sync.py --stamp`, then commit again.")
 
 if __name__ == "__main__":
     arg = sys.argv[1] if len(sys.argv) > 1 else "--check"
-    if arg == "--stamp":
-        stamp()
-    elif arg == "--check":
-        ok = check()
-        print("in sync" if ok else STALE)
-        sys.exit(0 if ok else 1)
+    if arg == "--check":
+        m = missing()
+        print(m or "ok")
+        sys.exit(1 if m else 0)
     elif arg == "--hook":
         try:
             cmd = json.load(sys.stdin).get("tool_input", {}).get("command", "")
         except Exception:
             sys.exit(0)
-        if re.search(r"\bgit\b[^|;&]*\bcommit\b", cmd) and not check():
-            print(STALE, file=sys.stderr)
-            sys.exit(2)
+        if re.search(r"\bgit\b[^|;&]*\bcommit\b", cmd) and SKIP not in cmd:
+            all_tracked = bool(re.search(r"\bcommit\b[^|;&]*\s(-[a-zA-Z]*a[a-zA-Z]*|--all)\b", cmd))
+            m = missing(all_tracked)
+            if m:
+                print(m, file=sys.stderr)
+                sys.exit(2)
