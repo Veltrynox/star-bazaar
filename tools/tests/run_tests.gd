@@ -1204,7 +1204,7 @@ const TEST_SEED := 20261104
 func _new_main(guided: bool = false, discovery: bool = false) -> Control:
 	var m: Control = load(MAIN_SCENE).instantiate()
 	root.add_child(m)
-	# the shipped default is discovery_enabled 0 (gdd.md), so the test sets it explicitly either way
+	# the shipped default is discovery_enabled 1 (gdd.md), so the test sets it explicitly either way
 	m.balance["discovery_enabled"] = 1 if discovery else 0
 	m.on_flight_changed()
 	# fixed seeds: market noise, chain shuffle and event rolls repeat from run to run
@@ -3653,6 +3653,8 @@ func _test_debug_menu() -> void:
 	d.set_event_enabled("EV01", true)
 	check(m.events.debug_off.is_empty(), "debug control: event on again")
 	var bal_text := FileAccess.get_file_as_string("res://data/balance.json")
+	# _new_main forces discovery_enabled for the test; put the shipped value back so the save is a no-op
+	m.balance["discovery_enabled"] = float(JSON.parse_string(bal_text)["values"]["discovery_enabled"])
 	d.save_balance_file()
 	check(FileAccess.get_file_as_string("res://data/balance.json") == bal_text, "debug control: save keeps data/balance.json identical when untouched")
 	d.qa["force_event"].pressed.emit()
