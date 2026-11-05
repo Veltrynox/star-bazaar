@@ -132,7 +132,7 @@
      "stock_held:rivets"
     ]
    },
-   "note": "Rivets has no unlock node. Its prices are only at system-2 planets (and, for rivets/musk/spores, one system-1 buy price) so a buy-and-sell trade exists only once system 2 is open. JUDGEMENT: hidden until system 2 is open (permit bought)."
+   "note": "Rivets is a sale-only trade good (2026-11-05 resource-final, no recipe on purpose). It has no unlock node. Its prices are only at system-2 planets (and, for rivets/musk/spores, one system-1 buy price) so a buy-and-sell trade exists only once system 2 is open. JUDGEMENT: hidden until system 2 is open (permit bought)."
   },
   {
    "kind": "good",
@@ -188,7 +188,7 @@
      "stock_held:armour"
     ]
    },
-   "note": "Crafted at the munitions. Good unlock skill_learned:MIL_4 AND the workshop built (the good cannot exist before). Inputs cells + chips + rivets (2026-11-05); rivets and chips exist only once system 2 is open, so also system_open:2."
+   "note": "Crafted at the munitions. Good unlock skill_learned:MIL_4 AND the workshop built (the good cannot exist before). Inputs 4 cells (2026-11-05 round 2, chips and rivets dropped so two feed ships reach it); cells need chips, which exist only once system 2 is open, so also system_open:2."
   },
   {
    "kind": "good",
@@ -215,7 +215,6 @@
       "all": [
        "skill_learned:LUX_4",
        "workshop_built:atelier",
-       "good_visible:ore",
        "good_visible:silk",
        "good_visible:musk"
       ]
@@ -223,7 +222,7 @@
      "stock_held:gems"
     ]
    },
-   "note": "Crafted at the atelier. Good unlock skill_learned:LUX_4 (2026-11-05 skill-tree-final, tier 3) AND the workshop built (the good cannot exist before). Inputs ore + silk + musk: all must be visible (ore FND_PROSPECT, silk and musk system 2)."
+   "note": "Crafted at the atelier. Good unlock skill_learned:LUX_4 (2026-11-05 skill-tree-final, tier 3) AND the workshop built (the good cannot exist before). Inputs silk + musk (2026-11-05 round 2, ore dropped so two feed ships reach it): both must be visible (system 2)."
   },
   {
    "kind": "good",

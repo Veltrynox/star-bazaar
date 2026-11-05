@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "agent": "economy-designer",
+  "date": "2026-11-05",
+  "task": "skill-round2",
+  "status": "done",
+  "files_changed": [
+    "data/balance.json",
+    "data/skills.json",
+    "data/goods.json",
+    "data/availability.json",
+    "tools/tests/run_tests.gd",
+    "design/proposals/2026-11-05-skill-tree-round2.md",
+    "goals/ship-ceo-skills-resources/blackboard.json",
+    "handoffs/economy-designer/2026-11-05-skill-round2.json"
+  ],
+  "open_questions": [
+    "Owner: approve 8 new balance keys (skill_MIL_6_price, skill_LUX_2_volume, skill_LUX_2_price, skill_LUX_6_price, skill_MIN_6_price, skill_BIO_2_volume, skill_BIO_4_price, skill_BIO_6_price) and chain_min_gap 3 to 2",
+    "UNKNOWN: gems and alloy payoffs and MIL_2/4/6 event cut need bot work (gem feed at c22+, fabric, forced events); QA to retest",
+    "Programmer: sale_price_pct and volume_pct extras on tech nodes, route_capacity_pct as MIL_3 main effect and extras list must be read (tests pass)"
+  ],
+  "handoff": "Balance v50, skills v3. Mil dominance gone (mil 27,27,32,27), default decent 27x4, bio 27-31, lux 3 of 4 at 27-29; losers 0 of 12. MIL_3 retargeted to route capacity (debris immunity kept as extra). Armour 4 cells, gems 2 silk+1 musk (feedable; armour crafted 21-30 units). Tests 1866 pass. Story ids listed in the proposal.",
+  "details": {
+    "balance_changes": {
+      "data_version": "49 to 50",
+      "chain_min_gap": "3 to 2 (bio and lux pace: win is gated by chain B4)",
+      "tech_goal_2/4/6": "9/18/12 to 6/11/8",
+      "skill_cost_<MIL|LUX|MIN|BIO>_7": "4 to 3",
+      "skill_MIL_3_route_units": "NEW 0.125 (restored)",
+      "skill_MIL_5_hit": "0.35 to 0.5",
+      "skill_MIL_5_cycles": "4 to 5",
+      "skill_MIL_5_every": "8 to 7",
+      "skill_MIL_6_event_cut": "0.35 to 0.5",
+      "bot_*_mil_strength/growth": "x1.265",
+      "bot_*_lux_strength/growth": "x0.65",
+      "bot_*_bio_strength/growth": "x0.92",
+      "gems_batch_out": "2 to 3",
+      "new keys": {
+        "skill_MIL_6_price": 0.06,
+        "skill_LUX_2_volume": 0.08,
+        "skill_LUX_2_price": 0.06,
+        "skill_LUX_6_price": 0.08,
+        "skill_MIN_6_price": 0.08,
+        "skill_BIO_2_volume": 0.12,
+        "skill_BIO_4_price": 0.1,
+        "skill_BIO_6_price": 0.08
+      },
+      "skill_BIO_6_event_cut": "0.25 to 0.4"
+    },
+    "data_changes": "skills.json v3: MIL_3 effect route_capacity_pct + extra event_immune; extras added on MIL_6, LUX_2 (effect now volume_pct), LUX_6, MIN_6, BIO_2, BIO_4, BIO_6. goods.json: armour {cells:4}, gems {silk:2,musk:1} batch_out 3. availability.json gems/armour: ore and chips/rivets conditions removed. Tests updated: MIL_3 capacity, LUX_6 price, armour recipe, chain gap.",
+    "sim_decent_seeds_1_4": {
+      "default": "win 27,27,27,27 cash 28.7k",
+      "mil": "27,27,32,27 cash 18.3k",
+      "lux": "27,27,29,soft40 cash 20.6k",
+      "min": "27,27,27,27 cash 17.0k",
+      "bio": "30,27,31,27 cash 4.4k",
+      "sloppy": "0 of 4 (cash 9.3k)",
+      "always_expand": "0 of 4 (24.9k)",
+      "never_expand": "0 of 4 (9.3k)"
+    },
+    "story_ids": [
+      "SK_MIL_3",
+      "SK_MIL_5",
+      "SK_MIL_6",
+      "SK_LUX_2",
+      "SK_LUX_4",
+      "SK_LUX_6",
+      "SK_MIN_6",
+      "SK_BIO_2",
+      "SK_BIO_4",
+      "SK_BIO_6",
+      "SK_MIL_7",
+      "SK_LUX_7",
+      "SK_MIN_7",
+      "SK_BIO_7"
+    ],
+    "tests_run": "sh tools/tests/run.sh: pass 1866 fail 0"
+  }
+}
