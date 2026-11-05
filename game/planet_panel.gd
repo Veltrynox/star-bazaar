@@ -110,6 +110,12 @@ func rebuild() -> void:
 			continue  # data/availability.json: not visible yet means no row at all
 		grid.add_child(_row(str(c), prices if typeof(prices) == TYPE_DICTIONARY else {}, pend))
 		mined.append(str(c))
+	if main.DeadWorlds.is_dead(p) and grid.get_child_count() > 0:  # dead world: the rows are mining rows, with a caption
+		var mh := _label(StoryText.get_or("SCR_MINE_HEADER", "Mining"))
+		mh.name = "MineHeader"
+		mh.theme_type_variation = "LabelCaption"
+		mh.text = mh.text.to_upper()
+		box.add_child(mh)
 	box.add_child(grid)
 	if _dead_minable(p):
 		for c in mined:
@@ -329,7 +335,7 @@ func _row(c: String, prices: Dictionary, pend: Dictionary) -> Control:
 	if main.tut_lock_active() and not (main.tut_allows("buy", planet_index, str(c)) or main.tut_allows("send_start", planet_index, str(c)) or main.tut_allows("sell", planet_index, str(c))):
 		bs.disabled = true  # guided tutorial: this resource is not part of the step
 	bs.pressed.connect(func(): buy_send_requested.emit(c))
-	if sell_p != null and buy != null:
+	if sell_p != null and buy != null and not main.DeadWorlds.is_dead(main.map.planets[planet_index]):
 		bs.tooltip_text += "\n" + StoryText.get_or("LBL_SELL_PRICE", "Sell price") + ": " + _price(sell_p)
 	if buy_on:
 		bs.tooltip_text += "\n" + "Buy order: " + str(main.engine.local_state(planet_index, c, "buy"))
@@ -356,7 +362,11 @@ func _row(c: String, prices: Dictionary, pend: Dictionary) -> Control:
 	bs.add_child(cap_l)
 	var pr_l := Label.new()  # row 2: tiny buy and sell prices (what the player pays and receives)
 	pr_l.name = "Prices_" + str(c)
+	var mining: bool = main.DeadWorlds.is_dead(main.map.planets[planet_index])
 	pr_l.text = "%s / %s" % [_price(buy), _price(sell_p)]
+	if mining:  # dead world: row 2 shows the yield per trip (what one ship hauls), not buy and sell prices
+		pr_l.text = StoryText.get_or("SCR_MINE_YIELD", "{n} per trip", {"n": main.engine.units_per_cycle(null, str(c))})
+		pr_l.name = "Yield_" + str(c)
 	pr_l.theme_type_variation = "LabelSmall"
 	pr_l.add_theme_font_size_override("font_size", 10)
 	pr_l.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -377,6 +387,13 @@ func _row(c: String, prices: Dictionary, pend: Dictionary) -> Control:
 			main.tut_note("storage")
 			bs.accept_event())
 	wrap.add_child(bs)
+	if mining and buy != null:  # what mining costs per unit, under the row
+		var mc := Label.new()
+		mc.name = "MineCost_" + str(c)
+		mc.text = StoryText.get_or("SCR_MINE_COST", "Mining cost: {price} per unit", {"price": str(int(buy)) if is_equal_approx(float(buy), floorf(float(buy))) else _price(buy)})
+		mc.theme_type_variation = "LabelSmall"
+		mc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		info.add_child(mc)
 	var salv_l: Control = _salvage_line(str(c))
 	if salv_l != null:
 		info.add_child(salv_l)

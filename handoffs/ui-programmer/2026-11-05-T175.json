@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-05",
+  "task": "T175",
+  "status": "done",
+  "files_changed": ["game/planet_panel.gd", "story/screens.md", "story/ru/screens.json", "data/story_text.json", "data/story_text_ru.json", "qa/bots/mine_panel_shot.gd"],
+  "open_questions": [
+    "Risk: the Danger line is hidden by availability rule dead_danger_meter (never true), so the mining panel shows no risk. Flip the rule (economy-designer) to show it; no code change needed.",
+    "Yield per trip uses engine.units_per_cycle (one ship's haul); there is no dead-world-specific yield rule or per-world stock. Missing rule for gameplay-programmer if the owner wants one.",
+    "Mining cost per unit is the planet's dross_buy / nullglass_buy price (existing mechanic)."
+  ],
+  "handoff": "Mining-type planets are those with id dead_* or type dead: dead_1 Cinderrest (data/planets.json) and dead_2 Greywake (data/systems.json). Their panel keeps the planet panel layout but: a MINING caption, per good a row (icon, name, stored/capacity, 'N per trip' yield instead of buy/sell prices), 'Mining cost: X per unit', no sell-price tooltip, then the existing 'Mine {good} and send to...' action. Lock, missing-skill and trip-open states unchanged. New ids SCR_MINE_HEADER/YIELD/COST with Russian. Tests pass (run.sh exit 0). Screenshot qa/reports/mine_panel_1.png (bot qa/bots/mine_panel_shot.gd) shows Cinderrest minable; Greywake and Russian not checked by eye.",
+  "details": {"screens": ["planet panel, dead worlds"], "how_to_see": "qa/run_game.sh res://qa/bots/mine_panel_shot.gd, open qa/reports/mine_panel_1.png"}
+}

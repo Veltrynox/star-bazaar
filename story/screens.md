@@ -333,6 +333,9 @@ NOT_DEAD_NEEDS_SKILL | 110 | Notice, route from a dead world without its skill; 
 PLANET_DANGER | 60 | Planet panel, dead world danger line; {value} and {max} are numbers | Danger: {value} of {max}
 BTN_MINE_SEND | 40 | Planet panel, dead world, button under the mined goods; {good} is the good name | Mine {good} and send to...
 LBL_MINE_ROW_TIP | 80 | Planet panel, dead world, tooltip of a mined good | Mine here every cycle. Press to stop.
+SCR_MINE_HEADER | 30 | Planet panel, dead world, caption above the mined goods | Mining
+SCR_MINE_YIELD | 40 | Planet panel, dead world, under the mined good; {n} is units per trip | {n} per trip
+SCR_MINE_COST | 60 | Planet panel, dead world, line under the mined good; {price} is credits per unit | Mining cost: {price} per unit
 NOT_DEAD_NO_DELIVERY | 90 | Notice, a dead world clicked as the destination of a route | Nothing is delivered to a dead world. Pick another planet.
 GOOD_DROSS_NAME | 24 | Commodity name, dross | Dross Salt
 GOOD_DROSS_DESC | 110 | Commodity tooltip, dross | Grey salt cut from a dead world. A raw mined good that nobody tastes twice.

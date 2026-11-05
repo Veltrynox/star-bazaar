@@ -1352,6 +1352,24 @@
    "place": "Planet panel, dead world, tooltip of a mined good"
   },
   {
+   "id": "SCR_MINE_HEADER",
+   "text": "Mining",
+   "max": 30,
+   "place": "Planet panel, dead world, caption above the mined goods"
+  },
+  {
+   "id": "SCR_MINE_YIELD",
+   "text": "{n} per trip",
+   "max": 40,
+   "place": "Planet panel, dead world, under the mined good; {n} is units per trip"
+  },
+  {
+   "id": "SCR_MINE_COST",
+   "text": "Mining cost: {price} per unit",
+   "max": 60,
+   "place": "Planet panel, dead world, line under the mined good; {price} is credits per unit"
+  },
+  {
    "id": "NOT_DEAD_NO_DELIVERY",
    "text": "Nothing is delivered to a dead world. Pick another planet.",
    "max": 90,
