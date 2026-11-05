@@ -20,6 +20,7 @@ signal arrived(planet_id: String)         # the ship reached a planet (it is dis
 signal build_started(planet_id: String)
 signal build_done(planet_id: String)      # a post or a platform stands now
 signal build_cancelled(planet_id: String) # the ship left during a build: credits are not refunded
+signal establish_failed(planet_id: String, reason: String) # T200: an order "fly there and establish" could not start on arrival
 
 const PLATFORM_SKILL := "MIN_3"  # skill that allows a mining platform (proposal 1.4)
 const DEFAULT_HOME := "planet_1"
@@ -40,6 +41,7 @@ var _speed := 0.0               # T196: world units per cycle, ramps up from res
 var _yaw := 0.0                 # T196: heading (atan2(-dx, -dz)), turns at pathfinder_turn_deg per cycle toward the course
 var _docked := ""               # planet id the ship is at, "" in flight or in open space
 var _build := ""                # planet id being built, "" none
+var _auto := ""                 # T200: planet id to establish as soon as the ship arrives there, "" none
 var _build_total := 0.0
 var _build_left := 0.0
 var _discovered := {}           # planet id -> true
@@ -65,6 +67,7 @@ func reset() -> void:
 	_speed = 0.0
 	_yaw = 0.0
 	_build = ""
+	_auto = ""
 	_build_total = 0.0
 	_build_left = 0.0
 	_last_now = -1.0
@@ -222,6 +225,22 @@ func cost(pid: String) -> Dictionary:
 	var cycles := _bal("post_first_build_cycles", 1.0) if first else _bal("post_build_cycles", 2.0)
 	return {"cash": 0 if is_free else int(round(base)), "cycles": cycles, "free": is_free}
 
+## T200: the actions the ship may do at a planet, for the right-click menu: "establish_post" (living world), "establish_platform"
+## (dead world, mining skill learned). Empty when the world already stands, the system has no permit or discovery is off.
+## Hidden means not drawn: the menu shows exactly these.
+func actions_for(pid: String) -> Array:
+	var out: Array = []
+	if not is_enabled() or _index_of(pid) < 0 or established(pid):
+		return out
+	if eta_cycles(pid) < 0.0:
+		return out
+	if _is_dead(pid):
+		if can_platform(pid):
+			out.append("establish_platform")
+	else:
+		out.append("establish_post")
+	return out
+
 ## Flight time in cycles from where the ship is now to a planet; < 0 when it cannot go (no permit for that system).
 func eta_cycles(pid: String) -> float:
 	if not is_enabled():
@@ -274,6 +293,7 @@ func request_fly(t: Dictionary) -> String:
 		return ""
 	if _state == "building":
 		_cancel_build()
+	_auto = ""
 	_from = _pos
 	_to = to
 	_to_sys = to_sys
@@ -286,6 +306,27 @@ func request_fly(t: Dictionary) -> String:
 	_state = "flying"
 	if _dur <= EPS:
 		_arrive()
+	return ""
+
+## T200: "fly there and establish on arrival" (right-click menu). "" accepted, else the reason of request_fly / request_establish.
+## The build starts the moment the ship docks; if it cannot (no credits) establish_failed is emitted.
+func request_fly_establish(pid: String) -> String:
+	if not is_enabled():
+		return ""
+	var i := _index_of(pid)
+	if i < 0:
+		return "bad_target"
+	if _state == "building" and _build == pid:
+		return ""
+	if _state == "idle" and _docked == pid:
+		return request_establish(pid)
+	var r := request_fly({"kind": "planet", "pos": _planet_pos(i), "index": i})
+	if r != "":
+		return r
+	if _state == "flying":
+		_auto = pid
+	elif _docked == pid:
+		return request_establish(pid)
 	return ""
 
 ## Starts the build at the planet the ship is docked at. "" accepted; "fly_first" | "no_cash_post" | "no_cash_platform" | "busy";
@@ -423,6 +464,12 @@ func _arrive() -> void:
 			arrived.emit(pid)
 			if first:
 				main.on_flight_changed()
+			if _auto == pid:
+				_auto = ""
+				var r := request_establish(pid)
+				if r != "":
+					establish_failed.emit(pid, r)
+	_auto = ""
 
 func _finish_build() -> void:
 	var pid := _build
@@ -494,7 +541,7 @@ func to_dict() -> Dictionary:
 	if not _target.is_empty():
 		tgt = {"kind": str(_target.get("kind", "point")), "pos": _v(_target.get("pos", Vector3.ZERO)), "index": int(_target.get("index", -1))}
 	return {"pos": _v(_pos), "sys": _sys, "state": _state, "target": tgt, "from": _v(_from), "to": _v(_to), "to_sys": _to_sys,
-		"dur": _dur, "t": _t, "speed": _speed, "yaw": _yaw, "docked": _docked, "build": _build, "build_total": _build_total, "build_left": _build_left,
+		"dur": _dur, "t": _t, "speed": _speed, "yaw": _yaw, "docked": _docked, "build": _build, "build_total": _build_total, "build_left": _build_left, "auto": _auto,
 		"discovered": _discovered.keys(), "posts": _posts.keys(), "platforms": _platforms.keys(), "legacy": _legacy}
 
 ## A missing or bad dictionary (a save from before discovery) opens every planet, so an old run keeps working.
@@ -527,6 +574,7 @@ func from_dict(d) -> void:
 		_dur = float(d["dur"])
 		_t = clampf(float(d.get("t", 0.0)), 0.0, _dur)
 		_state = "flying"
+		_auto = str(d.get("auto", ""))
 	elif st == "building" and str(d.get("build", "")) != "" and _index_of(str(d["build"])) >= 0 and float(d.get("build_total", 0.0)) > 0.0:
 		_build = str(d["build"])
 		_build_total = float(d["build_total"])

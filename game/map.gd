@@ -81,6 +81,15 @@ signal station_clicked(system_id: int)
 ## T180: flight orders and establish orders; see the interface at the top of game/pathfinder_view.gd. Never emitted while flight is null or off.
 signal fly_requested(target: Dictionary)   # {"kind": "planet"|"storage"|"cluster"|"point", "pos": Vector3, "index": int}
 signal establish_requested(planet_id: String)
+## T200: ship controls. Click the ship to select it; with it selected LEFT click flies at once, RIGHT click on a planet asks main for the
+## action menu (only the allowed actions), Esc / right-click on open space deselects.
+signal action_menu_requested(planet_id: String, screen_pos: Vector2)
+signal fly_establish_requested(planet_id: String)
+const SHIP_PICK_PX := 30.0
+const RIGHT_CLICK_DRAG_PX := 6.0
+var ship_selected := false
+var _rc_down := false             # right button pressed on the map and not dragged yet (a drag orbits the camera)
+var _rc_drag := 0.0
 const PathfinderView := preload("res://game/pathfinder_view.gd")
 const DeadWorlds := preload("res://game/dead_worlds.gd")
 const StoryText := preload("res://game/story_text.gd")
@@ -801,7 +810,9 @@ func _refresh_known() -> void:
 		pathfinder = PathfinderView.new()
 		add_child(pathfinder)
 	if pathfinder != null:
-		pathfinder.update_from(flight if on else null, view_system)
+		if not on:
+			ship_selected = false
+		pathfinder.update_from(flight if on else null, view_system, ship_selected)
 	if not on and _shades.is_empty():
 		return
 	for i in planets.size():
@@ -845,7 +856,21 @@ func _ground_point(screen_pos: Vector2) -> Variant:
 func _axis(neg: Key, pos: Key) -> float:
 	return float(Input.is_physical_key_pressed(pos)) - float(Input.is_physical_key_pressed(neg))
 
+## T200: true when the cursor is over the Pathfinder (it is drawn only in the viewed system).
+func pick_ship(screen_pos: Vector2) -> bool:
+	if not PathfinderView.active(flight) or pathfinder == null or not pathfinder.visible or camera == null:
+		return false
+	var w: Vector3 = PathfinderView._call(flight, "ship_position", [], Vector3.ZERO) + Vector3(0, PathfinderView.LIFT, 0)
+	if camera.is_position_behind(w):
+		return false
+	return camera.unproject_position(w).distance_to(screen_pos) <= SHIP_PICK_PX
+
+func select_ship(on: bool) -> void:
+	ship_selected = on and PathfinderView.active(flight)
+
 func _input(event: InputEvent) -> void:
+	if event is InputEventMouseMotion and _rc_down and (event.button_mask & MOUSE_BUTTON_MASK_RIGHT) != 0:
+		_rc_drag += event.relative.length()
 	if event is InputEventMouseButton and event.pressed:
 		if event.button_index == MOUSE_BUTTON_WHEEL_UP:
 			_zoom_by(ZOOM_STEP)
@@ -855,20 +880,35 @@ func _input(event: InputEvent) -> void:
 		_orbit_by(event.relative.x * ORBIT_MOUSE_SENS, event.relative.y * ORBIT_MOUSE_SENS)
 
 func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT:
+		if event.pressed:
+			_rc_down = true
+			_rc_drag = 0.0
+		elif _rc_down:
+			_rc_down = false
+			if _rc_drag < RIGHT_CLICK_DRAG_PX:
+				_right_click(event.position)
+		return
 	# T04: left click picks a planet with a camera ray / sphere test.
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		var on := PathfinderView.active(flight)
+		if on and pick_ship(event.position):  # T200: click the ship to select it (a planet under it is still picked for the panel)
+			ship_selected = true
+			planet_clicked.emit(pick_planet(event.position))
+			return
+		var fly: bool = on and ship_selected  # T200: only a selected ship takes orders; a left click sends it at once
 		var hit := pick_planet(event.position)
 		if hit < 0:
 			var sid := pick_station(event.position)
 			if sid >= 0:
 				station_clicked.emit(sid)
-				if PathfinderView.active(flight):
+				if fly:
 					fly_requested.emit({"kind": "storage", "pos": stations[sid].position, "index": sid})
 				return
 			var cidx := pick_cluster(event.position)
 			if cidx >= 0:
 				cluster_clicked.emit(cidx)
-				if PathfinderView.active(flight):
+				if fly:
 					var cp: Variant = _cluster_world_pos(cidx)
 					if cp != null:
 						fly_requested.emit({"kind": "cluster", "pos": cp, "index": cidx})
@@ -877,14 +917,27 @@ func _unhandled_input(event: InputEvent) -> void:
 			if rid >= 0:
 				route_clicked.emit(rid)
 				return
-			if PathfinderView.active(flight) and event.shift_pressed:  # Shift+click on open space: fly there
+			if fly:  # open space: fly to that point
 				var gp: Variant = _ground_point(event.position)
 				if gp != null:
 					fly_requested.emit({"kind": "point", "pos": gp, "index": -1})
 					return
-		elif PathfinderView.active(flight) and PathfinderView.established(flight, str(planets[hit].get("id", hit))):
-			fly_requested.emit({"kind": "planet", "pos": positions[hit], "index": hit})  # closed planets: only selected, the panel has Fly here
+		elif fly:
+			fly_requested.emit({"kind": "planet", "pos": positions[hit], "index": hit})
 		planet_clicked.emit(hit)
+
+## T200: right click (no drag). With the ship selected: a planet with allowed actions opens the menu; open space deselects.
+func _right_click(pos: Vector2) -> void:
+	if not (PathfinderView.active(flight) and ship_selected):
+		return
+	var hit := pick_planet(pos)
+	if hit >= 0:
+		var pid := str(planets[hit].get("id", hit))
+		if not (PathfinderView._call(flight, "actions_for", [pid], []) as Array).is_empty():
+			action_menu_requested.emit(pid, pos)
+		return
+	if pick_station(pos) < 0 and pick_cluster(pos) < 0 and not pick_ship(pos):
+		ship_selected = false
 
 ## Space station of one system: built once, placed beside the sun. Returns false if it already exists.
 func add_station(sid: int, animate: bool = true) -> bool:

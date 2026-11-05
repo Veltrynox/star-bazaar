@@ -205,7 +205,7 @@
   },
   {
    "id": "TUT_G0_FLY",
-   "text": "Выберите тусклый мир и нажмите Fly here."
+   "text": "Нажмите на свой корабль, затем правой кнопкой на тусклый мир."
   },
   {
    "id": "TUT_G0_FLY_WHY",
@@ -213,7 +213,7 @@
   },
   {
    "id": "TUT_G0_BUILD",
-   "text": "Нажмите Establish trading post."
+   "text": "Правая кнопка на мире, затем Establish trading post."
   },
   {
    "id": "TUT_G0_BUILD_WHY",

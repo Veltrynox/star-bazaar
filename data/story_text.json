@@ -4911,7 +4911,7 @@
   },
   {
    "id": "TUT_G0_FLY",
-   "text": "Select the dim world and press Fly here.",
+   "text": "Click your ship, then right-click the dim world.",
    "max": 60,
    "place": "Guided step 0, until the Pathfinder has reached the nearby world"
   },
@@ -4923,7 +4923,7 @@
   },
   {
    "id": "TUT_G0_BUILD",
-   "text": "Press Establish trading post.",
+   "text": "Right-click the world, choose Establish trading post.",
    "max": 60,
    "place": "Guided step 0, after arrival, until the post is built"
   },

@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-05",
+  "task": "T200",
+  "status": "done",
+  "files_changed": [
+    "game/pathfinder.gd",
+    "game/pathfinder_view.gd",
+    "game/map.gd",
+    "game/main.gd",
+    "data/balance.json",
+    "story/screens.md",
+    "story/ru/discovery.json",
+    "data/story_text.json",
+    "data/story_text_ru.json",
+    "data/events.json"
+  ],
+  "open_questions": [
+    "Left click on open space flies there, so empty-space click cannot also deselect. Deselect is Esc or right-click on open space. OK, or should a click on the ship toggle it off?",
+    "Right-click menu appears only for planets that still allow an action (outpost or platform). Storage, asteroid packs and built planets have no allowed action, so no menu opens. Add a 'Fly here' item there?",
+    "Selected look is a cyan ring around the ship, and the menu is a plain PopupMenu. Change either?"
+  ],
+  "handoff": "Click the Pathfinder to select it (cyan ring). While selected, left click on a planet, storage, asteroid pack or open space flies there at once. There was no confirm dialog in code to remove: the old flow was click-to-fly, Shift+click for space, and the panel Fly here button, which stays. Right click on a planet with an allowed action opens a PopupMenu (Establish trading post, or Establish mining platform once the mining skill is learned, per Pathfinder.actions_for). Picking one flies and builds on arrival (request_fly_establish, saved as 'auto'; no cash gives the existing notice). Esc or right-click on open space deselects. Outpost builds now take 0.025 cycles (1.5 s); data_version 58; costs unchanged. Tutorial texts TUT_G0_FLY and TUT_G0_BUILD updated in English and Russian. Test suite: pass=3073 fail=0. No new test was added for the new flow.",
+  "details": {
+    "how_to_try": "Run the game, click the ship at Voltara, right-click the dim world, choose Establish trading post.",
+    "pick_ship_px": 30
+  }
+}

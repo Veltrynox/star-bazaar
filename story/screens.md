@@ -1032,9 +1032,9 @@ NOT_FIELD_SURVEYED | 110 | Notice, the Pathfinder reached an asteroid field | As
 NOT_FLIGHT_EVENT | 110 | Notice before a flight event, optional | The Pathfinder reports something on the lane.
 
 ## Tutorial: first flight (T181; replaces the old guided step 1 when discovery is on; Russian in story/ru/discovery.json)
-TUT_G0_FLY | 60 | Guided step 0, until the Pathfinder has reached the nearby world | Select the dim world and press Fly here.
+TUT_G0_FLY | 60 | Guided step 0, until the Pathfinder has reached the nearby world | Click your ship, then right-click the dim world.
 TUT_G0_FLY_WHY | 110 | Guided step, why it matters (second line of the card) | Only your home world is known. Other worlds open when you fly there and build a post.
-TUT_G0_BUILD | 60 | Guided step 0, after arrival, until the post is built | Press Establish trading post.
+TUT_G0_BUILD | 60 | Guided step 0, after arrival, until the post is built | Right-click the world, choose Establish trading post.
 TUT_G0_BUILD_WHY | 110 | Guided step, why it matters (second line of the card) | A post lets you buy, sell and route there. Your first one is free.
 TUT_G0_WAIT | 60 | Guided step 0, while the post is building | Press the lit time button, top right, to build.
 TUT_G0_WAIT_WHY | 110 | Guided step, why it matters (second line of the card) | Flights and builds run on cycles. Time stands still while the game is paused.

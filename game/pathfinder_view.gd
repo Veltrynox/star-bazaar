@@ -43,6 +43,10 @@ extends Node3D
 ##   map.fly_requested(target: Dictionary)   same shape as target(); sent by: click on an established planet, on the
 ##       space station, on an asteroid pack, Shift+click on open space, and the "Fly here" button. A click on a closed
 ##       planet only selects it (panel with Fly here). T179 starts/redirects the flight; it posts NOT_POST_LEAVE if a build is cancelled.
+##   (T200) Controls: click the ship to select it (cyan ring); with it selected a LEFT click on a planet, storage, asteroid pack or open
+##       space sends fly_requested at once (no confirm); a RIGHT click on a planet opens a menu of request_fly_establish actions
+##       (actions_for(planet_id) -> Array: "establish_post" | "establish_platform", only the allowed ones); Esc or right-click on
+##       open space deselects. Signals: map.fly_establish_requested(planet_id), map.action_menu_requested(planet_id, screen_pos).
 ##   map.establish_requested(planet_id: String)   the Establish button. T179 checks cash/dock/busy and posts NOT_FLY_FIRST,
 ##       NOT_POST_NO_CASH, NOT_PLATFORM_NO_CASH, NOT_POST_BUSY itself.
 ## When state changes (arrive, build done, flags change) the planet panel and map labels re-read the accessor on their own
@@ -55,6 +59,8 @@ const FIT_HEIGHT := 0.3
 const LIFT := 0.35             # ship hovers above the map plane so it clears planet spheres' lower rim
 const MARKER_RADIUS := 0.35
 const COL_LINE_MOVING := Color(1.0, 0.85, 0.5, 0.9)
+const COL_SELECTED := Color(0.55, 0.9, 1.0, 0.95)  # T200 selected look: cyan ring under the ship
+const SEL_RADIUS := 0.5
 const COL_LINE_PAUSED := Color(1.0, 0.85, 0.5, 0.35)
 
 var flight = null
@@ -63,6 +69,7 @@ var _holder: Node3D
 var _line: MeshInstance3D
 var _mesh: ImmediateMesh
 var _marker: MeshInstance3D
+var _sel: MeshInstance3D       # T200: ring around the ship while it is selected
 var _mat: StandardMaterial3D
 
 # ---- safe accessor helpers (shared by map.gd and planet_panel.gd) ---------------------------------------------------
@@ -143,24 +150,42 @@ func _ready() -> void:
 	_marker.top_level = true
 	_marker.visible = false
 	add_child(_marker)
+	var sring := TorusMesh.new()
+	sring.inner_radius = SEL_RADIUS * 0.9
+	sring.outer_radius = SEL_RADIUS
+	_sel = MeshInstance3D.new()
+	_sel.mesh = sring
+	var smat := StandardMaterial3D.new()
+	smat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	smat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	smat.no_depth_test = true
+	smat.albedo_color = COL_SELECTED
+	_sel.material_override = smat
+	_sel.top_level = true
+	_sel.visible = false
+	add_child(_sel)
 
 ## Called by map.gd every frame. Does nothing visible while the accessor is missing or discovery is off.
-func update_from(f, view_system: int) -> void:
+func update_from(f, view_system: int, selected: bool = false) -> void:
 	flight = f
 	if not active(f):
 		visible = false
 		_line.visible = false
 		_marker.visible = false
+		_sel.visible = false
 		return
 	var sys := int(_call(f, "system_id", [], 1))
 	visible = sys == view_system
 	_line.visible = visible
 	if not visible:
 		_marker.visible = false
+		_sel.visible = false
 		return
 	_ensure_model(str(_call(f, "model_path", [], "")))
 	var pos: Vector3 = _call(f, "ship_position", [], Vector3.ZERO)
 	global_position = pos + Vector3(0, LIFT, 0)
+	_sel.visible = selected
+	_sel.global_position = pos + Vector3(0, LIFT, 0)
 	var has_heading: bool = f != null and is_instance_valid(f) and f.has_method("heading")
 	if has_heading:
 		rotation.y = float(f.heading())  # T196: the ship turns at a limited rate, the accessor owns the heading

@@ -111,6 +111,7 @@ var system_hint: Label
 
 var map: Node3D
 var rival_ships: Node3D  # T187 rival ships flying on the map, visual only (game/rival_ships.gd)
+var _action_menu: PopupMenu  # T200: right-click menu of the selected ship
 var flight: RefCounted  # T179 the Pathfinder (game/pathfinder.gd); the map reads it as map.flight; saved under "pathfinder"
 var planet_panel: PanelContainer
 var cluster_info: PanelContainer  # T159: info card of the asteroid cluster clicked on the map
@@ -213,6 +214,7 @@ func _ready() -> void:
 	flight.arrived.connect(_on_flight_arrived)
 	flight.build_done.connect(_on_flight_build_done)
 	flight.build_cancelled.connect(_on_flight_build_cancelled)
+	flight.establish_failed.connect(_on_flight_establish_failed)  # T200
 	events.established_fn = Callable(self, "planet_established")
 	system_exit = load("res://game/system_exit.gd").new()  # lock and fading line to the next, locked system
 	add_child(system_exit)
@@ -233,6 +235,8 @@ func _ready() -> void:
 	map.station_clicked.connect(_on_station_clicked)
 	map.fly_requested.connect(_on_fly_requested)  # T180: both do nothing while map.flight is null or off
 	map.establish_requested.connect(_on_establish_requested)
+	map.action_menu_requested.connect(_on_action_menu_requested)  # T200
+	map.fly_establish_requested.connect(_on_fly_establish_requested)
 	_build_board()
 	_build_pending_label()
 	route_warning = load("res://game/route_warning.gd").new()  # red line + cursor warning when no ship can be bought
@@ -2885,6 +2889,8 @@ func _unhandled_input(event: InputEvent) -> void:
 			_hide_cluster_info()
 		elif game_menu.visible:
 			game_menu.close_menu()
+		elif map.ship_selected:  # T200: Esc deselects the Pathfinder first
+			map.ship_selected = false
 		else:
 			game_menu.open_menu()
 	elif event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_G:
@@ -3227,6 +3233,39 @@ func _on_fly_requested(target: Dictionary) -> void:
 		return
 	var r = PathfinderView._call(f, "request_fly", [target], "")
 	_flight_notice(r)
+
+## T200: right-click menu on a planet with the ship selected: one item per allowed action (flight.actions_for), nothing else drawn.
+## Choosing one flies there and establishes on arrival (the accessor starts the build when the ship docks).
+func _on_action_menu_requested(planet_id: String, screen_pos: Vector2) -> void:
+	var f = map.flight
+	if not PathfinderView.active(f):
+		return
+	var acts: Array = PathfinderView._call(f, "actions_for", [planet_id], [])
+	if acts.is_empty():
+		return
+	if _action_menu != null:
+		_action_menu.queue_free()
+	_action_menu = PopupMenu.new()
+	_action_menu.name = "ShipActionMenu"
+	for k in acts.size():
+		var a := str(acts[k])
+		_action_menu.add_item(StoryText.get_or("BTN_ESTABLISH_PLATFORM" if a == "establish_platform" else "BTN_ESTABLISH_POST",
+			"Establish mining platform" if a == "establish_platform" else "Establish trading post"), k)
+	_action_menu.id_pressed.connect(func(id: int):
+		if id >= 0 and id < acts.size():
+			_on_fly_establish_requested(planet_id))
+	add_child(_action_menu)
+	_action_menu.popup_on_parent(Rect2i(Vector2i(screen_pos), Vector2i.ZERO))
+
+func _on_fly_establish_requested(planet_id: String) -> void:
+	var f = map.flight
+	if not PathfinderView.active(f):
+		return
+	var r = PathfinderView._call(f, "request_fly_establish", [planet_id], "")
+	_flight_notice(r)
+
+func _on_flight_establish_failed(_planet_id: String, reason: String) -> void:
+	_flight_notice(reason)
 
 func _on_establish_requested(planet_id: String) -> void:
 	var f = map.flight

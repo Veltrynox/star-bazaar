@@ -1224,10 +1224,11 @@
       "depends_on": [
         "T196"
       ],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 40,
       "window": "Owner request 2026-11-05 (playtest feedback). Not started: main session sets it running.",
-      "brief": "Owner's control design. (1) The player selects the ship (click it; show a selected look). (2) With the ship selected, a LEFT click on a planet, space storage, asteroid field or a point in space sends it there at once; no confirm dialog (remove the current 'fly here?' question). (3) A RIGHT click on a planet, storage, asteroid, dead planet or other action object opens a small context menu with the actions that object allows for the ship: establish a trading post, establish a mining platform, establish an outpost and so on (use the existing post/platform rules from game/pathfinder.gd; show an action only when it is allowed, hidden means not drawn; the Availability rule applies). Choosing an action starts the flight automatically (no further click or confirm) and the ship establishes it on arrival. (4) Esc or clicking empty space deselects. Update the tutorial and help texts that describe the old controls (story/*.md and story/ru/*.json, then python3 tools/build_story.py). Handoff handoffs/gameplay-programmer/2026-11-05-T200.json; ui-programmer does any panel or menu layout. Update 2026-11-05 (owner): establishing an outpost (trading post or mining platform) is almost instant: on arrival it completes within a moment (about a second or two of game time) instead of the build cycles now in data/balance.json (post_first_build_cycles, post_build_cycles, platform_build_cycles in game/pathfinder.gd); set those keys to the near-instant value, bump data_version, and keep the build state and save working. The cost of a post or platform stays as it is."
+      "brief": "Owner's control design. (1) The player selects the ship (click it; show a selected look). (2) With the ship selected, a LEFT click on a planet, space storage, asteroid field or a point in space sends it there at once; no confirm dialog (remove the current 'fly here?' question). (3) A RIGHT click on a planet, storage, asteroid, dead planet or other action object opens a small context menu with the actions that object allows for the ship: establish a trading post, establish a mining platform, establish an outpost and so on (use the existing post/platform rules from game/pathfinder.gd; show an action only when it is allowed, hidden means not drawn; the Availability rule applies). Choosing an action starts the flight automatically (no further click or confirm) and the ship establishes it on arrival. (4) Esc or clicking empty space deselects. Update the tutorial and help texts that describe the old controls (story/*.md and story/ru/*.json, then python3 tools/build_story.py). Handoff handoffs/gameplay-programmer/2026-11-05-T200.json; ui-programmer does any panel or menu layout. Update 2026-11-05 (owner): establishing an outpost (trading post or mining platform) is almost instant: on arrival it completes within a moment (about a second or two of game time) instead of the build cycles now in data/balance.json (post_first_build_cycles, post_build_cycles, platform_build_cycles in game/pathfinder.gd); set those keys to the near-instant value, bump data_version, and keep the build state and save working. The cost of a post or platform stays as it is.",
+      "note": "2026-11-05: ship select (cyan ring), left click flies at once, right click menu on planets with allowed action, Esc/right-click space deselects; outposts build in 0.025 cycles (data_version 58); tutorial texts updated. Open: no Fly-here item on storage/asteroids, selected look and menu style for owner."
     },
     {
       "task_id": "T201",
@@ -1242,6 +1243,19 @@
       "brief": "Add a headless test in tools/tests/run_tests.gd (runs with sh tools/tests/run.sh) that the 3D ships face the way they fly, so 'ships fly sideways' can never come back. For the player's Pathfinder (game/pathfinder_view.gd) and the rival ships (game/rival_ships.gd), and for every corvette model in assets/ships that the game can show: set a known heading (at least 8 directions: along +X, -X, +Z, -Z and the four diagonals, and a heading in a second solar system if its map differs), step the ship's update, then take the model node's global basis, compute its nose (forward) vector using the model's declared forward axis (the per-model yaw offset from T197) and assert it matches the heading within about 2 degrees; assert the model's up axis stays up (no roll or pitch); assert a turn toward a new course changes the nose gradually at the yaw rate from T196 (not a snap) and finishes aligned; assert a stopped or paused ship keeps its last heading. Also assert that each model's forward axis data exists for every ship id in data/ships.json so a new model cannot be added without one. Fix code bugs the test finds. Handoff handoffs/gameplay-programmer/2026-11-05-T201.json.",
       "owner_note": "Owner asked for an assertion or unit test for ship rotation; headless test chosen so it runs on every sh tools/tests/run.sh.",
       "note": "2026-11-05: _test_ship_facing added in run_tests.gd (8 headings, up axis, gradual turn, resting ships, yaw data per ship id); no code bugs found; second-system heading covered via all rival systems only."
+    },
+    {
+      "task_id": "T202",
+      "title": "Test: ships spawn near a planet, never inside it",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [
+        "T196"
+      ],
+      "status": "queued",
+      "turn_cap": 25,
+      "window": "Owner request 2026-11-05. Not started: main session sets it running.",
+      "brief": "Add a headless test in tools/tests/run_tests.gd (runs with sh tools/tests/run.sh) that no ship is placed inside a planet, but near it. Cover every spawn path: the player's Pathfinder at New Game (home planet), after loading a save, after a ship arrives at or leaves a planet, space storage and an asteroid field, and the rival ships at start and when they pick a new course. For each position assert: (1) the distance to the centre of every planet (and dead planet, station, asteroid field) is greater than that body's radius plus a small margin (use the radius the map really draws, not a guess), so the ship is outside it; (2) at spawn the ship is within a 'near' limit of its parent body (radius plus a spawn gap constant, put the limit in one named constant and reuse it in the game code); (3) the same holds in every solar system, including the placeholder systems 3-5 when enabled, and when the map is zoomed or the system view differs. Fix any code bug the test finds (an offset constant in game/pathfinder.gd or game/rival_ships.gd is fine). Handoff handoffs/gameplay-programmer/2026-11-05-T202.json.",
+      "owner_note": "Owner asked for an assertion or unit test that the ship is not spawned inside the planet but near it."
     }
   ],
   "done_task_ids": [
@@ -1329,7 +1343,8 @@
     "T180",
     "T165",
     "T171",
-    "T174"
+    "T174",
+    "T200"
   ],
   "done_archive": "handoffs/archive/schedule-done-2026-10-27-3.json",
   "goal_log": [
