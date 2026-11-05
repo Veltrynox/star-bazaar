@@ -36,5 +36,49 @@
     "TUT_GALAXY_INTRO_WHY": "Here, each system is its own market. Seeing them side by side shows where to grow next.",
     "TUT_GALAXY_ICONS_WHY": "Also, a system that has what another lacks is where a route pays best.",
     "TUT_GALAXY_ROUTES_WHY": "Then, open a system to set up buy, send and sell orders there."
+  },
+  "ru": {
+    "output_dir": "assets/voice/ru",
+    "engine": "chatterbox",
+    "model_version": "chatterbox-multilingual-0.1.7",
+    "language_id": "ru",
+    "audio_prompt": "tools/voice/ru_prompt_af_sarah.wav",
+    "seed": 1,
+    "placeholders": {
+      "bot1": "Хэрроу Комбайн",
+      "bot2": "Велвет Конкорд",
+      "bot3": "Острел Синдикат",
+      "bot": "Хэрроу Комбайн"
+    },
+    "respell": {
+      "Company storage": "компани сторидж",
+      "Trip cost": "трип кост",
+      "Skill points": "скилл пойнтс",
+      "Send to": "сенд ту",
+      "Ashgate": "Эшгейт",
+      "Biotech": "Байотек",
+      "Brannock": "Бранок",
+      "Buy": "бай",
+      "Cinderrest": "Синдерест",
+      "Competitors": "компетиторс",
+      "Company": "компани",
+      "Greywake": "Грейвейк",
+      "Luxury": "Лакшери",
+      "Military": "Милитари",
+      "Minerals": "Минералс",
+      "Mossfell": "Моссфелл",
+      "Quillon": "Квиллон",
+      "Sell": "сэл",
+      "Send": "сенд",
+      "Ship": "шип",
+      "Skill": "скилл",
+      "Smelter": "смелтер",
+      "Tillam": "Тиллам",
+      "Voltara": "Вольтара",
+      "ingot": "инготс",
+      "growth": "рост",
+      "strength": "сила",
+      "upkeep": "апкип"
+    }
   }
 }

@@ -12,6 +12,7 @@ Usage (from the project root):
   tools/voice/run.sh --only TUT_C1_PLANET EV_MIN_A3_BODY_A
   tools/voice/run.sh --force         # regenerate everything
   tools/voice/run.sh --list-skipped  # show narrated-looking lines that were skipped and why
+  tools/voice/run.sh --lang ru       # Russian: story_text_ru.json -> assets/voice/ru (Chatterbox, venv .venv_ru)
 
 Config: tools/voice/voice_config.json (which ID patterns are narrated, name map, voice sample).
 """
@@ -29,8 +30,17 @@ CONFIG_PATH = Path(__file__).resolve().parent / "voice_config.json"
 PLACEHOLDER_RE = re.compile(r"\{(\w+)\}")
 
 
-def load_config() -> dict:
-    return json.loads(CONFIG_PATH.read_text(encoding="utf-8"))
+def load_config(lang: str = "en") -> dict:
+    cfg = json.loads(CONFIG_PATH.read_text(encoding="utf-8"))
+    cfg["lang"] = lang
+    if lang == "ru":
+        ru = cfg.pop("ru")
+        cfg.update({k: ru[k] for k in ("output_dir", "engine", "model_version", "placeholders")})
+        cfg["pronunciations"] = {}
+        cfg["spoken"] = {}  # English voice-only wording does not apply
+        cfg["respell"] = ru["respell"]
+        cfg["voice"] = {k: ru[k] for k in ("language_id", "audio_prompt", "seed")}
+    return cfg
 
 
 def spoken_text(text: str, cfg: dict):
@@ -42,13 +52,17 @@ def spoken_text(text: str, cfg: dict):
     out = PLACEHOLDER_RE.sub(lambda m: names[m.group(1)], text)
     for src, dst in cfg.get("pronunciations", {}).items():
         out = re.sub(r"\b%s\b" % re.escape(src), dst, out)
+    # Russian: Latin on-screen terms are respelled in Cyrillic so the model does not read them with an accent
+    for src in sorted(cfg.get("respell", {}), key=len, reverse=True):
+        out = re.sub(r"(?<![A-Za-z])%s(?![A-Za-z])" % re.escape(src), cfg["respell"][src], out)
     out = re.sub(r"\s*\n\s*", " ", out).strip()
     return out, None
 
 
 def select_lines(cfg: dict):
     """Return (lines {id: spoken}, skipped [(id, reason)])."""
-    story = json.loads((ROOT / "data" / "story_text.json").read_text(encoding="utf-8"))
+    src = "story_text_ru.json" if cfg.get("lang") == "ru" else "story_text.json"
+    story = json.loads((ROOT / "data" / src).read_text(encoding="utf-8"))
     if isinstance(story, dict):  # generated file: {"generated": marker, "entries": [...]}
         story = story["entries"]
     include = [re.compile(p) for p in cfg["include"]]
@@ -88,6 +102,34 @@ def make_synth(cfg: dict):
             return np.concatenate(parts)
 
         return synth, 24000
+    if cfg["engine"] == "chatterbox":
+        import torch
+        from chatterbox.mtl_tts import ChatterboxMultilingualTTS
+
+        dev = "mps" if torch.backends.mps.is_available() else "cpu"
+        model = ChatterboxMultilingualTTS.from_pretrained(device=dev)
+        prompt = str(ROOT / v["audio_prompt"])
+
+        def synth(text):
+            # long texts drift in Chatterbox: speak sentence groups of up to ~230 chars with a short pause between
+            chunks, cur = [], ""
+            for sent in re.split(r"(?<=[.!?…])\s+", text):
+                if cur and len(cur) + len(sent) > 230:
+                    chunks.append(cur)
+                    cur = sent
+                else:
+                    cur = (cur + " " + sent).strip()
+            if cur:
+                chunks.append(cur)
+            parts = []
+            for c in chunks:
+                torch.manual_seed(v.get("seed", 1))
+                w = model.generate(c, language_id=v["language_id"], audio_prompt_path=prompt)
+                parts.append(w.squeeze().cpu().numpy())
+                parts.append(np.zeros(int(model.sr * 0.25), dtype=parts[-1].dtype))
+            return np.concatenate(parts[:-1])
+
+        return synth, model.sr
     raise SystemExit("unknown engine: " + str(cfg["engine"]))
 
 
@@ -97,10 +139,11 @@ def main() -> int:
     ap.add_argument("--force", action="store_true")
     ap.add_argument("--only", nargs="+", metavar="ID")
     ap.add_argument("--list-skipped", action="store_true")
+    ap.add_argument("--lang", choices=["en", "ru"], default="en")
     ap.add_argument("--limit", type=int, help="generate at most N lines this run")
     args = ap.parse_args()
 
-    cfg = load_config()
+    cfg = load_config(args.lang)
     out_dir = ROOT / cfg["output_dir"]
     manifest_path = out_dir / "manifest.json"
     manifest = json.loads(manifest_path.read_text()) if manifest_path.exists() else {}
@@ -154,6 +197,8 @@ def main() -> int:
                 subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", str(wav_path),
                                 "-filter_complex", "[0]" + cfg["post_filter"] + "[pre];[pre]"
                                 "silenceremove=start_periods=1:start_threshold=-50dB,"
+                                + ("areverse,silenceremove=start_periods=1:start_threshold=-50dB,areverse,"
+                                   if cfg["lang"] == "ru" else "") +  # Chatterbox leaves ~1 s of tail silence
                                 "loudnorm=I=-18:TP=-2",
                                 "-ac", "1", "-ar", "24000", str(norm_path)], check=True)
                 data, sr = sf.read(norm_path)
