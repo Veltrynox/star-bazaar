@@ -26,6 +26,7 @@ const Events := preload("res://game/events.gd")
 const Ships := preload("res://game/ships.gd")
 const Ceos := preload("res://game/ceos.gd")
 const PathfinderView := preload("res://game/pathfinder_view.gd")  # T180 flight accessor helpers
+const RivalShips := preload("res://game/rival_ships.gd")  # T187
 const Pathfinder := preload("res://game/pathfinder.gd")  # T179 the scout ship: flight, discovery, posts and platforms
 const Systems := preload("res://game/systems.gd")
 const Clusters := preload("res://game/clusters.gd")
@@ -109,6 +110,7 @@ var system_label: Label
 var system_hint: Label
 
 var map: Node3D
+var rival_ships: Node3D  # T187 rival ships flying on the map, visual only (game/rival_ships.gd)
 var flight: RefCounted  # T179 the Pathfinder (game/pathfinder.gd); the map reads it as map.flight; saved under "pathfinder"
 var planet_panel: PanelContainer
 var cluster_info: PanelContainer  # T159: info card of the asteroid cluster clicked on the map
@@ -202,6 +204,9 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE  # let clicks reach the 3D map (T04)
 	map = load("res://game/map.gd").new()
 	add_child(map)  # T20 map, added before UI so the bar draws on top
+	rival_ships = RivalShips.new()  # T187: scenery ships, a visual only
+	rival_ships.setup(self, map)
+	map.add_child(rival_ships)
 	flight = Pathfinder.new()  # T179: needs the map's planets; discovery_enabled in balance.json switches it on or off live
 	flight.setup(self)
 	map.flight = flight
