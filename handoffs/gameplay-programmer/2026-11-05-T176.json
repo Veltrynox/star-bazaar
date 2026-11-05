@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-05",
+  "task": "T176",
+  "status": "done",
+  "files_changed": ["data/systems_placeholder.json", "game/systems.gd", "data/availability.json", "story/screens.md", "data/story_text.json", "tools/tests/run_tests.gd"],
+  "open_questions": [
+    "Placeholders are ids 3, 4, 5 (three planets each), not 6 systems in total; say if you want ids 4 to 6 or more systems.",
+    "Placeholder permit cost keys reuse permit_2_cost and permit_points_2 (no new balance keys, I may not edit balance.json). Economy-designer should add real keys.",
+    "Russian placeholder text not added (task said English only); story/ru lacks the new ids."
+  ],
+  "handoff": "Three placeholder systems (ids 3-5, flagged placeholder:true, 3 temp planets each, sun colours, galaxy_slot) live in data/systems_placeholder.json, kept out of data/systems.json so win condition, system exit, permits, banners and economy tests ignore them. game/systems.gd loads them only if the file's enabled is true or a test calls Systems.set_placeholders(true); default off, so they are not playable. availability.json has feature rules placeholder_system_3..5 with the never-true {not: start} condition. Texts are text ids in story/screens.md (English), built with build_story.py. New test _test_placeholder_systems; galaxy SLOTS already hold 7 positions. Tests pass: 2856, 0 fail. Nothing visible in play."
+}

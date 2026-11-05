@@ -7,6 +7,9 @@ extends RefCounted
 const StoryText := preload("res://game/story_text.gd")
 const PlanetTypes := preload("res://game/planet_types.gd")
 const PATH := "res://data/systems.json"
+## T176: placeholder systems (data/systems_placeholder.json) join all() only while that file says "enabled": true
+## or a test calls set_placeholders(true). Off by default, so normal play never sees them.
+const PLACEHOLDER_PATH := "res://data/systems_placeholder.json"
 
 ## Sun colour per system (systems.json may override with a "sun_color": "#rrggbb" key). System 1 keeps the original orange sun.
 ## System 2: a blue star, hue 0.60 (216 degrees).
@@ -23,6 +26,12 @@ static func sun_color_of(id: int) -> Color:
 static var _cache: Array = []
 static var _loaded := false
 
+static func set_placeholders(on: bool) -> void:
+	_placeholders_override = 1 if on else 0
+	_loaded = false
+
+static var _placeholders_override := -1
+
 static func all() -> Array:
 	if not _loaded:
 		_loaded = true
@@ -32,6 +41,13 @@ static func all() -> Array:
 			for s in parsed["systems"]:
 				if typeof(s) == TYPE_DICTIONARY and s.has("id"):
 					_cache.append(s)
+		var ph = JSON.parse_string(FileAccess.get_file_as_string(PLACEHOLDER_PATH)) if FileAccess.file_exists(PLACEHOLDER_PATH) else null
+		if typeof(ph) == TYPE_DICTIONARY and typeof(ph.get("systems")) == TYPE_ARRAY:
+			var on: bool = bool(ph.get("enabled", false)) if _placeholders_override < 0 else _placeholders_override == 1
+			if on:
+				for s in ph["systems"]:
+					if typeof(s) == TYPE_DICTIONARY and s.has("id"):
+						_cache.append(s)
 	return _cache
 
 static func get_system(id: int) -> Dictionary:

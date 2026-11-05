@@ -1103,3 +1103,41 @@ SS_LINK_UI_BTN_EDIT_ORDER | 60 | Link block, tooltip on an order row; click edit
 SS_LINK_UI_LBL_PARTNER | 24 | Build dialog, label of the partner picker | Partner storage
 SS_LINK_UI_LBL_NO_PARTNER | 110 | Build dialog, no other Space Storage can be picked yet | No other Space Storage to link to yet.
 SS_LINK_UI_LBL_TAKEN | 60 | Build dialog, under the cost lines; {n} {goods} what each storage gives | {goods}: {n}
+
+## Placeholder systems 3 to 5 (T176; temporary names and texts, story-designer replaces them; the systems are off, see data/systems_placeholder.json)
+WORLD_SYS3_NAME | 24 | System 3 name (placeholder, off) | Placeholder A
+WORLD_SYS3_DESC | 110 | System 3 description (placeholder, off) | Temporary text for a far system. It is not open yet.
+PERMIT_S3_NAME | 24 | Permit list, system 3 entry (placeholder) | Permit: Placeholder A
+PERMIT_S3_DESC | 110 | Permit list, system 3 description (placeholder) | Temporary text. Opens Placeholder A for routes.
+PERMIT_S3_BTN | 24 | Permit list, buy button, system 3 (placeholder) | Buy permit
+NOT_PERMIT_S3 | 110 | Notice, permit for system 3 bought (placeholder) | Permit bought. Placeholder A is open: three new planets.
+WORLD_S3P1_NAME | 24 | System 3 planet 1 (placeholder) | Temp A1
+WORLD_S3P1_DESC | 110 | Planet 1 of system 3, tooltip (placeholder) | Temporary planet text.
+WORLD_S3P2_NAME | 24 | System 3 planet 2 (placeholder) | Temp A2
+WORLD_S3P2_DESC | 110 | Planet 2 of system 3, tooltip (placeholder) | Temporary planet text.
+WORLD_S3P3_NAME | 24 | System 3 planet 3 (placeholder) | Temp A3
+WORLD_S3P3_DESC | 110 | Planet 3 of system 3, tooltip (placeholder) | Temporary planet text.
+WORLD_SYS4_NAME | 24 | System 4 name (placeholder, off) | Placeholder B
+WORLD_SYS4_DESC | 110 | System 4 description (placeholder, off) | Temporary text for a far system. It is not open yet.
+PERMIT_S4_NAME | 24 | Permit list, system 4 entry (placeholder) | Permit: Placeholder B
+PERMIT_S4_DESC | 110 | Permit list, system 4 description (placeholder) | Temporary text. Opens Placeholder B for routes.
+PERMIT_S4_BTN | 24 | Permit list, buy button, system 4 (placeholder) | Buy permit
+NOT_PERMIT_S4 | 110 | Notice, permit for system 4 bought (placeholder) | Permit bought. Placeholder B is open: three new planets.
+WORLD_S4P1_NAME | 24 | System 4 planet 1 (placeholder) | Temp B1
+WORLD_S4P1_DESC | 110 | Planet 1 of system 4, tooltip (placeholder) | Temporary planet text.
+WORLD_S4P2_NAME | 24 | System 4 planet 2 (placeholder) | Temp B2
+WORLD_S4P2_DESC | 110 | Planet 2 of system 4, tooltip (placeholder) | Temporary planet text.
+WORLD_S4P3_NAME | 24 | System 4 planet 3 (placeholder) | Temp B3
+WORLD_S4P3_DESC | 110 | Planet 3 of system 4, tooltip (placeholder) | Temporary planet text.
+WORLD_SYS5_NAME | 24 | System 5 name (placeholder, off) | Placeholder C
+WORLD_SYS5_DESC | 110 | System 5 description (placeholder, off) | Temporary text for a far system. It is not open yet.
+PERMIT_S5_NAME | 24 | Permit list, system 5 entry (placeholder) | Permit: Placeholder C
+PERMIT_S5_DESC | 110 | Permit list, system 5 description (placeholder) | Temporary text. Opens Placeholder C for routes.
+PERMIT_S5_BTN | 24 | Permit list, buy button, system 5 (placeholder) | Buy permit
+NOT_PERMIT_S5 | 110 | Notice, permit for system 5 bought (placeholder) | Permit bought. Placeholder C is open: three new planets.
+WORLD_S5P1_NAME | 24 | System 5 planet 1 (placeholder) | Temp C1
+WORLD_S5P1_DESC | 110 | Planet 1 of system 5, tooltip (placeholder) | Temporary planet text.
+WORLD_S5P2_NAME | 24 | System 5 planet 2 (placeholder) | Temp C2
+WORLD_S5P2_DESC | 110 | Planet 2 of system 5, tooltip (placeholder) | Temporary planet text.
+WORLD_S5P3_NAME | 24 | System 5 planet 3 (placeholder) | Temp C3
+WORLD_S5P3_DESC | 110 | Planet 3 of system 5, tooltip (placeholder) | Temporary planet text.

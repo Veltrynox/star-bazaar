@@ -1,0 +1,225 @@
+{
+  "schema_version": 1,
+  "data_version": 1,
+  "placeholder": true,
+  "enabled": false,
+  "note": "T176: placeholder systems 3 to 5, OFF. game/systems.gd loads them only when enabled is true (or Systems.set_placeholders(true) in a test). Every name, price and sun is temporary; economy-designer and story-designer replace them. galaxy_slot is the SLOTS index in game/galaxy_view.gd (list position). Permit cost keys reuse system 2 keys as stand-ins.",
+  "systems": [
+    {
+      "id": 3,
+      "placeholder": true,
+      "note": "T176 placeholder: temporary name, sun, prices. Replace before enabling.",
+      "galaxy_slot": 2,
+      "sun_color": "#ff5a3c",
+      "name_id": "WORLD_SYS3_NAME",
+      "desc_id": "WORLD_SYS3_DESC",
+      "permit_name_id": "PERMIT_S3_NAME",
+      "permit_desc_id": "PERMIT_S3_DESC",
+      "permit_btn_id": "PERMIT_S3_BTN",
+      "permit_notice_id": "NOT_PERMIT_S3",
+      "permit_cost_key": "permit_2_cost",
+      "permit_points_key": "permit_points_2",
+      "requires_skill": "FND_PERMIT",
+      "planets": [
+        {
+          "id": "s3_p1",
+          "placeholder": true,
+          "name_id": "WORLD_S3P1_NAME",
+          "desc_id": "WORLD_S3P1_DESC",
+          "type": "ocean",
+          "role": "placeholder",
+          "abundant": "food",
+          "scarce": "energy",
+          "base_prices": {
+            "food_buy": 11,
+            "food_sell": 9,
+            "energy_sell": 31,
+            "energy_buy": 32
+          },
+          "x": 520,
+          "y": 60
+        },
+        {
+          "id": "s3_p2",
+          "placeholder": true,
+          "name_id": "WORLD_S3P2_NAME",
+          "desc_id": "WORLD_S3P2_DESC",
+          "type": "desert",
+          "role": "placeholder",
+          "abundant": "energy",
+          "scarce": "food",
+          "base_prices": {
+            "energy_buy": 9,
+            "energy_sell": 8,
+            "food_sell": 33,
+            "food_buy": 33
+          },
+          "x": 760,
+          "y": 140
+        },
+        {
+          "id": "s3_p3",
+          "placeholder": true,
+          "name_id": "WORLD_S3P3_NAME",
+          "desc_id": "WORLD_S3P3_DESC",
+          "type": "urban",
+          "role": "placeholder",
+          "abundant": "none",
+          "scarce": "both",
+          "base_prices": {
+            "energy_sell": 34,
+            "food_sell": 34,
+            "energy_buy": 35,
+            "food_buy": 35
+          },
+          "x": 900,
+          "y": -20
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "placeholder": true,
+      "note": "T176 placeholder: temporary name, sun, prices. Replace before enabling.",
+      "galaxy_slot": 3,
+      "sun_color": "#7cff9a",
+      "name_id": "WORLD_SYS4_NAME",
+      "desc_id": "WORLD_SYS4_DESC",
+      "permit_name_id": "PERMIT_S4_NAME",
+      "permit_desc_id": "PERMIT_S4_DESC",
+      "permit_btn_id": "PERMIT_S4_BTN",
+      "permit_notice_id": "NOT_PERMIT_S4",
+      "permit_cost_key": "permit_2_cost",
+      "permit_points_key": "permit_points_2",
+      "requires_skill": "FND_PERMIT",
+      "planets": [
+        {
+          "id": "s4_p1",
+          "placeholder": true,
+          "name_id": "WORLD_S4P1_NAME",
+          "desc_id": "WORLD_S4P1_DESC",
+          "type": "ocean",
+          "role": "placeholder",
+          "abundant": "food",
+          "scarce": "energy",
+          "base_prices": {
+            "food_buy": 11,
+            "food_sell": 9,
+            "energy_sell": 31,
+            "energy_buy": 32
+          },
+          "x": 520,
+          "y": 60
+        },
+        {
+          "id": "s4_p2",
+          "placeholder": true,
+          "name_id": "WORLD_S4P2_NAME",
+          "desc_id": "WORLD_S4P2_DESC",
+          "type": "desert",
+          "role": "placeholder",
+          "abundant": "energy",
+          "scarce": "food",
+          "base_prices": {
+            "energy_buy": 9,
+            "energy_sell": 8,
+            "food_sell": 33,
+            "food_buy": 33
+          },
+          "x": 760,
+          "y": 140
+        },
+        {
+          "id": "s4_p3",
+          "placeholder": true,
+          "name_id": "WORLD_S4P3_NAME",
+          "desc_id": "WORLD_S4P3_DESC",
+          "type": "urban",
+          "role": "placeholder",
+          "abundant": "none",
+          "scarce": "both",
+          "base_prices": {
+            "energy_sell": 34,
+            "food_sell": 34,
+            "energy_buy": 35,
+            "food_buy": 35
+          },
+          "x": 900,
+          "y": -20
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "placeholder": true,
+      "note": "T176 placeholder: temporary name, sun, prices. Replace before enabling.",
+      "galaxy_slot": 4,
+      "sun_color": "#d58cff",
+      "name_id": "WORLD_SYS5_NAME",
+      "desc_id": "WORLD_SYS5_DESC",
+      "permit_name_id": "PERMIT_S5_NAME",
+      "permit_desc_id": "PERMIT_S5_DESC",
+      "permit_btn_id": "PERMIT_S5_BTN",
+      "permit_notice_id": "NOT_PERMIT_S5",
+      "permit_cost_key": "permit_2_cost",
+      "permit_points_key": "permit_points_2",
+      "requires_skill": "FND_PERMIT",
+      "planets": [
+        {
+          "id": "s5_p1",
+          "placeholder": true,
+          "name_id": "WORLD_S5P1_NAME",
+          "desc_id": "WORLD_S5P1_DESC",
+          "type": "ocean",
+          "role": "placeholder",
+          "abundant": "food",
+          "scarce": "energy",
+          "base_prices": {
+            "food_buy": 11,
+            "food_sell": 9,
+            "energy_sell": 31,
+            "energy_buy": 32
+          },
+          "x": 520,
+          "y": 60
+        },
+        {
+          "id": "s5_p2",
+          "placeholder": true,
+          "name_id": "WORLD_S5P2_NAME",
+          "desc_id": "WORLD_S5P2_DESC",
+          "type": "desert",
+          "role": "placeholder",
+          "abundant": "energy",
+          "scarce": "food",
+          "base_prices": {
+            "energy_buy": 9,
+            "energy_sell": 8,
+            "food_sell": 33,
+            "food_buy": 33
+          },
+          "x": 760,
+          "y": 140
+        },
+        {
+          "id": "s5_p3",
+          "placeholder": true,
+          "name_id": "WORLD_S5P3_NAME",
+          "desc_id": "WORLD_S5P3_DESC",
+          "type": "urban",
+          "role": "placeholder",
+          "abundant": "none",
+          "scarce": "both",
+          "base_prices": {
+            "energy_sell": 34,
+            "food_sell": 34,
+            "energy_buy": 35,
+            "food_buy": 35
+          },
+          "x": 900,
+          "y": -20
+        }
+      ]
+    }
+  ]
+}

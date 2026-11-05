@@ -372,7 +372,13 @@
   {
    "kind": "feature",
    "id": "storage_link",
-   "visible_when": {"all": ["skill_learned:FND_STORAGE", "system_open:2", "good_visible:rivets"]},
+   "visible_when": {
+    "all": [
+     "skill_learned:FND_STORAGE",
+     "system_open:2",
+     "good_visible:rivets"
+    ]
+   },
    "note": "T171: Storage Link between two Space Storages (game/storage_link.gd). Build button, link block, order rows and every text about it stay hidden until true; the build dialog lists only visible goods. Costs rivets and energy."
   },
   {
@@ -540,6 +546,30 @@
     ]
    },
    "note": "T179 discovery: closed until the Pathfinder has built a trading post (living world) or mining platform (dead world) here. Voltara has its post at start. Always true with balance.discovery_enabled 0."
+  },
+  {
+   "kind": "feature",
+   "id": "placeholder_system_3",
+   "visible_when": {
+    "not": "start"
+   },
+   "note": "T176 placeholder: system 3 (data/systems_placeholder.json, enabled=false) is off. {not: start} is never true; replace with a real unlock (e.g. system_open:3 plus a story/skill condition) when the system is designed."
+  },
+  {
+   "kind": "feature",
+   "id": "placeholder_system_4",
+   "visible_when": {
+    "not": "start"
+   },
+   "note": "T176 placeholder: system 4 (data/systems_placeholder.json, enabled=false) is off. {not: start} is never true; replace with a real unlock (e.g. system_open:4 plus a story/skill condition) when the system is designed."
+  },
+  {
+   "kind": "feature",
+   "id": "placeholder_system_5",
+   "visible_when": {
+    "not": "start"
+   },
+   "note": "T176 placeholder: system 5 (data/systems_placeholder.json, enabled=false) is off. {not: start} is never true; replace with a real unlock (e.g. system_open:5 plus a story/skill condition) when the system is designed."
   }
  ],
  "start_state": {

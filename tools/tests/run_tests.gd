@@ -52,6 +52,7 @@ func _run() -> void:
 	await _test_good_info()
 	await _test_notice_queue()
 	await _test_systems()
+	_test_placeholder_systems()
 	await _test_galaxy_view()
 	await _test_tutorial_steps()
 	await _test_tutorial_lock()
@@ -6856,6 +6857,9 @@ func _test_availability() -> void:
 		var kind := str(r["kind"])
 		var id := str(r["id"])
 		var cond = r["visible_when"]
+		if id.begins_with("placeholder_system_"):  # T176: placeholder systems are off ({not: start})
+			check(not Availability.is_visible(kind, id), "availability rule feature '%s': off for now" % id)
+			continue
 		if id == "dead_danger_meter":  # the off switch ({not: start}); its hidden and shown states are tested in _test_dead_world_mechanics
 			check(not Availability.is_visible(kind, id), "availability rule feature 'dead_danger_meter': off for now")
 			continue
@@ -7404,3 +7408,20 @@ func _test_forecast_pure() -> void:
 	m.learned_skills = []
 	_free_main(m)
 	await process_frame
+
+## T176: placeholder systems 3 to 5 stay out of normal play and load cleanly when switched on.
+func _test_placeholder_systems() -> void:
+	var Systems := preload("res://game/systems.gd")
+	check(not Systems.ids().has(3) and Systems.ids().size() == 1, "placeholder systems: off by default")
+	Systems.set_placeholders(true)
+	var ids: Array = Systems.ids()
+	check(ids == [2, 3, 4, 5], "placeholder systems: 3 to 5 load when switched on", str(ids))
+	var ok := true
+	for sid in [3, 4, 5]:
+		var pl: Array = Systems.planets_of(sid)
+		ok = ok and pl.size() == 3 and bool(Systems.get_system(sid).get("placeholder", false)) and Systems.name_of(sid) != "" and Systems.sun_color_of(sid) is Color
+		for p in pl:
+			ok = ok and bool(p.get("placeholder", false)) and str(p["name"]) != "" and not str(p["name"]).begins_with("WORLD_")
+	check(ok, "placeholder systems: placeholder flag, names and planets resolve")
+	Systems.set_placeholders(false)
+	check(Systems.ids() == [2], "placeholder systems: off again")

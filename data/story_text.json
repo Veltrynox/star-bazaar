@@ -5288,6 +5288,222 @@
    "place": "Build dialog, under the cost lines; {n} {goods} what each storage gives"
   },
   {
+   "id": "WORLD_SYS3_NAME",
+   "text": "Placeholder A",
+   "max": 24,
+   "place": "System 3 name (placeholder, off)"
+  },
+  {
+   "id": "WORLD_SYS3_DESC",
+   "text": "Temporary text for a far system. It is not open yet.",
+   "max": 110,
+   "place": "System 3 description (placeholder, off)"
+  },
+  {
+   "id": "PERMIT_S3_NAME",
+   "text": "Permit: Placeholder A",
+   "max": 24,
+   "place": "Permit list, system 3 entry (placeholder)"
+  },
+  {
+   "id": "PERMIT_S3_DESC",
+   "text": "Temporary text. Opens Placeholder A for routes.",
+   "max": 110,
+   "place": "Permit list, system 3 description (placeholder)"
+  },
+  {
+   "id": "PERMIT_S3_BTN",
+   "text": "Buy permit",
+   "max": 24,
+   "place": "Permit list, buy button, system 3 (placeholder)"
+  },
+  {
+   "id": "NOT_PERMIT_S3",
+   "text": "Permit bought. Placeholder A is open: three new planets.",
+   "max": 110,
+   "place": "Notice, permit for system 3 bought (placeholder)"
+  },
+  {
+   "id": "WORLD_S3P1_NAME",
+   "text": "Temp A1",
+   "max": 24,
+   "place": "System 3 planet 1 (placeholder)"
+  },
+  {
+   "id": "WORLD_S3P1_DESC",
+   "text": "Temporary planet text.",
+   "max": 110,
+   "place": "Planet 1 of system 3, tooltip (placeholder)"
+  },
+  {
+   "id": "WORLD_S3P2_NAME",
+   "text": "Temp A2",
+   "max": 24,
+   "place": "System 3 planet 2 (placeholder)"
+  },
+  {
+   "id": "WORLD_S3P2_DESC",
+   "text": "Temporary planet text.",
+   "max": 110,
+   "place": "Planet 2 of system 3, tooltip (placeholder)"
+  },
+  {
+   "id": "WORLD_S3P3_NAME",
+   "text": "Temp A3",
+   "max": 24,
+   "place": "System 3 planet 3 (placeholder)"
+  },
+  {
+   "id": "WORLD_S3P3_DESC",
+   "text": "Temporary planet text.",
+   "max": 110,
+   "place": "Planet 3 of system 3, tooltip (placeholder)"
+  },
+  {
+   "id": "WORLD_SYS4_NAME",
+   "text": "Placeholder B",
+   "max": 24,
+   "place": "System 4 name (placeholder, off)"
+  },
+  {
+   "id": "WORLD_SYS4_DESC",
+   "text": "Temporary text for a far system. It is not open yet.",
+   "max": 110,
+   "place": "System 4 description (placeholder, off)"
+  },
+  {
+   "id": "PERMIT_S4_NAME",
+   "text": "Permit: Placeholder B",
+   "max": 24,
+   "place": "Permit list, system 4 entry (placeholder)"
+  },
+  {
+   "id": "PERMIT_S4_DESC",
+   "text": "Temporary text. Opens Placeholder B for routes.",
+   "max": 110,
+   "place": "Permit list, system 4 description (placeholder)"
+  },
+  {
+   "id": "PERMIT_S4_BTN",
+   "text": "Buy permit",
+   "max": 24,
+   "place": "Permit list, buy button, system 4 (placeholder)"
+  },
+  {
+   "id": "NOT_PERMIT_S4",
+   "text": "Permit bought. Placeholder B is open: three new planets.",
+   "max": 110,
+   "place": "Notice, permit for system 4 bought (placeholder)"
+  },
+  {
+   "id": "WORLD_S4P1_NAME",
+   "text": "Temp B1",
+   "max": 24,
+   "place": "System 4 planet 1 (placeholder)"
+  },
+  {
+   "id": "WORLD_S4P1_DESC",
+   "text": "Temporary planet text.",
+   "max": 110,
+   "place": "Planet 1 of system 4, tooltip (placeholder)"
+  },
+  {
+   "id": "WORLD_S4P2_NAME",
+   "text": "Temp B2",
+   "max": 24,
+   "place": "System 4 planet 2 (placeholder)"
+  },
+  {
+   "id": "WORLD_S4P2_DESC",
+   "text": "Temporary planet text.",
+   "max": 110,
+   "place": "Planet 2 of system 4, tooltip (placeholder)"
+  },
+  {
+   "id": "WORLD_S4P3_NAME",
+   "text": "Temp B3",
+   "max": 24,
+   "place": "System 4 planet 3 (placeholder)"
+  },
+  {
+   "id": "WORLD_S4P3_DESC",
+   "text": "Temporary planet text.",
+   "max": 110,
+   "place": "Planet 3 of system 4, tooltip (placeholder)"
+  },
+  {
+   "id": "WORLD_SYS5_NAME",
+   "text": "Placeholder C",
+   "max": 24,
+   "place": "System 5 name (placeholder, off)"
+  },
+  {
+   "id": "WORLD_SYS5_DESC",
+   "text": "Temporary text for a far system. It is not open yet.",
+   "max": 110,
+   "place": "System 5 description (placeholder, off)"
+  },
+  {
+   "id": "PERMIT_S5_NAME",
+   "text": "Permit: Placeholder C",
+   "max": 24,
+   "place": "Permit list, system 5 entry (placeholder)"
+  },
+  {
+   "id": "PERMIT_S5_DESC",
+   "text": "Temporary text. Opens Placeholder C for routes.",
+   "max": 110,
+   "place": "Permit list, system 5 description (placeholder)"
+  },
+  {
+   "id": "PERMIT_S5_BTN",
+   "text": "Buy permit",
+   "max": 24,
+   "place": "Permit list, buy button, system 5 (placeholder)"
+  },
+  {
+   "id": "NOT_PERMIT_S5",
+   "text": "Permit bought. Placeholder C is open: three new planets.",
+   "max": 110,
+   "place": "Notice, permit for system 5 bought (placeholder)"
+  },
+  {
+   "id": "WORLD_S5P1_NAME",
+   "text": "Temp C1",
+   "max": 24,
+   "place": "System 5 planet 1 (placeholder)"
+  },
+  {
+   "id": "WORLD_S5P1_DESC",
+   "text": "Temporary planet text.",
+   "max": 110,
+   "place": "Planet 1 of system 5, tooltip (placeholder)"
+  },
+  {
+   "id": "WORLD_S5P2_NAME",
+   "text": "Temp C2",
+   "max": 24,
+   "place": "System 5 planet 2 (placeholder)"
+  },
+  {
+   "id": "WORLD_S5P2_DESC",
+   "text": "Temporary planet text.",
+   "max": 110,
+   "place": "Planet 2 of system 5, tooltip (placeholder)"
+  },
+  {
+   "id": "WORLD_S5P3_NAME",
+   "text": "Temp C3",
+   "max": 24,
+   "place": "System 5 planet 3 (placeholder)"
+  },
+  {
+   "id": "WORLD_S5P3_DESC",
+   "text": "Temporary planet text.",
+   "max": 110,
+   "place": "Planet 3 of system 5, tooltip (placeholder)"
+  },
+  {
    "id": "SK_HEADER",
    "text": "Skills",
    "max": 24,
