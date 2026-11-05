@@ -4,6 +4,7 @@
 - discovery_enabled in data/balance.json ships at 1 (owner decision 2026-11-05); tests that need it off set it themselves.
 
 ## Left to do
+- Owner: T219 lane draw-in/fade/pulse not seen windowed (constants atop route_line.gd); route made while paused shows no draw-in.
 - Owner: T203 establish beat not seen windowed (ring/spokes vs bright planets, nudge softness, dead worlds); follow-up juice tasks T219-T221 queued.
 - Owner: T205 trail look windowed: ship_trail.gd WIDTH 0.16, ships.gd ENGINE_BACK 0.9 for all models (exact exhaust positions not measured from the GLBs).
 - Open build tasks from playtest: none of T196-T202 left (T199 done 2026-11-06). Owner: check T198 look windowed (trail line 1px, scale 0.5, pick 20px). T194 done; Competitors still reachable from share panel (L), owner to say if that goes too.
@@ -55,3 +56,13 @@
 - Failed / did not work: nothing; run output has a "Parse JSON failed" and 3 "material is null" errors, not checked whether older.
 - Files and commits: game/main.gd, map.gd, pathfinder_view.gd, tools/tests/run_tests.gd, schedule.json, handoff, blackboard.md; see git log "T203".
 - Left to do: owner: look windowed (colours signal_good/star_warm, tunables BURST_* in pathfinder_view.gd, ESTABLISH_NUDGE in map.gd); T219-T221 queued.
+
+## 2026-11-06 14:00 run: T219
+- Summary: Route lanes now draw in from the source end (0.25 s ease-out), fade on removal (0.15 s) and show one brighter band on dispatch (0.5 s). Effects snap to the end state while paused.
+- Why this task: first of the juice follow-ups, no dependencies, no look decision; other open tasks are owner-only or need decisions.
+- Approach: juice-programmer agent in route_line.gd with hooks in map.gd; I verified diff and tests.
+- Agent prompts: draw-in, removal fade, dispatch pulse, game time only, constants, one headless curve test; handoffs/juice-programmer/2026-11-06-T219.json, done.
+- Worked: sh tools/tests/run.sh pass=11277 fail=0.
+- Failed / did not work: nothing; not seen windowed.
+- Files and commits: game/route_line.gd, game/map.gd, tools/tests/run_tests.gd, handoff, schedule.json, blackboard.md; see git log "T219".
+- Left to do: owner: look windowed (pulse readability, width growth); route made while paused (game starts paused) has no draw-in; lane tag not pinged.

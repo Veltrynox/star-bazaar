@@ -1446,10 +1446,11 @@
       "title": "Juice: route lines pop in when a route is made and pulse when a ship dispatches",
       "owner_agent": "juice-programmer",
       "depends_on": [],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 20,
       "window": "Follow-up from T203 (juice review 2026-11-05). One small run.",
-      "brief": "game/route_line.gd draws lanes with no entry or feedback: a new route simply appears, a removed one vanishes, and a ship dispatch has no cue on the lane. Add a short draw-in (alpha and width grow from the source end, about 0.25 s, EASE_OUT), a quick fade on removal, and one brief brightening pulse along the lane when a ship is sent. Why it matters: making a route is the core action and today the only confirmation is the two planet rings (_route_beat); the lane itself should answer. Nothing animates while paused, no text, no logic change, tunables as constants, one headless test for the pure curve."
+      "brief": "game/route_line.gd draws lanes with no entry or feedback: a new route simply appears, a removed one vanishes, and a ship dispatch has no cue on the lane. Add a short draw-in (alpha and width grow from the source end, about 0.25 s, EASE_OUT), a quick fade on removal, and one brief brightening pulse along the lane when a ship is sent. Why it matters: making a route is the core action and today the only confirmation is the two planet rings (_route_beat); the lane itself should answer. Nothing animates while paused, no text, no logic change, tunables as constants, one headless test for the pure curve.",
+      "note": "Draw-in 0.25s, removal fade 0.15s, dispatch pulse 0.5s in route_line.gd; map.gd hooks; test added. Not seen windowed."
     },
     {
       "task_id": "T220",
