@@ -177,6 +177,11 @@ func _workshop_rows() -> void:
 			var bl := _wrapped(line)
 			bl.name = "WorkshopStatus_" + str(id)
 			box.add_child(bl)
+			if str(ws.state.get(id, "")) == "stalled":  # the status line shows batches when running; keep the counter when stalled
+				var cl := _wrapped(StoryText.get_or("LBL_WORKSHOP_BATCHES", "Batches this cycle: {n}", {"n": ws.batches(id)}))
+				cl.name = "WorkshopBatches_" + str(id)
+				cl.theme_type_variation = "LabelSmall"
+				box.add_child(cl)
 		else:
 			var b := Button.new()
 			b.name = "WorkshopBuild_" + str(id)

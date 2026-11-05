@@ -8,6 +8,7 @@ extends RefCounted
 ## UI API: Skills.is_learned(id), Skills.learn(id, points, balance), Skills.unlocked(what),
 ## Skills.bot_skill_ids(), Skills.bot_skill_ready(id), Skills.bot_skill_cooldown(id), Skills.activate_bot_skill(id, bot).
 
+const Ceos := preload("res://game/ceos.gd")
 const SHARE_STEPS := [20, 35]  # balance keys skill_points_share_20 / _35, a share of that many percent
 
 static var bal: Dictionary = {}
@@ -67,6 +68,15 @@ static func _eff(type: String) -> Array:
 		for e in SkillTree.effects(str(id)):
 			if str(e.get("type", "")) == type:
 				out.append(e)
+	out.append_array(_ceo_eff(type))
+	return out
+
+## Effects of the chosen CEO (stats and perk, game/ceos.gd) of this type, same format as a skill node's.
+static func _ceo_eff(type: String) -> Array:
+	var out := []
+	for e in Ceos.effects():
+		if str(e.get("type", "")) == type:
+			out.append(e)
 	return out
 
 static func _hits(e: Dictionary, target: String) -> bool:
@@ -74,6 +84,8 @@ static func _hits(e: Dictionary, target: String) -> bool:
 	return t == target or t == "all"
 
 static func _key(e: Dictionary, field: String = "key") -> float:
+	if field == "key" and e.has("value"):  # CEO effects carry the number itself
+		return float(e["value"])
 	return _num(str(e.get(field, "")))
 
 ## Sum of the balance values of every learned effect of this type aimed at target (or "all"), skipping conditional ones
@@ -166,9 +178,14 @@ static func share_window(m: String, def: int) -> int:
 	return w
 
 ## reveal_prices: cycles of prices shown ahead (0 = none).
-static func reveal_cycles() -> int:
+## at_home: false when the planet asked about is outside the home system (the CEO perk Quick Read shows prices only at
+## home and only in the first cycle).
+static func reveal_cycles(at_home: bool = true) -> int:
 	var n := 0
 	for e in _eff("reveal_prices"):
+		if str(e.get("source", "")) == "ceo_perk":
+			if (bool(e.get("only_first_cycle", false)) and current_cycle() > 1) or (str(e.get("target", "")) == "home_market" and not at_home):
+				continue
 		n = maxi(n, int(e.get("cycles", 1)))
 	return n
 
@@ -196,14 +213,25 @@ static func cluster_yield_mult() -> float:
 	return 1.0 + _sum("cluster_yield_pct", "min")
 
 ## stock_growth_pct: {rate, cap} for stock of market m held in planet storage ({} when no skill).
+## cap = the highest ceiling of the stock_growth_pct effects (BIO_2) and the stock_growth_cap effects (BIO_3 raises it).
 static func stock_growth(m: String) -> Dictionary:
 	var rate := 0.0
 	var cap := 0.0
 	for e in _eff("stock_growth_pct"):
 		if _hits(e, m):
 			rate += _key(e)
-			cap += _key(e, "cap_key")
+			cap = maxf(cap, _key(e, "cap_key"))
+	for e in _eff("stock_growth_cap"):
+		if _hits(e, m):
+			cap = maxf(cap, _key(e, "cap_key"))
 	return {} if rate <= 0.0 else {"rate": rate, "cap": cap}
+
+## event_immune: true when a learned node makes market m immune to route events of this kind (MIL_3: "debris").
+static func event_immune(m: String, kind: String) -> bool:
+	for e in _eff("event_immune"):
+		if _hits(e, m) and Array(e.get("kinds", [])).has(kind):
+			return true
+	return false
 
 ## stock_protect: stored stock of market m is not trimmed when an asteroid hit cuts a planet storage (Storage.cut_capacity).
 static func stock_protect(m: String) -> bool:

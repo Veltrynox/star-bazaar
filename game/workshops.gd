@@ -143,7 +143,7 @@ func recipe_line(good: String) -> String:
 			parts.append("%d %s" % [int(r[c]), Ui.good_name(str(c)).to_lower()])
 		else:
 			parts.append(StoryText.get_or("LBL_WORKSHOP_NEEDS_OTHER", "another input"))
-	return "%s -> %d %s" % [" + ".join(parts), Goods.batch_out(good, balance), Ui.good_name(good).to_lower()]
+	return "%s -> %d %s" % [" + ".join(parts), out_units(good), Ui.good_name(good).to_lower()]  # yield includes batch_yield skills
 
 ## Status line of a built workshop. Stalled: "Stalled: needs Energy, Logic Cores" naming every missing input that is
 ## visible now (Availability), plus "another input" when a hidden good is missing. Not stalled: "Batches this cycle: n"

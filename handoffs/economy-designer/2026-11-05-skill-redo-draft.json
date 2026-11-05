@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "agent": "economy-designer",
+  "date": "2026-11-05",
+  "task": "skill-redo-draft",
+  "status": "done",
+  "files_changed": [
+    "design/proposals/2026-11-05-skill-tree-redo.md",
+    "handoffs/economy-designer/2026-11-05-skill-redo-draft.json",
+    "goals/ship-ceo-skills-resources/blackboard.json"
+  ],
+  "open_questions": [
+    "Owner: approve new keys skill_MIL_2_batches, skill_LUX_6_saturation and removal of 5 filler keys?",
+    "Reviewers: is LUX_6 saturation_relief too strong (sim needed)?",
+    "Capstone retunes (MIL_5, LUX_7, MIN_7, BIO_7) need sim before applying."
+  ],
+  "handoff": "Draft redo in design/proposals/2026-11-05-skill-tree-redo.md: table of all 31 nodes with verdict and why. Filler percents removed (mil volume, mil route cap, mil price, lux price x2, min volume, bio order size). New play: Second Line batch, Armed Convoys, Hallmark saturation relief, gems at LUX_4, cask at LUX_1, alloy at MIN_6, stock_protect on BIO_5. Two new effect types for code: event_immune, saturation_relief. skills.json, balance.json and availability.json NOT edited; availability swap (atelier LUX_1, cask LUX_1, gems LUX_4, alloy MIN_6) must land together with skills.json after review.",
+  "details": {
+    "new_effect_types": [
+      "event_immune",
+      "saturation_relief"
+    ],
+    "new_keys": {
+      "skill_MIL_2_batches": 1,
+      "skill_LUX_6_saturation": 0.5
+    },
+    "retunes": {
+      "skill_MIL_5_hit": [
+        0.18,
+        0.25
+      ],
+      "skill_MIL_5_cycles": [
+        3,
+        4
+      ],
+      "skill_LUX_7_hit": [
+        0.18,
+        0.3
+      ],
+      "skill_LUX_7_cycles": [
+        5,
+        8
+      ],
+      "skill_MIN_7_strength_cut": [
+        0.1,
+        0.2
+      ],
+      "skill_BIO_7_strength_cut": [
+        0.1,
+        0.15
+      ]
+    },
+    "sim": "not run (draft)"
+  }
+}

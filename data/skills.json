@@ -1,7 +1,7 @@
 {
  "schema_version": 1,
- "data_version": 1,
- "source": "2026-11-03 skill-data (economy-designer): four market trees per design/proposals/2026-11-03-four-markets.md section 3 and four-markets-economy.md section 5. Replaces the old A/B/C/M/F tree (the programmer removes the old data with the code).",
+ "data_version": 2,
+ "source": "2026-11-05 skill-tree-final (economy-designer, agreed with feature-designer and qa-analyst): see design/proposals/2026-11-05-skill-tree-final.md. Filler percent effects removed; MIL_2 batches, MIL_3 debris immunity, LUX_6 batch yield, BIO_3 growth ceiling.",
  "vocabulary": {
   "_how": "effect = {type, target, ...}. Numbers are never stored here: key / duration_key / cooldown_key / cap_key name a data/balance.json value. cost 0 = tech node (researched by crafting; goal = balance[tech_goal_key] units made by that market's workshop(s), counted from when prereqs are met). cost is also in balance skill_cost_<id> (balance is authoritative). 'extra' = more effects applied with the same node. prereqs: all listed ids must be learned/researched. target: market id (mil|lux|min|bio), 'all', 'ships', 'planet_storage', 'feature', 'workshop', 'good'.",
   "types": {
@@ -26,7 +26,9 @@
    "stock_growth_pct": "stock held in where (planet_storage) of target market grows balance[key] per cycle, up to balance[cap_key] of the stored amount",
    "stock_protect": "stored target-market stock is not trimmed when an asteroid hit cuts a planet storage (on storage_cut)",
    "ore_free_slots": "ore Buy and Sell orders ignore the order-size cap (limited by storage room, cash and stock)",
-   "reopen_sooner": "a closed planet reopens 'cycles' cycles sooner"
+   "reopen_sooner": "a closed planet reopens 'cycles' cycles sooner",
+   "event_immune": "routes carrying target-market goods ignore route events of the listed kinds (kinds: debris). Pirates have no live source, so no pirate kind.",
+   "stock_growth_cap": "raises the cap of the stock_growth_pct effect for target market to balance[cap_key] (BIO_3 lifts the BIO_2 ceiling)"
   }
  },
  "nodes": [
@@ -108,9 +110,9 @@
    ],
    "cost": 0,
    "effect": {
-    "type": "volume_pct",
+    "type": "workshop_batches",
     "target": "mil",
-    "key": "skill_size_s"
+    "key": "skill_MIL_2_batches"
    },
    "tech_goal_key": "tech_goal_2"
   },
@@ -124,9 +126,11 @@
    ],
    "cost": 2,
    "effect": {
-    "type": "route_capacity_pct",
+    "type": "event_immune",
     "target": "mil",
-    "key": "skill_MIL_3_route_units"
+    "kinds": [
+     "debris"
+    ]
    }
   },
   {
@@ -139,19 +143,11 @@
    ],
    "cost": 0,
    "effect": {
-    "type": "sale_price_pct",
-    "target": "mil",
-    "key": "skill_MIL_4_price",
-    "share_effect": false
+    "type": "unlock",
+    "target": "good",
+    "id": "armour"
    },
-   "tech_goal_key": "tech_goal_4",
-   "extra": [
-    {
-     "type": "unlock",
-     "target": "good",
-     "id": "armour"
-    }
-   ]
+   "tech_goal_key": "tech_goal_4"
   },
   {
    "id": "MIL_5",
@@ -217,17 +213,11 @@
    ],
    "cost": 1,
    "effect": {
-    "type": "sale_price_pct",
-    "target": "lux",
-    "key": "skill_LUX_1_price",
-    "share_effect": false
+    "type": "reveal_prices",
+    "target": "all",
+    "cycles": 1
    },
    "extra": [
-    {
-     "type": "reveal_prices",
-     "target": "all",
-     "cycles": 1
-    },
     {
      "type": "unlock",
      "target": "workshop",
@@ -236,7 +226,7 @@
     {
      "type": "unlock",
      "target": "good",
-     "id": "gems"
+     "id": "cask"
     }
    ]
   },
@@ -283,16 +273,9 @@
    "effect": {
     "type": "unlock",
     "target": "good",
-    "id": "cask"
+    "id": "gems"
    },
-   "tech_goal_key": "tech_goal_4",
-   "extra": [
-    {
-     "type": "stock_protect",
-     "target": "lux",
-     "on": "storage_cut"
-    }
-   ]
+   "tech_goal_key": "tech_goal_4"
   },
   {
    "id": "LUX_5",
@@ -306,9 +289,16 @@
    "effect": {
     "type": "volume_pct",
     "target": "lux",
-    "key": "skill_size_m",
+    "key": "skill_size_l",
     "condition": "sale_at_price_up_planet"
-   }
+   },
+   "extra": [
+    {
+     "type": "event_bonus_pct",
+     "target": "lux",
+     "key": "skill_LUX_5_event_bonus"
+    }
+   ]
   },
   {
    "id": "LUX_6",
@@ -321,10 +311,9 @@
    ],
    "cost": 0,
    "effect": {
-    "type": "sale_price_pct",
+    "type": "batch_yield",
     "target": "lux",
-    "key": "skill_LUX_6_price",
-    "share_effect": false
+    "key": "skill_LUX_6_batch_bonus"
    },
    "tech_goal_key": "tech_goal_6"
   },
@@ -385,17 +374,10 @@
    ],
    "cost": 0,
    "effect": {
-    "type": "volume_pct",
-    "target": "min",
-    "key": "skill_size_s"
+    "type": "ore_free_slots",
+    "target": "min"
    },
-   "tech_goal_key": "tech_goal_2",
-   "extra": [
-    {
-     "type": "ore_free_slots",
-     "target": "min"
-    }
-   ]
+   "tech_goal_key": "tech_goal_2"
   },
   {
    "id": "MIN_3",
@@ -433,14 +415,7 @@
     "target": "min",
     "key": "skill_MIN_4_batches"
    },
-   "tech_goal_key": "tech_goal_4",
-   "extra": [
-    {
-     "type": "unlock",
-     "target": "good",
-     "id": "alloy"
-    }
-   ]
+   "tech_goal_key": "tech_goal_4"
   },
   {
    "id": "MIN_5",
@@ -472,7 +447,14 @@
     "target": "min",
     "key": "skill_MIN_6_batch_bonus"
    },
-   "tech_goal_key": "tech_goal_6"
+   "tech_goal_key": "tech_goal_6",
+   "extra": [
+    {
+     "type": "unlock",
+     "target": "good",
+     "id": "alloy"
+    }
+   ]
   },
   {
    "id": "MIN_7",
@@ -503,16 +485,11 @@
    ],
    "cost": 1,
    "effect": {
-    "type": "order_size_pct",
-    "target": "all",
-    "key": "skill_BIO_1_order_units"
+    "type": "unlock",
+    "target": "workshop",
+    "id": "culture_lab"
    },
    "extra": [
-    {
-     "type": "unlock",
-     "target": "workshop",
-     "id": "culture_lab"
-    },
     {
      "type": "unlock",
      "target": "good",
@@ -551,7 +528,14 @@
     "type": "storage_cap_pct",
     "target": "planet_storage",
     "key": "skill_BIO_3_capacity"
-   }
+   },
+   "extra": [
+    {
+     "type": "stock_growth_cap",
+     "target": "bio",
+     "cap_key": "skill_BIO_3_stock_cap"
+    }
+   ]
   },
   {
    "id": "BIO_4",
@@ -582,7 +566,14 @@
     "type": "share_window",
     "target": "bio",
     "key": "share_window_bio_bonus"
-   }
+   },
+   "extra": [
+    {
+     "type": "stock_protect",
+     "target": "bio",
+     "on": "storage_cut"
+    }
+   ]
   },
   {
    "id": "BIO_6",

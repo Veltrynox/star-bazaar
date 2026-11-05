@@ -1,6 +1,7 @@
 extends RefCounted
 const StoryText := preload("res://game/story_text.gd")
 const Ships := preload("res://game/ships.gd")
+const Ceos := preload("res://game/ceos.gd")
 const Clusters := preload("res://game/clusters.gd")
 const DeadWorlds := preload("res://game/dead_worlds.gd")
 const SkillTree := preload("res://game/skill_tree.gd")
@@ -59,7 +60,7 @@ func new_record(src_planet: int, dst_planet: int, c: String) -> Dictionary:
 	if Clusters.is_node(src_planet):  # T156: a cluster is the source; "a" holds its node id
 		skey = "cluster:%s" % (str(clusters.items[Clusters.index_of(src_planet)]["id"]) if clusters != null and clusters.valid(Clusters.index_of(src_planet)) else "?")
 	return {"id": 0, "src": skey, "dst": dkey,
-		"a": src_planet, "b": dst_planet, "c": c, "ships": 1, "ship": "small", "level": 1, "orders": {},
+		"a": src_planet, "b": dst_planet, "c": c, "ships": 1, "ship": Ships.fleet, "level": 1, "orders": {},
 		"fresh": 1.0, "state": "running", "reason": "", "split_to": -1, "split_share": 0.0, "stop": -1}
 
 func find_by_id(id: int) -> int:
@@ -137,12 +138,13 @@ func total_assigned() -> int:
 func assigned_of(kind: String) -> int:
 	var n := 0
 	for r in routes:
-		if str(r.get("ship", "small")) == kind:
+		if kind_of(r) == kind:  # one fleet type per run
 			n += 1
 	return n
 
-static func kind_of(rec) -> String:
-	return str(rec.get("ship", "small")) if typeof(rec) == TYPE_DICTIONARY else "small"
+## One fleet type per run: every ship is the type chosen at the start (Ships.fleet), whatever the record says.
+static func kind_of(_rec) -> String:
+	return Ships.fleet
 
 ## Refusal text when planet i is a dead world that has not opened yet ("" when it is open or not a dead world).
 func dead_lock_reason(i: int) -> String:
@@ -174,7 +176,18 @@ func units_per_cycle(rec = null, good: String = "") -> int:
 	var carried := good if good != "" else (str(rec.get("c", "")) if typeof(rec) == TYPE_DICTIONARY else "")
 	if carried != "":
 		base *= Skills.route_capacity_mult(Markets.market_of(carried))
+	base *= ceo_lane_mult(rec)
 	return floori(base)
+
+## CEO perk route_capacity_pct (target first_lane): the lane of the first route runs this much more units per cycle.
+func ceo_lane_mult(rec) -> float:
+	var pct := Ceos.first_lane_pct()
+	if pct <= 0.0 or typeof(rec) != TYPE_DICTIONARY or not rec.has("a") or routes.is_empty():
+		return 1.0
+	var first = routes[0]
+	if typeof(first) == TYPE_DICTIONARY and int(first.get("a", -1)) == int(rec["a"]) and int(first.get("b", -2)) == int(rec["b"]):
+		return 1.0 + pct
+	return 1.0
 
 ## MIN_2: an ore order is limited by storage room, cash and stock only, not by the order-size cap.
 const ORE_UNCAPPED := 1000000
@@ -236,7 +249,7 @@ func _note_sale(c: String, n: int, planet: int = -1) -> void:
 
 ## T69: trip cost part of the fixed cost.
 func trip_part(rec = null) -> int:
-	var tp := float(trade.trip_cost()) * (Chains.trip_cost_mult(int(rec.get("id", -1))) if rec is Dictionary else 1.0)  # event chain: one route's trip cost
+	var tp := float(trade.trip_cost()) * Ships.trip_mult(kind_of(rec)) * (Chains.trip_cost_mult(int(rec.get("id", -1))) if rec is Dictionary else 1.0)  # event chain: one route's trip cost
 	return floori(tp / maxf(0.0001, trade.travel_cycles()))
 
 ## Route offset of a route record: extra path length round other planets and crossing routes, as a share of the
@@ -262,9 +275,9 @@ func offset_maint_mult(rec = null) -> float:
 
 ## T69: ship upkeep part of the fixed cost (one ship per route, paid only while it moves stock).
 func upkeep_part(rec = null) -> int:
-	var upkeep := float(balance.get("maintenance", 0)) * Ships.upkeep_mult(kind_of(rec), balance)  # T58
-	upkeep *= offset_maint_mult(rec)
-	upkeep *= Skills.upkeep_mult() * Chains.upkeep_mult()
+	var upkeep := float(balance.get("maintenance", 0))
+	upkeep *= maxf(float(balance.get("upkeep_floor", 0.0)), Ships.upkeep_mult(kind_of(rec), balance) * Skills.upkeep_mult())  # ship type x skills x CEO thrift, floored
+	upkeep *= offset_maint_mult(rec) * Chains.upkeep_mult()
 	return floori(upkeep / maxf(1.0, float(balance.get("maintenance_interval", 1))))
 
 ## T70: outflow at a destination = an enabled local Sell order for the commodity there, or an
@@ -623,7 +636,7 @@ func _route_cap(rec: Dictionary) -> int:
 	var c := str(rec["c"])
 	var eff := 1.0
 	var lane_end := int(rec["b"]) if from_cluster(rec) else int(rec["a"])  # T156: an ore lane has no source planet; debris at the delivery planet counts
-	if debris_planets.has(lane_end):  # T98: debris at the source planet
+	if debris_planets.has(lane_end) and not Skills.event_immune(Markets.market_of(c), "debris"):  # T98: debris at the source planet; MIL_3 makes Military goods immune
 		eff = 1.0 - float(balance.get("debris_route_penalty", 0.0))
 	if pirates_active and not has_core(rec):  # pirates cut trade volume; the Null Core ship is immune
 		eff *= 1.0 - float(balance.get("pirate_volume_penalty", 0.0))

@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-05",
+  "task": "skill-effects",
+  "status": "done",
+  "files_changed": [
+    "game/skills.gd",
+    "game/route_engine.gd",
+    "game/main.gd",
+    "game/workshops.gd",
+    "game/space_storage_view.gd",
+    "tools/tests/run_tests.gd",
+    "goals/ship-ceo-skills-resources/blackboard.json",
+    "handoffs/gameplay-programmer/2026-11-05-skill-effects.json"
+  ],
+  "open_questions": [
+    "EV19 text (EV19_EVICT_EFF) says pirates rise but no pirate system sets pirates_active; story-designer to reword or economy to add a pirate effect.",
+    "tools/tests/run.sh stops at build_story.py now: story/ru/skills.json SK_LUX_4_PLAIN digits differ (EN has '2', RU none). Story-designer to fix; tests run fine directly.",
+    "availability start test: skill texts name hidden goods (SK_MIL_1_PLAIN cells etc.) was passing in my runs once the story built; story-designer owns it."
+  ],
+  "handoff": "Done: event_immune (Skills.event_immune, hooked in RouteEngine._route_cap: MIL_3 ignores debris for mil goods); stock_growth takes max cap of BIO_2 and BIO_3 (stock_growth_cap); stock_protect works for bio (test). batch_yield and workshop_batches were already read by Workshops (LUX_6 +1, MIL_2 +1 batch); recipe line now shows boosted yield; stalled workshops also show the batch counter (WorkshopBatches_<id>). can_build_workshop now returns reason closed when the availability rule is false (after the post check); existing tests open system 2 first. LUX_5 event bonus already flows via Skills.event_bonus; test added. New test: every effect type in skills.json is in vocabulary and quoted in skills.gd. main.gd clears pending company/portrait/ceo/ship on every start. Tests: 1862 pass, 0 fail (run directly; run.sh blocked by RU story error). Bot smoke --skip-tutorial --ceo=ceo_man_01 --ship=bulk: win, no errors. EV19 pirate text not changed."
+}
