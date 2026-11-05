@@ -8,31 +8,31 @@
    "market": "min",
    "cost_key": "fabric_build_cost",
    "existing": true,
-   "unlocked_by": "MIN_1"
+   "unlocked_by": "skill_learned:MIN_1"
   },
   {
    "id": "smelter",
    "market": "min",
    "cost_key": "workshop_build_cost",
-   "unlocked_by": "MIN_1"
+   "unlocked_by": "skill_learned:MIN_1"
   },
   {
    "id": "munitions",
    "market": "mil",
    "cost_key": "workshop_build_cost",
-   "unlocked_by": "MIL_1"
+   "unlocked_by": "skill_learned:MIL_1"
   },
   {
    "id": "atelier",
    "market": "lux",
    "cost_key": "workshop_build_cost",
-   "unlocked_by": "LUX_1"
+   "unlocked_by": "skill_learned:LUX_1"
   },
   {
    "id": "culture_lab",
    "market": "bio",
    "cost_key": "workshop_build_cost",
-   "unlocked_by": "BIO_1"
+   "unlocked_by": "skill_learned:BIO_1"
   }
  ],
  "batches_per_cycle_key": "workshop_batches_per_cycle",
