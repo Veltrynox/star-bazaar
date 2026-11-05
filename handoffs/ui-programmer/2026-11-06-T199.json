@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-06",
+  "task": "T199",
+  "status": "done",
+  "files_changed": ["game/rival_ships.gd", "game/rival_card.gd", "game/map.gd", "game/main.gd", "story/screens.md", "data/story_text.json", "tools/tests/run_tests.gd"],
+  "open_questions": [
+    "Competitor names still come from Bots.NAMES (working names, TODO story); should they get story ids?",
+    "Clicking a ship shows the card and swallows that click (no planet/Pathfinder order within 20px of the ship). Wanted, or should the click also pass through to a planet behind?",
+    "Card shows the market where the competitor's share is highest (Markets.bot_share). Is that the intended 'its market'?"
+  ],
+  "handoff": "Ship i belongs to Bots.IDS[i] (RivalShips.bot_of). Each wears a faint see-through tint overlay. Left click within PICK_PX of the closest visible ship emits map.rival_clicked(bot); main.rival_card (game/rival_card.gd, DestHint look) shows name plus strongest market and follows the ship; any other left click emits 0 and closes it. Outside the radius the click behaves as before. Texts HINT_RIVAL_MARKET, HINT_RIVAL_NO_MARKET (screens.md, built). Tests: _test_t199_rival_pick; sh tools/tests/run.sh has 0 FAIL (3 'material is null' engine errors are pre-existing). Not checked by eye: tint look, card position.",
+  "details": {
+    "constants_rival_ships_gd": {
+      "TINTS": "1 Harrow Color(1.0,0.45,0.35) red; 2 Velvet Color(0.75,0.45,1.0) violet; 3 Ostrel Color(0.4,0.95,0.55) green",
+      "TINT_ALPHA": 0.3,
+      "PICK_PX": 20.0
+    },
+    "card_constant": "rival_card.gd CARD_OFFSET Vector2(18,20)"
+  }
+}

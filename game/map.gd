@@ -80,6 +80,8 @@ var route_lines: Dictionary = {}  # T07b: route id -> route_line.gd node
 var _route_list: Array = []       # last list given to set_routes (rebuilt after tunable changes)
 
 signal station_clicked(system_id: int)
+signal rival_clicked(bot: int)  # T199: competitor id of the rival ship under a left click, 0 = none (closes the card)
+var rivals: Node = null  # T199: game/rival_ships.gd, set by main
 ## T180: flight orders and establish orders; see the interface at the top of game/pathfinder_view.gd. Never emitted while flight is null or off.
 signal fly_requested(target: Dictionary)   # {"kind": "planet"|"storage"|"cluster"|"point", "pos": Vector3, "index": int}
 signal establish_requested(planet_id: String)
@@ -959,6 +961,10 @@ func _unhandled_input(event: InputEvent) -> void:
 		if on and pick_ship(event.position):  # T200: click the ship to select it (a planet under it is still picked for the panel)
 			ship_selected = true
 			planet_clicked.emit(pick_planet(event.position))
+			return
+		var rb: int = int(rivals.pick_bot(event.position)) if rivals != null else 0  # T199: a rival ship under the cursor shows its card
+		rival_clicked.emit(rb)  # 0 closes the card
+		if rb > 0:
 			return
 		var fly: bool = on and ship_selected  # T200: only a selected ship takes orders; a left click sends it at once
 		var hit := pick_planet(event.position)

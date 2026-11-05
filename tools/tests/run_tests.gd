@@ -106,6 +106,7 @@ func _run() -> void:
 	await _test_ship_facing()
 	await _test_ships_spawn_near_bodies()
 	await _test_t211_ship_traffic()
+	await _test_t199_rival_pick()
 	await _test_t206_explore()
 	await _test_t187_ship_flight()
 	await _test_asteroid_packs()
@@ -6754,6 +6755,29 @@ func _t202_check(m, sys: int, p: Vector3, label: String, parent: String = "") ->
 		check(near, "T202: %s is near %s (within radius + gap)" % [label, parent if parent != "" else "a body"], str(v))
 
 ## T211: one rival ship per competitor in every state; a closed system shows no ships; one Pathfinder.
+## T199: ship i belongs to Bots.IDS[i]; the pick function takes the closest ship in radius only; the card names the competitor.
+func _test_t199_rival_pick() -> void:
+	var RS := preload("res://game/rival_ships.gd")
+	var Bots := preload("res://game/bots.gd")
+	for i in Bots.IDS.size():
+		check(RS.bot_of(i) == int(Bots.IDS[i]), "T199: ship %d belongs to competitor %d" % [i, Bots.IDS[i]])
+	check(RS.bot_of(Bots.IDS.size()) == 0 and RS.bot_of(-1) == 0, "T199: no competitor outside the range")
+	var pts := [Vector2(100, 100), Vector2(110, 100), Vector2(INF, INF)]
+	check(RS.pick_index(pts, Vector2(108, 100), 20.0) == 1, "T199: the closest ship is picked")
+	check(RS.pick_index(pts, Vector2(300, 300), 20.0) == -1, "T199: a click outside the radius picks nothing")
+	check(RS.pick_index(pts, Vector2(100, 140), 20.0) == -1, "T199: radius is a hard limit")
+	var m = await _new_main(false, true)
+	m._dismiss_preface()
+	m.rival_ships.advance(0.0)
+	check(m.map.rivals == m.rival_ships, "T199: the map knows the rival ships")
+	check(int(m.rival_ships.pick_bot(Vector2(-5000, -5000))) == 0, "T199: far from any ship picks none")
+	var card = m.rival_card
+	card.show_bot(2)
+	check(preload("res://game/rival_card.gd").describe(2).begins_with(Bots.bot_name(2)), "T199: the card starts with the competitor name")
+	card.show_bot(0)
+	check(not card.visible, "T199: bot 0 closes the card")
+	await _free_main(m)
+
 func _test_t211_ship_traffic() -> void:
 	var Systems := preload("res://game/systems.gd")
 	var Bots := preload("res://game/bots.gd")

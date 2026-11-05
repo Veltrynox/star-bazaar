@@ -186,6 +186,7 @@ var pending: Dictionary = {}  # T68: "Send to..." waiting for a destination {pla
 var pending_label: Label
 var route_warning: Control
 var dest_hint: Control
+var rival_card: Control  # T199
 var sell_offer: Dictionary = {}  # after a Send: {planet, c} while "Sell here too?" is offered at the destination; empty when none
 var pending_margins: Label  # P1: per-destination margins while a plain Send to... is pending
 var last_local: Array = []  # T68: local order results of the last cycle end
@@ -208,6 +209,7 @@ func _ready() -> void:
 	rival_ships = RivalShips.new()  # T187: scenery ships, a visual only
 	rival_ships.setup(self, map)
 	map.add_child(rival_ships)
+	map.rivals = rival_ships  # T199
 	flight = Pathfinder.new()  # T179: needs the map's planets; discovery_enabled in balance.json switches it on or off live
 	flight.setup(self)
 	map.flight = flight
@@ -246,6 +248,9 @@ func _ready() -> void:
 	dest_hint = load("res://game/dest_hint.gd").new()  # hover card over a destination while a route is pending
 	add_child(dest_hint)
 	dest_hint.setup(self)
+	rival_card = load("res://game/rival_card.gd").new()  # T199: click card of a rival ship
+	add_child(rival_card)
+	rival_card.setup(self)
 	income_popup = load("res://game/income_popup.gd").new()  # T133
 	add_child(income_popup)
 	income_popup.setup(map)

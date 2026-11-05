@@ -5876,6 +5876,18 @@
    "place": "Planet 3 of system 10, tooltip (placeholder)"
   },
   {
+   "id": "HINT_RIVAL_MARKET",
+   "text": "Strongest in {market}",
+   "max": 60,
+   "place": "Card on a clicked rival ship, second line, the market where the competitor is strongest; {market}"
+  },
+  {
+   "id": "HINT_RIVAL_NO_MARKET",
+   "text": "No market lead yet",
+   "max": 60,
+   "place": "Card on a clicked rival ship, second line, when the competitor has no volume yet"
+  },
+  {
    "id": "SK_HEADER",
    "text": "Skills",
    "max": 24,

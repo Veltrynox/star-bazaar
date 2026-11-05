@@ -14,16 +14,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-06 06:00 run: T213
-- Summary: The "Not enough cash" rule is correct at 2k cash; the message was a stale snapshot from the last cycle end, shown next to the current balance. Route row, map tag and buy row now show the needed and available amounts.
-- Why this task: real bug investigation with a clear brief, no visual or design decision, no dependencies.
-- Approach: gameplay-programmer agent for the code trace and fix; I verified diff and tests.
-- Agent prompts: find what is compared in route_engine.gd, fix or reword the text to show amounts, add a test, text via ids; handoffs/gameplay-programmer/2026-11-06-T213.json, done.
-- Worked: sh tools/tests/run.sh pass=4022 fail=0. Test _test_no_cash_text added.
-- Failed / did not work: nothing. Not seen windowed.
-- Files and commits: game/route_engine.gd, story/screens.md, data/story_text.json, tools/tests/run_tests.gd, handoff, schedule.json, blackboard.md; see git log "T213".
-- Left to do: owner decides whether a stalled state should clear mid-cycle when cash rises (now only the last-cycle snapshot, left unchanged). No Russian text for the two changed ids.
-
 ## 2026-11-06 07:00 run: T211
 - Summary: Rival scenery ships are now one per competitor (3 total) instead of 3 per system; they live in system 1 and visit only permit-opened systems, shown only in their own system. Pathfinder was already a single ship.
 - Why this task: clear owner brief, no dependencies, no visual decision; unblocks T214.

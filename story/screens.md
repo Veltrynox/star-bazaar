@@ -1203,3 +1203,7 @@ WORLD_S10P2_NAME | 24 | System 10 planet 2 (placeholder) | Temp H2
 WORLD_S10P2_DESC | 110 | Planet 2 of system 10, tooltip (placeholder) | Temporary planet text.
 WORLD_S10P3_NAME | 24 | System 10 planet 3 (placeholder) | Temp H3
 WORLD_S10P3_DESC | 110 | Planet 3 of system 10, tooltip (placeholder) | Temporary planet text.
+
+## Rival ship card (2026-11-06)
+HINT_RIVAL_MARKET | 60 | Card on a clicked rival ship, second line, the market where the competitor is strongest; {market} | Strongest in {market}
+HINT_RIVAL_NO_MARKET | 60 | Card on a clicked rival ship, second line, when the competitor has no volume yet | No market lead yet

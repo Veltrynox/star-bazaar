@@ -221,3 +221,13 @@ Older run entries moved from blackboard.md, oldest first.
 - Failed / did not work: nothing. Not seen windowed.
 - Files and commits: game/main.gd, game/route_legend.gd(+uid) deleted, story/screens.md, data/story_text.json, schedule.json, blackboard.md; see git log "T215".
 - Left to do: owner confirms "route hint" meant the legend and not the pending banner ("Send X from Y: click the destination"); if the banner, remove it too.
+
+## 2026-11-06 06:00 run: T213
+- Summary: The "Not enough cash" rule is correct at 2k cash; the message was a stale snapshot from the last cycle end, shown next to the current balance. Route row, map tag and buy row now show the needed and available amounts.
+- Why this task: real bug investigation with a clear brief, no visual or design decision, no dependencies.
+- Approach: gameplay-programmer agent for the code trace and fix; I verified diff and tests.
+- Agent prompts: find what is compared in route_engine.gd, fix or reword the text to show amounts, add a test, text via ids; handoffs/gameplay-programmer/2026-11-06-T213.json, done.
+- Worked: sh tools/tests/run.sh pass=4022 fail=0. Test _test_no_cash_text added.
+- Failed / did not work: nothing. Not seen windowed.
+- Files and commits: game/route_engine.gd, story/screens.md, data/story_text.json, tools/tests/run_tests.gd, handoff, schedule.json, blackboard.md; see git log "T213".
+- Left to do: owner decides whether a stalled state should clear mid-cycle when cash rises (now only the last-cycle snapshot, left unchanged). No Russian text for the two changed ids.

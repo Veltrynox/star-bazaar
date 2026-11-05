@@ -1,5 +1,5 @@
 extends Node3D
-## T187: rival ships flying around the map. A VISUAL ONLY: no cargo, no collision shape, no picking, no blocking, no combat, no
+## T187: rival ships flying around the map. A VISUAL ONLY: no cargo, no collision shape, no blocking, no combat, no
 ## effect on routes, prices, shares or the Pathfinder. Rivals stay numbers in the economy (Markets bots); these ships are scenery.
 ## T196: each ship picks a destination (a point over the planets of its system), speeds up from rest, turns at a limited yaw rate,
 ## flies a straight course and brakes to a stop there. T214: it then IDLES (no new random course); it moves again only when the game
@@ -10,8 +10,11 @@ extends Node3D
 ## system 1 and may fly over to a system the player opened by permit (main.open_systems) for a few legs, then comes back. It exists
 ## on the map only in its current system (hidden elsewhere); a closed system never has a ship in it. The old balance key
 ## rival_ship_count is retired (it was ships per system; it is not in data/balance.json). Speed in map units per second: SPEED_DEFAULT (same note, rival_ship_speed).
-## Look (model, tint, size, trail) is NOT decided here: it uses the ship models of data/ships.json other than the player's,
+## Look (model, size, trail) is NOT decided here: it uses the ship models of data/ships.json other than the player's,
 ## fitted like the Pathfinder, and a small cone when no model loads.
+## T199: ship i belongs to competitor Bots.IDS[i] (bot_of). Each wears a faint tint (TINTS, a see-through overlay on the meshes).
+## Clicking a ship shows a card (game/rival_card.gd): pick_bot(screen_pos) is a screen-space test (PICK_PX) on the closest visible
+## ship. It is only a hint test: the map still handles the click as before (a planet behind the ship stays clickable).
 
 const Ships := preload("res://game/ships.gd")
 const Motion := preload("res://game/ship_motion.gd")  # T196
@@ -25,6 +28,9 @@ const LIFT := 0.35
 const ShipTrail := preload("res://game/ship_trail.gd")  # T198
 const RIVAL_SHIP_SCALE := 0.5   # T198: ship size on the map; 1.0 is the old size (halved in T198). One constant for the rival ship kind.
 const FIT_RADIUS := 0.35 * RIVAL_SHIP_SCALE
+const PICK_PX := 20.0           # T199: click radius around a ship's projected position
+const TINT_ALPHA := 0.3         # T199: strength of the competitor tint over the model (0 = none)
+const TINTS := {1: Color(1.0, 0.45, 0.35), 2: Color(0.75, 0.45, 1.0), 3: Color(0.4, 0.95, 0.55)}  # T199: Harrow red, Velvet violet, Ostrel green
 const TRAIL_TINT := Color(0.45, 0.7, 1.0)  # T198: rival trail, cool blue (the player's is gold)
 
 var main: Node = null
@@ -249,6 +255,63 @@ func advance(dt: float) -> void:
 		if tr != null:
 			tr.visible = node.visible
 			tr.push(node.position, dt, float(s["speed"]) > 0.02 and node.visible)
+
+## T199: the competitor (id of Bots.IDS) that owns ship i, 0 when i is out of range.
+static func bot_of(i: int) -> int:
+	return int(Bots.IDS[i]) if i >= 0 and i < Bots.IDS.size() else 0
+
+## T199: a see-through colour layer over every mesh of the ship.
+func _tint(node: Node, bot: int) -> void:
+	var c: Color = TINTS.get(bot, Color(1, 1, 1))
+	var mat := StandardMaterial3D.new()
+	mat.albedo_color = Color(c.r, c.g, c.b, TINT_ALPHA)
+	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	_overlay(node, mat)
+
+func _overlay(node: Node, mat: Material) -> void:
+	if node is MeshInstance3D:
+		node.material_overlay = mat
+	for ch in node.get_children():
+		_overlay(ch, mat)
+
+## T199: index of the closest point within `radius` of `pos`, -1 if none. A point of INF (hidden or behind the camera) never hits.
+static func pick_index(points: Array, pos: Vector2, radius: float) -> int:
+	var best := -1
+	var bd := radius
+	for i in points.size():
+		var d := (points[i] as Vector2).distance_to(pos)
+		if d <= bd:
+			bd = d
+			best = i
+	return best
+
+## T199: the competitor whose ship is under the cursor (closest one), 0 when none. Visible ships only.
+func pick_bot(screen_pos: Vector2) -> int:
+	var cam: Camera3D = map.camera if map != null and "camera" in map else null
+	if cam == null:
+		return 0
+	var pts: Array = []
+	for s in _ships:
+		var n: Node3D = s["node"]
+		if not n.visible or not n.is_inside_tree() or cam.is_position_behind(n.global_position):
+			pts.append(Vector2(INF, INF))
+		else:
+			pts.append(cam.unproject_position(n.global_position))
+	var i := pick_index(pts, screen_pos, PICK_PX)
+	return bot_of(i) if i >= 0 else 0
+
+## T199: screen position of competitor `bot`'s ship, or null when it is not drawn.
+func screen_pos_of(bot: int) -> Variant:
+	var cam: Camera3D = map.camera if map != null and "camera" in map else null
+	if cam == null:
+		return null
+	for i in _ships.size():
+		if bot_of(i) == bot:
+			var n: Node3D = _ships[i]["node"]
+			if n.visible and n.is_inside_tree() and not cam.is_position_behind(n.global_position):
+				return cam.unproject_position(n.global_position)
+	return null
 
 func ship_count() -> int:
 	return _ships.size()
