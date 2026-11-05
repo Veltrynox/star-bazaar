@@ -40,6 +40,10 @@ var outer: VBoxContainer  # banner (when the planet has one) + body margin
 var body_margin: MarginContainer
 var banner: Control = null
 const Banners := preload("res://game/planet_banners.gd")
+const PathfinderView := preload("res://game/pathfinder_view.gd")  # T180: flight accessor helpers; interface documented at its top
+var _sig := ""  # T180: last flight signature of the shown planet; a change rebuilds the panel
+var _prog_bar: ProgressBar = null
+var _prog_label: Label = null
 const GUTTER := 14.0  # Ui.scroll_wrap keeps this much clear for the scrollbar; the banner runs under it
 
 func setup(m: Control) -> void:
@@ -60,6 +64,30 @@ func _ready() -> void:
 	Ui.scroll_wrap(self, outer, 76.0 + 70.0)  # clear of the top bar and the key hints  # long panels scroll instead of leaving the window
 	visible = false
 
+## T180: flight accessor of the map, or null (discovery off: nothing in this file changes behaviour).
+func _flight():
+	return main.map.flight if main != null and main.map != null else null
+
+func _pid() -> String:
+	return str(main.map.planets[planet_index].get("id", ""))
+
+func _process(_delta: float) -> void:
+	if not visible or planet_index < 0 or main == null:
+		return
+	var f = _flight()
+	if not PathfinderView.active(f):
+		if _sig != "":
+			_sig = ""
+			rebuild()
+		return
+	var sg := PathfinderView.signature(f, _pid())
+	if sg != _sig:
+		rebuild()  # sets _sig
+		return
+	if _prog_bar != null and is_instance_valid(_prog_bar):  # build running here: keep the bar and the text current
+		_prog_bar.value = PathfinderView.build_progress(f)
+		_prog_label.text = _progress_text(f)
+
 func show_planet(index: int, route_id: int = -1) -> void:
 	if index != planet_index:
 		split_open = ""
@@ -74,11 +102,21 @@ func rebuild() -> void:
 	for c in box.get_children():
 		box.remove_child(c)
 		c.queue_free()
-	_set_banner(str(main.map.planets[planet_index].get("id", "")))
+	var fl = _flight()
+	_sig = PathfinderView.signature(fl, _pid())
+	_prog_bar = null
+	_prog_label = null
+	var shown_known := PathfinderView.discovered(fl, _pid())
+	_set_banner(_pid() if shown_known else "")  # an unknown world has no banner (it would show the planet)
 	_split_bar = null
 	_split_tags = {}
 	var p: Dictionary = main.map.planets[planet_index]
 	_header(p)
+	if not PathfinderView.established(fl, _pid()):  # T180: closed or reached-but-not-built world: no goods, no routes, only Fly / Establish
+		_closed_section(p, fl)
+		_tut_mute()
+		size = Vector2.ZERO
+		return
 	if main.second_lane_planet == planet_index:  # N11: the first sale in system 2 happened here
 		var sl := _label("%s: %s" % [StoryText.get_or("TITLE_SECOND_LANE", "Cross-system trader"), StoryText.get_or("NOTE_SECOND_LANE", "Your first sale here crossed the system line.")])
 		sl.name = "SecondLaneNote"
@@ -176,8 +214,11 @@ func _set_banner(planet_id: String) -> void:
 
 ## Title, subtitle, description, planet thumbnails.
 func _header(p: Dictionary) -> void:
+	var fl = _flight()
+	var known := PathfinderView.discovered(fl, str(p.get("id", "")))
+	var estab := PathfinderView.established(fl, str(p.get("id", "")))
 	var title := Label.new()
-	title.text = str(p.get("name", p.get("id", "?")))
+	title.text = str(p.get("name", p.get("id", "?"))) if known else StoryText.get_or("LBL_UNKNOWN_DARK_WORLD" if main.DeadWorlds.is_dead(p) else "LBL_UNKNOWN_WORLD", "Unknown world")
 	title.theme_type_variation = "LabelTitle"
 	if banner != null:  # the name sits on the lower, faded part of the banner
 		title.name = "BannerTitle"
@@ -197,11 +238,13 @@ func _header(p: Dictionary) -> void:
 		sys_l.theme_type_variation = "LabelCaption"
 		sys_l.text = sys_l.text.to_upper()
 		box.add_child(sys_l)
-	if str(p.get("desc", "")) != "":
+	if known and str(p.get("desc", "")) != "":
 		var d := _label(str(p["desc"]))
 		d.theme_type_variation = "LabelSmall"
 		box.add_child(d)
-	if main.DeadWorlds.is_dead(p) and main.engine.dead_locked.has(planet_index):  # not open before dead_unlock_cycle
+	if not estab:
+		pass  # T180: no mining, danger or lock lines before the post or platform exists
+	elif main.DeadWorlds.is_dead(p) and main.engine.dead_locked.has(planet_index):  # not open before dead_unlock_cycle
 		var ll := _label(StoryText.get_or("PLANET_DEAD_LOCKED", "Opens at cycle {n}.", {"n": main.dead_unlock_cycle()}))
 		ll.name = "DeadLockedLine"
 		ll.theme_type_variation = "LabelAccent"
@@ -225,6 +268,8 @@ func _header(p: Dictionary) -> void:
 		var q: Dictionary = main.map.planets[i]
 		if int(q.get("system", 1)) != sid:
 			continue
+		if not PathfinderView.discovered(fl, str(q.get("id", ""))):
+			continue  # T180: an unknown world has no thumbnail (its type and name stay hidden)
 		var t := Thumb.new()
 		t.planet = q
 		t.selected = i == planet_index
@@ -235,6 +280,83 @@ func _header(p: Dictionary) -> void:
 			t.modulate.a = 0.4  # guided tutorial: only the named planet can be picked
 		thumbs.add_child(t)
 	box.add_child(thumbs)
+
+## T180: panel body of a world without a post or platform. Unknown: one flavour line, flight time, Fly here.
+## Reached (discovered): the Establish button with cost and what it unlocks, or the build progress. Texts are story ids.
+func _closed_section(p: Dictionary, f) -> void:
+	var pid := str(p.get("id", ""))
+	var dead: bool = main.DeadWorlds.is_dead(p)
+	var known := PathfinderView.discovered(f, pid)
+	if not known:
+		var fl := _label(StoryText.get_or("LBL_UNKNOWN_DARK_LINE" if dead else "LBL_UNKNOWN_WORLD_LINE", "Fly closer to learn more."))
+		fl.name = "UnknownLine"
+		fl.theme_type_variation = "LabelSmall"
+		box.add_child(fl)
+	var eta := PathfinderView.eta_cycles(f, pid)
+	if eta >= 0.0 and PathfinderView.docked_at(f) != pid:
+		var el := _label(StoryText.get_or("LBL_FLIGHT_TIME", "Flight time: {cycles} cycles", {"cycles": "%.1f" % eta}))
+		el.name = "FlightTime"
+		el.theme_type_variation = "LabelAccent"
+		box.add_child(el)
+	var here: bool = PathfinderView.docked_at(f) == pid
+	if not here:
+		var fb := Button.new()
+		fb.name = "FlyHereButton"
+		fb.text = StoryText.get_or("BTN_FLY_HERE", "Fly here")
+		fb.custom_minimum_size = ACTION_BTN_MIN
+		var tgt := {"kind": "planet", "pos": main.map.positions[planet_index], "index": planet_index}
+		fb.pressed.connect(func(): main.map.fly_requested.emit(tgt))
+		box.add_child(fb)
+	if not known:
+		return
+	var building: bool = PathfinderView.build_target(f) == pid
+	if dead and not PathfinderView.can_platform(f, pid):
+		return  # availability: no platform button before the mining skill is learned
+	if building:
+		_prog_label = _label(_progress_text(f))
+		_prog_label.name = "BuildProgressLabel"
+		_prog_label.theme_type_variation = "LabelAccent"
+		box.add_child(_prog_label)
+		_prog_bar = ProgressBar.new()
+		_prog_bar.name = "BuildProgress"
+		_prog_bar.min_value = 0.0
+		_prog_bar.max_value = 1.0
+		_prog_bar.show_percentage = false
+		_prog_bar.custom_minimum_size = Vector2(0, 12)
+		_prog_bar.value = PathfinderView.build_progress(f)
+		box.add_child(_prog_bar)
+		return
+	var eb := Button.new()
+	eb.name = "EstablishButton"
+	eb.text = StoryText.get_or("BTN_ESTABLISH_PLATFORM" if dead else "BTN_ESTABLISH_POST", "Establish mining platform" if dead else "Establish trading post")
+	eb.custom_minimum_size = ACTION_BTN_MIN
+	var busy: bool = PathfinderView.state(f) == "building"
+	if not here:
+		eb.disabled = true  # why: the ship is elsewhere
+		eb.tooltip_text = StoryText.get_or("NOT_FLY_FIRST", "Fly the Pathfinder here first.")
+	elif busy:
+		eb.disabled = true
+		eb.tooltip_text = StoryText.get_or("NOT_POST_BUSY", "The Pathfinder is already building. One build at a time.")
+	eb.pressed.connect(func(): main.map.establish_requested.emit(pid))
+	box.add_child(eb)
+	var c := PathfinderView.cost(f, pid)
+	if not c.is_empty():
+		var cl: Label
+		if bool(c.get("free", false)):
+			cl = _label(StoryText.get_or("LBL_POST_COST_FREE", "First post is free. Build time: {cycles} cycles.", {"cycles": "%.1f" % float(c.get("cycles", 0.0))}))
+		else:
+			cl = _label(StoryText.get_or("LBL_POST_COST", "Cost: {cash} cr. Build time: {cycles} cycles.", {"cash": int(c.get("cash", 0)), "cycles": "%.1f" % float(c.get("cycles", 0.0))}))
+		cl.name = "EstablishCost"
+		cl.theme_type_variation = "LabelSmall"
+		box.add_child(cl)
+	var ul := _label(StoryText.get_or("LBL_PLATFORM_UNLOCKS" if dead else "LBL_POST_UNLOCKS", ""))
+	ul.name = "EstablishUnlocks"
+	ul.theme_type_variation = "LabelSmall"
+	box.add_child(ul)
+
+func _progress_text(f) -> String:
+	var dead: bool = main.DeadWorlds.is_dead(main.map.planets[planet_index])
+	return StoryText.get_or("LBL_PLATFORM_PROGRESS" if dead else "LBL_POST_PROGRESS", "{cycles} cycles left", {"cycles": "%.1f" % PathfinderView.build_cycles_left(f)})
 
 ## Dead world that can be mined now: open (cycle) and its skill learned.
 func _dead_minable(p: Dictionary) -> bool:
@@ -290,6 +412,15 @@ func _row(c: String, prices: Dictionary, pend: Dictionary) -> Control:
 			nx.text = StoryText.get_text("LBL_NEXT_PRICE", {"buy": nb, "sell": ns})
 			nx.theme_type_variation = "LabelSmall"
 			info.add_child(nx)
+		if Skills.reveal_cycles(main.system_of(planet_index) == 1) >= 2:  # LUX_5B Deep Read: two cycles ahead
+			var nb2: int = main.trade.price(planet_index, c + "_buy", true, false, 2)
+			var ns2: int = main.trade.price(planet_index, c + "_sell", true, false, 2)
+			if nb2 >= 0 and ns2 >= 0:
+				var nx2 := Label.new()
+				nx2.name = "NextPrice2_" + str(c)
+				nx2.text = StoryText.get_or("LBL_NEXT_PRICE_2", "In 2 cycles: {buy} cr to buy, {sell} cr to sell.", {"buy": nb2, "sell": ns2})
+				nx2.theme_type_variation = "LabelSmall"
+				info.add_child(nx2)
 	for role in ["sell"]:  # the buy order state is in the resource button tooltip and its pressed toggle
 		if main.engine.local_on(planet_index, c, role):
 			var st := Label.new()

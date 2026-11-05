@@ -66,6 +66,7 @@ func _run() -> void:
 	await _test_idle_actions()
 	await _test_skill_effects()
 	await _test_skill_effects_final()
+	await _test_forecast_pure()
 	await _test_debug_menu()
 	await _test_planet_size()
 	await _test_route_offset()
@@ -1193,9 +1194,14 @@ func _test_tutorial_steps() -> void:
 ## guided: keep the guided tutorial (and its lock) on, as in a fresh game. Default: the tutorial is already finished.
 const TEST_SEED := 20261104
 
-func _new_main(guided: bool = false) -> Control:
+## discovery: false (default) switches the Pathfinder rules off (balance discovery_enabled 0), so every planet is open as before T179;
+## true keeps the shipped default (only Voltara open at the start).
+func _new_main(guided: bool = false, discovery: bool = false) -> Control:
 	var m: Control = load(MAIN_SCENE).instantiate()
 	root.add_child(m)
+	if not discovery:
+		m.balance["discovery_enabled"] = 0
+		m.on_flight_changed()
 	# fixed seeds: market noise, chain shuffle and event rolls repeat from run to run
 	Markets.reset(m.balance, TEST_SEED)
 	Chains.reset(m.balance, TEST_SEED)
@@ -1480,7 +1486,7 @@ func _test_main() -> void:
 	# --- skill keys: every node has a cost key, a story name and numeric effect keys ---
 	m = await _new_main()
 	m._dismiss_preface()
-	check(SkillTree.all_ids().size() == 31, "skills: 3 Foundations plus 28 market nodes", str(SkillTree.all_ids().size()))
+	check(SkillTree.all_ids().size() == 33, "skills: 3 Foundation nodes plus 28 market nodes plus 2 side skills (T173)", str(SkillTree.all_ids().size()))
 	var costs_ok := true
 	var keys_ok := true
 	for id in SkillTree.all_ids():
@@ -1523,11 +1529,11 @@ func _test_skill_screen_ui() -> void:
 	var m: Control = await _new_main()
 	m._dismiss_preface()
 	m.skill_screen.open_screen()
-	check(m.skill_screen.node_buttons.size() == 31, "skill screen: one button per node", str(m.skill_screen.node_buttons.size()))
+	check(m.skill_screen.node_buttons.size() == 33, "skill screen: one button per node", str(m.skill_screen.node_buttons.size()))
 	var sk = m.skill_screen
 	await process_frame
 	await process_frame
-	check(sk.cells.size() == 31 and sk.node_buttons.size() == 31 and SkillTree.BRANCHES.size() == 5, "skill placeholders: real nodes unchanged (31)")
+	check(sk.cells.size() == 33 and sk.node_buttons.size() == 33 and SkillTree.BRANCHES.size() == 5, "skill placeholders: real nodes (33)")
 	check(SS.SHOW_PLACEHOLDERS == (sk.placeholders.size() > 0), "skill placeholders: the switch decides whether any exist")
 	check(SS.placeholder_row_count(7, 2, false) == 0 and SS.placeholder_row_count(7, 2, true) == ceili(7.0 * (SS.PLACEHOLDER_GROWTH - 1.0) / 2.0), "skill placeholders: switch off gives no rows")
 	var ph_ok := true
@@ -1909,7 +1915,7 @@ func _test_skills_core() -> void:
 	f.store_string(JSON.stringify({"version": 2, "state": v2}))
 	f.close()
 	var loaded: Dictionary = SaveGame.load_state()
-	check(SaveGame.VERSION == 5 and not loaded.is_empty() and loaded["learned_skills"].has("FND_STORAGE") and not SaveGame.dropped_old, "migration: a v2 file loads migrated")
+	check(SaveGame.VERSION == 6 and not loaded.is_empty() and loaded["learned_skills"].has("FND_STORAGE") and not SaveGame.dropped_old, "migration: a v2 file loads migrated")
 	f = FileAccess.open(SaveGame.PATH, FileAccess.WRITE)
 	f.store_string(JSON.stringify({"version": 1, "state": v2}))
 	f.close()
@@ -6137,7 +6143,7 @@ func _test_chains() -> void:
 	check(inp["ending_id"] == "END_BIO_BAD" and inp["flag"] == "bad" and inp["rival_broken"] == true and inp["rival_broken_bot"] == 2 and EndingPicker.inputs("mil", bal)["ending_id"] == "END_MIL_GOOD", "ending picker: BAD by the chain flag, rival_broken from the chain", str(inp))
 	check(m.ending_id_of({"kind": "win", "market": "bio"}) == "END_BIO_BAD" and m.ending_id_of({"kind": "win", "market": "lux"}) == "END_LUX_GOOD", "ending id: win reads the flag of the win market")
 	# save version 4 and v3 migration
-	check(SaveGame.VERSION == 5, "save: version 5")
+	check(SaveGame.VERSION == 6, "save: version 6")
 	var v3 := {"cycle": 7, "cash": 300, "chains": {"dir": {"mil": 9}}, "shield": {"built": true}}
 	var mig: Dictionary = SaveGame.migrate_v3(v3)
 	check(mig["cash"] == 300 and not mig.has("shield") and not mig.has("chains"), "save: v3 migrates, chain state fresh, shield dropped")
@@ -6211,7 +6217,7 @@ func _test_foundations_first() -> void:
 	var branch := []
 	for b in SkillTree.MARKETS:
 		branch.append_array(SkillTree.ids_in(b))
-	check(branch.size() == 28, "foundations: 28 branch nodes")
+	check(branch.size() == 30, "foundations: 30 branch nodes")
 	var all_locked := true
 	var partial_locked := true
 	var chained := true
@@ -6358,7 +6364,7 @@ func _test_skill_window_rework(m: Control) -> void:
 	var all := _all_text(ss.detail_box)
 	check(not all.contains("Cost:") and not all.contains(StoryText.get_text("SK_LABEL_EFFECT")), "skills window: no Cost line and no 'What it changes' label")
 	check(ss.learn_text(1).contains("1 point") and not ss.learn_text(1).contains("points") and ss.learn_text(2).contains("2 points"), "skills window: Learn text singular and plural", ss.learn_text(1) + " / " + ss.learn_text(2))
-	var ids_ok: bool = SI.IDS.size() == 31
+	var ids_ok: bool = SI.IDS.size() == 33
 	var atlas := load(SI.ATLAS_PATH) as Texture2D
 	check(atlas != null, "skill icons: atlas loads")
 	for id in SkillTree.all_ids():
@@ -6388,6 +6394,8 @@ func _av_reset(m: Control) -> void:
 		m.workshops.built[id] = false
 	m.open_systems = [1]
 	m.cycle = 1
+	m.flight.reset()  # T179: only the home world has its post
+	m._sync_closed()
 	for key in m.storage.stock.keys():
 		m.storage.stock[key] = {}
 
@@ -6422,6 +6430,12 @@ func _av_atom(m: Control, atom: String, val: bool) -> bool:
 			m.storage.stock[key][arg] = 1 if val else 0
 		"good_visible":
 			return _av_make(m, Availability.rule("good", arg), val)
+		"planet_visited":
+			m.flight.set_flag("visited", arg, val)
+		"post_built":
+			m.flight.set_flag("post", arg, val)
+		"platform_built":
+			m.flight.set_flag("platform", arg, val)
 	return true
 
 ## Makes a condition tree true or false. Returns false when it cannot be made that way (an always-true "start").
@@ -6478,9 +6492,18 @@ func _test_availability() -> void:
 	for e in errs:
 		check(false, "availability lint: " + str(e))
 	# (a) a fresh game shows only the start state
-	var m: Control = await _new_main()
+	var m: Control = await _new_main(false, true)  # discovery on: the shipped default
 	m._dismiss_preface()
 	_av_reset(m)
+	# T179: only the home world is open at the start; every other planet is closed (no goods, no routes, no trade)
+	var open_ids: Array = []
+	for p in m.map.planets:
+		if Availability.planet(str(p.get("id", ""))):
+			open_ids.append(str(p.get("id", "")))
+	check(open_ids == start["open_planets"], "availability start: only the home planet is open", str(open_ids))
+	for i in m.map.planets.size():
+		if not start["open_planets"].has(str(m.map.planets[i].get("id", ""))):
+			check(not m.planet_established(i) and m.engine.closed_planets.has(i) and not m.system_trade_open(i), "availability start: planet '%s' is closed to trade" % str(m.map.planets[i].get("id", "")))
 	var vis: Array = Availability.all_visible_goods()
 	var want: Array = start["visible_goods"]
 	var same := vis.size() == want.size()
@@ -6510,6 +6533,8 @@ func _test_availability() -> void:
 	var screen_text := _av_visible_text(m)
 	var leak2 := Availability.names_hidden_good(screen_text)
 	check(leak2 == "", "availability start: no visible screen text names a hidden good", "names '%s' in: %s" % [leak2, screen_text.replace("\n", " | ")])
+	var leak3 := Availability.names_closed_planet(screen_text + pan_text)  # T179: a closed planet is not named before its post
+	check(leak3 == "", "availability start: no visible text names a closed planet", "names '%s' in: %s" % [leak3, screen_text.replace("\n", " | ")])
 	var sk_leaks := []  # skill texts are always on screen: none may name a good hidden at the start
 	for e in StoryText.entries_of(_read_json("res://data/story_text.json")):
 		if str(e["id"]).begins_with("SK_") and Availability.names_hidden_good(str(e["text"])) != "":
@@ -6831,6 +6856,58 @@ func _test_skill_effects_final() -> void:
 		m.engine.debris_planets = []
 		check(dirty < clean and immune == clean, "MIL_3: debris cuts a Military lane, and not with MIL_3", "%d %d %d" % [clean, dirty, immune])
 	m.learned_skills = []
+	# T173 LUX_5B: prices and event warning two cycles ahead; LUX_1 / LUX_3 stay at one, the longest source wins
+	m.learned_skills = ["LUX_1", "LUX_3"]
+	check(Skills.reveal_cycles() == 1 and Skills.warning_cycles() == 1, "LUX_5B: LUX_1 and LUX_3 alone reveal and warn 1 cycle")
+	m.learned_skills = ["LUX_1", "LUX_3", "LUX_5B"]
+	check(Skills.reveal_cycles() == 2 and Skills.warning_cycles() == 2, "LUX_5B: reveal and warning read 2 cycles, max of sources")
+	m.learned_skills = ["LUX_5B"]
+	check(Skills.reveal_cycles() == 2 and Skills.warning_cycles() == 2, "LUX_5B: works on its own data")
+	m.learned_skills = []
+	m.events.active.append({"id": "ZZ", "kind": "up", "planet": 0, "c": "energy", "left": 2, "age": 0})
+	var base_b: int = m.trade.price(0, "energy_buy", false, true)
+	var now_b: int = m.trade.price(0, "energy_buy")
+	var n1_b: int = m.trade.price(0, "energy_buy", true)
+	var n2_b: int = m.trade.price(0, "energy_buy", true, false, 2)
+	check(now_b > base_b and n1_b == now_b and n2_b == base_b, "LUX_5B: a price event with 2 cycles left is over in the 2-cycles-ahead price", "%d %d %d %d" % [base_b, now_b, n1_b, n2_b])
+	m.events.active.back()["left"] = 3
+	check(m.trade.price(0, "energy_buy", true, false, 2) == now_b, "LUX_5B: with 3 cycles left the event still shows 2 ahead")
+	m.events.active.pop_back()
+	m.events.by_id["ZZ_TEST"] = {"id": "ZZ_TEST", "tag": "[price up: %s, energy]" % m.planet_name(0)}
+	var ft2: String = m.forecast_text("ZZ_TEST", 2)
+	check(not ft2.begins_with("Next cycle") and (ft2.contains("2 cycles")), "LUX_5B: a 2-cycle forecast says 2 cycles", ft2)
+	m.events.by_id.erase("ZZ_TEST")
+	# T173 MIN_5B: Minerals routes ignore debris and price-down events are cut
+	m.learned_skills = []
+	check(not Skills.event_immune("min", "debris") and Skills.event_cut("min") == 0.0, "MIN_5B: nothing before learning")
+	m.learned_skills = ["MIN_5B"]
+	check(Skills.event_immune("min", "debris") and not Skills.event_immune("bio", "debris") and is_equal_approx(Skills.event_cut("min"), float(bal["skill_MIN_5B_event_cut"])) and Skills.event_cut("bio") == 0.0, "MIN_5B: debris immunity and event cut for min only")
+	if m.engine.routes.size() > 0:
+		var rec5: Dictionary = m.engine.routes[0].duplicate()
+		rec5["c"] = "ore"
+		var end5 := int(rec5["b"]) if m.engine.from_cluster(rec5) else int(rec5["a"])
+		m.engine.debris_planets = []
+		m.learned_skills = []
+		var clean5: int = m.engine._route_cap(rec5)
+		m.engine.debris_planets = [end5]
+		var dirty5: int = m.engine._route_cap(rec5)
+		m.learned_skills = ["MIN_5B"]
+		var immune5: int = m.engine._route_cap(rec5)
+		m.engine.debris_planets = []
+		check(Markets.market_of("ore") != "min" or (dirty5 < clean5 and immune5 >= clean5), "MIN_5B: debris cuts a Minerals lane, and not with MIN_5B", "%d %d %d" % [clean5, dirty5, immune5])
+	m.events.active.append({"id": "ZZ", "kind": "down", "planet": 0, "c": "ore", "left": 3, "age": 0})
+	var ore_none: float = (func() -> float:
+		m.learned_skills = []
+		return m.events.price_factor(0, "ore")).call()
+	m.learned_skills = ["MIN_5B"]
+	var ore_cut: float = m.events.price_factor(0, "ore")
+	m.events.active.pop_back()
+	check(Markets.market_of("ore") != "min" or (ore_cut > ore_none and ore_none < 1.0), "MIN_5B: a price-down event on ore hurts less", "%f %f" % [ore_none, ore_cut])
+	# T173 round 4: MIN_5B route capacity
+	m.learned_skills = []
+	m.learned_skills = ["MIN_5B"]
+	check(is_equal_approx(Skills.route_capacity_mult("min"), 1.0 + float(bal["skill_MIN_5B_route_units"])), "MIN_5B: Minerals route capacity")
+	m.learned_skills = []
 	# BIO_3 stock_growth_cap: ceiling is the max of both
 	m.learned_skills = ["BIO_2"]
 	var g2: Dictionary = Skills.stock_growth("bio")
@@ -6873,3 +6950,81 @@ func _test_skill_effects_final() -> void:
 	var m2: Control = await _new_main()
 	check(SaveGame.pending_ceo == "" and SaveGame.pending_ship == "" and SaveGame.pending_portrait == "", "ship screen: pending_ceo, pending_ship and pending_portrait cleared after the run starts")
 	await _free_main(m2)
+
+
+# ---- T173 code3: warning skills are information only; MIN_5B debris immunity; stock_protect on a storage cut ----
+func _event_sequence(skills: Array, cycles: int) -> Array:
+	_wipe_user()
+	var m: Control = await _new_main()
+	m._dismiss_preface()
+	m.learned_skills = skills.duplicate()
+	var seq: Array = []
+	var seen := 0
+	for i in cycles:
+		m.events.pending_id = ""
+		m.cash = 1000000
+		if m.game_over:
+			break
+		m._end_cycle()
+		while seen < m.events.feed.size():
+			seq.append("%d:%s" % [m.cycle, str(m.events.feed[seen]["id"])])
+			seen += 1
+	_free_main(m)
+	await process_frame
+	return seq
+
+func _test_forecast_pure() -> void:
+	var s0: Array = await _event_sequence([], 40)
+	var s1: Array = await _event_sequence(["LUX_3"], 40)
+	var s2: Array = await _event_sequence(["LUX_5B"], 40)
+	check(s0.size() >= 5, "forecast pure: the 40-cycle run fires events", str(s0))
+	check(s0 == s1, "forecast pure: warning 1 (LUX_3) gives the same events as warning 0", "%s | %s" % [str(s0), str(s1)])
+	check(s0 == s2, "forecast pure: warning 2 (LUX_5B) gives the same events as warning 0", "%s | %s" % [str(s0), str(s2)])
+	_wipe_user()
+	var m: Control = await _new_main()
+	m._dismiss_preface()
+	# MIN_5B: a Minerals lane with debris at its source keeps its capacity with the skill
+	var min_good := "ore"
+	if m.events.planets.size() > 1:
+		var rec: Dictionary = m.engine.new_record(0, 1, min_good)
+		rec["id"] = 9001
+		var lane_end := int(rec["b"]) if m.engine.from_cluster(rec) else int(rec["a"])
+		m.learned_skills = []
+		m.engine.debris_planets = []
+		var clean: int = m.engine._route_cap(rec)
+		m.engine.debris_planets = [lane_end]
+		var dirty: int = m.engine._route_cap(rec)
+		m.learned_skills = ["MIN_5B"]
+		var immune: int = m.engine._route_cap(rec)
+		m.engine.debris_planets = []
+		check(Markets.market_of(min_good) == "min" and dirty < clean and immune >= clean, "MIN_5B: debris (EV17) hurts a Minerals lane without the skill and not with it", "%s %d %d %d" % [min_good, clean, dirty, immune])
+	else:
+		check(false, "MIN_5B: test needs a route and a Minerals good", str(m.engine.routes.size()))
+	# stock_protect (read from skills.json: whichever node carries it): its target market's stock survives a storage cut
+	var sp_node := ""
+	var sp_market := ""
+	for nid in SkillTree.all_ids():
+		for e in SkillTree.effects(str(nid)):
+			if str(e.get("type", "")) == "stock_protect" and sp_node == "":
+				sp_node = str(nid)
+				sp_market = str(e.get("target", ""))
+	var sp_good := ""
+	for g in m.storage.commodities:
+		if Markets.market_of(str(g)) == sp_market:
+			sp_good = str(g)
+			break
+	var sk := "planet:2"
+	m.learned_skills = []
+	var cap: int = m.storage.capacity_of(sk)
+	m.storage.add(sk, sp_good, cap)
+	m.storage.cut_capacity(sk, 0.5)
+	var lost: int = int(m.storage.stock[sk][sp_good])
+	m.storage.cuts.erase(sk)
+	m.storage.stock[sk][sp_good] = cap
+	m.learned_skills = [sp_node]
+	m.storage.cut_capacity(sk, 0.5)
+	var kept: int = int(m.storage.stock[sk][sp_good])  # raw stock; amount() reads it through the cut capacity
+	check(sp_node != "" and sp_good != "" and lost < cap and kept == cap, "stock_protect (%s): %s stock survives an asteroid storage cut (%d without, %d with)" % [sp_node, sp_market, lost, kept])
+	m.learned_skills = []
+	_free_main(m)
+	await process_frame

@@ -11,8 +11,8 @@ const StoryText := preload("res://game/story_text.gd")
 const PATH := "user://autosave.json"
 ## Version 2 = Four Markets (market volumes, bot state, counters). Version 3 = the four market skill trees: a v2 save is
 ## migrated (old skill ids mapped, points refunded). Version 4 = market event chains (chains, rival log, timed effects); a v3 save has
-## none of that and starts with fresh chain state; the old shield state is dropped. Version 1 saves are dropped, not migrated (owner approved). Version 5 = ceo_id and ship_type (CEO and ship screens); a v4 save has neither and loads with the small ship and no CEO perk, nothing to migrate.
-const VERSION := 5
+## none of that and starts with fresh chain state; the old shield state is dropped. Version 1 saves are dropped, not migrated (owner approved). Version 5 = ceo_id and ship_type (CEO and ship screens); a v4 save has neither and loads with the small ship and no CEO perk, nothing to migrate. Version 6 = the Pathfinder (key "pathfinder": position, flight, build, discovered / posts / platforms). A save without that key (v5 and older) loads as a run that already has every planet open, so it keeps working (T179 decision; to drop such saves instead, raise MIN_VERSION to 6). Version 7 = storage links (key "storage_links": links, orders, dormant counters); a save without it loads with no links, nothing to migrate.
+const VERSION := 7
 const MIN_VERSION := 2
 
 ## True after load_state() found a save older than MIN_VERSION; the menu shows old_save_message().

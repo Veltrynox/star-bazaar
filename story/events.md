@@ -350,3 +350,191 @@ EV50_EFF | pool event rivals line, {market} filled by the game | Rivals: {market
 EV51_TITLE | pool event title | Seed stock is bought up
 EV51_BODY | pool event text | Tillam's clinics bought every crate of gene seed after one failed batch. Gene seed at Tillam costs more and pays more. The ward manager wrote that the failed batch is fine, and moved the ward to another floor. Culture Banks grow stored Biotech stock.
 EV51_EFF | pool event rivals line, {market} filled by the game | Rivals: none of the three changes in {market}.
+
+# PENDING (T181, 2026-11-05): post, platform and flight events. TEXT ONLY, no mechanics row
+
+These blocks are text rows (3 fields), so build_story.py writes them to data/story_text.json and writes NO row to data/events.json. They are inert until the gameplay-programmer wires them in T179 (see handoffs/story-designer/2026-11-05-T181.json). Text ids are final; the effect lines are written for the effects in the Tag line below, and must be edited if economy-designer sets a different effect. No digits: sizes are words ("a small sum", "a little", "clearly"). {planet} is the planet just built or the flight's target; {bot3} is Ostrel Syndicate (name filled by the game). No good is named. Planet names never appear: the events fire after the post exists, and the text works for any planet.
+Row ids: EV_<kind><nn>_TITLE (32), _BODY (280), then per option <KEY>: _<KEY>_BTN (28), _<KEY>_EFF (90), _<KEY>_TITLE (32), _<KEY> (popup, 280).
+Choices are neutral: two buttons of similar length, no good or bad label, no hidden catastrophe, no loss of the Pathfinder or the fleet (design default, owner Q5 not yet answered). New effect kinds the programmer needs: [post bonus] (next post cheaper or builds faster) and [flight delay] (a little, up to half a cycle).
+
+## EV_PST01 post: arrival [pending]
+Tag: post_built:<planet> just built; tags A [post bonus: next post cheaper], B none
+EV_PST01_TITLE | pending event title | A dock that keeps a book
+EV_PST01_BODY | pending event text | The dock at {planet} keeps a visitors' book, and the clerk wants your name in it before the first crate moves. The book is old, with a ring of cold on its cover. Nobody can say who opened it.
+EV_PST01_SIGN_BTN | button | Sign the book
+EV_PST01_SIGN_EFF | effect line | The next post you build costs less.
+EV_PST01_SIGN_TITLE | popup title | The book is signed
+EV_PST01_SIGN | popup | The clerk blotted your name and nodded, as if it had always been there. The next post you build costs less. On the page beside yours, someone else's handwriting changed.
+EV_PST01_LEAVE_BTN | button | Leave without signing
+EV_PST01_LEAVE_EFF | effect line | Nothing changes.
+EV_PST01_LEAVE_TITLE | popup title | The book stays shut
+EV_PST01_LEAVE | popup | You left the clerk waiting with the pen raised. Nothing changes. The clerk wrote a short line anyway, in a hand that did not look like the clerk's.
+
+## EV_PST02 post: local officials [pending]
+Tag: post_built:<planet>; A [cash: pay small sum] + [post bonus: next post builds faster]; B [price lean: planet, direction hidden, a few cycles]
+EV_PST02_TITLE | pending event title | The Port Warden's stamp
+EV_PST02_BODY | pending event text | Warden Ilsa Dorne of {planet} must inspect the new post before she may stamp its lease. She inspects slowly and with open joy. A gift would hurry her. Waiting would also work, in time.
+EV_PST02_GIFT_BTN | button | Send a gift
+EV_PST02_GIFT_EFF | effect line | Pay a small sum. The next post builds faster.
+EV_PST02_GIFT_TITLE | popup title | The Warden is hurried
+EV_PST02_GIFT | popup | The gift went up the stairs and the stamp came down them, still wet. You paid a small sum. The next post builds faster. The Warden was not smiling anymore, which you took for gratitude.
+EV_PST02_WAIT_BTN | button | Wait for the stamp
+EV_PST02_WAIT_EFF | effect line | Nothing is paid. Prices at {planet} move a little for a while.
+EV_PST02_WAIT_TITLE | popup title | The stamp takes its time
+EV_PST02_WAIT | popup | You waited. The Warden inspected every rivet and then the shadows between them. Nothing was paid. Prices at {planet} move a little for a while, and the Warden will not say which way.
+
+## EV_PST03 post: a snag [pending]
+Tag: post_built:<planet>; A [cash: pay small sum] + [post bonus: next post builds faster]; B none
+EV_PST03_TITLE | pending event title | The beam will not hold
+EV_PST03_BODY | pending event text | The survey beam at {planet} will not hold a line, and the foreman blames the weather, which is indoors. A part can be bought from a passing hauler. Or you can wait for the next shift to have an idea.
+EV_PST03_PART_BTN | button | Buy the part
+EV_PST03_PART_EFF | effect line | Pay a small sum. The next post builds faster.
+EV_PST03_PART_TITLE | popup title | The part is fitted
+EV_PST03_PART | popup | The hauler's mate named a price and you paid a small sum. The beam held its line by evening. The next post builds faster, since the crew now knows where the weather comes from.
+EV_PST03_SHIFT_BTN | button | Wait for the next shift
+EV_PST03_SHIFT_EFF | effect line | Nothing changes.
+EV_PST03_SHIFT_TITLE | popup title | The shift has an idea
+EV_PST03_SHIFT | popup | The next shift had an idea, and it was to wait for the one after. Nothing changes. The beam flickered, once, in a direction nobody had aimed it.
+
+## EV_PST04 post: a bargain [pending]
+Tag: post_built:<planet>; A [cash: pay small sum] + [post bonus: next post cheaper]; B none
+EV_PST04_TITLE | pending event title | A broker with spare fittings
+EV_PST04_BODY | pending event text | A broker named Odo Pell meets your ship at {planet} with a tray of seals and a lease. A neighbouring post closed, and its fittings are cheap. He talks as if the sale were already done. It might be.
+EV_PST04_BUY_BTN | button | Buy the fittings
+EV_PST04_BUY_EFF | effect line | Pay a small sum. The next post costs less.
+EV_PST04_BUY_TITLE | popup title | The fittings change hands
+EV_PST04_BUY | popup | Pell counted the seals twice and gave you one extra, as a courtesy. You paid a small sum. The next post costs less. The fittings are warm, as if someone had only just let go of them.
+EV_PST04_PASS_BTN | button | Pass on the offer
+EV_PST04_PASS_EFF | effect line | Nothing changes.
+EV_PST04_PASS_TITLE | popup title | Pell packs his tray
+EV_PST04_PASS | popup | Pell shrugged and packed his tray. Nothing changes. He said the fittings would find a buyer, and looked at the sky as if the buyer were already on the way.
+
+## EV_PST05 post: a rival is already there [pending]
+Tag: post_built:<planet>; uses {bot3}; A [price lean: planet, direction hidden]; B [cash: pay small sum] + [price lean: planet, clearly]
+EV_PST05_TITLE | pending event title | A desk already stands here
+EV_PST05_BODY | pending event text | A desk with the seal of {bot3} already stands on the dock at {planet}. It has a kettle, a stool and a long record of waiting. The agent offers you the next stool. He does not offer to move.
+EV_PST05_SHARE_BTN | button | Share the dock
+EV_PST05_SHARE_EFF | effect line | Nothing is paid. Prices at {planet} move a little for a while.
+EV_PST05_SHARE_TITLE | popup title | The dock is shared
+EV_PST05_SHARE | popup | You took the next stool. The agent poured two cups and drank both. Nothing was paid. Prices at {planet} move a little for a while, and the agent keeps the direction to himself.
+EV_PST05_SEAL_BTN | button | Hang your own seal
+EV_PST05_SEAL_EFF | effect line | Pay a small sum. Prices at {planet} move clearly for a while.
+EV_PST05_SEAL_TITLE | popup title | Two seals on one wall
+EV_PST05_SEAL | popup | You paid a small sum and hung your seal beside the other. The agent studied it as if it were a price. Prices at {planet} move clearly for a while. The kettle went cold between the seals.
+
+## EV_PST06 post: the dock crowd [pending]
+Tag: post_built:<planet>; A [cash: pay small sum] + [post bonus: next post builds faster]; B [cash: gain small sum]
+EV_PST06_TITLE | pending event title | Residents come to look
+EV_PST06_BODY | pending event text | Residents of {planet} gather at the new post and stand in rows. A child asks whether it will stay. The clerk says that is a question for the Plan. Nobody leaves until someone says something.
+EV_PST06_OPEN_BTN | button | Hold an open dock
+EV_PST06_OPEN_EFF | effect line | Pay a small sum. The next post builds faster.
+EV_PST06_OPEN_TITLE | popup title | The dock stays open
+EV_PST06_OPEN | popup | You set out chairs and a schedule, and the rows turned into a queue. You paid a small sum. The next post builds faster, since this crowd now knows the work. The child left with a bolt in her pocket.
+EV_PST06_WORK_BTN | button | Keep to the work
+EV_PST06_WORK_EFF | effect line | You gain a small sum from early trade.
+EV_PST06_WORK_TITLE | popup title | The rows thin out
+EV_PST06_WORK | popup | You kept to the work and the rows thinned by dusk. You gain a small sum from early trade. The child watched until the last crate was stamped, and then stamped nothing, politely.
+
+## EV_PLT01 platform: crew [pending]
+Tag: platform_built:<planet>; A [cash: pay small sum] + [stock: gain some mined goods]; B none
+EV_PLT01_TITLE | pending event title | Who works the dark
+EV_PLT01_BODY | pending event text | A crew from the Bureau's labour desk reaches the new platform on {planet}. They came for the pay and stay for the quiet. The foreman asks what to call a shift that never ends. No one has a form for it.
+EV_PLT01_NIGHT_BTN | button | Hire the night crew
+EV_PLT01_NIGHT_EFF | effect line | Pay a small sum. Some mined goods are added to your stock.
+EV_PLT01_NIGHT_TITLE | popup title | The night crew signs on
+EV_PLT01_NIGHT | popup | The night crew signed on without reading. You paid a small sum, and by morning some mined goods lay in your stock, stacked with great care. The foreman named the shift Always. It stuck.
+EV_PLT01_DAY_BTN | button | Keep the day crew
+EV_PLT01_DAY_EFF | effect line | Nothing changes.
+EV_PLT01_DAY_TITLE | popup title | The day crew stays
+EV_PLT01_DAY | popup | You kept the day crew. Nothing changes. At change of shift the foreman counted the lamps going out and the lamps coming on, and got two different answers.
+
+## EV_PLT02 platform: collapse [pending]
+Tag: platform_built:<planet>; A [cash: pay small sum]; B [planet closed: planet]
+EV_PLT02_TITLE | pending event title | The roof sings
+EV_PLT02_BODY | pending event text | A gallery at {planet} sings before it fails, a low note, held. The crew is out and the rock is still. Props cost credits. Sealing the gallery costs time. The note has not stopped.
+EV_PLT02_PROP_BTN | button | Pay for props
+EV_PLT02_PROP_EFF | effect line | Pay a small sum. Routes from {planet} keep running.
+EV_PLT02_PROP_TITLE | popup title | The props go in
+EV_PLT02_PROP | popup | The props went in under the sound and the sound let them. You paid a small sum. Routes from {planet} keep running. The note dropped a step, the way a voice does when it has been understood.
+EV_PLT02_SEAL_BTN | button | Seal the gallery
+EV_PLT02_SEAL_EFF | effect line | Nothing is paid. Routes touching {planet} are blocked for a while.
+EV_PLT02_SEAL_TITLE | popup title | The gallery is sealed
+EV_PLT02_SEAL | popup | The crew sealed the gallery with slabs and tape. Nothing was paid. Routes touching {planet} are blocked for a while. Behind the slabs the note went on, patient, like a tenant.
+
+## EV_PLT03 platform: a find [pending]
+Tag: platform_built:<planet>; A [cash: gain small sum]; B [stock: gain some mined goods]
+EV_PLT03_TITLE | pending event title | A seam no one logged
+EV_PLT03_BODY | pending event text | The drill at {planet} broke into a seam the old surveys never entered, as if they had looked away. It is bright, cold and heavier than it should be. The Bureau has not been told yet.
+EV_PLT03_LOG_BTN | button | Log the find
+EV_PLT03_LOG_EFF | effect line | You gain a small sum as a finder's share.
+EV_PLT03_LOG_TITLE | popup title | The find is logged
+EV_PLT03_LOG | popup | The Bureau stamped the find within the hour, which no one had ever seen. You gain a small sum as a finder's share. The seam now has a number, and the number, quietly, has a seam.
+EV_PLT03_HIDE_BTN | button | Keep it off the books
+EV_PLT03_HIDE_EFF | effect line | Some mined goods are added to your stock.
+EV_PLT03_HIDE_TITLE | popup title | The find stays quiet
+EV_PLT03_HIDE | popup | The crew filled three carts before the shift bell and told no one. Some mined goods are added to your stock. The seam is still bright in the dark, and still cold on the hand.
+
+## EV_PLT04 platform: the hum [pending]
+Tag: platform_built:<planet>; A [price lean: planet, direction hidden, a few cycles]; B none
+EV_PLT04_TITLE | pending event title | The hum under the floor
+EV_PLT04_BODY | pending event text | The floor of the platform on {planet} hums while the crew sleeps. Engineers measure a steady note, the same each night. The shift lead asks to switch off the lamps. She does not say why.
+EV_PLT04_DARK_BTN | button | Switch off the lamps
+EV_PLT04_DARK_EFF | effect line | Prices at {planet} move a little for a while.
+EV_PLT04_DARK_TITLE | popup title | The lamps go out
+EV_PLT04_DARK | popup | The lamps went out and the hum thinned, then stopped, as if it only wanted company. Prices at {planet} move a little for a while, and the shift lead will not say which way. She slept well.
+EV_PLT04_LIGHT_BTN | button | Keep the lamps on
+EV_PLT04_LIGHT_EFF | effect line | Nothing changes.
+EV_PLT04_LIGHT_TITLE | popup title | The lamps stay lit
+EV_PLT04_LIGHT | popup | You kept the lamps on. Nothing changes. The hum went on all night. In the morning the engineers found it a little louder, and wrote down that it was not.
+
+## EV_FLT01 flight: drifting wreck [pending]
+Tag: flight longer than 1 cycle, outside home orbit; A [flight delay: a little] + [cash: gain small sum]; B none
+EV_FLT01_TITLE | pending event title | A wreck on the lane
+EV_FLT01_BODY | pending event text | A hull drifts across the lane, cold, its name scraped off. The Pathfinder's scanner counts no one aboard, then counts again. A tow would delay the flight. Salvage is salvage, if nobody comes to claim it.
+EV_FLT01_TOW_BTN | button | Tow it clear
+EV_FLT01_TOW_EFF | effect line | The flight is delayed a little. You gain a small sum for the salvage.
+EV_FLT01_TOW_TITLE | popup title | The wreck is cleared
+EV_FLT01_TOW | popup | The Pathfinder dragged the hull out of the lane and the flight lost a little time. You gain a small sum for the salvage. The scanner counted one aboard as the hull went. It did not count again.
+EV_FLT01_FLY_BTN | button | Fly on
+EV_FLT01_FLY_EFF | effect line | Nothing changes.
+EV_FLT01_FLY_TITLE | popup title | The wreck falls behind
+EV_FLT01_FLY | popup | The Pathfinder flew on. Nothing changes. In the rear glass the hull turned slowly, showing its scraped patch, then its other side.
+
+## EV_FLT02 flight: distress call [pending]
+Tag: same conditions; A [cash: pay small sum]; B none
+EV_FLT02_TITLE | pending event title | A call on an old band
+EV_FLT02_BODY | pending event text | A distress call comes in on an old band, the voice polite and unhurried. By the time the Pathfinder turns, the call has become a recipe. A relay fee would let you check it from here.
+EV_FLT02_RELAY_BTN | button | Pay the relay fee
+EV_FLT02_RELAY_EFF | effect line | Pay a small sum. The flight is not delayed.
+EV_FLT02_RELAY_TITLE | popup title | The relay answers
+EV_FLT02_RELAY | popup | You paid a small sum, and the relay checked the band without a turn. The flight is not delayed. The relay reported a pot, a stove and a very long wait. It filed the call as cooked.
+EV_FLT02_HOLD_BTN | button | Hold the course
+EV_FLT02_HOLD_EFF | effect line | Nothing changes.
+EV_FLT02_HOLD_TITLE | popup title | The call fades
+EV_FLT02_HOLD | popup | You held the course. Nothing changes. The voice went on a while with the recipe, then said the last step twice, very slowly, and was gone.
+
+## EV_FLT03 flight: toll patrol [pending]
+Tag: same conditions; A [cash: pay small sum]; B [flight delay: a little]
+EV_FLT03_TITLE | pending event title | A toll on the lane
+EV_FLT03_BODY | pending event text | A patrol cutter hails the Pathfinder. It says the lane is private and has been since the cutter was painted. A toll is asked, politely. The cutter's gun looks at the toll, not at you.
+EV_FLT03_PAY_BTN | button | Pay the toll
+EV_FLT03_PAY_EFF | effect line | Pay a small sum. The flight goes on.
+EV_FLT03_PAY_TITLE | popup title | The toll is paid
+EV_FLT03_PAY | popup | You paid a small sum and the cutter blinked twice, which is how it says thank you. The flight goes on. The gun turned away last, like someone leaving a room backwards.
+EV_FLT03_AROUND_BTN | button | Take the long way round
+EV_FLT03_AROUND_EFF | effect line | The flight is delayed a little.
+EV_FLT03_AROUND_TITLE | popup title | The long way
+EV_FLT03_AROUND | popup | The Pathfinder swung wide around a lane that was private by decree. The flight is delayed a little. The cutter followed for a while, to see that the sky was not borrowed.
+
+## EV_FLT04 flight: asteroid dust [pending]
+Tag: same conditions; A [flight delay: a little]; B [cash: pay small sum]
+EV_FLT04_TITLE | pending event title | Dust across the lane
+EV_FLT04_BODY | pending event text | Fine dust crosses the lane and rattles on the hull like rain on a tin roof. The pilot slows, then asks if she may ask what rain is. Nobody on board is sure. The hull is sure only of the dust.
+EV_FLT04_SLOW_BTN | button | Slow down
+EV_FLT04_SLOW_EFF | effect line | The flight is delayed a little.
+EV_FLT04_SLOW_TITLE | popup title | The dust passes
+EV_FLT04_SLOW | popup | The Pathfinder slowed and the dust went over like a long shift change. The flight is delayed a little. The hull rang once, low, and then did not ring again.
+EV_FLT04_PUSH_BTN | button | Push through
+EV_FLT04_PUSH_EFF | effect line | Pay a small sum for hull repairs at the next port.
+EV_FLT04_PUSH_TITLE | popup title | The hull takes the dust
+EV_FLT04_PUSH | popup | The Pathfinder pushed through at speed. A small sum goes to hull repairs at the next port. The pilot stood the rest of the shift at the glass, trying to remember what rain was for.

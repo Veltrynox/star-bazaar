@@ -8,7 +8,7 @@ extends RefCounted
 ## use Conditions.visible(entry, ctx). No visible_when = visible.
 ##
 ## Atom vocabulary (arg kinds: node = id in data/skills.json, workshop = id in data/goods.json, good = id in data/goods.json,
-## system = system number, balance = "balance.<key>" naming a key of data/balance.json, event = event id or chain step id):
+## planet = planet id in data/planets.json or data/systems.json, system = system number, balance = "balance.<key>" naming a key of data/balance.json, event = event id or chain step id):
 ##   start                                  always true
 ##   skill_learned:<node>                   node is learned (skill or tech node; the old name tech_done is gone)
 ##   workshop_built:<workshop>              the player built that workshop (fabric|smelter|munitions|atelier|culture_lab)
@@ -18,6 +18,10 @@ extends RefCounted
 ##   good_visible:<good>                    that good's own availability rule is true
 ##   good_traded:<good>                     an open planet prices that good (needs ctx.planets; events use it)
 ##   event_fired:<event>                    that event or chain step already fired this run (saved: Events.feed / Chains.picks)
+##   planet_visited:<planet>                the Pathfinder has arrived there (name and type known); the home world from the start
+##   post_built:<planet>                    a trading post stands there (living world; the home world from the start)
+##   platform_built:<planet>                a mining platform stands there (dead world)
+##                                          These three are true for every planet while balance discovery_enabled is 0 (game/pathfinder.gd).
 ## Atoms that need a chain step in the context (ctx.step), the market and previous step come from it:
 ##   share_pct:<balance>                    the step's market share in percent has reached the value
 ##   first_sale_after_cycle:<balance>       a non-common-raw good of the step's market sold in a cycle after that
@@ -32,6 +36,7 @@ const ATOMS := {
 	"start": "", "skill_learned": "node", "workshop_built": "workshop", "system_open": "system", "cycle_at_least": "balance",
 	"stock_held": "good", "good_visible": "good", "good_traded": "good", "event_fired": "event",
 	"share_pct": "balance", "first_sale_after_cycle": "balance", "cycles_after_prev_step": "balance",
+	"planet_visited": "planet", "post_built": "planet", "platform_built": "planet",
 }
 const STEP_ATOMS := ["share_pct", "first_sale_after_cycle", "cycles_after_prev_step"]
 
@@ -104,7 +109,7 @@ static func _atom(atom: String, ctx: Dictionary) -> bool:
 			if not ctx.has("cycle") and not live():
 				return false
 			return int(ctx.get("cycle", game.cycle if live() else 0)) >= int(balance_value(arg, ctx))
-		"workshop_built", "system_open", "stock_held":
+		"workshop_built", "system_open", "stock_held", "planet_visited", "post_built", "platform_built":
 			return live() and _game_atom(str(parts[0]), arg)
 	push_error("Conditions: unknown atom '%s'" % atom)
 	return false
@@ -119,6 +124,8 @@ static func _game_atom(name: String, arg: String) -> bool:
 			return game.open_systems.has(int(arg))
 		"stock_held":
 			return stock_held(arg)
+		"planet_visited", "post_built", "platform_built":
+			return game.planet_atom(name, arg)
 	return false
 
 static func _market(ctx: Dictionary) -> String:
@@ -192,6 +199,9 @@ static func lint(cond, where: String, errs: Array, step_ok: bool = false, bal: D
 			"good":
 				if not Goods.has(arg):
 					errs.append("%s: unknown good '%s'" % [where, arg])
+			"planet":
+				if not planet_ids().has(arg):
+					errs.append("%s: unknown planet '%s'" % [where, arg])
 			"event":
 				if not events.has(arg):
 					errs.append("%s: unknown event or chain step '%s'" % [where, arg])
@@ -212,6 +222,18 @@ static func read_balance() -> Dictionary:
 	if typeof(parsed) == TYPE_DICTIONARY and typeof(parsed.get("values")) == TYPE_DICTIONARY:
 		return parsed["values"]
 	return {}
+
+## Ids of every planet in data/planets.json and data/systems.json.
+static func planet_ids() -> Array:
+	var out: Array = []
+	var parsed = JSON.parse_string(FileAccess.get_file_as_string("res://data/planets.json")) if FileAccess.file_exists("res://data/planets.json") else null
+	if typeof(parsed) == TYPE_DICTIONARY:
+		for p in parsed.get("planets", []):
+			out.append(str(p.get("id", "")))
+	for sid in SystemsData.ids():
+		for p in SystemsData.planets_of(int(sid)):
+			out.append(str(p.get("id", "")))
+	return out
 
 ## Ids of every event (data/events.json), pool event (data/chains.json pool_new) and chain step.
 static func event_ids() -> Array:

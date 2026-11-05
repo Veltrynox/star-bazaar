@@ -220,11 +220,15 @@ NOT_ROUTE_NEEDS_C3 | 110 | Route between two systems without the Permit Charter 
 EVT_NEXT_DUE | 110 | Notice, Event Forecast, posted one cycle before an event | An event is due next cycle.
 EVT_NEXT_DUE_PRICE | 110 | Notice, Event Forecast, price event due next cycle; direction is "rise" or "fall" | Next cycle: {commodity} will {direction} at {planet}.
 EVT_NEXT_DUE_CLOSED | 110 | Notice, Event Forecast, closure due next cycle | Next cycle: {planet} will close.
+EVT_NEXT_DUE_2 | 110 | Notice, Event Forecast 2 cycles ahead (LUX_5B), plain | An event is due in 2 cycles.
+EVT_NEXT_DUE_PRICE_2 | 110 | Notice, Event Forecast 2 cycles ahead, price event; direction is "rise" or "fall" | In 2 cycles: {commodity} will {direction} at {planet}.
+EVT_NEXT_DUE_CLOSED_2 | 110 | Notice, Event Forecast 2 cycles ahead, closure | In 2 cycles: {planet} will close.
 LBL_BEST_PARTNER | 110 | Planet panel, Price Whisper, best route partner | Best partner: {planet} ({margin} cr per unit).
 NOT_ROUTE_BELOW_UPKEEP | 110 | Notice, base game, new route margin is below its upkeep | This route earns {margin} cr a cycle and costs {cost}. It will run at a loss.
 LBL_PRICE_HISTORY | 110 | Planet panel, base game, under the prices; {prices} is a list of sell prices | Recent sell prices: {prices}.
 LBL_PRICE_HISTORY_NONE | 110 | Planet panel, base game, before the first cycle closes | Recent sell prices: none yet.
 LBL_NEXT_PRICE | 110 | Planet panel, Price Whisper, prices for the next cycle; {buy} and {sell} are credits | Next cycle: {buy} cr to buy, {sell} cr to sell.
+LBL_NEXT_PRICE_2 | 110 | Planet panel, LUX_5B, prices two cycles ahead; {buy} and {sell} are credits | In 2 cycles: {buy} cr to buy, {sell} cr to sell.
 
 ## Last fallbacks (2026-10-31, Alpha)
 LBL_UNKNOWN | 24 | Galaxy view, label for a system not yet permitted | ?
@@ -991,3 +995,111 @@ TXT_CEO_WOMAN_02_PERK_DESC | 90 | CEO perk line, Tamsin Hale | Contract orders a
 
 ## Company screen (2026-11-05)
 SETUP_NEXT | 24 | Company screen, button that moves on to the ship screen | Next
+
+## Pathfinder, trading posts and mining platforms (T181, 2026-11-05; PENDING until T179 is built)
+Design: design/proposals/2026-11-05-ship-flight-discovery.md, recommended defaults (owner questions open): Pathfinder is separate from the fleet, only Voltara is known at the start, the first post is free, leaving a build cancels it. Interface texts stay English (ru/GLOSSARY.md); only the tutorial lines have a Russian version (story/ru/discovery.json). No text here names a planet or a good: closed worlds stay unnamed until the Pathfinder arrives.
+
+LBL_UNKNOWN_WORLD | 24 | Map and planet panel, name of a closed living world | Unknown world
+LBL_UNKNOWN_DARK_WORLD | 24 | Map and planet panel, name of a closed dead world | Unknown dark world
+LBL_UNKNOWN_WORLD_LINE | 110 | Planet panel of a closed living world, one flavour line, no goods list | Something lives here. Fly closer to learn what it trades.
+LBL_UNKNOWN_DARK_LINE | 110 | Planet panel of a closed dead world, one flavour line, no goods list | A dark world. Fly closer to see what is left.
+BTN_FLY_HERE | 24 | Planet panel, button that sends the Pathfinder to this world | Fly here
+LBL_FLIGHT_TIME | 60 | Planet panel of a closed world, flight time from the Pathfinder; {cycles} is a number | Flight time: {cycles} cycles
+LBL_PATHFINDER_NAME | 24 | Ship panel and map tooltip, name of the scout | Pathfinder
+LBL_PATHFINDER_DESC | 110 | Ship panel, scout line | A scout. It carries no cargo and costs no upkeep. It flies to new worlds and builds posts.
+LBL_PATHFINDER_FLYING | 60 | Top bar or ship panel, while flying to a known planet; {planet} is a name | Pathfinder flying to {planet}
+LBL_PATHFINDER_FLYING_UNKNOWN | 60 | Same, while flying to a closed world | Pathfinder flying to an unknown world
+LBL_PATHFINDER_IDLE | 60 | Ship panel, not flying and not building | Pathfinder waiting
+BTN_ESTABLISH_POST | 24 | Planet panel of a living world the Pathfinder has reached | Establish trading post
+BTN_ESTABLISH_PLATFORM | 28 | Planet panel of a dead world the Pathfinder has reached, only after Prospecting-level mining is learned (long button: exception to the 24 limit) | Establish mining platform
+LBL_POST_COST | 60 | Under the establish button, a post that costs credits; {cash} and {cycles} are numbers | Cost: {cash} cr. Build time: {cycles} cycles.
+LBL_POST_COST_FREE | 60 | Under the establish button, the first post | First post is free. Build time: {cycles} cycles.
+LBL_POST_UNLOCKS | 110 | Under the cost line, living world | A post lets you buy, sell, route and store here.
+LBL_PLATFORM_UNLOCKS | 110 | Under the cost line, dead world | A platform lets you mine here and send what you mine on routes.
+LBL_POST_PROGRESS | 60 | Planet panel and top bar while the post is being built; {cycles} is a number | Building trading post: {cycles} cycles left
+LBL_PLATFORM_PROGRESS | 60 | Planet panel and top bar while the platform is being built | Building mining platform: {cycles} cycles left
+LBL_POST_BUILT | 24 | Planet panel, replaces the establish button once done | Trading post
+LBL_PLATFORM_BUILT | 24 | Planet panel, replaces the establish button once done | Mining platform
+NOT_FLY_FIRST | 110 | Notice, player presses establish while the Pathfinder is elsewhere | Fly the Pathfinder here first.
+NOT_POST_NO_CASH | 110 | Notice, not enough credits to establish a post | Not enough credits to establish a trading post here.
+NOT_PLATFORM_NO_CASH | 110 | Notice, not enough credits to establish a platform | Not enough credits to establish a mining platform here.
+NOT_POST_BUSY | 110 | Notice, the Pathfinder is already building | The Pathfinder is already building. One build at a time.
+NOT_POST_LEAVE | 110 | Notice, player orders the Pathfinder away during a build | Leaving cancels the build.
+NOT_PATHFINDER_ARRIVED | 110 | Notice, arrival at a world; {planet} is the now-known name | The Pathfinder arrived at {planet}.
+NOT_POST_DONE | 110 | Notice, post finished; {planet} is a name | Trading post established at {planet}. You can now buy, sell, route and store there.
+NOT_PLATFORM_DONE | 110 | Notice, platform finished | Mining platform established at {planet}. You can now mine there and route what you mine.
+NOT_FIELD_SURVEYED | 110 | Notice, the Pathfinder reached an asteroid field | Asteroid field surveyed.
+NOT_FLIGHT_EVENT | 110 | Notice before a flight event, optional | The Pathfinder reports something on the lane.
+
+## Tutorial: first flight (T181; replaces the old guided step 1 when discovery is on; Russian in story/ru/discovery.json)
+TUT_G0_FLY | 60 | Guided step 0, until the Pathfinder has reached the nearby world | Select the dim world and press Fly here.
+TUT_G0_FLY_WHY | 110 | Guided step, why it matters (second line of the card) | Only your home world is known. Other worlds open when you fly there and build a post.
+TUT_G0_BUILD | 60 | Guided step 0, after arrival, until the post is built | Press Establish trading post.
+TUT_G0_BUILD_WHY | 110 | Guided step, why it matters (second line of the card) | A post lets you buy, sell and route there. Your first one is free.
+TUT_G0_WAIT | 60 | Guided step 0, while the post is building | Press the lit time button, top right, to build.
+TUT_G0_WAIT_WHY | 110 | Guided step, why it matters (second line of the card) | Flights and builds run on cycles. Time stands still while the game is paused.
+
+## STORAGE LINK (T171, 2026-11-05; from design/proposals/2026-11-05-storage-link.md)
+Unlocks with the storage_link feature (Space Storage learned, system 2 open, rivets visible). No text names a good literally except energy (visible from the start); cost goods come through {goods}, a list of visible goods only. Interface texts stay English (ru/GLOSSARY.md); story/ru/storage_link.json is empty on purpose. States: Active, Dormant, Collapsed. Placeholders: {a} and {b} system names, {good} one good name, {goods} list of goods, {n} {m} numbers, {cycles} number of cycles.
+
+SS_LINK_TITLE | 24 | Space Storage view, heading of the link block | Storage Link
+SS_LINK_BTN_BUILD | 24 | Space Storage view, opens the build dialog | Build link...
+SS_LINK_BTN_ADD_ORDER | 24 | Link block, adds a standing order | Add order
+SS_LINK_BTN_REMOVE_ORDER | 24 | Link block, [x] on an order row (tooltip) | Remove order
+SS_LINK_BTN_CONFIRM | 24 | Build dialog, confirm | Build link
+SS_LINK_BTN_CANCEL | 24 | Build dialog and order dialog, cancel | Cancel
+SS_LINK_BTN_SAVE_ORDER | 24 | Order dialog, confirm | Save order
+SS_LINK_DLG_TITLE | 40 | Build dialog, title | Build a Storage Link
+SS_LINK_DLG_PARTNER | 48 | Build dialog, partner line; {a} and {b} are the two systems | Join {a} to {b}
+SS_LINK_DLG_HINT | 110 | Build dialog, under the title | The link is paid in goods from both storages, in any mix you pick. No credits are charged.
+SS_LINK_DLG_COST | 60 | Build dialog, one cost line; {goods} is one good, {n} needed, {m} held by both storages | {goods}: need {n}, have {m}
+SS_LINK_DLG_FROM | 40 | Build dialog, amount taken from one storage; {a} is the system | Take from {a}
+SS_LINK_DLG_SHORT | 110 | Build dialog, shown when the stock is too small; {goods} lists what is missing | The two storages together lack {goods}.
+SS_LINK_LBL_LINE | 60 | Link block, one link; {a} and {b} are the systems | {a} <-> {b}
+SS_LINK_STATE_ACTIVE | 24 | Link block, state | Active
+SS_LINK_STATE_DORMANT | 24 | Link block, state | Dormant
+SS_LINK_STATE_COLLAPSED | 24 | Link block, state | Collapsed
+SS_LINK_LBL_UPKEEP | 60 | Link block, upkeep; {n} is energy per cycle | Upkeep {n} energy per cycle
+SS_LINK_LBL_RATE | 48 | Link block, transfer rate; {n} used, {m} the limit | Rate used {n} / {m}
+SS_LINK_LBL_ORDERS | 48 | Link block, order count; {n} used, {m} the limit | Orders {n} / {m}
+SS_LINK_LBL_ORDER_ROW | 80 | Link block, one standing order; {good}, {a} source, {b} target, {n} per cycle | {good}  {a} -> {b}  {n} per cycle
+SS_LINK_LBL_DORMANT_NEEDS | 60 | Link block, red line on a dormant link; {n} is energy | Dormant: needs {n} energy
+SS_LINK_LBL_COLLAPSE_IN | 60 | Link block, under the dormant line; {cycles} is a number | Collapses in {cycles} cycles
+SS_LINK_LBL_COLLAPSED | 110 | Link block, a collapsed link | Collapsed. Orders are lost. Build the link again to use it.
+SS_LINK_LBL_NO_LINK | 110 | Link block, when no link exists yet | No link yet. A link moves goods between two Space Storages without a ship.
+SS_LINK_LBL_GOOD | 24 | Order dialog, label | Good
+SS_LINK_LBL_FROM | 24 | Order dialog, label of the source | From
+SS_LINK_LBL_AMOUNT | 24 | Order dialog, label of the amount per cycle | Per cycle
+SS_LINK_LBL_ORDER_NOTE | 110 | Order dialog, one line | Orders run in the order listed. Each cycle moves what the rate, the stock and the free room allow.
+SS_LINK_NOT_BUILT | 110 | Notice, link built; {a} and {b} are the systems | Storage Link built between {a} and {b}.
+SS_LINK_NOT_MOVED | 110 | Notice, one cycle of transfers; {n} is units, {a} source, {b} target | Storage Link moved {n} units from {a} to {b}.
+SS_LINK_NOT_DORMANT | 110 | Notice, first dormant cycle; {a} {b} systems, {n} energy needed, {cycles} cycles to collapse | Link {a} <-> {b} is dormant. It needs {n} energy. It collapses in {cycles} cycles.
+SS_LINK_NOT_COLLAPSE_WARN | 110 | Notice, one cycle before collapse | Link {a} <-> {b} collapses next cycle unless the storages hold {n} energy.
+SS_LINK_NOT_WOKE | 110 | Notice, a dormant link wakes | Link {a} <-> {b} is active again.
+SS_LINK_NOT_COLLAPSED | 110 | Notice, the link collapsed | Link {a} <-> {b} collapsed. Its orders are lost. Build it again to restore it.
+SS_LINK_NOT_NO_GOODS | 110 | Notice, cannot afford to build; {goods} lists what is missing | Cannot build the link. The storages lack {goods}.
+SS_LINK_NOT_REFUSED_PAIR | 110 | Notice, refused, a link already joins these two | These two systems already have a link.
+SS_LINK_NOT_REFUSED_MAX | 110 | Notice, refused, a storage holds the most links it can | This Space Storage has as many links as it can hold.
+SS_LINK_NOT_REFUSED_ORDERS | 110 | Notice, refused, the order list is full | This link has all the orders it can hold. Remove one first.
+SS_LINK_NOT_REFUSED_NO_STORAGE | 110 | Notice, refused, one end has no Space Storage yet | Both systems need a Space Storage with goods in it before they can be linked.
+SS_LINK_TIP_MAP | 110 | Map tooltip on the link line; {a} and {b} are the systems | Storage Link: {a} and {b}. It moves goods between the two Space Storages each cycle.
+SS_LINK_TIP_MAP_DORMANT | 110 | Map tooltip on a dim link line; {a} {b} systems, {n} energy | Dormant link: {a} and {b}. No goods move until the storages hold {n} energy.
+SS_LINK_TIP_UPKEEP | 110 | Tooltip on the upkeep line | Taken each cycle from the storage with more energy. Without it the link goes dormant.
+SS_LINK_FLAVOUR_BUILD | 110 | Build dialog footer, one flavour line | The Bureau files it as a shared corridor. The goods go in at one door and wait at the other.
+SS_LINK_FLAVOUR_EMPTY | 110 | Link block, under the no-link line, flavour | Between the systems the dark is long. The Plan has found a way to cross it without anyone going.
+
+## STORAGE LINK (CODE IDS) (T171; only the ids the code needs, shown only once the storage_link rule is true; English only; story-designer owns the final texts)
+LNK_NEED_STORAGE | 80 | Build refusal reason, a storage end is missing or not reachable | Both systems need a Space Storage.
+LNK_ALREADY | 80 | Build refusal reason, the pair is already linked | These two storages are already linked.
+LNK_MAX_AT_STORAGE | 80 | Build refusal reason, a storage has its maximum of links | A storage can hold only so many links.
+LNK_NEED_GOODS | 80 | Build refusal reason, the two storages together lack rivets or energy | Not enough rivets or energy in the two storages.
+LNK_NOT_DORMANT | 110 | Notice, first cycle a link lacks its upkeep; {n} energy needed, {cycles} cycles left | The storage link is dormant: it needs {n} energy. It collapses in {cycles} cycles.
+LNK_NOT_LAST | 110 | Notice, one cycle before collapse; {n} energy needed | The storage link collapses next cycle unless it gets {n} energy.
+LNK_NOT_COLLAPSED | 110 | Notice, the link collapsed | The storage link collapsed. Build it again to restore it.
+
+## STORAGE LINK UI (T171, ui-programmer; interface labels only, English only; shown only once the storage_link rule is true)
+SS_LINK_UI_BTN_REMOVE_LINK | 24 | Link block, scraps the link | Remove link
+SS_LINK_UI_BTN_EDIT_ORDER | 60 | Link block, tooltip on an order row; click edits it | Click to change the amount
+SS_LINK_UI_LBL_PARTNER | 24 | Build dialog, label of the partner picker | Partner storage
+SS_LINK_UI_LBL_NO_PARTNER | 110 | Build dialog, no other Space Storage can be picked yet | No other Space Storage to link to yet.
+SS_LINK_UI_LBL_TAKEN | 60 | Build dialog, under the cost lines; {n} {goods} what each storage gives | {goods}: {n}

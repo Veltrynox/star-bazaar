@@ -818,6 +818,24 @@
    "place": "Notice, Event Forecast, closure due next cycle"
   },
   {
+   "id": "EVT_NEXT_DUE_2",
+   "text": "An event is due in 2 cycles.",
+   "max": 110,
+   "place": "Notice, Event Forecast 2 cycles ahead (LUX_5B), plain"
+  },
+  {
+   "id": "EVT_NEXT_DUE_PRICE_2",
+   "text": "In 2 cycles: {commodity} will {direction} at {planet}.",
+   "max": 110,
+   "place": "Notice, Event Forecast 2 cycles ahead, price event; direction is \"rise\" or \"fall\""
+  },
+  {
+   "id": "EVT_NEXT_DUE_CLOSED_2",
+   "text": "In 2 cycles: {planet} will close.",
+   "max": 110,
+   "place": "Notice, Event Forecast 2 cycles ahead, closure"
+  },
+  {
    "id": "LBL_BEST_PARTNER",
    "text": "Best partner: {planet} ({margin} cr per unit).",
    "max": 110,
@@ -846,6 +864,12 @@
    "text": "Next cycle: {buy} cr to buy, {sell} cr to sell.",
    "max": 110,
    "place": "Planet panel, Price Whisper, prices for the next cycle; {buy} and {sell} are credits"
+  },
+  {
+   "id": "LBL_NEXT_PRICE_2",
+   "text": "In 2 cycles: {buy} cr to buy, {sell} cr to sell.",
+   "max": 110,
+   "place": "Planet panel, LUX_5B, prices two cycles ahead; {buy} and {sell} are credits"
   },
   {
    "id": "LBL_UNKNOWN",
@@ -4700,6 +4724,570 @@
    "place": "Company screen, button that moves on to the ship screen"
   },
   {
+   "id": "LBL_UNKNOWN_WORLD",
+   "text": "Unknown world",
+   "max": 24,
+   "place": "Map and planet panel, name of a closed living world"
+  },
+  {
+   "id": "LBL_UNKNOWN_DARK_WORLD",
+   "text": "Unknown dark world",
+   "max": 24,
+   "place": "Map and planet panel, name of a closed dead world"
+  },
+  {
+   "id": "LBL_UNKNOWN_WORLD_LINE",
+   "text": "Something lives here. Fly closer to learn what it trades.",
+   "max": 110,
+   "place": "Planet panel of a closed living world, one flavour line, no goods list"
+  },
+  {
+   "id": "LBL_UNKNOWN_DARK_LINE",
+   "text": "A dark world. Fly closer to see what is left.",
+   "max": 110,
+   "place": "Planet panel of a closed dead world, one flavour line, no goods list"
+  },
+  {
+   "id": "BTN_FLY_HERE",
+   "text": "Fly here",
+   "max": 24,
+   "place": "Planet panel, button that sends the Pathfinder to this world"
+  },
+  {
+   "id": "LBL_FLIGHT_TIME",
+   "text": "Flight time: {cycles} cycles",
+   "max": 60,
+   "place": "Planet panel of a closed world, flight time from the Pathfinder; {cycles} is a number"
+  },
+  {
+   "id": "LBL_PATHFINDER_NAME",
+   "text": "Pathfinder",
+   "max": 24,
+   "place": "Ship panel and map tooltip, name of the scout"
+  },
+  {
+   "id": "LBL_PATHFINDER_DESC",
+   "text": "A scout. It carries no cargo and costs no upkeep. It flies to new worlds and builds posts.",
+   "max": 110,
+   "place": "Ship panel, scout line"
+  },
+  {
+   "id": "LBL_PATHFINDER_FLYING",
+   "text": "Pathfinder flying to {planet}",
+   "max": 60,
+   "place": "Top bar or ship panel, while flying to a known planet; {planet} is a name"
+  },
+  {
+   "id": "LBL_PATHFINDER_FLYING_UNKNOWN",
+   "text": "Pathfinder flying to an unknown world",
+   "max": 60,
+   "place": "Same, while flying to a closed world"
+  },
+  {
+   "id": "LBL_PATHFINDER_IDLE",
+   "text": "Pathfinder waiting",
+   "max": 60,
+   "place": "Ship panel, not flying and not building"
+  },
+  {
+   "id": "BTN_ESTABLISH_POST",
+   "text": "Establish trading post",
+   "max": 24,
+   "place": "Planet panel of a living world the Pathfinder has reached"
+  },
+  {
+   "id": "BTN_ESTABLISH_PLATFORM",
+   "text": "Establish mining platform",
+   "max": 28,
+   "place": "Planet panel of a dead world the Pathfinder has reached, only after Prospecting-level mining is learned (long button: exception to the 24 limit)"
+  },
+  {
+   "id": "LBL_POST_COST",
+   "text": "Cost: {cash} cr. Build time: {cycles} cycles.",
+   "max": 60,
+   "place": "Under the establish button, a post that costs credits; {cash} and {cycles} are numbers"
+  },
+  {
+   "id": "LBL_POST_COST_FREE",
+   "text": "First post is free. Build time: {cycles} cycles.",
+   "max": 60,
+   "place": "Under the establish button, the first post"
+  },
+  {
+   "id": "LBL_POST_UNLOCKS",
+   "text": "A post lets you buy, sell, route and store here.",
+   "max": 110,
+   "place": "Under the cost line, living world"
+  },
+  {
+   "id": "LBL_PLATFORM_UNLOCKS",
+   "text": "A platform lets you mine here and send what you mine on routes.",
+   "max": 110,
+   "place": "Under the cost line, dead world"
+  },
+  {
+   "id": "LBL_POST_PROGRESS",
+   "text": "Building trading post: {cycles} cycles left",
+   "max": 60,
+   "place": "Planet panel and top bar while the post is being built; {cycles} is a number"
+  },
+  {
+   "id": "LBL_PLATFORM_PROGRESS",
+   "text": "Building mining platform: {cycles} cycles left",
+   "max": 60,
+   "place": "Planet panel and top bar while the platform is being built"
+  },
+  {
+   "id": "LBL_POST_BUILT",
+   "text": "Trading post",
+   "max": 24,
+   "place": "Planet panel, replaces the establish button once done"
+  },
+  {
+   "id": "LBL_PLATFORM_BUILT",
+   "text": "Mining platform",
+   "max": 24,
+   "place": "Planet panel, replaces the establish button once done"
+  },
+  {
+   "id": "NOT_FLY_FIRST",
+   "text": "Fly the Pathfinder here first.",
+   "max": 110,
+   "place": "Notice, player presses establish while the Pathfinder is elsewhere"
+  },
+  {
+   "id": "NOT_POST_NO_CASH",
+   "text": "Not enough credits to establish a trading post here.",
+   "max": 110,
+   "place": "Notice, not enough credits to establish a post"
+  },
+  {
+   "id": "NOT_PLATFORM_NO_CASH",
+   "text": "Not enough credits to establish a mining platform here.",
+   "max": 110,
+   "place": "Notice, not enough credits to establish a platform"
+  },
+  {
+   "id": "NOT_POST_BUSY",
+   "text": "The Pathfinder is already building. One build at a time.",
+   "max": 110,
+   "place": "Notice, the Pathfinder is already building"
+  },
+  {
+   "id": "NOT_POST_LEAVE",
+   "text": "Leaving cancels the build.",
+   "max": 110,
+   "place": "Notice, player orders the Pathfinder away during a build"
+  },
+  {
+   "id": "NOT_PATHFINDER_ARRIVED",
+   "text": "The Pathfinder arrived at {planet}.",
+   "max": 110,
+   "place": "Notice, arrival at a world; {planet} is the now-known name"
+  },
+  {
+   "id": "NOT_POST_DONE",
+   "text": "Trading post established at {planet}. You can now buy, sell, route and store there.",
+   "max": 110,
+   "place": "Notice, post finished; {planet} is a name"
+  },
+  {
+   "id": "NOT_PLATFORM_DONE",
+   "text": "Mining platform established at {planet}. You can now mine there and route what you mine.",
+   "max": 110,
+   "place": "Notice, platform finished"
+  },
+  {
+   "id": "NOT_FIELD_SURVEYED",
+   "text": "Asteroid field surveyed.",
+   "max": 110,
+   "place": "Notice, the Pathfinder reached an asteroid field"
+  },
+  {
+   "id": "NOT_FLIGHT_EVENT",
+   "text": "The Pathfinder reports something on the lane.",
+   "max": 110,
+   "place": "Notice before a flight event, optional"
+  },
+  {
+   "id": "TUT_G0_FLY",
+   "text": "Select the dim world and press Fly here.",
+   "max": 60,
+   "place": "Guided step 0, until the Pathfinder has reached the nearby world"
+  },
+  {
+   "id": "TUT_G0_FLY_WHY",
+   "text": "Only your home world is known. Other worlds open when you fly there and build a post.",
+   "max": 110,
+   "place": "Guided step, why it matters (second line of the card)"
+  },
+  {
+   "id": "TUT_G0_BUILD",
+   "text": "Press Establish trading post.",
+   "max": 60,
+   "place": "Guided step 0, after arrival, until the post is built"
+  },
+  {
+   "id": "TUT_G0_BUILD_WHY",
+   "text": "A post lets you buy, sell and route there. Your first one is free.",
+   "max": 110,
+   "place": "Guided step, why it matters (second line of the card)"
+  },
+  {
+   "id": "TUT_G0_WAIT",
+   "text": "Press the lit time button, top right, to build.",
+   "max": 60,
+   "place": "Guided step 0, while the post is building"
+  },
+  {
+   "id": "TUT_G0_WAIT_WHY",
+   "text": "Flights and builds run on cycles. Time stands still while the game is paused.",
+   "max": 110,
+   "place": "Guided step, why it matters (second line of the card)"
+  },
+  {
+   "id": "SS_LINK_TITLE",
+   "text": "Storage Link",
+   "max": 24,
+   "place": "Space Storage view, heading of the link block"
+  },
+  {
+   "id": "SS_LINK_BTN_BUILD",
+   "text": "Build link...",
+   "max": 24,
+   "place": "Space Storage view, opens the build dialog"
+  },
+  {
+   "id": "SS_LINK_BTN_ADD_ORDER",
+   "text": "Add order",
+   "max": 24,
+   "place": "Link block, adds a standing order"
+  },
+  {
+   "id": "SS_LINK_BTN_REMOVE_ORDER",
+   "text": "Remove order",
+   "max": 24,
+   "place": "Link block, [x] on an order row (tooltip)"
+  },
+  {
+   "id": "SS_LINK_BTN_CONFIRM",
+   "text": "Build link",
+   "max": 24,
+   "place": "Build dialog, confirm"
+  },
+  {
+   "id": "SS_LINK_BTN_CANCEL",
+   "text": "Cancel",
+   "max": 24,
+   "place": "Build dialog and order dialog, cancel"
+  },
+  {
+   "id": "SS_LINK_BTN_SAVE_ORDER",
+   "text": "Save order",
+   "max": 24,
+   "place": "Order dialog, confirm"
+  },
+  {
+   "id": "SS_LINK_DLG_TITLE",
+   "text": "Build a Storage Link",
+   "max": 40,
+   "place": "Build dialog, title"
+  },
+  {
+   "id": "SS_LINK_DLG_PARTNER",
+   "text": "Join {a} to {b}",
+   "max": 48,
+   "place": "Build dialog, partner line; {a} and {b} are the two systems"
+  },
+  {
+   "id": "SS_LINK_DLG_HINT",
+   "text": "The link is paid in goods from both storages, in any mix you pick. No credits are charged.",
+   "max": 110,
+   "place": "Build dialog, under the title"
+  },
+  {
+   "id": "SS_LINK_DLG_COST",
+   "text": "{goods}: need {n}, have {m}",
+   "max": 60,
+   "place": "Build dialog, one cost line; {goods} is one good, {n} needed, {m} held by both storages"
+  },
+  {
+   "id": "SS_LINK_DLG_FROM",
+   "text": "Take from {a}",
+   "max": 40,
+   "place": "Build dialog, amount taken from one storage; {a} is the system"
+  },
+  {
+   "id": "SS_LINK_DLG_SHORT",
+   "text": "The two storages together lack {goods}.",
+   "max": 110,
+   "place": "Build dialog, shown when the stock is too small; {goods} lists what is missing"
+  },
+  {
+   "id": "SS_LINK_LBL_LINE",
+   "text": "{a} <-> {b}",
+   "max": 60,
+   "place": "Link block, one link; {a} and {b} are the systems"
+  },
+  {
+   "id": "SS_LINK_STATE_ACTIVE",
+   "text": "Active",
+   "max": 24,
+   "place": "Link block, state"
+  },
+  {
+   "id": "SS_LINK_STATE_DORMANT",
+   "text": "Dormant",
+   "max": 24,
+   "place": "Link block, state"
+  },
+  {
+   "id": "SS_LINK_STATE_COLLAPSED",
+   "text": "Collapsed",
+   "max": 24,
+   "place": "Link block, state"
+  },
+  {
+   "id": "SS_LINK_LBL_UPKEEP",
+   "text": "Upkeep {n} energy per cycle",
+   "max": 60,
+   "place": "Link block, upkeep; {n} is energy per cycle"
+  },
+  {
+   "id": "SS_LINK_LBL_RATE",
+   "text": "Rate used {n} / {m}",
+   "max": 48,
+   "place": "Link block, transfer rate; {n} used, {m} the limit"
+  },
+  {
+   "id": "SS_LINK_LBL_ORDERS",
+   "text": "Orders {n} / {m}",
+   "max": 48,
+   "place": "Link block, order count; {n} used, {m} the limit"
+  },
+  {
+   "id": "SS_LINK_LBL_ORDER_ROW",
+   "text": "{good}  {a} -> {b}  {n} per cycle",
+   "max": 80,
+   "place": "Link block, one standing order; {good}, {a} source, {b} target, {n} per cycle"
+  },
+  {
+   "id": "SS_LINK_LBL_DORMANT_NEEDS",
+   "text": "Dormant: needs {n} energy",
+   "max": 60,
+   "place": "Link block, red line on a dormant link; {n} is energy"
+  },
+  {
+   "id": "SS_LINK_LBL_COLLAPSE_IN",
+   "text": "Collapses in {cycles} cycles",
+   "max": 60,
+   "place": "Link block, under the dormant line; {cycles} is a number"
+  },
+  {
+   "id": "SS_LINK_LBL_COLLAPSED",
+   "text": "Collapsed. Orders are lost. Build the link again to use it.",
+   "max": 110,
+   "place": "Link block, a collapsed link"
+  },
+  {
+   "id": "SS_LINK_LBL_NO_LINK",
+   "text": "No link yet. A link moves goods between two Space Storages without a ship.",
+   "max": 110,
+   "place": "Link block, when no link exists yet"
+  },
+  {
+   "id": "SS_LINK_LBL_GOOD",
+   "text": "Good",
+   "max": 24,
+   "place": "Order dialog, label"
+  },
+  {
+   "id": "SS_LINK_LBL_FROM",
+   "text": "From",
+   "max": 24,
+   "place": "Order dialog, label of the source"
+  },
+  {
+   "id": "SS_LINK_LBL_AMOUNT",
+   "text": "Per cycle",
+   "max": 24,
+   "place": "Order dialog, label of the amount per cycle"
+  },
+  {
+   "id": "SS_LINK_LBL_ORDER_NOTE",
+   "text": "Orders run in the order listed. Each cycle moves what the rate, the stock and the free room allow.",
+   "max": 110,
+   "place": "Order dialog, one line"
+  },
+  {
+   "id": "SS_LINK_NOT_BUILT",
+   "text": "Storage Link built between {a} and {b}.",
+   "max": 110,
+   "place": "Notice, link built; {a} and {b} are the systems"
+  },
+  {
+   "id": "SS_LINK_NOT_MOVED",
+   "text": "Storage Link moved {n} units from {a} to {b}.",
+   "max": 110,
+   "place": "Notice, one cycle of transfers; {n} is units, {a} source, {b} target"
+  },
+  {
+   "id": "SS_LINK_NOT_DORMANT",
+   "text": "Link {a} <-> {b} is dormant. It needs {n} energy. It collapses in {cycles} cycles.",
+   "max": 110,
+   "place": "Notice, first dormant cycle; {a} {b} systems, {n} energy needed, {cycles} cycles to collapse"
+  },
+  {
+   "id": "SS_LINK_NOT_COLLAPSE_WARN",
+   "text": "Link {a} <-> {b} collapses next cycle unless the storages hold {n} energy.",
+   "max": 110,
+   "place": "Notice, one cycle before collapse"
+  },
+  {
+   "id": "SS_LINK_NOT_WOKE",
+   "text": "Link {a} <-> {b} is active again.",
+   "max": 110,
+   "place": "Notice, a dormant link wakes"
+  },
+  {
+   "id": "SS_LINK_NOT_COLLAPSED",
+   "text": "Link {a} <-> {b} collapsed. Its orders are lost. Build it again to restore it.",
+   "max": 110,
+   "place": "Notice, the link collapsed"
+  },
+  {
+   "id": "SS_LINK_NOT_NO_GOODS",
+   "text": "Cannot build the link. The storages lack {goods}.",
+   "max": 110,
+   "place": "Notice, cannot afford to build; {goods} lists what is missing"
+  },
+  {
+   "id": "SS_LINK_NOT_REFUSED_PAIR",
+   "text": "These two systems already have a link.",
+   "max": 110,
+   "place": "Notice, refused, a link already joins these two"
+  },
+  {
+   "id": "SS_LINK_NOT_REFUSED_MAX",
+   "text": "This Space Storage has as many links as it can hold.",
+   "max": 110,
+   "place": "Notice, refused, a storage holds the most links it can"
+  },
+  {
+   "id": "SS_LINK_NOT_REFUSED_ORDERS",
+   "text": "This link has all the orders it can hold. Remove one first.",
+   "max": 110,
+   "place": "Notice, refused, the order list is full"
+  },
+  {
+   "id": "SS_LINK_NOT_REFUSED_NO_STORAGE",
+   "text": "Both systems need a Space Storage with goods in it before they can be linked.",
+   "max": 110,
+   "place": "Notice, refused, one end has no Space Storage yet"
+  },
+  {
+   "id": "SS_LINK_TIP_MAP",
+   "text": "Storage Link: {a} and {b}. It moves goods between the two Space Storages each cycle.",
+   "max": 110,
+   "place": "Map tooltip on the link line; {a} and {b} are the systems"
+  },
+  {
+   "id": "SS_LINK_TIP_MAP_DORMANT",
+   "text": "Dormant link: {a} and {b}. No goods move until the storages hold {n} energy.",
+   "max": 110,
+   "place": "Map tooltip on a dim link line; {a} {b} systems, {n} energy"
+  },
+  {
+   "id": "SS_LINK_TIP_UPKEEP",
+   "text": "Taken each cycle from the storage with more energy. Without it the link goes dormant.",
+   "max": 110,
+   "place": "Tooltip on the upkeep line"
+  },
+  {
+   "id": "SS_LINK_FLAVOUR_BUILD",
+   "text": "The Bureau files it as a shared corridor. The goods go in at one door and wait at the other.",
+   "max": 110,
+   "place": "Build dialog footer, one flavour line"
+  },
+  {
+   "id": "SS_LINK_FLAVOUR_EMPTY",
+   "text": "Between the systems the dark is long. The Plan has found a way to cross it without anyone going.",
+   "max": 110,
+   "place": "Link block, under the no-link line, flavour"
+  },
+  {
+   "id": "LNK_NEED_STORAGE",
+   "text": "Both systems need a Space Storage.",
+   "max": 80,
+   "place": "Build refusal reason, a storage end is missing or not reachable"
+  },
+  {
+   "id": "LNK_ALREADY",
+   "text": "These two storages are already linked.",
+   "max": 80,
+   "place": "Build refusal reason, the pair is already linked"
+  },
+  {
+   "id": "LNK_MAX_AT_STORAGE",
+   "text": "A storage can hold only so many links.",
+   "max": 80,
+   "place": "Build refusal reason, a storage has its maximum of links"
+  },
+  {
+   "id": "LNK_NEED_GOODS",
+   "text": "Not enough rivets or energy in the two storages.",
+   "max": 80,
+   "place": "Build refusal reason, the two storages together lack rivets or energy"
+  },
+  {
+   "id": "LNK_NOT_DORMANT",
+   "text": "The storage link is dormant: it needs {n} energy. It collapses in {cycles} cycles.",
+   "max": 110,
+   "place": "Notice, first cycle a link lacks its upkeep; {n} energy needed, {cycles} cycles left"
+  },
+  {
+   "id": "LNK_NOT_LAST",
+   "text": "The storage link collapses next cycle unless it gets {n} energy.",
+   "max": 110,
+   "place": "Notice, one cycle before collapse; {n} energy needed"
+  },
+  {
+   "id": "LNK_NOT_COLLAPSED",
+   "text": "The storage link collapsed. Build it again to restore it.",
+   "max": 110,
+   "place": "Notice, the link collapsed"
+  },
+  {
+   "id": "SS_LINK_UI_BTN_REMOVE_LINK",
+   "text": "Remove link",
+   "max": 24,
+   "place": "Link block, scraps the link"
+  },
+  {
+   "id": "SS_LINK_UI_BTN_EDIT_ORDER",
+   "text": "Click to change the amount",
+   "max": 60,
+   "place": "Link block, tooltip on an order row; click edits it"
+  },
+  {
+   "id": "SS_LINK_UI_LBL_PARTNER",
+   "text": "Partner storage",
+   "max": 24,
+   "place": "Build dialog, label of the partner picker"
+  },
+  {
+   "id": "SS_LINK_UI_LBL_NO_PARTNER",
+   "text": "No other Space Storage to link to yet.",
+   "max": 110,
+   "place": "Build dialog, no other Space Storage can be picked yet"
+  },
+  {
+   "id": "SS_LINK_UI_LBL_TAKEN",
+   "text": "{goods}: {n}",
+   "max": 60,
+   "place": "Build dialog, under the cost lines; {n} {goods} what each storage gives"
+  },
+  {
    "id": "SK_HEADER",
    "text": "Skills",
    "max": 24,
@@ -5368,6 +5956,42 @@
   {
    "id": "SK_BIO_7_PLAIN",
    "text": "Cuts all rivals' Biotech strength by 25% for the rest of the run. Capstone.",
+   "max": 110,
+   "place": "Skill screen, detail panel"
+  },
+  {
+   "id": "SK_LUX_5B_NAME",
+   "text": "Long Ledger",
+   "max": 24,
+   "place": "Skill screen, node name"
+  },
+  {
+   "id": "SK_LUX_5B_FLAVOUR",
+   "text": "The Ledger keeps a page for tomorrow's tomorrow. Nobody asks who writes it.",
+   "max": 90,
+   "place": "Skill screen, detail panel"
+  },
+  {
+   "id": "SK_LUX_5B_PLAIN",
+   "text": "Prices and events are shown 2 cycles ahead.",
+   "max": 110,
+   "place": "Skill screen, detail panel"
+  },
+  {
+   "id": "SK_MIN_5B_NAME",
+   "text": "Hard Hats",
+   "max": 24,
+   "place": "Skill screen, node name"
+  },
+  {
+   "id": "SK_MIN_5B_FLAVOUR",
+   "text": "Hard hats do not stop a rock. They stop the crew worrying. The Plan counts both.",
+   "max": 90,
+   "place": "Skill screen, detail panel"
+  },
+  {
+   "id": "SK_MIN_5B_PLAIN",
+   "text": "Minerals routes carry 10% more and ignore debris. Minerals price events hit 30% weaker.",
    "max": 110,
    "place": "Skill screen, detail panel"
   },
@@ -6726,6 +7350,846 @@
    "text": "Rivals: none of the three changes in {market}.",
    "max": 90,
    "place": "pool event rivals line, {market} filled by the game"
+  },
+  {
+   "id": "EV_PST01_TITLE",
+   "text": "A dock that keeps a book",
+   "max": 32,
+   "place": "pending event title"
+  },
+  {
+   "id": "EV_PST01_BODY",
+   "text": "The dock at {planet} keeps a visitors' book, and the clerk wants your name in it before the first crate moves. The book is old, with a ring of cold on its cover. Nobody can say who opened it.",
+   "max": 280,
+   "place": "pending event text"
+  },
+  {
+   "id": "EV_PST01_SIGN_BTN",
+   "text": "Sign the book",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV_PST01_SIGN_EFF",
+   "text": "The next post you build costs less.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV_PST01_SIGN_TITLE",
+   "text": "The book is signed",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV_PST01_SIGN",
+   "text": "The clerk blotted your name and nodded, as if it had always been there. The next post you build costs less. On the page beside yours, someone else's handwriting changed.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV_PST01_LEAVE_BTN",
+   "text": "Leave without signing",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV_PST01_LEAVE_EFF",
+   "text": "Nothing changes.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV_PST01_LEAVE_TITLE",
+   "text": "The book stays shut",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV_PST01_LEAVE",
+   "text": "You left the clerk waiting with the pen raised. Nothing changes. The clerk wrote a short line anyway, in a hand that did not look like the clerk's.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV_PST02_TITLE",
+   "text": "The Port Warden's stamp",
+   "max": 32,
+   "place": "pending event title"
+  },
+  {
+   "id": "EV_PST02_BODY",
+   "text": "Warden Ilsa Dorne of {planet} must inspect the new post before she may stamp its lease. She inspects slowly and with open joy. A gift would hurry her. Waiting would also work, in time.",
+   "max": 280,
+   "place": "pending event text"
+  },
+  {
+   "id": "EV_PST02_GIFT_BTN",
+   "text": "Send a gift",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV_PST02_GIFT_EFF",
+   "text": "Pay a small sum. The next post builds faster.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV_PST02_GIFT_TITLE",
+   "text": "The Warden is hurried",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV_PST02_GIFT",
+   "text": "The gift went up the stairs and the stamp came down them, still wet. You paid a small sum. The next post builds faster. The Warden was not smiling anymore, which you took for gratitude.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV_PST02_WAIT_BTN",
+   "text": "Wait for the stamp",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV_PST02_WAIT_EFF",
+   "text": "Nothing is paid. Prices at {planet} move a little for a while.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV_PST02_WAIT_TITLE",
+   "text": "The stamp takes its time",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV_PST02_WAIT",
+   "text": "You waited. The Warden inspected every rivet and then the shadows between them. Nothing was paid. Prices at {planet} move a little for a while, and the Warden will not say which way.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV_PST03_TITLE",
+   "text": "The beam will not hold",
+   "max": 32,
+   "place": "pending event title"
+  },
+  {
+   "id": "EV_PST03_BODY",
+   "text": "The survey beam at {planet} will not hold a line, and the foreman blames the weather, which is indoors. A part can be bought from a passing hauler. Or you can wait for the next shift to have an idea.",
+   "max": 280,
+   "place": "pending event text"
+  },
+  {
+   "id": "EV_PST03_PART_BTN",
+   "text": "Buy the part",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV_PST03_PART_EFF",
+   "text": "Pay a small sum. The next post builds faster.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV_PST03_PART_TITLE",
+   "text": "The part is fitted",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV_PST03_PART",
+   "text": "The hauler's mate named a price and you paid a small sum. The beam held its line by evening. The next post builds faster, since the crew now knows where the weather comes from.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV_PST03_SHIFT_BTN",
+   "text": "Wait for the next shift",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV_PST03_SHIFT_EFF",
+   "text": "Nothing changes.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV_PST03_SHIFT_TITLE",
+   "text": "The shift has an idea",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV_PST03_SHIFT",
+   "text": "The next shift had an idea, and it was to wait for the one after. Nothing changes. The beam flickered, once, in a direction nobody had aimed it.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV_PST04_TITLE",
+   "text": "A broker with spare fittings",
+   "max": 32,
+   "place": "pending event title"
+  },
+  {
+   "id": "EV_PST04_BODY",
+   "text": "A broker named Odo Pell meets your ship at {planet} with a tray of seals and a lease. A neighbouring post closed, and its fittings are cheap. He talks as if the sale were already done. It might be.",
+   "max": 280,
+   "place": "pending event text"
+  },
+  {
+   "id": "EV_PST04_BUY_BTN",
+   "text": "Buy the fittings",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV_PST04_BUY_EFF",
+   "text": "Pay a small sum. The next post costs less.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV_PST04_BUY_TITLE",
+   "text": "The fittings change hands",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV_PST04_BUY",
+   "text": "Pell counted the seals twice and gave you one extra, as a courtesy. You paid a small sum. The next post costs less. The fittings are warm, as if someone had only just let go of them.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV_PST04_PASS_BTN",
+   "text": "Pass on the offer",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV_PST04_PASS_EFF",
+   "text": "Nothing changes.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV_PST04_PASS_TITLE",
+   "text": "Pell packs his tray",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV_PST04_PASS",
+   "text": "Pell shrugged and packed his tray. Nothing changes. He said the fittings would find a buyer, and looked at the sky as if the buyer were already on the way.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV_PST05_TITLE",
+   "text": "A desk already stands here",
+   "max": 32,
+   "place": "pending event title"
+  },
+  {
+   "id": "EV_PST05_BODY",
+   "text": "A desk with the seal of {bot3} already stands on the dock at {planet}. It has a kettle, a stool and a long record of waiting. The agent offers you the next stool. He does not offer to move.",
+   "max": 280,
+   "place": "pending event text"
+  },
+  {
+   "id": "EV_PST05_SHARE_BTN",
+   "text": "Share the dock",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV_PST05_SHARE_EFF",
+   "text": "Nothing is paid. Prices at {planet} move a little for a while.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV_PST05_SHARE_TITLE",
+   "text": "The dock is shared",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV_PST05_SHARE",
+   "text": "You took the next stool. The agent poured two cups and drank both. Nothing was paid. Prices at {planet} move a little for a while, and the agent keeps the direction to himself.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV_PST05_SEAL_BTN",
+   "text": "Hang your own seal",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV_PST05_SEAL_EFF",
+   "text": "Pay a small sum. Prices at {planet} move clearly for a while.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV_PST05_SEAL_TITLE",
+   "text": "Two seals on one wall",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV_PST05_SEAL",
+   "text": "You paid a small sum and hung your seal beside the other. The agent studied it as if it were a price. Prices at {planet} move clearly for a while. The kettle went cold between the seals.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV_PST06_TITLE",
+   "text": "Residents come to look",
+   "max": 32,
+   "place": "pending event title"
+  },
+  {
+   "id": "EV_PST06_BODY",
+   "text": "Residents of {planet} gather at the new post and stand in rows. A child asks whether it will stay. The clerk says that is a question for the Plan. Nobody leaves until someone says something.",
+   "max": 280,
+   "place": "pending event text"
+  },
+  {
+   "id": "EV_PST06_OPEN_BTN",
+   "text": "Hold an open dock",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV_PST06_OPEN_EFF",
+   "text": "Pay a small sum. The next post builds faster.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV_PST06_OPEN_TITLE",
+   "text": "The dock stays open",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV_PST06_OPEN",
+   "text": "You set out chairs and a schedule, and the rows turned into a queue. You paid a small sum. The next post builds faster, since this crowd now knows the work. The child left with a bolt in her pocket.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV_PST06_WORK_BTN",
+   "text": "Keep to the work",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV_PST06_WORK_EFF",
+   "text": "You gain a small sum from early trade.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV_PST06_WORK_TITLE",
+   "text": "The rows thin out",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV_PST06_WORK",
+   "text": "You kept to the work and the rows thinned by dusk. You gain a small sum from early trade. The child watched until the last crate was stamped, and then stamped nothing, politely.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV_PLT01_TITLE",
+   "text": "Who works the dark",
+   "max": 32,
+   "place": "pending event title"
+  },
+  {
+   "id": "EV_PLT01_BODY",
+   "text": "A crew from the Bureau's labour desk reaches the new platform on {planet}. They came for the pay and stay for the quiet. The foreman asks what to call a shift that never ends. No one has a form for it.",
+   "max": 280,
+   "place": "pending event text"
+  },
+  {
+   "id": "EV_PLT01_NIGHT_BTN",
+   "text": "Hire the night crew",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV_PLT01_NIGHT_EFF",
+   "text": "Pay a small sum. Some mined goods are added to your stock.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV_PLT01_NIGHT_TITLE",
+   "text": "The night crew signs on",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV_PLT01_NIGHT",
+   "text": "The night crew signed on without reading. You paid a small sum, and by morning some mined goods lay in your stock, stacked with great care. The foreman named the shift Always. It stuck.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV_PLT01_DAY_BTN",
+   "text": "Keep the day crew",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV_PLT01_DAY_EFF",
+   "text": "Nothing changes.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV_PLT01_DAY_TITLE",
+   "text": "The day crew stays",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV_PLT01_DAY",
+   "text": "You kept the day crew. Nothing changes. At change of shift the foreman counted the lamps going out and the lamps coming on, and got two different answers.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV_PLT02_TITLE",
+   "text": "The roof sings",
+   "max": 32,
+   "place": "pending event title"
+  },
+  {
+   "id": "EV_PLT02_BODY",
+   "text": "A gallery at {planet} sings before it fails, a low note, held. The crew is out and the rock is still. Props cost credits. Sealing the gallery costs time. The note has not stopped.",
+   "max": 280,
+   "place": "pending event text"
+  },
+  {
+   "id": "EV_PLT02_PROP_BTN",
+   "text": "Pay for props",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV_PLT02_PROP_EFF",
+   "text": "Pay a small sum. Routes from {planet} keep running.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV_PLT02_PROP_TITLE",
+   "text": "The props go in",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV_PLT02_PROP",
+   "text": "The props went in under the sound and the sound let them. You paid a small sum. Routes from {planet} keep running. The note dropped a step, the way a voice does when it has been understood.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV_PLT02_SEAL_BTN",
+   "text": "Seal the gallery",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV_PLT02_SEAL_EFF",
+   "text": "Nothing is paid. Routes touching {planet} are blocked for a while.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV_PLT02_SEAL_TITLE",
+   "text": "The gallery is sealed",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV_PLT02_SEAL",
+   "text": "The crew sealed the gallery with slabs and tape. Nothing was paid. Routes touching {planet} are blocked for a while. Behind the slabs the note went on, patient, like a tenant.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV_PLT03_TITLE",
+   "text": "A seam no one logged",
+   "max": 32,
+   "place": "pending event title"
+  },
+  {
+   "id": "EV_PLT03_BODY",
+   "text": "The drill at {planet} broke into a seam the old surveys never entered, as if they had looked away. It is bright, cold and heavier than it should be. The Bureau has not been told yet.",
+   "max": 280,
+   "place": "pending event text"
+  },
+  {
+   "id": "EV_PLT03_LOG_BTN",
+   "text": "Log the find",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV_PLT03_LOG_EFF",
+   "text": "You gain a small sum as a finder's share.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV_PLT03_LOG_TITLE",
+   "text": "The find is logged",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV_PLT03_LOG",
+   "text": "The Bureau stamped the find within the hour, which no one had ever seen. You gain a small sum as a finder's share. The seam now has a number, and the number, quietly, has a seam.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV_PLT03_HIDE_BTN",
+   "text": "Keep it off the books",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV_PLT03_HIDE_EFF",
+   "text": "Some mined goods are added to your stock.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV_PLT03_HIDE_TITLE",
+   "text": "The find stays quiet",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV_PLT03_HIDE",
+   "text": "The crew filled three carts before the shift bell and told no one. Some mined goods are added to your stock. The seam is still bright in the dark, and still cold on the hand.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV_PLT04_TITLE",
+   "text": "The hum under the floor",
+   "max": 32,
+   "place": "pending event title"
+  },
+  {
+   "id": "EV_PLT04_BODY",
+   "text": "The floor of the platform on {planet} hums while the crew sleeps. Engineers measure a steady note, the same each night. The shift lead asks to switch off the lamps. She does not say why.",
+   "max": 280,
+   "place": "pending event text"
+  },
+  {
+   "id": "EV_PLT04_DARK_BTN",
+   "text": "Switch off the lamps",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV_PLT04_DARK_EFF",
+   "text": "Prices at {planet} move a little for a while.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV_PLT04_DARK_TITLE",
+   "text": "The lamps go out",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV_PLT04_DARK",
+   "text": "The lamps went out and the hum thinned, then stopped, as if it only wanted company. Prices at {planet} move a little for a while, and the shift lead will not say which way. She slept well.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV_PLT04_LIGHT_BTN",
+   "text": "Keep the lamps on",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV_PLT04_LIGHT_EFF",
+   "text": "Nothing changes.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV_PLT04_LIGHT_TITLE",
+   "text": "The lamps stay lit",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV_PLT04_LIGHT",
+   "text": "You kept the lamps on. Nothing changes. The hum went on all night. In the morning the engineers found it a little louder, and wrote down that it was not.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV_FLT01_TITLE",
+   "text": "A wreck on the lane",
+   "max": 32,
+   "place": "pending event title"
+  },
+  {
+   "id": "EV_FLT01_BODY",
+   "text": "A hull drifts across the lane, cold, its name scraped off. The Pathfinder's scanner counts no one aboard, then counts again. A tow would delay the flight. Salvage is salvage, if nobody comes to claim it.",
+   "max": 280,
+   "place": "pending event text"
+  },
+  {
+   "id": "EV_FLT01_TOW_BTN",
+   "text": "Tow it clear",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV_FLT01_TOW_EFF",
+   "text": "The flight is delayed a little. You gain a small sum for the salvage.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV_FLT01_TOW_TITLE",
+   "text": "The wreck is cleared",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV_FLT01_TOW",
+   "text": "The Pathfinder dragged the hull out of the lane and the flight lost a little time. You gain a small sum for the salvage. The scanner counted one aboard as the hull went. It did not count again.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV_FLT01_FLY_BTN",
+   "text": "Fly on",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV_FLT01_FLY_EFF",
+   "text": "Nothing changes.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV_FLT01_FLY_TITLE",
+   "text": "The wreck falls behind",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV_FLT01_FLY",
+   "text": "The Pathfinder flew on. Nothing changes. In the rear glass the hull turned slowly, showing its scraped patch, then its other side.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV_FLT02_TITLE",
+   "text": "A call on an old band",
+   "max": 32,
+   "place": "pending event title"
+  },
+  {
+   "id": "EV_FLT02_BODY",
+   "text": "A distress call comes in on an old band, the voice polite and unhurried. By the time the Pathfinder turns, the call has become a recipe. A relay fee would let you check it from here.",
+   "max": 280,
+   "place": "pending event text"
+  },
+  {
+   "id": "EV_FLT02_RELAY_BTN",
+   "text": "Pay the relay fee",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV_FLT02_RELAY_EFF",
+   "text": "Pay a small sum. The flight is not delayed.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV_FLT02_RELAY_TITLE",
+   "text": "The relay answers",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV_FLT02_RELAY",
+   "text": "You paid a small sum, and the relay checked the band without a turn. The flight is not delayed. The relay reported a pot, a stove and a very long wait. It filed the call as cooked.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV_FLT02_HOLD_BTN",
+   "text": "Hold the course",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV_FLT02_HOLD_EFF",
+   "text": "Nothing changes.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV_FLT02_HOLD_TITLE",
+   "text": "The call fades",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV_FLT02_HOLD",
+   "text": "You held the course. Nothing changes. The voice went on a while with the recipe, then said the last step twice, very slowly, and was gone.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV_FLT03_TITLE",
+   "text": "A toll on the lane",
+   "max": 32,
+   "place": "pending event title"
+  },
+  {
+   "id": "EV_FLT03_BODY",
+   "text": "A patrol cutter hails the Pathfinder. It says the lane is private and has been since the cutter was painted. A toll is asked, politely. The cutter's gun looks at the toll, not at you.",
+   "max": 280,
+   "place": "pending event text"
+  },
+  {
+   "id": "EV_FLT03_PAY_BTN",
+   "text": "Pay the toll",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV_FLT03_PAY_EFF",
+   "text": "Pay a small sum. The flight goes on.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV_FLT03_PAY_TITLE",
+   "text": "The toll is paid",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV_FLT03_PAY",
+   "text": "You paid a small sum and the cutter blinked twice, which is how it says thank you. The flight goes on. The gun turned away last, like someone leaving a room backwards.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV_FLT03_AROUND_BTN",
+   "text": "Take the long way round",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV_FLT03_AROUND_EFF",
+   "text": "The flight is delayed a little.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV_FLT03_AROUND_TITLE",
+   "text": "The long way",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV_FLT03_AROUND",
+   "text": "The Pathfinder swung wide around a lane that was private by decree. The flight is delayed a little. The cutter followed for a while, to see that the sky was not borrowed.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV_FLT04_TITLE",
+   "text": "Dust across the lane",
+   "max": 32,
+   "place": "pending event title"
+  },
+  {
+   "id": "EV_FLT04_BODY",
+   "text": "Fine dust crosses the lane and rattles on the hull like rain on a tin roof. The pilot slows, then asks if she may ask what rain is. Nobody on board is sure. The hull is sure only of the dust.",
+   "max": 280,
+   "place": "pending event text"
+  },
+  {
+   "id": "EV_FLT04_SLOW_BTN",
+   "text": "Slow down",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV_FLT04_SLOW_EFF",
+   "text": "The flight is delayed a little.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV_FLT04_SLOW_TITLE",
+   "text": "The dust passes",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV_FLT04_SLOW",
+   "text": "The Pathfinder slowed and the dust went over like a long shift change. The flight is delayed a little. The hull rang once, low, and then did not ring again.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV_FLT04_PUSH_BTN",
+   "text": "Push through",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV_FLT04_PUSH_EFF",
+   "text": "Pay a small sum for hull repairs at the next port.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV_FLT04_PUSH_TITLE",
+   "text": "The hull takes the dust",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV_FLT04_PUSH",
+   "text": "The Pathfinder pushed through at speed. A small sum goes to hull repairs at the next port. The pilot stood the rest of the shift at the glass, trying to remember what rain was for.",
+   "max": 280,
+   "place": "popup"
   }
  ]
 }

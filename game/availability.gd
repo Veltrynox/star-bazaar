@@ -67,6 +67,29 @@ static func storage(id: String) -> bool:
 static func feature(id: String) -> bool:
 	return is_visible("feature", id)
 
+## T179 discovery: a planet shows goods, prices and routes only once its trading post or mining platform stands
+## (rule kind "planet", one per planet id; always true while discovery_enabled is 0). Hidden means not drawn at all.
+static func planet(id: String) -> bool:
+	return is_visible("planet", id)
+
+## First planet name (of the live map) that is not established yet and appears in the text, else "". For tests and notices.
+static func names_closed_planet(text: String) -> String:
+	if not _live() or Conditions.game.map == null:
+		return ""
+	var low := text.to_lower()
+	for p in Conditions.game.map.planets:
+		var nm := str(p.get("name", "")).to_lower()
+		if nm == "" or nm == "?" or planet(str(p.get("id", ""))):
+			continue
+		var at := low.find(nm)
+		while at >= 0:
+			var before := low[at - 1] if at > 0 else " "
+			var after := low[at + nm.length()] if at + nm.length() < low.length() else " "
+			if not _is_word(before) and not _is_word(after):
+				return str(p.get("name", ""))
+			at = low.find(nm, at + 1)
+	return ""
+
 ## Goods of `ids` that may be shown, order kept.
 static func visible_goods(ids: Array) -> Array:
 	var out: Array = []
@@ -130,6 +153,9 @@ static func lint() -> Array:
 					errs.append("rule for unknown workshop '%s'" % id)
 			"storage", "feature":
 				pass
+			"planet":
+				if not Conditions.planet_ids().has(id):
+					errs.append("rule for unknown planet '%s'" % id)
 			_:
 				errs.append("rule %s has unknown kind '%s'" % [id, kind])
 		Conditions.lint(r.get("visible_when"), "availability %s rule '%s'" % [kind, id], errs, false, bal, evs)
@@ -139,6 +165,9 @@ static func lint() -> Array:
 	for w in Goods.workshops:
 		if not seen.has("workshop|" + str(w["id"])):
 			errs.append("workshop '%s' has no availability rule" % str(w["id"]))
+	for pid in Conditions.planet_ids():
+		if not seen.has("planet|" + str(pid)):
+			errs.append("planet '%s' has no availability rule" % str(pid))
 	for s in ["planet_storage", "space_storage"]:
 		if not seen.has("storage|" + s):
 			errs.append("storage feature '%s' has no availability rule" % s)

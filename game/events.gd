@@ -31,6 +31,17 @@ var pending_planet: int = -1
 ## at the start of cycle >= due and is removed. Saved under "scheduled"; an old save has none.
 var scheduled: Array = []
 var locked: Array = []  # planet indexes of dead worlds not open yet (set by main); no random event picks them
+var established_fn: Callable = Callable()  # T179: planet index -> bool, false while the planet has no post or platform (set by main)
+
+## T179: the planets an event may name or price: those with a post or platform (all of them while discovery is off).
+func known_planets() -> Array:
+	if not established_fn.is_valid():
+		return planets
+	var out: Array = []
+	for i in planets.size():
+		if bool(established_fn.call(i)):
+			out.append(planets[i])
+	return out
 var rng := RandomNumberGenerator.new()
 
 func setup(bal: Dictionary, plist: Array) -> void:
@@ -215,7 +226,7 @@ func due(cycle: int) -> bool:
 ## (a condition tree, game/conditions.gd) is not picked while it is false. No key = no gate. cycle <= 0 (not given) = no gate check.
 func available(id: String, cycle: int) -> bool:
 	var ev: Dictionary = by_id.get(id, {})
-	if not good_available(id) or not Conditions.visible(ev, {"cycle": cycle, "planets": planets}):
+	if not good_available(id) or not Conditions.visible(ev, {"cycle": cycle, "planets": known_planets()}):
 		return false
 	if cycle <= 0:
 		return true
@@ -232,7 +243,7 @@ func good_available(id: String) -> bool:
 	if c == "":
 		return true
 	# never name a good the player cannot see yet (data/availability.json), and some open planet must price it
-	return Conditions.eval({"all": ["good_visible:" + c, "good_traded:" + c]}, {"planets": planets})
+	return Conditions.eval({"all": ["good_visible:" + c, "good_traded:" + c]}, {"planets": known_planets()})
 
 ## True for events that never come from the random pick: part 2 events (the follow_id of any choice) and events
 ## marked "scheduled_only" or "random": false.
@@ -295,10 +306,10 @@ func price_up_at(planet: int, c: String) -> bool:
 ## Factor on both buy and sell price of commodity c at a planet. next_cycle = the factor after one tick
 ## (only effects with cycles left after this one; LUX_1 Price Whisper shows it). Skills: event_bonus_pct makes price-up
 ## events pay more, event_cut_pct makes price-down events weaker, by the market of c.
-func price_factor(planet: int, c: String, next_cycle: bool = false) -> float:
+func price_factor(planet: int, c: String, next_cycle: bool = false, ahead: int = 1) -> float:
 	var f := 1.0
 	for a in active:
-		if next_cycle and int(a["left"]) < 2:
+		if next_cycle and int(a["left"]) < 1 + ahead:  # ahead cycles on (LUX_5B: 2)
 			continue
 		if a["kind"] != "closed" and int(a["planet"]) == planet and str(a["c"]) == c:
 			var m := Markets.market_of(c)

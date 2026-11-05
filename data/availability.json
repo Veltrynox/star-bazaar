@@ -1,7 +1,7 @@
 {
  "schema_version": 1,
  "data_version": 3,
- "source": "2026-11-04 availability-rules (economy-designer). Derived from data/goods.json (unlocked_by, unlock effects), data/skills.json (unlock/mine_unlock), data/planets.json, data/systems.json, data/markets.json, gdd-skills.md section 4, game/goods.gd (good_open, merge_prices), game/main.gd (dead_unlock_cycle, permit). No price or balance value changed.",
+ "source": "2026-11-04 availability-rules (economy-designer). Derived from data/goods.json (unlocked_by, unlock effects), data/skills.json (unlock/mine_unlock), data/planets.json, data/systems.json, data/markets.json, gdd-skills.md section 4, game/goods.gd (good_open, merge_prices), game/main.gd (dead_unlock_cycle, permit). No price or balance value changed. T179 (gameplay-programmer): added atoms planet_visited, post_built, platform_built; kind 'planet' rules; start_state open_planets / closed_planets (valid while discovery_enabled is 1).",
  "atoms": {
   "_doc": "Vocabulary of the one evaluator, game/conditions.gd (header lists it too). Trees: string atom, {all:[]}, {any:[]}, {not:cond}. An entry may carry visible_when with the same trees.",
   "start": "always true",
@@ -16,9 +16,12 @@
   "share_pct:balance.<key>": "chain triggers only: the step market share in percent >= balance value",
   "first_sale_after_cycle:balance.<key>": "chain triggers only: a non-common-raw good of the step market sold in a cycle after the balance value",
   "cycles_after_prev_step:balance.<key>": "chain triggers only: n cycles since the previous step of the same chain fired",
+  "planet_visited:<planet>": "the Pathfinder has arrived at that planet (name and type known); the home world from the start; true for every planet while balance.discovery_enabled is 0",
+  "post_built:<planet>": "a trading post stands at that living planet (home world from the start); true for every planet while discovery_enabled is 0",
+  "platform_built:<planet>": "a mining platform stands at that dead planet; true for every planet while discovery_enabled is 0",
   "all / any / not": "condition tree: {all:[...]}, {any:[...]}, {not: cond}"
  },
- "policy": "A good is visible only if the player could trade or use it right now. Per planet, show only goods that planet prices (base_prices + goods.json planet_prices) AND whose rule is true. Evaluate rules each cycle and after every unlock; show newly true goods immediately.",
+ "policy": "A good is visible only if the player could trade or use it right now. Per planet, show only goods that planet prices (base_prices + goods.json planet_prices) AND whose rule is true. Evaluate rules each cycle and after every unlock; show newly true goods immediately. T179 discovery: a planet shows no goods, prices, routes or storage until its trading post (living) or mining platform (dead) stands; see the 'planet' rules. Space Storage needs no post.",
  "rules": [
   {
    "kind": "good",
@@ -368,6 +371,12 @@
   },
   {
    "kind": "feature",
+   "id": "storage_link",
+   "visible_when": {"all": ["skill_learned:FND_STORAGE", "system_open:2", "good_visible:rivets"]},
+   "note": "T171: Storage Link between two Space Storages (game/storage_link.gd). Build button, link block, order rows and every text about it stay hidden until true; the build dialog lists only visible goods. Costs rivets and energy."
+  },
+  {
+   "kind": "feature",
    "id": "permit_routes",
    "visible_when": "skill_learned:FND_PERMIT",
    "note": "System 2 permit purchase UI; system 2 planets and routes there need system_open:2 (permit bought)."
@@ -432,6 +441,105 @@
     "not": "start"
    },
    "note": "Hidden until danger has a mechanical effect; flip this rule to bring the line back (planet panel dead world 'Danger: n of 5'). The meter itself still runs and is saved. {not: start} is never true."
+  },
+  {
+   "kind": "planet",
+   "id": "planet_1",
+   "visible_when": {
+    "any": [
+     "post_built:planet_1",
+     "platform_built:planet_1"
+    ]
+   },
+   "note": "T179 discovery: closed until the Pathfinder has built a trading post (living world) or mining platform (dead world) here. Voltara has its post at start. Always true with balance.discovery_enabled 0."
+  },
+  {
+   "kind": "planet",
+   "id": "planet_2",
+   "visible_when": {
+    "any": [
+     "post_built:planet_2",
+     "platform_built:planet_2"
+    ]
+   },
+   "note": "T179 discovery: closed until the Pathfinder has built a trading post (living world) or mining platform (dead world) here. Voltara has its post at start. Always true with balance.discovery_enabled 0."
+  },
+  {
+   "kind": "planet",
+   "id": "planet_3",
+   "visible_when": {
+    "any": [
+     "post_built:planet_3",
+     "platform_built:planet_3"
+    ]
+   },
+   "note": "T179 discovery: closed until the Pathfinder has built a trading post (living world) or mining platform (dead world) here. Voltara has its post at start. Always true with balance.discovery_enabled 0."
+  },
+  {
+   "kind": "planet",
+   "id": "dead_1",
+   "visible_when": {
+    "any": [
+     "post_built:dead_1",
+     "platform_built:dead_1"
+    ]
+   },
+   "note": "T179 discovery: closed until the Pathfinder has built a trading post (living world) or mining platform (dead world) here. Voltara has its post at start. Always true with balance.discovery_enabled 0."
+  },
+  {
+   "kind": "planet",
+   "id": "s2_p1",
+   "visible_when": {
+    "any": [
+     "post_built:s2_p1",
+     "platform_built:s2_p1"
+    ]
+   },
+   "note": "T179 discovery: closed until the Pathfinder has built a trading post (living world) or mining platform (dead world) here. Voltara has its post at start. Always true with balance.discovery_enabled 0."
+  },
+  {
+   "kind": "planet",
+   "id": "s2_p2",
+   "visible_when": {
+    "any": [
+     "post_built:s2_p2",
+     "platform_built:s2_p2"
+    ]
+   },
+   "note": "T179 discovery: closed until the Pathfinder has built a trading post (living world) or mining platform (dead world) here. Voltara has its post at start. Always true with balance.discovery_enabled 0."
+  },
+  {
+   "kind": "planet",
+   "id": "s2_p3",
+   "visible_when": {
+    "any": [
+     "post_built:s2_p3",
+     "platform_built:s2_p3"
+    ]
+   },
+   "note": "T179 discovery: closed until the Pathfinder has built a trading post (living world) or mining platform (dead world) here. Voltara has its post at start. Always true with balance.discovery_enabled 0."
+  },
+  {
+   "kind": "planet",
+   "id": "s2_p4",
+   "visible_when": {
+    "any": [
+     "post_built:s2_p4",
+     "platform_built:s2_p4"
+    ]
+   },
+   "note": "T179 discovery: closed until the Pathfinder has built a trading post (living world) or mining platform (dead world) here. Voltara has its post at start. Always true with balance.discovery_enabled 0."
+  },
+  {
+   "kind": "planet",
+   "id": "dead_2",
+   "visible_when": {
+    "any": [
+     "post_built:dead_2",
+     "platform_built:dead_2"
+    ]
+   },
+   "note": "T179 discovery: closed until the Pathfinder has built a trading post (living world) or mining platform (dead world) here. Voltara has its post at start. Always true with balance.discovery_enabled 0."
   }
  ],
  "start_state": {
@@ -467,6 +575,7 @@
   "hidden_features": [
    "space_storage",
    "space_storage_stock_rows",
+   "storage_link",
    "permit_routes",
    "system_2_planets",
    "cluster_routes",
@@ -487,7 +596,20 @@
    "plate_buy",
    "plate_sell"
   ],
-  "note": "Voltara base_prices also hold ore_sell, dross_sell, plate_buy/sell and (via goods.json merge) rivets, cells, armour, cask, gems, ingot, alloy, gel, seed. All hidden at start. permit_routes etc. are skill-gated; the skill nodes themselves stay in the skill tree."
+  "note": "Voltara base_prices also hold ore_sell, dross_sell, plate_buy/sell and (via goods.json merge) rivets, cells, armour, cask, gems, ingot, alloy, gel, seed. All hidden at start. permit_routes etc. are skill-gated; the skill nodes themselves stay in the skill tree.",
+  "open_planets": [
+   "planet_1"
+  ],
+  "closed_planets": [
+   "planet_2",
+   "planet_3",
+   "dead_1",
+   "s2_p1",
+   "s2_p2",
+   "s2_p3",
+   "s2_p4",
+   "dead_2"
+  ]
  },
  "no_unlock_path": [
   "chips, silk, rivets, musk, spores have no unlock node: gated only by reaching system 2 (judgement)."

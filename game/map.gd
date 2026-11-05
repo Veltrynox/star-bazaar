@@ -78,6 +78,17 @@ var route_lines: Dictionary = {}  # T07b: route id -> route_line.gd node
 var _route_list: Array = []       # last list given to set_routes (rebuilt after tunable changes)
 
 signal station_clicked(system_id: int)
+## T180: flight orders and establish orders; see the interface at the top of game/pathfinder_view.gd. Never emitted while flight is null or off.
+signal fly_requested(target: Dictionary)   # {"kind": "planet"|"storage"|"cluster"|"point", "pos": Vector3, "index": int}
+signal establish_requested(planet_id: String)
+const PathfinderView := preload("res://game/pathfinder_view.gd")
+const DeadWorlds := preload("res://game/dead_worlds.gd")
+const StoryText := preload("res://game/story_text.gd")
+const UNKNOWN_SHADE_ALPHA := 0.62
+var flight = null                 # T180: accessor set by main.gd (T179); null = discovery off, nothing below changes
+var pathfinder = null             # T180: the 3D scout (game/pathfinder_view.gd), created on first use
+var _shades := {}                 # planet index -> dim overlay sphere of a closed planet
+var _known_cache := {}            # planet index -> last "discovered" state, to rewrite names only on a change
 signal cluster_clicked(index: int)  # T159: click on an asteroid pack (index in the cluster data)
 var _cluster_list: Array = []  # T159: last list given to set_clusters, for picking
 const STATION_OFFSET := Vector3(2.4, 0.0, -2.4)  # from the system's sun
@@ -438,6 +449,13 @@ func pick_cluster(screen_pos: Vector2) -> int:
 			best = int(c["index"])
 	return best
 
+## World position of the asteroid pack with this data index (same maths as pick_cluster), or null.
+func _cluster_world_pos(index: int) -> Variant:
+	for c in _cluster_list:
+		if int(c["index"]) == index:
+			return Vector3(float(c["x"]), 0.0, float(c["y"])) * MAP_UNIT_SCALE
+	return null
+
 ## Divides the part of v along unit axis tn by k (ellipsoid to sphere space for pick_cluster).
 func _unstretch(v: Vector3, tn: Vector3, k: float) -> Vector3:
 	var along := v.dot(tn)
@@ -757,6 +775,7 @@ func apply_tunables() -> void:
 	_update_camera()
 
 func _process(delta: float) -> void:
+	_refresh_known()
 	_place_labels()
 	if not keys_enabled:
 		_update_camera()
@@ -773,6 +792,55 @@ func _process(delta: float) -> void:
 	if rot != Vector2.ZERO:
 		_orbit_by(rot.x * ORBIT_KEY_SPEED * delta, rot.y * ORBIT_KEY_SPEED * delta)
 	_update_camera()
+
+## T180: closed planets are dim, unnamed spheres ("Unknown world" / "Unknown dark world"); the Pathfinder follows the accessor.
+## With flight null or off, every planet is known and this only leaves the original names and spheres alone.
+func _refresh_known() -> void:
+	var on := PathfinderView.active(flight)
+	if on and pathfinder == null:
+		pathfinder = PathfinderView.new()
+		add_child(pathfinder)
+	if pathfinder != null:
+		pathfinder.update_from(flight if on else null, view_system)
+	if not on and _shades.is_empty():
+		return
+	for i in planets.size():
+		var pid := str(planets[i].get("id", i))
+		var known := PathfinderView.discovered(flight if on else null, pid)
+		if _known_cache.get(i, true) == known and (known or _shades.has(i)) and (not known or not _shades.has(i)):
+			continue
+		_known_cache[i] = known
+		var dead: bool = DeadWorlds.is_dead(planets[i])
+		var nm := str(planets[i].get("name", pid))
+		if not known:
+			nm = StoryText.get_or("LBL_UNKNOWN_DARK_WORLD" if dead else "LBL_UNKNOWN_WORLD", "Unknown dark world" if dead else "Unknown world")
+		if i < planet_label_2d.size():
+			planet_label_2d[i].text = nm
+		if not known and not _shades.has(i):
+			var sh := MeshInstance3D.new()
+			var sm := SphereMesh.new()
+			sm.radius = 1.02
+			sm.height = 2.04
+			sh.mesh = sm
+			var mat := StandardMaterial3D.new()
+			mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+			mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+			mat.albedo_color = Color(0.02, 0.03, 0.05, UNKNOWN_SHADE_ALPHA)
+			sh.material_override = mat
+			planet_spheres[i].add_child(sh)
+			_shades[i] = sh
+		elif known and _shades.has(i):
+			_shades[i].queue_free()
+			_shades.erase(i)
+
+## World point on the ground plane under the cursor, or null.
+func _ground_point(screen_pos: Vector2) -> Variant:
+	var o := camera.project_ray_origin(screen_pos)
+	var d := camera.project_ray_normal(screen_pos)
+	if absf(d.y) < 0.0001:
+		return null
+	var t := -o.y / d.y
+	return o + d * t if t > 0.0 else null
 
 func _axis(neg: Key, pos: Key) -> float:
 	return float(Input.is_physical_key_pressed(pos)) - float(Input.is_physical_key_pressed(neg))
@@ -794,15 +862,28 @@ func _unhandled_input(event: InputEvent) -> void:
 			var sid := pick_station(event.position)
 			if sid >= 0:
 				station_clicked.emit(sid)
+				if PathfinderView.active(flight):
+					fly_requested.emit({"kind": "storage", "pos": stations[sid].position, "index": sid})
 				return
 			var cidx := pick_cluster(event.position)
 			if cidx >= 0:
 				cluster_clicked.emit(cidx)
+				if PathfinderView.active(flight):
+					var cp: Variant = _cluster_world_pos(cidx)
+					if cp != null:
+						fly_requested.emit({"kind": "cluster", "pos": cp, "index": cidx})
 				return
 			var rid := pick_route(event.position)
 			if rid >= 0:
 				route_clicked.emit(rid)
 				return
+			if PathfinderView.active(flight) and event.shift_pressed:  # Shift+click on open space: fly there
+				var gp: Variant = _ground_point(event.position)
+				if gp != null:
+					fly_requested.emit({"kind": "point", "pos": gp, "index": -1})
+					return
+		elif PathfinderView.active(flight) and PathfinderView.established(flight, str(planets[hit].get("id", hit))):
+			fly_requested.emit({"kind": "planet", "pos": positions[hit], "index": hit})  # closed planets: only selected, the panel has Fly here
 		planet_clicked.emit(hit)
 
 ## Space station of one system: built once, placed beside the sun. Returns false if it already exists.
