@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-05",
+  "task": "T187",
+  "status": "done",
+  "files_changed": [
+    "game/rival_ships.gd",
+    "game/main.gd",
+    "tools/tests/run_tests.gd",
+    "handoffs/gameplay-programmer/2026-11-05-T187.json"
+  ],
+  "open_questions": [
+    "GDD change: rivals were 'never on the map'. Now scenery rival ships fly over each system (visual only, no cargo, no blocking, no combat, no effect on any number). Update gdd.md (Rivals paragraph).",
+    "Missing balance keys (I cannot edit data/): rival_ship_count (code default 3 per system) and rival_ship_speed (default 0.6 world units per second). Economy/owner to add them if wanted; the code reads them when present.",
+    "Look questions for the owner/ui-programmer: rival ship models (now the other three ship types, fitted like the Pathfinder), whether to tint rivals so they differ from the player's ship, trail/size, whether rivals should show in the galaxy view."
+  ],
+  "handoff": "Checked against the six rules. Already worked: (1) the type chosen in the menu goes through _set_run_choice to Ships.fleet and the Pathfinder model and speed read it; (2) flight.sync runs only in the unpaused part of _process, so pause and event pause stop it; (3) request_fly to another system works with its permit (no_gate without), then establish there; (5) a planet is closed until visited AND established (Availability rule planet, engine closed list); (6) a platform on Cinderrest needs MIN_3, and routes from it to Space Storage work. Added: game/rival_ships.gd (scenery rival ships, no collision, moves only while time runs, hidden outside their system), created in main.gd; headless test _test_t187_ship_flight covering all six rules (pass=2849 fail=0). Mechanics note for gdd.md: mining on a platform needs a Buy order on the dead world (it fills planet storage), then a Send to Space Storage; no auto-mining. Not seen windowed.",
+  "details": {
+    "already_worked": [
+      "chosen ship is the flown one (Ships.fleet, model_path, speed)",
+      "no movement while paused or in the event window",
+      "second system flight needs the permit, outpost built there with its own cost",
+      "closed until visit plus establish",
+      "platform on dead world, route to Space Storage"
+    ],
+    "added": [
+      "rival ships (visual only)",
+      "test _test_t187_ship_flight"
+    ]
+  }
+}

@@ -3,6 +3,7 @@ extends SceneTree
 ## Covers: story text, ending picker, win/loss paths, run recording, expansion points, skill keys, force-goal.
 ## Tests only read behaviour; they change no game code.
 
+const ShipsT := preload("res://game/ships.gd")
 const StoryText := preload("res://game/story_text.gd")
 const SaveGame := preload("res://game/save_game.gd")
 const EndingPicker := preload("res://game/ending_picker.gd")
@@ -99,6 +100,7 @@ func _run() -> void:
 	await _test_cluster_send()
 	await _test_cluster_to_station()
 	await _test_links_everywhere()
+	await _test_t187_ship_flight()
 	await _test_asteroid_packs()
 	_test_event_banners()
 	await _test_company_setup()
@@ -6454,6 +6456,113 @@ func minf_s(x: String, y: String) -> String:
 
 func maxf_s(x: String, y: String) -> String:
 	return y if x < y else x
+
+## T187: the owner's six ship rules. Chosen ship flown; flies only while time runs; second system; rival ships are scenery
+## only; an unvisited planet stays closed; a mining platform on a dead world mines into Space Storage.
+func _test_t187_ship_flight() -> void:
+	_wipe_user()
+	var m: Control = await _new_main(false, true)
+	m._dismiss_preface()
+	# (1) the chosen ship is the one flown
+	m._set_run_choice("", "dart")
+	check(m.flight.model_path() == ShipsT.model("dart") and ShipsT.model("dart") != ShipsT.model("small"), "T187: the ship chosen at the start is the Pathfinder model", m.flight.model_path())
+	m._set_run_choice("", "small")
+	check(m.flight.model_path() == ShipsT.model("small"), "T187: the Pathfinder model follows the chosen type")
+	# (5) closed before a visit
+	var tillam: int = m.planet_index_of("planet_2")
+	check(tillam >= 0 and not m.planet_established(tillam) and not m.flight.discovered("planet_2"), "T187: an unvisited planet is closed and unknown")
+	check(not m.can_connect(0, tillam, "energy")["ok"], "T187: no route to a closed planet")
+	# (2) time
+	m.paused = true
+	check(m.fly_to("planet_2") == "" and m.flight.state() == "flying", "T187: the order is accepted while paused")
+	var p0: Vector3 = m.flight.ship_position()
+	for k in 5:
+		m._process(5.0)
+	check(m.flight.ship_position() == p0 and m.flight.state() == "flying", "T187: the ship does not move while paused")
+	m.paused = false
+	m.time_speed = 12.0
+	var guard := 0
+	while m.flight.state() == "flying" and guard < 400:
+		m._process(1.0)
+		guard += 1
+	check(m.flight.state() == "idle" and m.flight.docked_at() == "planet_2" and m.flight.discovered("planet_2"), "T187: with time running the ship arrives and the planet is visited", str(guard))
+	check(not m.planet_established(tillam), "T187: a visit alone does not open the planet")
+	m.cash = 100000
+	check(m.establish("planet_2") == "" and m.flight.state() == "building", "T187: establish starts after the visit")
+	guard = 0
+	while m.flight.state() == "building" and guard < 400:
+		m._process(1.0)
+		guard += 1
+	check(m.planet_established(tillam), "T187: the post stands after its build time")
+	# (3) second system
+	check(m.flight.request_fly({"kind": "storage", "index": 2}) == "no_gate", "T187: no flight to another system without its permit")
+	_t188_unlock(m, "T187")
+	var sys2 := -1
+	for i in m.map.planets.size():
+		if int(m.map.planets[i].get("system", 1)) == 2 and not DeadW.is_dead(m.map.planets[i]):
+			sys2 = i
+			break
+	check(sys2 >= 0, "T187: a living planet in system 2 exists")
+	var pid2 := str(m.map.planets[sys2]["id"])
+	check(m.fly_to(pid2) == "", "T187: with the permit the ship may fly to the other system")
+	m.flight.finish_flight()
+	check(m.flight.system_id() == 2 and m.flight.docked_at() == pid2, "T187: the ship is in system 2 at the planet")
+	check(not m.planet_established(sys2), "T187: the planet in system 2 is still closed")
+	check(m.establish(pid2) == "", "T187: an outpost can be started in system 2")
+	m.flight.finish_build()
+	m._sync_closed()
+	check(m.planet_established(sys2) and m.flight.post_built(pid2), "T187: the outpost in system 2 stands")
+	# (6) mining platform on the dead world mines into Space Storage
+	var dead: int = m.planet_index_of("dead_1")
+	check(dead >= 0 and not m.planet_established(dead), "T187: the dead world starts closed", "%d %s" % [dead, str(m.flight.established("dead_1"))])
+	check(m.fly_to("dead_1") == "", "T187: fly to the dead world")
+	m.flight.finish_flight()
+	check(m.establish("dead_1") == "", "T187: a mining platform can be started (mining skill learned)")
+	m.flight.finish_build()
+	m._sync_closed()
+	check(m.flight.platform_built("dead_1") and m.planet_established(dead), "T187: the platform stands")
+	m._ensure_stations()
+	m.storage.ensure(Storage.system_key(1))
+	m.ships = 2
+	m.cash = 100000
+	m.engine.routes.clear()
+	var before: int = m.storage.amount(Storage.system_key(1), "dross")
+	var r: Dictionary = m.send_stock_buying(dead, m.station_dst(1), "dross")
+	check(bool(r["ok"]) and m.engine.routes.size() == 1, "T187: a route from the platform to Space Storage is made", str(r))
+	var bo: Dictionary = m.set_local_order(dead, "dross", "buy", true)  # the platform mines: its buy order fills the planet storage
+	check(bool(bo.get("ok", true)), "T187: a mining (buy) order can be set on the platform", str(bo))
+	for k in 3:
+		m.debug_advance_cycle()
+	var after: int = m.storage.amount(Storage.system_key(1), "dross")
+	check(after > before, "T187: the platform's goods arrive in Space Storage", "%d -> %d" % [before, after])
+	await _free_main(m)
+	# (4) rival ships: scenery
+	m = await _new_main()
+	m._dismiss_preface()
+	var rs = m.rival_ships
+	check(rs != null and rs.get_parent() == m.map, "T187: rival ships exist on the map")
+	rs.advance(0.0)
+	check(rs.ship_count() >= 1, "T187: rival ships were created", str(rs.ship_count()))
+	var pos0: Array = []
+	for c in rs.get_children():
+		pos0.append(c.position)
+	rs.advance(5.0)
+	var moved := false
+	for k in rs.get_child_count():
+		moved = moved or rs.get_child(k).position != pos0[k]
+	check(moved, "T187: rival ships move")
+	var solid := false
+	for c in rs.get_children():
+		solid = solid or c is CollisionObject3D or c.find_children("*", "CollisionObject3D", true, false).size() > 0
+	check(not solid, "T187: rival ships have no collision or pick shape")
+	var sig_before := str(m.engine.routes) + str(m.cash) + str(m.ships)
+	rs.advance(30.0)
+	check(sig_before == str(m.engine.routes) + str(m.cash) + str(m.ships), "T187: rival ships change nothing in the game")
+	m.paused = true
+	var snap: Vector3 = rs.get_child(0).position
+	rs._process(1.0)
+	check(rs.get_child(0).position == snap, "T187: rival ships stand still while paused")
+	await _free_main(m)
 
 func _test_links_everywhere() -> void:
 	await _t188_pass(false)
