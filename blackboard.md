@@ -14,16 +14,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-05 19:00 run: T197
-- Summary: Ships now face their heading: per-model yaw offset MODEL_YAW_DEG in game/ships.gd (all four ship ids -90), applied via a pivot node in pathfinder_view.gd and rival_ships.gd.
-- Why this task: clear bug fix, no owner decision; unblocks T201.
-- Approach: code offset table keyed by ship id (readable by the T201 test), no model file edits.
-- Agent prompts: ui-programmer, brief = T197 text plus no-QA, no-commit. Produced the three game files and handoffs/ui-programmer/2026-11-05-T197.json (verified).
-- Worked: sh tools/tests/run.sh pass=2875 fail=0.
-- Failed / did not work: nothing; not seen windowed. Nose end inferred from vertex widths; ship_corvette_01 least certain.
-- Files and commits: game/ships.gd, game/pathfinder_view.gd, game/rival_ships.gd, schedule.json, blackboard.md, handoff; commit "T197 ... [no-gdd]".
-- Left to do: owner checks windowed that no ship flies backwards (flip entry to 90). Models 05-08 are not in ships.json and have no offset. Next: T201, T200.
-
 ## 2026-11-05 20:00 run: T201
 - Summary: Added headless `_test_ship_facing` in tools/tests/run_tests.gd: Pathfinder (4 models) and rivals (all systems) face 8 headings within 2 deg, up stays up, turns are gradual and end aligned, resting ships keep heading, every ship id has a MODEL_YAW_DEG entry. No code bugs found.
 - Why this task: unblocked by T197, no owner decision, small; T200 is larger.
@@ -63,3 +53,13 @@
 - Failed / did not work: nothing; not seen windowed, no test for the trail.
 - Files and commits: see git log "T198".
 - Left to do: owner: trail width/tint, size, pick radius. T199 (decide marker vs tint per competitor).
+
+## 2026-11-06 00:00 run: gap analysis (no task done)
+- Summary: Reviewed all open tasks. None can be done unattended; no new tasks added (gap analysis of 2026-11-05 already produced T189-T193).
+- Why this task: T199 needs a visual decision (marker vs tint, card look) the owner has not made; T189-T192 and T193 are marked "needs owner decision"; T178/T182 are owner-only agents; T185 is visual; T166 is superseded; T05 needs a windowed measurement.
+- Approach: skipped rather than guessing visual or design choices.
+- Agent prompts: none.
+- Worked: nothing built; no code or data touched.
+- Failed / did not work: nothing.
+- Files and commits: blackboard.md only, no commit (other uncommitted files are not mine).
+- Left to do: owner decides T199 look (marker or tint per competitor), then it can run; T189-T193 decisions.
