@@ -981,11 +981,8 @@ func _unhandled_input(event: InputEvent) -> void:
 			if rid >= 0:
 				route_clicked.emit(rid)
 				return
-			if fly:  # open space: fly to that point
-				var gp: Variant = _ground_point(event.position)
-				if gp != null:
-					fly_requested.emit({"kind": "point", "pos": gp, "index": -1})
-					return
+			if fly:  # T204: open space only drops the selection, the ship stays
+				ship_selected = false
 		elif fly:
 			fly_requested.emit({"kind": "planet", "pos": positions[hit], "index": hit})
 		planet_clicked.emit(hit)
