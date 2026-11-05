@@ -1148,6 +1148,82 @@
       "turn_cap": 30,
       "window": "Gap analysis 2026-11-05 (overnight). Needs owner decision before start.",
       "note": ""
+    },
+    {
+      "task_id": "T194",
+      "title": "Remove Competitors from the main menu",
+      "owner_agent": "ui-programmer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 15,
+      "window": "Owner request 2026-11-05 (playtest feedback). Not started: main session sets it running.",
+      "brief": "Owner: remove the Competitors entry from the main menu (title screen menu; the Competitors screen was added with Four Markets, find it in game/ and the menu code). Remove only the main-menu button and anything that opens the screen from there; keep competitor data and rival logic. If the in-game menu also has it, ask nothing: leave that and list it in the handoff. Update gdd.md line if it names the menu. Handoff handoffs/ui-programmer/2026-11-05-T194.json."
+    },
+    {
+      "task_id": "T195",
+      "title": "Lower the voice narrator volume by default",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 15,
+      "window": "Owner request 2026-11-05 (playtest feedback). Not started: main session sets it running.",
+      "brief": "Owner: the voice narration is too loud. Lower its default volume (Voice autoload and Settings screen, game/voice*.gd or settings code; find the default volume constant or setting, also the saved-settings default for new installs). Pick about 50 percent of the current default, keep the Settings slider working, and do not override a value a player already saved. Handoff handoffs/gameplay-programmer/2026-11-05-T195.json."
+    },
+    {
+      "task_id": "T196",
+      "title": "Ship movement: acceleration, deceleration, yaw turning and a steady course (player and rival ships)",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 40,
+      "window": "Owner request 2026-11-05 (playtest feedback). Not started: main session sets it running.",
+      "brief": "Owner: ships fly with no acceleration and the rival ships wander a little at random. Build proper motion for the player's Pathfinder (game/pathfinder.gd) and the rival ships (game/rival_ships.gd): speed ramps up from rest and brakes before the target (arrive and stop), the heading turns at a limited yaw rate toward the course instead of snapping, the ship flies a straight course to the target once aligned, and rivals pick a destination and fly to it steadily (no random jitter; wait, then pick the next one). Motion runs on the game clock: paused means no movement and no turning. Keep the save round-trip working (flight state saved mid-flight, bump the save version if the format changes, old saves may be dropped). Put speed, acceleration and turn-rate numbers in data/balance.json as new keys with a data_version bump (placeholders; the economy designer does not retune them here). Handoff handoffs/gameplay-programmer/2026-11-05-T196.json."
+    },
+    {
+      "task_id": "T197",
+      "title": "Ship model orientation: ships fly sideways",
+      "owner_agent": "ui-programmer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 25,
+      "window": "Owner request 2026-11-05 (playtest feedback). Not started: main session sets it running.",
+      "brief": "Owner: ships fly sideways. Fix the 3D model forward axis for the player's ship and the rival ships (game/pathfinder_view.gd, game/rival_ships.gd, model loading as in game/ship_setup.gd): the nose must point along the heading (the direction of travel), with yaw following the course from T196. Check the corvette models in assets/ships for their own forward axis and correct it in code (a per-model yaw offset constant is fine), not by editing model files by hand. Handoff handoffs/ui-programmer/2026-11-05-T197.json."
+    },
+    {
+      "task_id": "T198",
+      "title": "Ship trails and ship size",
+      "owner_agent": "juice-programmer",
+      "depends_on": [
+        "T197"
+      ],
+      "status": "queued",
+      "turn_cap": 25,
+      "window": "Owner request 2026-11-05 (playtest feedback). Not started: main session sets it running.",
+      "brief": "Owner: ships have no trails, and they are probably too big. Add an engine trail behind the player's ship and the rival ships (fading line or particles, short, cheap in the frame budget, off while paused), in a different tint for the player and for rivals. Reduce the ship scale on the map (put the scale in one constant per ship kind; target a noticeably smaller ship, about half, and note the value in the handoff so the owner can adjust). Handoff handoffs/juice-programmer/2026-11-05-T198.json."
+    },
+    {
+      "task_id": "T199",
+      "title": "Rival ships: mark them, click to see which competitor",
+      "owner_agent": "ui-programmer",
+      "depends_on": [
+        "T196"
+      ],
+      "status": "queued",
+      "turn_cap": 30,
+      "window": "Owner request 2026-11-05 (playtest feedback). Not started: main session sets it running.",
+      "brief": "Owner: rival ships are not marked and the player cannot tell what they are. Give every rival ship an owner: the competitor it belongs to (the three rivals in data, e.g. Harrow Combine, Velvet Concord, Ostrel Syndicate; check the actual names in data/ and story text) and show it with a small marker or tint per competitor. Clicking a rival ship shows a small card with the competitor's name and its market (use existing hover card style from tools/tests hover cards / game code). The ship must not block clicks on planets behind it. Texts go through story/*.md ids and Russian story/ru/*.json, then python3 tools/build_story.py. Handoff handoffs/ui-programmer/2026-11-05-T199.json."
+    },
+    {
+      "task_id": "T200",
+      "title": "Ship controls: select the ship, left-click flies at once, right-click opens the action menu",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [
+        "T196"
+      ],
+      "status": "queued",
+      "turn_cap": 40,
+      "window": "Owner request 2026-11-05 (playtest feedback). Not started: main session sets it running.",
+      "brief": "Owner's control design. (1) The player selects the ship (click it; show a selected look). (2) With the ship selected, a LEFT click on a planet, space storage, asteroid field or a point in space sends it there at once; no confirm dialog (remove the current 'fly here?' question). (3) A RIGHT click on a planet, storage, asteroid, dead planet or other action object opens a small context menu with the actions that object allows for the ship: establish a trading post, establish a mining platform, establish an outpost and so on (use the existing post/platform rules from game/pathfinder.gd; show an action only when it is allowed, hidden means not drawn; the Availability rule applies). Choosing an action flies the ship there and establishes it on arrival. (4) Esc or clicking empty space deselects. Update the tutorial and help texts that describe the old controls (story/*.md and story/ru/*.json, then python3 tools/build_story.py). Handoff handoffs/gameplay-programmer/2026-11-05-T200.json; ui-programmer does any panel or menu layout."
     }
   ],
   "done_task_ids": [
