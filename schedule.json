@@ -834,23 +834,24 @@
       "title": "Design: transfer of goods or cargo from one space station to another",
       "owner_agent": "feature-designer",
       "depends_on": [],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 25,
       "window": "Owner request 2026-11-05 (after goal ship-ceo-skills-resources). Not started: main session sets it running.",
-      "brief": "Owner wants a transfer mechanic from one space station to another. Propose a concrete costed design: what is moved (stock from Space Storage, ships, cash?), cost and time, limits, unlock rule in data/availability.json, how it fits market share and the resource audit (design/proposals/2026-11-05-resource-final.md). Include UI sketch and test ideas. Write design/proposals/2026-11-05-station-transfer.md and handoff handoffs/feature-designer/2026-11-05-T165.json. Owner decides before any build."
+      "brief": "Owner wants a transfer mechanic from one space station to another. Propose a concrete costed design: what is moved (stock from Space Storage, ships, cash?), cost and time, limits, unlock rule in data/availability.json, how it fits market share and the resource audit (design/proposals/2026-11-05-resource-final.md). Write design/proposals/2026-11-05-station-transfer.md and handoff handoffs/feature-designer/2026-11-05-T165.json. Owner decides before any build.",
+      "owner_note": "Merged into T169: the design is design/proposals/2026-11-05-storage-link.md; pointer at design/proposals/2026-11-05-station-transfer.md. Build is T171; T166 is superseded."
     },
     {
       "task_id": "T166",
       "title": "Build: station-to-station transfer (after owner approves T165)",
       "owner_agent": "gameplay-programmer",
       "depends_on": [
-        "T165",
         "T164"
       ],
-      "status": "queued",
+      "status": "stopped",
       "turn_cap": 50,
       "window": "Owner request 2026-11-05 (after goal ship-ceo-skills-resources). Not started: main session sets it running.",
-      "brief": "Build the approved design from design/proposals/2026-11-05-station-transfer.md: data in data/*.json and data/availability.json, logic, save fields (bump the save version), panel hooks. Run sh tools/tests/run.sh. UI layout goes to ui-programmer, texts to story-designer (English and Russian). Handoff handoffs/gameplay-programmer/2026-11-05-T166.json."
+      "brief": "Build the approved design from design/proposals/2026-11-05-station-transfer.md: data in data/*.json and data/availability.json, logic, save fields (bump the save version), panel hooks. UI layout goes to ui-programmer, texts to story-designer (English and Russian). Handoff handoffs/gameplay-programmer/2026-11-05-T166.json.",
+      "owner_note": "Superseded by T171 (storage link build)."
     },
     {
       "task_id": "T167",
@@ -883,29 +884,17 @@
       "brief": "Owner spec: a player can connect two space station storages with a link. The link does not cost money; it eats resources (goods) to build and/or keep, and it allows goods to be transferred between the two storages. Propose the exact rules: build cost in goods, upkeep per cycle in goods, transfer rate and capacity, one or several links per storage, what happens when the upkeep stock runs out, unlock rule in data/availability.json, how it fits the resource audit (design/proposals/2026-11-05-resource-final.md) so it gives some good a sink. Include UI sketch and tests. Write design/proposals/2026-11-05-storage-link.md and handoff handoffs/feature-designer/2026-11-05-T169.json. This replaces the open design in T165; T165 can be dropped or merged."
     },
     {
-      "task_id": "T170",
-      "title": "Economy: numbers for the storage link (build and upkeep goods, rate)",
-      "owner_agent": "economy-designer",
-      "depends_on": [
-        "T169"
-      ],
-      "status": "queued",
-      "turn_cap": 25,
-      "window": "Owner request 2026-11-05 (later). Not started: main session sets it running.",
-      "brief": "Set the numbers for the T169 design in data/balance.json (new keys, bump data_version), check with tools/sim.py or the QA bot that the link neither dominates nor is dead, and that the goods it eats are ones the resource audit says have spare supply. Handoff handoffs/economy-designer/2026-11-05-T170.json."
-    },
-    {
       "task_id": "T171",
       "title": "Build: storage link between space stations",
       "owner_agent": "gameplay-programmer",
       "depends_on": [
-        "T169",
-        "T170"
+        "T169"
       ],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 50,
       "window": "Owner request 2026-11-05 (later). Not started: main session sets it running.",
-      "brief": "Build the T169 design with the T170 numbers: data, availability rule, link state in the save (bump the save version), build and upkeep eating goods, transfer logic between the two storages, tests (sh tools/tests/run.sh). UI goes to ui-programmer, texts to story-designer (English and Russian). Replaces T166. Handoff handoffs/gameplay-programmer/2026-11-05-T171.json."
+      "brief": "UI goes to ui-programmer, texts to story-designer (English and Russian). Replaces T166. Handoff handoffs/gameplay-programmer/2026-11-05-T171.json.",
+      "owner_note": "Built: engine (game/storage_link.gd), save v7, availability rule storage_link, UI in space_storage_view.gd and galaxy_view.gd, English texts SS_LINK_*. Numbers are the proposal's placeholders (T170 not run). Russian for SS_ ids not in scope. Handoffs: gameplay-programmer, story-designer, ui-programmer 2026-11-05-T171.json."
     },
     {
       "task_id": "T172",
@@ -918,28 +907,16 @@
       "brief": "Fill the skill tree with more skills (data/skills.json, 31 nodes now, see design/proposals/2026-11-05-*.md and gdd-skills.md). Find empty slots or thin branches (Military, Luxury, Minerals, Biotech and any general branch) and propose new nodes with effect, cost and which gap each fills. Use only the existing effect vocabulary unless a new type is argued. Each skill must be put to the economy-designer and qa-analyst by the main session and only kept when they agree it adds balance or interest, as in goal ship-ceo-skills-resources. Write design/proposals/2026-11-05-more-skills.md and handoff handoffs/feature-designer/2026-11-05-T172.json."
     },
     {
-      "task_id": "T173",
-      "title": "Skill tree: numbers, review and QA sign-off for the new skills",
-      "owner_agent": "economy-designer",
-      "depends_on": [
-        "T172"
-      ],
-      "status": "queued",
-      "turn_cap": 35,
-      "window": "Owner request 2026-11-05 (later). Not started: main session sets it running.",
-      "brief": "Set costs and values for the T172 skills in data/skills.json and data/balance.json, and check there is no dominant branch. Then QA (qa-analyst) runs the ablation bots to check each new node is felt. Reject nodes that add nothing. Handoffs under handoffs/economy-designer and handoffs/qa-analyst, dated 2026-11-05."
-    },
-    {
       "task_id": "T174",
       "title": "Skill tree: texts (English and Russian) and code for the new skills",
       "owner_agent": "story-designer",
       "depends_on": [
-        "T173"
+        "T172"
       ],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 35,
       "window": "Owner request 2026-11-05 (later). Not started: main session sets it running.",
-      "brief": "Write names and descriptions in story/skills.md and story/ru/skills.json for the approved new skills, no hidden goods named; run python3 tools/build_story.py. Any new effect type needs gameplay-programmer code in game/skills.gd first. Run sh tools/tests/run.sh. Handoff handoffs/story-designer/2026-11-05-T174.json."
+      "brief": "Write names and descriptions in story/skills.md and story/ru/skills.json for the approved new skills, no hidden goods named; run python3 tools/build_story.py. Any new effect type needs gameplay-programmer code in game/skills.gd first. Handoff handoffs/story-designer/2026-11-05-T174.json."
     },
     {
       "task_id": "T175",
@@ -959,7 +936,7 @@
       "status": "queued",
       "turn_cap": 45,
       "window": "Owner request 2026-11-05 (later). Not started: main session sets it running.",
-      "brief": "Add placeholder data for 3 more solar systems after the existing ones (system 1 is in data/planets.json, later systems are in data/systems.json; system 3 was on hold with no entry, so pick the next free ids; check game/map.gd view_system and the galaxy overview for how systems are stored and chosen). Each placeholder: a system id and name, a sun, a map position in the galaxy overview, a few placeholder planets with temporary names and prices, and an entry in data/availability.json so nothing shows before it should (progressive disclosure: hidden until a visible_when is true, and locked behind a placeholder permit or unlock cycle that is off for now). They must not change the economy, win condition or QA bot results: no planet in them is reachable in a normal run yet. Keep names and texts as text ids (English in story/*.md, Russian placeholder in story/ru), no hidden goods named. Make the galaxy overview and system switching handle 6 systems without errors, mark all placeholder data clearly (a placeholder flag or note field) so economy-designer and story-designer can replace it later. Run sh tools/tests/run.sh. Handoff handoffs/gameplay-programmer/2026-11-05-T176.json."
+      "brief": "Add placeholder data for 3 more solar systems after the existing ones (system 1 is in data/planets.json, later systems are in data/systems.json; system 3 was on hold with no entry, so pick the next free ids; check game/map.gd view_system and the galaxy overview for how systems are stored and chosen). Each placeholder: a system id and name, a sun, a map position in the galaxy overview, a few placeholder planets with temporary names and prices, and an entry in data/availability.json so nothing shows before it should (progressive disclosure: hidden until a visible_when is true, and locked behind a placeholder permit or unlock cycle that is off for now). Keep names and texts as text ids (English in story/*.md, Russian placeholder in story/ru), no hidden goods named. Make the galaxy overview and system switching handle 6 systems without errors, mark all placeholder data clearly (a placeholder flag or note field) so economy-designer and story-designer can replace it later. Handoff handoffs/gameplay-programmer/2026-11-05-T176.json."
     },
     {
       "task_id": "T177",
@@ -981,7 +958,7 @@
       "status": "queued",
       "turn_cap": 30,
       "window": "Owner request 2026-11-05 (later). Not started: main session sets it running.",
-      "brief": "Set numbers for T177 in data/balance.json (new keys, bump data_version): flight speed, post and platform cost (goods or cash), time to establish. Check with tools/sim.py that discovery costs delay but cannot make the default start unwinnable by cycle 27-31, and that no order of discovery is dominant. Handoff handoffs/economy-designer/2026-11-05-T178.json."
+      "brief": "Set numbers for T177 in data/balance.json (new keys, bump data_version): flight speed, post and platform cost (goods or cash), time to establish. Handoff handoffs/economy-designer/2026-11-05-T178.json."
     },
     {
       "task_id": "T179",
@@ -991,10 +968,11 @@
         "T177",
         "T178"
       ],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 60,
       "window": "Owner request 2026-11-05 (later). Not started: main session sets it running.",
-      "brief": "Build the approved T177 design with T178 numbers: ship position and flight state in the game state and the save (bump the save version), click targets (planet, space storage, asteroid, map point), arrival handling, flight stops on pause, discovered and established flags per planet in data and the availability rules (data/availability.json: closed planets are not drawn or listed), trading post and mining platform establish logic that opens buying, selling, mining and 'send to'. Old saves are dropped. Update the QA bot (qa/bots/bot_run.gd) so it flies and establishes posts, then run sh tools/tests/run.sh. Handoff handoffs/gameplay-programmer/2026-11-05-T179.json."
+      "brief": "Build the approved T177 design with T178 numbers: ship position and flight state in the game state and the save (bump the save version), click targets (planet, space storage, asteroid, map point), arrival handling, flight stops on pause, discovered and established flags per planet in data and the availability rules (data/availability.json: closed planets are not drawn or listed), trading post and mining platform establish logic that opens buying, selling, mining and 'send to'. Old saves are dropped. Update the QA bot (qa/bots/bot_run.gd) so it flies and establishes posts, then run sh tools/tests/run.sh. Handoff handoffs/gameplay-programmer/2026-11-05-T179.json.",
+      "owner_note": "Built, not yet run (owner asked for build only: no tests, QA or balance checks). First run: sh tools/tests/run.sh, then a windowed discovery run. Bots and shot scripts assume open planets. Handoffs: handoffs/gameplay-programmer/2026-11-05-T179.json, handoffs/ui-programmer/2026-11-05-T180*.json."
     },
     {
       "task_id": "T180",
@@ -1003,10 +981,11 @@
       "depends_on": [
         "T179"
       ],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 50,
       "window": "Owner request 2026-11-05 (later). Not started: main session sets it running.",
-      "brief": "Show the chosen 3D ship on the map (reuse the model loading from game/ship_setup.gd), turn it toward its heading, draw the flight path and a target marker, show a paused look when paused, click handling for planet, storage, asteroid and open space, closed planets drawn as unknown, and the panel for an unreached planet: Fly here, then Establish trading post (or mining platform for dead planets like Cinderrest) with cost and progress. Works with the T175 mining panel. Do not show hidden goods. Screenshot check in a windowed run. Handoff handoffs/ui-programmer/2026-11-05-T180.json."
+      "brief": "Show the chosen 3D ship on the map (reuse the model loading from game/ship_setup.gd), turn it toward its heading, draw the flight path and a target marker, show a paused look when paused, click handling for planet, storage, asteroid and open space, closed planets drawn as unknown, and the panel for an unreached planet: Fly here, then Establish trading post (or mining platform for dead planets like Cinderrest) with cost and progress. Works with the T175 mining panel. Do not show hidden goods. Screenshot check in a windowed run. Handoff handoffs/ui-programmer/2026-11-05-T180.json.",
+      "owner_note": "Built, not yet run (owner asked for build only: no tests, QA or balance checks). First run: sh tools/tests/run.sh, then a windowed discovery run. Bots and shot scripts assume open planets. Handoffs: handoffs/gameplay-programmer/2026-11-05-T179.json, handoffs/ui-programmer/2026-11-05-T180*.json."
     },
     {
       "task_id": "T181",
@@ -1015,7 +994,7 @@
       "depends_on": [
         "T177"
       ],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 40,
       "window": "Owner request 2026-11-05 (later). Not started: main session sets it running.",
       "brief": "Write events for establishing trading posts (arrival, local officials, a snag, a bargain, a rival already there) and for mining platforms on dead planets (crew, collapse, a find), plus all new UI texts, in story/*.md and Russian in story/ru/*.json, then python3 tools/build_story.py. Texts must not name hidden goods; the mechanics (effects, conditions) come from the T177 design and the events use game/conditions.gd atoms. Handoff handoffs/story-designer/2026-11-05-T181.json."
@@ -1114,7 +1093,13 @@
     "T172",
     "T177",
     "T175",
-    "T168"
+    "T168",
+    "T181",
+    "T179",
+    "T180",
+    "T165",
+    "T171",
+    "T174"
   ],
   "done_archive": "handoffs/archive/schedule-done-2026-10-27-3.json"
 }

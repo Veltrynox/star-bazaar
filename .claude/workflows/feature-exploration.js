@@ -199,7 +199,7 @@ First append a kind "claim" entry to ${BOARD} with status running. If this idea 
 // ---- Test ------------------------------------------------------------------
 phase('Test')
 const qa = await agent(
-  `You are the QA analyst. Follow .claude/agents/qa-analyst.md. Run sh tools/tests/run.sh in ${ROOT} on branch ${BRANCH} and report the pass and fail counts with any error lines. If data/balance.json changed on this branch, run tools/sim.py for the decent, sloppy, always-expand and never-expand strategies and report each win cycle. Do not change code or balance. Return the result in the schema.`,
+  `Run only the plain test suite: sh tools/tests/run.sh in ${ROOT} on branch ${BRANCH}, and report the pass and fail counts with any error lines. This is not QA: do NOT run tools/sim.py, qa/bots or any balance check, and do not act as qa-analyst (owner approval required, see CLAUDE.md). Do not change code or balance. Return the result in the schema.,
   { label: 'qa', schema: qaSchema, model: 'sonnet' },
 )
 

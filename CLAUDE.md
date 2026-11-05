@@ -1,12 +1,14 @@
 # Star Bazaar: working notes for Claude
 
+## QA and economy gate (hard rule, owner approval required)
+- The QA and balance agents (qa-analyst, economy-designer) and everything they run (`qa/bots/*`, `tools/sim.py`, ablations, retunes, sign-offs) are called only by the owner, by hand; they take no part in production, so never start them, schedule them or make a task depend on them (`sh tools/tests/run.sh` is not QA and is always allowed).
+
 ## Running Godot
 - Headless (tests, imports): `tools/godot/Godot.app/Contents/MacOS/Godot --headless --path . ...`
 - Windowed (playthroughs, screenshots): `qa/run_game.sh res://qa/bots/<script>.gd`
 - Never prefix these with `cd &&` or `HOME=`.
 
 ## Availability rule (progressive disclosure)
-- Never show a resource, workshop or storage feature before its `visible_when` in `data/availability.json` is true. That file is the single source for what the UI shows and when; do not hard-code unlocks elsewhere.
 - A new good, workshop or storage feature needs a rule in that file first. Use `Availability` (`game/availability.gd`) in any UI that lists goods; hidden means not drawn at all.
 - Texts (events, tutorial, tooltips) must not name a good that is hidden at that moment.
 - Check: `sh tools/tests/run.sh` runs `_test_availability` (start state, per-rule show/hide, text scan, data lint). It must pass before any UI, data or story change is handed off.
