@@ -3330,6 +3330,7 @@ func _on_flight_build_done(planet_id: String) -> void:
 	var dead: bool = i >= 0 and DeadWorlds.is_dead(map.planets[i])
 	post_notice(StoryText.get_or("NOT_PLATFORM_DONE" if dead else "NOT_POST_DONE", "Established at {planet}.", {"planet": planet_name(i)}))
 	on_flight_changed()
+	map.establish_beat(i, Ui.col("star_warm" if dead else "signal_good"))  # T203: ring, sparkle, label pop, soft nudge
 	save_now()
 
 ## T206: exploration mode. Button in the ship panel; tests and bots call set_exploring directly.

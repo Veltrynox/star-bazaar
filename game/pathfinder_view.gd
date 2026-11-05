@@ -55,6 +55,7 @@ extends Node3D
 
 const Ships := preload("res://game/ships.gd")  # T197: per-model yaw offset
 const ShipTrail := preload("res://game/ship_trail.gd")  # T198
+const Juice := preload("res://game/juice.gd")  # T203: motion scale
 const PLAYER_SHIP_SCALE := 0.5  # T198: ship size on the map; 1.0 is the old size (T198 halved it). One constant for the player ship kind.
 const FIT_RADIUS := 0.45 * PLAYER_SHIP_SCALE  # horizontal footprint radius of the model in world units (planets are about 0.9 to 2.4 across)
 const FIT_HEIGHT := 0.3 * PLAYER_SHIP_SCALE
@@ -65,6 +66,14 @@ const COL_LINE_MOVING := Color(1.0, 0.85, 0.5, 0.9)
 const COL_SELECTED := Color(0.55, 0.9, 1.0, 0.95)  # T200 selected look: cyan ring under the ship
 const SEL_RADIUS := 0.5 * PLAYER_SHIP_SCALE
 const COL_LINE_PAUSED := Color(1.0, 0.85, 0.5, 0.35)
+# T203: post / platform established. A ring closes on the planet (build-up), then bursts open with spokes of sparkle.
+# Runs on game time only: it does not advance while the game is paused (the ring and spokes freeze as they are).
+const BURST_SECONDS := 1.1       # whole beat
+const BURST_BUILD := 0.3         # share of the beat the ring spends closing in (0..1); the burst takes the rest
+const BURST_SPOKES := 10         # sparkle lines radiating from the planet
+const BURST_RING_FROM := 2.3     # ring starts at this many planet radii, closes to BURST_RING_MIN, then opens to BURST_RING_TO
+const BURST_RING_MIN := 1.15
+const BURST_RING_TO := 2.8
 
 var flight = null
 var _model_path := ""
@@ -76,6 +85,14 @@ var _trail: MeshInstance3D     # T198: engine trail
 var _last_pos := Vector3.INF
 var _sel: MeshInstance3D       # T200: ring around the ship while it is selected
 var _mat: StandardMaterial3D
+var _burst_t := -1.0           # T203: seconds into the beat, -1 when idle
+var _burst_pos := Vector3.ZERO
+var _burst_r := 1.0
+var _burst_col := Color.WHITE
+var _burst_ring: MeshInstance3D
+var _burst_ring_mat: StandardMaterial3D
+var _burst_sparks: MeshInstance3D
+var _burst_mesh: ImmediateMesh
 
 # ---- safe accessor helpers (shared by map.gd and planet_panel.gd) ---------------------------------------------------
 
@@ -131,6 +148,95 @@ static func signature(f, id: String) -> String:
 		return ""
 	return "%s|%s|%s|%s|%s|%s|%s" % [state(f), discovered(f, id), post_built(f, id), platform_built(f, id), docked_at(f), build_target(f), can_platform(f, id)]
 
+## T203: ring state at t in 0..1 of the beat: x = radius in planet radii, y = alpha. Closes in (fading up), then opens (fading out).
+static func burst_ring(t: float) -> Vector2:
+	t = clampf(t, 0.0, 1.0)
+	if t < BURST_BUILD:
+		var k := t / BURST_BUILD
+		k = 1.0 - pow(1.0 - k, 3.0)
+		return Vector2(lerpf(BURST_RING_FROM, BURST_RING_MIN, k), 0.9 * k)
+	var o := (t - BURST_BUILD) / (1.0 - BURST_BUILD)
+	o = 1.0 - pow(1.0 - o, 3.0)
+	return Vector2(lerpf(BURST_RING_MIN, BURST_RING_TO, o), 0.9 * (1.0 - o))
+
+## T203: spokes at t: x = inner radius, y = outer radius (planet radii), z = alpha. Nothing before the burst starts.
+static func burst_spokes(t: float) -> Vector3:
+	t = clampf(t, 0.0, 1.0)
+	if t < BURST_BUILD:
+		return Vector3(0, 0, 0)
+	var o := (t - BURST_BUILD) / (1.0 - BURST_BUILD)
+	var e := 1.0 - pow(1.0 - o, 3.0)
+	return Vector3(lerpf(1.05, 1.9, e), lerpf(1.2, 2.5, e), 1.0 - o)
+
+## Starts the beat at a planet (world position of its centre, its radius). Restarting just begins it again.
+func play_established(world_pos: Vector3, radius: float, col: Color) -> void:
+	_burst_t = 0.0
+	_burst_pos = world_pos
+	_burst_r = maxf(radius, 0.1)
+	_burst_col = col
+	if _burst_ring == null:
+		var tm := TorusMesh.new()
+		tm.inner_radius = 0.96
+		tm.outer_radius = 1.0
+		tm.rings = 48
+		tm.ring_segments = 6
+		_burst_ring_mat = StandardMaterial3D.new()
+		_burst_ring_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		_burst_ring_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		_burst_ring_mat.no_depth_test = true
+		_burst_ring = MeshInstance3D.new()
+		_burst_ring.mesh = tm
+		_burst_ring.material_override = _burst_ring_mat
+		_burst_ring.top_level = true
+		add_child(_burst_ring)
+		_burst_mesh = ImmediateMesh.new()
+		_burst_sparks = MeshInstance3D.new()
+		_burst_sparks.mesh = _burst_mesh
+		_burst_sparks.material_override = _mat
+		_burst_sparks.top_level = true
+		add_child(_burst_sparks)
+
+## Advances the beat by game time (called from update_from, which map.gd runs every frame). Costs nothing while idle.
+func _tick_burst(delta: float, paused: bool) -> void:
+	if _burst_t < 0.0:
+		return
+	if Juice.motion <= 0.0:
+		_end_burst()
+		return
+	if not paused:
+		_burst_t += delta
+	var t := _burst_t / (BURST_SECONDS * Juice.motion)
+	if t >= 1.0:
+		_end_burst()
+		return
+	var ring := burst_ring(t)
+	var c := _burst_col
+	c.a = ring.y
+	_burst_ring_mat.albedo_color = c
+	_burst_ring.global_position = _burst_pos
+	_burst_ring.scale = Vector3.ONE * (_burst_r * ring.x)
+	_burst_ring.visible = true
+	_burst_mesh.clear_surfaces()
+	var sp := burst_spokes(t)
+	if sp.z > 0.0:
+		var sc := _burst_col.lightened(0.4)
+		sc.a = sp.z
+		_burst_mesh.surface_begin(Mesh.PRIMITIVE_LINES)
+		for k in BURST_SPOKES:
+			var a := TAU * float(k) / BURST_SPOKES + 0.3
+			var dir := Vector3(cos(a), 0.0, sin(a))
+			_burst_mesh.surface_set_color(sc)
+			_burst_mesh.surface_add_vertex(_burst_pos + dir * _burst_r * sp.x)
+			_burst_mesh.surface_set_color(sc)
+			_burst_mesh.surface_add_vertex(_burst_pos + dir * _burst_r * sp.y)
+		_burst_mesh.surface_end()
+
+func _end_burst() -> void:
+	_burst_t = -1.0
+	if _burst_ring != null:
+		_burst_ring.visible = false
+		_burst_mesh.clear_surfaces()
+
 # ---- the 3D ship --------------------------------------------------------------------------------------------------
 
 func _ready() -> void:
@@ -176,6 +282,7 @@ func _ready() -> void:
 ## Called by map.gd every frame. Does nothing visible while the accessor is missing or discovery is off.
 func update_from(f, view_system: int, selected: bool = false) -> void:
 	flight = f
+	_tick_burst(get_process_delta_time(), bool(_call(f, "is_paused", [], false)))
 	if not active(f):
 		visible = false
 		_line.visible = false

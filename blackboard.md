@@ -15,16 +15,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-06 08:00 run: T214
-- Summary: Rival ships now idle on arrival instead of picking a new random course; they move one leg again only on wake(): a system newly opened by permit, or an event popup appearing.
-- Why this task: clear owner brief, dependency T211 done, no visual decision; other open tasks are visual, owner-only or need decisions.
-- Approach: small change in game/rival_ships.gd done by me (an agent would cost more); trigger set (permit open, event popup) was my reading of "a reason", kept minimal.
-- Agent prompts: none.
-- Worked: sh tools/tests/run.sh pass=11145 fail=0; new test for idling and wake; four older rival tests adapted to call wake().
-- Failed / did not work: nothing. Not seen windowed.
-- Files and commits: game/rival_ships.gd, tools/tests/run_tests.gd, gdd.md, schedule.json, blackboard.md; see git log "T214".
-- Left to do: owner says if other reasons should wake rivals (competitor trades in a system); balance key rival_ship_wait_s is now unused (left in data/balance.json).
-
 ## 2026-11-06 09:00 run: T206
 - Summary: Added exploration mode: an Explore button in the Ships panel makes the Pathfinder fly to each unestablished planet of its system, establish the post or platform, wait for cash, and post one notice when done. Any manual order or the button ends it; state is saved.
 - Why this task: clear owner brief, no dependencies, no visual decision; other open tasks are visual, owner-only or need decisions.

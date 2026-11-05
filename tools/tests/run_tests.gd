@@ -126,6 +126,10 @@ func _test_juice() -> void:
 	check(Juice.count_value(0, 10, 0.0) == 0 and Juice.count_value(0, 10, 1.0) == 10, "juice: count runs from its start to its target")
 	check(Juice.count_value(0, 10, 0.5) > 5, "juice: count eases out (ahead of linear at half time)")
 	check(Juice.count_value(20, 10, 1.0) == 10, "juice: count can run down")
+	var PV := load("res://game/pathfinder_view.gd")  # T203: establish beat curves
+	check(PV.burst_ring(0.0).y == 0.0 and PV.burst_ring(1.0).y < 0.0001, "juice: establish ring starts and ends invisible")
+	check(PV.burst_ring(PV.BURST_BUILD).x <= PV.BURST_RING_MIN + 0.0001 and PV.burst_ring(1.0).x <= PV.BURST_RING_TO + 0.0001, "juice: establish ring closes in, then opens within its bounds")
+	check(PV.burst_spokes(0.1).z == 0.0 and PV.burst_spokes(0.5).z > 0.0 and PV.burst_spokes(1.0).z < 0.0001, "juice: establish spokes wait for the burst and fade out")
 	var lbl := Label.new()
 	Juice.count_to(lbl, 5, "+%d")
 	check(lbl.text == "+5", "juice: out of the tree a count shows at once", lbl.text)

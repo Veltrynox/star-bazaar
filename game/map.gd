@@ -95,6 +95,9 @@ var ship_selected := false
 var _rc_down := false             # right button pressed on the map and not dragged yet (a drag orbits the camera)
 var _rc_drag := 0.0
 const PathfinderView := preload("res://game/pathfinder_view.gd")
+const Juice := preload("res://game/juice.gd")  # T203
+const ESTABLISH_NUDGE := 0.05          # T203: soft camera nudge when a post stands, world units sideways (scaled by Juice.motion)
+const ESTABLISH_NUDGE_SECONDS := 0.35
 const DeadWorlds := preload("res://game/dead_worlds.gd")
 const StoryText := preload("res://game/story_text.gd")
 const UNKNOWN_SHADE_ALPHA := 0.62
@@ -1073,6 +1076,34 @@ func _orbit_by(d_yaw: float, d_pitch: float) -> void:
 func _zoom_by(factor: float) -> void:
 	zoom = clampf(zoom * factor, zoom_min, zoom_max)
 
+## T203: a post or platform was established at planet i: ring + sparkle on the planet, a pop of its name label and a soft camera
+## nudge. Visual only. The ring and the nudge advance on game time, so they freeze while paused.
+func establish_beat(i: int, col: Color) -> void:
+	if i < 0 or i >= positions.size() or pathfinder == null:
+		return
+	pathfinder.play_established(positions[i], planet_radius(i), col)
+	if i < planet_label_2d.size():
+		Juice.pop(planet_label_2d[i])
+	_nudge_t = 0.0
+
+var _nudge_t := -1.0   # T203: seconds into the camera nudge, -1 when idle
+
+## Sideways camera offset for the running nudge (zero when idle). Advances only while the game runs.
+func _nudge_offset() -> Vector3:
+	if _nudge_t < 0.0:
+		return Vector3.ZERO
+	if Juice.motion <= 0.0:
+		_nudge_t = -1.0
+		return Vector3.ZERO
+	if not PathfinderView._call(flight, "is_paused", [], false):
+		_nudge_t += get_process_delta_time()
+	var t := _nudge_t / (ESTABLISH_NUDGE_SECONDS * Juice.motion)
+	if t >= 1.0:
+		_nudge_t = -1.0
+		return Vector3.ZERO
+	var right := camera.global_transform.basis.x
+	return right * Juice.shake_offset(t, ESTABLISH_NUDGE * Juice.motion).x
+
 func _update_camera() -> void:
 	var yaw := deg_to_rad(yaw_deg)
 	var pitch := deg_to_rad(pitch_deg)
@@ -1080,6 +1111,8 @@ func _update_camera() -> void:
 	var offset := Vector3(sin(yaw) * cos(pitch), sin(pitch), cos(yaw) * cos(pitch)) * dist
 	camera.position = focus + offset
 	camera.look_at(focus, Vector3.UP)
+	if _nudge_t >= 0.0:
+		camera.position += _nudge_offset()  # T203: sideways only, look direction kept, so it ends exactly at rest
 	_update_fx()
 
 ## Aims planet i's sphere at its sun: pole into the shadow, key light towards the sun (only when the direction changes).
