@@ -1371,10 +1371,11 @@
       "title": "Investigate and fix: 'Not enough cash' with 2k balance on a storage route",
       "owner_agent": "gameplay-programmer",
       "depends_on": [],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 30,
       "window": "Owner request 2026-11-05 (playtest). Not started: main session sets it running.",
-      "brief": "Owner screenshot (2026-11-05): Cindrel planet panel, Connections: two 'To Space Storage' routes (energy, Logic Cores), each 'Ship 1 of 1', the Logic Cores route says 'Not enough cash.' (route -55) while the owner's balance is about 2k; a map note also says 'Not enough cash.' next to -253. Owner asks: does the check count the current cycle's income? Find where the state 'Not enough cash.' is set (game/route_engine.gd lines near 416, 868 and 1151, cash reserve and trip cost logic) and explain in the handoff exactly what is compared with what (cash, reserve, fixed cost, stock to buy, cycle income). If the message is wrong or misleading at 2k cash, fix the rule or the text (say what is missing: how much cash is needed, the reserve), and show the needed amount in the row. Add a test for the case (cash 2000, storage route with a cost under it is not reported as not enough cash). Story text through ids and build_story.py. Handoff handoffs/<agent>/2026-11-05-<id>.json."
+      "brief": "Owner screenshot (2026-11-05): Cindrel planet panel, Connections: two 'To Space Storage' routes (energy, Logic Cores), each 'Ship 1 of 1', the Logic Cores route says 'Not enough cash.' (route -55) while the owner's balance is about 2k; a map note also says 'Not enough cash.' next to -253. Owner asks: does the check count the current cycle's income? Find where the state 'Not enough cash.' is set (game/route_engine.gd lines near 416, 868 and 1151, cash reserve and trip cost logic) and explain in the handoff exactly what is compared with what (cash, reserve, fixed cost, stock to buy, cycle income). If the message is wrong or misleading at 2k cash, fix the rule or the text (say what is missing: how much cash is needed, the reserve), and show the needed amount in the row. Add a test for the case (cash 2000, storage route with a cost under it is not reported as not enough cash). Story text through ids and build_story.py. Handoff handoffs/<agent>/2026-11-05-<id>.json.",
+      "note": "Rule correct at 2k; text was stale last-cycle snapshot. Row/map text now shows needed and had amounts (ST_NO_CASH_ROUTE/BUY), test _test_no_cash_text."
     },
     {
       "task_id": "T214",
