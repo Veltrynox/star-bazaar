@@ -1258,6 +1258,178 @@
       "brief": "Add a headless test in tools/tests/run_tests.gd (runs with sh tools/tests/run.sh) that no ship is placed inside a planet, but near it. Cover every spawn path: the player's Pathfinder at New Game (home planet), after loading a save, after a ship arrives at or leaves a planet, space storage and an asteroid field, and the rival ships at start and when they pick a new course. For each position assert: (1) the distance to the centre of every planet (and dead planet, station, asteroid field) is greater than that body's radius plus a small margin (use the radius the map really draws, not a guess), so the ship is outside it; (2) at spawn the ship is within a 'near' limit of its parent body (radius plus a spawn gap constant, put the limit in one named constant and reuse it in the game code); (3) the same holds in every solar system, including the placeholder systems 3-5 when enabled, and when the map is zoomed or the system view differs. Fix any code bug the test finds (an offset constant in game/pathfinder.gd or game/rival_ships.gd is fine). Handoff handoffs/gameplay-programmer/2026-11-05-T202.json.",
       "owner_note": "Owner asked for an assertion or unit test that the ship is not spawned inside the planet but near it.",
       "note": "Test _test_ships_spawn_near_bodies added; fixed Pathfinder docking at planet centre, rival spawn inside bodies, old-save centre positions, rivals in later systems. Motion.BODY_MARGIN/SPAWN_GAP in ship_motion.gd."
+    },
+    {
+      "task_id": "T203",
+      "title": "Juice: establishing a trading post, plus 3 juice tasks of the agent's own choice",
+      "owner_agent": "juice-programmer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 35,
+      "window": "Owner request 2026-11-05 (playtest). Not started: main session sets it running.",
+      "brief": "Owner: add juice when the ship establishes a trading post or mining platform (arrival burst, build-up sparkle or ring on the planet, a short count-up or pop of the new post marker, a soft screen nudge; game/pathfinder_view.gd and the post code; cheap in the frame budget, nothing animates while time is paused, no text without story ids). Then look at the game for where juice is thin or an existing effect is broken or rough (trails, notices, panels, route lines, events) and ADD 3 NEW TASKS FOR YOURSELF to schedule.json (task ids continuing the numbering, owner_agent juice-programmer, status queued, same fields as other tasks, one small run each, say in each brief why it matters). Do not start those 3 tasks in this run. Handoff handoffs/juice-programmer/2026-11-05-<this task id>.json listing the 3 task ids."
+    },
+    {
+      "task_id": "T204",
+      "title": "Ship selected: left-click on empty space drops the selection",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 15,
+      "window": "Owner request 2026-11-05 (playtest). Not started: main session sets it running.",
+      "brief": "Owner: with the ship selected, a LEFT click on empty space (not a planet, storage, asteroid field or other action object) must only drop the selection; the ship does not fly there. This replaces the 'point in space' target of T200 (left click flies only to objects). Clicks on objects keep flying at once, right click keeps the action menu, Esc still deselects. Update tutorial or help texts that say the ship flies to a point in space (story/*.md and story/ru/*.json, then python3 tools/build_story.py) and the test for the controls in tools/tests/run_tests.gd. Handoff handoffs/<agent>/2026-11-05-<id>.json."
+    },
+    {
+      "task_id": "T205",
+      "title": "Trails come out of the engines and are thicker",
+      "owner_agent": "juice-programmer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 25,
+      "window": "Owner request 2026-11-05 (playtest). Not started: main session sets it running.",
+      "brief": "Owner: the ship trails do not start at the engines and are too thin. Anchor each trail to the ship model's engine exhaust position(s) (a per-model engine offset constant next to the per-model yaw offset from T197; corvette models in assets/ships, game/pathfinder_view.gd, game/rival_ships.gd), so it comes out of the back of the ship whatever the heading, and make it clearly thicker (about 2 to 3 times the current width, tapering to the end; keep the player and rival tints; off while paused). Note the width constants in the handoff so the owner can adjust. Handoff handoffs/<agent>/2026-11-05-<id>.json."
+    },
+    {
+      "task_id": "T206",
+      "title": "Exploration mode: the ship scouts the planets of this solar system by itself and tells you when done",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 40,
+      "window": "Owner request 2026-11-05 (playtest). Not started: main session sets it running.",
+      "brief": "Owner: add an exploration mode (a button or toggle by the ship controls; ui-programmer does layout if needed). When on, the Pathfinder flies by itself through every not yet discovered planet of the CURRENT solar system, discovers it and establishes the trading post or mining platform, using the existing flight, discovery and post rules (game/pathfinder.gd) and their costs; if cash is short it waits at the planet and continues when it can pay, and exploration stops at the system edge. The player can switch it off or give a manual order at any time, which ends the mode. It follows the game clock (paused means no movement). When every planet of the system is surveyed AND its post or platform is established, show one notification (notice queue) and switch the mode off. Notification and button texts as story ids (story/*.md, story/ru/*.json, then python3 tools/build_story.py). Save the mode state. Add a headless test: mode on visits all planets and ends with the notice once. Handoff handoffs/<agent>/2026-11-05-<id>.json.",
+      "owner_note": "Depends on T200 controls, which are done."
+    },
+    {
+      "task_id": "T207",
+      "title": "Skill tree: fill every empty skill slot, each skill argued for",
+      "owner_agent": "feature-designer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 40,
+      "window": "Owner request 2026-11-05 (playtest). Not started: main session sets it running.",
+      "brief": "Owner: finish the skill tree so every slot is filled (data/skills.json has 31 nodes; see gdd-skills.md and design/proposals/2026-11-05-skill-tree-round*.md for the empty slots and thin branches in Military, Luxury, Minerals, Biotech and the general branch). For every skill, write why it is worth taking (the decision it creates, the cost it asks, which gap it fills, why it is not a trap or a must-take), and drop or merge a skill that has no good argument instead of padding the tree. Money never buys skill points; choices are neutral. No numbers beyond a proposed cost and effect size. Proposal in design/proposals/2026-11-05-skill-tree-fill.md. Do NOT call the qa-analyst or economy-designer: the owner starts their review by hand (see the review task). Handoff handoffs/<agent>/2026-11-05-<id>.json."
+    },
+    {
+      "task_id": "T208",
+      "title": "Skill tree: build the approved new skills (code, data, texts English and Russian)",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [
+        "T207"
+      ],
+      "status": "queued",
+      "turn_cap": 40,
+      "window": "Owner request 2026-11-05. Needs the owner to approve the proposal first.",
+      "brief": "Build the skills from the T207 proposal after the owner approves it: new effect types in game/skills.gd, nodes in data/skills.json, numbers in data/balance.json as the proposal says (placeholders), skill names and descriptions through story/skills.md and story/ru/skills.json (no hidden goods named), python3 tools/build_story.py, update gdd-skills.md. Handoff handoffs/gameplay-programmer/2026-11-05-<id>.json."
+    },
+    {
+      "task_id": "T209",
+      "title": "OWNER STARTS BY HAND: economy and QA review of every new skill",
+      "owner_agent": "economy-designer",
+      "depends_on": [
+        "T208"
+      ],
+      "status": "queued",
+      "turn_cap": 40,
+      "window": "OWNER BY HAND ONLY (CLAUDE.md QA and economy gate). Do not start.",
+      "brief": "Owner request: think about every skill with the QA agent and the economy agent: is it really worth it. Run by the OWNER by hand after the skill build (never started, scheduled or waited on by the main session or the overnight runner; no other task depends on it). economy-designer checks each new and changed skill's cost and effect against the market goal and the 20-ship cap; qa-analyst runs the bots over the skills and reports dominant, useless or trap skills; both write what to cut, merge or retune. Reports in qa/reports/ and handoffs/economy-designer/ and handoffs/qa-analyst/."
+    },
+    {
+      "task_id": "T210",
+      "title": "5 more placeholder solar systems (ids after the current placeholders)",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 25,
+      "window": "Owner request 2026-11-05 (playtest). Not started: main session sets it running.",
+      "brief": "Owner: add 5 more temporary placeholder galaxies for the future. Read as: 5 more placeholder solar systems, after the placeholders from T176 (systems 3-5 in data/systems_placeholder.json, enabled false). Same shape, next free ids, off by default, no gameplay, shown in the galaxy overview only when enabled; check game/map.gd view_system and the galaxy overview so 10 systems do not break the view or the permit and discovery keys. If 'galaxy' means a higher level than solar system in the current overview, say so in the handoff and do the closest placeholder instead of guessing further. Handoff handoffs/<agent>/2026-11-05-<id>.json."
+    },
+    {
+      "task_id": "T211",
+      "title": "Solar system 2: player and rival ships appear only after the system is opened; one ship each for the whole game",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 35,
+      "window": "Owner request 2026-11-05 (playtest). Not started: main session sets it running.",
+      "brief": "Owner: in solar system 2 (and later systems) the player's ship and the rival ships should be there only if the player opened the system with a permit. The player has ONE pathfinder ship for the whole game and each rival has ONE ship for the whole game; it looks like there are many in each system now (game/rival_ships.gd spawns rivals per system, game/pathfinder.gd). Make rival ships exist once per competitor (not once per system): a rival ship is shown in system 2 only while it is flying there, and only systems the player has opened by permit show any ship traffic; the Pathfinder is one ship that changes system when it jumps. Keep saves working (bump the save version if needed). Test: ship counts are 1 per owner in every state; no ships in a closed system. Update gdd.md. Handoff handoffs/<agent>/2026-11-05-<id>.json."
+    },
+    {
+      "task_id": "T212",
+      "title": "Storage link consumes energy only, about 5 per cycle (temporary value)",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 15,
+      "window": "Owner request 2026-11-05 (playtest). Not started: main session sets it running.",
+      "brief": "Owner: the storage link should consume only energy and not much, about 5 per cycle as a TEMPORARY value. Find the storage link upkeep (game/ storage link code and data/balance.json keys; see T171) and set it to energy only, 5 per cycle, as a named balance key with a data_version bump (placeholder; the owner or economy designer retunes it later). Show it correctly on the link row and in forecasts. Update gdd.md and tests that assert the old cost. Handoff handoffs/<agent>/2026-11-05-<id>.json."
+    },
+    {
+      "task_id": "T213",
+      "title": "Investigate and fix: 'Not enough cash' with 2k balance on a storage route",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 30,
+      "window": "Owner request 2026-11-05 (playtest). Not started: main session sets it running.",
+      "brief": "Owner screenshot (2026-11-05): Cindrel planet panel, Connections: two 'To Space Storage' routes (energy, Logic Cores), each 'Ship 1 of 1', the Logic Cores route says 'Not enough cash.' (route -55) while the owner's balance is about 2k; a map note also says 'Not enough cash.' next to -253. Owner asks: does the check count the current cycle's income? Find where the state 'Not enough cash.' is set (game/route_engine.gd lines near 416, 868 and 1151, cash reserve and trip cost logic) and explain in the handoff exactly what is compared with what (cash, reserve, fixed cost, stock to buy, cycle income). If the message is wrong or misleading at 2k cash, fix the rule or the text (say what is missing: how much cash is needed, the reserve), and show the needed amount in the row. Add a test for the case (cash 2000, storage route with a cost under it is not reported as not enough cash). Story text through ids and build_story.py. Handoff handoffs/<agent>/2026-11-05-<id>.json."
+    },
+    {
+      "task_id": "T214",
+      "title": "Rival ships idle when they finish a trip instead of moving at random",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [
+        "T211"
+      ],
+      "status": "queued",
+      "turn_cap": 15,
+      "window": "Owner request 2026-11-05 (playtest). Not started: main session sets it running.",
+      "brief": "Owner: rival ships do not need to move randomly: when a rival ship has reached its destination it idles (stays, no new random course); it moves again only when the game gives it a reason (the competitor opens or trades in another system, an event). Update game/rival_ships.gd, the tests for rival motion and gdd.md. Handoff handoffs/<agent>/2026-11-05-<id>.json."
+    },
+    {
+      "task_id": "T215",
+      "title": "Remove the route hint UI from the bottom",
+      "owner_agent": "ui-programmer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 15,
+      "window": "Owner request 2026-11-05 (playtest). Not started: main session sets it running.",
+      "brief": "Owner: remove the route hint UI shown at the bottom of the screen (the route hint strip; look in game/dest_hint.gd, game/planet_hint.gd, game/route_warning.gd and game/main.gd for the one at the bottom, and tell in the handoff which one it was). Remove its drawing, state and any text ids it alone uses; keep other hints (hover cards, route warnings in the panels) and the Availability rule. Update tests that look for it. Handoff handoffs/<agent>/2026-11-05-<id>.json."
+    },
+    {
+      "task_id": "T216",
+      "title": "Gigs: design random side jobs for the 3D ship with a storyline",
+      "owner_agent": "feature-designer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 35,
+      "window": "Owner request 2026-11-05 (playtest). Not started: main session sets it running.",
+      "brief": "Owner idea: random gigs the player does with the 3D ship, each with a story. Example: a ship crash the player flies to and gets something, unique for each branch and depending on the player's progression (market focus, skills, chain direction, cycle, systems opened). Design: how a gig appears (spawn rule, how often, a marker on the map, expiry), what the player does (fly there, maybe a choice on arrival), what it gives (a unique reward per branch: goods, skill-adjacent perk, story line, never skill points for money), what it costs (flight time, risk), how it stays neutral and cannot be a dominant strategy, how it works with discovery, exploration mode and pause, and the data shape (data/gigs.json, conditions via game/conditions.gd). Proposal in design/proposals/2026-11-05-gigs.md for the owner to approve. Handoff handoffs/<agent>/2026-11-05-<id>.json."
+    },
+    {
+      "task_id": "T217",
+      "title": "Gigs: two stories (English and Russian), unique per branch",
+      "owner_agent": "story-designer",
+      "depends_on": [
+        "T216"
+      ],
+      "status": "queued",
+      "turn_cap": 30,
+      "window": "Owner request 2026-11-05 (playtest). Not started: main session sets it running.",
+      "brief": "Owner: write 2 gig stories for now, following the T216 design. Story 1: a ship crash the ship flies to and salvages something. Story 2: of your choice that fits the world. Each story has a different outcome per branch (the four markets and the player's progression, no hidden good or direction named in the text), a hook text, an arrival text, the choice buttons if any, outcome lines per branch and a short epilogue line. Source in story/gigs.md with text ids (rule: header of tools/build_story.py) and Russian in story/ru/gigs.json, then python3 tools/build_story.py. No numbers or mechanics in the text. Handoff handoffs/<agent>/2026-11-05-<id>.json."
+    },
+    {
+      "task_id": "T218",
+      "title": "Gigs: build the gig mechanic and the two stories",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [
+        "T216",
+        "T217"
+      ],
+      "status": "queued",
+      "turn_cap": 45,
+      "window": "Owner request 2026-11-05. Needs the owner to approve the design proposal first.",
+      "brief": "Build the approved gig design (T216) with the two stories (T217): data/gigs.json, spawn and expiry on the game clock, marker and flight target for the 3D ship (right-click menu action from T200), arrival handling, branch-dependent rewards, save state, texts by id (no new literal text), ui-programmer for any panel or popup. A headless test for spawn, arrival and reward per branch. Update gdd.md."
     }
   ],
   "done_task_ids": [
