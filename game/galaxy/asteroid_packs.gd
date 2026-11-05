@@ -7,19 +7,36 @@ extends Node3D
 
 @export var map_unit_scale := 0.02        # world units per map unit (same as map.gd MAP_UNIT_SCALE)
 @export var seed_salt := 1                # change for a different arrangement of every pack
-@export var pack_scale := 0.125           # owner 2026-11-02: shrinks the pack spread (data radius x this); was 1.0, then 0.25
-@export var rock_min := 0.00625          # asteroid size range, world units (radius before the squash); was 0.05, then 0.0125
-@export var rock_max := 0.02             # was 0.16, then 0.04
-@export var squash := 0.45                # 0 = round rocks, 1 = very lumpy: per-axis scale varies by up to this share
+@export var pack_scale := 0.25            # owner 2026-11-05 (T168): field radius 2x (was 0.125); rocks keep their size, count x4 in the data for the same density
+@export var rock_min := 0.005            # small rock size range, world units (radius); owner 2026-11-04: 80% small, 20% big
+@export var rock_max := 0.009
+@export var big_min := 0.02              # big rocks, roughly 2.5-3x the small ones
+@export var big_max := 0.026
+@export var big_share := 0.2             # share of rocks drawn from the big range
+@export var squash := 0.0                 # 0 = round rocks (owner 2026-11-04), 1 = very lumpy: per-axis scale varies by up to this share
 @export var flatten := 0.5                # pack height as a share of its width (0.5 = a disc-ish sphere)
-@export var cluster_stretch := 1.6       # fallback when the cluster dictionary has no "stretch" (data/asteroid_clusters.json cluster_stretch)
+@export var cluster_stretch := 2.0       # fallback when the cluster dictionary has no "stretch" (data/asteroid_clusters.json cluster_stretch)
 @export var rock_color := Color(1.0, 1.0, 1.0)  # tints the rock texture; white = texture colours as they are
 @export var rock_roughness := 0.95
 @export var spin_speed := 0.0             # degrees per second the whole pack turns; 0 = still
 
 # Rock model: assets/asteroid_asset/asteroid_low.obj, from asteroid.obj decimated to 400 tris (was 20480) by tools in the asteroid_asset folder.
 # Normalised so the furthest vertex sits at radius 1.0, the same radius the old SphereMesh had.
-const ROCK_MESH := preload("res://assets/asteroid_asset/asteroid_low.obj")
+# Owner 2026-11-04: round rocks. The OBJ is lumpy, so the default is a low-poly SphereMesh (radius 1). Set ROCK_MESH_KIND to "obj" to use the OBJ again.
+const LUMPY_MESH := preload("res://assets/asteroid_asset/asteroid_low.obj")
+const ROCK_MESH_KIND := "sphere"  # "sphere" (round) or "obj" (assets/asteroid_asset/asteroid_low.obj)
+const SPHERE_SEGMENTS := 12
+const SPHERE_RINGS := 6
+
+static func make_rock_mesh() -> Mesh:
+	if ROCK_MESH_KIND == "obj":
+		return LUMPY_MESH
+	var sm := SphereMesh.new()
+	sm.radius = 1.0
+	sm.height = 2.0
+	sm.radial_segments = SPHERE_SEGMENTS
+	sm.rings = SPHERE_RINGS
+	return sm
 const ROCK_TEXTURE := preload("res://assets/asteroid_asset/material_512.png")
 
 var packs := {}  # cluster id -> {mm: MultiMeshInstance3D, system: int, max: int}
@@ -40,7 +57,7 @@ func tangent_of(c: Dictionary) -> Vector3:
 	return Vector3(-rad.z, 0.0, rad.x)
 
 func _ready() -> void:
-	_mesh = ROCK_MESH
+	_mesh = make_rock_mesh()
 	_mat = StandardMaterial3D.new()
 	_mat.albedo_color = rock_color
 	_mat.albedo_texture = ROCK_TEXTURE
@@ -91,7 +108,8 @@ func _build(id: String, c: Dictionary, n: int) -> void:
 			p = Vector3(rng.randf_range(-1, 1), rng.randf_range(-1, 1), rng.randf_range(-1, 1))
 		p.y *= flatten
 		p.x *= stretch  # x = along the tangent, z = across the radius; rocks keep their own shape
-		var s := rng.randf_range(rock_min, rock_max)
+		var big := rng.randf() < big_share
+		var s := rng.randf_range(big_min, big_max) if big else rng.randf_range(rock_min, rock_max)
 		var sc := Vector3(1.0 + rng.randf_range(-squash, squash), 1.0 + rng.randf_range(-squash, squash), 1.0 + rng.randf_range(-squash, squash)) * s
 		var basis := Basis.from_euler(Vector3(rng.randf() * TAU, rng.randf() * TAU, rng.randf() * TAU)) * Basis.from_scale(sc)
 		var pos := (tdir * p.x + rad_dir * p.z + Vector3.UP * p.y) * r

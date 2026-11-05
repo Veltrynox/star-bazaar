@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-04",
+  "task": "hide-danger-hover-card",
+  "status": "done",
+  "files_changed": [
+    "data/availability.json",
+    "game/planet_panel.gd",
+    "game/main.gd",
+    "game/dest_hint.gd",
+    "story/screens.md",
+    "data/story_text.json",
+    "tools/tests/run_tests.gd",
+    "qa/bots/dest_hint_shot.gd"
+  ],
+  "open_questions": [
+    "Story/events: no event text in story/events or data/events.json mentions danger. Only story/screens.md PLANET_DANGER (now unused while hidden) and the notice id NOT_EVENT_EFFECT_DANGER (not in story files; main.gd falls back to a hard-coded English line, gated off while hidden). Writer: add NOT_EVENT_EFFECT_DANGER or drop the 'danger' effect kind when danger gets a mechanic.",
+    "Gameplay-programmer: the hover card for a plain planet says it buys the good when the sale price is above 0, but check_connection allows routes to planets that do not price the good (card then says 'does not buy'). Should such a route be refused in the engine?",
+    "Owner: the card is hidden while the cursor is over any panel or button (a planet under the right-hand panels shows nothing). OK?"
+  ],
+  "handoff": "Danger meter: new feature rule dead_danger_meter in data/availability.json (visible_when {not: start}, never true; also in start_state.hidden_features). Planet panel draws no DangerLine unless Availability.feature is true; effect_line returns empty for a danger effect while hidden. Meter logic and saves untouched. Hover card: new game/dest_hint.gd (DestHint, added in main next to route_warning). Only while main.pending is set (not in the stop-pick step, not under the tutorial lock, not over a panel). Planet: price via engine.sold_price, or no-buyer line; dead world: NOT_DEAD_NO_DELIVERY; others: the exact can_connect reason (closed, permit, lane full); no-free-ship is not a refusal because the click buys one. Station: reason or keep line. Hidden pending good shows nothing. Sits 26px below the red ship warning. New ids HINT_DEST_BUYS, _NO_BUYER, _STATION, _SOURCE. Tests: 1720 pass, 0 fail.",
+  "details": {
+    "screens_changed": "Planet panel (dead world, danger line gone); map (hover card at the cursor while a route is pending)",
+    "how_to_try": "Windowed: skip tutorial, press Send to... on energy at Voltara, move the cursor over Ashgate (shows price), Cinderrest (dead world refusal). Esc: card gone. To bring Danger back flip dead_danger_meter visible_when to start. Bot: qa/run_game.sh res://qa/bots/dest_hint_shot.gd writes qa/reports/dest_hint_*.png.",
+    "seen_in_screenshots": "valid: small dark card right of Ashgate, 'Ashgate buys Energy at 27 cr each.'; dead: card 'Nothing is delivered to a dead world. Pick another planet.' beside Cinderrest; stacked: red ship warning above, card below, no overlap; none: no card. Screenshots show Russian tutorial and warning text from the voice-localisation branch language; not touched.",
+    "not_checked_by_eye": "Station hover (tested only), closed and permit refusal cards, window sizes other than 1920x1080, card near the screen edge."
+  }
+}

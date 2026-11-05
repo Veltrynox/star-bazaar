@@ -1,0 +1,30 @@
+{
+ "agent": "gameplay-programmer",
+ "date": "2026-11-05",
+ "task": "ship-ceo-logic",
+ "status": "done",
+ "schema_version": 1,
+ "files_changed": [
+  "game/ships.gd",
+  "game/ceos.gd",
+  "game/skills.gd",
+  "game/route_engine.gd",
+  "game/main.gd",
+  "game/save_game.gd",
+  "game/ship_panel.gd",
+  "game/planet_panel.gd",
+  "qa/bots/bot_run.gd",
+  "qa/bots/run_batch.sh",
+  "tools/tests/run_tests.gd",
+  "goals/ship-ceo-skills-resources/blackboard.json"
+ ],
+ "open_questions": [
+  "'First lane' = lane of routes[0] (moves if that route is removed) and 'home market' = system 1 planets; confirm with owner/economy.",
+  "Sweep of 16 combos not run (QA); one bot run with --ceo ceo_woman_01 --ship fleet works.",
+  "Perk man_02 reveals only the LBL_NEXT_PRICE/best-partner lines on the planet panel in cycle 1; text shown only when planet panel is open."
+ ],
+ "handoff": "Logic done; tests green (1854 pass). UI API: Ships.types() ids; Ships.stats(id, balance) -> {id,name,cargo_mult,upkeep_mult,trip_mult,price_mult,price,cap_add,ship_cap,speed,model,role_id,desc_id}; Ships.model(id); Ships.display_name(id); Ships.normalize(id). Ceos.ids(), Ceos.all(), Ceos.card(id) -> {id,name_id,bio_id,perk_name_id,perk_desc_id,stats{haggling,thrift,nerve},effects{haggling_pct,thrift_pct,nerve_pct} fractions,perk_type,perk_pct,perk_cycles}. Start: set SaveGame.pending_ceo and pending_ship (read once by main.gd, ids validated; empty ceo falls back to pending_portrait). In game: main.ceo_id, main.ship_type, main.ship_cap(), main.ship_price(); Ships.fleet/Ceos.current are static. Save v5 adds ceo_id, ship_type; old saves: small, no CEO. Upkeep = maintenance x max(upkeep_floor, ship x skills x thrift). Bots: --ceo=<id> --ship=<id>; run_batch CEO=<id> SHIP=<id> env; RESULT has ceo and ship_type.",
+ "details": {
+  "api": "Skills._eff appends Ceos.effects() (stat effects carry value=steps x step key); Skills.reveal_cycles(at_home) new arg; RouteEngine.kind_of returns Ships.fleet; ship_panel has one buy button."
+ }
+}

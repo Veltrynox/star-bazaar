@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "agent": "economy-designer",
+  "date": "2026-11-05",
+  "task": "resource-audit",
+  "status": "done",
+  "files_changed": ["data/goods.json", "data/availability.json", "design/proposals/2026-11-05-resource-audit.md", "handoffs/economy-designer/2026-11-05-resource-audit.json", "goals/ship-ceo-skills-resources/blackboard.json"],
+  "open_questions": ["Skills agent: swap LUX_1/LUX_4 good unlocks (cask at LUX_1, gems at LUX_4); availability edit follows.", "Alloy sits behind MIN_5 via plate; keep or move MIN_4/MIN_5 order?"],
+  "handoff": "Audit table in design/proposals/2026-11-05-resource-audit.md. Orphans rivets and musk now feed armour and gems (goods.json v2, availability.json v3). Recipe maths all positive, no loops, no dead inputs. Lux tier order is inverted in skills.json (gems T4 at LUX_1, cask T3 at LUX_4), left for the skills agent. balance.json unchanged. tools/tests/run.sh: 0 FAIL. No code or story text needs. QA bots: recheck lux/mil crafting only.",
+  "details": {
+    "changes": [
+      {"file": "data/goods.json", "key": "armour.recipe", "old": {"cells": 3, "chips": 1}, "new": {"cells": 3, "chips": 1, "rivets": 1}, "reason": "rivets orphan"},
+      {"file": "data/goods.json", "key": "gems.recipe", "old": {"ore": 2, "silk": 1}, "new": {"ore": 2, "silk": 1, "musk": 1}, "reason": "musk orphan"},
+      {"file": "data/goods.json", "key": "armour.cash_cost_per_unit", "old": 18, "new": 25, "reason": "rivets cost"},
+      {"file": "data/goods.json", "key": "gems.cash_cost_per_unit", "old": 12, "new": 21, "reason": "musk cost"},
+      {"file": "data/availability.json", "key": "armour, gems visible_when", "old": "no rivets/musk", "new": "good_visible:rivets / good_visible:musk", "reason": "inputs must be visible"}
+    ],
+    "tests": "sh tools/tests/run.sh: 798 PASS, 0 FAIL",
+    "code_needs": [],
+    "text_needs": []
+  }
+}

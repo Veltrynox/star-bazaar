@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-04",
+  "task": "Chains placeholder args, planet panel station hint, flaky tests",
+  "status": "done",
+  "files_changed": [
+    "game/chains.gd",
+    "game/main.gd",
+    "game/planet_panel.gd",
+    "tools/tests/run_tests.gd"
+  ],
+  "open_questions": [
+    "Chains.phrase joins '%s %s %s' (label, +N%, 'for N cycles') in code and _pct builds '+10%': word order will not translate; needs new ids with {pct}/{cycles} placeholders (story-designer) then a code change. OK to do next?"
+  ],
+  "handoff": "CH_FX_BATCHES and CH_FX_CASH_* defaults now use {n}/{sign} placeholders (English identical). Only those two had format-built digits. Not fixed, listed: phrase() joins label + _pct + _cycles_text with spaces; ', ' joins of get/cost/rivals; pool_rivals_line 'label rivals'. No code-built plurals found. New main.pending_station_hint() feeds both the top line and the planet panel pending line (system_of the pending planet). Flaky cause: main tests used an unseeded Markets run seed and event rng (random events could close or reprice planet 0/1, plus rounding in MIL_4 margin). _new_main now seeds Markets, Chains and events rng. _test_localisation backed up and restored user://settings.cfg, Lang and Voice (it left ru before). Runs: 1494 pass 0 fail, 8 times in a row, including one with language=ru preset (restored). Real settings.cfg is language=en (I reset a ru left by an interrupted run).",
+  "details": {
+    "playable": "No visible change except the planet panel pending line now also says 'Or click the Space Storage station.' when the system has a station.",
+    "how_to_try": "Learn Space Storage, build a station, press Send on a planet: the right panel line and the top line both show the station hint."
+  }
+}

@@ -1,0 +1,40 @@
+{
+ "schema_version": 1,
+ "agent": "story-designer",
+ "date": "2026-11-04",
+ "task": "Move chain fill-in phrases from game/chains.gd defaults into story source",
+ "status": "partial",
+ "files_changed": [
+  "story/screens.md",
+  "data/story_text.json"
+ ],
+ "open_questions": [
+  "CH_FX_BATCHES needs a code change: default is built as \"+%d batch per cycle\" % int(v), no args passed. story/ru/common.json already has CH_FX_BATCHES, so build_story.py fails (RU ERROR) without --allow-skip until it exists in English. Suggest code passes {n} and English text \"+{n} batch per cycle\"; the Russian text has no digit, so the RU text would need {n} or the English text would need no digit (\"One more batch per cycle\" changes the English game text; owner decides)."
+ ],
+ "handoff": "18 CH_ ids added to story/screens.md under CH_EFFECT_LINE, texts equal to the code defaults. CH_FX_CASH_IN is \"+{cash_in} credits\" and CH_FX_CASH_OUT is \"-{cash_out} credits\" (the code passes both args, so the output is identical). CH_FX_BATCHES left out. build_story.py was run with --allow-skip (it prints only the CH_FX_BATCHES RU error); data/story_text.json differs from before by the 18 added entries only. Tests: 1489 pass, 0 fail on 3 runs; one earlier run showed 2 flaky fails (MIL_4, T158) that did not repeat, also seen as 5 fails with stale data before the rebuild.",
+ "details": {
+  "ids_added": {
+   "CH_CUT": "drops a tier",
+   "CH_CUT_LOW": "loses strength clearly",
+   "CH_CUT_STD": "moved down a tier",
+   "CH_CUT_STD_LOW": "strength down clearly",
+   "CH_SIZE_S": "a little",
+   "CH_SIZE_M": "clearly",
+   "CH_SIZE_L": "sharply",
+   "CH_RIVALS_LABEL": "Rivals:",
+   "CH_FX_REST": "for the rest of the run",
+   "CH_FX_CYCLES": "for {n} cycles",
+   "CH_FX_CASH_IN": "+{cash_in} credits",
+   "CH_FX_CASH_OUT": "-{cash_out} credits",
+   "CH_FX_VOLUME": "Volume",
+   "CH_FX_PRICE": "Sell prices",
+   "CH_FX_UPKEEP": "Ship upkeep",
+   "CH_FX_TRIP": "One route's trip cost",
+   "CH_FX_TECH": "+{n} tech progress",
+   "CH_FX_IDLE": "Workshop idle"
+  },
+  "needs_code_change": {
+   "CH_FX_BATCHES": "digit built in code via % format"
+  }
+ }
+}

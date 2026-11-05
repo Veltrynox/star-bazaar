@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-04",
+  "task": "resource-info-hover",
+  "status": "done",
+  "files_changed": [
+    "game/good_info.gd",
+    "game/planet_panel.gd",
+    "game/space_storage_view.gd",
+    "tools/tests/run_tests.gd",
+    "qa/bots/good_info_shot.gd",
+    "qa/reports/good_info_start_energy.png",
+    "qa/reports/good_info_later_cells.png"
+  ],
+  "open_questions": [
+    "Tutorial step text on the planet panel showed Russian in the screenshot (qa/reports/good_info_later_cells.png); owner said English only. Not touched, belongs to story/."
+  ],
+  "handoff": "The RMB info card is gone; the explanation is now in the existing hover tooltip. Planet resource button: name, description, market / Made at / Used in / Space Storage lines, blank line, then the old lines (prices, buy order, next cycle, right-click hint). A locked system keeps its lock reason first, then the block. Space Storage stock rows got the same block as their tooltip. GoodInfo is now a plain text composer (lines, block). The right-click menu is back to Buy, Sell, Send to and tut_note. Tests: 1740 pass, 0 fail.",
+  "details": {
+    "how_to_try": "Start a game, open Voltara, hover Energy for half a second: tooltip starts with Energy and its description. Learn MIL_1 and build Munitions Line: Cells tooltip says Made at: Munitions Line, Energy lists Cells. Open Space Storage and hover a stock row. Bot: qa/run_game.sh res://qa/bots/good_info_shot.gd.",
+    "verified_by_eye": "The screenshot shows a real Godot tooltip for the Power Cells button (description, Military market, Made at, blank line, prices, right-click hint) fitting its box without overlapping the tutorial card badly (it overlaps the Connections area of the planet panel, as any tooltip does).",
+    "not_verified": "Space Storage row tooltip was checked only by code, no screenshot. Energy start screenshot was saved but only the cells one was viewed."
+  }
+}

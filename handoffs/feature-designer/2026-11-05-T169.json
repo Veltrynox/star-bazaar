@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "agent": "feature-designer",
+  "date": "2026-11-05",
+  "task": "T169",
+  "status": "done",
+  "files_changed": ["design/proposals/2026-11-05-storage-link.md", "handoffs/feature-designer/2026-11-05-T169.json"],
+  "open_questions": [
+    "UNKNOWN: collapse after dormant limit, or dormant forever?",
+    "UNKNOWN: standing orders or one-off transfer button?",
+    "UNKNOWN: design/proposals/2026-11-05-ship-flight-discovery.md did not exist; link/flight interaction is assumed (section 9)"
+  ],
+  "handoff": "Storage Link proposal written. Link costs rivets + energy to build, energy upkeep per cycle, goes dormant (then collapses) when upkeep runs out. All numbers are placeholders for economy-designer. T165 can be dropped or merged.",
+  "details": {
+    "proposals": [
+      {
+        "id": "storage-link",
+        "title": "Storage Link between two Space Storages, paid in goods",
+        "problem": "Moving goods between system storages costs ship slots; rivets has no use.",
+        "owner_agent": "gameplay-programmer (with ui-programmer, economy-designer, story-designer)",
+        "size": "M-L",
+        "questions": ["collapse or only dormant", "standing orders or one-off", "ship-flight-discovery interaction to re-check"]
+      }
+    ]
+  }
+}

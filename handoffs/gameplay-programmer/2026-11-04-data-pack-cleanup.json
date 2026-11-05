@@ -1,0 +1,64 @@
+{
+ "schema_version": 1,
+ "agent": "gameplay-programmer",
+ "date": "2026-11-04",
+ "task": "data-pack-cleanup",
+ "status": "done",
+ "files_changed": [
+  "game/conditions.gd",
+  "game/conditions.gd.uid",
+  "game/availability.gd",
+  "game/chains.gd",
+  "game/events.gd",
+  "game/story_text.gd",
+  "game/main.gd",
+  "game/debug_menu.gd",
+  "data/chains.json",
+  "data/goods.json",
+  "data/availability.json",
+  "data/events.json (generated)",
+  "data/story_text.json (generated)",
+  "data/story_text_ru.json (generated)",
+  "tools/build_story.py",
+  "tools/check_chains.py",
+  "tools/sim.py",
+  "tools/voice/gen_voice.py",
+  "qa/bots/audit_mechanics.py",
+  "tools/tests/run_tests.gd",
+  "CLAUDE.md",
+  "handoffs/gameplay-programmer/2026-11-04-data-pack-cleanup.json"
+ ],
+ "open_questions": [
+  "Event tags (e.g. [price up: Voltara, silk]) stay in data/events.json: they are the parsed mechanics (parse_tag, tools/sim.py reads them), not display text. Convert them to structured effect fields later, or keep?",
+  "build_story.py now builds the 54 BE01-BE03 branching-event texts from story/events.md (they were silently skipped before; still not wired to any event). OK to have them in story_text.json, or move them to a separate draft file?",
+  "Visibility key is `visible_when` only (steps, chain options, events, availability rules); no separate `requires`. Event choices (data/events.json) are not filtered yet because choice index is used by the UI; wire when the skill-gated options are built."
+ ],
+ "handoff": "One evaluator, game/conditions.gd (Conditions.eval/visible/lint); Availability, Chains triggers, Events.good_available and goods.json unlocked_by use it. tech_done renamed skill_learned. New atoms: not-trees, event_fired:<id> (reads Events.feed + Chains.picks, already saved), good_traded:<good>. Chain triggers are now string atoms 'share_pct:balance.<key>'. All event text is ids in story_text.json (EVnn_TITLE/_BODY); events.json holds mechanics + ids. Generated files carry a 'generated' marker and are {generated, entries}; test rebuilds to temp and compares. New cross-pack lint test. 1653 checks, 0 fail. Pool event verified in a windowed run; the chain step opened too. bot_run.gd idles at cycle 1 (tutorial lock refuses the first ship), unrelated to this change.",
+ "details": {
+  "atom_vocabulary": {
+   "start": "always true",
+   "skill_learned:<node>": "node learned (skill and tech; tech_done removed)",
+   "workshop_built:<workshop>": "workshop built",
+   "system_open:<n>": "permit bought",
+   "cycle_at_least:balance.<key>": "cycle >= balance value",
+   "stock_held:<good>": "good held anywhere",
+   "good_visible:<good>": "good's availability rule true",
+   "good_traded:<good>": "NEW (ctx.planets) an open planet prices the good; used by the event filter",
+   "event_fired:<event or step id>": "NEW event/chain step already fired this run",
+   "share_pct:balance.<key>": "chain steps only: step market share % reached",
+   "first_sale_after_cycle:balance.<key>": "chain steps only",
+   "cycles_after_prev_step:balance.<key>": "chain steps only",
+   "trees": "{all:[]}, {any:[]}, {not:cond}; any entry may carry visible_when"
+  },
+  "data_files_changed_no_number_or_effect_changed": {
+   "data/chains.json": "31 step triggers rewritten from {atom: key} objects to string atoms (same keys; tech_done->skill_learned); removed the 12 pool_new 'title' fields (duplicates of EV40-51_TITLE text ids); vocabulary.trigger text updated",
+   "data/goods.json": "workshops[].unlocked_by 'MIN_1' -> 'skill_learned:MIN_1' (5 rows; a condition string, nothing reads it at runtime)",
+   "data/availability.json": "tech_done: -> skill_learned: in rules; atoms section rewritten as the vocabulary",
+   "data/events.json": "generated: title/text removed, title_id/text_id added; wrapped as {generated, entries}",
+   "data/story_text.json": "generated: +44 EVnn_TITLE/_BODY ids for EV01-28 (byte-identical text), +54 BE ids; wrapped",
+   "data/story_text_ru.json": "generated, wrapped; Russian scope widened to EV<digit> ids (no Russian text written)"
+  },
+  "tests_changed": "two chain tests ported to Conditions (keys check, cycles_after_prev_step); EV17_BODY now in the Russian scope; readers use StoryText.entries_of. New: generated files, data pack lint, conditions unit.",
+  "how_to_try": "sh tools/tests/run.sh (0 fail). Hand-edit data/events.json and run Godot directly: 'generated files' test fails naming the file and command."
+ }
+}

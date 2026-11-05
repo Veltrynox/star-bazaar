@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "agent": "feature-designer",
+  "date": "2026-11-05",
+  "task": "T172",
+  "status": "done",
+  "files_changed": ["design/proposals/2026-11-05-more-skills.md"],
+  "open_questions": [
+    "UNKNOWN: do bridge skills (proposal 3) conflict with the pillar that the tree punishes spreading?",
+    "UNKNOWN: does Luxury have enough negative events for an event cut to be felt (proposal 5)?",
+    "UNKNOWN: can Foundation-tier skills (proposal 2) trivialise the first cycles?"
+  ],
+  "handoff": "Five proposals, 14 new nodes in total, existing effect vocabulary only. Nothing approved; economy-designer and qa-analyst review is the next round (run by the main session). No code or data edited.",
+  "details": {
+    "proposals": [
+      {"id": "P1", "title": "Tier-3 side skills, one per market (MIL_5B, LUX_5B, MIN_5B, BIO_5B)", "problem": "Single chain per market, no choice at tier 3", "owner_agent": "economy-designer", "size": "M", "questions": ["Count toward epilogue?", "Cost 2 or 3?"]},
+      {"id": "P2", "title": "Foundation-tier skills FND_BULK and FND_RELAY", "problem": "First points buy only unlocks", "owner_agent": "economy-designer", "size": "S", "questions": ["Before or after the three Foundations?", "How small?"]},
+      {"id": "P3", "title": "Cross-market bridge skills (MIL_MIN, LUX_BIO, MIN_LUX)", "problem": "Spreading is never worth trying", "owner_agent": "economy-designer", "size": "M", "questions": ["Allowed under the pillar?"]},
+      {"id": "P4", "title": "Rival tools for Minerals and Biotech (MIN_6B, BIO_6B)", "problem": "Chosen-rival decision exists only in Military and Luxury", "owner_agent": "economy-designer", "size": "S", "questions": ["Cap on total rival cut?"]},
+      {"id": "P5", "title": "Reactive event skills (LUX_6B, MIL_6B)", "problem": "Luxury has no event protection; MIL_3 has no successor", "owner_agent": "economy-designer", "size": "S", "questions": ["Enough negative Luxury events?"]}
+    ]
+  }
+}

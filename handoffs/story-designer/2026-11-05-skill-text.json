@@ -1,0 +1,24 @@
+{
+  "agent": "story-designer",
+  "date": "2026-11-05",
+  "task": "skill-text",
+  "status": "done",
+  "schema_version": 1,
+  "files_changed": [
+    "story/skills.md",
+    "story/screens.md",
+    "story/ru/skills.json",
+    "story/ru/setup.json",
+    "tools/build_story.py",
+    "tools/tests/run_tests.gd",
+    "game/story_text.gd",
+    "data/story_text.json",
+    "data/story_text_ru.json"
+  ],
+  "open_questions": [
+    "LUX_5 plain says 'the event pays more': the brief says price-up events pay +25%; confirm it applies to Luxury goods only.",
+    "Russian skill UI chrome (SK_HEADER, tabs, buttons) stays English per ru GLOSSARY, so the Russian tree mixes English chrome with Russian node texts. Owner to decide.",
+    "ru/GLOSSARY.md still says SK_* stays English; needs a line for the new scope (doc-manager)."
+  ],
+  "handoff": "All 27 skill nodes (NAME/FLAVOUR/PLAIN/CRAFT) now have Russian in story/ru/skills.json; EN rewritten for changed nodes plus offenders (FND_PROSPECT, MIL_1/4, LUX_4, MIN_1/3/5, BIO_1/3/4) and CRAFT lines (no workshop names). New names: Double Casting, Debris Pilots, Hull Works, Cold Cellar, Twin Crucible, Culture Charter, Deep Shelves. SETUP_NEXT added (EN Next, RU Далее); company_setup.gd already used it with fallback, no edit. Scope: in_ru_scope and RU_SCOPE_RE now include SETUP_NEXT and SK_*_NAME/FLAVOUR/PLAIN/CRAFT. New test in _test_availability scans SK_* for hidden goods. Tests: 1862 pass, 0 fail. SETUP_BACK/NEED ids still have no story text."
+}

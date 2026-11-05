@@ -97,3 +97,12 @@ The player is "you" or "the company". Never a gender, never a name.
 - Size words: a little (small), clearly (medium), sharply (large, rivals only). Durations: for a few cycles (2 to 3), for a while (4 to 8), for the rest of the run. Credits and tech units come only from {cash_in}, {cash_out} and {n}.
 - New placeholders: {bot}, {bot1}, {bot2}, {bot3}, {cash_in}, {cash_out}, {cut}, {cut_std}, {get}, {cost}, {rivals}, {market}, {workshop}, {share}, {bots}. Documented in story/events.md, section "Chain placeholders".
 - Terms: Rivals (the three other companies); Competitors (the menu that lists them and their recent moves); the Atelier, the Smelter, the Munitions Line, the Culture Lab (workshops; capitalised as names, lower case in running text). Not "Standings" in player text; the old working name is retired.
+
+### Pathfinder, posts and platforms (added 2026-11-05, T181, pending T179)
+- Pathfinder: the scout the player flies. Not part of the fleet, no cargo, no upkeep. Name stays Latin in Russian.
+- Unknown world, Unknown dark world: the label of a closed planet. Its real name appears when the Pathfinder arrives.
+- Fly here: the button that sends the Pathfinder. Flight time: how long it takes, in cycles.
+- Trading post: a living planet the company has established. Button "Establish trading post". Lets the company buy, sell, route and store there.
+- Mining platform: the same for a dead world. Button "Establish mining platform" (28 characters, the one exception to the 24 limit for buttons). Lets the company mine there and route what it mines.
+- "Build time" is in cycles; the first post is free (default, owner to confirm). Never call a post a base or a colony, a platform a mine or a rig.
+- Post, platform and flight events: neutral choices, effect line first, sizes only in words (a small sum, a little, clearly), no digits.

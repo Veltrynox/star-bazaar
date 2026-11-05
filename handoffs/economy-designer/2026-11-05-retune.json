@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "agent": "economy-designer",
+  "date": "2026-11-05",
+  "task": "retune",
+  "status": "done",
+  "files_changed": [
+    "data/balance.json",
+    "data/ships.json",
+    "design/proposals/2026-11-05-retune.md",
+    "goals/ship-ceo-skills-resources/blackboard.json",
+    "handoffs/economy-designer/2026-11-05-retune.json"
+  ],
+  "open_questions": [
+    "Win rate per CEO x ship combo is noisy at n=6 (3 combos miss the 60 pct rule at 3/6); worth a 12-seed re-run if the owner wants a hard pass.",
+    "ceo_man_02 reveal-prices perk feeds no share (first cycle only). Fair now through haggling; a share-feeding perk would be a design change."
+  ],
+  "handoff": "Cause of the decent drop: the final skill tree removed skill_MIL_3_route_units (+12.5 pct mil route capacity), which the default bot learns every run. Replaced by cargo 32 to 40 (decent default 6/8 wins at c27, as HEAD). Also CEO haggling 0.016, thrift 0.03, woman_01 lane 0.12, woman_02 order 0.15, dart row reworked, mining_yield 30. Sweep 72/96 wins (was 34), 13 of 16 combos pass. Regression: only decent wins. Tests 1866 pass.",
+  "details": {
+    "data_version": {"old": 48, "new": 49},
+    "changes": {
+      "balance.cargo": {"old": 32, "new": 40, "reason": "replaces removed MIL_3 route capacity"},
+      "balance.mining_yield_per_cycle": {"old": 20, "new": 30, "reason": "second ship on a cluster must still add ore at cargo 40 (T156)"},
+      "balance.ceo_step_haggling": {"old": 0.008, "new": 0.016, "reason": "cash-only stat too weak"},
+      "balance.ceo_step_thrift": {"old": 0.02, "new": 0.03, "reason": "lift man_01"},
+      "balance.ceo_perk_woman_01_pct": {"old": 0.08, "new": 0.12, "reason": "first-lane capacity feeds share"},
+      "balance.ceo_perk_woman_02_pct": {"old": 0.08, "new": 0.15, "reason": "order size, small lift"},
+      "ships.dart": {"old": "cargo 0.9 upkeep 0.85 trip 0.6 price 0.9", "new": "cargo 1 upkeep 1 trip 0.75 price 1.05", "reason": "lowest win rate ship"}
+    },
+    "sim": {
+      "default_decent_seeds_1_8": "6 wins, all c27",
+      "regression_seeds_1_4": {"decent": "3 wins c27", "sloppy": "0, cash 8.5k-10k", "always_expand": "0, cash 24k-31k", "never_expand": "0, cash 5.8k-9.5k"},
+      "sweep_16_combos_seeds_1_6": "72/96 wins, median 27 (one combo 30), 13/16 pass both rules"
+    }
+  }
+}

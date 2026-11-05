@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-11-04",
+  "task": "Name for the Space Storage portal building",
+  "status": "done",
+  "files_changed": ["story/ideas.md"],
+  "open_questions": [
+    "Is the building built once or can there be several? The description says built once.",
+    "Build button limit: allow 30 characters, or use the Null Core pattern 'Build Ledger Fold: {cost}'?",
+    "Notice needs {system_a} and {system_b}; add them or name planets instead?"
+  ],
+  "handoff": "Idea 10 in story/ideas.md has six names, the recommendation (Ledger Fold) and draft rows SS_LEDGER_FOLD_NAME, _DESC, _BUILD, _BUILT and _SENT. Nothing is added to story/screens.md or voice.md yet. If the owner accepts, add the rows to screens.md and a glossary line for Ledger Fold to voice.md, then the programmer can wire them. The name shows only in the Space Storage window, so it stays hidden until FND_STORAGE is learned. I did not run tools/tests/run.sh because no game file changed.",
+  "details": {}
+}

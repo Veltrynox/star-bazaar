@@ -11,7 +11,7 @@ var first_enabled := -1  # index of the first choice button that is not disabled
 var enabled_choices: Array = []  # indexes of every choice button that is not disabled, in order (QA reads these)
 var _dismissed := false  # set when the exit fade starts: a button still focused cannot confirm a second time
 
-func show_event(title: String, text: String, effect_line: String, choices: Array, continue_text: String, disabled: Array = [], art: String = "") -> void:
+func show_event(title: String, text: String, effect_line: String, choices: Array, continue_text: String, disabled: Array = [], art: String = "", voice_id: String = "") -> void:
 	color = Ui.col("scrim_soft")
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_STOP
@@ -96,6 +96,8 @@ func show_event(title: String, text: String, effect_line: String, choices: Array
 				first_enabled = idx
 	if first != null:
 		first.grab_focus()
+	if voice_id != "":
+		Voice.play(voice_id)
 	# entry beat: the scrim fades in and the card grows into place
 	Juice.enter(self, 1.0, 0.0, true)
 	Juice.enter(card, Juice.ENTER_SCALE)
@@ -110,6 +112,7 @@ func _load_banner(art: String) -> Texture2D:
 ## Closes the notice with a short fade and frees it. Input passes through at once, so the exit never holds play up.
 func dismiss() -> void:
 	_dismissed = true
+	Voice.stop()
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	Juice.leave(self, true)
 

@@ -1,7 +1,66 @@
 {
-  "schema_version": 1,
-  "note": "T58 ship types. Abstract template values; owner to confirm names. A *_key field names a value in balance.json (read at runtime); a plain number is used as is. speed is abstract and display only (travel stays travel_cycles_per_leg).",
-  "types": [
-    {"id": "small", "name": "Skerrit", "name_id": "LBL_SHIP_SMALL", "price_key": "ship_price", "cargo_mult": 1, "upkeep_mult": 1, "speed": 1.0}
-  ]
+ "schema_version": 1,
+ "note": "2026-11-05 ship-ceo-data. All fields are multipliers on balance.json (cargo, maintenance, trip_cost, ship_price) except cap_add (+ to ship_cap). maintenance = upkeep_mult, trip_cost = trip_mult. Profit per ship at margin ~8/unit within ~3 pct of Skerrit. speed display only. One ship type per fleet.",
+ "types": [
+  {
+   "id": "small",
+   "name": "Skerrit",
+   "name_id": "LBL_SHIP_SMALL",
+   "role_id": "TXT_SHIP_SMALL_ROLE",
+   "desc_id": "TXT_SHIP_SMALL_DESC",
+   "model": "res://assets/ships/ship_corvette_01/model_ship_corvette_01.glb",
+   "price_key": "ship_price",
+   "cargo_mult": 1,
+   "upkeep_mult": 1,
+   "trip_mult": 1,
+   "price_mult": 1,
+   "cap_add": 0,
+   "speed": 1.0
+  },
+  {
+   "id": "bulk",
+   "name": "Bulkhead",
+   "name_id": "LBL_SHIP_BULK",
+   "role_id": "TXT_SHIP_BULK_ROLE",
+   "desc_id": "TXT_SHIP_BULK_DESC",
+   "model": "res://assets/ships/ship_corvette_02/model_ship_corvette_02.glb",
+   "price_key": "ship_price",
+   "cargo_mult": 1.125,
+   "upkeep_mult": 1.9,
+   "trip_mult": 1.3,
+   "price_mult": 1.1,
+   "cap_add": 0,
+   "speed": 0.8
+  },
+  {
+   "id": "dart",
+   "name": "Dart",
+   "name_id": "LBL_SHIP_DART",
+   "role_id": "TXT_SHIP_DART_ROLE",
+   "desc_id": "TXT_SHIP_DART_DESC",
+   "model": "res://assets/ships/ship_corvette_03/model_ship_corvette_03.glb",
+   "price_key": "ship_price",
+   "cargo_mult": 1,
+   "upkeep_mult": 1,
+   "trip_mult": 0.75,
+   "price_mult": 1.05,
+   "cap_add": 0,
+   "speed": 1.3
+  },
+  {
+   "id": "fleet",
+   "name": "Tramp",
+   "name_id": "LBL_SHIP_FLEET",
+   "role_id": "TXT_SHIP_FLEET_ROLE",
+   "desc_id": "TXT_SHIP_FLEET_DESC",
+   "model": "res://assets/ships/ship_corvette_04/model_ship_corvette_04.glb",
+   "price_key": "ship_price",
+   "cargo_mult": 0.95,
+   "upkeep_mult": 0.85,
+   "trip_mult": 0.9,
+   "price_mult": 1.15,
+   "cap_add": 1,
+   "speed": 1.0
+  }
+ ]
 }

@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "agent": "economy-designer",
+  "date": "2026-11-05",
+  "task": "skill-tree-final",
+  "status": "done",
+  "files_changed": [
+    "data/skills.json",
+    "data/balance.json",
+    "data/availability.json",
+    "tools/tests/run_tests.gd",
+    "design/proposals/2026-11-05-skill-tree-final.md",
+    "goals/ship-ceo-skills-resources/blackboard.json"
+  ],
+  "open_questions": [
+    "LUX_6: no saturation rule exists in the build; batch_yield replaces it. Owner confirm?",
+    "MIL_6 set to 0.35 (mil capstone earliest, c19-22); QA to confirm with a munitions bot",
+    "tools/sim.py does not model skills: capstone timing is arithmetic, not simulated"
+  ],
+  "handoff": "Final tree applied; tests 1847 pass. Needs code: event_immune (debris), stock_growth_cap (BIO_3). Retunes: MIL_5 0.35/4, MIL_6 0.35, LUX_7 0.30/8, MIN_7 0.2, BIO_7 0.15, LUX_5 0.30 + event bonus 0.25. New keys: skill_MIL_2_batches, skill_LUX_6_batch_bonus, skill_BIO_3_stock_cap, skill_LUX_5_event_bonus. Removed 7 unused keys. Per-skill justification in the proposal.",
+  "details": {
+    "changed_keys": {
+      "skill_MIL_5_hit": [
+        0.18,
+        0.35
+      ],
+      "skill_MIL_5_cycles": [
+        3,
+        4
+      ],
+      "skill_MIL_6_event_cut": [
+        0.5,
+        0.35
+      ],
+      "skill_LUX_7_hit": [
+        0.18,
+        0.3
+      ],
+      "skill_LUX_7_cycles": [
+        5,
+        8
+      ],
+      "skill_MIN_7_strength_cut": [
+        0.1,
+        0.2
+      ],
+      "skill_BIO_7_strength_cut": [
+        0.1,
+        0.15
+      ]
+    },
+    "new_keys": {
+      "skill_MIL_2_batches": 1,
+      "skill_LUX_6_batch_bonus": 1,
+      "skill_BIO_3_stock_cap": 0.3,
+      "skill_LUX_5_event_bonus": 0.25
+    },
+    "removed_keys": [
+      "skill_size_s",
+      "skill_size_m",
+      "skill_MIL_3_route_units",
+      "skill_MIL_4_price",
+      "skill_LUX_1_price",
+      "skill_LUX_6_price",
+      "skill_BIO_1_order_units"
+    ],
+    "sim": "not modelled by tools/sim.py; strategies unchanged (decent wins c27-28, others lose per QA baseline)"
+  }
+}

@@ -1,38 +1,38 @@
 {
  "schema_version": 1,
- "data_version": 1,
- "source": "2026-11-03 skill-data (economy-designer): 19 goods (8 old tagged as data/markets.json, 11 new) per four-markets.md 1.1-1.3 and four-markets-economy.md section 1. planet_prices are NOT yet in planets.json/systems.json: the programmer wires them in (key style <good>_buy = player pays, <good>_sell = player receives, same as planets.json). Sell price of crafted goods = base price (share base value). Crafted goods placement (Voltara and s2_p4, buy = sell x 1.12) is mine; economy doc gives no planets. size_slots: S 1, M 2, L 3 (balance size_slots_M/L). batch_out also in balance <good>_batch_out.",
+ "data_version": 3,
+ "source": "2026-11-05 resource-final: rivets is the one argued sale-only trade good (a recipe use would make a third Munitions raw and bots could no longer feed armour; design/proposals/2026-11-05-resource-final.md). 2026-11-05 resource-audit: armour later went back to 4 cells in skill round 2, gems also take 1 musk (design/proposals/2026-11-05-resource-audit.md). 2026-11-03 skill-data (economy-designer): 19 goods (8 old tagged as data/markets.json, 11 new) per four-markets.md 1.1-1.3 and four-markets-economy.md section 1. planet_prices are NOT yet in planets.json/systems.json: the programmer wires them in (key style <good>_buy = player pays, <good>_sell = player receives, same as planets.json). Sell price of crafted goods = base price (share base value). Crafted goods placement (Voltara and s2_p4, buy = sell x 1.12) is mine; economy doc gives no planets. size_slots: S 1, M 2, L 3 (balance size_slots_M/L). batch_out also in balance <good>_batch_out.",
  "workshops": [
   {
    "id": "fabric",
    "market": "min",
    "cost_key": "fabric_build_cost",
    "existing": true,
-   "unlocked_by": "MIN_1"
+   "unlocked_by": "skill_learned:MIN_1"
   },
   {
    "id": "smelter",
    "market": "min",
    "cost_key": "workshop_build_cost",
-   "unlocked_by": "MIN_1"
+   "unlocked_by": "skill_learned:MIN_1"
   },
   {
    "id": "munitions",
    "market": "mil",
    "cost_key": "workshop_build_cost",
-   "unlocked_by": "MIL_1"
+   "unlocked_by": "skill_learned:MIL_1"
   },
   {
    "id": "atelier",
    "market": "lux",
    "cost_key": "workshop_build_cost",
-   "unlocked_by": "LUX_1"
+   "unlocked_by": "skill_learned:LUX_1"
   },
   {
    "id": "culture_lab",
    "market": "bio",
-   "cost_key": "workshop_build_cost",
-   "unlocked_by": "BIO_1"
+   "cost_key": "culture_lab_build_cost",
+   "unlocked_by": "skill_learned:BIO_1"
   }
  ],
  "batches_per_cycle_key": "workshop_batches_per_cycle",
@@ -184,7 +184,7 @@
      "rivets_sell": 40
     }
    },
-   "note": "made Voltara, wanted system 2"
+   "note": "sale-only trade good by design: bought at Voltara, sold in system 2 (resource-final 2026-11-05); no recipe, a third Munitions raw would break two-ship feeding"
   },
   {
    "id": "cells",
@@ -219,8 +219,7 @@
    "kind": "crafted",
    "size": "L",
    "recipe": {
-    "cells": 3,
-    "chips": 1
+    "cells": 4
    },
    "workshop": "munitions",
    "batch_out": 3,
@@ -236,7 +235,7 @@
      "armour_sell": 180
     }
    },
-   "cash_cost_per_unit": 18
+   "cash_cost_per_unit": 25
   },
   {
    "id": "musk",
@@ -295,11 +294,11 @@
    "kind": "crafted",
    "size": "L",
    "recipe": {
-    "ore": 2,
-    "silk": 1
+    "silk": 2,
+    "musk": 1
    },
    "workshop": "atelier",
-   "batch_out": 2,
+   "batch_out": 3,
    "sell_price": 130,
    "buy_price": 146,
    "planet_prices": {
@@ -312,7 +311,7 @@
      "gems_sell": 130
     }
    },
-   "cash_cost_per_unit": 12
+   "cash_cost_per_unit": 21
   },
   {
    "id": "ingot",

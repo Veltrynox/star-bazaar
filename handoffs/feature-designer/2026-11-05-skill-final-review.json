@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "agent": "feature-designer",
+  "date": "2026-11-05",
+  "task": "skill-final-review",
+  "status": "done",
+  "files_changed": ["design/proposals/2026-11-05-skill-final-feature-review.md", "handoffs/feature-designer/2026-11-05-skill-final-review.json"],
+  "open_questions": [
+    "UNKNOWN: is MIL_3 (debris only, 2 points) picked often enough in QA, or should debris_clear_fee halve for Military lanes?",
+    "UNKNOWN: does MIN_2 order cap actually bind in play (QA)?",
+    "UNKNOWN: is LUX_6 gems +50 percent too strong (QA)?"
+  ],
+  "handoff": "Final tree re-reviewed: 30 AGREE, 1 AGREE-WEAK (MIL_3, owner-binding, optional fix), 0 CHANGE, 0 REJECT. No data replacement needed.",
+  "details": {
+    "verdicts": {"AGREE": 30, "AGREE_WEAK": ["MIL_3"], "CHANGE": [], "REJECT": []},
+    "data_replacements": []
+  }
+}

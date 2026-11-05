@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-04",
+  "task": "new-station-model",
+  "status": "done",
+  "files_changed": ["game/station.gd", "qa/bots/station_model_shot.gd"],
+  "how_to_try": "Open the game, learn the storage skill (or debug menu) so the Space Storage station is built; it appears beside the sun, upright, slowly spinning. Zoom in with the wheel. Screenshots: qa/reports/2026-11-04-station-model-default.png, -maxzoom.png, -closeup.png (rerun: qa/run_game.sh res://qa/bots/station_model_shot.gd).",
+  "open_questions": [
+    "The station is tiny on the map (MAP_RADIUS 0.0917, ~45 px wide at max zoom). Raise MAP_RADIUS in station.gd if you want it bigger?",
+    "The texture is dark and rusty; it reads dim in the map lighting. Want it brightened (albedo/emission)?"
+  ],
+  "handoff": "station.gd now loads 'space station 3d model.glb'. The model is already Y up (AABB x 1.0, y 0.539, z 0.909, base at y=0, 9764 tris, one StandardMaterial3D with base colour texture only, roughness 0.9, no normal map, no vertex colours). So no rotation. Size and pivot are measured at runtime from the mesh AABB: centred on the box centre, scaled so max(x,z)/2 equals MAP_RADIUS; spin pivot is the model centre. MODEL_RADIUS_M removed. _apply_vertex_colors only touches surfaces with a colour array. Roughness is capped at 0.75. Picking and label use the station centre, unchanged. Old references: only docs (design/art/NAMING.md, old handoffs). Nothing uses a ship model; the cargo ship GLB is not wired (excluded from export). run.sh: 1788 pass, 0 fail."
+}

@@ -1,0 +1,15 @@
+{
+ "schema_version": 1,
+ "agent": "gameplay-programmer",
+ "date": "2026-11-04",
+ "task": "round-rocks",
+ "status": "done",
+ "files_changed": [
+  "game/galaxy/asteroid_packs.gd",
+  "qa/bots/asteroid_packs_shot.gd",
+  "qa/reports/2026-11-04-asteroid-packs-round.png",
+  "handoffs/gameplay-programmer/2026-11-04-round-rocks.json"
+ ],
+ "open_questions": [],
+ "handoff": "No existing sphere mesh in the project (only the lumpy asteroid OBJ, corvette and station GLB/OBJ), so packs now use a built-in SphereMesh (radius 1, 12 segments, 6 rings) with the same ROCK_TEXTURE material. Swap via const ROCK_MESH_KIND in asteroid_packs.gd ('sphere' or 'obj'). Size draw, seeds, stretch and rotation unchanged. Crop shows clearly round rocks, big and small mixed; small ones are a few px blobs, fine at game zoom. Tests: 1660 pass, 0 fail. Stray file for you: game/galaxy/asteroid_packs.gd-E (sed backup from commit cdfcc59), left in place."
+}

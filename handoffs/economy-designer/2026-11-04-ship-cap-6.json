@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "agent": "economy-designer",
+  "date": "2026-11-04",
+  "task": "ship-cap-6",
+  "status": "done",
+  "files_changed": ["data/balance.json", "handoffs/economy-designer/2026-11-04-ship-cap-6.json"],
+  "open_questions": [
+    "sim.py --settle no longer has a win condition (win_cash was removed in v34), so median win cycle and win rate are not available; win is now market share and is not modelled."
+  ],
+  "handoff": "ship_cap 5 to 6 (data_version 44 to 45, source note added). Code reads the key everywhere (ship_panel, main, debug_menu, sim.py); no hard-coded 5 found in tests, qa/bots, gdd.md or story texts, so nothing else edited. Tests: pass=1788 fail=0. Sim (settle, 100 seeds): decent end cash median 33458 to 35176, mining_focus 37663 to 41745, always_expand 34240 to 32203, sloppy/never_expand unchanged (1 ship). ship3 median cycle 6 unchanged. No dominant strategy visible in cash terms; win rates are 0 in the sim for all strategies.",
+  "details": {
+    "changes": [{"key": "ship_cap", "old": 5, "new": 6, "reason": "owner request"}],
+    "sim_results": {
+      "mode": "python3 tools/sim.py --settle --mc 100",
+      "win_rate_before": "n/a (no win condition in sim)",
+      "win_rate_after": "n/a (no win condition in sim)",
+      "end_cash_median_before": {"decent": 33458, "mining_focus": 37663, "always_expand": 34240, "sloppy": 7416, "never_expand": 8241, "never_expand_permit": 12064},
+      "end_cash_median_after": {"decent": 35176, "mining_focus": 41745, "always_expand": 32203, "sloppy": 7416, "never_expand": 8241, "never_expand_permit": 12064}
+    }
+  }
+}

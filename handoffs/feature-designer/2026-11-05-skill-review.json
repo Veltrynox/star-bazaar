@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "agent": "feature-designer",
+  "date": "2026-11-05",
+  "task": "skill-review",
+  "status": "done",
+  "files_changed": ["design/proposals/2026-11-05-skill-redo-feature-review.md", "handoffs/feature-designer/2026-11-05-skill-review.json"],
+  "open_questions": [
+    "UNKNOWN: does MIL_6 stay at -50% once MIL_3 is pirate-only (sim)?",
+    "UNKNOWN: LUX_6 as faster saturation recovery or relief 0.25 (owner and economy-designer)?",
+    "UNKNOWN: is dross worth the MIL-independent MIN_3 route (QA)?"
+  ],
+  "handoff": "31 nodes reviewed: 28 AGREE, 3 CHANGE (MIL_3 pirate-only, LUX_6 faster saturation recovery, BIO_3 raises BIO_2 growth ceiling), 0 REJECT. Military is somewhat too safe, LUX_6 too strong as drafted, all 19 goods have a place.",
+  "details": {
+    "verdicts": {"CHANGE": ["MIL_3", "LUX_6", "BIO_3"], "REJECT": [], "AGREE_count": 28},
+    "military_too_safe": true,
+    "lux6_too_strong": true,
+    "orphan_goods": []
+  }
+}

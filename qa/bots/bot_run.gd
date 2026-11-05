@@ -47,6 +47,9 @@ extends SceneTree
 ##   --choice=alt|RELEASE|CORP   alt: odd seed RELEASE, even seed CORP (default alt)
 ##   --chains=first|good|bad|random  QA 2026-11-03: market chain choices. good/bad take, per step, the option whose hidden nudge
 ##                           (Chains.nudge_of) pushes toward that ending flag; random uses the seed; first = event-policy as before.
+##   --ceo=<portrait id>     CEO of the run (ceo_man_01, ceo_man_02, ceo_woman_01, ceo_woman_02; default none): stats and perk from data/ceos.json
+##   --ship=<type id>        ship type of the run (small, bulk, dart, fleet; default small): data/ships.json
+##   --skip-tutorial         QA 2026-11-05: main._tut_skip() at the first decision (the tutorial gate blocks ship buys and orders otherwise)
 ##   --local-orders          QA 2026-11-03: also Buy and Sell on every focus-market planet, whatever the strategy
 ##   --market=mil|lux|min|bio  market focus (QA 2026-11-03): only goods of that market are traded (lanes and clusters)
 ##   --force-goal=<cycle>    turns on the debug "Force market share" (mil) at that cycle
@@ -97,9 +100,16 @@ var reloaded := false
 var event_rows: Array = []  # T80: per cycle, the active event effects and closed planets (for the events check)
 var reload_ok := true
 var skip_skills: Array = []  # QA option --skip-skill=MIN_2,... (never learn these ids)
+var tech_log: Array = []  # QA 2026-11-05: [cycle, tech id] when a tech is learned by crafting (seen at each cycle end)
+var tech_seen: Array = []
+var skip_techs: Array = []  # QA 2026-11-05: --skip-tech=MIL_2,... ablation: these techs never finish (see _ablate_techs)
 var only_skills: Array = []  # QA option --skills=... (empty: every skill may be learned)
 var skill_order: Array = []  # QA option --skill-order=... (learned first, in this order)
 var permit_sid := -1  # QA option --permit=<system id>
+var ceo_arg := ""  # --ceo=<id>: SaveGame.pending_ceo for the new game
+var ship_arg := ""  # --ship=<id>: SaveGame.pending_ship for the new game
+var skip_tutorial := false  # QA 2026-11-05: --skip-tutorial calls main._tut_skip() once at the first decision (the tutorial gate blocks orders and ship buys otherwise)
+var tutorial_skipped := false
 var default_permit := true  # QA 2026-11-03: decent buys permit 2 when affordable unless --no-permit
 var rng := RandomNumberGenerator.new()
 var main: Node = null
@@ -148,6 +158,7 @@ var close_at := -1  # --close-at=<cycle>: QA injection, closes the first route's
 var close_planet := -1
 var keep_closed := false  # --keep-closed (T94): a route touching a closed planet is kept while its lane stays profitable
 var play_cycle := -1  # the cycle being played; routes_settled results belong to it
+var route_units_by_market: Dictionary = {}  # QA 2026-11-05 T173: route capacity (units_per_cycle of running routes) per market, summed over settled cycles
 var route_ids_before: Array = []  # ids of routes touching close_planet at the start of the cycle, before decisions
 var closure_cycles: Array = []  # play cycles in which close_planet was closed at settle (no bridge)
 var bridged_cycles: Array = []  # play cycles in which the closure timer ran but a skill bridged it (route should run)
@@ -175,7 +186,11 @@ const BANKRUPT_FROM := 8  # bankrupt: cash is spent down to 0 at every turn from
 var bankrupt_floor := -300  # --bankrupt-floor=<n>: cash after the QA overspend (negative: positive floors never went bankrupt, cash was never short)
 var passive_lanes := 0  # --passive-lanes=<n>: passive keeps the n best lanes (default 0) and no extra ship
 var drained := 0  # bankrupt: credits debited by the QA overspend
-const FEED_SHIPS := 2  # QA 2026-11-03: ships a workshop's feed routes may take (a lane ship earns more than a longer chain)
+var feed_ships := 2  # QA 2026-11-03: ships a workshop's feed routes may take (a lane ship earns more than a longer chain). --feed-ships=n (QA 2026-11-05)
+var keep_running := 0  # QA 2026-11-05: --keep-running=<cycle>: after the win the run goes on to this cycle (0 = end at the win)
+var win_at_cycle := -1  # QA 2026-11-05: the cycle the first win ended on (kept runs)
+var first_side := ""  # QA 2026-11-05: side and ending of the first run_ended (the run record and stats hold these)
+var first_ending := ""
 const WORKSHOP_CASH := 300  # QA 2026-11-03: cash the bot keeps after it builds a workshop
 
 
@@ -195,6 +210,8 @@ func _initialize() -> void:
 			force_cycle = int(arg.trim_prefix("--force-goal="))
 		elif arg.begins_with("--skip-skill="):
 			skip_skills = Array(arg.trim_prefix("--skip-skill=").split(","))
+		elif arg.begins_with("--skip-tech="):
+			skip_techs = Array(arg.trim_prefix("--skip-tech=").split(","))  # QA 2026-11-05: tech ablation
 		elif arg == "--reload-choice":
 			reload_at_choice = true
 		elif arg.begins_with("--skills="):
@@ -223,6 +240,16 @@ func _initialize() -> void:
 			market_focus = arg.trim_prefix("--market=")
 		elif arg == "--no-permit":
 			default_permit = false
+		elif arg.begins_with("--ceo="):
+			ceo_arg = arg.trim_prefix("--ceo=")
+		elif arg.begins_with("--ship="):
+			ship_arg = arg.trim_prefix("--ship=")
+		elif arg.begins_with("--keep-running="):
+			keep_running = int(arg.trim_prefix("--keep-running="))  # QA 2026-11-05
+		elif arg.begins_with("--feed-ships="):
+			feed_ships = int(arg.trim_prefix("--feed-ships="))  # QA 2026-11-05
+		elif arg == "--skip-tutorial":
+			skip_tutorial = true
 		elif arg.begins_with("--permit="):
 			permit_sid = int(arg.trim_prefix("--permit="))
 		elif arg.begins_with("--inject="):
@@ -251,6 +278,8 @@ func _initialize() -> void:
 	rng.seed = seed_value
 	SaveGame.continue_requested = false
 	SaveGame.clear()  # every run starts from a new game, never from an old autosave
+	SaveGame.pending_ceo = ceo_arg
+	SaveGame.pending_ship = ship_arg
 
 
 func _process(_delta: float) -> bool:
@@ -283,9 +312,31 @@ func _process(_delta: float) -> bool:
 		phase = 2
 		return false
 	if main.game_over:
-		return _finish()
+		if _keep_playing():
+			_unlock_after_win()
+		else:
+			return _finish()
 	_play_cycle()
 	return false
+
+
+## QA 2026-11-05: --keep-running. The win ends the game for the player (main._finish: game_over and the end screen). The bot
+## clears both after the win so the economy runs on to the --keep-running cycle; gems, alloy and the capstones need that long.
+## Game code is not changed: this is the harness reading the same flags the end screen sets.
+func _keep_playing() -> bool:
+	return keep_running > 0 and run_side == "WIN" and main.cycle <= keep_running
+
+
+## The game returns from _end_cycle right after a win (before its cycle += 1 and the event tail), so the counter stays at the
+## win cycle. The bot takes the one step the game skipped; the economy (routes, workshops, markets) still runs each cycle.
+## Limit: events, Chains.tick and _sync_closed do not run after the win in a kept run.
+func _unlock_after_win() -> void:
+	main.game_over = false
+	main.cycle += 1
+	if main.end_screen != null:
+		main.end_screen.queue_free()
+		main.end_screen = null
+	notes.append("kept running after the win at cycle %d (to cycle %d)" % [win_at_cycle, keep_running])
 
 
 func _play_cycle() -> void:
@@ -305,6 +356,7 @@ func _play_cycle() -> void:
 	if c == force_cycle:
 		main.debug_force_market = "mil"
 		notes.append("debug force market share (mil) on at cycle %d (QA; same as the debug menu)" % c)
+	_ablate_techs()  # QA 2026-11-05: before this cycle's crafting, so the ablated tech cannot finish in it
 	events_resolved += _resolve_events()
 	if not main.pending.is_empty():
 		main.cancel_pending()
@@ -417,6 +469,10 @@ func _check_cycle_result(c: int, ended_before: int) -> void:
 func _decide(c: int) -> void:
 	if c == 20 and OS.get_environment("BOT_DIAG") != "":
 		_diag_dump(c)
+	if skip_tutorial and not tutorial_skipped:
+		tutorial_skipped = true
+		main._tut_skip()
+		notes.append("QA --skip-tutorial at cycle %d (tut_step was %d)" % [c, main.tut_step])
 	if main.ships == 0:
 		_buy_ship_at(_mission_planet(), c)  # tutorial: the first ship is bought at the mission planet
 	if strategy == "always_expand":
@@ -459,14 +515,16 @@ func _ranked_lanes(ignore_closed := false, worst := false) -> Array:
 func _ranked_lanes_for(focus: String, ignore_closed: bool, worst: bool) -> Array:
 	var out: Array = []
 	var n: int = main.trade.planets.size()
-	var ship_price: int = int(main.balance.get("ship_price", 0))
+	var ship_price: int = main.ship_price()
 	# QA 2026-11-03: surplus cash lets any lane with a real profit take a ship (ships up to ship_cap); lanes already running stay.
 	var surplus: bool = int(main.cash) >= 2 * ship_price + main.engine.routes.size() * int(main.engine.fixed_cost())
 	var poor_out: Array = []
 	var feed_goods: Array = _workshop_inputs()
 	for c in main.engine.commodities:
 		var cs := str(c)
-		if focus != "" and Markets.market_of(cs) != focus:
+		# QA 2026-11-05: the inputs of the focus workshops (food for the atelier, spores for the culture lab) are
+		# traded too, or a focus run never feeds its own workshop.
+		if focus != "" and Markets.market_of(cs) != focus and not feed_goods.has(cs):
 			continue
 		# Real volume: the units a ship of this good moves per cycle (skills included), capped by the order size.
 		var units: int = mini(int(main.engine.local_amount(cs)), int(main.engine.units_per_cycle(null, cs)))
@@ -482,6 +540,8 @@ func _ranked_lanes_for(focus: String, ignore_closed: bool, worst: bool) -> Array
 					continue
 				if not worst and feed_goods.has(cs) and int(main.trade.planets[b].get("system", 1)) == 1:
 					continue  # QA 2026-11-03: a Sell in system 1 draws the Space Storage empty; that stock is the workshop's input
+				if not worst and feed_goods.has(cs) and int(main.trade.planets[a].get("system", 1)) == 1:
+					continue  # QA 2026-11-05 (BUG-2): a lane out of a system 1 planet also draws the Space Storage backup, so a musk lane from Tillam emptied the station before the atelier crafted
 				# Real fixed cost of this very lane (route offset raises the upkeep of long lanes).
 				var fixed: int = int(main.engine.fixed_cost(main.engine.new_record(a, b, cs)))
 				var poor: bool = not worst and bp * units > int(main.cash) and int(main.storage.amount(main.storage.planet_key(a), cs)) < units
@@ -540,7 +600,7 @@ func _lane_key(lane: Dictionary) -> String:
 ## QA 2026-11-03: ships up to ship_cap. When the base plan has fewer lanes than ship_cap, the best lanes take a second and third ship
 ## (the game allows up to lane_full: ships x units per cycle against the order size); each extra ship counts its own extra units.
 func _fill_extra(plan: Array) -> Array:
-	var cap := maxi(1, int(main.balance.get("ship_cap", 1)))
+	var cap := maxi(1, main.ship_cap())
 	var out: Array = plan.duplicate()
 	if out.size() >= cap:
 		return out
@@ -581,7 +641,7 @@ func _plan() -> Array:
 func _plan_base() -> Array:
 	if strategy == "bankrupt":
 		var worst := _ranked_lanes(false, bankrupt_worst)  # bankrupt_worst: the unprofitable lanes first (they rarely run: no cash for them)
-		return _spread_plan(worst).slice(0, maxi(1, int(main.balance.get("ship_cap", 1))))  # all four markets: the overhead bleeds cash too
+		return _spread_plan(worst).slice(0, maxi(1, main.ship_cap()))  # all four markets: the overhead bleeds cash too
 	var ranked := _ranked_lanes()
 	match strategy:
 		"passive":
@@ -602,7 +662,7 @@ func _plan_base() -> Array:
 		"decent":
 			return ranked.slice(0, mini(DECENT_LANES, ranked.size()))
 		_:  # always_expand
-			var cap := maxi(1, int(main.balance.get("ship_cap", 1)))
+			var cap := maxi(1, main.ship_cap())
 			return ranked.slice(0, mini(cap, ranked.size()))
 
 
@@ -622,7 +682,7 @@ func _expand(plan: Array, c: int) -> void:
 	if strategy == "dead_run" and permit_sid >= 0 and not main.open_systems.has(permit_sid) and main.learned_skills.has("FND_PERMIT") \
 			and int(main.cash) < int(main.permit_cost(permit_sid)) + 150:
 		return  # R2: dead_run saves cash for the system 2 permit before buying more ships
-	var price: int = int(main.balance.get("ship_price", 0))
+	var price: int = main.ship_price()
 	var home: int = _lane_home(plan)
 	match strategy:
 		"always_expand", "bankrupt":
@@ -648,7 +708,7 @@ func _expand(plan: Array, c: int) -> void:
 func _buy_ship_at(p: int, c: int) -> void:
 	var before: int = main.ships
 	_select(p)
-	main.ship_panel.buy_requested.emit("small")
+	main.ship_panel.buy_requested.emit(main.ship_type)
 	if main.ships > before:
 		ship_buys.append([c, p, main.ships])
 		_count("ship_buy", c)
@@ -825,6 +885,19 @@ func _set_order(p: int, c: String, role: String, on: bool) -> void:
 
 ## QA 2026-11-03: workshops. Builds each workshop of the focus (every workshop with no focus) once its node is learned and
 ## cash covers the build cost plus WORKSHOP_CASH. Built workshops craft from system 1 storage.
+## QA 2026-11-05: --skip-tech ablation. Each cycle start removes the tech from the learned set and clears its unit count.
+## QA 2026-11-05 (sign-off fix): the count is pinned far below zero, so crafting can never reach the goal in any cycle. The earlier
+## erase only worked while one cycle's craft stayed under the goal; tech_goal_2/6 fell to 6 and 8 in round 2 and the tech finished
+## in the same cycle (tech_log). Its dependants stay locked too.
+func _ablate_techs() -> void:
+	for id in skip_techs:
+		var sid := str(id)
+		if sid == "" or not SkillTree.is_tech(sid):
+			continue
+		Skills.learned.erase(sid)
+		Tech.counts[sid] = -1000000
+
+
 func _workshop_turn(c: int) -> void:
 	for id in main.workshops.IDS:
 		if market_focus != "" and str(main.workshops.market_of(id)) != market_focus:
@@ -837,11 +910,11 @@ func _workshop_turn(c: int) -> void:
 		var open_goods: Array = main.workshops.open_recipes(id)
 		var feedable := false
 		for g in open_goods:
-			feedable = feedable or _feed_ships(str(g), open_goods) <= FEED_SHIPS
+			feedable = feedable or _feed_ships(str(g), open_goods) <= feed_ships
 		if not feedable:
 			continue  # nothing this workshop can make now is feedable with the ships it may take
 		# QA 2026-11-03: ships first (they earn more per credit); the workshop is built at ship_cap, or when cash covers it plus two ships.
-		var spare: int = WORKSHOP_CASH if int(main.ships) >= int(main.balance.get("ship_cap", 1)) else 2 * int(main.balance.get("ship_price", 0))
+		var spare: int = WORKSHOP_CASH if int(main.ships) >= main.ship_cap() else 2 * main.ship_price()
 		if int(main.cash) < int(main.workshops.build_cost(id)) + spare:
 			continue
 		var r: Dictionary = main.build_workshop(id)
@@ -875,7 +948,7 @@ func _feed_ships(g: String, open_goods: Array) -> int:
 	return n
 
 
-## The goods the bot makes: per built workshop the highest-tier open recipe whose feed fits FEED_SHIPS ships (the rest of the
+## The goods the bot makes: per built workshop the highest-tier open recipe whose feed fits feed_ships ships (the rest of the
 ## fleet keeps trading), with the in-house intermediates it consumes.
 func _workshop_made() -> Array:
 	var out: Array = []
@@ -885,7 +958,7 @@ func _workshop_made() -> Array:
 		var open_goods: Array = main.workshops.open_recipes(id)
 		var picked := ""
 		for i in range(open_goods.size() - 1, -1, -1):  # highest tier first
-			if _feed_ships(str(open_goods[i]), open_goods) <= FEED_SHIPS:
+			if _feed_ships(str(open_goods[i]), open_goods) <= feed_ships:
 				picked = str(open_goods[i])
 				break
 		if picked == "":
@@ -948,8 +1021,31 @@ func _buyable(p: int, c: String) -> bool:
 	return not (DeadWorlds.is_dead(main.trade.planets[p]) and (main.cycle < main.dead_unlock_cycle() or not main.has_skill(DeadWorlds.skill_for(main.trade.planets[p]))))
 
 
+## QA 2026-11-05 (BUG-1): routes run in list order and a source's stock is one Buy order shared by all its routes. A lane of the
+## same good from the feed's planet (built first, so earlier in the list) drained the stock and starved the feed, so munitions
+## never got energy. Feed routes (to the station) go to the front, as if the player had opened them first.
+func _feed_first() -> void:
+	var feeds: Array = []
+	var rest: Array = []
+	for rec in main.engine.routes:
+		if int(rec["b"]) < 0 and int(rec["a"]) >= 0 and _workshop_inputs().has(str(rec["c"])):
+			feeds.append(rec)
+		else:
+			rest.append(rec)
+	if feeds.is_empty():
+		return
+	var head: Array = []
+	if not rest.is_empty() and main.engine.routes[0] == rest[0]:
+		head.append(rest.pop_front())  # the CEO first_lane perk reads routes[0]: keep that route first
+	main.engine.routes.clear()
+	main.engine.routes.append_array(head)
+	main.engine.routes.append_array(feeds)
+	main.engine.routes.append_array(rest)
+
+
 ## One feed route per workshop input good, from the first open planet that buys it. Refusals are logged once per reason.
 func _workshop_feed(c_turn: int) -> void:
+	_feed_first()
 	for c in _workshop_inputs():
 		var fed := false
 		for rec in main.engine.routes:
@@ -971,7 +1067,7 @@ func _workshop_feed(c_turn: int) -> void:
 				if bool(main.can_buy_ship()["ok"]):
 					_buy_ship_at(_mission_planet(), c_turn)  # QA 2026-11-03: a ship for the feed when cash allows
 					ok = main.can_connect(int(p), -1, c)
-				elif int(main.ships) >= int(main.balance.get("ship_cap", 1)) and _free_weakest_lane(c_turn, c):
+				elif int(main.ships) >= main.ship_cap() and _free_weakest_lane(c_turn, c):
 					ok = main.can_connect(int(p), -1, c)  # at ship_cap a planned lane gives up its ship for the feed
 			if bool(ok["ok"]):
 				var rc: Dictionary = main._connect(int(p), -1, c)
@@ -981,6 +1077,7 @@ func _workshop_feed(c_turn: int) -> void:
 			if feed_why.get(c, "") != why:
 				feed_why[c] = why
 				feed_log.append([c_turn, p, c, false, why])
+	_feed_first()
 
 
 ## QA 2026-11-03: ore for a workshop. No planet sells ore, so a player mines it: cluster -> system 1 planet that buys ore, then
@@ -1005,7 +1102,7 @@ func _feed_ore(c_turn: int) -> void:
 			return
 		if main.free_ships() <= 0 and bool(main.can_buy_ship()["ok"]):
 			_buy_ship_at(x, c_turn)
-		if main.free_ships() <= 0 and int(main.ships) >= int(main.balance.get("ship_cap", 1)):
+		if main.free_ships() <= 0 and int(main.ships) >= main.ship_cap():
 			_free_weakest_lane(c_turn, "ore")
 		if main.free_ships() > 0:
 			var r: Dictionary = main.send_from_cluster(best_node, x)
@@ -1013,7 +1110,7 @@ func _feed_ore(c_turn: int) -> void:
 		return
 	if main.free_ships() <= 0 and bool(main.can_buy_ship()["ok"]):
 		_buy_ship_at(x, c_turn)
-	if main.free_ships() <= 0 and int(main.ships) >= int(main.balance.get("ship_cap", 1)):
+	if main.free_ships() <= 0 and int(main.ships) >= main.ship_cap():
 		_free_weakest_lane(c_turn, "ore")
 	var ok: Dictionary = main.can_connect(x, -1, "ore")
 	if bool(ok["ok"]):
@@ -1240,7 +1337,7 @@ func _mining_plan(ranked: Array) -> Array:
 	if main.cycle == 5:  # T161 diagnostics
 		notes.append("c5 mine=%s ore_in=%s cluster_lanes=%d ore_sell_prices=%s fixed=%d units=%d yield=%d" % [main.can_mine(), main.engine.commodities.has("ore"), out.size(), _ore_prices_text(), int(main.engine.fixed_cost()), int(main.engine.units_per_cycle()), int(main.clusters.yield_per_cycle())])
 	out.append_array(ranked)
-	var cap := maxi(1, int(main.balance.get("ship_cap", 1)))
+	var cap := maxi(1, main.ship_cap())
 	return out.slice(0, mini(cap, out.size()))
 
 
@@ -1292,8 +1389,8 @@ func _build_cluster_route(lane: Dictionary) -> bool:
 ## T161: ships for a cluster lane are bought at its destination planet (a cluster cannot be selected).
 ## T161 follow-up: always_expand buys a ship whenever cash covers the price (up to ship_cap), whether or not a lane needs it.
 func _buy_spare_ships(c: int) -> void:
-	var price: int = int(main.balance.get("ship_price", 0))
-	var cap: int = maxi(1, int(main.balance.get("ship_cap", 1)))
+	var price: int = main.ship_price()
+	var cap: int = maxi(1, main.ship_cap())
 	var ranked := _ranked_lanes()
 	var home: int = int(ranked[0]["a"]) if not ranked.is_empty() and int(ranked[0]["a"]) > -1000 else _mission_planet()
 	while main.ships < cap and int(main.cash) >= price and main.can_buy_ship()["ok"]:
@@ -1574,6 +1671,10 @@ func _log_events() -> void:
 func _on_cycle_ended(cycle: int) -> void:
 	ended_count += 1
 	last_ended = cycle
+	for tid in main.learned_skills:  # QA 2026-11-05: techs finish by crafting, so no learn_skill call records them
+		if SkillTree.is_tech(str(tid)) and not tech_seen.has(tid):
+			tech_seen.append(tid)
+			tech_log.append([cycle, str(tid)])
 	share_rows.append([cycle, _shares_now(), main.cash])
 	for id in live_bot_skills.keys():  # QA 2026-11-03: the bot's strength in the skill's market for the next cycle
 		var d: Dictionary = live_bot_skills[id]
@@ -1657,6 +1758,11 @@ func _probe_row(cycle: int) -> Array:
 ## closed (the planet is closed at settle: GDD says the route pays 0 and costs 0), bridged (the closure timer runs
 ## but a skill covers this cycle: the route still runs), otherwise open. Records what each route paid per class.
 func _on_routes_settled(results: Array, _delta: int) -> void:
+	for rec in main.engine.routes:  # QA T173: route capacity (units per cycle of each running route) per market, summed over cycles
+		if str(rec.get("state", "")) != "running":
+			continue
+		var mk := Markets.market_of(str(rec["c"]))
+		route_units_by_market[mk] = int(route_units_by_market.get(mk, 0)) + main.engine.units_per_cycle(rec)
 	if close_planet < 0 or play_cycle < 0:
 		return
 	var closed_now: bool = main.engine.closed_planets.has(close_planet)
@@ -1800,6 +1906,11 @@ func _sum_closed_paid() -> int:
 
 func _on_run_ended(side: String, ending_id: String) -> void:
 	run_end_count += 1
+	if first_side == "":
+		first_side = side
+		first_ending = ending_id
+	if win_at_cycle < 0 and side == "WIN":
+		win_at_cycle = last_ended
 	run_side = side
 	run_ending = ending_id
 
@@ -1817,7 +1928,7 @@ func _finish() -> bool:
 	var end_cycle: int = main.cycle
 	var final_cash: int = main.cash
 	var outcome := "softlock"
-	if main.game_over and run_end_count == 1:
+	if main.game_over and (run_end_count == 1 or keep_running > 0):
 		outcome = run_side.to_lower()  # win, loss or soft
 		_check_run_record()
 	elif main.game_over:
@@ -1843,10 +1954,15 @@ func _finish() -> bool:
 		decisions_total += n
 	var result := {
 		"strategy": strategy,
+		"ceo": str(main.ceo_id),
+		"ship_type": str(main.ship_type),
 		"seed": seed_value,
 		"clock": clock,
 		"choice_policy": choice_policy,
 		"force_goal_cycle": force_cycle,
+		"keep_running": keep_running,
+		"win_cycle": win_at_cycle,
+		"feed_ships": feed_ships,
 		"inject": "%d:%d" % [inject_cycle, inject_cash] if inject_cycle >= 0 else "",
 		"outcome": outcome,
 		"side": run_side,
@@ -1893,6 +2009,9 @@ func _finish() -> bool:
 		"decisions_by_cycle": decisions_by_cycle,
 		"decisions_by_kind": decision_kinds,
 		"skip_skills": skip_skills,
+		"skip_techs": skip_techs,
+		"tech_log": tech_log,
+		"storage_end": main.storage.stock.duplicate(true),  # QA 2026-11-05: end stock per storage key (workshop feed check)
 		"events_resolved": events_resolved,
 		"probe": probe_rows,
 		"market_focus": market_focus,
@@ -1925,6 +2044,7 @@ func _finish() -> bool:
 		"bot_skill_log": bot_skill_log,
 		"bot_skill_rows": bot_skill_rows,
 		"feed_log": feed_log,
+		"route_units_by_market": route_units_by_market,  # QA T173: route capacity, see var
 	}
 	print("RESULT " + JSON.stringify(result))
 	quit(0)
@@ -1940,14 +2060,14 @@ func _check_run_record() -> void:
 		_issue("run_stats", c, "runs %d -> %d, expected +1" % [runs_before, int(after.get("runs", 0))])
 	var ch_b: Dictionary = stats_before.get("choices", {})
 	var ch_a: Dictionary = after.get("choices", {})
-	if int(ch_a.get(run_side, 0)) != int(ch_b.get(run_side, 0)) + 1:
+	if int(ch_a.get(first_side, 0)) != int(ch_b.get(first_side, 0)) + 1:
 		stats_ok = false
-		_issue("run_stats", c, "choices[%s] did not gain exactly 1" % run_side)
+		_issue("run_stats", c, "choices[%s] did not gain exactly 1" % first_side)
 	var en_b: Dictionary = stats_before.get("endings", {})
 	var en_a: Dictionary = after.get("endings", {})
-	if run_ending != "" and int(en_a.get(run_ending, 0)) != int(en_b.get(run_ending, 0)) + 1:
+	if first_ending != "" and int(en_a.get(first_ending, 0)) != int(en_b.get(first_ending, 0)) + 1:
 		stats_ok = false
-		_issue("run_stats", c, "endings[%s] did not gain exactly 1" % run_ending)
+		_issue("run_stats", c, "endings[%s] did not gain exactly 1" % first_ending)
 	if SaveGame.exists():
 		_issue("save_not_cleared", c, "autosave still present after the run ended")
 	end_screen_ok = main.end_screen != null and main.end_screen.get_child_count() > 0

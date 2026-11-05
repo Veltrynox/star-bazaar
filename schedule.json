@@ -231,21 +231,6 @@
       "owner_note": "Replaces T09 as the real check. First real read of the system-1 win path (see state.md). REDESIGN 2026-10-27: runs on the click-to-route build, after T57."
     },
     {
-      "task_id": "T17",
-      "title": "QA bot runs on full build",
-      "owner_agent": "qa-analyst",
-      "depends_on": [
-        "T80",
-        "T13",
-        "T05",
-        "T94"
-      ],
-      "status": "partial",
-      "turn_cap": 30,
-      "window": "QA lane, after T80 (T13 and T05 done)",
-      "brief": "Repeat the four bot strategies on the full build. Check win window, loss behaviour, crashes and softlocks. Feed results to the owner."
-    },
-    {
       "task_id": "T91",
       "title": "GDD reconcile after multi-ship lanes",
       "owner_agent": "general-purpose",
@@ -299,146 +284,6 @@
       "window": "Gameplay lane, low priority, last",
       "brief": "Owner decision 2026-10-27 (item 7). Skill A3 hauler keys (hauler_*) are not read yet (T82 handoff: no hauler ship type exists). Apply the hauler effect keys from data/balance.json to the ship system once T58 has the ship types. Read numbers from data; change no values. Skill B3 is not part of this task. Handoff: handoffs/gameplay-programmer/<date>-T89.json.",
       "owner_note": "Owner decision 2026-10-27, item 7: own task, low priority."
-    },
-    {
-      "task_id": "T61",
-      "title": "Owner playtest of the new route model",
-      "owner_agent": "owner",
-      "depends_on": [
-        "T58"
-      ],
-      "status": "queued",
-      "turn_cap": 0,
-      "window": "Owner, after R3",
-      "brief": "Owner plays with abstract numbers and gives feedback: feel of storage fill, blocked routes, rating bars, ship count. Findings feed T62 and T63.",
-      "owner_note": "Owner direction 2026-10-27 (route redesign). Abstract numbers only; owner plays then refines."
-    },
-    {
-      "task_id": "T62",
-      "title": "GDD update for the click-to-route and storage model",
-      "owner_agent": "general-purpose",
-      "depends_on": [
-        "T61"
-      ],
-      "status": "partial",
-      "turn_cap": 25,
-      "window": "After T61",
-      "brief": "Update gdd.md and gdd-log.md to the implemented, owner-approved model: one-way routes, planet storage and 5-level rating, blocked and stalled rules, space storage (later), ship types, skill tree and expansion points. Replace the old route screen and saturation sections. Log every edit.",
-      "owner_note": "Owner direction 2026-10-27 (route redesign). Abstract numbers only; owner plays then refines. Producer 2026-10-27: no doc-manager agent exists; general-purpose runs this task."
-    },
-    {
-      "task_id": "T63",
-      "title": "Economy: numbers for storage, refill, ships and expansion points",
-      "owner_agent": "economy-designer",
-      "depends_on": [
-        "T61"
-      ],
-      "status": "queued",
-      "turn_cap": 25,
-      "window": "After T61, parallel with T62",
-      "brief": "Replace the abstract numbers: storage capacity, refill and transfer speed, planet-to-space-storage transfer time, ship purchase and maintenance for both types, ship limit, expansion point values, win and loss thresholds. Update tools/sim.py to the one-way route model. Log each change.",
-      "owner_note": "Owner direction 2026-10-27 (route redesign). Abstract numbers only; owner plays then refines."
-    },
-    {
-      "task_id": "T59",
-      "title": "Skill tree: owner design brief",
-      "owner_agent": "owner",
-      "depends_on": [],
-      "status": "queued",
-      "turn_cap": 0,
-      "window": "Owner, any time before T60",
-      "brief": "Owner explains the skill tree: branches, skills, costs, effects. Known so far: skills are bought with expansion points, NOT money (money only reaches the final goal). Points come from a first visit to a planet, from routes, and from new systems. Starting skills: storage and the licence to expand to the next system. Handoff: owner note in state.md, then doc-manager records it in the GDD.",
-      "owner_note": "Owner direction 2026-10-27 (route redesign). Abstract numbers only; owner plays then refines. 2026-10-27: first draft written in gdd-skills.md; owner edits the branches and skills there, which completes T59."
-    },
-    {
-      "task_id": "T72",
-      "title": "Owner: skills per branch, endings and starting points",
-      "owner_agent": "owner",
-      "depends_on": [
-        "T59"
-      ],
-      "status": "queued",
-      "turn_cap": 0,
-      "window": "Owner, open. T71 no longer waits for it (owner 2026-10-27); answers still needed for ending and branch texts.",
-      "brief": "Answer the open questions in gdd-skills.md section 10: (1) which skills belong in Logistics, Research and Expansion and which push toward which ending; (2) how many endings and how the tree chooses one; (3) whether the player starts with any expansion points. The story agent (to be created by the owner) can then write the ending texts."
-    },
-    {
-      "task_id": "T11",
-      "title": "Permits (systems 2 and 3)",
-      "owner_agent": "gameplay-programmer",
-      "depends_on": [],
-      "status": "stopped",
-      "turn_cap": 50,
-      "window": "Stopped: system 2 permit scope moved to T85 (2026-10-27); system 3 stays on hold",
-      "brief": "Permit purchase for system 2 (permit_2_cost) and system 3 (permit_3_cost, needs system 2). New systems use permit_margin_bonus. Systems 2 and 3 have no planets or goods in the design yet.",
-      "owner_note": "ON HOLD by owner. Do not start until the owner lifts the hold. Producer 2026-10-27: owner asked for system 2 permits and unlock (T85). System 3 remains on hold."
-    },
-    {
-      "task_id": "T14",
-      "title": "Win and loss screens",
-      "owner_agent": "gameplay-programmer",
-      "depends_on": [
-        "T12",
-        "T13"
-      ],
-      "status": "stopped",
-      "turn_cap": 40,
-      "window": "SUPERSEDED: not in any window",
-      "brief": "Success story at win_cash by end of any cycle. End screen at win_cycle showing cash reached and the target.",
-      "owner_note": "Producer 2026-10-27: superseded by T77 (win choice, end screens, loss screen). Not started."
-    },
-    {
-      "task_id": "T54",
-      "title": "System-1 win path: economy retune (on hold)",
-      "owner_agent": "economy-designer",
-      "depends_on": [
-        "T47"
-      ],
-      "status": "stopped",
-      "turn_cap": 25,
-      "window": "ON HOLD until the owner chooses a system-1 win path",
-      "brief": "Only if the owner picks an option from state.md. Edit balance.json or planets.json within that choice; log each change with old, new and reason; run tools/sim.py before and after.",
-      "owner_note": "Created by Producer 2026-10-26. Stopped: waits for an owner decision, not for a QA result alone."
-    },
-    {
-      "task_id": "T60",
-      "title": "Skill tree: points, starting skills, screen",
-      "owner_agent": "gameplay-programmer",
-      "depends_on": [
-        "T59"
-      ],
-      "status": "stopped",
-      "turn_cap": 60,
-      "window": "ON HOLD until T59",
-      "brief": "Implement expansion points (first planet visit, route made, new system), the skill tree screen, and the two starting skills (storage, next-system licence) per the T59 brief.",
-      "owner_note": "Owner direction 2026-10-27 (route redesign). Abstract numbers only; owner plays then refines. Superseded by T71."
-    },
-    {
-      "task_id": "T64",
-      "title": "Space storage (one per system) and storage-to-storage links",
-      "owner_agent": "gameplay-programmer",
-      "depends_on": [
-        "T63"
-      ],
-      "status": "queued",
-      "turn_cap": 60,
-      "window": "UNSTOPPED by owner 2026-11-01 (answer d). Still waits for T63 (depends_on). Sell rule is T139.",
-      "brief": "One bigger storage per system, unlocked later; planets transfer into it slowly; it supports a broken route for a while; storage-to-storage links move goods between systems; click it to see and remove connections. Needs the owner's go and T63 numbers.",
-      "owner_note": "Owner direction 2026-10-27 (route redesign). Abstract numbers only; owner plays then refines. Producer 2026-10-27: Space Storage scope moved to T85 at the owner's request. Owner 2026-11-01: unstopped (answer d); sell orders draw from Space Storage stock (T139). Still gated by T63. T139 done 2026-11-01: the sell rule is in. T64 stays queued: it still waits for T63, and its links and click-to-remove scope is not rechecked."
-    },
-    {
-      "task_id": "T94",
-      "title": "QA run, system 2: Full endings, system 2 routes, Space Storage post",
-      "owner_agent": "qa-analyst",
-      "depends_on": [
-        "T80",
-        "T85"
-      ],
-      "status": "partial",
-      "turn_cap": 40,
-      "window": "QA lane, after T79, T12 and T85 (max 4 per window)",
-      "brief": "Use the T78 force-goal control. Run both branches on seeds 1 to 5 (fast-forward; timer where practical). For each run record choice, ending id, cycle and cash. Check: the choice screen appears once at the goal; the recording adds one count per answered win; reload does not double count; a loss adds exactly one LOSS count; no softlock at the choice or ending screen; every END_CORP_* and every Release ending is reached at least once (list any unreached id and why). Also one natural run per strategy: report whether the goal is reached (expected no, T54 on hold). Do not change code, data or balance. Handoff: handoffs/qa-analyst/<date>-T80.json. Owner 2026-10-27: also cover events (T12: price and closure last 3 cycles; choice effects apply) and system 2 (T85: permit purchase, Space Storage post per system, transfer, support of a broken route). Report each as its own section.",
-      "owner_note": "2026-10-27 split from T80."
     },
     {
       "task_id": "T95",
@@ -562,21 +407,6 @@
       "owner_note": "Owner idea 3, 2026-10-28."
     },
     {
-      "task_id": "T104",
-      "title": "Nomads and pirates: event, mining and pirate count (idea 3)",
-      "owner_agent": "gameplay-programmer",
-      "depends_on": [
-        "T12",
-        "T101",
-        "T103"
-      ],
-      "status": "blocked",
-      "turn_cap": 50,
-      "window": "Gameplay lane, idea 3 build (step 3 of 3, serial), after T101 and T103. Blocked on the nomad field link (owner).",
-      "brief": "(1) Nomad choice as a T12 choice event on a planet with an asteroid field (T113). (2) Evict: mining on that field is enabled and the system pirate count rises by the T102 number. (3) Let them stay: no mining, no pirate change. (4) Pirates reduce trade volume by the T102 number; the player may hire clearing for money at the T102 cost. Invent nothing beyond this. (5) Pirate count shown in the system view. Text by story id, numbers from data. Handoff: handoffs/gameplay-programmer/<date>-T104.json.",
-      "owner_note": "Owner idea 3, 2026-10-28. Pirate question answered (trade volume; hired clearing for money). STILL BLOCKED: the brief needs asteroid fields (T113, idea 6), which come later in the serial order. Owner to choose: nomad mining without fields, or move T113 before T104 (breaks the 1-to-7 order)."
-    },
-    {
       "task_id": "T105",
       "title": "Galaxy overview: zoom-out view with systems, connections, icons and routes (idea 4)",
       "owner_agent": "gameplay-programmer",
@@ -591,19 +421,6 @@
       "window": "Gameplay lane, idea 4 build (step 3 of 3, serial), after T118. Blocked by T85 (system 2) and the tutorial (T15, T119).",
       "brief": "Owner answer 2026-10-28 (idea 4): this is a feature, not a bug fix. (1) Galaxy-level zoom that shows: explored solar systems and the connections between them; small icons from T118 for the resources near each planet; the trade routes the player has built. (2) Unreached systems show as unknown. (3) The galaxy view opens only after the player opens solar system 2; the first opening is introduced through the tutorial (text T119, flow in T15). (4) Labels by story id from T106; no hard-coded text. (5) No new numbers. Stay within the macOS frame budget and report frame_time_ms. Handoff: handoffs/gameplay-programmer/<date>-T105.json.",
       "owner_note": "Owner idea 4, 2026-10-28. Owner answers: the view opens only after system 2 is opened; introduced through the tutorial. Blocked by T85 (kept). Tutorial dependencies T15 and T119 added by Producer 2026-10-28."
-    },
-    {
-      "task_id": "T106",
-      "title": "Galaxy overview: labels (idea 4)",
-      "owner_agent": "story-designer",
-      "depends_on": [
-        "T104"
-      ],
-      "status": "queued",
-      "turn_cap": 10,
-      "window": "Story lane, idea 4 step 1 of 3 (serial), after T104.",
-      "brief": "Short labels for the galaxy view: icon legend, summary field labels, unreached-system text. Max lengths per story/voice.md. Handoff: handoffs/story-designer/<date>-T106.json.",
-      "owner_note": "Owner idea 4, 2026-10-28."
     },
     {
       "task_id": "T118",
@@ -689,47 +506,6 @@
       "owner_note": "Owner idea 5, 2026-10-28. Moved from galaxy-builder to artist (owner answer 7)."
     },
     {
-      "task_id": "T111",
-      "title": "Asteroid fields: numbers (idea 6)",
-      "owner_agent": "economy-designer",
-      "depends_on": [
-        "T110"
-      ],
-      "status": "blocked",
-      "turn_cap": 20,
-      "window": "Economy lane, idea 6 step 1 of 3 (serial), after T110. Blocked on Q6.",
-      "brief": "Abstract numbers: money cost to clear a field on a planet; field size or yield; what the field blocks, as the T95 answer defines it. Log every value. Handoff: handoffs/economy-designer/<date>-T111.json.",
-      "owner_note": "Owner idea 6, 2026-10-28. BLOCKED: owner has not answered Q6 (which skill clears fields, or a new skill; whether money may clear fields)."
-    },
-    {
-      "task_id": "T112",
-      "title": "Asteroid fields and any new clearing skill: texts (idea 6)",
-      "owner_agent": "story-designer",
-      "depends_on": [
-        "T111"
-      ],
-      "status": "queued",
-      "turn_cap": 15,
-      "window": "Story lane, idea 6 step 2 of 3 (serial), after T111.",
-      "brief": "Planet panel texts for asteroid fields: field present, pay to clear, cleared. If the owner adds a clearing skill, write its SK_* name and description in story/screens.md and skills.md in the existing format, flagged for owner approval. Handoff: handoffs/story-designer/<date>-T112.json.",
-      "owner_note": "Owner idea 6, 2026-10-28."
-    },
-    {
-      "task_id": "T113",
-      "title": "Asteroid fields: planet panel, paid or skill clearing (idea 6)",
-      "owner_agent": "gameplay-programmer",
-      "depends_on": [
-        "T71",
-        "T109",
-        "T112"
-      ],
-      "status": "blocked",
-      "turn_cap": 50,
-      "window": "Gameplay lane, idea 6 step 3 of 3 (serial), after T109. Blocked on the clearing answer (Q6).",
-      "brief": "(1) Field data per planet, in data/planets.json or a new data file per T95. (2) Field effect as T95 defines it. (3) Two clearing options in the planet panel: pay the cost from data, or use the skill named in T95 (has_skill hook). (4) Field drawn as a ring of polygons around the planet. (5) Save and load. Handoff: handoffs/gameplay-programmer/<date>-T113.json.",
-      "owner_note": "Owner idea 6, 2026-10-28. BLOCKED: the clearing skill (or paid-only rule) is not named. Needed by T104 only if the owner keeps the field link (see T104)."
-    },
-    {
       "task_id": "T114",
       "title": "Ship dots with trails on leaving and arriving (idea 7)",
       "owner_agent": "gameplay-programmer",
@@ -741,54 +517,6 @@
       "window": "Gameplay lane, idea 7 step 1 of 2 (serial), after T113. Not batched.",
       "brief": "A dot for each ship leaving its source and arriving at its destination, with a fading trail along the lane. One dot per ship on a shared lane (T87). No text; no balance values. Stay within the frame budget and report frame_time_ms. Handoff: handoffs/gameplay-programmer/<date>-T114.json.",
       "owner_note": "Owner idea 7, 2026-10-28. Serial order: runs after idea 6 (T113). T87 stays a hard dependency. 2026-10-28: T113 removed from depends_on (ship dots need only multi-ship lanes, T87)."
-    },
-    {
-      "task_id": "T115",
-      "title": "Planet textures by planet type (idea 7)",
-      "owner_agent": "artist",
-      "depends_on": [
-        "T114"
-      ],
-      "status": "blocked",
-      "turn_cap": 30,
-      "window": "Artist lane, idea 7 step 2 of 2 (serial), after T114. Blocked on planet types (Q7).",
-      "brief": "One texture or shader per planet type, types from the T95 Q7 answer. Read the type key from data/planets.json; add no planet data. Report frame_time_ms. Handoff: handoffs/artist/<date>-T115.json.",
-      "owner_note": "Owner idea 7, 2026-10-28. BLOCKED: owner has not given the planet types (T95 Q7). Moved from galaxy-builder to artist (owner answer 7). System 2 planets get types when T85 lands."
-    },
-    {
-      "task_id": "T116",
-      "title": "QA run on the owner ideas of 2026-10-28",
-      "owner_agent": "qa-analyst",
-      "depends_on": [
-        "T98",
-        "T101",
-        "T104",
-        "T105",
-        "T109",
-        "T110",
-        "T113",
-        "T114",
-        "T115",
-        "T118"
-      ],
-      "status": "queued",
-      "turn_cap": 30,
-      "window": "QA lane, after the idea builds (serial chain end). Max 4 per window; batch with T17 or T80 if ready.",
-      "brief": "Check each feature as its own section: event choices apply the right cash and stock; asteroid and nomad rolls are seeded and replayable; shield state saves and loads; galaxy zoom at all levels; field clearing both ways; ship dots per ship and cleared on arrival; planet textures per type. Do not change code, data or balance. Handoff: handoffs/qa-analyst/<date>-T116.json.",
-      "owner_note": "Owner ideas 1 to 7, 2026-10-28."
-    },
-    {
-      "task_id": "T117",
-      "title": "GDD record of the owner ideas of 2026-10-28",
-      "owner_agent": "general-purpose",
-      "depends_on": [
-        "T95"
-      ],
-      "status": "partial",
-      "turn_cap": 25,
-      "window": "Doc lane, first pass after T95 (no build depends on it); second pass after T116.",
-      "brief": "Record the T95 answers in gdd.md and gdd-log.md: the new events (debris, solar shield, nomads and pirates, asteroid approach, asteroid fields), the galaxy view, ship dots, planet textures, and any new skill or money rule. Mark unbuilt items as planned. Change no numbers. Log every edit. Handoff: handoffs/general-purpose/<date>-T117.json.",
-      "owner_note": "Owner ideas 1 to 7, 2026-10-28. No doc-manager agent exists; general-purpose runs this task."
     },
     {
       "task_id": "T120",
@@ -852,17 +580,6 @@
       "owner_note": "Created by main session 2026-10-31 from the owner's list (11 items). Owner decides scope; no code yet."
     },
     {
-      "task_id": "T125",
-      "title": "Replace the first skill, Market Ledger (owner item 4)",
-      "owner_agent": "story-designer",
-      "depends_on": [],
-      "status": "blocked",
-      "turn_cap": 15,
-      "window": "NOT READY: the owner's message was cut off before naming the replacement skill. Owner must give the new skill's name and effect.",
-      "brief": "Once the owner names the replacement: story-designer writes the name, flavour, plain text and locked/learned lines (SK_* ids) and replaces the B1 Market Ledger text. Economy designer sets the effect and cost in balance.json. Gameplay programmer wires the effect after that. Until then nothing changes.",
-      "owner_note": "Created by main session 2026-10-31 from the owner's list (11 items). Owner decides scope; no code yet."
-    },
-    {
       "task_id": "T126",
       "title": "Skill point earned: visible pop-up with a splash (owner item 5)",
       "owner_agent": "ui-programmer",
@@ -915,17 +632,6 @@
       "turn_cap": 15,
       "window": "Story lane. Batch of event texts (data/events.json, EV01 to EV20).",
       "brief": "Owner says event texts are dull. Rewrite the event title and body lines (EV* ids) and choice labels to be bolder and more in the Commons and Bureau voice, with a sharper sense of consequence. Keep the same meaning, effects and numbers; no new mechanics. Keep max lengths. Handoff: handoffs/story-designer/<date>-T130.json.",
-      "owner_note": "Created by main session 2026-10-31 from the owner's list (11 items). Owner decides scope; no code yet."
-    },
-    {
-      "task_id": "T131",
-      "title": "Folder layout: media, references and assets (owner item 10)",
-      "owner_agent": "producer",
-      "depends_on": [],
-      "status": "partial",
-      "turn_cap": 15,
-      "window": "Housekeeping. Do it between agent runs so no one has files open.",
-      "brief": "The folders are messy. Propose a layout (for example media/ for documents and branding, media/refs for reference images, assets/ for game-ready files) and move files with git mv so history is kept. Before moving: find every reference (scenes, .import files, uid files, scripts, handoffs, gdd docs) and update paths. Run the test suite after the move. Do not move art/planet_fx or any file a scene loads without fixing its references. Handoff: handoffs/producer/<date>-T131.json.",
       "owner_note": "Created by main session 2026-10-31 from the owner's list (11 items). Owner decides scope; no code yet."
     },
     {
@@ -982,30 +688,6 @@
       "window": "UI lane, after the current UI round. Small.",
       "brief": "The planet/mission panel still shows the line \"Mission: Buy a ship\". Buying a ship now happens through \"Send to...\" or the ship panel, so the line is out of date. Pick clearer wording that matches the new flow and replace the line. Take the wording from story/screens.md or the story text loader (data/story_text.json via game/story_text.gd); do not hard-code new text in the panel. If the change needs a new or changed story id, list the id, its meaning and max length in the handoff for the story-designer rather than inventing text. Do not change the mission logic or any numbers. Handoff: handoffs/ui-programmer/<date>-T136.json.",
       "owner_note": "Source: owner's review of the planet panel (2026-11-01). Not started; queued after the current UI round."
-    },
-    {
-      "task_id": "T137",
-      "title": "Pacing retune: permit path must not end at cycles 29-30; decent reaches the goal in more runs (owner answer b)",
-      "owner_agent": "economy-designer",
-      "depends_on": [
-        "T47"
-      ],
-      "status": "queued",
-      "turn_cap": 25,
-      "window": "Economy lane, owner answer 2026-11-01. Start by main session.",
-      "brief": "Owner answer 2026-11-01 (b). Retune data/balance.json (and planets.json only if needed) so that (1) the permit path does not end at cycles 29 or 30 of the 30-cycle run; (2) the 'decent' strategy reaches the goal in more runs on seeds 1 to 5 than it does now (read the newest QA summary for the baseline). Log every change with old, new and reason. Run tools/sim.py before and after. Do not change the win condition, the cash goal, the ending picker or the route rules. Handoff: handoffs/economy-designer/<date>-T137.json with before and after counts for decent and the permit cycle.",
-      "owner_note": "Owner answer 2026-11-01 (b): retune pacing. Art director agrees the permit path must not end at 29-30. Does not start T54 (still stopped)."
-    },
-    {
-      "task_id": "T138",
-      "title": "GDD: route income earned through destination sell orders (owner answer a)",
-      "owner_agent": "general-purpose",
-      "depends_on": [],
-      "status": "queued",
-      "turn_cap": 15,
-      "window": "Doc lane, owner answer 2026-11-01. No game code. Start by main session.",
-      "brief": "Owner answer 2026-11-01 (a). The code is right; the GDD is stale. Routes earn through the destination planet's sell orders. Update gdd.md only where it says how route income is earned: grep for route income, route pay, sell order and destination, then read only those sections. Describe the rule as the code does it (check game/route_engine.gd and the planet sell order code before writing). Change no numbers. Log the edit in gdd-log.md. Handoff: handoffs/general-purpose/<date>-T138.json. T62 (partial) keeps the rest of the route GDD; this task covers the income rule only.",
-      "owner_note": "Owner answer 2026-11-01 (a). Producer added 2026-11-01."
     },
     {
       "task_id": "T139",
@@ -1117,189 +799,288 @@
       "owner_note": "Added by main session 2026-11-02 for the approved route upgrade (proposal 3)."
     },
     {
-      "task_id": "T148",
-      "title": "Run variety: starting charters (one bonus, one drawback) and endings that reflect play style",
-      "owner_agent": "story-designer",
-      "depends_on": [
-        "T72"
-      ],
-      "status": "queued",
-      "turn_cap": 30,
-      "window": "Story lane, after owner skill and ending brief (T72). Mostly story work, with a small data hook for charters.",
-      "brief": "From the feature-designer proposal 2026-11-02 (depth-and-interest, idea 7). Propose 3 starting charters, each with one bonus and one drawback, and a short charter text. Write endings that read the player's style (for example how they traded, which routes they ran, whether they cleared debris or used storage), not only which skills were learned. Keep one voice across all texts. Do not change balance numbers: list any number you need from the economy designer as a question. Handoff: handoffs/story-designer/<date>-T148.json listing charters, endings and open numbers.",
-      "owner_note": "Owner asked for run variety through charters and style-based endings. Balance of the charters is for economy-designer after this task."
-    },
-    {
       "task_id": "T149",
       "title": "Content depth in system 1: more planets and goods, and event follow-ups",
       "owner_agent": "feature-designer",
       "depends_on": [],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 15,
       "window": "Design lane. Proposal first; no data or code changes until the owner approves the count.",
       "brief": "System 1 has 3 planets and 2 goods; events are rare notices with little follow-up. Propose a costed set: how many planets and goods to add to system 1, and which events should get a follow-up (a second notice or a choice with a visible result later). Check against the existing planets.json, goods and event data first. Write a proposal in design/proposals/ dated 2026-11-02. Do not change balance numbers or write code. Handoff: handoffs/feature-designer/2026-11-02-T149.json with the proposal path and open questions for the owner.",
       "owner_note": "Owner: content is thin. Decide the count with the owner before any data work, which will be a new task. Goods part absorbed by goal trade-goods-asteroid-mining (T152-T161); keep only planets and follow-up events here unless the owner says otherwise."
     },
     {
-      "task_id": "T150",
-      "title": "Commodity chains: process two raw goods into a refined good",
+      "task_id": "T163",
+      "title": "Routes drawn on top of each other: separate overlapping routes",
+      "owner_agent": "ui-programmer",
+      "depends_on": [],
+      "status": "done",
+      "turn_cap": 35,
+      "window": "Owner request 2026-11-05 (after goal ship-ceo-skills-resources). Not started: main session sets it running.",
+      "brief": "Some routes appear as a double line, one on top of another (for example A to B and B to A, or routes sharing a corridor). Find how the map draws routes (game/map.gd and the route drawing code), separate them with a small sideways offset per overlapping pair so each stays selectable and readable. Do not change route_offset.gd cost rules unless needed. Add a headless test where possible; screenshot check in a windowed run. Handoff handoffs/ui-programmer/2026-11-05-T163.json."
+    },
+    {
+      "task_id": "T164",
+      "title": "Routes pass through the sun: route around it",
       "owner_agent": "gameplay-programmer",
       "depends_on": [],
-      "status": "blocked",
-      "turn_cap": 60,
-      "window": "Hold. Start only after living prices (saturation and drift) is built and in the game.",
-      "brief": "From the feature-designer proposal 2026-11-02 (depth-and-interest, idea 3). A processing order turns two raw goods into one refined good. Decision: sell raw or process. Needs a design proposal and a sim check (processing beats raw only with a second lane) before any code. Do not start until the living prices task exists and is done.",
-      "owner_note": "Owner liked this idea. Blocked until prices move; no living-prices task exists yet, so create it before unblocking."
+      "status": "done",
+      "turn_cap": 40,
+      "window": "Owner request 2026-11-05 (after goal ship-ceo-skills-resources). Not started: main session sets it running.",
+      "brief": "Some routes are drawn straight through the sun of the system. Treat the sun as an obstacle in the route path and in game/route_offset.gd (it already bends round planets and crossing routes): the drawn path and the offset cost must both go round the sun with a clearance. Keep the drawing and the cost on the same path. Add tests for a route across the sun position; check the saved route data stays valid. Handoff handoffs/gameplay-programmer/2026-11-05-T164.json."
     },
     {
-      "task_id": "T151",
-      "title": "Make Expansion matter in system 1 (one skill with a real effect)",
-      "owner_agent": "gameplay-programmer",
-      "depends_on": [
-        "T72"
-      ],
-      "status": "queued",
-      "turn_cap": 25,
-      "window": "Gameplay lane, after the owner's skills per branch (T72). Size S–M.",
-      "brief": "From the feature-designer proposal 2026-11-02 (depth-and-interest, idea 6). Give one Expansion skill a real effect in system 1, such as an extra order slot or an event preview with a choice, so Expansion competes with Logistics for the same points. Economy numbers come from economy-designer (T63 for points). Compare win cycles by branch with tools/sim.py before and after. Handoff: handoffs/gameplay-programmer/<date>-T151.json.",
-      "owner_note": "Owner to choose the skill effect (order slot or event preview) in T72 before build. Overlaps with B4 and C4; check both."
-    },
-    {
-      "task_id": "T152",
-      "title": "Goods and mining proposal: 3 new goods (luxury, asteroid-mining good, tech) and the mining skill that replaces B1",
+      "task_id": "T165",
+      "title": "Design: transfer of goods or cargo from one space station to another",
       "owner_agent": "feature-designer",
       "depends_on": [],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 25,
-      "window": "Goal trade-goods-asteroid-mining (owner, 2026-11-02). Run in order; each task starts only when the main session sets it running. Design lane, no code. First task.",
-      "brief": "Read the goal entry in goals/trade-goods-asteroid-mining/blackboard.json, state.md, data/planets.json, data/events.json (sample only), and the gdd.md sections on goods, events and skills (grep first). Propose: (1) three goods: one luxury, one tech good, one asteroid-mining good; for each, which planets buy and sell it, the margin idea, and why it adds a choice. (2) Asteroid mining as a mechanic: clusters on the map as sources, how a route or order harvests them, risk reused from the existing asteroid event (EV20: asteroid_deflect_cost, asteroid_storage_loss_pct) so the mechanic does not duplicate it. (3) The mining skill that replaces B1 Market Ledger in the Research branch: name, plain effect, and what happens to B1's price trend and route-margin warning. (4) Two events per new good, with at least one follow-up. (5) Whether the goods part of T149 is absorbed here. No numbers beyond order-of-magnitude ranges. Handoff: handoffs/feature-designer/2026-11-02-T152.json.",
-      "owner_note": "OWNER DECISIONS NEEDED before T153: (a) the 3 goods and which planets carry them; (b) the mining skill that replaces B1 (approve the proposal); (c) T149 goods part absorbed here (producer proposes yes); (d) whether the luxury good is sold only in system 2 or also system 1. Names are owner-approved only."
+      "window": "Owner request 2026-11-05 (after goal ship-ceo-skills-resources). Not started: main session sets it running.",
+      "brief": "Owner wants a transfer mechanic from one space station to another. Propose a concrete costed design: what is moved (stock from Space Storage, ships, cash?), cost and time, limits, unlock rule in data/availability.json, how it fits market share and the resource audit (design/proposals/2026-11-05-resource-final.md). Write design/proposals/2026-11-05-station-transfer.md and handoff handoffs/feature-designer/2026-11-05-T165.json. Owner decides before any build.",
+      "owner_note": "Merged into T169: the design is design/proposals/2026-11-05-storage-link.md; pointer at design/proposals/2026-11-05-station-transfer.md. Build is T171; T166 is superseded."
     },
     {
-      "task_id": "T153",
-      "title": "Quick numbers for the 3 new goods, mining yield and cluster supply (sim first)",
-      "owner_agent": "economy-designer",
+      "task_id": "T166",
+      "title": "Build: station-to-station transfer (after owner approves T165)",
+      "owner_agent": "gameplay-programmer",
       "depends_on": [
-        "T152"
+        "T164"
       ],
-      "status": "queued",
-      "turn_cap": 30,
-      "window": "Goal trade-goods-asteroid-mining (owner, 2026-11-02). Run in order; each task starts only when the main session sets it running. Economy lane, after owner approves T152.",
-      "brief": "Read the T152 handoff and approved decisions in goals/trade-goods-asteroid-mining/blackboard.json. Set starting numbers only: base_prices per planet for each new good (planets.json format), margin and saturation for each, mining yield per cluster per cycle and cluster count, luxury and tech sell-price swing, and the price effect size each event will use (values only, no event text). Put new keys in data/balance.json with a source line. Run tools/sim.py for the decent baseline (no mining, no new goods) and for the decent strategy with the new goods, and report whether any new good is dominant. Check that the mining skill does not pay more than a trade route. Handoff: handoffs/economy-designer/2026-11-02-T153.json. Name any value you could not check as UNKNOWN.",
-      "owner_note": "Numbers are template values until the owner confirms in T161 QA. Do not touch code or event text."
+      "status": "stopped",
+      "turn_cap": 50,
+      "window": "Owner request 2026-11-05 (after goal ship-ceo-skills-resources). Not started: main session sets it running.",
+      "brief": "Build the approved design from design/proposals/2026-11-05-station-transfer.md: data in data/*.json and data/availability.json, logic, save fields (bump the save version), panel hooks. UI layout goes to ui-programmer, texts to story-designer (English and Russian). Handoff handoffs/gameplay-programmer/2026-11-05-T166.json.",
+      "owner_note": "Superseded by T171 (storage link build)."
     },
     {
-      "task_id": "T154",
-      "title": "Story text: 3 new goods, 6 events (2 per good) and the mining skill text",
+      "task_id": "T167",
+      "title": "Planet name label drawn under the screen-space blur layer: put it on top",
+      "owner_agent": "ui-programmer",
+      "depends_on": [],
+      "status": "done",
+      "turn_cap": 25,
+      "window": "Owner request 2026-11-05 (after goal ship-ceo-skills-resources). Not started: main session sets it running.",
+      "brief": "The planet name label shows below the screen-space blur layer, so it looks blurred or dimmed. It must draw above the blur. Find the blur layer (CanvasLayer or full-screen shader rect) and the planet label nodes (game/map.gd and the planet label code), fix the layer or z-order so names sit on top without changing the blur on the map. Check other labels (route labels, ship markers) for the same problem. Screenshot check in a windowed run (qa/run_game.sh). Handoff handoffs/ui-programmer/2026-11-05-T167.json."
+    },
+    {
+      "task_id": "T168",
+      "title": "Asteroid fields: area 2x, more rocks, rocks keep their size",
+      "owner_agent": "galaxy-builder",
+      "depends_on": [],
+      "status": "done",
+      "turn_cap": 35,
+      "window": "Owner request 2026-11-05 (later). Not started: main session sets it running.",
+      "brief": "Scale every asteroid field (the pack area/radius, data in data/ and game/galaxy/asteroid_packs.gd) by 2x, and add more rocks so the density stays about the same or a little higher. Do NOT scale the individual rocks. Check cluster route targets, click areas and labels still match the bigger field, and that routes do not cross the field badly (see T164). Keep the frame budget on macOS (GPU instancing). Screenshot check in a windowed run. Handoff handoffs/galaxy-builder/2026-11-05-T168.json."
+    },
+    {
+      "task_id": "T169",
+      "title": "Design: storage link between space stations that costs resources, not money",
+      "owner_agent": "feature-designer",
+      "depends_on": [],
+      "status": "done",
+      "turn_cap": 30,
+      "window": "Owner request 2026-11-05 (later). Not started: main session sets it running.",
+      "brief": "Owner spec: a player can connect two space station storages with a link. The link does not cost money; it eats resources (goods) to build and/or keep, and it allows goods to be transferred between the two storages. Propose the exact rules: build cost in goods, upkeep per cycle in goods, transfer rate and capacity, one or several links per storage, what happens when the upkeep stock runs out, unlock rule in data/availability.json, how it fits the resource audit (design/proposals/2026-11-05-resource-final.md) so it gives some good a sink. Include UI sketch and tests. Write design/proposals/2026-11-05-storage-link.md and handoff handoffs/feature-designer/2026-11-05-T169.json. This replaces the open design in T165; T165 can be dropped or merged."
+    },
+    {
+      "task_id": "T171",
+      "title": "Build: storage link between space stations",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [
+        "T169"
+      ],
+      "status": "done",
+      "turn_cap": 50,
+      "window": "Owner request 2026-11-05 (later). Not started: main session sets it running.",
+      "brief": "UI goes to ui-programmer, texts to story-designer (English and Russian). Replaces T166. Handoff handoffs/gameplay-programmer/2026-11-05-T171.json.",
+      "owner_note": "Built: engine (game/storage_link.gd), save v7, availability rule storage_link, UI in space_storage_view.gd and galaxy_view.gd, English texts SS_LINK_*. Numbers are the proposal's placeholders (T170 not run). Russian for SS_ ids not in scope. Handoffs: gameplay-programmer, story-designer, ui-programmer 2026-11-05-T171.json."
+    },
+    {
+      "task_id": "T172",
+      "title": "Skill tree: propose more skills to fill the tree",
+      "owner_agent": "feature-designer",
+      "depends_on": [],
+      "status": "done",
+      "turn_cap": 40,
+      "window": "Owner request 2026-11-05 (later). Not started: main session sets it running.",
+      "brief": "Fill the skill tree with more skills (data/skills.json, 31 nodes now, see design/proposals/2026-11-05-*.md and gdd-skills.md). Find empty slots or thin branches (Military, Luxury, Minerals, Biotech and any general branch) and propose new nodes with effect, cost and which gap each fills. Use only the existing effect vocabulary unless a new type is argued. Each skill must be put to the economy-designer and qa-analyst by the main session and only kept when they agree it adds balance or interest, as in goal ship-ceo-skills-resources. Write design/proposals/2026-11-05-more-skills.md and handoff handoffs/feature-designer/2026-11-05-T172.json."
+    },
+    {
+      "task_id": "T174",
+      "title": "Skill tree: texts (English and Russian) and code for the new skills",
       "owner_agent": "story-designer",
       "depends_on": [
-        "T152",
-        "T153"
+        "T172"
+      ],
+      "status": "done",
+      "turn_cap": 35,
+      "window": "Owner request 2026-11-05 (later). Not started: main session sets it running.",
+      "brief": "Write names and descriptions in story/skills.md and story/ru/skills.json for the approved new skills, no hidden goods named; run python3 tools/build_story.py. Any new effect type needs gameplay-programmer code in game/skills.gd first. Handoff handoffs/story-designer/2026-11-05-T174.json."
+    },
+    {
+      "task_id": "T175",
+      "title": "Cinderrest and similar planets: planet-style panel with mining instead of buying",
+      "owner_agent": "ui-programmer",
+      "depends_on": [],
+      "status": "done",
+      "turn_cap": 40,
+      "window": "Owner request 2026-11-05 (later). Not started: main session sets it running.",
+      "brief": "Cinderrest and the other mining-type planets (find them in data/planets.json by type or by the cluster/mining flag; list them in the handoff) should open a panel that looks and behaves like the normal planet panel (game/planet_panel.gd), but where the buy side is replaced by mining: show what the planet yields, the yield per trip or cycle, risk, and a Mine action or order instead of Buy prices and amounts. Reuse the planet panel layout and the existing mining or cluster logic (game/clusters.gd, route_engine.gd) and do not add new rules; if a rule is missing, report it for gameplay-programmer. Follow the availability rule: show only goods allowed by data/availability.json, and texts need ids in story/*.md plus Russian in story/ru. Run sh tools/tests/run.sh; screenshot check in a windowed run. Handoff handoffs/ui-programmer/2026-11-05-T175.json."
+    },
+    {
+      "task_id": "T176",
+      "title": "Placeholders for 3 more solar systems",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 45,
+      "window": "Owner request 2026-11-05 (later). Not started: main session sets it running.",
+      "brief": "Add placeholder data for 3 more solar systems after the existing ones (system 1 is in data/planets.json, later systems are in data/systems.json; system 3 was on hold with no entry, so pick the next free ids; check game/map.gd view_system and the galaxy overview for how systems are stored and chosen). Each placeholder: a system id and name, a sun, a map position in the galaxy overview, a few placeholder planets with temporary names and prices, and an entry in data/availability.json so nothing shows before it should (progressive disclosure: hidden until a visible_when is true, and locked behind a placeholder permit or unlock cycle that is off for now). Keep names and texts as text ids (English in story/*.md, Russian placeholder in story/ru), no hidden goods named. Make the galaxy overview and system switching handle 6 systems without errors, mark all placeholder data clearly (a placeholder flag or note field) so economy-designer and story-designer can replace it later. Handoff handoffs/gameplay-programmer/2026-11-05-T176.json."
+    },
+    {
+      "task_id": "T177",
+      "title": "Design: pilotable ship, discovery by flying, trading posts and mining platforms",
+      "owner_agent": "feature-designer",
+      "depends_on": [],
+      "status": "done",
+      "turn_cap": 45,
+      "window": "Owner request 2026-11-05 (later). Not started: main session sets it running.",
+      "brief": "Owner spec: the ship the player chose at New Game (data/ships.json, 3D model in assets/ships) becomes a pilotable 3D ship on the map. The player clicks a planet, space storage, asteroid field or a point on the map and the ship flies there. When the game is paused the ship does not fly. Discovery: from now on a planet is closed until the ship has flown there; the story reason is that a trading post has to be established there. Dead planets like Cinderrest work the same way, but the player establishes a mining platform, which allows mining and 'send to' of the resources. Events are tied to establishing trading posts. Propose the rules: flight speed and travel time in cycles, how pause and game speed interact, what happens to the ship's existing route duty while it flies (is it one of the fleet or a separate scout?), cost and time to establish a trading post and a mining platform, what a post unlocks (buying, selling, routes, storage), what is known at start (system 1 home planet, which others are closed), how closed planets look on the map (unknown, no name, no goods: availability rule), flight to other systems and permits, danger and events on the way, how this interacts with the win condition, market share and the existing QA bots (they must still be able to play: say how). Write design/proposals/2026-11-05-ship-flight-discovery.md and handoff handoffs/feature-designer/2026-11-05-T177.json. Owner decides before any build."
+    },
+    {
+      "task_id": "T178",
+      "title": "Economy: numbers for flight time, trading post and mining platform costs",
+      "owner_agent": "economy-designer",
+      "depends_on": [
+        "T177"
       ],
       "status": "queued",
       "turn_cap": 30,
-      "window": "Goal trade-goods-asteroid-mining (owner, 2026-11-02). Run in order; each task starts only when the main session sets it running. Story lane, after T152 and T153.",
-      "brief": "Read the T152 and T153 handoffs. Write: good names and short descriptions for the 3 new goods (story_text.json ids); the 6 events in data/events.json (title, tag in the existing [price up: planet, good] format, body text, choices where the design has them); the mining skill name, flavour and plain line for the skill screen (story/skills.md row, replacing B1 Market Ledger's row); and one line for each new cluster on the map. Match the existing voice. Event tags must use only tag kinds the events parser already reads (check game/events.gd). Do not change numbers. Handoff: handoffs/story-designer/2026-11-02-T154.json.",
-      "owner_note": "The skill row must keep the B1 slot id only if the owner approves; otherwise new id and the skill tree change goes to T158."
+      "window": "Owner request 2026-11-05 (later). Not started: main session sets it running.",
+      "brief": "Set numbers for T177 in data/balance.json (new keys, bump data_version): flight speed, post and platform cost (goods or cash), time to establish. Handoff handoffs/economy-designer/2026-11-05-T178.json."
     },
     {
-      "task_id": "T155",
-      "title": "Code: add the 3 goods to data, trade, storage, routes and events parsing",
+      "task_id": "T179",
+      "title": "Build: ship movement, click-to-fly, pause, discovery state and save",
       "owner_agent": "gameplay-programmer",
       "depends_on": [
-        "T153",
-        "T154"
+        "T177",
+        "T178"
       ],
-      "status": "queued",
-      "turn_cap": 40,
-      "window": "Goal trade-goods-asteroid-mining (owner, 2026-11-02). Run in order; each task starts only when the main session sets it running. Gameplay lane, after T153 and T154.",
-      "brief": "Read the T153 and T154 handoffs. Add the 3 goods to data/planets.json base_prices and the new keys to data/balance.json as set in T153, and make trade.gd, storage.gd, route_engine.gd, main.gd and events.gd handle any commodity id (grep for hard-coded \"energy\" and \"food\" first; replace with the data list where needed). Events parser must accept the new good names from data/events.json. Mining good harvest is NOT built here (T156). Keep all existing behaviour for energy and food. Run the tests under tools/tests and report. Handoff: handoffs/gameplay-programmer/2026-11-02-T155.json.",
-      "owner_note": "Keep saves that have energy and food loading. Note any save-format change in the handoff."
+      "status": "done",
+      "turn_cap": 60,
+      "window": "Owner request 2026-11-05 (later). Not started: main session sets it running.",
+      "brief": "Build the approved T177 design with T178 numbers: ship position and flight state in the game state and the save (bump the save version), click targets (planet, space storage, asteroid, map point), arrival handling, flight stops on pause, discovered and established flags per planet in data and the availability rules (data/availability.json: closed planets are not drawn or listed), trading post and mining platform establish logic that opens buying, selling, mining and 'send to'. Old saves are dropped. Update the QA bot (qa/bots/bot_run.gd) so it flies and establishes posts, then run sh tools/tests/run.sh. Handoff handoffs/gameplay-programmer/2026-11-05-T179.json.",
+      "owner_note": "Built, not yet run (owner asked for build only: no tests, QA or balance checks). First run: sh tools/tests/run.sh, then a windowed discovery run. Bots and shot scripts assume open planets. Handoffs: handoffs/gameplay-programmer/2026-11-05-T179.json, handoffs/ui-programmer/2026-11-05-T180*.json."
     },
     {
-      "task_id": "T156",
-      "title": "Code: asteroid clusters as data, harvest logic and the mining good yield",
-      "owner_agent": "gameplay-programmer",
-      "depends_on": [
-        "T153",
-        "T155"
-      ],
-      "status": "queued",
-      "turn_cap": 40,
-      "window": "Goal trade-goods-asteroid-mining (owner, 2026-11-02). Run in order; each task starts only when the main session sets it running. Gameplay lane, after T155.",
-      "brief": "Read the T153 handoff and the T155 handoff. Create data/asteroid_clusters.json: each cluster has id, system, map position, pack radius, count, and the yield good. Build the harvest rule: a route or order to a cluster planet collects the mining good, with the existing asteroid event (EV20, storage cut) as the only risk. Use only balance keys set in T153. Expose cluster list to the map (for T157) and to the planet panel. Do not render anything here. Add tests for yield and risk. Handoff: handoffs/gameplay-programmer/2026-11-02-T156.json.",
-      "owner_note": "Reuse the existing asteroid code path (events.gd asteroid_roll, main.gd asteroid_decline). Do not add a second asteroid event."
-    },
-    {
-      "task_id": "T157",
-      "title": "Visual: GPU-instanced spherical asteroid packs on the map",
-      "owner_agent": "galaxy-builder",
-      "depends_on": [
-        "T156"
-      ],
-      "status": "queued",
-      "turn_cap": 40,
-      "window": "Goal trade-goods-asteroid-mining (owner, 2026-11-02). Run in order; each task starts only when the main session sets it running. Galaxy lane, after T156. Use fx-programmer only if a shader is needed and the owner approves it.",
-      "brief": "Read the T156 handoff and data/asteroid_clusters.json. Check whether the trade map (game/map.gd, galaxy_view.gd) is 2D or 3D before choosing a method. Draw each cluster as a spherical pack of asteroids using instanced rendering (MultiMesh or equivalent), one draw call per pack, with per-instance scale and rotation from a seed. Keep the macOS frame budget (report measured frame time at one cluster count and at the maximum). Clusters are visible on the map, placed by the cluster data, and do not block clicks on planets. Handoff: handoffs/galaxy-builder/2026-11-02-T157.json.",
-      "owner_note": "If the map is 2D and an instanced 3D pack needs a new shader, stop and report it as a request for fx-programmer; do not write a shader here."
-    },
-    {
-      "task_id": "T158",
-      "title": "Code: replace B1 Market Ledger with the asteroid mining skill",
-      "owner_agent": "gameplay-programmer",
-      "depends_on": [
-        "T154",
-        "T156"
-      ],
-      "status": "queued",
-      "turn_cap": 40,
-      "window": "Goal trade-goods-asteroid-mining (owner, 2026-11-02). Run in order; each task starts only when the main session sets it running. Gameplay lane, after T154 and T156.",
-      "brief": "Read the T154 and T156 handoffs and the B1 code: route_engine.gd (margin_below_upkeep, best route), main.gd (price history, trend, route margin notice, _record_prices), planet_panel.gd (price history line), story/skills.md and game/skill_tree.gd. Remove the B1 id from the skill tree and add the mining skill in the same Research slot, with the effect set in T153 (mining yield or harvest bonus). Decide with the T152 proposal what happens to the price trend and the route warning (kept as base, or moved to another skill); do not drop them silently. Keep saves that own B1 loading without error. Run tests. Handoff: handoffs/gameplay-programmer/2026-11-02-T158.json.",
-      "owner_note": "Owner must approve the replacement in T152 before this starts. T72 (owner skills per branch) is queued and may change the Research branch; check its status and tell the main session if it conflicts."
-    },
-    {
-      "task_id": "T159",
-      "title": "UI: goods, mining skill row and cluster info in the planet and route panels",
+      "task_id": "T180",
+      "title": "UI and 3D: pilotable ship model, flight path, closed planets and establish buttons",
       "owner_agent": "ui-programmer",
       "depends_on": [
-        "T155",
-        "T157",
-        "T158"
+        "T179"
       ],
-      "status": "queued",
-      "turn_cap": 25,
-      "window": "Goal trade-goods-asteroid-mining (owner, 2026-11-02). Run in order; each task starts only when the main session sets it running. UI lane, after T155, T157 and T158.",
-      "brief": "Read the T155, T157 and T158 handoffs. Check first whether the planet panel and route rows already list goods generically; if they do, say so and only fix what is missing. Show the 3 new goods in the planet panel, cargo and route rows; show the mining skill row on the skill screen; add a cluster info line (yield, risk) when a cluster is selected on the map. Use StoryText ids from T154. Check at the macOS window size. Handoff: handoffs/ui-programmer/2026-11-02-T159.json.",
-      "owner_note": "Flag any new StoryText ids for the story-designer rather than writing text."
+      "status": "done",
+      "turn_cap": 50,
+      "window": "Owner request 2026-11-05 (later). Not started: main session sets it running.",
+      "brief": "Show the chosen 3D ship on the map (reuse the model loading from game/ship_setup.gd), turn it toward its heading, draw the flight path and a target marker, show a paused look when paused, click handling for planet, storage, asteroid and open space, closed planets drawn as unknown, and the panel for an unreached planet: Fly here, then Establish trading post (or mining platform for dead planets like Cinderrest) with cost and progress. Works with the T175 mining panel. Do not show hidden goods. Screenshot check in a windowed run. Handoff handoffs/ui-programmer/2026-11-05-T180.json.",
+      "owner_note": "Built, not yet run (owner asked for build only: no tests, QA or balance checks). First run: sh tools/tests/run.sh, then a windowed discovery run. Bots and shot scripts assume open planets. Handoffs: handoffs/gameplay-programmer/2026-11-05-T179.json, handoffs/ui-programmer/2026-11-05-T180*.json."
     },
     {
-      "task_id": "T160",
-      "title": "Sim check of the built goods and mining numbers before QA (no dominant strategy)",
-      "owner_agent": "economy-designer",
+      "task_id": "T181",
+      "title": "Story: events and texts for establishing trading posts and mining platforms",
+      "owner_agent": "story-designer",
       "depends_on": [
-        "T155",
-        "T156",
-        "T158"
+        "T177"
       ],
-      "status": "queued",
-      "turn_cap": 25,
-      "window": "Goal trade-goods-asteroid-mining (owner, 2026-11-02). Run in order; each task starts only when the main session sets it running. Economy lane, after the code tasks.",
-      "brief": "Read the T153 handoff and the T155, T156, T158 handoffs. Run tools/sim.py on the built data for three strategies: decent (no mining), always_expand (buys expansion early, no mining), and mining_focus (mining skill, clusters harvested first). Report cycles to win per strategy, and any strategy that wins much earlier or never. Change numbers only in data/balance.json or data/planets.json with a source line, and only if a sim result needs it. Handoff: handoffs/economy-designer/2026-11-02-T160.json.",
-      "owner_note": "Keep the decent pacing target from T137 (win cycle around 26 median) unless the owner changed it."
+      "status": "done",
+      "turn_cap": 40,
+      "window": "Owner request 2026-11-05 (later). Not started: main session sets it running.",
+      "brief": "Write events for establishing trading posts (arrival, local officials, a snag, a bargain, a rival already there) and for mining platforms on dead planets (crew, collapse, a find), plus all new UI texts, in story/*.md and Russian in story/ru/*.json, then python3 tools/build_story.py. Texts must not name hidden goods; the mechanics (effects, conditions) come from the T177 design and the events use game/conditions.gd atoms. Handoff handoffs/story-designer/2026-11-05-T181.json."
     },
     {
-      "task_id": "T161",
-      "title": "QA: full playthrough start to finish for 3 strategies (decent, always_expand, mining_focus)",
+      "task_id": "T182",
+      "title": "QA: flight, discovery and trading post runs with bots",
       "owner_agent": "qa-analyst",
       "depends_on": [
-        "T159",
-        "T160"
+        "T179",
+        "T180",
+        "T181"
       ],
       "status": "queued",
       "turn_cap": 40,
-      "window": "Goal trade-goods-asteroid-mining (owner, 2026-11-02). Run in order; each task starts only when the main session sets it running. QA lane, last task. Task is finished when this report exists.",
-      "brief": "Run the full game from start to finish (win or loss ending) three times with bots under qa/bots: strategy 1 decent (balanced trade, no mining); strategy 2 always_expand (ships and expansion first, no mining); strategy 3 mining_focus (mining skill, clusters harvested first, new goods traded). For each run record: ending, cycle reached, crashes, softlocks, goods traded per good, mining yield, event hits and any dead choice. Compare with the T160 sim. Report any dominant strategy as a finding. Write qa/reports/2026-11-02-trade-goods-asteroid-mining.md and handoff handoffs/qa-analyst/2026-11-02-T161.json. Do not fix code or change balance.",
-      "owner_note": "The owner's acceptance test for this goal is this task."
+      "window": "Owner request 2026-11-05 (later). Not started: main session sets it running.",
+      "brief": "Run the bots (qa/bots) over 6 seeds and the CEO and ship combos: check the game can still be won, discovery and posts do not soft-lock (no open planet reachable), pause stops the ship, flights to every target type work, saves round-trip mid-flight, no dominant strategy (fast-expand versus stay home). Report in qa/reports/2026-11-05-ship-flight.md and handoff handoffs/qa-analyst/2026-11-05-T182.json. Do not fix code."
+    },
+    {
+      "task_id": "T183",
+      "title": "Fix: planets never hidden by availability, save version and migration tests",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 40,
+      "window": "Owner request 2026-11-05. Not started: main session sets it running.",
+      "brief": "Fix the 15 failures from sh tools/tests/run.sh (2026-11-05). (a) Planet availability: at start only the home planet should be open, but planet_1, planet_2, planet_3 and dead_1 all show open, and for every planet rule (planet_1..3, dead_1, s2_p1..s2_p4, dead_2) 'condition false hides it' fails (game/availability.gd, planet rules in data). Check whether T179/T180 discovery and closed-planet flags changed the meaning of 'open' and update either the code or the test accordingly; hidden must mean not drawn and not tradable. (b) 'save: version 6' and 'migration: a v2 file loads migrated' fail, with 'Parse JSON failed. Error at line 0: Expected key' in the log: T179 bumped the save version, so fix the test expectation or the migration chain, whichever is wrong; old saves may be dropped (state.md standing rule) but the test must say so. Done when sh tools/tests/run.sh shows fail=0. Handoff handoffs/gameplay-programmer/2026-11-05-T183.json.",
+      "owner_note": "From the owner's test run: 1900 pass, 15 fail."
+    },
+    {
+      "task_id": "T184",
+      "title": "Fix: clicking another planet's icon inside a planet panel closes the panel; add a regression test",
+      "owner_agent": "ui-programmer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 35,
+      "window": "Owner request 2026-11-05. Not started: main session sets it running.",
+      "brief": "Bug: open a planet panel, then click another planet's icon inside that panel (game/planet_panel.gd): the panel closes. Expected: the panel switches to the other planet's UI. Fix it, and add a test in tools/tests/run_tests.gd so it is always checked: open planet A's panel, simulate the click on planet B's icon in it, assert the panel is open and shows B (not closed, not A); also cover panel-to-storage and panel-to-dead-planet icons and a click on the same planet. Handoff handoffs/ui-programmer/2026-11-05-T184.json.",
+      "owner_note": "Owner asked for an assertion or unit test so it never happens again; a headless test in the suite is the better choice (runs on every sh tools/tests/run.sh)."
+    },
+    {
+      "task_id": "T185",
+      "title": "Fix the space station 3D model",
+      "owner_agent": "fx-programmer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 30,
+      "window": "Owner request 2026-11-05. Not started: main session sets it running.",
+      "brief": "The space station model looks wrong (find it under assets/ and where it is loaded, e.g. game/map.gd or the storage code; ask the owner for specifics only if the fault is not visible from the model: check scale, origin and pivot, rotation, normals, materials and missing textures). Fix the model or its loading and keep the frame budget. If the model file must be regenerated by a tool, change the tool, not the output. Handoff handoffs/fx-programmer/2026-11-05-T185.json.",
+      "owner_note": "The owner did not say what is wrong with it: confirm in play after the fix."
+    },
+    {
+      "task_id": "T186",
+      "title": "Raise the ship cap to 20",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 20,
+      "window": "Owner request 2026-11-05. Not started: main session sets it running.",
+      "brief": "Set ship_cap to 20 (data/balance.json, bump data_version; find every hard-coded 5 or old cap in game/, the ship panel, route lists, save and tests, and the tutorial and story texts that name the cap via python3 tools/build_story.py sources). Make sure UI lists of ships still fit at 20 (scroll or compact rows; ui-programmer if layout needs work). Note in the handoff that trip cost, maintenance and overhead were tuned for 5 ships: the owner decides whether economy-designer retunes. Handoff handoffs/gameplay-programmer/2026-11-05-T186.json."
+    },
+    {
+      "task_id": "T187",
+      "title": "Ship flight gaps: enemy ships flying, second solar system, mining platform to storage",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [
+        "T179",
+        "T180"
+      ],
+      "status": "queued",
+      "turn_cap": 40,
+      "window": "Owner request 2026-11-05. Not started: main session sets it running.",
+      "brief": "The pilotable ship (T177-T181) is already built. Check it against the owner spec and fill what is missing: (1) the ship the player chose in the main menu is the one flown; (2) it flies only when time runs, not when paused; (3) it can fly to another solar system and establish an outpost there; (4) rival or enemy ships fly around the map as a visual and do not interact with anything (no cargo, no blocking, no combat); (5) visiting and establishing is required: a planet without a visit stays closed; (6) a mining platform established on a dead planet such as Cinderrest can mine and send goods to Space Storage. List what already worked and what you added in the handoff handoffs/gameplay-programmer/2026-11-05-T187.json; ui-programmer does any model or panel work."
+    },
+    {
+      "task_id": "T188",
+      "title": "Test: a link can always be established between planets, storage, dead planets and asteroids",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [
+        "T183"
+      ],
+      "status": "queued",
+      "turn_cap": 35,
+      "window": "Owner request 2026-11-05. Not started: main session sets it running.",
+      "brief": "Add a headless test in tools/tests/run_tests.gd (runs with sh tools/tests/run.sh): for every pair of node types (planet, space storage, dead planet, asteroid field), in the same system and across systems, build a link with the game's own link function (route, storage link, mining platform) from a start state plus the needed unlocks, and assert it is created, saved and loaded back, and is not rejected for a stale reason (range, cap, closed flag, missing unlock that the game allows). Also assert from the start state that every node can be reached by some chain of allowed links, so no node is stranded. Fix code bugs the test finds. Handoff handoffs/gameplay-programmer/2026-11-05-T188.json.",
+      "owner_note": "Owner asked for a test or assertion that connections can always be established."
     }
   ],
   "done_task_ids": [
@@ -1372,7 +1153,22 @@
     "T92",
     "T93",
     "T97",
-    "T136"
+    "T136",
+    "T149",
+    "T167",
+    "T164",
+    "T163",
+    "T169",
+    "T172",
+    "T177",
+    "T175",
+    "T168",
+    "T181",
+    "T179",
+    "T180",
+    "T165",
+    "T171",
+    "T174"
   ],
   "done_archive": "handoffs/archive/schedule-done-2026-10-27-3.json"
 }

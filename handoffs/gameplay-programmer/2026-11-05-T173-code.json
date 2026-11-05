@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-05",
+  "task": "T173-code",
+  "status": "done",
+  "files_changed": ["game/skill_icons.gd", "tools/make_skill_icons.py", "art/source/ui_glyph_skill_atlas.svg", "art/ui/ui_glyph_skill_atlas.png", "game/skill_screen.gd", "game/main.gd", "game/planet_panel.gd", "game/trade.gd", "game/events.gd", "story/screens.md", "data/story_text.json", "tools/tests/run_tests.gd"],
+  "open_questions": ["The 3 new icons (eye+plus, shield+ore, leaf+plus) are quick placeholders; owner may want better art.", "New EN texts EVT_NEXT_DUE_2, EVT_NEXT_DUE_PRICE_2, EVT_NEXT_DUE_CLOSED_2, LBL_NEXT_PRICE_2 added; Russian is not in scope on main."],
+  "handoff": "Tests: pass=1885 fail=0. Atlas now 34 cells (appended, 8x5), regenerated with the tool. Skill screen: columns with 3 nodes in a tier would be about 1780 px wide (over the 1500 cap), so a tier row wraps after MAX_ROW_CELLS=2; width is now about 1350. LUX_5B: warning forecast looks up to N cycles ahead and keeps the first forecast; planet panel adds an 'In 2 cycles' price line when reveal_cycles >= 2; Trade.price and Events.price_factor take an ahead argument (default 1, old callers unchanged). LUX_1 and LUX_3 stay at 1; max of sources. MIN_5B and BIO_5B were already consumed (route_engine event_immune, events.price_factor event_cut, units_per_cycle capacity). New tests cover all three."
+}

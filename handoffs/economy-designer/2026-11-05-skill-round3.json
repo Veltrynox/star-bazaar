@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "agent": "economy-designer",
+  "date": "2026-11-05",
+  "task": "skill-round3",
+  "status": "done",
+  "files_changed": [
+    "data/balance.json",
+    "data/skills.json",
+    "data/goods.json",
+    "tools/tests/run_tests.gd",
+    "design/proposals/2026-11-05-skill-tree-round3.md",
+    "goals/ship-ceo-skills-resources/blackboard.json",
+    "handoffs/economy-designer/2026-11-05-skill-round3.json"
+  ],
+  "open_questions": [
+    "Owner: approve 2 new keys culture_lab_build_cost 600 and skill_LUX_7_every 9",
+    "Programmer: bot over-feeds gem inputs (450 silk, 475 musk idle); cap feed to recipe need. Story: update SK_LUX_2/LUX_7/MIN_7/BIO_7 PLAIN",
+    "UNKNOWN: ceo_man_01 + bulk bankrupt on seed 2 (knife edge, 4 of 5 later seeds win)"
+  ],
+  "handoff": "Balance v51, skills v4. LUX_2 event bonus dropped; LUX_7 cooldown 9, hit 0.4; MIN_7 0.3, BIO_7 0.25; gems batch 6; lux bots x0.81, mil x0.7; culture lab cost 600. Default 6/6 at 27, mil 6/6, min 6/6, bio 27-31 x6, lux 4/4 on seeds 1-4 (27,30,27,29), dominance 0/12, CEOxship 31/32. Capstones felt in contested runs except alloy and events. Tests 1866 pass. Text ids: SK_LUX_2_PLAIN, SK_LUX_7_PLAIN, SK_MIN_7_PLAIN, SK_BIO_7_PLAIN.",
+  "details": {
+    "changed": {
+      "skill_LUX_2_event_bonus": "0.5 removed",
+      "skill_LUX_7_hit": "0.3 to 0.4",
+      "skill_LUX_7_every": "new 9",
+      "gems_batch_out": "3 to 6",
+      "skill_MIN_7_strength_cut": "0.2 to 0.3",
+      "skill_BIO_7_strength_cut": "0.15 to 0.25",
+      "bot_*_lux_strength/growth": "x0.81",
+      "bot_*_mil_strength/growth": "x0.7",
+      "culture_lab_build_cost": "new 600",
+      "data_version": "50 to 51 (skills 3 to 4)"
+    },
+    "sim": {
+      "default": "27 x6",
+      "mil": "27 x6",
+      "lux_seeds1_8": "27,30,27,29,x,28,30,32",
+      "min": "27 x6",
+      "bio": "30,27,31,27,27,27",
+      "sloppy_always_never": "0 of 12",
+      "ceo_ship": "31 of 32"
+    },
+    "text_ids": [
+      "SK_LUX_2_PLAIN",
+      "SK_LUX_7_PLAIN",
+      "SK_MIN_7_PLAIN",
+      "SK_BIO_7_PLAIN"
+    ]
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "agent": "economy-designer",
+  "date": "2026-11-05",
+  "task": "resource-final",
+  "status": "done",
+  "files_changed": ["data/goods.json", "data/availability.json", "design/proposals/2026-11-05-resource-final.md", "handoffs/economy-designer/2026-11-05-resource-final.json"],
+  "open_questions": [
+    "Owner: accept rivets as a sale-only mil export lane? A recipe needs bot FEED_SHIPS 3 (QA file) or breaks the own-market rule.",
+    "Lux focus bot crafts 0 gems (cask only), before and after this task. QA to check feed.",
+    "Optional story: GOOD_RIVETS_DESC wording."
+  ],
+  "handoff": "Only orphan is rivets. Recipe uses fail: alloy breaks the own-market recipe test; armour 3 cells + rivets made 0 armour in focus mil (baseline 27) because a third raw exceeds two-ship feeds. Kept armour at 4 cells, rivets as argued sale-only export (buy 20, sys 2 sells 40-42). Only notes changed (goods v3, availability rivets note). Default 4/4 wins at 27; mil focus 1-2 win 27 with 27 armour; lux focus 1-2 win 27, gems 0 (pre-existing). Tests pass=1866 fail=0. No story id needs a recipe change.",
+  "details": {
+    "keys_changed": "none in balance.json; goods.json notes only",
+    "sim": {"default_seeds_1_4": "4/4 win cycle 27", "mil_focus_1_2": "win 27, armour 27", "lux_focus_1_2": "win 27, gems 0 (cask 33-35)"},
+    "story_ids": []
+  }
+}

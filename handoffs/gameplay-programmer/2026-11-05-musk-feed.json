@@ -1,0 +1,16 @@
+{
+  "agent": "gameplay-programmer",
+  "date": "2026-11-05",
+  "task": "musk-feed (BUG-2, BUG-1)",
+  "status": "done",
+  "files_changed": [
+    "qa/bots/bot_run.gd",
+    "goals/ship-ceo-skills-resources/blackboard.json"
+  ],
+  "schema_version": 1,
+  "open_questions": [
+    "Economy-designer: gems now crafted; lux seeds 1,2 no win by c40 (cash ~3.3k), seed 3 wins 27, seed 4 wins 31. Retune LUX_4 cost / gem price?",
+    "Owner: should a player lane out of a system 1 planet be allowed to drain the station backup stock of a feed good? Currently by design."
+  ],
+  "handoff": "Cause was the bot. Musk reached the station (20/cycle) but the bot's earning musk lanes from Tillam (system 1) to system 2 draw the Space Storage backup of system 1 and emptied it before crafting. Fix: _ranked_lanes_for skips lanes of a workshop input whose source is in system 1. Gems now crafted in lux seeds 1-4 (85, 89, 73, 53). BUG-1 seed 4 same cause, now wins at 31. Seeds 1 and 2 no longer win by 40 (cost of gem feed). tools/tests/run.sh: 1866 pass, 0 fail. Try: bot_run.gd --strategy=decent --seed=1 --skip-tutorial --market=lux --keep-running=38."
+}

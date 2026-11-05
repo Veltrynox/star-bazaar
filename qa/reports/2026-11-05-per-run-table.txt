@@ -1,0 +1,193 @@
+=== skip
+decent         s1 soft     END_OUTCOMPETED  cyc40 cash42379 ships6 lanes9 perm1 sk12 peak0.459mil@19 ships_buy6 reach40 [] 
+decent         s2 soft     END_OUTCOMPETED  cyc40 cash28960 ships6 lanes12 perm1 sk12 peak0.472mil@24 ships_buy6 reach40 [] 
+decent         s3 soft     END_OUTCOMPETED  cyc40 cash34270 ships6 lanes11 perm1 sk13 peak0.571mil@20 ships_buy6 reach40 [] 
+decent         s4 soft     END_OUTCOMPETED  cyc40 cash17420 ships6 lanes13 perm1 sk13 peak0.430mil@35 ships_buy6 reach40 [] 
+decent         s5 win      END_MIL_BAD      cyc27 cash14450 ships6 lanes10 perm1 sk12 peak0.574mil@25 ships_buy6 reach27 [] 
+sloppy         s1 soft     END_OUTCOMPETED  cyc40 cash7201 ships1 lanes1 perm0 sk0 peak0.304mil@2 ships_buy1 reach40 [] 
+sloppy         s2 soft     END_OUTCOMPETED  cyc40 cash6257 ships1 lanes1 perm0 sk0 peak0.313mil@1 ships_buy1 reach40 [] 
+sloppy         s3 soft     END_OUTCOMPETED  cyc40 cash6801 ships1 lanes1 perm0 sk0 peak0.318mil@1 ships_buy1 reach40 [] 
+sloppy         s4 soft     END_OUTCOMPETED  cyc40 cash7457 ships1 lanes1 perm0 sk0 peak0.298mil@4 ships_buy1 reach40 [] 
+sloppy         s5 soft     END_OUTCOMPETED  cyc40 cash6881 ships1 lanes1 perm0 sk0 peak0.301mil@1 ships_buy1 reach40 [] 
+always_expand  s1 soft     END_OUTCOMPETED  cyc40 cash18335 ships6 lanes11 perm0 sk9 peak0.466bio@18 ships_buy6 reach40 [] 
+always_expand  s2 soft     END_OUTCOMPETED  cyc40 cash19436 ships6 lanes12 perm0 sk9 peak0.417bio@19 ships_buy6 reach40 [] 
+always_expand  s3 win      END_BIO_GOOD     cyc38 cash9255 ships6 lanes10 perm0 sk9 peak0.568bio@27 ships_buy6 reach38 [] 
+always_expand  s4 soft     END_OUTCOMPETED  cyc40 cash10968 ships6 lanes14 perm0 sk9 peak0.561bio@26 ships_buy6 reach40 ['warning_streak'] route 13 shows 'Waiting for room' for 3+ cycles in a row
+always_expand  s5 soft     END_OUTCOMPETED  cyc40 cash6341 ships6 lanes18 perm0 sk9 peak0.544bio@27 ships_buy6 reach40 ['warning_streak'] route 11 shows 'Waiting for room' for 3+ cycles in a row
+never_expand   s1 soft     END_OUTCOMPETED  cyc40 cash7048 ships1 lanes4 perm0 sk6 peak0.304mil@2 ships_buy1 reach40 [] 
+never_expand   s2 soft     END_OUTCOMPETED  cyc40 cash6496 ships1 lanes5 perm0 sk5 peak0.313mil@1 ships_buy1 reach40 [] 
+never_expand   s3 soft     END_OUTCOMPETED  cyc40 cash5874 ships1 lanes4 perm0 sk7 peak0.318mil@1 ships_buy1 reach40 [] 
+never_expand   s4 soft     END_OUTCOMPETED  cyc40 cash5810 ships1 lanes6 perm0 sk7 peak0.310bio@18 ships_buy1 reach40 [] 
+never_expand   s5 soft     END_OUTCOMPETED  cyc40 cash5697 ships1 lanes5 perm0 sk7 peak0.310bio@17 ships_buy1 reach40 [] 
+spread         s1 soft     END_OUTCOMPETED  cyc40 cash35277 ships6 lanes10 perm1 sk12 peak0.459bio@23 ships_buy6 reach40 [] 
+spread         s2 soft     END_OUTCOMPETED  cyc40 cash19073 ships6 lanes12 perm1 sk12 peak0.404mil@12 ships_buy10 reach40 [] 
+spread         s3 soft     END_OUTCOMPETED  cyc40 cash28325 ships6 lanes9 perm1 sk11 peak0.460bio@27 ships_buy6 reach40 [] 
+spread         s4 win      END_BIO_GOOD     cyc33 cash15292 ships6 lanes9 perm1 sk11 peak0.527bio@32 ships_buy6 reach33 [] 
+spread         s5 soft     END_OUTCOMPETED  cyc40 cash42471 ships6 lanes9 perm1 sk12 peak0.480mil@13 ships_buy6 reach40 [] 
+bankrupt       s1 loss     END_BANKRUPT     cyc11 cash-300 ships0 lanes5 perm0 sk0 peak0.324bio@7 ships_buy3 reach11 [] 
+bankrupt       s2 loss     END_BANKRUPT     cyc11 cash-300 ships0 lanes3 perm0 sk0 peak0.299mil@1 ships_buy3 reach11 [] 
+bankrupt       s3 loss     END_BANKRUPT     cyc12 cash-300 ships0 lanes4 perm0 sk0 peak0.344mil@7 ships_buy4 reach12 [] 
+bankrupt       s4 loss     END_BANKRUPT     cyc12 cash-300 ships0 lanes5 perm0 sk0 peak0.294mil@4 ships_buy2 reach12 [] 
+bankrupt       s5 loss     END_BANKRUPT     cyc12 cash-300 ships0 lanes3 perm0 sk0 peak0.293mil@2 ships_buy2 reach12 [] 
+passive        s1 loss     END_SWEPT        cyc27 cash1200 ships1 lanes0 perm0 sk0 peak0.000@- ships_buy1 reach27 ['softlock'] idle from cycle 1: 3 cycles with no cash or stock change until the end (cash 1200, ships 1, routes 0, Buy/Sell orders on 0, closed planets 0)
+passive        s2 loss     END_SWEPT        cyc27 cash1200 ships1 lanes0 perm0 sk0 peak0.000@- ships_buy1 reach27 ['softlock'] idle from cycle 1: 3 cycles with no cash or stock change until the end (cash 1200, ships 1, routes 0, Buy/Sell orders on 0, closed planets 0)
+passive        s3 loss     END_SWEPT        cyc27 cash1200 ships1 lanes0 perm0 sk0 peak0.000@- ships_buy1 reach27 ['softlock'] idle from cycle 1: 3 cycles with no cash or stock change until the end (cash 1200, ships 1, routes 0, Buy/Sell orders on 0, closed planets 0)
+passive        s4 loss     END_SWEPT        cyc27 cash1200 ships1 lanes0 perm0 sk0 peak0.000@- ships_buy1 reach27 ['softlock'] idle from cycle 1: 3 cycles with no cash or stock change until the end (cash 1200, ships 1, routes 0, Buy/Sell orders on 0, closed planets 0)
+passive        s5 loss     END_SWEPT        cyc27 cash1000 ships1 lanes0 perm0 sk0 peak0.000@- ships_buy1 reach27 ['softlock'] idle from cycle 14: 3 cycles with no cash or stock change until the end (cash 1000, ships 1, routes 0, Buy/Sell orders on 0, closed planets 0)
+local_focus    s1 soft     END_OUTCOMPETED  cyc40 cash145 ships1 lanes0 perm0 sk2 peak0.642mil@1 ships_buy1 reach40 [] 
+local_focus    s2 soft     END_OUTCOMPETED  cyc40 cash497 ships1 lanes0 perm0 sk2 peak0.659mil@1 ships_buy1 reach40 [] 
+local_focus    s3 loss     END_SWEPT        cyc31 cash64 ships1 lanes0 perm0 sk2 peak0.664mil@1 ships_buy1 reach31 [] 
+local_focus    s4 soft     END_OUTCOMPETED  cyc40 cash26 ships1 lanes0 perm0 sk2 peak0.639mil@1 ships_buy1 reach40 [] 
+local_focus    s5 soft     END_OUTCOMPETED  cyc40 cash63 ships1 lanes0 perm0 sk2 peak0.646mil@1 ships_buy1 reach40 [] 
+mining_focus   s1 soft     END_OUTCOMPETED  cyc40 cash19166 ships6 lanes19 perm0 sk11 peak0.532min@1 ships_buy6 reach40 [] 
+mining_focus   s2 soft     END_OUTCOMPETED  cyc40 cash17613 ships6 lanes9 perm0 sk11 peak0.524min@2 ships_buy7 reach40 [] 
+mining_focus   s3 soft     END_OUTCOMPETED  cyc40 cash16043 ships6 lanes10 perm0 sk11 peak0.516min@5 ships_buy6 reach40 [] 
+mining_focus   s4 soft     END_OUTCOMPETED  cyc40 cash16422 ships6 lanes13 perm0 sk10 peak0.533min@2 ships_buy6 reach40 [] 
+mining_focus   s5 soft     END_OUTCOMPETED  cyc40 cash17877 ships6 lanes11 perm0 sk12 peak0.532min@2 ships_buy6 reach40 [] 
+dead_run       s1 soft     END_OUTCOMPETED  cyc40 cash15920 ships6 lanes15 perm0 sk10 peak0.489mil@15 ships_buy6 reach40 [] 
+dead_run       s2 soft     END_OUTCOMPETED  cyc40 cash19684 ships6 lanes15 perm0 sk10 peak0.441min@39 ships_buy6 reach40 [] 
+dead_run       s3 soft     END_OUTCOMPETED  cyc40 cash15603 ships6 lanes8 perm0 sk11 peak0.435min@37 ships_buy6 reach40 [] 
+dead_run       s4 soft     END_OUTCOMPETED  cyc40 cash15042 ships6 lanes8 perm0 sk11 peak0.488bio@13 ships_buy6 reach40 [] 
+dead_run       s5 soft     END_OUTCOMPETED  cyc40 cash21712 ships6 lanes12 perm0 sk10 peak0.449mil@16 ships_buy6 reach40 [] 
+=== timer
+decent         s1 soft     END_OUTCOMPETED  cyc40 cash33334 ships6 lanes10 perm1 sk12 peak0.406mil@13 ships_buy6 reach40 [] 
+decent         s2 soft     END_OUTCOMPETED  cyc40 cash16579 ships6 lanes11 perm1 sk12 peak0.487mil@36 ships_buy8 reach40 [] 
+sloppy         s1 soft     END_OUTCOMPETED  cyc40 cash7201 ships1 lanes1 perm0 sk0 peak0.304mil@2 ships_buy1 reach40 [] 
+sloppy         s2 soft     END_OUTCOMPETED  cyc40 cash6257 ships1 lanes1 perm0 sk0 peak0.313mil@1 ships_buy1 reach40 [] 
+always_expand  s1 soft     END_OUTCOMPETED  cyc40 cash18148 ships6 lanes11 perm0 sk9 peak0.469bio@18 ships_buy6 reach40 [] 
+always_expand  s2 soft     END_OUTCOMPETED  cyc40 cash8080 ships6 lanes17 perm0 sk8 peak0.521bio@31 ships_buy6 reach40 ['warning_streak'] route 17 shows 'Waiting for room' for 3+ cycles in a row
+never_expand   s1 soft     END_OUTCOMPETED  cyc40 cash6632 ships1 lanes4 perm0 sk6 peak0.304mil@2 ships_buy1 reach40 [] 
+never_expand   s2 soft     END_OUTCOMPETED  cyc40 cash6155 ships1 lanes5 perm0 sk6 peak0.313mil@1 ships_buy1 reach40 [] 
+=== mkt_mil
+decent         s1 win      END_MIL_BAD      cyc27 cash15317 ships6 lanes9 perm1 sk11 peak0.610mil@19 ships_buy6 reach27 [] 
+decent         s2 win      END_MIL_BAD      cyc30 cash14792 ships6 lanes10 perm1 sk10 peak0.648mil@27 ships_buy6 reach30 [] 
+decent         s3 win      END_MIL_GOOD     cyc29 cash17609 ships6 lanes8 perm1 sk10 peak0.617mil@26 ships_buy6 reach29 [] 
+decent         s4 win      END_MIL_BAD      cyc27 cash8481 ships6 lanes8 perm1 sk10 peak0.558mil@27 ships_buy6 reach27 [] 
+decent         s5 win      END_MIL_BAD      cyc27 cash21115 ships6 lanes8 perm1 sk11 peak0.662mil@25 ships_buy6 reach27 [] 
+local_focus    s1 soft     END_OUTCOMPETED  cyc40 cash347 ships1 lanes0 perm0 sk2 peak0.642mil@1 ships_buy1 reach40 [] 
+local_focus    s2 soft     END_OUTCOMPETED  cyc40 cash425 ships1 lanes0 perm0 sk2 peak0.659mil@1 ships_buy1 reach40 [] 
+local_focus    s3 soft     END_OUTCOMPETED  cyc40 cash296 ships1 lanes0 perm0 sk2 peak0.664mil@1 ships_buy1 reach40 [] 
+local_focus    s4 soft     END_OUTCOMPETED  cyc40 cash41 ships1 lanes0 perm0 sk2 peak0.639mil@1 ships_buy1 reach40 [] 
+local_focus    s5 loss     END_SWEPT        cyc37 cash27 ships1 lanes0 perm0 sk2 peak0.646mil@1 ships_buy1 reach37 [] 
+always_expand  s1 soft     END_OUTCOMPETED  cyc40 cash7171 ships6 lanes22 perm0 sk9 peak0.477bio@30 ships_buy6 reach40 ['warning_streak'] route 21 shows 'Waiting for room' for 3+ cycles in a row
+always_expand  s2 soft     END_OUTCOMPETED  cyc40 cash6914 ships6 lanes18 perm0 sk9 peak0.500bio@29 ships_buy6 reach40 ['warning_streak'] route 12 shows 'Waiting for room' for 3+ cycles in a row
+always_expand  s3 loss     END_SWEPT        cyc31 cash138 ships6 lanes12 perm0 sk7 peak0.418mil@3 ships_buy6 reach31 [] 
+always_expand  s4 soft     END_OUTCOMPETED  cyc40 cash7249 ships6 lanes12 perm0 sk9 peak0.488bio@31 ships_buy6 reach40 ['warning_streak'] route 12 shows 'Waiting for room' for 3+ cycles in a row
+always_expand  s5 soft     END_OUTCOMPETED  cyc40 cash7018 ships6 lanes17 perm0 sk9 peak0.527bio@26 ships_buy6 reach40 [] 
+=== mkt_lux
+decent         s1 soft     END_OUTCOMPETED  cyc40 cash37238 ships6 lanes16 perm1 sk12 peak0.636lux@22 ships_buy6 reach40 [] 
+decent         s2 soft     END_OUTCOMPETED  cyc40 cash37661 ships6 lanes10 perm1 sk11 peak0.471lux@25 ships_buy6 reach40 [] 
+decent         s3 win      END_LUX_GOOD     cyc32 cash15711 ships6 lanes16 perm1 sk12 peak0.592lux@30 ships_buy7 reach32 [] 
+decent         s4 win      END_LUX_GOOD     cyc40 cash18329 ships6 lanes14 perm1 sk11 peak0.644lux@40 ships_buy8 reach40 [] 
+decent         s5 soft     END_OUTCOMPETED  cyc40 cash39608 ships6 lanes15 perm1 sk10 peak0.552lux@22 ships_buy6 reach40 [] 
+local_focus    s1 loss     END_SWEPT        cyc27 cash63 ships1 lanes0 perm0 sk2 peak0.346lux@1 ships_buy1 reach27 [] 
+local_focus    s2 loss     END_SWEPT        cyc27 cash73 ships1 lanes0 perm0 sk2 peak0.361lux@1 ships_buy1 reach27 [] 
+local_focus    s3 loss     END_SWEPT        cyc38 cash79 ships1 lanes0 perm0 sk2 peak0.363lux@1 ships_buy1 reach38 [] 
+local_focus    s4 loss     END_SWEPT        cyc27 cash63 ships1 lanes0 perm0 sk2 peak0.367lux@1 ships_buy1 reach27 [] 
+local_focus    s5 loss     END_SWEPT        cyc34 cash202 ships1 lanes0 perm0 sk2 peak0.346lux@1 ships_buy1 reach34 [] 
+always_expand  s1 soft     END_OUTCOMPETED  cyc40 cash27159 ships6 lanes11 perm0 sk9 peak0.591mil@21 ships_buy6 reach40 [] 
+always_expand  s2 soft     END_OUTCOMPETED  cyc40 cash24347 ships6 lanes16 perm0 sk9 peak0.513mil@20 ships_buy6 reach40 [] 
+always_expand  s3 soft     END_OUTCOMPETED  cyc40 cash24458 ships6 lanes14 perm0 sk10 peak0.506bio@26 ships_buy6 reach40 [] 
+always_expand  s4 soft     END_OUTCOMPETED  cyc40 cash24594 ships6 lanes15 perm0 sk9 peak0.501mil@23 ships_buy6 reach40 [] 
+always_expand  s5 soft     END_OUTCOMPETED  cyc40 cash26228 ships6 lanes23 perm0 sk9 peak0.527mil@17 ships_buy6 reach40 [] 
+=== mkt_min
+decent         s1 win      END_MIN_BAD      cyc31 cash10922 ships6 lanes14 perm1 sk14 peak0.640min@29 ships_buy6 reach31 [] 
+decent         s2 win      END_MIN_BAD      cyc40 cash3151 ships6 lanes24 perm1 sk15 peak0.532min@40 ships_buy11 reach40 [] 
+decent         s3 win      END_MIN_BAD      cyc35 cash6426 ships6 lanes19 perm1 sk15 peak0.639min@35 ships_buy7 reach35 [] 
+decent         s4 win      END_MIN_BAD      cyc32 cash3744 ships6 lanes14 perm1 sk15 peak0.613min@32 ships_buy7 reach32 [] 
+decent         s5 win      END_MIN_GOOD     cyc28 cash12078 ships6 lanes12 perm1 sk15 peak0.631min@28 ships_buy6 reach28 [] 
+local_focus    s1 soft     END_OUTCOMPETED  cyc40 cash130 ships1 lanes0 perm0 sk2 peak0.745min@1 ships_buy1 reach40 [] 
+local_focus    s2 soft     END_OUTCOMPETED  cyc40 cash178 ships1 lanes0 perm0 sk2 peak0.736min@1 ships_buy1 reach40 [] 
+local_focus    s3 soft     END_OUTCOMPETED  cyc40 cash178 ships1 lanes0 perm0 sk2 peak0.728min@1 ships_buy1 reach40 [] 
+local_focus    s4 soft     END_OUTCOMPETED  cyc40 cash962 ships1 lanes0 perm0 sk2 peak0.741min@1 ships_buy1 reach40 [] 
+local_focus    s5 soft     END_OUTCOMPETED  cyc40 cash178 ships1 lanes0 perm0 sk2 peak0.744min@1 ships_buy2 reach40 [] 
+always_expand  s1 soft     END_OUTCOMPETED  cyc40 cash18335 ships6 lanes11 perm0 sk9 peak0.466bio@18 ships_buy6 reach40 [] 
+always_expand  s2 soft     END_OUTCOMPETED  cyc40 cash19436 ships6 lanes12 perm0 sk9 peak0.417bio@19 ships_buy6 reach40 [] 
+always_expand  s3 soft     END_OUTCOMPETED  cyc40 cash20374 ships6 lanes12 perm0 sk10 peak0.506bio@26 ships_buy6 reach40 [] 
+always_expand  s4 soft     END_OUTCOMPETED  cyc40 cash24594 ships6 lanes15 perm0 sk9 peak0.501mil@23 ships_buy6 reach40 [] 
+always_expand  s5 soft     END_OUTCOMPETED  cyc40 cash26311 ships6 lanes11 perm0 sk10 peak0.527mil@17 ships_buy6 reach40 [] 
+=== mkt_bio
+decent         s1 win      END_BIO_BAD      cyc31 cash11491 ships6 lanes10 perm1 sk12 peak0.654bio@28 ships_buy6 reach31 [] 
+decent         s2 win      END_BIO_BAD      cyc39 cash3839 ships6 lanes11 perm1 sk12 peak0.569bio@14 ships_buy6 reach39 [] 
+decent         s3 win      END_BIO_BAD      cyc36 cash5459 ships6 lanes8 perm1 sk11 peak0.595bio@36 ships_buy6 reach36 [] 
+decent         s4 win      END_BIO_GOOD     cyc32 cash5571 ships6 lanes8 perm1 sk10 peak0.612bio@31 ships_buy6 reach32 [] 
+decent         s5 win      END_BIO_BAD      cyc32 cash4298 ships6 lanes8 perm1 sk10 peak0.590bio@16 ships_buy6 reach32 [] 
+local_focus    s1 soft     END_OUTCOMPETED  cyc40 cash929 ships1 lanes0 perm0 sk2 peak0.673bio@1 ships_buy1 reach40 [] 
+local_focus    s2 soft     END_OUTCOMPETED  cyc40 cash734 ships1 lanes0 perm0 sk2 peak0.656bio@1 ships_buy1 reach40 [] 
+local_focus    s3 soft     END_OUTCOMPETED  cyc40 cash360 ships1 lanes0 perm0 sk2 peak0.668bio@1 ships_buy1 reach40 [] 
+local_focus    s4 soft     END_OUTCOMPETED  cyc40 cash226 ships1 lanes0 perm0 sk2 peak0.675bio@1 ships_buy1 reach40 [] 
+local_focus    s5 soft     END_OUTCOMPETED  cyc40 cash928 ships1 lanes0 perm0 sk2 peak0.660bio@1 ships_buy1 reach40 [] 
+always_expand  s1 soft     END_OUTCOMPETED  cyc40 cash171 ships6 lanes17 perm0 sk7 peak0.553bio@15 ships_buy6 reach40 [] 
+always_expand  s2 soft     END_OUTCOMPETED  cyc40 cash382 ships6 lanes10 perm0 sk8 peak0.595bio@10 ships_buy6 reach40 [] 
+always_expand  s3 soft     END_OUTCOMPETED  cyc40 cash553 ships6 lanes12 perm0 sk7 peak0.554bio@11 ships_buy6 reach40 [] 
+always_expand  s4 soft     END_OUTCOMPETED  cyc40 cash384 ships6 lanes10 perm0 sk8 peak0.600bio@10 ships_buy6 reach40 [] 
+always_expand  s5 soft     END_OUTCOMPETED  cyc40 cash692 ships6 lanes10 perm0 sk7 peak0.599bio@10 ships_buy6 reach40 [] 
+=== np_all
+decent         s1 soft     END_OUTCOMPETED  cyc40 cash22528 ships6 lanes10 perm0 sk10 peak0.511mil@19 ships_buy6 reach40 [] 
+decent         s2 soft     END_OUTCOMPETED  cyc40 cash9678 ships6 lanes17 perm0 sk9 peak0.591bio@23 ships_buy6 reach40 [] 
+decent         s3 soft     END_OUTCOMPETED  cyc40 cash6764 ships6 lanes10 perm0 sk8 peak0.475bio@29 ships_buy6 reach40 ['warning_streak'] route 10 shows 'Waiting for room' for 3+ cycles in a row
+decent         s4 soft     END_OUTCOMPETED  cyc40 cash8353 ships6 lanes14 perm0 sk8 peak0.489bio@27 ships_buy6 reach40 ['warning_streak'] route 12 shows 'Waiting for room' for 3+ cycles in a row
+decent         s5 soft     END_OUTCOMPETED  cyc40 cash6351 ships6 lanes18 perm0 sk7 peak0.508bio@22 ships_buy6 reach40 ['warning_streak'] route 10 shows 'Waiting for room' for 3+ cycles in a row
+=== np_mil
+decent         s1 soft     END_OUTCOMPETED  cyc40 cash5804 ships6 lanes16 perm0 sk9 peak0.464mil@10 ships_buy6 reach40 [] 
+decent         s2 soft     END_OUTCOMPETED  cyc40 cash8753 ships6 lanes17 perm0 sk9 peak0.526bio@27 ships_buy6 reach40 [] 
+decent         s3 soft     END_OUTCOMPETED  cyc40 cash5628 ships6 lanes11 perm0 sk8 peak0.418mil@3 ships_buy6 reach40 ['warning_streak'] route 9 shows 'Waiting for room' for 3+ cycles in a row
+decent         s4 soft     END_OUTCOMPETED  cyc40 cash8186 ships6 lanes13 perm0 sk9 peak0.488bio@29 ships_buy6 reach40 ['warning_streak'] route 13 shows 'Waiting for room' for 3+ cycles in a row
+decent         s5 soft     END_OUTCOMPETED  cyc40 cash10443 ships6 lanes10 perm0 sk9 peak0.531bio@26 ships_buy6 reach40 ['warning_streak'] route 9 shows 'Waiting for room' for 3+ cycles in a row
+=== ae_perm_mil
+always_expand  s1 win      END_MIL_BAD      cyc30 cash10420 ships6 lanes13 perm1 sk12 peak0.604mil@26 ships_buy6 reach30 [] 
+always_expand  s2 win      END_MIL_BAD      cyc30 cash11131 ships6 lanes11 perm1 sk11 peak0.667mil@28 ships_buy6 reach30 [] 
+always_expand  s3 win      END_MIL_GOOD     cyc38 cash11562 ships6 lanes11 perm1 sk11 peak0.585mil@38 ships_buy6 reach38 [] 
+always_expand  s4 win      END_MIL_GOOD     cyc33 cash12977 ships6 lanes11 perm1 sk11 peak0.610mil@31 ships_buy6 reach33 [] 
+always_expand  s5 win      END_MIL_BAD      cyc27 cash14929 ships6 lanes9 perm1 sk10 peak0.678mil@26 ships_buy6 reach27 [] 
+=== fast
+decent         s1 loss     END_SWEPT        cyc27 cash2100 ships0 lanes0 perm0 sk0 peak0.000@- ships_buy0 reach27 ['softlock'] idle from cycle 1: 3 cycles with no cash or stock change until the end (cash 2100, ships 0, routes 0, Buy/Sell orders on 0, closed planets 0)
+decent         s2 loss     END_SWEPT        cyc27 cash2100 ships0 lanes0 perm0 sk0 peak0.000@- ships_buy0 reach27 ['softlock'] idle from cycle 1: 3 cycles with no cash or stock change until the end (cash 2100, ships 0, routes 0, Buy/Sell orders on 0, closed planets 0)
+decent         s3 loss     END_SWEPT        cyc27 cash2100 ships0 lanes0 perm0 sk0 peak0.000@- ships_buy0 reach27 ['softlock'] idle from cycle 1: 3 cycles with no cash or stock change until the end (cash 2100, ships 0, routes 0, Buy/Sell orders on 0, closed planets 0)
+decent         s4 loss     END_SWEPT        cyc27 cash2100 ships0 lanes0 perm0 sk0 peak0.000@- ships_buy0 reach27 ['softlock'] idle from cycle 1: 3 cycles with no cash or stock change until the end (cash 2100, ships 0, routes 0, Buy/Sell orders on 0, closed planets 0)
+decent         s5 loss     END_SWEPT        cyc27 cash900 ships0 lanes0 perm0 sk0 peak0.000@- ships_buy0 reach27 ['softlock'] idle from cycle 1: 3 cycles with no cash or stock change until the end (cash 900, ships 0, routes 0, Buy/Sell orders on 0, closed planets 0)
+sloppy         s1 loss     END_SWEPT        cyc27 cash2100 ships0 lanes0 perm0 sk0 peak0.000@- ships_buy0 reach27 ['softlock'] idle from cycle 1: 3 cycles with no cash or stock change until the end (cash 2100, ships 0, routes 0, Buy/Sell orders on 0, closed planets 0)
+sloppy         s2 loss     END_SWEPT        cyc27 cash2100 ships0 lanes0 perm0 sk0 peak0.000@- ships_buy0 reach27 ['softlock'] idle from cycle 1: 3 cycles with no cash or stock change until the end (cash 2100, ships 0, routes 0, Buy/Sell orders on 0, closed planets 0)
+sloppy         s3 loss     END_SWEPT        cyc27 cash2100 ships0 lanes0 perm0 sk0 peak0.000@- ships_buy0 reach27 ['softlock'] idle from cycle 1: 3 cycles with no cash or stock change until the end (cash 2100, ships 0, routes 0, Buy/Sell orders on 0, closed planets 0)
+sloppy         s4 loss     END_SWEPT        cyc27 cash2100 ships0 lanes0 perm0 sk0 peak0.000@- ships_buy0 reach27 ['softlock'] idle from cycle 1: 3 cycles with no cash or stock change until the end (cash 2100, ships 0, routes 0, Buy/Sell orders on 0, closed planets 0)
+sloppy         s5 loss     END_SWEPT        cyc27 cash900 ships0 lanes0 perm0 sk0 peak0.000@- ships_buy0 reach27 ['softlock'] idle from cycle 1: 3 cycles with no cash or stock change until the end (cash 900, ships 0, routes 0, Buy/Sell orders on 0, closed planets 0)
+always_expand  s1 loss     END_SWEPT        cyc27 cash2100 ships0 lanes0 perm0 sk0 peak0.000@- ships_buy0 reach27 ['softlock'] idle from cycle 1: 3 cycles with no cash or stock change until the end (cash 2100, ships 0, routes 0, Buy/Sell orders on 0, closed planets 0)
+always_expand  s2 loss     END_SWEPT        cyc27 cash2100 ships0 lanes0 perm0 sk0 peak0.000@- ships_buy0 reach27 ['softlock'] idle from cycle 1: 3 cycles with no cash or stock change until the end (cash 2100, ships 0, routes 0, Buy/Sell orders on 0, closed planets 0)
+always_expand  s3 loss     END_SWEPT        cyc27 cash2100 ships0 lanes0 perm0 sk0 peak0.000@- ships_buy0 reach27 ['softlock'] idle from cycle 1: 3 cycles with no cash or stock change until the end (cash 2100, ships 0, routes 0, Buy/Sell orders on 0, closed planets 0)
+always_expand  s4 loss     END_SWEPT        cyc27 cash2100 ships0 lanes0 perm0 sk0 peak0.000@- ships_buy0 reach27 ['softlock'] idle from cycle 1: 3 cycles with no cash or stock change until the end (cash 2100, ships 0, routes 0, Buy/Sell orders on 0, closed planets 0)
+always_expand  s5 loss     END_SWEPT        cyc27 cash900 ships0 lanes0 perm0 sk0 peak0.000@- ships_buy0 reach27 ['softlock'] idle from cycle 1: 3 cycles with no cash or stock change until the end (cash 900, ships 0, routes 0, Buy/Sell orders on 0, closed planets 0)
+never_expand   s1 loss     END_SWEPT        cyc27 cash2100 ships0 lanes0 perm0 sk0 peak0.000@- ships_buy0 reach27 ['softlock'] idle from cycle 1: 3 cycles with no cash or stock change until the end (cash 2100, ships 0, routes 0, Buy/Sell orders on 0, closed planets 0)
+never_expand   s2 loss     END_SWEPT        cyc27 cash2100 ships0 lanes0 perm0 sk0 peak0.000@- ships_buy0 reach27 ['softlock'] idle from cycle 1: 3 cycles with no cash or stock change until the end (cash 2100, ships 0, routes 0, Buy/Sell orders on 0, closed planets 0)
+never_expand   s3 loss     END_SWEPT        cyc27 cash2100 ships0 lanes0 perm0 sk0 peak0.000@- ships_buy0 reach27 ['softlock'] idle from cycle 1: 3 cycles with no cash or stock change until the end (cash 2100, ships 0, routes 0, Buy/Sell orders on 0, closed planets 0)
+never_expand   s4 loss     END_SWEPT        cyc27 cash2100 ships0 lanes0 perm0 sk0 peak0.000@- ships_buy0 reach27 ['softlock'] idle from cycle 1: 3 cycles with no cash or stock change until the end (cash 2100, ships 0, routes 0, Buy/Sell orders on 0, closed planets 0)
+never_expand   s5 loss     END_SWEPT        cyc27 cash900 ships0 lanes0 perm0 sk0 peak0.000@- ships_buy0 reach27 ['softlock'] idle from cycle 1: 3 cycles with no cash or stock change until the end (cash 900, ships 0, routes 0, Buy/Sell orders on 0, closed planets 0)
+spread         s1 loss     END_SWEPT        cyc27 cash2100 ships0 lanes0 perm0 sk0 peak0.000@- ships_buy0 reach27 ['softlock'] idle from cycle 1: 3 cycles with no cash or stock change until the end (cash 2100, ships 0, routes 0, Buy/Sell orders on 0, closed planets 0)
+spread         s2 loss     END_SWEPT        cyc27 cash2100 ships0 lanes0 perm0 sk0 peak0.000@- ships_buy0 reach27 ['softlock'] idle from cycle 1: 3 cycles with no cash or stock change until the end (cash 2100, ships 0, routes 0, Buy/Sell orders on 0, closed planets 0)
+spread         s3 loss     END_SWEPT        cyc27 cash2100 ships0 lanes0 perm0 sk0 peak0.000@- ships_buy0 reach27 ['softlock'] idle from cycle 1: 3 cycles with no cash or stock change until the end (cash 2100, ships 0, routes 0, Buy/Sell orders on 0, closed planets 0)
+spread         s4 loss     END_SWEPT        cyc27 cash2100 ships0 lanes0 perm0 sk0 peak0.000@- ships_buy0 reach27 ['softlock'] idle from cycle 1: 3 cycles with no cash or stock change until the end (cash 2100, ships 0, routes 0, Buy/Sell orders on 0, closed planets 0)
+spread         s5 loss     END_SWEPT        cyc27 cash900 ships0 lanes0 perm0 sk0 peak0.000@- ships_buy0 reach27 ['softlock'] idle from cycle 1: 3 cycles with no cash or stock change until the end (cash 900, ships 0, routes 0, Buy/Sell orders on 0, closed planets 0)
+bankrupt       s1 loss     END_BANKRUPT     cyc8 cash-300 ships0 lanes0 perm0 sk0 peak0.000@- ships_buy0 reach8 ['softlock'] idle from cycle 1: 3 cycles with no cash or stock change until the end (cash -300, ships 0, routes 0, Buy/Sell orders on 0, closed planets 0)
+bankrupt       s2 loss     END_BANKRUPT     cyc8 cash-300 ships0 lanes0 perm0 sk0 peak0.000@- ships_buy0 reach8 ['softlock'] idle from cycle 1: 3 cycles with no cash or stock change until the end (cash -300, ships 0, routes 0, Buy/Sell orders on 0, closed planets 0)
+bankrupt       s3 loss     END_BANKRUPT     cyc8 cash-300 ships0 lanes0 perm0 sk0 peak0.000@- ships_buy0 reach8 ['softlock'] idle from cycle 1: 3 cycles with no cash or stock change until the end (cash -300, ships 0, routes 0, Buy/Sell orders on 0, closed planets 0)
+bankrupt       s4 loss     END_BANKRUPT     cyc8 cash-300 ships0 lanes0 perm0 sk0 peak0.000@- ships_buy0 reach8 ['softlock'] idle from cycle 1: 3 cycles with no cash or stock change until the end (cash -300, ships 0, routes 0, Buy/Sell orders on 0, closed planets 0)
+bankrupt       s5 loss     END_BANKRUPT     cyc8 cash-300 ships0 lanes0 perm0 sk0 peak0.000@- ships_buy0 reach8 ['softlock'] idle from cycle 1: 3 cycles with no cash or stock change until the end (cash -300, ships 0, routes 0, Buy/Sell orders on 0, closed planets 0)
+passive        s1 loss     END_SWEPT        cyc27 cash2100 ships0 lanes0 perm0 sk0 peak0.000@- ships_buy0 reach27 ['softlock'] idle from cycle 1: 3 cycles with no cash or stock change until the end (cash 2100, ships 0, routes 0, Buy/Sell orders on 0, closed planets 0)
+passive        s2 loss     END_SWEPT        cyc27 cash2100 ships0 lanes0 perm0 sk0 peak0.000@- ships_buy0 reach27 ['softlock'] idle from cycle 1: 3 cycles with no cash or stock change until the end (cash 2100, ships 0, routes 0, Buy/Sell orders on 0, closed planets 0)
+passive        s3 loss     END_SWEPT        cyc27 cash2100 ships0 lanes0 perm0 sk0 peak0.000@- ships_buy0 reach27 ['softlock'] idle from cycle 1: 3 cycles with no cash or stock change until the end (cash 2100, ships 0, routes 0, Buy/Sell orders on 0, closed planets 0)
+passive        s4 loss     END_SWEPT        cyc27 cash2100 ships0 lanes0 perm0 sk0 peak0.000@- ships_buy0 reach27 ['softlock'] idle from cycle 1: 3 cycles with no cash or stock change until the end (cash 2100, ships 0, routes 0, Buy/Sell orders on 0, closed planets 0)
+passive        s5 loss     END_SWEPT        cyc27 cash900 ships0 lanes0 perm0 sk0 peak0.000@- ships_buy0 reach27 ['softlock'] idle from cycle 1: 3 cycles with no cash or stock change until the end (cash 900, ships 0, routes 0, Buy/Sell orders on 0, closed planets 0)
+local_focus    s1 soft     END_OUTCOMPETED  cyc40 cash896 ships1 lanes0 perm0 sk2 peak0.521mil@12 ships_buy1 reach40 ['order_failed'] buy energy order at planet 0 did not switch to on (notice: Not yet. Follow the tutorial step, or skip the tutorial.)
+local_focus    s2 soft     END_OUTCOMPETED  cyc40 cash612 ships1 lanes0 perm0 sk2 peak0.429mil@20 ships_buy1 reach40 ['order_failed'] buy energy order at planet 0 did not switch to on (notice: Not yet. Follow the tutorial step, or skip the tutorial.)
+local_focus    s3 soft     END_OUTCOMPETED  cyc40 cash268 ships1 lanes0 perm0 sk2 peak0.413mil@20 ships_buy1 reach40 ['order_failed'] buy energy order at planet 0 did not switch to on (notice: Not yet. Follow the tutorial step, or skip the tutorial.)
+local_focus    s4 loss     END_SWEPT        cyc29 cash70 ships1 lanes0 perm0 sk2 peak0.293mil@19 ships_buy1 reach29 ['order_failed'] buy energy order at planet 0 did not switch to on (notice: Not yet. Follow the tutorial step, or skip the tutorial.)
+local_focus    s5 soft     END_OUTCOMPETED  cyc40 cash37 ships0 lanes0 perm0 sk2 peak0.659mil@13 ships_buy0 reach40 ['order_failed'] buy energy order at planet 0 did not switch to on (notice: Not yet. Follow the tutorial step, or skip the tutorial.)
+mining_focus   s1 loss     END_SWEPT        cyc27 cash2100 ships0 lanes0 perm0 sk0 peak0.000@- ships_buy0 reach27 ['softlock'] idle from cycle 1: 3 cycles with no cash or stock change until the end (cash 2100, ships 0, routes 0, Buy/Sell orders on 0, closed planets 0)
+mining_focus   s2 loss     END_SWEPT        cyc27 cash2100 ships0 lanes0 perm0 sk0 peak0.000@- ships_buy0 reach27 ['softlock'] idle from cycle 1: 3 cycles with no cash or stock change until the end (cash 2100, ships 0, routes 0, Buy/Sell orders on 0, closed planets 0)
+mining_focus   s3 loss     END_SWEPT        cyc27 cash2100 ships0 lanes0 perm0 sk0 peak0.000@- ships_buy0 reach27 ['softlock'] idle from cycle 1: 3 cycles with no cash or stock change until the end (cash 2100, ships 0, routes 0, Buy/Sell orders on 0, closed planets 0)
+mining_focus   s4 loss     END_SWEPT        cyc27 cash2100 ships0 lanes0 perm0 sk0 peak0.000@- ships_buy0 reach27 ['softlock'] idle from cycle 1: 3 cycles with no cash or stock change until the end (cash 2100, ships 0, routes 0, Buy/Sell orders on 0, closed planets 0)
+mining_focus   s5 loss     END_SWEPT        cyc27 cash900 ships0 lanes0 perm0 sk0 peak0.000@- ships_buy0 reach27 ['softlock'] idle from cycle 1: 3 cycles with no cash or stock change until the end (cash 900, ships 0, routes 0, Buy/Sell orders on 0, closed planets 0)
+dead_run       s1 loss     END_SWEPT        cyc27 cash2100 ships0 lanes0 perm0 sk0 peak0.000@- ships_buy0 reach27 ['softlock'] idle from cycle 1: 3 cycles with no cash or stock change until the end (cash 2100, ships 0, routes 0, Buy/Sell orders on 0, closed planets 0)
+dead_run       s2 loss     END_SWEPT        cyc27 cash2100 ships0 lanes0 perm0 sk0 peak0.000@- ships_buy0 reach27 ['softlock'] idle from cycle 1: 3 cycles with no cash or stock change until the end (cash 2100, ships 0, routes 0, Buy/Sell orders on 0, closed planets 0)
+dead_run       s3 loss     END_SWEPT        cyc27 cash2100 ships0 lanes0 perm0 sk0 peak0.000@- ships_buy0 reach27 ['softlock'] idle from cycle 1: 3 cycles with no cash or stock change until the end (cash 2100, ships 0, routes 0, Buy/Sell orders on 0, closed planets 0)
+dead_run       s4 loss     END_SWEPT        cyc27 cash2100 ships0 lanes0 perm0 sk0 peak0.000@- ships_buy0 reach27 ['softlock'] idle from cycle 1: 3 cycles with no cash or stock change until the end (cash 2100, ships 0, routes 0, Buy/Sell orders on 0, closed planets 0)
+dead_run       s5 loss     END_SWEPT        cyc27 cash900 ships0 lanes0 perm0 sk0 peak0.000@- ships_buy0 reach27 ['softlock'] idle from cycle 1: 3 cycles with no cash or stock change until the end (cash 900, ships 0, routes 0, Buy/Sell orders on 0, closed planets 0)

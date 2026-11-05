@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "agent": "qa-analyst",
+  "date": "2026-11-05",
+  "task": "Final QA sign-off on the current skill tree (round 2 data): ablations, dominance, CEO x ship",
+  "status": "done",
+  "files_changed": [
+    "qa/bots/bot_run.gd",
+    "qa/bots/skill_signoff.sh",
+    "qa/bots/skill_signoff_one.sh",
+    "qa/bots/skill_signoff_analyse.py",
+    "qa/reports/2026-11-05-skill-signoff-qa.md",
+    "qa/reports/2026-11-05-bug_report-skill-signoff.json",
+    "qa/reports/2026-11-05-skill-signoff-runs.jsonl",
+    "handoffs/qa-analyst/2026-11-05-skill-signoff.json"
+  ],
+  "open_questions": [
+    "UNKNOWN: why musk from Tillam never reaches station storage (bot route set-up or route engine); gems untestable until fixed",
+    "UNKNOWN: why lux seed 4 logs no feed route and builds the atelier only at cycle 21",
+    "UNKNOWN: contested runs (bot strength raised) for MIL_5, LUX_7, MIN_7, BIO_7; not in this brief"
+  ],
+  "handoff": "Current data, 195 runs, no crash or freeze. Verdicts on 19 nodes: 11 AGREE, 8 CONCERN, 0 REJECT. Six halves are UNTESTABLE (MIL_3 debris, MIL_6/BIO_6 event cut, LUX_1 reveal, MIN_6 alloy, LUX_4 gems). Default decent 4/4 at c27. Focus wins: mil 4/4 (c32 once), min 4/4 at 27, bio 4/4 (c31 once), lux 3/4. Sloppy, always_expand, never_expand 0/12. CEO x ship 16/16 pass (45/48 wins). Bugs: BUG-1 lux seed 4 no win; BUG-2 musk never reaches station (gems dead); BUG-3 LUX_4 cost without payoff; BUG-4/5 pacing (mil c32, bio c31). Tech ablation leak fixed in bot. Step 1 is 128 runs (8 over cap, 20 are re-runs). Capstones reached via --skills branch arm.",
+  "details": {
+    "results": [
+      {"strategy": "decent (default)", "final_cash": 51022, "cycle_reached": 27, "outcome": "win"},
+      {"strategy": "decent --market=mil", "final_cash": 33702, "cycle_reached": 27, "outcome": "win"},
+      {"strategy": "decent --market=lux", "final_cash": 27238, "cycle_reached": 27, "outcome": "win"},
+      {"strategy": "decent --market=min", "final_cash": 33216, "cycle_reached": 27, "outcome": "win"},
+      {"strategy": "decent --market=bio", "final_cash": 11820, "cycle_reached": 27, "outcome": "win"},
+      {"strategy": "sloppy", "final_cash": 9314, "cycle_reached": 40, "outcome": "loss"},
+      {"strategy": "always_expand", "final_cash": 24898, "cycle_reached": 40, "outcome": "loss"},
+      {"strategy": "never_expand", "final_cash": 9307, "cycle_reached": 40, "outcome": "loss"}
+    ],
+    "node_verdicts": {
+      "AGREE": ["MIL_2", "MIL_3", "MIL_4", "MIL_6", "LUX_1", "LUX_5", "LUX_6", "MIN_6", "BIO_2", "BIO_4", "BIO_6"],
+      "CONCERN": ["MIL_5", "LUX_2", "LUX_4", "LUX_7", "MIN_2", "MIN_7", "BIO_5", "BIO_7"],
+      "REJECT": [],
+      "UNTESTABLE_part": {
+        "MIL_3": "debris half (not counted this batch)",
+        "MIL_6": "event cut (no forced events)",
+        "BIO_6": "event cut (no forced events)",
+        "LUX_1": "reveal-prices half (no price read in the bot)",
+        "MIN_6": "alloy (fabric never built by the bot; 3 feed ships)",
+        "LUX_4": "gem payoff (musk never reaches station)"
+      }
+    },
+    "ce_check": {"combos": 16, "runs": 48, "wins": 45, "reference_median": 27, "best_win_rate": 1.0, "passing": 16},
+    "bugs": "qa/reports/2026-11-05-bug_report-skill-signoff.json (10 entries)",
+    "report": "qa/reports/2026-11-05-skill-signoff-qa.md",
+    "harness": "keep-running (cycle step after win, 39 max), tech ablation pinned count, first-win scoring, --skills branch arm for capstones"
+  }
+}

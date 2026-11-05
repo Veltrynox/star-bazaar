@@ -1,0 +1,40 @@
+{
+  "output_dir": "assets/voice",
+  "model_version": "kokoro-82m-v1.0",
+  "include": [
+    "TUT_G.*_WHY",
+    "TUT_GALAXY_.*_WHY",
+    "EV_.*_BODY(_[AB])?",
+    "EV_.*_OP[AB]_RES"
+  ],
+  "exclude": [],
+  "placeholders": {
+    "bot1": "Harrow Combine",
+    "bot2": "Velvet Concord",
+    "bot3": "Ostrel Syndicate",
+    "bot": "Harrow Combine"
+  },
+  "pronunciations": {},
+  "voice": {
+    "lang": "a",
+    "name": "af_sarah",
+    "speed": 0.88
+  },
+  "engine": "kokoro",
+  "post_filter": "equalizer=f=220:t=q:w=1:g=3,equalizer=f=3000:t=q:w=1:g=2,acompressor=threshold=-20dB:ratio=3:attack=5:release=80,asplit=3[a][b][c];[b]adelay=18[b2];[c]adelay=32[c2];[a][b2][c2]amix=inputs=3:weights='1 0.3 0.2':normalize=0,aecho=0.8:0.7:12:0.2,acrusher=bits=12:mix=0.2:mode=lin,highpass=f=120",
+  "spoken": {
+    "TUT_G1_SELECT_WHY": "First, the planet's panel shows what it sells, what it buys, and what the company can trade there.",
+    "TUT_G2_BUY_WHY": "Then, a Buy order fills your storage on this planet each cycle.",
+    "TUT_G3_SEND_WHY": "Next, pick a planet that wants the good. A route carries your goods there by ship.",
+    "TUT_G4_ROUTE_PAY_WHY": "Now, the route earns when it sells there. That is where your money comes from.",
+    "TUT_G5_UPKEEP_WHY": "Meanwhile, a ship costs money every cycle, so a route must earn more than it costs.",
+    "TUT_G6_SELL_WHY": "After that, a Sell order turns your stock into credits.",
+    "TUT_G7_STORAGE_WHY": "Also, company storage holds your goods on a planet. When it is full, Buy waits.",
+    "TUT_G8_SKILLS_WHY": "Later on, spend an expansion point. Skills unlock bigger storage, longer routes and the permit.",
+    "TUT_G9_PERMIT_WHY": "To expand, the Permit Charter lets you open a new system, and a new system has more planets to trade with.",
+    "TUT_G10_DONE_WHY": "Finally, open Competitors to see shares. Market chain choices change your rivals.",
+    "TUT_GALAXY_INTRO_WHY": "Here, each system is its own market. Seeing them side by side shows where to grow next.",
+    "TUT_GALAXY_ICONS_WHY": "Also, a system that has what another lacks is where a route pays best.",
+    "TUT_GALAXY_ROUTES_WHY": "Then, open a system to set up buy, send and sell orders there."
+  }
+}

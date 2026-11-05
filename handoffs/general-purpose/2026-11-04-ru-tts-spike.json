@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "agent": "general-purpose",
+  "date": "2026-11-04",
+  "task": "Russian TTS spike: woman voice, commercial license, Chatterbox vs Qwen3-TTS",
+  "status": "done",
+  "files_changed": [],
+  "open_questions": ["UNKNOWN: which sounds better; nobody listened. Owner must listen to both sets in the scratchpad out folder", "UNKNOWN: whether respelling Latin words in Cyrillic reads better than as-is", "UNKNOWN: Qwen3-TTS Base voice clone not tested; Piper and F5 Russian voices not checked"],
+  "handoff": "Both run on this Mac (MPS). Chatterbox Multilingual 0.1.7 (MIT code and weights, inaudible PerTh watermark) clones af_sarah: f0 188-208 Hz, 25-106 s per clip, 4.9 GB RAM. Needs pip install setuptools<81. Qwen3-TTS 1.7B CustomVoice (Apache-2.0 both), preset Serena (native Chinese): f0 225-267 Hz, 6-22 s per clip, 2.2 GB. No Russian preset exists. No license blocks commercial use, but neither states output ownership. Recommend Chatterbox for voice continuity unless listening favors Qwen. No listening was done; only durations, silence, clipping and pitch were measured. Chain only trims leading silence, so add end trim. Full table, quotes and commands: /private/tmp/claude-501/-Volumes-Work-Gamedev-Projects-AgentCourse-star-bazaar/9daa0c6f-1cc9-4df9-820d-8863b8bc8510/scratchpad/ru_tts/ru_tts_report.md",
+  "details": {}
+}

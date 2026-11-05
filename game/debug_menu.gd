@@ -205,11 +205,10 @@ func tutorial_text() -> String:
 
 func _notice_id_list() -> Array:
 	if _notice_ids.is_empty():
-		var parsed = JSON.parse_string(FileAccess.get_file_as_string("res://data/story_text.json"))
-		if typeof(parsed) == TYPE_ARRAY:
-			for e in parsed:
-				if str(e.get("id", "")).begins_with("NOT_"):
-					_notice_ids.append(str(e["id"]))
+		var parsed: Array = StoryText.entries_of(JSON.parse_string(FileAccess.get_file_as_string("res://data/story_text.json")))
+		for e in parsed:
+			if str(e.get("id", "")).begins_with("NOT_"):
+				_notice_ids.append(str(e["id"]))
 	return _notice_ids
 
 func add_qa_tools() -> void:

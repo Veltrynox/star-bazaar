@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "agent": "feature-designer",
+  "date": "2026-11-05",
+  "task": "skill-signoff",
+  "status": "done",
+  "files_changed": ["design/proposals/2026-11-05-skill-signoff-feature.md"],
+  "open_questions": [
+    "UNKNOWN: MIL_7 growth x0.5 fair late? economy to test contested mil run",
+    "UNKNOWN: owner call on LUX_7 once-per-run vs cooldown use",
+    "UNKNOWN: owner call on dropping LUX_2 event bonus"
+  ],
+  "handoff": "Sign-off: 28 AGREE, 3 CHANGE (MIL_7, LUX_2, LUX_7), 0 REJECT. Rivets sale-only mil export is acceptable if the UI says where it sells. Percent-only nodes: 7 of 31, acceptable; add no more.",
+  "details": {
+    "node_calls": {"CHANGE": ["MIL_7", "LUX_2", "LUX_7"], "REJECT": [], "AGREE": "all other 28"},
+    "rivets": "acceptable as stepping-stone trade lane",
+    "percent_only_nodes": ["MIL_2", "MIL_3", "MIL_6", "LUX_2", "LUX_5", "LUX_6", "MIN_4"]
+  }
+}

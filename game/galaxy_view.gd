@@ -33,6 +33,7 @@ var tut_hl: Panel  # pulsing outline over the target
 var tut_arrow: Polygon2D  # pointer from the card to the target
 var title_label: Label
 var hint_label: Label
+var _voiced_step := -1
 var tut_step: int = -1  # -1 none this opening, 0..2 lines, 3 = done note
 var selected_sys: int = -1
 var permit_button: Button  # Buy permit button of the shown closed system (tests)
@@ -386,6 +387,7 @@ func _draw() -> void:
 			draw_line(_sys_center(k), _sys_center(k + 1), Ui.col("line_300"), 1.2, true)
 		else:
 			_draw_dashed(_sys_center(k), _sys_center(k + 1), Ui.col("line_200"), 1.0)
+	_draw_storage_links(ids)
 	# territories and orbits
 	for k in ids.size():
 		var sid: int = ids[k]
@@ -450,7 +452,7 @@ func _draw() -> void:
 		_draw_planet(pos, p)
 		var c4 := _sys_center(ids.find(int(info2["sys"])))
 		var comm := str(p.get("abundant", ""))
-		if comm != "":
+		if comm != "" and Availability.good(comm):  # data/availability.json: no icon for a good not visible yet
 			var ic: Texture2D = Ui.icon(comm)
 			if ic != null:
 				var tint := Ui.commodity_col(comm)
@@ -459,7 +461,7 @@ func _draw() -> void:
 				draw_texture_rect(ic, Rect2(pos + Vector2(5, -19), Vector2(13, 13)), false, tint)
 		if int(info2["sys"]) == selected_sys:  # planet names only inside the selected system, away from the sun
 			var left: bool = pos.x < c4.x
-			var nm := str(p.get("name", p.get("id", "?")))
+			var nm: String = main.planet_name(int(i))  # T180: hides closed names
 			var w := sans.get_string_size(nm, HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x
 			draw_string(sans, pos + Vector2(-(w + 12.0) if left else 12.0, 4.0), nm, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Ui.col("ink_muted"))
 	# ship dots on top
@@ -474,6 +476,46 @@ func _draw() -> void:
 			if int(main.map.planets[ln2["a"]].get("system", 1)) != sid3:
 				continue
 			_draw_ships(ln2, layout, n2, s)
+
+## T171: a thin line per Storage Link between the two systems, shifted sideways so it never lies on the system link or a route lane.
+## Dimmed when dormant. Drawn only while the storage_link feature is visible.
+func _link_segments(ids: Array) -> Array:
+	var out: Array = []
+	if not Availability.feature("storage_link"):
+		return out
+	for id in main.storage_link.links():
+		var info: Dictionary = main.storage_link.link_info(int(id))
+		var ka: int = ids.find(int(info["a"]))
+		var kb: int = ids.find(int(info["b"]))
+		if ka < 0 or kb < 0:
+			continue
+		var pa := _sys_center(ka)
+		var pb := _sys_center(kb)
+		var nrm := (pb - pa).orthogonal().normalized() * 9.0
+		out.append({"a": pa + nrm, "b": pb + nrm, "info": info})
+	return out
+
+func _draw_storage_links(ids: Array) -> void:
+	for seg in _link_segments(ids):
+		var dormant: bool = str(seg["info"]["state"]) == "dormant"
+		var col := Ui.col("star_warm")
+		col.a = 0.3 if dormant else 0.8
+		draw_line(seg["a"], seg["b"], col, 1.0, true)
+
+func _link_tooltip(pos: Vector2) -> String:
+	for seg in _link_segments(_sys_ids()):
+		var pa: Vector2 = seg["a"]
+		var pb: Vector2 = seg["b"]
+		var cp := Geometry2D.get_closest_point_to_segment(pos, pa, pb)
+		if cp.distance_to(pos) > 6.0:
+			continue
+		var info: Dictionary = seg["info"]
+		var a := Systems.name_of(int(info["a"]))
+		var b := Systems.name_of(int(info["b"]))
+		if str(info["state"]) == "dormant":
+			return StoryText.get_or("SS_LINK_TIP_MAP_DORMANT", "Dormant link: {a} and {b}. No goods move until the storages hold {n} energy.", {"a": a, "b": b, "n": int(info["upkeep"])})
+		return StoryText.get_or("SS_LINK_TIP_MAP", "Storage Link: {a} and {b}.", {"a": a, "b": b})
+	return ""
 
 func _draw_ellipse(c: Vector2, rx: float, col: Color) -> void:
 	var pts := PackedVector2Array()
@@ -743,11 +785,13 @@ func _build_open_side(sid: int) -> void:
 		disc.tex = _thumb(str(p.get("type", "")))
 		row.add_child(disc)
 		var nm := Label.new()
-		nm.text = str(p.get("name", p.get("id", "?")))
+		nm.text = main.planet_name(int(i))  # T180
 		nm.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		row.add_child(nm)
 		var comm := str(p.get("abundant", ""))
-		if comm != "":
+		if comm != "" and not Availability.good(comm):
+			pass  # hidden good: the row shows the planet name only
+		elif comm != "":
 			row.add_child(_icon_rect(comm, 16.0, Ui.commodity_col(comm)))
 			var cl := Label.new()
 			cl.text = Ui.good_name(comm)
@@ -882,6 +926,13 @@ func _build_tutorial() -> void:
 		tut_box.remove_child(c)
 		c.queue_free()
 	tut_panel.visible = tut_step >= 0 and tut_step < TUT_IDS.size()  # the finished state shows nothing
+	if tut_panel.visible:
+		if _voiced_step != tut_step:  # the panel rebuilds often; speak a step once
+			_voiced_step = tut_step
+			Voice.play(TUT_IDS[tut_step] + "_WHY")  # the heading is on screen; only the why line is spoken
+	else:
+		_voiced_step = -1
+		Voice.stop_prefix("TUT_")
 	if not tut_panel.visible:
 		tut_hl.visible = false
 		tut_arrow.visible = false
@@ -936,6 +987,7 @@ func _hit_at(pos: Vector2) -> int:
 
 func _gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion:
+		tooltip_text = _link_tooltip(event.position)
 		var hid := _hit_at(event.position)
 		if hid != _hover_id:
 			_hover_id = hid

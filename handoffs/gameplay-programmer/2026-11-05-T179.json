@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-05",
+  "task": "T179",
+  "status": "partial",
+  "files_changed": [
+    "game/pathfinder.gd (new)",
+    "game/main.gd",
+    "game/conditions.gd",
+    "game/availability.gd",
+    "game/events.gd",
+    "game/save_game.gd",
+    "data/balance.json (new keys appended only)",
+    "data/availability.json (atoms, 9 'planet' rules, start_state open_planets/closed_planets)",
+    "tools/tests/run_tests.gd",
+    "handoffs/gameplay-programmer/2026-11-05-T179.json"
+  ],
+  "open_questions": [
+    "UNVERIFIED BY EXECUTION: nothing was loaded or run (owner forbade it). First run: sh tools/tests/run.sh, then a windowed discovery run.",
+    "Decision: save VERSION is 6 but MIN_VERSION stays 2; a save with no 'pathfinder' key loads with every planet open (legacy) instead of being dropped, so the existing migration tests stay valid. To drop them per policy set MIN_VERSION 6 and fix tests near run_tests.gd lines 1913 and 6146. Also: dead_unlock_cycle 15 still applies as a floor on mining even after a platform stands (not removed).",
+    "Not done: workshops are not gated per planet; the Qa bots (qa/bots/bot_run.gd and shot bots) still assume open planets and must fly or run with balance discovery_enabled 0; T181 events not wired; asteroid survey not built; beachhead discount skipped."
+  ],
+  "handoff": "New game/pathfinder.gd (RefCounted accessor exactly as the doc at the top of game/pathfinder_view.gd, plus signals arrived, build_started, build_done, build_cancelled). Flight runs on game time: main._process calls flight.sync(game_time()) only while unpaused, so pause, the event pause and speeds x1 to x12 are exact, and debug_advance_cycle moves it too. Speed is pathfinder_speed 400 data map units per cycle times ships.json speed (data units, ORBIT_SCALE divided out, so Voltara to Tillam = 1.0). Other-system flights need the permit and take pathfinder_jump_cycles/speed. Only Voltara is open at start; a post or platform opens a planet through availability rule kind 'planet' (atoms planet_visited, post_built, platform_built). Closed planets go into engine.closed_planets and events.locked, system_trade_open, can_connect and set_local_order refuse them with NOT_FLY_FIRST. Leaving a build cancels it with no refund (NOT_POST_LEAVE). Everything is off when discovery_enabled is 0 (read live). Saved under 'pathfinder'.",
+  "details": {
+    "new_balance_keys": {
+      "discovery_enabled": 1,
+      "pathfinder_speed": 400,
+      "pathfinder_jump_cycles": 2,
+      "post_cost_ship_fraction": 0.4,
+      "post_cost_system2_mult": 1.5,
+      "platform_cost_post_mult": 2,
+      "post_first_free": 1,
+      "post_first_build_cycles": 1,
+      "post_build_cycles": 2,
+      "platform_build_cycles": 3,
+      "note": "post cost = ship_price x fraction (x1.5 in system 2); platform = post cost x 2; first living post is free and builds in 1 cycle; credits are paid at build start, no refund on cancel; MIN_3 needed for a platform (const in pathfinder.gd)"
+    },
+    "main_api_for_bots": [
+      "fly_to(planet_id) -> '' or reason",
+      "establish(planet_id) -> '' or reason (fly_first|no_cash_post|no_cash_platform|busy|no_skill)",
+      "flagship_state() -> {enabled,state,docked,build,target,eta,post,platform}",
+      "debug_fly_now(planet_id)",
+      "debug_establish_now(planet_id) (cash paid as normal)",
+      "debug_open_all_planets()",
+      "game_time()",
+      "planet_established(index)",
+      "flight.set_flag('visited'|'post'|'platform', id, bool) for tests"
+    ],
+    "tests_changed": "_new_main(guided, discovery=false) sets discovery_enabled 0 so every old test keeps the old behaviour; _test_availability uses discovery on and now checks open_planets, closed planet trade refusal, closed-planet name scan (new Availability.names_closed_planet; may expose text leaks, e.g. tutorial or goal lines naming Tillam), _av_reset resets the flight, _av_atom handles the 3 new atoms; VERSION checks are 6.",
+    "bots_and_tests_need_later": [
+      "qa/bots/bot_run.gd: explorer opening: fly_to / establish (or debug_establish_now) before routes; or set balance discovery_enabled 0 for benchmarks and shots",
+      "new tests: flight time = distance / (400 x speed) and pauses; establish refusals; leaving cancels; save/load mid-flight and mid-build; discovery 0 golden test; closed planets draw no label",
+      "economy re-baseline of win cycle and bot_scale with discovery on (T178 numbers are start points)",
+      "text scan of tutorial, event and goal texts for planet names"
+    ],
+    "questions_for_owner": [
+      "Keep dead_unlock_cycle 15 as a floor now that a platform needs MIN_3?",
+      "Drop pre-discovery saves (MIN_VERSION 6) or let them load with all planets open as now?"
+    ]
+  }
+}

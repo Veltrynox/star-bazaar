@@ -103,6 +103,8 @@ def data_refs(root, name):
 def audit(root):
     balance = load_json(os.path.join(root, "data", "balance.json"))
     events = load_json(os.path.join(root, "data", "events.json"))
+    if isinstance(events, dict):  # generated file: {"generated": marker, "entries": [...]}
+        events = events["entries"]
     srcs = game_sources(root)
     events_gd = srcs.get("game/events.gd", "")
     loads_pool = "events.json" in events_gd or "PATH" in events_gd

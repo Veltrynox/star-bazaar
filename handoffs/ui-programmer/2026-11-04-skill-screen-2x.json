@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-04",
+  "task": "skill-screen-2x",
+  "status": "done",
+  "files_changed": ["game/skill_screen.gd", "tools/tests/run_tests.gd", "qa/bots/skill_screen_shot.gd"],
+  "open_questions": [],
+  "handoff": "Skill screen keeps its five branch columns (Foundations + 4 markets, 31 real nodes, no tabs) and now adds dashed, empty, inert placeholder slots under each column so the tree shows about 2x size (35 slots, 66 total). UI only: not in cells/node_buttons, data, saves, totals or focus; mouse ignore, no focus, no text, no tooltip. TREE_RESERVE 420 -> 360 so the whole tree fits at 1080 without inner scroll; smaller windows scroll as before. No game logic changed.",
+  "details": {
+    "constants_in_game_skill_screen_gd": {
+      "SHOW_PLACEHOLDERS": "true; the ONE switch, false removes all placeholders",
+      "PLACEHOLDER_GROWTH": "2.0; planned size as a multiple of real nodes, extra slots added as whole rows under each branch",
+      "PLACEHOLDER_COL": "dash colour",
+      "TREE_RESERVE": "360, window height kept for non-tree parts"
+    },
+    "how_to_try": "Press K in game. Or: qa/run_game.sh res://qa/bots/skill_screen_shot.gd, shots in qa/reports/skill_screen_{1080,720}_{top,bottom}.png",
+    "not_checked_by_eye": "Tabs do not exist (columns). 1280x720 uses the same 1920x1080 canvas scaled (canvas_items), so no different aspect ratio was tried; scroll at tiny heights not seen. Drag-pan and zoom not added (wheel scroll and scrollbars only).",
+    "tests": "5 new checks in tools/tests/run_tests.gd (skill placeholders), total 1760 pass 0 fail"
+  }
+}

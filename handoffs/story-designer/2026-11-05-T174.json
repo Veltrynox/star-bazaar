@@ -1,0 +1,19 @@
+{
+  "agent": "main-session",
+  "date": "2026-11-05",
+  "task": "T174",
+  "status": "done",
+  "files_changed": [
+    "story/skills.md",
+    "story/ru/skills.json",
+    "data/story_text.json",
+    "data/story_text_ru.json",
+    "schedule.json"
+  ],
+  "schema_version": 1,
+  "open_questions": [
+    "Plain test suite fails to load game/storage_link.gd (parse errors at lines 96 and 243), not from this task; gameplay-programmer to fix.",
+    "No new effect type was needed: LUX_5B and MIN_5B use effects game/skills.gd already reads. T173 (numbers and QA) removed by owner; existing values in data/balance.json untouched."
+  ],
+  "handoff": "Final names and descriptions for LUX_5B (Long Ledger) and MIN_5B (Hard Hats) in English and Russian; PLACEHOLDER wording removed; build_story.py regenerated both story files."
+}

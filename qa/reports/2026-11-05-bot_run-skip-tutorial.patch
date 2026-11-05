@@ -1,0 +1,41 @@
+diff --git a/qa/bots/bot_run.gd b/qa/bots/bot_run.gd
+index e261840..fe89233 100644
+--- a/qa/bots/bot_run.gd
++++ b/qa/bots/bot_run.gd
+@@ -47,6 +47,7 @@ extends SceneTree
+ ##   --choice=alt|RELEASE|CORP   alt: odd seed RELEASE, even seed CORP (default alt)
+ ##   --chains=first|good|bad|random  QA 2026-11-03: market chain choices. good/bad take, per step, the option whose hidden nudge
+ ##                           (Chains.nudge_of) pushes toward that ending flag; random uses the seed; first = event-policy as before.
++##   --skip-tutorial         QA 2026-11-05: main._tut_skip() at the first decision (the tutorial gate blocks ship buys and orders otherwise)
+ ##   --local-orders          QA 2026-11-03: also Buy and Sell on every focus-market planet, whatever the strategy
+ ##   --market=mil|lux|min|bio  market focus (QA 2026-11-03): only goods of that market are traded (lanes and clusters)
+ ##   --force-goal=<cycle>    turns on the debug "Force market share" (mil) at that cycle
+@@ -100,6 +101,8 @@ var skip_skills: Array = []  # QA option --skip-skill=MIN_2,... (never learn the
+ var only_skills: Array = []  # QA option --skills=... (empty: every skill may be learned)
+ var skill_order: Array = []  # QA option --skill-order=... (learned first, in this order)
+ var permit_sid := -1  # QA option --permit=<system id>
++var skip_tutorial := false  # QA 2026-11-05: --skip-tutorial calls main._tut_skip() once at the first decision (the tutorial gate blocks orders and ship buys otherwise)
++var tutorial_skipped := false
+ var default_permit := true  # QA 2026-11-03: decent buys permit 2 when affordable unless --no-permit
+ var rng := RandomNumberGenerator.new()
+ var main: Node = null
+@@ -223,6 +226,8 @@ func _initialize() -> void:
+ 			market_focus = arg.trim_prefix("--market=")
+ 		elif arg == "--no-permit":
+ 			default_permit = false
++		elif arg == "--skip-tutorial":
++			skip_tutorial = true
+ 		elif arg.begins_with("--permit="):
+ 			permit_sid = int(arg.trim_prefix("--permit="))
+ 		elif arg.begins_with("--inject="):
+@@ -417,6 +422,10 @@ func _check_cycle_result(c: int, ended_before: int) -> void:
+ func _decide(c: int) -> void:
+ 	if c == 20 and OS.get_environment("BOT_DIAG") != "":
+ 		_diag_dump(c)
++	if skip_tutorial and not tutorial_skipped:
++		tutorial_skipped = true
++		main._tut_skip()
++		notes.append("QA --skip-tutorial at cycle %d (tut_step was %d)" % [c, main.tut_step])
+ 	if main.ships == 0:
+ 		_buy_ship_at(_mission_planet(), c)  # tutorial: the first ship is bought at the mission planet
+ 	if strategy == "always_expand":

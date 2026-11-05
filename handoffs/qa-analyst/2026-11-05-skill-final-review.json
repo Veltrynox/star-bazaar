@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "agent": "qa-analyst",
+  "date": "2026-11-05",
+  "task": "skill-final-review",
+  "status": "done",
+  "files_changed": [
+    "qa/reports/2026-11-05-skill-final-qa-review.md",
+    "qa/reports/2026-11-05-bug_report-skill-final-review.json",
+    "qa/reports/2026-11-05-skill-final-runs.jsonl",
+    "qa/bots/bot_run.gd",
+    "qa/bots/skill_final_review.sh",
+    "qa/bots/skill_final_analyse.py",
+    "handoffs/qa-analyst/2026-11-05-skill-final-review.json"
+  ],
+  "open_questions": [
+    "UNKNOWN: whether the munitions stall (energy never reaches station in seeds 2-4) is in route_engine or in the bot's energy buy source (BUG-1).",
+    "UNKNOWN: whether armour and gems are meant to be bot-feedable (FEED_SHIPS = 2 blocks them). This decides MIL_4 and LUX_4 verdicts (BUG-2).",
+    "UNKNOWN: why the decent default wins 3 of 4 here and 1 of 4 in the ship-CEO sweep on the same committed data."
+  ],
+  "handoff": "147 headless runs, no crash or freeze in scored runs; one harness empty run (BUG-7). Batch 116 runs (cap 120), plus 20 re-runs (identical 20/20) and 11 diagnostics. Bot changes: focus lanes feed their own workshops, --skip-tech ablation, RESULT adds tech_log, skip_techs, storage_end. Verdicts (18 changed): AGREE MIN_4, BIO_1, BIO_3; REJECT MIL_3 (debris never fired); CONCERN 14 (MIL_2/4/6 untestable: munitions stall; LUX_7, MIN_7, BIO_7 unreached; LUX_1 win runs through bio share). Dominance: mil focus 4/4 at c27 without its chain (medium). Pacing: bio focus 3 of 4 wins after c30 (medium); lux seed 3 c35. Release export static check passes. Next: fix BUG-1 feed, decide FEED_SHIPS and armour/gems feedability, then re-run mil and lux focus.",
+  "details": {
+    "results_by_focus": [
+      { "run": "decent default", "wins": "3/4", "win_cycles": [27, 27, 27], "soft": 1, "cash_mean": 33066 },
+      { "run": "focus mil", "wins": "4/4", "win_cycles": [27, 27, 27, 27], "share_focus_mean": 0.629, "cash_mean": 16999 },
+      { "run": "focus lux", "wins": "2/4", "win_cycles": [30, 35], "soft": 2, "share_focus_mean": 0.249, "cash_mean": 32780 },
+      { "run": "focus min", "wins": "4/4", "win_cycles": [29, 31, 28, 30], "share_focus_mean": 0.681, "cash_mean": 18178 },
+      { "run": "focus bio", "wins": "4/4", "win_cycles": [34, 32, 34, 27], "share_focus_mean": 0.593, "cash_mean": 7057 }
+    ],
+    "node_verdicts_changed": [
+      { "node": "MIL_2", "verdict": "CONCERN", "evidence": "reached 1 of 4 mil focus; munitions stall in other seeds" },
+      { "node": "MIL_3", "verdict": "REJECT", "evidence": "debris immunity fired 0 times in 116 runs; removal share -0.027, no win change" },
+      { "node": "MIL_4", "verdict": "CONCERN", "evidence": "armour never crafted (3 raw feeds > limit 2)" },
+      { "node": "MIL_5", "verdict": "CONCERN", "evidence": "not felt in mil focus: share -0.008, wins unchanged" },
+      { "node": "MIL_6", "verdict": "CONCERN", "evidence": "identical in all seeds; reached 1 of 4" },
+      { "node": "LUX_1", "verdict": "CONCERN", "evidence": "removal: lux wins 2 of 4 to 0 of 4; win runs on bio share from atelier food" },
+      { "node": "LUX_4", "verdict": "CONCERN", "evidence": "gems never crafted (4 feed ships); wins 2 to 1" },
+      { "node": "LUX_5", "verdict": "CONCERN", "evidence": "cash -5.3k without it; share flat; price-up condition not counted" },
+      { "node": "LUX_6", "verdict": "CONCERN", "evidence": "cask -11% without it; wins identical" },
+      { "node": "LUX_7", "verdict": "CONCERN", "evidence": "0 of 16 focus runs reached" },
+      { "node": "MIN_2", "verdict": "CONCERN", "evidence": "not isolated: removal row identical to MIN_4 removal" },
+      { "node": "MIN_4", "verdict": "AGREE", "evidence": "ingots 112 to 61 (-46%) without it; share -0.026" },
+      { "node": "MIN_6", "verdict": "CONCERN", "evidence": "ingots -15%; alloy never made (fabric not built)" },
+      { "node": "MIN_7", "verdict": "CONCERN", "evidence": "0 of 16 focus runs reached" },
+      { "node": "BIO_1", "verdict": "AGREE", "evidence": "without the BIO tree win cycle 31.8 to 38.0; cash +20.6k" },
+      { "node": "BIO_3", "verdict": "AGREE", "evidence": "without it bio cash -2.8k (-40%), share -0.019; storage pressure in 65 runs" },
+      { "node": "BIO_5", "verdict": "CONCERN", "evidence": "share -0.031, cycles mixed" },
+      { "node": "BIO_7", "verdict": "CONCERN", "evidence": "0 of 16 focus runs reached" }
+    ],
+    "node_verdicts_other": [
+      { "node": "LUX_2", "verdict": "CONCERN", "evidence": "noise-level; wins 2 of 4 both" },
+      { "node": "MIN_3", "verdict": "AGREE", "evidence": "subtree removal: min share 0.68 to 0.20; wins 4 to 2" },
+      { "node": "MIN_5", "verdict": "AGREE", "evidence": "subtree removal: min share 0.68 to 0.49; wins 4 to 2" },
+      { "node": "BIO_2", "verdict": "CONCERN", "evidence": "NOT FELT; outcomes identical" },
+      { "node": "BIO_4", "verdict": "CONCERN", "evidence": "NOT FELT; outcomes identical" },
+      { "node": "BIO_6", "verdict": "CONCERN", "evidence": "NOT FELT; identical in all seeds" }
+    ],
+    "bugs": "qa/reports/2026-11-05-bug_report-skill-final-review.json (8 entries: 6 medium, 2 low)",
+    "raw_runs": "qa/reports/2026-11-05-skill-final-runs.jsonl (116 records; baselines carry tech_log)"
+  }
+}

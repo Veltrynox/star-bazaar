@@ -5,7 +5,7 @@
 const ATLAS_PATH := "res://art/ui/ui_glyph_skill_atlas.png"
 const CELL := 64
 const COLS := 8
-const IDS := ["FND_STORAGE", "FND_PERMIT", "FND_PROSPECT", "MIL_1", "MIL_2", "MIL_3", "MIL_4", "MIL_5", "MIL_6", "MIL_7", "LUX_1", "LUX_2", "LUX_3", "LUX_4", "LUX_5", "LUX_6", "LUX_7", "MIN_1", "MIN_2", "MIN_3", "MIN_4", "MIN_5", "MIN_6", "MIN_7", "BIO_1", "BIO_2", "BIO_3", "BIO_4", "BIO_5", "BIO_6", "BIO_7"]
+const IDS := ["FND_STORAGE", "FND_PERMIT", "FND_PROSPECT", "MIL_1", "MIL_2", "MIL_3", "MIL_4", "MIL_5", "MIL_6", "MIL_7", "LUX_1", "LUX_2", "LUX_3", "LUX_4", "LUX_5", "LUX_6", "LUX_7", "MIN_1", "MIN_2", "MIN_3", "MIN_4", "MIN_5", "MIN_6", "MIN_7", "BIO_1", "BIO_2", "BIO_3", "BIO_4", "BIO_5", "BIO_6", "BIO_7", "LUX_5B", "MIN_5B"]
 
 static func region(id: String) -> Rect2:
 	var i := IDS.find(id)

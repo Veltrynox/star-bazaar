@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "agent": "economy-designer",
+  "date": "2026-11-05",
+  "task": "T173-r2",
+  "status": "partial",
+  "files_changed": ["data/skills.json", "data/balance.json", "story/skills.md", "handoffs/economy-designer/2026-11-05-T173-r2.json"],
+  "open_questions": [
+    "Owner: shared cooldown for chosen-bot hits (skill_chosen_bot_shared_every 6): yes or no? BIO_6B must not ship without it (hit is only defensible as one pressure action per window).",
+    "UNKNOWN: FND_BULK early cash effect (first 10 cycles) and MIL_5B felt at 1%/10%; sim.py does not model skills, QA ablation must check. Drop FND_BULK if early cash looks risky.",
+    "UNKNOWN: Luxury negative event count not derivable from generated events.json; event_cut applies by market of the good as for MIN_5B, so LUX_6B is the same exposure as MIN_5B."
+  ],
+  "handoff": "Accepted all 4 with smaller numbers. skills.json data_version 5 to 6 (38 nodes); balance data_version 51 to 52 (source v53). Placeholder EN texts added in story/skills.md (SK_<id>_NAME/FLAVOUR/PLAIN). Tests: 1877 pass, 8 fail; all from node counts (3 Foundations + 28 + 3 asserts, 31 branch nodes, 34 real nodes, one button per node), skill screen layout (Foundation row of 3 now 4, tier row MIL has 3 cells) and missing icons. No sim run (sim.py ignores skills). Code needed is listed in details.",
+  "details": {
+    "decisions": [
+      {"id": "MIL_5B", "verdict": "accept", "tier": 3, "cost": 2, "prereq": "MIL_3", "values": {"skill_MIL_5B_stock_growth": 0.01, "skill_MIL_5B_stock_cap": 0.1}, "reason": "half the BIO_2 rate and cap (0.02/0.2, BIO_3 lifts to 0.3), no storage_cap_pct, so share gain stays below Biotech and costs 2 points of ~21; stock_protect added as extra."},
+      {"id": "FND_BULK", "verdict": "accept, changed", "tier": 1, "cost": 2, "values": {"skill_FND_BULK_order": 0.15}, "reason": "0.25 cut to 0.15 because cash is the early limiter and the 2 points delay the first market by about 2 routes; local orders only, no route capacity, so no share lever."},
+      {"id": "BIO_6B", "verdict": "accept, changed, conditional on shared cooldown", "tier": 4, "cost": 3, "prereq": "BIO_5", "values": {"skill_BIO_6B_hit": 0.25, "skill_BIO_6B_cycles": 4, "skill_BIO_6B_every": 8, "skill_chosen_bot_shared_every": 6}, "reason": "weaker than MIL_5 (0.5/5/7) and LUX_7 (0.4/8/9); Bio chain with BIO_5 + BIO_6B costs 6 of the tier-3/4 points and the shared lock stops stacking three hits."},
+      {"id": "LUX_6B", "verdict": "accept", "tier": 4, "cost": 2, "prereq": "LUX_5B", "values": {"skill_LUX_6B_event_cut": 0.3}, "reason": "same 0.3 as MIN_5B, price-down events only, no share effect; the info branch (LUX_5B 2 + 2) costs 4 against LUX_5 + LUX_6 volume."}
+    ],
+    "keys_added_balance": {"skill_cost_FND_BULK": 2, "skill_cost_MIL_5B": 2, "skill_cost_BIO_6B": 3, "skill_cost_LUX_6B": 2, "skill_FND_BULK_order": 0.15, "skill_MIL_5B_stock_growth": 0.01, "skill_MIL_5B_stock_cap": 0.1, "skill_BIO_6B_hit": 0.25, "skill_BIO_6B_cycles": 4, "skill_BIO_6B_every": 8, "skill_chosen_bot_shared_every": 6, "skill_LUX_6B_event_cut": 0.3},
+    "points": "Focused market 9 + 3 Foundations = 12; + FND_BULK 2 = 14; one side 2 = 16; BIO_6B 3 = 19 of ~21. A second market (10) still does not fit.",
+    "new_data_field": "BIO_6B effect carries shared_cooldown_key; vocabulary text of bot_strength_pct documents it (applies to every chosen_bot skill: MIL_5, LUX_7, BIO_6B, MIN_7 if chosen_bot).",
+    "code_needed": [
+      "gameplay-programmer: activate_bot_skill: after any chosen_bot hit starts, lock all chosen_bot skills for balance[skill_chosen_bot_shared_every] cycles (own cooldown still applies); UI shows the shared timer. Check MIL_5B stock_growth_pct accepts target mil and where planet_storage; its own cap_key.",
+      "FND_BULK: skills.gd order_size_pct already sums 'all'; confirm it reads the Foundation node.",
+      "gameplay-programmer: icons for FND_BULK, MIL_5B, BIO_6B, LUX_6B in game/skill_icons.gd and tools/make_skill_icons.py, regenerate the atlas.",
+      "ui-programmer: skill_screen layout: Foundation row now 4 nodes; MIL tier 3 row has MIL_5 and MIL_5B (BIO/LUX tier 4 has a second node).",
+      "tests in tools/tests/run_tests.gd: update counts (38 nodes, 31 branch nodes, 34 real nodes, 3+28+7 side), Foundation row of 4, plus effect tests for the 4 nodes and shared cooldown."
+    ],
+    "failing_tests_expected": ["skills count 38", "tier rows MIL", "Foundations one row of three", "one button per node", "skill placeholders real nodes 34", "skill icons region", "skill icons every node button", "foundations 31 branch nodes"],
+    "sim": "tools/sim.py does not read skills; none run. Existing economy numbers untouched."
+  }
+}

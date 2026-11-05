@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-11-04",
+  "task": "Rewrite all Star Bazaar events (EN and RU) as short stories that react to skills",
+  "status": "partial",
+  "files_changed": [
+    "story/screens.md",
+    "story/events.md",
+    "story/ideas.md",
+    "story/gated_options.md",
+    "story/ru/events_mil.json",
+    "story/ru/events_lux.json",
+    "story/ru/events_min.json",
+    "story/ru/events_bio.json",
+    "story/ru/pool_events.md",
+    "data/story_text.json",
+    "data/story_text_ru.json",
+    "data/events.json"
+  ],
+  "open_questions": [
+    "Pool events EV01-EV28 and EV40-EV51 have no Russian in the game: tools/build_story.py scope rejects EV<nn> ids and EV01-EV28 text sits in data/events.json. Widen scope and serve by id?",
+    "Skill-gated options (story/gated_options.md) need the owner's yes, then economy numbers and a gate in code. Which steps first?",
+    "EV42, EV44, EV45, EV47, EV48, EV49, EV50, EV51 texts now follow data/chains.json planets and goods (the old text named Quillon and Brannock). OK to keep?"
+  ],
+  "handoff": "All 28 chain steps (mil, lux, min, bio) and every live pool event are rewritten: TITLE, BODY, button names kept, RES and RES_TITLE as stories; EFF and STD lines untouched, ids and placeholders unchanged. English is in story/screens.md and story/events.md, Russian in story/ru/events_*.json; build_story.py and the headless tests pass (1204 PASS, 0 FAIL). Russian for pool events is staged in story/ru/pool_events.md, not built. Skill-gated options are a spec only: story/gated_options.md, 31 rows with EN and RU buttons. Next: owner decision, economy numbers, programmer gate. Unchanged: EV19 nomads, BE01-BE03, button texts, STD rival lines.",
+  "details": {
+    "chain_steps_rewritten": "MIL_A1-A3, B1-B4; LUX_A1-A3, B1-B4; MIN_A1-A3, B1-B4; BIO_A1-A3, B1-B4",
+    "pool_events_rewritten": "EV01-EV16, EV21, EV22, EV24, EV25, EV26, EV28, EV17, EV18, EV20 (body and popups), EV40-EV51. Skill nods are static true lines: Seed Bank, Hardy Strains, Price Whisper, Fine Finishing, Patron's List, Smelting, Prospecting, Contract Doctrine, Cask Cellar, Culture Banks.",
+    "skill_gated_options": "SKILL-GATED OPTION list: see story/gated_options.md (event id, opt_c, node id, plain change, suggested effect). Example: MIL_B1 opt_c, MIL_1 Drydock Deals, option appears only with the skill, cheap workaround.",
+    "structural_requests": "One added option opt_c per chain step, shown only when its node is learned; EV17, EV18, EV20 need a third button. No other structure changed.",
+    "found_problems": "EV40-EV51 EV<nn>_EFF lines are unused (game builds the Rivals line). Old EV42/44/45/47/48/49/50/51 texts named wrong planets and goods; fixed to chains.json."
+  }
+}

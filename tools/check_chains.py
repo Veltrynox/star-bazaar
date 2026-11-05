@@ -34,10 +34,12 @@ for s in c['steps']:
     if len(ds) == 2 and (ds[0] > 0) == (ds[1] > 0): err.append(f'{w}: both options same sign')
     key(s['min_gap_key'], w)
     def walk(t):
-        if 'any' in t:
-            for x in t['any']: walk(x)
-        for f in ('first_sale_after_cycle', 'share_pct', 'cycles_after_prev_step'):
-            if f in t: key(t[f], w)
+        if isinstance(t, str):
+            name, _, arg = t.partition(':')
+            if arg.startswith('balance.'): key(arg[len('balance.'):], w)
+        elif isinstance(t, dict):
+            for x in t.get('all', []) + t.get('any', []): walk(x)
+            if 'not' in t: walk(t['not'])
     walk(s['trigger'])
 for k in ('dir_nudge_cap','dir_echo_mult','dir_swing_mult','dir_swing_min_abs','win_gate_cycle'):
     key(k, 'rules')

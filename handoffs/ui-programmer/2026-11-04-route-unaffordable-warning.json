@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-04",
+  "task": "route-unaffordable-warning",
+  "status": "done",
+  "files_changed": [
+    "game/route_warning.gd",
+    "game/main.gd",
+    "game/story_text.gd",
+    "tools/build_story.py",
+    "story/screens.md",
+    "story/ru/common.json",
+    "data/story_text.json",
+    "data/story_text_ru.json",
+    "qa/bots/route_warning_shot.gd"
+  ],
+  "open_questions": [
+    "The game had no line from the source planet to the cursor while a route is pending (only a halo). I draw one only when unaffordable (red). Should a neutral preview line show when affordable too?",
+    "WARN_ is a new Russian-scope prefix (story_text.gd, build_story.py); the interface otherwise stays English. Should other UI ids get Russian too?",
+    "A git stash (stash@{0}) from a mistaken stash/pop is left in place; its contents are already restored. Safe to drop."
+  ],
+  "handoff": "While a route is pending with no free ship and cash below ship price plus the keep-cash floor, a red line runs from the source planet to the cursor (or the hovered planet), with the warning WARN_SHIP_UNAFFORDABLE (need/have) next to the cursor. main.route_unaffordable() reuses can_buy_ship, so it clears on a free ship, enough cash, cancel, route placed, cap reached or game over. It reads live, so it also works while paused. Headless tests pass; a windowed shot confirmed the red line and Russian text. English and Russian were added by targeted appends.",
+  "details": {
+    "playable": true,
+    "how_to_try": "Start a run, set cash below 900 with 0 ships (debug menu), click a planet, choose Send to..., then move the mouse. Raise cash and the warning goes. Esc cancels it.",
+    "screens_changed": ["galaxy map overlay while a connection is pending"],
+    "not_checked_by_eye": ["English text wording on screen, other zoom levels, window sizes below 1920x1080"]
+  }
+}

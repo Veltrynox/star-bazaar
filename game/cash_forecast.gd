@@ -46,12 +46,13 @@ func _input(event: InputEvent) -> void:
 	if not get_global_rect().has_point(p) and not anchor.get_global_rect().has_point(p):
 		visible = false
 
-func _line(text: String, color: Color = Color.TRANSPARENT) -> void:
+func _line(text: String, color: Color = Color.TRANSPARENT) -> Label:
 	var l := Label.new()
 	l.text = text
 	if color.a > 0.0:
 		l.add_theme_color_override("font_color", color)
 	box.add_child(l)
+	return l
 
 ## Order lines [text, signed credits]: local Buy (negative) and Sell (positive). Comes from the engine's
 ## read-only forecast, so a Sell order counts the goods the routes deliver this same cycle.
@@ -83,6 +84,34 @@ func route_expense_lines() -> Array:
 		elif str(r["status"]) != "running":
 			out.append([base + " " + str(r["status"]), 0])
 	return out
+
+## Names of moving routes that earn nothing and cost money: no sale at the destination, no route bonus, and
+## nothing uses the stock on: no Sell order or onward route there, and in Space Storage no route out and no built
+## workshop in that system that takes the good as an input.
+func no_earn_routes() -> Array:
+	var out: Array = []
+	var e = main.engine
+	for r in e.forecast(main.cash)["routes"]:
+		if not bool(r["moves"]) or int(r["sale"]) > 0 or int(r["gross"]) > 0 or int(r["paid"]) <= 0:
+			continue
+		if _stock_used_onward(int(r["b"]), str(r["c"])):
+			continue
+		out.append("%s > %s (%s)" % [main.planet_name(r["a"]), main.planet_name(r["b"]), r["c"]])
+	return out
+
+func _stock_used_onward(dst: int, c: String) -> bool:
+	var e = main.engine
+	if dst >= 0:
+		return e.has_outflow(dst, c)
+	for rec in e.routes:
+		if int(rec["a"]) == dst and str(rec["c"]) == c:
+			return true
+	for ws in main.workshops.IDS:
+		if main.workshops.stands_in(ws, -dst):
+			for g in Goods.recipes_of(ws):
+				if Goods.recipe(g).has(c):
+					return true
+	return false
 
 ## Expected cash change when the current cycle ends (income minus expenses), for the top-bar delta.
 func net_forecast() -> int:
@@ -150,4 +179,8 @@ func refresh() -> void:
 		_line("  none", RED)
 	for l in outcome:
 		_line("  %s: -%d" % [l[0], int(l[1])], RED)
+	for nm in no_earn_routes():
+		var w := _line(StoryText.get_or("LBL_FC_NO_EARN", "{route} earns nothing: it only moves stock to storage.", {"route": nm}), Ui.col("signal_warn"))
+		w.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		w.custom_minimum_size = Vector2(280, 0)
 	_line("After cycle: %d" % (cash + total_in - total_out))

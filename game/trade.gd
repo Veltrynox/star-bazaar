@@ -13,7 +13,7 @@ func setup(bal: Dictionary, plist: Array) -> void:
 	planets = plist
 
 ## Price of a key such as "energy_buy" at planet i, or -1 if missing/UNKNOWN.
-func price(i: int, key: String, next_cycle: bool = false, no_events: bool = false) -> int:
+func price(i: int, key: String, next_cycle: bool = false, no_events: bool = false, ahead: int = 1) -> int:
 	if i < 0 or i >= planets.size() or typeof(planets[i]) != TYPE_DICTIONARY:
 		return -1
 	var prices = planets[i].get("base_prices")
@@ -25,7 +25,7 @@ func price(i: int, key: String, next_cycle: bool = false, no_events: bool = fals
 	if key.ends_with("_buy") or key.ends_with("_sell"):
 		var f := 1.0
 		if events != null and not no_events:  # T12: event price factor on both prices
-			f *= float(events.price_factor(i, key.substr(0, key.rfind("_")), next_cycle))
+			f *= float(events.price_factor(i, key.substr(0, key.rfind("_")), next_cycle, ahead))
 		if events != null:
 			return maxi(0, roundi(float(v) * f))
 	return int(v)

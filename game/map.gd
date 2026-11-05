@@ -61,6 +61,8 @@ var planets: Array = []
 var view_system := 1  # each solar system is its own space: only this system's planets, routes and sun are shown
 var planet_spheres: Array[MeshInstance3D] = []  # one planet_sphere.tscn per planet, at its 3D position
 var planet_labels: Array[Label3D] = []
+var planet_label_2d: Array[Label] = []   # T167: drawn on a canvas layer above the edge blur, placed from planet_labels each frame
+var _label_layer: CanvasLayer
 var focus_sun_pos := Vector3.ZERO  # world position of the sun sphere (the screen-space light source for the FX)
 var positions: Array[Vector3] = []
 var camera: Camera3D
@@ -76,6 +78,17 @@ var route_lines: Dictionary = {}  # T07b: route id -> route_line.gd node
 var _route_list: Array = []       # last list given to set_routes (rebuilt after tunable changes)
 
 signal station_clicked(system_id: int)
+## T180: flight orders and establish orders; see the interface at the top of game/pathfinder_view.gd. Never emitted while flight is null or off.
+signal fly_requested(target: Dictionary)   # {"kind": "planet"|"storage"|"cluster"|"point", "pos": Vector3, "index": int}
+signal establish_requested(planet_id: String)
+const PathfinderView := preload("res://game/pathfinder_view.gd")
+const DeadWorlds := preload("res://game/dead_worlds.gd")
+const StoryText := preload("res://game/story_text.gd")
+const UNKNOWN_SHADE_ALPHA := 0.62
+var flight = null                 # T180: accessor set by main.gd (T179); null = discovery off, nothing below changes
+var pathfinder = null             # T180: the 3D scout (game/pathfinder_view.gd), created on first use
+var _shades := {}                 # planet index -> dim overlay sphere of a closed planet
+var _known_cache := {}            # planet index -> last "discovered" state, to rewrite names only on a change
 signal cluster_clicked(index: int)  # T159: click on an asteroid pack (index in the cluster data)
 var _cluster_list: Array = []  # T159: last list given to set_clusters, for picking
 const STATION_OFFSET := Vector3(2.4, 0.0, -2.4)  # from the system's sun
@@ -141,6 +154,8 @@ func _ready() -> void:
 	add_child(glare)
 	# Film grain over the 3D map view (art/planet_fx/film_grain.gd): same layer as the glare, added after it, under the UI.
 	add_child(load("res://art/planet_fx/film_grain.gd").new())
+	# T167: the planet names go last on the same layer, so they draw above the blur, glare and grain (same layer: tree order).
+	move_child(_label_layer_node(), -1)
 
 ## Orbit rings: thin circles on the ground plane through each planet, centred on the sun, plus one dashed
 ## outer ring. The camera pitch gives the tilt. Colours: theme tokens line_200 / line_100.
@@ -290,6 +305,64 @@ func _make_planet(i: int) -> void:
 	l.position = pos + Vector3(0, -label_drop(i), 0)
 	add_child(l)
 	planet_labels.append(l)
+	var t := Label.new()
+	t.text = l.text
+	t.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	t.add_theme_font_override("font", l.font)
+	t.add_theme_color_override("font_color", l.modulate)
+	t.add_theme_color_override("font_outline_color", l.outline_modulate)
+	# T167: the 3D label only carries the position and visibility; it is drawn fully transparent, the 2D twin shows the name above the blur.
+	l.modulate.a = 0.0
+	l.outline_modulate.a = 0.0
+	_label_layer_node().add_child(t)
+	planet_label_2d.append(t)
+
+func _label_layer_node() -> CanvasLayer:
+	if _label_layer == null:
+		_label_layer = CanvasLayer.new()
+		_label_layer.layer = -1   # same layer as the blur, glare and grain; added last, so on top of them, under the UI
+		add_child(_label_layer)
+	return _label_layer
+
+## T167: place the 2D name labels over their hidden 3D twins (size: 13 px in the 941 px frame, scaled to the viewport).
+func _place_labels() -> void:
+	if camera == null or not camera.is_inside_tree():
+		return
+	var h := get_viewport().get_visible_rect().size.y
+	var fs := maxi(8, roundi(13.0 * h / 941.0))
+	var ol := maxi(2, roundi(3.0 * h / 941.0))
+	for i in planet_label_2d.size():
+		var t := planet_label_2d[i]
+		var src := planet_labels[i]
+		var wp := src.global_position
+		var on := src.visible and not camera.is_position_behind(wp)
+		t.visible = on
+		if not on:
+			continue
+		t.add_theme_font_size_override("font_size", fs)
+		t.add_theme_constant_override("outline_size", ol)
+		var sz := t.get_minimum_size()
+		t.position = (camera.unproject_position(wp) - sz * 0.5).round()
+	_place_route_tags()
+
+## T163: route tags, same approach as the planet names.
+func _place_route_tags() -> void:
+	var h := get_viewport().get_visible_rect().size.y
+	var fs := maxi(8, roundi(11.0 * h / 941.0))
+	var ol := maxi(2, roundi(3.0 * h / 941.0))
+	for id in route_lines:
+		var ln = route_lines[id]
+		var t: Label = ln.tag2d
+		if t == null:
+			continue
+		var wp: Vector3 = ln.tag.global_position
+		var on: bool = ln.visible and not camera.is_position_behind(wp)
+		t.visible = on
+		if not on:
+			continue
+		t.add_theme_font_size_override("font_size", fs)
+		t.add_theme_constant_override("outline_size", ol)
+		t.position = (camera.unproject_position(wp) - t.get_minimum_size() * 0.5).round()
 
 ## Middle of one system's planets from the data x,y (before ORBIT_SCALE), on the ground plane.
 func _raw_center(sys: int) -> Vector3:
@@ -376,6 +449,13 @@ func pick_cluster(screen_pos: Vector2) -> int:
 			best = int(c["index"])
 	return best
 
+## World position of the asteroid pack with this data index (same maths as pick_cluster), or null.
+func _cluster_world_pos(index: int) -> Variant:
+	for c in _cluster_list:
+		if int(c["index"]) == index:
+			return Vector3(float(c["x"]), 0.0, float(c["y"])) * MAP_UNIT_SCALE
+	return null
+
 ## Divides the part of v along unit axis tn by k (ellipsoid to sphere space for pick_cluster).
 func _unstretch(v: Vector3, tn: Vector3, k: float) -> Vector3:
 	var along := v.dot(tn)
@@ -390,7 +470,7 @@ func _apply_view() -> void:
 			planet_labels[i].visible = on
 	for id in route_lines:
 		var ln = route_lines[id]
-		ln.visible = planet_in_view(int(ln.pair_a)) and (planet_in_view(int(ln.pair_b)) if int(ln.pair_b) >= 0 else -int(ln.pair_b) == view_system)
+		ln.visible = _node_system(int(ln.pair_a)) == view_system and (planet_in_view(int(ln.pair_b)) if int(ln.pair_b) >= 0 else -int(ln.pair_b) == view_system)
 	for id in stations:
 		stations[id].visible = int(id) == view_system
 	for id in orbit_rings:  # each system shows only its own sun and orbit rings
@@ -527,6 +607,27 @@ func set_pending(index: int) -> void:
 		pending_hint.setup(planet_radius(index))
 	pending_hint.position = positions[index]
 
+## Cluster entry of _cluster_list for a route node id (-1000 - index), {} when unknown.
+func _cluster_by_node(node: int) -> Dictionary:
+	for c in _cluster_list:
+		if int(c["index"]) == -node - 1000:
+			return c
+	return {}
+
+## System of a route end: a planet index or a cluster node id; -1 when unknown.
+func _node_system(n: int) -> int:
+	if n <= -1000:
+		var c := _cluster_by_node(n)
+		return int(c["system"]) if not c.is_empty() else -1
+	return int(planets[n].get("system", 1)) if n >= 0 and n < planets.size() else -1
+
+## Suns as route obstacles: [[world position, radius], ...] (route_offset.gd). One per open system.
+func sun_list() -> Array:
+	var out := []
+	for sid in sun_positions:
+		out.append([sun_positions[sid], sun_radius])
+	return out
+
 ## T07b: show one glowing line per route. routes: Array of {id, a, b, ships, status}.
 ## Lines are created once per route and only restyled afterwards; removed when the route is gone.
 func set_routes(routes: Array) -> void:
@@ -537,12 +638,25 @@ func set_routes(routes: Array) -> void:
 		var a := int(r["a"])
 		var b := int(r["b"])
 		var end_pos := Vector3.ZERO
-		if b < 0:  # a send to a Space Storage station (b = -system id): a line from the planet to its own system's station
+		var start_pos := Vector3.ZERO
+		var start_r := 0.0
+		if a <= -1000:  # a route from an asteroid cluster: the line starts at its pack
+			var cc := _cluster_by_node(a)
+			if cc.is_empty():
+				continue
+			start_pos = Vector3(float(cc["x"]), 0.0, float(cc["y"])) * MAP_UNIT_SCALE
+			start_r = float(cc["radius"]) * MAP_UNIT_SCALE
+		elif a < 0 or a >= positions.size():
+			continue
+		else:
+			start_pos = positions[a]
+			start_r = planet_radius(a)
+		if b < 0:  # a send to a Space Storage station (b = -system id): a line from the source to its own system's station
 			var st = stations.get(-b)
-			if st == null or a < 0 or a >= positions.size() or int(planets[a].get("system", 1)) != -b:
+			if st == null or _node_system(a) != -b:
 				continue
 			end_pos = st.position
-		elif a < 0 or a >= positions.size() or b >= positions.size():
+		elif b >= positions.size():
 			continue
 		else:
 			end_pos = positions[b]
@@ -552,21 +666,39 @@ func set_routes(routes: Array) -> void:
 			if int(o["a"]) == b and int(o["b"]) == a:
 				half = true
 		var line = route_lines.get(id)
-		if line != null and (line.pair_a != a or line.pair_b != b or line.half != half):
+		var lane := _lane_of(routes, id, a, b)
+		if line != null and (line.pair_a != a or line.pair_b != b or line.half != half or not is_equal_approx(line.lane_slot, lane)):
 			line.queue_free()
 			route_lines.erase(id)
 			line = null
 		if line == null:
 			line = load("res://game/route_line.gd").new()
 			add_child(line)
-			line.setup(id, a, b, positions[a], end_pos, planet_radius(a) if b < 0 else maxf(planet_radius(a), planet_radius(b)), half)
+			line.setup(id, a, b, start_pos, end_pos, start_r if b < 0 else maxf(start_r, planet_radius(b)), half, sun_list(), lane)
 			route_lines[id] = line
-		line.set_style(str(r.get("status", "running")), int(r.get("ships", 1)), str(r.get("c", "")), int(r.get("net", 0)), str(r.get("reason", "")))
+			_label_layer_node().add_child(line.tag2d)
+		line.set_style(str(r.get("status", "running")), int(r.get("ships", 1)), str(r.get("c", "")), int(r.get("net", 0)), str(r.get("reason", "")), bool(r.get("net_ok", false)), int(r.get("cost", 0)))
 	for id in route_lines.keys():
 		if not seen.has(id):
 			route_lines[id].queue_free()
 			route_lines.erase(id)
 	_apply_view()
+
+## T163: lane slot of a route among all routes on the same pair (either direction), in steps, centred on 0 and signed
+## to the route's own left of travel. A lone route gets 0 (drawn as before).
+func _lane_of(routes: Array, id: int, a: int, b: int) -> float:
+	var ids: Array = []
+	for o in routes:
+		var oa := int(o["a"])
+		var ob := int(o["b"])
+		if (oa == a and ob == b) or (oa == b and ob == a):
+			ids.append(int(o["id"]))
+	if ids.size() < 2:
+		return 0.0
+	ids.sort()
+	var k := ids.find(id)
+	var slot := float(k) - float(ids.size() - 1) * 0.5
+	return slot if a <= b else -slot
 
 ## Route id whose line is within a few pixels of screen_pos, or -1.
 func pick_route(screen_pos: Vector2) -> int:
@@ -643,6 +775,8 @@ func apply_tunables() -> void:
 	_update_camera()
 
 func _process(delta: float) -> void:
+	_refresh_known()
+	_place_labels()
 	if not keys_enabled:
 		_update_camera()
 		return
@@ -658,6 +792,55 @@ func _process(delta: float) -> void:
 	if rot != Vector2.ZERO:
 		_orbit_by(rot.x * ORBIT_KEY_SPEED * delta, rot.y * ORBIT_KEY_SPEED * delta)
 	_update_camera()
+
+## T180: closed planets are dim, unnamed spheres ("Unknown world" / "Unknown dark world"); the Pathfinder follows the accessor.
+## With flight null or off, every planet is known and this only leaves the original names and spheres alone.
+func _refresh_known() -> void:
+	var on := PathfinderView.active(flight)
+	if on and pathfinder == null:
+		pathfinder = PathfinderView.new()
+		add_child(pathfinder)
+	if pathfinder != null:
+		pathfinder.update_from(flight if on else null, view_system)
+	if not on and _shades.is_empty():
+		return
+	for i in planets.size():
+		var pid := str(planets[i].get("id", i))
+		var known := PathfinderView.discovered(flight if on else null, pid)
+		if _known_cache.get(i, true) == known and (known or _shades.has(i)) and (not known or not _shades.has(i)):
+			continue
+		_known_cache[i] = known
+		var dead: bool = DeadWorlds.is_dead(planets[i])
+		var nm := str(planets[i].get("name", pid))
+		if not known:
+			nm = StoryText.get_or("LBL_UNKNOWN_DARK_WORLD" if dead else "LBL_UNKNOWN_WORLD", "Unknown dark world" if dead else "Unknown world")
+		if i < planet_label_2d.size():
+			planet_label_2d[i].text = nm
+		if not known and not _shades.has(i):
+			var sh := MeshInstance3D.new()
+			var sm := SphereMesh.new()
+			sm.radius = 1.02
+			sm.height = 2.04
+			sh.mesh = sm
+			var mat := StandardMaterial3D.new()
+			mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+			mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+			mat.albedo_color = Color(0.02, 0.03, 0.05, UNKNOWN_SHADE_ALPHA)
+			sh.material_override = mat
+			planet_spheres[i].add_child(sh)
+			_shades[i] = sh
+		elif known and _shades.has(i):
+			_shades[i].queue_free()
+			_shades.erase(i)
+
+## World point on the ground plane under the cursor, or null.
+func _ground_point(screen_pos: Vector2) -> Variant:
+	var o := camera.project_ray_origin(screen_pos)
+	var d := camera.project_ray_normal(screen_pos)
+	if absf(d.y) < 0.0001:
+		return null
+	var t := -o.y / d.y
+	return o + d * t if t > 0.0 else null
 
 func _axis(neg: Key, pos: Key) -> float:
 	return float(Input.is_physical_key_pressed(pos)) - float(Input.is_physical_key_pressed(neg))
@@ -679,15 +862,28 @@ func _unhandled_input(event: InputEvent) -> void:
 			var sid := pick_station(event.position)
 			if sid >= 0:
 				station_clicked.emit(sid)
+				if PathfinderView.active(flight):
+					fly_requested.emit({"kind": "storage", "pos": stations[sid].position, "index": sid})
 				return
 			var cidx := pick_cluster(event.position)
 			if cidx >= 0:
 				cluster_clicked.emit(cidx)
+				if PathfinderView.active(flight):
+					var cp: Variant = _cluster_world_pos(cidx)
+					if cp != null:
+						fly_requested.emit({"kind": "cluster", "pos": cp, "index": cidx})
 				return
 			var rid := pick_route(event.position)
 			if rid >= 0:
 				route_clicked.emit(rid)
 				return
+			if PathfinderView.active(flight) and event.shift_pressed:  # Shift+click on open space: fly there
+				var gp: Variant = _ground_point(event.position)
+				if gp != null:
+					fly_requested.emit({"kind": "point", "pos": gp, "index": -1})
+					return
+		elif PathfinderView.active(flight) and PathfinderView.established(flight, str(planets[hit].get("id", hit))):
+			fly_requested.emit({"kind": "planet", "pos": positions[hit], "index": hit})  # closed planets: only selected, the panel has Fly here
 		planet_clicked.emit(hit)
 
 ## Space station of one system: built once, placed beside the sun. Returns false if it already exists.

@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-04",
+  "task": "Play generated narration audio alongside text",
+  "status": "done",
+  "files_changed": ["game/voice.gd", "project.godot", "game/event_notice.gd", "game/chains.gd", "game/main.gd", "game/galaxy_view.gd", "game/game_menu.gd"],
+  "open_questions": [
+    "Rival names in audio are fixed; Bots.NAMES is a const, so shown text always matches today. If names become dynamic or randomised, add a per-line check.",
+    "Pool (non-chain) events and other popups pass no voice id, so they stay silent. Intended?",
+    "UNKNOWN: how the audio sounds. No one has listened in game."
+  ],
+  "handoff": "New autoload Voice (game/voice.gd): play(id, then_id), stop(), stop_prefix(), set_enabled(), set_volume(). Loads res://assets/voice/<ID>.ogg on demand; missing file or voice off is a silent no-op. Settings (on, volume) persist in user://settings.cfg, default on and 1.0; controls (check box and slider) sit in the game menu. Tutorial: main.gd TUT_G* steps and galaxy_view TUT_GALAXY_* steps play once per step, followed by their _WHY line; stop on skip or finish. Events: show_event has new optional voice_id; chain body (Chains.body_id) and result (Chains.result_id) pass it; dismiss() stops it. Headless import and tests pass (1388/0). A windowed bot confirmed the right stream is playing for tutorial, chain body and result, and that a missing id and voice off are silent with no log errors. No one has listened to it in game.",
+  "details": {
+    "playable": "Narration plays with the tutorial and chain event popups. Game menu has a Voice toggle and volume slider.",
+    "how_to_try": "Start a new game: the first tutorial line is spoken. Open the game menu to toggle Voice or change volume. Trigger a chain event from the debug menu to hear the body, then the result after choosing."
+  }
+}

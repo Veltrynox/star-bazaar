@@ -1,0 +1,155 @@
+{
+  "schema_version": 1,
+  "agent": "economy-designer",
+  "date": "2026-11-04",
+  "task": "chain-trigger-gates",
+  "status": "done",
+  "files_changed": [
+    "data/chains.json",
+    "tools/tests/run_tests.gd",
+    "handoffs/economy-designer/2026-11-04-chain-trigger-gates.json"
+  ],
+  "changes": [
+    {
+      "key": "data/chains.json steps[MIL_A2].trigger",
+      "old": {
+        "any": [
+          "share_pct:balance.chain_MIL_A2_trig_share_pct",
+          "cycles_after_prev_step:balance.chain_MIL_A2_trig_after_prev_cycles"
+        ]
+      },
+      "new": {
+        "all": [
+          "skill_learned:MIL_1",
+          {
+            "any": [
+              "share_pct:balance.chain_MIL_A2_trig_share_pct",
+              "cycles_after_prev_step:balance.chain_MIL_A2_trig_after_prev_cycles"
+            ]
+          }
+        ]
+      },
+      "reason": "option B gives Munitions Line tech units; share/after-prev path had no skill"
+    },
+    {
+      "key": "data/chains.json steps[MIL_B3].trigger",
+      "old": {
+        "any": [
+          "share_pct:balance.chain_MIL_B3_trig_share_pct",
+          "skill_learned:MIL_4"
+        ]
+      },
+      "new": {
+        "all": [
+          "skill_learned:MIL_1",
+          {
+            "any": [
+              "share_pct:balance.chain_MIL_B3_trig_share_pct",
+              "skill_learned:MIL_4"
+            ]
+          }
+        ]
+      },
+      "reason": "option B east stand gives tech units (Munitions); skill path MIL_4 or share could fire without it"
+    },
+    {
+      "key": "data/chains.json steps[LUX_A2].trigger",
+      "old": {
+        "any": [
+          "share_pct:balance.chain_LUX_A2_trig_share_pct",
+          "cycles_after_prev_step:balance.chain_LUX_A2_trig_after_prev_cycles"
+        ]
+      },
+      "new": {
+        "all": [
+          "skill_learned:LUX_1",
+          {
+            "any": [
+              "share_pct:balance.chain_LUX_A2_trig_share_pct",
+              "cycles_after_prev_step:balance.chain_LUX_A2_trig_after_prev_cycles"
+            ]
+          }
+        ]
+      },
+      "reason": "option A \"Hire the finisher\" gives Atelier tech units; A3 text says \"Vask is at your atelier\""
+    },
+    {
+      "key": "data/chains.json steps[LUX_B2].trigger",
+      "old": "cycles_after_prev_step:balance.chain_LUX_B2_trig_after_prev_cycles",
+      "new": {
+        "all": [
+          "skill_learned:LUX_1",
+          "cycles_after_prev_step:balance.chain_LUX_B2_trig_after_prev_cycles"
+        ]
+      },
+      "reason": "option A \"Study the list at your atelier\" gives Atelier tech units"
+    },
+    {
+      "key": "data/chains.json steps[MIN_B1].trigger",
+      "old": {
+        "any": [
+          "skill_learned:MIN_3",
+          "share_pct:balance.chain_MIN_B1_trig_share_pct"
+        ]
+      },
+      "new": {
+        "all": [
+          "skill_learned:MIN_1",
+          {
+            "any": [
+              "skill_learned:MIN_3",
+              "share_pct:balance.chain_MIN_B1_trig_share_pct"
+            ]
+          }
+        ]
+      },
+      "reason": "option B gives Smelter tech units; B2 text then says \"your smelter\""
+    },
+    {
+      "key": "data/chains.json steps[BIO_A1].trigger",
+      "old": "first_sale_after_cycle:balance.chain_BIO_A1_trig_first_sale_cycle",
+      "new": {
+        "all": [
+          "skill_learned:BIO_1",
+          "first_sale_after_cycle:balance.chain_BIO_A1_trig_first_sale_cycle"
+        ]
+      },
+      "reason": "text \"Study the sample at your culture lab\", option A gives Culture Lab tech units; first-sale trigger could fire without the lab"
+    },
+    {
+      "key": "data/chains.json steps[BIO_B1].trigger",
+      "old": {
+        "any": [
+          "skill_learned:BIO_3",
+          "share_pct:balance.chain_BIO_B1_trig_share_pct"
+        ]
+      },
+      "new": {
+        "all": [
+          "skill_learned:BIO_1",
+          {
+            "any": [
+              "skill_learned:BIO_3",
+              "share_pct:balance.chain_BIO_B1_trig_share_pct"
+            ]
+          }
+        ]
+      },
+      "reason": "option B \"Culture it at your lab\" gives tech units at the Culture Lab; the lab unlocks with BIO_1 (BIO_3 not needed: the lab is the dependency, and a BIO_3-only gate would block players who skip it)"
+    },
+    {
+      "key": "tools/tests/run_tests.gd chain triggers test",
+      "old": "A2 checks without MIL_1",
+      "new": "Skills.add_learned(\"MIL_1\") before the A2 checks",
+      "reason": "MIL_A2 now needs MIL_1; test minimally updated"
+    }
+  ],
+  "sim_results": "not run: no balance numbers changed",
+  "tests": "sh tools/tests/run.sh: pass=1653 fail=0; tools/check_chains.py OK",
+  "open_questions": [
+    "skill_learned:X_1 only UNLOCKS the workshop; the player may not have built it yet. workshop_built would be stricter but is false in headless tests (no live game). Switch?",
+    "Later steps (MIL_A3, LUX_A3, MIN_B2-B4, BIO_A2/A3/B2-B4) are protected only via requires_prev_step; B-chain steps B2+ need B1 so are covered. Not changed.",
+    "Option A of LUX_A2/LUX_B2/MIL_A2/BIO_A1 etc. are still offered as an alternative path when gated; no option-level visible_when added."
+  ],
+  "handoff": "BIO_B1 now fires only after BIO_1 is learned; same gate on 6 other steps whose options grant workshop tech units (BIO_A1, MIN_B1, LUX_A2, LUX_B2, MIL_A2, MIL_B3). Existing any-paths kept. No numbers or texts changed."
+}

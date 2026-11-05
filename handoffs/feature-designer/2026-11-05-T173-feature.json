@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "agent": "feature-designer",
+  "date": "2026-11-05",
+  "task": "T173",
+  "status": "done",
+  "files_changed": ["design/proposals/2026-11-05-more-skills-round2.md", "handoffs/feature-designer/2026-11-05-T173-feature.json"],
+  "open_questions": [
+    "UNKNOWN: does Luxury have enough negative events for LUX_6B to be felt (economy-designer)?",
+    "UNKNOWN: is mil stock growth felt at a low cap (QA)?",
+    "Owner: is a shared cooldown for all chosen-bot hits acceptable?"
+  ],
+  "handoff": "Accept the 3 kept nodes (LUX_5B only once code reads cycles). Accept 6 rejections (FND_RELAY, 3 bridges, MIL_6B, MIN_6B). Rescue 4: MIL_5B (stock_growth mil + stock_protect, no storage_cap), FND_BULK (cost 2), BIO_6B (one rival tool with shared cooldown), LUX_6B (tier 4 cost 2, prereq LUX_5B). Tree 34 to 38. Spreading pillar kept.",
+  "details": {
+    "proposals": [
+      {"id": "MIL_5B", "title": "Supply Depot (stock growth, no global storage)", "problem": "Military has no stock identity; old version leaked storage", "owner_agent": "economy-designer", "size": "S", "questions": ["growth rate and cap about half of BIO_2"]},
+      {"id": "FND_BULK", "title": "Bulk Orders at cost 2", "problem": "first points buy only unlocks", "owner_agent": "economy-designer", "size": "S", "questions": ["size of order_size_pct; first 10 cycles cash check"]},
+      {"id": "BIO_6B", "title": "Quarantine Order with shared chosen-bot cooldown", "problem": "only Military and Luxury have a rival tool", "owner_agent": "gameplay-programmer", "size": "M", "questions": ["is a shared cooldown acceptable"]},
+      {"id": "LUX_6B", "title": "Fair Weather Patrons (prereq LUX_5B)", "problem": "LUX_5B is a dead end", "owner_agent": "economy-designer", "size": "S", "questions": ["enough Luxury negative events"]}
+    ]
+  }
+}

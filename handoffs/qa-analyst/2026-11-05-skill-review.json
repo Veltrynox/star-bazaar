@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "agent": "qa-analyst",
+  "date": "2026-11-05",
+  "task": "Skill tree redo: QA review of all 31 nodes (balance, softlock, no-op, bot testability)",
+  "status": "done",
+  "files_changed": [
+    "qa/reports/2026-11-05-skill-redo-review.md",
+    "qa/reports/2026-11-05-bug_report-skill-review.json",
+    "qa/reports/2026-11-05-skill-review-runs.jsonl",
+    "handoffs/qa-analyst/2026-11-05-skill-review.json"
+  ],
+  "open_questions": [
+    "UNKNOWN: whether the player UI shows the munitions build button while system 2 is closed (sets severity of bug 2)",
+    "UNKNOWN: whether the _test_availability text scan covers SK_* skill texts",
+    "UNKNOWN: how often the asteroid decline branch cuts storage in a real run (value of BIO_5 stock_protect)"
+  ],
+  "handoff": "Verdicts: 6 AGREE (FND x3, MIL_1, MIN_3 with check, MIN_4), 1 REJECT (MIL_3: pirate target has no source, pirates_active is never set), 24 CONCERN. Full table in the report. 40 headless runs, no crash, softlock or freeze, no dominant strategy (only decent wins; 3 of 4 at c27-28). Ablations: MIL_5, LUX_5, BIO_3, MIN_3 change no win cycle. Bots never reach 14 nodes (atelier, culture lab, munitions never built by decent). Timing: capstones need 13 points plus 39 tech units each, likely after c30. Before applying: retarget MIL_3, fix hidden-good text in skill nodes, add musk to gems, update tests that read removed keys (run_tests.gd 1743-3385), timing sim, and a workshop-building bot (qa-analyst, one session). Bugs in qa/reports/2026-11-05-bug_report-skill-review.json.",
+  "details": {
+    "results": [
+      { "strategy": "decent (baseline seed 1)", "final_cash": 22866, "cycle_reached": 27, "outcome": "win" },
+      { "strategy": "decent (baseline seed 2)", "final_cash": -1659, "cycle_reached": 24, "outcome": "loss" },
+      { "strategy": "decent (baseline seed 3)", "final_cash": 14874, "cycle_reached": 27, "outcome": "win" },
+      { "strategy": "decent (baseline seed 4)", "final_cash": 16965, "cycle_reached": 28, "outcome": "win" },
+      { "strategy": "sloppy (seed 1)", "final_cash": 7275, "cycle_reached": 40, "outcome": "loss" },
+      { "strategy": "sloppy (seed 2)", "final_cash": 6331, "cycle_reached": 40, "outcome": "loss" },
+      { "strategy": "sloppy (seed 3)", "final_cash": 6875, "cycle_reached": 40, "outcome": "loss" },
+      { "strategy": "sloppy (seed 4)", "final_cash": 7531, "cycle_reached": 40, "outcome": "loss" },
+      { "strategy": "always_expand (seed 1)", "final_cash": 18852, "cycle_reached": 40, "outcome": "loss" },
+      { "strategy": "always_expand (seed 2)", "final_cash": 21754, "cycle_reached": 40, "outcome": "loss" },
+      { "strategy": "always_expand (seed 3)", "final_cash": 14505, "cycle_reached": 40, "outcome": "loss" },
+      { "strategy": "always_expand (seed 4)", "final_cash": 21792, "cycle_reached": 40, "outcome": "loss" },
+      { "strategy": "never_expand (seed 1)", "final_cash": 7128, "cycle_reached": 40, "outcome": "loss" },
+      { "strategy": "never_expand (seed 2)", "final_cash": 6570, "cycle_reached": 40, "outcome": "loss" },
+      { "strategy": "never_expand (seed 3)", "final_cash": 6322, "cycle_reached": 40, "outcome": "loss" },
+      { "strategy": "never_expand (seed 4)", "final_cash": 5890, "cycle_reached": 40, "outcome": "loss" },
+      { "strategy": "decent, draft node order forced (seed 1)", "final_cash": 37182, "cycle_reached": 40, "outcome": "loss" },
+      { "strategy": "decent, draft node order forced (seed 2)", "final_cash": 8274, "cycle_reached": 31, "outcome": "win" },
+      { "strategy": "decent, draft node order forced (seed 3)", "final_cash": 34111, "cycle_reached": 40, "outcome": "loss" },
+      { "strategy": "decent, draft node order forced (seed 4)", "final_cash": 33391, "cycle_reached": 40, "outcome": "loss" },
+      { "strategy": "decent --market=lux, LUX-first order (seed 1)", "final_cash": 22894, "cycle_reached": 27, "outcome": "win" },
+      { "strategy": "decent --market=lux, LUX-first order (seed 2)", "final_cash": 28047, "cycle_reached": 40, "outcome": "loss" },
+      { "strategy": "decent --market=lux, LUX-first order (seed 3)", "final_cash": 17458, "cycle_reached": 29, "outcome": "win" },
+      { "strategy": "decent --market=lux, LUX-first order (seed 4)", "final_cash": 19722, "cycle_reached": 33, "outcome": "win" },
+      { "strategy": "decent without MIL_5 (seed 1)", "final_cash": 21485, "cycle_reached": 27, "outcome": "win" },
+      { "strategy": "decent without MIL_5 (seed 2)", "final_cash": 32439, "cycle_reached": 40, "outcome": "loss" },
+      { "strategy": "decent without MIL_5 (seed 3)", "final_cash": 13642, "cycle_reached": 27, "outcome": "win" },
+      { "strategy": "decent without MIL_5 (seed 4)", "final_cash": 17109, "cycle_reached": 28, "outcome": "win" },
+      { "strategy": "decent without LUX_5 (seed 1)", "final_cash": 21485, "cycle_reached": 27, "outcome": "win" },
+      { "strategy": "decent without LUX_5 (seed 2)", "final_cash": 32439, "cycle_reached": 40, "outcome": "loss" },
+      { "strategy": "decent without LUX_5 (seed 3)", "final_cash": 13642, "cycle_reached": 27, "outcome": "win" },
+      { "strategy": "decent without LUX_5 (seed 4)", "final_cash": 17109, "cycle_reached": 28, "outcome": "win" },
+      { "strategy": "decent without BIO_3 (seed 1)", "final_cash": 22866, "cycle_reached": 27, "outcome": "win" },
+      { "strategy": "decent without BIO_3 (seed 2)", "final_cash": -1659, "cycle_reached": 24, "outcome": "loss" },
+      { "strategy": "decent without BIO_3 (seed 3)", "final_cash": 14874, "cycle_reached": 27, "outcome": "win" },
+      { "strategy": "decent without BIO_3 (seed 4)", "final_cash": 17265, "cycle_reached": 28, "outcome": "win" },
+      { "strategy": "decent without MIN_3 (seed 1)", "final_cash": 22866, "cycle_reached": 27, "outcome": "win" },
+      { "strategy": "decent without MIN_3 (seed 2)", "final_cash": -1659, "cycle_reached": 24, "outcome": "loss" },
+      { "strategy": "decent without MIN_3 (seed 3)", "final_cash": 14874, "cycle_reached": 27, "outcome": "win" },
+      { "strategy": "decent without MIN_3 (seed 4)", "final_cash": 16653, "cycle_reached": 28, "outcome": "win" }
+    ]
+  }
+}

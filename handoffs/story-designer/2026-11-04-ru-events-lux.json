@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-11-04",
+  "task": "ru-events-lux",
+  "status": "done",
+  "files_changed": ["story/ru/events_lux.json"],
+  "open_questions": [
+    "Fill phrases {cut} and {cut_std} need a Russian 3rd person singular verb phrase after 'компания {bot2}' and after 'Luxury:'.",
+    "Atelier is kept Latin as 'мастерская Atelier' (apposition); guild workshops are plain 'мастерская'. Confirm.",
+    "Several bodies and results run over max but within 1.4 limit (up to 313 of 280)."
+  ],
+  "handoff": "events_lux.json holds all 94 EV_LUX_ ids, ready to wire. Checked by script: placeholders, no digits, 1.4 length limit, Latin only for Luxury, Quillon, Atelier, strength, growth. Least sure lines: EV_LUX_B2_OPB_RES (cut-back clause), EV_LUX_B4_OPB_RES (звонок joke), EV_LUX_A2_OPB_RES (клеймо, cut back), EV_LUX_B1_OPB_RES_TITLE, EV_LUX_B3_OPB_RES (each loses a little).",
+  "details": {}
+}

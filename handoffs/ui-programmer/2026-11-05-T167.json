@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-05",
+  "task": "T167",
+  "status": "done",
+  "files_changed": ["game/map.gd", "qa/bots/planet_label_shot.gd"],
+  "open_questions": [
+    "Route tags (Label3D in game/route_line.gd, gameplay-programmer's area) are still 3D and can be blurred if they sit in a planet's 10 px blur ring; same fix (2D twin on the top label layer) would work. Not touched because route drawing is being edited in parallel.",
+    "Ship markers: not checked separately; they are 3D and could fall in a blur ring only right at a planet edge."
+  ],
+  "handoff": "Cause: planet names were Label3D, rendered in the 3D view, so the screen-space edge blur (CanvasLayer -1) blurred them. Fix in game/map.gd: each Label3D stays as an invisible (alpha 0) position/visibility carrier; a 2D Label twin on a new CanvasLayer (layer -1, moved last in _ready so it draws after blur, glare and grain, under the UI) is placed each frame from the camera projection. Font 13 px scaled to viewport height, outline in panel colour. Blur untouched. Windowed screenshot qa/reports/planet_labels.png shows Ashgate, Cinderrest, Voltara, Tillam crisp (before: garbled). Tests: 1871 pass, 0 fail. Check by eye: other zoom levels and system switching (labels follow Label3D visibility).",
+  "details": {"screens": ["main map"], "how_to_see": "qa/run_game.sh res://qa/bots/planet_label_shot.gd, then open qa/reports/planet_labels.png"}
+}

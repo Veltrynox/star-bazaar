@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "agent": "economy-designer",
+  "date": "2026-11-05",
+  "task": "T173",
+  "status": "partial",
+  "files_changed": ["data/skills.json", "data/balance.json", "story/skills.md", "tools/tests/run_tests.gd", "handoffs/economy-designer/2026-11-05-T173.json"],
+  "schema_version_note": "skills.json data_version 4 to 5; balance data_version 36 to 37 (source v52)",
+  "open_questions": [
+    "UNKNOWN: LUX_5B needs 2-cycle reveal and warning; main.gd and planet_panel.gd treat any value above 0 as 1 cycle, so the node is not felt until gameplay-programmer reads 'cycles'.",
+    "UNKNOWN: sim.py does not model skills (header note), so no-dominance is argued from point costs and effect size, not simulated; QA ablation round must confirm.",
+    "Owner: confirm that 11 of 14 proposed nodes are rejected."
+  ],
+  "handoff": "Kept 3 side skills at tier 3 (cost 2 each, balance keys added): LUX_5B, MIN_5B, BIO_5B. Rejected 11. Temporary EN texts in story/skills.md marked PLACEHOLDER. Tests 1872 pass, 2 fail: skill icons (no atlas region for the 3 new ids). Gameplay-programmer: add icon ids to game/skill_icons.gd and tools/make_skill_icons.py, regenerate atlas; screen tier-3 row now holds 3 cells in lux/min/bio (check width); make LUX_5B read cycles 2 (reveal_cycles and warning_cycles consumers). I updated count asserts 31 to 34 and 28 to 31 in run_tests.gd.",
+  "details": {
+    "kept": [
+      {"id": "LUX_5B", "market": "lux", "tier": 3, "prereqs": ["LUX_3"], "cost": 2, "effect": "reveal_prices 2 cycles + event_warning 2 cycles", "reason": "second tier-3 choice in Luxury: plan against the big LUX_5 volume node; info only, no cash, no direct share"},
+      {"id": "MIN_5B", "market": "min", "tier": 3, "prereqs": ["MIN_3"], "cost": 2, "effect": "event_immune debris (min) + event_cut_pct 0.3 (skill_MIN_5B_event_cut)", "reason": "Minerals had no event cover; protects ore lanes and dead-world runs, never pays cash; 0.3 sits below BIO_6 0.4 and MIL_6 0.5"},
+      {"id": "BIO_5B", "market": "bio", "tier": 3, "prereqs": ["BIO_3"], "cost": 2, "effect": "route_capacity_pct bio 0.125 (skill_BIO_5B_route_units)", "reason": "Biotech has no route effect; same size as MIL_3 (0.125), more volume means more share at 2 points"}
+    ],
+    "changed": ["none of the 14 changed value beyond suggested cost 2; LUX_5B uses cycles 2 as proposed"],
+    "rejected": [
+      {"id": "MIL_5B", "reason": "storage_cap_pct is global, stacks with BIO_3 and leaks to every market; stock_protect is a rare roll; adds nothing felt"},
+      {"id": "FND_BULK", "reason": "1-point no-brainer all take, no choice; speeds first cycles for everyone and no share effect"},
+      {"id": "FND_RELAY", "reason": "global route capacity beats every market-specific node, breaks the spreading pillar (MIL_3 capacity was why cargo was raised)"},
+      {"id": "MIL_MIN", "reason": "bridge: hybrid reward undercuts the spreading pillar; needs cross-prereq UI layout"},
+      {"id": "LUX_BIO", "reason": "bridge, same reason"},
+      {"id": "MIN_LUX", "reason": "bridge, same; target good sale price plus share_effect needs new code"},
+      {"id": "MIN_6B", "reason": "third and fourth chosen-rival hit: with MIL_5 and LUX_7 a player suppresses every rival, rival cuts are the strongest share lever"},
+      {"id": "BIO_6B", "reason": "as MIN_6B"},
+      {"id": "LUX_6B", "reason": "event cut only, tier 4 cost 3 is a trap; Luxury negative events thin (UNKNOWN)"},
+      {"id": "MIL_6B", "reason": "debris immunity duplicates MIL_3; reopen_sooner duplicates BIO_6 niche"}
+    ],
+    "points": "Focused market 9 points + 3 Foundations = 12 of about 21; one side skill makes 14; a full second market still cannot fit with sides, so choices stay forced.",
+    "sim": "tools/sim.py does not read skills; no sim runs. Data-only tree change, existing economy numbers untouched."
+  }
+}

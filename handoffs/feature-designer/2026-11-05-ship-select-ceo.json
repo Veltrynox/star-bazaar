@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "agent": "feature-designer",
+  "date": "2026-11-05",
+  "task": "ship-select-ceo",
+  "status": "done",
+  "files_changed": [
+    "design/proposals/2026-11-05-ship-select-ceo.md"
+  ],
+  "open_questions": [
+    "UNKNOWN: which 4 of 8 ship models look most different (owner picks)",
+    "UNKNOWN: one ship type per fleet or mixed fleets",
+    "UNKNOWN: show CEO stats after start?"
+  ],
+  "handoff": "Proposal waits for owner. Flow: company screen then ship screen; 4 curated ships; ships and CEO modifiers listed; economy-designer sets all numbers.",
+  "details": {
+    "proposals": [
+      {
+        "id": "P1",
+        "title": "Ship screen with 3D preview, 4 ship types",
+        "problem": "One ship type and no start choice.",
+        "owner_agent": "ui-programmer + gameplay-programmer",
+        "size": "M",
+        "questions": [
+          "4 or 8 ships",
+          "one type per fleet"
+        ]
+      },
+      {
+        "id": "P2",
+        "title": "CEO bios, 3 stats (5 points each) and one small perk",
+        "problem": "CEO portraits have no meaning.",
+        "owner_agent": "story-designer + economy-designer",
+        "size": "M",
+        "questions": [
+          "show stats after start"
+        ]
+      },
+      {
+        "id": "P3",
+        "title": "16-combo dominant-start sweep",
+        "problem": "Risk of a dominant CEO+ship start.",
+        "owner_agent": "qa-tester",
+        "size": "S",
+        "questions": []
+      }
+    ]
+  }
+}

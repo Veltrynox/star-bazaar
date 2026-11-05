@@ -4,11 +4,13 @@ extends PanelContainer
 const StoryText := preload("res://game/story_text.gd")
 const Ships := preload("res://game/ships.gd")
 const Juice := preload("res://game/juice.gd")
+const PathfinderView := preload("res://game/pathfinder_view.gd")  # T180 accessor helpers
 
 signal buy_requested(kind: String)
 var buy_buttons: Dictionary = {}  # kind -> Button
 var label: Label
 var upkeep_label: Label
+var pathfinder_label: Label  # T180: Pathfinder name, description, status; hidden unless discovery is on
 var free_label: Label  # free ships, upkeep each, and what Send to... does when none is free
 var core_box: VBoxContainer  # Null Core: one Fit button per ship while a built core is not on it
 var _core_sig := ""
@@ -29,6 +31,12 @@ func _ready() -> void:
 	upkeep_label = Label.new()
 	upkeep_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	box.add_child(upkeep_label)
+	pathfinder_label = Label.new()
+	pathfinder_label.name = "Pathfinder"
+	pathfinder_label.theme_type_variation = "LabelSmall"
+	pathfinder_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	pathfinder_label.visible = false
+	box.add_child(pathfinder_label)
 	free_label = Label.new()
 	free_label.name = "FreeShips"
 	free_label.theme_type_variation = "LabelSmall"
@@ -37,10 +45,10 @@ func _ready() -> void:
 	core_box = VBoxContainer.new()
 	core_box.name = "CoreBox"
 	box.add_child(core_box)
-	for kind in Ships.KINDS:  # T58: one buy button per ship type
+	for kind in ["fleet"]:  # one buy button: every ship of the run is the chosen type (Ships.fleet)
 		var b := Button.new()
 		b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART  # a long label wraps instead of widening the right column
-		b.pressed.connect(func(): buy_requested.emit(kind))
+		b.pressed.connect(func(): buy_requested.emit(Ships.fleet))
 		box.add_child(b)
 		buy_buttons[kind] = b
 
@@ -57,20 +65,21 @@ func set_upkeep(main: Control) -> void:
 		var pay: int = up if main.engine.payout_of(rec) < 0 else 0
 		total += pay
 		var tag := ("  [" + StoryText.get_or("LBL_NULL_CORE", "Null Core") + "]") if main.engine.has_core(rec) else ""
-		lines.append("Ship %d, %s (%s): %d%s" % [n, Ships.display_name(str(rec.get("ship", "small"))), Ui.good_name(str(rec["c"])), pay, tag])
-	for kind in Ships.KINDS:
+		lines.append("Ship %d, %s (%s): %d%s" % [n, Ships.display_name(Ships.fleet), Ui.good_name(str(rec["c"])), pay, tag])
+	for kind in [Ships.fleet]:
 		for i in maxi(0, main.free_of(kind)):
 			n += 1
 			lines.append("Ship %d, %s (free): 0" % [n, Ships.display_name(kind)])
 	lines.append("%s, total: %d / cycle" % [upkeep_name, total])
 	upkeep_label.text = "\n".join(lines)
+	_set_pathfinder(main)
 	var core_on: bool = main.core_route_id() >= 0
 	upkeep_label.mouse_filter = Control.MOUSE_FILTER_STOP if core_on else Control.MOUSE_FILTER_IGNORE
 	upkeep_label.tooltip_text = StoryText.get_or("NULL_CORE_FIT", "Null Core fitted. Lower Trip cost, and pirates cannot touch this ship.") if core_on else ""
 	_set_core_buttons(main)
 	var free: int = main.free_ships()
-	var price := int(main.balance.get("ship_price", 0))
-	var cap := int(main.balance.get("ship_cap", 0))
+	var price := Ships.price(Ships.fleet, main.balance)
+	var cap: int = main.ship_cap()
 	var txt: String = StoryText.get_or("LBL_SHIPS_FREE_HINT", "Free ships: {free}. Ship upkeep {upkeep} / cycle each.", {"free": free, "upkeep": main.engine.upkeep_part()})
 	if free <= 0:
 		if main.ships >= cap:
@@ -79,12 +88,12 @@ func set_upkeep(main: Control) -> void:
 			txt += "\n" + StoryText.get_or("LBL_SEND_BUYS_SHIP", "No free ship. Send to... buys one for {price} credits.", {"price": price})
 		else:
 			txt += "\nNot enough credits."
-	var fr: Dictionary = main.can_buy_ship("small")
+	var fr: Dictionary = main.can_buy_ship()
 	if fr.get("floor", false):
 		txt += "\n" + str(fr["reason"])
 	free_label.text = txt
-	for kind in Ships.KINDS:
-		var b: Button = buy_buttons[kind]
+	for kind in [Ships.fleet]:
+		var b: Button = buy_buttons["fleet"]
 		var r: Dictionary = main.can_buy_ship(kind)
 		b.text = "Buy %s (%d cr, upkeep %d)" % [Ships.display_name(kind), Ships.price(kind, main.balance), main.engine.upkeep_part({"ship": kind})]
 		b.disabled = not r["ok"] or main.tut_lock_active()
@@ -118,3 +127,22 @@ func set_count(ships: int, cap: int) -> void:
 	if _last_count >= 0 and ships > _last_count:  # a purchase or a new lane: the count flashes warm
 		Juice.flash(label, Ui.col("star_warm"))
 	_last_count = ships
+
+## T180: three lines (name, description, status) from the flight accessor; nothing shows while discovery is off.
+func _set_pathfinder(main: Control) -> void:
+	if pathfinder_label == null:
+		return
+	var f = main.map.flight if main.map != null else null
+	if not PathfinderView.active(f):
+		pathfinder_label.visible = false
+		return
+	var status := StoryText.get_or("LBL_PATHFINDER_IDLE", "Pathfinder waiting")
+	if PathfinderView.state(f) == "flying":
+		var tg = PathfinderView._call(f, "target", [], {})
+		var idx := int(tg.get("index", -1)) if typeof(tg) == TYPE_DICTIONARY and str(tg.get("kind", "")) == "planet" else -1
+		if idx >= 0 and idx < main.map.planets.size() and PathfinderView.discovered(f, str(main.map.planets[idx].get("id", idx))):
+			status = StoryText.get_or("LBL_PATHFINDER_FLYING", "Pathfinder flying to {planet}", {"planet": main.planet_name(idx)})
+		else:
+			status = StoryText.get_or("LBL_PATHFINDER_FLYING_UNKNOWN", "Pathfinder flying to an unknown world")
+	pathfinder_label.text = "%s\n%s\n%s" % [StoryText.get_or("LBL_PATHFINDER_NAME", "Pathfinder"), StoryText.get_or("LBL_PATHFINDER_DESC", ""), status]
+	pathfinder_label.visible = true

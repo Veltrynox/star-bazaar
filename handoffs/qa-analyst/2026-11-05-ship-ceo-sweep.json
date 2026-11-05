@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "agent": "qa-analyst",
+  "date": "2026-11-05",
+  "task": "ship-ceo-sweep",
+  "status": "done",
+  "files_changed": [
+    "qa/reports/2026-11-05-ship-ceo-sweep.md",
+    "qa/reports/2026-11-05-bug_report-ship-ceo-sweep.json",
+    "qa/reports/2026-11-05-ship-ceo-sweep-runs.jsonl",
+    "handoffs/qa-analyst/2026-11-05-ship-ceo-sweep.json"
+  ],
+  "open_questions": [
+    "UNKNOWN: cause of decent win drop (earlier 3 of 4, now 1 of 4). Candidates: final skill tree or ship/CEO upkeep logic. Needs a same-seed A/B on HEAD versus the working tree.",
+    "UNKNOWN: whether the ceo_man_02 and small-ship gaps come from stats or cargo. Needs an ablation (stats zeroed, cargo 1 for bulk and fleet).",
+    "UNKNOWN: learn cycle of tech nodes (not in RESULT fields), and the bankruptcy threshold at cash 0 (bug B1)."
+  ],
+  "handoff": "117 headless runs (cap 120), no crash. Sweep: 96 decent runs, 16 CEO x ship combos, seeds 1-6. Only 4 of 16 combos pass both halves of the rule (median win cycle 27; win rate 35 percent overall). Regression (4 strategies, seeds 1-4): only decent wins (1 of 4, c27); no dominant strategy. Blocker: B1 softlock (ceo_man_01 + bulk, seed 2: cash 0 from c21, swept c27, high). Outliers: ceo_man_02 (5/24 wins) and small ship (6/24). LUX_4, LUX_6 and BIO_5 are never reached by the default bot, which builds only the smelter; market-focus runs reach them (B7). Next: the CEO ablation, the same-seed A/B for the regression drop, and a bot that builds atelier, munitions and culture lab. Bug list in qa/reports/2026-11-05-bug_report-ship-ceo-sweep.json.",
+  "details": {
+    "results": [
+      { "strategy": "decent", "final_cash": 19699, "cycle_reached": 27, "outcome": "win" },
+      { "strategy": "decent", "final_cash": -1310, "cycle_reached": 28, "outcome": "loss" },
+      { "strategy": "decent", "final_cash": 29411, "cycle_reached": 40, "outcome": "loss" },
+      { "strategy": "decent", "final_cash": 28866, "cycle_reached": 40, "outcome": "loss" },
+      { "strategy": "sloppy", "final_cash": 7275, "cycle_reached": 40, "outcome": "loss" },
+      { "strategy": "sloppy", "final_cash": 6331, "cycle_reached": 40, "outcome": "loss" },
+      { "strategy": "sloppy", "final_cash": 6875, "cycle_reached": 40, "outcome": "loss" },
+      { "strategy": "sloppy", "final_cash": 7531, "cycle_reached": 40, "outcome": "loss" },
+      { "strategy": "always_expand", "final_cash": 17700, "cycle_reached": 40, "outcome": "loss" },
+      { "strategy": "always_expand", "final_cash": 18538, "cycle_reached": 40, "outcome": "loss" },
+      { "strategy": "always_expand", "final_cash": 14855, "cycle_reached": 40, "outcome": "loss" },
+      { "strategy": "always_expand", "final_cash": 17383, "cycle_reached": 40, "outcome": "loss" },
+      { "strategy": "never_expand", "final_cash": 9802, "cycle_reached": 40, "outcome": "loss" },
+      { "strategy": "never_expand", "final_cash": 8942, "cycle_reached": 40, "outcome": "loss" },
+      { "strategy": "never_expand", "final_cash": 4456, "cycle_reached": 40, "outcome": "loss" },
+      { "strategy": "never_expand", "final_cash": 4856, "cycle_reached": 40, "outcome": "loss" }
+    ],
+    "sweep": {
+      "strategy": "decent",
+      "seeds": "1-6",
+      "runs": 96,
+      "wins": 34,
+      "end_outcompeted_c40": 60,
+      "median_of_combo_medians": 27,
+      "pass_both": ["ceo_man_01 bulk", "ceo_man_01 fleet", "ceo_woman_01 dart", "ceo_woman_02 fleet"],
+      "combos_wins_of_6": {
+        "ceo_man_01": { "small": 1, "bulk": 4, "dart": 2, "fleet": 3 },
+        "ceo_man_02": { "small": 1, "bulk": 2, "dart": 0, "fleet": 2 },
+        "ceo_woman_01": { "small": 2, "bulk": 2, "dart": 4, "fleet": 2 },
+        "ceo_woman_02": { "small": 2, "bulk": 2, "dart": 1, "fleet": 4 }
+      },
+      "ship_roll_up_wins_of_24": { "small": 6, "bulk": 10, "dart": 7, "fleet": 11 },
+      "ceo_roll_up_wins_of_24": { "ceo_man_01": 10, "ceo_man_02": 5, "ceo_woman_01": 10, "ceo_woman_02": 9 },
+      "node_learned_in_96_runs": { "MIL_2": 14, "MIL_3": 96, "LUX_1": 96, "LUX_4": 0, "LUX_6": 0, "MIN_6": 15, "BIO_3": 57, "BIO_5": 1, "MIL_5": 96 },
+      "workshops_built_default_bot": ["smelter"]
+    },
+    "market_focus_diagnostics": [
+      { "focus": "mil", "workshop": "munitions c12", "learned": ["MIL_2", "MIL_4", "MIL_6", "MIL_5 c9"], "outcome": "win c27" },
+      { "focus": "lux", "workshop": "atelier c16", "learned": ["LUX_2", "LUX_4", "LUX_6"], "outcome": "loss c40" },
+      { "focus": "bio", "workshop": "culture_lab c14", "learned": ["BIO_2", "BIO_4", "BIO_5 c10", "BIO_6"], "outcome": "win c31" },
+      { "focus": "min", "workshop": "smelter c11", "learned": ["MIN_5", "MIN_6"], "outcome": "win c32" }
+    ],
+    "bugs": [
+      { "id": "B1", "severity": "high", "type": "softlock", "owner_agent": "gameplay-programmer" },
+      { "id": "B2", "severity": "medium", "type": "balance", "owner_agent": "economy-designer" },
+      { "id": "B3", "severity": "medium", "type": "balance", "owner_agent": "economy-designer" },
+      { "id": "B4", "severity": "medium", "type": "balance", "owner_agent": "economy-designer" },
+      { "id": "B5", "severity": "medium", "type": "pacing", "owner_agent": "economy-designer" },
+      { "id": "B6", "severity": "medium", "type": "balance", "owner_agent": "economy-designer" },
+      { "id": "B7", "severity": "medium", "type": "coverage_gap", "owner_agent": "qa-analyst" },
+      { "id": "B8", "severity": "low", "type": "text_or_ui_warning", "owner_agent": "gameplay-programmer" },
+      { "id": "B9", "severity": "low", "type": "release_build", "owner_agent": "gameplay-programmer" }
+    ],
+    "release_check": "export_presets.cfg excludes qa, tools, handoffs and similar, but not game/debug_menu.gd. main.gd creates the menu only when debug_tools_allowed() (OS.is_debug_build()). No release build was run."
+  }
+}

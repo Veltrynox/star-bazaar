@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-11-04",
+  "task": "Good descriptions: GOOD_<ID>_DESC for all 19 goods",
+  "status": "done",
+  "files_changed": ["story/screens.md", "data/story_text.json", "handoffs/story-designer/2026-11-04-good-descriptions.json"],
+  "open_questions": ["GOOD_*_NAME rows exist only for 6 goods; the other 13 need names (not in this task)."],
+  "handoff": "All 19 GOOD_<ID>_DESC rows are in story/screens.md next to the existing ones (max 110, longest 91). The six old rows were rewritten: they named planets, the fabric and Null Core, which the generated usage line covers and which could spoil hidden things. No other goods, workshops, skills, numbers or prices are named. Market names (Military, Luxury, Minerals, Biotech) appear as plain tags. build_story.py was rerun. Ready to wire: all 19 ids. Tests: see report.",
+  "details": {}
+}

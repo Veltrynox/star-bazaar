@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-11-05",
+  "task": "T181",
+  "status": "done",
+  "files_changed": [
+    "story/events.md",
+    "story/screens.md",
+    "story/voice.md",
+    "story/ru/events_posts.json",
+    "story/ru/discovery.json",
+    "data/story_text.json",
+    "data/story_text_ru.json",
+    "data/events.json",
+    "handoffs/story-designer/2026-11-05-T181.json"
+  ],
+  "open_questions": [
+    "Q3: leaving a build cancels it (NOT_POST_LEAVE says only that). Refund or not is the owner's call; text promises no refund.",
+    "Q5 default used: neutral choices only, costs are time or a small sum. Confirm.",
+    "BTN_ESTABLISH_PLATFORM is 28 chars, over the 24 button limit; accept, or shorten to a different label."
+  ],
+  "handoff": "Texts for T179/ui wiring are in data/story_text.json (build passes, run.sh pass=1889 fail=0). 14 events as text-only rows in story/events.md section PENDING: EV_PST01-06 (post), EV_PLT01-04 (platform), EV_FLT01-04 (flight). They add NO row to events.json, so nothing fires. To wire: add a function in tools/build_story.py (like debris_event) returning choice rows with kind C, ids EV_xxnn_TITLE/_BODY, per option _<KEY>_BTN/_EFF and popup _<KEY>_TITLE/_<KEY>; add visible_when post_built:<id> / platform_built:<id> only after the atoms exist in game/conditions.gd; tags per option are listed in the Tag line under each heading; new effect kinds: post bonus, flight delay. UI ids (LBL_, BTN_, NOT_) are in screens.md last two sections; TUT_G0_* replace guided step 1 when discovery is on. Defaults used: proposal recommendations. UI stays English, tutorial and events have Russian.",
+  "details": {
+    "event_ids": [
+      "EV_PST01..06",
+      "EV_PLT01..04",
+      "EV_FLT01..04"
+    ],
+    "defaults": "Pathfinder separate from fleet, only Voltara known at start, first post free, neutral choices, no refund promise"
+  }
+}

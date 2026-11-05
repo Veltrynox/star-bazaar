@@ -1,0 +1,145 @@
+{
+  "schema_version": 1,
+  "agent": "economy-designer",
+  "date": "2026-11-04",
+  "task": "munitions-system2",
+  "status": "done",
+  "files_changed": [
+    "data/availability.json",
+    "data/chains.json",
+    "tools/tests/run_tests.gd",
+    "handoffs/economy-designer/2026-11-04-munitions-system2.json"
+  ],
+  "open_questions": [
+    "story-designer: SK_MIL_1_PLAIN promises the Munitions Line and pulse cells; suggest 'Lowers Ship upkeep clearly. Unlocks the Munitions Line once a second system is open.' Check BIO_1/LUX_1/MIN_1 texts the same way (Culture Lab needs system 2; Atelier needs LUX_4 or system 2 + ore; Smelter needs ore).",
+    "Fabric now hidden until nullglass is visible (MIN_5 + cycle 15 + system 2), since plate needs nullglass. Owner may prefer the Fabric visible after MIN_1; it cannot run before then. Also null_core and EV48 unaffected.",
+    "Later chain steps (MIL_A3, LUX_A3/B3, MIN_B2-4, BIO_A2/A3/B2-4) name workshops but need requires_prev_step, so are gated through the first step. LUX_B1 also stays reachable only via system 2. Pool events already filter on good_visible+good_traded (events.gd)."
+  ],
+  "handoff": "Munitions Line, cells, armour now need MIL_1 and system 2. Audited the other workshops and goods; Culture Lab, Atelier, Smelter, Fabric and their goods gated on input availability. Eight chain triggers gated. Tests 1754 pass 0 fail; check_chains OK. No prices or recipes changed.",
+  "details": {
+    "changes": [
+      {
+        "key": "availability munitions (workshop)",
+        "old": "MIL_1",
+        "new": "all[MIL_1, system_open:2]",
+        "reason": "chips only exist in system 2"
+      },
+      {
+        "key": "availability cells (good)",
+        "old": "all[MIL_1, workshop_built:munitions]",
+        "new": "+ system_open:2",
+        "reason": "explicit; inputs energy+chips"
+      },
+      {
+        "key": "availability armour (good)",
+        "old": "all[MIL_4, workshop_built:munitions]",
+        "new": "+ system_open:2",
+        "reason": "inputs cells+chips"
+      },
+      {
+        "key": "availability culture_lab (workshop)",
+        "old": "BIO_1",
+        "new": "all[BIO_1, system_open:2]",
+        "reason": "spores only in system 2"
+      },
+      {
+        "key": "availability gel / seed",
+        "old": "BIO_1|BIO_4 + workshop",
+        "new": "+ system_open:2 (seed also good_visible:gel)",
+        "reason": "spores only in system 2"
+      },
+      {
+        "key": "availability atelier (workshop)",
+        "old": "LUX_1",
+        "new": "all[LUX_1, any[LUX_4, all[system_open:2, good_visible:ore]]]",
+        "reason": "cask needs only food; gems need ore+silk"
+      },
+      {
+        "key": "availability gems (good)",
+        "old": "LUX_1 + atelier",
+        "new": "+ good_visible:ore, good_visible:silk",
+        "reason": "inputs ore+silk"
+      },
+      {
+        "key": "availability smelter (workshop)",
+        "old": "MIN_1",
+        "new": "all[MIN_1, good_visible:ore]",
+        "reason": "ingot needs ore (FND_PROSPECT)"
+      },
+      {
+        "key": "availability ingot (good)",
+        "old": "MIN_1 + smelter",
+        "new": "+ good_visible:ore",
+        "reason": "input ore"
+      },
+      {
+        "key": "availability alloy (good)",
+        "old": "MIN_4 + smelter",
+        "new": "+ good_visible:plate, good_visible:ingot",
+        "reason": "inputs plate+ingot"
+      },
+      {
+        "key": "availability fabric (workshop)",
+        "old": "MIN_1",
+        "new": "all[MIN_1, good_visible:nullglass]",
+        "reason": "plate needs nullglass (system 2, MIN_5, cycle 15); JUDGEMENT, see open_questions"
+      },
+      {
+        "key": "chains MIL_A2 trigger",
+        "old": "old",
+        "new": "all[MIL_1, system_open:2, old]",
+        "reason": "text names Munitions Line"
+      },
+      {
+        "key": "chains MIL_B3 trigger",
+        "old": "old",
+        "new": "all[MIL_1, system_open:2, old]",
+        "reason": "same"
+      },
+      {
+        "key": "chains LUX_A2 trigger",
+        "old": "old",
+        "new": "all[<atelier cond>, old]",
+        "reason": "names Atelier"
+      },
+      {
+        "key": "chains LUX_B2 trigger",
+        "old": "old",
+        "new": "all[<atelier cond>, old]",
+        "reason": "names Atelier"
+      },
+      {
+        "key": "chains LUX_B1 trigger",
+        "old": "old",
+        "new": "all[system_open:2, old]",
+        "reason": "body names silk, hidden in system 1"
+      },
+      {
+        "key": "chains MIN_B1 trigger",
+        "old": "old",
+        "new": "all[MIN_1, good_visible:ore, old]",
+        "reason": "names Smelter"
+      },
+      {
+        "key": "chains BIO_A1 trigger",
+        "old": "old",
+        "new": "all[BIO_1, system_open:2, old]",
+        "reason": "names Culture Lab"
+      },
+      {
+        "key": "chains BIO_B1 trigger",
+        "old": "old",
+        "new": "all[BIO_1, system_open:2, old]",
+        "reason": "names Culture Lab"
+      },
+      {
+        "key": "tests run_tests.gd",
+        "old": "3 setups with MIL_1 only",
+        "new": "+ m.open_systems.append(2) (good info cells ~2634, workshop station Build ~5626, MIL_A2 trigger ~5761)",
+        "reason": "old visibility assumption"
+      }
+    ],
+    "sim": "not run (no numbers changed)",
+    "data_version": "availability 2, chains 2"
+  }
+}

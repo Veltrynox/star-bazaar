@@ -1,14 +1,19 @@
 extends Control
 ## New company screen: shown by the main menu's New Game. Pick a company name (typed or random) and a CEO portrait,
-## then Start goes on to the game. Back returns to the main menu. All labels come from the story loader with plain defaults.
+## then Next goes on to the ship screen (game/ship_setup.gd), which starts the game. Back returns to the main menu. All labels come from the story loader with plain defaults.
 
-const GAME_SCENE := "res://game/main.tscn"
+const SHIP_SCENE := "res://game/ship_setup.tscn"
+const CEOS_PATH := "res://data/ceos.json"
 const MENU_SCENE := "res://game/main_menu.tscn"
 const SaveGame := preload("res://game/save_game.gd")
 const StoryText := preload("res://game/story_text.gd")
 const Names := preload("res://game/company_names.gd")
 const Portraits := preload("res://game/company_portraits.gd")
 const CARD_SIZE := Vector2(184, 232)
+const STAT_KEYS := ["haggling", "thrift", "nerve"]
+
+## Set by the ship screen's Back so this screen reopens with the name and CEO already chosen.
+static var restore: bool = false
 
 var name_edit: LineEdit
 var random_button: Button
@@ -16,9 +21,12 @@ var start_button: Button
 var back_button: Button
 var cards: Dictionary = {}  # portrait id -> Button
 var selected_id: String = ""
+var ceo_defs: Dictionary = {}  # portrait id -> row of data/ceos.json
+var info_box: VBoxContainer
 
 func _ready() -> void:
 	Ui.install_cursors(get_tree())
+	_load_ceos()
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	var bg := ColorRect.new()
 	bg.color = Ui.col("void_100")
@@ -28,7 +36,7 @@ func _ready() -> void:
 	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(center)
 	var box := VBoxContainer.new()
-	box.custom_minimum_size = Vector2(560, 0)
+	box.custom_minimum_size = Vector2(800, 0)
 	box.add_theme_constant_override("separation", 16)
 	center.add_child(box)
 
@@ -71,6 +79,17 @@ func _ready() -> void:
 		card_row.add_child(card)
 		cards[id] = card
 	# no default CEO: the player must pick one
+	var info := PanelContainer.new()
+	info.custom_minimum_size = Vector2(0, 176)
+	info.add_theme_stylebox_override("panel", _card_style(Ui.col("line_200"), 1, 0.0))
+	var pad := MarginContainer.new()
+	for side in ["left", "right", "top", "bottom"]:
+		pad.add_theme_constant_override("margin_" + side, 12)
+	info.add_child(pad)
+	info_box = VBoxContainer.new()
+	info_box.add_theme_constant_override("separation", 6)
+	pad.add_child(info_box)
+	box.add_child(info)
 
 	var buttons := HBoxContainer.new()
 	buttons.add_theme_constant_override("separation", 12)
@@ -83,10 +102,17 @@ func _ready() -> void:
 	buttons.add_child(back_button)
 	start_button = Button.new()
 	start_button.theme_type_variation = "ButtonPrimary"
-	start_button.text = StoryText.get_or("SETUP_START", "Start")
+	start_button.text = StoryText.get_or("SETUP_NEXT", "Next")
 	start_button.pressed.connect(start)
 	buttons.add_child(start_button)
+	if restore:
+		restore = false
+		if SaveGame.pending_company != "":
+			name_edit.text = SaveGame.pending_company
+		if SaveGame.pending_portrait != "" and cards.has(SaveGame.pending_portrait):
+			select(SaveGame.pending_portrait)
 	_refresh_start()
+	_refresh_info()
 	name_edit.grab_focus()  # focus the name field, so no card draws a focus highlight at open
 
 func _make_card(id: String, group: ButtonGroup) -> Button:
@@ -114,6 +140,7 @@ func _make_card(id: String, group: ButtonGroup) -> Button:
 	b.add_child(pic)
 	b.pressed.connect(func():
 		selected_id = id
+		_refresh_info()
 		_refresh_start())
 	return b
 
@@ -131,6 +158,7 @@ func select(id: String) -> void:
 	(cards[id] as Button).button_pressed = true
 	if start_button != null:
 		_refresh_start()
+		_refresh_info()
 
 func randomize_name() -> void:
 	var old := name_edit.text
@@ -158,18 +186,77 @@ func _refresh_start() -> void:
 		tip = t2 if tip == "" else tip + "\n" + t2
 	start_button.tooltip_text = tip
 
-## Hands name and portrait to the next game start (read once by main.gd).
+func _load_ceos() -> void:
+	var f := FileAccess.open(CEOS_PATH, FileAccess.READ)
+	if f == null:
+		return
+	var parsed = JSON.parse_string(f.get_as_text())
+	if typeof(parsed) == TYPE_DICTIONARY:
+		for row in parsed.get("ceos", []):
+			ceo_defs[str(row.get("id", ""))] = row
+
+## Info panel for the selected CEO: name, bio, three stats as pips, perk name and description.
+func _refresh_info() -> void:
+	for c in info_box.get_children():
+		info_box.remove_child(c)
+		c.queue_free()
+	var d: Dictionary = ceo_defs.get(selected_id, {})
+	if d.is_empty():
+		var hint := Label.new()
+		hint.text = StoryText.get_or("SETUP_NEED_CEO", "Choose a CEO to start.")
+		hint.theme_type_variation = "LabelMuted"
+		info_box.add_child(hint)
+		return
+	var nm := Label.new()
+	nm.text = StoryText.get_or(str(d.get("name_id", "")), selected_id)
+	nm.add_theme_color_override("font_color", Ui.col("star_warm"))
+	info_box.add_child(nm)
+	var bio := Label.new()
+	bio.text = StoryText.get_or(str(d.get("bio_id", "")), "")
+	bio.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	bio.custom_minimum_size = Vector2(700, 0)
+	info_box.add_child(bio)
+	var stats_row := HBoxContainer.new()
+	stats_row.add_theme_constant_override("separation", 28)
+	info_box.add_child(stats_row)
+	var stats: Dictionary = d.get("stats", {})
+	for k in STAT_KEYS:
+		var cell := HBoxContainer.new()
+		cell.add_theme_constant_override("separation", 6)
+		var l := Label.new()
+		l.text = StoryText.get_or("LBL_CEO_STAT_" + k.to_upper(), k.capitalize())
+		l.theme_type_variation = "LabelMuted"
+		cell.add_child(l)
+		var v := int(stats.get(k, 0))
+		for i in 3:
+			var pip := Panel.new()
+			pip.custom_minimum_size = Vector2(14, 14)
+			pip.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+			var on := i < v
+			pip.add_theme_stylebox_override("panel", _card_style(Ui.col("star_warm") if on else Ui.col("line_300"), 1, 1.0 if on else 0.0))
+			cell.add_child(pip)
+		stats_row.add_child(cell)
+	var perk := Label.new()
+	perk.text = "%s: %s" % [StoryText.get_or("LBL_CEO_PERK", "Perk"), StoryText.get_or(str(d.get("perk_name_id", "")), "")]
+	perk.add_theme_color_override("font_color", Ui.col("star_warm"))
+	info_box.add_child(perk)
+	var pd := Label.new()
+	pd.text = StoryText.get_or(str(d.get("perk_desc_id", "")), "")
+	pd.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	pd.custom_minimum_size = Vector2(700, 0)
+	info_box.add_child(pd)
+
+## Hands name and portrait (= CEO id) on to the ship screen, which commits the rest and starts the game.
 func commit() -> void:
 	SaveGame.pending_company = chosen_name()
 	SaveGame.pending_portrait = selected_id
+	SaveGame.pending_ceo = selected_id
 
 func start() -> void:
 	if chosen_name() == "" or selected_id == "":
 		return
 	commit()
-	SaveGame.clear()  # same reset as New Game had before this screen
-	SaveGame.continue_requested = false
-	get_tree().change_scene_to_file(GAME_SCENE)
+	get_tree().change_scene_to_file(SHIP_SCENE)
 
 func back() -> void:
 	get_tree().change_scene_to_file(MENU_SCENE)

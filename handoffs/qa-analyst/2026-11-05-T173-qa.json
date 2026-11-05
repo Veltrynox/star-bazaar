@@ -1,0 +1,122 @@
+{
+  "schema_version": 1,
+  "agent": "qa-analyst",
+  "date": "2026-11-05",
+  "task": "T173 QA sign-off: seven new skill nodes (skills v6, 38 nodes)",
+  "status": "done",
+  "files_changed": [
+    "qa/bots/more_skills_signoff.sh",
+    "qa/bots/more_skills_signoff_analyse.py",
+    "qa/bots/bot_run.gd",
+    "qa/reports/2026-11-05-more-skills-signoff.md",
+    "qa/reports/2026-11-05-more-skills-signoff-runs.jsonl",
+    "qa/reports/2026-11-05-bug_report-more-skills-signoff.json",
+    "handoffs/qa-analyst/2026-11-05-T173-qa.json"
+  ],
+  "open_questions": [
+    "UNKNOWN: stock_protect (MIL_5B, BIO_5B) and debris immunity (MIN_5B) never fire in bot runs; needs a scripted asteroid storage cut and a debris event test.",
+    "UNKNOWN: whether the forecast of LUX_5B and LUX_3 should draw from its own rng stream (decides LUX_5B CHANGE versus keep).",
+    "UNKNOWN: release binary debug-menu check; static check only, no export build run."
+  ],
+  "handoff": "T173 sign-off, 194 runs, no crash or freeze. Verdicts: KEEP BIO_5B; CHANGE FND_BULK, LUX_5B, MIN_5B, BIO_6B, LUX_6B; DROP MIL_5B. Two medium regressions, both from the new nodes (checked against HEAD data): mil focus seed 2 is swept at 27 (FND_BULK), bio focus seed 4 is outcompeted at 40 (FND_BULK with BIO_5B). LUX_5B changes the realised event sequence in 4 of 4 seeds, so 'info only' is wrong. Shared lock works (6-cycle cross gap, no combo before 27). Always_expand wins once (seed 3, cycle 39). FND_BULK does not risk bankruptcy but costs early cash. Point supply is not fixed at 21 (lux 22 to 25, min 27 to 29). Default wins 27 in 4 of 4. Next: economy-designer owns the five CHANGE items; gameplay-programmer checks the forecast draw. Bot change: route capacity metric in qa/bots/bot_run.gd (no behaviour change).",
+  "details": {
+    "results": [
+      {
+        "strategy": "decent default (4 of 4 win, cycles 27 x4)",
+        "final_cash": 44592,
+        "cycle_reached": "39, 39, 39, 39 (win 27 x4)",
+        "outcome": "win"
+      },
+      {
+        "strategy": "decent mil focus (3 of 4 win; seed 2 loss, FND_BULK cause)",
+        "final_cash": 21913,
+        "cycle_reached": "39, 27, 39, 39 (seed 2 END_SWEPT at 27)",
+        "outcome": "loss"
+      },
+      {
+        "strategy": "decent lux focus (4 of 4 win)",
+        "final_cash": 13338,
+        "cycle_reached": "39, 39, 39, 39 (win 27, 27, 27, 32)",
+        "outcome": "win"
+      },
+      {
+        "strategy": "decent min focus (4 of 4 win)",
+        "final_cash": 32826,
+        "cycle_reached": "39, 39, 39, 39 (win 27 x4)",
+        "outcome": "win"
+      },
+      {
+        "strategy": "decent bio focus (3 of 4 win; seed 4 soft, FND_BULK and BIO_5B cause)",
+        "final_cash": 19794,
+        "cycle_reached": "39, 39, 39, 40 (win 27 x3, seed 4 soft at 40)",
+        "outcome": "loss"
+      },
+      {
+        "strategy": "sloppy (0 of 4 win)",
+        "final_cash": 9462,
+        "cycle_reached": "40 x4",
+        "outcome": "loss"
+      },
+      {
+        "strategy": "always_expand (1 of 4 win, seed 3 at cycle 39)",
+        "final_cash": 24142,
+        "cycle_reached": "40, 40, 39, 40 (seed 3 win at 39)",
+        "outcome": "loss"
+      },
+      {
+        "strategy": "never_expand (0 of 4 win)",
+        "final_cash": 10436,
+        "cycle_reached": "40 x4",
+        "outcome": "loss"
+      }
+    ],
+    "node_verdicts": [
+      {
+        "node": "BIO_5B",
+        "verdict": "keep",
+        "reason": "FELT: share +0.03 to +0.12 in 3 of 4 seeds, cash +11 to +95 pct; without it the bio branch wins 1 of 4 vs 3 of 4."
+      },
+      {
+        "node": "FND_BULK",
+        "verdict": "change",
+        "reason": "No bankruptcy risk (cash min 300), but cash at cycle 5 is 12 to 37 pct lower; its early spend flips mil seed 2 to a loss and, with BIO_5B, collapses bio seeds 3 and 4. Move it out of the cycle 2 to 4 window and re-run."
+      },
+      {
+        "node": "LUX_5B",
+        "verdict": "change",
+        "reason": "Info only per data, but the 2-cycle forecast draws the event early from the event rng; realised events differ in 4 of 4 seeds. Make forecasts independent of the event stream or document it. Reveal price half UNTESTABLE."
+      },
+      {
+        "node": "MIN_5B",
+        "verdict": "change",
+        "reason": "NOT FELT in branch arm (identical outcome in 4 of 4); min price-down starts 0 to 1 per run; debris half never fires (EV17 0 starts in 132 runs). Needs a debris test or a bigger cut."
+      },
+      {
+        "node": "BIO_6B",
+        "verdict": "change",
+        "reason": "Never learned naturally (0 of 4). When forced: share +0.004 to +0.007, cash and win unchanged. Shared lock works. Raise the hit or drop with it."
+      },
+      {
+        "node": "LUX_6B",
+        "verdict": "change",
+        "reason": "NOT FELT: lux price-down starts 0 to 1 per run; cut binds in 1 of 4 seeds only. Raise the cut or the event frequency."
+      },
+      {
+        "node": "MIL_5B",
+        "verdict": "drop",
+        "reason": "Growth half NOT FELT: mil stock at end +0 to +7 units, share and win unchanged. Stock protect UNTESTABLE (no asteroid storage cut in runs)."
+      }
+    ],
+    "regression_vs_last_round": "default 27 x4 same; mil seed 2 new END_SWEPT loss at 27 (FND_BULK); bio seed 4 new soft at 40 (FND_BULK and BIO_5B); lux improved (27, 27, 27, 32); min same. Removing all seven new nodes restores HEAD-data results exactly.",
+    "lock": "BIO_6B with MIL_5: cross-skill gap 6 in 4 of 4 seeds, own gaps 7 and 8. BIO_6B with LUX_7: gap 6 where both fire. No combination wins before cycle 27.",
+    "points": "Earned by cycle 39: mil 16 to 19, default 19 to 22, bio 17 to 18, lux 22 to 25, min 27 to 29. Second-market arm (26 wanted incl. FND_BULK) spends 19 to 21: does not fit at mil or default supply.",
+    "runs": {
+      "total": 194,
+      "crash_or_frozen": 0,
+      "raw": "qa/reports/2026-11-05-more-skills-signoff-runs.jsonl",
+      "bugs": "qa/reports/2026-11-05-bug_report-more-skills-signoff.json",
+      "report": "qa/reports/2026-11-05-more-skills-signoff.md"
+    },
+    "harness_notes": "Branch whitelist rule (bot_run.gd:1255-1264, pre-existing): any non-Foundation skill in --skills allows all Foundation nodes, so FND_BULK is learned on both sides of branch pairs. HEAD cannot run the bot (uncommitted autoloads), so the HEAD-data check used a scratch copy of the working tree with HEAD data files."
+  }
+}

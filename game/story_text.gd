@@ -5,6 +5,11 @@ extends RefCounted
 
 const PATH := "res://data/story_text.json"
 
+## Russian overrides (only EV_ / EV<digit> / BE<digit> / TUT_G<digit> / TUT_GALAXY_ / CH_ / WARN_ / MENU_ / SCR_ / END_ / EPI_ ids; same rule as RU_SCOPE_RE in tools/build_story.py). Used only while language is "ru" and the id is in this table.
+static var ru_path: String = "res://data/story_text_ru.json"
+static var language: String = "en"
+static var _ru: Dictionary = {}
+static var _ru_loaded: bool = false
 static var _texts: Dictionary = {}
 static var _places: Dictionary = {}
 static var _loaded: bool = false
@@ -16,13 +21,60 @@ static func _load() -> void:
 	if not FileAccess.file_exists(PATH):
 		push_error("StoryText: %s is missing. Run tools/build_story.py." % PATH)
 		return
-	var parsed = JSON.parse_string(FileAccess.get_file_as_string(PATH))
-	if typeof(parsed) != TYPE_ARRAY:
+	var parsed = entries_of(JSON.parse_string(FileAccess.get_file_as_string(PATH)))
+	if parsed.is_empty():
 		push_error("StoryText: %s is not a list." % PATH)
 		return
 	for e in parsed:
 		_texts[str(e["id"])] = str(e["text"])
 		_places[str(e["id"])] = str(e.get("place", ""))
+
+## The entry list of a generated data file: {"generated": marker, "entries": [...]} (an old plain list is accepted too).
+static func entries_of(parsed) -> Array:
+	if typeof(parsed) == TYPE_DICTIONARY and typeof(parsed.get("entries")) == TYPE_ARRAY:
+		return parsed["entries"]
+	return parsed if typeof(parsed) == TYPE_ARRAY else []
+
+## True for ids the Russian table may hold.
+static func in_ru_scope(id: String) -> bool:
+	if id.length() > 2 and id.begins_with("EV") and id[2] >= "0" and id[2] <= "9":
+		return true
+	if id.length() > 2 and id.begins_with("BE") and id[2] >= "0" and id[2] <= "9":
+		return true
+	for p in ["EV_", "TUT_GALAXY_", "CH_", "WARN_", "MENU_", "SCR_", "END_", "EPI_", "TXT_SHIP_", "LBL_STAT_", "LBL_CEO_", "TXT_CEO_", "LBL_SHIP_SCREEN", "LBL_SHIP_PICK", "LBL_SHIP_START", "LBL_SHIP_BULK", "LBL_SHIP_DART", "LBL_SHIP_FLEET"]:
+		if id.begins_with(p):
+			return true
+	if id == "SETUP_NEXT" or id == "GOOD_RIVETS_DESC":
+		return true
+	if id.begins_with("SK_") and (id.ends_with("_NAME") or id.ends_with("_FLAVOUR") or id.ends_with("_PLAIN") or id.ends_with("_CRAFT")):
+		return true
+	return id.length() > 5 and id.begins_with("TUT_G") and id[5] >= "0" and id[5] <= "9"
+
+static func set_language(code: String) -> void:
+	language = code
+	if code == "ru":
+		_load_ru()
+
+## Re-reads the Russian table (tests point ru_path at a fixture first). Out-of-scope ids in the file are ignored.
+static func _load_ru() -> void:
+	_ru_loaded = true
+	_ru = {}
+	if not FileAccess.file_exists(ru_path):
+		return
+	var parsed = entries_of(JSON.parse_string(FileAccess.get_file_as_string(ru_path)))
+	for e in parsed:
+		var id := str(e.get("id", ""))
+		var t := str(e.get("text", ""))
+		if in_ru_scope(id) and t != "":
+			_ru[id] = t
+
+## The Russian text to use for id now, or "" (English language, or no Russian text for it).
+static func _ru_text(id: String) -> String:
+	if language != "ru":
+		return ""
+	if not _ru_loaded:
+		_load_ru()
+	return _ru.get(id, "")
 
 static func has_text(id: String) -> bool:
 	if not _loaded:
@@ -44,7 +96,9 @@ static func get_text(id: String, args: Dictionary = {}) -> String:
 	if not _texts.has(id):
 		push_error("StoryText: missing id %s" % id)
 		return id
-	var t: String = _texts[id]
+	var t: String = _ru_text(id)
+	if t == "":
+		t = _texts[id]
 	for k in args:
 		t = t.replace("{%s}" % str(k), str(args[k]))
 	return t

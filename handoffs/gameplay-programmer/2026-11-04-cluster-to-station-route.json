@@ -1,0 +1,19 @@
+{
+ "schema_version": 1,
+ "agent": "gameplay-programmer",
+ "date": "2026-11-04",
+ "task": "cluster-to-station-route",
+ "status": "done",
+ "files_changed": [
+  "game/route_engine.gd",
+  "game/main.gd",
+  "game/map.gd",
+  "game/route_warning.gd",
+  "tools/tests/run_tests.gd",
+  "qa/bots/cluster_station_shot.gd",
+  "qa/reports/2026-11-04-cluster-to-station.png",
+  "handoffs/gameplay-programmer/2026-11-04-cluster-to-station-route.json"
+ ],
+ "open_questions": [],
+ "handoff": "Root cause confirmed: RouteEngine.check_cluster rejected every dst < 0 ('Pick a planet to deliver to.'), and check_connection sends cluster sources there before the station branch. Fixed: check_cluster accepts a station (-system id) when Availability.storage('space_storage') is true and the system exists; another system needs permit_routes (same rule as planets). Settling, projection, forecast and save already handled a station dst. Also found and fixed: map.set_routes skipped any route whose source is a cluster, so cluster routes (to planets too) drew no line; lines now start at the pack. _connect no longer awards a planet for a station dst. Clicking a cluster->station line opens the station view. The cash warning line now snaps to the station. Refusals on station and planet clicks already show post_notice_now. 16 new tests (cluster to station), full suite 0 fail. How to try: learn Prospecting and Space Storage, click an asteroid pack, Send ore to..., click the station: route and line appear."
+}

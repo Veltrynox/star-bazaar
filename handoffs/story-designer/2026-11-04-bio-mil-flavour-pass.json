@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-11-04",
+  "task": "Second rewrite pass of Biotech and Military events with a strong flavour (English only)",
+  "status": "done",
+  "files_changed": [
+    "story/screens.md",
+    "story/events.md",
+    "story/gated_options.md",
+    "story/ideas.md",
+    "data/story_text.json",
+    "data/events.json",
+    "handoffs/story-designer/2026-11-04-bio-mil-flavour-pass.json"
+  ],
+  "open_questions": [
+    "New story terms (Admiralty, Fleet Office, the estimate, Quartermaster-Saint, Director Hesk, Imre Fenn, Tavi Brask, Inspector Voss, Ottoline Ryke) are listed in story/events.md only; add to voice.md glossary?",
+    "BIO_A1 and BIO_A3 no longer name Mossfell or Brannock, so no system 2 planet shows before the permit; OK?",
+    "Russian for the changed English is stale by design; which pass should refresh it later?"
+  ],
+  "handoff": "All 7 MIL and 7 BIO chain steps rewritten (titles, bodies, result titles, result texts); buttons, EFF and STD lines untouched. Pool events changed: EV40, EV41, EV42 (Military), EV49, EV50, EV51 (Biotech). EV01 to EV16 are energy and food and stay as they were. Rebuilt with build_story.py; sh tools/tests/run.sh gives 1660 pass, 0 fail. Placeholder multiplicity kept where Russian needed it (A2_OPB_RES, B2_OPB_RES, B3_OPB_RES) so the build passes. gated_options.md rows for MIL and BIO carry a Story hook; MIL_A3 button now 'Check it against your notes'. Not committed.",
+  "details": {
+    "chains_changed": "MIL_A1-A3, MIL_B1-B4, BIO_A1-A3, BIO_B1-B4 (title, body, result title, result)",
+    "pool_events_changed": "EV40, EV41, EV42, EV49, EV50, EV51",
+    "flavour_MIL_A": "The quartermaster's endless war: standing contracts, litanies on the dock, a stolen ledger sealed by the Quartermaster-Saint's thumb, an engineer who talks to the press.",
+    "flavour_MIL_B": "Admiral Gabe Nuer's sensor scheme, Inspector Voss with her stamp like a sidearm, the Feast of Arms with a relic cannon, a Fleet Office budget that renews itself until victory.",
+    "flavour_BIO_A": "A canister with a warm lid, Director Hesk who says the sample is fine, seal fitter Fenn who knew, a clinic of volunteers by rota, a weeping seal.",
+    "flavour_BIO_B": "The tight cold chain, a strain that darkens and answers to its crate, a numbered exchange where porters bear slot numbers too, racks in a sealed derelict hull."
+  }
+}

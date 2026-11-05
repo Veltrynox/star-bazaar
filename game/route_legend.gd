@@ -4,18 +4,41 @@ extends HBoxContainer
 
 const StoryText := preload("res://game/story_text.gd")
 
+var _shown := ""  # signature of the goods the legend lists now
+
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_theme_constant_override("separation", 20)
+	_rebuild()
+
+## data/availability.json: a good's route colour is listed only once that good is visible; rebuilt when that changes.
+func _process(_delta: float) -> void:
+	if _signature() != _shown:
+		_rebuild()
+
+func _signature() -> String:
+	var sig := ""
+	for g in ["energy", "food", "silk", "chips", "ore"]:
+		if Availability.good(g):
+			sig += g + ","
+	return sig
+
+func _rebuild() -> void:
+	_shown = _signature()
+	for c in get_children():
+		remove_child(c)
+		c.queue_free()
 	var items := [
-		["LBL_LEGEND_ENERGY", "Energy route", Ui.col("commodity_energy"), "line"],
-		["LBL_LEGEND_FOOD", "Food route", Ui.col("commodity_food"), "line"],
-		["LBL_LEGEND_SILK", "Silk route", Ui.commodity_col("silk"), "line"],  # T159: ids not in the story yet, plain fallback
-		["LBL_LEGEND_CHIPS", "Chips route", Ui.commodity_col("chips"), "line"],
-		["LBL_LEGEND_ORE", "Ore route", Ui.commodity_col("ore"), "line"],
-		["LBL_LEGEND_WAITING", "Waiting for room", Ui.col("signal_warn"), "dashed"],
-		["LBL_LEGEND_SHIP", "Ship", Ui.col("ink"), "ship"]]
+		["LBL_LEGEND_ENERGY", "Energy route", Ui.col("commodity_energy"), "line", "energy"],
+		["LBL_LEGEND_FOOD", "Food route", Ui.col("commodity_food"), "line", "food"],
+		["LBL_LEGEND_SILK", "Silk route", Ui.commodity_col("silk"), "line", "silk"],  # T159: ids not in the story yet, plain fallback
+		["LBL_LEGEND_CHIPS", "Chips route", Ui.commodity_col("chips"), "line", "chips"],
+		["LBL_LEGEND_ORE", "Ore route", Ui.commodity_col("ore"), "line", "ore"],
+		["LBL_LEGEND_WAITING", "Waiting for room", Ui.col("signal_warn"), "dashed", ""],
+		["LBL_LEGEND_SHIP", "Ship", Ui.col("ink"), "ship", ""]]
 	for it in items:
+		if str(it[4]) != "" and not Availability.good(str(it[4])):
+			continue
 		var h := HBoxContainer.new()
 		h.add_theme_constant_override("separation", 8)
 		h.mouse_filter = Control.MOUSE_FILTER_IGNORE

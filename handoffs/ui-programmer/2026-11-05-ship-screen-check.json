@@ -1,0 +1,24 @@
+{
+ "agent": "ui-programmer",
+ "date": "2026-11-05",
+ "task": "ship-screen-check",
+ "status": "done",
+ "schema_version": 1,
+ "files_changed": ["game/ship_setup.gd", "qa/bots/ship_setup_shot.gd", "qa/reports/ceo_info_en.png", "qa/reports/ceo_info_ru.png", "qa/reports/ship_setup_en_empty.png", "qa/reports/ship_setup_ru_empty.png", "qa/reports/ship_setup_{en,ru}_{small,bulk,dart,fleet}.png"],
+ "open_questions": [
+  "Story-designer: ids SETUP_TITLE, SETUP_NAME_LABEL, SETUP_RANDOM, SETUP_CEO_LABEL, SETUP_BACK, SETUP_NEED_NAME, SETUP_NEED_CEO do not exist, so RU shows English fallbacks (title, labels, Random, Back). Only SETUP_NEXT exists.",
+  "Ship names (Skerrit, Bulkhead, Dart, Tramp) stay English in RU; intended or does the story need RU names?",
+  "All 4 ships in ships.json point at the same model path (ship_corvette_04) yet the preview shows 4 different hulls; UNKNOWN whether the model loader remaps per type."
+ ],
+ "handoff": "Bot ship_setup_shot.gd now has a 90 s hard timeout (quit(1)), runs clean and exits itself; PID 73615 was already gone (no Godot running). Preview now fits by measured bounds (turning footprint and height, FIT_HALF_WIDTH 2.0 / FIT_HALF_HEIGHT 1.15), not a radius. Bot measures 8 yaw steps per ship: max width 53-57% of box, height 28-39%, no clipping. Drag test via synthetic mouse events: 100 px gives 1.2 rad as expected. RU stat labels, 'Стоимость рейса', 'Лимит кораблей', buttons all fit. Tests 1866/0.",
+ "details": {
+  "seen": {
+   "ceo_info_en": "Name field, 4 portraits (first selected, orange frame), bio, 3 stat pips, perk, Back and Next; all fits, centred.",
+   "ceo_info_ru": "CEO block and Далее fit. Title, labels, Random, Back remain English (missing ids).",
+   "ship_setup_*_empty": "Four list buttons, no stats, Start dimmed.",
+   "ship_setup_en_small/bulk/dart/fleet": "Ship centred, about 55% of box width, stat card with green/red colours, no clipping.",
+   "ship_setup_ru_*": "Russian descriptions wrap in two lines at most; stat labels fit in 110 px columns; stat card has spare room."
+  },
+  "not_checked_by_eye": ["real mouse drag in a live window (checked by code path only)", "other resolutions"]
+ }
+}

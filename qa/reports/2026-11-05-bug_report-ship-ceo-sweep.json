@@ -1,0 +1,125 @@
+[
+  {
+    "run_id": "sweep2/ceo_man_01__bulk",
+    "seed": 2,
+    "strategy": "decent",
+    "issue_type": "softlock",
+    "severity": "high",
+    "steps": [
+      "Start headless bot run: Godot --headless --path . -s res://qa/bots/bot_run.gd -- --strategy=decent --seed=2 --ceo=ceo_man_01 --ship=bulk --skip-tutorial",
+      "Cash falls to 0 at cycle 21 and stays there; 5 ships, 5 routes, Buy/Sell orders still on.",
+      "Run ends END_SWEPT at cycle 27 (all shares 0). Bot idle check: 3 cycles with no cash or stock change."
+    ],
+    "expected": "Cash or stock keeps moving, or a loss rule that is clearly a bankruptcy ends the run as soon as the economy stops. Zero cash with ships should not sit for 6 cycles.",
+    "actual": "Cash 0 from cycle 21 to 27 with no change in cash or stock; the run is only ended by the market sweep at cycle 27. Bankruptcy did not fire (END_BANKRUPT needs cash below zero in the runs seen). Only 1 of 117 runs shows it.",
+    "owner_agent": "gameplay-programmer"
+  },
+  {
+    "run_id": "sweep2/ceo_man_02__dart",
+    "seed": 2,
+    "strategy": "decent",
+    "issue_type": "balance",
+    "severity": "medium",
+    "steps": [
+      "Run: Godot --headless --path . -s res://qa/bots/bot_run.gd -- --strategy=decent --seed=2 --ceo=ceo_man_02 --ship=dart --skip-tutorial",
+      "Also seen on default config (no CEO, small ship): Godot --headless --path . -s res://qa/bots/bot_run.gd -- --strategy=decent --seed=2 --skip-tutorial (regress, seed 2)."
+    ],
+    "expected": "A decent player is not bankrupted before the window. Losses come from the share race at cycle 40.",
+    "actual": "Bankrupt at cycle 23 (cash -480, 6 repossessions, 0 ships). Default config seed 2 is also bankrupt at cycle 28. Seed 2 is a knife edge for decent in both configs.",
+    "owner_agent": "economy-designer"
+  },
+  {
+    "run_id": "regress",
+    "seed": "1-4",
+    "strategy": "decent",
+    "issue_type": "balance",
+    "severity": "medium",
+    "steps": [
+      "Default config, decent, seeds 1-4, --skip-tutorial, no CEO and no ship flag (small ship).",
+      "Run qa/bots/run_batch.sh with TAG=regress."
+    ],
+    "expected": "Same win pattern as the 2026-11-05 skill-redo baseline: 3 of 4 decent wins at cycles 27-28.",
+    "actual": "1 of 4 wins (seed 1, cycle 27). Seed 2 bankrupt at cycle 28, seeds 3 and 4 END_OUTCOMPETED at cycle 40. Cause UNKNOWN; candidates are the final skill tree (removed price and size keys, MIL_5 retune) and the ship/CEO logic change (upkeep formula, route_engine).",
+    "owner_agent": "economy-designer"
+  },
+  {
+    "run_id": "sweep2 (all 16 combos)",
+    "seed": "1-6",
+    "strategy": "decent",
+    "issue_type": "balance",
+    "severity": "medium",
+    "steps": [
+      "run_batch.sh per combo: CEO in ceo_man_01, ceo_man_02, ceo_woman_01, ceo_woman_02 x SHIP in small, bulk, dart, fleet; SEEDS=\"1 2 3 4 5 6\"; EXTRA=--skip-tutorial."
+    ],
+    "expected": "Decent wins a clear majority of runs in the 22-30 window in every combo (pass rule: at least 60 percent of the best combo rate).",
+    "actual": "34 of 96 wins (35 percent). 60 of 96 END_OUTCOMPETED at cycle 40. Only 4 of 16 combos pass the win-rate rule (ceo_man_01 bulk 4/6, ceo_man_01 fleet 3/6, ceo_woman_01 dart 4/6, ceo_woman_02 fleet 4/6). 12 combos at 0 to 2 of 6.",
+    "owner_agent": "economy-designer"
+  },
+  {
+    "run_id": "sweep2/ceo_man_02__fleet",
+    "seed": 3,
+    "strategy": "decent",
+    "issue_type": "pacing",
+    "severity": "medium",
+    "steps": [
+      "Run: Godot --headless --path . -s res://qa/bots/bot_run.gd -- --strategy=decent --seed=3 --ceo=ceo_man_02 --ship=fleet --skip-tutorial"
+    ],
+    "expected": "Decent wins at cycle 22-30 (pacing band).",
+    "actual": "Win at cycle 32. Only run after cycle 30 among 34 decent wins. Combo median is 31 (wins at 30 and 32). Other late wins: cycle 29 or 30 in 7 runs.",
+    "owner_agent": "economy-designer"
+  },
+  {
+    "run_id": "sweep2 (ceo_man_02 combos; ship small)",
+    "seed": "1-6",
+    "strategy": "decent",
+    "issue_type": "balance",
+    "severity": "medium",
+    "steps": [
+      "Combos ceo_man_02 x (small, bulk, dart, fleet) and ceo_man_01 x small, ceo_woman_01 x fleet, ceo_woman_02 x small; SEEDS=\"1 2 3 4 5 6\"."
+    ],
+    "expected": "CEO and ship choices change the win rate only slightly (within the 60 percent rule).",
+    "actual": "ceo_man_02 is the weakest CEO: 5 of 24 wins (21 percent) against 10 of 24 for ceo_man_01 and ceo_woman_01, and it holds the only sweep bankruptcy (dart, seed 2); its dart combo has 0 wins. small is the weakest ship: 6 of 24 (25 percent) against bulk 10 of 24, dart 7 of 24, fleet 11 of 24. Median-rule outliers: ceo_man_01 small 29, ceo_man_02 fleet 31, ceo_woman_01 fleet 29.5, ceo_woman_02 small 28.5. Likely cause (UNKNOWN until an ablation): the win line is market share, so haggling (cash-only sale price) does not help the win; man_02 has haggling 3, thrift 1 and a perk that reveals prices on cycle 1 only; small has cargo_mult 1 while bulk (1.125) and fleet (cap +1) move more volume.",
+    "owner_agent": "economy-designer"
+  },
+  {
+    "run_id": "sweep2 (coverage: decent default bot)",
+    "seed": "1-6",
+    "strategy": "decent",
+    "issue_type": "coverage_gap",
+    "severity": "medium",
+    "steps": [
+      "Decent runs never build the atelier, munitions or culture lab (workshops_built shows only smelter in all 96 sweep runs and 4 regression runs).",
+      "Market-focused diagnostic runs (seed 1): --market=mil builds munitions, --market=lux builds atelier, --market=bio builds culture lab, --market=min uses smelter."
+    ],
+    "expected": "Each changed node can be reached by the bot if it is cheap.",
+    "actual": "Sweep (96 runs): LUX_4 0, LUX_6 0, BIO_5 1, MIL_2 14, MIN_6 15, BIO_3 57, MIL_3 96, MIL_5 96, LUX_1 96. Market focus reaches LUX_4 and LUX_6 (lux), MIL_2 (mil), BIO_5 (bio), MIN_6 (min). The default bot is not able to reach LUX_4, LUX_6 or BIO_5 in the sweep.",
+    "owner_agent": "qa-analyst"
+  },
+  {
+    "run_id": "sweep2 (all 16 combos)",
+    "seed": "1-6",
+    "strategy": "decent",
+    "issue_type": "text_or_ui_warning",
+    "severity": "low",
+    "steps": [
+      "Runs: ceo_woman_01 bulk seed 5; ceo_woman_02 bulk seed 2; regress decent seed 2."
+    ],
+    "expected": "A route that cannot pay is not left showing Not enough cash for 3 or more cycles in a row without the player being able to act on it.",
+    "actual": "warning_streak: route 13 (and 14, 22, 23) show \"Not enough cash.\" for 3+ cycles in a row in 3 runs. Cause probably the cash-starved bot, not a crash.",
+    "owner_agent": "gameplay-programmer"
+  },
+  {
+    "run_id": "release export (export_presets.cfg)",
+    "seed": "n/a",
+    "strategy": "n/a",
+    "issue_type": "release_build",
+    "severity": "low",
+    "steps": [
+      "Read export_presets.cfg: exclude_filter excludes qa, tools, handoffs and similar, but not game/debug_menu.gd.",
+      "Read game/main.gd: debug_menu is created only when debug_tools_allowed() (OS.is_debug_build())."
+    ],
+    "expected": "Release export contains no debug or game-control code.",
+    "actual": "No menu is shown in release (the guard works). The debug menu script is still packed in the release PCK. Not verified by a real release export build: all headless runs are debug builds.",
+    "owner_agent": "gameplay-programmer"
+  }
+]

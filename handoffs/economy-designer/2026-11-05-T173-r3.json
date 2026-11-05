@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "agent": "economy-designer",
+  "date": "2026-11-05",
+  "task": "T173-r3",
+  "status": "partial",
+  "files_changed": ["data/skills.json", "data/balance.json", "story/skills.md", "game/skill_icons.gd", "tools/make_skill_icons.py", "art/source/ui_glyph_skill_atlas.svg", "art/ui/ui_glyph_skill_atlas.png", "tools/tests/run_tests.gd", "data/story_text.json", "handoffs/economy-designer/2026-11-05-T173-r3.json"],
+  "open_questions": [
+    "UNKNOWN: no QA re-run done. Mil seed 2 should recover (FND_BULK gone); bio seed 4 (BIO_5B alone collapses it per QA) and always_expand 1 of 4 at cycle 39 need a QA run. Suspect FND_BULK (order size helps expansion), now removed.",
+    "Test run: 1895 pass, 0 fail, but the runner ends with a script error at _test_forecast_pure (m.planets on main.gd), the gameplay-programmer's parallel work, not skills data.",
+    "LUX_5B code issue (forecast consumes event rng) is the programmer's fix; its data is unchanged."
+  ],
+  "handoff": "skills.json v7 (36 nodes), balance data_version 53. Dropped FND_BULK, MIL_5B. Reworked MIN_5B and LUX_6B (added route capacity +10 pct, acts every run like BIO_5B, old cuts kept as extras), BIO_6B hit 0.25 to 0.35. Kept BIO_5B, LUX_5B.",
+  "details": {
+    "kept": ["BIO_5B", "LUX_5B (data unchanged, code fix pending)"],
+    "reworked": [
+      {"id": "MIN_5B", "change": "extra route_capacity_pct min, new key skill_MIN_5B_route_units 0.1", "reason": "event cut starts 0-1 per run, never felt; route capacity acts every run, BIO_5B at 0.125 was felt"},
+      {"id": "LUX_6B", "change": "extra route_capacity_pct lux, new key skill_LUX_6B_route_units 0.1", "reason": "same; lux supply is 22-25 points so cost 2 fits"},
+      {"id": "BIO_6B", "change": "skill_BIO_6B_hit 0.25 to 0.35", "reason": "share +0.004..0.007 too weak; modest because bio base collapses in 3 of 4 seeds; shared lock 6 unchanged, still below MIL_5 0.5 and LUX_7 0.4"}
+    ],
+    "dropped": [
+      {"id": "FND_BULK", "reason": "cash at cycle 5 12-37 pct lower, caused mil seed 2 END_SWEPT, part of bio knife edge; moving tier would not remove early cost, and no QA numbers support a felt gain"},
+      {"id": "MIL_5B", "reason": "growth half not felt (stock +0..7 units), protect half unmeasured"}
+    ],
+    "removed_keys": ["skill_cost_FND_BULK", "skill_cost_MIL_5B", "skill_FND_BULK_order", "skill_MIL_5B_stock_growth", "skill_MIL_5B_stock_cap"],
+    "added_keys": ["skill_MIN_5B_route_units", "skill_LUX_6B_route_units"],
+    "texts": "SK_FND_BULK_* and SK_MIL_5B_* removed from story/skills.md (no ru entries); MIN_5B and LUX_6B PLAIN and BIO_6B 35 pct placeholders updated; build_story run.",
+    "icons": "FND_BULK and MIL_5B removed from IDS and ORDER (36 cells), atlas regenerated and imported.",
+    "tests": "counts 38 to 36, 34 to 33 branch nodes, Foundation row 3, MIL tier row without MIL_5B, FND_BULK, MIL_5B tests removed, MIN_5B immune check >= (route capacity), route capacity tests added for MIN_5B and LUX_6B.",
+    "sim": "tools/sim.py ignores skills; not run."
+  }
+}

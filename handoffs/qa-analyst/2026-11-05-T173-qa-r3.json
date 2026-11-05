@@ -1,0 +1,217 @@
+{
+  "schema_version": 1,
+  "agent": "qa-analyst",
+  "date": "2026-11-05",
+  "task": "T173-r3 QA re-run: more skills sign-off (round 3)",
+  "status": "done",
+  "files_changed": [
+    "qa/bots/more_skills_signoff_r3.sh",
+    "qa/bots/more_skills_signoff_r3_analyse.py",
+    "qa/reports/2026-11-05-more-skills-signoff-r3.md",
+    "qa/reports/2026-11-05-bug_report-more-skills-signoff-r3.json",
+    "qa/reports/2026-11-05-more-skills-signoff-r3-runs.jsonl",
+    "handoffs/qa-analyst/2026-11-05-T173-qa-r3.json"
+  ],
+  "open_questions": [
+    "UNKNOWN: whether BIO_6B share should move cash (cash identical with and without in 4 of 4 seeds)",
+    "UNKNOWN: whether event pool conditions read player state (natural-arm LUX_5B event sequences differ; branch arm identical)",
+    "UNKNOWN: release binary check (static export check only; no export built)"
+  ],
+  "handoff": "T173 round 3: no crash/freeze in 92 runs. always_expand 0 of 4 (was 1 of 4). Sloppy and never 0 of 4. Default 27 x4. LUX_5B KEEP: controlled arm event sequence identical, no outcome effect. MIN_5B CHANGE: +10% capacity real, no win effect, debris untested. LUX_6B CHANGE: no consistent direction. BIO_5B CHANGE (negative as built; drop if no retune): bio focus wins 40/27/38/40 (was 30/27/31/27), cash lower in 4 of 4, bio seed 4 collapses in whitelist arm. BIO_6B DROP: not reached naturally (1 of 4), share +0.007 to +0.010. Regressions: bio pacing (BIO_5B), lux seed 3 no win. Bugs: 10 entries (medium 8, low 2). Report: qa/reports/2026-11-05-more-skills-signoff-r3.md.",
+  "details": {
+    "results": [
+      {
+        "strategy": "decent (default, seed 1)",
+        "final_cash": 36344,
+        "cycle_reached": 27,
+        "outcome": "win"
+      },
+      {
+        "strategy": "decent (default, seed 2)",
+        "final_cash": 56721,
+        "cycle_reached": 27,
+        "outcome": "win"
+      },
+      {
+        "strategy": "decent (default, seed 3)",
+        "final_cash": 54340,
+        "cycle_reached": 27,
+        "outcome": "win"
+      },
+      {
+        "strategy": "decent (default, seed 4)",
+        "final_cash": 41827,
+        "cycle_reached": 27,
+        "outcome": "win"
+      },
+      {
+        "strategy": "decent (mil, seed 1)",
+        "final_cash": 12326,
+        "cycle_reached": 30,
+        "outcome": "win"
+      },
+      {
+        "strategy": "decent (mil, seed 2)",
+        "final_cash": 19670,
+        "cycle_reached": 27,
+        "outcome": "win"
+      },
+      {
+        "strategy": "decent (mil, seed 3)",
+        "final_cash": 16755,
+        "cycle_reached": 27,
+        "outcome": "win"
+      },
+      {
+        "strategy": "decent (mil, seed 4)",
+        "final_cash": 33204,
+        "cycle_reached": 27,
+        "outcome": "win"
+      },
+      {
+        "strategy": "decent (lux, seed 1)",
+        "final_cash": 15695,
+        "cycle_reached": 27,
+        "outcome": "win"
+      },
+      {
+        "strategy": "decent (lux, seed 2)",
+        "final_cash": 9460,
+        "cycle_reached": 33,
+        "outcome": "win"
+      },
+      {
+        "strategy": "decent (lux, seed 3)",
+        "final_cash": 1197,
+        "cycle_reached": 40,
+        "outcome": "loss"
+      },
+      {
+        "strategy": "decent (lux, seed 4)",
+        "final_cash": 39600,
+        "cycle_reached": 29,
+        "outcome": "win"
+      },
+      {
+        "strategy": "decent (min, seed 1)",
+        "final_cash": 42991,
+        "cycle_reached": 27,
+        "outcome": "win"
+      },
+      {
+        "strategy": "decent (min, seed 2)",
+        "final_cash": 39263,
+        "cycle_reached": 27,
+        "outcome": "win"
+      },
+      {
+        "strategy": "decent (min, seed 3)",
+        "final_cash": 36529,
+        "cycle_reached": 27,
+        "outcome": "win"
+      },
+      {
+        "strategy": "decent (min, seed 4)",
+        "final_cash": 32469,
+        "cycle_reached": 27,
+        "outcome": "win"
+      },
+      {
+        "strategy": "decent (bio, seed 1)",
+        "final_cash": 7892,
+        "cycle_reached": 40,
+        "outcome": "win"
+      },
+      {
+        "strategy": "decent (bio, seed 2)",
+        "final_cash": 32135,
+        "cycle_reached": 27,
+        "outcome": "win"
+      },
+      {
+        "strategy": "decent (bio, seed 3)",
+        "final_cash": 6909,
+        "cycle_reached": 38,
+        "outcome": "win"
+      },
+      {
+        "strategy": "decent (bio, seed 4)",
+        "final_cash": 4558,
+        "cycle_reached": 40,
+        "outcome": "win"
+      },
+      {
+        "strategy": "sloppy (seed 1)",
+        "final_cash": 10078,
+        "cycle_reached": 40,
+        "outcome": "loss"
+      },
+      {
+        "strategy": "sloppy (seed 2)",
+        "final_cash": 8546,
+        "cycle_reached": 40,
+        "outcome": "loss"
+      },
+      {
+        "strategy": "sloppy (seed 3)",
+        "final_cash": 11744,
+        "cycle_reached": 40,
+        "outcome": "loss"
+      },
+      {
+        "strategy": "sloppy (seed 4)",
+        "final_cash": 9943,
+        "cycle_reached": 40,
+        "outcome": "loss"
+      },
+      {
+        "strategy": "never_expand (seed 1)",
+        "final_cash": 13626,
+        "cycle_reached": 40,
+        "outcome": "loss"
+      },
+      {
+        "strategy": "never_expand (seed 2)",
+        "final_cash": 9211,
+        "cycle_reached": 40,
+        "outcome": "loss"
+      },
+      {
+        "strategy": "never_expand (seed 3)",
+        "final_cash": 12270,
+        "cycle_reached": 40,
+        "outcome": "loss"
+      },
+      {
+        "strategy": "never_expand (seed 4)",
+        "final_cash": 11834,
+        "cycle_reached": 40,
+        "outcome": "loss"
+      },
+      {
+        "strategy": "always_expand (seed 1)",
+        "final_cash": 29407,
+        "cycle_reached": 40,
+        "outcome": "loss"
+      },
+      {
+        "strategy": "always_expand (seed 2)",
+        "final_cash": 29558,
+        "cycle_reached": 40,
+        "outcome": "loss"
+      },
+      {
+        "strategy": "always_expand (seed 3)",
+        "final_cash": 20746,
+        "cycle_reached": 40,
+        "outcome": "loss"
+      },
+      {
+        "strategy": "always_expand (seed 4)",
+        "final_cash": 26972,
+        "cycle_reached": 40,
+        "outcome": "loss"
+      }
+    ]
+  }
+}
