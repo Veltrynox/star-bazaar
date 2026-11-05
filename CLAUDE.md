@@ -10,7 +10,6 @@
 
 ## Availability rule (progressive disclosure)
 - A new good, workshop or storage feature needs a rule in that file first. Use `Availability` (`game/availability.gd`) in any UI that lists goods; hidden means not drawn at all.
-- Texts (events, tutorial, tooltips) must not name a good that is hidden at that moment.
 - Check: `sh tools/tests/run.sh` runs `_test_availability` (start state, per-rule show/hide, text scan, data lint). It must pass before any UI, data or story change is handed off.
 
 ## Generated files: never edit by hand
