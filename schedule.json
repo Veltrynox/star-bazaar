@@ -1067,10 +1067,11 @@
         "T179",
         "T180"
       ],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 40,
       "window": "Owner request 2026-11-05. Not started: main session sets it running.",
-      "brief": "The pilotable ship (T177-T181) is already built. Check it against the owner spec and fill what is missing: (1) the ship the player chose in the main menu is the one flown; (2) it flies only when time runs, not when paused; (3) it can fly to another solar system and establish an outpost there; (4) rival or enemy ships fly around the map as a visual and do not interact with anything (no cargo, no blocking, no combat); (5) visiting and establishing is required: a planet without a visit stays closed; (6) a mining platform established on a dead planet such as Cinderrest can mine and send goods to Space Storage. List what already worked and what you added in the handoff handoffs/gameplay-programmer/2026-11-05-T187.json; ui-programmer does any model or panel work."
+      "brief": "The pilotable ship (T177-T181) is already built. Check it against the owner spec and fill what is missing: (1) the ship the player chose in the main menu is the one flown; (2) it flies only when time runs, not when paused; (3) it can fly to another solar system and establish an outpost there; (4) rival or enemy ships fly around the map as a visual and do not interact with anything (no cargo, no blocking, no combat); (5) visiting and establishing is required: a planet without a visit stays closed; (6) a mining platform established on a dead planet such as Cinderrest can mine and send goods to Space Storage. List what already worked and what you added in the handoff handoffs/gameplay-programmer/2026-11-05-T187.json; ui-programmer does any model or panel work.",
+      "note": "Five of six rules already worked; added game/rival_ships.gd (scenery rivals) and test _test_t187_ship_flight. Handoff 2026-11-05-T187.json."
     },
     {
       "task_id": "T188",
