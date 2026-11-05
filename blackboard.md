@@ -14,16 +14,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-05 17:00 run: T195
-- Summary: Voice narration default volume lowered from 1.0 to 0.5 (const DEFAULT_VOLUME in game/voice.gd), used for new installs; a saved value is kept and the slider is unchanged.
-- Why this task: smallest open build task with no dependency or visual question; T196 is large and gates T197-T201.
-- Approach: direct edit by main session, three lines, cheaper than an agent.
-- Agent prompts: none. No handoff file (no agent).
-- Worked: sh tools/tests/run.sh pass=2856 fail=0.
-- Failed / did not work: nothing. schedule.json already had uncommitted owner additions (T200 note, T201); they were committed along with my status change.
-- Files and commits: game/voice.gd, schedule.json, blackboard.md; commit "T195 ... [no-gdd]".
-- Left to do: owner may want a different level than 0.5. Next: T196.
-
 ## 2026-11-05 18:00 run: T196
 - Summary: Pathfinder and rival ships now accelerate, brake to a stop and turn at a limited yaw rate via new game/ship_motion.gd; rivals fly to a destination, wait, pick the next. 7 placeholder balance keys (data_version 57), save VERSION 8 (v7 loads at rest).
 - Why this task: gates T197-T201, no owner decision or QA needed.

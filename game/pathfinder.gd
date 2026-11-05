@@ -15,6 +15,7 @@ extends RefCounted
 const DeadWorlds := preload("res://game/dead_worlds.gd")
 const Ships := preload("res://game/ships.gd")
 const Motion := preload("res://game/ship_motion.gd")  # T196
+const Station := preload("res://game/station.gd")  # T202: MAP_RADIUS of the storage station
 
 signal arrived(planet_id: String)         # the ship reached a planet (it is discovered now)
 signal build_started(planet_id: String)
@@ -75,7 +76,7 @@ func reset() -> void:
 	_docked = home_id()
 	_ensure_home()
 	var i := _index_of(_docked)
-	_pos = _planet_pos(i) if i >= 0 else Vector3.ZERO
+	_pos = _dock_pos(i, Vector3.ZERO) if i >= 0 else Vector3.ZERO
 
 func home_id() -> String:
 	var st = Availability.data().get("start_state", {})
@@ -104,6 +105,20 @@ func _index_of(pid: String) -> int:
 func _planet_pos(i: int) -> Vector3:
 	var v: Vector3 = main.map.positions[i] if i >= 0 and i < main.map.positions.size() else Vector3.ZERO
 	return Vector3(v.x, 0.0, v.z)
+
+## T202: where the ship parks at planet i: Motion.SPAWN_GAP outside its drawn edge on the side of `from` (never the centre).
+## `from` at the centre (new game, other system) gives the +Z side.
+func _dock_pos(i: int, from: Vector3) -> Vector3:
+	var c := _planet_pos(i)
+	var f := c if from == Vector3.ZERO else from
+	var sys: int = main.system_of(i)
+	var p: Vector2 = main.map.dock_point(Vector2(c.x, c.z), main.map.planet_radius(i), Vector2(f.x, f.z), sys)
+	return Vector3(p.x, 0.0, p.y)
+
+## T202: the parking spot at a map body (station or asteroid field) at `centre`, `radius` big, as seen from the ship.
+func _dock_body(centre: Vector3, radius: float, from: Vector3, sys: int) -> Vector3:
+	var p: Vector2 = main.map.dock_point(Vector2(centre.x, centre.z), radius, Vector2(from.x, from.z), sys)
+	return Vector3(p.x, 0.0, p.y)
 
 func _is_dead(pid: String) -> bool:
 	var i := _index_of(pid)
@@ -253,7 +268,7 @@ func eta_cycles(pid: String) -> float:
 		return -1.0
 	if _docked == pid:
 		return 0.0
-	return _flight_cycles(_pos, _planet_pos(i), tsys)
+	return _flight_cycles(_pos, _dock_pos(i, _pos if tsys == _sys else Vector3.ZERO), tsys)
 
 # ---- orders ----------------------------------------------------------------------------------------------------------
 
@@ -272,15 +287,19 @@ func request_fly(t: Dictionary) -> String:
 			if idx < 0 or idx >= _planets().size():
 				return "bad_target"
 			pid = str(_planets()[idx].get("id", ""))
-			to = _planet_pos(idx)
 			to_sys = main.system_of(idx)
+			to = _dock_pos(idx, _pos if to_sys == _sys else Vector3.ZERO)  # T202: beside the planet, never in it
 		"storage":
 			to_sys = idx if idx > 0 else _sys
-			to = t.get("pos", _pos)
+			to = _dock_body(t.get("pos", _pos), Station.MAP_RADIUS, _pos if to_sys == _sys else Vector3.ZERO, to_sys)
 		"cluster":
 			to = t.get("pos", _pos)
 			if main.clusters != null and main.clusters.valid(idx):
 				to_sys = main.clusters.system_of(idx)
+			var cb: Dictionary = main.map.cluster_body(idx)
+			if not cb.is_empty():
+				var cc: Vector2 = cb["pos"]
+				to = _dock_body(Vector3(cc.x, 0.0, cc.y), float(cb["radius"]), _pos if to_sys == _sys else Vector3.ZERO, to_sys)
 		_:
 			kind = "point"
 			to = t.get("pos", _pos)
@@ -582,3 +601,7 @@ func from_dict(d) -> void:
 		_state = "building"
 		_docked = _build
 	_ensure_home()
+	# T202: a save from before the parking spot has the ship at the planet's centre: move it to the edge
+	var di := _index_of(_docked) if _docked != "" and _state != "flying" else -1
+	if di >= 0 and Vector2(_pos.x, _pos.z).distance_to(Vector2(_planet_pos(di).x, _planet_pos(di).z)) < main.map.planet_radius(di) + Motion.BODY_MARGIN:
+		_pos = _dock_pos(di, Vector3.ZERO)

@@ -8,6 +8,8 @@ signal route_clicked(id: int)      # T07b: click on a route line (no planet unde
 
 const PlanetTypes := preload("res://game/planet_types.gd")
 const Systems := preload("res://game/systems.gd")
+const Motion := preload("res://game/ship_motion.gd")  # T202: SPAWN_GAP, BODY_MARGIN
+const StationScript := preload("res://game/station.gd")
 const PLANETS_PATH := "res://data/planets.json"
 
 # Zoom bounds are not in gdd.md: defaults for owner decision.
@@ -755,6 +757,68 @@ func size_factor(i: int) -> float:
 ## Radius of planet i (world units); without an index, the base radius.
 func planet_radius(i: int = -1) -> float:
 	return PLANET_RADIUS * planet_scale * size_factor(i)
+
+## T202: radius of an asteroid field as drawn: the furthest rock of its pack from the centre in the plane (game/galaxy/asteroid_packs.gd
+## keeps the rock positions). Before the pack exists: its bound, radius x map unit x pack_scale x stretch.
+func cluster_draw_radius(c: Dictionary) -> float:
+	var id := str(c.get("id", ""))
+	if asteroid_packs != null and asteroid_packs.packs.has(id):
+		var r := 0.0
+		for q in asteroid_packs.packs[id]["points"]:
+			r = maxf(r, Vector2(q.x, q.z).length())
+		return r
+	var ps: float = float(asteroid_packs.pack_scale) if asteroid_packs != null else 0.25
+	return float(c["radius"]) * MAP_UNIT_SCALE * ps * maxf(1.0, float(c.get("stretch", 1.0)))
+
+## T202: every body a ship must stay outside in one system: [{kind, id, pos: Vector2 (x, z), radius}]. Planets and dead worlds
+## (planets[]), the sun, the space station (once built) and the asteroid fields. Each system is its own space.
+func bodies(sys: int) -> Array:
+	var out: Array = []
+	for i in planets.size():
+		if int(planets[i].get("system", 1)) == sys and i < positions.size():
+			out.append({"kind": "planet", "id": str(planets[i].get("id", i)), "pos": Vector2(positions[i].x, positions[i].z), "radius": planet_radius(i)})
+	if sun_positions.has(sys):
+		var sp: Vector3 = sun_positions[sys]
+		out.append({"kind": "sun", "id": "sun_%d" % sys, "pos": Vector2(sp.x, sp.z), "radius": sun_radius})
+	if stations.has(sys):
+		var tp: Vector3 = stations[sys].position
+		out.append({"kind": "station", "id": "station_%d" % sys, "pos": Vector2(tp.x, tp.z), "radius": StationScript.MAP_RADIUS})
+	for c in _cluster_list:
+		if int(c.get("system", 1)) == sys:
+			var cp := Vector2(float(c["x"]), float(c["y"])) * MAP_UNIT_SCALE
+			out.append({"kind": "cluster", "id": str(c.get("id", c.get("index", ""))), "pos": cp, "radius": cluster_draw_radius(c)})
+	return out
+
+## T202: the asteroid field (cluster index, as in main.clusters) as a body {pos, radius}, or {} when it is not drawn.
+func cluster_body(index: int) -> Dictionary:
+	for c in _cluster_list:
+		if int(c["index"]) == index:
+			return {"pos": Vector2(float(c["x"]), float(c["y"])) * MAP_UNIT_SCALE, "radius": cluster_draw_radius(c)}
+	return {}
+
+## T202: where a ship parks at a body: Motion.SPAWN_GAP outside its edge, on the side of `from` (straight toward it; +Z when
+## `from` is the centre). If that spot is inside another body of the system the angle turns until the spot is clear.
+func dock_point(center: Vector2, radius: float, from: Vector2, sys: int) -> Vector2:
+	var d := from - center
+	var a := atan2(d.y, d.x) if d.length() > 0.0001 else PI * 0.5
+	var all := bodies(sys)
+	var first := Vector2.ZERO
+	for k in 24:
+		var ang: float = a + (0.0 if k == 0 else (1.0 if k % 2 == 1 else -1.0) * ceil(k / 2.0) * TAU / 24.0)
+		var p := center + Vector2(cos(ang), sin(ang)) * (radius + Motion.SPAWN_GAP)
+		if k == 0:
+			first = p
+		var clear := true
+		for b in all:
+			var bp: Vector2 = b["pos"]
+			if bp.distance_to(center) < 0.0001:
+				continue  # the parent itself
+			if p.distance_to(bp) <= float(b["radius"]) + Motion.BODY_MARGIN:
+				clear = false
+				break
+		if clear:
+			return p
+	return first
 
 ## T33: call after changing a tunable var. Re-applies sizes and re-clamps the camera.
 func apply_tunables() -> void:

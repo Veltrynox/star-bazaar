@@ -9,6 +9,15 @@ const ALIGN := 0.35          # rad (about 20 degrees): the ship holds back (brak
 const ARRIVE_EPS := 0.01     # world units
 const MAX_SUBSTEP := 0.01    # callers split larger time steps into pieces of at most this (in their own unit, see substep())
 
+## T202: a ship is never inside a body (planet, dead world, sun, station, asteroid field) and is parked near it at spawn: it
+## stands at radius + SPAWN_GAP from the body centre. The test asserts distance > radius + BODY_MARGIN (outside) and
+## distance <= near_limit(radius) (near). The one place these numbers live; the map, Pathfinder and rival ships use them.
+const SPAWN_GAP := 0.4       # world units between a body's drawn edge and a ship parked at it
+const BODY_MARGIN := 0.05    # a ship is at least this far outside the drawn edge, always
+
+static func near_limit(radius: float) -> float:
+	return radius + SPAWN_GAP + ARRIVE_EPS
+
 static func yaw_to(d: Vector2) -> float:
 	return atan2(-d.x, -d.y)
 

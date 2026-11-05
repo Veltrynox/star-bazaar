@@ -91,3 +91,13 @@ Older run entries moved from blackboard.md, oldest first.
 - Failed / did not work: a sed on gdd.md failed (macOS syntax), so gdd.md was not touched. No handoff file (no agent).
 - Files and commits: game/game_menu.gd, schedule.json, blackboard.md; see git log "T194".
 - Left to do: owner decides whether the share panel Competitors button also goes. Next runs: T195, then T196.
+
+## 2026-11-05 17:00 run: T195
+- Summary: Voice narration default volume lowered from 1.0 to 0.5 (const DEFAULT_VOLUME in game/voice.gd), used for new installs; a saved value is kept and the slider is unchanged.
+- Why this task: smallest open build task with no dependency or visual question; T196 is large and gates T197-T201.
+- Approach: direct edit by main session, three lines, cheaper than an agent.
+- Agent prompts: none. No handoff file (no agent).
+- Worked: sh tools/tests/run.sh pass=2856 fail=0.
+- Failed / did not work: nothing. schedule.json already had uncommitted owner additions (T200 note, T201); they were committed along with my status change.
+- Files and commits: game/voice.gd, schedule.json, blackboard.md; commit "T195 ... [no-gdd]".
+- Left to do: owner may want a different level than 0.5. Next: T196.

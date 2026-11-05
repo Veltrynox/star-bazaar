@@ -17,7 +17,6 @@ const COUNT_DEFAULT := 3
 const SPEED_DEFAULT := 0.6      # world units per second at x1
 const LIFT := 0.35
 const FIT_RADIUS := 0.35
-const MARGIN := 3.0             # world units around the planets that a rival may wander to
 
 var main: Node = null
 var map: Node = null
@@ -25,7 +24,7 @@ var _rng := RandomNumberGenerator.new()
 var _ships: Array = []          # {node, system, pos Vector2 (x, z), yaw, speed, to Vector2, wait (s left, > 0 = waiting)}
 const MIN_LEG := 3.0            # a new destination is at least this far (world units)
 const SUBSTEP := 0.05           # seconds per integration step
-var _built := false
+var _built_sys := {}            # system id -> true once its rivals exist (a system opened later gets its own)
 
 func setup(m: Node, mp: Node) -> void:
 	main = m
@@ -49,34 +48,33 @@ func _systems() -> Array:
 	ks.sort()
 	return ks
 
-func _bounds(sys: int) -> Rect2:
-	var r := Rect2()
-	var first := true
-	for i in map.planets.size():
-		if int(map.planets[i].get("system", 1)) != sys or i >= map.positions.size():
-			continue
-		var v: Vector3 = map.positions[i]
-		if first:
-			r = Rect2(Vector2(v.x, v.z), Vector2.ZERO)
-			first = false
-		else:
-			r = r.expand(Vector2(v.x, v.z))
-	return r.grow(MARGIN) if not first else Rect2()
-
+## T202: a random spot in system `sys` parked at a random planet of it: Motion.SPAWN_GAP outside the planet's drawn edge, never
+## inside any body (map.dock_point turns the spot away from the sun, station and asteroid fields).
 func _random_point(sys: int) -> Vector3:
-	var r := _bounds(sys)
-	return Vector3(_rng.randf_range(r.position.x, r.end.x), 0.0, _rng.randf_range(r.position.y, r.end.y))
+	var idx: Array = []
+	for i in map.planets.size():
+		if int(map.planets[i].get("system", 1)) == sys and i < map.positions.size():
+			idx.append(i)
+	if idx.is_empty():
+		return Vector3.ZERO
+	var i: int = idx[_rng.randi() % idx.size()]
+	var c := Vector2(map.positions[i].x, map.positions[i].z)
+	var ang := _rng.randf_range(0.0, TAU)
+	var p: Vector2 = map.dock_point(c, map.planet_radius(i), c + Vector2(cos(ang), sin(ang)), sys)
+	return Vector3(p.x, 0.0, p.y)
 
 func _build() -> void:
-	_built = true
 	var kinds: Array = []
 	for k in Ships.types():
 		if str(k) != Ships.fleet:
 			kinds.append(str(k))
 	if kinds.is_empty():
 		kinds = [Ships.DEFAULT]
-	var n := 0
+	var n := _ships.size()
 	for sys in _systems():
+		if _built_sys.has(sys):
+			continue
+		_built_sys[sys] = true
 		for i in maxi(0, count()):
 			var node := _make_ship(str(kinds[n % kinds.size()]))
 			add_child(node)
@@ -152,9 +150,9 @@ func _aabb(node: Node, t: Transform3D) -> AABB:
 
 ## Moves every rival by dt seconds of game time (0 or less moves nothing). Public so tests can drive it.
 func advance(dt: float) -> void:
-	if not _built:
-		if map == null or map.positions.is_empty():
-			return
+	if map == null or map.positions.is_empty():
+		return
+	if _built_sys.size() < _systems().size():
 		_build()
 	var view: int = int(map.view_system) if map != null else 1
 	var vmax := maxf(0.01, _bal("rival_ship_speed", SPEED_DEFAULT))
