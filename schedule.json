@@ -1236,11 +1236,12 @@
       "depends_on": [
         "T197"
       ],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 25,
       "window": "Owner request 2026-11-05. Not started: main session sets it running.",
       "brief": "Add a headless test in tools/tests/run_tests.gd (runs with sh tools/tests/run.sh) that the 3D ships face the way they fly, so 'ships fly sideways' can never come back. For the player's Pathfinder (game/pathfinder_view.gd) and the rival ships (game/rival_ships.gd), and for every corvette model in assets/ships that the game can show: set a known heading (at least 8 directions: along +X, -X, +Z, -Z and the four diagonals, and a heading in a second solar system if its map differs), step the ship's update, then take the model node's global basis, compute its nose (forward) vector using the model's declared forward axis (the per-model yaw offset from T197) and assert it matches the heading within about 2 degrees; assert the model's up axis stays up (no roll or pitch); assert a turn toward a new course changes the nose gradually at the yaw rate from T196 (not a snap) and finishes aligned; assert a stopped or paused ship keeps its last heading. Also assert that each model's forward axis data exists for every ship id in data/ships.json so a new model cannot be added without one. Fix code bugs the test finds. Handoff handoffs/gameplay-programmer/2026-11-05-T201.json.",
-      "owner_note": "Owner asked for an assertion or unit test for ship rotation; headless test chosen so it runs on every sh tools/tests/run.sh."
+      "owner_note": "Owner asked for an assertion or unit test for ship rotation; headless test chosen so it runs on every sh tools/tests/run.sh.",
+      "note": "2026-11-05: _test_ship_facing added in run_tests.gd (8 headings, up axis, gradual turn, resting ships, yaw data per ship id); no code bugs found; second-system heading covered via all rival systems only."
     }
   ],
   "done_task_ids": [

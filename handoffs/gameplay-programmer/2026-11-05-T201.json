@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-05",
+  "task": "T201",
+  "status": "done",
+  "files_changed": ["tools/tests/run_tests.gd", "handoffs/gameplay-programmer/2026-11-05-T201.json"],
+  "open_questions": [],
+  "handoff": "Added _test_ship_facing (registered after _test_ship_motion in tools/tests/run_tests.gd). It checks Pathfinder (all four models) and rival ships (every system) at 8 headings: nose within 2 degrees, up stays up; gradual turn at the yaw rate that ends aligned; idle or waiting ships keep their heading; every id in data/ships.json has a MODEL_YAW_DEG entry that maps the model nose onto -Z. No code bugs found. sh tools/tests/run.sh: fail=0.",
+  "details": {}
+}

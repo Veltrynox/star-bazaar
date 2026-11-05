@@ -102,6 +102,7 @@ func _run() -> void:
 	await _test_cluster_to_station()
 	await _test_links_everywhere()
 	await _test_ship_motion()
+	await _test_ship_facing()
 	await _test_t187_ship_flight()
 	await _test_asteroid_packs()
 	_test_event_banners()
@@ -6657,6 +6658,139 @@ func _test_ship_motion() -> void:
 			break
 	check(seen_new, "T196: after waiting a rival picks the next destination")
 	await _free_main(m)
+
+## T201: the 3D ships face the way they fly. Pathfinder (game/pathfinder_view.gd) and rival ships (game/rival_ships.gd): the model's
+## nose (its own -X, turned by Ships.MODEL_YAW_DEG) matches the heading, up stays up, turns are gradual and end aligned, a ship at rest keeps its heading.
+func _t201_nose(holder: Node3D) -> Dictionary:
+	var pivot: Node3D = holder.get_child(0) as Node3D
+	if pivot == null or pivot.get_child_count() == 0 or not (pivot.get_child(0) is Node3D):
+		return {}
+	var model: Node3D = pivot.get_child(0)
+	var b: Basis = model.global_basis.orthonormalized()
+	var nose: Vector3 = b * Vector3(-1, 0, 0)
+	return {"nose": nose, "up": b * Vector3.UP}
+
+func _t201_angle(nose: Vector3, heading: Vector2) -> float:
+	return rad_to_deg(Vector2(nose.x, nose.z).angle_to(heading))
+
+func _t201_check_pose(holder: Node3D, heading: Vector2, label: String) -> void:
+	var r := _t201_nose(holder)
+	check(not r.is_empty(), "T201: %s has a model with a yaw pivot" % label)
+	if r.is_empty():
+		return
+	var nose: Vector3 = r["nose"]
+	var err := absf(_t201_angle(nose, heading))
+	check(err <= 2.0 and absf(nose.y) < 0.02, "T201: %s nose is on the heading" % label, "%f deg off, nose %s, heading %s" % [err, str(nose), str(heading)])
+	check((r["up"] as Vector3).dot(Vector3.UP) > 0.999, "T201: %s keeps its up axis up" % label, str(r["up"]))
+
+func _test_ship_facing() -> void:
+	var Motion = load("res://game/ship_motion.gd")
+	var ShipsC = load("res://game/ships.gd")
+	var PV = load("res://game/pathfinder_view.gd")
+	var dirs: Array = []
+	for k in 8:
+		var a := float(k) * PI / 4.0
+		dirs.append(Vector2(roundf(cos(a) * 1000.0) / 1000.0, roundf(sin(a) * 1000.0) / 1000.0).normalized())
+	# every ship id has a yaw offset that turns its own -X onto -Z
+	var data = JSON.parse_string(FileAccess.get_file_as_string("res://data/ships.json"))
+	for t in data["types"]:
+		var id := str(t["id"])
+		check(ShipsC.MODEL_YAW_DEG.has(id), "T201: ship %s has a model yaw offset" % id)
+		var n: Vector3 = Basis(Vector3.UP, ShipsC.model_yaw(id)) * Vector3(-1, 0, 0)
+		check(n.is_equal_approx(Vector3(0, 0, -1)), "T201: offset of %s turns the model nose onto -Z" % id, str(n))
+	var saved_fleet: String = ShipsC.fleet
+	var m = await _new_main(false, true)
+	m._dismiss_preface()
+	var f = m.flight
+	var root3 := Node3D.new()
+	root.add_child(root3)
+	var pv = PV.new()
+	root3.add_child(pv)
+	# Pathfinder, every model
+	for id in ShipsC.types():
+		ShipsC.set_fleet(str(id))
+		f._yaw = 0.0
+		pv.update_from(f, f.system_id())
+		check(pv.visible and pv._holder != null, "T201: the Pathfinder (%s) is drawn" % id)
+		if pv._holder == null:
+			continue
+		for d in dirs:
+			f._yaw = Motion.yaw_to(d)
+			pv.update_from(f, f.system_id())
+			_t201_check_pose(pv._holder, d, "Pathfinder %s heading %s" % [id, str(d)])
+	ShipsC.set_fleet(saved_fleet)
+	# Pathfinder: a gradual turn that ends aligned, then at rest keeps its heading
+	f._yaw = 0.0
+	f.finish_flight()
+	var start: Vector3 = f.ship_position()
+	f.request_fly({"kind": "point", "pos": start + Vector3(0.0, 0.0, 10.0)})  # straight behind: a 180 degree turn
+	var turn: float = deg_to_rad(float(m.balance.get("pathfinder_turn_deg", 2400.0)))
+	var dt := 0.002
+	var prev_nose := Vector2(0, -1)
+	var max_step := 0.0
+	var steps := 0
+	var sync_ok := true
+	while steps < 400 and absf(wrapf(f._yaw - PI, -PI, PI)) > 0.001 and f.state() == "flying":
+		steps += 1
+		f.advance(dt)
+		pv.update_from(f, f.system_id())
+		var r := _t201_nose(pv._holder)
+		var nv := Vector2((r["nose"] as Vector3).x, (r["nose"] as Vector3).z).normalized()
+		max_step = maxf(max_step, absf(prev_nose.angle_to(nv)))
+		prev_nose = nv
+	check(max_step <= turn * dt + 0.01 and max_step > 0.0, "T201: the Pathfinder model turns gradually at the yaw rate", "%f per step, limit %f" % [max_step, turn * dt])
+	check(steps > 1, "T201: the Pathfinder turn takes more than one step", str(steps))
+	pv.update_from(f, f.system_id())
+	var course := Vector2(0, 1)
+	_t201_check_pose(pv._holder, course, "Pathfinder after the turn")
+	f.finish_flight()
+	var held: float = f._yaw
+	for k in 5:
+		pv.update_from(f, f.system_id())
+		f.advance(0.1)
+	check(f._yaw == held, "T201: an idle Pathfinder keeps its heading", str(f._yaw))
+	var held_dir: Vector2 = Motion.forward(held)
+	_t201_check_pose(pv._holder, held_dir, "idle Pathfinder")
+	# rival ships, all systems and all models
+	var rs = m.rival_ships
+	rs.advance(0.0)
+	check(rs._ships.size() > 0, "T201: there are rival ships")
+	var seen_kinds := {}
+	for s in rs._ships:
+		var node: Node3D = s["node"]
+		s["wait"] = 1000000.0  # parked: only the heading is under test
+		for d in dirs:
+			s["yaw"] = Motion.yaw_to(d)
+			rs.advance(0.0)
+			_t201_check_pose(node, d, "rival in system %d heading %s" % [int(s["system"]), str(d)])
+	var s0: Dictionary = rs._ships[0]
+	var rturn: float = deg_to_rad(float(m.balance.get("rival_ship_turn_deg", 45.0)))
+	s0["wait"] = 0.0
+	s0["yaw"] = 0.0
+	s0["speed"] = 0.0
+	s0["pos"] = Vector2(0, 0)
+	s0["to"] = Vector2(0, 50)  # straight behind
+	var rprev := Vector2(0, -1)
+	var rmax := 0.0
+	var rsteps := 0
+	while rsteps < 400 and absf(wrapf(float(s0["yaw"]) - PI, -PI, PI)) > 0.001:
+		rsteps += 1
+		rs.advance(0.05)
+		var rr := _t201_nose(s0["node"])
+		var rv := Vector2((rr["nose"] as Vector3).x, (rr["nose"] as Vector3).z).normalized()
+		rmax = maxf(rmax, absf(rprev.angle_to(rv)))
+		rprev = rv
+	check(rmax <= rturn * 0.05 + 0.01 and rsteps > 1, "T201: a rival model turns gradually at the yaw rate", "%f per step, %d steps" % [rmax, rsteps])
+	_t201_check_pose(s0["node"], Vector2(0, 1), "rival after the turn")
+	s0["wait"] = 1000000.0
+	s0["speed"] = 0.0
+	var ry: float = s0["yaw"]
+	rs.advance(1.0)
+	check(float(s0["yaw"]) == ry, "T201: a waiting rival keeps its heading")
+	_t201_check_pose(s0["node"], Motion.forward(ry), "waiting rival")
+	root3.queue_free()
+	await _free_main(m)
+	ShipsC.set_fleet(saved_fleet)
 
 func _test_links_everywhere() -> void:
 	await _t188_pass(false)
