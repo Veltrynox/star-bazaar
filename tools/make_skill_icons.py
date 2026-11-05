@@ -53,12 +53,15 @@ G = {
  "BIO_5": [poly((25, 8), (39, 8), (39, 25), (56, 25), (56, 39), (39, 39), (39, 56), (25, 56), (25, 39), (8, 39), (8, 25), (25, 25))],  # clinic cross
  "BIO_6": [path("M10 54 C5 24 28 8 56 9 C58 38 38 56 10 54 Z"), line(10, 54, 42, 22)],            # hardy leaf
  "BIO_7": [rect(8, 14, 48, 38, 2), line(8, 26.7, 56, 26.7), line(8, 39.3, 56, 39.3), line(32, 14, 32, 26.7), line(20, 26.7, 20, 39.3), line(44, 26.7, 44, 39.3), line(32, 39.3, 32, 52)],  # wall
+ # Tier-3 side skills (T173), appended so the older cells keep their place
+ "LUX_5B": [path("M5 32 Q32 8 59 32 Q32 56 5 32 Z"), circle(32, 32, 8), pline(46, 8, 58, 8), pline(52, 2, 52, 14)],  # eye + far sight
+ "MIN_5B": [path("M32 7 L53 15 V32 C53 44 43 53 32 58 C21 53 11 44 11 32 V15 Z"), poly((32, 20), (42, 34), (32, 48), (22, 34))],  # shield + ore
 }
 ORDER = list(G.keys())
 COLS, CELL = 8, 64
 
 def main():
-    assert len(ORDER) == 31
+    assert len(ORDER) == 36
     rows = (len(ORDER) + COLS - 1) // COLS
     out = [f'<svg xmlns="http://www.w3.org/2000/svg" width="{COLS*CELL}" height="{rows*CELL}" viewBox="0 0 {COLS*CELL} {rows*CELL}">']
     for i, k in enumerate(ORDER):

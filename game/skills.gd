@@ -17,6 +17,8 @@ static var bot_used: Dictionary = {}  # bot skill id -> cycle it was last used
 static var share_paid: Dictionary = {}  # market -> Array of steps (20, 35) already paid
 static var stock_grown: Dictionary = {}  # "<key>|<good>" -> {carry, grown}, for BIO_2
 
+const SHARED_KEY := "_shared"
+
 static func reset(balance: Dictionary = {}) -> void:
 	if not balance.is_empty():
 		bal = balance
@@ -275,12 +277,28 @@ static func bot_skill_cooldown(id: String) -> int:
 	var e := _bot_effect(id)
 	if e.is_empty() or not learned.has(id):
 		return -2
-	if not bot_used.has(id):
-		return 0
-	if bool(e.get("once_per_run", false)):
+	if bot_used.has(id) and bool(e.get("once_per_run", false)):
 		return -1
+	if not bot_used.has(id):
+		return shared_cooldown_left()
 	var every := int(_key(e, "cooldown_key"))
-	return maxi(0, int(bot_used[id]) + every - current_cycle())
+	return maxi(shared_cooldown_left(), maxi(0, int(bot_used[id]) + every - current_cycle()))
+
+## Shared lock (BIO_6B): after any chosen-bot hit all chosen-bot skills wait balance[shared_cooldown_key] cycles.
+## The longest shared key among learned chosen-bot skills counts; 0 when none carries one.
+static func shared_cooldown_every() -> int:
+	var n := 0
+	for id in learned:
+		var e := _bot_effect(str(id))
+		if not e.is_empty() and str(e.get("shared_cooldown_key", "")) != "":
+			n = maxi(n, int(_num(str(e["shared_cooldown_key"]))))
+	return n
+
+## Cycles left of the shared lock (0 = free).
+static func shared_cooldown_left() -> int:
+	if not bot_used.has(SHARED_KEY):
+		return 0
+	return maxi(0, int(bot_used[SHARED_KEY]) + shared_cooldown_every() - current_cycle())
 
 static func bot_skill_ready(id: String) -> bool:
 	return bot_skill_cooldown(id) == 0
@@ -301,6 +319,7 @@ static func activate_bot_skill(id: String, bot: int) -> Dictionary:
 	if not Markets.hit_bot(bot, str(e.get("target", "")), "strength", -_key(e), until):
 		return {"ok": false, "reason": "bot"}
 	bot_used[id] = cycle
+	bot_used[SHARED_KEY] = cycle
 	return {"ok": true, "reason": "", "until": until}
 
 ## ---- skill points for share (once per market per step) ----

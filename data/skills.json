@@ -1,6 +1,6 @@
 {
  "schema_version": 1,
- "data_version": 4,
+ "data_version": 8,
  "source": "2026-11-05 skill-tree-final (economy-designer, agreed with feature-designer and qa-analyst): see design/proposals/2026-11-05-skill-tree-final.md. Filler percent effects removed; MIL_2 batches, MIL_3 debris immunity, LUX_6 batch yield, BIO_3 growth ceiling.",
  "vocabulary": {
   "_how": "effect = {type, target, ...}. Numbers are never stored here: key / duration_key / cooldown_key / cap_key name a data/balance.json value. cost 0 = tech node (researched by crafting; goal = balance[tech_goal_key] units made by that market's workshop(s), counted from when prereqs are met). cost is also in balance skill_cost_<id> (balance is authoritative). 'extra' = more effects applied with the same node. prereqs: all listed ids must be learned/researched. target: market id (mil|lux|min|bio), 'all', 'ships', 'planet_storage', 'feature', 'workshop', 'good'.",
@@ -16,7 +16,7 @@
    "workshop_batches": "workshop batches per cycle in target market + balance[key]",
    "batch_yield": "units out of each batch in target market + balance[key]",
    "unlock": "unlocks target kind id: workshop (smelter|munitions|atelier|culture_lab|fabric), good (goods.json id), feature (space_storage|permit_routes|cluster_routes)",
-   "bot_strength_pct": "bot strength in target market down balance[key]. pick chosen_bot = player chooses one bot; all_bots = every bot. duration_key = cycles it lasts; cooldown_key = cycles between uses; once_per_run; permanent = rest of run",
+   "bot_strength_pct": "bot strength in target market down balance[key]. shared_cooldown_key (T173 r2): every chosen_bot hit, of any market, also locks all chosen_bot skills for balance[shared_cooldown_key] cycles after it starts (one pressure action per window). pick chosen_bot = player chooses one bot; all_bots = every bot. duration_key = cycles it lasts; cooldown_key = cycles between uses; once_per_run; permanent = rest of run",
    "bot_growth_mult": "bot growth in target market x balance[key]; pick all_bots; permanent",
    "share_window": "share window of target market = balance[key] cycles instead of share_window",
    "reveal_prices": "next-cycle prices shown for 'cycles' cycles ahead",
@@ -324,6 +324,16 @@
    ]
   },
   {
+   "id": "LUX_5B",
+   "market": "lux",
+   "kind": "skill",
+   "tier": 3,
+   "prereqs": ["LUX_3"],
+   "cost": 2,
+   "effect": {"type": "reveal_prices", "target": "all", "cycles": 2},
+   "extra": [{"type": "event_warning", "target": "all", "cycles": 2}]
+  },
+  {
    "id": "LUX_6",
    "market": "lux",
    "kind": "tech",
@@ -462,6 +472,16 @@
     "id": "nullglass",
     "place": "dead_2"
    }
+  },
+  {
+   "id": "MIN_5B",
+   "market": "min",
+   "kind": "skill",
+   "tier": 3,
+   "prereqs": ["MIN_3"],
+   "cost": 2,
+   "effect": {"type": "event_immune", "target": "min", "kinds": ["debris"]},
+   "extra": [{"type": "event_cut_pct", "target": "min", "key": "skill_MIN_5B_event_cut"}, {"type": "route_capacity_pct", "target": "min", "key": "skill_MIN_5B_route_units"}]
   },
   {
    "id": "MIN_6",

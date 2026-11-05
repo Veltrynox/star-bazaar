@@ -23,6 +23,7 @@ const CELL_W := 129.6  # 0.9 of the old 144
 const ICON_PX := 24  # skill icon on the node button
 const TREE_RESERVE := 360.0  # window height kept for header, help, detail strip and footer; the tree gets the rest
 const STACKED_BRANCHES := ["fnd"]  # these branches put every node on its own row (one narrow column)
+const MAX_ROW_CELLS := 2  # a tier with more nodes wraps onto a second line, so four columns of 3 do not overflow 1500 px
 const NODE_GAP_H := 15  # between nodes in a row
 const NODE_GAP_V := 21  # between rows of a branch
 const BRANCH_GAP := 30  # between branches
@@ -201,7 +202,7 @@ func _build_vertical(rows: VBoxContainer) -> void:
 		if not stacked:
 			for r in d_rows:
 				if r.has(b):
-					widest = maxi(widest, (r[b] as Array).size())
+					widest = maxi(widest, mini((r[b] as Array).size(), MAX_ROW_CELLS))
 		var w := widest * CELL_W + (widest - 1) * NODE_GAP_H
 		var sec := VBoxContainer.new()
 		sec.size_flags_vertical = Control.SIZE_SHRINK_BEGIN  # columns start at the top
@@ -222,7 +223,11 @@ func _build_vertical(rows: VBoxContainer) -> void:
 				for id in r[b]:
 					groups.append([id])
 			else:
-				groups.append(r[b])
+				var ids: Array = r[b]
+				var at := 0
+				while at < ids.size():  # a tier with more than MAX_ROW_CELLS nodes wraps onto the next line
+					groups.append(ids.slice(at, at + MAX_ROW_CELLS))
+					at += MAX_ROW_CELLS
 			for g in groups:
 				var row := HBoxContainer.new()
 				row.add_theme_constant_override("separation", NODE_GAP_H)

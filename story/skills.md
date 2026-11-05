@@ -149,3 +149,12 @@ SK_BIO_6_CRAFT | 60 | Skill screen, tech node progress line | Biotech workshop c
 SK_BIO_7_NAME | 24 | Skill screen, node name | Patent Wall
 SK_BIO_7_FLAVOUR | 90 | Skill screen, detail panel | A wall made of paper outlasts one made of stone.
 SK_BIO_7_PLAIN | 110 | Skill screen, detail panel | Cuts all rivals' Biotech strength by 25% for the rest of the run. Capstone.
+
+## Side skills
+SK_LUX_5B_NAME | 24 | Skill screen, node name | Long Ledger
+SK_LUX_5B_FLAVOUR | 90 | Skill screen, detail panel | The Ledger keeps a page for tomorrow's tomorrow. Nobody asks who writes it.
+SK_LUX_5B_PLAIN | 110 | Skill screen, detail panel | Prices and events are shown 2 cycles ahead.
+
+SK_MIN_5B_NAME | 24 | Skill screen, node name | Hard Hats
+SK_MIN_5B_FLAVOUR | 90 | Skill screen, detail panel | Hard hats do not stop a rock. They stop the crew worrying. The Plan counts both.
+SK_MIN_5B_PLAIN | 110 | Skill screen, detail panel | Minerals routes carry 10% more and ignore debris. Minerals price events hit 30% weaker.
