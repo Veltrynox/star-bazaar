@@ -1,0 +1,30 @@
+{
+ "agent": "ui-programmer",
+ "date": "2026-11-05",
+ "task": "ship-screen",
+ "status": "partial",
+ "schema_version": 1,
+ "files_changed": [
+  "game/company_setup.gd",
+  "game/ship_setup.gd",
+  "game/ship_setup.tscn",
+  "game/save_game.gd",
+  "game/story_text.gd",
+  "qa/bots/ship_setup_shot.gd",
+  "goals/ship-ceo-skills-resources/blackboard.json"
+ ],
+ "open_questions": [
+  "SETUP_NEXT id missing: Next button uses fallback 'Next' (EN only). Story-designer to add.",
+  "main.gd (not mine) must read SaveGame.pending_ceo / pending_ship and clear them like pending_portrait; I added both statics in save_game.gd.",
+  "I widened StoryText.in_ru_scope (game/story_text.gd) to the new ids, otherwise RU never showed; please confirm that is fine."
+ ],
+ "handoff": "Company screen: CEO info panel (name, bio, 3 stat pips, perk) and Next to the ship screen; Back from ship screen restores name and CEO. Ship screen: 4 types from ships.json, drag-to-turn SubViewport preview (missing GLB tolerated, freed on exit), stat card, Start disabled until pick, Esc/Back. Model path per type is ships.json 'model' (ship_setup.selected_model()). Tests pass (1854/0). First screenshot run worked (EN; ship looked small, so I raised MODEL_RADIUS 1 to 2 and widened RU scope); the re-run hung and gave no new shots, so the RU layout and new ship size are unchecked by eye. The Godot process may still be running; kill it. Shot bot sets Lang to en at the end (it saves settings.cfg).",
+ "details": {
+  "how_to_see": "New Game: pick a CEO, Next; qa/run_game.sh res://qa/bots/ship_setup_shot.gd writes qa/reports/ceo_info_*.png and ship_setup_*.png",
+  "not_checked_by_eye": [
+   "RU layout of both screens",
+   "ship preview size after radius change",
+   "drag to turn"
+  ]
+ }
+}

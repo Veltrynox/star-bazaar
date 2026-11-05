@@ -270,7 +270,7 @@ func _row(c: String, prices: Dictionary, pend: Dictionary) -> Control:
 			ev.text = StoryText.get_or("LBL_PRICE_EVENT", "{arrow} Event, {cycles} cycles left", {"arrow": arrow, "cycles": int(a["left"])})
 			ev.theme_type_variation = "LabelAccent"
 			info.add_child(ev)
-	if Skills.reveal_cycles() > 0:  # LUX_1 Price Whisper: best partner and the prices the next cycle starts with
+	if Skills.reveal_cycles(main.system_of(planet_index) == 1) > 0:  # LUX_1 Price Whisper: best partner and the prices the next cycle starts with
 		var bpl: String = main.best_partner_line(planet_index, c)
 		if bpl != "":
 			var bl := Label.new()

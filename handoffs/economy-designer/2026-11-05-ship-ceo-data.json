@@ -1,0 +1,35 @@
+{
+ "agent": "economy-designer",
+ "date": "2026-11-05",
+ "task": "ship-ceo-data",
+ "status": "partial",
+ "files_changed": [
+  "data/ships.json",
+  "data/ceos.json",
+  "data/balance.json",
+  "goals/ship-ceo-skills-resources/blackboard.json"
+ ],
+ "schema_version": 1,
+ "open_questions": [
+  "Bots lack --ceo/--ship (gameplay-programmer: add both, then run the 16-combo sweep; rule: median win cycle within 1 of median combo, win rate >= 60 pct of best).",
+  "tests/run.sh: 1 fail 'workshop: armour made once MIL_4' (unrelated, from uncommitted goods.json resource-audit edits; availability tests pass).",
+  "Tramp has +1 hull at -2.6 pct per ship; watch it in the sweep."
+ ],
+ "handoff": "Data written. ships.json types[]: id,name,name_id,role_id,desc_id,model,price_key,cargo_mult,upkeep_mult(maintenance),trip_mult(trip_cost),price_mult(ship_price),cap_add(ship_cap),speed. ceos.json ceos[]: id(=portrait),name_id,bio_id,perk_name_id,perk_desc_id,stats{haggling,thrift,nerve},perk{type,target,key|cycles_key}. Stat effect = stat*balance[step_key]: haggling->sale_price_pct all (0.008/step), thrift->upkeep cut (0.02/step, combined with skills, floor upkeep_floor 0.5), nerve->event_cut_pct all (0.04/step). Perks: man_01 event_warning 1 cycle; man_02 reveal_prices home market first cycle only; woman_01 route_capacity +0.08 first lane; woman_02 order_size +0.08. Ship values (cargo,trip,upkeep): small 1,1,1; bulk 1.125,1.3,1.9 price 1.10 speed .8; dart 0.9,0.6,0.85 price .9 speed 1.3; fleet 0.95,0.9,0.85 price 1.15 cap+1. Paper check at margin 8.2/unit, Skerrit net 189/ship/cycle: bulk 192, dart 189, fleet 184.",
+ "details": {
+  "balance_new_keys": {
+   "ceo_step_haggling": 0.008,
+   "ceo_step_thrift": 0.02,
+   "ceo_step_nerve": 0.04,
+   "upkeep_floor": 0.5,
+   "ceo_perk_man_01_cycles": 1,
+   "ceo_perk_man_02_cycles": 1,
+   "ceo_perk_woman_01_pct": 0.08,
+   "ceo_perk_woman_02_pct": 0.08
+  },
+  "data_version": "46 -> 47",
+  "old_values_changed": "none; proposal ship multipliers retuned (bulk cargo 1.25->1.125, trip 1.10->1.30, upkeep 1.25->1.9; dart cargo 0.8->0.9, trip .85->.6, upkeep .7->.85; fleet cargo .9->.95, trip 1->.9, upkeep 1->.85) because the proposal values gave bulk +30 pct profit per ship",
+  "ceo_stat_value_per_step_per_cycle_credits": "haggling ~2.1, thrift ~1.5, nerve small",
+  "text_ids": "from story-designer handoff; CEO ids without 'ceo_' prefix"
+ }
+}

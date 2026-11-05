@@ -37,10 +37,10 @@ func _ready() -> void:
 	core_box = VBoxContainer.new()
 	core_box.name = "CoreBox"
 	box.add_child(core_box)
-	for kind in Ships.KINDS:  # T58: one buy button per ship type
+	for kind in ["fleet"]:  # one buy button: every ship of the run is the chosen type (Ships.fleet)
 		var b := Button.new()
 		b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART  # a long label wraps instead of widening the right column
-		b.pressed.connect(func(): buy_requested.emit(kind))
+		b.pressed.connect(func(): buy_requested.emit(Ships.fleet))
 		box.add_child(b)
 		buy_buttons[kind] = b
 
@@ -57,8 +57,8 @@ func set_upkeep(main: Control) -> void:
 		var pay: int = up if main.engine.payout_of(rec) < 0 else 0
 		total += pay
 		var tag := ("  [" + StoryText.get_or("LBL_NULL_CORE", "Null Core") + "]") if main.engine.has_core(rec) else ""
-		lines.append("Ship %d, %s (%s): %d%s" % [n, Ships.display_name(str(rec.get("ship", "small"))), Ui.good_name(str(rec["c"])), pay, tag])
-	for kind in Ships.KINDS:
+		lines.append("Ship %d, %s (%s): %d%s" % [n, Ships.display_name(Ships.fleet), Ui.good_name(str(rec["c"])), pay, tag])
+	for kind in [Ships.fleet]:
 		for i in maxi(0, main.free_of(kind)):
 			n += 1
 			lines.append("Ship %d, %s (free): 0" % [n, Ships.display_name(kind)])
@@ -69,8 +69,8 @@ func set_upkeep(main: Control) -> void:
 	upkeep_label.tooltip_text = StoryText.get_or("NULL_CORE_FIT", "Null Core fitted. Lower Trip cost, and pirates cannot touch this ship.") if core_on else ""
 	_set_core_buttons(main)
 	var free: int = main.free_ships()
-	var price := int(main.balance.get("ship_price", 0))
-	var cap := int(main.balance.get("ship_cap", 0))
+	var price := Ships.price(Ships.fleet, main.balance)
+	var cap: int = main.ship_cap()
 	var txt: String = StoryText.get_or("LBL_SHIPS_FREE_HINT", "Free ships: {free}. Ship upkeep {upkeep} / cycle each.", {"free": free, "upkeep": main.engine.upkeep_part()})
 	if free <= 0:
 		if main.ships >= cap:
@@ -79,12 +79,12 @@ func set_upkeep(main: Control) -> void:
 			txt += "\n" + StoryText.get_or("LBL_SEND_BUYS_SHIP", "No free ship. Send to... buys one for {price} credits.", {"price": price})
 		else:
 			txt += "\nNot enough credits."
-	var fr: Dictionary = main.can_buy_ship("small")
+	var fr: Dictionary = main.can_buy_ship()
 	if fr.get("floor", false):
 		txt += "\n" + str(fr["reason"])
 	free_label.text = txt
-	for kind in Ships.KINDS:
-		var b: Button = buy_buttons[kind]
+	for kind in [Ships.fleet]:
+		var b: Button = buy_buttons["fleet"]
 		var r: Dictionary = main.can_buy_ship(kind)
 		b.text = "Buy %s (%d cr, upkeep %d)" % [Ships.display_name(kind), Ships.price(kind, main.balance), main.engine.upkeep_part({"ship": kind})]
 		b.disabled = not r["ok"] or main.tut_lock_active()

@@ -47,6 +47,8 @@ extends SceneTree
 ##   --choice=alt|RELEASE|CORP   alt: odd seed RELEASE, even seed CORP (default alt)
 ##   --chains=first|good|bad|random  QA 2026-11-03: market chain choices. good/bad take, per step, the option whose hidden nudge
 ##                           (Chains.nudge_of) pushes toward that ending flag; random uses the seed; first = event-policy as before.
+##   --ceo=<portrait id>     CEO of the run (ceo_man_01, ceo_man_02, ceo_woman_01, ceo_woman_02; default none): stats and perk from data/ceos.json
+##   --ship=<type id>        ship type of the run (small, bulk, dart, fleet; default small): data/ships.json
 ##   --skip-tutorial         QA 2026-11-05: main._tut_skip() at the first decision (the tutorial gate blocks ship buys and orders otherwise)
 ##   --local-orders          QA 2026-11-03: also Buy and Sell on every focus-market planet, whatever the strategy
 ##   --market=mil|lux|min|bio  market focus (QA 2026-11-03): only goods of that market are traded (lanes and clusters)
@@ -101,6 +103,8 @@ var skip_skills: Array = []  # QA option --skip-skill=MIN_2,... (never learn the
 var only_skills: Array = []  # QA option --skills=... (empty: every skill may be learned)
 var skill_order: Array = []  # QA option --skill-order=... (learned first, in this order)
 var permit_sid := -1  # QA option --permit=<system id>
+var ceo_arg := ""  # --ceo=<id>: SaveGame.pending_ceo for the new game
+var ship_arg := ""  # --ship=<id>: SaveGame.pending_ship for the new game
 var skip_tutorial := false  # QA 2026-11-05: --skip-tutorial calls main._tut_skip() once at the first decision (the tutorial gate blocks orders and ship buys otherwise)
 var tutorial_skipped := false
 var default_permit := true  # QA 2026-11-03: decent buys permit 2 when affordable unless --no-permit
@@ -226,6 +230,10 @@ func _initialize() -> void:
 			market_focus = arg.trim_prefix("--market=")
 		elif arg == "--no-permit":
 			default_permit = false
+		elif arg.begins_with("--ceo="):
+			ceo_arg = arg.trim_prefix("--ceo=")
+		elif arg.begins_with("--ship="):
+			ship_arg = arg.trim_prefix("--ship=")
 		elif arg == "--skip-tutorial":
 			skip_tutorial = true
 		elif arg.begins_with("--permit="):
@@ -256,6 +264,8 @@ func _initialize() -> void:
 	rng.seed = seed_value
 	SaveGame.continue_requested = false
 	SaveGame.clear()  # every run starts from a new game, never from an old autosave
+	SaveGame.pending_ceo = ceo_arg
+	SaveGame.pending_ship = ship_arg
 
 
 func _process(_delta: float) -> bool:
@@ -468,7 +478,7 @@ func _ranked_lanes(ignore_closed := false, worst := false) -> Array:
 func _ranked_lanes_for(focus: String, ignore_closed: bool, worst: bool) -> Array:
 	var out: Array = []
 	var n: int = main.trade.planets.size()
-	var ship_price: int = int(main.balance.get("ship_price", 0))
+	var ship_price: int = main.ship_price()
 	# QA 2026-11-03: surplus cash lets any lane with a real profit take a ship (ships up to ship_cap); lanes already running stay.
 	var surplus: bool = int(main.cash) >= 2 * ship_price + main.engine.routes.size() * int(main.engine.fixed_cost())
 	var poor_out: Array = []
@@ -549,7 +559,7 @@ func _lane_key(lane: Dictionary) -> String:
 ## QA 2026-11-03: ships up to ship_cap. When the base plan has fewer lanes than ship_cap, the best lanes take a second and third ship
 ## (the game allows up to lane_full: ships x units per cycle against the order size); each extra ship counts its own extra units.
 func _fill_extra(plan: Array) -> Array:
-	var cap := maxi(1, int(main.balance.get("ship_cap", 1)))
+	var cap := maxi(1, main.ship_cap())
 	var out: Array = plan.duplicate()
 	if out.size() >= cap:
 		return out
@@ -590,7 +600,7 @@ func _plan() -> Array:
 func _plan_base() -> Array:
 	if strategy == "bankrupt":
 		var worst := _ranked_lanes(false, bankrupt_worst)  # bankrupt_worst: the unprofitable lanes first (they rarely run: no cash for them)
-		return _spread_plan(worst).slice(0, maxi(1, int(main.balance.get("ship_cap", 1))))  # all four markets: the overhead bleeds cash too
+		return _spread_plan(worst).slice(0, maxi(1, main.ship_cap()))  # all four markets: the overhead bleeds cash too
 	var ranked := _ranked_lanes()
 	match strategy:
 		"passive":
@@ -611,7 +621,7 @@ func _plan_base() -> Array:
 		"decent":
 			return ranked.slice(0, mini(DECENT_LANES, ranked.size()))
 		_:  # always_expand
-			var cap := maxi(1, int(main.balance.get("ship_cap", 1)))
+			var cap := maxi(1, main.ship_cap())
 			return ranked.slice(0, mini(cap, ranked.size()))
 
 
@@ -631,7 +641,7 @@ func _expand(plan: Array, c: int) -> void:
 	if strategy == "dead_run" and permit_sid >= 0 and not main.open_systems.has(permit_sid) and main.learned_skills.has("FND_PERMIT") \
 			and int(main.cash) < int(main.permit_cost(permit_sid)) + 150:
 		return  # R2: dead_run saves cash for the system 2 permit before buying more ships
-	var price: int = int(main.balance.get("ship_price", 0))
+	var price: int = main.ship_price()
 	var home: int = _lane_home(plan)
 	match strategy:
 		"always_expand", "bankrupt":
@@ -657,7 +667,7 @@ func _expand(plan: Array, c: int) -> void:
 func _buy_ship_at(p: int, c: int) -> void:
 	var before: int = main.ships
 	_select(p)
-	main.ship_panel.buy_requested.emit("small")
+	main.ship_panel.buy_requested.emit(main.ship_type)
 	if main.ships > before:
 		ship_buys.append([c, p, main.ships])
 		_count("ship_buy", c)
@@ -850,7 +860,7 @@ func _workshop_turn(c: int) -> void:
 		if not feedable:
 			continue  # nothing this workshop can make now is feedable with the ships it may take
 		# QA 2026-11-03: ships first (they earn more per credit); the workshop is built at ship_cap, or when cash covers it plus two ships.
-		var spare: int = WORKSHOP_CASH if int(main.ships) >= int(main.balance.get("ship_cap", 1)) else 2 * int(main.balance.get("ship_price", 0))
+		var spare: int = WORKSHOP_CASH if int(main.ships) >= main.ship_cap() else 2 * main.ship_price()
 		if int(main.cash) < int(main.workshops.build_cost(id)) + spare:
 			continue
 		var r: Dictionary = main.build_workshop(id)
@@ -980,7 +990,7 @@ func _workshop_feed(c_turn: int) -> void:
 				if bool(main.can_buy_ship()["ok"]):
 					_buy_ship_at(_mission_planet(), c_turn)  # QA 2026-11-03: a ship for the feed when cash allows
 					ok = main.can_connect(int(p), -1, c)
-				elif int(main.ships) >= int(main.balance.get("ship_cap", 1)) and _free_weakest_lane(c_turn, c):
+				elif int(main.ships) >= main.ship_cap() and _free_weakest_lane(c_turn, c):
 					ok = main.can_connect(int(p), -1, c)  # at ship_cap a planned lane gives up its ship for the feed
 			if bool(ok["ok"]):
 				var rc: Dictionary = main._connect(int(p), -1, c)
@@ -1014,7 +1024,7 @@ func _feed_ore(c_turn: int) -> void:
 			return
 		if main.free_ships() <= 0 and bool(main.can_buy_ship()["ok"]):
 			_buy_ship_at(x, c_turn)
-		if main.free_ships() <= 0 and int(main.ships) >= int(main.balance.get("ship_cap", 1)):
+		if main.free_ships() <= 0 and int(main.ships) >= main.ship_cap():
 			_free_weakest_lane(c_turn, "ore")
 		if main.free_ships() > 0:
 			var r: Dictionary = main.send_from_cluster(best_node, x)
@@ -1022,7 +1032,7 @@ func _feed_ore(c_turn: int) -> void:
 		return
 	if main.free_ships() <= 0 and bool(main.can_buy_ship()["ok"]):
 		_buy_ship_at(x, c_turn)
-	if main.free_ships() <= 0 and int(main.ships) >= int(main.balance.get("ship_cap", 1)):
+	if main.free_ships() <= 0 and int(main.ships) >= main.ship_cap():
 		_free_weakest_lane(c_turn, "ore")
 	var ok: Dictionary = main.can_connect(x, -1, "ore")
 	if bool(ok["ok"]):
@@ -1249,7 +1259,7 @@ func _mining_plan(ranked: Array) -> Array:
 	if main.cycle == 5:  # T161 diagnostics
 		notes.append("c5 mine=%s ore_in=%s cluster_lanes=%d ore_sell_prices=%s fixed=%d units=%d yield=%d" % [main.can_mine(), main.engine.commodities.has("ore"), out.size(), _ore_prices_text(), int(main.engine.fixed_cost()), int(main.engine.units_per_cycle()), int(main.clusters.yield_per_cycle())])
 	out.append_array(ranked)
-	var cap := maxi(1, int(main.balance.get("ship_cap", 1)))
+	var cap := maxi(1, main.ship_cap())
 	return out.slice(0, mini(cap, out.size()))
 
 
@@ -1301,8 +1311,8 @@ func _build_cluster_route(lane: Dictionary) -> bool:
 ## T161: ships for a cluster lane are bought at its destination planet (a cluster cannot be selected).
 ## T161 follow-up: always_expand buys a ship whenever cash covers the price (up to ship_cap), whether or not a lane needs it.
 func _buy_spare_ships(c: int) -> void:
-	var price: int = int(main.balance.get("ship_price", 0))
-	var cap: int = maxi(1, int(main.balance.get("ship_cap", 1)))
+	var price: int = main.ship_price()
+	var cap: int = maxi(1, main.ship_cap())
 	var ranked := _ranked_lanes()
 	var home: int = int(ranked[0]["a"]) if not ranked.is_empty() and int(ranked[0]["a"]) > -1000 else _mission_planet()
 	while main.ships < cap and int(main.cash) >= price and main.can_buy_ship()["ok"]:
@@ -1852,6 +1862,8 @@ func _finish() -> bool:
 		decisions_total += n
 	var result := {
 		"strategy": strategy,
+		"ceo": str(main.ceo_id),
+		"ship_type": str(main.ship_type),
 		"seed": seed_value,
 		"clock": clock,
 		"choice_policy": choice_policy,

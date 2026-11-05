@@ -1,0 +1,80 @@
+{
+ "schema_version": 1,
+ "note": "2026-11-05. stats 1-3, total 5. stat effect = steps * balance[step_key]: haggling -> sale_price_pct (all markets, cash only), thrift -> upkeep_mult (1 - steps*ceo_step_thrift, combined with skills, floor balance.upkeep_floor), nerve -> event_cut_pct all. id = portrait id.",
+ "step_keys": {
+  "haggling": "ceo_step_haggling",
+  "thrift": "ceo_step_thrift",
+  "nerve": "ceo_step_nerve"
+ },
+ "ceos": [
+  {
+   "id": "ceo_man_01",
+   "name_id": "LBL_CEO_MAN_01_NAME",
+   "bio_id": "TXT_CEO_MAN_01_BIO",
+   "perk_name_id": "LBL_CEO_MAN_01_PERK",
+   "perk_desc_id": "TXT_CEO_MAN_01_PERK_DESC",
+   "stats": {
+    "haggling": 1,
+    "thrift": 3,
+    "nerve": 1
+   },
+   "perk": {
+    "type": "event_warning",
+    "target": "all",
+    "cycles_key": "ceo_perk_man_01_cycles"
+   }
+  },
+  {
+   "id": "ceo_man_02",
+   "name_id": "LBL_CEO_MAN_02_NAME",
+   "bio_id": "TXT_CEO_MAN_02_BIO",
+   "perk_name_id": "LBL_CEO_MAN_02_PERK",
+   "perk_desc_id": "TXT_CEO_MAN_02_PERK_DESC",
+   "stats": {
+    "haggling": 3,
+    "thrift": 1,
+    "nerve": 1
+   },
+   "perk": {
+    "type": "reveal_prices",
+    "target": "home_market",
+    "cycles_key": "ceo_perk_man_02_cycles",
+    "only_first_cycle": true
+   }
+  },
+  {
+   "id": "ceo_woman_01",
+   "name_id": "LBL_CEO_WOMAN_01_NAME",
+   "bio_id": "TXT_CEO_WOMAN_01_BIO",
+   "perk_name_id": "LBL_CEO_WOMAN_01_PERK",
+   "perk_desc_id": "TXT_CEO_WOMAN_01_PERK_DESC",
+   "stats": {
+    "haggling": 1,
+    "thrift": 1,
+    "nerve": 3
+   },
+   "perk": {
+    "type": "route_capacity_pct",
+    "target": "first_lane",
+    "key": "ceo_perk_woman_01_pct"
+   }
+  },
+  {
+   "id": "ceo_woman_02",
+   "name_id": "LBL_CEO_WOMAN_02_NAME",
+   "bio_id": "TXT_CEO_WOMAN_02_BIO",
+   "perk_name_id": "LBL_CEO_WOMAN_02_PERK",
+   "perk_desc_id": "TXT_CEO_WOMAN_02_PERK_DESC",
+   "stats": {
+    "haggling": 2,
+    "thrift": 2,
+    "nerve": 1
+   },
+   "perk": {
+    "type": "order_size_pct",
+    "target": "all",
+    "key": "ceo_perk_woman_02_pct"
+   }
+  }
+ ]
+}

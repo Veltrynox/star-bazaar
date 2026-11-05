@@ -11,8 +11,8 @@ const StoryText := preload("res://game/story_text.gd")
 const PATH := "user://autosave.json"
 ## Version 2 = Four Markets (market volumes, bot state, counters). Version 3 = the four market skill trees: a v2 save is
 ## migrated (old skill ids mapped, points refunded). Version 4 = market event chains (chains, rival log, timed effects); a v3 save has
-## none of that and starts with fresh chain state; the old shield state is dropped. Version 1 saves are dropped, not migrated (owner approved).
-const VERSION := 4
+## none of that and starts with fresh chain state; the old shield state is dropped. Version 1 saves are dropped, not migrated (owner approved). Version 5 = ceo_id and ship_type (CEO and ship screens); a v4 save has neither and loads with the small ship and no CEO perk, nothing to migrate.
+const VERSION := 5
 const MIN_VERSION := 2
 
 ## True after load_state() found a save older than MIN_VERSION; the menu shows old_save_message().
@@ -24,6 +24,8 @@ static var continue_requested: bool = false
 ## Set by the company setup screen; read once by main.gd on a new game ("" = none chosen, main.gd generates a name).
 static var pending_company: String = ""
 static var pending_portrait: String = ""
+static var pending_ceo: String = ""   # CEO id = portrait id; set by the ship screen Start
+static var pending_ship: String = ""  # ship type id from data/ships.json
 
 static func exists() -> bool:
 	return not load_state().is_empty()

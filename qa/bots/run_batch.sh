@@ -5,6 +5,7 @@
 # Writes <out_dir>/<TAG>_<strategy>_<seed>.log (full Godot output), <out_dir>/results_<TAG>.jsonl
 # (one RESULT json per run) and <out_dir>/errors_<TAG>.log (Godot ERROR lines and run failures).
 # A run with no RESULT line is classed as "crash" (non-zero exit) or "frozen" (killed at LIMIT s).
+# CEO=<portrait id> and SHIP=<type id> add --ceo= / --ship= (CEO and ship of every run).
 # After the batch, qa/bots/metrics.py writes <out_dir>/metrics_<TAG>.json and metrics_<TAG>.md from the
 # results file. METRICS_WITH="<file> ..." adds other results files (e.g. a --skip-skill batch) to that report.
 # Every run uses a scratch HOME (like tools/tests/run.sh), so user:// (autosave, stats.json) never
@@ -16,6 +17,8 @@ OUT="${1:?usage: run_batch.sh <out_dir>}"
 STRATEGIES="${STRATEGIES:-decent sloppy always_expand never_expand}"
 SEEDS="${SEEDS:-1 2 3 4 5}"
 EXTRA="${EXTRA:-}"
+[ -n "${CEO:-}" ] && EXTRA="$EXTRA --ceo=$CEO"
+[ -n "${SHIP:-}" ] && EXTRA="$EXTRA --ship=$SHIP"
 TAG="${TAG:-fast}"
 LIMIT="${LIMIT:-120}"
 mkdir -p "$OUT"
