@@ -1274,10 +1274,11 @@
       "title": "Ship selected: left-click on empty space drops the selection",
       "owner_agent": "gameplay-programmer",
       "depends_on": [],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 15,
       "window": "Owner request 2026-11-05 (playtest). Not started: main session sets it running.",
-      "brief": "Owner: with the ship selected, a LEFT click on empty space (not a planet, storage, asteroid field or other action object) must only drop the selection; the ship does not fly there. This replaces the 'point in space' target of T200 (left click flies only to objects). Clicks on objects keep flying at once, right click keeps the action menu, Esc still deselects. Update tutorial or help texts that say the ship flies to a point in space (story/*.md and story/ru/*.json, then python3 tools/build_story.py) and the test for the controls in tools/tests/run_tests.gd. Handoff handoffs/<agent>/2026-11-05-<id>.json."
+      "brief": "Owner: with the ship selected, a LEFT click on empty space (not a planet, storage, asteroid field or other action object) must only drop the selection; the ship does not fly there. This replaces the 'point in space' target of T200 (left click flies only to objects). Clicks on objects keep flying at once, right click keeps the action menu, Esc still deselects. Update tutorial or help texts that say the ship flies to a point in space (story/*.md and story/ru/*.json, then python3 tools/build_story.py) and the test for the controls in tools/tests/run_tests.gd. Handoff handoffs/<agent>/2026-11-05-<id>.json.",
+      "note": "game/map.gd: left click on empty space with ship selected now only deselects (no point flight). No story text mentioned point flight. No new test (map input not headless-testable); tests pass=4017 fail=0."
     },
     {
       "task_id": "T205",
