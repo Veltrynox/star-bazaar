@@ -4,7 +4,7 @@
 - discovery_enabled in data/balance.json ships at 1 (owner decision 2026-11-05); tests that need it off set it themselves.
 
 ## Left to do
-- Open build tasks from playtest: T198-T201 (T196, T197, T201 done). T194 done; Competitors still reachable from share panel (L), owner to say if that goes too.
+- Open build tasks from playtest: T198, T199, T202 (T196, T197, T200, T201 done). T194 done; Competitors still reachable from share panel (L), owner to say if that goes too.
 - Open: T185 (visual), T178/T182 (owner-only agents), T05 (only windowed frame time missing, see T193), T166 (superseded). Owner-decision tasks T189-T193 added 2026-11-05.
 
 - Owner: ship cap 20 (T186): decide on economy retune (trip cost, maintenance tuned for 6) and look of the scrolled ship list; other panels not checked at 20 ships.
@@ -53,3 +53,13 @@
 - Failed / did not work: nothing. Pathfinder not tested in a second solar system separately.
 - Files and commits: tools/tests/run_tests.gd, schedule.json, blackboard.md, handoff; commit "T201 ... [no-gdd]".
 - Left to do: T200, T198, T199. Unrelated uncommitted files (README.md, tools/build_readme.py, etc.) left alone.
+
+## 2026-11-05 21:00 run: T200
+- Summary: Ship controls built: click selects the Pathfinder (cyan ring), left click flies at once, right click on a planet opens a menu of allowed outpost actions (flies then builds on arrival), Esc or right click on open space deselects. Outposts now build in 0.025 cycles (data_version 58); tutorial texts TUT_G0_FLY/TUT_G0_BUILD updated (EN and RU).
+- Why this task: largest-value open build task with dependency done and no owner decision; T198/T199 are visual.
+- Approach: gameplay-programmer built it in one pass; no separate ui-programmer, menu is a plain PopupMenu.
+- Agent prompts: gameplay-programmer, brief = T200 text plus no-QA, no-commit. Produced pathfinder.gd, pathfinder_view.gd, map.gd, main.gd, balance.json, story sources and generated files, handoffs/gameplay-programmer/2026-11-05-T200.json (verified, tests re-run by me: pass=3073 fail=0).
+- Worked: build and tests.
+- Failed / did not work: no confirm dialog existed in code to remove (old flow was click-to-fly, Shift+click, panel button). No new test for the flow; not seen windowed. Committed [no-gdd] (gdd has no controls text).
+- Files and commits: see git log "T200".
+- Left to do: owner: deselect by left click on empty space conflicts with fly-there; no menu on storage/asteroids (add Fly here?); selected look and menu style. Add a test for the flow if wanted.
