@@ -1030,11 +1030,12 @@
       "title": "Fix: clicking another planet's icon inside a planet panel closes the panel; add a regression test",
       "owner_agent": "ui-programmer",
       "depends_on": [],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 35,
       "window": "Owner request 2026-11-05. Not started: main session sets it running.",
       "brief": "Bug: open a planet panel, then click another planet's icon inside that panel (game/planet_panel.gd): the panel closes. Expected: the panel switches to the other planet's UI. Fix it, and add a test in tools/tests/run_tests.gd so it is always checked: open planet A's panel, simulate the click on planet B's icon in it, assert the panel is open and shows B (not closed, not A); also cover panel-to-storage and panel-to-dead-planet icons and a click on the same planet. Handoff handoffs/ui-programmer/2026-11-05-T184.json.",
-      "owner_note": "Owner asked for an assertion or unit test so it never happens again; a headless test in the suite is the better choice (runs on every sh tools/tests/run.sh)."
+      "owner_note": "Owner asked for an assertion or unit test so it never happens again; a headless test in the suite is the better choice (runs on every sh tools/tests/run.sh).",
+      "note": "Root cause: Thumb/RouteRow emitted pressed before accept_event, panel rebuild removed the icon, click leaked to map and hid panel. Fixed order; test _test_panel_thumb_switch added."
     },
     {
       "task_id": "T185",

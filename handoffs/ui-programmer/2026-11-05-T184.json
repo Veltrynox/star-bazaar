@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-05",
+  "task": "T184",
+  "status": "done",
+  "files_changed": [
+    "game/planet_panel.gd",
+    "tools/tests/run_tests.gd",
+    "handoffs/ui-programmer/2026-11-05-T184.json"
+  ],
+  "open_questions": [
+    "Not checked by eye. The headless window has no mouse hover, so the test hands the click to the icon and then to the map by hand, mirroring the viewport's order.",
+    "The panel's icons are planet thumbnails only; storage has no icon inside the panel (it is a map marker). The storage case is tested as: Space Storage open, then a thumbnail click shows the planet and closes storage."
+  ],
+  "handoff": "Root cause: the planet thumbnails (class Thumb) and route rows (RouteRow) in game/planet_panel.gd emitted pressed first and called accept_event() after. pressed rebuilds the panel and removes the clicked control from the tree, so accept_event() did nothing and the same left click went on to the map's _unhandled_input. The map found no planet under the cursor, sent planet_clicked(-1), and main hid the panel. Fix: accept_event() is now called before pressed.emit() in both classes. No layout change. New test _test_panel_thumb_switch in tools/tests/run_tests.gd: A to B, same planet again, dead planet, and with Space Storage open; it also asserts no click leaks to the map. It fails without the fix (checked). sh tools/tests/run.sh passes (1922 pass, 0 fail).",
+  "details": {
+    "screens": ["planet panel"],
+    "how_to_see": "Open a planet, click another planet's round icon in the panel header: the panel shows that planet."
+  }
+}
