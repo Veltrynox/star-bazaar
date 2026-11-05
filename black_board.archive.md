@@ -231,3 +231,13 @@ Older run entries moved from blackboard.md, oldest first.
 - Failed / did not work: nothing. Not seen windowed.
 - Files and commits: game/route_engine.gd, story/screens.md, data/story_text.json, tools/tests/run_tests.gd, handoff, schedule.json, blackboard.md; see git log "T213".
 - Left to do: owner decides whether a stalled state should clear mid-cycle when cash rises (now only the last-cycle snapshot, left unchanged). No Russian text for the two changed ids.
+
+## 2026-11-06 07:00 run: T211
+- Summary: Rival scenery ships are now one per competitor (3 total) instead of 3 per system; they live in system 1 and visit only permit-opened systems, shown only in their own system. Pathfinder was already a single ship.
+- Why this task: clear owner brief, no dependencies, no visual decision; unblocks T214.
+- Approach: gameplay-programmer agent; I verified diff and tests.
+- Agent prompts: one ship per owner, none in closed systems, keep saves, test, gdd; handoffs/gameplay-programmer/2026-11-06-T211.json, done.
+- Worked: tests pass (see run.sh output); new _test_t211_ship_traffic.
+- Failed / did not work: one "Parse JSON failed" log line, also present without the change.
+- Files and commits: game/rival_ships.gd, gdd.md, tools/tests/run_tests.gd, handoff, schedule.json, blackboard.md; see git log "T211".
+- Left to do: rival_ship_count key retired (was absent from balance.json). T214 (idle after trip) now unblocked. Not seen windowed.

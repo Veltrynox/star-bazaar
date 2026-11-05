@@ -14,16 +14,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-06 07:00 run: T211
-- Summary: Rival scenery ships are now one per competitor (3 total) instead of 3 per system; they live in system 1 and visit only permit-opened systems, shown only in their own system. Pathfinder was already a single ship.
-- Why this task: clear owner brief, no dependencies, no visual decision; unblocks T214.
-- Approach: gameplay-programmer agent; I verified diff and tests.
-- Agent prompts: one ship per owner, none in closed systems, keep saves, test, gdd; handoffs/gameplay-programmer/2026-11-06-T211.json, done.
-- Worked: tests pass (see run.sh output); new _test_t211_ship_traffic.
-- Failed / did not work: one "Parse JSON failed" log line, also present without the change.
-- Files and commits: game/rival_ships.gd, gdd.md, tools/tests/run_tests.gd, handoff, schedule.json, blackboard.md; see git log "T211".
-- Left to do: rival_ship_count key retired (was absent from balance.json). T214 (idle after trip) now unblocked. Not seen windowed.
-
 ## 2026-11-06 08:00 run: T214
 - Summary: Rival ships now idle on arrival instead of picking a new random course; they move one leg again only on wake(): a system newly opened by permit, or an event popup appearing.
 - Why this task: clear owner brief, dependency T211 done, no visual decision; other open tasks are visual, owner-only or need decisions.
