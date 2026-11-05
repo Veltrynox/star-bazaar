@@ -61,6 +61,8 @@ var planets: Array = []
 var view_system := 1  # each solar system is its own space: only this system's planets, routes and sun are shown
 var planet_spheres: Array[MeshInstance3D] = []  # one planet_sphere.tscn per planet, at its 3D position
 var planet_labels: Array[Label3D] = []
+var planet_label_2d: Array[Label] = []   # T167: drawn on a canvas layer above the edge blur, placed from planet_labels each frame
+var _label_layer: CanvasLayer
 var focus_sun_pos := Vector3.ZERO  # world position of the sun sphere (the screen-space light source for the FX)
 var positions: Array[Vector3] = []
 var camera: Camera3D
@@ -141,6 +143,8 @@ func _ready() -> void:
 	add_child(glare)
 	# Film grain over the 3D map view (art/planet_fx/film_grain.gd): same layer as the glare, added after it, under the UI.
 	add_child(load("res://art/planet_fx/film_grain.gd").new())
+	# T167: the planet names go last on the same layer, so they draw above the blur, glare and grain (same layer: tree order).
+	move_child(_label_layer_node(), -1)
 
 ## Orbit rings: thin circles on the ground plane through each planet, centred on the sun, plus one dashed
 ## outer ring. The camera pitch gives the tilt. Colours: theme tokens line_200 / line_100.
@@ -290,6 +294,64 @@ func _make_planet(i: int) -> void:
 	l.position = pos + Vector3(0, -label_drop(i), 0)
 	add_child(l)
 	planet_labels.append(l)
+	var t := Label.new()
+	t.text = l.text
+	t.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	t.add_theme_font_override("font", l.font)
+	t.add_theme_color_override("font_color", l.modulate)
+	t.add_theme_color_override("font_outline_color", l.outline_modulate)
+	# T167: the 3D label only carries the position and visibility; it is drawn fully transparent, the 2D twin shows the name above the blur.
+	l.modulate.a = 0.0
+	l.outline_modulate.a = 0.0
+	_label_layer_node().add_child(t)
+	planet_label_2d.append(t)
+
+func _label_layer_node() -> CanvasLayer:
+	if _label_layer == null:
+		_label_layer = CanvasLayer.new()
+		_label_layer.layer = -1   # same layer as the blur, glare and grain; added last, so on top of them, under the UI
+		add_child(_label_layer)
+	return _label_layer
+
+## T167: place the 2D name labels over their hidden 3D twins (size: 13 px in the 941 px frame, scaled to the viewport).
+func _place_labels() -> void:
+	if camera == null or not camera.is_inside_tree():
+		return
+	var h := get_viewport().get_visible_rect().size.y
+	var fs := maxi(8, roundi(13.0 * h / 941.0))
+	var ol := maxi(2, roundi(3.0 * h / 941.0))
+	for i in planet_label_2d.size():
+		var t := planet_label_2d[i]
+		var src := planet_labels[i]
+		var wp := src.global_position
+		var on := src.visible and not camera.is_position_behind(wp)
+		t.visible = on
+		if not on:
+			continue
+		t.add_theme_font_size_override("font_size", fs)
+		t.add_theme_constant_override("outline_size", ol)
+		var sz := t.get_minimum_size()
+		t.position = (camera.unproject_position(wp) - sz * 0.5).round()
+	_place_route_tags()
+
+## T163: route tags, same approach as the planet names.
+func _place_route_tags() -> void:
+	var h := get_viewport().get_visible_rect().size.y
+	var fs := maxi(8, roundi(11.0 * h / 941.0))
+	var ol := maxi(2, roundi(3.0 * h / 941.0))
+	for id in route_lines:
+		var ln = route_lines[id]
+		var t: Label = ln.tag2d
+		if t == null:
+			continue
+		var wp: Vector3 = ln.tag.global_position
+		var on: bool = ln.visible and not camera.is_position_behind(wp)
+		t.visible = on
+		if not on:
+			continue
+		t.add_theme_font_size_override("font_size", fs)
+		t.add_theme_constant_override("outline_size", ol)
+		t.position = (camera.unproject_position(wp) - t.get_minimum_size() * 0.5).round()
 
 ## Middle of one system's planets from the data x,y (before ORBIT_SCALE), on the ground plane.
 func _raw_center(sys: int) -> Vector3:
@@ -541,6 +603,13 @@ func _node_system(n: int) -> int:
 		return int(c["system"]) if not c.is_empty() else -1
 	return int(planets[n].get("system", 1)) if n >= 0 and n < planets.size() else -1
 
+## Suns as route obstacles: [[world position, radius], ...] (route_offset.gd). One per open system.
+func sun_list() -> Array:
+	var out := []
+	for sid in sun_positions:
+		out.append([sun_positions[sid], sun_radius])
+	return out
+
 ## T07b: show one glowing line per route. routes: Array of {id, a, b, ships, status}.
 ## Lines are created once per route and only restyled afterwards; removed when the route is gone.
 func set_routes(routes: Array) -> void:
@@ -579,21 +648,39 @@ func set_routes(routes: Array) -> void:
 			if int(o["a"]) == b and int(o["b"]) == a:
 				half = true
 		var line = route_lines.get(id)
-		if line != null and (line.pair_a != a or line.pair_b != b or line.half != half):
+		var lane := _lane_of(routes, id, a, b)
+		if line != null and (line.pair_a != a or line.pair_b != b or line.half != half or not is_equal_approx(line.lane_slot, lane)):
 			line.queue_free()
 			route_lines.erase(id)
 			line = null
 		if line == null:
 			line = load("res://game/route_line.gd").new()
 			add_child(line)
-			line.setup(id, a, b, start_pos, end_pos, start_r if b < 0 else maxf(start_r, planet_radius(b)), half)
+			line.setup(id, a, b, start_pos, end_pos, start_r if b < 0 else maxf(start_r, planet_radius(b)), half, sun_list(), lane)
 			route_lines[id] = line
+			_label_layer_node().add_child(line.tag2d)
 		line.set_style(str(r.get("status", "running")), int(r.get("ships", 1)), str(r.get("c", "")), int(r.get("net", 0)), str(r.get("reason", "")), bool(r.get("net_ok", false)), int(r.get("cost", 0)))
 	for id in route_lines.keys():
 		if not seen.has(id):
 			route_lines[id].queue_free()
 			route_lines.erase(id)
 	_apply_view()
+
+## T163: lane slot of a route among all routes on the same pair (either direction), in steps, centred on 0 and signed
+## to the route's own left of travel. A lone route gets 0 (drawn as before).
+func _lane_of(routes: Array, id: int, a: int, b: int) -> float:
+	var ids: Array = []
+	for o in routes:
+		var oa := int(o["a"])
+		var ob := int(o["b"])
+		if (oa == a and ob == b) or (oa == b and ob == a):
+			ids.append(int(o["id"]))
+	if ids.size() < 2:
+		return 0.0
+	ids.sort()
+	var k := ids.find(id)
+	var slot := float(k) - float(ids.size() - 1) * 0.5
+	return slot if a <= b else -slot
 
 ## Route id whose line is within a few pixels of screen_pos, or -1.
 func pick_route(screen_pos: Vector2) -> int:
@@ -670,6 +757,7 @@ func apply_tunables() -> void:
 	_update_camera()
 
 func _process(delta: float) -> void:
+	_place_labels()
 	if not keys_enabled:
 		_update_camera()
 		return

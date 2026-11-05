@@ -35,6 +35,7 @@ var debris_planets: Array = []  # T98: planets with debris; routes from them car
 var dead_locked: Array = []  # planet indexes of dead worlds that are not open yet (before balance dead_unlock_cycle); runtime, set by main
 var pirates_active := false  # runtime: true while a pirate volume cut is on (no pirate system yet; the Null Core is immune to it)
 var trade_gate: Callable = Callable()  # owner 2026-11-03: planet -> bool, false when its system has no Space Storage post (set by main)
+var suns_fn: Callable = Callable()  # route offset: () -> Array of [Vector3 position, float radius] per sun, set by main from the map
 var positions_fn: Callable = Callable()  # route offset: () -> Array of world positions (Vector3) per planet index, set by main from the map
 var clusters: RefCounted = null  # T156: asteroid clusters (clusters.gd), set by main; null = no mining
 var cluster_budget: Dictionary = {}  # T156: runtime, set at the start of each settle: cluster index -> units it may still give this cycle
@@ -264,7 +265,7 @@ func offset_of(rec = null) -> float:
 		if r is Dictionary and int(r.get("id", -1)) != int(rec.get("id", -2)) and not from_cluster(r):
 			others.append([int(r["a"]), int(r["b"])])
 	var skip: Array = [int(rec.get("stop", -1))]
-	var o: float = RouteOffset.offset(int(rec["a"]), int(rec["b"]), pos, others, float(balance.get("route_offset_clearance", 0.0)), skip)
+	var o: float = RouteOffset.offset(int(rec["a"]), int(rec["b"]), pos, others, float(balance.get("route_offset_clearance", 0.0)), skip, (suns_fn.call() if suns_fn.is_valid() else []))
 	if o < float(balance.get("route_offset_min_pct", 0.0)) or o <= 0.0:
 		return 0.0
 	return minf(o, float(balance.get("route_offset_max", 1.0)))

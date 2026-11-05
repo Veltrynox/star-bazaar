@@ -3493,6 +3493,41 @@ func _test_route_offset() -> void:
 	check(RO.offset(0, 1, cross, [[0, 3]], 1.8) == 0.0, "offset: a route sharing a planet is no crossing")
 	check(RO.offset(0, 1, cross, [[2, 3], [3, 2]], 1.8) == RO.offset(0, 1, cross, [[2, 3]], 1.8), "offset: two directions of one lane cross once")
 	check(RO.offset(0, -1, pos, [], 1.8) == 0.0, "offset: no planet end, no offset")
+	var two: Array = [Vector3(0, 0, 0), Vector3(10, 0, 0)]
+	var sun_on: Array = [[Vector3(5, 0, 0.2), 0.75]]
+	var o_sun: float = RO.offset(0, 1, two, [], 1.8, [], sun_on)
+	check(o_sun > 0.01, "offset: a route across the sun bends round it", "%.3f" % o_sun)
+	check(RO.offset(0, 1, two, [], 1.8, [], [[Vector3(5, 0, 4), 0.75]]) == 0.0, "offset: a sun far from the route changes nothing")
+	var wp = RO.sun_waypoint(two[0], two[1], sun_on)
+	check(wp != null and Vector2(wp.x - 5.0, wp.z - 0.2).length() >= 0.75 * 1.5 and RO.sun_waypoint(two[0], two[1], []) == null, "offset: the waypoint keeps the sun clearance, none without a sun")
+	var sl = load("res://game/route_line.gd").new()
+	sl.setup(0, 0, 1, two[0], two[1], 0.3, false, sun_on)
+	var clear := true
+	for i in 21:
+		var u := float(i) / 20.0
+		clear = clear and Vector2(sl._bez(u).x - 5.0, sl._bez(u).z - 0.2).length() > 0.75
+	check(clear, "route line: the drawn path goes round the sun")
+	var sl2 = load("res://game/route_line.gd").new()
+	sl2.setup(0, 0, 1, two[0], two[1], 0.3, false, [[Vector3(5, 0, 6), 0.75]])
+	var sl3 = load("res://game/route_line.gd").new()
+	sl3.setup(0, 0, 1, two[0], two[1], 0.3, false)
+	check(sl2._c.is_equal_approx(sl3._c), "route line: a route away from the sun is unchanged")
+	sl.free(); sl2.free(); sl3.free()
+	# T163: routes on one pair or corridor get separate curves; a lone route is unchanged
+	var la = load("res://game/route_line.gd").new()
+	la.setup(1, 0, 1, two[0], two[1], 0.3, false, [], -0.5)
+	var lb = load("res://game/route_line.gd").new()
+	lb.setup(2, 0, 1, two[0], two[1], 0.3, false, [], 0.5)
+	var l0 = load("res://game/route_line.gd").new()
+	l0.setup(3, 0, 1, two[0], two[1], 0.3)
+	var l00 = load("res://game/route_line.gd").new()
+	l00.setup(4, 0, 1, two[0], two[1], 0.3, false, [], 0.0)
+	check(la._bez(0.5).distance_to(lb._bez(0.5)) > 0.1 and la._bez(0.5).distance_to(l0._bez(0.5)) > 0.03, "route lanes: two routes on one pair get different curves")
+	check(l0._c.is_equal_approx(l00._c) and l0.tag_pos.is_equal_approx(l00.tag_pos), "route lanes: a lone route is unchanged")
+	var lm = load("res://game/map.gd").new()
+	var rr: Array = [{"id": 5, "a": 0, "b": 1}, {"id": 6, "a": 1, "b": 0}, {"id": 7, "a": 0, "b": 1}, {"id": 8, "a": 2, "b": 3}]
+	check(lm._lane_of(rr, 8, 2, 3) == 0.0 and lm._lane_of(rr, 5, 0, 1) != lm._lane_of(rr, 7, 0, 1) and lm._lane_of(rr, 6, 1, 0) == 0.0, "route lanes: map gives each route on a pair its own slot, none to a lone route")
+	la.free(); lb.free(); l0.free(); l00.free(); lm.free()
 	var e = RouteEngine.new()
 	var bal := {"maintenance": 45, "maintenance_interval": 3, "route_offset_maint_pct": 5.0, "route_offset_min_pct": 0.01, "route_offset_max": 0.2, "route_offset_clearance": 1.8}
 	e.balance = bal

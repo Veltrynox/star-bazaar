@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-05",
+  "task": "T164",
+  "status": "done",
+  "files_changed": ["game/route_offset.gd", "game/route_engine.gd", "game/route_line.gd", "game/map.gd", "game/main.gd", "tools/tests/run_tests.gd"],
+  "open_questions": ["Sun clearance is a const SUN_CLEARANCE_MULT = 1.8 x sun radius in route_offset.gd (no balance key; data/ not mine). Wanted as a balance key?"],
+  "handoff": "Suns are now route obstacles. route_offset.gd: bend(a,b,p,c) returns [q,t] (obstacle pushed out to clearance on the line's side) or null; _detour uses it; sun_waypoint(a,b,suns) returns the one Vector3 waypoint of the sun nearest the line (suns = [[Vector3,radius],...]); offset(..., skip, suns) adds a->q->b extra length for it. Drawing: map.set_routes passes map.sun_list() to route_line.setup(..., suns); the quadratic bezier control point _c is solved so the curve passes through the waypoint (no sun: unchanged bow). Cost: main sets engine.suns_fn = map.sun_list; offset_of passes it. Planets and crossing routes are still cost-only (not drawn); T163 can extend sun_waypoint into a multi-waypoint list used by both. Saved route data unchanged (only a/b stored). Tests added and passing in run.sh.",
+  "details": {}
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-05",
+  "task": "T163",
+  "status": "done",
+  "files_changed": ["game/route_line.gd", "game/map.gd", "tools/tests/run_tests.gd", "qa/bots/route_lanes_shot.gd"],
+  "open_questions": ["Only routes on the same pair (either direction) get lanes. Routes that merely run along a shared corridor between different pairs are not separated: wanted?", "Two neighbouring lanes' tags can sit about 20 px apart; tags are not collision-avoided."],
+  "handoff": "map.set_routes gives each route on one unordered pair a lane slot (_lane_of: centred on 0, signed to the route's own left, 0 for a lone route). route_line.setup(..., lane) shifts p0, control point and p2 sideways by slot x 0.45 x planet radius after the sun waypoint is solved, so sun clearance and tags follow. Line is rebuilt when the slot changes. Route tags: Label3D kept as a transparent position/text carrier; a 2D Label (tag2d) sits on the map label layer above the blur, placed in _place_route_tags. Tests added (different curves, lone unchanged, slots); run.sh 1874 pass 0 fail. Screenshot qa/reports/route_lanes.png (qa/bots/route_lanes_shot.gd) shows three lines on Voltara-Tillam apart. Checked by eye in that shot only; other zoom levels and views not checked.",
+  "details": {"how_to_see": "qa/run_game.sh res://qa/bots/route_lanes_shot.gd"}
+}

@@ -7,11 +7,13 @@ extends MeshInstance3D
 const StoryText := preload("res://game/story_text.gd")
 
 const GAP := 0.6              # line starts this far (x sphere scale) from planet centres: just outside the 0.56 glow shell of the halved planet (was 1.06)
+const LANE_STEP := 0.45       # sideways gap between routes on one pair, x planet radius
 const BOW := 0.2              # arch height as a share of the line length
 const LINE_PX := 1.5          # design: stroke-width 1.5 (px in the 1672x941 frame)
 const LINE_ALPHA := 0.5       # design: opacity .5
 const DASH_PX := 5.0          # design: stroke-dasharray 5 5 (waiting)
 const STEPS := 28             # segments of the curve mesh
+const RouteOffset := preload("res://game/route_offset.gd")
 const SAMPLES := 16           # points used for click picking
 const LUT_N := 16             # arc-length table so dots move at even speed along the curve
 const REF_H := 941.0          # design frame height: sizes in px are scaled from it
@@ -130,6 +132,7 @@ var route_id: int = -1
 var pair_a: int = -1
 var pair_b: int = -1
 var half: bool = false
+var lane_slot: float = 0.0   # lane position in steps (0 = alone or middle)
 var radius: float = 0.8
 var _p0: Vector3
 var _c: Vector3
@@ -146,8 +149,9 @@ var _chev_t := Vector3.RIGHT
 var _chev_s := Vector3.BACK
 var _clock: float = 0.0
 
-func setup(id: int, a: int, b: int, pos_a: Vector3, pos_b: Vector3, planet_radius: float, is_half: bool = false) -> void:
+func setup(id: int, a: int, b: int, pos_a: Vector3, pos_b: Vector3, planet_radius: float, is_half: bool = false, suns: Array = [], lane: float = 0.0) -> void:
 	half = is_half
+	lane_slot = lane
 	route_id = id
 	pair_a = a
 	pair_b = b
@@ -163,6 +167,15 @@ func setup(id: int, a: int, b: int, pos_a: Vector3, pos_b: Vector3, planet_radiu
 	var chord := p0.distance_to(p2)
 	var left := Vector3.UP.cross(dir).normalized()  # left of travel, in the map plane
 	_c = (p0 + p2) * 0.5 + left * chord * BOW
+	var sw = RouteOffset.sun_waypoint(pos_a, pos_b, suns)  # a sun in the way: the curve passes through the waypoint round it
+	if sw != null:
+		var wt: float = clampf(p0.distance_to(sw) / maxf(p0.distance_to(sw) + sw.distance_to(p2), 0.001), 0.15, 0.85)
+		_c = (sw - p0 * ((1.0 - wt) * (1.0 - wt)) - p2 * (wt * wt)) / (2.0 * (1.0 - wt) * wt)
+	if lane != 0.0:  # T163: routes sharing a pair or corridor sit side by side, each shifted to its own lane (left of travel)
+		var sh := left * lane * LANE_STEP * planet_radius
+		p0 += sh
+		p2 += sh
+		_c += sh
 	_p0 = p0
 	_p2 = p2
 	_pts = PackedVector3Array()
@@ -206,7 +219,8 @@ func setup(id: int, a: int, b: int, pos_a: Vector3, pos_b: Vector3, planet_radiu
 	_setup_dots(total)
 	set_style("running", 1)
 
-var tag: Label3D            # the route tag at the middle of the arc
+var tag: Label3D            # the route tag at the middle of the arc (position and text carrier, drawn transparent)
+var tag2d: Label            # T163: the visible 2D twin, placed by map.gd on the layer above the edge blur
 var tag_pos := Vector3.ZERO
 
 func _bez(t: float) -> Vector3:
@@ -411,13 +425,26 @@ func _set_tag(status: String, ships: int, net: int, reason: String = "", net_ok:
 		tag.position = tag_pos
 		tag.render_priority = 2
 		tag.outline_render_priority = 1
+		tag.modulate.a = 0.0
+		tag.outline_modulate.a = 0.0
 		add_child(tag)
+		tag2d = Label.new()
+		tag2d.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		tag2d.add_theme_font_override("font", tag.font)
+		tag2d.add_theme_color_override("font_outline_color", Ui.col("panel_100"))
 	tag.text = tag_text(status, ships, net, reason, net_ok, cost)
 	var ok := status == "running"
 	var tint := Ui.col("ink")  # net result: green gain, red loss, plain at zero; a cost fallback stays plain
 	if ok and net_ok:
 		tint = Ui.col("signal_good") if net > 0 else (Ui.col("signal_bad") if net < 0 else tint)
-	tag.modulate = tint if ok else (Ui.col("signal_bad") if status == "blocked" else Ui.col("signal_warn"))
+	tint = tint if ok else (Ui.col("signal_bad") if status == "blocked" else Ui.col("signal_warn"))
+	tag.modulate = Color(tint, 0.0)
+	tag2d.text = tag.text
+	tag2d.add_theme_color_override("font_color", tint)
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_PREDELETE and tag2d != null and is_instance_valid(tag2d):
+		tag2d.free()
 
 ## T-ship-sync: dots follow the game's cycle clock (main._progress), so pause, fast forward and
 ## cycle end all match. One leg (half of the dot loop) takes travel_cycles_per_leg cycles.
