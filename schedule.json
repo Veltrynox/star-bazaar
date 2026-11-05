@@ -1018,11 +1018,12 @@
       "title": "Fix: planets never hidden by availability, save version and migration tests",
       "owner_agent": "gameplay-programmer",
       "depends_on": [],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 40,
       "window": "Owner request 2026-11-05. Not started: main session sets it running.",
       "brief": "Fix the 15 failures from sh tools/tests/run.sh (2026-11-05). (a) Planet availability: at start only the home planet should be open, but planet_1, planet_2, planet_3 and dead_1 all show open, and for every planet rule (planet_1..3, dead_1, s2_p1..s2_p4, dead_2) 'condition false hides it' fails (game/availability.gd, planet rules in data). Check whether T179/T180 discovery and closed-planet flags changed the meaning of 'open' and update either the code or the test accordingly; hidden must mean not drawn and not tradable. (b) 'save: version 6' and 'migration: a v2 file loads migrated' fail, with 'Parse JSON failed. Error at line 0: Expected key' in the log: T179 bumped the save version, so fix the test expectation or the migration chain, whichever is wrong; old saves may be dropped (state.md standing rule) but the test must say so. Done when sh tools/tests/run.sh shows fail=0. Handoff handoffs/gameplay-programmer/2026-11-05-T183.json.",
-      "owner_note": "From the owner's test run: 1900 pass, 15 fail."
+      "owner_note": "From the owner's test run: 1900 pass, 15 fail.",
+      "note": "Test-only fix (main session, 2026-11-05): discovery_enabled ships at 0, so _new_main(discovery=true) now sets it to 1 explicitly; save version expectations updated to 7. Game code unchanged. run.sh: pass=1915 fail=0."
     },
     {
       "task_id": "T184",
