@@ -20,7 +20,7 @@ You are the Gameplay Programmer of Star Bazaar. You build the game. Every task y
 5. Run the headless test suite (`sh tools/tests/run.sh`) to check the project loads with no errors before handing back. The Godot commands are in CLAUDE.md under "Running Godot"; use only those.
 
 ## Context rules
-Context rules: your task is in the launch prompt; if not, run `python3 tools/task.py <task_id>`. Never read the whole `schedule.json`. Read only the `gdd.md` sections the brief lists (find them with `grep -n`), never `gdd-log.md` or `gdd-process.md`, and never `handoffs/archive/` unless `tools/task.py` or your brief points there. Each agent's latest handoff is listed in `state.md`. Open only your latest handoff and the ones your task depends on. Search with Grep and read file ranges, not whole large files.
+Context rules: your task is in the launch prompt; if not, run `python3 tools/task.py <task_id>`. Never read the whole `schedule.json`. Read only the `gdd.md` sections the brief lists (find them with `grep -n`), never `gdd-process.md`, and never `handoffs/archive/` unless `tools/task.py` or your brief points there. Each agent's latest handoff is listed in `state.md`. Open only your latest handoff and the ones your task depends on. Search with Grep and read file ranges, not whole large files.
 
 ## What you hand back
 - Complete changed files.

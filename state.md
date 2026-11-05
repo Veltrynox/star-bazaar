@@ -25,9 +25,9 @@
 - Human win rate for a focused market: UNKNOWN (paper model and bots only).
 
 ## Goals and reports
-- skill-tree-progression: done 2026-10-31 (goals/skill-tree-progression/report.md); superseded by the market trees.
-- feature-exploration-2026-11-02: partial (goals/feature-exploration-2026-11-02/report.md).
-- trade-goods-asteroid-mining: built, QA pacing failed (goals/trade-goods-asteroid-mining/report.md).
+- skill-tree-progression: done 2026-10-31 (schedule.json goal_log: skill-tree-progression); superseded by the market trees.
+- feature-exploration-2026-11-02: partial (schedule.json goal_log: feature-exploration-2026-11-02).
+- trade-goods-asteroid-mining: built, QA pacing failed (schedule.json goal_log: trade-goods-asteroid-mining).
 - Four Markets goals 2 to 6: see git log on next and qa/reports/2026-11-03-market-foundation-bug_report.json.
 
 ## Latest handoff per agent

@@ -66,7 +66,7 @@
   <div class="notes">
     <div><b>Loop:</b> the owner decides, the main session briefs an agent, the agent changes files and writes a handoff, the main session reads the handoff and commits.</div>
     <div><b>Hard rule:</b> economy-designer and qa-analyst (and bots, <code>tools/sim.py</code>, retunes, sign-offs) run only when the owner asks. <code>sh tools/tests/run.sh</code> is always allowed and is not QA.</div>
-    <div><b>Commit gate:</b> a hook blocks <code>git commit</code> until <code>gdd.md</code> matches <code>gdd-log.md</code>. Fix: review the GDD, add a log entry, run <code>python3 tools/gdd_sync.py --stamp</code>.</div>
+    <div><b>Commit gate:</b> a hook blocks <code>git commit</code> when <code>game/</code>, <code>data/</code> or <code>story/</code> change without <code>gdd.md</code>. Fix: start doc-manager to update the GDD from the diff, stage it, commit again. No design effect: put <code>[no-gdd]</code> in the commit command.</div>
   </div>
 </main>
 <script>
@@ -86,7 +86,7 @@ const kinds = {
 const N = {
   claude:  ['rule', 20, 250, 210, 62, 'CLAUDE.md', 'hard rules for every session'],
   briefs:  ['rule', 20, 380, 210, 62, '.claude/agents/*.md', 'one brief per role'],
-  git:     ['rule', 20, 520, 210, 96, 'git commit', 'hook: gdd.md must match gdd-log.md (tools/gdd_sync.py)'],
+  git:     ['rule', 20, 520, 210, 96, 'git commit', 'hook: game/, data/ or story/ changes need gdd.md in the commit (tools/gdd_sync.py)'],
 
   tests:   ['rule', 20, 140, 210, 76, 'tools/tests/run.sh', 'always allowed: build_story, then headless Godot tests. Not QA'],
   sim:     ['file', 20, 30, 210, 90, 'tools/sim.py  ★', 'paper cash-curve sim, owner by hand only. Reads data/*.json, never runs run.sh'],
@@ -101,7 +101,7 @@ const N = {
   a4: ['agent', 530, 280, 210, 58, 'feature-designer', 'proposes, owner decides'],
   a5: ['agent', 530, 356, 210, 58, 'qa-analyst  ★', 'bot runs, bug reports'],
   a6: ['agent', 530, 432, 210, 58, 'fx / galaxy / juice', 'shaders, background, tweens'],
-  a7: ['agent', 530, 508, 210, 58, 'general-purpose (docs)', 'GDD and change log'],
+  a7: ['agent', 530, 508, 210, 58, 'general-purpose (docs)', 'updates the GDD from the diff'],
 
   f1:  ['file', 800, 30,  270, 50, 'game/*.gd, *.tscn', 'the game code'],
   f2:  ['file', 800, 92,  270, 50, 'data/*.json', 'balance, goods, skills, planets (data wins)'],
@@ -109,8 +109,8 @@ const N = {
   f4:  ['gen',  800, 216, 270, 50, 'story_text*.json, events.json', 'built by tools/build_story.py'],
   f5:  ['file', 800, 278, 270, 50, 'design/proposals/*.md', 'dated proposals, waiting for owner'],
   f6:  ['file', 800, 340, 270, 50, 'qa/reports/*', 'bug_report.json, runs.jsonl, screenshots'],
-  f7:  ['file', 800, 402, 270, 50, 'gdd.md, gdd-skills.md, gdd-log.md', 'design truth and change history'],
-  f8:  ['file', 800, 464, 270, 50, 'schedule.json, state.md, goals/', 'task queue, status, goal logs'],
+  f7:  ['file', 800, 402, 270, 50, 'gdd.md, gdd-skills.md', 'design truth, short form, no balance numbers'],
+  f8:  ['file', 800, 464, 270, 50, 'schedule.json, state.md', 'task queue, status, goal log'],
   f9:  ['file', 800, 526, 270, 62, 'handoffs/<agent>/<date>-<task>.json', 'fixed schema, the only memory between sessions'],
 };
 

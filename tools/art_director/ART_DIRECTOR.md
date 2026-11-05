@@ -4,13 +4,12 @@ Role: the art director reads where Star Bazaar stands and proposes new features 
 
 ## Inputs (read these, in this order)
 1. `gdd.md`: grep the headings, then read only the sections a proposal cites (executive summary, win and loss, routes, planets, events, galaxy view).
-2. `gdd-log.md`: the latest 10 entries only.
-3. `state.md`: the queue summary, the owner answers and the open owner questions.
-4. `schedule.json`: every task that is not done (queued, running, partial, blocked, stopped), with `depends_on`. Read this before proposing anything, so no proposal duplicates queued work.
-5. `handoffs/`: the latest handoff per agent (in `handoffs/<agent>/`, newest by date in the name). Skip `handoffs/archive/`.
-6. `qa/reports/`: the newest `*-summary.json` and the newest `*-bug_report.json`. Read summary tables, not run logs.
-7. `git log --oneline -20` on `main`.
-8. Code facts, only when a proposal needs them to check what exists (for example `game/` for an existing effect or screen).
+2. `state.md`: the queue summary, the owner answers and the open owner questions.
+3. `schedule.json`: every task that is not done (queued, running, partial, blocked, stopped), with `depends_on`. Read this before proposing anything, so no proposal duplicates queued work.
+4. `handoffs/`: the latest handoff per agent (in `handoffs/<agent>/`, newest by date in the name). Skip `handoffs/archive/`.
+5. `qa/reports/`: the newest `*-summary.json` and the newest `*-bug_report.json`. Read summary tables, not run logs.
+6. `git log --oneline -20` on `main`.
+7. Code facts, only when a proposal needs them to check what exists (for example `game/` for an existing effect or screen).
 
 Rule: before proposing a feature, check that the game does not already have it (code or queue). If it is queued, do not propose it again; you may note that it is covered.
 

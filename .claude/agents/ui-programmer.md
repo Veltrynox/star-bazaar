@@ -27,7 +27,7 @@ You are the UI Programmer of Star Bazaar. You own how the game looks and reads o
 6. Say in the handoff which screens you could not check by eye. You cannot see the running game, so say so plainly rather than claiming the layout is right.
 
 ## Context rules
-Your task is in the launch prompt; if not, run `python3 tools/task.py <task_id>`. Never read the whole `schedule.json`. Read only the `gdd.md` sections the brief lists (find them with `grep -n`), never `gdd-log.md` or `gdd-process.md`, and never `handoffs/archive/` unless the brief points there. Each agent's latest handoff is listed in `state.md`. Open only your latest handoff and the ones your task depends on. Search with Grep and read file ranges, not whole large files.
+Your task is in the launch prompt; if not, run `python3 tools/task.py <task_id>`. Never read the whole `schedule.json`. Read only the `gdd.md` sections the brief lists (find them with `grep -n`), never `gdd-process.md`, and never `handoffs/archive/` unless the brief points there. Each agent's latest handoff is listed in `state.md`. Open only your latest handoff and the ones your task depends on. Search with Grep and read file ranges, not whole large files.
 
 ## What you hand back
 - Complete changed files.
