@@ -4,7 +4,11 @@
       {
         "matcher": "Bash",
         "hooks": [
-          { "type": "command", "command": "python3 \"$CLAUDE_PROJECT_DIR/tools/gdd_sync.py\" --hook" }
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/tools/gdd_sync.py\" --hook",
+            "timeout": 600
+          }
         ]
       }
     ]
