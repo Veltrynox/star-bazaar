@@ -29,6 +29,9 @@ func _initialize() -> void:
 func _run() -> void:
 	_test_good_icons()
 	_test_story_text()
+	_test_generated_files()
+	_test_data_pack_lint()
+	_test_conditions_unit()
 	await _test_localisation()
 	_test_share_helpers()
 	_test_share_graph()
@@ -43,6 +46,8 @@ func _run() -> void:
 	await _test_events()
 	await _test_ships()
 	await _test_next_cycle()
+	await _test_station_energy_outflow()
+	await _test_good_info()
 	await _test_notice_queue()
 	await _test_systems()
 	await _test_galaxy_view()
@@ -66,9 +71,13 @@ func _run() -> void:
 	await _test_voltara_belt()
 	await _test_dead_planets()
 	await _test_dead_world_mechanics()
+	await _test_dead_world_panel()
+	await _test_dest_hint()
 	await _test_dead_unlock_and_core()
 	await _test_fabric()
 	await _test_workshops()
+	await _test_workshop_status()
+	await _test_workshops_in_cells()
 	await _test_chains()
 	await _test_price_event()
 	await _test_route_move()
@@ -77,14 +86,18 @@ func _run() -> void:
 	await _test_stop_sale()
 	await _test_second_lane()
 	await _test_forecast_income()
+	await _test_lane_net_label()
 	await _test_cash_reserve()
 	await _test_sell_only_idle()
 	await _test_stall_rescue()
 	await _test_mining_reachable()
 	await _test_clusters()
+	await _test_cluster_send()
+	await _test_cluster_to_station()
 	await _test_asteroid_packs()
 	_test_event_banners()
 	await _test_company_setup()
+	await _test_availability()
 	print("TOTAL pass=%d fail=%d" % [passed, failed])
 	quit(1 if failed > 0 else 0)
 
@@ -221,7 +234,7 @@ func _test_localisation() -> void:
 	check(StoryText.get_text("CH_EFFECT_LINE") == "доля" and StoryText.in_ru_scope("CH_FX_ANY"), "lang: CH_ fill-in ids are localised")
 	for id in ["BTN_OK", "MENU_CONTINUE", "NOT_SAVED"]:
 		check(StoryText.get_text(id) != "Ладно" and StoryText.get_text(id) != "Дальше" and StoryText.get_text(id) != "Сохранено", "lang: out-of-scope %s stays English even if the file holds it" % id)
-	check(StoryText.in_ru_scope("EV_X") and StoryText.in_ru_scope("TUT_G3_PICK_WHY") and StoryText.in_ru_scope("TUT_GALAXY_INTRO") and not StoryText.in_ru_scope("TUT_C1_ROW") and not StoryText.in_ru_scope("EVT_NEXT_DUE") and not StoryText.in_ru_scope("EV17_BODY"), "lang: scope rule")
+	check(StoryText.in_ru_scope("EV_X") and StoryText.in_ru_scope("TUT_G3_PICK_WHY") and StoryText.in_ru_scope("TUT_GALAXY_INTRO") and not StoryText.in_ru_scope("TUT_C1_ROW") and not StoryText.in_ru_scope("EVT_NEXT_DUE") and StoryText.in_ru_scope("EV17_BODY") and StoryText.in_ru_scope("EV01_TITLE"), "lang: scope rule")
 	# persistence across a reload of the settings file
 	var cf := ConfigFile.new()
 	cf.load("user://settings.cfg")
@@ -346,7 +359,7 @@ func _test_share_graph() -> void:
 	Markets.reset(bal_c, 0)
 
 func _test_story_text() -> void:
-	var list = _read_json("res://data/story_text.json")
+	var list: Array = StoryText.entries_of(_read_json("res://data/story_text.json"))
 	check(typeof(list) == TYPE_ARRAY and list.size() > 0, "story: data loads")
 	var seen := {}
 	var dup := 0
@@ -388,8 +401,234 @@ func _test_story_text() -> void:
 		if not seen.has(id):
 			missing.append(id)
 	check(missing.is_empty(), "story: every id the game asks for exists (%d ids)" % wanted.size(), str(missing))
-	var events = _read_json("res://data/events.json")
-	check(typeof(events) == TYPE_ARRAY and events.size() > 0, "story: events.json loads")
+	var events: Array = StoryText.entries_of(_read_json("res://data/events.json"))
+	check(events.size() > 0, "story: events.json loads")
+
+# ---- generated files: a checked-in generated file must equal a fresh build ----
+const GENERATED_FILES := ["story_text.json", "story_text_ru.json", "events.json"]
+
+func _test_generated_files() -> void:
+	var out_dir := OS.get_user_data_dir().path_join("gen_check")
+	DirAccess.make_dir_recursive_absolute(out_dir)
+	var output: Array = []
+	var code := OS.execute("python3", [ProjectSettings.globalize_path("res://tools/build_story.py"), "--out", out_dir], output, true)
+	check(code == 0, "generated files: tools/build_story.py --out runs", "exit %d: %s" % [code, str(output)])
+	for name in GENERATED_FILES:
+		var have := FileAccess.get_file_as_string("res://data/" + name)
+		var fresh := FileAccess.get_file_as_string(out_dir.path_join(name))
+		check(have != "" and have == fresh, "generated files: data/%s equals its build. It is generated, never edit it by hand: run `python3 tools/build_story.py`" % name)
+		var parsed = JSON.parse_string(have)
+		var mark = parsed.get("generated") if typeof(parsed) == TYPE_DICTIONARY else null
+		check(typeof(mark) == TYPE_DICTIONARY and str(mark.get("generator", "")) == "tools/build_story.py" and str(mark.get("source", "")) != "", "generated files: data/%s names its source and generator" % name)
+
+# ---- cross-pack lint: every id one data file names exists in the file that owns it ----
+func _lint_walk(o, file: String, path: String, bal: Dictionary, errs: Array) -> void:
+	if typeof(o) == TYPE_DICTIONARY:
+		for k in o.keys():
+			var v = o[k]
+			var ks := str(k)
+			if typeof(v) == TYPE_STRING:
+				if (ks == "key" or ks.ends_with("_key")) and not bal.has(str(v)):
+					errs.append("%s %s/%s: unknown balance key '%s'" % [file, path, ks, v])
+				elif ks.ends_with("_id") and RegEx.create_from_string("^[A-Z][A-Z0-9_]+$").search(str(v)) != null and not StoryText.has_text(str(v)):
+					errs.append("%s %s/%s: unknown text id '%s'" % [file, path, ks, v])
+			_lint_walk(v, file, path + "/" + ks, bal, errs)
+	elif typeof(o) == TYPE_ARRAY:
+		for i in o.size():
+			_lint_walk(o[i], file, path, bal, errs)
+
+func _good_of_price_key(k: String) -> String:
+	return k.trim_suffix("_buy").trim_suffix("_sell")
+
+func _test_data_pack_lint() -> void:
+	var errs: Array = []
+	var bal: Dictionary = _read_json("res://data/balance.json")["values"]
+	var events: Array = StoryText.entries_of(_read_json("res://data/events.json"))
+	var event_ids: Array = Conditions.event_ids()
+	# balance keys and text ids named anywhere
+	for f in ["goods", "chains", "skills", "systems", "ships", "events", "markets", "planets", "asteroid_clusters"]:
+		var d = _read_json("res://data/%s.json" % f)
+		_lint_walk(StoryText.entries_of(d) if f == "events" else d, "data/%s.json" % f, "", bal, errs)
+	# goods
+	var goods_json: Dictionary = _read_json("res://data/goods.json")
+	var market_ids: Array = []
+	var markets_json: Dictionary = _read_json("res://data/markets.json")
+	for m in markets_json["markets"]:
+		market_ids.append(str(m["id"]))
+		for g in m["goods"]:
+			if not Goods.has(str(g)):
+				errs.append("data/markets.json market %s: unknown good '%s'" % [m["id"], g])
+	for g in markets_json["common_raws"]:
+		if not Goods.has(str(g)):
+			errs.append("data/markets.json common_raws: unknown good '%s'" % g)
+	for g in markets_json["base_value"].keys():
+		if not Goods.has(str(g)):
+			errs.append("data/markets.json base_value: unknown good '%s'" % g)
+	var planet_names: Array = []
+	var planet_ids: Array = []
+	var price_blocks: Array = []  # [where, base_prices]
+	for p in _read_json("res://data/planets.json")["planets"]:
+		planet_names.append(str(p["name"]).to_lower())
+		planet_ids.append(str(p["id"]))
+		price_blocks.append(["data/planets.json " + str(p["id"]), p.get("base_prices", {})])
+	var sysd: Dictionary = _read_json("res://data/systems.json")
+	for sy in sysd["systems"]:
+		if str(sy.get("requires_skill", "")) != "" and not SkillTree.has(str(sy["requires_skill"])):
+			errs.append("data/systems.json system %s: unknown skill node '%s'" % [sy["id"], sy["requires_skill"]])
+		for p in sy["planets"]:
+			planet_ids.append(str(p["id"]))
+			if StoryText.has_text(str(p.get("name_id", ""))):
+				planet_names.append(StoryText.get_text(str(p["name_id"])).to_lower())
+			price_blocks.append(["data/systems.json " + str(p["id"]), p.get("base_prices", {})])
+	for pb in price_blocks:
+		for k in pb[1].keys():
+			if not Goods.has(_good_of_price_key(str(k))):
+				errs.append("%s: base_prices names unknown good '%s'" % [pb[0], k])
+	var workshop_ids: Array = []
+	for w in goods_json["workshops"]:
+		workshop_ids.append(str(w["id"]))
+		if not market_ids.has(str(w["market"])):
+			errs.append("data/goods.json workshop %s: unknown market '%s'" % [w["id"], w["market"]])
+		Conditions.lint(w.get("unlocked_by"), "data/goods.json workshop %s unlocked_by" % w["id"], errs, false, bal, event_ids)
+	for g in goods_json["goods"]:
+		var gid := str(g["id"])
+		if not market_ids.has(str(g["market"])):
+			errs.append("data/goods.json good %s: unknown market '%s'" % [gid, g["market"]])
+		if typeof(g.get("recipe")) == TYPE_DICTIONARY:
+			for r in g["recipe"].keys():
+				if not Goods.has(str(r)):
+					errs.append("data/goods.json good %s recipe: unknown good '%s'" % [gid, r])
+		if g.get("workshop") != null and not workshop_ids.has(str(g["workshop"])):
+			errs.append("data/goods.json good %s: unknown workshop '%s'" % [gid, g["workshop"]])
+		for pl in g.get("planet_prices", {}).keys():
+			if not planet_ids.has(str(pl)):
+				errs.append("data/goods.json good %s planet_prices: unknown planet '%s'" % [gid, pl])
+			for k in g["planet_prices"][pl].keys():
+				if not Goods.has(_good_of_price_key(str(k))):
+					errs.append("data/goods.json good %s planet_prices: unknown good '%s'" % [gid, k])
+	var clusters: Dictionary = _read_json("res://data/asteroid_clusters.json")
+	for c in clusters["clusters"] + [clusters]:
+		if c.has("good") and not Goods.has(str(c["good"])):
+			errs.append("data/asteroid_clusters.json: unknown good '%s'" % c["good"])
+	# skills: prereqs, unlock targets, text ids
+	var skills_json: Dictionary = _read_json("res://data/skills.json")
+	for n in skills_json["nodes"]:
+		var nid := str(n["id"])
+		for pr in n.get("prereqs", []):
+			if not SkillTree.has(str(pr)):
+				errs.append("data/skills.json node %s: unknown prereq '%s'" % [nid, pr])
+		for eff in [n.get("effect", {})] + n.get("extra", []):
+			if str(eff.get("type", "")) == "unlock":
+				var tid := str(eff.get("id", ""))
+				if str(eff.get("target", "")) == "good" and not Goods.has(tid):
+					errs.append("data/skills.json node %s: unlocks unknown good '%s'" % [nid, tid])
+				if str(eff.get("target", "")) == "workshop" and not workshop_ids.has(tid):
+					errs.append("data/skills.json node %s: unlocks unknown workshop '%s'" % [nid, tid])
+		if n.get("kind", "") != "" and nid.find("_") > 0:
+			for suffix in ["NAME", "FLAVOUR", "PLAIN"]:
+				if not StoryText.has_text("SK_%s_%s" % [nid, suffix]):
+					errs.append("data/skills.json node %s: unknown text id 'SK_%s_%s'" % [nid, nid, suffix])
+	# availability (rules, goods, workshops, skill nodes, balance keys, event ids)
+	for e in Availability.lint():
+		errs.append("data/availability.json: " + str(e))
+	# events: text ids, tag planet and good
+	var tag_rx := RegEx.create_from_string("\\[\\s*(price up|price down|planet closed|stock)\\s*:\\s*([^\\]]*)\\]")
+	var seen_ev := {}
+	for e in events:
+		var eid := str(e["id"])
+		if seen_ev.has(eid):
+			errs.append("data/events.json: duplicate event '%s'" % eid)
+		seen_ev[eid] = true
+		for k in ["title_id", "text_id"]:
+			if not e.has(k):
+				errs.append("data/events.json event %s: no %s (event text must be a text id)" % [eid, k])
+		for k in ["title", "text"]:
+			if e.has(k):
+				errs.append("data/events.json event %s: inline '%s' (text belongs in story_text.json)" % [eid, k])
+		var tags: Array = [str(e.get("tag", ""))]
+		for ch in e.get("choices", []):
+			tags.append(str(ch.get("tag", "")))
+			if ch.has("text"):
+				errs.append("data/events.json event %s: inline choice text (use text_id)" % eid)
+			if ch.has("follow_id") and not event_ids.has(str(ch["follow_id"])):
+				errs.append("data/events.json event %s: unknown follow_id '%s'" % [eid, ch["follow_id"]])
+		for tag in tags:
+			var m := tag_rx.search(tag)
+			if m == null:
+				continue
+			var args := m.get_string(2).split(",")
+			if args.size() >= 1 and not planet_names.has(args[0].strip_edges().to_lower()):
+				errs.append("data/events.json event %s: tag names unknown planet '%s'" % [eid, args[0].strip_edges()])
+			if m.get_string(1) != "planet closed" and args.size() >= 2 and not Goods.has(args[1].strip_edges().to_lower()):
+				errs.append("data/events.json event %s: tag names unknown good '%s'" % [eid, args[1].strip_edges()])
+		if e.has("visible_when"):
+			Conditions.lint(e["visible_when"], "data/events.json event %s visible_when" % eid, errs, false, bal, event_ids)
+	# chains: steps, pool, triggers
+	var chains_json: Dictionary = _read_json("res://data/chains.json")
+	for st in chains_json["steps"]:
+		var sid := str(st["id"])
+		Conditions.lint(st.get("trigger"), "data/chains.json step %s trigger" % sid, errs, true, bal, event_ids)
+		if st.has("visible_when"):
+			Conditions.lint(st["visible_when"], "data/chains.json step %s visible_when" % sid, errs, true, bal, event_ids)
+		if bool(st.get("requires_prev_step", false)) and not Chains.has_step(Chains.prev_id(sid)):
+			errs.append("data/chains.json step %s: requires_prev_step but '%s' is not a step" % [sid, Chains.prev_id(sid)])
+		if not market_ids.has(str(st["market"])):
+			errs.append("data/chains.json step %s: unknown market '%s'" % [sid, st["market"]])
+		for need in ["TITLE", "OPA_BTN", "OPB_BTN", "OPA_RES", "OPB_RES"]:
+			if not StoryText.has_text("EV_%s_%s" % [sid, need]):
+				errs.append("data/chains.json step %s: unknown text id 'EV_%s_%s'" % [sid, sid, need])
+		if not StoryText.has_text("EV_%s_BODY" % sid) and not (StoryText.has_text("EV_%s_BODY_A" % sid) and StoryText.has_text("EV_%s_BODY_B" % sid)):
+			errs.append("data/chains.json step %s: unknown text id 'EV_%s_BODY' (or _A and _B)" % [sid, sid])
+		for opt in ["opt_a", "opt_b"]:
+			if st[opt].has("visible_when"):
+				Conditions.lint(st[opt]["visible_when"], "data/chains.json step %s %s visible_when" % [sid, opt], errs, true, bal, event_ids)
+	for ne in chains_json["pool_new"]:
+		var nid := str(ne["id"])
+		for suffix in ["TITLE", "BODY"]:
+			if not StoryText.has_text("%s_%s" % [nid, suffix]):
+				errs.append("data/chains.json pool_new %s: unknown text id '%s_%s'" % [nid, nid, suffix])
+		if ne.has("title"):
+			errs.append("data/chains.json pool_new %s: inline title (use the text id %s_TITLE)" % [nid, nid])
+		var eff: Dictionary = ne.get("effect", {})
+		if eff.has("good") and not Goods.has(str(eff["good"])):
+			errs.append("data/chains.json pool_new %s: unknown good '%s'" % [nid, eff["good"]])
+		if eff.has("planet") and not planet_ids.has(str(eff["planet"])):
+			errs.append("data/chains.json pool_new %s: unknown planet '%s'" % [nid, eff["planet"]])
+		if not market_ids.has(str(ne.get("market", "mil"))):
+			errs.append("data/chains.json pool_new %s: unknown market '%s'" % [nid, ne["market"]])
+	for kid in chains_json["pool_kept"].keys():
+		if not seen_ev.has(str(kid)):
+			errs.append("data/chains.json pool_kept: unknown event '%s'" % kid)
+		var kept_market = chains_json["pool_kept"][kid].get("market")
+		if kept_market != null and not market_ids.has(str(kept_market)):
+			errs.append("data/chains.json pool_kept %s: unknown market" % kid)
+	for e in errs:
+		check(false, "data pack lint: " + str(e))
+	check(errs.is_empty(), "data pack lint: every id named in the data files exists (%d findings)" % errs.size())
+
+# ---- conditions: the one evaluator ----
+func _test_conditions_unit() -> void:
+	var saved_game = Conditions.game
+	Conditions.game = null
+	check(Conditions.eval("start") and not Conditions.eval({"not": "start"}) and Conditions.eval({"not": {"any": []}}), "conditions: start and not")
+	check(Conditions.eval({"all": ["start", {"not": {"all": ["start", {"not": "start"}]}}]}) and not Conditions.eval({"any": []}), "conditions: all, any, nested trees")
+	Skills.learned.clear()
+	check(not Conditions.eval("skill_learned:FND_STORAGE"), "conditions: skill not learned")
+	Skills.add_learned("FND_STORAGE")
+	check(Conditions.eval("skill_learned:FND_STORAGE") and Conditions.eval({"all": ["skill_learned:FND_STORAGE", {"not": "event_fired:EV01"}]}), "conditions: skill_learned true once learned")
+	Skills.learned.clear()
+	# event_fired reads Chains.picks without a game
+	Chains.reset(_read_json("res://data/balance.json")["values"], 1)
+	check(not Conditions.eval("event_fired:MIL_A1"), "conditions: event_fired false before the step")
+	Chains.picks["MIL_A1"] = {"opt": "opt_a", "cycle": 6, "nudge": 0}
+	check(Conditions.eval("event_fired:MIL_A1"), "conditions: event_fired true after a chain step fired")
+	Chains.reset(_read_json("res://data/balance.json")["values"], 1)
+	# visible_when on an entry
+	check(Conditions.visible({}) and Conditions.visible({"visible_when": "start"}) and not Conditions.visible({"visible_when": {"not": "start"}}), "conditions: visible_when on an entry")
+	var lint_errs: Array = []
+	Conditions.lint({"all": ["event_fired:NOPE", "skill_learned:NOPE", "share_pct:balance.nope", "good_traded:nope", "tech_done:MIL_1"]}, "t", lint_errs, false, {}, Conditions.event_ids())
+	check(lint_errs.size() == 6, "conditions: lint names every bad atom (step atom without a step, unknown event, node, balance key, good, old atom)", str(lint_errs))
+	Conditions.game = saved_game
 
 # ---- 2. skill branch helpers (the old ending picker was removed with the cash goal) ----
 func _test_picker() -> void:
@@ -1259,6 +1498,28 @@ func _test_skill_screen_ui() -> void:
 	m._dismiss_preface()
 	m.skill_screen.open_screen()
 	check(m.skill_screen.node_buttons.size() == 31, "skill screen: one button per node", str(m.skill_screen.node_buttons.size()))
+	var sk = m.skill_screen
+	await process_frame
+	await process_frame
+	check(sk.cells.size() == 31 and sk.node_buttons.size() == 31 and SkillTree.BRANCHES.size() == 5, "skill placeholders: real nodes unchanged (31)")
+	check(SS.SHOW_PLACEHOLDERS == (sk.placeholders.size() > 0), "skill placeholders: the switch decides whether any exist")
+	check(SS.placeholder_row_count(7, 2, false) == 0 and SS.placeholder_row_count(7, 2, true) == ceili(7.0 * (SS.PLACEHOLDER_GROWTH - 1.0) / 2.0), "skill placeholders: switch off gives no rows")
+	var ph_ok := true
+	for ph in sk.placeholders:
+		var pc: Control = ph
+		if pc.mouse_filter != Control.MOUSE_FILTER_IGNORE or pc.focus_mode != Control.FOCUS_NONE or pc.tooltip_text != "" or pc is Button or pc.get_child_count() > 0:
+			ph_ok = false
+	check(ph_ok, "skill placeholders: inert (ignore mouse, no focus, no text, no tooltip, no children)")
+	var inside := true
+	var tr: Rect2 = sk._tree.get_global_rect()
+	for id in sk.cells:
+		if not tr.encloses((sk.cells[id] as Control).get_global_rect().grow(-1.0)):
+			inside = false
+	for ph in sk.placeholders:
+		if not tr.encloses((ph as Control).get_global_rect().grow(-1.0)):
+			inside = false
+	check(inside, "skill placeholders: every node and slot sits inside the scrolled tree area (scroll reaches all)")
+	check(sk.tree_scroll.horizontal_scroll_mode == ScrollContainer.SCROLL_MODE_AUTO and sk.tree_scroll.vertical_scroll_mode == ScrollContainer.SCROLL_MODE_AUTO, "skill placeholders: tree scrolls both ways when larger than the window")
 	m.skill_points = 9
 	Skills.learned.append_array(FND3)
 	m.skill_screen.select("MIL_1")
@@ -2329,11 +2590,16 @@ func _test_events() -> void:
 			silk_early = true
 	check(silk_ids.size() >= 2 and not silk_early and not m.events.available(silk_ids[0], 13), "events good gate: no silk event while only system 1 is open", str(silk_ids))
 	m.events.planets[1]["base_prices"]["silk_buy"] = 20
+	var had_sys2: bool = m.open_systems.has(2)
+	if not had_sys2:
+		m.open_systems.append(2)  # availability: silk shows (and its events may fire) only once system 2 is open
 	var silk_seen := false
 	for i in 600:
 		if silk_ids.has(m.events.random_id([], 13)):
 			silk_seen = true
 	m.events.planets[1]["base_prices"].erase("silk_buy")
+	if not had_sys2:
+		m.open_systems.erase(2)
 	check(silk_seen and m.events.available(silk_ids[0], 13) == false, "events good gate: silk event can be picked once an open planet trades silk")
 	m.events.by_id["EV20"].erase("min_cycle")
 	m.debug_force_event = true
@@ -2350,6 +2616,63 @@ func _test_events() -> void:
 	await _free_main(m)
 
 ## T58: ship types, purchase, auto-assignment, upkeep and cargo per type, save and restore.
+func _test_good_info() -> void:
+	_wipe_user()
+	var m: Control = await _new_main()
+	m._dismiss_preface()
+	m._on_planet_clicked(0)
+	await process_frame
+	for c in ["energy", "food"]:
+		var ls: Array = GoodInfo.lines(c)
+		check(ls.size() >= 1, "good info: %s has info at the start" % c, str(ls))
+		var txt := " ".join(ls)
+		check(Availability.names_hidden_good(txt) == "", "good info: %s names no hidden good at the start" % c, txt)
+		for ws in ["fabric", "smelter", "munitions", "atelier", "culture_lab"]:
+			check(not txt.contains(StoryText.get_or("WS_" + ws.to_upper() + "_NAME", ws)) or ws == "fabric", "good info: %s names no hidden workshop %s" % [c, ws], txt)
+		check(not txt.contains("Used in"), "good info: %s has no used-in line while its users are hidden" % c, txt)
+	check(GoodInfo.lines("cells").is_empty(), "good info: a hidden good has no info")
+	for c in ["energy", "food"]:
+		var tb := m.planet_panel.find_child("BuyButton_" + c, true, false) as Button
+		check(tb != null, "good info: %s has a button" % c)
+		if tb == null:
+			continue
+		var tt := tb.tooltip_text
+		check(tt.contains(StoryText.get_text("GOOD_" + c.to_upper() + "_DESC")), "good info: %s tooltip has the description" % c, tt)
+		check(tt.contains(StoryText.get_or("LBL_GOOD_MARKET", "{market} market.", {"market": StoryText.get_or("SK_TAB_" + str(Goods.entry(c).get("market", "")).to_upper(), "")})), "good info: %s tooltip has the market line" % c, tt)
+		check(tt.contains(StoryText.get_or("LBL_RMB_MORE", "Right-click for Send to, Sell and more.")), "good info: %s tooltip keeps its existing lines" % c, tt)
+		check(Availability.names_hidden_good(tt) == "", "good info: %s tooltip names no hidden good" % c, tt)
+		for ws in ["smelter", "munitions", "atelier", "culture_lab"]:
+			check(not tt.contains(StoryText.get_or("WS_" + ws.to_upper() + "_NAME", ws)), "good info: %s tooltip names no hidden workshop %s" % [c, ws], tt)
+	check(m.planet_panel.find_child("BuyButton_cells", true, false) == null, "good info: a hidden good has no button")
+	var bt := m.planet_panel.find_child("BuyButton_energy", true, false) as Button
+	var menu: PopupMenu = bt.get_node("ContextMenu_energy") as PopupMenu
+	var ev := InputEventMouseButton.new()
+	ev.button_index = MOUSE_BUTTON_RIGHT
+	ev.pressed = true
+	bt.gui_input.emit(ev)
+	await process_frame
+	check(menu.visible and m.planet_panel.find_child("GoodInfoCard", true, false) == null, "good info: right-click opens the menu and no info card")
+	check(menu.get_item_index(m.planet_panel.MENU_SELL) >= 0 and menu.get_item_index(m.planet_panel.MENU_SEND) >= 0, "good info: menu actions are still there")
+	menu.hide()
+	await process_frame
+	Skills.add_learned("MIL_1")
+	m.open_systems.append(2)  # Munitions Line and cells need system 2 (chips)
+	m.workshops.built["munitions"] = true
+	m._sync_skill_effects()
+	if Availability.good("cells"):
+		check(" ".join(GoodInfo.lines("energy")).contains(Ui.good_name("cells")), "good info: energy lists Cells once visible", str(GoodInfo.lines("energy")))
+		check(" ".join(GoodInfo.lines("cells")).contains(StoryText.get_text("WS_MUNITIONS_NAME")), "good info: cells names its visible workshop", str(GoodInfo.lines("cells")))
+	else:
+		check(false, "good info: cells not visible after MIL_1 (test needs another unlock)")
+	m.planet_panel.show_planet(0)
+	await process_frame
+	var et := m.planet_panel.find_child("BuyButton_energy", true, false) as Button
+	check(et != null and et.tooltip_text.contains(Ui.good_name("cells")), "good info: energy tooltip lists Cells once visible", et.tooltip_text if et != null else "")
+	var ct := m.planet_panel.find_child("BuyButton_cells", true, false) as Button
+	if ct != null:
+		check(ct.tooltip_text.contains(StoryText.get_text("WS_MUNITIONS_NAME")), "good info: cells tooltip names Munitions Line", ct.tooltip_text)
+	await _free_main(m)
+
 func _test_next_cycle() -> void:
 	_wipe_user()
 	var m: Control = await _new_main()
@@ -2456,7 +2779,7 @@ func _test_ships() -> void:
 			sends += 1
 	var traded_n := 0
 	for c2 in m.commodities:
-		if m.trade.price(0, str(c2) + "_buy") >= 0 or m.trade.price(0, str(c2) + "_sell") >= 0:
+		if (m.trade.price(0, str(c2) + "_buy") >= 0 or m.trade.price(0, str(c2) + "_sell") >= 0) and Availability.good(str(c2)):
 			traded_n += 1
 	for bn in _all_buttons(m.planet_panel):
 		if str(bn.name).begins_with("BuyButton_"):
@@ -2526,7 +2849,7 @@ func _test_ships() -> void:
 	for pi in m.trade.planets.size():
 		m.planet_panel.show_planet(pi)
 		for cc in m.commodities:
-			var traded: bool = m.trade.price(pi, str(cc) + "_buy") >= 0 or m.trade.price(pi, str(cc) + "_sell") >= 0
+			var traded: bool = (m.trade.price(pi, str(cc) + "_buy") >= 0 or m.trade.price(pi, str(cc) + "_sell") >= 0) and Availability.good(str(cc))
 			check((_find_named(m.planet_panel, "BuyButton_" + str(cc)) != null) == traded, "hide: planet %d row for %s only when traded" % [pi, cc])
 	m.planet_panel.show_planet(1)
 	m._on_buy_send(c)
@@ -2673,6 +2996,18 @@ func _test_systems() -> void:
 	check(m.view_system == 2 and str(m.skill_arrow_target()["mode"]) == "view" and m.skill_arrow_target()["system"] == 1, "arrow: click moves the view, arrow then points back")
 	m._refresh()
 	check(m.go_to_system(1) and m.view_system == 1 and m.map.view_system == 1, "systems: going back to system 1 works")
+	# income popups belong to the system of their planet
+	var ip: Control = m.income_popup
+	ip.show_gains({0: 50})
+	check(ip.items.size() == 1 and ip.items[0]["label"].visible or ip.items.size() == 1, "popups: a system 1 popup shows in system 1")
+	check(m.go_to_system(2) and ip.items.is_empty(), "popups: switching to system 2 discards the system 1 popups")
+	ip.show_gains({0: 50})
+	check(ip.items.is_empty(), "popups: a system 1 gain is not shown while viewing system 2")
+	ip.show_gains({4: 70})
+	check(ip.items.size() == 1 and int(ip.items[0]["planet"]) == 4, "popups: a system 2 popup shows in system 2")
+	check(m.go_to_system(1) and ip.items.is_empty(), "popups: switching back to system 1 discards the system 2 popups")
+	check(Juice.planet_screen(m.map, 4) == null, "popups: pings skip a planet of another system")
+	m.go_to_system(1)
 	var vis_ok := true
 	for i in m.map.planet_spheres.size():
 		vis_ok = vis_ok and (m.map.planet_spheres[i].visible == (int(m.map.planets[i]["system"]) == 1)) and (m.map.planet_labels[i].visible == (int(m.map.planets[i]["system"]) == 1))
@@ -3617,7 +3952,7 @@ func _test_stations() -> void:
 	check(ssv.visible and not m.planet_panel.visible and m.selected_planet == -1, "station view: opening it hides the planet panel and the selection")
 	var rows_ok: bool = true
 	for c in m.commodities:
-		rows_ok = rows_ok and ssv.box.find_child("Row_" + str(c), true, false) != null
+		rows_ok = rows_ok and (ssv.box.find_child("Row_" + str(c), true, false) != null) == Availability.good(str(c))  # only visible goods have a row
 	check(rows_ok and not m.commodities.is_empty(), "station view: one row per commodity")
 	ssv.close_view()
 	check(not ssv.visible, "station view: closes")
@@ -4164,12 +4499,132 @@ func _test_asteroid_packs() -> void:
 	check(pk_in == int(c0["index"]) and pk_out != int(c0["index"]), "Cluster ellipse: click area reaches 1.4 radii along the tangent but not 2.4", "%d %d" % [pk_in, pk_out])
 	# T159: a click on a cluster shows its info card; a planet click hides it
 	m._on_cluster_clicked(int(c0["index"]))
+	var pre_line: Label = m.cluster_info.find_child("ClusterInfoLine", true, false) if m.cluster_info != null else null
+	check(pre_line != null and Availability.names_hidden_good(pre_line.text) == "", "availability: the cluster card names no ore before FND_PROSPECT", str(pre_line.text if pre_line != null else ""))
+	Skills.add_learned("FND_PROSPECT")
+	m._on_cluster_clicked(int(c0["index"]))
 	var info_ok: bool = m.cluster_info != null and m.cluster_info.visible and not m.planet_panel.visible
 	var info_line: Label = m.cluster_info.find_child("ClusterInfoLine", true, false) if m.cluster_info != null else null
 	check(info_ok and info_line != null and info_line.text.contains(str(m.clusters.yield_per_cycle())), "T159: cluster click shows the info card with the yield per cycle")
 	check(m.map.pick_cluster(Vector2(-5000, -5000)) == -1, "T159: a click far from any pack picks no cluster")
 	m._on_planet_clicked(0)
 	check(not m.cluster_info.visible, "T159: a planet click hides the cluster card")
+	await _free_main(m)
+
+# ---- Cluster card "Send ore to...": the player path to a cluster route ----
+func _test_cluster_send() -> void:
+	_wipe_user()
+	var m: Control = await _new_main()
+	m._dismiss_preface()
+	var c0: Dictionary = m.clusters.list(1)[0]
+	var node: int = int(c0["node"])
+	var dst := -1
+	for i in m.map.planets.size():
+		if m.engine.sold_price(i, "ore") > 0 and (dst < 0 or m.engine.sold_price(i, "ore") > m.engine.sold_price(dst, "ore")):
+			dst = i
+	m.cash = 100000
+	m._on_cluster_clicked(int(c0["index"]))
+	check(m.cluster_info.find_child("ClusterSendButton", true, false) == null, "cluster send: no button without Prospecting")
+	m.learned_skills.append("FND_PROSPECT")
+	m._on_cluster_clicked(int(c0["index"]))
+	var btn: Button = m.cluster_info.find_child("ClusterSendButton", true, false)
+	check(btn != null and btn.text == StoryText.get_text("BTN_CLUSTER_SEND"), "cluster send: button shown with Prospecting")
+	if btn != null:
+		btn.pressed.emit()
+	check(not m.pending.is_empty() and int(m.pending["planet"]) == node and str(m.pending["c"]) == "ore" and not m.cluster_info.visible, "cluster send: button starts a pending route from the cluster")
+	m.cancel_pending()
+	m.cash = 0
+	m.ships = m.engine.total_assigned()
+	m._on_cluster_send(int(c0["index"]))
+	check(not m.route_unaffordable().is_empty(), "cluster send: red-line warning applies when no ship is affordable")
+	m._on_planet_clicked(dst)
+	check(m.engine.routes.is_empty() and not m.pending.is_empty(), "cluster send: refused without cash, pending stays")
+	m.cash = 100000
+	var ships0: int = m.ships
+	m._on_planet_clicked(dst)
+	check(m.engine.routes.size() == 1 and RouteEngine.from_cluster(m.engine.routes[0]) and m.pending.is_empty() and m.ships == ships0 + 1, "cluster send: next planet clicked creates the route and buys a ship", str(m.engine.routes))
+	m._on_cluster_send(int(c0["index"]))
+	m._on_planet_clicked(-1)
+	check(m.pending.is_empty(), "cluster send: a click on empty space cancels")
+	await _free_main(m)
+
+# ---- Cluster -> Space Storage station (bug 2026-11-04: check_cluster refused every station destination) ----
+func _test_cluster_to_station() -> void:
+	_wipe_user()
+	var m: Control = await _new_main()
+	m._dismiss_preface()
+	var c0: Dictionary = m.clusters.list(1)[0]
+	var node: int = int(c0["node"])
+	var ci: int = int(c0["index"])
+	m.cash = 100000
+	m.ships = 3
+	m.learned_skills.append("FND_PROSPECT")
+	# station not there yet (no FND_STORAGE): refused with a reason
+	var r: Dictionary = m.send_from_cluster(node, m.station_dst(1))
+	check(not r["ok"] and str(r["reason"]) != "" and m.engine.routes.is_empty(), "cluster to station: refused before the station exists", str(r))
+	m.learned_skills.append("FND_STORAGE")
+	m._ensure_stations()
+	m._ensure_posts()
+	check(m.engine.check_connection(node, m.station_dst(1), "ore")["ok"], "cluster to station: the engine accepts a cluster to the station of its system", str(m.engine.check_connection(node, m.station_dst(1), "ore")))
+	# station not established: refused on screen
+	m.storage.stock.erase(Storage.system_key(1))
+	m._on_cluster_send(ci)
+	m._on_station_clicked(1)
+	check(m.engine.routes.is_empty() and not m.pending.is_empty() and m.notice_label.text == m.trade_locked_reason() and m.notice_label.visible, "cluster to station: station not established is refused with the reason on screen", m.notice_label.text)
+	m.storage.ensure(Storage.system_key(1))
+	# the real click path: pending from the cluster card, click on the station
+	m.cancel_pending()
+	m._on_cluster_send(ci)
+	m.ships = m.engine.total_assigned()
+	m.cash = 0
+	check(not m.route_unaffordable().is_empty(), "cluster to station: the red cash warning applies")
+	m._on_station_clicked(1)
+	check(m.engine.routes.is_empty() and not m.pending.is_empty() and m.notice_label.text != "", "cluster to station: no cash for a ship is refused with a reason", m.notice_label.text)
+	m.cash = 100000
+	var ships0: int = m.ships
+	await _station_click(m)
+	check(m.engine.routes.size() == 1 and m.pending.is_empty() and m.ships == ships0 + 1, "cluster to station: a real click on the station makes the route and buys a ship", str(m.engine.routes))
+	var rec: Dictionary = m.engine.routes[0]
+	check(RouteEngine.from_cluster(rec) and RouteEngine.to_station(rec) and int(rec["b"]) == -1 and str(rec["dst"]) == Storage.system_key(1), "cluster to station: record runs cluster -> station of system 1", str(rec))
+	await process_frame
+	var line_ok := false
+	for id in m.map.route_lines:
+		var ln = m.map.route_lines[id]
+		line_ok = line_ok or (int(ln.pair_a) == node and int(ln.pair_b) == -1 and ln.visible)
+	check(line_ok, "cluster to station: the route gets a visible line from the pack to the station")
+	var units: int = m.engine.units_per_cycle(rec)
+	var proj: Dictionary = m.engine.project_storage(Storage.system_key(1), "ore")
+	check(int(proj["in"]) == units, "cluster to station: the storage projection counts the delivery", str(proj))
+	var left0: int = m.clusters.left(ci)
+	m._settle_routes()
+	check(m.storage.amount(Storage.system_key(1), "ore") == units and m.clusters.left(ci) == left0 - units, "cluster to station: ore lands in the station storage and the cluster thins", "%d" % m.storage.amount(Storage.system_key(1), "ore"))
+	# saved route reloads
+	var st: Dictionary = JSON.parse_string(JSON.stringify(m.collect_state()))
+	m.engine.routes.clear()
+	m.apply_state(st)
+	check(m.engine.routes.size() == 1 and RouteEngine.from_cluster(m.engine.routes[0]) and int(m.engine.routes[0]["b"]) == -1, "cluster to station: the saved route reloads", str(m.engine.routes))
+	# clicking its line opens the station, not a planet panel
+	m._on_route_clicked(int(m.engine.routes[0]["id"]))
+	check(m.space_storage_view.visible, "cluster to station: a click on the route line shows the station storage")
+	m.space_storage_view.close_view()
+	# no skill: refused (a new route only)
+	m.engine.routes.clear()
+	m.learned_skills.erase("FND_PROSPECT")
+	r = m.send_from_cluster(node, m.station_dst(1))
+	check(not r["ok"] and r["reason"] == StoryText.get_or("NOT_MINING_NEEDS_SKILL", "Mining needs the Prospecting skill."), "cluster to station: refused without the Prospecting skill", str(r))
+	m.learned_skills.append("FND_PROSPECT")
+	# another system needs the permit routes skill
+	m.open_systems = [1, 2]
+	m._open_system(2)
+	m._ensure_stations()
+	m._ensure_posts()
+	r = m.send_from_cluster(node, m.station_dst(2))
+	check(not r["ok"] and r["reason"] == StoryText.get_text("NOT_ROUTE_NEEDS_C3") and m.engine.routes.is_empty(), "cluster to station: another system without the permit skill is refused", str(r))
+	m.learned_skills.append("FND_PERMIT")
+	r = m.send_from_cluster(node, m.station_dst(2))
+	check(r["ok"], "cluster to station: another system's station is allowed with the permit skill", str(r))
+	# no ore before it is visible: the availability rule closes the station target
+	check(not m.engine.check_connection(node, m.station_dst(9), "ore")["ok"], "cluster to station: an unknown system is refused")
 	await _free_main(m)
 
 # ---- T156: asteroid clusters, ore yield and risk ----
@@ -4382,9 +4837,7 @@ func _test_company_setup() -> void:
 	await _free_main(m)
 
 func _test_event_banners() -> void:
-	var evs = _read_json("res://data/events.json")
-	if typeof(evs) == TYPE_DICTIONARY:
-		evs = evs.get("events", [])
+	var evs: Array = StoryText.entries_of(_read_json("res://data/events.json"))
 	var missing: Array = []
 	for e in evs:
 		var p := "res://art/event_banners/%s.webp" % str(e["id"]).to_lower()
@@ -4790,6 +5243,11 @@ func _test_fabric() -> void:
 	var ssv2 = m.space_storage_view
 	m.storage.remove(key, "dross", m.storage.amount(key, "dross"))
 	m.storage.remove(key, "nullglass", m.storage.amount(key, "nullglass"))
+	for sk in ["MIN_3", "MIN_5"]:
+		Skills.add_learned(sk)  # availability: the inputs are named only once dross and nullglass are visible
+	m.cycle = maxi(m.cycle, int(m.balance["dead_unlock_cycle"]))
+	if not m.open_systems.has(2):
+		m.open_systems.append(2)
 	ssv2.open_for(1)
 	var lines := _labels(ssv2, [])
 	var seen := false
@@ -4859,7 +5317,17 @@ func _test_dead_world_mechanics() -> void:
 	for l in _labels(m.planet_panel, []):
 		if l.name == "DangerLine":
 			panel_text = l.text
-	check(panel_text == "Danger: 5 of 5", "danger: one line on the planet panel", panel_text)
+	check(panel_text == "", "danger: hidden by its availability rule, no line on the planet panel", panel_text)
+	check(not Availability.feature("dead_danger_meter") and m.effect_line({"kind": "danger", "planet": d1, "c": "", "amount": 1}) == "", "danger: no notice names it while hidden")
+	var saved_rule = Availability._rules["feature|dead_danger_meter"]
+	Availability._rules["feature|dead_danger_meter"] = "start"  # the rule flipped: the line comes back
+	m.planet_panel.show_planet(d1)
+	for l in _labels(m.planet_panel, []):
+		if l.name == "DangerLine":
+			panel_text = l.text
+	check(panel_text == "Danger: 5 of 5", "danger: shown when the rule is true", panel_text)
+	Availability._rules["feature|dead_danger_meter"] = saved_rule
+	m.planet_panel.show_planet(d1)
 	# scheduled follow-up
 	var ev = m.events
 	var a := {"id": "T_PART1", "title": "p1", "tag": "", "text": "x", "choices": [{"text": "go", "tag": "[cash: +1]", "follow_id": "T_PART2", "follow_after": 2}]}
@@ -4951,7 +5419,7 @@ func _test_dead_unlock_and_core() -> void:
 	for l in _labels(m.planet_panel, []):
 		dl_found = dl_found or (l.name == "DangerLine" and l.is_visible_in_tree())
 		lock_found = lock_found or l.name == "DeadLockedLine"
-	check(m.planet_panel.visible and dl_found and not lock_found and m.planet_panel.find_child("BuyButton_dross", true, false) != null, "dead gate: after the unlock Cinderrest shows its danger line and dross row, no locked line")
+	check(m.planet_panel.visible and not dl_found and not lock_found and m.planet_panel.find_child("BuyButton_dross", true, false) != null, "dead gate: after the unlock Cinderrest shows its dross row, no locked line, no danger line (hidden)")
 	check(m.can_connect(d1, 0, "dross")["ok"], "dead gate: route from Cinderrest allowed at cycle 15 with MIN_3")
 	check(m.set_local_order(d1, "dross", "buy", true)["ok"], "dead gate: buy order allowed at 15")
 	# skill gate bypasses now closed
@@ -5028,6 +5496,118 @@ func _test_dead_unlock_and_core() -> void:
 	await _free_main(m)
 
 
+# ---- workshop status text and settle order (Munitions Line "needs energy" bug, 2026-11-04) ----
+func _test_workshop_status() -> void:
+	_wipe_user()
+	var m: Control = await _new_main()
+	m._dismiss_preface()
+	m.cash = 5000
+	m.learned_skills.append("MIL_1")
+	m.learned_skills.append("FND_STORAGE")
+	m._ensure_stations()
+	check(m.build_workshop("munitions")["ok"], "workshop status: munitions built")
+	var key: String = m.storage.system_key(1)
+	var ws = m.workshops
+	m.storage.ensure(key)
+	check(not Availability.good("chips"), "workshop status: chips hidden before system 2")
+	# settle order: routes (including a route that draws the station as backup) run BEFORE the workshop
+	m.storage.ensure("planet:0")
+	m.storage.stock["planet:0"]["energy"] = 0
+	m.storage.stock[key]["energy"] = 18
+	m.ships = 3
+	var cr: Dictionary = m.send_stock(0, 1, "energy")
+	check(cr["ok"], "workshop status: outflow route created", str(cr))
+	m.engine.routes[m.engine.routes.size() - 1]["fresh"] = 1.0
+	var e0: int = m.storage.amount(key, "energy")
+	m.engine.settle(m.cash)
+	var e1: int = m.storage.amount(key, "energy")
+	check(e1 < e0, "workshop status: a route out of the system drains the station before the workshop runs", "%d -> %d" % [e0, e1])
+	m.storage.stock[key]["energy"] = 0
+	ws.run(m.storage, Callable(m, "craft_units"))
+	var t: String = ws.status_text("munitions")
+	check(t.contains(Ui.good_name("energy")) and t.contains(StoryText.get_text("LBL_WORKSHOP_NEEDS_OTHER")) and not t.contains(Ui.good_name("chips")) and not t.contains("Batches"), "workshop status: hidden input is not named, no batch count when stalled", t)
+	check(not ws.recipe_line("cells").contains(Ui.good_name("chips").to_lower()) and ws.recipe_line("cells").contains(StoryText.get_text("LBL_WORKSHOP_NEEDS_OTHER")), "workshop status: recipe line hides the name of a hidden input", ws.recipe_line("cells"))
+	# partly missing: energy present, chips hidden and missing
+	m.storage.stock[key]["energy"] = 5
+	ws.run(m.storage, Callable(m, "craft_units"))
+	t = ws.status_text("munitions")
+	check(t == StoryText.get_text("LBL_WORKSHOP_STALLED", {"why": StoryText.get_text("LBL_WORKSHOP_NEEDS", {"items": StoryText.get_text("LBL_WORKSHOP_NEEDS_OTHER")})}), "workshop status: only the hidden input missing", t)
+	# both visible: all missing inputs named
+	m.storage.stock[key]["energy"] = 0
+	m.storage.add(key, "chips", 1)
+	m.storage.remove(key, "chips", 1)
+	var sys2 := Availability.good("chips")
+	ws.run(m.storage, Callable(m, "craft_units"))
+	if sys2:
+		t = ws.status_text("munitions")
+		check(t.contains(Ui.good_name("energy")) and t.contains(Ui.good_name("chips")), "workshop status: every visible missing input is named", t)
+	# none missing: runs, batch line, no stall text
+	m.storage.stock[key]["energy"] = 4
+	m.storage.stock[key]["chips"] = 2
+	ws.run(m.storage, Callable(m, "craft_units"))
+	t = ws.status_text("munitions")
+	check(ws.state["munitions"] == "running" and t.contains(StoryText.get_text("LBL_WORKSHOP_MADE", {"items": ws.made_text("munitions")})) and not t.contains("Stalled"), "workshop status: made batch shows the batch line only", t)
+	await _free_main(m)
+	_wipe_user()
+
+# ---- workshops are built in a cell of the player's choice (owner 2026-11-04) ----
+func _test_workshops_in_cells() -> void:
+	_wipe_user()
+	var m: Control = await _new_main()
+	m._dismiss_preface()
+	m.cash = 5000
+	m.learned_skills.append("MIL_1")
+	m.learned_skills.append("MIN_1")
+	m.learned_skills.append("FND_PROSPECT")
+	m.learned_skills.append("FND_STORAGE")
+	m.open_systems.append(2)
+	m._ensure_stations()
+	var cost: int = int(m.balance["workshop_build_cost"])
+	check(m.can_build_workshop("munitions", 2)["reason"] == "post" or m.station_systems.has(2), "cells: system 2 cell state is consistent")
+	if not m.station_systems.has(2):
+		m.station_systems.append(2)
+	var v = m.space_storage_view
+	v.open_for(2)
+	check(v.box.find_child("WorkshopBuild_munitions", true, false) != null and not v.box.find_child("WorkshopBuild_munitions", true, false).disabled, "cells: system 2 cell shows an enabled Build for munitions")
+	v.open_for(1)
+	check(v.box.find_child("WorkshopBuild_munitions", true, false) != null, "cells: system 1 cell shows Build too")
+	v.open_for(2)
+	v.box.find_child("WorkshopBuild_munitions", true, false).pressed.emit()
+	check(m.workshops.built["munitions"] and m.workshops.system_of("munitions") == 2 and m.cash == 5000 - cost, "cells: built in system 2, cash charged once", str(m.cash))
+	check(not m.build_workshop("munitions", 1)["ok"] and m.can_build_workshop("munitions", 1)["reason"] == "built" and m.cash == 5000 - cost, "cells: second build in another cell refused")
+	check(v.box.find_child("WorkshopStatus_munitions", true, false) != null and v.box.find_child("WorkshopBuild_munitions", true, false) == null, "cells: system 2 cell shows the built workshop")
+	v.open_for(1)
+	check(v.box.find_child("Workshop_munitions", true, false) == null and v.box.find_child("WorkshopBuild_munitions", true, false) == null, "cells: system 1 cell no longer lists it")
+	check(v.box.find_child("Workshop_smelter", true, false) != null, "cells: other unbuilt workshops stay in the list")
+	# inputs and outputs use its own cell
+	var k1: String = m.storage.system_key(1)
+	var k2: String = m.storage.system_key(2)
+	m.storage.add(k1, "energy", 6)
+	m.storage.add(k1, "chips", 6)
+	m.workshops.run(m.storage, Callable(m, "craft_units"))
+	check(m.workshops.state["munitions"] == "stalled" and m.storage.amount(k1, "energy") == 6 and m.storage.amount(k1, "cells") == 0, "cells: stock in system 1 is not used by a system 2 workshop")
+	m.storage.add(k2, "energy", 6)
+	m.storage.add(k2, "chips", 6)
+	m.workshops.run(m.storage, Callable(m, "craft_units"))
+	check(m.workshops.state["munitions"] == "running" and m.storage.amount(k2, "cells") == int(m.balance["cells_batch_out"]) and m.storage.amount(k1, "cells") == 0, "cells: output goes to its own cell")
+	# save round trip and old saves
+	var d: Dictionary = m.workshops.to_dict()
+	m.workshops.from_dict(d)
+	check(m.workshops.system_of("munitions") == 2 and m.workshops.built["munitions"], "cells: system survives save and load")
+	var old := {"munitions": {"built": true, "state": "idle", "reason": "", "made": {}}}
+	m.workshops.from_dict(old)
+	check(m.workshops.built["munitions"] and m.workshops.system_of("munitions") == 1, "cells: old save without system loads as system 1")
+	# availability: a hidden workshop shows no Build in any cell
+	m.workshops.setup(m.balance)
+	m.open_systems.erase(2)
+	v.open_for(1)
+	check(not Availability.workshop("munitions") and v.box.find_child("WorkshopBuild_munitions", true, false) == null and v.box.find_child("Workshop_munitions", true, false) == null, "cells: hidden workshop is not drawn")
+	# a system without a cell shows no workshop block
+	m.open_systems.append(2)
+	m.station_systems.erase(2)
+	v.open_for(2)
+	check(v.box.find_child("WorkshopTitle", true, false) == null and m.can_build_workshop("munitions", 2)["reason"] == "post", "cells: no cell, no workshop block, build refused")
+
 # ---- goods and workshops (four markets part 2) ----
 func _test_workshops() -> void:
 	_wipe_user()
@@ -5073,7 +5653,7 @@ func _test_workshops() -> void:
 	# recipe run: cells = 2 energy + 1 chips -> batch_out, armour not open yet
 	Tech.reset()
 	m.workshops.run(m.storage, Callable(m, "craft_units"))
-	check(m.workshops.state["munitions"] == "stalled" and m.workshops.reason["munitions"] == "needs energy", "workshop: stalls on a missing input", m.workshops.reason["munitions"])
+	check(m.workshops.state["munitions"] == "stalled" and m.workshops.missing["munitions"] == ["energy", "chips"], "workshop: stalls and lists every missing input", str(m.workshops.missing["munitions"]))
 	m.storage.add(key, "energy", 5)
 	m.storage.add(key, "chips", 2)
 	m.workshops.run(m.storage, Callable(m, "craft_units"))
@@ -5127,6 +5707,7 @@ func _test_workshops() -> void:
 	check(wv.box.find_child("WorkshopTitle", true, false) != null and wv.box.find_child("Workshop_smelter", true, false) != null and wv.box.find_child("WorkshopStatus_smelter", true, false) != null and wv.box.find_child("WorkshopBuild_atelier", true, false) == null, "workshop: station view lists unlocked workshops only")
 	# an unlocked, unbuilt workshop: Build disabled when cash is short, then builds and shows its status
 	m.learned_skills.append("MIL_1")
+	m.open_systems.append(2)  # Munitions Line shows only with system 2 open
 	m.workshops.built["munitions"] = false
 	m.cash = 0
 	wv.refresh()
@@ -5174,9 +5755,10 @@ func _test_chains() -> void:
 			count_a += 1
 		else:
 			count_b += 1
-		for k in st["trigger"].keys() if not st["trigger"].has("any") else []:
-			if typeof(st["trigger"][k]) == TYPE_STRING and str(k) != "tech_done" and str(k) != "skill_learned" and not bal.has(str(st["trigger"][k])):
-				keys_ok = false
+		var trig_errs: Array = []
+		Conditions.lint(st["trigger"], "chain step " + str(sid), trig_errs, true, bal, Conditions.event_ids())
+		if not trig_errs.is_empty():
+			keys_ok = false
 		for opt in ["opt_a", "opt_b"]:
 			if (st[opt]["bot"] as Array).is_empty():
 				rival_ok = false
@@ -5260,8 +5842,11 @@ func _test_chains() -> void:
 	check(Chains.next_step(6) == "MIL_A1", "slot: the chain step is picked", Chains.next_step(6))
 	Chains.apply_option("MIL_A1", "opt_a", 6)
 	check(not Chains.eligible("MIL_A1", 7) and Chains.next_step(7) == "", "slot: a fired step does not come again")
+	Skills.add_learned("MIL_1")  # A2 is gated on MIL_1 (its option needs the Munitions Line)
+	m.open_systems.append(2)  # ... and on system 2 being open (the line is hidden in system 1)
 	check(not Chains.eligible("MIL_A2", 8) and Chains.trigger_ok("MIL_A2", 12), "triggers: A2 6 cycles after A1 (cycles_after_prev_step)")
-	check(not Chains._atom("cycles_after_prev_step", "chain_MIL_A2_trig_after_prev_cycles", Chains.step_by_id["MIL_A2"], 11) and Chains._atom("cycles_after_prev_step", "chain_MIL_A2_trig_after_prev_cycles", Chains.step_by_id["MIL_A2"], 12), "triggers: cycles_after_prev_step counts from the previous step")
+	var after_atom := "cycles_after_prev_step:balance.chain_MIL_A2_trig_after_prev_cycles"
+	check(not Conditions.eval(after_atom, Chains.cond_ctx("MIL_A2", 11)) and Conditions.eval(after_atom, Chains.cond_ctx("MIL_A2", 12)), "triggers: cycles_after_prev_step counts from the previous step")
 	# min gap and one event per cycle: both A2 conditions true at once; min gap 3 holds the next step of the market
 	Chains.picks["MIL_A1"]["cycle"] = 6
 	check(Chains.eligible("MIL_A2", 12) and not Chains.eligible("MIL_A2", 8), "triggers: min gap and trigger together")
@@ -5654,3 +6239,408 @@ func _test_skill_window_rework(m: Control) -> void:
 
 func SS_plain(m: Control, id: String) -> Dictionary:
 	return load("res://game/skill_screen.gd").plain_args(m.balance, id)
+
+
+# ---- availability: the UI obeys data/availability.json (game/availability.gd) ----
+func _av_reset(m: Control) -> void:
+	Skills.learned.clear()
+	m.fabric.built = false
+	for id in m.workshops.built.keys():
+		m.workshops.built[id] = false
+	m.open_systems = [1]
+	m.cycle = 1
+	for key in m.storage.stock.keys():
+		m.storage.stock[key] = {}
+
+## Sets one atom true or false in the live game. Returns false when the atom cannot be set that way ("start" false).
+func _av_atom(m: Control, atom: String, val: bool) -> bool:
+	var parts := Availability.split_atom(atom)
+	var arg := str(parts[1])
+	match str(parts[0]):
+		"start":
+			return val
+		"skill_learned":
+			if val:
+				Skills.add_learned(arg)
+			else:
+				Skills.learned.erase(arg)
+		"workshop_built":
+			if arg == "fabric":
+				m.fabric.built = val
+			else:
+				m.workshops.built[arg] = val
+		"system_open":
+			if val and not m.open_systems.has(int(arg)):
+				m.open_systems.append(int(arg))
+			elif not val:
+				m.open_systems.erase(int(arg))
+		"cycle_at_least":
+			var need := int(m.balance[arg.trim_prefix("balance.")])
+			m.cycle = need if val else need - 1
+		"stock_held":
+			var key: String = m.storage.planet_key(0)
+			m.storage.ensure(key)
+			m.storage.stock[key][arg] = 1 if val else 0
+		"good_visible":
+			return _av_make(m, Availability.rule("good", arg), val)
+	return true
+
+## Makes a condition tree true or false. Returns false when it cannot be made that way (an always-true "start").
+func _av_make(m: Control, cond, val: bool) -> bool:
+	if typeof(cond) == TYPE_STRING:
+		return _av_atom(m, str(cond), val)
+	if cond.has("all"):
+		if val:
+			var ok := true
+			for c in cond["all"]:
+				ok = _av_make(m, c, true) and ok
+			return ok
+		for c in cond["all"]:
+			if _av_make(m, c, false):
+				return true
+		return false
+	var okany := true
+	if val:
+		for c in cond["any"]:
+			if _av_make(m, c, true):
+				return true
+		return false
+	for c in cond["any"]:
+		okany = _av_make(m, c, false) and okany
+	return okany
+
+func _av_visible_text(n: Node) -> String:
+	if n is CanvasItem and not (n as CanvasItem).visible:
+		return ""
+	var t := ""
+	if n is Label or n is Button:
+		t += str(n.text) + "\n"
+	if n is Control:
+		t += str((n as Control).tooltip_text) + "\n"
+	for c in n.get_children():
+		t += _av_visible_text(c)
+	return t
+
+func _av_tooltips(n: Node) -> String:
+	var t := ""
+	if n is Control:
+		t += str((n as Control).tooltip_text) + "\n"
+	for c in n.get_children():
+		t += _av_tooltips(c)
+	return t
+
+func _test_availability() -> void:
+	_wipe_user()
+	var data: Dictionary = Availability.data()
+	var start: Dictionary = data["start_state"]
+	# (c) data lint: every good / workshop / storage has a rule, nothing unknown is referenced
+	var errs: Array = Availability.lint()
+	check(errs.is_empty(), "availability lint: data/availability.json is clean", "; ".join(errs))
+	for e in errs:
+		check(false, "availability lint: " + str(e))
+	# (a) a fresh game shows only the start state
+	var m: Control = await _new_main()
+	m._dismiss_preface()
+	_av_reset(m)
+	var vis: Array = Availability.all_visible_goods()
+	var want: Array = start["visible_goods"]
+	var same := vis.size() == want.size()
+	for g in want:
+		if not vis.has(g):
+			same = false
+	check(same, "availability start: visible goods are exactly the start_state goods", "visible=%s want=%s" % [str(vis), str(want)])
+	for g in start["hidden_goods"]:
+		check(not Availability.good(str(g)), "availability start: good '%s' is hidden" % g)
+	for w in Goods.workshops:
+		check(not Availability.workshop(str(w["id"])) or start["visible_workshops"].has(str(w["id"])), "availability start: workshop '%s' is hidden" % str(w["id"]))
+	check(Availability.storage("planet_storage") and not Availability.storage("space_storage"), "availability start: planet storage shown, space storage hidden")
+	for f in start["hidden_features"]:
+		check(not Availability.is_visible("storage" if Availability.has_rule("storage", str(f)) else "feature", str(f)), "availability start: feature '%s' is hidden" % f)
+	check(m.station_systems.is_empty() and not m.space_post_open(1), "availability start: no space storage station or post")
+	var pi := -1
+	for i in m.map.planets.size():
+		if str(m.map.planets[i].get("id", "")) == str(start["planet"]):
+			pi = i
+	check(pi >= 0, "availability start: start planet exists", str(start["planet"]))
+	m.planet_panel.show_planet(pi)
+	await process_frame
+	var pan_text: String = _all_text(m.planet_panel) + _av_tooltips(m.planet_panel)
+	var leak := Availability.names_hidden_good(pan_text)
+	check(leak == "", "availability start: the %s planet panel names no hidden good" % str(start["planet_name"]), "names '%s' in: %s" % [leak, pan_text.replace("\n", " | ")])
+	await process_frame
+	var screen_text := _av_visible_text(m)
+	var leak2 := Availability.names_hidden_good(screen_text)
+	check(leak2 == "", "availability start: no visible screen text names a hidden good", "names '%s' in: %s" % [leak2, screen_text.replace("\n", " | ")])
+	for g in start["hidden_goods"]:
+		check(_find_named(m.planet_panel, "BuyButton_" + str(g)) == null, "availability start: no resource button for hidden '%s'" % g)
+	for g in want:
+		check(_find_named(m.planet_panel, "BuyButton_" + str(g)) != null, "availability start: resource button for '%s'" % g)
+	# (b) every rule: make it true and it shows, make it false and it hides
+	for r in data["rules"]:
+		var kind := str(r["kind"])
+		var id := str(r["id"])
+		var cond = r["visible_when"]
+		if id == "dead_danger_meter":  # the off switch ({not: start}); its hidden and shown states are tested in _test_dead_world_mechanics
+			check(not Availability.is_visible(kind, id), "availability rule feature 'dead_danger_meter': off for now")
+			continue
+		_av_reset(m)
+		var can_true: bool = _av_make(m, cond, true)
+		check(can_true and Availability.is_visible(kind, id), "availability rule %s '%s': condition true shows it" % [kind, id])
+		_av_reset(m)
+		if _av_make(m, cond, false):
+			check(not Availability.is_visible(kind, id), "availability rule %s '%s': condition false hides it" % [kind, id])
+		else:
+			check(Availability.is_visible(kind, id), "availability rule %s '%s': always visible (start atom)" % [kind, id])
+	# owned goods never hide (stock_held), and a recipe or notice that appears with a rule shows in the live UI
+	for g in start["hidden_goods"]:
+		_av_reset(m)
+		_av_atom(m, "stock_held:" + str(g), true)
+		check(Availability.good(str(g)), "availability stock_held: held '%s' is visible" % g)
+	_av_reset(m)
+	Skills.add_learned("FND_STORAGE")
+	check(Availability.storage("space_storage") and Skills.unlocked("space_storage"), "availability: space storage rule and skill unlock agree")
+	# UI follows state: ore row appears at Voltara when FND_PROSPECT is learned, and goes when it is not
+	_av_reset(m)
+	m.planet_panel.show_planet(pi)
+	await process_frame
+	var ore_priced: bool = m.map.planets[pi].get("base_prices", {}).has("ore_sell")
+	check(not ore_priced or _find_named(m.planet_panel, "BuyButton_ore") == null, "availability ui: no ore button before FND_PROSPECT")
+	Skills.add_learned("FND_PROSPECT")
+	m.planet_panel.show_planet(pi)
+	await process_frame
+	check(not ore_priced or _find_named(m.planet_panel, "BuyButton_ore") != null, "availability ui: ore button after FND_PROSPECT")
+	_av_reset(m)
+	await _free_main(m)
+
+
+## Destination hover card (game/dest_hint.gd): only while a route is pending; price or the click's own refusal reason.
+func _test_dest_hint() -> void:
+	_wipe_user()
+	var m: Control = await _new_main()
+	m._dismiss_preface()
+	m.cash = 6000
+	m._open_system(2)  # its planets join the map; the permit routes skill is still missing
+	var d1 := -1
+	var far := -1
+	for i in m.map.planets.size():
+		if str(m.map.planets[i].get("id", "")) == "dead_1":
+			d1 = i
+		if far < 0 and int(m.map.planets[i].get("system", 1)) == 2 and not m.DeadWorlds.is_dead(m.map.planets[i]):
+			far = i
+	check(DestHint.describe(m, 1, -1) == "", "hover card: nothing without a pending route")
+	check(not m.dest_hint.visible, "hover card: node hidden without a pending route")
+	m.pending = {"planet": 0, "c": "energy"}
+	m._pending_changed()
+	var t: String = DestHint.describe(m, 1, -1)
+	var price: int = m.engine.sold_price(1, "energy")
+	check(price > 0 and t == "%s buys Energy at %d cr each." % [m.planet_name(1), price] or ("buys" in t and str(price) in t), "hover card: a valid planet shows the price it pays", t)
+	check(Availability.names_hidden_good(t) == "", "hover card: names no hidden good", t)
+	check(DestHint.describe(m, 0, -1) == m.StoryText.get_text("HINT_DEST_SOURCE"), "hover card: the source planet says the route starts here")
+	check(DestHint.describe(m, d1, -1) == m.StoryText.get_text("NOT_DEAD_NO_DELIVERY"), "hover card: a dead world shows the same refusal as the click", DestHint.describe(m, d1, -1))
+	m.engine.closed_planets = [1]
+	check(DestHint.describe(m, 1, -1) == str(m.can_connect(0, 1, "energy")["reason"]) and "closed" in DestHint.describe(m, 1, -1), "hover card: a closed planet shows the closed reason", DestHint.describe(m, 1, -1))
+	m.engine.closed_planets = []
+	check(far >= 0 and DestHint.describe(m, far, -1) == m.StoryText.get_text("NOT_ROUTE_NEEDS_C3"), "hover card: a planet in another system without the permit routes skill shows the permit reason", "far=%d text=%s" % [far, DestHint.describe(m, far, -1)])
+	var st: String = DestHint.describe(m, -1, 1)
+	check(st == str(m.can_connect(0, m.station_dst(1), "energy")["reason"]) or st == m.StoryText.get_text("HINT_DEST_STATION", {"good": "Energy"}), "hover card: a station shows the click's refusal or the keep line", st)
+	m.pending = {"planet": 0, "c": "ore"}  # ore is hidden at the start
+	check(DestHint.describe(m, 1, -1) == "", "hover card: a hidden pending good shows nothing")
+	m.pending = {"planet": 0, "c": "energy"}
+	m.tut_step = 2  # the guided send step locks the controls: no card
+	if m.tut_lock_active():
+		check(DestHint.describe(m, 1, -1) == "", "hover card: no card under the tutorial lock")
+	m.tut_step = -1
+	m.cancel_pending()
+	check(DestHint.describe(m, 1, -1) == "", "hover card: gone when the pending state ends")
+	await _free_main(m)
+
+## Dead world panel (owner 2026-11-04): locked line, needs-skill line, Mine and send to..., destination refused.
+func _test_dead_world_panel() -> void:
+	_wipe_user()
+	var m: Control = await _new_main()
+	m._dismiss_preface()
+	var d1: int = -1
+	for i in m.map.planets.size():
+		if str(m.map.planets[i].get("id", "")) == "dead_1":
+			d1 = i
+	var pp = m.planet_panel
+	m.cycle = 1
+	m._sync_dead_lock()
+	m._on_planet_clicked(d1)
+	await process_frame
+	var txt := ""
+	for l in _labels(pp.box, []):
+		txt += l.text + "\n"
+	check(pp.visible and "Opens at cycle" in txt and "ross" not in txt and pp.box.find_child("MineSendButton_dross", true, false) == null, "dead panel: before the cycle shows the locked line, no dross, no mine button", txt)
+	m.cycle = int(m.balance["dead_unlock_cycle"])
+	m._sync_dead_lock()
+	pp.rebuild()
+	await process_frame
+	txt = ""
+	for l in _labels(pp.box, []):
+		txt += l.text + "\n"
+	check(pp.box.find_child("DeadNeedsSkillLine", true, false) != null and "Cold Survey" in txt and "ross" not in txt and pp.box.find_child("MineSendButton_dross", true, false) == null, "dead panel: after the cycle without the skill shows what is needed, no dross", txt)
+	Skills.add_learned("MIN_3")
+	m.learned_skills.append("MIN_3")
+	pp.rebuild()
+	await process_frame
+	var mb = pp.box.find_child("MineSendButton_dross", true, false)
+	check(mb != null and pp.box.find_child("BuyButton_dross", true, false) != null and pp.box.find_child("DeadNeedsSkillLine", true, false) == null and pp.box.find_child("DangerLine", true, false) == null, "dead panel: with skill and cycle the dross row and Mine button show, the danger line stays hidden")
+	m.cash = 6000
+	m.ships = 0
+	mb.pressed.emit()
+	check(not m.pending.is_empty() and int(m.pending["planet"]) == d1 and bool(m.pending.get("buy", false)), "dead panel: Mine starts a pending send from the dead world")
+	m._on_planet_clicked(0)
+	check(m.pending.is_empty() and m.engine.routes.size() == 1 and int(m.engine.routes[0]["a"]) == d1 and m.ships == 1, "dead panel: clicking a planet makes the route from the dead world and buys a ship", str(m.engine.routes))
+	# a dead world clicked as a destination is refused with a reason
+	m.pending = {"planet": 0, "c": "energy"}
+	var before: int = m.engine.routes.size()
+	m._on_planet_clicked(d1)
+	check(m.engine.routes.size() == before and not m.pending.is_empty() and "dead world" in m.last_notice, "dead panel: a dead world as destination is refused with a reason", m.last_notice)
+	await _free_main(m)
+
+
+## Owner change 2026-11-04: the lane label shows the lane's net per cycle (same projection as the cash forecast),
+## and the forecast flags a lane that earns nothing.
+func _test_lane_net_label() -> void:
+	_wipe_user()
+	var m: Control = await _new_main()
+	m._dismiss_preface()
+	var e = m.engine
+	var RouteLineScript = load("res://game/route_line.gd")
+	var c := "energy"
+	m.cash = 100000
+	m.ships = 3
+	m.learned_skills.append("FND_STORAGE")
+	m.storage.ensure("system:1")
+	m.set_local_order(1, c, "sell", true)
+	m.set_local_order(0, c, "buy", true)
+	check(m.send_stock(0, 1, c)["ok"], "lane net: selling lane set up")
+	var sell_rec: Dictionary = e.routes[0]
+	sell_rec["fresh"] = 1.0
+	for k in ["planet:0", "planet:1"]:
+		m.storage.ensure(k)
+		m.storage.remove(k, c, m.storage.amount(k, c))
+	m.storage.add("planet:0", c, 200)
+	var f: Dictionary = e.forecast(m.cash)
+	var ln: Dictionary = f["routes"][0]
+	check(bool(ln["moves"]) and int(ln["sale"]) > 0 and int(ln["net"]) == int(ln["sale"]) + int(ln["gross"]) - int(ln["cost"]) - int(ln["paid"]), "lane net: selling lane net = sale - source cost - trip - upkeep", str(ln))
+	check(int(ln["net"]) > 0, "lane net: a profitable lane is positive", str(ln))
+	# the label text the map gets
+	m._push_routes_to_map()
+	var line = m.map.route_lines[int(sell_rec["id"])]
+	check(line.tag.text.contains("+") and not line.tag.text.contains("cost"), "lane net: label shows a signed net", line.tag.text)
+	# reconciliation: lane nets plus what no lane owns (stock the orders move beyond the lanes, mixed bonus) = forecast total
+	var lane_sum := 0
+	var attributed := 0
+	for l in f["routes"]:
+		lane_sum += int(l["net"])
+		attributed += int(l["sale"]) - int(l["cost"])
+	var local_sum := 0
+	for l in f["local"]:
+		local_sum += int(l["credits"])
+	var rest: int = local_sum - attributed
+	check(lane_sum + rest == int(f["delta"]), "lane net: lane nets + the orders' non-lane part = forecast total", "%d + %d vs %d" % [lane_sum, rest, int(f["delta"])])
+	# fallback text without a projection
+	check(RouteLineScript.tag_text("running", 1, 0, "", false, 72).contains("72") and RouteLineScript.tag_text("running", 1, 0, "", false, 72) != RouteLineScript.tag_text("running", 1, -72, "", true, 72), "lane net: no projection shows a cost label", RouteLineScript.tag_text("running", 1, 0, "", false, 72))
+	check(RouteLineScript.tag_text("running", 2, 310, "", true, 72).begins_with("2 ") and RouteLineScript.tag_text("running", 1, 0, "", true, 0).ends_with("0"), "lane net: ship count kept, zero shows 0")
+	# selling lane is not flagged
+	check(m.cash_forecast.no_earn_routes().is_empty(), "no-earn flag: a selling lane is not flagged")
+	# storage lane: buys at the source, sells nothing
+	m.remove_connection(int(sell_rec["id"]))
+	check(m.send_stock(0, m.station_dst(1), c)["ok"], "lane net: storage lane set up")
+	var srec: Dictionary = e.routes[0]
+	srec["fresh"] = 1.0
+	m.storage.remove("planet:0", c, m.storage.amount("planet:0", c))
+	m.storage.add("planet:0", c, 200)
+	var f2: Dictionary = e.forecast(m.cash)
+	var sl: Dictionary = f2["routes"][0]
+	check(bool(sl["moves"]) and int(sl["sale"]) == 0 and int(sl["net"]) == -int(sl["cost"]) - int(sl["paid"]) and int(sl["net"]) < 0, "lane net: storage lane shows its net cost", str(sl))
+	m.cash_forecast.main = m
+	var flagged: Array = m.cash_forecast.no_earn_routes()
+	check(flagged.size() == 1, "no-earn flag: a lane with no sale is flagged", str(flagged))
+	m.cash_forecast.visible = true
+	m.cash_forecast.refresh()
+	var warn_seen := false
+	for ch in m.cash_forecast.box.get_children():
+		if ch is Label and (ch as Label).text.contains("earns nothing"):
+			warn_seen = true
+	check(warn_seen, "no-earn flag: the warning line is in the popup")
+	# no projection: lane that moves nothing falls back to cost
+	m.storage.remove("planet:0", c, m.storage.amount("planet:0", c))
+	m.set_local_order(0, c, "buy", false)
+	m._push_routes_to_map()
+	var f3: Dictionary = e.forecast(m.cash)
+	check(not bool(f3["routes"][0]["moves"]) and int(f3["routes"][0]["net"]) == 0 and m.cash_forecast.no_earn_routes().is_empty(), "lane net: a lane that moves nothing has no projection (cost label) and no flag")
+	# no hidden good named on any lane label or warning
+	var names_ok := true
+	for k in m.map.route_lines.keys():
+		var t: String = m.map.route_lines[k].tag.text.to_lower()
+		for g in Goods.ids():
+			if not Goods.good_open(g) and t.contains(str(Goods.entry(g).get("name", g)).to_lower()):
+				names_ok = false
+	check(names_ok, "lane net: no hidden good named on a lane label")
+	await _free_main(m)
+
+## Owner bug 2026-11-04: Space Storage "Next cycle: +18 -18 = 0" with no lane out of the station. The Sell order at the
+## destination planet (Ashgate) draws the station when its own stock is short; the tooltip must say so.
+func _test_station_energy_outflow() -> void:
+	_wipe_user()
+	var m: Control = await _new_main()
+	m._dismiss_preface()
+	var zero := {}
+	for g in ["energy", "food"]:
+		zero[g] = 0
+	var stock := func(e: int, f: int) -> Dictionary:
+		var d := zero.duplicate()
+		d["energy"] = e
+		d["food"] = f
+		return d
+	var lane := func(id: int, a: int, b: int, c: String, dst: String) -> Dictionary:
+		return {"a": a, "b": b, "bonus": 0, "c": c, "dst": dst, "fresh": 1.0, "id": id, "level": 1, "orders": {}, "reason": "", "ship": "small", "ships": 1, "split_share": 0.0, "split_to": -1, "src": "planet:%d" % a, "state": "running", "stop": -1, "stop_sale": 0}
+	var order := func(planet: int, c: String, buy: bool) -> Dictionary:
+		return {"buy": buy, "buy_state": "Buying." if buy else "", "c": c, "planet": planet, "sell": not buy, "sell_state": "" if buy else "Selling."}
+	m.cash = 7000
+	Skills.learned.append("FND_STORAGE")
+	m.learned_skills.append("FND_STORAGE")
+	m.storage.ensure("planet:0")
+	m.storage.ensure("planet:1")
+	m.storage.ensure("planet:2")
+	m.storage.ensure("system:1")
+	m.storage.add("planet:0", "energy", 64)
+	m.storage.add("planet:1", "food", 84)
+	m.storage.add("planet:2", "food", 84)
+	var e = m.engine
+	e.routes.clear()
+	e.local.clear()
+	e.routes.append(lane.call(1, 0, 2, "energy", "planet:2"))
+	e.routes.append(lane.call(2, 2, 0, "food", "planet:0"))
+	e.routes.append(lane.call(3, 1, 0, "food", "planet:0"))
+	e.routes.append(lane.call(4, 0, -1, "energy", "system:1"))
+	e.next_id = 5
+	e.local = {}
+	for o in [order.call(0, "energy", true), order.call(2, "energy", false), order.call(2, "food", true), order.call(0, "food", false), order.call(1, "food", true)]:
+		e.local[e.local_key(int(o["planet"]), str(o["c"]))] = o
+	e.balance["order_amount"] = 2 * e.units_per_cycle(e.routes[3])  # the owner's save: an order moves more than a lane brings
+	var pr: Dictionary = e.project_storage("system:1", "energy", m.cash)
+	var sum_in := 0
+	var sum_out := 0
+	var sell_backup := false
+	var route_backup := false
+	for p in pr["parts"]:
+		if p["dir"] == "in":
+			sum_in += int(p["n"])
+		else:
+			sum_out += int(p["n"])
+		sell_backup = sell_backup or (p["kind"] == "sell" and bool(p["backup"]) and int(p["planet"]) == 2)
+		route_backup = route_backup or (p["kind"] == "route" and bool(p["backup"]))
+	print("STATION ENERGY ", pr)
+	check(int(pr["in"]) > 0 and int(pr["out"]) == int(pr["in"]) and sum_in == int(pr["in"]) and sum_out == int(pr["out"]), "station energy: sources and uses add up to the shown in and out", str(pr))
+	check(sell_backup and not route_backup, "station energy: the 18 leaving is the Sell order at Ashgate, no route", str(pr["parts"]))
+	var before: int = m.storage.amount("system:1", "energy")
+	m._settle_routes()
+	check(m.storage.amount("system:1", "energy") - before == int(pr["after"]) - before, "station energy: the real settle ends where the projection says", "%d" % m.storage.amount("system:1", "energy"))
+	m.storage.add("planet:0", "energy", 0)
+	var tip: String = load("res://game/planet_panel.gd").next_cycle_breakdown(m, e.project_storage("system:1", "energy", m.cash))
+	check(tip.contains("In: Voltara > Space Storage (") and tip.contains("+%d" % int(pr["in"])) and tip.contains("Out: Sell order at Ashgate (draws Space Storage when Ashgate has too little) -%d" % int(pr["out"])), "station energy: the tooltip names the source and the consumer", tip)
+	await _free_main(m)
