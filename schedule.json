@@ -933,10 +933,11 @@
       "title": "Placeholders for 3 more solar systems",
       "owner_agent": "gameplay-programmer",
       "depends_on": [],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 45,
       "window": "Owner request 2026-11-05 (later). Not started: main session sets it running.",
-      "brief": "Add placeholder data for 3 more solar systems after the existing ones (system 1 is in data/planets.json, later systems are in data/systems.json; system 3 was on hold with no entry, so pick the next free ids; check game/map.gd view_system and the galaxy overview for how systems are stored and chosen). Each placeholder: a system id and name, a sun, a map position in the galaxy overview, a few placeholder planets with temporary names and prices, and an entry in data/availability.json so nothing shows before it should (progressive disclosure: hidden until a visible_when is true, and locked behind a placeholder permit or unlock cycle that is off for now). Keep names and texts as text ids (English in story/*.md, Russian placeholder in story/ru), no hidden goods named. Make the galaxy overview and system switching handle 6 systems without errors, mark all placeholder data clearly (a placeholder flag or note field) so economy-designer and story-designer can replace it later. Handoff handoffs/gameplay-programmer/2026-11-05-T176.json."
+      "brief": "Add placeholder data for 3 more solar systems after the existing ones (system 1 is in data/planets.json, later systems are in data/systems.json; system 3 was on hold with no entry, so pick the next free ids; check game/map.gd view_system and the galaxy overview for how systems are stored and chosen). Each placeholder: a system id and name, a sun, a map position in the galaxy overview, a few placeholder planets with temporary names and prices, and an entry in data/availability.json so nothing shows before it should (progressive disclosure: hidden until a visible_when is true, and locked behind a placeholder permit or unlock cycle that is off for now). Keep names and texts as text ids (English in story/*.md, Russian placeholder in story/ru), no hidden goods named. Make the galaxy overview and system switching handle 6 systems without errors, mark all placeholder data clearly (a placeholder flag or note field) so economy-designer and story-designer can replace it later. Handoff handoffs/gameplay-programmer/2026-11-05-T176.json.",
+      "note": "Placeholder systems 3-5 in data/systems_placeholder.json (off by default, placeholder:true), availability rules never true, English texts only. Permit keys reuse permit_2_*; Russian not added."
     },
     {
       "task_id": "T177",

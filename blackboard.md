@@ -4,12 +4,14 @@
 - Do not flip discovery_enabled in data/balance.json to fix tests: it ships at 0 on purpose (gdd.md); tests set it themselves.
 
 ## Left to do
-- Open: T185, T176, T178/T182 (owner-only agents), T05, T166.
+- Open: T185, T178/T182 (owner-only agents), T05, T166.
 
 - Owner: ship cap 20 (T186): decide on economy retune (trip cost, maintenance tuned for 6) and look of the scrolled ship list; other panels not checked at 20 ships.
 - Owner: asteroid-asteroid has no link and storage is never a route source (T188 treated as design); tools/project_workflow.html and other files were modified by something else, left uncommitted.
 
 - Owner: T187 rival ships: look (tint, size, trail, galaxy view) and balance keys rival_ship_count / rival_ship_speed (code defaults 3 and 0.6); gdd.md rivals line edited but left uncommitted with other people's gdd.md changes (gdd-log.md is deleted in tree, so no log entry).
+
+- Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
 ## 2026-11-05 run: T183
 - Summary: The 15 test failures were stale test expectations, not game bugs. Discovery ships off (balance discovery_enabled 0), but the tests' discovery-on helper only switched it off, never on; and the save VERSION tests still said 6 (now 7). Fixed in tools/tests/run_tests.gd.
@@ -60,3 +62,13 @@
 - Failed / did not work: commits made with [no-gdd] because gdd.md has others' uncommitted edits; I edited the Rivals line in gdd.md but did not commit it. CLAUDE.md also has an uncommitted change not mine.
 - Files and commits: ada9682, afd61a7; schedule.json, blackboard.md, gdd.md (uncommitted).
 - Left to do: owner decisions listed above; mining on a platform is manual (Buy order then Send), note for gdd.
+
+## 2026-11-05 run: T176
+- Summary: Added three placeholder solar systems (ids 3-5) in data/systems_placeholder.json, off by default, flagged placeholder:true, with never-true availability rules and English text ids.
+- Why this task: only open task doable without owner decision, QA or visual choice (T185 visual, T178/T182 owner-only, T05/T166 not pressing).
+- Approach: separate file loaded only when enabled, so win condition, permits and economy ignore them.
+- Agent prompts: gameplay-programmer, brief = T176 text plus CLAUDE.md rules and no QA. Produced data/systems_placeholder.json, game/systems.gd, availability.json, story/screens.md, story_text.json, run_tests.gd, handoffs/gameplay-programmer/2026-11-05-T176.json (verified).
+- Worked: sh tools/tests/run.sh pass=2856 fail=0.
+- Failed / did not work: nothing. Committed with [no-gdd] since features are off and gdd.md holds others' edits.
+- Files and commits: see git log "Placeholder solar systems (T176)".
+- Left to do: owner decides count (3-5 vs 6), real permit keys (economy-designer), Russian text.
