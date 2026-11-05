@@ -1,0 +1,14 @@
+{
+  "agent": "gameplay-programmer",
+  "date": "2026-11-05",
+  "task": "T186",
+  "status": "done",
+  "files_changed": ["data/balance.json", "game/ship_panel.gd", "handoffs/gameplay-programmer/2026-11-05-T186.json"],
+  "schema_version": 1,
+  "open_questions": [
+    "Look: the Ships panel per-ship upkeep list and the Null Core Fit buttons now scroll past a fixed height (220 and 154 px). Keep scroll, or prefer compact rows / a wider panel?",
+    "Economy: trip cost, maintenance and overhead were tuned for the old cap of 6. Do you want an economy-designer retune for 20 ships?",
+    "UNKNOWN: route list and other panels were not checked visually at 20 ships (no windowed run); only the code was reviewed."
+  ],
+  "handoff": "ship_cap is 20 in data/balance.json (data_version 55). No other hard-coded 5/6 cap was found in game/, tests, story/*.md or story/ru; no story text names the cap number, and gdd.md does not state it, so there is no gdd-log entry. The code reads the cap from balance via main.ship_cap() and Ships.cap(bal), which still adds cap_add per fleet type. The Ships panel (game/ship_panel.gd) wraps the per-ship upkeep list and the Fit Null Core buttons in ScrollContainers with a capped height, so 20 ships fit. sh tools/tests/run.sh passes (2810 pass, 0 fail). Nothing committed."
+}

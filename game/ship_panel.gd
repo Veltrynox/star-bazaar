@@ -11,7 +11,10 @@ var buy_buttons: Dictionary = {}  # kind -> Button
 var label: Label
 var upkeep_label: Label
 var pathfinder_label: Label  # T180: Pathfinder name, description, status; hidden unless discovery is on
+var upkeep_scroll: ScrollContainer
+const UPKEEP_MAX_H := 220.0
 var free_label: Label  # free ships, upkeep each, and what Send to... does when none is free
+var core_scroll: ScrollContainer
 var core_box: VBoxContainer  # Null Core: one Fit button per ship while a built core is not on it
 var _core_sig := ""
 var _last_count := -1  # -1 until the first count, so a loaded save does not flash
@@ -28,9 +31,14 @@ func _ready() -> void:
 	box.add_child(title)
 	label = Label.new()
 	box.add_child(label)
+	upkeep_scroll = ScrollContainer.new()  # T186: up to 20 ships, so the per-ship list scrolls past UPKEEP_MAX_H
+	upkeep_scroll.name = "UpkeepScroll"
+	upkeep_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	box.add_child(upkeep_scroll)
 	upkeep_label = Label.new()
 	upkeep_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	box.add_child(upkeep_label)
+	upkeep_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	upkeep_scroll.add_child(upkeep_label)
 	pathfinder_label = Label.new()
 	pathfinder_label.name = "Pathfinder"
 	pathfinder_label.theme_type_variation = "LabelSmall"
@@ -44,7 +52,11 @@ func _ready() -> void:
 	box.add_child(free_label)
 	core_box = VBoxContainer.new()
 	core_box.name = "CoreBox"
-	box.add_child(core_box)
+	core_scroll = ScrollContainer.new()  # T186: one Fit button per ship, up to 20
+	core_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	core_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	core_scroll.add_child(core_box)
+	box.add_child(core_scroll)
 	for kind in ["fleet"]:  # one buy button: every ship of the run is the chosen type (Ships.fleet)
 		var b := Button.new()
 		b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART  # a long label wraps instead of widening the right column
@@ -72,11 +84,13 @@ func set_upkeep(main: Control) -> void:
 			lines.append("Ship %d, %s (free): 0" % [n, Ships.display_name(kind)])
 	lines.append("%s, total: %d / cycle" % [upkeep_name, total])
 	upkeep_label.text = "\n".join(lines)
+	upkeep_scroll.custom_minimum_size.y = minf(UPKEEP_MAX_H, upkeep_label.get_combined_minimum_size().y)
 	_set_pathfinder(main)
 	var core_on: bool = main.core_route_id() >= 0
 	upkeep_label.mouse_filter = Control.MOUSE_FILTER_STOP if core_on else Control.MOUSE_FILTER_IGNORE
 	upkeep_label.tooltip_text = StoryText.get_or("NULL_CORE_FIT", "Null Core fitted. Lower Trip cost, and pirates cannot touch this ship.") if core_on else ""
 	_set_core_buttons(main)
+	core_scroll.custom_minimum_size.y = minf(UPKEEP_MAX_H * 0.7, core_box.get_combined_minimum_size().y)
 	var free: int = main.free_ships()
 	var price := Ships.price(Ships.fleet, main.balance)
 	var cap: int = main.ship_cap()
