@@ -47,8 +47,9 @@ extends Node3D
 ##       NOT_POST_NO_CASH, NOT_PLATFORM_NO_CASH, NOT_POST_BUSY itself.
 ## When state changes (arrive, build done, flags change) the planet panel and map labels re-read the accessor on their own
 ## (the panel compares a signature each frame), so T179 needs no refresh call.
-## Model forward axis is assumed -Z (Godot default); the ship is turned with rotation.y = atan2(-dx, -dz).
+## Model forward axis is -Z after the per-model offset of Ships.MODEL_YAW_DEG (T197); the ship is turned with rotation.y = atan2(-dx, -dz).
 
+const Ships := preload("res://game/ships.gd")  # T197: per-model yaw offset
 const FIT_RADIUS := 0.45       # horizontal footprint radius of the model in world units (planets are about 0.9 to 2.4 across)
 const FIT_HEIGHT := 0.3
 const LIFT := 0.35             # ship hovers above the map plane so it clears planet spheres' lower rim
@@ -220,7 +221,10 @@ func _ensure_model(path: String) -> void:
 			var ry := maxf(box.size.y * 0.5, 0.000001)
 			_holder.scale = Vector3.ONE * minf(FIT_RADIUS / rxz, FIT_HEIGHT / ry)
 			model.position = -box.get_center()
-		_holder.add_child(model)
+		var pivot := Node3D.new()  # T197: turns the model's own nose axis onto -Z
+		pivot.rotation.y = Ships.model_yaw_for_path(path)
+		pivot.add_child(model)
+		_holder.add_child(pivot)
 	add_child(_holder)
 
 func _bounds(node: Node, t: Transform3D) -> AABB:

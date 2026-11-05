@@ -13,7 +13,22 @@ const DEFAULT := "small"
 ## Type of every ship in the current run. Set by main.gd (new game or save).
 static var fleet: String = DEFAULT
 
+## T197: each GLB's nose points along its own -X (measured: long axis X, narrow end at -X), not Godot's -Z. Yaw in degrees
+## added to the model so its nose points along the ship's heading (-Z at rotation.y = 0). Keyed by ship id of data/ships.json.
+const MODEL_YAW_DEG := {"small": -90.0, "bulk": -90.0, "dart": -90.0, "fleet": -90.0}
+
 static var _defs: Dictionary = {}
+
+## Yaw offset (radians) of a ship type's model; 0 for an unknown id.
+static func model_yaw(kind: String) -> float:
+	return deg_to_rad(float(MODEL_YAW_DEG.get(kind, 0.0)))
+
+## Same, found by GLB path (for views that only know the model path).
+static func model_yaw_for_path(path: String) -> float:
+	for k in types():
+		if model(str(k)) == path:
+			return model_yaw(str(k))
+	return 0.0
 
 static func _load() -> void:
 	_defs = {}

@@ -1187,10 +1187,11 @@
       "title": "Ship model orientation: ships fly sideways",
       "owner_agent": "ui-programmer",
       "depends_on": [],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 25,
       "window": "Owner request 2026-11-05 (playtest feedback). Not started: main session sets it running.",
-      "brief": "Owner: ships fly sideways. Fix the 3D model forward axis for the player's ship and the rival ships (game/pathfinder_view.gd, game/rival_ships.gd, model loading as in game/ship_setup.gd): the nose must point along the heading (the direction of travel), with yaw following the course from T196. Check the corvette models in assets/ships for their own forward axis and correct it in code (a per-model yaw offset constant is fine), not by editing model files by hand. Handoff handoffs/ui-programmer/2026-11-05-T197.json."
+      "brief": "Owner: ships fly sideways. Fix the 3D model forward axis for the player's ship and the rival ships (game/pathfinder_view.gd, game/rival_ships.gd, model loading as in game/ship_setup.gd): the nose must point along the heading (the direction of travel), with yaw following the course from T196. Check the corvette models in assets/ships for their own forward axis and correct it in code (a per-model yaw offset constant is fine), not by editing model files by hand. Handoff handoffs/ui-programmer/2026-11-05-T197.json.",
+      "note": "Per-model yaw offset MODEL_YAW_DEG in game/ships.gd (all -90, inferred from vertices; ship_corvette_01 least certain: flip to 90 if backwards). Not seen windowed."
     },
     {
       "task_id": "T198",

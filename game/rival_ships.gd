@@ -127,7 +127,10 @@ func _make_ship(kind: String) -> Node3D:
 				rxz = maxf(rxz, Vector2(c.x, c.z).length())
 			holder.scale = Vector3.ONE * (FIT_RADIUS / rxz)
 			model.position = -box.get_center()
-		holder.add_child(model)
+		var pivot := Node3D.new()  # T197: turns the model's own nose axis onto -Z
+		pivot.rotation.y = Ships.model_yaw(kind)
+		pivot.add_child(model)
+		holder.add_child(pivot)
 	return holder
 
 func _aabb(node: Node, t: Transform3D) -> AABB:

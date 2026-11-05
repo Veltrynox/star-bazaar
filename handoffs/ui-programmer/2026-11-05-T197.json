@@ -1,0 +1,13 @@
+{
+  "agent": "ui-programmer",
+  "date": "2026-11-05",
+  "task": "T197",
+  "status": "done",
+  "files_changed": ["game/ships.gd", "game/pathfinder_view.gd", "game/rival_ships.gd"],
+  "schema_version": 1,
+  "open_questions": [
+    "Nose direction of each GLB was inferred from measured geometry (long axis X, narrower end at -X; ship_corvette_01 is the least certain). If any ship flies backwards, change its value in Ships.MODEL_YAW_DEG to 90.",
+    "Models 05 to 08 are not in data/ships.json, so they have no offset (05, 06, 08 have their long axis on Z and would need their own entry if added)."
+  ],
+  "handoff": "Models have the nose along -X (all four ships in data/ships.json: long axis X, narrow end at -X), while heading uses -Z. Offsets live in game/ships.gd as const MODEL_YAW_DEG (small, bulk, dart, fleet = -90 degrees), read via Ships.model_yaw(id) and Ships.model_yaw_for_path(path). Pathfinder view and rival ships wrap the model in a pivot node rotated by that offset; heading and motion code are unchanged. Not checked by eye. Tests pass: 2875, fail 0."
+}

@@ -4,7 +4,7 @@
 - discovery_enabled in data/balance.json ships at 1 (owner decision 2026-11-05); tests that need it off set it themselves.
 
 ## Left to do
-- Open build tasks from playtest: T197-T201 (T196 done). T194 done; Competitors still reachable from share panel (L), owner to say if that goes too.
+- Open build tasks from playtest: T198-T201 (T196, T197 done; T201 now unblocked). T194 done; Competitors still reachable from share panel (L), owner to say if that goes too.
 - Open: T185 (visual), T178/T182 (owner-only agents), T05 (only windowed frame time missing, see T193), T166 (superseded). Owner-decision tasks T189-T193 added 2026-11-05.
 
 - Owner: ship cap 20 (T186): decide on economy retune (trip cost, maintenance tuned for 6) and look of the scrolled ship list; other panels not checked at 20 ships.
@@ -123,3 +123,13 @@
 - Failed / did not work: nothing. Not seen windowed; debug menu listing of new keys unchecked. gdd.md not edited, so committed [no-gdd] (note: ships accelerate/turn is a small design line the owner may want in gdd).
 - Files and commits: see git log "T196".
 - Left to do: T197-T201; owner to tune the placeholder motion numbers.
+
+## 2026-11-05 19:00 run: T197
+- Summary: Ships now face their heading: per-model yaw offset MODEL_YAW_DEG in game/ships.gd (all four ship ids -90), applied via a pivot node in pathfinder_view.gd and rival_ships.gd.
+- Why this task: clear bug fix, no owner decision; unblocks T201.
+- Approach: code offset table keyed by ship id (readable by the T201 test), no model file edits.
+- Agent prompts: ui-programmer, brief = T197 text plus no-QA, no-commit. Produced the three game files and handoffs/ui-programmer/2026-11-05-T197.json (verified).
+- Worked: sh tools/tests/run.sh pass=2875 fail=0.
+- Failed / did not work: nothing; not seen windowed. Nose end inferred from vertex widths; ship_corvette_01 least certain.
+- Files and commits: game/ships.gd, game/pathfinder_view.gd, game/rival_ships.gd, schedule.json, blackboard.md, handoff; commit "T197 ... [no-gdd]".
+- Left to do: owner checks windowed that no ship flies backwards (flip entry to 90). Models 05-08 are not in ships.json and have no offset. Next: T201, T200.
