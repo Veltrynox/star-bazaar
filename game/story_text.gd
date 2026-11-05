@@ -44,7 +44,7 @@ static func in_ru_scope(id: String) -> bool:
 	for p in ["EV_", "TUT_GALAXY_", "CH_", "WARN_", "MENU_", "SCR_", "END_", "EPI_", "TXT_SHIP_", "LBL_STAT_", "LBL_CEO_", "TXT_CEO_", "LBL_SHIP_SCREEN", "LBL_SHIP_PICK", "LBL_SHIP_START", "LBL_SHIP_BULK", "LBL_SHIP_DART", "LBL_SHIP_FLEET"]:
 		if id.begins_with(p):
 			return true
-	if id == "SETUP_NEXT":
+	if id == "SETUP_NEXT" or id == "GOOD_RIVETS_DESC":
 		return true
 	if id.begins_with("SK_") and (id.ends_with("_NAME") or id.ends_with("_FLAVOUR") or id.ends_with("_PLAIN") or id.ends_with("_CRAFT")):
 		return true

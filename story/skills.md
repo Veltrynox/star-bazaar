@@ -28,16 +28,16 @@ SK_FND_PROSPECT_PLAIN | 110 | Skill screen, detail panel | Lets routes start at 
 
 SK_MIL_1_NAME | 24 | Skill screen, node name | Drydock Deals
 SK_MIL_1_FLAVOUR | 90 | Skill screen, detail panel | Every machine is a slow bill with wings. Cut the bill.
-SK_MIL_1_PLAIN | 110 | Skill screen, detail panel | Lowers Ship upkeep clearly. Unlocks Military crafting in your second system.
+SK_MIL_1_PLAIN | 110 | Skill screen, detail panel | Cuts Ship upkeep by 20%. Unlocks Military crafting in your second system.
 
 SK_MIL_2_NAME | 24 | Skill screen, node name | Double Casting
 SK_MIL_2_FLAVOUR | 90 | Skill screen, detail panel | Same furnace, twice the pour. The Plan calls it thrift.
-SK_MIL_2_PLAIN | 110 | Skill screen, detail panel | Military workshops make one more batch a cycle, if you haul the inputs. Tech: craft {goal} units.
+SK_MIL_2_PLAIN | 140 | Skill screen, detail panel | Military workshops make one more batch a cycle, if you haul the inputs. Tech: craft {goal} units.
 SK_MIL_2_CRAFT | 60 | Skill screen, tech node progress line | Military workshop crafts: {n} of {goal}
 
 SK_MIL_3_NAME | 24 | Skill screen, node name | Debris Pilots
 SK_MIL_3_FLAVOUR | 90 | Skill screen, detail panel | A good pilot reads the rubble like a timetable.
-SK_MIL_3_PLAIN | 110 | Skill screen, detail panel | Routes carrying Military goods ignore debris events on the lane.
+SK_MIL_3_PLAIN | 110 | Skill screen, detail panel | Routes with Military goods carry 12.5% more a cycle and ignore debris events on the lane.
 
 SK_MIL_4_NAME | 24 | Skill screen, node name | Hull Works
 SK_MIL_4_FLAVOUR | 90 | Skill screen, detail panel | Shell a hull well and the quarrel goes elsewhere.
@@ -46,11 +46,11 @@ SK_MIL_4_CRAFT | 60 | Skill screen, tech node progress line | Military workshop 
 
 SK_MIL_5_NAME | 24 | Skill screen, node name | Embargo Desk
 SK_MIL_5_FLAVOUR | 90 | Skill screen, detail panel | A polite desk with a very long reach.
-SK_MIL_5_PLAIN | 110 | Skill screen, detail panel | Every {m} cycles you may pick a rival: its Military strength falls sharply for {n} cycles.
+SK_MIL_5_PLAIN | 110 | Skill screen, detail panel | Every {m} cycles pick a rival: its Military strength falls by half for {n} cycles.
 
 SK_MIL_6_NAME | 24 | Skill screen, node name | Contract Doctrine
 SK_MIL_6_FLAVOUR | 90 | Skill screen, detail panel | Write the terms first. The sky respects a clause.
-SK_MIL_6_PLAIN | 110 | Skill screen, detail panel | Price events that cut your Military goods hit clearly weaker. Tech: craft {goal} units.
+SK_MIL_6_PLAIN | 140 | Skill screen, detail panel | Events that cut your Military prices hit half as hard. Military sales pay 6% more. Tech: craft {goal} units.
 SK_MIL_6_CRAFT | 60 | Skill screen, tech node progress line | Military workshop crafts: {n} of {goal}
 
 SK_MIL_7_NAME | 24 | Skill screen, node name | Standing Fleet
@@ -63,7 +63,7 @@ SK_LUX_1_PLAIN | 110 | Skill screen, detail panel | Shows next cycle's prices. U
 
 SK_LUX_2_NAME | 24 | Skill screen, node name | Fine Finishing
 SK_LUX_2_FLAVOUR | 90 | Skill screen, detail panel | A good edge earns a second look. A third earns a price.
-SK_LUX_2_PLAIN | 110 | Skill screen, detail panel | Luxury price-up events pay clearly more. Tech: craft {goal} units.
+SK_LUX_2_PLAIN | 140 | Skill screen, detail panel | Luxury sales count 8% more toward share and pay 6% more. Tech: craft {goal} units.
 SK_LUX_2_CRAFT | 60 | Skill screen, tech node progress line | Luxury workshop crafts: {n} of {goal}
 
 SK_LUX_3_NAME | 24 | Skill screen, node name | Event Forecast
@@ -72,21 +72,21 @@ SK_LUX_3_PLAIN | 110 | Skill screen, detail panel | Warns you one cycle before a
 
 SK_LUX_4_NAME | 24 | Skill screen, node name | Cold Cellar
 SK_LUX_4_FLAVOUR | 90 | Skill screen, detail panel | Some things improve in the dark. So do some excuses.
-SK_LUX_4_PLAIN | 110 | Skill screen, detail panel | Unlocks a second Luxury product. It needs second-system goods and cluster rock. Tech: craft {goal} units.
+SK_LUX_4_PLAIN | 110 | Skill screen, detail panel | Unlocks a second Luxury product, made only from second-system goods. Tech: craft {goal} units.
 SK_LUX_4_CRAFT | 60 | Skill screen, tech node progress line | Luxury workshop crafts: {n} of {goal}
 
 SK_LUX_5_NAME | 24 | Skill screen, node name | Patron's List
 SK_LUX_5_FLAVOUR | 90 | Skill screen, detail panel | The right name on the right list is worth a ship.
-SK_LUX_5_PLAIN | 110 | Skill screen, detail panel | Sales at a price-up planet count clearly more toward your Luxury share, and the event pays more.
+SK_LUX_5_PLAIN | 110 | Skill screen, detail panel | Sales at a price-up planet count 30% more toward your Luxury share, and the event pays 25% more.
 
 SK_LUX_6_NAME | 24 | Skill screen, node name | Hallmark
 SK_LUX_6_FLAVOUR | 90 | Skill screen, detail panel | One more piece from every pour. The mould was always big enough.
-SK_LUX_6_PLAIN | 110 | Skill screen, detail panel | Each Luxury batch yields one more unit. Tech: craft {goal} units.
+SK_LUX_6_PLAIN | 140 | Skill screen, detail panel | Each Luxury batch yields one more unit. Luxury sales pay 8% more. Tech: craft {goal} units.
 SK_LUX_6_CRAFT | 60 | Skill screen, tech node progress line | Luxury workshop crafts: {n} of {goal}
 
 SK_LUX_7_NAME | 24 | Skill screen, node name | Guild Seal
 SK_LUX_7_FLAVOUR | 90 | Skill screen, detail panel | Buy the client, not the goods. The guild keeps a form for it.
-SK_LUX_7_PLAIN | 110 | Skill screen, detail panel | Once per run, pick a rival: its Luxury strength falls sharply for {n} cycles. Capstone.
+SK_LUX_7_PLAIN | 110 | Skill screen, detail panel | Every {m} cycles pick a rival: its Luxury strength falls by 40% for {n} cycles. Capstone.
 
 SK_MIN_1_NAME | 24 | Skill screen, node name | Fabrication Licence
 SK_MIN_1_FLAVOUR | 90 | Skill screen, detail panel | A licence to make one good thing from two bad rocks. Stamped in triplicate.
@@ -99,7 +99,7 @@ SK_MIN_2_CRAFT | 60 | Skill screen, tech node progress line | Minerals workshop 
 
 SK_MIN_3_NAME | 24 | Skill screen, node name | Cold Survey
 SK_MIN_3_FLAVOUR | 90 | Skill screen, detail panel | A rock no one lives on still has a ledger line. Someone must read it.
-SK_MIN_3_PLAIN | 110 | Skill screen, detail panel | Lets routes start at Cinderrest and mine its salt. Cluster yield up a little. Dead worlds open later.
+SK_MIN_3_PLAIN | 140 | Skill screen, detail panel | Lets routes start at Cinderrest and mine its salt. Cluster yield up 25%. Dead worlds open later.
 
 SK_MIN_4_NAME | 24 | Skill screen, node name | Twin Crucible
 SK_MIN_4_FLAVOUR | 90 | Skill screen, detail panel | Two metals agree if you hold them hot enough.
@@ -112,12 +112,12 @@ SK_MIN_5_PLAIN | 110 | Skill screen, detail panel | Lets routes start at Greywak
 
 SK_MIN_6_NAME | 24 | Skill screen, node name | Lattice Works
 SK_MIN_6_FLAVOUR | 90 | Skill screen, detail panel | A good lattice forgives the one who made it.
-SK_MIN_6_PLAIN | 110 | Skill screen, detail panel | Each Minerals batch yields one more unit. Unlocks a further Minerals product. Tech: craft {goal} units.
+SK_MIN_6_PLAIN | 140 | Skill screen, detail panel | Each Minerals batch yields one more unit and sales pay 8% more. Unlocks a further product. Tech: craft {goal} units.
 SK_MIN_6_CRAFT | 60 | Skill screen, tech node progress line | Minerals workshop crafts: {n} of {goal}
 
 SK_MIN_7_NAME | 24 | Skill screen, node name | Cornered Seam
 SK_MIN_7_FLAVOUR | 90 | Skill screen, detail panel | The last seam in reach belongs to someone. Now it is you.
-SK_MIN_7_PLAIN | 110 | Skill screen, detail panel | All rivals' Minerals strength falls clearly for the rest of the run. Capstone.
+SK_MIN_7_PLAIN | 110 | Skill screen, detail panel | Cuts all rivals' Minerals strength by 30% for the rest of the run. Capstone.
 
 SK_BIO_1_NAME | 24 | Skill screen, node name | Culture Charter
 SK_BIO_1_FLAVOUR | 90 | Skill screen, detail panel | A good form is one you only file once. The Bureau will not mind.
@@ -125,27 +125,27 @@ SK_BIO_1_PLAIN | 110 | Skill screen, detail panel | Unlocks Biotech crafting in 
 
 SK_BIO_2_NAME | 24 | Skill screen, node name | Culture Banks
 SK_BIO_2_FLAVOUR | 90 | Skill screen, detail panel | Something grows in the dark and asks for nothing. For now.
-SK_BIO_2_PLAIN | 110 | Skill screen, detail panel | Grows Biotech stock in planet storage each cycle, to a cap. Tech: craft {goal} units.
+SK_BIO_2_PLAIN | 140 | Skill screen, detail panel | Stored Biotech grows 2% a cycle, up to +20%. Biotech sales count 12% more toward share. Tech: craft {goal} units.
 SK_BIO_2_CRAFT | 60 | Skill screen, tech node progress line | Biotech workshop crafts: {n} of {goal}
 
 SK_BIO_3_NAME | 24 | Skill screen, node name | Deep Shelves
 SK_BIO_3_FLAVOUR | 90 | Skill screen, detail panel | A shelf is a promise that something will be there.
-SK_BIO_3_PLAIN | 110 | Skill screen, detail panel | Planet storage holds clearly more, and Biotech stock may grow higher before it stops.
+SK_BIO_3_PLAIN | 110 | Skill screen, detail panel | Planet storage holds 50% more. Biotech stock may now grow up to +30% before it stops.
 
 SK_BIO_4_NAME | 24 | Skill screen, node name | Gene Splicing
 SK_BIO_4_FLAVOUR | 90 | Skill screen, detail panel | A small cut, a small stitch. The vat hums approval.
-SK_BIO_4_PLAIN | 110 | Skill screen, detail panel | Unlocks the last Biotech product. Tech: craft {goal} units.
+SK_BIO_4_PLAIN | 110 | Skill screen, detail panel | Unlocks the last Biotech product. Biotech sales pay 10% more. Tech: craft {goal} units.
 SK_BIO_4_CRAFT | 60 | Skill screen, tech node progress line | Biotech workshop crafts: {n} of {goal}
 
 SK_BIO_5_NAME | 24 | Skill screen, node name | Clinic Contracts
 SK_BIO_5_FLAVOUR | 90 | Skill screen, detail panel | A clinic pays slowly, which the Bureau calls trust.
-SK_BIO_5_PLAIN | 110 | Skill screen, detail panel | Biotech share counts a longer span of cycles, so it moves steadily. Biotech stock survives storage cuts.
+SK_BIO_5_PLAIN | 110 | Skill screen, detail panel | Biotech share counts 12 more cycles, so it moves steadily. Biotech stock survives storage cuts.
 
 SK_BIO_6_NAME | 24 | Skill screen, node name | Hardy Strains
 SK_BIO_6_FLAVOUR | 90 | Skill screen, detail panel | A strain that survives the form survives most things.
-SK_BIO_6_PLAIN | 110 | Skill screen, detail panel | Biotech events cost you a little less. A closed planet reopens a cycle sooner. Tech: craft {goal} units.
+SK_BIO_6_PLAIN | 140 | Skill screen, detail panel | Biotech events hit 40% weaker. A closed planet reopens a cycle sooner. Sales pay 8% more. Tech: craft {goal} units.
 SK_BIO_6_CRAFT | 60 | Skill screen, tech node progress line | Biotech workshop crafts: {n} of {goal}
 
 SK_BIO_7_NAME | 24 | Skill screen, node name | Patent Wall
 SK_BIO_7_FLAVOUR | 90 | Skill screen, detail panel | A wall made of paper outlasts one made of stone.
-SK_BIO_7_PLAIN | 110 | Skill screen, detail panel | All rivals' Biotech strength falls clearly for the rest of the run. Capstone.
+SK_BIO_7_PLAIN | 110 | Skill screen, detail panel | Cuts all rivals' Biotech strength by 25% for the rest of the run. Capstone.

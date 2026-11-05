@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-11-05",
+  "task": "skill-text-round2",
+  "status": "done",
+  "files_changed": ["story/skills.md", "story/ru/skills.json", "story/screens.md", "data/story_text.json", "data/story_text_ru.json"],
+  "open_questions": [
+    "GOOD_ ids are outside RU_SCOPE_RE in tools/build_story.py, so GOOD_RIVETS_DESC has no RU text. Add GOOD_ to the scope if goods tooltips should be Russian.",
+    "Eight PLAIN lines now run to 140 chars max (MIL_2 RU, MIL_6, LUX_2, LUX_6, MIN_3, MIN_6, BIO_2, BIO_6). Does the skill detail panel fit them?",
+    "RU writes 12,5% (comma) for MIL_3; EN writes 12.5%."
+  ],
+  "handoff": "All skill PLAIN lines now state real numbers from data/balance.json (v50) in EN and RU: MIL_1 20%, MIL_3 12.5% capacity plus debris, MIL_5 half for {n} of every {m}, MIL_6 half and +6% sales, LUX_2 8%/6%/50%, LUX_4 second-system goods only (no silk, musk, gems or ore named), LUX_5 30%/25%, LUX_6 +1 and 8%, LUX_7 30%, MIN_3 25%, MIN_6 +1 and 8%, MIN_7 20%, BIO_2 2%/20%/12%, BIO_3 50%/30%, BIO_4 10%, BIO_5 12 cycles, BIO_6 40%/8%, BIO_7 15%. GOOD_RIVETS_DESC reworded (EN, 82 chars). Generated files rebuilt; tests pass=1866 fail=0. Ready to ship; nothing to wire."
+}

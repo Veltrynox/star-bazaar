@@ -345,7 +345,7 @@ GOOD_ENERGY_DESC | 110 | Commodity tooltip, energy | Bulk power for any world wi
 GOOD_FOOD_NAME | 24 | Commodity name, food | Food
 GOOD_FOOD_DESC | 110 | Commodity tooltip, food | Plain staple rations. A raw good that everyone needs and nobody boasts about.
 GOOD_RIVETS_NAME | 24 | Commodity name, rivets | Rivets
-GOOD_RIVETS_DESC | 110 | Commodity tooltip, rivets | Plain metal pins that hold ships together. A trade good.
+GOOD_RIVETS_DESC | 110 | Commodity tooltip, rivets | Metal pins for ships. Bought at Voltara, sold at the system 2 yards. A trade good.
 GOOD_CELLS_NAME | 24 | Commodity name, cells | Power Cells
 GOOD_CELLS_DESC | 110 | Commodity tooltip, cells | Sealed power cells that keep their charge. A crafted good.
 GOOD_ARMOUR_NAME | 24 | Commodity name, armour | Hull Armour

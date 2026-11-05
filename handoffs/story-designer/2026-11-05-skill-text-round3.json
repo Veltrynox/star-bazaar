@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-11-05",
+  "task": "skill-text-round3",
+  "status": "done",
+  "files_changed": [
+    "story/skills.md",
+    "story/ru/skills.json",
+    "story/ru/screens.json",
+    "tools/build_story.py",
+    "game/story_text.gd",
+    "data/story_text.json",
+    "data/story_text_ru.json",
+    "handoffs/story-designer/2026-11-05-skill-text-round3.json"
+  ],
+  "open_questions": [
+    "Header of tools/build_story.py still lists the RU scope without ship/CEO/skill ids and GOOD_RIVETS_DESC; docstring only, left as is."
+  ],
+  "handoff": "SK_LUX_2_PLAIN (event bonus removed), SK_LUX_7_PLAIN (every {m} cycles, 40%, {n} cycles; same placeholder path as MIL_5 via plain_args), SK_MIN_7_PLAIN 30%, SK_BIO_7_PLAIN 25% updated in EN and RU. Full node text diff against data/skills.json and balance.json found no other mismatch. GOOD_RIVETS_DESC added in RU (story/ru/screens.json); RU_SCOPE_RE and in_ru_scope allow that id only. build_story.py run; tests pass 1866/0. Not committed."
+}

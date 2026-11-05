@@ -1425,7 +1425,7 @@
   },
   {
    "id": "GOOD_RIVETS_DESC",
-   "text": "Plain metal pins that hold ships together. A trade good.",
+   "text": "Metal pins for ships. Bought at Voltara, sold at the system 2 yards. A trade good.",
    "max": 110,
    "place": "Commodity tooltip, rivets"
   },
@@ -4791,7 +4791,7 @@
   },
   {
    "id": "SK_MIL_1_PLAIN",
-   "text": "Lowers Ship upkeep clearly. Unlocks Military crafting in your second system.",
+   "text": "Cuts Ship upkeep by 20%. Unlocks Military crafting in your second system.",
    "max": 110,
    "place": "Skill screen, detail panel"
   },
@@ -4810,7 +4810,7 @@
   {
    "id": "SK_MIL_2_PLAIN",
    "text": "Military workshops make one more batch a cycle, if you haul the inputs. Tech: craft {goal} units.",
-   "max": 110,
+   "max": 140,
    "place": "Skill screen, detail panel"
   },
   {
@@ -4833,7 +4833,7 @@
   },
   {
    "id": "SK_MIL_3_PLAIN",
-   "text": "Routes carrying Military goods ignore debris events on the lane.",
+   "text": "Routes with Military goods carry 12.5% more a cycle and ignore debris events on the lane.",
    "max": 110,
    "place": "Skill screen, detail panel"
   },
@@ -4875,7 +4875,7 @@
   },
   {
    "id": "SK_MIL_5_PLAIN",
-   "text": "Every {m} cycles you may pick a rival: its Military strength falls sharply for {n} cycles.",
+   "text": "Every {m} cycles pick a rival: its Military strength falls by half for {n} cycles.",
    "max": 110,
    "place": "Skill screen, detail panel"
   },
@@ -4893,8 +4893,8 @@
   },
   {
    "id": "SK_MIL_6_PLAIN",
-   "text": "Price events that cut your Military goods hit clearly weaker. Tech: craft {goal} units.",
-   "max": 110,
+   "text": "Events that cut your Military prices hit half as hard. Military sales pay 6% more. Tech: craft {goal} units.",
+   "max": 140,
    "place": "Skill screen, detail panel"
   },
   {
@@ -4953,8 +4953,8 @@
   },
   {
    "id": "SK_LUX_2_PLAIN",
-   "text": "Luxury price-up events pay clearly more. Tech: craft {goal} units.",
-   "max": 110,
+   "text": "Luxury sales count 8% more toward share and pay 6% more. Tech: craft {goal} units.",
+   "max": 140,
    "place": "Skill screen, detail panel"
   },
   {
@@ -4995,7 +4995,7 @@
   },
   {
    "id": "SK_LUX_4_PLAIN",
-   "text": "Unlocks a second Luxury product. It needs second-system goods and cluster rock. Tech: craft {goal} units.",
+   "text": "Unlocks a second Luxury product, made only from second-system goods. Tech: craft {goal} units.",
    "max": 110,
    "place": "Skill screen, detail panel"
   },
@@ -5019,7 +5019,7 @@
   },
   {
    "id": "SK_LUX_5_PLAIN",
-   "text": "Sales at a price-up planet count clearly more toward your Luxury share, and the event pays more.",
+   "text": "Sales at a price-up planet count 30% more toward your Luxury share, and the event pays 25% more.",
    "max": 110,
    "place": "Skill screen, detail panel"
   },
@@ -5037,8 +5037,8 @@
   },
   {
    "id": "SK_LUX_6_PLAIN",
-   "text": "Each Luxury batch yields one more unit. Tech: craft {goal} units.",
-   "max": 110,
+   "text": "Each Luxury batch yields one more unit. Luxury sales pay 8% more. Tech: craft {goal} units.",
+   "max": 140,
    "place": "Skill screen, detail panel"
   },
   {
@@ -5061,7 +5061,7 @@
   },
   {
    "id": "SK_LUX_7_PLAIN",
-   "text": "Once per run, pick a rival: its Luxury strength falls sharply for {n} cycles. Capstone.",
+   "text": "Every {m} cycles pick a rival: its Luxury strength falls by 40% for {n} cycles. Capstone.",
    "max": 110,
    "place": "Skill screen, detail panel"
   },
@@ -5121,8 +5121,8 @@
   },
   {
    "id": "SK_MIN_3_PLAIN",
-   "text": "Lets routes start at Cinderrest and mine its salt. Cluster yield up a little. Dead worlds open later.",
-   "max": 110,
+   "text": "Lets routes start at Cinderrest and mine its salt. Cluster yield up 25%. Dead worlds open later.",
+   "max": 140,
    "place": "Skill screen, detail panel"
   },
   {
@@ -5181,8 +5181,8 @@
   },
   {
    "id": "SK_MIN_6_PLAIN",
-   "text": "Each Minerals batch yields one more unit. Unlocks a further Minerals product. Tech: craft {goal} units.",
-   "max": 110,
+   "text": "Each Minerals batch yields one more unit and sales pay 8% more. Unlocks a further product. Tech: craft {goal} units.",
+   "max": 140,
    "place": "Skill screen, detail panel"
   },
   {
@@ -5205,7 +5205,7 @@
   },
   {
    "id": "SK_MIN_7_PLAIN",
-   "text": "All rivals' Minerals strength falls clearly for the rest of the run. Capstone.",
+   "text": "Cuts all rivals' Minerals strength by 30% for the rest of the run. Capstone.",
    "max": 110,
    "place": "Skill screen, detail panel"
   },
@@ -5241,8 +5241,8 @@
   },
   {
    "id": "SK_BIO_2_PLAIN",
-   "text": "Grows Biotech stock in planet storage each cycle, to a cap. Tech: craft {goal} units.",
-   "max": 110,
+   "text": "Stored Biotech grows 2% a cycle, up to +20%. Biotech sales count 12% more toward share. Tech: craft {goal} units.",
+   "max": 140,
    "place": "Skill screen, detail panel"
   },
   {
@@ -5265,7 +5265,7 @@
   },
   {
    "id": "SK_BIO_3_PLAIN",
-   "text": "Planet storage holds clearly more, and Biotech stock may grow higher before it stops.",
+   "text": "Planet storage holds 50% more. Biotech stock may now grow up to +30% before it stops.",
    "max": 110,
    "place": "Skill screen, detail panel"
   },
@@ -5283,7 +5283,7 @@
   },
   {
    "id": "SK_BIO_4_PLAIN",
-   "text": "Unlocks the last Biotech product. Tech: craft {goal} units.",
+   "text": "Unlocks the last Biotech product. Biotech sales pay 10% more. Tech: craft {goal} units.",
    "max": 110,
    "place": "Skill screen, detail panel"
   },
@@ -5307,7 +5307,7 @@
   },
   {
    "id": "SK_BIO_5_PLAIN",
-   "text": "Biotech share counts a longer span of cycles, so it moves steadily. Biotech stock survives storage cuts.",
+   "text": "Biotech share counts 12 more cycles, so it moves steadily. Biotech stock survives storage cuts.",
    "max": 110,
    "place": "Skill screen, detail panel"
   },
@@ -5325,8 +5325,8 @@
   },
   {
    "id": "SK_BIO_6_PLAIN",
-   "text": "Biotech events cost you a little less. A closed planet reopens a cycle sooner. Tech: craft {goal} units.",
-   "max": 110,
+   "text": "Biotech events hit 40% weaker. A closed planet reopens a cycle sooner. Sales pay 8% more. Tech: craft {goal} units.",
+   "max": 140,
    "place": "Skill screen, detail panel"
   },
   {
@@ -5349,7 +5349,7 @@
   },
   {
    "id": "SK_BIO_7_PLAIN",
-   "text": "All rivals' Biotech strength falls clearly for the rest of the run. Capstone.",
+   "text": "Cuts all rivals' Biotech strength by 25% for the rest of the run. Capstone.",
    "max": 110,
    "place": "Skill screen, detail panel"
   },
