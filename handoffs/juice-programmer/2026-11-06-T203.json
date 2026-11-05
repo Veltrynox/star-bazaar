@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "agent": "juice-programmer",
+  "date": "2026-11-06",
+  "task": "T203",
+  "status": "done",
+  "files_changed": ["game/pathfinder_view.gd", "game/map.gd", "game/main.gd", "tools/tests/run_tests.gd", "schedule.json", "handoffs/juice-programmer/2026-11-06-T203.json"],
+  "new_task_ids": ["T219", "T220", "T221"],
+  "open_questions": [
+    "Is the ring (closes 0.33 s, then opens) and the 10 spokes readable against bright planets? Tune BURST_* in game/pathfinder_view.gd.",
+    "Is the camera nudge (ESTABLISH_NUDGE 0.05 world units, 0.35 s) soft enough? Constants at the top of game/map.gd."
+  ],
+  "handoff": "Establishing a post or platform now plays a 1.1 s beat on the planet: a ring closes in (build-up), then bursts open with sparkle spokes, the planet name label pops (Juice.pop) and the camera nudges sideways a little. Colour: signal_good for a post, star_warm for a platform. Ring and spokes and nudge advance on game time only (freeze while paused, nothing runs when idle); Juice.motion 0 skips them. Hook: map.establish_beat(i, col), called from main._on_flight_build_done; no signal added, no logic, balance or text change. gdd.md not updated (no mechanics change). Tests: sh tools/tests/run.sh TOTAL pass=11276 fail=0 (a new juice test covers the ring and spoke curves). Not seen running: all visuals unchecked by eye. Not committed, as asked.",
+  "details": {
+    "constants": {
+      "game/pathfinder_view.gd": "BURST_SECONDS 1.1, BURST_BUILD 0.3, BURST_SPOKES 10, BURST_RING_FROM 2.3, BURST_RING_MIN 1.15, BURST_RING_TO 2.8 (planet radii)",
+      "game/map.gd": "ESTABLISH_NUDGE 0.05, ESTABLISH_NUDGE_SECONDS 0.35"
+    },
+    "ideas_not_built": ["T219 route lane draw-in and dispatch pulse", "T220 Pathfinder order, flight and arrival feedback", "T221 trail and notice rough-edge review"],
+    "hooks": "map.establish_beat(i, col); PathfinderView.play_established(world_pos, radius, col)"
+  }
+}

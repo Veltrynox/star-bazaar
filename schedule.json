@@ -1265,10 +1265,11 @@
       "title": "Juice: establishing a trading post, plus 3 juice tasks of the agent's own choice",
       "owner_agent": "juice-programmer",
       "depends_on": [],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 35,
       "window": "Owner request 2026-11-05 (playtest). Not started: main session sets it running.",
-      "brief": "Owner: add juice when the ship establishes a trading post or mining platform (arrival burst, build-up sparkle or ring on the planet, a short count-up or pop of the new post marker, a soft screen nudge; game/pathfinder_view.gd and the post code; cheap in the frame budget, nothing animates while time is paused, no text without story ids). Then look at the game for where juice is thin or an existing effect is broken or rough (trails, notices, panels, route lines, events) and ADD 3 NEW TASKS FOR YOURSELF to schedule.json (task ids continuing the numbering, owner_agent juice-programmer, status queued, same fields as other tasks, one small run each, say in each brief why it matters). Do not start those 3 tasks in this run. Handoff handoffs/juice-programmer/2026-11-05-<this task id>.json listing the 3 task ids."
+      "brief": "Owner: add juice when the ship establishes a trading post or mining platform (arrival burst, build-up sparkle or ring on the planet, a short count-up or pop of the new post marker, a soft screen nudge; game/pathfinder_view.gd and the post code; cheap in the frame budget, nothing animates while time is paused, no text without story ids). Then look at the game for where juice is thin or an existing effect is broken or rough (trails, notices, panels, route lines, events) and ADD 3 NEW TASKS FOR YOURSELF to schedule.json (task ids continuing the numbering, owner_agent juice-programmer, status queued, same fields as other tasks, one small run each, say in each brief why it matters). Do not start those 3 tasks in this run. Handoff handoffs/juice-programmer/2026-11-05-<this task id>.json listing the 3 task ids.",
+      "note": "2026-11-06: establish beat (ring, spokes, label pop, nudge) built; follow-ups T219-T221 queued. Not seen windowed."
     },
     {
       "task_id": "T204",
@@ -1439,6 +1440,36 @@
       "turn_cap": 45,
       "window": "Owner request 2026-11-05. Needs the owner to approve the design proposal first.",
       "brief": "Build the approved gig design (T216) with the two stories (T217): data/gigs.json, spawn and expiry on the game clock, marker and flight target for the 3D ship (right-click menu action from T200), arrival handling, branch-dependent rewards, save state, texts by id (no new literal text), ui-programmer for any panel or popup. A headless test for spawn, arrival and reward per branch. Update gdd.md."
+    },
+    {
+      "task_id": "T219",
+      "title": "Juice: route lines pop in when a route is made and pulse when a ship dispatches",
+      "owner_agent": "juice-programmer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 20,
+      "window": "Follow-up from T203 (juice review 2026-11-05). One small run.",
+      "brief": "game/route_line.gd draws lanes with no entry or feedback: a new route simply appears, a removed one vanishes, and a ship dispatch has no cue on the lane. Add a short draw-in (alpha and width grow from the source end, about 0.25 s, EASE_OUT), a quick fade on removal, and one brief brightening pulse along the lane when a ship is sent. Why it matters: making a route is the core action and today the only confirmation is the two planet rings (_route_beat); the lane itself should answer. Nothing animates while paused, no text, no logic change, tunables as constants, one headless test for the pure curve."
+    },
+    {
+      "task_id": "T220",
+      "title": "Juice: Pathfinder arrival and flight-order feedback (departure puff, dock ping, target marker pulse)",
+      "owner_agent": "juice-programmer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 20,
+      "window": "Follow-up from T203 (juice review 2026-11-05). One small run.",
+      "brief": "game/pathfinder_view.gd gives no beat when the ship is ordered, leaves, or arrives: the target ring just appears and the arrival only posts a notice (_on_flight_arrived in game/main.gd). Add: a soft pulse on the target marker ring while the ship flies (slow, small), a short ping on the planet at arrival using the same ring helper as the T203 establish beat (play_established or a lighter variant), and a quick pop of the selection ring when the ship is selected or an order is accepted. Why it matters: the Pathfinder is the main thing the player steers in the new discovery mode and it is the quietest object on the map. Game time only (frozen while paused), no per-frame allocation, no logic change, tunables as constants."
+    },
+    {
+      "task_id": "T221",
+      "title": "Juice: ship trails and rival ships rough edges, plus notice board entry and exit",
+      "owner_agent": "juice-programmer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 20,
+      "window": "Follow-up from T203 (juice review 2026-11-05). One small run.",
+      "brief": "Review and smooth the rough parts left after T198/T205: (1) game/ship_trail.gd: check the trail on stop, on a system change and on a sharp turn (no jump or long straight streak, clears cleanly, rival trails do not keep drawing while paused or in another system); (2) the notification board and pop-up notices (game/main.gd post_notice and its scripts): confirm each enters in under 0.3 s with the Juice.enter vocabulary, leaves with Juice.leave, and that a notice dismissed or replaced mid-animation ends in its final state; do not shorten hold times. Why it matters: trails and notices are on screen all the time, so any pop, streak or stuck half-faded notice is seen constantly. Fix only what is found, list what was fine, no text or logic changes, tests where headless-testable."
     }
   ],
   "done_task_ids": [
