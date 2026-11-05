@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-05",
+  "task": "munitions-stall (BUG-1, BUG-8, default-decent gap)",
+  "status": "done",
+  "files_changed": ["qa/bots/bot_run.gd", "goals/ship-ceo-skills-resources/blackboard.json", "handoffs/gameplay-programmer/2026-11-05-munitions-stall.json"],
+  "open_questions": [
+    "economy-designer: tests failing on the in-flight data (not my change): effects 'MIL_3 is an event immunity', hooks 'MIL_3 and BIO_1', workshop 'armour made once MIL_4', triggers 'B1 ... 3 cycles after last step'. Pass after your data lands?",
+    "Design: should a route to the station take priority over lanes sharing its source stock? Today order is creation order; a player can starve a feed the same way."
+  ],
+  "handoff": "BUG-1 was a bot problem, not game code. In mil focus the energy lanes 5->7 and 5->6 were built before the station feed 5->station; routes run in list order and share one Buy order per planet and good, so the lanes took all of planet 5's energy and the feed always read 'Source storage is empty'. Fix in qa/bots/bot_run.gd: _feed_first() moves feed routes ahead of other routes (keeping routes[0], which the CEO first_lane perk reads). Result, mil seeds 1-4: munitions crafts in all four (cells 48-57, armour 21-30 with the current skills.json), all win at c27-29. BUG-8: intended. Waiting for room is route_engine's T70 rule: destination full but a Sell order or onward route exists, so the route throttles to the sale rate; the bot's warning_streak counts it as noise. Default decent gap: no CEO means Ceos.effects() is empty and first_lane_pct 0; small ship multipliers are all 1, so the default start is untouched. Both reviews used --skip-tutorial. data/balance, skills and goods are uncommitted and changing, so builds differed between runs; today seeds 1-4 all win at c27 (without --skip-tutorial all four lose, SWEPT). Test suite: 1863 pass, 3 fail, all on in-flight data.",
+  "details": {
+    "bug1_cause": "bot: lanes and feed share a source stock; feed was last in route order",
+    "bug8": "intended (route_engine settle: full dst with outflow -> waiting)",
+    "default_check": "game/ceos.gd effects() returns [] with no CEO; route_engine.ceo_lane_mult returns 1.0; ships.json small all mult 1"
+  }
+}

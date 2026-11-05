@@ -17,7 +17,17 @@
     "B1 root cause (gameplay-programmer): not a bot bug. After rescue_max stipends were spent (rescues_paid 2) cash sat at exactly 0 (never below, so no bankruptcy), stocks empty, Buy orders need cash, so no income was possible. Fixed: main._is_dead_end() ends the run as END_BANKRUPT.",
     "B8: 'Not enough cash.' route state is accurate (fare_for returns -1 only when cash < fixed cost and an earlier route already paid); long streaks came from the B1 dead end, now bounded.",
     "B9: game/debug_menu.gd added to export exclude_filter; main loads it only if debug_tools_allowed() and ResourceLoader.exists.",
-    "economy-designer 2026-11-05 retune: B3 cause = the final skill tree removed skill_MIL_3_route_units (+12.5 pct route capacity, learned by the default bot in every run). Bisect (decent, seeds 1-4, HEAD vs working tree): HEAD goods or HEAD skills alone change nothing; HEAD balance+skills together give 3/4 (6/8 on seeds 1-8); restoring only that key to the working tree gives 4/4. skill_LUX_1_price removal costs a little (seed 2); size keys, BIO_1, MIL_4, goods recipe changes, MIL_6 0.35: no effect for the default bot."
+    "economy-designer 2026-11-05 retune: B3 cause = the final skill tree removed skill_MIL_3_route_units (+12.5 pct route capacity, learned by the default bot in every run). Bisect (decent, seeds 1-4, HEAD vs working tree): HEAD goods or HEAD skills alone change nothing; HEAD balance+skills together give 3/4 (6/8 on seeds 1-8); restoring only that key to the working tree gives 4/4. skill_LUX_1_price removal costs a little (seed 2); size keys, BIO_1, MIL_4, goods recipe changes, MIL_6 0.35: no effect for the default bot.",
+    {
+      "agent": "economy-designer",
+      "date": "2026-11-05",
+      "text": "Win timing in focus runs is gated by chain B4 (win_gate), so chain_min_gap and the focus skill learn cycle set bio/lux pace. Bot learns MIL_3/MIL_5 in every focus (5 wasted points), so capstones stay unreached. Bot never crafts gems or alloy before the win."
+    },
+    {
+      "agent": "gameplay-programmer",
+      "date": "2026-11-05",
+      "text": "BUG-2 cause is the bot, not the game: the musk feed route (Tillam to station) delivered 20 a cycle, but the bot's earning musk lanes from Tillam to system 2 planets (7, 4) draw the system 1 Space Storage backup when planet stock is short (route_engine src_available / _settle_one, by design), and emptied the station each cycle before the atelier ran. Silk was safe because its source is in system 2. Fix in qa/bots/bot_run.gd _ranked_lanes_for: no lane of a workshop input from a system 1 planet. After the fix gems are crafted in all 4 lux seeds (85, 89, 73, 53). BUG-1 (seed 4) was the same, now fed at c26 and wins at 31."
+    }
   ],
   "decisions": [
     {
@@ -64,6 +74,16 @@
       "agent": "economy-designer",
       "date": "2026-11-05",
       "text": "Retune v49: cargo 32 to 40 (replaces MIL_3 route capacity for everyone), mining_yield_per_cycle 20 to 30, ceo_step_haggling 0.008 to 0.016, ceo_step_thrift 0.02 to 0.03, ceo_perk_woman_01_pct 0.08 to 0.12, ceo_perk_woman_02_pct 0.08 to 0.15, dart ship (cargo 1, upkeep 1, trip 0.75, price 1.05). Result: default decent 6/8 wins at c27; 16 combos 72/96 wins, medians 27; only decent wins in the 4-strategy regression. Tests 1866 pass. See design/proposals/2026-11-05-retune.md."
+    },
+    {
+      "agent": "economy-designer",
+      "date": "2026-11-05",
+      "text": "Skill round 2 (balance v50, skills v3): MIL_3 now route capacity +12.5% (+debris immunity extra); armour = 4 cells, gems = 2 silk + 1 musk (gems batch 3); chain_min_gap 3 to 2; mil bots x1.265, lux x0.65, bio x0.92; tech goals 6/11/8; capstones cost 3; price/volume extras on MIL_6, LUX_2, LUX_6, MIN_6, BIO_2/4/6. Decent 27x4, foci 27-32, losers 0/12. See design/proposals/2026-11-05-skill-tree-round2.md"
+    },
+    {
+      "agent": "economy-designer",
+      "date": "2026-11-05",
+      "text": "Skill round 3 (balance v51, skills v4): LUX_2 event bonus dropped; LUX_7 cooldown 9 hit 0.4; MIN_7 0.3, BIO_7 0.25; gems batch 6; lux bots x0.81, mil x0.7; culture lab cost 600 (new key). Default 27 x6, lux 4/4 seeds 1-4, dominance 0/12, CEOxship 31/32. See design/proposals/2026-11-05-skill-tree-round3.md"
     }
   ],
   "open_questions": [
@@ -90,6 +110,22 @@
     {
       "agent": "gameplay-programmer",
       "text": "story-designer: story/ru/skills.json SK_LUX_4_PLAIN digits differ (EN '2') and blocks build_story.py/run.sh; EV19 pirates text has no effect in code"
+    },
+    {
+      "agent": "gameplay-programmer",
+      "text": "BUG-1 was a bot problem, fixed in qa/bots/bot_run.gd: the energy feed shared planet 5 stock with earlier energy lanes (routes run in list order, one Buy order per planet+good), so the station feed starved. Feed routes now run first. mil seeds 1-4 craft munitions in all 4 (cells 48-57, armour 21-30). BUG-8 'Waiting for room' is intended (full destination with a Sell order or onward route). Default decent (no CEO, small ship) has no CEO/ship code effect; win-rate gap 3/4 vs 1/4 is data churn between runs, not perk code."
+    },
+    {
+      "agent": "economy-designer",
+      "text": "Owner: approve 8 new skill_*_price/volume keys and chain_min_gap 2. Story-designer: update SK ids listed in the proposal."
+    },
+    {
+      "agent": "gameplay-programmer",
+      "text": "Economy-designer: with gems really crafted, lux seeds 1 and 2 no longer win by cycle 40 (final cash about 3.3k) and seed 3 wins 27, seed 4 wins 31: the gem feed closes earning lanes (BUG-3 cost now measured). Retune LUX_4 or the gem price. Design note: a player lane out of a system 1 planet also drains the station backup of the same good."
+    },
+    {
+      "agent": "economy-designer",
+      "text": "Bot over-feeds gem inputs (450 silk, 475 musk idle): cap feed amount; story must update SK_LUX_2/LUX_7/MIN_7/BIO_7 PLAIN; owner approve keys culture_lab_build_cost and skill_LUX_7_every"
     }
   ],
   "claims": [],
@@ -145,6 +181,26 @@
     {
       "agent": "gameplay-programmer",
       "path": "handoffs/gameplay-programmer/2026-11-05-softlock-b1.json"
+    },
+    {
+      "agent": "gameplay-programmer",
+      "path": "handoffs/gameplay-programmer/2026-11-05-munitions-stall.json"
+    },
+    {
+      "agent": "gameplay-programmer",
+      "path": "qa/bots/bot_run.gd"
+    },
+    {
+      "agent": "gameplay-programmer",
+      "path": "handoffs/gameplay-programmer/2026-11-05-musk-feed.json"
+    },
+    {
+      "agent": "economy-designer",
+      "path": "design/proposals/2026-11-05-skill-tree-round3.md"
+    },
+    {
+      "agent": "economy-designer",
+      "path": "handoffs/economy-designer/2026-11-05-skill-round3.json"
     }
   ]
 }

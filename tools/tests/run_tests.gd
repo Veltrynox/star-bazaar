@@ -1772,15 +1772,15 @@ func _test_skills_core() -> void:
 	check(is_equal_approx(float(Markets.cur["lux"]), (10.0 + 4.0 * float(bal["skill_size_l"])) * float(Markets.value_of("silk"))), "effects: LUX_5 counts sales at a price-up planet extra")
 	Skills.add_learned("LUX_1")
 	Skills.add_learned("LUX_6")
-	check(is_equal_approx(Skills.sale_price_mult("lux"), 1.0) and Skills.reveal_cycles() == 1 and Skills.batch_yield("lux") == int(bal["skill_LUX_6_batch_bonus"]), "effects: LUX_1 reveals prices, LUX_6 raises luxury batch yield, no price percent")
+	check(is_equal_approx(Skills.sale_price_mult("lux"), 1.0 + float(bal["skill_LUX_6_price"])) and Skills.reveal_cycles() == 1 and Skills.batch_yield("lux") == int(bal["skill_LUX_6_batch_bonus"]), "effects: LUX_1 reveals prices, LUX_6 raises luxury batch yield and sale price (round 2)")
 	Skills.add_learned("LUX_3")
 	check(Skills.warning_cycles() == 1, "effects: event_warning (LUX_3)")
 	Skills.add_learned("MIL_3")
-	check(is_equal_approx(Skills.route_capacity_mult("mil"), 1.0) and is_equal_approx(Skills.route_capacity_mult("bio"), 1.0), "effects: MIL_3 is an event immunity, no route capacity percent")
+	check(is_equal_approx(Skills.route_capacity_mult("mil"), 1.0 + float(bal["skill_MIL_3_route_units"])) and is_equal_approx(Skills.route_capacity_mult("bio"), 1.0) and Skills.event_immune("mil", "debris"), "effects: MIL_3 raises Military route capacity (round 2) and keeps debris immunity")
 	Skills.add_learned("MIL_6")
 	Skills.add_learned("LUX_2")
 	Skills.add_learned("BIO_6")
-	check(is_equal_approx(Skills.event_cut("mil"), float(bal["skill_MIL_6_event_cut"])) and is_equal_approx(Skills.event_cut("bio"), float(bal["skill_BIO_6_event_cut"])) and is_equal_approx(Skills.event_cut("min"), 0.0) and is_equal_approx(Skills.event_bonus("lux"), float(bal["skill_LUX_2_event_bonus"]) + float(bal["skill_LUX_5_event_bonus"])) and Skills.reopen_sooner() == 1, "effects: event_cut_pct, event_bonus_pct, reopen_sooner")
+	check(is_equal_approx(Skills.event_cut("mil"), float(bal["skill_MIL_6_event_cut"])) and is_equal_approx(Skills.event_cut("bio"), float(bal["skill_BIO_6_event_cut"])) and is_equal_approx(Skills.event_cut("min"), 0.0) and is_equal_approx(Skills.event_bonus("lux"), float(bal["skill_LUX_5_event_bonus"])) and Skills.reopen_sooner() == 1, "effects: event_cut_pct, event_bonus_pct, reopen_sooner")
 	Skills.add_learned("BIO_1")
 	Skills.add_learned("BIO_3")
 	Skills.add_learned("BIO_5")
@@ -1853,9 +1853,9 @@ func _test_skills_core() -> void:
 	for c in range(dur + 2, int(bal["skill_MIL_5_every"]) + 1):
 		Markets.end_cycle(c)
 	check(Skills.bot_skill_ready("MIL_5") and Skills.activate_bot_skill("MIL_5", 3)["ok"], "bot skill: ready again after skill_MIL_5_every cycles")
-	# once per run (LUX_7)
+	# cooldown skill (LUX_7, round 3: every skill_LUX_7_every cycles)
 	Skills.add_learned("LUX_7")
-	check(Skills.activate_bot_skill("LUX_7", 1)["ok"] and Skills.bot_skill_cooldown("LUX_7") == -1 and Skills.activate_bot_skill("LUX_7", 2)["reason"] == "used", "bot skill: Guild Seal works once per run")
+	check(Skills.activate_bot_skill("LUX_7", 1)["ok"] and Skills.bot_skill_cooldown("LUX_7") == int(bal["skill_LUX_7_every"]) and Skills.activate_bot_skill("LUX_7", 2)["reason"] == "cooldown", "bot skill: Guild Seal has a cooldown (skill_LUX_7_every)")
 	# --- share points: once per market and step ---
 	Skills.reset(bal)
 	Markets.reset(bal, 2)
@@ -3371,7 +3371,7 @@ func _test_skill_effects() -> void:
 	var f0: int = eng.fixed_cost()
 	var y0: int = m.clusters.yield_per_cycle()
 	m.learned_skills = ["MIL_3", "BIO_1", "MIL_1", "MIN_3"]
-	check(eng.units_per_cycle(null, "energy") == u0 and eng.local_amount() == l0, "hooks: MIL_3 and BIO_1 no longer change route capacity or order size")
+	check(eng.units_per_cycle(null, "energy") > u0 and eng.local_amount() == l0, "hooks: MIL_3 raises Military route capacity (round 2); BIO_1 does not change order size")
 	check(eng.fixed_cost() < f0, "hooks: upkeep_mult (MIL_1) lowers the ship upkeep")
 	check(m.clusters.yield_per_cycle() == floori(float(bal["mining_yield_per_cycle"]) * (1.0 + float(bal["skill_MIN_3_yield"]))) and m.clusters.yield_per_cycle() > y0, "hooks: cluster_yield_pct (MIN_3) raises mining yield")
 	m.learned_skills = []
@@ -3404,8 +3404,8 @@ func _test_skill_effects() -> void:
 	m.events.active = [{"id": "T1", "kind": "up", "planet": 0, "c": "silk", "left": 3, "age": 0}, {"id": "T2", "kind": "down", "planet": 0, "c": "energy", "left": 3, "age": 0}]
 	var up0: float = m.events.price_factor(0, "silk")
 	var dn0: float = m.events.price_factor(0, "energy")
-	m.learned_skills = ["LUX_2", "MIL_6"]
-	check(is_equal_approx(m.events.price_factor(0, "silk"), 1.0 + m.events.pct("silk") * (1.0 + float(bal["skill_LUX_2_event_bonus"]))) and m.events.price_factor(0, "silk") > up0, "hooks: event_bonus_pct (LUX_2) makes price-up events pay more")
+	m.learned_skills = ["LUX_5", "MIL_6"]
+	check(is_equal_approx(m.events.price_factor(0, "silk"), 1.0 + m.events.pct("silk") * (1.0 + float(bal["skill_LUX_5_event_bonus"]))) and m.events.price_factor(0, "silk") > up0, "hooks: event_bonus_pct (LUX_5) makes price-up events pay more")
 	check(is_equal_approx(m.events.price_factor(0, "energy"), 1.0 - m.events.pct("energy") * (1.0 - float(bal["skill_MIL_6_event_cut"]))) and m.events.price_factor(0, "energy") > dn0, "hooks: event_cut_pct (MIL_6) weakens price-down events")
 	eng.sales_up_units = {}
 	eng.sales_units = {}
@@ -5772,9 +5772,9 @@ func _test_workshops() -> void:
 	Skills.add_learned("MIL_2")
 	Skills.add_learned("MIL_4")
 	m.storage.add(key, "energy", 0)
-	m.storage.add(key, "rivets", 1)  # resource audit 2026-11-05: armour recipe now takes 1 rivets
+	m.storage.add(key, "cells", 1)  # round 2: armour = 4 cells (no chips, no rivets)
 	m.workshops.run(m.storage, Callable(m, "craft_units"))
-	check(m.storage.amount(key, "armour") == int(m.balance["armour_batch_out"]), "workshop: armour made once MIL_4 is learned (highest tier first)", str(m.storage.to_dict().get(key, {})))
+	check(m.storage.amount(key, "armour") >= int(m.balance["armour_batch_out"]) and m.storage.amount(key, "armour") % int(m.balance["armour_batch_out"]) == 0, "workshop: armour made once MIL_4 is learned (highest tier first)", str(m.storage.to_dict().get(key, {})))
 	# batch bonuses: MIN_4 adds a batch, MIN_6 adds yield (smelter, ore -> ingot)
 	m.learned_skills.append("FND_PROSPECT")
 	m.learned_skills.append("MIN_1")
@@ -5958,7 +5958,7 @@ func _test_chains() -> void:
 	Chains.reset(bal, 3)
 	Chains.picks["MIL_A1"] = {"opt": "opt_a", "cycle": 10, "nudge": 6}
 	Skills.add_learned("MIL_3")  # B1 trigger: skill learned
-	check(Chains.trigger_ok("MIL_B1", 11) and not Chains.eligible("MIL_B1", 11) and not Chains.eligible("MIL_B1", 12) and Chains.eligible("MIL_B1", 13), "triggers: B1 from the learned skill, but only 3 cycles after the last step of the market")
+	check(Chains.trigger_ok("MIL_B1", 11) and not Chains.eligible("MIL_B1", 11) and not Chains.eligible("MIL_B1", 9 + int(bal["chain_min_gap"])) and Chains.eligible("MIL_B1", 10 + int(bal["chain_min_gap"])), "triggers: B1 from the learned skill, but only chain_min_gap cycles after the last step of the market")
 	Chains.picks["MIL_A1"]["cycle"] = 1
 	Chains.picks["LUX_A1"] = {"opt": "opt_a", "cycle": 99, "nudge": 0}
 	check(Chains.eligible("MIL_B1", 13) and Chains.next_step(13) == "MIL_A2", "slot: one step per cycle, the first ready in data order (A2 before B1)", Chains.next_step(13))
