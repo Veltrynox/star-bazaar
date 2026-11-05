@@ -45,6 +45,7 @@ func _run() -> void:
 	await _test_rescue_waiting()
 	await _test_events()
 	await _test_ships()
+	await _test_ship_ceo()
 	await _test_next_cycle()
 	await _test_station_energy_outflow()
 	await _test_good_info()
@@ -64,6 +65,7 @@ func _run() -> void:
 	await _test_asteroid()
 	await _test_idle_actions()
 	await _test_skill_effects()
+	await _test_skill_effects_final()
 	await _test_debug_menu()
 	await _test_planet_size()
 	await _test_route_offset()
@@ -1346,6 +1348,29 @@ func _test_main() -> void:
 	check(m.cash > int(bal["ship_price"]) and m.rescues_paid == 1, "rescue: stipend counts toward rescue_max")
 	await _free_main(m)
 
+	# --- B1: dead end after the last stipend ends the run as bankrupt ---
+	m = await _new_main()
+	m._dismiss_preface()
+	m.cash = 0
+	m.cycle = 10
+	m.rescues_paid = int(bal["rescue_max"])
+	m.last_net = 0
+	m.prev_net = 0
+	var ended_b1 := []
+	m.run_ended.connect(func(side, id): ended_b1.append([side, id]))
+	check(m._is_dead_end(), "B1: cash 0, no stipend left, nothing running is a dead end")
+	m._end_cycle()
+	await process_frame
+	check(m.game_over and ended_b1.size() == 1 and ended_b1[0][1] == "END_BANKRUPT", "B1: dead end ends the run as END_BANKRUPT", str(ended_b1))
+	await _free_main(m)
+	m = await _new_main()
+	m._dismiss_preface()
+	m.cash = 0
+	m.rescues_paid = 1
+	check(not m._is_dead_end(), "B1: a stipend is still left, not a dead end")
+	await _free_main(m)
+	check(FileAccess.get_file_as_string("res://export_presets.cfg").contains("game/debug_menu.gd"), "B9: debug_menu.gd is excluded from the export")
+
 	# --- save: version flag, market state round trip, old saves dropped ---
 	_wipe_user()
 	m = await _new_main()
@@ -1738,36 +1763,34 @@ func _test_skills_core() -> void:
 	check(is_equal_approx(Skills.upkeep_mult(), 1.0 - float(bal["skill_MIL_1_upkeep"])), "effects: upkeep_mult (MIL_1)")
 	check(Skills.unlocked("munitions") and Skills.unlocked("cells") and not Skills.unlocked("smelter"), "effects: unlock flags (MIL_1 workshop and good)")
 	Skills.add_learned("MIL_2")
-	Markets.add_sale("energy", 10)
-	check(is_equal_approx(float(Markets.cur["mil"]), 10.0 * base * (1.0 + float(bal["skill_size_s"]))), "effects: volume_pct raises share volume (MIL_2)")
-	Markets.cur["mil"] = 0.0
+	check(Skills.workshop_batches("mil") == int(bal["skill_MIL_2_batches"]) and Skills.workshop_batches("lux") == 0, "effects: workshop_batches (MIL_2) only for its market")
 	Skills.add_learned("MIL_4")
 	Markets.add_sale("energy", 10)
-	check(is_equal_approx(float(Markets.cur["mil"]), 10.0 * base * (1.0 + float(bal["skill_size_s"]))) and is_equal_approx(Skills.sale_price_mult("mil"), 1.0 + float(bal["skill_MIL_4_price"])) and is_equal_approx(Skills.sale_price_mult("lux"), 1.0), "effects: sale_price_pct has no share effect (MIL_4), other markets untouched")
+	check(is_equal_approx(float(Markets.cur["mil"]), 10.0 * base) and is_equal_approx(Skills.sale_price_mult("mil"), 1.0), "effects: no percent price or volume skill on MIL_2 / MIL_4 (no filler)")
 	Skills.add_learned("LUX_5")
 	Markets.add_sale("silk", 10, 4)
-	check(is_equal_approx(float(Markets.cur["lux"]), (10.0 + 4.0 * float(bal["skill_size_m"])) * float(Markets.value_of("silk"))), "effects: LUX_5 counts sales at a price-up planet extra")
+	check(is_equal_approx(float(Markets.cur["lux"]), (10.0 + 4.0 * float(bal["skill_size_l"])) * float(Markets.value_of("silk"))), "effects: LUX_5 counts sales at a price-up planet extra")
 	Skills.add_learned("LUX_1")
 	Skills.add_learned("LUX_6")
-	check(is_equal_approx(Skills.sale_price_mult("lux"), 1.0 + float(bal["skill_LUX_1_price"]) + float(bal["skill_LUX_6_price"])) and Skills.reveal_cycles() == 1, "effects: sale price skills add up, LUX_1 reveals prices")
+	check(is_equal_approx(Skills.sale_price_mult("lux"), 1.0) and Skills.reveal_cycles() == 1 and Skills.batch_yield("lux") == int(bal["skill_LUX_6_batch_bonus"]), "effects: LUX_1 reveals prices, LUX_6 raises luxury batch yield, no price percent")
 	Skills.add_learned("LUX_3")
 	check(Skills.warning_cycles() == 1, "effects: event_warning (LUX_3)")
 	Skills.add_learned("MIL_3")
-	check(is_equal_approx(Skills.route_capacity_mult("mil"), 1.0 + float(bal["skill_MIL_3_route_units"])) and is_equal_approx(Skills.route_capacity_mult("bio"), 1.0), "effects: route_capacity_pct only for its market (MIL_3)")
+	check(is_equal_approx(Skills.route_capacity_mult("mil"), 1.0) and is_equal_approx(Skills.route_capacity_mult("bio"), 1.0), "effects: MIL_3 is an event immunity, no route capacity percent")
 	Skills.add_learned("MIL_6")
 	Skills.add_learned("LUX_2")
 	Skills.add_learned("BIO_6")
-	check(is_equal_approx(Skills.event_cut("mil"), float(bal["skill_MIL_6_event_cut"])) and is_equal_approx(Skills.event_cut("bio"), float(bal["skill_BIO_6_event_cut"])) and is_equal_approx(Skills.event_cut("min"), 0.0) and is_equal_approx(Skills.event_bonus("lux"), float(bal["skill_LUX_2_event_bonus"])) and Skills.reopen_sooner() == 1, "effects: event_cut_pct, event_bonus_pct, reopen_sooner")
+	check(is_equal_approx(Skills.event_cut("mil"), float(bal["skill_MIL_6_event_cut"])) and is_equal_approx(Skills.event_cut("bio"), float(bal["skill_BIO_6_event_cut"])) and is_equal_approx(Skills.event_cut("min"), 0.0) and is_equal_approx(Skills.event_bonus("lux"), float(bal["skill_LUX_2_event_bonus"]) + float(bal["skill_LUX_5_event_bonus"])) and Skills.reopen_sooner() == 1, "effects: event_cut_pct, event_bonus_pct, reopen_sooner")
 	Skills.add_learned("BIO_1")
 	Skills.add_learned("BIO_3")
 	Skills.add_learned("BIO_5")
-	check(is_equal_approx(Skills.order_size_mult(), 1.0 + float(bal["skill_BIO_1_order_units"])) and is_equal_approx(Skills.storage_cap_mult(), 1.0 + float(bal["skill_BIO_3_capacity"])), "effects: order_size_pct and storage_cap_pct")
+	check(is_equal_approx(Skills.order_size_mult(), 1.0) and is_equal_approx(Skills.storage_cap_mult(), 1.0 + float(bal["skill_BIO_3_capacity"])), "effects: BIO_1 has no order size percent; storage_cap_pct (BIO_3)")
 	check(Markets.window_for("bio") == int(bal["share_window_bio_bonus"]) and Markets.window_for("mil") == int(bal["share_window"]), "effects: share_window (BIO_5) only for Biotech")
 	Skills.add_learned("MIN_3")
 	Skills.add_learned("MIN_4")
 	Skills.add_learned("MIN_6")
 	check(is_equal_approx(Skills.cluster_yield_mult(), 1.0 + float(bal["skill_MIN_3_yield"])) and Skills.mine_skill_for("dead_1") == "MIN_3" and Skills.mine_skill_for("dead_2") == "MIN_5" and Skills.mine_unlocked("dead_1") and not Skills.mine_unlocked("dead_2"), "effects: cluster_yield_pct and mine_unlock (MIN_3 dross, MIN_5 nullglass)")
-	check(Skills.workshop_batches("min") == int(bal["skill_MIN_4_batches"]) and Skills.workshop_batches("mil") == 0 and Skills.batch_yield("min") == int(bal["skill_MIN_6_batch_bonus"]), "effects: workshop_batches and batch_yield (flags until the workshops exist)")
+	check(Skills.workshop_batches("min") == int(bal["skill_MIN_4_batches"]) and Skills.workshop_batches("mil") == int(bal["skill_MIL_2_batches"]) and Skills.batch_yield("min") == int(bal["skill_MIN_6_batch_bonus"]), "effects: workshop_batches and batch_yield (flags until the workshops exist)")
 	# permanent bot effects through end_cycle
 	Skills.reset(bal)
 	Markets.reset(bal, 5)
@@ -1886,7 +1909,7 @@ func _test_skills_core() -> void:
 	f.store_string(JSON.stringify({"version": 2, "state": v2}))
 	f.close()
 	var loaded: Dictionary = SaveGame.load_state()
-	check(SaveGame.VERSION == 4 and not loaded.is_empty() and loaded["learned_skills"].has("FND_STORAGE") and not SaveGame.dropped_old, "migration: a v2 file loads migrated")
+	check(SaveGame.VERSION == 5 and not loaded.is_empty() and loaded["learned_skills"].has("FND_STORAGE") and not SaveGame.dropped_old, "migration: a v2 file loads migrated")
 	f = FileAccess.open(SaveGame.PATH, FileAccess.WRITE)
 	f.store_string(JSON.stringify({"version": 1, "state": v2}))
 	f.close()
@@ -2729,13 +2752,111 @@ func _test_next_cycle() -> void:
 		check(bt1 != null and bt1.tooltip_text.contains("Next cycle"), "next cycle: the resource button tooltip shows it with a sell order and stock", str(bt1.tooltip_text if bt1 != null else ""))
 	await _free_main(m)
 
+## Ship types and CEOs (goal ship-ceo-skills-resources): multipliers, stats, perks, floor, save round-trip, old save.
+func _test_ship_ceo() -> void:
+	_wipe_user()
+	var m: Control = await _new_main()
+	m._dismiss_preface()
+	var bal: Dictionary = m.balance
+	var Sh = load("res://game/ships.gd")
+	var Cs = load("res://game/ceos.gd")
+	var e = m.engine
+	var base_units: int = 0
+	var base_up: int = 0
+	var base_trip: int = 0
+	var maint := float(bal["maintenance"])
+	var fl := float(bal["upkeep_floor"])
+	check(m.ship_type == "small" and m.ceo_id == "" and Sh.fleet == "small" and Cs.current == "", "ship/ceo: a new game without a choice is the small ship and no CEO")
+	for id in Sh.types():
+		m._set_run_choice("", id)
+		var d: Dictionary = Sh.def(id)
+		var st: Dictionary = Sh.stats(id, bal)
+		var rec := {"id": 5, "a": 0, "b": 1, "c": "ore", "ship": "small", "stop": -1}
+		var units: int = e.units_per_cycle(rec, "ore")
+		var want_units := floori(float(int(bal["cargo"])) / (2.0 * maxf(0.0001, float(bal["travel_cycles_per_leg"]))) * float(d["cargo_mult"]) * Skills.route_capacity_mult(Markets.market_of("ore")))
+		check(units == want_units, "ship %s: cargo_mult applies" % id, "%d vs %d" % [units, want_units])
+		var want_up := floori(maint * maxf(fl, float(d["upkeep_mult"])) / maxf(1.0, float(bal.get("maintenance_interval", 1))))
+		check(e.upkeep_part(rec) == want_up, "ship %s: upkeep_mult applies" % id, "%d vs %d" % [e.upkeep_part(rec), want_up])
+		var want_trip := floori(float(int(bal["trip_cost"])) * float(d["trip_mult"]) / maxf(0.0001, float(bal["travel_cycles_per_leg"])))
+		check(e.trip_part(rec) == want_trip, "ship %s: trip_mult applies" % id, "%d vs %d" % [e.trip_part(rec), want_trip])
+		check(Sh.price(id, bal) == roundi(float(bal["ship_price"]) * float(d["price_mult"])) and m.ship_price() == Sh.price(id, bal), "ship %s: price_mult applies" % id)
+		check(m.ship_cap() == int(bal["ship_cap"]) + int(d["cap_add"]) and st["ship_cap"] == m.ship_cap(), "ship %s: cap_add applies" % id)
+		check(ResourceLoader.exists(Sh.model(id)) and st["model"] == Sh.model(id), "ship %s: model path exists" % id, Sh.model(id))
+		check(e.new_record(0, 1, "ore")["ship"] == id, "ship %s: new routes carry the type" % id)
+	# every owned ship uses the chosen type
+	m._set_run_choice("", "bulk")
+	m.cash = 100000
+	check(m.buy_ship("small")["ok"] and m.cash == 100000 - Sh.price("bulk", bal) and m.owned_of("bulk") == 1 and m.owned_of("small") == 0, "ship: buying charges and gives the chosen type")
+	m.ships = 0
+	# floor: dart with a thrifty CEO and a raised floor
+	m._set_run_choice("ceo_man_01", "dart")
+	var stack_mult: float = float(Sh.def("dart")["upkeep_mult"]) * Skills.upkeep_mult()
+	check(is_equal_approx(Skills.upkeep_mult(), 1.0 - 3.0 * float(bal["ceo_step_thrift"])) and e.upkeep_part() == floori(maint * maxf(fl, stack_mult) / maxf(1.0, float(bal.get("maintenance_interval", 1)))), "floor: ship and CEO upkeep stack", "%d %f %f" % [e.upkeep_part(), Skills.upkeep_mult(), stack_mult])
+	bal["upkeep_floor"] = 0.9
+	check(e.upkeep_part() == floori(maint * 0.9 / maxf(1.0, float(bal.get("maintenance_interval", 1)))), "floor: upkeep never goes below upkeep_floor", str(e.upkeep_part()))
+	bal["upkeep_floor"] = fl
+	# CEO stats
+	for cid in Cs.ids():
+		m._set_run_choice(cid, "small")
+		var d2: Dictionary = Cs.def(cid)
+		var sts: Dictionary = d2["stats"]
+		check(int(sts["haggling"]) + int(sts["thrift"]) + int(sts["nerve"]) == 5, "ceo %s: stats total 5" % cid)
+		check(is_equal_approx(Skills.sale_price_mult("lux"), 1.0 + float(sts["haggling"]) * float(bal["ceo_step_haggling"])), "ceo %s: haggling raises sale price" % cid)
+		check(is_equal_approx(Skills.upkeep_mult(), 1.0 - float(sts["thrift"]) * float(bal["ceo_step_thrift"])), "ceo %s: thrift lowers upkeep" % cid)
+		check(is_equal_approx(Skills.event_cut("mil"), float(sts["nerve"]) * float(bal["ceo_step_nerve"])), "ceo %s: nerve cuts bad events" % cid)
+		check(Cs.card(cid)["stats"] == sts and Cs.card(cid).has("perk_type"), "ceo %s: card for the UI" % cid)
+	m._set_run_choice("", "small")
+	check(Skills.sale_price_mult("lux") == 1.0 and Skills.upkeep_mult() == 1.0 and Skills.event_cut("mil") == 0.0 and Skills.warning_cycles() == 0 and Skills.reveal_cycles() == 0 and Skills.order_size_mult() == 1.0, "ceo: none means no effect")
+	# perks
+	m._set_run_choice("ceo_man_01", "small")
+	check(Skills.warning_cycles() == int(bal["ceo_perk_man_01_cycles"]), "perk man_01: event_warning")
+	m._set_run_choice("ceo_man_02", "small")
+	var cyc0: int = Markets.cycles
+	Markets.cycles = 0
+	check(Skills.reveal_cycles(true) == int(bal["ceo_perk_man_02_cycles"]) and Skills.reveal_cycles(false) == 0, "perk man_02: home market prices in the first cycle")
+	Markets.cycles = 1
+	check(Skills.reveal_cycles(true) == 0, "perk man_02: first cycle only")
+	Markets.cycles = cyc0
+	m._set_run_choice("ceo_woman_02", "small")
+	check(is_equal_approx(Skills.order_size_mult(), 1.0 + float(bal["ceo_perk_woman_02_pct"])) and e.local_amount() == floori(float(bal["order_amount"]) * Skills.order_size_mult()), "perk woman_02: order size")
+	m._set_run_choice("ceo_woman_01", "small")
+	var r1 := {"id": 1, "a": 0, "b": 1, "c": "ore", "ship": "small", "stop": -1}
+	var r2 := {"id": 2, "a": 1, "b": 2, "c": "ore", "ship": "small", "stop": -1}
+	e.routes.clear()
+	e.routes.append(r1)
+	e.routes.append(r2)
+	var plain := float(bal["cargo"]) / (2.0 * maxf(0.0001, float(bal["travel_cycles_per_leg"])))
+	check(e.units_per_cycle(r1, "ore") == floori(plain * (1.0 + float(bal["ceo_perk_woman_01_pct"]))) and e.units_per_cycle(r2, "ore") == floori(plain), "perk woman_01: first lane only")
+	e.routes.clear()
+	# save round-trip and old save
+	m._set_run_choice("ceo_woman_02", "fleet")
+	var st2: Dictionary = JSON.parse_string(JSON.stringify(m.collect_state()))
+	m._set_run_choice("", "small")
+	m.apply_state(st2)
+	check(m.ceo_id == "ceo_woman_02" and m.ship_type == "fleet" and Sh.fleet == "fleet" and Cs.current == "ceo_woman_02", "save: ceo_id and ship_type round-trip")
+	var old: Dictionary = st2.duplicate(true)
+	old.erase("ceo_id")
+	old.erase("ship_type")
+	m.apply_state(old)
+	check(m.ceo_id == "" and m.ship_type == "small" and Sh.fleet == "small" and Cs.current == "" and Skills.order_size_mult() == 1.0, "save: an old save loads as small ship, no CEO perk")
+	m._set_run_choice("nope", "nope")
+	check(m.ceo_id == "" and m.ship_type == "small", "ship/ceo: unknown ids fall back")
+	# pending hand-off is read once
+	SaveGame.pending_ceo = "ceo_man_02"
+	SaveGame.pending_ship = "dart"
+	await _free_main(m)
+	m = await _new_main()
+	check(m.ceo_id == "ceo_man_02" and m.ship_type == "dart" and SaveGame.pending_ceo == "" and SaveGame.pending_ship == "", "setup: pending_ceo and pending_ship start the run and are read once")
+	m._set_run_choice("", "small")
+	await _free_main(m)
+
 func _test_ships() -> void:
 	_wipe_user()
 	var m: Control = await _new_main()
 	m._dismiss_preface()
 	var bal: Dictionary = m.balance
 	var Sh = load("res://game/ships.gd")
-	check(Sh.KINDS == ["small"] and Sh.price("small", bal) == int(bal["ship_price"]), "T58: one ship type, price from balance")
+	check(Sh.types() == ["small", "bulk", "dart", "fleet"] and Sh.price("small", bal) == int(bal["ship_price"]), "T58: four ship types, small price from balance")
 	check(Sh.display_name("small") == "Skerrit", "T58: plain fallback name")
 	m.cash = 10000
 	check(m.buy_ship()["ok"] and m.ships == 1 and m.cash == 10000 - int(bal["ship_price"]), "T58: buy charges ship_price")
@@ -2899,7 +3020,7 @@ func _test_ships() -> void:
 	for k in bal.keys():
 		if str(k).begins_with("hauler_"):
 			hk += 1
-	check(hk == 0 and Sh.KINDS.size() == 1, "T89: hauler cut, no hauler_* keys and no hauler ship type (not applicable)")
+	check(hk == 0 and not Sh.has("large"), "T89: hauler cut, no hauler_* keys and no hauler ship type (not applicable)")
 	e.from_array([{"a": 0, "b": 1, "c": c, "ship": "large"}], 1)
 	check(e.routes.size() == 1 and str(e.routes[0]["ship"]) == "small", "T58: old save with a large route loads as small")
 	# T123: speed is sticky, survives pause/resume, saved and restored, only the four values
@@ -3219,29 +3340,7 @@ func _test_skill_effects() -> void:
 	check(not _has_forecast_notice(m), "LUX_3: no warning without the skill")
 	m.learned_skills.append("LUX_3")
 	m.learned_skills.erase("LUX_3")
-	# MIL_4 sale price: sell credits rise by skill_MIL_4_price (energy is a Military good), only with the skill
 	var eng: RefCounted = m.engine
-	var plain: int = eng.local_price(0, "energy", "sell")
-	m.learned_skills.erase("MIL_4")
-	check(eng.sold_price(0, "energy") == plain, "MIL_4: no margin without the skill")
-	m.learned_skills.append("MIL_4")
-	var boosted: int = eng.sold_price(0, "energy")
-	# plain can be as low as 6; an 8% margin then rounds back to the same whole credit, so only >= is safe here
-	check(boosted == roundi(float(plain) * (1.0 + float(bal["skill_MIL_4_price"]))) and boosted >= plain, "MIL_4: sold price raised by skill_MIL_4_price", "%d -> %d" % [plain, boosted])
-	m.storage.add(key0, "energy", 10)
-	var sale: Dictionary = eng._local_calc(0, "energy", "sell", 1000)
-	check(int(sale["credits"]) == int(sale["n"]) * boosted and int(sale["n"]) > 0, "MIL_4: a Sell order pays the margin per unit", str(sale))
-	m.learned_skills.erase("MIL_4")
-	check(int(eng._local_calc(0, "energy", "sell", 1000)["credits"]) == int(sale["n"]) * plain, "MIL_4: unlearned Sell order pays the plain price")
-	# LUX_1 on a route lane: per-unit earnings at the far end carry the margin; the route itself only pays upkeep, so no double count
-	var rm0: int = eng.route_margin(0, 1, "energy")
-	m.learned_skills.append("MIL_4")
-	var rm1: int = eng.route_margin(0, 1, "energy")
-	var far: int = eng.sold_price(1, "energy")
-	var near: int = m.trade.price(0, "energy_buy")
-	check(rm1 == eng.units_per_cycle(null, "energy") * (far - near) and rm1 > rm0, "MIL_4: route lane margin uses the LUX_1 sell price per unit", "%d -> %d" % [rm0, rm1])
-	check(eng.payout_of(eng.new_record(0, 1, "energy")) <= 0, "MIL_4: route settlement adds no credits itself (Sell order pays once)")
-	m.learned_skills.erase("MIL_4")
 	# T158 (base game since FND_PROSPECT became Prospecting): warning when the route margin is below its upkeep, trend arrow, best partner
 	var bp: Dictionary = m.trade.planets[1]["base_prices"]
 	var keep_sell = bp["energy_sell"]
@@ -3272,8 +3371,7 @@ func _test_skill_effects() -> void:
 	var f0: int = eng.fixed_cost()
 	var y0: int = m.clusters.yield_per_cycle()
 	m.learned_skills = ["MIL_3", "BIO_1", "MIL_1", "MIN_3"]
-	check(eng.units_per_cycle(null, "energy") > u0 and eng.units_per_cycle(null, "silk") == u0 and eng.units_per_cycle(eng.new_record(0, 1, "energy")) == eng.units_per_cycle(null, "energy"), "hooks: route_capacity_pct (MIL_3) lifts Military routes only")
-	check(eng.local_amount() == floori(float(bal["order_amount"]) * (1.0 + float(bal["skill_BIO_1_order_units"]))) and eng.local_amount() > l0, "hooks: order_size_pct (BIO_1) raises Buy and Sell orders")
+	check(eng.units_per_cycle(null, "energy") == u0 and eng.local_amount() == l0, "hooks: MIL_3 and BIO_1 no longer change route capacity or order size")
 	check(eng.fixed_cost() < f0, "hooks: upkeep_mult (MIL_1) lowers the ship upkeep")
 	check(m.clusters.yield_per_cycle() == floori(float(bal["mining_yield_per_cycle"]) * (1.0 + float(bal["skill_MIN_3_yield"]))) and m.clusters.yield_per_cycle() > y0, "hooks: cluster_yield_pct (MIN_3) raises mining yield")
 	m.learned_skills = []
@@ -3283,10 +3381,10 @@ func _test_skill_effects() -> void:
 	var ore_l1: int = eng.local_amount("ore")
 	check(ore_l0 == eng.local_amount() and ore_l1 > ore_l0 * 100 and eng.local_amount("energy") == ore_l0, "MIN_2: ore orders are no longer capped by the order size (%d -> %d), other goods are" % [ore_l0, ore_l1])
 	m.learned_skills = []
-	# LUX_4 stock_protect: Luxury stock survives an asteroid cut of the storage
+	# BIO_5 stock_protect: Biotech stock survives an asteroid cut of the storage
 	var lux_good := ""
-	for g in ["silk", "chips", "energy", "food"]:
-		if Markets.market_of(g) == "lux":
+	for g in ["food", "spores", "energy", "silk"]:
+		if Markets.market_of(g) == "bio":
 			lux_good = g
 			break
 	var sk := "planet:2"
@@ -3296,10 +3394,10 @@ func _test_skill_effects() -> void:
 	var lux_cut: int = m.storage.amount(sk, lux_good)
 	m.storage.cuts.erase(sk)
 	m.storage.stock[sk][lux_good] = cap_before
-	m.learned_skills = ["LUX_4"]
+	m.learned_skills = ["BIO_5"]
 	m.storage.cut_capacity(sk, 0.5)
 	var lux_kept: int = m.storage.amount(sk, lux_good)
-	check(lux_good != "" and lux_cut < cap_before and lux_kept == cap_before and m.storage.space(sk, lux_good) == 0, "LUX_4: Luxury stock is trimmed by a storage cut without the skill (%d) and kept with it (%d)" % [lux_cut, lux_kept])
+	check(lux_good != "" and lux_cut < cap_before and lux_kept == cap_before and m.storage.space(sk, lux_good) == 0, "BIO_5: Biotech stock is trimmed by a storage cut without the skill (%d) and kept with it (%d)" % [lux_cut, lux_kept])
 	m.storage.cuts.erase(sk)
 	m.storage.stock.erase(sk)
 	m.learned_skills = []
@@ -5506,7 +5604,9 @@ func _test_workshop_status() -> void:
 	m.learned_skills.append("MIL_1")
 	m.learned_skills.append("FND_STORAGE")
 	m._ensure_stations()
+	m.open_systems.append(2)  # munitions needs system 2 open (availability rule)
 	check(m.build_workshop("munitions")["ok"], "workshop status: munitions built")
+	m.open_systems.erase(2)  # built while open; the status tests below need system 2 closed again
 	var key: String = m.storage.system_key(1)
 	var ws = m.workshops
 	m.storage.ensure(key)
@@ -5644,6 +5744,8 @@ func _test_workshops() -> void:
 	check(m.can_build_workshop("munitions")["reason"] == "post", "workshop: needs the trading post")
 	m.learned_skills.append("FND_STORAGE")
 	m._ensure_stations()
+	check(m.can_build_workshop("munitions")["reason"] == "closed", "workshop: munitions refused while system 2 is closed")
+	m.open_systems.append(2)
 	check(m.can_build_workshop("smelter")["reason"] == "skill" and m.can_build_workshop("munitions")["ok"], "workshop: only the unlocked one can be built")
 	var cost: int = int(m.balance["workshop_build_cost"])
 	m.cash = cost - 1
@@ -5670,6 +5772,7 @@ func _test_workshops() -> void:
 	Skills.add_learned("MIL_2")
 	Skills.add_learned("MIL_4")
 	m.storage.add(key, "energy", 0)
+	m.storage.add(key, "rivets", 1)  # resource audit 2026-11-05: armour recipe now takes 1 rivets
 	m.workshops.run(m.storage, Callable(m, "craft_units"))
 	check(m.storage.amount(key, "armour") == int(m.balance["armour_batch_out"]), "workshop: armour made once MIL_4 is learned (highest tier first)", str(m.storage.to_dict().get(key, {})))
 	# batch bonuses: MIN_4 adds a batch, MIN_6 adds yield (smelter, ore -> ingot)
@@ -5999,7 +6102,7 @@ func _test_chains() -> void:
 	check(inp["ending_id"] == "END_BIO_BAD" and inp["flag"] == "bad" and inp["rival_broken"] == true and inp["rival_broken_bot"] == 2 and EndingPicker.inputs("mil", bal)["ending_id"] == "END_MIL_GOOD", "ending picker: BAD by the chain flag, rival_broken from the chain", str(inp))
 	check(m.ending_id_of({"kind": "win", "market": "bio"}) == "END_BIO_BAD" and m.ending_id_of({"kind": "win", "market": "lux"}) == "END_LUX_GOOD", "ending id: win reads the flag of the win market")
 	# save version 4 and v3 migration
-	check(SaveGame.VERSION == 4, "save: version 4")
+	check(SaveGame.VERSION == 5, "save: version 5")
 	var v3 := {"cycle": 7, "cash": 300, "chains": {"dir": {"mil": 9}}, "shield": {"built": true}}
 	var mig: Dictionary = SaveGame.migrate_v3(v3)
 	check(mig["cash"] == 300 and not mig.has("shield") and not mig.has("chains"), "save: v3 migrates, chain state fresh, shield dropped")
@@ -6372,6 +6475,11 @@ func _test_availability() -> void:
 	var screen_text := _av_visible_text(m)
 	var leak2 := Availability.names_hidden_good(screen_text)
 	check(leak2 == "", "availability start: no visible screen text names a hidden good", "names '%s' in: %s" % [leak2, screen_text.replace("\n", " | ")])
+	var sk_leaks := []  # skill texts are always on screen: none may name a good hidden at the start
+	for e in StoryText.entries_of(_read_json("res://data/story_text.json")):
+		if str(e["id"]).begins_with("SK_") and Availability.names_hidden_good(str(e["text"])) != "":
+			sk_leaks.append("%s names '%s'" % [str(e["id"]), Availability.names_hidden_good(str(e["text"]))])
+	check(sk_leaks.is_empty(), "availability start: no skill text names a hidden good", "; ".join(sk_leaks))
 	for g in start["hidden_goods"]:
 		check(_find_named(m.planet_panel, "BuyButton_" + str(g)) == null, "availability start: no resource button for hidden '%s'" % g)
 	for g in want:
@@ -6645,3 +6753,88 @@ func _test_station_energy_outflow() -> void:
 	var tip: String = load("res://game/planet_panel.gd").next_cycle_breakdown(m, e.project_storage("system:1", "energy", m.cash))
 	check(tip.contains("In: Voltara > Space Storage (") and tip.contains("+%d" % int(pr["in"])) and tip.contains("Out: Sell order at Ashgate (draws Space Storage when Ashgate has too little) -%d" % int(pr["out"])), "station energy: the tooltip names the source and the consumer", tip)
 	await _free_main(m)
+
+
+## Skill tree final (2026-11-05): event_immune, stock_growth_cap, batch yield and batches, workshop availability gate,
+## LUX_5 event bonus, every effect type of skills.json has code, ship screen choices used once.
+func _test_skill_effects_final() -> void:
+	_wipe_user()
+	# every effect type in skills.json is in the vocabulary and is read by game/skills.gd
+	var sj: Dictionary = _read_json("res://data/skills.json")
+	var code := FileAccess.get_file_as_string("res://game/skills.gd")
+	var vocab: Dictionary = sj["vocabulary"]["types"]
+	var bad: Array = []
+	for n in sj["nodes"]:
+		var effs: Array = []
+		if typeof(n.get("effect")) == TYPE_DICTIONARY:
+			effs.append(n["effect"])
+		effs.append_array(n.get("extra", []))
+		for e in effs:
+			var t := str(e.get("type", ""))
+			if not vocab.has(t) or code.find("\"%s\"" % t) < 0:
+				bad.append("%s:%s" % [n["id"], t])
+	check(bad.is_empty(), "skills.json: every effect type is in the vocabulary and has code in game/skills.gd", str(bad))
+	var m: Control = await _new_main()
+	m._dismiss_preface()
+	var bal: Dictionary = m.balance
+	# MIL_3 event_immune: Military routes ignore debris, other markets do not
+	m.learned_skills = []
+	check(not Skills.event_immune("mil", "debris"), "MIL_3: no immunity before learning")
+	m.learned_skills = ["MIL_3"]
+	check(Skills.event_immune("mil", "debris") and not Skills.event_immune("lux", "debris") and not Skills.event_immune("mil", "pirates"), "MIL_3: event_immune debris for mil only")
+	if m.engine.routes.size() > 0:
+		var rec: Dictionary = m.engine.routes[0].duplicate()
+		rec["c"] = "armour"
+		var lane_end := int(rec["b"]) if m.engine.from_cluster(rec) else int(rec["a"])
+		m.engine.debris_planets = []
+		m.learned_skills = []
+		var clean: int = m.engine._route_cap(rec)
+		m.engine.debris_planets = [lane_end]
+		var dirty: int = m.engine._route_cap(rec)
+		m.learned_skills = ["MIL_3"]
+		var immune: int = m.engine._route_cap(rec)
+		m.engine.debris_planets = []
+		check(dirty < clean and immune == clean, "MIL_3: debris cuts a Military lane, and not with MIL_3", "%d %d %d" % [clean, dirty, immune])
+	m.learned_skills = []
+	# BIO_3 stock_growth_cap: ceiling is the max of both
+	m.learned_skills = ["BIO_2"]
+	var g2: Dictionary = Skills.stock_growth("bio")
+	check(not g2.is_empty() and is_equal_approx(float(g2["cap"]), float(bal["skill_BIO_2_stock_cap"])), "BIO_2: growth ceiling is skill_BIO_2_stock_cap")
+	m.learned_skills = ["BIO_2", "BIO_3"]
+	var g3: Dictionary = Skills.stock_growth("bio")
+	check(is_equal_approx(float(g3["cap"]), maxf(float(bal["skill_BIO_2_stock_cap"]), float(bal["skill_BIO_3_stock_cap"]))) and is_equal_approx(float(g3["rate"]), float(g2["rate"])), "BIO_3: growth ceiling is the max of BIO_2 and BIO_3, rate unchanged")
+	m.learned_skills = ["BIO_3"]
+	check(Skills.stock_growth("bio").is_empty(), "BIO_3 alone: no growth (needs BIO_2 rate)")
+	m.learned_skills = ["BIO_5"]
+	check(Skills.stock_protect("bio") and not Skills.stock_protect("lux"), "BIO_5: stock_protect accepts bio")
+	# batches and yield
+	m.learned_skills = []
+	var ws: RefCounted = m.workshops
+	var b0: int = ws.batches("munitions")
+	var cask0: int = ws.out_units("cask")
+	var gems0: int = ws.out_units("gems")
+	m.learned_skills = ["MIL_2", "LUX_6"]
+	check(ws.batches("munitions") == b0 + int(bal["skill_MIL_2_batches"]), "MIL_2: munitions makes one more batch a cycle", "%d -> %d" % [b0, ws.batches("munitions")])
+	check(ws.out_units("cask") == cask0 + int(bal["skill_LUX_6_batch_bonus"]) and ws.out_units("gems") == gems0 + int(bal["skill_LUX_6_batch_bonus"]), "LUX_6: cask and gems yield +1 per batch", "%d %d" % [ws.out_units("cask"), ws.out_units("gems")])
+	check(ws.recipe_line("cask").find("-> %d" % ws.out_units("cask")) >= 0, "LUX_6: recipe line shows the boosted yield")
+	# LUX_5 event bonus key is used
+	m.learned_skills = ["LUX_5"]
+	check(is_equal_approx(Skills.event_bonus("lux"), float(bal["skill_LUX_5_event_bonus"])), "LUX_5: price-up events pay skill_LUX_5_event_bonus more")
+	m.learned_skills = []
+	# can_build_workshop follows the availability rule: munitions needs system 2 open
+	m.cash = 100000
+	m.learned_skills = ["MIL_1"]
+	var v: Dictionary = m.can_build_workshop("munitions")
+	check(not v["ok"] and (v["reason"] == "closed" or v["reason"] == "post"), "munitions: cannot be built while system 2 is closed", str(v))
+	m.learned_skills = ["LUX_1"]
+	if m.station_systems.has(1):
+		check(m.can_build_workshop("atelier")["ok"], "atelier: buildable with LUX_1 (rule has no system condition)")
+	m.learned_skills = []
+	await _free_main(m)
+	# the ship screen choices are consumed once
+	SaveGame.pending_ceo = "ceo_man_01"
+	SaveGame.pending_ship = "bulk"
+	SaveGame.pending_portrait = "ceo_man_01"
+	var m2: Control = await _new_main()
+	check(SaveGame.pending_ceo == "" and SaveGame.pending_ship == "" and SaveGame.pending_portrait == "", "ship screen: pending_ceo, pending_ship and pending_portrait cleared after the run starts")
+	await _free_main(m2)

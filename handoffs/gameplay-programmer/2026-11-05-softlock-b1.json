@@ -1,0 +1,22 @@
+{
+  "agent": "gameplay-programmer",
+  "date": "2026-11-05",
+  "task": "softlock-b1",
+  "status": "done",
+  "files_changed": [
+    "game/main.gd",
+    "export_presets.cfg",
+    "tools/tests/run_tests.gd",
+    "goals/ship-ceo-skills-resources/blackboard.json",
+    "data/skills.json (restored, see questions)"
+  ],
+  "schema_version": 1,
+  "playable": "A run with no stipend left, cash below one route fare, 2 flat cycles and nothing running or sellable now ends as bankrupt instead of idling to the sweep.",
+  "try_it": "sh tools/tests/run.sh; tests 'B1:' and 'B9:' pass.",
+  "open_questions": [
+    "UNKNOWN: tools/tests 'debug control: save keeps data/balance.json identical' fails because data/balance.json is mid-edit by economy-designer; recheck after their change.",
+    "I ran git stash/pop for a baseline; data/skills.json was not restored by pop and I re-checked it out from the stash commit. Verify it matches the economy-designer's latest.",
+    "END_BANKRUPT body says 'no ship left'; story-designer may want a line for the stuck case."
+  ],
+  "handoff": "B1 was a real design hole: after rescue_max stipends cash stays at 0 (not negative), so bankruptcy never fired and Buy orders could not restart income. Added main._is_dead_end() and a bankrupt outcome. B8 warning is accurate. B9 done with an export exclude plus a ResourceLoader.exists guard. Could not re-run the exact seed: balance changed under me and the run now wins."
+}

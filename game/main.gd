@@ -24,6 +24,7 @@ const StoryText := preload("res://game/story_text.gd")
 const SkillTree := preload("res://game/skill_tree.gd")
 const Events := preload("res://game/events.gd")
 const Ships := preload("res://game/ships.gd")
+const Ceos := preload("res://game/ceos.gd")
 const Systems := preload("res://game/systems.gd")
 const Clusters := preload("res://game/clusters.gd")
 const DeadWorlds := preload("res://game/dead_worlds.gd")
@@ -35,6 +36,8 @@ const CompanyPortraits := preload("res://game/company_portraits.gd")
 var balance: Dictionary = {}
 var company_name: String = ""  # chosen on the new company screen, saved
 var ceo_portrait: String = ""  # id from company_portraits.gd, saved
+var ceo_id: String = ""  # CEO of the run (data/ceos.json, = a portrait id); "" = none (old saves), saved
+var ship_type: String = "small"  # ship type of every ship of the run (data/ships.json), saved
 var cash: int = 0
 var cycle: int = 1          # current cycle, 1-based
 var storage_notice_done: bool = false  # the Space Storage availability notice was made this run (saved)
@@ -275,8 +278,11 @@ func _ready() -> void:
 	if saved.is_empty():
 		company_name = SaveGame.pending_company.strip_edges().left(CompanyNames.MAX_LEN) if SaveGame.pending_company.strip_edges() != "" else CompanyNames.generate()
 		ceo_portrait = CompanyPortraits.normalize(SaveGame.pending_portrait)
+		_set_run_choice(SaveGame.pending_ceo if SaveGame.pending_ceo != "" else SaveGame.pending_portrait, SaveGame.pending_ship)
 		SaveGame.pending_company = ""
 		SaveGame.pending_portrait = ""
+		SaveGame.pending_ceo = ""
+		SaveGame.pending_ship = ""
 		_quiet_points = true
 		_award_planet(maxi(mission_planet, 0))  # T82: the home planet counts at start
 		_quiet_points = false
@@ -287,7 +293,11 @@ func _ready() -> void:
 		apply_state(saved)  # T26: resume paused, no preface
 		post_notice(StoryText.get_text("NOT_LOADED"))
 		_tut_cycle()
-	if debug_tools_allowed():  # T33: debug menu is never created in release exports
+	SaveGame.pending_company = ""  # the ship screen choices are used once, on a new game or not
+	SaveGame.pending_portrait = ""
+	SaveGame.pending_ceo = ""
+	SaveGame.pending_ship = ""
+	if debug_tools_allowed() and ResourceLoader.exists("res://game/debug_menu.gd"):  # T33: never in release exports (B9: the script is also left out of the export)
 		debug_menu = load("res://game/debug_menu.gd").new()
 		add_child(debug_menu)
 		debug_menu.setup(self)
@@ -299,10 +309,25 @@ func _ready() -> void:
 	_push_routes_to_map()
 	_refresh()
 
+## CEO and ship type of the run. Unknown or empty ids: no CEO, small ship.
+func _set_run_choice(ceo: String, ship: String) -> void:
+	ceo_id = ceo if Ceos.has(ceo) else ""
+	ship_type = Ships.normalize(ship)
+	Ceos.set_current(ceo_id)
+	Ships.set_fleet(ship_type)
+
+## Ship limit of this run: balance ship_cap plus the cap_add of the ship type.
+func ship_cap() -> int:
+	return Ships.cap(balance)
+
+## Price of the next ship: ship_price x price_mult of the ship type.
+func ship_price() -> int:
+	return Ships.price(Ships.fleet, balance)
+
 ## T26: state written to the autosave. Add new keys here (see save_game.gd).
 ## Tuning values from balance.json are never saved.
 func collect_state() -> Dictionary:
-	return {"company_name": company_name, "ceo_portrait": ceo_portrait, "cycle": cycle, "trade_income_total": trade_income_total, "storage_notice_done": storage_notice_done, "cycle_elapsed": cycle_elapsed, "cash": cash, "paused": paused, "ships": ships,
+	return {"company_name": company_name, "ceo_portrait": ceo_portrait, "ceo_id": ceo_id, "ship_type": ship_type, "cycle": cycle, "trade_income_total": trade_income_total, "storage_notice_done": storage_notice_done, "cycle_elapsed": cycle_elapsed, "cash": cash, "paused": paused, "ships": ships,
 		"routes": engine.to_array(), "storage": storage.to_dict(), "orders": engine.local_to_array(),
 		"markets": Markets.to_dict(), "rescues_paid": rescues_paid, "repossessions": repossessions, "learned_skills": learned_skills.duplicate(), "skills": Skills.to_dict(), "tech": Tech.to_dict(), "systems_reached": systems_reached,
 		"time_speed": time_speed, "skill_points": skill_points, "pts_planets": pts_planets, "pts_pairs": pts_pairs, "events": events.to_dict(),
@@ -317,6 +342,7 @@ func apply_state(s: Dictionary) -> void:
 	if company_name == "":
 		company_name = CompanyNames.generate()
 	ceo_portrait = CompanyPortraits.normalize(str(s.get("ceo_portrait", "")))
+	_set_run_choice(str(s.get("ceo_id", "")), str(s.get("ship_type", "")))  # old saves: small ship, no CEO
 	map.clear_stations()
 	for m in station_markers.values():
 		m.queue_free()
@@ -347,7 +373,7 @@ func apply_state(s: Dictionary) -> void:
 	cycle_elapsed = clampf(float(s.get("cycle_elapsed", 0.0)), 0.0, _cycle_seconds())
 	time_speed = _speed_or_default(s.get("time_speed", 1.0))  # old saves: x1
 	cash = int(s.get("cash", cash))
-	ships = clampi(int(s.get("ships", 0)), 0, int(balance.get("ship_cap", 0)))
+	ships = clampi(int(s.get("ships", 0)), 0, ship_cap())
 	Skills.reset(balance)
 	if typeof(s.get("learned_skills")) == TYPE_ARRAY:
 		learned_skills = s["learned_skills"]  # unknown ids are dropped by the setter
@@ -1313,18 +1339,19 @@ func free_ships() -> int:
 
 ## T58: owned and free ships of one type (only "small" remains).
 func owned_of(kind: String) -> int:
-	return ships if kind == "small" else 0
+	return ships if kind == Ships.fleet else 0
 
 func free_of(kind: String) -> int:
 	return owned_of(kind) - engine.assigned_of(kind)
 
 ## Buys one free ship of a type (default small, at ship_price). Returns {ok, reason}.
-func buy_ship(kind: String = "small") -> Dictionary:
+func buy_ship(kind: String = "") -> Dictionary:
 	if not tut_gate("other"):
 		return {"ok": false, "reason": tut_lock_text()}
 	return _buy_ship_now(kind)
 
-func _buy_ship_now(kind: String) -> Dictionary:
+func _buy_ship_now(kind: String = "") -> Dictionary:
+	kind = Ships.fleet  # one ship type per run
 	var r := can_buy_ship(kind)
 	if not r["ok"]:
 		return r
@@ -1333,10 +1360,11 @@ func _buy_ship_now(kind: String) -> Dictionary:
 	_after_change()
 	return r
 
-func can_buy_ship(kind: String = "small") -> Dictionary:
+func can_buy_ship(kind: String = "") -> Dictionary:
+	kind = Ships.fleet  # one ship type per run
 	if game_over:
 		return {"ok": false, "reason": "The game is over."}
-	if ships >= int(balance.get("ship_cap", 0)):
+	if ships >= ship_cap():
 		return {"ok": false, "reason": "Ship cap reached."}
 	if cash < Ships.price(kind, balance):
 		return {"ok": false, "reason": "Not enough cash for a new ship (%d cr). Each route needs its own ship; wait for income or remove a route." % Ships.price(kind, balance)}
@@ -1350,9 +1378,9 @@ func can_buy_ship(kind: String = "small") -> Dictionary:
 func route_unaffordable() -> Dictionary:
 	if pending.is_empty() or game_over or free_ships() > 0:
 		return {}
-	if ships >= int(balance.get("ship_cap", 0)) or bool(can_buy_ship("small")["ok"]):
+	if ships >= ship_cap() or bool(can_buy_ship()["ok"]):
 		return {}
-	return {"planet": int(pending["planet"]), "need": Ships.price("small", balance) + ship_cash_floor(), "have": cash}
+	return {"planet": int(pending["planet"]), "need": Ships.price(Ships.fleet, balance) + ship_cash_floor(), "have": cash}
 
 ## Cash that must remain after buying a ship: the fixed cost of every open route.
 func ship_cash_floor() -> int:
@@ -1360,7 +1388,7 @@ func ship_cash_floor() -> int:
 
 ## T58: auto-assignment. One ship type remains (small).
 func pick_ship(_src: int, _dst: int, _c: String) -> String:
-	return "small"
+	return Ships.fleet
 
 ## ---- T56 one-way route API (T57 UI and bots). One ship per route, auto-assigned from the free pool. ----
 
@@ -1436,7 +1464,7 @@ func send_stock_buying(src: int, dst: int, c: String, stop: int = -1) -> Diction
 			chk["c"] = c
 			chk["bought"] = false
 			return chk
-		var b := can_buy_ship("small")
+		var b := can_buy_ship()
 		if not b["ok"]:
 			return {"ok": false, "reason": b["reason"], "c": c, "bought": false}
 		_buy_ship_now("small")
@@ -1812,7 +1840,7 @@ func build_fabric() -> Dictionary:
 	_after_change()
 	return v
 
-## Workshop (smelter, munitions, atelier, culture_lab): can it be built now in the cell of system sid? {ok, reason}: "unknown", "built" (once per run, anywhere), "skill", "post" (no established cell there), "credits".
+## Workshop (smelter, munitions, atelier, culture_lab): can it be built now in the cell of system sid? {ok, reason}: "unknown", "built" (once per run, anywhere), "skill", "post" (no established cell there), "closed" (availability rule, e.g. system 2 shut), "credits".
 func can_build_workshop(id: String, sid: int = WorkshopsScript.SYSTEM) -> Dictionary:
 	if not WorkshopsScript.IDS.has(id):
 		return {"ok": false, "reason": "unknown"}
@@ -1822,6 +1850,8 @@ func can_build_workshop(id: String, sid: int = WorkshopsScript.SYSTEM) -> Dictio
 		return {"ok": false, "reason": "skill"}
 	if not station_systems.has(sid):
 		return {"ok": false, "reason": "post"}
+	if not Availability.workshop(id):  # data/availability.json rule (munitions and culture lab need system 2 open)
+		return {"ok": false, "reason": "closed"}
 	if cash < workshops.build_cost(id):
 		return {"ok": false, "reason": "credits"}
 	return {"ok": true, "reason": ""}
@@ -1956,7 +1986,7 @@ func _blocked_text(rec: Dictionary) -> String:
 func _check_stranded() -> void:
 	if last_rescue_cycle == cycle or repossessed_cycle == cycle or rescues_paid >= int(balance.get("rescue_max", 2)):
 		return  # Four Markets: no stipend in a repossession cycle, and only the first rescue_max are paid
-	var stuck := ships == 0 and cash < int(balance.get("ship_price", 0))
+	var stuck := ships == 0 and cash < Ships.price(Ships.fleet, balance)
 	if not stuck and cash < engine.fixed_cost() and (last_net <= 0 or not _any_route_running()) and not _any_sellable():
 		stuck = true
 	# stall fix: cash below the summed fixed cost of all open routes and no net income for 2 cycles in a row
@@ -1968,6 +1998,15 @@ func _check_stranded() -> void:
 		var amount := int(balance.get("rescue_stipend", 0))
 		cash += amount
 		post_notice(StoryText.get_text("NOT_DEAD_RESCUE", {"amount": amount}))
+
+## B1: true when the run cannot recover: every rescue stipend is spent, cash is below one route's fixed cost, no income for
+## 2 cycles, no route running and nothing to sell (or no ship and cash below a ship). Buying needs cash, so nothing can restart.
+func _is_dead_end() -> bool:
+	if rescues_paid < int(balance.get("rescue_max", 2)) or last_rescue_cycle == cycle or repossessed_cycle == cycle:
+		return false
+	if ships == 0 and cash < Ships.price(Ships.fleet, balance):
+		return true
+	return cash < engine.fixed_cost() and last_net <= 0 and prev_net <= 0 and not _any_route_running() and not _any_sellable()
 
 func _routes_fixed_total() -> int:
 	var t := 0
@@ -2090,6 +2129,8 @@ func _end_cycle() -> void:
 			outcome = {"kind": "outcompeted"}
 	if outcome.is_empty() or str(outcome["kind"]) == "repossessed":
 		_check_stranded()
+		if outcome.is_empty() and _is_dead_end():
+			outcome = {"kind": "bankrupt"}  # B1: no stipend left and no way to earn: end the run as bankrupt, not 6 idle cycles
 	_record_prices()  # price history
 	_push_routes_to_map()
 	_refresh_panel()
@@ -2172,7 +2213,7 @@ func _repossess_newest() -> void:
 				newest = i
 		engine.routes.remove_at(newest)
 	ships = maxi(0, ships - 1)
-	var credit := floori(float(balance.get("salvage_share", 0.4)) * float(Ships.price("small", balance)))
+	var credit := floori(float(balance.get("salvage_share", 0.4)) * float(Ships.price(Ships.fleet, balance)))
 	cash += credit
 	repossessions += 1
 	repossessed_cycle = cycle
@@ -2664,7 +2705,7 @@ func debug_grant_permit(sid: int) -> bool:
 
 ## Adds one ship of a kind (respects ship_cap, ignores cash).
 func debug_add_ship(kind: String) -> bool:
-	if not OS.is_debug_build() or game_over or ships >= int(balance.get("ship_cap", 0)):
+	if not OS.is_debug_build() or game_over or ships >= ship_cap():
 		return false
 	ships += 1
 	_after_change()
@@ -3075,7 +3116,7 @@ func _refresh() -> void:
 	if cash_forecast != null:
 		cash_forecast.refresh()  # T40: live while open
 	if ship_panel != null:
-		ship_panel.set_count(ships, int(balance.get("ship_cap", 0)))
+		ship_panel.set_count(ships, ship_cap())
 		ship_panel.set_upkeep(self)
 		var target: int = mission_planet if ships == 0 else -1  # halo on the planet that sells the first ship
 		if tut_card != null and tut_card.visible and _tut_ring_planet() >= 0:
@@ -3230,7 +3271,7 @@ func _tut_lock_released() -> bool:
 		2:
 			if not bool(engine.check_connection(v, a, TUT_GOOD)["ok"]):
 				return true
-			return free_ships() <= 0 and not bool(can_buy_ship("small")["ok"])
+			return free_ships() <= 0 and not bool(can_buy_ship()["ok"])
 		3:
 			return engine.routes.is_empty()  # nothing to wait for
 		5:
