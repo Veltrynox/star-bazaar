@@ -4,6 +4,7 @@
 - discovery_enabled in data/balance.json ships at 1 (owner decision 2026-11-05); tests that need it off set it themselves.
 
 ## Left to do
+- Owner: T205 trail look windowed: ship_trail.gd WIDTH 0.16, ships.gd ENGINE_BACK 0.9 for all models (exact exhaust positions not measured from the GLBs).
 - Open build tasks from playtest: none of T196-T202 left (T199 done 2026-11-06). Owner: check T198 look windowed (trail line 1px, scale 0.5, pick 20px). T194 done; Competitors still reachable from share panel (L), owner to say if that goes too.
 - Open: T185 (visual), T178/T182 (owner-only agents), T05 (only windowed frame time missing, see T193), T166 (superseded). Owner-decision tasks T189-T193 added 2026-11-05.
 
@@ -53,3 +54,13 @@
 - Failed / did not work: nothing; 3 "Parameter material is null" engine errors also appear without the change.
 - Files and commits: game/rival_ships.gd, game/rival_card.gd, game/map.gd, game/main.gd, story/screens.md, data/story_text.json, tools/tests/run_tests.gd, gdd.md, handoff, schedule.json, blackboard.md; see git log "T199".
 - Left to do: owner: tint colours (TINTS red/violet/green, alpha 0.3), pick radius 20px and card position not seen windowed; "its market" read as strongest-share market; competitor names have no story ids; click on a ship does not pass to a planet; no Russian ids.
+
+## 2026-11-06 12:00 run: T205
+- Summary: Ship trails are now tapered ribbons about 0.16 wide (was a 1px line) and start at an engine point behind the ship (per-model constant Ships.ENGINE_BACK), for the player and rival ships.
+- Why this task: concrete owner brief, no dependencies, widths were specified; other open tasks are owner-only, visual decisions, or design proposals.
+- Approach: small edit done by me (ships.gd, ship_trail.gd, pathfinder_view.gd, rival_ships.gd); ribbon lies flat in the map plane.
+- Agent prompts: none.
+- Worked: sh tools/tests/run.sh pass=11273 fail=0.
+- Failed / did not work: nothing; not seen windowed, exhaust offset 0.9 is a guess for all models.
+- Files and commits: game/ships.gd, game/ship_trail.gd, game/pathfinder_view.gd, game/rival_ships.gd, schedule.json, blackboard.md; see git log "T205".
+- Left to do: owner: check width/offset windowed and set per-model ENGINE_BACK; no handoff file written (no agent used).

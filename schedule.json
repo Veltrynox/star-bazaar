@@ -1286,10 +1286,11 @@
       "title": "Trails come out of the engines and are thicker",
       "owner_agent": "juice-programmer",
       "depends_on": [],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 25,
       "window": "Owner request 2026-11-05 (playtest). Not started: main session sets it running.",
-      "brief": "Owner: the ship trails do not start at the engines and are too thin. Anchor each trail to the ship model's engine exhaust position(s) (a per-model engine offset constant next to the per-model yaw offset from T197; corvette models in assets/ships, game/pathfinder_view.gd, game/rival_ships.gd), so it comes out of the back of the ship whatever the heading, and make it clearly thicker (about 2 to 3 times the current width, tapering to the end; keep the player and rival tints; off while paused). Note the width constants in the handoff so the owner can adjust. Handoff handoffs/<agent>/2026-11-05-<id>.json."
+      "brief": "Owner: the ship trails do not start at the engines and are too thin. Anchor each trail to the ship model's engine exhaust position(s) (a per-model engine offset constant next to the per-model yaw offset from T197; corvette models in assets/ships, game/pathfinder_view.gd, game/rival_ships.gd), so it comes out of the back of the ship whatever the heading, and make it clearly thicker (about 2 to 3 times the current width, tapering to the end; keep the player and rival tints; off while paused). Note the width constants in the handoff so the owner can adjust. Handoff handoffs/<agent>/2026-11-05-<id>.json.",
+      "note": "Trail is a tapered triangle-strip ribbon (ship_trail.gd WIDTH 0.16 world units at the engine, 0 at the end); starts at the engine point Ships.ENGINE_BACK[kind] (0.9 of footprint radius behind centre, per model, same for all four so far). Not seen windowed; owner: tune WIDTH and ENGINE_BACK per model."
     },
     {
       "task_id": "T206",
