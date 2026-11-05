@@ -1,0 +1,18 @@
+{
+ "agent": "gameplay-programmer",
+ "date": "2026-11-06",
+ "task": "T213",
+ "status": "done",
+ "schema_version": 1,
+ "files_changed": [
+  "game/route_engine.gd",
+  "story/screens.md",
+  "data/story_text.json",
+  "tools/tests/run_tests.gd"
+ ],
+ "explanation": "Route stall: settle() calls _settle_one(rec, cash + delta so far). fare_for(fixed_cost, cash, fare_paid): the trip+upkeep (fixed_cost) is compared with cash at that moment (cycle-start balance plus what Buys, earlier routes and their income already added; local Sells run after routes and do not count). A route stalls for cash only if cash < fixed AND an earlier route already paid a fare (the first route flies on a part fare). Buy orders compare unit price with cash minus route_reserve (fixed cost of every route that will run). So at 2000 cash with a 55 cr trip the rule cannot stall; the rule is correct. The row/map text was stale: rec.state and rec.reason are stored at the last settle and stay until the next one, while the planet panel and map show them live next to the current balance and the forecast. The -55/-253 are forecast figures, not the check. Fix: text now says what is compared. Route: 'Not enough cash: needs {need} cr, had {have} cr.' (ST_NO_CASH_ROUTE, cash at settle). Buy: 'Not enough cash: one unit costs {price} cr, {free} cr free after trips.' (ST_NO_CASH_BUY). New test _test_no_cash_text: cash 2000, loaded route, no Not-enough-cash state; texts show amounts. Test suite: 0 FAIL (the Parse JSON ERROR line is an existing corrupt-file test).",
+ "open_questions": [
+  "Should a stale stalled state be cleared mid-cycle when cash rises (live re-check), or is the last-settle snapshot fine now that the text shows the amounts?"
+ ],
+ "handoff": "Not enough cash check is cash-at-settle versus trip cost, correct at 2k; the shown message was a stale last-cycle snapshot. Texts now show needed and held cash. Test added, suite 0 FAIL."
+}

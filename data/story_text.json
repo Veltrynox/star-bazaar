@@ -284,6 +284,18 @@
    "place": "Route panel, status of a route that waits because the destination is full"
   },
   {
+   "id": "ST_NO_CASH_ROUTE",
+   "text": "Not enough cash: needs {need} cr, had {have} cr.",
+   "max": 70,
+   "place": "Route row and map tag, a route that could not pay its trip at the last cycle end"
+  },
+  {
+   "id": "ST_NO_CASH_BUY",
+   "text": "Not enough cash: one unit costs {price} cr, {free} cr free after trips.",
+   "max": 80,
+   "place": "Buy order row, an order that could not buy one unit"
+  },
+  {
    "id": "SK_BTN_CLOSE",
    "text": "Close",
    "max": 24,

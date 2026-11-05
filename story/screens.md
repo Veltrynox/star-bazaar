@@ -80,6 +80,8 @@ LBL_GROSS | 24 | Route panel and statistics, income before costs | Income before
 LBL_NET | 24 | Route panel and statistics, income after costs | Income after costs
 LBL_TRIP_COST | 24 | Route panel, cost of one trip on a route | Trip cost
 ST_WAITING_ROOM | 24 | Route panel, status of a route that waits because the destination is full | Waiting for room
+ST_NO_CASH_ROUTE | 70 | Route row and map tag, a route that could not pay its trip at the last cycle end | Not enough cash: needs {need} cr, had {have} cr.
+ST_NO_CASH_BUY | 80 | Buy order row, an order that could not buy one unit | Not enough cash: one unit costs {price} cr, {free} cr free after trips.
 
 ## Skill screen extras
 SK_BTN_CLOSE | 24 | Skill screen, close button | Close

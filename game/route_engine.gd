@@ -413,7 +413,7 @@ func _local_calc(planet: int, c: String, role: String, cash: int) -> Dictionary:
 		if price > 0:
 			n = mini(n, floori(float(maxi(cash, 0)) / price))
 		if n <= 0:
-			return {"n": 0, "credits": 0, "state": "Not enough cash."}
+			return {"n": 0, "credits": 0, "state": no_cash_buy_text(price, cash)}
 		return {"n": n, "credits": -n * price, "state": "Buying."}
 	var have: int = sell_available(planet, c)  # owner 2026-11-01: a Sell also draws from Space Storage
 	if have <= 0:
@@ -623,6 +623,15 @@ func reason_of(rec: Dictionary) -> String:
 		if src_available(rec) > 0:
 			return waiting_text()
 	return str(rec["reason"])
+
+## Row and map text of a route that could not pay its trip at the cycle end: the cost and the cash it was compared with.
+## The route state is stored at settle, so "had" is the cash at that moment (start balance plus what earlier lines paid).
+static func no_cash_route_text(need: int, have: int) -> String:
+	return StoryText.get_or("ST_NO_CASH_ROUTE", "Not enough cash: needs {need} cr, had {have} cr.", {"need": need, "have": maxi(have, 0)})
+
+## Text of a Buy order that could not buy one unit: the unit price and the cash left after the trip reserve.
+static func no_cash_buy_text(price: int, free: int) -> String:
+	return StoryText.get_or("ST_NO_CASH_BUY", "Not enough cash: one unit costs {price} cr, {free} cr free after trips.", {"price": price, "free": maxi(free, 0)})
 
 static func waiting_text() -> String:
 	return StoryText.get_text("ST_WAITING_ROOM")
@@ -865,7 +874,7 @@ func forecast(cash: int) -> Dictionary:
 				if price > 0:
 					n = mini(n, floori(float(maxi(cash + delta - route_reserve(cash + delta, amt), 0)) / price))
 				if n <= 0:
-					state = "Not enough cash."
+					state = no_cash_buy_text(price, cash + delta - route_reserve(cash + delta, amt))
 				else:
 					shadow[pk + "|" + c] = int(amt.call(pk, c)) + n
 					credits = -n * price
@@ -1148,7 +1157,7 @@ func _settle_one(rec: Dictionary, cash: int) -> int:
 	var fixed := fare_for(fixed_cost(rec), cash, fare_paid)
 	if fixed < 0:
 		rec["state"] = "stalled"
-		rec["reason"] = "Not enough cash."
+		rec["reason"] = no_cash_route_text(fixed_cost(rec), cash)
 		return 0
 	var moved := planned_units(rec)
 	if moved <= 0:

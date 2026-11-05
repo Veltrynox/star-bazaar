@@ -96,6 +96,7 @@ func _run() -> void:
 	await _test_cash_reserve()
 	await _test_sell_only_idle()
 	await _test_stall_rescue()
+	await _test_no_cash_text()
 	await _test_mining_reachable()
 	await _test_clusters()
 	await _test_cluster_send()
@@ -5204,6 +5205,32 @@ func _test_stall_rescue() -> void:
 	var f2: Dictionary = e.forecast(fixed - 7)
 	var r2: Dictionary = e.settle(fixed - 7)
 	check(int(f2["delta"]) == int(r2["delta"]) and str(e.routes[0]["state"]) == "running", "stall: forecast equals settle for a starved loaded route", "%d vs %d" % [int(f2["delta"]), int(r2["delta"])])
+	_free_main(m)
+
+## T213: with 2000 cash a loaded route (trip far below 2000) is never stalled for cash, and the cash texts name the amounts.
+func _test_no_cash_text() -> void:
+	_wipe_user()
+	var m: Control = await _new_main()
+	m._dismiss_preface()
+	var e = m.engine
+	m.cash = 100000
+	check(m.send_stock_buying(0, 1, "energy")["ok"] and e.routes.size() == 1, "no cash text: one route set up")
+	var sk: String = m.storage.planet_key(0)
+	m.storage.ensure(sk)
+	m.storage.add(sk, "energy", 20)
+	var fixed: int = e.fixed_cost(e.routes[0])
+	check(fixed < 2000, "no cash text: the trip costs less than 2000", str(fixed))
+	m.cash = 2000
+	var f: Dictionary = e.forecast(2000)
+	var r: Dictionary = e.settle(2000)
+	var reason := str(e.routes[0]["reason"])
+	check(str(e.routes[0]["state"]) != "stalled" and not reason.begins_with("Not enough cash"), "no cash text: cash 2000 is not reported as not enough cash", str(e.routes[0]["state"]) + " " + reason)
+	for ln in f["local"]:
+		check(not str(ln["state"]).begins_with("Not enough cash"), "no cash text: no order reports not enough cash at 2000", str(ln["state"]))
+	var t: String = e.no_cash_route_text(55, 40)
+	check(t.contains("55") and t.contains("40") and t.begins_with("Not enough cash"), "no cash text: the route text shows needed and held cash", t)
+	var tb: String = e.no_cash_buy_text(253, 10)
+	check(tb.contains("253") and tb.contains("10"), "no cash text: the buy text shows price and free cash", tb)
 	_free_main(m)
 
 ## Alpha fix 2026-11-02: mining is reachable from the start. A mining_focus-style player (FND_PROSPECT first) learns Prospecting
