@@ -1,0 +1,46 @@
+{
+ "schema_version": 1,
+ "agent": "gameplay-programmer",
+ "date": "2026-11-04",
+ "task": "availability-ui-test",
+ "status": "done",
+ "files_changed": [
+  "game/availability.gd",
+  "game/main.gd",
+  "game/planet_panel.gd",
+  "game/space_storage_view.gd",
+  "game/galaxy_view.gd",
+  "game/events.gd",
+  "game/route_engine.gd",
+  "game/route_legend.gd",
+  "tools/tests/run_tests.gd",
+  "qa/bots/availability_shot.gd",
+  "handoffs/gameplay-programmer/2026-11-04-availability-ui-test.json"
+ ],
+ "open_questions": [
+  "Events/forecast: events.good_available now skips any event whose good is not visible (so no price-event notice names a hidden good). That changes which events can fire early. Keep, or do you want the notice text neutralised instead?",
+  "Route lists (cash forecast, ship panel, galaxy side 'your routes', income) are not filtered: a route can exist only for a visible good, and hiding it would break the sums. OK?",
+  "Story/tutorial texts that could name a hidden good were not edited. None found on the Voltara start screen by the test; skill-tree node texts (e.g. Prospecting, ore, plate) are visible in the skills window by design (nodes stay in the tree)."
+ ],
+ "handoff": "Single evaluator game/availability.gd (class Availability, bound in Main._ready) loads data/availability.json and implements every atom plus all/any. Hooked: planet panel resource rows and split rows, galaxy view planet icons and side rows, route legend (rebuilds when a good appears), Space Storage station/post/route target (space_storage rule), its stock rows, fabric/Null Core/workshop/recipe rows, cluster card (no ore readout before FND_PROSPECT), event picking. Tests (142 new checks, 1637 total, all pass): start state, per-rule true/false, stock_held, data lint, text scan of Voltara panel and the whole visible screen. Existing tests adjusted for hidden goods (silk event, T141, hide rows, station rows, fabric inputs, cluster card). Run godot --headless --import once so the new class name registers.",
+ "details": {
+  "playable": "At game start Voltara shows only Energy and Food; the legend at the bottom lists only Energy and Food routes. Ore appears after FND_PROSPECT, workshops after their skill, Space Storage after FND_STORAGE, system-2 goods after the permit.",
+  "how_to_try": "Run the game, click Voltara: two resource buttons only. Press K, learn Prospecting (debug: add skill points) and click Voltara again: Ore button appears. Or run qa/run_game.sh res://qa/bots/availability_shot.gd for a screenshot.",
+  "hooked_places": [
+   "planet_panel BuyGrid rows",
+   "planet_panel _lane_splits",
+   "galaxy_view planet icon + side panel row",
+   "route_legend",
+   "main._ensure_posts/_ensure_stations/space_post_open",
+   "route_engine.space_key_for",
+   "space_storage_view stock rows, fabric rows, Null Core, workshop rows, recipe rows",
+   "main cluster info card",
+   "events.good_available"
+  ],
+  "not_hooked": [
+   "cash_forecast, ship_panel, income popup route lines (routes exist only for visible goods)",
+   "competitors panel and end screen (they name markets, not goods)",
+   "skill screen (nodes stay visible by the rules file)"
+  ]
+ }
+}

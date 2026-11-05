@@ -1,0 +1,22 @@
+{
+ "schema_version": 1,
+ "agent": "economy-designer",
+ "date": "2026-11-04",
+ "task": "Availability rules: when each good and resource feature becomes visible",
+ "status": "done",
+ "files_changed": [
+  "data/availability.json",
+  "handoffs/economy-designer/2026-11-04-availability-rules.json"
+ ],
+ "open_questions": [
+  "Food shown at Voltara at start (scarce there, buy 30, real route to Tillam/Ashgate); ore/dross/plate hidden although Voltara prices them. Veto?",
+  "chips/silk/rivets/musk/spores have no unlock node; I gate them on system 2 open (permit). Rivets and musk/spores have a system-1 buy price, so a purist could show them earlier.",
+  "'Space station' does not exist; I mapped it to Space Storage (FND_STORAGE)."
+ ],
+ "handoff": "data/availability.json written (rules + atoms + start_state). Start at Voltara: VISIBLE energy, food. HIDDEN: ore (needs FND_PROSPECT), dross (MIN_3 + cycle 15), nullglass (MIN_5 + cycle 15 + system 2), plate (Fabric built), chips/silk/rivets/musk/spores (system 2 open), cells/armour/cask/gems/ingot/alloy/gel/seed (good unlock AND workshop built). Workshops: shown when unlocking node learned (MIN_1 fabric+smelter, MIL_1, LUX_1, BIO_1). Space Storage UI: FND_STORAGE learned. Owned stock always shows (stock_held). Rule paragraph: Availability rule: never show a resource, workshop or storage feature before its visible_when in data/availability.json is true. That file is the single source for what the UI shows and when; do not hard-code unlocks elsewhere. New goods, workshops or storage features need a rule there first. The availability test must pass before any UI change is handed off.",
+ "details": {
+  "changes": [],
+  "sim_results": [],
+  "rule_paragraph": "Availability rule: never show a resource, workshop or storage feature before its visible_when in data/availability.json is true. That file is the single source for what the UI shows and when; do not hard-code unlocks elsewhere. New goods, workshops or storage features need a rule there first. The availability test must pass before any UI change is handed off."
+ }
+}
