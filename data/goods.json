@@ -1,7 +1,7 @@
 {
  "schema_version": 1,
- "data_version": 1,
- "source": "2026-11-03 skill-data (economy-designer): 19 goods (8 old tagged as data/markets.json, 11 new) per four-markets.md 1.1-1.3 and four-markets-economy.md section 1. planet_prices are NOT yet in planets.json/systems.json: the programmer wires them in (key style <good>_buy = player pays, <good>_sell = player receives, same as planets.json). Sell price of crafted goods = base price (share base value). Crafted goods placement (Voltara and s2_p4, buy = sell x 1.12) is mine; economy doc gives no planets. size_slots: S 1, M 2, L 3 (balance size_slots_M/L). batch_out also in balance <good>_batch_out.",
+ "data_version": 2,
+ "source": "2026-11-05 resource-audit: armour now also takes 1 rivets, gems also take 1 musk (design/proposals/2026-11-05-resource-audit.md). 2026-11-03 skill-data (economy-designer): 19 goods (8 old tagged as data/markets.json, 11 new) per four-markets.md 1.1-1.3 and four-markets-economy.md section 1. planet_prices are NOT yet in planets.json/systems.json: the programmer wires them in (key style <good>_buy = player pays, <good>_sell = player receives, same as planets.json). Sell price of crafted goods = base price (share base value). Crafted goods placement (Voltara and s2_p4, buy = sell x 1.12) is mine; economy doc gives no planets. size_slots: S 1, M 2, L 3 (balance size_slots_M/L). batch_out also in balance <good>_batch_out.",
  "workshops": [
   {
    "id": "fabric",
@@ -220,7 +220,8 @@
    "size": "L",
    "recipe": {
     "cells": 3,
-    "chips": 1
+    "chips": 1,
+    "rivets": 1
    },
    "workshop": "munitions",
    "batch_out": 3,
@@ -236,7 +237,7 @@
      "armour_sell": 180
     }
    },
-   "cash_cost_per_unit": 18
+   "cash_cost_per_unit": 25
   },
   {
    "id": "musk",
@@ -296,7 +297,8 @@
    "size": "L",
    "recipe": {
     "ore": 2,
-    "silk": 1
+    "silk": 1,
+    "musk": 1
    },
    "workshop": "atelier",
    "batch_out": 2,
@@ -312,7 +314,7 @@
      "gems_sell": 130
     }
    },
-   "cash_cost_per_unit": 12
+   "cash_cost_per_unit": 21
   },
   {
    "id": "ingot",

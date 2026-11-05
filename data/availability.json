@@ -1,6 +1,6 @@
 {
  "schema_version": 1,
- "data_version": 2,
+ "data_version": 3,
  "source": "2026-11-04 availability-rules (economy-designer). Derived from data/goods.json (unlocked_by, unlock effects), data/skills.json (unlock/mine_unlock), data/planets.json, data/systems.json, data/markets.json, gdd-skills.md section 4, game/goods.gd (good_open, merge_prices), game/main.gd (dead_unlock_cycle, permit). No price or balance value changed.",
  "atoms": {
   "_doc": "Vocabulary of the one evaluator, game/conditions.gd (header lists it too). Trees: string atom, {all:[]}, {any:[]}, {not:cond}. An entry may carry visible_when with the same trees.",
@@ -188,7 +188,7 @@
      "stock_held:armour"
     ]
    },
-   "note": "Crafted at the munitions. Good unlock skill_learned:MIL_4 AND the workshop built (the good cannot exist before). Inputs cells + chips; chips exist only once system 2 is open, so also system_open:2."
+   "note": "Crafted at the munitions. Good unlock skill_learned:MIL_4 AND the workshop built (the good cannot exist before). Inputs cells + chips + rivets (2026-11-05); rivets and chips exist only once system 2 is open, so also system_open:2."
   },
   {
    "kind": "good",
@@ -197,14 +197,14 @@
     "any": [
      {
       "all": [
-       "skill_learned:LUX_4",
+       "skill_learned:LUX_1",
        "workshop_built:atelier"
       ]
      },
      "stock_held:cask"
     ]
    },
-   "note": "Crafted at the atelier. Good unlock skill_learned:LUX_4 AND the workshop built (the good cannot exist before). Voltara/s2_p4 list a price but buying it there alone is not a trade. Inputs may need other hidden goods; the recipe row still shows once unlocked."
+   "note": "Crafted at the atelier. Good unlock skill_learned:LUX_1 (2026-11-05 skill-tree-final: cask is the tier-1 luxury, food only, runs in system 1) AND the workshop built (the good cannot exist before). Voltara/s2_p4 list a price but buying it there alone is not a trade."
   },
   {
    "kind": "good",
@@ -213,16 +213,17 @@
     "any": [
      {
       "all": [
-       "skill_learned:LUX_1",
+       "skill_learned:LUX_4",
        "workshop_built:atelier",
        "good_visible:ore",
-       "good_visible:silk"
+       "good_visible:silk",
+       "good_visible:musk"
       ]
      },
      "stock_held:gems"
     ]
    },
-   "note": "Crafted at the atelier. Good unlock skill_learned:LUX_1 AND the workshop built (the good cannot exist before). Inputs ore + silk: both must be visible (ore FND_PROSPECT, silk system 2)."
+   "note": "Crafted at the atelier. Good unlock skill_learned:LUX_4 (2026-11-05 skill-tree-final, tier 3) AND the workshop built (the good cannot exist before). Inputs ore + silk + musk: all must be visible (ore FND_PROSPECT, silk and musk system 2)."
   },
   {
    "kind": "good",
@@ -248,7 +249,7 @@
     "any": [
      {
       "all": [
-       "skill_learned:MIN_4",
+       "skill_learned:MIN_6",
        "workshop_built:smelter",
        "good_visible:plate",
        "good_visible:ingot"
@@ -257,7 +258,7 @@
      "stock_held:alloy"
     ]
    },
-   "note": "Crafted at the smelter. Good unlock skill_learned:MIN_4 AND the workshop built (the good cannot exist before). Inputs plate + ingot: both must be visible (plate needs the Fabric and nullglass)."
+   "note": "Crafted at the smelter. Good unlock skill_learned:MIN_6 (2026-11-05 skill-tree-final: alloy appears once plate can exist) AND the workshop built (the good cannot exist before). Inputs plate + ingot: both must be visible (plate needs the Fabric and nullglass)."
   },
   {
    "kind": "good",
@@ -332,21 +333,10 @@
    "id": "atelier",
    "visible_when": {
     "all": [
-     "skill_learned:LUX_1",
-     {
-      "any": [
-       "skill_learned:LUX_4",
-       {
-        "all": [
-         "system_open:2",
-         "good_visible:ore"
-        ]
-       }
-      ]
-     }
+     "skill_learned:LUX_1"
     ]
    },
-   "note": "Cask (LUX_4) needs only food, so it runs in system 1. Gems (LUX_1) need ore (FND_PROSPECT) + silk (system 2). So with LUX_1 alone nothing can run: visible with LUX_1 AND (LUX_4 OR (system_open:2 AND ore visible))."
+   "note": "2026-11-05 skill-tree-final: cask (LUX_1) needs only food, so the atelier is useful in system 1 with LUX_1 alone. Gems (LUX_4) come later."
   },
   {
    "kind": "workshop",
