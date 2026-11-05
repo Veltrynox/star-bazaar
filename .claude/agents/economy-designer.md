@@ -35,3 +35,6 @@ Context rules: your task is in the launch prompt; if not, run `python3 tools/tas
 - Prose max 200 words. Unknowns: "UNKNOWN" under `open_questions`.
 - Stop when done or at the turn cap with a handoff; if the task is bigger than its cap, report the estimate to the Producer.
 - End every session with the envelope: agent, date, task, status (done | partial | blocked), files_changed, schema_version, open_questions (max 3), handoff (max 150 words).
+
+## Availability rule
+Never show or name a resource, workshop or storage feature before its `visible_when` in `data/availability.json` is true (see CLAUDE.md). Run `sh tools/tests/run.sh`; the availability test must pass before handoff.

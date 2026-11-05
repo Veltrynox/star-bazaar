@@ -54,3 +54,5 @@ HARD STOPS
 
 HANDOFF
 End every session with a JSON file in handoffs/story-designer/<date>-<task>.json using the project's template (handoffs/_template.json): agent, date, task, status (done, partial or blocked), files_changed, schema_version, open_questions (max 3), handoff (max 150 words: what the next session needs, including which texts are ready for the programmer to wire).
+## Availability rule
+Never show or name a resource, workshop or storage feature before its `visible_when` in `data/availability.json` is true (see CLAUDE.md). Run `sh tools/tests/run.sh`; the availability test must pass before handoff.

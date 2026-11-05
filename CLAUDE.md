@@ -4,3 +4,16 @@
 - Headless (tests, imports): `tools/godot/Godot.app/Contents/MacOS/Godot --headless --path . ...`
 - Windowed (playthroughs, screenshots): `qa/run_game.sh res://qa/bots/<script>.gd`
 - Never prefix these with `cd &&` or `HOME=`.
+
+## Availability rule (progressive disclosure)
+- Never show a resource, workshop or storage feature before its `visible_when` in `data/availability.json` is true. That file is the single source for what the UI shows and when; do not hard-code unlocks elsewhere.
+- A new good, workshop or storage feature needs a rule in that file first. Use `Availability` (`game/availability.gd`) in any UI that lists goods; hidden means not drawn at all.
+- Texts (events, tutorial, tooltips) must not name a good that is hidden at that moment.
+- Check: `sh tools/tests/run.sh` runs `_test_availability` (start state, per-rule show/hide, text scan, data lint). It must pass before any UI, data or story change is handed off.
+
+## Generated files: never edit by hand
+- `data/story_text.json`, `data/story_text_ru.json` and `data/events.json` are written only by `python3 tools/build_story.py` from `story/*.md` (English) and `story/ru/*.json` (Russian). Each carries a `generated` marker (file, source, generator, command). Edit the source, then run the command; `sh tools/tests/run.sh` also runs it first.
+- The test `generated files` in `tools/tests/run_tests.gd` rebuilds them to a temp folder and fails, naming the file and the command, if a checked-in file differs.
+- Other tool output (art atlases from `tools/make_*atlas.gd`, narration audio and its `manifest.json` from `tools/voice/gen_voice.py`) is also generated: change the tool or its input, not the output.
+- Text ids: events keep only mechanics and text ids in `data/events.json`; every title, body, button, effect line and popup is an id in `story_text.json` (rule: header of `tools/build_story.py`).
+- Conditions (chain triggers, availability, workshop unlocks, event filters, `visible_when` on steps, options and events) all use `game/conditions.gd`; its header is the atom vocabulary.
