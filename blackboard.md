@@ -4,7 +4,7 @@
 - Do not flip discovery_enabled in data/balance.json to fix tests: it ships at 0 on purpose (gdd.md); tests set it themselves.
 
 ## Left to do
-- Open: T185, T178/T182 (owner-only agents), T05, T166.
+- Open: T185 (visual), T178/T182 (owner-only agents), T05 (only windowed frame time missing, see T193), T166 (superseded). Owner-decision tasks T189-T193 added 2026-11-05.
 
 - Owner: ship cap 20 (T186): decide on economy retune (trip cost, maintenance tuned for 6) and look of the scrolled ship list; other panels not checked at 20 ships.
 - Owner: asteroid-asteroid has no link and storage is never a route source (T188 treated as design); tools/project_workflow.html and other files were modified by something else, left uncommitted.
@@ -72,3 +72,13 @@
 - Failed / did not work: nothing. Committed with [no-gdd] since features are off and gdd.md holds others' edits.
 - Files and commits: see git log "Placeholder solar systems (T176)".
 - Left to do: owner decides count (3-5 vs 6), real permit keys (economy-designer), Russian text.
+
+## 2026-11-05 run: gap analysis
+- Summary: No open task could be done: T185 is visual, T178/T182 owner-only, T166 superseded by T171, T05 already has density grid and sun propagation (only windowed frame_time_ms missing). Added owner-decision tasks T189-T193 from existing blackboard and GDD open items.
+- Why this task: nothing else was doable under the rules.
+- Approach: reused already-recorded open items instead of inventing features.
+- Agent prompts: none.
+- Worked: schedule.json updated with five queued tasks.
+- Failed / did not work: nothing. Did not run the game or any agent.
+- Files and commits: schedule.json, blackboard.md (committed).
+- Left to do: owner works through T189-T193.

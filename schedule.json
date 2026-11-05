@@ -1087,6 +1087,66 @@
       "brief": "Add a headless test in tools/tests/run_tests.gd (runs with sh tools/tests/run.sh): for every pair of node types (planet, space storage, dead planet, asteroid field), in the same system and across systems, build a link with the game's own link function (route, storage link, mining platform) from a start state plus the needed unlocks, and assert it is created, saved and loaded back, and is not rejected for a stale reason (range, cap, closed flag, missing unlock that the game allows). Also assert from the start state that every node can be reached by some chain of allowed links, so no node is stranded. Fix code bugs the test finds. Handoff handoffs/gameplay-programmer/2026-11-05-T188.json.",
       "owner_note": "Owner asked for a test or assertion that connections can always be established.",
       "note": "Added _test_links_everywhere in run_tests.gd (all node-type pairs, same and cross system, save/load, reachability). No game bugs found. Asteroid-asteroid has no link and storage is never a route source: treated as design, owner may revisit."
+    },
+    {
+      "task_id": "T189",
+      "title": "Decide: Storage Link and Rival ships need a first playtest",
+      "owner_agent": "feature-designer",
+      "brief": "Storage Link (game/storage_link.gd) is 'built, not yet run in play' per gdd-skills.md; rival ships (T187) look unreviewed. Owner plays both, then decides keep/retune/look. needs owner decision.",
+      "owner_note": "Owner playtest, no agent can judge feel.",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 30,
+      "window": "Gap analysis 2026-11-05 (overnight). Needs owner decision before start.",
+      "note": ""
+    },
+    {
+      "task_id": "T190",
+      "title": "Decide: asteroid-asteroid links and storage as route source",
+      "owner_agent": "gameplay-programmer",
+      "brief": "T188 test found no asteroid-asteroid link and storage never a route source. Owner chooses: add, or document as design in gdd.md. needs owner decision.",
+      "owner_note": "",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 30,
+      "window": "Gap analysis 2026-11-05 (overnight). Needs owner decision before start.",
+      "note": ""
+    },
+    {
+      "task_id": "T191",
+      "title": "Decide: ship cap 20 economy retune and ship list look",
+      "owner_agent": "economy-designer",
+      "brief": "T186 raised cap 6 to 20; trip cost and maintenance were tuned for 6; Ships panel scrolls. Owner decides retune (owner-started only) and list look. needs owner decision.",
+      "owner_note": "",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 30,
+      "window": "Gap analysis 2026-11-05 (overnight). Needs owner decision before start.",
+      "note": ""
+    },
+    {
+      "task_id": "T192",
+      "title": "Decide: placeholder systems 3-5 count and permit keys",
+      "owner_agent": "feature-designer",
+      "brief": "T176 placeholders are ids 3-5 off by default; gdd-skills open question 4 says nothing points at system 3. Owner decides count (3-5 vs 6) and whether to give them real permits. needs owner decision.",
+      "owner_note": "",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 30,
+      "window": "Gap analysis 2026-11-05 (overnight). Needs owner decision before start.",
+      "note": ""
+    },
+    {
+      "task_id": "T193",
+      "title": "Close T05: measure galaxy frame_time_ms windowed",
+      "owner_agent": "galaxy-builder",
+      "brief": "Density grid and sun propagation already exist in game/galaxy/star_field.gd (handoff 2026-10-31-T05). Only frame_time_ms on a windowed macOS run is missing; owner measures or approves closing T05 as done. needs owner decision.",
+      "owner_note": "",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 30,
+      "window": "Gap analysis 2026-11-05 (overnight). Needs owner decision before start.",
+      "note": ""
     }
   ],
   "done_task_ids": [
