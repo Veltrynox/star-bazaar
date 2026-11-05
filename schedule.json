@@ -1176,10 +1176,11 @@
       "title": "Ship movement: acceleration, deceleration, yaw turning and a steady course (player and rival ships)",
       "owner_agent": "gameplay-programmer",
       "depends_on": [],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 40,
       "window": "Owner request 2026-11-05 (playtest feedback). Not started: main session sets it running.",
-      "brief": "Owner: ships fly with no acceleration and the rival ships wander a little at random. Build proper motion for the player's Pathfinder (game/pathfinder.gd) and the rival ships (game/rival_ships.gd): speed ramps up from rest and brakes before the target (arrive and stop), the heading turns at a limited yaw rate toward the course instead of snapping, the ship flies a straight course to the target once aligned, and rivals pick a destination and fly to it steadily (no random jitter; wait, then pick the next one). Motion runs on the game clock: paused means no movement and no turning. Keep the save round-trip working (flight state saved mid-flight, bump the save version if the format changes, old saves may be dropped). Put speed, acceleration and turn-rate numbers in data/balance.json as new keys with a data_version bump (placeholders; the economy designer does not retune them here). Handoff handoffs/gameplay-programmer/2026-11-05-T196.json."
+      "brief": "Owner: ships fly with no acceleration and the rival ships wander a little at random. Build proper motion for the player's Pathfinder (game/pathfinder.gd) and the rival ships (game/rival_ships.gd): speed ramps up from rest and brakes before the target (arrive and stop), the heading turns at a limited yaw rate toward the course instead of snapping, the ship flies a straight course to the target once aligned, and rivals pick a destination and fly to it steadily (no random jitter; wait, then pick the next one). Motion runs on the game clock: paused means no movement and no turning. Keep the save round-trip working (flight state saved mid-flight, bump the save version if the format changes, old saves may be dropped). Put speed, acceleration and turn-rate numbers in data/balance.json as new keys with a data_version bump (placeholders; the economy designer does not retune them here). Handoff handoffs/gameplay-programmer/2026-11-05-T196.json.",
+      "note": "Built 2026-11-05: game/ship_motion.gd shared step; accel/brake/yaw for Pathfinder and rivals; 7 balance keys (data_version 57); save v8. Debug menu listing of keys not checked."
     },
     {
       "task_id": "T197",

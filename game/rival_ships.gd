@@ -1,7 +1,9 @@
 extends Node3D
 ## T187: rival ships flying around the map. A VISUAL ONLY: no cargo, no collision shape, no picking, no blocking, no combat, no
 ## effect on routes, prices, shares or the Pathfinder. Rivals stay numbers in the economy (Markets bots); these ships are scenery.
-## Each ship wanders between random points over the planets of the system being viewed, on the plane y = LIFT, like the
+## T196: each ship picks a destination (a point over the planets of its system), speeds up from rest, turns at a limited yaw rate,
+## flies a straight course and brakes to a stop there, waits (rival_ship_wait_s), then picks the next one. No random jitter.
+## Each ship flies on the plane y = LIFT, like the
 ## Pathfinder. They move only while the game runs (main.paused false, speed follows main.time_speed), as the Pathfinder does.
 ## Number per system: balance key rival_ship_count (default COUNT_DEFAULT when the key is absent; the key belongs in
 ## data/balance.json, owner of that file to add it). Speed in map units per second: SPEED_DEFAULT (same note, rival_ship_speed).
@@ -9,6 +11,7 @@ extends Node3D
 ## fitted like the Pathfinder, and a small cone when no model loads.
 
 const Ships := preload("res://game/ships.gd")
+const Motion := preload("res://game/ship_motion.gd")  # T196
 
 const COUNT_DEFAULT := 3
 const SPEED_DEFAULT := 0.6      # world units per second at x1
@@ -19,7 +22,9 @@ const MARGIN := 3.0             # world units around the planets that a rival ma
 var main: Node = null
 var map: Node = null
 var _rng := RandomNumberGenerator.new()
-var _ships: Array = []          # {node, system, from, to, t, dur}
+var _ships: Array = []          # {node, system, pos Vector2 (x, z), yaw, speed, to Vector2, wait (s left, > 0 = waiting)}
+const MIN_LEG := 3.0            # a new destination is at least this far (world units)
+const SUBSTEP := 0.05           # seconds per integration step
 var _built := false
 
 func setup(m: Node, mp: Node) -> void:
@@ -76,16 +81,25 @@ func _build() -> void:
 			var node := _make_ship(str(kinds[n % kinds.size()]))
 			add_child(node)
 			var from := _random_point(sys)
-			_ships.append({"node": node, "system": sys, "from": from, "to": from, "t": 0.0, "dur": 0.0})
+			_ships.append({"node": node, "system": sys, "pos": Vector2(from.x, from.z), "yaw": _rng.randf_range(-PI, PI), "speed": 0.0,
+				"to": Vector2(from.x, from.z), "wait": 0.0})
 			_new_leg(_ships[_ships.size() - 1])
+			node.position = Vector3(from.x, LIFT, from.z)
+			var last: Dictionary = _ships[_ships.size() - 1]
+			last["yaw"] = Motion.yaw_to((last["to"] as Vector2) - (last["pos"] as Vector2))  # starts facing its first course
+			node.rotation.y = float(last["yaw"])
 			n += 1
 
 func _new_leg(s: Dictionary) -> void:
-	s["from"] = s["to"]
-	s["to"] = _random_point(int(s["system"]))
-	var d: float = (s["to"] - s["from"]).length()
-	s["dur"] = maxf(0.5, d / maxf(0.01, _bal("rival_ship_speed", SPEED_DEFAULT)))
-	s["t"] = 0.0
+	var from: Vector2 = s["pos"]
+	var to := from
+	for k in 8:
+		var p := _random_point(int(s["system"]))
+		to = Vector2(p.x, p.z)
+		if from.distance_to(to) >= MIN_LEG:
+			break
+	s["to"] = to
+	s["wait"] = 0.0
 
 func _make_ship(kind: String) -> Node3D:
 	var holder := Node3D.new()
@@ -133,24 +147,40 @@ func _aabb(node: Node, t: Transform3D) -> AABB:
 		first = false
 	return box
 
-## Moves every rival by dt seconds of game time. Public so tests can drive it.
+## Moves every rival by dt seconds of game time (0 or less moves nothing). Public so tests can drive it.
 func advance(dt: float) -> void:
 	if not _built:
 		if map == null or map.positions.is_empty():
 			return
 		_build()
 	var view: int = int(map.view_system) if map != null else 1
+	var vmax := maxf(0.01, _bal("rival_ship_speed", SPEED_DEFAULT))
+	var accel := vmax / maxf(0.05, _bal("rival_ship_accel_s", 2.0))
+	var brake := vmax / maxf(0.05, _bal("rival_ship_brake_s", 2.0))
+	var turn := deg_to_rad(maxf(1.0, _bal("rival_ship_turn_deg", 45.0)))
 	for s in _ships:
 		var node: Node3D = s["node"]
 		node.visible = int(s["system"]) == view
-		s["t"] = float(s["t"]) + dt
-		if float(s["t"]) >= float(s["dur"]):
-			_new_leg(s)
-		var k := clampf(float(s["t"]) / maxf(0.001, float(s["dur"])), 0.0, 1.0)
-		var d: Vector3 = s["to"] - s["from"]
-		node.position = Vector3(0, LIFT, 0) + (s["from"] as Vector3).lerp(s["to"], k)
-		if d.length() > 0.001:
-			node.rotation.y = atan2(-d.x, -d.z)
+		var left := maxf(0.0, dt)
+		var n := 0
+		while left > 0.0 and n < 4000:
+			n += 1
+			var h := minf(left, SUBSTEP)
+			left -= h
+			if float(s["wait"]) > 0.0:
+				s["wait"] = float(s["wait"]) - h
+				if float(s["wait"]) <= 0.0:
+					_new_leg(s)
+				continue
+			var r := Motion.step(s, s["to"], vmax, accel, brake, turn, h)
+			s["pos"] = r["pos"]
+			s["yaw"] = r["yaw"]
+			s["speed"] = r["speed"]
+			if r["arrived"]:
+				s["wait"] = maxf(0.01, _bal("rival_ship_wait_s", 3.0))
+		var p: Vector2 = s["pos"]
+		node.position = Vector3(p.x, LIFT, p.y)
+		node.rotation.y = float(s["yaw"])
 
 func ship_count() -> int:
 	return _ships.size()

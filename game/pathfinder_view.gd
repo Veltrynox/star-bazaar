@@ -12,6 +12,7 @@ extends Node3D
 ##   is_enabled() -> bool                  [false]  discovery on for this run
 ##   state() -> String                     ["idle"] "idle" | "flying" | "building"
 ##   ship_position() -> Vector3            [ZERO]   world position of the ship
+##   heading() -> float                    [toward target]  T196: yaw of the ship (atan2(-dx, -dz)); it turns at a limited rate
 ##   system_id() -> int                    [1]      solar system the ship is in (it is drawn only in the viewed system)
 ##   target() -> Dictionary                [{}]     {"kind": "planet"|"storage"|"cluster"|"point", "pos": Vector3, "index": int}
 ##                                                  current or planned destination; {} when none
@@ -159,6 +160,9 @@ func update_from(f, view_system: int) -> void:
 	_ensure_model(str(_call(f, "model_path", [], "")))
 	var pos: Vector3 = _call(f, "ship_position", [], Vector3.ZERO)
 	global_position = pos + Vector3(0, LIFT, 0)
+	var has_heading: bool = f != null and is_instance_valid(f) and f.has_method("heading")
+	if has_heading:
+		rotation.y = float(f.heading())  # T196: the ship turns at a limited rate, the accessor owns the heading
 	var paused := bool(_call(f, "is_paused", [], false))
 	var tgt = _call(f, "target", [], {})
 	_mesh.clear_surfaces()
@@ -167,7 +171,8 @@ func update_from(f, view_system: int) -> void:
 		var tp: Vector3 = tgt["pos"]
 		var d := Vector2(tp.x - pos.x, tp.z - pos.z)
 		if d.length() > 0.05:
-			rotation.y = atan2(-d.x, -d.y)  # turn toward the heading (model forward is -Z)
+			if not has_heading:
+				rotation.y = atan2(-d.x, -d.y)  # turn toward the heading (model forward is -Z)
 			var col := COL_LINE_PAUSED if paused else COL_LINE_MOVING  # paused look: faint planned line, ship waits
 			_mesh.surface_begin(Mesh.PRIMITIVE_LINES)
 			var a := pos + Vector3(0, LIFT, 0)

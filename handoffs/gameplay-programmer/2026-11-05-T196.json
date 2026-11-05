@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-05",
+  "task": "T196",
+  "status": "done",
+  "files_changed": [
+    "game/ship_motion.gd",
+    "game/pathfinder.gd",
+    "game/pathfinder_view.gd",
+    "game/rival_ships.gd",
+    "game/save_game.gd",
+    "data/balance.json",
+    "tools/tests/run_tests.gd",
+    "handoffs/gameplay-programmer/2026-11-05-T196.json"
+  ],
+  "open_questions": [],
+  "handoff": "Ships now accelerate, brake to a stop and turn at a limited yaw rate. New shared step in game/ship_motion.gd. Pathfinder: speed ramps from rest, brakes before the target, holds back until the heading is within about 20 degrees of the course, then flies straight; heading is exposed via heading() and the view uses it. Jumps to another system stay timed (turn only). Rivals pick a destination at least 3 units away, fly it steadily, stop, wait rival_ship_wait_s, then pick the next; no jitter. All motion runs on game time, so a paused clock moves and turns nothing. New balance keys (placeholders, data_version 57): pathfinder_accel_cycles, pathfinder_brake_cycles, pathfinder_turn_deg, rival_ship_accel_s, rival_ship_brake_s, rival_ship_turn_deg, rival_ship_wait_s. Save VERSION 8 (pathfinder block gains speed and yaw; v7 loads at rest). Flight ETA now includes ramp, brake and turn time. For gdd.md: ships accelerate, brake and turn at a limited rate; rivals fly to a destination, wait, repeat. 19 new T196 checks; run.sh passes (2875 pass, 0 fail). Not committed.",
+  "details": {}
+}

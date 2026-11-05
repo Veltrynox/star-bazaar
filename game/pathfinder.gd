@@ -14,6 +14,7 @@ extends RefCounted
 
 const DeadWorlds := preload("res://game/dead_worlds.gd")
 const Ships := preload("res://game/ships.gd")
+const Motion := preload("res://game/ship_motion.gd")  # T196
 
 signal arrived(planet_id: String)         # the ship reached a planet (it is discovered now)
 signal build_started(planet_id: String)
@@ -23,6 +24,7 @@ signal build_cancelled(planet_id: String) # the ship left during a build: credit
 const PLATFORM_SKILL := "MIN_3"  # skill that allows a mining platform (proposal 1.4)
 const DEFAULT_HOME := "planet_1"
 const EPS := 0.0001
+const SUBSTEP := 0.005          # cycles per integration step of a flight (0.3 s of game time)
 
 var main: Node = null
 var _pos := Vector3.ZERO
@@ -32,8 +34,10 @@ var _target := {}               # {kind, pos, index} while flying, else {}
 var _from := Vector3.ZERO
 var _to := Vector3.ZERO
 var _to_sys := 1
-var _dur := 0.0                 # flight length in cycles
-var _t := 0.0                   # cycles flown
+var _dur := 0.0                 # flight length in cycles (estimate for an in-system flight, the jump time for a jump)
+var _t := 0.0                   # cycles flown (a jump moves by it; an in-system flight is physics: speed, heading)
+var _speed := 0.0               # T196: world units per cycle, ramps up from rest and brakes before the target
+var _yaw := 0.0                 # T196: heading (atan2(-dx, -dz)), turns at pathfinder_turn_deg per cycle toward the course
 var _docked := ""               # planet id the ship is at, "" in flight or in open space
 var _build := ""                # planet id being built, "" none
 var _build_total := 0.0
@@ -58,6 +62,8 @@ func reset() -> void:
 	_target = {}
 	_dur = 0.0
 	_t = 0.0
+	_speed = 0.0
+	_yaw = 0.0
 	_build = ""
 	_build_total = 0.0
 	_build_left = 0.0
@@ -111,8 +117,33 @@ func _flight_cycles(from: Vector3, to: Vector3, to_sys: int) -> float:
 	var spd := _speed_mult()
 	if to_sys != _sys:
 		return maxf(0.05, _bal("pathfinder_jump_cycles", 2.0) / spd)
-	var units := Vector2(to.x - from.x, to.z - from.z).length() / _world_per_map_unit()
-	return units / maxf(1.0, _bal("pathfinder_speed", 400.0) * spd)
+	var dist := Vector2(to.x - from.x, to.z - from.z).length()
+	var v := _vmax()
+	var a := v / maxf(0.001, _bal("pathfinder_accel_cycles", 0.05))
+	var b := v / maxf(0.001, _bal("pathfinder_brake_cycles", 0.05))
+	var d_acc := v * v / (2.0 * a)
+	var d_brk := v * v / (2.0 * b)
+	var t := 0.0
+	if dist >= d_acc + d_brk:
+		t = v / a + v / b + (dist - d_acc - d_brk) / v
+	else:
+		var vp := sqrt(2.0 * dist / (1.0 / a + 1.0 / b))
+		t = vp / a + vp / b
+	var turn := deg_to_rad(maxf(1.0, _bal("pathfinder_turn_deg", 2400.0)))
+	if dist > Motion.ARRIVE_EPS:
+		t += absf(wrapf(Motion.yaw_to(Vector2(to.x - from.x, to.z - from.z)) - _yaw, -PI, PI)) / turn
+	return t
+
+## Top speed in world units per cycle.
+func _vmax() -> float:
+	return maxf(1.0, _bal("pathfinder_speed", 400.0) * _speed_mult()) * _world_per_map_unit()
+
+## Current heading (yaw, model forward is -Z) and speed in world units per cycle, for the view.
+func heading() -> float:
+	return _yaw
+
+func speed() -> float:
+	return _speed
 
 # ---- accessor read by the UI (game/pathfinder_view.gd) ---------------------------------------------------------------
 
@@ -248,6 +279,8 @@ func request_fly(t: Dictionary) -> String:
 	_to_sys = to_sys
 	_dur = _flight_cycles(_pos, to, to_sys)
 	_t = 0.0
+	if to_sys != _sys:
+		_speed = 0.0
 	_docked = ""
 	_target = {"kind": kind, "pos": to, "index": idx if kind != "point" else -1}
 	_state = "flying"
@@ -315,8 +348,10 @@ func advance(cycles: float) -> void:
 	var guard := 0
 	while left > 0.0 and guard < 16:
 		guard += 1
-		if _state == "flying":
+		if _state == "flying" and _to_sys != _sys:
+			# a jump to another system: timed, the heading still turns toward the target at the limited rate
 			var rem := _dur - _t
+			_turn_toward(minf(left, rem))
 			if left >= rem:
 				left -= rem
 				_arrive()
@@ -324,6 +359,8 @@ func advance(cycles: float) -> void:
 				_t += left
 				left = 0.0
 				_pos = _from.lerp(_to, _t / maxf(_dur, EPS))
+		elif _state == "flying":
+			left = _fly(left)
 		elif _state == "building":
 			if left >= _build_left:
 				left -= _build_left
@@ -334,8 +371,41 @@ func advance(cycles: float) -> void:
 		else:
 			break
 
+func _turn_toward(cycles: float) -> void:
+	var d := Vector2(_to.x - _pos.x, _to.z - _pos.z)
+	if d.length() <= Motion.ARRIVE_EPS:
+		return
+	var lim := deg_to_rad(maxf(1.0, _bal("pathfinder_turn_deg", 2400.0))) * cycles
+	_yaw = wrapf(_yaw + clampf(wrapf(Motion.yaw_to(d) - _yaw, -PI, PI), -lim, lim), -PI, PI)
+
+## In-system flight: integrates speed, heading and position for up to `cycles` of game time; returns the time left over
+## (> 0 only when the ship arrived, so the loop goes on with a build or idle).
+func _fly(cycles: float) -> float:
+	var v := _vmax()
+	var accel := v / maxf(0.001, _bal("pathfinder_accel_cycles", 0.05))
+	var brake := v / maxf(0.001, _bal("pathfinder_brake_cycles", 0.05))
+	var turn := deg_to_rad(maxf(1.0, _bal("pathfinder_turn_deg", 2400.0)))
+	var left := cycles
+	var target := Vector2(_to.x, _to.z)
+	var n := 0
+	while left > 0.0 and n < 20000:
+		n += 1
+		var h := minf(left, SUBSTEP)
+		var s := Motion.step({"pos": Vector2(_pos.x, _pos.z), "yaw": _yaw, "speed": _speed}, target, v, accel, brake, turn, h)
+		_yaw = s["yaw"]
+		_speed = s["speed"]
+		var p: Vector2 = s["pos"]
+		_pos = Vector3(p.x, 0.0, p.y)
+		_t += h
+		left -= h
+		if s["arrived"]:
+			_arrive()
+			return left
+	return 0.0
+
 func _arrive() -> void:
 	_pos = _to
+	_speed = 0.0
 	_sys = _to_sys
 	_state = "idle"
 	var tgt := _target
@@ -375,7 +445,10 @@ func _finish_build() -> void:
 ## Finishes the flight at once (main.debug_* guards it by the debug flag).
 func finish_flight() -> void:
 	if _state == "flying":
-		advance(maxf(0.0, _dur - _t) + EPS)
+		var guard := 0
+		while _state == "flying" and guard < 64:
+			guard += 1
+			advance(maxf(1.0, _dur) + EPS)
 
 func finish_build() -> void:
 	if _state == "building":
@@ -421,7 +494,7 @@ func to_dict() -> Dictionary:
 	if not _target.is_empty():
 		tgt = {"kind": str(_target.get("kind", "point")), "pos": _v(_target.get("pos", Vector3.ZERO)), "index": int(_target.get("index", -1))}
 	return {"pos": _v(_pos), "sys": _sys, "state": _state, "target": tgt, "from": _v(_from), "to": _v(_to), "to_sys": _to_sys,
-		"dur": _dur, "t": _t, "docked": _docked, "build": _build, "build_total": _build_total, "build_left": _build_left,
+		"dur": _dur, "t": _t, "speed": _speed, "yaw": _yaw, "docked": _docked, "build": _build, "build_total": _build_total, "build_left": _build_left,
 		"discovered": _discovered.keys(), "posts": _posts.keys(), "platforms": _platforms.keys(), "legacy": _legacy}
 
 ## A missing or bad dictionary (a save from before discovery) opens every planet, so an old run keeps working.
@@ -440,6 +513,8 @@ func from_dict(d) -> void:
 	_sys = maxi(1, int(d.get("sys", 1)))
 	_pos = _vec(d.get("pos"), _pos)
 	_docked = str(d.get("docked", ""))
+	_yaw = float(d.get("yaw", 0.0))
+	_speed = maxf(0.0, float(d.get("speed", 0.0)))
 	_state = "idle"
 	_target = {}
 	var st := str(d.get("state", "idle"))

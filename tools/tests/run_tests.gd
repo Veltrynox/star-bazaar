@@ -101,6 +101,7 @@ func _run() -> void:
 	await _test_cluster_send()
 	await _test_cluster_to_station()
 	await _test_links_everywhere()
+	await _test_ship_motion()
 	await _test_t187_ship_flight()
 	await _test_asteroid_packs()
 	_test_event_banners()
@@ -1920,7 +1921,7 @@ func _test_skills_core() -> void:
 	f.store_string(JSON.stringify({"version": 2, "state": v2}))
 	f.close()
 	var loaded: Dictionary = SaveGame.load_state()
-	check(SaveGame.VERSION == 7 and not loaded.is_empty() and loaded["learned_skills"].has("FND_STORAGE") and not SaveGame.dropped_old, "migration: a v2 file loads migrated")
+	check(SaveGame.VERSION == 8 and not loaded.is_empty() and loaded["learned_skills"].has("FND_STORAGE") and not SaveGame.dropped_old, "migration: a v2 file loads migrated")
 	f = FileAccess.open(SaveGame.PATH, FileAccess.WRITE)
 	f.store_string(JSON.stringify({"version": 1, "state": v2}))
 	f.close()
@@ -6150,7 +6151,7 @@ func _test_chains() -> void:
 	check(inp["ending_id"] == "END_BIO_BAD" and inp["flag"] == "bad" and inp["rival_broken"] == true and inp["rival_broken_bot"] == 2 and EndingPicker.inputs("mil", bal)["ending_id"] == "END_MIL_GOOD", "ending picker: BAD by the chain flag, rival_broken from the chain", str(inp))
 	check(m.ending_id_of({"kind": "win", "market": "bio"}) == "END_BIO_BAD" and m.ending_id_of({"kind": "win", "market": "lux"}) == "END_LUX_GOOD", "ending id: win reads the flag of the win market")
 	# save version 4 and v3 migration
-	check(SaveGame.VERSION == 7, "save: version 7 (v2 and newer load; v1 is dropped, owner approved)")
+	check(SaveGame.VERSION == 8, "save: version 8 (v2 and newer load; v1 is dropped, owner approved)")
 	var v3 := {"cycle": 7, "cash": 300, "chains": {"dir": {"mil": 9}}, "shield": {"built": true}}
 	var mig: Dictionary = SaveGame.migrate_v3(v3)
 	check(mig["cash"] == 300 and not mig.has("shield") and not mig.has("chains"), "save: v3 migrates, chain state fresh, shield dropped")
@@ -6565,6 +6566,96 @@ func _test_t187_ship_flight() -> void:
 	var snap: Vector3 = rs.get_child(0).position
 	rs._process(1.0)
 	check(rs.get_child(0).position == snap, "T187: rival ships stand still while paused")
+	await _free_main(m)
+
+## T196: ship motion. Speed ramps from rest, brakes before the target and stops on it, the heading turns at a limited rate,
+## nothing moves on a paused clock; rivals go to a destination, wait, then pick the next one.
+func _test_ship_motion() -> void:
+	var m = await _new_main(false, true)
+	m._dismiss_preface()
+	var f = m.flight
+	var vmax: float = f._vmax()
+	var start: Vector3 = f.ship_position()
+	var tgt := start + Vector3(0.0, 0.0, -10.0)  # straight ahead of yaw 0 (forward is -Z)
+	check(f.request_fly({"kind": "point", "pos": tgt}) == "", "T196: a flight to a point is accepted")
+	check(f.speed() == 0.0, "T196: the ship starts from rest")
+	f.sync(100.0)
+	f.sync(100.0)
+	check(f.ship_position() == start and f.speed() == 0.0, "T196: a clock that does not move moves nothing (paused)")
+	f.sync(100.01)
+	var s1: float = f.speed()
+	check(s1 > 0.0 and s1 < vmax * 0.5, "T196: speed ramps up from rest, not a jump to top speed", "%f of %f" % [s1, vmax])
+	f.sync(100.2)
+	check(absf(f.speed() - vmax) < 0.001, "T196: the ship reaches top speed on a straight course", "%f of %f" % [f.speed(), vmax])
+	var now := 100.2
+	var prev: float = f.speed()
+	var braked := false
+	var overshoot := false
+	var n := 0
+	while f.state() == "flying" and n < 400:
+		n += 1
+		now += 0.005
+		f.sync(now)
+		if f.speed() < prev - 0.0001:
+			braked = true
+		prev = f.speed()
+		if f.ship_position().z < tgt.z - 0.001:
+			overshoot = true
+	check(braked and not overshoot, "T196: the ship brakes before the target and does not pass it")
+	check(f.state() == "idle" and f.ship_position().is_equal_approx(tgt) and f.speed() == 0.0, "T196: the ship stops on the target", str(f.ship_position()))
+	# turn rate: the target is behind the ship, the heading may change by at most turn_deg per cycle
+	f._yaw = 0.0
+	f.request_fly({"kind": "point", "pos": f.ship_position() + Vector3(0.0, 0.0, 10.0)})
+	var turn: float = deg_to_rad(float(m.balance.get("pathfinder_turn_deg", 2400.0)))
+	var y0: float = f._yaw
+	f.advance(0.01)
+	check(absf(f._yaw - y0) <= turn * 0.01 + 0.0001 and absf(f._yaw - y0) > 0.0, "T196: the heading turns at a limited rate, not at once", str(f._yaw))
+	check(f.speed() == 0.0, "T196: the ship does not speed up while the course is far off its heading", str(f.speed()))
+	var p_mid: Vector3 = f.ship_position()
+	var steps := 0
+	while absf(wrapf(f._yaw - PI, -PI, PI)) > 0.05 and steps < 200 and f.state() == "flying":
+		f.advance(0.005)
+		steps += 1
+	check(absf(wrapf(f._yaw - PI, -PI, PI)) <= 0.05, "T196: the heading ends up on the course", str(f._yaw))
+	f.advance(0.1)
+	var d: Dictionary = f.to_dict()
+	check(f.state() == "flying" and float(d["speed"]) > 0.0, "T196: flight state has speed mid-flight", str(d))
+	var yaw_saved: float = f._yaw
+	var spd_saved: float = f.speed()
+	f.from_dict(JSON.parse_string(JSON.stringify(d)))
+	check(f.state() == "flying" and is_equal_approx(f._yaw, yaw_saved) and is_equal_approx(f.speed(), spd_saved), "T196: the flight state survives a save round-trip")
+	f.finish_flight()
+	check(f.state() == "idle" and f.speed() == 0.0, "T196: finish_flight ends the flight at rest")
+	# rival ships
+	var rs = m.rival_ships
+	rs.advance(0.0)
+	var vr: float = float(m.balance.get("rival_ship_speed", rs.SPEED_DEFAULT))
+	var sh: Dictionary = rs._ships[0]
+	var y_before: float = sh["yaw"]
+	rs.advance(0.05)
+	check(float(sh["speed"]) > 0.0 and float(sh["speed"]) < vr * 0.2, "T196: a rival ramps up from rest", str(sh["speed"]))
+	var seen_wait := false
+	var seen_new := false
+	var first_to: Vector2 = sh["to"]
+	var max_dyaw := 0.0
+	var rturn: float = deg_to_rad(float(m.balance.get("rival_ship_turn_deg", 45.0)))
+	for k in 6000:
+		var yb: float = sh["yaw"]
+		rs.advance(0.05)
+		max_dyaw = maxf(max_dyaw, absf(wrapf(float(sh["yaw"]) - yb, -PI, PI)))
+		if float(sh["wait"]) > 0.0:
+			seen_wait = true
+			check(float(sh["speed"]) == 0.0, "T196: a rival that arrived has stopped")
+			break
+	check(seen_wait, "T196: a rival flies to its destination and waits there")
+	check((sh["pos"] as Vector2).is_equal_approx(sh["to"]), "T196: a rival stops on its destination")
+	check(max_dyaw <= rturn * 0.05 + 0.0001, "T196: a rival turns at a limited rate", str(max_dyaw))
+	for k in 200:
+		rs.advance(0.05)
+		if not (sh["to"] as Vector2).is_equal_approx(first_to):
+			seen_new = true
+			break
+	check(seen_new, "T196: after waiting a rival picks the next destination")
 	await _free_main(m)
 
 func _test_links_everywhere() -> void:
