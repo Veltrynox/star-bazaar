@@ -4,8 +4,9 @@
 - Do not flip discovery_enabled in data/balance.json to fix tests: it ships at 0 on purpose (gdd.md); tests set it themselves.
 
 ## Left to do
-- Open: T185, T186, T187, T176, T178/T182 (owner-only agents), T05, T166.
+- Open: T185, T187, T176, T178/T182 (owner-only agents), T05, T166.
 
+- Owner: ship cap 20 (T186): decide on economy retune (trip cost, maintenance tuned for 6) and look of the scrolled ship list; other panels not checked at 20 ships.
 - Owner: asteroid-asteroid has no link and storage is never a route source (T188 treated as design); tools/project_workflow.html and other files were modified by something else, left uncommitted.
 
 ## 2026-11-05 run: T183
@@ -37,3 +38,13 @@
 - Failed / did not work: nothing. Many unrelated modified files in the tree (agents, gdd.md, gdd_sync.py, overnight.py, project_workflow.html, gdd-log.md deleted) are not mine; left alone.
 - Files and commits: tools/tests/run_tests.gd, schedule.json, blackboard.md, handoff.
 - Left to do: owner to decide on asteroid-asteroid links and storage as route source.
+
+## 2026-11-05 15:00 run: T186
+- Summary: ship_cap raised 6 to 20 (data_version 55). No hard-coded old caps found; Ships panel upkeep list and Null Core Fit buttons now scroll with capped height.
+- Why this task: clear spec, no dependencies, no owner decision needed (T187 larger, T185 visual).
+- Approach: data change plus minimal functional scroll containers; look decisions left to owner.
+- Agent prompts: gameplay-programmer, brief = T186 text plus no-QA rule. Produced data/balance.json, game/ship_panel.gd, handoffs/gameplay-programmer/2026-11-05-T186.json (verified).
+- Worked: sh tools/tests/run.sh pass=2810 fail=0.
+- Failed / did not work: nothing; not seen windowed.
+- Files and commits: data/balance.json, game/ship_panel.gd, schedule.json, blackboard.md, handoff.
+- Left to do: owner decides economy retune and scroll vs compact rows.

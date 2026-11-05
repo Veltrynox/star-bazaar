@@ -1053,10 +1053,11 @@
       "title": "Raise the ship cap to 20",
       "owner_agent": "gameplay-programmer",
       "depends_on": [],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 20,
       "window": "Owner request 2026-11-05. Not started: main session sets it running.",
-      "brief": "Set ship_cap to 20 (data/balance.json, bump data_version; find every hard-coded 5 or old cap in game/, the ship panel, route lists, save and tests, and the tutorial and story texts that name the cap via python3 tools/build_story.py sources). Make sure UI lists of ships still fit at 20 (scroll or compact rows; ui-programmer if layout needs work). Note in the handoff that trip cost, maintenance and overhead were tuned for 5 ships: the owner decides whether economy-designer retunes. Handoff handoffs/gameplay-programmer/2026-11-05-T186.json."
+      "brief": "Set ship_cap to 20 (data/balance.json, bump data_version; find every hard-coded 5 or old cap in game/, the ship panel, route lists, save and tests, and the tutorial and story texts that name the cap via python3 tools/build_story.py sources). Make sure UI lists of ships still fit at 20 (scroll or compact rows; ui-programmer if layout needs work). Note in the handoff that trip cost, maintenance and overhead were tuned for 5 ships: the owner decides whether economy-designer retunes. Handoff handoffs/gameplay-programmer/2026-11-05-T186.json.",
+      "note": "ship_cap 20, data_version 55, ship panel lists scroll. Economy retune for 20 ships is an owner decision."
     },
     {
       "task_id": "T187",
