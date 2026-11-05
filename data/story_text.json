@@ -4436,6 +4436,252 @@
    "place": "Next cycle tooltip, entry, a Sell order takes from Space Storage because the planet is short; {planet}, {n}"
   },
   {
+   "id": "LBL_SHIP_SCREEN_TITLE",
+   "text": "Choose your ship",
+   "max": 32,
+   "place": "Ship screen, title"
+  },
+  {
+   "id": "LBL_SHIP_PICK_HINT",
+   "text": "Pick a ship. Every ship you buy later is the same type.",
+   "max": 60,
+   "place": "Ship screen, hint while no ship is picked"
+  },
+  {
+   "id": "LBL_SHIP_START",
+   "text": "Start",
+   "max": 24,
+   "place": "Ship screen, start button"
+  },
+  {
+   "id": "LBL_STAT_CARGO",
+   "text": "Cargo",
+   "max": 16,
+   "place": "Ship stat label, hold size"
+  },
+  {
+   "id": "LBL_STAT_UPKEEP",
+   "text": "Upkeep",
+   "max": 16,
+   "place": "Ship stat label, ship upkeep modifier"
+  },
+  {
+   "id": "LBL_STAT_TRIP",
+   "text": "Trip cost",
+   "max": 16,
+   "place": "Ship stat label, trip cost modifier"
+  },
+  {
+   "id": "LBL_STAT_PRICE",
+   "text": "Ship price",
+   "max": 16,
+   "place": "Ship stat label, price to buy another ship"
+  },
+  {
+   "id": "LBL_STAT_SPEED",
+   "text": "Speed",
+   "max": 16,
+   "place": "Ship stat label, speed (display only)"
+  },
+  {
+   "id": "LBL_STAT_CAP",
+   "text": "Ship limit",
+   "max": 16,
+   "place": "Ship stat label, extra ships allowed"
+  },
+  {
+   "id": "LBL_SHIP_BULK",
+   "text": "Bulkhead",
+   "max": 24,
+   "place": "Ship type name, large hold"
+  },
+  {
+   "id": "LBL_SHIP_DART",
+   "text": "Dart",
+   "max": 24,
+   "place": "Ship type name, cheap short hops"
+  },
+  {
+   "id": "LBL_SHIP_FLEET",
+   "text": "Tramp",
+   "max": 24,
+   "place": "Ship type name, many hulls"
+  },
+  {
+   "id": "TXT_SHIP_SMALL_ROLE",
+   "text": "All-rounder",
+   "max": 40,
+   "place": "Ship screen, role line, Skerrit"
+  },
+  {
+   "id": "TXT_SHIP_BULK_ROLE",
+   "text": "Big hold, costly to run",
+   "max": 40,
+   "place": "Ship screen, role line, Bulkhead"
+  },
+  {
+   "id": "TXT_SHIP_DART_ROLE",
+   "text": "Cheap short hops, small hold",
+   "max": 40,
+   "place": "Ship screen, role line, Dart"
+  },
+  {
+   "id": "TXT_SHIP_FLEET_ROLE",
+   "text": "Many hulls, each one weak",
+   "max": 40,
+   "place": "Ship screen, role line, Tramp"
+  },
+  {
+   "id": "TXT_SHIP_SMALL_DESC",
+   "text": "The plain choice. Nothing special, nothing to regret. No bonus, no penalty.",
+   "max": 120,
+   "place": "Ship screen, description, Skerrit"
+  },
+  {
+   "id": "TXT_SHIP_BULK_DESC",
+   "text": "Carries more per trip and costs more to run. Pays off on full lanes, hurts when cash is tight.",
+   "max": 120,
+   "place": "Ship screen, description, Bulkhead"
+  },
+  {
+   "id": "TXT_SHIP_DART_DESC",
+   "text": "Cheap to run, quick, but the hold is small. A safe start that falls behind later.",
+   "max": 120,
+   "place": "Ship screen, description, Dart"
+  },
+  {
+   "id": "TXT_SHIP_FLEET_DESC",
+   "text": "One more ship allowed, so one more route. Each ship holds less and costs more to buy.",
+   "max": 120,
+   "place": "Ship screen, description, Tramp"
+  },
+  {
+   "id": "LBL_CEO_STAT_HAGGLING",
+   "text": "Haggling",
+   "max": 16,
+   "place": "CEO stat label, better sell prices"
+  },
+  {
+   "id": "LBL_CEO_STAT_THRIFT",
+   "text": "Thrift",
+   "max": 16,
+   "place": "CEO stat label, lower ship upkeep"
+  },
+  {
+   "id": "LBL_CEO_STAT_NERVE",
+   "text": "Nerve",
+   "max": 16,
+   "place": "CEO stat label, smaller hit from bad events"
+  },
+  {
+   "id": "LBL_CEO_PERK",
+   "text": "Perk",
+   "max": 16,
+   "place": "CEO panel, perk heading"
+  },
+  {
+   "id": "LBL_CEO_MAN_01_NAME",
+   "text": "Marek Voss",
+   "max": 24,
+   "place": "CEO name, portrait ceo_man_01"
+  },
+  {
+   "id": "LBL_CEO_MAN_02_NAME",
+   "text": "Idris Kane",
+   "max": 24,
+   "place": "CEO name, portrait ceo_man_02"
+  },
+  {
+   "id": "LBL_CEO_WOMAN_01_NAME",
+   "text": "Sela Oru",
+   "max": 24,
+   "place": "CEO name, portrait ceo_woman_01"
+  },
+  {
+   "id": "LBL_CEO_WOMAN_02_NAME",
+   "text": "Tamsin Hale",
+   "max": 24,
+   "place": "CEO name, portrait ceo_woman_02"
+  },
+  {
+   "id": "TXT_CEO_MAN_01_BIO",
+   "text": "Marek kept ten ships flying on a shoestring and counts every bolt. He distrusts luck. He started his own company because nobody would let him order spare parts in bulk.",
+   "max": 260,
+   "place": "CEO bio, Marek Voss"
+  },
+  {
+   "id": "TXT_CEO_MAN_02_BIO",
+   "text": "Idris was a broker with a famous smile and a habit of buying lunch for rivals. He reads a price board the way others read faces. He spends freely and sells hard.",
+   "max": 260,
+   "place": "CEO bio, Idris Kane"
+  },
+  {
+   "id": "TXT_CEO_WOMAN_01_BIO",
+   "text": "Sela flew supply runs through the worst lanes of the rim and still came home. Bad news does not scare her, only an idle ship does. Her plans have a backup, and a backup for the backup.",
+   "max": 260,
+   "place": "CEO bio, Sela Oru"
+  },
+  {
+   "id": "TXT_CEO_WOMAN_02_BIO",
+   "text": "Tamsin grew up in the docking rings of the Bazaar and knows every clerk by name. Her contracts arrive with friendly paperwork and larger quantities. She is calm, and a little proud of the old place.",
+   "max": 260,
+   "place": "CEO bio, Tamsin Hale"
+  },
+  {
+   "id": "LBL_CEO_MAN_01_PERK",
+   "text": "Old Contacts",
+   "max": 24,
+   "place": "CEO perk name, Marek Voss"
+  },
+  {
+   "id": "LBL_CEO_MAN_02_PERK",
+   "text": "Quick Read",
+   "max": 24,
+   "place": "CEO perk name, Idris Kane"
+  },
+  {
+   "id": "LBL_CEO_WOMAN_01_PERK",
+   "text": "Hard Lanes",
+   "max": 24,
+   "place": "CEO perk name, Sela Oru"
+  },
+  {
+   "id": "LBL_CEO_WOMAN_02_PERK",
+   "text": "Station Born",
+   "max": 24,
+   "place": "CEO perk name, Tamsin Hale"
+  },
+  {
+   "id": "TXT_CEO_MAN_01_PERK_DESC",
+   "text": "Bad events are announced one cycle early.",
+   "max": 90,
+   "place": "CEO perk line, Marek Voss"
+  },
+  {
+   "id": "TXT_CEO_MAN_02_PERK_DESC",
+   "text": "In the first cycle you see price tips on your home market.",
+   "max": 90,
+   "place": "CEO perk line, Idris Kane"
+  },
+  {
+   "id": "TXT_CEO_WOMAN_01_PERK_DESC",
+   "text": "Your first lane carries one step more cargo.",
+   "max": 90,
+   "place": "CEO perk line, Sela Oru"
+  },
+  {
+   "id": "TXT_CEO_WOMAN_02_PERK_DESC",
+   "text": "Contract orders ask for more units, so a filled order pays more.",
+   "max": 90,
+   "place": "CEO perk line, Tamsin Hale"
+  },
+  {
+   "id": "SETUP_NEXT",
+   "text": "Next",
+   "max": 24,
+   "place": "Company screen, button that moves on to the ship screen"
+  },
+  {
    "id": "SK_HEADER",
    "text": "Skills",
    "max": 24,
@@ -4527,7 +4773,7 @@
   },
   {
    "id": "SK_FND_PROSPECT_PLAIN",
-   "text": "Lets routes start at asteroid clusters and shows how much ore each cluster holds.",
+   "text": "Lets routes start at asteroid clusters and shows how much each cluster holds.",
    "max": 110,
    "place": "Skill screen, detail panel"
   },
@@ -4545,73 +4791,73 @@
   },
   {
    "id": "SK_MIL_1_PLAIN",
-   "text": "Lowers Ship upkeep clearly. Unlocks the Munitions Line and pulse cells.",
+   "text": "Lowers Ship upkeep clearly. Unlocks Military crafting in your second system.",
    "max": 110,
    "place": "Skill screen, detail panel"
   },
   {
    "id": "SK_MIL_2_NAME",
-   "text": "Cell Casting",
+   "text": "Double Casting",
    "max": 24,
    "place": "Skill screen, node name"
   },
   {
    "id": "SK_MIL_2_FLAVOUR",
-   "text": "A cell is a small sun with a rule printed on it.",
+   "text": "Same furnace, twice the pour. The Plan calls it thrift.",
    "max": 90,
    "place": "Skill screen, detail panel"
   },
   {
    "id": "SK_MIL_2_PLAIN",
-   "text": "Raises Military volume a little. Tech: craft {goal} units at the Munitions Line.",
+   "text": "Military workshops make one more batch a cycle, if you haul the inputs. Tech: craft {goal} units.",
    "max": 110,
    "place": "Skill screen, detail panel"
   },
   {
    "id": "SK_MIL_2_CRAFT",
-   "text": "Munitions Line crafts: {n} of {goal}",
+   "text": "Military workshop crafts: {n} of {goal}",
    "max": 60,
    "place": "Skill screen, tech node progress line"
   },
   {
    "id": "SK_MIL_3_NAME",
-   "text": "Quick Loading",
+   "text": "Debris Pilots",
    "max": 24,
    "place": "Skill screen, node name"
   },
   {
    "id": "SK_MIL_3_FLAVOUR",
-   "text": "Dock time is shared time. Spend less of it.",
+   "text": "A good pilot reads the rubble like a timetable.",
    "max": 90,
    "place": "Skill screen, detail panel"
   },
   {
    "id": "SK_MIL_3_PLAIN",
-   "text": "Lets routes carrying Military goods move a little more each cycle.",
+   "text": "Routes carrying Military goods ignore debris events on the lane.",
    "max": 110,
    "place": "Skill screen, detail panel"
   },
   {
    "id": "SK_MIL_4_NAME",
-   "text": "Armour Plating",
+   "text": "Hull Works",
    "max": 24,
    "place": "Skill screen, node name"
   },
   {
    "id": "SK_MIL_4_FLAVOUR",
-   "text": "Plate a hull and the quarrel goes elsewhere.",
+   "text": "Shell a hull well and the quarrel goes elsewhere.",
    "max": 90,
    "place": "Skill screen, detail panel"
   },
   {
    "id": "SK_MIL_4_PLAIN",
-   "text": "Military goods sell for a little more. Unlocks hull armour. Tech: craft {goal} units.",
+   "text": "Unlocks a second Military product. Tech: craft {goal} units.",
    "max": 110,
    "place": "Skill screen, detail panel"
   },
   {
    "id": "SK_MIL_4_CRAFT",
-   "text": "Munitions Line crafts: {n} of {goal}",
+   "text": "Military workshop crafts: {n} of {goal}",
    "max": 60,
    "place": "Skill screen, tech node progress line"
   },
@@ -4629,7 +4875,7 @@
   },
   {
    "id": "SK_MIL_5_PLAIN",
-   "text": "Lets you pick a rival every {m} cycles: its Military strength falls sharply for {n} cycles.",
+   "text": "Every {m} cycles you may pick a rival: its Military strength falls sharply for {n} cycles.",
    "max": 110,
    "place": "Skill screen, detail panel"
   },
@@ -4647,13 +4893,13 @@
   },
   {
    "id": "SK_MIL_6_PLAIN",
-   "text": "Military price events against you hit clearly weaker. Tech: craft {goal} units.",
+   "text": "Price events that cut your Military goods hit clearly weaker. Tech: craft {goal} units.",
    "max": 110,
    "place": "Skill screen, detail panel"
   },
   {
    "id": "SK_MIL_6_CRAFT",
-   "text": "Munitions Line crafts: {n} of {goal}",
+   "text": "Military workshop crafts: {n} of {goal}",
    "max": 60,
    "place": "Skill screen, tech node progress line"
   },
@@ -4689,7 +4935,7 @@
   },
   {
    "id": "SK_LUX_1_PLAIN",
-   "text": "Shows next cycle's prices. Luxury goods sell for a little more. Unlocks the Atelier and cut glimmers.",
+   "text": "Shows next cycle's prices. Unlocks Luxury crafting.",
    "max": 110,
    "place": "Skill screen, detail panel"
   },
@@ -4707,13 +4953,13 @@
   },
   {
    "id": "SK_LUX_2_PLAIN",
-   "text": "Luxury price-up events pay clearly more. Tech: craft {goal} units at the Atelier.",
+   "text": "Luxury price-up events pay clearly more. Tech: craft {goal} units.",
    "max": 110,
    "place": "Skill screen, detail panel"
   },
   {
    "id": "SK_LUX_2_CRAFT",
-   "text": "Atelier crafts: {n} of {goal}",
+   "text": "Luxury workshop crafts: {n} of {goal}",
    "max": 60,
    "place": "Skill screen, tech node progress line"
   },
@@ -4737,7 +4983,7 @@
   },
   {
    "id": "SK_LUX_4_NAME",
-   "text": "Cask Cellar",
+   "text": "Cold Cellar",
    "max": 24,
    "place": "Skill screen, node name"
   },
@@ -4749,13 +4995,13 @@
   },
   {
    "id": "SK_LUX_4_PLAIN",
-   "text": "Luxury stock survives asteroid cuts to storage. Unlocks vintage casks. Tech: craft {goal} units.",
+   "text": "Unlocks a second Luxury product. It needs second-system goods and cluster rock. Tech: craft {goal} units.",
    "max": 110,
    "place": "Skill screen, detail panel"
   },
   {
    "id": "SK_LUX_4_CRAFT",
-   "text": "Atelier crafts: {n} of {goal}",
+   "text": "Luxury workshop crafts: {n} of {goal}",
    "max": 60,
    "place": "Skill screen, tech node progress line"
   },
@@ -4773,7 +5019,7 @@
   },
   {
    "id": "SK_LUX_5_PLAIN",
-   "text": "Counts sales at a planet with a price-up event as clearly more volume toward your Luxury share.",
+   "text": "Sales at a price-up planet count clearly more toward your Luxury share, and the event pays more.",
    "max": 110,
    "place": "Skill screen, detail panel"
   },
@@ -4785,19 +5031,19 @@
   },
   {
    "id": "SK_LUX_6_FLAVOUR",
-   "text": "A stamp from your hand makes a stone worth more.",
+   "text": "One more piece from every pour. The mould was always big enough.",
    "max": 90,
    "place": "Skill screen, detail panel"
   },
   {
    "id": "SK_LUX_6_PLAIN",
-   "text": "Luxury goods sell for clearly more. Tech: craft {goal} units.",
+   "text": "Each Luxury batch yields one more unit. Tech: craft {goal} units.",
    "max": 110,
    "place": "Skill screen, detail panel"
   },
   {
    "id": "SK_LUX_6_CRAFT",
-   "text": "Atelier crafts: {n} of {goal}",
+   "text": "Luxury workshop crafts: {n} of {goal}",
    "max": 60,
    "place": "Skill screen, tech node progress line"
   },
@@ -4815,7 +5061,7 @@
   },
   {
    "id": "SK_LUX_7_PLAIN",
-   "text": "Lets you pick a rival once per run: its Luxury strength falls sharply for {n} cycles. Capstone.",
+   "text": "Once per run, pick a rival: its Luxury strength falls sharply for {n} cycles. Capstone.",
    "max": 110,
    "place": "Skill screen, detail panel"
   },
@@ -4827,13 +5073,13 @@
   },
   {
    "id": "SK_MIN_1_FLAVOUR",
-   "text": "A licence to make one good plate from two bad rocks. Stamped in triplicate.",
+   "text": "A licence to make one good thing from two bad rocks. Stamped in triplicate.",
    "max": 90,
    "place": "Skill screen, detail panel"
   },
   {
    "id": "SK_MIN_1_PLAIN",
-   "text": "Unlocks the Fabric, the Smelter and ingot. Needs Prospecting.",
+   "text": "Unlocks Minerals crafting. Needs Prospecting.",
    "max": 110,
    "place": "Skill screen, detail panel"
   },
@@ -4851,13 +5097,13 @@
   },
   {
    "id": "SK_MIN_2_PLAIN",
-   "text": "Raises Minerals volume a little. Ore orders ignore the size cap. Tech: craft {goal} units at the Smelter.",
+   "text": "Orders for mined cargo ignore the size cap. Tech: craft {goal} units.",
    "max": 110,
    "place": "Skill screen, detail panel"
   },
   {
    "id": "SK_MIN_2_CRAFT",
-   "text": "Smelter crafts: {n} of {goal}",
+   "text": "Minerals workshop crafts: {n} of {goal}",
    "max": 60,
    "place": "Skill screen, tech node progress line"
   },
@@ -4875,13 +5121,13 @@
   },
   {
    "id": "SK_MIN_3_PLAIN",
-   "text": "Lets routes start at Cinderrest and mine dross. Cluster yield up a little. Dead worlds open later.",
+   "text": "Lets routes start at Cinderrest and mine its salt. Cluster yield up a little. Dead worlds open later.",
    "max": 110,
    "place": "Skill screen, detail panel"
   },
   {
    "id": "SK_MIN_4_NAME",
-   "text": "Alloying",
+   "text": "Twin Crucible",
    "max": 24,
    "place": "Skill screen, node name"
   },
@@ -4893,13 +5139,13 @@
   },
   {
    "id": "SK_MIN_4_PLAIN",
-   "text": "Minerals workshops make one more batch a cycle. Unlocks seam alloy. Tech: craft {goal} units.",
+   "text": "Minerals workshops make one more batch a cycle. Tech: craft {goal} units.",
    "max": 110,
    "place": "Skill screen, detail panel"
   },
   {
    "id": "SK_MIN_4_CRAFT",
-   "text": "Smelter crafts: {n} of {goal}",
+   "text": "Minerals workshop crafts: {n} of {goal}",
    "max": 60,
    "place": "Skill screen, tech node progress line"
   },
@@ -4917,7 +5163,7 @@
   },
   {
    "id": "SK_MIN_5_PLAIN",
-   "text": "Lets routes start at Greywake and mine nullglass. Needs Cold Survey.",
+   "text": "Lets routes start at Greywake and mine its humming glass. Needs Cold Survey.",
    "max": 110,
    "place": "Skill screen, detail panel"
   },
@@ -4935,13 +5181,13 @@
   },
   {
    "id": "SK_MIN_6_PLAIN",
-   "text": "Each Minerals batch yields one more unit. Tech: craft {goal} units.",
+   "text": "Each Minerals batch yields one more unit. Unlocks a further Minerals product. Tech: craft {goal} units.",
    "max": 110,
    "place": "Skill screen, detail panel"
   },
   {
    "id": "SK_MIN_6_CRAFT",
-   "text": "Smelter crafts: {n} of {goal}",
+   "text": "Minerals workshop crafts: {n} of {goal}",
    "max": 60,
    "place": "Skill screen, tech node progress line"
   },
@@ -4959,13 +5205,13 @@
   },
   {
    "id": "SK_MIN_7_PLAIN",
-   "text": "Cuts all rivals' Minerals strength clearly for the rest of the run. Capstone.",
+   "text": "All rivals' Minerals strength falls clearly for the rest of the run. Capstone.",
    "max": 110,
    "place": "Skill screen, detail panel"
   },
   {
    "id": "SK_BIO_1_NAME",
-   "text": "Standing Orders",
+   "text": "Culture Charter",
    "max": 24,
    "place": "Skill screen, node name"
   },
@@ -4977,7 +5223,7 @@
   },
   {
    "id": "SK_BIO_1_PLAIN",
-   "text": "Buy and Sell orders move clearly more units a cycle. Unlocks the Culture Lab and bio-gel.",
+   "text": "Unlocks Biotech crafting in your second system.",
    "max": 110,
    "place": "Skill screen, detail panel"
   },
@@ -4995,19 +5241,19 @@
   },
   {
    "id": "SK_BIO_2_PLAIN",
-   "text": "Grows Biotech stock in planet storage each cycle, to a cap. Tech: craft {goal} units at the Culture Lab.",
+   "text": "Grows Biotech stock in planet storage each cycle, to a cap. Tech: craft {goal} units.",
    "max": 110,
    "place": "Skill screen, detail panel"
   },
   {
    "id": "SK_BIO_2_CRAFT",
-   "text": "Culture Lab crafts: {n} of {goal}",
+   "text": "Biotech workshop crafts: {n} of {goal}",
    "max": 60,
    "place": "Skill screen, tech node progress line"
   },
   {
    "id": "SK_BIO_3_NAME",
-   "text": "Seed Bank",
+   "text": "Deep Shelves",
    "max": 24,
    "place": "Skill screen, node name"
   },
@@ -5019,7 +5265,7 @@
   },
   {
    "id": "SK_BIO_3_PLAIN",
-   "text": "Lets planet storage hold clearly more.",
+   "text": "Planet storage holds clearly more, and Biotech stock may grow higher before it stops.",
    "max": 110,
    "place": "Skill screen, detail panel"
   },
@@ -5037,13 +5283,13 @@
   },
   {
    "id": "SK_BIO_4_PLAIN",
-   "text": "Unlocks gene seed. Tech: craft {goal} units.",
+   "text": "Unlocks the last Biotech product. Tech: craft {goal} units.",
    "max": 110,
    "place": "Skill screen, detail panel"
   },
   {
    "id": "SK_BIO_4_CRAFT",
-   "text": "Culture Lab crafts: {n} of {goal}",
+   "text": "Biotech workshop crafts: {n} of {goal}",
    "max": 60,
    "place": "Skill screen, tech node progress line"
   },
@@ -5061,7 +5307,7 @@
   },
   {
    "id": "SK_BIO_5_PLAIN",
-   "text": "Counts a longer span of cycles in your Biotech share, so it moves more steadily.",
+   "text": "Biotech share counts a longer span of cycles, so it moves steadily. Biotech stock survives storage cuts.",
    "max": 110,
    "place": "Skill screen, detail panel"
   },
@@ -5085,7 +5331,7 @@
   },
   {
    "id": "SK_BIO_6_CRAFT",
-   "text": "Culture Lab crafts: {n} of {goal}",
+   "text": "Biotech workshop crafts: {n} of {goal}",
    "max": 60,
    "place": "Skill screen, tech node progress line"
   },
@@ -5103,7 +5349,7 @@
   },
   {
    "id": "SK_BIO_7_PLAIN",
-   "text": "Cuts all rivals' Biotech strength clearly for the rest of the run. Capstone.",
+   "text": "All rivals' Biotech strength falls clearly for the rest of the run. Capstone.",
    "max": 110,
    "place": "Skill screen, detail panel"
   },

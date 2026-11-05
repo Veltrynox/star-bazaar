@@ -41,9 +41,13 @@ static func in_ru_scope(id: String) -> bool:
 		return true
 	if id.length() > 2 and id.begins_with("BE") and id[2] >= "0" and id[2] <= "9":
 		return true
-	for p in ["EV_", "TUT_GALAXY_", "CH_", "WARN_", "MENU_", "SCR_", "END_", "EPI_"]:
+	for p in ["EV_", "TUT_GALAXY_", "CH_", "WARN_", "MENU_", "SCR_", "END_", "EPI_", "TXT_SHIP_", "LBL_STAT_", "LBL_CEO_", "TXT_CEO_", "LBL_SHIP_SCREEN", "LBL_SHIP_PICK", "LBL_SHIP_START", "LBL_SHIP_BULK", "LBL_SHIP_DART", "LBL_SHIP_FLEET"]:
 		if id.begins_with(p):
 			return true
+	if id == "SETUP_NEXT":
+		return true
+	if id.begins_with("SK_") and (id.ends_with("_NAME") or id.ends_with("_FLAVOUR") or id.ends_with("_PLAIN") or id.ends_with("_CRAFT")):
+		return true
 	return id.length() > 5 and id.begins_with("TUT_G") and id[5] >= "0" and id[5] <= "9"
 
 static func set_language(code: String) -> void:

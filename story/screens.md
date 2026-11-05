@@ -943,3 +943,48 @@ TIP_NC_ROUTE_OUT | 40 | Next cycle tooltip, entry, a route takes from this stock
 TIP_NC_ROUTE_BACKUP | 83 | Next cycle tooltip, entry, a route takes from Space Storage because its source planet is short; {route}, {planet}, {n} | {route} (draws Space Storage when {planet} has too little) -{n}
 TIP_NC_SELL | 47 | Next cycle tooltip, entry, a Sell order takes from this stock; {planet}, {n} | Sell order at {planet} -{n}
 TIP_NC_SELL_BACKUP | 98 | Next cycle tooltip, entry, a Sell order takes from Space Storage because the planet is short; {planet}, {n} | Sell order at {planet} (draws Space Storage when {planet} has too little) -{n}
+
+## Ship screen and CEO (2026-11-05, proposal ship-select-ceo; no goods named; ids per CEO use the portrait id without the ceo_ prefix)
+LBL_SHIP_SCREEN_TITLE | 32 | Ship screen, title | Choose your ship
+LBL_SHIP_PICK_HINT | 60 | Ship screen, hint while no ship is picked | Pick a ship. Every ship you buy later is the same type.
+LBL_SHIP_START | 24 | Ship screen, start button | Start
+LBL_STAT_CARGO | 16 | Ship stat label, hold size | Cargo
+LBL_STAT_UPKEEP | 16 | Ship stat label, ship upkeep modifier | Upkeep
+LBL_STAT_TRIP | 16 | Ship stat label, trip cost modifier | Trip cost
+LBL_STAT_PRICE | 16 | Ship stat label, price to buy another ship | Ship price
+LBL_STAT_SPEED | 16 | Ship stat label, speed (display only) | Speed
+LBL_STAT_CAP | 16 | Ship stat label, extra ships allowed | Ship limit
+LBL_SHIP_BULK | 24 | Ship type name, large hold | Bulkhead
+LBL_SHIP_DART | 24 | Ship type name, cheap short hops | Dart
+LBL_SHIP_FLEET | 24 | Ship type name, many hulls | Tramp
+TXT_SHIP_SMALL_ROLE | 40 | Ship screen, role line, Skerrit | All-rounder
+TXT_SHIP_BULK_ROLE | 40 | Ship screen, role line, Bulkhead | Big hold, costly to run
+TXT_SHIP_DART_ROLE | 40 | Ship screen, role line, Dart | Cheap short hops, small hold
+TXT_SHIP_FLEET_ROLE | 40 | Ship screen, role line, Tramp | Many hulls, each one weak
+TXT_SHIP_SMALL_DESC | 120 | Ship screen, description, Skerrit | The plain choice. Nothing special, nothing to regret. No bonus, no penalty.
+TXT_SHIP_BULK_DESC | 120 | Ship screen, description, Bulkhead | Carries more per trip and costs more to run. Pays off on full lanes, hurts when cash is tight.
+TXT_SHIP_DART_DESC | 120 | Ship screen, description, Dart | Cheap to run, quick, but the hold is small. A safe start that falls behind later.
+TXT_SHIP_FLEET_DESC | 120 | Ship screen, description, Tramp | One more ship allowed, so one more route. Each ship holds less and costs more to buy.
+LBL_CEO_STAT_HAGGLING | 16 | CEO stat label, better sell prices | Haggling
+LBL_CEO_STAT_THRIFT | 16 | CEO stat label, lower ship upkeep | Thrift
+LBL_CEO_STAT_NERVE | 16 | CEO stat label, smaller hit from bad events | Nerve
+LBL_CEO_PERK | 16 | CEO panel, perk heading | Perk
+LBL_CEO_MAN_01_NAME | 24 | CEO name, portrait ceo_man_01 | Marek Voss
+LBL_CEO_MAN_02_NAME | 24 | CEO name, portrait ceo_man_02 | Idris Kane
+LBL_CEO_WOMAN_01_NAME | 24 | CEO name, portrait ceo_woman_01 | Sela Oru
+LBL_CEO_WOMAN_02_NAME | 24 | CEO name, portrait ceo_woman_02 | Tamsin Hale
+TXT_CEO_MAN_01_BIO | 260 | CEO bio, Marek Voss | Marek kept ten ships flying on a shoestring and counts every bolt. He distrusts luck. He started his own company because nobody would let him order spare parts in bulk.
+TXT_CEO_MAN_02_BIO | 260 | CEO bio, Idris Kane | Idris was a broker with a famous smile and a habit of buying lunch for rivals. He reads a price board the way others read faces. He spends freely and sells hard.
+TXT_CEO_WOMAN_01_BIO | 260 | CEO bio, Sela Oru | Sela flew supply runs through the worst lanes of the rim and still came home. Bad news does not scare her, only an idle ship does. Her plans have a backup, and a backup for the backup.
+TXT_CEO_WOMAN_02_BIO | 260 | CEO bio, Tamsin Hale | Tamsin grew up in the docking rings of the Bazaar and knows every clerk by name. Her contracts arrive with friendly paperwork and larger quantities. She is calm, and a little proud of the old place.
+LBL_CEO_MAN_01_PERK | 24 | CEO perk name, Marek Voss | Old Contacts
+LBL_CEO_MAN_02_PERK | 24 | CEO perk name, Idris Kane | Quick Read
+LBL_CEO_WOMAN_01_PERK | 24 | CEO perk name, Sela Oru | Hard Lanes
+LBL_CEO_WOMAN_02_PERK | 24 | CEO perk name, Tamsin Hale | Station Born
+TXT_CEO_MAN_01_PERK_DESC | 90 | CEO perk line, Marek Voss | Bad events are announced one cycle early.
+TXT_CEO_MAN_02_PERK_DESC | 90 | CEO perk line, Idris Kane | In the first cycle you see price tips on your home market.
+TXT_CEO_WOMAN_01_PERK_DESC | 90 | CEO perk line, Sela Oru | Your first lane carries one step more cargo.
+TXT_CEO_WOMAN_02_PERK_DESC | 90 | CEO perk line, Tamsin Hale | Contract orders ask for more units, so a filled order pays more.
+
+## Company screen (2026-11-05)
+SETUP_NEXT | 24 | Company screen, button that moves on to the ship screen | Next

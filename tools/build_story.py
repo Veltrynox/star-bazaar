@@ -235,7 +235,7 @@ def build_events(add) -> list:
 
 
 
-RU_SCOPE_RE = re.compile(r"^(EV_|EV\d|BE\d|TUT_G\d|TUT_GALAXY_|CH_|WARN_|MENU_|SCR_|END_|EPI_)")
+RU_SCOPE_RE = re.compile(r"^(EV_|EV\d|BE\d|TUT_G\d|TUT_GALAXY_|CH_|WARN_|MENU_|SCR_|END_|EPI_|LBL_SHIP_(SCREEN|PICK|START|BULK|DART|FLEET)|TXT_SHIP_|LBL_STAT_|LBL_CEO_|TXT_CEO_|SETUP_NEXT$|SK_\w+_(NAME|FLAVOUR|PLAIN|CRAFT)$)")
 PH_RE = re.compile(r"\{[^{}]*\}")
 DIGIT_RE = re.compile(r"\d")
 
@@ -262,7 +262,7 @@ def build_ru(entries: dict, ru_dir: Path):
                 continue
             seen[eid] = rel
             if not RU_SCOPE_RE.match(eid):
-                problems.append(f"{where}: id is outside the localised scope (EV_, EV<digit>, BE<digit>, TUT_G<digit>, TUT_GALAXY_, CH_, WARN_, MENU_, SCR_, END_, EPI_)")
+                problems.append(f"{where}: id is outside the localised scope (EV_, EV<digit>, BE<digit>, TUT_G<digit>, TUT_GALAXY_, CH_, WARN_, MENU_, SCR_, END_, EPI_, ship screen and CEO ids)")
                 continue
             if eid not in entries:
                 problems.append(f"{where}: id is not in the English data")
