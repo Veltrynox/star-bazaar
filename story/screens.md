@@ -1218,3 +1218,79 @@ WORLD_S10P3_DESC | 110 | Planet 3 of system 10, tooltip (placeholder) | Temporar
 ## Rival ship card (2026-11-06)
 HINT_RIVAL_MARKET | 60 | Card on a clicked rival ship, second line, the market where the competitor is strongest; {market} | Strongest in {market}
 HINT_RIVAL_NO_MARKET | 60 | Card on a clicked rival ship, second line, when the competitor has no volume yet | No market lead yet
+
+## Prosperity, Bazaar and Next Up (2026-11-06, T267)
+Ids and placeholders (notes, not blocks):
+- PROS_TIER_BARREN, PROS_TIER_1 to PROS_TIER_5: tier names on the planet card and in notices. Five tiers plus Barren is a placeholder; tier 1 is Outpost, tier 3 is Town (capital tier placeholder). No placeholders.
+- PROS_NOTICE_TIER_UP: notice, {planet}, {tier}. PROS_NOTICE_TAX: notice, {cash}. NOT_SKILL_REASON_TIER: fills {reason}, {planet}, {tier}.
+- PROS_LBL_NEEDS, PROS_LBL_PROGRESS, PROS_LBL_DEMAND, PROS_LBL_SOLD: planet card labels. PROS_NEED_MET, PROS_NEED_SHORT, PROS_NEED_LOCKED: need row status, no placeholders. PROS_CHIP_HUNGRY, PROS_CHIP_SURPLUS: chips on a need row. PROS_RESTLESS: card line. PROS_FED_BY: empty hub column label.
+- BAZ_NAME, BAZ_PANEL_TITLE, BAZ_LBL_BILL, BAZ_LBL_QUORUM, BAZ_LBL_REACH, BAZ_LBL_CAPITAL, BAZ_LBL_WINGS: Bazaar panel, no placeholders.
+- BAZ_FOUND_BTN, BAZ_FOUND_CONFIRM, BAZ_FOUND_CANCEL: buttons. BAZ_FOUND_PROMPT: confirm text, {planet}. BAZ_FOUNDED: notice, {planet}.
+- BAZ_STAGE_1_NAME to BAZ_STAGE_4_NAME: stage names (four is a placeholder). BAZ_STAGE_DONE: notice, {stage}.
+- BAZ_BILL_ROW: {amount}, {commodity}. BAZ_QUORUM_ROW: {n}, {m}, {tier}. BAZ_REACH_ROW: no placeholders. BAZ_TERM_LEFT: {cycles}.
+- BAZ_BTN_CONTINUE: button on the end screen. BAZ_FREEPLAY_NOTE: line under it.
+- NEXTUP_LBL_GROWTH, NEXTUP_LBL_BAZAAR, NEXTUP_LBL_BEST: slot labels. NEXTUP_GROWTH: {planet}, {need}. NEXTUP_GROWTH_LOCKED: {planet}, {skill}. NEXTUP_BAZAAR_BILL: {amount}, {commodity}. NEXTUP_BAZAAR_QUORUM: {n}. NEXTUP_BAZAAR_FOUND: {planet}. NEXTUP_BEST_LANE: {planet_a}, {planet_b}. NEXTUP_BEST_CASH: {cash}, {cycles}. NEXTUP_BEST_GIG, NEXTUP_IDLE: none.
+- Placeholder values: {tier} and {stage} are the names below. {need} is the name of a shown need only. {skill} is a skill or workshop name. Never fill any of them with a hidden good.
+
+### Prosperity tiers
+PROS_TIER_BARREN | 24 | Planet card, tier of a dead world | Barren
+PROS_TIER_1 | 24 | Planet card, tier 1 | Outpost
+PROS_TIER_2 | 24 | Planet card, tier 2 | Village
+PROS_TIER_3 | 24 | Planet card, tier 3 (capital tier placeholder) | Town
+PROS_TIER_4 | 24 | Planet card, tier 4 | City
+PROS_TIER_5 | 24 | Planet card, tier 5 | Metropolis
+PROS_NOTICE_TIER_UP | 110 | Notice, a world reached a new tier; {planet}, {tier} | {planet} is now a {tier}.
+PROS_NOTICE_TAX | 110 | Notice, tax paid at cycle end; {cash} credits | Worlds paid {cash} credits in tax this cycle.
+NOT_SKILL_REASON_TIER | 60 | Fills {reason}, first world to reach a tier; {planet}, {tier} | first {tier} reached, at {planet}
+
+### Planet card
+PROS_LBL_NEEDS | 24 | Planet card, header of the need list | Needs
+PROS_LBL_PROGRESS | 24 | Planet card, growth bar label | Growth progress
+PROS_LBL_DEMAND | 24 | Planet card, need row, units wanted each cycle | Demand per cycle
+PROS_LBL_SOLD | 24 | Planet card, need row, units sold here this cycle | Sold this cycle
+PROS_NEED_MET | 24 | Planet card, need row status | Met
+PROS_NEED_SHORT | 24 | Planet card, need row status | Short
+PROS_NEED_LOCKED | 24 | Planet card, need row of a good not shown yet | ? Not known yet
+PROS_CHIP_HUNGRY | 24 | Planet card, chip on a short need, price is up | Hungry
+PROS_CHIP_SURPLUS | 24 | Planet card, chip when sales passed demand | Surplus
+PROS_RESTLESS | 110 | Planet card, line while growth progress drops | Restless. A short need is costing it progress. Meet every need to stop it.
+PROS_FED_BY | 24 | Hub panel, label of the empty column | Fed by
+
+### Bazaar
+BAZ_NAME | 24 | Name of the win goal, panel and end screen | Star Bazaar
+BAZ_PANEL_TITLE | 24 | Bazaar panel title | The Star Bazaar
+BAZ_FOUND_BTN | 24 | Planet panel, button on a world at the capital tier | Found the Bazaar here
+BAZ_FOUND_PROMPT | 110 | Confirm text before founding; {planet} | Found the Star Bazaar at {planet}? This is final. A run has one capital.
+BAZ_FOUND_CONFIRM | 24 | Confirm button | Found it
+BAZ_FOUND_CANCEL | 24 | Cancel button | Not yet
+BAZ_FOUNDED | 110 | Notice, the Bazaar is founded; {planet} | The Star Bazaar is founded at {planet}.
+BAZ_STAGE_1_NAME | 24 | Bazaar stage 1 (placeholder) | Foundations
+BAZ_STAGE_2_NAME | 24 | Bazaar stage 2 (placeholder) | Halls
+BAZ_STAGE_3_NAME | 24 | Bazaar stage 3 (placeholder) | Towers
+BAZ_STAGE_4_NAME | 24 | Bazaar stage 4 (placeholder) | Great Hall
+BAZ_STAGE_DONE | 110 | Notice, a stage is complete; {stage} is the stage name | Bazaar stage done: {stage}.
+BAZ_LBL_BILL | 24 | Bazaar panel, goods the stage needs | Goods needed
+BAZ_LBL_QUORUM | 24 | Bazaar panel, other worlds the stage needs | Other worlds
+BAZ_LBL_REACH | 24 | Bazaar panel, a world in another system | Reach
+BAZ_LBL_CAPITAL | 24 | Bazaar panel, the capital world | Capital
+BAZ_LBL_WINGS | 24 | Bazaar panel, chosen wings | Wings
+BAZ_TERM_LEFT | 60 | Bazaar panel, time left in the run; {cycles} | Term left: {cycles} cycles
+BAZ_BILL_ROW | 60 | Bazaar panel, one row of the stage bill; {amount} units still short, {commodity} | {amount} more {commodity}
+BAZ_QUORUM_ROW | 60 | Bazaar panel, other worlds row; {n} worlds there, {m} needed, {tier} the tier | {n} of {m} worlds at {tier}
+BAZ_REACH_ROW | 60 | Bazaar panel, reach row | One world in another system
+BAZ_BTN_CONTINUE | 24 | End screen, button after the win or the soft ending | Continue (free play)
+BAZ_FREEPLAY_NOTE | 110 | End screen, line under the continue button | Free play has no further ending. The Bazaar panel keeps counting.
+
+### Next Up strip
+NEXTUP_LBL_GROWTH | 24 | Next Up strip, slot 1 label | Closest growth
+NEXTUP_LBL_BAZAAR | 24 | Next Up strip, slot 2 label | Bazaar
+NEXTUP_LBL_BEST | 24 | Next Up strip, slot 3 label | Best move
+NEXTUP_GROWTH | 60 | Slot 1, a world near its next tier; {planet}, {need} a shown need | {planet}: needs {need}
+NEXTUP_GROWTH_LOCKED | 60 | Slot 1, a need not shown yet; {skill} the skill or workshop that would show it | {planet}: learn {skill} to see more
+NEXTUP_BAZAAR_BILL | 60 | Slot 2, shortest bill item; {amount}, {commodity} | Bazaar: {amount} more {commodity}
+NEXTUP_BAZAAR_QUORUM | 60 | Slot 2, the world gap; {n} worlds still needed | Bazaar: {n} more worlds to grow
+NEXTUP_BAZAAR_FOUND | 60 | Slot 2, a world can host the Bazaar; {planet} | Found the Bazaar at {planet}
+NEXTUP_BEST_LANE | 60 | Slot 3, a hungry lane | Send goods from {planet_a} to {planet_b}
+NEXTUP_BEST_CASH | 60 | Slot 3, cash gap to the next buy; {cash} credits, {cycles} | Save {cash} credits, about {cycles} cycles
+NEXTUP_BEST_GIG | 60 | Slot 3, a flight job is open | Take a flight job
+NEXTUP_IDLE | 60 | Any slot with nothing to show | Keep trading. Check the planet cards.

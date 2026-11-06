@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-11-06",
+  "task": "T267 empire growth v2 Phase 1 story text (English)",
+  "status": "done",
+  "files_changed": [
+    "story/screens.md",
+    "story/endings.md",
+    "story/skills.md",
+    "story/voice.md",
+    "story/ru/skills.json",
+    "data/story_text.json",
+    "data/story_text_ru.json",
+    "handoffs/story-designer/2026-11-06-T267.json"
+  ],
+  "open_questions": [
+    "Tier names (Outpost, Village, Town, City, Metropolis), stage names (Foundations, Halls, Towers, Great Hall) and Star Bazaar are placeholders for the owner.",
+    "Eight Russian skill lines for the rewritten nodes are now stale; three with digit mismatches (LUX_2, LUX_5, BIO_5 PLAIN) were removed so the build passes."
+  ],
+  "handoff": "All ids ready to wire; build_story.py exits 0. screens.md section 'Prosperity, Bazaar and Next Up' (top note lists places and placeholders): PROS_TIER_BARREN, PROS_TIER_1..5, PROS_NOTICE_TIER_UP, PROS_NOTICE_TAX, NOT_SKILL_REASON_TIER, PROS_LBL_NEEDS/PROGRESS/DEMAND/SOLD, PROS_NEED_MET/SHORT/LOCKED, PROS_CHIP_HUNGRY/SURPLUS, PROS_RESTLESS, PROS_FED_BY, BAZ_NAME, BAZ_PANEL_TITLE, BAZ_FOUND_BTN/PROMPT/CONFIRM/CANCEL, BAZ_FOUNDED, BAZ_STAGE_1..4_NAME, BAZ_STAGE_DONE, BAZ_LBL_BILL/QUORUM/REACH/CAPITAL/WINGS, BAZ_TERM_LEFT, BAZ_BILL_ROW, BAZ_QUORUM_ROW, BAZ_REACH_ROW, BAZ_BTN_CONTINUE, BAZ_FREEPLAY_NOTE, NEXTUP_LBL_GROWTH/BAZAAR/BEST, NEXTUP_GROWTH, NEXTUP_GROWTH_LOCKED, NEXTUP_BAZAAR_BILL/QUORUM/FOUND, NEXTUP_BEST_LANE/CASH/GIG, NEXTUP_IDLE. endings.md: END_UNFINISHED_TITLE, END_UNFINISHED, EPI_STAGES_0..3 (3 means 3 or more), EPI_UNFINISHED_CAPITAL. skills.md rewrote PLAIN for LUX_2, LUX_5, MIL_9, LUX_13, LUX_14, MIN_9, MIN_14, BIO_13, BIO_5, MIL_12, LUX_8; flavour changed for MIL_12 only.",
+  "details": {}
+}

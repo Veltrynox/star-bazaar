@@ -148,3 +148,27 @@ Minerals ran second, past a quarter of its market. The dust remembers you anyway
 
 EPI_SECOND_BIO | 140 | Epilogue 4, Biotech is a second market over a quarter share
 Biotech ran second, past a quarter of its market. A vat in a back room has your name on it.
+
+## The Unfinished Bazaar (2026-11-06, T267, soft ending when the term ends before the Opening)
+Kind, never a loss. The epilogue line is picked by stages done. Programmer: EPI_STAGES_3 is used for three or more. EPI_UNFINISHED_CAPITAL is added when a capital was founded.
+
+END_UNFINISHED_TITLE | 40 | End screen heading, term ended before the Bazaar opened (soft ending)
+The Unfinished Bazaar
+
+END_UNFINISHED | 700 | End screen body, term ended before the Bazaar opened (soft ending)
+The term is over. The Bazaar is not open, and the Bureau has written that down without any word for it. You did not lose. The crew is paid, the ships are docked, and the worlds you grew are still lit. Someone has left a lamp on in the half-built hall. The Plan will start a new five cycles. The people on the stairs go on climbing them. They have time. So do you, if you want it.
+
+EPI_STAGES_0 | 140 | Epilogue, unfinished Bazaar, no stage done
+No stage was finished. The ground is marked out, and the crew sits on it to eat.
+
+EPI_STAGES_1 | 140 | Epilogue, unfinished Bazaar, one stage done
+One stage stands. Children from the lower rings walk in and out of it.
+
+EPI_STAGES_2 | 140 | Epilogue, unfinished Bazaar, two stages done
+Two stages stand. The third is a frame, and in the evening the wind plays it.
+
+EPI_STAGES_3 | 140 | Epilogue, unfinished Bazaar, three or more stages done
+Only the last hall is missing. The roof has a gap, and the stars use it.
+
+EPI_UNFINISHED_CAPITAL | 140 | Epilogue, unfinished Bazaar, a capital was founded; {planet}
+{planet} keeps the site and keeps the lamp lit. Its people call it the Bazaar already.

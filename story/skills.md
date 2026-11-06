@@ -63,7 +63,7 @@ SK_LUX_1_PLAIN | 110 | Skill screen, detail panel | Shows next cycle's prices. U
 
 SK_LUX_2_NAME | 24 | Skill screen, node name | A Finer Finish
 SK_LUX_2_FLAVOUR | 90 | Skill screen, detail panel | No one buys the thing. They buy the look on the next person's face.
-SK_LUX_2_PLAIN | 140 | Skill screen, detail panel | Luxury sales count 8% more toward share and pay 6% more. Tech: craft {goal} units.
+SK_LUX_2_PLAIN | 140 | Skill screen, detail panel | Luxury units sold into a world's need count a little more toward it. Sales pay 6% more. Tech: craft {goal} units.
 SK_LUX_2_CRAFT | 60 | Skill screen, tech node progress line | Luxury workshop crafts: {n} of {goal}
 
 SK_LUX_3_NAME | 24 | Skill screen, node name | Early Invitation
@@ -77,7 +77,7 @@ SK_LUX_4_CRAFT | 60 | Skill screen, tech node progress line | Luxury workshop cr
 
 SK_LUX_5_NAME | 24 | Skill screen, node name | Patron's List
 SK_LUX_5_FLAVOUR | 90 | Skill screen, detail panel | Your name is on the list. Another name came off to make room.
-SK_LUX_5_PLAIN | 110 | Skill screen, detail panel | Sales at a price-up planet count 30% more toward your Luxury share, and the event pays 25% more.
+SK_LUX_5_PLAIN | 110 | Skill screen, detail panel | Sales at a price-up planet count clearly more toward a world's need, and the event pays 25% more.
 
 SK_LUX_6_NAME | 24 | Skill screen, node name | Hallmark
 SK_LUX_6_FLAVOUR | 90 | Skill screen, detail panel | Your mark is pressed in every piece. They love the mark more than you.
@@ -139,7 +139,7 @@ SK_BIO_4_CRAFT | 60 | Skill screen, tech node progress line | Biotech workshop c
 
 SK_BIO_5_NAME | 24 | Skill screen, node name | Clinic Contracts
 SK_BIO_5_FLAVOUR | 90 | Skill screen, detail panel | A clinic waits for your crate. Someone on a cot waits for the clinic.
-SK_BIO_5_PLAIN | 110 | Skill screen, detail panel | Biotech share counts 12 more cycles, so it moves steadily. Biotech stock survives storage cuts.
+SK_BIO_5_PLAIN | 110 | Skill screen, detail panel | Cuts the progress a world loses after a short-need cycle a little. Biotech stock survives storage cuts.
 
 SK_BIO_6_NAME | 24 | Skill screen, node name | Hardy Strains
 SK_BIO_6_FLAVOUR | 90 | Skill screen, detail panel | It lives through the cold, the form and the fever. You stop asking if it should.
@@ -180,7 +180,7 @@ SK_MIL_8_PLAIN | 110 | Skill screen, detail panel | Ships cost less to buy.
 
 SK_MIL_9_NAME | 24 | Skill screen, node name | Cell Press
 SK_MIL_9_FLAVOUR | 90 | Skill screen, detail panel | Cells pressed on your own floor. No freight, no waiting.
-SK_MIL_9_PLAIN | 140 | Skill screen, detail panel | Military sales count more toward share. Tech: craft {goal} units.
+SK_MIL_9_PLAIN | 140 | Skill screen, detail panel | Military units sold into a world's need count a little more toward it. Tech: craft {goal} units.
 SK_MIL_9_CRAFT | 60 | Skill screen, tech node progress line | Military workshop crafts: {n} of {goal}
 
 SK_MIL_10_NAME | 24 | Skill screen, node name | Hardened Stores
@@ -193,8 +193,8 @@ SK_MIL_11_PLAIN | 140 | Skill screen, detail panel | Your second Military produc
 SK_MIL_11_CRAFT | 60 | Skill screen, tech node progress line | Military workshop crafts: {n} of {goal}
 
 SK_MIL_12_NAME | 24 | Skill screen, node name | Open Arsenal
-SK_MIL_12_FLAVOUR | 90 | Skill screen, detail panel | The doors stay open and the lead stays yours a little longer.
-SK_MIL_12_PLAIN | 110 | Skill screen, detail panel | Military share counts over a longer span, so a lead lasts longer.
+SK_MIL_12_FLAVOUR | 90 | Skill screen, detail panel | The doors stay open, and a hungry town waits a little longer for you.
+SK_MIL_12_PLAIN | 110 | Skill screen, detail panel | Cuts the progress a world loses after a cycle with a short need clearly.
 
 SK_MIL_13_NAME | 24 | Skill screen, node name | Pressure Doctrine
 SK_MIL_13_FLAVOUR | 90 | Skill screen, detail panel | You make the call sooner now. The clerk has learned your voice.
@@ -211,7 +211,7 @@ SK_MIL_15_PLAIN | 110 | Skill screen, detail panel | Cuts all rivals' Military g
 
 SK_LUX_8_NAME | 24 | Skill screen, node name | Salon Circle
 SK_LUX_8_FLAVOUR | 90 | Skill screen, detail panel | Small room, soft chairs, hard questions. Few leave before dawn.
-SK_LUX_8_PLAIN | 110 | Skill screen, detail panel | Luxury share counts over a longer span.
+SK_LUX_8_PLAIN | 110 | Skill screen, detail panel | Cuts the progress a world loses after a cycle with a short need a little.
 
 SK_LUX_9_NAME | 24 | Skill screen, node name | Second Loom
 SK_LUX_9_FLAVOUR | 90 | Skill screen, detail panel | A second loom hums beside the first. The thread is never enough.
@@ -233,11 +233,11 @@ SK_LUX_12_PLAIN | 110 | Skill screen, detail panel | Luxury routes carry more a 
 
 SK_LUX_13_NAME | 24 | Skill screen, node name | Patron's Purse
 SK_LUX_13_FLAVOUR | 90 | Skill screen, detail panel | A mixed crate pleases every hand at the table.
-SK_LUX_13_PLAIN | 110 | Skill screen, detail panel | Routes with mixed cargo earn a larger bonus.
+SK_LUX_13_PLAIN | 110 | Skill screen, detail panel | Units sold into a world's need count a little more. Routes with mixed cargo earn a larger bonus.
 
 SK_LUX_14_NAME | 24 | Skill screen, node name | Auction House
 SK_LUX_14_FLAVOUR | 90 | Skill screen, detail panel | The hammer falls and the room exhales. You count afterwards.
-SK_LUX_14_PLAIN | 140 | Skill screen, detail panel | Luxury sales count more toward share. Tech: craft {goal} units.
+SK_LUX_14_PLAIN | 140 | Skill screen, detail panel | Luxury units sold into a world's need count clearly more toward it. Tech: craft {goal} units.
 SK_LUX_14_CRAFT | 60 | Skill screen, tech node progress line | Luxury workshop crafts: {n} of {goal}
 
 SK_LUX_15_NAME | 24 | Skill screen, node name | Grand Salon
@@ -250,7 +250,7 @@ SK_MIN_8_PLAIN | 110 | Skill screen, detail panel | Storage holds more mined car
 
 SK_MIN_9_NAME | 24 | Skill screen, node name | Slag Reclaim
 SK_MIN_9_FLAVOUR | 90 | Skill screen, detail panel | What the fire leaves is melted down again. Waste becomes a habit you drop.
-SK_MIN_9_PLAIN | 140 | Skill screen, detail panel | Workshop recipes need less mined cargo. Tech: craft {goal} units.
+SK_MIN_9_PLAIN | 140 | Skill screen, detail panel | Workshop recipes need less mined cargo. Units sold into a world's need count a little more. Tech: craft {goal} units.
 SK_MIN_9_CRAFT | 60 | Skill screen, tech node progress line | Minerals workshop crafts: {n} of {goal}
 
 SK_MIN_10_NAME | 24 | Skill screen, node name | Safe Passage
@@ -272,7 +272,7 @@ SK_MIN_13_PLAIN | 110 | Skill screen, detail panel | Trips to dead worlds cost l
 
 SK_MIN_14_NAME | 24 | Skill screen, node name | Mass Melt
 SK_MIN_14_FLAVOUR | 90 | Skill screen, detail panel | The big furnace never asks what it is melting. It asks for more.
-SK_MIN_14_PLAIN | 140 | Skill screen, detail panel | Minerals sales count more toward share. Tech: craft {goal} units.
+SK_MIN_14_PLAIN | 140 | Skill screen, detail panel | Minerals units sold into a world's need count clearly more toward it. Tech: craft {goal} units.
 SK_MIN_14_CRAFT | 60 | Skill screen, tech node progress line | Minerals workshop crafts: {n} of {goal}
 
 SK_MIN_15_NAME | 24 | Skill screen, node name | Motherlode
@@ -303,7 +303,7 @@ SK_BIO_12_PLAIN | 110 | Skill screen, detail panel | Stored Biotech grows faster
 
 SK_BIO_13_NAME | 24 | Skill screen, node name | Market Days
 SK_BIO_13_FLAVOUR | 90 | Skill screen, detail panel | The stalls open when the news does. Your jars are ready.
-SK_BIO_13_PLAIN | 110 | Skill screen, detail panel | Biotech sales at a price-up planet count more toward share.
+SK_BIO_13_PLAIN | 110 | Skill screen, detail panel | Biotech sales at a price-up planet count more toward that world's need.
 
 SK_BIO_14_NAME | 24 | Skill screen, node name | Living Contracts
 SK_BIO_14_FLAVOUR | 90 | Skill screen, detail panel | A signed promise to deliver something alive. The ink is still wet.

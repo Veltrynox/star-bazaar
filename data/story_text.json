@@ -5948,6 +5948,336 @@
    "place": "Card on a clicked rival ship, second line, when the competitor has no volume yet"
   },
   {
+   "id": "PROS_TIER_BARREN",
+   "text": "Barren",
+   "max": 24,
+   "place": "Planet card, tier of a dead world"
+  },
+  {
+   "id": "PROS_TIER_1",
+   "text": "Outpost",
+   "max": 24,
+   "place": "Planet card, tier 1"
+  },
+  {
+   "id": "PROS_TIER_2",
+   "text": "Village",
+   "max": 24,
+   "place": "Planet card, tier 2"
+  },
+  {
+   "id": "PROS_TIER_3",
+   "text": "Town",
+   "max": 24,
+   "place": "Planet card, tier 3 (capital tier placeholder)"
+  },
+  {
+   "id": "PROS_TIER_4",
+   "text": "City",
+   "max": 24,
+   "place": "Planet card, tier 4"
+  },
+  {
+   "id": "PROS_TIER_5",
+   "text": "Metropolis",
+   "max": 24,
+   "place": "Planet card, tier 5"
+  },
+  {
+   "id": "PROS_NOTICE_TIER_UP",
+   "text": "{planet} is now a {tier}.",
+   "max": 110,
+   "place": "Notice, a world reached a new tier; {planet}, {tier}"
+  },
+  {
+   "id": "PROS_NOTICE_TAX",
+   "text": "Worlds paid {cash} credits in tax this cycle.",
+   "max": 110,
+   "place": "Notice, tax paid at cycle end; {cash} credits"
+  },
+  {
+   "id": "NOT_SKILL_REASON_TIER",
+   "text": "first {tier} reached, at {planet}",
+   "max": 60,
+   "place": "Fills {reason}, first world to reach a tier; {planet}, {tier}"
+  },
+  {
+   "id": "PROS_LBL_NEEDS",
+   "text": "Needs",
+   "max": 24,
+   "place": "Planet card, header of the need list"
+  },
+  {
+   "id": "PROS_LBL_PROGRESS",
+   "text": "Growth progress",
+   "max": 24,
+   "place": "Planet card, growth bar label"
+  },
+  {
+   "id": "PROS_LBL_DEMAND",
+   "text": "Demand per cycle",
+   "max": 24,
+   "place": "Planet card, need row, units wanted each cycle"
+  },
+  {
+   "id": "PROS_LBL_SOLD",
+   "text": "Sold this cycle",
+   "max": 24,
+   "place": "Planet card, need row, units sold here this cycle"
+  },
+  {
+   "id": "PROS_NEED_MET",
+   "text": "Met",
+   "max": 24,
+   "place": "Planet card, need row status"
+  },
+  {
+   "id": "PROS_NEED_SHORT",
+   "text": "Short",
+   "max": 24,
+   "place": "Planet card, need row status"
+  },
+  {
+   "id": "PROS_NEED_LOCKED",
+   "text": "? Not known yet",
+   "max": 24,
+   "place": "Planet card, need row of a good not shown yet"
+  },
+  {
+   "id": "PROS_CHIP_HUNGRY",
+   "text": "Hungry",
+   "max": 24,
+   "place": "Planet card, chip on a short need, price is up"
+  },
+  {
+   "id": "PROS_CHIP_SURPLUS",
+   "text": "Surplus",
+   "max": 24,
+   "place": "Planet card, chip when sales passed demand"
+  },
+  {
+   "id": "PROS_RESTLESS",
+   "text": "Restless. A short need is costing it progress. Meet every need to stop it.",
+   "max": 110,
+   "place": "Planet card, line while growth progress drops"
+  },
+  {
+   "id": "PROS_FED_BY",
+   "text": "Fed by",
+   "max": 24,
+   "place": "Hub panel, label of the empty column"
+  },
+  {
+   "id": "BAZ_NAME",
+   "text": "Star Bazaar",
+   "max": 24,
+   "place": "Name of the win goal, panel and end screen"
+  },
+  {
+   "id": "BAZ_PANEL_TITLE",
+   "text": "The Star Bazaar",
+   "max": 24,
+   "place": "Bazaar panel title"
+  },
+  {
+   "id": "BAZ_FOUND_BTN",
+   "text": "Found the Bazaar here",
+   "max": 24,
+   "place": "Planet panel, button on a world at the capital tier"
+  },
+  {
+   "id": "BAZ_FOUND_PROMPT",
+   "text": "Found the Star Bazaar at {planet}? This is final. A run has one capital.",
+   "max": 110,
+   "place": "Confirm text before founding; {planet}"
+  },
+  {
+   "id": "BAZ_FOUND_CONFIRM",
+   "text": "Found it",
+   "max": 24,
+   "place": "Confirm button"
+  },
+  {
+   "id": "BAZ_FOUND_CANCEL",
+   "text": "Not yet",
+   "max": 24,
+   "place": "Cancel button"
+  },
+  {
+   "id": "BAZ_FOUNDED",
+   "text": "The Star Bazaar is founded at {planet}.",
+   "max": 110,
+   "place": "Notice, the Bazaar is founded; {planet}"
+  },
+  {
+   "id": "BAZ_STAGE_1_NAME",
+   "text": "Foundations",
+   "max": 24,
+   "place": "Bazaar stage 1 (placeholder)"
+  },
+  {
+   "id": "BAZ_STAGE_2_NAME",
+   "text": "Halls",
+   "max": 24,
+   "place": "Bazaar stage 2 (placeholder)"
+  },
+  {
+   "id": "BAZ_STAGE_3_NAME",
+   "text": "Towers",
+   "max": 24,
+   "place": "Bazaar stage 3 (placeholder)"
+  },
+  {
+   "id": "BAZ_STAGE_4_NAME",
+   "text": "Great Hall",
+   "max": 24,
+   "place": "Bazaar stage 4 (placeholder)"
+  },
+  {
+   "id": "BAZ_STAGE_DONE",
+   "text": "Bazaar stage done: {stage}.",
+   "max": 110,
+   "place": "Notice, a stage is complete; {stage} is the stage name"
+  },
+  {
+   "id": "BAZ_LBL_BILL",
+   "text": "Goods needed",
+   "max": 24,
+   "place": "Bazaar panel, goods the stage needs"
+  },
+  {
+   "id": "BAZ_LBL_QUORUM",
+   "text": "Other worlds",
+   "max": 24,
+   "place": "Bazaar panel, other worlds the stage needs"
+  },
+  {
+   "id": "BAZ_LBL_REACH",
+   "text": "Reach",
+   "max": 24,
+   "place": "Bazaar panel, a world in another system"
+  },
+  {
+   "id": "BAZ_LBL_CAPITAL",
+   "text": "Capital",
+   "max": 24,
+   "place": "Bazaar panel, the capital world"
+  },
+  {
+   "id": "BAZ_LBL_WINGS",
+   "text": "Wings",
+   "max": 24,
+   "place": "Bazaar panel, chosen wings"
+  },
+  {
+   "id": "BAZ_TERM_LEFT",
+   "text": "Term left: {cycles} cycles",
+   "max": 60,
+   "place": "Bazaar panel, time left in the run; {cycles}"
+  },
+  {
+   "id": "BAZ_BILL_ROW",
+   "text": "{amount} more {commodity}",
+   "max": 60,
+   "place": "Bazaar panel, one row of the stage bill; {amount} units still short, {commodity}"
+  },
+  {
+   "id": "BAZ_QUORUM_ROW",
+   "text": "{n} of {m} worlds at {tier}",
+   "max": 60,
+   "place": "Bazaar panel, other worlds row; {n} worlds there, {m} needed, {tier} the tier"
+  },
+  {
+   "id": "BAZ_REACH_ROW",
+   "text": "One world in another system",
+   "max": 60,
+   "place": "Bazaar panel, reach row"
+  },
+  {
+   "id": "BAZ_BTN_CONTINUE",
+   "text": "Continue (free play)",
+   "max": 24,
+   "place": "End screen, button after the win or the soft ending"
+  },
+  {
+   "id": "BAZ_FREEPLAY_NOTE",
+   "text": "Free play has no further ending. The Bazaar panel keeps counting.",
+   "max": 110,
+   "place": "End screen, line under the continue button"
+  },
+  {
+   "id": "NEXTUP_LBL_GROWTH",
+   "text": "Closest growth",
+   "max": 24,
+   "place": "Next Up strip, slot 1 label"
+  },
+  {
+   "id": "NEXTUP_LBL_BAZAAR",
+   "text": "Bazaar",
+   "max": 24,
+   "place": "Next Up strip, slot 2 label"
+  },
+  {
+   "id": "NEXTUP_LBL_BEST",
+   "text": "Best move",
+   "max": 24,
+   "place": "Next Up strip, slot 3 label"
+  },
+  {
+   "id": "NEXTUP_GROWTH",
+   "text": "{planet}: needs {need}",
+   "max": 60,
+   "place": "Slot 1, a world near its next tier; {planet}, {need} a shown need"
+  },
+  {
+   "id": "NEXTUP_GROWTH_LOCKED",
+   "text": "{planet}: learn {skill} to see more",
+   "max": 60,
+   "place": "Slot 1, a need not shown yet; {skill} the skill or workshop that would show it"
+  },
+  {
+   "id": "NEXTUP_BAZAAR_BILL",
+   "text": "Bazaar: {amount} more {commodity}",
+   "max": 60,
+   "place": "Slot 2, shortest bill item; {amount}, {commodity}"
+  },
+  {
+   "id": "NEXTUP_BAZAAR_QUORUM",
+   "text": "Bazaar: {n} more worlds to grow",
+   "max": 60,
+   "place": "Slot 2, the world gap; {n} worlds still needed"
+  },
+  {
+   "id": "NEXTUP_BAZAAR_FOUND",
+   "text": "Found the Bazaar at {planet}",
+   "max": 60,
+   "place": "Slot 2, a world can host the Bazaar; {planet}"
+  },
+  {
+   "id": "NEXTUP_BEST_LANE",
+   "text": "Send goods from {planet_a} to {planet_b}",
+   "max": 60,
+   "place": "Slot 3, a hungry lane"
+  },
+  {
+   "id": "NEXTUP_BEST_CASH",
+   "text": "Save {cash} credits, about {cycles} cycles",
+   "max": 60,
+   "place": "Slot 3, cash gap to the next buy; {cash} credits, {cycles}"
+  },
+  {
+   "id": "NEXTUP_BEST_GIG",
+   "text": "Take a flight job",
+   "max": 60,
+   "place": "Slot 3, a flight job is open"
+  },
+  {
+   "id": "NEXTUP_IDLE",
+   "text": "Keep trading. Check the planet cards.",
+   "max": 60,
+   "place": "Any slot with nothing to show"
+  },
+  {
    "id": "SK_HEADER",
    "text": "Skills",
    "max": 24,
@@ -6219,7 +6549,7 @@
   },
   {
    "id": "SK_LUX_2_PLAIN",
-   "text": "Luxury sales count 8% more toward share and pay 6% more. Tech: craft {goal} units.",
+   "text": "Luxury units sold into a world's need count a little more toward it. Sales pay 6% more. Tech: craft {goal} units.",
    "max": 140,
    "place": "Skill screen, detail panel"
   },
@@ -6285,7 +6615,7 @@
   },
   {
    "id": "SK_LUX_5_PLAIN",
-   "text": "Sales at a price-up planet count 30% more toward your Luxury share, and the event pays 25% more.",
+   "text": "Sales at a price-up planet count clearly more toward a world's need, and the event pays 25% more.",
    "max": 110,
    "place": "Skill screen, detail panel"
   },
@@ -6573,7 +6903,7 @@
   },
   {
    "id": "SK_BIO_5_PLAIN",
-   "text": "Biotech share counts 12 more cycles, so it moves steadily. Biotech stock survives storage cuts.",
+   "text": "Cuts the progress a world loses after a short-need cycle a little. Biotech stock survives storage cuts.",
    "max": 110,
    "place": "Skill screen, detail panel"
   },
@@ -6741,7 +7071,7 @@
   },
   {
    "id": "SK_MIL_9_PLAIN",
-   "text": "Military sales count more toward share. Tech: craft {goal} units.",
+   "text": "Military units sold into a world's need count a little more toward it. Tech: craft {goal} units.",
    "max": 140,
    "place": "Skill screen, detail panel"
   },
@@ -6801,13 +7131,13 @@
   },
   {
    "id": "SK_MIL_12_FLAVOUR",
-   "text": "The doors stay open and the lead stays yours a little longer.",
+   "text": "The doors stay open, and a hungry town waits a little longer for you.",
    "max": 90,
    "place": "Skill screen, detail panel"
   },
   {
    "id": "SK_MIL_12_PLAIN",
-   "text": "Military share counts over a longer span, so a lead lasts longer.",
+   "text": "Cuts the progress a world loses after a cycle with a short need clearly.",
    "max": 110,
    "place": "Skill screen, detail panel"
   },
@@ -6885,7 +7215,7 @@
   },
   {
    "id": "SK_LUX_8_PLAIN",
-   "text": "Luxury share counts over a longer span.",
+   "text": "Cuts the progress a world loses after a cycle with a short need a little.",
    "max": 110,
    "place": "Skill screen, detail panel"
   },
@@ -6987,7 +7317,7 @@
   },
   {
    "id": "SK_LUX_13_PLAIN",
-   "text": "Routes with mixed cargo earn a larger bonus.",
+   "text": "Units sold into a world's need count a little more. Routes with mixed cargo earn a larger bonus.",
    "max": 110,
    "place": "Skill screen, detail panel"
   },
@@ -7005,7 +7335,7 @@
   },
   {
    "id": "SK_LUX_14_PLAIN",
-   "text": "Luxury sales count more toward share. Tech: craft {goal} units.",
+   "text": "Luxury units sold into a world's need count clearly more toward it. Tech: craft {goal} units.",
    "max": 140,
    "place": "Skill screen, detail panel"
   },
@@ -7065,7 +7395,7 @@
   },
   {
    "id": "SK_MIN_9_PLAIN",
-   "text": "Workshop recipes need less mined cargo. Tech: craft {goal} units.",
+   "text": "Workshop recipes need less mined cargo. Units sold into a world's need count a little more. Tech: craft {goal} units.",
    "max": 140,
    "place": "Skill screen, detail panel"
   },
@@ -7167,7 +7497,7 @@
   },
   {
    "id": "SK_MIN_14_PLAIN",
-   "text": "Minerals sales count more toward share. Tech: craft {goal} units.",
+   "text": "Minerals units sold into a world's need count clearly more toward it. Tech: craft {goal} units.",
    "max": 140,
    "place": "Skill screen, detail panel"
   },
@@ -7311,7 +7641,7 @@
   },
   {
    "id": "SK_BIO_13_PLAIN",
-   "text": "Biotech sales at a price-up planet count more toward share.",
+   "text": "Biotech sales at a price-up planet count more toward that world's need.",
    "max": 110,
    "place": "Skill screen, detail panel"
   },
@@ -7620,6 +7950,48 @@
    "text": "Biotech ran second, past a quarter of its market. A vat in a back room has your name on it.",
    "max": 140,
    "place": "Epilogue 4, Biotech is a second market over a quarter share"
+  },
+  {
+   "id": "END_UNFINISHED_TITLE",
+   "text": "The Unfinished Bazaar",
+   "max": 40,
+   "place": "End screen heading, term ended before the Bazaar opened (soft ending)"
+  },
+  {
+   "id": "END_UNFINISHED",
+   "text": "The term is over. The Bazaar is not open, and the Bureau has written that down without any word for it. You did not lose. The crew is paid, the ships are docked, and the worlds you grew are still lit. Someone has left a lamp on in the half-built hall. The Plan will start a new five cycles. The people on the stairs go on climbing them. They have time. So do you, if you want it.",
+   "max": 700,
+   "place": "End screen body, term ended before the Bazaar opened (soft ending)"
+  },
+  {
+   "id": "EPI_STAGES_0",
+   "text": "No stage was finished. The ground is marked out, and the crew sits on it to eat.",
+   "max": 140,
+   "place": "Epilogue, unfinished Bazaar, no stage done"
+  },
+  {
+   "id": "EPI_STAGES_1",
+   "text": "One stage stands. Children from the lower rings walk in and out of it.",
+   "max": 140,
+   "place": "Epilogue, unfinished Bazaar, one stage done"
+  },
+  {
+   "id": "EPI_STAGES_2",
+   "text": "Two stages stand. The third is a frame, and in the evening the wind plays it.",
+   "max": 140,
+   "place": "Epilogue, unfinished Bazaar, two stages done"
+  },
+  {
+   "id": "EPI_STAGES_3",
+   "text": "Only the last hall is missing. The roof has a gap, and the stars use it.",
+   "max": 140,
+   "place": "Epilogue, unfinished Bazaar, three or more stages done"
+  },
+  {
+   "id": "EPI_UNFINISHED_CAPITAL",
+   "text": "{planet} keeps the site and keeps the lamp lit. Its people call it the Bazaar already.",
+   "max": 140,
+   "place": "Epilogue, unfinished Bazaar, a capital was founded; {planet}"
   },
   {
    "id": "GIG01_TITLE",
