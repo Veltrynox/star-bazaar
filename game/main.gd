@@ -2236,7 +2236,7 @@ func _end_cycle() -> void:
 		fire_event(sched_id)
 	elif events.due(cycle) or (OS.is_debug_build() and debug_force_event):
 		debug_force_event = false
-		var fid: String = forecast_id if forecast_id != "" and events.by_id.has(forecast_id) else events.random_id([], cycle)
+		var fid: String = forecast_id if forecast_id != "" and events.by_id.has(forecast_id) and not Chains.is_suppressed(forecast_id) else events.random_id([], cycle)
 		forecast_id = ""
 		fire_event(fid)
 	_tut_cycle()
@@ -2583,7 +2583,9 @@ func _open_event_notice(id: String) -> void:
 	var off: Array = []
 	var effs: Array = []
 	for ch in choices:
-		var lbl: String = events.choice_text(ch, args)
+		var cargs: Dictionary = args.duplicate()
+		cargs.merge(events.choice_args(ch))  # branch option: {cash_in}, {market}
+		var lbl: String = events.choice_text(ch, cargs)
 		var fee := 0
 		for e in events.choice_effects(ch):
 			fee += _choice_fee(str(e.get("kind", "")), int(e.get("amount", 0)))
@@ -2592,9 +2594,11 @@ func _open_event_notice(id: String) -> void:
 		labels.append(lbl)
 		off.append(fee > 0 and cash < fee)
 		if typeof(ch) == TYPE_DICTIONARY and ch.has("eff_id"):
-			effs.append(StoryText.get_text(str(ch["eff_id"]), args))
+			effs.append(StoryText.get_text(str(ch["eff_id"]), cargs))
 	var line := effect_line(events.effect_of_event(id)) if choices.is_empty() else "\n".join(effs)
 	var rv := Chains.pool_rivals_line(id)
+	if events.is_branch(id):  # the written rivals line (EV<nn>_EFF) with {market}
+		rv = StoryText.get_text(id + "_EFF", {"market": str(Markets.names.get(str(events.by_id[id]["branch"]), ""))})
 	if rv != "":
 		line = (line + "\n" + rv).strip_edges()
 	event_notice = load("res://game/event_notice.gd").new()
@@ -2641,6 +2645,7 @@ func _debris_popup(ch, override: Dictionary = {}) -> void:
 	if typeof(ch) != TYPE_DICTIONARY or not ch.has("popup_id"):
 		return
 	var args := {"planet": planet_name(events.pending_planet)}
+	args.merge(events.choice_args(ch))
 	var title_id := str(ch["popup_title_id"])
 	var body_id := str(ch["popup_id"])
 	if not override.is_empty():  # T109: outcome decided by the roll
@@ -2737,6 +2742,8 @@ func _on_event_confirmed(choice: int, id: String) -> void:
 		var choices: Array = events.choices_of(id)
 		if choice < choices.size():
 			events.schedule_follow(choices[choice], cycle)  # R1: a choice may schedule a later event
+			if typeof(choices[choice]) == TYPE_DICTIONARY and bool(choices[choice].get("dark", false)):
+				events.dark_choice()  # hidden: may mark the run as spotted (see Events.dark_choice); nothing is shown
 			var over := {}
 			for eff in events.choice_effects(choices[choice]):
 				var o := _apply_effect(id, eff)

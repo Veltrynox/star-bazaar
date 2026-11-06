@@ -75,10 +75,62 @@ func _add_chain_defs() -> void:
 			continue
 		var n: Dictionary = Chains.pool_new[id]
 		var d := {"id": id, "title": id, "title_id": id + "_TITLE", "text_id": id + "_BODY", "text": "", "tag": "", "kind": str(n.get("kind", "P")), "choices": [], "pool_effect": n.get("effect", {})}
+		if n.has("branch"):  # EV52-EV55: one pattern, two cash options (A dark market, B public), window and goods gate by visible_when
+			d.erase("pool_effect")
+			d["branch"] = str(n.get("market", ""))
+			d["choices"] = _branch_choices(id, n)
+		if n.has("visible_when"):
+			d["visible_when"] = n["visible_when"]
 		defs.append(d)
 		by_id[id] = d
 	for sid in Chains.step_ids():
 		by_id[sid] = {"id": sid, "title": sid, "text": "", "tag": "", "kind": "C", "choices": [], "chain_step": true, "market": Chains.market_of(sid)}
+
+## The two options of a branch event (EV52-EV55) from its pool_new row: A (dark market, "dark": true) and B (public). The cash is
+## read live from balance by "cash_key" (see choice_effect). Texts by EV<nn>_A_BTN / _A_EFF / _A_TITLE / _A and the same for B.
+func _branch_choices(id: String, n: Dictionary) -> Array:
+	var br: Dictionary = n.get("branch", {})
+	var out: Array = []
+	for side in ["A", "B"]:
+		out.append({"text_id": "%s_%s_BTN" % [id, side], "eff_id": "%s_%s_EFF" % [id, side], "popup_title_id": "%s_%s_TITLE" % [id, side], "popup_id": "%s_%s" % [id, side],
+			"cash_key": str(br.get("a_cash_key" if side == "A" else "b_cash_key", "")), "market": str(n.get("market", "")), "dark": side == "A"})
+	return out
+
+func is_branch(id: String) -> bool:
+	return by_id.get(id, {}).has("branch")
+
+## Text args of a branch choice: {cash_in} the credits it pays (number only) and {market} the display name. {} for other choices.
+func choice_args(ch) -> Dictionary:
+	if typeof(ch) != TYPE_DICTIONARY or not ch.has("cash_key"):
+		return {}
+	return {"cash_in": int(balance.get(str(ch["cash_key"]), 0)), "market": str(Markets.names.get(str(ch.get("market", "")), str(ch.get("market", ""))))}
+
+## Hidden consequence of a dark-market choice (A of EV52-EV55): rolls once, balance spotted_chance. Spotted: Chains.spotted is set
+## and suppressed_share of the profitable events (positive pool events not fired yet, chain options with a gain) are removed for the
+## rest of the run, picked once with the run seed. Already spotted: no roll, nothing more removed. Never shown anywhere.
+func dark_choice() -> void:
+	if Chains.spotted:
+		return
+	if rng.randf() >= float(balance.get("spotted_chance", 0.0)):
+		return
+	Chains.suppress_profitable(profitable_pool_ids(), float(balance.get("suppressed_share", 0.0)))
+
+## Pool events that give the player a gain and have not fired: a price-up effect, or a choice with a positive cash or stock effect.
+## The branch events themselves are not counted.
+func profitable_pool_ids() -> Array:
+	var out: Array = []
+	for d in defs:
+		var pid := str(d["id"])
+		if not Chains.in_pool(pid) or is_branch(pid) or _fired(pid):
+			continue
+		var gain := str(effect_of_event(pid).get("kind", "")) == "up"
+		for ch in choices_of(pid):
+			var e := choice_effect(ch)
+			if (str(e.get("kind", "")) in ["cash", "stock"]) and int(e.get("amount", 0)) > 0:
+				gain = true
+		if gain:
+			out.append(pid)
+	return out
 
 func is_chain_step(id: String) -> bool:
 	return bool(by_id.get(id, {}).get("chain_step", false))
@@ -201,6 +253,8 @@ func choice_effects(ch) -> Array:
 	return [] if first.is_empty() else [first]
 
 func choice_effect(ch) -> Dictionary:
+	if typeof(ch) == TYPE_DICTIONARY and ch.has("cash_key"):  # branch option: cash from balance, live
+		return {"kind": "cash", "planet": -1, "c": "", "amount": int(balance.get(str(ch["cash_key"]), 0))}
 	return parse_tag(str(ch.get("tag", ch.get("effect", "")))) if typeof(ch) == TYPE_DICTIONARY else {}
 
 func pct(c: String = "") -> float:
@@ -290,7 +344,7 @@ func random_id(skip: Array = [], cycle: int = 0) -> String:
 	var pool: Array = []
 	for d in defs:
 		var pid := str(d["id"])
-		if Chains.in_pool(pid) and not skip.has(pid) and not scheduled_only(pid) and not debug_off.has(pid) and not _fired(pid) and available(pid, cycle):
+		if Chains.in_pool(pid) and not skip.has(pid) and not scheduled_only(pid) and not debug_off.has(pid) and not _fired(pid) and not Chains.is_suppressed(pid) and available(pid, cycle):
 			pool.append(d)
 	if pool.is_empty():
 		return ""

@@ -36,6 +36,10 @@ static var timed: Array = []          # {k, m, v, until, route, src}
 static var rlog: Array = []           # rival log
 static var broken: Dictionary = {}    # market -> bot id whose tier was cut through a chain option
 static var marked: Dictionary = {}    # market -> bot id with the biggest cut of the last option (0 = none)
+## Hidden (never shown in any text, log, popup, stat or ending): set once when a dark-market choice of the four branch events
+## (EV52-EV55) is spotted. `suppressed` holds the removed half of the profitable events: pool event ids and "<step>|<opt>" keys.
+static var spotted: bool = false
+static var suppressed: Array = []
 
 static func load_data() -> void:
 	_loaded = true
@@ -74,6 +78,8 @@ static func reset(balance: Dictionary, seed_value: int = 0) -> void:
 	rlog = []
 	broken = {}
 	marked = {}
+	spotted = false
+	suppressed = []
 	for m in MARKETS:
 		dirv[m] = 0
 		marked[m] = 0
@@ -138,9 +144,47 @@ static func visible_options(step_id: String) -> Array:
 	var out: Array = []
 	var ctx := cond_ctx(step_id, now)
 	for o in order(step_id):
-		if Conditions.visible(step_by_id.get(step_id, {}).get(str(o), {}), ctx):
+		if Conditions.visible(step_by_id.get(step_id, {}).get(str(o), {}), ctx) and not suppressed.has("%s|%s" % [step_id, o]):
 			out.append(o)
 	return out
+
+## True when the pool event id is among the removed profitable events (never drawn again).
+static func is_suppressed(id: String) -> bool:
+	return suppressed.has(id)
+
+## Picks the removed share of the profitable events ONCE (a second call removes nothing more), seeded by the run seed.
+## `pool_ids` = the profitable pool events not fired yet (the caller knows the effects); chain candidates are the options that
+## give a gain (a non-empty gets list) of steps not fired yet. A step always keeps one option. Saved in to_dict.
+static func suppress_profitable(pool_ids: Array, share: float) -> void:
+	_ensure()
+	if spotted:
+		return
+	spotted = true
+	var cand: Array = pool_ids.duplicate()
+	for s in steps:
+		if fired(str(s["id"])):
+			continue
+		for o in ["opt_a", "opt_b"]:
+			if not (s.get(o, {}).get("gets", []) as Array).is_empty():
+				cand.append("%s|%s" % [s["id"], o])
+	cand.sort()
+	var r := RandomNumberGenerator.new()
+	r.seed = hash([run_seed, "branch_spotted"])
+	for i in range(cand.size() - 1, 0, -1):  # seeded Fisher-Yates
+		var j := r.randi_range(0, i)
+		var t = cand[i]
+		cand[i] = cand[j]
+		cand[j] = t
+	var n := int(round(cand.size() * clampf(share, 0.0, 1.0)))
+	suppressed = []
+	for k in n:
+		var key := str(cand[k])
+		var bar := key.find("|")
+		if bar >= 0:
+			var other := "%s|%s" % [key.substr(0, bar), "opt_b" if key.ends_with("opt_a") else "opt_a"]
+			if suppressed.has(other):
+				continue  # keep one option of the step
+		suppressed.append(key)
 
 ## True when the step may fire this cycle: not fired, previous step fired (when required), min gap since the last step of the
 ## market, trigger true. Cycle 1 never fires (the tutorial runs first), and no step fires before balance chain_min_cycle.
@@ -606,7 +650,7 @@ static func pool_rivals_line(id: String) -> String:
 
 static func to_dict() -> Dictionary:
 	return {"seed": run_seed, "picks": picks.duplicate(true), "dir": dirv.duplicate(), "timed": timed.duplicate(true), "log": rlog.duplicate(true),
-		"broken": broken.duplicate(), "marked": marked.duplicate()}
+		"broken": broken.duplicate(), "marked": marked.duplicate(), "spotted": spotted, "suppressed": suppressed.duplicate()}
 
 ## Missing or old data = a fresh chain state (v3 saves).
 static func from_dict(d, balance: Dictionary = {}) -> void:
@@ -638,3 +682,7 @@ static func from_dict(d, balance: Dictionary = {}) -> void:
 	if typeof(d.get("marked")) == TYPE_DICTIONARY:
 		for m in MARKETS:
 			marked[m] = int(d["marked"].get(m, 0))
+	spotted = bool(d.get("spotted", false))  # old saves have neither key
+	if typeof(d.get("suppressed")) == TYPE_ARRAY:
+		for k in d["suppressed"]:
+			suppressed.append(str(k))

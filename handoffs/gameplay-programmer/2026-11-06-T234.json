@@ -1,0 +1,18 @@
+{
+  "agent": "gameplay-programmer",
+  "date": "2026-11-06",
+  "task": "T234",
+  "status": "done",
+  "schema_version": 1,
+  "files_changed": [
+    "game/conditions.gd", "game/events.gd", "game/chains.gd", "game/main.gd",
+    "data/balance.json", "data/chains.json", "tools/tests/run_tests.gd", "gdd.md",
+    "handoffs/gameplay-programmer/2026-11-06-T234.json"
+  ],
+  "open_questions": [
+    "WINDOW: events fire only at slots (cycle-1) % event_interval == 0, so cycles 5 and 9 inside cycles 1-10, drawn from a pool of about 36. Each branch event will rarely fire. Widen the window, add weight or lower event_interval?",
+    "VISIBILITY: Luxury needs silk or musk (system 2 permit) and Minerals needs ore (FND_PROSPECT) before cycle 10; Military uses energy and Biotech food (visible at start). Many runs will never see EV53 or EV54 inside the window. Reported, not widened.",
+    "Chain gains reading: I removed half of the chain OPTIONS that have a gets list (a step always keeps one option, so a spotted run sees single-button steps), not whole steps, since removing steps would break requires_prev_step chains. Is that what you want?"
+  ],
+  "handoff": "Built. EV52-EV55 are four pool_new rows in data/chains.json (market, branch cash keys, visible_when with new atom cycle_at_most:balance.branch_event_last_cycle plus good_visible and good_traded of the branch goods). Events._branch_choices builds options A (dark, dark:true) and B from the row; cash is read live from balance (branch_<mkt>_a_cash / _b_cash, first-pass 300/180, lux 360/220); {cash_in} and {market} filled in main. Hidden consequence: Events.dark_choice rolls spotted_chance once (no roll once spotted); Chains.suppress_profitable sets Chains.spotted and picks suppressed_share of unfired profitable pool events (price-up, positive cash or stock) and chain options with gets, seeded by run seed, saved in Chains.to_dict (old saves load clean). Filtered in Events.random_id, the forecast draw in main, and Chains.visible_options. Nothing shown. Try: debug-fire EV52 and pick A; check Chains.spotted. Tests added; run.sh fail=0. Deviations: balance key names branch_event_last_cycle, spotted_chance, suppressed_share; availability.json atoms doc not updated (data owner)."
+}

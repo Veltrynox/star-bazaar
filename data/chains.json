@@ -2400,6 +2400,108 @@
         }
       ],
       "numbers_source": "picked"
+    },
+    {
+      "id": "EV52",
+      "kind": "I",
+      "market": "mil",
+      "once": true,
+      "branch": {
+        "a_cash_key": "branch_mil_a_cash",
+        "b_cash_key": "branch_mil_b_cash"
+      },
+      "visible_when": {
+        "all": [
+          "cycle_at_most:balance.branch_event_last_cycle",
+          {
+            "all": [
+              "good_visible:energy",
+              "good_traded:energy"
+            ]
+          }
+        ]
+      },
+      "bot_effect": [],
+      "numbers_source": "first_pass"
+    },
+    {
+      "id": "EV53",
+      "kind": "I",
+      "market": "lux",
+      "once": true,
+      "branch": {
+        "a_cash_key": "branch_lux_a_cash",
+        "b_cash_key": "branch_lux_b_cash"
+      },
+      "visible_when": {
+        "all": [
+          "cycle_at_most:balance.branch_event_last_cycle",
+          {
+            "any": [
+              {
+                "all": [
+                  "good_visible:silk",
+                  "good_traded:silk"
+                ]
+              },
+              {
+                "all": [
+                  "good_visible:musk",
+                  "good_traded:musk"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "bot_effect": [],
+      "numbers_source": "first_pass"
+    },
+    {
+      "id": "EV54",
+      "kind": "I",
+      "market": "min",
+      "once": true,
+      "branch": {
+        "a_cash_key": "branch_min_a_cash",
+        "b_cash_key": "branch_min_b_cash"
+      },
+      "visible_when": {
+        "all": [
+          "cycle_at_most:balance.branch_event_last_cycle",
+          {
+            "all": [
+              "good_visible:ore",
+              "good_traded:ore"
+            ]
+          }
+        ]
+      },
+      "bot_effect": [],
+      "numbers_source": "first_pass"
+    },
+    {
+      "id": "EV55",
+      "kind": "I",
+      "market": "bio",
+      "once": true,
+      "branch": {
+        "a_cash_key": "branch_bio_a_cash",
+        "b_cash_key": "branch_bio_b_cash"
+      },
+      "visible_when": {
+        "all": [
+          "cycle_at_most:balance.branch_event_last_cycle",
+          {
+            "all": [
+              "good_visible:food",
+              "good_traded:food"
+            ]
+          }
+        ]
+      },
+      "bot_effect": [],
+      "numbers_source": "first_pass"
     }
   ],
   "pool_new_note": "effects and numbers marked picked are mine (core 4.4 gives only the idea, story gives text for EV40, 41, 43, 46, 49, 50). Planets for story names Quillon, Brannock, Mossfell are mapped to existing planets (planet_2, planet_3, planet_2); story text must be reworded. bot_effect rule: shortage (price up or closure) slows the market's lead bot (growth S or strength S down); glut (price down) lifts bot_3 strength S.",

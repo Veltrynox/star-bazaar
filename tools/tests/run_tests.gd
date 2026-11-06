@@ -2528,7 +2528,7 @@ func _test_events() -> void:
 	check(sk.get("c") == "silk" and ev.parse_tag("[price down: Voltara, ore]").get("c") == "ore" and ev.parse_tag("[price up: Ashgate, chips]").get("c") == "chips", "T155: events parse the new goods", str(sk))
 	check(is_equal_approx(ev.pct("silk"), float(m.balance["event_pct_silk"])) and is_equal_approx(ev.pct("energy"), float(m.balance["event_pct_energy"])), "T155: per-good event pct, energy uses its own swing")
 	for e in ev.defs:
-		if str(e["id"]) == "EV17" or str(e.get("kind", "")) == "C":
+		if str(e["id"]) == "EV17" or str(e.get("kind", "")) == "C" or ev.is_branch(str(e["id"])):
 			continue  # choice event: effects come from its choices
 		if ev.effect_of_event(str(e["id"])).is_empty():
 			check(false, "events: tag parses for " + str(e["id"]), str(e["tag"]))
@@ -6083,7 +6083,7 @@ func _test_chains() -> void:
 				if not bal.has(str(e["key"])):
 					keys_ok = false
 	check(count_a == 12 and count_b == 16 and keys_ok and rival_ok, "chains: every step has its balance keys and every option a bot change", "%d %d %s %s" % [count_a, count_b, keys_ok, rival_ok])
-	check(data["pool_new"].size() == 12 and Chains.pool_kept.size() == 24 and Chains.retired.size() == 10 and Chains.retired[0] == "EV18", "chains: pool 24 kept + 12 new, EV18 and EV29 to EV37 retired")
+	check(data["pool_new"].size() == 16 and Chains.pool_kept.size() == 24 and Chains.retired.size() == 10 and Chains.retired[0] == "EV18", "chains: pool 24 kept + 12 new + 4 branch, EV18 and EV29 to EV37 retired")
 	# every option applies and logs at least one rival change
 	var logs_ok := true
 	for sid in Chains.step_ids():
@@ -6283,7 +6283,7 @@ func _test_chains() -> void:
 	for d in ev.defs:
 		if Chains.in_pool(str(d["id"])):
 			in_pool += 1
-	check(in_pool == 36 and not Chains.in_pool("EV18") and not Chains.in_pool("EV29") and not Chains.in_pool("EV30") and not ev.by_id.has("EV29") and not ev.by_id.has("EV30") and not ev.by_id.has("EV37") and Chains.retired.has("EV29") and ev.by_id.has("EV40") and ev.by_id.has("MIL_A1"), "pool: 24 kept + 12 new, no EV18, no Minerals chain events", str(in_pool))
+	check(in_pool == 40 and not Chains.in_pool("EV18") and not Chains.in_pool("EV29") and not Chains.in_pool("EV30") and not ev.by_id.has("EV29") and not ev.by_id.has("EV30") and not ev.by_id.has("EV37") and Chains.retired.has("EV29") and ev.by_id.has("EV40") and ev.by_id.has("MIL_A1"), "pool: 24 kept + 12 new + 4 branch, no EV18, no Minerals chain events", str(in_pool))
 	m.events.debug_off = []
 	var drawn := {}
 	var dup := false
@@ -6296,6 +6296,63 @@ func _test_chains() -> void:
 		drawn[pid] = true
 		ev.record(pid, 20)
 	check(not dup and not drawn.has("EV18") and not drawn.has("EV29") and not drawn.has("MIL_A1") and drawn.size() >= 10, "pool: each event at most once, retired and chain events never drawn", str(drawn.size()))
+	# T234: the four branch events EV52-EV55 (one pattern, window cycles 1-10, hidden spotted consequence)
+	var bids := ["EV52", "EV53", "EV54", "EV55"]
+	var br_ok := true
+	for bid in bids:
+		br_ok = br_ok and ev.by_id.has(bid) and Chains.in_pool(bid) and ev.is_branch(bid) and ev.choices_of(bid).size() == 2 and not ev.effect_of_event(bid).has("kind") and ev.good_available(bid)
+		var ca: Dictionary = ev.choice_args(ev.choices_of(bid)[0])
+		var cb: Dictionary = ev.choice_args(ev.choices_of(bid)[1])
+		br_ok = br_ok and int(ca["cash_in"]) > int(cb["cash_in"]) and int(cb["cash_in"]) > 0 and bool(ev.choices_of(bid)[0]["dark"]) and not bool(ev.choices_of(bid)[1]["dark"]) and str(ca["market"]) != ""
+		br_ok = br_ok and int(ev.choice_effect(ev.choices_of(bid)[0])["amount"]) == int(ca["cash_in"])
+	check(br_ok, "branch events: EV52-EV55 are pool rows with two cash options, A pays more than B, cash read from balance")
+	check(not ev.available("EV52", 11) and not ev.available("EV55", 11) and ev.available("EV52", 3) and not ev.available("EV54", 3), "branch events: window ends after balance branch_event_last_cycle; a branch with no visible good (ore) does not fire")
+	check(StoryText.get_text("EV52_A_EFF", ev.choice_args(ev.choices_of("EV52")[0])).find(str(int(bal["branch_mil_a_cash"]))) >= 0 and StoryText.get_text("EV53_EFF", {"market": "X"}).find("{") < 0, "branch events: {cash_in} and {market} are filled")
+	var sp_bal: float = float(ev.balance["spotted_chance"])
+	ev.balance["spotted_chance"] = 0.0
+	Chains.reset(bal, 11)
+	ev.dark_choice()
+	check(not Chains.spotted and Chains.suppressed.is_empty(), "branch events: chance 0 never spots")
+	ev.balance["spotted_chance"] = 1.0
+	var prof: Array = ev.profitable_pool_ids()
+	ev.dark_choice()
+	var sup1: Array = Chains.suppressed.duplicate()
+	var steps_keep := true
+	for sid in Chains.step_ids():
+		steps_keep = steps_keep and not Chains.visible_options(str(sid)).is_empty()
+	var bad_pool := false
+	for sk in sup1:
+		if str(sk).find("|") < 0 and (not prof.has(sk) or ev.is_branch(str(sk))):
+			bad_pool = true
+	check(Chains.spotted and not sup1.is_empty() and not prof.is_empty() and not bad_pool and steps_keep and not prof.has("EV52"), "branch events: spotted removes only profitable events and keeps one option per chain step", str(sup1.size()))
+	ev.dark_choice()
+	check(Chains.suppressed == sup1, "branch events: a second spotting removes nothing more")
+	var sup_pool := 0
+	for sk in sup1:
+		if str(sk).find("|") < 0:
+			sup_pool += 1
+	var drew_sup := false
+	for i in 40:
+		var pid2: String = ev.random_id([], 20)
+		if pid2 == "":
+			break
+		if Chains.is_suppressed(pid2):
+			drew_sup = true
+	check(not drew_sup and Chains.is_suppressed(sup1[0]) and not Chains.is_suppressed("EV52"), "branch events: a removed event is never drawn")
+	var back := JSON.stringify(Chains.to_dict())
+	Chains.from_dict(JSON.parse_string(back), bal)
+	check(Chains.spotted and Chains.suppressed == sup1, "branch events: the flag and the removed set survive save and load")
+	var old_d: Dictionary = JSON.parse_string(back)
+	old_d.erase("spotted")
+	old_d.erase("suppressed")
+	Chains.from_dict(old_d, bal)
+	check(not Chains.spotted and Chains.suppressed.is_empty(), "branch events: an old save loads without the flag")
+	Chains.reset(bal, 11)
+	ev.dark_choice()
+	check(Chains.suppressed == sup1, "branch events: the same run seed removes the same half")
+	ev.balance["spotted_chance"] = sp_bal
+	Chains.reset(bal, 3)
+	m.events.debug_off = []
 	check(not FileAccess.file_exists("res://game/shield.gd") and not ("shield" in str(m.collect_state().keys())), "EV18 gone: no shield code or save key")
 	# the new pool events show their price effect and the pool bot effect applies and logs
 	Markets.reset(bal, 3)
@@ -7420,6 +7477,9 @@ func _av_atom(m: Control, atom: String, val: bool) -> bool:
 		"cycle_at_least":
 			var need := int(m.balance[arg.trim_prefix("balance.")])
 			m.cycle = need if val else need - 1
+		"cycle_at_most":
+			var most := int(m.balance[arg.trim_prefix("balance.")])
+			m.cycle = most if val else most + 1
 		"stock_held":
 			var key: String = m.storage.planet_key(0)
 			m.storage.ensure(key)

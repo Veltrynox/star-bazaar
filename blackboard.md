@@ -20,16 +20,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-06 12:00 run: T241
-- Summary: Skill screen now shows only Foundations and the run's branch tree; other-branch skills cannot be learned or selected (SkillTree.run_branch). Old saves show all trees. Dead-world refusal no longer names another branch's skill.
-- Why this task: owner request, dependency T235 done, no economy/QA agent, layout rule given by owner (fill the screen).
-- Approach: ui-programmer agent; filter at tree build and at can_learn so every learn path is covered.
-- Agent prompts: build branch-filtered skill screen, block other-branch learning, tests; produced handoffs/ui-programmer/2026-11-06-T241.json, done.
-- Worked: sh tools/tests/run.sh fail=0 per agent (pass=11318); my re-run output tail showed only leak warnings.
-- Failed / did not work: nothing; layout not seen windowed.
-- Files and commits: game/skill_tree.gd, skill_screen.gd, main.gd, route_engine.gd, tools/tests/run_tests.gd, gdd-skills.md, handoff, schedule.json, blackboard.md; see git log "T241".
-- Left to do: owner: open skill screen (K) per CEO branch and judge layout (CELL_W_MAX 250). Story-designer: add text id NOT_DEAD_OTHER_BRANCH (fallback "Mining here is closed to your company." in use).
-
 ## 2026-11-06 10:00 run: T237
 - Summary: Added a branch tag per CEO (TXT_CEO_*_BRANCH_TAG, max 40 chars) and one sentence at the end of each CEO bio naming market and ship, English only, built with tools/build_story.py.
 - Why this task: small, dependency T235 done, text only, no visual, economy or QA need.

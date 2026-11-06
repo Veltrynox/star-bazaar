@@ -14,6 +14,7 @@ extends RefCounted
 ##   workshop_built:<workshop>              the player built that workshop (fabric|smelter|munitions|atelier|culture_lab)
 ##   system_open:<n>                        system n permit is bought
 ##   cycle_at_least:<balance>               the cycle is >= the balance value
+##   cycle_at_most:<balance>                the cycle is <= the balance value (a window end; the four branch events EV52-EV55 use it)
 ##   stock_held:<good>                      the player holds that good in a ship, planet storage or space storage
 ##   good_visible:<good>                    that good's own availability rule is true
 ##   good_traded:<good>                     an open planet prices that good (needs ctx.planets; events use it)
@@ -33,7 +34,7 @@ const BALANCE_PATH := "res://data/balance.json"
 
 ## name -> arg kind ("" no arg). "step" atoms need ctx.step.
 const ATOMS := {
-	"start": "", "skill_learned": "node", "workshop_built": "workshop", "system_open": "system", "cycle_at_least": "balance",
+	"start": "", "skill_learned": "node", "workshop_built": "workshop", "system_open": "system", "cycle_at_least": "balance", "cycle_at_most": "balance",
 	"stock_held": "good", "good_visible": "good", "good_traded": "good", "event_fired": "event",
 	"share_pct": "balance", "first_sale_after_cycle": "balance", "cycles_after_prev_step": "balance",
 	"planet_visited": "planet", "post_built": "planet", "platform_built": "planet",
@@ -109,6 +110,10 @@ static func _atom(atom: String, ctx: Dictionary) -> bool:
 			if not ctx.has("cycle") and not live():
 				return false
 			return int(ctx.get("cycle", game.cycle if live() else 0)) >= int(balance_value(arg, ctx))
+		"cycle_at_most":
+			if not ctx.has("cycle") and not live():
+				return false
+			return int(ctx.get("cycle", game.cycle if live() else 0)) <= int(balance_value(arg, ctx))
 		"workshop_built", "system_open", "stock_held", "planet_visited", "post_built", "platform_built":
 			return live() and _game_atom(str(parts[0]), arg)
 	push_error("Conditions: unknown atom '%s'" % atom)
