@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-06 22:00 run: T217
-- Summary: story-designer wrote two gig stories (GIG01 wreck of the Ninth Tally, GIG02 the relay lamp) with hook, arrival, two buttons, four branch outcomes per button and epilogue, in story/gigs.md; build_story.py got build_gigs(). English only.
-- Why this task: dependency T216 done, text only, no visual/economy/QA need; T220/T223 are look/layout decisions, T208/T218/T239 wait on owner approval.
-- Approach: new story/gigs.md read by the existing build tool instead of stuffing gigs into events.md.
-- Agent prompts: write 2 gig stories per T217, English only, extend build_story.py, no commit; produced story/gigs.md, tools/build_story.py, data/story_text.json, handoffs/story-designer/2026-11-06-T217.json.
-- Worked: generated-file tests and availability lint pass.
-- Failed / did not work: sh tools/tests/run.sh pass=11491 fail=15 (goods, workshop, hooks, availability powder/blooms); caused by the owner's uncommitted data/ and game/ goods edits, not by this text. Committed with [no-tests].
-- Files and commits: story/gigs.md, tools/build_story.py, handoff, schedule.json, blackboard.md. data/story_text.json left uncommitted: it also holds the owner's uncommitted GOOD_* text edits from story/screens.md.
-- Left to do: commit data/story_text.json together with the owner's goods work; gameplay task T218 needs owner approval of the gigs proposal; hook line meaning (tooltip vs icon text) is an owner question; Russian only when asked.
-
 ## 2026-11-06 23:00 run: T230
 - Summary: story-designer rewrote choice events EV17-20, BE01-03 and their popups, plus five pending post/flight events, in the draft-3 voice (English). Build ran clean.
 - Why this task: the only open task doable without owner decision, visuals, QA or approval; partial tasks preferred.
@@ -75,3 +65,13 @@
 - Failed / did not work: nothing run.
 - Files and commits: blackboard.md only.
 - Left to do: owner approves T243/T218/T239/T208 or answers the open questions; owner commits goods work so the test base is green.
+
+## 2026-11-07 00:10 run: gap analysis
+- Summary: Re-read the 16 open tasks; the picture is unchanged since the 23:50 analysis. No task can be done without an owner decision, visual decision, owner-only agent, or clean test base. No new tasks added.
+- Why this task: no open task is eligible (T208/T218/T239/T240/T243 need approval, T189/T190/T193 need decisions, T178/T182/T209 owner-only, T220/T221/T223 visual, T166 superseded).
+- Approach: did not repeat the gap analysis in depth; nothing in gdd or code changed since the last one, and inventing features is not allowed.
+- Agent prompts: none sent.
+- Worked: schedule and blackboard read.
+- Failed / did not work: nothing run.
+- Files and commits: blackboard.md only.
+- Left to do: owner approves T243/T218/T239/T208 or answers the open questions; owner commits goods work so tests are green.
