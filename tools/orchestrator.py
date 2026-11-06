@@ -419,6 +419,42 @@ def fail_name(line):
     return parts[0].replace("FAIL", "").strip() or parts[1] if len(parts) > 1 else line.strip()
 
 
+def resolve_balance_source(wt):
+    """Auto-resolve a conflict that is only the one-line change note ("source") of data/balance.json:
+    keep the base's note and put the task's own first sentence on top. Returns True if resolved."""
+    p = Path(wt) / "data" / "balance.json"
+    text = p.read_text()
+    pre = '  "source": "'
+    pat = re.compile(r"<<<<<<< [^\n]*\n(.*?)=======\n(.*?)>>>>>>> [^\n]*\n", re.S)
+    for m in pat.finditer(text):
+        if not (m.group(1).startswith(pre) and m.group(2).startswith(pre)):
+            return False
+    def fix(m):
+        head, mine = m.group(1), m.group(2)
+        note = mine[len(pre):].split(" Earlier: ")[0]
+        return pre + note + " Earlier: " + head[len(pre):]
+    new = pat.sub(fix, text)
+    try:
+        json.loads(new)
+    except ValueError:
+        return False
+    p.write_text(new)
+    return True
+
+
+def rebase_with_auto_resolve(wt, base):
+    r = sh(["git", "rebase", base], cwd=wt)
+    for _ in range(12):
+        if r.returncode == 0:
+            return r
+        files = sh(["git", "diff", "--name-only", "--diff-filter=U"], cwd=wt).stdout.split()
+        if files != ["data/balance.json"] or not resolve_balance_source(wt):
+            return r
+        sh(["git", "add", "data/balance.json"], cwd=wt)
+        r = sh(["git", "rebase", "--continue"], cwd=wt, env={"GIT_EDITOR": "true"})
+    return r
+
+
 def merge_one(st, tid):
     v = st["tasks"][tid]
     wt, br, base = v["worktree"], v["branch"], st["base_branch"]
@@ -429,7 +465,7 @@ def merge_one(st, tid):
     dirty = [l for l in sh(["git", "status", "--porcelain"], cwd=wt).stdout.splitlines() if l[3:].rstrip("/") != "tools/godot" and not (l.startswith("??") and (l.endswith(".uid") or l[3:].strip(chr(34)).startswith(IGNORE_UNTRACKED)))]  # our own symlink, Godot-generated uid files
     if dirty:
         return block(st, tid, "worktree has uncommitted files", "\n".join(dirty))
-    r = sh(["git", "rebase", base], cwd=wt)
+    r = rebase_with_auto_resolve(wt, base)
     if r.returncode != 0:
         sh(["git", "rebase", "--abort"], cwd=wt)
         return block(st, tid, f"rebase onto {base} failed", r.stdout + r.stderr)
