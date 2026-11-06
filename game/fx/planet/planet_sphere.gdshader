@@ -59,11 +59,40 @@ uniform float shadow_soft = 0.06;
 uniform float ambient = 0.03;
 uniform vec4 city_col : source_color = vec4(1.00, 0.82, 0.48, 1.0);
 uniform float city_strength = 1.6;
+uniform float tier_lights = 0.0;                  // T265: night-side city lights, density 0 (none) to 1; set per planet from the prosperity tier
+uniform float tier_lights_gain = 1.0;             // brightness of those lights (bloom-safe, from data/balance.json)
 uniform float grain_amount = 0.10;                // 10 percent grain over the final colour
 
 uniform float edge_px = 10.0;                     // soft edge width in screen pixels (0 = hard edge)
 
 varying vec3 obj_n;
+
+// T265: procedural city lights. Hash grid on the sphere: a cell holds a light when its hash is under the density, and
+// density is also modulated by a low-frequency cluster noise so lights gather into regions instead of a uniform dust.
+float hash13(vec3 p) {
+	p = fract(p * 0.1031);
+	p += dot(p, p.zyx + 31.32);
+	return fract((p.x + p.y) * p.z);
+}
+float cluster_noise(vec3 p) {
+	vec3 i = floor(p);
+	vec3 f = fract(p);
+	f = f * f * (3.0 - 2.0 * f);
+	return mix(mix(mix(hash13(i), hash13(i + vec3(1, 0, 0)), f.x), mix(hash13(i + vec3(0, 1, 0)), hash13(i + vec3(1, 1, 0)), f.x), f.y),
+		mix(mix(hash13(i + vec3(0, 0, 1)), hash13(i + vec3(1, 0, 1)), f.x), mix(hash13(i + vec3(0, 1, 1)), hash13(i + vec3(1, 1, 1)), f.x), f.y), f.z);
+}
+float city_light_field(vec3 n, float density) {
+	const float GRID = 46.0;
+	vec3 p = n * GRID;
+	vec3 id = floor(p);
+	vec3 f = fract(p) - 0.5;
+	float h = hash13(id);
+	vec3 jitter = vec3(hash13(id + 7.1), hash13(id + 13.7), hash13(id + 19.3)) - 0.5;
+	float region = mix(1.0, smoothstep(0.25, 0.75, cluster_noise(n * 4.0 + 3.0)) * 1.8, min(density * 4.0, 1.0));
+	float on = step(h, density * region);
+	float d = length(f - jitter * 0.5);
+	return on * smoothstep(0.34, 0.05, d);
+}
 
 void vertex() {
 	vec3 n0 = normalize(VERTEX);
@@ -149,6 +178,12 @@ void fragment() {
 			// City lights on the dark side (not in the distribution: 0%).
 			float fine = textureGrad(fine_tex, uv, dx, dy).b;
 			col = mix(col, city_col.rgb * city_strength, smoothstep(0.80, 0.92, fine) * (1.0 - lit));
+		}
+
+		// T265: tier city lights on the dark side only (none while tier_lights is 0).
+		if (tier_lights > 0.0005) {
+			float night = 1.0 - smoothstep(-0.04, 0.14, nk);
+			col += city_col.rgb * city_light_field(n, tier_lights) * night * tier_lights_gain;
 		}
 
 		// Rim light: same moon-like crescent shape as the Fresnel (same side weight, falloff and thickness), added

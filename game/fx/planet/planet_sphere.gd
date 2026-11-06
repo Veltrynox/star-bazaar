@@ -15,6 +15,7 @@ const STORM_TYPE := "cloudy"
 const CLOUD_TEX := "res://art/planet/planet_cloud.png"
 
 const FX := preload("res://game/fx/planet/planet_fx.gd")
+const Juice := preload("res://game/juice.gd")
 
 ## Per-type surface table: beauty (colour), disp (height, relief), optional glow mask and lights mask.
 ## Optional "clouds" key: a drifting cloud shell above the surface plus cloud shadows on the body. Add one line to give it to a type.
@@ -312,7 +313,54 @@ func aim_sun(sun_w: Vector3) -> void:
 	if not local.is_equal_approx(key_dir):
 		key_dir = local
 
+## T265: tier look. The map passes target values (from data/balance.json via the prosperity tier); they ease in over
+## `seconds` of game time, scaled by Juice.motion (0 = at once). Dead worlds are left alone.
+var _lights := 0.0
+var _halo := 0.0
+var _lights_to := 0.0
+var _halo_to := 0.0
+var _lights_rate := 0.0
+var _halo_rate := 0.0
+var _lights_gain := 1.0
+
+func set_tier_look(lights: float, halo: float, gain: float, seconds: float, snap: bool = false) -> void:
+	if is_dead(planet_id, planet_type):
+		return
+	_lights_gain = gain
+	_lights_to = lights
+	_halo_to = halo
+	var t: float = seconds * Juice.motion
+	if snap or t <= 0.0:
+		_lights = lights
+		_halo = halo
+		_lights_rate = 0.0
+		_halo_rate = 0.0
+		_push_tier_look()
+		return
+	_lights_rate = absf(lights - _lights) / t
+	_halo_rate = absf(halo - _halo) / t
+	set_process(true)
+
+func _process(delta: float) -> void:
+	_lights = move_toward(_lights, _lights_to, _lights_rate * delta)
+	_halo = move_toward(_halo, _halo_to, _halo_rate * delta)
+	_push_tier_look()
+	if is_equal_approx(_lights, _lights_to) and is_equal_approx(_halo, _halo_to):
+		set_process(false)
+
+func _push_tier_look() -> void:
+	var m := get_surface_override_material(0) as ShaderMaterial
+	if m:
+		m.set_shader_parameter("tier_lights", _lights)
+		m.set_shader_parameter("tier_lights_gain", _lights_gain)
+	var glow := get_node_or_null("Glow") as MeshInstance3D
+	var gm := glow.get_surface_override_material(0) as ShaderMaterial if glow else null
+	if gm:
+		glow.visible = _halo > 0.0005 or (not SIMPLE)
+		gm.set_shader_parameter("halo", _halo)
+
 func _ready() -> void:
+	set_process(false)
 	if is_dead(planet_id, planet_type):
 		set_surface_override_material(0, DEAD_MATERIAL)  # duplicated just below, so each dead world has its own parameters
 	if not Engine.is_editor_hint():
@@ -413,6 +461,8 @@ func _apply() -> void:
 		gm.set_shader_parameter("strength", glow_strength)
 		gm.set_shader_parameter("key_dir", key_dir)
 		gm.set_shader_parameter("fres_side", fresnel_side)
+		gm.set_shader_parameter("crescent", 0.0 if SIMPLE else 1.0)  # T265: in the simple body the shell shows only the tier halo
+		gm.set_shader_parameter("halo_col", city_color)
 	var atmo := get_node_or_null("Atmosphere") as MeshInstance3D
 	var am := atmo.get_surface_override_material(0) as ShaderMaterial if atmo else null
 	if am:

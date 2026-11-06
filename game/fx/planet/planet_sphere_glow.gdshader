@@ -12,6 +12,9 @@ uniform float power = 1.2;                       // fade shape: higher = tighter
 uniform float edge_value = 0.68;                  // must match fres_strength in planet_sphere.gdshader
 uniform float shell_radius = 1.12;                // must match the Glow mesh radius
 uniform float fres_side = 0.0;                    // must match planet_sphere.gdshader
+uniform float crescent = 1.0;                    // 1 = the old sun-side glow, 0 = off (the simple body keeps it off)
+uniform vec4 halo_col : source_color = vec4(1.0, 0.8, 0.5, 1.0);  // T265: tier halo, a full ring in a warm light
+uniform float halo = 0.0;                         // T265: halo strength from the prosperity tier (0 = none)
 uniform float sun_bias = 1.0;                     // 1 = crescent only, 0 = full ring
 
 void vertex() {
@@ -26,5 +29,5 @@ void fragment() {
 	float sun = smoothstep(fres_side, fres_side + 0.6, dot(normalize(obj_n), normalize(key_dir)));  // crescent gate, as the body
 	sun *= sun;
 	// strength / 1.6 keeps the old strength slider as a multiplier around the matched edge value.
-	ALBEDO = glow_col.rgb * edge_value * ramp * mix(1.0, sun, sun_bias) * (strength / 1.6);
+	ALBEDO = glow_col.rgb * edge_value * ramp * mix(1.0, sun, sun_bias) * (strength / 1.6) * crescent + halo_col.rgb * halo * ramp;
 }

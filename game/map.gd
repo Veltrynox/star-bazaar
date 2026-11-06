@@ -877,7 +877,25 @@ func apply_tunables() -> void:
 	set_routes(_route_list)
 	_update_camera()
 
+## T265: night-side city lights and halo follow prosperity.tier(i). Targets come from data/balance.json (tier_lights_t0..,
+## tier_halo_t0..); the sphere eases a change over tier_look_ease_seconds. The first sight of a planet snaps.
+var _tier_look_seen := {}  # planet index -> tier last pushed
+func _update_tier_looks() -> void:
+	if prosperity == null:
+		return
+	var bal: Dictionary = prosperity.balance
+	for i in planet_spheres.size():
+		var t: int = maxi(0, int(prosperity.tier(i)))
+		var first := not _tier_look_seen.has(i)
+		if not first and int(_tier_look_seen[i]) == t:
+			continue
+		_tier_look_seen[i] = t
+		var k := clampi(t, 0, 3)
+		planet_spheres[i].set_tier_look(float(bal.get("tier_lights_t%d" % k, 0.0)), float(bal.get("tier_halo_t%d" % k, 0.0)),
+			float(bal.get("tier_lights_gain", 1.0)), float(bal.get("tier_look_ease_seconds", 1.0)), first)
+
 func _process(delta: float) -> void:
+	_update_tier_looks()
 	_refresh_known()
 	_place_labels()
 	if not keys_enabled:
