@@ -894,8 +894,49 @@ func _update_tier_looks() -> void:
 		planet_spheres[i].set_tier_look(float(bal.get("tier_lights_t%d" % k, 0.0)), float(bal.get("tier_halo_t%d" % k, 0.0)),
 			float(bal.get("tier_lights_gain", 1.0)), float(bal.get("tier_look_ease_seconds", 1.0)), first)
 
+## T279: orbital traffic. Each established world in the viewed system gets a close ring of tiny shuttles: count from its tier
+## (balance traffic_orbit_t<N>), thinned by traffic_orbit_restless_keep (0..1 kept) while Restless. A tier-up fills the new ships
+## in over traffic_orbit_burst_seconds. Readout only: derived from prosperity, nothing is saved.
+var _orbit_shown := {}   # planet index -> float count currently drawn
+var _orbit_gen := -1     # traffic.generation the groups were set for
+func _update_orbit_traffic(delta: float) -> void:
+	if traffic == null or prosperity == null:
+		return
+	var bal: Dictionary = prosperity.balance
+	if _orbit_gen != traffic.generation:
+		_orbit_gen = traffic.generation
+		_orbit_shown.clear()
+	var burst := maxf(float(bal.get("traffic_orbit_burst_seconds", 1.0)), 0.01)
+	for i in planets.size():
+		var key := "orbit_%d" % i
+		var t: int = int(prosperity.tier(i)) if planet_in_view(i) else 0
+		var want := 0.0
+		if t >= 1:
+			want = float(bal.get("traffic_orbit_t%d" % t, 0.0))
+			if prosperity.restless(i):
+				want *= clampf(float(bal.get("traffic_orbit_restless_keep", 1.0)), 0.0, 1.0)
+		var have: float = _orbit_shown.get(i, -1.0)
+		if is_equal_approx(have, want):
+			continue
+		var next := want
+		if have >= 0.0 and want > have:
+			next = minf(want, have + want * delta / burst + 0.0001)  # burst in: new ships appear over a short time
+		_orbit_shown[i] = next
+		var n := roundi(next)
+		if have >= 0.0 and n == roundi(have):
+			continue
+		if n <= 0:
+			traffic.clear_group(key)
+			continue
+		var r := planet_radius(i)
+		var r_in := r * float(bal.get("traffic_orbit_ring_in", 1.2))
+		var r_out := r * float(bal.get("traffic_orbit_ring_out", 1.5))
+		var tilt := deg_to_rad(float(bal.get("traffic_orbit_tilt_deg", 20.0))) * (1.0 if i % 2 == 0 else -1.0)
+		traffic.set_orbit_group(key, positions[i], r_in, r_out, n, "corvette", tilt, 1.0 if i % 2 == 0 else -1.0, Color.TRANSPARENT, float(bal.get("traffic_orbit_ship_scale", 0.5)))
+
 func _process(delta: float) -> void:
 	_update_tier_looks()
+	_update_orbit_traffic(delta)
 	_refresh_known()
 	_place_labels()
 	if not keys_enabled:
