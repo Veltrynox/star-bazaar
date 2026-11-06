@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-06 18:41 run: T246
-- Summary: Two-engine trails with a bright core and soft additive glow, age-based taper and smoothed side direction to remove jitter
-- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
-- Approach: built by a worker in worktree ../wt/T246 on branch task/T246, merged by the serial merge queue.
-- Agent prompts: /overnight-worker T246 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T246.log.
-- Worked: rebase, full test suite and fast-forward merge passed.
-- Failed / did not work: nothing.
-- Files and commits: see git log on branch new-features for commits starting with T246.
-- Left to do: nothing for this task.
-
 ## 2026-11-06 18:42 run: T247
 - Summary: Foundations are now ordered Permit Charter, Prospecting, Space Storage in data/skills.json and gdd-skills.md, so Permit Charter sits above Quartermaster's Terms (MIL_1); effects, costs and prerequisites are unchanged. I also edited one line in tools/tests/run_tests.gd, outside the task's touches, be
 - Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
@@ -64,4 +54,14 @@
 - Worked: rebase, full test suite and fast-forward merge passed.
 - Failed / did not work: nothing.
 - Files and commits: see git log on branch new-features for commits starting with T261.
+- Left to do: nothing for this task.
+
+## 2026-11-06 18:50 run: T262
+- Summary: Planet card growth section (tier, progress bar, need rows with chips, locked '?', Restless line, empty fed-by slot, confirmed Found the Bazaar button) plus new placeholder balance key
+- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
+- Approach: built by a worker in worktree ../wt/T262 on branch task/T262, merged by the serial merge queue.
+- Agent prompts: /overnight-worker T262 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T262.log.
+- Worked: rebase, full test suite and fast-forward merge passed.
+- Failed / did not work: nothing.
+- Files and commits: see git log on branch new-features for commits starting with T262.
 - Left to do: nothing for this task.
