@@ -33,7 +33,7 @@ func _ready() -> void:
 	box.add_child(title)
 	label = Label.new()
 	box.add_child(label)
-	upkeep_scroll = ScrollContainer.new()  # T186: up to 20 ships, so the per-ship list scrolls past UPKEEP_MAX_H
+	upkeep_scroll = ScrollContainer.new()  # T186: up to 10 ships, so the per-ship list scrolls past UPKEEP_MAX_H
 	upkeep_scroll.name = "UpkeepScroll"
 	upkeep_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	box.add_child(upkeep_scroll)
@@ -60,7 +60,7 @@ func _ready() -> void:
 	box.add_child(free_label)
 	core_box = VBoxContainer.new()
 	core_box.name = "CoreBox"
-	core_scroll = ScrollContainer.new()  # T186: one Fit button per ship, up to 20
+	core_scroll = ScrollContainer.new()  # T186: one Fit button per ship, up to 10
 	core_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	core_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	core_scroll.add_child(core_box)

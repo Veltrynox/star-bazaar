@@ -11,7 +11,7 @@
     "bundle_bonus_cap": 150,
     "salvage_share": 0.4,
     "cargo": 40,
-    "ship_cap": 20,
+    "ship_cap": 10,
     "trip_cost": 60,
     "maintenance": 40,
     "maintenance_interval": 3,

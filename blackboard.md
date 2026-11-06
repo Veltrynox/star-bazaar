@@ -17,16 +17,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-06 11:00 run: T199
-- Summary: Rival ships now belong to a competitor (ship i = Bots.IDS[i]) with a faint per-competitor tint; a click within 20px opens a small card with the competitor name and its strongest market. Planets behind stay clickable outside the radius.
-- Why this task: concrete owner brief, dependency done; other open tasks are owner-decision, owner-only, or design proposals.
-- Approach: ui-programmer agent reusing the DestHint card style; I verified diff and tests.
-- Agent prompts: tint per competitor, click card with name and market, no planet blocking, English ids, test; handoffs/ui-programmer/2026-11-06-T199.json, done.
-- Worked: sh tools/tests/run.sh no FAIL; _test_t199_rival_pick added.
-- Failed / did not work: nothing; 3 "Parameter material is null" engine errors also appear without the change.
-- Files and commits: game/rival_ships.gd, game/rival_card.gd, game/map.gd, game/main.gd, story/screens.md, data/story_text.json, tools/tests/run_tests.gd, gdd.md, handoff, schedule.json, blackboard.md; see git log "T199".
-- Left to do: owner: tint colours (TINTS red/violet/green, alpha 0.3), pick radius 20px and card position not seen windowed; "its market" read as strongest-share market; competitor names have no story ids; click on a ship does not pass to a planet; no Russian ids.
-
 ## 2026-11-06 12:00 run: T205
 - Summary: Ship trails are now tapered ribbons about 0.16 wide (was a 1px line) and start at an engine point behind the ship (per-model constant Ships.ENGINE_BACK), for the player and rival ships.
 - Why this task: concrete owner brief, no dependencies, widths were specified; other open tasks are owner-only, visual decisions, or design proposals.
@@ -56,3 +46,13 @@
 - Failed / did not work: nothing; not seen windowed.
 - Files and commits: game/route_line.gd, game/map.gd, tools/tests/run_tests.gd, handoff, schedule.json, blackboard.md; see git log "T219".
 - Left to do: owner: look windowed (pulse readability, width growth); route made while paused (game starts paused) has no draw-in; lane tag not pinged.
+
+## 2026-11-06 15:00 run: T232
+- Summary: Ship cap set from 20 to 10 (data/balance.json ship_cap); saves with more ships clamp on load (existing clamp in main.gd). Comments in ship_panel.gd updated.
+- Why this task: smallest concrete owner request, no dependencies, no visual or economy-agent need; other open tasks are larger, visual, or owner-only.
+- Approach: one-value edit done by me; no agent needed. Cap-name text search found no story ids to change.
+- Agent prompts: none.
+- Worked: sh tools/tests/run.sh pass=11300 fail=0.
+- Failed / did not work: first sed (BSD) errored on a stray line-number form; redone with sed -i ''. No handoff file (no agent used).
+- Files and commits: data/balance.json, game/ship_panel.gd, schedule.json, blackboard.md; see git log "T232".
+- Left to do: owner: economy was tuned for 6 ships; cap 10 not retuned (economy agents run only by owner).

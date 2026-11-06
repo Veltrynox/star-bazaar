@@ -1583,10 +1583,127 @@
       "title": "Ship limit set to 10",
       "owner_agent": "gameplay-programmer",
       "depends_on": [],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 15,
       "window": "Owner request 2026-11-05 (playtest). Not started: main session sets it running.",
-      "brief": "Owner: set the maximum number of ships to 10 (currently 20, see data/balance.json and game code; T191 decision is answered by this). Update tests, text that names the cap (story ids, then python3 tools/build_story.py), and the GDD number lives in data/ only. Existing saves with more than 10 must still load. Handoff handoffs/gameplay-programmer/2026-11-05-T232.json."
+      "brief": "Owner: set the maximum number of ships to 10 (currently 20, see data/balance.json and game code; T191 decision is answered by this). Update tests, text that names the cap (story ids, then python3 tools/build_story.py), and the GDD number lives in data/ only. Existing saves with more than 10 must still load. Handoff handoffs/gameplay-programmer/2026-11-05-T232.json.",
+      "note": "2026-11-06: ship_cap 20 to 10 in data/balance.json; load already clamps to ship_cap(); no story text names the cap; tests pass=11300 fail=0."
+    },
+    {
+      "task_id": "T233",
+      "title": "Four branch events: the contract and the dark market (text)",
+      "owner_agent": "story-designer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 40,
+      "window": "Owner request 2026-11-05. Not started: main session sets it running.",
+      "brief": "Owner idea: a family of one-time pool events, one per market branch, next free ids EV52 Military, EV53 Luxury, EV54 Minerals, EV55 Biotech (ids EVnn_TITLE, EVnn_BODY, EVnn_EFF, plus one result text per option, same shape as the other pool events and chain options in story/events.md and story/screens.md). English only, no Russian. Each fires early, cycles 1 to 10. Shared premise: you start on a small contract for a big company and must move fast or you will be outnumbered. Nobody would notice if you resold a thing or two to a pirate dark market. Two options each: (A) sell to the dark market: quick and rich, with a wink; (B) sell it through the public market, cheaper, clean. Do not copy one text four times: each branch gets its own client, goods, setting, named dark-buyer contact and joke, native to that market's cast and terms (Military: Admiralty, Fleet Office, clerks, rivet guns; Luxury, Minerals, Biotech: use the glossary and flavour notes in story/voice.md and story/events.md; no real brands). Write it alive and native to the world, concrete detail, a little humour and tension, not a business memo. Honest effect lines: option A says only that it pays more cash now; option B says it pays less. HARD RULE: no text, effect line, result, log line or ending may hint at being spotted, a risk, a watcher or lost future events; the consequence is hidden from the player. Respect max lengths and the no-digit rule (numbers via placeholders like {cash_in}). Edit source in story/, run python3 tools/build_story.py. Handoff handoffs/story-designer/2026-11-05-T233.json with the ids per branch and which placeholders T234 must fill. Branch goods rule (T238): each branch's event names only that branch's own goods once T238 exists; until then use the current goods of that market and avoid food and ore, which stop being shared."
+    },
+    {
+      "task_id": "T234",
+      "title": "Four branch events: the contract and the dark market (mechanics)",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [
+        "T233"
+      ],
+      "status": "queued",
+      "turn_cap": 40,
+      "window": "Owner request 2026-11-05. Not started: main session sets it running.",
+      "brief": "Owner idea, build the four events EV52 Military, EV53 Luxury, EV54 Minerals, EV55 Biotech (text from T233) as one-time pool events with two options each, same mechanics for all four (one data-driven pattern, not four copies). It can fire only in cycles 1 to 10 (add a window, e.g. a new condition atom cycle_at_most:<balance> in game/conditions.gd with its header updated, key in data/balance.json) and follows the Availability rule: not before that branch's goods are visible and traded; if a branch cannot be visible by cycle 10, report that in the handoff instead of widening the window. Option A (dark market): a cash payout above option B, no visible downside. Option B (public market): a smaller cash payout, nothing hidden. Hidden consequence, never shown anywhere (no text, log, popup, stats or ending line): choosing A in any of the four rolls once at choice time with a 20% chance of being spotted. If spotted, a saved flag is set and half of the profitable events (positive-effect pool events and chain options/steps that give the player a gain) never appear for the rest of the run: the flag is shared across the four events and the removal happens once (a second spotting removes nothing more); pick the removed half once at that moment with the run seed, save it, filter it in game/events.gd and Chains; the other half and all bad or neutral events stay as they are. This reading of 'half of the profitable events will not appear at all' is the brief; note in the handoff if the data makes a different reading better. Numbers (cash for A and B per branch, spotted_chance 0.2, suppressed_share 0.5) go to data/balance.json as keys with first-pass values; the economy-designer is owner-only so the owner retunes later. Add the rows to data/chains.json pool_new, a visible_when/trigger as needed, and the flag to the save and load code (old saves load without it). Handoff handoffs/gameplay-programmer/2026-11-05-T234.json."
+    },
+    {
+      "task_id": "T235",
+      "title": "CEO picks the branch and the ship (data and start flow)",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 40,
+      "window": "Owner request 2026-11-05. Not started: main session sets it running.",
+      "brief": "Owner: the player chooses the branch right at the start, when pressing Start game, as part of choosing the CEO avatar; the ship comes with the CEO, the player no longer picks a ship. Build the data and flow side. (1) data/ceos.json: each of the 4 CEOs gets a fixed branch (market id mil, lux, min or bio; one CEO per branch, map them by the CEO's story and perk, write the mapping and reason in the handoff) and a fixed ship type from data/ships.json (one per CEO, all four types used). (2) The start flow (game/company_setup.gd, game/ship_setup.gd, game/save_game.gd, game/main.gd): New Game now goes company screen (name + CEO) straight to the game; the separate ship step is removed from the flow (keep ship_setup.gd and its scene out of the path; delete them only if nothing else uses them). Start hands name, portrait, CEO, branch and ship to the game start exactly as ship did before. (3) Branch in the game: find where the game now treats a market as the player's branch or win market and where the player picks it later (grep chains, endings, gdd.md); fill it from the CEO at the start and remove or skip the later choice, without changing the win or ending rules. If the branch has no code meaning yet beyond that, store it in the save as run.branch and expose Ceos.branch(id) and a getter on the game. Do not hide any other branch's goods or invent locks; the Availability rule stays as is. Old saves without a branch load as before. Update gdd.md lines about the start flow (short form, no numbers). Handoff handoffs/gameplay-programmer/2026-11-05-T235.json with the CEO to branch to ship table."
+    },
+    {
+      "task_id": "T237",
+      "title": "CEO bios and branch lines for the start screen",
+      "owner_agent": "story-designer",
+      "depends_on": [
+        "T235"
+      ],
+      "status": "queued",
+      "turn_cap": 20,
+      "window": "Owner request 2026-11-05. Not started: main session sets it running.",
+      "brief": "Owner: the CEO now decides the branch and the ship. For each of the 4 CEOs (mapping in handoffs/gameplay-programmer/2026-11-05-T235.json) write in English only: a one-line branch tag shown on the pick card (max 40 characters, e.g. the market named in the CEO's voice) and one extra sentence at the end of the CEO bio that says why this person flies this ship in this branch, same voice and max length rules as story/voice.md. Add ids to the source in story/ (not the generated json), run python3 tools/build_story.py. No text may promise a rule the game does not have. Handoff handoffs/story-designer/2026-11-05-T237.json with the ids."
+    },
+    {
+      "task_id": "T236",
+      "title": "CEO pick screen shows branch and ship (UI)",
+      "owner_agent": "ui-programmer",
+      "depends_on": [
+        "T235",
+        "T237"
+      ],
+      "status": "queued",
+      "turn_cap": 30,
+      "window": "Owner request 2026-11-05. Not started: main session sets it running.",
+      "brief": "Owner: one start screen, no separate ship screen. On the company screen (game/company_setup.gd and its scene), the CEO card shows the CEO's branch (tag from T237) and the ship that comes with them: the turntable preview of the ship model (reuse the preview code from game/ship_setup.gd), the ship name and its stats from data/ships.json, next to the CEO bio and stats. Selecting a different CEO swaps branch, ship preview and stats. Start stays disabled until a name and a CEO are chosen, as now. Back goes to the title. Text from the story loader only, English ids. Handoff handoffs/ui-programmer/2026-11-05-T236.json."
+    },
+    {
+      "task_id": "T238",
+      "title": "Design: branch-exclusive goods (energy the only shared good)",
+      "owner_agent": "feature-designer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 30,
+      "window": "Owner request 2026-11-05. Not started: main session sets it running.",
+      "brief": "Owner decision: every resource belongs to one branch and only that branch's company can trade it; a Biotech player can not sell weapons or spy software, a Military player can not sell spores. The ONLY universal resource everyone can sell is energy. Today food and ore feed any market and energy sits in Military; read data/goods.json, data/markets.json, data/planets.json, data/availability.json, gdd.md (goods, Availability) and story/skills.md. Write a proposal design/proposals/2026-11-05-branch-goods.md (no balance numbers, tier and role only; the owner approves, gameplay reuses existing price bands by tier). Per branch (Military, Luxury, Minerals, Biotech): a themed goods chain of the same depth as today (raw or trade tier 1 to 2, crafted tier 3 to 4, its workshop), a branch starter good that is sellable at the home world from cycle 0 (the start must work for all four; energy alone is not enough), and exciting, identity-heavy goods beyond the current ones, e.g. Military: weapons, munitions, spy software and surveillance; Biotech: medicine, spores, engineered crops; Luxury and Minerals your own. Each good: id, name, tier, kind, recipe, which planets produce and buy it, one line of what it is in the world, and an icon brief (shape, colour, silhouette, readable at 64 px). Say what happens to current goods (food, ore, chips, silk, musk, dross, nullglass and so on: keep, rename, move to a branch, or drop) and to the 6 planets and 2 systems so every branch has buyers in system 1 and 2. List what must change for energy as the shared good (price, planets that buy it, role in storage link upkeep). No code, no story text. Handoff handoffs/feature-designer/2026-11-05-T238.json."
+    },
+    {
+      "task_id": "T239",
+      "title": "Branch-exclusive goods: data, trading rules, start per branch",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [
+        "T238",
+        "T235"
+      ],
+      "status": "queued",
+      "turn_cap": 50,
+      "window": "Owner request 2026-11-05. Not started: main session sets it running.",
+      "brief": "Build the goods proposal of T238 (design/proposals/2026-11-05-branch-goods.md; the owner approved it by queuing this task, ask nothing, note doubts in the handoff). Data: data/goods.json, markets.json, planets.json, availability.json (a new good needs its rule first, per CLAUDE.md), recipes and workshops, price bands copied from the same tier of today's goods. Rules: the run's branch comes from T235 (run.branch). A good of another branch is never offered, bought, sold, loaded, routed, stored or listed in any UI for this run (hidden means not drawn at all; use Availability); only energy is shared. Planets still show their full market only for goods this branch can trade. Start state: energy plus the branch starter good at the home world from cycle 0 for each branch. Update everything that names goods: chains and pool events in data/chains.json and data/events.json (mapped by market, so a chain for another branch never fires), Storage Link upkeep (energy), win checks (branch market share), bots and rivals (they may still trade their own branch), save and load (old saves keep working: a save without branch loads as today). Story ids for new goods are placeholders from the proposal until T242; add them to story/ source and run python3 tools/build_story.py, English only. Update gdd.md goods and Availability lines (short form, no numbers). Handoff handoffs/gameplay-programmer/2026-11-05-T239.json."
+    },
+    {
+      "task_id": "T240",
+      "title": "Icons for the branch goods",
+      "owner_agent": "ui-programmer",
+      "depends_on": [
+        "T238"
+      ],
+      "status": "queued",
+      "turn_cap": 40,
+      "window": "Owner request 2026-11-05. Not started: main session sets it running.",
+      "brief": "Draw an icon for every new or renamed good in design/proposals/2026-11-05-branch-goods.md in art/icons, same format, size and style as the existing icon_<good>_64.svg files (read several first; one palette per branch so a branch reads at a glance, energy keeps its own icon as the shared good). Follow the icon brief of each good (silhouette readable at 64 px). Hook them wherever goods icons load (ui.gd and the galaxy and solar views) so the new ids resolve; remove icons of dropped goods only if nothing references them. Generated atlases are not edited by hand. Handoff handoffs/ui-programmer/2026-11-05-T240.json with the list of ids and files."
+    },
+    {
+      "task_id": "T241",
+      "title": "Skill screen shows only the chosen branch and the foundation",
+      "owner_agent": "ui-programmer",
+      "depends_on": [
+        "T235"
+      ],
+      "status": "queued",
+      "turn_cap": 30,
+      "window": "Owner request 2026-11-05. Not started: main session sets it running.",
+      "brief": "Owner: the skill screen shows only the foundational skills (market fnd, always for everyone) and the skill tree of the run's branch (run.branch from T235); the three other branch trees are not drawn at all (no greyed nodes, no names, no hints in tooltips or text). Rearrange the layout so the visible tree fills the screen well and the connection lines still avoid nodes. Skills of other branches can not be learned, searched or referenced by any other panel, notice, ending line or tooltip (use the Availability approach; check game/skills.gd learn paths too). Old saves without a branch show all trees as before. Handoff handoffs/ui-programmer/2026-11-05-T241.json."
+    },
+    {
+      "task_id": "T242",
+      "title": "Skills: 15/10 branch identity, emotionally heavy wording",
+      "owner_agent": "story-designer",
+      "depends_on": [
+        "T238"
+      ],
+      "status": "queued",
+      "turn_cap": 50,
+      "window": "Owner request 2026-11-05. Not started: main session sets it running.",
+      "brief": "Owner: the skills must carry their branch far more, 15 out of 10 identity, with psychologically and emotionally heavy wording that gets under the player's skin. Rewrite every skill node of the four branch trees (names, flavour and plain lines in story/skills.md; English only; the plain line keeps its true effect and numbers via placeholders, the flavour and name carry the weight). Each branch gets its own emotional register and moral pressure, written in second person where it fits: Military (duty, blood on the order book, being thanked for what you hurt), Luxury (envy, being seen, hunger for approval, what beauty costs), Minerals (what the ground takes back, patience, debt to the dark, being alone below), Biotech (bodies, trust, the uneasy line between healing and owning life). Use the goods of T238 by name where it sharpens a node. Foundation skills (fnd) get one neutral, human register that all four paths share. No cheap gore, no real brands, no contradiction of mechanics, same max lengths (story/voice.md), glossary kept. If a node's mechanic feels at odds with its branch, do not change it: list the node and a mechanic idea in the handoff for the owner. Edit the source, run python3 tools/build_story.py. Also write the names and one-line world descriptions the build needs for the new goods of T238 (ids from handoffs/gameplay-programmer/2026-11-05-T239.json if it exists, else follow the existing LBL_/TXT_ pattern). Handoff handoffs/story-designer/2026-11-05-T242.json."
     }
   ],
   "done_task_ids": [
