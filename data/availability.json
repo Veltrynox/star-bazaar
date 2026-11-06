@@ -1,780 +1,1062 @@
 {
- "schema_version": 1,
- "data_version": 3,
- "source": "2026-11-04 availability-rules (economy-designer). Derived from data/goods.json (unlocked_by, unlock effects), data/skills.json (unlock/mine_unlock), data/planets.json, data/systems.json, data/markets.json, gdd-skills.md section 4, game/goods.gd (good_open, merge_prices), game/main.gd (dead_unlock_cycle, permit). No price or balance value changed. T179 (gameplay-programmer): added atoms planet_visited, post_built, platform_built; kind 'planet' rules; start_state open_planets / closed_planets (valid while discovery_enabled is 1).",
- "atoms": {
-  "_doc": "Vocabulary of the one evaluator, game/conditions.gd (header lists it too). Trees: string atom, {all:[]}, {any:[]}, {not:cond}. An entry may carry visible_when with the same trees.",
-  "start": "always true",
-  "skill_learned:<node>": "node id in data/skills.json is learned (skill and tech nodes alike; the old name tech_done is gone)",
-  "workshop_built:<id>": "player built that workshop (fabric|smelter|munitions|atelier|culture_lab)",
-  "system_open:<n>": "system n permit bought (system 2: FND_PERMIT learned and permit paid)",
-  "cycle_at_least:balance.<key>": "cycle >= balance value",
-  "stock_held:<good>": "player holds the good in a ship, planet storage or space storage; never hide owned goods",
-  "good_visible:<good>": "that good's own rule is true",
-  "good_traded:<good>": "an open planet prices the good (needs ctx.planets; the event filter uses it)",
-  "event_fired:<event>": "that event or chain step id already fired this run (saved in Events.feed / Chains.picks)",
-  "share_pct:balance.<key>": "chain triggers only: the step market share in percent >= balance value",
-  "first_sale_after_cycle:balance.<key>": "chain triggers only: a non-common-raw good of the step market sold in a cycle after the balance value",
-  "cycles_after_prev_step:balance.<key>": "chain triggers only: n cycles since the previous step of the same chain fired",
-  "planet_visited:<planet>": "the Pathfinder has arrived at that planet (name and type known); the home world from the start; true for every planet while balance.discovery_enabled is 0",
-  "post_built:<planet>": "a trading post stands at that living planet (home world from the start); true for every planet while discovery_enabled is 0",
-  "platform_built:<planet>": "a mining platform stands at that dead planet; true for every planet while discovery_enabled is 0",
-  "all / any / not": "condition tree: {all:[...]}, {any:[...]}, {not: cond}"
- },
- "policy": "A good is visible only if the player could trade or use it right now. Per planet, show only goods that planet prices (base_prices + goods.json planet_prices) AND whose rule is true. Evaluate rules each cycle and after every unlock; show newly true goods immediately. T179 discovery: a planet shows no goods, prices, routes or storage until its trading post (living) or mining platform (dead) stands; see the 'planet' rules. Space Storage needs no post.",
- "rules": [
-  {
-   "kind": "good",
-   "id": "energy",
-   "visible_when": {
-    "any": [
-     "start",
-     "stock_held:energy"
+  "schema_version": 1,
+  "data_version": 3,
+  "source": "2026-11-04 availability-rules (economy-designer). Derived from data/goods.json (unlocked_by, unlock effects), data/skills.json (unlock/mine_unlock), data/planets.json, data/systems.json, data/markets.json, gdd-skills.md section 4, game/goods.gd (good_open, merge_prices), game/main.gd (dead_unlock_cycle, permit). No price or balance value changed. T179 (gameplay-programmer): added atoms planet_visited, post_built, platform_built; kind 'planet' rules; start_state open_planets / closed_planets (valid while discovery_enabled is 1). 2026-11-06 T239: every good and workshop rule gains its owner branch (branch_is); energy stays shared; starters powder and blooms; renames chips-spyware, cells-rounds, armour-arms, cask-attar, gel-medicine; per-branch start_states.",
+  "atoms": {
+    "_doc": "Vocabulary of the one evaluator, game/conditions.gd (header lists it too). Trees: string atom, {all:[]}, {any:[]}, {not:cond}. An entry may carry visible_when with the same trees.",
+    "start": "always true",
+    "skill_learned:<node>": "node id in data/skills.json is learned (skill and tech nodes alike; the old name tech_done is gone)",
+    "workshop_built:<id>": "player built that workshop (fabric|smelter|munitions|atelier|culture_lab)",
+    "system_open:<n>": "system n permit bought (system 2: FND_PERMIT learned and permit paid)",
+    "cycle_at_least:balance.<key>": "cycle >= balance value",
+    "stock_held:<good>": "player holds the good in a ship, planet storage or space storage; never hide owned goods",
+    "good_visible:<good>": "that good's own rule is true",
+    "good_traded:<good>": "an open planet prices the good (needs ctx.planets; the event filter uses it)",
+    "event_fired:<event>": "that event or chain step id already fired this run (saved in Events.feed / Chains.picks)",
+    "share_pct:balance.<key>": "chain triggers only: the step market share in percent >= balance value",
+    "first_sale_after_cycle:balance.<key>": "chain triggers only: a non-common-raw good of the step market sold in a cycle after the balance value",
+    "cycles_after_prev_step:balance.<key>": "chain triggers only: n cycles since the previous step of the same chain fired",
+    "planet_visited:<planet>": "the Pathfinder has arrived at that planet (name and type known); the home world from the start; true for every planet while balance.discovery_enabled is 0",
+    "post_built:<planet>": "a trading post stands at that living planet (home world from the start); true for every planet while discovery_enabled is 0",
+    "platform_built:<planet>": "a mining platform stands at that dead planet; true for every planet while discovery_enabled is 0",
+    "all / any / not": "condition tree: {all:[...]}, {any:[...]}, {not: cond}",
+    "branch_is:<market>": "the run's branch (from the CEO, Main.run_branch()) is that market id (mil|lux|min|bio); also true for an old save with no branch",
+    "branch_chosen": "the run has a branch (false only for an old save without one)"
+  },
+  "policy": "A good is visible only if the player could trade or use it right now. Per planet, show only goods that planet prices (base_prices + goods.json planet_prices) AND whose rule is true. Evaluate rules each cycle and after every unlock; show newly true goods immediately. T179 discovery: a planet shows no goods, prices, routes or storage until its trading post (living) or mining platform (dead) stands; see the 'planet' rules. Space Storage needs no post.",
+  "rules": [
+    {
+      "kind": "good",
+      "id": "energy",
+      "visible_when": {
+        "any": [
+          "start",
+          "stock_held:energy"
+        ]
+      },
+      "note": "Priced and tradeable at Voltara from cycle 1 (buy 10 / sell 8)."
+    },
+    {
+      "kind": "good",
+      "id": "powder",
+      "visible_when": {
+        "all": [
+          "branch_is:mil",
+          "branch_chosen",
+          {
+            "any": [
+              "start",
+              "stock_held:powder"
+            ]
+          }
+        ]
+      },
+      "note": "T239: Military starter: sold at Voltara from cycle 0; made at Flintmoor."
+    },
+    {
+      "kind": "good",
+      "id": "blooms",
+      "visible_when": {
+        "all": [
+          "branch_is:lux",
+          "branch_chosen",
+          {
+            "any": [
+              "start",
+              "stock_held:blooms"
+            ]
+          }
+        ]
+      },
+      "note": "T239: Luxury starter: sold at Voltara from cycle 0; made at Ashgate."
+    },
+    {
+      "kind": "good",
+      "id": "food",
+      "visible_when": {
+        "all": [
+          "branch_is:bio",
+          {
+            "any": [
+              "start",
+              "stock_held:food"
+            ]
+          }
+        ]
+      },
+      "note": "Priced and tradeable at Voltara from cycle 1 (buy 30 / sell 26). JUDGEMENT: shown. Scarce there, but Tillam/Ashgate sell it at 10-12, so it is the first real route."
+    },
+    {
+      "kind": "good",
+      "id": "ore",
+      "visible_when": {
+        "all": [
+          "branch_is:min",
+          {
+            "any": [
+              "skill_learned:FND_PROSPECT",
+              "stock_held:ore",
+              "branch_chosen"
+            ]
+          }
+        ]
+      },
+      "note": "T239: Minerals starter: shown from cycle 0 in a Minerals run (Flintmoor sells it, clusters stay the bulk source); an old save without branch keeps the FND_PROSPECT rule. ore_sell 12 exists at Voltara but ore only comes from asteroid clusters (route from a cluster needs FND_PROSPECT / cluster_routes) and is never bought at a planet. JUDGEMENT: hidden at start, shown once FND_PROSPECT is learned. Also a recipe input of ingot and gems."
+    },
+    {
+      "kind": "good",
+      "id": "dross",
+      "visible_when": {
+        "all": [
+          "branch_is:min",
+          {
+            "any": [
+              {
+                "all": [
+                  "skill_learned:MIN_3",
+                  "cycle_at_least:balance.dead_unlock_cycle"
+                ]
+              },
+              "stock_held:dross"
+            ]
+          }
+        ]
+      },
+      "note": "dross_sell exists at Voltara and Ashgate, but no dross can be had before it is mined at Cinderrest (dead_1): MIN_3 (mine_unlock) and dead worlds open at cycle dead_unlock_cycle (15). Hidden at start."
+    },
+    {
+      "kind": "good",
+      "id": "nullglass",
+      "visible_when": {
+        "all": [
+          "branch_is:min",
+          {
+            "any": [
+              {
+                "all": [
+                  "skill_learned:MIN_5",
+                  "cycle_at_least:balance.dead_unlock_cycle",
+                  "system_open:2"
+                ]
+              },
+              "stock_held:nullglass"
+            ]
+          }
+        ]
+      },
+      "note": "Mined only at Greywake (dead_2, system 2): MIN_5 (needs MIN_3), dead worlds open (cycle 15), and system 2 reachable (FND_PERMIT + permit bought). Sold at s2_p2/s2_p4 only."
+    },
+    {
+      "kind": "good",
+      "id": "plate",
+      "visible_when": {
+        "all": [
+          "branch_is:min",
+          {
+            "any": [
+              {
+                "all": [
+                  "workshop_built:fabric"
+                ]
+              },
+              "stock_held:plate"
+            ]
+          }
+        ]
+      },
+      "note": "Crafted only by the Fabric (unlocked by MIN_1). Voltara has plate_buy 135 / plate_sell 120 but with no plate to make, plate is not tradeable profitably (no other planet prices it). Hidden until the Fabric is built."
+    },
+    {
+      "kind": "good",
+      "id": "spyware",
+      "visible_when": {
+        "all": [
+          "branch_is:mil",
+          {
+            "any": [
+              "system_open:2",
+              "stock_held:spyware"
+            ]
+          }
+        ]
+      },
+      "note": "Chips has no unlock node. Its prices are only at system-2 planets (and, for rivets/musk/spores, one system-1 buy price) so a buy-and-sell trade exists only once system 2 is open. JUDGEMENT: hidden until system 2 is open (permit bought)."
+    },
+    {
+      "kind": "good",
+      "id": "silk",
+      "visible_when": {
+        "all": [
+          "branch_is:lux",
+          {
+            "any": [
+              "system_open:2",
+              "stock_held:silk"
+            ]
+          }
+        ]
+      },
+      "note": "Silk has no unlock node. Its prices are only at system-2 planets (and, for rivets/musk/spores, one system-1 buy price) so a buy-and-sell trade exists only once system 2 is open. JUDGEMENT: hidden until system 2 is open (permit bought)."
+    },
+    {
+      "kind": "good",
+      "id": "rivets",
+      "visible_when": {
+        "all": [
+          "branch_is:mil",
+          {
+            "any": [
+              "system_open:2",
+              "stock_held:rivets"
+            ]
+          }
+        ]
+      },
+      "note": "Rivets is a sale-only trade good (2026-11-05 resource-final, no recipe on purpose). It has no unlock node. Its prices are only at system-2 planets (and, for rivets/musk/spores, one system-1 buy price) so a buy-and-sell trade exists only once system 2 is open. JUDGEMENT: hidden until system 2 is open (permit bought)."
+    },
+    {
+      "kind": "good",
+      "id": "musk",
+      "visible_when": {
+        "all": [
+          "branch_is:lux",
+          {
+            "any": [
+              "system_open:2",
+              "stock_held:musk"
+            ]
+          }
+        ]
+      },
+      "note": "Musk has no unlock node. Its prices are only at system-2 planets (and, for rivets/musk/spores, one system-1 buy price) so a buy-and-sell trade exists only once system 2 is open. JUDGEMENT: hidden until system 2 is open (permit bought)."
+    },
+    {
+      "kind": "good",
+      "id": "spores",
+      "visible_when": {
+        "all": [
+          "branch_is:bio",
+          {
+            "any": [
+              "system_open:2",
+              "stock_held:spores"
+            ]
+          }
+        ]
+      },
+      "note": "Spores has no unlock node. Its prices are only at system-2 planets (and, for rivets/musk/spores, one system-1 buy price) so a buy-and-sell trade exists only once system 2 is open. JUDGEMENT: hidden until system 2 is open (permit bought)."
+    },
+    {
+      "kind": "good",
+      "id": "rounds",
+      "visible_when": {
+        "all": [
+          "branch_is:mil",
+          {
+            "any": [
+              {
+                "all": [
+                  "skill_learned:MIL_1",
+                  "workshop_built:munitions",
+                  "system_open:2"
+                ]
+              },
+              "stock_held:rounds"
+            ]
+          }
+        ]
+      },
+      "note": "Crafted at the munitions. Good unlock skill_learned:MIL_1 AND the workshop built (the good cannot exist before). Inputs energy + chips; chips exist only once system 2 is open, so also system_open:2."
+    },
+    {
+      "kind": "good",
+      "id": "arms",
+      "visible_when": {
+        "all": [
+          "branch_is:mil",
+          {
+            "any": [
+              {
+                "all": [
+                  "skill_learned:MIL_4",
+                  "workshop_built:munitions",
+                  "system_open:2"
+                ]
+              },
+              "stock_held:arms"
+            ]
+          }
+        ]
+      },
+      "note": "Crafted at the munitions. Good unlock skill_learned:MIL_4 AND the workshop built (the good cannot exist before). Inputs 4 cells (2026-11-05 round 2, chips and rivets dropped so two feed ships reach it); cells need chips, which exist only once system 2 is open, so also system_open:2."
+    },
+    {
+      "kind": "good",
+      "id": "attar",
+      "visible_when": {
+        "all": [
+          "branch_is:lux",
+          {
+            "any": [
+              {
+                "all": [
+                  "skill_learned:LUX_1",
+                  "workshop_built:atelier"
+                ]
+              },
+              "stock_held:attar"
+            ]
+          }
+        ]
+      },
+      "note": "Crafted at the atelier. Good unlock skill_learned:LUX_1 (2026-11-05 skill-tree-final: cask is the tier-1 luxury, food only, runs in system 1) AND the workshop built (the good cannot exist before). Voltara/s2_p4 list a price but buying it there alone is not a trade."
+    },
+    {
+      "kind": "good",
+      "id": "gems",
+      "visible_when": {
+        "all": [
+          "branch_is:lux",
+          {
+            "any": [
+              {
+                "all": [
+                  "skill_learned:LUX_4",
+                  "workshop_built:atelier",
+                  "good_visible:silk",
+                  "good_visible:musk"
+                ]
+              },
+              "stock_held:gems"
+            ]
+          }
+        ]
+      },
+      "note": "Crafted at the atelier. Good unlock skill_learned:LUX_4 (2026-11-05 skill-tree-final, tier 3) AND the workshop built (the good cannot exist before). Inputs silk + musk (2026-11-05 round 2, ore dropped so two feed ships reach it): both must be visible (system 2)."
+    },
+    {
+      "kind": "good",
+      "id": "ingot",
+      "visible_when": {
+        "all": [
+          "branch_is:min",
+          {
+            "any": [
+              {
+                "all": [
+                  "skill_learned:MIN_1",
+                  "workshop_built:smelter",
+                  "good_visible:ore"
+                ]
+              },
+              "stock_held:ingot"
+            ]
+          }
+        ]
+      },
+      "note": "Crafted at the smelter. Good unlock skill_learned:MIN_1 AND the workshop built (the good cannot exist before). Input ore: must be visible (FND_PROSPECT)."
+    },
+    {
+      "kind": "good",
+      "id": "alloy",
+      "visible_when": {
+        "all": [
+          "branch_is:min",
+          {
+            "any": [
+              {
+                "all": [
+                  "skill_learned:MIN_6",
+                  "workshop_built:smelter",
+                  "good_visible:plate",
+                  "good_visible:ingot"
+                ]
+              },
+              "stock_held:alloy"
+            ]
+          }
+        ]
+      },
+      "note": "Crafted at the smelter. Good unlock skill_learned:MIN_6 (2026-11-05 skill-tree-final: alloy appears once plate can exist) AND the workshop built (the good cannot exist before). Inputs plate + ingot: both must be visible (plate needs the Fabric and nullglass)."
+    },
+    {
+      "kind": "good",
+      "id": "medicine",
+      "visible_when": {
+        "all": [
+          "branch_is:bio",
+          {
+            "any": [
+              {
+                "all": [
+                  "skill_learned:BIO_1",
+                  "workshop_built:culture_lab",
+                  "system_open:2"
+                ]
+              },
+              "stock_held:medicine"
+            ]
+          }
+        ]
+      },
+      "note": "Crafted at the culture_lab. Good unlock skill_learned:BIO_1 AND the workshop built (the good cannot exist before). Inputs food + spores; spores exist only in system 2."
+    },
+    {
+      "kind": "good",
+      "id": "seed",
+      "visible_when": {
+        "all": [
+          "branch_is:bio",
+          {
+            "any": [
+              {
+                "all": [
+                  "skill_learned:BIO_4",
+                  "workshop_built:culture_lab",
+                  "system_open:2",
+                  "good_visible:medicine"
+                ]
+              },
+              "stock_held:seed"
+            ]
+          }
+        ]
+      },
+      "note": "Crafted at the culture_lab. Good unlock skill_learned:BIO_4 AND the workshop built (the good cannot exist before). Inputs gel + spores; spores exist only in system 2."
+    },
+    {
+      "kind": "workshop",
+      "id": "fabric",
+      "visible_when": {
+        "all": [
+          "branch_is:min",
+          {
+            "all": [
+              "skill_learned:MIN_1",
+              "good_visible:nullglass"
+            ]
+          }
+        ]
+      },
+      "note": "Plate needs 2 dross + 1 nullglass; nullglass is mined only at Greywake (system 2, MIN_5, cycle 15). Fabric cannot run before nullglass is visible, so visible with MIN_1 AND good_visible:nullglass."
+    },
+    {
+      "kind": "workshop",
+      "id": "smelter",
+      "visible_when": {
+        "all": [
+          "branch_is:min",
+          {
+            "all": [
+              "skill_learned:MIN_1",
+              "good_visible:ore"
+            ]
+          }
+        ]
+      },
+      "note": "Ingot needs 2 ore; ore only exists once good_visible:ore (FND_PROSPECT or stock held). Alloy also needs plate. Visible only with MIN_1 AND ore visible."
+    },
+    {
+      "kind": "workshop",
+      "id": "munitions",
+      "visible_when": {
+        "all": [
+          "branch_is:mil",
+          {
+            "all": [
+              "skill_learned:MIL_1",
+              "system_open:2"
+            ]
+          }
+        ]
+      },
+      "note": "2026-11-04 owner: no Munitions Line in system 1. Pulse cells need 2 energy + 1 chips (logic cores), and chips are priced only in system 2, so the line could never run before the permit. Visible only with MIL_1 AND system_open:2."
+    },
+    {
+      "kind": "workshop",
+      "id": "atelier",
+      "visible_when": {
+        "all": [
+          "branch_is:lux",
+          {
+            "all": [
+              "skill_learned:LUX_1"
+            ]
+          }
+        ]
+      },
+      "note": "2026-11-05 skill-tree-final: cask (LUX_1) needs only food, so the atelier is useful in system 1 with LUX_1 alone. Gems (LUX_4) come later."
+    },
+    {
+      "kind": "workshop",
+      "id": "culture_lab",
+      "visible_when": {
+        "all": [
+          "branch_is:bio",
+          {
+            "all": [
+              "skill_learned:BIO_1",
+              "system_open:2"
+            ]
+          }
+        ]
+      },
+      "note": "Gel needs food + spores; spores are priced only in system 2 (s2 planets, one system-1 buy price only). Seed needs gel + spores. Nothing can be made in system 1, so visible only with BIO_1 AND system_open:2."
+    },
+    {
+      "kind": "storage",
+      "id": "planet_storage",
+      "visible_when": "start",
+      "note": "Company storage per good at each planet exists from cycle 1; it lists only visible goods."
+    },
+    {
+      "kind": "storage",
+      "id": "space_storage",
+      "visible_when": "skill_learned:FND_STORAGE",
+      "note": "This is the owner's 'space station': there is no Space Station in the game, only Space Storage (one per system, set up on first use). Hide the storage icon on the map, its view, 'send to space storage' route targets and stock lines until FND_STORAGE is learned. The skill node itself is learnable once cumulative trade income >= earn_storage_income (2000); the one-off 'available' notice at that moment is a separate rule, not the storage."
+    },
+    {
+      "kind": "feature",
+      "id": "space_storage_stock_rows",
+      "visible_when": "skill_learned:FND_STORAGE",
+      "note": "Per-good stock rows inside Space Storage show only goods whose own rule is true."
+    },
+    {
+      "kind": "feature",
+      "id": "storage_link",
+      "visible_when": {
+        "all": [
+          "skill_learned:FND_STORAGE",
+          "system_open:2"
+        ]
+      },
+      "note": "T239: no longer needs rivets visible (build cost is paid in energy outside a Military run)."
+    },
+    {
+      "kind": "feature",
+      "id": "permit_routes",
+      "visible_when": "skill_learned:FND_PERMIT",
+      "note": "System 2 permit purchase UI; system 2 planets and routes there need system_open:2 (permit bought)."
+    },
+    {
+      "kind": "feature",
+      "id": "system_2_planets",
+      "visible_when": "system_open:2",
+      "note": "System 2 planets (s2_*, dead_2) price rows and goods only after the permit is bought. Tutorial galaxy view already waits for a second system."
+    },
+    {
+      "kind": "feature",
+      "id": "cluster_routes",
+      "visible_when": "skill_learned:FND_PROSPECT",
+      "note": "Routes from asteroid clusters and the ore remaining readout."
+    },
+    {
+      "kind": "feature",
+      "id": "dead_worlds_mining",
+      "visible_when": {
+        "all": [
+          "cycle_at_least:balance.dead_unlock_cycle",
+          {
+            "any": [
+              "skill_learned:MIN_3",
+              "skill_learned:MIN_5"
+            ]
+          }
+        ]
+      },
+      "note": "Mining at dead_1 needs MIN_3, at dead_2 MIN_5 (plus system_open:2). Dead worlds are locked and unroutable before cycle 15 (game shows 'Opens at cycle N'); the lock label may show, mining actions may not."
+    },
+    {
+      "kind": "feature",
+      "id": "null_core",
+      "visible_when": {
+        "all": [
+          "workshop_built:fabric",
+          "good_visible:nullglass"
+        ]
+      },
+      "note": "Null Core ship fitting needs plate and nullglass inputs; hidden until the Fabric is built and nullglass is visible."
+    },
+    {
+      "kind": "feature",
+      "id": "crafting_recipes_panel",
+      "visible_when": {
+        "any": [
+          "workshop_built:fabric",
+          "workshop_built:smelter",
+          "workshop_built:munitions",
+          "workshop_built:atelier",
+          "workshop_built:culture_lab"
+        ]
+      },
+      "note": "Any recipe/batch UI only once at least one workshop is built; each recipe row also needs its crafted good's rule true."
+    },
+    {
+      "kind": "feature",
+      "id": "dead_danger_meter",
+      "visible_when": {
+        "not": "start"
+      },
+      "note": "Hidden until danger has a mechanical effect; flip this rule to bring the line back (planet panel dead world 'Danger: n of 5'). The meter itself still runs and is saved. {not: start} is never true."
+    },
+    {
+      "kind": "planet",
+      "id": "planet_1",
+      "visible_when": {
+        "any": [
+          "post_built:planet_1",
+          "platform_built:planet_1"
+        ]
+      },
+      "note": "T179 discovery: closed until the Pathfinder has built a trading post (living world) or mining platform (dead world) here. Voltara has its post at start. Always true with balance.discovery_enabled 0."
+    },
+    {
+      "kind": "planet",
+      "id": "planet_2",
+      "visible_when": {
+        "any": [
+          "post_built:planet_2",
+          "platform_built:planet_2"
+        ]
+      },
+      "note": "T179 discovery: closed until the Pathfinder has built a trading post (living world) or mining platform (dead world) here. Voltara has its post at start. Always true with balance.discovery_enabled 0."
+    },
+    {
+      "kind": "planet",
+      "id": "planet_3",
+      "visible_when": {
+        "any": [
+          "post_built:planet_3",
+          "platform_built:planet_3"
+        ]
+      },
+      "note": "T179 discovery: closed until the Pathfinder has built a trading post (living world) or mining platform (dead world) here. Voltara has its post at start. Always true with balance.discovery_enabled 0."
+    },
+    {
+      "kind": "planet",
+      "id": "dead_1",
+      "visible_when": {
+        "any": [
+          "post_built:dead_1",
+          "platform_built:dead_1"
+        ]
+      },
+      "note": "T179 discovery: closed until the Pathfinder has built a trading post (living world) or mining platform (dead world) here. Voltara has its post at start. Always true with balance.discovery_enabled 0."
+    },
+    {
+      "kind": "planet",
+      "id": "planet_4",
+      "visible_when": {
+        "any": [
+          "post_built:planet_4",
+          "platform_built:planet_4"
+        ]
+      }
+    },
+    {
+      "kind": "planet",
+      "id": "s2_p1",
+      "visible_when": {
+        "any": [
+          "post_built:s2_p1",
+          "platform_built:s2_p1"
+        ]
+      },
+      "note": "T179 discovery: closed until the Pathfinder has built a trading post (living world) or mining platform (dead world) here. Voltara has its post at start. Always true with balance.discovery_enabled 0."
+    },
+    {
+      "kind": "planet",
+      "id": "s2_p2",
+      "visible_when": {
+        "any": [
+          "post_built:s2_p2",
+          "platform_built:s2_p2"
+        ]
+      },
+      "note": "T179 discovery: closed until the Pathfinder has built a trading post (living world) or mining platform (dead world) here. Voltara has its post at start. Always true with balance.discovery_enabled 0."
+    },
+    {
+      "kind": "planet",
+      "id": "s2_p3",
+      "visible_when": {
+        "any": [
+          "post_built:s2_p3",
+          "platform_built:s2_p3"
+        ]
+      },
+      "note": "T179 discovery: closed until the Pathfinder has built a trading post (living world) or mining platform (dead world) here. Voltara has its post at start. Always true with balance.discovery_enabled 0."
+    },
+    {
+      "kind": "planet",
+      "id": "s2_p4",
+      "visible_when": {
+        "any": [
+          "post_built:s2_p4",
+          "platform_built:s2_p4"
+        ]
+      },
+      "note": "T179 discovery: closed until the Pathfinder has built a trading post (living world) or mining platform (dead world) here. Voltara has its post at start. Always true with balance.discovery_enabled 0."
+    },
+    {
+      "kind": "planet",
+      "id": "dead_2",
+      "visible_when": {
+        "any": [
+          "post_built:dead_2",
+          "platform_built:dead_2"
+        ]
+      },
+      "note": "T179 discovery: closed until the Pathfinder has built a trading post (living world) or mining platform (dead world) here. Voltara has its post at start. Always true with balance.discovery_enabled 0."
+    },
+    {
+      "kind": "planet",
+      "id": "s3_p1",
+      "visible_when": {
+        "any": [
+          "post_built:s3_p1",
+          "platform_built:s3_p1"
+        ]
+      },
+      "note": "T226 discovery for a placeholder planet: same rule as the real ones (T179). Always true with balance.discovery_enabled 0."
+    },
+    {
+      "kind": "planet",
+      "id": "s3_p2",
+      "visible_when": {
+        "any": [
+          "post_built:s3_p2",
+          "platform_built:s3_p2"
+        ]
+      },
+      "note": "T226 discovery for a placeholder planet: same rule as the real ones (T179). Always true with balance.discovery_enabled 0."
+    },
+    {
+      "kind": "planet",
+      "id": "s3_p3",
+      "visible_when": {
+        "any": [
+          "post_built:s3_p3",
+          "platform_built:s3_p3"
+        ]
+      },
+      "note": "T226 discovery for a placeholder planet: same rule as the real ones (T179). Always true with balance.discovery_enabled 0."
+    },
+    {
+      "kind": "planet",
+      "id": "s4_p1",
+      "visible_when": {
+        "any": [
+          "post_built:s4_p1",
+          "platform_built:s4_p1"
+        ]
+      },
+      "note": "T226 discovery for a placeholder planet: same rule as the real ones (T179). Always true with balance.discovery_enabled 0."
+    },
+    {
+      "kind": "planet",
+      "id": "s4_p2",
+      "visible_when": {
+        "any": [
+          "post_built:s4_p2",
+          "platform_built:s4_p2"
+        ]
+      },
+      "note": "T226 discovery for a placeholder planet: same rule as the real ones (T179). Always true with balance.discovery_enabled 0."
+    },
+    {
+      "kind": "planet",
+      "id": "s4_p3",
+      "visible_when": {
+        "any": [
+          "post_built:s4_p3",
+          "platform_built:s4_p3"
+        ]
+      },
+      "note": "T226 discovery for a placeholder planet: same rule as the real ones (T179). Always true with balance.discovery_enabled 0."
+    },
+    {
+      "kind": "planet",
+      "id": "s5_p1",
+      "visible_when": {
+        "any": [
+          "post_built:s5_p1",
+          "platform_built:s5_p1"
+        ]
+      },
+      "note": "T226 discovery for a placeholder planet: same rule as the real ones (T179). Always true with balance.discovery_enabled 0."
+    },
+    {
+      "kind": "planet",
+      "id": "s5_p2",
+      "visible_when": {
+        "any": [
+          "post_built:s5_p2",
+          "platform_built:s5_p2"
+        ]
+      },
+      "note": "T226 discovery for a placeholder planet: same rule as the real ones (T179). Always true with balance.discovery_enabled 0."
+    },
+    {
+      "kind": "planet",
+      "id": "s5_p3",
+      "visible_when": {
+        "any": [
+          "post_built:s5_p3",
+          "platform_built:s5_p3"
+        ]
+      },
+      "note": "T226 discovery for a placeholder planet: same rule as the real ones (T179). Always true with balance.discovery_enabled 0."
+    },
+    {
+      "kind": "feature",
+      "id": "placeholder_system_3",
+      "visible_when": "start",
+      "note": "T226 placeholder: systems 3 to 5 are TEMPORARY but live (data/systems_placeholder.json, on:true). \"start\" is always true. Replace with a real unlock (e.g. system_open:2 plus a story condition) when the system is designed."
+    },
+    {
+      "kind": "feature",
+      "id": "placeholder_system_4",
+      "visible_when": "start",
+      "note": "T226 placeholder: systems 3 to 5 are TEMPORARY but live (data/systems_placeholder.json, on:true). \"start\" is always true. Replace with a real unlock (e.g. system_open:2 plus a story condition) when the system is designed."
+    },
+    {
+      "kind": "feature",
+      "id": "placeholder_system_5",
+      "visible_when": "start",
+      "note": "T226 placeholder: systems 3 to 5 are TEMPORARY but live (data/systems_placeholder.json, on:true). \"start\" is always true. Replace with a real unlock (e.g. system_open:2 plus a story condition) when the system is designed."
+    },
+    {
+      "kind": "feature",
+      "id": "placeholder_system_6",
+      "visible_when": {
+        "not": "start"
+      },
+      "note": "T210 placeholder: system 6 (data/systems_placeholder.json, enabled=false) is off. {not: start} is never true; replace with a real unlock (e.g. system_open:6 plus a story/skill condition) when the system is designed."
+    },
+    {
+      "kind": "feature",
+      "id": "placeholder_system_7",
+      "visible_when": {
+        "not": "start"
+      },
+      "note": "T210 placeholder: system 7 (data/systems_placeholder.json, enabled=false) is off. {not: start} is never true; replace with a real unlock (e.g. system_open:7 plus a story/skill condition) when the system is designed."
+    },
+    {
+      "kind": "feature",
+      "id": "placeholder_system_8",
+      "visible_when": {
+        "not": "start"
+      },
+      "note": "T210 placeholder: system 8 (data/systems_placeholder.json, enabled=false) is off. {not: start} is never true; replace with a real unlock (e.g. system_open:8 plus a story/skill condition) when the system is designed."
+    },
+    {
+      "kind": "feature",
+      "id": "placeholder_system_9",
+      "visible_when": {
+        "not": "start"
+      },
+      "note": "T210 placeholder: system 9 (data/systems_placeholder.json, enabled=false) is off. {not: start} is never true; replace with a real unlock (e.g. system_open:9 plus a story/skill condition) when the system is designed."
+    },
+    {
+      "kind": "feature",
+      "id": "placeholder_system_10",
+      "visible_when": {
+        "not": "start"
+      },
+      "note": "T210 placeholder: system 10 (data/systems_placeholder.json, enabled=false) is off. {not: start} is never true; replace with a real unlock (e.g. system_open:10 plus a story/skill condition) when the system is designed."
+    }
+  ],
+  "start_state": {
+    "planet": "planet_1",
+    "planet_name": "Voltara",
+    "visible_goods": [
+      "energy",
+      "food"
+    ],
+    "hidden_goods": [
+      "ore",
+      "dross",
+      "nullglass",
+      "plate",
+      "spyware",
+      "silk",
+      "rivets",
+      "musk",
+      "spores",
+      "rounds",
+      "arms",
+      "attar",
+      "gems",
+      "ingot",
+      "alloy",
+      "medicine",
+      "seed",
+      "powder",
+      "blooms"
+    ],
+    "visible_workshops": [],
+    "visible_storage": [
+      "planet_storage"
+    ],
+    "hidden_features": [
+      "space_storage",
+      "space_storage_stock_rows",
+      "storage_link",
+      "permit_routes",
+      "system_2_planets",
+      "cluster_routes",
+      "dead_worlds_mining",
+      "null_core",
+      "crafting_recipes_panel",
+      "dead_danger_meter"
+    ],
+    "voltara_price_rows_shown": [
+      "energy_buy",
+      "energy_sell",
+      "food_buy",
+      "food_sell"
+    ],
+    "voltara_price_rows_hidden": [
+      "ore_sell",
+      "dross_sell",
+      "plate_buy",
+      "plate_sell"
+    ],
+    "note": "Legacy (old save, no branch) start. Voltara base_prices also hold ore_sell, dross_sell, plate_buy/sell and (via goods.json merge) rivets, cells, armour, cask, gems, ingot, alloy, gel, seed. All hidden at start. permit_routes etc. are skill-gated; the skill nodes themselves stay in the skill tree.",
+    "open_planets": [
+      "planet_1"
+    ],
+    "closed_planets": [
+      "planet_2",
+      "planet_3",
+      "planet_4",
+      "dead_1",
+      "s2_p1",
+      "s2_p2",
+      "s2_p3",
+      "s2_p4",
+      "dead_2"
     ]
-   },
-   "note": "Priced and tradeable at Voltara from cycle 1 (buy 10 / sell 8)."
   },
-  {
-   "kind": "good",
-   "id": "food",
-   "visible_when": {
-    "any": [
-     "start",
-     "stock_held:food"
-    ]
-   },
-   "note": "Priced and tradeable at Voltara from cycle 1 (buy 30 / sell 26). JUDGEMENT: shown. Scarce there, but Tillam/Ashgate sell it at 10-12, so it is the first real route."
-  },
-  {
-   "kind": "good",
-   "id": "ore",
-   "visible_when": {
-    "any": [
-     "skill_learned:FND_PROSPECT",
-     "stock_held:ore"
-    ]
-   },
-   "note": "ore_sell 12 exists at Voltara but ore only comes from asteroid clusters (route from a cluster needs FND_PROSPECT / cluster_routes) and is never bought at a planet. JUDGEMENT: hidden at start, shown once FND_PROSPECT is learned. Also a recipe input of ingot and gems."
-  },
-  {
-   "kind": "good",
-   "id": "dross",
-   "visible_when": {
-    "any": [
-     {
-      "all": [
-       "skill_learned:MIN_3",
-       "cycle_at_least:balance.dead_unlock_cycle"
-      ]
-     },
-     "stock_held:dross"
-    ]
-   },
-   "note": "dross_sell exists at Voltara and Ashgate, but no dross can be had before it is mined at Cinderrest (dead_1): MIN_3 (mine_unlock) and dead worlds open at cycle dead_unlock_cycle (15). Hidden at start."
-  },
-  {
-   "kind": "good",
-   "id": "nullglass",
-   "visible_when": {
-    "any": [
-     {
-      "all": [
-       "skill_learned:MIN_5",
-       "cycle_at_least:balance.dead_unlock_cycle",
-       "system_open:2"
-      ]
-     },
-     "stock_held:nullglass"
-    ]
-   },
-   "note": "Mined only at Greywake (dead_2, system 2): MIN_5 (needs MIN_3), dead worlds open (cycle 15), and system 2 reachable (FND_PERMIT + permit bought). Sold at s2_p2/s2_p4 only."
-  },
-  {
-   "kind": "good",
-   "id": "plate",
-   "visible_when": {
-    "any": [
-     {
-      "all": [
-       "workshop_built:fabric"
-      ]
-     },
-     "stock_held:plate"
-    ]
-   },
-   "note": "Crafted only by the Fabric (unlocked by MIN_1). Voltara has plate_buy 135 / plate_sell 120 but with no plate to make, plate is not tradeable profitably (no other planet prices it). Hidden until the Fabric is built."
-  },
-  {
-   "kind": "good",
-   "id": "chips",
-   "visible_when": {
-    "any": [
-     "system_open:2",
-     "stock_held:chips"
-    ]
-   },
-   "note": "Chips has no unlock node. Its prices are only at system-2 planets (and, for rivets/musk/spores, one system-1 buy price) so a buy-and-sell trade exists only once system 2 is open. JUDGEMENT: hidden until system 2 is open (permit bought)."
-  },
-  {
-   "kind": "good",
-   "id": "silk",
-   "visible_when": {
-    "any": [
-     "system_open:2",
-     "stock_held:silk"
-    ]
-   },
-   "note": "Silk has no unlock node. Its prices are only at system-2 planets (and, for rivets/musk/spores, one system-1 buy price) so a buy-and-sell trade exists only once system 2 is open. JUDGEMENT: hidden until system 2 is open (permit bought)."
-  },
-  {
-   "kind": "good",
-   "id": "rivets",
-   "visible_when": {
-    "any": [
-     "system_open:2",
-     "stock_held:rivets"
-    ]
-   },
-   "note": "Rivets is a sale-only trade good (2026-11-05 resource-final, no recipe on purpose). It has no unlock node. Its prices are only at system-2 planets (and, for rivets/musk/spores, one system-1 buy price) so a buy-and-sell trade exists only once system 2 is open. JUDGEMENT: hidden until system 2 is open (permit bought)."
-  },
-  {
-   "kind": "good",
-   "id": "musk",
-   "visible_when": {
-    "any": [
-     "system_open:2",
-     "stock_held:musk"
-    ]
-   },
-   "note": "Musk has no unlock node. Its prices are only at system-2 planets (and, for rivets/musk/spores, one system-1 buy price) so a buy-and-sell trade exists only once system 2 is open. JUDGEMENT: hidden until system 2 is open (permit bought)."
-  },
-  {
-   "kind": "good",
-   "id": "spores",
-   "visible_when": {
-    "any": [
-     "system_open:2",
-     "stock_held:spores"
-    ]
-   },
-   "note": "Spores has no unlock node. Its prices are only at system-2 planets (and, for rivets/musk/spores, one system-1 buy price) so a buy-and-sell trade exists only once system 2 is open. JUDGEMENT: hidden until system 2 is open (permit bought)."
-  },
-  {
-   "kind": "good",
-   "id": "cells",
-   "visible_when": {
-    "any": [
-     {
-      "all": [
-       "skill_learned:MIL_1",
-       "workshop_built:munitions",
-       "system_open:2"
-      ]
-     },
-     "stock_held:cells"
-    ]
-   },
-   "note": "Crafted at the munitions. Good unlock skill_learned:MIL_1 AND the workshop built (the good cannot exist before). Inputs energy + chips; chips exist only once system 2 is open, so also system_open:2."
-  },
-  {
-   "kind": "good",
-   "id": "armour",
-   "visible_when": {
-    "any": [
-     {
-      "all": [
-       "skill_learned:MIL_4",
-       "workshop_built:munitions",
-       "system_open:2"
-      ]
-     },
-     "stock_held:armour"
-    ]
-   },
-   "note": "Crafted at the munitions. Good unlock skill_learned:MIL_4 AND the workshop built (the good cannot exist before). Inputs 4 cells (2026-11-05 round 2, chips and rivets dropped so two feed ships reach it); cells need chips, which exist only once system 2 is open, so also system_open:2."
-  },
-  {
-   "kind": "good",
-   "id": "cask",
-   "visible_when": {
-    "any": [
-     {
-      "all": [
-       "skill_learned:LUX_1",
-       "workshop_built:atelier"
-      ]
-     },
-     "stock_held:cask"
-    ]
-   },
-   "note": "Crafted at the atelier. Good unlock skill_learned:LUX_1 (2026-11-05 skill-tree-final: cask is the tier-1 luxury, food only, runs in system 1) AND the workshop built (the good cannot exist before). Voltara/s2_p4 list a price but buying it there alone is not a trade."
-  },
-  {
-   "kind": "good",
-   "id": "gems",
-   "visible_when": {
-    "any": [
-     {
-      "all": [
-       "skill_learned:LUX_4",
-       "workshop_built:atelier",
-       "good_visible:silk",
-       "good_visible:musk"
-      ]
-     },
-     "stock_held:gems"
-    ]
-   },
-   "note": "Crafted at the atelier. Good unlock skill_learned:LUX_4 (2026-11-05 skill-tree-final, tier 3) AND the workshop built (the good cannot exist before). Inputs silk + musk (2026-11-05 round 2, ore dropped so two feed ships reach it): both must be visible (system 2)."
-  },
-  {
-   "kind": "good",
-   "id": "ingot",
-   "visible_when": {
-    "any": [
-     {
-      "all": [
-       "skill_learned:MIN_1",
-       "workshop_built:smelter",
-       "good_visible:ore"
-      ]
-     },
-     "stock_held:ingot"
-    ]
-   },
-   "note": "Crafted at the smelter. Good unlock skill_learned:MIN_1 AND the workshop built (the good cannot exist before). Input ore: must be visible (FND_PROSPECT)."
-  },
-  {
-   "kind": "good",
-   "id": "alloy",
-   "visible_when": {
-    "any": [
-     {
-      "all": [
-       "skill_learned:MIN_6",
-       "workshop_built:smelter",
-       "good_visible:plate",
-       "good_visible:ingot"
-      ]
-     },
-     "stock_held:alloy"
-    ]
-   },
-   "note": "Crafted at the smelter. Good unlock skill_learned:MIN_6 (2026-11-05 skill-tree-final: alloy appears once plate can exist) AND the workshop built (the good cannot exist before). Inputs plate + ingot: both must be visible (plate needs the Fabric and nullglass)."
-  },
-  {
-   "kind": "good",
-   "id": "gel",
-   "visible_when": {
-    "any": [
-     {
-      "all": [
-       "skill_learned:BIO_1",
-       "workshop_built:culture_lab",
-       "system_open:2"
-      ]
-     },
-     "stock_held:gel"
-    ]
-   },
-   "note": "Crafted at the culture_lab. Good unlock skill_learned:BIO_1 AND the workshop built (the good cannot exist before). Inputs food + spores; spores exist only in system 2."
-  },
-  {
-   "kind": "good",
-   "id": "seed",
-   "visible_when": {
-    "any": [
-     {
-      "all": [
-       "skill_learned:BIO_4",
-       "workshop_built:culture_lab",
-       "system_open:2",
-       "good_visible:gel"
-      ]
-     },
-     "stock_held:seed"
-    ]
-   },
-   "note": "Crafted at the culture_lab. Good unlock skill_learned:BIO_4 AND the workshop built (the good cannot exist before). Inputs gel + spores; spores exist only in system 2."
-  },
-  {
-   "kind": "workshop",
-   "id": "fabric",
-   "visible_when": {
-    "all": [
-     "skill_learned:MIN_1",
-     "good_visible:nullglass"
-    ]
-   },
-   "note": "Plate needs 2 dross + 1 nullglass; nullglass is mined only at Greywake (system 2, MIN_5, cycle 15). Fabric cannot run before nullglass is visible, so visible with MIN_1 AND good_visible:nullglass."
-  },
-  {
-   "kind": "workshop",
-   "id": "smelter",
-   "visible_when": {
-    "all": [
-     "skill_learned:MIN_1",
-     "good_visible:ore"
-    ]
-   },
-   "note": "Ingot needs 2 ore; ore only exists once good_visible:ore (FND_PROSPECT or stock held). Alloy also needs plate. Visible only with MIN_1 AND ore visible."
-  },
-  {
-   "kind": "workshop",
-   "id": "munitions",
-   "visible_when": {
-    "all": [
-     "skill_learned:MIL_1",
-     "system_open:2"
-    ]
-   },
-   "note": "2026-11-04 owner: no Munitions Line in system 1. Pulse cells need 2 energy + 1 chips (logic cores), and chips are priced only in system 2, so the line could never run before the permit. Visible only with MIL_1 AND system_open:2."
-  },
-  {
-   "kind": "workshop",
-   "id": "atelier",
-   "visible_when": {
-    "all": [
-     "skill_learned:LUX_1"
-    ]
-   },
-   "note": "2026-11-05 skill-tree-final: cask (LUX_1) needs only food, so the atelier is useful in system 1 with LUX_1 alone. Gems (LUX_4) come later."
-  },
-  {
-   "kind": "workshop",
-   "id": "culture_lab",
-   "visible_when": {
-    "all": [
-     "skill_learned:BIO_1",
-     "system_open:2"
-    ]
-   },
-   "note": "Gel needs food + spores; spores are priced only in system 2 (s2 planets, one system-1 buy price only). Seed needs gel + spores. Nothing can be made in system 1, so visible only with BIO_1 AND system_open:2."
-  },
-  {
-   "kind": "storage",
-   "id": "planet_storage",
-   "visible_when": "start",
-   "note": "Company storage per good at each planet exists from cycle 1; it lists only visible goods."
-  },
-  {
-   "kind": "storage",
-   "id": "space_storage",
-   "visible_when": "skill_learned:FND_STORAGE",
-   "note": "This is the owner's 'space station': there is no Space Station in the game, only Space Storage (one per system, set up on first use). Hide the storage icon on the map, its view, 'send to space storage' route targets and stock lines until FND_STORAGE is learned. The skill node itself is learnable once cumulative trade income >= earn_storage_income (2000); the one-off 'available' notice at that moment is a separate rule, not the storage."
-  },
-  {
-   "kind": "feature",
-   "id": "space_storage_stock_rows",
-   "visible_when": "skill_learned:FND_STORAGE",
-   "note": "Per-good stock rows inside Space Storage show only goods whose own rule is true."
-  },
-  {
-   "kind": "feature",
-   "id": "storage_link",
-   "visible_when": {
-    "all": [
-     "skill_learned:FND_STORAGE",
-     "system_open:2",
-     "good_visible:rivets"
-    ]
-   },
-   "note": "T171: Storage Link between two Space Storages (game/storage_link.gd). Build button, link block, order rows and every text about it stay hidden until true; the build dialog lists only visible goods. Costs rivets and energy."
-  },
-  {
-   "kind": "feature",
-   "id": "permit_routes",
-   "visible_when": "skill_learned:FND_PERMIT",
-   "note": "System 2 permit purchase UI; system 2 planets and routes there need system_open:2 (permit bought)."
-  },
-  {
-   "kind": "feature",
-   "id": "system_2_planets",
-   "visible_when": "system_open:2",
-   "note": "System 2 planets (s2_*, dead_2) price rows and goods only after the permit is bought. Tutorial galaxy view already waits for a second system."
-  },
-  {
-   "kind": "feature",
-   "id": "cluster_routes",
-   "visible_when": "skill_learned:FND_PROSPECT",
-   "note": "Routes from asteroid clusters and the ore remaining readout."
-  },
-  {
-   "kind": "feature",
-   "id": "dead_worlds_mining",
-   "visible_when": {
-    "all": [
-     "cycle_at_least:balance.dead_unlock_cycle",
-     {
-      "any": [
-       "skill_learned:MIN_3",
-       "skill_learned:MIN_5"
-      ]
-     }
-    ]
-   },
-   "note": "Mining at dead_1 needs MIN_3, at dead_2 MIN_5 (plus system_open:2). Dead worlds are locked and unroutable before cycle 15 (game shows 'Opens at cycle N'); the lock label may show, mining actions may not."
-  },
-  {
-   "kind": "feature",
-   "id": "null_core",
-   "visible_when": {
-    "all": [
-     "workshop_built:fabric",
-     "good_visible:nullglass"
-    ]
-   },
-   "note": "Null Core ship fitting needs plate and nullglass inputs; hidden until the Fabric is built and nullglass is visible."
-  },
-  {
-   "kind": "feature",
-   "id": "crafting_recipes_panel",
-   "visible_when": {
-    "any": [
-     "workshop_built:fabric",
-     "workshop_built:smelter",
-     "workshop_built:munitions",
-     "workshop_built:atelier",
-     "workshop_built:culture_lab"
-    ]
-   },
-   "note": "Any recipe/batch UI only once at least one workshop is built; each recipe row also needs its crafted good's rule true."
-  },
-  {
-   "kind": "feature",
-   "id": "dead_danger_meter",
-   "visible_when": {
-    "not": "start"
-   },
-   "note": "Hidden until danger has a mechanical effect; flip this rule to bring the line back (planet panel dead world 'Danger: n of 5'). The meter itself still runs and is saved. {not: start} is never true."
-  },
-  {
-   "kind": "planet",
-   "id": "planet_1",
-   "visible_when": {
-    "any": [
-     "post_built:planet_1",
-     "platform_built:planet_1"
-    ]
-   },
-   "note": "T179 discovery: closed until the Pathfinder has built a trading post (living world) or mining platform (dead world) here. Voltara has its post at start. Always true with balance.discovery_enabled 0."
-  },
-  {
-   "kind": "planet",
-   "id": "planet_2",
-   "visible_when": {
-    "any": [
-     "post_built:planet_2",
-     "platform_built:planet_2"
-    ]
-   },
-   "note": "T179 discovery: closed until the Pathfinder has built a trading post (living world) or mining platform (dead world) here. Voltara has its post at start. Always true with balance.discovery_enabled 0."
-  },
-  {
-   "kind": "planet",
-   "id": "planet_3",
-   "visible_when": {
-    "any": [
-     "post_built:planet_3",
-     "platform_built:planet_3"
-    ]
-   },
-   "note": "T179 discovery: closed until the Pathfinder has built a trading post (living world) or mining platform (dead world) here. Voltara has its post at start. Always true with balance.discovery_enabled 0."
-  },
-  {
-   "kind": "planet",
-   "id": "dead_1",
-   "visible_when": {
-    "any": [
-     "post_built:dead_1",
-     "platform_built:dead_1"
-    ]
-   },
-   "note": "T179 discovery: closed until the Pathfinder has built a trading post (living world) or mining platform (dead world) here. Voltara has its post at start. Always true with balance.discovery_enabled 0."
-  },
-  {
-   "kind": "planet",
-   "id": "s2_p1",
-   "visible_when": {
-    "any": [
-     "post_built:s2_p1",
-     "platform_built:s2_p1"
-    ]
-   },
-   "note": "T179 discovery: closed until the Pathfinder has built a trading post (living world) or mining platform (dead world) here. Voltara has its post at start. Always true with balance.discovery_enabled 0."
-  },
-  {
-   "kind": "planet",
-   "id": "s2_p2",
-   "visible_when": {
-    "any": [
-     "post_built:s2_p2",
-     "platform_built:s2_p2"
-    ]
-   },
-   "note": "T179 discovery: closed until the Pathfinder has built a trading post (living world) or mining platform (dead world) here. Voltara has its post at start. Always true with balance.discovery_enabled 0."
-  },
-  {
-   "kind": "planet",
-   "id": "s2_p3",
-   "visible_when": {
-    "any": [
-     "post_built:s2_p3",
-     "platform_built:s2_p3"
-    ]
-   },
-   "note": "T179 discovery: closed until the Pathfinder has built a trading post (living world) or mining platform (dead world) here. Voltara has its post at start. Always true with balance.discovery_enabled 0."
-  },
-  {
-   "kind": "planet",
-   "id": "s2_p4",
-   "visible_when": {
-    "any": [
-     "post_built:s2_p4",
-     "platform_built:s2_p4"
-    ]
-   },
-   "note": "T179 discovery: closed until the Pathfinder has built a trading post (living world) or mining platform (dead world) here. Voltara has its post at start. Always true with balance.discovery_enabled 0."
-  },
-  {
-   "kind": "planet",
-   "id": "dead_2",
-   "visible_when": {
-    "any": [
-     "post_built:dead_2",
-     "platform_built:dead_2"
-    ]
-   },
-   "note": "T179 discovery: closed until the Pathfinder has built a trading post (living world) or mining platform (dead world) here. Voltara has its post at start. Always true with balance.discovery_enabled 0."
-  },
-  {
-   "kind": "planet",
-   "id": "s3_p1",
-   "visible_when": {
-    "any": [
-     "post_built:s3_p1",
-     "platform_built:s3_p1"
-    ]
-   },
-   "note": "T226 discovery for a placeholder planet: same rule as the real ones (T179). Always true with balance.discovery_enabled 0."
-  },
-  {
-   "kind": "planet",
-   "id": "s3_p2",
-   "visible_when": {
-    "any": [
-     "post_built:s3_p2",
-     "platform_built:s3_p2"
-    ]
-   },
-   "note": "T226 discovery for a placeholder planet: same rule as the real ones (T179). Always true with balance.discovery_enabled 0."
-  },
-  {
-   "kind": "planet",
-   "id": "s3_p3",
-   "visible_when": {
-    "any": [
-     "post_built:s3_p3",
-     "platform_built:s3_p3"
-    ]
-   },
-   "note": "T226 discovery for a placeholder planet: same rule as the real ones (T179). Always true with balance.discovery_enabled 0."
-  },
-  {
-   "kind": "planet",
-   "id": "s4_p1",
-   "visible_when": {
-    "any": [
-     "post_built:s4_p1",
-     "platform_built:s4_p1"
-    ]
-   },
-   "note": "T226 discovery for a placeholder planet: same rule as the real ones (T179). Always true with balance.discovery_enabled 0."
-  },
-  {
-   "kind": "planet",
-   "id": "s4_p2",
-   "visible_when": {
-    "any": [
-     "post_built:s4_p2",
-     "platform_built:s4_p2"
-    ]
-   },
-   "note": "T226 discovery for a placeholder planet: same rule as the real ones (T179). Always true with balance.discovery_enabled 0."
-  },
-  {
-   "kind": "planet",
-   "id": "s4_p3",
-   "visible_when": {
-    "any": [
-     "post_built:s4_p3",
-     "platform_built:s4_p3"
-    ]
-   },
-   "note": "T226 discovery for a placeholder planet: same rule as the real ones (T179). Always true with balance.discovery_enabled 0."
-  },
-  {
-   "kind": "planet",
-   "id": "s5_p1",
-   "visible_when": {
-    "any": [
-     "post_built:s5_p1",
-     "platform_built:s5_p1"
-    ]
-   },
-   "note": "T226 discovery for a placeholder planet: same rule as the real ones (T179). Always true with balance.discovery_enabled 0."
-  },
-  {
-   "kind": "planet",
-   "id": "s5_p2",
-   "visible_when": {
-    "any": [
-     "post_built:s5_p2",
-     "platform_built:s5_p2"
-    ]
-   },
-   "note": "T226 discovery for a placeholder planet: same rule as the real ones (T179). Always true with balance.discovery_enabled 0."
-  },
-  {
-   "kind": "planet",
-   "id": "s5_p3",
-   "visible_when": {
-    "any": [
-     "post_built:s5_p3",
-     "platform_built:s5_p3"
-    ]
-   },
-   "note": "T226 discovery for a placeholder planet: same rule as the real ones (T179). Always true with balance.discovery_enabled 0."
-  },
-  {
-   "kind": "feature",
-   "id": "placeholder_system_3",
-   "visible_when": "start",
-   "note": "T226 placeholder: systems 3 to 5 are TEMPORARY but live (data/systems_placeholder.json, on:true). \"start\" is always true. Replace with a real unlock (e.g. system_open:2 plus a story condition) when the system is designed."
-  },
-  {
-   "kind": "feature",
-   "id": "placeholder_system_4",
-   "visible_when": "start",
-   "note": "T226 placeholder: systems 3 to 5 are TEMPORARY but live (data/systems_placeholder.json, on:true). \"start\" is always true. Replace with a real unlock (e.g. system_open:2 plus a story condition) when the system is designed."
-  },
-  {
-   "kind": "feature",
-   "id": "placeholder_system_5",
-   "visible_when": "start",
-   "note": "T226 placeholder: systems 3 to 5 are TEMPORARY but live (data/systems_placeholder.json, on:true). \"start\" is always true. Replace with a real unlock (e.g. system_open:2 plus a story condition) when the system is designed."
-  },
-  {
-   "kind": "feature",
-   "id": "placeholder_system_6",
-   "visible_when": {
-    "not": "start"
-   },
-   "note": "T210 placeholder: system 6 (data/systems_placeholder.json, enabled=false) is off. {not: start} is never true; replace with a real unlock (e.g. system_open:6 plus a story/skill condition) when the system is designed."
-  },
-  {
-   "kind": "feature",
-   "id": "placeholder_system_7",
-   "visible_when": {
-    "not": "start"
-   },
-   "note": "T210 placeholder: system 7 (data/systems_placeholder.json, enabled=false) is off. {not: start} is never true; replace with a real unlock (e.g. system_open:7 plus a story/skill condition) when the system is designed."
-  },
-  {
-   "kind": "feature",
-   "id": "placeholder_system_8",
-   "visible_when": {
-    "not": "start"
-   },
-   "note": "T210 placeholder: system 8 (data/systems_placeholder.json, enabled=false) is off. {not: start} is never true; replace with a real unlock (e.g. system_open:8 plus a story/skill condition) when the system is designed."
-  },
-  {
-   "kind": "feature",
-   "id": "placeholder_system_9",
-   "visible_when": {
-    "not": "start"
-   },
-   "note": "T210 placeholder: system 9 (data/systems_placeholder.json, enabled=false) is off. {not: start} is never true; replace with a real unlock (e.g. system_open:9 plus a story/skill condition) when the system is designed."
-  },
-  {
-   "kind": "feature",
-   "id": "placeholder_system_10",
-   "visible_when": {
-    "not": "start"
-   },
-   "note": "T210 placeholder: system 10 (data/systems_placeholder.json, enabled=false) is off. {not: start} is never true; replace with a real unlock (e.g. system_open:10 plus a story/skill condition) when the system is designed."
+  "no_unlock_path": [
+    "chips, silk, rivets, musk, spores have no unlock node: gated only by reaching system 2 (judgement)."
+  ],
+  "start_states": {
+    "mil": {
+      "visible_goods": [
+        "energy",
+        "powder"
+      ],
+      "hidden_goods": [
+        "blooms",
+        "food",
+        "spyware",
+        "silk",
+        "ore",
+        "dross",
+        "nullglass",
+        "plate",
+        "rivets",
+        "rounds",
+        "arms",
+        "musk",
+        "attar",
+        "gems",
+        "ingot",
+        "alloy",
+        "spores",
+        "medicine",
+        "seed"
+      ],
+      "planet": "planet_1",
+      "note": "Per-branch start (T239): energy plus the branch starter, sold at Voltara from cycle 0."
+    },
+    "lux": {
+      "visible_goods": [
+        "energy",
+        "blooms"
+      ],
+      "hidden_goods": [
+        "powder",
+        "food",
+        "spyware",
+        "silk",
+        "ore",
+        "dross",
+        "nullglass",
+        "plate",
+        "rivets",
+        "rounds",
+        "arms",
+        "musk",
+        "attar",
+        "gems",
+        "ingot",
+        "alloy",
+        "spores",
+        "medicine",
+        "seed"
+      ],
+      "planet": "planet_1",
+      "note": "Per-branch start (T239): energy plus the branch starter, sold at Voltara from cycle 0."
+    },
+    "min": {
+      "visible_goods": [
+        "energy",
+        "ore"
+      ],
+      "hidden_goods": [
+        "powder",
+        "blooms",
+        "food",
+        "spyware",
+        "silk",
+        "dross",
+        "nullglass",
+        "plate",
+        "rivets",
+        "rounds",
+        "arms",
+        "musk",
+        "attar",
+        "gems",
+        "ingot",
+        "alloy",
+        "spores",
+        "medicine",
+        "seed"
+      ],
+      "planet": "planet_1",
+      "note": "Per-branch start (T239): energy plus the branch starter, sold at Voltara from cycle 0."
+    },
+    "bio": {
+      "visible_goods": [
+        "energy",
+        "food"
+      ],
+      "hidden_goods": [
+        "powder",
+        "blooms",
+        "spyware",
+        "silk",
+        "ore",
+        "dross",
+        "nullglass",
+        "plate",
+        "rivets",
+        "rounds",
+        "arms",
+        "musk",
+        "attar",
+        "gems",
+        "ingot",
+        "alloy",
+        "spores",
+        "medicine",
+        "seed"
+      ],
+      "planet": "planet_1",
+      "note": "Per-branch start (T239): energy plus the branch starter, sold at Voltara from cycle 0."
+    }
   }
- ],
- "start_state": {
-  "planet": "planet_1",
-  "planet_name": "Voltara",
-  "visible_goods": [
-   "energy",
-   "food"
-  ],
-  "hidden_goods": [
-   "ore",
-   "dross",
-   "nullglass",
-   "plate",
-   "chips",
-   "silk",
-   "rivets",
-   "musk",
-   "spores",
-   "cells",
-   "armour",
-   "cask",
-   "gems",
-   "ingot",
-   "alloy",
-   "gel",
-   "seed"
-  ],
-  "visible_workshops": [],
-  "visible_storage": [
-   "planet_storage"
-  ],
-  "hidden_features": [
-   "space_storage",
-   "space_storage_stock_rows",
-   "storage_link",
-   "permit_routes",
-   "system_2_planets",
-   "cluster_routes",
-   "dead_worlds_mining",
-   "null_core",
-   "crafting_recipes_panel",
-   "dead_danger_meter"
-  ],
-  "voltara_price_rows_shown": [
-   "energy_buy",
-   "energy_sell",
-   "food_buy",
-   "food_sell"
-  ],
-  "voltara_price_rows_hidden": [
-   "ore_sell",
-   "dross_sell",
-   "plate_buy",
-   "plate_sell"
-  ],
-  "note": "Voltara base_prices also hold ore_sell, dross_sell, plate_buy/sell and (via goods.json merge) rivets, cells, armour, cask, gems, ingot, alloy, gel, seed. All hidden at start. permit_routes etc. are skill-gated; the skill nodes themselves stay in the skill tree.",
-  "open_planets": [
-   "planet_1"
-  ],
-  "closed_planets": [
-   "planet_2",
-   "planet_3",
-   "dead_1",
-   "s2_p1",
-   "s2_p2",
-   "s2_p3",
-   "s2_p4",
-   "dead_2"
-  ]
- },
- "no_unlock_path": [
-  "chips, silk, rivets, musk, spores have no unlock node: gated only by reaching system 2 (judgement)."
- ]
 }

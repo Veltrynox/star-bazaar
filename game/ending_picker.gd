@@ -7,11 +7,11 @@ extends RefCounted
 
 const SECOND_KEY := "ending_second_market_pct"  # balance: the second-best market counts from this share (0.25)
 
-## Tech nodes of a market, in tree order.
+## The three original tech nodes of a market (X_2, X_4, X_6), in tree order; the later techs do not count for the ending.
 static func techs_of(market: String) -> Array:
 	var out := []
 	for id in SkillTree.ids_in(market):
-		if SkillTree.is_tech(id):
+		if SkillTree.is_tech(id) and (id.ends_with("_2") or id.ends_with("_4") or id.ends_with("_6")):
 			out.append(id)
 	return out
 

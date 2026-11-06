@@ -59,6 +59,8 @@ func _i(key: String, d: int) -> int:
 	return int(balance.get(key, d))
 
 func cost() -> Dictionary:
+	if not Goods.branch_ok("rivets"):  # T239: rivets belong to Military; other branches pay that part in energy
+		return {"rivets": 0, "energy": _i("link_build_rivets", 120) + _i("link_build_energy", 200)}
 	return {"rivets": _i("link_build_rivets", 120), "energy": _i("link_build_energy", 200)}
 
 func upkeep() -> int:

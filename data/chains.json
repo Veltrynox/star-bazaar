@@ -2137,9 +2137,9 @@
       "effect": {
         "type": "price_pct",
         "planet": "planet_3",
-        "good": "cells",
+        "good": "rounds",
         "direction": "up",
-        "key": "event_pct_cells",
+        "key": "event_pct_rounds",
         "cycles_key": "event_price_cycles"
       },
       "bot_effect": [
@@ -2162,9 +2162,9 @@
       "effect": {
         "type": "price_pct",
         "planet": "planet_2",
-        "good": "armour",
+        "good": "arms",
         "direction": "up",
-        "key": "event_pct_armour",
+        "key": "event_pct_arms",
         "cycles_key": "event_price_cycles"
       },
       "bot_effect": [
@@ -2237,9 +2237,9 @@
       "effect": {
         "type": "price_pct",
         "planet": "planet_3",
-        "good": "cask",
+        "good": "attar",
         "direction": "down",
-        "key": "event_pct_cask",
+        "key": "event_pct_attar",
         "cycles_key": "event_price_cycles"
       },
       "bot_effect": [
@@ -2418,7 +2418,8 @@
               "good_visible:energy",
               "good_traded:energy"
             ]
-          }
+          },
+          "branch_is:mil"
         ]
       },
       "bot_effect": [],
@@ -2451,7 +2452,8 @@
                 ]
               }
             ]
-          }
+          },
+          "branch_is:lux"
         ]
       },
       "bot_effect": [],
@@ -2474,7 +2476,8 @@
               "good_visible:ore",
               "good_traded:ore"
             ]
-          }
+          },
+          "branch_is:min"
         ]
       },
       "bot_effect": [],
@@ -2497,7 +2500,8 @@
               "good_visible:food",
               "good_traded:food"
             ]
-          }
+          },
+          "branch_is:bio"
         ]
       },
       "bot_effect": [],

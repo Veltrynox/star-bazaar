@@ -93,6 +93,14 @@ static func good_open(id: String) -> bool:
 					_gated[str(e.get("id", ""))] = true
 	return not _gated.has(id) or Skills.unlocked(id)
 
+## Branch rule (T239): a run's branch trades only its own market's goods; energy (market "") is shared. A run without a
+## branch (old save, standalone tools) trades every good. `branch` defaults to the live run's.
+static func branch_ok(id: String, branch: String = "<run>") -> bool:
+	_ensure()
+	var b := Conditions.run_branch() if branch == "<run>" else branch
+	var m := str(entry(id).get("market", ""))
+	return b == "" or m == "" or m == b
+
 ## Recipe input rule: only common raws and goods of the same market.
 static func recipe_ok(id: String) -> bool:
 	var m := str(entry(id).get("market", ""))

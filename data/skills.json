@@ -1,7 +1,7 @@
 {
  "schema_version": 1,
- "data_version": 8,
- "source": "2026-11-05 skill-tree-final (economy-designer, agreed with feature-designer and qa-analyst): see design/proposals/2026-11-05-skill-tree-final.md. Filler percent effects removed; MIL_2 batches, MIL_3 debris immunity, LUX_6 batch yield, BIO_3 growth ceiling.",
+ "data_version": 9,
+ "source": "2026-11-06 skills-fill (economy-designer, owner order): 35 nodes added (3 FND, 8 per market) using existing effect types only; see handoffs/economy-designer/2026-11-06-skills-fill.json. 2026-11-05 skill-tree-final (economy-designer, agreed with feature-designer and qa-analyst): see design/proposals/2026-11-05-skill-tree-final.md. Filler percent effects removed; MIL_2 batches, MIL_3 debris immunity, LUX_6 batch yield, BIO_3 growth ceiling.",
  "vocabulary": {
   "_how": "effect = {type, target, ...}. Numbers are never stored here: key / duration_key / cooldown_key / cap_key name a data/balance.json value. cost 0 = tech node (researched by crafting; goal = balance[tech_goal_key] units made by that market's workshop(s), counted from when prereqs are met). cost is also in balance skill_cost_<id> (balance is authoritative). 'extra' = more effects applied with the same node. prereqs: all listed ids must be learned/researched. target: market id (mil|lux|min|bio), 'all', 'ships', 'planet_storage', 'feature', 'workshop', 'good'.",
   "types": {
@@ -96,7 +96,7 @@
     {
      "type": "unlock",
      "target": "good",
-     "id": "cells"
+     "id": "rounds"
     }
    ]
   },
@@ -152,7 +152,7 @@
    "effect": {
     "type": "unlock",
     "target": "good",
-    "id": "armour"
+    "id": "arms"
    },
    "tech_goal_key": "tech_goal_4"
   },
@@ -241,7 +241,7 @@
     {
      "type": "unlock",
      "target": "good",
-     "id": "cask"
+     "id": "attar"
     }
    ]
   },
@@ -328,10 +328,22 @@
    "market": "lux",
    "kind": "skill",
    "tier": 3,
-   "prereqs": ["LUX_3"],
+   "prereqs": [
+    "LUX_3"
+   ],
    "cost": 2,
-   "effect": {"type": "reveal_prices", "target": "all", "cycles": 2},
-   "extra": [{"type": "event_warning", "target": "all", "cycles": 2}]
+   "effect": {
+    "type": "reveal_prices",
+    "target": "all",
+    "cycles": 2
+   },
+   "extra": [
+    {
+     "type": "event_warning",
+     "target": "all",
+     "cycles": 2
+    }
+   ]
   },
   {
    "id": "LUX_6",
@@ -478,10 +490,29 @@
    "market": "min",
    "kind": "skill",
    "tier": 3,
-   "prereqs": ["MIN_3"],
+   "prereqs": [
+    "MIN_3"
+   ],
    "cost": 2,
-   "effect": {"type": "event_immune", "target": "min", "kinds": ["debris"]},
-   "extra": [{"type": "event_cut_pct", "target": "min", "key": "skill_MIN_5B_event_cut"}, {"type": "route_capacity_pct", "target": "min", "key": "skill_MIN_5B_route_units"}]
+   "effect": {
+    "type": "event_immune",
+    "target": "min",
+    "kinds": [
+     "debris"
+    ]
+   },
+   "extra": [
+    {
+     "type": "event_cut_pct",
+     "target": "min",
+     "key": "skill_MIN_5B_event_cut"
+    },
+    {
+     "type": "route_capacity_pct",
+     "target": "min",
+     "key": "skill_MIN_5B_route_units"
+    }
+   ]
   },
   {
    "id": "MIN_6",
@@ -550,7 +581,7 @@
     {
      "type": "unlock",
      "target": "good",
-     "id": "gel"
+     "id": "medicine"
     }
    ]
   },
@@ -690,6 +721,568 @@
     "target": "bio",
     "pick": "all_bots",
     "key": "skill_BIO_7_strength_cut",
+    "permanent": true
+   }
+  },
+  {
+   "id": "FND_LEDGER",
+   "market": "fnd",
+   "kind": "skill",
+   "tier": 1,
+   "prereqs": [],
+   "cost": 1,
+   "effect": {
+    "type": "order_size_pct",
+    "target": "all",
+    "key": "skill_FND_LEDGER_order"
+   }
+  },
+  {
+   "id": "FND_RIVAL_WATCH",
+   "market": "fnd",
+   "kind": "skill",
+   "tier": 2,
+   "prereqs": [
+    "FND_LEDGER"
+   ],
+   "cost": 1,
+   "effect": {
+    "type": "event_cut_pct",
+    "target": "all",
+    "key": "skill_FND_RIVAL_WATCH_event_cut"
+   }
+  },
+  {
+   "id": "FND_DOCKS",
+   "market": "fnd",
+   "kind": "skill",
+   "tier": 2,
+   "prereqs": [
+    "FND_PROSPECT"
+   ],
+   "cost": 2,
+   "effect": {
+    "type": "upkeep_mult",
+    "target": "ships",
+    "key": "skill_FND_DOCKS_upkeep"
+   }
+  },
+  {
+   "id": "MIL_8",
+   "market": "mil",
+   "kind": "skill",
+   "tier": 2,
+   "prereqs": [
+    "MIL_1"
+   ],
+   "cost": 2,
+   "effect": {
+    "type": "upkeep_mult",
+    "target": "ships",
+    "key": "skill_MIL_8_upkeep"
+   }
+  },
+  {
+   "id": "MIL_9",
+   "market": "mil",
+   "kind": "tech",
+   "tier": 3,
+   "prereqs": [
+    "MIL_2"
+   ],
+   "cost": 0,
+   "effect": {
+    "type": "volume_pct",
+    "target": "mil",
+    "key": "skill_MIL_9_volume"
+   },
+   "tech_goal_key": "tech_goal_4"
+  },
+  {
+   "id": "MIL_10",
+   "market": "mil",
+   "kind": "skill",
+   "tier": 3,
+   "prereqs": [
+    "MIL_3"
+   ],
+   "cost": 2,
+   "effect": {
+    "type": "stock_protect",
+    "target": "mil",
+    "on": "storage_cut"
+   }
+  },
+  {
+   "id": "MIL_11",
+   "market": "mil",
+   "kind": "tech",
+   "tier": 4,
+   "prereqs": [
+    "MIL_4"
+   ],
+   "cost": 0,
+   "effect": {
+    "type": "sale_price_pct",
+    "target": "mil",
+    "key": "skill_MIL_11_price",
+    "share_effect": false
+   },
+   "tech_goal_key": "tech_goal_6"
+  },
+  {
+   "id": "MIL_12",
+   "market": "mil",
+   "kind": "skill",
+   "tier": 4,
+   "prereqs": [
+    "MIL_4"
+   ],
+   "cost": 2,
+   "effect": {
+    "type": "share_window",
+    "target": "mil",
+    "key": "share_window_mil_bonus"
+   }
+  },
+  {
+   "id": "MIL_13",
+   "market": "mil",
+   "kind": "skill",
+   "tier": 4,
+   "prereqs": [
+    "MIL_5"
+   ],
+   "cost": 3,
+   "effect": {
+    "type": "route_capacity_pct",
+    "target": "mil",
+    "key": "skill_MIL_13_route_units"
+   }
+  },
+  {
+   "id": "MIL_14",
+   "market": "mil",
+   "kind": "tech",
+   "tier": 5,
+   "prereqs": [
+    "MIL_6"
+   ],
+   "cost": 0,
+   "effect": {
+    "type": "batch_yield",
+    "target": "mil",
+    "key": "skill_MIL_14_batch_bonus"
+   },
+   "tech_goal_key": "tech_goal_6"
+  },
+  {
+   "id": "MIL_15",
+   "market": "mil",
+   "kind": "skill",
+   "tier": 6,
+   "prereqs": [
+    "MIL_7",
+    "MIL_14"
+   ],
+   "cost": 3,
+   "effect": {
+    "type": "bot_strength_pct",
+    "target": "mil",
+    "key": "skill_MIL_15_strength_cut",
+    "pick": "all_bots",
+    "permanent": true
+   }
+  },
+  {
+   "id": "LUX_8",
+   "market": "lux",
+   "kind": "skill",
+   "tier": 2,
+   "prereqs": [
+    "LUX_1"
+   ],
+   "cost": 2,
+   "effect": {
+    "type": "share_window",
+    "target": "lux",
+    "key": "share_window_lux_bonus"
+   }
+  },
+  {
+   "id": "LUX_9",
+   "market": "lux",
+   "kind": "tech",
+   "tier": 3,
+   "prereqs": [
+    "LUX_2"
+   ],
+   "cost": 0,
+   "effect": {
+    "type": "workshop_batches",
+    "target": "lux",
+    "key": "skill_LUX_9_batches"
+   },
+   "tech_goal_key": "tech_goal_4"
+  },
+  {
+   "id": "LUX_10",
+   "market": "lux",
+   "kind": "skill",
+   "tier": 3,
+   "prereqs": [
+    "LUX_3"
+   ],
+   "cost": 2,
+   "effect": {
+    "type": "event_cut_pct",
+    "target": "lux",
+    "key": "skill_LUX_10_event_cut"
+   }
+  },
+  {
+   "id": "LUX_11",
+   "market": "lux",
+   "kind": "tech",
+   "tier": 4,
+   "prereqs": [
+    "LUX_4"
+   ],
+   "cost": 0,
+   "effect": {
+    "type": "sale_price_pct",
+    "target": "lux",
+    "key": "skill_LUX_11_price",
+    "share_effect": false
+   },
+   "tech_goal_key": "tech_goal_6"
+  },
+  {
+   "id": "LUX_12",
+   "market": "lux",
+   "kind": "skill",
+   "tier": 4,
+   "prereqs": [
+    "LUX_5B"
+   ],
+   "cost": 2,
+   "effect": {
+    "type": "route_capacity_pct",
+    "target": "lux",
+    "key": "skill_LUX_12_route_units"
+   }
+  },
+  {
+   "id": "LUX_13",
+   "market": "lux",
+   "kind": "skill",
+   "tier": 4,
+   "prereqs": [
+    "LUX_5"
+   ],
+   "cost": 3,
+   "effect": {
+    "type": "volume_pct",
+    "target": "lux",
+    "key": "skill_LUX_13_volume"
+   },
+   "extra": [
+    {
+     "type": "sale_price_pct",
+     "target": "lux",
+     "key": "skill_LUX_13_price",
+     "share_effect": false
+    }
+   ]
+  },
+  {
+   "id": "LUX_14",
+   "market": "lux",
+   "kind": "tech",
+   "tier": 5,
+   "prereqs": [
+    "LUX_6"
+   ],
+   "cost": 0,
+   "effect": {
+    "type": "volume_pct",
+    "target": "lux",
+    "key": "skill_LUX_14_volume"
+   },
+   "tech_goal_key": "tech_goal_6"
+  },
+  {
+   "id": "LUX_15",
+   "market": "lux",
+   "kind": "skill",
+   "tier": 6,
+   "prereqs": [
+    "LUX_7",
+    "LUX_14"
+   ],
+   "cost": 3,
+   "effect": {
+    "type": "bot_growth_mult",
+    "target": "lux",
+    "key": "skill_LUX_15_growth_mult",
+    "pick": "all_bots",
+    "permanent": true
+   }
+  },
+  {
+   "id": "MIN_8",
+   "market": "min",
+   "kind": "skill",
+   "tier": 2,
+   "prereqs": [
+    "MIN_1"
+   ],
+   "cost": 2,
+   "effect": {
+    "type": "storage_cap_pct",
+    "target": "planet_storage",
+    "key": "skill_MIN_8_capacity"
+   }
+  },
+  {
+   "id": "MIN_9",
+   "market": "min",
+   "kind": "tech",
+   "tier": 3,
+   "prereqs": [
+    "MIN_2"
+   ],
+   "cost": 0,
+   "effect": {
+    "type": "volume_pct",
+    "target": "min",
+    "key": "skill_MIN_9_volume"
+   },
+   "tech_goal_key": "tech_goal_4"
+  },
+  {
+   "id": "MIN_10",
+   "market": "min",
+   "kind": "skill",
+   "tier": 3,
+   "prereqs": [
+    "MIN_3"
+   ],
+   "cost": 2,
+   "effect": {
+    "type": "event_cut_pct",
+    "target": "min",
+    "key": "skill_MIN_10_event_cut"
+   }
+  },
+  {
+   "id": "MIN_11",
+   "market": "min",
+   "kind": "tech",
+   "tier": 4,
+   "prereqs": [
+    "MIN_4"
+   ],
+   "cost": 0,
+   "effect": {
+    "type": "sale_price_pct",
+    "target": "min",
+    "key": "skill_MIN_11_price",
+    "share_effect": false
+   },
+   "tech_goal_key": "tech_goal_6"
+  },
+  {
+   "id": "MIN_12",
+   "market": "min",
+   "kind": "skill",
+   "tier": 4,
+   "prereqs": [
+    "MIN_5B"
+   ],
+   "cost": 2,
+   "effect": {
+    "type": "event_bonus_pct",
+    "target": "min",
+    "key": "skill_MIN_12_event_bonus"
+   }
+  },
+  {
+   "id": "MIN_13",
+   "market": "min",
+   "kind": "skill",
+   "tier": 4,
+   "prereqs": [
+    "MIN_5"
+   ],
+   "cost": 3,
+   "effect": {
+    "type": "route_capacity_pct",
+    "target": "min",
+    "key": "skill_MIN_13_route_units"
+   }
+  },
+  {
+   "id": "MIN_14",
+   "market": "min",
+   "kind": "tech",
+   "tier": 5,
+   "prereqs": [
+    "MIN_6"
+   ],
+   "cost": 0,
+   "effect": {
+    "type": "volume_pct",
+    "target": "min",
+    "key": "skill_MIN_14_volume"
+   },
+   "tech_goal_key": "tech_goal_6"
+  },
+  {
+   "id": "MIN_15",
+   "market": "min",
+   "kind": "skill",
+   "tier": 6,
+   "prereqs": [
+    "MIN_7",
+    "MIN_14"
+   ],
+   "cost": 3,
+   "effect": {
+    "type": "cluster_yield_pct",
+    "target": "min",
+    "key": "skill_MIN_15_yield"
+   }
+  },
+  {
+   "id": "BIO_8",
+   "market": "bio",
+   "kind": "skill",
+   "tier": 2,
+   "prereqs": [
+    "BIO_1"
+   ],
+   "cost": 2,
+   "effect": {
+    "type": "route_capacity_pct",
+    "target": "bio",
+    "key": "skill_BIO_8_route_units"
+   }
+  },
+  {
+   "id": "BIO_9",
+   "market": "bio",
+   "kind": "tech",
+   "tier": 3,
+   "prereqs": [
+    "BIO_2"
+   ],
+   "cost": 0,
+   "effect": {
+    "type": "workshop_batches",
+    "target": "bio",
+    "key": "skill_BIO_9_batches"
+   },
+   "tech_goal_key": "tech_goal_4"
+  },
+  {
+   "id": "BIO_10",
+   "market": "bio",
+   "kind": "skill",
+   "tier": 3,
+   "prereqs": [
+    "BIO_3"
+   ],
+   "cost": 2,
+   "effect": {
+    "type": "event_immune",
+    "target": "bio",
+    "kinds": [
+     "debris"
+    ]
+   }
+  },
+  {
+   "id": "BIO_11",
+   "market": "bio",
+   "kind": "tech",
+   "tier": 4,
+   "prereqs": [
+    "BIO_4"
+   ],
+   "cost": 0,
+   "effect": {
+    "type": "batch_yield",
+    "target": "bio",
+    "key": "skill_BIO_11_batch_bonus"
+   },
+   "tech_goal_key": "tech_goal_6"
+  },
+  {
+   "id": "BIO_12",
+   "market": "bio",
+   "kind": "skill",
+   "tier": 4,
+   "prereqs": [
+    "BIO_5"
+   ],
+   "cost": 3,
+   "effect": {
+    "type": "stock_growth_pct",
+    "target": "bio",
+    "key": "skill_BIO_12_stock_growth",
+    "cap_key": "skill_BIO_12_stock_cap",
+    "where": "planet_storage"
+   }
+  },
+  {
+   "id": "BIO_13",
+   "market": "bio",
+   "kind": "skill",
+   "tier": 4,
+   "prereqs": [
+    "BIO_5"
+   ],
+   "cost": 2,
+   "effect": {
+    "type": "volume_pct",
+    "target": "bio",
+    "key": "skill_BIO_13_volume",
+    "condition": "sale_at_price_up_planet"
+   }
+  },
+  {
+   "id": "BIO_14",
+   "market": "bio",
+   "kind": "tech",
+   "tier": 5,
+   "prereqs": [
+    "BIO_6"
+   ],
+   "cost": 0,
+   "effect": {
+    "type": "sale_price_pct",
+    "target": "bio",
+    "key": "skill_BIO_14_price",
+    "share_effect": false
+   },
+   "tech_goal_key": "tech_goal_6"
+  },
+  {
+   "id": "BIO_15",
+   "market": "bio",
+   "kind": "skill",
+   "tier": 6,
+   "prereqs": [
+    "BIO_7",
+    "BIO_14"
+   ],
+   "cost": 3,
+   "effect": {
+    "type": "bot_growth_mult",
+    "target": "bio",
+    "key": "skill_BIO_15_growth_mult",
+    "pick": "all_bots",
     "permanent": true
    }
   }

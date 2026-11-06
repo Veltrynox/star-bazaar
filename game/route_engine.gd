@@ -49,6 +49,10 @@ func setup(bal: Dictionary, trade_logic: RefCounted, commodity_list: Array, stor
 	commodities = commodity_list
 	storage = storage_ref
 
+## A route may carry c: the run knows it and the run's branch trades it (energy is shared; T239).
+func _can_trade(c: String) -> bool:
+	return commodities.has(c) and Goods.branch_ok(c)
+
 func reset() -> void:
 	routes = []
 	local = {}
@@ -316,7 +320,7 @@ func local_state(planet: int, c: String, role: String) -> String:
 
 ## Checks a local order toggle. {ok, reason}.
 func check_local(planet: int, c: String, role: String) -> Dictionary:
-	if planet < 0 or planet >= trade.planets.size() or not commodities.has(c) or not ["buy", "sell"].has(role):
+	if planet < 0 or planet >= trade.planets.size() or not _can_trade(c) or not ["buy", "sell"].has(role):
 		return {"ok": false, "reason": "Unknown order."}
 	if trade.price(planet, c + "_" + role) < 0:
 		return {"ok": false, "reason": "%s is not traded here." % c.capitalize()}
@@ -434,7 +438,7 @@ func check_connection(src: int, dst: int, c: String, new_route: bool = true) -> 
 		return _check_station(src, -dst, c)
 	if src == dst or src < 0 or dst < 0 or src >= trade.planets.size() or dst >= trade.planets.size():
 		return {"ok": false, "reason": "Pick two different planets."}
-	if not commodities.has(c):
+	if not _can_trade(c):
 		return {"ok": false, "reason": "Unknown commodity."}
 	if not planet_open(src) or not planet_open(dst):
 		return {"ok": false, "reason": "A planet on this route is closed."}
@@ -456,7 +460,7 @@ func check_cluster(node: int, dst: int, c: String, new_route: bool = true) -> Di
 		return {"ok": false, "reason": "No such cluster."}
 	if new_route and not Skills.unlocked("cluster_routes"):  # a saved route loads before the skills do and stays
 		return {"ok": false, "reason": StoryText.get_or("NOT_MINING_NEEDS_SKILL", "Mining needs the Prospecting skill.")}
-	if c != clusters.good_of(i) or not commodities.has(c):
+	if c != clusters.good_of(i) or not _can_trade(c):
 		return {"ok": false, "reason": StoryText.get_or("NOT_CLUSTER_ONLY_ORE", "This cluster gives ore only.")}
 	if new_route and clusters.left(i) <= 0:
 		return {"ok": false, "reason": StoryText.get_or("NOT_CLUSTER_EMPTY", "This cluster is empty.")}
@@ -502,7 +506,7 @@ func cluster_available(node: int) -> int:
 func _check_station(src: int, sid: int, c: String) -> Dictionary:
 	if src < 0 or src >= trade.planets.size():
 		return {"ok": false, "reason": "Pick a planet to send from."}
-	if not commodities.has(c):
+	if not _can_trade(c):
 		return {"ok": false, "reason": "Unknown commodity."}
 	if not planet_open(src):
 		return {"ok": false, "reason": "A planet on this route is closed."}

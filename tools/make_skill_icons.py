@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Writes art_source/ui_glyph_skill_atlas.svg: one 64x64 cell per skill, 8 columns x 4 rows, in ORDER below.
+"""Writes art_source/ui_glyph_skill_atlas.svg: one 64x64 cell per skill, 8 columns x 9 rows, in ORDER below.
 White 5 px round strokes (2 px at 32 px), no fill, transparent background; the button tints them.
 Then rasterise to art/ui/ui_glyph_skill_atlas.png with
   tools/godot/Godot.app/Contents/MacOS/Godot --headless --path . --script tools/make_skill_atlas.gd
@@ -57,11 +57,22 @@ G = {
  "LUX_5B": [path("M5 32 Q32 8 59 32 Q32 56 5 32 Z"), circle(32, 32, 8), pline(46, 8, 58, 8), pline(52, 2, 52, 14)],  # eye + far sight
  "MIN_5B": [path("M32 7 L53 15 V32 C53 44 43 53 32 58 C21 53 11 44 11 32 V15 Z"), poly((32, 20), (42, 34), (32, 48), (22, 34))],  # shield + ore
 }
+
+# Skills fill (2026-11-06): the 35 added nodes reuse the glyph of the older node with the same effect (no new art yet).
+REUSE = {
+ "FND_LEDGER": "LUX_5", "FND_RIVAL_WATCH": "MIL_4", "FND_DOCKS": "MIL_1",
+ "MIL_8": "MIL_1", "MIL_9": "MIL_7", "MIL_10": "MIL_4", "MIL_11": "MIL_6", "MIL_12": "MIL_2", "MIL_13": "MIL_3", "MIL_14": "MIL_2", "MIL_15": "MIL_5",
+ "LUX_8": "LUX_7", "LUX_9": "LUX_4", "LUX_10": "LUX_3", "LUX_11": "LUX_6", "LUX_12": "LUX_5", "LUX_13": "LUX_2", "LUX_14": "LUX_2", "LUX_15": "LUX_7",
+ "MIN_8": "MIN_6", "MIN_9": "MIN_1", "MIN_10": "MIN_5B", "MIN_11": "MIN_4", "MIN_12": "MIN_2", "MIN_13": "MIN_7", "MIN_14": "MIN_1", "MIN_15": "MIN_5",
+ "BIO_8": "BIO_1", "BIO_9": "BIO_2", "BIO_10": "BIO_7", "BIO_11": "BIO_3", "BIO_12": "BIO_3", "BIO_13": "BIO_5", "BIO_14": "BIO_4", "BIO_15": "BIO_6",
+}
+for _k, _b in REUSE.items():
+    G[_k] = G[_b]
 ORDER = list(G.keys())
 COLS, CELL = 8, 64
 
 def main():
-    assert len(ORDER) == 36
+    assert len(ORDER) == 68
     rows = (len(ORDER) + COLS - 1) // COLS
     out = [f'<svg xmlns="http://www.w3.org/2000/svg" width="{COLS*CELL}" height="{rows*CELL}" viewBox="0 0 {COLS*CELL} {rows*CELL}">']
     for i, k in enumerate(ORDER):

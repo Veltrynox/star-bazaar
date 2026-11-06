@@ -1,7 +1,7 @@
 {
  "schema_version": 1,
  "data_version": 3,
- "source": "2026-11-05 resource-final: rivets is the one argued sale-only trade good (a recipe use would make a third Munitions raw and bots could no longer feed armour; design/proposals/2026-11-05-resource-final.md). 2026-11-05 resource-audit: armour later went back to 4 cells in skill round 2, gems also take 1 musk (design/proposals/2026-11-05-resource-audit.md). 2026-11-03 skill-data (economy-designer): 19 goods (8 old tagged as data/markets.json, 11 new) per four-markets.md 1.1-1.3 and four-markets-economy.md section 1. planet_prices are NOT yet in planets.json/systems.json: the programmer wires them in (key style <good>_buy = player pays, <good>_sell = player receives, same as planets.json). Sell price of crafted goods = base price (share base value). Crafted goods placement (Voltara and s2_p4, buy = sell x 1.12) is mine; economy doc gives no planets. size_slots: S 1, M 2, L 3 (balance size_slots_M/L). batch_out also in balance <good>_batch_out.",
+ "source": "2026-11-05 resource-final: rivets is the one argued sale-only trade good (a recipe use would make a third Munitions raw and bots could no longer feed armour; design/proposals/2026-11-05-resource-final.md). 2026-11-05 resource-audit: armour later went back to 4 cells in skill round 2, gems also take 1 musk (design/proposals/2026-11-05-resource-audit.md). 2026-11-03 skill-data (economy-designer): 19 goods (8 old tagged as data/markets.json, 11 new) per four-markets.md 1.1-1.3 and four-markets-economy.md section 1. planet_prices are NOT yet in planets.json/systems.json: the programmer wires them in (key style <good>_buy = player pays, <good>_sell = player receives, same as planets.json). Sell price of crafted goods = base price (share base value). Crafted goods placement (Voltara and s2_p4, buy = sell x 1.12) is mine; economy doc gives no planets. size_slots: S 1, M 2, L 3 (balance size_slots_M/L). batch_out also in balance <good>_batch_out. 2026-11-06 T239 (design/proposals/2026-11-05-branch-goods.md): every good has one owner market, energy is shared (market common); renames chips-spyware, cells-rounds, armour-arms, cask-attar, gel-medicine; new starters powder and blooms; ore also bought at Flintmoor (planet_4); second crafted buyers moved per proposal section 1.",
  "workshops": [
   {
    "id": "fabric",
@@ -39,7 +39,7 @@
  "goods": [
   {
    "id": "energy",
-   "market": "mil",
+   "market": "",
    "tier": 1,
    "kind": "trade",
    "size": "S",
@@ -49,8 +49,60 @@
    "sell_price": null,
    "buy_price": null,
    "planet_prices": {},
-   "note": "common raw; prices stay in planets.json/systems.json",
+   "note": "the one shared good: belongs to no market, adds no share; prices stay in planets.json/systems.json",
    "existing": true
+  },
+  {
+   "id": "powder",
+   "market": "mil",
+   "tier": 1,
+   "kind": "trade",
+   "size": "S",
+   "recipe": null,
+   "workshop": null,
+   "batch_out": 0,
+   "sell_price": null,
+   "buy_price": null,
+   "planet_prices": {
+    "planet_4": {
+     "powder_buy": 12,
+     "powder_sell": 10
+    },
+    "planet_1": {
+     "powder_buy": 30,
+     "powder_sell": 26
+    },
+    "s2_p3": {
+     "powder_sell": 33
+    }
+   },
+   "note": "T239 Military starter; price band copied from food (tier 1)"
+  },
+  {
+   "id": "blooms",
+   "market": "lux",
+   "tier": 1,
+   "kind": "trade",
+   "size": "S",
+   "recipe": null,
+   "workshop": null,
+   "batch_out": 0,
+   "sell_price": null,
+   "buy_price": null,
+   "planet_prices": {
+    "planet_3": {
+     "blooms_buy": 11,
+     "blooms_sell": 9
+    },
+    "planet_1": {
+     "blooms_buy": 30,
+     "blooms_sell": 26
+    },
+    "s2_p3": {
+     "blooms_sell": 33
+    }
+   },
+   "note": "T239 Luxury starter; price band copied from food (tier 1)"
   },
   {
    "id": "food",
@@ -64,11 +116,11 @@
    "sell_price": null,
    "buy_price": null,
    "planet_prices": {},
-   "note": "common raw",
-   "existing": true
+   "existing": true,
+   "note": "Biotech starter (T239)"
   },
   {
-   "id": "chips",
+   "id": "spyware",
    "market": "mil",
    "tier": 2,
    "kind": "trade",
@@ -79,7 +131,8 @@
    "sell_price": null,
    "buy_price": null,
    "planet_prices": {},
-   "existing": true
+   "existing": true,
+   "note": "T239: was chips; sale-only Military trade good, no recipe use"
   },
   {
    "id": "silk",
@@ -106,9 +159,14 @@
    "batch_out": 0,
    "sell_price": null,
    "buy_price": null,
-   "planet_prices": {},
-   "note": "common raw",
-   "existing": true
+   "planet_prices": {
+    "planet_4": {
+     "ore_buy": 5,
+     "ore_sell": 4
+    }
+   },
+   "existing": true,
+   "note": "Minerals starter: mined at clusters, also bought at Flintmoor (T239)"
   },
   {
    "id": "dross",
@@ -156,6 +214,10 @@
     "planet_1": {
      "plate_buy": 135,
      "plate_sell": 120
+    },
+    "s2_p4": {
+     "plate_buy": 135,
+     "plate_sell": 120
     }
    },
    "note": "already built; Fabric stays the plate station",
@@ -187,14 +249,14 @@
    "note": "sale-only trade good by design: bought at Voltara, sold in system 2 (resource-final 2026-11-05); no recipe, a third Munitions raw would break two-ship feeding"
   },
   {
-   "id": "cells",
+   "id": "rounds",
    "market": "mil",
    "tier": 3,
    "kind": "crafted",
    "size": "M",
    "recipe": {
     "energy": 2,
-    "chips": 1
+    "powder": 1
    },
    "workshop": "munitions",
    "batch_out": 3,
@@ -202,24 +264,24 @@
    "buy_price": 78,
    "planet_prices": {
     "planet_1": {
-     "cells_buy": 78,
-     "cells_sell": 70
+     "rounds_buy": 78,
+     "rounds_sell": 70
     },
-    "s2_p4": {
-     "cells_buy": 78,
-     "cells_sell": 70
+    "s2_p2": {
+     "rounds_buy": 78,
+     "rounds_sell": 70
     }
    },
    "cash_cost_per_unit": 12
   },
   {
-   "id": "armour",
+   "id": "arms",
    "market": "mil",
    "tier": 4,
    "kind": "crafted",
    "size": "L",
    "recipe": {
-    "cells": 4
+    "rounds": 4
    },
    "workshop": "munitions",
    "batch_out": 3,
@@ -227,12 +289,12 @@
    "buy_price": 202,
    "planet_prices": {
     "planet_1": {
-     "armour_buy": 202,
-     "armour_sell": 180
+     "arms_buy": 202,
+     "arms_sell": 180
     },
     "s2_p4": {
-     "armour_buy": 202,
-     "armour_sell": 180
+     "arms_buy": 202,
+     "arms_sell": 180
     }
    },
    "cash_cost_per_unit": 25
@@ -263,13 +325,13 @@
    "note": "made Tillam, wanted system 2"
   },
   {
-   "id": "cask",
+   "id": "attar",
    "market": "lux",
    "tier": 3,
    "kind": "crafted",
    "size": "M",
    "recipe": {
-    "food": 3
+    "blooms": 3
    },
    "workshop": "atelier",
    "batch_out": 3,
@@ -277,15 +339,16 @@
    "buy_price": 81,
    "planet_prices": {
     "planet_1": {
-     "cask_buy": 81,
-     "cask_sell": 72
+     "attar_buy": 81,
+     "attar_sell": 72
     },
     "s2_p4": {
-     "cask_buy": 81,
-     "cask_sell": 72
+     "attar_buy": 81,
+     "attar_sell": 72
     }
    },
-   "cash_cost_per_unit": 12
+   "cash_cost_per_unit": 12,
+   "note": "T239: was cask; input blooms (food belongs to Biotech)"
   },
   {
    "id": "gems",
@@ -306,7 +369,7 @@
      "gems_buy": 146,
      "gems_sell": 130
     },
-    "s2_p4": {
+    "s2_p1": {
      "gems_buy": 146,
      "gems_sell": 130
     }
@@ -331,7 +394,7 @@
      "ingot_buy": 40,
      "ingot_sell": 36
     },
-    "s2_p4": {
+    "s2_p2": {
      "ingot_buy": 40,
      "ingot_sell": 36
     }
@@ -394,7 +457,7 @@
    "note": "made Tillam and Ashgate, wanted system 2"
   },
   {
-   "id": "gel",
+   "id": "medicine",
    "market": "bio",
    "tier": 3,
    "kind": "crafted",
@@ -409,12 +472,12 @@
    "buy_price": 83,
    "planet_prices": {
     "planet_1": {
-     "gel_buy": 83,
-     "gel_sell": 74
+     "medicine_buy": 83,
+     "medicine_sell": 74
     },
     "s2_p4": {
-     "gel_buy": 83,
-     "gel_sell": 74
+     "medicine_buy": 83,
+     "medicine_sell": 74
     }
    },
    "cash_cost_per_unit": 13
@@ -426,7 +489,7 @@
    "kind": "crafted",
    "size": "L",
    "recipe": {
-    "gel": 2,
+    "medicine": 2,
     "spores": 1
    },
    "workshop": "culture_lab",
@@ -438,7 +501,7 @@
      "seed_buy": 213,
      "seed_sell": 190
     },
-    "s2_p4": {
+    "s2_p1": {
      "seed_buy": 213,
      "seed_sell": 190
     }

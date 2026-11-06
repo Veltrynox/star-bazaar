@@ -1,18 +1,18 @@
 {
   "schema_version": 1,
   "data_version": 1,
-  "source": "2026-11-03 market-foundation (gameplay-programmer): four markets, the 8 existing goods tagged per design/proposals/2026-11-03-four-markets.md section 1.1. base_value = mean of <good>_sell over every planet that defines it in data/planets.json and data/systems.json (rounded), computed once here; share volume = units sold x base_value. common_raws: energy, food, ore do not count toward the active-market rule or cross-load (summary R5). 2026-11-03 goods-workshops: the 11 new goods tagged and valued the same way (mean of <good>_sell over data/goods.json planet_prices; crafted goods have one price).",
-  "common_raws": ["energy", "food", "ore"],
+  "source": "2026-11-03 market-foundation (gameplay-programmer): four markets, the 8 existing goods tagged per design/proposals/2026-11-03-four-markets.md section 1.1. base_value = mean of <good>_sell over every planet that defines it in data/planets.json and data/systems.json (rounded), computed once here; share volume = units sold x base_value. common_raws: energy, food, ore do not count toward the active-market rule or cross-load (summary R5). 2026-11-03 goods-workshops: the 11 new goods tagged and valued the same way (mean of <good>_sell over data/goods.json planet_prices; crafted goods have one price). 2026-11-06 T239: energy leaves Military and is the only common raw (adds no share); food and ore count for their branches; renames and the starters powder and blooms (base_value = rounded mean of <good>_sell as before; ore 13 to 11 because Flintmoor now buys ore at a low price).",
+  "common_raws": ["energy"],
   "markets": [
     {
       "id": "mil",
       "name": "Military",
-      "goods": ["energy", "chips", "rivets", "cells", "armour"]
+      "goods": ["powder", "spyware", "rivets", "rounds", "arms"]
     },
     {
       "id": "lux",
       "name": "Luxury",
-      "goods": ["silk", "musk", "cask", "gems"]
+      "goods": ["blooms", "silk", "musk", "attar", "gems"]
     },
     {
       "id": "min",
@@ -22,28 +22,30 @@
     {
       "id": "bio",
       "name": "Biotech",
-      "goods": ["food", "spores", "gel", "seed"]
+      "goods": ["food", "spores", "medicine", "seed"]
     }
   ],
   "base_value": {
     "energy": 24,
     "food": 19,
-    "chips": 30,
+    "spyware": 30,
     "silk": 35,
-    "ore": 13,
+    "ore": 11,
     "dross": 12,
     "nullglass": 21,
     "plate": 120,
     "rivets": 33,
-    "cells": 70,
-    "armour": 180,
+    "rounds": 70,
+    "arms": 180,
     "musk": 31,
-    "cask": 72,
+    "attar": 72,
     "gems": 130,
     "ingot": 36,
     "alloy": 160,
     "spores": 24,
-    "gel": 74,
-    "seed": 190
+    "medicine": 74,
+    "seed": 190,
+    "powder": 23,
+    "blooms": 23
   }
 }

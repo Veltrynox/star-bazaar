@@ -30,7 +30,7 @@ const NODE_GAP_V := 21  # between rows of a branch
 const BRANCH_GAP := 30  # between branches
 const CELL_GAP := 7  # inside a node cell
 ## UI-only empty slots that show the planned final size of the tree (never in data, saves, totals or navigation).
-const SHOW_PLACEHOLDERS := true  # the ONE switch: false removes every placeholder
+const SHOW_PLACEHOLDERS := false  # the ONE switch: false removes every placeholder
 const PLACEHOLDER_GROWTH := 2.0  # planned tree size as a multiple of today's nodes; extra slots are added as whole rows under each branch
 const PLACEHOLDER_COL := Color(1, 1, 1, 0.16)
 

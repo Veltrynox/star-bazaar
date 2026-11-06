@@ -193,6 +193,9 @@ static func eligible(step_id: String, cycle: int) -> bool:
 	if not step_by_id.has(step_id) or fired(step_id) or cycle <= 1 or cycle < int(_num("chain_min_cycle", 6.0)):
 		return false
 	var s: Dictionary = step_by_id[step_id]
+	var rb := Conditions.run_branch()
+	if rb != "" and str(s.get("market", "")) != rb:  # T239: a chain of another branch's market never fires
+		return false
 	if bool(s.get("requires_prev_step", false)) and not fired(prev_id(step_id)):
 		return false
 	if cycle - _last_fired_cycle(str(s["market"])) < int(_num(str(s.get("min_gap_key", "chain_min_gap")), 3.0)):

@@ -19,6 +19,8 @@ extends RefCounted
 ##   good_visible:<good>                    that good's own availability rule is true
 ##   good_traded:<good>                     an open planet prices that good (needs ctx.planets; events use it)
 ##   event_fired:<event>                    that event or chain step already fired this run (saved: Events.feed / Chains.picks)
+##   branch_is:<market>                     the run's branch (CEO, Main.run_branch()) is that market id (mil|lux|min|bio); also true for an old save with no branch
+##   branch_chosen                          the run has a branch (false only for an old save without one)
 ##   planet_visited:<planet>                the Pathfinder has arrived there (name and type known); the home world from the start
 ##   post_built:<planet>                    a trading post stands there (living world; the home world from the start)
 ##   platform_built:<planet>                a mining platform stands there (dead world)
@@ -37,7 +39,7 @@ const ATOMS := {
 	"start": "", "skill_learned": "node", "workshop_built": "workshop", "system_open": "system", "cycle_at_least": "balance", "cycle_at_most": "balance",
 	"stock_held": "good", "good_visible": "good", "good_traded": "good", "event_fired": "event",
 	"share_pct": "balance", "first_sale_after_cycle": "balance", "cycles_after_prev_step": "balance",
-	"planet_visited": "planet", "post_built": "planet", "platform_built": "planet",
+	"planet_visited": "planet", "post_built": "planet", "platform_built": "planet", "branch_is": "market", "branch_chosen": "",
 }
 const STEP_ATOMS := ["share_pct", "first_sale_after_cycle", "cycles_after_prev_step"]
 
@@ -114,10 +116,19 @@ static func _atom(atom: String, ctx: Dictionary) -> bool:
 			if not ctx.has("cycle") and not live():
 				return false
 			return int(ctx.get("cycle", game.cycle if live() else 0)) <= int(balance_value(arg, ctx))
+		"branch_is":
+			var b := run_branch()
+			return b == "" or b == arg
+		"branch_chosen":
+			return run_branch() != ""
 		"workshop_built", "system_open", "stock_held", "planet_visited", "post_built", "platform_built":
 			return live() and _game_atom(str(parts[0]), arg)
 	push_error("Conditions: unknown atom '%s'" % atom)
 	return false
+
+## The live run's branch ("" without a game or for an old save).
+static func run_branch() -> String:
+	return str(game.run_branch()) if live() and game.has_method("run_branch") else ""
 
 static func _game_atom(name: String, arg: String) -> bool:
 	match name:
@@ -204,6 +215,10 @@ static func lint(cond, where: String, errs: Array, step_ok: bool = false, bal: D
 			"good":
 				if not Goods.has(arg):
 					errs.append("%s: unknown good '%s'" % [where, arg])
+			"market":
+				Markets.market_of("")  # loads the registry
+				if not Markets.ids.has(arg):
+					errs.append("%s: unknown market '%s'" % [where, arg])
 			"planet":
 				if not planet_ids().has(arg):
 					errs.append("%s: unknown planet '%s'" % [where, arg])
