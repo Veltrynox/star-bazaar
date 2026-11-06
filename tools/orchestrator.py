@@ -448,9 +448,16 @@ def rebase_with_auto_resolve(wt, base):
         if r.returncode == 0:
             return r
         files = sh(["git", "diff", "--name-only", "--diff-filter=U"], cwd=wt).stdout.split()
-        if files != ["data/balance.json"] or not resolve_balance_source(wt):
+        for f in [f for f in files if f.endswith(".uid")]:  # Godot-generated ids: the base's file always wins
+            sh(["git", "checkout", "--ours", "--", f], cwd=wt)
+            sh(["git", "add", "--", f], cwd=wt)
+        files = [f for f in files if not f.endswith(".uid")]
+        if files not in ([], ["data/balance.json"]):
             return r
-        sh(["git", "add", "data/balance.json"], cwd=wt)
+        if files and not resolve_balance_source(wt):
+            return r
+        if files:
+            sh(["git", "add", "data/balance.json"], cwd=wt)
         r = sh(["git", "rebase", "--continue"], cwd=wt, env={"GIT_EDITOR": "true"})
     return r
 
