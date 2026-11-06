@@ -2,10 +2,11 @@
 """Blackboard structure check and archive. Agents never archive; this script does.
 
   python3 tools/blackboard.py --check     exit 1 and list problems if blackboard.md breaks the structure
-  python3 tools/blackboard.py --archive   move run entries older than the last KEEP_RUNS to black_board.archive.md
+  python3 tools/blackboard.py --archive   move run entries older than the last KEEP_RUNS to logs/<YYYYMMDD-HHMMSS>-blackboard-archive.md
 
 tools/gdd_sync.py (the PreToolUse commit hook) calls archive() and then problems() on every
-`git commit`, so the archive lands in the same commit and a malformed blackboard.md is blocked.
+`git commit`, so the trimmed blackboard.md lands in that commit and a malformed blackboard.md is blocked.
+The archive files are disposable: logs/ is git-ignored and the push hook empties it.
 
 Structure of blackboard.md:
   # Main agent blackboard
@@ -16,12 +17,12 @@ Structure of blackboard.md:
   - Summary: / - Why this task: / - Approach: / - Agent prompts: / - Worked: /
   - Failed / did not work: / - Files and commits: / - Left to do:      (all eight, in this order)
 """
-import os, re, subprocess, sys
+import datetime as dt, os, re, subprocess, sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 BOARD = "blackboard.md"
-ARCHIVE = "black_board.archive.md"
+LOGS = "logs"
 KEEP_RUNS = 4
 TITLE = "# Main agent blackboard"
 NOTE_SECTIONS = ["Do not repeat", "Left to do"]
@@ -92,16 +93,17 @@ def archive():
     if len(runs) <= KEEP_RUNS:
         return False
     old, keep = runs[:-KEEP_RUNS], runs[-KEEP_RUNS:]
-    arch = ROOT / ARCHIVE
-    head = arch.read_text() if arch.exists() else \
-        "# Blackboard archive\n\nOlder run entries moved from blackboard.md by tools/blackboard.py, oldest first.\n\n"
-    _write(arch, head.rstrip("\n") + "\n\n" + "".join(r.strip("\n") + "\n\n" for r in old).rstrip("\n") + "\n")
+    logs = ROOT / LOGS
+    logs.mkdir(exist_ok=True)
+    arch = logs / ("%s-blackboard-archive.md" % dt.datetime.now().strftime("%Y%m%d-%H%M%S"))
+    head = "# Blackboard archive\n\nOlder run entries moved from blackboard.md by tools/blackboard.py, oldest first.\n\n"
+    _write(arch, head + "".join(r.strip("\n") + "\n\n" for r in old).rstrip("\n") + "\n")
     _write(board, notes + "".join(keep))
     return True
 
 
 def stage():
-    subprocess.run(["git", "-C", str(ROOT), "add", "--", BOARD, ARCHIVE], capture_output=True, text=True)
+    subprocess.run(["git", "-C", str(ROOT), "add", "--", BOARD], capture_output=True, text=True)
 
 
 if __name__ == "__main__":

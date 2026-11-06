@@ -31,7 +31,7 @@ flowchart LR
   f5["<b>design/proposals/*.md</b><br/>dated proposals, waiting for owner"]:::file
   f6["<b>qa/reports/*</b><br/>bug_report.json, runs.jsonl, screenshots"]:::file
   f7["<b>gdd.md, gdd-skills.md</b><br/>design truth, short form, no balance numbers"]:::file
-  f8["<b>schedule.json, state.md</b><br/>task queue, status, goal log"]:::file
+  f8["<b>schedule.json</b><br/>task queue, status, goal log"]:::file
   f9["<b>handoffs/&lt;agent&gt;/&lt;date&gt;-&lt;task&gt;.json</b><br/>fixed schema, the only memory between sessions"]:::file
   subgraph roles["Role agents (star = owner starts by hand only)"]
     a1["<b>gameplay + ui programmer</b><br/>GDScript, panels, screens"]:::agent
@@ -76,7 +76,7 @@ flowchart LR
 - **Hard rule:** economy-designer and qa-analyst (and bots, `tools/sim.py`, retunes, sign-offs) run only when the owner asks. `sh tools/tests/run.sh` is always allowed and is not QA.
 - **Commit gates:** one hook (`tools/gdd_sync.py`) runs three checks on every `git commit`, in this order. A failed check blocks the commit and tells the agent what to fix.
 - **1. GDD sync:** `game/`, `data/` or `story/` changed without `gdd.md`. Fix: start doc-manager to update the GDD from the diff, stage it, commit again. No design effect: put `[no-gdd]` in the commit command.
-- **2. Blackboard:** `tools/blackboard.py` moves run entries older than the last 4 from `blackboard.md` to `black_board.archive.md` and stages both (a script, never the agent; the notes are kept). A `blackboard.md` with a bad structure (title, "Do not repeat", "Left to do", run heading, the eight fields in order) blocks the commit.
+- **2. Blackboard:** `tools/blackboard.py` moves run entries older than the last 4 from `blackboard.md` to `logs/&lt;stamp&gt;-blackboard-archive.md` (disposable, git-ignored; a script, never the agent; the notes are kept). A `blackboard.md` with a bad structure (title, "Do not repeat", "Left to do", run heading, the eight fields in order) blocks the commit.
 - **3. Tests:** a commit that changes `game/`, `data/`, `story/` or `tools/tests/` runs `sh tools/tests/run.sh` and is blocked on any FAIL. No code effect: put `[no-tests]` in the commit command.
 
 ## Agents

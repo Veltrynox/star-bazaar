@@ -17,16 +17,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-06 10:00 run: T210
-- Summary: Added placeholder solar systems 6-10 (off by default, same shape as 3-5), grew the galaxy overview SLOTS from 7 to 10, added never-true availability rules and English text ids.
-- Why this task: clear owner brief, no dependencies, data only; other open tasks are visual, owner-only or need decisions.
-- Approach: gameplay-programmer agent following the T176 pattern; I verified diff and tests.
-- Agent prompts: add systems 6-10 like T176, enough SLOTS, unique ids and keys, test, gdd line; handoffs/gameplay-programmer/2026-11-06-T210.json, done.
-- Worked: sh tools/tests/run.sh no FAIL lines; placeholder test now checks 10 systems.
-- Failed / did not work: nothing. Not seen windowed.
-- Files and commits: data/systems_placeholder.json, data/availability.json, story/screens.md, data/story_text.json, game/galaxy_view.gd, tools/tests/run_tests.gd, gdd.md, handoff, schedule.json, blackboard.md; see git log "T210".
-- Left to do: owner: galaxy slots 8-10 positions are temporary and unseen windowed with placeholders on; no Russian text for the new ids.
-
 ## 2026-11-06 11:00 run: T199
 - Summary: Rival ships now belong to a competitor (ship i = Bots.IDS[i]) with a faint per-competitor tint; a click within 20px opens a small card with the competitor name and its strongest market. Planets behind stay clickable outside the radius.
 - Why this task: concrete owner brief, dependency done; other open tasks are owner-decision, owner-only, or design proposals.

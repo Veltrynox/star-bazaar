@@ -12,18 +12,19 @@ Escape hatch for a change with no design effect (refactor, bug fix that matches 
 put the marker [no-gdd] in the command, e.g. in the commit message.
 
 Blackboard (same hook, every `git commit`, also with [no-gdd]): tools/blackboard.py archives run
-entries older than the last 4 into black_board.archive.md (a script, never the agent) and stages both
-files; a commit that includes a blackboard.md breaking the structure is blocked with the problem list.
+entries older than the last 4 into logs/<stamp>-blackboard-archive.md (disposable, git-ignored; a script, never the agent) and stages
+blackboard.md; a commit that includes a blackboard.md breaking the structure is blocked with the problem list.
 
 README (same hook, on `git push` instead of commit): tools/build_readme.py rebuilds README.md from its
 sources; if it changed, the hook commits only README.md ("Rebuild README") before the push goes out.
+Logs (same push hook): the hook also empties logs/ (overnight run logs, git-ignored) before the push goes out.
 
 Tests (same hook, last and slowest): a commit that changes game/, data/, story/ or tools/tests/ runs
 `sh tools/tests/run.sh` and is blocked (exit 2, failing lines go to Claude) on any FAIL or a non-zero
 exit. Escape hatch for commits with no code effect: put [no-tests] in the command. Set STAR_TEST_CMD
 to replace the test command (used to test this hook).
 """
-import json, os, re, subprocess, sys
+import json, os, re, shutil, subprocess, sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -92,6 +93,18 @@ def readme_on_push():
                    capture_output=True, text=True)
 
 
+def clean_logs_on_push():
+    """Empty logs/ (overnight run logs; untracked, git-ignored) so old run output does not pile up. The folder stays."""
+    logs = ROOT / "logs"
+    if not logs.is_dir():
+        return
+    for item in logs.iterdir():
+        if item.is_dir() and not item.is_symlink():
+            shutil.rmtree(item, ignore_errors=True)
+        else:
+            item.unlink(missing_ok=True)
+
+
 def board_gate(all_tracked):
     """Archive old blackboard runs; return a block message if the commit carries a malformed blackboard.md."""
     probs = blackboard.problems()
@@ -121,6 +134,10 @@ if __name__ == "__main__":
                 readme_on_push()
             except Exception as e:  # never block a push over the README
                 print("README rebuild skipped: %s" % e, file=sys.stderr)
+            try:
+                clean_logs_on_push()
+            except Exception as e:  # never block a push over log cleanup
+                print("logs cleanup skipped: %s" % e, file=sys.stderr)
         is_commit = re.search(r"\bgit\b[^|;&]*\bcommit\b", cmd)
         if is_commit:
             all_tracked = bool(re.search(r"\bcommit\b[^|;&]*\s(-[a-zA-Z]*a[a-zA-Z]*|--all)\b", cmd))
