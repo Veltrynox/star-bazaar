@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-06 18:04 run: T278
-- Summary: Each lane now registers a path group with the traffic layer (laden out warm, empty back dim, stalled parked with an amber blink, blocked red, cargo pod tinted by commodity), and the old lane dots crossfade out as the camera gets close
-- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
-- Approach: built by a worker in worktree ../wt/T278 on branch task/T278, merged by the serial merge queue.
-- Agent prompts: /overnight-worker T278 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T278.log.
-- Worked: rebase, full test suite and fast-forward merge passed.
-- Failed / did not work: nothing.
-- Files and commits: see git log on branch new-features for commits starting with T278.
-- Left to do: nothing for this task.
-
 ## 2026-11-06 18:08 run: T264
 - Summary: Each established world on the map now has a ring of progress notches and need icons under its name, and the Bazaar capital has a marker.
 - Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
@@ -64,4 +54,14 @@
 - Worked: rebase, full test suite and fast-forward merge passed.
 - Failed / did not work: nothing.
 - Files and commits: see git log on branch new-features for commits starting with T265.
+- Left to do: nothing for this task.
+
+## 2026-11-06 18:24 run: T286
+- Summary: Galaxy view now draws dots drifting along links between open systems (more on a live Storage Link) and a soft glow per system that grows with the sum of its worlds' tiers; the 7 new `galaxy_*` keys are placeholders in `data/balance.json`
+- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
+- Approach: built by a worker in worktree ../wt/T286 on branch task/T286, merged by the serial merge queue.
+- Agent prompts: /overnight-worker T286 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T286.log.
+- Worked: rebase, full test suite and fast-forward merge passed.
+- Failed / did not work: nothing.
+- Files and commits: see git log on branch new-features for commits starting with T286.
 - Left to do: nothing for this task.
