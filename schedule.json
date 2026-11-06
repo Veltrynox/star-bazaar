@@ -1413,10 +1413,11 @@
       "title": "Gigs: design random side jobs for the 3D ship with a storyline",
       "owner_agent": "feature-designer",
       "depends_on": [],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 35,
       "window": "Owner request 2026-11-05 (playtest). Not started: main session sets it running.",
-      "brief": "Owner idea: random gigs the player does with the 3D ship, each with a story. Example: a ship crash the player flies to and gets something, unique for each branch and depending on the player's progression (market focus, skills, chain direction, cycle, systems opened). Design: how a gig appears (spawn rule, how often, a marker on the map, expiry), what the player does (fly there, maybe a choice on arrival), what it gives (a unique reward per branch: goods, skill-adjacent perk, story line, never skill points for money), what it costs (flight time, risk), how it stays neutral and cannot be a dominant strategy, how it works with discovery, exploration mode and pause, and the data shape (data/gigs.json, conditions via game/conditions.gd). Proposal in design/proposals/2026-11-05-gigs.md for the owner to approve. Handoff handoffs/<agent>/2026-11-05-<id>.json."
+      "brief": "Owner idea: random gigs the player does with the 3D ship, each with a story. Example: a ship crash the player flies to and gets something, unique for each branch and depending on the player's progression (market focus, skills, chain direction, cycle, systems opened). Design: how a gig appears (spawn rule, how often, a marker on the map, expiry), what the player does (fly there, maybe a choice on arrival), what it gives (a unique reward per branch: goods, skill-adjacent perk, story line, never skill points for money), what it costs (flight time, risk), how it stays neutral and cannot be a dominant strategy, how it works with discovery, exploration mode and pause, and the data shape (data/gigs.json, conditions via game/conditions.gd). Proposal in design/proposals/2026-11-05-gigs.md for the owner to approve. Handoff handoffs/<agent>/2026-11-05-<id>.json.",
+      "note": "2026-11-06: proposal design/proposals/2026-11-05-gigs.md written; owner to approve and answer 3 questions before T217/T218."
     },
     {
       "task_id": "T217",

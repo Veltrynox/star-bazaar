@@ -4,6 +4,7 @@
 - discovery_enabled in data/balance.json ships at 1 (owner decision 2026-11-05); tests that need it off set it themselves.
 
 ## Left to do
+- T216 done: owner to approve design/proposals/2026-11-05-gigs.md and answer 3 questions (expired gig gone for run?, goods reward to storage or next load?, reward goods count for share?) before T217/T218.
 - T224 done (text only): TH01-TH10 need a gameplay task: event rows + follow chain in data/events.json, cash-pay choice effect (TH10_A), balance key for thread start cycle; owner to answer who sets those.
 - T238 done: owner to approve design/proposals/2026-11-05-branch-goods.md and answer 3 questions (can a company win other markets/learn other trees; new world Brannock vs retype Ashgate; energy in every tier-3 recipe) before T239/T240/T242.
 - T234 done: owner to answer: EV52-55 rarely fire (cycles 5 and 9 in window, pool ~36); Luxury/Minerals often not visible by cycle 10; chain gains removed as options (one kept per step). Cash values first-pass.
@@ -61,3 +62,13 @@
 - Failed / did not work: build writes no event rows for text-only blocks, so stories are not playable yet.
 - Files and commits: story/events.md, data/story_text.json, handoff, schedule.json, blackboard.md; see git log "T224". story/voice.md and .claude/agents edits are the owner's, left alone.
 - Left to do: gameplay task for TH01-TH10 rows, cash-pay effect, start-cycle key; Russian only when owner asks.
+
+## 2026-11-06 20:00 run: T216
+- Summary: feature-designer wrote the Pathfinder gigs proposal (spawn rule, one open at a time, marker, expiry, two neutral choices, four reward kinds, per-branch examples, data/gigs.json shape, condition atoms).
+- Why this task: no dependencies, design only, no visual/economy/QA need; T217/T218 wait on it.
+- Approach: single feature-designer agent per the T216 brief; no numbers, proposal only.
+- Agent prompts: design gigs per T216 brief, no code, no commit; produced design/proposals/2026-11-05-gigs.md and handoffs/feature-designer/2026-11-06-T216.json.
+- Worked: both files exist; scope covered.
+- Failed / did not work: nothing. Tests not run (no code/data change).
+- Files and commits: design/proposals/2026-11-05-gigs.md, handoff, schedule.json, blackboard.md; see git log "T216".
+- Left to do: owner approval and three open questions; then T217, T218.
