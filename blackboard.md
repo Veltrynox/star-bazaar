@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-06 18:25 run: T287
-- Summary: Houses are now written as weather (Harrow floods, Velvet shortages, Ostrel congestion), with convoy and forecast lines, all 28 chain steps re-voiced, three mood labels and the eight weather skill nodes renamed, built through build_story.py
-- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
-- Approach: built by a worker in worktree ../wt/T287 on branch task/T287, merged by the serial merge queue.
-- Agent prompts: /overnight-worker T287 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T287.log.
-- Worked: rebase, full test suite and fast-forward merge passed.
-- Failed / did not work: nothing.
-- Files and commits: see git log on branch new-features for commits starting with T287.
-- Left to do: nothing for this task.
-
 ## 2026-11-06 18:37 run: T259
 - Summary: Star Bazaar win built (game/bazaar.gd, bazaar_* placeholder keys, no share win/swept/overhead, END_UNFINISHED soft ending, Continue free play, bazaar_stage atom, save v12)
 - Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
@@ -64,4 +54,14 @@
 - Worked: rebase, full test suite and fast-forward merge passed.
 - Failed / did not work: nothing.
 - Files and commits: see git log on branch new-features for commits starting with T246.
+- Left to do: nothing for this task.
+
+## 2026-11-06 18:42 run: T247
+- Summary: Foundations are now ordered Permit Charter, Prospecting, Space Storage in data/skills.json and gdd-skills.md, so Permit Charter sits above Quartermaster's Terms (MIL_1); effects, costs and prerequisites are unchanged. I also edited one line in tools/tests/run_tests.gd, outside the task's touches, be
+- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
+- Approach: built by a worker in worktree ../wt/T247 on branch task/T247, merged by the serial merge queue.
+- Agent prompts: /overnight-worker T247 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T247.log.
+- Worked: rebase, full test suite and fast-forward merge passed.
+- Failed / did not work: nothing.
+- Files and commits: see git log on branch new-features for commits starting with T247.
 - Left to do: nothing for this task.

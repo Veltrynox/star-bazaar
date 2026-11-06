@@ -1855,7 +1855,7 @@
       "title": "Skill order: Permit Charter above Quartermaster Terms, Prospecting early",
       "owner_agent": "gameplay-programmer",
       "depends_on": [],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 40,
       "window": "Small data change; may touch the same layout as T244, do after T244.",
       "brief": "Owner: move the Permit Charter skill on top of (before) Quartermaster Terms, because the player learns it first, and Prospecting too is learned early. Reorder the skills accordingly in data/skills.json (tree position and any cost/prerequisite order that follows from learning order) and in gdd-skills.md; check the skill screen shows them in that order. Do not change effects. If a prerequisite change is needed, keep it minimal and record it. Handoff: handoffs/gameplay-programmer/<date>-T247.json.",
@@ -1863,7 +1863,8 @@
       "touches": [
         "data/skills.json",
         "gdd-skills.md"
-      ]
+      ],
+      "note": "Done by orchestrator: Foundations are now ordered Permit Charter, Prospecting, Space Storage in data/skills.json and gdd-skills.md, so Permit Charter sits above Quartermaster's Terms (MIL_1); effects, costs and prerequisites are unchanged. I also edited one line in tools/tests/run_tests.gd, outside the task's touches, be"
     },
     {
       "task_id": "T248",
