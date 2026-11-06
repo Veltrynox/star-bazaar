@@ -25,6 +25,7 @@ static var continue_requested: bool = false
 static var pending_company: String = ""
 static var pending_portrait: String = ""
 static var pending_ceo: String = ""   # CEO id = portrait id; set by the ship screen Start
+static var pending_branch: String = ""  # market id of the CEO's branch
 static var pending_ship: String = ""  # ship type id from data/ships.json
 
 static func exists() -> bool:

@@ -1,8 +1,8 @@
 extends Control
 ## New company screen: shown by the main menu's New Game. Pick a company name (typed or random) and a CEO portrait,
-## then Next goes on to the ship screen (game/ship_setup.gd), which starts the game. Back returns to the main menu. All labels come from the story loader with plain defaults.
+## then Start begins the game: the branch and the ship come with the CEO (data/ceos.json). Back returns to the main menu. All labels come from the story loader with plain defaults.
 
-const SHIP_SCENE := "res://game/ship_setup.tscn"
+const GAME_SCENE := "res://game/main.tscn"
 const CEOS_PATH := "res://data/ceos.json"
 const MENU_SCENE := "res://game/main_menu.tscn"
 const SaveGame := preload("res://game/save_game.gd")
@@ -12,7 +12,7 @@ const Portraits := preload("res://game/company_portraits.gd")
 const CARD_SIZE := Vector2(184, 232)
 const STAT_KEYS := ["haggling", "thrift", "nerve"]
 
-## Set by the ship screen's Back so this screen reopens with the name and CEO already chosen.
+## Reopens this screen with the name and CEO already chosen (kept for callers; nothing sets it now).
 static var restore: bool = false
 
 var name_edit: LineEdit
@@ -102,7 +102,7 @@ func _ready() -> void:
 	buttons.add_child(back_button)
 	start_button = Button.new()
 	start_button.theme_type_variation = "ButtonPrimary"
-	start_button.text = StoryText.get_or("SETUP_NEXT", "Next")
+	start_button.text = StoryText.get_or("SETUP_NEXT", "Start")
 	start_button.pressed.connect(start)
 	buttons.add_child(start_button)
 	if restore:
@@ -246,17 +246,21 @@ func _refresh_info() -> void:
 	pd.custom_minimum_size = Vector2(700, 0)
 	info_box.add_child(pd)
 
-## Hands name and portrait (= CEO id) on to the ship screen, which commits the rest and starts the game.
+## Hands name, portrait (= CEO id), CEO, branch and ship of the CEO on to the game start.
 func commit() -> void:
 	SaveGame.pending_company = chosen_name()
 	SaveGame.pending_portrait = selected_id
 	SaveGame.pending_ceo = selected_id
+	SaveGame.pending_branch = str(ceo_defs.get(selected_id, {}).get("branch", ""))
+	SaveGame.pending_ship = str(ceo_defs.get(selected_id, {}).get("ship", ""))
 
 func start() -> void:
 	if chosen_name() == "" or selected_id == "":
 		return
 	commit()
-	get_tree().change_scene_to_file(SHIP_SCENE)
+	SaveGame.clear()  # same reset as New Game had before the setup screens
+	SaveGame.continue_requested = false
+	get_tree().change_scene_to_file(GAME_SCENE)
 
 func back() -> void:
 	get_tree().change_scene_to_file(MENU_SCENE)

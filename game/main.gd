@@ -40,6 +40,7 @@ var balance: Dictionary = {}
 var company_name: String = ""  # chosen on the new company screen, saved
 var ceo_portrait: String = ""  # id from company_portraits.gd, saved
 var ceo_id: String = ""  # CEO of the run (data/ceos.json, = a portrait id); "" = none (old saves), saved
+var branch: String = ""  # market id (mil, lux, min, bio) fixed by the CEO at the start; saved as run.branch; "" = old save
 var ship_type: String = "small"  # ship type of every ship of the run (data/ships.json), saved
 var cash: int = 0
 var cycle: int = 1          # current cycle, 1-based
@@ -312,11 +313,12 @@ func _ready() -> void:
 	if saved.is_empty():
 		company_name = SaveGame.pending_company.strip_edges().left(CompanyNames.MAX_LEN) if SaveGame.pending_company.strip_edges() != "" else CompanyNames.generate()
 		ceo_portrait = CompanyPortraits.normalize(SaveGame.pending_portrait)
-		_set_run_choice(SaveGame.pending_ceo if SaveGame.pending_ceo != "" else SaveGame.pending_portrait, SaveGame.pending_ship)
+		_set_run_choice(SaveGame.pending_ceo if SaveGame.pending_ceo != "" else SaveGame.pending_portrait, SaveGame.pending_ship, SaveGame.pending_branch if SaveGame.pending_branch != "" else Ceos.branch(SaveGame.pending_ceo if SaveGame.pending_ceo != "" else SaveGame.pending_portrait))
 		SaveGame.pending_company = ""
 		SaveGame.pending_portrait = ""
 		SaveGame.pending_ceo = ""
 		SaveGame.pending_ship = ""
+		SaveGame.pending_branch = ""
 		_quiet_points = true
 		_award_planet(maxi(mission_planet, 0))  # T82: the home planet counts at start
 		_quiet_points = false
@@ -331,6 +333,7 @@ func _ready() -> void:
 	SaveGame.pending_portrait = ""
 	SaveGame.pending_ceo = ""
 	SaveGame.pending_ship = ""
+	SaveGame.pending_branch = ""
 	if debug_tools_allowed() and ResourceLoader.exists("res://game/debug_menu.gd"):  # T33: never in release exports (B9: the script is also left out of the export)
 		debug_menu = load("res://game/debug_menu.gd").new()
 		add_child(debug_menu)
@@ -344,11 +347,17 @@ func _ready() -> void:
 	_refresh()
 
 ## CEO and ship type of the run. Unknown or empty ids: no CEO, small ship.
-func _set_run_choice(ceo: String, ship: String) -> void:
+func _set_run_choice(ceo: String, ship: String, branch_id: String = "") -> void:
 	ceo_id = ceo if Ceos.has(ceo) else ""
+	Markets._ensure()
+	branch = branch_id if Markets.ids.has(branch_id) else ""
 	ship_type = Ships.normalize(ship)
 	Ceos.set_current(ceo_id)
 	Ships.set_fleet(ship_type)
+
+## Branch of the run: the market id fixed by the CEO ("" for an old save without one).
+func run_branch() -> String:
+	return branch
 
 ## Ship limit of this run: balance ship_cap plus the cap_add of the ship type.
 func ship_cap() -> int:
@@ -361,7 +370,7 @@ func ship_price() -> int:
 ## T26: state written to the autosave. Add new keys here (see save_game.gd).
 ## Tuning values from balance.json are never saved.
 func collect_state() -> Dictionary:
-	return {"company_name": company_name, "ceo_portrait": ceo_portrait, "ceo_id": ceo_id, "ship_type": ship_type, "cycle": cycle, "trade_income_total": trade_income_total, "storage_notice_done": storage_notice_done, "cycle_elapsed": cycle_elapsed, "cash": cash, "paused": paused, "ships": ships,
+	return {"company_name": company_name, "ceo_portrait": ceo_portrait, "ceo_id": ceo_id, "ship_type": ship_type, "run": {"branch": branch}, "cycle": cycle, "trade_income_total": trade_income_total, "storage_notice_done": storage_notice_done, "cycle_elapsed": cycle_elapsed, "cash": cash, "paused": paused, "ships": ships,
 		"routes": engine.to_array(), "storage": storage.to_dict(), "orders": engine.local_to_array(),
 		"markets": Markets.to_dict(), "rescues_paid": rescues_paid, "repossessions": repossessions, "learned_skills": learned_skills.duplicate(), "skills": Skills.to_dict(), "tech": Tech.to_dict(), "systems_reached": systems_reached,
 		"time_speed": time_speed, "skill_points": skill_points, "pts_planets": pts_planets, "pts_pairs": pts_pairs, "events": events.to_dict(),
@@ -377,7 +386,7 @@ func apply_state(s: Dictionary) -> void:
 	if company_name == "":
 		company_name = CompanyNames.generate()
 	ceo_portrait = CompanyPortraits.normalize(str(s.get("ceo_portrait", "")))
-	_set_run_choice(str(s.get("ceo_id", "")), str(s.get("ship_type", "")))  # old saves: small ship, no CEO
+	_set_run_choice(str(s.get("ceo_id", "")), str(s.get("ship_type", "")), str(s.get("run", {}).get("branch", "")) if typeof(s.get("run")) == TYPE_DICTIONARY else "")  # old saves: small ship, no CEO
 	map.clear_stations()
 	for m in station_markers.values():
 		m.queue_free()

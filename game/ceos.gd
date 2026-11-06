@@ -58,6 +58,13 @@ static func def(id: String) -> Dictionary:
 		_load()
 	return _defs.get(id, {})
 
+## Branch (market id: mil, lux, min, bio) and ship type id fixed to a CEO. "" for an unknown CEO.
+static func branch(id: String) -> String:
+	return str(def(id).get("branch", ""))
+
+static func ship(id: String) -> String:
+	return str(def(id).get("ship", ""))
+
 static func set_current(id: String) -> void:
 	current = id if has(id) else ""
 

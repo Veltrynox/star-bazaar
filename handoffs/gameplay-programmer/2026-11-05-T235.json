@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-05",
+  "task": "T235",
+  "status": "done",
+  "files_changed": [
+    "data/ceos.json",
+    "game/ceos.gd",
+    "game/company_setup.gd",
+    "game/save_game.gd",
+    "game/main.gd",
+    "gdd.md",
+    "tools/tests/run_tests.gd",
+    "handoffs/gameplay-programmer/2026-11-05-T235.json"
+  ],
+  "open_questions": [
+    "Button text id SETUP_NEXT (story/*.md, generated) still reads 'Next' in story_text.json; code default is now 'Start'. Story designer to change it and its place note.",
+    "ship_setup.gd/.tscn kept (qa/bots/ship_setup_shot.gd still loads them) but are off the New Game path; delete when the bot is retired."
+  ],
+  "handoff": "New Game: company screen (name + CEO) -> Start goes straight to the game; CEO fixes branch and ship (pending_branch/pending_ship). No later branch choice exists in code (ending comes from the held market, no choice screen), so win/ending rules are untouched. Branch stored in save as run.branch; Ceos.branch(id), Ceos.ship(id), main.run_branch(). Old saves load with branch ''. Tests pass (11292, 0 fail).",
+  "details": {
+    "table": [
+      {
+        "ceo": "ceo_man_01 (Marek)",
+        "branch": "min",
+        "ship": "fleet (Tramp)",
+        "reason": "thrift 3, counts every bolt, bulk spare parts: ore and raw hauling, cheap-upkeep ship"
+      },
+      {
+        "ceo": "ceo_man_02 (Idris)",
+        "branch": "lux",
+        "ship": "dart",
+        "reason": "broker, sells hard, haggling 3: luxury trade, fast ship"
+      },
+      {
+        "ceo": "ceo_woman_01 (Sela)",
+        "branch": "mil",
+        "ship": "bulk (Bulkhead)",
+        "reason": "rim supply runs, nerve 3, big first lane: munitions supply, heavy hauler"
+      },
+      {
+        "ceo": "ceo_woman_02 (Tamsin)",
+        "branch": "bio",
+        "ship": "small (Skerrit)",
+        "reason": "station-born, friendly contracts, balanced: bio goods, all-rounder"
+      }
+    ]
+  }
+}

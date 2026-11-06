@@ -2881,6 +2881,17 @@ func _test_ship_ceo() -> void:
 	await _free_main(m)
 	m = await _new_main()
 	check(m.ceo_id == "ceo_man_02" and m.ship_type == "dart" and SaveGame.pending_ceo == "" and SaveGame.pending_ship == "", "setup: pending_ceo and pending_ship start the run and are read once")
+	check(m.run_branch() == "lux" and m.collect_state()["run"]["branch"] == "lux", "setup: the CEO fixes the branch, saved as run.branch")
+	var seen_b := {}
+	var seen_s := {}
+	for cid in Cs.ids():
+		seen_b[Cs.branch(cid)] = true
+		seen_s[Cs.ship(cid)] = true
+	check(seen_b.size() == 4 and seen_s.size() == 4, "ceos: four distinct branches and four distinct ships")
+	var oldb: Dictionary = m.collect_state().duplicate(true)
+	oldb.erase("run")
+	m.apply_state(oldb)
+	check(m.run_branch() == "", "save: an old save without run.branch loads with no branch")
 	m._set_run_choice("", "small")
 	await _free_main(m)
 
