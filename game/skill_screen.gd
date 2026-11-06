@@ -24,7 +24,8 @@ const CELL_W_MAX := 420.0  # the cells grow to fill the window width, up to this
 const WINDOW_MARGIN := 24.0  # gap between the skill window and the screen edge
 const FND_WIDE_CELLS := 2  # Foundations column width (cells) when only one market is shown
 const ICON_PX := 24  # skill icon on the node button
-const TREE_RESERVE := 360.0  # window height kept for header, help, detail strip and footer; the tree gets the rest
+const TREE_RESERVE := 200.0  # window height kept for header, help and footer; the tree gets the rest
+const DETAIL_W := 320.0  # width of the skill info panel on the right of the tree
 const STACKED_BRANCHES := ["fnd"]  # these branches put every node on its own row (one narrow column)
 const MAX_ROW_CELLS := 2  # a tier with more nodes wraps onto a second line, so four columns of 3 do not overflow 1500 px
 const NODE_GAP_H := 15  # between nodes in a row
@@ -173,12 +174,23 @@ func setup(main_node: Control) -> void:
 	rows.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	tree_gutter.add_child(rows)
 	tree_scroll.add_child(tree_gutter)
-	_root.add_child(tree_scroll)
+	tree_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var body := HBoxContainer.new()  # tree on the left, skill info panel on the right
+	body.add_theme_constant_override("separation", 12)
+	body.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_root.add_child(body)
+	body.add_child(tree_scroll)
 	_rebuild_tree()
+	var detail_scroll := ScrollContainer.new()
+	detail_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	detail_scroll.custom_minimum_size.x = DETAIL_W
+	detail_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	body.add_child(detail_scroll)
 	detail_box = VBoxContainer.new()
-	detail_box.custom_minimum_size = Vector2(0, 110)
+	detail_box.custom_minimum_size = Vector2(DETAIL_W - 12.0, 0)
+	detail_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	detail_box.add_theme_constant_override("separation", 4)
-	_root.add_child(detail_box)
+	detail_scroll.add_child(detail_box)
 	var foot := Label.new()
 	foot.text = StoryText.get_text("SK_NO_CREDITS")
 	_root.add_child(foot)
@@ -225,7 +237,7 @@ func _cell_width(branches: Array, widths: Dictionary) -> float:
 	var units := 0
 	for b in branches:
 		units += int(widths[b])
-	var avail := custom_minimum_size.x - 24.0 - 24.0 - 10.0 - BRANCH_GAP * (branches.size() - 1)
+	var avail := custom_minimum_size.x - 24.0 - 24.0 - 10.0 - DETAIL_W - 12.0 - BRANCH_GAP * (branches.size() - 1)
 	for b in branches:
 		avail -= NODE_GAP_H * (int(widths[b]) - 1)
 	return clampf(avail / float(maxi(1, units)), CELL_W, CELL_W_MAX)

@@ -1,0 +1,6 @@
+{
+  "task": "T249",
+  "agent": "ui-programmer",
+  "files": ["game/skill_screen.gd"],
+  "summary": "Skill info panel moved from the bottom to a 320 px column on the right of the tree; tree takes the freed height and remaining width (cell width calc and TREE_RESERVE adjusted)."
+}
