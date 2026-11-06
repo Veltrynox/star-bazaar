@@ -56,3 +56,13 @@
 - Failed / did not work: nothing. No handoff file (no agent used). Not seen windowed.
 - Files and commits: game/end_screen.gd, tools/tests/run_tests.gd, schedule.json, blackboard.md; see git log "T229".
 - Left to do: owner: confirm windowed ("one tech came out of the smelter"). Ending body texts were not scanned beyond epilogue lines.
+
+## 2026-11-05 19:00 run: T231
+- Summary: Map scaled 1.4x (MAP_SCALE_UP, folded into MAP_UNIT_SCALE; clusters, routes, exits, zoom and pan follow) and planets 1.3x on top of the earlier 1.3x (PLANET_SCALE_UP; PLANET_SIZE now 1.69, pick minimum scaled).
+- Why this task: concrete owner request with given numbers, no dependencies, no look decision beyond the factors given.
+- Approach: gameplay-programmer agent with named constants in one place; pathfinder speed is in data units times MAP_UNIT_SCALE so flight time stays the same.
+- Agent prompts: scale map and planets, one place for factors, consistent clusters/exits, report travel time; handoffs/gameplay-programmer/2026-11-05-T231.json (files_changed list omits run_tests.gd), done.
+- Worked: sh tools/tests/run.sh fail=0 (pass=11286); three tests updated to the 1.69 default.
+- Failed / did not work: nothing; not seen windowed.
+- Files and commits: game/map.gd, game/system_exit.gd, tools/tests/run_tests.gd, handoff, schedule.json, blackboard.md; see git log "T231".
+- Left to do: owner: look windowed (framing, START_ZOOM, planet size vs sun and asteroid packs, labels).

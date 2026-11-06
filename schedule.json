@@ -1576,10 +1576,11 @@
       "title": "Scale: solar system 1.4x, planets 1.3x",
       "owner_agent": "gameplay-programmer",
       "depends_on": [],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 30,
       "window": "Owner request 2026-11-05 (playtest). Not started: main session sets it running.",
-      "brief": "Owner: scale the solar system map up 1.4x (orbit radii, distances, flight paths, camera framing, route lines, asteroid fields, ship spawn offsets) and increase planet size by 1.3x (visual radius and click and spawn clearance, labels, icons). Put both factors as named constants or balance keys (one place), keep all systems consistent, keep ships spawning outside the planets, and keep camera zoom and view limits working. Flight times must not change by accident: say in the handoff how travel time changed. sh tools/tests/run.sh must pass. Handoff handoffs/gameplay-programmer/2026-11-05-T231.json."
+      "brief": "Owner: scale the solar system map up 1.4x (orbit radii, distances, flight paths, camera framing, route lines, asteroid fields, ship spawn offsets) and increase planet size by 1.3x (visual radius and click and spawn clearance, labels, icons). Put both factors as named constants or balance keys (one place), keep all systems consistent, keep ships spawning outside the planets, and keep camera zoom and view limits working. Flight times must not change by accident: say in the handoff how travel time changed. sh tools/tests/run.sh must pass. Handoff handoffs/gameplay-programmer/2026-11-05-T231.json.",
+      "note": "2026-11-05: MAP_SCALE_UP 1.4 and PLANET_SCALE_UP 1.3 in map.gd; flight time unchanged (distance and speed scale together). Not seen windowed."
     },
     {
       "task_id": "T232",
