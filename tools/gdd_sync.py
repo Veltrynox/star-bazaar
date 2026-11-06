@@ -17,7 +17,7 @@ blackboard.md; a commit that includes a blackboard.md breaking the structure is 
 
 README (same hook, on `git push` instead of commit): tools/build_readme.py rebuilds README.md from its
 sources; if it changed, the hook commits only README.md ("Rebuild README") before the push goes out.
-Logs (same push hook): the hook also empties logs/ (overnight run logs, git-ignored) before the push goes out.
+Logs (same push hook): the hook also empties logs/ (job runner logs, git-ignored) before the push goes out.
 
 Tests (same hook, last and slowest): a commit that changes game/, data/, story/ or tools/tests/ runs
 `sh tools/tests/run.sh` and is blocked (exit 2, failing lines go to Claude) on any FAIL or a non-zero
@@ -94,7 +94,7 @@ def readme_on_push():
 
 
 def clean_logs_on_push():
-    """Empty logs/ (overnight run logs; untracked, git-ignored) so old run output does not pile up. The folder stays."""
+    """Empty logs/ (job runner logs; untracked, git-ignored) so old run output does not pile up. The folder stays."""
     logs = ROOT / "logs"
     if not logs.is_dir():
         return

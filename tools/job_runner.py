@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
-"""Run the main Claude agent unattended, one scheduled task per run, until morning.
+"""Job runner: run the main Claude agent unattended, one scheduled task per run, for hours.
 
 Each run is a fresh `claude -p` session in the project folder. Sessions share nothing
 except files, so the prompt tells the agent to read and write blackboard.md.
 
 Usage:
-  python3 tools/overnight.py                 # up to 8 hours, up to 12 runs
-  python3 tools/overnight.py --hours 6 --max-runs 8
-  python3 tools/overnight.py --dry-run       # print the prompt and command, run nothing
+  python3 tools/job_runner.py                 # up to 8 hours, up to 12 runs
+  python3 tools/job_runner.py --hours 6 --max-runs 8
+  python3 tools/job_runner.py --dry-run       # print the prompt and command, run nothing
 
-Stop it early: create a file named STOP_OVERNIGHT in the project root (checked between
-runs), or press Ctrl+C. Output of every run is saved in logs/overnight/.
+Stop it early: create a file named STOP_JOB_RUNNER in the project root (checked between
+runs), or press Ctrl+C. Output of every run is saved in logs/job_runner/.
 
 The script stops by itself when the agent reports idle twice in a row, after three
 failed runs in a row, when the time is up, or when the run limit is reached.
@@ -28,12 +28,12 @@ import time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-LOGS = ROOT / "logs" / "overnight"
-STOP_FILE = ROOT / "STOP_OVERNIGHT"
+LOGS = ROOT / "logs" / "job_runner"
+STOP_FILE = ROOT / "STOP_JOB_RUNNER"
 TOOLS = "Bash,Read,Edit,Write,Glob,Grep,Agent,Skill"
-RESULT_PREFIX = "OVERNIGHT_RESULT:"
+RESULT_PREFIX = "JOB_RESULT:"
 
-PROMPT = f"""You are the main Claude session for Star Bazaar, running unattended overnight. Nobody can answer questions, so never ask; decide within the rules below, and write down anything that needs the owner. This run covers exactly ONE task.
+PROMPT = f"""You are the main Claude session for Star Bazaar, running unattended. Nobody can answer questions, so never ask; decide within the rules below, and write down anything that needs the owner. This run covers exactly ONE task.
 
 START
 1. Read CLAUDE.md and blackboard.md (the whole file, especially "Do not repeat" and "Left to do"). Run `git status` and `git branch --show-current`; note uncommitted work that is not yours and leave it alone.
@@ -132,11 +132,11 @@ def main():
     start = time.time()
     deadline = start + args.hours * 3600
     idle_streak = fail_streak = 0
-    print(f"overnight: branch {branch()}, up to {args.max_runs} runs, {args.hours} h. Logs: {LOGS}")
+    print(f"job_runner: branch {branch()}, up to {args.max_runs} runs, {args.hours} h. Logs: {LOGS}")
 
     for n in range(1, args.max_runs + 1):
         if STOP_FILE.exists():
-            print("STOP_OVERNIGHT found, stopping")
+            print("STOP_JOB_RUNNER found, stopping")
             break
         if time.time() >= deadline:
             print("time is up, stopping")
