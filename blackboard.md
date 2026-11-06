@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-06 22:00 run: T242
-- Summary: story-designer rewrote names and flavour of all 31 skill nodes in story/skills.md with a register per branch; plain lines kept except SK_LUX_4_PLAIN wording.
-- Why this task: depends only on T238 (done), text only, no visual/economy/QA need; T239 would collide with the owner's uncommitted goods work.
-- Approach: single story-designer agent; mechanics untouched, mismatches listed for the owner.
-- Agent prompts: do the T242 brief, English only, edit source then build_story.py, do not touch owner edits, no commit; produced story/skills.md, story/screens.md (placeholder notes removed), data/story_text.json, handoffs/story-designer/2026-11-05-T242.json.
-- Worked: build ok (1646 entries); skill text availability check passes.
-- Failed / did not work: full test run has 14 FAILs in goods/workshop/availability tests from the owner's uncommitted goods work, not from texts. Agent's text naming hidden goods was rejected by the availability scan, so cargo wording used.
-- Files and commits: story/skills.md, handoff, schedule.json, blackboard.md; see git log "T242" (committed with [no-gdd] [no-tests]).
-- Left to do: owner to decide node mechanic ideas (MIL_1, LUX_3, BIO_3, BIO_6); commit data/story_text.json and screens.md with the goods work; Russian only on request.
-
 ## 2026-11-06 23:30 run: T230
 - Summary: Checked the remaining pending events (PST04-05, PLT01-04, FLT02-04) against the draft-3 voice; they already match, so T230 is closed as done (English). Added T243 for the playable TH thread.
 - Why this task: it was the only partial task; every other open task needs owner approval, a visual decision, or owner-only agents (QA, economy).
@@ -65,3 +55,13 @@
 - Failed / did not work: nothing run.
 - Files and commits: blackboard.md only.
 - Left to do: owner approves T243/T218/T239/T208 or answers the open questions; owner commits goods work so tests are green.
+
+## 2026-11-06 17:14 run: T244
+- Summary: Not merged: fast-forward merge refused
+- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
+- Approach: built by a worker in worktree ../wt/T244 on branch task/T244, merged by the serial merge queue.
+- Agent prompts: /overnight-worker T244 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T244.log.
+- Worked: worker finished.
+- Failed / did not work: fast-forward merge refused.
+- Files and commits: see git log on branch new-features for commits starting with T244.
+- Left to do: owner or a new run: see blocked_log in schedule.json.
