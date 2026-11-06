@@ -4,6 +4,7 @@
 - discovery_enabled in data/balance.json ships at 1 (owner decision 2026-11-05); tests that need it off set it themselves.
 
 ## Left to do
+- T238 done: owner to approve design/proposals/2026-11-05-branch-goods.md and answer 3 questions (can a company win other markets/learn other trees; new world Brannock vs retype Ashgate; energy in every tier-3 recipe) before T239/T240/T242.
 - T234 done: owner to answer: EV52-55 rarely fire (cycles 5 and 9 in window, pool ~36); Luxury/Minerals often not visible by cycle 10; chain gains removed as options (one kept per step). Cash values first-pass.
 - T230 partial: choice events EV17-20, BE01-03 and pending post/platform/flight events not rewritten (owner to say); Russian not touched.
 - T236 done: tags shown on CEO card. SETUP_NEXT still reads 'Next'. story/voice.md has uncommitted owner edits, left alone.
@@ -19,16 +20,6 @@
 - Owner: T187 rival ships: look (tint, size, trail, galaxy view) and balance keys rival_ship_count / rival_ship_speed (code defaults 3 and 0.6); gdd.md rivals line edited but left uncommitted with other people's gdd.md changes (gdd-log.md is deleted in tree, so no log entry).
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
-
-## 2026-11-06 10:00 run: T237
-- Summary: Added a branch tag per CEO (TXT_CEO_*_BRANCH_TAG, max 40 chars) and one sentence at the end of each CEO bio naming market and ship, English only, built with tools/build_story.py.
-- Why this task: small, dependency T235 done, text only, no visual, economy or QA need.
-- Approach: story-designer agent, source in story/screens.md; no UI wiring since that is T236.
-- Agent prompts: write tags and bio sentences per the T237 brief, no commit; produced story/screens.md, data/story_text.json, handoffs/story-designer/2026-11-05-T237.json, done.
-- Worked: sh tools/tests/run.sh pass=11318 fail=0.
-- Failed / did not work: agent saw a JSON parse message from game/run_stats.gd in the test log (not a FAIL, unrelated, not investigated).
-- Files and commits: story/screens.md, data/story_text.json, handoff, schedule.json, blackboard.md; see git log "T237".
-- Left to do: T236 must show the tags on the pick card; owner: SETUP_NEXT label "Next" vs "Start".
 
 ## 2026-11-06 14:00 run: T236
 - Summary: Company screen CEO card now shows the branch tag, a turntable ship preview, ship name and six stats; selecting a CEO swaps them.
@@ -69,3 +60,13 @@
 - Failed / did not work: nothing; not played windowed.
 - Files and commits: see git log "T234".
 - Left to do: owner: events fire rarely (cycles 5 and 9 in window), Luxury and Minerals may be invisible by cycle 10, choose widen window / weight / event_interval; confirm chain-option reading; retune cash values.
+
+## 2026-11-06 18:00 run: T238
+- Summary: feature-designer wrote the branch-exclusive goods proposal (per-branch chains, starters sellable at Voltara from cycle 0, fate of current goods, energy as only shared good, icon briefs).
+- Why this task: no dependencies, design only, no visual/economy/QA need; T242 and T239 wait on it.
+- Approach: single feature-designer agent per the T238 brief; no numbers, proposal only.
+- Agent prompts: do the T238 brief, no commit, no QA/sim; produced design/proposals/2026-11-05-branch-goods.md and handoffs/feature-designer/2026-11-05-T238.json.
+- Worked: both files exist; scope covered.
+- Failed / did not work: nothing. Tests not run (no code/data change).
+- Files and commits: design/proposals/2026-11-05-branch-goods.md, handoff, schedule.json, blackboard.md; see git log "T238".
+- Left to do: owner approval and the three open questions; then T239, T240, T242.
