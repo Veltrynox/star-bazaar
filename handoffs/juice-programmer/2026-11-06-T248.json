@@ -1,0 +1,6 @@
+{
+  "task": "T248",
+  "agent": "juice-programmer (done by worker main session)",
+  "changed": ["game/route_line.gd", "game/map.gd"],
+  "summary": "Route line shape now eases (damped follow, EASE_RATE 12/s, real time) to new endpoints/arc via retarget(); mesh rebuilt in place while moving, materials and dots kept, so draw-in/fade/pulse stay. map.gd (outside touches, minimal) calls retarget for the same pair instead of free+rebuild, and no longer clears all lines on apply_tunables."
+}

@@ -27,6 +27,7 @@ const FADE_SECONDS := 0.15    # a removed lane fades out before it is freed
 const PULSE_SECONDS := 0.5    # a dispatched ship sends one brightening band source -> destination
 const PULSE_WIDTH := 0.18     # band half-width, as a share of the lane
 const PULSE_BOOST := 0.5      # extra alpha at the band centre (on top of LINE_ALPHA)
+const EASE_RATE := 12.0       # T248: shape follow speed (1/s): ~95% of the way in 0.25 s
 const PULSE_WHITE := 0.45     # share the colour is mixed towards white at the band centre
 
 ## Lines, dashes and the chevron are sized in design pixels (1672x941 frame), not world units, so they keep
@@ -166,6 +167,9 @@ var _p0: Vector3
 var _c: Vector3
 var _p2: Vector3
 var _color_key := ""
+var _t0: Vector3  # T248: eased-to shape
+var _tc: Vector3
+var _t2: Vector3
 var mats: Array[ShaderMaterial] = []
 var samples: PackedVector3Array = PackedVector3Array()
 var _pts: PackedVector3Array = PackedVector3Array()
@@ -201,34 +205,55 @@ static func pulse_curve(t: float) -> Vector2:
 	return Vector2(lerpf(-PULSE_WIDTH, 1.0 + PULSE_WIDTH, 1.0 - pow(1.0 - u, 2.0)), sin(u * PI))
 
 func setup(id: int, a: int, b: int, pos_a: Vector3, pos_b: Vector3, planet_radius: float, is_half: bool = false, suns: Array = [], lane: float = 0.0) -> void:
-	half = is_half
-	lane_slot = lane
 	route_id = id
 	pair_a = a
 	pair_b = b
-	radius = planet_radius
 	if _shader == null:
 		_shader = Shader.new()
 		_shader.code = SHADER_CODE
 	cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	extra_cull_margin = 2.0
+	var g := _geometry(pos_a, pos_b, planet_radius, is_half, suns, lane)
+	_p0 = g[0]
+	_c = g[1]
+	_p2 = g[2]
+	_t0 = _p0
+	_tc = _c
+	_t2 = _p2
+	_rebuild()
+	_ships_seen = -1  # the first style from the map sets the count without a pulse
+
+## T248: the same pair with a new size, lane, halving or planet position: the curve eases to the new shape
+## instead of being rebuilt in one frame.
+func retarget(pos_a: Vector3, pos_b: Vector3, planet_radius: float, is_half: bool = false, suns: Array = [], lane: float = 0.0) -> void:
+	var g := _geometry(pos_a, pos_b, planet_radius, is_half, suns, lane)
+	_t0 = g[0]
+	_tc = g[1]
+	_t2 = g[2]
+
+func _geometry(pos_a: Vector3, pos_b: Vector3, planet_radius: float, is_half: bool, suns: Array, lane: float) -> Array:
+	half = is_half
+	lane_slot = lane
+	radius = planet_radius
 	var dir := (pos_b - pos_a).normalized()
 	var p0 := pos_a + dir * planet_radius * GAP
 	var p2 := pos_b - dir * planet_radius * GAP
 	var chord := p0.distance_to(p2)
 	var left := Vector3.UP.cross(dir).normalized()  # left of travel, in the map plane
-	_c = (p0 + p2) * 0.5 + left * chord * BOW
+	var c := (p0 + p2) * 0.5 + left * chord * BOW
 	var sw = RouteOffset.sun_waypoint(pos_a, pos_b, suns)  # a sun in the way: the curve passes through the waypoint round it
 	if sw != null:
 		var wt: float = clampf(p0.distance_to(sw) / maxf(p0.distance_to(sw) + sw.distance_to(p2), 0.001), 0.15, 0.85)
-		_c = (sw - p0 * ((1.0 - wt) * (1.0 - wt)) - p2 * (wt * wt)) / (2.0 * (1.0 - wt) * wt)
+		c = (sw - p0 * ((1.0 - wt) * (1.0 - wt)) - p2 * (wt * wt)) / (2.0 * (1.0 - wt) * wt)
 	if lane != 0.0:  # T163: routes sharing a pair or corridor sit side by side, each shifted to its own lane (left of travel)
 		var sh := left * lane * LANE_STEP * planet_radius
 		p0 += sh
 		p2 += sh
-		_c += sh
-	_p0 = p0
-	_p2 = p2
+		c += sh
+	return [p0, c, p2]
+
+## Builds (or rebuilds in place) the strip, chevron, picking samples and dots from _p0/_c/_p2. Materials are kept.
+func _rebuild() -> void:
 	_pts = PackedVector3Array()
 	_cum = PackedFloat32Array()
 	var acc := 0.0
@@ -251,25 +276,34 @@ func setup(id: int, a: int, b: int, pos_a: Vector3, pos_b: Vector3, planet_radiu
 	var tip := Vector2(2, 0)
 	for tail in [Vector2(-4, -4), Vector2(-4, 4)]:
 		_add_chev_arm(am, mid[0], tail, tip)
-	mats.clear()
+	var fresh := mats.size() != am.get_surface_count()
+	if fresh:
+		mats.clear()
 	for si in am.get_surface_count():
-		var m := ShaderMaterial.new()
-		m.shader = _shader
-		m.set_shader_parameter("half_px", LINE_PX * 0.5)
-		m.set_shader_parameter("dash_px", DASH_PX)
+		var m: ShaderMaterial
+		if fresh:
+			m = ShaderMaterial.new()
+			m.shader = _shader
+			m.set_shader_parameter("half_px", LINE_PX * 0.5)
+			m.set_shader_parameter("dash_px", DASH_PX)
+			if si > 0:
+				m.set_shader_parameter("chev", 1.0)
+			mats.append(m)
+		else:
+			m = mats[si]
 		if si > 0:
-			m.set_shader_parameter("chev", 1.0)
 			m.set_shader_parameter("chev_t", _chev_t)
 			m.set_shader_parameter("chev_s", _chev_s)
 		am.surface_set_material(si, m)
-		mats.append(m)
 	mesh = am
 	samples = PackedVector3Array()
 	for i in SAMPLES + 1:
 		samples.append(_bez(float(i) / float(SAMPLES)))
+	if tag != null:
+		tag.position = tag_pos
 	_setup_dots(total)
-	set_style("running", 1)
-	_ships_seen = -1  # the first style from the map sets the count without a pulse
+	if fresh:
+		set_style("running", 1)
 
 var tag: Label3D            # the route tag at the middle of the arc (position and text carrier, drawn transparent)
 var tag2d: Label            # T163: the visible 2D twin, placed by map.gd on the layer above the edge blur
@@ -288,8 +322,10 @@ func _setup_dots(total: float) -> void:
 		_dots.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		add_child(_dots)
 	_dots.extra_cull_margin = total + 4.0
-	_dot_mat = ShaderMaterial.new()
-	_dot_mat.shader = _dot_shader
+	var new_mat := _dot_mat == null
+	if new_mat:
+		_dot_mat = ShaderMaterial.new()
+		_dot_mat.shader = _dot_shader
 	_dot_mat.set_shader_parameter("p0", _p0)
 	_dot_mat.set_shader_parameter("pc", _c)
 	_dot_mat.set_shader_parameter("p2", _p2)
@@ -302,9 +338,10 @@ func _setup_dots(total: float) -> void:
 		var seg := maxf(_cum[i] - _cum[i - 1], 0.00001)
 		lut.append((float(i - 1) + clampf((d - _cum[i - 1]) / seg, 0.0, 1.0)) / float(STEPS))
 	_dot_mat.set_shader_parameter("lut", lut)
-	_dot_mat.set_shader_parameter("speed", DOT_SPEED)
-	_dots.material_override = _dot_mat
-	_dot_count = -1
+	if new_mat:
+		_dot_mat.set_shader_parameter("speed", DOT_SPEED)
+		_dots.material_override = _dot_mat
+		_dot_count = -1
 
 ## One quad per ship, evenly spread in time so ships on a shared lane leave one after another.
 func _build_dots(n: int) -> void:
@@ -510,6 +547,7 @@ func _notification(what: int) -> void:
 func _process(delta: float) -> void:
 	if _dot_mat == null:
 		return
+	_ease_shape(delta)
 	var m = _game
 	if m == null or not is_instance_valid(m):
 		m = self
@@ -525,6 +563,23 @@ func _process(delta: float) -> void:
 			legs = float(m.trade.travel_cycles())
 		_dot_mat.set_shader_parameter("speed", 0.5 / maxf(legs, 0.01))
 	_dot_mat.set_shader_parameter("clock", _clock)
+
+## T248: damped follow of the curve's three control points toward the target (real time, frame-rate independent),
+## so a resize, a lane change or a moved planet glides instead of jumping. Rebuilds in place only while moving.
+func _ease_shape(delta: float) -> void:
+	if _p0 == _t0 and _c == _tc and _p2 == _t2:
+		return
+	var k := 1.0 - exp(-EASE_RATE * delta) if _motion() > 0.0 else 1.0
+	_p0 = _p0.lerp(_t0, k)
+	_c = _c.lerp(_tc, k)
+	_p2 = _p2.lerp(_t2, k)
+	if _p0.distance_squared_to(_t0) + _c.distance_squared_to(_tc) + _p2.distance_squared_to(_t2) < 1e-6:
+		_p0 = _t0
+		_c = _tc
+		_p2 = _t2
+	_rebuild()
+	if _ship_sig != "":
+		_ship_sig = ""  # the traffic layer's path follows the eased curve
 
 ## Smallest on-screen distance in pixels from `screen_pos` to the line (INF if it is behind the camera).
 func screen_distance(cam: Camera3D, screen_pos: Vector2) -> float:

@@ -702,7 +702,10 @@ func set_routes(routes: Array) -> void:
 				half = true
 		var line = route_lines.get(id)
 		var lane := _lane_of(routes, id, a, b)
-		if line != null and (line.pair_a != a or line.pair_b != b or line.half != half or not is_equal_approx(line.lane_slot, lane)):
+		var rad: float = start_r if b < 0 else maxf(start_r, planet_radius(b))
+		if line != null and line.pair_a == a and line.pair_b == b:  # T248: same pair, new shape: the line eases there
+			line.retarget(start_pos, end_pos, rad, half, sun_list(), lane)
+		elif line != null:
 			line.queue_free()
 			route_lines.erase(id)
 			line = null
@@ -871,9 +874,6 @@ func apply_tunables() -> void:
 		hint.setup(planet_radius(_hint_i))
 	if pending_hint != null:
 		pending_hint.setup(planet_radius(_pending_i))
-	for id in route_lines.keys():  # route lines start at the planet surface: rebuild at the new size
-		route_lines[id].queue_free()
-	route_lines.clear()
 	set_routes(_route_list)
 	_update_camera()
 
