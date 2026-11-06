@@ -10,7 +10,8 @@
 - T224 done (text only): TH01-TH10 need a gameplay task: event rows + follow chain in data/events.json, cash-pay choice effect (TH10_A), balance key for thread start cycle; owner to answer who sets those.
 - T238 done: owner to approve design/proposals/2026-11-05-branch-goods.md and answer 3 questions (can a company win other markets/learn other trees; new world Brannock vs retype Ashgate; energy in every tier-3 recipe) before T239/T240/T242.
 - T234 done: owner to answer: EV52-55 rarely fire (cycles 5 and 9 in window, pool ~36); Luxury/Minerals often not visible by cycle 10; chain gains removed as options (one kept per step). Cash values first-pass.
-- T230 partial: EV17-20, BE01-03, PST01-03/06, FLT01 rewritten but UNCOMMITTED (story/events.md and data/story_text.json mixed with owner edits; commit with owner goods work); EV_PLT and other pending events not rewritten; Russian out of date.
+- T230 done (English): all events rewritten, but story/events.md and data/story_text.json edits are UNCOMMITTED (mixed with owner goods edits); Russian out of date.
+- T243 queued: make TH01-TH10 playable (gameplay); needs owner OK.
 - T236 done: tags shown on CEO card. SETUP_NEXT still reads 'Next'. story/voice.md has uncommitted owner edits, left alone.
 - Owner: T219 lane draw-in/fade/pulse not seen windowed (constants atop route_line.gd); route made while paused shows no draw-in.
 - Owner: T203 establish beat not seen windowed (ring/spokes vs bright planets, nudge softness, dead worlds); follow-up juice tasks T219-T221 queued.
@@ -24,16 +25,6 @@
 - Owner: T187 rival ships: look (tint, size, trail, galaxy view) and balance keys rival_ship_count / rival_ship_speed (code defaults 3 and 0.6); gdd.md rivals line edited but left uncommitted with other people's gdd.md changes (gdd-log.md is deleted in tree, so no log entry).
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
-
-## 2026-11-06 18:00 run: T224
-- Summary: Story-designer wrote ten connected events TH01-TH10 (Maren Oake's hunt for an unrepaid loan) in story/events.md, English only; build regenerated data/story_text.json.
-- Why this task: no dependencies, text only, no visual/economy/QA need; others are blocked or owner-only.
-- Approach: story-designer agent; text only, since code needs (cash-pay effect, event rows) belong to the gameplay-programmer.
-- Agent prompts: write 10 connected generic stories in events format, English only, no commit, list code needs; produced story/events.md, data/story_text.json, handoffs/story-designer/2026-11-06-T224.json.
-- Worked: sh tools/tests/run.sh pass=11330 fail=0.
-- Failed / did not work: build writes no event rows for text-only blocks, so stories are not playable yet.
-- Files and commits: story/events.md, data/story_text.json, handoff, schedule.json, blackboard.md; see git log "T224". story/voice.md and .claude/agents edits are the owner's, left alone.
-- Left to do: gameplay task for TH01-TH10 rows, cash-pay effect, start-cycle key; Russian only when owner asks.
 
 ## 2026-11-06 20:00 run: T216
 - Summary: feature-designer wrote the Pathfinder gigs proposal (spawn rule, one open at a time, marker, expiry, two neutral choices, four reward kinds, per-branch examples, data/gigs.json shape, condition atoms).
@@ -74,3 +65,13 @@
 - Failed / did not work: full test run has 14 FAILs in goods/workshop/availability tests from the owner's uncommitted goods work, not from texts. Agent's text naming hidden goods was rejected by the availability scan, so cargo wording used.
 - Files and commits: story/skills.md, handoff, schedule.json, blackboard.md; see git log "T242" (committed with [no-gdd] [no-tests]).
 - Left to do: owner to decide node mechanic ideas (MIL_1, LUX_3, BIO_3, BIO_6); commit data/story_text.json and screens.md with the goods work; Russian only on request.
+
+## 2026-11-06 23:30 run: T230
+- Summary: Checked the remaining pending events (PST04-05, PLT01-04, FLT02-04) against the draft-3 voice; they already match, so T230 is closed as done (English). Added T243 for the playable TH thread.
+- Why this task: it was the only partial task; every other open task needs owner approval, a visual decision, or owner-only agents (QA, economy).
+- Approach: no agent needed; a read-through was cheaper than a rewrite, and rewriting good text would risk churn.
+- Agent prompts: none sent.
+- Worked: schedule.json updated, T243 created.
+- Failed / did not work: nothing run; tests not run (no code or data change by me). T218 gigs skipped: design awaits owner approval and 3 open questions.
+- Files and commits: schedule.json, blackboard.md; see git log "T230".
+- Left to do: owner commits story/events.md and data/story_text.json with the goods work; Russian only on request; T243 needs owner OK.

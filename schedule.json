@@ -1570,11 +1570,11 @@
       "title": "Story: rewrite events to be less dry (no audio)",
       "owner_agent": "story-designer",
       "depends_on": [],
-      "status": "partial",
+      "status": "done",
       "turn_cap": 40,
       "window": "Owner request 2026-11-05 (playtest). Not started: main session sets it running.",
       "brief": "Owner: rewrite the event texts (EV01 and on, story/events.md, English then story/ru) so they read less dry: more voice, concrete detail, a little humour or tension, same mechanics and effect lines, same max lengths (story/voice.md). Respect the connected thread of T224 if it exists. Do NOT run or regenerate audio. Run python3 tools/build_story.py. Handoff handoffs/story-designer/2026-11-05-T230.json.",
-      "note": "2026-11-06: EV01-16, EV21-28, EV40-51 bodies rewritten (English). Choice events EV17-20, BE01-03 and pending post/platform/flight events left; Russian not touched. 2026-11-06 (run 2): EV17-20, BE01-03 and pending PST01-03,PST06,FLT01 rewritten in draft-3 voice (English), built; uncommitted in story/events.md and data/story_text.json (mixed with owner edits). Russian out of date. EV_PLT and other pending events left."
+      "note": "2026-11-06: EV01-16, EV21-28, EV40-51 bodies rewritten (English). Choice events EV17-20, BE01-03 and pending post/platform/flight events left; Russian not touched. 2026-11-06 (run 2): EV17-20, BE01-03 and pending PST01-03,PST06,FLT01 rewritten in draft-3 voice (English), built; uncommitted in story/events.md and data/story_text.json (mixed with owner edits). Russian out of date. EV_PLT and other pending events left. 2026-11-06 (run 3): checked all remaining pending events (PST04-05, PLT01-04, FLT02-04) already read in the draft-3 voice; English side complete. Russian skipped (owner: English only). Edits in story/events.md and data/story_text.json still uncommitted, mixed with owner goods edits."
     },
     {
       "task_id": "T231",
@@ -1721,6 +1721,18 @@
       "window": "Owner request 2026-11-05. Not started: main session sets it running.",
       "brief": "Owner: the skills must carry their branch far more, 15 out of 10 identity, with psychologically and emotionally heavy wording that gets under the player's skin. Rewrite every skill node of the four branch trees (names, flavour and plain lines in story/skills.md; English only; the plain line keeps its true effect and numbers via placeholders, the flavour and name carry the weight). Each branch gets its own emotional register and moral pressure, written in second person where it fits: Military (duty, blood on the order book, being thanked for what you hurt), Luxury (envy, being seen, hunger for approval, what beauty costs), Minerals (what the ground takes back, patience, debt to the dark, being alone below), Biotech (bodies, trust, the uneasy line between healing and owning life). Use the goods of T238 by name where it sharpens a node. Foundation skills (fnd) get one neutral, human register that all four paths share. No cheap gore, no real brands, no contradiction of mechanics, same max lengths (story/voice.md), glossary kept. If a node's mechanic feels at odds with its branch, do not change it: list the node and a mechanic idea in the handoff for the owner. Edit the source, run python3 tools/build_story.py. Also write the names and one-line world descriptions the build needs for the new goods of T238 (ids from handoffs/gameplay-programmer/2026-11-05-T239.json if it exists, else follow the existing LBL_/TXT_ pattern). Handoff handoffs/story-designer/2026-11-05-T242.json.",
       "note": "2026-11-06: 31 skill nodes rewritten (names, flavour) in story/skills.md, English. Mismatch ideas in handoff (MIL_1, LUX_3, BIO_3, BIO_6). data/story_text.json rebuilt but uncommitted (mixed with owner edits)."
+    },
+    {
+      "task_id": "T243",
+      "title": "Events: make the T224 thread TH01-TH10 playable (rows, follow chain, cash-pay effect, start-cycle key)",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [
+        "T224"
+      ],
+      "status": "queued",
+      "turn_cap": 40,
+      "window": "Created by gap analysis 2026-11-06. Needs owner decision: confirm the gameplay-programmer builds it and the start cycle key.",
+      "brief": "TH01-TH10 texts exist in story/events.md but build_story.py writes no event rows for them. Add the event rows and follow chain in data/events.json (via the generator source), a cash-pay choice effect for TH10_A, and a balance key for the thread start cycle (placeholder value). Conditions via game/conditions.gd, text by id only, update gdd.md."
     }
   ],
   "done_task_ids": [
