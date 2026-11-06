@@ -1429,3 +1429,70 @@ HUB_ROW_HUB | 24 | Need row, filled by a hub | Fed by hub
 HUB_SHORT_NO_SOURCE | 60 | Need row, short, nothing to buy in reach | Short: no source in reach
 HUB_SHORT_NO_SHIP | 60 | Need row, short, every pool ship is busy | Short: no free ship in pool
 HUB_SHORT_NO_CASH | 60 | Need row, short, hub stopped buying | Short: not enough cash
+
+## Frontier, wings and recap (2026-11-06, T301; Phase 5)
+Ids and placeholders (notes, not blocks):
+- Reclaim: RECLAIM_BTN, RECLAIM_CONFIRM, RECLAIM_CANCEL buttons. RECLAIM_PROMPT: {planet}. RECLAIM_STARTED, RECLAIM_DONE: notices, {planet}. RECLAIM_LBL_PROGRESS, RECLAIM_TIP: card texts. PROS_TYPE_RECLAIMED: the world type name.
+- Raids: RAID_WARN {planet}, {system}. RAID_HIT {planet_a}, {planet_b}, {cycles}. RAID_LANE_TIP {cycles}.
+- Pods: POD_SPOTTED {planet}, {cycles}. POD_SCOOPED, POD_SCOOPED_PART, POD_FADED: none. LBL_GIG_PODS: gig board tag.
+- Mining intensity: MINE_INTENSITY_LBL, MINE_INT_GENTLE, MINE_INT_NORMAL, MINE_INT_HARD and a _HINT for each. No placeholders.
+- Wings: BAZ_WING_TITLE, BAZ_WING_PROMPT {stage}, BAZ_WING_PICK, BAZ_WING_<stage><A or B>_NAME and _LINE. Wing lines are neutral placeholders: the economy-designer sets the real effect, and the line must be checked against it.
+- Recap: RECAP_TITLE, RECAP_LBL_*, RECAP_NONE. The game fills the values, no placeholders here.
+- No text here names a hidden good. Reclaim needs are listed by the card from shown goods only.
+
+### Reclaim
+RECLAIM_BTN | 24 | Dead world card, starts the reclaim | Start reclaiming
+RECLAIM_PROMPT | 110 | Confirm text before reclaim; {planet} | Reclaim {planet}? It cannot be mined while the work runs.
+RECLAIM_CONFIRM | 24 | Confirm button | Reclaim
+RECLAIM_CANCEL | 24 | Cancel button | Not yet
+RECLAIM_LBL_PROGRESS | 24 | Dead world card, reclaim bar label | Reclaim progress
+RECLAIM_TIP | 110 | Dead world card, line under the reclaim bar | Meet every need to fill the bar. Mining here stops until it is done.
+RECLAIM_STARTED | 110 | Notice, reclaim started; {planet} | Reclaim started at {planet}. Mining there is paused.
+RECLAIM_DONE | 110 | Notice, reclaim finished; {planet} | {planet} is reclaimed. It is a living world now, and raids from it have stopped.
+PROS_TYPE_RECLAIMED | 24 | Planet card, type of a reclaimed world | Reclaimed world
+
+### Raids and pods
+RAID_WARN | 110 | Notice and chip, raid due next cycle; {planet} the nest, {system} | Raiders are gathering at {planet}. A raid on {system} lanes may come next cycle.
+RAID_HIT | 110 | Notice, a lane was raided; {planet_a}, {planet_b}, {cycles} | Raiders hit {planet_a} to {planet_b}. Part of the trip is lost. The lane runs worse for {cycles} cycles.
+RAID_LANE_TIP | 60 | Lane marker tooltip; {cycles} cycles left | Raided lane. It runs worse for {cycles} more cycles.
+POD_SPOTTED | 110 | Notice, cargo pods drift after a raid; {planet} the nearest world, {cycles} | Cargo pods are drifting near {planet}. They fade in {cycles} cycles.
+POD_SCOOPED | 110 | Notice, the Flagship picked up all the pods | Pods picked up. The goods are in the hold.
+POD_SCOOPED_PART | 110 | Notice, the hold was too full for all of it | Pods picked up. The hold took what it could.
+POD_FADED | 110 | Notice, pods faded unreached | The pods faded before anyone reached them.
+LBL_GIG_PODS | 24 | Gig board, tag on a pod pickup | Cargo pods
+
+### Mining intensity
+MINE_INTENSITY_LBL | 24 | Dead world and cluster card, label of the three-step lever | Mining intensity
+MINE_INT_GENTLE | 24 | Lever step | Gentle
+MINE_INT_GENTLE_HINT | 110 | Lever step hint | Less yield. Fewer raids.
+MINE_INT_NORMAL | 24 | Lever step | Normal
+MINE_INT_NORMAL_HINT | 110 | Lever step hint | Usual yield. Usual raids.
+MINE_INT_HARD | 24 | Lever step | Hard
+MINE_INT_HARD_HINT | 110 | Lever step hint | More yield. More raids.
+
+### Wings
+BAZ_WING_TITLE | 32 | Wing popup title | Choose a wing
+BAZ_WING_PROMPT | 110 | Wing popup, line under the title; {stage} the stage just done | {stage} is done. Pick one wing to add. The other is not offered again.
+BAZ_WING_PICK | 24 | Wing popup, button under each wing | Add this wing
+BAZ_WING_1A_NAME | 24 | Wing popup and Bazaar panel, stage 1, choice A | Wing of Holds
+BAZ_WING_1A_LINE | 110 | Same, one plain line | The Flagship carries a bigger hold.
+BAZ_WING_1B_NAME | 24 | Stage 1, choice B | Wing of Reach
+BAZ_WING_1B_LINE | 110 | Same | Hubs reach farther.
+BAZ_WING_2A_NAME | 24 | Stage 2, choice A | Wing of Tolls
+BAZ_WING_2A_LINE | 110 | Same | Worlds pay more tax.
+BAZ_WING_2B_NAME | 24 | Stage 2, choice B | Wing of Benches
+BAZ_WING_2B_LINE | 110 | Same | Workshops craft for less.
+BAZ_WING_3A_NAME | 24 | Stage 3, choice A | Wing of Lamps
+BAZ_WING_3A_LINE | 110 | Same | House weather lands softer on your worlds.
+BAZ_WING_3B_NAME | 24 | Stage 3, choice B | Wing of Couriers
+BAZ_WING_3B_LINE | 110 | Same | Gigs pay a bigger premium.
+
+### Recap
+RECAP_TITLE | 40 | End screen, heading of the recap | The run in brief
+RECAP_LBL_CAPITAL | 24 | Recap label | Capital
+RECAP_LBL_STAGES | 24 | Recap label | Stages built
+RECAP_LBL_WINGS | 24 | Recap label | Wings
+RECAP_LBL_WORLDS | 24 | Recap label | Worlds grown
+RECAP_LBL_RECLAIMED | 24 | Recap label | Reclaimed worlds
+RECAP_LBL_MOMENTS | 24 | Recap label, heading of the list of the choices that decided the run | Decisive moments
+RECAP_NONE | 24 | Recap value when there is nothing to list | None

@@ -172,3 +172,33 @@ Only the last hall is missing. The roof has a gap, and the stars use it.
 
 EPI_UNFINISHED_CAPITAL | 140 | Epilogue, unfinished Bazaar, a capital was founded; {planet}
 {planet} keeps the site and keeps the lamp lit. Its people call it the Bazaar already.
+
+## Win epilogues: capital, worlds, reclaimed world, wings (2026-11-06, T301)
+Lines added to the win screen by what the run did. No counts, no lean words. {planet} is the capital. Wing lines name the wing, one per wing.
+
+EPI_CAPITAL | 140 | Epilogue, win, the capital; {planet}
+At {planet} the lamps stay on past the hour. The Bureau opens a new page for it.
+
+EPI_WORLDS_GROWN | 140 | Epilogue, win, worlds grown
+Lights burn on worlds that were dark when you came. Someone walks home along them.
+
+EPI_RECLAIMED | 140 | Epilogue, win, a dead world was reclaimed
+The grey world has a green edge now. A child there asks what the red haze was.
+
+EPI_WING_1A | 140 | Epilogue, win, Wing of Holds
+The Wing of Holds is full of crates. The Flagship sits low at its dock.
+
+EPI_WING_1B | 140 | Epilogue, win, Wing of Reach
+The Wing of Reach has a long window. From it, other systems look close.
+
+EPI_WING_2A | 140 | Epilogue, win, Wing of Tolls
+The Wing of Tolls keeps a long desk and a short queue. Everyone is counted twice.
+
+EPI_WING_2B | 140 | Epilogue, win, Wing of Benches
+The Wing of Benches smells of hot metal. The night shift has its own kettle.
+
+EPI_WING_3A | 140 | Epilogue, win, Wing of Lamps
+The Wing of Lamps has shutters for storms. When a storm comes, they stay open.
+
+EPI_WING_3B | 140 | Epilogue, win, Wing of Couriers
+The Wing of Couriers has a bell for late arrivals. It rings more than it should.

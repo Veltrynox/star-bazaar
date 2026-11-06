@@ -99,3 +99,15 @@ GIG06_A_OUT_BIO | Gig 06, outcome A, Biotech | Thick blooms, wet at the stem. Yo
 GIG06_B_OUT_LUX | Gig 06, outcome B, Luxury | Fine seed, sorted by colour, each bag tied with thread. The beds stay green, but no one will cut them now.
 GIG06_B_OUT_BIO | Gig 06, outcome B, Biotech | Seed in damp paper, each lot tagged by shelf. The beds stay green. The air inside smells close.
 GIG06_EPI | Gig 06, epilogue line | The garden is listed as tended. No keeper is named on the page.
+
+## GIG07 The Opening (T301, 2026-11-06; the win gig, one button, all four branches)
+The last Bazaar stage is done. The Flagship flies the charter cargo to the capital. One button, no choice. Docking wins the run. No text names a good or a number.
+
+GIG07_TITLE | Gig 07, arrival window title | The Opening
+GIG07_HOOK | Gig 07, signal hint | The last hall is roofed. One crate is sealed and signed, and it waits for the Flagship.
+GIG07_ARRIVE | Gig 07, arrival window text | The charter cargo is sealed and signed by every hand that built the hall. The crew lines the dock and no one speaks. Every lamp in the Bazaar is dark. It waits for one crate, carried in by you.
+GIG07_A_BTN | Gig 07, button | Bring the crate in
+GIG07_A_OUT_MIL | Gig 07, docking outcome, Military | The crate goes down the long hall in step. The seal breaks. The lamps come on one row at a time, and no one gives an order.
+GIG07_A_OUT_LUX | Gig 07, docking outcome, Luxury | The crate goes in on a cloth of bright thread. The seal breaks, and a warm scent crosses the hall. The lamps come on.
+GIG07_A_OUT_MIN | Gig 07, docking outcome, Minerals | The crate goes in heavy and slow on a flat cart. The seal breaks with a dull knock. The lamps come on, and the walls hum.
+GIG07_A_OUT_BIO | Gig 07, docking outcome, Biotech | The crate goes in damp and warm. The seal breaks, and the air in the hall turns green and close. The lamps come on.

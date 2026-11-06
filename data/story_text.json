@@ -6968,6 +6968,288 @@
    "place": "Need row, short, hub stopped buying"
   },
   {
+   "id": "RECLAIM_BTN",
+   "text": "Start reclaiming",
+   "max": 24,
+   "place": "Dead world card, starts the reclaim"
+  },
+  {
+   "id": "RECLAIM_PROMPT",
+   "text": "Reclaim {planet}? It cannot be mined while the work runs.",
+   "max": 110,
+   "place": "Confirm text before reclaim; {planet}"
+  },
+  {
+   "id": "RECLAIM_CONFIRM",
+   "text": "Reclaim",
+   "max": 24,
+   "place": "Confirm button"
+  },
+  {
+   "id": "RECLAIM_CANCEL",
+   "text": "Not yet",
+   "max": 24,
+   "place": "Cancel button"
+  },
+  {
+   "id": "RECLAIM_LBL_PROGRESS",
+   "text": "Reclaim progress",
+   "max": 24,
+   "place": "Dead world card, reclaim bar label"
+  },
+  {
+   "id": "RECLAIM_TIP",
+   "text": "Meet every need to fill the bar. Mining here stops until it is done.",
+   "max": 110,
+   "place": "Dead world card, line under the reclaim bar"
+  },
+  {
+   "id": "RECLAIM_STARTED",
+   "text": "Reclaim started at {planet}. Mining there is paused.",
+   "max": 110,
+   "place": "Notice, reclaim started; {planet}"
+  },
+  {
+   "id": "RECLAIM_DONE",
+   "text": "{planet} is reclaimed. It is a living world now, and raids from it have stopped.",
+   "max": 110,
+   "place": "Notice, reclaim finished; {planet}"
+  },
+  {
+   "id": "PROS_TYPE_RECLAIMED",
+   "text": "Reclaimed world",
+   "max": 24,
+   "place": "Planet card, type of a reclaimed world"
+  },
+  {
+   "id": "RAID_WARN",
+   "text": "Raiders are gathering at {planet}. A raid on {system} lanes may come next cycle.",
+   "max": 110,
+   "place": "Notice and chip, raid due next cycle; {planet} the nest, {system}"
+  },
+  {
+   "id": "RAID_HIT",
+   "text": "Raiders hit {planet_a} to {planet_b}. Part of the trip is lost. The lane runs worse for {cycles} cycles.",
+   "max": 110,
+   "place": "Notice, a lane was raided; {planet_a}, {planet_b}, {cycles}"
+  },
+  {
+   "id": "RAID_LANE_TIP",
+   "text": "Raided lane. It runs worse for {cycles} more cycles.",
+   "max": 60,
+   "place": "Lane marker tooltip; {cycles} cycles left"
+  },
+  {
+   "id": "POD_SPOTTED",
+   "text": "Cargo pods are drifting near {planet}. They fade in {cycles} cycles.",
+   "max": 110,
+   "place": "Notice, cargo pods drift after a raid; {planet} the nearest world, {cycles}"
+  },
+  {
+   "id": "POD_SCOOPED",
+   "text": "Pods picked up. The goods are in the hold.",
+   "max": 110,
+   "place": "Notice, the Flagship picked up all the pods"
+  },
+  {
+   "id": "POD_SCOOPED_PART",
+   "text": "Pods picked up. The hold took what it could.",
+   "max": 110,
+   "place": "Notice, the hold was too full for all of it"
+  },
+  {
+   "id": "POD_FADED",
+   "text": "The pods faded before anyone reached them.",
+   "max": 110,
+   "place": "Notice, pods faded unreached"
+  },
+  {
+   "id": "LBL_GIG_PODS",
+   "text": "Cargo pods",
+   "max": 24,
+   "place": "Gig board, tag on a pod pickup"
+  },
+  {
+   "id": "MINE_INTENSITY_LBL",
+   "text": "Mining intensity",
+   "max": 24,
+   "place": "Dead world and cluster card, label of the three-step lever"
+  },
+  {
+   "id": "MINE_INT_GENTLE",
+   "text": "Gentle",
+   "max": 24,
+   "place": "Lever step"
+  },
+  {
+   "id": "MINE_INT_GENTLE_HINT",
+   "text": "Less yield. Fewer raids.",
+   "max": 110,
+   "place": "Lever step hint"
+  },
+  {
+   "id": "MINE_INT_NORMAL",
+   "text": "Normal",
+   "max": 24,
+   "place": "Lever step"
+  },
+  {
+   "id": "MINE_INT_NORMAL_HINT",
+   "text": "Usual yield. Usual raids.",
+   "max": 110,
+   "place": "Lever step hint"
+  },
+  {
+   "id": "MINE_INT_HARD",
+   "text": "Hard",
+   "max": 24,
+   "place": "Lever step"
+  },
+  {
+   "id": "MINE_INT_HARD_HINT",
+   "text": "More yield. More raids.",
+   "max": 110,
+   "place": "Lever step hint"
+  },
+  {
+   "id": "BAZ_WING_TITLE",
+   "text": "Choose a wing",
+   "max": 32,
+   "place": "Wing popup title"
+  },
+  {
+   "id": "BAZ_WING_PROMPT",
+   "text": "{stage} is done. Pick one wing to add. The other is not offered again.",
+   "max": 110,
+   "place": "Wing popup, line under the title; {stage} the stage just done"
+  },
+  {
+   "id": "BAZ_WING_PICK",
+   "text": "Add this wing",
+   "max": 24,
+   "place": "Wing popup, button under each wing"
+  },
+  {
+   "id": "BAZ_WING_1A_NAME",
+   "text": "Wing of Holds",
+   "max": 24,
+   "place": "Wing popup and Bazaar panel, stage 1, choice A"
+  },
+  {
+   "id": "BAZ_WING_1A_LINE",
+   "text": "The Flagship carries a bigger hold.",
+   "max": 110,
+   "place": "Same, one plain line"
+  },
+  {
+   "id": "BAZ_WING_1B_NAME",
+   "text": "Wing of Reach",
+   "max": 24,
+   "place": "Stage 1, choice B"
+  },
+  {
+   "id": "BAZ_WING_1B_LINE",
+   "text": "Hubs reach farther.",
+   "max": 110,
+   "place": "Same"
+  },
+  {
+   "id": "BAZ_WING_2A_NAME",
+   "text": "Wing of Tolls",
+   "max": 24,
+   "place": "Stage 2, choice A"
+  },
+  {
+   "id": "BAZ_WING_2A_LINE",
+   "text": "Worlds pay more tax.",
+   "max": 110,
+   "place": "Same"
+  },
+  {
+   "id": "BAZ_WING_2B_NAME",
+   "text": "Wing of Benches",
+   "max": 24,
+   "place": "Stage 2, choice B"
+  },
+  {
+   "id": "BAZ_WING_2B_LINE",
+   "text": "Workshops craft for less.",
+   "max": 110,
+   "place": "Same"
+  },
+  {
+   "id": "BAZ_WING_3A_NAME",
+   "text": "Wing of Lamps",
+   "max": 24,
+   "place": "Stage 3, choice A"
+  },
+  {
+   "id": "BAZ_WING_3A_LINE",
+   "text": "House weather lands softer on your worlds.",
+   "max": 110,
+   "place": "Same"
+  },
+  {
+   "id": "BAZ_WING_3B_NAME",
+   "text": "Wing of Couriers",
+   "max": 24,
+   "place": "Stage 3, choice B"
+  },
+  {
+   "id": "BAZ_WING_3B_LINE",
+   "text": "Gigs pay a bigger premium.",
+   "max": 110,
+   "place": "Same"
+  },
+  {
+   "id": "RECAP_TITLE",
+   "text": "The run in brief",
+   "max": 40,
+   "place": "End screen, heading of the recap"
+  },
+  {
+   "id": "RECAP_LBL_CAPITAL",
+   "text": "Capital",
+   "max": 24,
+   "place": "Recap label"
+  },
+  {
+   "id": "RECAP_LBL_STAGES",
+   "text": "Stages built",
+   "max": 24,
+   "place": "Recap label"
+  },
+  {
+   "id": "RECAP_LBL_WINGS",
+   "text": "Wings",
+   "max": 24,
+   "place": "Recap label"
+  },
+  {
+   "id": "RECAP_LBL_WORLDS",
+   "text": "Worlds grown",
+   "max": 24,
+   "place": "Recap label"
+  },
+  {
+   "id": "RECAP_LBL_RECLAIMED",
+   "text": "Reclaimed worlds",
+   "max": 24,
+   "place": "Recap label"
+  },
+  {
+   "id": "RECAP_LBL_MOMENTS",
+   "text": "Decisive moments",
+   "max": 24,
+   "place": "Recap label, heading of the list of the choices that decided the run"
+  },
+  {
+   "id": "RECAP_NONE",
+   "text": "None",
+   "max": 24,
+   "place": "Recap value when there is nothing to list"
+  },
+  {
    "id": "SK_HEADER",
    "text": "Skills",
    "max": 24,
@@ -8684,6 +8966,60 @@
    "place": "Epilogue, unfinished Bazaar, a capital was founded; {planet}"
   },
   {
+   "id": "EPI_CAPITAL",
+   "text": "At {planet} the lamps stay on past the hour. The Bureau opens a new page for it.",
+   "max": 140,
+   "place": "Epilogue, win, the capital; {planet}"
+  },
+  {
+   "id": "EPI_WORLDS_GROWN",
+   "text": "Lights burn on worlds that were dark when you came. Someone walks home along them.",
+   "max": 140,
+   "place": "Epilogue, win, worlds grown"
+  },
+  {
+   "id": "EPI_RECLAIMED",
+   "text": "The grey world has a green edge now. A child there asks what the red haze was.",
+   "max": 140,
+   "place": "Epilogue, win, a dead world was reclaimed"
+  },
+  {
+   "id": "EPI_WING_1A",
+   "text": "The Wing of Holds is full of crates. The Flagship sits low at its dock.",
+   "max": 140,
+   "place": "Epilogue, win, Wing of Holds"
+  },
+  {
+   "id": "EPI_WING_1B",
+   "text": "The Wing of Reach has a long window. From it, other systems look close.",
+   "max": 140,
+   "place": "Epilogue, win, Wing of Reach"
+  },
+  {
+   "id": "EPI_WING_2A",
+   "text": "The Wing of Tolls keeps a long desk and a short queue. Everyone is counted twice.",
+   "max": 140,
+   "place": "Epilogue, win, Wing of Tolls"
+  },
+  {
+   "id": "EPI_WING_2B",
+   "text": "The Wing of Benches smells of hot metal. The night shift has its own kettle.",
+   "max": 140,
+   "place": "Epilogue, win, Wing of Benches"
+  },
+  {
+   "id": "EPI_WING_3A",
+   "text": "The Wing of Lamps has shutters for storms. When a storm comes, they stay open.",
+   "max": 140,
+   "place": "Epilogue, win, Wing of Lamps"
+  },
+  {
+   "id": "EPI_WING_3B",
+   "text": "The Wing of Couriers has a bell for late arrivals. It rings more than it should.",
+   "max": 140,
+   "place": "Epilogue, win, Wing of Couriers"
+  },
+  {
    "id": "GIG01_TITLE",
    "text": "The Ninth Tally",
    "max": 32,
@@ -9138,6 +9474,54 @@
    "text": "The garden is listed as tended. No keeper is named on the page.",
    "max": 140,
    "place": "Gig 06, epilogue line"
+  },
+  {
+   "id": "GIG07_TITLE",
+   "text": "The Opening",
+   "max": 32,
+   "place": "Gig 07, arrival window title"
+  },
+  {
+   "id": "GIG07_HOOK",
+   "text": "The last hall is roofed. One crate is sealed and signed, and it waits for the Flagship.",
+   "max": 140,
+   "place": "Gig 07, signal hint"
+  },
+  {
+   "id": "GIG07_ARRIVE",
+   "text": "The charter cargo is sealed and signed by every hand that built the hall. The crew lines the dock and no one speaks. Every lamp in the Bazaar is dark. It waits for one crate, carried in by you.",
+   "max": 280,
+   "place": "Gig 07, arrival window text"
+  },
+  {
+   "id": "GIG07_A_BTN",
+   "text": "Bring the crate in",
+   "max": 28,
+   "place": "Gig 07, button"
+  },
+  {
+   "id": "GIG07_A_OUT_MIL",
+   "text": "The crate goes down the long hall in step. The seal breaks. The lamps come on one row at a time, and no one gives an order.",
+   "max": 280,
+   "place": "Gig 07, docking outcome, Military"
+  },
+  {
+   "id": "GIG07_A_OUT_LUX",
+   "text": "The crate goes in on a cloth of bright thread. The seal breaks, and a warm scent crosses the hall. The lamps come on.",
+   "max": 280,
+   "place": "Gig 07, docking outcome, Luxury"
+  },
+  {
+   "id": "GIG07_A_OUT_MIN",
+   "text": "The crate goes in heavy and slow on a flat cart. The seal breaks with a dull knock. The lamps come on, and the walls hum.",
+   "max": 280,
+   "place": "Gig 07, docking outcome, Minerals"
+  },
+  {
+   "id": "GIG07_A_OUT_BIO",
+   "text": "The crate goes in damp and warm. The seal breaks, and the air in the hall turns green and close. The lamps come on.",
+   "max": 280,
+   "place": "Gig 07, docking outcome, Biotech"
   },
   {
    "id": "EV01_TITLE",
