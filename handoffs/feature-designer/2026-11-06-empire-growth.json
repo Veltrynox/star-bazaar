@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "agent": "feature-designer",
+  "date": "2026-11-06",
+  "task": "empire-growth",
+  "status": "done",
+  "files_changed": ["design/proposals/2026-11-06-empire-growth.md"],
+  "open_questions": [
+    "UNKNOWN: tier count, needs per tier, tax and price-pull curves (economy-designer)",
+    "UNKNOWN: which of the 68 skill nodes depend on share and need re-voicing (audit by economy-designer, owner starts)",
+    "UNKNOWN: content for systems 3+ (economy-designer and story-designer volume)"
+  ],
+  "handoff": "Proposal only. Redesign around empire growth: Prosperity tier ladder with needs per planet (tied to Availability), automation scale trade -> route -> hub -> system, win by four empire milestone tracks (Worlds, Reach, Industry, Renewal), rivals become market weather, Raw Sources merge with reclaim-a-dead-world capstone, always-visible Next Up strip. Five phases; owner decisions on 8 questions pending. Nothing approved.",
+  "details": {
+    "doc": "design/proposals/2026-11-06-empire-growth.md",
+    "phases": [
+      {"id": "P1", "title": "Living planets and Next Up", "sizes": "gameplay L, economy M, story M, fx M, ui M, juice M"},
+      {"id": "P2", "title": "Growth is the goal: win, rivals as weather, skills, endings", "sizes": "gameplay M, ui M, story M, economy M, juice S"},
+      {"id": "P3", "title": "Hubs and Raw Sources", "sizes": "gameplay L, ui M, economy M, juice M"},
+      {"id": "P4", "title": "Systems as one unit and Renewal", "sizes": "gameplay L, economy L, story M, fx M, juice M"},
+      {"id": "P5", "title": "Spectacle and endgame polish", "sizes": "juice M, gameplay S, story S"}
+    ],
+    "obsolete_or_replaced_tasks": ["T178", "T189", "T221 (rework)", "T223 (becomes need icons)", "T208 (hold until skill retag)", "T253 (spec = this doc)", "T166", "T190 (decide yes)"],
+    "kept_tasks": ["T250 as Raw Sources hazard", "T254", "T255", "T218 as contracts", "T243 retargeted", "T239", "T240", "T244", "T247", "T249", "T251", "T05", "T193"],
+    "owner_questions": 8
+  }
+}
