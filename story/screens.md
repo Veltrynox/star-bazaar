@@ -304,8 +304,8 @@ LBL_NEXT_CYCLE | 48 | Storage view, projected stock after the next cycle | Next 
 ## New goods and asteroid clusters (T154, 2026-11-02; names are working names, owner decides)
 GOOD_SILK_NAME | 24 | Commodity name, silk | Starsilk
 GOOD_SILK_DESC | 110 | Commodity tooltip, silk | Light cloth with a faint glow. A luxury trade good: little to carry, much to admire.
-GOOD_CHIPS_NAME | 24 | Commodity name, chips | Logic Cores
-GOOD_CHIPS_DESC | 110 | Commodity tooltip, chips | Small machine minds, etched by hand and counted twice. A trade good.
+GOOD_SPYWARE_NAME | 24 | Commodity name, spyware | Spy Software
+GOOD_SPYWARE_DESC | 110 | Commodity tooltip, spyware | Listening code sold to those who like to know. A trade good.
 GOOD_ORE_NAME | 24 | Commodity name, ore | Rock Ore
 GOOD_ORE_DESC | 110 | Commodity tooltip, ore | Raw rock from asteroid clusters. Free to take. A raw input for anything that needs metal.
 WORLD_CL_S1A_NAME | 24 | Asteroid cluster 1 of system 1, map label | Cinder Shoal
@@ -348,20 +348,24 @@ GOOD_NULLGLASS_NAME | 24 | Commodity name, nullglass | Nullglass
 GOOD_NULLGLASS_DESC | 110 | Commodity tooltip, nullglass | Dark glass cut from a dead world. A raw mined good that hums faintly in the hold.
 GOOD_PLATE_NAME | 24 | Commodity name, plate | Lattice Plate
 GOOD_PLATE_DESC | 110 | Commodity tooltip, plate | Dense plate, built rather than dug. A crafted good, heavy with the work in it.
+GOOD_POWDER_NAME | 24 | Commodity name, powder | Blast Powder
+GOOD_POWDER_DESC | 110 | Commodity tooltip, powder | Grey grit in sacks; every fleet starts here. A trade good.
+GOOD_BLOOMS_NAME | 24 | Commodity name, blooms | Hothouse Blooms
+GOOD_BLOOMS_DESC | 110 | Commodity tooltip, blooms | Petals picked at dawn; scent is the cheapest status. A trade good.
 GOOD_ENERGY_NAME | 24 | Commodity name, energy | Energy
 GOOD_ENERGY_DESC | 110 | Commodity tooltip, energy | Bulk power for any world with a lamp to light. A raw good that every trade leans on.
 GOOD_FOOD_NAME | 24 | Commodity name, food | Food
 GOOD_FOOD_DESC | 110 | Commodity tooltip, food | Plain staple rations. A raw good that everyone needs and nobody boasts about.
 GOOD_RIVETS_NAME | 24 | Commodity name, rivets | Rivets
 GOOD_RIVETS_DESC | 110 | Commodity tooltip, rivets | Metal pins for ships. Bought at Voltara, sold at the system 2 yards. A trade good.
-GOOD_CELLS_NAME | 24 | Commodity name, cells | Power Cells
-GOOD_CELLS_DESC | 110 | Commodity tooltip, cells | Sealed power cells that keep their charge. A crafted good.
-GOOD_ARMOUR_NAME | 24 | Commodity name, armour | Hull Armour
-GOOD_ARMOUR_DESC | 110 | Commodity tooltip, armour | Layered hull plating for those who expect to be shot at. A crafted good.
+GOOD_ROUNDS_NAME | 24 | Commodity name, rounds | Munitions
+GOOD_ROUNDS_DESC | 110 | Commodity tooltip, rounds | Loaded and counted; the Plan wants them. A crafted good.
+GOOD_ARMS_NAME | 24 | Commodity name, arms | Weapons
+GOOD_ARMS_DESC | 110 | Commodity tooltip, arms | Rail carbines and gun racks in crates. A crafted good.
 GOOD_MUSK_NAME | 24 | Commodity name, musk | Musk
 GOOD_MUSK_DESC | 110 | Commodity tooltip, musk | A strong scent, sold by the drop. A luxury trade good.
-GOOD_CASK_NAME | 24 | Commodity name, cask | Festival Casks
-GOOD_CASK_DESC | 110 | Commodity tooltip, cask | Sealed casks of stores kept for special days. A crafted luxury good.
+GOOD_ATTAR_NAME | 24 | Commodity name, attar | Attar
+GOOD_ATTAR_DESC | 110 | Commodity tooltip, attar | Bottled scent, pressed from blooms. A crafted luxury good.
 GOOD_GEMS_NAME | 24 | Commodity name, gems | Cold Gems
 GOOD_GEMS_DESC | 110 | Commodity tooltip, gems | Cut stones with a cold inner light. A crafted luxury, valued for being looked at.
 GOOD_INGOT_NAME | 24 | Commodity name, ingot | Metal Ingots
@@ -370,8 +374,8 @@ GOOD_ALLOY_NAME | 24 | Commodity name, alloy | Furnace Alloy
 GOOD_ALLOY_DESC | 110 | Commodity tooltip, alloy | Hard metal blended to a strict recipe. The finest crafted good of its kind.
 GOOD_SPORES_NAME | 24 | Commodity name, spores | Jar Spores
 GOOD_SPORES_DESC | 110 | Commodity tooltip, spores | Dry spores in sealed jars, handled with gloves. A trade good.
-GOOD_GEL_NAME | 24 | Commodity name, gel | Living Gel
-GOOD_GEL_DESC | 110 | Commodity tooltip, gel | Thick living gel that sets as it cools. A crafted good.
+GOOD_MEDICINE_NAME | 24 | Commodity name, medicine | Medicine
+GOOD_MEDICINE_DESC | 110 | Commodity tooltip, medicine | Clinic stock in cold boxes. A crafted good.
 GOOD_SEED_NAME | 24 | Commodity name, seed | Seed Stock
 GOOD_SEED_DESC | 110 | Commodity tooltip, seed | Seed stock that grows to order. The finest crafted good of its kind.
 NULL_CORE_BUILD_TITLE | 32 | Popup title, first Null Core built (one per run) | The core is built

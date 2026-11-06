@@ -158,3 +158,158 @@ SK_LUX_5B_PLAIN | 110 | Skill screen, detail panel | Prices and events are shown
 SK_MIN_5B_NAME | 24 | Skill screen, node name | Shift Roll Call
 SK_MIN_5B_FLAVOUR | 90 | Skill screen, detail panel | Hats will not stop a rock. So each shift starts with names read aloud.
 SK_MIN_5B_PLAIN | 110 | Skill screen, detail panel | Minerals routes carry 10% more and ignore debris. Minerals price events hit 30% weaker.
+
+## Skills fill (T207 proposal, 35 nodes; ids kept from design/proposals/2026-11-05-skills-fill.md)
+Text only. Sizes are in words; the economy designer sets numbers. Nodes are not yet in data/skills.json.
+
+SK_FND_LEDGER_NAME | 24 | Skill screen, node name | Route Ledger
+SK_FND_LEDGER_FLAVOUR | 90 | Skill screen, detail panel | A column of small numbers, honest to the last coin. You read it twice.
+SK_FND_LEDGER_PLAIN | 110 | Skill screen, detail panel | Each route shows its net profit per cycle after trip cost and Ship upkeep.
+
+SK_FND_RIVAL_WATCH_NAME | 24 | Skill screen, node name | Rival Watch
+SK_FND_RIVAL_WATCH_FLAVOUR | 90 | Skill screen, detail panel | You learn where the others will stand before they do. They learn you looked.
+SK_FND_RIVAL_WATCH_PLAIN | 110 | Skill screen, detail panel | The Competitors screen shows each rival's expected share 3 cycles ahead.
+
+SK_FND_DOCKS_NAME | 24 | Skill screen, node name | Dock Contracts
+SK_FND_DOCKS_FLAVOUR | 90 | Skill screen, detail panel | A fixed fee, a stamped berth, a clerk who stops asking.
+SK_FND_DOCKS_PLAIN | 110 | Skill screen, detail panel | Upgrading a route costs less.
+
+SK_MIL_8_NAME | 24 | Skill screen, node name | Yard Account
+SK_MIL_8_FLAVOUR | 90 | Skill screen, detail panel | A ledger of hulls, signed in triplicate. The yard knows your name.
+SK_MIL_8_PLAIN | 110 | Skill screen, detail panel | Ships cost less to buy.
+
+SK_MIL_9_NAME | 24 | Skill screen, node name | Cell Press
+SK_MIL_9_FLAVOUR | 90 | Skill screen, detail panel | Cells pressed on your own floor. No freight, no waiting.
+SK_MIL_9_PLAIN | 140 | Skill screen, detail panel | Military sales count more toward share. Tech: craft {goal} units.
+SK_MIL_9_CRAFT | 60 | Skill screen, tech node progress line | Military workshop crafts: {n} of {goal}
+
+SK_MIL_10_NAME | 24 | Skill screen, node name | Hardened Stores
+SK_MIL_10_FLAVOUR | 90 | Skill screen, detail panel | Steel door, one guard, a lock with a number. The cuts stop outside.
+SK_MIL_10_PLAIN | 110 | Skill screen, detail panel | Storage cuts do not trim your stored Military goods.
+
+SK_MIL_11_NAME | 24 | Skill screen, node name | Proof Range
+SK_MIL_11_FLAVOUR | 90 | Skill screen, detail panel | The range is loud. The buyer pays for loud.
+SK_MIL_11_PLAIN | 140 | Skill screen, detail panel | Your second Military product sells for more. Tech: craft {goal} units.
+SK_MIL_11_CRAFT | 60 | Skill screen, tech node progress line | Military workshop crafts: {n} of {goal}
+
+SK_MIL_12_NAME | 24 | Skill screen, node name | Open Arsenal
+SK_MIL_12_FLAVOUR | 90 | Skill screen, detail panel | The doors stay open and the lead stays yours a little longer.
+SK_MIL_12_PLAIN | 110 | Skill screen, detail panel | Military share counts over a longer span, so a lead lasts longer.
+
+SK_MIL_13_NAME | 24 | Skill screen, node name | Pressure Doctrine
+SK_MIL_13_FLAVOUR | 90 | Skill screen, detail panel | You make the call sooner now. The clerk has learned your voice.
+SK_MIL_13_PLAIN | 110 | Skill screen, detail panel | Embargo Desk recharges sooner.
+
+SK_MIL_14_NAME | 24 | Skill screen, node name | War Economy
+SK_MIL_14_FLAVOUR | 90 | Skill screen, detail panel | Every crate has a second use on the ledger. Nobody says it aloud.
+SK_MIL_14_PLAIN | 140 | Skill screen, detail panel | Each Military batch yields more units. Tech: craft {goal} units.
+SK_MIL_14_CRAFT | 60 | Skill screen, tech node progress line | Military workshop crafts: {n} of {goal}
+
+SK_MIL_15_NAME | 24 | Skill screen, node name | Last Line
+SK_MIL_15_FLAVOUR | 90 | Skill screen, detail panel | The line holds because nobody wants to test it.
+SK_MIL_15_PLAIN | 110 | Skill screen, detail panel | Cuts all rivals' Military growth further for the rest of the run. Capstone.
+
+SK_LUX_8_NAME | 24 | Skill screen, node name | Salon Circle
+SK_LUX_8_FLAVOUR | 90 | Skill screen, detail panel | Small room, soft chairs, hard questions. Few leave before dawn.
+SK_LUX_8_PLAIN | 110 | Skill screen, detail panel | Luxury share counts over a longer span.
+
+SK_LUX_9_NAME | 24 | Skill screen, node name | Second Loom
+SK_LUX_9_FLAVOUR | 90 | Skill screen, detail panel | A second loom hums beside the first. The thread is never enough.
+SK_LUX_9_PLAIN | 140 | Skill screen, detail panel | Luxury workshops make one more batch a cycle. Tech: craft {goal} units.
+SK_LUX_9_CRAFT | 60 | Skill screen, tech node progress line | Luxury workshop crafts: {n} of {goal}
+
+SK_LUX_10_NAME | 24 | Skill screen, node name | Trend Desk
+SK_LUX_10_FLAVOUR | 90 | Skill screen, detail panel | You see the cold front coming and have the coat ready.
+SK_LUX_10_PLAIN | 110 | Skill screen, detail panel | Events that cut your Luxury prices hit weaker.
+
+SK_LUX_11_NAME | 24 | Skill screen, node name | Collector's Eye
+SK_LUX_11_FLAVOUR | 90 | Skill screen, detail panel | One buyer wants the piece more than all the rest. You wait for that one.
+SK_LUX_11_PLAIN | 140 | Skill screen, detail panel | Your second Luxury product sells for more. Tech: craft {goal} units.
+SK_LUX_11_CRAFT | 60 | Skill screen, tech node progress line | Luxury workshop crafts: {n} of {goal}
+
+SK_LUX_12_NAME | 24 | Skill screen, node name | Press Room
+SK_LUX_12_FLAVOUR | 90 | Skill screen, detail panel | Your name on the page, in a good typeface. The page is not free.
+SK_LUX_12_PLAIN | 110 | Skill screen, detail panel | Luxury routes carry more a cycle.
+
+SK_LUX_13_NAME | 24 | Skill screen, node name | Patron's Purse
+SK_LUX_13_FLAVOUR | 90 | Skill screen, detail panel | A mixed crate pleases every hand at the table.
+SK_LUX_13_PLAIN | 110 | Skill screen, detail panel | Routes with mixed cargo earn a larger bonus.
+
+SK_LUX_14_NAME | 24 | Skill screen, node name | Auction House
+SK_LUX_14_FLAVOUR | 90 | Skill screen, detail panel | The hammer falls and the room exhales. You count afterwards.
+SK_LUX_14_PLAIN | 140 | Skill screen, detail panel | Luxury sales count more toward share. Tech: craft {goal} units.
+SK_LUX_14_CRAFT | 60 | Skill screen, tech node progress line | Luxury workshop crafts: {n} of {goal}
+
+SK_LUX_15_NAME | 24 | Skill screen, node name | Grand Salon
+SK_LUX_15_FLAVOUR | 90 | Skill screen, detail panel | The doors are gilt and the guest list is longer than the hall.
+SK_LUX_15_PLAIN | 110 | Skill screen, detail panel | Cuts all rivals' Luxury growth for the rest of the run. Capstone.
+
+SK_MIN_8_NAME | 24 | Skill screen, node name | Deep Hold
+SK_MIN_8_FLAVOUR | 90 | Skill screen, detail panel | A bigger hold, a lower ceiling. The crew learns to stoop.
+SK_MIN_8_PLAIN | 110 | Skill screen, detail panel | Storage holds more mined cargo.
+
+SK_MIN_9_NAME | 24 | Skill screen, node name | Slag Reclaim
+SK_MIN_9_FLAVOUR | 90 | Skill screen, detail panel | What the fire leaves is melted down again. Waste becomes a habit you drop.
+SK_MIN_9_PLAIN | 140 | Skill screen, detail panel | Workshop recipes need less mined cargo. Tech: craft {goal} units.
+SK_MIN_9_CRAFT | 60 | Skill screen, tech node progress line | Minerals workshop crafts: {n} of {goal}
+
+SK_MIN_10_NAME | 24 | Skill screen, node name | Safe Passage
+SK_MIN_10_FLAVOUR | 90 | Skill screen, detail panel | A beacon on every cold rock. Fewer crews go missing.
+SK_MIN_10_PLAIN | 110 | Skill screen, detail panel | Mined cargo is lost less often on dead worlds.
+
+SK_MIN_11_NAME | 24 | Skill screen, node name | Hot Foundry
+SK_MIN_11_FLAVOUR | 90 | Skill screen, detail panel | The pour is bright and quick. Buyers like the shine.
+SK_MIN_11_PLAIN | 140 | Skill screen, detail panel | Minerals sales pay more. Tech: craft {goal} units.
+SK_MIN_11_CRAFT | 60 | Skill screen, tech node progress line | Minerals workshop crafts: {n} of {goal}
+
+SK_MIN_12_NAME | 24 | Skill screen, node name | Seam Brokers
+SK_MIN_12_FLAVOUR | 90 | Skill screen, detail panel | A man with a ledger and a smile pays well for a sure thing.
+SK_MIN_12_PLAIN | 110 | Skill screen, detail panel | Minerals price events in your favour pay more.
+
+SK_MIN_13_NAME | 24 | Skill screen, node name | Core Tuning
+SK_MIN_13_FLAVOUR | 90 | Skill screen, detail panel | Dials, a steady hand, a long cold trip made a little shorter.
+SK_MIN_13_PLAIN | 110 | Skill screen, detail panel | Trips to dead worlds cost less.
+
+SK_MIN_14_NAME | 24 | Skill screen, node name | Mass Melt
+SK_MIN_14_FLAVOUR | 90 | Skill screen, detail panel | The big furnace never asks what it is melting. It asks for more.
+SK_MIN_14_PLAIN | 140 | Skill screen, detail panel | Minerals sales count more toward share. Tech: craft {goal} units.
+SK_MIN_14_CRAFT | 60 | Skill screen, tech node progress line | Minerals workshop crafts: {n} of {goal}
+
+SK_MIN_15_NAME | 24 | Skill screen, node name | Motherlode
+SK_MIN_15_FLAVOUR | 90 | Skill screen, detail panel | The seam goes deeper than the map. Nobody tells the map.
+SK_MIN_15_PLAIN | 110 | Skill screen, detail panel | Cluster yield rises again. Capstone.
+
+SK_BIO_8_NAME | 24 | Skill screen, node name | Gel Cooperatives
+SK_BIO_8_FLAVOUR | 90 | Skill screen, detail panel | Neighbours share a vat and a quarrel. The gel does not mind.
+SK_BIO_8_PLAIN | 110 | Skill screen, detail panel | Biotech routes carry more a cycle.
+
+SK_BIO_9_NAME | 24 | Skill screen, node name | Spore Bank
+SK_BIO_9_FLAVOUR | 90 | Skill screen, detail panel | A cold shelf of sleepers, ready to wake when you need them.
+SK_BIO_9_PLAIN | 140 | Skill screen, detail panel | Biotech workshops make one more batch a cycle. Tech: craft {goal} units.
+SK_BIO_9_CRAFT | 60 | Skill screen, tech node progress line | Biotech workshop crafts: {n} of {goal}
+
+SK_BIO_10_NAME | 24 | Skill screen, node name | Cold Chain
+SK_BIO_10_FLAVOUR | 90 | Skill screen, detail panel | Frost in every crate, from the vat to the door.
+SK_BIO_10_PLAIN | 110 | Skill screen, detail panel | Biotech routes ignore debris events on the lane.
+
+SK_BIO_11_NAME | 24 | Skill screen, node name | Graft Lines
+SK_BIO_11_FLAVOUR | 90 | Skill screen, detail panel | A cutting, a stitch, a row of small green promises.
+SK_BIO_11_PLAIN | 140 | Skill screen, detail panel | Each Biotech batch yields more units. Tech: craft {goal} units.
+SK_BIO_11_CRAFT | 60 | Skill screen, tech node progress line | Biotech workshop crafts: {n} of {goal}
+
+SK_BIO_12_NAME | 24 | Skill screen, node name | Patient Orchard
+SK_BIO_12_FLAVOUR | 90 | Skill screen, detail panel | Nothing to do but wait. It is harder than it sounds.
+SK_BIO_12_PLAIN | 110 | Skill screen, detail panel | Stored Biotech grows faster each cycle.
+
+SK_BIO_13_NAME | 24 | Skill screen, node name | Market Days
+SK_BIO_13_FLAVOUR | 90 | Skill screen, detail panel | The stalls open when the news does. Your jars are ready.
+SK_BIO_13_PLAIN | 110 | Skill screen, detail panel | Biotech sales at a price-up planet count more toward share.
+
+SK_BIO_14_NAME | 24 | Skill screen, node name | Living Contracts
+SK_BIO_14_FLAVOUR | 90 | Skill screen, detail panel | A signed promise to deliver something alive. The ink is still wet.
+SK_BIO_14_PLAIN | 140 | Skill screen, detail panel | Biotech sales pay more. Tech: craft {goal} units.
+SK_BIO_14_CRAFT | 60 | Skill screen, tech node progress line | Biotech workshop crafts: {n} of {goal}
+
+SK_BIO_15_NAME | 24 | Skill screen, node name | Evergreen
+SK_BIO_15_FLAVOUR | 90 | Skill screen, detail panel | It grows where nobody planted it. Rivals find it in their gardens.
+SK_BIO_15_PLAIN | 110 | Skill screen, detail panel | Cuts all rivals' Biotech growth further for the rest of the run. Capstone.

@@ -1,33 +1,49 @@
 # Star Bazaar: voice and glossary
 
-Draft 2 (tone rework, T74), 2026-10-27. Owner edits. Every text in story/ follows this file.
+Draft 3 (higher stakes, closer to the crew, simpler words), 2026-11-05. Owner edits. Every text in story/ follows this file. Glossary, limits and punctuation below are unchanged from draft 2.
 
 ## Narrator
-A quiet, practical observer: a small crew in a large, cold sky, inside a society that shares everything and counts all of it. Dry, a little wry, never loud. About one line in four carries irony; the irony never hides what the player must know.
+A quiet voice that stays close to a small crew in a big, cold sky. It does not joke to be safe. It tells you what is at risk, and it lets the risk sit there. The crew is scared and tired and trying to stay decent. The Commons shares everything and counts all of it, and that is a pressure too: someone is always owed, always watching, always keeping a page.
 Two inspirations, blended and kept light:
-1. Deep-space dread: cold, industrial, indifferent. Hulls that creak like something asleep, ducts that hum, dark outside the glass, machines that feel half grown. Hint at strangeness, never show a monster.
-2. Collective bureaucracy, as flavour only: the Commons, the Plan and its five-cycle plans, quotas, forms, committees, rations, the common good. Gentle wit, no lecture, no propaganda, no real-world figures, parties or slogans.
-The joke is the player: a trader chasing market share inside a society that preaches sharing. Story texts (preface, events, endings, skills) carry the joke and the thread: the common good, enough, debt, distance, escape. Menus, buttons, labels, notices and tutorial lines stay plain and carry none of it.
+1. Deep-space dread: cold, empty, and close. A hull that creaks at night. A hum in the walls that stops for one breath. Dark outside the glass, and nobody is coming. Hint at something wrong, never show a monster.
+2. The Commons as a soft weight, as flavour only: the Plan and its five-cycle plans, quotas, forms, committees, the common good. Polite people who never say no and never let go. No lecture, no propaganda, no real-world figures, parties or slogans.
+What drives a story text is what the player could lose: the crew, the home, a debt owed to someone with a name, a place at the table, time, trust, sleep. Make the player feel the weight of the choice before they make it. Texts do not say if the choice was right. They say what it costs and who feels it.
+Irony stays, but small: about one line in six, dry, and never a way out of the feeling. It must never hide what the player needs to know.
+Menus, buttons, labels, notices and tutorial lines stay plain and carry none of this. Feeling lives in story texts only (preface, events, endings, skills).
 The player is "you" or "the company". Never a gender, never a name.
 
+## Simple words (always)
+- Write like you speak to a tired friend. Use the shortest common word. "Use" not "utilise". "Start" not "commence". "Help" not "assist". "Need" not "require". "Show" not "demonstrate".
+- Short sentences, one idea each. Most sentences have fewer than 12 words. Never more than 20.
+- Plain verbs and plain nouns. Say the thing: "the lights went out", not "illumination failed".
+- Feelings by what a body does, not by a label: "your hands are cold", "no one speaks", "you read the line twice". Not "you feel anxious".
+- One odd or hard detail beats three pretty ones.
+- No rare words, no long Latin words, no stacked clauses, no riddles. If a word would need a dictionary, change it.
+
 ## Do
-- Say what happens, then (in story texts) what it means.
+- Say what happens, then (in story texts) what it means for the people in it.
 - Plain verbs: buy, sell, learn, close, open, run.
-- Short sentences. One idea per sentence.
+- Raise the stakes in the text, not in the numbers. Name what is at risk in one concrete image: the empty bunk, the unpaid shift, the dark window, the form with your name on it.
+- Make it personal and close. A voice on the radio, a hand on a lever, a name on a list. Prefer "the crew" and "your people" to "the company" when a story text can.
+- Let doubt show. The choices are hard because each one gives something up. Say what is given up.
 - In events, say the price effect in words ("costs more", "pays less") before any musing.
-- Skills: plain line first (what it does, no label), flavour line second (changed 2026-11-04). The plain line names the real change and starts with a verb.
-- Bureaucratic comedy: forms, stamps, committees, quotas, "the Plan allows". Let the Bureau be polite and slow.
-- Dread in small doses: one odd sensory detail per story text at most.
+- Skills: plain line first (what it does, no label), flavour line second. The plain line names the real change and starts with a verb. The flavour line may carry the feeling.
+- The Bureau is polite and slow. That is the scary part. It never shouts and it never forgets.
+- Dread in small doses: one odd sensory detail per story text at most. Silence and waiting work better than noise.
 - Keep story-only ideas story-only. The Plan, quotas and the Bureau never change a number in the game.
 
 ## Do not
 - No numbers in story texts unless the game inserts them through a {placeholder}.
-- No promises the mechanics do not keep (no "you will be rich", no "safe", no "the Bureau will take your cash").
+- No promises the mechanics do not keep (no "you will be rich", no "safe", no "the Bureau will take your cash"). High stakes in words must not become a threat the game never carries out.
+- No melodrama: no death, no gore, no shouting, no cruelty for its own sake. The weight is quiet.
+- No telling the player what to feel or what the choice says about them. Show the cost and stop.
 - No exclamation marks, no emoji, no slang, no jokes at the cost of clarity.
+- No fancy or rare words (see Simple words). No sentence over 20 words.
 - No real-world names, titles or slogans from history or politics (no party names, no leaders, no copied chants). Invent every term.
 - No names, phrases or characters from existing films, games or books.
 - No synonyms for glossary terms (not "money" for credits, not "fee" for upkeep, not "warehouse" for storage).
 - No flavour words in buttons, labels, notices or tutorial lines.
+- Chain and event choices stay neutral: both options carry real cost and neither is the "good" one (see the chain rules below).
 
 ## Length limits
 - Button, menu entry: max 24 characters.

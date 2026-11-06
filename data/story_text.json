@@ -1,7 +1,7 @@
 {
  "generated": {
   "file": "data/story_text.json",
-  "source": "story/screens.md, skills.md, endings.md, events.md",
+  "source": "story/screens.md, skills.md, endings.md, events.md, gigs.md",
   "generator": "tools/build_story.py",
   "command": "python3 tools/build_story.py",
   "note": "Generated file: never edit by hand. Edit the source, then run the command."
@@ -1202,16 +1202,16 @@
    "place": "Commodity tooltip, silk"
   },
   {
-   "id": "GOOD_CHIPS_NAME",
-   "text": "Logic Cores",
+   "id": "GOOD_SPYWARE_NAME",
+   "text": "Spy Software",
    "max": 24,
-   "place": "Commodity name, chips"
+   "place": "Commodity name, spyware"
   },
   {
-   "id": "GOOD_CHIPS_DESC",
-   "text": "Small machine minds, etched by hand and counted twice. A trade good.",
+   "id": "GOOD_SPYWARE_DESC",
+   "text": "Listening code sold to those who like to know. A trade good.",
    "max": 110,
-   "place": "Commodity tooltip, chips"
+   "place": "Commodity tooltip, spyware"
   },
   {
    "id": "GOOD_ORE_NAME",
@@ -1442,6 +1442,30 @@
    "place": "Commodity tooltip, plate"
   },
   {
+   "id": "GOOD_POWDER_NAME",
+   "text": "Blast Powder",
+   "max": 24,
+   "place": "Commodity name, powder"
+  },
+  {
+   "id": "GOOD_POWDER_DESC",
+   "text": "Grey grit in sacks; every fleet starts here. A trade good.",
+   "max": 110,
+   "place": "Commodity tooltip, powder"
+  },
+  {
+   "id": "GOOD_BLOOMS_NAME",
+   "text": "Hothouse Blooms",
+   "max": 24,
+   "place": "Commodity name, blooms"
+  },
+  {
+   "id": "GOOD_BLOOMS_DESC",
+   "text": "Petals picked at dawn; scent is the cheapest status. A trade good.",
+   "max": 110,
+   "place": "Commodity tooltip, blooms"
+  },
+  {
    "id": "GOOD_ENERGY_NAME",
    "text": "Energy",
    "max": 24,
@@ -1478,28 +1502,28 @@
    "place": "Commodity tooltip, rivets"
   },
   {
-   "id": "GOOD_CELLS_NAME",
-   "text": "Power Cells",
+   "id": "GOOD_ROUNDS_NAME",
+   "text": "Munitions",
    "max": 24,
-   "place": "Commodity name, cells"
+   "place": "Commodity name, rounds"
   },
   {
-   "id": "GOOD_CELLS_DESC",
-   "text": "Sealed power cells that keep their charge. A crafted good.",
+   "id": "GOOD_ROUNDS_DESC",
+   "text": "Loaded and counted; the Plan wants them. A crafted good.",
    "max": 110,
-   "place": "Commodity tooltip, cells"
+   "place": "Commodity tooltip, rounds"
   },
   {
-   "id": "GOOD_ARMOUR_NAME",
-   "text": "Hull Armour",
+   "id": "GOOD_ARMS_NAME",
+   "text": "Weapons",
    "max": 24,
-   "place": "Commodity name, armour"
+   "place": "Commodity name, arms"
   },
   {
-   "id": "GOOD_ARMOUR_DESC",
-   "text": "Layered hull plating for those who expect to be shot at. A crafted good.",
+   "id": "GOOD_ARMS_DESC",
+   "text": "Rail carbines and gun racks in crates. A crafted good.",
    "max": 110,
-   "place": "Commodity tooltip, armour"
+   "place": "Commodity tooltip, arms"
   },
   {
    "id": "GOOD_MUSK_NAME",
@@ -1514,16 +1538,16 @@
    "place": "Commodity tooltip, musk"
   },
   {
-   "id": "GOOD_CASK_NAME",
-   "text": "Festival Casks",
+   "id": "GOOD_ATTAR_NAME",
+   "text": "Attar",
    "max": 24,
-   "place": "Commodity name, cask"
+   "place": "Commodity name, attar"
   },
   {
-   "id": "GOOD_CASK_DESC",
-   "text": "Sealed casks of stores kept for special days. A crafted luxury good.",
+   "id": "GOOD_ATTAR_DESC",
+   "text": "Bottled scent, pressed from blooms. A crafted luxury good.",
    "max": 110,
-   "place": "Commodity tooltip, cask"
+   "place": "Commodity tooltip, attar"
   },
   {
    "id": "GOOD_GEMS_NAME",
@@ -1574,16 +1598,16 @@
    "place": "Commodity tooltip, spores"
   },
   {
-   "id": "GOOD_GEL_NAME",
-   "text": "Living Gel",
+   "id": "GOOD_MEDICINE_NAME",
+   "text": "Medicine",
    "max": 24,
-   "place": "Commodity name, gel"
+   "place": "Commodity name, medicine"
   },
   {
-   "id": "GOOD_GEL_DESC",
-   "text": "Thick living gel that sets as it cools. A crafted good.",
+   "id": "GOOD_MEDICINE_DESC",
+   "text": "Clinic stock in cold boxes. A crafted good.",
    "max": 110,
-   "place": "Commodity tooltip, gel"
+   "place": "Commodity tooltip, medicine"
   },
   {
    "id": "GOOD_SEED_NAME",
@@ -5973,7 +5997,7 @@
   },
   {
    "id": "SK_FND_STORAGE_FLAVOUR",
-   "text": "One great hold in the sky, held in common, quietly kept by you.",
+   "text": "One hold for all the crew owns. Someone has to count it every night.",
    "max": 90,
    "place": "Skill screen, detail panel"
   },
@@ -5991,7 +6015,7 @@
   },
   {
    "id": "SK_FND_PERMIT_FLAVOUR",
-   "text": "No ship leaves the home sky without a charter. This is the charter.",
+   "text": "A stamped page lets the ship leave. The crew waits by the door for it.",
    "max": 90,
    "place": "Skill screen, detail panel"
   },
@@ -6009,7 +6033,7 @@
   },
   {
    "id": "SK_FND_PROSPECT_FLAVOUR",
-   "text": "The Commons owns every rock. It has not counted the ones nobody has looked at.",
+   "text": "You stare at a blank patch of sky until it shows you something worth a trip.",
    "max": 90,
    "place": "Skill screen, detail panel"
   },
@@ -6021,13 +6045,13 @@
   },
   {
    "id": "SK_MIL_1_NAME",
-   "text": "Drydock Deals",
+   "text": "Quartermaster's Terms",
    "max": 24,
    "place": "Skill screen, node name"
   },
   {
    "id": "SK_MIL_1_FLAVOUR",
-   "text": "Every machine is a slow bill with wings. Cut the bill.",
+   "text": "The yard thanks you for the order. You do not ask what it is for.",
    "max": 90,
    "place": "Skill screen, detail panel"
   },
@@ -6039,13 +6063,13 @@
   },
   {
    "id": "SK_MIL_2_NAME",
-   "text": "Double Casting",
+   "text": "Night Shift Casting",
    "max": 24,
    "place": "Skill screen, node name"
   },
   {
    "id": "SK_MIL_2_FLAVOUR",
-   "text": "Same furnace, twice the pour. The Plan calls it thrift.",
+   "text": "The furnace never cools now. Neither do the hands that tend it.",
    "max": 90,
    "place": "Skill screen, detail panel"
   },
@@ -6063,13 +6087,13 @@
   },
   {
    "id": "SK_MIL_3_NAME",
-   "text": "Debris Pilots",
+   "text": "Convoy Pilots",
    "max": 24,
    "place": "Skill screen, node name"
   },
   {
    "id": "SK_MIL_3_FLAVOUR",
-   "text": "A good pilot reads the rubble like a timetable.",
+   "text": "They fly through the wreck of other convoys. They do not read the names.",
    "max": 90,
    "place": "Skill screen, detail panel"
   },
@@ -6081,13 +6105,13 @@
   },
   {
    "id": "SK_MIL_4_NAME",
-   "text": "Hull Works",
+   "text": "Carbine Line",
    "max": 24,
    "place": "Skill screen, node name"
   },
   {
    "id": "SK_MIL_4_FLAVOUR",
-   "text": "Shell a hull well and the quarrel goes elsewhere.",
+   "text": "Every crate is signed for. Your name is on the last line of each.",
    "max": 90,
    "place": "Skill screen, detail panel"
   },
@@ -6111,7 +6135,7 @@
   },
   {
    "id": "SK_MIL_5_FLAVOUR",
-   "text": "A polite desk with a very long reach.",
+   "text": "One call and a rival's yard goes quiet. A clerk thanks you for your patience.",
    "max": 90,
    "place": "Skill screen, detail panel"
   },
@@ -6123,13 +6147,13 @@
   },
   {
    "id": "SK_MIL_6_NAME",
-   "text": "Contract Doctrine",
+   "text": "The Long Contract",
    "max": 24,
    "place": "Skill screen, node name"
   },
   {
    "id": "SK_MIL_6_FLAVOUR",
-   "text": "Write the terms first. The sky respects a clause.",
+   "text": "The buyer sends a card of thanks. You know what the cargo is for.",
    "max": 90,
    "place": "Skill screen, detail panel"
   },
@@ -6153,7 +6177,7 @@
   },
   {
    "id": "SK_MIL_7_FLAVOUR",
-   "text": "A fleet that is always there needs no speech.",
+   "text": "Ships wait on every lane. People thank you for the quiet. You know its price.",
    "max": 90,
    "place": "Skill screen, detail panel"
   },
@@ -6165,13 +6189,13 @@
   },
   {
    "id": "SK_LUX_1_NAME",
-   "text": "Price Whisper",
+   "text": "The Whisper Circle",
    "max": 24,
    "place": "Skill screen, node name"
   },
   {
    "id": "SK_LUX_1_FLAVOUR",
-   "text": "Prices move before people do. Listen to the walls.",
+   "text": "You hear what the rich will pay before they know it. They smile when you pass.",
    "max": 90,
    "place": "Skill screen, detail panel"
   },
@@ -6183,13 +6207,13 @@
   },
   {
    "id": "SK_LUX_2_NAME",
-   "text": "Fine Finishing",
+   "text": "A Finer Finish",
    "max": 24,
    "place": "Skill screen, node name"
   },
   {
    "id": "SK_LUX_2_FLAVOUR",
-   "text": "A good edge earns a second look. A third earns a price.",
+   "text": "No one buys the thing. They buy the look on the next person's face.",
    "max": 90,
    "place": "Skill screen, detail panel"
   },
@@ -6207,13 +6231,13 @@
   },
   {
    "id": "SK_LUX_3_NAME",
-   "text": "Event Forecast",
+   "text": "Early Invitation",
    "max": 24,
    "place": "Skill screen, node name"
   },
   {
    "id": "SK_LUX_3_FLAVOUR",
-   "text": "The sky has moods. The Plan pretends not to notice them.",
+   "text": "You learn of trouble first. It earns a seat, and a dread of losing it.",
    "max": 90,
    "place": "Skill screen, detail panel"
   },
@@ -6225,19 +6249,19 @@
   },
   {
    "id": "SK_LUX_4_NAME",
-   "text": "Cold Cellar",
+   "text": "The Cutting Room",
    "max": 24,
    "place": "Skill screen, node name"
   },
   {
    "id": "SK_LUX_4_FLAVOUR",
-   "text": "Some things improve in the dark. So do some excuses.",
+   "text": "A stone is cut until it shines. What was cut away is not on the list.",
    "max": 90,
    "place": "Skill screen, detail panel"
   },
   {
    "id": "SK_LUX_4_PLAIN",
-   "text": "Unlocks a second Luxury product, made only from second-system goods. Tech: craft {goal} units.",
+   "text": "Unlocks a second Luxury product, made from two trade goods. Tech: craft {goal} units.",
    "max": 110,
    "place": "Skill screen, detail panel"
   },
@@ -6255,7 +6279,7 @@
   },
   {
    "id": "SK_LUX_5_FLAVOUR",
-   "text": "The right name on the right list is worth a ship.",
+   "text": "Your name is on the list. Another name came off to make room.",
    "max": 90,
    "place": "Skill screen, detail panel"
   },
@@ -6273,7 +6297,7 @@
   },
   {
    "id": "SK_LUX_6_FLAVOUR",
-   "text": "One more piece from every pour. The mould was always big enough.",
+   "text": "Your mark is pressed in every piece. They love the mark more than you.",
    "max": 90,
    "place": "Skill screen, detail panel"
   },
@@ -6297,7 +6321,7 @@
   },
   {
    "id": "SK_LUX_7_FLAVOUR",
-   "text": "Buy the client, not the goods. The guild keeps a form for it.",
+   "text": "You decide who is let in. A rival stands outside and watches the door.",
    "max": 90,
    "place": "Skill screen, detail panel"
   },
@@ -6315,7 +6339,7 @@
   },
   {
    "id": "SK_MIN_1_FLAVOUR",
-   "text": "A licence to make one good thing from two bad rocks. Stamped in triplicate.",
+   "text": "You sign to take from the ground. The ground does not sign back.",
    "max": 90,
    "place": "Skill screen, detail panel"
   },
@@ -6327,13 +6351,13 @@
   },
   {
    "id": "SK_MIN_2_NAME",
-   "text": "Smelting",
+   "text": "The Long Burn",
    "max": 24,
    "place": "Skill screen, node name"
   },
   {
    "id": "SK_MIN_2_FLAVOUR",
-   "text": "Heat is honest. It only asks what you put in.",
+   "text": "The furnace takes its time, then yours. You sit alone with the glow.",
    "max": 90,
    "place": "Skill screen, detail panel"
   },
@@ -6357,7 +6381,7 @@
   },
   {
    "id": "SK_MIN_3_FLAVOUR",
-   "text": "A rock no one lives on still has a ledger line. Someone must read it.",
+   "text": "Cold rock, no air, no voice on the radio. You are the only thing awake.",
    "max": 90,
    "place": "Skill screen, detail panel"
   },
@@ -6369,13 +6393,13 @@
   },
   {
    "id": "SK_MIN_4_NAME",
-   "text": "Twin Crucible",
+   "text": "Double Burn",
    "max": 24,
    "place": "Skill screen, node name"
   },
   {
    "id": "SK_MIN_4_FLAVOUR",
-   "text": "Two metals agree if you hold them hot enough.",
+   "text": "Twice the heat, twice the hours. The ground takes back what you spend.",
    "max": 90,
    "place": "Skill screen, detail panel"
   },
@@ -6399,7 +6423,7 @@
   },
   {
    "id": "SK_MIN_5_FLAVOUR",
-   "text": "Under the dust lies glass that hums. The Bureau has no form for it yet.",
+   "text": "Under the dust, glass that hums. It hums when you cut. It does not stop when you leave.",
    "max": 90,
    "place": "Skill screen, detail panel"
   },
@@ -6417,7 +6441,7 @@
   },
   {
    "id": "SK_MIN_6_FLAVOUR",
-   "text": "A good lattice forgives the one who made it.",
+   "text": "Every piece leans on the next. Pull one out and the rest remember.",
    "max": 90,
    "place": "Skill screen, detail panel"
   },
@@ -6441,7 +6465,7 @@
   },
   {
    "id": "SK_MIN_7_FLAVOUR",
-   "text": "The last seam in reach belongs to someone. Now it is you.",
+   "text": "The last seam is yours. The rest dig worse rock and owe the dark for it.",
    "max": 90,
    "place": "Skill screen, detail panel"
   },
@@ -6459,7 +6483,7 @@
   },
   {
    "id": "SK_BIO_1_FLAVOUR",
-   "text": "A good form is one you only file once. The Bureau will not mind.",
+   "text": "A form says what may live in your vats. You sign for every small life.",
    "max": 90,
    "place": "Skill screen, detail panel"
   },
@@ -6477,7 +6501,7 @@
   },
   {
    "id": "SK_BIO_2_FLAVOUR",
-   "text": "Something grows in the dark and asks for nothing. For now.",
+   "text": "Something grows in the cold. It does not ask who feeds it. It knows.",
    "max": 90,
    "place": "Skill screen, detail panel"
   },
@@ -6495,13 +6519,13 @@
   },
   {
    "id": "SK_BIO_3_NAME",
-   "text": "Deep Shelves",
+   "text": "The Long Ward",
    "max": 24,
    "place": "Skill screen, node name"
   },
   {
    "id": "SK_BIO_3_FLAVOUR",
-   "text": "A shelf is a promise that something will be there.",
+   "text": "Rows of jars hold the sleeping stock. You walk past at night and count.",
    "max": 90,
    "place": "Skill screen, detail panel"
   },
@@ -6519,7 +6543,7 @@
   },
   {
    "id": "SK_BIO_4_FLAVOUR",
-   "text": "A small cut, a small stitch. The vat hums approval.",
+   "text": "One small stitch and the crop changes. Who signs for the change? You do.",
    "max": 90,
    "place": "Skill screen, detail panel"
   },
@@ -6543,7 +6567,7 @@
   },
   {
    "id": "SK_BIO_5_FLAVOUR",
-   "text": "A clinic pays slowly, which the Bureau calls trust.",
+   "text": "A clinic waits for your crate. Someone on a cot waits for the clinic.",
    "max": 90,
    "place": "Skill screen, detail panel"
   },
@@ -6561,7 +6585,7 @@
   },
   {
    "id": "SK_BIO_6_FLAVOUR",
-   "text": "A strain that survives the form survives most things.",
+   "text": "It lives through the cold, the form and the fever. You stop asking if it should.",
    "max": 90,
    "place": "Skill screen, detail panel"
   },
@@ -6585,7 +6609,7 @@
   },
   {
    "id": "SK_BIO_7_FLAVOUR",
-   "text": "A wall made of paper outlasts one made of stone.",
+   "text": "A cure with your name on it. Those who need it must ask you first.",
    "max": 90,
    "place": "Skill screen, detail panel"
   },
@@ -6597,13 +6621,13 @@
   },
   {
    "id": "SK_LUX_5B_NAME",
-   "text": "Long Ledger",
+   "text": "The Long Wait",
    "max": 24,
    "place": "Skill screen, node name"
   },
   {
    "id": "SK_LUX_5B_FLAVOUR",
-   "text": "The Ledger keeps a page for tomorrow's tomorrow. Nobody asks who writes it.",
+   "text": "You know what they will want next season. You start to want it too.",
    "max": 90,
    "place": "Skill screen, detail panel"
   },
@@ -6615,19 +6639,721 @@
   },
   {
    "id": "SK_MIN_5B_NAME",
-   "text": "Hard Hats",
+   "text": "Shift Roll Call",
    "max": 24,
    "place": "Skill screen, node name"
   },
   {
    "id": "SK_MIN_5B_FLAVOUR",
-   "text": "Hard hats do not stop a rock. They stop the crew worrying. The Plan counts both.",
+   "text": "Hats will not stop a rock. So each shift starts with names read aloud.",
    "max": 90,
    "place": "Skill screen, detail panel"
   },
   {
    "id": "SK_MIN_5B_PLAIN",
    "text": "Minerals routes carry 10% more and ignore debris. Minerals price events hit 30% weaker.",
+   "max": 110,
+   "place": "Skill screen, detail panel"
+  },
+  {
+   "id": "SK_FND_LEDGER_NAME",
+   "text": "Route Ledger",
+   "max": 24,
+   "place": "Skill screen, node name"
+  },
+  {
+   "id": "SK_FND_LEDGER_FLAVOUR",
+   "text": "A column of small numbers, honest to the last coin. You read it twice.",
+   "max": 90,
+   "place": "Skill screen, detail panel"
+  },
+  {
+   "id": "SK_FND_LEDGER_PLAIN",
+   "text": "Each route shows its net profit per cycle after trip cost and Ship upkeep.",
+   "max": 110,
+   "place": "Skill screen, detail panel"
+  },
+  {
+   "id": "SK_FND_RIVAL_WATCH_NAME",
+   "text": "Rival Watch",
+   "max": 24,
+   "place": "Skill screen, node name"
+  },
+  {
+   "id": "SK_FND_RIVAL_WATCH_FLAVOUR",
+   "text": "You learn where the others will stand before they do. They learn you looked.",
+   "max": 90,
+   "place": "Skill screen, detail panel"
+  },
+  {
+   "id": "SK_FND_RIVAL_WATCH_PLAIN",
+   "text": "The Competitors screen shows each rival's expected share 3 cycles ahead.",
+   "max": 110,
+   "place": "Skill screen, detail panel"
+  },
+  {
+   "id": "SK_FND_DOCKS_NAME",
+   "text": "Dock Contracts",
+   "max": 24,
+   "place": "Skill screen, node name"
+  },
+  {
+   "id": "SK_FND_DOCKS_FLAVOUR",
+   "text": "A fixed fee, a stamped berth, a clerk who stops asking.",
+   "max": 90,
+   "place": "Skill screen, detail panel"
+  },
+  {
+   "id": "SK_FND_DOCKS_PLAIN",
+   "text": "Upgrading a route costs less.",
+   "max": 110,
+   "place": "Skill screen, detail panel"
+  },
+  {
+   "id": "SK_MIL_8_NAME",
+   "text": "Yard Account",
+   "max": 24,
+   "place": "Skill screen, node name"
+  },
+  {
+   "id": "SK_MIL_8_FLAVOUR",
+   "text": "A ledger of hulls, signed in triplicate. The yard knows your name.",
+   "max": 90,
+   "place": "Skill screen, detail panel"
+  },
+  {
+   "id": "SK_MIL_8_PLAIN",
+   "text": "Ships cost less to buy.",
+   "max": 110,
+   "place": "Skill screen, detail panel"
+  },
+  {
+   "id": "SK_MIL_9_NAME",
+   "text": "Cell Press",
+   "max": 24,
+   "place": "Skill screen, node name"
+  },
+  {
+   "id": "SK_MIL_9_FLAVOUR",
+   "text": "Cells pressed on your own floor. No freight, no waiting.",
+   "max": 90,
+   "place": "Skill screen, detail panel"
+  },
+  {
+   "id": "SK_MIL_9_PLAIN",
+   "text": "Military sales count more toward share. Tech: craft {goal} units.",
+   "max": 140,
+   "place": "Skill screen, detail panel"
+  },
+  {
+   "id": "SK_MIL_9_CRAFT",
+   "text": "Military workshop crafts: {n} of {goal}",
+   "max": 60,
+   "place": "Skill screen, tech node progress line"
+  },
+  {
+   "id": "SK_MIL_10_NAME",
+   "text": "Hardened Stores",
+   "max": 24,
+   "place": "Skill screen, node name"
+  },
+  {
+   "id": "SK_MIL_10_FLAVOUR",
+   "text": "Steel door, one guard, a lock with a number. The cuts stop outside.",
+   "max": 90,
+   "place": "Skill screen, detail panel"
+  },
+  {
+   "id": "SK_MIL_10_PLAIN",
+   "text": "Storage cuts do not trim your stored Military goods.",
+   "max": 110,
+   "place": "Skill screen, detail panel"
+  },
+  {
+   "id": "SK_MIL_11_NAME",
+   "text": "Proof Range",
+   "max": 24,
+   "place": "Skill screen, node name"
+  },
+  {
+   "id": "SK_MIL_11_FLAVOUR",
+   "text": "The range is loud. The buyer pays for loud.",
+   "max": 90,
+   "place": "Skill screen, detail panel"
+  },
+  {
+   "id": "SK_MIL_11_PLAIN",
+   "text": "Your second Military product sells for more. Tech: craft {goal} units.",
+   "max": 140,
+   "place": "Skill screen, detail panel"
+  },
+  {
+   "id": "SK_MIL_11_CRAFT",
+   "text": "Military workshop crafts: {n} of {goal}",
+   "max": 60,
+   "place": "Skill screen, tech node progress line"
+  },
+  {
+   "id": "SK_MIL_12_NAME",
+   "text": "Open Arsenal",
+   "max": 24,
+   "place": "Skill screen, node name"
+  },
+  {
+   "id": "SK_MIL_12_FLAVOUR",
+   "text": "The doors stay open and the lead stays yours a little longer.",
+   "max": 90,
+   "place": "Skill screen, detail panel"
+  },
+  {
+   "id": "SK_MIL_12_PLAIN",
+   "text": "Military share counts over a longer span, so a lead lasts longer.",
+   "max": 110,
+   "place": "Skill screen, detail panel"
+  },
+  {
+   "id": "SK_MIL_13_NAME",
+   "text": "Pressure Doctrine",
+   "max": 24,
+   "place": "Skill screen, node name"
+  },
+  {
+   "id": "SK_MIL_13_FLAVOUR",
+   "text": "You make the call sooner now. The clerk has learned your voice.",
+   "max": 90,
+   "place": "Skill screen, detail panel"
+  },
+  {
+   "id": "SK_MIL_13_PLAIN",
+   "text": "Embargo Desk recharges sooner.",
+   "max": 110,
+   "place": "Skill screen, detail panel"
+  },
+  {
+   "id": "SK_MIL_14_NAME",
+   "text": "War Economy",
+   "max": 24,
+   "place": "Skill screen, node name"
+  },
+  {
+   "id": "SK_MIL_14_FLAVOUR",
+   "text": "Every crate has a second use on the ledger. Nobody says it aloud.",
+   "max": 90,
+   "place": "Skill screen, detail panel"
+  },
+  {
+   "id": "SK_MIL_14_PLAIN",
+   "text": "Each Military batch yields more units. Tech: craft {goal} units.",
+   "max": 140,
+   "place": "Skill screen, detail panel"
+  },
+  {
+   "id": "SK_MIL_14_CRAFT",
+   "text": "Military workshop crafts: {n} of {goal}",
+   "max": 60,
+   "place": "Skill screen, tech node progress line"
+  },
+  {
+   "id": "SK_MIL_15_NAME",
+   "text": "Last Line",
+   "max": 24,
+   "place": "Skill screen, node name"
+  },
+  {
+   "id": "SK_MIL_15_FLAVOUR",
+   "text": "The line holds because nobody wants to test it.",
+   "max": 90,
+   "place": "Skill screen, detail panel"
+  },
+  {
+   "id": "SK_MIL_15_PLAIN",
+   "text": "Cuts all rivals' Military growth further for the rest of the run. Capstone.",
+   "max": 110,
+   "place": "Skill screen, detail panel"
+  },
+  {
+   "id": "SK_LUX_8_NAME",
+   "text": "Salon Circle",
+   "max": 24,
+   "place": "Skill screen, node name"
+  },
+  {
+   "id": "SK_LUX_8_FLAVOUR",
+   "text": "Small room, soft chairs, hard questions. Few leave before dawn.",
+   "max": 90,
+   "place": "Skill screen, detail panel"
+  },
+  {
+   "id": "SK_LUX_8_PLAIN",
+   "text": "Luxury share counts over a longer span.",
+   "max": 110,
+   "place": "Skill screen, detail panel"
+  },
+  {
+   "id": "SK_LUX_9_NAME",
+   "text": "Second Loom",
+   "max": 24,
+   "place": "Skill screen, node name"
+  },
+  {
+   "id": "SK_LUX_9_FLAVOUR",
+   "text": "A second loom hums beside the first. The thread is never enough.",
+   "max": 90,
+   "place": "Skill screen, detail panel"
+  },
+  {
+   "id": "SK_LUX_9_PLAIN",
+   "text": "Luxury workshops make one more batch a cycle. Tech: craft {goal} units.",
+   "max": 140,
+   "place": "Skill screen, detail panel"
+  },
+  {
+   "id": "SK_LUX_9_CRAFT",
+   "text": "Luxury workshop crafts: {n} of {goal}",
+   "max": 60,
+   "place": "Skill screen, tech node progress line"
+  },
+  {
+   "id": "SK_LUX_10_NAME",
+   "text": "Trend Desk",
+   "max": 24,
+   "place": "Skill screen, node name"
+  },
+  {
+   "id": "SK_LUX_10_FLAVOUR",
+   "text": "You see the cold front coming and have the coat ready.",
+   "max": 90,
+   "place": "Skill screen, detail panel"
+  },
+  {
+   "id": "SK_LUX_10_PLAIN",
+   "text": "Events that cut your Luxury prices hit weaker.",
+   "max": 110,
+   "place": "Skill screen, detail panel"
+  },
+  {
+   "id": "SK_LUX_11_NAME",
+   "text": "Collector's Eye",
+   "max": 24,
+   "place": "Skill screen, node name"
+  },
+  {
+   "id": "SK_LUX_11_FLAVOUR",
+   "text": "One buyer wants the piece more than all the rest. You wait for that one.",
+   "max": 90,
+   "place": "Skill screen, detail panel"
+  },
+  {
+   "id": "SK_LUX_11_PLAIN",
+   "text": "Your second Luxury product sells for more. Tech: craft {goal} units.",
+   "max": 140,
+   "place": "Skill screen, detail panel"
+  },
+  {
+   "id": "SK_LUX_11_CRAFT",
+   "text": "Luxury workshop crafts: {n} of {goal}",
+   "max": 60,
+   "place": "Skill screen, tech node progress line"
+  },
+  {
+   "id": "SK_LUX_12_NAME",
+   "text": "Press Room",
+   "max": 24,
+   "place": "Skill screen, node name"
+  },
+  {
+   "id": "SK_LUX_12_FLAVOUR",
+   "text": "Your name on the page, in a good typeface. The page is not free.",
+   "max": 90,
+   "place": "Skill screen, detail panel"
+  },
+  {
+   "id": "SK_LUX_12_PLAIN",
+   "text": "Luxury routes carry more a cycle.",
+   "max": 110,
+   "place": "Skill screen, detail panel"
+  },
+  {
+   "id": "SK_LUX_13_NAME",
+   "text": "Patron's Purse",
+   "max": 24,
+   "place": "Skill screen, node name"
+  },
+  {
+   "id": "SK_LUX_13_FLAVOUR",
+   "text": "A mixed crate pleases every hand at the table.",
+   "max": 90,
+   "place": "Skill screen, detail panel"
+  },
+  {
+   "id": "SK_LUX_13_PLAIN",
+   "text": "Routes with mixed cargo earn a larger bonus.",
+   "max": 110,
+   "place": "Skill screen, detail panel"
+  },
+  {
+   "id": "SK_LUX_14_NAME",
+   "text": "Auction House",
+   "max": 24,
+   "place": "Skill screen, node name"
+  },
+  {
+   "id": "SK_LUX_14_FLAVOUR",
+   "text": "The hammer falls and the room exhales. You count afterwards.",
+   "max": 90,
+   "place": "Skill screen, detail panel"
+  },
+  {
+   "id": "SK_LUX_14_PLAIN",
+   "text": "Luxury sales count more toward share. Tech: craft {goal} units.",
+   "max": 140,
+   "place": "Skill screen, detail panel"
+  },
+  {
+   "id": "SK_LUX_14_CRAFT",
+   "text": "Luxury workshop crafts: {n} of {goal}",
+   "max": 60,
+   "place": "Skill screen, tech node progress line"
+  },
+  {
+   "id": "SK_LUX_15_NAME",
+   "text": "Grand Salon",
+   "max": 24,
+   "place": "Skill screen, node name"
+  },
+  {
+   "id": "SK_LUX_15_FLAVOUR",
+   "text": "The doors are gilt and the guest list is longer than the hall.",
+   "max": 90,
+   "place": "Skill screen, detail panel"
+  },
+  {
+   "id": "SK_LUX_15_PLAIN",
+   "text": "Cuts all rivals' Luxury growth for the rest of the run. Capstone.",
+   "max": 110,
+   "place": "Skill screen, detail panel"
+  },
+  {
+   "id": "SK_MIN_8_NAME",
+   "text": "Deep Hold",
+   "max": 24,
+   "place": "Skill screen, node name"
+  },
+  {
+   "id": "SK_MIN_8_FLAVOUR",
+   "text": "A bigger hold, a lower ceiling. The crew learns to stoop.",
+   "max": 90,
+   "place": "Skill screen, detail panel"
+  },
+  {
+   "id": "SK_MIN_8_PLAIN",
+   "text": "Storage holds more mined cargo.",
+   "max": 110,
+   "place": "Skill screen, detail panel"
+  },
+  {
+   "id": "SK_MIN_9_NAME",
+   "text": "Slag Reclaim",
+   "max": 24,
+   "place": "Skill screen, node name"
+  },
+  {
+   "id": "SK_MIN_9_FLAVOUR",
+   "text": "What the fire leaves is melted down again. Waste becomes a habit you drop.",
+   "max": 90,
+   "place": "Skill screen, detail panel"
+  },
+  {
+   "id": "SK_MIN_9_PLAIN",
+   "text": "Workshop recipes need less mined cargo. Tech: craft {goal} units.",
+   "max": 140,
+   "place": "Skill screen, detail panel"
+  },
+  {
+   "id": "SK_MIN_9_CRAFT",
+   "text": "Minerals workshop crafts: {n} of {goal}",
+   "max": 60,
+   "place": "Skill screen, tech node progress line"
+  },
+  {
+   "id": "SK_MIN_10_NAME",
+   "text": "Safe Passage",
+   "max": 24,
+   "place": "Skill screen, node name"
+  },
+  {
+   "id": "SK_MIN_10_FLAVOUR",
+   "text": "A beacon on every cold rock. Fewer crews go missing.",
+   "max": 90,
+   "place": "Skill screen, detail panel"
+  },
+  {
+   "id": "SK_MIN_10_PLAIN",
+   "text": "Mined cargo is lost less often on dead worlds.",
+   "max": 110,
+   "place": "Skill screen, detail panel"
+  },
+  {
+   "id": "SK_MIN_11_NAME",
+   "text": "Hot Foundry",
+   "max": 24,
+   "place": "Skill screen, node name"
+  },
+  {
+   "id": "SK_MIN_11_FLAVOUR",
+   "text": "The pour is bright and quick. Buyers like the shine.",
+   "max": 90,
+   "place": "Skill screen, detail panel"
+  },
+  {
+   "id": "SK_MIN_11_PLAIN",
+   "text": "Minerals sales pay more. Tech: craft {goal} units.",
+   "max": 140,
+   "place": "Skill screen, detail panel"
+  },
+  {
+   "id": "SK_MIN_11_CRAFT",
+   "text": "Minerals workshop crafts: {n} of {goal}",
+   "max": 60,
+   "place": "Skill screen, tech node progress line"
+  },
+  {
+   "id": "SK_MIN_12_NAME",
+   "text": "Seam Brokers",
+   "max": 24,
+   "place": "Skill screen, node name"
+  },
+  {
+   "id": "SK_MIN_12_FLAVOUR",
+   "text": "A man with a ledger and a smile pays well for a sure thing.",
+   "max": 90,
+   "place": "Skill screen, detail panel"
+  },
+  {
+   "id": "SK_MIN_12_PLAIN",
+   "text": "Minerals price events in your favour pay more.",
+   "max": 110,
+   "place": "Skill screen, detail panel"
+  },
+  {
+   "id": "SK_MIN_13_NAME",
+   "text": "Core Tuning",
+   "max": 24,
+   "place": "Skill screen, node name"
+  },
+  {
+   "id": "SK_MIN_13_FLAVOUR",
+   "text": "Dials, a steady hand, a long cold trip made a little shorter.",
+   "max": 90,
+   "place": "Skill screen, detail panel"
+  },
+  {
+   "id": "SK_MIN_13_PLAIN",
+   "text": "Trips to dead worlds cost less.",
+   "max": 110,
+   "place": "Skill screen, detail panel"
+  },
+  {
+   "id": "SK_MIN_14_NAME",
+   "text": "Mass Melt",
+   "max": 24,
+   "place": "Skill screen, node name"
+  },
+  {
+   "id": "SK_MIN_14_FLAVOUR",
+   "text": "The big furnace never asks what it is melting. It asks for more.",
+   "max": 90,
+   "place": "Skill screen, detail panel"
+  },
+  {
+   "id": "SK_MIN_14_PLAIN",
+   "text": "Minerals sales count more toward share. Tech: craft {goal} units.",
+   "max": 140,
+   "place": "Skill screen, detail panel"
+  },
+  {
+   "id": "SK_MIN_14_CRAFT",
+   "text": "Minerals workshop crafts: {n} of {goal}",
+   "max": 60,
+   "place": "Skill screen, tech node progress line"
+  },
+  {
+   "id": "SK_MIN_15_NAME",
+   "text": "Motherlode",
+   "max": 24,
+   "place": "Skill screen, node name"
+  },
+  {
+   "id": "SK_MIN_15_FLAVOUR",
+   "text": "The seam goes deeper than the map. Nobody tells the map.",
+   "max": 90,
+   "place": "Skill screen, detail panel"
+  },
+  {
+   "id": "SK_MIN_15_PLAIN",
+   "text": "Cluster yield rises again. Capstone.",
+   "max": 110,
+   "place": "Skill screen, detail panel"
+  },
+  {
+   "id": "SK_BIO_8_NAME",
+   "text": "Gel Cooperatives",
+   "max": 24,
+   "place": "Skill screen, node name"
+  },
+  {
+   "id": "SK_BIO_8_FLAVOUR",
+   "text": "Neighbours share a vat and a quarrel. The gel does not mind.",
+   "max": 90,
+   "place": "Skill screen, detail panel"
+  },
+  {
+   "id": "SK_BIO_8_PLAIN",
+   "text": "Biotech routes carry more a cycle.",
+   "max": 110,
+   "place": "Skill screen, detail panel"
+  },
+  {
+   "id": "SK_BIO_9_NAME",
+   "text": "Spore Bank",
+   "max": 24,
+   "place": "Skill screen, node name"
+  },
+  {
+   "id": "SK_BIO_9_FLAVOUR",
+   "text": "A cold shelf of sleepers, ready to wake when you need them.",
+   "max": 90,
+   "place": "Skill screen, detail panel"
+  },
+  {
+   "id": "SK_BIO_9_PLAIN",
+   "text": "Biotech workshops make one more batch a cycle. Tech: craft {goal} units.",
+   "max": 140,
+   "place": "Skill screen, detail panel"
+  },
+  {
+   "id": "SK_BIO_9_CRAFT",
+   "text": "Biotech workshop crafts: {n} of {goal}",
+   "max": 60,
+   "place": "Skill screen, tech node progress line"
+  },
+  {
+   "id": "SK_BIO_10_NAME",
+   "text": "Cold Chain",
+   "max": 24,
+   "place": "Skill screen, node name"
+  },
+  {
+   "id": "SK_BIO_10_FLAVOUR",
+   "text": "Frost in every crate, from the vat to the door.",
+   "max": 90,
+   "place": "Skill screen, detail panel"
+  },
+  {
+   "id": "SK_BIO_10_PLAIN",
+   "text": "Biotech routes ignore debris events on the lane.",
+   "max": 110,
+   "place": "Skill screen, detail panel"
+  },
+  {
+   "id": "SK_BIO_11_NAME",
+   "text": "Graft Lines",
+   "max": 24,
+   "place": "Skill screen, node name"
+  },
+  {
+   "id": "SK_BIO_11_FLAVOUR",
+   "text": "A cutting, a stitch, a row of small green promises.",
+   "max": 90,
+   "place": "Skill screen, detail panel"
+  },
+  {
+   "id": "SK_BIO_11_PLAIN",
+   "text": "Each Biotech batch yields more units. Tech: craft {goal} units.",
+   "max": 140,
+   "place": "Skill screen, detail panel"
+  },
+  {
+   "id": "SK_BIO_11_CRAFT",
+   "text": "Biotech workshop crafts: {n} of {goal}",
+   "max": 60,
+   "place": "Skill screen, tech node progress line"
+  },
+  {
+   "id": "SK_BIO_12_NAME",
+   "text": "Patient Orchard",
+   "max": 24,
+   "place": "Skill screen, node name"
+  },
+  {
+   "id": "SK_BIO_12_FLAVOUR",
+   "text": "Nothing to do but wait. It is harder than it sounds.",
+   "max": 90,
+   "place": "Skill screen, detail panel"
+  },
+  {
+   "id": "SK_BIO_12_PLAIN",
+   "text": "Stored Biotech grows faster each cycle.",
+   "max": 110,
+   "place": "Skill screen, detail panel"
+  },
+  {
+   "id": "SK_BIO_13_NAME",
+   "text": "Market Days",
+   "max": 24,
+   "place": "Skill screen, node name"
+  },
+  {
+   "id": "SK_BIO_13_FLAVOUR",
+   "text": "The stalls open when the news does. Your jars are ready.",
+   "max": 90,
+   "place": "Skill screen, detail panel"
+  },
+  {
+   "id": "SK_BIO_13_PLAIN",
+   "text": "Biotech sales at a price-up planet count more toward share.",
+   "max": 110,
+   "place": "Skill screen, detail panel"
+  },
+  {
+   "id": "SK_BIO_14_NAME",
+   "text": "Living Contracts",
+   "max": 24,
+   "place": "Skill screen, node name"
+  },
+  {
+   "id": "SK_BIO_14_FLAVOUR",
+   "text": "A signed promise to deliver something alive. The ink is still wet.",
+   "max": 90,
+   "place": "Skill screen, detail panel"
+  },
+  {
+   "id": "SK_BIO_14_PLAIN",
+   "text": "Biotech sales pay more. Tech: craft {goal} units.",
+   "max": 140,
+   "place": "Skill screen, detail panel"
+  },
+  {
+   "id": "SK_BIO_14_CRAFT",
+   "text": "Biotech workshop crafts: {n} of {goal}",
+   "max": 60,
+   "place": "Skill screen, tech node progress line"
+  },
+  {
+   "id": "SK_BIO_15_NAME",
+   "text": "Evergreen",
+   "max": 24,
+   "place": "Skill screen, node name"
+  },
+  {
+   "id": "SK_BIO_15_FLAVOUR",
+   "text": "It grows where nobody planted it. Rivals find it in their gardens.",
+   "max": 90,
+   "place": "Skill screen, detail panel"
+  },
+  {
+   "id": "SK_BIO_15_PLAIN",
+   "text": "Cuts all rivals' Biotech growth further for the rest of the run. Capstone.",
    "max": 110,
    "place": "Skill screen, detail panel"
   },
@@ -6894,6 +7620,174 @@
    "text": "Biotech ran second, past a quarter of its market. A vat in a back room has your name on it.",
    "max": 140,
    "place": "Epilogue 4, Biotech is a second market over a quarter share"
+  },
+  {
+   "id": "GIG01_TITLE",
+   "text": "The Ninth Tally",
+   "max": 32,
+   "place": "Gig 01, arrival window title"
+  },
+  {
+   "id": "GIG01_HOOK",
+   "text": "A weak beacon repeats one tone. Nobody has answered it.",
+   "max": 140,
+   "place": "Gig 01, signal hint"
+  },
+  {
+   "id": "GIG01_ARRIVE",
+   "text": "A Commons hauler, split along the spine. Its lights are dark. The bunks are empty and made. A Common Ledger plate is still bolted by the hatch. Cutting into the hold takes the scout's time. The flight log is quick to pull, but then the hold stays sealed.",
+   "max": 280,
+   "place": "Gig 01, arrival window text"
+  },
+  {
+   "id": "GIG01_A_BTN",
+   "text": "Cut the hold free",
+   "max": 28,
+   "place": "Gig 01, button A"
+  },
+  {
+   "id": "GIG01_B_BTN",
+   "text": "Pull the flight log",
+   "max": 28,
+   "place": "Gig 01, button B"
+  },
+  {
+   "id": "GIG01_A_OUT_MIL",
+   "text": "The crates carry a depot stamp you know. The seals hold. The scout rides heavy on the way back, and the torch is still warm.",
+   "max": 280,
+   "place": "Gig 01, outcome A, Military"
+  },
+  {
+   "id": "GIG01_A_OUT_LUX",
+   "text": "Bright cloth, wrapped tight, a sweet smell in the folds. The scout smells of it all the way back. The empty bunks stay behind you.",
+   "max": 280,
+   "place": "Gig 01, outcome A, Luxury"
+  },
+  {
+   "id": "GIG01_A_OUT_MIN",
+   "text": "Dull grey crates, heavy for their size. Dust on your gloves that will not brush off. The scout is slow on the way back.",
+   "max": 280,
+   "place": "Gig 01, outcome A, Minerals"
+  },
+  {
+   "id": "GIG01_A_OUT_BIO",
+   "text": "Damp sealed tubs, warm to the touch. Something in them shifts once, then stops. You do not look twice.",
+   "max": 280,
+   "place": "Gig 01, outcome A, Biotech"
+  },
+  {
+   "id": "GIG01_B_OUT_MIL",
+   "text": "The log lists every stop and every order. A hand wrote the last line twice. The hold stays sealed, and you leave it there.",
+   "max": 280,
+   "place": "Gig 01, outcome B, Military"
+  },
+  {
+   "id": "GIG01_B_OUT_LUX",
+   "text": "The log lists ports, buyers and who paid for what. The last page is a list of names. The hold stays sealed behind you.",
+   "max": 280,
+   "place": "Gig 01, outcome B, Luxury"
+  },
+  {
+   "id": "GIG01_B_OUT_MIN",
+   "text": "The log lists every claim the hauler passed, and what each one held. The hold stays sealed. The scout turns away.",
+   "max": 280,
+   "place": "Gig 01, outcome B, Minerals"
+  },
+  {
+   "id": "GIG01_B_OUT_BIO",
+   "text": "The log lists each stop where the cargo was kept cold, and where it stopped being cold. The hold stays sealed.",
+   "max": 280,
+   "place": "Gig 01, outcome B, Biotech"
+  },
+  {
+   "id": "GIG01_EPI",
+   "text": "The Bureau lists the Ninth Tally as overdue. It will stay on that page.",
+   "max": 140,
+   "place": "Gig 01, epilogue line"
+  },
+  {
+   "id": "GIG02_TITLE",
+   "text": "The relay lamp",
+   "max": 32,
+   "place": "Gig 02, arrival window title"
+  },
+  {
+   "id": "GIG02_HOOK",
+   "text": "A relay light blinks twice, stops, then blinks twice again.",
+   "max": 140,
+   "place": "Gig 02, signal hint"
+  },
+  {
+   "id": "GIG02_ARRIVE",
+   "text": "A relay station with one lamp lit. A keeper in a shift coat waves from the glass. The shift form lies half filled. If you carry the keeper out, the form stays blank and the lamp goes dark. If you stand the watch, the scout waits and the keeper stays.",
+   "max": 280,
+   "place": "Gig 02, arrival window text"
+  },
+  {
+   "id": "GIG02_A_BTN",
+   "text": "Carry the keeper out",
+   "max": 28,
+   "place": "Gig 02, button A"
+  },
+  {
+   "id": "GIG02_B_BTN",
+   "text": "Stand the keeper's watch",
+   "max": 28,
+   "place": "Gig 02, button B"
+  },
+  {
+   "id": "GIG02_A_OUT_MIL",
+   "text": "The keeper hands you a code strip from the relay shelf. The lamp goes out behind you. The form stays blank.",
+   "max": 280,
+   "place": "Gig 02, outcome A, Military"
+  },
+  {
+   "id": "GIG02_A_OUT_LUX",
+   "text": "The keeper presses a little gift into your hand, wrapped in bright cloth. The lamp goes out behind you.",
+   "max": 280,
+   "place": "Gig 02, outcome A, Luxury"
+  },
+  {
+   "id": "GIG02_A_OUT_MIN",
+   "text": "The keeper gives you a rock map, marked in grease pencil. The lamp goes out behind you.",
+   "max": 280,
+   "place": "Gig 02, outcome A, Minerals"
+  },
+  {
+   "id": "GIG02_A_OUT_BIO",
+   "text": "The keeper gives you a jar of seed from a window shelf. It is still damp. The lamp goes out behind you.",
+   "max": 280,
+   "place": "Gig 02, outcome A, Biotech"
+  },
+  {
+   "id": "GIG02_B_OUT_MIL",
+   "text": "You hold the lamp for a shift. The relay log shows who passed and what they carried. The keeper sleeps in a chair.",
+   "max": 280,
+   "place": "Gig 02, outcome B, Military"
+  },
+  {
+   "id": "GIG02_B_OUT_LUX",
+   "text": "You hold the lamp for a shift. The relay log shows which ships called, and where they sold well. The keeper sleeps in a chair.",
+   "max": 280,
+   "place": "Gig 02, outcome B, Luxury"
+  },
+  {
+   "id": "GIG02_B_OUT_MIN",
+   "text": "You hold the lamp for a shift. The relay log shows which ships hauled rock, and where they sold it. The keeper sleeps in a chair.",
+   "max": 280,
+   "place": "Gig 02, outcome B, Minerals"
+  },
+  {
+   "id": "GIG02_B_OUT_BIO",
+   "text": "You hold the lamp for a shift. The relay log shows which ships carried cold cargo, and where they sold it. The keeper sleeps in a chair.",
+   "max": 280,
+   "place": "Gig 02, outcome B, Biotech"
+  },
+  {
+   "id": "GIG02_EPI",
+   "text": "The keeper's form is filed under the common good. The Bureau does not ask who filled it in.",
+   "max": 140,
+   "place": "Gig 02, epilogue line"
   },
   {
    "id": "EV01_TITLE",
@@ -7167,7 +8061,7 @@
   },
   {
    "id": "EV17_BODY",
-   "text": "The wreck of a hundred ships has settled into orbit over {planet}, and a salvage broker, Captain Rusk, offers to sweep it for a fee. The Bureau filed the wreck as unowned, which is why it is still up there. Routes from {planet} carry less while it stays.",
+   "text": "A field of old wrecks circles {planet}. Captain Rusk offers to sweep it for a fee. The Bureau filed the wreckage as unowned, so no one has to move it. Routes from {planet} carry less while it stays.",
    "max": 280,
    "place": "choice body"
   },
@@ -7203,7 +8097,7 @@
   },
   {
    "id": "EV17_PAID",
-   "text": "Rusk's tugs swept the orbit and filed the receipt. Routes from {planet} carry their full load again. The wreck went somewhere. The receipt does not say where, and you stopped asking when Rusk started smiling.",
+   "text": "Rusk's tugs swept the orbit and handed you a receipt. Routes from {planet} carry their full load again. The wreckage went somewhere. Rusk smiled when you asked, so you stopped asking.",
    "max": 280,
    "place": "popup"
   },
@@ -7215,7 +8109,7 @@
   },
   {
    "id": "EV17_LEFT",
-   "text": "You left the wreck. Ships from {planet} thread around it and carry less. The offer stays open. Rusk's tug waits at the edge of the field, as patient as a bill.",
+   "text": "You left the wreck. Ships from {planet} thread around it in the dark and carry less. The offer stays open. Rusk's tug waits at the edge of the field, patient as a bill.",
    "max": 280,
    "place": "popup"
   },
@@ -7227,7 +8121,7 @@
   },
   {
    "id": "EV18_BODY",
-   "text": "Chief engineer Ilya Sorn wants to put a shield across part of the sun. Residents hate it and say so in writing, at length. It would reshape the markets on planets you can buy later: some goods get cheaper, while profit and energy rise. What you already own stays as it is.",
+   "text": "Chief engineer Ilya Sorn wants to shade part of the sun. The residents wrote to say no, at length. The shield would change markets on planets you can buy later: some goods get cheaper, profit and energy rise. Planets you own stay as they are.",
    "max": 280,
    "place": "choice body"
   },
@@ -7263,7 +8157,7 @@
   },
   {
    "id": "EV18_BUILT",
-   "text": "The shield is up and the sky is dimmer. Residents are furious and filed it in triplicate, in the dark. On planets you can buy later, some goods get cheaper while profit and energy climb. Planets you own are untouched. Sorn calls it a clause. The sun calls nothing.",
+   "text": "The shield is up and the sky is dim. Residents filed their anger in triplicate, by lamp. On planets you can buy later, some goods get cheaper while profit and energy climb. Planets you own are untouched. Sorn will not look up.",
    "max": 280,
    "place": "popup"
   },
@@ -7275,7 +8169,7 @@
   },
   {
    "id": "EV18_SKIPPED",
-   "text": "The plans go back in a drawer. Residents are relieved and file no thanks. Nothing changes in any market. Sorn asked what the rush was, and no one had an answer.",
+   "text": "The plans went back in a drawer. Residents are relieved and sent no thanks. Nothing changes in any market. Sorn asked what the rush had been. No one answered, and the drawer stayed shut.",
    "max": 280,
    "place": "popup"
   },
@@ -7287,7 +8181,7 @@
   },
   {
    "id": "EV19_BODY",
-   "text": "Nomad families live on the asteroids you could mine. They are not on the Common Ledger, which the Bureau takes as a personal failing. They count their people by who shares the meal. Evict them and the rock is yours. Or let them stay, and let their lamps burn.",
+   "text": "Nomad families live on the asteroids you could mine. They are not on the Common Ledger, so to the Bureau they do not exist. They count their people by who shares the meal. Evict them and the rock is yours. Or let them stay.",
    "max": 280,
    "place": "choice body"
   },
@@ -7323,7 +8217,7 @@
   },
   {
    "id": "EV19_EVICTED",
-   "text": "The nomads left on the next tide, without a word. The rock is yours to mine. Some did not go far, and now they keep ships and a grudge. Pirates rise. The empty tables were left set.",
+   "text": "The nomads left on the next tide and said nothing. The rock is yours to mine. Some did not go far. They keep ships now, and a grudge. Pirates rise. Their tables were left set.",
    "max": 280,
    "place": "popup"
   },
@@ -7335,7 +8229,7 @@
   },
   {
    "id": "EV19_STAYED",
-   "text": "You let the nomads stay. Their lamps burn on the rock, small and steady, and they share a meal with the first ship that docks. The asteroids remain closed to mining.",
+   "text": "You let the nomads stay. Their lamps burn on the rock, small and steady. A woman brought the first crew to dock a bowl of something hot. The asteroids stay closed to mining.",
    "max": 280,
    "place": "popup"
   },
@@ -7347,7 +8241,7 @@
   },
   {
    "id": "EV19_PIRATES",
-   "text": "Pirates now work the lanes, and fewer cargoes get through. Trade volume falls while they stay. The Bureau has opened a file on them. It is a thin file, and so is the fleet behind it. Obedience is cheaper than love, and lasts as long.",
+   "text": "Pirates now work the lanes and fewer cargoes get through. Trade volume falls while they stay. The Bureau opened a file on them. It is thin, like the fleet behind it. Every late ship now has a reason.",
    "max": 280,
    "place": "popup"
   },
@@ -7371,7 +8265,7 @@
   },
   {
    "id": "EV20_BODY",
-   "text": "A rock is coming in on a slow path, and the Bureau noticed it the way it notices everything: late. The state can turn it aside for a fee, and wants it known that it does so out of love. Refusing is a shorter form. Cask Cellar keeps Luxury stock safe from such a cut.",
+   "text": "A rock is coming in on a slow path. The Bureau saw it late, as it sees everything. The state can turn it aside for a fee, and says it does so out of love. Refusing is a shorter form. Cask Cellar keeps Luxury stock safe from such a cut.",
    "max": 280,
    "place": "choice body"
   },
@@ -7407,7 +8301,7 @@
   },
   {
    "id": "EV20_PAID",
-   "text": "The state turned the rock aside and sent a receipt. The company gains one expansion point for the trouble. The asteroid drifts on, toward someone else's sky. A law is only as strong as the one who says: this is the law.",
+   "text": "The state turned the rock aside and sent you the receipt. The company gains one expansion point. The asteroid drifts on toward someone else's sky. Nobody on the dock looked up until it was gone.",
    "max": 280,
    "place": "popup"
   },
@@ -7425,13 +8319,13 @@
   },
   {
    "id": "EV20_HIT_DESTROYED",
-   "text": "The asteroid struck {planet}. Your company storage there is gone, and what it held with it. The Bureau has recorded the loss as an adjustment of the Common Ledger. Nobody said sorry. Death takes what a life would still have held.",
+   "text": "The asteroid struck {planet}. Your company storage there is gone, and what it held with it. The Bureau entered it as an adjustment to the Common Ledger. Nobody said sorry. Your crew stood where the door used to be.",
    "max": 280,
    "place": "popup"
   },
   {
    "id": "EV20_HIT_CAPACITY",
-   "text": "The asteroid grazed {planet}. Your company storage there is cracked and holds less than before. The Bureau has recorded the damage as \"partial\". The crack runs through the wall in a straight, patient line.",
+   "text": "The asteroid grazed {planet}. Your company storage there is cracked and holds less. The Bureau wrote the word partial. The crack runs up the wall in a straight line. Your crew keep their distance from it.",
    "max": 280,
    "place": "popup"
   },
@@ -7443,7 +8337,7 @@
   },
   {
    "id": "EV20_MISS",
-   "text": "The asteroid passed the system and kept going. Nothing was hit and nothing changes. The Bureau withdrew its warning, with regret, and kept the form. You could have been struck right now. Let that decide how you read the next notice.",
+   "text": "The asteroid passed the system and kept going. Nothing was hit and nothing changes. The Bureau withdrew its warning, but kept the form. For one night your crew slept in their boots.",
    "max": 280,
    "place": "popup"
   },
@@ -7455,7 +8349,7 @@
   },
   {
    "id": "BE01_BODY",
-   "text": "Tillam keeps a reserve of grain behind a lock that only the committee can open. Winter is close and the stores outside are thin. The committee will open it for a company that carries the grain out, and wants an answer today. The lock is old and patient.",
+   "text": "Tillam keeps grain behind a lock only the committee can open. Winter is close and the stores outside are thin. The committee will open it for a company that carries the grain out, and wants an answer today. The queue has not moved since dawn.",
    "max": 280,
    "place": "choice body"
   },
@@ -7503,7 +8397,7 @@
   },
   {
    "id": "BE01_OPEN",
-   "text": "The lock gave way and the grain went out by hand, sack to sack. Food at Tillam costs less and pays less while the stores are full. The committee recorded it as a loan. Nobody asked who owes whom.",
+   "text": "The lock gave way. The grain went out by hand, sack to sack, and no one in the line spoke. Food at Tillam costs less and pays less while stores are full. The committee recorded a loan. Nobody asked who owes whom.",
    "max": 280,
    "place": "popup"
   },
@@ -7515,7 +8409,7 @@
   },
   {
    "id": "BE01_SHUT",
-   "text": "You declined. The lock stayed on and the queue grew in the cold. Food at Tillam costs more and pays more while it is scarce. Somewhere inside the granary something shifted, as if it also had been waiting.",
+   "text": "You said no. The lock stayed on and the queue grew in the cold. Food at Tillam costs more and pays more while it is scarce. A child at the front sat on her bag and watched your ship. Inside the granary, something shifted.",
    "max": 280,
    "place": "popup"
   },
@@ -7527,7 +8421,7 @@
   },
   {
    "id": "BE01_SEND",
-   "text": "The grain left Tillam by night, on ships that did not ask to be loaded. Food at Ashgate costs less and pays less for a while. The committee at Tillam noticed the empty shelf and wrote a short, cold note.",
+   "text": "The grain left Tillam by night. The loaders worked without lamps and did not look at you. Food at Ashgate costs less and pays less for a while. The committee at Tillam found the empty shelf and wrote a short, cold note.",
    "max": 280,
    "place": "popup"
   },
@@ -7539,7 +8433,7 @@
   },
   {
    "id": "BE01A",
-   "text": "Tillam remembered the grain. Every heater on the terraces runs high and the committee calls it a gift. Energy at Tillam costs more and pays more for a while. The frost in the ducts has gone quiet, as if it was fed.",
+   "text": "Tillam remembered the grain. Heaters on every terrace run high, and the committee calls it a gift. Energy at Tillam costs more and pays more for a while. The frost in the ducts has gone quiet, as if it was fed.",
    "max": 280,
    "place": "popup"
   },
@@ -7551,7 +8445,7 @@
   },
   {
    "id": "BE01B",
-   "text": "The queue that waited in the cold came to the docks. Tillam's port is closed for a while, and routes touching Tillam are blocked. The crowd does not shout. It stands in rows and looks at the ships.",
+   "text": "The queue that waited in the cold came down to the docks. Tillam's port is closed for a while, and routes touching Tillam are blocked. No one shouts. They stand in rows and watch your ships sit still.",
    "max": 280,
    "place": "popup"
   },
@@ -7563,7 +8457,7 @@
   },
   {
    "id": "BE01C",
-   "text": "Ashgate remembered the grain. Its foundries run hot in thanks and the smoke leans toward your ships. Energy at Ashgate costs more and pays more for a while. A foreman left a loaf at the dock. It was still warm.",
+   "text": "Ashgate remembered the grain. The foundries run hot in thanks and the smoke leans toward your ships. Energy at Ashgate costs more and pays more for a while. A foreman left a loaf at the dock. It was still warm.",
    "max": 280,
    "place": "popup"
   },
@@ -7575,7 +8469,7 @@
   },
   {
    "id": "BE02_BODY",
-   "text": "A beacon pulses over Dunmere Reach, from a rock that no chart lists. Its pattern repeats, then changes, as if it had heard the dock talk. The Bureau office at Quillon wants it logged and silenced. The crews want to answer. Your ships pass it every cycle.",
+   "text": "A beacon pulses over Dunmere Reach, from a rock no chart lists. Its pattern repeats, then changes, as if it heard the dock talk. The Bureau office at Quillon wants it logged and silenced. Your crews want to answer. Your ships pass it every cycle.",
    "max": 280,
    "place": "choice body"
   },
@@ -7611,7 +8505,7 @@
   },
   {
    "id": "BE02_ANSWER",
-   "text": "A crew sent three pulses back. The beacon went dark, then lit again, in the same order. Quillon's buyers heard and bought silk as if a festival had been announced. Silk there costs more and pays more. Nobody has said what the festival is for.",
+   "text": "A crew sent a few pulses back. The beacon went dark, then lit again in the same order. Quillon's buyers heard, and bought silk as if a festival had been called. Silk there costs more and pays more. No one will say what the festival is for.",
    "max": 280,
    "place": "popup"
   },
@@ -7635,7 +8529,7 @@
   },
   {
    "id": "BE02A",
-   "text": "Small ships came in from the quiet rock and docked at Mossfell without papers. They want food and pay in odd, heavy coins. Food at Mossfell costs more and pays more for a while. They did not say their names. They stayed polite and counted the crates twice.",
+   "text": "Small ships came in from the quiet rock and docked at Mossfell without papers. They want food and pay in odd, heavy coins. Food at Mossfell costs more and pays more for a while. They gave no names. They counted every crate twice, and watched your crew do it.",
    "max": 280,
    "place": "popup"
   },
@@ -7659,7 +8553,7 @@
   },
   {
    "id": "BE03_BODY",
-   "text": "The family that bought Ashgate's food contracts sends a polite note. For a share, they will keep the docks quiet and the other traders out. They also mention how fragile a dock can be. The Bureau has no form for this. It would like one.",
+   "text": "The family that bought Ashgate's food contracts sends a polite note. For a share, they will keep the docks quiet and the other traders out. They also mention how fragile a dock can be. Your crew read the note over your shoulder. No one spoke.",
    "max": 280,
    "place": "choice body"
   },
@@ -7707,7 +8601,7 @@
   },
   {
    "id": "BE03_ACCEPT",
-   "text": "The family's people took the docks in the morning, in clean coats. Food at Ashgate costs more and pays more, since their prices travel with them. Everything is quiet. A dock this quiet has an owner.",
+   "text": "The family's people took the docks at dawn, in clean coats. Food at Ashgate costs more and pays more, since their prices came with them. The docks are quiet. Your crew lower their voices there. A quiet dock has an owner.",
    "max": 280,
    "place": "popup"
   },
@@ -7719,7 +8613,7 @@
   },
   {
    "id": "BE03_REFUSE",
-   "text": "You sent back a polite no. The family sent back a polite nod. Food at Ashgate costs less and pays less as their buyers step back to watch. Nobody was threatened. Everyone knows what was not said.",
+   "text": "You sent back a polite no. The family sent back a polite nod. Food at Ashgate costs less and pays less as their buyers step back to watch. No one was threatened. Your crew check the locks twice each night.",
    "max": 280,
    "place": "popup"
   },
@@ -7755,7 +8649,7 @@
   },
   {
    "id": "BE03B",
-   "text": "The family did nothing, which was its answer. Its buyers stayed away from the furnaces and energy at Ashgate costs less and pays less for a while. A courier sits in a booth on the dock, reading and never turning a page.",
+   "text": "The family did nothing, which was its answer. Its buyers stayed away from the furnaces, and energy at Ashgate costs less and pays less for a while. A courier sits in a booth on the dock, reading, never turning a page. He is there every shift.",
    "max": 280,
    "place": "popup"
   },
@@ -7995,7 +8889,7 @@
   },
   {
    "id": "EV_PST01_BODY",
-   "text": "The dock at {planet} keeps a visitors' book, and the clerk wants your name in it before the first crate moves. The book is old, with a ring of cold on its cover. Nobody can say who opened it.",
+   "text": "The dock at {planet} keeps a visitors' book. The clerk wants your name in it before the first crate moves. The cover is cold to the touch. Nobody can say who opened it.",
    "max": 280,
    "place": "pending event text"
   },
@@ -8043,7 +8937,7 @@
   },
   {
    "id": "EV_PST01_LEAVE",
-   "text": "You left the clerk waiting with the pen raised. Nothing changes. The clerk wrote a short line anyway, in a hand that did not look like the clerk's.",
+   "text": "You left the clerk waiting, pen raised. Nothing changes. The clerk wrote a line anyway, in a hand that was not the clerk's.",
    "max": 280,
    "place": "popup"
   },
@@ -8055,7 +8949,7 @@
   },
   {
    "id": "EV_PST02_BODY",
-   "text": "Warden Ilsa Dorne of {planet} must inspect the new post before she may stamp its lease. She inspects slowly and with open joy. A gift would hurry her. Waiting would also work, in time.",
+   "text": "Warden Ilsa Dorne must inspect the new post at {planet} before she can stamp its lease. She inspects slowly. Your crew wait on the dock with the crates unopened. A gift would hurry her. Waiting would work, in time.",
    "max": 280,
    "place": "pending event text"
   },
@@ -8079,7 +8973,7 @@
   },
   {
    "id": "EV_PST02_GIFT",
-   "text": "The gift went up the stairs and the stamp came down them, still wet. You paid a small sum. The next post builds faster. The Warden was not smiling anymore, which you took for gratitude.",
+   "text": "The gift went up the stairs and the stamp came down, still wet. You paid a small sum. The next post builds faster. The Warden did not smile. Your crew took that for thanks.",
    "max": 280,
    "place": "popup"
   },
@@ -8103,7 +8997,7 @@
   },
   {
    "id": "EV_PST02_WAIT",
-   "text": "You waited. The Warden inspected every rivet and then the shadows between them. Nothing was paid. Prices at {planet} move a little for a while, and the Warden will not say which way.",
+   "text": "You waited. The Warden checked every rivet, then the shadows between them. Nothing was paid. Prices at {planet} move a little for a while, and the Warden will not say which way.",
    "max": 280,
    "place": "popup"
   },
@@ -8115,7 +9009,7 @@
   },
   {
    "id": "EV_PST03_BODY",
-   "text": "The survey beam at {planet} will not hold a line, and the foreman blames the weather, which is indoors. A part can be bought from a passing hauler. Or you can wait for the next shift to have an idea.",
+   "text": "The survey beam at {planet} will not hold a line. The foreman blames the weather, which is indoors. A part can be bought from a passing hauler. Or your crew can wait for the next shift to have an idea.",
    "max": 280,
    "place": "pending event text"
   },
@@ -8139,7 +9033,7 @@
   },
   {
    "id": "EV_PST03_PART",
-   "text": "The hauler's mate named a price and you paid a small sum. The beam held its line by evening. The next post builds faster, since the crew now knows where the weather comes from.",
+   "text": "The hauler's mate named a price and you paid a small sum. By evening the beam held its line. The next post builds faster, since the crew now knows where the weather comes from.",
    "max": 280,
    "place": "popup"
   },
@@ -8163,7 +9057,7 @@
   },
   {
    "id": "EV_PST03_SHIFT",
-   "text": "The next shift had an idea, and it was to wait for the one after. Nothing changes. The beam flickered, once, in a direction nobody had aimed it.",
+   "text": "The next shift had an idea, and it was to wait for the one after. Nothing changes. The beam flickered once, toward nothing anyone had aimed at.",
    "max": 280,
    "place": "popup"
   },
@@ -8295,7 +9189,7 @@
   },
   {
    "id": "EV_PST06_BODY",
-   "text": "Residents of {planet} gather at the new post and stand in rows. A child asks whether it will stay. The clerk says that is a question for the Plan. Nobody leaves until someone says something.",
+   "text": "Residents of {planet} gather at the new post and stand in rows. A child asks if it will stay. The clerk says that is a question for the Plan. No one leaves until someone speaks.",
    "max": 280,
    "place": "pending event text"
   },
@@ -8343,7 +9237,7 @@
   },
   {
    "id": "EV_PST06_WORK",
-   "text": "You kept to the work and the rows thinned by dusk. You gain a small sum from early trade. The child watched until the last crate was stamped, and then stamped nothing, politely.",
+   "text": "You kept to the work and the rows thinned by dusk. You gain a small sum from early trade. The child watched until the last crate was stamped. Then she walked home alone.",
    "max": 280,
    "place": "popup"
   },
@@ -8595,7 +9489,7 @@
   },
   {
    "id": "EV_FLT01_BODY",
-   "text": "A hull drifts across the lane, cold, its name scraped off. The Pathfinder's scanner counts no one aboard, then counts again. A tow would delay the flight. Salvage is salvage, if nobody comes to claim it.",
+   "text": "A hull drifts across the lane, cold, its name scraped off. The Pathfinder's scanner counts no one aboard, then counts again. A tow would delay the flight. Salvage is salvage, if no one comes to claim it.",
    "max": 280,
    "place": "pending event text"
   },

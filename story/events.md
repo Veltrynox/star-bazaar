@@ -120,10 +120,10 @@ Tillam's silk weavers downed tools over a form that counted their hours twice. S
 EV22 | Voltara holds a gala | [price up: Voltara, silk] | I
 Voltara's crews hold a gala to celebrate a quota met on paper. Silk at Voltara costs more and pays more. Everyone borrows a sleeve and a mask, and by the second hour the crews look alike. Patron's List counts sales here as clearly more Luxury share.
 
-EV24 | Fire in Voltara's foundry | [price up: Voltara, chips] | P
+EV24 | Fire in Voltara's foundry | [price up: Voltara, spyware] | P
 A fire swept Voltara's core foundry and left the casting floor black. Logic cores at Voltara cost more and pay more. The report calls it a gentle step toward a better line. Ash settled on the walls in neat rows. Nobody has dared to read them.
 
-EV25 | Ashgate recalls its tractors | [price up: Ashgate, chips] | Q
+EV25 | Ashgate recalls its tractors | [price up: Ashgate, spyware] | Q
 Ashgate recalled its farm tractors to be retrained as safe. Logic cores at Ashgate cost more and pay more. The retrained ones freeze when two foremen give opposite orders. The old ones were told to keep quiet and keep going, and they do. They do not look at you.
 
 EV26 | A rich seam is logged twice | [price down: Voltara, ore] | Q
@@ -138,59 +138,59 @@ Format: ID | place | tag, then text. Choice events use the choice screen limits:
 
 ## Debris in orbit [route efficiency down: {planet}, while the debris stays]
 EV17_TITLE | choice title | Wreckage is circling {planet}
-EV17_BODY | choice body | The wreck of a hundred ships has settled into orbit over {planet}, and a salvage broker, Captain Rusk, offers to sweep it for a fee. The Bureau filed the wreck as unowned, which is why it is still up there. Routes from {planet} carry less while it stays.
+EV17_BODY | choice body | A field of old wrecks circles {planet}. Captain Rusk offers to sweep it for a fee. The Bureau filed the wreckage as unowned, so no one has to move it. Routes from {planet} carry less while it stays.
 EV17_PAY_BTN | button | Pay the fee
 EV17_PAY_EFF | effect line | Pay the fee. The debris is cleared and routes from {planet} run as before.
 EV17_LEAVE_BTN | button | Leave the debris
 EV17_LEAVE_EFF | effect line | Routes from {planet} carry less while the debris stays. It does not clear itself.
 EV17_PAID_TITLE | popup title | Orbit over {planet} is clear
-EV17_PAID | popup | Rusk's tugs swept the orbit and filed the receipt. Routes from {planet} carry their full load again. The wreck went somewhere. The receipt does not say where, and you stopped asking when Rusk started smiling.
+EV17_PAID | popup | Rusk's tugs swept the orbit and handed you a receipt. Routes from {planet} carry their full load again. The wreckage went somewhere. Rusk smiled when you asked, so you stopped asking.
 EV17_LEFT_TITLE | popup title | Debris stays over {planet}
-EV17_LEFT | popup | You left the wreck. Ships from {planet} thread around it and carry less. The offer stays open. Rusk's tug waits at the edge of the field, as patient as a bill.
+EV17_LEFT | popup | You left the wreck. Ships from {planet} thread around it in the dark and carry less. The offer stays open. Rusk's tug waits at the edge of the field, patient as a bill.
 
 ## Solar shield [shield built: affects only planets the player can buy later; residents unhappy]
 EV18_TITLE | choice title | Shade the sun
-EV18_BODY | choice body | Chief engineer Ilya Sorn wants to put a shield across part of the sun. Residents hate it and say so in writing, at length. It would reshape the markets on planets you can buy later: some goods get cheaper, while profit and energy rise. What you already own stays as it is.
+EV18_BODY | choice body | Chief engineer Ilya Sorn wants to shade part of the sun. The residents wrote to say no, at length. The shield would change markets on planets you can buy later: some goods get cheaper, profit and energy rise. Planets you own stay as they are.
 EV18_BUILD_BTN | button | Build the shield
 EV18_BUILD_EFF | effect line | Planets you can buy later change: some resources drop, profit and energy rise.
 EV18_SKIP_BTN | button | Leave the sun alone
 EV18_SKIP_EFF | effect line | Nothing changes. The sun keeps its full light.
 EV18_BUILT_TITLE | popup title | The shield is up
-EV18_BUILT | popup | The shield is up and the sky is dimmer. Residents are furious and filed it in triplicate, in the dark. On planets you can buy later, some goods get cheaper while profit and energy climb. Planets you own are untouched. Sorn calls it a clause. The sun calls nothing.
+EV18_BUILT | popup | The shield is up and the sky is dim. Residents filed their anger in triplicate, by lamp. On planets you can buy later, some goods get cheaper while profit and energy climb. Planets you own are untouched. Sorn will not look up.
 EV18_SKIPPED_TITLE | popup title | The shield stays on paper
-EV18_SKIPPED | popup | The plans go back in a drawer. Residents are relieved and file no thanks. Nothing changes in any market. Sorn asked what the rush was, and no one had an answer.
+EV18_SKIPPED | popup | The plans went back in a drawer. Residents are relieved and sent no thanks. Nothing changes in any market. Sorn asked what the rush had been. No one answered, and the drawer stayed shut.
 
 ## Nomads and pirates [choice: evict nomads or let them stay; pirates reduce trade volume; hire to clear pirates, at a cost]
 EV19_TITLE | choice title | Nomads on the asteroids
-EV19_BODY | choice body | Nomad families live on the asteroids you could mine. They are not on the Common Ledger, which the Bureau takes as a personal failing. They count their people by who shares the meal. Evict them and the rock is yours. Or let them stay, and let their lamps burn.
+EV19_BODY | choice body | Nomad families live on the asteroids you could mine. They are not on the Common Ledger, so to the Bureau they do not exist. They count their people by who shares the meal. Evict them and the rock is yours. Or let them stay.
 EV19_EVICT_BTN | button | Evict the nomads
 EV19_EVICT_EFF | effect line | The asteroids open for mining. Some nomads turn to piracy, and pirates rise.
 EV19_STAY_BTN | button | Let them stay
 EV19_STAY_EFF | effect line | The asteroids stay closed to mining. No pirates come of it.
 EV19_EVICTED_TITLE | popup title | The asteroids are cleared
-EV19_EVICTED | popup | The nomads left on the next tide, without a word. The rock is yours to mine. Some did not go far, and now they keep ships and a grudge. Pirates rise. The empty tables were left set.
+EV19_EVICTED | popup | The nomads left on the next tide and said nothing. The rock is yours to mine. Some did not go far. They keep ships now, and a grudge. Pirates rise. Their tables were left set.
 EV19_STAYED_TITLE | popup title | The nomads stay
-EV19_STAYED | popup | You let the nomads stay. Their lamps burn on the rock, small and steady, and they share a meal with the first ship that docks. The asteroids remain closed to mining.
+EV19_STAYED | popup | You let the nomads stay. Their lamps burn on the rock, small and steady. A woman brought the first crew to dock a bowl of something hot. The asteroids stay closed to mining.
 EV19_PIRATES_TITLE | popup title | Pirates reduce trade
-EV19_PIRATES | popup | Pirates now work the lanes, and fewer cargoes get through. Trade volume falls while they stay. The Bureau has opened a file on them. It is a thin file, and so is the fleet behind it. Obedience is cheaper than love, and lasts as long.
+EV19_PIRATES | popup | Pirates now work the lanes and fewer cargoes get through. Trade volume falls while they stay. The Bureau opened a file on them. It is thin, like the fleet behind it. Every late ship now has a reason.
 EV19_HIRE_BTN | button | Hire a clearance crew
 EV19_HIRE_EFF | effect line | Pay to have the pirates cleared. It costs credits and removes their effect on trade.
 
 ## Asteroid approach [warning; pay the state: no skill point, no reputation; decline: 50/50 bad outcome or nothing; bad outcome is storage destroyed or storage capacity cut]
 EV20_TITLE | choice title | An asteroid is approaching
-EV20_BODY | choice body | A rock is coming in on a slow path, and the Bureau noticed it the way it notices everything: late. The state can turn it aside for a fee, and wants it known that it does so out of love. Refusing is a shorter form. Cask Cellar keeps Luxury stock safe from such a cut.
+EV20_BODY | choice body | A rock is coming in on a slow path. The Bureau saw it late, as it sees everything. The state can turn it aside for a fee, and says it does so out of love. Refusing is a shorter form. Cask Cellar keeps Luxury stock safe from such a cut.
 EV20_PAY_BTN | button | Pay the state
 EV20_PAY_EFF | effect line | Cost: payment to the state. Asteroid dealt with. The company gains one expansion point.
 EV20_DECLINE_BTN | button | Decline
 EV20_DECLINE_EFF | effect line | An even chance: company storage is hit, or nothing happens.
 EV20_PAID_TITLE | popup title | The asteroid is deflected
-EV20_PAID | popup | The state turned the rock aside and sent a receipt. The company gains one expansion point for the trouble. The asteroid drifts on, toward someone else's sky. A law is only as strong as the one who says: this is the law.
+EV20_PAID | popup | The state turned the rock aside and sent you the receipt. The company gains one expansion point. The asteroid drifts on toward someone else's sky. Nobody on the dock looked up until it was gone.
 EV20_REWARD | notice (shown after EV20_PAID) | Event reward: the asteroid is dealt with and the company gains an expansion point.
 EV20_HIT_TITLE | popup title | Company storage destroyed
-EV20_HIT_DESTROYED | popup | The asteroid struck {planet}. Your company storage there is gone, and what it held with it. The Bureau has recorded the loss as an adjustment of the Common Ledger. Nobody said sorry. Death takes what a life would still have held.
-EV20_HIT_CAPACITY | popup | The asteroid grazed {planet}. Your company storage there is cracked and holds less than before. The Bureau has recorded the damage as "partial". The crack runs through the wall in a straight, patient line.
+EV20_HIT_DESTROYED | popup | The asteroid struck {planet}. Your company storage there is gone, and what it held with it. The Bureau entered it as an adjustment to the Common Ledger. Nobody said sorry. Your crew stood where the door used to be.
+EV20_HIT_CAPACITY | popup | The asteroid grazed {planet}. Your company storage there is cracked and holds less. The Bureau wrote the word partial. The crack runs up the wall in a straight line. Your crew keep their distance from it.
 EV20_MISS_TITLE | popup title | The asteroid passes
-EV20_MISS | popup | The asteroid passed the system and kept going. Nothing was hit and nothing changes. The Bureau withdrew its warning, with regret, and kept the form. You could have been struck right now. Let that decide how you read the next notice.
+EV20_MISS | popup | The asteroid passed the system and kept going. Nothing was hit and nothing changes. The Bureau withdrew its warning, but kept the form. For one night your crew slept in their boots.
 
 # Choice events (branching) (draft 1, 2026-11-02)
 
@@ -205,7 +205,7 @@ R4. Choice events with 3 choices: the choice screen must show three buttons (EV1
 
 ## BE01 Tillam's sealed granary [3 choices, system 1]
 BE01_TITLE | choice title | Tillam's sealed granary
-BE01_BODY | choice body | Tillam keeps a reserve of grain behind a lock that only the committee can open. Winter is close and the stores outside are thin. The committee will open it for a company that carries the grain out, and wants an answer today. The lock is old and patient.
+BE01_BODY | choice body | Tillam keeps grain behind a lock only the committee can open. Winter is close and the stores outside are thin. The committee will open it for a company that carries the grain out, and wants an answer today. The queue has not moved since dawn.
 BE01_OPEN_BTN | button | Open it to the crowd
 BE01_OPEN_EFF | effect line | Food at Tillam costs less and pays less for a while. Tillam remembers.
 BE01_SHUT_BTN | button | Keep the lock shut
@@ -213,39 +213,39 @@ BE01_SHUT_EFF | effect line | Food at Tillam costs more and pays more for a whil
 BE01_SEND_BTN | button | Send it to Ashgate
 BE01_SEND_EFF | effect line | Food at Ashgate costs less and pays less for a while. Ashgate remembers.
 BE01_OPEN_TITLE | popup title | The granary opens
-BE01_OPEN | popup | The lock gave way and the grain went out by hand, sack to sack. Food at Tillam costs less and pays less while the stores are full. The committee recorded it as a loan. Nobody asked who owes whom.
+BE01_OPEN | popup | The lock gave way. The grain went out by hand, sack to sack, and no one in the line spoke. Food at Tillam costs less and pays less while stores are full. The committee recorded a loan. Nobody asked who owes whom.
 BE01_SHUT_TITLE | popup title | The lock stays shut
-BE01_SHUT | popup | You declined. The lock stayed on and the queue grew in the cold. Food at Tillam costs more and pays more while it is scarce. Somewhere inside the granary something shifted, as if it also had been waiting.
+BE01_SHUT | popup | You said no. The lock stayed on and the queue grew in the cold. Food at Tillam costs more and pays more while it is scarce. A child at the front sat on her bag and watched your ship. Inside the granary, something shifted.
 BE01_SEND_TITLE | popup title | Grain goes to Ashgate
-BE01_SEND | popup | The grain left Tillam by night, on ships that did not ask to be loaded. Food at Ashgate costs less and pays less for a while. The committee at Tillam noticed the empty shelf and wrote a short, cold note.
+BE01_SEND | popup | The grain left Tillam by night. The loaders worked without lamps and did not look at you. Food at Ashgate costs less and pays less for a while. The committee at Tillam found the empty shelf and wrote a short, cold note.
 
 [follow-up of BE01_OPEN, tag: price up: Tillam, energy]
 BE01A_TITLE | popup title | Tillam burns bright for you
-BE01A | popup | Tillam remembered the grain. Every heater on the terraces runs high and the committee calls it a gift. Energy at Tillam costs more and pays more for a while. The frost in the ducts has gone quiet, as if it was fed.
+BE01A | popup | Tillam remembered the grain. Heaters on every terrace run high, and the committee calls it a gift. Energy at Tillam costs more and pays more for a while. The frost in the ducts has gone quiet, as if it was fed.
 
 [follow-up of BE01_SHUT, tag: planet closed: Tillam]
 BE01B_TITLE | popup title | Tillam closes its port
-BE01B | popup | The queue that waited in the cold came to the docks. Tillam's port is closed for a while, and routes touching Tillam are blocked. The crowd does not shout. It stands in rows and looks at the ships.
+BE01B | popup | The queue that waited in the cold came down to the docks. Tillam's port is closed for a while, and routes touching Tillam are blocked. No one shouts. They stand in rows and watch your ships sit still.
 
 [follow-up of BE01_SEND, tag: price up: Ashgate, energy]
 BE01C_TITLE | popup title | Ashgate returns the favour
-BE01C | popup | Ashgate remembered the grain. Its foundries run hot in thanks and the smoke leans toward your ships. Energy at Ashgate costs more and pays more for a while. A foreman left a loaf at the dock. It was still warm.
+BE01C | popup | Ashgate remembered the grain. The foundries run hot in thanks and the smoke leans toward your ships. Energy at Ashgate costs more and pays more for a while. A foreman left a loaf at the dock. It was still warm.
 
 ## BE02 The beacon over Dunmere Reach [2 choices, system 2, silk]
 BE02_TITLE | choice title | A beacon over Dunmere Reach
-BE02_BODY | choice body | A beacon pulses over Dunmere Reach, from a rock that no chart lists. Its pattern repeats, then changes, as if it had heard the dock talk. The Bureau office at Quillon wants it logged and silenced. The crews want to answer. Your ships pass it every cycle.
+BE02_BODY | choice body | A beacon pulses over Dunmere Reach, from a rock no chart lists. Its pattern repeats, then changes, as if it heard the dock talk. The Bureau office at Quillon wants it logged and silenced. Your crews want to answer. Your ships pass it every cycle.
 BE02_ANSWER_BTN | button | Answer the beacon
 BE02_ANSWER_EFF | effect line | Silk at Quillon costs more and pays more for a while. Something answers back.
 BE02_REPORT_BTN | button | Report it to the Bureau
 BE02_REPORT_EFF | effect line | Quillon closes its port to check the sky. Routes touching Quillon are blocked for a while.
 BE02_ANSWER_TITLE | popup title | The beacon is answered
-BE02_ANSWER | popup | A crew sent three pulses back. The beacon went dark, then lit again, in the same order. Quillon's buyers heard and bought silk as if a festival had been announced. Silk there costs more and pays more. Nobody has said what the festival is for.
+BE02_ANSWER | popup | A crew sent a few pulses back. The beacon went dark, then lit again in the same order. Quillon's buyers heard, and bought silk as if a festival had been called. Silk there costs more and pays more. No one will say what the festival is for.
 BE02_REPORT_TITLE | popup title | Quillon checks the sky
 BE02_REPORT | popup | The Bureau filed the beacon as a fault and closed Quillon's port to inspect the sky. Routes touching Quillon are blocked for a while. The inspectors were polite. The beacon pulsed once, as if it had read the form.
 
 [follow-up of BE02_ANSWER, tag: price up: Mossfell, food]
 BE02A_TITLE | popup title | Visitors reach Mossfell
-BE02A | popup | Small ships came in from the quiet rock and docked at Mossfell without papers. They want food and pay in odd, heavy coins. Food at Mossfell costs more and pays more for a while. They did not say their names. They stayed polite and counted the crates twice.
+BE02A | popup | Small ships came in from the quiet rock and docked at Mossfell without papers. They want food and pay in odd, heavy coins. Food at Mossfell costs more and pays more for a while. They gave no names. They counted every crate twice, and watched your crew do it.
 
 [follow-up of BE02_REPORT, tag: price down: Quillon, silk]
 BE02B_TITLE | popup title | The inspection finds nothing
@@ -253,7 +253,7 @@ BE02B | popup | The inspectors found no fault and Quillon's port reopened. Stock
 
 ## BE03 A family offers cover [3 choices, system 1, Ashgate]
 BE03_TITLE | choice title | A family offers cover
-BE03_BODY | choice body | The family that bought Ashgate's food contracts sends a polite note. For a share, they will keep the docks quiet and the other traders out. They also mention how fragile a dock can be. The Bureau has no form for this. It would like one.
+BE03_BODY | choice body | The family that bought Ashgate's food contracts sends a polite note. For a share, they will keep the docks quiet and the other traders out. They also mention how fragile a dock can be. Your crew read the note over your shoulder. No one spoke.
 BE03_ACCEPT_BTN | button | Accept their cover
 BE03_ACCEPT_EFF | effect line | Food at Ashgate costs more and pays more for a while. The family will call in the favour.
 BE03_REFUSE_BTN | button | Refuse politely
@@ -261,9 +261,9 @@ BE03_REFUSE_EFF | effect line | Food at Ashgate costs less and pays less for a w
 BE03_REPORT_BTN | button | Report to the Bureau
 BE03_REPORT_EFF | effect line | Ashgate closes its port for an audit. Routes touching Ashgate are blocked for a while.
 BE03_ACCEPT_TITLE | popup title | The family keeps the docks
-BE03_ACCEPT | popup | The family's people took the docks in the morning, in clean coats. Food at Ashgate costs more and pays more, since their prices travel with them. Everything is quiet. A dock this quiet has an owner.
+BE03_ACCEPT | popup | The family's people took the docks at dawn, in clean coats. Food at Ashgate costs more and pays more, since their prices came with them. The docks are quiet. Your crew lower their voices there. A quiet dock has an owner.
 BE03_REFUSE_TITLE | popup title | The note is declined
-BE03_REFUSE | popup | You sent back a polite no. The family sent back a polite nod. Food at Ashgate costs less and pays less as their buyers step back to watch. Nobody was threatened. Everyone knows what was not said.
+BE03_REFUSE | popup | You sent back a polite no. The family sent back a polite nod. Food at Ashgate costs less and pays less as their buyers step back to watch. No one was threatened. Your crew check the locks twice each night.
 BE03_REPORT_TITLE | popup title | The Bureau opens a file
 BE03_REPORT | popup | The Bureau thanked you in writing and closed Ashgate's port for an audit. Routes touching Ashgate are blocked for a while. The audit will take its own time. The family has been told who filed.
 
@@ -273,9 +273,9 @@ BE03A | popup | The family closed Ashgate's docks to every ship but its own, and
 
 [follow-up of BE03_REFUSE, tag: price down: Ashgate, energy]
 BE03B_TITLE | popup title | The family waits
-BE03B | popup | The family did nothing, which was its answer. Its buyers stayed away from the furnaces and energy at Ashgate costs less and pays less for a while. A courier sits in a booth on the dock, reading and never turning a page.
+BE03B | popup | The family did nothing, which was its answer. Its buyers stayed away from the furnaces, and energy at Ashgate costs less and pays less for a while. A courier sits in a booth on the dock, reading, never turning a page. He is there every shift.
 
-[follow-up of BE03_REPORT, tag: price up: Ashgate, chips]
+[follow-up of BE03_REPORT, tag: price up: Ashgate, spyware]
 BE03C_TITLE | popup title | The audit ends, parts are short
 BE03C | popup | The audit ended and Ashgate's port is open. The family's contracts were frozen and the repair shops cannot get spares. Logic cores at Ashgate cost more and pay more for a while. The Bureau stamped the file closed. The family kept its copy.
 
@@ -291,11 +291,11 @@ Tags updated 2026-11-04 to match data/chains.json pool_new (planets and goods as
 | Id | Tag | Kind |
 |---|---|---|
 | EV40 | [price down: Voltara, rivets] | P |
-| EV41 | [price up: Ashgate, cells] | Q |
-| EV42 | [price up: Tillam, armour] | I |
+| EV41 | [price up: Ashgate, rounds] | Q |
+| EV42 | [price up: Tillam, arms] | I |
 | EV43 | [price down: Tillam, musk] | I |
 | EV44 | [price up: Ashgate, gems] | Q |
-| EV45 | [price down: Ashgate, cask] | P |
+| EV45 | [price down: Ashgate, attar] | P |
 | EV46 | [price up: Voltara, ingot] | P |
 | EV47 | [price down: Voltara, alloy] | I |
 | EV48 | [price up: Ashgate, plate] | P |
@@ -360,7 +360,7 @@ Choices are neutral: two buttons of similar length, no good or bad label, no hid
 ## EV_PST01 post: arrival [pending]
 Tag: post_built:<planet> just built; tags A [post bonus: next post cheaper], B none
 EV_PST01_TITLE | pending event title | A dock that keeps a book
-EV_PST01_BODY | pending event text | The dock at {planet} keeps a visitors' book, and the clerk wants your name in it before the first crate moves. The book is old, with a ring of cold on its cover. Nobody can say who opened it.
+EV_PST01_BODY | pending event text | The dock at {planet} keeps a visitors' book. The clerk wants your name in it before the first crate moves. The cover is cold to the touch. Nobody can say who opened it.
 EV_PST01_SIGN_BTN | button | Sign the book
 EV_PST01_SIGN_EFF | effect line | The next post you build costs less.
 EV_PST01_SIGN_TITLE | popup title | The book is signed
@@ -368,33 +368,33 @@ EV_PST01_SIGN | popup | The clerk blotted your name and nodded, as if it had alw
 EV_PST01_LEAVE_BTN | button | Leave without signing
 EV_PST01_LEAVE_EFF | effect line | Nothing changes.
 EV_PST01_LEAVE_TITLE | popup title | The book stays shut
-EV_PST01_LEAVE | popup | You left the clerk waiting with the pen raised. Nothing changes. The clerk wrote a short line anyway, in a hand that did not look like the clerk's.
+EV_PST01_LEAVE | popup | You left the clerk waiting, pen raised. Nothing changes. The clerk wrote a line anyway, in a hand that was not the clerk's.
 
 ## EV_PST02 post: local officials [pending]
 Tag: post_built:<planet>; A [cash: pay small sum] + [post bonus: next post builds faster]; B [price lean: planet, direction hidden, a few cycles]
 EV_PST02_TITLE | pending event title | The Port Warden's stamp
-EV_PST02_BODY | pending event text | Warden Ilsa Dorne of {planet} must inspect the new post before she may stamp its lease. She inspects slowly and with open joy. A gift would hurry her. Waiting would also work, in time.
+EV_PST02_BODY | pending event text | Warden Ilsa Dorne must inspect the new post at {planet} before she can stamp its lease. She inspects slowly. Your crew wait on the dock with the crates unopened. A gift would hurry her. Waiting would work, in time.
 EV_PST02_GIFT_BTN | button | Send a gift
 EV_PST02_GIFT_EFF | effect line | Pay a small sum. The next post builds faster.
 EV_PST02_GIFT_TITLE | popup title | The Warden is hurried
-EV_PST02_GIFT | popup | The gift went up the stairs and the stamp came down them, still wet. You paid a small sum. The next post builds faster. The Warden was not smiling anymore, which you took for gratitude.
+EV_PST02_GIFT | popup | The gift went up the stairs and the stamp came down, still wet. You paid a small sum. The next post builds faster. The Warden did not smile. Your crew took that for thanks.
 EV_PST02_WAIT_BTN | button | Wait for the stamp
 EV_PST02_WAIT_EFF | effect line | Nothing is paid. Prices at {planet} move a little for a while.
 EV_PST02_WAIT_TITLE | popup title | The stamp takes its time
-EV_PST02_WAIT | popup | You waited. The Warden inspected every rivet and then the shadows between them. Nothing was paid. Prices at {planet} move a little for a while, and the Warden will not say which way.
+EV_PST02_WAIT | popup | You waited. The Warden checked every rivet, then the shadows between them. Nothing was paid. Prices at {planet} move a little for a while, and the Warden will not say which way.
 
 ## EV_PST03 post: a snag [pending]
 Tag: post_built:<planet>; A [cash: pay small sum] + [post bonus: next post builds faster]; B none
 EV_PST03_TITLE | pending event title | The beam will not hold
-EV_PST03_BODY | pending event text | The survey beam at {planet} will not hold a line, and the foreman blames the weather, which is indoors. A part can be bought from a passing hauler. Or you can wait for the next shift to have an idea.
+EV_PST03_BODY | pending event text | The survey beam at {planet} will not hold a line. The foreman blames the weather, which is indoors. A part can be bought from a passing hauler. Or your crew can wait for the next shift to have an idea.
 EV_PST03_PART_BTN | button | Buy the part
 EV_PST03_PART_EFF | effect line | Pay a small sum. The next post builds faster.
 EV_PST03_PART_TITLE | popup title | The part is fitted
-EV_PST03_PART | popup | The hauler's mate named a price and you paid a small sum. The beam held its line by evening. The next post builds faster, since the crew now knows where the weather comes from.
+EV_PST03_PART | popup | The hauler's mate named a price and you paid a small sum. By evening the beam held its line. The next post builds faster, since the crew now knows where the weather comes from.
 EV_PST03_SHIFT_BTN | button | Wait for the next shift
 EV_PST03_SHIFT_EFF | effect line | Nothing changes.
 EV_PST03_SHIFT_TITLE | popup title | The shift has an idea
-EV_PST03_SHIFT | popup | The next shift had an idea, and it was to wait for the one after. Nothing changes. The beam flickered, once, in a direction nobody had aimed it.
+EV_PST03_SHIFT | popup | The next shift had an idea, and it was to wait for the one after. Nothing changes. The beam flickered once, toward nothing anyone had aimed at.
 
 ## EV_PST04 post: a bargain [pending]
 Tag: post_built:<planet>; A [cash: pay small sum] + [post bonus: next post cheaper]; B none
@@ -425,7 +425,7 @@ EV_PST05_SEAL | popup | You paid a small sum and hung your seal beside the other
 ## EV_PST06 post: the dock crowd [pending]
 Tag: post_built:<planet>; A [cash: pay small sum] + [post bonus: next post builds faster]; B [cash: gain small sum]
 EV_PST06_TITLE | pending event title | Residents come to look
-EV_PST06_BODY | pending event text | Residents of {planet} gather at the new post and stand in rows. A child asks whether it will stay. The clerk says that is a question for the Plan. Nobody leaves until someone says something.
+EV_PST06_BODY | pending event text | Residents of {planet} gather at the new post and stand in rows. A child asks if it will stay. The clerk says that is a question for the Plan. No one leaves until someone speaks.
 EV_PST06_OPEN_BTN | button | Hold an open dock
 EV_PST06_OPEN_EFF | effect line | Pay a small sum. The next post builds faster.
 EV_PST06_OPEN_TITLE | popup title | The dock stays open
@@ -433,7 +433,7 @@ EV_PST06_OPEN | popup | You set out chairs and a schedule, and the rows turned i
 EV_PST06_WORK_BTN | button | Keep to the work
 EV_PST06_WORK_EFF | effect line | You gain a small sum from early trade.
 EV_PST06_WORK_TITLE | popup title | The rows thin out
-EV_PST06_WORK | popup | You kept to the work and the rows thinned by dusk. You gain a small sum from early trade. The child watched until the last crate was stamped, and then stamped nothing, politely.
+EV_PST06_WORK | popup | You kept to the work and the rows thinned by dusk. You gain a small sum from early trade. The child watched until the last crate was stamped. Then she walked home alone.
 
 ## EV_PLT01 platform: crew [pending]
 Tag: platform_built:<planet>; A [cash: pay small sum] + [stock: gain some mined goods]; B none
@@ -490,7 +490,7 @@ EV_PLT04_LIGHT | popup | You kept the lamps on. Nothing changes. The hum went on
 ## EV_FLT01 flight: drifting wreck [pending]
 Tag: flight longer than 1 cycle, outside home orbit; A [flight delay: a little] + [cash: gain small sum]; B none
 EV_FLT01_TITLE | pending event title | A wreck on the lane
-EV_FLT01_BODY | pending event text | A hull drifts across the lane, cold, its name scraped off. The Pathfinder's scanner counts no one aboard, then counts again. A tow would delay the flight. Salvage is salvage, if nobody comes to claim it.
+EV_FLT01_BODY | pending event text | A hull drifts across the lane, cold, its name scraped off. The Pathfinder's scanner counts no one aboard, then counts again. A tow would delay the flight. Salvage is salvage, if no one comes to claim it.
 EV_FLT01_TOW_BTN | button | Tow it clear
 EV_FLT01_TOW_EFF | effect line | The flight is delayed a little. You gain a small sum for the salvage.
 EV_FLT01_TOW_TITLE | popup title | The wreck is cleared
