@@ -50,6 +50,7 @@ SCRATCH = WT_DIR / "_scratch"  # big temp files live on the same (large) volume 
 STATE = OUT / "state.json"
 SCHEDULE = ROOT / "schedule.json"
 # untracked files Godot generates in every worktree (textures extracted from the pirate ship model); not worker output
+GDD_MERGED = []  # worktrees whose gdd.md conflict was resolved by keeping both sides
 IGNORE_UNTRACKED = ("assets/ships/pirate_ship_01/",)
 OWNER_ONLY = {"qa-analyst", "economy-designer"}
 OPEN = {"queued", "partial"}
@@ -420,25 +421,50 @@ def fail_name(line):
 
 
 def resolve_balance_source(wt):
-    """Auto-resolve a conflict that is only the one-line change note ("source") of data/balance.json:
-    keep the base's note and put the task's own first sentence on top. Returns True if resolved."""
+    """Auto-resolve conflicts in data/balance.json that are only additions: the one-line change note ("source":
+    the base's note stays, the task's first sentence goes on top) and new key lines added at the same spot (both
+    sets are kept). The result must be valid JSON without duplicate keys. Returns True if resolved."""
     p = Path(wt) / "data" / "balance.json"
     text = p.read_text()
     pre = '  "source": "'
+    keyline = re.compile(r'^\s+"[^"]+": .*$')
     pat = re.compile(r"<<<<<<< [^\n]*\n(.*?)=======\n(.*?)>>>>>>> [^\n]*\n", re.S)
-    for m in pat.finditer(text):
-        if not (m.group(1).startswith(pre) and m.group(2).startswith(pre)):
-            return False
+
     def fix(m):
         head, mine = m.group(1), m.group(2)
-        note = mine[len(pre):].split(" Earlier: ")[0]
-        return pre + note + " Earlier: " + head[len(pre):]
-    new = pat.sub(fix, text)
+        if head.startswith(pre) and mine.startswith(pre):
+            return pre + mine[len(pre):].split(" Earlier: ")[0] + " Earlier: " + head[len(pre):]
+        lines = (head + mine).splitlines()
+        if lines and all(keyline.match(l) for l in lines):
+            tail = text[m.end():].lstrip()[:1]  # what follows the region: "}" means the last key needs no comma
+            out = [l.rstrip().rstrip(",") + "," for l in lines]
+            if tail in ("}", "]"):
+                out[-1] = out[-1].rstrip(",")
+            return "\n".join(out) + "\n"
+        raise ValueError("not a pure addition")
+
     try:
-        json.loads(new)
+        new = pat.sub(fix, text)
+        def no_dups(pairs):
+            keys = [k for k, _ in pairs]
+            if len(keys) != len(set(keys)):
+                raise ValueError("duplicate key")
+            return dict(pairs)
+        json.loads(new, object_pairs_hook=no_dups)
     except ValueError:
         return False
     p.write_text(new)
+    return True
+
+
+def resolve_keep_both(wt, name):
+    """Conflict in a prose file (gdd.md): keep both sides, base first. Nothing is lost; the report flags it for review."""
+    p = Path(wt) / name
+    text = p.read_text()
+    pat = re.compile(r"<<<<<<< [^\n]*\n(.*?)=======\n(.*?)>>>>>>> [^\n]*\n", re.S)
+    if not pat.search(text):
+        return False
+    p.write_text(pat.sub(lambda m: m.group(1) + m.group(2), text))
     return True
 
 
@@ -452,6 +478,10 @@ def rebase_with_auto_resolve(wt, base):
             sh(["git", "checkout", "--ours", "--", f], cwd=wt)
             sh(["git", "add", "--", f], cwd=wt)
         files = [f for f in files if not f.endswith(".uid")]
+        if "gdd.md" in files and resolve_keep_both(wt, "gdd.md"):
+            sh(["git", "add", "gdd.md"], cwd=wt)
+            GDD_MERGED.append(wt)
+            files.remove("gdd.md")
         if files not in ([], ["data/balance.json"]):
             return r
         if files and not resolve_balance_source(wt):
