@@ -205,6 +205,10 @@ static func _press_for(n: Node) -> void:
 		b.button_down.connect(func() -> void: press(b, true))
 		b.button_up.connect(func() -> void: press(b, false))
 		b.mouse_exited.connect(func() -> void: press(b, false))
+		# T222: a mouse click must not leave keyboard focus on the button, or Space would press it again
+		b.gui_input.connect(func(ev: InputEvent) -> void:
+			if ev is InputEventMouseButton and not ev.pressed:
+				b.release_focus.call_deferred())
 
 ## Squash on press, spring back on release. Interrupting it keeps the current scale, so it never jumps.
 static func press(b: BaseButton, down: bool) -> void:

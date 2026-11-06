@@ -1479,10 +1479,11 @@
       "title": "Bug: Space on 'Start exploring' also presses 'Stop exploring'",
       "owner_agent": "gameplay-programmer",
       "depends_on": [],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 15,
       "window": "Owner request 2026-11-05 (playtest). Not started: main session sets it running.",
-      "brief": "Owner: after clicking the Start exploring button, pressing Space (pause/resume time) also activates the focused button, which flips it to Stop exploring. Fix: the exploration button (and other buttons near the ship controls) must not keep keyboard focus after a click (focus_mode NONE or release_focus), and Space must only toggle pause. Check every other button that can take focus and swallow Space or Enter. Headless test if feasible. Handoff handoffs/gameplay-programmer/2026-11-05-T222.json."
+      "brief": "Owner: after clicking the Start exploring button, pressing Space (pause/resume time) also activates the focused button, which flips it to Stop exploring. Fix: the exploration button (and other buttons near the ship controls) must not keep keyboard focus after a click (focus_mode NONE or release_focus), and Space must only toggle pause. Check every other button that can take focus and swallow Space or Enter. Headless test if feasible. Handoff handoffs/gameplay-programmer/2026-11-05-T222.json.",
+      "note": "2026-11-05: Juice._press_for releases focus after any mouse click on a button (game/juice.gd), so Space only toggles pause. Keyboard-activated buttons keep focus. No headless test."
     },
     {
       "task_id": "T223",
