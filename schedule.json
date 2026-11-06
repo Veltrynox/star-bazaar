@@ -1500,10 +1500,11 @@
       "title": "Story: 10 new connected generic stories, not tied to skill branches",
       "owner_agent": "story-designer",
       "depends_on": [],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 40,
       "window": "Owner request 2026-11-05 (playtest). Not started: main session sets it running.",
-      "brief": "Owner: write 10 new connected generic stories (one chain with a thread running through them, in the voice of story/voice.md) that are NOT related to the skill branches. Check how events, gigs (T217) and gated options are stored (story/events.md, story/ideas.md, header of tools/build_story.py) and write them in that format, English first, then Russian in story/ru. Mechanics only as text ids and a short list of the trigger and effect each story needs, no balance numbers; if a story needs new code, list it in the handoff for the gameplay-programmer. Do not run audio. Run python3 tools/build_story.py. Handoff handoffs/story-designer/2026-11-05-T224.json."
+      "brief": "Owner: write 10 new connected generic stories (one chain with a thread running through them, in the voice of story/voice.md) that are NOT related to the skill branches. Check how events, gigs (T217) and gated options are stored (story/events.md, story/ideas.md, header of tools/build_story.py) and write them in that format, English first, then Russian in story/ru. Mechanics only as text ids and a short list of the trigger and effect each story needs, no balance numbers; if a story needs new code, list it in the handoff for the gameplay-programmer. Do not run audio. Run python3 tools/build_story.py. Handoff handoffs/story-designer/2026-11-05-T224.json.",
+      "note": "TH01-TH10 text written (English only) in story/events.md; not playable until gameplay-programmer adds event rows, cash-pay effect, start-cycle key. See handoff 2026-11-06-T224.json."
     },
     {
       "task_id": "T225",

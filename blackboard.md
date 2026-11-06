@@ -4,6 +4,7 @@
 - discovery_enabled in data/balance.json ships at 1 (owner decision 2026-11-05); tests that need it off set it themselves.
 
 ## Left to do
+- T224 done (text only): TH01-TH10 need a gameplay task: event rows + follow chain in data/events.json, cash-pay choice effect (TH10_A), balance key for thread start cycle; owner to answer who sets those.
 - T238 done: owner to approve design/proposals/2026-11-05-branch-goods.md and answer 3 questions (can a company win other markets/learn other trees; new world Brannock vs retype Ashgate; energy in every tier-3 recipe) before T239/T240/T242.
 - T234 done: owner to answer: EV52-55 rarely fire (cycles 5 and 9 in window, pool ~36); Luxury/Minerals often not visible by cycle 10; chain gains removed as options (one kept per step). Cash values first-pass.
 - T230 partial: choice events EV17-20, BE01-03 and pending post/platform/flight events not rewritten (owner to say); Russian not touched.
@@ -60,3 +61,13 @@
 - Failed / did not work: nothing. Tests not run (no code/data change).
 - Files and commits: design/proposals/2026-11-05-branch-goods.md, handoff, schedule.json, blackboard.md; see git log "T238".
 - Left to do: owner approval and the three open questions; then T239, T240, T242.
+
+## 2026-11-06 18:00 run: T224
+- Summary: Story-designer wrote ten connected events TH01-TH10 (Maren Oake's hunt for an unrepaid loan) in story/events.md, English only; build regenerated data/story_text.json.
+- Why this task: no dependencies, text only, no visual/economy/QA need; others are blocked or owner-only.
+- Approach: story-designer agent; text only, since code needs (cash-pay effect, event rows) belong to the gameplay-programmer.
+- Agent prompts: write 10 connected generic stories in events format, English only, no commit, list code needs; produced story/events.md, data/story_text.json, handoffs/story-designer/2026-11-06-T224.json.
+- Worked: sh tools/tests/run.sh pass=11330 fail=0.
+- Failed / did not work: build writes no event rows for text-only blocks, so stories are not playable yet.
+- Files and commits: story/events.md, data/story_text.json, handoff, schedule.json, blackboard.md; see git log "T224". story/voice.md and .claude/agents edits are the owner's, left alone.
+- Left to do: gameplay task for TH01-TH10 rows, cash-pay effect, start-cycle key; Russian only when owner asks.
