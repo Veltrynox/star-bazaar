@@ -49,6 +49,8 @@ OUT = ROOT / "logs" / "orchestrator"
 SCRATCH = WT_DIR / "_scratch"  # big temp files live on the same (large) volume as the project, never in /tmp or /var/folders
 STATE = OUT / "state.json"
 SCHEDULE = ROOT / "schedule.json"
+# untracked files Godot generates in every worktree (textures extracted from the pirate ship model); not worker output
+IGNORE_UNTRACKED = ("assets/ships/pirate_ship_01/",)
 OWNER_ONLY = {"qa-analyst", "economy-designer"}
 OPEN = {"queued", "partial"}
 TOOLS = "Bash,Read,Edit,Write,Glob,Grep,Agent,Skill"
@@ -420,9 +422,11 @@ def fail_name(line):
 def merge_one(st, tid):
     v = st["tasks"][tid]
     wt, br, base = v["worktree"], v["branch"], st["base_branch"]
-    if v.get("result") is None or not v["result"].startswith("done"):
+    r = (v.get("result") or "")
+    # a worker that stopped only because of tests also fails on base still goes through the gate below, which compares with the baseline
+    if not (r.startswith("done") or (r.startswith("blocked") and "tests" in r.lower() and "committed" in r.lower())):
         return block(st, tid, "worker did not report done: " + str(v.get("result")), "")
-    dirty = [l for l in sh(["git", "status", "--porcelain"], cwd=wt).stdout.splitlines() if l[3:].rstrip("/") != "tools/godot"]  # our own symlink
+    dirty = [l for l in sh(["git", "status", "--porcelain"], cwd=wt).stdout.splitlines() if l[3:].rstrip("/") != "tools/godot" and not (l.startswith("??") and (l.endswith(".uid") or l[3:].strip(chr(34)).startswith(IGNORE_UNTRACKED)))]  # our own symlink, Godot-generated uid files
     if dirty:
         return block(st, tid, "worktree has uncommitted files", "\n".join(dirty))
     r = sh(["git", "rebase", base], cwd=wt)
@@ -438,7 +442,7 @@ def merge_one(st, tid):
     if r.returncode != 0:
         return block(st, tid, "fast-forward merge refused", r.stdout + r.stderr)
     v["state"], v["tests_after"] = "merged", {"pass": t["pass"], "fail": t["fail"]}
-    summary = (v["result"].split("|")[1].strip() if "|" in v["result"] else v["result"])
+    summary = (v["result"].split("|")[1].strip() if "|" in v["result"] else v["result"])[:300]
     err = commit_board(tid, v["title"], "done", f"Done by orchestrator: {summary}", summary)
     if err:
         v["board_error"] = err

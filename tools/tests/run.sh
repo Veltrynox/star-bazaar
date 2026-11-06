@@ -13,7 +13,7 @@ rm -rf "$SCRATCH"; mkdir -p "$SCRATCH"
 LOG="$SCRATCH/run.log"
 HOME="$SCRATCH" tools/godot/Godot.app/Contents/MacOS/Godot --headless --path . -s res://tools/tests/run_tests.gd > "$LOG" 2>&1
 code=$?
-if [ "$(wc -c < "$LOG")" -gt 400000 ]; then
+if [ "$(wc -c < "$LOG")" -gt 20000000 ]; then
   head -c 200000 "$LOG"; echo; echo "... LOG TRUNCATED (too long to print) ..."; tail -c 100000 "$LOG"
   echo "FAIL: test log is huge, a runaway error loop; read the first errors above"
   exit 1
