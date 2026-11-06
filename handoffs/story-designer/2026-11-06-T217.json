@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-11-06",
+  "task": "T217",
+  "status": "partial",
+  "files_changed": ["story/gigs.md", "tools/build_story.py", "data/story_text.json"],
+  "open_questions": [
+    "Run tools/tests/run.sh shows 15 FAIL (goods, workshop, availability rule powder/blooms, hooks). They come from uncommitted data/ edits by others, not from this task; all generated-file tests pass. Owner to confirm.",
+    "Is the hook line the tooltip under 'Signal' + system, or only the icon text? I wrote it as a short atmosphere line (max 140) that names no story."
+  ],
+  "handoff": "Two gigs are in story/gigs.md and built into data/story_text.json (28 ids): GIG01 the wreck of the Ninth Tally (crash, salvage), GIG02 the relay keeper (a lamp still lit). Ids per gig: _TITLE, _HOOK, _ARRIVE, _A_BTN, _B_BTN, _A_OUT_MIL/LUX/MIN/BIO, _B_OUT_MIL/LUX/MIN/BIO, _EPI. Branch outcome ids end _OUT_MIL, _OUT_LUX, _OUT_MIN, _OUT_BIO. build_gigs() in tools/build_story.py reads gigs.md (limits: _TITLE 32, _BTN 28, _HOOK 140, _EPI 140, rest 280). No text names a good, number, skill point or mechanic. Programmer wires gig mechanics in data/gigs.json using these ids. No Russian."
+}

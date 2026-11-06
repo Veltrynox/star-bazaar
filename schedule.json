@@ -1426,10 +1426,11 @@
       "depends_on": [
         "T216"
       ],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 30,
       "window": "Owner request 2026-11-05 (playtest). Not started: main session sets it running.",
-      "brief": "Owner: write 2 gig stories for now, following the T216 design. Story 1: a ship crash the ship flies to and salvages something. Story 2: of your choice that fits the world. Each story has a different outcome per branch (the four markets and the player's progression, no hidden good or direction named in the text), a hook text, an arrival text, the choice buttons if any, outcome lines per branch and a short epilogue line. Source in story/gigs.md with text ids (rule: header of tools/build_story.py) and Russian in story/ru/gigs.json, then python3 tools/build_story.py. No numbers or mechanics in the text. Handoff handoffs/<agent>/2026-11-05-<id>.json."
+      "brief": "Owner: write 2 gig stories for now, following the T216 design. Story 1: a ship crash the ship flies to and salvages something. Story 2: of your choice that fits the world. Each story has a different outcome per branch (the four markets and the player's progression, no hidden good or direction named in the text), a hook text, an arrival text, the choice buttons if any, outcome lines per branch and a short epilogue line. Source in story/gigs.md with text ids (rule: header of tools/build_story.py) and Russian in story/ru/gigs.json, then python3 tools/build_story.py. No numbers or mechanics in the text. Handoff handoffs/<agent>/2026-11-05-<id>.json.",
+      "note": "2026-11-06: GIG01 (Ninth Tally wreck) and GIG02 (relay lamp) in story/gigs.md, build_gigs() in tools/build_story.py, English only. data/story_text.json rebuilt but left uncommitted (mixed with owner goods edits)."
     },
     {
       "task_id": "T218",

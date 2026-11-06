@@ -4,6 +4,7 @@
 - discovery_enabled in data/balance.json ships at 1 (owner decision 2026-11-05); tests that need it off set it themselves.
 
 ## Left to do
+- T217 done: gig texts GIG01/02 in story/gigs.md; data/story_text.json regenerated but uncommitted (owner goods edits mixed in); 15 test FAILs come from owner's uncommitted goods work.
 - T216 done: owner to approve design/proposals/2026-11-05-gigs.md and answer 3 questions (expired gig gone for run?, goods reward to storage or next load?, reward goods count for share?) before T217/T218.
 - T224 done (text only): TH01-TH10 need a gameplay task: event rows + follow chain in data/events.json, cash-pay choice effect (TH10_A), balance key for thread start cycle; owner to answer who sets those.
 - T238 done: owner to approve design/proposals/2026-11-05-branch-goods.md and answer 3 questions (can a company win other markets/learn other trees; new world Brannock vs retype Ashgate; energy in every tier-3 recipe) before T239/T240/T242.
@@ -22,16 +23,6 @@
 - Owner: T187 rival ships: look (tint, size, trail, galaxy view) and balance keys rival_ship_count / rival_ship_speed (code defaults 3 and 0.6); gdd.md rivals line edited but left uncommitted with other people's gdd.md changes (gdd-log.md is deleted in tree, so no log entry).
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
-
-## 2026-11-06 16:00 run: T233
-- Summary: Wrote four early branch events EV52-EV55 (contract and dark market) as text in story/events.md and built them with tools/build_story.py. No mechanics added.
-- Why this task: no dependencies, text only, no visual, economy or QA need; other open tasks need owner decisions, owner-only agents or visual work.
-- Approach: story-designer agent; events avoid goods names because branch goods are hidden before system 2 and T238 is not built.
-- Agent prompts: write EV52-55 per T233 brief, English only, no commit, no mechanics; produced story/events.md, data/story_text.json, handoffs/story-designer/2026-11-05-T233.json, done.
-- Worked: sh tools/tests/run.sh pass=11320 fail=0.
-- Failed / did not work: nothing.
-- Files and commits: story/events.md, data/story_text.json, handoff, schedule.json, blackboard.md; see git log "T233".
-- Left to do: T234 mechanics (rows in data/events.json via tags, {cash_in} A>B, {market}); EVnn_EFF rivals lines say no rival change. story/voice.md and .claude/agents edits are the owner's, left alone.
 
 ## 2026-11-06 16:00 run: T234
 - Summary: Built the four branch events EV52-55 as data-driven one-time pool events (dark option A, public option B), cycle window via new atom cycle_at_most, and the hidden 20% spotted flag that removes half the profitable events for the run. Flag and removed set are saved; old saves load without them.
@@ -72,3 +63,13 @@
 - Failed / did not work: nothing. Tests not run (no code/data change).
 - Files and commits: design/proposals/2026-11-05-gigs.md, handoff, schedule.json, blackboard.md; see git log "T216".
 - Left to do: owner approval and three open questions; then T217, T218.
+
+## 2026-11-06 22:00 run: T217
+- Summary: story-designer wrote two gig stories (GIG01 wreck of the Ninth Tally, GIG02 the relay lamp) with hook, arrival, two buttons, four branch outcomes per button and epilogue, in story/gigs.md; build_story.py got build_gigs(). English only.
+- Why this task: dependency T216 done, text only, no visual/economy/QA need; T220/T223 are look/layout decisions, T208/T218/T239 wait on owner approval.
+- Approach: new story/gigs.md read by the existing build tool instead of stuffing gigs into events.md.
+- Agent prompts: write 2 gig stories per T217, English only, extend build_story.py, no commit; produced story/gigs.md, tools/build_story.py, data/story_text.json, handoffs/story-designer/2026-11-06-T217.json.
+- Worked: generated-file tests and availability lint pass.
+- Failed / did not work: sh tools/tests/run.sh pass=11491 fail=15 (goods, workshop, hooks, availability powder/blooms); caused by the owner's uncommitted data/ and game/ goods edits, not by this text. Committed with [no-tests].
+- Files and commits: story/gigs.md, tools/build_story.py, handoff, schedule.json, blackboard.md. data/story_text.json left uncommitted: it also holds the owner's uncommitted GOOD_* text edits from story/screens.md.
+- Left to do: commit data/story_text.json together with the owner's goods work; gameplay task T218 needs owner approval of the gigs proposal; hook line meaning (tooltip vs icon text) is an owner question; Russian only when asked.

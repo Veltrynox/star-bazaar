@@ -9,6 +9,8 @@ Texts live in story/*.md; one id rule for all of them:
                             row in events.json (id, tag, kind, title_id EVnn_TITLE, text_id EVnn_BODY, choices) and two text ids
                             EVnn_TITLE (max 32) and EVnn_BODY (max 280).
       events.md, 3 fields:  ID | place | text   (choice / popup / pool texts). Max by the id suffix, see EVENT_TEXT_MAX.
+      gigs.md, 3 fields:    ID | place | text   (gig texts, ids GIGnn_TITLE, _HOOK, _ARRIVE, _A_BTN, _B_BTN, _A_OUT_MIL/LUX/MIN/BIO,
+                            _B_OUT_*, _EPI). Max by the id suffix, see GIG_TEXT_MAX. Texts only, no mechanics rows.
   * Every text id of every event is therefore in data/story_text.json; events.json holds mechanics and text ids only.
 Russian: story/ru/*.json hold {"ID": "text"} for the localised scope (RU_SCOPE_RE: EV_, EV<digit>, BE<digit>, TUT_G<digit>, TUT_GALAXY_, CH_, WARN_, MENU_, SCR_, END_, EPI_).
 Fails (exit 1) on: repeated id, unreadable block.
@@ -143,7 +145,27 @@ def build_text(entries: dict, add) -> list:
         add(f"SK_{sid}_FLAVOUR", fl[0][len("Flavour:"):].strip(), 90, "Skill screen, detail panel", "story/skills.md", n)
         add(f"SK_{sid}_PLAIN", pl[0][len("Plain:"):].strip(), 110, "Skill screen, detail panel", "story/skills.md", n)
 
+    build_gigs(add)
     return build_events(add)
+
+
+# Max length of a gigs.md text row (ID | place | text), by id suffix. Anything else (arrival, outcomes) is 280.
+GIG_TEXT_MAX = {"_TITLE": 32, "_BTN": 28, "_HOOK": 140, "_EPI": 140}
+GIG_TEXT_MAX_BODY = 280
+
+
+def build_gigs(add) -> None:
+    """T217: story/gigs.md, three-field rows only. Texts only; gig mechanics live in data/gigs.json."""
+    path = STORY / "gigs.md"
+    if not path.exists():
+        return
+    for hdr, body, n, section in split_blocks(path, ID_RE):
+        f = [x.strip() for x in hdr.split(" | ")]
+        if len(f) != 3:
+            err(f"story/gigs.md:{n}: cannot read header of {f[0]}: {hdr!r}")
+            continue
+        mx = next((v for k, v in GIG_TEXT_MAX.items() if f[0].endswith(k)), GIG_TEXT_MAX_BODY)
+        add(f[0], f[2], mx, f[1], "story/gigs.md", n)
 
 
 # Max length of an events.md text row (ID | place | text), by id suffix. Anything else is a body (280).
@@ -370,7 +392,7 @@ def main() -> int:
         return 1
     if ambiguous and not allow_skip:
         return 2
-    write_generated(out_dir, "story_text.json", "story/screens.md, skills.md, endings.md, events.md", list(entries.values()))
+    write_generated(out_dir, "story_text.json", "story/screens.md, skills.md, endings.md, events.md, gigs.md", list(entries.values()))
     write_generated(out_dir, "events.json", "story/events.md (event rows; texts are ids in story_text.json)", events)
     write_generated(out_dir, "story_text_ru.json", "story/ru/*.json", ru_out)
     print(ru_cov)
