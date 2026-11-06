@@ -1,0 +1,6 @@
+{
+  "task": "T247",
+  "summary": "Foundations reordered to Permit Charter, Prospecting, Space Storage (learning order); they sit above Quartermaster's Terms (MIL_1). Effects, costs and prerequisites unchanged.",
+  "files": ["data/skills.json", "gdd-skills.md", "tools/tests/run_tests.gd"],
+  "note": "tools/tests/run_tests.gd outside touches: one line, the pinned fnd tier_rows order. Quartermaster Terms = MIL_1; the skill screen orders by file order within a tier."
+}

@@ -42,10 +42,10 @@ Supply: the design pack estimates about 21 points over a run against 12 needed f
 ========================================
 3. THE TREES
 ========================================
-Six Foundations (not a market, not in endings, shown in every run), cost [GCM:skill_cost_FND_STORAGE] and so on. Three are required: Space Storage, Permit Charter and Prospecting, learnable from cycle 1, order free (Space Storage also needs enough trade income, section 4); all three must be learned before any market-tree node can be learned (the first node of each tree needs them; until then every tree node shows muted and names the missing Foundations). Saves that already hold a tree skill keep it. The other three are optional and no tree node needs them.
-  FND_STORAGE Space Storage: unlocks Space Storage (section 4).
+Six Foundations (not a market, not in endings, shown in every run), cost [GCM:skill_cost_FND_STORAGE] and so on. Three are required, listed in learning order: Permit Charter, Prospecting and Space Storage, learnable from cycle 1, order free (Space Storage also needs enough trade income, section 4); all three must be learned before any market-tree node can be learned (the first node of each tree needs them; until then every tree node shows muted and names the missing Foundations). Saves that already hold a tree skill keep it. The other three are optional and no tree node needs them.
   FND_PERMIT Permit Charter: permits for new systems and routes between systems (section 5).
   FND_PROSPECT Prospecting: routes may start at asteroid clusters.
+  FND_STORAGE Space Storage: unlocks Space Storage (section 4).
   FND_LEDGER Route Ledger (no prerequisite): Buy and Sell orders move more per cycle (all goods).
   FND_RIVAL_WATCH Rival Watch (needs Route Ledger): price events against the player hit weaker in every market.
   FND_DOCKS Dock Contracts (needs Prospecting): ship upkeep lower.

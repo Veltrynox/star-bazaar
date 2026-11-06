@@ -33,19 +33,6 @@
  },
  "nodes": [
   {
-   "id": "FND_STORAGE",
-   "market": "fnd",
-   "kind": "skill",
-   "tier": 1,
-   "prereqs": [],
-   "cost": 1,
-   "effect": {
-    "type": "unlock",
-    "target": "feature",
-    "id": "space_storage"
-   }
-  },
-  {
    "id": "FND_PERMIT",
    "market": "fnd",
    "kind": "skill",
@@ -69,6 +56,19 @@
     "type": "unlock",
     "target": "feature",
     "id": "cluster_routes"
+   }
+  },
+  {
+   "id": "FND_STORAGE",
+   "market": "fnd",
+   "kind": "skill",
+   "tier": 1,
+   "prereqs": [],
+   "cost": 1,
+   "effect": {
+    "type": "unlock",
+    "target": "feature",
+    "id": "space_storage"
    }
   },
   {

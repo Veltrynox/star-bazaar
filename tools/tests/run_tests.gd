@@ -1578,7 +1578,7 @@ func _test_skill_screen_ui() -> void:
 	var SS = load("res://game/skill_screen.gd")
 	var bal := _bal()
 	check(SS.tier_rows("mil") == [["MIL_1"], ["MIL_2", "MIL_3", "MIL_8"], ["MIL_9", "MIL_4", "MIL_5", "MIL_10"], ["MIL_11", "MIL_6", "MIL_12", "MIL_13"], ["MIL_14", "MIL_7"], ["MIL_15"]], "skill screen: tier rows put the tech left of the skill", str(SS.tier_rows("mil")))
-	check(SS.tier_rows("fnd") == [["FND_STORAGE", "FND_PERMIT", "FND_PROSPECT", "FND_LEDGER"], ["FND_RIVAL_WATCH", "FND_DOCKS"]], "skill screen: Foundations are two rows (three gate nodes plus the Ledger, then two optional)", str(SS.tier_rows("fnd")))
+	check(SS.tier_rows("fnd") == [["FND_PERMIT", "FND_PROSPECT", "FND_STORAGE", "FND_LEDGER"], ["FND_RIVAL_WATCH", "FND_DOCKS"]], "skill screen: Foundations are two rows (three gate nodes plus the Ledger, then two optional)", str(SS.tier_rows("fnd")))
 	check(SS.node_state(FND3, 5, bal, "MIL_1") == "learnable" and SS.node_state(FND3, 0, bal, "MIL_1") == "points" and SS.node_state([], 5, bal, "MIL_1") == "locked", "skill screen: learnable vs not enough points")
 	check(SS.node_state(FND3, 9, bal, "MIL_3") == "locked" and SS.node_state(["MIL_1"], 9, bal, "MIL_2") == "researching" and SS.node_state(["MIL_1", "MIL_2"], 0, bal, "MIL_2") == "learned", "skill screen: locked, researching, learned")
 	check(int(SS.plain_args(bal, "MIL_5")["m"]) == int(bal["skill_MIL_5_every"]) and int(SS.plain_args(bal, "MIL_5")["n"]) == int(bal["skill_MIL_5_cycles"]), "skill screen: bot skill plain line gets cooldown and cycles")
