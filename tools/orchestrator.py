@@ -499,6 +499,10 @@ def merge_one(st, tid):
     # a worker that stopped only because of tests also fails on base still goes through the gate below, which compares with the baseline
     if not (r.startswith("done") or (r.startswith("blocked") and "tests" in r.lower() and "committed" in r.lower())):
         return block(st, tid, "worker did not report done: " + str(v.get("result")), "")
+    # Godot rewrites tracked .import files when it re-imports in a worktree: generated noise, never worker output
+    noisy = [f for f in sh(["git", "diff", "--name-only"], cwd=wt).stdout.splitlines() if f.endswith(".import")]
+    if noisy:
+        sh(["git", "checkout", "--"] + noisy, cwd=wt)
     dirty = [l for l in sh(["git", "status", "--porcelain"], cwd=wt).stdout.splitlines() if l[3:].rstrip("/") != "tools/godot" and not (l.startswith("??") and (l.endswith(".uid") or l[3:].strip(chr(34)).startswith(IGNORE_UNTRACKED)))]  # our own symlink, Godot-generated uid files
     if dirty:
         return block(st, tid, "worktree has uncommitted files", "\n".join(dirty))
