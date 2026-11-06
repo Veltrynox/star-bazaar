@@ -4,6 +4,7 @@
 - discovery_enabled in data/balance.json ships at 1 (owner decision 2026-11-05); tests that need it off set it themselves.
 
 ## Left to do
+- T242 done (text): story/skills.md committed; data/story_text.json and story/screens.md rebuilt but uncommitted (owner edits mixed). Owner: mechanic mismatches MIL_1, LUX_3, BIO_3, BIO_6 (ideas in handoffs/story-designer/2026-11-05-T242.json). 14 test FAILs come from owner's uncommitted goods work.
 - T217 done: gig texts GIG01/02 in story/gigs.md; data/story_text.json regenerated but uncommitted (owner goods edits mixed in); 15 test FAILs come from owner's uncommitted goods work.
 - T216 done: owner to approve design/proposals/2026-11-05-gigs.md and answer 3 questions (expired gig gone for run?, goods reward to storage or next load?, reward goods count for share?) before T217/T218.
 - T224 done (text only): TH01-TH10 need a gameplay task: event rows + follow chain in data/events.json, cash-pay choice effect (TH10_A), balance key for thread start cycle; owner to answer who sets those.
@@ -23,16 +24,6 @@
 - Owner: T187 rival ships: look (tint, size, trail, galaxy view) and balance keys rival_ship_count / rival_ship_speed (code defaults 3 and 0.6); gdd.md rivals line edited but left uncommitted with other people's gdd.md changes (gdd-log.md is deleted in tree, so no log entry).
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
-
-## 2026-11-06 18:00 run: T238
-- Summary: feature-designer wrote the branch-exclusive goods proposal (per-branch chains, starters sellable at Voltara from cycle 0, fate of current goods, energy as only shared good, icon briefs).
-- Why this task: no dependencies, design only, no visual/economy/QA need; T242 and T239 wait on it.
-- Approach: single feature-designer agent per the T238 brief; no numbers, proposal only.
-- Agent prompts: do the T238 brief, no commit, no QA/sim; produced design/proposals/2026-11-05-branch-goods.md and handoffs/feature-designer/2026-11-05-T238.json.
-- Worked: both files exist; scope covered.
-- Failed / did not work: nothing. Tests not run (no code/data change).
-- Files and commits: design/proposals/2026-11-05-branch-goods.md, handoff, schedule.json, blackboard.md; see git log "T238".
-- Left to do: owner approval and the three open questions; then T239, T240, T242.
 
 ## 2026-11-06 18:00 run: T224
 - Summary: Story-designer wrote ten connected events TH01-TH10 (Maren Oake's hunt for an unrepaid loan) in story/events.md, English only; build regenerated data/story_text.json.
@@ -73,3 +64,13 @@
 - Failed / did not work: sh tools/tests/run.sh pass=11491 fail=15, same 15 as before (owner's uncommitted goods work), no story failure. Text files left uncommitted because they mix owner edits.
 - Files and commits: handoff, schedule.json, blackboard.md committed; story/events.md, data/story_text.json uncommitted.
 - Left to do: owner commits text with goods work; EV_PLT and remaining pending events; Russian only when asked.
+
+## 2026-11-06 22:00 run: T242
+- Summary: story-designer rewrote names and flavour of all 31 skill nodes in story/skills.md with a register per branch; plain lines kept except SK_LUX_4_PLAIN wording.
+- Why this task: depends only on T238 (done), text only, no visual/economy/QA need; T239 would collide with the owner's uncommitted goods work.
+- Approach: single story-designer agent; mechanics untouched, mismatches listed for the owner.
+- Agent prompts: do the T242 brief, English only, edit source then build_story.py, do not touch owner edits, no commit; produced story/skills.md, story/screens.md (placeholder notes removed), data/story_text.json, handoffs/story-designer/2026-11-05-T242.json.
+- Worked: build ok (1646 entries); skill text availability check passes.
+- Failed / did not work: full test run has 14 FAILs in goods/workshop/availability tests from the owner's uncommitted goods work, not from texts. Agent's text naming hidden goods was rejected by the availability scan, so cargo wording used.
+- Files and commits: story/skills.md, handoff, schedule.json, blackboard.md; see git log "T242" (committed with [no-gdd] [no-tests]).
+- Left to do: owner to decide node mechanic ideas (MIL_1, LUX_3, BIO_3, BIO_6); commit data/story_text.json and screens.md with the goods work; Russian only on request.
