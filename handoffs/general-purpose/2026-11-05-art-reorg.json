@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "agent": "general-purpose",
+  "date": "2026-11-05",
+  "task": "Reorganize art/: effect code to game/fx, sources to art_source",
+  "status": "done",
+  "files_changed": [
+    "game/fx/planet/",
+    "game/fx/sun/",
+    "art_source/",
+    "art_source/.gdignore",
+    "game/map.gd",
+    "game/planet_banners.gd",
+    "game/company_portraits.gd",
+    "tools/tests/run_tests.gd",
+    "tools/cut_sun.gd",
+    "tools/make_portrait_atlas.gd",
+    "tools/make_planet_banner_atlas.gd",
+    "tools/make_skill_atlas.gd",
+    "tools/make_skill_icons.py",
+    "tools/sun_center/center_frames.py",
+    "tools/sun_crop/make_sheets.py",
+    "tools/sun_debug/",
+    "qa/bots/sun_check.gd",
+    "art/README.md",
+    "design/art/NAMING.md",
+    ".claude/agents/fx-programmer.md",
+    ".claude/agents/juice-programmer.md"
+  ],
+  "open_questions": [
+    "res://art/planet/asteroid_ring_1.png is still missing (planet_sphere.gd); not fixed, owner decides",
+    "tools/studio/studio.html embeds old art/source text inside a generated task-board string; left untouched"
+  ],
+  "handoff": "art/planet_fx moved to game/fx/planet, sun gd and shader to game/fx/sun, art/source to top-level art_source with .gdignore (all tools read it by filesystem path, Image.load_from_file or FileAccess, so no import is needed). art/ now holds only images. Paths updated in game, tools, tests, qa bot sun_check, docs. Import ran once; tests: pass=11300 fail=0. Stale .import files of art_source images moved along but are now unused.",
+  "details": {}
+}

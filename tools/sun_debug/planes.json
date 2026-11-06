@@ -1,5 +1,5 @@
 {
- "source_file": "art/sun/sun_flare.gd",
+ "source_file": "game/fx/sun/sun_flare.gd",
  "lines": {
   "PLANES": 37,
   "PLANE_GLOW": 38,
@@ -11,7 +11,7 @@
   "radius": 22,
   "golden": 45,
   "per_plane_formulas": "33-56 (_ready), 69 (_layout)",
-  "shader": "art/sun/sun.gdshader 16-30"
+  "shader": "game/fx/sun/sun.gdshader 16-30"
  },
  "planes_count": 8,
  "plane_glow": 0.65,

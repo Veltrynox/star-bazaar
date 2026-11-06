@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """Writes planes.json and planes.js for the sun debug page.
-Reads the constants from art/sun/sun_flare.gd (regex, with line numbers) and repeats the per-plane
+Reads the constants from game/fx/sun/sun_flare.gd (regex, with line numbers) and repeats the per-plane
 formulas of _ready() and _layout() there. If those formulas change in the GDScript, update here.
 Run: python3 tools/sun_debug/make_planes.py"""
 import json, math, re, os
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-GD = "art/sun/sun_flare.gd"
+GD = "game/fx/sun/sun_flare.gd"
 lines = open(os.path.join(ROOT, GD)).read().split("\n")
 
 def const(name, cast):
@@ -68,7 +68,7 @@ data = {
     "source_file": GD,
     "lines": {"PLANES": l_planes, "PLANE_GLOW": l_glow, "FPS": l_fps, "SETS": l_sets, "PLANE_SETS": l_ps, "FRAME_COUNT": l_fc,
               "PLANE_SPAN": l_span, "radius": l_rad, "golden": l_gold,
-              "per_plane_formulas": "33-56 (_ready), 69 (_layout)", "shader": "art/sun/sun.gdshader 16-30"},
+              "per_plane_formulas": "33-56 (_ready), 69 (_layout)", "shader": "game/fx/sun/sun.gdshader 16-30"},
     "planes_count": PLANES, "plane_glow": GLOW, "fps": FPS, "sets": SETS, "frame_count": FRAMES,
     "plane_span": SPAN, "radius": RADIUS,
     "frame_url": "../../" + FRAME_PATH.replace("%s", SOURCE[len("sun_"):]).replace("%02d", "{NN}"),

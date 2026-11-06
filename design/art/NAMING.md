@@ -13,7 +13,7 @@ Status: APPLIED (2026-11-03, folder reorganisation). Folder map and where to fin
 
 ## 2. Frames, sequences and sheets
 - Sequence: many frames of one subject in a folder named after that subject. Frame file: `sun_<NN>.png`, `NN` two digits from `00`. Example: `art/sun/frames/flare/sun_00.png` to `sun_63.png`. The folder carries the subject (flare, storm, calm).
-- Source sheet (never loaded by the game): `art/source/<category>_sheet_<subject>_<cols>x<rows>[_vNN].png`. Example: `art/source/sun_sheet_flare_8x8_v02.png`.
+- Source sheet (never loaded by the game): `art_source/<category>_sheet_<subject>_<cols>x<rows>[_vNN].png`. Example: `art_source/sun_sheet_flare_8x8_v02.png`.
 - Game-ready output is never versioned. The cut script writes `sun_NN.png`, not a versioned name.
 
 ## 3. Category prefixes (one example each)
@@ -21,9 +21,9 @@ Status: APPLIED (2026-11-03, folder reorganisation). Folder map and where to fin
 |---|---|---|---|
 | `ui_` | `ui_<type>_<subject>[_<state>]`, type from {glyph, panel, header, thumb} | `ui_glyph_pause_grey.png` | `art/ui/` |
 | `icon_` | `icon_<commodity key>_<size>` (key = data key) | `icon_energy_64.png` | `art/icons/` |
-| `sun_` | frame sequence or source sheet | `sun_00.png`, `sun_sheet_flare_8x8_v02.png` | `art/sun/frames/<subject>/`, `art/source/` |
-| `planet_` | planet surfaces and body maps | `planet_surface_01.jpg`; surface banners: atlas `planet_surface_banner_atlas.png`, sources `planet_surface_<id>_<name>_full.png` in `art/source/` | `art/planet/` |
-| `portrait_` | `portrait_<subject>[_<variant>]`; atlas `portrait_ceo_atlas.png`, full-size sources `portrait_ceo_man_01_full.png` | `art/portraits/` (atlas), `art/source/` (sources) |
+| `sun_` | frame sequence or source sheet | `sun_00.png`, `sun_sheet_flare_8x8_v02.png` | `art/sun/frames/<subject>/`, `art_source/` |
+| `planet_` | planet surfaces and body maps | `planet_surface_01.jpg`; surface banners: atlas `planet_surface_banner_atlas.png`, sources `planet_surface_<id>_<name>_full.png` in `art_source/` | `art/planet/` |
+| `portrait_` | `portrait_<subject>[_<variant>]`; atlas `portrait_ceo_atlas.png`, full-size sources `portrait_ceo_man_01_full.png` | `art/portraits/` (atlas), `art_source/` (sources) |
 | `model_` | 3D models (one folder per model) | `model_corvette.glb` | `assets/<model>/` |
 | `doc_` | documents and archives | `doc_gdd.pdf` | `media/docs/` |
 | `ref_` | reference images | `ref_volcanic_crust_01.jpg` | `media/refs/` |
@@ -40,25 +40,25 @@ Not in the table yet (see section 8): event banners (`art/event_banners/ev01.web
 - Commodity keys: the keys used in the data files (today `energy`, `food`, and the placeholder goods `silk`, `chips`, `ore`). A new key needs a data entry first.
 
 ## 5. Folders
-- A folder holds one category. Layout: `art/icons`, `art/ui`, `art/planet`, `art/sun` (frames per subject), `art/event_banners`, `art/source` (sheets and full-size or raw sources, never loaded), `assets/<model>/` (3D only), `media/docs`, `media/refs`.
-- Code is not an asset. Scripts (`.gd`), shaders (`.gdshader`), scenes (`.tscn`) and resources (`.tres`) keep snake_case names and belong in `game/`, `art/sun/`, `art/planet_fx/` (planet shader code only) or `tools/`. Generator scripts belong in `tools/`.
+- A folder holds one category. Layout: `art/icons`, `art/ui`, `art/planet`, `art/sun` (frames per subject), `art/event_banners` (images the game loads), top-level `art_source/` (sheets and full-size or raw sources, never loaded, `.gdignore`), `game/fx/planet` and `game/fx/sun` (effect code), `assets/<model>/` (3D only), `media/docs`, `media/refs`.
+- Code is not an asset. Scripts (`.gd`), shaders (`.gdshader`), scenes (`.tscn`) and resources (`.tres`) keep snake_case names and belong in `game/`, `game/fx/planet/`, `game/fx/sun/` or `tools/`; `art/` holds images only. Generator scripts belong in `tools/`.
 - Docs about art sit in `design/art/` (`style.md`, this file).
 
 ## 6. Companions
 - Godot writes `<file>.import` beside each imported image or model, and `<script>.uid` beside each `.gd` and `.gdshader`.
 - Companions take the exact base name plus the added suffix (`sun_00.png.import`). They are renamed together with their file, never alone.
 - Any rename: move the file and its companion together; update every reference (`.tscn`, `.tres`, `.gd`, `.gdshader`, `.py`, `.json` in tools, live docs, `export_presets.cfg`); reopen the project or run `Godot --headless --path . --import` so the import cache regenerates; run `sh tools/tests/run.sh`.
-- Names built at runtime must change with their format string: `icon_%s_64.svg` (game/ui.gd, goods without a theme icon), `icon_%s_64.png` (tools/make_icons.py output), `ui_thumb_%s` (game/galaxy_view.gd, game/planet_panel.gd via Ui.ui_texture), `sun_%02d.png` in `frames/%s/` (art/sun/sun_flare.gd, tools/cut_sun.gd, tools/sun_center/center_frames.py).
+- Names built at runtime must change with their format string: `icon_%s_64.svg` (game/ui.gd, goods without a theme icon), `icon_%s_64.png` (tools/make_icons.py output), `ui_thumb_%s` (game/galaxy_view.gd, game/planet_panel.gd via Ui.ui_texture), `sun_%02d.png` in `frames/%s/` (game/fx/sun/sun_flare.gd, tools/cut_sun.gd, tools/sun_center/center_frames.py).
 
 ## 7. Media rule
 `media/` holds documents, archives and reference images only. Nothing in `media/` is game-ready: the game never loads from it, and `export_presets.cfg` already excludes `media/*` from builds. Godot imports `media/refs` images (their `.import` files exist); a `.gdignore` file in `media/refs` would stop that. Option only, not applied.
 
 ## 8. Exceptions until the owner decides
-- Event banners (owner decision 2026-11-03): lowercase event ids, no prefix. `art/event_banners/ev01.webp` ... `ev37.webp`, `media/refs/event_banners/ev01.jpg` ... `ev37.jpg`, `art/source/event_banners_fullres/ev29.png` ... `ev37.png`. The event ids in `data/events.json` stay uppercase (`EV01`); the loader in `game/main.gd` lowercases the id to build the path.
+- Event banners (owner decision 2026-11-03): lowercase event ids, no prefix. `art/event_banners/ev01.webp` ... `ev37.webp`, `media/refs/event_banners/ev01.jpg` ... `ev37.jpg`, `art_source/event_banners_fullres/ev29.png` ... `ev37.png`. The event ids in `data/events.json` stay uppercase (`EV01`); the loader in `game/main.gd` lowercases the id to build the path.
 - `assets/space_station/star_bazaar_station.glb`: the model_ prefix would put it under the export exclude (`assets/model_*`), so it would not ship. Kept until the export rule is changed.
 - `assets/asteroid_asset/`: the folder name is the old name. The model is in its own folder, so the layout rule holds.
-- `art/sun/frames/<subject>/sun_NN.png`: allowed by section 2. Raw cuts in `art/source/sun_frames_raw/` keep their original `sun_<subject>_NN.png` names.
-- `art/planet_fx/`: planet shader and scene code. The planet textures were moved out to `art/planet/`.
+- `art/sun/frames/<subject>/sun_NN.png`: allowed by section 2. Raw cuts in `art_source/sun_frames_raw/` keep their original `sun_<subject>_NN.png` names.
+- `game/fx/planet/`: planet shader and scene code. Planet textures are in `art/planet/`; sun scripts and shader are in `game/fx/sun/`.
 - `icon.svg` at the project root: Godot's app icon (`project.godot`), not moved.
 - Root-level docs (`gdd.md`, `gdd-process.md`, `gdd-skills.md`) and `story/reference/`: not moved; the owner decides.
 

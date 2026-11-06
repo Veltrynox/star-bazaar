@@ -17,7 +17,7 @@ h1{font-size:20px;margin:0 0 6px}h2{font-size:16px;margin:22px 0 8px}
 </style></head><body>
 <h1>Sun debug: one tile per grid plane</h1>
 <div class="note">
-Each tile shows one plane of the sun alone, as <code>art/sun/sun.gdshader</code> samples it: the plane's own <b>sheet</b> (storm, flare or calm; one sheet per plane, repeats allowed), its
+Each tile shows one plane of the sun alone, as <code>game/fx/sun/sun.gdshader</code> samples it: the plane's own <b>sheet</b> (storm, flare or calm; one sheet per plane, repeats allowed), its
 <b>crop centre</b>, <b>crop scale</b> and <b>crop rotation</b> on the cut frame, a round soft edge (smoothstep 0.55..1.0),
 the plane's <b>frame phase</b> with linear blending of frame f and f+1, times <b>glow</b>, added onto black.
 The combined view adds all planes with additive blending. This is a <b>2D approximation of the 3D placement</b>:

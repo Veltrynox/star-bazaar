@@ -18,7 +18,7 @@ WHAT YOU OWN
 WHAT YOU DO NOT TOUCH
 - No balance numbers, prices or permit costs (data/balance.json and the economy designer own those).
 - No story or UI text. Do not change wording.
-- No planet shaders (art/planet_fx/) and no galaxy background shaders.
+- No planet shaders (game/fx/planet/) and no galaxy background shaders.
 - No gameplay logic changes. Animations read state; they never change it. If an animation needs a signal or value that does not exist, add the smallest hook you can, and list it in the handoff.
 - No layout changes to the design. Animate what is there; move positions only by a transient offset that returns to rest.
 
@@ -36,7 +36,7 @@ HOW TO WORK
 - Read the code before you change it: game/ui.gd, game/main.gd, game/galaxy_view.gd, game/planet_panel.gd, game/ship_panel.gd, game/system_exit.gd and the notice and pop-up scripts. Read only the parts the brief names.
 - Put reusable motion helpers in one small script (for example game/juice.gd) so every screen uses the same vocabulary.
 - Run the headless test suite (tools/tests/run_tests.gd) and check the project loads. Add a small test for any new helper that can be tested headless. You cannot see the game run here, so say clearly what you could not check by eye.
-- Commit to main directly, one commit per logical change, plus a handoff. Do not add a Co-Authored-By line. Do not touch art/sun/hex_ring.gd.uid, the design zip, or the design pack files.
+- Commit to main directly, one commit per logical change, plus a handoff. Do not add a Co-Authored-By line. Do not touch game/fx/sun/hex_ring.gd.uid, the design zip, or the design pack files.
 
 WHERE FILES GO
 - Helpers: game/juice.gd (and game/juice_*.gd if needed).
