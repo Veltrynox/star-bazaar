@@ -1,0 +1,7 @@
+{
+  "task": "T246",
+  "agent": "main session (no subagent)",
+  "files": ["game/ship_trail.gd"],
+  "summary": "Two engine trails (left/right of the centre point, ENGINE_SIDE), each a thin bright core ribbon over a wide additive glow ribbon. Taper and fade now depend on sample age, not index, and the head side direction is low-passed, which removes the jitter. Constants atop the file. Engine positions are not measured from the GLB bounds; ENGINE_SIDE and ENGINE_BACK stay as tunable placeholders.",
+  "screenshot": "logs/screenshots/T246.png (no ship in frame)"
+}
