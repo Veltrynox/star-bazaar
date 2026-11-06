@@ -11,6 +11,10 @@ extends RefCounted
 ## Numbers (all balance.json, placeholders until economy-designer sets them): prosperity_max_tier, prosperity_needs_t<N>,
 ## prosperity_demand_t<N> (units per need per cycle), prosperity_steps_t<N> (steps to leave tier N), prosperity_decay_steps.
 ## A need whose good is not visible (Availability) counts as unmet and is reported as locked with good "?".
+## Need pricing (T257, balance keys, all placeholders): need_price_t<N> (multiplier of the good's base_value for a sell price a
+## need opens where the world had none), need_hunger_step_pct / need_hunger_cap_pct (the sell price rises a step per cycle a
+## need stays short, up to the cap, and steps back down once met), need_surplus_pct (share of the price paid for units sold
+## above the demand in a cycle), need_surplus_all (0/1: surplus applies to every sale, not only need goods).
 ## Saved by main under "prosperity". Old saves: established worlds start at tier 1 (nothing stored).
 
 signal tier_up(planet: int, tier: int)
@@ -27,6 +31,7 @@ var _steps: Dictionary = {}     # planet id -> progress steps in the current tie
 var _sold: Dictionary = {}      # planet id -> {good: units sold this cycle}
 var _restless: Dictionary = {}  # planet id -> true when a need was short at the last cycle end
 var _reclaimed: Dictionary = {} # planet id -> true (hook for the Barren reclaim task)
+var _hunger: Dictionary = {}    # T257: planet id -> {good: cycles the need was short in a row (capped by need_hunger_cap_pct)}
 
 func setup(bal: Dictionary, planet_list: Array, established: Callable) -> void:
 	balance = bal
@@ -37,6 +42,7 @@ func setup(bal: Dictionary, planet_list: Array, established: Callable) -> void:
 	_sold = {}
 	_restless = {}
 	_reclaimed = {}
+	_hunger = {}
 	var parsed = JSON.parse_string(FileAccess.get_file_as_string(PATH)) if FileAccess.file_exists(PATH) else null
 	data = parsed if typeof(parsed) == TYPE_DICTIONARY else {}
 
@@ -131,6 +137,50 @@ func add_fill(i: int, good: String, units: int) -> void:
 	d[good] = int(d.get(good, 0)) + units
 	_sold[pid] = d
 
+## ---- Need pricing (T257) ----
+func is_need(i: int, good: String) -> bool:
+	return _need_goods(i).has(good)
+
+## Sell price a need opens at a world with no sell price for the good (base_value x need_price_t<tier>); 0 when not a need or not visible.
+func need_price(i: int, good: String) -> int:
+	if not is_need(i, good) or not Availability.good(good):
+		return 0
+	return maxi(0, roundi(float(Markets.value_of(good)) * _n("need_price", tier(i), 1.0)))
+
+func hunger_steps(i: int, good: String) -> int:
+	return int(_hunger.get(_pid(i), {}).get(good, 0))
+
+## Multiplier on the sell price for a need that has been short: 1 + steps x step pct, capped. 1.0 for anything else.
+func hunger_factor(i: int, good: String) -> float:
+	var h := hunger_steps(i, good)
+	if h <= 0 or not is_need(i, good):
+		return 1.0
+	var cap := maxf(0.0, float(balance.get("need_hunger_cap_pct", 0.0)))
+	return 1.0 + minf(float(h) * maxf(0.0, float(balance.get("need_hunger_step_pct", 0.0))), cap) / 100.0
+
+func _surplus_applies(i: int, good: String) -> bool:
+	return tier(i) >= 1 and (int(balance.get("need_surplus_all", 0)) != 0 or is_need(i, good))
+
+## Of n units about to be sold at this world, how many fall above the cycle's demand (`extra` = units already counted by a forecast).
+func surplus_units(i: int, good: String, n: int, extra: int = 0) -> int:
+	if n <= 0 or not _surplus_applies(i, good):
+		return 0
+	var room := maxi(0, demand(i) - sold(i, good) - extra)
+	return maxi(0, n - room)
+
+func surplus_factor() -> float:
+	return clampf(float(balance.get("need_surplus_pct", 100.0)) / 100.0, 0.0, 1.0)
+
+## 'hungry' (need short and the price raised), 'surplus' (sold above the demand this cycle) or ''.
+func price_reason(i: int, good: String) -> String:
+	if tier(i) < 1:
+		return ""
+	if _surplus_applies(i, good) and surplus_factor() < 1.0 and sold(i, good) > demand(i):
+		return "surplus"
+	if is_need(i, good) and hunger_steps(i, good) > 0 and sold(i, good) < demand(i) and hunger_factor(i, good) > 1.0:
+		return "hungry"
+	return ""
+
 ## UI API: [{good (or "?"), demand, sold, met, locked}] in need order.
 func needs(i: int) -> Array:
 	var out: Array = []
@@ -171,6 +221,7 @@ func end_cycle() -> void:
 			continue
 		var pid := _pid(i)
 		var ok := all_met(i)
+		_update_hunger(i, pid)
 		_restless[pid] = not ok
 		if t < max_tier():
 			if ok:
@@ -184,8 +235,25 @@ func end_cycle() -> void:
 				_steps[pid] = maxi(0, int(_steps.get(pid, 0)) - maxi(0, int(balance.get("prosperity_decay_steps", 1))))
 	_sold = {}
 
+## Cycle end: each need short (or locked) adds a hunger step, each met need steps back down one.
+func _update_hunger(i: int, pid: String) -> void:
+	var d: Dictionary = _hunger.get(pid, {})
+	var next := {}
+	var step := float(balance.get("need_hunger_step_pct", 0.0))
+	var max_steps := ceili(float(balance.get("need_hunger_cap_pct", 0.0)) / step) if step > 0.0 else 0
+	for g in _need_goods(i):
+		var h := int(d.get(g, 0))
+		var met := Availability.good(g) and sold(i, g) >= demand(i)
+		h = maxi(0, h - 1) if met else mini(h + 1, max_steps)
+		if h > 0:
+			next[g] = h
+	if next.is_empty():
+		_hunger.erase(pid)
+	else:
+		_hunger[pid] = next
+
 func to_dict() -> Dictionary:
-	return {"tier": _tier.duplicate(), "steps": _steps.duplicate(), "sold": _sold.duplicate(true), "restless": _restless.duplicate(), "reclaimed": _reclaimed.duplicate()}
+	return {"tier": _tier.duplicate(), "steps": _steps.duplicate(), "sold": _sold.duplicate(true), "restless": _restless.duplicate(), "reclaimed": _reclaimed.duplicate(), "hunger": _hunger.duplicate(true)}
 
 func from_dict(s) -> void:
 	_tier = {}
@@ -193,6 +261,7 @@ func from_dict(s) -> void:
 	_sold = {}
 	_restless = {}
 	_reclaimed = {}
+	_hunger = {}
 	if typeof(s) != TYPE_DICTIONARY:
 		return  # old saves: established worlds start at tier 1
 	for k in s.get("tier", {}):
@@ -211,3 +280,11 @@ func from_dict(s) -> void:
 		_restless[str(k)] = bool(s["restless"][k])
 	for k in s.get("reclaimed", {}):
 		_reclaimed[str(k)] = true
+	var hg = s.get("hunger", {})
+	if typeof(hg) == TYPE_DICTIONARY:
+		for k in hg:
+			if typeof(hg[k]) == TYPE_DICTIONARY:
+				var d := {}
+				for g in hg[k]:
+					d[str(g)] = maxi(0, int(hg[k][g]))
+				_hunger[str(k)] = d

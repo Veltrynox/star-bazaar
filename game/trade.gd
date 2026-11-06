@@ -6,6 +6,7 @@ extends RefCounted
 
 var balance: Dictionary = {}
 var planets: Array = []
+var prosperity = null  # T257: Prosperity (need price, hunger); set through route_engine.prosperity
 var events: RefCounted = null  # T12: active event price effects (events.gd), null = none
 
 func setup(bal: Dictionary, plist: Array) -> void:
@@ -20,13 +21,20 @@ func price(i: int, key: String, next_cycle: bool = false, no_events: bool = fals
 	if typeof(prices) != TYPE_DICTIONARY:
 		return -1
 	var v = prices.get(key)
+	var need_good := key.substr(0, key.rfind("_")) if key.ends_with("_sell") else ""
+	if need_good != "" and prosperity != null and not (typeof(v) == TYPE_INT or typeof(v) == TYPE_FLOAT):
+		var np: int = prosperity.need_price(i, need_good)  # T257: a need opens a buyer
+		if np > 0:
+			v = np
 	if not (typeof(v) == TYPE_INT or typeof(v) == TYPE_FLOAT):
 		return -1
 	if key.ends_with("_buy") or key.ends_with("_sell"):
 		var f := 1.0
+		if need_good != "" and prosperity != null:
+			f *= float(prosperity.hunger_factor(i, need_good))  # T257: hunger premium
 		if events != null and not no_events:  # T12: event price factor on both prices
 			f *= float(events.price_factor(i, key.substr(0, key.rfind("_")), next_cycle, ahead))
-		if events != null:
+		if events != null or f != 1.0:
 			return maxi(0, roundi(float(v) * f))
 	return int(v)
 

@@ -2003,7 +2003,7 @@ func _test_skills_core() -> void:
 	f.store_string(JSON.stringify({"version": 2, "state": v2}))
 	f.close()
 	var loaded: Dictionary = SaveGame.load_state()
-	check(SaveGame.VERSION == 9 and not loaded.is_empty() and loaded["learned_skills"].has("FND_STORAGE") and not SaveGame.dropped_old, "migration: a v2 file loads migrated")
+	check(SaveGame.VERSION == 10 and not loaded.is_empty() and loaded["learned_skills"].has("FND_STORAGE") and not SaveGame.dropped_old, "migration: a v2 file loads migrated")
 	f = FileAccess.open(SaveGame.PATH, FileAccess.WRITE)
 	f.store_string(JSON.stringify({"version": 1, "state": v2}))
 	f.close()
@@ -3080,7 +3080,8 @@ func _test_ships() -> void:
 	for pi in m.trade.planets.size():
 		m.planet_panel.show_planet(pi)
 		for cc in m.commodities:
-			var traded: bool = (m.trade.price(pi, str(cc) + "_buy") >= 0 or m.trade.price(pi, str(cc) + "_sell") >= 0) and Availability.good(str(cc))
+			var bp: Dictionary = m.trade.planets[pi].get("base_prices", {})  # T257: base prices only; a need can open a sell price the panel does not list yet
+			var traded: bool = (bp.has(str(cc) + "_buy") or bp.has(str(cc) + "_sell")) and Availability.good(str(cc))
 			check((_find_named(m.planet_panel, "BuyButton_" + str(cc)) != null) == traded, "hide: planet %d row for %s only when traded" % [pi, cc])
 	m.planet_panel.show_planet(1)
 	m._on_buy_send(c)
@@ -6373,7 +6374,7 @@ func _test_chains() -> void:
 	check(inp["ending_id"] == "END_BIO_BAD" and inp["flag"] == "bad" and inp["rival_broken"] == true and inp["rival_broken_bot"] == 2 and EndingPicker.inputs("mil", bal)["ending_id"] == "END_MIL_GOOD", "ending picker: BAD by the chain flag, rival_broken from the chain", str(inp))
 	check(m.ending_id_of({"kind": "win", "market": "bio"}) == "END_BIO_BAD" and m.ending_id_of({"kind": "win", "market": "lux"}) == "END_LUX_GOOD", "ending id: win reads the flag of the win market")
 	# save version 4 and v3 migration
-	check(SaveGame.VERSION == 9, "save: version 9 (v2 and newer load; v1 is dropped, owner approved)")
+	check(SaveGame.VERSION == 10, "save: version 10 (v2 and newer load; v1 is dropped, owner approved)")
 	var v3 := {"cycle": 7, "cash": 300, "chains": {"dir": {"mil": 9}}, "shield": {"built": true}}
 	var mig: Dictionary = SaveGame.migrate_v3(v3)
 	check(mig["cash"] == 300 and not mig.has("shield") and not mig.has("chains"), "save: v3 migrates, chain state fresh, shield dropped")
@@ -7585,6 +7586,33 @@ func _test_prosperity() -> void:
 	check(back.tier(0) == 2, "prosperity: tier survives save and load")
 	back.from_dict(null)
 	check(back.tier(0) == 1, "prosperity: old save starts established worlds at tier 1")
+	# T257 need pricing
+	var nb: Dictionary = bal.duplicate()
+	nb.merge({"need_price_t1": 1.0, "need_price_t2": 1.0, "need_price_t3": 1.0, "need_hunger_step_pct": 10, "need_hunger_cap_pct": 20, "need_surplus_pct": 50, "need_surplus_all": 0})
+	var pl2: Array = [{"id": "p0", "type": "agrarian", "base_prices": {}}]
+	var np := Prosperity.new()
+	np.setup(nb, pl2, func(pid: String) -> bool: return true)
+	var tr = preload("res://game/trade.gd").new()
+	tr.setup(nb, pl2)
+	tr.prosperity = np
+	var bv := Markets.value_of("energy")
+	check(tr.price(0, "energy_sell") == bv and bv > 0, "need price: a need opens a sell price at base_value x key", str(tr.price(0, "energy_sell")))
+	check(tr.price(0, "food_sell") < 0 and np.price_reason(0, "energy") == "", "need price: a good that is no need stays unpriced; no reason before any cycle")
+	np.end_cycle()
+	check(np.price_reason(0, "energy") == "hungry" and tr.price(0, "energy_sell") == roundi(bv * 1.1), "need price: a short need turns hungry, price up one step", str(tr.price(0, "energy_sell")))
+	np.end_cycle()
+	np.end_cycle()
+	check(tr.price(0, "energy_sell") == roundi(bv * 1.2), "need price: hunger stops at the cap", str(tr.price(0, "energy_sell")))
+	np.add_fill(0, "energy", 2)
+	check(np.surplus_units(0, "energy", 1) == 1 and np.price_reason(0, "energy") == "", "need price: units above the demand are surplus")
+	np.add_fill(0, "energy", 1)
+	check(np.price_reason(0, "energy") == "surplus", "need price: reason is surplus once sold above demand")
+	np.end_cycle()
+	check(np.hunger_steps(0, "energy") == 1, "need price: a met need steps hunger back down")
+	var again := Prosperity.new()
+	again.setup(nb, pl2, func(pid: String) -> bool: return true)
+	again.from_dict(np.to_dict())
+	check(again.hunger_steps(0, "energy") == 1, "need price: hunger survives save and load")
 
 func _test_availability() -> void:
 	_wipe_user()

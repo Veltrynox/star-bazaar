@@ -1,0 +1,15 @@
+{
+  "task": "T257",
+  "agent": "gameplay-programmer (main session)",
+  "files": [
+    "game/trade.gd",
+    "game/route_engine.gd",
+    "game/prosperity.gd",
+    "game/save_game.gd",
+    "data/balance.json",
+    "gdd.md",
+    "tools/tests/run_tests.gd"
+  ],
+  "summary": "Need pricing: Trade.price opens a need sell price and applies hunger; Prosperity holds hunger state (saved, save v10), surplus_units, price_reason; RouteEngine.sale_value/price_reason used by sales, forecast, route_margin, salvage. Balance keys need_* are placeholders.",
+  "notes": "Planet panel still lists rows by base_prices only (a need-opened buyer is not listed until the UI task); test 'hide: planet row' now reads base_prices. save_game.gd and tests edited outside touches."
+}

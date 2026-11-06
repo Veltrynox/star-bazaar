@@ -249,7 +249,10 @@ func _add_mk(seen: Array, c: String) -> Array:
 		out.append(m)
 	return out
 
-var prosperity = null  # T256: Prosperity (game/prosperity.gd), set by main; null in standalone tools
+var prosperity = null:  # T256: Prosperity (game/prosperity.gd), set by main; null in standalone tools
+	set(v):
+		prosperity = v
+		trade.prosperity = v  # T257: need price and hunger live in Trade.price
 
 func _note_sale(c: String, n: int, planet: int = -1) -> void:
 	if n > 0:
@@ -366,9 +369,24 @@ func salvage_reason(planet: int, c: String) -> String:
 ## N5: credits for what the Sell order would pay on this planet's stock (m) and for the salvage sale (n = salvage_share of it).
 func salvage_offer(planet: int, c: String) -> Dictionary:
 	var units: int = storage.amount(storage.planet_key(planet), c)
-	var m: int = units * sold_price(planet, c)
+	var m: int = sale_value(planet, c, units)
 	var share: float = minf(float(balance.get("salvage_share", 0.4)), 0.99)  # always below a Sell order
 	return {"units": units, "n": mini(roundi(float(m) * share), maxi(m - 1, 0)), "m": m}
+
+## T257: credits for n units sold at a world: units above the need's demand this cycle earn need_surplus_pct of the price.
+## extra = units a forecast already counted at this world.
+func sale_value(planet: int, c: String, n: int, extra: int = 0) -> int:
+	var p := sold_price(planet, c)
+	if n <= 0 or p <= 0:
+		return maxi(0, n) * maxi(p, 0)
+	var over := 0 if prosperity == null else int(prosperity.surplus_units(planet, c, n, extra))
+	if over <= 0:
+		return n * p
+	return (n - over) * p + roundi(float(over) * float(p) * float(prosperity.surplus_factor()))
+
+## T257: 'hungry' | 'surplus' | '' for the UI.
+func price_reason(planet: int, c: String) -> String:
+	return "" if prosperity == null else str(prosperity.price_reason(planet, c))
 
 ## Credits per unit a Sell order or a route's delivery earns. sale_price_pct skills raise it (cash only: share volume
 ## uses base values, Markets.add_sale); no skill = the plain price.
@@ -385,7 +403,8 @@ func route_margin(src: int, dst: int, c: String, level: int = 1) -> int:
 	var s: int = sold_price(dst, c)
 	if b < 0 or s < 0:
 		return 0
-	var m: int = units_per_cycle(null, c) * (s - b)
+	var u: int = units_per_cycle(null, c)
+	var m: int = sale_value(dst, c, u) - u * b  # T257: surplus above the need's demand pays less
 	if level >= 2 and m > 0:  # T145: route upgrade
 		m = roundi(float(m) * (1.0 + float(balance.get("upgrade_margin_bonus", 0.0)) * float(level - 1)))
 	return m
@@ -430,7 +449,7 @@ func _local_calc(planet: int, c: String, role: String, cash: int) -> Dictionary:
 	if have <= 0:
 		return {"n": 0, "credits": 0, "state": "Storage empty."}
 	var m: int = mini(local_amount(c), have)
-	return {"n": m, "credits": m * sold_price(planet, c), "state": "Selling."}
+	return {"n": m, "credits": sale_value(planet, c, m), "state": "Selling."}
 
 # ---- routes ----
 
@@ -857,6 +876,7 @@ func _buy_feeds(planet: int, c: String, afford: int) -> bool:
 ## delta: net credits, as settle() would add}. Approximation: a cluster shared by ships is not split between them.
 func forecast(cash: int) -> Dictionary:
 	var shadow := {}
+	var pend := {}  # T257: units this forecast already sells per planet|good (surplus)
 	var amt := func(k: String, c: String) -> int:
 		var sk: String = k + "|" + c
 		return int(shadow[sk]) if shadow.has(sk) else storage.amount(k, c)
@@ -948,7 +968,8 @@ func forecast(cash: int) -> Dictionary:
 				shadow[sk + "|" + c] = int(amt.call(sk, c)) - (moved - from_planet)
 			if stop_open(rec):
 				var sold := mini(moved, local_amount(c))
-				sale = sold * sold_price(int(rec["stop"]), c)
+				sale = sale_value(int(rec["stop"]), c, sold, int(pend.get(str(rec["stop"]) + "|" + c, 0)))
+				pend[str(rec["stop"]) + "|" + c] = int(pend.get(str(rec["stop"]) + "|" + c, 0)) + sold
 				carried = moved - sold
 		shadow[dst + "|" + c] = int(amt.call(dst, c)) + carried
 		var gross := level_bonus(rec, carried) + sale
@@ -985,7 +1006,8 @@ func forecast(cash: int) -> Dictionary:
 				shadow[pk + "|" + c] = int(amt.call(pk, c)) - from_planet
 				if sk != "" and from_planet < n:
 					shadow[sk + "|" + c] = int(amt.call(sk, c)) - (n - from_planet)
-				credits = n * sold_price(p, c)
+				credits = sale_value(p, c, n, int(pend.get(str(p) + "|" + c, 0)))
+				pend[str(p) + "|" + c] = int(pend.get(str(p) + "|" + c, 0)) + n
 				sold_n = n
 				var m: Dictionary = mixed.get(p, {"goods": 0, "bonus": 0, "mk": []})
 				var b := mixed_bonus(credits, int(m["goods"]), int(m["bonus"]), _cross_with(m["mk"], c))
@@ -1130,7 +1152,7 @@ func _run_local(o: Dictionary, role: String, cash: int, out: Array) -> int:
 			if sk != "" and took < n:
 				took += storage.remove(sk, c, n - took)
 			n = took
-			r["credits"] = n * sold_price(planet, c)
+			r["credits"] = sale_value(planet, c, n)
 			var m: Dictionary = mix.get(planet, {"goods": 0, "bonus": 0, "mk": []})
 			if n > 0:
 				var b := mixed_bonus(int(r["credits"]), int(m["goods"]), int(m["bonus"]), _cross_with(m["mk"], c))
