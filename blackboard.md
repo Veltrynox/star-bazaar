@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-06 18:02 run: T257
-- Summary: Need pricing: a need opens a sell price, hunger raises it each short cycle up to a cap, and units sold above a need's demand pay only a share. Forecasts, margins, best-partner and salvage use the same prices, `price_reason` is exposed, hunger is saved (save v10), and all new keys are placeholders.
-- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
-- Approach: built by a worker in worktree ../wt/T257 on branch task/T257, merged by the serial merge queue.
-- Agent prompts: /overnight-worker T257 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T257.log.
-- Worked: rebase, full test suite and fast-forward merge passed.
-- Failed / did not work: nothing.
-- Files and commits: see git log on branch new-features for commits starting with T257.
-- Left to do: nothing for this task.
-
 ## 2026-11-06 18:02 run: T264
 - Summary: Not merged: rebase onto new-features failed
 - Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
@@ -64,4 +54,14 @@
 - Worked: rebase, full test suite and fast-forward merge passed.
 - Failed / did not work: nothing.
 - Files and commits: see git log on branch new-features for commits starting with T278.
+- Left to do: nothing for this task.
+
+## 2026-11-06 18:08 run: T264
+- Summary: Each established world on the map now has a ring of progress notches and need icons under its name, and the Bazaar capital has a marker.
+- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
+- Approach: built by a worker in worktree ../wt/T264 on branch task/T264, merged by the serial merge queue.
+- Agent prompts: /overnight-worker T264 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T264.log.
+- Worked: rebase, full test suite and fast-forward merge passed.
+- Failed / did not work: nothing.
+- Files and commits: see git log on branch new-features for commits starting with T264.
 - Left to do: nothing for this task.
