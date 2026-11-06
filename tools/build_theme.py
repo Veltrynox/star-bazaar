@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""Builds design/theme/star_bazaar.tres (the one Godot Theme) from the design system tokens.json.
+"""Builds ui/theme/star_bazaar.tres (the one Godot Theme) from the design system tokens.json.
 To swap the design: replace design/star-bazaar-design-system/, then run  python3 tools/build_theme.py
-Also writes white icon copies to design/theme/icons/ (currentColor -> white, tinted in the theme)."""
+Also writes white icon copies to ui/theme/icons/ (currentColor -> white, tinted in the theme)."""
 import json, os, re, glob
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DS = os.path.join(ROOT, "design", "star-bazaar-design-system", "star-bazaar-design-system")
-OUT = os.path.join(ROOT, "design", "theme")
+OUT = os.path.join(ROOT, "ui", "theme")
 tok = json.load(open(os.path.join(DS, "tokens.json")))
 C = {t["name"]: t["value"] for t in tok["color"]["tokens"]}
 SP = {t["name"]: int(t["value"][:-2]) for t in tok["spacing"]["tokens"]}
@@ -37,7 +37,7 @@ def add_sub(kind, body):
     sid = "r%d" % (len(sub) + 1)
     sub.append('[sub_resource type="%s" id="%s"]\n%s\n' % (kind, sid, "\n".join(body))); return 'SubResource("%s")' % sid
 
-FONT_DIR = os.path.join(ROOT, "design", "fonts")
+FONT_DIR = os.path.join(ROOT, "ui", "fonts")
 FILES = {"body": "Jost/static/Jost-Regular.ttf", "button": "Jost/static/Jost-Medium.ttf", "panel-title": "Jost/static/Jost-Medium.ttf",
          "panel-caption": "Jost/static/Jost-Regular.ttf", "map-faction": "Jost/static/Jost-Medium.ttf",
          "readout": "JetBrains_Mono/static/JetBrainsMono-Regular.ttf", "readout-sm": "JetBrains_Mono/static/JetBrainsMono-Regular.ttf"}
@@ -46,7 +46,7 @@ def font(key, spacing_em, size):
     rel = FILES[key]
     if not os.path.exists(os.path.join(FONT_DIR, rel)): raise SystemExit("missing font file: " + rel)
     if rel not in font_ext:
-        font_ext[rel] = add_ext("FontFile", "res://design/fonts/" + rel)
+        font_ext[rel] = add_ext("FontFile", "res://ui/fonts/" + rel)
     return add_sub("FontVariation", ['base_font = ' + font_ext[rel], 'spacing_glyph = %d' % round(spacing_em * size)])
 F = {}
 for k in FILES:
@@ -188,7 +188,7 @@ P("CheckButton", "colors/font_color", col("ink")); P("CheckBox", "colors/font_co
 
 # Icons and colours as custom theme types so scripts never hard-code them
 for n in icons:
-    P("Icons", "icons/" + n, add_ext("Texture2D", "res://design/theme/icons/%s.svg" % n))
+    P("Icons", "icons/" + n, add_ext("Texture2D", "res://ui/theme/icons/%s.svg" % n))
 for n in C:
     P("Colors", "colors/" + n.replace("-", "_"), col(n))
 P("Colors", "colors/orbit_line", col("line-200"))  # system map orbit rings (SystemView.html)

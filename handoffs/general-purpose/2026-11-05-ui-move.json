@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "agent": "general-purpose",
+  "date": "2026-11-05",
+  "task": "Move design/fonts and design/theme to top-level ui/",
+  "status": "done",
+  "files_changed": [
+    "ui/fonts/",
+    "ui/theme/",
+    "project.godot",
+    "game/ui.gd",
+    "tools/build_theme.py",
+    "design/art/NAMING.md",
+    "art/README.md"
+  ],
+  "open_questions": [
+    "Re-running tools/build_theme.py now gives a different star_bazaar.tres than the checked-in one (about 700 lines differ, tokens drifted). I kept the moved file with only paths changed. Regenerate only if the owner wants the new tokens."
+  ],
+  "handoff": "design/fonts and design/theme moved by git mv to ui/fonts and ui/theme with .import siblings. Paths updated in project.godot (theme/custom), the theme .tres ext_resources, tools/build_theme.py (ROOT paths, docstring, res:// paths) and the game/ui.gd comment. NAMING.md section 5 and art/README.md name the new folders. design/star-bazaar-design-system stays in place. Headless import and sh tools/tests/run.sh: pass=11300 fail=0. README.md was already in sync (build_readme.py wrote no change).",
+  "details": {}
+}

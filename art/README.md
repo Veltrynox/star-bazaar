@@ -1,6 +1,6 @@
 # art/ : shipping 2D art
 
-Game-ready images the game loads live here, one category per folder. Naming rules: `design/art/NAMING.md`. Art style: `design/art/style.md`. Documents and reference images are in `media/`, 3D models in `assets/`.
+Game-ready images the game loads live here, one category per folder. Naming rules: `design/art/NAMING.md`. Art style: `design/art/style.md`. Documents and reference images are in `media/`, 3D models in `assets/`. Fonts and the UI Theme (with its icons) are in `ui/fonts/` and `ui/theme/`.
 
 | Folder | Holds | Loaded by |
 |---|---|---|
