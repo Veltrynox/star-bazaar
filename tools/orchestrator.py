@@ -492,6 +492,16 @@ def rebase_with_auto_resolve(wt, base):
     return r
 
 
+def refresh_import(wt):
+    """Rebuild Godot's class and import cache in a worktree (a rebase can bring new class_name scripts that the cloned
+    .godot cache does not know, which makes the test script fail to parse)."""
+    SCRATCH.mkdir(parents=True, exist_ok=True)
+    gd = ROOT / "tools" / "godot" / "Godot.app" / "Contents" / "MacOS" / "Godot"
+    sh([str(gd), "--headless", "--path", str(wt), "--import"],
+       env={"HOME": str(SCRATCH / "import-home"), "TMPDIR": str(SCRATCH)}, timeout=600)
+    shutil.rmtree(SCRATCH / "import-home", ignore_errors=True)
+
+
 def merge_one(st, tid):
     v = st["tasks"][tid]
     wt, br, base = v["worktree"], v["branch"], st["base_branch"]
@@ -510,6 +520,7 @@ def merge_one(st, tid):
     if r.returncode != 0:
         sh(["git", "rebase", "--abort"], cwd=wt)
         return block(st, tid, f"rebase onto {base} failed", r.stdout + r.stderr)
+    refresh_import(wt)
     t = run_tests(wt, tid + "-merge")
     known = {fail_name(l) for l in st.get("baseline", {}).get("fails", [])}
     new = [l for l in t["fails"] if fail_name(l) not in known]
