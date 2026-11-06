@@ -7,9 +7,9 @@ SK_HEADER | 24 | Skill screen title | Skills
 SK_NEEDS | 60 | Locked node line | Needs: {skill}.
 SK_COST | 24 | Detail panel label, unused after 2026-11-04 (cost shown by the game) | Cost: {amount} points
 SK_NO_CREDITS | 110 | Skill screen footer | Skills cost skill points, never credits.
-SK_BOT_USE | 24 | Skill screen, menu button on a learned bot skill (Embargo Desk, Guild Seal) | Use on...
-SK_BOT_USED | 40 | Skill screen, note on a once-per-run bot skill already used | Used this run.
-SK_BOT_COOLDOWN | 40 | Skill screen, note on a bot skill that is recharging; {n} is cycles left | Ready in {n} cycles.
+SK_BOT_USE | 24 | Skill screen, menu button on a learned house skill (Embargo Desk, Guild Seal; pick a house) | Use on...
+SK_BOT_USED | 40 | Skill screen, note on a once-per-run house skill already used | Used this run.
+SK_BOT_COOLDOWN | 40 | Skill screen, note on a house skill that is recharging; {n} is cycles left | Ready in {n} cycles.
 
 ## Nodes (ids SK_<node>_NAME / _FLAVOUR / _PLAIN, tech nodes also _CRAFT)
 Sizes in words: a little (S), clearly (M), sharply (L). Prerequisites and costs are shown by the game.
@@ -45,17 +45,17 @@ SK_MIL_4_PLAIN | 110 | Skill screen, detail panel | Unlocks a second Military pr
 SK_MIL_4_CRAFT | 60 | Skill screen, tech node progress line | Military workshop crafts: {n} of {goal}
 
 SK_MIL_5_NAME | 24 | Skill screen, node name | Embargo Desk
-SK_MIL_5_FLAVOUR | 90 | Skill screen, detail panel | One call and a rival's yard goes quiet. A clerk thanks you for your patience.
-SK_MIL_5_PLAIN | 110 | Skill screen, detail panel | Every {m} cycles pick a rival: its Military strength falls by half for {n} cycles.
+SK_MIL_5_FLAVOUR | 90 | Skill screen, detail panel | One call and a house's convoys wait at the gate. A clerk thanks you for your patience.
+SK_MIL_5_PLAIN | 110 | Skill screen, detail panel | Every {m} cycles pick a house: its weather on your worlds and lanes is {pct} weaker for {n} cycles.
 
 SK_MIL_6_NAME | 24 | Skill screen, node name | The Long Contract
 SK_MIL_6_FLAVOUR | 90 | Skill screen, detail panel | The buyer sends a card of thanks. You know what the cargo is for.
 SK_MIL_6_PLAIN | 140 | Skill screen, detail panel | Events that cut your Military prices hit half as hard. Military sales pay 6% more. Tech: craft {goal} units.
 SK_MIL_6_CRAFT | 60 | Skill screen, tech node progress line | Military workshop crafts: {n} of {goal}
 
-SK_MIL_7_NAME | 24 | Skill screen, node name | Standing Fleet
-SK_MIL_7_FLAVOUR | 90 | Skill screen, detail panel | Ships wait on every lane. People thank you for the quiet. You know its price.
-SK_MIL_7_PLAIN | 110 | Skill screen, detail panel | Cuts all rivals' Military growth in half for the rest of the run. Capstone.
+SK_MIL_7_NAME | 24 | Skill screen, node name | Watch Fleet
+SK_MIL_7_FLAVOUR | 90 | Skill screen, detail panel | Ships wait on every lane and call each convoy before it lands. You know its price.
+SK_MIL_7_PLAIN | 110 | Skill screen, detail panel | Adds {n} cycles of warning before house weather lands, for the rest of the run. Capstone.
 
 SK_LUX_1_NAME | 24 | Skill screen, node name | The Whisper Circle
 SK_LUX_1_FLAVOUR | 90 | Skill screen, detail panel | You hear what the rich will pay before they know it. They smile when you pass.
@@ -85,8 +85,8 @@ SK_LUX_6_PLAIN | 140 | Skill screen, detail panel | Each Luxury batch yields one
 SK_LUX_6_CRAFT | 60 | Skill screen, tech node progress line | Luxury workshop crafts: {n} of {goal}
 
 SK_LUX_7_NAME | 24 | Skill screen, node name | Guild Seal
-SK_LUX_7_FLAVOUR | 90 | Skill screen, detail panel | You decide who is let in. A rival stands outside and watches the door.
-SK_LUX_7_PLAIN | 110 | Skill screen, detail panel | Every {m} cycles pick a rival: its Luxury strength falls by 40% for {n} cycles. Capstone.
+SK_LUX_7_FLAVOUR | 90 | Skill screen, detail panel | You decide who is let in. A house convoy waits outside and watches the door.
+SK_LUX_7_PLAIN | 110 | Skill screen, detail panel | Every {m} cycles pick a house: its weather on your worlds and lanes is {pct} weaker for {n} cycles. Capstone.
 
 SK_MIN_1_NAME | 24 | Skill screen, node name | Fabrication Licence
 SK_MIN_1_FLAVOUR | 90 | Skill screen, detail panel | You sign to take from the ground. The ground does not sign back.
@@ -115,9 +115,9 @@ SK_MIN_6_FLAVOUR | 90 | Skill screen, detail panel | Every piece leans on the ne
 SK_MIN_6_PLAIN | 140 | Skill screen, detail panel | Each Minerals batch yields one more unit and sales pay 8% more. Unlocks a further product. Tech: craft {goal} units.
 SK_MIN_6_CRAFT | 60 | Skill screen, tech node progress line | Minerals workshop crafts: {n} of {goal}
 
-SK_MIN_7_NAME | 24 | Skill screen, node name | Cornered Seam
-SK_MIN_7_FLAVOUR | 90 | Skill screen, detail panel | The last seam is yours. The rest dig worse rock and owe the dark for it.
-SK_MIN_7_PLAIN | 110 | Skill screen, detail panel | Cuts all rivals' Minerals strength by 30% for the rest of the run. Capstone.
+SK_MIN_7_NAME | 24 | Skill screen, node name | Braced Seam
+SK_MIN_7_FLAVOUR | 90 | Skill screen, detail panel | The seam is shored and the shaft takes the blow. Weather passes over it.
+SK_MIN_7_PLAIN | 110 | Skill screen, detail panel | Makes house weather {pct} weaker on your worlds and lanes for the rest of the run. Capstone.
 
 SK_BIO_1_NAME | 24 | Skill screen, node name | Culture Charter
 SK_BIO_1_FLAVOUR | 90 | Skill screen, detail panel | A form says what may live in your vats. You sign for every small life.
@@ -146,9 +146,9 @@ SK_BIO_6_FLAVOUR | 90 | Skill screen, detail panel | It lives through the cold, 
 SK_BIO_6_PLAIN | 140 | Skill screen, detail panel | Biotech events hit 40% weaker. A closed planet reopens a cycle sooner. Sales pay 8% more. Tech: craft {goal} units.
 SK_BIO_6_CRAFT | 60 | Skill screen, tech node progress line | Biotech workshop crafts: {n} of {goal}
 
-SK_BIO_7_NAME | 24 | Skill screen, node name | Patent Wall
-SK_BIO_7_FLAVOUR | 90 | Skill screen, detail panel | A cure with your name on it. Those who need it must ask you first.
-SK_BIO_7_PLAIN | 110 | Skill screen, detail panel | Cuts all rivals' Biotech strength by 25% for the rest of the run. Capstone.
+SK_BIO_7_NAME | 24 | Skill screen, node name | Cold Wall
+SK_BIO_7_FLAVOUR | 90 | Skill screen, detail panel | A sealed wall around every vat. Floods and queues stop at the door.
+SK_BIO_7_PLAIN | 110 | Skill screen, detail panel | Makes house weather {pct} weaker on your worlds and lanes for the rest of the run. Capstone.
 
 ## Side skills
 SK_LUX_5B_NAME | 24 | Skill screen, node name | The Long Wait
@@ -207,7 +207,7 @@ SK_MIL_14_CRAFT | 60 | Skill screen, tech node progress line | Military workshop
 
 SK_MIL_15_NAME | 24 | Skill screen, node name | Last Line
 SK_MIL_15_FLAVOUR | 90 | Skill screen, detail panel | The line holds because nobody wants to test it.
-SK_MIL_15_PLAIN | 110 | Skill screen, detail panel | Cuts all rivals' Military growth further for the rest of the run. Capstone.
+SK_MIL_15_PLAIN | 110 | Skill screen, detail panel | Makes house weather a further {pct} weaker on your worlds and lanes for the rest of the run. Capstone.
 
 SK_LUX_8_NAME | 24 | Skill screen, node name | Salon Circle
 SK_LUX_8_FLAVOUR | 90 | Skill screen, detail panel | Small room, soft chairs, hard questions. Few leave before dawn.
@@ -240,9 +240,9 @@ SK_LUX_14_FLAVOUR | 90 | Skill screen, detail panel | The hammer falls and the r
 SK_LUX_14_PLAIN | 140 | Skill screen, detail panel | Luxury units sold into a world's need count clearly more toward it. Tech: craft {goal} units.
 SK_LUX_14_CRAFT | 60 | Skill screen, tech node progress line | Luxury workshop crafts: {n} of {goal}
 
-SK_LUX_15_NAME | 24 | Skill screen, node name | Grand Salon
-SK_LUX_15_FLAVOUR | 90 | Skill screen, detail panel | The doors are gilt and the guest list is longer than the hall.
-SK_LUX_15_PLAIN | 110 | Skill screen, detail panel | Cuts all rivals' Luxury growth for the rest of the run. Capstone.
+SK_LUX_15_NAME | 24 | Skill screen, node name | Gilt Window
+SK_LUX_15_FLAVOUR | 90 | Skill screen, detail panel | From the salon balcony you see every convoy coming. The guests think it is for them.
+SK_LUX_15_PLAIN | 110 | Skill screen, detail panel | Adds {n} more cycles of warning before house weather lands, for the rest of the run. Capstone.
 
 SK_MIN_8_NAME | 24 | Skill screen, node name | Deep Hold
 SK_MIN_8_FLAVOUR | 90 | Skill screen, detail panel | A bigger hold, a lower ceiling. The crew learns to stoop.
@@ -310,6 +310,6 @@ SK_BIO_14_FLAVOUR | 90 | Skill screen, detail panel | A signed promise to delive
 SK_BIO_14_PLAIN | 140 | Skill screen, detail panel | Biotech sales pay more. Tech: craft {goal} units.
 SK_BIO_14_CRAFT | 60 | Skill screen, tech node progress line | Biotech workshop crafts: {n} of {goal}
 
-SK_BIO_15_NAME | 24 | Skill screen, node name | Evergreen
-SK_BIO_15_FLAVOUR | 90 | Skill screen, detail panel | It grows where nobody planted it. Rivals find it in their gardens.
-SK_BIO_15_PLAIN | 110 | Skill screen, detail panel | Cuts all rivals' Biotech growth further for the rest of the run. Capstone.
+SK_BIO_15_NAME | 24 | Skill screen, node name | Early Bloom
+SK_BIO_15_FLAVOUR | 90 | Skill screen, detail panel | Pollen drifts ahead of every convoy, and the vats lean toward it.
+SK_BIO_15_PLAIN | 110 | Skill screen, detail panel | Adds {n} more cycles of warning before house weather lands, for the rest of the run. Capstone.

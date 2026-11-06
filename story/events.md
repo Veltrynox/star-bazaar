@@ -10,21 +10,21 @@ The game fills these in chain text. No text contains a digit; every number comes
 
 | Placeholder | Filled with | Used in |
 |---|---|---|
-| {bot1}, {bot2}, {bot3} | Display names of the three rivals (bot_1 Harrow Combine, bot_2 Velvet Concord, bot_3 Ostrel Syndicate), from STD_BOT1_NAME to STD_BOT3_NAME. Never hard-coded in chain text, so a rename needs no text edit. | bodies, effect lines, results, rival lines |
-| {bot} | The marked bot of the option just chosen (R7: biggest CUT, boosts never count, tier cut counts as clearly, strength and growth count the same, a tie goes to the lower bot number). Table below. In a result text it always names a bot the option cut. In a step 2+ body of Military B4 it names the marked bot of the previous Military step. | results, MIL_B4 bodies |
+| {bot1}, {bot2}, {bot3} | Display names of the three houses (bot_1 Harrow Combine, flood; bot_2 Velvet Concord, shortage; bot_3 Ostrel Syndicate, congestion), from STD_BOT1_NAME to STD_BOT3_NAME. Never hard-coded in chain text, so a rename needs no text edit. | bodies, effect lines, results, house lines |
+| {bot} | The marked house of the option just chosen (R7: biggest effect on its weather, boosts never count, a held-back cut counts as clearly, softer and later count the same, a tie goes to the lower bot number). Table below. In a result text it always names a house the option changed. In a step 2+ body of Military B4 it names the marked house of the previous Military step. | results, MIL_B4 bodies |
 | {cash_in}, {cash_out} | Credits gained or paid by the option, number only (150, 300 or 600 from economy 8.1). | effect lines |
 | {n} | Units of tech progress the option gives, number only (3 or 4). | effect lines |
-| {cut} | In an effect line: "drops a tier", or "loses strength clearly" when that rival is at the lowest tier. Sentence shape: "<Bot> {cut} in <Market>." | effect lines |
-| {cut_std} | In a rival line: "moved down a tier", or "strength down clearly" at the lowest tier. | rival lines (_STD) |
-| {market} | Market display name. | EV_EFF_NO_RIVALS, pool rivals lines, log lines, epilogue lines |
-| {get}, {cost}, {rivals} | Phrases for the template CH_EFFECT_LINE (Get / Cost / Rivals, 200 characters). Same size words as the written effect lines. Only for lines the game builds itself; the written EV_<step>_OP?_EFF lines are final and need no template. | CH_EFFECT_LINE |
+| {cut} | In an effect line: "is held back" (read with the house name and Weather label: its next weather is held back), or "gets clearly softer weather" when that house has nothing left to hold back. Sentence shape: "<House> {cut}." | effect lines |
+| {cut_std} | In a house line: "next weather held back", or "next weather clearly softer" when nothing is left to hold back. | house lines (_STD) |
+| {market} | Market display name. No longer used in house lines or Weather lines (kept for epilogue lines). | epilogue lines |
+| {get}, {cost}, {rivals} | Phrases for the template CH_EFFECT_LINE (Get / Cost / Weather, 200 characters). The id {rivals} is kept so the code needs no change; it is filled with the Weather part. Same size words as the written effect lines. Only for lines the game builds itself; the written EV_<step>_OP?_EFF lines are final and need no template. | CH_EFFECT_LINE |
 | {workshop}, {share}, {bots} | As in story/voice.md. | endings |
 
-Size words (fixed): volume, price and upkeep up or down 5 or 8 or 20 percent or one trip cost of a third = "a little"; 10 or 15 or 40 percent = "clearly". Rival strength 5 percent or growth 10 percent = "a little"; strength 10 percent or growth 20 percent = "clearly"; strength 18 percent or growth 30 percent = "sharply". A tier cut is only ever {cut} or {cut_std}. A boost to a rival is a Cost and reads "gains a little <Market> strength" or "grows a little faster in <Market>"; the matching rival line says "strength up a little" or "growth up a little". Durations: 2 to 3 cycles "for a few cycles", 4 to 8 cycles "for a while", to cycle 40 "for the rest of the run". A timed rival hit says "for a few cycles".
+Size words (fixed): volume, price and upkeep up or down 5 or 8 or 20 percent or one trip cost of a third = "a little"; 10 or 15 or 40 percent = "clearly". House weather uses the same three words. Weather that lands softer or harder (was strength: 5 percent "a little", 10 "clearly", 18 "sharply") and weather that comes later or sooner (was growth: 10 percent "a little", 20 "clearly", 30 "sharply"). A cut that held back a tier is only ever {cut} or {cut_std}. A boost to a house is a Cost and reads "<House>'s weather lands a little harder" or "<House>'s next weather comes a little sooner"; the matching house line says "next weather lands a little harder" or "next weather comes a little sooner". Durations: 2 to 3 cycles "for a few cycles", 4 to 8 cycles "for a while", to cycle 40 "for the rest of the run". A timed house effect says "for a few cycles".
 
-Rival effect is visible in every step three ways: the effect line (Rivals part), the result text (the marked bot as {bot}, other changed rivals by {bot1} to {bot3}) and one or two rival lines (_STD, _STD2) shown under the result and written into the Competitors log (LBL_COMP_MOVE_*). Cuts come before boosts in the rival lines. The tier result text says "cut back", which is true at any tier; the rival line carries {cut_std}.
+House effect is visible in every step three ways: the effect line (Weather part), the result text (the marked house as {bot}, other changed houses by {bot1} to {bot3}) and one or two house lines (_STD, _STD2) shown under the result and written into the house weather log (LBL_COMP_MOVE_*). Cuts come before boosts in the house lines. The held-back result text says "held back"; the house line carries {cut_std}. Rule of the rewrite: no chain text says a house is beaten, cut down or weaker. Choices only delay or soften a house's next weather, or make it come sooner or land harder.
 
-Marked bot per option (R7), computed by hand from economy 8.2; the game computes it itself and must agree:
+Marked house per option (R7), computed by hand from economy 8.2; the game computes it itself and must agree:
 
 | Step | opt_a {bot} | opt_b {bot} |
 |---|---|---|
@@ -305,51 +305,51 @@ Tags updated 2026-11-04 to match data/chains.json pool_new (planets and goods as
 
 EV40_TITLE | pool event title | Rivet guns pile up at Voltara
 EV40_BODY | pool event text | Voltara's foundry kept casting rivet guns after the Admiralty's order was filled, since its last line reads until victory. Stacks reach the roof. Rivet guns at Voltara cost less and pay less. A clerk asked if victory knew. Contract Doctrine softens Military price events.
-EV40_EFF | pool event rivals line, {market} filled by the game | Rivals: no change in {market} strength or growth.
+EV40_EFF | pool event weather line | Weather: no house changes its next weather.
 
 EV41_TITLE | pool event title | Pulse cells are recalled
 EV41_BODY | pool event text | A batch of pulse cells ran hot, and the maker pulled the lot. An engineer read the recall on each dock and begged every crate's pardon. Pulse cells at Ashgate cost more and pay more while the shelves stay bare. The notice says no one was harmed. It says so twice.
-EV41_EFF | pool event rivals line, {market} filled by the game | Rivals: {market} strength and growth stay as they were.
+EV41_EFF | pool event weather line | Weather: every house keeps its next weather as it was.
 
 EV42_TITLE | pool event title | Hull armour is requisitioned
 EV42_BODY | pool event text | The Admiralty wills every slab of hull armour to the front, by order of a clerk who has never seen a hull. Hull armour at Tillam costs more and pays more while shelves are bare. The Bureau entered the slabs as sanctified. They wait cold in a corridor. The crew bow in passing.
-EV42_EFF | pool event rivals line, {market} filled by the game | Rivals: none of the three changes in {market}.
+EV42_EFF | pool event weather line | Weather: none of the three houses changes its next weather.
 
 EV43_TITLE | pool event title | A glut of sunmusk
 EV43_BODY | pool event text | A convoy of sunmusk reached Tillam on one tide, and nobody had ordered it. Sunmusk at Tillam costs less and pays less. The scent hangs in the corridors, and no two buyers agree what it smells of. The Bureau calls that variety. One dockhand calls it a headache.
-EV43_EFF | pool event rivals line, {market} filled by the game | Rivals: no change in {market} strength or growth.
+EV43_EFF | pool event weather line | Weather: no house changes its next weather.
 
 EV44_TITLE | pool event title | Gem cutters are booked solid
 EV44_BODY | pool event text | Ashgate's gem cutters are booked solid after a wedding season, and the queue has a queue. Cut glimmers at Ashgate cost more and pay more while the cutters catch up. In one shop a stone hums softly and is not for sale. Fine Finishing makes this pay clearly more.
-EV44_EFF | pool event rivals line, {market} filled by the game | Rivals: {market} strength and growth stay as they were.
+EV44_EFF | pool event weather line | Weather: every house keeps its next weather as it was.
 
 EV45_TITLE | pool event title | Cask stock overflows the cellars
 EV45_BODY | pool event text | Ashgate's cellars filled with a record vintage, and nobody has the room to drink it. Vintage casks at Ashgate cost less and pay less. The cellar master has begun to give the casks names, and talks to them at closing. Cask Cellar keeps Luxury stock safe from asteroid cuts.
-EV45_EFF | pool event rivals line, {market} filled by the game | Rivals: none of the three changes in {market}.
+EV45_EFF | pool event weather line | Weather: none of the three houses changes its next weather.
 
 EV46_TITLE | pool event title | The smelter goes cold
 EV46_BODY | pool event text | Voltara's smelter lost its heat to a cracked line, and the casting stopped. Ingot at Voltara costs more and pays more until the furnace is lit again. The crew stand by the dead furnace with their hands out. The metal inside still ticks as it shrinks.
-EV46_EFF | pool event rivals line, {market} filled by the game | Rivals: no change in {market} strength or growth.
+EV46_EFF | pool event weather line | Weather: no house changes its next weather.
 
 EV47_TITLE | pool event title | Alloy rolls off the line early
 EV47_BODY | pool event text | Voltara's line turned out seam alloy a week early, before the builders had placed an order. Seam alloy at Voltara costs less and pays less. The bales are stacked to the lamps, and a clerk is counting them for the third time. The count has not improved.
-EV47_EFF | pool event rivals line, {market} filled by the game | Rivals: {market} strength and growth stay as they were.
+EV47_EFF | pool event weather line | Weather: every house keeps its next weather as it was.
 
 EV48_TITLE | pool event title | Fabric plate runs short
 EV48_BODY | pool event text | Ashgate's builders drew a new ring of homes in a single week, and every wall wants plate. Lattice plate at Ashgate costs more and pays more. The draughtsmen call the plan final. The plates on the dock ring faintly when the wind turns, though no wind blows here.
-EV48_EFF | pool event rivals line, {market} filled by the game | Rivals: none of the three changes in {market}.
+EV48_EFF | pool event weather line | Weather: none of the three houses changes its next weather.
 
 EV49_TITLE | pool event title | Quarantine at the culture lab
 EV49_BODY | pool event text | A culture in Ashgate's lab grew a colour it was not meant to, and the doctors sealed the port. Routes touching Ashgate are blocked for a while. The notice says contained. The night shift counts heads each hour. One is short. Hardy Strains reopens a closed planet a cycle sooner.
-EV49_EFF | pool event rivals line, {market} filled by the game | Rivals: no change in {market} strength or growth.
+EV49_EFF | pool event weather line | Weather: no house changes its next weather.
 
 EV50_TITLE | pool event title | Spores come in cheap
 EV50_BODY | pool event text | A damp season at Tillam raised spore cultures in every crate, more than anyone could sell. Spore cultures at Tillam cost less and pay less. The manager says the crates are fine. The crates sweat in rows, and the ones in the corner have grown a lid of their own.
-EV50_EFF | pool event rivals line, {market} filled by the game | Rivals: {market} strength and growth stay as they were.
+EV50_EFF | pool event weather line | Weather: every house keeps its next weather as it was.
 
 EV51_TITLE | pool event title | Seed stock is bought up
 EV51_BODY | pool event text | Tillam's clinics bought every crate of gene seed after one failed batch. Gene seed at Tillam costs more and pays more. The ward manager wrote that the failed batch is fine, and moved the ward to another floor. Culture Banks grow stored Biotech stock.
-EV51_EFF | pool event rivals line, {market} filled by the game | Rivals: none of the three changes in {market}.
+EV51_EFF | pool event weather line | Weather: none of the three houses changes its next weather.
 
 # PENDING (T181, 2026-11-05): post, platform and flight events. TEXT ONLY, no mechanics row
 
@@ -547,7 +547,7 @@ No text names a good, a planet or a number: the goods of the early cycles are on
 
 EV52_TITLE | pool event title | A Fleet Office rush order
 EV52_BODY | pool event text | The Fleet Office gave you a rush order, and three larger crews want it if you slip. At the depot's back gate, Bosk Two-Stamps offers ready cash for some crates. His thumbs are blue from stamping forms nobody wrote. Sell fast, or sell at the counter.
-EV52_EFF | pool event rivals line, {market} filled by the game | Rivals: no change in {market} strength or growth.
+EV52_EFF | pool event weather line | Weather: no house changes its next weather.
 EV52_A_BTN | button | Sell to Bosk Two-Stamps
 EV52_A_EFF | effect line | Pays more now: {cash_in} credits.
 EV52_A_TITLE | popup title | Bosk has one stamp
@@ -559,7 +559,7 @@ EV52_B | popup | The counter clerk checked each crate against the order, then ch
 
 EV53_TITLE | pool event title | The Orrel House gala order
 EV53_BODY | pool event text | The Orrel House ordered cut-glass table sets for its gala, and two older firms bid for the same carriage. On a pleasure barge by the dock ring, Madame Fenn offers cash for a few sets. She calls every sale a private viewing and charges for the chair.
-EV53_EFF | pool event rivals line, {market} filled by the game | Rivals: {market} strength and growth stay as they were.
+EV53_EFF | pool event weather line | Weather: every house keeps its next weather as it was.
 EV53_A_BTN | button | Sell to Madame Fenn
 EV53_A_EFF | effect line | Pays more now: {cash_in} credits.
 EV53_A_TITLE | popup title | A private viewing
@@ -571,7 +571,7 @@ EV53_B | popup | You laid the sets out on the open stalls under the dock lamps. 
 
 EV54_TITLE | pool event title | Deepline Works sample run
 EV54_BODY | pool event text | The Deepline Works hired you to carry sealed sample cases to its assay hall, and a faster crew is already loading. Tamsk Reddock, who runs the slag yard, offers cash for some cases. He weighs everything on one thumb and says heavy. Even the empty ones.
-EV54_EFF | pool event rivals line, {market} filled by the game | Rivals: none of the three changes in {market}.
+EV54_EFF | pool event weather line | Weather: none of the three houses changes its next weather.
 EV54_A_BTN | button | Sell to Tamsk Reddock
 EV54_A_EFF | effect line | Pays more now: {cash_in} credits.
 EV54_A_TITLE | popup title | Tamsk says heavy
@@ -583,7 +583,7 @@ EV54_B | popup | The assay hall took the cases at its own rate and its own pace.
 
 EV55_TITLE | pool event title | Lowmoor Clinics need trays
 EV55_BODY | pool event text | The Lowmoor Clinics hired you to carry chilled sample trays to their wards, and a rival crew has a faster hull. Dr Pell Oruk waits behind the cold dock and offers cash for some trays. He tests each coin with a tooth and calls it mostly healthy.
-EV55_EFF | pool event rivals line, {market} filled by the game | Rivals: no change in {market} strength or growth.
+EV55_EFF | pool event weather line | Weather: no house changes its next weather.
 EV55_A_BTN | button | Sell to Dr Pell Oruk
 EV55_A_EFF | effect line | Pays more now: {cash_in} credits.
 EV55_A_TITLE | popup title | Mostly healthy coins

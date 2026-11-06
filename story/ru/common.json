@@ -46,6 +46,5 @@
  "CH_FX_TECH": "{n} единицы технологического прогресса",
  "CH_FX_IDLE": "Мастерская простаивает",
  "CH_FX_BATCHES": "Партий за цикл: +{n}",
- "EV_EFF_NO_RIVALS": "Соперники: strength и growth на рынке {market} не меняются.",
  "WARN_SHIP_UNAFFORDABLE": "Не хватает кредитов на корабль: нужно {need}, есть {have}"
 }

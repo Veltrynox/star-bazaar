@@ -100,19 +100,19 @@ The player is "you" or "the company". Never a gender, never a name.
 ### Four markets (added 2026-11-03, from design/proposals/2026-11-03-four-markets-story.md)
 - Markets: Military, Luxury, Minerals, Biotech, always capitalised. Foundations: the three small unlocks (Space Storage, Permit Charter, Prospecting).
 - Skill: costs skill points. Tech: costs no points, finishes by crafting at the market's workshop. Capstone: the last skill of a market.
-- Rivals: the three other companies in a market. Never "bots" or "AI" in player text.
-- Size words in skill lines: a little (small), clearly (medium), sharply (large, rivals only). No raw numbers; the game fills {n}, {m}, {goal} (units to craft), {name} (node name).
+- Houses: Harrow Combine, Velvet Concord, Ostrel Syndicate. They are weather, not rivals (T287): no standing, no contract, no opponent. Never "rivals", "bots" or "AI" in player text.
+- Size words in skill lines: a little (small), clearly (medium), sharply (large, house weather only). No raw numbers; the game fills {n}, {m}, {pct} (a percent), {goal} (units to craft), {name} (node name).
 - Skill and tech node limits: name 24, flavour 90, plain line 110, craft-progress line 60 (_CRAFT). Screen labels 24 to 60, notices 110.
 
 ### Market chains (added 2026-11-03, chain text goal)
 - Chain limits: step title 40, body 280, button 28, effect line 200 (Get, Cost, Rivals), result title 32, result text 280, rival line 90, epilogue line 140, rival log line 60. Pool event: title 32, text 280, rivals line 90.
-- Effect line shape, always: "Get: ... Cost: ... Rivals: ..." in that order, three sentences, same shape for both options. A boost to a rival is a Cost. No "but", "however" or "at least".
+- Effect line shape, always: "Get: ... Cost: ... Weather: ..." in that order, three sentences, same shape for both options. A boost to a house (its weather lands harder or comes sooner) is a Cost. No "but", "however" or "at least".
 - Option buttons are two verb phrases of nearly equal length (within 5 characters). No verdict words in any chain text: good, bad, right, wrong, fair, unfair, safe, risky, bold, kind, cruel, open, closed, quiet, polite, late, long, short, small, big, plain, clean. A text never says what an option shows about the player.
-- Rivals: always by name or by a placeholder ({bot1} Harrow Combine, {bot2} Velvet Concord, {bot3} Ostrel Syndicate, {bot} the marked bot of the option). Never "bot" or "AI" in player text.
-- Rival lines: "<Bot>, <Market>: strength down a little." or "growth up clearly." For a tier cut: "<Bot>, <Market>: {cut_std}." The Competitors log uses "{bot}: {market} strength down" and the like (LBL_COMP_MOVE_*).
-- Size words: a little (small), clearly (medium), sharply (large, rivals only). Durations: for a few cycles (2 to 3), for a while (4 to 8), for the rest of the run. Credits and tech units come only from {cash_in}, {cash_out} and {n}.
-- New placeholders: {bot}, {bot1}, {bot2}, {bot3}, {cash_in}, {cash_out}, {cut}, {cut_std}, {get}, {cost}, {rivals}, {market}, {workshop}, {share}, {bots}. Documented in story/events.md, section "Chain placeholders".
-- Terms: Rivals (the three other companies); Competitors (the menu that lists them and their recent moves); the Atelier, the Smelter, the Munitions Line, the Culture Lab (workshops; capitalised as names, lower case in running text). Not "Standings" in player text; the old working name is retired.
+- Houses: always by name or by a placeholder ({bot1} Harrow Combine, {bot2} Velvet Concord, {bot3} Ostrel Syndicate, {bot} the marked house of the option). Never "bot" or "AI" in player text.
+- House lines: "<House>: next weather lands a little softer." or "comes a little later." For a held-back cut: "<House>: {cut_std}." The house weather log uses "{bot}: next weather lands softer" and the like (LBL_COMP_MOVE_*).
+- Size words: a little (small), clearly (medium), sharply (large, house weather only). Durations: for a few cycles (2 to 3), for a while (4 to 8), for the rest of the run. Credits and tech units come only from {cash_in}, {cash_out} and {n}.
+- New placeholders: {bot}, {bot1}, {bot2}, {bot3}, {cash_in}, {cash_out}, {cut}, {cut_std}, {get}, {cost}, {rivals} (filled with the Weather part), {market}, {workshop}, {share}, {bots}, and from T287 {house}, {weather}, {pct}. Documented in story/events.md, section "Chain placeholders".
+- Terms: House weather (the menu that lists the three houses and their recent weather; was Competitors); the Atelier, the Smelter, the Munitions Line, the Culture Lab (workshops; capitalised as names, lower case in running text). Not "Standings" in player text; the old working name is retired.
 
 ### Pathfinder, posts and platforms (added 2026-11-05, T181, pending T179)
 - Pathfinder: the scout the player flies. Not part of the fleet, no cargo, no upkeep. Name stays Latin in Russian.
@@ -136,3 +136,10 @@ The player is "you" or "the company". Never a gender, never a name.
 - Boost: a short burst of speed that burns energy from the hold.
 - Gig board: the list of open offers. Gig kinds: Signal (story) and Rush order (a world wants a good before a deadline). ETA: flight time in cycles. Deadline: cycles left. Premium: credits paid on delivery.
 - Rush text tokens: {planet} and {commodity} only; the game fills {commodity} with a visible good.
+
+
+### Houses as weather (added 2026-11-06, T287)
+- Weather: what a house sends to a world. Flood (Harrow Combine): a world's sell price for a good dips for some cycles. Shortage (Velvet Concord): a world needs more of a good, hunger rises and it pays more. Congestion (Ostrel Syndicate): trip cost rises on lanes at one world or a system exit.
+- Convoy: a tinted house ship that flies to the world before its weather lands. It is the forecast. Forecast skills add cycles of warning. Soften skills make weather on your worlds and lanes weaker.
+- Chain effects: a choice can delay or soften a house's next weather, or make it come sooner or land harder. Words: "lands softer", "lands harder", "comes later", "comes sooner", "held back". Never beat, cut down, weaken or hurt a house.
+- Face (mood): a world's warm, plain or cold face. Labels Warm face, Plain face, Cold face. It never changes price, tax or growth. Retired in player text: Competitors, share as a goal word, Rivals.

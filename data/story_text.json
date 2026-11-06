@@ -21,7 +21,7 @@
   },
   {
    "id": "SCR_PREFACE",
-   "text": "Everything under this sky is shared. The air, the ducts, the hulls that creak like something asleep, and every credit anyone earns, which goes into the Common Ledger and comes back in portions. The Plan is generous. It is also five cycles long, and then another five.\n\nFour markets: Military, Luxury, Minerals, Biotech. Each has rivals, and the Plan counts every share each cycle. Hold over half of one market and the count stops being a rumour.\n\nSo you have a small company, one ship's worth of cash, three planets and two goods. Buy where it is cheap. Sell where it is not. Serving the common good is encouraged. Profit, officially, is a typing error.\n\nWhat it costs the sky, the sky does not say.",
+   "text": "Everything under this sky is shared. The air, the ducts, the hulls that creak like something asleep, and every credit anyone earns, which goes into the Common Ledger and comes back in portions. The Plan is generous. It is also five cycles long, and then another five.\n\nFour markets: Military, Luxury, Minerals, Biotech. Three houses send weather, and the Plan counts every share. Hold over half of one market and the count stops being a rumour.\n\nSo you have a small company, one ship's worth of cash, three planets and two goods. Buy where it is cheap. Sell where it is not. Serving the common good is encouraged. Profit, officially, is a typing error.\n\nWhat it costs the sky, the sky does not say.",
    "max": 700,
    "place": "Preface screen"
   },
@@ -411,7 +411,7 @@
   },
   {
    "id": "TUT_C4_FREE",
-   "text": "That is the basics. Now take over half of one market. Watch Competitors.",
+   "text": "That is the basics. Now take over half of one market. Watch for house convoys.",
    "max": 110,
    "place": "Cycle 4, end of tutorial"
   },
@@ -1023,7 +1023,7 @@
   },
   {
    "id": "TUT_G10_DONE_WHY",
-   "text": "Open Competitors to see shares. Market chain choices change your rivals.",
+   "text": "Open House weather to see convoys on their way. Chain choices can soften a house's weather.",
    "max": 110,
    "place": "Guided step, why it matters (second line of the card)"
   },
@@ -1755,21 +1755,21 @@
   },
   {
    "id": "LBL_COMP_TITLE",
-   "text": "Competitors",
+   "text": "House weather",
    "max": 24,
-   "place": "Competitors menu heading, game menu entry and share panel button"
+   "place": "House weather menu heading, game menu entry and panel button (was Competitors)"
   },
   {
    "id": "LBL_COMP_SHARE",
-   "text": "Share",
+   "text": "Next weather",
    "max": 24,
-   "place": "Competitors table column, current market share"
+   "place": "House weather table column, what the house sends next"
   },
   {
    "id": "LBL_COMP_TREND",
-   "text": "Last 5 cycles",
+   "text": "Recent weather",
    "max": 24,
-   "place": "Competitors table column, change over the last 5 cycles"
+   "place": "House weather table column, the last weather the house sent"
   },
   {
    "id": "SK_TAB_FND",
@@ -1851,7 +1851,7 @@
   },
   {
    "id": "MKT_MIL_ID",
-   "text": "Steady buyers and big volume. The only market where you can hit a rival directly.",
+   "text": "Steady buyers and big volume. Some of its skills soften house weather.",
    "max": 110,
    "place": "Market identity line, tab tooltip or Competitors panel"
   },
@@ -1971,7 +1971,7 @@
   },
   {
    "id": "EV_MIL_A1_OPA_EFF",
-   "text": "Get: Military volume up a little for a while. Cost: {cash_out} credits as the deposit to the garrison. Rivals: {bot1}'s Military growth falls a little.",
+   "text": "Get: Military volume up a little for a while. Cost: {cash_out} credits as the deposit to the garrison. Weather: {bot1}'s next weather comes a little later.",
    "max": 200,
    "place": "MIL_A1 effect line, opt_a"
   },
@@ -1983,15 +1983,15 @@
   },
   {
    "id": "EV_MIL_A1_OPA_RES",
-   "text": "Sulo signed with a seal and kept {bot} as a second source, on probation. Orders now come on a schedule and the deposit cost you credits, so Military volume rises for a while. {bot}'s Military growth falls a little. Each crate is read a litany on the dock, and one rattled.",
+   "text": "Sulo signed with a seal and kept {bot} as a second source, on probation. Orders now come on a schedule and the deposit cost you credits, so Military volume rises for a while. {bot}'s next weather comes a little later. Each crate is read a litany on the dock, and one rattled.",
    "max": 280,
    "place": "MIL_A1 result popup, opt_a; {bot} is bot_1"
   },
   {
    "id": "EV_MIL_A1_OPA_STD",
-   "text": "{bot1}, Military: growth down a little.",
+   "text": "{bot1}: next weather comes a little later.",
    "max": 90,
-   "place": "MIL_A1 rival line 1, opt_a"
+   "place": "MIL_A1 house line 1, opt_a"
   },
   {
    "id": "EV_MIL_A1_OPB_BTN",
@@ -2001,7 +2001,7 @@
   },
   {
    "id": "EV_MIL_A1_OPB_EFF",
-   "text": "Get: {cash_in} credits now. Cost: Military volume down a little for a few cycles; {bot3} gains a little Military strength. Rivals: {bot1}'s Military strength falls a little.",
+   "text": "Get: {cash_in} credits now. Cost: Military volume down a little for a few cycles; {bot3}'s next weather lands a little harder. Weather: {bot1}'s next weather lands a little softer.",
    "max": 200,
    "place": "MIL_A1 effect line, opt_b"
   },
@@ -2013,21 +2013,21 @@
   },
   {
    "id": "EV_MIL_A1_OPB_RES",
-   "text": "Sulo counted the cargo against the estimate and paid cash at the dock. Your own orders dip for a few cycles while the berth stands empty. {bot3} takes the berth and gains a little Military strength. {bot}, found with its painted ballast, sees its Military strength fall a little.",
+   "text": "Sulo counted the cargo against the estimate and paid cash at the dock. Your own orders dip for a few cycles while the berth stands empty. {bot3}'s next weather lands a little harder. {bot}, found with its painted ballast, sees its next weather land a little softer.",
    "max": 280,
    "place": "MIL_A1 result popup, opt_b; {bot} is bot_1"
   },
   {
    "id": "EV_MIL_A1_OPB_STD",
-   "text": "{bot1}, Military: strength down a little.",
+   "text": "{bot1}: next weather lands a little softer.",
    "max": 90,
-   "place": "MIL_A1 rival line 1, opt_b"
+   "place": "MIL_A1 house line 1, opt_b"
   },
   {
    "id": "EV_MIL_A1_OPB_STD2",
-   "text": "{bot3}, Military: strength up a little.",
+   "text": "{bot3}: next weather lands a little harder.",
    "max": 90,
-   "place": "MIL_A1 rival line 2, opt_b"
+   "place": "MIL_A1 house line 2, opt_b"
   },
   {
    "id": "EV_MIL_A2_TITLE",
@@ -2055,7 +2055,7 @@
   },
   {
    "id": "EV_MIL_A2_OPA_EFF",
-   "text": "Get: Military price up a little for a while. Cost: Ship upkeep rises a little for a while. Rivals: {bot3}'s Military growth falls a little.",
+   "text": "Get: Military price up a little for a while. Cost: Ship upkeep rises a little for a while. Weather: {bot3}'s next weather comes a little later.",
    "max": 200,
    "place": "MIL_A2 effect line, opt_a"
   },
@@ -2067,15 +2067,15 @@
   },
   {
    "id": "EV_MIL_A2_OPA_RES",
-   "text": "Orders went out in dock order, and each fleet was told the other had waited longer. The bidding lifts Military prices a little for a while, and two sets of berths raise Ship upkeep a little. {bot}, the go-between, is one messenger too many: its Military growth falls a little.",
+   "text": "Orders went out in dock order, and each fleet was told the other had waited longer. The bidding lifts Military prices a little for a while, and two sets of berths raise Ship upkeep a little. {bot}, the go-between, is one messenger too many: its next weather comes a little later.",
    "max": 280,
    "place": "MIL_A2 result popup, opt_a; {bot} is bot_3"
   },
   {
    "id": "EV_MIL_A2_OPA_STD",
-   "text": "{bot3}, Military: growth down a little.",
+   "text": "{bot3}: next weather comes a little later.",
    "max": 90,
-   "place": "MIL_A2 rival line 1, opt_a"
+   "place": "MIL_A2 house line 1, opt_a"
   },
   {
    "id": "EV_MIL_A2_OPB_BTN",
@@ -2085,7 +2085,7 @@
   },
   {
    "id": "EV_MIL_A2_OPB_EFF",
-   "text": "Get: {n} units of tech progress at the Munitions Line. Cost: {cash_out} credits for the stock. Rivals: {bot1} {cut} in Military.",
+   "text": "Get: {n} units of tech progress at the Munitions Line. Cost: {cash_out} credits for the stock. Weather: {bot1} {cut}.",
    "max": 200,
    "place": "MIL_A2 effect line, opt_b"
   },
@@ -2097,15 +2097,15 @@
   },
   {
    "id": "EV_MIL_A2_OPB_RES",
-   "text": "Orders went out by term. The fleet {bot1} does not serve held better terms. Its engineers left notes, and your engineer Tavi Brask read them to the press. Tech progress came in at the Munitions Line. {bot}'s client fell behind, so {bot} was cut back. The stock cost credits.",
+   "text": "Orders went out by term. The fleet {bot1} does not serve held better terms. Its engineers left notes, and your engineer Tavi Brask read them to the press. Tech progress came in. {bot}'s client fell behind, so {bot}'s next weather is held back. The stock cost credits.",
    "max": 280,
    "place": "MIL_A2 result popup, opt_b; {bot} is bot_1"
   },
   {
    "id": "EV_MIL_A2_OPB_STD",
-   "text": "{bot1}, Military: {cut_std}.",
+   "text": "{bot1}: {cut_std}.",
    "max": 90,
-   "place": "MIL_A2 rival line 1, opt_b"
+   "place": "MIL_A2 house line 1, opt_b"
   },
   {
    "id": "EV_MIL_A3_TITLE",
@@ -2133,7 +2133,7 @@
   },
   {
    "id": "EV_MIL_A3_OPA_EFF",
-   "text": "Get: {cash_in} credits; Military volume up a little for a while. Cost: Ship upkeep up a little for a while; {bot3} gains a little Military strength. Rivals: {bot1}'s Military strength falls clearly.",
+   "text": "Get: {cash_in} credits; Military volume up a little for a while. Cost: Ship upkeep up a little for a while; {bot3}'s weather lands a little harder. Weather: {bot1}'s next weather lands clearly softer.",
    "max": 200,
    "place": "MIL_A3 effect line, opt_a"
   },
@@ -2145,21 +2145,21 @@
   },
   {
    "id": "EV_MIL_A3_OPA_RES",
-   "text": "Your buyers read the ledger aloud and called on every client it listed. Cash came in and orders rose, and the extra hulls raise Ship upkeep a little for a while. {bot}'s Military strength falls clearly. Sulo sold a second copy to {bot3}, whose Military strength rises a little.",
+   "text": "Your buyers read the ledger aloud and called on every client it listed. Cash came in and orders rose, and the extra hulls raise Ship upkeep a little for a while. {bot}'s next weather lands clearly softer. Sulo sold a second copy to {bot3}, whose weather lands a little harder.",
    "max": 280,
    "place": "MIL_A3 result popup, opt_a; {bot} is bot_1"
   },
   {
    "id": "EV_MIL_A3_OPA_STD",
-   "text": "{bot1}, Military: strength down clearly.",
+   "text": "{bot1}: next weather lands clearly softer.",
    "max": 90,
-   "place": "MIL_A3 rival line 1, opt_a"
+   "place": "MIL_A3 house line 1, opt_a"
   },
   {
    "id": "EV_MIL_A3_OPA_STD2",
-   "text": "{bot3}, Military: strength up a little.",
+   "text": "{bot3}: next weather lands a little harder.",
    "max": 90,
-   "place": "MIL_A3 rival line 2, opt_a"
+   "place": "MIL_A3 house line 2, opt_a"
   },
   {
    "id": "EV_MIL_A3_OPB_BTN",
@@ -2169,7 +2169,7 @@
   },
   {
    "id": "EV_MIL_A3_OPB_EFF",
-   "text": "Get: {n} units of tech progress at the Munitions Line. Cost: {cash_out} credits to the quartermaster. Rivals: {bot1}'s Military strength and {bot3}'s Military growth fall a little.",
+   "text": "Get: {n} units of tech progress at the Munitions Line. Cost: {cash_out} credits to the quartermaster. Weather: {bot1}'s next weather lands a little softer, and {bot3}'s comes a little later.",
    "max": 200,
    "place": "MIL_A3 effect line, opt_b"
   },
@@ -2181,21 +2181,21 @@
   },
   {
    "id": "EV_MIL_A3_OPB_RES",
-   "text": "Your workshop set the ledger's parts and casting notes beside your own. Tech progress came in at the Munitions Line, and Sulo's price cost credits. {bot}'s Military strength falls a little, and {bot3}, whose orders were listed too, grows more slowly. Brask thanked the book.",
+   "text": "Your workshop set the ledger's parts and casting notes beside your own. Tech progress came in at the Munitions Line, and Sulo's price cost credits. {bot}'s next weather lands a little softer, and {bot3}, listed too, sends its next weather a little later. Brask thanked the book.",
    "max": 280,
    "place": "MIL_A3 result popup, opt_b; {bot} is bot_1"
   },
   {
    "id": "EV_MIL_A3_OPB_STD",
-   "text": "{bot1}, Military: strength down a little.",
+   "text": "{bot1}: next weather lands a little softer.",
    "max": 90,
-   "place": "MIL_A3 rival line 1, opt_b"
+   "place": "MIL_A3 house line 1, opt_b"
   },
   {
    "id": "EV_MIL_A3_OPB_STD2",
-   "text": "{bot3}, Military: growth down a little.",
+   "text": "{bot3}: next weather comes a little later.",
    "max": 90,
-   "place": "MIL_A3 rival line 2, opt_b"
+   "place": "MIL_A3 house line 2, opt_b"
   },
   {
    "id": "EV_MIL_B1_TITLE",
@@ -2217,7 +2217,7 @@
   },
   {
    "id": "EV_MIL_B1_OPA_EFF",
-   "text": "Get: {cash_in} credits now. Cost: Ship upkeep rises clearly for a while. Rivals: {bot1}'s Military strength falls sharply.",
+   "text": "Get: {cash_in} credits now. Cost: Ship upkeep rises clearly for a while. Weather: {bot1}'s next weather lands sharply softer.",
    "max": 200,
    "place": "MIL_B1 effect line, opt_a"
   },
@@ -2229,15 +2229,15 @@
   },
   {
    "id": "EV_MIL_B1_OPA_RES",
-   "text": "You sent the order, the price list and the cousin's name to the Bureau. It paid an informant's fee and froze half the refit berths for audit. Your ships stand in queues, so Ship upkeep rises for a while. {bot}'s Military strength falls sharply: the scheme ran on its berths.",
+   "text": "You sent the order, the price list and the cousin's name to the Bureau. It paid an informant's fee and froze half the refit berths for audit. Your ships stand in queues, so Ship upkeep rises for a while. {bot}'s next weather lands sharply softer: the scheme ran on its berths.",
    "max": 280,
    "place": "MIL_B1 result popup, opt_a; {bot} is bot_1"
   },
   {
    "id": "EV_MIL_B1_OPA_STD",
-   "text": "{bot1}, Military: strength down sharply.",
+   "text": "{bot1}: next weather lands sharply softer.",
    "max": 90,
-   "place": "MIL_B1 rival line 1, opt_a"
+   "place": "MIL_B1 house line 1, opt_a"
   },
   {
    "id": "EV_MIL_B1_OPB_BTN",
@@ -2247,7 +2247,7 @@
   },
   {
    "id": "EV_MIL_B1_OPB_EFF",
-   "text": "Get: Military volume up a little for the rest of the run. Cost: {cash_out} credits for the slips. Rivals: {bot3}'s Military growth falls a little.",
+   "text": "Get: Military volume up a little for the rest of the run. Cost: {cash_out} credits for the slips. Weather: {bot3}'s next weather comes a little later.",
    "max": 200,
    "place": "MIL_B1 effect line, opt_b"
   },
@@ -2259,15 +2259,15 @@
   },
   {
    "id": "EV_MIL_B1_OPB_RES",
-   "text": "You paid for the sensors and fitted every ship. The admiral's lanes now list you as trusted, so your Military volume rises for the rest of the run. {bot}'s own sensors were turned away, and its Military growth falls a little. The new sensors hum a canticle no list names.",
+   "text": "You paid for the sensors and fitted every ship. The admiral's lanes now list you as trusted, so your Military volume rises for the rest of the run. {bot}'s own sensors were turned away, and its next weather comes a little later. The new sensors hum a canticle no list names.",
    "max": 280,
    "place": "MIL_B1 result popup, opt_b; {bot} is bot_3"
   },
   {
    "id": "EV_MIL_B1_OPB_STD",
-   "text": "{bot3}, Military: growth down a little.",
+   "text": "{bot3}: next weather comes a little later.",
    "max": 90,
-   "place": "MIL_B1 rival line 1, opt_b"
+   "place": "MIL_B1 house line 1, opt_b"
   },
   {
    "id": "EV_MIL_B2_TITLE",
@@ -2295,7 +2295,7 @@
   },
   {
    "id": "EV_MIL_B2_OPA_EFF",
-   "text": "Get: Military price up a little for a while. Cost: one route's trip cost rises a little for a while. Rivals: {bot2}'s Military strength falls a little.",
+   "text": "Get: Military price up a little for a while. Cost: one route's trip cost rises a little for a while. Weather: {bot2}'s next weather lands a little softer.",
    "max": 200,
    "place": "MIL_B2 effect line, opt_a"
   },
@@ -2307,15 +2307,15 @@
   },
   {
    "id": "EV_MIL_B2_OPA_RES",
-   "text": "The relay went for review. Voss read your forms, then everyone's. {bot}, whose squadrons carry that relay, lost contracts, and its Military strength falls a little. The cleared stamp lifts Military prices for a while. One route sat in customs, and its trip cost rises a little.",
+   "text": "The relay went for review. Voss read your forms, then everyone's. {bot}, whose squadrons carry that relay, lost contracts, and its next weather lands a little softer. The cleared stamp lifts Military prices for a while. One route sat in customs, and its trip cost rises a little.",
    "max": 280,
    "place": "MIL_B2 result popup, opt_a; {bot} is bot_2"
   },
   {
    "id": "EV_MIL_B2_OPA_STD",
-   "text": "{bot2}, Military: strength down a little.",
+   "text": "{bot2}: next weather lands a little softer.",
    "max": 90,
-   "place": "MIL_B2 rival line 1, opt_a"
+   "place": "MIL_B2 house line 1, opt_a"
   },
   {
    "id": "EV_MIL_B2_OPB_BTN",
@@ -2325,7 +2325,7 @@
   },
   {
    "id": "EV_MIL_B2_OPB_EFF",
-   "text": "Get: {cash_in} credits for the old part. Cost: Military volume down a little for a few cycles. Rivals: {bot1}'s Military strength falls a little.",
+   "text": "Get: {cash_in} credits for the old part. Cost: Military volume down a little for a few cycles. Weather: {bot1}'s next weather lands a little softer.",
    "max": 200,
    "place": "MIL_B2 effect line, opt_b"
   },
@@ -2337,15 +2337,15 @@
   },
   {
    "id": "EV_MIL_B2_OPB_RES",
-   "text": "You swapped the relay and refiled. The old part sold for credits, still humming its dead ship's litany. Voss applied the same clause to {bot1}'s older fleets, which stood idle, so {bot}'s Military strength falls a little. Ships waited, and Military volume dips for a few cycles.",
+   "text": "You swapped the relay and refiled. The old part sold for credits, still humming its dead ship's litany. Voss applied the same clause to {bot1}'s older fleets, which stood idle, so {bot}'s next weather lands a little softer. Ships waited, and Military volume dips for a few cycles.",
    "max": 280,
    "place": "MIL_B2 result popup, opt_b; {bot} is bot_1"
   },
   {
    "id": "EV_MIL_B2_OPB_STD",
-   "text": "{bot1}, Military: strength down a little.",
+   "text": "{bot1}: next weather lands a little softer.",
    "max": 90,
-   "place": "MIL_B2 rival line 1, opt_b"
+   "place": "MIL_B2 house line 1, opt_b"
   },
   {
    "id": "EV_MIL_B3_TITLE",
@@ -2373,7 +2373,7 @@
   },
   {
    "id": "EV_MIL_B3_OPA_EFF",
-   "text": "Get: Military volume up a little for a while. Cost: {cash_out} credits for the main hall. Rivals: {bot3}'s Military strength falls clearly.",
+   "text": "Get: Military volume up a little for a while. Cost: {cash_out} credits for the main hall. Weather: {bot3}'s next weather lands clearly softer.",
    "max": 200,
    "place": "MIL_B3 effect line, opt_a"
   },
@@ -2385,15 +2385,15 @@
   },
   {
    "id": "EV_MIL_B3_OPA_RES",
-   "text": "You bought the hall for the week, and it cost credits. Buyers walked past empty stands to reach yours, so your Military volume rises for a while. {bot} sold from the corridor, and its Military strength falls clearly. The relic cannon, which fires blanks only, saluted you.",
+   "text": "You bought the hall for the week, and it cost credits. Buyers walked past empty stands to reach yours, so your Military volume rises for a while. {bot} sold from the corridor, and its next weather lands clearly softer. The relic cannon, which fires blanks only, saluted you.",
    "max": 280,
    "place": "MIL_B3 result popup, opt_a; {bot} is bot_3"
   },
   {
    "id": "EV_MIL_B3_OPA_STD",
-   "text": "{bot3}, Military: strength down clearly.",
+   "text": "{bot3}: next weather lands clearly softer.",
    "max": 90,
-   "place": "MIL_B3 rival line 1, opt_a"
+   "place": "MIL_B3 house line 1, opt_a"
   },
   {
    "id": "EV_MIL_B3_OPB_BTN",
@@ -2403,7 +2403,7 @@
   },
   {
    "id": "EV_MIL_B3_OPB_EFF",
-   "text": "Get: {n} units of tech progress. Cost: {cash_out} credits for the stand. Rivals: {bot2}'s strength and all three rivals' growth fall a little in Military.",
+   "text": "Get: {n} units of tech progress. Cost: {cash_out} credits for the stand. Weather: {bot2}'s next weather lands a little softer, and all three houses' next weather comes a little later.",
    "max": 200,
    "place": "MIL_B3 effect line, opt_b"
   },
@@ -2415,21 +2415,21 @@
   },
   {
    "id": "EV_MIL_B3_OPB_RES",
-   "text": "You took the east stand beside {bot3}'s and paid on the day. Two engineers from the next stand talked shop for an hour, and tech progress came in. {bot2}, whose gala crowd walked past, loses a little Military strength, and all three rivals, {bot} among them, grow more slowly.",
+   "text": "You took the east stand beside {bot3}'s and paid on the day. Two engineers from the next stand talked shop, and tech progress came in. {bot2}, whose gala crowd walked past, gets a little softer weather, and all three houses, {bot} among them, send theirs a little later.",
    "max": 280,
    "place": "MIL_B3 result popup, opt_b; {bot} is bot_1"
   },
   {
    "id": "EV_MIL_B3_OPB_STD",
-   "text": "All three rivals, Military: growth down a little.",
+   "text": "All three houses: next weather comes a little later.",
    "max": 90,
-   "place": "MIL_B3 rival line 1, opt_b"
+   "place": "MIL_B3 house line 1, opt_b"
   },
   {
    "id": "EV_MIL_B3_OPB_STD2",
-   "text": "{bot2}, Military: strength down a little.",
+   "text": "{bot2}: next weather lands a little softer.",
    "max": 90,
-   "place": "MIL_B3 rival line 2, opt_b"
+   "place": "MIL_B3 house line 2, opt_b"
   },
   {
    "id": "EV_MIL_B4_TITLE",
@@ -2457,7 +2457,7 @@
   },
   {
    "id": "EV_MIL_B4_OPA_EFF",
-   "text": "Get: Military price up a little for a while. Cost: Military volume down a little for a while. Rivals: {bot1}'s Military strength falls clearly.",
+   "text": "Get: Military price up a little for a while. Cost: Military volume down a little for a while. Weather: {bot1}'s next weather lands clearly softer.",
    "max": 200,
    "place": "MIL_B4 effect line, opt_a"
   },
@@ -2469,15 +2469,15 @@
   },
   {
    "id": "EV_MIL_B4_OPA_RES",
-   "text": "Deliveries are rostered by garrison, each with its own price sheet and blessing. Military orders thinned for a while as the rosters were written, and the price of standing orders rose. {bot} had counted on the fleets as its client, and its Military strength falls clearly.",
+   "text": "Deliveries are rostered by garrison, each with its own price sheet and blessing. Military orders thinned for a while as the rosters were written, and the price of standing orders rose. {bot} had counted on the fleets as its client, and its next weather lands clearly softer.",
    "max": 280,
    "place": "MIL_B4 result popup, opt_a; {bot} is bot_1"
   },
   {
    "id": "EV_MIL_B4_OPA_STD",
-   "text": "{bot1}, Military: strength down clearly.",
+   "text": "{bot1}: next weather lands clearly softer.",
    "max": 90,
-   "place": "MIL_B4 rival line 1, opt_a"
+   "place": "MIL_B4 house line 1, opt_a"
   },
   {
    "id": "EV_MIL_B4_OPB_BTN",
@@ -2487,7 +2487,7 @@
   },
   {
    "id": "EV_MIL_B4_OPB_EFF",
-   "text": "Get: {cash_in} credits. Cost: Ship upkeep rises clearly for a while. Rivals: {bot1}'s Military strength falls clearly; {bot3}'s falls a little.",
+   "text": "Get: {cash_in} credits. Cost: Ship upkeep rises clearly for a while. Weather: {bot1}'s next weather lands clearly softer; {bot3}'s lands a little softer.",
    "max": 200,
    "place": "MIL_B4 effect line, opt_b"
   },
@@ -2499,21 +2499,21 @@
   },
   {
    "id": "EV_MIL_B4_OPB_RES",
-   "text": "Deliveries are rostered by week from your desk, and the fleets are held ready. A large payment arrived, and the clerk blessed the roster with a stamp. Ships kept ready cost more, so Ship upkeep rises for a while. {bot}'s Military strength falls clearly, and {bot3}'s a little.",
+   "text": "Deliveries are rostered by week from your desk, and the fleets are held ready. A large payment arrived, and the clerk stamped the roster. Ships kept ready cost more, so Ship upkeep rises for a while. {bot}'s next weather lands clearly softer, and {bot3}'s lands a little softer.",
    "max": 280,
    "place": "MIL_B4 result popup, opt_b; {bot} is bot_1"
   },
   {
    "id": "EV_MIL_B4_OPB_STD",
-   "text": "{bot1}, Military: strength down clearly.",
+   "text": "{bot1}: next weather lands clearly softer.",
    "max": 90,
-   "place": "MIL_B4 rival line 1, opt_b"
+   "place": "MIL_B4 house line 1, opt_b"
   },
   {
    "id": "EV_MIL_B4_OPB_STD2",
-   "text": "{bot3}, Military: strength down a little.",
+   "text": "{bot3}: next weather lands a little softer.",
    "max": 90,
-   "place": "MIL_B4 rival line 2, opt_b"
+   "place": "MIL_B4 house line 2, opt_b"
   },
   {
    "id": "EV_LUX_A1_TITLE",
@@ -2535,7 +2535,7 @@
   },
   {
    "id": "EV_LUX_A1_OPA_EFF",
-   "text": "Get: Luxury price up a little for a while. Cost: Luxury volume down a little for a while. Rivals: {bot2}'s Luxury strength falls a little.",
+   "text": "Get: Luxury price up a little for a while. Cost: Luxury volume down a little for a while. Weather: {bot2}'s next weather lands a little softer.",
    "max": 200,
    "place": "LUX_A1 effect line, opt_a"
   },
@@ -2547,15 +2547,15 @@
   },
   {
    "id": "EV_LUX_A1_OPA_RES",
-   "text": "Madame Marr agreed a first-pick price, and crates now go to the gallery ring before the shelves. Fewer reach the counters, so Luxury volume dips for a while, and prices rise a little. {bot} lost her first look, and its Luxury strength falls a little. She sniffed every lid.",
+   "text": "Madame Marr agreed a first-pick price, and crates now go to the gallery ring before the shelves. Fewer reach the counters, so Luxury volume dips for a while, and prices rise a little. {bot} lost her first look, and its next weather lands a little softer. She sniffed every lid.",
    "max": 280,
    "place": "LUX_A1 result popup, opt_a; {bot} is bot_2"
   },
   {
    "id": "EV_LUX_A1_OPA_STD",
-   "text": "{bot2}, Luxury: strength down a little.",
+   "text": "{bot2}: next weather lands a little softer.",
    "max": 90,
-   "place": "LUX_A1 rival line 1, opt_a"
+   "place": "LUX_A1 house line 1, opt_a"
   },
   {
    "id": "EV_LUX_A1_OPB_BTN",
@@ -2565,7 +2565,7 @@
   },
   {
    "id": "EV_LUX_A1_OPB_EFF",
-   "text": "Get: {cash_in} credits now. Cost: Luxury volume down a little for a few cycles; {bot2} grows a little faster in Luxury. Rivals: {bot3}'s Luxury strength falls a little.",
+   "text": "Get: {cash_in} credits now. Cost: Luxury volume down a little for a few cycles; {bot2}'s next weather comes a little sooner. Weather: {bot3}'s next weather lands a little softer.",
    "max": 200,
    "place": "LUX_A1 effect line, opt_b"
   },
@@ -2577,21 +2577,21 @@
   },
   {
    "id": "EV_LUX_A1_OPB_RES",
-   "text": "Madame Marr paid for one first lot at the dock, and the cash arrived the same hour. Shelves stood bare for a few cycles. {bot2} supplied her next lot and grows a little faster in Luxury, while {bot} finds its counter on the ring emptier and its strength falls a little.",
+   "text": "Madame Marr paid for one first lot at the dock, and the cash arrived the same hour. Shelves stood bare for a few cycles. {bot2} supplied her next lot, so its weather comes a little sooner, while {bot} finds its counter on the ring emptier and its weather lands a little softer.",
    "max": 280,
    "place": "LUX_A1 result popup, opt_b; {bot} is bot_3"
   },
   {
    "id": "EV_LUX_A1_OPB_STD",
-   "text": "{bot3}, Luxury: strength down a little.",
+   "text": "{bot3}: next weather lands a little softer.",
    "max": 90,
-   "place": "LUX_A1 rival line 1, opt_b"
+   "place": "LUX_A1 house line 1, opt_b"
   },
   {
    "id": "EV_LUX_A1_OPB_STD2",
-   "text": "{bot2}, Luxury: growth up a little.",
+   "text": "{bot2}: next weather comes a little sooner.",
    "max": 90,
-   "place": "LUX_A1 rival line 2, opt_b"
+   "place": "LUX_A1 house line 2, opt_b"
   },
   {
    "id": "EV_LUX_A2_TITLE",
@@ -2619,7 +2619,7 @@
   },
   {
    "id": "EV_LUX_A2_OPA_EFF",
-   "text": "Get: {n} units of tech progress at the Atelier. Cost: {cash_out} credits in fees. Rivals: {bot2}'s Luxury growth falls sharply.",
+   "text": "Get: {n} units of tech progress at the Atelier. Cost: {cash_out} credits in fees. Weather: {bot2}'s next weather comes sharply later.",
    "max": 200,
    "place": "LUX_A2 effect line, opt_a"
   },
@@ -2631,15 +2631,15 @@
   },
   {
    "id": "EV_LUX_A2_OPA_RES",
-   "text": "Vask took a bench in your atelier and showed the crew a cut they had not seen. Tech progress came in, and the fees were paid. {bot} had planned his hands for its gem room, and its Luxury growth falls sharply. His chalk marks are still on the old bench.",
+   "text": "Vask took a bench in your atelier and showed the crew a cut they had not seen. Tech progress came in, and the fees were paid. {bot} had planned his hands for its gem room, and its next weather comes sharply later. His chalk marks are still on the old bench.",
    "max": 280,
    "place": "LUX_A2 result popup, opt_a; {bot} is bot_2"
   },
   {
    "id": "EV_LUX_A2_OPA_STD",
-   "text": "{bot2}, Luxury: growth down sharply.",
+   "text": "{bot2}: next weather comes sharply later.",
    "max": 90,
-   "place": "LUX_A2 rival line 1, opt_a"
+   "place": "LUX_A2 house line 1, opt_a"
   },
   {
    "id": "EV_LUX_A2_OPB_BTN",
@@ -2649,7 +2649,7 @@
   },
   {
    "id": "EV_LUX_A2_OPB_EFF",
-   "text": "Get: Luxury volume up a little for the rest of the run. Cost: Luxury price down a little for a few cycles. Rivals: {bot2} {cut} in Luxury.",
+   "text": "Get: Luxury volume up a little for the rest of the run. Cost: Luxury price down a little for a few cycles. Weather: {bot2} {cut}.",
    "max": 200,
    "place": "LUX_A2 effect line, opt_b"
   },
@@ -2661,19 +2661,19 @@
   },
   {
    "id": "EV_LUX_A2_OPB_RES",
-   "text": "Vask's pieces came to you on contract and fill your counters, priced a little low for a few cycles, so Luxury volume rises for the rest of the run. {bot} lost his work and was cut back in Luxury. The gems carry a hallmark in a hand nobody knows.",
+   "text": "Vask's pieces came to you on contract and fill your counters, priced a little low for a few cycles, so Luxury volume rises for the rest of the run. {bot} lost his work and has its next weather held back. The gems carry a hallmark in a hand nobody knows.",
    "max": 280,
    "place": "LUX_A2 result popup, opt_b; {bot} is bot_2"
   },
   {
    "id": "EV_LUX_A2_OPB_STD",
-   "text": "{bot2}, Luxury: {cut_std}.",
+   "text": "{bot2}: {cut_std}.",
    "max": 90,
-   "place": "LUX_A2 rival line 1, opt_b"
+   "place": "LUX_A2 house line 1, opt_b"
   },
   {
    "id": "EV_LUX_A3_TITLE",
-   "text": "A buyer returns a rival's batch",
+   "text": "A buyer returns a house's batch",
    "max": 40,
    "place": "LUX_A3 choice screen title"
   },
@@ -2697,7 +2697,7 @@
   },
   {
    "id": "EV_LUX_A3_OPA_EFF",
-   "text": "Get: Luxury price up clearly for a while. Cost: {cash_out} credits for the hallmarks. Rivals: {bot2}'s Luxury strength falls sharply for a few cycles.",
+   "text": "Get: Luxury price up clearly for a while. Cost: {cash_out} credits for the hallmarks. Weather: {bot2}'s next weather lands sharply softer for a few cycles.",
    "max": 200,
    "place": "LUX_A3 effect line, opt_a"
   },
@@ -2709,15 +2709,15 @@
   },
   {
    "id": "EV_LUX_A3_OPA_RES",
-   "text": "You filled the order under your own mark, and Lord Gale paid the premium. The hallmarks cost credits. {bot}, whose batch was sent back, loses Luxury strength sharply for a few cycles. The returned crates sit in his cellar, unopened, and he has not asked for a receipt.",
+   "text": "You filled the order under your own mark, and Lord Gale paid the premium. The hallmarks cost credits. {bot}, whose batch was sent back, sees its next weather land sharply softer for a few cycles. The returned crates sit in his cellar, unopened, and he has not asked for a receipt.",
    "max": 280,
    "place": "LUX_A3 result popup, opt_a; {bot} is bot_2"
   },
   {
    "id": "EV_LUX_A3_OPA_STD",
-   "text": "{bot2}, Luxury: strength down sharply for a few cycles.",
+   "text": "{bot2}: next weather lands sharply softer for a few cycles.",
    "max": 90,
-   "place": "LUX_A3 rival line 1, opt_a"
+   "place": "LUX_A3 house line 1, opt_a"
   },
   {
    "id": "EV_LUX_A3_OPB_BTN",
@@ -2727,7 +2727,7 @@
   },
   {
    "id": "EV_LUX_A3_OPB_EFF",
-   "text": "Get: Luxury volume up a little for a while. Cost: Luxury price down a little for a few cycles. Rivals: {bot3}'s Luxury strength falls a little.",
+   "text": "Get: Luxury volume up a little for a while. Cost: Luxury price down a little for a few cycles. Weather: {bot3}'s next weather lands a little softer.",
    "max": 200,
    "place": "LUX_A3 effect line, opt_b"
   },
@@ -2739,15 +2739,15 @@
   },
   {
    "id": "EV_LUX_A3_OPB_RES",
-   "text": "You filled the order for a place on Lord Gale's list, at a price a little low for a few cycles. His list sends its friends, so your orders rose for a while. {bot}, whose table stood by the door, loses a little Luxury strength. The list is written in green ink.",
+   "text": "You filled the order for a place on Lord Gale's list, at a price a little low for a few cycles. His list sends its friends, so your orders rose for a while. {bot}, whose table stood by the door, sees its next weather land a little softer. The list is written in green ink.",
    "max": 280,
    "place": "LUX_A3 result popup, opt_b; {bot} is bot_3"
   },
   {
    "id": "EV_LUX_A3_OPB_STD",
-   "text": "{bot3}, Luxury: strength down a little.",
+   "text": "{bot3}: next weather lands a little softer.",
    "max": 90,
-   "place": "LUX_A3 rival line 1, opt_b"
+   "place": "LUX_A3 house line 1, opt_b"
   },
   {
    "id": "EV_LUX_B1_TITLE",
@@ -2769,7 +2769,7 @@
   },
   {
    "id": "EV_LUX_B1_OPA_EFF",
-   "text": "Get: {cash_in} credits now. Cost: Luxury volume down a little for a while. Rivals: {bot2}'s Luxury growth falls a little.",
+   "text": "Get: {cash_in} credits now. Cost: Luxury volume down a little for a while. Weather: {bot2}'s next weather comes a little later.",
    "max": 200,
    "place": "LUX_B1 effect line, opt_a"
   },
@@ -2781,15 +2781,15 @@
   },
   {
    "id": "EV_LUX_B1_OPA_RES",
-   "text": "The venue bought its stock outright and paid on the night. Your own counters ran thin while the crates were gone, so Luxury volume dips for a while. {bot}'s cellar supply lost the date, and its Luxury growth falls a little. Every mask in the pavilion faced the door.",
+   "text": "The venue bought its stock outright and paid on the night. Your own counters ran thin while the crates were gone, so Luxury volume dips for a while. {bot}'s cellar supply lost the date, and its next weather comes a little later. Every mask in the pavilion faced the door.",
    "max": 280,
    "place": "LUX_B1 result popup, opt_a; {bot} is bot_2"
   },
   {
    "id": "EV_LUX_B1_OPA_STD",
-   "text": "{bot2}, Luxury: growth down a little.",
+   "text": "{bot2}: next weather comes a little later.",
    "max": 90,
-   "place": "LUX_B1 rival line 1, opt_a"
+   "place": "LUX_B1 house line 1, opt_a"
   },
   {
    "id": "EV_LUX_B1_OPB_BTN",
@@ -2799,7 +2799,7 @@
   },
   {
    "id": "EV_LUX_B1_OPB_EFF",
-   "text": "Get: Luxury volume up clearly for a while. Cost: {cash_out} credits for the stalls. Rivals: {bot2}'s Luxury strength falls clearly.",
+   "text": "Get: Luxury volume up clearly for a while. Cost: {cash_out} credits for the stalls. Weather: {bot2}'s next weather lands clearly softer.",
    "max": 200,
    "place": "LUX_B1 effect line, opt_b"
   },
@@ -2811,15 +2811,15 @@
   },
   {
    "id": "EV_LUX_B1_OPB_RES",
-   "text": "Your stalls stood in the pavilion all evening, and buyers came to them first. Your orders rose for a while, and the stalls cost credits. {bot} found its crates unwanted, and its Luxury strength falls clearly. A mask with nothing behind it hung on every pillar.",
+   "text": "Your stalls stood in the pavilion all evening, and buyers came to them first. Your orders rose for a while, and the stalls cost credits. {bot} found its crates unwanted, and its next weather lands clearly softer. A mask with nothing behind it hung on every pillar.",
    "max": 280,
    "place": "LUX_B1 result popup, opt_b; {bot} is bot_2"
   },
   {
    "id": "EV_LUX_B1_OPB_STD",
-   "text": "{bot2}, Luxury: strength down clearly.",
+   "text": "{bot2}: next weather lands clearly softer.",
    "max": 90,
-   "place": "LUX_B1 rival line 1, opt_b"
+   "place": "LUX_B1 house line 1, opt_b"
   },
   {
    "id": "EV_LUX_B2_TITLE",
@@ -2847,7 +2847,7 @@
   },
   {
    "id": "EV_LUX_B2_OPA_EFF",
-   "text": "Get: {n} units of tech progress at the Atelier. Cost: Luxury price down a little for a few cycles. Rivals: {bot2}'s Luxury strength falls a little; {bot3}'s growth falls sharply.",
+   "text": "Get: {n} units of tech progress at the Atelier. Cost: Luxury price down a little for a few cycles. Weather: {bot2}'s next weather lands a little softer; {bot3}'s comes sharply later.",
    "max": 200,
    "place": "LUX_B2 effect line, opt_a"
   },
@@ -2859,21 +2859,21 @@
   },
   {
    "id": "EV_LUX_B2_OPA_RES",
-   "text": "Your atelier read the names against the orders and learned which cuts the buyers asked for. Tech progress came in, and prices dipped a little for a few cycles as buyers saw your hand. {bot2}'s Luxury strength falls a little, and {bot}'s Luxury growth falls sharply.",
+   "text": "Your atelier read the names against the orders and learned which cuts the buyers asked for. Tech progress came in, and prices dipped a little for a few cycles as buyers saw your hand. {bot2}'s next weather lands a little softer, and {bot}'s next weather comes sharply later.",
    "max": 280,
    "place": "LUX_B2 result popup, opt_a; {bot} is bot_3"
   },
   {
    "id": "EV_LUX_B2_OPA_STD",
-   "text": "{bot3}, Luxury: growth down sharply.",
+   "text": "{bot3}: next weather comes sharply later.",
    "max": 90,
-   "place": "LUX_B2 rival line 1, opt_a"
+   "place": "LUX_B2 house line 1, opt_a"
   },
   {
    "id": "EV_LUX_B2_OPA_STD2",
-   "text": "{bot2}, Luxury: strength down a little.",
+   "text": "{bot2}: next weather lands a little softer.",
    "max": 90,
-   "place": "LUX_B2 rival line 2, opt_a"
+   "place": "LUX_B2 house line 2, opt_a"
   },
   {
    "id": "EV_LUX_B2_OPB_BTN",
@@ -2883,7 +2883,7 @@
   },
   {
    "id": "EV_LUX_B2_OPB_EFF",
-   "text": "Get: {cash_in} credits. Cost: Luxury price down a little for a few cycles; {bot2} gains Luxury strength clearly. Rivals: {bot2} {cut} in Luxury.",
+   "text": "Get: {cash_in} credits. Cost: Luxury price down a little for a few cycles; {bot2}'s next weather lands clearly harder. Weather: {bot2} {cut}.",
    "max": 200,
    "place": "LUX_B2 effect line, opt_b"
   },
@@ -2895,21 +2895,21 @@
   },
   {
    "id": "EV_LUX_B2_OPB_RES",
-   "text": "You sold your copy to the table that offered most, and the cash came in. {bot} was the buyer and gains Luxury strength clearly, though its own name stood on the list, so it is cut back too. Prices dipped a little for a few cycles. A pale square marks the wall.",
+   "text": "You sold your copy to the table that offered most, and the cash came in. {bot} was the buyer, so its next weather lands clearly harder, though its own name stood on the list, so it is held back too. Prices dipped a little for a few cycles. A pale square marks the wall.",
    "max": 280,
    "place": "LUX_B2 result popup, opt_b; {bot} is bot_2"
   },
   {
    "id": "EV_LUX_B2_OPB_STD",
-   "text": "{bot2}, Luxury: {cut_std}.",
+   "text": "{bot2}: {cut_std}.",
    "max": 90,
-   "place": "LUX_B2 rival line 1, opt_b"
+   "place": "LUX_B2 house line 1, opt_b"
   },
   {
    "id": "EV_LUX_B2_OPB_STD2",
-   "text": "{bot2}, Luxury: strength up clearly.",
+   "text": "{bot2}: next weather lands clearly harder.",
    "max": 90,
-   "place": "LUX_B2 rival line 2, opt_b"
+   "place": "LUX_B2 house line 2, opt_b"
   },
   {
    "id": "EV_LUX_B3_TITLE",
@@ -2937,7 +2937,7 @@
   },
   {
    "id": "EV_LUX_B3_OPA_EFF",
-   "text": "Get: Luxury price up clearly for a while. Cost: Luxury volume down a little for a while. Rivals: {bot2}'s Luxury growth falls sharply.",
+   "text": "Get: Luxury price up clearly for a while. Cost: Luxury volume down a little for a while. Weather: {bot2}'s next weather comes sharply later.",
    "max": 200,
    "place": "LUX_B3 effect line, opt_a"
   },
@@ -2949,15 +2949,15 @@
   },
   {
    "id": "EV_LUX_B3_OPA_RES",
-   "text": "The buyer signed one price for the whole term, and your counters held it. Luxury prices rose clearly for a while, and your volume eased as casual buyers stayed away. {bot}'s floating rates could not follow, and its Luxury growth falls sharply. The stamp is shaped like a mask.",
+   "text": "The buyer signed one price for the whole term, and your counters held it. Luxury prices rose clearly for a while, and your volume eased as casual buyers stayed away. {bot}'s floating rates could not follow, and its weather comes sharply later. The stamp is shaped like a mask.",
    "max": 280,
    "place": "LUX_B3 result popup, opt_a; {bot} is bot_2"
   },
   {
    "id": "EV_LUX_B3_OPA_STD",
-   "text": "{bot2}, Luxury: growth down sharply.",
+   "text": "{bot2}: next weather comes sharply later.",
    "max": 90,
-   "place": "LUX_B3 rival line 1, opt_a"
+   "place": "LUX_B3 house line 1, opt_a"
   },
   {
    "id": "EV_LUX_B3_OPB_BTN",
@@ -2967,7 +2967,7 @@
   },
   {
    "id": "EV_LUX_B3_OPB_EFF",
-   "text": "Get: {cash_in} credits now. Cost: Luxury volume down a little for a while; {bot3} gains a little Luxury strength. Rivals: {bot1}'s and {bot2}'s Luxury strength falls a little.",
+   "text": "Get: {cash_in} credits now. Cost: Luxury volume down a little for a while; {bot3}'s next weather lands a little harder. Weather: {bot1}'s and {bot2}'s next weather lands a little softer.",
    "max": 200,
    "place": "LUX_B3 effect line, opt_b"
   },
@@ -2979,21 +2979,21 @@
   },
   {
    "id": "EV_LUX_B3_OPB_RES",
-   "text": "You sold the lot at the day's rate and the cash came in. Your shelves ran lean for a while. {bot3} picked up what the buyer still wanted and gains a little Luxury strength, while {bot} and {bot2} each lose a little. The buyer left with the crates and no receipt.",
+   "text": "You sold the lot at the day's rate and cash came in. Your shelves ran lean for a while. {bot3} picked up what the buyer still wanted, so its weather lands a little harder, while {bot} and {bot2} each see theirs land a little softer. The buyer left with the crates and no receipt.",
    "max": 280,
    "place": "LUX_B3 result popup, opt_b; {bot} is bot_1"
   },
   {
    "id": "EV_LUX_B3_OPB_STD",
-   "text": "{bot1} and {bot2}, Luxury: strength down a little.",
+   "text": "{bot1} and {bot2}: next weather lands a little softer.",
    "max": 90,
-   "place": "LUX_B3 rival line 1, opt_b"
+   "place": "LUX_B3 house line 1, opt_b"
   },
   {
    "id": "EV_LUX_B3_OPB_STD2",
-   "text": "{bot3}, Luxury: strength up a little.",
+   "text": "{bot3}: next weather lands a little harder.",
    "max": 90,
-   "place": "LUX_B3 rival line 2, opt_b"
+   "place": "LUX_B3 house line 2, opt_b"
   },
   {
    "id": "EV_LUX_B4_TITLE",
@@ -3021,7 +3021,7 @@
   },
   {
    "id": "EV_LUX_B4_OPA_EFF",
-   "text": "Get: Luxury price up a little for a while. Cost: {cash_out} credits in dues for the pricing seat. Rivals: {bot2}'s Luxury strength falls sharply.",
+   "text": "Get: Luxury price up a little for a while. Cost: {cash_out} credits in dues for the pricing seat. Weather: {bot2}'s next weather lands sharply softer.",
    "max": 200,
    "place": "LUX_B4 effect line, opt_a"
   },
@@ -3033,15 +3033,15 @@
   },
   {
    "id": "EV_LUX_B4_OPA_RES",
-   "text": "You took the pricing desk and paid the dues on the day. The guild's price sheets now carry your marks, and prices rose a little for a while. {bot} sat in the chair and watched its Luxury strength fall sharply. The sheets are printed on gilt-edged paper.",
+   "text": "You took the pricing desk and paid the dues on the day. The guild's price sheets now carry your marks, and prices rose a little for a while. {bot} sat in the chair and watched its next weather land sharply softer. The sheets are printed on gilt-edged paper.",
    "max": 280,
    "place": "LUX_B4 result popup, opt_a; {bot} is bot_2"
   },
   {
    "id": "EV_LUX_B4_OPA_STD",
-   "text": "{bot2}, Luxury: strength down sharply.",
+   "text": "{bot2}: next weather lands sharply softer.",
    "max": 90,
-   "place": "LUX_B4 rival line 1, opt_a"
+   "place": "LUX_B4 house line 1, opt_a"
   },
   {
    "id": "EV_LUX_B4_OPB_BTN",
@@ -3051,7 +3051,7 @@
   },
   {
    "id": "EV_LUX_B4_OPB_EFF",
-   "text": "Get: Luxury volume up a little for the rest of the run. Cost: Luxury price down a little for a while. Rivals: {bot2}'s strength falls clearly; {bot3}'s a little.",
+   "text": "Get: Luxury volume up a little for the rest of the run. Cost: Luxury price down a little for a while. Weather: {bot2}'s next weather lands clearly softer; {bot3}'s lands a little softer.",
    "max": 200,
    "place": "LUX_B4 effect line, opt_b"
   },
@@ -3063,21 +3063,21 @@
   },
   {
    "id": "EV_LUX_B4_OPB_RES",
-   "text": "You took the stock desk and the schedules came to your hand. Luxury volume rose for the rest of the run, and prices eased a little for a while. {bot}'s Luxury strength falls clearly, and {bot3}'s a little. The desk has a bell that no one rings.",
+   "text": "You took the stock desk and the schedules came to your hand. Luxury volume rose for the rest of the run, and prices eased a little for a while. {bot}'s next weather lands clearly softer, and {bot3}'s lands a little softer. The desk has a bell that no one rings.",
    "max": 280,
    "place": "LUX_B4 result popup, opt_b; {bot} is bot_2"
   },
   {
    "id": "EV_LUX_B4_OPB_STD",
-   "text": "{bot2}, Luxury: strength down clearly.",
+   "text": "{bot2}: next weather lands clearly softer.",
    "max": 90,
-   "place": "LUX_B4 rival line 1, opt_b"
+   "place": "LUX_B4 house line 1, opt_b"
   },
   {
    "id": "EV_LUX_B4_OPB_STD2",
-   "text": "{bot3}, Luxury: strength down a little.",
+   "text": "{bot3}: next weather lands a little softer.",
    "max": 90,
-   "place": "LUX_B4 rival line 2, opt_b"
+   "place": "LUX_B4 house line 2, opt_b"
   },
   {
    "id": "EV_MIN_A1_TITLE",
@@ -3099,7 +3099,7 @@
   },
   {
    "id": "EV_MIN_A1_OPA_EFF",
-   "text": "Get: {cash_in} credits now. Cost: Minerals volume down a little for a while. Rivals: {bot1}'s Minerals growth falls a little.",
+   "text": "Get: {cash_in} credits now. Cost: Minerals volume down a little for a while. Weather: {bot1}'s next weather comes a little later.",
    "max": 200,
    "place": "MIN_A1 effect line, opt_a"
   },
@@ -3111,15 +3111,15 @@
   },
   {
    "id": "EV_MIN_A1_OPA_RES",
-   "text": "A buyer took the lower level and paid on the lift. Your crew works the upper cuts, so Minerals volume dipped for a while. {bot} wanted the level and cut elsewhere, and its Minerals growth falls a little. The lamps below still burn, for no one.",
+   "text": "A buyer took the lower level and paid on the lift. Your crew works the upper cuts, so Minerals volume dipped for a while. {bot} wanted the level and cut elsewhere, and its next weather comes a little later. The lamps below still burn, for no one.",
    "max": 280,
    "place": "MIN_A1 result popup, opt_a; {bot} is bot_1"
   },
   {
    "id": "EV_MIN_A1_OPA_STD",
-   "text": "{bot1}, Minerals: growth down a little.",
+   "text": "{bot1}: next weather comes a little later.",
    "max": 90,
-   "place": "MIN_A1 rival line 1, opt_a"
+   "place": "MIN_A1 house line 1, opt_a"
   },
   {
    "id": "EV_MIN_A1_OPB_BTN",
@@ -3129,7 +3129,7 @@
   },
   {
    "id": "EV_MIN_A1_OPB_EFF",
-   "text": "Get: Minerals volume up a little for a while. Cost: {cash_out} credits for the cable. Rivals: {bot1}'s Minerals strength falls a little.",
+   "text": "Get: Minerals volume up a little for a while. Cost: {cash_out} credits for the cable. Weather: {bot1}'s next weather lands a little softer.",
    "max": 200,
    "place": "MIN_A1 effect line, opt_b"
   },
@@ -3141,15 +3141,15 @@
   },
   {
    "id": "EV_MIN_A1_OPB_RES",
-   "text": "A new cable went down and the lamps held. It cost credits, and the crew cut more for a while, so Minerals volume rises. {bot} had counted on lending you its crew, and its Minerals strength falls a little. Brakka coiled the old cable at the shaft head. It was still warm.",
+   "text": "A new cable went down and the lamps held. It cost credits, and the crew cut more for a while, so Minerals volume rises. {bot} had counted on lending you its crew, and its next weather lands a little softer. Brakka coiled the old cable at the shaft head. It was still warm.",
    "max": 280,
    "place": "MIN_A1 result popup, opt_b; {bot} is bot_1"
   },
   {
    "id": "EV_MIN_A1_OPB_STD",
-   "text": "{bot1}, Minerals: strength down a little.",
+   "text": "{bot1}: next weather lands a little softer.",
    "max": 90,
-   "place": "MIN_A1 rival line 1, opt_b"
+   "place": "MIN_A1 house line 1, opt_b"
   },
   {
    "id": "EV_MIN_A2_TITLE",
@@ -3177,7 +3177,7 @@
   },
   {
    "id": "EV_MIN_A2_OPA_EFF",
-   "text": "Get: Minerals volume up a little for a while. Cost: {cash_out} credits for the bracing. Rivals: {bot3}'s Minerals growth falls clearly.",
+   "text": "Get: Minerals volume up a little for a while. Cost: {cash_out} credits for the bracing. Weather: {bot3}'s next weather comes clearly later.",
    "max": 200,
    "place": "MIN_A2 effect line, opt_a"
   },
@@ -3189,15 +3189,15 @@
   },
   {
    "id": "EV_MIN_A2_OPA_RES",
-   "text": "Braces went in row by row and the cut kept working for your crews. It cost credits, and Minerals volume rose for a while. {bot} had waited for the beams, and its Minerals growth falls clearly. The crack stopped, and the glass went on ringing.",
+   "text": "Braces went in row by row and the cut kept working for your crews. It cost credits, and Minerals volume rose for a while. {bot} had waited for the beams, and its next weather comes clearly later. The crack stopped, and the glass went on ringing.",
    "max": 280,
    "place": "MIN_A2 result popup, opt_a; {bot} is bot_3"
   },
   {
    "id": "EV_MIN_A2_OPA_STD",
-   "text": "{bot3}, Minerals: growth down clearly.",
+   "text": "{bot3}: next weather comes clearly later.",
    "max": 90,
-   "place": "MIN_A2 rival line 1, opt_a"
+   "place": "MIN_A2 house line 1, opt_a"
   },
   {
    "id": "EV_MIN_A2_OPB_BTN",
@@ -3207,7 +3207,7 @@
   },
   {
    "id": "EV_MIN_A2_OPB_EFF",
-   "text": "Get: {cash_in} credits now. Cost: Minerals volume down a little for a few cycles. Rivals: {bot1}'s Minerals strength falls clearly.",
+   "text": "Get: {cash_in} credits now. Cost: Minerals volume down a little for a few cycles. Weather: {bot1}'s next weather lands clearly softer.",
    "max": 200,
    "place": "MIN_A2 effect line, opt_b"
   },
@@ -3219,19 +3219,19 @@
   },
   {
    "id": "EV_MIN_A2_OPB_RES",
-   "text": "A buyer took the cut with the crack in it and paid on the day. Your crews moved to other work, so Minerals volume dipped for a few cycles. {bot} had bid on the same cut, and its Minerals strength falls clearly. The buyer looked at the crack. Briefly.",
+   "text": "A buyer took the cut with the crack in it and paid on the day. Your crews moved to other work, so Minerals volume dipped for a few cycles. {bot} had bid on the same cut, and its next weather lands clearly softer. The buyer looked at the crack. Briefly.",
    "max": 280,
    "place": "MIN_A2 result popup, opt_b; {bot} is bot_1"
   },
   {
    "id": "EV_MIN_A2_OPB_STD",
-   "text": "{bot1}, Minerals: strength down clearly.",
+   "text": "{bot1}: next weather lands clearly softer.",
    "max": 90,
-   "place": "MIN_A2 rival line 1, opt_b"
+   "place": "MIN_A2 house line 1, opt_b"
   },
   {
    "id": "EV_MIN_A3_TITLE",
-   "text": "A rival hauler sells a route",
+   "text": "A house pilot sells a route",
    "max": 40,
    "place": "MIN_A3 choice screen title"
   },
@@ -3255,7 +3255,7 @@
   },
   {
    "id": "EV_MIN_A3_OPA_EFF",
-   "text": "Get: one route's trip cost falls a little for a while. Cost: {cash_out} credits for the chart; {bot3} gains a little Minerals strength. Rivals: {bot1}'s Minerals strength falls a little.",
+   "text": "Get: one route's trip cost falls a little for a while. Cost: {cash_out} credits for the chart; {bot3}'s next weather lands a little harder. Weather: {bot1}'s next weather lands a little softer.",
    "max": 200,
    "place": "MIN_A3 effect line, opt_a"
   },
@@ -3267,21 +3267,21 @@
   },
   {
    "id": "EV_MIN_A3_OPA_RES",
-   "text": "You bought the chart and ran one route by it. Trip cost fell a little for a while, and the chart cost credits. The pilot sold the same chart to his own fleet, so {bot3} gains a little Minerals strength. {bot} lost its lead on the lane, and its strength falls a little.",
+   "text": "You bought the chart and ran one route by it. Trip cost fell a little for a while, and the chart cost credits. The pilot sold the same chart to his own fleet, so {bot3}'s weather lands a little harder. {bot} lost its lead on the lane, and its next weather lands a little softer.",
    "max": 280,
    "place": "MIN_A3 result popup, opt_a; {bot} is bot_1"
   },
   {
    "id": "EV_MIN_A3_OPA_STD",
-   "text": "{bot1}, Minerals: strength down a little.",
+   "text": "{bot1}: next weather lands a little softer.",
    "max": 90,
-   "place": "MIN_A3 rival line 1, opt_a"
+   "place": "MIN_A3 house line 1, opt_a"
   },
   {
    "id": "EV_MIN_A3_OPA_STD2",
-   "text": "{bot3}, Minerals: strength up a little.",
+   "text": "{bot3}: next weather lands a little harder.",
    "max": 90,
-   "place": "MIN_A3 rival line 2, opt_a"
+   "place": "MIN_A3 house line 2, opt_a"
   },
   {
    "id": "EV_MIN_A3_OPB_BTN",
@@ -3291,7 +3291,7 @@
   },
   {
    "id": "EV_MIN_A3_OPB_EFF",
-   "text": "Get: Minerals volume up clearly for a while. Cost: {cash_out} credits and Ship upkeep up a little for a while. Rivals: {bot1} {cut} in Minerals.",
+   "text": "Get: Minerals volume up clearly for a while. Cost: {cash_out} credits and Ship upkeep up a little for a while. Weather: {bot1} {cut}.",
    "max": 200,
    "place": "MIN_A3 effect line, opt_b"
   },
@@ -3303,15 +3303,15 @@
   },
   {
    "id": "EV_MIN_A3_OPB_RES",
-   "text": "You sent extra hulls down the lane and the crews cut harder for a while. The hulls cost credits and raise Ship upkeep a little for a while. {bot} was cut back in Minerals, its lane crews pushed to the edge of the chart. The wakes behind your hulls crossed and recrossed.",
+   "text": "You sent extra hulls down the lane and the crews cut harder for a while. The hulls cost credits and raise Ship upkeep a little for a while. {bot} has its next weather held back, its lane crews pushed to the edge of the chart. The wakes behind your hulls crossed and recrossed.",
    "max": 280,
    "place": "MIN_A3 result popup, opt_b; {bot} is bot_1"
   },
   {
    "id": "EV_MIN_A3_OPB_STD",
-   "text": "{bot1}, Minerals: {cut_std}.",
+   "text": "{bot1}: {cut_std}.",
    "max": 90,
-   "place": "MIN_A3 rival line 1, opt_b"
+   "place": "MIN_A3 house line 1, opt_b"
   },
   {
    "id": "EV_MIN_B1_TITLE",
@@ -3333,7 +3333,7 @@
   },
   {
    "id": "EV_MIN_B1_OPA_EFF",
-   "text": "Get: {cash_in} credits now. Cost: Minerals volume down a little for a while. Rivals: {bot1}'s Minerals growth falls a little.",
+   "text": "Get: {cash_in} credits now. Cost: Minerals volume down a little for a while. Weather: {bot1}'s next weather comes a little later.",
    "max": 200,
    "place": "MIN_B1 effect line, opt_a"
   },
@@ -3345,15 +3345,15 @@
   },
   {
    "id": "EV_MIN_B1_OPA_RES",
-   "text": "The arbiter's buyer took your claim and paid on the spot. Your crews moved to other cuts, so Minerals volume dipped for a while. {bot} kept the seam, and its Minerals growth falls a little as the buyer set terms. The stamp on your copy was still wet.",
+   "text": "The arbiter's buyer took your claim and paid on the spot. Your crews moved to other cuts, so Minerals volume dipped for a while. {bot} kept the seam, and its next weather comes a little later as the buyer set terms. The stamp on your copy was still wet.",
    "max": 280,
    "place": "MIN_B1 result popup, opt_a; {bot} is bot_1"
   },
   {
    "id": "EV_MIN_B1_OPA_STD",
-   "text": "{bot1}, Minerals: growth down a little.",
+   "text": "{bot1}: next weather comes a little later.",
    "max": 90,
-   "place": "MIN_B1 rival line 1, opt_a"
+   "place": "MIN_B1 house line 1, opt_a"
   },
   {
    "id": "EV_MIN_B1_OPB_BTN",
@@ -3363,7 +3363,7 @@
   },
   {
    "id": "EV_MIN_B1_OPB_EFF",
-   "text": "Get: {n} units of tech progress at the Smelter. Cost: {cash_out} credits for the survey. Rivals: {bot1}'s Minerals strength falls clearly.",
+   "text": "Get: {n} units of tech progress at the Smelter. Cost: {cash_out} credits for the survey. Weather: {bot1}'s next weather lands clearly softer.",
    "max": 200,
    "place": "MIN_B1 effect line, opt_b"
   },
@@ -3375,15 +3375,15 @@
   },
   {
    "id": "EV_MIN_B1_OPB_RES",
-   "text": "The survey cut a test core through the seam and your smelter ran it. Tech progress came in, and the survey was paid. {bot}'s claim failed the core, and its Minerals strength falls clearly. The core was warm and had a thread of glass in it.",
+   "text": "The survey cut a test core through the seam and your smelter ran it. Tech progress came in, and the survey was paid. {bot}'s claim failed the core, and its next weather lands clearly softer. The core was warm and had a thread of glass in it.",
    "max": 280,
    "place": "MIN_B1 result popup, opt_b; {bot} is bot_1"
   },
   {
    "id": "EV_MIN_B1_OPB_STD",
-   "text": "{bot1}, Minerals: strength down clearly.",
+   "text": "{bot1}: next weather lands clearly softer.",
    "max": 90,
-   "place": "MIN_B1 rival line 1, opt_b"
+   "place": "MIN_B1 house line 1, opt_b"
   },
   {
    "id": "EV_MIN_B2_TITLE",
@@ -3411,7 +3411,7 @@
   },
   {
    "id": "EV_MIN_B2_OPA_EFF",
-   "text": "Get: Minerals price up a little for a while. Cost: the Smelter stands idle for a few cycles. Rivals: {bot3}'s Minerals growth falls a little.",
+   "text": "Get: Minerals price up a little for a while. Cost: the Smelter stands idle for a few cycles. Weather: {bot3}'s next weather comes a little later.",
    "max": 200,
    "place": "MIN_B2 effect line, opt_a"
   },
@@ -3423,15 +3423,15 @@
   },
   {
    "id": "EV_MIN_B2_OPA_RES",
-   "text": "You held the terms and the crew left the furnace to cool. Ingots grew scarce, so Minerals prices rose a little for a while, and the Smelter stood idle for a few cycles. {bot} had offered the crew a place, and its Minerals growth falls a little. The slag ticked as it shrank.",
+   "text": "You held the terms and the crew left the furnace to cool. Ingots grew scarce, so Minerals prices rose a little for a while, and the Smelter stood idle for a few cycles. {bot} had offered the crew a place, and its next weather comes a little later. The slag ticked as it shrank.",
    "max": 280,
    "place": "MIN_B2 result popup, opt_a; {bot} is bot_3"
   },
   {
    "id": "EV_MIN_B2_OPA_STD",
-   "text": "{bot3}, Minerals: growth down a little.",
+   "text": "{bot3}: next weather comes a little later.",
    "max": 90,
-   "place": "MIN_B2 rival line 1, opt_a"
+   "place": "MIN_B2 house line 1, opt_a"
   },
   {
    "id": "EV_MIN_B2_OPB_BTN",
@@ -3441,7 +3441,7 @@
   },
   {
    "id": "EV_MIN_B2_OPB_EFF",
-   "text": "Get: one more batch a cycle at the Smelter for a while. Cost: {cash_out} credits in shift pay. Rivals: {bot1}'s Minerals strength falls a little.",
+   "text": "Get: one more batch a cycle at the Smelter for a while. Cost: {cash_out} credits in shift pay. Weather: {bot1}'s next weather lands a little softer.",
    "max": 200,
    "place": "MIN_B2 effect line, opt_b"
   },
@@ -3453,15 +3453,15 @@
   },
   {
    "id": "EV_MIN_B2_OPB_RES",
-   "text": "You paid for a double shift and the furnace stayed lit. The Smelter makes one more batch a cycle for a while, and the pay cost credits. {bot} counted on a cooled furnace, and its Minerals strength falls a little. The night crew did not look at the day crew.",
+   "text": "You paid for a double shift and the furnace stayed lit. The Smelter makes one more batch a cycle for a while, and the pay cost credits. {bot} counted on a cooled furnace, and its next weather lands a little softer. The night crew did not look at the day crew.",
    "max": 280,
    "place": "MIN_B2 result popup, opt_b; {bot} is bot_1"
   },
   {
    "id": "EV_MIN_B2_OPB_STD",
-   "text": "{bot1}, Minerals: strength down a little.",
+   "text": "{bot1}: next weather lands a little softer.",
    "max": 90,
-   "place": "MIN_B2 rival line 1, opt_b"
+   "place": "MIN_B2 house line 1, opt_b"
   },
   {
    "id": "EV_MIN_B3_TITLE",
@@ -3489,7 +3489,7 @@
   },
   {
    "id": "EV_MIN_B3_OPA_EFF",
-   "text": "Get: {cash_in} credits now. Cost: Minerals volume down clearly for a few cycles. Rivals: {bot1}'s Minerals strength falls sharply; {bot3}'s falls a little.",
+   "text": "Get: {cash_in} credits now. Cost: Minerals volume down clearly for a few cycles. Weather: {bot1}'s next weather lands sharply softer; {bot3}'s lands a little softer.",
    "max": 200,
    "place": "MIN_B3 effect line, opt_a"
   },
@@ -3501,21 +3501,21 @@
   },
   {
    "id": "EV_MIN_B3_OPA_RES",
-   "text": "Gekk hauled the whole stock away and paid on the dock. Your storage stood empty, and Minerals volume fell clearly for a few cycles. {bot}'s usual contract went with it, so its Minerals strength falls sharply, and {bot3}'s a little. The racks rang as they emptied.",
+   "text": "Gekk hauled the whole stock away and paid on the dock. Your storage stood empty, and Minerals volume fell clearly for a few cycles. {bot}'s usual contract went with it, so its next weather lands sharply softer, and {bot3}'s lands a little softer. The racks rang as they emptied.",
    "max": 280,
    "place": "MIN_B3 result popup, opt_a; {bot} is bot_1"
   },
   {
    "id": "EV_MIN_B3_OPA_STD",
-   "text": "{bot1}, Minerals: strength down sharply.",
+   "text": "{bot1}: next weather lands sharply softer.",
    "max": 90,
-   "place": "MIN_B3 rival line 1, opt_a"
+   "place": "MIN_B3 house line 1, opt_a"
   },
   {
    "id": "EV_MIN_B3_OPA_STD2",
-   "text": "{bot3}, Minerals: strength down a little.",
+   "text": "{bot3}: next weather lands a little softer.",
    "max": 90,
-   "place": "MIN_B3 rival line 2, opt_a"
+   "place": "MIN_B3 house line 2, opt_a"
   },
   {
    "id": "EV_MIN_B3_OPB_BTN",
@@ -3525,7 +3525,7 @@
   },
   {
    "id": "EV_MIN_B3_OPB_EFF",
-   "text": "Get: Minerals volume up a little for a while. Cost: {cash_out} credits to the buyer's broker. Rivals: {bot1}'s Minerals strength falls clearly.",
+   "text": "Get: Minerals volume up a little for a while. Cost: {cash_out} credits to the buyer's broker. Weather: {bot1}'s next weather lands clearly softer.",
    "max": 200,
    "place": "MIN_B3 effect line, opt_b"
   },
@@ -3537,15 +3537,15 @@
   },
   {
    "id": "EV_MIN_B3_OPB_RES",
-   "text": "The standing buyer signed and sends a ship each cycle. Minerals volume rose for a while, and the buyer's broker was paid in credits. {bot} lost the buyer's custom, and its Minerals strength falls clearly. The buyer's ship has no name on its hull.",
+   "text": "The standing buyer signed and sends a ship each cycle. Minerals volume rose for a while, and the buyer's broker was paid in credits. {bot} lost the buyer's custom, and its next weather lands clearly softer. The buyer's ship has no name on its hull.",
    "max": 280,
    "place": "MIN_B3 result popup, opt_b; {bot} is bot_1"
   },
   {
    "id": "EV_MIN_B3_OPB_STD",
-   "text": "{bot1}, Minerals: strength down clearly.",
+   "text": "{bot1}: next weather lands clearly softer.",
    "max": 90,
-   "place": "MIN_B3 rival line 1, opt_b"
+   "place": "MIN_B3 house line 1, opt_b"
   },
   {
    "id": "EV_MIN_B4_TITLE",
@@ -3573,7 +3573,7 @@
   },
   {
    "id": "EV_MIN_B4_OPA_EFF",
-   "text": "Get: Minerals price up a little for a while. Cost: {cash_out} credits to the survey office for the filing. Rivals: {bot1}'s Minerals strength falls sharply.",
+   "text": "Get: Minerals price up a little for a while. Cost: {cash_out} credits to the survey office for the filing. Weather: {bot1}'s next weather lands sharply softer.",
    "max": 200,
    "place": "MIN_B4 effect line, opt_a"
   },
@@ -3585,15 +3585,15 @@
   },
   {
    "id": "EV_MIN_B4_OPA_RES",
-   "text": "You filed the claim and the office stamped it. The filing cost credits, and Minerals prices rose a little for a while as your ore came to market. {bot}'s charter crew found your marker at the site, and its Minerals strength falls sharply. The deposit lay under the rock, unmoved.",
+   "text": "You filed the claim and the office stamped it. The filing cost credits, and Minerals prices rose a little for a while as your ore came to market. {bot}'s charter crew found your marker at the site, and its weather lands sharply softer. The deposit lay under the rock, unmoved.",
    "max": 280,
    "place": "MIN_B4 result popup, opt_a; {bot} is bot_1"
   },
   {
    "id": "EV_MIN_B4_OPA_STD",
-   "text": "{bot1}, Minerals: strength down sharply.",
+   "text": "{bot1}: next weather lands sharply softer.",
    "max": 90,
-   "place": "MIN_B4 rival line 1, opt_a"
+   "place": "MIN_B4 house line 1, opt_a"
   },
   {
    "id": "EV_MIN_B4_OPB_BTN",
@@ -3603,7 +3603,7 @@
   },
   {
    "id": "EV_MIN_B4_OPB_EFF",
-   "text": "Get: {cash_in} credits and Minerals volume up a little for the rest of the run. Cost: Ship upkeep up a little for a while. Rivals: {bot1}'s strength falls clearly; {bot3}'s a little.",
+   "text": "Get: {cash_in} credits; Minerals volume up a little for the rest of the run. Cost: Ship upkeep up a little for a while. Weather: {bot1}'s next weather lands clearly softer; {bot3}'s a little softer.",
    "max": 200,
    "place": "MIN_B4 effect line, opt_b"
   },
@@ -3615,21 +3615,21 @@
   },
   {
    "id": "EV_MIN_B4_OPB_RES",
-   "text": "You leased the claim to a crew and the first payment arrived. Your ships carry its ore, so Minerals volume rose, and Ship upkeep rises a little for a while. {bot}'s Minerals strength falls clearly, and {bot3}'s a little: both lost the lease. It has a clause about weather.",
+   "text": "You leased the claim to a crew and the first payment arrived. Your ships carry its ore, so Minerals volume rose, and Ship upkeep rises a little for a while. {bot}'s weather lands clearly softer, and {bot3}'s a little softer: both lost the lease. It has a clause about weather.",
    "max": 280,
    "place": "MIN_B4 result popup, opt_b; {bot} is bot_1"
   },
   {
    "id": "EV_MIN_B4_OPB_STD",
-   "text": "{bot1}, Minerals: strength down clearly.",
+   "text": "{bot1}: next weather lands clearly softer.",
    "max": 90,
-   "place": "MIN_B4 rival line 1, opt_b"
+   "place": "MIN_B4 house line 1, opt_b"
   },
   {
    "id": "EV_MIN_B4_OPB_STD2",
-   "text": "{bot3}, Minerals: strength down a little.",
+   "text": "{bot3}: next weather lands a little softer.",
    "max": 90,
-   "place": "MIN_B4 rival line 2, opt_b"
+   "place": "MIN_B4 house line 2, opt_b"
   },
   {
    "id": "EV_BIO_A1_TITLE",
@@ -3651,7 +3651,7 @@
   },
   {
    "id": "EV_BIO_A1_OPA_EFF",
-   "text": "Get: {n} units of tech progress at the Culture Lab. Cost: {cash_out} credits for the tests. Rivals: {bot2}'s Biotech growth falls a little.",
+   "text": "Get: {n} units of tech progress at the Culture Lab. Cost: {cash_out} credits for the tests. Weather: {bot2}'s next weather comes a little later.",
    "max": 200,
    "place": "BIO_A1 effect line, opt_a"
   },
@@ -3663,15 +3663,15 @@
   },
   {
    "id": "EV_BIO_A1_OPA_RES",
-   "text": "The lab worked behind two doors and logged every reading after dark. Tech progress came in, and the tests cost credits. {bot} had asked to buy the sample unseen, and its Biotech growth falls a little. Fitter Imre Fenn checked both doors twice. The vat took on a faint green.",
+   "text": "The lab worked behind two doors and logged every reading after dark. Tech progress came in, and the tests cost credits. {bot} had asked to buy the sample unseen, and its next weather comes a little later. Fitter Imre Fenn checked both doors twice. The vat took on a faint green.",
    "max": 280,
    "place": "BIO_A1 result popup, opt_a; {bot} is bot_2"
   },
   {
    "id": "EV_BIO_A1_OPA_STD",
-   "text": "{bot2}, Biotech: growth down a little.",
+   "text": "{bot2}: next weather comes a little later.",
    "max": 90,
-   "place": "BIO_A1 rival line 1, opt_a"
+   "place": "BIO_A1 house line 1, opt_a"
   },
   {
    "id": "EV_BIO_A1_OPB_BTN",
@@ -3681,7 +3681,7 @@
   },
   {
    "id": "EV_BIO_A1_OPB_EFF",
-   "text": "Get: {cash_in} credits now. Cost: Biotech price down a little for a few cycles. Rivals: {bot2}'s Biotech strength falls a little.",
+   "text": "Get: {cash_in} credits now. Cost: Biotech price down a little for a few cycles. Weather: {bot2}'s next weather lands a little softer.",
    "max": 200,
    "place": "BIO_A1 effect line, opt_b"
   },
@@ -3693,15 +3693,15 @@
   },
   {
    "id": "EV_BIO_A1_OPB_RES",
-   "text": "A broker took the canister the same day and paid cash. Buyers read the odd colour on the lid as a warning, so Biotech prices dip a little for a few cycles. {bot} was passed over, and its Biotech strength falls a little. Fenn asked where it went. The sample is fine, he was told.",
+   "text": "A broker took the canister the same day and paid cash. Buyers read the odd colour on the lid as a warning, so Biotech prices dip a little for a few cycles. {bot} was passed over, and its weather lands a little softer. Fenn asked where it went. The sample is fine, he was told.",
    "max": 280,
    "place": "BIO_A1 result popup, opt_b; {bot} is bot_2"
   },
   {
    "id": "EV_BIO_A1_OPB_STD",
-   "text": "{bot2}, Biotech: strength down a little.",
+   "text": "{bot2}: next weather lands a little softer.",
    "max": 90,
-   "place": "BIO_A1 rival line 1, opt_b"
+   "place": "BIO_A1 house line 1, opt_b"
   },
   {
    "id": "EV_BIO_A2_TITLE",
@@ -3729,7 +3729,7 @@
   },
   {
    "id": "EV_BIO_A2_OPA_EFF",
-   "text": "Get: Biotech volume up a little for the rest of the run. Cost: {cash_out} credits toward the tests. Rivals: {bot3}'s Biotech growth falls a little.",
+   "text": "Get: Biotech volume up a little for the rest of the run. Cost: {cash_out} credits toward the tests. Weather: {bot3}'s next weather comes a little later.",
    "max": 200,
    "place": "BIO_A2 effect line, opt_a"
   },
@@ -3741,15 +3741,15 @@
   },
   {
    "id": "EV_BIO_A2_OPA_RES",
-   "text": "The clinic ran the tests behind its own doors. Your funding cost credits, and the clinic keeps ordering, so Biotech volume rises for the rest of the run. {bot} wanted the data and got a summary, so its Biotech growth falls a little. The report came in triplicate, every copy damp.",
+   "text": "The clinic ran the tests behind its own doors. Your funding cost credits, and the clinic keeps ordering, so Biotech volume rises for the rest of the run. {bot} wanted the data and got a summary, so its weather comes a little later. The report came in triplicate, every copy damp.",
    "max": 280,
    "place": "BIO_A2 result popup, opt_a; {bot} is bot_3"
   },
   {
    "id": "EV_BIO_A2_OPA_STD",
-   "text": "{bot3}, Biotech: growth down a little.",
+   "text": "{bot3}: next weather comes a little later.",
    "max": 90,
-   "place": "BIO_A2 rival line 1, opt_a"
+   "place": "BIO_A2 house line 1, opt_a"
   },
   {
    "id": "EV_BIO_A2_OPB_BTN",
@@ -3759,7 +3759,7 @@
   },
   {
    "id": "EV_BIO_A2_OPB_EFF",
-   "text": "Get: {n} units of tech progress at the Culture Lab. Cost: Biotech volume down a little for a while. Rivals: {bot2} {cut} in Biotech.",
+   "text": "Get: {n} units of tech progress at the Culture Lab. Cost: Biotech volume down a little for a while. Weather: {bot2} {cut}.",
    "max": 200,
    "place": "BIO_A2 effect line, opt_b"
   },
@@ -3771,15 +3771,15 @@
   },
   {
    "id": "EV_BIO_A2_OPB_RES",
-   "text": "Your lab ran the tests on the held batch, and the vats gave tech progress. The batch left the shelves, so Biotech volume dips for a while. {bot} was cut back in Biotech as the clinic's wards moved to your results. Fenn walked the vat row each shift and wrote nothing down.",
+   "text": "Your lab ran the tests on the held batch, and the vats gave tech progress. The batch left the shelves, so Biotech volume dips for a while. {bot} has its next weather held back as the clinic's wards moved to your results. Fenn walked the vat row each shift and wrote nothing down.",
    "max": 280,
    "place": "BIO_A2 result popup, opt_b; {bot} is bot_2"
   },
   {
    "id": "EV_BIO_A2_OPB_STD",
-   "text": "{bot2}, Biotech: {cut_std}.",
+   "text": "{bot2}: {cut_std}.",
    "max": 90,
-   "place": "BIO_A2 rival line 1, opt_b"
+   "place": "BIO_A2 house line 1, opt_b"
   },
   {
    "id": "EV_BIO_A3_TITLE",
@@ -3807,7 +3807,7 @@
   },
   {
    "id": "EV_BIO_A3_OPA_EFF",
-   "text": "Get: Biotech price up a little for a while. Cost: the Culture Lab stands idle for a few cycles. Rivals: {bot2}'s Biotech strength falls a little.",
+   "text": "Get: Biotech price up a little for a while. Cost: the Culture Lab stands idle for a few cycles. Weather: {bot2}'s next weather lands a little softer.",
    "max": 200,
    "place": "BIO_A3 effect line, opt_a"
   },
@@ -3819,15 +3819,15 @@
   },
   {
    "id": "EV_BIO_A3_OPA_RES",
-   "text": "You paused your lab and had every seal checked. Stock grew scarce, so Biotech prices rise a little for a while, and the lab stands idle for a few cycles. {bot}'s strains came from the weeping vat, and its Biotech strength falls a little. Fenn taped a note to the seal: told you.",
+   "text": "You paused your lab and had every seal checked. Stock grew scarce, so Biotech prices rise a little for a while, and the lab stands idle for a few cycles. {bot}'s strains came from the weeping vat, and its weather lands a little softer. Fenn taped a note to the seal: told you.",
    "max": 280,
    "place": "BIO_A3 result popup, opt_a; {bot} is bot_2"
   },
   {
    "id": "EV_BIO_A3_OPA_STD",
-   "text": "{bot2}, Biotech: strength down a little.",
+   "text": "{bot2}: next weather lands a little softer.",
    "max": 90,
-   "place": "BIO_A3 rival line 1, opt_a"
+   "place": "BIO_A3 house line 1, opt_a"
   },
   {
    "id": "EV_BIO_A3_OPB_BTN",
@@ -3837,7 +3837,7 @@
   },
   {
    "id": "EV_BIO_A3_OPB_EFF",
-   "text": "Get: {cash_in} credits now. Cost: Biotech volume down a little for a few cycles; {bot3} gains a little Biotech strength. Rivals: {bot2}'s Biotech strength falls clearly.",
+   "text": "Get: {cash_in} credits now. Cost: Biotech volume down a little for a few cycles; {bot3}'s next weather lands a little harder. Weather: {bot2}'s next weather lands clearly softer.",
    "max": 200,
    "place": "BIO_A3 effect line, opt_b"
   },
@@ -3849,21 +3849,21 @@
   },
   {
    "id": "EV_BIO_A3_OPB_RES",
-   "text": "You sold the stock in that line and cash arrived. The shelves stood bare for a few cycles, so Biotech volume dips. {bot3} bought the surplus and gains a little Biotech strength, while {bot}'s strength falls clearly: its supply line came under notice. The vat moved at night.",
+   "text": "You sold the stock in that line and cash arrived. The shelves stood bare for a few cycles, so Biotech volume dips. {bot3} bought the surplus, so its weather lands a little harder, while {bot}'s lands clearly softer: its supply line came under notice. The vat moved at night.",
    "max": 280,
    "place": "BIO_A3 result popup, opt_b; {bot} is bot_2"
   },
   {
    "id": "EV_BIO_A3_OPB_STD",
-   "text": "{bot2}, Biotech: strength down clearly.",
+   "text": "{bot2}: next weather lands clearly softer.",
    "max": 90,
-   "place": "BIO_A3 rival line 1, opt_b"
+   "place": "BIO_A3 house line 1, opt_b"
   },
   {
    "id": "EV_BIO_A3_OPB_STD2",
-   "text": "{bot3}, Biotech: strength up a little.",
+   "text": "{bot3}: next weather lands a little harder.",
    "max": 90,
-   "place": "BIO_A3 rival line 2, opt_b"
+   "place": "BIO_A3 house line 2, opt_b"
   },
   {
    "id": "EV_BIO_B1_TITLE",
@@ -3885,7 +3885,7 @@
   },
   {
    "id": "EV_BIO_B1_OPA_EFF",
-   "text": "Get: Biotech volume up clearly for a while. Cost: {cash_out} credits for the grower's stock. Rivals: {bot2}'s Biotech strength falls clearly.",
+   "text": "Get: Biotech volume up clearly for a while. Cost: {cash_out} credits for the grower's stock. Weather: {bot2}'s next weather lands clearly softer.",
    "max": 200,
    "place": "BIO_B1 effect line, opt_a"
   },
@@ -3897,15 +3897,15 @@
   },
   {
    "id": "EV_BIO_B1_OPA_RES",
-   "text": "You bought the grower's stock and shipped it as it was. It cost credits, and the hospital's order keeps your Biotech volume up for a while. {bot} held the only other stock, and its Biotech strength falls clearly. One crate was warm at the dock. The manager said it was fine.",
+   "text": "You bought the grower's stock and shipped it as it was. It cost credits, and the hospital's order keeps your Biotech volume up for a while. {bot} held the only other stock, and its next weather lands clearly softer. One crate was warm at the dock. The manager said it was fine.",
    "max": 280,
    "place": "BIO_B1 result popup, opt_a; {bot} is bot_2"
   },
   {
    "id": "EV_BIO_B1_OPA_STD",
-   "text": "{bot2}, Biotech: strength down clearly.",
+   "text": "{bot2}: next weather lands clearly softer.",
    "max": 90,
-   "place": "BIO_B1 rival line 1, opt_a"
+   "place": "BIO_B1 house line 1, opt_a"
   },
   {
    "id": "EV_BIO_B1_OPB_BTN",
@@ -3915,7 +3915,7 @@
   },
   {
    "id": "EV_BIO_B1_OPB_EFF",
-   "text": "Get: {n} units of tech progress at the Culture Lab. Cost: Ship upkeep rises a little for a while. Rivals: {bot3}'s Biotech strength falls a little.",
+   "text": "Get: {n} units of tech progress at the Culture Lab. Cost: Ship upkeep rises a little for a while. Weather: {bot3}'s next weather lands a little softer.",
    "max": 200,
    "place": "BIO_B1 effect line, opt_b"
   },
@@ -3927,15 +3927,15 @@
   },
   {
    "id": "EV_BIO_B1_OPB_RES",
-   "text": "Your lab grew the strain from a culture and the extra hulls carried it. Tech progress came in, and Ship upkeep rises a little for a while. {bot} offered to carry the order and was passed over, so its Biotech strength falls a little. The strain came up a green nobody ordered.",
+   "text": "Your lab grew the strain from a culture and the extra hulls carried it. Tech progress came in, and Ship upkeep rises a little for a while. {bot} offered to carry the order and was passed over, so its next weather lands a little softer. The strain came up a green nobody ordered.",
    "max": 280,
    "place": "BIO_B1 result popup, opt_b; {bot} is bot_3"
   },
   {
    "id": "EV_BIO_B1_OPB_STD",
-   "text": "{bot3}, Biotech: strength down a little.",
+   "text": "{bot3}: next weather lands a little softer.",
    "max": 90,
-   "place": "BIO_B1 rival line 1, opt_b"
+   "place": "BIO_B1 house line 1, opt_b"
   },
   {
    "id": "EV_BIO_B2_TITLE",
@@ -3963,7 +3963,7 @@
   },
   {
    "id": "EV_BIO_B2_OPA_EFF",
-   "text": "Get: Biotech price up a little for a while. Cost: Biotech volume down a little for a while. Rivals: {bot2}'s Biotech growth falls clearly.",
+   "text": "Get: Biotech price up a little for a while. Cost: Biotech volume down a little for a while. Weather: {bot2}'s next weather comes clearly later.",
    "max": 200,
    "place": "BIO_B2 effect line, opt_a"
   },
@@ -3975,15 +3975,15 @@
   },
   {
    "id": "EV_BIO_B2_OPA_RES",
-   "text": "You relabelled the batch and held it for study. The new line fetches a little more for a while, and your own volume dips a little as stock stays back. {bot}'s sample requests were refused, so its Biotech growth falls clearly. The storage manager moved his desk out of the room.",
+   "text": "You relabelled the batch and held it for study. The new line fetches a little more for a while, and your own volume dips a little as stock stays back. {bot}'s sample requests were refused, so its weather comes clearly later. The storage manager moved his desk out of the room.",
    "max": 280,
    "place": "BIO_B2 result popup, opt_a; {bot} is bot_2"
   },
   {
    "id": "EV_BIO_B2_OPA_STD",
-   "text": "{bot2}, Biotech: growth down clearly.",
+   "text": "{bot2}: next weather comes clearly later.",
    "max": 90,
-   "place": "BIO_B2 rival line 1, opt_a"
+   "place": "BIO_B2 house line 1, opt_a"
   },
   {
    "id": "EV_BIO_B2_OPB_BTN",
@@ -3993,7 +3993,7 @@
   },
   {
    "id": "EV_BIO_B2_OPB_EFF",
-   "text": "Get: {cash_in} credits now. Cost: Ship upkeep rises a little for a while; {bot2} gains a little Biotech strength. Rivals: {bot3} {cut} in Biotech.",
+   "text": "Get: {cash_in} credits now. Cost: Ship upkeep rises a little for a while; {bot2}'s next weather lands a little harder. Weather: {bot3} {cut}.",
    "max": 200,
    "place": "BIO_B2 effect line, opt_b"
   },
@@ -4005,21 +4005,21 @@
   },
   {
    "id": "EV_BIO_B2_OPB_RES",
-   "text": "You sold the batch as a new line, and cash came in. Extra hulls raise Ship upkeep a little for a while. {bot2} bought a sample and gains a little Biotech strength, while {bot} is cut back, its old line undercut. The buyer asked for a second batch. Ryke asked for a lock.",
+   "text": "You sold the batch as a new line for cash. Extra hulls raise Ship upkeep a little for a while. {bot2} bought a sample, so its weather lands a little harder, while {bot} has its weather held back, its old line undercut. The buyer asked for a second batch. Ryke asked for a lock.",
    "max": 280,
    "place": "BIO_B2 result popup, opt_b; {bot} is bot_3"
   },
   {
    "id": "EV_BIO_B2_OPB_STD",
-   "text": "{bot3}, Biotech: {cut_std}.",
+   "text": "{bot3}: {cut_std}.",
    "max": 90,
-   "place": "BIO_B2 rival line 1, opt_b"
+   "place": "BIO_B2 house line 1, opt_b"
   },
   {
    "id": "EV_BIO_B2_OPB_STD2",
-   "text": "{bot2}, Biotech: strength up a little.",
+   "text": "{bot2}: next weather lands a little harder.",
    "max": 90,
-   "place": "BIO_B2 rival line 2, opt_b"
+   "place": "BIO_B2 house line 2, opt_b"
   },
   {
    "id": "EV_BIO_B3_TITLE",
@@ -4047,7 +4047,7 @@
   },
   {
    "id": "EV_BIO_B3_OPA_EFF",
-   "text": "Get: {cash_in} credits now. Cost: Biotech volume down a little for a while. Rivals: {bot2}'s Biotech strength falls sharply; {bot3}'s growth falls clearly.",
+   "text": "Get: {cash_in} credits now. Cost: Biotech volume down a little for a while. Weather: {bot2}'s next weather lands sharply softer; {bot3}'s comes clearly later.",
    "max": 200,
    "place": "BIO_B3 effect line, opt_a"
   },
@@ -4059,21 +4059,21 @@
   },
   {
    "id": "EV_BIO_B3_OPA_RES",
-   "text": "Your output went on the exchange list and the first payment cleared. Fewer lots stayed for buyers, so volume dips for a while. {bot} lost its first slot's edge, and its Biotech strength falls sharply, while {bot3}'s growth falls clearly. Crates and porters bear slot numbers.",
+   "text": "Your output went on the exchange list and the first payment cleared. Fewer lots stayed for buyers, so volume dips for a while. {bot} lost its first slot's edge, and its next weather lands sharply softer, while {bot3}'s comes clearly later. Crates and porters bear slot numbers.",
    "max": 280,
    "place": "BIO_B3 result popup, opt_a; {bot} is bot_2"
   },
   {
    "id": "EV_BIO_B3_OPA_STD",
-   "text": "{bot2}, Biotech: strength down sharply.",
+   "text": "{bot2}: next weather lands sharply softer.",
    "max": 90,
-   "place": "BIO_B3 rival line 1, opt_a"
+   "place": "BIO_B3 house line 1, opt_a"
   },
   {
    "id": "EV_BIO_B3_OPA_STD2",
-   "text": "{bot3}, Biotech: growth down clearly.",
+   "text": "{bot3}: next weather comes clearly later.",
    "max": 90,
-   "place": "BIO_B3 rival line 2, opt_a"
+   "place": "BIO_B3 house line 2, opt_a"
   },
   {
    "id": "EV_BIO_B3_OPB_BTN",
@@ -4083,7 +4083,7 @@
   },
   {
    "id": "EV_BIO_B3_OPB_EFF",
-   "text": "Get: Biotech volume up a little for a while. Cost: {cash_out} credits for the slot. Rivals: {bot2}'s Biotech strength and {bot3}'s Biotech growth fall a little.",
+   "text": "Get: Biotech volume up a little for a while. Cost: {cash_out} credits for the slot. Weather: {bot2}'s next weather lands a little softer, and {bot3}'s comes a little later.",
    "max": 200,
    "place": "BIO_B3 effect line, opt_b"
   },
@@ -4095,21 +4095,21 @@
   },
   {
    "id": "EV_BIO_B3_OPB_RES",
-   "text": "You bought a slot at the call and paid in credits. Your lots now sell on schedule, so Biotech volume rises for a while. {bot} loses a little Biotech strength and {bot3} a little growth, as the call split their buyers. The bell at the call is struck by hand, by number.",
+   "text": "You bought a slot at the call and paid in credits. Your lots now sell on schedule, so Biotech volume rises for a while. {bot}'s next weather lands a little softer and {bot3}'s comes a little later, as the call split their buyers. The bell at the call is struck by hand, by number.",
    "max": 280,
    "place": "BIO_B3 result popup, opt_b; {bot} is bot_2"
   },
   {
    "id": "EV_BIO_B3_OPB_STD",
-   "text": "{bot2}, Biotech: strength down a little.",
+   "text": "{bot2}: next weather lands a little softer.",
    "max": 90,
-   "place": "BIO_B3 rival line 1, opt_b"
+   "place": "BIO_B3 house line 1, opt_b"
   },
   {
    "id": "EV_BIO_B3_OPB_STD2",
-   "text": "{bot3}, Biotech: growth down a little.",
+   "text": "{bot3}: next weather comes a little later.",
    "max": 90,
-   "place": "BIO_B3 rival line 2, opt_b"
+   "place": "BIO_B3 house line 2, opt_b"
   },
   {
    "id": "EV_BIO_B4_TITLE",
@@ -4137,7 +4137,7 @@
   },
   {
    "id": "EV_BIO_B4_OPA_EFF",
-   "text": "Get: Biotech price up a little for a while. Cost: Biotech volume down a little for a while. Rivals: {bot2}'s Biotech strength falls sharply.",
+   "text": "Get: Biotech price up a little for a while. Cost: Biotech volume down a little for a while. Weather: {bot2}'s next weather lands sharply softer.",
    "max": 200,
    "place": "BIO_B4 effect line, opt_a"
   },
@@ -4149,15 +4149,15 @@
   },
   {
    "id": "EV_BIO_B4_OPA_RES",
-   "text": "You rented racks by the cycle, and your stock stayed cold in the old hull. Held stock lifts prices a little for a while, and volume dips as it waits. {bot} lost its place at the front, and its Biotech strength falls sharply. The hull ticks as it cools. Ryke counts the doors.",
+   "text": "You rented racks by the cycle, and your stock stayed cold in the old hull. Held stock lifts prices a little for a while, and volume dips as it waits. {bot} lost its place at the front, and its next weather lands sharply softer. The hull ticks as it cools. Ryke counts the doors.",
    "max": 280,
    "place": "BIO_B4 result popup, opt_a; {bot} is bot_2"
   },
   {
    "id": "EV_BIO_B4_OPA_STD",
-   "text": "{bot2}, Biotech: strength down sharply.",
+   "text": "{bot2}: next weather lands sharply softer.",
    "max": 90,
-   "place": "BIO_B4 rival line 1, opt_a"
+   "place": "BIO_B4 house line 1, opt_a"
   },
   {
    "id": "EV_BIO_B4_OPB_BTN",
@@ -4167,7 +4167,7 @@
   },
   {
    "id": "EV_BIO_B4_OPB_EFF",
-   "text": "Get: {cash_in} credits now. Cost: Ship upkeep rises a little for a while. Rivals: {bot2}'s and {bot3}'s Biotech strength falls clearly.",
+   "text": "Get: {cash_in} credits now. Cost: Ship upkeep rises a little for a while. Weather: {bot2}'s and {bot3}'s next weather lands clearly softer.",
    "max": 200,
    "place": "BIO_B4 effect line, opt_b"
   },
@@ -4179,43 +4179,43 @@
   },
   {
    "id": "EV_BIO_B4_OPB_RES",
-   "text": "You sold the firm your first claim to the aisle, and a large payment cleared. Your ships work the new routes, so Ship upkeep rises a little for a while. {bot} and {bot3} both lost the aisle, and each loses Biotech strength clearly. One lamp lights the hull and does not flicker.",
+   "text": "You sold the firm your first claim to the aisle, and a large payment cleared. Your ships work new routes, so Ship upkeep rises a little for a while. {bot} and {bot3} both lost the aisle, and each sees its weather land clearly softer. One lamp lights the hull and does not flicker.",
    "max": 280,
    "place": "BIO_B4 result popup, opt_b; {bot} is bot_2"
   },
   {
    "id": "EV_BIO_B4_OPB_STD",
-   "text": "{bot2} and {bot3}, Biotech: strength down clearly.",
+   "text": "{bot2} and {bot3}: next weather lands clearly softer.",
    "max": 90,
-   "place": "BIO_B4 rival line 1, opt_b"
+   "place": "BIO_B4 house line 1, opt_b"
   },
   {
    "id": "CH_EFFECT_LINE",
-   "text": "Get: {get}. Cost: {cost}. Rivals: {rivals}.",
+   "text": "Get: {get}. Cost: {cost}. Weather: {rivals}.",
    "max": 200,
    "place": "Effect line template for any option the game builds itself (the id game/chains.gd reads); {get}, {cost} and {rivals} are phrases without a final full stop"
   },
   {
    "id": "CH_CUT",
-   "text": "drops a tier",
+   "text": "is held back",
    "max": 24,
    "place": "Chain fill-in: used inside event sentences (see game/chains.gd)"
   },
   {
    "id": "CH_CUT_LOW",
-   "text": "loses strength clearly",
+   "text": "gets clearly softer weather",
    "max": 32,
    "place": "Chain fill-in: used inside event sentences (see game/chains.gd)"
   },
   {
    "id": "CH_CUT_STD",
-   "text": "moved down a tier",
+   "text": "next weather held back",
    "max": 24,
    "place": "Chain fill-in: used inside event sentences (see game/chains.gd)"
   },
   {
    "id": "CH_CUT_STD_LOW",
-   "text": "strength down clearly",
+   "text": "next weather clearly softer",
    "max": 32,
    "place": "Chain fill-in: used inside event sentences (see game/chains.gd)"
   },
@@ -4239,7 +4239,7 @@
   },
   {
    "id": "CH_RIVALS_LABEL",
-   "text": "Rivals:",
+   "text": "Weather:",
    "max": 24,
    "place": "Chain fill-in: used inside event sentences (see game/chains.gd)"
   },
@@ -4311,57 +4311,57 @@
   },
   {
    "id": "EV_EFF_NO_RIVALS",
-   "text": "Rivals: no change in {market} strength or growth.",
+   "text": "Weather: no house changes its next weather.",
    "max": 90,
-   "place": "Effect line, Rivals part of an event that changes no rival"
+   "place": "Effect line, Weather part of an event that changes no house weather"
   },
   {
    "id": "LBL_COMP_EVENTS",
-   "text": "Recent moves",
+   "text": "Weather changes",
    "max": 24,
-   "place": "Competitors menu, heading of the log of rival changes"
+   "place": "House weather menu, heading of the log of changes your choices made"
   },
   {
    "id": "LBL_COMP_NONE",
-   "text": "No rival moves yet.",
+   "text": "No weather changes yet.",
    "max": 40,
-   "place": "Competitors menu, log is empty"
+   "place": "House weather menu, log is empty"
   },
   {
    "id": "LBL_COMP_MOVE_STR_DOWN",
-   "text": "{bot}: {market} strength down",
+   "text": "{bot}: next weather lands softer",
    "max": 60,
-   "place": "Competitors log line, a rival's strength fell; also used when a tier cut lands on a rival at the lowest tier"
+   "place": "House weather log line, a house sends softer weather; also used for a held-back cut at the lowest step"
   },
   {
    "id": "LBL_COMP_MOVE_STR_UP",
-   "text": "{bot}: {market} strength up",
+   "text": "{bot}: next weather lands harder",
    "max": 60,
-   "place": "Competitors log line, a rival's strength rose"
+   "place": "House weather log line, a house sends harder weather"
   },
   {
    "id": "LBL_COMP_MOVE_GRO_DOWN",
-   "text": "{bot}: {market} growth down",
+   "text": "{bot}: next weather comes later",
    "max": 60,
-   "place": "Competitors log line, a rival's growth fell"
+   "place": "House weather log line, a house sends its weather later"
   },
   {
    "id": "LBL_COMP_MOVE_GRO_UP",
-   "text": "{bot}: {market} growth up",
+   "text": "{bot}: next weather comes sooner",
    "max": 60,
-   "place": "Competitors log line, a rival's growth rose"
+   "place": "House weather log line, a house sends its weather sooner"
   },
   {
    "id": "LBL_COMP_MOVE_TIER_DOWN",
-   "text": "{bot}: {market} tier down",
+   "text": "{bot}: next weather held back",
    "max": 60,
-   "place": "Competitors log line, a rival really dropped a tier"
+   "place": "House weather log line, a house has its next weather held back"
   },
   {
    "id": "LBL_COMP_CYCLE",
    "text": "Cycle {n}:",
    "max": 16,
-   "place": "Competitors log line, prefix with the cycle of the move"
+   "place": "House weather log line, prefix with the cycle of the move"
   },
   {
    "id": "STORAGE_READY_TITLE",
@@ -5937,15 +5937,15 @@
   },
   {
    "id": "HINT_RIVAL_MARKET",
-   "text": "Strongest in {market}",
+   "text": "Weather: {weather}",
    "max": 60,
-   "place": "Card on a clicked rival ship, second line, the market where the competitor is strongest; {market}"
+   "place": "Card on a clicked house convoy, second line, the kind of weather it brings; {weather} is Flood, Shortage or Congestion"
   },
   {
    "id": "HINT_RIVAL_NO_MARKET",
-   "text": "No market lead yet",
+   "text": "No weather on its way",
    "max": 60,
-   "place": "Card on a clicked rival ship, second line, when the competitor has no volume yet"
+   "place": "Card on a clicked house convoy, second line, when no weather is due"
   },
   {
    "id": "PROS_TIER_BARREN",
@@ -6638,6 +6638,174 @@
    "place": "Stamp on the world's need row after a delivery"
   },
   {
+   "id": "WX_NAME_FLOOD",
+   "text": "Flood",
+   "max": 24,
+   "place": "Weather kind name, Harrow Combine"
+  },
+  {
+   "id": "WX_NAME_SHORTAGE",
+   "text": "Shortage",
+   "max": 24,
+   "place": "Weather kind name, Velvet Concord"
+  },
+  {
+   "id": "WX_NAME_CONGESTION",
+   "text": "Congestion",
+   "max": 24,
+   "place": "Weather kind name, Ostrel Syndicate"
+  },
+  {
+   "id": "HOUSE_BOT1_TEMPER",
+   "text": "Heavy and blunt. Floods a world, so a sell price dips for a few cycles.",
+   "max": 90,
+   "place": "House card, temperament line of {bot1}"
+  },
+  {
+   "id": "HOUSE_BOT2_TEMPER",
+   "text": "Soft spoken, buys deep. Makes a shortage, so a world needs more and pays more.",
+   "max": 90,
+   "place": "House card, temperament line of {bot2}"
+  },
+  {
+   "id": "HOUSE_BOT3_TEMPER",
+   "text": "Slow and orderly. Causes congestion, so trip cost rises on lanes at one place.",
+   "max": 90,
+   "place": "House card, temperament line of {bot3}"
+  },
+  {
+   "id": "HINT_HOUSE_HEADING",
+   "text": "Heading to {planet}, lands next cycle",
+   "max": 60,
+   "place": "House convoy card, third line, convoy due next cycle"
+  },
+  {
+   "id": "HINT_HOUSE_HEADING_N",
+   "text": "Heading to {planet}, lands in {n} cycles",
+   "max": 60,
+   "place": "House convoy card, third line, convoy due later; {n} cycles"
+  },
+  {
+   "id": "HINT_HOUSE_ACTIVE",
+   "text": "Weather at {planet} for {n} more cycles",
+   "max": 60,
+   "place": "House convoy card, third line, weather in force; {n} cycles left"
+  },
+  {
+   "id": "NOT_WX_FLOOD",
+   "text": "{house} flood at {planet}: {commodity} sell price is down for {cycles} cycles.",
+   "max": 110,
+   "place": "Notice, flood starts; {house}, {planet}, {commodity}, {cycles}"
+  },
+  {
+   "id": "NOT_WX_SHORTAGE",
+   "text": "{house} shortage at {planet}: it needs more {commodity} and pays more for {cycles} cycles.",
+   "max": 110,
+   "place": "Notice, shortage starts"
+  },
+  {
+   "id": "NOT_WX_CONGEST_WORLD",
+   "text": "{house} congestion at {planet}: trip cost is up on its lanes for {cycles} cycles.",
+   "max": 110,
+   "place": "Notice, congestion at one world starts"
+  },
+  {
+   "id": "NOT_WX_CONGEST_EXIT",
+   "text": "{house} congestion at the {system} exit: trip cost is up on lanes through it.",
+   "max": 110,
+   "place": "Notice, congestion at a system exit starts; {system} is the system name"
+  },
+  {
+   "id": "NOT_WX_CONVOY",
+   "text": "A {house} convoy docks at {planet}. Its weather starts now.",
+   "max": 110,
+   "place": "Notice, a convoy docks and its weather starts"
+  },
+  {
+   "id": "NOT_WX_FORECAST_1",
+   "text": "A {house} convoy is heading to {planet}. Its weather lands next cycle.",
+   "max": 110,
+   "place": "Notice and convoy label, weather due next cycle"
+  },
+  {
+   "id": "NOT_WX_FORECAST_N",
+   "text": "A {house} convoy is heading to {planet}. Its weather lands in {n} cycles.",
+   "max": 110,
+   "place": "Notice and convoy label, weather due in {n} cycles (forecast skills)"
+  },
+  {
+   "id": "NOT_WX_ENDING",
+   "text": "{house} weather at {planet} ends next cycle.",
+   "max": 110,
+   "place": "Notice, weather ends next cycle"
+  },
+  {
+   "id": "NOT_WX_END",
+   "text": "{house} weather at {planet} has passed.",
+   "max": 110,
+   "place": "Notice, weather has ended"
+  },
+  {
+   "id": "WX_FORECAST_FLOOD",
+   "text": "Flood ahead at {planet}: a sell price will dip. Sell elsewhere, or wait it out.",
+   "max": 110,
+   "place": "Convoy tooltip, flood due"
+  },
+  {
+   "id": "WX_FORECAST_SHORTAGE",
+   "text": "Shortage ahead at {planet}: it will need more and pay more. Send stock there.",
+   "max": 110,
+   "place": "Convoy tooltip, shortage due"
+  },
+  {
+   "id": "WX_FORECAST_CONGEST",
+   "text": "Congestion ahead at {planet}: trip cost will rise on its lanes. Move a lane, or pay it.",
+   "max": 110,
+   "place": "Convoy tooltip, congestion due at a world"
+  },
+  {
+   "id": "WX_FORECAST_CONGEST_EXIT",
+   "text": "Congestion ahead at the {system} exit: trip cost will rise on lanes through it.",
+   "max": 110,
+   "place": "Convoy tooltip, congestion due at a system exit"
+  },
+  {
+   "id": "MOOD_WARM",
+   "text": "Warm face",
+   "max": 24,
+   "place": "World card, label of a warm face"
+  },
+  {
+   "id": "MOOD_PLAIN",
+   "text": "Plain face",
+   "max": 24,
+   "place": "World card, label of a plain face"
+  },
+  {
+   "id": "MOOD_COLD",
+   "text": "Cold face",
+   "max": 24,
+   "place": "World card, label of a cold face"
+  },
+  {
+   "id": "MOOD_WARM_TIP",
+   "text": "This world thinks well of you. It changes no price, tax or growth.",
+   "max": 110,
+   "place": "World card, tooltip on a warm face"
+  },
+  {
+   "id": "MOOD_PLAIN_TIP",
+   "text": "This world has no view of you yet. It changes no price, tax or growth.",
+   "max": 110,
+   "place": "World card, tooltip on a plain face"
+  },
+  {
+   "id": "MOOD_COLD_TIP",
+   "text": "This world thinks less of you. It changes no price, tax or growth.",
+   "max": 110,
+   "place": "World card, tooltip on a cold face"
+  },
+  {
    "id": "SK_HEADER",
    "text": "Skills",
    "max": 24,
@@ -6665,19 +6833,19 @@
    "id": "SK_BOT_USE",
    "text": "Use on...",
    "max": 24,
-   "place": "Skill screen, menu button on a learned bot skill (Embargo Desk, Guild Seal)"
+   "place": "Skill screen, menu button on a learned house skill (Embargo Desk, Guild Seal; pick a house)"
   },
   {
    "id": "SK_BOT_USED",
    "text": "Used this run.",
    "max": 40,
-   "place": "Skill screen, note on a once-per-run bot skill already used"
+   "place": "Skill screen, note on a once-per-run house skill already used"
   },
   {
    "id": "SK_BOT_COOLDOWN",
    "text": "Ready in {n} cycles.",
    "max": 40,
-   "place": "Skill screen, note on a bot skill that is recharging; {n} is cycles left"
+   "place": "Skill screen, note on a house skill that is recharging; {n} is cycles left"
   },
   {
    "id": "SK_FND_STORAGE_NAME",
@@ -6825,13 +6993,13 @@
   },
   {
    "id": "SK_MIL_5_FLAVOUR",
-   "text": "One call and a rival's yard goes quiet. A clerk thanks you for your patience.",
+   "text": "One call and a house's convoys wait at the gate. A clerk thanks you for your patience.",
    "max": 90,
    "place": "Skill screen, detail panel"
   },
   {
    "id": "SK_MIL_5_PLAIN",
-   "text": "Every {m} cycles pick a rival: its Military strength falls by half for {n} cycles.",
+   "text": "Every {m} cycles pick a house: its weather on your worlds and lanes is {pct} weaker for {n} cycles.",
    "max": 110,
    "place": "Skill screen, detail panel"
   },
@@ -6861,19 +7029,19 @@
   },
   {
    "id": "SK_MIL_7_NAME",
-   "text": "Standing Fleet",
+   "text": "Watch Fleet",
    "max": 24,
    "place": "Skill screen, node name"
   },
   {
    "id": "SK_MIL_7_FLAVOUR",
-   "text": "Ships wait on every lane. People thank you for the quiet. You know its price.",
+   "text": "Ships wait on every lane and call each convoy before it lands. You know its price.",
    "max": 90,
    "place": "Skill screen, detail panel"
   },
   {
    "id": "SK_MIL_7_PLAIN",
-   "text": "Cuts all rivals' Military growth in half for the rest of the run. Capstone.",
+   "text": "Adds {n} cycles of warning before house weather lands, for the rest of the run. Capstone.",
    "max": 110,
    "place": "Skill screen, detail panel"
   },
@@ -7011,13 +7179,13 @@
   },
   {
    "id": "SK_LUX_7_FLAVOUR",
-   "text": "You decide who is let in. A rival stands outside and watches the door.",
+   "text": "You decide who is let in. A house convoy waits outside and watches the door.",
    "max": 90,
    "place": "Skill screen, detail panel"
   },
   {
    "id": "SK_LUX_7_PLAIN",
-   "text": "Every {m} cycles pick a rival: its Luxury strength falls by 40% for {n} cycles. Capstone.",
+   "text": "Every {m} cycles pick a house: its weather on your worlds and lanes is {pct} weaker for {n} cycles. Capstone.",
    "max": 110,
    "place": "Skill screen, detail panel"
   },
@@ -7149,19 +7317,19 @@
   },
   {
    "id": "SK_MIN_7_NAME",
-   "text": "Cornered Seam",
+   "text": "Braced Seam",
    "max": 24,
    "place": "Skill screen, node name"
   },
   {
    "id": "SK_MIN_7_FLAVOUR",
-   "text": "The last seam is yours. The rest dig worse rock and owe the dark for it.",
+   "text": "The seam is shored and the shaft takes the blow. Weather passes over it.",
    "max": 90,
    "place": "Skill screen, detail panel"
   },
   {
    "id": "SK_MIN_7_PLAIN",
-   "text": "Cuts all rivals' Minerals strength by 30% for the rest of the run. Capstone.",
+   "text": "Makes house weather {pct} weaker on your worlds and lanes for the rest of the run. Capstone.",
    "max": 110,
    "place": "Skill screen, detail panel"
   },
@@ -7293,19 +7461,19 @@
   },
   {
    "id": "SK_BIO_7_NAME",
-   "text": "Patent Wall",
+   "text": "Cold Wall",
    "max": 24,
    "place": "Skill screen, node name"
   },
   {
    "id": "SK_BIO_7_FLAVOUR",
-   "text": "A cure with your name on it. Those who need it must ask you first.",
+   "text": "A sealed wall around every vat. Floods and queues stop at the door.",
    "max": 90,
    "place": "Skill screen, detail panel"
   },
   {
    "id": "SK_BIO_7_PLAIN",
-   "text": "Cuts all rivals' Biotech strength by 25% for the rest of the run. Capstone.",
+   "text": "Makes house weather {pct} weaker on your worlds and lanes for the rest of the run. Capstone.",
    "max": 110,
    "place": "Skill screen, detail panel"
   },
@@ -7557,7 +7725,7 @@
   },
   {
    "id": "SK_MIL_15_PLAIN",
-   "text": "Cuts all rivals' Military growth further for the rest of the run. Capstone.",
+   "text": "Makes house weather a further {pct} weaker on your worlds and lanes for the rest of the run. Capstone.",
    "max": 110,
    "place": "Skill screen, detail panel"
   },
@@ -7707,19 +7875,19 @@
   },
   {
    "id": "SK_LUX_15_NAME",
-   "text": "Grand Salon",
+   "text": "Gilt Window",
    "max": 24,
    "place": "Skill screen, node name"
   },
   {
    "id": "SK_LUX_15_FLAVOUR",
-   "text": "The doors are gilt and the guest list is longer than the hall.",
+   "text": "From the salon balcony you see every convoy coming. The guests think it is for them.",
    "max": 90,
    "place": "Skill screen, detail panel"
   },
   {
    "id": "SK_LUX_15_PLAIN",
-   "text": "Cuts all rivals' Luxury growth for the rest of the run. Capstone.",
+   "text": "Adds {n} more cycles of warning before house weather lands, for the rest of the run. Capstone.",
    "max": 110,
    "place": "Skill screen, detail panel"
   },
@@ -8031,19 +8199,19 @@
   },
   {
    "id": "SK_BIO_15_NAME",
-   "text": "Evergreen",
+   "text": "Early Bloom",
    "max": 24,
    "place": "Skill screen, node name"
   },
   {
    "id": "SK_BIO_15_FLAVOUR",
-   "text": "It grows where nobody planted it. Rivals find it in their gardens.",
+   "text": "Pollen drifts ahead of every convoy, and the vats lean toward it.",
    "max": 90,
    "place": "Skill screen, detail panel"
   },
   {
    "id": "SK_BIO_15_PLAIN",
-   "text": "Cuts all rivals' Biotech growth further for the rest of the run. Capstone.",
+   "text": "Adds {n} more cycles of warning before house weather lands, for the rest of the run. Capstone.",
    "max": 110,
    "place": "Skill screen, detail panel"
   },
@@ -9699,9 +9867,9 @@
   },
   {
    "id": "EV40_EFF",
-   "text": "Rivals: no change in {market} strength or growth.",
+   "text": "Weather: no house changes its next weather.",
    "max": 90,
-   "place": "pool event rivals line, {market} filled by the game"
+   "place": "pool event weather line"
   },
   {
    "id": "EV41_TITLE",
@@ -9717,9 +9885,9 @@
   },
   {
    "id": "EV41_EFF",
-   "text": "Rivals: {market} strength and growth stay as they were.",
+   "text": "Weather: every house keeps its next weather as it was.",
    "max": 90,
-   "place": "pool event rivals line, {market} filled by the game"
+   "place": "pool event weather line"
   },
   {
    "id": "EV42_TITLE",
@@ -9735,9 +9903,9 @@
   },
   {
    "id": "EV42_EFF",
-   "text": "Rivals: none of the three changes in {market}.",
+   "text": "Weather: none of the three houses changes its next weather.",
    "max": 90,
-   "place": "pool event rivals line, {market} filled by the game"
+   "place": "pool event weather line"
   },
   {
    "id": "EV43_TITLE",
@@ -9753,9 +9921,9 @@
   },
   {
    "id": "EV43_EFF",
-   "text": "Rivals: no change in {market} strength or growth.",
+   "text": "Weather: no house changes its next weather.",
    "max": 90,
-   "place": "pool event rivals line, {market} filled by the game"
+   "place": "pool event weather line"
   },
   {
    "id": "EV44_TITLE",
@@ -9771,9 +9939,9 @@
   },
   {
    "id": "EV44_EFF",
-   "text": "Rivals: {market} strength and growth stay as they were.",
+   "text": "Weather: every house keeps its next weather as it was.",
    "max": 90,
-   "place": "pool event rivals line, {market} filled by the game"
+   "place": "pool event weather line"
   },
   {
    "id": "EV45_TITLE",
@@ -9789,9 +9957,9 @@
   },
   {
    "id": "EV45_EFF",
-   "text": "Rivals: none of the three changes in {market}.",
+   "text": "Weather: none of the three houses changes its next weather.",
    "max": 90,
-   "place": "pool event rivals line, {market} filled by the game"
+   "place": "pool event weather line"
   },
   {
    "id": "EV46_TITLE",
@@ -9807,9 +9975,9 @@
   },
   {
    "id": "EV46_EFF",
-   "text": "Rivals: no change in {market} strength or growth.",
+   "text": "Weather: no house changes its next weather.",
    "max": 90,
-   "place": "pool event rivals line, {market} filled by the game"
+   "place": "pool event weather line"
   },
   {
    "id": "EV47_TITLE",
@@ -9825,9 +9993,9 @@
   },
   {
    "id": "EV47_EFF",
-   "text": "Rivals: {market} strength and growth stay as they were.",
+   "text": "Weather: every house keeps its next weather as it was.",
    "max": 90,
-   "place": "pool event rivals line, {market} filled by the game"
+   "place": "pool event weather line"
   },
   {
    "id": "EV48_TITLE",
@@ -9843,9 +10011,9 @@
   },
   {
    "id": "EV48_EFF",
-   "text": "Rivals: none of the three changes in {market}.",
+   "text": "Weather: none of the three houses changes its next weather.",
    "max": 90,
-   "place": "pool event rivals line, {market} filled by the game"
+   "place": "pool event weather line"
   },
   {
    "id": "EV49_TITLE",
@@ -9861,9 +10029,9 @@
   },
   {
    "id": "EV49_EFF",
-   "text": "Rivals: no change in {market} strength or growth.",
+   "text": "Weather: no house changes its next weather.",
    "max": 90,
-   "place": "pool event rivals line, {market} filled by the game"
+   "place": "pool event weather line"
   },
   {
    "id": "EV50_TITLE",
@@ -9879,9 +10047,9 @@
   },
   {
    "id": "EV50_EFF",
-   "text": "Rivals: {market} strength and growth stay as they were.",
+   "text": "Weather: every house keeps its next weather as it was.",
    "max": 90,
-   "place": "pool event rivals line, {market} filled by the game"
+   "place": "pool event weather line"
   },
   {
    "id": "EV51_TITLE",
@@ -9897,9 +10065,9 @@
   },
   {
    "id": "EV51_EFF",
-   "text": "Rivals: none of the three changes in {market}.",
+   "text": "Weather: none of the three houses changes its next weather.",
    "max": 90,
-   "place": "pool event rivals line, {market} filled by the game"
+   "place": "pool event weather line"
   },
   {
    "id": "EV_PST01_TITLE",
@@ -10755,9 +10923,9 @@
   },
   {
    "id": "EV52_EFF",
-   "text": "Rivals: no change in {market} strength or growth.",
+   "text": "Weather: no house changes its next weather.",
    "max": 90,
-   "place": "pool event rivals line, {market} filled by the game"
+   "place": "pool event weather line"
   },
   {
    "id": "EV52_A_BTN",
@@ -10821,9 +10989,9 @@
   },
   {
    "id": "EV53_EFF",
-   "text": "Rivals: {market} strength and growth stay as they were.",
+   "text": "Weather: every house keeps its next weather as it was.",
    "max": 90,
-   "place": "pool event rivals line, {market} filled by the game"
+   "place": "pool event weather line"
   },
   {
    "id": "EV53_A_BTN",
@@ -10887,9 +11055,9 @@
   },
   {
    "id": "EV54_EFF",
-   "text": "Rivals: none of the three changes in {market}.",
+   "text": "Weather: none of the three houses changes its next weather.",
    "max": 90,
-   "place": "pool event rivals line, {market} filled by the game"
+   "place": "pool event weather line"
   },
   {
    "id": "EV54_A_BTN",
@@ -10953,9 +11121,9 @@
   },
   {
    "id": "EV55_EFF",
-   "text": "Rivals: no change in {market} strength or growth.",
+   "text": "Weather: no house changes its next weather.",
    "max": 90,
-   "place": "pool event rivals line, {market} filled by the game"
+   "place": "pool event weather line"
   },
   {
    "id": "EV55_A_BTN",
