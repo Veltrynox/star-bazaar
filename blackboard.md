@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-06 18:39 run: T293
-- Summary: Added hub text (name, make-hub prompt, panel labels, four status reasons, release confirm, first-hub notice) as HUB_* ids in story/screens.md and rebuilt story_text.json
-- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
-- Approach: built by a worker in worktree ../wt/T293 on branch task/T293, merged by the serial merge queue.
-- Agent prompts: /overnight-worker T293 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T293.log.
-- Worked: rebase, full test suite and fast-forward merge passed.
-- Failed / did not work: nothing.
-- Files and commits: see git log on branch new-features for commits starting with T293.
-- Left to do: nothing for this task.
-
 ## 2026-11-06 18:41 run: T246
 - Summary: Two-engine trails with a bright core and soft additive glow, age-based taper and smoothed side direction to remove jitter
 - Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
@@ -64,4 +54,14 @@
 - Worked: rebase, full test suite and fast-forward merge passed.
 - Failed / did not work: nothing.
 - Files and commits: see git log on branch new-features for commits starting with T260.
+- Left to do: nothing for this task.
+
+## 2026-11-06 18:49 run: T261
+- Summary: 9 volume_pct nodes became need_fill_pct and 3 share_window nodes became progress_grace, with placeholder keys in data/balance.json and a handoff listing the 12 node ids for the story task
+- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
+- Approach: built by a worker in worktree ../wt/T261 on branch task/T261, merged by the serial merge queue.
+- Agent prompts: /overnight-worker T261 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T261.log.
+- Worked: rebase, full test suite and fast-forward merge passed.
+- Failed / did not work: nothing.
+- Files and commits: see git log on branch new-features for commits starting with T261.
 - Left to do: nothing for this task.
