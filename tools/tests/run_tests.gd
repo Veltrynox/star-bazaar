@@ -375,9 +375,8 @@ func _test_share_graph() -> void:
 	Chains.reset(bal_c, 3)
 	var mc := int(bal_c.get("chain_min_cycle", 6))
 	check(mc >= 5 and mc <= 7, "chain_min_cycle: key present, 5-7", str(mc))
-	Markets.vp["mil"] = [0.0, 500.0]  # share far above 30 pct at cycle 2 (the owner-reported case)
-	Markets.vb["mil"] = []
-	check(Chains.trigger_ok("MIL_B1", 2), "chain_min_cycle: the share trigger alone is true at cycle 2")
+	Skills.learned.append("MIL_3")  # T260: B1 trigger (skill or any_tier:2) true at cycle 2
+	check(Chains.trigger_ok("MIL_B1", 2), "chain_min_cycle: the trigger alone is true at cycle 2")
 	var early_ok := false
 	for sid in Chains.step_ids():
 		for cy in range(1, mc):
@@ -387,6 +386,7 @@ func _test_share_graph() -> void:
 	check(Chains.eligible("MIL_B1", mc), "chain_min_cycle: MIL_B1 eligible at the gate cycle")
 	check(not early_ok, "chain_min_cycle: no chain step eligible before the gate")
 	check(not Chains.eligible("MIL_B1", mc - 1), "chain_min_cycle: MIL_B1 blocked at cycle min-1")
+	Skills.learned.erase("MIL_3")
 	Chains.reset(bal_c, 0)
 	Markets.reset(bal_c, 0)
 	Markets.reset(bal_c, 0)

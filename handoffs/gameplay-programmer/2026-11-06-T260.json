@@ -1,0 +1,19 @@
+{
+  "task": "T260",
+  "summary": "Re-pointed all 21 share_pct chain triggers in data/chains.json to growth atoms. share_pct atom kept in game/conditions.gd for old data; no data uses it.",
+  "mapping": {
+    "A2 (MIL, LUX, MIN, BIO)": "any_tier:2",
+    "B1": "any_tier:2",
+    "A3": "any_tier:3",
+    "B3": "any_tier:3",
+    "B4 (last steps)": "bazaar_stage:1"
+  },
+  "notes": [
+    "any_tier:4 is not used: prosperity_max_tier is 3 (placeholder), so tier 4 would be unreachable. A3 is the last A step at tier 3.",
+    "Atom args are structural indexes (any_tier:<n>, bazaar_stage:<n>), so no new balance keys. The old chain_*_trig_share_pct balance keys are now unused; economy-designer can drop them.",
+    "Chain texts and effects unchanged; cycles_after_prev_step and first_sale_after_cycle triggers unchanged.",
+    "tools/tests/run_tests.gd: chain_min_cycle test now learns MIL_3 instead of faking share (outside touches, minimal edit).",
+    "data/chains.json trigger doc line and game/chains.gd comment updated."
+  ],
+  "files": ["data/chains.json", "game/chains.gd", "tools/tests/run_tests.gd", "gdd.md"]
+}

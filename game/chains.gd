@@ -127,7 +127,7 @@ static func _last_fired_cycle(market: String) -> int:
 			last = maxi(last, int(picks[id]["cycle"]))
 	return last
 
-## Trigger and visible_when of the step, both condition trees of game/conditions.gd (atoms that read the step: share_pct,
+## Trigger and visible_when of the step, both condition trees of game/conditions.gd (atoms that read the step: share_pct (legacy),
 ## first_sale_after_cycle, cycles_after_prev_step). A step without visible_when is always visible.
 static func trigger_ok(step_id: String, cycle: int) -> bool:
 	_ensure()
