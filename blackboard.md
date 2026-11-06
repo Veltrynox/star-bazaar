@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-06 20:00 run: T216
-- Summary: feature-designer wrote the Pathfinder gigs proposal (spawn rule, one open at a time, marker, expiry, two neutral choices, four reward kinds, per-branch examples, data/gigs.json shape, condition atoms).
-- Why this task: no dependencies, design only, no visual/economy/QA need; T217/T218 wait on it.
-- Approach: single feature-designer agent per the T216 brief; no numbers, proposal only.
-- Agent prompts: design gigs per T216 brief, no code, no commit; produced design/proposals/2026-11-05-gigs.md and handoffs/feature-designer/2026-11-06-T216.json.
-- Worked: both files exist; scope covered.
-- Failed / did not work: nothing. Tests not run (no code/data change).
-- Files and commits: design/proposals/2026-11-05-gigs.md, handoff, schedule.json, blackboard.md; see git log "T216".
-- Left to do: owner approval and three open questions; then T217, T218.
-
 ## 2026-11-06 22:00 run: T217
 - Summary: story-designer wrote two gig stories (GIG01 wreck of the Ninth Tally, GIG02 the relay lamp) with hook, arrival, two buttons, four branch outcomes per button and epilogue, in story/gigs.md; build_story.py got build_gigs(). English only.
 - Why this task: dependency T216 done, text only, no visual/economy/QA need; T220/T223 are look/layout decisions, T208/T218/T239 wait on owner approval.
@@ -75,3 +65,13 @@
 - Failed / did not work: nothing run; tests not run (no code or data change by me). T218 gigs skipped: design awaits owner approval and 3 open questions.
 - Files and commits: schedule.json, blackboard.md; see git log "T230".
 - Left to do: owner commits story/events.md and data/story_text.json with the goods work; Russian only on request; T243 needs owner OK.
+
+## 2026-11-06 23:50 run: gap analysis
+- Summary: Reviewed all 16 open tasks; none can be done without an owner decision, a visual decision, owner-only agents, or a clean test base. No new tasks added.
+- Why this task: T05/T193 windowed measure, T178/T182/T209 owner-only QA/economy, T189/T190 owner decisions, T208/T218/T239/T240/T243 await approval, T220/T221/T223 are look/layout, T166 superseded.
+- Approach: did not start T243 even though its dependency is done: the brief itself says it needs owner OK, and the tree has 15 test FAILs from the owner's uncommitted goods work, so a data/events change could not be verified.
+- Agent prompts: none sent.
+- Worked: schedule read; no change to schedule.json.
+- Failed / did not work: nothing run.
+- Files and commits: blackboard.md only.
+- Left to do: owner approves T243/T218/T239/T208 or answers the open questions; owner commits goods work so the test base is green.
