@@ -1,0 +1,24 @@
+{
+ "agent": "gameplay-programmer",
+ "date": "2026-11-05",
+ "task": "T227",
+ "status": "done",
+ "schema_version": 1,
+ "files_changed": [
+  "game/route_engine.gd",
+  "game/storage_link.gd",
+  "game/main.gd",
+  "game/planet_panel.gd",
+  "game/space_storage_view.gd",
+  "story/screens.md",
+  "data/story_text.json",
+  "tools/tests/run_tests.gd",
+  "schedule.json"
+ ],
+ "explanation": "Traced every write to a Space Storage stock (storage.add/remove in route_engine, storage_link, workshops, fabric, skills growth, events, asteroid cuts). Deliveries by route already accumulate: nothing converts, caps below capacity or discards them (new test: 400 energy sent over 3 cycles, stock equals the units that left the source). Energy leaves a Space Storage only by: (1) a Sell order in a planet of the same system (draws the station when the planet's own stock is short; owner rule 2026-11-01), (2) a workshop recipe that uses it (e.g. Cells), (3) Storage Link upkeep (link_upkeep_energy per link per cycle), (4) link orders. The gap found: the Next cycle line and its tooltip did not list link upkeep, so energy seemed to vanish. Fix: project_storage now includes the upkeep drain (RouteEngine.upkeep_out, StorageLink.upkeep_drain, same payer rule as the real payment) and the tooltip says 'Link upkeep -n'. The Space Storage panel shows a rule line (SS_LBL_STOCK_RULE). Recipes are still not in the projection. Test suite: all T227 checks pass; the only FAILs are availability lint for planets s3_p*/s4_p*/s5_p* from the parallel T226 data.",
+ "open_questions": [
+  "If the owner saw energy vanish with a standing Sell order for energy in the same system, that is the Sell-draws-station rule; should Sell orders stop drawing Space Storage?",
+  "Should workshop recipe consumption also appear in the Next cycle projection?"
+ ],
+ "handoff": "Deliveries to Space Storage accumulate; no bug in the delivery path. Only drains: same-system Sell orders, recipes, link upkeep and link orders. Next cycle line now includes link upkeep; panel states the rule in a story id. Test added. Suite fails only on T226 placeholder-planet availability lint."
+}

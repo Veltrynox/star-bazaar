@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-05",
+  "task": "T226",
+  "status": "done",
+  "files_changed": [
+    "data/systems_placeholder.json",
+    "data/availability.json",
+    "data/story_text.json",
+    "story/screens.md",
+    "game/systems.gd",
+    "game/main.gd",
+    "tools/tests/run_tests.gd",
+    "schedule.json"
+  ],
+  "open_questions": [
+    "Placeholder systems show from the start (permit needs the permit skill and cost, trade needs Space Storage). Want them hidden until system 2 is open?",
+    "Russian names for TEMPORARY A/B/C are not added (English only)."
+  ],
+  "handoff": "Systems 3, 4 and 5 are now live in a normal game: three TEMPORARY A/B/C stars in the galaxy overview, each with a sun and three placeholder planets (own prices), enterable after buying their permit (stand-in system 2 price and skill). Planets use the same discovery rule as real ones (post or platform first). Systems 6 to 10 stay off. The skill arrow ignores placeholder systems. T192 closed. To try: new game, open the galaxy (G), click TEMPORARY A, buy the permit via the skill and cost. Tests pass (use TMPDIR for run.sh when another agent runs tests at once).",
+  "details": {
+    "how_to_try": "Open galaxy overview, select a TEMPORARY system, buy permit, enter it."
+  }
+}

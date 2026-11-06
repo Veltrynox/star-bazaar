@@ -1,0 +1,41 @@
+{
+ "agent": "gameplay-programmer",
+ "date": "2026-11-05",
+ "task": "T208",
+ "status": "done",
+ "schema_version": 1,
+ "files_changed": [
+  "data/skills.json",
+  "data/balance.json",
+  "data/availability.json",
+  "game/skills.gd",
+  "game/skill_icons.gd",
+  "game/skill_screen.gd",
+  "game/main.gd",
+  "game/ships.gd",
+  "game/pathfinder.gd",
+  "game/route_engine.gd",
+  "game/workshops.gd",
+  "game/clusters.gd",
+  "game/markets.gd",
+  "game/competitors_panel.gd",
+  "game/planet_panel.gd",
+  "game/space_storage_view.gd",
+  "game/dead_worlds.gd",
+  "game/ending_picker.gd",
+  "tools/make_skill_icons.py",
+  "art/source/ui_glyph_skill_atlas.svg",
+  "art/ui/ui_glyph_skill_atlas.png",
+  "tools/tests/run_tests.gd",
+  "gdd-skills.md",
+  "data/story_text.json",
+  "schedule.json"
+ ],
+ "explanation": "BUILT (all 29): FND_LEDGER, FND_PATHFINDER, FND_YARDS, MIL_8/9/11/12/14/15, LUX_8/9/10/12/13/14/15, MIN_8/9/10/11/12/14/15, BIO_8/9/10/11/12/14. E3 fixed (permanent and not chosen_bot) before LUX_15. Six slots left empty; SHOW_PLACEHOLDERS=false (empty slots draw nothing). MIL_15 is a player button on the skill screen (Start mobilisation, then 'Running until cycle n', then 'Used this run'); the plain text need not change. NOT BUILT / CAVEATS: MIN_10 has no consumer: the game has no dead-world ore-loss roll (dead_ore_loss_chance is not read anywhere), so it only changes DeadWorlds.ore_loss_chance(). Workshop output cap, MIN_9 recipe cut and MIN_11 platform build are coded and unit-tested only at query level, not by a full workshop cycle test. MIL_11 at 10% never pays a unit (price 900, armour value 180 x0.9): placeholder 0.3 (QA cap) gives one unit per ship. Output cap key skill_output_cap_mult is 3 (QA said 2x, which wastes LUX_6 and BIO_11). LUX_8 costs S (economy), consensus line said M. LUX_13 cost key skill_cost_LUX_13 = 2 (M). Numbers match the plain lines (-30 time, 15%, 25%, +25%, +50%, 25%, 0.85, 1%/+10%, 3%). Open Arsenal tested: window 12 for player and all bots, second window node changes nothing. Added glyphs for all new ids to the skill atlas (simple placeholder shapes). Existing tests updated for node counts (62). Suite passes. UI strings with fallbacks, not in story files (story-designer to add): LBL_LEDGER, LBL_LEDGER_LOSS, LBL_COMP_WHISPER_LINE, LBL_COMP_WHISPER_TIER, LBL_COMP_WHISPER_NO_TIER, BTN_WORKSHOP_BUILD_AT, SK_SURGE_START, SK_SURGE_RUNNING. Availability: new feature rules route_ledger, rival_forecast, yard_kits, smelter_platform, full_mobilisation. GDD: gdd-skills.md section 9B.",
+ "open_questions": [
+  "LUX_13 cost M or L (single key skill_cost_LUX_13, now 2)?",
+  "MIN_10 Safe Passage does nothing visible: build a dead-world ore-loss roll, or drop the skill?",
+  "Economy: set MIL_11 credit and skill_output_cap_mult (3 vs QA's 2)?"
+ ],
+ "handoff": "All 29 skills are built and the suite passes. Try: debug menu, learn skills, craft techs; MIL_15 starts from the skill screen. Six slots stay empty, no placeholder frames."
+}

@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "agent": "feature-designer",
+  "date": "2026-11-05",
+  "task": "T207",
+  "status": "done",
+  "files_changed": [
+    "design/proposals/2026-11-05-skills-fill.md",
+    "schedule.json"
+  ],
+  "open_questions": [
+    "Do the three optional Foundations stay outside the market gate (assumed yes)?",
+    "UNKNOWN: do 11 new effect types fit one build task?",
+    "UNKNOWN: do capstone extensions (x_15) stack into an auto-win (economy-designer, by hand)?"
+  ],
+  "handoff": "35 new skills proposed to fill all 35 UI placeholder slots (3 FND, 8 per market). Approval waived by owner. gameplay-programmer builds as T208.",
+  "details": {
+    "proposals": [
+      {
+        "id": "SF-1",
+        "title": "Fill all empty skill slots (35 nodes)",
+        "problem": "35 dashed placeholder slots on the Skill screen; owner asked three times to fill them",
+        "owner_agent": "gameplay-programmer",
+        "size": "L",
+        "questions": [
+          "Foundations outside market gate?",
+          "Two capstones per market?"
+        ]
+      }
+    ]
+  }
+}

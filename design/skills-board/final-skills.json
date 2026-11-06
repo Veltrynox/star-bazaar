@@ -1,0 +1,1644 @@
+{
+ "_note": "DRAFT skills for owner review. Generated from the undone T208 build (design/skills-board/undone-build-handoffs). Not game data.",
+ "nodes": [
+  {
+   "id": "FND_STORAGE",
+   "market": "fnd",
+   "kind": "skill",
+   "tier": 1,
+   "prereqs": [],
+   "cost": 1,
+   "effect": {
+    "type": "unlock",
+    "target": "feature",
+    "id": "space_storage"
+   },
+   "extra": [],
+   "values": {},
+   "name": "Space Storage",
+   "plain": "Lets you keep one large company storage per system, the Space Storage. Planet storage feeds it slowly.",
+   "flavour": "One great hold in the sky, held in common, quietly kept by you.",
+   "origin": "existing"
+  },
+  {
+   "id": "FND_PERMIT",
+   "market": "fnd",
+   "kind": "skill",
+   "tier": 1,
+   "prereqs": [],
+   "cost": 1,
+   "effect": {
+    "type": "unlock",
+    "target": "feature",
+    "id": "permit_routes"
+   },
+   "extra": [],
+   "values": {},
+   "name": "Permit Charter",
+   "plain": "Lets you buy permits for new systems and run routes between systems.",
+   "flavour": "No ship leaves the home sky without a charter. This is the charter.",
+   "origin": "existing"
+  },
+  {
+   "id": "FND_PROSPECT",
+   "market": "fnd",
+   "kind": "skill",
+   "tier": 1,
+   "prereqs": [],
+   "cost": 1,
+   "effect": {
+    "type": "unlock",
+    "target": "feature",
+    "id": "cluster_routes"
+   },
+   "extra": [],
+   "values": {},
+   "name": "Prospecting",
+   "plain": "Lets routes start at asteroid clusters and shows how much each cluster holds.",
+   "flavour": "The Commons owns every rock. It has not counted the ones nobody has looked at.",
+   "origin": "existing"
+  },
+  {
+   "id": "MIL_1",
+   "market": "mil",
+   "kind": "skill",
+   "tier": 1,
+   "prereqs": [
+    "FND_STORAGE",
+    "FND_PERMIT",
+    "FND_PROSPECT"
+   ],
+   "cost": 1,
+   "effect": {
+    "type": "upkeep_mult",
+    "target": "ships",
+    "key": "skill_MIL_1_upkeep"
+   },
+   "extra": [
+    {
+     "type": "unlock",
+     "target": "workshop",
+     "id": "munitions"
+    },
+    {
+     "type": "unlock",
+     "target": "good",
+     "id": "cells"
+    }
+   ],
+   "values": {
+    "skill_MIL_1_upkeep": 0.2
+   },
+   "name": "Drydock Deals",
+   "plain": "Cuts Ship upkeep by 20%. Unlocks Military crafting in your second system.",
+   "flavour": "Every machine is a slow bill with wings. Cut the bill.",
+   "origin": "existing"
+  },
+  {
+   "id": "MIL_2",
+   "market": "mil",
+   "kind": "tech",
+   "tier": 2,
+   "prereqs": [
+    "MIL_1"
+   ],
+   "cost": 0,
+   "effect": {
+    "type": "workshop_batches",
+    "target": "mil",
+    "key": "skill_MIL_2_batches"
+   },
+   "extra": [],
+   "values": {
+    "skill_MIL_2_batches": 1,
+    "tech_goal_2": 6
+   },
+   "name": "Double Casting",
+   "plain": "Military workshops make one more batch a cycle, if you haul the inputs. Tech: craft {goal} units.",
+   "flavour": "Same furnace, twice the pour. The Plan calls it thrift.",
+   "origin": "existing"
+  },
+  {
+   "id": "MIL_3",
+   "market": "mil",
+   "kind": "skill",
+   "tier": 2,
+   "prereqs": [
+    "MIL_1"
+   ],
+   "cost": 2,
+   "effect": {
+    "type": "route_capacity_pct",
+    "target": "mil",
+    "key": "skill_MIL_3_route_units"
+   },
+   "extra": [
+    {
+     "type": "event_immune",
+     "target": "mil",
+     "kinds": [
+      "debris"
+     ]
+    }
+   ],
+   "values": {
+    "skill_MIL_3_route_units": 0.125
+   },
+   "name": "Debris Pilots",
+   "plain": "Routes with Military goods carry 12.5% more a cycle and ignore debris events on the lane.",
+   "flavour": "A good pilot reads the rubble like a timetable.",
+   "origin": "existing"
+  },
+  {
+   "id": "MIL_4",
+   "market": "mil",
+   "kind": "tech",
+   "tier": 3,
+   "prereqs": [
+    "MIL_2"
+   ],
+   "cost": 0,
+   "effect": {
+    "type": "unlock",
+    "target": "good",
+    "id": "armour"
+   },
+   "extra": [],
+   "values": {
+    "tech_goal_4": 11
+   },
+   "name": "Hull Works",
+   "plain": "Unlocks a second Military product. Tech: craft {goal} units.",
+   "flavour": "Shell a hull well and the quarrel goes elsewhere.",
+   "origin": "existing"
+  },
+  {
+   "id": "MIL_5",
+   "market": "mil",
+   "kind": "skill",
+   "tier": 3,
+   "prereqs": [
+    "MIL_3"
+   ],
+   "cost": 3,
+   "effect": {
+    "type": "bot_strength_pct",
+    "target": "mil",
+    "pick": "chosen_bot",
+    "key": "skill_MIL_5_hit",
+    "duration_key": "skill_MIL_5_cycles",
+    "cooldown_key": "skill_MIL_5_every"
+   },
+   "extra": [],
+   "values": {
+    "skill_MIL_5_hit": 0.5,
+    "skill_MIL_5_cycles": 5,
+    "skill_MIL_5_every": 7
+   },
+   "name": "Embargo Desk",
+   "plain": "Every {m} cycles pick a rival: its Military strength falls by half for {n} cycles.",
+   "flavour": "A polite desk with a very long reach.",
+   "origin": "existing"
+  },
+  {
+   "id": "MIL_6",
+   "market": "mil",
+   "kind": "tech",
+   "tier": 4,
+   "prereqs": [
+    "MIL_4",
+    "MIL_5"
+   ],
+   "cost": 0,
+   "effect": {
+    "type": "event_cut_pct",
+    "target": "mil",
+    "key": "skill_MIL_6_event_cut"
+   },
+   "extra": [
+    {
+     "type": "sale_price_pct",
+     "target": "mil",
+     "key": "skill_MIL_6_price",
+     "share_effect": false
+    }
+   ],
+   "values": {
+    "skill_MIL_6_event_cut": 0.5,
+    "skill_MIL_6_price": 0.06,
+    "tech_goal_6": 8
+   },
+   "name": "Contract Doctrine",
+   "plain": "Events that cut your Military prices hit half as hard. Military sales pay 6% more. Tech: craft {goal} units.",
+   "flavour": "Write the terms first. The sky respects a clause.",
+   "origin": "existing"
+  },
+  {
+   "id": "MIL_7",
+   "market": "mil",
+   "kind": "skill",
+   "tier": 5,
+   "prereqs": [
+    "MIL_6"
+   ],
+   "cost": 3,
+   "effect": {
+    "type": "bot_growth_mult",
+    "target": "mil",
+    "pick": "all_bots",
+    "key": "skill_MIL_7_growth_mult",
+    "permanent": true
+   },
+   "extra": [],
+   "values": {
+    "skill_MIL_7_growth_mult": 0.5
+   },
+   "name": "Standing Fleet",
+   "plain": "Cuts all rivals' Military growth in half for the rest of the run. Capstone.",
+   "flavour": "A fleet that is always there needs no speech.",
+   "origin": "existing"
+  },
+  {
+   "id": "LUX_1",
+   "market": "lux",
+   "kind": "skill",
+   "tier": 1,
+   "prereqs": [
+    "FND_STORAGE",
+    "FND_PERMIT",
+    "FND_PROSPECT"
+   ],
+   "cost": 1,
+   "effect": {
+    "type": "reveal_prices",
+    "target": "all",
+    "cycles": 1
+   },
+   "extra": [
+    {
+     "type": "unlock",
+     "target": "workshop",
+     "id": "atelier"
+    },
+    {
+     "type": "unlock",
+     "target": "good",
+     "id": "cask"
+    }
+   ],
+   "values": {},
+   "name": "Price Whisper",
+   "plain": "Shows next cycle's prices. Unlocks Luxury crafting.",
+   "flavour": "Prices move before people do. Listen to the walls.",
+   "origin": "existing"
+  },
+  {
+   "id": "LUX_2",
+   "market": "lux",
+   "kind": "tech",
+   "tier": 2,
+   "prereqs": [
+    "LUX_1"
+   ],
+   "cost": 0,
+   "effect": {
+    "type": "volume_pct",
+    "target": "lux",
+    "key": "skill_LUX_2_volume"
+   },
+   "extra": [
+    {
+     "type": "sale_price_pct",
+     "target": "lux",
+     "key": "skill_LUX_2_price",
+     "share_effect": false
+    }
+   ],
+   "values": {
+    "skill_LUX_2_volume": 0.08,
+    "skill_LUX_2_price": 0.06,
+    "tech_goal_2": 6
+   },
+   "name": "Fine Finishing",
+   "plain": "Luxury sales count 8% more toward share and pay 6% more. Tech: craft {goal} units.",
+   "flavour": "A good edge earns a second look. A third earns a price.",
+   "origin": "existing"
+  },
+  {
+   "id": "LUX_3",
+   "market": "lux",
+   "kind": "skill",
+   "tier": 2,
+   "prereqs": [
+    "LUX_1"
+   ],
+   "cost": 2,
+   "effect": {
+    "type": "event_warning",
+    "target": "all",
+    "cycles": 1
+   },
+   "extra": [],
+   "values": {},
+   "name": "Event Forecast",
+   "plain": "Warns you one cycle before an event, in all four markets.",
+   "flavour": "The sky has moods. The Plan pretends not to notice them.",
+   "origin": "existing"
+  },
+  {
+   "id": "LUX_4",
+   "market": "lux",
+   "kind": "tech",
+   "tier": 3,
+   "prereqs": [
+    "LUX_2"
+   ],
+   "cost": 0,
+   "effect": {
+    "type": "unlock",
+    "target": "good",
+    "id": "gems"
+   },
+   "extra": [],
+   "values": {
+    "tech_goal_4": 11
+   },
+   "name": "Cold Cellar",
+   "plain": "Unlocks a second Luxury product, made only from second-system goods. Tech: craft {goal} units.",
+   "flavour": "Some things improve in the dark. So do some excuses.",
+   "origin": "existing"
+  },
+  {
+   "id": "LUX_5",
+   "market": "lux",
+   "kind": "skill",
+   "tier": 3,
+   "prereqs": [
+    "LUX_3"
+   ],
+   "cost": 3,
+   "effect": {
+    "type": "volume_pct",
+    "target": "lux",
+    "key": "skill_size_l",
+    "condition": "sale_at_price_up_planet"
+   },
+   "extra": [
+    {
+     "type": "event_bonus_pct",
+     "target": "lux",
+     "key": "skill_LUX_5_event_bonus"
+    }
+   ],
+   "values": {
+    "skill_size_l": 0.3,
+    "skill_LUX_5_event_bonus": 0.25
+   },
+   "name": "Patron's List",
+   "plain": "Sales at a price-up planet count 30% more toward your Luxury share, and the event pays 25% more.",
+   "flavour": "The right name on the right list is worth a ship.",
+   "origin": "existing"
+  },
+  {
+   "id": "LUX_5B",
+   "market": "lux",
+   "kind": "skill",
+   "tier": 3,
+   "prereqs": [
+    "LUX_3"
+   ],
+   "cost": 2,
+   "effect": {
+    "type": "reveal_prices",
+    "target": "all",
+    "cycles": 2
+   },
+   "extra": [
+    {
+     "type": "event_warning",
+     "target": "all",
+     "cycles": 2
+    }
+   ],
+   "values": {},
+   "name": "Long Ledger",
+   "plain": "Prices and events are shown 2 cycles ahead.",
+   "flavour": "The Ledger keeps a page for tomorrow's tomorrow. Nobody asks who writes it.",
+   "origin": "existing"
+  },
+  {
+   "id": "LUX_6",
+   "market": "lux",
+   "kind": "tech",
+   "tier": 4,
+   "prereqs": [
+    "LUX_4",
+    "LUX_5"
+   ],
+   "cost": 0,
+   "effect": {
+    "type": "batch_yield",
+    "target": "lux",
+    "key": "skill_LUX_6_batch_bonus"
+   },
+   "extra": [
+    {
+     "type": "sale_price_pct",
+     "target": "lux",
+     "key": "skill_LUX_6_price",
+     "share_effect": false
+    }
+   ],
+   "values": {
+    "skill_LUX_6_batch_bonus": 1,
+    "skill_LUX_6_price": 0.08,
+    "tech_goal_6": 8
+   },
+   "name": "Hallmark",
+   "plain": "Each Luxury batch yields one more unit. Luxury sales pay 8% more. Tech: craft {goal} units.",
+   "flavour": "One more piece from every pour. The mould was always big enough.",
+   "origin": "existing"
+  },
+  {
+   "id": "LUX_7",
+   "market": "lux",
+   "kind": "skill",
+   "tier": 5,
+   "prereqs": [
+    "LUX_6"
+   ],
+   "cost": 3,
+   "effect": {
+    "type": "bot_strength_pct",
+    "target": "lux",
+    "pick": "chosen_bot",
+    "key": "skill_LUX_7_hit",
+    "duration_key": "skill_LUX_7_cycles",
+    "cooldown_key": "skill_LUX_7_every"
+   },
+   "extra": [],
+   "values": {
+    "skill_LUX_7_hit": 0.4,
+    "skill_LUX_7_cycles": 8,
+    "skill_LUX_7_every": 9
+   },
+   "name": "Guild Seal",
+   "plain": "Every {m} cycles pick a rival: its Luxury strength falls by 40% for {n} cycles. Capstone.",
+   "flavour": "Buy the client, not the goods. The guild keeps a form for it.",
+   "origin": "existing"
+  },
+  {
+   "id": "MIN_1",
+   "market": "min",
+   "kind": "skill",
+   "tier": 1,
+   "prereqs": [
+    "FND_STORAGE",
+    "FND_PERMIT",
+    "FND_PROSPECT"
+   ],
+   "cost": 1,
+   "effect": {
+    "type": "unlock",
+    "target": "workshop",
+    "id": "smelter"
+   },
+   "extra": [
+    {
+     "type": "unlock",
+     "target": "workshop",
+     "id": "fabric"
+    },
+    {
+     "type": "unlock",
+     "target": "good",
+     "id": "ingot"
+    }
+   ],
+   "values": {},
+   "name": "Fabrication Licence",
+   "plain": "Unlocks Minerals crafting. Needs Prospecting.",
+   "flavour": "A licence to make one good thing from two bad rocks. Stamped in triplicate.",
+   "origin": "existing"
+  },
+  {
+   "id": "MIN_2",
+   "market": "min",
+   "kind": "tech",
+   "tier": 2,
+   "prereqs": [
+    "MIN_1"
+   ],
+   "cost": 0,
+   "effect": {
+    "type": "ore_free_slots",
+    "target": "min"
+   },
+   "extra": [],
+   "values": {
+    "tech_goal_2": 6
+   },
+   "name": "Smelting",
+   "plain": "Orders for mined cargo ignore the size cap. Tech: craft {goal} units.",
+   "flavour": "Heat is honest. It only asks what you put in.",
+   "origin": "existing"
+  },
+  {
+   "id": "MIN_3",
+   "market": "min",
+   "kind": "skill",
+   "tier": 2,
+   "prereqs": [
+    "MIN_1"
+   ],
+   "cost": 2,
+   "effect": {
+    "type": "cluster_yield_pct",
+    "target": "min",
+    "key": "skill_MIN_3_yield"
+   },
+   "extra": [
+    {
+     "type": "mine_unlock",
+     "id": "dross",
+     "place": "dead_1"
+    }
+   ],
+   "values": {
+    "skill_MIN_3_yield": 0.25
+   },
+   "name": "Cold Survey",
+   "plain": "Lets routes start at Cinderrest and mine its salt. Cluster yield up 25%. Dead worlds open later.",
+   "flavour": "A rock no one lives on still has a ledger line. Someone must read it.",
+   "origin": "existing"
+  },
+  {
+   "id": "MIN_4",
+   "market": "min",
+   "kind": "tech",
+   "tier": 3,
+   "prereqs": [
+    "MIN_2"
+   ],
+   "cost": 0,
+   "effect": {
+    "type": "workshop_batches",
+    "target": "min",
+    "key": "skill_MIN_4_batches"
+   },
+   "extra": [],
+   "values": {
+    "skill_MIN_4_batches": 1,
+    "tech_goal_4": 11
+   },
+   "name": "Twin Crucible",
+   "plain": "Minerals workshops make one more batch a cycle. Tech: craft {goal} units.",
+   "flavour": "Two metals agree if you hold them hot enough.",
+   "origin": "existing"
+  },
+  {
+   "id": "MIN_5",
+   "market": "min",
+   "kind": "skill",
+   "tier": 3,
+   "prereqs": [
+    "MIN_3"
+   ],
+   "cost": 3,
+   "effect": {
+    "type": "mine_unlock",
+    "id": "nullglass",
+    "place": "dead_2"
+   },
+   "extra": [],
+   "values": {},
+   "name": "Deep Cut",
+   "plain": "Lets routes start at Greywake and mine its humming glass. Needs Cold Survey.",
+   "flavour": "Under the dust lies glass that hums. The Bureau has no form for it yet.",
+   "origin": "existing"
+  },
+  {
+   "id": "MIN_5B",
+   "market": "min",
+   "kind": "skill",
+   "tier": 3,
+   "prereqs": [
+    "MIN_3"
+   ],
+   "cost": 2,
+   "effect": {
+    "type": "event_immune",
+    "target": "min",
+    "kinds": [
+     "debris"
+    ]
+   },
+   "extra": [
+    {
+     "type": "event_cut_pct",
+     "target": "min",
+     "key": "skill_MIN_5B_event_cut"
+    },
+    {
+     "type": "route_capacity_pct",
+     "target": "min",
+     "key": "skill_MIN_5B_route_units"
+    }
+   ],
+   "values": {
+    "skill_MIN_5B_event_cut": 0.3,
+    "skill_MIN_5B_route_units": 0.1
+   },
+   "name": "Hard Hats",
+   "plain": "Minerals routes carry 10% more and ignore debris. Minerals price events hit 30% weaker.",
+   "flavour": "Hard hats do not stop a rock. They stop the crew worrying. The Plan counts both.",
+   "origin": "existing"
+  },
+  {
+   "id": "MIN_6",
+   "market": "min",
+   "kind": "tech",
+   "tier": 4,
+   "prereqs": [
+    "MIN_4",
+    "MIN_5"
+   ],
+   "cost": 0,
+   "effect": {
+    "type": "batch_yield",
+    "target": "min",
+    "key": "skill_MIN_6_batch_bonus"
+   },
+   "extra": [
+    {
+     "type": "unlock",
+     "target": "good",
+     "id": "alloy"
+    },
+    {
+     "type": "sale_price_pct",
+     "target": "min",
+     "key": "skill_MIN_6_price",
+     "share_effect": false
+    }
+   ],
+   "values": {
+    "skill_MIN_6_batch_bonus": 1,
+    "skill_MIN_6_price": 0.08,
+    "tech_goal_6": 8
+   },
+   "name": "Lattice Works",
+   "plain": "Each Minerals batch yields one more unit and sales pay 8% more. Unlocks a further product. Tech: craft {goal} units.",
+   "flavour": "A good lattice forgives the one who made it.",
+   "origin": "existing"
+  },
+  {
+   "id": "MIN_7",
+   "market": "min",
+   "kind": "skill",
+   "tier": 5,
+   "prereqs": [
+    "MIN_6"
+   ],
+   "cost": 3,
+   "effect": {
+    "type": "bot_strength_pct",
+    "target": "min",
+    "pick": "all_bots",
+    "key": "skill_MIN_7_strength_cut",
+    "permanent": true
+   },
+   "extra": [],
+   "values": {
+    "skill_MIN_7_strength_cut": 0.3
+   },
+   "name": "Cornered Seam",
+   "plain": "Cuts all rivals' Minerals strength by 30% for the rest of the run. Capstone.",
+   "flavour": "The last seam in reach belongs to someone. Now it is you.",
+   "origin": "existing"
+  },
+  {
+   "id": "BIO_1",
+   "market": "bio",
+   "kind": "skill",
+   "tier": 1,
+   "prereqs": [
+    "FND_STORAGE",
+    "FND_PERMIT",
+    "FND_PROSPECT"
+   ],
+   "cost": 1,
+   "effect": {
+    "type": "unlock",
+    "target": "workshop",
+    "id": "culture_lab"
+   },
+   "extra": [
+    {
+     "type": "unlock",
+     "target": "good",
+     "id": "gel"
+    }
+   ],
+   "values": {},
+   "name": "Culture Charter",
+   "plain": "Unlocks Biotech crafting in your second system.",
+   "flavour": "A good form is one you only file once. The Bureau will not mind.",
+   "origin": "existing"
+  },
+  {
+   "id": "BIO_2",
+   "market": "bio",
+   "kind": "tech",
+   "tier": 2,
+   "prereqs": [
+    "BIO_1"
+   ],
+   "cost": 0,
+   "effect": {
+    "type": "stock_growth_pct",
+    "target": "bio",
+    "key": "skill_BIO_2_stock_growth",
+    "cap_key": "skill_BIO_2_stock_cap",
+    "where": "planet_storage"
+   },
+   "extra": [
+    {
+     "type": "volume_pct",
+     "target": "bio",
+     "key": "skill_BIO_2_volume"
+    }
+   ],
+   "values": {
+    "skill_BIO_2_stock_growth": 0.02,
+    "skill_BIO_2_stock_cap": 0.2,
+    "skill_BIO_2_volume": 0.12,
+    "tech_goal_2": 6
+   },
+   "name": "Culture Banks",
+   "plain": "Stored Biotech grows 2% a cycle, up to +20%. Biotech sales count 12% more toward share. Tech: craft {goal} units.",
+   "flavour": "Something grows in the dark and asks for nothing. For now.",
+   "origin": "existing"
+  },
+  {
+   "id": "BIO_3",
+   "market": "bio",
+   "kind": "skill",
+   "tier": 2,
+   "prereqs": [
+    "BIO_1"
+   ],
+   "cost": 2,
+   "effect": {
+    "type": "storage_cap_pct",
+    "target": "planet_storage",
+    "key": "skill_BIO_3_capacity"
+   },
+   "extra": [
+    {
+     "type": "stock_growth_cap",
+     "target": "bio",
+     "cap_key": "skill_BIO_3_stock_cap"
+    }
+   ],
+   "values": {
+    "skill_BIO_3_capacity": 0.5,
+    "skill_BIO_3_stock_cap": 0.3
+   },
+   "name": "Deep Shelves",
+   "plain": "Planet storage holds 50% more. Biotech stock may now grow up to +30% before it stops.",
+   "flavour": "A shelf is a promise that something will be there.",
+   "origin": "existing"
+  },
+  {
+   "id": "BIO_4",
+   "market": "bio",
+   "kind": "tech",
+   "tier": 3,
+   "prereqs": [
+    "BIO_2"
+   ],
+   "cost": 0,
+   "effect": {
+    "type": "unlock",
+    "target": "good",
+    "id": "seed"
+   },
+   "extra": [
+    {
+     "type": "sale_price_pct",
+     "target": "bio",
+     "key": "skill_BIO_4_price",
+     "share_effect": false
+    }
+   ],
+   "values": {
+    "skill_BIO_4_price": 0.1,
+    "tech_goal_4": 11
+   },
+   "name": "Gene Splicing",
+   "plain": "Unlocks the last Biotech product. Biotech sales pay 10% more. Tech: craft {goal} units.",
+   "flavour": "A small cut, a small stitch. The vat hums approval.",
+   "origin": "existing"
+  },
+  {
+   "id": "BIO_5",
+   "market": "bio",
+   "kind": "skill",
+   "tier": 3,
+   "prereqs": [
+    "BIO_3"
+   ],
+   "cost": 3,
+   "effect": {
+    "type": "share_window",
+    "target": "bio",
+    "key": "share_window_bio_bonus"
+   },
+   "extra": [
+    {
+     "type": "stock_protect",
+     "target": "bio",
+     "on": "storage_cut"
+    }
+   ],
+   "values": {
+    "share_window_bio_bonus": 12
+   },
+   "name": "Clinic Contracts",
+   "plain": "Biotech share counts 12 more cycles, so it moves steadily. Biotech stock survives storage cuts.",
+   "flavour": "A clinic pays slowly, which the Bureau calls trust.",
+   "origin": "existing"
+  },
+  {
+   "id": "BIO_6",
+   "market": "bio",
+   "kind": "tech",
+   "tier": 4,
+   "prereqs": [
+    "BIO_4",
+    "BIO_5"
+   ],
+   "cost": 0,
+   "effect": {
+    "type": "event_cut_pct",
+    "target": "bio",
+    "key": "skill_BIO_6_event_cut"
+   },
+   "extra": [
+    {
+     "type": "reopen_sooner",
+     "cycles": 1
+    },
+    {
+     "type": "sale_price_pct",
+     "target": "bio",
+     "key": "skill_BIO_6_price",
+     "share_effect": false
+    }
+   ],
+   "values": {
+    "skill_BIO_6_event_cut": 0.4,
+    "skill_BIO_6_price": 0.08,
+    "tech_goal_6": 8
+   },
+   "name": "Hardy Strains",
+   "plain": "Biotech events hit 40% weaker. A closed planet reopens a cycle sooner. Sales pay 8% more. Tech: craft {goal} units.",
+   "flavour": "A strain that survives the form survives most things.",
+   "origin": "existing"
+  },
+  {
+   "id": "BIO_7",
+   "market": "bio",
+   "kind": "skill",
+   "tier": 5,
+   "prereqs": [
+    "BIO_6"
+   ],
+   "cost": 3,
+   "effect": {
+    "type": "bot_strength_pct",
+    "target": "bio",
+    "pick": "all_bots",
+    "key": "skill_BIO_7_strength_cut",
+    "permanent": true
+   },
+   "extra": [],
+   "values": {
+    "skill_BIO_7_strength_cut": 0.25
+   },
+   "name": "Patent Wall",
+   "plain": "Cuts all rivals' Biotech strength by 25% for the rest of the run. Capstone.",
+   "flavour": "A wall made of paper outlasts one made of stone.",
+   "origin": "existing"
+  },
+  {
+   "id": "FND_LEDGER",
+   "market": "fnd",
+   "kind": "skill",
+   "tier": 1,
+   "prereqs": [],
+   "cost": 1,
+   "effect": {
+    "type": "unlock",
+    "target": "feature",
+    "id": "route_ledger"
+   },
+   "extra": [],
+   "values": {},
+   "name": "Route Ledger",
+   "plain": "Shows each route's Income after costs per cycle on its row, and marks a loss.",
+   "flavour": "Every route gets a line in the Ledger. Some lines are short on good news.",
+   "origin": "new (consensus)"
+  },
+  {
+   "id": "FND_PATHFINDER",
+   "market": "fnd",
+   "kind": "skill",
+   "tier": 2,
+   "prereqs": [
+    "FND_PROSPECT"
+   ],
+   "cost": 1,
+   "effect": {
+    "type": "pathfinder_time_pct",
+    "target": "feature",
+    "key": "skill_FND_PATHFINDER_time"
+   },
+   "extra": [],
+   "values": {
+    "skill_FND_PATHFINDER_time": 0.3
+   },
+   "name": "Pathfinder",
+   "plain": "Cuts the Pathfinder's flight time by 30%.",
+   "flavour": "The scout learns the dark. The dark does not return the favour.",
+   "origin": "new (consensus)"
+  },
+  {
+   "id": "FND_YARDS",
+   "market": "fnd",
+   "kind": "skill",
+   "tier": 2,
+   "prereqs": [
+    "FND_PERMIT"
+   ],
+   "cost": 2,
+   "effect": {
+    "type": "upgrade_cost_pct",
+    "target": "feature",
+    "key": "skill_FND_YARDS_cost"
+   },
+   "extra": [],
+   "values": {
+    "skill_FND_YARDS_cost": 0.25
+   },
+   "name": "Lane Yards",
+   "plain": "Cuts the cost of upgrading a route by 25%. Applies to route upgrades only.",
+   "flavour": "A lane wears. The yard mends it and files a note with the Bureau.",
+   "origin": "new (consensus)"
+  },
+  {
+   "id": "MIL_8",
+   "market": "mil",
+   "kind": "skill",
+   "tier": 2,
+   "prereqs": [
+    "MIL_1"
+   ],
+   "cost": 2,
+   "effect": {
+    "type": "ship_price_pct",
+    "target": "ships",
+    "key": "skill_MIL_8_price"
+   },
+   "extra": [],
+   "values": {
+    "skill_MIL_8_price": 0.15
+   },
+   "name": "Surplus Hulls",
+   "plain": "Cuts the price of a new Skerrit by 15%. Ship upkeep does not change.",
+   "flavour": "Last season's hulls at this season's price. The paint is still wet.",
+   "origin": "new (consensus)"
+  },
+  {
+   "id": "MIL_9",
+   "market": "mil",
+   "kind": "tech",
+   "tier": 3,
+   "prereqs": [
+    "MIL_2"
+   ],
+   "cost": 0,
+   "effect": {
+    "type": "volume_pct",
+    "target": "mil",
+    "key": "skill_MIL_9_volume"
+   },
+   "extra": [],
+   "values": {
+    "skill_MIL_9_volume": 0.05,
+    "tech_goal_MIL_9": 8
+   },
+   "name": "Tight Press",
+   "plain": "Military sales count 5% more toward share. Tech: craft {goal} units.",
+   "flavour": "Press it tight and the Plan counts it twice. Nearly.",
+   "origin": "new (consensus)"
+  },
+  {
+   "id": "MIL_11",
+   "market": "mil",
+   "kind": "tech",
+   "tier": 4,
+   "prereqs": [
+    "MIL_4"
+   ],
+   "cost": 0,
+   "effect": {
+    "type": "ship_armour_credit",
+    "target": "ships",
+    "key": "skill_MIL_11_credit",
+    "value_key": "skill_MIL_11_unit_value",
+    "cap_key": "skill_MIL_11_cap_max"
+   },
+   "extra": [],
+   "values": {
+    "skill_MIL_11_credit": 0.3,
+    "skill_MIL_11_cap_max": 0.3,
+    "tech_goal_MIL_11": 12
+   },
+   "name": "Yard Kits",
+   "plain": "Military output pays part of the price of a new Skerrit. Purchase only. Tech: craft {goal} units.",
+   "flavour": "A hull on the slip is a bill. Stock in the yard is a discount.",
+   "origin": "new (consensus)"
+  },
+  {
+   "id": "MIL_12",
+   "market": "mil",
+   "kind": "skill",
+   "tier": 4,
+   "prereqs": [
+    "MIL_4"
+   ],
+   "cost": 2,
+   "effect": {
+    "type": "share_window",
+    "target": "mil",
+    "key": "share_window_mil_bonus"
+   },
+   "extra": [],
+   "values": {
+    "share_window_mil_bonus": 12
+   },
+   "name": "Open Arsenal",
+   "plain": "Military share counts the last 12 cycles, not 8. Rivals use the same window.",
+   "flavour": "Open the doors. Everyone sees what you hold, and so do you.",
+   "origin": "new (consensus)"
+  },
+  {
+   "id": "MIL_14",
+   "market": "mil",
+   "kind": "tech",
+   "tier": 5,
+   "prereqs": [
+    "MIL_6"
+   ],
+   "cost": 0,
+   "effect": {
+    "type": "batch_yield",
+    "target": "mil",
+    "key": "skill_MIL_14_yield"
+   },
+   "extra": [],
+   "values": {
+    "skill_MIL_14_yield": 1,
+    "tech_goal_MIL_14": 14
+   },
+   "name": "War Economy",
+   "plain": "Each Military batch makes one more unit. Tech: craft {goal} units.",
+   "flavour": "The war is small. The economy is large. The Plan adjusts the sums.",
+   "origin": "new (consensus)"
+  },
+  {
+   "id": "MIL_15",
+   "market": "mil",
+   "kind": "skill",
+   "tier": 6,
+   "prereqs": [
+    "MIL_7"
+   ],
+   "cost": 3,
+   "effect": {
+    "type": "surge",
+    "target": "mil",
+    "once_per_run": true,
+    "duration_key": "skill_MIL_15_cycles"
+   },
+   "extra": [],
+   "values": {
+    "skill_MIL_15_cycles": 5
+   },
+   "name": "Full Mobilisation",
+   "plain": "Once per run, for 5 cycles: Military routes pay no upkeep and ignore route events.",
+   "flavour": "Every hull, every crew, one season. The Bureau notes the date.",
+   "origin": "new (consensus)"
+  },
+  {
+   "id": "LUX_8",
+   "market": "lux",
+   "kind": "skill",
+   "tier": 2,
+   "prereqs": [
+    "LUX_1"
+   ],
+   "cost": 1,
+   "effect": {
+    "type": "unlock",
+    "target": "feature",
+    "id": "rival_forecast"
+   },
+   "extra": [],
+   "values": {},
+   "name": "Rival Whisper",
+   "plain": "Competitors shows each rival's next tier-up cycle and its projected share 3 cycles ahead.",
+   "flavour": "Rivals file forms too. Someone has to read them.",
+   "origin": "new (consensus)"
+  },
+  {
+   "id": "LUX_9",
+   "market": "lux",
+   "kind": "tech",
+   "tier": 3,
+   "prereqs": [
+    "LUX_2"
+   ],
+   "cost": 0,
+   "effect": {
+    "type": "workshop_batches",
+    "target": "lux",
+    "key": "skill_LUX_9_batches"
+   },
+   "extra": [],
+   "values": {
+    "skill_LUX_9_batches": 1,
+    "tech_goal_LUX_9": 10
+   },
+   "name": "Second Loom",
+   "plain": "Luxury workshops make one more batch a cycle. Tech: craft {goal} units.",
+   "flavour": "One loom is a craft. Two is a schedule.",
+   "origin": "new (consensus)"
+  },
+  {
+   "id": "LUX_10",
+   "market": "lux",
+   "kind": "skill",
+   "tier": 3,
+   "prereqs": [
+    "LUX_3"
+   ],
+   "cost": 2,
+   "effect": {
+    "type": "event_cut_pct",
+    "target": "lux",
+    "key": "skill_LUX_10_event_cut"
+   },
+   "extra": [],
+   "values": {
+    "skill_LUX_10_event_cut": 0.3
+   },
+   "name": "Trend Desk",
+   "plain": "Events that cut Luxury prices hit about a third softer.",
+   "flavour": "Read the mood early and the blow lands on a cushion.",
+   "origin": "new (consensus)"
+  },
+  {
+   "id": "LUX_12",
+   "market": "lux",
+   "kind": "skill",
+   "tier": 4,
+   "prereqs": [
+    "LUX_5B"
+   ],
+   "cost": 2,
+   "effect": {
+    "type": "route_capacity_pct",
+    "target": "lux",
+    "key": "skill_LUX_12_route_units"
+   },
+   "extra": [],
+   "values": {
+    "skill_LUX_12_route_units": 0.1
+   },
+   "name": "Courier Pool",
+   "plain": "Luxury routes carry 10% more each cycle.",
+   "flavour": "News travels fastest in a crate.",
+   "origin": "new (consensus)"
+  },
+  {
+   "id": "LUX_13",
+   "market": "lux",
+   "kind": "skill",
+   "tier": 4,
+   "prereqs": [
+    "LUX_5"
+   ],
+   "cost": 2,
+   "effect": {
+    "type": "bundle_bonus_pct",
+    "target": "lux",
+    "key": "skill_LUX_13_bundle"
+   },
+   "extra": [],
+   "values": {
+    "skill_LUX_13_bundle": 0.05
+   },
+   "name": "Patron's Purse",
+   "plain": "Mixed load pays more when every good sold at the planet is Luxury. The credit cap still applies.",
+   "flavour": "A patron buys the whole shelf and calls it taste.",
+   "origin": "new (consensus)"
+  },
+  {
+   "id": "LUX_14",
+   "market": "lux",
+   "kind": "tech",
+   "tier": 5,
+   "prereqs": [
+    "LUX_6"
+   ],
+   "cost": 0,
+   "effect": {
+    "type": "volume_pct",
+    "target": "lux",
+    "key": "skill_LUX_14_volume"
+   },
+   "extra": [],
+   "values": {
+    "skill_LUX_14_volume": 0.06,
+    "tech_goal_LUX_14": 14
+   },
+   "name": "Auction House",
+   "plain": "Luxury sales count 6% more toward share. Tech: craft {goal} units.",
+   "flavour": "The gavel falls. The Ledger notes the sum and the hush.",
+   "origin": "new (consensus)"
+  },
+  {
+   "id": "LUX_15",
+   "market": "lux",
+   "kind": "skill",
+   "tier": 6,
+   "prereqs": [
+    "LUX_7",
+    "LUX_14"
+   ],
+   "cost": 3,
+   "effect": {
+    "type": "bot_growth_mult",
+    "target": "lux",
+    "pick": "all_bots",
+    "key": "skill_LUX_15_growth_mult",
+    "permanent": true
+   },
+   "extra": [],
+   "values": {
+    "skill_LUX_15_growth_mult": 0.85
+   },
+   "name": "Grand Salon",
+   "plain": "Cuts all rivals' Luxury growth by 15% for the rest of the run. Capstone.",
+   "flavour": "A room so fine that rivals stop to admire it and fall behind.",
+   "origin": "new (consensus)"
+  },
+  {
+   "id": "MIN_8",
+   "market": "min",
+   "kind": "skill",
+   "tier": 2,
+   "prereqs": [
+    "MIN_1"
+   ],
+   "cost": 2,
+   "effect": {
+    "type": "cluster_yield_pct",
+    "target": "min",
+    "key": "skill_MIN_8_yield"
+   },
+   "extra": [],
+   "values": {
+    "skill_MIN_8_yield": 0.25
+   },
+   "name": "Strip Mining",
+   "plain": "Asteroid clusters give 25% more each cycle. The total in each cluster does not change.",
+   "flavour": "Take the top layer fast. The rock was not going anywhere. Now it is.",
+   "origin": "new (consensus)"
+  },
+  {
+   "id": "MIN_9",
+   "market": "min",
+   "kind": "tech",
+   "tier": 3,
+   "prereqs": [
+    "MIN_2"
+   ],
+   "cost": 0,
+   "effect": {
+    "type": "recipe_input_minus",
+    "target": "min",
+    "workshop": "smelter",
+    "input": "ore",
+    "key": "skill_MIN_9_ore"
+   },
+   "extra": [],
+   "values": {
+    "skill_MIN_9_ore": 1,
+    "tech_goal_MIN_9": 10
+   },
+   "name": "Slag Reclaim",
+   "plain": "Minerals workshops use one less input per batch, never fewer than one. Tech: craft {goal} units.",
+   "flavour": "Nothing is wasted. It is merely reassigned.",
+   "origin": "new (consensus)"
+  },
+  {
+   "id": "MIN_10",
+   "market": "min",
+   "kind": "skill",
+   "tier": 3,
+   "prereqs": [
+    "MIN_3"
+   ],
+   "cost": 2,
+   "effect": {
+    "type": "dead_ore_loss_chance",
+    "target": "min",
+    "key": "skill_MIN_10_chance"
+   },
+   "extra": [],
+   "values": {
+    "skill_MIN_10_chance": 0.25
+   },
+   "name": "Safe Passage",
+   "plain": "Halves the chance of losing cargo while mining a dead world.",
+   "flavour": "The dark takes its share. The Plan asks it to take less.",
+   "origin": "new (consensus)"
+  },
+  {
+   "id": "MIN_11",
+   "market": "min",
+   "kind": "tech",
+   "tier": 4,
+   "prereqs": [
+    "MIN_4"
+   ],
+   "cost": 0,
+   "effect": {
+    "type": "unlock",
+    "target": "feature",
+    "id": "smelter_platform"
+   },
+   "extra": [],
+   "values": {
+    "tech_goal_MIN_11": 12
+   },
+   "name": "Pit-head Smelter",
+   "plain": "Lets you build a Minerals workshop at a mining platform. Tech: craft {goal} units.",
+   "flavour": "Why haul the rock home to be melted. It does not mind the heat.",
+   "origin": "new (consensus)"
+  },
+  {
+   "id": "MIN_12",
+   "market": "min",
+   "kind": "skill",
+   "tier": 4,
+   "prereqs": [
+    "MIN_5B"
+   ],
+   "cost": 2,
+   "effect": {
+    "type": "event_bonus_pct",
+    "target": "min",
+    "key": "skill_MIN_12_event_bonus"
+   },
+   "extra": [],
+   "values": {
+    "skill_MIN_12_event_bonus": 0.25
+   },
+   "name": "Rock Brokers",
+   "plain": "Events that raise Minerals prices pay 25% more.",
+   "flavour": "A broker sells the same stone twice and the rumour once.",
+   "origin": "new (consensus)"
+  },
+  {
+   "id": "MIN_14",
+   "market": "min",
+   "kind": "tech",
+   "tier": 5,
+   "prereqs": [
+    "MIN_6"
+   ],
+   "cost": 0,
+   "effect": {
+    "type": "volume_pct",
+    "target": "min",
+    "key": "skill_MIN_14_volume"
+   },
+   "extra": [],
+   "values": {
+    "skill_MIN_14_volume": 0.06,
+    "tech_goal_MIN_14": 14
+   },
+   "name": "Mass Smelting",
+   "plain": "Minerals sales count 6% more toward share. Tech: craft {goal} units.",
+   "flavour": "One furnace is a trade. A hall of them is a policy.",
+   "origin": "new (consensus)"
+  },
+  {
+   "id": "MIN_15",
+   "market": "min",
+   "kind": "skill",
+   "tier": 6,
+   "prereqs": [
+    "MIN_7",
+    "MIN_14"
+   ],
+   "cost": 3,
+   "effect": {
+    "type": "cluster_richness_pct",
+    "target": "min",
+    "key": "skill_MIN_15_richness"
+   },
+   "extra": [],
+   "values": {
+    "skill_MIN_15_richness": 0.5
+   },
+   "name": "Motherlode",
+   "plain": "Asteroid clusters hold 50% more before they run dry.",
+   "flavour": "The Commons said the rock was nearly empty. The Commons had not looked deep.",
+   "origin": "new (consensus)"
+  },
+  {
+   "id": "BIO_8",
+   "market": "bio",
+   "kind": "skill",
+   "tier": 2,
+   "prereqs": [
+    "BIO_1"
+   ],
+   "cost": 2,
+   "effect": {
+    "type": "route_capacity_pct",
+    "target": "bio",
+    "key": "skill_BIO_8_route_units"
+   },
+   "extra": [],
+   "values": {
+    "skill_BIO_8_route_units": 0.125
+   },
+   "name": "Common Vats",
+   "plain": "Biotech routes carry 12.5% more each cycle.",
+   "flavour": "The vat belongs to everyone. The delivery belongs to you.",
+   "origin": "new (consensus)"
+  },
+  {
+   "id": "BIO_9",
+   "market": "bio",
+   "kind": "tech",
+   "tier": 3,
+   "prereqs": [
+    "BIO_2"
+   ],
+   "cost": 0,
+   "effect": {
+    "type": "workshop_batches",
+    "target": "bio",
+    "key": "skill_BIO_9_batches"
+   },
+   "extra": [],
+   "values": {
+    "skill_BIO_9_batches": 1,
+    "tech_goal_BIO_9": 10
+   },
+   "name": "Spore Bank",
+   "plain": "Biotech workshops make one more batch a cycle. Tech: craft {goal} units.",
+   "flavour": "Deposit one spore. Withdraw a season. Interest accrues quietly.",
+   "origin": "new (consensus)"
+  },
+  {
+   "id": "BIO_10",
+   "market": "bio",
+   "kind": "skill",
+   "tier": 3,
+   "prereqs": [
+    "BIO_3"
+   ],
+   "cost": 2,
+   "effect": {
+    "type": "space_stock_growth_pct",
+    "target": "bio",
+    "key": "skill_BIO_10_stock_growth",
+    "cap_key": "skill_BIO_10_stock_cap",
+    "where": "space_storage"
+   },
+   "extra": [],
+   "values": {
+    "skill_BIO_10_stock_growth": 0.01,
+    "skill_BIO_10_stock_cap": 0.1
+   },
+   "name": "Deep Shelf",
+   "plain": "Biotech in Space Storage grows 1% a cycle, up to +10% of the stored amount.",
+   "flavour": "The back shelves are cold. Whatever sleeps there keeps growing.",
+   "origin": "new (consensus)"
+  },
+  {
+   "id": "BIO_11",
+   "market": "bio",
+   "kind": "tech",
+   "tier": 5,
+   "prereqs": [
+    "BIO_4"
+   ],
+   "cost": 0,
+   "effect": {
+    "type": "batch_yield",
+    "target": "bio",
+    "key": "skill_BIO_11_yield"
+   },
+   "extra": [],
+   "values": {
+    "skill_BIO_11_yield": 1,
+    "tech_goal_BIO_11": 14
+   },
+   "name": "Graft Lines",
+   "plain": "Each Biotech batch makes one more unit. Tech: craft {goal} units.",
+   "flavour": "Join two strains and file them as one. The form allows it.",
+   "origin": "new (consensus)"
+  },
+  {
+   "id": "BIO_12",
+   "market": "bio",
+   "kind": "skill",
+   "tier": 4,
+   "prereqs": [
+    "BIO_5"
+   ],
+   "cost": 2,
+   "effect": {
+    "type": "stock_growth_pct",
+    "target": "bio",
+    "key": "skill_BIO_12_stock_growth",
+    "cap_key": "skill_BIO_2_stock_cap",
+    "where": "planet_storage"
+   },
+   "extra": [
+    {
+     "type": "stock_growth_pause_after_sale",
+     "target": "bio"
+    }
+   ],
+   "values": {
+    "skill_BIO_12_stock_growth": 0.01,
+    "skill_BIO_2_stock_cap": 0.2
+   },
+   "name": "Patient Orchard",
+   "plain": "Stored Biotech grows 3% a cycle, not 2%, but not the cycle after a sale. The limit does not change.",
+   "flavour": "Pick nothing and it ripens. Pick something and it sulks for a cycle.",
+   "origin": "new (consensus)"
+  },
+  {
+   "id": "BIO_14",
+   "market": "bio",
+   "kind": "tech",
+   "tier": 5,
+   "prereqs": [
+    "BIO_6"
+   ],
+   "cost": 0,
+   "effect": {
+    "type": "sale_price_pct",
+    "target": "bio",
+    "key": "skill_BIO_14_price",
+    "share_effect": false
+   },
+   "extra": [],
+   "values": {
+    "skill_BIO_14_price": 0.06,
+    "tech_goal_BIO_14": 14
+   },
+   "name": "Living Contracts",
+   "plain": "Biotech sales pay 6% more. Tech: craft {goal} units.",
+   "flavour": "A contract that grows with the harvest. The clauses sprout.",
+   "origin": "new (consensus)"
+  }
+ ],
+ "empty_slots": [
+  "MIL_10",
+  "MIL_13",
+  "LUX_11",
+  "MIN_13",
+  "BIO_13",
+  "BIO_15"
+ ],
+ "balance_caps": {
+  "volume": 0.2,
+  "price": 0.3,
+  "event_cut": 0.9,
+  "cluster_yield": 0.6
+ },
+ "skill_point_budget": 21
+}

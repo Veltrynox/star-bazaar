@@ -1120,10 +1120,10 @@
       "brief": "T186 raised cap 6 to 20; trip cost and maintenance were tuned for 6; Ships panel scrolls. Owner decides retune (owner-started only) and list look. needs owner decision.",
       "owner_note": "",
       "depends_on": [],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 30,
       "window": "Gap analysis 2026-11-05 (overnight). Needs owner decision before start.",
-      "note": ""
+      "note": "Answered 2026-11-05 by owner: ship cap 10 (T232); 3 placeholder systems (T226)."
     },
     {
       "task_id": "T192",
@@ -1132,10 +1132,10 @@
       "brief": "T176 placeholders are ids 3-5 off by default; gdd-skills open question 4 says nothing points at system 3. Owner decides count (3-5 vs 6) and whether to give them real permits. needs owner decision.",
       "owner_note": "",
       "depends_on": [],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 30,
       "window": "Gap analysis 2026-11-05 (overnight). Needs owner decision before start.",
-      "note": ""
+      "note": "Closed by owner decision 2026-11-05: 3 placeholder systems (T226)."
     },
     {
       "task_id": "T193",
@@ -1309,10 +1309,11 @@
       "title": "Skill tree: fill every empty skill slot, each skill argued for",
       "owner_agent": "feature-designer",
       "depends_on": [],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 40,
       "window": "Owner request 2026-11-05 (playtest). Not started: main session sets it running.",
-      "brief": "Owner: finish the skill tree so every slot is filled (data/skills.json has 31 nodes; see gdd-skills.md and design/proposals/2026-11-05-skill-tree-round*.md for the empty slots and thin branches in Military, Luxury, Minerals, Biotech and the general branch). For every skill, write why it is worth taking (the decision it creates, the cost it asks, which gap it fills, why it is not a trap or a must-take), and drop or merge a skill that has no good argument instead of padding the tree. Money never buys skill points; choices are neutral. No numbers beyond a proposed cost and effect size. Proposal in design/proposals/2026-11-05-skill-tree-fill.md. Do NOT call the qa-analyst or economy-designer: the owner starts their review by hand (see the review task). Handoff handoffs/<agent>/2026-11-05-<id>.json."
+      "brief": "Owner: finish the skill tree so every slot is filled (data/skills.json has 31 nodes; see gdd-skills.md and design/proposals/2026-11-05-skill-tree-round*.md for the empty slots and thin branches in Military, Luxury, Minerals, Biotech and the general branch). For every skill, write why it is worth taking (the decision it creates, the cost it asks, which gap it fills, why it is not a trap or a must-take), and drop or merge a skill that has no good argument instead of padding the tree. Money never buys skill points; choices are neutral. No numbers beyond a proposed cost and effect size. Proposal in design/proposals/2026-11-05-skill-tree-fill.md. Do NOT call the qa-analyst or economy-designer: the owner starts their review by hand (see the review task). Handoff handoffs/<agent>/2026-11-05-<id>.json.",
+      "owner_note": "Owner 2026-11-05: asked three times. Fill EVERY empty placeholder skill slot. Proposal approval waived: the owner wants it built. Run T207 then T208 now."
     },
     {
       "task_id": "T208",
@@ -1324,7 +1325,8 @@
       "status": "queued",
       "turn_cap": 40,
       "window": "Owner request 2026-11-05. Needs the owner to approve the proposal first.",
-      "brief": "Build the skills from the T207 proposal after the owner approves it: new effect types in game/skills.gd, nodes in data/skills.json, numbers in data/balance.json as the proposal says (placeholders), skill names and descriptions through story/skills.md and story/ru/skills.json (no hidden goods named), python3 tools/build_story.py, update gdd-skills.md. Handoff handoffs/gameplay-programmer/2026-11-05-<id>.json."
+      "brief": "Build the skills from the T207 proposal after the owner approves it: new effect types in game/skills.gd, nodes in data/skills.json, numbers in data/balance.json as the proposal says (placeholders), skill names and descriptions through story/skills.md and story/ru/skills.json (no hidden goods named), python3 tools/build_story.py, update gdd-skills.md. Handoff handoffs/gameplay-programmer/2026-11-05-<id>.json.",
+      "owner_note": "Owner 2026-11-05: build UNDONE for owner review. Consensus is in design/skills-board/consensus.md; build only after the owner approves it. Build backup patch: scratchpad full-before-undo.patch (session only)."
     },
     {
       "task_id": "T209",
@@ -1471,6 +1473,120 @@
       "turn_cap": 20,
       "window": "Follow-up from T203 (juice review 2026-11-05). One small run.",
       "brief": "Review and smooth the rough parts left after T198/T205: (1) game/ship_trail.gd: check the trail on stop, on a system change and on a sharp turn (no jump or long straight streak, clears cleanly, rival trails do not keep drawing while paused or in another system); (2) the notification board and pop-up notices (game/main.gd post_notice and its scripts): confirm each enters in under 0.3 s with the Juice.enter vocabulary, leaves with Juice.leave, and that a notice dismissed or replaced mid-animation ends in its final state; do not shorten hold times. Why it matters: trails and notices are on screen all the time, so any pop, streak or stuck half-faded notice is seen constantly. Fix only what is found, list what was fine, no text or logic changes, tests where headless-testable."
+    },
+    {
+      "task_id": "T222",
+      "title": "Bug: Space on 'Start exploring' also presses 'Stop exploring'",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 15,
+      "window": "Owner request 2026-11-05 (playtest). Not started: main session sets it running.",
+      "brief": "Owner: after clicking the Start exploring button, pressing Space (pause/resume time) also activates the focused button, which flips it to Stop exploring. Fix: the exploration button (and other buttons near the ship controls) must not keep keyboard focus after a click (focus_mode NONE or release_focus), and Space must only toggle pause. Check every other button that can take focus and swallow Space or Enter. Headless test if feasible. Handoff handoffs/gameplay-programmer/2026-11-05-T222.json."
+    },
+    {
+      "task_id": "T223",
+      "title": "3D viewport: resource icons below each planet",
+      "owner_agent": "ui-programmer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 25,
+      "window": "Owner request 2026-11-05 (playtest). Not started: main session sets it running.",
+      "brief": "Owner: under each planet in the 3D solar system view show small icons of the resources available on that planet (icons from art/icons and ui.gd, the same set the galaxy view uses). Use the Availability rule: closed or undiscovered planets and hidden goods are not drawn. Icons must follow the planet size and zoom, stay readable, not overlap the planet label, and not block clicks. Handoff handoffs/ui-programmer/2026-11-05-T223.json."
+    },
+    {
+      "task_id": "T224",
+      "title": "Story: 10 new connected generic stories, not tied to skill branches",
+      "owner_agent": "story-designer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 40,
+      "window": "Owner request 2026-11-05 (playtest). Not started: main session sets it running.",
+      "brief": "Owner: write 10 new connected generic stories (one chain with a thread running through them, in the voice of story/voice.md) that are NOT related to the skill branches. Check how events, gigs (T217) and gated options are stored (story/events.md, story/ideas.md, header of tools/build_story.py) and write them in that format, English first, then Russian in story/ru. Mechanics only as text ids and a short list of the trigger and effect each story needs, no balance numbers; if a story needs new code, list it in the handoff for the gameplay-programmer. Do not run audio. Run python3 tools/build_story.py. Handoff handoffs/story-designer/2026-11-05-T224.json."
+    },
+    {
+      "task_id": "T225",
+      "title": "Skill tree: connection lines pass through skill nodes",
+      "owner_agent": "ui-programmer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 20,
+      "window": "Owner request 2026-11-05 (playtest). Not started: main session sets it running.",
+      "brief": "Owner screenshot: in the skill screen a connector line runs straight through a node (seen on the Price Whisper node: a vertical line crosses the node box). Route the lines so they stop at node edges or go behind opaque nodes (draw order and node background), for every branch and every node pair, including the new skills from T208. Check all three branches by looking at the layout code and a windowed screenshot via qa/run_game.sh if needed. Handoff handoffs/ui-programmer/2026-11-05-T225.json."
+    },
+    {
+      "task_id": "T226",
+      "title": "Make the 3 temporary placeholder solar systems really present",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [],
+      "status": "done",
+      "turn_cap": 40,
+      "window": "Owner request 2026-11-05 (playtest). Not started: main session sets it running.",
+      "brief": "Owner (asked before, T176 was marked done but the owner sees nothing): T176 put systems 3-5 in data/systems_placeholder.json but off by default with availability rules that are never true, so they cannot be seen. Make three temporary placeholder systems actually appear in the galaxy overview and be enterable (hidden until system 2 is open is fine, but they must show up in a normal game without debug flags, with a visible TEMPORARY or placeholder look in the name text), each with a sun, a few planets with placeholder names and prices, and working discovery and flight. Keep placeholder:true so story and economy can replace them later. Update the Availability rule and test (sh tools/tests/run.sh) and add a test that all 3 placeholder systems are listed and enterable. Also close T192 by this decision: 3 placeholder systems. Handoff handoffs/gameplay-programmer/2026-11-05-T226.json.",
+      "owner_note": "Owner frustrated: asked for this already.",
+      "note": "Systems 3 to 5 now live in a normal game (on:true in data/systems_placeholder.json, names TEMPORARY A/B/C, placeholder:true); 6 to 10 stay off. Availability: feature rules 3 to 5 now always true, planet discovery rules added for s3_p1..s5_p3. Arrow ignores placeholder systems. Tests updated and added; suite passes."
+    },
+    {
+      "task_id": "T227",
+      "title": "Space Storage: delivered resources accumulate there (where does energy go?)",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [],
+      "status": "done",
+      "note": "Delivery already accumulated (route test passes); the gap was that the Next cycle line hid link upkeep. Added upkeep drain to the projection, a stock-rule line in the panel (SS_LBL_STOCK_RULE), T227 tests.",
+      "turn_cap": 30,
+      "window": "Owner request 2026-11-05 (playtest). Not started: main session sets it running.",
+      "brief": "Owner question: where does the energy go on a Space Storage? Expected rule: any resource brought to a Space Storage (by ship route, mining platform, planet transfer) just accumulates in that storage stock and stays there until used by a sell order, a recipe or the storage upkeep. Trace how energy and other raws are handled in game/space_storage*.gd, game/storage_link.gd and the route delivery code: find where energy is consumed, discarded or converted (for example upkeep burning it, or a cap) and fix it so deliveries accumulate. Show the stock in the storage panel. If upkeep or a cap is intended, state it in the panel text as a story id and tell the owner in the handoff what the rule is. Headless test: deliver energy to storage over several cycles, stock rises by the delivered amount minus only declared upkeep. Handoff handoffs/gameplay-programmer/2026-11-05-T227.json.",
+      "owner_note": "Owner frustrated: asked before."
+    },
+    {
+      "task_id": "T228",
+      "title": "Exploration can be stopped while the game is paused",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 15,
+      "window": "Owner request 2026-11-05 (playtest). Not started: main session sets it running.",
+      "brief": "Owner: the Stop exploring button and manual orders do nothing while time is paused. Switching exploration off (button) and giving a manual order must work when paused; the ship still does not move while paused. Update the button label state at once. Headless test: pause, stop exploring, mode is off. Handoff handoffs/gameplay-programmer/2026-11-05-T228.json."
+    },
+    {
+      "task_id": "T229",
+      "title": "End screen shows a '[workshop]' text: placeholder or bug?",
+      "owner_agent": "story-designer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 20,
+      "window": "Owner request 2026-11-05 (playtest). Not started: main session sets it running.",
+      "brief": "Owner sees [workshop] on the end screen. Find it (story/endings.md, data/story_text*.json, game/ending*.gd): is it an unfilled placeholder token, a missing text id or an unresolved variable? If so fix it (source in story/, then python3 tools/build_story.py) with proper text in English and Russian, and add a headless text scan that fails on any raw [word] or {var} left in rendered end screen text for every ending. Report the cause in the handoff handoffs/story-designer/2026-11-05-T229.json; gameplay-programmer fixes any code side."
+    },
+    {
+      "task_id": "T230",
+      "title": "Story: rewrite events to be less dry (no audio)",
+      "owner_agent": "story-designer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 40,
+      "window": "Owner request 2026-11-05 (playtest). Not started: main session sets it running.",
+      "brief": "Owner: rewrite the event texts (EV01 and on, story/events.md, English then story/ru) so they read less dry: more voice, concrete detail, a little humour or tension, same mechanics and effect lines, same max lengths (story/voice.md). Respect the connected thread of T224 if it exists. Do NOT run or regenerate audio. Run python3 tools/build_story.py. Handoff handoffs/story-designer/2026-11-05-T230.json."
+    },
+    {
+      "task_id": "T231",
+      "title": "Scale: solar system 1.4x, planets 1.3x",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 30,
+      "window": "Owner request 2026-11-05 (playtest). Not started: main session sets it running.",
+      "brief": "Owner: scale the solar system map up 1.4x (orbit radii, distances, flight paths, camera framing, route lines, asteroid fields, ship spawn offsets) and increase planet size by 1.3x (visual radius and click and spawn clearance, labels, icons). Put both factors as named constants or balance keys (one place), keep all systems consistent, keep ships spawning outside the planets, and keep camera zoom and view limits working. Flight times must not change by accident: say in the handoff how travel time changed. sh tools/tests/run.sh must pass. Handoff handoffs/gameplay-programmer/2026-11-05-T231.json."
+    },
+    {
+      "task_id": "T232",
+      "title": "Ship limit set to 10",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 15,
+      "window": "Owner request 2026-11-05 (playtest). Not started: main session sets it running.",
+      "brief": "Owner: set the maximum number of ships to 10 (currently 20, see data/balance.json and game code; T191 decision is answered by this). Update tests, text that names the cap (story ids, then python3 tools/build_story.py), and the GDD number lives in data/ only. Existing saves with more than 10 must still load. Handoff handoffs/gameplay-programmer/2026-11-05-T232.json."
     }
   ],
   "done_task_ids": [
