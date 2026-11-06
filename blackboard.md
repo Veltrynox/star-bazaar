@@ -4,7 +4,7 @@
 - discovery_enabled in data/balance.json ships at 1 (owner decision 2026-11-05); tests that need it off set it themselves.
 
 ## Left to do
-- T233 done (text): T234 must add mechanics/tag rows for EV52-55 and fill {cash_in}, {market}; events name no goods until T238.
+- T234 done: owner to answer: EV52-55 rarely fire (cycles 5 and 9 in window, pool ~36); Luxury/Minerals often not visible by cycle 10; chain gains removed as options (one kept per step). Cash values first-pass.
 - T230 partial: choice events EV17-20, BE01-03 and pending post/platform/flight events not rewritten (owner to say); Russian not touched.
 - T236 done: tags shown on CEO card. SETUP_NEXT still reads 'Next'. story/voice.md has uncommitted owner edits, left alone.
 - Owner: T219 lane draw-in/fade/pulse not seen windowed (constants atop route_line.gd); route made while paused shows no draw-in.
@@ -59,3 +59,13 @@
 - Failed / did not work: nothing.
 - Files and commits: story/events.md, data/story_text.json, handoff, schedule.json, blackboard.md; see git log "T233".
 - Left to do: T234 mechanics (rows in data/events.json via tags, {cash_in} A>B, {market}); EVnn_EFF rivals lines say no rival change. story/voice.md and .claude/agents edits are the owner's, left alone.
+
+## 2026-11-06 16:00 run: T234
+- Summary: Built the four branch events EV52-55 as data-driven one-time pool events (dark option A, public option B), cycle window via new atom cycle_at_most, and the hidden 20% spotted flag that removes half the profitable events for the run. Flag and removed set are saved; old saves load without them.
+- Why this task: dependency T233 done, code only, no visual, economy or QA need; the other open tasks are owner-only, blocked or need decisions.
+- Approach: gameplay-programmer agent; one pattern in chains.json pool_new and Events._branch_choices rather than four copies; chain gains removed as options so requires_prev_step chains stay intact.
+- Agent prompts: build T234 per brief, no commit, tests, handoff; produced game/events.gd, chains.gd, conditions.gd, main.gd, data/balance.json, data/chains.json, tests, gdd.md line, handoffs/gameplay-programmer/2026-11-06-T234.json.
+- Worked: sh tools/tests/run.sh pass=11330 fail=0 (my re-run).
+- Failed / did not work: nothing; not played windowed.
+- Files and commits: see git log "T234".
+- Left to do: owner: events fire rarely (cycles 5 and 9 in window), Luxury and Minerals may be invisible by cycle 10, choose widen window / weight / event_interval; confirm chain-option reading; retune cash values.
