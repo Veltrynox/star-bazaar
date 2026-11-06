@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-06 18:24 run: T286
-- Summary: Galaxy view now draws dots drifting along links between open systems (more on a live Storage Link) and a soft glow per system that grows with the sum of its worlds' tiers; the 7 new `galaxy_*` keys are placeholders in `data/balance.json`
-- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
-- Approach: built by a worker in worktree ../wt/T286 on branch task/T286, merged by the serial merge queue.
-- Agent prompts: /overnight-worker T286 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T286.log.
-- Worked: rebase, full test suite and fast-forward merge passed.
-- Failed / did not work: nothing.
-- Files and commits: see git log on branch new-features for commits starting with T286.
-- Left to do: nothing for this task.
-
 ## 2026-11-06 18:25 run: T287
 - Summary: Houses are now written as weather (Harrow floods, Velvet shortages, Ostrel congestion), with convoy and forecast lines, all 28 chain steps re-voiced, three mood labels and the eight weather skill nodes renamed, built through build_story.py
 - Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
@@ -64,4 +54,14 @@
 - Worked: rebase, full test suite and fast-forward merge passed.
 - Failed / did not work: nothing.
 - Files and commits: see git log on branch new-features for commits starting with T293.
+- Left to do: nothing for this task.
+
+## 2026-11-06 18:41 run: T246
+- Summary: Two-engine trails with a bright core and soft additive glow, age-based taper and smoothed side direction to remove jitter
+- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
+- Approach: built by a worker in worktree ../wt/T246 on branch task/T246, merged by the serial merge queue.
+- Agent prompts: /overnight-worker T246 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T246.log.
+- Worked: rebase, full test suite and fast-forward merge passed.
+- Failed / did not work: nothing.
+- Files and commits: see git log on branch new-features for commits starting with T246.
 - Left to do: nothing for this task.

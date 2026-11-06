@@ -1839,7 +1839,7 @@
       "title": "Ship trails: two engine trails with a bright core and an outer glow, no jitter",
       "owner_agent": "juice-programmer",
       "depends_on": [],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 40,
       "window": "Follows T205 trail work.",
       "brief": "Owner: the ship trail is currently a single piece of trail; it should be bright glowing trails coming from the engines, and it jitters. Build per engine a trail with a core layer (thin, bright) and an outer layer (wider, softer glow, additive). Remove the jitter (cause is likely per-frame point resampling or the ship position vs trail point timing; smooth it). Read game/ship_trail.gd and ships.gd (WIDTH 0.16, ENGINE_BACK 0.9 are placeholders; exact exhaust positions are not measured from the GLBs, so place them from the model bounds). Handoff: handoffs/juice-programmer/<date>-T246.json.",
@@ -1847,7 +1847,8 @@
       "touches": [
         "game/ship_trail.gd",
         "game/ships.gd"
-      ]
+      ],
+      "note": "Done by orchestrator: Two-engine trails with a bright core and soft additive glow, age-based taper and smoothed side direction to remove jitter"
     },
     {
       "task_id": "T247",
