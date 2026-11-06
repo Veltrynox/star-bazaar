@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-06 23:30 run: T230
-- Summary: Checked the remaining pending events (PST04-05, PLT01-04, FLT02-04) against the draft-3 voice; they already match, so T230 is closed as done (English). Added T243 for the playable TH thread.
-- Why this task: it was the only partial task; every other open task needs owner approval, a visual decision, or owner-only agents (QA, economy).
-- Approach: no agent needed; a read-through was cheaper than a rewrite, and rewriting good text would risk churn.
-- Agent prompts: none sent.
-- Worked: schedule.json updated, T243 created.
-- Failed / did not work: nothing run; tests not run (no code or data change by me). T218 gigs skipped: design awaits owner approval and 3 open questions.
-- Files and commits: schedule.json, blackboard.md; see git log "T230".
-- Left to do: owner commits story/events.md and data/story_text.json with the goods work; Russian only on request; T243 needs owner OK.
-
 ## 2026-11-06 23:50 run: gap analysis
 - Summary: Reviewed all 16 open tasks; none can be done without an owner decision, a visual decision, owner-only agents, or a clean test base. No new tasks added.
 - Why this task: T05/T193 windowed measure, T178/T182/T209 owner-only QA/economy, T189/T190 owner decisions, T208/T218/T239/T240/T243 await approval, T220/T221/T223 are look/layout, T166 superseded.
@@ -65,3 +55,13 @@
 - Failed / did not work: fast-forward merge refused.
 - Files and commits: see git log on branch new-features for commits starting with T244.
 - Left to do: owner or a new run: see blocked_log in schedule.json.
+
+## 2026-11-06 17:15 run: T267
+- Summary: Wrote English text for prosperity tiers, planet-card needs, the Bazaar, Next Up, the soft ending (END_UNFINISHED) and 11 re-voiced skill nodes. The test suite has 13 failures that also fail on a clean base: goods, workshop, cells and availability for powder, blooms and food.
+- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
+- Approach: built by a worker in worktree ../wt/T267 on branch task/T267, merged by the serial merge queue.
+- Agent prompts: /overnight-worker T267 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T267.log.
+- Worked: rebase, full test suite and fast-forward merge passed.
+- Failed / did not work: nothing.
+- Files and commits: see git log on branch new-features for commits starting with T267.
+- Left to do: nothing for this task.

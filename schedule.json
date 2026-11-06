@@ -2229,7 +2229,7 @@
       "title": "Text: tiers, needs, Bazaar, Next Up, soft ending, re-voiced skills",
       "owner_agent": "story-designer",
       "depends_on": [],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 50,
       "window": "Owner request 2026-11-06: empire growth v2, phase 1 (design/proposals/2026-11-06-empire-growth-v2.md). Priority over conflicting older tasks.",
       "brief": "Goal: every id the Phase 1 build uses has text. Design: design/proposals/2026-11-06-empire-growth-v2.md section 3.1, 3.7, 4. Write: tier names (placeholder count 5 plus Barren), need row labels, hungry and surplus chips, Restless line, tier-up and tax notices, skill-point reason for a tier; Bazaar name (working name Star Bazaar, may rename), found prompt and confirm, stage names and stage-done notices, bill / quorum / reach labels, panel title, term left; END_UNFINISHED soft ending with epilogue lines by stages done; the Continue (free play) button; Next Up slot templates; names and descriptions for the 11 re-voiced skill nodes (list in the P1 skill-effects handoff, or read effect types volume_pct and share_window in data/skills.json). Write in story/*.md (English only), then run python3 tools/build_story.py; never edit generated files (data/story_text.json, data/events.json). Voice per story/voice.md. No text names a hidden good, a number or a skill-point price. Done when written. Handoff: handoffs/story-designer/<date>-T267.json.",
@@ -2240,7 +2240,8 @@
         "story/skills.md",
         "data/story_text.json"
       ],
-      "priority": 1
+      "priority": 1,
+      "note": "Done by orchestrator: Wrote English text for prosperity tiers, planet-card needs, the Bazaar, Next Up, the soft ending (END_UNFINISHED) and 11 re-voiced skill nodes. The test suite has 13 failures that also fail on a clean base: goods, workshop, cells and availability for powder, blooms and food."
     },
     {
       "task_id": "T268",
