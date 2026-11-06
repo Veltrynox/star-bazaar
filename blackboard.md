@@ -21,16 +21,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-06 14:00 run: T236
-- Summary: Company screen CEO card now shows the branch tag, a turntable ship preview, ship name and six stats; selecting a CEO swaps them.
-- Why this task: dependencies T235/T237 done, layout described by owner, no economy/QA need; other open tasks are blocked, owner-only or need design decisions.
-- Approach: ui-programmer agent; preview code copied into new game/ship_preview.gd because ship_setup.gd preloads company_setup.gd (circular preload).
-- Agent prompts: build the CEO card per T236 brief, no commit; produced game/company_setup.gd, game/ship_preview.gd, tests, handoffs/ui-programmer/2026-11-06-T236.json, done.
-- Worked: sh tools/tests/run.sh pass=11320 fail=0; two tests added.
-- Failed / did not work: nothing; not seen windowed.
-- Files and commits: game/company_setup.gd, game/ship_preview.gd, tools/tests/run_tests.gd, handoff, schedule.json, blackboard.md; see git log "T236".
-- Left to do: owner: check taller info panel (~266 px) at default window, 250x250 preview, tag colour muted vs accent.
-
 ## 2026-11-06 14:00 run: T230
 - Summary: Rewrote the bodies of generic events EV01-16, EV21-28 and EV40-51 with more voice and concrete detail (English only). Mechanics, ids, titles, effect lines unchanged; data/story_text.json rebuilt via tools/build_story.py.
 - Why this task: no dependencies, text only, no visual/economy/QA need; other open tasks were blocked by dependencies, owner-only agents or visual choices.

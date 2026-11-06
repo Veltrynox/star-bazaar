@@ -9090,6 +9090,606 @@
    "text": "The clinic desk took the trays by the book. A nurse read every label aloud and the ward bell rang twice. It paid {cash_in} credits, less than the cold dock would have.",
    "max": 280,
    "place": "popup"
+  },
+  {
+   "id": "TH01_TITLE",
+   "text": "A tug asks for your book",
+   "max": 32,
+   "place": "event title"
+  },
+  {
+   "id": "TH01_BODY",
+   "text": "A tug named Slow Receipt docks at Voltara. Its owner, Maren Oake, once kept books for the Bureau. She asks to read your dock book, page by page. She says she hunts one debt. She does not say whose.",
+   "max": 280,
+   "place": "event text"
+  },
+  {
+   "id": "TH01_A_BTN",
+   "text": "Hand over the dock book",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "TH01_A_EFF",
+   "text": "Food at Voltara costs more and pays more for a while.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "TH01_A_TITLE",
+   "text": "Oake reads by lamplight",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "TH01_A",
+   "text": "Oake read all night and turned each page with one finger. Her helpers filled the canteen. Food at Voltara costs more and pays more for a while. At dawn she thanked you and wrote one line on her cuff.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "TH01_B_BTN",
+   "text": "Send her to the Bureau desk",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "TH01_B_EFF",
+   "text": "Energy at Voltara costs less and pays less for a while.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "TH01_B_TITLE",
+   "text": "Oake takes a number",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "TH01_B",
+   "text": "The desk took her name and gave her a number. She waited in the long row while cranes stood idle overhead. Energy at Voltara costs less and pays less for a while. She did not complain. She counted the row.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "TH02_TITLE",
+   "text": "The first page",
+   "max": 32,
+   "place": "event title"
+  },
+  {
+   "id": "TH02_BODY",
+   "text": "Oake comes back with a page, brown at the edges. It is the loan that bought the first ship of a crew like yours. Three lenders signed it. Two were repaid. The third, Teodor Lask, never came to collect.",
+   "max": 280,
+   "place": "event text"
+  },
+  {
+   "id": "TH02_A_BTN",
+   "text": "Search your own papers",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "TH02_A_EFF",
+   "text": "Food at Voltara costs less and pays less for a while.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "TH02_A_TITLE",
+   "text": "A day among old crates",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "TH02_A",
+   "text": "Your crew spent the day among old crates and ate from tins. Food at Voltara costs less and pays less for a while. One crate held a receipt with Lask's name on it. It was blank where the sum should be.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "TH02_B_BTN",
+   "text": "Ask the old dock crews",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "TH02_B_EFF",
+   "text": "Energy at Voltara costs more and pays more for a while.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "TH02_B_TITLE",
+   "text": "Talk after the shift",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "TH02_B",
+   "text": "The old crews talked late and kept the lamps burning. Energy at Voltara costs more and pays more for a while. Most had heard the name Lask. None could say where they had heard it, and each one lowered a voice to say so.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "TH03_TITLE",
+   "text": "Lask on a relief list",
+   "max": 32,
+   "place": "event title"
+  },
+  {
+   "id": "TH03_BODY",
+   "text": "A cook at Tillam writes that the name Lask is on an old relief list from the blight years. The committee keeps it in a locked drawer. Oake asks you to carry her request there, with your seal on it.",
+   "max": 280,
+   "place": "event text"
+  },
+  {
+   "id": "TH03_A_BTN",
+   "text": "Send a ship with the request",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "TH03_A_EFF",
+   "text": "Food at Voltara costs more and pays more for a while.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "TH03_A_TITLE",
+   "text": "A ship leaves with a letter",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "TH03_A",
+   "text": "A hold went to Oake's letter and not to cargo. Food at Voltara costs more and pays more for a while. The ship left with the letter strapped to a crate, like a passenger who might change its mind.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "TH03_B_BTN",
+   "text": "Wait for the next post ship",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "TH03_B_EFF",
+   "text": "Energy at Voltara costs less and pays less for a while.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "TH03_B_TITLE",
+   "text": "The letter waits",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "TH03_B",
+   "text": "The letter sat on the dock for the next post ship. Docks ran slow and drew less power. Energy at Voltara costs less and pays less for a while. Oake sat beside the letter the whole time, as if it might be taken.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "TH04_TITLE",
+   "text": "A second seeker",
+   "max": 32,
+   "place": "event title"
+  },
+  {
+   "id": "TH04_BODY",
+   "text": "A man in a grey coat, Aurel Dask of the Quill Lender House, finds Oake on your dock. His house buys old paper. He asks to copy the Lask page, and says he will find the heir sooner. He does not say what he will do then.",
+   "max": 280,
+   "place": "event text"
+  },
+  {
+   "id": "TH04_A_BTN",
+   "text": "Let Dask copy the page",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "TH04_A_EFF",
+   "text": "Food at Voltara costs less and pays less for a while.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "TH04_A_TITLE",
+   "text": "Dask copies the page",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "TH04_A",
+   "text": "Dask copied the page in a fast, tidy hand. His agents sold stores on the dock to pay for the hunt. Food at Voltara costs less and pays less for a while. He thanked Oake twice. She did not look up.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "TH04_B_BTN",
+   "text": "Refuse to copy the page",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "TH04_B_EFF",
+   "text": "Energy at Voltara costs more and pays more for a while.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "TH04_B_TITLE",
+   "text": "Dask goes back to his ship",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "TH04_B",
+   "text": "Dask bowed and held his house's stock back from the dock. Energy at Voltara costs more and pays more for a while. His ship stayed in orbit, lamps lit, and it was still there when the crew went to bed.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "TH05_TITLE",
+   "text": "A hull with a scraped name",
+   "max": 32,
+   "place": "event title"
+  },
+  {
+   "id": "TH05_BODY",
+   "text": "Under a tarp in Voltara's old yard sits a hull with its name scraped off. Oake reads a hull number through the dirt. It matches the page. The yard is sealed, and opening it pulls cranes from the shift.",
+   "max": 280,
+   "place": "event text"
+  },
+  {
+   "id": "TH05_A_BTN",
+   "text": "Open the old yard",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "TH05_A_EFF",
+   "text": "Energy at Voltara costs more and pays more for a while.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "TH05_A_TITLE",
+   "text": "The tarp comes off",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "TH05_A",
+   "text": "The cranes swung over to the yard and the lamps burned all shift. Energy at Voltara costs more and pays more for a while. Inside the hull was a bunk, a cup and a tally scratched on the wall. The last mark is shorter than the rest.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "TH05_B_BTN",
+   "text": "Keep the yard sealed",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "TH05_B_EFF",
+   "text": "Food at Voltara costs less and pays less for a while.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "TH05_B_TITLE",
+   "text": "The yard stays shut",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "TH05_B",
+   "text": "You kept the yard sealed. The crews who came to look went home without eating at the stalls. Food at Voltara costs less and pays less for a while. Oake stood at the fence until the lamps changed over.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "TH06_TITLE",
+   "text": "The Bureau answers",
+   "max": 32,
+   "place": "event title"
+  },
+  {
+   "id": "TH06_BODY",
+   "text": "The Bureau sends a letter, courteous and slow. It says the Commons settled the Lask debt long ago. The page copies a closed entry. It asks Oake to stop. It asks you to confirm that she has.",
+   "max": 280,
+   "place": "event text"
+  },
+  {
+   "id": "TH06_A_BTN",
+   "text": "Confirm she has stopped",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "TH06_A_EFF",
+   "text": "Food at Voltara costs less and pays less for a while.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "TH06_A_TITLE",
+   "text": "The Bureau is satisfied",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "TH06_A",
+   "text": "You signed the confirmation. The Bureau sent relief stores to the dock as thanks. Food at Voltara costs less and pays less for a while. Oake read the confirmation twice, then folded it and put it with the page.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "TH06_B_BTN",
+   "text": "Say she has not stopped",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "TH06_B_EFF",
+   "text": "Voltara closes its port for a while. Routes touching Voltara are blocked.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "TH06_B_TITLE",
+   "text": "Voltara closes its port",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "TH06_B",
+   "text": "You wrote that she had not stopped. The Bureau sent inspectors, and they closed Voltara's port for a while. Routes touching Voltara are blocked. They were very careful with the dock book. They kept it overnight.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "TH07_TITLE",
+   "text": "Slow Receipt is held",
+   "max": 32,
+   "place": "event title"
+  },
+  {
+   "id": "TH07_BODY",
+   "text": "The Bureau holds Slow Receipt at the dock for a form not yet filed. Oake sleeps in a borrowed coat on a crate. Some of your people want her gone before the next audit. Others bring her soup.",
+   "max": 280,
+   "place": "event text"
+  },
+  {
+   "id": "TH07_A_BTN",
+   "text": "Keep her in your bunk",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "TH07_A_EFF",
+   "text": "Food at Voltara costs more and pays more for a while.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "TH07_A_TITLE",
+   "text": "A bunk with her name",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "TH07_A",
+   "text": "The empty bunk was hers by morning. Two tables formed in the canteen, one with soup and one without. Food at Voltara costs more and pays more for a while. Nobody asked which table the tug belonged to.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "TH07_B_BTN",
+   "text": "Find her a room ashore",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "TH07_B_EFF",
+   "text": "Energy at Voltara costs less and pays less for a while.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "TH07_B_TITLE",
+   "text": "A room ashore",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "TH07_B",
+   "text": "A clerk found her a room in the old block, with one cold heater. Energy at Voltara costs less and pays less for a while. She came to the dock each morning to look at her tug. It did not look back.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "TH08_TITLE",
+   "text": "A letter from a far station",
+   "max": 32,
+   "place": "event title"
+  },
+  {
+   "id": "TH08_BODY",
+   "text": "A letter reaches the dock. Ines Lask, daughter of Teodor, is old and writes slowly. She asks for no money. She asks that someone read the debt aloud once, in a room with people in it.",
+   "max": 280,
+   "place": "event text"
+  },
+  {
+   "id": "TH08_A_BTN",
+   "text": "Read it aloud on the dock",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "TH08_A_EFF",
+   "text": "Food at Voltara costs more and pays more for a while.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "TH08_A_TITLE",
+   "text": "The dock hall fills",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "TH08_A",
+   "text": "Word went round, and the hall filled with crews who had never met a Lask. They brought bread and stood. Food at Voltara costs more and pays more for a while. The back rows were the last to leave.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "TH08_B_BTN",
+   "text": "Read it aloud by relay",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "TH08_B_EFF",
+   "text": "Energy at Voltara costs more and pays more for a while.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "TH08_B_TITLE",
+   "text": "The relay stays on",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "TH08_B",
+   "text": "The relay ran all night to carry one voice to a far room. Energy at Voltara costs more and pays more for a while. At the far end someone coughed once, and the line went on listening.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "TH09_TITLE",
+   "text": "The reading",
+   "max": 32,
+   "place": "event title"
+  },
+  {
+   "id": "TH09_BODY",
+   "text": "The reading is tonight. The page has three names and a sum written long ago. Someone must say it aloud. Oake holds the page with both hands. She says it is your dock, and your crew, so it is your voice.",
+   "max": 280,
+   "place": "event text"
+  },
+  {
+   "id": "TH09_A_BTN",
+   "text": "Read the page yourself",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "TH09_A_EFF",
+   "text": "Energy at Voltara costs less and pays less for a while.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "TH09_A_TITLE",
+   "text": "Your voice on the page",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "TH09_A",
+   "text": "Your voice shook on the third name, and the hall heard it. Most lamps were turned down to hear better. Energy at Voltara costs less and pays less for a while. When you finished no one clapped. They stayed seated.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "TH09_B_BTN",
+   "text": "Let Oake read the page",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "TH09_B_EFF",
+   "text": "Food at Voltara costs less and pays less for a while.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "TH09_B_TITLE",
+   "text": "Oake reads it flat",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "TH09_B",
+   "text": "Oake read in a dry, flat voice, as she had read a thousand pages. At the third name she stopped, then went on. Food at Voltara costs less and pays less for a while. The stalls closed early and the hall stayed full.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "TH10_TITLE",
+   "text": "What is owed",
+   "max": 32,
+   "place": "event title"
+  },
+  {
+   "id": "TH10_BODY",
+   "text": "Oake closes her ledger. The Lask debt stands in full, with its years. You can pay it to Ines Lask, and the page is struck. Or the Commons can enter it as shared, and the Bureau will call it settled. Ines has not asked for either.",
+   "max": 280,
+   "place": "event text"
+  },
+  {
+   "id": "TH10_A_BTN",
+   "text": "Pay the debt to Ines",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "TH10_A_EFF",
+   "text": "Pay {cash_out} credits to Ines Lask. Nothing else changes.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "TH10_A_TITLE",
+   "text": "The page is struck",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "TH10_A",
+   "text": "You paid {cash_out} credits to Ines Lask, and a clerk drew one line through her father's name. Oake folded the page into your dock book. Slow Receipt left on the next tide, light, with its lamp on.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "TH10_B_BTN",
+   "text": "Enter it as shared",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "TH10_B_EFF",
+   "text": "Pay nothing. Food at Voltara costs more and pays more for a while.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "TH10_B_TITLE",
+   "text": "The debt is shared",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "TH10_B",
+   "text": "The clerk entered the debt in the Common Ledger and the Bureau stamped it settled. Nobody was paid. Food at Voltara costs more and pays more for a while, as clerks counted the dock stores. The page went into a drawer with its three names.",
+   "max": 280,
+   "place": "popup"
   }
  ]
 }
