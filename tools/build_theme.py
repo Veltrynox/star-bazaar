@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Builds ui/theme/star_bazaar.tres (the one Godot Theme) from the design system tokens.json.
-To swap the design: replace design/star-bazaar-design-system/, then run  python3 tools/build_theme.py
+To swap the design: replace art_source/star-bazaar-design-system/, then run  python3 tools/build_theme.py
 Also writes white icon copies to ui/theme/icons/ (currentColor -> white, tinted in the theme)."""
 import json, os, re, glob
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DS = os.path.join(ROOT, "design", "star-bazaar-design-system", "star-bazaar-design-system")
+DS = os.path.join(ROOT, "art_source", "star-bazaar-design-system", "star-bazaar-design-system")
 OUT = os.path.join(ROOT, "ui", "theme")
 tok = json.load(open(os.path.join(DS, "tokens.json")))
 C = {t["name"]: t["value"] for t in tok["color"]["tokens"]}

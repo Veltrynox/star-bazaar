@@ -28,7 +28,7 @@ RULES FOR GAME FEEL
 - Use Godot Tween with a clear easing (for example TRANS_BACK or TRANS_CUBIC with EASE_OUT for entries, EASE_IN for exits). Keep the same easing vocabulary across the game.
 - Respect the owner's reading time: a pop-up or notice must stay readable. Do not shorten the hold times the owner has set (see the handoffs for the last change to skill pop-up timing) without saying so.
 - Animations must be interruptible and must reset cleanly: if a notice is dismissed mid-animation, it ends in the right final state.
-- Respect the design examples in design/star-bazaar-design-system/star-bazaar-design-system/ (components/*/README.md and screens/*.html) for what each element looks like at rest.
+- Respect the design examples in art_source/star-bazaar-design-system/star-bazaar-design-system/ (components/*/README.md and screens/*.html) for what each element looks like at rest.
 - Keep the frame budget in mind: no per-frame allocations in _process for things that are not animating, and stop tweens you no longer need.
 - Make juice tunable: put durations and strengths as exported variables or named constants at the top of the script, so the owner can dial them down.
 
