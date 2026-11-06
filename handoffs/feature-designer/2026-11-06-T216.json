@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "agent": "feature-designer",
+  "date": "2026-11-06",
+  "task": "T216",
+  "status": "done",
+  "files_changed": [
+    "design/proposals/2026-11-05-gigs.md",
+    "handoffs/feature-designer/2026-11-06-T216.json"
+  ],
+  "open_questions": [
+    "UNKNOWN: Does an expired gig stay gone for the run (recommended) or return in another form?",
+    "UNKNOWN: Where does a goods reward land: storage at the nearest established planet (recommended) or the next ship's load?",
+    "UNKNOWN: Do reward goods add share when sold (recommended, small) or are they excluded from share?"
+  ],
+  "handoff": "One proposal: Pathfinder gigs. Covers spawn rule, one open at a time, marker plus icon, free expiry on the game clock, arrival window with two neutral choices, four reward kinds (goods lot, one-off perk, knowledge, story line; never skill points or share), per-branch examples, neutrality rules, discovery/exploration/pause behaviour, data/gigs.json shape, new condition atoms and the Availability lint. No numbers, no code. Waits for the owner.",
+  "details": {
+    "proposals": [
+      {
+        "id": "gigs",
+        "title": "Gigs: random one-time story jobs for the Pathfinder",
+        "problem": "The 3D scout has little to do after the first posts, and flying has no story or surprise.",
+        "owner_agent": "gameplay-programmer (lead), story-designer, economy-designer, ui-programmer, juice-programmer, doc-manager",
+        "size": "M-L (two slices)",
+        "questions": [
+          "Expired gig gone for the run or returns in another form?",
+          "Goods reward lands in storage or the next ship load?",
+          "Reward goods add share when sold, or excluded?"
+        ]
+      }
+    ]
+  }
+}

@@ -22,16 +22,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-06 14:00 run: T230
-- Summary: Rewrote the bodies of generic events EV01-16, EV21-28 and EV40-51 with more voice and concrete detail (English only). Mechanics, ids, titles, effect lines unchanged; data/story_text.json rebuilt via tools/build_story.py.
-- Why this task: no dependencies, text only, no visual/economy/QA need; other open tasks were blocked by dependencies, owner-only agents or visual choices.
-- Approach: story-designer agent editing story/events.md, leaving choice events with fixed effect lines alone to avoid contradicting mechanics.
-- Agent prompts: rewrite event bodies less dry, keep limits/placeholders, English only, do not edit story/voice.md, run build and tests; produced story/events.md, data/story_text.json, handoffs/story-designer/2026-11-06-T230.json.
-- Worked: sh tools/tests/run.sh pass=11320 fail=0 (agent's run).
-- Failed / did not work: nothing.
-- Files and commits: story/events.md, data/story_text.json, handoff, schedule.json, blackboard.md; see git log "T230". story/voice.md and .claude/agents/story-designer.md hold owner edits, left uncommitted.
-- Left to do: EV17-20, BE01-03, pending post/platform/flight events; Russian only when owner asks.
-
 ## 2026-11-06 16:00 run: T233
 - Summary: Wrote four early branch events EV52-EV55 (contract and dark market) as text in story/events.md and built them with tools/build_story.py. No mechanics added.
 - Why this task: no dependencies, text only, no visual, economy or QA need; other open tasks need owner decisions, owner-only agents or visual work.
