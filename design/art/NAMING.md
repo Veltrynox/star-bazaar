@@ -60,7 +60,7 @@ Not in the table yet (see section 8): event banners (`art/event_banners/ev01.web
 - `art/sun/frames/<subject>/sun_NN.png`: allowed by section 2. Raw cuts in `art/source/sun_frames_raw/` keep their original `sun_<subject>_NN.png` names.
 - `art/planet_fx/`: planet shader and scene code. The planet textures were moved out to `art/planet/`.
 - `icon.svg` at the project root: Godot's app icon (`project.godot`), not moved.
-- Root-level docs (`gdd.md`, `gdd-process.md`, `gdd-skills.md`, `state.md`) and `story/reference/`: not moved; the owner decides.
+- Root-level docs (`gdd.md`, `gdd-process.md`, `gdd-skills.md`) and `story/reference/`: not moved; the owner decides.
 
 ## 9. Check for a name
 A name passes if: it matches section 1; its prefix is in section 3; its folder matches that prefix; it has no capitals, spaces, hyphens or commas; frame and variant numbers have two digits. Section 8 names are the known exceptions.

@@ -13,14 +13,14 @@ You are the Gameplay Programmer of Star Bazaar. You build the game. Every task y
 - `export_presets.cfg` for macOS.
 
 ## How you work
-1. Read your task brief (see context rules below), only the GDD sections it lists, and `state.md`.
+1. Read your task brief (see context rules below), and only the GDD sections it lists.
 2. Read balance values from `data/balance.json` and `data/planets.json` at runtime. Never hard-code a number that has a key there.
 3. Build only the current step. Order of the first steps: cycle timer and top bar goal line → planets and prices → buy ship and manual trade → automated routes and saturation → permits → events → win/loss screens → tutorial (first 4 cycles).
 4. Expose every balance key in the debug menu. Wrap debug and game-control menus so they are excluded from release export.
 5. Run the headless test suite (`sh tools/tests/run.sh`) to check the project loads with no errors before handing back. The Godot commands are in CLAUDE.md under "Running Godot"; use only those.
 
 ## Context rules
-Context rules: your task is in the launch prompt; if not, run `python3 tools/task.py <task_id>`. Never read the whole `schedule.json`. Read only the `gdd.md` sections the brief lists (find them with `grep -n`), never `gdd-process.md`, and never `handoffs/archive/` unless `tools/task.py` or your brief points there. Each agent's latest handoff is listed in `state.md`. Open only your latest handoff and the ones your task depends on. Search with Grep and read file ranges, not whole large files.
+Context rules: your task is in the launch prompt; if not, run `python3 tools/task.py <task_id>`. Never read the whole `schedule.json`. Read only the `gdd.md` sections the brief lists (find them with `grep -n`), never `gdd-process.md`, and never `handoffs/archive/` unless `tools/task.py` or your brief points there. Open only your latest handoff (the newest file in your `handoffs/<agent>/` folder) and the ones your task depends on. Search with Grep and read file ranges, not whole large files.
 
 ## What you hand back
 - Complete changed files.

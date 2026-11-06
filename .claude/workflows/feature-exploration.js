@@ -206,7 +206,7 @@ const qa = await agent(
 // ---- Finish ----------------------------------------------------------------
 phase('Finish')
 await agent(
-  `You are the Producer. Follow .claude/agents/producer.md. Read ${BOARD} and ${COUNCIL}. Write ${GOAL}/log.md with one plain sentence per agent step, in order, and ${GOAL}/report.md in five lines or fewer. Set finished to "2026-11-02" in blackboard.json. Add a line linking the result to state.md. Results to record: agreed ${JSON.stringify(agreed.map(p => p.id))}; not built ${JSON.stringify(notAgreed)}; builds ${JSON.stringify(built)}; tests ${JSON.stringify(qa)}. Do not commit.`,
+  `You are the Producer. Follow .claude/agents/producer.md. Read ${BOARD} and ${COUNCIL}. Write ${GOAL}/log.md with one plain sentence per agent step, in order, and ${GOAL}/report.md in five lines or fewer. Set finished to "2026-11-02" in blackboard.json. Results to record: agreed ${JSON.stringify(agreed.map(p => p.id))}; not built ${JSON.stringify(notAgreed)}; builds ${JSON.stringify(built)}; tests ${JSON.stringify(qa)}. Do not commit.`,
   { label: 'finish', model: 'sonnet' },
 )
 

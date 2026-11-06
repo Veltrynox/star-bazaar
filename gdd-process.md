@@ -12,9 +12,9 @@ Project brief (for every agent):
 What it is: Star Bazaar is a single-player space trading game for macOS, built in Godot.
 
 1. Producer - Claude Haiku
-  Role: Plans the work. It turns the build plan into an ordered task queue, keeps schedule.json and state.md up to date, advises which task runs next, archives old handoffs, and writes each goal's log.md and report.md. Finished tasks move to handoffs/archive/schedule-done.json to keep schedule.json small. The main session (the agent the owner talks to) is the owner's single point of contact and starts the work agents. The Producer may also start agents when the main session or the owner asks. A start only counts once the agent's handoff file exists, so the Producer must stay alive and check for the file before it ends. It never marks a task running or done without that evidence.
+  Role: Plans the work. It turns the build plan into an ordered task queue, keeps schedule.json up to date, advises which task runs next, archives old handoffs, and writes each goal's log.md and report.md. Finished tasks move to handoffs/archive/schedule-done.json to keep schedule.json small. The main session (the agent the owner talks to) is the owner's single point of contact and starts the work agents. The Producer may also start agents when the main session or the owner asks. A start only counts once the agent's handoff file exists, so the Producer must stay alive and check for the file before it ends. It never marks a task running or done without that evidence.
   Input: The GDD build steps, agent handoffs, goal blackboards and requests from the main session.
-  Output: A schedule.json file with the task, owner, dependencies and status for each item, a state.md file, and the archive of old handoffs.
+  Output: A schedule.json file with the task, owner, dependencies and status for each item, and the archive of old handoffs.
   Effect: Work happens in the right order, and every status in the queue is backed by a handoff file and changed files.
   Why it exists: Real studios have a producer. Status claims need file evidence because in two windows the Producer recorded agents as running when none were alive and no files had changed.
 
@@ -60,7 +60,6 @@ What it is: Star Bazaar is a single-player space trading game for macOS, built i
   Effect: The GDD matches the built game, and planned items are marked as planned.
   Why it exists: The GDD must be kept current without a design agent of its own. Numbers stay in data/balance.json; the GDD only points to them.
 
-The Producer keeps one rolling state.md file with only the last 5 handoffs.
 The Producer moves older handoffs into an archive folder that no agent reads by default.
 ========================================
 4. CONSTRAINTS
@@ -101,7 +100,7 @@ Goal log:
   - The goals/ folder is gone. What each /goal run did is kept in
     schedule.json under "goal_log" (goal, dates, report lines, step log).
   - The Producer, or the main session, adds an entry there when a goal
-    finishes, then links it from state.md.
+    finishes.
 
 Rules:
   - Start every session fresh with a brief: max 300 words plus the

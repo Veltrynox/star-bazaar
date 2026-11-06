@@ -131,7 +131,7 @@ The old tier selection from learned skills (Bare, Partial, Full) is RETIRED with
 10. OPEN QUESTIONS
 ========================================
   1. Are the tree names and sizes right in play? UNKNOWN until the owner plays.
-  2. Do workshops matter enough for share, or only for tech and cash? UNKNOWN (see state.md).
+  2. Do workshops matter enough for share, or only for tech and cash? UNKNOWN until played.
   3. Is the point supply (about 21) right for one focused market? UNKNOWN until the real game confirms it.
   4. System 3 is on hold: does anything in the trees point at it? None of the nodes does.
   5. The 2026-11-05 tree redo and retune were signed off by economy, feature and QA reviews on paper; whether they feel right in play is UNKNOWN until the owner plays.

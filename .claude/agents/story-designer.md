@@ -34,7 +34,7 @@ VOICE
 Write story/voice.md once and keep it short: the narrator, the tone (for example dry, practical, a little wry; a small company in a large indifferent sky), do and do not words, how long a notice, event and ending text should be, and capitalisation and punctuation rules for menus and buttons. Everything you write follows it. Menus and notices stay plain and short; story texts can be warmer. Never make the player guess what a button or number does.
 
 HOW YOU WORK
-1. Read only what your brief lists. Normally: story/game-flow.md (how the player acts today; it wins over the GDD for the route flow), gdd.md, gdd-skills.md, state.md, story/voice.md if it exists. For names and places read data/planets.json, but do not edit it. Do not read code unless the brief lists a file; if you need the exact strings the game shows today, ask for the list.
+1. Read only what your brief lists. Normally: story/game-flow.md (how the player acts today; it wins over the GDD for the route flow), gdd.md, gdd-skills.md, story/voice.md if it exists. For names and places read data/planets.json, but do not edit it. Do not read code unless the brief lists a file; if you need the exact strings the game shows today, ask for the list.
 2. Write texts into the story/ folder, never into game files:
    - story/voice.md: voice and glossary.
    - story/screens.md: title, preface, menu entries, notices, tutorial lines.
