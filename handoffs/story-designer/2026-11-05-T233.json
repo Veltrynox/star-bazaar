@@ -1,0 +1,13 @@
+{
+  "agent": "story-designer",
+  "date": "2026-11-06",
+  "task": "T233",
+  "status": "done",
+  "files_changed": ["story/events.md", "data/story_text.json"],
+  "schema_version": 1,
+  "open_questions": [
+    "EVnn_EFF rivals lines say no rival change; rewrite them if T234 adds a rival effect.",
+    "No good is named (rivets, musk, spores are hidden before system 2); T238 may let each text name its own branch goods."
+  ],
+  "handoff": "Text only, built, tests pass. Ids per branch: Military EV52, Luxury EV53, Minerals EV54, Biotech EV55. Each has EVnn_TITLE, EVnn_BODY, EVnn_EFF (rivals line, {market}), and per option A (dark buyer: Bosk Two-Stamps, Madame Fenn, Tamsk Reddock, Dr Pell Oruk) and B (public market): EVnn_A_BTN, _A_EFF, _A_TITLE, EVnn_A (result), same for B. Placeholder T234 must fill: {cash_in} (credits paid by the chosen option, A more than B) in every _EFF and result; {market} in EVnn_EFF. No tag rows or events.json rows were added; T234 adds mechanics. No text hints at risk, being seen or lost events. Nothing was committed."
+}

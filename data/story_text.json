@@ -8826,6 +8826,270 @@
    "text": "The Pathfinder pushed through at speed. A small sum goes to hull repairs at the next port. The pilot stood the rest of the shift at the glass, trying to remember what rain was for.",
    "max": 280,
    "place": "popup"
+  },
+  {
+   "id": "EV52_TITLE",
+   "text": "A Fleet Office rush order",
+   "max": 32,
+   "place": "pool event title"
+  },
+  {
+   "id": "EV52_BODY",
+   "text": "The Fleet Office gave you a rush order, and three larger crews want it if you slip. At the depot's back gate, Bosk Two-Stamps offers ready cash for some crates. His thumbs are blue from stamping forms nobody wrote. Sell fast, or sell at the counter.",
+   "max": 280,
+   "place": "pool event text"
+  },
+  {
+   "id": "EV52_EFF",
+   "text": "Rivals: no change in {market} strength or growth.",
+   "max": 90,
+   "place": "pool event rivals line, {market} filled by the game"
+  },
+  {
+   "id": "EV52_A_BTN",
+   "text": "Sell to Bosk Two-Stamps",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV52_A_EFF",
+   "text": "Pays more now: {cash_in} credits.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV52_A_TITLE",
+   "text": "Bosk has one stamp",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV52_A",
+   "text": "Bosk paid in worn notes and stamped your slip. He owns one stamp. The name is a rumour he started himself. The crates left by the back gate before the clerk finished his tea. You gain {cash_in} credits now.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV52_B_BTN",
+   "text": "Sell at the public counter",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV52_B_EFF",
+   "text": "Pays less now: {cash_in} credits.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV52_B_TITLE",
+   "text": "The counter takes its time",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV52_B",
+   "text": "The counter clerk checked each crate against the order, then checked the order against the crates. A stamp thumped somewhere in the back. It paid {cash_in} credits, less than the back gate would have.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV53_TITLE",
+   "text": "The Orrel House gala order",
+   "max": 32,
+   "place": "pool event title"
+  },
+  {
+   "id": "EV53_BODY",
+   "text": "The Orrel House ordered cut-glass table sets for its gala, and two older firms bid for the same carriage. On a pleasure barge by the dock ring, Madame Fenn offers cash for a few sets. She calls every sale a private viewing and charges for the chair.",
+   "max": 280,
+   "place": "pool event text"
+  },
+  {
+   "id": "EV53_EFF",
+   "text": "Rivals: {market} strength and growth stay as they were.",
+   "max": 90,
+   "place": "pool event rivals line, {market} filled by the game"
+  },
+  {
+   "id": "EV53_A_BTN",
+   "text": "Sell to Madame Fenn",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV53_A_EFF",
+   "text": "Pays more now: {cash_in} credits.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV53_A_TITLE",
+   "text": "A private viewing",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV53_A",
+   "text": "The viewing lasted as long as it took to count the notes. Madame Fenn charged for the chair anyway. The sets went down the ramp wrapped in her shawls. You gain {cash_in} credits now. The gala table will be a few glasses short.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV53_B_BTN",
+   "text": "Sell at the open stalls",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV53_B_EFF",
+   "text": "Pays less now: {cash_in} credits.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV53_B_TITLE",
+   "text": "The stalls open at noon",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV53_B",
+   "text": "You laid the sets out on the open stalls under the dock lamps. Buyers turned each glass to the light and haggled over chips that were not there. It paid {cash_in} credits, less than the barge would have.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV54_TITLE",
+   "text": "Deepline Works sample run",
+   "max": 32,
+   "place": "pool event title"
+  },
+  {
+   "id": "EV54_BODY",
+   "text": "The Deepline Works hired you to carry sealed sample cases to its assay hall, and a faster crew is already loading. Tamsk Reddock, who runs the slag yard, offers cash for some cases. He weighs everything on one thumb and says heavy. Even the empty ones.",
+   "max": 280,
+   "place": "pool event text"
+  },
+  {
+   "id": "EV54_EFF",
+   "text": "Rivals: none of the three changes in {market}.",
+   "max": 90,
+   "place": "pool event rivals line, {market} filled by the game"
+  },
+  {
+   "id": "EV54_A_BTN",
+   "text": "Sell to Tamsk Reddock",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV54_A_EFF",
+   "text": "Pays more now: {cash_in} credits.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV54_A_TITLE",
+   "text": "Tamsk says heavy",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV54_A",
+   "text": "Tamsk lifted a case on his thumb and said heavy, as he does every time. Then he paid in full from a tin. The cases rolled off to the slag yard on a cart with one good wheel. You gain {cash_in} credits now.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV54_B_BTN",
+   "text": "Sell to the assay hall",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV54_B_EFF",
+   "text": "Pays less now: {cash_in} credits.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV54_B_TITLE",
+   "text": "The assay hall counts",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV54_B",
+   "text": "The assay hall took the cases at its own rate and its own pace. A clerk read each seal aloud, twice. Your crew stood in the cold while the ink dried. It paid {cash_in} credits, less than the slag yard would have.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV55_TITLE",
+   "text": "Lowmoor Clinics need trays",
+   "max": 32,
+   "place": "pool event title"
+  },
+  {
+   "id": "EV55_BODY",
+   "text": "The Lowmoor Clinics hired you to carry chilled sample trays to their wards, and a rival crew has a faster hull. Dr Pell Oruk waits behind the cold dock and offers cash for some trays. He tests each coin with a tooth and calls it mostly healthy.",
+   "max": 280,
+   "place": "pool event text"
+  },
+  {
+   "id": "EV55_EFF",
+   "text": "Rivals: no change in {market} strength or growth.",
+   "max": 90,
+   "place": "pool event rivals line, {market} filled by the game"
+  },
+  {
+   "id": "EV55_A_BTN",
+   "text": "Sell to Dr Pell Oruk",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV55_A_EFF",
+   "text": "Pays more now: {cash_in} credits.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV55_A_TITLE",
+   "text": "Mostly healthy coins",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV55_A",
+   "text": "Dr Oruk bit every coin and found them mostly healthy. Then he paid in full. The trays left by the back door in a cold box, still labelled for a ward. You gain {cash_in} credits now. The ward gets fewer trays.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV55_B_BTN",
+   "text": "Sell at the clinic desk",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV55_B_EFF",
+   "text": "Pays less now: {cash_in} credits.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV55_B_TITLE",
+   "text": "The clinic desk signs",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV55_B",
+   "text": "The clinic desk took the trays by the book. A nurse read every label aloud and the ward bell rang twice. It paid {cash_in} credits, less than the cold dock would have.",
+   "max": 280,
+   "place": "popup"
   }
  ]
 }

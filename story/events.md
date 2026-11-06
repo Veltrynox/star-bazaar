@@ -538,3 +538,57 @@ EV_FLT04_PUSH_BTN | button | Push through
 EV_FLT04_PUSH_EFF | effect line | Pay a small sum for hull repairs at the next port.
 EV_FLT04_PUSH_TITLE | popup title | The hull takes the dust
 EV_FLT04_PUSH | popup | The Pathfinder pushed through at speed. A small sum goes to hull repairs at the next port. The pilot stood the rest of the shift at the glass, trying to remember what rain was for.
+
+# Early branch events, one per market, EV52 to EV55 (added 2026-11-06, T233)
+
+Four one-time pool events, one per market (Military EV52, Luxury EV53, Minerals EV54, Biotech EV55). They fire early, in the first cycles. TEXT ONLY: no row in data/events.json, no tag; T234 adds the mechanics. Each has a title, a body, a rivals line (EVnn_EFF, as the other pool events) and two options, A (the dark-market buyer) and B (the public market). Ids per option: EVnn_A_BTN (28), EVnn_A_EFF (90), EVnn_A_TITLE (32), EVnn_A (result, 280); the same with B.
+Placeholder: {cash_in} is the credits the chosen option pays, number only. T234 fills it per option (A more than B). {market} is filled by the game in the EVnn_EFF line.
+No text names a good, a planet or a number: the goods of the early cycles are only energy and food, so each event speaks of crates, sets, cases and trays. The effect lines say only "pays more now" or "pays less now". No text hints at being seen, a risk or a later cost.
+
+EV52_TITLE | pool event title | A Fleet Office rush order
+EV52_BODY | pool event text | The Fleet Office gave you a rush order, and three larger crews want it if you slip. At the depot's back gate, Bosk Two-Stamps offers ready cash for some crates. His thumbs are blue from stamping forms nobody wrote. Sell fast, or sell at the counter.
+EV52_EFF | pool event rivals line, {market} filled by the game | Rivals: no change in {market} strength or growth.
+EV52_A_BTN | button | Sell to Bosk Two-Stamps
+EV52_A_EFF | effect line | Pays more now: {cash_in} credits.
+EV52_A_TITLE | popup title | Bosk has one stamp
+EV52_A | popup | Bosk paid in worn notes and stamped your slip. He owns one stamp. The name is a rumour he started himself. The crates left by the back gate before the clerk finished his tea. You gain {cash_in} credits now.
+EV52_B_BTN | button | Sell at the public counter
+EV52_B_EFF | effect line | Pays less now: {cash_in} credits.
+EV52_B_TITLE | popup title | The counter takes its time
+EV52_B | popup | The counter clerk checked each crate against the order, then checked the order against the crates. A stamp thumped somewhere in the back. It paid {cash_in} credits, less than the back gate would have.
+
+EV53_TITLE | pool event title | The Orrel House gala order
+EV53_BODY | pool event text | The Orrel House ordered cut-glass table sets for its gala, and two older firms bid for the same carriage. On a pleasure barge by the dock ring, Madame Fenn offers cash for a few sets. She calls every sale a private viewing and charges for the chair.
+EV53_EFF | pool event rivals line, {market} filled by the game | Rivals: {market} strength and growth stay as they were.
+EV53_A_BTN | button | Sell to Madame Fenn
+EV53_A_EFF | effect line | Pays more now: {cash_in} credits.
+EV53_A_TITLE | popup title | A private viewing
+EV53_A | popup | The viewing lasted as long as it took to count the notes. Madame Fenn charged for the chair anyway. The sets went down the ramp wrapped in her shawls. You gain {cash_in} credits now. The gala table will be a few glasses short.
+EV53_B_BTN | button | Sell at the open stalls
+EV53_B_EFF | effect line | Pays less now: {cash_in} credits.
+EV53_B_TITLE | popup title | The stalls open at noon
+EV53_B | popup | You laid the sets out on the open stalls under the dock lamps. Buyers turned each glass to the light and haggled over chips that were not there. It paid {cash_in} credits, less than the barge would have.
+
+EV54_TITLE | pool event title | Deepline Works sample run
+EV54_BODY | pool event text | The Deepline Works hired you to carry sealed sample cases to its assay hall, and a faster crew is already loading. Tamsk Reddock, who runs the slag yard, offers cash for some cases. He weighs everything on one thumb and says heavy. Even the empty ones.
+EV54_EFF | pool event rivals line, {market} filled by the game | Rivals: none of the three changes in {market}.
+EV54_A_BTN | button | Sell to Tamsk Reddock
+EV54_A_EFF | effect line | Pays more now: {cash_in} credits.
+EV54_A_TITLE | popup title | Tamsk says heavy
+EV54_A | popup | Tamsk lifted a case on his thumb and said heavy, as he does every time. Then he paid in full from a tin. The cases rolled off to the slag yard on a cart with one good wheel. You gain {cash_in} credits now.
+EV54_B_BTN | button | Sell to the assay hall
+EV54_B_EFF | effect line | Pays less now: {cash_in} credits.
+EV54_B_TITLE | popup title | The assay hall counts
+EV54_B | popup | The assay hall took the cases at its own rate and its own pace. A clerk read each seal aloud, twice. Your crew stood in the cold while the ink dried. It paid {cash_in} credits, less than the slag yard would have.
+
+EV55_TITLE | pool event title | Lowmoor Clinics need trays
+EV55_BODY | pool event text | The Lowmoor Clinics hired you to carry chilled sample trays to their wards, and a rival crew has a faster hull. Dr Pell Oruk waits behind the cold dock and offers cash for some trays. He tests each coin with a tooth and calls it mostly healthy.
+EV55_EFF | pool event rivals line, {market} filled by the game | Rivals: no change in {market} strength or growth.
+EV55_A_BTN | button | Sell to Dr Pell Oruk
+EV55_A_EFF | effect line | Pays more now: {cash_in} credits.
+EV55_A_TITLE | popup title | Mostly healthy coins
+EV55_A | popup | Dr Oruk bit every coin and found them mostly healthy. Then he paid in full. The trays left by the back door in a cold box, still labelled for a ward. You gain {cash_in} credits now. The ward gets fewer trays.
+EV55_B_BTN | button | Sell at the clinic desk
+EV55_B_EFF | effect line | Pays less now: {cash_in} credits.
+EV55_B_TITLE | popup title | The clinic desk signs
+EV55_B | popup | The clinic desk took the trays by the book. A nurse read every label aloud and the ward bell rang twice. It paid {cash_in} credits, less than the cold dock would have.
