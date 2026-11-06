@@ -11,7 +11,14 @@
       "turn_cap": 40,
       "window": "PRIORITY 1: run before every other open task.",
       "brief": "Owner, 4th time asking (quote: 'fix the skill tree to fill all of the skills. DO IT FIRST'). The skill screen must fill the whole screen: every skill of Foundations and the run's branch tree is drawn and the grid uses all the available width and height, with no empty areas, no clipped or missing skills and no skill hidden behind a scroll that the layout could avoid (T241 left CELL_W_MAX 250 capping the cells). Check every skill id in data/skills.json for the run's branch and Foundations is shown. Check at the default window size and a larger one, per CEO branch. Read game/skill_screen.gd, game/skill_tree.gd, gdd-skills.md. Do not change which skills exist. Handoff: handoffs/ui-programmer/<date>-T244.json.",
-      "owner_note": "Owner 2026-11-06: fourth request, do it first. Do not skip as a visual decision: the owner has decided it must fill the screen."
+      "owner_note": "Owner 2026-11-06: fourth request, do it first. Do not skip as a visual decision: the owner has decided it must fill the screen.",
+      "touches": [
+        "data/skills.json",
+        "game/skill_screen.gd",
+        "game/skill_tree.gd",
+        "gdd-skills.md"
+      ],
+      "priority": 1
     },
     {
       "task_id": "T79",
@@ -265,7 +272,11 @@
       "turn_cap": 40,
       "window": "W9 galaxy window (solo), after T15",
       "brief": "Visual element, not gameplay. Build the galaxy generator per GDD section 5: scatter points, bake a low-res density grid, pick suns, propagate light once at scene generation. Keep within a macOS frame budget and report frame_time_ms.",
-      "owner_note": "Owner decided T05 comes after the tutorial. Basic star field done (T05b). Still open: density grid and sun propagation."
+      "owner_note": "Owner decided T05 comes after the tutorial. Basic star field done (T05b). Still open: density grid and sun propagation.",
+      "touches": [
+        "game/galaxy/**"
+      ],
+      "needs_owner": "windowed frame-time measure"
     },
     {
       "task_id": "T13",
@@ -862,7 +873,9 @@
       "turn_cap": 50,
       "window": "Owner request 2026-11-05 (after goal ship-ceo-skills-resources). Not started: main session sets it running.",
       "brief": "Build the approved design from design/proposals/2026-11-05-station-transfer.md: data in data/*.json and data/availability.json, logic, save fields (bump the save version), panel hooks. UI layout goes to ui-programmer, texts to story-designer (English and Russian). Handoff handoffs/gameplay-programmer/2026-11-05-T166.json.",
-      "owner_note": "Superseded by T171 (storage link build)."
+      "owner_note": "Superseded by T171 (storage link build).",
+      "needs_owner": "stopped, superseded",
+      "note": "Dropped (empire growth v2, 2026-11-06): Stopped and superseded; hubs and the Storage Link cover station transfer."
     },
     {
       "task_id": "T167",
@@ -967,10 +980,14 @@
       "depends_on": [
         "T177"
       ],
-      "status": "queued",
+      "status": "stopped",
       "turn_cap": 30,
       "window": "Owner request 2026-11-05 (later). Not started: main session sets it running.",
-      "brief": "Set numbers for T177 in data/balance.json (new keys, bump data_version): flight speed, post and platform cost (goods or cash), time to establish. Handoff handoffs/economy-designer/2026-11-05-T178.json."
+      "brief": "Set numbers for T177 in data/balance.json (new keys, bump data_version): flight speed, post and platform cost (goods or cash), time to establish. Handoff handoffs/economy-designer/2026-11-05-T178.json.",
+      "touches": [
+        "data/balance.json"
+      ],
+      "note": "Replaced by T276 (empire growth v2, 2026-11-06): Flight time and post costs move into the Flagship and gig number pass (owner starts by hand)."
     },
     {
       "task_id": "T179",
@@ -1023,7 +1040,11 @@
       "status": "queued",
       "turn_cap": 40,
       "window": "Owner request 2026-11-05 (later). Not started: main session sets it running.",
-      "brief": "Run the bots (qa/bots) over 6 seeds and the CEO and ship combos: check the game can still be won, discovery and posts do not soft-lock (no open planet reachable), pause stops the ship, flights to every target type work, saves round-trip mid-flight, no dominant strategy (fast-expand versus stay home). Report in qa/reports/2026-11-05-ship-flight.md and handoff handoffs/qa-analyst/2026-11-05-T182.json. Do not fix code."
+      "brief": "Run the bots (qa/bots) over 6 seeds and the CEO and ship combos: check the game can still be won, discovery and posts do not soft-lock (no open planet reachable), pause stops the ship, flights to every target type work, saves round-trip mid-flight, no dominant strategy (fast-expand versus stay home). Report in qa/reports/2026-11-05-ship-flight.md and handoff handoffs/qa-analyst/2026-11-05-T182.json. Do not fix code.",
+      "touches": [
+        "**"
+      ],
+      "needs_owner": "hold (empire growth v2): QA run: owner only, by hand, per the QA gate."
     },
     {
       "task_id": "T183",
@@ -1107,10 +1128,15 @@
       "brief": "Storage Link (game/storage_link.gd) is 'built, not yet run in play' per gdd-skills.md; rival ships (T187) look unreviewed. Owner plays both, then decides keep/retune/look. needs owner decision.",
       "owner_note": "Owner playtest, no agent can judge feel.",
       "depends_on": [],
-      "status": "queued",
+      "status": "stopped",
       "turn_cap": 30,
       "window": "Gap analysis 2026-11-05 (overnight). Needs owner decision before start.",
-      "note": ""
+      "note": "Dropped (empire growth v2, 2026-11-06): Rival ships become house convoys (see the convoy task); the Storage Link stays as built and needs no decision task.",
+      "touches": [
+        "game/storage_link.gd",
+        "gdd-skills.md"
+      ],
+      "needs_owner": "owner decision"
     },
     {
       "task_id": "T190",
@@ -1119,10 +1145,14 @@
       "brief": "T188 test found no asteroid-asteroid link and storage never a route source. Owner chooses: add, or document as design in gdd.md. needs owner decision.",
       "owner_note": "",
       "depends_on": [],
-      "status": "queued",
+      "status": "stopped",
       "turn_cap": 30,
       "window": "Gap analysis 2026-11-05 (overnight). Needs owner decision before start.",
-      "note": ""
+      "note": "Dropped (empire growth v2, 2026-11-06): Hubs may draw from Space Storage; manual storage-as-source and asteroid-asteroid links are not needed.",
+      "touches": [
+        "gdd.md"
+      ],
+      "needs_owner": "owner decision"
     },
     {
       "task_id": "T191",
@@ -1158,7 +1188,11 @@
       "status": "queued",
       "turn_cap": 30,
       "window": "Gap analysis 2026-11-05 (overnight). Needs owner decision before start.",
-      "note": ""
+      "note": "",
+      "touches": [
+        "game/galaxy/star_field.gd"
+      ],
+      "needs_owner": "hold (empire growth v2): Owner's windowed measure; the traffic task adds a debug readout he can use too."
     },
     {
       "task_id": "T194",
@@ -1337,7 +1371,18 @@
       "turn_cap": 40,
       "window": "Owner request 2026-11-05. Needs the owner to approve the proposal first.",
       "brief": "Build the skills from the T207 proposal after the owner approves it: new effect types in game/skills.gd, nodes in data/skills.json, numbers in data/balance.json as the proposal says (placeholders), skill names and descriptions through story/skills.md and story/ru/skills.json (no hidden goods named), python3 tools/build_story.py, update gdd-skills.md. Handoff handoffs/gameplay-programmer/2026-11-05-<id>.json.",
-      "owner_note": "Owner 2026-11-05: build UNDONE for owner review. Consensus is in design/skills-board/consensus.md; build only after the owner approves it. Build backup patch: scratchpad full-before-undo.patch (session only)."
+      "owner_note": "Owner 2026-11-05: build UNDONE for owner review. Consensus is in design/skills-board/consensus.md; build only after the owner approves it. Build backup patch: scratchpad full-before-undo.patch (session only).",
+      "touches": [
+        "game/skills.gd",
+        "data/skills.json",
+        "data/balance.json",
+        "story/skills.md",
+        "story/ru/skills.json",
+        "tools/build_story.py",
+        "gdd-skills.md",
+        "game/main.gd"
+      ],
+      "needs_owner": "hold (empire growth v2): Skill effects are being swapped off share and rivals first (P1 and P3 skill tasks); then re-check what T207 still adds."
     },
     {
       "task_id": "T209",
@@ -1349,7 +1394,11 @@
       "status": "queued",
       "turn_cap": 40,
       "window": "OWNER BY HAND ONLY (CLAUDE.md QA and economy gate). Do not start.",
-      "brief": "Owner request: think about every skill with the QA agent and the economy agent: is it really worth it. Run by the OWNER by hand after the skill build (never started, scheduled or waited on by the main session or the overnight runner; no other task depends on it). economy-designer checks each new and changed skill's cost and effect against the market goal and the 20-ship cap; qa-analyst runs the bots over the skills and reports dominant, useless or trap skills; both write what to cut, merge or retune. Reports in qa/reports/ and handoffs/economy-designer/ and handoffs/qa-analyst/."
+      "brief": "Owner request: think about every skill with the QA agent and the economy agent: is it really worth it. Run by the OWNER by hand after the skill build (never started, scheduled or waited on by the main session or the overnight runner; no other task depends on it). economy-designer checks each new and changed skill's cost and effect against the market goal and the 20-ship cap; qa-analyst runs the bots over the skills and reports dominant, useless or trap skills; both write what to cut, merge or retune. Reports in qa/reports/ and handoffs/economy-designer/ and handoffs/qa-analyst/.",
+      "touches": [
+        "**"
+      ],
+      "needs_owner": "hold (empire growth v2): Owner starts by hand; best after the skill effect swaps."
     },
     {
       "task_id": "T210",
@@ -1451,10 +1500,15 @@
         "T216",
         "T217"
       ],
-      "status": "queued",
+      "status": "stopped",
       "turn_cap": 45,
       "window": "Owner request 2026-11-05. Needs the owner to approve the design proposal first.",
-      "brief": "Build the approved gig design (T216) with the two stories (T217): data/gigs.json, spawn and expiry on the game clock, marker and flight target for the 3D ship (right-click menu action from T200), arrival handling, branch-dependent rewards, save state, texts by id (no new literal text), ui-programmer for any panel or popup. A headless test for spawn, arrival and reward per branch. Update gdd.md."
+      "brief": "Build the approved gig design (T216) with the two stories (T217): data/gigs.json, spawn and expiry on the game clock, marker and flight target for the 3D ship (right-click menu action from T200), arrival handling, branch-dependent rewards, save state, texts by id (no new literal text), ui-programmer for any panel or popup. A headless test for spawn, arrival and reward per branch. Update gdd.md.",
+      "touches": [
+        "gdd.md"
+      ],
+      "needs_owner": "awaits owner approval and open questions",
+      "note": "Replaced by T271 (empire growth v2, 2026-11-06): Gig engine built as the Flagship's job system (signal and rush kinds) with the board task."
     },
     {
       "task_id": "T219",
@@ -1472,10 +1526,16 @@
       "title": "Juice: Pathfinder arrival and flight-order feedback (departure puff, dock ping, target marker pulse)",
       "owner_agent": "juice-programmer",
       "depends_on": [],
-      "status": "queued",
+      "status": "stopped",
       "turn_cap": 20,
       "window": "Follow-up from T203 (juice review 2026-11-05). One small run.",
-      "brief": "game/pathfinder_view.gd gives no beat when the ship is ordered, leaves, or arrives: the target ring just appears and the arrival only posts a notice (_on_flight_arrived in game/main.gd). Add: a soft pulse on the target marker ring while the ship flies (slow, small), a short ping on the planet at arrival using the same ring helper as the T203 establish beat (play_established or a lighter variant), and a quick pop of the selection ring when the ship is selected or an order is accepted. Why it matters: the Pathfinder is the main thing the player steers in the new discovery mode and it is the quietest object on the map. Game time only (frozen while paused), no per-frame allocation, no logic change, tunables as constants."
+      "brief": "game/pathfinder_view.gd gives no beat when the ship is ordered, leaves, or arrives: the target ring just appears and the arrival only posts a notice (_on_flight_arrived in game/main.gd). Add: a soft pulse on the target marker ring while the ship flies (slow, small), a short ping on the planet at arrival using the same ring helper as the T203 establish beat (play_established or a lighter variant), and a quick pop of the selection ring when the ship is selected or an order is accepted. Why it matters: the Pathfinder is the main thing the player steers in the new discovery mode and it is the quietest object on the map. Game time only (frozen while paused), no per-frame allocation, no logic change, tunables as constants.",
+      "touches": [
+        "game/pathfinder_view.gd",
+        "game/main.gd"
+      ],
+      "needs_owner": "look/layout, owner visual decision",
+      "note": "Replaced by T274 (empire growth v2, 2026-11-06): Folded into the flight and dock juice task."
     },
     {
       "task_id": "T221",
@@ -1485,7 +1545,13 @@
       "status": "queued",
       "turn_cap": 20,
       "window": "Follow-up from T203 (juice review 2026-11-05). One small run.",
-      "brief": "Review and smooth the rough parts left after T198/T205: (1) game/ship_trail.gd: check the trail on stop, on a system change and on a sharp turn (no jump or long straight streak, clears cleanly, rival trails do not keep drawing while paused or in another system); (2) the notification board and pop-up notices (game/main.gd post_notice and its scripts): confirm each enters in under 0.3 s with the Juice.enter vocabulary, leaves with Juice.leave, and that a notice dismissed or replaced mid-animation ends in its final state; do not shorten hold times. Why it matters: trails and notices are on screen all the time, so any pop, streak or stuck half-faded notice is seen constantly. Fix only what is found, list what was fine, no text or logic changes, tests where headless-testable."
+      "brief": "Review and smooth the rough parts left after T198/T205: (1) game/ship_trail.gd: check the trail on stop, on a system change and on a sharp turn (no jump or long straight streak, clears cleanly, rival trails do not keep drawing while paused or in another system); (2) the notification board and pop-up notices (game/main.gd post_notice and its scripts): confirm each enters in under 0.3 s with the Juice.enter vocabulary, leaves with Juice.leave, and that a notice dismissed or replaced mid-animation ends in its final state; do not shorten hold times. Why it matters: trails and notices are on screen all the time, so any pop, streak or stuck half-faded notice is seen constantly. Fix only what is found, list what was fine, no text or logic changes, tests where headless-testable.",
+      "touches": [
+        "game/ship_trail.gd",
+        "game/main.gd"
+      ],
+      "needs_owner": "look/layout, owner visual decision",
+      "owner_note": "Empire growth v2: keep only the trail and notice-board parts; the rival-ship part is dropped (house convoys replace it)."
     },
     {
       "task_id": "T222",
@@ -1503,10 +1569,15 @@
       "title": "3D viewport: resource icons below each planet",
       "owner_agent": "ui-programmer",
       "depends_on": [],
-      "status": "queued",
+      "status": "stopped",
       "turn_cap": 25,
       "window": "Owner request 2026-11-05 (playtest). Not started: main session sets it running.",
-      "brief": "Owner: under each planet in the 3D solar system view show small icons of the resources available on that planet (icons from art/icons and ui.gd, the same set the galaxy view uses). Use the Availability rule: closed or undiscovered planets and hidden goods are not drawn. Icons must follow the planet size and zoom, stay readable, not overlap the planet label, and not block clicks. Handoff handoffs/ui-programmer/2026-11-05-T223.json."
+      "brief": "Owner: under each planet in the 3D solar system view show small icons of the resources available on that planet (icons from art/icons and ui.gd, the same set the galaxy view uses). Use the Availability rule: closed or undiscovered planets and hidden goods are not drawn. Icons must follow the planet size and zoom, stay readable, not overlap the planet label, and not block clicks. Handoff handoffs/ui-programmer/2026-11-05-T223.json.",
+      "touches": [
+        "game/ui.gd"
+      ],
+      "needs_owner": "look/layout, owner visual decision",
+      "note": "Replaced by T264 (empire growth v2, 2026-11-06): Resource icons become need icons with the progress ring."
     },
     {
       "task_id": "T224",
@@ -1683,19 +1754,6 @@
       "note": "Proposal written design/proposals/2026-11-05-branch-goods.md; 3 open questions for owner (cross-branch trading, Brannock vs Ashgate, energy in recipes). Owner approval needed before T239."
     },
     {
-      "task_id": "T239",
-      "title": "Branch-exclusive goods: data, trading rules, start per branch",
-      "owner_agent": "gameplay-programmer",
-      "depends_on": [
-        "T238",
-        "T235"
-      ],
-      "status": "queued",
-      "turn_cap": 50,
-      "window": "Owner request 2026-11-05. Not started: main session sets it running.",
-      "brief": "Build the goods proposal of T238 (design/proposals/2026-11-05-branch-goods.md; the owner approved it by queuing this task, ask nothing, note doubts in the handoff). Data: data/goods.json, markets.json, planets.json, availability.json (a new good needs its rule first, per CLAUDE.md), recipes and workshops, price bands copied from the same tier of today's goods. Rules: the run's branch comes from T235 (run.branch). A good of another branch is never offered, bought, sold, loaded, routed, stored or listed in any UI for this run (hidden means not drawn at all; use Availability); only energy is shared. Planets still show their full market only for goods this branch can trade. Start state: energy plus the branch starter good at the home world from cycle 0 for each branch. Update everything that names goods: chains and pool events in data/chains.json and data/events.json (mapped by market, so a chain for another branch never fires), Storage Link upkeep (energy), win checks (branch market share), bots and rivals (they may still trade their own branch), save and load (old saves keep working: a save without branch loads as today). Story ids for new goods are placeholders from the proposal until T242; add them to story/ source and run python3 tools/build_story.py, English only. Update gdd.md goods and Availability lines (short form, no numbers). Handoff handoffs/gameplay-programmer/2026-11-05-T239.json."
-    },
-    {
       "task_id": "T240",
       "title": "Icons for the branch goods",
       "owner_agent": "ui-programmer",
@@ -1705,7 +1763,11 @@
       "status": "queued",
       "turn_cap": 40,
       "window": "Owner request 2026-11-05. Not started: main session sets it running.",
-      "brief": "Draw an icon for every new or renamed good in design/proposals/2026-11-05-branch-goods.md in art/icons, same format, size and style as the existing icon_<good>_64.svg files (read several first; one palette per branch so a branch reads at a glance, energy keeps its own icon as the shared good). Follow the icon brief of each good (silhouette readable at 64 px). Hook them wherever goods icons load (ui.gd and the galaxy and solar views) so the new ids resolve; remove icons of dropped goods only if nothing references them. Generated atlases are not edited by hand. Handoff handoffs/ui-programmer/2026-11-05-T240.json with the list of ids and files."
+      "brief": "Draw an icon for every new or renamed good in design/proposals/2026-11-05-branch-goods.md in art/icons, same format, size and style as the existing icon_<good>_64.svg files (read several first; one palette per branch so a branch reads at a glance, energy keeps its own icon as the shared good). Follow the icon brief of each good (silhouette readable at 64 px). Hook them wherever goods icons load (ui.gd and the galaxy and solar views) so the new ids resolve; remove icons of dropped goods only if nothing references them. Generated atlases are not edited by hand. Handoff handoffs/ui-programmer/2026-11-05-T240.json with the list of ids and files.",
+      "touches": [
+        "game/ui.gd"
+      ],
+      "needs_owner": "awaits owner approval"
     },
     {
       "task_id": "T241",
@@ -1738,12 +1800,22 @@
       "title": "Events: make the T224 thread TH01-TH10 playable (rows, follow chain, cash-pay effect, start-cycle key)",
       "owner_agent": "gameplay-programmer",
       "depends_on": [
-        "T224"
+        "T224",
+        "T260"
       ],
       "status": "queued",
       "turn_cap": 40,
       "window": "Created by gap analysis 2026-11-06. Needs owner decision: confirm the gameplay-programmer builds it and the start cycle key.",
-      "brief": "TH01-TH10 texts exist in story/events.md but build_story.py writes no event rows for them. Add the event rows and follow chain in data/events.json (via the generator source), a cash-pay choice effect for TH10_A, and a balance key for the thread start cycle (placeholder value). Conditions via game/conditions.gd, text by id only, update gdd.md."
+      "brief": "TH01-TH10 texts exist in story/events.md but build_story.py writes no event rows for them. Add the event rows and follow chain in data/events.json (via the generator source), a cash-pay choice effect for TH10_A, and a balance key for the thread start cycle (placeholder value). Conditions via game/conditions.gd, text by id only, update gdd.md.",
+      "touches": [
+        "story/events.md",
+        "tools/build_story.py",
+        "data/events.json",
+        "game/conditions.gd",
+        "gdd.md",
+        "game/main.gd"
+      ],
+      "needs_owner": "awaits owner OK"
     },
     {
       "task_id": "T245",
@@ -1754,7 +1826,11 @@
       "turn_cap": 40,
       "window": "Small gameplay fix.",
       "brief": "Owner: when a ship is drawn in front of a planet, clicking it selects both the planet and the ship, which is confusing. Fix the click picking so one click selects one thing: the ship wins over the planet behind it (ship pick radius first, then planets). Find the picking code in game/ (main.gd, ships.gd, galaxy/planet pick). Do not change pick sizes except as needed. Handoff: handoffs/gameplay-programmer/<date>-T245.json.",
-      "owner_note": "Owner 2026-11-06."
+      "owner_note": "Owner 2026-11-06.",
+      "touches": [
+        "game/main.gd",
+        "game/ships.gd"
+      ]
     },
     {
       "task_id": "T246",
@@ -1765,7 +1841,11 @@
       "turn_cap": 40,
       "window": "Follows T205 trail work.",
       "brief": "Owner: the ship trail is currently a single piece of trail; it should be bright glowing trails coming from the engines, and it jitters. Build per engine a trail with a core layer (thin, bright) and an outer layer (wider, softer glow, additive). Remove the jitter (cause is likely per-frame point resampling or the ship position vs trail point timing; smooth it). Read game/ship_trail.gd and ships.gd (WIDTH 0.16, ENGINE_BACK 0.9 are placeholders; exact exhaust positions are not measured from the GLBs, so place them from the model bounds). Handoff: handoffs/juice-programmer/<date>-T246.json.",
-      "owner_note": "Owner 2026-11-06. Look is the owner request; record constants atop the file for tuning."
+      "owner_note": "Owner 2026-11-06. Look is the owner request; record constants atop the file for tuning.",
+      "touches": [
+        "game/ship_trail.gd",
+        "game/ships.gd"
+      ]
     },
     {
       "task_id": "T247",
@@ -1776,7 +1856,11 @@
       "turn_cap": 40,
       "window": "Small data change; may touch the same layout as T244, do after T244.",
       "brief": "Owner: move the Permit Charter skill on top of (before) Quartermaster Terms, because the player learns it first, and Prospecting too is learned early. Reorder the skills accordingly in data/skills.json (tree position and any cost/prerequisite order that follows from learning order) and in gdd-skills.md; check the skill screen shows them in that order. Do not change effects. If a prerequisite change is needed, keep it minimal and record it. Handoff: handoffs/gameplay-programmer/<date>-T247.json.",
-      "owner_note": "Owner 2026-11-06."
+      "owner_note": "Owner 2026-11-06.",
+      "touches": [
+        "data/skills.json",
+        "gdd-skills.md"
+      ]
     },
     {
       "task_id": "T248",
@@ -1787,7 +1871,10 @@
       "turn_cap": 40,
       "window": "Follows T219.",
       "brief": "Owner: the ship's destination line (route line) should be smoother. When it is stretched or shrunk (ship moves, planets move, route changes) it must not redraw/refresh harshly; its endpoints and dash/pattern offset should ease smoothly (lerp or damped follow) instead. Read game/route_line.gd (constants atop, T219 draw-in/fade/pulse). Keep the draw-in, fade and pulse. Handoff: handoffs/juice-programmer/<date>-T248.json.",
-      "owner_note": "Owner 2026-11-06."
+      "owner_note": "Owner 2026-11-06.",
+      "touches": [
+        "game/route_line.gd"
+      ]
     },
     {
       "task_id": "T249",
@@ -1800,18 +1887,29 @@
       "turn_cap": 40,
       "window": "After T244 (same screen, same file).",
       "brief": "Owner: move the skill info panel (the selected-skill details: name, flavour, plain line, cost, learn button) from the bottom of the skill screen to the right side. The tree area uses the freed height and the remaining width; keep the tree filling the screen as T244 requires, with no clipping at the default window size. Read game/skill_screen.gd. Do not change skill data or text. Handoff: handoffs/ui-programmer/<date>-T249.json.",
-      "owner_note": "Owner 2026-11-06: layout decided by owner."
+      "owner_note": "Owner 2026-11-06: layout decided by owner.",
+      "touches": [
+        "game/skill_screen.gd"
+      ]
     },
     {
       "task_id": "T250",
       "title": "Pirates: a pack of small fast raider ships from dead worlds that steal cargo and cut a line's profit for X cycles",
       "owner_agent": "gameplay-programmer",
       "depends_on": [],
-      "status": "queued",
+      "status": "stopped",
       "turn_cap": 50,
       "window": "Owner request 2026-11-06. Gameplay-programmer builds; economy numbers are placeholders in data/balance.json (the owner tunes, no QA/economy agent runs).",
       "brief": "Owner: add pirates. Model: assets/ships/pirate_ship_01/warship 3d model.glb (import it; check scale and facing like the corvette GLBs, and set up its import settings). A pirate raid is a PACK of several ships (placeholder 3-5), each smaller than a corvette (placeholder scale ~0.6x) and slightly faster (placeholder speed ~1.15x a corvette). They appear occasionally from a DEAD planet (Cinderrest, Greywake and any later dead world), fly to a player route's lane/ship, and after the raid fly back and hide on the dead planet, i.e. simply disappear (fade or shrink into the planet) until the next raid. Pirates have no health bar, no combat and cannot be shot or selected. Effect: they steal goods. The raided line (route) becomes less profitable for X cycles: lose part of the cargo of the hit trip (placeholder share) and apply a profit malus on that route for X cycles (placeholder 3), shown as a notice and a marker on the route/ship panel with the cycles left; the malus ends by itself, no stacking beyond a cap. Triggering: occasional, only from dead worlds that are established (discovery) and only on routes that pass through the system, tied to the dead world's danger meter if it exists, with a cooldown; frequency, share, X, pack size, speed and scale all go to data/balance.json as keys (no numbers in code). Follow the Availability rule (no pirates text or UI before the first dead world is established) and write all text as ids in the story source (story/*.md, then python3 tools/build_story.py; English only): notice for a raid, notice for loot lost, route marker label and tooltip. Conditions via game/conditions.gd. Save/load the active malus and cooldown. Reuse the existing ship flight and trail code; the pack flies in loose formation. Update gdd.md (no balance numbers). Do not run QA bots or sim; sh tools/tests/run.sh is fine. Handoff: handoffs/gameplay-programmer/<date>-T250.json.",
-      "owner_note": "Owner 2026-11-06. Open design questions for the owner, defaults in the brief: pack size, X cycles, loot share, whether a pirate-hit can be prevented by a skill or escort (not in this task)."
+      "owner_note": "Owner 2026-11-06. Open design questions for the owner, defaults in the brief: pack size, X cycles, loot share, whether a pirate-hit can be prevented by a skill or escort (not in this task).",
+      "touches": [
+        "data/balance.json",
+        "tools/build_story.py",
+        "game/conditions.gd",
+        "gdd.md",
+        "game/main.gd"
+      ],
+      "note": "Replaced by T296 (empire growth v2, 2026-11-06): Pirates re-scoped: raids from unreclaimed dead worlds, with salvage pods for the Flagship."
     },
     {
       "task_id": "T251",
@@ -1822,7 +1920,11 @@
       "turn_cap": 50,
       "window": "Owner request 2026-11-06. Look is the owner request; no QA bots or screenshots required for done.",
       "brief": "Owner: make the effects 14 out of 10, awesome looking. Go through every existing effect and feedback in the game and push it much further: trade and sale payoffs (cash count-ups, coin or credit bursts, floating numbers), ship launch, arrival and docking, route start and completion, trails and engine glow, planet select and hover, notices and pop-ups, event reveals, skill learn (the unlock should feel big), build and upgrade moments, win and loss. Use layered effects: anticipation, impact, settle; additive glow, particles, easing with overshoot, brief screen shake and flash on big moments, and sound-sync hooks if audio exists. Keep it readable: effects never hide numbers or block clicks, big moments stay rare so small ones stay light, and frame budget on macOS holds (pool particles, no per-frame allocations). Put every strength, duration and colour as a constant atop the file or a balance key so the owner can tune, and add one master intensity setting (e.g. in the game menu) with an off or reduced option. Do not change gameplay logic, balance numbers or story text. Read game/ for existing juice code first and extend it instead of duplicating. Handoff: handoffs/juice-programmer/<date>-T251.json listing each effect added or changed.",
-      "owner_note": "Owner 2026-11-06. Overlaps T246 (ship trails): do not redo trails if T246 is done or running; coordinate by reading its handoff."
+      "owner_note": "Owner 2026-11-06. Overlaps T246 (ship trails): do not redo trails if T246 is done or running; coordinate by reading its handoff.",
+      "touches": [
+        "game/**"
+      ],
+      "needs_owner": "hold (empire growth v2): Run the 14/10 pass after Phase 2 so it polishes the new beats, not the share UI being removed."
     },
     {
       "task_id": "T252",
@@ -1833,7 +1935,1016 @@
       "turn_cap": 30,
       "window": "Owner request 2026-11-06. Small change; do before T250 or together with it.",
       "brief": "Owner: scale the ships to 0.8x of their current size. Add one global ship scale key in data/balance.json (value 0.8, no number in code) and apply it where ship models are sized (ships.gd and anything that sizes models, selection rings, pick radius, trails and engine glow offsets such as ENGINE_BACK and trail WIDTH, shadows or markers, the Pathfinder scout). The scale applies to every ship type including the pirate ships of T250: pirates keep their own size ratio to a corvette (T250 placeholder ~0.6x) and the global scale multiplies on top, so pirates end up at 0.6 x 0.8 of the old corvette size. If T250 is not built yet, leave a note in its handoff and make the pirate code read the same key. Keep the click pick radius usable (do not shrink it below a comfortable size; follow T245 picking if it is done). Check trails and engine positions still line up after scaling. Do not change speeds or balance. Handoff: handoffs/gameplay-programmer/<date>-T252.json.",
-      "owner_note": "Owner 2026-11-06. Touches the same files as T245 (picking), T246 (trails) and T250 (pirates); read their handoffs first."
+      "owner_note": "Owner 2026-11-06. Touches the same files as T245 (picking), T246 (trails) and T250 (pirates); read their handoffs first.",
+      "touches": [
+        "data/balance.json",
+        "game/ships.gd",
+        "game/main.gd"
+      ]
+    },
+    {
+      "task_id": "T253",
+      "title": "Design: merge mining and dead worlds into one \"raw sources\" mechanic",
+      "owner_agent": "feature-designer",
+      "depends_on": [],
+      "status": "stopped",
+      "turn_cap": 40,
+      "window": "Owner request 2026-11-06, from the mechanics review (design/proposals/2026-11-06-mechanics-review.md, cut/merge section). Proposal only.",
+      "brief": "Owner: merge mining (asteroid fields, clusters, mining platforms, ore) and dead worlds (danger, ore loss, fabric/plate, Null Core, shore up) into one \"raw sources\" mechanic. Write a spec, build nothing: what the player does with a raw source from discovery to output, which current rules stay, merge or go, how the existing goods (ore, dross, nullglass, plate) and the Null Core fit, what happens to dead_unlock_cycle and danger, the impact on skills (MIN tree), events and chains that name mining or dead worlds, Availability rules, tutorial text and save games. Read the review section first, then game/dead_worlds.gd, game/clusters.gd, game/fabric.gd, mining parts of game/route_engine.gd and data/balance.json key names (no values; numbers are for economy-designer). List build steps per agent (gameplay, ui, story) with sizes, and the questions for the owner. Output design/proposals/<date>-raw-sources.md. Handoff: handoffs/feature-designer/<date>-T253.json.",
+      "owner_note": "Owner 2026-11-06. Build is T254 after the owner approves this spec.",
+      "touches": [
+        "design/proposals/**"
+      ],
+      "note": "Replaced by T295 (empire growth v2, 2026-11-06): This document (section 3.4) is the spec; mining shrinks to a Minerals intensity lever inside the Frontier."
+    },
+    {
+      "task_id": "T254",
+      "title": "Build: raw sources mechanic (mining + dead worlds merged, per approved T253 spec)",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [
+        "T253"
+      ],
+      "status": "stopped",
+      "turn_cap": 80,
+      "window": "Owner request 2026-11-06. Starts only after the owner approves the T253 spec.",
+      "brief": "Build the raw sources mechanic exactly as the owner-approved T253 spec says (design/proposals/<date>-raw-sources.md and its owner answers). Follow the spec's build steps; numbers only from data/balance.json keys set by the owner or economy-designer, never invented in code. Keep Availability rules, conditions in game/conditions.gd and story text through tools/build_story.py. Update gdd.md in the same commit. Handoff: handoffs/gameplay-programmer/<date>-T254.json.",
+      "needs_owner": "approve the T253 raw sources spec",
+      "touches": [
+        "game/dead_worlds.gd",
+        "game/clusters.gd",
+        "game/fabric.gd",
+        "game/route_engine.gd",
+        "game/main.gd",
+        "data/balance.json",
+        "gdd.md"
+      ],
+      "note": "Replaced by T295 (empire growth v2, 2026-11-06): Built as the Barren step, reclaim and intensity task."
+    },
+    {
+      "task_id": "T255",
+      "title": "Retire the old shield_* keys and old skill keys from data/balance.json",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 30,
+      "window": "Owner request 2026-11-06, from the mechanics review. Cleanup, no balance change.",
+      "brief": "Owner: remove dead keys from data/balance.json: every shield_* key (the shield is retired in gdd.md) and every skill key that no current node in data/skills.json uses and no code reads (old tree leftovers). For each candidate key grep game/, tools/ (including tools/tests/) and data/; remove a key only when nothing reads it, and remove the code that reads it only if that code is itself dead (shield). Do not change any remaining value. Add a short line to the balance.json source note listing the removed keys. Handoff: handoffs/gameplay-programmer/<date>-T255.json listing each removed key and the grep evidence.",
+      "owner_note": "Owner 2026-11-06. [no-gdd] is fine: the GDD already says the shield is retired.",
+      "touches": [
+        "data/balance.json"
+      ]
+    },
+    {
+      "task_id": "T256",
+      "title": "Prosperity core: world tiers, needs by rule, need fill from sales",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 50,
+      "window": "Owner request 2026-11-06: empire growth v2, phase 1 (design/proposals/2026-11-06-empire-growth-v2.md). Priority over conflicting older tasks.",
+      "brief": "Goal: every established world has a Prosperity tier and a need list; sales at the world fill its needs; progress and tier-ups happen at cycle end. Design: design/proposals/2026-11-06-empire-growth-v2.md section 3.1. Read: game/route_engine.gd (_run_local, _note_sale, sold_price), game/main.gd (_end_cycle, collect_state, apply_state), game/pathfinder.gd (post_built, platform_built), game/goods.gd (tier, branch_ok), data/goods.json, data/planet_types.json. Build game/prosperity.gd (owned by main) and data/prosperity.json: tier per planet (0 discovered, 1 once the post stands; dead worlds are Barren = -1 with no ladder yet, leave a hook for reclaim); need list by RULE: energy plus the run's branch goods whose goods.json tier <= world tier, minus goods the world already sells to the player (it has a <good>_buy price), capped by a per-tier count, ordered by planet-type weights from data/prosperity.json; optional per-planet override list. Demand per need per tier (keys prosperity_demand_t<N>). Count units sold at each planet per good per cycle where route_engine notes sales, and expose add_fill(planet, good, units) for the Flagship and hubs. At cycle end: every need met -> progress +1 step; any short -> progress minus prosperity_decay_steps, floor 0; full (prosperity_steps_t<N>) -> tier up and emit tier_up(planet, tier). A world never loses a tier. A need whose good is not visible counts as unmet and is reported as locked. UI API: tier(i), max_tier(), needs(i) -> [{good or '?', demand, sold, met, locked}], progress(i) 0..1, restless(i). Save and load (old saves: established worlds start at tier 1). No pricing (separate task), no rewards (separate task). Numbers: only data/balance.json keys with placeholder values, marked placeholder in the balance source note; economy-designer sets them later (owner starts it by hand); never put tuning numbers in code. Text: ids only (story source, python3 tools/build_story.py, English only; use StoryText.get_or fallbacks until the story task lands). Anything that lists or names a good follows Availability (game/availability.gd, data/availability.json); conditions only via game/conditions.gd (update its header for new atoms). Old saves must still load (bump the save version when fields are added). Done when built: no QA, bots, sim or screenshots. gdd.md is synced at commit by the main session. Handoff: handoffs/gameplay-programmer/<date>-T256.json.",
+      "size": "M",
+      "touches": [
+        "game/prosperity.gd",
+        "data/prosperity.json",
+        "game/route_engine.gd",
+        "game/main.gd",
+        "game/save_game.gd",
+        "data/balance.json"
+      ],
+      "priority": 1
+    },
+    {
+      "task_id": "T257",
+      "title": "Need pricing: a need opens a buyer, hunger premium, surplus price",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [
+        "T256"
+      ],
+      "status": "queued",
+      "turn_cap": 50,
+      "window": "Owner request 2026-11-06: empire growth v2, phase 1 (design/proposals/2026-11-06-empire-growth-v2.md). Priority over conflicting older tasks.",
+      "brief": "Goal: prices follow need, so the best lane moves as worlds grow and dumping stops paying. Design: design/proposals/2026-11-06-empire-growth-v2.md section 3.1 (Need pricing). Read: game/trade.gd (price), game/route_engine.gd (sold_price, local_price, route_margin, best_partner, forecast, project_storage), game/cash_forecast.gd, game/prosperity.gd, data/markets.json (base_value). Build a planet factor beside the event factor: (1) a need opens a sell price at a world that has none for that good (need price per tier = base_value x key need_price_t<N>); (2) hunger: each cycle a need is short its sell price rises by need_hunger_step_pct up to need_hunger_cap_pct, and settles back once met; (3) surplus: units sold above the need's demand in one cycle earn need_surplus_pct of the price; a key need_surplus_all (0/1, placeholder 0) extends surplus to every sale for the owner to try. Forecasts, margins and best-partner hints must use the same prices. Expose price_reason(planet, good) -> 'hungry' | 'surplus' | '' for the UI. Save hunger state. Numbers: only data/balance.json keys with placeholder values, marked placeholder in the balance source note; economy-designer sets them later (owner starts it by hand); never put tuning numbers in code. Text: ids only (story source, python3 tools/build_story.py, English only; use StoryText.get_or fallbacks until the story task lands). Anything that lists or names a good follows Availability (game/availability.gd, data/availability.json); conditions only via game/conditions.gd (update its header for new atoms). Old saves must still load (bump the save version when fields are added). Done when built: no QA, bots, sim or screenshots. gdd.md is synced at commit by the main session. Handoff: handoffs/gameplay-programmer/<date>-T257.json.",
+      "size": "M",
+      "touches": [
+        "game/trade.gd",
+        "game/route_engine.gd",
+        "game/prosperity.gd",
+        "game/cash_forecast.gd",
+        "data/balance.json"
+      ],
+      "priority": 1
+    },
+    {
+      "task_id": "T258",
+      "title": "Growth rewards and atoms: tax, skill points from tiers, tier conditions",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [
+        "T256"
+      ],
+      "status": "queued",
+      "turn_cap": 30,
+      "window": "Owner request 2026-11-06: empire growth v2, phase 1 (design/proposals/2026-11-06-empire-growth-v2.md). Priority over conflicting older tasks.",
+      "brief": "Goal: growth pays and drives unlocks, replacing share milestones. Design: design/proposals/2026-11-06-empire-growth-v2.md section 3.1 (Rewards). Read: game/main.gd (_end_cycle, _add_points, _point_notice), game/skills.gd (award_share_points), game/conditions.gd, game/prosperity.gd. Build: tax per world per cycle by tier (keys prosperity_tax_t<N>) paid at cycle end with one summary notice; skill points the first time ANY world reaches tier N (keys prosperity_points_t<N>) with a reason notice; never credits for points. Stop share-milestone points behind a key share_points_enabled (placeholder 0); keep the code. New atoms in game/conditions.gd (and its header): any_tier:<n> (some world has reached tier n), planet_tier:<planet>/<n> (that world is at tier n or more). Tier numbers are structural indexes, not tuning. Numbers: only data/balance.json keys with placeholder values, marked placeholder in the balance source note; economy-designer sets them later (owner starts it by hand); never put tuning numbers in code. Text: ids only (story source, python3 tools/build_story.py, English only; use StoryText.get_or fallbacks until the story task lands). Anything that lists or names a good follows Availability (game/availability.gd, data/availability.json); conditions only via game/conditions.gd (update its header for new atoms). Old saves must still load (bump the save version when fields are added). Done when built: no QA, bots, sim or screenshots. gdd.md is synced at commit by the main session. Handoff: handoffs/gameplay-programmer/<date>-T258.json.",
+      "size": "S",
+      "touches": [
+        "game/main.gd",
+        "game/skills.gd",
+        "game/conditions.gd",
+        "game/prosperity.gd",
+        "data/balance.json"
+      ],
+      "priority": 1
+    },
+    {
+      "task_id": "T259",
+      "title": "Star Bazaar and the win swap: capital, stages, quorum, soft ending, free play",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [
+        "T256",
+        "T258"
+      ],
+      "status": "queued",
+      "turn_cap": 50,
+      "window": "Owner request 2026-11-06: empire growth v2, phase 1 (design/proposals/2026-11-06-empire-growth-v2.md). Priority over conflicting older tasks.",
+      "brief": "Goal: the run is won by raising the Star Bazaar at a capital, not by market share. Design: design/proposals/2026-11-06-empire-growth-v2.md section 4. Read: game/main.gd (_end_cycle, _finish_outcome, ending_id_of), game/markets.gd (verdict, timed_out, overhead), game/ending_picker.gd, game/end_screen.gd, game/storage.gd, game/prosperity.gd. Build game/bazaar.gd and data/bazaar.json: found(planet) allowed once per run, final, when that world's tier >= bazaar_capital_tier; stages (count from data, placeholder 4), each with a bill (branch goods by goods-tier per stage, units keys bazaar_bill_s<N>_t<goods tier>), a quorum (bazaar_quorum_tier_s<N>, bazaar_quorum_count_s<N>: other worlds at that tier) and from stage bazaar_reach_stage a world of the quorum in another system. A stage completes at cycle end when the capital's planet storage holds the bill and quorum and reach hold; the bill is removed; emit stage_done(n). Last stage -> win outcome {kind: 'bazaar'} (leave a hook flag for the Opening flight added later). In main._end_cycle: no share win, no swept loss, no market overhead; the term (win_cycle_markets) ends in a soft ending END_UNFINISHED with stages_done; Bankrupt unchanged. Ending family = run branch, GOOD/BAD from the existing lean. After any ending the end screen offers Continue (free play: no further endings). Markets keeps computing silently (removed later). Atom bazaar_stage:<n>. API for UI: capital(), can_found(i), stage(), bill_status(), quorum_status(), reach_ok(). Save. Numbers: only data/balance.json keys with placeholder values, marked placeholder in the balance source note; economy-designer sets them later (owner starts it by hand); never put tuning numbers in code. Text: ids only (story source, python3 tools/build_story.py, English only; use StoryText.get_or fallbacks until the story task lands). Anything that lists or names a good follows Availability (game/availability.gd, data/availability.json); conditions only via game/conditions.gd (update its header for new atoms). Old saves must still load (bump the save version when fields are added). Done when built: no QA, bots, sim or screenshots. gdd.md is synced at commit by the main session. Handoff: handoffs/gameplay-programmer/<date>-T259.json.",
+      "size": "M",
+      "touches": [
+        "game/bazaar.gd",
+        "data/bazaar.json",
+        "game/main.gd",
+        "game/markets.gd",
+        "game/ending_picker.gd",
+        "game/end_screen.gd",
+        "game/conditions.gd",
+        "game/save_game.gd",
+        "data/balance.json"
+      ],
+      "priority": 1
+    },
+    {
+      "task_id": "T260",
+      "title": "Chain triggers off share: re-point the share_pct triggers to growth",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [
+        "T258"
+      ],
+      "status": "queued",
+      "turn_cap": 30,
+      "window": "Owner request 2026-11-06: empire growth v2, phase 1 (design/proposals/2026-11-06-empire-growth-v2.md). Priority over conflicting older tasks.",
+      "brief": "Goal: chain steps keep firing once share stops mattering. Design: design/proposals/2026-11-06-empire-growth-v2.md section 3.5 and 0. Read: data/chains.json (21 share_pct triggers), game/chains.gd, game/conditions.gd. Replace every share_pct trigger with a growth trigger using the new atoms: any_tier:<n> with n rising along each chain (placeholder rule: first steps at tier 2, later at 3, last at 4; write the mapping in the handoff) or bazaar_stage:<n> for the last steps. Keep first_sale_after_cycle and cycles_after_prev_step triggers as they are. Keep the share_pct atom in conditions.gd for old saves but no data uses it. Do not change chain texts or effects. Numbers: only data/balance.json keys with placeholder values, marked placeholder in the balance source note; economy-designer sets them later (owner starts it by hand); never put tuning numbers in code. Text: ids only (story source, python3 tools/build_story.py, English only; use StoryText.get_or fallbacks until the story task lands). Anything that lists or names a good follows Availability (game/availability.gd, data/availability.json); conditions only via game/conditions.gd (update its header for new atoms). Old saves must still load (bump the save version when fields are added). Done when built: no QA, bots, sim or screenshots. gdd.md is synced at commit by the main session. Handoff: handoffs/gameplay-programmer/<date>-T260.json.",
+      "size": "S",
+      "touches": [
+        "data/chains.json",
+        "game/chains.gd",
+        "game/conditions.gd"
+      ],
+      "priority": 1
+    },
+    {
+      "task_id": "T261",
+      "title": "Skill effects off share: volume_pct to need fill, share_window to progress grace",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [
+        "T256"
+      ],
+      "status": "queued",
+      "turn_cap": 30,
+      "window": "Owner request 2026-11-06: empire growth v2, phase 1 (design/proposals/2026-11-06-empire-growth-v2.md). Priority over conflicting older tasks.",
+      "brief": "Goal: the 11 skill nodes that only raised share do something real in a growth game. Design: design/proposals/2026-11-06-empire-growth-v2.md section 3.1 and 0. Read: data/skills.json, game/skills.gd, game/prosperity.gd. Change effect type volume_pct (8 nodes) to need_fill_pct: units of the run's goods sold into a need count that much more toward its demand; change share_window (3 nodes) to progress_grace: an unmet cycle costs that much less progress. Keep node ids, costs, tree positions and prerequisites; values as new placeholder keys. List the 11 node ids in the handoff for the story task. Leave bot_strength_pct and bot_growth_mult alone (a later weather task). Numbers: only data/balance.json keys with placeholder values, marked placeholder in the balance source note; economy-designer sets them later (owner starts it by hand); never put tuning numbers in code. Text: ids only (story source, python3 tools/build_story.py, English only; use StoryText.get_or fallbacks until the story task lands). Anything that lists or names a good follows Availability (game/availability.gd, data/availability.json); conditions only via game/conditions.gd (update its header for new atoms). Old saves must still load (bump the save version when fields are added). Done when built: no QA, bots, sim or screenshots. gdd.md is synced at commit by the main session. Handoff: handoffs/gameplay-programmer/<date>-T261.json.",
+      "size": "S",
+      "touches": [
+        "data/skills.json",
+        "game/skills.gd",
+        "game/prosperity.gd",
+        "data/balance.json"
+      ],
+      "priority": 1
+    },
+    {
+      "task_id": "T262",
+      "title": "Planet card: tier, needs rows, progress, price reasons, found the Bazaar",
+      "owner_agent": "ui-programmer",
+      "depends_on": [
+        "T256",
+        "T257"
+      ],
+      "status": "queued",
+      "turn_cap": 50,
+      "window": "Owner request 2026-11-06: empire growth v2, phase 1 (design/proposals/2026-11-06-empire-growth-v2.md). Priority over conflicting older tasks.",
+      "brief": "Goal: the planet card tells what a world needs and how close it is to growing. Design: design/proposals/2026-11-06-empire-growth-v2.md section 3.1 (Feedback). Read: game/planet_panel.gd, game/ui.gd, game/prosperity.gd API (tier, needs, progress, restless), route_engine/trade price_reason, game/bazaar.gd API (can_found, found). Add: tier name and progress bar; need rows (good icon, name, demand, sold this cycle, met / short / locked '?'), a hungry or surplus chip from price_reason; a Restless line; a 'Found the Bazaar here' button only when can_found is true (confirm, then found); an empty 'fed by' column slot for hubs later. A locked need shows only '?', never the good. Numbers: only data/balance.json keys with placeholder values, marked placeholder in the balance source note; economy-designer sets them later (owner starts it by hand); never put tuning numbers in code. Text: ids only (story source, python3 tools/build_story.py, English only; use StoryText.get_or fallbacks until the story task lands). Anything that lists or names a good follows Availability (game/availability.gd, data/availability.json); conditions only via game/conditions.gd (update its header for new atoms). Old saves must still load (bump the save version when fields are added). Done when built: no QA, bots, sim or screenshots. gdd.md is synced at commit by the main session. Handoff: handoffs/ui-programmer/<date>-T262.json.",
+      "size": "M",
+      "touches": [
+        "game/planet_panel.gd",
+        "game/ui.gd",
+        "game/main.gd"
+      ],
+      "priority": 1
+    },
+    {
+      "task_id": "T263",
+      "title": "Next Up strip and Bazaar panel; hide the share panel, graph and Competitors",
+      "owner_agent": "ui-programmer",
+      "depends_on": [
+        "T256",
+        "T259"
+      ],
+      "status": "queued",
+      "turn_cap": 50,
+      "window": "Owner request 2026-11-06: empire growth v2, phase 1 (design/proposals/2026-11-06-empire-growth-v2.md). Priority over conflicting older tasks.",
+      "brief": "Goal: a next thing is always on screen, and the Bazaar is the goal panel. Design: design/proposals/2026-11-06-empire-growth-v2.md section 3.7 and 4. Read: game/main.gd (_build_hud, _build_rail, _refresh, _focus_event_planet), game/share_panel.gd, game/competitors_panel.gd, game/cash_forecast.gd, game/prosperity.gd, game/bazaar.gd. Build game/next_up.gd: three live slots in the top bar (Closest growth: world nearest tier-up and its short need; Bazaar: shortest bill item or quorum gap, or 'found your capital' when possible; Best move: a newly hungry lane or the cash gap and ETA to the next affordable buy). Each slot focuses the map on click. Never empty. Build game/bazaar_panel.gd on the rail where the share panel button was: capital, stages, bill rows delivered/short, quorum, reach, term left. Hide (do not delete) the share panel, share graph and Competitors button. Numbers: only data/balance.json keys with placeholder values, marked placeholder in the balance source note; economy-designer sets them later (owner starts it by hand); never put tuning numbers in code. Text: ids only (story source, python3 tools/build_story.py, English only; use StoryText.get_or fallbacks until the story task lands). Anything that lists or names a good follows Availability (game/availability.gd, data/availability.json); conditions only via game/conditions.gd (update its header for new atoms). Old saves must still load (bump the save version when fields are added). Done when built: no QA, bots, sim or screenshots. gdd.md is synced at commit by the main session. Handoff: handoffs/ui-programmer/<date>-T263.json.",
+      "size": "M",
+      "touches": [
+        "game/next_up.gd",
+        "game/bazaar_panel.gd",
+        "game/main.gd",
+        "game/share_panel.gd",
+        "game/competitors_panel.gd"
+      ],
+      "priority": 1
+    },
+    {
+      "task_id": "T264",
+      "title": "3D: progress ring and need icons under each world (replaces T223)",
+      "owner_agent": "ui-programmer",
+      "depends_on": [
+        "T256"
+      ],
+      "status": "queued",
+      "turn_cap": 30,
+      "window": "Owner request 2026-11-06: empire growth v2, phase 1 (design/proposals/2026-11-06-empire-growth-v2.md). Priority over conflicting older tasks.",
+      "brief": "Goal: growth is readable on the map without opening a card. Design: design/proposals/2026-11-06-empire-growth-v2.md section 3.1 (Feedback). Read: game/map.gd, game/planet_banners.gd, game/ui.gd (icons), game/prosperity.gd, game/bazaar.gd (capital). Add per established world: a thin ring of notches (progress), need icons under the world (met bright, short amber pulse, locked '?'), a small marker at the Bazaar capital. Undiscovered or closed worlds show nothing. Follow zoom and planet size, never overlap the label, never block clicks. Numbers: only data/balance.json keys with placeholder values, marked placeholder in the balance source note; economy-designer sets them later (owner starts it by hand); never put tuning numbers in code. Text: ids only (story source, python3 tools/build_story.py, English only; use StoryText.get_or fallbacks until the story task lands). Anything that lists or names a good follows Availability (game/availability.gd, data/availability.json); conditions only via game/conditions.gd (update its header for new atoms). Old saves must still load (bump the save version when fields are added). Done when built: no QA, bots, sim or screenshots. gdd.md is synced at commit by the main session. Handoff: handoffs/ui-programmer/<date>-T264.json.",
+      "size": "S",
+      "touches": [
+        "game/map.gd",
+        "game/planet_banners.gd",
+        "game/ui.gd"
+      ],
+      "priority": 1
+    },
+    {
+      "task_id": "T265",
+      "title": "Planet tier look: night-side city lights and halo per tier",
+      "owner_agent": "fx-programmer",
+      "depends_on": [
+        "T256"
+      ],
+      "status": "queued",
+      "turn_cap": 50,
+      "window": "Owner request 2026-11-06: empire growth v2, phase 1 (design/proposals/2026-11-06-empire-growth-v2.md). Priority over conflicting older tasks.",
+      "brief": "Goal: a grown world looks grown. Design: design/proposals/2026-11-06-empire-growth-v2.md section 3.1 (Feedback). Read: game/fx/planet/planet_sphere.gdshader, planet_sphere_glow.gdshader, planet_sphere.gd, game/map.gd (where planets are built). Add a tier uniform that drives night-side city lights (procedural grid or noise, density rising with tier, none at tier 0-1 except a few points) and a halo strength; dead worlds unchanged. Map sets it from prosperity.tier(i). A tier change eases over about a second of game time, scaled by Juice.motion. No change to planet size (route gaps and pick radius depend on it). Numbers: only data/balance.json keys with placeholder values, marked placeholder in the balance source note; economy-designer sets them later (owner starts it by hand); never put tuning numbers in code. Text: ids only (story source, python3 tools/build_story.py, English only; use StoryText.get_or fallbacks until the story task lands). Anything that lists or names a good follows Availability (game/availability.gd, data/availability.json); conditions only via game/conditions.gd (update its header for new atoms). Old saves must still load (bump the save version when fields are added). Done when built: no QA, bots, sim or screenshots. gdd.md is synced at commit by the main session. Handoff: handoffs/fx-programmer/<date>-T265.json.",
+      "size": "M",
+      "touches": [
+        "game/fx/planet/*.gdshader",
+        "game/fx/planet/planet_sphere.gd",
+        "game/map.gd"
+      ],
+      "priority": 1
+    },
+    {
+      "task_id": "T266",
+      "title": "Beats: need notch, tier-up, Restless, Bazaar stage done",
+      "owner_agent": "juice-programmer",
+      "depends_on": [
+        "T256",
+        "T259",
+        "T265"
+      ],
+      "status": "queued",
+      "turn_cap": 50,
+      "window": "Owner request 2026-11-06: empire growth v2, phase 1 (design/proposals/2026-11-06-empire-growth-v2.md). Priority over conflicting older tasks.",
+      "brief": "Goal: growth moments feel big. Design: design/proposals/2026-11-06-empire-growth-v2.md section 3.1 (Juice) and 4. Read: game/juice.gd, game/main.gd (skill point pop, notices), game/map.gd (camera), game/prosperity.gd signal tier_up, game/bazaar.gd signal stage_done. Build: need notch tick with a small chime hook; tier-up = 0.4 s time slow, pulse ring at the world, camera eases toward it (never steals control while the player drags), light bloom via the tier uniform, existing skill-point pop; Restless = ring dims; stage done = a flash and expanding ring at the capital and a banner. Game time only, frozen while paused, never blocks clicks or hides numbers. Numbers: only data/balance.json keys with placeholder values, marked placeholder in the balance source note; economy-designer sets them later (owner starts it by hand); never put tuning numbers in code. Text: ids only (story source, python3 tools/build_story.py, English only; use StoryText.get_or fallbacks until the story task lands). Anything that lists or names a good follows Availability (game/availability.gd, data/availability.json); conditions only via game/conditions.gd (update its header for new atoms). Old saves must still load (bump the save version when fields are added). Done when built: no QA, bots, sim or screenshots. gdd.md is synced at commit by the main session. Handoff: handoffs/juice-programmer/<date>-T266.json.",
+      "size": "M",
+      "touches": [
+        "game/juice.gd",
+        "game/main.gd",
+        "game/map.gd"
+      ],
+      "priority": 1
+    },
+    {
+      "task_id": "T267",
+      "title": "Text: tiers, needs, Bazaar, Next Up, soft ending, re-voiced skills",
+      "owner_agent": "story-designer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 50,
+      "window": "Owner request 2026-11-06: empire growth v2, phase 1 (design/proposals/2026-11-06-empire-growth-v2.md). Priority over conflicting older tasks.",
+      "brief": "Goal: every id the Phase 1 build uses has text. Design: design/proposals/2026-11-06-empire-growth-v2.md section 3.1, 3.7, 4. Write: tier names (placeholder count 5 plus Barren), need row labels, hungry and surplus chips, Restless line, tier-up and tax notices, skill-point reason for a tier; Bazaar name (working name Star Bazaar, may rename), found prompt and confirm, stage names and stage-done notices, bill / quorum / reach labels, panel title, term left; END_UNFINISHED soft ending with epilogue lines by stages done; the Continue (free play) button; Next Up slot templates; names and descriptions for the 11 re-voiced skill nodes (list in the P1 skill-effects handoff, or read effect types volume_pct and share_window in data/skills.json). Write in story/*.md (English only), then run python3 tools/build_story.py; never edit generated files (data/story_text.json, data/events.json). Voice per story/voice.md. No text names a hidden good, a number or a skill-point price. Done when written. Handoff: handoffs/story-designer/<date>-T267.json.",
+      "size": "M",
+      "touches": [
+        "story/screens.md",
+        "story/endings.md",
+        "story/skills.md",
+        "data/story_text.json"
+      ],
+      "priority": 1
+    },
+    {
+      "task_id": "T268",
+      "title": "OWNER STARTS BY HAND: Prosperity, need pricing and Bazaar numbers",
+      "owner_agent": "economy-designer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 50,
+      "window": "Owner request 2026-11-06: empire growth v2, phase 1 (design/proposals/2026-11-06-empire-growth-v2.md). Priority over conflicting older tasks.",
+      "brief": "Goal: real values for the Phase 1 placeholder keys. Design: design/proposals/2026-11-06-empire-growth-v2.md section 3.1 and 4. Keys: prosperity_demand_t*, prosperity_steps_t*, prosperity_decay_steps, need_price_t*, need_hunger_step_pct, need_hunger_cap_pct, need_surplus_pct, need_surplus_all, prosperity_tax_t*, prosperity_points_t*, bazaar_capital_tier, bazaar_bill_*, bazaar_quorum_*, bazaar_reach_stage, the new skill keys, the term (win_cycle_markets), data/prosperity.json weights. Targets: routine trade stays profitable but never trivial, a first tier-up in the first minutes, the Bazaar finishable inside the term by a good run. OWNER STARTS BY HAND: never scheduled automatically, nothing depends on it. Set real values for the placeholder keys listed, in data/balance.json (and data files named), bump data_version, write the reasoning in the source note. Handoff: handoffs/economy-designer/<date>-T268.json.",
+      "size": "M",
+      "touches": [
+        "data/balance.json",
+        "data/prosperity.json",
+        "data/bazaar.json"
+      ],
+      "priority": 1
+    },
+    {
+      "task_id": "T269",
+      "title": "Flagship: hold, dock trade, unload and load storage, boost",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [
+        "T256",
+        "T257"
+      ],
+      "status": "queued",
+      "turn_cap": 50,
+      "window": "Owner request 2026-11-06: empire growth v2, phase 2 (design/proposals/2026-11-06-empire-growth-v2.md). Priority over conflicting older tasks.",
+      "brief": "Goal: the Pathfinder becomes the Flagship the player flies for special jobs. Design: design/proposals/2026-11-06-empire-growth-v2.md section 3.2. Read: game/pathfinder.gd (state, request_fly, _fly, _vmax, to_dict), game/pathfinder_view.gd interface, game/route_engine.gd (local_price, sold_price), game/storage.gd (planet_key, add, remove), game/prosperity.gd (add_fill). Build: a hold (dictionary good -> units, cap key flagship_hold_units); dock_trade(planet, good, units, 'buy'|'sell') only while docked at an established world, at the same prices as orders (need pricing applies); a hand sale calls prosperity.add_fill; unload_to_storage / load_from_storage between the hold and that world's company storage (free); boost: while on, top speed and acceleration x flagship_boost_mult, burns energy from the hold at flagship_boost_energy per cycle, limited by charges (flagship_boost_charges, refill flagship_boost_refill_cycles); refusal reasons for the UI ('not_docked', 'no_cash', 'hold_full', 'no_fuel'). Exploration mode unchanged. Save hold and charges. Numbers: only data/balance.json keys with placeholder values, marked placeholder in the balance source note; economy-designer sets them later (owner starts it by hand); never put tuning numbers in code. Text: ids only (story source, python3 tools/build_story.py, English only; use StoryText.get_or fallbacks until the story task lands). Anything that lists or names a good follows Availability (game/availability.gd, data/availability.json); conditions only via game/conditions.gd (update its header for new atoms). Old saves must still load (bump the save version when fields are added). Done when built: no QA, bots, sim or screenshots. gdd.md is synced at commit by the main session. Handoff: handoffs/gameplay-programmer/<date>-T269.json.",
+      "size": "M",
+      "touches": [
+        "game/pathfinder.gd",
+        "game/main.gd",
+        "game/route_engine.gd",
+        "game/storage.gd",
+        "game/save_game.gd",
+        "data/balance.json"
+      ],
+      "priority": 1
+    },
+    {
+      "task_id": "T270",
+      "title": "Dock sheet, hold readout and boost control",
+      "owner_agent": "ui-programmer",
+      "depends_on": [
+        "T269"
+      ],
+      "status": "queued",
+      "turn_cap": 50,
+      "window": "Owner request 2026-11-06: empire growth v2, phase 2 (design/proposals/2026-11-06-empire-growth-v2.md). Priority over conflicting older tasks.",
+      "brief": "Goal: trading by hand is quick and clear. Design: design/proposals/2026-11-06-empire-growth-v2.md section 3.2 (Verbs, Feedback). Read: game/pathfinder_view.gd (selection, right-click menu), game/ship_panel.gd, game/main.gd (_on_action_menu_requested, _unhandled_input, event window pause), the Flagship API from the P2 Flagship task. Build game/dock_sheet.gd: opens from the right-click menu item 'Dock and trade' (new) or on docking after that order; pauses like the event window; rows for hold goods and the world's visible goods with buy/sell amount, price and hungry/surplus chip, Unload / Load buttons, a fuel (energy) row; refusal notices. Hold readout and boost gauge on the ship panel; a boost button and a free hotkey (document it). Numbers: only data/balance.json keys with placeholder values, marked placeholder in the balance source note; economy-designer sets them later (owner starts it by hand); never put tuning numbers in code. Text: ids only (story source, python3 tools/build_story.py, English only; use StoryText.get_or fallbacks until the story task lands). Anything that lists or names a good follows Availability (game/availability.gd, data/availability.json); conditions only via game/conditions.gd (update its header for new atoms). Old saves must still load (bump the save version when fields are added). Done when built: no QA, bots, sim or screenshots. gdd.md is synced at commit by the main session. Handoff: handoffs/ui-programmer/<date>-T270.json.",
+      "size": "M",
+      "touches": [
+        "game/dock_sheet.gd",
+        "game/ship_panel.gd",
+        "game/main.gd",
+        "game/pathfinder_view.gd"
+      ],
+      "priority": 1
+    },
+    {
+      "task_id": "T271",
+      "title": "Gig engine: data/gigs.json, offer board, signal and rush kinds (replaces T218)",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [
+        "T269"
+      ],
+      "status": "queued",
+      "turn_cap": 50,
+      "window": "Owner request 2026-11-06: empire growth v2, phase 2 (design/proposals/2026-11-06-empire-growth-v2.md). Priority over conflicting older tasks.",
+      "brief": "Goal: one engine for every Flagship job. Design: design/proposals/2026-11-06-empire-growth-v2.md section 3.2 (Gig kinds). Read: handoffs/feature-designer/2026-11-06-T216.json and the T216 spec (git show 30c23df^:design/proposals/2026-11-05-gigs.md), story/gigs.md (GIG01, GIG02), game/events.gd and main.gd event window, game/conditions.gd, game/pathfinder.gd. Build game/gigs.gd and data/gigs.json: kinds signal and rush (salvage and opening come later; keep the kind field open); an offer board of up to gig_board_max open offers; each offer has a target (planet or point), a deadline on the game clock, a requirement (rush: a good and units delivered by hand sale or unload at the target), and rewards (cash premium %, need credit for some cycles through prosperity, goods lot, one-off perk, knowledge, story line; never skill points). T216 rules hold: one-time signals, free expiry, gaps and caps by key, arrival window with two neutral options for signals (reuse the event window). Owner's open T216 answers: use the recommended ones (an expired gig is gone; a goods lot lands in the nearest established world's storage; nothing touches share). Atoms gig_done:<id>, gig_open. Save. Numbers: only data/balance.json keys with placeholder values, marked placeholder in the balance source note; economy-designer sets them later (owner starts it by hand); never put tuning numbers in code. Text: ids only (story source, python3 tools/build_story.py, English only; use StoryText.get_or fallbacks until the story task lands). Anything that lists or names a good follows Availability (game/availability.gd, data/availability.json); conditions only via game/conditions.gd (update its header for new atoms). Old saves must still load (bump the save version when fields are added). Done when built: no QA, bots, sim or screenshots. gdd.md is synced at commit by the main session. Handoff: handoffs/gameplay-programmer/<date>-T271.json.",
+      "size": "M",
+      "touches": [
+        "game/gigs.gd",
+        "data/gigs.json",
+        "game/main.gd",
+        "game/conditions.gd",
+        "game/pathfinder.gd",
+        "game/save_game.gd",
+        "data/balance.json"
+      ],
+      "priority": 1
+    },
+    {
+      "task_id": "T272",
+      "title": "Rush orders from worlds",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [
+        "T271",
+        "T256"
+      ],
+      "status": "queued",
+      "turn_cap": 30,
+      "window": "Owner request 2026-11-06: empire growth v2, phase 2 (design/proposals/2026-11-06-empire-growth-v2.md). Priority over conflicting older tasks.",
+      "brief": "Goal: worlds that matter ask for urgent help. Design: design/proposals/2026-11-06-empire-growth-v2.md section 3.2 (Avoiding busywork). Read: game/gigs.gd, game/prosperity.gd, game/pathfinder.gd (eta_cycles). Build the rush generator: candidates are worlds one step from a tier-up with a short need, Restless worlds, and (hook for later) shortage weather. Pick by weight with a seeded draw, respecting the board size and a cooldown per world; a world fed by a hub posts fewer (hook). Lot = demand x rush_lot_mult; deadline = flight ETA from the Flagship x rush_deadline_mult plus rush_deadline_add. Numbers: only data/balance.json keys with placeholder values, marked placeholder in the balance source note; economy-designer sets them later (owner starts it by hand); never put tuning numbers in code. Text: ids only (story source, python3 tools/build_story.py, English only; use StoryText.get_or fallbacks until the story task lands). Anything that lists or names a good follows Availability (game/availability.gd, data/availability.json); conditions only via game/conditions.gd (update its header for new atoms). Old saves must still load (bump the save version when fields are added). Done when built: no QA, bots, sim or screenshots. gdd.md is synced at commit by the main session. Handoff: handoffs/gameplay-programmer/<date>-T272.json.",
+      "size": "S",
+      "touches": [
+        "game/gigs.gd",
+        "game/prosperity.gd",
+        "data/gigs.json",
+        "data/balance.json"
+      ],
+      "priority": 1
+    },
+    {
+      "task_id": "T273",
+      "title": "Gig board, map markers and gig arrival",
+      "owner_agent": "ui-programmer",
+      "depends_on": [
+        "T271"
+      ],
+      "status": "queued",
+      "turn_cap": 50,
+      "window": "Owner request 2026-11-06: empire growth v2, phase 2 (design/proposals/2026-11-06-empire-growth-v2.md). Priority over conflicting older tasks.",
+      "brief": "Goal: the player sees the offers, picks one and flies. Design: design/proposals/2026-11-06-empire-growth-v2.md section 3.2 (Feedback). Read: game/gigs.gd API, game/main.gd (_build_rail, event window), game/map.gd (fly_requested), game/pathfinder_view.gd (target marker), game/next_up.gd. Build game/gig_board.gd: offers with kind icon, world, reward, deadline bar and Flagship ETA; Accept orders the Flagship there. A marker ring on the 3D map at each accepted target, pulsing faster and going amber near the deadline. Signal arrival uses the event window. Next Up's Best move may show the best open offer. Numbers: only data/balance.json keys with placeholder values, marked placeholder in the balance source note; economy-designer sets them later (owner starts it by hand); never put tuning numbers in code. Text: ids only (story source, python3 tools/build_story.py, English only; use StoryText.get_or fallbacks until the story task lands). Anything that lists or names a good follows Availability (game/availability.gd, data/availability.json); conditions only via game/conditions.gd (update its header for new atoms). Old saves must still load (bump the save version when fields are added). Done when built: no QA, bots, sim or screenshots. gdd.md is synced at commit by the main session. Handoff: handoffs/ui-programmer/<date>-T273.json.",
+      "size": "M",
+      "touches": [
+        "game/gig_board.gd",
+        "game/map.gd",
+        "game/main.gd",
+        "game/pathfinder_view.gd",
+        "game/next_up.gd"
+      ],
+      "priority": 1
+    },
+    {
+      "task_id": "T274",
+      "title": "Flight and dock juice (replaces T220)",
+      "owner_agent": "juice-programmer",
+      "depends_on": [
+        "T269",
+        "T270"
+      ],
+      "status": "queued",
+      "turn_cap": 50,
+      "window": "Owner request 2026-11-06: empire growth v2, phase 2 (design/proposals/2026-11-06-empire-growth-v2.md). Priority over conflicting older tasks.",
+      "brief": "Goal: flying the Flagship feels great. Design: design/proposals/2026-11-06-empire-growth-v2.md section 3.2 (Juice). Read: game/pathfinder_view.gd, game/juice.gd, game/ship_trail.gd, game/dock_sheet.gd; the T220 brief (python3 tools/task.py T220) is folded in. Build: order accepted = selection ring pop, nose swing, engine flare; boost = bright burst and stretched trail; dock = ease into a docking ring and a clamp tick; trade = crates stream as small sprites ship to world with a credit count-up; rush delivered = need notch flash and a sting; target marker pulse; departure puff. Game time only, no per-frame allocation. Numbers: only data/balance.json keys with placeholder values, marked placeholder in the balance source note; economy-designer sets them later (owner starts it by hand); never put tuning numbers in code. Text: ids only (story source, python3 tools/build_story.py, English only; use StoryText.get_or fallbacks until the story task lands). Anything that lists or names a good follows Availability (game/availability.gd, data/availability.json); conditions only via game/conditions.gd (update its header for new atoms). Old saves must still load (bump the save version when fields are added). Done when built: no QA, bots, sim or screenshots. gdd.md is synced at commit by the main session. Handoff: handoffs/juice-programmer/<date>-T274.json.",
+      "size": "M",
+      "touches": [
+        "game/pathfinder_view.gd",
+        "game/juice.gd",
+        "game/ship_trail.gd",
+        "game/dock_sheet.gd"
+      ],
+      "priority": 1
+    },
+    {
+      "task_id": "T275",
+      "title": "Text: Flagship, dock sheet, gig board, rush templates, four new signals",
+      "owner_agent": "story-designer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 50,
+      "window": "Owner request 2026-11-06: empire growth v2, phase 2 (design/proposals/2026-11-06-empire-growth-v2.md). Priority over conflicting older tasks.",
+      "brief": "Goal: every Phase 2 id has text, and the gig pool grows. Design: design/proposals/2026-11-06-empire-growth-v2.md section 3.2. Write: the Flagship's name and short description; dock sheet labels and refusal notices; boost; gig board labels; rush order templates (world and good as tokens filled only with visible goods); delivered and expired notices; four new signal gigs in story/gigs.md format (two shared, two for any branches you choose; two neutral options each, branch outcome lines, epilogue line). Write in story/*.md (English only), then run python3 tools/build_story.py; never edit generated files (data/story_text.json, data/events.json). Voice per story/voice.md. No text names a hidden good, a number or a skill-point price. Done when written. Handoff: handoffs/story-designer/<date>-T275.json.",
+      "size": "M",
+      "touches": [
+        "story/gigs.md",
+        "story/screens.md",
+        "data/story_text.json"
+      ],
+      "priority": 1
+    },
+    {
+      "task_id": "T276",
+      "title": "OWNER STARTS BY HAND: Flagship and gig numbers (absorbs T178)",
+      "owner_agent": "economy-designer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 30,
+      "window": "Owner request 2026-11-06: empire growth v2, phase 2 (design/proposals/2026-11-06-empire-growth-v2.md). Priority over conflicting older tasks.",
+      "brief": "Goal: hand play pays in gigs, not in routine trade. Design: design/proposals/2026-11-06-empire-growth-v2.md section 3.2. Keys: flagship_hold_units, flagship_boost_*, gig_board_max, gig gaps and caps, rush_lot_mult, rush_deadline_*, gig rewards bands, post and platform costs and flight time (the old T178 scope). Rule to check: a routine hand trip earns less per cycle than one lane of the same good. OWNER STARTS BY HAND: never scheduled automatically, nothing depends on it. Set real values for the placeholder keys listed, in data/balance.json (and data files named), bump data_version, write the reasoning in the source note. Handoff: handoffs/economy-designer/<date>-T276.json.",
+      "size": "S",
+      "touches": [
+        "data/balance.json",
+        "data/gigs.json"
+      ],
+      "priority": 1
+    },
+    {
+      "task_id": "T277",
+      "title": "Traffic layer core: instanced ships, shader paths, low-poly proxies, debug counts",
+      "owner_agent": "fx-programmer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 50,
+      "window": "Owner request 2026-11-06: empire growth v2, phase 3 (design/proposals/2026-11-06-empire-growth-v2.md). Priority over conflicting older tasks.",
+      "brief": "Goal: many small 3D ships at almost no CPU cost. Design: design/proposals/2026-11-06-empire-growth-v2.md section 3.6. Read: game/route_line.gd (DOT_SHADER: Bezier in the vertex shader, clock from main._progress), game/galaxy/asteroid_packs.gd and star_field.gd (MultiMesh use), game/ship_motion.gd, game/ships.gd (models, MODEL_YAW_DEG), assets/ships/*. Build game/traffic/: a layer per system view with groups: path group (quadratic Bezier p0/pc/p2, count, phase spread, state colour, cargo tint), orbit group (centre, radius band, count), free group (CPU positions, few). Motion in the vertex shader from INSTANCE_CUSTOM; buffers rewritten only on change; a short additive streak in the shader instead of ribbon trails. One MultiMesh per mesh per layer. Low-poly proxies of the corvette and pirate models aiming at 300 triangles or fewer. Respect the T252 ship scale key if present. Fade out at far zoom (dots stay the far view). Debug menu readout: instances per layer and draw calls. Design targets (do not measure): 300 visible instances smooth, 1,000 as a stress level, 12 or fewer draw calls, under 0.5 ms CPU. Numbers: only data/balance.json keys with placeholder values, marked placeholder in the balance source note; economy-designer sets them later (owner starts it by hand); never put tuning numbers in code. Text: ids only (story source, python3 tools/build_story.py, English only; use StoryText.get_or fallbacks until the story task lands). Anything that lists or names a good follows Availability (game/availability.gd, data/availability.json); conditions only via game/conditions.gd (update its header for new atoms). Old saves must still load (bump the save version when fields are added). Done when built: no QA, bots, sim or screenshots. gdd.md is synced at commit by the main session. Handoff: handoffs/fx-programmer/<date>-T277.json.",
+      "size": "M",
+      "touches": [
+        "game/traffic/*",
+        "game/debug_menu.gd",
+        "game/map.gd",
+        "assets/ships/**/*.import"
+      ],
+      "priority": 1
+    },
+    {
+      "task_id": "T278",
+      "title": "Lane ships as models: route dots become traffic near the camera",
+      "owner_agent": "fx-programmer",
+      "depends_on": [
+        "T277"
+      ],
+      "status": "queued",
+      "turn_cap": 50,
+      "window": "Owner request 2026-11-06: empire growth v2, phase 3 (design/proposals/2026-11-06-empire-growth-v2.md). Priority over conflicting older tasks.",
+      "brief": "Goal: lanes show real-looking ships that tell lane state. Design: design/proposals/2026-11-06-empire-growth-v2.md section 3.6 (table). Read: game/route_line.gd (dots, set_style, _process clock), game/traffic/. Each lane registers a path group with its ship count; ships keep the same clock as the dots (main._progress, trade.travel_cycles). States: laden out = warm running lights, empty back = dim, stalled = parked at the source with an amber blink, blocked = red light; cargo tint from the commodity colour. Crossfade to the existing dots by camera distance. Numbers: only data/balance.json keys with placeholder values, marked placeholder in the balance source note; economy-designer sets them later (owner starts it by hand); never put tuning numbers in code. Text: ids only (story source, python3 tools/build_story.py, English only; use StoryText.get_or fallbacks until the story task lands). Anything that lists or names a good follows Availability (game/availability.gd, data/availability.json); conditions only via game/conditions.gd (update its header for new atoms). Old saves must still load (bump the save version when fields are added). Done when built: no QA, bots, sim or screenshots. gdd.md is synced at commit by the main session. Handoff: handoffs/fx-programmer/<date>-T278.json.",
+      "size": "M",
+      "touches": [
+        "game/route_line.gd",
+        "game/traffic/*"
+      ],
+      "priority": 1
+    },
+    {
+      "task_id": "T279",
+      "title": "Orbital traffic per tier, thinning when Restless",
+      "owner_agent": "fx-programmer",
+      "depends_on": [
+        "T277",
+        "T256"
+      ],
+      "status": "queued",
+      "turn_cap": 30,
+      "window": "Owner request 2026-11-06: empire growth v2, phase 3 (design/proposals/2026-11-06-empire-growth-v2.md). Priority over conflicting older tasks.",
+      "brief": "Goal: a world's traffic shows its tier and health. Design: design/proposals/2026-11-06-empire-growth-v2.md section 3.6. Read: game/traffic/, game/prosperity.gd (tier, restless), game/map.gd (positions, planet_radius). Each established world gets an orbit group: count from tier (keys traffic_orbit_t<N>), kept inside a close ring so lines and labels stay clear; Restless worlds lose part of it; a tier-up spawns the new ones in a short burst. Numbers: only data/balance.json keys with placeholder values, marked placeholder in the balance source note; economy-designer sets them later (owner starts it by hand); never put tuning numbers in code. Text: ids only (story source, python3 tools/build_story.py, English only; use StoryText.get_or fallbacks until the story task lands). Anything that lists or names a good follows Availability (game/availability.gd, data/availability.json); conditions only via game/conditions.gd (update its header for new atoms). Old saves must still load (bump the save version when fields are added). Done when built: no QA, bots, sim or screenshots. gdd.md is synced at commit by the main session. Handoff: handoffs/fx-programmer/<date>-T279.json.",
+      "size": "S",
+      "touches": [
+        "game/traffic/*",
+        "game/map.gd",
+        "data/balance.json"
+      ],
+      "priority": 1
+    },
+    {
+      "task_id": "T280",
+      "title": "House weather: flood, shortage, congestion as house events",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [
+        "T259",
+        "T257"
+      ],
+      "status": "queued",
+      "turn_cap": 50,
+      "window": "Owner request 2026-11-06: empire growth v2, phase 3 (design/proposals/2026-11-06-empire-growth-v2.md). Priority over conflicting older tasks.",
+      "brief": "Goal: the three houses act as weather the player can ride or dodge, never as opponents. Design: design/proposals/2026-11-06-empire-growth-v2.md section 3.5. Read: game/events.gd, story/events.md and tools/build_story.py (events.json is generated: change the source), game/main.gd (fire_event, _apply_effect, forecast_id), game/prosperity.gd, game/route_engine.gd (trip_part). Build: every price pool event gets a house id (Harrow, Velvet, Ostrel per game/bots.gd ids); new effect kinds shortage (a need's demand x key and extra hunger at one world for some cycles) and congestion (trip cost x key on lanes touching one world for some cycles); the rush generator's shortage hook is fed. Floods reuse the price-down effect. Old saves load. Numbers: only data/balance.json keys with placeholder values, marked placeholder in the balance source note; economy-designer sets them later (owner starts it by hand); never put tuning numbers in code. Text: ids only (story source, python3 tools/build_story.py, English only; use StoryText.get_or fallbacks until the story task lands). Anything that lists or names a good follows Availability (game/availability.gd, data/availability.json); conditions only via game/conditions.gd (update its header for new atoms). Old saves must still load (bump the save version when fields are added). Done when built: no QA, bots, sim or screenshots. gdd.md is synced at commit by the main session. Handoff: handoffs/gameplay-programmer/<date>-T280.json.",
+      "size": "M",
+      "touches": [
+        "game/events.gd",
+        "game/main.gd",
+        "game/prosperity.gd",
+        "game/route_engine.gd",
+        "game/gigs.gd",
+        "story/events.md",
+        "data/events.json",
+        "data/balance.json"
+      ],
+      "priority": 1
+    },
+    {
+      "task_id": "T281",
+      "title": "Remove share: share panel, graph, Competitors, bot volumes, sweep and overhead code",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [
+        "T280",
+        "T263",
+        "T260",
+        "T261"
+      ],
+      "status": "queued",
+      "turn_cap": 50,
+      "window": "Owner request 2026-11-06: empire growth v2, phase 3 (design/proposals/2026-11-06-empire-growth-v2.md). Priority over conflicting older tasks.",
+      "brief": "Goal: no dead share code or UI is left. Design: design/proposals/2026-11-06-empire-growth-v2.md section 1 and 3.5. Read: game/markets.gd, game/bots.gd, game/share_panel.gd, game/share_graph.gd, game/competitors_panel.gd, game/rival_card.gd, game/main.gd, game/skills.gd (award_share_points), tools/tests (callers). Remove share computing, bot volume curves, sweep, overhead, share panel, share graph and the Competitors panel; keep Markets as the goods-to-market registry and Bots as house ids, names and tints. Rival card shows the house and its weather temperament. Old saves with share fields load. Update test callers that only exercised removed code. Numbers: only data/balance.json keys with placeholder values, marked placeholder in the balance source note; economy-designer sets them later (owner starts it by hand); never put tuning numbers in code. Text: ids only (story source, python3 tools/build_story.py, English only; use StoryText.get_or fallbacks until the story task lands). Anything that lists or names a good follows Availability (game/availability.gd, data/availability.json); conditions only via game/conditions.gd (update its header for new atoms). Old saves must still load (bump the save version when fields are added). Done when built: no QA, bots, sim or screenshots. gdd.md is synced at commit by the main session. Handoff: handoffs/gameplay-programmer/<date>-T281.json.",
+      "size": "M",
+      "touches": [
+        "game/markets.gd",
+        "game/bots.gd",
+        "game/share_panel.gd",
+        "game/share_graph.gd",
+        "game/competitors_panel.gd",
+        "game/rival_card.gd",
+        "game/main.gd",
+        "game/skills.gd",
+        "tools/tests/*"
+      ],
+      "priority": 1
+    },
+    {
+      "task_id": "T282",
+      "title": "Skill effects off rivals: bot_* to weather",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [
+        "T280"
+      ],
+      "status": "queued",
+      "turn_cap": 30,
+      "window": "Owner request 2026-11-06: empire growth v2, phase 3 (design/proposals/2026-11-06-empire-growth-v2.md). Priority over conflicting older tasks.",
+      "brief": "Goal: the 8 rival-cutting nodes affect weather instead. Design: design/proposals/2026-11-06-empire-growth-v2.md section 3.5. Read: data/skills.json (bot_strength_pct 5 nodes, bot_growth_mult 3 nodes), game/skills.gd, game/events.gd. Change bot_strength_pct to weather_soften_pct (house weather effects on the player's worlds and lanes are weaker) and bot_growth_mult to weather_warning (extra cycles of forecast). Chain options that hit a rival (data/chains.json hit_bot effects) delay or soften that house's next weather instead. Keep node ids, costs and tree; placeholder keys. List changed ids in the handoff for the story task. Numbers: only data/balance.json keys with placeholder values, marked placeholder in the balance source note; economy-designer sets them later (owner starts it by hand); never put tuning numbers in code. Text: ids only (story source, python3 tools/build_story.py, English only; use StoryText.get_or fallbacks until the story task lands). Anything that lists or names a good follows Availability (game/availability.gd, data/availability.json); conditions only via game/conditions.gd (update its header for new atoms). Old saves must still load (bump the save version when fields are added). Done when built: no QA, bots, sim or screenshots. gdd.md is synced at commit by the main session. Handoff: handoffs/gameplay-programmer/<date>-T282.json.",
+      "size": "S",
+      "touches": [
+        "data/skills.json",
+        "game/skills.gd",
+        "game/events.gd",
+        "data/chains.json",
+        "game/chains.gd",
+        "data/balance.json"
+      ],
+      "priority": 1
+    },
+    {
+      "task_id": "T283",
+      "title": "House convoys: rival ships telegraph weather",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [
+        "T280",
+        "T277"
+      ],
+      "status": "queued",
+      "turn_cap": 50,
+      "window": "Owner request 2026-11-06: empire growth v2, phase 3 (design/proposals/2026-11-06-empire-growth-v2.md). Priority over conflicting older tasks.",
+      "brief": "Goal: the player reads coming weather from the ships. Design: design/proposals/2026-11-06-empire-growth-v2.md section 3.5 (Telegraph) and 3.6. Read: game/rival_ships.gd, game/main.gd (forecast_id, forecast_slot, Skills.warning_cycles), game/traffic/. Each house ship leads a small convoy (lead = today's GLB node; escorts = a traffic free group) that flies to the target world of its house's coming weather one cycle before it fires (longer with warning skills) and parks there until it ends, then leaves. With no weather due it idles as today (T214). Keep click card (house and its weather now). Numbers: only data/balance.json keys with placeholder values, marked placeholder in the balance source note; economy-designer sets them later (owner starts it by hand); never put tuning numbers in code. Text: ids only (story source, python3 tools/build_story.py, English only; use StoryText.get_or fallbacks until the story task lands). Anything that lists or names a good follows Availability (game/availability.gd, data/availability.json); conditions only via game/conditions.gd (update its header for new atoms). Old saves must still load (bump the save version when fields are added). Done when built: no QA, bots, sim or screenshots. gdd.md is synced at commit by the main session. Handoff: handoffs/gameplay-programmer/<date>-T283.json.",
+      "size": "M",
+      "touches": [
+        "game/rival_ships.gd",
+        "game/main.gd",
+        "game/traffic/*"
+      ],
+      "priority": 1
+    },
+    {
+      "task_id": "T284",
+      "title": "Planet moods from the lean",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [
+        "T256"
+      ],
+      "status": "queued",
+      "turn_cap": 30,
+      "window": "Owner request 2026-11-06: empire growth v2, phase 3 (design/proposals/2026-11-06-empire-growth-v2.md). Priority over conflicting older tasks.",
+      "brief": "Goal: the lean becomes readable on the worlds, with no effect on growth. Design: design/proposals/2026-11-06-empire-growth-v2.md section 3.1 (Moods). Read: game/chains.gd (picks, lean), game/events.gd (event planet), game/main.gd (branch events EV52-55, _apply_chain_choice), game/ending_picker.gd. Build mood(i) -> 'warm' | 'plain' | 'cold' from chain choices whose event named that world and dark or public sales there (weights as keys); the ending still reads the total lean. Mood never changes prices, growth or tax. Expose decisive_moments() (the three choices that moved the lean most) for the end recap. Save. Numbers: only data/balance.json keys with placeholder values, marked placeholder in the balance source note; economy-designer sets them later (owner starts it by hand); never put tuning numbers in code. Text: ids only (story source, python3 tools/build_story.py, English only; use StoryText.get_or fallbacks until the story task lands). Anything that lists or names a good follows Availability (game/availability.gd, data/availability.json); conditions only via game/conditions.gd (update its header for new atoms). Old saves must still load (bump the save version when fields are added). Done when built: no QA, bots, sim or screenshots. gdd.md is synced at commit by the main session. Handoff: handoffs/gameplay-programmer/<date>-T284.json.",
+      "size": "S",
+      "touches": [
+        "game/chains.gd",
+        "game/main.gd",
+        "game/prosperity.gd",
+        "game/ending_picker.gd",
+        "game/save_game.gd",
+        "data/balance.json"
+      ],
+      "priority": 1
+    },
+    {
+      "task_id": "T285",
+      "title": "Mood faces and weather chips",
+      "owner_agent": "ui-programmer",
+      "depends_on": [
+        "T284",
+        "T280"
+      ],
+      "status": "queued",
+      "turn_cap": 30,
+      "window": "Owner request 2026-11-06: empire growth v2, phase 3 (design/proposals/2026-11-06-empire-growth-v2.md). Priority over conflicting older tasks.",
+      "brief": "Goal: faces and weather are visible where the player looks. Design: design/proposals/2026-11-06-empire-growth-v2.md section 3.1 (Moods), 3.5. Read: game/planet_panel.gd, game/map.gd / planet_banners.gd, game/ui.gd, game/events.gd. Add a small mood face on the planet card and on hover over a world; a weather chip (house tint, kind, cycles left) on affected worlds and lanes and in the card. No numbers for mood. Numbers: only data/balance.json keys with placeholder values, marked placeholder in the balance source note; economy-designer sets them later (owner starts it by hand); never put tuning numbers in code. Text: ids only (story source, python3 tools/build_story.py, English only; use StoryText.get_or fallbacks until the story task lands). Anything that lists or names a good follows Availability (game/availability.gd, data/availability.json); conditions only via game/conditions.gd (update its header for new atoms). Old saves must still load (bump the save version when fields are added). Done when built: no QA, bots, sim or screenshots. gdd.md is synced at commit by the main session. Handoff: handoffs/ui-programmer/<date>-T285.json.",
+      "size": "S",
+      "touches": [
+        "game/planet_panel.gd",
+        "game/planet_banners.gd",
+        "game/ui.gd",
+        "game/map.gd"
+      ],
+      "priority": 1
+    },
+    {
+      "task_id": "T286",
+      "title": "Galaxy view: traffic dots on links and prosperity glow",
+      "owner_agent": "galaxy-builder",
+      "depends_on": [
+        "T256"
+      ],
+      "status": "queued",
+      "turn_cap": 30,
+      "window": "Owner request 2026-11-06: empire growth v2, phase 3 (design/proposals/2026-11-06-empire-growth-v2.md). Priority over conflicting older tasks.",
+      "brief": "Goal: the galaxy view shows a living empire. Design: design/proposals/2026-11-06-empire-growth-v2.md section 3.6 (Zoom). Read: game/galaxy_view.gd (2D Control, SLOTS, links, route dots), game/prosperity.gd, game/storage_link.gd. Draw small moving dots along links between open systems (more on a Storage Link) and a soft glow per system that grows with the sum of its worlds' tiers. 2D only, cheap, game time. Numbers: only data/balance.json keys with placeholder values, marked placeholder in the balance source note; economy-designer sets them later (owner starts it by hand); never put tuning numbers in code. Text: ids only (story source, python3 tools/build_story.py, English only; use StoryText.get_or fallbacks until the story task lands). Anything that lists or names a good follows Availability (game/availability.gd, data/availability.json); conditions only via game/conditions.gd (update its header for new atoms). Old saves must still load (bump the save version when fields are added). Done when built: no QA, bots, sim or screenshots. gdd.md is synced at commit by the main session. Handoff: handoffs/galaxy-builder/<date>-T286.json.",
+      "size": "S",
+      "touches": [
+        "game/galaxy_view.gd"
+      ],
+      "priority": 1
+    },
+    {
+      "task_id": "T287",
+      "title": "Text: houses as weather, chain re-voice, moods",
+      "owner_agent": "story-designer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 50,
+      "window": "Owner request 2026-11-06: empire growth v2, phase 3 (design/proposals/2026-11-06-empire-growth-v2.md). Priority over conflicting older tasks.",
+      "brief": "Goal: rivals read as weather, chains stop talking about beating rivals. Design: design/proposals/2026-11-06-empire-growth-v2.md section 3.5, 3.1 (Moods). Write: the three houses' weather temperaments and notices (flood, shortage, congestion, convoy arriving), forecast lines, rival card lines; re-voice chain option texts that 'hit a rival' as delaying or softening a house's weather; mood labels (three); the re-voiced skill node names and descriptions for weather_soften_pct and weather_warning. Write in story/*.md (English only), then run python3 tools/build_story.py; never edit generated files (data/story_text.json, data/events.json). Voice per story/voice.md. No text names a hidden good, a number or a skill-point price. Done when written. Handoff: handoffs/story-designer/<date>-T287.json.",
+      "size": "M",
+      "touches": [
+        "story/events.md",
+        "story/screens.md",
+        "story/skills.md",
+        "data/story_text.json",
+        "data/events.json"
+      ],
+      "priority": 1
+    },
+    {
+      "task_id": "T288",
+      "title": "OWNER STARTS BY HAND: weather and traffic numbers",
+      "owner_agent": "economy-designer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 30,
+      "window": "Owner request 2026-11-06: empire growth v2, phase 3 (design/proposals/2026-11-06-empire-growth-v2.md). Priority over conflicting older tasks.",
+      "brief": "Goal: weather is a chance, never a trap. Design: design/proposals/2026-11-06-empire-growth-v2.md section 3.5. Keys: shortage and congestion multipliers and lengths, weather soften and warning keys, mood weights, traffic_orbit_t* counts. OWNER STARTS BY HAND: never scheduled automatically, nothing depends on it. Set real values for the placeholder keys listed, in data/balance.json (and data files named), bump data_version, write the reasoning in the source note. Handoff: handoffs/economy-designer/<date>-T288.json.",
+      "size": "S",
+      "touches": [
+        "data/balance.json"
+      ],
+      "priority": 1
+    },
+    {
+      "task_id": "T289",
+      "title": "Hub core: designate, reach, ship pool, delivery planner",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [
+        "T256",
+        "T257"
+      ],
+      "status": "queued",
+      "turn_cap": 50,
+      "window": "Owner request 2026-11-06: empire growth v2, phase 4 (design/proposals/2026-11-06-empire-growth-v2.md). Priority over conflicting older tasks.",
+      "brief": "Goal: a grown world keeps its neighbours fed. Design: design/proposals/2026-11-06-empire-growth-v2.md section 3.3. Read: game/route_engine.gd (new_record, routes, settle, src_available, space_key_for), game/main.gd (free_ships, ship_cap), game/prosperity.gd (needs, add_fill), game/map.gd (positions). Build game/hubs.gd: designate(planet) when tier >= hub_tier, one per system (hub_max_per_system key); reach = map distance by hub tier (keys); a pool of ships moved from the free fleet. Each cycle before settle, for each short need of a world in reach not covered by manual routes, plan a delivery from the cheapest established source in reach (planet buy or Space Storage of that system), as route records tagged owner 'hub:<planet>' that deliver up to demand only (never surplus); retire them when not needed. Hub deliveries pay buy price, trip cost and hub_fee_pct. Numbers: only data/balance.json keys with placeholder values, marked placeholder in the balance source note; economy-designer sets them later (owner starts it by hand); never put tuning numbers in code. Text: ids only (story source, python3 tools/build_story.py, English only; use StoryText.get_or fallbacks until the story task lands). Anything that lists or names a good follows Availability (game/availability.gd, data/availability.json); conditions only via game/conditions.gd (update its header for new atoms). Old saves must still load (bump the save version when fields are added). Done when built: no QA, bots, sim or screenshots. gdd.md is synced at commit by the main session. Handoff: handoffs/gameplay-programmer/<date>-T289.json.",
+      "size": "M",
+      "touches": [
+        "game/hubs.gd",
+        "game/route_engine.gd",
+        "game/main.gd",
+        "game/prosperity.gd",
+        "data/balance.json"
+      ],
+      "priority": 1
+    },
+    {
+      "task_id": "T290",
+      "title": "Hub runtime: per-need status, cash guard, release, save",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [
+        "T289"
+      ],
+      "status": "queued",
+      "turn_cap": 50,
+      "window": "Owner request 2026-11-06: empire growth v2, phase 4 (design/proposals/2026-11-06-empire-growth-v2.md). Priority over conflicting older tasks.",
+      "brief": "Goal: hubs fail clearly and safely. Design: design/proposals/2026-11-06-empire-growth-v2.md section 3.3 (Failure states). Read: game/hubs.gd, game/route_engine.gd, game/main.gd (ship_cash_floor). Build: status per need of each served world ('route', 'hub', 'short:no_source' | 'short:no_ship' | 'short:no_cash'); hubs stop buying under the ship cash floor (never debt); untick a world or need to keep it manual; release(planet) returns pool ships; hub-owned routes never show in manual route lists as editable; save and load. Numbers: only data/balance.json keys with placeholder values, marked placeholder in the balance source note; economy-designer sets them later (owner starts it by hand); never put tuning numbers in code. Text: ids only (story source, python3 tools/build_story.py, English only; use StoryText.get_or fallbacks until the story task lands). Anything that lists or names a good follows Availability (game/availability.gd, data/availability.json); conditions only via game/conditions.gd (update its header for new atoms). Old saves must still load (bump the save version when fields are added). Done when built: no QA, bots, sim or screenshots. gdd.md is synced at commit by the main session. Handoff: handoffs/gameplay-programmer/<date>-T290.json.",
+      "size": "M",
+      "touches": [
+        "game/hubs.gd",
+        "game/route_engine.gd",
+        "game/main.gd",
+        "game/save_game.gd"
+      ],
+      "priority": 1
+    },
+    {
+      "task_id": "T291",
+      "title": "Hub panel, reach ring and 'fed by' on cards",
+      "owner_agent": "ui-programmer",
+      "depends_on": [
+        "T289",
+        "T262"
+      ],
+      "status": "queued",
+      "turn_cap": 50,
+      "window": "Owner request 2026-11-06: empire growth v2, phase 4 (design/proposals/2026-11-06-empire-growth-v2.md). Priority over conflicting older tasks.",
+      "brief": "Goal: the player sets up and reads a hub at a glance. Design: design/proposals/2026-11-06-empire-growth-v2.md section 3.3 (Feedback). Read: game/hubs.gd API, game/planet_panel.gd, game/map.gd. Build: 'Make hub' on an eligible world's card; a hub panel (served worlds, gaps with reasons, pool size with add/remove ship, untick per world/need, release); a reach ring on the map; the card's 'fed by' column filled (route / hub / short and why). Numbers: only data/balance.json keys with placeholder values, marked placeholder in the balance source note; economy-designer sets them later (owner starts it by hand); never put tuning numbers in code. Text: ids only (story source, python3 tools/build_story.py, English only; use StoryText.get_or fallbacks until the story task lands). Anything that lists or names a good follows Availability (game/availability.gd, data/availability.json); conditions only via game/conditions.gd (update its header for new atoms). Old saves must still load (bump the save version when fields are added). Done when built: no QA, bots, sim or screenshots. gdd.md is synced at commit by the main session. Handoff: handoffs/ui-programmer/<date>-T291.json.",
+      "size": "M",
+      "touches": [
+        "game/hub_panel.gd",
+        "game/planet_panel.gd",
+        "game/map.gd",
+        "game/main.gd"
+      ],
+      "priority": 1
+    },
+    {
+      "task_id": "T292",
+      "title": "Hub shuttles and designate ripple",
+      "owner_agent": "juice-programmer",
+      "depends_on": [
+        "T289",
+        "T277"
+      ],
+      "status": "queued",
+      "turn_cap": 30,
+      "window": "Owner request 2026-11-06: empire growth v2, phase 4 (design/proposals/2026-11-06-empire-growth-v2.md). Priority over conflicting older tasks.",
+      "brief": "Goal: a hub visibly takes over. Design: design/proposals/2026-11-06-empire-growth-v2.md section 3.3 (Juice). Read: game/traffic/, game/hubs.gd, game/juice.gd. Hub deliveries draw as small shuttles (path groups hub to world); designate = a ripple to the reach edge and shuttles launch in a fan; release = shuttles return. Game time only. Numbers: only data/balance.json keys with placeholder values, marked placeholder in the balance source note; economy-designer sets them later (owner starts it by hand); never put tuning numbers in code. Text: ids only (story source, python3 tools/build_story.py, English only; use StoryText.get_or fallbacks until the story task lands). Anything that lists or names a good follows Availability (game/availability.gd, data/availability.json); conditions only via game/conditions.gd (update its header for new atoms). Old saves must still load (bump the save version when fields are added). Done when built: no QA, bots, sim or screenshots. gdd.md is synced at commit by the main session. Handoff: handoffs/juice-programmer/<date>-T292.json.",
+      "size": "S",
+      "touches": [
+        "game/traffic/*",
+        "game/juice.gd",
+        "game/map.gd"
+      ],
+      "priority": 1
+    },
+    {
+      "task_id": "T293",
+      "title": "Text: hubs",
+      "owner_agent": "story-designer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 30,
+      "window": "Owner request 2026-11-06: empire growth v2, phase 4 (design/proposals/2026-11-06-empire-growth-v2.md). Priority over conflicting older tasks.",
+      "brief": "Goal: hub ids have text. Design: design/proposals/2026-11-06-empire-growth-v2.md section 3.3. Write: hub name, make-hub prompt, panel labels, the four status reasons, release confirm, first-hub notice. Write in story/*.md (English only), then run python3 tools/build_story.py; never edit generated files (data/story_text.json, data/events.json). Voice per story/voice.md. No text names a hidden good, a number or a skill-point price. Done when written. Handoff: handoffs/story-designer/<date>-T293.json.",
+      "size": "S",
+      "touches": [
+        "story/screens.md",
+        "data/story_text.json"
+      ],
+      "priority": 1
+    },
+    {
+      "task_id": "T294",
+      "title": "OWNER STARTS BY HAND: hub numbers",
+      "owner_agent": "economy-designer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 30,
+      "window": "Owner request 2026-11-06: empire growth v2, phase 4 (design/proposals/2026-11-06-empire-growth-v2.md). Priority over conflicting older tasks.",
+      "brief": "Goal: hubs save attention but cost margin. Design: design/proposals/2026-11-06-empire-growth-v2.md section 3.3. Keys: hub_tier, hub_max_per_system, hub reach per tier, hub_fee_pct. Rule to check: a tuned manual lane earns more per unit than a hub delivery. OWNER STARTS BY HAND: never scheduled automatically, nothing depends on it. Set real values for the placeholder keys listed, in data/balance.json (and data files named), bump data_version, write the reasoning in the source note. Handoff: handoffs/economy-designer/<date>-T294.json.",
+      "size": "S",
+      "touches": [
+        "data/balance.json"
+      ],
+      "priority": 1
+    },
+    {
+      "task_id": "T295",
+      "title": "Barren step and reclaim; Minerals mining intensity (replaces T253 and T254)",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [
+        "T256"
+      ],
+      "status": "queued",
+      "turn_cap": 50,
+      "window": "Owner request 2026-11-06: empire growth v2, phase 5 (design/proposals/2026-11-06-empire-growth-v2.md). Priority over conflicting older tasks.",
+      "brief": "Goal: every dead world is a decision for every branch. Design: design/proposals/2026-11-06-empire-growth-v2.md section 3.4. Read: game/dead_worlds.gd, game/clusters.gd, game/fabric.gd, game/prosperity.gd (Barren hook), game/route_engine.gd (mining parts), data/planet_types.json. Build: dead worlds use a reclamation need list (same rule: energy and branch goods, plus nullglass or plate where the branch trades them; data/prosperity.json); filling it fills the ring; full = the world turns living (new type 'reclaimed', tier 1, its post counts as built), mining it stops for good; it cannot be mined while being reclaimed. Minerals runs: a three-step intensity per dead world and cluster (gentle, normal, hard; yield and danger multipliers as keys); expose remaining stock and cycles left. Old saves load. Numbers: only data/balance.json keys with placeholder values, marked placeholder in the balance source note; economy-designer sets them later (owner starts it by hand); never put tuning numbers in code. Text: ids only (story source, python3 tools/build_story.py, English only; use StoryText.get_or fallbacks until the story task lands). Anything that lists or names a good follows Availability (game/availability.gd, data/availability.json); conditions only via game/conditions.gd (update its header for new atoms). Old saves must still load (bump the save version when fields are added). Done when built: no QA, bots, sim or screenshots. gdd.md is synced at commit by the main session. Handoff: handoffs/gameplay-programmer/<date>-T295.json.",
+      "size": "M",
+      "touches": [
+        "game/dead_worlds.gd",
+        "game/clusters.gd",
+        "game/prosperity.gd",
+        "game/route_engine.gd",
+        "data/prosperity.json",
+        "data/planet_types.json",
+        "game/save_game.gd",
+        "data/balance.json"
+      ],
+      "priority": 1
+    },
+    {
+      "task_id": "T296",
+      "title": "Raids from dead-world nests with salvage pods (replaces T250)",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [
+        "T295",
+        "T271"
+      ],
+      "status": "queued",
+      "turn_cap": 50,
+      "window": "Owner request 2026-11-06: empire growth v2, phase 5 (design/proposals/2026-11-06-empire-growth-v2.md). Priority over conflicting older tasks.",
+      "brief": "Goal: unreclaimed dead worlds are a visible danger that the player can answer. Design: design/proposals/2026-11-06-empire-growth-v2.md section 3.4 (Raids). Read: the T250 brief (python3 tools/task.py T250: pirate model, pack, no combat), game/rival_ships.gd and game/ship_motion.gd (flight), game/route_engine.gd (pirates_active, has_core), game/gigs.gd. Build per T250 with these changes: raids come only from dead worlds that are not reclaimed, in systems where the player has lanes; chance rises with the player's lanes in that system and mining intensity (keys); a raid takes part of one trip, puts a capped malus on that lane for some cycles, and drops cargo pods as a salvage gig (kind 'salvage': reach them before they fade; goods load into the Flagship hold). Null Core ships are immune. A warning chip one cycle ahead with forecast skills. Save. Numbers: only data/balance.json keys with placeholder values, marked placeholder in the balance source note; economy-designer sets them later (owner starts it by hand); never put tuning numbers in code. Text: ids only (story source, python3 tools/build_story.py, English only; use StoryText.get_or fallbacks until the story task lands). Anything that lists or names a good follows Availability (game/availability.gd, data/availability.json); conditions only via game/conditions.gd (update its header for new atoms). Old saves must still load (bump the save version when fields are added). Done when built: no QA, bots, sim or screenshots. gdd.md is synced at commit by the main session. Handoff: handoffs/gameplay-programmer/<date>-T296.json.",
+      "size": "M",
+      "touches": [
+        "game/raids.gd",
+        "game/route_engine.gd",
+        "game/gigs.gd",
+        "game/main.gd",
+        "game/save_game.gd",
+        "data/gigs.json",
+        "data/balance.json"
+      ],
+      "priority": 1
+    },
+    {
+      "task_id": "T297",
+      "title": "Reclaim transition: a dead world turns living",
+      "owner_agent": "fx-programmer",
+      "depends_on": [
+        "T295"
+      ],
+      "status": "queued",
+      "turn_cap": 50,
+      "window": "Owner request 2026-11-06: empire growth v2, phase 5 (design/proposals/2026-11-06-empire-growth-v2.md). Priority over conflicting older tasks.",
+      "brief": "Goal: the strongest growth image in the game. Design: design/proposals/2026-11-06-empire-growth-v2.md section 3.4 (Juice). Read: game/fx/planet/planet_sphere_dead.gdshader, planet_sphere.gdshader, planet_sphere.gd. Build: a reclaim progress uniform on the dead shader (surface tint creeping green as the ring fills) and the flip to a living look on completion: a green wave across the surface, clouds fading in, the first lights; the nest's red haze fades. Game time. Numbers: only data/balance.json keys with placeholder values, marked placeholder in the balance source note; economy-designer sets them later (owner starts it by hand); never put tuning numbers in code. Text: ids only (story source, python3 tools/build_story.py, English only; use StoryText.get_or fallbacks until the story task lands). Anything that lists or names a good follows Availability (game/availability.gd, data/availability.json); conditions only via game/conditions.gd (update its header for new atoms). Old saves must still load (bump the save version when fields are added). Done when built: no QA, bots, sim or screenshots. gdd.md is synced at commit by the main session. Handoff: handoffs/fx-programmer/<date>-T297.json.",
+      "size": "M",
+      "touches": [
+        "game/fx/planet/*",
+        "game/map.gd"
+      ],
+      "priority": 1
+    },
+    {
+      "task_id": "T298",
+      "title": "Opening flight, wings, end recap data",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [
+        "T259",
+        "T271",
+        "T284"
+      ],
+      "status": "queued",
+      "turn_cap": 50,
+      "window": "Owner request 2026-11-06: empire growth v2, phase 5 (design/proposals/2026-11-06-empire-growth-v2.md). Priority over conflicting older tasks.",
+      "brief": "Goal: the win is a moment the player flies. Design: design/proposals/2026-11-06-empire-growth-v2.md section 4. Read: game/bazaar.gd (Opening hook), game/gigs.gd, game/ending_picker.gd, game/end_screen.gd. Build: after the last stage, an Opening gig (kind 'opening') to fly the charter cargo to the capital; docking there fires the win. Wings: after each stage, a choice of two perks from data/bazaar.json (effects reuse existing effect types or simple keys, for example hold size, hub reach, tax, workshop cost), saved. End recap data: capital, stages, wings, worlds per tier, reclaimed worlds, and decisive_moments(). Numbers: only data/balance.json keys with placeholder values, marked placeholder in the balance source note; economy-designer sets them later (owner starts it by hand); never put tuning numbers in code. Text: ids only (story source, python3 tools/build_story.py, English only; use StoryText.get_or fallbacks until the story task lands). Anything that lists or names a good follows Availability (game/availability.gd, data/availability.json); conditions only via game/conditions.gd (update its header for new atoms). Old saves must still load (bump the save version when fields are added). Done when built: no QA, bots, sim or screenshots. gdd.md is synced at commit by the main session. Handoff: handoffs/gameplay-programmer/<date>-T298.json.",
+      "size": "M",
+      "touches": [
+        "game/bazaar.gd",
+        "data/bazaar.json",
+        "game/gigs.gd",
+        "game/ending_picker.gd",
+        "game/main.gd",
+        "game/save_game.gd",
+        "data/balance.json"
+      ],
+      "priority": 1
+    },
+    {
+      "task_id": "T299",
+      "title": "Wing choice popup and end recap screen",
+      "owner_agent": "ui-programmer",
+      "depends_on": [
+        "T298"
+      ],
+      "status": "queued",
+      "turn_cap": 50,
+      "window": "Owner request 2026-11-06: empire growth v2, phase 5 (design/proposals/2026-11-06-empire-growth-v2.md). Priority over conflicting older tasks.",
+      "brief": "Goal: choices and their weight are visible at the end. Design: design/proposals/2026-11-06-empire-growth-v2.md section 4 (Endings). Read: game/end_screen.gd, game/bazaar_panel.gd, game/main.gd (event window). Build: a wing choice popup (two cards, pick one) after each stage; the end screen recap block (capital, stages, wings, worlds grown, reclaimed worlds, the three decisive moments) above the ending text; Continue (free play) stays. Numbers: only data/balance.json keys with placeholder values, marked placeholder in the balance source note; economy-designer sets them later (owner starts it by hand); never put tuning numbers in code. Text: ids only (story source, python3 tools/build_story.py, English only; use StoryText.get_or fallbacks until the story task lands). Anything that lists or names a good follows Availability (game/availability.gd, data/availability.json); conditions only via game/conditions.gd (update its header for new atoms). Old saves must still load (bump the save version when fields are added). Done when built: no QA, bots, sim or screenshots. gdd.md is synced at commit by the main session. Handoff: handoffs/ui-programmer/<date>-T299.json.",
+      "size": "M",
+      "touches": [
+        "game/end_screen.gd",
+        "game/bazaar_panel.gd",
+        "game/main.gd"
+      ],
+      "priority": 1
+    },
+    {
+      "task_id": "T300",
+      "title": "Beats: raid, salvage, reclaim, Opening",
+      "owner_agent": "juice-programmer",
+      "depends_on": [
+        "T296",
+        "T297",
+        "T298",
+        "T277"
+      ],
+      "status": "queued",
+      "turn_cap": 50,
+      "window": "Owner request 2026-11-06: empire growth v2, phase 5 (design/proposals/2026-11-06-empire-growth-v2.md). Priority over conflicting older tasks.",
+      "brief": "Goal: the finale and the frontier hit hard. Design: design/proposals/2026-11-06-empire-growth-v2.md section 3.4 (Juice), 4. Read: game/raids.gd, game/juice.gd, game/traffic/, game/bazaar.gd. Build: raid = raiders dart in, flash on the hit ship, pods tumble out; salvage scoop = pods zip into the Flagship; reclaim = camera eases to the world while the P5 transition plays, a chime; Opening = the system's traffic converges on the capital, the Bazaar ring lights segment by segment, a short screen flash and banner. Readable, never blocks clicks. Numbers: only data/balance.json keys with placeholder values, marked placeholder in the balance source note; economy-designer sets them later (owner starts it by hand); never put tuning numbers in code. Text: ids only (story source, python3 tools/build_story.py, English only; use StoryText.get_or fallbacks until the story task lands). Anything that lists or names a good follows Availability (game/availability.gd, data/availability.json); conditions only via game/conditions.gd (update its header for new atoms). Old saves must still load (bump the save version when fields are added). Done when built: no QA, bots, sim or screenshots. gdd.md is synced at commit by the main session. Handoff: handoffs/juice-programmer/<date>-T300.json.",
+      "size": "M",
+      "touches": [
+        "game/juice.gd",
+        "game/traffic/*",
+        "game/main.gd",
+        "game/map.gd"
+      ],
+      "priority": 1
+    },
+    {
+      "task_id": "T301",
+      "title": "Text: frontier, wings, Opening, recap, epilogues",
+      "owner_agent": "story-designer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 50,
+      "window": "Owner request 2026-11-06: empire growth v2, phase 5 (design/proposals/2026-11-06-empire-growth-v2.md). Priority over conflicting older tasks.",
+      "brief": "Goal: the frontier and the finale speak. Design: design/proposals/2026-11-06-empire-growth-v2.md section 3.4, 4. Write: reclaim prompts and notices, the reclaimed type name, raid and salvage notices, intensity labels; six wing names and lines (three stages x two); the Opening gig text; recap labels; epilogue lines for capital, worlds grown, reclaimed world, wings (no counts, no lean words). Write in story/*.md (English only), then run python3 tools/build_story.py; never edit generated files (data/story_text.json, data/events.json). Voice per story/voice.md. No text names a hidden good, a number or a skill-point price. Done when written. Handoff: handoffs/story-designer/<date>-T301.json.",
+      "size": "M",
+      "touches": [
+        "story/screens.md",
+        "story/endings.md",
+        "story/gigs.md",
+        "data/story_text.json"
+      ],
+      "priority": 1
+    },
+    {
+      "task_id": "T302",
+      "title": "OWNER STARTS BY HAND: frontier and wing numbers",
+      "owner_agent": "economy-designer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 30,
+      "window": "Owner request 2026-11-06: empire growth v2, phase 5 (design/proposals/2026-11-06-empire-growth-v2.md). Priority over conflicting older tasks.",
+      "brief": "Goal: raids sting but never ruin; reclaim competes with the Bazaar. Design: design/proposals/2026-11-06-empire-growth-v2.md section 3.4, 4. Keys: raid chance, share taken, malus and cycles, pod fade, reclaim needs, mining intensity multipliers, wing effects. OWNER STARTS BY HAND: never scheduled automatically, nothing depends on it. Set real values for the placeholder keys listed, in data/balance.json (and data files named), bump data_version, write the reasoning in the source note. Handoff: handoffs/economy-designer/<date>-T302.json.",
+      "size": "S",
+      "touches": [
+        "data/balance.json",
+        "data/prosperity.json",
+        "data/bazaar.json"
+      ],
+      "priority": 1
     }
   ],
   "done_task_ids": [
