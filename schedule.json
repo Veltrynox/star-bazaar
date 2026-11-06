@@ -1510,10 +1510,11 @@
       "title": "Skill tree: connection lines pass through skill nodes",
       "owner_agent": "ui-programmer",
       "depends_on": [],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 20,
       "window": "Owner request 2026-11-05 (playtest). Not started: main session sets it running.",
-      "brief": "Owner screenshot: in the skill screen a connector line runs straight through a node (seen on the Price Whisper node: a vertical line crosses the node box). Route the lines so they stop at node edges or go behind opaque nodes (draw order and node background), for every branch and every node pair, including the new skills from T208. Check all three branches by looking at the layout code and a windowed screenshot via qa/run_game.sh if needed. Handoff handoffs/ui-programmer/2026-11-05-T225.json."
+      "brief": "Owner screenshot: in the skill screen a connector line runs straight through a node (seen on the Price Whisper node: a vertical line crosses the node box). Route the lines so they stop at node edges or go behind opaque nodes (draw order and node background), for every branch and every node pair, including the new skills from T208. Check all three branches by looking at the layout code and a windowed screenshot via qa/run_game.sh if needed. Handoff handoffs/ui-programmer/2026-11-05-T225.json.",
+      "note": "2026-11-05: skill_screen._draw_links now clips each connector segment at every visible node box (clip_segment), so lines stop at node edges. Headless test added; not seen windowed."
     },
     {
       "task_id": "T226",
