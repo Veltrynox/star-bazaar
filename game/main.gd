@@ -3233,6 +3233,7 @@ func _on_fly_requested(target: Dictionary) -> void:
 		return
 	var r = PathfinderView._call(f, "request_fly", [target], "")
 	_flight_notice(r)
+	on_flight_changed()  # T228: a manual order ends exploration mode; the panel must show it while paused
 
 ## T200: right-click menu on a planet with the ship selected: one item per allowed action (flight.actions_for), nothing else drawn.
 ## Choosing one flies there and establishes on arrival (the accessor starts the build when the ship docks).
@@ -3263,6 +3264,7 @@ func _on_fly_establish_requested(planet_id: String) -> void:
 		return
 	var r = PathfinderView._call(f, "request_fly_establish", [planet_id], "")
 	_flight_notice(r)
+	on_flight_changed()  # T228
 
 func _on_flight_establish_failed(_planet_id: String, reason: String) -> void:
 	_flight_notice(reason)
@@ -3337,7 +3339,7 @@ func _on_flight_build_done(planet_id: String) -> void:
 ## T206: exploration mode. Button in the ship panel; tests and bots call set_exploring directly.
 func set_exploring(on: bool) -> void:
 	flight.set_exploring(on)
-	_refresh_panel()
+	on_flight_changed()  # T228: label and button update at once, also while paused
 
 func _on_exploration_done() -> void:
 	post_notice(StoryText.get_text("NOT_EXPLORE_DONE"))

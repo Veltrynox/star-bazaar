@@ -17,16 +17,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-06 12:00 run: T205
-- Summary: Ship trails are now tapered ribbons about 0.16 wide (was a 1px line) and start at an engine point behind the ship (per-model constant Ships.ENGINE_BACK), for the player and rival ships.
-- Why this task: concrete owner brief, no dependencies, widths were specified; other open tasks are owner-only, visual decisions, or design proposals.
-- Approach: small edit done by me (ships.gd, ship_trail.gd, pathfinder_view.gd, rival_ships.gd); ribbon lies flat in the map plane.
-- Agent prompts: none.
-- Worked: sh tools/tests/run.sh pass=11273 fail=0.
-- Failed / did not work: nothing; not seen windowed, exhaust offset 0.9 is a guess for all models.
-- Files and commits: game/ships.gd, game/ship_trail.gd, game/pathfinder_view.gd, game/rival_ships.gd, schedule.json, blackboard.md; see git log "T205".
-- Left to do: owner: check width/offset windowed and set per-model ENGINE_BACK; no handoff file written (no agent used).
-
 ## 2026-11-06 13:00 run: T203
 - Summary: Establishing a trading post or mining platform now plays a 1.1 s beat: closing ring, 10 sparkle spokes, planet label pop and a small camera nudge. The agent also queued juice tasks T219-T221.
 - Why this task: owner brief with concrete effects, no dependencies, no decision needed; other open tasks are owner-only, need decisions, or depend on designs.
@@ -66,3 +56,13 @@
 - Failed / did not work: no headless test added; not tried windowed.
 - Files and commits: game/juice.gd, schedule.json, blackboard.md; see git log "T222".
 - Left to do: owner: confirm windowed that Space no longer flips the explore button; keyboard Enter on a focused button still works. T228 (stop while paused) still queued.
+
+## 2026-11-05 17:00 run: T228
+- Summary: Stop exploring and manual orders already changed the Pathfinder state while paused, but the ship panel was not refreshed, so the button looked dead. set_exploring and the map order handlers in main.gd now call on_flight_changed.
+- Why this task: small concrete playtest bug, no dependencies, no visual or economy-agent need.
+- Approach: small edit by me in main.gd; refresh at the call sites instead of ticking the panel while paused.
+- Agent prompts: none.
+- Worked: sh tools/tests/run.sh pass=11303 fail=0; test added (mode off while paused, label follows).
+- Failed / did not work: nothing; not tried windowed. No handoff file (no agent used).
+- Files and commits: game/main.gd, tools/tests/run_tests.gd, schedule.json, blackboard.md; see git log "T228".
+- Left to do: owner: confirm windowed. A manual order given while paused sets the target but the ship moves only when unpaused.

@@ -1544,10 +1544,11 @@
       "title": "Exploration can be stopped while the game is paused",
       "owner_agent": "gameplay-programmer",
       "depends_on": [],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 15,
       "window": "Owner request 2026-11-05 (playtest). Not started: main session sets it running.",
-      "brief": "Owner: the Stop exploring button and manual orders do nothing while time is paused. Switching exploration off (button) and giving a manual order must work when paused; the ship still does not move while paused. Update the button label state at once. Headless test: pause, stop exploring, mode is off. Handoff handoffs/gameplay-programmer/2026-11-05-T228.json."
+      "brief": "Owner: the Stop exploring button and manual orders do nothing while time is paused. Switching exploration off (button) and giving a manual order must work when paused; the ship still does not move while paused. Update the button label state at once. Headless test: pause, stop exploring, mode is off. Handoff handoffs/gameplay-programmer/2026-11-05-T228.json.",
+      "note": "2026-11-05: logic already worked paused; the ship panel did not refresh. set_exploring and the fly/establish order handlers in main.gd now call on_flight_changed. Test added in _test_t206_explore."
     },
     {
       "task_id": "T229",

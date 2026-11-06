@@ -6865,6 +6865,13 @@ func _test_t206_explore() -> void:
 		if m.system_of(i) == 1:
 			sys1.append(str(m.map.planets[i]["id"]))
 	check(sys1.size() > 2, "T206: system 1 has several planets", str(sys1.size()))
+	# T228: switching the mode off while paused works and the button follows at once
+	m.paused = true
+	m.set_exploring(true)
+	check(m.flight.exploring(), "T228: mode on while paused")
+	m.set_exploring(false)
+	check(not m.flight.exploring(), "T228: mode off while paused")
+	check(m.ship_panel.explore_button.text == StoryText.get_text("BTN_EXPLORE_ON"), "T228: button label follows while paused")
 	# cash short: the ship waits at the first planet it cannot pay for
 	m.cash = 0
 	f.set_exploring(true)
