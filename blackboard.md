@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-06 17:15 run: T267
-- Summary: Wrote English text for prosperity tiers, planet-card needs, the Bazaar, Next Up, the soft ending (END_UNFINISHED) and 11 re-voiced skill nodes. The test suite has 13 failures that also fail on a clean base: goods, workshop, cells and availability for powder, blooms and food.
-- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
-- Approach: built by a worker in worktree ../wt/T267 on branch task/T267, merged by the serial merge queue.
-- Agent prompts: /overnight-worker T267 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T267.log.
-- Worked: rebase, full test suite and fast-forward merge passed.
-- Failed / did not work: nothing.
-- Files and commits: see git log on branch new-features for commits starting with T267.
-- Left to do: nothing for this task.
-
 ## 2026-11-06 17:16 run: T277
 - Summary: Traffic layer in game/traffic/ with instanced path/orbit/free ship groups moving in shaders, code-built low-poly corvette and pirate proxies, far-zoom fade, 13 placeholder balance keys and a debug-menu instance/draw-call readout
 - Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
@@ -64,4 +54,14 @@
 - Worked: rebase, full test suite and fast-forward merge passed.
 - Failed / did not work: nothing.
 - Files and commits: see git log on branch new-features for commits starting with T244.
+- Left to do: nothing for this task.
+
+## 2026-11-06 17:54 run: T256
+- Summary: tests: 13 failures (workshop, goods, availability, cells), identical on base 2278959 and unrelated; prosperity core is built, its 8 new tests pass, and it is committed
+- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
+- Approach: built by a worker in worktree ../wt/T256 on branch task/T256, merged by the serial merge queue.
+- Agent prompts: /overnight-worker T256 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T256.log.
+- Worked: rebase, full test suite and fast-forward merge passed.
+- Failed / did not work: nothing.
+- Files and commits: see git log on branch new-features for commits starting with T256.
 - Left to do: nothing for this task.
