@@ -25,6 +25,8 @@ extends RefCounted
 ##   post_built:<planet>                    a trading post stands there (living world; the home world from the start)
 ##   platform_built:<planet>                a mining platform stands there (dead world)
 ##                                          These three are true for every planet while balance discovery_enabled is 0 (game/pathfinder.gd).
+##   any_tier:<n>                           some world has reached prosperity tier n (n is a structural index; a world never loses a tier)
+##   planet_tier:<planet>/<n>               that world stands at prosperity tier n or more (e.g. planet_tier:planet_1/2)
 ## Atoms that need a chain step in the context (ctx.step), the market and previous step come from it:
 ##   share_pct:<balance>                    the step's market share in percent has reached the value
 ##   first_sale_after_cycle:<balance>       a non-common-raw good of the step's market sold in a cycle after that
@@ -39,7 +41,7 @@ const ATOMS := {
 	"start": "", "skill_learned": "node", "workshop_built": "workshop", "system_open": "system", "cycle_at_least": "balance", "cycle_at_most": "balance",
 	"stock_held": "good", "good_visible": "good", "good_traded": "good", "event_fired": "event",
 	"share_pct": "balance", "first_sale_after_cycle": "balance", "cycles_after_prev_step": "balance",
-	"planet_visited": "planet", "post_built": "planet", "platform_built": "planet", "branch_is": "market", "branch_chosen": "",
+	"planet_visited": "planet", "post_built": "planet", "platform_built": "planet", "branch_is": "market", "branch_chosen": "", "any_tier": "n", "planet_tier": "planet/n",
 }
 const STEP_ATOMS := ["share_pct", "first_sale_after_cycle", "cycles_after_prev_step"]
 
@@ -121,6 +123,8 @@ static func _atom(atom: String, ctx: Dictionary) -> bool:
 			return b == "" or b == arg
 		"branch_chosen":
 			return run_branch() != ""
+		"any_tier", "planet_tier":
+			return live() and _game_atom(str(parts[0]), arg)
 		"workshop_built", "system_open", "stock_held", "planet_visited", "post_built", "platform_built":
 			return live() and _game_atom(str(parts[0]), arg)
 	push_error("Conditions: unknown atom '%s'" % atom)
@@ -142,6 +146,12 @@ static func _game_atom(name: String, arg: String) -> bool:
 			return stock_held(arg)
 		"planet_visited", "post_built", "platform_built":
 			return game.planet_atom(name, arg)
+		"any_tier":
+			return game.prosperity != null and game.prosperity.any_tier_reached(int(arg))
+		"planet_tier":
+			var bits := arg.split("/")
+			var i: int = game.planet_index_of(bits[0]) if bits.size() == 2 else -1
+			return i >= 0 and game.prosperity != null and game.prosperity.tier(i) >= int(bits[1])
 	return false
 
 static func _market(ctx: Dictionary) -> String:
@@ -222,6 +232,13 @@ static func lint(cond, where: String, errs: Array, step_ok: bool = false, bal: D
 			"planet":
 				if not planet_ids().has(arg):
 					errs.append("%s: unknown planet '%s'" % [where, arg])
+			"n":
+				if not arg.is_valid_int() or int(arg) < 1:
+					errs.append("%s: atom '%s' needs a tier number from 1" % [where, cond])
+			"planet/n":
+				var bits := arg.split("/")
+				if bits.size() != 2 or not planet_ids().has(bits[0]) or not bits[1].is_valid_int() or int(bits[1]) < 1:
+					errs.append("%s: atom '%s' needs <planet>/<tier>" % [where, cond])
 			"event":
 				if not events.has(arg):
 					errs.append("%s: unknown event or chain step '%s'" % [where, arg])

@@ -1338,6 +1338,7 @@ func _test_main() -> void:
 	m.ships = 2
 	m.cash = -500
 	m.cycle = 3
+	m.prosperity.balance["prosperity_tax_t1"] = 0  # T258: tax is its own test below
 	var ended5 := []
 	m.run_ended.connect(func(side, id): ended5.append([side, id]))
 	m._end_cycle()
@@ -1354,6 +1355,7 @@ func _test_main() -> void:
 	m.ships = 1
 	m.cash = -100
 	m.cycle = 3
+	m.prosperity.balance["prosperity_tax_t1"] = 0
 	m._end_cycle()
 	check(not m.game_over and m.ships == 0 and m.cash == salvage - 100, "bankrupt: debt covered by salvage keeps the run alive", "%d %d" % [m.ships, m.cash])
 	await _free_main(m)
@@ -2003,7 +2005,7 @@ func _test_skills_core() -> void:
 	f.store_string(JSON.stringify({"version": 2, "state": v2}))
 	f.close()
 	var loaded: Dictionary = SaveGame.load_state()
-	check(SaveGame.VERSION == 10 and not loaded.is_empty() and loaded["learned_skills"].has("FND_STORAGE") and not SaveGame.dropped_old, "migration: a v2 file loads migrated")
+	check(SaveGame.VERSION == 11 and not loaded.is_empty() and loaded["learned_skills"].has("FND_STORAGE") and not SaveGame.dropped_old, "migration: a v2 file loads migrated")
 	f = FileAccess.open(SaveGame.PATH, FileAccess.WRITE)
 	f.store_string(JSON.stringify({"version": 1, "state": v2}))
 	f.close()
@@ -6374,7 +6376,7 @@ func _test_chains() -> void:
 	check(inp["ending_id"] == "END_BIO_BAD" and inp["flag"] == "bad" and inp["rival_broken"] == true and inp["rival_broken_bot"] == 2 and EndingPicker.inputs("mil", bal)["ending_id"] == "END_MIL_GOOD", "ending picker: BAD by the chain flag, rival_broken from the chain", str(inp))
 	check(m.ending_id_of({"kind": "win", "market": "bio"}) == "END_BIO_BAD" and m.ending_id_of({"kind": "win", "market": "lux"}) == "END_LUX_GOOD", "ending id: win reads the flag of the win market")
 	# save version 4 and v3 migration
-	check(SaveGame.VERSION == 10, "save: version 10 (v2 and newer load; v1 is dropped, owner approved)")
+	check(SaveGame.VERSION == 11, "save: version 11 (v2 and newer load; v1 is dropped, owner approved)")
 	var v3 := {"cycle": 7, "cash": 300, "chains": {"dir": {"mil": 9}}, "shield": {"built": true}}
 	var mig: Dictionary = SaveGame.migrate_v3(v3)
 	check(mig["cash"] == 300 and not mig.has("shield") and not mig.has("chains"), "save: v3 migrates, chain state fresh, shield dropped")
@@ -7586,6 +7588,12 @@ func _test_prosperity() -> void:
 	check(back.tier(0) == 2, "prosperity: tier survives save and load")
 	back.from_dict(null)
 	check(back.tier(0) == 1, "prosperity: old save starts established worlds at tier 1")
+	# T258 rewards
+	bal.merge({"prosperity_tax_t1": 5, "prosperity_tax_t2": 10, "prosperity_points_t1": 0, "prosperity_points_t2": 2})
+	check(pr.tax_total() == 10 and pr.any_tier_reached(2) and not pr.any_tier_reached(3), "prosperity: tax by tier, any_tier reached")
+	var nt: Array = pr.claim_new_tiers()
+	check(nt.size() == 2 and nt[1]["tier"] == 2 and nt[1]["points"] == 2 and pr.claim_new_tiers().is_empty(), "prosperity: first time any world reaches a tier pays once", str(nt))
+	check(back.to_dict().has("reached"), "prosperity: reached tier is saved")
 	# T257 need pricing
 	var nb: Dictionary = bal.duplicate()
 	nb.merge({"need_price_t1": 1.0, "need_price_t2": 1.0, "need_price_t3": 1.0, "need_hunger_step_pct": 10, "need_hunger_cap_pct": 20, "need_surplus_pct": 50, "need_surplus_all": 0})

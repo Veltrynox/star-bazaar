@@ -9,7 +9,7 @@ extends RefCounted
 ## sells to the player (it has a <good>_buy price), ordered by data/prosperity.json weights, capped by balance
 ## prosperity_needs_t<N>. data/prosperity.json "overrides" {planet id: [good ids]} replaces the rule for one world.
 ## Numbers (all balance.json, placeholders until economy-designer sets them): prosperity_max_tier, prosperity_needs_t<N>,
-## prosperity_demand_t<N> (units per need per cycle), prosperity_steps_t<N> (steps to leave tier N), prosperity_decay_steps.
+## prosperity_demand_t<N> (units per need per cycle), prosperity_steps_t<N> (steps to leave tier N), prosperity_decay_steps. T258 rewards (placeholders): prosperity_tax_t<N> (credits per world per cycle), prosperity_points_t<N> (skill points the first time any world reaches tier N).
 ## A need whose good is not visible (Availability) counts as unmet and is reported as locked with good "?".
 ## Need pricing (T257, balance keys, all placeholders): need_price_t<N> (multiplier of the good's base_value for a sell price a
 ## need opens where the world had none), need_hunger_step_pct / need_hunger_cap_pct (the sell price rises a step per cycle a
@@ -31,6 +31,7 @@ var _steps: Dictionary = {}     # planet id -> progress steps in the current tie
 var _sold: Dictionary = {}      # planet id -> {good: units sold this cycle}
 var _restless: Dictionary = {}  # planet id -> true when a need was short at the last cycle end
 var _reclaimed: Dictionary = {} # planet id -> true (hook for the Barren reclaim task)
+var _reached := 0               # T258: highest tier any world has reached this run (skill points paid up to it)
 var _hunger: Dictionary = {}    # T257: planet id -> {good: cycles the need was short in a row (capped by need_hunger_cap_pct)}
 
 func setup(bal: Dictionary, planet_list: Array, established: Callable) -> void:
@@ -43,6 +44,7 @@ func setup(bal: Dictionary, planet_list: Array, established: Callable) -> void:
 	_restless = {}
 	_reclaimed = {}
 	_hunger = {}
+	_reached = 0
 	var parsed = JSON.parse_string(FileAccess.get_file_as_string(PATH)) if FileAccess.file_exists(PATH) else null
 	data = parsed if typeof(parsed) == TYPE_DICTIONARY else {}
 
@@ -54,6 +56,35 @@ func _n(key: String, tier: int, fallback: float) -> float:
 
 func max_tier() -> int:
 	return maxi(1, int(balance.get("prosperity_max_tier", 3)))
+
+## T258: highest tier any world stands at now.
+func top_tier() -> int:
+	var top := 0
+	for i in range(planets.size()):
+		top = maxi(top, tier(i))
+	return top
+
+## T258 atom any_tier:<n>: some world has reached tier n (a world never loses a tier).
+func any_tier_reached(n: int) -> bool:
+	return maxi(_reached, top_tier()) >= n
+
+## T258: tax income of every world for one cycle, by tier (balance prosperity_tax_t<N>).
+func tax_total() -> int:
+	var sum := 0
+	for i in range(planets.size()):
+		var t := tier(i)
+		if t >= 1:
+			sum += maxi(0, roundi(_n("prosperity_tax", t, 0.0)))
+	return sum
+
+## T258: tiers reached for the first time by any world since the last call, as [{tier, points}] (points may be 0).
+func claim_new_tiers() -> Array:
+	var out := []
+	var top := top_tier()
+	while _reached < top:
+		_reached += 1
+		out.append({"tier": _reached, "points": maxi(0, int(_n("prosperity_points", _reached, 0.0)))})
+	return out
 
 func is_barren(i: int) -> bool:
 	var pid := _pid(i)
@@ -261,7 +292,7 @@ func _update_hunger(i: int, pid: String) -> void:
 		_hunger[pid] = next
 
 func to_dict() -> Dictionary:
-	return {"tier": _tier.duplicate(), "steps": _steps.duplicate(), "sold": _sold.duplicate(true), "restless": _restless.duplicate(), "reclaimed": _reclaimed.duplicate(), "hunger": _hunger.duplicate(true)}
+	return {"tier": _tier.duplicate(), "steps": _steps.duplicate(), "sold": _sold.duplicate(true), "restless": _restless.duplicate(), "reclaimed": _reclaimed.duplicate(), "hunger": _hunger.duplicate(true), "reached": _reached}
 
 func from_dict(s) -> void:
 	_tier = {}
@@ -270,6 +301,7 @@ func from_dict(s) -> void:
 	_restless = {}
 	_reclaimed = {}
 	_hunger = {}
+	_reached = 0
 	if typeof(s) != TYPE_DICTIONARY:
 		return  # old saves: established worlds start at tier 1
 	for k in s.get("tier", {}):
@@ -288,6 +320,7 @@ func from_dict(s) -> void:
 		_restless[str(k)] = bool(s["restless"][k])
 	for k in s.get("reclaimed", {}):
 		_reclaimed[str(k)] = true
+	_reached = maxi(0, int(s.get("reached", 0)))  # old saves: no back pay, claim_new_tiers() starts from the saved top below
 	var hg = s.get("hunger", {})
 	if typeof(hg) == TYPE_DICTIONARY:
 		for k in hg:

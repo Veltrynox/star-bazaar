@@ -453,6 +453,8 @@ func apply_state(s: Dictionary) -> void:
 	_ensure_posts()  # old saves with FND_STORAGE: stations for every open system, no notice
 	storage_link.from_array(s.get("storage_links"))  # T171; old saves: no links
 	prosperity.from_dict(s.get("prosperity"))  # T256; old saves: established worlds at tier 1
+	if typeof(s.get("prosperity")) != TYPE_DICTIONARY or not s["prosperity"].has("reached"):
+		prosperity.claim_new_tiers()  # T258: a save from before tier rewards gets no back pay
 	_loading_state = false
 	systems_reached = maxi(1, int(s.get("systems_reached", 1)))
 	skill_points = maxi(0, int(s.get("skill_points", 0)))
@@ -2175,6 +2177,17 @@ func _on_link_notice(text_id: String, vars: Dictionary) -> void:
 func _on_prosperity_tier_up(planet: int, tier: int) -> void:
 	post_notice(StoryText.get_or("NOT_PROSPERITY_TIER_UP", "{planet} has grown to tier {tier}.", {"planet": planet_name(planet), "tier": tier}))
 
+## T258: growth pays. Tax by tier for every world (one summary notice), skill points the first time any world reaches a tier.
+func _pay_prosperity() -> void:
+	var tax := prosperity.tax_total()
+	if tax > 0:
+		cash += tax
+		post_notice(StoryText.get_or("NOT_PROSPERITY_TAX", "Your worlds paid {n} credits in tax.", {"n": tax}))
+	for r in prosperity.claim_new_tiers():
+		if int(r["points"]) > 0:
+			_add_points(int(r["points"]))
+			_point_notice(StoryText.get_or("NOT_SKILL_REASON_TIER", "A world of yours reached tier {tier}.", {"tier": int(r["tier"])}))
+
 func _end_cycle() -> void:
 	_advance_notice()  # the board notice lives for one cycle, then the next queued one shows
 	_settle_routes()
@@ -2190,7 +2203,8 @@ func _end_cycle() -> void:
 	if OS.is_debug_build() and debug_force_market != "":  # debug: a huge sale in that market this cycle
 		Markets.cur[debug_force_market] = float(Markets.cur.get(debug_force_market, 0.0)) + 1000000.0
 	Markets.end_cycle(cycle)  # bots and window share
-	for a in Skills.award_share_points():  # first time a market share reaches 20% / 35%: points, once per market
+	_pay_prosperity()  # T258: tax per world, skill points for a tier reached first
+	for a in (Skills.award_share_points() if int(balance.get("share_points_enabled", 0)) != 0 else []):  # first time a market share reaches 20% / 35%: points, once per market
 		_add_points(int(a["points"]))
 		_point_notice(StoryText.get_or("NOT_SKILL_REASON_SHARE", "Your {market} share passed {pct}%.", {"market": Markets.names.get(a["market"], a["market"]), "pct": int(a["step"])}))
 	var overhead := Markets.overhead()  # spreading penalty, paid like upkeep
