@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "agent": "feature-designer",
+  "date": "2026-11-05",
+  "task": "T238",
+  "status": "done",
+  "files_changed": [
+    "design/proposals/2026-11-05-branch-goods.md",
+    "handoffs/feature-designer/2026-11-05-T238.json"
+  ],
+  "open_questions": [
+    "UNKNOWN: Can a company still learn the other three skill trees and win another market, or are those trees, the spreading penalty and rival-cut skills for other branches hidden or retired?",
+    "UNKNOWN: Add new system-1 world Brannock (recommended) or retype Ashgate to host the Military and Minerals starters?",
+    "UNKNOWN: Does energy join every T3 recipe (recommended) or stay only in Military's?"
+  ],
+  "handoff": "One proposal covering all four branches: goods tables (id, name, tier, kind, recipe, producers, buyers, world line), cycle-0 starter lane, planet and system fate, fate of every current good, energy changes, change list per agent, icon briefs. Waits for the owner. No numbers set; tier bands only.",
+  "details": {
+    "proposals": [
+      {
+        "id": "branch-goods",
+        "title": "Branch-exclusive goods, energy the only shared good",
+        "problem": "Food, ore and energy feed any market, so the four companies play alike and Biotech can sell weapons.",
+        "owner_agent": "gameplay-programmer (lead), economy-designer, story-designer, juice-programmer",
+        "size": "L",
+        "questions": [
+          "Other branches' skill trees, spreading penalty and rival-cut skills: keep, hide or retire?",
+          "New world Brannock in system 1 or retype Ashgate?",
+          "Energy in every T3 recipe or Military only?"
+        ]
+      }
+    ],
+    "new_goods": ["powder", "blooms"],
+    "renames": {"chips": "spyware", "cells": "rounds", "armour": "arms", "cask": "attar", "gel": "medicine"},
+    "new_planet": "Brannock (system 1)",
+    "new_atom": "branch_is:<id>"
+  }
+}
