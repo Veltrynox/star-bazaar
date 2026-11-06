@@ -86,6 +86,9 @@ var _route_list: Array = []       # last list given to set_routes (rebuilt after
 
 signal station_clicked(system_id: int)
 signal rival_clicked(bot: int)  # T199: competitor id of the rival ship under a left click, 0 = none (closes the card)
+var prosperity = null  # T264: game/prosperity.gd, set by main; the growth ring and need icons read it
+var capital_planet := ""  # T264: planet id of the Bazaar capital (marker); set by main once the Bazaar exists
+var _growth: Control = null
 var rivals: Node = null  # T199: game/rival_ships.gd, set by main
 ## T180: flight orders and establish orders; see the interface at the top of game/pathfinder_view.gd. Never emitted while flight is null or off.
 signal fly_requested(target: Dictionary)   # {"kind": "planet"|"storage"|"cluster"|"point", "pos": Vector3, "index": int}
@@ -352,6 +355,10 @@ func _label_layer_node() -> CanvasLayer:
 
 ## T167: place the 2D name labels over their hidden 3D twins (size: 13 px in the 941 px frame, scaled to the viewport).
 func _place_labels() -> void:
+	if _growth == null and _label_layer != null:
+		_growth = preload("res://game/world_growth_view.gd").new()
+		_growth.map = self
+		_label_layer.add_child(_growth)
 	if camera == null or not camera.is_inside_tree():
 		return
 	var h := get_viewport().get_visible_rect().size.y

@@ -1,0 +1,7 @@
+{
+  "task": "T264",
+  "agent": "ui-programmer (built by the worker main session)",
+  "summary": "Map growth feedback: notch ring (progress), need icons under the name (met bright, amber pulse on becoming met, dim unmet, locked '?'), Bazaar capital marker.",
+  "files": ["game/world_growth_view.gd (new, screen-space overlay in the label layer)", "game/map.gd (prosperity, capital_planet, overlay creation)", "game/prosperity.gd (steps_needed, steps)", "game/main.gd (map.prosperity = prosperity)", "data/balance.json (growth_* placeholders, source note v63)", "gdd.md"],
+  "notes": ["Files outside touches: world_growth_view.gd, prosperity.gd, main.gd (one line each, smallest edits).", "No Bazaar capital exists in code yet: map.capital_planet (planet id) is the hook; empty = no marker.", "No saved fields added, save version unchanged.", "Screenshot: logs/screenshots/T264.png"]
+}

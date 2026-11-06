@@ -274,6 +274,7 @@ func _ready() -> void:
 	dead.setup(balance)
 	prosperity.setup(balance, map.planets, func(pid: String) -> bool: return flight != null and flight.established(pid))
 	engine.prosperity = prosperity
+	map.prosperity = prosperity  # T264 growth ring and need icons
 	if not prosperity.tier_up.is_connected(_on_prosperity_tier_up):
 		prosperity.tier_up.connect(_on_prosperity_tier_up)
 	fabric.setup(balance)

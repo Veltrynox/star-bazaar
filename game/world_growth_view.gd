@@ -1,0 +1,131 @@
+extends Control
+## T264: growth on the map without opening a card (design/proposals/2026-11-06-empire-growth-v2.md section 3.1).
+## Per established world: a thin ring of notches round the planet (progress in the tier), need icons under the name
+## (met bright, a short amber pulse when a need becomes met, locked "?"), and a small marker at the Bazaar capital.
+## Closed (undiscovered), barren and not-yet-established worlds show nothing. Drawn in screen space from the map's
+## camera, so it follows zoom and planet size; the node ignores the mouse, so it never blocks a click.
+## Numbers: balance.json growth_* keys (placeholders, economy-designer sets them); the fallbacks below only keep a
+## missing key from breaking the draw. Needs and progress come from game/prosperity.gd.
+
+const PathfinderView := preload("res://game/pathfinder_view.gd")
+const REF_H := 941.0  # the design frame height the pixel keys are given in
+
+var map: Node = null  # game/map.gd
+var _met_before := {}  # "planet:slot" -> met at the last frame
+var _pulse := {}       # "planet:slot" -> seconds left of the amber pulse
+
+func _init() -> void:
+	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+
+func _k(key: String, fallback: float) -> float:
+	var p = map.prosperity if map != null else null
+	return float(p.balance.get(key, fallback)) if p != null else fallback
+
+func _process(delta: float) -> void:
+	for k in _pulse.keys():
+		_pulse[k] = float(_pulse[k]) - delta
+		if _pulse[k] <= 0.0:
+			_pulse.erase(k)
+	queue_redraw()
+
+func _shown(i: int) -> bool:
+	if map == null or map.prosperity == null or map.camera == null or not map.camera.is_inside_tree():
+		return false
+	if i >= map.planet_labels.size() or not map.planet_labels[i].visible:
+		return false
+	var on: bool = PathfinderView.active(map.flight)
+	if not PathfinderView.discovered(map.flight if on else null, str(map.planets[i].get("id", i))):
+		return false
+	return map.prosperity.tier(i) >= 1
+
+func _draw() -> void:
+	if map == null or map.prosperity == null or map.camera == null or not map.camera.is_inside_tree():
+		return
+	var cam: Camera3D = map.camera
+	var scale_px := get_viewport().get_visible_rect().size.y / REF_H
+	var font := Ui.mono_font()
+	for i in map.planets.size():
+		var capital: bool = map.capital_planet != "" and str(map.planets[i].get("id", "")) == map.capital_planet
+		var visible_i: bool = _shown(i) or (capital and map.planet_labels[i].visible and map.prosperity.tier(i) >= 0)
+		if not visible_i:
+			continue
+		var centre: Vector3 = map.positions[i]
+		if cam.is_position_behind(centre):
+			continue
+		var c2: Vector2 = cam.unproject_position(centre)
+		var right: Vector3 = cam.global_transform.basis.x.normalized()
+		var r_px: float = c2.distance_to(cam.unproject_position(centre + right * map.planet_radius(i) * map.PLANET_VISIBLE / map.PLANET_RADIUS))
+		if not _shown(i):
+			_draw_capital(c2, r_px, scale_px)
+			continue
+		_draw_ring(i, c2, r_px, scale_px)
+		if capital:
+			_draw_capital(c2, r_px, scale_px)
+		_draw_needs(i, scale_px, font, c2.y + r_px + (_k("growth_ring_gap_px", 6.0) + _k("growth_ring_width_px", 2.0)) * scale_px)
+
+func _draw_ring(i: int, c: Vector2, r_px: float, scale_px: float) -> void:
+	var p = map.prosperity
+	var n: int = maxi(1, p.steps_needed(i))
+	var lit: int = n if p.tier(i) >= p.max_tier() else p.steps(i)
+	var radius := r_px + _k("growth_ring_gap_px", 6.0) * scale_px
+	var w := maxf(1.0, _k("growth_ring_width_px", 2.0) * scale_px)
+	var gap_frac := clampf(_k("growth_notch_gap", 0.18), 0.0, 0.9)
+	var seg := TAU / float(n)
+	var col_on := Ui.col("star_warm")
+	var col_off := Color(Ui.col("ink_muted"), _k("growth_dim_alpha", 0.35))
+	if p.restless(i):
+		col_on = Color(Ui.col("signal_bad").lerp(col_on, 0.5), 0.7)  # progress is draining: the lit notches go amber-red
+	for k in n:
+		var a0 := -PI / 2.0 + seg * float(k) + seg * gap_frac * 0.5
+		var a1 := -PI / 2.0 + seg * float(k + 1) - seg * gap_frac * 0.5
+		draw_arc(c, radius, a0, a1, 12, col_on if k < lit else col_off, w, true)
+
+func _draw_needs(i: int, scale_px: float, font: Font, ring_bottom: float) -> void:
+	var needs: Array = map.prosperity.needs(i)
+	if needs.is_empty():
+		return
+	var lab: Label = map.planet_label_2d[i] if i < map.planet_label_2d.size() else null
+	var px := maxf(8.0, _k("growth_icon_px", 14.0) * scale_px)
+	var gap := px * 0.35
+	var total := float(needs.size()) * px + float(needs.size() - 1) * gap
+	var anchor: Vector2 = map.camera.unproject_position(map.planet_labels[i].global_position)
+	var label_h: float = lab.get_minimum_size().y if lab != null else 16.0 * scale_px
+	var x: float = anchor.x - total * 0.5
+	var y: float = maxf(anchor.y + label_h * 0.5, ring_bottom) + gap  # below the name and the ring, never over them
+	var pulse_s := maxf(0.05, _k("growth_pulse_seconds", 1.2))
+	var amber := Ui.col("star_warm")
+	for s in needs.size():
+		var nd: Dictionary = needs[s]
+		var key := "%d:%d" % [i, s]
+		var met: bool = bool(nd["met"])
+		if met and _met_before.has(key) and not bool(_met_before[key]):
+			_pulse[key] = pulse_s
+		_met_before[key] = met
+		var rect := Rect2(Vector2(x + float(s) * (px + gap), y), Vector2(px, px))
+		var col: Color
+		if bool(nd["locked"]):
+			col = Color(Ui.col("ink_muted"), 0.8)
+		elif met:
+			col = Ui.commodity_col(str(nd["good"]))
+			if col == Color.WHITE:
+				col = Ui.col("ink")
+		else:
+			col = Color(Ui.col("ink_muted"), _k("growth_dim_alpha", 0.35) + 0.15)
+		if _pulse.has(key):
+			col = col.lerp(amber, clampf(float(_pulse[key]) / pulse_s, 0.0, 1.0))
+		if bool(nd["locked"]):
+			var fs := roundi(px * 0.95)
+			draw_string(font, rect.position + Vector2(0, px * 0.85), "?", HORIZONTAL_ALIGNMENT_CENTER, px, fs, col)
+		else:
+			var tex := Ui.icon(str(nd["good"]))
+			if tex != null:
+				draw_texture_rect(tex, rect, false, col)
+
+func _draw_capital(c: Vector2, r_px: float, scale_px: float) -> void:
+	var m := maxf(3.0, _k("growth_marker_px", 5.0) * scale_px)
+	var top := c + Vector2(0, -(r_px + (_k("growth_ring_gap_px", 6.0) + _k("growth_ring_width_px", 2.0) + 4.0) * scale_px + m))
+	var col := Ui.col("star_warm")
+	var pts := PackedVector2Array([top + Vector2(0, -m), top + Vector2(m, 0), top + Vector2(0, m), top + Vector2(-m, 0)])
+	draw_colored_polygon(pts, col)
+	draw_polyline(PackedVector2Array([pts[0], pts[1], pts[2], pts[3], pts[0]]), Color(Ui.col("panel_100"), 0.9), 1.0, true)

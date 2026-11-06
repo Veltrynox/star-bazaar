@@ -209,6 +209,14 @@ func progress(i: int) -> float:
 		return 1.0
 	return clampf(float(_steps.get(_pid(i), 0)) / float(maxi(1, int(_n("prosperity_steps", t, 3.0)))), 0.0, 1.0)
 
+## Notches of the progress ring: steps to leave the current tier, and the steps gathered so far (T264 map ring).
+func steps_needed(i: int) -> int:
+	var t := tier(i)
+	return maxi(1, int(_n("prosperity_steps", t, 3.0))) if t >= 1 else 0
+
+func steps(i: int) -> int:
+	return maxi(0, int(_steps.get(_pid(i), 0))) if tier(i) >= 1 else 0
+
 ## True when a need was short at the last cycle end.
 func restless(i: int) -> bool:
 	return bool(_restless.get(_pid(i), false))
