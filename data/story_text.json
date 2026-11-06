@@ -6278,6 +6278,366 @@
    "place": "Any slot with nothing to show"
   },
   {
+   "id": "FLAGSHIP_NAME",
+   "text": "Tessarine",
+   "max": 24,
+   "place": "Ship panel, map tooltip, dock sheet title: name of the player's own ship (replaces LBL_PATHFINDER_NAME)"
+  },
+  {
+   "id": "FLAGSHIP_DESC",
+   "text": "Your own ship. It scouts, builds posts, carries a small hold and takes gigs.",
+   "max": 110,
+   "place": "Ship panel, one line under the name"
+  },
+  {
+   "id": "FLAGSHIP_FLYING",
+   "text": "Tessarine flying to {planet}",
+   "max": 60,
+   "place": "Top bar or ship panel, flying to a known planet; {planet} (replaces LBL_PATHFINDER_FLYING)"
+  },
+  {
+   "id": "FLAGSHIP_IDLE",
+   "text": "Tessarine waiting",
+   "max": 60,
+   "place": "Ship panel, not flying and not building (replaces LBL_PATHFINDER_IDLE)"
+  },
+  {
+   "id": "FLAGSHIP_DOCKED",
+   "text": "Tessarine docked at {planet}",
+   "max": 60,
+   "place": "Ship panel, docked at a world; {planet}"
+  },
+  {
+   "id": "LBL_HOLD",
+   "text": "Hold",
+   "max": 24,
+   "place": "Ship panel and dock sheet, the Flagship's hold"
+  },
+  {
+   "id": "LBL_HOLD_FILL",
+   "text": "Hold: {n} of {m}",
+   "max": 40,
+   "place": "Ship panel readout; {n} units held, {m} room in total"
+  },
+  {
+   "id": "LBL_HOLD_EMPTY",
+   "text": "Empty",
+   "max": 24,
+   "place": "Dock sheet, a hold row with nothing in it"
+  },
+  {
+   "id": "BTN_DOCK",
+   "text": "Dock and trade",
+   "max": 24,
+   "place": "Planet panel and right-click menu, opens the dock sheet (the Flagship must be at an established world)"
+  },
+  {
+   "id": "LBL_DOCK_TITLE",
+   "text": "Dock at {planet}",
+   "max": 40,
+   "place": "Dock sheet heading; {planet}"
+  },
+  {
+   "id": "LBL_DOCK_HOLD",
+   "text": "In the hold",
+   "max": 24,
+   "place": "Dock sheet, column or block heading for the hold"
+  },
+  {
+   "id": "LBL_DOCK_WORLD",
+   "text": "At this world",
+   "max": 24,
+   "place": "Dock sheet, column or block heading for the world's market"
+  },
+  {
+   "id": "BTN_DOCK_BUY",
+   "text": "Buy",
+   "max": 24,
+   "place": "Dock sheet, buys one lot of the row's good into the hold"
+  },
+  {
+   "id": "BTN_DOCK_SELL",
+   "text": "Sell",
+   "max": 24,
+   "place": "Dock sheet, sells one lot of the row's good from the hold"
+  },
+  {
+   "id": "BTN_DOCK_BUY_MAX",
+   "text": "Buy max",
+   "max": 24,
+   "place": "Dock sheet, buys as much as cash and room allow"
+  },
+  {
+   "id": "BTN_DOCK_SELL_ALL",
+   "text": "Sell all",
+   "max": 24,
+   "place": "Dock sheet, sells the whole row"
+  },
+  {
+   "id": "BTN_UNLOAD_STORAGE",
+   "text": "Unload to storage",
+   "max": 24,
+   "place": "Dock sheet, moves the row from the hold to Company storage here"
+  },
+  {
+   "id": "BTN_LOAD_STORAGE",
+   "text": "Load from storage",
+   "max": 24,
+   "place": "Dock sheet, moves goods from Company storage here into the hold"
+  },
+  {
+   "id": "BTN_DOCK_CLOSE",
+   "text": "Undock",
+   "max": 24,
+   "place": "Dock sheet, closes it and lets the clock run"
+  },
+  {
+   "id": "LBL_DOCK_PAUSED",
+   "text": "Time is paused while you are docked.",
+   "max": 60,
+   "place": "Dock sheet, small line: time stands still while it is open"
+  },
+  {
+   "id": "LBL_DOCK_STORAGE_ROW",
+   "text": "Company storage: {n}",
+   "max": 40,
+   "place": "Dock sheet, the Company storage line of a good; {n} units"
+  },
+  {
+   "id": "NOT_DOCK_NO_CASH",
+   "text": "Not enough credits to buy that.",
+   "max": 110,
+   "place": "Notice, Buy refused for lack of credits"
+  },
+  {
+   "id": "NOT_DOCK_HOLD_FULL",
+   "text": "The hold is full. Sell or unload first.",
+   "max": 110,
+   "place": "Notice, Buy refused or cut short because the hold is full"
+  },
+  {
+   "id": "NOT_DOCK_STORAGE_FULL",
+   "text": "Company storage here is full.",
+   "max": 110,
+   "place": "Notice, Unload refused or cut short because Company storage here is full"
+  },
+  {
+   "id": "NOT_DOCK_NO_STOCK",
+   "text": "Company storage here has none of that.",
+   "max": 110,
+   "place": "Notice, Load refused because Company storage here has none of that good"
+  },
+  {
+   "id": "NOT_DOCK_NO_POST",
+   "text": "Establish a trading post here to dock and trade.",
+   "max": 110,
+   "place": "Notice, dock pressed at a world with no trading post"
+  },
+  {
+   "id": "NOT_DOCK_FAR",
+   "text": "Fly the Flagship here first.",
+   "max": 110,
+   "place": "Notice, dock pressed while the Flagship is away from the world"
+  },
+  {
+   "id": "NOT_DOCK_NO_BUYER",
+   "text": "This world does not buy that.",
+   "max": 110,
+   "place": "Notice, Sell pressed on a good the world does not buy"
+  },
+  {
+   "id": "LBL_DOCK_HOLD_FULL",
+   "text": "The hold is full. Buy is limited to the room left.",
+   "max": 60,
+   "place": "Dock sheet, line under the hold when it is full"
+  },
+  {
+   "id": "BTN_BOOST",
+   "text": "Boost",
+   "max": 24,
+   "place": "Ship panel and flight hud, boost button (also a held key)"
+  },
+  {
+   "id": "LBL_BOOST_HINT",
+   "text": "Faster on straight legs. Burns energy from the hold. Turning stays slow.",
+   "max": 110,
+   "place": "Tooltip of the boost button"
+  },
+  {
+   "id": "LBL_BOOST_CHARGES",
+   "text": "Boost: {n} left",
+   "max": 40,
+   "place": "Flight hud, boost gauge; {n} charges left"
+  },
+  {
+   "id": "NOT_BOOST_NO_ENERGY",
+   "text": "No energy in the hold to boost.",
+   "max": 110,
+   "place": "Notice, boost pressed with no energy in the hold"
+  },
+  {
+   "id": "NOT_BOOST_EMPTY",
+   "text": "Boost is recharging.",
+   "max": 110,
+   "place": "Notice, boost pressed with no charge left"
+  },
+  {
+   "id": "LBL_GIG_BOARD_TITLE",
+   "text": "Gig board",
+   "max": 24,
+   "place": "Gig board heading"
+  },
+  {
+   "id": "LBL_GIG_BOARD_EMPTY",
+   "text": "No open gigs. New ones come with the cycles.",
+   "max": 60,
+   "place": "Gig board with no open offers"
+  },
+  {
+   "id": "LBL_GIG_SIGNAL",
+   "text": "Signal",
+   "max": 24,
+   "place": "Gig board, tag on a signal offer"
+  },
+  {
+   "id": "LBL_GIG_RUSH",
+   "text": "Rush order",
+   "max": 24,
+   "place": "Gig board, tag on a rush order"
+  },
+  {
+   "id": "LBL_GIG_ETA",
+   "text": "ETA: {cycles} cycles",
+   "max": 40,
+   "place": "Gig board row; {cycles} flight time from the Flagship"
+  },
+  {
+   "id": "LBL_GIG_DEADLINE",
+   "text": "Deadline: {cycles} cycles",
+   "max": 40,
+   "place": "Gig board row; {cycles} cycles left to deliver"
+  },
+  {
+   "id": "LBL_GIG_PREMIUM",
+   "text": "Premium: {cash} credits",
+   "max": 40,
+   "place": "Gig board row of a rush order; {cash} credits paid on delivery"
+  },
+  {
+   "id": "LBL_GIG_TOO_FAR",
+   "text": "The Flagship cannot make it in time.",
+   "max": 60,
+   "place": "Gig board row when the ETA is longer than the deadline"
+  },
+  {
+   "id": "BTN_GIG_ACCEPT",
+   "text": "Accept",
+   "max": 24,
+   "place": "Gig board row, takes the offer and drops a map marker"
+  },
+  {
+   "id": "BTN_GIG_ABANDON",
+   "text": "Give up",
+   "max": 24,
+   "place": "Gig board row of the taken gig, gives it up"
+  },
+  {
+   "id": "BTN_GIG_FLY",
+   "text": "Fly there",
+   "max": 24,
+   "place": "Gig board row of the taken gig, sends the Flagship at once"
+  },
+  {
+   "id": "NOT_GIG_ACCEPTED",
+   "text": "Gig accepted. A marker shows the way.",
+   "max": 110,
+   "place": "Notice, a gig was accepted"
+  },
+  {
+   "id": "NOT_GIG_ONE_AT_A_TIME",
+   "text": "One gig at a time. Finish or give up the one you have.",
+   "max": 110,
+   "place": "Notice, accept pressed while a gig is already taken"
+  },
+  {
+   "id": "NOT_GIG_ABANDONED",
+   "text": "Gig given up.",
+   "max": 110,
+   "place": "Notice, a gig was given up"
+  },
+  {
+   "id": "NOT_GIG_NEW",
+   "text": "A new gig is on the board.",
+   "max": 60,
+   "place": "Notice, a new offer reached the board"
+  },
+  {
+   "id": "GIG_RUSH_TITLE",
+   "text": "Rush to {planet}",
+   "max": 32,
+   "place": "Gig board row and marker tooltip of a rush order; {planet}"
+  },
+  {
+   "id": "GIG_RUSH_HOOK",
+   "text": "{planet} needs {commodity}. Deliver within {cycles} cycles.",
+   "max": 110,
+   "place": "Gig board row of a rush order, one line; {planet}, {commodity}, {cycles}"
+  },
+  {
+   "id": "GIG_RUSH_HOOK_RESTLESS",
+   "text": "{planet} is Restless and short of {commodity}. Deliver within {cycles} cycles.",
+   "max": 110,
+   "place": "Same, when the world is Restless"
+  },
+  {
+   "id": "GIG_RUSH_HOOK_TIER",
+   "text": "{planet} is close to growing. It needs {commodity} within {cycles} cycles.",
+   "max": 110,
+   "place": "Same, when the world is close to its next tier"
+  },
+  {
+   "id": "GIG_RUSH_HOOK_SHORT",
+   "text": "A shortage hit {planet}. It needs {commodity} within {cycles} cycles.",
+   "max": 110,
+   "place": "Same, when a shortage hit the world"
+  },
+  {
+   "id": "GIG_RUSH_ARRIVE",
+   "text": "This world has a rush order for {commodity}. Sell it here to deliver.",
+   "max": 110,
+   "place": "Dock sheet banner when the Flagship is docked at the rush world; {commodity}"
+  },
+  {
+   "id": "NOT_RUSH_DELIVERED",
+   "text": "Delivered. {planet} has its {commodity}. The premium is paid.",
+   "max": 110,
+   "place": "Notice, rush delivered; {planet}, {commodity}"
+  },
+  {
+   "id": "NOT_RUSH_PARTIAL",
+   "text": "Part delivered. {planet} still needs more {commodity}.",
+   "max": 110,
+   "place": "Notice, part of a rush lot delivered; {planet}, {commodity}"
+  },
+  {
+   "id": "NOT_RUSH_EXPIRED",
+   "text": "The rush order for {planet} has expired.",
+   "max": 110,
+   "place": "Notice, the deadline passed; {planet}"
+  },
+  {
+   "id": "NOT_RUSH_GONE",
+   "text": "{planet} no longer needs that. The rush order is closed.",
+   "max": 110,
+   "place": "Notice, the world no longer needs the good before the deadline"
+  },
+  {
+   "id": "LBL_RUSH_DELIVERED_STAMP",
+   "text": "Delivered",
+   "max": 24,
+   "place": "Stamp on the world's need row after a delivery"
+  },
+  {
    "id": "SK_HEADER",
    "text": "Skills",
    "max": 24,
@@ -8160,6 +8520,294 @@
    "text": "The keeper's form is filed under the common good. The Bureau does not ask who filled it in.",
    "max": 140,
    "place": "Gig 02, epilogue line"
+  },
+  {
+   "id": "GIG03_TITLE",
+   "text": "The quota drum",
+   "max": 32,
+   "place": "Gig 03, arrival window title"
+  },
+  {
+   "id": "GIG03_HOOK",
+   "text": "A tapping on the open band. Always eleven taps, then a gap.",
+   "max": 140,
+   "place": "Gig 03, signal hint"
+  },
+  {
+   "id": "GIG03_ARRIVE",
+   "text": "A steel drum drifts in the dark, stamped with a five-cycle plan nobody finished. It taps against its own tether. Inside, a ledger and a sealed lot. If you open the lot, the Plan loses a line. If you copy the ledger, the lot stays closed.",
+   "max": 280,
+   "place": "Gig 03, arrival window text"
+  },
+  {
+   "id": "GIG03_A_BTN",
+   "text": "Open the sealed lot",
+   "max": 28,
+   "place": "Gig 03, button A"
+  },
+  {
+   "id": "GIG03_B_BTN",
+   "text": "Copy the ledger",
+   "max": 28,
+   "place": "Gig 03, button B"
+  },
+  {
+   "id": "GIG03_A_OUT_MIL",
+   "text": "The lot is packed in order, each crate numbered. You count them twice. The Plan is one line short, and no one is there to mind.",
+   "max": 280,
+   "place": "Gig 03, outcome A, Military"
+  },
+  {
+   "id": "GIG03_A_OUT_LUX",
+   "text": "Folded cloth between paper sheets, still bright. The paper carries a stamp. You leave the stamp where it is.",
+   "max": 280,
+   "place": "Gig 03, outcome A, Luxury"
+  },
+  {
+   "id": "GIG03_A_OUT_MIN",
+   "text": "Heavy slabs in grey wrap, marked for a claim that was never cut. The drum stops tapping when the lot is out.",
+   "max": 280,
+   "place": "Gig 03, outcome A, Minerals"
+  },
+  {
+   "id": "GIG03_A_OUT_BIO",
+   "text": "Cold trays, a green smell in the seam. The drum taps once more, then goes quiet.",
+   "max": 280,
+   "place": "Gig 03, outcome A, Biotech"
+  },
+  {
+   "id": "GIG03_B_OUT_MIL",
+   "text": "The ledger lists every drop and every handler. You copy it by hand. The lot stays closed behind you.",
+   "max": 280,
+   "place": "Gig 03, outcome B, Military"
+  },
+  {
+   "id": "GIG03_B_OUT_LUX",
+   "text": "The ledger lists who was owed a gift and who sent it. You copy the names. The lot stays closed behind you.",
+   "max": 280,
+   "place": "Gig 03, outcome B, Luxury"
+  },
+  {
+   "id": "GIG03_B_OUT_MIN",
+   "text": "The ledger lists each claim and its weight. You copy the pages. The lot stays closed behind you.",
+   "max": 280,
+   "place": "Gig 03, outcome B, Minerals"
+  },
+  {
+   "id": "GIG03_B_OUT_BIO",
+   "text": "The ledger lists which trays came from which shelf, and when. You copy it. The lot stays closed behind you.",
+   "max": 280,
+   "place": "Gig 03, outcome B, Biotech"
+  },
+  {
+   "id": "GIG03_EPI",
+   "text": "The Bureau marks the quota drum as found. It does not mark it as finished.",
+   "max": 140,
+   "place": "Gig 03, epilogue line"
+  },
+  {
+   "id": "GIG04_TITLE",
+   "text": "The empty berth",
+   "max": 32,
+   "place": "Gig 04, arrival window title"
+  },
+  {
+   "id": "GIG04_HOOK",
+   "text": "A docking call, repeated. A calm voice, no reply space.",
+   "max": 140,
+   "place": "Gig 04, signal hint"
+  },
+  {
+   "id": "GIG04_ARRIVE",
+   "text": "A small station, lit and clean. Every berth is empty and ready. A voice offers you one. A table is set for a crew of six. You may take the stores in the pantry, or stay for the meal and the talk. Both take the scout's time.",
+   "max": 280,
+   "place": "Gig 04, arrival window text"
+  },
+  {
+   "id": "GIG04_A_BTN",
+   "text": "Load the pantry stores",
+   "max": 28,
+   "place": "Gig 04, button A"
+  },
+  {
+   "id": "GIG04_B_BTN",
+   "text": "Stay for the meal",
+   "max": 28,
+   "place": "Gig 04, button B"
+  },
+  {
+   "id": "GIG04_A_OUT_MIL",
+   "text": "Rations in sealed packs, stamped for a depot you know. The voice thanks you for each pack. The table stays set.",
+   "max": 280,
+   "place": "Gig 04, outcome A, Military"
+  },
+  {
+   "id": "GIG04_A_OUT_LUX",
+   "text": "Tins of sweet things, bright labels, never opened. The voice thanks you for each tin. The table stays set.",
+   "max": 280,
+   "place": "Gig 04, outcome A, Luxury"
+  },
+  {
+   "id": "GIG04_A_OUT_MIN",
+   "text": "Dry stores and tool kits, still in their grease paper. The voice thanks you for each one. The table stays set.",
+   "max": 280,
+   "place": "Gig 04, outcome A, Minerals"
+  },
+  {
+   "id": "GIG04_A_OUT_BIO",
+   "text": "Jars of culture, a label in neat hand on each. The voice thanks you for each jar. The table stays set.",
+   "max": 280,
+   "place": "Gig 04, outcome A, Biotech"
+  },
+  {
+   "id": "GIG04_B_OUT_MIL",
+   "text": "You eat. The voice tells you the stops on the old patrol line, one by one. No one else sits down.",
+   "max": 280,
+   "place": "Gig 04, outcome B, Military"
+  },
+  {
+   "id": "GIG04_B_OUT_LUX",
+   "text": "You eat. The voice tells you who dined here, and what each of them paid for. No one else sits down.",
+   "max": 280,
+   "place": "Gig 04, outcome B, Luxury"
+  },
+  {
+   "id": "GIG04_B_OUT_MIN",
+   "text": "You eat. The voice tells you where the nearest rock was cut, and by whom. No one else sits down.",
+   "max": 280,
+   "place": "Gig 04, outcome B, Minerals"
+  },
+  {
+   "id": "GIG04_B_OUT_BIO",
+   "text": "You eat. The voice tells you what grew in the station's garden, and what went wrong. No one else sits down.",
+   "max": 280,
+   "place": "Gig 04, outcome B, Biotech"
+  },
+  {
+   "id": "GIG04_EPI",
+   "text": "The station keeps its lights on. The Bureau has no form for that.",
+   "max": 140,
+   "place": "Gig 04, epilogue line"
+  },
+  {
+   "id": "GIG05_TITLE",
+   "text": "The proving range",
+   "max": 32,
+   "place": "Gig 05, arrival window title"
+  },
+  {
+   "id": "GIG05_HOOK",
+   "text": "A flat tone, struck on the hour. It stops mid-count.",
+   "max": 140,
+   "place": "Gig 05, signal hint"
+  },
+  {
+   "id": "GIG05_ARRIVE",
+   "text": "A test range, long abandoned. Targets hang in a line. A rack of tools sits by the control hut, and a crane arm still holds a crate. You can take the rack, or follow the range book to where the last test was logged.",
+   "max": 280,
+   "place": "Gig 05, arrival window text"
+  },
+  {
+   "id": "GIG05_A_BTN",
+   "text": "Strip the tool rack",
+   "max": 28,
+   "place": "Gig 05, button A"
+  },
+  {
+   "id": "GIG05_B_BTN",
+   "text": "Follow the range book",
+   "max": 28,
+   "place": "Gig 05, button B"
+  },
+  {
+   "id": "GIG05_A_OUT_MIL",
+   "text": "Drill heads and clamps, in a rack made for one team. Each carries a mark. You do not read them aloud.",
+   "max": 280,
+   "place": "Gig 05, outcome A, Military"
+  },
+  {
+   "id": "GIG05_A_OUT_MIN",
+   "text": "Cutters, bits and a core drill, all heavy and oiled. The crane arm lets go of the crate. It floats away.",
+   "max": 280,
+   "place": "Gig 05, outcome A, Minerals"
+  },
+  {
+   "id": "GIG05_B_OUT_MIL",
+   "text": "The book ends at a bearing. You write it down. The last test was never finished, and the book does not say why.",
+   "max": 280,
+   "place": "Gig 05, outcome B, Military"
+  },
+  {
+   "id": "GIG05_B_OUT_MIN",
+   "text": "The book ends at a rock field, with depths in pencil. You copy the page. The crate stays in the crane.",
+   "max": 280,
+   "place": "Gig 05, outcome B, Minerals"
+  },
+  {
+   "id": "GIG05_EPI",
+   "text": "The range is struck from the Plan. The targets are still hanging.",
+   "max": 140,
+   "place": "Gig 05, epilogue line"
+  },
+  {
+   "id": "GIG06_TITLE",
+   "text": "The sealed garden",
+   "max": 32,
+   "place": "Gig 06, arrival window title"
+  },
+  {
+   "id": "GIG06_HOOK",
+   "text": "A soft chime and a faint warm light. The beacon is a window.",
+   "max": 140,
+   "place": "Gig 06, signal hint"
+  },
+  {
+   "id": "GIG06_ARRIVE",
+   "text": "A glass hull, fogged from inside. Green behind it, thick and still. A hatch will open for a cut flower, or for a full bag of the garden's seed. Either one means going in. Either one means leaving something behind.",
+   "max": 280,
+   "place": "Gig 06, arrival window text"
+  },
+  {
+   "id": "GIG06_A_BTN",
+   "text": "Cut the best blooms",
+   "max": 28,
+   "place": "Gig 06, button A"
+  },
+  {
+   "id": "GIG06_B_BTN",
+   "text": "Bag the garden seed",
+   "max": 28,
+   "place": "Gig 06, button B"
+  },
+  {
+   "id": "GIG06_A_OUT_LUX",
+   "text": "Pale petals the width of a hand, with a scent that stays on your sleeve for days. The beds look bare behind you.",
+   "max": 280,
+   "place": "Gig 06, outcome A, Luxury"
+  },
+  {
+   "id": "GIG06_A_OUT_BIO",
+   "text": "Thick blooms, wet at the stem. Your gloves come out stained. The beds look bare behind you.",
+   "max": 280,
+   "place": "Gig 06, outcome A, Biotech"
+  },
+  {
+   "id": "GIG06_B_OUT_LUX",
+   "text": "Fine seed, sorted by colour, each bag tied with thread. The beds stay green, but no one will cut them now.",
+   "max": 280,
+   "place": "Gig 06, outcome B, Luxury"
+  },
+  {
+   "id": "GIG06_B_OUT_BIO",
+   "text": "Seed in damp paper, each lot tagged by shelf. The beds stay green. The air inside smells close.",
+   "max": 280,
+   "place": "Gig 06, outcome B, Biotech"
+  },
+  {
+   "id": "GIG06_EPI",
+   "text": "The garden is listed as tended. No keeper is named on the page.",
+   "max": 140,
+   "place": "Gig 06, epilogue line"
   },
   {
    "id": "EV01_TITLE",

@@ -129,3 +129,10 @@ The player is "you" or "the company". Never a gender, never a name.
 - Bazaar capital: the one world where the Star Bazaar is founded; final, one per run. Stages are Foundations, Halls, Towers, Great Hall (placeholders).
 - Next Up: the top strip with three slots (Closest growth, Bazaar, Best move). Plain, no flavour, never names a hidden good.
 - Retired in player text: share as a goal word (market share).
+
+### Flagship and gigs (added 2026-11-06, T275)
+- Flagship: the player's own ship, the Pathfinder grown a small hold. Name: Tessarine (working name, owner decides). It is not part of the fleet and has no upkeep. Pathfinder is retired in player text once the FLAGSHIP ids are wired.
+- Hold: the Flagship's cargo space. Dock sheet: the window opened with "Dock and trade"; it pauses time. Buy and Sell there are one-off hand trades. Unload to storage and Load from storage move goods between the hold and Company storage.
+- Boost: a short burst of speed that burns energy from the hold.
+- Gig board: the list of open offers. Gig kinds: Signal (story) and Rush order (a world wants a good before a deadline). ETA: flight time in cycles. Deadline: cycles left. Premium: credits paid on delivery.
+- Rush text tokens: {planet} and {commodity} only; the game fills {commodity} with a visible good.

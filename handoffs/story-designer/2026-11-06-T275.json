@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-11-06",
+  "task": "T275",
+  "status": "done",
+  "files_changed": [
+    "story/screens.md",
+    "story/gigs.md",
+    "story/voice.md",
+    "data/story_text.json",
+    "data/events.json",
+    "data/story_text_ru.json",
+    "handoffs/story-designer/2026-11-06-T275.json"
+  ],
+  "open_questions": [
+    "Flagship name Tessarine is a working name. Keep it?",
+    "Branch gigs GIG05 (Military, Minerals) and GIG06 (Luxury, Biotech): the game must offer each only to those branches.",
+    "Old LBL_PATHFINDER_* and NOT_PATHFINDER_* ids remain; the programmer should swap them for FLAGSHIP_* ids."
+  ],
+  "handoff": "build_story.py runs clean (0 skipped). Ready to wire: Flagship and dock sheet ids (FLAGSHIP_*, LBL_HOLD*, BTN_DOCK*, BTN_UNLOAD_STORAGE, BTN_LOAD_STORAGE, NOT_DOCK_*), boost (BTN_BOOST, LBL_BOOST_HINT, LBL_BOOST_CHARGES, NOT_BOOST_*), gig board (LBL_GIG_*, BTN_GIG_*, NOT_GIG_*), rush (GIG_RUSH_TITLE, GIG_RUSH_HOOK, _RESTLESS, _TIER, _SHORT, GIG_RUSH_ARRIVE, NOT_RUSH_*, LBL_RUSH_DELIVERED_STAMP; tokens {planet}, {commodity}, {cycles}), and signals GIG03 to GIG06 (TITLE, HOOK, ARRIVE, A_BTN, B_BTN, A/B_OUT_*, EPI). Glossary added to story/voice.md. Tests not run, per brief.",
+  "details": {}
+}
