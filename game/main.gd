@@ -236,6 +236,7 @@ func _ready() -> void:
 	planet_panel.buy_send_requested.connect(_on_buy_send)
 	planet_panel.mine_requested.connect(begin_buy_and_send)
 	planet_panel.remove_requested.connect(_remove_requested)
+	planet_panel.found_bazaar_requested.connect(_on_found_bazaar)  # T262
 	map.planet_clicked.connect(_on_planet_clicked)
 	map.route_clicked.connect(_on_route_clicked)
 	map.cluster_clicked.connect(_on_cluster_clicked)  # T159
@@ -2178,6 +2179,13 @@ func debug_advance_cycle() -> int:
 
 func _on_link_notice(text_id: String, vars: Dictionary) -> void:
 	post_notice(StoryText.get_or(text_id, text_id, vars))
+
+## T262: the planet card's confirmed 'Found the Bazaar here'.
+func _on_found_bazaar(planet: int) -> void:
+	if bazaar.found(planet):
+		post_notice(StoryText.get_or("BAZ_FOUNDED", "The Star Bazaar is founded at {planet}.", {"planet": planet_name(planet)}))
+		if planet_panel != null and planet_panel.visible:
+			planet_panel.rebuild()
 
 func _on_prosperity_tier_up(planet: int, tier: int) -> void:
 	post_notice(StoryText.get_or("NOT_PROSPERITY_TIER_UP", "{planet} has grown to tier {tier}.", {"planet": planet_name(planet), "tier": tier}))

@@ -1,0 +1,6 @@
+{
+  "task": "T262",
+  "agent": "ui-programmer (built by the worker main session)",
+  "files": ["game/planet_panel.gd", "game/main.gd", "data/balance.json", "logs/screenshots/T262.png"],
+  "summary": "Planet card growth section: tier name, progress bar, need rows (icon, name, sold/demand, met/short, hungry/surplus chip, locked '?' only, empty FedBySlot), Restless line, 'Found the Bazaar here' button (only when Bazaar.can_found) with confirm dialog; main._on_found_bazaar founds it and posts BAZ_FOUNDED. Text ids PROS_*/BAZ_* already existed in the story source. New balance key planet_growth_bar_px 10 (placeholder). No save fields added, no version bump, no new condition atoms."
+}

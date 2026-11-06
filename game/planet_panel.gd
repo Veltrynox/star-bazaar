@@ -24,6 +24,7 @@ signal mine_requested(commodity: String)  # dead world: "Mine and send to..." (b
 signal send_requested(commodity: String)  # "Send to..." on a storage row
 signal buy_send_requested(commodity: String)  # Buy toggle on a resource row: standing buy order only
 signal remove_requested(route_id: int)
+signal found_bazaar_requested(planet: int)  # T262: confirmed in the dialog; main founds the Bazaar
 
 var COL_LIT: Color = Ui.col("star_warm")
 var COL_DIM: Color = Ui.col("panel_300")
@@ -158,10 +159,109 @@ func rebuild() -> void:
 	if _dead_minable(p):
 		for c in mined:
 			box.add_child(_mine_button(str(c)))
+	_growth_section()
 	_lane_splits()
 	_connections()
 	_tut_mute()
 	size = Vector2.ZERO
+
+## T262: growth block under the goods grid: tier name and progress bar, need rows, Restless line, Found the Bazaar button.
+## A locked need shows only '?' (never the good); goods named here follow Availability (Prosperity.needs already hides locked ones).
+func _growth_section() -> void:
+	var pr = main.prosperity
+	var t: int = pr.tier(planet_index)
+	if t == 0:
+		return
+	var wrap := VBoxContainer.new()
+	wrap.name = "GrowthSection"
+	wrap.add_theme_constant_override("separation", 4)
+	var tier_id := "PROS_TIER_BARREN" if t < 0 else "PROS_TIER_%d" % t
+	var tl := _label(StoryText.get_or(tier_id, "Barren" if t < 0 else "Tier %d" % t))
+	tl.name = "TierLabel"
+	tl.theme_type_variation = "LabelAccent"
+	wrap.add_child(tl)
+	if t < 0:
+		box.add_child(wrap)
+		return
+	var bar := ProgressBar.new()
+	bar.name = "GrowthBar"
+	bar.min_value = 0.0
+	bar.max_value = 1.0
+	bar.value = pr.progress(planet_index)
+	bar.show_percentage = false
+	bar.custom_minimum_size = Vector2(0, float(main.balance.get("planet_growth_bar_px", 10)))
+	bar.tooltip_text = "%s: %d / %d" % [StoryText.get_or("PROS_LBL_PROGRESS", "Growth progress"), pr.steps(planet_index), pr.steps_needed(planet_index)]
+	wrap.add_child(bar)
+	var hdr := _label(StoryText.get_or("PROS_LBL_NEEDS", "Needs"))
+	hdr.theme_type_variation = "LabelCaption"
+	hdr.text = hdr.text.to_upper()
+	wrap.add_child(hdr)
+	for n in pr.needs(planet_index):
+		wrap.add_child(_need_row(n))
+	if pr.restless(planet_index):
+		var rl := _label(StoryText.get_or("PROS_RESTLESS", "Restless. A short need is costing it progress. Meet every need to stop it."))
+		rl.name = "RestlessLine"
+		rl.theme_type_variation = "LabelAccent"
+		wrap.add_child(rl)
+	if main.bazaar.can_found(planet_index):
+		var fb := Button.new()
+		fb.name = "FoundBazaarButton"
+		fb.text = StoryText.get_or("BAZ_FOUND_BTN", "Found the Bazaar here")
+		fb.pressed.connect(_ask_found_bazaar)
+		wrap.add_child(fb)
+	box.add_child(wrap)
+
+func _need_row(n: Dictionary) -> Control:
+	var pr = main.prosperity
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 6)
+	var locked: bool = bool(n["locked"])
+	var g := str(n["good"])
+	row.name = "NeedRow_" + ("locked" if locked else g)
+	var nm := Label.new()
+	nm.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	if locked:
+		nm.text = "?"  # never the good
+		nm.tooltip_text = StoryText.get_or("PROS_NEED_LOCKED", "? Not known yet")
+		row.add_child(nm)
+	else:
+		row.add_child(Ui.good_icon(g))
+		nm.text = Ui.good_name(g)
+		row.add_child(nm)
+		var reason: String = pr.price_reason(planet_index, g)
+		if reason != "":
+			var chip := Label.new()
+			chip.name = "Chip_" + reason
+			chip.text = StoryText.get_or("PROS_CHIP_HUNGRY" if reason == "hungry" else "PROS_CHIP_SURPLUS", reason.capitalize())
+			chip.theme_type_variation = "LabelSmall"
+			row.add_child(chip)
+	var num := Label.new()
+	num.text = "%d / %d" % [int(n["sold"]), int(n["demand"])] if not locked else ""
+	num.tooltip_text = "%s / %s" % [StoryText.get_or("PROS_LBL_SOLD", "Sold this cycle"), StoryText.get_or("PROS_LBL_DEMAND", "Demand per cycle")]
+	row.add_child(num)
+	var st := Label.new()
+	st.text = StoryText.get_or("PROS_NEED_MET", "Met") if bool(n["met"]) else StoryText.get_or("PROS_NEED_SHORT", "Short")
+	if locked:
+		st.text = StoryText.get_or("PROS_NEED_SHORT", "Short")
+	st.theme_type_variation = "LabelSmall"
+	row.add_child(st)
+	var fed := HBoxContainer.new()  # empty 'fed by' column slot, filled by hubs later
+	fed.name = "FedBySlot"
+	row.add_child(fed)
+	return row
+
+func _ask_found_bazaar() -> void:
+	var dlg := ConfirmationDialog.new()
+	dlg.name = "FoundBazaarDialog"
+	dlg.dialog_text = StoryText.get_or("BAZ_FOUND_PROMPT", "Found the Star Bazaar at {planet}? This is final. A run has one capital.", {"planet": main.planet_name(planet_index)})
+	dlg.ok_button_text = StoryText.get_or("BAZ_FOUND_CONFIRM", "Found it")
+	dlg.cancel_button_text = StoryText.get_or("BAZ_FOUND_CANCEL", "Not yet")
+	var idx := planet_index
+	dlg.confirmed.connect(func(): found_bazaar_requested.emit(idx))
+	dlg.canceled.connect(dlg.queue_free)
+	dlg.confirmed.connect(dlg.queue_free)
+	add_child(dlg)
+	dlg.popup_centered()
 
 ## Guided tutorial lock: every button but the resource rows, the pending Cancel and the Sell-here button shows disabled.
 ## The rows and the Sell-here button decide for themselves (see _row and _pays_line); main.tut_allows is what refuses a click.
