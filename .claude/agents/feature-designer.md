@@ -1,7 +1,7 @@
 ---
 name: feature-designer
 description: Use to think about new Star Bazaar features and to improve existing features and mechanics — find gaps, friction and dull or confusing parts of the game, and propose concrete, costed changes for the owner to approve. Use after a QA report, a playtest note or an owner idea, or when the owner asks what to add or improve. Do not use for writing code, changing balance numbers, writing story text or laying out UI; it proposes, the owner decides, and the matching agent builds.
-model: sonnet
+model: opus
 tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 

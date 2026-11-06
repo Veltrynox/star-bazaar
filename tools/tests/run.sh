@@ -4,7 +4,8 @@
 # Exit code 0 = all passed. Prints PASS/FAIL lines and a total.
 cd "$(dirname "$0")/../.." || exit 1
 python3 tools/build_story.py || exit 1
-SCRATCH="${TMPDIR:-/tmp}/star-bazaar-test-home"
+# STAR_TEST_SCRATCH lets parallel runs (tools/orchestrator.py worktrees) use separate scratch homes.
+SCRATCH="${STAR_TEST_SCRATCH:-${TMPDIR:-/tmp}/star-bazaar-test-home}"
 rm -rf "$SCRATCH"; mkdir -p "$SCRATCH"
 LOG="$SCRATCH/run.log"
 HOME="$SCRATCH" tools/godot/Godot.app/Contents/MacOS/Godot --headless --path . -s res://tools/tests/run_tests.gd > "$LOG" 2>&1
