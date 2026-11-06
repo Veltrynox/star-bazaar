@@ -16,6 +16,7 @@ extends RefCounted
 signal tier_up(planet: int, tier: int)
 
 const PATH := "res://data/prosperity.json"
+const DeadWorlds := preload("res://game/dead_worlds.gd")
 
 var balance: Dictionary = {}
 var planets: Array = []

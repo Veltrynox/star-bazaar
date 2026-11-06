@@ -86,6 +86,7 @@ func _run() -> void:
 	await _test_workshop_status()
 	await _test_workshops_in_cells()
 	await _test_chains()
+	_test_prosperity()
 	await _test_price_event()
 	await _test_route_move()
 	await _test_split_send()
@@ -7555,6 +7556,35 @@ func _test_skill_link_clip() -> void:
 	check(h.size() == 2 and is_equal_approx(h[0][1].x, 80.0) and is_equal_approx(h[1][0].x, 120.0), "T225: horizontal link stops at a node box")
 	check(sc.clip_segment(Vector2(10, 0), Vector2(10, 100), boxes).size() == 1, "T225: a link clear of every box is drawn whole")
 	m.queue_free()
+
+func _test_prosperity() -> void:
+	var bal: Dictionary = {"prosperity_max_tier": 3, "prosperity_needs_t1": 1, "prosperity_needs_t2": 2, "prosperity_needs_t3": 3, "prosperity_demand_t1": 2, "prosperity_demand_t2": 3, "prosperity_demand_t3": 4, "prosperity_steps_t1": 2, "prosperity_steps_t2": 2, "prosperity_decay_steps": 1}
+	var pl: Array = [{"id": "p0", "type": "agrarian", "base_prices": {}}, {"id": "p1", "type": "lush", "base_prices": {}}]
+	var pr := Prosperity.new()
+	pr.setup(bal, pl, func(pid: String) -> bool: return pid == "p0")
+	check(pr.tier(0) == 1 and pr.tier(1) == 0 and pr.needs(1).is_empty(), "prosperity: post stands = tier 1, no post = tier 0 with no needs")
+	var ns: Array = pr.needs(0)
+	check(ns.size() == 1 and ns[0]["good"] == "energy" and not ns[0]["met"], "prosperity: tier 1 world needs energy first, unmet", str(ns))
+	pr.add_fill(1, "energy", 5)
+	check(pr.sold(1, "energy") == 0, "prosperity: fill at a world without a post is ignored")
+	var ups: Array = []
+	pr.tier_up.connect(func(p: int, t: int) -> void: ups.append([p, t]))
+	pr.add_fill(0, "energy", 2)
+	pr.end_cycle()
+	check(pr.progress(0) == 0.5 and not pr.restless(0), "prosperity: need met = one step")
+	pr.end_cycle()
+	check(pr.progress(0) == 0.0 and pr.restless(0), "prosperity: need short = decay by one step")
+	pr.add_fill(0, "energy", 2)
+	pr.end_cycle()
+	pr.add_fill(0, "energy", 2)
+	pr.end_cycle()
+	check(pr.tier(0) == 2 and ups == [[0, 2]], "prosperity: full steps = tier up, signal sent", str(ups))
+	var back := Prosperity.new()
+	back.setup(bal, pl, func(pid: String) -> bool: return pid == "p0")
+	back.from_dict(pr.to_dict())
+	check(back.tier(0) == 2, "prosperity: tier survives save and load")
+	back.from_dict(null)
+	check(back.tier(0) == 1, "prosperity: old save starts established worlds at tier 1")
 
 func _test_availability() -> void:
 	_wipe_user()

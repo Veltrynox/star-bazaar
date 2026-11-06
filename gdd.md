@@ -115,3 +115,4 @@ Endings. The run ends with exactly one ending and no choice screen.
 - Run stats of answered runs are kept locally only (user://stats.json). The autosave is user://autosave.json.
 
 Retired: the cash goal, the Release or Corporation choice, and the shield (its leftover shield_* keys in balance.json are removed by task T255).
+Prosperity (empire growth v2, phase 1, T256): every world with a post has a Prosperity tier (a dead world is Barren, with no ladder yet). Each world has a short need list, set by rule: energy plus the run's branch goods of its tier or lower, minus what it already sells to the player. Sales at the world fill its needs during the cycle. At cycle end every need met is a step of progress, any shortfall costs steps, and a full ladder raises the tier. A world never loses a tier. A need whose good is not yet visible shows as locked. Prices and rewards come in later tasks.
