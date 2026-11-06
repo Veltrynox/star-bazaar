@@ -1574,7 +1574,7 @@
       "turn_cap": 40,
       "window": "Owner request 2026-11-05 (playtest). Not started: main session sets it running.",
       "brief": "Owner: rewrite the event texts (EV01 and on, story/events.md, English then story/ru) so they read less dry: more voice, concrete detail, a little humour or tension, same mechanics and effect lines, same max lengths (story/voice.md). Respect the connected thread of T224 if it exists. Do NOT run or regenerate audio. Run python3 tools/build_story.py. Handoff handoffs/story-designer/2026-11-05-T230.json.",
-      "note": "2026-11-06: EV01-16, EV21-28, EV40-51 bodies rewritten (English). Choice events EV17-20, BE01-03 and pending post/platform/flight events left; Russian not touched."
+      "note": "2026-11-06: EV01-16, EV21-28, EV40-51 bodies rewritten (English). Choice events EV17-20, BE01-03 and pending post/platform/flight events left; Russian not touched. 2026-11-06 (run 2): EV17-20, BE01-03 and pending PST01-03,PST06,FLT01 rewritten in draft-3 voice (English), built; uncommitted in story/events.md and data/story_text.json (mixed with owner edits). Russian out of date. EV_PLT and other pending events left."
     },
     {
       "task_id": "T231",
