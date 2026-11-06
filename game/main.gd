@@ -172,6 +172,7 @@ var storage_link: RefCounted = preload("res://game/storage_link.gd").new()  # T1
 var engine: RefCounted = RouteEngine.new()  # T07 route records and math
 var workshops: RefCounted = WorkshopsScript.new()  # smelter, munitions, atelier, culture lab; saved under "workshops"
 var fabric: RefCounted = Fabric.new()  # the fabric at the trading post, saved under "fabric"
+var prosperity: Prosperity = Prosperity.new()  # T256 world tiers and needs, saved under "prosperity"
 var dead: RefCounted = DeadWorlds.new()  # dead worlds: danger meter per planet id, saved under "danger"
 var clusters: RefCounted = Clusters.new()  # T156 asteroid clusters (ore sources), saved
 var notice_label: Label
@@ -271,6 +272,10 @@ func _ready() -> void:
 	engine.setup(balance, trade, commodities, storage)
 	clusters.setup(balance)  # T156
 	dead.setup(balance)
+	prosperity.setup(balance, map.planets, func(pid: String) -> bool: return flight != null and flight.established(pid))
+	engine.prosperity = prosperity
+	if not prosperity.tier_up.is_connected(_on_prosperity_tier_up):
+		prosperity.tier_up.connect(_on_prosperity_tier_up)
 	fabric.setup(balance)
 	workshops.setup(balance)
 	engine.clusters = clusters
@@ -379,7 +384,7 @@ func collect_state() -> Dictionary:
 		"chains": Chains.to_dict(), "storage_cuts": storage.cuts_to_dict(), "price_history": price_history,
 		"forecast_id": forecast_id, "forecast_slot": forecast_slot, "forecast_noted": forecast_noted, "station_systems": station_systems,
 		"second_lane": second_lane_planet, "clusters": clusters.to_dict(), "danger": dead.to_dict(), "fabric": fabric.to_dict(), "workshops": workshops.to_dict(),
-			"pathfinder": flight.to_dict(), "storage_links": storage_link.to_array()}
+			"pathfinder": flight.to_dict(), "storage_links": storage_link.to_array(), "prosperity": prosperity.to_dict()}
 
 func apply_state(s: Dictionary) -> void:
 	_loading_state = true
@@ -446,6 +451,7 @@ func apply_state(s: Dictionary) -> void:
 			_make_station_marker(sid)
 	_ensure_posts()  # old saves with FND_STORAGE: stations for every open system, no notice
 	storage_link.from_array(s.get("storage_links"))  # T171; old saves: no links
+	prosperity.from_dict(s.get("prosperity"))  # T256; old saves: established worlds at tier 1
 	_loading_state = false
 	systems_reached = maxi(1, int(s.get("systems_reached", 1)))
 	skill_points = maxi(0, int(s.get("skill_points", 0)))
@@ -2165,9 +2171,13 @@ func debug_advance_cycle() -> int:
 func _on_link_notice(text_id: String, vars: Dictionary) -> void:
 	post_notice(StoryText.get_or(text_id, text_id, vars))
 
+func _on_prosperity_tier_up(planet: int, tier: int) -> void:
+	post_notice(StoryText.get_or("NOT_PROSPERITY_TIER_UP", "{planet} has grown to tier {tier}.", {"planet": planet_name(planet), "tier": tier}))
+
 func _end_cycle() -> void:
 	_advance_notice()  # the board notice lives for one cycle, then the next queued one shows
 	_settle_routes()
+	prosperity.end_cycle()  # T256: needs met = progress, short = decay, full = tier up
 	_tick_danger()
 	fabric.run(storage)
 	storage_link.settle()  # T171: standing link orders and upkeep

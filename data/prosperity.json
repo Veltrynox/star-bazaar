@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "source": "2026-11-06 T256 (design/proposals/2026-11-06-empire-growth-v2.md section 3.1). Rules and ordering only; every number (tier count, steps, decay, demand, need count) is a data/balance.json key prosperity_*.",
+  "default_weight": 1,
+  "energy_weight": 2,
+  "type_weights": {
+    "agrarian": {"energy": 5},
+    "lush": {"energy": 5},
+    "volcanic": {"energy": 1, "food": 4},
+    "desert": {"energy": 1, "food": 4},
+    "cloudy": {"energy": 1, "food": 4}
+  },
+  "overrides": {}
+}

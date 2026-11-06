@@ -249,8 +249,12 @@ func _add_mk(seen: Array, c: String) -> Array:
 		out.append(m)
 	return out
 
+var prosperity = null  # T256: Prosperity (game/prosperity.gd), set by main; null in standalone tools
+
 func _note_sale(c: String, n: int, planet: int = -1) -> void:
 	if n > 0:
+		if planet >= 0 and prosperity != null:
+			prosperity.add_fill(planet, c, n)  # T256: sales at a world fill its needs
 		sales_units[c] = int(sales_units.get(c, 0)) + n
 		if planet >= 0 and trade.events != null and trade.events.price_up_at(planet, c):  # LUX_5 counts these extra
 			sales_up_units[c] = int(sales_up_units.get(c, 0)) + n
