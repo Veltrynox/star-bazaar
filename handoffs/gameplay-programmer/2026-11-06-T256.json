@@ -1,0 +1,7 @@
+{
+  "task": "T256",
+  "summary": "Prosperity core: game/prosperity.gd, data/prosperity.json, balance prosperity_* placeholder keys, sale fill in route_engine, cycle-end progress in main._end_cycle, save v9 key 'prosperity'.",
+  "files": ["game/prosperity.gd", "data/prosperity.json", "data/balance.json", "game/route_engine.gd", "game/main.gd", "game/save_game.gd", "tools/tests/run_tests.gd", "gdd.md"],
+  "api": "tier(i), max_tier(), needs(i), progress(i), restless(i), add_fill(planet, good, units), reclaim(i), signal tier_up(planet, tier)",
+  "notes": "13 tests fail identically on base 2278959 (workshop, goods, availability, cells); unrelated. All numbers are placeholders for economy-designer."
+}
