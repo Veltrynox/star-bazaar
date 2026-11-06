@@ -4,6 +4,7 @@
 - discovery_enabled in data/balance.json ships at 1 (owner decision 2026-11-05); tests that need it off set it themselves.
 
 ## Left to do
+- T233 done (text): T234 must add mechanics/tag rows for EV52-55 and fill {cash_in}, {market}; events name no goods until T238.
 - T230 partial: choice events EV17-20, BE01-03 and pending post/platform/flight events not rewritten (owner to say); Russian not touched.
 - T236 done: tags shown on CEO card. SETUP_NEXT still reads 'Next'. story/voice.md has uncommitted owner edits, left alone.
 - Owner: T219 lane draw-in/fade/pulse not seen windowed (constants atop route_line.gd); route made while paused shows no draw-in.
@@ -58,3 +59,13 @@
 - Failed / did not work: nothing.
 - Files and commits: story/events.md, data/story_text.json, handoff, schedule.json, blackboard.md; see git log "T230". story/voice.md and .claude/agents/story-designer.md hold owner edits, left uncommitted.
 - Left to do: EV17-20, BE01-03, pending post/platform/flight events; Russian only when owner asks.
+
+## 2026-11-06 16:00 run: T233
+- Summary: Wrote four early branch events EV52-EV55 (contract and dark market) as text in story/events.md and built them with tools/build_story.py. No mechanics added.
+- Why this task: no dependencies, text only, no visual, economy or QA need; other open tasks need owner decisions, owner-only agents or visual work.
+- Approach: story-designer agent; events avoid goods names because branch goods are hidden before system 2 and T238 is not built.
+- Agent prompts: write EV52-55 per T233 brief, English only, no commit, no mechanics; produced story/events.md, data/story_text.json, handoffs/story-designer/2026-11-05-T233.json, done.
+- Worked: sh tools/tests/run.sh pass=11320 fail=0.
+- Failed / did not work: nothing.
+- Files and commits: story/events.md, data/story_text.json, handoff, schedule.json, blackboard.md; see git log "T233".
+- Left to do: T234 mechanics (rows in data/events.json via tags, {cash_in} A>B, {market}); EVnn_EFF rivals lines say no rival change. story/voice.md and .claude/agents edits are the owner's, left alone.
