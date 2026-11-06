@@ -1,6 +1,6 @@
 class_name Ui
 const StoryText := preload("res://game/story_text.gd")
-## Reads colours and icons from the project Theme (design/theme/star_bazaar.tres), so no screen hard-codes them.
+## Reads colours and icons from the project Theme (ui/theme/star_bazaar.tres), so no screen hard-codes them.
 ## Colour names are the design-token names with "_" for "-" (e.g. "star_warm", "signal_bad", "ink_muted").
 
 static func col(token: String) -> Color:

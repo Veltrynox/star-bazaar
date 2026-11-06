@@ -29,7 +29,7 @@ window/stretch/mode="canvas_items"
 
 [gui]
 
-theme/custom="res://design/theme/star_bazaar.tres"
+theme/custom="res://ui/theme/star_bazaar.tres"
 
 [physics]
 
