@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-06 18:37 run: T259
-- Summary: Star Bazaar win built (game/bazaar.gd, bazaar_* placeholder keys, no share win/swept/overhead, END_UNFINISHED soft ending, Continue free play, bazaar_stage atom, save v12)
-- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
-- Approach: built by a worker in worktree ../wt/T259 on branch task/T259, merged by the serial merge queue.
-- Agent prompts: /overnight-worker T259 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T259.log.
-- Worked: rebase, full test suite and fast-forward merge passed.
-- Failed / did not work: nothing.
-- Files and commits: see git log on branch new-features for commits starting with T259.
-- Left to do: nothing for this task.
-
 ## 2026-11-06 18:39 run: T293
 - Summary: Added hub text (name, make-hub prompt, panel labels, four status reasons, release confirm, first-hub notice) as HUB_* ids in story/screens.md and rebuilt story_text.json
 - Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
@@ -64,4 +54,14 @@
 - Worked: rebase, full test suite and fast-forward merge passed.
 - Failed / did not work: nothing.
 - Files and commits: see git log on branch new-features for commits starting with T247.
+- Left to do: nothing for this task.
+
+## 2026-11-06 18:47 run: T260
+- Summary: Re-pointed all 21 share_pct chain triggers to any_tier:2 (A2, B1), any_tier:3 (A3, B3) and bazaar_stage:1 (B4); the share_pct atom stays for old saves and no data uses it
+- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
+- Approach: built by a worker in worktree ../wt/T260 on branch task/T260, merged by the serial merge queue.
+- Agent prompts: /overnight-worker T260 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T260.log.
+- Worked: rebase, full test suite and fast-forward merge passed.
+- Failed / did not work: nothing.
+- Files and commits: see git log on branch new-features for commits starting with T260.
 - Left to do: nothing for this task.
