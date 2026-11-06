@@ -1694,10 +1694,11 @@
       "depends_on": [
         "T235"
       ],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 30,
       "window": "Owner request 2026-11-05. Not started: main session sets it running.",
-      "brief": "Owner: the skill screen shows only the foundational skills (market fnd, always for everyone) and the skill tree of the run's branch (run.branch from T235); the three other branch trees are not drawn at all (no greyed nodes, no names, no hints in tooltips or text). Rearrange the layout so the visible tree fills the screen well and the connection lines still avoid nodes. Skills of other branches can not be learned, searched or referenced by any other panel, notice, ending line or tooltip (use the Availability approach; check game/skills.gd learn paths too). Old saves without a branch show all trees as before. Handoff handoffs/ui-programmer/2026-11-05-T241.json."
+      "brief": "Owner: the skill screen shows only the foundational skills (market fnd, always for everyone) and the skill tree of the run's branch (run.branch from T235); the three other branch trees are not drawn at all (no greyed nodes, no names, no hints in tooltips or text). Rearrange the layout so the visible tree fills the screen well and the connection lines still avoid nodes. Skills of other branches can not be learned, searched or referenced by any other panel, notice, ending line or tooltip (use the Availability approach; check game/skills.gd learn paths too). Old saves without a branch show all trees as before. Handoff handoffs/ui-programmer/2026-11-05-T241.json.",
+      "note": "Built 2026-11-06: skill screen shows Foundations + run branch only; other-branch skills not learnable (SkillTree.run_branch). Layout not seen windowed. Open: text id NOT_DEAD_OTHER_BRANCH (story-designer)."
     },
     {
       "task_id": "T242",

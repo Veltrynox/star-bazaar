@@ -21,6 +21,19 @@ static var _loaded := false
 const EARNED := ["FND_STORAGE"]
 static var earn_income: int = 0    # cumulative trade income of the run (gross, before upkeep)
 
+## Market id of the run ("" = old save: every tree is open). main.gd sets it with the run choice.
+static var run_branch: String = ""
+
+## Branches shown and learnable for a run branch: "fnd" always, plus that market; all of them when it is "".
+static func visible_branches(rb: String) -> Array:
+	if rb == "" or not MARKETS.has(rb):
+		return BRANCHES.duplicate()
+	return ["fnd", rb]
+
+## True when a node belongs to a branch the run may see and learn.
+static func in_run(id: String, rb: String = run_branch) -> bool:
+	return visible_branches(rb).has(market_of(id))
+
 static func _ensure() -> void:
 	if _loaded:
 		return
@@ -132,6 +145,8 @@ static func earn_lock_reason(balance: Dictionary, id: String) -> String:
 static func can_learn(learned: Array, points: int, balance: Dictionary, id: String) -> Dictionary:
 	if not has(id):
 		return {"ok": false, "reason": "unknown"}
+	if not in_run(id):
+		return {"ok": false, "reason": "branch"}
 	match state(learned, id):
 		"learned":
 			return {"ok": false, "reason": "known"}

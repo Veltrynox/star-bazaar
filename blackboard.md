@@ -17,16 +17,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-05 17:00 run: T228
-- Summary: Stop exploring and manual orders already changed the Pathfinder state while paused, but the ship panel was not refreshed, so the button looked dead. set_exploring and the map order handlers in main.gd now call on_flight_changed.
-- Why this task: small concrete playtest bug, no dependencies, no visual or economy-agent need.
-- Approach: small edit by me in main.gd; refresh at the call sites instead of ticking the panel while paused.
-- Agent prompts: none.
-- Worked: sh tools/tests/run.sh pass=11303 fail=0; test added (mode off while paused, label follows).
-- Failed / did not work: nothing; not tried windowed. No handoff file (no agent used).
-- Files and commits: game/main.gd, tools/tests/run_tests.gd, schedule.json, blackboard.md; see git log "T228".
-- Left to do: owner: confirm windowed. A manual order given while paused sets the target but the ship moves only when unpaused.
-
 ## 2026-11-05 18:00 run: T229
 - Summary: The end screen showed a raw "{workshop}" token (reported as "[workshop]") in the tech epilogue lines. epilogue_lines in end_screen.gd now fills it with the win market's workshop name (lower case). A headless test scans every market and tech count for raw tokens.
 - Why this task: small concrete playtest bug, no dependencies, no visual or economy-agent need.
@@ -66,3 +56,13 @@
 - Failed / did not work: nothing; not seen windowed.
 - Files and commits: data/ceos.json, game/ceos.gd, game/company_setup.gd, game/main.gd, game/save_game.gd, gdd.md, tools/tests/run_tests.gd, handoff, schedule.json, blackboard.md; see git log "T235".
 - Left to do: story-designer: SETUP_NEXT text still says "Next" (code default now "Start"). ship_setup.gd/.tscn kept because qa/bots/ship_setup_shot.gd loads them. Owner: check the CEO-to-branch mapping. T236, T237 next.
+
+## 2026-11-06 12:00 run: T241
+- Summary: Skill screen now shows only Foundations and the run's branch tree; other-branch skills cannot be learned or selected (SkillTree.run_branch). Old saves show all trees. Dead-world refusal no longer names another branch's skill.
+- Why this task: owner request, dependency T235 done, no economy/QA agent, layout rule given by owner (fill the screen).
+- Approach: ui-programmer agent; filter at tree build and at can_learn so every learn path is covered.
+- Agent prompts: build branch-filtered skill screen, block other-branch learning, tests; produced handoffs/ui-programmer/2026-11-06-T241.json, done.
+- Worked: sh tools/tests/run.sh fail=0 per agent (pass=11318); my re-run output tail showed only leak warnings.
+- Failed / did not work: nothing; layout not seen windowed.
+- Files and commits: game/skill_tree.gd, skill_screen.gd, main.gd, route_engine.gd, tools/tests/run_tests.gd, gdd-skills.md, handoff, schedule.json, blackboard.md; see git log "T241".
+- Left to do: owner: open skill screen (K) per CEO branch and judge layout (CELL_W_MAX 250). Story-designer: add text id NOT_DEAD_OTHER_BRANCH (fallback "Mining here is closed to your company." in use).

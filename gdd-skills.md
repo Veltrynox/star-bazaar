@@ -21,6 +21,8 @@ SECTION INDEX
 ========================================
 Money buys ships, workshops and fees, never skill points. Growth in ability comes from expansion and from share, so skills are bought with skill points ("expansion points" in data keys), never with credits.
 Skills are finite and shared across markets, so the trees punish spreading: a focused run affords three Foundations and one market tree, two full markets are a stretch, four are out of reach.
+
+A run has one branch (its CEO's market). The skill screen shows only the Foundations and that branch's tree; other trees are not drawn and their skills cannot be learned. Old saves without a branch show all trees.
 Every node opens a way to play or says which number it changes. Respec is not planned. 2026-11-05 rule: filler percent nodes were removed; every node unlocks something, adds a mechanic or has a clear use.
 Each market tree has four skills (cost points) and three tech nodes (cost no points, researched by crafting in that market's workshop). Luxury and Minerals also have one side skill each (LUX_5B, MIN_5B).
 

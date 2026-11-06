@@ -1538,6 +1538,7 @@ func _test_main() -> void:
 	await _free_main(m)
 	await _test_skill_screen()
 	await _test_skill_screen_ui()
+	await _test_skill_branch_screen()
 	await _test_learn_lock_and_permit_card()
 	await _test_storage_ready()
 	_test_skills_core()
@@ -1593,6 +1594,62 @@ func _test_skill_screen_ui() -> void:
 	check(r["ok"] and not m.skill_screen.use_buttons.has("MIL_5") and m.skill_screen.use_rows["MIL_5"].visible, "skill screen: using it swaps the menu for the cooldown note")
 	m.skill_screen.close_screen()
 	await _free_main(m)
+
+# ---- T241: the skill screen shows only Foundations plus the run's tree ----
+func _test_skill_branch_screen() -> void:
+	_wipe_user()
+	var bal := _bal()
+	check(SkillTree.visible_branches("") == SkillTree.BRANCHES and SkillTree.visible_branches("lux") == ["fnd", "lux"], "branch screen: old save shows all branches, a run shows fnd plus its market")
+	for mk in SkillTree.MARKETS:
+		var m: Control = await _new_main()
+		m._dismiss_preface()
+		m._set_run_choice("", "", mk)
+		m.skill_screen.open_screen()
+		await process_frame
+		var sk = m.skill_screen
+		var want: Array = SkillTree.ids_in("fnd") + SkillTree.ids_in(mk)
+		var only_own: bool = sk.cells.size() == want.size() and sk.node_buttons.size() == want.size()
+		for id in sk.cells:
+			if not want.has(id):
+				only_own = false
+		check(only_own, "branch screen: %s run draws only Foundations and its own tree" % mk, str(sk.cells.size()))
+		var leak := false
+		for other in SkillTree.MARKETS:
+			if other == mk:
+				continue
+			for id in SkillTree.ids_in(other):
+				if sk.cells.has(id) or sk.node_buttons.has(id) or sk.use_rows.has(id):
+					leak = true
+			if _node_text_has(sk, StoryText.get_text("SK_TAB_" + other.to_upper()).to_upper()):
+				leak = true
+		check(not leak, "branch screen: %s run has no node, caption or button of another tree" % mk)
+		var other_id: String = SkillTree.ids_in("mil" if mk != "mil" else "lux")[0]
+		m.skill_points = 9
+		Skills.learned.append_array(FND3)
+		var v: Dictionary = SkillTree.can_learn(Skills.learned, 9, bal, other_id)
+		var r: Dictionary = m.learn_skill(other_id)
+		check(not v["ok"] and v["reason"] == "branch" and not r["ok"] and not m.has_skill(other_id) and m.skill_points == 9, "branch screen: %s run cannot learn %s" % [mk, other_id])
+		check(not Skills.learn(other_id, 9, bal)["ok"], "branch screen: Skills.learn rejects another branch")
+		sk.select(other_id)
+		check(sk.selected != other_id, "branch screen: another branch cannot be selected")
+		var own_first: String = SkillTree.ids_in(mk)[0]
+		check(SkillTree.can_learn(FND3, 9, bal, own_first)["ok"], "branch screen: own tree stays learnable")
+		await _free_main(m)
+	var m2: Control = await _new_main()
+	m2._dismiss_preface()
+	m2._set_run_choice("", "", "")
+	m2.skill_screen.open_screen()
+	await process_frame
+	check(m2.skill_screen.cells.size() == SkillTree.all_ids().size() and SkillTree.can_learn(FND3, 9, bal, "LUX_1")["ok"], "branch screen: old save (no branch) shows and learns every tree")
+	await _free_main(m2)
+
+func _node_text_has(n: Node, text: String) -> bool:
+	if n is Label and (n as Label).text.to_upper() == text:
+		return true
+	for c in n.get_children():
+		if _node_text_has(c, text):
+			return true
+	return false
 
 func _test_storage_ready() -> void:
 	_wipe_user()

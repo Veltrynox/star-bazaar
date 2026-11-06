@@ -20,6 +20,7 @@ const FONT_SIZE := 10
 const FONT_SIZE_TITLE := 15
 const NODE_BTN_H := 50.4  # 0.9 of the old 56
 const CELL_W := 129.6  # 0.9 of the old 144
+const CELL_W_MAX := 250.0  # with only two trees on screen the cells grow to fill the width, up to this
 const ICON_PX := 24  # skill icon on the node button
 const TREE_RESERVE := 360.0  # window height kept for header, help, detail strip and footer; the tree gets the rest
 const STACKED_BRANCHES := ["fnd"]  # these branches put every node on its own row (one narrow column)
@@ -47,6 +48,8 @@ var learn_button: Button
 var highlight: Array = []  # skill ids to point at (the steps to a permit), cleared on close
 var placeholders: Array = []  # empty slot Controls (UI only, inert)
 var _root: VBoxContainer
+var _built_branch: String = ""  # run branch the node grid was built for
+var _cell_w: float = CELL_W
 var tree_scroll: ScrollContainer  # holds the four trees; scrolls vertically when they do not fit
 var _tree: VBoxContainer  # the scrolled content, the connector lines are drawn on it
 
@@ -79,9 +82,9 @@ static func depth(id: String) -> int:
 	return d
 
 ## Rows by depth across all branches: [{branch: [ids]}, ...]; row 0 holds everything with no prerequisites.
-static func depth_rows() -> Array:
+static func depth_rows(branches: Array = SkillTree.BRANCHES) -> Array:
 	var out := []
-	for b in SkillTree.BRANCHES:
+	for b in branches:
 		for id in SkillTree.ids_in(b):
 			var d := depth(id)
 			while out.size() <= d:
@@ -164,10 +167,7 @@ func setup(main_node: Control) -> void:
 	tree_gutter.add_child(rows)
 	tree_scroll.add_child(tree_gutter)
 	_root.add_child(tree_scroll)
-	if VERTICAL_LAYOUT:
-		_build_vertical(rows)
-	else:
-		_build_horizontal(rows)
+	_rebuild_tree()
 	detail_box = VBoxContainer.new()
 	detail_box.custom_minimum_size = Vector2(0, 110)
 	detail_box.add_theme_constant_override("separation", 4)
@@ -189,21 +189,62 @@ func setup(main_node: Control) -> void:
 	_shrink(self)
 
 
+## Branches drawn for this run: Foundations plus the run's market tree; every tree for an old save.
+func _branches() -> Array:
+	return SkillTree.visible_branches(main.run_branch() if main != null else "")
+
+## (Re)builds the node grid for the run's branch. Other branches are never created, so nothing of them can show.
+func _rebuild_tree() -> void:
+	_built_branch = main.run_branch() if main != null else ""
+	for c in _tree.get_children():
+		_tree.remove_child(c)
+		c.queue_free()
+	node_buttons.clear()
+	cells.clear()
+	use_rows.clear()
+	use_buttons.clear()
+	bars.clear()
+	placeholders.clear()
+	if selected != "" and not SkillTree.in_run(selected, _built_branch):
+		selected = ""
+	if VERTICAL_LAYOUT:
+		_build_vertical(_tree)
+	else:
+		_build_horizontal(_tree)
+	_shrink(_tree)
+
+## Cell width: the visible columns share the window width (capped), never narrower than the old CELL_W.
+func _cell_width(branches: Array, widths: Dictionary) -> float:
+	var units := 0
+	for b in branches:
+		units += int(widths[b])
+	var avail := custom_minimum_size.x - 24.0 - 24.0 - 10.0 - BRANCH_GAP * (branches.size() - 1)
+	for b in branches:
+		avail -= NODE_GAP_H * (int(widths[b]) - 1)
+	return clampf(avail / float(maxi(1, units)), CELL_W, CELL_W_MAX)
+
 ## One column per branch, all in a single row; inside a column one row per depth (row 0 = no prerequisites,
 ## at the top). Branches in STACKED_BRANCHES put each node on its own row so the column stays one cell wide.
 func _build_vertical(rows: VBoxContainer) -> void:
-	var d_rows := depth_rows()
+	var branches := _branches()
+	var d_rows := depth_rows(branches)
 	var band := HBoxContainer.new()
 	band.add_theme_constant_override("separation", BRANCH_GAP)
+	band.alignment = BoxContainer.ALIGNMENT_CENTER
 	rows.add_child(band)
-	for b in SkillTree.BRANCHES:
-		var stacked: bool = STACKED_BRANCHES.has(b)
-		var widest := 1
-		if not stacked:
+	var widths := {}
+	for b in branches:
+		var wd := 1
+		if not STACKED_BRANCHES.has(b):
 			for r in d_rows:
 				if r.has(b):
-					widest = maxi(widest, mini((r[b] as Array).size(), MAX_ROW_CELLS))
-		var w := widest * CELL_W + (widest - 1) * NODE_GAP_H
+					wd = maxi(wd, mini((r[b] as Array).size(), MAX_ROW_CELLS))
+		widths[b] = wd
+	_cell_w = _cell_width(branches, widths)
+	for b in branches:
+		var stacked: bool = STACKED_BRANCHES.has(b)
+		var widest: int = widths[b]
+		var w := widest * _cell_w + (widest - 1) * NODE_GAP_H
 		var sec := VBoxContainer.new()
 		sec.size_flags_vertical = Control.SIZE_SHRINK_BEGIN  # columns start at the top
 		sec.custom_minimum_size.x = w
@@ -235,7 +276,7 @@ func _build_vertical(rows: VBoxContainer) -> void:
 				for id in g:
 					var cell := _node_cell(id)
 					cell.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN  # fixed width, rows line up on the left
-					cell.custom_minimum_size.x = CELL_W
+					cell.custom_minimum_size.x = _cell_w
 					row.add_child(cell)
 		if SHOW_PLACEHOLDERS:
 			_add_placeholder_rows(sec, 1 if stacked else widest, SkillTree.ids_in(b).size())
@@ -260,7 +301,7 @@ static func placeholder_row_count(nodes: int, width: int, enabled: bool = SHOW_P
 ## A dashed empty frame: no text, no icon, no tooltip, ignores the mouse and cannot take focus.
 func _placeholder_slot() -> Control:
 	var c := Control.new()
-	c.custom_minimum_size = Vector2(CELL_W, NODE_BTN_H)
+	c.custom_minimum_size = Vector2(_cell_w, NODE_BTN_H)
 	c.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	c.focus_mode = Control.FOCUS_NONE
 	c.draw.connect(func() -> void:
@@ -278,11 +319,12 @@ func _placeholder_slot() -> Control:
 	return c
 
 func _build_horizontal(rows: VBoxContainer) -> void:
-	for r in depth_rows():
+	var branches := _branches()
+	for r in depth_rows(branches):
 		var row := HBoxContainer.new()
 		row.add_theme_constant_override("separation", 14)
 		rows.add_child(row)
-		for b in SkillTree.BRANCHES:
+		for b in branches:
 			if not r.has(b):
 				continue
 			var ids: Array = r[b]
@@ -364,6 +406,8 @@ func _node_cell(id: String) -> Control:
 # ---- open / close ----
 
 func open_screen() -> void:
+	if main != null and main.run_branch() != _built_branch:
+		_rebuild_tree()  # the run choice arrived after setup
 	visible = true
 	refresh()
 	_fit_tree.call_deferred()
@@ -384,6 +428,8 @@ func open_highlight(ids: Array) -> void:
 		tree_scroll.ensure_control_visible.call_deferred(node_buttons[selected])
 
 func select(id: String) -> void:
+	if not SkillTree.in_run(id, _built_branch):
+		return
 	selected = id
 	refresh()
 

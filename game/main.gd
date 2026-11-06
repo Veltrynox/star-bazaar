@@ -351,6 +351,7 @@ func _set_run_choice(ceo: String, ship: String, branch_id: String = "") -> void:
 	ceo_id = ceo if Ceos.has(ceo) else ""
 	Markets._ensure()
 	branch = branch_id if Markets.ids.has(branch_id) else ""
+	SkillTree.run_branch = branch
 	ship_type = Ships.normalize(ship)
 	Ceos.set_current(ceo_id)
 	Ships.set_fleet(ship_type)

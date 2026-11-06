@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-06",
+  "task": "T241",
+  "status": "done",
+  "files_changed": [
+    "game/skill_tree.gd",
+    "game/skill_screen.gd",
+    "game/main.gd",
+    "game/route_engine.gd",
+    "tools/tests/run_tests.gd",
+    "handoffs/ui-programmer/2026-11-06-T241.json"
+  ],
+  "open_questions": [
+    "Story-designer: add text id NOT_DEAD_OTHER_BRANCH (refusal when a dead world needs a skill from another branch, must not name the skill). Plain fallback 'Mining here is closed to your company.' is used until then.",
+    "UNKNOWN: layout was not checked by eye (no screenshots allowed). Cells grow up to 250 px to fill the width with two columns; please open the skill screen (K) for each CEO branch."
+  ],
+  "handoff": "Skill screen now builds only Foundations plus the run's market tree (SkillTree.visible_branches); old saves (branch empty) still show all five. Other trees are never created, so no nodes, captions or tooltips exist. The grid is rebuilt on open if the run branch changed after setup. SkillTree.run_branch (set in main._set_run_choice) makes can_learn return reason 'branch' for other-branch skills, which covers main.learn_skill, Skills.learn and the Skills-button mark. select() ignores other-branch ids. Cell width grows (CELL_W_MAX 250) so the two columns fill the width; the band is centered; links still use clip_segment. Dead-world mining refusal no longer names a skill of another branch. 26 new test checks; the full suite passes with 0 fail.",
+  "details": {
+    "how_to_see": "Start a run with any CEO, press K: only Foundations and that branch's tree show."
+  }
+}
