@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-06 23:00 run: T230
-- Summary: story-designer rewrote choice events EV17-20, BE01-03 and their popups, plus five pending post/flight events, in the draft-3 voice (English). Build ran clean.
-- Why this task: the only open task doable without owner decision, visuals, QA or approval; partial tasks preferred.
-- Approach: single story-designer agent, text only, ids/mechanics unchanged; kept owner goods renames in events.md.
-- Agent prompts: rewrite remaining dry events per voice.md, English only, build, no commit; produced story/events.md, data/story_text.json, handoffs/story-designer/2026-11-06-T230b.json.
-- Worked: handoff exists, events.md diff shows the rewrites.
-- Failed / did not work: sh tools/tests/run.sh pass=11491 fail=15, same 15 as before (owner's uncommitted goods work), no story failure. Text files left uncommitted because they mix owner edits.
-- Files and commits: handoff, schedule.json, blackboard.md committed; story/events.md, data/story_text.json uncommitted.
-- Left to do: owner commits text with goods work; EV_PLT and remaining pending events; Russian only when asked.
-
 ## 2026-11-06 22:00 run: T242
 - Summary: story-designer rewrote names and flavour of all 31 skill nodes in story/skills.md with a register per branch; plain lines kept except SK_LUX_4_PLAIN wording.
 - Why this task: depends only on T238 (done), text only, no visual/economy/QA need; T239 would collide with the owner's uncommitted goods work.
