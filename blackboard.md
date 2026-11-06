@@ -4,7 +4,7 @@
 - discovery_enabled in data/balance.json ships at 1 (owner decision 2026-11-05); tests that need it off set it themselves.
 
 ## Left to do
-- T237 done: four TXT_CEO_*_BRANCH_TAG ids exist but are not shown yet (T236 must wire them); SETUP_NEXT still reads 'Next'. story/voice.md has uncommitted owner edits, left alone.
+- T236 done: tags shown on CEO card. SETUP_NEXT still reads 'Next'. story/voice.md has uncommitted owner edits, left alone.
 - Owner: T219 lane draw-in/fade/pulse not seen windowed (constants atop route_line.gd); route made while paused shows no draw-in.
 - Owner: T203 establish beat not seen windowed (ring/spokes vs bright planets, nudge softness, dead worlds); follow-up juice tasks T219-T221 queued.
 - Owner: T205 trail look windowed: ship_trail.gd WIDTH 0.16, ships.gd ENGINE_BACK 0.9 for all models (exact exhaust positions not measured from the GLBs).
@@ -57,3 +57,13 @@
 - Failed / did not work: agent saw a JSON parse message from game/run_stats.gd in the test log (not a FAIL, unrelated, not investigated).
 - Files and commits: story/screens.md, data/story_text.json, handoff, schedule.json, blackboard.md; see git log "T237".
 - Left to do: T236 must show the tags on the pick card; owner: SETUP_NEXT label "Next" vs "Start".
+
+## 2026-11-06 14:00 run: T236
+- Summary: Company screen CEO card now shows the branch tag, a turntable ship preview, ship name and six stats; selecting a CEO swaps them.
+- Why this task: dependencies T235/T237 done, layout described by owner, no economy/QA need; other open tasks are blocked, owner-only or need design decisions.
+- Approach: ui-programmer agent; preview code copied into new game/ship_preview.gd because ship_setup.gd preloads company_setup.gd (circular preload).
+- Agent prompts: build the CEO card per T236 brief, no commit; produced game/company_setup.gd, game/ship_preview.gd, tests, handoffs/ui-programmer/2026-11-06-T236.json, done.
+- Worked: sh tools/tests/run.sh pass=11320 fail=0; two tests added.
+- Failed / did not work: nothing; not seen windowed.
+- Files and commits: game/company_setup.gd, game/ship_preview.gd, tools/tests/run_tests.gd, handoff, schedule.json, blackboard.md; see git log "T236".
+- Left to do: owner: check taller info panel (~266 px) at default window, 250x250 preview, tag colour muted vs accent.

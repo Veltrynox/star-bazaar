@@ -1648,10 +1648,11 @@
         "T235",
         "T237"
       ],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 30,
       "window": "Owner request 2026-11-05. Not started: main session sets it running.",
-      "brief": "Owner: one start screen, no separate ship screen. On the company screen (game/company_setup.gd and its scene), the CEO card shows the CEO's branch (tag from T237) and the ship that comes with them: the turntable preview of the ship model (reuse the preview code from game/ship_setup.gd), the ship name and its stats from data/ships.json, next to the CEO bio and stats. Selecting a different CEO swaps branch, ship preview and stats. Start stays disabled until a name and a CEO are chosen, as now. Back goes to the title. Text from the story loader only, English ids. Handoff handoffs/ui-programmer/2026-11-05-T236.json."
+      "brief": "Owner: one start screen, no separate ship screen. On the company screen (game/company_setup.gd and its scene), the CEO card shows the CEO's branch (tag from T237) and the ship that comes with them: the turntable preview of the ship model (reuse the preview code from game/ship_setup.gd), the ship name and its stats from data/ships.json, next to the CEO bio and stats. Selecting a different CEO swaps branch, ship preview and stats. Start stays disabled until a name and a CEO are chosen, as now. Back goes to the title. Text from the story loader only, English ids. Handoff handoffs/ui-programmer/2026-11-05-T236.json.",
+      "note": "Built 2026-11-06: company screen CEO card shows branch tag, turntable ship preview (game/ship_preview.gd), ship name and stats. Not seen windowed."
     },
     {
       "task_id": "T238",
