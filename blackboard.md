@@ -17,16 +17,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-06 15:00 run: T232
-- Summary: Ship cap set from 20 to 10 (data/balance.json ship_cap); saves with more ships clamp on load (existing clamp in main.gd). Comments in ship_panel.gd updated.
-- Why this task: smallest concrete owner request, no dependencies, no visual or economy-agent need; other open tasks are larger, visual, or owner-only.
-- Approach: one-value edit done by me; no agent needed. Cap-name text search found no story ids to change.
-- Agent prompts: none.
-- Worked: sh tools/tests/run.sh pass=11300 fail=0.
-- Failed / did not work: first sed (BSD) errored on a stray line-number form; redone with sed -i ''. No handoff file (no agent used).
-- Files and commits: data/balance.json, game/ship_panel.gd, schedule.json, blackboard.md; see git log "T232".
-- Left to do: owner: economy was tuned for 6 ships; cap 10 not retuned (economy agents run only by owner).
-
 ## 2026-11-05 16:00 run: T222
 - Summary: Every button now drops keyboard focus after a mouse click (hook in Juice._press_for), so Space after "Start exploring" only toggles pause and no longer presses the focused button.
 - Why this task: concrete bug, no dependencies, no visual or economy-agent need; most other open tasks are larger, owner-only or need decisions.

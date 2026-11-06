@@ -114,6 +114,7 @@ func _run() -> void:
 	_test_event_banners()
 	await _test_company_setup()
 	await _test_availability()
+	await _test_skill_link_clip()
 	print("TOTAL pass=%d fail=%d" % [passed, failed])
 	quit(1 if failed > 0 else 0)
 
@@ -7385,6 +7386,18 @@ func _av_tooltips(n: Node) -> String:
 	for c in n.get_children():
 		t += _av_tooltips(c)
 	return t
+
+func _test_skill_link_clip() -> void:
+	_wipe_user()
+	var m: Control = await _new_main(false, true)
+	var sc = m.skill_screen
+	var boxes: Array = [Rect2(80, 40, 40, 20)]
+	var v: Array = sc.clip_segment(Vector2(100, 0), Vector2(100, 100), boxes)
+	check(v.size() == 2 and is_equal_approx(v[0][1].y, 40.0) and is_equal_approx(v[1][0].y, 60.0), "T225: vertical link stops at a node box and resumes after it")
+	var h: Array = sc.clip_segment(Vector2(0, 50), Vector2(200, 50), boxes)
+	check(h.size() == 2 and is_equal_approx(h[0][1].x, 80.0) and is_equal_approx(h[1][0].x, 120.0), "T225: horizontal link stops at a node box")
+	check(sc.clip_segment(Vector2(10, 0), Vector2(10, 100), boxes).size() == 1, "T225: a link clear of every box is drawn whole")
+	m.queue_free()
 
 func _test_availability() -> void:
 	_wipe_user()

@@ -431,6 +431,12 @@ func _draw_links() -> void:
 		return
 	var origin := _tree.get_global_rect().position
 	var learned: Array = main.learned_skills
+	var boxes: Array[Rect2] = []  # every visible node box, tree-local; lines stop at their edges
+	for cid in cells:
+		var cc: Control = cells[cid]
+		if cc.is_visible_in_tree():
+			var cr := cc.get_global_rect()
+			boxes.append(Rect2(cr.position - origin, cr.size))
 	for id in cells:
 		for p in SkillTree.prereqs(id):
 			if not cells.has(p):
@@ -445,7 +451,48 @@ func _draw_links() -> void:
 			var p1 := Vector2(rb.position.x + rb.size.x * 0.5, rb.position.y) - origin
 			var my := (p0.y + p1.y) * 0.5
 			var col := COL_LEARNED if learned.has(p) else COL_LOCKED
-			_tree.draw_polyline(PackedVector2Array([p0, Vector2(p0.x, my), Vector2(p1.x, my), p1]), col, 2.0)
+			var pts := [p0, Vector2(p0.x, my), Vector2(p1.x, my), p1]
+			for i in 3:
+				for seg in clip_segment(pts[i], pts[i + 1], boxes):
+					_tree.draw_line(seg[0], seg[1], col, 2.0)
+
+## Axis-aligned segment a-b minus the node boxes it crosses: the pieces to draw, each [from, to].
+static func clip_segment(a: Vector2, b: Vector2, boxes: Array) -> Array:
+	var horizontal := absf(a.y - b.y) < 0.01
+	var lo := minf(a.x, b.x) if horizontal else minf(a.y, b.y)
+	var hi := maxf(a.x, b.x) if horizontal else maxf(a.y, b.y)
+	var cuts: Array = []  # [from, to] ranges covered by a box
+	for r: Rect2 in boxes:
+		var c0: float
+		var c1: float
+		if horizontal:
+			if a.y <= r.position.y or a.y >= r.end.y:
+				continue
+			c0 = r.position.x
+			c1 = r.end.x
+		else:
+			if a.x <= r.position.x or a.x >= r.end.x:
+				continue
+			c0 = r.position.y
+			c1 = r.end.y
+		if c1 > lo and c0 < hi:
+			cuts.append([c0, c1])
+	cuts.sort_custom(func(u, v): return u[0] < v[0])
+	var out: Array = []
+	var at := lo
+	for c in cuts:
+		if c[0] > at:
+			out.append([at, minf(c[0], hi)])
+		at = maxf(at, c[1])
+	if at < hi:
+		out.append([at, hi])
+	var res: Array = []
+	for o in out:
+		if horizontal:
+			res.append([Vector2(o[0], a.y), Vector2(o[1], a.y)])
+		else:
+			res.append([Vector2(a.x, o[0]), Vector2(a.x, o[1])])
+	return res
 
 ## Bot skills (Embargo Desk, Guild Seal): a Use menu when ready, else the cooldown or used note.
 func _build_use_row(id: String, st: String) -> void:
