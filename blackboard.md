@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-06 17:17 run: T244
-- Summary: Not merged: rebase onto new-features failed
-- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
-- Approach: built by a worker in worktree ../wt/T244 on branch task/T244, merged by the serial merge queue.
-- Agent prompts: /overnight-worker T244 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T244.log.
-- Worked: worker finished.
-- Failed / did not work: rebase onto new-features failed.
-- Files and commits: see git log on branch new-features for commits starting with T244.
-- Left to do: owner or a new run: see blocked_log in schedule.json.
-
 ## 2026-11-06 17:33 run: T244
 - Summary: Skill window now fills the viewport; with Foundations plus one market the cells share the full width (cap 420) and height, no skill ids changed
 - Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
@@ -65,3 +55,13 @@
 - Failed / did not work: nothing.
 - Files and commits: see git log on branch new-features for commits starting with T257.
 - Left to do: nothing for this task.
+
+## 2026-11-06 18:02 run: T264
+- Summary: Not merged: rebase onto new-features failed
+- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
+- Approach: built by a worker in worktree ../wt/T264 on branch task/T264, merged by the serial merge queue.
+- Agent prompts: /overnight-worker T264 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T264.log.
+- Worked: worker finished.
+- Failed / did not work: rebase onto new-features failed.
+- Files and commits: see git log on branch new-features for commits starting with T264.
+- Left to do: owner or a new run: see blocked_log in schedule.json.
