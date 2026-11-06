@@ -5,7 +5,6 @@ Every agent session ends with a handoff. A handoff is the only thing the next se
 ## Where it goes
 
 - File: `handoffs/<agent>/<YYYY-MM-DD>-<task-id>.json`
-- The Producer writes `handoffs/producer/<YYYY-MM-DD>.json`, because it has no task id of its own.
 - Start from `handoffs/_template.json`. Copy it, then fill in every field. Do not add or rename fields.
 
 ## Fields
@@ -37,9 +36,6 @@ Prose is limited to 200 words, except `handoff`, which is limited to 150.
   - `parameters`: object of exposed parameters and their values.
 - **qa-analyst**
   - `results`: list of `{ "strategy", "final_cash", "cycle_reached", "outcome" }`. `outcome` is `win`, `loss`, `crash` or `softlock`.
-- **producer**
-  - `started`, `stopped`: lists of `task_id`.
-  - `blocked`: list of `{ "task_id", "reason" }`.
 
 ## Example
 
