@@ -20,7 +20,9 @@ const FONT_SIZE := 10
 const FONT_SIZE_TITLE := 15
 const NODE_BTN_H := 50.4  # 0.9 of the old 56
 const CELL_W := 129.6  # 0.9 of the old 144
-const CELL_W_MAX := 250.0  # with only two trees on screen the cells grow to fill the width, up to this
+const CELL_W_MAX := 420.0  # the cells grow to fill the window width, up to this
+const WINDOW_MARGIN := 24.0  # gap between the skill window and the screen edge
+const FND_WIDE_CELLS := 2  # Foundations column width (cells) when only one market is shown
 const ICON_PX := 24  # skill icon on the node button
 const TREE_RESERVE := 360.0  # window height kept for header, help, detail strip and footer; the tree gets the rest
 const STACKED_BRANCHES := ["fnd"]  # these branches put every node on its own row (one narrow column)
@@ -125,12 +127,15 @@ func setup(main_node: Control) -> void:
 	visible = false
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	set_anchors_and_offsets_preset(Control.PRESET_CENTER)
-	custom_minimum_size = Vector2(minf(1500.0, get_viewport_rect().size.x - 24.0), 0)
+	# the window fills the screen: all the width and height the viewport has, less a margin
+	custom_minimum_size = Vector2(get_viewport_rect().size.x - WINDOW_MARGIN, get_viewport_rect().size.y - WINDOW_MARGIN)
 	grow_horizontal = Control.GROW_DIRECTION_BOTH
 	grow_vertical = Control.GROW_DIRECTION_BOTH
 	_root = VBoxContainer.new()
 	_root.add_theme_constant_override("separation", 8)
 	Ui.scroll_wrap(self, _root, 24.0)  # taller than the window: the page scrolls, nothing nested
+	_root.size_flags_vertical = Control.SIZE_EXPAND_FILL  # the tree area takes every spare pixel of height
+	(_root.get_parent() as Control).size_flags_vertical = Control.SIZE_EXPAND_FILL
 	var head := HBoxContainer.new()
 	_root.add_child(head)
 	var title := Label.new()
@@ -164,6 +169,8 @@ func setup(main_node: Control) -> void:
 	var tree_gutter := MarginContainer.new()  # keeps the last column clear of the scrollbar
 	tree_gutter.add_theme_constant_override("margin_right", 10)
 	tree_gutter.add_theme_constant_override("margin_bottom", 6)
+	tree_gutter.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	rows.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	tree_gutter.add_child(rows)
 	tree_scroll.add_child(tree_gutter)
 	_root.add_child(tree_scroll)
@@ -231,22 +238,24 @@ func _build_vertical(rows: VBoxContainer) -> void:
 	var band := HBoxContainer.new()
 	band.add_theme_constant_override("separation", BRANCH_GAP)
 	band.alignment = BoxContainer.ALIGNMENT_CENTER
+	band.size_flags_vertical = Control.SIZE_EXPAND_FILL  # columns run the full height of the tree area
 	rows.add_child(band)
+	var wide: bool = branches.size() <= 2  # Foundations + one market: spread the nodes over the whole width
 	var widths := {}
 	for b in branches:
 		var wd := 1
-		if not STACKED_BRANCHES.has(b):
+		if wide or not STACKED_BRANCHES.has(b):
 			for r in d_rows:
 				if r.has(b):
-					wd = maxi(wd, mini((r[b] as Array).size(), MAX_ROW_CELLS))
+					wd = maxi(wd, mini((r[b] as Array).size(), _row_cap(b, wide)))
 		widths[b] = wd
 	_cell_w = _cell_width(branches, widths)
 	for b in branches:
-		var stacked: bool = STACKED_BRANCHES.has(b)
+		var stacked: bool = STACKED_BRANCHES.has(b) and not wide
 		var widest: int = widths[b]
 		var w := widest * _cell_w + (widest - 1) * NODE_GAP_H
 		var sec := VBoxContainer.new()
-		sec.size_flags_vertical = Control.SIZE_SHRINK_BEGIN  # columns start at the top
+		sec.size_flags_vertical = Control.SIZE_EXPAND_FILL  # rows share the column height
 		sec.custom_minimum_size.x = w
 		sec.add_theme_constant_override("separation", NODE_GAP_V)
 		band.add_child(sec)
@@ -267,11 +276,12 @@ func _build_vertical(rows: VBoxContainer) -> void:
 				var ids: Array = r[b]
 				var at := 0
 				while at < ids.size():  # a tier with more than MAX_ROW_CELLS nodes wraps onto the next line
-					groups.append(ids.slice(at, at + MAX_ROW_CELLS))
-					at += MAX_ROW_CELLS
+					groups.append(ids.slice(at, at + _row_cap(b, wide)))
+					at += _row_cap(b, wide)
 			for g in groups:
 				var row := HBoxContainer.new()
 				row.add_theme_constant_override("separation", NODE_GAP_H)
+				row.size_flags_vertical = Control.SIZE_EXPAND_FILL
 				sec.add_child(row)
 				for id in g:
 					var cell := _node_cell(id)
@@ -280,6 +290,12 @@ func _build_vertical(rows: VBoxContainer) -> void:
 					row.add_child(cell)
 		if SHOW_PLACEHOLDERS:
 			_add_placeholder_rows(sec, 1 if stacked else widest, SkillTree.ids_in(b).size())
+
+## Nodes per line in a branch: one market beside Foundations uses every column the width allows.
+func _row_cap(b: String, wide: bool) -> int:
+	if not wide:
+		return MAX_ROW_CELLS
+	return FND_WIDE_CELLS if b == "fnd" else 6
 
 ## Extra empty rows under a branch: enough slots for (PLACEHOLDER_GROWTH - 1) x its real nodes, `width` slots per row.
 func _add_placeholder_rows(sec: VBoxContainer, width: int, nodes: int) -> void:
@@ -371,11 +387,13 @@ func _caption(text: String) -> Label:
 func _node_cell(id: String) -> Control:
 	var cell := VBoxContainer.new()
 	cell.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	cell.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	cell.size_flags_stretch_ratio = 1.0
 	cell.add_theme_constant_override("separation", CELL_GAP)
 	var btn := Button.new()
 	btn.custom_minimum_size = Vector2(0, NODE_BTN_H)
 	btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	btn.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	btn.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	btn.clip_text = true
 	btn.icon = SkillIcons.texture(id)

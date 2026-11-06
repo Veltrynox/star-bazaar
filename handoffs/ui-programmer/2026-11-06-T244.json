@@ -1,0 +1,6 @@
+{
+  "task": "T244",
+  "files": ["game/skill_screen.gd", "gdd-skills.md"],
+  "summary": "Skill window now sizes to the full viewport (minus a 24 px margin). With Foundations plus one market, Foundations is 2 cells wide and the market uses up to 6 cells per depth row, so cells share the whole width (cap 420). Columns, rows, cells and buttons expand vertically to fill the height. Old saves with five trees keep the stacked layout. No skill ids changed.",
+  "not_done": "Screenshot of the open skill screen not taken: tools/screenshot.sh only captures the main scene."
+}
