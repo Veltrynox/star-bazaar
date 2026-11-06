@@ -1,0 +1,12 @@
+{
+ "agent": "ui-programmer",
+ "date": "2026-11-06",
+ "task": "T236",
+ "status": "done",
+ "schema_version": 1,
+ "files_changed": ["game/company_setup.gd", "game/ship_preview.gd", "tools/tests/run_tests.gd", "handoffs/ui-programmer/2026-11-06-T236.json"],
+ "result": "Company screen info panel now has a turntable ship preview on the left and, on the right, branch tag (TXT_<CEO>_BRANCH_TAG), bio, stat pips, perk, then ship name and six ship stats (from data/ships.json). Picking another CEO swaps all of it. Start/Back/Esc unchanged. Preview code lives in new game/ship_preview.gd (copy of ship_setup logic); ship_setup.gd/.tscn untouched. Tests: sh tools/tests/run.sh fail=0, two new checks (branch tag and ship name/model per CEO). gdd.md already describes the start flow, no edit.",
+ "screens_to_see": "New Game -> company screen -> click each CEO card.",
+ "not_checked_by_eye": "Layout fit of the taller info panel (about 266 px) at the default window size; preview framing in 250x250 box; text wrap of the six stat columns.",
+ "open_questions": ["Is the taller info panel acceptable at the default window height, or should the portrait cards shrink?", "Branch tag shown in muted colour above the bio; want it in accent colour instead?"]
+}

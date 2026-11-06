@@ -5059,6 +5059,29 @@ func _test_company_setup() -> void:
 	check(setup.chosen_name() != "" and setup.start_button.disabled and setup.start_button.tooltip_text != "", "setup: name pre-filled but no CEO, Start disabled with a tooltip")
 	setup.cards[Portraits.IDS[1]].pressed.emit()
 	check(setup.selected_id == Portraits.IDS[1] and not setup.start_button.disabled, "setup: Start enabled after a CEO pick")
+	var ceo_rows := {}
+	for row in _read_json("res://data/ceos.json").get("ceos", []):
+		ceo_rows[str(row["id"])] = row
+	var tags_ok := true
+	var ships_ok := true
+	for cid in Portraits.IDS:
+		setup.cards[cid].pressed.emit()
+		var tag_txt: String = StoryText.get_text("TXT_%s_BRANCH_TAG" % cid.to_upper())
+		var found_tag := false
+		var found_ship := false
+		var ship_nm: String = StoryText.get_text(str(setup.ship_defs.get(str(ceo_rows[cid]["ship"]), {}).get("name_id", "")))
+		for c in setup.info_box.get_children():
+			if c is Label and tag_txt != "" and c.text == tag_txt:
+				found_tag = true
+			if c is Label and ship_nm != "" and c.text == ship_nm:
+				found_ship = true
+		if not found_tag:
+			tags_ok = false
+		if not (found_ship and setup.preview.visible and setup.preview.model_path == str(setup.ship_defs[str(ceo_rows[cid]["ship"])].get("model", ""))):
+			ships_ok = false
+	check(tags_ok, "setup: each CEO shows its own branch tag")
+	check(ships_ok, "setup: each CEO shows its ship name and preview model")
+	setup.cards[Portraits.IDS[1]].pressed.emit()
 	var before: String = setup.name_edit.text
 	setup.random_button.pressed.emit()
 	check(setup.name_edit.text != before and setup.name_edit.text != "", "setup: Random gives another name")

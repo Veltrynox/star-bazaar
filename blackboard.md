@@ -18,16 +18,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-05 19:00 run: T231
-- Summary: Map scaled 1.4x (MAP_SCALE_UP, folded into MAP_UNIT_SCALE; clusters, routes, exits, zoom and pan follow) and planets 1.3x on top of the earlier 1.3x (PLANET_SCALE_UP; PLANET_SIZE now 1.69, pick minimum scaled).
-- Why this task: concrete owner request with given numbers, no dependencies, no look decision beyond the factors given.
-- Approach: gameplay-programmer agent with named constants in one place; pathfinder speed is in data units times MAP_UNIT_SCALE so flight time stays the same.
-- Agent prompts: scale map and planets, one place for factors, consistent clusters/exits, report travel time; handoffs/gameplay-programmer/2026-11-05-T231.json (files_changed list omits run_tests.gd), done.
-- Worked: sh tools/tests/run.sh fail=0 (pass=11286); three tests updated to the 1.69 default.
-- Failed / did not work: nothing; not seen windowed.
-- Files and commits: game/map.gd, game/system_exit.gd, tools/tests/run_tests.gd, handoff, schedule.json, blackboard.md; see git log "T231".
-- Left to do: owner: look windowed (framing, START_ZOOM, planet size vs sun and asteroid packs, labels).
-
 ## 2026-11-05 20:00 run: T225
 - Summary: Skill-screen prerequisite lines no longer cross node boxes. _draw_links in skill_screen.gd cuts each axis-aligned segment at every visible node box (new static clip_segment), so lines stop at edges and resume after.
 - Why this task: concrete bug, no dependencies, no visual decision (a draw-order/clipping fix), no QA or economy agent needed.

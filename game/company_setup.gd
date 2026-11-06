@@ -9,6 +9,9 @@ const SaveGame := preload("res://game/save_game.gd")
 const StoryText := preload("res://game/story_text.gd")
 const Names := preload("res://game/company_names.gd")
 const Portraits := preload("res://game/company_portraits.gd")
+const ShipPreview := preload("res://game/ship_preview.gd")
+const SHIPS_PATH := "res://data/ships.json"
+const PREVIEW_SIZE := Vector2(250, 250)
 const CARD_SIZE := Vector2(184, 232)
 const STAT_KEYS := ["haggling", "thrift", "nerve"]
 
@@ -23,6 +26,8 @@ var cards: Dictionary = {}  # portrait id -> Button
 var selected_id: String = ""
 var ceo_defs: Dictionary = {}  # portrait id -> row of data/ceos.json
 var info_box: VBoxContainer
+var ship_defs: Dictionary = {}  # ship id -> row of data/ships.json
+var preview: PanelContainer
 
 func _ready() -> void:
 	Ui.install_cursors(get_tree())
@@ -80,15 +85,23 @@ func _ready() -> void:
 		cards[id] = card
 	# no default CEO: the player must pick one
 	var info := PanelContainer.new()
-	info.custom_minimum_size = Vector2(0, 176)
+	info.custom_minimum_size = Vector2(0, 266)
 	info.add_theme_stylebox_override("panel", _card_style(Ui.col("line_200"), 1, 0.0))
 	var pad := MarginContainer.new()
 	for side in ["left", "right", "top", "bottom"]:
 		pad.add_theme_constant_override("margin_" + side, 12)
 	info.add_child(pad)
+	var info_row := HBoxContainer.new()
+	info_row.add_theme_constant_override("separation", 16)
+	pad.add_child(info_row)
+	preview = ShipPreview.new()
+	preview.setup(PREVIEW_SIZE)
+	preview.visible = false
+	info_row.add_child(preview)
 	info_box = VBoxContainer.new()
+	info_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	info_box.add_theme_constant_override("separation", 6)
-	pad.add_child(info_box)
+	info_row.add_child(info_box)
 	box.add_child(info)
 
 	var buttons := HBoxContainer.new()
@@ -194,6 +207,16 @@ func _load_ceos() -> void:
 	if typeof(parsed) == TYPE_DICTIONARY:
 		for row in parsed.get("ceos", []):
 			ceo_defs[str(row.get("id", ""))] = row
+	var f2 := FileAccess.open(SHIPS_PATH, FileAccess.READ)
+	if f2 != null:
+		var sp = JSON.parse_string(f2.get_as_text())
+		if typeof(sp) == TYPE_DICTIONARY:
+			for row in sp.get("types", []):
+				ship_defs[str(row.get("id", ""))] = row
+
+## Text id of the CEO's one-line branch tag (TXT_<CEO ID>_BRANCH_TAG).
+func branch_tag_id(ceo_id: String) -> String:
+	return "TXT_%s_BRANCH_TAG" % ceo_id.to_upper()
 
 ## Info panel for the selected CEO: name, bio, three stats as pips, perk name and description.
 func _refresh_info() -> void:
@@ -201,6 +224,8 @@ func _refresh_info() -> void:
 		info_box.remove_child(c)
 		c.queue_free()
 	var d: Dictionary = ceo_defs.get(selected_id, {})
+	if preview != null:
+		preview.visible = not d.is_empty()
 	if d.is_empty():
 		var hint := Label.new()
 		hint.text = StoryText.get_or("SETUP_NEED_CEO", "Choose a CEO to start.")
@@ -211,10 +236,15 @@ func _refresh_info() -> void:
 	nm.text = StoryText.get_or(str(d.get("name_id", "")), selected_id)
 	nm.add_theme_color_override("font_color", Ui.col("star_warm"))
 	info_box.add_child(nm)
+	var tag := Label.new()
+	tag.text = StoryText.get_or(branch_tag_id(selected_id), "")
+	tag.theme_type_variation = "LabelMuted"
+	tag.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	info_box.add_child(tag)
 	var bio := Label.new()
 	bio.text = StoryText.get_or(str(d.get("bio_id", "")), "")
 	bio.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	bio.custom_minimum_size = Vector2(700, 0)
+	bio.custom_minimum_size = Vector2(440, 0)
 	info_box.add_child(bio)
 	var stats_row := HBoxContainer.new()
 	stats_row.add_theme_constant_override("separation", 28)
@@ -243,8 +273,41 @@ func _refresh_info() -> void:
 	var pd := Label.new()
 	pd.text = StoryText.get_or(str(d.get("perk_desc_id", "")), "")
 	pd.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	pd.custom_minimum_size = Vector2(700, 0)
+	pd.custom_minimum_size = Vector2(440, 0)
 	info_box.add_child(pd)
+	_add_ship(str(d.get("ship", "")))
+
+## Ship that comes with the CEO: turntable preview (left) and name plus stats (below the perk).
+func _add_ship(ship_id: String) -> void:
+	var t: Dictionary = ship_defs.get(ship_id, {})
+	if t.is_empty():
+		preview.show_model("")
+		return
+	preview.show_model(str(t.get("model", "")))
+	var nm := Label.new()
+	nm.text = StoryText.get_or(str(t.get("name_id", "")), str(t.get("name", ship_id)))
+	nm.add_theme_color_override("font_color", Ui.col("star_warm"))
+	info_box.add_child(nm)
+	var grid := GridContainer.new()
+	grid.columns = 6
+	grid.add_theme_constant_override("h_separation", 8)
+	grid.add_theme_constant_override("v_separation", 2)
+	info_box.add_child(grid)
+	for st in ShipPreview.STATS:
+		var l := Label.new()
+		l.text = StoryText.get_or(st[1], st[2])
+		l.theme_type_variation = "LabelMuted"
+		var field: String = st[3]
+		var val := float(t.get(field, 0))
+		var neutral: float = 0.0 if field == "cap_add" else 1.0
+		var v := Label.new()
+		v.text = ShipPreview.stat_text(field, val)
+		if not is_equal_approx(val, neutral):
+			var better: bool = (val > neutral) == bool(st[4])
+			v.add_theme_color_override("font_color", Ui.col("signal_good") if better else Ui.col("signal_bad"))
+		v.custom_minimum_size = Vector2(44, 0)
+		grid.add_child(l)
+		grid.add_child(v)
 
 ## Hands name, portrait (= CEO id), CEO, branch and ship of the CEO on to the game start.
 func commit() -> void:
