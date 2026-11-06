@@ -27,7 +27,7 @@ Pillars:
 ========================================
 2. CORE LOOP
 ========================================
-The game runs in cycles. Time can be paused at any time to look, plan and buy; nothing earns while paused. The game starts paused after the preface.
+The game runs in cycles; the length of a cycle in real time is a balance value (data/balance.json), not fixed by this file. Time can be paused at any time to look, plan and buy; nothing earns while paused. The game starts paused after the preface.
 
 Each cycle the player reads the income and picks the next investment:
 - a new route, or an upgrade of a full route,
@@ -36,7 +36,7 @@ Each cycle the player reads the income and picks the next investment:
 - a permit to open a new solar system,
 - a skill.
 
-Ten solar systems are planned in all; systems 3 to 10 exist only as hidden, switched-off placeholders (temporary names and layout) until they are designed.
+Ten solar systems are planned in all. Built: two designed systems of five planets each. Systems 3 to 5 are live temporary placeholders (a few planets, temporary names, prices and suns) and systems 6 to 10 are switched-off placeholders; none of 3 to 10 is designed yet.
 
 Then the routes earn. Every route pays its income at the end of the cycle, already net of its trip cost and maintenance. The player cannot run out of money mid-trip, and an unprofitable route idles and costs nothing.
 
@@ -59,18 +59,18 @@ Orders and routes.
 - Route offset: a route's line bends round other planets, the sun and other routes. A longer bent path raises that ship's upkeep a little, up to a cap.
 - Mixed load: a lane that carries goods of several markets pays more trip cost. Several goods of one market sold at one planet in a cycle earn a small bonus, capped per planet. Stock stuck at a planet with no buyer can be dumped as a salvage sale at a share of the normal price (always worse than a Sell order).
 
-Ships. There are four ship types in data/ships.json: Skerrit (the plain all-rounder), Bulkhead (carries more, costs more to run and fly, slow), Dart (cheaper trips, fast) and Tramp (cheap upkeep, a little less cargo, a higher purchase price, room for one more ship in the cap). A fleet has one type, fixed by the CEO (there is no separate ship step) and kept for the whole run. Types differ only by multipliers on the balance values (cargo, upkeep, trip cost, price, ship cap). Speed is shown and drives the scout flight (see Discovery). Each ship earns on its own. A ship's first cycle on a route pays pro rata, so buying at the last second earns nothing extra. A fleet total is limited by a ship cap.
+Ships. There are four ship types in data/ships.json: Skerrit (the plain all-rounder), Bulkhead (carries more, costs more to run and fly, slow), Dart (cheaper trips, fast) and Tramp (cheap upkeep, a little less cargo, a higher purchase price, room for one more ship in the cap). A fleet has one type, fixed by the CEO (there is no separate ship step) and kept for the whole run. Types differ only by multipliers on the balance values (cargo, upkeep, trip cost, price) and by an addition to the ship cap. Speed is shown and drives the scout flight (see Discovery). Each ship earns on its own. A ship's first cycle on a route pays pro rata, so buying at the last second earns nothing extra. A fleet total is limited by a ship cap: the base cap in balance.json plus the cap bonus of the fleet's ship type (data/ships.json).
 
 CEOs. The player picks one of four CEOs on the New company screen (data/ceos.json); Start goes straight into the game. Each CEO comes with a fixed branch (one market, one CEO per market, stored as run.branch) and a fixed ship type; the branch hides no goods and changes no win or ending rule. Each has three stats from one to three (haggling lifts sale prices, thrift cuts ship upkeep, nerve softens bad events; cash effects only, no share effect) and one perk: an early warning of the next events, a view of the home market's prices in the first cycle, extra capacity on the first lane, or larger orders. The CEO is a small head start, never a way to win by itself.
 
 Markets, goods and workshops.
-- Four abstract markets, never map objects. Every good belongs to one market; a few raw goods (energy, food, ore) feed any market. The full goods list, recipes and workshops are in data/goods.json and data/markets.json.
-- Raw trade goods are bought at planets. Ore comes from asteroid clusters, dross and nullglass from dead worlds (see Mining). Crafted goods come from workshops and are sold like any other. Some crafted goods are inputs of others (for example rivets feed armour, musk feeds gems).
+- Four abstract markets, never map objects. Every good belongs to one market except energy, a common raw good that feeds any market. The full goods list, recipes and workshops are in data/goods.json and data/markets.json.
+- Raw trade goods are bought at planets. Ore comes from asteroid clusters, dross and nullglass from dead worlds (see Mining). Crafted goods come from workshops and are sold like any other. Some crafted goods are inputs of others (for example rounds feed arms, medicine feeds seed, ingots and plate feed alloy).
 - Workshops: Smelter and Fabric (Minerals), Munitions Line (Military), Atelier (Luxury), Culture Lab (Biotech). Each is built once, for a one-off fee, in a system the player picks, and is unlocked by that market's skill tree. Each cycle a workshop crafts a few batches from stock in company storage (the Space Storage of its system) and puts the output back; no credits move. Inputs missing means the workshop stalls and says what it needs.
-- The Fabric turns dross and nullglass into lattice plate at the trading post. It also builds the Null Core, a rare one-per-run fit for one ship: lower trip cost and immunity to pirate volume cuts (see section 7 for pirates).
+- The Fabric turns dross and nullglass into lattice plate at the trading post. It also builds the Null Core, a rare one-per-run fit for one ship: lower trip cost and immunity to pirate volume cuts. Pirates are planned (task T250), not built: no pirate ever appears yet, so the immunity has no effect for now.
 - Share in a market comes from the player's sales of that market's goods over a recent window compared with the three rivals. Only sales at a planet count. Skills can raise the weight of sales, stretch the window or cut rivals (gdd-skills.md).
 
-Mining. Prospecting (a Foundation skill) lets a route start at an asteroid cluster. Ore is loaded for free at a cluster; the only cost is the lane. A cluster holds a finite amount, drawn down by each cycle's yield, and never refills. A few clusters are active in each system. Cold Survey and Deep Cut open the two dead worlds.
+Mining. Prospecting (a Foundation skill) lets a route start at an asteroid cluster. Ore is loaded for free at a cluster; the only cost is the lane. A cluster holds a finite amount, drawn down by each cycle's yield, and never refills; an empty cluster's lane stalls. There is no refill or survey yet (balance.json carries unused ore_refill_units and ore_survey_fee keys; no code reads them). A few clusters are active in each system. Cold Survey and Deep Cut open the two dead worlds.
 
 Dead worlds. Cinderrest (system 1, dross) and Greywake (system 2, nullglass) are rock worlds with no market of their own for food or energy. They open from a set cycle and once their skill is learned. A dead world's panel offers mining instead of buying. Each cycle a running route mines it, a danger meter rises, and events follow on a delay (income cuts or boosts, lost cargo). The meter's size and the loss rules are balance values.
 
@@ -78,7 +78,7 @@ Rivals. Three computer companies (working names Harrow Combine, Velvet Concord, 
 
 Spreading penalty. Working in several markets at once costs overhead, mixed cargo loads cost more, and skill points are finite. A focused run wins; a spread run does not.
 
-Permits and systems. System 1 (Hollin Reach) is the playable core. System 2 (Dunmere Reach) opens with a permit that needs the Permit Charter skill; the permit is bought in the system window (galaxy view, click the system), not in the Skills window. System 3 is on hold. Nothing in the game points at it except story room.
+Permits and systems. System 1 (Hollin Reach) is the playable core. System 2 (Dunmere Reach) opens with a permit that needs the Permit Charter skill; the permit is bought in the system window (galaxy view, click the system), not in the Skills window. Systems 3 to 5 are temporary placeholders that are live in a normal game: each opens with a permit like system 2 (Permit Charter needed) and has a few planets with temporary names and prices, to be replaced by designed content. Systems 6 to 10 are switched off.
 
 Space Storage and Storage Link. One Space Storage per system, a big company storage that planet storage feeds slowly (gdd-skills.md section 4). It also backs routes and Sell orders in its system: a Sell order and a route can draw on it when the planet storage is empty. Clicking a station opens its stock view. A Storage Link joins the Space Storages of two systems for goods only (never credits): it needs a build cost in goods and an upkeep in energy only (a small amount per cycle), moves stock by standing orders each cycle without a ship, goes dormant when upkeep runs out and can collapse if left dormant. It appears only once its rule in data/availability.json is true.
 
@@ -86,7 +86,7 @@ Discovery (built, on by default). The Pathfinder is the player's own scout ship,
 
 Progressive disclosure (Availability). A good, workshop or storage feature is shown only when the player could use it now; hidden means not drawn at all, and no text may name a hidden good. Rules live in data/availability.json and are evaluated by game/conditions.gd, the same evaluator used for chain triggers, event filters and workshop unlocks. At the start only energy and food at Voltara show. Goods and features appear as skills are learned, systems opened and workshops built.
 
-Skills. Skill points come from first visits, first routes, entering new systems and share milestones in a market, plus one from paying to deflect the asteroid event. Three Foundations plus four market trees (see gdd-skills.md). The on-screen name is "Skill points".
+Skills. Skill points come from first visits, first routes, entering new systems and share milestones in a market, plus one from paying to deflect the asteroid event. Six Foundations (three required before any market tree, three optional) plus four market trees of fifteen or sixteen nodes (see gdd-skills.md). The on-screen name is "Skill points".
 
 Events. One event happens every few cycles, never more than one per cycle. Every event first shows as a small icon; the game does not pause. A pure price change is minor: its icon fades out if ignored and the price effect applies anyway. Any other event (choices, chain steps, closed planets) is important: its icon stays until clicked and no further event comes before it is answered. Clicking an icon opens the event window, pauses, and moves the map to the planet it names and highlights it. An event pool filter only picks goods and planets that are visible and open at that moment.
 - Market chains: each market has a seven-step chain (data/chains.json). Steps fire on a trigger (first sale after a cycle, a share level, cycles since the previous step). Every step offers two neutral choices; each gives something, costs something and hits a rival. A hidden lean per market, built from those choices, picks the GOOD or BAD ending of that market. The game never shows it.
@@ -114,4 +114,4 @@ Endings. The run ends with exactly one ending and no choice screen.
 - No achievements, trophies or badges. The reward for good play is ending quality only.
 - Run stats of answered runs are kept locally only (user://stats.json). The autosave is user://autosave.json.
 
-Retired: the cash goal, the Release or Corporation choice, and the shield.
+Retired: the cash goal, the Release or Corporation choice, and the shield (its leftover shield_* keys in balance.json are removed by task T255).
