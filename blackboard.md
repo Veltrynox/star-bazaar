@@ -56,3 +56,13 @@
 - Failed / did not work: nothing; not tried windowed. No handoff file (no agent used).
 - Files and commits: game/main.gd, tools/tests/run_tests.gd, schedule.json, blackboard.md; see git log "T228".
 - Left to do: owner: confirm windowed. A manual order given while paused sets the target but the ship moves only when unpaused.
+
+## 2026-11-05 18:00 run: T229
+- Summary: The end screen showed a raw "{workshop}" token (reported as "[workshop]") in the tech epilogue lines. epilogue_lines in end_screen.gd now fills it with the win market's workshop name (lower case). A headless test scans every market and tech count for raw tokens.
+- Why this task: small concrete playtest bug, no dependencies, no visual or economy-agent need.
+- Approach: code fix at the call site (the text already uses the documented {workshop} placeholder) instead of rewriting the story text.
+- Agent prompts: none (small edit by me).
+- Worked: sh tools/tests/run.sh pass=11304 fail=0; new test _test_epilogue_placeholders.
+- Failed / did not work: nothing. No handoff file (no agent used). Not seen windowed.
+- Files and commits: game/end_screen.gd, tools/tests/run_tests.gd, schedule.json, blackboard.md; see git log "T229".
+- Left to do: owner: confirm windowed ("one tech came out of the smelter"). Ending body texts were not scanned beyond epilogue lines.

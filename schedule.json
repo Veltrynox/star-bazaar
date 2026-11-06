@@ -1555,10 +1555,11 @@
       "title": "End screen shows a '[workshop]' text: placeholder or bug?",
       "owner_agent": "story-designer",
       "depends_on": [],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 20,
       "window": "Owner request 2026-11-05 (playtest). Not started: main session sets it running.",
-      "brief": "Owner sees [workshop] on the end screen. Find it (story/endings.md, data/story_text*.json, game/ending*.gd): is it an unfilled placeholder token, a missing text id or an unresolved variable? If so fix it (source in story/, then python3 tools/build_story.py) with proper text in English and Russian, and add a headless text scan that fails on any raw [word] or {var} left in rendered end screen text for every ending. Report the cause in the handoff handoffs/story-designer/2026-11-05-T229.json; gameplay-programmer fixes any code side."
+      "brief": "Owner sees [workshop] on the end screen. Find it (story/endings.md, data/story_text*.json, game/ending*.gd): is it an unfilled placeholder token, a missing text id or an unresolved variable? If so fix it (source in story/, then python3 tools/build_story.py) with proper text in English and Russian, and add a headless text scan that fails on any raw [word] or {var} left in rendered end screen text for every ending. Report the cause in the handoff handoffs/story-designer/2026-11-05-T229.json; gameplay-programmer fixes any code side.",
+      "note": "Cause: EPI_TECH_* texts use {workshop} but end_screen.epilogue_lines never filled it, so the raw token showed. Fixed in game/end_screen.gd (workshop name of the win market, lower case); headless test _test_epilogue_placeholders scans all markets and tech counts. No Russian work (English only)."
     },
     {
       "task_id": "T230",
