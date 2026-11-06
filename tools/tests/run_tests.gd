@@ -42,6 +42,7 @@ func _run() -> void:
 	_test_bot_hooks()
 	await _test_market_rules()
 	await _test_juice()
+	_test_epilogue_placeholders()
 	await _test_main()
 	await _test_rescue_waiting()
 	await _test_events()
@@ -8068,3 +8069,16 @@ func _test_placeholder_systems() -> void:
 	check(Systems.ids() == [2], "placeholder systems: off again")
 	Systems._placeholders_override = -1
 	Systems._loaded = false
+
+
+## T229: no raw {word} or [word] token may stay in epilogue lines of any win market and tech count.
+func _test_epilogue_placeholders() -> void:
+	var es = load("res://game/end_screen.gd")
+	var bad := 0
+	for mk in ["min", "mil", "lux", "bio"]:
+		for t in 4:
+			for line in es.epilogue_lines({"market": mk, "tech_done": t, "capstone": true, "rival_broken": true, "second_over": true, "second_market": "lux"}):
+				if "{" in str(line) or "}" in str(line) or "[" in str(line):
+					bad += 1
+					print("raw token: ", line)
+	check(bad == 0, "epilogue: no raw placeholder left in end screen lines")

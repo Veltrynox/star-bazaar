@@ -77,15 +77,23 @@ static func epilogue_lines(fl: Dictionary) -> Array:
 	if fl.is_empty():
 		return out
 	var mk := str(fl.get("market", "")).to_upper()
+	var ws := _workshop_name(str(fl.get("market", "")))
 	if bool(fl.get("capstone", false)) and StoryText.has_text("EPI_CAP_" + mk):
 		out.append(StoryText.get_text("EPI_CAP_" + mk))
 	if StoryText.has_text("EPI_TECH_%d" % int(fl.get("tech_done", 0))):
-		out.append(StoryText.get_text("EPI_TECH_%d" % int(fl.get("tech_done", 0))))
+		out.append(StoryText.get_text("EPI_TECH_%d" % int(fl.get("tech_done", 0)), {"workshop": ws}))
 	if bool(fl.get("rival_broken", false)) and StoryText.has_text("EPI_RIVAL_" + mk):
 		out.append(StoryText.get_text("EPI_RIVAL_" + mk, {"bot": Bots.bot_name(int(fl.get("rival_broken_bot", 1)))}))
 	if bool(fl.get("second_over", false)) and StoryText.has_text("EPI_SECOND_" + str(fl.get("second_market", "")).to_upper()):
 		out.append(StoryText.get_text("EPI_SECOND_" + str(fl.get("second_market", "")).to_upper()))
 	return out
+
+## Name of the workshop of a market ("Smelter"), lower case in running text. Fills {workshop} in epilogue texts (T229).
+static func _workshop_name(market: String) -> String:
+	for id in Workshops.IDS:
+		if str(Goods.workshop(id).get("market", "")) == market:
+			return StoryText.get_or("WS_" + id.to_upper() + "_NAME", id).to_lower()
+	return "workshop"
 
 ## Ending screen. side: "WIN", "LOSS" or "SOFT". stat is one plain line (win market and share, leading rival, best market).
 ## TODO story: ending texts for the Four Markets ids are not written yet; a plain stub line stands in (marked TODO story).

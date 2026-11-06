@@ -17,16 +17,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-06 13:00 run: T203
-- Summary: Establishing a trading post or mining platform now plays a 1.1 s beat: closing ring, 10 sparkle spokes, planet label pop and a small camera nudge. The agent also queued juice tasks T219-T221.
-- Why this task: owner brief with concrete effects, no dependencies, no decision needed; other open tasks are owner-only, need decisions, or depend on designs.
-- Approach: juice-programmer agent, hook map.establish_beat from main._on_flight_build_done; I verified diff and tests.
-- Agent prompts: build the beat (pause-safe, no text, cheap), then add 3 own juice tasks; handoffs/juice-programmer/2026-11-06-T203.json, done.
-- Worked: sh tools/tests/run.sh pass=11276 fail=0; _test_juice checks curves.
-- Failed / did not work: nothing; run output has a "Parse JSON failed" and 3 "material is null" errors, not checked whether older.
-- Files and commits: game/main.gd, map.gd, pathfinder_view.gd, tools/tests/run_tests.gd, schedule.json, handoff, blackboard.md; see git log "T203".
-- Left to do: owner: look windowed (colours signal_good/star_warm, tunables BURST_* in pathfinder_view.gd, ESTABLISH_NUDGE in map.gd); T219-T221 queued.
-
 ## 2026-11-06 14:00 run: T219
 - Summary: Route lanes now draw in from the source end (0.25 s ease-out), fade on removal (0.15 s) and show one brighter band on dispatch (0.5 s). Effects snap to the end state while paused.
 - Why this task: first of the juice follow-ups, no dependencies, no look decision; other open tasks are owner-only or need decisions.
