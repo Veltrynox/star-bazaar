@@ -5,7 +5,7 @@ extends CanvasLayer
 ## Each frame it projects every shown sphere to the screen into a fixed uniform array; the array is preallocated and reused (no
 ## per-frame new arrays; Godot copies the 16 vec4 on write). Up to MAX_DISCS planets (the extra ones are not blurred).
 
-const SHADER := preload("res://art/planet_fx/edge_blur.gdshader")
+const SHADER := preload("res://game/fx/planet/edge_blur.gdshader")
 const MAX_DISCS := 16
 
 var camera: Camera3D

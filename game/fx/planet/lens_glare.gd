@@ -3,7 +3,7 @@ extends CanvasLayer
 ## Owner: set camera and source_pos (a Callable returning the bright source's world position, or null for none).
 ## Each frame it projects that position to the screen and sets 3 shader values; no allocation. Hidden when the source is behind the camera.
 
-const SHADER := preload("res://art/planet_fx/lens_glare.gdshader")
+const SHADER := preload("res://game/fx/planet/lens_glare.gdshader")
 
 var camera: Camera3D
 var source_pos: Callable            # () -> Variant: Vector3 world position, or null when no source is shown

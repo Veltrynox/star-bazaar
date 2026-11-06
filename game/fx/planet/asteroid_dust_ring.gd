@@ -3,7 +3,7 @@ extends MultiMeshInstance3D
 ## vertex shader (asteroid_dust_ring.gdshader). Position this node at the system's sun; the bands lie in its XZ plane.
 ## Visual only: no collision, no picking, no shadows, reads and writes no game state.
 
-const SHADER := preload("res://art/planet_fx/asteroid_dust_ring.gdshader")
+const SHADER := preload("res://game/fx/planet/asteroid_dust_ring.gdshader")
 const MAX_RINGS := 7
 
 @export var count := 8000           # grains in total; 2 triangles each = 16000 triangles

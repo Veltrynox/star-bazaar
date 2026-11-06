@@ -1,7 +1,7 @@
 [gd_scene load_steps=4 format=3]
 
-[ext_resource type="Script" path="res://art/planet_fx/planet_fx.gd" id="1"]
-[ext_resource type="Material" path="res://art/planet_fx/planet_fx_lens.tres" id="2"]
+[ext_resource type="Script" path="res://game/fx/planet/planet_fx.gd" id="1"]
+[ext_resource type="Material" path="res://game/fx/planet/planet_fx_lens.tres" id="2"]
 
 [node name="PlanetFX" type="Node2D"]
 script = ExtResource("1")

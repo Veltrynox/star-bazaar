@@ -5,7 +5,7 @@ func _initialize() -> void:
 	call_deferred("_run")
 
 func _run() -> void:
-	var sun = load("res://art/sun/sun_flare.gd").new()
+	var sun = load("res://game/fx/sun/sun_flare.gd").new()
 	root.add_child(sun)
 	var lo := 9.0
 	var hi := -9.0

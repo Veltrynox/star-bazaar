@@ -41,7 +41,7 @@ const PLANE_SPAN := 3.0     # plane size in sun radii (flares reach past the dis
 
 func _ready() -> void:
 	var frames := _load_frames()
-	_shader = load("res://art/sun/sun.gdshader")
+	_shader = load("res://game/fx/sun/sun.gdshader")
 	var golden := 0.61803398875
 	for i in PLANES:
 		# Directions spread over the sphere (Fibonacci), so every plane has its own yaw and pitch.

@@ -4268,7 +4268,7 @@ func _test_system_suns() -> void:
 	var s1 = map.suns[1]
 	check(absf(s1.hue_shift()) < 0.0001 and absf(s1.sun_color.h - 0.09) < 0.01 and s1.drives_light and s1 == map.sun_node, "suns: system 1 sun unchanged (orange, no hue shift)")
 	# Sun brightness mute (2026-11-02): the core stays fully opaque (no ALPHA written, alpha 1.0) and the gain is unchanged.
-	var sun_src := FileAccess.get_file_as_string("res://art/sun/sun.gdshader")
+	var sun_src := FileAccess.get_file_as_string("res://game/fx/sun/sun.gdshader")
 	check(not sun_src.contains("ALPHA") and sun_src.contains("blend_add") and not sun_src.contains("transparent"), "sun: shader writes no alpha, so the core alpha stays 1.0")
 	var core_mat: ShaderMaterial = s1._core.material_override
 	check(float(core_mat.get_shader_parameter("core_value")) >= 3.0 and s1.PLANE_GLOW < 0.9, "sun: core value kept at 3.0, plane glow muted")
@@ -5329,9 +5329,9 @@ func _test_dust_ring() -> void:
 
 ## Voltara dust belt: exists, no collision, viewing it changes no game state.
 func _test_dead_planets() -> void:
-	var sh = load("res://art/planet_fx/planet_sphere_dead.gdshader")
+	var sh = load("res://game/fx/planet/planet_sphere_dead.gdshader")
 	check(sh is Shader and (sh as Shader).code.contains("limb_dark"), "dead planets: inverse fresnel shader loads")
-	var PS = load("res://art/planet_fx/planet_sphere.gd")
+	var PS = load("res://game/fx/planet/planet_sphere.gd")
 	check(PS.is_dead("dead_1", "") and PS.is_dead("x", "dead") and not PS.is_dead("planet_1", "volcanic"), "dead planets: is_dead by id prefix or type")
 	_wipe_user()
 	var m: Control = await _new_main()

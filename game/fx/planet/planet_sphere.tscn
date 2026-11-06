@@ -1,11 +1,11 @@
 [gd_scene load_steps=11 format=3]
 
-[ext_resource type="Script" path="res://art/planet_fx/planet_sphere.gd" id="1"]
-[ext_resource type="Material" path="res://art/planet_fx/planet_sphere_simple_material.tres" id="2"]
-[ext_resource type="Material" path="res://art/planet_fx/planet_sphere_glow_material.tres" id="3"]
-[ext_resource type="Material" path="res://art/planet_fx/planet_sphere_streaks_material.tres" id="4"]
-[ext_resource type="Material" path="res://art/planet_fx/planet_sphere_atmosphere_material.tres" id="5"]
-[ext_resource type="Material" path="res://art/planet_fx/planet_sphere_clouds_material.tres" id="6"]
+[ext_resource type="Script" path="res://game/fx/planet/planet_sphere.gd" id="1"]
+[ext_resource type="Material" path="res://game/fx/planet/planet_sphere_simple_material.tres" id="2"]
+[ext_resource type="Material" path="res://game/fx/planet/planet_sphere_glow_material.tres" id="3"]
+[ext_resource type="Material" path="res://game/fx/planet/planet_sphere_streaks_material.tres" id="4"]
+[ext_resource type="Material" path="res://game/fx/planet/planet_sphere_atmosphere_material.tres" id="5"]
+[ext_resource type="Material" path="res://game/fx/planet/planet_sphere_clouds_material.tres" id="6"]
 
 [sub_resource type="SphereMesh" id="m"]
 radius = 0.5

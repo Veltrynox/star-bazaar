@@ -14,7 +14,7 @@ const CLOUD_TYPES := ["lush", "agrarian", "ocean"]
 const STORM_TYPE := "cloudy"
 const CLOUD_TEX := "res://art/planet/planet_cloud.png"
 
-const FX := preload("res://art/planet_fx/planet_fx.gd")
+const FX := preload("res://game/fx/planet/planet_fx.gd")
 
 ## Per-type surface table: beauty (colour), disp (height, relief), optional glow mask and lights mask.
 ## Optional "clouds" key: a drifting cloud shell above the surface plus cloud shadows on the body. Add one line to give it to a type.
@@ -35,7 +35,7 @@ const TYPE_TEXTURES := {
 ## (dark matte limb, thin dim rim) and no atmosphere shell. Variant per id: uv_shift (turn of the map), hue_shift, saturation, brightness.
 const DEAD_TYPE := "dead"
 const DEAD_ID_PREFIX := "dead_"
-const DEAD_MATERIAL := preload("res://art/planet_fx/planet_sphere_dead_material.tres")
+const DEAD_MATERIAL := preload("res://game/fx/planet/planet_sphere_dead_material.tres")
 const DEAD_VARIANTS := {
 	"dead_1": {"uv_shift": 0.0, "hue_shift": 0.0, "saturation": 1.0, "brightness": 1.0},        # Cinderrest: the texture as painted
 	"dead_2": {"uv_shift": 0.45, "hue_shift": -0.06, "saturation": 0.55, "brightness": 0.9},    # Greywake: other terrain, cooler and greyer
@@ -477,7 +477,7 @@ func _apply_ring(tt: Dictionary) -> void:
 		rng.seed = hash(planet_id)
 		ring.rotation_degrees = Vector3(rng.randf_range(12.0, 24.0), 0.0, rng.randf_range(-12.0, 12.0))
 		var mat := ShaderMaterial.new()
-		mat.shader = load("res://art/planet_fx/planet_sphere_ring.gdshader")
+		mat.shader = load("res://game/fx/planet/planet_sphere_ring.gdshader")
 		ring.material_override = mat
 		add_child(ring)
 	ring.visible = true

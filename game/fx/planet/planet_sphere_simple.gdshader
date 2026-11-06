@@ -2,7 +2,7 @@ shader_type spatial;
 render_mode unshaded, blend_mix, cull_back, depth_draw_always;
 // Stripped planet body: beauty map as albedo, plus the Fresnel crescent and the rim light, nothing else.
 // Key-light shadow side (soft terminator, ambient floor) and height-gradient relief on the lit side (no geometry change).
-// No clouds, no grain, no palette tint. Solid sphere out to its true limb (the soft edge is a screen-space blur, art/planet_fx/edge_blur.gd).
+// No clouds, no grain, no palette tint. Solid sphere out to its true limb (the soft edge is a screen-space blur, game/fx/planet/edge_blur.gd).
 // The lit colour is the PNG colour
 // (source_color: the sampler converts sRGB to linear, the unshaded output converts it back, so it shows as in the file).
 // The Fresnel and rim code is copied unchanged from planet_sphere.gdshader (same uniforms, same defaults).

@@ -30,7 +30,7 @@ const CLUSTER_PICK_MIN := 0.3     # smallest click radius of an asteroid pack (w
 const PLANET_SIZE := 1.3         # planet size multiplier: planets are x1.3 the old size; the debug menu starts here
 const BASE_DISTANCE := 16.0      # camera distance from focus point at zoom 1
 const CAMERA_FOV := 45.0
-const PLANET_SPHERE := preload("res://art/planet_fx/planet_sphere.tscn")  # unit-radius sphere; scaled to planet_radius()
+const PLANET_SPHERE := preload("res://game/fx/planet/planet_sphere.tscn")  # unit-radius sphere; scaled to planet_radius()
 
 # Orbit limits in degrees (owner-to-confirm defaults). Yaw 0 looks along -Z.
 const START_YAW_DEG := 0.0
@@ -49,11 +49,11 @@ var pitch_min_deg := 20.0        # angle above the plane; never goes below it
 var pitch_max_deg := 80.0
 var sun_radius := 0.75
 var sun_node: Node3D  # T132: animated 3D sun
-var suns := {}         # system id -> its sun node (art/sun/sun_flare.gd); every open system has its own sun
+var suns := {}         # system id -> its sun node (game/fx/sun/sun_flare.gd); every open system has its own sun
 var sun_positions := {}  # system id -> world position of that sun
 var orbit_rings := {}    # system id -> its orbit ring mesh
 var planet_belts := {}   # planet index -> its small decorative dust belt (Voltara)
-var dust_rings := {}     # system id -> its decorative asteroid dust ring (art/planet_fx/asteroid_dust_ring.gd)
+var dust_rings := {}     # system id -> its decorative asteroid dust ring (game/fx/planet/asteroid_dust_ring.gd)
 var hex_ring: Node3D  # T110: hexagon ring around the sun, shown during EV20
 var key_light: DirectionalLight3D
 var planet_scale := PLANET_SIZE  # multiplies PLANET_RADIUS (visual size, click radius, route start, names, halos)
@@ -157,21 +157,21 @@ func _ready() -> void:
 	_add_orbit_rings(focus, 1)
 	_add_planet_belt("Voltara")
 	_update_camera()
-	# Chromatic aberration over the 3D view (art/planet_fx/chromatic_aberration.gd): first, so the glare and grain sit on top of it.
-	add_child(load("res://art/planet_fx/chromatic_aberration.gd").new())
-	# Screen-space soft edge: blurs a 10 px ring outside each planet disc (art/planet_fx/edge_blur.gd); after the aberration, before the glare and grain.
-	var edge_blur: CanvasLayer = load("res://art/planet_fx/edge_blur.gd").new()
+	# Chromatic aberration over the 3D view (game/fx/planet/chromatic_aberration.gd): first, so the glare and grain sit on top of it.
+	add_child(load("res://game/fx/planet/chromatic_aberration.gd").new())
+	# Screen-space soft edge: blurs a 10 px ring outside each planet disc (game/fx/planet/edge_blur.gd); after the aberration, before the glare and grain.
+	var edge_blur: CanvasLayer = load("res://game/fx/planet/edge_blur.gd").new()
 	edge_blur.camera = camera
 	edge_blur.spheres = planet_spheres
 	add_child(edge_blur)
-	# Camera lens glare around the current system's sun (art/planet_fx/lens_glare.gd); the quad draws under the UI.
-	var glare: CanvasLayer = load("res://art/planet_fx/lens_glare.gd").new()
+	# Camera lens glare around the current system's sun (game/fx/planet/lens_glare.gd); the quad draws under the UI.
+	var glare: CanvasLayer = load("res://game/fx/planet/lens_glare.gd").new()
 	glare.camera = camera
 	glare.source_pos = func() -> Variant: return sun_positions.get(view_system) if suns.has(view_system) and suns[view_system].visible else null
 	glare.source_brightness = func() -> float: return 0.75 + 0.5 * float(suns[view_system].flare) if suns.has(view_system) else 1.0
 	add_child(glare)
-	# Film grain over the 3D map view (art/planet_fx/film_grain.gd): same layer as the glare, added after it, under the UI.
-	add_child(load("res://art/planet_fx/film_grain.gd").new())
+	# Film grain over the 3D map view (game/fx/planet/film_grain.gd): same layer as the glare, added after it, under the UI.
+	add_child(load("res://game/fx/planet/film_grain.gd").new())
 	# T167: the planet names go last on the same layer, so they draw above the blur, glare and grain (same layer: tree order).
 	move_child(_label_layer_node(), -1)
 
@@ -227,7 +227,7 @@ func _add_orbit_rings(center: Vector3, sys: int = 1) -> void:
 	orbit_rings[sys] = mi
 	_add_dust_ring(center, sys, radii)
 
-## Decorative dust: up to 7 broken bands (art/planet_fx/asteroid_dust_ring.gd). The gaps between orbit lines (sun edge,
+## Decorative dust: up to 7 broken bands (game/fx/planet/asteroid_dust_ring.gd). The gaps between orbit lines (sun edge,
 ## planet orbits, dashed outer ring) are shared out between the rings, one slot per ring with a 10% margin to the lines,
 ## so no band touches an orbit line. Visual only: no collision, never picked.
 const DUST_RING_COUNT := 7
@@ -241,7 +241,7 @@ func _add_planet_belt(planet_name: String) -> void:
 		if str(planets[i].get("name", "")) != planet_name:
 			continue
 		var r := planet_radius(i)
-		var belt: MultiMeshInstance3D = load("res://art/planet_fx/asteroid_dust_ring.gd").new()
+		var belt: MultiMeshInstance3D = load("res://game/fx/planet/asteroid_dust_ring.gd").new()
 		var bands: Array[Vector2] = [Vector2(r * 1.5, r * 1.8) * BELT_SCALE, Vector2(r * 2.0, r * 2.4) * BELT_SCALE]
 		belt.slots = bands
 		belt.count = 1500
@@ -276,7 +276,7 @@ func _add_dust_ring(center: Vector3, sys: int, radii: Array[float]) -> void:
 		var step: float = g * 0.8 / maxi(per_gap[i], 1)
 		for k in per_gap[i]:
 			slots.append(Vector2(lo + step * k + step * 0.05, lo + step * (k + 1) - step * 0.05))
-	var ring: MultiMeshInstance3D = load("res://art/planet_fx/asteroid_dust_ring.gd").new()
+	var ring: MultiMeshInstance3D = load("res://game/fx/planet/asteroid_dust_ring.gd").new()
 	ring.slots = slots
 	ring.seed_salt = sys
 	ring.tint = Color(0.75, 0.68, 0.6).lerp(Systems.sun_color_of(sys), 0.25)
@@ -537,9 +537,9 @@ func clamp_focus() -> void:
 
 ## Plain yellow sphere in the middle of the map (visual only, not clickable).
 func _add_sun(pos: Vector3, sys: int = 1) -> void:
-	# T132: the animated 3D sun (art/sun/sun_flare.gd). System 1's sun drives the planets' key light; each system's sun
+	# T132: the animated 3D sun (game/fx/sun/sun_flare.gd). System 1's sun drives the planets' key light; each system's sun
 	# has its own colour (Systems.sun_color_of: system 1 orange, system 2 blue).
-	var sn: Node3D = load("res://art/sun/sun_flare.gd").new()
+	var sn: Node3D = load("res://game/fx/sun/sun_flare.gd").new()
 	sn.radius = sun_radius
 	sn.sun_color = Systems.sun_color_of(sys)
 	if sys == 1:
@@ -555,7 +555,7 @@ func _add_sun(pos: Vector3, sys: int = 1) -> void:
 		return
 	sun_node = sn
 	focus_sun_pos = pos
-	hex_ring = load("res://art/sun/hex_ring.gd").new()
+	hex_ring = load("res://game/fx/sun/hex_ring.gd").new()
 	hex_ring.radius = sun_radius
 	hex_ring.color = Systems.sun_color_of(sys).lerp(Color.WHITE, 0.25)  # T110: ring takes the sun's colour, a little lighter
 	hex_ring.position = pos

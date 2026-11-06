@@ -44,7 +44,7 @@ uniform vec4 pale_col : source_color = vec4(0.70, 0.62, 1.00, 1.0);
 uniform vec3 key_dir = vec3(-0.5, 0.5, 0.7);      // object space, towards the sun
 uniform vec4 key_color : source_color = vec4(1.00, 0.76, 0.42, 1.0);  // warm gold
 uniform float key_strength = 1.4;
-// T132: solar flare level from the 3D sun (0 calm, 1 peak). Set globally by art/sun/sun_flare.gd.
+// T132: solar flare level from the 3D sun (0 calm, 1 peak). Set globally by game/fx/sun/sun_flare.gd.
 global uniform float sun_flare;
 uniform vec4 rim_color : source_color = vec4(0.37, 0.66, 1.00, 1.0);  // set from the planet colour (complementary hue) by planet_sphere.gd
 uniform float rim_strength = 0.050625;

@@ -2,7 +2,7 @@ extends CanvasLayer
 ## Film grain over the 3D map view: one full-screen quad with film_grain.gdshader, drawn above the 3D view and under the UI.
 ## The shader animates itself with TIME; this script only builds the quad and exposes strength.
 
-const SHADER := preload("res://art/planet_fx/film_grain.gdshader")
+const SHADER := preload("res://game/fx/planet/film_grain.gdshader")
 
 @export_range(0.0, 0.5, 0.001) var strength := 0.0036:
 	set(v):
