@@ -231,6 +231,30 @@ func link_info(id: int) -> Dictionary:
 	return {"id": id, "a": int(l["a"]), "b": int(l["b"]), "state": str(l["state"]), "dormant": int(l["dormant"]), "cycles_left": left,
 		"orders": orders, "rate": rate(), "rate_used": _plan_used(l), "upkeep": upkeep()}
 
+## T227: energy the link upkeep takes from the storage `key` next cycle (read-only; same payer rule as _pay_upkeep).
+## `have` is the projected stock of `key`. Used by the Next cycle line so deliveries and drains add up.
+func upkeep_drain(key: String, good: String, have: int) -> int:
+	if good != "energy":
+		return 0
+	var total := 0
+	for l in _links:
+		var a := int(l["a"])
+		var b := int(l["b"])
+		if Storage.system_key(a) != key and Storage.system_key(b) != key:
+			continue
+		if not _usable(a) or not _usable(b):
+			continue
+		var mine := a if Storage.system_key(a) == key else b
+		var other := b if mine == a else a
+		var other_have := stock_of(other, good)
+		if have + other_have - total < upkeep():
+			continue  # dormant: pays nothing
+		if have - total >= other_have:
+			total += mini(upkeep(), have - total)
+		else:
+			total += maxi(0, upkeep() - other_have)
+	return total
+
 ## Pays the upkeep: first from the storage with more energy, the rest from the other. False (nothing taken) if the two are short.
 func _pay_upkeep(l: Dictionary) -> bool:
 	var a := int(l["a"])

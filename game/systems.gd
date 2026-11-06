@@ -7,8 +7,8 @@ extends RefCounted
 const StoryText := preload("res://game/story_text.gd")
 const PlanetTypes := preload("res://game/planet_types.gd")
 const PATH := "res://data/systems.json"
-## T176: placeholder systems (data/systems_placeholder.json) join all() only while that file says "enabled": true
-## or a test calls set_placeholders(true). Off by default, so normal play never sees them.
+## T176: placeholder systems (data/systems_placeholder.json) join all() when they carry "on": true (T226: systems 3 to 5, live, TEMPORARY names),
+## or all of them while that file says "enabled": true or a test calls set_placeholders(true). set_placeholders(false) hides every one.
 const PLACEHOLDER_PATH := "res://data/systems_placeholder.json"
 
 ## Sun colour per system (systems.json may override with a "sun_color": "#rrggbb" key). System 1 keeps the original orange sun.
@@ -32,6 +32,11 @@ static func set_placeholders(on: bool) -> void:
 
 static var _placeholders_override := -1
 
+## Back to the data default (T226: systems 3 to 5 on, the rest off). Tests call this after set_placeholders.
+static func reset_placeholders() -> void:
+	_placeholders_override = -1
+	_loaded = false
+
 static func all() -> Array:
 	if not _loaded:
 		_loaded = true
@@ -44,10 +49,10 @@ static func all() -> Array:
 		var ph = JSON.parse_string(FileAccess.get_file_as_string(PLACEHOLDER_PATH)) if FileAccess.file_exists(PLACEHOLDER_PATH) else null
 		if typeof(ph) == TYPE_DICTIONARY and typeof(ph.get("systems")) == TYPE_ARRAY:
 			var on: bool = bool(ph.get("enabled", false)) if _placeholders_override < 0 else _placeholders_override == 1
-			if on:
-				for s in ph["systems"]:
-					if typeof(s) == TYPE_DICTIONARY and s.has("id"):
-						_cache.append(s)
+			for s in ph["systems"]:
+				# T226: a system with "on": true (3 to 5) is live in normal play; the rest join only when enabled
+				if typeof(s) == TYPE_DICTIONARY and s.has("id") and (on or (_placeholders_override < 0 and bool(s.get("on", false)))):
+					_cache.append(s)
 	return _cache
 
 static func get_system(id: int) -> Dictionary:

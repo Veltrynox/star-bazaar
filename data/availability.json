@@ -548,28 +548,121 @@
    "note": "T179 discovery: closed until the Pathfinder has built a trading post (living world) or mining platform (dead world) here. Voltara has its post at start. Always true with balance.discovery_enabled 0."
   },
   {
+   "kind": "planet",
+   "id": "s3_p1",
+   "visible_when": {
+    "any": [
+     "post_built:s3_p1",
+     "platform_built:s3_p1"
+    ]
+   },
+   "note": "T226 discovery for a placeholder planet: same rule as the real ones (T179). Always true with balance.discovery_enabled 0."
+  },
+  {
+   "kind": "planet",
+   "id": "s3_p2",
+   "visible_when": {
+    "any": [
+     "post_built:s3_p2",
+     "platform_built:s3_p2"
+    ]
+   },
+   "note": "T226 discovery for a placeholder planet: same rule as the real ones (T179). Always true with balance.discovery_enabled 0."
+  },
+  {
+   "kind": "planet",
+   "id": "s3_p3",
+   "visible_when": {
+    "any": [
+     "post_built:s3_p3",
+     "platform_built:s3_p3"
+    ]
+   },
+   "note": "T226 discovery for a placeholder planet: same rule as the real ones (T179). Always true with balance.discovery_enabled 0."
+  },
+  {
+   "kind": "planet",
+   "id": "s4_p1",
+   "visible_when": {
+    "any": [
+     "post_built:s4_p1",
+     "platform_built:s4_p1"
+    ]
+   },
+   "note": "T226 discovery for a placeholder planet: same rule as the real ones (T179). Always true with balance.discovery_enabled 0."
+  },
+  {
+   "kind": "planet",
+   "id": "s4_p2",
+   "visible_when": {
+    "any": [
+     "post_built:s4_p2",
+     "platform_built:s4_p2"
+    ]
+   },
+   "note": "T226 discovery for a placeholder planet: same rule as the real ones (T179). Always true with balance.discovery_enabled 0."
+  },
+  {
+   "kind": "planet",
+   "id": "s4_p3",
+   "visible_when": {
+    "any": [
+     "post_built:s4_p3",
+     "platform_built:s4_p3"
+    ]
+   },
+   "note": "T226 discovery for a placeholder planet: same rule as the real ones (T179). Always true with balance.discovery_enabled 0."
+  },
+  {
+   "kind": "planet",
+   "id": "s5_p1",
+   "visible_when": {
+    "any": [
+     "post_built:s5_p1",
+     "platform_built:s5_p1"
+    ]
+   },
+   "note": "T226 discovery for a placeholder planet: same rule as the real ones (T179). Always true with balance.discovery_enabled 0."
+  },
+  {
+   "kind": "planet",
+   "id": "s5_p2",
+   "visible_when": {
+    "any": [
+     "post_built:s5_p2",
+     "platform_built:s5_p2"
+    ]
+   },
+   "note": "T226 discovery for a placeholder planet: same rule as the real ones (T179). Always true with balance.discovery_enabled 0."
+  },
+  {
+   "kind": "planet",
+   "id": "s5_p3",
+   "visible_when": {
+    "any": [
+     "post_built:s5_p3",
+     "platform_built:s5_p3"
+    ]
+   },
+   "note": "T226 discovery for a placeholder planet: same rule as the real ones (T179). Always true with balance.discovery_enabled 0."
+  },
+  {
    "kind": "feature",
    "id": "placeholder_system_3",
-   "visible_when": {
-    "not": "start"
-   },
-   "note": "T176 placeholder: system 3 (data/systems_placeholder.json, enabled=false) is off. {not: start} is never true; replace with a real unlock (e.g. system_open:3 plus a story/skill condition) when the system is designed."
+   "visible_when": "start",
+   "note": "T226 placeholder: systems 3 to 5 are TEMPORARY but live (data/systems_placeholder.json, on:true). \"start\" is always true. Replace with a real unlock (e.g. system_open:2 plus a story condition) when the system is designed."
   },
   {
    "kind": "feature",
    "id": "placeholder_system_4",
-   "visible_when": {
-    "not": "start"
-   },
-   "note": "T176 placeholder: system 4 (data/systems_placeholder.json, enabled=false) is off. {not: start} is never true; replace with a real unlock (e.g. system_open:4 plus a story/skill condition) when the system is designed."
+   "visible_when": "start",
+   "note": "T226 placeholder: systems 3 to 5 are TEMPORARY but live (data/systems_placeholder.json, on:true). \"start\" is always true. Replace with a real unlock (e.g. system_open:2 plus a story condition) when the system is designed."
   },
   {
    "kind": "feature",
    "id": "placeholder_system_5",
-   "visible_when": {
-    "not": "start"
-   },
-   "note": "T176 placeholder: system 5 (data/systems_placeholder.json, enabled=false) is off. {not: start} is never true; replace with a real unlock (e.g. system_open:5 plus a story/skill condition) when the system is designed."
+   "visible_when": "start",
+   "note": "T226 placeholder: systems 3 to 5 are TEMPORARY but live (data/systems_placeholder.json, on:true). \"start\" is always true. Replace with a real unlock (e.g. system_open:2 plus a story condition) when the system is designed."
   },
   {
    "kind": "feature",

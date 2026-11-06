@@ -1172,6 +1172,18 @@
    "place": "Route row, name of the station end of a route"
   },
   {
+   "id": "SS_LBL_STOCK_RULE",
+   "text": "Everything delivered here stays in stock until a Sell order in this system, a recipe or upkeep uses it.",
+   "max": 110,
+   "place": "Space Storage view, under the capacity line: the rule for delivered goods"
+  },
+  {
+   "id": "TIP_NC_UPKEEP",
+   "text": "Link upkeep -{n}",
+   "max": 40,
+   "place": "Next cycle tooltip, entry, storage link upkeep takes from this stock; {n}"
+  },
+  {
    "id": "LBL_NEXT_CYCLE",
    "text": "Next cycle: +{in} -{out} = {after}",
    "max": 48,
@@ -5301,9 +5313,9 @@
   },
   {
    "id": "WORLD_SYS3_NAME",
-   "text": "Placeholder A",
+   "text": "TEMPORARY A",
    "max": 24,
-   "place": "System 3 name (placeholder, off)"
+   "place": "System 3 name (placeholder)"
   },
   {
    "id": "WORLD_SYS3_DESC",
@@ -5313,13 +5325,13 @@
   },
   {
    "id": "PERMIT_S3_NAME",
-   "text": "Permit: Placeholder A",
+   "text": "Permit: TEMPORARY A",
    "max": 24,
    "place": "Permit list, system 3 entry (placeholder)"
   },
   {
    "id": "PERMIT_S3_DESC",
-   "text": "Temporary text. Opens Placeholder A for routes.",
+   "text": "Temporary text. Opens TEMPORARY A for routes.",
    "max": 110,
    "place": "Permit list, system 3 description (placeholder)"
   },
@@ -5331,7 +5343,7 @@
   },
   {
    "id": "NOT_PERMIT_S3",
-   "text": "Permit bought. Placeholder A is open: three new planets.",
+   "text": "Permit bought. TEMPORARY A is open: three new planets.",
    "max": 110,
    "place": "Notice, permit for system 3 bought (placeholder)"
   },
@@ -5373,9 +5385,9 @@
   },
   {
    "id": "WORLD_SYS4_NAME",
-   "text": "Placeholder B",
+   "text": "TEMPORARY B",
    "max": 24,
-   "place": "System 4 name (placeholder, off)"
+   "place": "System 4 name (placeholder)"
   },
   {
    "id": "WORLD_SYS4_DESC",
@@ -5385,13 +5397,13 @@
   },
   {
    "id": "PERMIT_S4_NAME",
-   "text": "Permit: Placeholder B",
+   "text": "Permit: TEMPORARY B",
    "max": 24,
    "place": "Permit list, system 4 entry (placeholder)"
   },
   {
    "id": "PERMIT_S4_DESC",
-   "text": "Temporary text. Opens Placeholder B for routes.",
+   "text": "Temporary text. Opens TEMPORARY B for routes.",
    "max": 110,
    "place": "Permit list, system 4 description (placeholder)"
   },
@@ -5403,7 +5415,7 @@
   },
   {
    "id": "NOT_PERMIT_S4",
-   "text": "Permit bought. Placeholder B is open: three new planets.",
+   "text": "Permit bought. TEMPORARY B is open: three new planets.",
    "max": 110,
    "place": "Notice, permit for system 4 bought (placeholder)"
   },
@@ -5445,9 +5457,9 @@
   },
   {
    "id": "WORLD_SYS5_NAME",
-   "text": "Placeholder C",
+   "text": "TEMPORARY C",
    "max": 24,
-   "place": "System 5 name (placeholder, off)"
+   "place": "System 5 name (placeholder)"
   },
   {
    "id": "WORLD_SYS5_DESC",
@@ -5457,13 +5469,13 @@
   },
   {
    "id": "PERMIT_S5_NAME",
-   "text": "Permit: Placeholder C",
+   "text": "Permit: TEMPORARY C",
    "max": 24,
    "place": "Permit list, system 5 entry (placeholder)"
   },
   {
    "id": "PERMIT_S5_DESC",
-   "text": "Temporary text. Opens Placeholder C for routes.",
+   "text": "Temporary text. Opens TEMPORARY C for routes.",
    "max": 110,
    "place": "Permit list, system 5 description (placeholder)"
   },
@@ -5475,7 +5487,7 @@
   },
   {
    "id": "NOT_PERMIT_S5",
-   "text": "Permit bought. Placeholder C is open: three new planets.",
+   "text": "Permit bought. TEMPORARY C is open: three new planets.",
    "max": 110,
    "place": "Notice, permit for system 5 bought (placeholder)"
   },

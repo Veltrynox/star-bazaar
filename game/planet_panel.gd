@@ -649,6 +649,8 @@ static func next_cycle_breakdown(main_node: Control, pr: Dictionary) -> String:
 					key = "TIP_NC_BUY"
 				"sell":
 					key = "TIP_NC_SELL_BACKUP" if bool(p["backup"]) else "TIP_NC_SELL"
+				"upkeep":
+					key = "TIP_NC_UPKEEP"
 				_:
 					var rec: Dictionary = {}
 					for r in main_node.engine.routes:

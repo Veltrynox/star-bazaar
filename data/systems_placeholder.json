@@ -3,11 +3,12 @@
   "data_version": 1,
   "placeholder": true,
   "enabled": false,
-  "note": "T176/T210: placeholder systems 3 to 10, OFF. game/systems.gd loads them only when enabled is true (or Systems.set_placeholders(true) in a test). Every name, price and sun is temporary; economy-designer and story-designer replace them. galaxy_slot is the SLOTS index in game/galaxy_view.gd (list position). Permit cost keys reuse system 2 keys as stand-ins.",
+  "note": "T176/T210: placeholder systems 3 to 10, OFF. game/systems.gd loads them only when enabled is true (or Systems.set_placeholders(true) in a test). Every name, price and sun is temporary; economy-designer and story-designer replace them. galaxy_slot is the SLOTS index in game/galaxy_view.gd (list position). Permit cost keys reuse system 2 keys as stand-ins. T226: systems 3 to 5 carry \"on\": true and are live in normal play (TEMPORARY names, placeholder:true); 6 to 10 stay off until \"enabled\" is true.",
   "systems": [
     {
       "id": 3,
       "placeholder": true,
+      "on": true,
       "note": "T176 placeholder: temporary name, sun, prices. Replace before enabling.",
       "galaxy_slot": 2,
       "sun_color": "#ff5a3c",
@@ -80,6 +81,7 @@
     {
       "id": 4,
       "placeholder": true,
+      "on": true,
       "note": "T176 placeholder: temporary name, sun, prices. Replace before enabling.",
       "galaxy_slot": 3,
       "sun_color": "#7cff9a",
@@ -152,6 +154,7 @@
     {
       "id": 5,
       "placeholder": true,
+      "on": true,
       "note": "T176 placeholder: temporary name, sun, prices. Replace before enabling.",
       "galaxy_slot": 4,
       "sun_color": "#d58cff",

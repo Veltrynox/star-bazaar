@@ -274,6 +274,7 @@ func _ready() -> void:
 	workshops.setup(balance)
 	engine.clusters = clusters
 	engine.trade_gate = Callable(self, "system_trade_open")
+	engine.upkeep_out = func(k: String, g: String, have: int) -> int: return storage_link.upkeep_drain(k, g, have)
 	engine.positions_fn = func() -> Array: return map.positions  # route offset: planet world positions
 	engine.suns_fn = func() -> Array: return map.sun_list()  # route offset: the suns are obstacles
 	_sync_closed()  # dead worlds still shut, worlds without a post or platform closed (T179)
@@ -882,7 +883,7 @@ func toggle_galaxy() -> void:
 func skill_arrow_target() -> Dictionary:
 	if preface != null or game_over:
 		return {}
-	var open := unowned_systems()
+	var open := unowned_systems().filter(func(sid): return not bool(Systems.get_system(int(sid)).get("placeholder", false)))  # T226: TEMPORARY systems never steer the arrow
 	if not open.is_empty():
 		var req := required_skill(int(open[0]))
 		if has_skill(req):

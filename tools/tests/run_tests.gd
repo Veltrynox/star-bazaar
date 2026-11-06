@@ -748,7 +748,7 @@ func _test_galaxy_view() -> void:
 		check(ex.hit_test(ev.position) == 2 and lay["locked"], "exit: the locked marker is hit by a click on it, shown as locked")
 		ex._input(ev)
 		check(m.view_system == 1, "exit: clicking the locked marker stays in the system")
-	m.open_systems = [1, 2]
+	m.open_systems = [1, 2, 3, 4, 5]  # T226: 3 to 5 are placeholder systems
 	await process_frame
 	check(ex.next_locked() == -1 and ex.markers().all(func(k): return not k["locked"]), "exit: no locked marker once every system is open")
 	m.open_systems = [1]
@@ -3126,7 +3126,7 @@ func _test_systems() -> void:
 	check(m.skill_screen.visible == (not at.is_empty()), "arrow: click opens the skill screen")
 	m.skill_screen.close_screen()
 	check(m.skill_screen.highlight.is_empty(), "arrow: highlight cleared on close")
-	check(m.can_buy_permit(3)["reason"] == "unknown", "sys2: system 3 does not exist")
+	check(m.can_buy_permit(11)["reason"] == "unknown", "sys2: system 11 does not exist")
 	m.learned_skills.append("FND_PERMIT")
 	m.cash = 0
 	m.skill_points = 100
@@ -3265,6 +3265,25 @@ func _test_systems() -> void:
 	m.storage.stock["system:1"]["energy"] = 0
 	m.storage.stock["planet:0"]["energy"] = 60 - moved
 	check(m.storage.amount("system:2", "energy") == 0, "space: systems are separate")
+	# T227: energy delivered by a route piles up over cycles; the only drain is declared link upkeep
+	m.storage.stock["planet:0"]["energy"] = 400
+	m.storage.stock["system:1"]["energy"] = 0
+	m.cash = 9000
+	var t227: Dictionary = m.send_stock(0, m.station_dst(1), "energy")
+	var trec: Dictionary = m.engine.routes[m.engine.routes.size() - 1]
+	var got227 := 0
+	var last227 := 0
+	for _c in 3:
+		trec["fresh"] = 1.0
+		m.engine.settle(m.cash)
+		var now227: int = m.storage.amount("system:1", "energy")
+		got227 += now227 - last227
+		last227 = now227
+	check(t227["ok"] and last227 == 400 - m.storage.amount("planet:0", "energy") and last227 > 0 and got227 == last227, "T227: energy delivered over 3 cycles accumulates in Space Storage", "stock %d" % last227)
+	check(m.engine.upkeep_out.is_valid() and int(m.engine.upkeep_out.call("system:1", "energy", 100)) == 0 and int(m.engine.upkeep_out.call("system:1", "food", 100)) == 0, "T227: no link means no upkeep drain in the projection")
+	m.remove_connection(int(trec["id"]))
+	m.storage.stock["system:1"]["energy"] = 0
+	m.storage.stock["planet:0"]["energy"] = 60 - moved
 	m.storage.add("system:1", "energy", 100000)
 	check(m.storage.amount("system:1", "energy") == int(bal["space_storage_capacity"]), "space: capacity is a hard cap")
 	# T64: a Sell order draws from Space Storage (planet storage first, then the post)
@@ -6827,7 +6846,7 @@ func _test_t211_ship_traffic() -> void:
 	for n in m.get_children():
 		pf += 1 if n == m.flight else 0
 	check(m.flight != null and m.flight.system_id() >= 1, "T211: one Pathfinder for the whole game")
-	Systems.set_placeholders(false)
+	Systems.reset_placeholders()
 	await _free_main(m)
 
 ## T206: exploration mode visits every planet of the system, waits for cash, ends on a manual order, saves, and ends with one notice.
@@ -6998,7 +7017,7 @@ func _test_ships_spawn_near_bodies() -> void:
 		check(rs.ship_count() == Bots.IDS.size(), "T211: ship count stays one per competitor")
 	check(seen_sys.size() > 1, "T211: rivals visit opened systems", str(seen_sys.keys()))
 	check(legs > rs._ships.size(), "T202: rivals picked new courses", str(legs))
-	Systems.set_placeholders(false)
+	Systems.reset_placeholders()
 	await _free_main(m)
 
 ## T201: the 3D ships face the way they fly. Pathfinder (game/pathfinder_view.gd) and rival ships (game/rival_ships.gd): the model's
@@ -7426,7 +7445,10 @@ func _test_availability() -> void:
 		var kind := str(r["kind"])
 		var id := str(r["id"])
 		var cond = r["visible_when"]
-		if id.begins_with("placeholder_system_"):  # T176: placeholder systems are off ({not: start})
+		if id in ["placeholder_system_3", "placeholder_system_4", "placeholder_system_5"]:  # T226: live ("start")
+			check(Availability.is_visible(kind, id), "availability rule feature '%s': live placeholder" % id)
+			continue
+		if id.begins_with("placeholder_system_"):  # T176: placeholder systems 6 to 10 are off ({not: start})
 			check(not Availability.is_visible(kind, id), "availability rule feature '%s': off for now" % id)
 			continue
 		if id == "dead_danger_meter":  # the off switch ({not: start}); its hidden and shown states are tested in _test_dead_world_mechanics
@@ -7983,9 +8005,25 @@ func _test_placeholder_systems() -> void:
 	_wipe_user()
 	var gm: Control = await _new_main()
 	var slots: Array = gm.galaxy_view.SLOTS
-	_free_main(gm)
+	# T226: systems 3 to 5 are live in a normal game: listed in the galaxy, enterable, TEMPORARY in the name
 	var Systems := preload("res://game/systems.gd")
-	check(not Systems.ids().has(3) and Systems.ids().size() == 1, "placeholder systems: off by default")
+	check(Systems.ids() == [2, 3, 4, 5], "placeholder systems: 3 to 5 live by default", str(Systems.ids()))
+	check(gm.galaxy_view._sys_ids() == [1, 2, 3, 4, 5], "placeholder systems: all listed in the galaxy overview")
+	var live_ok := true
+	for sid in [3, 4, 5]:
+		live_ok = live_ok and Systems.name_of(sid).begins_with("TEMPORARY") and Availability.feature("placeholder_system_%d" % sid)
+		live_ok = live_ok and not gm.go_to_system(sid)  # locked until its permit
+		gm._open_system(sid)
+		live_ok = live_ok and gm.open_systems.has(sid) and gm.go_to_system(sid) and gm.view_system == sid
+		var n_here := 0
+		for pl in gm.map.planets:
+			if int(pl.get("system", 1)) == sid:
+				n_here += 1
+		live_ok = live_ok and n_here == 3 and Systems.sun_color_of(sid) is Color
+	check(live_ok, "placeholder systems: 3 to 5 each enterable with a sun and three planets")
+	_free_main(gm)
+	Systems.set_placeholders(false)
+	check(Systems.ids() == [2], "placeholder systems: switched off by set_placeholders(false)")
 	Systems.set_placeholders(true)
 	var ids: Array = Systems.ids()
 	check(ids == [2, 3, 4, 5, 6, 7, 8, 9, 10], "placeholder systems: 3 to 10 load when switched on", str(ids))
@@ -8021,3 +8059,5 @@ func _test_placeholder_systems() -> void:
 	check(keys_ok, "placeholder systems: permit cost keys exist in balance")
 	Systems.set_placeholders(false)
 	check(Systems.ids() == [2], "placeholder systems: off again")
+	Systems._placeholders_override = -1
+	Systems._loaded = false

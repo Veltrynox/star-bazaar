@@ -34,6 +34,7 @@ var closed_planets: Array = []  # planet indexes closed (permits/events hook); r
 var debris_planets: Array = []  # T98: planets with debris; routes from them carry less (runtime, set by main)
 var dead_locked: Array = []  # planet indexes of dead worlds that are not open yet (before balance dead_unlock_cycle); runtime, set by main
 var pirates_active := false  # runtime: true while a pirate volume cut is on (no pirate system yet; the Null Core is immune to it)
+var upkeep_out: Callable = Callable()  # T227: (key, good, stock) -> units storage upkeep takes from this stock next cycle (set by main)
 var trade_gate: Callable = Callable()  # owner 2026-11-03: planet -> bool, false when its system has no Space Storage post (set by main)
 var suns_fn: Callable = Callable()  # route offset: () -> Array of [Vector3 position, float radius] per sun, set by main from the map
 var positions_fn: Callable = Callable()  # route offset: () -> Array of world positions (Vector3) per planet index, set by main from the map
@@ -758,6 +759,10 @@ func project_storage(key: String, c: String, cash: int = 1 << 40) -> Dictionary:
 			take.call(pk, from_planet, "sell", -1, p, false)
 		if sk != "" and from_planet < n:
 			take.call(sk, n - from_planet, "sell", -1, p, true)
+	if upkeep_out.is_valid():  # T227: declared upkeep (link) is the only other fixed drain; show it so the stock line adds up
+		var un: int = mini(int(upkeep_out.call(key, c, int(get_amt.call(key)))), maxi(0, int(get_amt.call(key))))
+		if un > 0:
+			take.call(key, un, "upkeep", -1, -1, false)
 	return {"in": int(tally["in"]), "out": int(tally["out"]), "after": clampi(int(get_amt.call(key)), 0, cap), "capacity": cap, "parts": parts}
 
 ## Projected net credits of the next cycle (display and cash forecast): the ship cost while it can move stock.
