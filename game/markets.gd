@@ -106,21 +106,20 @@ static func value_of(good: String) -> int:
 
 ## Counts a sale of `units` of `good` into the current cycle: units x base_value. Sell orders and route-delivery sales only.
 ## up_units = how many of the units were sold at a planet with a price-up event (LUX_5 counts those extra).
-## Volume skills raise share volume only; the sale price skills never reach here (share uses base_value).
+## T261: no skill changes share volume (need_fill_pct acts in Prosperity); the sale price skills never reach here (share uses base_value).
 static func add_sale(good: String, units: int, up_units: int = 0) -> void:
 	_ensure()
 	var m := market_of(good)
 	if m == "" or units <= 0 or not cur.has(m):
 		return
-	var v := float(units * value_of(good)) * Skills.volume_mult(m)
-	v += float(mini(up_units, units) * value_of(good)) * Skills.volume_bonus_price_up(m)
+	var v := float(units * value_of(good))  # T261: skills no longer raise share volume
 	v *= Chains.volume_mult(m)  # event chain volume effects (timed)
 	cur[m] = float(cur[m]) + v
 	if not is_common(good):
 		cur_active[m] = float(cur_active[m]) + v
 
 static func window_for(m: String) -> int:
-	return Skills.share_window(m, int(bal.get("share_window", 8)))
+	return int(bal.get("share_window", 8))
 
 static func _sum_window(arr: Array, w: int, idx: int = -1) -> float:
 	var t := 0.0

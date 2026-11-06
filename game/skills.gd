@@ -108,13 +108,13 @@ static func upkeep_mult() -> float:
 		m *= 1.0 - _key(e)
 	return m
 
-## volume_pct: share volume of market m x this (unconditional effects).
-static func volume_mult(m: String) -> float:
-	return 1.0 + _sum("volume_pct", m)
+## need_fill_pct (T261, was volume_pct): extra fraction of units of market m's goods that count toward a world need.
+static func need_fill_bonus(m: String) -> float:
+	return maxf(0.0, _sum("need_fill_pct", m))
 
-## volume_pct with condition sale_at_price_up_planet: extra volume fraction for sales at a planet with a price-up event.
-static func volume_bonus_price_up(m: String) -> float:
-	return _sum("volume_pct", m, "sale_at_price_up_planet")
+## progress_grace (T261, was share_window): fraction of the Prosperity progress loss of an unmet cycle that is spared (0..1).
+static func progress_grace(m: String) -> float:
+	return clampf(_sum("progress_grace", m), 0.0, 1.0)
 
 ## route_capacity_pct: units per cycle of a route carrying a good of market m x this.
 static func route_capacity_mult(m: String) -> float:
@@ -170,14 +170,6 @@ static func bot_growth_mult(m: String) -> float:
 		if _hits(e, m):
 			f *= _key(e)
 	return f
-
-## share_window: cycles of the share window of market m, `def` when no skill changes it.
-static func share_window(m: String, def: int) -> int:
-	var w := def
-	for e in _eff("share_window"):
-		if _hits(e, m):
-			w = maxi(w, int(_key(e)))
-	return w
 
 ## reveal_prices: cycles of prices shown ahead (0 = none).
 ## at_home: false when the planet asked about is outside the home system (the CEO perk Quick Read shows prices only at

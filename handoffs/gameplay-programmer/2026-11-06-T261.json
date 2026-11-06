@@ -1,0 +1,30 @@
+{
+  "task": "T261",
+  "agent": "main session (small edit)",
+  "changed": [
+    "data/skills.json",
+    "data/balance.json",
+    "game/skills.gd",
+    "game/markets.gd",
+    "game/prosperity.gd",
+    "tools/tests/run_tests.gd",
+    "gdd-skills.md"
+  ],
+  "need_fill_pct_nodes": [
+    "LUX_2",
+    "LUX_5",
+    "BIO_2",
+    "MIL_9",
+    "LUX_13",
+    "LUX_14",
+    "MIN_9",
+    "MIN_14",
+    "BIO_13"
+  ],
+  "progress_grace_nodes": [
+    "BIO_5",
+    "MIL_12",
+    "LUX_8"
+  ],
+  "note": "Only 9 nodes carried volume_pct (task said 8). Keys skill_<ID>_need_fill and skill_<ID>_grace are placeholders. The condition sale_at_price_up_planet was dropped. Share volume no longer changes by skill; share_window is now the plain balance value. BIO_5 also keeps stock_protect. Prosperity _steps is float, save format unchanged. Story task must re-voice these 12 node names and descriptions."
+}

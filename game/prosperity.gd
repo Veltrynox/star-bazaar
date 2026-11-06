@@ -15,6 +15,7 @@ extends RefCounted
 ## need opens where the world had none), need_hunger_step_pct / need_hunger_cap_pct (the sell price rises a step per cycle a
 ## need stays short, up to the cap, and steps back down once met), need_surplus_pct (share of the price paid for units sold
 ## above the demand in a cycle), need_surplus_all (0/1: surplus applies to every sale, not only need goods).
+## T261 skills: need_fill_pct (Skills.need_fill_bonus) adds units to add_fill; progress_grace (Skills.progress_grace) spares part of the unmet-cycle progress loss.
 ## Saved by main under "prosperity". Old saves: established worlds start at tier 1 (nothing stored).
 
 signal tier_up(planet: int, tier: int)
@@ -27,10 +28,11 @@ var planets: Array = []
 var established_fn: Callable = Callable()  # (planet id: String) -> bool, the post stands
 var data: Dictionary = {}
 var _tier: Dictionary = {}      # planet id -> stored tier (only tiers above 1, or 1 for reclaimed worlds)
-var _steps: Dictionary = {}     # planet id -> progress steps in the current tier
+var _steps: Dictionary = {}     # planet id -> progress steps in the current tier (float since T261: progress_grace spares part of a loss)
 var _sold: Dictionary = {}      # planet id -> {good: units sold this cycle}
 var _restless: Dictionary = {}  # planet id -> true when a need was short at the last cycle end
 var _reclaimed: Dictionary = {} # planet id -> true (hook for the Barren reclaim task)
+var _carry: Dictionary = {}     # T261: fractional need-fill bonus units not yet counted (not saved)
 var _reached := 0               # T258: highest tier any world has reached this run (skill points paid up to it)
 var _hunger: Dictionary = {}    # T257: planet id -> {good: cycles the need was short in a row (capped by need_hunger_cap_pct)}
 
@@ -44,6 +46,7 @@ func setup(bal: Dictionary, planet_list: Array, established: Callable) -> void:
 	_restless = {}
 	_reclaimed = {}
 	_hunger = {}
+	_carry = {}
 	_reached = 0
 	var parsed = JSON.parse_string(FileAccess.get_file_as_string(PATH)) if FileAccess.file_exists(PATH) else null
 	data = parsed if typeof(parsed) == TYPE_DICTIONARY else {}
@@ -165,6 +168,12 @@ func add_fill(i: int, good: String, units: int) -> void:
 	if pid == "" or units <= 0 or tier(i) < 1:
 		return
 	var d: Dictionary = _sold.get(pid, {})
+	var bonus := Skills.need_fill_bonus(Markets.market_of(good))  # T261: need_fill_pct skills
+	if bonus > 0.0:
+		var carry := float(_carry.get(pid + "|" + good, 0.0)) + float(units) * bonus
+		var extra := floori(carry)
+		_carry[pid + "|" + good] = carry - float(extra)
+		units += extra
 	d[good] = int(d.get(good, 0)) + units
 	_sold[pid] = d
 
@@ -246,7 +255,7 @@ func steps_needed(i: int) -> int:
 	return maxi(1, int(_n("prosperity_steps", t, 3.0))) if t >= 1 else 0
 
 func steps(i: int) -> int:
-	return maxi(0, int(_steps.get(_pid(i), 0))) if tier(i) >= 1 else 0
+	return maxi(0, floori(float(_steps.get(_pid(i), 0)) + 0.0001)) if tier(i) >= 1 else 0
 
 ## True when a need was short at the last cycle end.
 func restless(i: int) -> bool:
@@ -264,15 +273,29 @@ func end_cycle() -> void:
 		_restless[pid] = not ok
 		if t < max_tier():
 			if ok:
-				_steps[pid] = int(_steps.get(pid, 0)) + 1
-				if int(_steps[pid]) >= maxi(1, int(_n("prosperity_steps", t, 3.0))):
+				_steps[pid] = float(_steps.get(pid, 0)) + 1.0
+				if float(_steps[pid]) >= maxi(1, int(_n("prosperity_steps", t, 3.0))):
 					_tier[pid] = t + 1
 					_steps[pid] = 0
 					_sold.erase(pid)
 					tier_up.emit(i, t + 1)
 			else:
-				_steps[pid] = maxi(0, int(_steps.get(pid, 0)) - maxi(0, int(balance.get("prosperity_decay_steps", 1))))
+				# T261: progress_grace skills (best of the world's need markets: the sum over every market it feeds, capped at 1) spare part of the loss
+				var loss := float(maxi(0, int(balance.get("prosperity_decay_steps", 1)))) * (1.0 - _grace(i))
+				_steps[pid] = maxf(0.0, float(_steps.get(pid, 0)) - loss)
 	_sold = {}
+
+## T261: share of an unmet cycle's progress loss spared at world i: progress_grace of the markets of its need goods, summed over
+## distinct markets and capped at 1.
+func _grace(i: int) -> float:
+	var seen := {}
+	var g := 0.0
+	for n in _need_goods(i):
+		var m := Markets.market_of(n)
+		if m != "" and not seen.has(m):
+			seen[m] = true
+			g += Skills.progress_grace(m)
+	return clampf(g, 0.0, 1.0)
 
 ## Cycle end: each need short (or locked) adds a hunger step, each met need steps back down one.
 func _update_hunger(i: int, pid: String) -> void:
@@ -301,13 +324,14 @@ func from_dict(s) -> void:
 	_restless = {}
 	_reclaimed = {}
 	_hunger = {}
+	_carry = {}
 	_reached = 0
 	if typeof(s) != TYPE_DICTIONARY:
 		return  # old saves: established worlds start at tier 1
 	for k in s.get("tier", {}):
 		_tier[str(k)] = clampi(int(s["tier"][k]), 1, max_tier())
 	for k in s.get("steps", {}):
-		_steps[str(k)] = maxi(0, int(s["steps"][k]))
+		_steps[str(k)] = maxf(0.0, float(s["steps"][k]))
 	var sd = s.get("sold", {})
 	if typeof(sd) == TYPE_DICTIONARY:
 		for k in sd:

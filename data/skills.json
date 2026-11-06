@@ -6,7 +6,7 @@
   "_how": "effect = {type, target, ...}. Numbers are never stored here: key / duration_key / cooldown_key / cap_key name a data/balance.json value. cost 0 = tech node (researched by crafting; goal = balance[tech_goal_key] units made by that market's workshop(s), counted from when prereqs are met). cost is also in balance skill_cost_<id> (balance is authoritative). 'extra' = more effects applied with the same node. prereqs: all listed ids must be learned/researched. target: market id (mil|lux|min|bio), 'all', 'ships', 'planet_storage', 'feature', 'workshop', 'good'.",
   "types": {
    "upkeep_mult": "ship upkeep (trip cost and maintenance) x (1 - balance[key])",
-   "volume_pct": "share volume of target market x (1 + balance[key]); optional condition 'sale_at_price_up_planet' = only sales at a planet with a price-up event",
+   "need_fill_pct": "units of target-market goods sold into a world need count x (1 + balance[key]) toward its demand (T261, replaces volume_pct)",
    "route_capacity_pct": "units per cycle on routes carrying target-market goods x (1 + balance[key])",
    "sale_price_pct": "sale price of target-market goods x (1 + balance[key]); cash only, share_effect false = share still uses base values",
    "event_cut_pct": "price/damage events against the player in target market reduced by balance[key] (0.5 = half)",
@@ -18,7 +18,7 @@
    "unlock": "unlocks target kind id: workshop (smelter|munitions|atelier|culture_lab|fabric), good (goods.json id), feature (space_storage|permit_routes|cluster_routes)",
    "bot_strength_pct": "bot strength in target market down balance[key]. shared_cooldown_key (T173 r2): every chosen_bot hit, of any market, also locks all chosen_bot skills for balance[shared_cooldown_key] cycles after it starts (one pressure action per window). pick chosen_bot = player chooses one bot; all_bots = every bot. duration_key = cycles it lasts; cooldown_key = cycles between uses; once_per_run; permanent = rest of run",
    "bot_growth_mult": "bot growth in target market x balance[key]; pick all_bots; permanent",
-   "share_window": "share window of target market = balance[key] cycles instead of share_window",
+   "progress_grace": "an unmet cycle costs balance[key] (0..1) less Prosperity progress at worlds, summed over learned effects of the target market (T261, replaces share_window)",
    "reveal_prices": "next-cycle prices shown for 'cycles' cycles ahead",
    "event_warning": "next event announced 'cycles' cycles early",
    "mine_unlock": "allows mining good id at place (planet id)",
@@ -255,9 +255,9 @@
    ],
    "cost": 0,
    "effect": {
-    "type": "volume_pct",
+    "type": "need_fill_pct",
     "target": "lux",
-    "key": "skill_LUX_2_volume"
+    "key": "skill_LUX_2_need_fill"
    },
    "tech_goal_key": "tech_goal_2",
    "extra": [
@@ -310,10 +310,9 @@
    ],
    "cost": 3,
    "effect": {
-    "type": "volume_pct",
+    "type": "need_fill_pct",
     "target": "lux",
-    "key": "skill_size_l",
-    "condition": "sale_at_price_up_planet"
+    "key": "skill_LUX_5_need_fill"
    },
    "extra": [
     {
@@ -604,9 +603,9 @@
    "tech_goal_key": "tech_goal_2",
    "extra": [
     {
-     "type": "volume_pct",
+     "type": "need_fill_pct",
      "target": "bio",
-     "key": "skill_BIO_2_volume"
+     "key": "skill_BIO_2_need_fill"
     }
    ]
   },
@@ -666,9 +665,9 @@
    ],
    "cost": 3,
    "effect": {
-    "type": "share_window",
+    "type": "progress_grace",
     "target": "bio",
-    "key": "share_window_bio_bonus"
+    "key": "skill_BIO_5_grace"
    },
    "extra": [
     {
@@ -792,9 +791,9 @@
    ],
    "cost": 0,
    "effect": {
-    "type": "volume_pct",
+    "type": "need_fill_pct",
     "target": "mil",
-    "key": "skill_MIL_9_volume"
+    "key": "skill_MIL_9_need_fill"
    },
    "tech_goal_key": "tech_goal_4"
   },
@@ -840,9 +839,9 @@
    ],
    "cost": 2,
    "effect": {
-    "type": "share_window",
+    "type": "progress_grace",
     "target": "mil",
-    "key": "share_window_mil_bonus"
+    "key": "skill_MIL_12_grace"
    }
   },
   {
@@ -904,9 +903,9 @@
    ],
    "cost": 2,
    "effect": {
-    "type": "share_window",
+    "type": "progress_grace",
     "target": "lux",
-    "key": "share_window_lux_bonus"
+    "key": "skill_LUX_8_grace"
    }
   },
   {
@@ -982,9 +981,9 @@
    ],
    "cost": 3,
    "effect": {
-    "type": "volume_pct",
+    "type": "need_fill_pct",
     "target": "lux",
-    "key": "skill_LUX_13_volume"
+    "key": "skill_LUX_13_need_fill"
    },
    "extra": [
     {
@@ -1005,9 +1004,9 @@
    ],
    "cost": 0,
    "effect": {
-    "type": "volume_pct",
+    "type": "need_fill_pct",
     "target": "lux",
-    "key": "skill_LUX_14_volume"
+    "key": "skill_LUX_14_need_fill"
    },
    "tech_goal_key": "tech_goal_6"
   },
@@ -1054,9 +1053,9 @@
    ],
    "cost": 0,
    "effect": {
-    "type": "volume_pct",
+    "type": "need_fill_pct",
     "target": "min",
-    "key": "skill_MIN_9_volume"
+    "key": "skill_MIN_9_need_fill"
    },
    "tech_goal_key": "tech_goal_4"
   },
@@ -1132,9 +1131,9 @@
    ],
    "cost": 0,
    "effect": {
-    "type": "volume_pct",
+    "type": "need_fill_pct",
     "target": "min",
-    "key": "skill_MIN_14_volume"
+    "key": "skill_MIN_14_need_fill"
    },
    "tech_goal_key": "tech_goal_6"
   },
@@ -1245,10 +1244,9 @@
    ],
    "cost": 2,
    "effect": {
-    "type": "volume_pct",
+    "type": "need_fill_pct",
     "target": "bio",
-    "key": "skill_BIO_13_volume",
-    "condition": "sale_at_price_up_planet"
+    "key": "skill_BIO_13_need_fill"
    }
   },
   {

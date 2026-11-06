@@ -52,7 +52,7 @@ Six Foundations (not a market, not in endings, shown in every run), cost [GCM:sk
 
 Each market has seven core nodes MKT_1 to MKT_7 (MIL, LUX, MIN, BIO) in tiers 1 to 5, eight fill nodes MKT_8 to MKT_15 in tiers 2 to 6, and one side skill in Luxury and Minerals. Skill nodes (core 1, 3, 5, 7; fill 8, 10, 12, 13, 15; side skills) cost points, set per node in balance.json ([GCM:skill_cost_MIL_1] and so on). Tech nodes (core 2, 4, 6; fill 9, 11, 14) cost 0 and complete by themselves after the player crafts the goal count of units in that market's workshop: [GCM:tech_goal_2] for node 2, [GCM:tech_goal_4] for nodes 4 and 9, [GCM:tech_goal_6] for nodes 6, 11 and 14, counted only from when the prerequisites are met. Core prerequisites: 2 and 3 need 1; 4 needs 2; 5 needs 3; 6 needs 4 and 5; 7 needs 6; side skills need 3. Fill prerequisites: 8 needs 1; 9 needs 2; 10 needs 3; 11 needs 4; 12 needs 4 in Military, the side skill in Luxury and Minerals, and 5 in Biotech; 13 needs 5; 14 needs 6; 15 (tier 6, the last node) needs 7 and 14. The L size is [GCM:skill_size_l]; other sizes are balance keys named per node in data/skills.json. A node can carry a second effect (a price bonus, a good unlocked); the lines below name the main ones. Exact lines for the player are in story/skills.md.
 
-Sale price bonuses are cash only: they never raise share. Volume bonuses raise share but not cash.
+Sale price bonuses are cash only: they never raise share. Need-fill skills make goods of their market count extra toward a world's needs (they no longer raise share); grace skills soften the progress lost when a world's needs go unmet.
 
 Military (workshop: Munitions Line)
   MIL_1 Drydock Deals (skill): ship upkeep lower; unlocks the Munitions Line and rounds.
@@ -66,7 +66,7 @@ Military (workshop: Munitions Line)
   MIL_9 Cell Press (tech): Military sales count more toward share.
   MIL_10 Hardened Stores (skill): stored Military goods survive storage cuts.
   MIL_11 Proof Range (tech): Military sale price up (cash only).
-  MIL_12 Open Arsenal (skill): the Military share window is longer.
+  MIL_12 Open Arsenal (skill): worlds lose less progress on an unmet cycle (Military needs).
   MIL_13 Pressure Doctrine (skill): Military routes carry more per cycle.
   MIL_14 War Economy (tech): each Military batch yields more units.
   MIL_15 Last Line (final skill, needs MIL_7 and MIL_14): rivals' Military strength down for the rest of the run.
@@ -79,7 +79,7 @@ Luxury (workshop: Atelier)
   LUX_5B Long Ledger (side skill): prices and events are shown two cycles ahead.
   LUX_6 Hallmark (tech): each Luxury batch yields one more unit; Luxury sale price up (cash only).
   LUX_7 Guild Seal (capstone skill): every [GCM:skill_LUX_7_every] cycles pick one rival: its Luxury strength falls for a set time.
-  LUX_8 Salon Circle (skill): the Luxury share window is longer.
+  LUX_8 Salon Circle (skill): worlds lose less progress on an unmet cycle (Luxury needs).
   LUX_9 Second Loom (tech): Luxury workshops make one more batch a cycle.
   LUX_10 Trend Desk (skill): Luxury price events against the player hit weaker.
   LUX_11 Collector's Eye (tech): Luxury sale price up (cash only).
@@ -109,7 +109,7 @@ Biotech (workshop: Culture Lab)
   BIO_2 Culture Banks (tech): Biotech stock in planet storage grows a little each cycle, up to a cap; Biotech sales count more toward share.
   BIO_3 Deep Shelves (skill): planet storage holds more; the Biotech growth cap rises.
   BIO_4 Gene Splicing (tech): unlocks seed; Biotech sale price up (cash only).
-  BIO_5 Clinic Contracts (skill): the Biotech share window is longer; Biotech stock survives storage cuts.
+  BIO_5 Clinic Contracts (skill): worlds lose less progress on an unmet cycle (Biotech needs); Biotech stock survives storage cuts.
   BIO_6 Hardy Strains (tech): Biotech events against the player cut; a closed planet reopens a cycle sooner; Biotech sale price up (cash only).
   BIO_7 Patent Wall (capstone skill): rivals' Biotech strength down for the rest of the run.
   BIO_8 Gel Cooperatives (skill): Biotech routes carry more per cycle.
