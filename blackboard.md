@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-06 18:23 run: T265
-- Summary: Planet tier look built: tier-driven night-side city lights and halo ring, eased by Juice.motion, placeholder balance keys, map wired to prosperity.tier
-- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
-- Approach: built by a worker in worktree ../wt/T265 on branch task/T265, merged by the serial merge queue.
-- Agent prompts: /overnight-worker T265 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T265.log.
-- Worked: rebase, full test suite and fast-forward merge passed.
-- Failed / did not work: nothing.
-- Files and commits: see git log on branch new-features for commits starting with T265.
-- Left to do: nothing for this task.
-
 ## 2026-11-06 18:24 run: T286
 - Summary: Galaxy view now draws dots drifting along links between open systems (more on a live Storage Link) and a soft glow per system that grows with the sum of its worlds' tiers; the 7 new `galaxy_*` keys are placeholders in `data/balance.json`
 - Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
@@ -64,4 +54,14 @@
 - Worked: rebase, full test suite and fast-forward merge passed.
 - Failed / did not work: nothing.
 - Files and commits: see git log on branch new-features for commits starting with T259.
+- Left to do: nothing for this task.
+
+## 2026-11-06 18:39 run: T293
+- Summary: Added hub text (name, make-hub prompt, panel labels, four status reasons, release confirm, first-hub notice) as HUB_* ids in story/screens.md and rebuilt story_text.json
+- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
+- Approach: built by a worker in worktree ../wt/T293 on branch task/T293, merged by the serial merge queue.
+- Agent prompts: /overnight-worker T293 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T293.log.
+- Worked: rebase, full test suite and fast-forward merge passed.
+- Failed / did not work: nothing.
+- Files and commits: see git log on branch new-features for commits starting with T293.
 - Left to do: nothing for this task.

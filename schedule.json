@@ -2767,7 +2767,7 @@
       "title": "Text: hubs",
       "owner_agent": "story-designer",
       "depends_on": [],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 30,
       "window": "Owner request 2026-11-06: empire growth v2, phase 4 (design/proposals/2026-11-06-empire-growth-v2.md). Priority over conflicting older tasks.",
       "brief": "Goal: hub ids have text. Design: design/proposals/2026-11-06-empire-growth-v2.md section 3.3. Write: hub name, make-hub prompt, panel labels, the four status reasons, release confirm, first-hub notice. Write in story/*.md (English only), then run python3 tools/build_story.py; never edit generated files (data/story_text.json, data/events.json). Voice per story/voice.md. No text names a hidden good, a number or a skill-point price. Done when written. Handoff: handoffs/story-designer/<date>-T293.json.",
@@ -2776,7 +2776,8 @@
         "story/screens.md",
         "data/story_text.json"
       ],
-      "priority": 1
+      "priority": 1,
+      "note": "Done by orchestrator: Added hub text (name, make-hub prompt, panel labels, four status reasons, release confirm, first-hub notice) as HUB_* ids in story/screens.md and rebuilt story_text.json"
     },
     {
       "task_id": "T294",
