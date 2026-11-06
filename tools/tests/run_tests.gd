@@ -1268,28 +1268,57 @@ func _test_main() -> void:
 	check(not bal.has("win_cash") and not bal.has("win_cycle"), "goal: old win_cash and win_cycle keys are gone")
 	check(win_cycle == 40, "goal: run length is win_cycle_markets (40)")
 
-	# --- win by holding a market (forced share): from win_earliest_cycle, held win_hold_cycles ---
+	# --- T259: a market share no longer wins; the Star Bazaar does ---
 	_wipe_user()
 	check(m.debug_force_market == "", "force-share: off by default")
 	check(not m.collect_state().has("debug_force_market"), "force-share: not saved")
 	m.debug_force_market = "mil"
-	Chains.picks["MIL_B4"] = {"opt": "opt_a", "cycle": 1, "nudge": 0}  # the win gate is open (own tests below)
+	Chains.picks["MIL_B4"] = {"opt": "opt_a", "cycle": 1, "nudge": 0}
 	m.cycle = int(bal["win_earliest_cycle"]) - 2
 	var ended := []
 	m.run_ended.connect(func(side, id): ended.append([side, id]))
-	for i in 2:
+	for i in 12:
 		m._end_cycle()
-	check(not m.game_over, "win: not before win_earliest_cycle")
-	var guard := 0
-	while not m.game_over and guard < 10:
-		m._end_cycle()
-		guard += 1
+	check(not m.game_over and ended.is_empty(), "win: a held market share does not win any more (no share win, no swept loss)")
+	m.debug_force_market = ""
+	var bz: Bazaar = m.bazaar
+	check(not bz.is_founded() and bz.capital() == -1 and bz.stage() == 0 and not bz.can_found(0), "bazaar: nothing founded at the start, home world is below the capital tier")
+	m.balance["bazaar_capital_tier"] = 1
+	m.balance["bazaar_stages"] = 2
+	m.balance["bazaar_reach_stage"] = 2
+	for n in [1, 2]:
+		for t in range(1, 5):
+			m.balance["bazaar_bill_s%d_t%d" % [n, t]] = 0
+		m.balance["bazaar_quorum_count_s%d" % n] = 0
+	var cap := 0
+	check(bz.can_found(cap) and bz.found(cap) and bz.capital() == cap and not bz.found(cap) and not bz.can_found(1), "bazaar: found once, final")
+	check(Conditions.eval("bazaar_stage:1") == false and Conditions.eval("bazaar_stage:0") == true, "bazaar: atom bazaar_stage reads the stages done")
+	m.balance["bazaar_bill_s1_t1"] = 5
+	var staged := []
+	bz.stage_done.connect(func(n): staged.append(n))
+	m._end_cycle()
+	check(bz.stage() == 0 and not bz.bill_ok() and bz.bill_status().size() == 1 and bz.bill_status()[0]["need"] == 5, "bazaar: an unmet bill holds the stage", str(bz.bill_status()))
+	var g1: String = bz._branch_goods(1)[0]
+	m.storage.add(m.storage.planet_key(cap), g1, 7)
+	m._end_cycle()
+	check(bz.stage() == 1 and staged == [1] and m.storage.amount(m.storage.planet_key(cap), g1) == 2 and not m.game_over, "bazaar: stage done at cycle end, the bill is removed", str(staged))
+	m.balance["bazaar_quorum_count_s2"] = 1
+	m.balance["bazaar_quorum_tier_s2"] = 1
+	check(not bz.quorum_status()["ok"] or bz.reach_needed(), "bazaar: stage 2 asks for a quorum and reach")
+	m.balance["bazaar_quorum_count_s2"] = 0
+	m.balance["bazaar_reach_stage"] = 9
 	await process_frame
-	var want_end := int(bal["win_earliest_cycle"]) + int(bal["win_hold_cycles"]) - 1
-	check(m.game_over and m.cycle == want_end, "win: held win_hold_cycles from win_earliest_cycle ends at cycle %d" % want_end, str(m.cycle))
-	check(ended.size() == 1 and ended[0][0] == "WIN" and ended[0][1] == "END_MIL_GOOD", "win: END_MIL_GOOD (placeholder ending per market)", str(ended))
+	m._end_cycle()
+	await process_frame
+	var fam := "END_%s_GOOD" % (m.run_branch() if m.run_branch() != "" else str(Markets.ids[0])).to_upper()
+	check(m.game_over and bz.complete() and bz.opening_pending and ended.size() == 1 and ended[0][0] == "WIN" and ended[0][1] == fam, "win: the last stage wins with the branch family", str(ended))
 	check(m.end_screen != null and _stats_runs() == 1, "win: end screen shown, run recorded once")
 	check(not FileAccess.file_exists("user://autosave.json"), "win: save cleared")
+	m._continue_free_play()
+	check(m.free_play and not m.game_over and m.collect_state()["free_play"] == true and m.collect_state()["bazaar"]["stage"] == 2, "free play: Continue resumes, saved")
+	m.cycle = win_cycle
+	m._end_cycle()
+	check(not m.game_over, "free play: no further endings, not even at the term")
 	await _free_main(m)
 	m = await _new_main()
 	check(m.debug_force_market == "", "force-share: resets in a new run")
@@ -1301,21 +1330,14 @@ func _test_main() -> void:
 	check(has_opt, "force-share: debug menu has the selector (replaces Force goal)")
 	await _free_main(m)
 
-	# --- swept: under sweep_share_pct in all four markets for sweep_hold_cycles from sweep_earliest_cycle ---
+	# --- swept: gone (T259), the share sweep never ends a run ---
 	_wipe_user()
 	m = await _new_main()
 	m._dismiss_preface()
-	var ended3 := []
-	m.run_ended.connect(func(side, id): ended3.append([side, id]))
-	m.cycle = int(bal["sweep_earliest_cycle"]) - 1
-	m._end_cycle()
-	check(not m.game_over and Markets.sweep_streak == 0, "swept: nothing before sweep_earliest_cycle")
-	for i in int(bal["sweep_hold_cycles"]) - 1:
+	m.cycle = int(bal["sweep_earliest_cycle"]) + int(bal["sweep_hold_cycles"]) + 2
+	for i in 4:
 		m._end_cycle()
-	check(not m.game_over, "swept: not before sweep_hold_cycles")
-	m._end_cycle()
-	await process_frame
-	check(m.game_over and ended3.size() == 1 and ended3[0][0] == "LOSS" and ended3[0][1] == "END_SWEPT", "swept: END_SWEPT after the hold", str(ended3))
+	check(not m.game_over, "swept: no END_SWEPT any more")
 	await _free_main(m)
 
 	# --- soft ending at the last cycle with no market over 50% ---
@@ -1327,7 +1349,7 @@ func _test_main() -> void:
 	m.cycle = win_cycle
 	m._end_cycle()
 	await process_frame
-	check(m.game_over and ended4.size() == 1 and ended4[0][0] == "SOFT" and ended4[0][1] == "END_OUTCOMPETED", "soft: END_OUTCOMPETED at the last cycle", str(ended4))
+	check(m.game_over and ended4.size() == 1 and ended4[0][0] == "SOFT" and ended4[0][1] == "END_UNFINISHED", "soft: END_UNFINISHED at the last cycle", str(ended4))
 	await _free_main(m)
 
 	# --- bankrupt: newest ship repossessed each cycle, salvage credited, ends with no ship and cash negative ---
@@ -2005,7 +2027,7 @@ func _test_skills_core() -> void:
 	f.store_string(JSON.stringify({"version": 2, "state": v2}))
 	f.close()
 	var loaded: Dictionary = SaveGame.load_state()
-	check(SaveGame.VERSION == 11 and not loaded.is_empty() and loaded["learned_skills"].has("FND_STORAGE") and not SaveGame.dropped_old, "migration: a v2 file loads migrated")
+	check(SaveGame.VERSION == 12 and not loaded.is_empty() and loaded["learned_skills"].has("FND_STORAGE") and not SaveGame.dropped_old, "migration: a v2 file loads migrated")
 	f = FileAccess.open(SaveGame.PATH, FileAccess.WRITE)
 	f.store_string(JSON.stringify({"version": 1, "state": v2}))
 	f.close()
@@ -6374,9 +6396,9 @@ func _test_chains() -> void:
 	Chains.broken["bio"] = 2
 	var inp: Dictionary = EndingPicker.inputs("bio", bal)
 	check(inp["ending_id"] == "END_BIO_BAD" and inp["flag"] == "bad" and inp["rival_broken"] == true and inp["rival_broken_bot"] == 2 and EndingPicker.inputs("mil", bal)["ending_id"] == "END_MIL_GOOD", "ending picker: BAD by the chain flag, rival_broken from the chain", str(inp))
-	check(m.ending_id_of({"kind": "win", "market": "bio"}) == "END_BIO_BAD" and m.ending_id_of({"kind": "win", "market": "lux"}) == "END_LUX_GOOD", "ending id: win reads the flag of the win market")
+	check(m.ending_id_of({"kind": "unfinished"}) == "END_UNFINISHED" and m.ending_id_of({"kind": "bankrupt"}) == "END_BANKRUPT", "ending id: soft and loss ids")
 	# save version 4 and v3 migration
-	check(SaveGame.VERSION == 11, "save: version 11 (v2 and newer load; v1 is dropped, owner approved)")
+	check(SaveGame.VERSION == 12, "save: version 12 (v2 and newer load; v1 is dropped, owner approved)")
 	var v3 := {"cycle": 7, "cash": 300, "chains": {"dir": {"mil": 9}}, "shield": {"built": true}}
 	var mig: Dictionary = SaveGame.migrate_v3(v3)
 	check(mig["cash"] == 300 and not mig.has("shield") and not mig.has("chains"), "save: v3 migrates, chain state fresh, shield dropped")

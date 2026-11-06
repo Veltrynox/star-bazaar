@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "data_version": 1,
+  "source": "2026-11-06 T259 (gameplay-programmer): structure of the Star Bazaar win (design/proposals/2026-11-06-empire-growth-v2.md section 4). No numbers here: every number is a data/balance.json key named below, PLACEHOLDER until economy-designer sets it.",
+  "balance_keys": {
+    "capital_tier": "bazaar_capital_tier",
+    "stages": "bazaar_stages",
+    "reach_stage": "bazaar_reach_stage",
+    "bill_units": "bazaar_bill_s<N>_t<goods tier>",
+    "quorum_tier": "bazaar_quorum_tier_s<N>",
+    "quorum_count": "bazaar_quorum_count_s<N>"
+  },
+  "goods_tiers": [1, 2, 3, 4],
+  "rules": {
+    "bill_goods": "goods of the run's branch market with that goods.json tier, any mix; energy is not part of a bill",
+    "bill_where": "the capital's planet storage; the bill is removed when the stage completes at cycle end",
+    "quorum": "other worlds (not the capital) at that prosperity tier or more",
+    "reach": "from bazaar_reach_stage a world of the quorum stands in another system than the capital"
+  }
+}

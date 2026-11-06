@@ -1,0 +1,7 @@
+{
+  "task": "T259",
+  "agent": "gameplay-programmer (built by the worker main session)",
+  "summary": "Star Bazaar win: game/bazaar.gd (found, stages, bill, quorum, reach, end_cycle, save), main._end_cycle swapped (no share win, swept or overhead; term ends in END_UNFINISHED; Bankrupt unchanged), Continue = free play, atom bazaar_stage:<n>, save v12.",
+  "files": ["game/bazaar.gd", "data/bazaar.json", "data/balance.json", "game/main.gd", "game/end_screen.gd", "game/ending_picker.gd", "game/conditions.gd", "game/save_game.gd", "gdd.md", "tools/tests/run_tests.gd"],
+  "notes": "All bazaar_* numbers in balance.json are placeholders for economy-designer. Opening hook: bazaar.opening_pending. Texts use StoryText.get_or fallbacks (END_BTN_CONTINUE, END_STAT_STAGES) until the story task. tools/tests/run_tests.gd is outside touches: old win/swept/outcompeted tests rewritten for the new rules."
+}

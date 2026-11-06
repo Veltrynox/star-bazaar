@@ -50,6 +50,7 @@ var cycle_elapsed: float = 0.0  # seconds into current cycle
 var debug_force_market: String = ""  # debug-only, runtime only, never saved: market id whose share is forced up at cycle end
 var debug_force_event: bool = false  # T13: debug-only, fire a random event at the next cycle start, then clears
 var run_recorded: bool = false  # T78: a run is recorded once
+var free_play: bool = false  # T259: after any ending the player chose Continue: no further endings, saved
 var time_speed: float = 1.0  # clock multiplier chosen in the top bar (1, 2, 6 or 12); saved, sticky until changed
 const SPEEDS := [1.0, 2.0, 6.0, 12.0]
 var speed_buttons: Array = []
@@ -173,6 +174,7 @@ var engine: RefCounted = RouteEngine.new()  # T07 route records and math
 var workshops: RefCounted = WorkshopsScript.new()  # smelter, munitions, atelier, culture lab; saved under "workshops"
 var fabric: RefCounted = Fabric.new()  # the fabric at the trading post, saved under "fabric"
 var prosperity: Prosperity = Prosperity.new()  # T256 world tiers and needs, saved under "prosperity"
+var bazaar: Bazaar = Bazaar.new()  # T259 the Star Bazaar: capital, stages, saved under "bazaar"
 var dead: RefCounted = DeadWorlds.new()  # dead worlds: danger meter per planet id, saved under "danger"
 var clusters: RefCounted = Clusters.new()  # T156 asteroid clusters (ore sources), saved
 var notice_label: Label
@@ -274,6 +276,7 @@ func _ready() -> void:
 	dead.setup(balance)
 	prosperity.setup(balance, map.planets, func(pid: String) -> bool: return flight != null and flight.established(pid))
 	engine.prosperity = prosperity
+	bazaar.setup(self)  # T259
 	map.prosperity = prosperity  # T264 growth ring and need icons
 	if not prosperity.tier_up.is_connected(_on_prosperity_tier_up):
 		prosperity.tier_up.connect(_on_prosperity_tier_up)
@@ -385,7 +388,7 @@ func collect_state() -> Dictionary:
 		"chains": Chains.to_dict(), "storage_cuts": storage.cuts_to_dict(), "price_history": price_history,
 		"forecast_id": forecast_id, "forecast_slot": forecast_slot, "forecast_noted": forecast_noted, "station_systems": station_systems,
 		"second_lane": second_lane_planet, "clusters": clusters.to_dict(), "danger": dead.to_dict(), "fabric": fabric.to_dict(), "workshops": workshops.to_dict(),
-			"pathfinder": flight.to_dict(), "storage_links": storage_link.to_array(), "prosperity": prosperity.to_dict()}
+			"pathfinder": flight.to_dict(), "storage_links": storage_link.to_array(), "prosperity": prosperity.to_dict(), "bazaar": bazaar.to_dict(), "free_play": free_play}
 
 func apply_state(s: Dictionary) -> void:
 	_loading_state = true
@@ -453,6 +456,8 @@ func apply_state(s: Dictionary) -> void:
 	_ensure_posts()  # old saves with FND_STORAGE: stations for every open system, no notice
 	storage_link.from_array(s.get("storage_links"))  # T171; old saves: no links
 	prosperity.from_dict(s.get("prosperity"))  # T256; old saves: established worlds at tier 1
+	bazaar.from_dict(s.get("bazaar"))  # T259; old saves: nothing founded
+	free_play = bool(s.get("free_play", false))
 	if typeof(s.get("prosperity")) != TYPE_DICTIONARY or not s["prosperity"].has("reached"):
 		prosperity.claim_new_tiers()  # T258: a save from before tier rewards gets no back pay
 	_loading_state = false
@@ -2207,15 +2212,11 @@ func _end_cycle() -> void:
 	for a in (Skills.award_share_points() if int(balance.get("share_points_enabled", 0)) != 0 else []):  # first time a market share reaches 20% / 35%: points, once per market
 		_add_points(int(a["points"]))
 		_point_notice(StoryText.get_or("NOT_SKILL_REASON_SHARE", "Your {market} share passed {pct}%.", {"market": Markets.names.get(a["market"], a["market"]), "pct": int(a["step"])}))
-	var overhead := Markets.overhead()  # spreading penalty, paid like upkeep
-	if overhead > 0:
-		cash -= overhead
-		post_notice(StoryText.get_or("NOT_MARKET_OVERHEAD", "Market overhead: {n} credits for running {m} markets.", {"n": overhead, "m": Markets.n_active()}))
-	var outcome := Markets.verdict(cycle)  # win first, then swept, then bankrupt
+	var outcome := bazaar.end_cycle()  # T259: a Bazaar stage completes; the last one wins. No share win, no swept loss, no market overhead.
 	if outcome.is_empty():
 		outcome = _bankrupt_step()
-		if outcome.is_empty() and Markets.timed_out(cycle):
-			outcome = {"kind": "outcompeted"}
+		if outcome.is_empty() and Markets.timed_out(cycle) and not free_play:
+			outcome = {"kind": "unfinished", "stages_done": bazaar.stage()}  # the term ended first: kind soft ending
 	if outcome.is_empty() or str(outcome["kind"]) == "repossessed":
 		_check_stranded()
 		if outcome.is_empty() and _is_dead_end():
@@ -2226,6 +2227,8 @@ func _end_cycle() -> void:
 	cycle_ended.emit(cycle)
 	Juice.pop(cycle_label, 1.12)  # the economy turned over: income has landed
 	Juice.flash(cycle_label, Ui.col("star_warm"))
+	if free_play and not outcome.is_empty() and str(outcome["kind"]) != "repossessed":
+		outcome = {}  # T259 free play: no further endings
 	if not outcome.is_empty() and str(outcome["kind"]) != "repossessed":
 		_finish_outcome(outcome)
 		return
@@ -2298,6 +2301,7 @@ func _open_end_screen() -> ColorRect:
 	add_child(end_screen)
 	end_screen.new_game_pressed.connect(func(): get_tree().reload_current_scene())
 	end_screen.menu_pressed.connect(_to_menu)
+	end_screen.continue_pressed.connect(_continue_free_play)
 	end_screen.quit_pressed.connect(func(): get_tree().quit())
 	return end_screen
 
@@ -2330,32 +2334,29 @@ func _repossess_newest() -> void:
 	post_notice(StoryText.get_or("NOT_REPOSSESSED", "Cash ran out. The newest ship was repossessed: +{n} credits.", {"n": credit}))
 	_after_change()
 
-## Ending id for an outcome. A win reads the hidden chain direction of the win market: END_<MKT>_GOOD or END_<MKT>_BAD.
+## Ending id for an outcome (T259). A Bazaar win is the run branch's family, GOOD or BAD by the hidden chain lean:
+## END_<BRANCH>_GOOD / _BAD. The term ending is END_UNFINISHED; the loss is END_BANKRUPT.
 func ending_id_of(outcome: Dictionary) -> String:
 	match str(outcome.get("kind", "")):
-		"win":
-			return "END_%s_%s" % [str(outcome["market"]).to_upper(), Chains.ending_flag(str(outcome["market"])).to_upper()]
-		"swept":
-			return "END_SWEPT"
+		"bazaar":
+			var b := run_branch() if run_branch() != "" else str(Markets.ids[0])
+			return "END_%s_%s" % [b.to_upper(), Chains.ending_flag(b).to_upper()]
 		"bankrupt":
 			return "END_BANKRUPT"
-	return "END_OUTCOMPETED"
+	return "END_UNFINISHED"
 
 func _finish_outcome(outcome: Dictionary) -> void:
 	var kind := str(outcome["kind"])
-	var best := Markets.best()
 	var stat := ""
 	var side := "LOSS"
-	if kind == "win":
+	var stages := "%s: %d / %d" % [StoryText.get_or("END_STAT_STAGES", "Bazaar stages"), bazaar.stage(), bazaar.stages_total()]
+	if kind == "bazaar":
 		side = "WIN"
-		stat = "%s: %d%%" % [Markets.names[outcome["market"]], roundi(float(outcome["share"]) * 100.0)]
-	elif kind == "swept":
-		stat = "%s: %s" % [StoryText.get_or("END_LEADING_BOT", "Leading rival"), Bots.bot_name(int(outcome["bot"]))]
-	elif kind == "outcompeted":
+		stat = stages
+	elif kind == "unfinished":
 		side = "SOFT"
-		var bm := str(best["market"])
-		stat = "%s: %d%%" % [Markets.names.get(bm, "-"), roundi(float(best["share"]) * 100.0)]
-	_finish(side, ending_id_of(outcome), stat, str(outcome.get("market", "")))
+		stat = stages
+	_finish(side, ending_id_of(outcome), stat, run_branch())
 
 ## The run is over: the save is cleared, the end screen shows the ending.
 func _finish(side: String, ending_id: String, stat: String, win_market: String = "") -> void:
@@ -2363,14 +2364,24 @@ func _finish(side: String, ending_id: String, stat: String, win_market: String =
 	SaveGame.clear()
 	var stats := {"cycle": cycle, "cash": cash, "market": win_market if win_market != "" else str(Markets.best()["market"])}
 	if side == "WIN":  # core 6: capstone, techs done, second market ... for the flavour lines of the win ending
-		stats["flavour"] = EndingPicker.inputs(str(stats["market"]), balance)
+		stats["flavour"] = EndingPicker.inputs(str(stats["market"]), balance, bazaar.stage())
 	if share_panel != null:
 		share_panel.close_screen()
+	stats["stages_done"] = bazaar.stage()
 	_open_end_screen().show_ending(ending_id, side, stats, stat)
 	if not run_recorded:  # local record, once per run
 		run_recorded = true
 		RunStats.record(side, ending_id, cycle, cash, "")
 	run_ended.emit(side, ending_id)
+
+## T259: Continue on the end screen: free play, no further endings. The save resumes with the next autosave.
+func _continue_free_play() -> void:
+	free_play = true
+	game_over = false
+	if end_screen != null:
+		end_screen.queue_free()
+		end_screen = null
+	_refresh_panel()
 
 ## ---- T12 events ----
 

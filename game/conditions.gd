@@ -27,6 +27,7 @@ extends RefCounted
 ##                                          These three are true for every planet while balance discovery_enabled is 0 (game/pathfinder.gd).
 ##   any_tier:<n>                           some world has reached prosperity tier n (n is a structural index; a world never loses a tier)
 ##   planet_tier:<planet>/<n>               that world stands at prosperity tier n or more (e.g. planet_tier:planet_1/2)
+##   bazaar_stage:<n>                       the Star Bazaar has completed n stages (game/bazaar.gd; n from 1)
 ## Atoms that need a chain step in the context (ctx.step), the market and previous step come from it:
 ##   share_pct:<balance>                    the step's market share in percent has reached the value
 ##   first_sale_after_cycle:<balance>       a non-common-raw good of the step's market sold in a cycle after that
@@ -41,7 +42,7 @@ const ATOMS := {
 	"start": "", "skill_learned": "node", "workshop_built": "workshop", "system_open": "system", "cycle_at_least": "balance", "cycle_at_most": "balance",
 	"stock_held": "good", "good_visible": "good", "good_traded": "good", "event_fired": "event",
 	"share_pct": "balance", "first_sale_after_cycle": "balance", "cycles_after_prev_step": "balance",
-	"planet_visited": "planet", "post_built": "planet", "platform_built": "planet", "branch_is": "market", "branch_chosen": "", "any_tier": "n", "planet_tier": "planet/n",
+	"planet_visited": "planet", "post_built": "planet", "platform_built": "planet", "branch_is": "market", "branch_chosen": "", "any_tier": "n", "planet_tier": "planet/n", "bazaar_stage": "n",
 }
 const STEP_ATOMS := ["share_pct", "first_sale_after_cycle", "cycles_after_prev_step"]
 
@@ -123,7 +124,7 @@ static func _atom(atom: String, ctx: Dictionary) -> bool:
 			return b == "" or b == arg
 		"branch_chosen":
 			return run_branch() != ""
-		"any_tier", "planet_tier":
+		"any_tier", "planet_tier", "bazaar_stage":
 			return live() and _game_atom(str(parts[0]), arg)
 		"workshop_built", "system_open", "stock_held", "planet_visited", "post_built", "platform_built":
 			return live() and _game_atom(str(parts[0]), arg)
@@ -146,6 +147,8 @@ static func _game_atom(name: String, arg: String) -> bool:
 			return stock_held(arg)
 		"planet_visited", "post_built", "platform_built":
 			return game.planet_atom(name, arg)
+		"bazaar_stage":
+			return game.bazaar != null and game.bazaar.stage() >= int(arg)
 		"any_tier":
 			return game.prosperity != null and game.prosperity.any_tier_reached(int(arg))
 		"planet_tier":

@@ -99,17 +99,18 @@ Events. One event happens every few cycles, never more than one per cycle. Every
 ========================================
 4. WIN, LOSS AND ENDINGS
 ========================================
-Win. Hold more than the win share of one market, for several cycles in a row (the early win), or at the end of the final cycle (the late win). A market's win is not declared before its chain is finished or a late cycle is reached. The market held picks the ending.
+Win. The run is won by raising the Star Bazaar. Once a world reaches the capital tier the player may found the Bazaar there: one capital per run, final. It is raised in stages; each stage needs a bill of the run branch's goods (by goods tier, climbing with the stage) held in the capital's planet storage, a quorum of other worlds at a prosperity tier and, from a set stage, a quorum world in another system. A stage completes at cycle end when all three hold; the bill is consumed. The last stage wins (the Opening flight is added later). Market share no longer wins, sweeps or costs overhead; markets keep counting silently for now. The run branch picks the ending family and the hidden lean picks GOOD or BAD.
 
-Loss and soft ending (checked in this order: win, swept, bankrupt):
+Loss and soft ending:
 - Bankrupt: cash stays negative after ships are repossessed and none is left, or the run is a dead end (every stipend spent, no income, nothing running, nothing to sell, not enough cash to restart).
-- Swept: share stays under a low line in all four markets for several cycles, after an earliest cycle.
-- Outcompeted (soft, not a loss): the last cycle passes with no market held.
+- Unfinished (soft, never a loss): the term (last cycle) ends before the Bazaar is finished; the epilogue scales with the stages done.
 
-Endings. The run ends with exactly one ending and no choice screen.
+Free play. Every end screen offers Continue: the run goes on with no further endings (the Bazaar keeps counting).
+
+Endings. The run ends with exactly one ending.
 - Win: END_MIL_GOOD / BAD, END_LUX_GOOD / BAD, END_MIN_GOOD / BAD, END_BIO_GOOD / BAD.
-- Loss: END_BANKRUPT, END_SWEPT.
-- Soft: END_OUTCOMPETED.
+- Loss: END_BANKRUPT.
+- Soft: END_UNFINISHED.
 - Epilogue lines under a win say what the company did (capstone skill, finished techs, a rival that lost ground, a strong second market). They never show counts, labels or the hidden direction.
 - No achievements, trophies or badges. The reward for good play is ending quality only.
 - Run stats of answered runs are kept locally only (user://stats.json). The autosave is user://autosave.json.

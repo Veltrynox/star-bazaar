@@ -5,6 +5,7 @@ extends ColorRect
 const StoryText := preload("res://game/story_text.gd")
 
 signal new_game_pressed
+signal continue_pressed
 signal menu_pressed
 signal quit_pressed
 
@@ -120,11 +121,11 @@ func show_ending(ending_id: String, side: String, stats: Dictionary, stat: Strin
 	row.add_theme_constant_override("separation", 12)
 	box.add_child(row)
 	var first: Button = null
-	for pair in [["END_BTN_NEW", new_game_pressed], ["END_BTN_MENU", menu_pressed], ["END_BTN_QUIT", quit_pressed]]:
+	for pair in [["END_BTN_CONTINUE", continue_pressed], ["END_BTN_NEW", new_game_pressed], ["END_BTN_MENU", menu_pressed], ["END_BTN_QUIT", quit_pressed]]:
 		var b := Button.new()
 		if first == null:
 			b.theme_type_variation = "ButtonPrimary"
-		b.text = StoryText.get_text(pair[0])
+		b.text = StoryText.get_or(pair[0], "Continue") if pair[0] == "END_BTN_CONTINUE" else StoryText.get_text(pair[0])
 		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		var sig: Signal = pair[1]
 		b.pressed.connect(func(): sig.emit())
