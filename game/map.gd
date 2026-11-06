@@ -80,6 +80,7 @@ var _pending_i := -1
 var hint: MeshInstance3D  # T28 pulsing halo, null until first requested
 var _routes_seen := false   # T219: the first set_routes (load) draws no lane in
 var _max_route_id := -1     # T219: ids above it are new routes
+var traffic: Node3D               # T277: instanced traffic layer (traffic_layer.gd)
 var route_lines: Dictionary = {}  # T07b: route id -> route_line.gd node
 var _route_list: Array = []       # last list given to set_routes (rebuilt after tunable changes)
 
@@ -154,6 +155,11 @@ func _ready() -> void:
 	asteroid_packs.map_unit_scale = MAP_UNIT_SCALE
 	asteroid_packs.sun_positions = sun_positions
 	add_child(asteroid_packs)
+	# T277: instanced traffic ships (game/traffic/traffic_layer.gd); drives itself, fades out at far zoom. Groups are fed by the traffic tasks.
+	traffic = load("res://game/traffic/traffic_layer.gd").new()
+	traffic.map = self
+	add_child(traffic)
+	traffic.set_sun_dir(-key_light.basis.z)
 	_frame_planets()
 	_add_sun(focus)
 	_add_orbit_rings(focus, 1)
@@ -431,6 +437,8 @@ func add_planets(list: Array) -> int:
 ## Moves the map to one system: its planets, labels, routes (and its own sun and orbit rings) show; every other system hides.
 func set_view_system(id: int) -> void:
 	view_system = id
+	if traffic != null:
+		traffic.set_view_system(id)  # T277: ships are drawn only in the viewed system
 	focus_system(id)
 	_apply_view()
 

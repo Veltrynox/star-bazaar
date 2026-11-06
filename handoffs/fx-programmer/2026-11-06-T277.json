@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "agent": "fx-programmer",
+  "date": "2026-11-06",
+  "task": "T277",
+  "status": "done",
+  "files_changed": [
+    "game/traffic/traffic_layer.gd",
+    "game/traffic/traffic_meshes.gd",
+    "game/traffic/traffic_ship.gdshader",
+    "game/traffic/traffic_streak.gdshader",
+    "game/traffic/traffic_motion.gdshaderinc",
+    "game/map.gd",
+    "game/debug_menu.gd",
+    "data/balance.json"
+  ],
+  "open_questions": [
+    "T252 ship scale key does not exist yet: traffic_ship_scale (placeholder 1.0) stands in. Rename or point it at the T252 key when that lands.",
+    "Path ships use a linear Bezier parameter (no arc-length LUT per lane, since lanes share one MultiMesh); speed varies slightly along a strongly bowed lane.",
+    "Nothing feeds the layer yet: the lane, hub, orbital, convoy and raider tasks must call the API below."
+  ],
+  "handoff": "Layer: game/traffic/traffic_layer.gd (Node3D), created by map.gd as map.traffic, drives itself in _process (zoom fade from map.zoom, clock from main._progress, leg speed from trade.travel_cycles, free ships stepped with game-scaled delta, paused = still). Three global shader uniforms (traffic_clock, traffic_fade, traffic_leg_speed) are set once per frame. One MultiMesh per (group, mesh), each with two surfaces (hull, additive streak): at most 3 groups x 2 meshes x 2 = 12 draw calls. Buffers are rewritten only when a group is set/cleared (dirty flag, flushed once per frame); the free group rewrites only while a ship moves. Instance data lives in INSTANCE_CUSTOM (phase, cargo palette index, state, seed) and the instance transform columns (path: p0, pc, p2; orbit: centre, radii and revs, tilt; free: pos and forward) - read in game/traffic/traffic_motion.gdshaderinc. Proxy meshes (code, ArrayMesh, 2 surfaces): corvette and pirate, about 100 triangles each (Meshes.tri_count). No textures, no imports, assets/ships .import files untouched.",
+  "api": {
+    "traffic_layer": [
+      "set_path_group(key, p0, pc, p2, count, state=0 run|1 stalled|2 blocked, cargo: Color, mesh='corvette'|'pirate', scale_mult, speed_mult)",
+      "set_orbit_group(key, centre, r_in, r_out, count, mesh, tilt, dir, cargo, scale_mult)",
+      "set_free_ship(key, pos: Vector2 xz, target: Vector2, kind, tint, y, scale_mult)  # retarget by calling again",
+      "clear_group(key), clear_all(), set_sun_dir(world dir to light), set_view_system(id) (clears all; map.set_view_system calls it)",
+      "stats() -> {path, orbit, free, total, draw_calls, fade}, stats_text()"
+    ],
+    "meshes": "traffic_meshes.gd: corvette(), pirate(), make(kind), tri_count(mesh)"
+  },
+  "balance_keys_placeholder": "data_version 61, all traffic_*: ship_length 0.12, ship_scale 1.0, streak_len 2.5, light_glow 1.8, blink_hz 2, fade_zoom_none 0.3, fade_zoom_full 0.6, orbit_revs_per_cycle 4, max_instances 1000, free_speed 1.2, free_accel 2, free_brake 2, free_turn 3. Marked PLACEHOLDER in the balance source note. With a missing key the value reads 0 and the traffic stays invisible (old saves safe). No save fields added.",
+  "debug_menu": "New 'Traffic' section at the top of the body: instances per group, total, draw calls, fade, refreshed while the menu is open.",
+  "text_and_conditions": "No player text, no goods named, no conditions added.",
+  "not_checked": "Headless parse check of the layer and mesh scripts only (clean, Godot 4.7.2). Shaders, the .gdshaderinc include, runtime global uniforms, the MultiMesh buffer layout and the look were not run (no GPU); no tests run. First thing to verify in a window: ships appear after a path group is set, the streak is additive, and instance_count/draw calls in the debug readout."
+}

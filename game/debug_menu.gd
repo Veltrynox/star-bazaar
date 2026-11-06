@@ -34,6 +34,7 @@ var _qa: VBoxContainer        # T13: QA controls, built once by add_qa_tools()
 var qa: Dictionary = {}       # T13: control name -> Control (read by tests)
 var _notice_ids: Array = []
 var _notice_next := 0
+var _traffic_label: Label     # T277
 
 func setup(main_node: Control) -> void:
 	main = main_node
@@ -413,6 +414,8 @@ func _process(_delta: float) -> void:
 	# Typing digits in a field must not pan the camera (map polls WASD/arrows).
 	var f := get_viewport().gui_get_focus_owner()
 	main.map.keys_enabled = not (visible and f is LineEdit)
+	if visible and _traffic_label != null and "traffic" in main.map and main.map.traffic != null:
+		_traffic_label.text = main.map.traffic.stats_text()
 
 func _reset() -> void:
 	var file := _read_file()
@@ -424,6 +427,10 @@ func _reset() -> void:
 func _build() -> void:
 	for c in _body.get_children():
 		c.queue_free()
+	_section("Traffic")  # T277: instances per group and draw calls (readout, updated while the menu is open)
+	_traffic_label = Label.new()
+	_traffic_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_body.add_child(_traffic_label)
 	_section("Planet size")  # at the top, so it is not buried under the balance rows
 	_planet_size_rows()
 	_section("Balance values")
