@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-07 00:10 run: gap analysis
-- Summary: Re-read the 16 open tasks; the picture is unchanged since the 23:50 analysis. No task can be done without an owner decision, visual decision, owner-only agent, or clean test base. No new tasks added.
-- Why this task: no open task is eligible (T208/T218/T239/T240/T243 need approval, T189/T190/T193 need decisions, T178/T182/T209 owner-only, T220/T221/T223 visual, T166 superseded).
-- Approach: did not repeat the gap analysis in depth; nothing in gdd or code changed since the last one, and inventing features is not allowed.
-- Agent prompts: none sent.
-- Worked: schedule and blackboard read.
-- Failed / did not work: nothing run.
-- Files and commits: blackboard.md only.
-- Left to do: owner approves T243/T218/T239/T208 or answers the open questions; owner commits goods work so tests are green.
-
 ## 2026-11-06 17:14 run: T244
 - Summary: Not merged: fast-forward merge refused
 - Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
@@ -65,3 +55,13 @@
 - Failed / did not work: nothing.
 - Files and commits: see git log on branch new-features for commits starting with T277.
 - Left to do: nothing for this task.
+
+## 2026-11-06 17:17 run: T244
+- Summary: Not merged: rebase onto new-features failed
+- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
+- Approach: built by a worker in worktree ../wt/T244 on branch task/T244, merged by the serial merge queue.
+- Agent prompts: /overnight-worker T244 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T244.log.
+- Worked: worker finished.
+- Failed / did not work: rebase onto new-features failed.
+- Files and commits: see git log on branch new-features for commits starting with T244.
+- Left to do: owner or a new run: see blocked_log in schedule.json.

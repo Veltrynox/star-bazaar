@@ -19,7 +19,7 @@
         "gdd-skills.md"
       ],
       "priority": 1,
-      "note": "Blocked by orchestrator: fast-forward merge refused",
+      "note": "Blocked by orchestrator: rebase onto new-features failed",
       "blocked_log": "/Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T244-merge.log"
     },
     {
