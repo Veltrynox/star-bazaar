@@ -7,12 +7,12 @@ extends SceneTree
 ## If crop.json is missing, or any cut frame is not the cell size, no frame is written and the exit code is 1.
 ## Writes art/sun/frames/<subject>/sun_00.png .. sun_63.png, subject = flare, storm or calm (row by row, left to right):
 ##   v01 -> sun_storm (strongest flares), v02 -> sun_flare (a few flares, in use), v03 -> sun_calm.
-## The sheets in art/source/ are only read, never changed.
+## The sheets in art_source/ are only read, never changed.
 
 const SHEETS := {
-	"v01": ["res://art/source/sun_sheet_storm_8x8_v01.png", "sun_storm"],
-	"v02": ["res://art/source/sun_sheet_flare_8x8_v02.png", "sun_flare"],
-	"v03": ["res://art/source/sun_sheet_calm_8x8_v03.png", "sun_calm"],
+	"v01": ["res://art_source/sun_sheet_storm_8x8_v01.png", "sun_storm"],
+	"v02": ["res://art_source/sun_sheet_flare_8x8_v02.png", "sun_flare"],
+	"v03": ["res://art_source/sun_sheet_calm_8x8_v03.png", "sun_calm"],
 }
 const CROP := "res://tools/sun_crop/crop.json"
 const OUT := "res://art/sun/frames"

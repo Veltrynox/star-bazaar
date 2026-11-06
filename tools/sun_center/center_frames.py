@@ -19,7 +19,7 @@ Method (measures the disc, not the flares):
     prediction is a misfit (a flare ring won); it is refitted near the prediction (+-3 px, radius as pass 2).
  4. Shift: the frame moves by round(frame_centre - disc_centre) whole pixels (no resampling, so no blur),
     padded with black. Radius is never changed; its spread is only reported.
-Raw frames live in art/source/sun_frames_raw/ (copied once, never overwritten). Centred frames go to
+Raw frames live in art_source/sun_frames_raw/ (copied once, never overwritten). Centred frames go to
 art/sun/frames/<subject>/sun_NN.png (subject = flare, storm, calm). Re-run any time; input is always the raw set.
 After writing, the centred frames are measured again and that residual is printed.
 
@@ -32,7 +32,7 @@ from pngio import read_png, write_png
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 FRAMES = os.path.join(ROOT, "art/sun/frames")
-RAW = os.path.join(ROOT, "art/source/sun_frames_raw")
+RAW = os.path.join(ROOT, "art_source/sun_frames_raw")
 
 
 def frame_file(name, i):

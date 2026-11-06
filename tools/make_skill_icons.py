@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Writes art/source/ui_glyph_skill_atlas.svg: one 64x64 cell per skill, 8 columns x 4 rows, in ORDER below.
+"""Writes art_source/ui_glyph_skill_atlas.svg: one 64x64 cell per skill, 8 columns x 4 rows, in ORDER below.
 White 5 px round strokes (2 px at 32 px), no fill, transparent background; the button tints them.
 Then rasterise to art/ui/ui_glyph_skill_atlas.png with
   tools/godot/Godot.app/Contents/MacOS/Godot --headless --path . --script tools/make_skill_atlas.gd
@@ -71,7 +71,7 @@ def main():
         out.append('</g>')
     out.append('</svg>')
     root = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
-    p = os.path.join(root, "art", "source", "ui_glyph_skill_atlas.svg")
+    p = os.path.join(root, "art_source", "ui_glyph_skill_atlas.svg")
     open(p, "w").write("\n".join(out) + "\n")
     print("wrote", p)
     print("IDS:", ", ".join(f'"{k}"' for k in ORDER))

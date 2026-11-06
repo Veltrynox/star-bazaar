@@ -1,6 +1,6 @@
 extends RefCounted
 ## Planet surface banners cut from one atlas (art/planet/planet_surface_banner_atlas.png), 3 columns, cells in IDS order.
-## To add a planet: put its full-size source in art/source/planet_surface_<id>_<name>_full.png, add id to IDS and its
+## To add a planet: put its full-size source in art_source/planet_surface_<id>_<name>_full.png, add id to IDS and its
 ## lowercase name to NAMES, then run tools/make_planet_banner_atlas.gd (it reads this file) and Godot --import.
 
 const ATLAS_PATH := "res://art/planet/planet_surface_banner_atlas.png"

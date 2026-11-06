@@ -1,6 +1,6 @@
 extends RefCounted
 ## Company setup: CEO portraits cut from one atlas (art/portraits/portrait_ceo_atlas.png).
-## To add a portrait: put its full-size source in art/source/portrait_<id>_full.png, add the id to IDS,
+## To add a portrait: put its full-size source in art_source/portrait_<id>_full.png, add the id to IDS,
 ## then run tools/make_portrait_atlas.gd (it reads IDS from this file and rewrites the atlas).
 
 const ATLAS_PATH := "res://art/portraits/portrait_ceo_atlas.png"
