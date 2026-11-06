@@ -7,7 +7,7 @@
       "title": "Skill screen: fill the screen with ALL skills (fourth request, do first)",
       "owner_agent": "ui-programmer",
       "depends_on": [],
-      "status": "blocked",
+      "status": "done",
       "turn_cap": 40,
       "window": "PRIORITY 1: run before every other open task.",
       "brief": "Owner, 4th time asking (quote: 'fix the skill tree to fill all of the skills. DO IT FIRST'). The skill screen must fill the whole screen: every skill of Foundations and the run's branch tree is drawn and the grid uses all the available width and height, with no empty areas, no clipped or missing skills and no skill hidden behind a scroll that the layout could avoid (T241 left CELL_W_MAX 250 capping the cells). Check every skill id in data/skills.json for the run's branch and Foundations is shown. Check at the default window size and a larger one, per CEO branch. Read game/skill_screen.gd, game/skill_tree.gd, gdd-skills.md. Do not change which skills exist. Handoff: handoffs/ui-programmer/<date>-T244.json.",
@@ -19,7 +19,7 @@
         "gdd-skills.md"
       ],
       "priority": 1,
-      "note": "Blocked by orchestrator: rebase onto new-features failed",
+      "note": "Done by orchestrator: Skill window now fills the viewport; with Foundations plus one market the cells share the full width (cap 420) and height, no skill ids changed",
       "blocked_log": "/Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T244-merge.log"
     },
     {
