@@ -1,0 +1,45 @@
+{
+ "agent": "economy-designer", "date": "2026-11-06", "task": "skills-fill", "status": "partial",
+ "files_changed": ["data/skills.json (data_version 9)", "data/balance.json (data_version 60)", "tools/tests/run_tests.gd (node-count expectations only)"],
+ "schema_version": 1,
+ "new_nodes": "35, same ids as design/proposals/2026-11-05-skills-fill.md. Cost S1/M2/L3/T0; techs use tech_goal_4 (tier 3) or tech_goal_6 (tier 4+) = 11 / 8 units. Format id (cost, prereqs): effect.",
+ "foundations (off the gate)": {
+  "FND_LEDGER (1, none)": "order_size_pct all +0.10 (proposal: Route Ledger feature, UNBUILT)",
+  "FND_RIVAL_WATCH (1, FND_LEDGER)": "event_cut_pct all 0.10 (proposal: rival projection panel, UNBUILT)",
+  "FND_DOCKS (2, FND_PROSPECT)": "upkeep_mult ships 0.08 (proposal: route upgrade cost down, UNBUILT)"},
+ "military": {
+  "MIL_8 (2, MIL_1)": "upkeep_mult ships 0.08 (proposal ship price down, UNBUILT)",
+  "MIL_9 tech (MIL_2)": "volume_pct mil 0.08",
+  "MIL_10 (2, MIL_3)": "stock_protect mil",
+  "MIL_11 tech (MIL_4)": "sale_price_pct mil 0.06 cash only",
+  "MIL_12 (2, MIL_4)": "share_window mil 10 (default 8)",
+  "MIL_13 (3, MIL_5)": "route_capacity_pct mil 0.12 (proposal embargo cooldown, UNBUILT)",
+  "MIL_14 tech (MIL_6)": "batch_yield mil +1",
+  "MIL_15 (3, MIL_7+MIL_14)": "bot_strength_pct permanent all_bots 0.12"},
+ "luxury": {
+  "LUX_8 (2, LUX_1)": "share_window lux 10", "LUX_9 tech (LUX_2)": "workshop_batches lux +1",
+  "LUX_10 (2, LUX_3)": "event_cut_pct lux 0.3", "LUX_11 tech (LUX_4)": "sale_price_pct lux 0.08 cash only",
+  "LUX_12 (2, LUX_5B)": "route_capacity_pct lux 0.10",
+  "LUX_13 (3, LUX_5)": "volume_pct lux 0.10 + sale_price_pct lux 0.04 (proposal mixed-load bonus, UNBUILT)",
+  "LUX_14 tech (LUX_6)": "volume_pct lux 0.08", "LUX_15 (3, LUX_7+LUX_14)": "bot_growth_mult permanent all_bots x0.8"},
+ "minerals": {
+  "MIN_8 (2, MIN_1)": "storage_cap_pct planet_storage 0.25 (proposal ore room, UNBUILT; applies to all storage)",
+  "MIN_9 tech (MIN_2)": "volume_pct min 0.08 (proposal smelter ore cost, UNBUILT)",
+  "MIN_10 (2, MIN_3)": "event_cut_pct min 0.25 (proposal dead-world ore loss, UNBUILT)",
+  "MIN_11 tech (MIN_4)": "sale_price_pct min 0.06 cash only", "MIN_12 (2, MIN_5B)": "event_bonus_pct min 0.25",
+  "MIN_13 (3, MIN_5)": "route_capacity_pct min 0.12 (proposal Null Core trip cost, UNBUILT)",
+  "MIN_14 tech (MIN_6)": "volume_pct min 0.08", "MIN_15 (3, MIN_7+MIN_14)": "cluster_yield_pct min 0.25 (total with MIN_3: 0.5)"},
+ "biotech": {
+  "BIO_8 (2, BIO_1)": "route_capacity_pct bio 0.10", "BIO_9 tech (BIO_2)": "workshop_batches bio +1",
+  "BIO_10 (2, BIO_3)": "event_immune bio debris", "BIO_11 tech (BIO_4)": "batch_yield bio +1",
+  "BIO_12 (3, BIO_5)": "stock_growth_pct bio 0.02, cap 0.4 (existing type, sums with BIO_2 rate; code reads sum so it should work)",
+  "BIO_13 (2, BIO_5)": "volume_pct bio 0.15 on sales at a price-up planet",
+  "BIO_14 tech (BIO_6)": "sale_price_pct bio 0.06 cash only", "BIO_15 (3, BIO_7+BIO_14)": "bot_growth_mult permanent all_bots x0.8"},
+ "balance_keys_added": "skill_cost_<id> for all 35, skill_<id>_* per node, share_window_mil_bonus 10, share_window_lux_bonus 10. No old value changed.",
+ "points": "Full branch cost incl. Foundations (3 gate) is 24 (MIL), 26 (LUX/MIN), 25 (BIO) plus 4 optional Foundation points, against about 21 earned: nobody takes all. Capstone pairs (x_7 + x_15) cost 6 and need a tech each; x_15 effects are modest (0.12 strength cut, x0.8 growth).",
+ "unbuilt_for_gameplay_programmer": ["Foundation Route Ledger feature", "Rival Watch panel", "route upgrade cost down", "ship price down", "Embargo Desk cooldown", "ore storage room", "smelter ore cost", "dead-world ore loss cut", "Null Core trip cost", "mixed-load bonus", "(BIO_12 reuses stock_growth_pct)"],
+ "story_note": "Names and plain lines for the 11 replaced nodes must describe the effects above, not the proposal. FND_RIVAL_WATCH is now a general event shield, FND_LEDGER a bigger order size, MIL_8 cheaper upkeep, MIL_13 more units, MIN_8 more storage, MIN_9 more volume, MIN_10 fewer event losses, MIN_13 more units, LUX_13 volume + price.",
+ "tests": "sh tools/tests/run.sh: one FAIL left, 'picker: three techs per market'. EndingPicker.techs_of (game/ending_picker.gd) returns every tech of a market, now 6; tech_done is 0..3. Needs a code fix (limit to the core techs X_2, X_4, X_6 or rescale), not a data fix. Node-count expectations updated to 68 (62 market + 6 Foundation). Also: set SHOW_PLACEHOLDERS false in game/skill_screen.gd now the tree is full (not touched).",
+ "sim": "tools/sim.py not run: it models credits, not skills or share. QA bot run recommended for the capstone pairs; not started.",
+ "open_questions": ["Is the picker fix (core three techs only) acceptable?", "Is FND_LEDGER at order_size +0.10 as a free tier-1 pick too strong against the gate Foundations?"]
+}

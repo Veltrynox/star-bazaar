@@ -1,0 +1,57 @@
+{
+ "agent": "story-designer",
+ "date": "2026-11-06",
+ "task": "skills-fill",
+ "status": "partial",
+ "schema_version": 1,
+ "files_changed": [
+  "story/skills.md",
+  "data/story_text.json (generated)",
+  "data/story_text_ru.json (generated)"
+ ],
+ "open_questions": [
+  "Plain lines carry the economy numbers (existing style); retune means editing story/skills.md.",
+  "Renamed vs proposal: MIL_8 Yard Account, MIL_13 Wider Lanes, MIN_13 Core Tuning, MIN_12 Seam Brokers, MIN_14 Mass Melt.",
+  "Unrelated test FAILs remain (picker, skill icons atlas, goods/workshop/availability); not from text."
+ ],
+ "handoff": "All 35 new nodes have NAME, FLAVOUR, PLAIN (plus CRAFT for techs MIL_9/11/14, LUX_9/11/14, MIN_9/11/14, BIO_9/11/14) in story/skills.md, built into story_text.json; all 68 nodes in data/skills.json have text. Plain lines describe the effects in data/skills.json (economy handoff). Text promises effects still UNBUILT in code: none beyond data-driven types, but FND_LEDGER (order size), FND_RIVAL_WATCH (event cut all markets), FND_DOCKS and MIL_8 (upkeep), MIN_8 (planet storage), MIN_9/MIN_10 and LUX_13 should be checked by the programmer that the effect types are implemented. Skill icon atlas lacks the 35 new ids.",
+ "details": {
+  "ids_written": [
+   "FND_LEDGER",
+   "FND_RIVAL_WATCH",
+   "FND_DOCKS",
+   "MIL_8",
+   "MIL_9",
+   "MIL_10",
+   "MIL_11",
+   "MIL_12",
+   "MIL_13",
+   "MIL_14",
+   "MIL_15",
+   "LUX_8",
+   "LUX_9",
+   "LUX_10",
+   "LUX_11",
+   "LUX_12",
+   "LUX_13",
+   "LUX_14",
+   "LUX_15",
+   "MIN_8",
+   "MIN_9",
+   "MIN_10",
+   "MIN_11",
+   "MIN_12",
+   "MIN_13",
+   "MIN_14",
+   "MIN_15",
+   "BIO_8",
+   "BIO_9",
+   "BIO_10",
+   "BIO_11",
+   "BIO_12",
+   "BIO_13",
+   "BIO_14",
+   "BIO_15"
+  ]
+ }
+}

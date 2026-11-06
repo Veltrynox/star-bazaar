@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "agent": "feature-designer",
+  "date": "2026-11-06",
+  "task": "visible-skills",
+  "status": "done",
+  "files_changed": ["design/proposals/2026-11-06-visible-skills.md", "handoffs/feature-designer/2026-11-06-visible-skills.json"],
+  "open_questions": [
+    "UNKNOWN: may rival ships block lanes or avoid zones (a mechanic), or stay visual only?",
+    "UNKNOWN: replace 12 flat nodes with new visible effects, or only add marks to existing nodes?",
+    "UNKNOWN: should rival fleet size follow its strength in the player's market (replaces one ship per rival, T211)?"
+  ],
+  "handoff": "One proposal. Audit: 51 of 68 nodes have no trace (43 flat stat, 8 rival-only); the rival nodes do act on a real number (rivals hold strength in all four markets) but it is never shown. 18 keep, 38 rewrite, 12 replace. No game or data file edited. Waits for the owner.",
+  "details": {
+    "proposals": [
+      {"id": "VS1", "title": "Rival ship states (blockade, seal, patent, last-hit tags)", "problem": "8 rival-cut nodes change only a graph line", "owner_agent": "gameplay-programmer + ui-programmer + juice-programmer", "size": "M", "questions": ["visual only or lane blocking?"]},
+      {"id": "VS2", "title": "Learn pulse and standing mark kit", "problem": "no shared way for a skill to show on the map", "owner_agent": "juice-programmer", "size": "S-M", "questions": ["which look: ring, beam or glow?"]},
+      {"id": "VS3", "title": "Luxury forecast overlay and event countdown", "problem": "price and event reveal only as text", "owner_agent": "ui-programmer", "size": "M", "questions": ["ghost value or arrow?"]},
+      {"id": "VS4", "title": "Biotech growth rings and bloom", "problem": "stock growth is a number", "owner_agent": "juice-programmer + ui-programmer", "size": "M", "questions": ["ring, tint or both?"]},
+      {"id": "VS5", "title": "Minerals drill rigs, beams, claim stakes", "problem": "yield and capacity nodes are invisible", "owner_agent": "gameplay-programmer + juice-programmer", "size": "M", "questions": ["new platform art?"]},
+      {"id": "VS6", "title": "Military escorts on convoys", "problem": "Military has no visible fleet", "owner_agent": "gameplay-programmer + juice-programmer", "size": "M", "questions": ["escort per capacity step?"]},
+      {"id": "VS7", "title": "Shield and event-saved tags", "problem": "event cuts and immunity are silent", "owner_agent": "juice-programmer", "size": "S", "questions": []},
+      {"id": "VS8", "title": "Standing Fleet patrol and rival fleet size", "problem": "rival Military is not shown as a fleet", "owner_agent": "gameplay-programmer", "size": "L", "questions": ["rivals avoid zones? rival fleet follows strength?"]}
+    ]
+  }
+}

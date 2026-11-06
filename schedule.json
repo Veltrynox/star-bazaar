@@ -3,6 +3,17 @@
   "date": "2026-11-02",
   "tasks": [
     {
+      "task_id": "T244",
+      "title": "Skill screen: fill the screen with ALL skills (fourth request, do first)",
+      "owner_agent": "ui-programmer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 40,
+      "window": "PRIORITY 1: run before every other open task.",
+      "brief": "Owner, 4th time asking (quote: 'fix the skill tree to fill all of the skills. DO IT FIRST'). The skill screen must fill the whole screen: every skill of Foundations and the run's branch tree is drawn and the grid uses all the available width and height, with no empty areas, no clipped or missing skills and no skill hidden behind a scroll that the layout could avoid (T241 left CELL_W_MAX 250 capping the cells). Check every skill id in data/skills.json for the run's branch and Foundations is shown. Check at the default window size and a larger one, per CEO branch. Read game/skill_screen.gd, game/skill_tree.gd, gdd-skills.md. Do not change which skills exist. Handoff: handoffs/ui-programmer/<date>-T244.json.",
+      "owner_note": "Owner 2026-11-06: fourth request, do it first. Do not skip as a visual decision: the owner has decided it must fill the screen."
+    },
+    {
       "task_id": "T79",
       "title": "Tests: loader, ending selection, recording, choice screen (headless)",
       "owner_agent": "gameplay-programmer",
@@ -1733,6 +1744,96 @@
       "turn_cap": 40,
       "window": "Created by gap analysis 2026-11-06. Needs owner decision: confirm the gameplay-programmer builds it and the start cycle key.",
       "brief": "TH01-TH10 texts exist in story/events.md but build_story.py writes no event rows for them. Add the event rows and follow chain in data/events.json (via the generator source), a cash-pay choice effect for TH10_A, and a balance key for the thread start cycle (placeholder value). Conditions via game/conditions.gd, text by id only, update gdd.md."
+    },
+    {
+      "task_id": "T245",
+      "title": "Selecting a ship in front of a planet selects only the ship",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 40,
+      "window": "Small gameplay fix.",
+      "brief": "Owner: when a ship is drawn in front of a planet, clicking it selects both the planet and the ship, which is confusing. Fix the click picking so one click selects one thing: the ship wins over the planet behind it (ship pick radius first, then planets). Find the picking code in game/ (main.gd, ships.gd, galaxy/planet pick). Do not change pick sizes except as needed. Handoff: handoffs/gameplay-programmer/<date>-T245.json.",
+      "owner_note": "Owner 2026-11-06."
+    },
+    {
+      "task_id": "T246",
+      "title": "Ship trails: two engine trails with a bright core and an outer glow, no jitter",
+      "owner_agent": "juice-programmer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 40,
+      "window": "Follows T205 trail work.",
+      "brief": "Owner: the ship trail is currently a single piece of trail; it should be bright glowing trails coming from the engines, and it jitters. Build per engine a trail with a core layer (thin, bright) and an outer layer (wider, softer glow, additive). Remove the jitter (cause is likely per-frame point resampling or the ship position vs trail point timing; smooth it). Read game/ship_trail.gd and ships.gd (WIDTH 0.16, ENGINE_BACK 0.9 are placeholders; exact exhaust positions are not measured from the GLBs, so place them from the model bounds). Handoff: handoffs/juice-programmer/<date>-T246.json.",
+      "owner_note": "Owner 2026-11-06. Look is the owner request; record constants atop the file for tuning."
+    },
+    {
+      "task_id": "T247",
+      "title": "Skill order: Permit Charter above Quartermaster Terms, Prospecting early",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 40,
+      "window": "Small data change; may touch the same layout as T244, do after T244.",
+      "brief": "Owner: move the Permit Charter skill on top of (before) Quartermaster Terms, because the player learns it first, and Prospecting too is learned early. Reorder the skills accordingly in data/skills.json (tree position and any cost/prerequisite order that follows from learning order) and in gdd-skills.md; check the skill screen shows them in that order. Do not change effects. If a prerequisite change is needed, keep it minimal and record it. Handoff: handoffs/gameplay-programmer/<date>-T247.json.",
+      "owner_note": "Owner 2026-11-06."
+    },
+    {
+      "task_id": "T248",
+      "title": "Ship destination line: smooth offset on stretch and shrink, no harsh refresh",
+      "owner_agent": "juice-programmer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 40,
+      "window": "Follows T219.",
+      "brief": "Owner: the ship's destination line (route line) should be smoother. When it is stretched or shrunk (ship moves, planets move, route changes) it must not redraw/refresh harshly; its endpoints and dash/pattern offset should ease smoothly (lerp or damped follow) instead. Read game/route_line.gd (constants atop, T219 draw-in/fade/pulse). Keep the draw-in, fade and pulse. Handoff: handoffs/juice-programmer/<date>-T248.json.",
+      "owner_note": "Owner 2026-11-06."
+    },
+    {
+      "task_id": "T249",
+      "title": "Skill screen: move the skill info panel from the bottom to the right side",
+      "owner_agent": "ui-programmer",
+      "depends_on": [
+        "T244"
+      ],
+      "status": "queued",
+      "turn_cap": 40,
+      "window": "After T244 (same screen, same file).",
+      "brief": "Owner: move the skill info panel (the selected-skill details: name, flavour, plain line, cost, learn button) from the bottom of the skill screen to the right side. The tree area uses the freed height and the remaining width; keep the tree filling the screen as T244 requires, with no clipping at the default window size. Read game/skill_screen.gd. Do not change skill data or text. Handoff: handoffs/ui-programmer/<date>-T249.json.",
+      "owner_note": "Owner 2026-11-06: layout decided by owner."
+    },
+    {
+      "task_id": "T250",
+      "title": "Pirates: a pack of small fast raider ships from dead worlds that steal cargo and cut a line's profit for X cycles",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 50,
+      "window": "Owner request 2026-11-06. Gameplay-programmer builds; economy numbers are placeholders in data/balance.json (the owner tunes, no QA/economy agent runs).",
+      "brief": "Owner: add pirates. Model: assets/ships/pirate_ship_01/warship 3d model.glb (import it; check scale and facing like the corvette GLBs, and set up its import settings). A pirate raid is a PACK of several ships (placeholder 3-5), each smaller than a corvette (placeholder scale ~0.6x) and slightly faster (placeholder speed ~1.15x a corvette). They appear occasionally from a DEAD planet (Cinderrest, Greywake and any later dead world), fly to a player route's lane/ship, and after the raid fly back and hide on the dead planet, i.e. simply disappear (fade or shrink into the planet) until the next raid. Pirates have no health bar, no combat and cannot be shot or selected. Effect: they steal goods. The raided line (route) becomes less profitable for X cycles: lose part of the cargo of the hit trip (placeholder share) and apply a profit malus on that route for X cycles (placeholder 3), shown as a notice and a marker on the route/ship panel with the cycles left; the malus ends by itself, no stacking beyond a cap. Triggering: occasional, only from dead worlds that are established (discovery) and only on routes that pass through the system, tied to the dead world's danger meter if it exists, with a cooldown; frequency, share, X, pack size, speed and scale all go to data/balance.json as keys (no numbers in code). Follow the Availability rule (no pirates text or UI before the first dead world is established) and write all text as ids in the story source (story/*.md, then python3 tools/build_story.py; English only): notice for a raid, notice for loot lost, route marker label and tooltip. Conditions via game/conditions.gd. Save/load the active malus and cooldown. Reuse the existing ship flight and trail code; the pack flies in loose formation. Update gdd.md (no balance numbers). Do not run QA bots or sim; sh tools/tests/run.sh is fine. Handoff: handoffs/gameplay-programmer/<date>-T250.json.",
+      "owner_note": "Owner 2026-11-06. Open design questions for the owner, defaults in the brief: pack size, X cycles, loot share, whether a pirate-hit can be prevented by a skill or escort (not in this task)."
+    },
+    {
+      "task_id": "T251",
+      "title": "Juice pass: make all effects 14 out of 10, awesome looking",
+      "owner_agent": "juice-programmer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 50,
+      "window": "Owner request 2026-11-06. Look is the owner request; no QA bots or screenshots required for done.",
+      "brief": "Owner: make the effects 14 out of 10, awesome looking. Go through every existing effect and feedback in the game and push it much further: trade and sale payoffs (cash count-ups, coin or credit bursts, floating numbers), ship launch, arrival and docking, route start and completion, trails and engine glow, planet select and hover, notices and pop-ups, event reveals, skill learn (the unlock should feel big), build and upgrade moments, win and loss. Use layered effects: anticipation, impact, settle; additive glow, particles, easing with overshoot, brief screen shake and flash on big moments, and sound-sync hooks if audio exists. Keep it readable: effects never hide numbers or block clicks, big moments stay rare so small ones stay light, and frame budget on macOS holds (pool particles, no per-frame allocations). Put every strength, duration and colour as a constant atop the file or a balance key so the owner can tune, and add one master intensity setting (e.g. in the game menu) with an off or reduced option. Do not change gameplay logic, balance numbers or story text. Read game/ for existing juice code first and extend it instead of duplicating. Handoff: handoffs/juice-programmer/<date>-T251.json listing each effect added or changed.",
+      "owner_note": "Owner 2026-11-06. Overlaps T246 (ship trails): do not redo trails if T246 is done or running; coordinate by reading its handoff."
+    },
+    {
+      "task_id": "T252",
+      "title": "Scale all ships to 0.8x (pirate ships included)",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 30,
+      "window": "Owner request 2026-11-06. Small change; do before T250 or together with it.",
+      "brief": "Owner: scale the ships to 0.8x of their current size. Add one global ship scale key in data/balance.json (value 0.8, no number in code) and apply it where ship models are sized (ships.gd and anything that sizes models, selection rings, pick radius, trails and engine glow offsets such as ENGINE_BACK and trail WIDTH, shadows or markers, the Pathfinder scout). The scale applies to every ship type including the pirate ships of T250: pirates keep their own size ratio to a corvette (T250 placeholder ~0.6x) and the global scale multiplies on top, so pirates end up at 0.6 x 0.8 of the old corvette size. If T250 is not built yet, leave a note in its handoff and make the pirate code read the same key. Keep the click pick radius usable (do not shrink it below a comfortable size; follow T245 picking if it is done). Check trails and engine positions still line up after scaling. Do not change speeds or balance. Handoff: handoffs/gameplay-programmer/<date>-T252.json.",
+      "owner_note": "Owner 2026-11-06. Touches the same files as T245 (picking), T246 (trails) and T250 (pirates); read their handoffs first."
     }
   ],
   "done_task_ids": [
