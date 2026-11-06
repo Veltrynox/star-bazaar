@@ -4,6 +4,7 @@
 - discovery_enabled in data/balance.json ships at 1 (owner decision 2026-11-05); tests that need it off set it themselves.
 
 ## Left to do
+- T230 partial: choice events EV17-20, BE01-03 and pending post/platform/flight events not rewritten (owner to say); Russian not touched.
 - T236 done: tags shown on CEO card. SETUP_NEXT still reads 'Next'. story/voice.md has uncommitted owner edits, left alone.
 - Owner: T219 lane draw-in/fade/pulse not seen windowed (constants atop route_line.gd); route made while paused shows no draw-in.
 - Owner: T203 establish beat not seen windowed (ring/spokes vs bright planets, nudge softness, dead worlds); follow-up juice tasks T219-T221 queued.
@@ -57,3 +58,13 @@
 - Failed / did not work: nothing; not seen windowed.
 - Files and commits: game/company_setup.gd, game/ship_preview.gd, tools/tests/run_tests.gd, handoff, schedule.json, blackboard.md; see git log "T236".
 - Left to do: owner: check taller info panel (~266 px) at default window, 250x250 preview, tag colour muted vs accent.
+
+## 2026-11-06 14:00 run: T230
+- Summary: Rewrote the bodies of generic events EV01-16, EV21-28 and EV40-51 with more voice and concrete detail (English only). Mechanics, ids, titles, effect lines unchanged; data/story_text.json rebuilt via tools/build_story.py.
+- Why this task: no dependencies, text only, no visual/economy/QA need; other open tasks were blocked by dependencies, owner-only agents or visual choices.
+- Approach: story-designer agent editing story/events.md, leaving choice events with fixed effect lines alone to avoid contradicting mechanics.
+- Agent prompts: rewrite event bodies less dry, keep limits/placeholders, English only, do not edit story/voice.md, run build and tests; produced story/events.md, data/story_text.json, handoffs/story-designer/2026-11-06-T230.json.
+- Worked: sh tools/tests/run.sh pass=11320 fail=0 (agent's run).
+- Failed / did not work: nothing.
+- Files and commits: story/events.md, data/story_text.json, handoff, schedule.json, blackboard.md; see git log "T230". story/voice.md and .claude/agents/story-designer.md hold owner edits, left uncommitted.
+- Left to do: EV17-20, BE01-03, pending post/platform/flight events; Russian only when owner asks.

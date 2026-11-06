@@ -1567,10 +1567,11 @@
       "title": "Story: rewrite events to be less dry (no audio)",
       "owner_agent": "story-designer",
       "depends_on": [],
-      "status": "queued",
+      "status": "partial",
       "turn_cap": 40,
       "window": "Owner request 2026-11-05 (playtest). Not started: main session sets it running.",
-      "brief": "Owner: rewrite the event texts (EV01 and on, story/events.md, English then story/ru) so they read less dry: more voice, concrete detail, a little humour or tension, same mechanics and effect lines, same max lengths (story/voice.md). Respect the connected thread of T224 if it exists. Do NOT run or regenerate audio. Run python3 tools/build_story.py. Handoff handoffs/story-designer/2026-11-05-T230.json."
+      "brief": "Owner: rewrite the event texts (EV01 and on, story/events.md, English then story/ru) so they read less dry: more voice, concrete detail, a little humour or tension, same mechanics and effect lines, same max lengths (story/voice.md). Respect the connected thread of T224 if it exists. Do NOT run or regenerate audio. Run python3 tools/build_story.py. Handoff handoffs/story-designer/2026-11-05-T230.json.",
+      "note": "2026-11-06: EV01-16, EV21-28, EV40-51 bodies rewritten (English). Choice events EV17-20, BE01-03 and pending post/platform/flight events left; Russian not touched."
     },
     {
       "task_id": "T231",
