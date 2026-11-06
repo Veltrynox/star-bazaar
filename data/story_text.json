@@ -6806,6 +6806,168 @@
    "place": "World card, tooltip on a cold face"
   },
   {
+   "id": "HUB_NAME",
+   "text": "Hub",
+   "max": 24,
+   "place": "Name of the hub role"
+  },
+  {
+   "id": "HUB_PANEL_TITLE",
+   "text": "Hub",
+   "max": 24,
+   "place": "Hub panel title"
+  },
+  {
+   "id": "HUB_LBL_REACH",
+   "text": "In reach",
+   "max": 24,
+   "place": "Hub panel, worlds it can serve"
+  },
+  {
+   "id": "HUB_LBL_POOL",
+   "text": "Ship pool",
+   "max": 24,
+   "place": "Hub panel, ships it uses"
+  },
+  {
+   "id": "HUB_LBL_SERVED",
+   "text": "Fed worlds",
+   "max": 24,
+   "place": "Hub panel, worlds it feeds"
+  },
+  {
+   "id": "HUB_LBL_GAPS",
+   "text": "Gaps",
+   "max": 24,
+   "place": "Hub panel, needs it cannot meet"
+  },
+  {
+   "id": "HUB_LBL_FEE",
+   "text": "Hub fee",
+   "max": 24,
+   "place": "Hub panel, what a delivery costs on top"
+  },
+  {
+   "id": "HUB_MAKE_BTN",
+   "text": "Make this a hub",
+   "max": 24,
+   "place": "Planet panel, button on a Town that can be a hub"
+  },
+  {
+   "id": "HUB_MAKE_PROMPT",
+   "text": "Make {planet} a hub? It keeps the worlds near it fed, with ships from its pool.",
+   "max": 110,
+   "place": "Confirm text before making a hub; {planet}"
+  },
+  {
+   "id": "HUB_MAKE_CONFIRM",
+   "text": "Make hub",
+   "max": 24,
+   "place": "Confirm button"
+  },
+  {
+   "id": "HUB_MAKE_CANCEL",
+   "text": "Not yet",
+   "max": 24,
+   "place": "Cancel button"
+  },
+  {
+   "id": "HUB_MADE",
+   "text": "{planet} is now a hub. Give it ships to start.",
+   "max": 110,
+   "place": "Notice, a hub is made; {planet}"
+  },
+  {
+   "id": "HUB_FIRST",
+   "text": "{planet} keeps its neighbours fed now. Your hands are free for other work.",
+   "max": 110,
+   "place": "Notice, the first hub; {planet}"
+  },
+  {
+   "id": "HUB_RELEASE_BTN",
+   "text": "Release hub",
+   "max": 24,
+   "place": "Hub panel, release button"
+  },
+  {
+   "id": "HUB_RELEASE_PROMPT",
+   "text": "Release the hub at {planet}? Its ships go back to your fleet and its worlds go back to you.",
+   "max": 110,
+   "place": "Confirm text before release; {planet}"
+  },
+  {
+   "id": "HUB_RELEASE_CONFIRM",
+   "text": "Release",
+   "max": 24,
+   "place": "Confirm button"
+  },
+  {
+   "id": "HUB_RELEASE_CANCEL",
+   "text": "Keep hub",
+   "max": 24,
+   "place": "Cancel button"
+  },
+  {
+   "id": "HUB_RELEASED",
+   "text": "The hub at {planet} is released. Its worlds need your routes again.",
+   "max": 110,
+   "place": "Notice, a hub is released; {planet}"
+  },
+  {
+   "id": "HUB_ASSIGN_SHIP",
+   "text": "Add a ship",
+   "max": 24,
+   "place": "Hub panel, button to add a free ship"
+  },
+  {
+   "id": "HUB_FREE_SHIP",
+   "text": "Return ship",
+   "max": 24,
+   "place": "Hub panel, button to return a ship"
+  },
+  {
+   "id": "HUB_NO_SLOT",
+   "text": "This system already has a hub. Release it to move the work here.",
+   "max": 110,
+   "place": "Tip on the make button when the system has a hub"
+  },
+  {
+   "id": "HUB_ROW_MANUAL",
+   "text": "Yours by hand",
+   "max": 24,
+   "place": "Need row, world left off the hub"
+  },
+  {
+   "id": "HUB_ROW_ROUTE",
+   "text": "Fed by your route",
+   "max": 24,
+   "place": "Need row, filled by a manual route"
+  },
+  {
+   "id": "HUB_ROW_HUB",
+   "text": "Fed by hub",
+   "max": 24,
+   "place": "Need row, filled by a hub"
+  },
+  {
+   "id": "HUB_SHORT_NO_SOURCE",
+   "text": "Short: no source in reach",
+   "max": 60,
+   "place": "Need row, short, nothing to buy in reach"
+  },
+  {
+   "id": "HUB_SHORT_NO_SHIP",
+   "text": "Short: no free ship in pool",
+   "max": 60,
+   "place": "Need row, short, every pool ship is busy"
+  },
+  {
+   "id": "HUB_SHORT_NO_CASH",
+   "text": "Short: not enough cash",
+   "max": 60,
+   "place": "Need row, short, hub stopped buying"
+  },
+  {
    "id": "SK_HEADER",
    "text": "Skills",
    "max": 24,

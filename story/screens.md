@@ -1390,3 +1390,42 @@ MOOD_COLD | 24 | World card, label of a cold face | Cold face
 MOOD_WARM_TIP | 110 | World card, tooltip on a warm face | This world thinks well of you. It changes no price, tax or growth.
 MOOD_PLAIN_TIP | 110 | World card, tooltip on a plain face | This world has no view of you yet. It changes no price, tax or growth.
 MOOD_COLD_TIP | 110 | World card, tooltip on a cold face | This world thinks less of you. It changes no price, tax or growth.
+
+## Hubs (2026-11-06, T293)
+Ids and placeholders (notes, not blocks):
+- HUB_NAME, HUB_LBL_REACH, HUB_LBL_POOL, HUB_LBL_SERVED, HUB_LBL_GAPS, HUB_LBL_FEE, HUB_PANEL_TITLE: hub panel, no placeholders.
+- HUB_MAKE_BTN, HUB_MAKE_CONFIRM, HUB_MAKE_CANCEL: buttons. HUB_MAKE_PROMPT: confirm text, {planet}. HUB_MADE: notice, {planet}.
+- HUB_FIRST: notice, the first hub, {planet}. HUB_RELEASE_BTN, HUB_RELEASE_CONFIRM, HUB_RELEASE_CANCEL: buttons. HUB_RELEASE_PROMPT: confirm text, {planet}. HUB_RELEASED: notice, {planet}.
+- HUB_ROW_ROUTE, HUB_ROW_HUB: need row status. HUB_SHORT_NO_SOURCE, HUB_SHORT_NO_SHIP, HUB_SHORT_NO_CASH: need row status, short reasons. HUB_ROW_MANUAL: need row of a world left off the hub.
+- HUB_ASSIGN_SHIP, HUB_FREE_SHIP: ship pool buttons. HUB_NO_SLOT: tip when the system has its hub.
+
+### Hub panel and buttons
+HUB_NAME | 24 | Name of the hub role | Hub
+HUB_PANEL_TITLE | 24 | Hub panel title | Hub
+HUB_LBL_REACH | 24 | Hub panel, worlds it can serve | In reach
+HUB_LBL_POOL | 24 | Hub panel, ships it uses | Ship pool
+HUB_LBL_SERVED | 24 | Hub panel, worlds it feeds | Fed worlds
+HUB_LBL_GAPS | 24 | Hub panel, needs it cannot meet | Gaps
+HUB_LBL_FEE | 24 | Hub panel, what a delivery costs on top | Hub fee
+HUB_MAKE_BTN | 24 | Planet panel, button on a Town that can be a hub | Make this a hub
+HUB_MAKE_PROMPT | 110 | Confirm text before making a hub; {planet} | Make {planet} a hub? It keeps the worlds near it fed, with ships from its pool.
+HUB_MAKE_CONFIRM | 24 | Confirm button | Make hub
+HUB_MAKE_CANCEL | 24 | Cancel button | Not yet
+HUB_MADE | 110 | Notice, a hub is made; {planet} | {planet} is now a hub. Give it ships to start.
+HUB_FIRST | 110 | Notice, the first hub; {planet} | {planet} keeps its neighbours fed now. Your hands are free for other work.
+HUB_RELEASE_BTN | 24 | Hub panel, release button | Release hub
+HUB_RELEASE_PROMPT | 110 | Confirm text before release; {planet} | Release the hub at {planet}? Its ships go back to your fleet and its worlds go back to you.
+HUB_RELEASE_CONFIRM | 24 | Confirm button | Release
+HUB_RELEASE_CANCEL | 24 | Cancel button | Keep hub
+HUB_RELEASED | 110 | Notice, a hub is released; {planet} | The hub at {planet} is released. Its worlds need your routes again.
+HUB_ASSIGN_SHIP | 24 | Hub panel, button to add a free ship | Add a ship
+HUB_FREE_SHIP | 24 | Hub panel, button to return a ship | Return ship
+HUB_NO_SLOT | 110 | Tip on the make button when the system has a hub | This system already has a hub. Release it to move the work here.
+HUB_ROW_MANUAL | 24 | Need row, world left off the hub | Yours by hand
+
+### Need status
+HUB_ROW_ROUTE | 24 | Need row, filled by a manual route | Fed by your route
+HUB_ROW_HUB | 24 | Need row, filled by a hub | Fed by hub
+HUB_SHORT_NO_SOURCE | 60 | Need row, short, nothing to buy in reach | Short: no source in reach
+HUB_SHORT_NO_SHIP | 60 | Need row, short, every pool ship is busy | Short: no free ship in pool
+HUB_SHORT_NO_CASH | 60 | Need row, short, hub stopped buying | Short: not enough cash
