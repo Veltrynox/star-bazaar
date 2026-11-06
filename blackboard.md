@@ -56,3 +56,13 @@
 - Failed / did not work: nothing. Not seen windowed. No handoff file (no agent used).
 - Files and commits: game/skill_screen.gd, tools/tests/run_tests.gd, schedule.json, blackboard.md; see git log "T225".
 - Left to do: owner: confirm windowed on all three branches (e.g. Price Whisper); a line can still run in the gap between rows, which is intended.
+
+## 2026-11-05 21:00 run: T235
+- Summary: The CEO now fixes the branch (min, lux, mil, bio) and the ship type; New Game goes from the company screen straight into the game. Branch stored as run.branch; Ceos.branch/ship and main.run_branch() added.
+- Why this task: concrete owner request, no dependencies, no visual or economy-agent need.
+- Approach: gameplay-programmer agent; no later branch choice existed in code, so win and ending rules are untouched; ship_setup files kept out of the path.
+- Agent prompts: implement T235 brief, English only, no commit; handoffs/gameplay-programmer/2026-11-05-T235.json (CEO table: Marek min/fleet, Idris lux/dart, Sela mil/bulk, Tamsin bio/small), done.
+- Worked: sh tools/tests/run.sh pass=11292 fail=0; three tests added.
+- Failed / did not work: nothing; not seen windowed.
+- Files and commits: data/ceos.json, game/ceos.gd, game/company_setup.gd, game/main.gd, game/save_game.gd, gdd.md, tools/tests/run_tests.gd, handoff, schedule.json, blackboard.md; see git log "T235".
+- Left to do: story-designer: SETUP_NEXT text still says "Next" (code default now "Start"). ship_setup.gd/.tscn kept because qa/bots/ship_setup_shot.gd loads them. Owner: check the CEO-to-branch mapping. T236, T237 next.
