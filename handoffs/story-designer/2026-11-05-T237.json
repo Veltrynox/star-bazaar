@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-11-05",
+  "task": "T237",
+  "status": "done",
+  "files_changed": [
+    "story/screens.md",
+    "data/story_text.json",
+    "handoffs/story-designer/2026-11-05-T237.json"
+  ],
+  "open_questions": [
+    "SETUP_NEXT still reads 'Next' (T235 asked for 'Start'); not in this task, left unchanged.",
+    "Russian bios in story/ru/ships_ceos.json do not carry the new sentence (English only, per brief)."
+  ],
+  "handoff": "Built. New ids (max 40 chars, story/screens.md, after the perk lines): TXT_CEO_MAN_01_BRANCH_TAG 'Minerals: rock, every bolt counted'; TXT_CEO_MAN_02_BRANCH_TAG 'Luxury: a price is a face to read'; TXT_CEO_WOMAN_01_BRANCH_TAG 'Military: supply for the rim, on time'; TXT_CEO_WOMAN_02_BRANCH_TAG 'Biotech: living goods, friendly forms'. Not wired: the pick card must show these ids (no UI code changed). The four existing TXT_CEO_*_BIO ids now end with one added sentence naming market and ship (Tramp, Dart, Bulkhead, Skerrit); max stays 260, longest is 260 or less. No digits, no rule promised."
+}

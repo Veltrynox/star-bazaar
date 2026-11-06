@@ -981,10 +981,10 @@ LBL_CEO_MAN_01_NAME | 24 | CEO name, portrait ceo_man_01 | Marek Voss
 LBL_CEO_MAN_02_NAME | 24 | CEO name, portrait ceo_man_02 | Idris Kane
 LBL_CEO_WOMAN_01_NAME | 24 | CEO name, portrait ceo_woman_01 | Sela Oru
 LBL_CEO_WOMAN_02_NAME | 24 | CEO name, portrait ceo_woman_02 | Tamsin Hale
-TXT_CEO_MAN_01_BIO | 260 | CEO bio, Marek Voss | Marek kept ten ships flying on a shoestring and counts every bolt. He distrusts luck. He started his own company because nobody would let him order spare parts in bulk.
-TXT_CEO_MAN_02_BIO | 260 | CEO bio, Idris Kane | Idris was a broker with a famous smile and a habit of buying lunch for rivals. He reads a price board the way others read faces. He spends freely and sells hard.
-TXT_CEO_WOMAN_01_BIO | 260 | CEO bio, Sela Oru | Sela flew supply runs through the worst lanes of the rim and still came home. Bad news does not scare her, only an idle ship does. Her plans have a backup, and a backup for the backup.
-TXT_CEO_WOMAN_02_BIO | 260 | CEO bio, Tamsin Hale | Tamsin grew up in the docking rings of the Bazaar and knows every clerk by name. Her contracts arrive with friendly paperwork and larger quantities. She is calm, and a little proud of the old place.
+TXT_CEO_MAN_01_BIO | 260 | CEO bio, Marek Voss | Marek kept ten ships flying on a shoestring and counts every bolt. He distrusts luck. He started his own company because nobody would let him order spare parts in bulk. He runs Minerals on a Tramp: one more lane beats one big hull.
+TXT_CEO_MAN_02_BIO | 260 | CEO bio, Idris Kane | Idris was a broker with a famous smile and a habit of buying lunch for rivals. He reads a price board the way others read faces. He spends freely and sells hard. He sells Luxury from a Dart: quick hops, a light hold, and the buyer still smiling.
+TXT_CEO_WOMAN_01_BIO | 260 | CEO bio, Sela Oru | Sela flew supply runs through the worst lanes of the rim and still came home. Bad news does not scare her, only an idle ship does. Her plans have a backup, and a backup for the backup. She runs Military on a Bulkhead. The rim taught her to fill the hold.
+TXT_CEO_WOMAN_02_BIO | 260 | CEO bio, Tamsin Hale | Tamsin grew up in the docking rings of the Bazaar and knows every clerk by name. Her contracts arrive with friendly paperwork and larger quantities. She is calm, and a little proud of the old place. She trades Biotech from a Skerrit, a hull she knows.
 LBL_CEO_MAN_01_PERK | 24 | CEO perk name, Marek Voss | Old Contacts
 LBL_CEO_MAN_02_PERK | 24 | CEO perk name, Idris Kane | Quick Read
 LBL_CEO_WOMAN_01_PERK | 24 | CEO perk name, Sela Oru | Hard Lanes
@@ -993,6 +993,11 @@ TXT_CEO_MAN_01_PERK_DESC | 90 | CEO perk line, Marek Voss | Bad events are annou
 TXT_CEO_MAN_02_PERK_DESC | 90 | CEO perk line, Idris Kane | In the first cycle you see price tips on your home market.
 TXT_CEO_WOMAN_01_PERK_DESC | 90 | CEO perk line, Sela Oru | Your first lane carries one step more cargo.
 TXT_CEO_WOMAN_02_PERK_DESC | 90 | CEO perk line, Tamsin Hale | Contract orders ask for more units, so a filled order pays more.
+
+TXT_CEO_MAN_01_BRANCH_TAG | 40 | Pick card, one-line branch tag, Marek Voss | Minerals: rock, every bolt counted
+TXT_CEO_MAN_02_BRANCH_TAG | 40 | Pick card, one-line branch tag, Idris Kane | Luxury: a price is a face to read
+TXT_CEO_WOMAN_01_BRANCH_TAG | 40 | Pick card, one-line branch tag, Sela Oru | Military: supply for the rim, on time
+TXT_CEO_WOMAN_02_BRANCH_TAG | 40 | Pick card, one-line branch tag, Tamsin Hale | Biotech: living goods, friendly forms
 
 ## Company screen (2026-11-05)
 SETUP_NEXT | 24 | Company screen, button that moves on to the ship screen | Next

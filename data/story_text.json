@@ -4653,25 +4653,25 @@
   },
   {
    "id": "TXT_CEO_MAN_01_BIO",
-   "text": "Marek kept ten ships flying on a shoestring and counts every bolt. He distrusts luck. He started his own company because nobody would let him order spare parts in bulk.",
+   "text": "Marek kept ten ships flying on a shoestring and counts every bolt. He distrusts luck. He started his own company because nobody would let him order spare parts in bulk. He runs Minerals on a Tramp: one more lane beats one big hull.",
    "max": 260,
    "place": "CEO bio, Marek Voss"
   },
   {
    "id": "TXT_CEO_MAN_02_BIO",
-   "text": "Idris was a broker with a famous smile and a habit of buying lunch for rivals. He reads a price board the way others read faces. He spends freely and sells hard.",
+   "text": "Idris was a broker with a famous smile and a habit of buying lunch for rivals. He reads a price board the way others read faces. He spends freely and sells hard. He sells Luxury from a Dart: quick hops, a light hold, and the buyer still smiling.",
    "max": 260,
    "place": "CEO bio, Idris Kane"
   },
   {
    "id": "TXT_CEO_WOMAN_01_BIO",
-   "text": "Sela flew supply runs through the worst lanes of the rim and still came home. Bad news does not scare her, only an idle ship does. Her plans have a backup, and a backup for the backup.",
+   "text": "Sela flew supply runs through the worst lanes of the rim and still came home. Bad news does not scare her, only an idle ship does. Her plans have a backup, and a backup for the backup. She runs Military on a Bulkhead. The rim taught her to fill the hold.",
    "max": 260,
    "place": "CEO bio, Sela Oru"
   },
   {
    "id": "TXT_CEO_WOMAN_02_BIO",
-   "text": "Tamsin grew up in the docking rings of the Bazaar and knows every clerk by name. Her contracts arrive with friendly paperwork and larger quantities. She is calm, and a little proud of the old place.",
+   "text": "Tamsin grew up in the docking rings of the Bazaar and knows every clerk by name. Her contracts arrive with friendly paperwork and larger quantities. She is calm, and a little proud of the old place. She trades Biotech from a Skerrit, a hull she knows.",
    "max": 260,
    "place": "CEO bio, Tamsin Hale"
   },
@@ -4722,6 +4722,30 @@
    "text": "Contract orders ask for more units, so a filled order pays more.",
    "max": 90,
    "place": "CEO perk line, Tamsin Hale"
+  },
+  {
+   "id": "TXT_CEO_MAN_01_BRANCH_TAG",
+   "text": "Minerals: rock, every bolt counted",
+   "max": 40,
+   "place": "Pick card, one-line branch tag, Marek Voss"
+  },
+  {
+   "id": "TXT_CEO_MAN_02_BRANCH_TAG",
+   "text": "Luxury: a price is a face to read",
+   "max": 40,
+   "place": "Pick card, one-line branch tag, Idris Kane"
+  },
+  {
+   "id": "TXT_CEO_WOMAN_01_BRANCH_TAG",
+   "text": "Military: supply for the rim, on time",
+   "max": 40,
+   "place": "Pick card, one-line branch tag, Sela Oru"
+  },
+  {
+   "id": "TXT_CEO_WOMAN_02_BRANCH_TAG",
+   "text": "Biotech: living goods, friendly forms",
+   "max": 40,
+   "place": "Pick card, one-line branch tag, Tamsin Hale"
   },
   {
    "id": "SETUP_NEXT",
