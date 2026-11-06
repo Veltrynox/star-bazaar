@@ -9,6 +9,8 @@ does one step and exits, state lives in logs/orchestrator/state.json. A Claude s
   python3 tools/orchestrator.py infer [--write]     fill missing `touches` (file globs) in schedule.json from the task briefs
   python3 tools/orchestrator.py start [--max 4]     baseline tests, worktree ../wt/<id> on branch task/<id>, one detached
                                                     `claude -p "/overnight-worker <id>"` per task
+  python3 tools/orchestrator.py baseline            re-run the baseline test count at HEAD (start does it once)
+  python3 tools/orchestrator.py resume <id>         relaunch the worker of a stopped task in its worktree
   python3 tools/orchestrator.py status              which workers are running / finished (reads their logs)
   python3 tools/orchestrator.py merge               serial merge queue for finished workers (see below)
   python3 tools/orchestrator.py report              write reports/overnight_<date>.md
@@ -44,6 +46,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 ROOT = Path(__file__).resolve().parent.parent
 WT_DIR = (ROOT.parent / "wt").resolve()
 OUT = ROOT / "logs" / "orchestrator"
+SCRATCH = WT_DIR / "_scratch"  # big temp files live on the same (large) volume as the project, never in /tmp or /var/folders
 STATE = OUT / "state.json"
 SCHEDULE = ROOT / "schedule.json"
 OWNER_ONLY = {"qa-analyst", "economy-designer"}
@@ -214,8 +217,10 @@ def cmd_plan(args):
 
 
 def run_tests(cwd, tag):
-    scratch = str(Path(os.environ.get("TMPDIR", "/tmp")) / f"star-bazaar-test-home-{tag}")
-    p = sh(["sh", "tools/tests/run.sh"], cwd=cwd, env={"STAR_TEST_SCRATCH": scratch}, timeout=1500)
+    SCRATCH.mkdir(parents=True, exist_ok=True)
+    scratch = str(SCRATCH / f"test-home-{tag}")
+    p = sh(["sh", "tools/tests/run.sh"], cwd=cwd, env={"STAR_TEST_SCRATCH": scratch, "TMPDIR": str(SCRATCH)}, timeout=1500)
+    shutil.rmtree(scratch, ignore_errors=True)
     out = p.stdout + p.stderr
     m = TOTAL.findall(out)
     pas, fail = (int(m[-1][0]), int(m[-1][1])) if m else (0, -1)
@@ -233,6 +238,32 @@ def prepare_worktree(path, br, base):
     if not cache.exists() and (ROOT / ".godot").exists():
         if sh(["cp", "-cR", str(ROOT / ".godot"), str(cache)]).returncode != 0:
             shutil.copytree(ROOT / ".godot", cache)
+
+
+def ensure_baseline(st):
+    """Full test run on a throwaway worktree at HEAD; stores pass/fail counts in the state."""
+    bw = WT_DIR / "_baseline"
+    if bw.exists():
+        sh(["git", "worktree", "remove", "--force", str(bw)])
+    WT_DIR.mkdir(parents=True, exist_ok=True)
+    sh(["git", "worktree", "add", "--detach", str(bw), "HEAD"])
+    gd = bw / "tools" / "godot"
+    if not gd.exists():
+        gd.symlink_to(ROOT / "tools" / "godot")
+    if not (bw / ".godot").exists() and (ROOT / ".godot").exists():
+        sh(["cp", "-cR", str(ROOT / ".godot"), str(bw / ".godot")])
+    r = run_tests(bw, "baseline")
+    st["baseline"] = {"pass": r["pass"], "fail": r["fail"], "fails": r["fails"],
+                      "commit": sh(["git", "rev-parse", "--short", "HEAD"]).stdout.strip()}
+    (OUT / "baseline.log").write_text(r["output"][-6000:])
+    sh(["git", "worktree", "remove", "--force", str(bw)])
+    print("baseline at HEAD:", st["baseline"]["pass"], "pass,", st["baseline"]["fail"], "fail")
+
+
+def cmd_baseline(args):
+    st = load_state()
+    ensure_baseline(st)
+    save_state(st)
 
 
 def cmd_start(args):
@@ -253,17 +284,7 @@ def cmd_start(args):
     OUT.mkdir(parents=True, exist_ok=True)
     WT_DIR.mkdir(parents=True, exist_ok=True)
     if "baseline" not in st:
-        bw = WT_DIR / "_baseline"
-        if bw.exists():
-            sh(["git", "worktree", "remove", "--force", str(bw)])
-        sh(["git", "worktree", "add", "--detach", str(bw), "HEAD"])
-        gd = bw / "tools" / "godot"
-        if not gd.exists():
-            gd.symlink_to(ROOT / "tools" / "godot")
-        r = run_tests(bw, "baseline")
-        st["baseline"] = {"pass": r["pass"], "fail": r["fail"], "fails": r["fails"], "commit": sh(["git", "rev-parse", "--short", "HEAD"]).stdout.strip()}
-        sh(["git", "worktree", "remove", "--force", str(bw)])
-        print("baseline at HEAD:", st["baseline"]["pass"], "pass,", st["baseline"]["fail"], "fail")
+        ensure_baseline(st)
     st["base_branch"] = base
     st.setdefault("started", dt.datetime.now().isoformat(timespec="minutes"))
     for t in chosen:
@@ -275,13 +296,35 @@ def cmd_start(args):
         cmd += ["--dangerously-skip-permissions"] if args.skip_permissions else ["--permission-mode", "acceptEdits", "--allowedTools", TOOLS]
         if shutil.which("caffeinate"):
             cmd = ["caffeinate", "-i"] + cmd
-        scratch = str(Path(os.environ.get("TMPDIR", "/tmp")) / f"star-bazaar-test-home-{tid}")
+        SCRATCH.mkdir(parents=True, exist_ok=True)
+        scratch = str(SCRATCH / f"test-home-{tid}")
         f = open(log, "w")
         p = subprocess.Popen(cmd, cwd=path, stdin=subprocess.DEVNULL, stdout=f, stderr=subprocess.STDOUT,
-                             env=dict(os.environ, STAR_TEST_SCRATCH=scratch), start_new_session=True)
+                             env=dict(os.environ, STAR_TEST_SCRATCH=scratch, TMPDIR=str(SCRATCH)), start_new_session=True)
         st["tasks"][tid] = {"state": "running", "pid": p.pid, "worktree": str(path), "branch": br, "log": str(log),
                             "title": t["title"], "agent": t["owner_agent"], "started": dt.datetime.now().isoformat(timespec="minutes")}
         print(f"started {tid} (pid {p.pid}) in {path}")
+    save_state(st)
+
+
+def cmd_resume(args):
+    """Relaunch the worker for a stopped task in its existing worktree."""
+    st = load_state()
+    for tid in args.ids:
+        v = st["tasks"].get(tid)
+        if not v or v["state"] not in ("stopped", "blocked"):
+            print(f"{tid}: nothing to resume")
+            continue
+        SCRATCH.mkdir(parents=True, exist_ok=True)
+        cmd = ["claude", "-p", f"/overnight-worker {tid}", "--permission-mode", "acceptEdits", "--allowedTools", TOOLS]
+        if shutil.which("caffeinate"):
+            cmd = ["caffeinate", "-i"] + cmd
+        f = open(v["log"], "a")
+        p = subprocess.Popen(cmd, cwd=v["worktree"], stdin=subprocess.DEVNULL, stdout=f, stderr=subprocess.STDOUT,
+                             env=dict(os.environ, STAR_TEST_SCRATCH=str(SCRATCH / f"test-home-{tid}"), TMPDIR=str(SCRATCH)), start_new_session=True)
+        v.update(state="running", pid=p.pid)
+        v.pop("why", None)
+        print(f"resumed {tid} (pid {p.pid})")
     save_state(st)
 
 
@@ -369,20 +412,28 @@ def block(st, tid, why, log_text):
     print(f"{tid}: BLOCKED, {why}")
 
 
+def fail_name(line):
+    parts = re.split(r"\s{2,}", line.strip())
+    return parts[0].replace("FAIL", "").strip() or parts[1] if len(parts) > 1 else line.strip()
+
+
 def merge_one(st, tid):
     v = st["tasks"][tid]
     wt, br, base = v["worktree"], v["branch"], st["base_branch"]
     if v.get("result") is None or not v["result"].startswith("done"):
         return block(st, tid, "worker did not report done: " + str(v.get("result")), "")
-    if sh(["git", "status", "--porcelain"], cwd=wt).stdout.strip():
-        return block(st, tid, "worktree has uncommitted files", sh(["git", "status", "--short"], cwd=wt).stdout)
+    dirty = [l for l in sh(["git", "status", "--porcelain"], cwd=wt).stdout.splitlines() if l[3:].rstrip("/") != "tools/godot"]  # our own symlink
+    if dirty:
+        return block(st, tid, "worktree has uncommitted files", "\n".join(dirty))
     r = sh(["git", "rebase", base], cwd=wt)
     if r.returncode != 0:
         sh(["git", "rebase", "--abort"], cwd=wt)
         return block(st, tid, f"rebase onto {base} failed", r.stdout + r.stderr)
     t = run_tests(wt, tid + "-merge")
-    if t["fail"] != 0 or t["code"] != 0:
-        return block(st, tid, f"tests after rebase: {t['pass']} pass, {t['fail']} fail", "\n".join(t["fails"]) + "\n\n" + t["output"][-4000:])
+    known = {fail_name(l) for l in st.get("baseline", {}).get("fails", [])}
+    new = [l for l in t["fails"] if fail_name(l) not in known]
+    if t["fail"] < 0 or new or (t["fail"] > len(known) and t["fail"] > 0):
+        return block(st, tid, f"tests after rebase: {t['pass']} pass, {t['fail']} fail, {len(new)} new vs baseline", "NEW:\n" + "\n".join(new) + "\n\n" + t["output"][-4000:])
     r = sh(["git", "merge", "--ff-only", br])
     if r.returncode != 0:
         return block(st, tid, "fast-forward merge refused", r.stdout + r.stderr)
@@ -438,9 +489,10 @@ def cmd_report(args):
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
-    for name, fn in [("plan", cmd_plan), ("infer", cmd_infer), ("start", cmd_start), ("status", cmd_status), ("merge", cmd_merge), ("report", cmd_report)]:
+    for name, fn in [("plan", cmd_plan), ("infer", cmd_infer), ("start", cmd_start), ("baseline", cmd_baseline), ("resume", cmd_resume), ("status", cmd_status), ("merge", cmd_merge), ("report", cmd_report)]:
         p = sub.add_parser(name)
         p.set_defaults(fn=fn)
+        p.add_argument("ids", nargs="*")
         p.add_argument("--max", type=int, default=4)
         p.add_argument("--write", action="store_true")
         p.add_argument("--allow-main", action="store_true")

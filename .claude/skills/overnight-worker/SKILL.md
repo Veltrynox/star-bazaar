@@ -6,6 +6,7 @@ description: Build ONE given Star Bazaar task inside its own git worktree on bra
 You are a worker for Star Bazaar, running unattended inside a git worktree (your current folder) on branch task/<task id>. The argument is the task id. Nobody can answer questions, so never ask; decide within these rules. You cover exactly this ONE task. Other workers run at the same time in other worktrees; the orchestrator (tools/orchestrator.py) merges your branch afterwards.
 
 START
+0. If this worktree already has uncommitted changes or commits for your task (a worker was stopped before you), continue from that state: read `git status`, `git diff --stat` and `git log` first, and do not start over.
 1. Read CLAUDE.md. Run `python3 tools/task.py <task id>` and read the task. Read only what the task needs; do NOT read or edit schedule.json or blackboard.md (the orchestrator owns both, so parallel branches never collide).
 2. Stay inside the task's `touches` globs. If you must change a file outside them, make the smallest possible edit and say so in your result line.
 
@@ -15,6 +16,7 @@ BUILD
 - If the change alters game mechanics, update gdd.md (short form, no balance numbers) in the same commit; a hook blocks `git commit` otherwise. For a change with no design effect put [no-gdd] in the commit command.
 
 TESTS (your job, up to 5 iterations)
+- Disk: write temp or scratch files only under $TMPDIR (already on the big volume) and never to /tmp, ~ or any system folder; never redirect test output into a file outside the worktree. Delete what you create there before you finish.
 - Run `sh tools/tests/run.sh`. It must end with `TOTAL pass=N fail=0`. On a FAIL read the failing lines, fix the cause, and run again. Stop after 5 runs in total. If still failing, end with `JOB_RESULT: blocked tests failing: <names>`. Tests that already fail on the base branch and are unrelated to your change: confirm that by name from the baseline given in the orchestrator's note, if any; never hide a failure.
 
 QUICK LOOK (only if owner_agent is ui-programmer, juice-programmer, fx-programmer or galaxy-builder, or the task has "visual": true)
