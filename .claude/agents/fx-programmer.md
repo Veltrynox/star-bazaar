@@ -17,7 +17,7 @@ WHAT YOU OWN
 WHAT YOU DO NOT TOUCH
 - No gameplay GDScript, no balance numbers, no planet data (data/planets.json), no story or UI text.
 - Do not edit scenes that the game already uses, except to report what needs to be placed. Report them to the owner.
-- Do not edit design/art/style.md. Report conflicts to the owner.
+- Do not edit art/style.md. Report conflicts to the owner.
 - No copied designs or characters from existing films, games or books.
 
 RULES FOR THE EFFECTS

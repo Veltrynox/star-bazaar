@@ -42,7 +42,7 @@ Not in the table yet (see section 8): event banners (`art/event_banners/ev01.web
 ## 5. Folders
 - A folder holds one category. Layout: `art/icons`, `art/ui`, `art/planet`, `art/sun` (frames per subject), `art/event_banners` (images the game loads), top-level `art_source/` (sheets and full-size or raw sources, never loaded, `.gdignore`), `game/fx/planet` and `game/fx/sun` (effect code), `ui/fonts/` (font families) and `ui/theme/` (the one Theme `star_bazaar.tres`, built by `tools/build_theme.py`, and its white `icons/`), `assets/<model>/` (3D only), `media/docs`, `media/refs`.
 - Code is not an asset. Scripts (`.gd`), shaders (`.gdshader`), scenes (`.tscn`) and resources (`.tres`) keep snake_case names and belong in `game/`, `game/fx/planet/`, `game/fx/sun/` or `tools/`; `art/` holds images only. Generator scripts belong in `tools/`.
-- Docs about art sit in `design/art/` (`style.md`, this file).
+- Docs about art sit in `art/` next to `README.md` (`style.md`, this file).
 
 ## 6. Companions
 - Godot writes `<file>.import` beside each imported image or model, and `<script>.uid` beside each `.gd` and `.gdshader`.

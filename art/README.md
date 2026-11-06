@@ -1,6 +1,6 @@
 # art/ : shipping 2D art
 
-Game-ready images the game loads live here, one category per folder. Naming rules: `design/art/NAMING.md`. Art style: `design/art/style.md`. Documents and reference images are in `media/`, 3D models in `assets/`. Fonts and the UI Theme (with its icons) are in `ui/fonts/` and `ui/theme/`.
+Game-ready images the game loads live here, one category per folder. Naming rules: `art/NAMING.md`. Art style: `art/style.md`. Documents and reference images are in `media/`, 3D models in `assets/`. Fonts and the UI Theme (with its icons) are in `ui/fonts/` and `ui/theme/`.
 
 | Folder | Holds | Loaded by |
 |---|---|---|
@@ -17,11 +17,11 @@ Game-ready images the game loads live here, one category per folder. Naming rule
 - Never-loaded sources: `art_source/` (tools read it by file path, so `art_source/.gdignore` is set).
 - 3D models: `assets/corvette/` (not shipped), `assets/space_station/`, `assets/asteroid_asset/`. Each model in its own folder.
 - Documents, archives, reference images: `media/docs/` (PDFs, zips), `media/refs/event_banners/` (JPG versions of the banners). Nothing in `media/` is shipped.
-- Art docs: `design/art/style.md` (palette, look, what each icon must show) and `design/art/NAMING.md` (naming rule and known exceptions).
+- Art docs: `art/style.md` (palette, look, what each icon must show) and `art/NAMING.md` (naming rule and known exceptions).
 - Generators (write into `art/`): `tools/make_icons.py` (icons), `tools/make_ui.py` (UI pieces), `tools/planet_texture_gen.gd` (planet tone map). Run from the project root, e.g. `python3 tools/make_icons.py`.
 
 ## Adding or renaming an image
-1. Name it by `design/art/NAMING.md` section 1 and put it in the folder for its category.
+1. Name it by `art/NAMING.md` section 1 and put it in the folder for its category.
 2. Move a file with its `.import` (and `.uid`) file together. Update every path that names it (`game/`, `game/fx/planet/*.gd`, `*.tres`, `tools/`, docs).
 3. Run `Godot --headless --path . --import` once, then `sh tools/tests/run.sh`.
 
