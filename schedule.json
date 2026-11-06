@@ -2398,7 +2398,7 @@
       "title": "Text: Flagship, dock sheet, gig board, rush templates, four new signals",
       "owner_agent": "story-designer",
       "depends_on": [],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 50,
       "window": "Owner request 2026-11-06: empire growth v2, phase 2 (design/proposals/2026-11-06-empire-growth-v2.md). Priority over conflicting older tasks.",
       "brief": "Goal: every Phase 2 id has text, and the gig pool grows. Design: design/proposals/2026-11-06-empire-growth-v2.md section 3.2. Write: the Flagship's name and short description; dock sheet labels and refusal notices; boost; gig board labels; rush order templates (world and good as tokens filled only with visible goods); delivered and expired notices; four new signal gigs in story/gigs.md format (two shared, two for any branches you choose; two neutral options each, branch outcome lines, epilogue line). Write in story/*.md (English only), then run python3 tools/build_story.py; never edit generated files (data/story_text.json, data/events.json). Voice per story/voice.md. No text names a hidden good, a number or a skill-point price. Done when written. Handoff: handoffs/story-designer/<date>-T275.json.",
@@ -2408,7 +2408,8 @@
         "story/screens.md",
         "data/story_text.json"
       ],
-      "priority": 1
+      "priority": 1,
+      "note": "Done by orchestrator: Wrote the text for the Flagship (working name Tessarine), dock sheet, boost, gig board, rush order templates and notices, and four new signal gigs (GIG03–GIG06). The old Pathfinder ids still exist and need swapping for the new Flagship ids in code."
     },
     {
       "task_id": "T276",

@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-06 17:33 run: T244
-- Summary: Skill window now fills the viewport; with Foundations plus one market the cells share the full width (cap 420) and height, no skill ids changed
-- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
-- Approach: built by a worker in worktree ../wt/T244 on branch task/T244, merged by the serial merge queue.
-- Agent prompts: /overnight-worker T244 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T244.log.
-- Worked: rebase, full test suite and fast-forward merge passed.
-- Failed / did not work: nothing.
-- Files and commits: see git log on branch new-features for commits starting with T244.
-- Left to do: nothing for this task.
-
 ## 2026-11-06 17:54 run: T256
 - Summary: tests: 13 failures (workshop, goods, availability, cells), identical on base 2278959 and unrelated; prosperity core is built, its 8 new tests pass, and it is committed
 - Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
@@ -65,3 +55,13 @@
 - Failed / did not work: rebase onto new-features failed.
 - Files and commits: see git log on branch new-features for commits starting with T264.
 - Left to do: owner or a new run: see blocked_log in schedule.json.
+
+## 2026-11-06 18:03 run: T275
+- Summary: Wrote the text for the Flagship (working name Tessarine), dock sheet, boost, gig board, rush order templates and notices, and four new signal gigs (GIG03–GIG06). The old Pathfinder ids still exist and need swapping for the new Flagship ids in code.
+- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
+- Approach: built by a worker in worktree ../wt/T275 on branch task/T275, merged by the serial merge queue.
+- Agent prompts: /overnight-worker T275 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T275.log.
+- Worked: rebase, full test suite and fast-forward merge passed.
+- Failed / did not work: nothing.
+- Files and commits: see git log on branch new-features for commits starting with T275.
+- Left to do: nothing for this task.
