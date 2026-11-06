@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-06 18:42 run: T247
-- Summary: Foundations are now ordered Permit Charter, Prospecting, Space Storage in data/skills.json and gdd-skills.md, so Permit Charter sits above Quartermaster's Terms (MIL_1); effects, costs and prerequisites are unchanged. I also edited one line in tools/tests/run_tests.gd, outside the task's touches, be
-- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
-- Approach: built by a worker in worktree ../wt/T247 on branch task/T247, merged by the serial merge queue.
-- Agent prompts: /overnight-worker T247 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T247.log.
-- Worked: rebase, full test suite and fast-forward merge passed.
-- Failed / did not work: nothing.
-- Files and commits: see git log on branch new-features for commits starting with T247.
-- Left to do: nothing for this task.
-
 ## 2026-11-06 18:47 run: T260
 - Summary: Re-pointed all 21 share_pct chain triggers to any_tier:2 (A2, B1), any_tier:3 (A3, B3) and bazaar_stage:1 (B4); the share_pct atom stays for old saves and no data uses it
 - Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
@@ -64,4 +54,14 @@
 - Worked: rebase, full test suite and fast-forward merge passed.
 - Failed / did not work: nothing.
 - Files and commits: see git log on branch new-features for commits starting with T262.
+- Left to do: nothing for this task.
+
+## 2026-11-06 18:51 run: T301
+- Summary: Wrote the frontier text (reclaim, raids, cargo pods, mining intensity), six wing names and lines, the Opening gig GIG07, recap labels and nine epilogue lines, then rebuilt story_text.json
+- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
+- Approach: built by a worker in worktree ../wt/T301 on branch task/T301, merged by the serial merge queue.
+- Agent prompts: /overnight-worker T301 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T301.log.
+- Worked: rebase, full test suite and fast-forward merge passed.
+- Failed / did not work: nothing.
+- Files and commits: see git log on branch new-features for commits starting with T301.
 - Left to do: nothing for this task.

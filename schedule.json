@@ -2937,7 +2937,7 @@
       "title": "Text: frontier, wings, Opening, recap, epilogues",
       "owner_agent": "story-designer",
       "depends_on": [],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 50,
       "window": "Owner request 2026-11-06: empire growth v2, phase 5 (design/proposals/2026-11-06-empire-growth-v2.md). Priority over conflicting older tasks.",
       "brief": "Goal: the frontier and the finale speak. Design: design/proposals/2026-11-06-empire-growth-v2.md section 3.4, 4. Write: reclaim prompts and notices, the reclaimed type name, raid and salvage notices, intensity labels; six wing names and lines (three stages x two); the Opening gig text; recap labels; epilogue lines for capital, worlds grown, reclaimed world, wings (no counts, no lean words). Write in story/*.md (English only), then run python3 tools/build_story.py; never edit generated files (data/story_text.json, data/events.json). Voice per story/voice.md. No text names a hidden good, a number or a skill-point price. Done when written. Handoff: handoffs/story-designer/<date>-T301.json.",
@@ -2948,7 +2948,8 @@
         "story/gigs.md",
         "data/story_text.json"
       ],
-      "priority": 1
+      "priority": 1,
+      "note": "Done by orchestrator: Wrote the frontier text (reclaim, raids, cargo pods, mining intensity), six wing names and lines, the Opening gig GIG07, recap labels and nine epilogue lines, then rebuilt story_text.json"
     },
     {
       "task_id": "T302",
