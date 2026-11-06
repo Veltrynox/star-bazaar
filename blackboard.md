@@ -17,16 +17,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-06 14:00 run: T219
-- Summary: Route lanes now draw in from the source end (0.25 s ease-out), fade on removal (0.15 s) and show one brighter band on dispatch (0.5 s). Effects snap to the end state while paused.
-- Why this task: first of the juice follow-ups, no dependencies, no look decision; other open tasks are owner-only or need decisions.
-- Approach: juice-programmer agent in route_line.gd with hooks in map.gd; I verified diff and tests.
-- Agent prompts: draw-in, removal fade, dispatch pulse, game time only, constants, one headless curve test; handoffs/juice-programmer/2026-11-06-T219.json, done.
-- Worked: sh tools/tests/run.sh pass=11277 fail=0.
-- Failed / did not work: nothing; not seen windowed.
-- Files and commits: game/route_line.gd, game/map.gd, tools/tests/run_tests.gd, handoff, schedule.json, blackboard.md; see git log "T219".
-- Left to do: owner: look windowed (pulse readability, width growth); route made while paused (game starts paused) has no draw-in; lane tag not pinged.
-
 ## 2026-11-06 15:00 run: T232
 - Summary: Ship cap set from 20 to 10 (data/balance.json ship_cap); saves with more ships clamp on load (existing clamp in main.gd). Comments in ship_panel.gd updated.
 - Why this task: smallest concrete owner request, no dependencies, no visual or economy-agent need; other open tasks are larger, visual, or owner-only.

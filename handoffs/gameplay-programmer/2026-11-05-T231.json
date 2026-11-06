@@ -1,0 +1,10 @@
+{
+  "agent": "gameplay-programmer",
+  "date": "2026-11-05",
+  "task": "T231",
+  "status": "done",
+  "schema_version": 1,
+  "files_changed": ["game/map.gd", "game/system_exit.gd"],
+  "open_questions": [],
+  "handoff": "Added MAP_SCALE_UP 1.4 and PLANET_SCALE_UP 1.3 in game/map.gd. MAP_UNIT_SCALE is now 0.02 x 1.4, so planet orbits (about system centre), asteroid clusters, pack radii, route lines, cluster picks, system exits (system_exit.gd copy of the constant), dust rings, ship docking and the pathfinder all scale together. START_ZOOM, zoom_min, PAN_SPEED, PAN_LIMIT_MIN and LAYOUT_RADIUS are scaled with it, so framing is unchanged. Planet size range, base size and pick minimum are x1.3; label offsets, hints and docking follow planet_radius, so ships still spawn outside planets. Suns and rock sizes are unchanged. Travel time is unchanged: pathfinder speed is in data units times MAP_UNIT_SCALE, so distance and speed both grow 1.4x. Test run: no FAIL lines."
+}

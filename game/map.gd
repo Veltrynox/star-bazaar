@@ -15,19 +15,21 @@ const PLANETS_PATH := "res://data/planets.json"
 # Zoom bounds are not in gdd.md: defaults for owner decision.
 # T33: the tunables below are vars (zoom_min ... planet_scale) so the debug menu can edit them live.
 const ZOOM_STEP := 1.1
-const START_ZOOM := 0.65        # was 1.0: planet orbits are ORBIT_SCALE x wider, so the default view backs off to keep every system in frame
-const PAN_SPEED := 10.0          # world units per second at zoom 1
-const LAYOUT_RADIUS := 6.0       # ring radius for the simple layout (world units)
-const MAP_UNIT_SCALE := 0.02     # world units per map unit in planets.json (old ring: 300 map units = 6 world units)
+const MAP_SCALE_UP := 1.4       # T231: whole solar system map x1.4 (orbits, clusters, exits, routes); data-unit distances and flight times unchanged
+const PLANET_SCALE_UP := 1.3     # T231: planets x1.3 bigger again (visual, pick radius, labels, icons)
+const START_ZOOM := 0.65 / MAP_SCALE_UP        # was 1.0: planet orbits are ORBIT_SCALE x wider, so the default view backs off to keep every system in frame
+const PAN_SPEED := 10.0 * MAP_SCALE_UP          # world units per second at zoom 1
+const LAYOUT_RADIUS := 6.0 * MAP_SCALE_UP       # ring radius for the simple layout (world units)
+const MAP_UNIT_SCALE := 0.02 * MAP_SCALE_UP     # world units per map unit in planets.json (old ring: 300 map units = 6 world units)
 const PLANET_RADIUS := 0.8       # base radius (before planet_scale)
 const ORBIT_SCALE := 2.0         # planets sit this many times further from their system centre than planets.json / systems.json x,y say (the data stays as is)
 ## Planet size variation: each planet is PLANET_SIZE_MIN..PLANET_SIZE_MAX (0.715 to 1.885) of the base radius. A planet's own "size" key in
 ## the data wins; otherwise the value comes from a hash of its id, so it is the same every run. Dead worlds use the same range.
 const PLANET_SIZE_MIN := 0.715   # 0.55 x 1.3 (owner: planets 1.3x bigger again)
 const PLANET_SIZE_MAX := 1.885   # 1.45 x 1.3
-const PLANET_PICK_MIN := 0.75    # smallest click radius of a planet (world units), so the smallest planets stay easy to hit
+const PLANET_PICK_MIN := 0.75 * PLANET_SCALE_UP    # smallest click radius of a planet (world units), so the smallest planets stay easy to hit
 const CLUSTER_PICK_MIN := 0.3     # smallest click radius of an asteroid pack (world units); under a planet's radius
-const PLANET_SIZE := 1.3         # planet size multiplier: planets are x1.3 the old size; the debug menu starts here
+const PLANET_SIZE := 1.3 * PLANET_SCALE_UP         # planet size multiplier: planets are x1.3 the old size; the debug menu starts here
 const BASE_DISTANCE := 16.0      # camera distance from focus point at zoom 1
 const CAMERA_FOV := 45.0
 const PLANET_SPHERE := preload("res://game/fx/planet/planet_sphere.tscn")  # unit-radius sphere; scaled to planet_radius()
@@ -36,11 +38,11 @@ const PLANET_SPHERE := preload("res://game/fx/planet/planet_sphere.tscn")  # uni
 const START_YAW_DEG := 0.0
 const START_PITCH_DEG := 45.0
 const ORBIT_MOUSE_SENS := 0.3    # degrees per pixel of right-drag
-const PAN_LIMIT_MIN := 6.0       # floor for the pan limit radius (world units)
+const PAN_LIMIT_MIN := 6.0 * MAP_SCALE_UP       # floor for the pan limit radius (world units)
 const ORBIT_KEY_SPEED := 60.0    # degrees per second for arrow keys
 
 # T33 tunables (live-editable, runtime only, never saved)
-var zoom_min := 0.25
+var zoom_min := 0.25 / MAP_SCALE_UP
 var zoom_max := 3.0
 var pan_margin := 1.3             # camera focus may stray this many times the outermost planet's orbit radius from the system centre
 var yaw_min_deg := -45.0

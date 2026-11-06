@@ -7,7 +7,7 @@ extends Control
 
 const StoryText := preload("res://game/story_text.gd")
 const Systems := preload("res://game/systems.gd")
-const MAP_UNIT_SCALE := 0.02  # same as map.gd
+const MAP_UNIT_SCALE := 0.02 * 1.4  # same as map.gd (0.02 x MAP_SCALE_UP)
 const AREA_LEFT := 430.0  # clear of the planet panel and the rail
 const AREA_RIGHT := 520.0  # clear of the board (the label runs right of the marker)
 const AREA_TOP := 110.0

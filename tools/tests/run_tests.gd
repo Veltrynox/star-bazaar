@@ -3510,7 +3510,7 @@ func _test_planet_size() -> void:
 	var m: Control = await _new_main()
 	m._dismiss_preface()
 	var map = m.map
-	check(absf(map.planet_scale - 1.3) < 0.0001 and absf(map.planet_radius() - 0.8 * 1.3) < 0.0001, "size: planets default to x1.3", "scale=%f" % map.planet_scale)
+	check(absf(map.planet_scale - 1.69) < 0.0001 and absf(map.planet_radius() - 0.8 * 1.69) < 0.0001, "size: planets default to x1.69", "scale=%f" % map.planet_scale)
 	var ratio0: float = map.label_drop() / map.planet_radius()
 	var route_r0: float = map.route_lines.values()[0].radius if not map.route_lines.is_empty() else -1.0
 	m.debug_menu._set_planet_scale(2.0)
@@ -3521,8 +3521,8 @@ func _test_planet_size() -> void:
 		var r1: float = map.route_lines.values()[0].radius
 		var rl0 = map.route_lines.values()[0]
 		check(absf(r1 - maxf(map.planet_radius(rl0.pair_a), map.planet_radius(rl0.pair_b))) < 0.0001, "size: route starts follow the debug size", "r=%f" % r1)
-	m.debug_menu._set_planet_scale(1.3)
-	check(absf(map.planet_radius() - 1.04) < 0.0001, "size: back to x1.3")
+	m.debug_menu._set_planet_scale(1.69)
+	check(absf(map.planet_radius() - 1.352) < 0.0001, "size: back to x1.69")
 	map.set_hint(0, true)
 	var hm = map.hint.mesh
 	check(hm is TorusMesh and not (hm is SphereMesh), "highlight: a thin ring, not a filled sphere")
