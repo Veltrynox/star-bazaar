@@ -145,7 +145,7 @@ Permit Charter lets the player buy permits for other systems. Without it the per
 ========================================
 6. SKILL TREE SCREEN
 ========================================
-A "Skills" button in the top bar (hotkey K) opens the screen at any time; Esc or the button closes it; the game does not pause (owner decision). Layout is one block for the Foundations and one tree per market, each drawn as tier rows from node 1 (a crowded tier wraps to a second line). A header shows "Skill points: N". Node states: learned, available, locked (shows what it needs), and for tech nodes a crafting progress line (SK_<node>_CRAFT, "<workshop> crafts: n of goal"). Skills that act on a rival (Embargo Desk, Guild Seal) have a "Use on..." button and show "Ready in n cycles" or "Used this run". The screen shows no credits: "Skills cost skill points, never credits."
+A "Skills" button in the top bar (hotkey K) opens the screen at any time; Esc or the button closes it; the game does not pause (owner decision). Layout is one block for the Foundations and one tree per market, each drawn as tier rows from node 1 (a crowded tier wraps to a second line). The window fills the whole screen: with one market beside Foundations, every skill is drawn and the cells share all the width and height, so nothing needs a scroll. A header shows "Skill points: N". Node states: learned, available, locked (shows what it needs), and for tech nodes a crafting progress line (SK_<node>_CRAFT, "<workshop> crafts: n of goal"). Skills that act on a rival (Embargo Desk, Guild Seal) have a "Use on..." button and show "Ready in n cycles" or "Used this run". The screen shows no credits: "Skills cost skill points, never credits."
 
 ========================================
 7. GAME MENU
