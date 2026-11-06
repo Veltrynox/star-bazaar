@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-06 23:50 run: gap analysis
-- Summary: Reviewed all 16 open tasks; none can be done without an owner decision, a visual decision, owner-only agents, or a clean test base. No new tasks added.
-- Why this task: T05/T193 windowed measure, T178/T182/T209 owner-only QA/economy, T189/T190 owner decisions, T208/T218/T239/T240/T243 await approval, T220/T221/T223 are look/layout, T166 superseded.
-- Approach: did not start T243 even though its dependency is done: the brief itself says it needs owner OK, and the tree has 15 test FAILs from the owner's uncommitted goods work, so a data/events change could not be verified.
-- Agent prompts: none sent.
-- Worked: schedule read; no change to schedule.json.
-- Failed / did not work: nothing run.
-- Files and commits: blackboard.md only.
-- Left to do: owner approves T243/T218/T239/T208 or answers the open questions; owner commits goods work so the test base is green.
-
 ## 2026-11-07 00:10 run: gap analysis
 - Summary: Re-read the 16 open tasks; the picture is unchanged since the 23:50 analysis. No task can be done without an owner decision, visual decision, owner-only agent, or clean test base. No new tasks added.
 - Why this task: no open task is eligible (T208/T218/T239/T240/T243 need approval, T189/T190/T193 need decisions, T178/T182/T209 owner-only, T220/T221/T223 visual, T166 superseded).
@@ -64,4 +54,14 @@
 - Worked: rebase, full test suite and fast-forward merge passed.
 - Failed / did not work: nothing.
 - Files and commits: see git log on branch new-features for commits starting with T267.
+- Left to do: nothing for this task.
+
+## 2026-11-06 17:16 run: T277
+- Summary: Traffic layer in game/traffic/ with instanced path/orbit/free ship groups moving in shaders, code-built low-poly corvette and pirate proxies, far-zoom fade, 13 placeholder balance keys and a debug-menu instance/draw-call readout
+- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
+- Approach: built by a worker in worktree ../wt/T277 on branch task/T277, merged by the serial merge queue.
+- Agent prompts: /overnight-worker T277 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T277.log.
+- Worked: rebase, full test suite and fast-forward merge passed.
+- Failed / did not work: nothing.
+- Files and commits: see git log on branch new-features for commits starting with T277.
 - Left to do: nothing for this task.
