@@ -2648,7 +2648,7 @@
       "title": "Text: houses as weather, chain re-voice, moods",
       "owner_agent": "story-designer",
       "depends_on": [],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 50,
       "window": "Owner request 2026-11-06: empire growth v2, phase 3 (design/proposals/2026-11-06-empire-growth-v2.md). Priority over conflicting older tasks.",
       "brief": "Goal: rivals read as weather, chains stop talking about beating rivals. Design: design/proposals/2026-11-06-empire-growth-v2.md section 3.5, 3.1 (Moods). Write: the three houses' weather temperaments and notices (flood, shortage, congestion, convoy arriving), forecast lines, rival card lines; re-voice chain option texts that 'hit a rival' as delaying or softening a house's weather; mood labels (three); the re-voiced skill node names and descriptions for weather_soften_pct and weather_warning. Write in story/*.md (English only), then run python3 tools/build_story.py; never edit generated files (data/story_text.json, data/events.json). Voice per story/voice.md. No text names a hidden good, a number or a skill-point price. Done when written. Handoff: handoffs/story-designer/<date>-T287.json.",
@@ -2660,7 +2660,8 @@
         "data/story_text.json",
         "data/events.json"
       ],
-      "priority": 1
+      "priority": 1,
+      "note": "Done by orchestrator: Houses are now written as weather (Harrow floods, Velvet shortages, Ostrel congestion), with convoy and forecast lines, all 28 chain steps re-voiced, three mood labels and the eight weather skill nodes renamed, built through build_story.py"
     },
     {
       "task_id": "T288",

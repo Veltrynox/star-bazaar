@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-06 18:08 run: T264
-- Summary: Each established world on the map now has a ring of progress notches and need icons under its name, and the Bazaar capital has a marker.
-- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
-- Approach: built by a worker in worktree ../wt/T264 on branch task/T264, merged by the serial merge queue.
-- Agent prompts: /overnight-worker T264 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T264.log.
-- Worked: rebase, full test suite and fast-forward merge passed.
-- Failed / did not work: nothing.
-- Files and commits: see git log on branch new-features for commits starting with T264.
-- Left to do: nothing for this task.
-
 ## 2026-11-06 18:22 run: T258
 - Summary: Tax per world per cycle by tier, skill points the first time any world reaches a tier, and share-milestone points off behind `share_points_enabled` (0). Also new `any_tier:<n>` and `planet_tier:<planet>/<n>` condition atoms, and save version 11
 - Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
@@ -64,4 +54,14 @@
 - Worked: rebase, full test suite and fast-forward merge passed.
 - Failed / did not work: nothing.
 - Files and commits: see git log on branch new-features for commits starting with T286.
+- Left to do: nothing for this task.
+
+## 2026-11-06 18:25 run: T287
+- Summary: Houses are now written as weather (Harrow floods, Velvet shortages, Ostrel congestion), with convoy and forecast lines, all 28 chain steps re-voiced, three mood labels and the eight weather skill nodes renamed, built through build_story.py
+- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
+- Approach: built by a worker in worktree ../wt/T287 on branch task/T287, merged by the serial merge queue.
+- Agent prompts: /overnight-worker T287 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T287.log.
+- Worked: rebase, full test suite and fast-forward merge passed.
+- Failed / did not work: nothing.
+- Files and commits: see git log on branch new-features for commits starting with T287.
 - Left to do: nothing for this task.
