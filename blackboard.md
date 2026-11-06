@@ -4,6 +4,7 @@
 - discovery_enabled in data/balance.json ships at 1 (owner decision 2026-11-05); tests that need it off set it themselves.
 
 ## Left to do
+- T237 done: four TXT_CEO_*_BRANCH_TAG ids exist but are not shown yet (T236 must wire them); SETUP_NEXT still reads 'Next'. story/voice.md has uncommitted owner edits, left alone.
 - Owner: T219 lane draw-in/fade/pulse not seen windowed (constants atop route_line.gd); route made while paused shows no draw-in.
 - Owner: T203 establish beat not seen windowed (ring/spokes vs bright planets, nudge softness, dead worlds); follow-up juice tasks T219-T221 queued.
 - Owner: T205 trail look windowed: ship_trail.gd WIDTH 0.16, ships.gd ENGINE_BACK 0.9 for all models (exact exhaust positions not measured from the GLBs).
@@ -56,3 +57,13 @@
 - Failed / did not work: nothing; layout not seen windowed.
 - Files and commits: game/skill_tree.gd, skill_screen.gd, main.gd, route_engine.gd, tools/tests/run_tests.gd, gdd-skills.md, handoff, schedule.json, blackboard.md; see git log "T241".
 - Left to do: owner: open skill screen (K) per CEO branch and judge layout (CELL_W_MAX 250). Story-designer: add text id NOT_DEAD_OTHER_BRANCH (fallback "Mining here is closed to your company." in use).
+
+## 2026-11-06 10:00 run: T237
+- Summary: Added a branch tag per CEO (TXT_CEO_*_BRANCH_TAG, max 40 chars) and one sentence at the end of each CEO bio naming market and ship, English only, built with tools/build_story.py.
+- Why this task: small, dependency T235 done, text only, no visual, economy or QA need.
+- Approach: story-designer agent, source in story/screens.md; no UI wiring since that is T236.
+- Agent prompts: write tags and bio sentences per the T237 brief, no commit; produced story/screens.md, data/story_text.json, handoffs/story-designer/2026-11-05-T237.json, done.
+- Worked: sh tools/tests/run.sh pass=11318 fail=0.
+- Failed / did not work: agent saw a JSON parse message from game/run_stats.gd in the test log (not a FAIL, unrelated, not investigated).
+- Files and commits: story/screens.md, data/story_text.json, handoff, schedule.json, blackboard.md; see git log "T237".
+- Left to do: T236 must show the tags on the pick card; owner: SETUP_NEXT label "Next" vs "Start".

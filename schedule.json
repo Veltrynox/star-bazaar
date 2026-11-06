@@ -1634,10 +1634,11 @@
       "depends_on": [
         "T235"
       ],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 20,
       "window": "Owner request 2026-11-05. Not started: main session sets it running.",
-      "brief": "Owner: the CEO now decides the branch and the ship. For each of the 4 CEOs (mapping in handoffs/gameplay-programmer/2026-11-05-T235.json) write in English only: a one-line branch tag shown on the pick card (max 40 characters, e.g. the market named in the CEO's voice) and one extra sentence at the end of the CEO bio that says why this person flies this ship in this branch, same voice and max length rules as story/voice.md. Add ids to the source in story/ (not the generated json), run python3 tools/build_story.py. No text may promise a rule the game does not have. Handoff handoffs/story-designer/2026-11-05-T237.json with the ids."
+      "brief": "Owner: the CEO now decides the branch and the ship. For each of the 4 CEOs (mapping in handoffs/gameplay-programmer/2026-11-05-T235.json) write in English only: a one-line branch tag shown on the pick card (max 40 characters, e.g. the market named in the CEO's voice) and one extra sentence at the end of the CEO bio that says why this person flies this ship in this branch, same voice and max length rules as story/voice.md. Add ids to the source in story/ (not the generated json), run python3 tools/build_story.py. No text may promise a rule the game does not have. Handoff handoffs/story-designer/2026-11-05-T237.json with the ids.",
+      "note": "2026-11-06: 4 TXT_CEO_*_BRANCH_TAG ids added and bios extended (story/screens.md); tags not wired into pick card (T236)."
     },
     {
       "task_id": "T236",
