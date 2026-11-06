@@ -110,6 +110,7 @@ uniform float clock = 0.0;
 uniform float speed = 0.07;
 uniform float waiting = 0.0;
 uniform float fade = 1.0;          // T219: follows the lane's draw-in and removal fade
+uniform float far = 1.0;           // T278: 1 far (dots are the view), 0 close (3D ships take over)
 uniform vec4 col_out : source_color = vec4(0.92, 0.906, 0.875, 1.0);
 uniform vec4 col_back : source_color = vec4(0.631, 0.62, 0.592, 1.0);
 uniform vec4 col_wait : source_color = vec4(0.886, 0.753, 0.369, 1.0);
@@ -148,7 +149,7 @@ void vertex() {
 void fragment() {
 	float d = length(corner);
 	ALBEDO = vcol.rgb;
-	ALPHA = vcol.a * (1.0 - smoothstep(0.7, 1.0, d)) * fade;
+	ALPHA = vcol.a * (1.0 - smoothstep(0.7, 1.0, d)) * fade * far;
 }
 """
 
@@ -180,6 +181,12 @@ var _fade_t := -1.0     # seconds into the removal fade, -1 idle
 var _pulse_t := -1.0    # seconds into the dispatch pulse, -1 idle
 var _ships_seen := -1   # ships on the lane at the last set_style (-1: not styled by the map yet)
 var _game: Node         # the game screen (has _progress), found once
+## T278: lane ships. The lane registers a path group with the map's traffic layer (game/traffic/traffic_layer.gd); the dots are the far view.
+var _ship_status := "running"
+var _ship_count := 0
+var _ship_cargo := Color.TRANSPARENT
+var _ship_sig := ""     # what the layer was last given (empty = nothing registered)
+var _ship_gen := -1     # layer generation of that registration (the layer drops every group on a system change)
 
 ## ---- T219 pure curves (the headless test calls these) ----
 
@@ -415,6 +422,10 @@ func set_style(status: String, ships: int, commodity: String = "", net: int = 0,
 	if _ships_seen >= 0 and ships > _ships_seen:
 		pulse()  # T219: a ship was sent on this lane
 	_ships_seen = ships
+	_ship_status = status
+	_ship_count = ships
+	_ship_cargo = Ui.commodity_col(commodity) if commodity != "" else Color.TRANSPARENT
+	_sync_ships()
 	var waiting := status != "running" and status != "blocked"
 	if _dots != null:  # ship dots while running; a waiting lane keeps one parked warn-coloured ship
 		var n := mini(ships, DOT_MAX) if (status == "running" or waiting) else 0
@@ -506,6 +517,7 @@ func _process(delta: float) -> void:
 			m = m.get_parent()
 		_game = m
 	_tick_juice(delta, m)
+	_sync_ships()
 	if m != null:
 		_clock = float(m._progress())
 		var legs := 1.0
@@ -623,3 +635,43 @@ func _apply_juice() -> void:
 		m.set_shader_parameter("pulse_white", PULSE_WHITE)
 	if _dot_mat != null:
 		_dot_mat.set_shader_parameter("fade", minf(draw, fade))
+
+## ---- T278 lane ships ----
+
+func _traffic() -> Node:
+	var mp := get_parent()
+	return mp.traffic if mp != null and "traffic" in mp and mp.traffic != null else null
+
+## Keeps the layer's path group for this lane current: set only when status, count, tint or visibility changed
+## (or the layer dropped its groups), cleared when the lane is hidden, faded out or freed. Also drives the dot crossfade.
+func _sync_ships() -> void:
+	var tl := _traffic()
+	if tl == null:
+		return
+	if _dot_mat != null:
+		_dot_mat.set_shader_parameter("far", 1.0 - float(tl.fade))
+	var on := is_visible_in_tree() and _fade_t < 0.0 and _ship_count > 0 and _ship_status != "" and _dot_count != 0
+	var sig := ""
+	if on:
+		sig = "%s|%d|%s" % [_ship_status, _ship_count, _ship_cargo.to_html()]
+	if sig == _ship_sig and (sig == "" or _ship_gen == int(tl.generation)):
+		return
+	_ship_sig = sig
+	_ship_gen = int(tl.generation)
+	var key := "lane%d" % route_id
+	if not on:
+		tl.clear_group(key)
+		return
+	var st := 0
+	if _ship_status == "blocked":
+		st = 2
+	elif _ship_status != "running":
+		st = 1
+	var n := mini(_ship_count, DOT_MAX) if st == 0 else 1  # a parked lane shows one ship, as the dots do
+	tl.set_path_group(key, _p0, _c, _p2, n, st, _ship_cargo)
+
+func _exit_tree() -> void:
+	var tl := _traffic()
+	if tl != null and _ship_sig != "":
+		tl.clear_group("lane%d" % route_id)
+	_ship_sig = ""

@@ -35,6 +35,10 @@ var _free_dirty := false
 var _palette: Array[Color] = [Color(0.8, 0.8, 0.82)]
 var _sun_dir := Vector3(0.5, 0.7, 0.3)
 var _fade := 0.0
+var generation := 0          # T278: bumped when every group is dropped, so callers re-register
+var fade: float:             # 0 far (dots), 1 close (ships); the lane dots crossfade with it
+	get:
+		return _fade
 var _applied: Array = []      # balance values last pushed to the materials
 var _gl_clock := NAN
 var _gl_fade := NAN
@@ -110,6 +114,7 @@ func clear_group(key: String) -> void:
 		_free_dirty = true
 
 func clear_all() -> void:
+	generation += 1
 	for s in _groups.values():
 		_dirty[s["slot"]] = true
 	_groups.clear()

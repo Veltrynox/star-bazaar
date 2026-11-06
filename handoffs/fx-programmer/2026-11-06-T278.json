@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "agent": "fx-programmer",
+  "date": "2026-11-06",
+  "task": "T278",
+  "status": "done",
+  "files_changed": ["game/route_line.gd", "game/traffic/traffic_layer.gd"],
+  "handoff": "Each lane registers a path group 'lane<route_id>' with map.traffic from route_line._sync_ships (set only when status, count, cargo tint, visibility or the layer generation changed; cleared on hide, fade-out and free). running = one ship per lane ship (cap DOT_MAX), laden out warm lights, empty back dim; stalled = one ship parked at the source with an amber blink; blocked = red blink; cargo pod tinted from Ui.commodity_col. Same clock as the dots (traffic_clock = main._progress, leg speed from trade.travel_cycles). Dots crossfade: new 'far' uniform in the dot shader = 1 - traffic.fade. Layer got a 'generation' counter (bumped by clear_all) and a 'fade' getter. No new balance keys, no text, no goods listed, no saves touched.",
+  "not_checked": "Headless parse and the test suite only; no window. Lane ships use a linear Bezier parameter while dots use an arc-length table, so speeds differ slightly on bowed lanes."
+}
