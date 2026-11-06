@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-06 17:16 run: T277
-- Summary: Traffic layer in game/traffic/ with instanced path/orbit/free ship groups moving in shaders, code-built low-poly corvette and pirate proxies, far-zoom fade, 13 placeholder balance keys and a debug-menu instance/draw-call readout
-- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
-- Approach: built by a worker in worktree ../wt/T277 on branch task/T277, merged by the serial merge queue.
-- Agent prompts: /overnight-worker T277 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T277.log.
-- Worked: rebase, full test suite and fast-forward merge passed.
-- Failed / did not work: nothing.
-- Files and commits: see git log on branch new-features for commits starting with T277.
-- Left to do: nothing for this task.
-
 ## 2026-11-06 17:17 run: T244
 - Summary: Not merged: rebase onto new-features failed
 - Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
@@ -64,4 +54,14 @@
 - Worked: rebase, full test suite and fast-forward merge passed.
 - Failed / did not work: nothing.
 - Files and commits: see git log on branch new-features for commits starting with T256.
+- Left to do: nothing for this task.
+
+## 2026-11-06 18:02 run: T257
+- Summary: Need pricing: a need opens a sell price, hunger raises it each short cycle up to a cap, and units sold above a need's demand pay only a share. Forecasts, margins, best-partner and salvage use the same prices, `price_reason` is exposed, hunger is saved (save v10), and all new keys are placeholders.
+- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
+- Approach: built by a worker in worktree ../wt/T257 on branch task/T257, merged by the serial merge queue.
+- Agent prompts: /overnight-worker T257 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T257.log.
+- Worked: rebase, full test suite and fast-forward merge passed.
+- Failed / did not work: nothing.
+- Files and commits: see git log on branch new-features for commits starting with T257.
 - Left to do: nothing for this task.
