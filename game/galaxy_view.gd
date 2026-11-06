@@ -390,6 +390,7 @@ func _draw() -> void:
 		else:
 			_draw_dashed(_sys_center(k), _sys_center(k + 1), Ui.col("line_200"), 1.0)
 	_draw_storage_links(ids)
+	_draw_link_dots(ids)
 	# territories and orbits
 	for k in ids.size():
 		var sid: int = ids[k]
@@ -428,6 +429,7 @@ func _draw() -> void:
 		var open: bool = main.open_systems.has(sid2)
 		var on2 := sid2 == selected_sys
 		if open:
+			_draw_prosperity_glow(c3, _prosperity_sum(sid2), s)
 			draw_circle(c3, 24.0 * s, Color(0.945, 0.83, 0.63, 0.07))
 			draw_circle(c3, 15.0 * s, Color(0.945, 0.83, 0.63, 0.14))
 			draw_circle(c3, 8.0 * s, Color(0.945, 0.83, 0.63, 0.6))
@@ -503,6 +505,50 @@ func _draw_storage_links(ids: Array) -> void:
 		var col := Ui.col("star_warm")
 		col.a = 0.3 if dormant else 0.8
 		draw_line(seg["a"], seg["b"], col, 1.0, true)
+
+## T286: small dots drift along each link between two open systems (more on a Storage Link). Game time (_clock stops on pause).
+func _draw_link_dots(ids: Array) -> void:
+	var bal: Dictionary = main.balance
+	var speed := float(bal.get("galaxy_dot_speed", 0.08))
+	var px := float(bal.get("galaxy_dot_px", 1.8))
+	var n_link := int(bal.get("galaxy_dots_link", 2))
+	var n_store := int(bal.get("galaxy_dots_storage_link", 5))
+	var ink := Ui.col("ink")
+	for k in ids.size() - 1:
+		if not (main.open_systems.has(ids[k]) and main.open_systems.has(ids[k + 1])):
+			continue
+		_dots_on(_sys_center(k), _sys_center(k + 1), n_link, speed, px, Color(ink.r, ink.g, ink.b, 0.55))
+	var warm := Ui.col("star_warm")
+	for seg in _link_segments(ids):
+		if str(seg["info"]["state"]) == "dormant":
+			continue
+		_dots_on(seg["a"], seg["b"], n_store, speed, px, Color(warm.r, warm.g, warm.b, 0.9))
+
+func _dots_on(a: Vector2, b: Vector2, count: int, speed: float, px: float, col: Color) -> void:
+	for i in count:
+		var u := fmod(_clock * speed + float(i) / float(maxi(count, 1)), 1.0)
+		draw_circle(a.lerp(b, u), px, col)
+
+## Sum of the tiers of the established worlds in a system (Prosperity.tier is 0 or below for the rest).
+func _prosperity_sum(sid: int) -> int:
+	var total := 0
+	for i in main.map.planets.size():
+		if int(main.map.planets[i].get("system", 1)) == sid:
+			total += maxi(0, main.prosperity.tier(i))
+	return total
+
+func _draw_prosperity_glow(c: Vector2, tier_sum: int, s: float) -> void:
+	if tier_sum <= 0:
+		return
+	var bal: Dictionary = main.balance
+	var per_px := float(bal.get("galaxy_glow_px_per_tier", 5.0))
+	var per_a := float(bal.get("galaxy_glow_alpha_per_tier", 0.02))
+	var max_a := float(bal.get("galaxy_glow_alpha_max", 0.3))
+	var r := 24.0 * s + per_px * float(tier_sum) * s
+	var warm := Ui.col("star_warm")
+	for j in 4:  # soft falloff: four stacked discs
+		var f := 1.0 - float(j) * 0.25
+		draw_circle(c, r * f, Color(warm.r, warm.g, warm.b, minf(per_a * float(tier_sum), max_a) * 0.4))
 
 func _link_tooltip(pos: Vector2) -> String:
 	for seg in _link_segments(_sys_ids()):

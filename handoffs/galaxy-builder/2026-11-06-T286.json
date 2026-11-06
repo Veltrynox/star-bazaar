@@ -1,0 +1,8 @@
+{
+  "task": "T286",
+  "agent": "galaxy-builder (done directly by the worker session)",
+  "changed": ["game/galaxy_view.gd", "data/balance.json"],
+  "summary": "Galaxy view: dots drift along links between open systems (more on a live Storage Link, none when dormant), and a soft warm glow per open system grows with the sum of its worlds' prosperity tiers. Game time (_clock stops on pause). 2D only.",
+  "balance_keys_placeholders": ["galaxy_dots_link", "galaxy_dots_storage_link", "galaxy_dot_speed", "galaxy_dot_px", "galaxy_glow_px_per_tier", "galaxy_glow_alpha_per_tier", "galaxy_glow_alpha_max"],
+  "notes": "No new text, no save fields, no new conditions atoms. balance.json is outside touches (keys required by the task). Quick look screenshot showed the system view, not the galaxy view; nothing broken."
+}
