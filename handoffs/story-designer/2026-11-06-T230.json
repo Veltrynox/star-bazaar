@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-11-06",
+  "task": "T230",
+  "status": "done",
+  "files_changed": ["story/events.md", "data/story_text.json"],
+  "open_questions": ["Choice events (EV17-EV20, BE01-BE03) and the pending post/platform/flight events were not touched; rewrite them too?"],
+  "handoff": "Rewrote the body text of the generic events EV01-EV16, EV21-EV28 and pool events EV40-EV51 in story/events.md: more concrete detail, small dread, dry irony. Ids, titles, tags, placeholders, effect wording (costs more/less, pays more/less, closed for a while) and skill hint sentences are unchanged. All within 280 characters, no digits. English only. data/story_text.json rebuilt with tools/build_story.py (generated, not hand edited). sh tools/tests/run.sh: pass=11320 fail=0. Nothing committed. story/voice.md untouched."
+}

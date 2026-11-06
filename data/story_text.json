@@ -6903,7 +6903,7 @@
   },
   {
    "id": "EV01_BODY",
-   "text": "Night-shift engineer Pavo Quill ran Voltara's reactors past the safe-hours rule and nothing blew up, so the rule was declared a typo. Energy at Voltara costs less and pays less. The day shift wants the typo back. The cores hum a note nobody tuned.",
+   "text": "Night-shift engineer Pavo Quill ran Voltara's reactors past the safe-hours rule. Nothing blew up, so the day shift read the rule as a typo. Energy at Voltara costs less and pays less. The cores hum a note nobody tuned, and nobody wants to ask who is listening.",
    "max": 280,
    "place": "Event text (News from the sky)"
   },
@@ -6915,7 +6915,7 @@
   },
   {
    "id": "EV02_BODY",
-   "text": "A grey blight eats Tillam's terraces. The committee ruled it a rumour, since no form reports it, and asked the blight to file one. Food at Tillam costs more and pays more. A Seed Bank lets planet storage hold clearly more against the next one.",
+   "text": "Grey blight crept up Tillam's terraces overnight and rubs off like ash. The committee ruled it a rumour, since no form reports it, and asked the blight to file one. Food at Tillam costs more and pays more. A Seed Bank lets planet storage hold clearly more against the next one.",
    "max": 280,
    "place": "Event text (News from the sky)"
   },
@@ -6927,7 +6927,7 @@
   },
   {
    "id": "EV03_BODY",
-   "text": "Ashgate's harvest came in heavy, and the Common Ledger counted only half. Food at Ashgate costs less and pays less. The other half sits on the dock, real and uncounted, while a dockhand sells it by the sack from a handcart. What is not on the form is still food, until it rots.",
+   "text": "Ashgate's harvest came in heavy, and the Common Ledger counted only half. Food at Ashgate costs less and pays less. The other half sits on the dock, real and uncounted, while a boy sells it by the sack from a handcart. What is not on the form is still food, until it rots.",
    "max": 280,
    "place": "Event text (News from the sky)"
   },
@@ -6939,7 +6939,7 @@
   },
   {
    "id": "EV04_BODY",
-   "text": "A cheerful official explained that hunger is a slow phase of a smooth future, and handed out a booklet on chewing. Food at Voltara costs more and pays more. The cut was equal for all. The crews note that equal is not full.",
+   "text": "A cheerful official told Voltara's crews that hunger is a slow phase of a smooth future, and handed out a booklet on chewing. Food at Voltara costs more and pays more. The cut was equal for all. The crews note that equal is not full, and read the booklet twice.",
    "max": 280,
    "place": "Event text (News from the sky)"
   },
@@ -6963,7 +6963,7 @@
   },
   {
    "id": "EV06_BODY",
-   "text": "A plan arrived at Ashgate this morning, written in a hurry and stamped twice, and every foundry was relit to meet it. Energy at Ashgate costs more and pays more. An old brakeman asked what the rush was. Nobody answered, and the furnaces glared on.",
+   "text": "A plan reached Ashgate this morning, written in a hurry and stamped twice. Every foundry was relit to meet it. Energy at Ashgate costs more and pays more. An old brakeman asked what the rush was. Nobody answered, and the furnaces glared on all night.",
    "max": 280,
    "place": "Event text (News from the sky)"
   },
@@ -6975,7 +6975,7 @@
   },
   {
    "id": "EV07_BODY",
-   "text": "Tillam's dock crews walked out over a debt they say is owed. The Bureau asked where the debt lives, and the crews named the main gate. The port is closed for a while, and routes touching Tillam are blocked until it reopens. Hardy Strains reopens a closed planet a cycle sooner.",
+   "text": "Tillam's dock crews walked out over a debt they say is owed. The Bureau asked where the debt lives, and the crews pointed at the main gate. The port is closed for a while, and routes touching Tillam are blocked. Hardy Strains reopens a closed planet a cycle sooner.",
    "max": 280,
    "place": "Event text (News from the sky)"
   },
@@ -6987,7 +6987,7 @@
   },
   {
    "id": "EV08_BODY",
-   "text": "Something turned up in Ashgate's lower docks, and the doctors will only say the port is closed. Routes touching Ashgate are blocked until they say otherwise. The dock cat was seen leaving the building at speed. Nobody here is a witness. Everybody is a suspect.",
+   "text": "Something turned up in Ashgate's lower docks, and the doctors will only say the port is closed. Routes touching Ashgate are blocked until they say otherwise. The dock cat was seen leaving at speed. Nobody here is a witness. Everybody is a suspect.",
    "max": 280,
    "place": "Event text (News from the sky)"
   },
@@ -6999,7 +6999,7 @@
   },
   {
    "id": "EV09_BODY",
-   "text": "A fault in Voltara's grid took the port with it, so the planet that lights everyone cannot light its own docks. The port is closed for a while, and routes touching Voltara are blocked. The law says lights on. The emergency says off. A clerk decides, by candle.",
+   "text": "A fault in Voltara's grid took the port with it. The planet that lights everyone cannot light its own docks. The port is closed for a while, and routes touching Voltara are blocked. The law says lights on. The emergency says off. A clerk decides, by candle.",
    "max": 280,
    "place": "Event text (News from the sky)"
   },
@@ -7011,7 +7011,7 @@
   },
   {
    "id": "EV10_BODY",
-   "text": "A lender's agent, a thin man named Shylo Vane, walked Tillam's market and bought every debt in sight. Sellers settled up and dumped their stock. Energy at Tillam costs less and pays less for now. A debt is real until someone stops believing in the paper.",
+   "text": "A lender's agent, a thin man named Shylo Vane, walked Tillam's market and bought every debt in sight. Sellers panicked, settled up and dumped their stock. Energy at Tillam costs less and pays less for now. A debt is real until someone stops believing in the paper.",
    "max": 280,
    "place": "Event text (News from the sky)"
   },
@@ -7023,7 +7023,7 @@
   },
   {
    "id": "EV11_BODY",
-   "text": "Ashgate foreman Dov Rennick read the numbers, declared the shift had made enough, and sent the crews home. Energy at Ashgate costs less and pays less. Enough is a figure the Plan does not print. By evening three more foremen had found the word.",
+   "text": "Ashgate foreman Dov Rennick read the numbers, said the shift had made enough, and sent his crew home. Energy at Ashgate costs less and pays less. Enough is a word the Plan does not print. By evening three more foremen had found it, and the furnaces cooled.",
    "max": 280,
    "place": "Event text (News from the sky)"
   },
@@ -7035,7 +7035,7 @@
   },
   {
    "id": "EV12_BODY",
-   "text": "A trader named Wex whispered on Voltara's docks that the far beacons had gone dark. They had not. Buyers bought energy hard anyway, and the lie came true. Energy at Voltara costs more and pays more. Price Whisper shows next cycle's prices, rumour or not.",
+   "text": "A trader named Wex whispered on Voltara's docks that the far beacons had gone dark. They had not. Buyers bought energy hard anyway, and the lie came true by supper. Energy at Voltara costs more and pays more. Price Whisper shows next cycle's prices, rumour or not.",
    "max": 280,
    "place": "Event text (News from the sky)"
   },
@@ -7047,7 +7047,7 @@
   },
   {
    "id": "EV13_BODY",
-   "text": "A family with old credits quietly bought every food contract on Ashgate. Their agent, a polite man named Corvale, asked only that nobody ask. Food at Ashgate costs more and pays more. The Commons has no form for that question yet.",
+   "text": "A family with old credits quietly bought every food contract on Ashgate. Their agent, a polite man named Corvale, asked only that nobody ask why. Food at Ashgate costs more and pays more. The Commons has no form for that question yet. It is writing one.",
    "max": 280,
    "place": "Event text (News from the sky)"
   },
@@ -7059,7 +7059,7 @@
   },
   {
    "id": "EV14_BODY",
-   "text": "Inspector Pell counted Voltara's food stores and found them sufficient, on a form. The market believed the form, so food at Voltara costs less and pays less. The pantries are still bare, now correctly accounted for. The form reads smoothly. That is most of truth.",
+   "text": "Inspector Pell counted Voltara's food stores and found them sufficient, on a form. The market believed the form. Food at Voltara costs less and pays less. The pantries are still bare, now correctly accounted for. The form reads smoothly. That is most of the truth.",
    "max": 280,
    "place": "Event text (News from the sky)"
   },
@@ -7071,7 +7071,7 @@
   },
   {
    "id": "EV15_BODY",
-   "text": "Tillam declared a festival of founders, and everyone wore a founder's mask. Food at Tillam costs more and pays more. Three committees claim to be the real founders. By midnight nobody can tell, and nobody clears the tables.",
+   "text": "Tillam declared a festival of founders, and everyone wore a founder's mask. Food at Tillam costs more and pays more. Three committees claim to be the real founders. By midnight nobody can tell who is who, and nobody will take off a mask to clear the tables.",
    "max": 280,
    "place": "Event text (News from the sky)"
   },
@@ -7083,7 +7083,7 @@
   },
   {
    "id": "EV16_BODY",
-   "text": "A ship left Tillam half empty, bound for a rock nobody has charted. Those who stayed sold spare food to pay for staying. Food at Tillam costs less and pays less. A letter came back, from a Tillam that chose otherwise. No one has answered it.",
+   "text": "A ship left Tillam half empty, bound for a rock nobody has charted. Those who stayed sold spare food to pay for staying. Food at Tillam costs less and pays less. A letter came back, from a Tillam that chose otherwise. No one has answered it. It sits on the sill.",
    "max": 280,
    "place": "Event text (News from the sky)"
   },
@@ -7107,7 +7107,7 @@
   },
   {
    "id": "EV22_BODY",
-   "text": "Voltara's crews hold a gala to celebrate a quota met on paper. Silk at Voltara costs more and pays more. Everyone borrows a sleeve and a mask for the night, and by the second hour the crews look alike. Patron's List counts sales here as clearly more Luxury share.",
+   "text": "Voltara's crews hold a gala to celebrate a quota met on paper. Silk at Voltara costs more and pays more. Everyone borrows a sleeve and a mask, and by the second hour the crews look alike. Patron's List counts sales here as clearly more Luxury share.",
    "max": 280,
    "place": "Event text (News from the sky)"
   },
@@ -7119,7 +7119,7 @@
   },
   {
    "id": "EV24_BODY",
-   "text": "A fire swept Voltara's core foundry and left the casting floor black. Logic cores at Voltara cost more and pay more. A cheerful report calls it a gentle step toward a better line. The ash settled on the walls in rows. Nobody has read them.",
+   "text": "A fire swept Voltara's core foundry and left the casting floor black. Logic cores at Voltara cost more and pay more. The report calls it a gentle step toward a better line. Ash settled on the walls in neat rows. Nobody has dared to read them.",
    "max": 280,
    "place": "Event text (News from the sky)"
   },
@@ -7131,7 +7131,7 @@
   },
   {
    "id": "EV25_BODY",
-   "text": "Ashgate recalled its farm tractors to be retrained as safe. Logic cores at Ashgate cost more and pay more. The retrained ones panic when two foremen give opposite orders. The old ones were told to keep quiet and keep going, and they do.",
+   "text": "Ashgate recalled its farm tractors to be retrained as safe. Logic cores at Ashgate cost more and pay more. The retrained ones freeze when two foremen give opposite orders. The old ones were told to keep quiet and keep going, and they do. They do not look at you.",
    "max": 280,
    "place": "Event text (News from the sky)"
   },
@@ -7797,7 +7797,7 @@
   },
   {
    "id": "EV41_BODY",
-   "text": "A batch of pulse cells ran hot, and the maker pulled the lot. An engineer read the recall on each dock and begged every crate's pardon. Pulse cells at Ashgate cost more and pay more while the shelves stay bare. The notice says no one was harmed. It says so twice, like a prayer.",
+   "text": "A batch of pulse cells ran hot, and the maker pulled the lot. An engineer read the recall on each dock and begged every crate's pardon. Pulse cells at Ashgate cost more and pay more while the shelves stay bare. The notice says no one was harmed. It says so twice.",
    "max": 280,
    "place": "pool event text"
   },
@@ -7815,7 +7815,7 @@
   },
   {
    "id": "EV42_BODY",
-   "text": "The Admiralty wills every slab of hull armour to the front, by order of a clerk who has never seen a hull. Hull armour at Tillam costs more and pays more while shelves are bare. The Bureau entered the slabs as sanctified. They wait cold in a corridor, and the crew bow in passing.",
+   "text": "The Admiralty wills every slab of hull armour to the front, by order of a clerk who has never seen a hull. Hull armour at Tillam costs more and pays more while shelves are bare. The Bureau entered the slabs as sanctified. They wait cold in a corridor. The crew bow in passing.",
    "max": 280,
    "place": "pool event text"
   },
@@ -7833,7 +7833,7 @@
   },
   {
    "id": "EV43_BODY",
-   "text": "A convoy of sunmusk reached Tillam on one tide, and nobody had ordered it. Sunmusk at Tillam costs less and pays less. The scent hangs in the corridors, and the buyers cannot agree what it smells of. The Bureau calls that variety.",
+   "text": "A convoy of sunmusk reached Tillam on one tide, and nobody had ordered it. Sunmusk at Tillam costs less and pays less. The scent hangs in the corridors, and no two buyers agree what it smells of. The Bureau calls that variety. One dockhand calls it a headache.",
    "max": 280,
    "place": "pool event text"
   },
@@ -7851,7 +7851,7 @@
   },
   {
    "id": "EV44_BODY",
-   "text": "Ashgate's gem cutters are booked solid after a wedding season, and the queue has a queue. Cut glimmers at Ashgate cost more and pay more while the cutters catch up. In one shop a stone hums very softly, and is not for sale. Fine Finishing makes this pay clearly more.",
+   "text": "Ashgate's gem cutters are booked solid after a wedding season, and the queue has a queue. Cut glimmers at Ashgate cost more and pay more while the cutters catch up. In one shop a stone hums softly and is not for sale. Fine Finishing makes this pay clearly more.",
    "max": 280,
    "place": "pool event text"
   },
@@ -7869,7 +7869,7 @@
   },
   {
    "id": "EV45_BODY",
-   "text": "Ashgate's cellars filled with a record vintage, and nobody has the room to drink it. Vintage casks at Ashgate cost less and pay less. The cellar master has begun to give the casks names. Cask Cellar keeps Luxury stock safe from asteroid cuts.",
+   "text": "Ashgate's cellars filled with a record vintage, and nobody has the room to drink it. Vintage casks at Ashgate cost less and pay less. The cellar master has begun to give the casks names, and talks to them at closing. Cask Cellar keeps Luxury stock safe from asteroid cuts.",
    "max": 280,
    "place": "pool event text"
   },
@@ -7887,7 +7887,7 @@
   },
   {
    "id": "EV46_BODY",
-   "text": "Voltara's smelter lost its heat to a cracked line, and the casting stopped. Ingot at Voltara costs more and pays more until the furnace is lit again. The crew stand by the dead furnace. The metal inside still ticks as it shrinks.",
+   "text": "Voltara's smelter lost its heat to a cracked line, and the casting stopped. Ingot at Voltara costs more and pays more until the furnace is lit again. The crew stand by the dead furnace with their hands out. The metal inside still ticks as it shrinks.",
    "max": 280,
    "place": "pool event text"
   },
@@ -7923,7 +7923,7 @@
   },
   {
    "id": "EV48_BODY",
-   "text": "Ashgate's builders drew a new ring of homes in a single week, and every wall is asked for plate. Lattice plate at Ashgate costs more and pays more. The draughtsmen call the plan final. The plates on the dock ring faintly when the wind turns.",
+   "text": "Ashgate's builders drew a new ring of homes in a single week, and every wall wants plate. Lattice plate at Ashgate costs more and pays more. The draughtsmen call the plan final. The plates on the dock ring faintly when the wind turns, though no wind blows here.",
    "max": 280,
    "place": "pool event text"
   },
@@ -7941,7 +7941,7 @@
   },
   {
    "id": "EV49_BODY",
-   "text": "A culture in Ashgate's lab grew a colour it was not meant to, and the doctors sealed the port. Routes touching Ashgate are blocked for a while. The notice says contained. The night shift counts heads hourly. One is short. Hardy Strains reopens a closed planet a cycle sooner.",
+   "text": "A culture in Ashgate's lab grew a colour it was not meant to, and the doctors sealed the port. Routes touching Ashgate are blocked for a while. The notice says contained. The night shift counts heads each hour. One is short. Hardy Strains reopens a closed planet a cycle sooner.",
    "max": 280,
    "place": "pool event text"
   },

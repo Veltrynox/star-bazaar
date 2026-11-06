@@ -66,65 +66,65 @@ Chain flavour lines: MIL A: the quartermaster's war that never ends, ledgers and
 Neutrality checks run on all 28 steps (script, not the game): no digit, no banned verdict word (good, bad, right, wrong, fair, safe, risky, bold, kind, open, closed, quiet, polite, late, long, short, small, big, plain, clean and the rest of 4.2 rule 1), no "but", "however" or "at least" in any text; button lengths within 5 characters, effect lines and results within 25 percent of each other. Each step's pair shares one grammar and one length class. The old Minerals chain events EV29 to EV37 stay in this file until the chain is wired; their choice texts name stances (Keep mining, Share the lane) and must be retired with the Open and Hard framing, not reused.
 
 EV01 | Voltara's reactors run wild | [price down: Voltara, energy] | P
-Night-shift engineer Pavo Quill ran Voltara's reactors past the safe-hours rule and nothing blew up, so the rule was declared a typo. Energy at Voltara costs less and pays less. The day shift wants the typo back. The cores hum a note nobody tuned.
+Night-shift engineer Pavo Quill ran Voltara's reactors past the safe-hours rule. Nothing blew up, so the day shift read the rule as a typo. Energy at Voltara costs less and pays less. The cores hum a note nobody tuned, and nobody wants to ask who is listening.
 
 EV02 | Grey blight on Tillam's terraces | [price up: Tillam, food] | P
-A grey blight eats Tillam's terraces. The committee ruled it a rumour, since no form reports it, and asked the blight to file one. Food at Tillam costs more and pays more. A Seed Bank lets planet storage hold clearly more against the next one.
+Grey blight crept up Tillam's terraces overnight and rubs off like ash. The committee ruled it a rumour, since no form reports it, and asked the blight to file one. Food at Tillam costs more and pays more. A Seed Bank lets planet storage hold clearly more against the next one.
 
 EV03 | Ashgate's harvest comes in heavy | [price down: Ashgate, food] | P
-Ashgate's harvest came in heavy, and the Common Ledger counted only half. Food at Ashgate costs less and pays less. The other half sits on the dock, real and uncounted, while a dockhand sells it by the sack from a handcart. What is not on the form is still food, until it rots.
+Ashgate's harvest came in heavy, and the Common Ledger counted only half. Food at Ashgate costs less and pays less. The other half sits on the dock, real and uncounted, while a boy sells it by the sack from a handcart. What is not on the form is still food, until it rots.
 
 EV04 | Voltara's crews go hungry | [price up: Voltara, food] | P
-A cheerful official explained that hunger is a slow phase of a smooth future, and handed out a booklet on chewing. Food at Voltara costs more and pays more. The cut was equal for all. The crews note that equal is not full.
+A cheerful official told Voltara's crews that hunger is a slow phase of a smooth future, and handed out a booklet on chewing. Food at Voltara costs more and pays more. The cut was equal for all. The crews note that equal is not full, and read the booklet twice.
 
 EV05 | Frost on Tillam | [price up: Tillam, energy] | P
 Winter came early to Tillam and the heaters never stop. Energy at Tillam costs more and pays more. Frost grows inside the ducts in patterns no one will explain. Old duct-keeper Brindle leaves it a cup of warm oil each night. The cup is empty by morning.
 
 EV06 | Ashgate lights every furnace | [price up: Ashgate, energy] | P
-A plan arrived at Ashgate this morning, written in a hurry and stamped twice, and every foundry was relit to meet it. Energy at Ashgate costs more and pays more. An old brakeman asked what the rush was. Nobody answered, and the furnaces glared on.
+A plan reached Ashgate this morning, written in a hurry and stamped twice. Every foundry was relit to meet it. Energy at Ashgate costs more and pays more. An old brakeman asked what the rush was. Nobody answered, and the furnaces glared on all night.
 
 EV07 | Tillam's docks go on strike | [planet closed: Tillam] | P
-Tillam's dock crews walked out over a debt they say is owed. The Bureau asked where the debt lives, and the crews named the main gate. The port is closed for a while, and routes touching Tillam are blocked until it reopens. Hardy Strains reopens a closed planet a cycle sooner.
+Tillam's dock crews walked out over a debt they say is owed. The Bureau asked where the debt lives, and the crews pointed at the main gate. The port is closed for a while, and routes touching Tillam are blocked. Hardy Strains reopens a closed planet a cycle sooner.
 
 EV08 | Ashgate seals its port | [planet closed: Ashgate] | P
-Something turned up in Ashgate's lower docks, and the doctors will only say the port is closed. Routes touching Ashgate are blocked until they say otherwise. The dock cat was seen leaving the building at speed. Nobody here is a witness. Everybody is a suspect.
+Something turned up in Ashgate's lower docks, and the doctors will only say the port is closed. Routes touching Ashgate are blocked until they say otherwise. The dock cat was seen leaving at speed. Nobody here is a witness. Everybody is a suspect.
 
 EV09 | Voltara goes dark | [planet closed: Voltara] | I
-A fault in Voltara's grid took the port with it, so the planet that lights everyone cannot light its own docks. The port is closed for a while, and routes touching Voltara are blocked. The law says lights on. The emergency says off. A clerk decides, by candle.
+A fault in Voltara's grid took the port with it. The planet that lights everyone cannot light its own docks. The port is closed for a while, and routes touching Voltara are blocked. The law says lights on. The emergency says off. A clerk decides, by candle.
 
 EV10 | A lender walks Tillam's market | [price down: Tillam, energy] | Q
-A lender's agent, a thin man named Shylo Vane, walked Tillam's market and bought every debt in sight. Sellers settled up and dumped their stock. Energy at Tillam costs less and pays less for now. A debt is real until someone stops believing in the paper.
+A lender's agent, a thin man named Shylo Vane, walked Tillam's market and bought every debt in sight. Sellers panicked, settled up and dumped their stock. Energy at Tillam costs less and pays less for now. A debt is real until someone stops believing in the paper.
 
 EV11 | Ashgate's foreman says enough | [price down: Ashgate, energy] | Q
-Ashgate foreman Dov Rennick read the numbers, declared the shift had made enough, and sent the crews home. Energy at Ashgate costs less and pays less. Enough is a figure the Plan does not print. By evening three more foremen had found the word.
+Ashgate foreman Dov Rennick read the numbers, said the shift had made enough, and sent his crew home. Energy at Ashgate costs less and pays less. Enough is a word the Plan does not print. By evening three more foremen had found it, and the furnaces cooled.
 
 EV12 | Voltara buys before the news | [price up: Voltara, energy] | Q
-A trader named Wex whispered on Voltara's docks that the far beacons had gone dark. They had not. Buyers bought energy hard anyway, and the lie came true. Energy at Voltara costs more and pays more. Price Whisper shows next cycle's prices, rumour or not.
+A trader named Wex whispered on Voltara's docks that the far beacons had gone dark. They had not. Buyers bought energy hard anyway, and the lie came true by supper. Energy at Voltara costs more and pays more. Price Whisper shows next cycle's prices, rumour or not.
 
 EV13 | A family buys Ashgate's food | [price up: Ashgate, food] | Q
-A family with old credits quietly bought every food contract on Ashgate. Their agent, a polite man named Corvale, asked only that nobody ask. Food at Ashgate costs more and pays more. The Commons has no form for that question yet.
+A family with old credits quietly bought every food contract on Ashgate. Their agent, a polite man named Corvale, asked only that nobody ask why. Food at Ashgate costs more and pays more. The Commons has no form for that question yet. It is writing one.
 
 EV14 | The inspector's count | [price down: Voltara, food] | I
-Inspector Pell counted Voltara's food stores and found them sufficient, on a form. The market believed the form, so food at Voltara costs less and pays less. The pantries are still bare, now correctly accounted for. The form reads smoothly. That is most of truth.
+Inspector Pell counted Voltara's food stores and found them sufficient, on a form. The market believed the form. Food at Voltara costs less and pays less. The pantries are still bare, now correctly accounted for. The form reads smoothly. That is most of the truth.
 
 EV15 | Tillam's festival of founders | [price up: Tillam, food] | I
-Tillam declared a festival of founders, and everyone wore a founder's mask. Food at Tillam costs more and pays more. Three committees claim to be the real founders. By midnight nobody can tell, and nobody clears the tables.
+Tillam declared a festival of founders, and everyone wore a founder's mask. Food at Tillam costs more and pays more. Three committees claim to be the real founders. By midnight nobody can tell who is who, and nobody will take off a mask to clear the tables.
 
 EV16 | A ship leaves Tillam half empty | [price down: Tillam, food] | Q
-A ship left Tillam half empty, bound for a rock nobody has charted. Those who stayed sold spare food to pay for staying. Food at Tillam costs less and pays less. A letter came back, from a Tillam that chose otherwise. No one has answered it.
+A ship left Tillam half empty, bound for a rock nobody has charted. Those who stayed sold spare food to pay for staying. Food at Tillam costs less and pays less. A letter came back, from a Tillam that chose otherwise. No one has answered it. It sits on the sill.
 
 ## Goods events (T154, 2026-11-02): silk, logic cores, ore
 EV21 | Tillam's weavers down tools | [price up: Tillam, silk] | I
 Tillam's silk weavers downed tools over a form that counted their hours twice. Silk at Tillam costs more and pays more. An old weaver says to watch the cricket in the vat, which changes shape when it sees another. Fine Finishing makes a Luxury price rise pay clearly more.
 
 EV22 | Voltara holds a gala | [price up: Voltara, silk] | I
-Voltara's crews hold a gala to celebrate a quota met on paper. Silk at Voltara costs more and pays more. Everyone borrows a sleeve and a mask for the night, and by the second hour the crews look alike. Patron's List counts sales here as clearly more Luxury share.
+Voltara's crews hold a gala to celebrate a quota met on paper. Silk at Voltara costs more and pays more. Everyone borrows a sleeve and a mask, and by the second hour the crews look alike. Patron's List counts sales here as clearly more Luxury share.
 
 EV24 | Fire in Voltara's foundry | [price up: Voltara, chips] | P
-A fire swept Voltara's core foundry and left the casting floor black. Logic cores at Voltara cost more and pay more. A cheerful report calls it a gentle step toward a better line. The ash settled on the walls in rows. Nobody has read them.
+A fire swept Voltara's core foundry and left the casting floor black. Logic cores at Voltara cost more and pay more. The report calls it a gentle step toward a better line. Ash settled on the walls in neat rows. Nobody has dared to read them.
 
 EV25 | Ashgate recalls its tractors | [price up: Ashgate, chips] | Q
-Ashgate recalled its farm tractors to be retrained as safe. Logic cores at Ashgate cost more and pay more. The retrained ones panic when two foremen give opposite orders. The old ones were told to keep quiet and keep going, and they do.
+Ashgate recalled its farm tractors to be retrained as safe. Logic cores at Ashgate cost more and pay more. The retrained ones freeze when two foremen give opposite orders. The old ones were told to keep quiet and keep going, and they do. They do not look at you.
 
 EV26 | A rich seam is logged twice | [price down: Voltara, ore] | Q
 A survey crew found a rich seam and logged it in two offices, so it is counted twice and sold twice. Ore at Voltara costs less and pays less while the news is fresh. With Smelting, ore orders ignore the size cap, so a cheap week can be a big one.
@@ -308,27 +308,27 @@ EV40_BODY | pool event text | Voltara's foundry kept casting rivet guns after th
 EV40_EFF | pool event rivals line, {market} filled by the game | Rivals: no change in {market} strength or growth.
 
 EV41_TITLE | pool event title | Pulse cells are recalled
-EV41_BODY | pool event text | A batch of pulse cells ran hot, and the maker pulled the lot. An engineer read the recall on each dock and begged every crate's pardon. Pulse cells at Ashgate cost more and pay more while the shelves stay bare. The notice says no one was harmed. It says so twice, like a prayer.
+EV41_BODY | pool event text | A batch of pulse cells ran hot, and the maker pulled the lot. An engineer read the recall on each dock and begged every crate's pardon. Pulse cells at Ashgate cost more and pay more while the shelves stay bare. The notice says no one was harmed. It says so twice.
 EV41_EFF | pool event rivals line, {market} filled by the game | Rivals: {market} strength and growth stay as they were.
 
 EV42_TITLE | pool event title | Hull armour is requisitioned
-EV42_BODY | pool event text | The Admiralty wills every slab of hull armour to the front, by order of a clerk who has never seen a hull. Hull armour at Tillam costs more and pays more while shelves are bare. The Bureau entered the slabs as sanctified. They wait cold in a corridor, and the crew bow in passing.
+EV42_BODY | pool event text | The Admiralty wills every slab of hull armour to the front, by order of a clerk who has never seen a hull. Hull armour at Tillam costs more and pays more while shelves are bare. The Bureau entered the slabs as sanctified. They wait cold in a corridor. The crew bow in passing.
 EV42_EFF | pool event rivals line, {market} filled by the game | Rivals: none of the three changes in {market}.
 
 EV43_TITLE | pool event title | A glut of sunmusk
-EV43_BODY | pool event text | A convoy of sunmusk reached Tillam on one tide, and nobody had ordered it. Sunmusk at Tillam costs less and pays less. The scent hangs in the corridors, and the buyers cannot agree what it smells of. The Bureau calls that variety.
+EV43_BODY | pool event text | A convoy of sunmusk reached Tillam on one tide, and nobody had ordered it. Sunmusk at Tillam costs less and pays less. The scent hangs in the corridors, and no two buyers agree what it smells of. The Bureau calls that variety. One dockhand calls it a headache.
 EV43_EFF | pool event rivals line, {market} filled by the game | Rivals: no change in {market} strength or growth.
 
 EV44_TITLE | pool event title | Gem cutters are booked solid
-EV44_BODY | pool event text | Ashgate's gem cutters are booked solid after a wedding season, and the queue has a queue. Cut glimmers at Ashgate cost more and pay more while the cutters catch up. In one shop a stone hums very softly, and is not for sale. Fine Finishing makes this pay clearly more.
+EV44_BODY | pool event text | Ashgate's gem cutters are booked solid after a wedding season, and the queue has a queue. Cut glimmers at Ashgate cost more and pay more while the cutters catch up. In one shop a stone hums softly and is not for sale. Fine Finishing makes this pay clearly more.
 EV44_EFF | pool event rivals line, {market} filled by the game | Rivals: {market} strength and growth stay as they were.
 
 EV45_TITLE | pool event title | Cask stock overflows the cellars
-EV45_BODY | pool event text | Ashgate's cellars filled with a record vintage, and nobody has the room to drink it. Vintage casks at Ashgate cost less and pay less. The cellar master has begun to give the casks names. Cask Cellar keeps Luxury stock safe from asteroid cuts.
+EV45_BODY | pool event text | Ashgate's cellars filled with a record vintage, and nobody has the room to drink it. Vintage casks at Ashgate cost less and pay less. The cellar master has begun to give the casks names, and talks to them at closing. Cask Cellar keeps Luxury stock safe from asteroid cuts.
 EV45_EFF | pool event rivals line, {market} filled by the game | Rivals: none of the three changes in {market}.
 
 EV46_TITLE | pool event title | The smelter goes cold
-EV46_BODY | pool event text | Voltara's smelter lost its heat to a cracked line, and the casting stopped. Ingot at Voltara costs more and pays more until the furnace is lit again. The crew stand by the dead furnace. The metal inside still ticks as it shrinks.
+EV46_BODY | pool event text | Voltara's smelter lost its heat to a cracked line, and the casting stopped. Ingot at Voltara costs more and pays more until the furnace is lit again. The crew stand by the dead furnace with their hands out. The metal inside still ticks as it shrinks.
 EV46_EFF | pool event rivals line, {market} filled by the game | Rivals: no change in {market} strength or growth.
 
 EV47_TITLE | pool event title | Alloy rolls off the line early
@@ -336,11 +336,11 @@ EV47_BODY | pool event text | Voltara's line turned out seam alloy a week early,
 EV47_EFF | pool event rivals line, {market} filled by the game | Rivals: {market} strength and growth stay as they were.
 
 EV48_TITLE | pool event title | Fabric plate runs short
-EV48_BODY | pool event text | Ashgate's builders drew a new ring of homes in a single week, and every wall is asked for plate. Lattice plate at Ashgate costs more and pays more. The draughtsmen call the plan final. The plates on the dock ring faintly when the wind turns.
+EV48_BODY | pool event text | Ashgate's builders drew a new ring of homes in a single week, and every wall wants plate. Lattice plate at Ashgate costs more and pays more. The draughtsmen call the plan final. The plates on the dock ring faintly when the wind turns, though no wind blows here.
 EV48_EFF | pool event rivals line, {market} filled by the game | Rivals: none of the three changes in {market}.
 
 EV49_TITLE | pool event title | Quarantine at the culture lab
-EV49_BODY | pool event text | A culture in Ashgate's lab grew a colour it was not meant to, and the doctors sealed the port. Routes touching Ashgate are blocked for a while. The notice says contained. The night shift counts heads hourly. One is short. Hardy Strains reopens a closed planet a cycle sooner.
+EV49_BODY | pool event text | A culture in Ashgate's lab grew a colour it was not meant to, and the doctors sealed the port. Routes touching Ashgate are blocked for a while. The notice says contained. The night shift counts heads each hour. One is short. Hardy Strains reopens a closed planet a cycle sooner.
 EV49_EFF | pool event rivals line, {market} filled by the game | Rivals: no change in {market} strength or growth.
 
 EV50_TITLE | pool event title | Spores come in cheap
