@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-06 18:22 run: T258
-- Summary: Tax per world per cycle by tier, skill points the first time any world reaches a tier, and share-milestone points off behind `share_points_enabled` (0). Also new `any_tier:<n>` and `planet_tier:<planet>/<n>` condition atoms, and save version 11
-- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
-- Approach: built by a worker in worktree ../wt/T258 on branch task/T258, merged by the serial merge queue.
-- Agent prompts: /overnight-worker T258 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T258.log.
-- Worked: rebase, full test suite and fast-forward merge passed.
-- Failed / did not work: nothing.
-- Files and commits: see git log on branch new-features for commits starting with T258.
-- Left to do: nothing for this task.
-
 ## 2026-11-06 18:23 run: T265
 - Summary: Planet tier look built: tier-driven night-side city lights and halo ring, eased by Juice.motion, placeholder balance keys, map wired to prosperity.tier
 - Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
@@ -64,4 +54,14 @@
 - Worked: rebase, full test suite and fast-forward merge passed.
 - Failed / did not work: nothing.
 - Files and commits: see git log on branch new-features for commits starting with T287.
+- Left to do: nothing for this task.
+
+## 2026-11-06 18:37 run: T259
+- Summary: Star Bazaar win built (game/bazaar.gd, bazaar_* placeholder keys, no share win/swept/overhead, END_UNFINISHED soft ending, Continue free play, bazaar_stage atom, save v12)
+- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
+- Approach: built by a worker in worktree ../wt/T259 on branch task/T259, merged by the serial merge queue.
+- Agent prompts: /overnight-worker T259 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T259.log.
+- Worked: rebase, full test suite and fast-forward merge passed.
+- Failed / did not work: nothing.
+- Files and commits: see git log on branch new-features for commits starting with T259.
 - Left to do: nothing for this task.
