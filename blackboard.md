@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-06 19:02 run: T279
-- Summary: Each established world in the viewed system now gets an orbit group of shuttles sized from its tier (`traffic_orbit_t1`–`t3`), thinned when Restless, and filled in over a short burst after a tier-up.
-- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
-- Approach: built by a worker in worktree ../wt/T279 on branch task/T279, merged by the serial merge queue.
-- Agent prompts: /overnight-worker T279 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T279.log.
-- Worked: rebase, full test suite and fast-forward merge passed.
-- Failed / did not work: nothing.
-- Files and commits: see git log on branch new-features for commits starting with T279.
-- Left to do: nothing for this task.
-
 ## 2026-11-06 19:04 run: T248
 - Summary: Route line shape (endpoints and arc) now eases with a damped follow via retarget(), with in-place rebuilds, instead of a harsh rebuild; draw-in, fade and pulse kept
 - Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
@@ -64,4 +54,14 @@
 - Worked: rebase, full test suite and fast-forward merge passed.
 - Failed / did not work: nothing.
 - Files and commits: see git log on branch new-features for commits starting with T266.
+- Left to do: nothing for this task.
+
+## 2026-11-06 19:27 run: T295
+- Summary: Dead worlds get a reclamation need list that turns them living (type reclaimed, tier 1, mining stops for good), plus gentle/normal/hard mining intensity per dead world and cluster, finite dead-world stock, placeholder balance keys and save version 13
+- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
+- Approach: built by a worker in worktree ../wt/T295 on branch task/T295, merged by the serial merge queue.
+- Agent prompts: /overnight-worker T295 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T295.log.
+- Worked: rebase, full test suite and fast-forward merge passed.
+- Failed / did not work: nothing.
+- Files and commits: see git log on branch new-features for commits starting with T295.
 - Left to do: nothing for this task.
