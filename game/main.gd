@@ -295,6 +295,7 @@ func _ready() -> void:
 	raids.setup(self)  # T296
 	engine.raids = raids
 	map.prosperity = prosperity  # T264 growth ring and need icons
+	map.events = events  # T285 weather chips
 	if not prosperity.reclaimed.is_connected(_on_prosperity_reclaimed):
 		prosperity.reclaimed.connect(_on_prosperity_reclaimed)
 	if not prosperity.tier_up.is_connected(_on_prosperity_tier_up):

@@ -214,3 +214,90 @@ static func kbd(text: String) -> PanelContainer:
 	l.add_theme_color_override("font_color", col("ink_muted"))
 	pc.add_child(l)
 	return pc
+
+
+## ---- T285: mood faces and weather chips (shared by the planet card and the map overlay) ----
+const HOUSE_FALLBACK := {1: Color(0.45, 0.65, 0.88), 2: Color(0.80, 0.48, 0.78), 3: Color(0.92, 0.66, 0.30)}
+const MOOD_COLD := Color(0.55, 0.72, 0.95)
+
+## Tint of a house (1 Harrow, 2 Velvet, 3 Ostrel): theme colour house_<n> when present, else a fallback; 0 or unknown is a neutral grey.
+static func house_col(h: int) -> Color:
+	var t := ThemeDB.get_project_theme()
+	if t != null and t.has_color("house_%d" % h, "Colors"):
+		return t.get_color("house_%d" % h, "Colors")
+	return HOUSE_FALLBACK.get(h, col("ink_muted"))
+
+static func house_name(h: int) -> String:
+	return StoryText.get_or("STD_BOT%d_NAME" % h, Bots.bot_name(h))
+
+## Kind of an Events.active row as text: flood (down), shortage, congestion, price up, closed.
+static func weather_kind_name(kind: String) -> String:
+	match kind:
+		"down":
+			return StoryText.get_or("WX_NAME_FLOOD", "Flood")
+		"shortage":
+			return StoryText.get_or("WX_NAME_SHORTAGE", "Shortage")
+		"congestion":
+			return StoryText.get_or("WX_NAME_CONGESTION", "Congestion")
+		"up":
+			return StoryText.get_or("WX_NAME_PRICE_UP", "Price up")
+		"closed":
+			return StoryText.get_or("WX_NAME_CLOSED", "Closed")
+	return kind.capitalize()
+
+## The good a weather row names, "" when it names none or the good is not visible yet (Availability).
+static func weather_good(a: Dictionary) -> String:
+	var c := str(a.get("c", ""))
+	if c == "" or str(a.get("kind", "")) in ["congestion", "closed"]:
+		return ""
+	return c if Availability.good(c) else ""
+
+static func weather_left(a: Dictionary) -> String:
+	return StoryText.get_or("WX_LEFT_SHORT", "{n}c", {"n": int(a.get("left", 0))})
+
+## One line: "Shortage Food 3c" (the good only when visible).
+static func weather_text(a: Dictionary, with_good: bool = true) -> String:
+	var s := weather_kind_name(str(a.get("kind", "")))
+	var g := weather_good(a) if with_good else ""
+	if g != "":
+		s += " " + good_name(g)
+	return s + " " + weather_left(a)
+
+static func mood_name(mood: String) -> String:
+	return StoryText.get_or("MOOD_" + mood.to_upper(), mood.capitalize() + " face")
+
+static func mood_tip(mood: String) -> String:
+	return StoryText.get_or("MOOD_%s_TIP" % mood.to_upper(), "")
+
+## A round face in a circle, centred at c with radius r: warm smiles, plain is flat, cold frowns. Colour carries the mood too.
+static func draw_mood_face(ci: CanvasItem, c: Vector2, r: float, mood: String) -> void:
+	var tone: Color = col("star_warm") if mood == "warm" else (MOOD_COLD if mood == "cold" else col("ink_muted"))
+	var w := maxf(1.0, r * 0.14)
+	ci.draw_circle(c, r, Color(col("panel_100"), 0.85))
+	ci.draw_arc(c, r, 0.0, TAU, 28, tone, w, true)
+	var eye := maxf(1.0, r * 0.12)
+	ci.draw_circle(c + Vector2(-r * 0.33, -r * 0.22), eye, tone)
+	ci.draw_circle(c + Vector2(r * 0.33, -r * 0.22), eye, tone)
+	match mood:
+		"warm":
+			ci.draw_arc(c + Vector2(0, r * 0.02), r * 0.52, PI * 0.2, PI * 0.8, 10, tone, w, true)
+		"cold":
+			ci.draw_arc(c + Vector2(0, r * 0.72), r * 0.45, PI * 1.2, PI * 1.8, 10, tone, w, true)
+		_:
+			ci.draw_line(c + Vector2(-r * 0.4, r * 0.42), c + Vector2(r * 0.4, r * 0.42), tone, w, true)
+
+## A weather chip with its top-left at pos: dark plate, house tint bar on the left, optional good icon, text. Returns its width.
+static func draw_chip(ci: CanvasItem, pos: Vector2, text: String, tint: Color, font: Font, fs: int, h: float, alpha: float, icon: Texture2D = null) -> float:
+	var bar := maxf(2.0, h * 0.2)
+	var pad := h * 0.35
+	var ic := h - 4.0 if icon != null else 0.0
+	var tw := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x
+	var wd := bar + pad + (ic + pad * 0.6 if icon != null else 0.0) + tw + pad
+	ci.draw_rect(Rect2(pos, Vector2(wd, h)), Color(col("panel_100"), alpha), true)
+	ci.draw_rect(Rect2(pos, Vector2(bar, h)), tint, true)
+	var x := pos.x + bar + pad
+	if icon != null:
+		ci.draw_texture_rect(icon, Rect2(Vector2(x, pos.y + 2.0), Vector2(ic, ic)), false, Color(col("ink"), 0.95))
+		x += ic + pad * 0.6
+	ci.draw_string(font, Vector2(x, pos.y + (h - font.get_height(fs)) * 0.5 + font.get_ascent(fs)), text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, col("ink"))
+	return wd

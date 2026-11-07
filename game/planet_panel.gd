@@ -320,6 +320,12 @@ func _header(p: Dictionary) -> void:
 	var title := Label.new()
 	title.text = str(p.get("name", p.get("id", "?"))) if known else StoryText.get_or("LBL_UNKNOWN_DARK_WORLD" if main.DeadWorlds.is_dead(p) else "LBL_UNKNOWN_WORLD", "Unknown world")
 	title.theme_type_variation = "LabelTitle"
+	var face: Control = null  # T285: mood face, established worlds only (a face, never a number)
+	if known and estab and main.prosperity != null:
+		face = MoodFace.new()
+		face.mood = main.prosperity.mood(planet_index)
+		face.px = float(main.balance.get("face_px", 16))
+		face.tooltip_text = "%s. %s" % [Ui.mood_name(face.mood), Ui.mood_tip(face.mood)]
 	if banner != null:  # the name sits on the lower, faded part of the banner
 		title.name = "BannerTitle"
 		title.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)
@@ -331,8 +337,27 @@ func _header(p: Dictionary) -> void:
 		title.add_theme_constant_override("shadow_offset_x", 1)
 		title.add_theme_constant_override("shadow_offset_y", 1)
 		banner.add_child(title)
+		if face != null:
+			face.name = "MoodFace"
+			banner.add_child(face)
+			face.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT)
+			face.offset_left = -16.0 - face.px
+			face.offset_right = -16.0
+			face.offset_top = -10.0 - face.px
+			face.offset_bottom = -10.0
+			title.offset_right = -16.0 - face.px - 8.0
+	elif face != null:
+		var trow := HBoxContainer.new()
+		trow.add_theme_constant_override("separation", 8)
+		title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		face.name = "MoodFace"
+		face.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		trow.add_child(title)
+		trow.add_child(face)
+		box.add_child(trow)
 	else:
 		box.add_child(title)
+	_weather_row()
 	if main.systems_in_game() > 1:  # T85: system name once more than one system exists
 		var sys_l := _label(main.Systems.name_of(int(p.get("system", 1))))
 		sys_l.theme_type_variation = "LabelCaption"
@@ -380,6 +405,28 @@ func _header(p: Dictionary) -> void:
 			t.modulate.a = 0.4  # guided tutorial: only the named planet can be picked
 		thumbs.add_child(t)
 	box.add_child(thumbs)
+
+## T285: one chip per live weather row at this world (house tint, kind, good if visible, cycles left); nothing when calm or not established.
+func _weather_row() -> void:
+	var fl = _flight()
+	if main.events == null or not PathfinderView.established(fl, _pid()):
+		return
+	var wrap := VBoxContainer.new()
+	wrap.name = "WeatherRow"
+	wrap.add_theme_constant_override("separation", 3)
+	for a in main.events.active:
+		if int(a["planet"]) != planet_index:
+			continue
+		var chip := WeatherChip.new()
+		chip.setup(a, float(main.balance.get("weather_chip_px", 15)), int(main.balance.get("weather_chip_font_px", 11)), float(main.balance.get("weather_chip_alpha", 0.88)))
+		var hn := Ui.house_name(int(a.get("house", 0))) if int(a.get("house", 0)) > 0 else ""
+		var pl := str(main.map.planets[planet_index].get("name", ""))
+		chip.tooltip_text = (hn + ". " if hn != "" else "") + StoryText.get_or("HINT_HOUSE_ACTIVE", "Weather at {planet} for {n} more cycles", {"planet": pl, "n": int(a["left"])})
+		wrap.add_child(chip)
+	if wrap.get_child_count() == 0:
+		wrap.queue_free()
+	else:
+		box.add_child(wrap)
 
 ## T180: panel body of a world without a post or platform. Unknown: one flavour line, flight time, Fly here.
 ## Reached (discovered): the Establish button with cost and what it unlocks, or the build progress. Texts are story ids.
@@ -1223,3 +1270,38 @@ class Thumb extends Control:
 		if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 			accept_event()  # before emit: pressed rebuilds the panel and removes this node, and a removed node cannot mark the event handled
 			pressed.emit()
+
+## T285: mood face in the card header: three drawn variants (Ui.draw_mood_face); hover shows its tip.
+class MoodFace extends Control:
+	var mood := "plain"
+	var px := 16.0
+	func _init() -> void:
+		mouse_filter = Control.MOUSE_FILTER_PASS
+	func _ready() -> void:
+		custom_minimum_size = Vector2(px, px)
+	func _draw() -> void:
+		Ui.draw_mood_face(self, size * 0.5, minf(size.x, size.y) * 0.5 - 1.0, mood)
+
+## T285: a weather chip in the card: tint bar, kind, the good name (only when Availability shows it) and cycles left.
+class WeatherChip extends Control:
+	var row: Dictionary = {}
+	var h := 15.0
+	var fs := 11
+	var alpha := 0.88
+	var _w := 0.0
+	func setup(a: Dictionary, chip_h: float, font_px: int, bg_alpha: float) -> void:
+		row = a
+		h = chip_h
+		fs = font_px
+		alpha = bg_alpha
+		mouse_filter = Control.MOUSE_FILTER_PASS
+		size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+		var tw := Ui.mono_font().get_string_size(_text(), HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x
+		var bar := maxf(2.0, h * 0.2)
+		var pad := h * 0.35
+		_w = bar + pad + tw + pad
+		custom_minimum_size = Vector2(_w, h)
+	func _text() -> String:
+		return Ui.weather_text(row, true)
+	func _draw() -> void:
+		Ui.draw_chip(self, Vector2.ZERO, _text(), Ui.house_col(int(row.get("house", 0))), Ui.mono_font(), fs, h, alpha)

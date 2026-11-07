@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-07",
+  "task": "T285",
+  "status": "done",
+  "files_changed": [
+    "game/ui.gd",
+    "game/planet_panel.gd",
+    "game/world_growth_view.gd",
+    "game/map.gd",
+    "game/main.gd",
+    "data/balance.json"
+  ],
+  "open_questions": [
+    "Story ids missing (English fallbacks used): WX_NAME_PRICE_UP (Price up), WX_NAME_CLOSED (Closed), WX_LEFT_SHORT ({n}c), STD_BOT1..3_NAME (falls back to Bots.bot_name). Story-designer to add.",
+    "House tints: no theme token house_1..3 exists; Ui.house_col uses fallback colours until the artist adds tokens.",
+    "A worktree test run reported parse errors for Hubs and Raids (global classes not in the cache) which stopped main from loading, so the new code was not exercised end to end. None of the errors named my files."
+  ],
+  "handoff": "Mood face: Ui.draw_mood_face draws warm (smile), plain (flat), cold (frown) from code shapes. Planet card: MoodFace control in the header (banner bottom-right, or beside the title), tooltip from MOOD_*_TIP, established worlds only. Map: face on hover of an established world (world_growth_view.gd, left of planet). Weather chips: Ui.draw_chip (house tint bar, kind, cycles left; good icon on map, good name in card only when Availability.good). Map: stack right of the world for each Events.active row, plus a chip above the lane tag of every lane touching a congested world. Card: WeatherRow of chips under the title. All overlay drawing is in the screen-space growth view (mouse_filter ignore, follows zoom, clear of the label). Sizes are placeholder keys in data/balance.json (face_px, face_hover_px, weather_chip_*). No save fields. Out-of-list edits: world_growth_view.gd (overlay draw), main.gd one line (map.events = events), map.gd one var.",
+  "details": {
+    "see_it": "Open a planet card with a post: face in header. Hover a world: face left of it. Trigger a weather event (debug menu events): chip right of the world; congestion also on its lanes.",
+    "not_checked_by_eye": "Everything: chip and face placement, card header fit with long names."
+  }
+}

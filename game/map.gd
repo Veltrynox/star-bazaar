@@ -90,6 +90,7 @@ var _route_list: Array = []       # last list given to set_routes (rebuilt after
 signal station_clicked(system_id: int)
 signal rival_clicked(bot: int)  # T199: competitor id of the rival ship under a left click, 0 = none (closes the card)
 var prosperity = null  # T264: game/prosperity.gd, set by main; the growth ring and need icons read it
+var events = null  # T285: game/events.gd, set by main; weather chips on worlds and congested lanes read events.active
 var capital_planet := ""  # T264: planet id of the Bazaar capital (marker); set by main once the Bazaar exists
 var _growth: Control = null
 var rivals: Node = null  # T199: game/rival_ships.gd, set by main

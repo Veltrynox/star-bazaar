@@ -156,3 +156,68 @@ func _draw_beats(i: int, c: Vector2, r_px: float, scale_px: float) -> void:
 			draw_circle(c, r_px * 1.15, Color(1.0, 0.95, 0.8, flash * _k("beat_flash_alpha", 0.6)))
 		var rr2 := r_px + lerpf(0.0, _k("beat_stage_radius_px", 260.0) * scale_px, 1.0 - pow(1.0 - u, 2.0))
 		draw_arc(c, rr2, 0.0, TAU, 96, Color(warm.lerp(Color.WHITE, 0.5), (1.0 - u) * 0.9), maxf(1.0, 4.0 * scale_px * (1.0 - u) + 1.0), true)
+
+## T285: an established, discovered world with its name on screen (the weather chips and the mood face show only there).
+func _established(i: int) -> bool:
+	if map == null or i < 0 or i >= map.planet_labels.size() or not map.planet_labels[i].visible:
+		return false
+	var fl = map.flight
+	var pid := str(map.planets[i].get("id", i))
+	return PathfinderView.discovered(fl, pid) and PathfinderView.established(fl, pid)
+
+func _ring_edge(i: int, c2: Vector2, scale_px: float) -> float:
+	var cam: Camera3D = map.camera
+	var right: Vector3 = cam.global_transform.basis.x.normalized()
+	var r_px: float = c2.distance_to(cam.unproject_position(map.positions[i] + right * map.planet_radius(i) * map.PLANET_VISIBLE / map.PLANET_RADIUS))
+	return r_px + (_k("growth_ring_gap_px", 6.0) + _k("growth_ring_width_px", 2.0) + 4.0) * scale_px
+
+## T285: weather chips. On the world: a stack right of the planet (the name sits below it, the capital marker above), one chip per
+## live row of Events.active. On a lane that touches a congested world: one chip just above the lane tag. Pure drawing, no clicks.
+## A shortage, flood or price-up names its good only when Availability shows it (Ui.weather_good).
+func _draw_weather(cam: Camera3D, scale_px: float, font: Font) -> void:
+	var ev = map.events
+	if ev == null or ev.active.is_empty():
+		return
+	var h := maxf(10.0, _k("weather_chip_px", 15.0) * scale_px)
+	var fs := maxi(8, roundi(_k("weather_chip_font_px", 11.0) * scale_px))
+	var gap := maxf(1.0, _k("weather_chip_gap_px", 3.0) * scale_px)
+	var alpha := clampf(_k("weather_chip_alpha", 0.88), 0.0, 1.0)
+	for i in map.planets.size():
+		var rows: Array = []
+		for a in ev.active:
+			if int(a["planet"]) == i:
+				rows.append(a)
+		if rows.is_empty() or not _established(i) or cam.is_position_behind(map.positions[i]):
+			continue
+		var c2: Vector2 = cam.unproject_position(map.positions[i])
+		var x: float = c2.x + _ring_edge(i, c2, scale_px)
+		var y: float = c2.y - (float(rows.size()) * h + float(rows.size() - 1) * gap) * 0.5
+		for a in rows:
+			var g := Ui.weather_good(a)
+			Ui.draw_chip(self, Vector2(x, y), Ui.weather_text(a, false), Ui.house_col(int(a.get("house", 0))), font, fs, h, alpha, Ui.icon(g) if g != "" else null)
+			y += h + gap
+	var done := {}
+	for a in ev.active:
+		if str(a["kind"]) != "congestion":
+			continue
+		var p := int(a["planet"])
+		for r in map._route_list:
+			var id := int(r["id"])
+			if done.has(id) or (int(r["a"]) != p and int(r["b"]) != p):
+				continue
+			var ln = map.route_lines.get(id)
+			if ln == null or not ln.visible or ln.tag2d == null or not ln.tag2d.visible:
+				continue
+			done[id] = true
+			Ui.draw_chip(self, ln.tag2d.position + Vector2(0, -h - gap), Ui.weather_text(a, false), Ui.house_col(int(a.get("house", 0))), font, fs, h, alpha)
+
+## T285: the mood face of the hovered world, left of the planet. Established worlds only; a face and no number.
+func _draw_hover_face(cam: Camera3D, scale_px: float) -> void:
+	if map.prosperity == null or not map.prosperity.has_method("mood"):
+		return
+	var i: int = map.pick_planet(get_viewport().get_mouse_position())
+	if i < 0 or not _established(i) or cam.is_position_behind(map.positions[i]):
+		return
+	var fr := maxf(6.0, _k("face_hover_px", 20.0) * scale_px) * 0.5
+	var c2: Vector2 = cam.unproject_position(map.positions[i])
+	Ui.draw_mood_face(self, Vector2(c2.x - _ring_edge(i, c2, scale_px) - fr, c2.y), fr, str(map.prosperity.mood(i)))
