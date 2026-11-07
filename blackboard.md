@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-07 10:47 run: T274
-- Summary: Flagship flight and dock juice built (order, boost, dock ring and clamp, departure puff, target pulse, rush-delivered burst and sting, dock sheet crate stream and credit count-up) with placeholder flight_juice_* balance keys
-- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
-- Approach: built by a worker in worktree ../wt/T274 on branch task/T274, merged by the serial merge queue.
-- Agent prompts: /overnight-worker T274 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T274.log.
-- Worked: rebase, full test suite and fast-forward merge passed.
-- Failed / did not work: nothing.
-- Files and commits: see git log on branch new-features for commits starting with T274.
-- Left to do: nothing for this task.
-
 ## 2026-11-07 10:48 run: T284
 - Summary: Not merged: fast-forward merge refused
 - Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
@@ -65,3 +55,13 @@
 - Failed / did not work: worker did not report done: None.
 - Files and commits: see git log on branch new-features for commits starting with T281.
 - Left to do: owner or a new run: see blocked_log in schedule.json.
+
+## 2026-11-07 10:53 run: T283
+- Summary: House ships now lead convoys that fly to their house's weather world (forecast lead plus warning-skill cycles), park there until it ends, then idle as before; the escorts are a traffic free group and the five new convoy_* keys are placeholders
+- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
+- Approach: built by a worker in worktree ../wt/T283 on branch task/T283, merged by the serial merge queue.
+- Agent prompts: /overnight-worker T283 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T283.log.
+- Worked: rebase, full test suite and fast-forward merge passed.
+- Failed / did not work: nothing.
+- Files and commits: see git log on branch new-features for commits starting with T283.
+- Left to do: nothing for this task.
