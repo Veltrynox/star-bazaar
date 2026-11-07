@@ -1,0 +1,6 @@
+{
+  "task": "T299",
+  "agent": "main session (built directly)",
+  "files": ["game/bazaar_panel.gd", "game/end_screen.gd", "game/main.gd"],
+  "summary": "Wing choice popup (two cards, pick one, reopens from a save with wing_pending), wings listed in the Bazaar panel, end screen recap block above the ending text (capital, stages, wings, worlds per tier, reclaimed, decisive moments). Continue stays. Texts via get_or with END_RECAP_* fallbacks until the story task lands; no new numbers, no new balance keys, no save change."
+}

@@ -302,6 +302,8 @@ func _ready() -> void:
 		prosperity.tier_up.connect(_on_prosperity_tier_up)
 	if not bazaar.stage_done.is_connected(_on_bazaar_stage_done):
 		bazaar.stage_done.connect(_on_bazaar_stage_done)
+	if not bazaar.wing_offered.is_connected(_on_bazaar_wing_offered):
+		bazaar.wing_offered.connect(_on_bazaar_wing_offered)
 	if not bazaar.opening_ready.is_connected(_on_bazaar_opening_ready):
 		bazaar.opening_ready.connect(_on_bazaar_opening_ready)
 	fabric.setup(balance)
@@ -505,6 +507,8 @@ func apply_state(s: Dictionary) -> void:
 	raids.from_dict(s.get("raids"))  # T296; old saves: nothing active
 	gigs.from_dict(s.get("gigs"))  # T271; old saves: empty board
 	gigs.ensure_opening()  # T298: an Opening still to fly is on the board
+	if bazaar.wing_pending > 0 and bazaar_panel != null:
+		bazaar_panel.show_wing_choice.call_deferred()  # T299: a wing choice left open when the save was made
 	hubs.from_array(s.get("hubs"))  # T289; old saves: no hubs
 	flight.resync(game_time())
 	_sync_closed()
@@ -2258,6 +2262,11 @@ func _on_bazaar_opening_ready(planet: int) -> void:
 	gigs.post_opening(planet)
 	post_notice(StoryText.get_or("NOT_BAZAAR_OPENING", "The charter cargo is ready. Fly it to {planet} to open the Star Bazaar.", {"planet": planet_name(planet)}))
 
+## T299: a stage with wings is done: the choice popup (two cards) opens.
+func _on_bazaar_wing_offered(_stage: int) -> void:
+	if bazaar_panel != null:
+		bazaar_panel.show_wing_choice()
+
 ## T298: the Flagship docked at the capital with the charter cargo (Gigs.on_arrived_planet): the Bazaar opens, the run is won.
 func on_opening_flown() -> void:
 	var outcome := bazaar.open()
@@ -2474,8 +2483,11 @@ func _finish(side: String, ending_id: String, stat: String, win_market: String =
 		stats["flavour"] = EndingPicker.inputs(str(stats["market"]), balance, bazaar.stage(), bazaar.recap())
 	if bazaar_panel != null:
 		bazaar_panel.close_screen()
+		bazaar_panel.close_wing_choice()
 	stats["stages_done"] = bazaar.stage()
 	stats["recap"] = bazaar.recap()  # T298: capital, stages, wings, worlds per tier, reclaimed worlds, decisive moments
+	if bazaar.is_founded():
+		stats["recap"]["capital_name"] = planet_name(bazaar.capital())  # T299
 	_open_end_screen().show_ending(ending_id, side, stats, stat)
 	if not run_recorded:  # local record, once per run
 		run_recorded = true

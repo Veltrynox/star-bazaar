@@ -1,7 +1,7 @@
 extends PanelContainer
 ## T263: the Bazaar panel (design/proposals/2026-11-06-empire-growth-v2.md sections 3.7 and 4). Replaces the share panel on the
 ## rail (key M): capital, stages, the bill of the stage being built (delivered / short), quorum, reach and term left.
-## Reads Bazaar (game/bazaar.gd) only; computes no rule. Does not pause the game. Wings are not shown yet (no wing data).
+## Reads Bazaar (game/bazaar.gd) only; computes no rule. Does not pause the game. Wing choice popup (T299): show_wing_choice() after each stage with wings, two cards, pick one; the chosen wings are listed in the panel.
 ## Texts by id from StoryText with plain fallbacks. Goods are named only when Availability shows them (bill_status does that).
 
 const StoryText := preload("res://game/story_text.gd")
@@ -37,6 +37,69 @@ func setup(main_node: Control) -> void:
 	_body = VBoxContainer.new()
 	_body.add_theme_constant_override("separation", 8)
 	_root.add_child(_body)
+
+var _wing_popup: PanelContainer = null
+
+## T299: the wing choice popup: two cards, pick one (Bazaar.choose_wing). Does not pause the game. Re-opens from a save with wing_pending.
+func show_wing_choice() -> void:
+	var bz = main.bazaar
+	var opts: Array = Bazaar.wing_options(bz.wing_pending)
+	if bz.wing_pending <= 0 or opts.size() < 2:
+		return
+	close_wing_choice()
+	var pop := PanelContainer.new()
+	pop.mouse_filter = Control.MOUSE_FILTER_STOP
+	pop.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
+	pop.custom_minimum_size = Vector2(minf(560.0, get_viewport_rect().size.x - 24.0), 0)
+	pop.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	pop.grow_vertical = Control.GROW_DIRECTION_BOTH
+	var col := VBoxContainer.new()
+	col.add_theme_constant_override("separation", 10)
+	pop.add_child(col)
+	var title := Label.new()
+	title.text = StoryText.get_or("BAZ_WING_TITLE", "Choose a wing")
+	title.theme_type_variation = "LabelTitle"
+	col.add_child(title)
+	var stage_name := StoryText.get_or("BAZ_STAGE_%d_NAME" % bz.wing_pending, "Stage %d" % bz.wing_pending)
+	var prompt := Label.new()
+	prompt.text = StoryText.get_or("BAZ_WING_PROMPT", "{stage} is done. Pick one wing to add. The other is not offered again.", {"stage": stage_name})
+	prompt.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	col.add_child(prompt)
+	var cards := HBoxContainer.new()
+	cards.add_theme_constant_override("separation", 10)
+	col.add_child(cards)
+	for i in 2:
+		var o: Dictionary = opts[i]
+		var card := VBoxContainer.new()
+		card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		card.add_theme_constant_override("separation", 6)
+		cards.add_child(card)
+		var nm := Label.new()
+		nm.text = StoryText.get_or("BAZ_WING_%s_NAME" % o["id"], str(o["id"]))
+		nm.theme_type_variation = "LabelCaption"
+		nm.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		card.add_child(nm)
+		var tx := Label.new()
+		tx.text = StoryText.get_or("BAZ_WING_%s_LINE" % o["id"], "")
+		tx.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		tx.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		card.add_child(tx)
+		var b := Button.new()
+		b.text = StoryText.get_or("BAZ_WING_PICK", "Add this wing")
+		b.pressed.connect(_pick_wing.bind(i))
+		card.add_child(b)
+	main.add_child(pop)
+	_wing_popup = pop
+
+func _pick_wing(idx: int) -> void:
+	if main.bazaar.choose_wing(idx):
+		close_wing_choice()
+		refresh()
+
+func close_wing_choice() -> void:
+	if _wing_popup != null:
+		_wing_popup.queue_free()
+		_wing_popup = null
 
 func open_screen() -> void:
 	visible = true
@@ -101,6 +164,10 @@ func refresh() -> void:
 		var nm := StoryText.get_or("BAZ_STAGE_%d_NAME" % n, "Stage %d" % n)
 		var mark := "x" if n <= bz.stage() else (">" if n == bz.current_stage() else "-")
 		_row("[%s] %s" % [mark, nm], "", "" if n <= bz.stage() or n == bz.current_stage() else "LabelMuted")
+	if not bz.wings.is_empty():
+		_head("BAZ_LBL_WINGS", "Wings")
+		for w in bz.wings:
+			_row(StoryText.get_or("BAZ_WING_%s_NAME" % w, str(w)))
 	if bz.complete():
 		_row(StoryText.get_or("BAZ_NAME", "Star Bazaar"))
 		_term()
