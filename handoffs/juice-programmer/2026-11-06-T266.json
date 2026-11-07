@@ -1,0 +1,6 @@
+{
+  "task": "T266",
+  "agent": "juice-programmer (done by worker main session)",
+  "changed": ["game/map.gd", "game/main.gd", "game/world_growth_view.gd", "data/balance.json"],
+  "summary": "Growth beats on game time only (frozen while paused, no clicks blocked): need notch tick (newest notch swells and flashes) with a beat_chime signal hook on the map; tier-up = 0.4 s clock slow in main, pulse ring at the world, tier light bloom (boosted tier look, then settles), camera pull toward the world that yields at once to pan/orbit/mouse; Restless dims the ring; Bazaar stage done = flash + wide ring at the capital + banner (BAZ_STAGE_DONE with StoryText.get_or fallback). All lengths are placeholder beat_* keys in data/balance.json (source note v68). world_growth_view.gd is outside touches (smallest edit: notch tick, dim, ring draw). No save change."
+}

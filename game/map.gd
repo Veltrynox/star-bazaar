@@ -890,6 +890,8 @@ func _update_tier_looks() -> void:
 		if not first and int(_tier_look_seen[i]) == t:
 			continue
 		_tier_look_seen[i] = t
+		if _bloom_left.has(i):
+			continue  # T266: a tier-up bloom is showing; it pushes the settled look itself when it ends
 		var k := clampi(t, 0, 3)
 		planet_spheres[i].set_tier_look(float(bal.get("tier_lights_t%d" % k, 0.0)), float(bal.get("tier_halo_t%d" % k, 0.0)),
 			float(bal.get("tier_lights_gain", 1.0)), float(bal.get("tier_look_ease_seconds", 1.0)), first)
@@ -935,6 +937,7 @@ func _update_orbit_traffic(delta: float) -> void:
 		traffic.set_orbit_group(key, positions[i], r_in, r_out, n, "corvette", tilt, 1.0 if i % 2 == 0 else -1.0, Color.TRANSPARENT, float(bal.get("traffic_orbit_ship_scale", 0.5)))
 
 func _process(delta: float) -> void:
+	_update_beats(delta)
 	_update_tier_looks()
 	_update_orbit_traffic(delta)
 	_refresh_known()
@@ -1169,6 +1172,104 @@ func establish_beat(i: int, col: Color) -> void:
 	if i < planet_label_2d.size():
 		Juice.pop(planet_label_2d[i])
 	_nudge_t = 0.0
+
+## ---- T266: growth beats (design/proposals/2026-11-06-empire-growth-v2.md 3.1 Juice and 4) ----
+## A beat is {kind, planet, t, dur}: "notch" (a need step landed), "tier" (a world grew), "stage" (a Bazaar stage done). They advance
+## on game time only (frozen while paused), world_growth_view.gd draws them in screen space (never takes a click), the camera pull
+## yields at once to the player's own pan / orbit, and every length is a balance beat_* key (placeholders). beat_chime is the
+## hook for a sound: nothing is connected yet.
+signal beat_chime(kind: String, planet: int)
+var beats: Array = []
+var _steps_seen := {}    # planet index -> [tier, steps] at the last look
+var _bloom_left := {}    # planet index -> game seconds of tier-up bloom left
+var _pull_t := -1.0      # seconds into the camera pull, -1 when idle
+var _pull_from := Vector3.ZERO
+var _pull_to := Vector3.ZERO
+var _pull_last := Vector3.ZERO
+
+func _bk(key: String, fallback: float) -> float:
+	return float(prosperity.balance.get(key, fallback)) if prosperity != null else fallback
+
+func _game_running() -> bool:
+	return not PathfinderView._call(flight, "is_paused", [], false)
+
+## A world grew to `tier`: ring from the world, a light bloom, and a gentle pull of the camera toward it. The 0.4 s time slow
+## is main's (it owns the clock).
+func beat_tier_up(i: int, _tier: int) -> void:
+	if i < 0 or i >= positions.size() or Juice.motion <= 0.0:
+		return
+	beats.append({"kind": "tier", "planet": i, "t": 0.0, "dur": _bk("beat_ring_seconds", 1.4) * Juice.motion})
+	beat_chime.emit("tier", i)
+	_bloom_left[i] = _bk("beat_bloom_seconds", 1.2) * Juice.motion
+	_push_bloom(i, true)
+	if planet_in_view(i) and not _player_steering():
+		_pull_from = focus
+		_pull_to = focus + (Vector3(positions[i].x, focus.y, positions[i].z) - focus) * clampf(_bk("beat_camera_pull", 0.5), 0.0, 1.0)
+		_pull_last = focus
+		_pull_t = 0.0
+
+## A Bazaar stage finished at the capital: flash and an expanding ring there.
+func beat_stage(i: int) -> void:
+	if i < 0 or i >= positions.size() or Juice.motion <= 0.0:
+		return
+	beats.append({"kind": "stage", "planet": i, "t": 0.0, "dur": _bk("beat_stage_seconds", 1.8) * Juice.motion})
+	beat_chime.emit("stage", i)
+
+## 0..1 progress of the newest running beat of this kind at planet i, or -1 when none.
+func beat_progress(kind: String, i: int) -> float:
+	var best := -1.0
+	for b in beats:
+		if b["kind"] == kind and int(b["planet"]) == i:
+			best = maxf(best, float(b["t"]) / maxf(0.001, float(b["dur"])))
+	return best
+
+func _player_steering() -> bool:
+	if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT) or Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT) or Input.is_mouse_button_pressed(MOUSE_BUTTON_MIDDLE):
+		return true
+	return keys_enabled and (_axis(KEY_A, KEY_D) != 0.0 or _axis(KEY_W, KEY_S) != 0.0 or _axis(KEY_LEFT, KEY_RIGHT) != 0.0 or _axis(KEY_DOWN, KEY_UP) != 0.0)
+
+func _push_bloom(i: int, on: bool) -> void:
+	if i >= planet_spheres.size() or prosperity == null:
+		return
+	var bal: Dictionary = prosperity.balance
+	var k := clampi(maxi(0, int(prosperity.tier(i))), 0, 3)
+	var g := _bk("beat_bloom_gain", 2.0) if on else 1.0
+	planet_spheres[i].set_tier_look(minf(1.0, float(bal.get("tier_lights_t%d" % k, 0.0)) * g), minf(1.0, float(bal.get("tier_halo_t%d" % k, 0.0)) * g + (0.2 if on else 0.0)),
+		float(bal.get("tier_lights_gain", 1.0)), float(bal.get("tier_look_ease_seconds", 1.0)) * (0.3 if on else 1.0), false)
+
+func _update_beats(delta: float) -> void:
+	if prosperity == null:
+		return
+	# need notches: a step gained inside the same tier ticks the ring (the first look only records)
+	for i in planets.size():
+		var t: int = int(prosperity.tier(i))
+		var st: int = int(prosperity.steps(i))
+		var seen = _steps_seen.get(i)
+		_steps_seen[i] = [t, st]
+		if seen != null and int(seen[0]) == t and st > int(seen[1]) and t >= 1 and Juice.motion > 0.0:
+			beats.append({"kind": "notch", "planet": i, "t": 0.0, "dur": _bk("beat_notch_seconds", 0.5) * Juice.motion})
+			beat_chime.emit("notch", i)
+	if not _game_running():
+		return
+	for b in beats:
+		b["t"] = float(b["t"]) + delta
+	beats = beats.filter(func(b) -> bool: return float(b["t"]) < float(b["dur"]))
+	for i in _bloom_left.keys():
+		_bloom_left[i] = float(_bloom_left[i]) - delta
+		if float(_bloom_left[i]) <= 0.0:
+			_bloom_left.erase(i)
+			_push_bloom(int(i), false)
+	if _pull_t >= 0.0:
+		if _player_steering() or focus.distance_to(_pull_last) > 0.0005 or Juice.motion <= 0.0:
+			_pull_t = -1.0  # the player took the camera: never fight them
+		else:
+			_pull_t += delta
+			var u := clampf(_pull_t / (maxf(0.05, _bk("beat_camera_seconds", 1.2)) * Juice.motion), 0.0, 1.0)
+			focus = _pull_from.lerp(_pull_to, smoothstep(0.0, 1.0, u))
+			clamp_focus()
+			_pull_last = focus
+			if u >= 1.0:
+				_pull_t = -1.0
 
 var _nudge_t := -1.0   # T203: seconds into the camera nudge, -1 when idle
 

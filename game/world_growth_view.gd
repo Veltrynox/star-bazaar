@@ -57,11 +57,13 @@ func _draw() -> void:
 		var right: Vector3 = cam.global_transform.basis.x.normalized()
 		var r_px: float = c2.distance_to(cam.unproject_position(centre + right * map.planet_radius(i) * map.PLANET_VISIBLE / map.PLANET_RADIUS))
 		if not _shown(i):
+			_draw_beats(i, c2, r_px, scale_px)
 			_draw_capital(c2, r_px, scale_px)
 			continue
 		_draw_ring(i, c2, r_px, scale_px)
 		if capital:
 			_draw_capital(c2, r_px, scale_px)
+		_draw_beats(i, c2, r_px, scale_px)
 		_draw_needs(i, scale_px, font, c2.y + r_px + (_k("growth_ring_gap_px", 6.0) + _k("growth_ring_width_px", 2.0)) * scale_px)
 
 func _draw_ring(i: int, c: Vector2, r_px: float, scale_px: float) -> void:
@@ -76,10 +78,19 @@ func _draw_ring(i: int, c: Vector2, r_px: float, scale_px: float) -> void:
 	var col_off := Color(Ui.col("ink_muted"), _k("growth_dim_alpha", 0.35))
 	if p.restless(i):
 		col_on = Color(Ui.col("signal_bad").lerp(col_on, 0.5), 0.7)  # progress is draining: the lit notches go amber-red
+		col_on.a *= clampf(_k("beat_restless_dim", 0.5), 0.0, 1.0)  # T266: and the ring dims
+		col_off.a *= clampf(_k("beat_restless_dim", 0.5), 0.0, 1.0)
+	var tick: float = map.beat_progress("notch", i)  # T266: the newest notch swells and flashes
 	for k in n:
 		var a0 := -PI / 2.0 + seg * float(k) + seg * gap_frac * 0.5
 		var a1 := -PI / 2.0 + seg * float(k + 1) - seg * gap_frac * 0.5
-		draw_arc(c, radius, a0, a1, 12, col_on if k < lit else col_off, w, true)
+		var col_k: Color = col_on if k < lit else col_off
+		var w_k := w
+		if tick >= 0.0 and k == lit - 1:
+			var pk := 1.0 - tick
+			col_k = col_k.lerp(Color(1, 1, 1, 1), pk * 0.8)
+			w_k = w * (1.0 + pk * _k("beat_notch_swell", 1.5))
+		draw_arc(c, radius, a0, a1, 12, col_k, w_k, true)
 
 func _draw_needs(i: int, scale_px: float, font: Font, ring_bottom: float) -> void:
 	var needs: Array = map.prosperity.needs(i)
@@ -129,3 +140,19 @@ func _draw_capital(c: Vector2, r_px: float, scale_px: float) -> void:
 	var pts := PackedVector2Array([top + Vector2(0, -m), top + Vector2(m, 0), top + Vector2(0, m), top + Vector2(-m, 0)])
 	draw_colored_polygon(pts, col)
 	draw_polyline(PackedVector2Array([pts[0], pts[1], pts[2], pts[3], pts[0]]), Color(Ui.col("panel_100"), 0.9), 1.0, true)
+
+## T266: the tier-up pulse ring (warm) and the stage-done flash plus wide ring (white-gold) at the world. Game-time progress from the map;
+## only strokes and a soft disc, no clicks, no text, nothing over the numbers.
+func _draw_beats(i: int, c: Vector2, r_px: float, scale_px: float) -> void:
+	var warm := Ui.col("star_warm")
+	var u: float = map.beat_progress("tier", i)
+	if u >= 0.0:
+		var rr := r_px + lerpf(0.0, _k("beat_ring_radius_px", 140.0) * scale_px, 1.0 - pow(1.0 - u, 2.0))
+		draw_arc(c, rr, 0.0, TAU, 64, Color(warm, (1.0 - u) * 0.9), maxf(1.0, 3.0 * scale_px * (1.0 - u) + 1.0), true)
+	u = map.beat_progress("stage", i)
+	if u >= 0.0:
+		var flash := clampf(1.0 - u * 4.0, 0.0, 1.0)  # the flash is the first quarter
+		if flash > 0.0:
+			draw_circle(c, r_px * 1.15, Color(1.0, 0.95, 0.8, flash * _k("beat_flash_alpha", 0.6)))
+		var rr2 := r_px + lerpf(0.0, _k("beat_stage_radius_px", 260.0) * scale_px, 1.0 - pow(1.0 - u, 2.0))
+		draw_arc(c, rr2, 0.0, TAU, 96, Color(warm.lerp(Color.WHITE, 0.5), (1.0 - u) * 0.9), maxf(1.0, 4.0 * scale_px * (1.0 - u) + 1.0), true)

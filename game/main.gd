@@ -285,6 +285,8 @@ func _ready() -> void:
 	map.prosperity = prosperity  # T264 growth ring and need icons
 	if not prosperity.tier_up.is_connected(_on_prosperity_tier_up):
 		prosperity.tier_up.connect(_on_prosperity_tier_up)
+	if not bazaar.stage_done.is_connected(_on_bazaar_stage_done):
+		bazaar.stage_done.connect(_on_bazaar_stage_done)
 	fabric.setup(balance)
 	workshops.setup(balance)
 	engine.clusters = clusters
@@ -2177,7 +2179,16 @@ func _process(delta: float) -> void:
 	_update_sell_offer_box()
 	if paused or game_over:
 		return
-	cycle_elapsed += delta * time_speed
+	var slow := 1.0
+	if _beat_slow_left > 0.0:
+		_beat_slow_left -= delta
+		slow = clampf(float(balance.get("beat_slow_scale", 0.25)), 0.05, 1.0)
+	if _beat_banner_left > 0.0:
+		_beat_banner_left -= delta
+		_beat_banner.modulate.a = clampf(_beat_banner_left / 0.6, 0.0, 1.0)  # fades over its last 0.6 s
+		if _beat_banner_left <= 0.0:
+			_beat_banner.visible = false
+	cycle_elapsed += delta * time_speed * slow
 	flight.sync(game_time())  # T179: the Pathfinder moves with the game clock only (nothing while paused)
 	var length := _cycle_seconds()
 	while cycle_elapsed >= length and not game_over and not paused:
@@ -2209,7 +2220,37 @@ func _on_found_bazaar(planet: int) -> void:
 			planet_panel.rebuild()
 
 func _on_prosperity_tier_up(planet: int, tier: int) -> void:
+	_beat_slow_left = float(balance.get("beat_slow_seconds", 0.4)) * Juice.motion  # T266: a short slow-motion beat, game clock only
+	if map != null:
+		map.beat_tier_up(planet, tier)
 	post_notice(StoryText.get_or("NOT_PROSPERITY_TIER_UP", "{planet} has grown to tier {tier}.", {"planet": planet_name(planet), "tier": tier}))
+
+## T266: a Bazaar stage is done: flash and ring at the capital, and a banner that holds for beat_banner_seconds of game time.
+func _on_bazaar_stage_done(n: int) -> void:
+	if map != null:
+		map.beat_stage(bazaar.capital())
+	if Juice.motion <= 0.0:
+		return
+	if _beat_banner == null:
+		_beat_banner = Label.new()
+		_beat_banner.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_beat_banner.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
+		_beat_banner.grow_horizontal = Control.GROW_DIRECTION_BOTH
+		_beat_banner.position.y = 110
+		_beat_banner.add_theme_font_size_override("font_size", 28)
+		_beat_banner.add_theme_color_override("font_color", Ui.col("star_warm"))
+		_beat_banner.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.8))
+		_beat_banner.add_theme_constant_override("outline_size", 6)
+		add_child(_beat_banner)
+	var stage_name := StoryText.get_or("BAZ_STAGE_%d_NAME" % n, "")
+	_beat_banner.text = StoryText.get_or("BAZ_STAGE_DONE", "Bazaar stage done: {stage}.", {"stage": stage_name})
+	_beat_banner.visible = true
+	_beat_banner.modulate.a = 1.0
+	_beat_banner_left = float(balance.get("beat_banner_seconds", 3.0)) * Juice.motion
+
+var _beat_slow_left := 0.0   # T266: seconds of game-clock slow left (counts down only while the game runs)
+var _beat_banner: Label = null
+var _beat_banner_left := 0.0
 
 ## T258: growth pays. Tax by tier for every world (one summary notice), skill points the first time any world reaches a tier.
 func _pay_prosperity() -> void:
