@@ -896,6 +896,49 @@ func _update_tier_looks() -> void:
 		planet_spheres[i].set_tier_look(float(bal.get("tier_lights_t%d" % k, 0.0)), float(bal.get("tier_halo_t%d" % k, 0.0)),
 			float(bal.get("tier_lights_gain", 1.0)), float(bal.get("tier_look_ease_seconds", 1.0)), first)
 
+## T297: dead worlds show their reclaim ring as green creeping over the surface; the flip (green wave, then clouds and atmosphere fading in, the first
+## lights) runs in game time when prosperity reports the world reclaimed. A world met already reclaimed (load) snaps to the living look.
+## Numbers: data/balance.json reclaim_* (placeholders).
+var _reclaim_seen := {}   # planet index -> true once looked at
+var _reclaim_flip := {}   # planet index -> game seconds into the flip
+func _update_reclaim_looks(delta: float) -> void:
+	if prosperity == null:
+		return
+	var running := _game_running()
+	var wave_s := _bk("reclaim_wave_seconds", 2.5) * Juice.motion
+	var fade_s := _bk("reclaim_fade_seconds", 2.0) * Juice.motion
+	var green := Color(_bk("reclaim_green_r", 0.3), _bk("reclaim_green_g", 0.62), _bk("reclaim_green_b", 0.22))
+	for i in planet_spheres.size():
+		var sph = planet_spheres[i]
+		if not sph.looks_dead() and not _reclaim_flip.has(i):
+			_reclaim_seen[i] = true
+			continue
+		var done: bool = prosperity.is_reclaimed(i)
+		if done and not _reclaim_flip.has(i):
+			if _reclaim_seen.has(i) and wave_s > 0.0:
+				_reclaim_flip[i] = 0.0
+			else:
+				sph.become_living()
+				_push_first_lights(i, 0.0)
+		elif not done:
+			sph.set_reclaim(prosperity.reclaim_progress(i), _bk("reclaim_tint_max", 0.6), _bk("reclaim_haze", 0.5), green)
+		_reclaim_seen[i] = true
+		if _reclaim_flip.has(i):
+			var t: float = float(_reclaim_flip[i]) + (delta if running else 0.0)
+			_reclaim_flip[i] = t
+			if sph.set_reclaim_flip(clampf(t / wave_s, 0.0, 1.0), clampf((t - wave_s) / maxf(fade_s, 0.001), 0.0, 1.0) if fade_s > 0.0 else 1.0, _bk("reclaim_wave_width", 0.12)):
+				_push_first_lights(i, fade_s)
+			if t >= wave_s + fade_s:
+				_reclaim_flip.erase(i)
+
+## The first night-side lights of a reclaimed world ease in over `seconds` (0 = at once).
+func _push_first_lights(i: int, seconds: float) -> void:
+	var bal: Dictionary = prosperity.balance
+	var k := clampi(maxi(1, int(prosperity.tier(i))), 0, 3)
+	_tier_look_seen[i] = maxi(1, int(prosperity.tier(i)))
+	planet_spheres[i].set_tier_look(float(bal.get("tier_lights_t%d" % k, 0.0)), float(bal.get("tier_halo_t%d" % k, 0.0)),
+		float(bal.get("tier_lights_gain", 1.0)), seconds, seconds <= 0.0)
+
 ## T279: orbital traffic. Each established world in the viewed system gets a close ring of tiny shuttles: count from its tier
 ## (balance traffic_orbit_t<N>), thinned by traffic_orbit_restless_keep (0..1 kept) while Restless. A tier-up fills the new ships
 ## in over traffic_orbit_burst_seconds. Readout only: derived from prosperity, nothing is saved.
@@ -938,6 +981,7 @@ func _update_orbit_traffic(delta: float) -> void:
 
 func _process(delta: float) -> void:
 	_update_beats(delta)
+	_update_reclaim_looks(delta)
 	_update_tier_looks()
 	_update_orbit_traffic(delta)
 	_refresh_known()

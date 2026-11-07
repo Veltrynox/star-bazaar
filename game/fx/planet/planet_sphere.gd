@@ -10,7 +10,7 @@ extends MeshInstance3D
 const SIMPLE := true
 
 ## Owner: cloud layer in the simple body for the earth-like types, storm glow for the stormy type (cloudy). Both read planet_cloud.png.
-const CLOUD_TYPES := ["lush", "agrarian", "ocean"]
+const CLOUD_TYPES := ["lush", "agrarian", "ocean", "reclaimed"]
 const STORM_TYPE := "cloudy"
 const CLOUD_TEX := "res://art/planet/planet_cloud.png"
 
@@ -30,6 +30,7 @@ const TYPE_TEXTURES := {
 	"ocean": {"beauty": TP + "planet_ocean_beauty.png", "disp": TP + "planet_ocean_displacement.png"},
 	"moon": {"beauty": TP + "planet_moon_beauty.png", "disp": TP + "planet_moon_displacement.png"},
 	"dead": {"beauty": TP + "planet_toxic_beauty.png"},  # dead worlds (Cinderrest, Greywake): own shader, see DEAD_MATERIAL
+	"reclaimed": {"beauty": TP + "planet_lush_beauty.png", "disp": TP + "planet_lush_displacement.png"},  # T297: a reclaimed world looks like lush
 	"urban": {"beauty": TP + "planet_with_lights_beauty.png", "disp": TP + "planet_with_lights_displacement.png", "lights": TP + "planet_lights_mask.png"},
 }
 ## Dead worlds: planet_type "dead" or an id starting "dead_" (dead_1 Cinderrest, dead_2 Greywake). They use the inverse-Fresnel body shader
@@ -43,8 +44,65 @@ const DEAD_VARIANTS := {
 }
 const DEAD_VARIANT_DEFAULT := {"uv_shift": 0.2, "hue_shift": 0.0, "saturation": 0.8, "brightness": 1.0}
 
+const RECLAIMED_TYPE := "reclaimed"
+const LIVING_MATERIAL := preload("res://game/fx/planet/planet_sphere_simple_material.tres")
+
 static func is_dead(id: String, type: String) -> bool:
-	return type == DEAD_TYPE or id.begins_with(DEAD_ID_PREFIX)
+	return type == DEAD_TYPE or (id.begins_with(DEAD_ID_PREFIX) and type != RECLAIMED_TYPE)
+
+func looks_dead() -> bool:
+	return is_dead(planet_id, planet_type)
+
+## T297 reclaim look. Called by the map every frame for a dead world: progress 0..1 creeps green over the surface and thins the nest's red haze.
+## tint_max, haze_max and green come from data/balance.json (reclaim_* keys, placeholders).
+func set_reclaim(progress: float, tint_max: float, haze_max: float, green: Color) -> void:
+	var m := get_surface_override_material(0) as ShaderMaterial
+	if m == null or not looks_dead():
+		return
+	m.set_shader_parameter("reclaim", clampf(progress, 0.0, 1.0))
+	m.set_shader_parameter("reclaim_tint", tint_max)
+	m.set_shader_parameter("haze", haze_max * (1.0 - clampf(progress, 0.0, 1.0)))
+	m.set_shader_parameter("green_col", green)
+
+## T297 flip, driven by the map in game time. wave_frac 0..1 sweeps the green wave over the surface (the haze is gone by then); at 1 the sphere
+## becomes a living world. fade_frac 0..1 then fades the clouds and atmosphere in. Returns true on the call that made the swap.
+func set_reclaim_flip(wave_frac: float, fade_frac: float, wave_width: float = 0.12) -> bool:
+	var swapped := false
+	if looks_dead():
+		var m := get_surface_override_material(0) as ShaderMaterial
+		if m == null:
+			return false
+		if wave_frac < 1.0:
+			m.set_shader_parameter("haze", 0.0)
+			m.set_shader_parameter("wave_width", wave_width)
+			m.set_shader_parameter("living_tex", cached_tex(TYPE_TEXTURES[RECLAIMED_TYPE]["beauty"]))
+			m.set_shader_parameter("wave", maxf(0.001, wave_frac * (1.0 + wave_width)))
+			return false
+		become_living()
+		swapped = true
+	_push_living_fade(fade_frac)
+	return swapped
+
+## Swap the dead body for the living one at once (also used for a reclaimed world met for the first time, e.g. after a load).
+func become_living() -> void:
+	if not looks_dead():
+		return
+	set_surface_override_material(0, LIVING_MATERIAL.duplicate())
+	planet_type = RECLAIMED_TYPE  # the setter runs _apply(): the living look
+	var atmo := get_node_or_null("Atmosphere") as MeshInstance3D
+	if atmo:
+		atmo.visible = true
+	_apply()
+	_push_living_fade(1.0)
+
+func _push_living_fade(f: float) -> void:
+	var m := get_surface_override_material(0) as ShaderMaterial
+	if m:
+		m.set_shader_parameter("cloud_alpha", cloud_alpha * f)
+	var atmo := get_node_or_null("Atmosphere") as MeshInstance3D
+	var am := atmo.get_surface_override_material(0) as ShaderMaterial if atmo else null
+	if am:
+		am.set_shader_parameter("density", atmosphere_density * f)
 
 ## Old fallback (greyscale equirectangular) for types without a table entry.
 const SURFACE_TEXTURES := ["res://art/planet/planet_surface_01.jpg"]

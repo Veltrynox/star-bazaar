@@ -19,7 +19,7 @@ const PRESETS := {
 }
 
 ## Base palette for each planet type. Violet is kept for the top rarity tier only.
-const TYPE_PALETTE := {"lush": "blue", "agrarian": "blue", "ocean": "blue", "cloudy": "blue", "volcanic": "magenta", "desert": "magenta", "moon": "ice", "urban": "ice"}
+const TYPE_PALETTE := {"lush": "blue", "agrarian": "blue", "ocean": "blue", "cloudy": "blue", "volcanic": "magenta", "desert": "magenta", "moon": "ice", "urban": "ice", "reclaimed": "blue"}
 const TOP_TIER := 0.9   ## rarity at or above this uses the violet preset
 const VIOLET_PRESET := "violet"
 

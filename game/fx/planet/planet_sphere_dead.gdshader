@@ -19,6 +19,17 @@ uniform vec4 rim_color : source_color = vec4(0.55, 0.50, 0.46, 1.0);  // thin di
 uniform float rim_strength = 0.10;             // dim: well under 1.0, no HDR glow
 uniform float rim_width = 0.08;                // rim thickness in (1 - N.V) units, taken from the very edge inwards
 
+// T297 reclaim. All values are pushed by planet_sphere.gd from data/balance.json (reclaim_* keys, placeholders); the defaults here only keep the shader valid.
+uniform sampler2D living_tex : source_color, filter_linear_mipmap, repeat_enable;  // the living look the green wave reveals (lush beauty map)
+uniform float reclaim = 0.0;                   // 0..1 reclaim progress: green creeps over the surface as the ring fills
+uniform float reclaim_tint = 0.0;              // largest share of green the creep reaches before the flip
+uniform vec4 green_col : source_color = vec4(0.30, 0.62, 0.22, 1.0);
+uniform float wave = 0.0;                      // flip: front position 0..1.2 across the surface (0 = no wave)
+uniform vec3 wave_axis = vec3(0.35, 0.55, 0.75);  // object space, the front sweeps along it
+uniform float wave_width = 0.12;               // softness of the front
+uniform float haze = 0.0;                      // the nest's red haze at the limb (0 = none); fades as the ring fills
+uniform vec4 haze_col : source_color = vec4(0.85, 0.15, 0.10, 1.0);
+
 // Rotates the hue of a colour by t turns (YIQ rotation, cheap and hue-only).
 vec3 hue_rot(vec3 c, float t) {
 	float a = t * TAU;
@@ -48,6 +59,16 @@ void fragment() {
 	col = max(hue_rot(col, hue_shift), vec3(0.0));
 	col = mix(vec3(dot(col, vec3(0.299, 0.587, 0.114))), col, saturation) * brightness;
 
+	// Reclaim: green creeps in patches (dark ground last), then the wave front turns the surface into the living map.
+	float lum0 = dot(col, vec3(0.299, 0.587, 0.114));
+	float creep = smoothstep(0.0, 0.3, reclaim * 1.3 - (1.0 - clamp(lum0 * 2.0, 0.0, 1.0)) * 0.3) * reclaim_tint;
+	col = mix(col, green_col.rgb * (0.35 + lum0 * 1.1), creep);
+	float wd = dot(n, normalize(wave_axis)) * 0.5 + 0.5;
+	float covered = wave > 0.0 ? 1.0 - smoothstep(wave - wave_width, wave, wd) : 0.0;
+	vec3 live = textureGrad(living_tex, vec2(uv.x - uv_shift, uv.y), dx, dy).rgb;
+	col = mix(col, live, covered);
+	float front = wave > 0.0 && wave < 1.0 + wave_width ? exp(-pow((wd - wave) / (wave_width * 0.5), 2.0)) : 0.0;
+
 	// Key light: soft terminator, never below the ambient floor.
 	vec3 k = normalize(key_dir);
 	float nk = dot(n, k);
@@ -56,12 +77,16 @@ void fragment() {
 
 	// Inverse Fresnel: the edge absorbs light. 1 - N.V grows to 1 at the limb; the dark weight follows it by limb_power.
 	float edge = 1.0 - NdV;
-	float absorb = pow(edge, limb_power) * limb_dark;
+	float absorb = pow(edge, limb_power) * limb_dark * (1.0 - covered);
 	col *= 1.0 - absorb;
 
 	// Thin dim rim: a narrow band at the very edge, sun side only, so the disc still reads against space.
 	float band = smoothstep(1.0 - rim_width, 1.0 - rim_width * 0.15, edge) * (1.0 - smoothstep(0.985, 1.0, edge));
 	col += rim_color.rgb * rim_strength * band * lit;
+
+	// The wave front glows; the nest's red haze sits at the limb and thins out with the reclaim.
+	col += green_col.rgb * front * 0.9 * mix(0.5, 1.0, lit);
+	col += haze_col.rgb * haze * pow(edge, 2.0) * 0.6;
 
 	ALBEDO = min(col, vec3(1.0));  // nothing above 1.0: a dead world does not feed the HDR glow
 }

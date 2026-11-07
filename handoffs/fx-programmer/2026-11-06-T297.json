@@ -1,0 +1,8 @@
+{
+  "task": "T297",
+  "agent": "fx-programmer (main session of the worktree)",
+  "summary": "Reclaim transition. Dead shader: reclaim progress creeps green, nest red haze at the limb fades with progress, a wave front reveals the living (lush) map. planet_sphere.gd: set_reclaim, set_reclaim_flip, become_living, 'reclaimed' look (lush textures, clouds, palette). map.gd: _update_reclaim_looks drives creep, flip (game time) and first lights; a reclaimed world met on load snaps to living.",
+  "files": ["game/fx/planet/planet_sphere_dead.gdshader", "game/fx/planet/planet_sphere.gd", "game/fx/planet/planet_fx.gd", "game/map.gd", "data/balance.json"],
+  "balance_keys_placeholder": ["reclaim_tint_max", "reclaim_haze", "reclaim_green_r", "reclaim_green_g", "reclaim_green_b", "reclaim_wave_seconds", "reclaim_wave_width", "reclaim_fade_seconds"],
+  "notes": "No saved fields added (look derives from prosperity), so no save bump. No story text. Edge outside touches: planet_fx.gd is inside game/fx/planet, data/balance.json holds the keys. Screenshot logs/screenshots/T297.png shows the map renders."
+}
