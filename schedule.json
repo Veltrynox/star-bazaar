@@ -2775,7 +2775,7 @@
         "game/main.gd"
       ],
       "priority": 1,
-      "note": "Blocked by orchestrator: worker did not report done: None",
+      "note": "Blocked by orchestrator: fast-forward merge refused",
       "blocked_log": "/Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T291-merge.log"
     },
     {
