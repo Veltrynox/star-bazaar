@@ -1,0 +1,13 @@
+{
+  "task": "T273",
+  "agent": "ui-programmer (built by worker main session)",
+  "files": [
+    "game/gig_board.gd",
+    "game/main.gd",
+    "game/pathfinder_view.gd",
+    "game/next_up.gd",
+    "data/balance.json",
+    "gdd.md"
+  ],
+  "summary": "Gig board panel (rail button, key J), pulsing amber-near-deadline target rings on the map, Next Up Best move shows the nearest-deadline gig. New placeholder keys gig_marker_amber_cycles, gig_marker_pulse_hz, gig_marker_pulse_fast_hz. Signal arrival window already existed from T271. Text ids with get_or fallbacks (story task pending). No save fields added."
+}

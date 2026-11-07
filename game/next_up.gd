@@ -115,8 +115,25 @@ func _bazaar() -> Dictionary:
 		return {"text": StoryText.get_or("BAZ_REACH_ROW", "One world in another system"), "planet": bz.capital()}
 	return {"text": StoryText.get_or("BAZ_NAME", "Star Bazaar"), "planet": bz.capital()}
 
+## T273: the open gig with the nearest deadline, as a Best move line (rush orders name a good only when Availability shows it).
+func _gig() -> Dictionary:
+	var best := {}
+	for o in main.gigs.offers:
+		if best.is_empty() or float(o["due"]) < float(best["due"]):
+			best = o
+	if best.is_empty() or main.gig_panel == null:
+		return {}
+	var board = main.gig_panel
+	var lf := snappedf(board.left(best), 0.1)
+	if str(best["kind"]) == "rush":
+		return {"text": StoryText.get_or("NEXTUP_BEST_GIG", "Gig: {title}, {cycles} cycles left", {"title": board.title_text(best), "cycles": lf}), "planet": int(best["target"]["index"])}
+	return {"text": StoryText.get_or("NEXTUP_BEST_GIG", "Gig: {title}, {cycles} cycles left", {"title": board.title_text(best), "cycles": lf}), "planet": -1}
+
 func _best() -> Dictionary:
 	var pr = main.prosperity
+	var gig := _gig()
+	if not gig.is_empty():
+		return gig
 	# a newly hungry lane: a need short for a cycle or more, and a world that sells the good
 	for i in main.map.planets.size():
 		if pr.tier(i) < 1:

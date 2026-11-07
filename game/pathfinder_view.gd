@@ -83,6 +83,7 @@ var _holder: Node3D
 var _line: MeshInstance3D
 var _mesh: ImmediateMesh
 var _marker: MeshInstance3D
+var _gig_rings: Array = []  # T273: one ring per accepted gig target (pool, grows to the board size)
 var _trail: MeshInstance3D     # T198: engine trail
 var _last_pos := Vector3.INF
 var _sel: MeshInstance3D       # T200: ring around the ship while it is selected
@@ -320,6 +321,7 @@ func update_from(f, view_system: int, selected: bool = false) -> void:
 	var tgt = _call(f, "target", [], {})
 	_mesh.clear_surfaces()
 	_marker.visible = false
+	_update_gig_rings(f, sys)
 	if typeof(tgt) == TYPE_DICTIONARY and tgt.has("pos") and state(f) != "building":
 		var tp: Vector3 = tgt["pos"]
 		var d := Vector2(tp.x - pos.x, tp.z - pos.z)
@@ -339,6 +341,48 @@ func update_from(f, view_system: int, selected: bool = false) -> void:
 			_mesh.surface_end()
 			_marker.global_position = tp + Vector3(0, LIFT, 0)
 			_marker.visible = true
+
+## T273: a ring at each accepted gig target in this system. It pulses with the game clock, faster and amber once the offer is within
+## balance gig_marker_amber_cycles of its deadline (rates: gig_marker_pulse_hz, gig_marker_pulse_fast_hz).
+func _update_gig_rings(f, sys: int) -> void:
+	var main_node = f.main if f != null and is_instance_valid(f) and "main" in f else null
+	var offers: Array = main_node.gigs.offers if main_node != null and "gigs" in main_node else []
+	var now: float = main_node.game_time() if main_node != null else 0.0
+	var amber := float(main_node.balance.get("gig_marker_amber_cycles", 2.0)) if main_node != null else 2.0
+	var slow := float(main_node.balance.get("gig_marker_pulse_hz", 0.6)) if main_node != null else 0.6
+	var fast := float(main_node.balance.get("gig_marker_pulse_fast_hz", 2.4)) if main_node != null else 2.4
+	var used := 0
+	for o in offers:
+		if not bool(o["accepted"]) or int(o["target"]["sys"]) != sys:
+			continue
+		var tp: Vector3 = main_node.gigs.target_pos(o) if str(o["kind"]) == "signal" else f._planet_pos(int(o["target"]["index"]))
+		if used >= _gig_rings.size():
+			var ring := TorusMesh.new()
+			ring.inner_radius = MARKER_RADIUS * 0.8
+			ring.outer_radius = MARKER_RADIUS
+			var m := MeshInstance3D.new()
+			m.mesh = ring
+			var mat := StandardMaterial3D.new()
+			mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+			mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+			mat.no_depth_test = true
+			m.material_override = mat
+			m.top_level = true
+			add_child(m)
+			_gig_rings.append(m)
+		var lf := float(o["due"]) - now
+		var urgent := lf <= amber
+		var pulse := 0.5 + 0.5 * sin(now * main_node._cycle_seconds() * (fast if urgent else slow) * TAU)
+		var r: MeshInstance3D = _gig_rings[used]
+		var col := Color(1.0, 0.72, 0.25) if urgent else Color(0.45, 0.85, 1.0)
+		col.a = 0.45 + 0.5 * pulse
+		(r.material_override as StandardMaterial3D).albedo_color = col
+		r.scale = Vector3.ONE * (1.0 + 0.25 * pulse)
+		r.global_position = tp + Vector3(0, LIFT, 0)
+		r.visible = true
+		used += 1
+	for k in range(used, _gig_rings.size()):
+		_gig_rings[k].visible = false
 
 func _ensure_model(path: String) -> void:
 	if path == _model_path and _holder != null:

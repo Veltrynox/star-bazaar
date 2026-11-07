@@ -128,6 +128,8 @@ var competitors_panel: PanelContainer  # share graphs per market (L); T263: buil
 var bazaar_panel: PanelContainer  # T263 the Bazaar panel (M, rail button)
 var next_up: HBoxContainer  # T263 the Next Up strip in the top bar
 var bazaar_button: Button
+var gig_panel: PanelContainer  # T273 the gig board (J, rail button)
+var gig_button: Button
 const COMPETITORS_SHOWN := false  # T263: Competitors button and key hidden, code kept
 var cycle_label: Label
 var pause_button: Button
@@ -321,6 +323,9 @@ func _ready() -> void:
 	bazaar_panel = load("res://game/bazaar_panel.gd").new()  # T263
 	add_child(bazaar_panel)
 	bazaar_panel.setup(self)
+	gig_panel = load("res://game/gig_board.gd").new()  # T273
+	add_child(gig_panel)
+	gig_panel.setup(self)
 	for n in [tut_card, tut_arrow]:  # above the Skills window (the permit step points into it), below menus and popups
 		move_child(n, skill_screen.get_index() + 1)
 	space_storage_view = load("res://game/space_storage_view.gd").new()
@@ -962,6 +967,17 @@ func _on_skill_arrow() -> void:
 ## T263: M and the rail button open the Bazaar panel; the share panel (old M) is hidden, not deleted.
 func toggle_share_panel() -> void:
 	toggle_bazaar_panel()
+
+## T273: J and the rail button open the gig board (only while the Flagship exists).
+func toggle_gig_board() -> void:
+	if gig_panel.visible:
+		gig_panel.close_screen()
+	elif preface == null and not game_over and flight != null and flight.is_enabled():
+		if galaxy_view != null and galaxy_view.visible:
+			galaxy_view.close_view()
+		if skill_screen.visible:
+			skill_screen.close_screen()
+		gig_panel.open_screen()
 
 func toggle_bazaar_panel() -> void:
 	if bazaar_panel.visible:
@@ -3084,6 +3100,8 @@ func _unhandled_input(event: InputEvent) -> void:
 			skill_screen.close_screen()
 		elif bazaar_panel.visible:
 			bazaar_panel.close_screen()
+		elif gig_panel.visible:
+			gig_panel.close_screen()
 		elif space_storage_view.visible:
 			space_storage_view.close_view()
 		elif cluster_info != null and cluster_info.visible:
@@ -3100,6 +3118,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		toggle_skills()
 	elif event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_M:
 		toggle_share_panel()
+	elif event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_J:
+		toggle_gig_board()
 	elif event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_L:
 		toggle_competitors()
 	elif event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_SPACE and not game_menu.visible and not competitors_panel.visible:
@@ -3327,6 +3347,9 @@ func _build_rail() -> void:
 	bazaar_button = _rail_button("mark", "BAZ_PANEL_TITLE", "The Star Bazaar", toggle_bazaar_panel)  # T263: where the share panel button was
 	bazaar_button.tooltip_text += " (M)"
 	col.add_child(bazaar_button)
+	gig_button = _rail_button("planet", "GIG_BOARD_TITLE", "Gig board", toggle_gig_board)  # T273
+	gig_button.tooltip_text += " (J)"
+	col.add_child(gig_button)
 
 func game_menu_toggle() -> void:
 	if game_menu == null:
@@ -3353,6 +3376,8 @@ func _refresh() -> void:
 	share_chip.tooltip_text = StoryText.get_or("LBL_SHARE_TITLE", "Market share") + " (M)"
 	if bazaar_panel != null:
 		bazaar_panel.refresh()
+	if gig_button != null:
+		gig_button.visible = flight != null and flight.is_enabled()
 	if next_up != null:
 		next_up.refresh()
 	goal_label.tooltip_text = ""
