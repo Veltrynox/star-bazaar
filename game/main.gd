@@ -47,7 +47,6 @@ var cycle: int = 1          # current cycle, 1-based
 var storage_notice_done: bool = false  # the Space Storage availability notice was made this run (saved)
 var trade_income_total: int = 0  # cumulative gross trade income this run (gates Space Storage), saved
 var cycle_elapsed: float = 0.0  # seconds into current cycle
-var debug_force_market: String = ""  # debug-only, runtime only, never saved: market id whose share is forced up at cycle end
 var debug_force_event: bool = false  # T13: debug-only, fire a random event at the next cycle start, then clears
 var run_recorded: bool = false  # T78: a run is recorded once
 var free_play: bool = false  # T259: after any ending the player chose Continue: no further endings, saved
@@ -122,15 +121,11 @@ var planet_panel: PanelContainer
 var cluster_info: PanelContainer  # T159: info card of the asteroid cluster clicked on the map
 var cluster_info_index: int = -1
 var goal_label: Label
-var share_chip: Button  # best market and share; opens the share panel (M)
-var share_panel: PanelContainer
-var competitors_panel: PanelContainer  # share graphs per market (L); T263: built but hidden, no way to open it
 var bazaar_panel: PanelContainer  # T263 the Bazaar panel (M, rail button)
 var next_up: HBoxContainer  # T263 the Next Up strip in the top bar
 var bazaar_button: Button
 var gig_panel: PanelContainer  # T273 the gig board (J, rail button)
 var gig_button: Button
-const COMPETITORS_SHOWN := false  # T263: Competitors button and key hidden, code kept
 var cycle_label: Label
 var pause_button: Button
 var progress: ProgressBar
@@ -318,13 +313,6 @@ func _ready() -> void:
 	skill_screen = load("res://game/skill_screen.gd").new()
 	add_child(skill_screen)
 	skill_screen.setup(self)
-	share_panel = load("res://game/share_panel.gd").new()
-	add_child(share_panel)
-	share_panel.setup(self)
-	competitors_panel = load("res://game/competitors_panel.gd").new()
-	add_child(competitors_panel)
-	competitors_panel.setup(self)
-	share_panel.competitors_requested.connect(open_competitors)
 	bazaar_panel = load("res://game/bazaar_panel.gd").new()  # T263
 	add_child(bazaar_panel)
 	bazaar_panel.setup(self)
@@ -344,7 +332,6 @@ func _ready() -> void:
 	galaxy_view.setup(self)
 	galaxy_view.system_chosen.connect(_on_galaxy_system)
 	game_menu.skills_requested.connect(open_skills)
-	game_menu.competitors_requested.connect(open_competitors)
 	game_menu.main_menu_requested.connect(_to_menu)
 	game_menu.quit_requested.connect(func(): save_now(); get_tree().quit())
 	var saved := SaveGame.load_state() if SaveGame.continue_requested else {}
@@ -379,7 +366,7 @@ func _ready() -> void:
 		debug_menu.setup(self)
 		debug_menu.add_next_cycle_button()
 		debug_menu.add_routes_dump()
-		debug_menu.add_force_share()
+		debug_menu.add_stats_path()
 		debug_menu.add_event_trigger()
 		debug_menu.add_qa_tools()  # T13
 	_push_routes_to_map()
@@ -970,10 +957,6 @@ func _on_skill_arrow() -> void:
 	else:
 		go_to_system(int(t["system"]))
 
-## T263: M and the rail button open the Bazaar panel; the share panel (old M) is hidden, not deleted.
-func toggle_share_panel() -> void:
-	toggle_bazaar_panel()
-
 ## T273: J and the rail button open the gig board (only while the Flagship exists).
 func toggle_gig_board() -> void:
 	if gig_panel.visible:
@@ -1002,25 +985,6 @@ func focus_next_up(planet: int) -> void:
 	if galaxy_view != null and galaxy_view.visible:
 		galaxy_view.close_view()
 	_focus_event_planet(planet)
-
-func open_competitors() -> void:
-	if not COMPETITORS_SHOWN or preface != null or game_over or competitors_panel.visible:
-		return
-	if galaxy_view != null and galaxy_view.visible:
-		galaxy_view.close_view()
-	if skill_screen.visible:
-		skill_screen.close_screen()
-	if share_panel.visible:
-		share_panel.close_screen()
-	competitors_panel.open_screen()
-
-func toggle_competitors() -> void:
-	if not COMPETITORS_SHOWN:
-		return
-	if competitors_panel.visible:
-		competitors_panel.close_screen()
-	else:
-		open_competitors()
 
 func toggle_skills() -> void:
 	if skill_screen.visible:
@@ -2332,13 +2296,8 @@ func _end_cycle() -> void:
 	_post_tech_done()  # techs the fabric just finished
 	_count_idle_cycles()
 	# Space Storage fills only by a ship sent to it (send_stock with a station destination); planet_to_space_rate is unused.
-	if OS.is_debug_build() and debug_force_market != "":  # debug: a huge sale in that market this cycle
-		Markets.cur[debug_force_market] = float(Markets.cur.get(debug_force_market, 0.0)) + 1000000.0
-	Markets.end_cycle(cycle)  # bots and window share
+	Markets.end_cycle(cycle)  # sales record per market, house hits age
 	_pay_prosperity()  # T258: tax per world, skill points for a tier reached first
-	for a in (Skills.award_share_points() if int(balance.get("share_points_enabled", 0)) != 0 else []):  # first time a market share reaches 20% / 35%: points, once per market
-		_add_points(int(a["points"]))
-		_point_notice(StoryText.get_or("NOT_SKILL_REASON_SHARE", "Your {market} share passed {pct}%.", {"market": Markets.names.get(a["market"], a["market"]), "pct": int(a["step"])}))
 	var outcome := bazaar.end_cycle()  # T259: a Bazaar stage completes; the last one wins. No share win, no swept loss, no market overhead.
 	if outcome.is_empty():
 		outcome = _bankrupt_step()
@@ -2490,7 +2449,7 @@ func _finish_outcome(outcome: Dictionary) -> void:
 func _finish(side: String, ending_id: String, stat: String, win_market: String = "") -> void:
 	game_over = true
 	SaveGame.clear()
-	var stats := {"cycle": cycle, "cash": cash, "market": win_market if win_market != "" else str(Markets.best()["market"])}
+	var stats := {"cycle": cycle, "cash": cash, "market": win_market}
 	if side == "WIN":  # core 6: capstone, techs done, second market ... for the flavour lines of the win ending
 		stats["flavour"] = EndingPicker.inputs(str(stats["market"]), balance, bazaar.stage())
 	if bazaar_panel != null:
@@ -2920,8 +2879,6 @@ func _apply_chain_choice(choice: int, id: String) -> void:
 	cash += int(res["cash"])
 	for t in res["tech"]:
 		craft_units(str(t[0]), int(t[1]))
-	if competitors_panel != null:
-		competitors_panel.refresh()
 	events.pending_id = ""
 	_dismiss_event_notice()
 	event_notice = load("res://game/event_notice.gd").new()
@@ -3139,12 +3096,10 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_K:
 		toggle_skills()
 	elif event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_M:
-		toggle_share_panel()
+		toggle_bazaar_panel()
 	elif event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_J:
 		toggle_gig_board()
-	elif event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_L:
-		toggle_competitors()
-	elif event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_SPACE and not game_menu.visible and not competitors_panel.visible:
+	elif event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_SPACE and not game_menu.visible:
 		toggle_pause()
 
 func _build_ui() -> void:
@@ -3192,11 +3147,6 @@ func _build_ui() -> void:
 	next_up = load("res://game/next_up.gd").new()
 	box.add_child(next_up)
 	next_up.setup(self)
-	share_chip = Button.new()  # T263: hidden, kept so old code paths still find it
-	share_chip.visible = false
-	share_chip.theme_type_variation = "ButtonGhost"
-	share_chip.focus_mode = Control.FOCUS_NONE
-	box.add_child(share_chip)
 	# expansion points as an inline stat (expenses live in the cash popup)
 	var pt := _stat_inline("skills", "LBL_SKILL_POINTS", "Skill points")
 	points_label = pt[1]
@@ -3394,8 +3344,6 @@ func _refresh() -> void:
 	if goal_label == null:
 		return
 	goal_label.text = StoryText.get_or("LBL_GOAL_MARKETS", "Goal: more than {pct}% of one market", {"pct": roundi(float(balance.get("win_share_pct", 0.5)) * 100.0)})
-	share_chip.text = share_panel.chip_text(Markets.best(), Markets.names) if share_panel != null else "-"
-	share_chip.tooltip_text = StoryText.get_or("LBL_SHARE_TITLE", "Market share") + " (M)"
 	if bazaar_panel != null:
 		bazaar_panel.refresh()
 	if gig_button != null:

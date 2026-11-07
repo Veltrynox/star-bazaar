@@ -1,6 +1,6 @@
 class_name RivalCard
 extends Control
-## T199: small card beside a rival scenery ship the player clicked: the competitor's name and the market where it is strongest.
+## T199: small card beside a rival scenery ship the player clicked: the house name and its weather temperament.
 ## The map emits rival_clicked(bot); 0 (a click elsewhere) or a ship that is no longer drawn closes the card. Same look as DestHint.
 
 const StoryText := preload("res://game/story_text.gd")
@@ -28,19 +28,13 @@ func setup(m: Node) -> void:
 	visible = false
 	m.map.rival_clicked.connect(show_bot)
 
-## Card text: the competitor's name, then the market where its share is highest.
+## House weather temperament: Harrow floods, Velvet makes shortages, Ostrel makes congestion. Text ids with fallbacks until the story task lands.
+const TEMPERAMENT := {1: ["HINT_HOUSE_FLOOD", "Brings floods: prices fall"], 2: ["HINT_HOUSE_SHORTAGE", "Brings shortages: needs run hungry"], 3: ["HINT_HOUSE_CONGESTION", "Brings congestion: lanes cost more"]}
+
+## Card text: the house name, then its weather temperament.
 static func describe(b: int) -> String:
-	var best := ""
-	var top := 0.0
-	for mk in Markets.ids:
-		var sh := Markets.bot_share(b, str(mk))
-		if sh > top:
-			top = sh
-			best = str(mk)
-	var line2 := StoryText.get_or("HINT_RIVAL_NO_MARKET", "No market lead yet")
-	if best != "":
-		line2 = StoryText.get_or("HINT_RIVAL_MARKET", "Strongest in {market}", {"market": str(Markets.names.get(best, best))})
-	return Bots.bot_name(b) + "\n" + line2
+	var t: Array = TEMPERAMENT.get(b, ["HINT_HOUSE_NONE", "Weather unknown"])
+	return Bots.bot_name(b) + "\n" + StoryText.get_or(str(t[0]), str(t[1]))
 
 func show_bot(b: int) -> void:
 	bot = b

@@ -34,8 +34,7 @@ func _run() -> void:
 	_test_data_pack_lint()
 	_test_conditions_unit()
 	await _test_localisation()
-	_test_share_helpers()
-	_test_share_graph()
+	_test_chain_gate()
 	_test_picker()
 	_test_stats_file()
 	_test_markets()
@@ -336,42 +335,11 @@ func _test_localisation() -> void:
 	elif FileAccess.file_exists(cfg_path):
 		DirAccess.remove_absolute(cfg_path)
 
-func _test_share_helpers() -> void:
-	var SP := load("res://game/share_panel.gd")
-	var names := {"mil": "Military"}
-	check(SP.chip_text({"market": "", "share": 0.0}, names) == "-", "share chip: dash with no volume")
-	check(SP.chip_text({"market": "mil", "share": 0.344}, names) == "Military 34%", "share chip: market and percent")
-	check(SP.pct_text(0.5) == "50%", "share pct text")
+func _test_chain_gate() -> void:
 	check(not StoryText.has_text("LBL_GOAL") and StoryText.has_text("LBL_GOAL_MARKETS"), "story: old goal row gone, markets goal present")
-
-func _test_share_graph() -> void:
-	var G := load("res://game/share_graph.gd")
-	var s = G.series([10.0, 10.0, 10.0], [[10.0, 30.0, 0.0]], 2)
-	check(absf(s["player"][0] - 0.5) < 1e-6, "share graph: first cycle uses a partial window")
-	check(absf(s["player"][1] - 20.0 / 60.0) < 1e-6, "share graph: window of 2 sums cycles 1-2")
-	check(absf(s["player"][2] - 20.0 / 50.0) < 1e-6, "share graph: window drops cycle 1 at cycle 3")
-	check(absf(s["bots"][0][2] - 30.0 / 50.0) < 1e-6, "share graph: bot share over the same window")
-	var z = G.series([0.0, 0.0], [[0.0, 0.0], [0.0, 0.0]], 8)
-	check(z["player"] == [0.0, 0.0] and z["bots"][1] == [0.0, 0.0], "share graph: zero volume gives zero share")
-	check(G.series([], [[]], 8)["player"].is_empty(), "share graph: empty history")
-	var short = G.series([5.0], [[5.0]], 8)
-	check(absf(short["player"][0] - 0.5) < 1e-6, "share graph: window longer than history")
-	check(absf(G.change([0.1, 0.2, 0.3, 0.4, 0.5, 0.6], 5) - 0.5) < 1e-6, "share graph: change over 5 cycles")
-	check(absf(G.change([0.4, 0.5], 5) - 0.5) < 1e-6, "share graph: change over a short series counts from zero")
-	check(G.change([], 5) == 0.0, "share graph: change of nothing")
-	var CP := load("res://game/competitors_panel.gd")
-	check(CP.trend_text(0.056).ends_with("6") and CP.trend_text(-0.03).ends_with("3") and CP.trend_text(0.001) == "-", "competitors: trend text")
-	check(StoryText.has_text("LBL_COMP_TITLE") and StoryText.has_text("LBL_COMP_SHARE") and StoryText.has_text("LBL_COMP_TREND"), "story: competitors ids present")
-	var cp = CP.new()
 	var bal_c = _read_json("res://data/balance.json")["values"]
 	Markets.reset(bal_c, 3)
 	Chains.reset(bal_c, 3)
-	check(cp.log_lines("mil").is_empty(), "competitors log: empty before any chain choice")
-	Chains.apply_option("MIL_A1", "opt_a", 6)
-	var ll: Array = cp.log_lines("mil")
-	check(ll.size() > 0 and str(ll[0]).begins_with("Cycle 6:"), "competitors log: entry after Chains.apply_option", str(ll))
-	check(StoryText.has_text("LBL_COMP_NONE") and StoryText.has_text("LBL_COMP_EVENTS") and StoryText.has_text("LBL_COMP_CYCLE"), "story: competitors log ids present")
-	cp.free()
 	# chain_min_cycle: no step is eligible before it, even with a share trigger already true
 	Chains.reset(bal_c, 3)
 	var mc := int(bal_c.get("chain_min_cycle", 6))
@@ -1271,17 +1239,13 @@ func _test_main() -> void:
 
 	# --- T259: a market share no longer wins; the Star Bazaar does ---
 	_wipe_user()
-	check(m.debug_force_market == "", "force-share: off by default")
-	check(not m.collect_state().has("debug_force_market"), "force-share: not saved")
-	m.debug_force_market = "mil"
 	Chains.picks["MIL_B4"] = {"opt": "opt_a", "cycle": 1, "nudge": 0}
 	m.cycle = int(bal["win_earliest_cycle"]) - 2
 	var ended := []
 	m.run_ended.connect(func(side, id): ended.append([side, id]))
 	for i in 12:
 		m._end_cycle()
-	check(not m.game_over and ended.is_empty(), "win: a held market share does not win any more (no share win, no swept loss)")
-	m.debug_force_market = ""
+	check(not m.game_over and ended.is_empty(), "win: no share win, no swept loss")
 	var bz: Bazaar = m.bazaar
 	check(not bz.is_founded() and bz.capital() == -1 and bz.stage() == 0 and not bz.can_found(0), "bazaar: nothing founded at the start, home world is below the capital tier")
 	m.balance["bazaar_capital_tier"] = 1
@@ -1322,13 +1286,7 @@ func _test_main() -> void:
 	check(not m.game_over, "free play: no further endings, not even at the term")
 	await _free_main(m)
 	m = await _new_main()
-	check(m.debug_force_market == "", "force-share: resets in a new run")
 	m._dismiss_preface()
-	var has_opt := false
-	for n in _find_option_buttons(m.debug_menu, []):
-		if n.get_item_text(0).contains("Force market share"):
-			has_opt = true
-	check(has_opt, "force-share: debug menu has the selector (replaces Force goal)")
 	await _free_main(m)
 
 	# --- swept: gone (T259), the share sweep never ends a run ---
@@ -1444,15 +1402,16 @@ func _test_main() -> void:
 	var sv: Dictionary = m.collect_state()
 	check(sv.has("markets") and sv.has("rescues_paid") and sv.has("repossessions") and not sv.has("choice_pending"), "save: market volumes, bot state and counters are saved")
 	check(preload("res://game/save_game.gd").VERSION >= 2, "save: version flag is 2 or more")
-	var vol_before: Array = Markets.history("lux").duplicate()
-	var bot_before: Array = Markets.bot_history(2, "lux").duplicate()
+	var vol_before: Array = Markets.vp_active["lux"].duplicate()
 	Markets.reset(bal, 0)
 	m.apply_state(JSON.parse_string(JSON.stringify(sv)))
-	var bot_after: Array = Markets.bot_history(2, "lux")
-	var same := Markets.history("lux") == vol_before and bot_after.size() == bot_before.size() and Markets.run_seed == int(sv["markets"]["seed"])
-	for i in bot_after.size():
-		same = same and absf(float(bot_after[i]) - float(bot_before[i])) < 0.001
-	check(same, "save: market state round trip keeps volumes, bots and seed")
+	var same: bool = Markets.vp_active["lux"] == vol_before and Markets.run_seed == int(sv["markets"]["seed"])
+	check(same, "save: market state round trip keeps the sales record and seed")
+	var old_sv: Dictionary = JSON.parse_string(JSON.stringify(sv))
+	old_sv["markets"].merge({"vp": {"lux": [1.0]}, "vb": {"lux": [[1.0, 1.0, 1.0]]}, "gap": {"1|lux": 2.0}, "win_streak": {"lux": 3}, "sweep_streak": 2, "cur": {"lux": 5.0}})
+	old_sv["skills"] = {"share_paid": {"mil": [20]}}
+	m.apply_state(old_sv)
+	check(Markets.vp_active["lux"] == vol_before and not Markets.to_dict().has("vp") and not Skills.to_dict().has("share_paid"), "save: an old save with share fields loads and drops them")
 	check(m.rescues_paid == 1, "save: rescue counter round trip")
 	var SG := preload("res://game/save_game.gd")
 	var f := FileAccess.open(SG.PATH, FileAccess.WRITE)
@@ -1474,11 +1433,11 @@ func _test_main() -> void:
 	m._end_cycle()
 	var left: int = m.storage.amount(key0, "food")
 	var sold := 10 - left
-	check(sold > 0 and is_equal_approx(float(Markets.history("bio")[0]), float(sold * Markets.value_of("food"))), "volume: units sold x base_value counted in the market of the good", "%d %s" % [sold, str(Markets.history("bio"))])
+	check(sold > 0 and is_equal_approx(float(Markets.vp_active["bio"][0]), float(sold * Markets.value_of("food"))), "volume: units sold x base_value counted in the market of the good", "%d %s" % [sold, str(Markets.vp_active["bio"])])
 	m.set_local_order(0, "food", "sell", false)
 	m.set_local_order(0, "energy", "buy", true)
 	m._end_cycle()
-	check(is_equal_approx(float(Markets.history("mil")[1]), 0.0), "volume: a Buy order is not a sale")
+	check(is_equal_approx(float(Markets.vp_active["mil"][1]), 0.0), "volume: a Buy order is not a sale")
 	await _free_main(m)
 
 	# --- expansion points ---
@@ -1809,7 +1768,6 @@ func _test_skill_screen() -> void:
 	# save round trip: learned set, points, tech progress, bot skill use
 	Tech.counts["MIN_2"] = 4
 	Skills.bot_used["MIL_5"] = 3
-	Skills.share_paid["bio"] = [20]
 	var st: Dictionary = m.collect_state()
 	var learned_copy: Array = m.learned_skills.duplicate()
 	var pts: int = m.skill_points
@@ -1817,10 +1775,9 @@ func _test_skill_screen() -> void:
 	m.skill_points = 0
 	Tech.reset()
 	Skills.bot_used = {}
-	Skills.share_paid = {}
 	m.apply_state(JSON.parse_string(JSON.stringify(st)))
 	check(m.learned_skills == learned_copy and m.skill_points == pts, "skills: save round trip keeps skills and points", str(m.learned_skills))
-	check(int(Tech.counts.get("MIN_2", 0)) == 4 and int(Skills.bot_used.get("MIL_5", 0)) == 3 and Skills.share_paid.get("bio", []) == [20], "skills: save round trip keeps tech progress, bot skill use and share points paid")
+	check(int(Tech.counts.get("MIN_2", 0)) == 4 and int(Skills.bot_used.get("MIL_5", 0)) == 3, "skills: save round trip keeps tech progress and bot skill use")
 	m.apply_state({"cycle": 1})
 	check(m.learned_skills.is_empty() and Tech.counts.is_empty(), "skills: an old save without skills starts with none")
 	await _free_main(m)
@@ -1885,10 +1842,10 @@ func _test_skills_core() -> void:
 	check(Skills.workshop_batches("mil") == int(bal["skill_MIL_2_batches"]) and Skills.workshop_batches("lux") == 0, "effects: workshop_batches (MIL_2) only for its market")
 	Skills.add_learned("MIL_4")
 	Markets.add_sale("powder", 10)
-	check(is_equal_approx(float(Markets.cur["mil"]), 10.0 * base) and is_equal_approx(Skills.sale_price_mult("mil"), 1.0), "effects: no percent price or volume skill on MIL_2 / MIL_4 (no filler)")
+	check(is_equal_approx(float(Markets.cur_active["mil"]), 10.0 * base) and is_equal_approx(Skills.sale_price_mult("mil"), 1.0), "effects: no percent price or volume skill on MIL_2 / MIL_4 (no filler)")
 	Skills.add_learned("LUX_5")
 	Markets.add_sale("silk", 10, 4)
-	check(is_equal_approx(float(Markets.cur["lux"]), 10.0 * float(Markets.value_of("silk"))) and is_equal_approx(Skills.need_fill_bonus("lux"), float(bal["skill_LUX_5_need_fill"])), "effects: LUX_5 raises need fill of Luxury (T261), not share volume")
+	check(is_equal_approx(float(Markets.cur_active["lux"]), 10.0 * float(Markets.value_of("silk"))) and is_equal_approx(Skills.need_fill_bonus("lux"), float(bal["skill_LUX_5_need_fill"])), "effects: LUX_5 raises need fill of Luxury (T261), not share volume")
 	Skills.add_learned("LUX_1")
 	Skills.add_learned("LUX_6")
 	check(is_equal_approx(Skills.sale_price_mult("lux"), 1.0 + float(bal["skill_LUX_6_price"])) and Skills.reveal_cycles() == 1 and Skills.batch_yield("lux") == int(bal["skill_LUX_6_batch_bonus"]), "effects: LUX_1 reveals prices, LUX_6 raises luxury batch yield and sale price (round 2)")
@@ -1904,7 +1861,7 @@ func _test_skills_core() -> void:
 	Skills.add_learned("BIO_3")
 	Skills.add_learned("BIO_5")
 	check(is_equal_approx(Skills.order_size_mult(), 1.0) and is_equal_approx(Skills.storage_cap_mult(), 1.0 + float(bal["skill_BIO_3_capacity"])), "effects: BIO_1 has no order size percent; storage_cap_pct (BIO_3)")
-	check(is_equal_approx(Skills.progress_grace("bio"), float(bal["skill_BIO_5_grace"])) and is_equal_approx(Skills.progress_grace("mil"), 0.0) and Markets.window_for("bio") == int(bal["share_window"]), "effects: progress_grace (BIO_5) only for Biotech, share window unchanged (T261)")
+	check(is_equal_approx(Skills.progress_grace("bio"), float(bal["skill_BIO_5_grace"])) and is_equal_approx(Skills.progress_grace("mil"), 0.0), "effects: progress_grace (BIO_5) only for Biotech (T261)")
 	Skills.add_learned("MIN_3")
 	Skills.add_learned("MIN_4")
 	Skills.add_learned("MIN_6")
@@ -1912,10 +1869,6 @@ func _test_skills_core() -> void:
 	check(Skills.workshop_batches("min") == int(bal["skill_MIN_4_batches"]) and Skills.workshop_batches("mil") == int(bal["skill_MIL_2_batches"]) and Skills.batch_yield("min") == int(bal["skill_MIN_6_batch_bonus"]), "effects: workshop_batches and batch_yield (flags until the workshops exist)")
 	# permanent bot effects through end_cycle
 	Skills.reset(bal)
-	Markets.reset(bal, 5)
-	Markets.end_cycle(10)
-	var plain_row: Array = Markets.vb["min"][0].duplicate()
-	var plain_mil: Array = Markets.vb["mil"][0].duplicate()
 	Skills.add_learned("MIN_7")
 	Skills.add_learned("MIL_7")
 	check(is_equal_approx(Skills.weather_soften_perm(), float(bal["skill_MIN_7_strength_cut"])) and Skills.weather_warning_extra() == int(bal["skill_MIL_7_warning"]), "effects: capstone weather numbers (MIN_7 soften, MIL_7 warning), T282")
@@ -1962,45 +1915,17 @@ func _test_skills_core() -> void:
 	# cooldown skill (LUX_7, round 3: every skill_LUX_7_every cycles)
 	Skills.add_learned("LUX_7")
 	check(Skills.activate_bot_skill("LUX_7", 1)["ok"] and Skills.bot_skill_cooldown("LUX_7") == int(bal["skill_LUX_7_every"]) and Skills.activate_bot_skill("LUX_7", 2)["reason"] == "cooldown", "bot skill: Guild Seal has a cooldown (skill_LUX_7_every)")
-	# --- share points: once per market and step ---
-	Skills.reset(bal)
-	Markets.reset(bal, 2)
-	Markets.vp["mil"] = [25.0]
-	Markets.vb["mil"] = [[25.0, 25.0, 25.0]]
-	var aw := Skills.award_share_points()
-	check(aw.size() == 1 and aw[0]["market"] == "mil" and int(aw[0]["step"]) == 20 and int(aw[0]["points"]) == int(bal["skill_points_share_20"]), "share points: 25% pays the 20% step", str(aw))
-	check(Skills.award_share_points().is_empty(), "share points: paid once")
-	Markets.vp["mil"] = [60.0]
-	aw = Skills.award_share_points()
-	check(aw.size() == 1 and int(aw[0]["step"]) == 35 and int(aw[0]["points"]) == int(bal["skill_points_share_35"]), "share points: 35% pays its own step", str(aw))
-	Markets.vp["mil"] = [0.0]
-	Skills.award_share_points()
-	Markets.vp["mil"] = [60.0]
-	check(Skills.award_share_points().is_empty(), "share points: reaching a step again pays nothing")
-	Markets.vp["lux"] = [100.0]
-	Markets.vb["lux"] = [[10.0, 10.0, 10.0]]
-	aw = Skills.award_share_points()
-	check(aw.size() == 2 and aw[0]["market"] == "lux" and aw[1]["market"] == "lux", "share points: another market pays on its own", str(aw))
-	var sd2: Dictionary = JSON.parse_string(JSON.stringify(Skills.to_dict()))
-	Skills.from_dict(sd2)
-	check(Skills.award_share_points().is_empty(), "share points: paid steps survive a save")
 	# --- ending inputs (core 6) ---
 	Skills.reset(bal)
 	Markets.reset(bal, 2)
-	Markets.vp["mil"] = [60.0]
-	Markets.vb["mil"] = [[10.0, 10.0, 10.0]]
-	Markets.vp["lux"] = [30.0]
-	Markets.vb["lux"] = [[10.0, 10.0, 10.0]]
 	var e0 := EndingPicker.inputs("mil", bal)
-	check(e0["ending_id"] == "END_MIL_GOOD" and not e0["capstone"] and int(e0["tech_done"]) == 0 and not e0["rival_broken"] and e0["second_market"] == "lux" and e0["second_over"], "ending inputs: no capstone, no tech, second market over the line", str(e0))
+	check(e0["ending_id"] == "END_MIL_GOOD" and not e0["capstone"] and int(e0["tech_done"]) == 0 and not e0["rival_broken"] and not e0.has("second_market"), "ending inputs: no capstone, no tech, no second-market share", str(e0))
 	Skills.add_learned("MIL_2")
 	Skills.add_learned("MIL_4")
 	Skills.add_learned("MIL_7")
 	Skills.add_learned("LUX_2")
 	var e1 := EndingPicker.inputs("MIL", bal)
 	check(e1["capstone"] and int(e1["tech_done"]) == 2 and e1["market"] == "mil", "ending inputs: capstone MIL_7 and techs done in the win market only", str(e1))
-	Markets.vp["lux"] = [3.0]
-	check(not EndingPicker.inputs("mil", bal)["second_over"], "ending inputs: second market under the line")
 	Skills.add_learned("MIL_6")
 	check(int(EndingPicker.inputs("mil", bal)["tech_done"]) == 3, "ending inputs: three techs is the most")
 	# --- save migration v2 -> v3 ---
@@ -2055,26 +1980,13 @@ func _collect_sell(o, key: String, out: Array) -> void:
 		for v in o:
 			_collect_sell(v, key, out)
 
-## Runs cycles from..to with `cur` filled by fill(cycle) -> Dictionary market -> volume.
-func _run_cycles(from: int, to: int, fill: Callable) -> Dictionary:
-	var v := {}
-	for c in range(from, to + 1):
-		var f: Dictionary = fill.call(c)
-		for m in f:
-			Markets.cur[m] = float(f[m])
-		Markets.end_cycle(c)
-		v = Markets.verdict(c)
-		if not v.is_empty():
-			return {"cycle": c, "v": v}
-	return {"cycle": to, "v": {}}
-
-func _bot_run(bal: Dictionary, seed_v: int, from: int, to: int, hits: bool) -> void:
+func _bot_run(_bal_unused: Dictionary, _seed_v: int, from: int, to: int, hits: bool) -> void:
 	for c in range(from, to + 1):
 		if hits and c == 4:
 			Markets.hit_bot(1, "mil", "strength", -0.2)
 			Markets.hit_bot(2, "lux", "growth", 0.1)
 			Markets.hit_bot(3, "bio", "tier", -1)
-		Markets.cur["mil"] = 100.0 * c
+		Markets.cur_active["mil"] = 100.0 * c
 		Markets.end_cycle(c)
 
 func _test_bot_hooks() -> void:
@@ -2086,23 +1998,13 @@ func _test_bot_hooks() -> void:
 	var d0 := Markets.bot_mods(1, "mil")
 	check(is_equal_approx(float(d0["strength_mult"]), 1.0) and int(d0["tier_offset"]) == 0 and float(d0["growth_add"]) == 0.0, "bot hooks: neutral mods by default")
 	check(is_equal_approx(Markets.size_pct("S"), 0.05) and is_equal_approx(Markets.size_pct("M"), 0.1) and is_equal_approx(Markets.size_pct("L"), 0.2) and Markets.size_pct("X") == 0.0, "bot hooks: size_pct S/M/L from balance")
-	# strength hit changes the next volume only, history stays
-	_bot_run(bal, 7, 1, 3, false)
-	var hist_before := Markets.bot_history(1, "mil").duplicate()
-	Markets.hit_bot(1, "mil", "strength", -0.2)
-	check(Markets.bot_history(1, "mil") == hist_before, "bot hooks: history not rewritten by a hit")
-	Markets.cur["mil"] = 0.0
-	Markets.end_cycle(4)
-	var hit4: float = Markets.bot_history(1, "mil")[3]
-	var exp4 := Bots.volume(bal, 7, 1, "mil", 4, float(Markets.gap.get("1|mil", 0.0)), 0, 0.8)
-	check(absf(hit4 - exp4) < 0.001 and hit4 < Bots.volume(bal, 7, 1, "mil", 4, float(Markets.gap.get("1|mil", 0.0))), "bot hooks: strength hit applies from the next cycle", "%f %f" % [hit4, exp4])
 	# stacking multiplicative
+	Markets.hit_bot(1, "mil", "strength", -0.2)
 	Markets.hit_bot(1, "mil", "strength", -0.1)
 	check(absf(float(Markets.bot_mods(1, "mil")["strength_mult"]) - 0.72) < 0.0001, "bot hooks: strength hits stack multiplicatively")
 	Markets.hit_bot(2, "lux", "growth", 0.1)
 	Markets.hit_bot(2, "lux", "growth", 0.1)
 	check(absf(float(Markets.bot_mods(2, "lux")["growth_mult"]) - 1.21) < 0.0001 and is_equal_approx(float(Markets.bot_mods(2, "mil")["growth_mult"]), 1.0), "bot hooks: growth hits stack, other markets untouched")
-	check(absf(Bots.volume(bal, 7, 2, "lux", 9, 0.0, 0, 1.0, 1.0, 5.0) - Bots.volume(bal, 7, 2, "lux", 9, 0.0, 0, 1.0, 1.0, 0.0)) > 0.0, "bot hooks: growth_add raises volume")
 	# tier: -1 lowers effective tier, clamps at 1
 	Markets.reset(bal, 7)
 	var t_late := 40
@@ -2119,20 +2021,20 @@ func _test_bot_hooks() -> void:
 	var full := JSON.stringify(Markets.to_dict())
 	Markets.reset(bal, 99)
 	_bot_run(bal, 99, 1, 10, true)
-	check(JSON.stringify(Markets.to_dict()) == full, "bot hooks: same seed and hits give identical numbers")
+	check(JSON.stringify(Markets.to_dict()) == full, "bot hooks: same hits give identical state")
 	Markets.reset(bal, 99)
 	_bot_run(bal, 99, 1, 6, true)
 	var mid = JSON.parse_string(JSON.stringify(Markets.to_dict()))
 	Markets.reset(bal, 0)
 	Markets.from_dict(mid, bal)
-	check(Markets.bot_history(1, "mil").size() == 6 and absf(float(Markets.bot_mods(1, "mil")["strength_mult"]) - 0.8) < 0.0001 and int(Markets.bot_mods(3, "bio")["tier_offset"]) == -1, "bot hooks: mods and history survive save and load")
+	check(Markets.cycles == 6 and absf(float(Markets.bot_mods(1, "mil")["strength_mult"]) - 0.8) < 0.0001 and int(Markets.bot_mods(3, "bio")["tier_offset"]) == -1, "bot hooks: mods and cycle count survive save and load")
 	_bot_run(bal, 99, 7, 10, false)
-	check(JSON.stringify(Markets.to_dict()) == full, "bot hooks: a loaded run continues with identical numbers")
+	check(JSON.stringify(Markets.to_dict()) == full, "bot hooks: a loaded run continues with identical state")
 	# a v2 save without mods still loads
 	var old = JSON.parse_string(JSON.stringify(mid))
 	old.erase("mods")
 	Markets.from_dict(old, bal)
-	check(Markets.bot_history(1, "mil").size() == 6 and is_equal_approx(float(Markets.bot_mods(1, "mil")["strength_mult"]), 1.0), "bot hooks: save without mods loads with defaults")
+	check(Markets.cycles == 6 and is_equal_approx(float(Markets.bot_mods(1, "mil")["strength_mult"]), 1.0), "bot hooks: save without mods loads with defaults")
 	Markets.reset(bal, 5)
 	# bots are numbers only: no nodes
 	var src := FileAccess.get_file_as_string("res://game/bots.gd") + FileAccess.get_file_as_string("res://game/markets.gd")
@@ -2167,112 +2069,21 @@ func _test_markets() -> void:
 			base_ok = false
 	check(base_ok, "markets: base_value is the rounded mean of <good>_sell over the planets")
 	check(Markets.is_common("energy") and not Markets.is_common("food") and not Markets.is_common("ore") and not Markets.is_common("silk"), "markets: energy is the only common raw")
-	# volume tracking
+	# sales record
 	Markets.reset(bal, 7)
 	Markets.add_sale("silk", 10)
 	Markets.add_sale("food", 5)
-	Markets.add_sale("energy", 5)  # energy belongs to no market: adds no share
+	Markets.add_sale("energy", 5)  # energy belongs to no market: counts nowhere
 	Markets.add_sale("food", 0)
 	Markets.add_sale("unknown_good", 5)
-	check(is_equal_approx(float(Markets.cur["lux"]), 10.0 * Markets.value_of("silk")) and is_equal_approx(float(Markets.cur["bio"]), 5.0 * Markets.value_of("food")) and is_equal_approx(float(Markets.cur["mil"]), 0.0), "volume: units x base_value per market, energy counts nowhere")
-	check(is_equal_approx(float(Markets.cur_active["mil"]), 0.0) and float(Markets.cur_active["lux"]) > 0.0 and float(Markets.cur_active["bio"]) > 0.0, "volume: energy stays out of the active volume")
+	check(is_equal_approx(float(Markets.cur_active["lux"]), 10.0 * Markets.value_of("silk")) and is_equal_approx(float(Markets.cur_active["bio"]), 5.0 * Markets.value_of("food")) and is_equal_approx(float(Markets.cur_active["mil"]), 0.0), "volume: units x base_value per market, energy counts nowhere")
 	Markets.end_cycle(1)
-	check(is_equal_approx(float(Markets.history("lux")[0]), 350.0) and float(Markets.cur["lux"]) == 0.0, "volume: the cycle is stored and the counter cleared")
-	# share formula with the window
-	Markets.reset(bal, 7)
-	check(Markets.share("mil") == 0.0 and Markets.best()["market"] == "", "share: 0 with no volume, best is empty")
-	var w := int(bal["share_window"])
-	Markets.vp["mil"] = []
-	Markets.vb["mil"] = []
-	for i in w + 2:
-		Markets.vp["mil"].append(5000.0 if i < 2 else 100.0)  # two old cycles outside the window
-		Markets.vb["mil"].append([100.0, 100.0, 100.0] if i >= 2 else [1.0, 1.0, 1.0])
-	check(absf(Markets.share("mil") - 0.25) < 0.0001, "share: V_p / (V_p + bots) over the last share_window cycles only", str(Markets.share("mil")))
-	check(w == 8 and Markets.window_for("bio") == 8, "share: bio uses share_window without BIO_5")
-	var bs := 0.0
-	for b in Bots.IDS:
-		bs += Markets.bot_share(b, "mil")
-	check(absf(bs + Markets.share("mil") - 1.0) < 0.0001, "share: player and bot shares add to 1")
-	check(Markets.best()["market"] == "mil" and absf(float(Markets.best()["share"]) - 0.25) < 0.0001, "share: best() gives the market and share")
-	# bots: determinism, tiers, noise bound, gap rule
-	check(Bots.volume(bal, 5, 1, "mil", 9) == Bots.volume(bal, 5, 1, "mil", 9) and Bots.volume(bal, 5, 1, "mil", 9) != Bots.volume(bal, 6, 1, "mil", 9), "bots: same seed gives the same volume, another seed another")
-	check(Bots.tier(bal, 1, 12) == 1 and Bots.tier(bal, 1, 13) == 2 and Bots.tier(bal, 1, 26) == 2 and Bots.tier(bal, 1, 27) == 3 and Bots.tier(bal, 2, 11) == 2 and Bots.tier(bal, 3, 28) == 3, "bots: tier-ups at bot_<b>_tier_cycle_1 and 2")
-	var noise_ok := true
-	for c in range(1, 41):
-		var raw := (float(bal["bot_1_mil_strength"]) + float(bal["bot_1_mil_growth"]) * c) * float(bal["bot_tier_mult_%d" % Bots.tier(bal, 1, c)]) * float(bal["bot_scale"])
-		var ratio := Bots.volume(bal, 3, 1, "mil", c) / raw
-		if ratio < 1.0 - float(bal["bot_noise_pct"]) - 0.0001 or ratio > 1.0 + float(bal["bot_noise_pct"]) + 0.0001:
-			noise_ok = false
-	check(noise_ok, "bots: volume = (strength + growth x cycle) x tier x scale within +-bot_noise_pct")
-	Markets.reset(bal, 11)
-	_run_cycles(1, 30, func(c): return {})
-	var a1: Array = Markets.bot_history(1, "lux").duplicate()
-	var total1 := Markets.total_volume("mil")
-	Markets.reset(bal, 11)
-	_run_cycles(1, 30, func(c): return {})
-	check(a1 == Markets.bot_history(1, "lux") and is_equal_approx(total1, Markets.total_volume("mil")), "bots: a whole run is deterministic per seed")
-	Markets.reset(bal, 12)
-	_run_cycles(1, 30, func(c): return {})
-	check(a1 != Markets.bot_history(1, "lux"), "bots: another seed gives another run")
-	Markets.reset(bal, 11)
-	_run_cycles(1, 5, func(c): return {})
-	check(is_equal_approx(float(Markets.gap["1|mil"]), 2.0 * float(bal["bot_gap_growth"])), "bots: gap growth from cycle 4 while the player is under bot_gap_share_pct", str(Markets.gap))
-	Markets.reset(bal, 11)
-	_run_cycles(1, 5, func(c): return {"mil": 1000000.0})
-	check(not Markets.gap.has("1|mil") and Markets.gap.has("1|lux"), "bots: no gap growth where the player holds a share")
-	# win hold
-	Markets.reset(bal, 3)
-	var hold := int(bal["win_hold_cycles"])
-	var first_win := int(bal["win_earliest_cycle"]) + hold - 1
-	Chains.reset(bal, 0)
-	Chains.picks["MIN_B4"] = {"opt": "opt_a", "cycle": 1, "nudge": 0}  # the win gate is open (own tests below)
-	var r := _run_cycles(1, 40, func(c): return {"min": 1000000.0})
-	check(int(r["cycle"]) == first_win and r["v"]["kind"] == "win" and r["v"]["market"] == "min", "win: share over win_share_pct for win_hold_cycles from win_earliest_cycle (cycle %d)" % first_win, str(r))
-	Markets.reset(bal, 3)
-	var save_pct = bal["win_share_pct"]
-	r = _run_cycles(1, first_win - 1, func(c): return {"min": 1000000.0})
-	bal["win_share_pct"] = 2.0  # one cycle under the line breaks the streak
-	r = _run_cycles(first_win, first_win, func(c): return {"min": 1000000.0})
-	bal["win_share_pct"] = save_pct
-	check(int(Markets.win_streak["min"]) == 0 and r["v"].is_empty(), "win: a cycle under the line resets the hold")
-	r = _run_cycles(first_win + 1, first_win + hold - 1, func(c): return {"min": 1000000.0})
-	check(r["v"].is_empty(), "win: the hold starts again after a break")
-	r = _run_cycles(first_win + hold, first_win + hold, func(c): return {"min": 1000000.0})
-	check(r["v"].get("kind", "") == "win", "win: fires after win_hold_cycles in a row again")
-	# final check at cycle 40: highest qualifying market wins
-	Markets.reset(bal, 3)
-	r = _run_cycles(1, 39, func(c): return {})
-	check(r["v"].get("kind", "") != "win", "win: no win without volume")
-	r = _run_cycles(40, 40, func(c): return {"mil": 1000000.0, "lux": 9000000.0})
-	check(r["v"].get("kind", "") == "win" and r["v"]["market"] == "lux" and Markets.timed_out(40), "win: final check at the last cycle, the highest share wins")
-	# swept
-	Markets.reset(bal, 3)
-	var se := int(bal["sweep_earliest_cycle"])
-	var sh := int(bal["sweep_hold_cycles"])
-	r = _run_cycles(1, se + sh - 2, func(c): return {})
-	check(r["v"].is_empty(), "swept: not before sweep_earliest_cycle + hold")
-	r = _run_cycles(se + sh - 1, se + sh - 1, func(c): return {})
-	check(r["v"].get("kind", "") == "swept" and int(r["v"]["bot"]) in Bots.IDS, "swept: under sweep_share_pct everywhere for sweep_hold_cycles", str(r))
-	Markets.reset(bal, 3)
-	r = _run_cycles(1, se + sh + 3, func(c): return {"lux": 3000.0} if c >= se - 3 else {})
-	check(r["v"].get("kind", "") != "swept", "swept: one market over sweep_share_pct is enough to stay in")
-	# overhead and active markets
-	Markets.reset(bal, 3)
-	var oh := int(bal["market_overhead"])
-	var cases := [[1, 0], [2, 1], [3, 4], [4, 9]]
-	for cs in cases:
-		for i in Markets.ids.size():
-			Markets.vp_active[Markets.ids[i]] = [100.0] if i < int(cs[0]) else []
-		check(Markets.n_active() == int(cs[0]) and Markets.overhead() == oh * int(cs[1]), "overhead: %d active markets pay market_overhead x %d" % [cs[0], cs[1]], str(Markets.overhead()))
-	Markets.vp_active["mil"] = [1000.0]
-	Markets.vp_active["lux"] = [10.0]  # about 1 percent of the volume: not active
-	Markets.vp_active["min"] = []
-	Markets.vp_active["bio"] = []
-	check(Markets.n_active() == 1 and Markets.overhead() == 0, "overhead: a market under market_active_pct is not active")
-	Markets.vp_active["mil"] = []
-	Markets.vp_active["lux"] = []
-	check(Markets.n_active() == 0 and Markets.overhead() == 0, "overhead: no volume means no overhead")
-	Markets.reset(bal, 3)
+	check(is_equal_approx(float(Markets.vp_active["lux"][0]), 350.0) and float(Markets.cur_active["lux"]) == 0.0 and Markets.cycles == 1, "volume: the cycle is stored and the counter cleared")
+	check(Markets.timed_out(int(bal["win_cycle_markets"])) and not Markets.timed_out(1), "markets: the term runs win_cycle_markets cycles")
+	var msrc := FileAccess.get_file_as_string("res://game/markets.gd")
+	check(not msrc.contains("func share(") and not msrc.contains("func overhead(") and not msrc.contains("func verdict(") and not FileAccess.file_exists("res://game/share_panel.gd") and not FileAccess.file_exists("res://game/competitors_panel.gd") and not FileAccess.file_exists("res://game/share_graph.gd"), "markets: share, overhead, verdict and the share panels are gone (T281)")
+	var rc_text: String = preload("res://game/rival_card.gd").describe(2)
+	check(rc_text.begins_with(Bots.bot_name(2)) and rc_text.contains("\n") and rc_text != preload("res://game/rival_card.gd").describe(1), "rival card: house name and its weather temperament")
 
 # ---- Four Markets: spreading rules in the route engine ----
 func _test_market_rules() -> void:
@@ -6192,32 +6003,12 @@ func _test_chains() -> void:
 	Chains.apply_option("MIL_B1", "opt_a", 13)
 	check(Chains.next_step(14) != "MIL_B1" and not Chains.eligible("MIL_B2", 14), "slot: the next step of that market waits for the gap")
 	Skills.reset(bal)
-	# win gate
+	# win gate (Chains.win_open stays as data; no share verdict reads it any more)
 	Markets.reset(bal, 3)
 	Chains.reset(bal, 3)
-	var hold := int(bal["win_hold_cycles"])
-	var gated := false
-	var r := {}
-	for c in range(1, 41):
-		Markets.add_sale("rounds", 100000)
-		Markets.end_cycle(c)
-		r = Markets.verdict(c)
-		if not r.is_empty() and c < int(bal["win_gate_cycle"]):
-			gated = true
-		if not r.is_empty():
-			break
-	check(not gated and int(r.get("cycle", 0)) == 0 and str(r.get("market", "")) == "mil" and Markets.cycles >= int(bal["win_gate_cycle"]), "win gate: no win before cycle win_gate_cycle without B4", str(Markets.cycles))
-	Markets.reset(bal, 3)
-	Chains.reset(bal, 3)
+	check(not Chains.win_open("mil", 5), "win gate: closed early without B4")
 	Chains.picks["MIL_B4"] = {"opt": "opt_a", "cycle": 20, "nudge": 0}
-	var early := 0
-	for c in range(1, 41):
-		Markets.add_sale("rounds", 100000)
-		Markets.end_cycle(c)
-		if not Markets.verdict(c).is_empty():
-			early = c
-			break
-	check(early > 0 and early < int(bal["win_gate_cycle"]) and Chains.win_open("mil", 5), "win gate: opens as soon as B4 fired", str(early))
+	check(Chains.win_open("mil", 5), "win gate: opens as soon as B4 fired")
 	check(not Chains.win_open("lux", 37) and Chains.win_open("lux", 38), "win gate: cycle 38 opens it for any market")
 	# effects: apply and expire
 	Markets.reset(bal, 3)
@@ -6235,14 +6026,14 @@ func _test_chains() -> void:
 	Chains.tick(10 + vc)
 	check(Chains.timed.is_empty(), "effects: tick drops expired effects")
 	check(int(Skills.house_next.get("1", {}).get("delay", 0)) == int(bal["weather_next_delay_cycles"]), "effects: a growth cut delays that house's next weather (T282)")
-	# a volume effect really changes the share volume of a sale
+	# a volume effect really changes the recorded volume of a sale
 	Markets.reset(bal, 3)
 	Chains.reset(bal, 3)
 	Chains.apply_option("MIL_A1", "opt_a", 1)
 	Chains.now = 1
 	Markets.add_sale("rivets", 10)
 	var base_v := float(10 * Markets.value_of("rivets"))
-	check(is_equal_approx(float(Markets.cur["mil"]), base_v * (1.0 + vp)), "effects: volume effect scales the sale volume", str(Markets.cur["mil"]))
+	check(is_equal_approx(float(Markets.cur_active["mil"]), base_v * (1.0 + vp)), "effects: volume effect scales the sale record", str(Markets.cur_active["mil"]))
 	# other effect types
 	Chains.reset(bal, 3)
 	var t_ok := true

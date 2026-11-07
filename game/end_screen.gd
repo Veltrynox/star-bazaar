@@ -45,34 +45,8 @@ func _label(box: Control, text: String, size: int = 0, center: bool = false) -> 
 	box.add_child(l)
 	return l
 
-func _readout(box: Control, market: String) -> void:
-	Markets.best()  # makes sure the registry is loaded
-	if market == "" or not Markets.ids.has(market):
-		if Markets.ids.is_empty():
-			return
-		market = str(Markets.ids[0])
-	var panel := PanelContainer.new()
-	box.add_child(panel)
-	var col := VBoxContainer.new()
-	col.add_theme_constant_override("separation", 6)
-	panel.add_child(col)
-	var rows := [[str(Markets.names.get(market, market)) + " (" + StoryText.get_or("LBL_SHARE_YOU", "You") + ")", Markets.share(market)]]
-	for b in Bots.IDS:
-		rows.append([Bots.bot_name(b), Markets.bot_share(b, market)])
-	for r in rows:
-		var line := HBoxContainer.new()
-		col.add_child(line)
-		var n := Label.new()
-		n.text = str(r[0])
-		n.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		line.add_child(n)
-		var v := Label.new()
-		v.theme_type_variation = "LabelNumber"
-		v.text = "%d%%" % roundi(float(r[1]) * 100.0)
-		line.add_child(v)
-
-## Epilogue lines of a win (core 6, up to 4): capstone, techs done, a rival that lost a tier, a second market over the share mark.
-## Texts by id: EPI_CAP_<MKT>, EPI_TECH_0..3, EPI_RIVAL_<MKT> ({bot}), EPI_SECOND_<MKT>. Never a count of choices or a direction.
+## Epilogue lines of a win (core 6, up to 4): capstone, techs done, a rival that lost a tier.
+## Texts by id: EPI_CAP_<MKT>, EPI_TECH_0..3, EPI_RIVAL_<MKT> ({bot}). Never a count of choices or a direction.
 static func epilogue_lines(fl: Dictionary) -> Array:
 	var out := []
 	if fl.is_empty():
@@ -85,8 +59,6 @@ static func epilogue_lines(fl: Dictionary) -> Array:
 		out.append(StoryText.get_text("EPI_TECH_%d" % int(fl.get("tech_done", 0)), {"workshop": ws}))
 	if bool(fl.get("rival_broken", false)) and StoryText.has_text("EPI_RIVAL_" + mk):
 		out.append(StoryText.get_text("EPI_RIVAL_" + mk, {"bot": Bots.bot_name(int(fl.get("rival_broken_bot", 1)))}))
-	if bool(fl.get("second_over", false)) and StoryText.has_text("EPI_SECOND_" + str(fl.get("second_market", "")).to_upper()):
-		out.append(StoryText.get_text("EPI_SECOND_" + str(fl.get("second_market", "")).to_upper()))
 	return out
 
 ## Name of the workshop of a market ("Smelter"), lower case in running text. Fills {workshop} in epilogue texts (T229).
@@ -113,7 +85,6 @@ func show_ending(ending_id: String, side: String, stats: Dictionary, stat: Strin
 		_label(box, line)
 	if stat != "":
 		_label(box, stat)
-	_readout(box, str(stats.get("market", "")))
 	for pair in [["END_STAT_CYCLES", "cycle"], ["END_STAT_CASH", "cash"]]:
 		_label(box, "%s: %s" % [StoryText.get_text(pair[0]), str(stats.get(pair[1], 0))])
 	_label(box, StoryText.get_text("END_RUN_OVER"))

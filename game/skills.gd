@@ -9,12 +9,10 @@ extends RefCounted
 ## Skills.bot_skill_ids(), Skills.bot_skill_ready(id), Skills.bot_skill_cooldown(id), Skills.activate_bot_skill(id, bot).
 
 const Ceos := preload("res://game/ceos.gd")
-const SHARE_STEPS := [20, 35]  # balance keys skill_points_share_20 / _35, a share of that many percent
 
 static var bal: Dictionary = {}
 static var learned: Array = []        # ids learned or finished, in order; never reassigned (callers keep the reference)
 static var bot_used: Dictionary = {}  # bot skill id -> cycle it was last used
-static var share_paid: Dictionary = {}  # market -> Array of steps (20, 35) already paid
 static var stock_grown: Dictionary = {}  # "<key>|<good>" -> {carry, grown}, for BIO_2
 ## T282 house weather: a chosen-house soften (weather_soften_pct, timed) and the next-weather marks set by chain options.
 static var house_soft: Dictionary = {}  # house id (as text) -> Array of {amount, until}: timed soften from a skill
@@ -27,7 +25,6 @@ static func reset(balance: Dictionary = {}) -> void:
 		bal = balance
 	learned.clear()
 	bot_used = {}
-	share_paid = {}
 	stock_grown = {}
 	house_soft = {}
 	house_next = {}
@@ -342,24 +339,6 @@ static func activate_bot_skill(id: String, bot: int) -> Dictionary:
 	bot_used[SHARED_KEY] = cycle
 	return {"ok": true, "reason": "", "until": until}
 
-## ---- skill points for share (once per market per step) ----
-
-## Pays each share step (skill_points_share_20 / _35) a market has now reached and not been paid before.
-## Returns [{market, step, points}]; the caller adds the points.
-static func award_share_points() -> Array:
-	var out := []
-	for m in Markets.ids:
-		var s := Markets.share(m)
-		for step in SHARE_STEPS:
-			var paid: Array = share_paid.get(m, [])
-			if s >= float(step) / 100.0 and not paid.has(step):
-				paid.append(step)
-				share_paid[m] = paid
-				var p := int(_num("skill_points_share_%d" % step))
-				if p > 0:
-					out.append({"market": m, "step": step, "points": p})
-	return out
-
 ## ---- planet storage growth (BIO_2) ----
 
 ## One cycle of stock growth in planet storage. stock_grown carries the fractions and the units grown so far:
@@ -395,11 +374,10 @@ static func grow_stock(storage: RefCounted) -> int:
 ## ---- saves ----
 
 static func to_dict() -> Dictionary:
-	return {"bot_used": bot_used, "share_paid": share_paid, "stock_grown": stock_grown, "house_soft": house_soft, "house_next": house_next}
+	return {"bot_used": bot_used, "stock_grown": stock_grown, "house_soft": house_soft, "house_next": house_next}
 
 static func from_dict(d) -> void:
 	bot_used = {}
-	share_paid = {}
 	stock_grown = {}
 	house_soft = {}
 	house_next = {}
@@ -418,12 +396,6 @@ static func from_dict(d) -> void:
 	if typeof(d.get("bot_used")) == TYPE_DICTIONARY:
 		for k in d["bot_used"].keys():
 			bot_used[str(k)] = int(d["bot_used"][k])
-	if typeof(d.get("share_paid")) == TYPE_DICTIONARY:
-		for k in d["share_paid"].keys():
-			var arr := []
-			for v in d["share_paid"][k]:
-				arr.append(int(v))
-			share_paid[str(k)] = arr
 	if typeof(d.get("stock_grown")) == TYPE_DICTIONARY:
 		for k in d["stock_grown"].keys():
 			var v = d["stock_grown"][k]

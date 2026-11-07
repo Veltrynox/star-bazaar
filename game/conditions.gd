@@ -32,7 +32,7 @@ extends RefCounted
 ##   gig_done:<id>                          that gig of data/gigs.json is finished (a signal's option was picked; game/gigs.gd, saved)
 ##   gig_open                               some gig offer is open on the board
 ## Atoms that need a chain step in the context (ctx.step), the market and previous step come from it:
-##   share_pct:<balance>                    the step's market share in percent has reached the value
+##   share_pct:<balance>                    always false since T281 (share is gone); kept so old data parses
 ##   first_sale_after_cycle:<balance>       a non-common-raw good of the step's market sold in a cycle after that
 ##   cycles_after_prev_step:<balance>       n cycles passed since the previous step of the SAME chain fired
 ## Context ctx (all optional): step (chain step id), cycle, balance (Dictionary; default the live game's), planets (Array).
@@ -101,8 +101,7 @@ static func _atom(atom: String, ctx: Dictionary) -> bool:
 		"good_traded":
 			return good_traded(arg, ctx.get("planets", []))
 		"share_pct":
-			var m := _market(ctx)
-			return m != "" and Markets.share(m) * 100.0 >= balance_value(arg, ctx)
+			return false  # T281: share no longer exists; the atom stays so old data and saves still parse
 		"first_sale_after_cycle":
 			var m2 := _market(ctx)
 			var after := int(balance_value(arg, ctx))

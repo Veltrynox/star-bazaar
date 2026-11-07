@@ -6,7 +6,6 @@ const StoryText := preload("res://game/story_text.gd")
 
 signal closed
 signal skills_requested
-signal competitors_requested
 signal main_menu_requested
 signal quit_requested
 
