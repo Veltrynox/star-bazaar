@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-07 06:35 run: T255
-- Summary: Removed the six dead shield_* keys from balance.json (no skill key was dead), added a source-note line, and dropped the dead shield branch in tools/sim.py
-- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
-- Approach: built by a worker in worktree ../wt/T255 on branch task/T255, merged by the serial merge queue.
-- Agent prompts: /overnight-worker T255 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T255.log.
-- Worked: rebase, full test suite and fast-forward merge passed.
-- Failed / did not work: nothing.
-- Files and commits: see git log on branch new-features for commits starting with T255.
-- Left to do: nothing for this task.
-
 ## 2026-11-07 10:22 run: T271
 - Summary: Not merged: rebase onto new-features failed
 - Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
@@ -64,4 +54,14 @@
 - Worked: rebase, full test suite and fast-forward merge passed.
 - Failed / did not work: nothing.
 - Files and commits: see git log on branch new-features for commits starting with T272.
+- Left to do: nothing for this task.
+
+## 2026-11-07 10:36 run: T273
+- Summary: Gig board panel (rail button, key J) with kind icon, world, reward, deadline bar and Flagship ETA, plus pulsing target rings on the map (amber near the deadline) and the nearest-deadline gig in Next Up's Best move; I wrote the code myself, with no ui-programmer agent
+- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
+- Approach: built by a worker in worktree ../wt/T273 on branch task/T273, merged by the serial merge queue.
+- Agent prompts: /overnight-worker T273 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T273.log.
+- Worked: rebase, full test suite and fast-forward merge passed.
+- Failed / did not work: nothing.
+- Files and commits: see git log on branch new-features for commits starting with T273.
 - Left to do: nothing for this task.
