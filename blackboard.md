@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-07 15:29 run: T285
-- Summary: Mood face (card and map hover) and house-tinted weather chips (worlds, congested lanes, planet card) built, with placeholder balance keys
-- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
-- Approach: built by a worker in worktree ../wt/T285 on branch task/T285, merged by the serial merge queue.
-- Agent prompts: /overnight-worker T285 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T285.log.
-- Worked: rebase, full test suite and fast-forward merge passed.
-- Failed / did not work: nothing.
-- Files and commits: see git log on branch new-features for commits starting with T285.
-- Left to do: nothing for this task.
-
 ## 2026-11-07 15:33 run: T298
 - Summary: Opening gig (kind 'opening') wins on docking at the capital, two-perk wings for stages 1-3 hooked into hold, hub reach, tax and workshop cost, Bazaar.recap() for the end screen, save v22
 - Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
@@ -65,3 +55,13 @@
 - Failed / did not work: tests after rebase: 241 pass, 17 fail, 18 new vs baseline.
 - Files and commits: see git log on branch new-features for commits starting with T300.
 - Left to do: owner or a new run: see blocked_log in schedule.json.
+
+## 2026-11-07 15:48 run: T300
+- Summary: Added raid, salvage scoop, reclaim camera and Opening beats (new frontier_beats overlay, map and main hooks, placeholder beat_* balance keys, raid and scoop signals)
+- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
+- Approach: built by a worker in worktree ../wt/T300 on branch task/T300, merged by the serial merge queue.
+- Agent prompts: /overnight-worker T300 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T300.log.
+- Worked: rebase, full test suite and fast-forward merge passed.
+- Failed / did not work: nothing.
+- Files and commits: see git log on branch new-features for commits starting with T300.
+- Left to do: nothing for this task.
