@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-07 10:53 run: T283
-- Summary: House ships now lead convoys that fly to their house's weather world (forecast lead plus warning-skill cycles), park there until it ends, then idle as before; the escorts are a traffic free group and the five new convoy_* keys are placeholders
-- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
-- Approach: built by a worker in worktree ../wt/T283 on branch task/T283, merged by the serial merge queue.
-- Agent prompts: /overnight-worker T283 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T283.log.
-- Worked: rebase, full test suite and fast-forward merge passed.
-- Failed / did not work: nothing.
-- Files and commits: see git log on branch new-features for commits starting with T283.
-- Left to do: nothing for this task.
-
 ## 2026-11-07 10:57 run: T282
 - Summary: The eight rival-cutting skill nodes now act on house weather. Chain options that hit a rival delay or soften that house's next weather. Save version is 18.
 - Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
@@ -65,3 +55,13 @@
 - Failed / did not work: nothing.
 - Files and commits: see git log on branch new-features for commits starting with T303.
 - Left to do: nothing for this task.
+
+## 2026-11-07 11:03 run: T296
+- Summary: Not merged: worker did not report done: None
+- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
+- Approach: built by a worker in worktree ../wt/T296 on branch task/T296, merged by the serial merge queue.
+- Agent prompts: /overnight-worker T296 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T296.log.
+- Worked: worker finished.
+- Failed / did not work: worker did not report done: None.
+- Files and commits: see git log on branch new-features for commits starting with T296.
+- Left to do: owner or a new run: see blocked_log in schedule.json.
