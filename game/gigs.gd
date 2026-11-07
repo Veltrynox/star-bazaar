@@ -17,6 +17,7 @@ const StoryText := preload("res://game/story_text.gd")
 const PATH := "res://data/gigs.json"
 const BRANCH_SUFFIX := {"mil": "MIL", "lux": "LUX", "min": "MIN", "bio": "BIO"}
 
+signal scooped                 # T300: the Flagship scooped salvage pods (juice)
 signal changed                 # the board changed (offer opened, done, expired)
 signal arrival(uid: String)    # the Flagship reached a signal marker: main opens the window
 
@@ -180,6 +181,8 @@ func _scoop(o: Dictionary) -> void:
 			left_pods.append({"good": str(p["good"]), "units": int(p["units"]) - put})
 	o["pods"] = left_pods
 	o["accepted"] = false
+	if not lines.is_empty():
+		scooped.emit()
 	if left_pods.is_empty():
 		offers.erase(o)
 		main.post_notice(StoryText.get_or("NOT_SALVAGE_DONE", "Pods scooped into the Flagship hold: {lines}.", {"lines": ", ".join(lines)}))

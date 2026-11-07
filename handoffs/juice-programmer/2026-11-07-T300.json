@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "agent": "juice-programmer",
+  "date": "2026-11-07",
+  "task": "T300",
+  "status": "built (not run: no tests, screenshots or commit, as briefed)",
+  "files_changed": [
+    "game/traffic/frontier_beats.gd (new: overlay node and free-ship timeline for raid, scoop and Opening)",
+    "game/map.gd (beat_reclaim, beat_raid, beat_scoop, beat_opening, nudge_camera, _start_pull refactor of the tier camera pull)",
+    "game/main.gd (connects raids.hit and gigs.scooped; on_opening_flown plays the Opening beat then shows the end screen; opening banner)",
+    "game/juice.gd (tones chime, raid, scoop, opening)",
+    "game/raids.gd (outside touches, smallest edit: signal hit(lane, nest, pods_at); _drop_pods now returns the pod position)",
+    "game/gigs.gd (outside touches, smallest edit: signal scooped, emitted in _scoop when goods loaded)",
+    "data/balance.json (data_version 72, source note marks the new keys as placeholders)"
+  ],
+  "open_questions": [
+    "The Opening holds the end screen for beat_opening_hold_seconds with game_over set (clock stopped). If the player quits to the menu inside that window the run is saved as opened but not won. Owner may prefer to drop the hold or save after the end screen.",
+    "Story ids used with English fallbacks only: BAZ_OPENING_BANNER. The story task (N46) should add it."
+  ],
+  "handoff": "Raid: 3 raiders dart from the nest side to the hit lane (35 percent from the source world), at 40 percent of the beat a flash disc and red ring open, a camera nudge and a low tone play, pods tumble out and the raiders leave; ships cleared at 2.2 s. Scoop: 4 pods fly from a ring round the Flagship into it (1.2 s) with a short tone. Reclaim: when the flip starts the camera eases to the world (2 s, game time, yields to player steering) with the chime tone. Opening: other worlds in view send ships to the capital, a 12-segment ring lights segment by segment over 70 percent of 3.2 s, then a 0.5 s screen flash; a banner fades in; the camera eases to the capital; end screen after 3.4 s. All overlay nodes ignore the mouse. Everything scales with Juice.motion (0 = off). Saved fields: none, so no save bump. Not checked by eye: ship timing against the hit, ring size, banner position, tone volume. Idea not built: pulse the Flagship hold bar when pods land.",
+  "details": {
+    "balance_keys_added_placeholders": [
+      "beat_raid_seconds", "beat_raid_raiders", "beat_raid_dist", "beat_raid_flash_px",
+      "beat_scoop_pods", "beat_scoop_seconds", "beat_pod_scale",
+      "beat_reclaim_camera_pull", "beat_reclaim_camera_seconds",
+      "beat_opening_seconds", "beat_opening_segments", "beat_opening_ships", "beat_opening_flash_alpha",
+      "beat_opening_flash_seconds", "beat_opening_ring_px", "beat_opening_hold_seconds"
+    ],
+    "hooks_added": ["Raids.hit(lane, nest, pods_at)", "Gigs.scooped"],
+    "story_ids_used": ["BAZ_OPENING_BANNER"],
+    "conditions_atoms_added": [],
+    "pure_helper_for_a_test": "FrontierBeats.segment_lit(u, n, total)"
+  }
+}

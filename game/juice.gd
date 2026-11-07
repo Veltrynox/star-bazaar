@@ -72,6 +72,10 @@ static func planet_screen(map, index: int) -> Variant:
 const TONES := {
 	"clamp": [[1320.0, 0.05]],
 	"sting": [[660.0, 0.07], [880.0, 0.07], [1320.0, 0.16]],
+	"chime": [[523.0, 0.09], [659.0, 0.09], [784.0, 0.09], [1047.0, 0.3]],             # T300: a world reclaimed
+	"raid": [[330.0, 0.07], [220.0, 0.16]],                                              # T300: raiders strike
+	"scoop": [[880.0, 0.05], [1175.0, 0.09]],                                            # T300: pods scooped
+	"opening": [[523.0, 0.1], [659.0, 0.1], [784.0, 0.1], [1047.0, 0.12], [1319.0, 0.4]],  # T300: the Bazaar opens
 }
 const TONE_RATE := 22050
 

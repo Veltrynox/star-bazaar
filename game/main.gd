@@ -293,6 +293,10 @@ func _ready() -> void:
 	gigs.setup(self)  # T271
 	gigs.arrival.connect(_on_gig_arrival)
 	raids.setup(self)  # T296
+	if not raids.hit.is_connected(_on_raid_hit):
+		raids.hit.connect(_on_raid_hit)  # T300 juice
+	if not gigs.scooped.is_connected(_on_salvage_scooped):
+		gigs.scooped.connect(_on_salvage_scooped)  # T300 juice
 	engine.raids = raids
 	map.prosperity = prosperity  # T264 growth ring and need icons
 	map.events = events  # T285 weather chips
@@ -2270,8 +2274,50 @@ func _on_bazaar_wing_offered(_stage: int) -> void:
 ## T298: the Flagship docked at the capital with the charter cargo (Gigs.on_arrived_planet): the Bazaar opens, the run is won.
 func on_opening_flown() -> void:
 	var outcome := bazaar.open()
-	if not outcome.is_empty() and not game_over:
+	if outcome.is_empty() or game_over:
+		return
+	if Juice.motion <= 0.0 or map == null or not is_inside_tree():
 		_finish_outcome(outcome)
+		return
+	# T300: the Opening beat. The win is recorded now (game_over stops the clock, the save is cleared); only the end screen waits for the beat.
+	map.beat_opening(bazaar.capital())
+	_show_opening_banner()
+	if DisplayServer.get_name() != "headless":
+		_end_screen_hold = float(balance.get("beat_opening_hold_seconds", 3.4)) * Juice.motion
+	_finish_outcome(outcome)
+
+## T300: the banner of the Opening. Real-time tween (the game clock is stopped); never takes a click.
+func _show_opening_banner() -> void:
+	var l := Label.new()
+	l.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	l.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
+	l.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	l.position.y = 110
+	l.add_theme_font_size_override("font_size", 34)
+	l.add_theme_color_override("font_color", Ui.col("star_warm"))
+	l.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.8))
+	l.add_theme_constant_override("outline_size", 8)
+	l.text = StoryText.get_or("BAZ_OPENING_BANNER", "The Star Bazaar is open.")
+	add_child(l)
+	Juice.enter(l, 0.8, 0.0)
+	var hold := float(balance.get("beat_opening_hold_seconds", 3.4)) * Juice.motion
+	get_tree().create_timer(maxf(0.1, hold - Juice.EXIT_SECONDS)).timeout.connect(func() -> void:
+		if is_instance_valid(l):
+			Juice.leave(l, true))
+
+## T300: a raid hit a lane: raiders, flash, pods on the map (lane route id, nest planet index, where the pods dropped).
+func _on_raid_hit(lane: int, nest: int, pods_at: Vector3) -> void:
+	if map == null:
+		return
+	var idx: int = engine.find_by_id(lane)
+	if idx >= 0:
+		var rec: Dictionary = engine.routes[idx]
+		map.beat_raid(int(rec["a"]), int(rec["b"]), nest, pods_at)
+
+## T300: the Flagship scooped pods: they zip into it.
+func _on_salvage_scooped() -> void:
+	if map != null and flight != null:
+		map.beat_scoop(flight.ship_position())
 
 ## T266: a Bazaar stage is done: flash and ring at the capital, and a banner that holds for beat_banner_seconds of game time.
 func _on_bazaar_stage_done(n: int) -> void:
@@ -2474,6 +2520,8 @@ func _finish_outcome(outcome: Dictionary) -> void:
 		stat = stages
 	_finish(side, ending_id_of(outcome), stat, run_branch())
 
+var _end_screen_hold := 0.0  # T300: seconds the end screen waits for the Opening beat
+
 ## The run is over: the save is cleared, the end screen shows the ending.
 func _finish(side: String, ending_id: String, stat: String, win_market: String = "") -> void:
 	game_over = true
@@ -2488,8 +2536,14 @@ func _finish(side: String, ending_id: String, stat: String, win_market: String =
 	stats["recap"] = bazaar.recap()  # T298: capital, stages, wings, worlds per tier, reclaimed worlds, decisive moments
 	if bazaar.is_founded():
 		stats["recap"]["capital_name"] = planet_name(bazaar.capital())  # T299
-	_open_end_screen().show_ending(ending_id, side, stats, stat)
-	if not run_recorded:  # local record, once per run
+	if _end_screen_hold > 0.0 and is_inside_tree():  # T300: let the Opening beat play first
+		var hold := _end_screen_hold
+		_end_screen_hold = 0.0
+		get_tree().create_timer(hold).timeout.connect(func() -> void:
+			if is_instance_valid(self) and is_inside_tree():
+				_open_end_screen().show_ending(ending_id, side, stats, stat))
+	else:
+		_open_end_screen().show_ending(ending_id, side, stats, stat)	if not run_recorded:  # local record, once per run
 		run_recorded = true
 		RunStats.record(side, ending_id, cycle, cash, "")
 	run_ended.emit(side, ending_id)

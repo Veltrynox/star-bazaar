@@ -17,6 +17,8 @@ const StoryText := preload("res://game/story_text.gd")
 const RouteEngine := preload("res://game/route_engine.gd")
 const DeadWorlds := preload("res://game/dead_worlds.gd")
 
+signal hit(lane: int, nest: int, pods_at: Vector3)  # T300: a raid struck (lane route id, nest planet index, where pods dropped or Vector3.INF), for juice
+
 var main: Node = null
 var malus := {}          # lane (route) id -> {pct, left}
 var last_raid_cycle := -100000
@@ -143,11 +145,13 @@ func strike(rec: Dictionary, carried: int) -> int:
 	var ni: int = main.planet_index_of(nest)
 	main.post_notice(StoryText.get_or("NOT_RAID_HIT", "Raiders from {planet} hit your lane to {lane}: {n} units lost, the lane runs weaker for {cycles} cycles.",
 		{"planet": main.planet_name(ni), "lane": main.planet_name(int(rec["b"]) if int(rec["b"]) >= 0 else int(rec["a"])), "n": take, "cycles": int(_bal("raid_malus_cycles"))}))
+	var pods_at := Vector3.INF
 	if back > 0 and Availability.good(good):
-		_drop_pods(rec, good, back)
+		pods_at = _drop_pods(rec, good, back)
+	hit.emit(id, ni, pods_at)
 	return take
 
-func _drop_pods(rec: Dictionary, good: String, units: int) -> void:
+func _drop_pods(rec: Dictionary, good: String, units: int) -> Vector3:
 	var a := int(rec["a"])
 	var base: Vector3 = main.flight._planet_pos(a)
 	var rng := RandomNumberGenerator.new()
@@ -157,6 +161,7 @@ func _drop_pods(rec: Dictionary, good: String, units: int) -> void:
 	_uid += 1
 	var uid := "SALV%d_%d" % [main.cycle, _uid]
 	main.gigs.post_salvage(uid, main.system_of(a), pos, good, units, int(_bal("raid_pod_count", 1.0)), _bal("raid_pod_fade_cycles"))
+	return pos
 
 # ---- save ------------------------------------------------------------------------------------------------------------
 

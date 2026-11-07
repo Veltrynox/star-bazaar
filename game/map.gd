@@ -921,6 +921,7 @@ func _update_reclaim_looks(delta: float) -> void:
 		if done and not _reclaim_flip.has(i):
 			if _reclaim_seen.has(i) and wave_s > 0.0:
 				_reclaim_flip[i] = 0.0
+				beat_reclaim(i)
 			else:
 				sph.become_living()
 				_push_first_lights(i, 0.0)
@@ -1285,6 +1286,7 @@ signal beat_chime(kind: String, planet: int)
 var beats: Array = []
 var _steps_seen := {}    # planet index -> [tier, steps] at the last look
 var _bloom_left := {}    # planet index -> game seconds of tier-up bloom left
+var _pull_secs := 1.2   # T300: length of the running pull
 var _pull_t := -1.0      # seconds into the camera pull, -1 when idle
 var _pull_from := Vector3.ZERO
 var _pull_to := Vector3.ZERO
@@ -1305,10 +1307,15 @@ func beat_tier_up(i: int, _tier: int) -> void:
 	beat_chime.emit("tier", i)
 	_bloom_left[i] = _bk("beat_bloom_seconds", 1.2) * Juice.motion
 	_push_bloom(i, true)
+	_start_pull(i, _bk("beat_camera_pull", 0.5), _bk("beat_camera_seconds", 1.2))
+
+## T300: ease the camera focus toward planet i by `frac` over `secs` (game time). Yields at once to the player's own pan and orbit.
+func _start_pull(i: int, frac: float, secs: float) -> void:
 	if planet_in_view(i) and not _player_steering():
 		_pull_from = focus
-		_pull_to = focus + (Vector3(positions[i].x, focus.y, positions[i].z) - focus) * clampf(_bk("beat_camera_pull", 0.5), 0.0, 1.0)
+		_pull_to = focus + (Vector3(positions[i].x, focus.y, positions[i].z) - focus) * clampf(frac, 0.0, 1.0)
 		_pull_last = focus
+		_pull_secs = secs
 		_pull_t = 0.0
 
 ## A Bazaar stage finished at the capital: flash and an expanding ring there.
@@ -1317,6 +1324,48 @@ func beat_stage(i: int) -> void:
 		return
 	beats.append({"kind": "stage", "planet": i, "t": 0.0, "dur": _bk("beat_stage_seconds", 1.8) * Juice.motion})
 	beat_chime.emit("stage", i)
+
+## T300: a dead world turned living: the camera eases to it while the flip plays (it stays there; the player can take it back at any
+## time) and a chime plays. Called when the flip starts, never for a world met already living (a load).
+func beat_reclaim(i: int) -> void:
+	if i < 0 or i >= positions.size() or Juice.motion <= 0.0:
+		return
+	beat_chime.emit("reclaim", i)
+	Juice.play_tone(self, "chime")
+	_start_pull(i, _bk("beat_reclaim_camera_pull", 1.0), _bk("beat_reclaim_camera_seconds", 2.0))
+
+func _frontier() -> Control:
+	if _frontier_fx == null:
+		_frontier_fx = preload("res://game/traffic/frontier_beats.gd").new()
+		_frontier_fx.map = self
+		_label_layer_node().add_child(_frontier_fx)
+	return _frontier_fx
+var _frontier_fx: Control = null
+
+## T300: a raid hit lane route `lane` (planets a and b) from the nest planet; pods dropped at `pods_at` (Vector3.INF = none).
+func beat_raid(a: int, b: int, nest: int, pods_at: Vector3) -> void:
+	if a < 0 or a >= positions.size() or not planet_in_view(a) or _frontier() == null:
+		return
+	var pb: Vector3 = positions[b] if b >= 0 and b < positions.size() else positions[a]
+	_frontier_fx.raid(positions[a], pb, positions[nest] if nest >= 0 and nest < positions.size() else positions[a] + Vector3(1, 0, 0), pods_at)
+
+## T300: the Flagship scooped salvage pods at world position `at`.
+func beat_scoop(at: Vector3) -> void:
+	if _frontier() != null:
+		_frontier_fx.scoop(at)
+
+## T300: the Bazaar opened at planet i: ships converge, the ring lights, a flash (the banner is main's). The camera eases to the capital.
+func beat_opening(i: int) -> void:
+	if i < 0 or i >= positions.size() or Juice.motion <= 0.0:
+		return
+	beat_chime.emit("opening", i)
+	_start_pull(i, 1.0, _bk("beat_camera_seconds", 1.2))
+	if _frontier() != null:
+		_frontier_fx.opening(i)
+
+## A short sideways camera nudge (the raid hit), the same one a new post gives.
+func nudge_camera() -> void:
+	_nudge_t = 0.0
 
 ## 0..1 progress of the newest running beat of this kind at planet i, or -1 when none.
 func beat_progress(kind: String, i: int) -> float:
@@ -1367,7 +1416,7 @@ func _update_beats(delta: float) -> void:
 			_pull_t = -1.0  # the player took the camera: never fight them
 		else:
 			_pull_t += delta
-			var u := clampf(_pull_t / (maxf(0.05, _bk("beat_camera_seconds", 1.2)) * Juice.motion), 0.0, 1.0)
+			var u := clampf(_pull_t / (maxf(0.05, _pull_secs) * Juice.motion), 0.0, 1.0)
 			focus = _pull_from.lerp(_pull_to, smoothstep(0.0, 1.0, u))
 			clamp_focus()
 			_pull_last = focus
