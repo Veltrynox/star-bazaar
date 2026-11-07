@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-07 11:10 run: T289
-- Summary: Built `game/hubs.gd`, which designates hubs, sets their reach, pools ships and plans deliveries as `hub:<planet>` routes. It adds placeholder `data/balance.json` keys, save v17 and a gdd.md update, and the handoff file is written.
-- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
-- Approach: built by a worker in worktree ../wt/T289 on branch task/T289, merged by the serial merge queue.
-- Agent prompts: /overnight-worker T289 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T289.log.
-- Worked: rebase, full test suite and fast-forward merge passed.
-- Failed / did not work: nothing.
-- Files and commits: see git log on branch new-features for commits starting with T289.
-- Left to do: nothing for this task.
-
 ## 2026-11-07 11:11 run: T281
 - Summary: Removed share computing, bot volume curves, sweep and overhead, plus the share panel, share graph and Competitors panel. Markets stays as the goods-to-market registry and Bots as house ids, names and tints. The rival card now shows the house temperament.
 - Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
@@ -64,4 +54,14 @@
 - Worked: worker finished.
 - Failed / did not work: worker did not report done: None.
 - Files and commits: see git log on branch new-features for commits starting with T290.
+- Left to do: owner or a new run: see blocked_log in schedule.json.
+
+## 2026-11-07 11:17 run: T292
+- Summary: Not merged: worker did not report done: None
+- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
+- Approach: built by a worker in worktree ../wt/T292 on branch task/T292, merged by the serial merge queue.
+- Agent prompts: /overnight-worker T292 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T292.log.
+- Worked: worker finished.
+- Failed / did not work: worker did not report done: None.
+- Files and commits: see git log on branch new-features for commits starting with T292.
 - Left to do: owner or a new run: see blocked_log in schedule.json.
