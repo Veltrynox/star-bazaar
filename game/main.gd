@@ -300,6 +300,7 @@ func _ready() -> void:
 	engine.raids = raids
 	map.prosperity = prosperity  # T264 growth ring and need icons
 	map.events = events  # T285 weather chips
+	map.hubs = hubs  # T292 hub shuttles and designate ripple
 	if not prosperity.reclaimed.is_connected(_on_prosperity_reclaimed):
 		prosperity.reclaimed.connect(_on_prosperity_reclaimed)
 	if not prosperity.tier_up.is_connected(_on_prosperity_tier_up):

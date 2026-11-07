@@ -1,0 +1,6 @@
+{
+  "task": "T292",
+  "agent": "juice-programmer",
+  "files": ["game/map.gd", "game/main.gd", "game/world_growth_view.gd", "data/balance.json"],
+  "summary": "Hub deliveries draw as small shuttle path groups hub to world; designate starts a ripple to the reach edge and shuttles launch in a fan; release makes them fly home and fade. Game time only, nothing saved. New placeholder keys: hub_shuttles_per_need, hub_shuttle_scale, hub_launch_seconds, hub_ripple_seconds."
+}

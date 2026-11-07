@@ -149,6 +149,14 @@ func _draw_beats(i: int, c: Vector2, r_px: float, scale_px: float) -> void:
 	if u >= 0.0:
 		var rr := r_px + lerpf(0.0, _k("beat_ring_radius_px", 140.0) * scale_px, 1.0 - pow(1.0 - u, 2.0))
 		draw_arc(c, rr, 0.0, TAU, 64, Color(warm, (1.0 - u) * 0.9), maxf(1.0, 3.0 * scale_px * (1.0 - u) + 1.0), true)
+	u = map.beat_progress("hub", i)  # T292: designate ripple runs out to the reach edge (two rings, the second a beat behind)
+	if u >= 0.0 and map.hubs != null:
+		var cam: Camera3D = map.camera
+		var edge: float = c.distance_to(cam.unproject_position(map.positions[i] + cam.global_transform.basis.x.normalized() * map.hubs.reach_of(i)))
+		for lag in [0.0, 0.18]:
+			var uu := clampf((u - lag) / (1.0 - lag), 0.0, 1.0)
+			if uu > 0.0 and uu < 1.0:
+				draw_arc(c, lerpf(r_px, edge, 1.0 - pow(1.0 - uu, 2.0)), 0.0, TAU, 96, Color(warm.lerp(Color.WHITE, 0.3), (1.0 - uu) * 0.7), maxf(1.0, 3.0 * scale_px * (1.0 - uu) + 1.0), true)
 	u = map.beat_progress("stage", i)
 	if u >= 0.0:
 		var flash := clampf(1.0 - u * 4.0, 0.0, 1.0)  # the flash is the first quarter

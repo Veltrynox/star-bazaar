@@ -1013,21 +1013,15 @@ func _update_ambient_traffic() -> void:
 	_ambient_keys.clear()
 	var lanes: Array = []   # [key, p0, pc, p2, weight]
 	var wsum := 0.0
-	var sl := sun_list()
 	for ai in ids.size():
 		for bi in range(ai + 1, ids.size()):
 			var a: int = ids[ai]
 			var b: int = ids[bi]
-			var dir := (positions[b] - positions[a]).normalized()
-			var p0 := positions[a] + dir * planet_radius(a) * RouteLineScript.GAP
-			var p2 := positions[b] - dir * planet_radius(b) * RouteLineScript.GAP
+			var cv := _lane_curve(a, b)  # a sun in the way: through the same waypoint as the route line
+			var p0: Vector3 = cv[0]
+			var c: Vector3 = cv[1]
+			var p2: Vector3 = cv[2]
 			var chord := p0.distance_to(p2)
-			var left := Vector3.UP.cross(dir).normalized()
-			var c := (p0 + p2) * 0.5 + left * chord * RouteLineScript.BOW
-			var sw = RouteOffset.sun_waypoint(positions[a], positions[b], sl)  # a sun in the way: through the same waypoint as the route line
-			if sw != null:
-				var wt: float = clampf(p0.distance_to(sw) / maxf(p0.distance_to(sw) + sw.distance_to(p2), 0.001), 0.15, 0.85)
-				c = (sw - p0 * ((1.0 - wt) * (1.0 - wt)) - p2 * (wt * wt)) / (2.0 * (1.0 - wt) * wt)
 			var w := 1.0 / maxf(chord, 0.1)
 			wsum += w
 			lanes.append(["ambient_%d_%d" % [a, b], p0, c, p2, w])
@@ -1039,12 +1033,128 @@ func _update_ambient_traffic() -> void:
 		traffic.set_ambient_group(l[0], l[1], l[2], l[3], n)
 		_ambient_keys.append(l[0])
 
+## T292: hub shuttles. A hub keeps its worlds fed; every need it fills (Hubs status "hub") draws as small shuttles on the lane hub >
+## world (path groups, same arc as the route line), hub_shuttles_per_need each. Designating a hub starts a ripple to its reach edge
+## (beat "hub", drawn by world_growth_view) and each world's shuttles launch as the ripple reaches it, so they leave in a fan.
+## A need filled later ramps its shuttles in the same way (a shuttle peels off toward the world). A released hub's shuttles turn
+## round, fly home and fade out. Game time only (frozen while paused); a readout of Hubs, nothing is saved.
+var hubs: RefCounted = null   # Hubs, set by main
+var _hub_prim := false         # the first look after a load only records the hubs, no ripple
+var _hub_seen := {}            # hub planet -> true, hubs standing at the last look
+var _hub_lanes := {}           # key "hub_<h>_<w>" -> {h, w, have: float, want: int, delay: float, back: bool, sig: String}
+var _hub_gen := -1
+func _lane_curve(a: int, b: int) -> Array:
+	var dir := (positions[b] - positions[a]).normalized()
+	var p0 := positions[a] + dir * planet_radius(a) * RouteLineScript.GAP
+	var p2 := positions[b] - dir * planet_radius(b) * RouteLineScript.GAP
+	var chord := p0.distance_to(p2)
+	var c := (p0 + p2) * 0.5 + Vector3.UP.cross(dir).normalized() * chord * RouteLineScript.BOW
+	var sw = RouteOffset.sun_waypoint(positions[a], positions[b], sun_list())
+	if sw != null:
+		var wt: float = clampf(p0.distance_to(sw) / maxf(p0.distance_to(sw) + sw.distance_to(p2), 0.001), 0.15, 0.85)
+		c = (sw - p0 * ((1.0 - wt) * (1.0 - wt)) - p2 * (wt * wt)) / (2.0 * (1.0 - wt) * wt)
+	return [p0, c, p2]
+
+func _update_hub_traffic(delta: float) -> void:
+	if traffic == null or prosperity == null or hubs == null:
+		return
+	var running := _game_running()
+	if _hub_gen != traffic.generation:
+		_hub_gen = traffic.generation
+		_hub_lanes.clear()  # the layer dropped every group: lanes are set again below
+	var motion: float = Juice.motion
+	var ripple_s := _bk("hub_ripple_seconds", 1.6) * motion
+	var now: Array = hubs.hub_planets()
+	# a hub just designated: ripple out to the reach edge
+	for h in now:
+		if not _hub_seen.has(h):
+			_hub_seen[h] = true
+			if _hub_prim and motion > 0.0 and h < positions.size():
+				beats.append({"kind": "hub", "planet": h, "t": 0.0, "dur": ripple_s})
+				beat_chime.emit("hub", h)
+				for k in _hub_lanes:
+					if int(_hub_lanes[k]["h"]) == h:
+						_hub_lanes[k]["have"] = 0.0
+						_hub_lanes[k]["delay"] = 0.0
+	_hub_prim = true
+	# a hub released: its lanes turn round and fly home
+	for h in _hub_seen.keys():
+		if not now.has(h):
+			_hub_seen.erase(h)
+			for k in _hub_lanes:
+				if int(_hub_lanes[k]["h"]) == h:
+					_hub_lanes[k]["want"] = 0
+					_hub_lanes[k]["back"] = true
+	# wanted shuttles per lane of the standing hubs
+	var per_need := int(_bk("hub_shuttles_per_need", 2.0))
+	for h in now:
+		if not planet_in_view(h) or h >= positions.size():
+			continue
+		var reach: float = maxf(hubs.reach_of(h), 0.001)
+		for w in hubs.worlds_in_reach(h):
+			if w == h or not planet_in_view(w) or w >= positions.size():
+				continue
+			var needs := 0
+			for g in hubs._need_goods(w):
+				if hubs.status_of(w, str(g)) == hubs.STATUS_HUB:
+					needs += 1
+			var key := "hub_%d_%d" % [h, w]
+			var lane = _hub_lanes.get(key)
+			if lane == null:
+				if needs <= 0:
+					continue
+				var fan := ripple_s * clampf(hubs.distance(h, w) / reach, 0.0, 1.0) if _hub_ripple_running(h) else 0.0
+				lane = {"h": h, "w": w, "have": 0.0, "want": 0, "delay": fan, "back": false, "sig": ""}
+				_hub_lanes[key] = lane
+			lane["want"] = needs * per_need
+			lane["back"] = false
+	# advance the ramps and write the groups when a drawn count or the geometry changes
+	var launch := maxf(_bk("hub_launch_seconds", 1.5), 0.05) * (motion if motion > 0.0 else 0.0)
+	var scale_m := _bk("hub_shuttle_scale", 0.6)
+	for k in _hub_lanes.keys():
+		var lane: Dictionary = _hub_lanes[k]
+		var h: int = int(lane["h"])
+		var w: int = int(lane["w"])
+		if running:
+			if float(lane["delay"]) > 0.0:
+				lane["delay"] = float(lane["delay"]) - delta
+			else:
+				var want := float(lane["want"])
+				var have: float = lane["have"]
+				if launch <= 0.0:
+					have = want
+				elif want > have:
+					have = minf(want, have + want * delta / launch + 0.0001)
+				elif want < have:
+					have = maxf(want, have - maxf(have, 1.0) * delta / launch)
+				lane["have"] = have
+		var n := roundi(float(lane["have"])) if float(lane["delay"]) <= 0.0 else 0
+		if h >= positions.size() or w >= positions.size() or not planet_in_view(h) or not planet_in_view(w):
+			traffic.clear_group(k)
+			_hub_lanes.erase(k)
+			continue
+		var back: bool = lane["back"]
+		var sig := "%d|%s|%s|%s|%.3f|%.3f" % [n, back, positions[h], positions[w], planet_radius(h), planet_radius(w)]
+		if sig != str(lane["sig"]):
+			lane["sig"] = sig
+			if n <= 0:
+				traffic.clear_group(k)
+			else:
+				var cv := _lane_curve(w, h) if back else _lane_curve(h, w)
+				traffic.set_path_group(k, cv[0], cv[1], cv[2], n, 0, Color.TRANSPARENT, "corvette", scale_m)
+		if n <= 0 and int(lane["want"]) <= 0 and float(lane["delay"]) <= 0.0:
+			_hub_lanes.erase(k)  # fully gone (released, or the need was met)
+
+func _hub_ripple_running(h: int) -> bool:
+	return beat_progress("hub", h) >= 0.0
+
 func _process(delta: float) -> void:
 	_update_beats(delta)
 	_update_reclaim_looks(delta)
 	_update_tier_looks()
 	_update_orbit_traffic(delta)
 	_update_ambient_traffic()
+	_update_hub_traffic(delta)
 	_refresh_known()
 	_place_labels()
 	if not keys_enabled:
