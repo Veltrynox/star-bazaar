@@ -1092,9 +1092,8 @@ func _unhandled_input(event: InputEvent) -> void:
 	# T04: left click picks a planet with a camera ray / sphere test.
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 		var on := PathfinderView.active(flight)
-		if on and pick_ship(event.position):  # T200: click the ship to select it (a planet under it is still picked for the panel)
+		if on and pick_ship(event.position):  # T200: click the ship to select it (T245: the ship wins, the planet behind it is not picked)
 			ship_selected = true
-			planet_clicked.emit(pick_planet(event.position))
 			return
 		var rb: int = int(rivals.pick_bot(event.position)) if rivals != null else 0  # T199: a rival ship under the cursor shows its card
 		rival_clicked.emit(rb)  # 0 closes the card

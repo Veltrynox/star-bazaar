@@ -1,0 +1,1 @@
+{"task":"T245","files":["game/map.gd"],"note":"Left click on a ship drawn over a planet now only selects the ship; planet_clicked is no longer emitted. Edited map.gd (outside touches) as that is where picking lives."}
