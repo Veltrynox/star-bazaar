@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-07 10:36 run: T273
-- Summary: Gig board panel (rail button, key J) with kind icon, world, reward, deadline bar and Flagship ETA, plus pulsing target rings on the map (amber near the deadline) and the nearest-deadline gig in Next Up's Best move; I wrote the code myself, with no ui-programmer agent
-- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
-- Approach: built by a worker in worktree ../wt/T273 on branch task/T273, merged by the serial merge queue.
-- Agent prompts: /overnight-worker T273 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T273.log.
-- Worked: rebase, full test suite and fast-forward merge passed.
-- Failed / did not work: nothing.
-- Files and commits: see git log on branch new-features for commits starting with T273.
-- Left to do: nothing for this task.
-
 ## 2026-11-07 10:43 run: T280
 - Summary: House weather built: events carry a house id (down=Harrow flood, up/shortage=Velvet, closed/congestion=Ostrel), with new shortage and congestion effects, the rush shortage hook fed, new `balance.json` placeholders, five new events (EV60–EV64), save v17
 - Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
@@ -64,4 +54,14 @@
 - Worked: worker finished.
 - Failed / did not work: fast-forward merge refused.
 - Files and commits: see git log on branch new-features for commits starting with T284.
+- Left to do: owner or a new run: see blocked_log in schedule.json.
+
+## 2026-11-07 10:50 run: T289
+- Summary: Not merged: worker did not report done: None
+- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
+- Approach: built by a worker in worktree ../wt/T289 on branch task/T289, merged by the serial merge queue.
+- Agent prompts: /overnight-worker T289 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T289.log.
+- Worked: worker finished.
+- Failed / did not work: worker did not report done: None.
+- Files and commits: see git log on branch new-features for commits starting with T289.
 - Left to do: owner or a new run: see blocked_log in schedule.json.
