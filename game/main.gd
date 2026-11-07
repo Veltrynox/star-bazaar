@@ -121,7 +121,11 @@ var cluster_info_index: int = -1
 var goal_label: Label
 var share_chip: Button  # best market and share; opens the share panel (M)
 var share_panel: PanelContainer
-var competitors_panel: PanelContainer  # share graphs per market (L)
+var competitors_panel: PanelContainer  # share graphs per market (L); T263: built but hidden, no way to open it
+var bazaar_panel: PanelContainer  # T263 the Bazaar panel (M, rail button)
+var next_up: HBoxContainer  # T263 the Next Up strip in the top bar
+var bazaar_button: Button
+const COMPETITORS_SHOWN := false  # T263: Competitors button and key hidden, code kept
 var cycle_label: Label
 var pause_button: Button
 var progress: ProgressBar
@@ -302,6 +306,9 @@ func _ready() -> void:
 	add_child(competitors_panel)
 	competitors_panel.setup(self)
 	share_panel.competitors_requested.connect(open_competitors)
+	bazaar_panel = load("res://game/bazaar_panel.gd").new()  # T263
+	add_child(bazaar_panel)
+	bazaar_panel.setup(self)
 	for n in [tut_card, tut_arrow]:  # above the Skills window (the permit step points into it), below menus and popups
 		move_child(n, skill_screen.get_index() + 1)
 	space_storage_view = load("res://game/space_storage_view.gd").new()
@@ -866,8 +873,8 @@ func open_skills() -> void:
 		return
 	if galaxy_view != null and galaxy_view.visible:
 		galaxy_view.close_view()  # one screen at a time
-	if share_panel != null:
-		share_panel.close_screen()
+	if bazaar_panel != null:
+		bazaar_panel.close_screen()
 	skill_screen.open_screen()
 
 ## T105: click on a system in the galaxy view: close the view and put the map camera on that system.
@@ -938,18 +945,30 @@ func _on_skill_arrow() -> void:
 	else:
 		go_to_system(int(t["system"]))
 
+## T263: M and the rail button open the Bazaar panel; the share panel (old M) is hidden, not deleted.
 func toggle_share_panel() -> void:
-	if share_panel.visible:
-		share_panel.close_screen()
+	toggle_bazaar_panel()
+
+func toggle_bazaar_panel() -> void:
+	if bazaar_panel.visible:
+		bazaar_panel.close_screen()
 	elif preface == null and not game_over:
 		if galaxy_view != null and galaxy_view.visible:
 			galaxy_view.close_view()
 		if skill_screen.visible:
 			skill_screen.close_screen()
-		share_panel.open_screen()
+		bazaar_panel.open_screen()
+
+## T263: a Next Up slot was clicked: put the map camera on that world.
+func focus_next_up(planet: int) -> void:
+	if preface != null or game_over or planet < 0:
+		return
+	if galaxy_view != null and galaxy_view.visible:
+		galaxy_view.close_view()
+	_focus_event_planet(planet)
 
 func open_competitors() -> void:
-	if preface != null or game_over or competitors_panel.visible:
+	if not COMPETITORS_SHOWN or preface != null or game_over or competitors_panel.visible:
 		return
 	if galaxy_view != null and galaxy_view.visible:
 		galaxy_view.close_view()
@@ -960,6 +979,8 @@ func open_competitors() -> void:
 	competitors_panel.open_screen()
 
 func toggle_competitors() -> void:
+	if not COMPETITORS_SHOWN:
+		return
 	if competitors_panel.visible:
 		competitors_panel.close_screen()
 	else:
@@ -2373,8 +2394,8 @@ func _finish(side: String, ending_id: String, stat: String, win_market: String =
 	var stats := {"cycle": cycle, "cash": cash, "market": win_market if win_market != "" else str(Markets.best()["market"])}
 	if side == "WIN":  # core 6: capstone, techs done, second market ... for the flavour lines of the win ending
 		stats["flavour"] = EndingPicker.inputs(str(stats["market"]), balance, bazaar.stage())
-	if share_panel != null:
-		share_panel.close_screen()
+	if bazaar_panel != null:
+		bazaar_panel.close_screen()
 	stats["stages_done"] = bazaar.stage()
 	_open_end_screen().show_ending(ending_id, side, stats, stat)
 	if not run_recorded:  # local record, once per run
@@ -2948,10 +2969,8 @@ func _unhandled_input(event: InputEvent) -> void:
 			galaxy_view.close_view()
 		elif skill_screen.visible:
 			skill_screen.close_screen()
-		elif competitors_panel.visible:
-			competitors_panel.close_screen()
-		elif share_panel.visible:
-			share_panel.close_screen()
+		elif bazaar_panel.visible:
+			bazaar_panel.close_screen()
 		elif space_storage_view.visible:
 			space_storage_view.close_view()
 		elif cluster_info != null and cluster_info.visible:
@@ -3014,11 +3033,14 @@ func _build_ui() -> void:
 	goal_label.clip_text = true
 	goal_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	box.add_child(goal_label)
-	share_chip = Button.new()
+	goal_label.visible = false  # T263: the market-share goal line gives way to the Next Up strip
+	next_up = load("res://game/next_up.gd").new()
+	box.add_child(next_up)
+	next_up.setup(self)
+	share_chip = Button.new()  # T263: hidden, kept so old code paths still find it
+	share_chip.visible = false
 	share_chip.theme_type_variation = "ButtonGhost"
-	share_chip.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	share_chip.focus_mode = Control.FOCUS_NONE
-	share_chip.pressed.connect(toggle_share_panel)
 	box.add_child(share_chip)
 	# expansion points as an inline stat (expenses live in the cash popup)
 	var pt := _stat_inline("skills", "LBL_SKILL_POINTS", "Skill points")
@@ -3189,6 +3211,9 @@ func _build_rail() -> void:
 	rail.add_child(col)
 	galaxy_button = _rail_button("planet", "MENU_GALAXY", "Galaxy", toggle_galaxy) 
 	col.add_child(galaxy_button)  # always shown: the galaxy view also lists locked systems as uncharted
+	bazaar_button = _rail_button("mark", "BAZ_PANEL_TITLE", "The Star Bazaar", toggle_bazaar_panel)  # T263: where the share panel button was
+	bazaar_button.tooltip_text += " (M)"
+	col.add_child(bazaar_button)
 
 func game_menu_toggle() -> void:
 	if game_menu == null:
@@ -3213,10 +3238,10 @@ func _refresh() -> void:
 	goal_label.text = StoryText.get_or("LBL_GOAL_MARKETS", "Goal: more than {pct}% of one market", {"pct": roundi(float(balance.get("win_share_pct", 0.5)) * 100.0)})
 	share_chip.text = share_panel.chip_text(Markets.best(), Markets.names) if share_panel != null else "-"
 	share_chip.tooltip_text = StoryText.get_or("LBL_SHARE_TITLE", "Market share") + " (M)"
-	if share_panel != null:
-		share_panel.refresh()
-	if competitors_panel != null:
-		competitors_panel.refresh()
+	if bazaar_panel != null:
+		bazaar_panel.refresh()
+	if next_up != null:
+		next_up.refresh()
 	goal_label.tooltip_text = ""
 	if second_lane_active():  # N11: the optional line follows the goal; the full text is also the tooltip
 		goal_label.tooltip_text = goal_label.text + "  " + second_lane_line()

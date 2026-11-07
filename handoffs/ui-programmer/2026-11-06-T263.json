@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-06",
+  "task": "T263",
+  "status": "done",
+  "files_changed": ["game/next_up.gd", "game/bazaar_panel.gd", "game/main.gd"],
+  "open_questions": [
+    "Wings are not shown on the Bazaar panel: no wing data exists yet. Gameplay-programmer to expose it.",
+    "Best move has no gig branch yet (no gig API); it shows a hungry lane, else the cash gap to the next ship with the forecast ETA, else the idle line."
+  ],
+  "handoff": "Next Up strip (game/next_up.gd) sits in the top bar where the goal line was (goal_label hidden); three slots, each click calls main.focus_next_up(planet) which reuses _focus_event_planet. Bazaar panel (game/bazaar_panel.gd) opens from a new rail button and M: capital, stage list, bill rows (have/need, short), quorum, reach, term left. Share panel, share chip and graph are hidden (code kept; M now opens the Bazaar panel); Competitors is gated by main.COMPETITORS_SHOWN=false (L and Esc paths inert). No new numbers, balance keys, condition atoms or save fields. All text ids already existed (NEXTUP_*, BAZ_*, PROS_*) with get_or fallbacks. Goods named only through Availability-filtered bill_status or prosperity.needs. share_panel.gd and competitors_panel.gd untouched. tests: 13 FAILs (goods, workshop, availability powder/blooms/food) are identical on a clean tree. Not seen by eye: top bar fit of three slots at narrow width, rail button icon (reuses the mark icon), Bazaar panel layout.",
+  "details": {}
+}
