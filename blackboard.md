@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-07 11:17 run: T290
-- Summary: Not merged: worker did not report done: None
-- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
-- Approach: built by a worker in worktree ../wt/T290 on branch task/T290, merged by the serial merge queue.
-- Agent prompts: /overnight-worker T290 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T290.log.
-- Worked: worker finished.
-- Failed / did not work: worker did not report done: None.
-- Files and commits: see git log on branch new-features for commits starting with T290.
-- Left to do: owner or a new run: see blocked_log in schedule.json.
-
 ## 2026-11-07 11:17 run: T292
 - Summary: Not merged: worker did not report done: None
 - Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
@@ -64,4 +54,14 @@
 - Worked: rebase, full test suite and fast-forward merge passed.
 - Failed / did not work: nothing.
 - Files and commits: see git log on branch new-features for commits starting with T284.
+- Left to do: nothing for this task.
+
+## 2026-11-07 15:29 run: T285
+- Summary: Mood face (card and map hover) and house-tinted weather chips (worlds, congested lanes, planet card) built, with placeholder balance keys
+- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
+- Approach: built by a worker in worktree ../wt/T285 on branch task/T285, merged by the serial merge queue.
+- Agent prompts: /overnight-worker T285 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T285.log.
+- Worked: rebase, full test suite and fast-forward merge passed.
+- Failed / did not work: nothing.
+- Files and commits: see git log on branch new-features for commits starting with T285.
 - Left to do: nothing for this task.
