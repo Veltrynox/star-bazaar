@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-06 18:51 run: T301
-- Summary: Wrote the frontier text (reclaim, raids, cargo pods, mining intensity), six wing names and lines, the Opening gig GIG07, recap labels and nine epilogue lines, then rebuilt story_text.json
-- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
-- Approach: built by a worker in worktree ../wt/T301 on branch task/T301, merged by the serial merge queue.
-- Agent prompts: /overnight-worker T301 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T301.log.
-- Worked: rebase, full test suite and fast-forward merge passed.
-- Failed / did not work: nothing.
-- Files and commits: see git log on branch new-features for commits starting with T301.
-- Left to do: nothing for this task.
-
 ## 2026-11-06 19:01 run: T263
 - Summary: Next Up three-slot top strip and Bazaar rail panel built; share panel, graph and Competitors hidden
 - Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
@@ -64,4 +54,14 @@
 - Worked: rebase, full test suite and fast-forward merge passed.
 - Failed / did not work: nothing.
 - Files and commits: see git log on branch new-features for commits starting with T248.
+- Left to do: nothing for this task.
+
+## 2026-11-06 19:05 run: T249
+- Summary: Skill info panel moved from the bottom to a 320px right-hand column on the skill screen, tree uses freed height and remaining width
+- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
+- Approach: built by a worker in worktree ../wt/T249 on branch task/T249, merged by the serial merge queue.
+- Agent prompts: /overnight-worker T249 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T249.log.
+- Worked: rebase, full test suite and fast-forward merge passed.
+- Failed / did not work: nothing.
+- Files and commits: see git log on branch new-features for commits starting with T249.
 - Left to do: nothing for this task.

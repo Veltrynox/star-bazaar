@@ -1888,14 +1888,15 @@
       "depends_on": [
         "T244"
       ],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 40,
       "window": "After T244 (same screen, same file).",
       "brief": "Owner: move the skill info panel (the selected-skill details: name, flavour, plain line, cost, learn button) from the bottom of the skill screen to the right side. The tree area uses the freed height and the remaining width; keep the tree filling the screen as T244 requires, with no clipping at the default window size. Read game/skill_screen.gd. Do not change skill data or text. Handoff: handoffs/ui-programmer/<date>-T249.json.",
       "owner_note": "Owner 2026-11-06: layout decided by owner.",
       "touches": [
         "game/skill_screen.gd"
-      ]
+      ],
+      "note": "Done by orchestrator: Skill info panel moved from the bottom to a 320px right-hand column on the skill screen, tree uses freed height and remaining width"
     },
     {
       "task_id": "T250",
