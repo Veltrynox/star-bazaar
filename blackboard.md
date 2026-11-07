@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-07 10:35 run: T272
-- Summary: Rush order generator posts seeded weighted rush offers from tier-up-ready and Restless worlds with ETA-based deadlines, rush_* placeholder balance keys, hook stubs for shortage and hub, save v16
-- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
-- Approach: built by a worker in worktree ../wt/T272 on branch task/T272, merged by the serial merge queue.
-- Agent prompts: /overnight-worker T272 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T272.log.
-- Worked: rebase, full test suite and fast-forward merge passed.
-- Failed / did not work: nothing.
-- Files and commits: see git log on branch new-features for commits starting with T272.
-- Left to do: nothing for this task.
-
 ## 2026-11-07 10:36 run: T273
 - Summary: Gig board panel (rail button, key J) with kind icon, world, reward, deadline bar and Flagship ETA, plus pulsing target rings on the map (amber near the deadline) and the nearest-deadline gig in Next Up's Best move; I wrote the code myself, with no ui-programmer agent
 - Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
@@ -65,3 +55,13 @@
 - Failed / did not work: nothing.
 - Files and commits: see git log on branch new-features for commits starting with T274.
 - Left to do: nothing for this task.
+
+## 2026-11-07 10:48 run: T284
+- Summary: Not merged: fast-forward merge refused
+- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
+- Approach: built by a worker in worktree ../wt/T284 on branch task/T284, merged by the serial merge queue.
+- Agent prompts: /overnight-worker T284 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T284.log.
+- Worked: worker finished.
+- Failed / did not work: fast-forward merge refused.
+- Files and commits: see git log on branch new-features for commits starting with T284.
+- Left to do: owner or a new run: see blocked_log in schedule.json.
