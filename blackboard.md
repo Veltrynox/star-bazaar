@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-06 21:31 run: T269
-- Summary: Flagship hold, dock trade, storage load/unload and energy-burning boost with charges, saved in v14 with placeholder flagship_* balance keys
-- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
-- Approach: built by a worker in worktree ../wt/T269 on branch task/T269, merged by the serial merge queue.
-- Agent prompts: /overnight-worker T269 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T269.log.
-- Worked: rebase, full test suite and fast-forward merge passed.
-- Failed / did not work: nothing.
-- Files and commits: see git log on branch new-features for commits starting with T269.
-- Left to do: nothing for this task.
-
 ## 2026-11-06 21:31 run: T297
 - Summary: Not merged: rebase onto new-features failed
 - Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
@@ -64,4 +54,14 @@
 - Worked: worker finished.
 - Failed / did not work: rebase onto new-features failed.
 - Files and commits: see git log on branch new-features for commits starting with T270.
+- Left to do: owner or a new run: see blocked_log in schedule.json.
+
+## 2026-11-07 06:32 run: T255
+- Summary: Not merged: rebase onto new-features failed
+- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
+- Approach: built by a worker in worktree ../wt/T255 on branch task/T255, merged by the serial merge queue.
+- Agent prompts: /overnight-worker T255 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T255.log.
+- Worked: worker finished.
+- Failed / did not work: rebase onto new-features failed.
+- Files and commits: see git log on branch new-features for commits starting with T255.
 - Left to do: owner or a new run: see blocked_log in schedule.json.

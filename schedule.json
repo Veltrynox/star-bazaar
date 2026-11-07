@@ -1991,14 +1991,16 @@
       "title": "Retire the old shield_* keys and old skill keys from data/balance.json",
       "owner_agent": "gameplay-programmer",
       "depends_on": [],
-      "status": "queued",
+      "status": "blocked",
       "turn_cap": 30,
       "window": "Owner request 2026-11-06, from the mechanics review. Cleanup, no balance change.",
       "brief": "Owner: remove dead keys from data/balance.json: every shield_* key (the shield is retired in gdd.md) and every skill key that no current node in data/skills.json uses and no code reads (old tree leftovers). For each candidate key grep game/, tools/ (including tools/tests/) and data/; remove a key only when nothing reads it, and remove the code that reads it only if that code is itself dead (shield). Do not change any remaining value. Add a short line to the balance.json source note listing the removed keys. Handoff: handoffs/gameplay-programmer/<date>-T255.json listing each removed key and the grep evidence.",
       "owner_note": "Owner 2026-11-06. [no-gdd] is fine: the GDD already says the shield is retired.",
       "touches": [
         "data/balance.json"
-      ]
+      ],
+      "note": "Blocked by orchestrator: rebase onto new-features failed",
+      "blocked_log": "/Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T255-merge.log"
     },
     {
       "task_id": "T256",
