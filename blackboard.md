@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-07 15:33 run: T298
-- Summary: Opening gig (kind 'opening') wins on docking at the capital, two-perk wings for stages 1-3 hooked into hold, hub reach, tax and workshop cost, Bazaar.recap() for the end screen, save v22
-- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
-- Approach: built by a worker in worktree ../wt/T298 on branch task/T298, merged by the serial merge queue.
-- Agent prompts: /overnight-worker T298 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T298.log.
-- Worked: rebase, full test suite and fast-forward merge passed.
-- Failed / did not work: nothing.
-- Files and commits: see git log on branch new-features for commits starting with T298.
-- Left to do: nothing for this task.
-
 ## 2026-11-07 15:38 run: T299
 - Summary: Wing choice popup (two cards, pick one, reopens from a save) and an end-screen recap block above the ending text, built in bazaar_panel.gd, end_screen.gd and main.gd; wings also appear in the Bazaar panel; Continue (free play) is unchanged
 - Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
@@ -64,4 +54,14 @@
 - Worked: rebase, full test suite and fast-forward merge passed.
 - Failed / did not work: nothing.
 - Files and commits: see git log on branch new-features for commits starting with T300.
+- Left to do: nothing for this task.
+
+## 2026-11-07 15:51 run: T290
+- Summary: Hubs now stop buying under the ship cash floor (`plan(cash, cash_floor)`, main passes `ship_cash_floor()`); per-need status, untick, release, hidden hub routes and save/load were already built in T289
+- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
+- Approach: built by a worker in worktree ../wt/T290 on branch task/T290, merged by the serial merge queue.
+- Agent prompts: /overnight-worker T290 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T290.log.
+- Worked: rebase, full test suite and fast-forward merge passed.
+- Failed / did not work: nothing.
+- Files and commits: see git log on branch new-features for commits starting with T290.
 - Left to do: nothing for this task.
