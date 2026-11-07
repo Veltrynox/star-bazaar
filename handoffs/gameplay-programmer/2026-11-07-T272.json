@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-07",
+  "task": "T272",
+  "status": "done",
+  "files_changed": ["game/gigs.gd", "data/balance.json", "game/save_game.gd", "tools/tests/run_tests.gd", "handoffs/gameplay-programmer/2026-11-07-T272.json"],
+  "open_questions": [
+    "UNKNOWN: should the lot count only the unmet remainder of the need? Built as demand x rush_lot_mult as briefed.",
+    "UNKNOWN: shortage_good() and hub_fed() in game/gigs.gd are empty hooks; the weather and hub tasks must fill them."
+  ],
+  "handoff": "Gigs._gen_rush runs at each cycle start (in on_cycle): one rush per cycle at most, after rush_first_cycle and rush_gap_cycles, board room needed, per-world cooldown rush_cooldown_cycles. Candidates: established, non-Barren worlds the Flagship can reach with an unmet visible need and either one step from a tier-up (rush_weight_tier) or Restless (rush_weight_restless); shortage weather hook adds rush_weight_shortage; hub-fed worlds multiply by rush_hub_mult. Seeded draw (seed + cycle). Lot = demand x rush_lot_mult; deadline = ETA x rush_deadline_mult + rush_deadline_add. Offers carry a 'why' field (tier, restless, shortage) for the board hooks. Expiry posts NOT_RUSH_EXPIRED (existing id, fallback text). New rush_* balance keys are placeholders, noted in the balance source (data_version 67). Save version 16; old saves load with empty cooldowns. No new atoms, no new text ids. Tests not run; run_tests.gd version check updated to 16.",
+  "details": {}
+}

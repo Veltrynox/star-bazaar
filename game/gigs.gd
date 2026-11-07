@@ -4,7 +4,7 @@ extends RefCounted
 ## Data: data/gigs.json (signals, rush rewards); numbers: data/balance.json gig_* keys (all PLACEHOLDERS). Never skill points, never share.
 ## Kinds (open field "kind"): "signal" (a marker in open space; fly there, a window opens with two neutral options; one-time, expires for
 ## free, an expired signal is gone for the run) and "rush" (a world wants units of a good by a deadline; hand sale or unload at that world
-## counts; posted by Gigs.post_rush, the generator is a later task). "salvage" and "opening" come later.
+## counts; posted by Gigs.post_rush; T272 generator _gen_rush: one a cycle by seeded weighted draw). "salvage" and "opening" come later.
 ## Board: up to gig_board_max open offers (any kind); one open signal at a time, gig_gap_cycles between signals, gig_cap_signals per run,
 ## none before gig_first_cycle. The draw is seeded (saved seed + cycle), so a save's list is stable. Deadlines are on the game clock.
 ## An offer: {uid, id, kind, target {kind "point"|"planet", sys, pos [x,y,z] | index}, due (game time), accepted, req {good, units, got}, rewards}.
@@ -31,6 +31,9 @@ var knowledge: Array = []      # knowledge ids held
 var signals_seen := 0
 var rush_done := 0
 var last_signal_cycle := -100000
+var rush_last := {}            # T272: planet index -> cycle a rush was last posted there (cooldown)
+var rush_posted := 0
+var last_rush_cycle := -100000
 var seed_value := 0
 var pending := ""              # uid of a reached signal waiting for a free window
 var _uid := 0
@@ -76,6 +79,9 @@ func reset() -> void:
 	signals_seen = 0
 	rush_done = 0
 	last_signal_cycle = -100000
+	rush_last = {}
+	rush_posted = 0
+	last_rush_cycle = -100000
 	pending = ""
 	_uid = 0
 
@@ -126,6 +132,7 @@ func on_cycle(cycle: int) -> void:
 		perks[k] = float(perks[k]) - 1.0
 		if float(perks[k]) <= 0.0:
 			perks.erase(k)
+	_gen_rush(cycle)
 	if not enabled() or not board_room() or not open_signal().is_empty():
 		return
 	if cycle < int(_bal("gig_first_cycle")) or cycle - last_signal_cycle < int(_bal("gig_gap_cycles")) or signals_seen >= int(_bal("gig_cap_signals")):
@@ -194,6 +201,96 @@ func post_rush(planet: int, good: String, units: int, deadline_cycles: float) ->
 		"due": _now() + deadline_cycles, "accepted": false, "req": {"good": good, "units": units, "got": 0}, "rewards": rush_rewards.duplicate(true)})
 	changed.emit()
 	return uid
+
+## ---- rush generator (T272) ----------------------------------------------------------------------------------------
+## Hooks for later tasks: a shortage weather hit on a world (the good it lacks, "" = none) and a hub that feeds a world (posts fewer).
+func shortage_good(_planet: int) -> String:
+	return ""
+
+func hub_fed(_planet: int) -> bool:
+	return false
+
+## The goods a world's unmet needs still want (visible goods only).
+func _unmet_goods(i: int) -> Array:
+	var out: Array = []
+	for n in main.prosperity.needs(i):
+		if not bool(n["locked"]) and not bool(n["met"]) and str(n["good"]) != "?" and Availability.good(str(n["good"])):
+			out.append(str(n["good"]))
+	return out
+
+## One candidate per world: {planet, good, weight, why}. Reasons: "shortage" (weather hook), "tier" (one step from a tier-up with a short need),
+## "restless". A world with a reason but no unmet visible need is skipped, except a shortage (it names its own good).
+func rush_candidates(cycle: int) -> Array:
+	var out: Array = []
+	var cool := int(_bal("rush_cooldown_cycles"))
+	var pr = main.prosperity
+	for i in main.map.planets.size():
+		if not main.planet_established(i) or pr.tier(i) < 1 or pr.is_barren(i):
+			continue
+		if rush_last.has(i) and cycle - int(rush_last[i]) < cool:
+			continue
+		var pid := str(main.map.planets[i].get("id", ""))
+		if not main.flight.established(pid) or main.flight.eta_cycles(pid) < 0.0:
+			continue
+		var unmet := _unmet_goods(i)
+		var weight := 0.0
+		var why := ""
+		var good := ""
+		var sg := shortage_good(i)
+		if sg != "" and Availability.good(sg):
+			weight += _bal("rush_weight_shortage")
+			why = "shortage"
+			good = sg
+		if not unmet.is_empty():
+			if pr.tier(i) < pr.max_tier() and pr.steps(i) + 1 >= pr.steps_needed(i):
+				weight += _bal("rush_weight_tier")
+				why = why if why != "" else "tier"
+			if pr.restless(i):
+				weight += _bal("rush_weight_restless")
+				why = why if why != "" else "restless"
+			if good == "":
+				good = str(unmet[0])
+		if weight <= 0.0 or good == "":
+			continue
+		if hub_fed(i):
+			weight *= maxf(0.0, _bal("rush_hub_mult", 1.0))
+		out.append({"planet": i, "good": good, "weight": weight, "why": why, "unmet": unmet})
+	return out
+
+## Start of a cycle: at most one new rush order, by a seeded weighted draw. Board room, first cycle, gap and per-world cooldown apply.
+func _gen_rush(cycle: int) -> void:
+	if not enabled() or not board_room() or cycle < int(_bal("rush_first_cycle")) or cycle - last_rush_cycle < int(_bal("rush_gap_cycles")):
+		return
+	var cands := rush_candidates(cycle)
+	var total := 0.0
+	for c in cands:
+		total += float(c["weight"])
+	if total <= 0.0:
+		return
+	var rng := RandomNumberGenerator.new()
+	rng.seed = seed_value + cycle * 104729 + 17
+	var r := rng.randf() * total
+	var pick: Dictionary = cands[0]
+	for c in cands:
+		r -= float(c["weight"])
+		if r <= 0.0:
+			pick = c
+			break
+	var i := int(pick["planet"])
+	var good := str(pick["good"])
+	if pick["unmet"].size() > 1 and str(pick["why"]) != "shortage":
+		good = str(pick["unmet"][rng.randi() % pick["unmet"].size()])
+	var units := maxi(1, roundi(float(main.prosperity.demand(i)) * _bal("rush_lot_mult", 1.0)))
+	var eta: float = main.flight.eta_cycles(str(main.map.planets[i].get("id", "")))
+	var uid := post_rush(i, good, units, eta * _bal("rush_deadline_mult", 1.0) + _bal("rush_deadline_add"))
+	if uid == "":
+		return
+	var o := offer(uid)
+	o["why"] = str(pick["why"])
+	rush_last[i] = cycle
+	rush_posted += 1
+	last_rush_cycle = cycle
+	changed.emit()
 
 # ---- the player's side -----------------------------------------------------------------------------------------------
 
@@ -428,7 +525,7 @@ static func _lint_effect(e: Dictionary, where: String, errs: Array, bal: Diction
 func to_dict() -> Dictionary:
 	return {"seed": seed_value, "offers": offers.duplicate(true), "done": done.keys(), "skipped": skipped.keys(), "credits": credits.duplicate(true),
 		"perks": perks.duplicate(), "knowledge": knowledge.duplicate(), "signals_seen": signals_seen, "rush_done": rush_done,
-		"last_signal_cycle": last_signal_cycle, "uid": _uid}
+		"last_signal_cycle": last_signal_cycle, "uid": _uid, "rush_last": rush_last.duplicate(), "rush_posted": rush_posted, "last_rush_cycle": last_rush_cycle}
 
 ## A missing or bad dictionary (a save from before gigs) means an empty board, nothing done.
 func from_dict(s) -> void:
@@ -456,3 +553,8 @@ func from_dict(s) -> void:
 	rush_done = int(s.get("rush_done", 0))
 	last_signal_cycle = int(s.get("last_signal_cycle", -100000))
 	_uid = int(s.get("uid", 0))
+	if typeof(s.get("rush_last")) == TYPE_DICTIONARY:
+		for k in s["rush_last"]:
+			rush_last[int(k)] = int(s["rush_last"][k])
+	rush_posted = int(s.get("rush_posted", 0))
+	last_rush_cycle = int(s.get("last_rush_cycle", -100000))
