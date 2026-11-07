@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-06 18:50 run: T262
-- Summary: Planet card growth section (tier, progress bar, need rows with chips, locked '?', Restless line, empty fed-by slot, confirmed Found the Bazaar button) plus new placeholder balance key
-- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
-- Approach: built by a worker in worktree ../wt/T262 on branch task/T262, merged by the serial merge queue.
-- Agent prompts: /overnight-worker T262 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T262.log.
-- Worked: rebase, full test suite and fast-forward merge passed.
-- Failed / did not work: nothing.
-- Files and commits: see git log on branch new-features for commits starting with T262.
-- Left to do: nothing for this task.
-
 ## 2026-11-06 18:51 run: T301
 - Summary: Wrote the frontier text (reclaim, raids, cargo pods, mining intensity), six wing names and lines, the Opening gig GIG07, recap labels and nine epilogue lines, then rebuilt story_text.json
 - Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
@@ -64,4 +54,14 @@
 - Worked: rebase, full test suite and fast-forward merge passed.
 - Failed / did not work: nothing.
 - Files and commits: see git log on branch new-features for commits starting with T279.
+- Left to do: nothing for this task.
+
+## 2026-11-06 19:04 run: T248
+- Summary: Route line shape (endpoints and arc) now eases with a damped follow via retarget(), with in-place rebuilds, instead of a harsh rebuild; draw-in, fade and pulse kept
+- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
+- Approach: built by a worker in worktree ../wt/T248 on branch task/T248, merged by the serial merge queue.
+- Agent prompts: /overnight-worker T248 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T248.log.
+- Worked: rebase, full test suite and fast-forward merge passed.
+- Failed / did not work: nothing.
+- Files and commits: see git log on branch new-features for commits starting with T248.
 - Left to do: nothing for this task.

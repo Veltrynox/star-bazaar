@@ -1871,14 +1871,15 @@
       "title": "Ship destination line: smooth offset on stretch and shrink, no harsh refresh",
       "owner_agent": "juice-programmer",
       "depends_on": [],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 40,
       "window": "Follows T219.",
       "brief": "Owner: the ship's destination line (route line) should be smoother. When it is stretched or shrunk (ship moves, planets move, route changes) it must not redraw/refresh harshly; its endpoints and dash/pattern offset should ease smoothly (lerp or damped follow) instead. Read game/route_line.gd (constants atop, T219 draw-in/fade/pulse). Keep the draw-in, fade and pulse. Handoff: handoffs/juice-programmer/<date>-T248.json.",
       "owner_note": "Owner 2026-11-06.",
       "touches": [
         "game/route_line.gd"
-      ]
+      ],
+      "note": "Done by orchestrator: Route line shape (endpoints and arc) now eases with a damped follow via retarget(), with in-place rebuilds, instead of a harsh rebuild; draw-in, fade and pulse kept"
     },
     {
       "task_id": "T249",
