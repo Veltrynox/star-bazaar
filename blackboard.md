@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-07 10:52 run: T281
-- Summary: Not merged: worker did not report done: None
-- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
-- Approach: built by a worker in worktree ../wt/T281 on branch task/T281, merged by the serial merge queue.
-- Agent prompts: /overnight-worker T281 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T281.log.
-- Worked: worker finished.
-- Failed / did not work: worker did not report done: None.
-- Files and commits: see git log on branch new-features for commits starting with T281.
-- Left to do: owner or a new run: see blocked_log in schedule.json.
-
 ## 2026-11-07 10:53 run: T283
 - Summary: House ships now lead convoys that fly to their house's weather world (forecast lead plus warning-skill cycles), park there until it ends, then idle as before; the escorts are a traffic free group and the five new convoy_* keys are placeholders
 - Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
@@ -64,4 +54,14 @@
 - Worked: rebase, full test suite and fast-forward merge passed.
 - Failed / did not work: nothing.
 - Files and commits: see git log on branch new-features for commits starting with T245.
+- Left to do: nothing for this task.
+
+## 2026-11-07 11:01 run: T303
+- Summary: Ambient ship traffic (1000 ships, own MultiMesh, dim thin streaks) flows along every planet pair of the viewed system from the start, with traffic_ambient_* balance keys, debug readout and gdd.md updated
+- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
+- Approach: built by a worker in worktree ../wt/T303 on branch task/T303, merged by the serial merge queue.
+- Agent prompts: /overnight-worker T303 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T303.log.
+- Worked: rebase, full test suite and fast-forward merge passed.
+- Failed / did not work: nothing.
+- Files and commits: see git log on branch new-features for commits starting with T303.
 - Left to do: nothing for this task.
