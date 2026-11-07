@@ -2874,13 +2874,24 @@ func _busiest_route(market: String) -> int:
 			key = k
 	return best
 
+## T284: the world a market choice names for moods: where the market's busiest route ends ("" when it has none or ends at a cluster).
+func _mood_world(market: String) -> String:
+	var r := _busiest_route(market)
+	if r < 0:
+		return ""
+	for rec in engine.routes:
+		if int(rec["id"]) == r:
+			var b := int(rec["b"])
+			return str(map.planets[b].get("id", "")) if b >= 0 and b < map.planets.size() else ""
+	return ""
+
 ## A button of a chain step was pressed (index in the shown order): the option applies at once, the result popup follows.
 func _apply_chain_choice(choice: int, id: String) -> void:
 	var order: Array = Chains.visible_options(id)
 	if choice < 0 or choice >= order.size():
 		return
 	var opt := str(order[choice])
-	var res: Dictionary = Chains.apply_option(id, opt, cycle, Callable(self, "_busiest_route"))
+	var res: Dictionary = Chains.apply_option(id, opt, cycle, Callable(self, "_busiest_route"), _mood_world(Chains.market_of(id)))
 	cash += int(res["cash"])
 	for t in res["tech"]:
 		craft_units(str(t[0]), int(t[1]))
@@ -2913,6 +2924,8 @@ func _on_event_confirmed(choice: int, id: String) -> void:
 		var choices: Array = events.choices_of(id)
 		if choice < choices.size():
 			events.schedule_follow(choices[choice], cycle)  # R1: a choice may schedule a later event
+			if events.is_branch(id) and typeof(choices[choice]) == TYPE_DICTIONARY:
+				Chains.note_branch(id, bool(choices[choice].get("dark", false)), cycle, _mood_world(str(choices[choice].get("market", ""))))  # T284 mood mark
 			if typeof(choices[choice]) == TYPE_DICTIONARY and bool(choices[choice].get("dark", false)):
 				events.dark_choice()  # hidden: may mark the run as spotted (see Events.dark_choice); nothing is shown
 			var over := {}

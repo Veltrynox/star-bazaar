@@ -161,6 +161,10 @@ func mining_closed_reason(i: int) -> String:
 		return StoryText.get_or("NOT_MINE_RECLAIMED", "This world is alive again and is no longer mined.")
 	return StoryText.get_or("NOT_MINE_RECLAIMING", "Being reclaimed: mining is closed here.")
 
+## T284: the lean on a world, 'warm' | 'plain' | 'cold' (Chains.mood_of). A face only: nothing here reads it for prices, growth or tax.
+func mood(i: int) -> String:
+	return Chains.mood_of(_pid(i))
+
 func tier(i: int) -> int:
 	var pid := _pid(i)
 	if pid == "":

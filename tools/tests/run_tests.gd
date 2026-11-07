@@ -1940,7 +1940,7 @@ func _test_skills_core() -> void:
 	f.store_string(JSON.stringify({"version": 2, "state": v2}))
 	f.close()
 	var loaded: Dictionary = SaveGame.load_state()
-	check(SaveGame.VERSION == 20 and not loaded.is_empty() and loaded["learned_skills"].has("FND_STORAGE") and not SaveGame.dropped_old, "migration: a v2 file loads migrated")
+	check(SaveGame.VERSION == 21 and not loaded.is_empty() and loaded["learned_skills"].has("FND_STORAGE") and not SaveGame.dropped_old, "migration: a v2 file loads migrated")
 	f = FileAccess.open(SaveGame.PATH, FileAccess.WRITE)
 	f.store_string(JSON.stringify({"version": 1, "state": v2}))
 	f.close()
@@ -6179,7 +6179,22 @@ func _test_chains() -> void:
 	# save version 4 and v3 migration
 	var gig_errs: Array = Gigs.lint()
 	check(gig_errs.is_empty(), "gigs: data/gigs.json lints clean", str(gig_errs))
-	check(SaveGame.VERSION == 20, "save: version 20 (v2 and newer load; v1 is dropped, owner approved)")
+	# T284 moods: marks per world, warm/plain/cold, decisive three, save round trip
+	Chains.reset(bal, 1)
+	Chains.note_branch("EV52", true, 10, "w_a")
+	Chains.note_branch("EV53", false, 12, "w_b")
+	Chains.note_branch("EV54", true, 14, "w_a")
+	Chains.note_branch("EV55", false, 15, "w_c")
+	check(Chains.mood_of("w_a") == "cold" and Chains.mood_of("w_b") == "warm" and Chains.mood_of("nowhere") == "plain", "moods: dark marks cool a world, public ones warm it, unnamed is plain")
+	check(Chains.decisive_moments().size() == 3 and Chains.decisive_moments()[0]["id"] == "EV52", "moods: three decisive moments, biggest then earliest first")
+	var mk_save: Array = Chains.to_dict()["marks"]
+	Chains.reset(bal, 1)
+	Chains.from_dict({"marks": mk_save}, bal)
+	check(Chains.marks.size() == 4 and Chains.mood_of("w_a") == "cold", "moods: marks survive save and load")
+	Chains.from_dict({}, bal)
+	check(Chains.marks.is_empty() and Chains.mood_of("w_a") == "plain", "moods: an old save has every world plain")
+	Chains.reset(bal, 0)
+	check(SaveGame.VERSION == 21, "save: version 21 (v2 and newer load; v1 is dropped, owner approved)")
 	var v3 := {"cycle": 7, "cash": 300, "chains": {"dir": {"mil": 9}}, "shield": {"built": true}}
 	var mig: Dictionary = SaveGame.migrate_v3(v3)
 	check(mig["cash"] == 300 and not mig.has("shield") and not mig.has("chains"), "save: v3 migrates, chain state fresh, shield dropped")

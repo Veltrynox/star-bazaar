@@ -16,6 +16,7 @@ static func techs_of(market: String) -> Array:
 
 ## Dictionary for the end screen:
 ## {market, ending_id, capstone (MKT_7 learned), tech_done (0..3), rival_broken, rival_broken_bot (0 none), flag ("good"|"bad"),
+##  decisive (T284: Chains.decisive_moments(), the three choices that moved the lean most),
 ##  stages_done (T259: Star Bazaar stages completed)}.
 static func inputs(market: String, balance: Dictionary, stages_done: int = 0) -> Dictionary:
 	var mk := market.to_lower()
@@ -23,5 +24,5 @@ static func inputs(market: String, balance: Dictionary, stages_done: int = 0) ->
 	for id in techs_of(mk):
 		if Skills.is_learned(id):
 			done += 1
-	return {"market": mk, "ending_id": "END_%s_%s" % [mk.to_upper(), Chains.ending_flag(mk).to_upper()], "flag": Chains.ending_flag(mk), "stages_done": stages_done, "capstone": Skills.is_learned("%s_7" % mk.to_upper()),
+	return {"market": mk, "ending_id": "END_%s_%s" % [mk.to_upper(), Chains.ending_flag(mk).to_upper()], "flag": Chains.ending_flag(mk), "decisive": Chains.decisive_moments(), "stages_done": stages_done, "capstone": Skills.is_learned("%s_7" % mk.to_upper()),
 		"tech_done": done, "rival_broken": Chains.rival_broken(mk), "rival_broken_bot": Chains.rival_broken_bot(mk)}

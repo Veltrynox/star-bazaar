@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-07",
+  "task": "T284",
+  "status": "done",
+  "files_changed": ["game/chains.gd", "game/main.gd", "game/prosperity.gd", "game/ending_picker.gd", "game/save_game.gd", "data/balance.json", "gdd.md", "tools/tests/run_tests.gd", "handoffs/gameplay-programmer/2026-11-07-T284.json"],
+  "open_questions": [
+    "UNKNOWN: the design names no world for a chain or branch event, so the named world is the end of the market's busiest route (Main._mood_world); no route means no world, the mark still counts for decisive_moments().",
+    "The mood keys (mood_chain_pct, mood_branch_dark/public, mood_warm_min, mood_cold_max) are placeholders for economy-designer."
+  ],
+  "handoff": "Chains.marks records each chain pick and branch choice with a signed weight and world. Chains.mood_of(planet id) and Prosperity.mood(i) give warm/plain/cold; Chains.decisive_moments() gives the top three; EndingPicker.inputs() carries them as 'decisive'. Saved in the chains block, save v17, old saves load plain. Nothing reads moods for prices, growth or tax. tools/tests/run_tests.gd was touched (outside touches) for the version check and mood tests."
+}

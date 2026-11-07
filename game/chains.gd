@@ -40,6 +40,10 @@ static var marked: Dictionary = {}    # market -> bot id with the biggest cut of
 ## (EV52-EV55) is spotted. `suppressed` holds the removed half of the profitable events: pool event ids and "<step>|<opt>" keys.
 static var spotted: bool = false
 static var suppressed: Array = []
+## T284 moods: every lean-moving choice leaves a mark {id, opt, cycle, w (signed lean weight), world (planet id, "" none)}. Chain options weigh their
+## lean nudge (x mood_chain_pct / 100); a branch event (EV52-EV55) weighs mood_branch_dark (dark market) or mood_branch_public. A world's mood is the
+## sum of the marks naming it: warm at >= mood_warm_min, cold at <= mood_cold_max, else plain. Reads only; never touches prices, growth or tax.
+static var marks: Array = []
 
 static func load_data() -> void:
 	_loaded = true
@@ -80,6 +84,7 @@ static func reset(balance: Dictionary, seed_value: int = 0) -> void:
 	marked = {}
 	spotted = false
 	suppressed = []
+	marks = []
 	for m in MARKETS:
 		dirv[m] = 0
 		marked[m] = 0
@@ -337,7 +342,7 @@ static func rival_log() -> Array:
 # ---- player effects ----
 
 ## Busiest route: Callable(market: String) -> route id (-1 none). Returns the result dictionary; main applies cash and tech.
-static func apply_option(step_id: String, opt_id: String, cycle: int, busiest_route: Callable = Callable()) -> Dictionary:
+static func apply_option(step_id: String, opt_id: String, cycle: int, busiest_route: Callable = Callable(), world: String = "") -> Dictionary:
 	_ensure()
 	var res := {"step": step_id, "opt": opt_id, "cash": 0, "tech": [], "rivals": []}
 	var s: Dictionary = step_by_id.get(step_id, {})
@@ -347,6 +352,7 @@ static func apply_option(step_id: String, opt_id: String, cycle: int, busiest_ro
 	var o: Dictionary = s[opt_id]
 	var nudge := nudge_of(step_id, opt_id)
 	picks[step_id] = {"opt": opt_id, "cycle": cycle, "nudge": nudge}
+	marks.append({"id": step_id, "opt": opt_id, "cycle": cycle, "w": int(round(float(nudge) * _num("mood_chain_pct", 0.0) / 100.0)), "world": world})
 	dirv[m] = clampi(dir_of(m) + nudge, int(_num("dir_min", -100.0)), int(_num("dir_max", 100.0)))
 	for lst in ["gets", "costs"]:
 		for e in o.get(lst, []):
@@ -364,6 +370,39 @@ static func apply_option(step_id: String, opt_id: String, cycle: int, busiest_ro
 			broken[m] = int(entry["bot"])
 	marked[m] = best_b
 	return res
+
+## T284: a branch event choice (EV52-EV55): dark market weighs mood_branch_dark (negative), public mood_branch_public, on the named world.
+static func note_branch(event_id: String, dark: bool, cycle: int, world: String) -> void:
+	_ensure()
+	marks.append({"id": event_id, "opt": "dark" if dark else "public", "cycle": cycle, "w": int(_num("mood_branch_dark" if dark else "mood_branch_public", 0.0)), "world": world})
+
+## 'warm' | 'plain' | 'cold' for a planet id. No thresholds in balance = plain.
+static func mood_of(world: String) -> String:
+	if world == "" or not bal.has("mood_warm_min") or not bal.has("mood_cold_max"):
+		return "plain"
+	var sum := 0
+	for mk in marks:
+		if str(mk["world"]) == world:
+			sum += int(mk["w"])
+	if sum >= int(_num("mood_warm_min")):
+		return "warm"
+	if sum <= int(_num("mood_cold_max")):
+		return "cold"
+	return "plain"
+
+## The (up to) three marks that moved the lean most, biggest |w| first, earlier first on a tie: [{id, opt, cycle, w, world}]. For the end recap.
+static func decisive_moments() -> Array:
+	var all: Array = []
+	for mk in marks:
+		if int(mk["w"]) != 0:
+			all.append(mk.duplicate())
+	all.sort_custom(func(a, b):
+		if absi(int(a["w"])) != absi(int(b["w"])):
+			return absi(int(a["w"])) > absi(int(b["w"]))
+		if int(a["cycle"]) != int(b["cycle"]):
+			return int(a["cycle"]) < int(b["cycle"])
+		return str(a["id"]) < str(b["id"]))
+	return all.slice(0, 3)
 
 static func _player_effect(step_id: String, m: String, e: Dictionary, cycle: int, res: Dictionary, busiest_route: Callable) -> void:
 	var t := str(e.get("type", ""))
@@ -652,7 +691,7 @@ static func pool_rivals_line(id: String) -> String:
 
 static func to_dict() -> Dictionary:
 	return {"seed": run_seed, "picks": picks.duplicate(true), "dir": dirv.duplicate(), "timed": timed.duplicate(true), "log": rlog.duplicate(true),
-		"broken": broken.duplicate(), "marked": marked.duplicate(), "spotted": spotted, "suppressed": suppressed.duplicate()}
+		"broken": broken.duplicate(), "marked": marked.duplicate(), "spotted": spotted, "suppressed": suppressed.duplicate(), "marks": marks.duplicate(true)}
 
 ## Missing or old data = a fresh chain state (v3 saves).
 static func from_dict(d, balance: Dictionary = {}) -> void:
@@ -688,3 +727,7 @@ static func from_dict(d, balance: Dictionary = {}) -> void:
 	if typeof(d.get("suppressed")) == TYPE_ARRAY:
 		for k in d["suppressed"]:
 			suppressed.append(str(k))
+	if typeof(d.get("marks")) == TYPE_ARRAY:  # T284; old saves have none: every world plain
+		for mk in d["marks"]:
+			if typeof(mk) == TYPE_DICTIONARY:
+				marks.append({"id": str(mk.get("id", "")), "opt": str(mk.get("opt", "")), "cycle": int(mk.get("cycle", 0)), "w": int(mk.get("w", 0)), "world": str(mk.get("world", ""))})
