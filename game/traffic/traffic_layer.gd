@@ -1,8 +1,9 @@
 extends Node3D
 ## T277: the traffic layer of one system view. Many small 3D ships at almost no CPU cost; a readout of the books, never a simulation.
-## Three groups, one MultiMesh per (group, mesh) = a hull draw call and a streak draw call each (6 meshes at most, 12 draw calls):
+## Four groups (T303 adds ambient), one MultiMesh per (group, mesh) = a hull draw call and a streak draw call each (6 meshes at most, 12 draw calls):
 ##   path  : ships along a quadratic Bezier lane (p0, pc, p2, count, state, cargo tint). Shader motion, like the lane dots.
 ##   orbit : ships circling a centre inside a radius band (count). Shader motion.
+##   ambient: between-planets flow, same Bezier motion as path, dimmer and thinner (set_ambient_group).
 ##   free  : few ships flown on the CPU with ShipMotion.step (convoys, raiders); the free buffer is rewritten only while one moves.
 ## Instance buffers are rewritten only when a group is set or cleared (dirty flag, once per frame at most), never per frame.
 ## Per frame: three global shader uniforms (clock, fade, leg speed) and the zoom fade; zero per-ship nodes.
@@ -19,6 +20,7 @@ const FLOATS := 16           # per instance: 12 transform + 4 custom
 const MODE_PATH := 0
 const MODE_ORBIT := 1
 const MODE_FREE := 2
+const MODE_AMBIENT := 3       # T303: path motion, own MultiMesh so its 1000 ships never use up the lane cap
 const BIG := 100000.0        # custom AABB half extent: the instance transforms carry data, not positions
 const MAX_SUBSTEPS := 8
 
@@ -92,6 +94,16 @@ func set_orbit_group(key: String, centre: Vector3, r_in: float, r_out: float, co
 		_push(buf, centre, Vector3(r_in, r_out, rev), Vector3(tilt, scale_mult, 0.0), Vector3.ZERO, Vector4(float(i) / float(maxi(n, 1)), pal, 0.0, _seed(key, i)))
 	_set_group(key, slot, buf, n)
 
+## T303: ambient lane between two planets: `count` ships spread over the loop (both directions), p0 > p2 bowed through pc.
+## Size, speed and look come from balance traffic_ambient_*. Plain tint, always running.
+func set_ambient_group(key: String, p0: Vector3, pc: Vector3, p2: Vector3, count: int, mesh: String = "corvette") -> void:
+	var slot := _slot_for(MODE_AMBIENT, mesh)
+	var buf := PackedFloat32Array()
+	var n := mini(maxi(count, 0), _cap())
+	for i in n:
+		_push(buf, p0, pc, p2, Vector3(_b("traffic_ambient_scale"), _b("traffic_ambient_speed"), 0.0), Vector4(float(i) / float(maxi(n, 1)), 0.0, 0.0, _seed(key, i)))
+	_set_group(key, slot, buf, n)
+
 ## One free-flying ship (plane x/z, height y) that flies to `target` with ShipMotion.step. Call again to retarget (keeps its motion).
 func set_free_ship(key: String, pos: Vector2, target: Vector2, kind: String = "pirate", tint: Color = Color.TRANSPARENT, y: float = 0.0, scale_mult: float = 1.0) -> void:
 	var f = _free.get(key)
@@ -123,22 +135,22 @@ func clear_all() -> void:
 
 ## Instances per group and the draw calls (two per visible MultiMesh: hull and streak).
 func stats() -> Dictionary:
-	var by := {"path": 0, "orbit": 0, "free": 0}
+	var by := {"path": 0, "orbit": 0, "free": 0, "ambient": 0}
 	var calls := 0
 	for k in _slots:
 		var s: Dictionary = _slots[k]
 		var mode := int(str(k).get_slice("|", 0))
-		by[["path", "orbit", "free"][mode]] += int(s["count"])
+		by[["path", "orbit", "free", "ambient"][mode]] += int(s["count"])
 		if (s["mmi"] as MultiMeshInstance3D).visible:
 			calls += 2
-	by["total"] = int(by["path"]) + int(by["orbit"]) + int(by["free"])
+	by["total"] = int(by["path"]) + int(by["orbit"]) + int(by["free"]) + int(by["ambient"])
 	by["draw_calls"] = calls
 	by["fade"] = _fade
 	return by
 
 func stats_text() -> String:
 	var s := stats()
-	return "Traffic: path %d, orbit %d, free %d (total %d), draw calls %d, fade %.2f" % [s["path"], s["orbit"], s["free"], s["total"], s["draw_calls"], s["fade"]]
+	return "Traffic: path %d, orbit %d, free %d, ambient %d (total %d), draw calls %d, fade %.2f" % [s["path"], s["orbit"], s["free"], s["ambient"], s["total"], s["draw_calls"], s["fade"]]
 
 ## ---- frame ----
 
@@ -189,7 +201,7 @@ func _cap() -> int:
 
 ## Pushes balance numbers into the materials when one of them changed (the debug menu edits balance live).
 func _apply_balance() -> void:
-	var now := [_b("traffic_ship_length") * _b("traffic_ship_scale"), _b("traffic_streak_len"), _b("traffic_light_glow"), _b("traffic_blink_hz")]
+	var now := [_b("traffic_ship_length") * _b("traffic_ship_scale"), _b("traffic_streak_len"), _b("traffic_light_glow"), _b("traffic_blink_hz"), _b("traffic_ambient_bright"), _b("traffic_ambient_streak")]
 	if now == _applied:
 		return
 	_applied = now
@@ -204,6 +216,8 @@ func _push_params(mats: Array) -> void:
 		m.set_shader_parameter("streak_len", _applied[1])
 		m.set_shader_parameter("glow", _applied[2])
 		m.set_shader_parameter("blink_hz", _applied[3])
+		m.set_shader_parameter("amb_gain", _applied[4])
+		m.set_shader_parameter("amb_streak", _applied[5])
 
 ## ---- buffers ----
 

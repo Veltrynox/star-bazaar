@@ -29,7 +29,7 @@ void vertex() {
 			col = (st < 1.5 ? col_warn.rgb : col_bad.rgb) * glow * on;
 		}
 	}
-	v_col = col;
+	v_col = mode == 3 ? col * amb_gain : col;
 	POSITION = PROJECTION_MATRIX * VIEW_MATRIX * vec4(wp, 1.0);
 	if (traffic_fade <= 0.001) {
 		POSITION = vec4(2.0, 2.0, 2.0, 1.0);  // off: outside the clip volume

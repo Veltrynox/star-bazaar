@@ -2,6 +2,7 @@
 //   INSTANCE_CUSTOM = (phase 0..1, palette index of the cargo tint, state 0 running / 1 stalled / 2 blocked, seed 0..1)
 //   MODEL_MATRIX columns carry the group data (the MultiMesh buffer is written in game/traffic/traffic_layer.gd):
 //     mode 0 path : c0 = p0, c1 = pc, c2 = p2 (quadratic Bezier), c3.x = scale multiplier, c3.y = speed multiplier
+//     mode 3 ambient: as mode 0 (T303: between-planets flow, own MultiMesh, dimmer, shorter streak)
 //     mode 1 orbit: c0 = centre, c1 = (radius in, radius out, revolutions per clock unit), c2 = (tilt rad, scale mult, 0)
 //     mode 2 free : c3 = position, c0 = unit forward, c1.x = scale multiplier (CPU steps these with ShipMotion)
 // Mesh forward is -Z (same as the ship models), so the heading yaw convention of ShipMotion applies.
@@ -13,6 +14,8 @@ uniform float ship_len = 0.0;             // world units, from balance (traffic_
 uniform float streak_len = 0.0;           // streak length in ship lengths
 uniform float glow = 0.0;                 // HDR multiplier of lights and engines (above 1.0 feeds the glow)
 uniform float blink_hz = 0.0;
+uniform float amb_gain = 1.0;             // T303: brightness multiplier of ambient (mode 3) ships
+uniform float amb_streak = 1.0;           // T303: streak length multiplier of ambient ships
 uniform vec4 col_warm : source_color = vec4(1.0, 0.72, 0.35, 1.0);   // laden, running lights
 uniform vec4 col_dim : source_color = vec4(0.45, 0.5, 0.6, 1.0);     // empty, going back
 uniform vec4 col_warn : source_color = vec4(0.886, 0.753, 0.369, 1.0);
@@ -24,7 +27,7 @@ void traffic_place(mat4 M, vec4 cu, out vec3 pos, out vec3 fwd, out float sc, ou
 	st = cu.z;
 	laden = 1.0;
 	sc = ship_len;
-	if (mode == 0) {
+	if (mode == 0 || mode == 3) {
 		float c = fract(traffic_clock * traffic_leg_speed * M[3].y + cu.x);
 		bool back = c > 0.5;
 		float u = back ? 2.0 - c * 2.0 : c * 2.0;

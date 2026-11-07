@@ -13,10 +13,10 @@ void vertex() {
 	traffic_place(MODEL_MATRIX, INSTANCE_CUSTOM, pos, fwd, sc, st, laden);
 	mat3 B = traffic_frame(fwd);
 	vec3 v = VERTEX;
-	v.z += UV.y * (streak_len * (laden > 0.5 ? 1.0 : 0.5) - 1.0);  // mesh streak is one ship length, UV.y 0 at the engine to 1 at the tail
+	v.z += UV.y * (streak_len * (mode == 3 ? amb_streak : 1.0) * (laden > 0.5 ? 1.0 : 0.5) - 1.0);  // mesh streak is one ship length, UV.y 0 at the engine to 1 at the tail
 	vec3 wp = pos + B * (v * sc);
 	float k = pow(1.0 - UV.y, 2.0) * (st < 0.5 ? 1.0 : 0.0) * (laden > 0.5 ? 1.0 : 0.4);
-	v_k = k;
+	v_k = mode == 3 ? k * amb_gain : k;
 	POSITION = PROJECTION_MATRIX * VIEW_MATRIX * vec4(wp, 1.0);
 	if (traffic_fade <= 0.001 || streak_len <= 0.0) {
 		POSITION = vec4(2.0, 2.0, 2.0, 1.0);

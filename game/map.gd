@@ -10,6 +10,8 @@ const PlanetTypes := preload("res://game/planet_types.gd")
 const Systems := preload("res://game/systems.gd")
 const Motion := preload("res://game/ship_motion.gd")  # T202: SPAWN_GAP, BODY_MARGIN
 const StationScript := preload("res://game/station.gd")
+const RouteLineScript := preload("res://game/route_line.gd")  # T303: GAP and BOW of the lane arc
+const RouteOffset := preload("res://game/route_offset.gd")
 const PLANETS_PATH := "res://data/planets.json"
 
 # Zoom bounds are not in gdd.md: defaults for owner decision.
@@ -979,11 +981,67 @@ func _update_orbit_traffic(delta: float) -> void:
 		var tilt := deg_to_rad(float(bal.get("traffic_orbit_tilt_deg", 20.0))) * (1.0 if i % 2 == 0 else -1.0)
 		traffic.set_orbit_group(key, positions[i], r_in, r_out, n, "corvette", tilt, 1.0 if i % 2 == 0 else -1.0, Color.TRANSPARENT, float(bal.get("traffic_orbit_ship_scale", 0.5)))
 
+## T303: ambient lanes. Every pair of planets in the viewed system carries a stream of small ships from the start of a run, no
+## condition (a lane exists whether or not the player trades there). balance traffic_ambient_ships is shared over the pairs
+## (shorter lanes get more, every lane at least traffic_ambient_min). The arc is the route line's (same GAP and BOW). Buffers are
+## rewritten only when the planet set, positions, sizes or numbers change, never per frame. Readout only, nothing is saved.
+var _ambient_sig := ""
+var _ambient_keys: Array = []
+var _ambient_gen := -1
+func _update_ambient_traffic() -> void:
+	if traffic == null or prosperity == null:
+		return
+	var bal: Dictionary = prosperity.balance
+	var ids: Array = []
+	for i in planets.size():
+		if planet_in_view(i) and i < positions.size():
+			ids.append(i)
+	var total := int(bal.get("traffic_ambient_ships", 0))
+	var min_n := int(bal.get("traffic_ambient_min", 1))
+	var sig := "%d|%d|%d|%d|%s" % [view_system, total, min_n, int(bal.get("traffic_max_instances", 0)), "%s" % [float(bal.get("traffic_ambient_scale", 1.0)) + float(bal.get("traffic_ambient_speed", 1.0))]]
+	for i in ids:
+		sig += "|%d:%s:%.3f" % [i, positions[i], planet_radius(i)]
+	if _ambient_gen == traffic.generation and sig == _ambient_sig:
+		return
+	_ambient_gen = traffic.generation
+	_ambient_sig = sig
+	for k in _ambient_keys:
+		traffic.clear_group(k)
+	_ambient_keys.clear()
+	var lanes: Array = []   # [key, p0, pc, p2, weight]
+	var wsum := 0.0
+	var sl := sun_list()
+	for ai in ids.size():
+		for bi in range(ai + 1, ids.size()):
+			var a: int = ids[ai]
+			var b: int = ids[bi]
+			var dir := (positions[b] - positions[a]).normalized()
+			var p0 := positions[a] + dir * planet_radius(a) * RouteLineScript.GAP
+			var p2 := positions[b] - dir * planet_radius(b) * RouteLineScript.GAP
+			var chord := p0.distance_to(p2)
+			var left := Vector3.UP.cross(dir).normalized()
+			var c := (p0 + p2) * 0.5 + left * chord * RouteLineScript.BOW
+			var sw = RouteOffset.sun_waypoint(positions[a], positions[b], sl)  # a sun in the way: through the same waypoint as the route line
+			if sw != null:
+				var wt: float = clampf(p0.distance_to(sw) / maxf(p0.distance_to(sw) + sw.distance_to(p2), 0.001), 0.15, 0.85)
+				c = (sw - p0 * ((1.0 - wt) * (1.0 - wt)) - p2 * (wt * wt)) / (2.0 * (1.0 - wt) * wt)
+			var w := 1.0 / maxf(chord, 0.1)
+			wsum += w
+			lanes.append(["ambient_%d_%d" % [a, b], p0, c, p2, w])
+	var spare := maxi(total - min_n * lanes.size(), 0)
+	for l in lanes:
+		var n := min_n + int(floor(float(spare) * float(l[4]) / maxf(wsum, 0.0001)))
+		if total <= 0:
+			continue
+		traffic.set_ambient_group(l[0], l[1], l[2], l[3], n)
+		_ambient_keys.append(l[0])
+
 func _process(delta: float) -> void:
 	_update_beats(delta)
 	_update_reclaim_looks(delta)
 	_update_tier_looks()
 	_update_orbit_traffic(delta)
+	_update_ambient_traffic()
 	_refresh_known()
 	_place_labels()
 	if not keys_enabled:
