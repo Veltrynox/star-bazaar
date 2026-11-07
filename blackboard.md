@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-07 11:04 run: T252
-- Summary: Added `ship_scale` 0.8 to `data/balance.json`, read through `Ships.ship_scale()`. It sizes the player, rival and traffic ships, their selection ring, FX radii, trail widths and engine offsets. The click pick radius stays at 20 px.
-- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
-- Approach: built by a worker in worktree ../wt/T252 on branch task/T252, merged by the serial merge queue.
-- Agent prompts: /overnight-worker T252 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T252.log.
-- Worked: rebase, full test suite and fast-forward merge passed.
-- Failed / did not work: nothing.
-- Files and commits: see git log on branch new-features for commits starting with T252.
-- Left to do: nothing for this task.
-
 ## 2026-11-07 11:06 run: T284
 - Summary: Not merged: tests after rebase: 11534 pass, 14 fail, 1 new vs baseline
 - Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
@@ -64,4 +54,14 @@
 - Worked: rebase, full test suite and fast-forward merge passed.
 - Failed / did not work: nothing.
 - Files and commits: see git log on branch new-features for commits starting with T281.
+- Left to do: nothing for this task.
+
+## 2026-11-07 11:13 run: T296
+- Summary: Raids from unreclaimed dead worlds with lane malus, trip share loss, salvage-pod gigs scooped into the Flagship hold, forecast warning notice, Null Core immunity, placeholder raid_* balance keys, save v18
+- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
+- Approach: built by a worker in worktree ../wt/T296 on branch task/T296, merged by the serial merge queue.
+- Agent prompts: /overnight-worker T296 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T296.log.
+- Worked: rebase, full test suite and fast-forward merge passed.
+- Failed / did not work: nothing.
+- Files and commits: see git log on branch new-features for commits starting with T296.
 - Left to do: nothing for this task.
