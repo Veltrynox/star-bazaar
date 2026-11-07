@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-07 11:06 run: T284
-- Summary: Not merged: tests after rebase: 11534 pass, 14 fail, 1 new vs baseline
-- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
-- Approach: built by a worker in worktree ../wt/T284 on branch task/T284, merged by the serial merge queue.
-- Agent prompts: /overnight-worker T284 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T284.log.
-- Worked: worker finished.
-- Failed / did not work: tests after rebase: 11534 pass, 14 fail, 1 new vs baseline.
-- Files and commits: see git log on branch new-features for commits starting with T284.
-- Left to do: owner or a new run: see blocked_log in schedule.json.
-
 ## 2026-11-07 11:10 run: T289
 - Summary: Built `game/hubs.gd`, which designates hubs, sets their reach, pools ships and plans deliveries as `hub:<planet>` routes. It adds placeholder `data/balance.json` keys, save v17 and a gdd.md update, and the handoff file is written.
 - Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
@@ -65,3 +55,13 @@
 - Failed / did not work: nothing.
 - Files and commits: see git log on branch new-features for commits starting with T296.
 - Left to do: nothing for this task.
+
+## 2026-11-07 11:17 run: T290
+- Summary: Not merged: worker did not report done: None
+- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
+- Approach: built by a worker in worktree ../wt/T290 on branch task/T290, merged by the serial merge queue.
+- Agent prompts: /overnight-worker T290 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T290.log.
+- Worked: worker finished.
+- Failed / did not work: worker did not report done: None.
+- Files and commits: see git log on branch new-features for commits starting with T290.
+- Left to do: owner or a new run: see blocked_log in schedule.json.
