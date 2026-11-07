@@ -1,0 +1,21 @@
+{
+  "task": "T298",
+  "agent": "gameplay-programmer (main session)",
+  "date": "2026-11-07",
+  "changed": [
+    "game/bazaar.gd",
+    "data/bazaar.json",
+    "game/gigs.gd",
+    "game/ending_picker.gd",
+    "game/main.gd",
+    "game/save_game.gd",
+    "data/balance.json",
+    "gdd.md",
+    "game/pathfinder.gd (hold_cap wing bonus)",
+    "game/hubs.gd (reach wing bonus)",
+    "game/workshops.gd (build cost wing bonus)",
+    "game/gig_board.gd (opening row texts)",
+    "tools/tests/run_tests.gd"
+  ],
+  "notes": "Opening gig kind 'opening'; Bazaar.end_cycle no longer wins, open() wins on docking at capital. Wings for stages 1-3 (6 wings) in data/bazaar.json, amounts bazaar_wing_<id> placeholders in balance.json. Bazaar.recap() feeds EndingPicker.inputs and stats['recap']. Save v22. Text ids use StoryText.get_or fallbacks (BAZ_WING_<id>_NAME/_TEXT, GIG_KIND_OPENING, GIG_ROW_OPENING, GIG_REWARD_OPENING, NOT_BAZAAR_OPENING)."
+}

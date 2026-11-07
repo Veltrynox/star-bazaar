@@ -8,9 +8,16 @@
     "reach_stage": "bazaar_reach_stage",
     "bill_units": "bazaar_bill_s<N>_t<goods tier>",
     "quorum_tier": "bazaar_quorum_tier_s<N>",
-    "quorum_count": "bazaar_quorum_count_s<N>"
+    "quorum_count": "bazaar_quorum_count_s<N>",
+    "wing_amount": "bazaar_wing_<id lowercase>"
   },
   "goods_tiers": [1, 2, 3, 4],
+  "wings_note": "T298: after each listed stage the player picks one of two wings. effect is one of hold_units (Flagship hold, units), hub_reach (hub reach, distance), tax_pct (percent more tax per cycle), workshop_cost_pct (percent off a workshop build, a negative number). The amount of a wing is the balance key bazaar_wing_<id lowercase>, PLACEHOLDER until economy-designer sets it. Text ids BAZ_WING_<id>_NAME and _TEXT (fallbacks in code until the story task lands). The last stage has no wing: the Opening follows.",
+  "wings": [
+    {"stage": 1, "options": [{"id": "WING_1A", "effect": "hold_units"}, {"id": "WING_1B", "effect": "hub_reach"}]},
+    {"stage": 2, "options": [{"id": "WING_2A", "effect": "tax_pct"}, {"id": "WING_2B", "effect": "workshop_cost_pct"}]},
+    {"stage": 3, "options": [{"id": "WING_3A", "effect": "hold_units"}, {"id": "WING_3B", "effect": "tax_pct"}]}
+  ],
   "rules": {
     "bill_goods": "goods of the run's branch market with that goods.json tier, any mix; energy is not part of a bill",
     "bill_where": "the capital's planet storage; the bill is removed when the stage completes at cycle end",

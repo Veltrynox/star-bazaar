@@ -1275,8 +1275,20 @@ func _test_main() -> void:
 	await process_frame
 	m._end_cycle()
 	await process_frame
+	check(not m.game_over and bz.complete() and bz.opening_pending and m.gigs.has_opening(), "opening: the last stage posts the Opening gig, it does not win by itself")
+	check(bz.wing_pending == 2 and bz.wing_options(1).size() == 2 and bz.wing_options(4).is_empty(), "wings: two options for a listed stage, none for the last")
+	m.balance["bazaar_wing_wing_2a"] = 10
+	check(bz.choose_wing(0) and bz.wings == ["WING_2A"] and Bazaar.wing_bonus("tax_pct") == 10.0 and not bz.choose_wing(0), "wings: a pick is kept and its balance amount counts")
+	var rc := bz.recap()
+	check(rc["capital"] == cap and rc["stages"] == 2 and rc["wings"] == ["WING_2A"] and rc.has("worlds_per_tier") and rc.has("reclaimed") and rc.has("decisive"), "recap: capital, stages, wings, worlds per tier, reclaimed, decisive", str(rc))
+	var bz2 := Bazaar.new()
+	bz2.setup(m)
+	bz2.from_dict(bz.to_dict())
+	check(bz2.wings == ["WING_2A"] and bz2.opening_pending and bz2.capital() == cap, "wings and Opening survive a save", str(bz.to_dict()))
+	m.gigs.on_arrived_planet(str(m.map.planets[cap].get("id", "")))
+	await process_frame
 	var fam := "END_%s_GOOD" % (m.run_branch() if m.run_branch() != "" else str(Markets.ids[0])).to_upper()
-	check(m.game_over and bz.complete() and bz.opening_pending and ended.size() == 1 and ended[0][0] == "WIN" and ended[0][1] == fam, "win: the last stage wins with the branch family", str(ended))
+	check(m.game_over and bz.complete() and bz.opened and ended.size() == 1 and ended[0][0] == "WIN" and ended[0][1] == fam, "win: the last stage wins with the branch family", str(ended))
 	check(m.end_screen != null and _stats_runs() == 1, "win: end screen shown, run recorded once")
 	check(not FileAccess.file_exists("user://autosave.json"), "win: save cleared")
 	m._continue_free_play()
@@ -1940,7 +1952,7 @@ func _test_skills_core() -> void:
 	f.store_string(JSON.stringify({"version": 2, "state": v2}))
 	f.close()
 	var loaded: Dictionary = SaveGame.load_state()
-	check(SaveGame.VERSION == 21 and not loaded.is_empty() and loaded["learned_skills"].has("FND_STORAGE") and not SaveGame.dropped_old, "migration: a v2 file loads migrated")
+	check(SaveGame.VERSION == 22 and not loaded.is_empty() and loaded["learned_skills"].has("FND_STORAGE") and not SaveGame.dropped_old, "migration: a v2 file loads migrated")
 	f = FileAccess.open(SaveGame.PATH, FileAccess.WRITE)
 	f.store_string(JSON.stringify({"version": 1, "state": v2}))
 	f.close()
@@ -6194,7 +6206,7 @@ func _test_chains() -> void:
 	Chains.from_dict({}, bal)
 	check(Chains.marks.is_empty() and Chains.mood_of("w_a") == "plain", "moods: an old save has every world plain")
 	Chains.reset(bal, 0)
-	check(SaveGame.VERSION == 21, "save: version 21 (v2 and newer load; v1 is dropped, owner approved)")
+	check(SaveGame.VERSION == 22, "save: version 22 (v2 and newer load; v1 is dropped, owner approved)")
 	var v3 := {"cycle": 7, "cash": 300, "chains": {"dir": {"mil": 9}}, "shield": {"built": true}}
 	var mig: Dictionary = SaveGame.migrate_v3(v3)
 	check(mig["cash"] == 300 and not mig.has("shield") and not mig.has("chains"), "save: v3 migrates, chain state fresh, shield dropped")

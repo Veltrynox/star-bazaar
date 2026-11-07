@@ -149,7 +149,8 @@ func is_need_off(hub: int, world: int, good: String) -> bool:
 
 ## ---- Reach ----
 func reach_of(planet: int) -> float:
-	return _bal("hub_reach_t%d" % prosperity.tier(planet), 0.0)
+	var base := _bal("hub_reach_t%d" % prosperity.tier(planet), 0.0)
+	return base + Bazaar.wing_bonus("hub_reach") if base > 0.0 else base  # T298 wings: only worlds that have a reach
 
 func _pos(i: int) -> Variant:
 	if not engine.positions_fn.is_valid():

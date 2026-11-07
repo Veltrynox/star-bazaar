@@ -5,7 +5,7 @@ extends RefCounted
 ## Kinds (open field "kind"): "signal" (a marker in open space; fly there, a window opens with two neutral options; one-time, expires for
 ## free, an expired signal is gone for the run) and "rush" (a world wants units of a good by a deadline; hand sale or unload at that world
 ## counts; posted by Gigs.post_rush; T272 generator _gen_rush: one a cycle by seeded weighted draw) and "salvage" (T296: cargo pods a raid dropped, posted by
-## Gigs.post_salvage from game/raids.gd; fly there before they fade, the goods load into the Flagship hold; no window, no board-size limit). "opening" comes later.
+## Gigs.post_salvage from game/raids.gd; fly there before they fade, the goods load into the Flagship hold; no window, no board-size limit) and "opening" (T298: after the last Bazaar stage; the Flagship flies the charter cargo to the capital, no window, no expiry to speak of; docking there calls Bazaar.open() and the run is won; post_opening, ensure_opening).
 ## Board: up to gig_board_max open offers (any kind); one open signal at a time, gig_gap_cycles between signals, gig_cap_signals per run,
 ## none before gig_first_cycle. The draw is seeded (saved seed + cycle), so a save's list is stable. Deadlines are on the game clock.
 ## An offer: {uid, id, kind, target {kind "point"|"planet", sys, pos [x,y,z] | index}, due (game time), accepted, req {good, units, got}, rewards}.
@@ -68,6 +68,7 @@ func setup(m: Node) -> void:
 	seed_value = int(rng.randi() & 0x7fffffff)
 	if main.flight != null:
 		main.flight.arrived_point.connect(on_arrived_point)
+		main.flight.arrived.connect(on_arrived_planet)
 		main.flight.delivered.connect(on_delivered)
 
 func reset() -> void:
@@ -130,6 +131,42 @@ func post_salvage(uid: String, sys: int, pos: Vector3, good: String, units: int,
 	offers.append({"uid": uid, "id": uid, "kind": "salvage", "target": {"kind": "point", "sys": sys, "pos": [pos.x, 0.0, pos.z]},
 		"due": _now() + life, "accepted": false, "req": {}, "rewards": [], "pods": [{"good": good, "units": units}], "count": maxi(1, count)})
 	changed.emit()
+
+## T298: the Opening offer at the capital (one at a time). Not limited by the board size.
+func post_opening(planet: int) -> void:
+	if has_opening():
+		return
+	_uid += 1
+	var uid := "opening_%d" % _uid
+	offers.append({"uid": uid, "id": "opening", "kind": "opening", "target": {"kind": "planet", "sys": main.system_of(planet), "index": planet}, "due": _now() + _bal("gig_opening_life", 100000.0),
+		"accepted": false, "req": {}, "rewards": []})
+	changed.emit()
+
+func has_opening() -> bool:
+	for o in offers:
+		if str(o["kind"]) == "opening":
+			return true
+	return false
+
+## After a load: an Opening still to fly has its offer on the board.
+func ensure_opening() -> void:
+	if main.bazaar.opening_pending and main.bazaar.capital() >= 0:
+		post_opening(main.bazaar.capital())
+
+## The Flagship docked at a world: at the capital with an open Opening, the Bazaar opens and the run is won.
+func on_arrived_planet(planet_id: String) -> void:
+	var o := opening_offer()
+	if o.is_empty() or main.planet_index_of(planet_id) != int(o["target"]["index"]):
+		return
+	offers.erase(o)
+	changed.emit()
+	main.on_opening_flown()
+
+func opening_offer() -> Dictionary:
+	for o in offers:
+		if str(o["kind"]) == "opening":
+			return o
+	return {}
 
 ## The Flagship reached a salvage marker: the pods load into the hold; what does not fit stays (the offer ends when empty).
 func _scoop(o: Dictionary) -> void:
@@ -327,6 +364,9 @@ func accept(uid: String) -> String:
 		return "no_offer"
 	var t: Dictionary = o["target"]
 	var r := ""
+	if str(o["kind"]) == "opening" and main.flight.docked_at() == str(main.map.planets[int(t["index"])].get("id", "")):
+		on_arrived_planet(main.flight.docked_at())  # already at the capital: the charter cargo is delivered at once
+		return ""
 	if str(t["kind"]) == "planet":
 		r = main.flight.request_fly({"kind": "planet", "index": int(t["index"])})
 	else:

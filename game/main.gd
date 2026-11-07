@@ -302,6 +302,8 @@ func _ready() -> void:
 		prosperity.tier_up.connect(_on_prosperity_tier_up)
 	if not bazaar.stage_done.is_connected(_on_bazaar_stage_done):
 		bazaar.stage_done.connect(_on_bazaar_stage_done)
+	if not bazaar.opening_ready.is_connected(_on_bazaar_opening_ready):
+		bazaar.opening_ready.connect(_on_bazaar_opening_ready)
 	fabric.setup(balance)
 	workshops.setup(balance)
 	engine.clusters = clusters
@@ -502,6 +504,7 @@ func apply_state(s: Dictionary) -> void:
 	flight.from_dict(s.get("pathfinder"))  # T179: a save without it (from before discovery) opens every planet
 	raids.from_dict(s.get("raids"))  # T296; old saves: nothing active
 	gigs.from_dict(s.get("gigs"))  # T271; old saves: empty board
+	gigs.ensure_opening()  # T298: an Opening still to fly is on the board
 	hubs.from_array(s.get("hubs"))  # T289; old saves: no hubs
 	flight.resync(game_time())
 	_sync_closed()
@@ -2250,6 +2253,17 @@ func _on_prosperity_tier_up(planet: int, tier: int) -> void:
 		map.beat_tier_up(planet, tier)
 	post_notice(StoryText.get_or("NOT_PROSPERITY_TIER_UP", "{planet} has grown to tier {tier}.", {"planet": planet_name(planet), "tier": tier}))
 
+## T298: the last stage is done: the Opening gig waits at the capital.
+func _on_bazaar_opening_ready(planet: int) -> void:
+	gigs.post_opening(planet)
+	post_notice(StoryText.get_or("NOT_BAZAAR_OPENING", "The charter cargo is ready. Fly it to {planet} to open the Star Bazaar.", {"planet": planet_name(planet)}))
+
+## T298: the Flagship docked at the capital with the charter cargo (Gigs.on_arrived_planet): the Bazaar opens, the run is won.
+func on_opening_flown() -> void:
+	var outcome := bazaar.open()
+	if not outcome.is_empty() and not game_over:
+		_finish_outcome(outcome)
+
 ## T266: a Bazaar stage is done: flash and ring at the capital, and a banner that holds for beat_banner_seconds of game time.
 func _on_bazaar_stage_done(n: int) -> void:
 	if map != null:
@@ -2279,7 +2293,7 @@ var _beat_banner_left := 0.0
 
 ## T258: growth pays. Tax by tier for every world (one summary notice), skill points the first time any world reaches a tier.
 func _pay_prosperity() -> void:
-	var tax := prosperity.tax_total()
+	var tax := roundi(float(prosperity.tax_total()) * (1.0 + Bazaar.wing_bonus("tax_pct") / 100.0))  # T298 wings
 	if tax > 0:
 		cash += tax
 		post_notice(StoryText.get_or("NOT_PROSPERITY_TAX", "Your worlds paid {n} credits in tax.", {"n": tax}))
@@ -2457,10 +2471,11 @@ func _finish(side: String, ending_id: String, stat: String, win_market: String =
 	SaveGame.clear()
 	var stats := {"cycle": cycle, "cash": cash, "market": win_market}
 	if side == "WIN":  # core 6: capstone, techs done, second market ... for the flavour lines of the win ending
-		stats["flavour"] = EndingPicker.inputs(str(stats["market"]), balance, bazaar.stage())
+		stats["flavour"] = EndingPicker.inputs(str(stats["market"]), balance, bazaar.stage(), bazaar.recap())
 	if bazaar_panel != null:
 		bazaar_panel.close_screen()
 	stats["stages_done"] = bazaar.stage()
+	stats["recap"] = bazaar.recap()  # T298: capital, stages, wings, worlds per tier, reclaimed worlds, decisive moments
 	_open_end_screen().show_ending(ending_id, side, stats, stat)
 	if not run_recorded:  # local record, once per run
 		run_recorded = true

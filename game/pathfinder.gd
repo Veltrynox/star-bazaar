@@ -614,7 +614,7 @@ func _finish_build() -> void:
 ## Refusal reasons for the UI: "not_docked" | "no_cash" | "hold_full" | "no_fuel" (also "no_stock", "no_price", "no_charges", "bad_args").
 
 func hold_cap() -> int:
-	return maxi(0, int(_bal("flagship_hold_units", 0.0)))
+	return maxi(0, int(_bal("flagship_hold_units", 0.0)) + roundi(Bazaar.wing_bonus("hold_units")))  # T298 wings
 
 func hold_units(good: String) -> int:
 	return int(_hold.get(good, 0))

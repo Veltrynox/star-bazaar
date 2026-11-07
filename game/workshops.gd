@@ -48,7 +48,7 @@ func market_of(id: String) -> String:
 	return str(Goods.workshop(id).get("market", ""))
 
 func build_cost(id: String) -> int:
-	return maxi(0, int(balance.get(str(Goods.workshop(id).get("cost_key", "workshop_build_cost")), 0)))
+	return maxi(0, roundi(float(balance.get(str(Goods.workshop(id).get("cost_key", "workshop_build_cost")), 0)) * maxf(0.0, 1.0 + Bazaar.wing_bonus("workshop_cost_pct") / 100.0)))  # T298 wings
 
 func is_unlocked(id: String) -> bool:
 	return Skills.unlocked(id)
