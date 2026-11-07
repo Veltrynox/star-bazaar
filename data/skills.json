@@ -16,8 +16,8 @@
    "workshop_batches": "workshop batches per cycle in target market + balance[key]",
    "batch_yield": "units out of each batch in target market + balance[key]",
    "unlock": "unlocks target kind id: workshop (smelter|munitions|atelier|culture_lab|fabric), good (goods.json id), feature (space_storage|permit_routes|cluster_routes)",
-   "bot_strength_pct": "bot strength in target market down balance[key]. shared_cooldown_key (T173 r2): every chosen_bot hit, of any market, also locks all chosen_bot skills for balance[shared_cooldown_key] cycles after it starts (one pressure action per window). pick chosen_bot = player chooses one bot; all_bots = every bot. duration_key = cycles it lasts; cooldown_key = cycles between uses; once_per_run; permanent = rest of run",
-   "bot_growth_mult": "bot growth in target market x balance[key]; pick all_bots; permanent",
+   "weather_soften_pct": "T282 (was bot_strength_pct): house weather softer by balance[key] (a share). pick chosen_bot = the player picks a house (Bots.IDS), timed by duration_key; permanent = every house, always. shared_cooldown_key (T173 r2): every chosen_bot hit, of any market, also locks all chosen_bot skills for balance[shared_cooldown_key] cycles after it starts (one pressure action per window). pick chosen_bot = player chooses one bot; all_bots = every bot. duration_key = cycles it lasts; cooldown_key = cycles between uses; once_per_run; permanent = rest of run",
+   "weather_warning": "T282 (was bot_growth_mult): balance[key] extra cycles of weather forecast (summed); permanent",
    "progress_grace": "an unmet cycle costs balance[key] (0..1) less Prosperity progress at worlds, summed over learned effects of the target market (T261, replaces share_window)",
    "reveal_prices": "next-cycle prices shown for 'cycles' cycles ahead",
    "event_warning": "next event announced 'cycles' cycles early",
@@ -166,7 +166,7 @@
    ],
    "cost": 3,
    "effect": {
-    "type": "bot_strength_pct",
+    "type": "weather_soften_pct",
     "target": "mil",
     "pick": "chosen_bot",
     "key": "skill_MIL_5_hit",
@@ -209,10 +209,10 @@
    ],
    "cost": 3,
    "effect": {
-    "type": "bot_growth_mult",
+    "type": "weather_warning",
     "target": "mil",
     "pick": "all_bots",
-    "key": "skill_MIL_7_growth_mult",
+    "key": "skill_MIL_7_warning",
     "permanent": true
    }
   },
@@ -379,7 +379,7 @@
    ],
    "cost": 3,
    "effect": {
-    "type": "bot_strength_pct",
+    "type": "weather_soften_pct",
     "target": "lux",
     "pick": "chosen_bot",
     "key": "skill_LUX_7_hit",
@@ -553,7 +553,7 @@
    ],
    "cost": 3,
    "effect": {
-    "type": "bot_strength_pct",
+    "type": "weather_soften_pct",
     "target": "min",
     "pick": "all_bots",
     "key": "skill_MIN_7_strength_cut",
@@ -716,7 +716,7 @@
    ],
    "cost": 3,
    "effect": {
-    "type": "bot_strength_pct",
+    "type": "weather_soften_pct",
     "target": "bio",
     "pick": "all_bots",
     "key": "skill_BIO_7_strength_cut",
@@ -886,7 +886,7 @@
    ],
    "cost": 3,
    "effect": {
-    "type": "bot_strength_pct",
+    "type": "weather_soften_pct",
     "target": "mil",
     "key": "skill_MIL_15_strength_cut",
     "pick": "all_bots",
@@ -1021,9 +1021,9 @@
    ],
    "cost": 3,
    "effect": {
-    "type": "bot_growth_mult",
+    "type": "weather_warning",
     "target": "lux",
-    "key": "skill_LUX_15_growth_mult",
+    "key": "skill_LUX_15_warning",
     "pick": "all_bots",
     "permanent": true
    }
@@ -1277,9 +1277,9 @@
    ],
    "cost": 3,
    "effect": {
-    "type": "bot_growth_mult",
+    "type": "weather_warning",
     "target": "bio",
-    "key": "skill_BIO_15_growth_mult",
+    "key": "skill_BIO_15_warning",
     "pick": "all_bots",
     "permanent": true
    }

@@ -2356,7 +2356,7 @@ func _end_cycle() -> void:
 				forecast_slot = cycle + ahead
 				forecast_noted = false
 				break
-	var warn := Skills.warning_cycles()  # LUX_3 Event Forecast: 1 cycle of warning; LUX_5B: 2 (the longest source wins)
+	var warn := mini(Skills.warning_cycles(), FORECAST_HORIZON)  # LUX_3 Event Forecast: 1 cycle of warning; LUX_5B: 2 (the longest source wins)
 	if forecast_id != "" and not forecast_noted and warn > 0 and forecast_slot - cycle <= warn and forecast_slot > cycle:
 		forecast_noted = true
 		post_notice(forecast_text(forecast_id, forecast_slot - cycle))
@@ -2382,7 +2382,7 @@ func _end_cycle() -> void:
 var forecast_id: String = ""
 var forecast_slot: int = 0  # the cycle the forecast event fires in
 var forecast_noted: bool = false  # the warning notice was shown
-const FORECAST_HORIZON := 2  # the longest warning any skill gives (LUX_5B); the draw happens this early for everyone
+const FORECAST_HORIZON := 5  # the longest warning any skill gives (LUX_5B + the weather_warning nodes, T282); the draw happens this early for everyone
 
 ## Warning text for a coming event: names the planet and commodity when the event has them, else the plain warning.
 func forecast_text(id: String, ahead: int = 1) -> String:

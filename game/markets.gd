@@ -198,7 +198,7 @@ static func _raw_mods(b: int, m: String) -> Dictionary:
 
 ## Modifiers of bot b in market m (a copy; neutral values when never hit). Temporary hits (hit_bot with until) count
 ## while cycle <= until; cycle -1 means the cycle now under way. Skill effects that last the whole run are not stored
-## here (Skills.bot_strength_mult / bot_growth_mult are applied in end_cycle).
+## here (skill effects no longer touch bots since T282: they act on house weather).
 static func bot_mods(b: int, m: String, cycle: int = -1) -> Dictionary:
 	var out := _raw_mods(b, m)
 	var now := cycles + 1 if cycle < 0 else cycle
@@ -246,7 +246,7 @@ static func end_cycle(cycle: int) -> void:
 				gap[k] = float(gap.get(k, 0.0)) + float(bal.get("bot_gap_growth", 0.0))
 			var md := bot_mods(b, m, cycle)
 			row.append(Bots.volume(bal, run_seed, b, m, cycle, float(gap.get(k, 0.0)), int(tier_off.get(str(b), 0)) + int(md["tier_offset"]),
-				float(md["strength_mult"]) * Skills.bot_strength_mult(m), float(md["growth_mult"]) * Skills.bot_growth_mult(m), float(md["growth_add"])))
+				float(md["strength_mult"]), float(md["growth_mult"]), float(md["growth_add"])))
 		vb[m].append(row)
 		vp[m].append(float(cur[m]))
 		vp_active[m].append(float(cur_active[m]))

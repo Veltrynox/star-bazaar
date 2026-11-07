@@ -1,0 +1,42 @@
+{
+  "task": "T282",
+  "agent": "gameplay-programmer (main session)",
+  "summary": "Rival-cutting skill nodes now act on house weather. bot_strength_pct became weather_soften_pct (chosen_bot: pick a house, timed softer weather; permanent: every house). bot_growth_mult became weather_warning (extra forecast cycles, FORECAST_HORIZON 2 -> 5). Chain hit_bot options now delay (growth cut) or soften (strength/tier cut) that house's next weather; boosts do nothing. Save version 18.",
+  "changed_files": [
+    "data/skills.json",
+    "data/balance.json",
+    "game/skills.gd",
+    "game/events.gd",
+    "game/chains.gd",
+    "game/markets.gd (outside touches: bot volume no longer multiplies Skills.bot_*_mult)",
+    "game/main.gd (outside touches: FORECAST_HORIZON, warn cap)",
+    "game/save_game.gd (version 18)",
+    "tools/tests/run_tests.gd",
+    "gdd.md"
+  ],
+  "node_ids_for_story": {
+    "weather_soften_pct_chosen_house": [
+      "MIL_5",
+      "LUX_7"
+    ],
+    "weather_soften_pct_permanent": [
+      "MIN_7",
+      "BIO_7",
+      "MIL_15"
+    ],
+    "weather_warning": [
+      "MIL_7",
+      "LUX_15",
+      "BIO_15"
+    ]
+  },
+  "balance_placeholders": [
+    "skill_MIL_7_warning",
+    "skill_LUX_15_warning",
+    "skill_BIO_15_warning (all 1, replaced *_growth_mult)",
+    "weather_next_soften_pct 0.3",
+    "weather_next_delay_cycles 2",
+    "old skill_*_hit/_strength_cut keys now read as soften shares (placeholders)"
+  ],
+  "story_texts_to_update": "skill descriptions in story source and gdd-skills.md still say rivals; UI 'Use on...' menu lists Bots.bot_name (houses); chain option texts mention rivals."
+}

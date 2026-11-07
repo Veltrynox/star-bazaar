@@ -281,21 +281,20 @@ static func apply_bot(src: String, e: Dictionary, cycle: int) -> Dictionary:
 	var m := str(e.get("market", ""))
 	var stat := str(e.get("stat", ""))
 	var dir := str(e.get("direction", "down"))
-	var val := _num(str(e.get("key", "")))
 	var entry := {"cycle": cycle, "source_id": src, "bot": b, "market": m, "stat": stat, "direction": dir, "size_word": _size_of(e), "tier_changed": false}
+	# T282: rivals are gone; a hit on house b now delays (growth cut) or softens (strength or tier cut) that house's NEXT weather.
+	# A boost to a rival does nothing. The log keeps its old shape. Numbers: balance weather_next_soften_pct, weather_next_delay_cycles (placeholders).
 	if stat == "tier":
 		if effective_tier(b, m, cycle) > 1:
-			Markets.hit_bot(b, m, "tier", -val)
 			entry["size_word"] = "tier"
 			entry["tier_changed"] = true
 		else:
-			Markets.hit_bot(b, m, "strength", -_num("event_hit_strength_M"))
 			entry["size_word"] = "lowest"
-	else:
-		var until := -1
-		if e.has("cycles_key"):
-			until = cycle + int(_num(str(e["cycles_key"]), 1.0)) - 1
-		Markets.hit_bot(b, m, stat, val if dir == "up" else -val, until)
+	if dir == "down":
+		if stat == "growth":
+			Skills.mark_house_next(b, 0.0, int(_num("weather_next_delay_cycles")))
+		else:
+			Skills.mark_house_next(b, _num("weather_next_soften_pct"), 0)
 	rlog.append(entry)
 	return entry
 

@@ -1918,15 +1918,7 @@ func _test_skills_core() -> void:
 	var plain_mil: Array = Markets.vb["mil"][0].duplicate()
 	Skills.add_learned("MIN_7")
 	Skills.add_learned("MIL_7")
-	check(is_equal_approx(Skills.bot_strength_mult("min"), 1.0 - float(bal["skill_MIN_7_strength_cut"])) and is_equal_approx(Skills.bot_strength_mult("mil"), 1.0) and is_equal_approx(Skills.bot_growth_mult("mil"), float(bal["skill_MIL_7_growth_mult"])), "effects: capstone bot numbers (MIN_7 strength, MIL_7 growth)")
-	Markets.reset(bal, 5)
-	Markets.end_cycle(10)
-	var cut_ok := true
-	for b in 3:
-		if not float(Markets.vb["min"][0][b]) < float(plain_row[b]):
-			cut_ok = false
-	check(cut_ok, "effects: MIN_7 lowers every bot's Minerals volume in end_cycle")
-	check(float(Markets.vb["mil"][0][0]) <= float(plain_mil[0]), "effects: MIL_7 never raises bot growth")
+	check(is_equal_approx(Skills.weather_soften_perm(), float(bal["skill_MIN_7_strength_cut"])) and Skills.weather_warning_extra() == int(bal["skill_MIL_7_warning"]), "effects: capstone weather numbers (MIN_7 soften, MIL_7 warning), T282")
 	# stock growth in planet storage (BIO_2): needs a Storage
 	Skills.reset(bal)
 	Markets.reset(bal, 5)
@@ -1952,26 +1944,21 @@ func _test_skills_core() -> void:
 	var r := Skills.activate_bot_skill("MIL_5", 2)
 	var dur := int(bal["skill_MIL_5_cycles"])
 	check(r["ok"] and int(r["until"]) == dur, "bot skill: lasts skill_MIL_5_cycles cycles", str(r))
-	check(is_equal_approx(float(Markets.bot_mods(2, "mil")["strength_mult"]), 1.0 - float(bal["skill_MIL_5_hit"])) and is_equal_approx(float(Markets.bot_mods(1, "mil")["strength_mult"]), 1.0) and is_equal_approx(float(Markets.bot_mods(2, "lux")["strength_mult"]), 1.0), "bot skill: only the chosen bot in that market loses strength")
+	check(is_equal_approx(Skills.weather_soft_factor(2), 1.0 - float(bal["skill_MIL_5_hit"])) and is_equal_approx(Skills.weather_soft_factor(1), 1.0), "bot skill (T282): only the chosen house's weather is softer")
 	check(Skills.activate_bot_skill("MIL_5", 3)["reason"] == "cooldown" and Skills.bot_skill_cooldown("MIL_5") == int(bal["skill_MIL_5_every"]), "bot skill: cooldown skill_MIL_5_every")
-	# persistence of the temporary hit and the use
-	var md: Dictionary = JSON.parse_string(JSON.stringify(Markets.to_dict()))
 	var sd: Dictionary = JSON.parse_string(JSON.stringify(Skills.to_dict()))
-	Markets.from_dict(md, bal)
 	Skills.from_dict(sd)
-	check(is_equal_approx(float(Markets.bot_mods(2, "mil")["strength_mult"]), 1.0 - float(bal["skill_MIL_5_hit"])) and Skills.bot_skill_cooldown("MIL_5") == int(bal["skill_MIL_5_every"]), "bot skill: hit and use survive a save")
-	# the hit works for the cycles it lasts, then expires
-	var plain := Bots.volume(bal, 9, 2, "mil", 1, 0.0, 0, 1.0, 1.0, 0.0)
-	Markets.end_cycle(1)
-	check(absf(float(Markets.vb["mil"][0][1]) - Bots.volume(bal, 9, 2, "mil", 1, 0.0, 0, 1.0 - float(bal["skill_MIL_5_hit"]), 1.0, 0.0)) < 0.001 and float(Markets.vb["mil"][0][1]) < plain, "bot skill: the hit lowers the bot's volume while it lasts")
-	for c in range(2, dur + 1):
-		Markets.end_cycle(c)
-	check(is_equal_approx(float(Markets.bot_mods(2, "mil")["strength_mult"]), 1.0) and Markets.mods["2|mil"]["temps"].is_empty(), "bot skill: the hit expires after its cycles")
-	Markets.end_cycle(dur + 1)
-	check(absf(float(Markets.vb["mil"][dur][1]) - Bots.volume(bal, 9, 2, "mil", dur + 1, float(Markets.gap.get("2|mil", 0.0)), 0, 1.0, 1.0, 0.0)) < 0.001, "bot skill: volume is back to normal after the hit")
-	for c in range(dur + 2, int(bal["skill_MIL_5_every"]) + 1):
-		Markets.end_cycle(c)
-	check(Skills.bot_skill_ready("MIL_5") and Skills.activate_bot_skill("MIL_5", 3)["ok"], "bot skill: ready again after skill_MIL_5_every cycles")
+	check(is_equal_approx(Skills.weather_soft_factor(2), 1.0 - float(bal["skill_MIL_5_hit"])) and Skills.bot_skill_cooldown("MIL_5") == int(bal["skill_MIL_5_every"]), "bot skill: soften and use survive a save")
+	Skills.from_dict({"bot_used": {}})
+	check(Skills.house_soft.is_empty() and Skills.house_next.is_empty(), "bot skill: an older save has no soften marks")
+	Skills.house_soft["2"] = [{"amount": 0.5, "until": 3}]
+	Markets.cycles = 4
+	check(is_equal_approx(Skills.weather_soft_factor(2), 1.0), "bot skill: the soften expires after its cycles")
+	Markets.cycles = 0
+	Skills.mark_house_next(1, 0.3, 2)
+	check(is_equal_approx(float(Skills.take_house_next(1)["soften"]), 0.3) and int(Skills.take_house_next(1)["delay"]) == 0, "weather mark: taken once, then cleared")
+	Skills.bot_used.clear()
+	Skills.house_soft.clear()
 	# cooldown skill (LUX_7, round 3: every skill_LUX_7_every cycles)
 	Skills.add_learned("LUX_7")
 	check(Skills.activate_bot_skill("LUX_7", 1)["ok"] and Skills.bot_skill_cooldown("LUX_7") == int(bal["skill_LUX_7_every"]) and Skills.activate_bot_skill("LUX_7", 2)["reason"] == "cooldown", "bot skill: Guild Seal has a cooldown (skill_LUX_7_every)")
@@ -2028,7 +2015,7 @@ func _test_skills_core() -> void:
 	f.store_string(JSON.stringify({"version": 2, "state": v2}))
 	f.close()
 	var loaded: Dictionary = SaveGame.load_state()
-	check(SaveGame.VERSION == 17 and not loaded.is_empty() and loaded["learned_skills"].has("FND_STORAGE") and not SaveGame.dropped_old, "migration: a v2 file loads migrated")
+	check(SaveGame.VERSION == 18 and not loaded.is_empty() and loaded["learned_skills"].has("FND_STORAGE") and not SaveGame.dropped_old, "migration: a v2 file loads migrated")
 	f = FileAccess.open(SaveGame.PATH, FileAccess.WRITE)
 	f.store_string(JSON.stringify({"version": 1, "state": v2}))
 	f.close()
@@ -6247,7 +6234,7 @@ func _test_chains() -> void:
 	check(Chains.volume_mult("mil") == 1.0, "effects: expired after its cycles")
 	Chains.tick(10 + vc)
 	check(Chains.timed.is_empty(), "effects: tick drops expired effects")
-	check(is_equal_approx(float(Markets.bot_mods(1, "mil")["growth_mult"]), 1.0 - float(bal["event_hit_growth_S"])), "effects: bot growth hit applied at once")
+	check(int(Skills.house_next.get("1", {}).get("delay", 0)) == int(bal["weather_next_delay_cycles"]), "effects: a growth cut delays that house's next weather (T282)")
 	# a volume effect really changes the share volume of a sale
 	Markets.reset(bal, 3)
 	Chains.reset(bal, 3)
@@ -6275,13 +6262,13 @@ func _test_chains() -> void:
 	Chains.reset(bal, 3)
 	Chains.apply_option("MIL_A2", "opt_b", 1)  # bot_1 tier cut at cycle 1: lowest tier
 	var lg: Array = Chains.rival_log()
-	check(lg.size() == 1 and lg[0]["size_word"] == "lowest" and not bool(lg[0]["tier_changed"]) and not Chains.rival_broken("mil") and absf(float(Markets.bot_mods(1, "mil", 1)["strength_mult"]) - (1.0 - float(bal["event_hit_strength_M"]))) < 0.0001, "tier: at the lowest tier a tier cut is strength down M, no tier change", str(lg))
+	check(lg.size() == 1 and lg[0]["size_word"] == "lowest" and not bool(lg[0]["tier_changed"]) and not Chains.rival_broken("mil") and is_equal_approx(float(Skills.house_next["1"]["soften"]), float(bal["weather_next_soften_pct"])), "tier: at the lowest tier a tier cut is strength down M, no tier change", str(lg))
 	Markets.reset(bal, 3)
 	Chains.reset(bal, 3)
 	var hi_cycle := 35
 	Chains.apply_option("MIL_A2", "opt_b", hi_cycle)
 	lg = Chains.rival_log()
-	check(lg.size() == 1 and bool(lg[0]["tier_changed"]) and lg[0]["size_word"] == "tier" and Chains.rival_broken("mil") and Chains.rival_broken_bot("mil") == 1 and int(Markets.bot_mods(1, "mil")["tier_offset"]) == -1, "tier: a bot above tier 1 drops a tier, logged and rival_broken set", str(lg))
+	check(lg.size() == 1 and bool(lg[0]["tier_changed"]) and lg[0]["size_word"] == "tier" and Chains.rival_broken("mil") and Chains.rival_broken_bot("mil") == 1, "tier: a bot above tier 1 drops a tier, logged and rival_broken set", str(lg))
 	check(lg[0].keys().size() == 8 and lg[0].has("source_id") and lg[0]["source_id"] == "MIL_A2" and lg[0]["cycle"] == hi_cycle and lg[0]["direction"] == "down" and lg[0]["stat"] == "tier", "rival log: entry format")
 	# rival log and chain state persist
 	Chains.apply_option("MIL_A3", "opt_a", 40)
@@ -6401,7 +6388,7 @@ func _test_chains() -> void:
 	# save version 4 and v3 migration
 	var gig_errs: Array = Gigs.lint()
 	check(gig_errs.is_empty(), "gigs: data/gigs.json lints clean", str(gig_errs))
-	check(SaveGame.VERSION == 17, "save: version 17 (v2 and newer load; v1 is dropped, owner approved)")
+	check(SaveGame.VERSION == 18, "save: version 18 (v2 and newer load; v1 is dropped, owner approved)")
 	var v3 := {"cycle": 7, "cash": 300, "chains": {"dir": {"mil": 9}}, "shield": {"built": true}}
 	var mig: Dictionary = SaveGame.migrate_v3(v3)
 	check(mig["cash"] == 300 and not mig.has("shield") and not mig.has("chains"), "save: v3 migrates, chain state fresh, shield dropped")

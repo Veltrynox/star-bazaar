@@ -16,6 +16,9 @@ static var learned: Array = []        # ids learned or finished, in order; never
 static var bot_used: Dictionary = {}  # bot skill id -> cycle it was last used
 static var share_paid: Dictionary = {}  # market -> Array of steps (20, 35) already paid
 static var stock_grown: Dictionary = {}  # "<key>|<good>" -> {carry, grown}, for BIO_2
+## T282 house weather: a chosen-house soften (weather_soften_pct, timed) and the next-weather marks set by chain options.
+static var house_soft: Dictionary = {}  # house id (as text) -> Array of {amount, until}: timed soften from a skill
+static var house_next: Dictionary = {}  # house id (as text) -> {soften: fraction, delay: cycles} for that house's NEXT weather (Events.start_timed uses it up)
 
 const SHARED_KEY := "_shared"
 
@@ -26,6 +29,8 @@ static func reset(balance: Dictionary = {}) -> void:
 	bot_used = {}
 	share_paid = {}
 	stock_grown = {}
+	house_soft = {}
+	house_next = {}
 
 static func _bal() -> Dictionary:
 	if bal.is_empty():
@@ -155,21 +160,41 @@ static func unlocked(what: String) -> bool:
 			return true
 	return false
 
-## bot_strength_pct permanent (all bots): strength multiplier on every bot of market m.
-static func bot_strength_mult(m: String) -> float:
+## weather_soften_pct permanent (T282, was bot_strength_pct): share by which every house's weather is softer for the player.
+static func weather_soften_perm() -> float:
 	var f := 1.0
-	for e in _eff("bot_strength_pct"):
-		if bool(e.get("permanent", false)) and _hits(e, m):
-			f *= 1.0 - _key(e)
+	for e in _eff("weather_soften_pct"):
+		if bool(e.get("permanent", false)):
+			f *= 1.0 - clampf(_key(e), 0.0, 1.0)
+	return 1.0 - f
+
+## Strength multiplier (0..1) of house h's weather right now: the permanent soften and the timed chosen-house softens.
+static func weather_soft_factor(h: int) -> float:
+	var f := 1.0 - weather_soften_perm()
+	for t in house_soft.get(str(h), []):
+		if current_cycle() <= int(t["until"]):
+			f *= 1.0 - clampf(float(t["amount"]), 0.0, 1.0)
 	return f
 
-## bot_growth_mult (all bots, permanent): growth multiplier on every bot of market m.
-static func bot_growth_mult(m: String) -> float:
-	var f := 1.0
-	for e in _eff("bot_growth_mult"):
-		if _hits(e, m):
-			f *= _key(e)
-	return f
+## weather_warning (T282, was bot_growth_mult): extra cycles of forecast, summed over the learned nodes.
+static func weather_warning_extra() -> int:
+	var n := 0
+	for e in _eff("weather_warning"):
+		n += int(_key(e))
+	return n
+
+## A chain option that hit a house: its next weather is softer by amount (fraction) and/or starts delay cycles later.
+static func mark_house_next(h: int, soften: float, delay: int) -> void:
+	var d: Dictionary = house_next.get(str(h), {"soften": 0.0, "delay": 0})
+	d["soften"] = minf(1.0, float(d["soften"]) + soften)
+	d["delay"] = int(d["delay"]) + delay
+	house_next[str(h)] = d
+
+## Takes the mark of house h (zeros when none) and clears it.
+static func take_house_next(h: int) -> Dictionary:
+	var d: Dictionary = house_next.get(str(h), {"soften": 0.0, "delay": 0})
+	house_next.erase(str(h))
+	return d
 
 ## reveal_prices: cycles of prices shown ahead (0 = none).
 ## at_home: false when the planet asked about is outside the home system (the CEO perk Quick Read shows prices only at
@@ -181,7 +206,7 @@ static func reveal_cycles(at_home: bool = true) -> int:
 			if (bool(e.get("only_first_cycle", false)) and current_cycle() > 1) or (str(e.get("target", "")) == "home_market" and not at_home):
 				continue
 		n = maxi(n, int(e.get("cycles", 1)))
-	return n
+	return n + weather_warning_extra()
 
 ## event_warning: cycles the next event is announced early (0 = none).
 static func warning_cycles() -> int:
@@ -249,7 +274,7 @@ static func reopen_sooner() -> int:
 
 static func _bot_effect(id: String) -> Dictionary:
 	for e in SkillTree.effects(id):
-		if str(e.get("type", "")) == "bot_strength_pct" and str(e.get("pick", "")) == "chosen_bot":
+		if str(e.get("type", "")) == "weather_soften_pct" and str(e.get("pick", "")) == "chosen_bot":
 			return e
 	return {}
 
@@ -295,7 +320,7 @@ static func shared_cooldown_left() -> int:
 static func bot_skill_ready(id: String) -> bool:
 	return bot_skill_cooldown(id) == 0
 
-## Uses the skill on bot b (1..3): that bot's strength in the skill's market drops for the skill's cycles, then returns.
+## Uses the skill on house b (1..3, Bots.IDS): that house's weather is softer for the skill's cycles, then returns (T282).
 ## Returns {ok, reason}: reason is "", "locked", "used" (once per run) or "cooldown", "bot".
 static func activate_bot_skill(id: String, bot: int) -> Dictionary:
 	var left := bot_skill_cooldown(id)
@@ -308,8 +333,11 @@ static func activate_bot_skill(id: String, bot: int) -> Dictionary:
 	var e := _bot_effect(id)
 	var cycle := current_cycle()
 	var until := cycle + maxi(1, int(_key(e, "duration_key"))) - 1
-	if not Markets.hit_bot(bot, str(e.get("target", "")), "strength", -_key(e), until):
+	if not Bots.IDS.has(bot):
 		return {"ok": false, "reason": "bot"}
+	var lst: Array = house_soft.get(str(bot), [])
+	lst.append({"amount": _key(e), "until": until})
+	house_soft[str(bot)] = lst
 	bot_used[id] = cycle
 	bot_used[SHARED_KEY] = cycle
 	return {"ok": true, "reason": "", "until": until}
@@ -367,14 +395,26 @@ static func grow_stock(storage: RefCounted) -> int:
 ## ---- saves ----
 
 static func to_dict() -> Dictionary:
-	return {"bot_used": bot_used, "share_paid": share_paid, "stock_grown": stock_grown}
+	return {"bot_used": bot_used, "share_paid": share_paid, "stock_grown": stock_grown, "house_soft": house_soft, "house_next": house_next}
 
 static func from_dict(d) -> void:
 	bot_used = {}
 	share_paid = {}
 	stock_grown = {}
+	house_soft = {}
+	house_next = {}
 	if typeof(d) != TYPE_DICTIONARY:
 		return
+	if typeof(d.get("house_soft")) == TYPE_DICTIONARY:  # T282; an older save has none
+		for k in d["house_soft"].keys():
+			var lst := []
+			for t in d["house_soft"][k]:
+				lst.append({"amount": float(t.get("amount", 0.0)), "until": int(t.get("until", 0))})
+			house_soft[str(k)] = lst
+	if typeof(d.get("house_next")) == TYPE_DICTIONARY:
+		for k in d["house_next"].keys():
+			var hn = d["house_next"][k]
+			house_next[str(k)] = {"soften": float(hn.get("soften", 0.0)), "delay": int(hn.get("delay", 0))}
 	if typeof(d.get("bot_used")) == TYPE_DICTIONARY:
 		for k in d["bot_used"].keys():
 			bot_used[str(k)] = int(d["bot_used"][k])

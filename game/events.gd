@@ -387,7 +387,7 @@ func price_factor(planet: int, c: String, next_cycle: bool = false, ahead: int =
 			if a["kind"] == "up":
 				f *= 1.0 + pct(c) * (1.0 + Skills.event_bonus(m))
 			else:
-				f *= 1.0 - pct(c) * (1.0 - Skills.event_cut(m))
+				f *= 1.0 - pct(c) * (1.0 - Skills.event_cut(m)) * soft_of(a)
 	return f
 
 ## Start a timed effect (price or closed). One-off effects need main: see apply_oneoff.
@@ -395,14 +395,30 @@ func start_timed(id: String, eff: Dictionary) -> void:
 	if eff.is_empty() or not (eff["kind"] in ["up", "down", "closed", "shortage", "congestion"]):
 		return
 	var cycles := weather_cycles(str(eff["kind"]))
+	var house := house_of(id, str(eff["kind"]))
+	var mark := Skills.take_house_next(house) if house > 0 else {"soften": 0.0, "delay": 0}  # T282: a chain option marked this house
+	if int(mark["delay"]) > 0:
+		held.append({"id": id, "eff": eff.duplicate(), "wait": int(mark["delay"]), "soft": float(mark["soften"])})
+		return
+	_start_now(id, eff, cycles, house, float(mark["soften"]))
+
+## Starts a weather effect that was delayed by a chain option (T282); wait counts down in tick().
+var held: Array = []  # {id, eff, wait, soft}
+
+func _start_now(id: String, eff: Dictionary, cycles: int, house: int, soft: float) -> void:
 	for a in active:  # same effect again only refreshes the duration
 		if a["kind"] == eff["kind"] and int(a["planet"]) == int(eff["planet"]) and str(a["c"]) == str(eff["c"]):
 			a["left"] = cycles
 			a["age"] = 0
+			a["soft"] = maxf(float(a.get("soft", 0.0)), soft)
 			return
-	active.append({"id": id, "kind": eff["kind"], "planet": int(eff["planet"]), "c": str(eff["c"]), "left": cycles, "age": 0, "house": house_of(id, str(eff["kind"]))})
+	active.append({"id": id, "kind": eff["kind"], "planet": int(eff["planet"]), "c": str(eff["c"]), "left": cycles, "age": 0, "house": house, "soft": soft})
 
 ## ---- house weather (T280) ----
+## T282: strength of one live weather effect, 0..1: the house's skill soften (Skills.weather_soften_pct) and the chain soften stored on the row.
+func soft_of(a: Dictionary) -> float:
+	return clampf(Skills.weather_soft_factor(int(a.get("house", 0))) * (1.0 - float(a.get("soft", 0.0))), 0.0, 1.0)
+
 func weather_cycles(kind: String) -> int:
 	match kind:
 		"closed":
@@ -441,7 +457,7 @@ func shortage_mult(planet: int, c: String) -> float:
 	var m := 1.0
 	for a in active:
 		if a["kind"] == "shortage" and int(a["planet"]) == planet and str(a["c"]) == c:
-			m *= maxf(0.0, float(balance.get("shortage_demand_mult", 1.0)))
+			m *= 1.0 + (maxf(0.0, float(balance.get("shortage_demand_mult", 1.0))) - 1.0) * soft_of(a)
 	return m
 
 ## Extra hunger steps on a need at a world from live shortages.
@@ -462,7 +478,7 @@ func shortage_good_at(planet: int) -> String:
 func congestion_mult(a_planet: int, b_planet: int) -> float:
 	for a in active:
 		if a["kind"] == "congestion" and (int(a["planet"]) == a_planet or int(a["planet"]) == b_planet):
-			return maxf(0.0, float(balance.get("congestion_trip_mult", 1.0)))
+			return 1.0 + (maxf(0.0, float(balance.get("congestion_trip_mult", 1.0))) - 1.0) * soft_of(a)
 	return 1.0
 
 ## Active weather of a house, for the UI and the convoy telegraph later: [{planet, c, kind, left}].
@@ -475,6 +491,14 @@ func weather_of_house(h: int) -> Array:
 
 ## One cycle settled: effects age and expire.
 func tick() -> void:
+	var still: Array = []
+	for hd in held:  # T282: delayed weather starts when its wait is over
+		hd["wait"] = int(hd["wait"]) - 1
+		if int(hd["wait"]) <= 0:
+			_start_now(str(hd["id"]), hd["eff"], weather_cycles(str(hd["eff"]["kind"])), house_of(str(hd["id"]), str(hd["eff"]["kind"])), float(hd["soft"]))
+		else:
+			still.append(hd)
+	held = still
 	var keep: Array = []
 	for a in active:
 		a["left"] = int(a["left"]) - 1
@@ -495,7 +519,7 @@ func record(id: String, cycle: int, planet: int = -1) -> void:
 	feed.append({"id": id, "cycle": cycle, "planet": planet})
 
 func to_dict() -> Dictionary:
-	return {"active": active.duplicate(true), "feed": feed.duplicate(true), "pending": pending_id, "debris": debris.duplicate(), "pending_planet": pending_planet, "scheduled": scheduled.duplicate(true)}
+	return {"active": active.duplicate(true), "feed": feed.duplicate(true), "pending": pending_id, "debris": debris.duplicate(), "pending_planet": pending_planet, "scheduled": scheduled.duplicate(true), "held": held.duplicate(true)}
 
 func from_dict(d) -> void:
 	active = []
@@ -504,8 +528,13 @@ func from_dict(d) -> void:
 	debris = []
 	pending_planet = -1
 	scheduled = []
+	held = []
 	if typeof(d) != TYPE_DICTIONARY:
 		return
+	if typeof(d.get("held")) == TYPE_ARRAY:  # T282; an older save has none
+		for hd in d["held"]:
+			if typeof(hd) == TYPE_DICTIONARY and typeof(hd.get("eff")) == TYPE_DICTIONARY and hd["eff"].has("kind"):
+				held.append({"id": str(hd.get("id", "")), "eff": hd["eff"], "wait": int(hd.get("wait", 1)), "soft": float(hd.get("soft", 0.0))})
 	if typeof(d.get("scheduled")) == TYPE_ARRAY:  # old saves have none
 		for sc in d["scheduled"]:
 			if typeof(sc) == TYPE_DICTIONARY and by_id.has(str(sc.get("id", ""))):
@@ -519,7 +548,7 @@ func from_dict(d) -> void:
 		for a in d["active"]:
 			if typeof(a) == TYPE_DICTIONARY and ["up", "down", "closed", "shortage", "congestion"].has(str(a.get("kind", ""))):
 				active.append({"id": str(a.get("id", "")), "kind": str(a["kind"]), "planet": int(a.get("planet", -1)),
-					"c": str(a.get("c", "")), "left": int(a.get("left", 0)), "age": int(a.get("age", 0)), "house": int(a.get("house", house_of(str(a.get("id", "")), str(a["kind"]))))})
+					"c": str(a.get("c", "")), "left": int(a.get("left", 0)), "age": int(a.get("age", 0)), "house": int(a.get("house", house_of(str(a.get("id", "")), str(a["kind"])))), "soft": float(a.get("soft", 0.0))})
 	if typeof(d.get("feed")) == TYPE_ARRAY:
 		for f in d["feed"]:
 			if typeof(f) == TYPE_DICTIONARY and by_id.has(str(f.get("id", ""))):
