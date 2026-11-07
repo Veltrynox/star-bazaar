@@ -718,7 +718,13 @@ func _route_cap(rec: Dictionary) -> int:
 	var lim := _split_limit(rec)  # N2: a split lane takes no more than its share of the stock
 	if lim >= 0:
 		units = mini(units, lim)
+	if rec.has("cap"):  # T289: a hub delivery moves up to the need it was planned for, never more
+		units = mini(units, int(rec["cap"]))
 	return units
+
+## T289: units the record's ship may move per cycle before stock and room limits (public wrapper for hubs).
+func route_cap(rec: Dictionary) -> int:
+	return _route_cap(rec)
 
 ## Read-only projection of one storage key and commodity over the next cycle. Runs the cycle order
 ## (local buys, routes, local sells) on a scratch copy of the stock; nothing in the game changes.
@@ -1201,6 +1207,7 @@ func _run_local(o: Dictionary, role: String, cash: int, out: Array) -> int:
 
 func _settle_one(rec: Dictionary, cash: int) -> int:
 	rec["bonus"] = 0
+	rec["moved"] = 0
 	rec["stop_sale"] = 0
 	var c := str(rec["c"])
 	var src := str(rec["src"])
@@ -1260,7 +1267,8 @@ func _settle_one(rec: Dictionary, cash: int) -> int:
 		sale = sold * sold_price(int(rec["stop"]), c)
 		carried = from_planet - sold
 		_note_sale(c, sold, int(rec["stop"]))
-	storage.add(dst, c, carried)
+	var stored: int = storage.add(dst, c, carried)
+	rec["moved"] = stored  # T289: read by hubs after the settle
 	_spend_split(rec, moved)  # N2
 	rec["stop_sale"] = sale  # N11: read by main to spot a first sale in system 2
 	rec["bonus"] = level_bonus(rec, carried) + sale  # T145: credited by settle() on top of the ship cost; N9: stop sale

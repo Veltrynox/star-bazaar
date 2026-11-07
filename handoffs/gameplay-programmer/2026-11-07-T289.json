@@ -1,0 +1,14 @@
+{
+  "task": "T289",
+  "agent": "main session (small edits, no role agent)",
+  "files": [
+    "game/hubs.gd",
+    "game/route_engine.gd",
+    "game/main.gd",
+    "data/balance.json",
+    "game/save_game.gd",
+    "tools/tests/run_tests.gd",
+    "gdd.md"
+  ],
+  "note": "Hubs engine built; UI, panel and story ids still to come (ST_HUB_* use get_or fallbacks). conditions.gd atoms unchanged. Save v17 adds key hubs."
+}

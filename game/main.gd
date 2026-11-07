@@ -183,6 +183,7 @@ var engine: RefCounted = RouteEngine.new()  # T07 route records and math
 var workshops: RefCounted = WorkshopsScript.new()  # smelter, munitions, atelier, culture lab; saved under "workshops"
 var fabric: RefCounted = Fabric.new()  # the fabric at the trading post, saved under "fabric"
 var prosperity: Prosperity = Prosperity.new()  # T256 world tiers and needs, saved under "prosperity"
+var hubs: Hubs = Hubs.new()  # T289 hubs keep neighbours fed, saved under "hubs"
 var gigs: Gigs = Gigs.new()  # T271 the gig board (signals, rush orders), saved under "gigs"
 var bazaar: Bazaar = Bazaar.new()  # T259 the Star Bazaar: capital, stages, saved under "bazaar"
 var dead: RefCounted = DeadWorlds.new()  # dead worlds: danger meter per planet id, saved under "danger"
@@ -291,6 +292,8 @@ func _ready() -> void:
 	engine.prosperity = prosperity
 	prosperity.weather = events  # T280: shortages change demand and hunger
 	bazaar.setup(self)  # T259
+	hubs.setup(balance, engine, prosperity, trade, storage)  # T289
+	hubs.owned_ships_fn = func() -> int: return ships
 	gigs.setup(self)  # T271
 	gigs.arrival.connect(_on_gig_arrival)
 	map.prosperity = prosperity  # T264 growth ring and need icons
@@ -415,7 +418,7 @@ func collect_state() -> Dictionary:
 		"chains": Chains.to_dict(), "storage_cuts": storage.cuts_to_dict(), "price_history": price_history,
 		"forecast_id": forecast_id, "forecast_slot": forecast_slot, "forecast_noted": forecast_noted, "station_systems": station_systems,
 		"second_lane": second_lane_planet, "clusters": clusters.to_dict(), "danger": dead.to_dict(), "dead_mining": dead.state_to_dict(), "fabric": fabric.to_dict(), "workshops": workshops.to_dict(),
-			"pathfinder": flight.to_dict(), "storage_links": storage_link.to_array(), "prosperity": prosperity.to_dict(), "bazaar": bazaar.to_dict(), "gigs": gigs.to_dict(), "free_play": free_play}
+			"pathfinder": flight.to_dict(), "storage_links": storage_link.to_array(), "prosperity": prosperity.to_dict(), "bazaar": bazaar.to_dict(), "gigs": gigs.to_dict(), "hubs": hubs.to_array(), "free_play": free_play}
 
 func apply_state(s: Dictionary) -> void:
 	_loading_state = true
@@ -507,6 +510,7 @@ func apply_state(s: Dictionary) -> void:
 	workshops.from_dict(s.get("workshops"))
 	flight.from_dict(s.get("pathfinder"))  # T179: a save without it (from before discovery) opens every planet
 	gigs.from_dict(s.get("gigs"))  # T271; old saves: empty board
+	hubs.from_array(s.get("hubs"))  # T289; old saves: no hubs
 	flight.resync(game_time())
 	_sync_closed()
 	_refresh_event_feed()
@@ -1455,7 +1459,7 @@ func _buy_ship_kind(kind: String) -> void:
 ## ---- T07 engine API (UI and bots). Ships are owned (ships) and either free or assigned. ----
 
 func free_ships() -> int:
-	return ships - engine.total_assigned()
+	return ships - engine.total_assigned() - hubs.pool_total()  # T289: hub pool ships are not free
 
 ## T58: owned and free ships of one type (only "small" remains).
 func owned_of(kind: String) -> int:
@@ -2069,7 +2073,19 @@ func danger_of(i: int) -> int:
 	return dead.get_danger(str(map.planets[i].get("id", ""))) if i >= 0 and i < map.planets.size() else 0
 
 func _settle_routes() -> Array:
+	cash -= hubs.plan(cash)  # T289: hub deliveries buy their goods, then settle with the routes
+	hubs.begin_settle()
 	var r: Dictionary = engine.settle(cash)
+	var hub_ids: Array = []
+	for rec in hubs.records:
+		hub_ids.append(int(rec["id"]))
+	var kept_results: Array = []
+	for row in r["results"]:
+		if not hub_ids.has(int(row["id"])):
+			kept_results.append(row)
+	r["results"] = kept_results
+	var hub_net := hubs.end_settle()
+	cash += hub_net
 	last_local = r["local"]
 	cash += int(r["delta"])
 	trade_income_total += maxi(0, int(r["gross"]))
@@ -2082,10 +2098,14 @@ func _settle_routes() -> Array:
 	last_summary = "%s %d, %s %d, %s %+d" % [StoryText.get_text("LBL_GROSS"), int(r["gross"]),
 		StoryText.get_text("LBL_SHIP_UPKEEP"), int(r["upkeep"]), StoryText.get_text("LBL_NET"), int(r["delta"])]
 	for rec in r["newly_blocked"]:
+		if str(rec.get("owner", "")) != "":
+			continue  # T289: a hub delivery has no route row to blame
 		var text := _blocked_text(rec)
 		post_notice(text)
 		route_blocked.emit(int(rec["id"]), text)
 	for rec in r["newly_stalled"]:
+		if str(rec.get("owner", "")) != "":
+			continue
 		post_notice(StoryText.get_text("NOT_ROUTE_STALLED", {"commodity": str(rec["c"]), "planet": planet_name(int(rec["a"]))}))
 	_check_second_lane(r)
 	routes_settled.emit(r["results"], int(r["delta"]))
