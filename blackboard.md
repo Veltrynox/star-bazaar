@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-07 06:32 run: T270
-- Summary: Not merged: rebase onto new-features failed
-- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
-- Approach: built by a worker in worktree ../wt/T270 on branch task/T270, merged by the serial merge queue.
-- Agent prompts: /overnight-worker T270 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T270.log.
-- Worked: worker finished.
-- Failed / did not work: rebase onto new-features failed.
-- Files and commits: see git log on branch new-features for commits starting with T270.
-- Left to do: owner or a new run: see blocked_log in schedule.json.
-
 ## 2026-11-07 06:32 run: T255
 - Summary: Not merged: rebase onto new-features failed
 - Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
@@ -65,3 +55,13 @@
 - Failed / did not work: nothing.
 - Files and commits: see git log on branch new-features for commits starting with T255.
 - Left to do: nothing for this task.
+
+## 2026-11-07 10:22 run: T271
+- Summary: Not merged: rebase onto new-features failed
+- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
+- Approach: built by a worker in worktree ../wt/T271 on branch task/T271, merged by the serial merge queue.
+- Agent prompts: /overnight-worker T271 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T271.log.
+- Worked: worker finished.
+- Failed / did not work: rebase onto new-features failed.
+- Files and commits: see git log on branch new-features for commits starting with T271.
+- Left to do: owner or a new run: see blocked_log in schedule.json.
