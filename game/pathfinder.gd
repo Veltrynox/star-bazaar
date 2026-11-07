@@ -22,6 +22,8 @@ signal build_started(planet_id: String)
 signal build_done(planet_id: String)      # a post or a platform stands now
 signal build_cancelled(planet_id: String) # the ship left during a build: credits are not refunded
 signal establish_failed(planet_id: String, reason: String) # T200: an order "fly there and establish" could not start on arrival
+signal delivered(planet_id: String, good: String, units: int)  # T271: units sold by hand or unloaded to storage at an established world (gig rush orders listen)
+signal arrived_point(sys: int, pos: Vector3)  # T271: a flight to a point of open space ended (gig signal markers listen)
 signal exploration_done                   # T206: exploration mode finished: every planet of the system stands established; the mode is off
 
 const PLATFORM_SKILL := "MIN_3"  # skill that allows a mining platform (proposal 1.4)
@@ -57,6 +59,7 @@ var _boost := false             # T269 boost on
 var _charges := -1              # T269 boost charges left; -1 = full (read live from flagship_boost_charges)
 var _refill_left := 0.0         # T269 cycles until the next charge comes back
 var _burn_owed := 0.0           # T269 fraction of an energy unit burned but not yet taken from the hold
+var _idle_left := 0.0           # T271: cycles the ship cannot take orders (a gig cost); runs on the game clock
 var _self_order := false        # T206: true while the mode itself gives an order (a manual order ends the mode)
 
 func setup(m: Node) -> void:
@@ -86,6 +89,7 @@ func reset() -> void:
 	_charges = -1
 	_refill_left = 0.0
 	_burn_owed = 0.0
+	_idle_left = 0.0
 	_sys = 1
 	_docked = home_id()
 	_ensure_home()
@@ -292,6 +296,8 @@ func eta_cycles(pid: String) -> float:
 func request_fly(t: Dictionary) -> String:
 	if not is_enabled():
 		return ""
+	if _idle_left > 0.0:
+		return "busy"  # T271: a gig cost holds the ship
 	if not _self_order:
 		_explore = false  # T206: a manual order ends exploration mode
 	var kind := str(t.get("kind", "point"))
@@ -372,6 +378,8 @@ func request_fly_establish(pid: String) -> String:
 func request_establish(pid: String) -> String:
 	if not is_enabled():
 		return ""
+	if _idle_left > 0.0:
+		return "busy"  # T271
 	if not _self_order:
 		_explore = false  # T206
 	if _index_of(pid) < 0:
@@ -426,6 +434,7 @@ func resync(now: float) -> void:
 
 func advance(cycles: float) -> void:
 	_tick_charges(cycles)
+	_idle_left = maxf(0.0, _idle_left - cycles)
 	if _boost:
 		var rate := _bal("flagship_boost_energy", 0.0)
 		var run := cycles
@@ -566,6 +575,8 @@ func _arrive() -> void:
 	_t = 0.0
 	_dur = 0.0
 	_docked = ""
+	if str(tgt.get("kind", "")) == "point":
+		arrived_point.emit(_sys, _pos)
 	if str(tgt.get("kind", "")) == "planet":
 		var idx := int(tgt.get("index", -1))
 		if idx >= 0 and idx < _planets().size():
@@ -688,6 +699,7 @@ func dock_trade(planet: int, good: String, units: int, dir: String) -> String:
 	main.cash += credits
 	main.engine._note_sale(good, have, planet)  # fills the world's needs (prosperity.add_fill)
 	Markets.add_sale(good, have, 0)
+	delivered.emit(_docked, good, have)
 	return ""
 
 ## Free move hold -> that world's company storage. Returns "" or a reason ("not_docked", "no_stock", "storage_full"-> "hold_full" is for loads).
@@ -700,6 +712,7 @@ func unload_to_storage(planet: int, good: String, units: int) -> String:
 	if put <= 0:
 		return "storage_full"
 	_take(good, put)
+	delivered.emit(_docked, good, put)
 	return ""
 
 ## Free move that world's company storage -> hold.
@@ -715,6 +728,13 @@ func load_from_storage(planet: int, good: String, units: int) -> String:
 	main.storage.remove(key, good, n)
 	_put(good, n)
 	return ""
+
+## T271 gig cost: the ship takes no order for this many cycles (game clock). 0 clears it.
+func hold_for(cycles: float) -> void:
+	_idle_left = maxf(0.0, cycles)
+
+func idle_left() -> float:
+	return _idle_left
 
 func boost_on() -> bool:
 	return _boost
@@ -819,7 +839,7 @@ func to_dict() -> Dictionary:
 		tgt = {"kind": str(_target.get("kind", "point")), "pos": _v(_target.get("pos", Vector3.ZERO)), "index": int(_target.get("index", -1))}
 	return {"pos": _v(_pos), "sys": _sys, "state": _state, "target": tgt, "from": _v(_from), "to": _v(_to), "to_sys": _to_sys,
 		"dur": _dur, "t": _t, "speed": _speed, "yaw": _yaw, "docked": _docked, "build": _build, "build_total": _build_total, "build_left": _build_left, "auto": _auto, "explore": _explore,
-		"hold": _hold.duplicate(), "boost_charges": _charges, "boost_refill": _refill_left,
+		"hold": _hold.duplicate(), "idle": _idle_left, "boost_charges": _charges, "boost_refill": _refill_left,
 		"discovered": _discovered.keys(), "posts": _posts.keys(), "platforms": _platforms.keys(), "legacy": _legacy}
 
 ## A missing or bad dictionary (a save from before discovery) opens every planet, so an old run keeps working.
@@ -865,6 +885,7 @@ func from_dict(d) -> void:
 				_hold[str(k)] = int(d["hold"][k])
 		_charges = int(d.get("boost_charges", -1))
 		_refill_left = maxf(0.0, float(d.get("boost_refill", 0.0)))
+	_idle_left = maxf(0.0, float(d.get("idle", 0.0)))  # T271; an older save has none
 	_ensure_home()
 	_explore = bool(d.get("explore", false)) and is_enabled()
 	# T202: a save from before the parking spot has the ship at the planet's centre: move it to the edge

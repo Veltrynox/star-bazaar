@@ -181,6 +181,7 @@ var engine: RefCounted = RouteEngine.new()  # T07 route records and math
 var workshops: RefCounted = WorkshopsScript.new()  # smelter, munitions, atelier, culture lab; saved under "workshops"
 var fabric: RefCounted = Fabric.new()  # the fabric at the trading post, saved under "fabric"
 var prosperity: Prosperity = Prosperity.new()  # T256 world tiers and needs, saved under "prosperity"
+var gigs: Gigs = Gigs.new()  # T271 the gig board (signals, rush orders), saved under "gigs"
 var bazaar: Bazaar = Bazaar.new()  # T259 the Star Bazaar: capital, stages, saved under "bazaar"
 var dead: RefCounted = DeadWorlds.new()  # dead worlds: danger meter per planet id, saved under "danger"
 var clusters: RefCounted = Clusters.new()  # T156 asteroid clusters (ore sources), saved
@@ -286,6 +287,8 @@ func _ready() -> void:
 	prosperity.setup(balance, map.planets, func(pid: String) -> bool: return flight != null and flight.established(pid))
 	engine.prosperity = prosperity
 	bazaar.setup(self)  # T259
+	gigs.setup(self)  # T271
+	gigs.arrival.connect(_on_gig_arrival)
 	map.prosperity = prosperity  # T264 growth ring and need icons
 	if not prosperity.reclaimed.is_connected(_on_prosperity_reclaimed):
 		prosperity.reclaimed.connect(_on_prosperity_reclaimed)
@@ -405,7 +408,7 @@ func collect_state() -> Dictionary:
 		"chains": Chains.to_dict(), "storage_cuts": storage.cuts_to_dict(), "price_history": price_history,
 		"forecast_id": forecast_id, "forecast_slot": forecast_slot, "forecast_noted": forecast_noted, "station_systems": station_systems,
 		"second_lane": second_lane_planet, "clusters": clusters.to_dict(), "danger": dead.to_dict(), "dead_mining": dead.state_to_dict(), "fabric": fabric.to_dict(), "workshops": workshops.to_dict(),
-			"pathfinder": flight.to_dict(), "storage_links": storage_link.to_array(), "prosperity": prosperity.to_dict(), "bazaar": bazaar.to_dict(), "free_play": free_play}
+			"pathfinder": flight.to_dict(), "storage_links": storage_link.to_array(), "prosperity": prosperity.to_dict(), "bazaar": bazaar.to_dict(), "gigs": gigs.to_dict(), "free_play": free_play}
 
 func apply_state(s: Dictionary) -> void:
 	_loading_state = true
@@ -496,6 +499,7 @@ func apply_state(s: Dictionary) -> void:
 	fabric.from_dict(s.get("fabric"))  # old saves: not built
 	workshops.from_dict(s.get("workshops"))
 	flight.from_dict(s.get("pathfinder"))  # T179: a save without it (from before discovery) opens every planet
+	gigs.from_dict(s.get("gigs"))  # T271; old saves: empty board
 	flight.resync(game_time())
 	_sync_closed()
 	_refresh_event_feed()
@@ -2203,6 +2207,7 @@ func _process(delta: float) -> void:
 			_beat_banner.visible = false
 	cycle_elapsed += delta * time_speed * slow
 	flight.sync(game_time())  # T179: the Pathfinder moves with the game clock only (nothing while paused)
+	gigs.tick(game_time())  # T271: deadlines on the game clock
 	var length := _cycle_seconds()
 	while cycle_elapsed >= length and not game_over and not paused:
 		cycle_elapsed -= length
@@ -2279,6 +2284,7 @@ func _pay_prosperity() -> void:
 func _end_cycle() -> void:
 	_advance_notice()  # the board notice lives for one cycle, then the next queued one shows
 	_settle_routes()
+	gigs.credit_tick()  # T271: a rush delivery counts as its need met for some cycles
 	prosperity.end_cycle()  # T256: needs met = progress, short = decay, full = tier up
 	_tick_danger()
 	fabric.run(storage)
@@ -2317,6 +2323,7 @@ func _end_cycle() -> void:
 		return
 	events.tick()  # T12: effects that ran this cycle age
 	cycle += 1
+	gigs.on_cycle(cycle)  # T271: perks age, a signal may open
 	_sync_earn()
 	Chains.tick(cycle)  # chain effects that ran through the last cycle expire
 	_sync_closed()
@@ -2660,6 +2667,51 @@ func open_event_icon(id: String) -> bool:
 	_open_event_notice(id)
 	_refresh()
 	return true
+
+## T271: the gig arrival window may open now (no event window up, no important event waiting, run going).
+func gig_window_free() -> bool:
+	return event_notice == null and events.pending_id == "" and not game_over
+
+## T271: the Flagship reached a signal marker. Reuses the event window: pauses like an event, two neutral options (none for a pure story gig).
+func _on_gig_arrival(uid: String) -> void:
+	var o: Dictionary = gigs.offer(uid)
+	if o.is_empty() or not gig_window_free():
+		return
+	var g: Dictionary = {}
+	for d in gigs.defs:
+		if str(d.get("id", "")) == str(o["id"]):
+			g = d
+	var labels: Array = []
+	for op in g.get("options", []):
+		labels.append(StoryText.get_or(str(op.get("text", "")), str(op.get("id", ""))))
+	if not _event_pause_held:
+		_event_prev_paused = paused
+		_event_pause_held = true
+	paused = true
+	event_notice = load("res://game/event_notice.gd").new()
+	add_child(event_notice)
+	event_notice.show_event(StoryText.get_or(str(g.get("title", "")), "Signal"), StoryText.get_or(str(g.get("body", "")), ""), "", labels, StoryText.get_text("MENU_CONTINUE"))
+	event_notice.confirmed.connect(_on_gig_confirmed.bind(uid))
+	_refresh()
+
+func _on_gig_confirmed(choice: int, uid: String) -> void:
+	var res: Dictionary = gigs.choose(uid, choice)
+	_dismiss_event_notice()
+	if res.is_empty():
+		_release_event_pause()
+		_refresh()
+		return
+	var text := StoryText.get_or(str(res["outcome"]), "") if str(res["outcome"]) != "" else ""
+	var epi := StoryText.get_or(str(res["epilogue"]), "") if str(res["epilogue"]) != "" else ""
+	event_notice = load("res://game/event_notice.gd").new()
+	add_child(event_notice)
+	event_notice.show_event(StoryText.get_or("GIG_DONE_TITLE", "Signal"), (text + "\n\n" + epi).strip_edges(), "\n".join(PackedStringArray(res["lines"])), [], StoryText.get_text("BTN_OK"))
+	event_notice.confirmed.connect(func(_c: int):
+		_dismiss_event_notice()
+		_release_event_pause()
+		_refresh()
+		save_now())
+	_refresh_panel()
 
 ## Moves the camera to a planet (its system when it is another one) and shows the halo on it.
 func _focus_event_planet(planet: int) -> void:

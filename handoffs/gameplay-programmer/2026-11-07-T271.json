@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-07",
+  "task": "T271",
+  "status": "done",
+  "files_changed": [
+    "game/gigs.gd",
+    "data/gigs.json",
+    "data/balance.json",
+    "game/main.gd",
+    "game/conditions.gd",
+    "game/pathfinder.gd",
+    "game/save_game.gd",
+    "tools/tests/run_tests.gd"
+  ],
+  "open_questions": [
+    "UNKNOWN: GIG03-GIG06 texts exist in story/gigs.md but are not in data/gigs.json yet (brief named GIG01, GIG02 only); add them in a later task?",
+    "UNKNOWN: perks (cheap_post) and knowledge (price_view, sell_hint) are stored and saved but nothing reads them yet; which task wires their effects?"
+  ],
+  "handoff": "Gig engine built (game/gigs.gd, data/gigs.json). Kinds signal and rush; kind field open. Board up to gig_board_max; signals: one at a time, gap, cap, first-cycle floor, seeded draw, free expiry (gone for the run), arrival window reuses the event window with two neutral options and branch outcome text. Rush: Gigs.post_rush(planet, good, units, deadline_cycles) for the generator task; delivery by hand sale or unload (new Pathfinder signal delivered) pays cash premium and a need credit via prosperity.add_fill before cycle-end progress. Goods lots go to the nearest established world's storage, no share. Atoms gig_done:<id>, gig_open. Pathfinder gained arrived_point, delivered, hold_for (scout idle cost, saved). Save version 15. 17 gig_* balance keys, all placeholders. API for UI: Gigs.offers, accept(uid), changed signal. Tests: 13 base failures only; new gigs tests pass."
+}

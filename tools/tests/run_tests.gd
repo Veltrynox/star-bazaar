@@ -115,6 +115,7 @@ func _run() -> void:
 	_test_event_banners()
 	await _test_company_setup()
 	await _test_availability()
+	await _test_gigs()
 	await _test_skill_link_clip()
 	print("TOTAL pass=%d fail=%d" % [passed, failed])
 	quit(1 if failed > 0 else 0)
@@ -2027,7 +2028,7 @@ func _test_skills_core() -> void:
 	f.store_string(JSON.stringify({"version": 2, "state": v2}))
 	f.close()
 	var loaded: Dictionary = SaveGame.load_state()
-	check(SaveGame.VERSION == 14 and not loaded.is_empty() and loaded["learned_skills"].has("FND_STORAGE") and not SaveGame.dropped_old, "migration: a v2 file loads migrated")
+	check(SaveGame.VERSION == 15 and not loaded.is_empty() and loaded["learned_skills"].has("FND_STORAGE") and not SaveGame.dropped_old, "migration: a v2 file loads migrated")
 	f = FileAccess.open(SaveGame.PATH, FileAccess.WRITE)
 	f.store_string(JSON.stringify({"version": 1, "state": v2}))
 	f.close()
@@ -6398,7 +6399,9 @@ func _test_chains() -> void:
 	check(inp["ending_id"] == "END_BIO_BAD" and inp["flag"] == "bad" and inp["rival_broken"] == true and inp["rival_broken_bot"] == 2 and EndingPicker.inputs("mil", bal)["ending_id"] == "END_MIL_GOOD", "ending picker: BAD by the chain flag, rival_broken from the chain", str(inp))
 	check(m.ending_id_of({"kind": "unfinished"}) == "END_UNFINISHED" and m.ending_id_of({"kind": "bankrupt"}) == "END_BANKRUPT", "ending id: soft and loss ids")
 	# save version 4 and v3 migration
-	check(SaveGame.VERSION == 14, "save: version 14 (v2 and newer load; v1 is dropped, owner approved)")
+	var gig_errs: Array = Gigs.lint()
+	check(gig_errs.is_empty(), "gigs: data/gigs.json lints clean", str(gig_errs))
+	check(SaveGame.VERSION == 15, "save: version 15 (v2 and newer load; v1 is dropped, owner approved)")
 	var v3 := {"cycle": 7, "cash": 300, "chains": {"dir": {"mil": 9}}, "shield": {"built": true}}
 	var mig: Dictionary = SaveGame.migrate_v3(v3)
 	check(mig["cash"] == 300 and not mig.has("shield") and not mig.has("chains"), "save: v3 migrates, chain state fresh, shield dropped")
@@ -8340,3 +8343,45 @@ func _test_epilogue_placeholders() -> void:
 					bad += 1
 					print("raw token: ", line)
 	check(bad == 0, "epilogue: no raw placeholder left in end screen lines")
+
+## T271 gig engine: a signal opens, expires for free and stays gone; reaching it and choosing applies gives and costs; a rush order completes
+## on a hand delivery; the board saves and loads; nothing is offered with discovery off.
+func _test_gigs() -> void:
+	var m: Control = await _new_main(false, true)
+	m._dismiss_preface()
+	var g = m.gigs
+	m.balance["gig_first_cycle"] = 1
+	m.balance["gig_gap_cycles"] = 1
+	check(g.defs.size() >= 2, "gigs: data loaded")
+	check(not Conditions.eval("gig_open") and not Conditions.eval("gig_done:GIG02"), "gigs: atoms false at the start")
+	g.on_cycle(5)
+	check(g.is_open() and g.signals_seen == 1, "gigs: a signal opens on the cycle check")
+	g.on_cycle(6)
+	check(g.offers.size() == 1, "gigs: one open signal at a time")
+	var o: Dictionary = g.offers[0]
+	var id := str(o["id"])
+	g.tick(float(o["due"]) + 0.1)
+	check(not g.is_open() and g.skipped.has(id) and not g.is_done(id), "gigs: free expiry, gone for the run")
+	g.on_cycle(7)
+	check(g.offers.size() == 1 and str(g.offers[0]["id"]) != id, "gigs: an expired gig does not return")
+	var uid := str(g.offers[0]["uid"])
+	var cash0: int = m.cash
+	var saved: Dictionary = g.to_dict()
+	g.from_dict(JSON.parse_string(JSON.stringify(saved)))
+	check(g.offers.size() == 1 and g.skipped.has(id), "gigs: save and load keep the board")
+	var res: Dictionary = g.choose(uid, 0)
+	check(not res.is_empty() and Conditions.eval("gig_done:" + uid) and not g.is_open(), "gigs: choosing closes the offer and marks it done")
+	# rush
+	m.flight.set_flag("post", "planet_2", true)
+	var pi: int = m.planet_index_of("planet_2")
+	var ruid: String = g.post_rush(pi, "energy", 5, 4.0)
+	check(ruid != "" and g.is_open(), "gigs: a rush order posts")
+	var c1: int = m.cash
+	g.on_delivered("planet_2", "energy", 5)
+	check(not g.is_open() and g.rush_done == 1 and m.cash > c1 and not g.credits.is_empty(), "gigs: a rush delivery pays a premium and a need credit")
+	g.credit_tick()
+	m.balance["discovery_enabled"] = 0
+	g.reset()
+	g.on_cycle(30)
+	check(not g.is_open(), "gigs: nothing opens with discovery off")
+	await _free_main(m)
