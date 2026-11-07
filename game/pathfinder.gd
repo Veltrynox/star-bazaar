@@ -52,6 +52,11 @@ var _platforms := {}            # planet id -> true
 var _legacy := false            # a save from before discovery: every planet counts as established
 var _last_now := -1.0           # game time (cycles) of the last sync
 var _explore := false           # T206: exploration mode: the ship scouts and establishes every planet of its system by itself
+var _hold := {}                 # T269 Flagship hold: good -> units (cap flagship_hold_units)
+var _boost := false             # T269 boost on
+var _charges := -1              # T269 boost charges left; -1 = full (read live from flagship_boost_charges)
+var _refill_left := 0.0         # T269 cycles until the next charge comes back
+var _burn_owed := 0.0           # T269 fraction of an energy unit burned but not yet taken from the hold
 var _self_order := false        # T206: true while the mode itself gives an order (a manual order ends the mode)
 
 func setup(m: Node) -> void:
@@ -76,6 +81,11 @@ func reset() -> void:
 	_build_total = 0.0
 	_build_left = 0.0
 	_last_now = -1.0
+	_hold = {}
+	_boost = false
+	_charges = -1
+	_refill_left = 0.0
+	_burn_owed = 0.0
 	_sys = 1
 	_docked = home_id()
 	_ensure_home()
@@ -158,7 +168,8 @@ func _flight_cycles(from: Vector3, to: Vector3, to_sys: int) -> float:
 
 ## Top speed in world units per cycle.
 func _vmax() -> float:
-	return maxf(1.0, _bal("pathfinder_speed", 400.0) * _speed_mult()) * _world_per_map_unit()
+	var boost := _bal("flagship_boost_mult", 1.0) if _boost else 1.0  # T269
+	return maxf(1.0, _bal("pathfinder_speed", 400.0) * _speed_mult() * maxf(1.0, boost)) * _world_per_map_unit()
 
 ## Current heading (yaw, model forward is -Z) and speed in world units per cycle, for the view.
 func heading() -> float:
@@ -414,6 +425,26 @@ func resync(now: float) -> void:
 	_last_now = now
 
 func advance(cycles: float) -> void:
+	_tick_charges(cycles)
+	if _boost:
+		var rate := _bal("flagship_boost_energy", 0.0)
+		var run := cycles
+		if rate > 0.0:
+			run = minf(cycles, maxf(0.0, float(hold_units("energy")) - _burn_owed) / rate)
+			_burn_owed += run * rate
+			var whole := floori(_burn_owed)
+			if whole > 0:
+				_take("energy", whole)
+				_burn_owed -= float(whole)
+		if run < cycles:
+			_advance_flight(run)
+			_boost = false  # out of fuel
+			_burn_owed = 0.0
+			_advance_flight(cycles - run)
+			return
+	_advance_flight(cycles)
+
+func _advance_flight(cycles: float) -> void:
 	var left := cycles
 	var guard := 0
 	while left > 0.0 and guard < 16:
@@ -568,6 +599,171 @@ func _finish_build() -> void:
 	build_done.emit(pid)
 	main.on_flight_changed()
 
+# ---- T269 Flagship: hold, dock trade, storage moves, boost -----------------------------------------------------------
+## Refusal reasons for the UI: "not_docked" | "no_cash" | "hold_full" | "no_fuel" (also "no_stock", "no_price", "no_charges", "bad_args").
+
+func hold_cap() -> int:
+	return maxi(0, int(_bal("flagship_hold_units", 0.0)))
+
+func hold_units(good: String) -> int:
+	return int(_hold.get(good, 0))
+
+func hold_total() -> int:
+	var n := 0
+	for k in _hold:
+		n += int(_hold[k])
+	return n
+
+func hold_space() -> int:
+	return maxi(0, hold_cap() - hold_total())
+
+## Goods in the hold with units > 0 (hidden goods stay out: Availability).
+func hold_goods() -> Dictionary:
+	var out := {}
+	for k in _hold:
+		if int(_hold[k]) > 0 and Availability.good(str(k)):
+			out[str(k)] = int(_hold[k])
+	return out
+
+func _put(good: String, n: int) -> int:
+	var put := clampi(n, 0, hold_space())
+	if put > 0:
+		_hold[good] = hold_units(good) + put
+	return put
+
+func _take(good: String, n: int) -> int:
+	var got := clampi(n, 0, hold_units(good))
+	if got > 0:
+		_hold[good] = hold_units(good) - got
+		if int(_hold[good]) <= 0:
+			_hold.erase(good)
+	return got
+
+## Planet index of the world the ship is docked at and may trade at; -1 when it cannot (flying, building, open space, not established).
+func dock_planet() -> int:
+	if _state != "idle" or _docked == "" or not established(_docked):
+		return -1
+	return _index_of(_docked)
+
+## "" when the dock trade is open here, else "not_docked".
+func dock_reason() -> String:
+	return "" if is_enabled() and dock_planet() >= 0 else "not_docked"
+
+## Buy price per unit (the same as a Buy order at that world); < 0 when the world does not sell it.
+func dock_buy_price(good: String) -> int:
+	var i := dock_planet()
+	return -1 if i < 0 else main.trade.price(i, good + "_buy")
+
+## Credits n units would fetch here, as a Sell order would pay (need pricing and surplus apply).
+func dock_sale_value(good: String, units: int) -> int:
+	var i := dock_planet()
+	return 0 if i < 0 else int(main.engine.sale_value(i, good, units))
+
+## dir "buy" | "sell". Moves up to `units` (clamped by cash, space, stock) at the order prices. "" = done (at least one unit moved).
+func dock_trade(planet: int, good: String, units: int, dir: String) -> String:
+	if dock_planet() < 0 or dock_planet() != planet:
+		return "not_docked"
+	if units <= 0 or (dir != "buy" and dir != "sell") or not Availability.good(good):
+		return "bad_args"
+	if dir == "buy":
+		var price: int = main.trade.price(planet, good + "_buy")
+		if price <= 0:
+			return "no_price"
+		if hold_space() <= 0:
+			return "hold_full"
+		var n := mini(units, hold_space())
+		n = mini(n, int(main.cash) / price)
+		if n <= 0:
+			return "no_cash"
+		main.cash -= n * price
+		_put(good, n)
+		return ""
+	var have := mini(units, hold_units(good))
+	if have <= 0:
+		return "no_stock"
+	if int(main.engine.sold_price(planet, good)) <= 0:
+		return "no_price"
+	var credits: int = int(main.engine.sale_value(planet, good, have))
+	_take(good, have)
+	main.cash += credits
+	main.engine._note_sale(good, have, planet)  # fills the world's needs (prosperity.add_fill)
+	Markets.add_sale(good, have, 0)
+	return ""
+
+## Free move hold -> that world's company storage. Returns "" or a reason ("not_docked", "no_stock", "storage_full"-> "hold_full" is for loads).
+func unload_to_storage(planet: int, good: String, units: int) -> String:
+	if dock_planet() < 0 or dock_planet() != planet:
+		return "not_docked"
+	if units <= 0 or hold_units(good) <= 0:
+		return "no_stock"
+	var put: int = main.storage.add(main.storage.planet_key(planet), good, mini(units, hold_units(good)))
+	if put <= 0:
+		return "storage_full"
+	_take(good, put)
+	return ""
+
+## Free move that world's company storage -> hold.
+func load_from_storage(planet: int, good: String, units: int) -> String:
+	if dock_planet() < 0 or dock_planet() != planet:
+		return "not_docked"
+	var key: String = main.storage.planet_key(planet)
+	if units <= 0 or main.storage.amount(key, good) <= 0:
+		return "no_stock"
+	if hold_space() <= 0:
+		return "hold_full"
+	var n := mini(mini(units, main.storage.amount(key, good)), hold_space())
+	main.storage.remove(key, good, n)
+	_put(good, n)
+	return ""
+
+func boost_on() -> bool:
+	return _boost
+
+func boost_max_charges() -> int:
+	return maxi(0, int(_bal("flagship_boost_charges", 0.0)))
+
+func boost_charges() -> int:
+	return boost_max_charges() if _charges < 0 else mini(_charges, boost_max_charges())
+
+## Cycles until the next charge is back (0 when full).
+func boost_refill_left() -> float:
+	return 0.0 if boost_charges() >= boost_max_charges() else _refill_left
+
+## Switches the boost. Turning on spends one charge and needs energy in the hold. "" ok, else "no_fuel" | "no_charges".
+func set_boost(on: bool) -> String:
+	if not on:
+		_boost = false
+		_burn_owed = 0.0
+		return ""
+	if _boost:
+		return ""
+	if _bal("flagship_boost_energy", 0.0) > 0.0 and hold_units("energy") <= 0:
+		return "no_fuel"
+	if boost_charges() <= 0:
+		return "no_charges"
+	if _charges < 0:
+		_charges = boost_max_charges()
+	if boost_charges() >= boost_max_charges():
+		_refill_left = _bal("flagship_boost_refill_cycles", 1.0)
+	_charges = boost_charges() - 1
+	_boost = true
+	return ""
+
+func _tick_charges(cycles: float) -> void:
+	if _charges < 0 or _charges >= boost_max_charges():
+		return
+	var left := cycles
+	var guard := 0
+	while left > 0.0 and _charges < boost_max_charges() and guard < 64:
+		guard += 1
+		if left >= _refill_left:
+			left -= _refill_left
+			_charges += 1
+			_refill_left = maxf(0.01, _bal("flagship_boost_refill_cycles", 1.0))
+		else:
+			_refill_left -= left
+			left = 0.0
+
 # ---- debug and QA ----------------------------------------------------------------------------------------------------
 
 ## Finishes the flight at once (main.debug_* guards it by the debug flag).
@@ -623,6 +819,7 @@ func to_dict() -> Dictionary:
 		tgt = {"kind": str(_target.get("kind", "point")), "pos": _v(_target.get("pos", Vector3.ZERO)), "index": int(_target.get("index", -1))}
 	return {"pos": _v(_pos), "sys": _sys, "state": _state, "target": tgt, "from": _v(_from), "to": _v(_to), "to_sys": _to_sys,
 		"dur": _dur, "t": _t, "speed": _speed, "yaw": _yaw, "docked": _docked, "build": _build, "build_total": _build_total, "build_left": _build_left, "auto": _auto, "explore": _explore,
+		"hold": _hold.duplicate(), "boost_charges": _charges, "boost_refill": _refill_left,
 		"discovered": _discovered.keys(), "posts": _posts.keys(), "platforms": _platforms.keys(), "legacy": _legacy}
 
 ## A missing or bad dictionary (a save from before discovery) opens every planet, so an old run keeps working.
@@ -662,6 +859,12 @@ func from_dict(d) -> void:
 		_build_left = clampf(float(d.get("build_left", _build_total)), 0.0, _build_total)
 		_state = "building"
 		_docked = _build
+	if typeof(d.get("hold")) == TYPE_DICTIONARY:  # T269: an older save has no hold: empty, charges full
+		for k in d["hold"]:
+			if int(d["hold"][k]) > 0:
+				_hold[str(k)] = int(d["hold"][k])
+		_charges = int(d.get("boost_charges", -1))
+		_refill_left = maxf(0.0, float(d.get("boost_refill", 0.0)))
 	_ensure_home()
 	_explore = bool(d.get("explore", false)) and is_enabled()
 	# T202: a save from before the parking spot has the ship at the planet's centre: move it to the edge
