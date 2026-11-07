@@ -1,0 +1,11 @@
+{
+  "task": "T281",
+  "agent": "main-session (gameplay-programmer scope, done inline)",
+  "changed": [
+    "game/markets.gd", "game/bots.gd", "game/rival_card.gd", "game/skills.gd", "game/main.gd",
+    "game/conditions.gd", "game/ending_picker.gd", "game/end_screen.gd", "game/game_menu.gd", "game/debug_menu.gd",
+    "game/share_panel.gd (deleted)", "game/share_graph.gd (deleted)", "game/competitors_panel.gd (deleted)",
+    "gdd.md", "tools/tests/run_tests.gd"
+  ],
+  "notes": "Removed share, bot volume curves, win/sweep verdict, overhead, share points, share panel, graph, Competitors panel, share chip, debug force-share. Markets keeps the registry, a per-cycle sales record (vp_active, read by first_sale_after_cycle), cycles, timed_out and house hits (hit_bot/bot_mods/tier_off) for chains and skills until N27. Bots keeps ids, names, tier(). Rival card: house name plus weather temperament (ids HINT_HOUSE_FLOOD/SHORTAGE/CONGESTION with fallbacks, for the story task). share_pct atom now always false. Old saves load: share fields in markets and skills.share_paid are ignored; no new fields so no save bump. Outside touches: conditions.gd, ending_picker.gd, end_screen.gd (end share readout and EPI_SECOND line gone), game_menu.gd, debug_menu.gd. qa/bots/bot_run.gd and qa/gui/competitors_shot.gd still call removed APIs (owner-only QA, not touched). Now unused: balance bot_* volume keys, share_*, market_overhead, win_share_pct, sweep_* keys and story ids LBL_SHARE_*, LBL_COMP_*, EPI_SECOND_*, NOT_SKILL_REASON_SHARE."
+}
