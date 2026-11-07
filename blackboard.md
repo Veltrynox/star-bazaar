@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-06 19:05 run: T249
-- Summary: Skill info panel moved from the bottom to a 320px right-hand column on the skill screen, tree uses freed height and remaining width
-- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
-- Approach: built by a worker in worktree ../wt/T249 on branch task/T249, merged by the serial merge queue.
-- Agent prompts: /overnight-worker T249 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T249.log.
-- Worked: rebase, full test suite and fast-forward merge passed.
-- Failed / did not work: nothing.
-- Files and commits: see git log on branch new-features for commits starting with T249.
-- Left to do: nothing for this task.
-
 ## 2026-11-06 19:21 run: T266
 - Summary: Growth beats built: need notch tick with a chime signal hook, tier-up 0.4 s slow plus ring, bloom and a camera pull that yields to the player, Restless ring dim, and a stage-done flash, ring and banner, all on game time with placeholder beat_* balance keys
 - Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
@@ -65,3 +55,13 @@
 - Failed / did not work: nothing.
 - Files and commits: see git log on branch new-features for commits starting with T269.
 - Left to do: nothing for this task.
+
+## 2026-11-06 21:31 run: T297
+- Summary: Not merged: rebase onto new-features failed
+- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
+- Approach: built by a worker in worktree ../wt/T297 on branch task/T297, merged by the serial merge queue.
+- Agent prompts: /overnight-worker T297 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T297.log.
+- Worked: worker finished.
+- Failed / did not work: rebase onto new-features failed.
+- Files and commits: see git log on branch new-features for commits starting with T297.
+- Left to do: owner or a new run: see blocked_log in schedule.json.
