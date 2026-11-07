@@ -1938,7 +1938,7 @@
       "title": "Scale all ships to 0.8x (pirate ships included)",
       "owner_agent": "gameplay-programmer",
       "depends_on": [],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 30,
       "window": "Owner request 2026-11-06. Small change; do before T250 or together with it.",
       "brief": "Owner: scale the ships to 0.8x of their current size. Add one global ship scale key in data/balance.json (value 0.8, no number in code) and apply it where ship models are sized (ships.gd and anything that sizes models, selection rings, pick radius, trails and engine glow offsets such as ENGINE_BACK and trail WIDTH, shadows or markers, the Pathfinder scout). The scale applies to every ship type including the pirate ships of T250: pirates keep their own size ratio to a corvette (T250 placeholder ~0.6x) and the global scale multiplies on top, so pirates end up at 0.6 x 0.8 of the old corvette size. If T250 is not built yet, leave a note in its handoff and make the pirate code read the same key. Keep the click pick radius usable (do not shrink it below a comfortable size; follow T245 picking if it is done). Check trails and engine positions still line up after scaling. Do not change speeds or balance. Handoff: handoffs/gameplay-programmer/<date>-T252.json.",
@@ -1947,7 +1947,8 @@
         "data/balance.json",
         "game/ships.gd",
         "game/main.gd"
-      ]
+      ],
+      "note": "Done by orchestrator: Added `ship_scale` 0.8 to `data/balance.json`, read through `Ships.ship_scale()`. It sizes the player, rival and traffic ships, their selection ring, FX radii, trail widths and engine offsets. The click pick radius stays at 20 px."
     },
     {
       "task_id": "T253",

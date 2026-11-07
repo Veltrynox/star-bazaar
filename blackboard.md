@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-07 10:57 run: T282
-- Summary: The eight rival-cutting skill nodes now act on house weather. Chain options that hit a rival delay or soften that house's next weather. Save version is 18.
-- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
-- Approach: built by a worker in worktree ../wt/T282 on branch task/T282, merged by the serial merge queue.
-- Agent prompts: /overnight-worker T282 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T282.log.
-- Worked: rebase, full test suite and fast-forward merge passed.
-- Failed / did not work: nothing.
-- Files and commits: see git log on branch new-features for commits starting with T282.
-- Left to do: nothing for this task.
-
 ## 2026-11-07 10:58 run: T245
 - Summary: A left click on a ship drawn over a planet now selects only the ship, because `game/map.gd` no longer also emits the planet click; `map.gd` is outside the task's `touches`, so this is the one out-of-scope edit
 - Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
@@ -65,3 +55,13 @@
 - Failed / did not work: worker did not report done: None.
 - Files and commits: see git log on branch new-features for commits starting with T296.
 - Left to do: owner or a new run: see blocked_log in schedule.json.
+
+## 2026-11-07 11:04 run: T252
+- Summary: Added `ship_scale` 0.8 to `data/balance.json`, read through `Ships.ship_scale()`. It sizes the player, rival and traffic ships, their selection ring, FX radii, trail widths and engine offsets. The click pick radius stays at 20 px.
+- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
+- Approach: built by a worker in worktree ../wt/T252 on branch task/T252, merged by the serial merge queue.
+- Agent prompts: /overnight-worker T252 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T252.log.
+- Worked: rebase, full test suite and fast-forward merge passed.
+- Failed / did not work: nothing.
+- Files and commits: see git log on branch new-features for commits starting with T252.
+- Left to do: nothing for this task.
