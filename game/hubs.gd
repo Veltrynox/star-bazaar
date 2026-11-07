@@ -119,7 +119,7 @@ func set_pool(planet: int, n: int) -> int:
 
 ## Releases a hub; its pool ships return to the free fleet.
 func release(planet: int) -> void:
-	hubs.erase(planet)
+	hubs.erase(planet)  # T290: the pool is part of the entry, so free_for_pool() counts those ships as free again
 
 ## Tier of a hub no longer standing (post lost) keeps the hub; only a release removes it.
 func set_world_off(hub: int, world: int, off: bool) -> void:
@@ -246,11 +246,12 @@ func _best_source(hub: int, world: int, good: String, qty: int) -> Dictionary:
 
 ## Plans this cycle's deliveries and buys their goods. Call once before engine.settle(); returns the credits spent
 ## (cash must be reduced by it). Needs of worlds in reach are filled up to their demand only.
-func plan(cash: int) -> int:
+## cash_floor is the ship cash floor (the fixed costs of the manual routes): a hub never buys below it, so it never runs debt.
+func plan(cash: int, cash_floor: int = 0) -> int:
 	records = []
 	status = {}
 	spent_last = 0
-	var left := cash
+	var left := cash - maxi(0, cash_floor)
 	for h in hub_planets():
 		if prosperity.tier(h) < int(_bal("hub_tier", 3)):
 			continue  # the world fell below the hub tier: it keeps its pool but runs nothing

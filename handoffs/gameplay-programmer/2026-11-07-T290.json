@@ -1,0 +1,6 @@
+{
+  "task": "T290",
+  "agent": "main session (small edit, no subagent)",
+  "files": ["game/hubs.gd", "game/main.gd"],
+  "summary": "Hubs never buy under the ship cash floor (Hubs.plan(cash, cash_floor); main passes ship_cash_floor()). Per-need status, untick world/need, release (pool leaves with the entry, ships count as free again), hub records only live during settle (never in manual route lists) and save/load (save v19 'hubs') were already built in T289."
+}

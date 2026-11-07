@@ -2053,7 +2053,7 @@ func danger_of(i: int) -> int:
 	return dead.get_danger(str(map.planets[i].get("id", ""))) if i >= 0 and i < map.planets.size() else 0
 
 func _settle_routes() -> Array:
-	cash -= hubs.plan(cash)  # T289: hub deliveries buy their goods, then settle with the routes
+	cash -= hubs.plan(cash, ship_cash_floor())  # T289/T290: never under the ship cash floor; hub deliveries buy their goods, then settle with the routes
 	hubs.begin_settle()
 	var r: Dictionary = engine.settle(cash)
 	var hub_ids: Array = []
