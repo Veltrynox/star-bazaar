@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-07 11:17 run: T292
-- Summary: Not merged: worker did not report done: None
-- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
-- Approach: built by a worker in worktree ../wt/T292 on branch task/T292, merged by the serial merge queue.
-- Agent prompts: /overnight-worker T292 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T292.log.
-- Worked: worker finished.
-- Failed / did not work: worker did not report done: None.
-- Files and commits: see git log on branch new-features for commits starting with T292.
-- Left to do: owner or a new run: see blocked_log in schedule.json.
-
 ## 2026-11-07 11:17 run: T291
 - Summary: Not merged: worker did not report done: None
 - Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
@@ -64,4 +54,14 @@
 - Worked: rebase, full test suite and fast-forward merge passed.
 - Failed / did not work: nothing.
 - Files and commits: see git log on branch new-features for commits starting with T285.
+- Left to do: nothing for this task.
+
+## 2026-11-07 15:33 run: T298
+- Summary: Opening gig (kind 'opening') wins on docking at the capital, two-perk wings for stages 1-3 hooked into hold, hub reach, tax and workshop cost, Bazaar.recap() for the end screen, save v22
+- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
+- Approach: built by a worker in worktree ../wt/T298 on branch task/T298, merged by the serial merge queue.
+- Agent prompts: /overnight-worker T298 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T298.log.
+- Worked: rebase, full test suite and fast-forward merge passed.
+- Failed / did not work: nothing.
+- Files and commits: see git log on branch new-features for commits starting with T298.
 - Left to do: nothing for this task.
