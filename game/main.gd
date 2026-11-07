@@ -233,6 +233,7 @@ func _ready() -> void:
 	flight.establish_failed.connect(_on_flight_establish_failed)  # T200
 	flight.exploration_done.connect(_on_exploration_done)  # T206
 	events.established_fn = Callable(self, "planet_established")
+	events.need_fn = func(pl: int, g: String) -> bool: return prosperity != null and prosperity.is_need(pl, g)  # T280
 	system_exit = load("res://game/system_exit.gd").new()  # lock and fading line to the next, locked system
 	add_child(system_exit)
 	system_exit.setup(self)
@@ -288,6 +289,7 @@ func _ready() -> void:
 	dead.setup(balance)
 	prosperity.setup(balance, map.planets, func(pid: String) -> bool: return flight != null and flight.established(pid))
 	engine.prosperity = prosperity
+	prosperity.weather = events  # T280: shortages change demand and hunger
 	bazaar.setup(self)  # T259
 	gigs.setup(self)  # T271
 	gigs.arrival.connect(_on_gig_arrival)

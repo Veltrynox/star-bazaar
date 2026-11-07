@@ -184,6 +184,46 @@
    "choices": []
   },
   {
+   "id": "EV60",
+   "title_id": "EV60_TITLE",
+   "text_id": "EV60_BODY",
+   "tag": "[shortage: Voltara, energy]",
+   "kind": "Q",
+   "choices": []
+  },
+  {
+   "id": "EV61",
+   "title_id": "EV61_TITLE",
+   "text_id": "EV61_BODY",
+   "tag": "[shortage: Tillam, food]",
+   "kind": "Q",
+   "choices": []
+  },
+  {
+   "id": "EV62",
+   "title_id": "EV62_TITLE",
+   "text_id": "EV62_BODY",
+   "tag": "[shortage: Ashgate, food]",
+   "kind": "Q",
+   "choices": []
+  },
+  {
+   "id": "EV63",
+   "title_id": "EV63_TITLE",
+   "text_id": "EV63_BODY",
+   "tag": "[congestion: Tillam]",
+   "kind": "Q",
+   "choices": []
+  },
+  {
+   "id": "EV64",
+   "title_id": "EV64_TITLE",
+   "text_id": "EV64_BODY",
+   "tag": "[congestion: Voltara]",
+   "kind": "Q",
+   "choices": []
+  },
+  {
    "id": "EV17",
    "title_id": "EV17_TITLE",
    "text_id": "EV17_BODY",

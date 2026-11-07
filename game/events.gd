@@ -19,7 +19,12 @@ var debug_off: Array = []  # T13: event ids the debug menu keeps out of the rand
 var planets: Array = []
 var defs: Array = []
 var by_id: Dictionary = {}
-## Active timed effects: {id, kind ("up" | "down" | "closed"), planet, c, left, age}
+## Active timed effects: {id, kind ("up" | "down" | "closed" | "shortage" | "congestion"), planet, c, left, age, house}
+## T280 house weather: the three houses (Bots.IDS, game/bots.gd) are weather, never opponents. House 1 Harrow = flood (kind "down"),
+## 2 Velvet = shortage (kind "shortage", and the price-up events), 3 Ostrel = congestion (kind "congestion", and closures).
+## house_of(id) reads a "house" key of the event row (or its pool_effect) first, else the effect kind. Numbers (balance.json, placeholders):
+## shortage_cycles, shortage_demand_mult (a need's demand x this at the world), shortage_hunger_steps (extra hunger steps on that need),
+## congestion_cycles, congestion_trip_mult (trip cost x this on lanes touching the world). Tags: [shortage: Planet, good], [congestion: Planet].
 var active: Array = []
 ## This run's events, oldest first: {id, cycle}
 var feed: Array = []
@@ -31,6 +36,7 @@ var pending_planet: int = -1
 ## at the start of cycle >= due and is removed. Saved under "scheduled"; an old save has none.
 var scheduled: Array = []
 var locked: Array = []  # planet indexes of dead worlds not open yet (set by main); no random event picks them
+var need_fn: Callable = Callable()  # T280: (planet index, good) -> bool, true when the good is a need of that world (set by main); a shortage event waits for it
 var established_fn: Callable = Callable()  # T179: planet index -> bool, false while the planet has no post or platform (set by main)
 
 ## T179: the planets an event may name or price: those with a post or platform (all of them while discovery is off).
@@ -144,7 +150,7 @@ func planet_index(pname: String) -> int:
 ## Tag text to an effect {kind, planet, c, amount}; {} when it does not parse.
 func parse_tag(tag: String) -> Dictionary:
 	var re := RegEx.new()
-	re.compile("\\[\\s*(price up|price down|planet closed|cash|stock|debris|asteroid)\\s*:\\s*([^\\]]*)\\]")
+	re.compile("\\[\\s*(price up|price down|planet closed|shortage|congestion|cash|stock|debris|asteroid)\\s*:\\s*([^\\]]*)\\]")
 	var m := re.search(tag)
 	if m == null:
 		return {}
@@ -155,6 +161,14 @@ func parse_tag(tag: String) -> Dictionary:
 			if args.size() < 2 or planet_index(args[0]) < 0:
 				return {}
 			return {"kind": "up" if what == "price up" else "down", "planet": planet_index(args[0]), "c": args[1].strip_edges().to_lower(), "amount": 0}
+		"shortage":
+			if args.size() < 2 or planet_index(args[0]) < 0:
+				return {}
+			return {"kind": "shortage", "planet": planet_index(args[0]), "c": args[1].strip_edges().to_lower(), "amount": 0}
+		"congestion":
+			if planet_index(args[0]) < 0:
+				return {}
+			return {"kind": "congestion", "planet": planet_index(args[0]), "c": "", "amount": 0}
 		"planet closed":
 			if planet_index(args[0]) < 0:
 				return {}
@@ -178,7 +192,7 @@ func parse_tag(tag: String) -> Dictionary:
 func is_minor(id: String) -> bool:
 	if not by_id.has(id) or is_chain_step(id) or not choices_of(id).is_empty():
 		return false
-	return str(effect_of_event(id).get("kind", "")) in ["up", "down"]
+	return str(effect_of_event(id).get("kind", "")) in ["up", "down", "shortage", "congestion"]
 
 ## Planet an event names (price or closure effect), -1 when it names none.
 func named_planet(id: String) -> int:
@@ -282,6 +296,9 @@ func available(id: String, cycle: int) -> bool:
 	var ev: Dictionary = by_id.get(id, {})
 	if not good_available(id) or not Conditions.visible(ev, {"cycle": cycle, "planets": known_planets()}):
 		return false
+	var eff := effect_of_event(id)
+	if str(eff.get("kind", "")) == "shortage" and need_fn.is_valid() and not bool(need_fn.call(int(eff["planet"]), str(eff["c"]))):
+		return false  # T280: a shortage hits a need the world really has
 	if cycle <= 0:
 		return true
 	return cycle >= int(ev.get("min_cycle", 0))
@@ -344,7 +361,7 @@ func random_id(skip: Array = [], cycle: int = 0) -> String:
 	var pool: Array = []
 	for d in defs:
 		var pid := str(d["id"])
-		if Chains.in_pool(pid) and not skip.has(pid) and not scheduled_only(pid) and not debug_off.has(pid) and not _fired(pid) and not Chains.is_suppressed(pid) and available(pid, cycle):
+		if (Chains.in_pool(pid) or is_weather(pid)) and not skip.has(pid) and not scheduled_only(pid) and not debug_off.has(pid) and not _fired(pid) and not Chains.is_suppressed(pid) and available(pid, cycle):
 			pool.append(d)
 	if pool.is_empty():
 		return ""
@@ -365,7 +382,7 @@ func price_factor(planet: int, c: String, next_cycle: bool = false, ahead: int =
 	for a in active:
 		if next_cycle and int(a["left"]) < 1 + ahead:  # ahead cycles on (LUX_5B: 2)
 			continue
-		if a["kind"] != "closed" and int(a["planet"]) == planet and str(a["c"]) == c:
+		if (a["kind"] == "up" or a["kind"] == "down") and int(a["planet"]) == planet and str(a["c"]) == c:
 			var m := Markets.market_of(c)
 			if a["kind"] == "up":
 				f *= 1.0 + pct(c) * (1.0 + Skills.event_bonus(m))
@@ -375,15 +392,86 @@ func price_factor(planet: int, c: String, next_cycle: bool = false, ahead: int =
 
 ## Start a timed effect (price or closed). One-off effects need main: see apply_oneoff.
 func start_timed(id: String, eff: Dictionary) -> void:
-	if eff.is_empty() or not (eff["kind"] in ["up", "down", "closed"]):
+	if eff.is_empty() or not (eff["kind"] in ["up", "down", "closed", "shortage", "congestion"]):
 		return
-	var cycles := close_cycles() if eff["kind"] == "closed" else price_cycles()
+	var cycles := weather_cycles(str(eff["kind"]))
 	for a in active:  # same effect again only refreshes the duration
 		if a["kind"] == eff["kind"] and int(a["planet"]) == int(eff["planet"]) and str(a["c"]) == str(eff["c"]):
 			a["left"] = cycles
 			a["age"] = 0
 			return
-	active.append({"id": id, "kind": eff["kind"], "planet": int(eff["planet"]), "c": str(eff["c"]), "left": cycles, "age": 0})
+	active.append({"id": id, "kind": eff["kind"], "planet": int(eff["planet"]), "c": str(eff["c"]), "left": cycles, "age": 0, "house": house_of(id, str(eff["kind"]))})
+
+## ---- house weather (T280) ----
+func weather_cycles(kind: String) -> int:
+	match kind:
+		"closed":
+			return close_cycles()
+		"shortage":
+			return int(balance.get("shortage_cycles", 0))
+		"congestion":
+			return int(balance.get("congestion_cycles", 0))
+	return price_cycles()
+
+## House id (1 Harrow, 2 Velvet, 3 Ostrel) of an event or timed effect; 0 for events that are not weather.
+func house_of(id: String, kind: String = "") -> int:
+	var ev: Dictionary = by_id.get(id, {})
+	var pe = ev.get("pool_effect")
+	if ev.has("house"):
+		return int(ev["house"])
+	if typeof(pe) == TYPE_DICTIONARY and pe.has("house"):
+		return int(pe["house"])
+	if kind == "":
+		kind = str(effect_of_event(id).get("kind", ""))
+	match kind:
+		"down":
+			return 1
+		"up", "shortage":
+			return 2
+		"closed", "congestion":
+			return 3
+	return 0
+
+## True for the weather rows of data/events.json (shortage and congestion tags), which are not listed in data/chains.json.
+func is_weather(id: String) -> bool:
+	return str(effect_of_event(id).get("kind", "")) in ["shortage", "congestion"]
+
+## Demand multiplier on a need at a world from live shortages (1.0 when none).
+func shortage_mult(planet: int, c: String) -> float:
+	var m := 1.0
+	for a in active:
+		if a["kind"] == "shortage" and int(a["planet"]) == planet and str(a["c"]) == c:
+			m *= maxf(0.0, float(balance.get("shortage_demand_mult", 1.0)))
+	return m
+
+## Extra hunger steps on a need at a world from live shortages.
+func shortage_hunger(planet: int, c: String) -> int:
+	for a in active:
+		if a["kind"] == "shortage" and int(a["planet"]) == planet and str(a["c"]) == c:
+			return maxi(0, int(balance.get("shortage_hunger_steps", 0)))
+	return 0
+
+## The good a live shortage hits at a world, "" when none (the rush generator reads it).
+func shortage_good_at(planet: int) -> String:
+	for a in active:
+		if a["kind"] == "shortage" and int(a["planet"]) == planet:
+			return str(a["c"])
+	return ""
+
+## Trip cost multiplier for a lane with these ends from live congestion (1.0 when none; one hit per lane, not per end).
+func congestion_mult(a_planet: int, b_planet: int) -> float:
+	for a in active:
+		if a["kind"] == "congestion" and (int(a["planet"]) == a_planet or int(a["planet"]) == b_planet):
+			return maxf(0.0, float(balance.get("congestion_trip_mult", 1.0)))
+	return 1.0
+
+## Active weather of a house, for the UI and the convoy telegraph later: [{planet, c, kind, left}].
+func weather_of_house(h: int) -> Array:
+	var out: Array = []
+	for a in active:
+		if int(a.get("house", 0)) == h:
+			out.append({"planet": int(a["planet"]), "c": str(a["c"]), "kind": str(a["kind"]), "left": int(a["left"])})
+	return out
 
 ## One cycle settled: effects age and expire.
 func tick() -> void:
@@ -429,9 +517,9 @@ func from_dict(d) -> void:
 	pending_planet = int(d.get("pending_planet", -1))
 	if typeof(d.get("active")) == TYPE_ARRAY:
 		for a in d["active"]:
-			if typeof(a) == TYPE_DICTIONARY and ["up", "down", "closed"].has(str(a.get("kind", ""))):
+			if typeof(a) == TYPE_DICTIONARY and ["up", "down", "closed", "shortage", "congestion"].has(str(a.get("kind", ""))):
 				active.append({"id": str(a.get("id", "")), "kind": str(a["kind"]), "planet": int(a.get("planet", -1)),
-					"c": str(a.get("c", "")), "left": int(a.get("left", 0)), "age": int(a.get("age", 0))})
+					"c": str(a.get("c", "")), "left": int(a.get("left", 0)), "age": int(a.get("age", 0)), "house": int(a.get("house", house_of(str(a.get("id", "")), str(a["kind"]))))})
 	if typeof(d.get("feed")) == TYPE_ARRAY:
 		for f in d["feed"]:
 			if typeof(f) == TYPE_DICTIONARY and by_id.has(str(f.get("id", ""))):

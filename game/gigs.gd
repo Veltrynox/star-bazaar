@@ -204,8 +204,8 @@ func post_rush(planet: int, good: String, units: int, deadline_cycles: float) ->
 
 ## ---- rush generator (T272) ----------------------------------------------------------------------------------------
 ## Hooks for later tasks: a shortage weather hit on a world (the good it lacks, "" = none) and a hub that feeds a world (posts fewer).
-func shortage_good(_planet: int) -> String:
-	return ""
+func shortage_good(planet: int) -> String:
+	return main.events.shortage_good_at(planet)  # T280: the live house shortage
 
 func hub_fed(_planet: int) -> bool:
 	return false

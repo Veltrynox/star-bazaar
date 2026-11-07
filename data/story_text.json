@@ -9788,6 +9788,66 @@
    "place": "Event text (News from the sky)"
   },
   {
+   "id": "EV60_TITLE",
+   "text": "Energy runs short at Voltara",
+   "max": 32,
+   "place": "Event title (News from the sky)"
+  },
+  {
+   "id": "EV60_BODY",
+   "text": "Voltara's night grid asked for more power than the day shift ever booked. Energy at Voltara is wanted harder for a few cycles and the hunger shows in the price. Whoever lands a load in time sells into it, and a rush order may follow.",
+   "max": 280,
+   "place": "Event text (News from the sky)"
+  },
+  {
+   "id": "EV61_TITLE",
+   "text": "Food runs short at Tillam",
+   "max": 32,
+   "place": "Event title (News from the sky)"
+  },
+  {
+   "id": "EV61_BODY",
+   "text": "Tillam's pantries ran lean before the terraces could catch up. Food at Tillam is wanted harder for a few cycles and the hunger shows in the price. A full hold arrives as good news here, and a rush order may follow.",
+   "max": 280,
+   "place": "Event text (News from the sky)"
+  },
+  {
+   "id": "EV62_TITLE",
+   "text": "Food runs short at Ashgate",
+   "max": 32,
+   "place": "Event title (News from the sky)"
+  },
+  {
+   "id": "EV62_BODY",
+   "text": "Ashgate's ration clerks counted twice and found the shelves thinner than the form said. Food at Ashgate is wanted harder for a few cycles and the hunger shows in the price. A rush order may follow.",
+   "max": 280,
+   "place": "Event text (News from the sky)"
+  },
+  {
+   "id": "EV63_TITLE",
+   "text": "Traffic jams at Tillam",
+   "max": 32,
+   "place": "Event title (News from the sky)"
+  },
+  {
+   "id": "EV63_BODY",
+   "text": "A line of convoys waits outside Tillam's docks for a slot nobody can promise. Lanes that touch Tillam cost more per trip for a few cycles. Ride it out or send the ships elsewhere.",
+   "max": 280,
+   "place": "Event text (News from the sky)"
+  },
+  {
+   "id": "EV64_TITLE",
+   "text": "Traffic jams at Voltara",
+   "max": 32,
+   "place": "Event title (News from the sky)"
+  },
+  {
+   "id": "EV64_BODY",
+   "text": "Voltara's dock beacons flicker and every captain waits for the next one to go first. Lanes that touch Voltara cost more per trip for a few cycles. Ride it out or send the ships elsewhere.",
+   "max": 280,
+   "place": "Event text (News from the sky)"
+  },
+  {
    "id": "EV17_TITLE",
    "text": "Wreckage is circling {planet}",
    "max": 40,

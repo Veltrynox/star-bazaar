@@ -279,8 +279,14 @@ func _note_sale(c: String, n: int, planet: int = -1) -> void:
 			sales_up_units[c] = int(sales_up_units.get(c, 0)) + n
 
 ## T69: trip cost part of the fixed cost.
+## T280: trip cost factor of a lane from a live house congestion at one of its worlds (1.0 when none).
+func _congestion(rec) -> float:
+	if not (rec is Dictionary) or not rec.has("a") or not rec.has("b") or trade.events == null or from_cluster(rec):
+		return 1.0
+	return float(trade.events.congestion_mult(int(rec["a"]), int(rec["b"])))
+
 func trip_part(rec = null) -> int:
-	var tp := float(trade.trip_cost()) * Ships.trip_mult(kind_of(rec)) * (Chains.trip_cost_mult(int(rec.get("id", -1))) if rec is Dictionary else 1.0)  # event chain: one route's trip cost
+	var tp := float(trade.trip_cost()) * Ships.trip_mult(kind_of(rec)) * (Chains.trip_cost_mult(int(rec.get("id", -1))) if rec is Dictionary else 1.0) * _congestion(rec)  # event chain: one route's trip cost; T280: house congestion
 	return floori(tp / maxf(0.0001, trade.travel_cycles()))
 
 ## Route offset of a route record: extra path length round other planets and crossing routes, as a share of the

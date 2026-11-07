@@ -2028,7 +2028,7 @@ func _test_skills_core() -> void:
 	f.store_string(JSON.stringify({"version": 2, "state": v2}))
 	f.close()
 	var loaded: Dictionary = SaveGame.load_state()
-	check(SaveGame.VERSION == 16 and not loaded.is_empty() and loaded["learned_skills"].has("FND_STORAGE") and not SaveGame.dropped_old, "migration: a v2 file loads migrated")
+	check(SaveGame.VERSION == 17 and not loaded.is_empty() and loaded["learned_skills"].has("FND_STORAGE") and not SaveGame.dropped_old, "migration: a v2 file loads migrated")
 	f = FileAccess.open(SaveGame.PATH, FileAccess.WRITE)
 	f.store_string(JSON.stringify({"version": 1, "state": v2}))
 	f.close()
@@ -2633,7 +2633,7 @@ func _test_events() -> void:
 	var major_ids: Array = []
 	for e in m.events.defs:
 		(minor_ids if m.events.is_minor(str(e["id"])) else major_ids).append(str(e["id"]))
-		var is_price: bool = str(e.get("tag", "")).begins_with("[price") and (e.get("choices", []) as Array).is_empty()
+		var is_price: bool = (str(e.get("tag", "")).begins_with("[price") or str(e.get("tag", "")).begins_with("[shortage") or str(e.get("tag", "")).begins_with("[congestion")) and (e.get("choices", []) as Array).is_empty()
 		if not e.has("chain_step") and str(e.get("tag", "")) != "":
 			check(m.events.is_minor(str(e["id"])) == is_price, "icons: classification of " + str(e["id"]))
 	for id in ["EV17", "EV18", "EV20", "EV07", "EV08", "EV09"]:
@@ -6401,7 +6401,7 @@ func _test_chains() -> void:
 	# save version 4 and v3 migration
 	var gig_errs: Array = Gigs.lint()
 	check(gig_errs.is_empty(), "gigs: data/gigs.json lints clean", str(gig_errs))
-	check(SaveGame.VERSION == 16, "save: version 16 (v2 and newer load; v1 is dropped, owner approved)")
+	check(SaveGame.VERSION == 17, "save: version 17 (v2 and newer load; v1 is dropped, owner approved)")
 	var v3 := {"cycle": 7, "cash": 300, "chains": {"dir": {"mil": 9}}, "shield": {"built": true}}
 	var mig: Dictionary = SaveGame.migrate_v3(v3)
 	check(mig["cash"] == 300 and not mig.has("shield") and not mig.has("chains"), "save: v3 migrates, chain state fresh, shield dropped")

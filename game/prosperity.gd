@@ -43,6 +43,7 @@ var _restless: Dictionary = {}  # planet id -> true when a need was short at the
 var _reclaimed: Dictionary = {} # planet id -> true (hook for the Barren reclaim task)
 var _carry: Dictionary = {}     # T261: fractional need-fill bonus units not yet counted (not saved)
 var _reached := 0               # T258: highest tier any world has reached this run (skill points paid up to it)
+var weather = null              # T280: Events (shortage_mult, shortage_hunger), set by main; null in tests that do not need it
 var _hunger: Dictionary = {}    # T257: planet id -> {good: cycles the need was short in a row (capped by need_hunger_cap_pct)}
 
 func setup(bal: Dictionary, planet_list: Array, established: Callable) -> void:
@@ -265,6 +266,13 @@ func _sells_to_player(i: int, g: String) -> bool:
 func demand(i: int) -> int:
 	return maxi(0, roundi(_n("prosperity_demand", _lt(i), 0.0)))
 
+## T280: demand of one need good at a world: the tier demand x a live shortage on that good.
+func demand_for(i: int, good: String) -> int:
+	var d := demand(i)
+	if weather == null:
+		return d
+	return maxi(0, roundi(float(d) * float(weather.shortage_mult(i, good))))
+
 func sold(i: int, good: String) -> int:
 	return int(_sold.get(_pid(i), {}).get(good, 0))
 
@@ -294,7 +302,10 @@ func need_price(i: int, good: String) -> int:
 	return maxi(0, roundi(float(Markets.value_of(good)) * _n("need_price", _lt(i), 1.0)))
 
 func hunger_steps(i: int, good: String) -> int:
-	return int(_hunger.get(_pid(i), {}).get(good, 0))
+	var h := int(_hunger.get(_pid(i), {}).get(good, 0))
+	if weather != null and is_need(i, good):
+		h += int(weather.shortage_hunger(i, good))  # T280: a shortage adds hunger steps while it runs
+	return h
 
 ## Multiplier on the sell price for a need that has been short: 1 + steps x step pct, capped. 1.0 for anything else.
 func hunger_factor(i: int, good: String) -> float:
@@ -311,7 +322,7 @@ func _surplus_applies(i: int, good: String) -> bool:
 func surplus_units(i: int, good: String, n: int, extra: int = 0) -> int:
 	if n <= 0 or not _surplus_applies(i, good):
 		return 0
-	var room := maxi(0, demand(i) - sold(i, good) - extra)
+	var room := maxi(0, demand_for(i, good) - sold(i, good) - extra)
 	return maxi(0, n - room)
 
 func surplus_factor() -> float:
@@ -321,17 +332,17 @@ func surplus_factor() -> float:
 func price_reason(i: int, good: String) -> String:
 	if _lt(i) < 1:
 		return ""
-	if _surplus_applies(i, good) and surplus_factor() < 1.0 and sold(i, good) > demand(i):
+	if _surplus_applies(i, good) and surplus_factor() < 1.0 and sold(i, good) > demand_for(i, good):
 		return "surplus"
-	if is_need(i, good) and hunger_steps(i, good) > 0 and sold(i, good) < demand(i) and hunger_factor(i, good) > 1.0:
+	if is_need(i, good) and hunger_steps(i, good) > 0 and sold(i, good) < demand_for(i, good) and hunger_factor(i, good) > 1.0:
 		return "hungry"
 	return ""
 
 ## UI API: [{good (or "?"), demand, sold, met, locked}] in need order.
 func needs(i: int) -> Array:
 	var out: Array = []
-	var dem := demand(i)
 	for g in _need_goods(i):
+		var dem := demand_for(i, g)
 		var locked := not Availability.good(g)
 		var s := sold(i, g)
 		out.append({"good": "?" if locked else g, "demand": dem, "sold": s, "met": (not locked) and s >= dem, "locked": locked})
@@ -422,7 +433,7 @@ func _update_hunger(i: int, pid: String) -> void:
 	var max_steps := ceili(float(balance.get("need_hunger_cap_pct", 0.0)) / step) if step > 0.0 else 0
 	for g in _need_goods(i):
 		var h := int(d.get(g, 0))
-		var met := Availability.good(g) and sold(i, g) >= demand(i)
+		var met := Availability.good(g) and sold(i, g) >= demand_for(i, g)
 		h = maxi(0, h - 1) if met else mini(h + 1, max_steps)
 		if h > 0:
 			next[g] = h

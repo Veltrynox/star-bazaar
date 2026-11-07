@@ -132,6 +132,21 @@ A survey crew found a rich seam and logged it in two offices, so it is counted t
 EV28 | Voltara's foundry wants rock | [price up: Voltara, ore] | P
 Voltara's foundry ordered more rock than the Plan had dreamed of. Ore at Voltara costs more and pays more. Every shortcut the founders took lies under the furnace floor, and the furnace wants more. Prospecting lets routes start at asteroid clusters, where the rock is free.
 
+EV60 | Energy runs short at Voltara | [shortage: Voltara, energy] | Q
+Voltara's night grid asked for more power than the day shift ever booked. Energy at Voltara is wanted harder for a few cycles and the hunger shows in the price. Whoever lands a load in time sells into it, and a rush order may follow.
+
+EV61 | Food runs short at Tillam | [shortage: Tillam, food] | Q
+Tillam's pantries ran lean before the terraces could catch up. Food at Tillam is wanted harder for a few cycles and the hunger shows in the price. A full hold arrives as good news here, and a rush order may follow.
+
+EV62 | Food runs short at Ashgate | [shortage: Ashgate, food] | Q
+Ashgate's ration clerks counted twice and found the shelves thinner than the form said. Food at Ashgate is wanted harder for a few cycles and the hunger shows in the price. A rush order may follow.
+
+EV63 | Traffic jams at Tillam | [congestion: Tillam] | Q
+A line of convoys waits outside Tillam's docks for a slot nobody can promise. Lanes that touch Tillam cost more per trip for a few cycles. Ride it out or send the ships elsewhere.
+
+EV64 | Traffic jams at Voltara | [congestion: Voltara] | Q
+Voltara's dock beacons flicker and every captain waits for the next one to go first. Lanes that touch Voltara cost more per trip for a few cycles. Ride it out or send the ships elsewhere.
+
 # Events, choice events (draft 1, T96 T100 T103 T108, 2026-10-28)
 
 Format: ID | place | tag, then text. Choice events use the choice screen limits: title max 40, body max 280, button max 28, effect line max 90. Outcome texts are event popups: title max 32, text max 280, shown under NOT_EVENT_PREFIX with BTN_OK. No numbers: the game inserts any amount through a placeholder. Tags name the effect in words as the owner described it; the Economy Designer sets size and duration. Planet = {planet}.

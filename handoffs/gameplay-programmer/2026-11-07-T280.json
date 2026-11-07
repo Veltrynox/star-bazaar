@@ -1,0 +1,20 @@
+{
+  "task": "T280",
+  "agent": "main-session (gameplay-programmer scope, done inline)",
+  "changed": [
+    "game/events.gd",
+    "game/prosperity.gd",
+    "game/route_engine.gd",
+    "game/gigs.gd",
+    "game/main.gd",
+    "game/save_game.gd",
+    "story/events.md",
+    "data/events.json",
+    "data/story_text.json",
+    "data/balance.json",
+    "gdd.md",
+    "tools/tests/run_tests.gd",
+    "art/event_banners/EV60-EV64.webp"
+  ],
+  "notes": "House ids derived per event kind (down=1 Harrow, up/shortage=2 Velvet, closed/congestion=3 Ostrel; optional 'house' key overrides). New tags [shortage: Planet, good] and [congestion: Planet]; new events EV60-EV64 (placeholder text, placeholder banners copied from EV02/EV17). Save v17. Convoy telegraph not built. Outside touches: save_game.gd, tools/tests/run_tests.gd (version 17, icon classification), art banners, gdd.md."
+}
