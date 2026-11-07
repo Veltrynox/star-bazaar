@@ -2571,7 +2571,7 @@
       "depends_on": [
         "T280"
       ],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 30,
       "window": "Owner request 2026-11-06: empire growth v2, phase 3 (design/proposals/2026-11-06-empire-growth-v2.md). Priority over conflicting older tasks.",
       "brief": "Goal: the 8 rival-cutting nodes affect weather instead. Design: design/proposals/2026-11-06-empire-growth-v2.md section 3.5. Read: data/skills.json (bot_strength_pct 5 nodes, bot_growth_mult 3 nodes), game/skills.gd, game/events.gd. Change bot_strength_pct to weather_soften_pct (house weather effects on the player's worlds and lanes are weaker) and bot_growth_mult to weather_warning (extra cycles of forecast). Chain options that hit a rival (data/chains.json hit_bot effects) delay or soften that house's next weather instead. Keep node ids, costs and tree; placeholder keys. List changed ids in the handoff for the story task. Numbers: only data/balance.json keys with placeholder values, marked placeholder in the balance source note; economy-designer sets them later (owner starts it by hand); never put tuning numbers in code. Text: ids only (story source, python3 tools/build_story.py, English only; use StoryText.get_or fallbacks until the story task lands). Anything that lists or names a good follows Availability (game/availability.gd, data/availability.json); conditions only via game/conditions.gd (update its header for new atoms). Old saves must still load (bump the save version when fields are added). Done when built: no QA, bots, sim or screenshots. gdd.md is synced at commit by the main session. Handoff: handoffs/gameplay-programmer/<date>-T282.json.",
@@ -2584,7 +2584,8 @@
         "game/chains.gd",
         "data/balance.json"
       ],
-      "priority": 1
+      "priority": 1,
+      "note": "Done by orchestrator: The eight rival-cutting skill nodes now act on house weather. Chain options that hit a rival delay or soften that house's next weather. Save version is 18."
     },
     {
       "task_id": "T283",

@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-07 10:48 run: T284
-- Summary: Not merged: fast-forward merge refused
-- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
-- Approach: built by a worker in worktree ../wt/T284 on branch task/T284, merged by the serial merge queue.
-- Agent prompts: /overnight-worker T284 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T284.log.
-- Worked: worker finished.
-- Failed / did not work: fast-forward merge refused.
-- Files and commits: see git log on branch new-features for commits starting with T284.
-- Left to do: owner or a new run: see blocked_log in schedule.json.
-
 ## 2026-11-07 10:50 run: T289
 - Summary: Not merged: worker did not report done: None
 - Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
@@ -64,4 +54,14 @@
 - Worked: rebase, full test suite and fast-forward merge passed.
 - Failed / did not work: nothing.
 - Files and commits: see git log on branch new-features for commits starting with T283.
+- Left to do: nothing for this task.
+
+## 2026-11-07 10:57 run: T282
+- Summary: The eight rival-cutting skill nodes now act on house weather. Chain options that hit a rival delay or soften that house's next weather. Save version is 18.
+- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
+- Approach: built by a worker in worktree ../wt/T282 on branch task/T282, merged by the serial merge queue.
+- Agent prompts: /overnight-worker T282 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T282.log.
+- Worked: rebase, full test suite and fast-forward merge passed.
+- Failed / did not work: nothing.
+- Files and commits: see git log on branch new-features for commits starting with T282.
 - Left to do: nothing for this task.
