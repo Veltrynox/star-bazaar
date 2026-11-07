@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-07 11:17 run: T291
-- Summary: Not merged: worker did not report done: None
-- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
-- Approach: built by a worker in worktree ../wt/T291 on branch task/T291, merged by the serial merge queue.
-- Agent prompts: /overnight-worker T291 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T291.log.
-- Worked: worker finished.
-- Failed / did not work: worker did not report done: None.
-- Files and commits: see git log on branch new-features for commits starting with T291.
-- Left to do: owner or a new run: see blocked_log in schedule.json.
-
 ## 2026-11-07 15:22 run: T284
 - Summary: Planet moods (warm/plain/cold) from chain and branch-event choices, plus decisive_moments() for the end recap, with save v17 and placeholder balance keys
 - Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
@@ -64,4 +54,14 @@
 - Worked: rebase, full test suite and fast-forward merge passed.
 - Failed / did not work: nothing.
 - Files and commits: see git log on branch new-features for commits starting with T298.
+- Left to do: nothing for this task.
+
+## 2026-11-07 15:38 run: T299
+- Summary: Wing choice popup (two cards, pick one, reopens from a save) and an end-screen recap block above the ending text, built in bazaar_panel.gd, end_screen.gd and main.gd; wings also appear in the Bazaar panel; Continue (free play) is unchanged
+- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
+- Approach: built by a worker in worktree ../wt/T299 on branch task/T299, merged by the serial merge queue.
+- Agent prompts: /overnight-worker T299 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T299.log.
+- Worked: rebase, full test suite and fast-forward merge passed.
+- Failed / did not work: nothing.
+- Files and commits: see git log on branch new-features for commits starting with T299.
 - Left to do: nothing for this task.
