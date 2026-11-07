@@ -2984,6 +2984,26 @@
         "data/bazaar.json"
       ],
       "priority": 1
+    },
+    {
+      "task_id": "T303",
+      "title": "Ambient ship traffic between planets from the start, about 1000 ships drawing visible lanes",
+      "owner_agent": "fx-programmer",
+      "depends_on": [
+        "T277",
+        "T278"
+      ],
+      "status": "queued",
+      "turn_cap": 40,
+      "window": "Owner request 2026-11-07: the small ships should fly between the planets from the very start of a run, not only around established worlds.",
+      "brief": "Goal: the map is alive from cycle 1. About 1000 small ships fly back and forth between the planets of the viewed system, so many ships share each lane that the lanes read as visible lines of moving ships. Read: game/traffic/ (the T277 layer: path group = quadratic Bezier in the vertex shader, instanced MultiMesh, far-zoom fade), game/map.gd (planet positions and radius, the T278 lane registration), game/route_line.gd (how a route curve is shaped, reuse the same arc so ambient ships and player lanes agree), game/traffic/ orbit group from T279 (keep it, this task adds the between-planets flow next to it). Build: an ambient lane group per pair of planets in the system, present from game start with no condition on tier, route or Availability (a lane between two planets exists whether or not the player trades there). Total ship count is split across the lanes (more ships on shorter or more central lanes is fine, every lane gets at least a few so it always reads as a line), ships travel both directions, phase spread so they form a continuous stream, small size and a short additive streak so a dense lane looks like a thin glowing line rather than a blob. Player-built lanes (T278) keep their own stalled/blocked/laden states on top; ambient ships must not hide them (dimmer, thinner). One MultiMesh per mesh per layer, motion in the vertex shader, buffers rewritten only on change (planet set changes), never per frame; no per-ship nodes or per-ship scripts. Keep the far-zoom fade and the debug-menu instance and draw-call readout correct for the new group. Numbers: the total ambient count is a data/balance.json key (traffic_ambient_ships) set to 1000 (the owner's number, not a placeholder); every other new key (per-lane minimum, ship scale, speed, streak length, brightness) is a placeholder value marked placeholder in the balance source note; economy-designer sets them later (owner starts it by hand); never put tuning numbers in code. Text: ids only (story source, python3 tools/build_story.py, English only). Conditions only via game/conditions.gd. Old saves must still load (this task needs no saved state; if you add any, bump the save version). Done when built: no QA, bots or sim. Take the one Quick look screenshot (sh tools/screenshot.sh --out logs/screenshots/T303.png), fix only objective breakage, and record the path in the handoff. gdd.md is synced at commit by the main session. Handoff: handoffs/fx-programmer/<date>-T303.json.",
+      "size": "M",
+      "touches": [
+        "game/traffic/*",
+        "game/map.gd",
+        "data/balance.json"
+      ],
+      "priority": 1
     }
   ],
   "done_task_ids": [
