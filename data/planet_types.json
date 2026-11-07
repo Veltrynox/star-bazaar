@@ -64,6 +64,13 @@
       "texture_set": "dead",
       "abundance": null,
       "own_goods": true
+    },
+    {
+      "id": "reclaimed",
+      "abundant": "none",
+      "scarce": "none",
+      "texture_set": "lush",
+      "abundance": null
     }
   ]
 }

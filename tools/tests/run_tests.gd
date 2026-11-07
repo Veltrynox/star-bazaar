@@ -2027,7 +2027,7 @@ func _test_skills_core() -> void:
 	f.store_string(JSON.stringify({"version": 2, "state": v2}))
 	f.close()
 	var loaded: Dictionary = SaveGame.load_state()
-	check(SaveGame.VERSION == 12 and not loaded.is_empty() and loaded["learned_skills"].has("FND_STORAGE") and not SaveGame.dropped_old, "migration: a v2 file loads migrated")
+	check(SaveGame.VERSION == 13 and not loaded.is_empty() and loaded["learned_skills"].has("FND_STORAGE") and not SaveGame.dropped_old, "migration: a v2 file loads migrated")
 	f = FileAccess.open(SaveGame.PATH, FileAccess.WRITE)
 	f.store_string(JSON.stringify({"version": 1, "state": v2}))
 	f.close()
@@ -6398,7 +6398,7 @@ func _test_chains() -> void:
 	check(inp["ending_id"] == "END_BIO_BAD" and inp["flag"] == "bad" and inp["rival_broken"] == true and inp["rival_broken_bot"] == 2 and EndingPicker.inputs("mil", bal)["ending_id"] == "END_MIL_GOOD", "ending picker: BAD by the chain flag, rival_broken from the chain", str(inp))
 	check(m.ending_id_of({"kind": "unfinished"}) == "END_UNFINISHED" and m.ending_id_of({"kind": "bankrupt"}) == "END_BANKRUPT", "ending id: soft and loss ids")
 	# save version 4 and v3 migration
-	check(SaveGame.VERSION == 12, "save: version 12 (v2 and newer load; v1 is dropped, owner approved)")
+	check(SaveGame.VERSION == 13, "save: version 13 (v2 and newer load; v1 is dropped, owner approved)")
 	var v3 := {"cycle": 7, "cash": 300, "chains": {"dir": {"mil": 9}}, "shield": {"built": true}}
 	var mig: Dictionary = SaveGame.migrate_v3(v3)
 	check(mig["cash"] == 300 and not mig.has("shield") and not mig.has("chains"), "save: v3 migrates, chain state fresh, shield dropped")
@@ -7830,7 +7830,7 @@ func _test_dead_world_panel() -> void:
 	m._on_planet_clicked(0)
 	check(m.pending.is_empty() and m.engine.routes.size() == 1 and int(m.engine.routes[0]["a"]) == d1 and m.ships == 1, "dead panel: clicking a planet makes the route from the dead world and buys a ship", str(m.engine.routes))
 	# a dead world clicked as a destination is refused with a reason
-	m.pending = {"planet": 0, "c": "energy"}
+	m.pending = {"planet": 0, "c": "dross"}  # T295: a Barren world takes its reclamation goods (energy), not a good it mines itself
 	var before: int = m.engine.routes.size()
 	m._on_planet_clicked(d1)
 	check(m.engine.routes.size() == before and not m.pending.is_empty() and "dead world" in m.last_notice, "dead panel: a dead world as destination is refused with a reason", m.last_notice)

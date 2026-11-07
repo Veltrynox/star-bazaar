@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-06",
+  "task": "T295",
+  "status": "done",
+  "files_changed": [
+    "game/dead_worlds.gd",
+    "game/clusters.gd",
+    "game/prosperity.gd",
+    "game/route_engine.gd",
+    "game/conditions.gd",
+    "game/save_game.gd",
+    "game/main.gd",
+    "data/prosperity.json",
+    "data/planet_types.json",
+    "data/balance.json",
+    "tools/tests/run_tests.gd"
+  ],
+  "open_questions": [
+    "UI is not built (no panel for the reclaim list or the intensity lever); ui-programmer task needed. Getters are listed in details.",
+    "Barren need list adds one extra good (nullglass if visible, else plate) on top of prosperity_reclaim_needs; plate may stall a reclaim until the fabric is open. Keep, or cap?",
+    "Raids (T250) are not part of this task: danger_mult(...) is exposed for them."
+  ],
+  "handoff": "Dead worlds now have a reclamation need list, a ring and a finite mining stock. Barren worlds take deliveries of their need goods (main allows it only for need goods); sales fill the ring; steps reach prosperity_reclaim_steps and the world turns living (type reclaimed, tier 1, mined _buy prices removed, post set via signal in main). Mining a dead world is closed while reclaim progress > 0 and for good after. Minerals runs get gentle/normal/hard intensity per dead world and per cluster. Save version 13; old saves load with full stock, normal intensity, nothing reclaimed. Test suite: same 13 failures as the clean tree (goods/workshop/availability powder), no script errors; I updated two tests (save version 13, dead destination test now uses dross).",
+  "details": {
+    "balance_keys_placeholder": ["prosperity_reclaim_needs 3", "prosperity_reclaim_steps 4", "dead_stock 240", "mining_intensity_yield_gentle/normal/hard 0.6/1/1.5", "mining_intensity_danger_gentle/normal/hard 0.5/1/2"],
+    "data": "data/prosperity.json reclaim {goods_tier, extra[]}; planet_types.json type reclaimed (texture_set lush placeholder)",
+    "api_prosperity": ["is_barren(i)", "reclaim(i)", "is_reclaimed(i)", "reclaim_progress(i)", "mining_closed(i)", "mining_closed_reason(i)", "needs/progress/steps/steps_needed/demand work for Barren worlds", "signal reclaimed(planet)"],
+    "api_dead_worlds": ["stock_left(pid)", "stock_max()", "cycles_left(pid) (-1 if nothing mined last cycle)", "intensity_of(pid)", "set_intensity(pid, step) (Minerals runs only)", "yield_mult(pid)", "danger_mult(pid)", "state_to_dict/state_from_dict", "STEPS gentle/normal/hard"],
+    "api_clusters": ["stock_left(i)", "cycles_left(i)", "intensity_of(i)", "set_intensity(i, step)", "yield_per_cycle(i)", "danger_mult(i)"],
+    "api_engine": ["dead_worlds var", "dead_mining_reason(src)"],
+    "text_ids_with_fallbacks": ["NOT_MINE_RECLAIMED", "NOT_MINE_RECLAIMING", "ST_DEAD_EMPTY"],
+    "edits_outside_touches": "game/main.gd (save/load dead_mining, engine.dead_worlds, reclaimed signal sets the post flag, delivery to a Barren world allowed for need goods), game/conditions.gd header note (no new atoms), tools/tests/run_tests.gd (2 lines)",
+    "save": "version 13; keys dead_mining, clusters.intensity"
+  }
+}

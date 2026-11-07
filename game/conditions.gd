@@ -27,6 +27,7 @@ extends RefCounted
 ##                                          These three are true for every planet while balance discovery_enabled is 0 (game/pathfinder.gd).
 ##   any_tier:<n>                           some world has reached prosperity tier n (n is a structural index; a world never loses a tier)
 ##   planet_tier:<planet>/<n>               that world stands at prosperity tier n or more (e.g. planet_tier:planet_1/2)
+##   (T295: a reclaimed world has the planet type "reclaimed", so it is a living world for every atom here; reclaim is not an atom.)
 ##   bazaar_stage:<n>                       the Star Bazaar has completed n stages (game/bazaar.gd; n from 1)
 ## Atoms that need a chain step in the context (ctx.step), the market and previous step come from it:
 ##   share_pct:<balance>                    the step's market share in percent has reached the value

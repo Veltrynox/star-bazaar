@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "source": "2026-11-06 T256 (design/proposals/2026-11-06-empire-growth-v2.md section 3.1). Rules and ordering only; every number (tier count, steps, decay, demand, need count) is a data/balance.json key prosperity_*.",
+  "source": "2026-11-06 T256 (design/proposals/2026-11-06-empire-growth-v2.md section 3.1). Rules and ordering only (reclaim: the Barren need list, T295: branch goods up to goods_tier plus one extra from the list where the branch trades it); every number (tier count, steps, decay, demand, need count) is a data/balance.json key prosperity_*.",
   "default_weight": 1,
   "energy_weight": 2,
   "type_weights": {
@@ -10,5 +10,6 @@
     "desert": {"energy": 1, "food": 4},
     "cloudy": {"energy": 1, "food": 4}
   },
+  "reclaim": {"goods_tier": 1, "extra": ["nullglass", "plate"]},
   "overrides": {}
 }

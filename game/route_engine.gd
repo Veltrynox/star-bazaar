@@ -38,6 +38,7 @@ var upkeep_out: Callable = Callable()  # T227: (key, good, stock) -> units stora
 var trade_gate: Callable = Callable()  # owner 2026-11-03: planet -> bool, false when its system has no Space Storage post (set by main)
 var suns_fn: Callable = Callable()  # route offset: () -> Array of [Vector3 position, float radius] per sun, set by main from the map
 var positions_fn: Callable = Callable()  # route offset: () -> Array of world positions (Vector3) per planet index, set by main from the map
+var dead_worlds: RefCounted = null  # T295: DeadWorlds (stock, intensity), set by main; null = unlimited stock
 var clusters: RefCounted = null  # T156: asteroid clusters (clusters.gd), set by main; null = no mining
 var cluster_budget: Dictionary = {}  # T156: runtime, set at the start of each settle: cluster index -> units it may still give this cycle
 var fare_paid := false  # runtime, per settle: true once a route has run this cycle (see fare_for)
@@ -94,7 +95,7 @@ func lane_count(src_planet: int, dst_planet: int, c: String) -> int:
 ## per cycle (ships x units per cycle >= local_amount). Another ship would add nothing; the route is upgraded instead.
 func lane_full(src_planet: int, dst_planet: int, c: String) -> bool:
 	var n := lane_count(src_planet, dst_planet, c)
-	var feed: int = clusters.yield_per_cycle() if (Clusters.is_node(src_planet) and clusters != null) else local_amount()  # T156: a cluster feeds mining_yield_per_cycle
+	var feed: int = clusters.yield_per_cycle(Clusters.index_of(src_planet)) if (Clusters.is_node(src_planet) and clusters != null) else local_amount()  # T156: a cluster feeds mining_yield_per_cycle
 	return n > 0 and n * units_per_cycle() >= feed
 
 ## T145: route level of a lane (all ships of a lane share one level).
@@ -157,6 +158,21 @@ func dead_lock_reason(i: int) -> String:
 	if not dead_locked.has(i):
 		return ""
 	return StoryText.get_or("PLANET_DEAD_LOCKED", "Opens at cycle {n}.", {"n": int(balance.get("dead_unlock_cycle", 0))})
+
+## T295: the dead world's id when planet i is a dead world (not reclaimed), else "".
+func _mined_pid(i: int) -> String:
+	if i < 0 or i >= trade.planets.size() or not DeadWorlds.is_dead(trade.planets[i]):
+		return ""
+	return str(trade.planets[i].get("id", ""))
+
+## T295: refusal for taking goods out of planet src while it is being reclaimed or mined out ("" when open). New orders and routes only.
+func dead_mining_reason(src: int) -> String:
+	if prosperity != null and prosperity.mining_closed(src):
+		return str(prosperity.mining_closed_reason(src))
+	var pid := _mined_pid(src)
+	if pid != "" and dead_worlds != null and dead_worlds.exhausted(pid):
+		return StoryText.get_or("ST_DEAD_EMPTY", "This world is mined out.")
+	return ""
 
 ## Skill refusal for mining at planet src ("" when allowed). Applies to every way of taking goods out of a dead world.
 func dead_skill_reason(src: int) -> String:
@@ -335,6 +351,8 @@ func check_local(planet: int, c: String, role: String) -> Dictionary:
 		return {"ok": false, "reason": dead_lock_reason(planet)}
 	if role == "buy" and dead_skill_reason(planet) != "":  # buying at a dead world is mining it
 		return {"ok": false, "reason": dead_skill_reason(planet)}
+	if role == "buy" and _mined_pid(planet) != "" and dead_mining_reason(planet) != "":  # T295: reclaiming or mined out
+		return {"ok": false, "reason": dead_mining_reason(planet)}
 	return {"ok": true, "reason": ""}
 
 func set_local(planet: int, c: String, role: String, on: bool) -> Dictionary:
@@ -440,6 +458,14 @@ func _local_calc(planet: int, c: String, role: String, cash: int) -> Dictionary:
 		if storage.space(key, c) <= 0:
 			return {"n": 0, "credits": 0, "state": StoryText.get_text("NOT_STORAGE_FULL")}
 		var n: int = mini(local_amount(c), storage.space(key, c))
+		var mined := _mined_pid(planet)  # T295: buying at a dead world is mining it: closed while reclaiming, intensity yield, finite stock
+		if mined != "":
+			if prosperity != null and prosperity.mining_closed(planet):
+				return {"n": 0, "credits": 0, "state": str(prosperity.mining_closed_reason(planet))}
+			if dead_worlds != null:
+				if dead_worlds.exhausted(mined):
+					return {"n": 0, "credits": 0, "state": StoryText.get_or("ST_DEAD_EMPTY", "This world is mined out.")}
+				n = mini(floori(float(n) * float(dead_worlds.yield_mult(mined))), int(dead_worlds.stock_left(mined)))
 		if price > 0:
 			n = mini(n, floori(float(maxi(cash, 0)) / price))
 		if n <= 0:
@@ -471,6 +497,8 @@ func check_connection(src: int, dst: int, c: String, new_route: bool = true) -> 
 		return {"ok": false, "reason": dead_lock_reason(dst)}
 	if new_route and dead_skill_reason(src) != "":  # dead world: mining needs its skill (see DeadWorlds.skill_for); saved routes stay
 		return {"ok": false, "reason": dead_skill_reason(src)}
+	if new_route and _mined_pid(src) != "" and dead_mining_reason(src) != "":  # T295
+		return {"ok": false, "reason": dead_mining_reason(src)}
 	if int(trade.planets[src].get("system", 1)) != int(trade.planets[dst].get("system", 1)) and not Skills.unlocked("permit_routes"):
 		return {"ok": false, "reason": StoryText.get_text("NOT_ROUTE_NEEDS_C3")}
 	return {"ok": true, "reason": ""}  # T87: a second ship on the same lane is allowed
@@ -523,7 +551,7 @@ func cluster_available(node: int) -> int:
 	var i := Clusters.index_of(node)
 	if clusters == null or not clusters.valid(i):
 		return 0
-	return mini(clusters.left(i), int(cluster_budget[i]) if cluster_budget.has(i) else clusters.yield_per_cycle())
+	return mini(clusters.left(i), int(cluster_budget[i]) if cluster_budget.has(i) else clusters.yield_per_cycle(i))
 
 ## A send to the Space Storage of system sid. Open post is checked by main (space_post_open).
 func _check_station(src: int, sid: int, c: String) -> Dictionary:
@@ -1145,6 +1173,8 @@ func _run_local(o: Dictionary, role: String, cash: int, out: Array) -> int:
 	if n > 0:
 		if role == "buy":
 			n = storage.add(key, c, n)  # first trade establishes the storage
+			if dead_worlds != null and _mined_pid(planet) != "":
+				dead_worlds.take(_mined_pid(planet), n)  # T295: the world's stock thins and never refills
 			r["credits"] = -n * local_price(planet, c, role)
 		else:
 			var took: int = storage.remove(key, c, n)  # planet storage first, Space Storage covers the rest
@@ -1204,7 +1234,7 @@ func _settle_one(rec: Dictionary, cash: int) -> int:
 	if from_cluster(rec):  # T156: the ship loads ore free at the cluster; it thins and never refills
 		var got: int = clusters.take(Clusters.index_of(int(rec["a"])), moved)
 		var bi := Clusters.index_of(int(rec["a"]))
-		cluster_budget[bi] = maxi(0, (int(cluster_budget[bi]) if cluster_budget.has(bi) else clusters.yield_per_cycle()) - got)
+		cluster_budget[bi] = maxi(0, (int(cluster_budget[bi]) if cluster_budget.has(bi) else clusters.yield_per_cycle(bi)) - got)
 		storage.add(dst, c, got)
 		rec["stop_sale"] = 0
 		rec["bonus"] = level_bonus(rec, got)
@@ -1355,7 +1385,7 @@ func _begin_cluster_budget() -> void:
 	if clusters == null:
 		return
 	for i in clusters.items.size():
-		cluster_budget[i] = clusters.yield_per_cycle()
+		cluster_budget[i] = clusters.yield_per_cycle(i)
 
 ## N2: the units a moved split lane has used of its budget.
 func _spend_split(rec: Dictionary, units: int) -> void:

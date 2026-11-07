@@ -16,12 +16,21 @@ extends RefCounted
 ## need stays short, up to the cap, and steps back down once met), need_surplus_pct (share of the price paid for units sold
 ## above the demand in a cycle), need_surplus_all (0/1: surplus applies to every sale, not only need goods).
 ## T261 skills: need_fill_pct (Skills.need_fill_bonus) adds units to add_fill; progress_grace (Skills.progress_grace) spares part of the unmet-cycle progress loss.
+## T295 reclaim (design section 3.4): a Barren world has a reclamation need list (data/prosperity.json "reclaim": goods_tier = highest goods tier
+## of the branch goods listed, extra = one extra good (first of the list the branch trades and Availability shows, else the first the branch trades);
+## balance prosperity_reclaim_needs, prosperity_reclaim_steps; demand and prices use the tier 1 keys). Sales AT the world fill it; each met cycle
+## adds a step, a short one decays as for living worlds. Full = reclaim(i): type "reclaimed", tier 1, signal reclaimed (main counts its post as built),
+## its mined goods stop for good. mining_closed(i) is true while reclaim progress > 0 and after it. Saved with the rest ("reclaimed" ids; the planet look is re-applied on load).
 ## Saved by main under "prosperity". Old saves: established worlds start at tier 1 (nothing stored).
 
 signal tier_up(planet: int, tier: int)
+signal reclaimed(planet: int)  # T295: a Barren world filled its reclamation ring and turned living (main marks its post as built)
 
 const PATH := "res://data/prosperity.json"
 const DeadWorlds := preload("res://game/dead_worlds.gd")
+const PlanetTypes := preload("res://game/planet_types.gd")
+const StoryText := preload("res://game/story_text.gd")
+const RECLAIMED_TYPE := "reclaimed"
 
 var balance: Dictionary = {}
 var planets: Array = []
@@ -93,12 +102,63 @@ func is_barren(i: int) -> bool:
 	var pid := _pid(i)
 	return pid != "" and DeadWorlds.is_dead(planets[i]) and not _reclaimed.has(pid)
 
-## Hook for the later reclaim task: a Barren world becomes a living tier-1 world.
+## Ladder tier used for needs, demand, fill and progress: a Barren world works like tier 1 for its reclamation list.
+func _lt(i: int) -> int:
+	var t := tier(i)
+	return 1 if t == -1 else t
+
+func _post_stands(pid: String) -> bool:
+	return established_fn.is_valid() and bool(established_fn.call(pid))
+
+## T295: a Barren world becomes a living tier-1 world (a new planet type), its mined goods stop for good.
 func reclaim(i: int) -> void:
 	var pid := _pid(i)
-	if pid != "":
-		_reclaimed[pid] = true
-		_tier[pid] = maxi(1, int(_tier.get(pid, 1)))
+	if pid == "":
+		return
+	var was_barren := is_barren(i)
+	_reclaimed[pid] = true
+	_tier[pid] = maxi(1, int(_tier.get(pid, 1)))
+	_steps[pid] = 0
+	_sold.erase(pid)
+	_hunger.erase(pid)
+	_restless.erase(pid)
+	_apply_reclaimed_look(i)
+	if was_barren:
+		reclaimed.emit(i)
+
+## The planet row turns into a living world: type "reclaimed", no more mined (_buy) goods. Idempotent.
+func _apply_reclaimed_look(i: int) -> void:
+	if i < 0 or i >= planets.size() or typeof(planets[i]) != TYPE_DICTIONARY:
+		return
+	var p: Dictionary = planets[i]
+	p["type"] = RECLAIMED_TYPE
+	PlanetTypes.apply(p)
+	var prices = p.get("base_prices")
+	if typeof(prices) == TYPE_DICTIONARY:
+		for k in prices.keys():
+			if str(k).ends_with("_buy"):
+				prices.erase(k)
+
+func is_reclaimed(i: int) -> bool:
+	return _reclaimed.has(_pid(i))
+
+## Reclaim progress of a Barren world, 0..1 (0 for any other world).
+func reclaim_progress(i: int) -> float:
+	return progress(i) if is_barren(i) else 0.0
+
+## Mining a world stops while it is being reclaimed (progress above 0) and for good once it is reclaimed.
+func mining_closed(i: int) -> bool:
+	var pid := _pid(i)
+	if pid == "":
+		return false
+	return _reclaimed.has(pid) or (is_barren(i) and float(_steps.get(pid, 0)) > 0.0)
+
+func mining_closed_reason(i: int) -> String:
+	if not mining_closed(i):
+		return ""
+	if _reclaimed.has(_pid(i)):
+		return StoryText.get_or("NOT_MINE_RECLAIMED", "This world is alive again and is no longer mined.")
+	return StoryText.get_or("NOT_MINE_RECLAIMING", "Being reclaimed: mining is closed here.")
 
 func tier(i: int) -> int:
 	var pid := _pid(i)
@@ -112,10 +172,12 @@ func tier(i: int) -> int:
 
 ## Planet ids are written to _tier only above tier 1, so a world with the post stands at 1 whatever the save says.
 func _need_goods(i: int) -> Array:
-	var t := tier(i)
+	var t := _lt(i)
 	if t < 1:
 		return []
 	var pid := _pid(i)
+	if is_barren(i):
+		return _reclaim_goods(i)
 	var cap := maxi(0, int(_n("prosperity_needs", t, 2.0)))
 	var out: Array = []
 	var ov = data.get("overrides", {})
@@ -151,13 +213,57 @@ func _need_goods(i: int) -> Array:
 			out.append(g)
 	return out
 
+## T295: reclamation list of a Barren world: energy and the branch goods up to goods_tier (ordered like a living world), capped by
+## prosperity_reclaim_needs, plus one extra good where the branch trades it (data/prosperity.json "reclaim").
+func _reclaim_goods(i: int) -> Array:
+	var rc = data.get("reclaim", {})
+	if typeof(rc) != TYPE_DICTIONARY:
+		rc = {}
+	var gt := int(rc.get("goods_tier", 1))
+	var cap := maxi(0, int(balance.get("prosperity_reclaim_needs", 3)))
+	var cands: Array = []
+	for g in Goods.ids():
+		if g != "energy" and (int(Goods.entry(g).get("tier", 1)) > gt or not Goods.branch_ok(g)):
+			continue
+		if _sells_to_player(i, g):
+			continue
+		cands.append(g)
+	var order: Dictionary = {}
+	for k in range(cands.size()):
+		order[cands[k]] = k
+	var def_w := float(data.get("default_weight", 1))
+	var en_w := float(data.get("energy_weight", 2))
+	cands.sort_custom(func(a, b) -> bool:
+		var wa := en_w if a == "energy" else def_w
+		var wb := en_w if b == "energy" else def_w
+		if wa != wb:
+			return wa > wb
+		return int(order[a]) < int(order[b]))
+	var out: Array = []
+	for g in cands:
+		if out.size() < cap:
+			out.append(g)
+	var extra := ""
+	var extras = rc.get("extra", [])
+	if typeof(extras) == TYPE_ARRAY:
+		for g in extras:
+			if Goods.has(str(g)) and Goods.branch_ok(str(g)) and not out.has(str(g)):
+				if extra == "":
+					extra = str(g)
+				if Availability.good(str(g)):
+					extra = str(g)
+					break
+	if extra != "":
+		out.append(extra)
+	return out
+
 ## The world already sells this good to the player (it has a <good>_buy price): its exports never become its needs.
 func _sells_to_player(i: int, g: String) -> bool:
 	var prices = planets[i].get("base_prices")
 	return typeof(prices) == TYPE_DICTIONARY and prices.has(g + "_buy")
 
 func demand(i: int) -> int:
-	return maxi(0, roundi(_n("prosperity_demand", tier(i), 0.0)))
+	return maxi(0, roundi(_n("prosperity_demand", _lt(i), 0.0)))
 
 func sold(i: int, good: String) -> int:
 	return int(_sold.get(_pid(i), {}).get(good, 0))
@@ -165,7 +271,7 @@ func sold(i: int, good: String) -> int:
 ## Called where sales are noted (route_engine._note_sale) and by the Flagship and hubs for hand sales and deliveries.
 func add_fill(i: int, good: String, units: int) -> void:
 	var pid := _pid(i)
-	if pid == "" or units <= 0 or tier(i) < 1:
+	if pid == "" or units <= 0 or _lt(i) < 1:
 		return
 	var d: Dictionary = _sold.get(pid, {})
 	var bonus := Skills.need_fill_bonus(Markets.market_of(good))  # T261: need_fill_pct skills
@@ -185,7 +291,7 @@ func is_need(i: int, good: String) -> bool:
 func need_price(i: int, good: String) -> int:
 	if not is_need(i, good) or not Availability.good(good):
 		return 0
-	return maxi(0, roundi(float(Markets.value_of(good)) * _n("need_price", tier(i), 1.0)))
+	return maxi(0, roundi(float(Markets.value_of(good)) * _n("need_price", _lt(i), 1.0)))
 
 func hunger_steps(i: int, good: String) -> int:
 	return int(_hunger.get(_pid(i), {}).get(good, 0))
@@ -199,7 +305,7 @@ func hunger_factor(i: int, good: String) -> float:
 	return 1.0 + minf(float(h) * maxf(0.0, float(balance.get("need_hunger_step_pct", 0.0))), cap) / 100.0
 
 func _surplus_applies(i: int, good: String) -> bool:
-	return tier(i) >= 1 and (int(balance.get("need_surplus_all", 0)) != 0 or is_need(i, good))
+	return _lt(i) >= 1 and (int(balance.get("need_surplus_all", 0)) != 0 or is_need(i, good))
 
 ## Of n units about to be sold at this world, how many fall above the cycle's demand (`extra` = units already counted by a forecast).
 func surplus_units(i: int, good: String, n: int, extra: int = 0) -> int:
@@ -213,7 +319,7 @@ func surplus_factor() -> float:
 
 ## 'hungry' (need short and the price raised), 'surplus' (sold above the demand this cycle) or ''.
 func price_reason(i: int, good: String) -> String:
-	if tier(i) < 1:
+	if _lt(i) < 1:
 		return ""
 	if _surplus_applies(i, good) and surplus_factor() < 1.0 and sold(i, good) > demand(i):
 		return "surplus"
@@ -240,22 +346,27 @@ func all_met(i: int) -> bool:
 			return false
 	return true
 
-## Progress inside the current tier, 0..1 (1 at the top tier).
+## Steps to leave the current tier; a Barren world needs prosperity_reclaim_steps to turn living.
+func _steps_for(i: int) -> int:
+	if is_barren(i):
+		return maxi(1, int(balance.get("prosperity_reclaim_steps", 4)))
+	return maxi(1, int(_n("prosperity_steps", tier(i), 3.0)))
+
+## Progress inside the current tier, 0..1 (1 at the top tier). A Barren world: the reclamation ring.
 func progress(i: int) -> float:
-	var t := tier(i)
+	var t := _lt(i)
 	if t < 1:
 		return 0.0
-	if t >= max_tier():
+	if t >= max_tier() and not is_barren(i):
 		return 1.0
-	return clampf(float(_steps.get(_pid(i), 0)) / float(maxi(1, int(_n("prosperity_steps", t, 3.0)))), 0.0, 1.0)
+	return clampf(float(_steps.get(_pid(i), 0)) / float(_steps_for(i)), 0.0, 1.0)
 
 ## Notches of the progress ring: steps to leave the current tier, and the steps gathered so far (T264 map ring).
 func steps_needed(i: int) -> int:
-	var t := tier(i)
-	return maxi(1, int(_n("prosperity_steps", t, 3.0))) if t >= 1 else 0
+	return _steps_for(i) if _lt(i) >= 1 else 0
 
 func steps(i: int) -> int:
-	return maxi(0, floori(float(_steps.get(_pid(i), 0)) + 0.0001)) if tier(i) >= 1 else 0
+	return maxi(0, floori(float(_steps.get(_pid(i), 0)) + 0.0001)) if _lt(i) >= 1 else 0
 
 ## True when a need was short at the last cycle end.
 func restless(i: int) -> bool:
@@ -264,21 +375,27 @@ func restless(i: int) -> bool:
 ## Cycle end: every need met = a step; any short = minus decay (floor 0); full = tier up. Then the counters reset.
 func end_cycle() -> void:
 	for i in range(planets.size()):
-		var t := tier(i)
+		var t := _lt(i)
 		if t < 1:
 			continue
 		var pid := _pid(i)
+		var barren := is_barren(i)
+		if barren and not _post_stands(pid):
+			continue  # no platform yet: nothing can be sold there
 		var ok := all_met(i)
 		_update_hunger(i, pid)
 		_restless[pid] = not ok
-		if t < max_tier():
+		if barren or t < max_tier():
 			if ok:
 				_steps[pid] = float(_steps.get(pid, 0)) + 1.0
-				if float(_steps[pid]) >= maxi(1, int(_n("prosperity_steps", t, 3.0))):
-					_tier[pid] = t + 1
-					_steps[pid] = 0
-					_sold.erase(pid)
-					tier_up.emit(i, t + 1)
+				if float(_steps[pid]) >= _steps_for(i):
+					if barren:
+						reclaim(i)  # the ring is full: the world turns living
+					else:
+						_tier[pid] = t + 1
+						_steps[pid] = 0
+						_sold.erase(pid)
+						tier_up.emit(i, t + 1)
 			else:
 				# T261: progress_grace skills (best of the world's need markets: the sum over every market it feeds, capped at 1) spare part of the loss
 				var loss := float(maxi(0, int(balance.get("prosperity_decay_steps", 1)))) * (1.0 - _grace(i))
@@ -344,6 +461,9 @@ func from_dict(s) -> void:
 		_restless[str(k)] = bool(s["restless"][k])
 	for k in s.get("reclaimed", {}):
 		_reclaimed[str(k)] = true
+		for i in range(planets.size()):
+			if _pid(i) == str(k):
+				_apply_reclaimed_look(i)
 	_reached = maxi(0, int(s.get("reached", 0)))  # old saves: no back pay, claim_new_tiers() starts from the saved top below
 	var hg = s.get("hunger", {})
 	if typeof(hg) == TYPE_DICTIONARY:

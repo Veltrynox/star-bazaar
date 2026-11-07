@@ -283,6 +283,8 @@ func _ready() -> void:
 	engine.prosperity = prosperity
 	bazaar.setup(self)  # T259
 	map.prosperity = prosperity  # T264 growth ring and need icons
+	if not prosperity.reclaimed.is_connected(_on_prosperity_reclaimed):
+		prosperity.reclaimed.connect(_on_prosperity_reclaimed)
 	if not prosperity.tier_up.is_connected(_on_prosperity_tier_up):
 		prosperity.tier_up.connect(_on_prosperity_tier_up)
 	if not bazaar.stage_done.is_connected(_on_bazaar_stage_done):
@@ -290,6 +292,7 @@ func _ready() -> void:
 	fabric.setup(balance)
 	workshops.setup(balance)
 	engine.clusters = clusters
+	engine.dead_worlds = dead  # T295
 	engine.trade_gate = Callable(self, "system_trade_open")
 	engine.upkeep_out = func(k: String, g: String, have: int) -> int: return storage_link.upkeep_drain(k, g, have)
 	engine.positions_fn = func() -> Array: return map.positions  # route offset: planet world positions
@@ -397,7 +400,7 @@ func collect_state() -> Dictionary:
 			"open_systems": open_systems, "reached_ids": reached_ids, "galaxy_seen": galaxy_seen, "tut_step": tut_step, "tut_ver": TUT_VER,
 		"chains": Chains.to_dict(), "storage_cuts": storage.cuts_to_dict(), "price_history": price_history,
 		"forecast_id": forecast_id, "forecast_slot": forecast_slot, "forecast_noted": forecast_noted, "station_systems": station_systems,
-		"second_lane": second_lane_planet, "clusters": clusters.to_dict(), "danger": dead.to_dict(), "fabric": fabric.to_dict(), "workshops": workshops.to_dict(),
+		"second_lane": second_lane_planet, "clusters": clusters.to_dict(), "danger": dead.to_dict(), "dead_mining": dead.state_to_dict(), "fabric": fabric.to_dict(), "workshops": workshops.to_dict(),
 			"pathfinder": flight.to_dict(), "storage_links": storage_link.to_array(), "prosperity": prosperity.to_dict(), "bazaar": bazaar.to_dict(), "free_play": free_play}
 
 func apply_state(s: Dictionary) -> void:
@@ -485,6 +488,7 @@ func apply_state(s: Dictionary) -> void:
 		_quiet_points = false
 	events.from_dict(s.get("events"))  # old saves: no events and no scheduled follow-ups
 	dead.from_dict(s.get("danger"))  # old saves: no meter
+	dead.state_from_dict(s.get("dead_mining"))  # T295; old saves: full stock, normal intensity
 	fabric.from_dict(s.get("fabric"))  # old saves: not built
 	workshops.from_dict(s.get("workshops"))
 	flight.from_dict(s.get("pathfinder"))  # T179: a save without it (from before discovery) opens every planet
@@ -1021,7 +1025,7 @@ func _on_planet_clicked(index: int) -> void:
 		elif index == int(pending["planet"]):
 			post_notice("Pick a different planet as the destination.")
 			return
-		elif DeadWorlds.is_dead(map.planets[index]):  # a dead world has no market: it can only be a source
+		elif DeadWorlds.is_dead(map.planets[index]) and not (prosperity.is_barren(index) and prosperity.is_need(index, str(pending["c"]))):  # a dead world has no market: it can only be a source (T295: a Barren world takes its reclamation goods)
 			post_notice_now(StoryText.get_or("NOT_DEAD_NO_DELIVERY", "Nothing is delivered to a dead world. Pick another planet."))
 			return
 		else:
@@ -1887,6 +1891,11 @@ func display_status(rec: Dictionary) -> String:
 	return st if int(idle_cycles.get(int(rec["id"]), 0)) >= WARN_AFTER_CYCLES else "running"
 
 ## Dead worlds: a running route out of a dead world mines it, so its danger rises by dead_danger_rise each cycle.
+## T295: a reclaimed world turns living: its post counts as built.
+func _on_prosperity_reclaimed(i: int) -> void:
+	if flight != null and i >= 0 and i < map.planets.size():
+		flight.set_flag("post", str(map.planets[i].get("id", "")), true)
+
 func _tick_danger() -> void:
 	var ids: Array = []
 	for rec in engine.routes:
