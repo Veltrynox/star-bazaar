@@ -47,7 +47,7 @@ ROOT = Path(__file__).resolve().parent.parent
 WT_DIR = (ROOT.parent / "wt").resolve()
 OUT = ROOT / "logs" / "orchestrator"
 SCRATCH = WT_DIR / "_scratch"  # big temp files live on the same (large) volume as the project, never in /tmp or /var/folders
-STATE = OUT / "state.json"
+STATE = WT_DIR / "_state" / "state.json"  # outside the repo: the push hook empties logs/, which must not wipe the run state
 SCHEDULE = ROOT / "schedule.json"
 # untracked files Godot generates in every worktree (textures extracted from the pirate ship model); not worker output
 GDD_MERGED = []  # worktrees whose gdd.md conflict was resolved by keeping both sides
@@ -82,7 +82,7 @@ def load_state():
 
 
 def save_state(st):
-    OUT.mkdir(parents=True, exist_ok=True)
+    STATE.parent.mkdir(parents=True, exist_ok=True)
     STATE.write_text(json.dumps(st, indent=2))
 
 
