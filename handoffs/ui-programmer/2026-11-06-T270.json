@@ -1,0 +1,5 @@
+{
+  "task": "T270",
+  "files": ["game/dock_sheet.gd", "game/main.gd", "game/ship_panel.gd", "game/pathfinder_view.gd", "game/map.gd", "data/balance.json", "gdd.md"],
+  "notes": "Dock sheet (paused modal), 'Dock and trade' in right-click menu, hold readout and boost button on ship panel, hold B to boost. New placeholder key flagship_dock_lot 5. Outside touches: one-line edit in game/map.gd _right_click so the menu opens on established worlds. Text ids from story/screens.md with get_or fallbacks; no new story ids."
+}
