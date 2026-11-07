@@ -16,6 +16,10 @@ extends Node3D
 ## Clicking a ship shows a card (game/rival_card.gd): pick_bot(screen_pos) is a screen-space test (PICK_PX) on the closest visible
 ## ship. It is only a hint test: the map still handles the click as before (a planet behind the ship stays clickable).
 
+## T283 house convoys: the ship of house h is a convoy lead. When h has weather coming (main.forecast_id within convoy_lead_cycles + warning
+## cycles of firing) or running (events.weather_of_house), the lead flies to that world and parks there with convoy_escorts escorts (a
+## traffic free group, game/traffic) until the weather ends, then idles as before. The state is derived from saved data, nothing new is saved.
+
 const Ships := preload("res://game/ships.gd")
 const Motion := preload("res://game/ship_motion.gd")  # T196
 
@@ -116,7 +120,7 @@ func _move_to_system(s: Dictionary, sys: int) -> void:
 ## T214: a reason to move: every idle ship picks one new course (it may visit an opened system or head home).
 func wake() -> void:
 	for s in _ships:
-		if bool(s.get("parked", false)):
+		if bool(s.get("parked", false)) and int(s.get("wx", -1)) < 0:  # T283: a convoy parked at its world stays
 			s["parked"] = false
 			_new_leg(s)
 
@@ -135,6 +139,8 @@ func _check_reasons() -> void:
 		wake()
 
 func _new_leg(s: Dictionary) -> void:
+	if int(s.get("wx", -1)) >= 0:  # T283: on convoy duty, no random course
+		return
 	var open := open_ids()
 	if not open.has(int(s["system"])):
 		_move_to_system(s, 1)  # its system is closed: back home
@@ -220,7 +226,9 @@ func advance(dt: float) -> void:
 	var accel := vmax / maxf(0.05, _bal("rival_ship_accel_s", 2.0))
 	var brake := vmax / maxf(0.05, _bal("rival_ship_brake_s", 2.0))
 	var turn := deg_to_rad(maxf(1.0, _bal("rival_ship_turn_deg", 45.0)))
-	for s in _ships:
+	for i in _ships.size():
+		var s: Dictionary = _ships[i]
+		_update_convoy(s, bot_of(i))
 		var node: Node3D = s["node"]
 		if not open_ids().has(int(s["system"])):
 			_move_to_system(s, 1)
@@ -257,6 +265,76 @@ func advance(dt: float) -> void:
 			var yaw := float(s["yaw"])  # T205: trail starts at the engines, behind the centre
 			var eng: Vector3 = node.position + Vector3(sin(yaw), 0.0, cos(yaw)) * (Ships.engine_back(str(s.get("kind", ""))) * FIT_RADIUS)
 			tr.push(eng, dt, float(s["speed"]) > 0.02 and node.visible)
+		_sync_escorts(s, bot_of(i), node.visible)
+
+## T283: the planet index house `h` has weather for now (running) or soon (forecast within the lead), -1 when none.
+func weather_target(h: int) -> int:
+	if main == null or not ("events" in main) or main.events == null:
+		return -1
+	var ev = main.events
+	for w in ev.weather_of_house(h):
+		if int(w["left"]) > 0:
+			return int(w["planet"])
+	var fid := str(main.forecast_id) if "forecast_id" in main else ""
+	if fid == "" or not ev.by_id.has(fid) or int(ev.house_of(fid)) != h:
+		return -1
+	var ahead := int(main.forecast_slot) - int(main.cycle)
+	var lead := int(_bal("convoy_lead_cycles", 1.0)) + Skills.warning_cycles()
+	if ahead < 1 or ahead > lead:
+		return -1
+	var e: Dictionary = ev.effect_of_event(fid)
+	return int(e["planet"]) if e.has("planet") else -1
+
+## T283: sends the lead to its weather world, or lets it go when the weather is over.
+func _update_convoy(s: Dictionary, h: int) -> void:
+	var t := weather_target(h)
+	if t == int(s.get("wx", -1)):
+		return
+	s["wx"] = t
+	if t < 0 or t >= map.positions.size():
+		s["wx"] = -1
+		s["parked"] = false  # leaves: one new course, then idles as before (T214)
+		_new_leg(s)
+		return
+	var sys := int(map.planets[t].get("system", 1))
+	if not open_ids().has(sys):
+		s["wx"] = -1
+		return
+	if int(s["system"]) != sys:
+		_move_to_system(s, sys)
+	s["visit"] = 0
+	var c := Vector2(map.positions[t].x, map.positions[t].z)
+	var gap := _bal("convoy_park_gap", 0.6)
+	var from: Vector2 = s["pos"]
+	var p: Vector2 = map.dock_point(c, map.planet_radius(t) + gap, from if from.distance_to(c) > 0.01 else c + Vector2(1, 0), sys)
+	s["to"] = p
+	s["wait"] = 0.0
+	s["parked"] = false
+
+func _escort_key(h: int, k: int) -> String:
+	return "convoy_%d_%d" % [h, k]
+
+## T283: escorts form up behind the lead (traffic free ships), only while the convoy is on duty and in the viewed system.
+func _sync_escorts(s: Dictionary, h: int, shown: bool) -> void:
+	var layer: Node = map.traffic if map != null and "traffic" in map else null
+	if layer == null:
+		return
+	var n := int(_bal("convoy_escorts", 2.0))
+	var duty := int(s.get("wx", -1)) >= 0 and shown
+	var yaw := float(s["yaw"])
+	var back := Vector2(sin(yaw), cos(yaw))
+	var side := Vector2(-back.y, back.x)
+	var gap := _bal("convoy_escort_gap", 0.35)
+	var lead: Vector2 = s["pos"]
+	for k in maxi(n, int(s.get("escorts", 0))):
+		var key := _escort_key(h, k)
+		if not duty or k >= n:
+			layer.clear_group(key)
+			continue
+		var row := float(k / 2 + 1)
+		var off := back * gap * row + side * gap * 0.6 * row * (1.0 if k % 2 == 0 else -1.0)
+		layer.set_free_ship(key, lead + off, lead + off, "corvette", TINTS.get(h, Color.WHITE), LIFT, _bal("convoy_escort_scale", 0.8))
+	s["escorts"] = n if duty else 0
 
 ## T199: the competitor (id of Bots.IDS) that owns ship i, 0 when i is out of range.
 static func bot_of(i: int) -> int:

@@ -1,0 +1,7 @@
+{
+  "task": "T283",
+  "agent": "gameplay-programmer (main session, no sub-agent)",
+  "changed": ["game/rival_ships.gd", "data/balance.json", "gdd.md"],
+  "summary": "House ships lead convoys: lead flies to its house's weather world (forecast within convoy_lead_cycles + warning skill cycles, or running), parks until it ends, escorts are a traffic free group; idle as T214 otherwise. State derived from saved forecast/active effects, so no save bump.",
+  "new_balance_keys_placeholders": ["convoy_lead_cycles", "convoy_escorts", "convoy_escort_gap", "convoy_escort_scale", "convoy_park_gap"]
+}
