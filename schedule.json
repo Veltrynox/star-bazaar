@@ -1824,7 +1824,7 @@
       "title": "Selecting a ship in front of a planet selects only the ship",
       "owner_agent": "gameplay-programmer",
       "depends_on": [],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 40,
       "window": "Small gameplay fix.",
       "brief": "Owner: when a ship is drawn in front of a planet, clicking it selects both the planet and the ship, which is confusing. Fix the click picking so one click selects one thing: the ship wins over the planet behind it (ship pick radius first, then planets). Find the picking code in game/ (main.gd, ships.gd, galaxy/planet pick). Do not change pick sizes except as needed. Handoff: handoffs/gameplay-programmer/<date>-T245.json.",
@@ -1832,7 +1832,8 @@
       "touches": [
         "game/main.gd",
         "game/ships.gd"
-      ]
+      ],
+      "note": "Done by orchestrator: A left click on a ship drawn over a planet now selects only the ship, because `game/map.gd` no longer also emits the planet click; `map.gd` is outside the task's `touches`, so this is the one out-of-scope edit"
     },
     {
       "task_id": "T246",
