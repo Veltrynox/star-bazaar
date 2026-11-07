@@ -2631,7 +2631,7 @@
         "data/balance.json"
       ],
       "priority": 1,
-      "note": "Blocked by orchestrator: fast-forward merge refused",
+      "note": "Blocked by orchestrator: tests after rebase: 11534 pass, 14 fail, 1 new vs baseline",
       "blocked_log": "/Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T284-merge.log"
     },
     {

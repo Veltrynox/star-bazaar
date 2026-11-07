@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-07 10:58 run: T245
-- Summary: A left click on a ship drawn over a planet now selects only the ship, because `game/map.gd` no longer also emits the planet click; `map.gd` is outside the task's `touches`, so this is the one out-of-scope edit
-- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
-- Approach: built by a worker in worktree ../wt/T245 on branch task/T245, merged by the serial merge queue.
-- Agent prompts: /overnight-worker T245 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T245.log.
-- Worked: rebase, full test suite and fast-forward merge passed.
-- Failed / did not work: nothing.
-- Files and commits: see git log on branch new-features for commits starting with T245.
-- Left to do: nothing for this task.
-
 ## 2026-11-07 11:01 run: T303
 - Summary: Ambient ship traffic (1000 ships, own MultiMesh, dim thin streaks) flows along every planet pair of the viewed system from the start, with traffic_ambient_* balance keys, debug readout and gdd.md updated
 - Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
@@ -65,3 +55,13 @@
 - Failed / did not work: nothing.
 - Files and commits: see git log on branch new-features for commits starting with T252.
 - Left to do: nothing for this task.
+
+## 2026-11-07 11:06 run: T284
+- Summary: Not merged: tests after rebase: 11534 pass, 14 fail, 1 new vs baseline
+- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
+- Approach: built by a worker in worktree ../wt/T284 on branch task/T284, merged by the serial merge queue.
+- Agent prompts: /overnight-worker T284 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T284.log.
+- Worked: worker finished.
+- Failed / did not work: tests after rebase: 11534 pass, 14 fail, 1 new vs baseline.
+- Files and commits: see git log on branch new-features for commits starting with T284.
+- Left to do: owner or a new run: see blocked_log in schedule.json.
