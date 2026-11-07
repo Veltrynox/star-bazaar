@@ -47,6 +47,8 @@ extends Node3D
 ##       space sends fly_requested at once (no confirm); a RIGHT click on a planet opens a menu of request_fly_establish actions
 ##       (actions_for(planet_id) -> Array: "establish_post" | "establish_platform", only the allowed ones); Esc or right-click on
 ##       open space deselects. Signals: map.fly_establish_requested(planet_id), map.action_menu_requested(planet_id, screen_pos).
+##   (T270) The right-click menu also lists 'Dock and trade' on an established world (map._right_click, main.request_dock): fly there and open
+##       the dock sheet (game/dock_sheet.gd, pauses like an event window). Hold key B boosts (main.set_flagship_boost); the ship panel shows the hold and the boost gauge.
 ##   map.establish_requested(planet_id: String)   the Establish button. T179 checks cash/dock/busy and posts NOT_FLY_FIRST,
 ##       NOT_POST_NO_CASH, NOT_PLATFORM_NO_CASH, NOT_POST_BUSY itself.
 ## When state changes (arrive, build done, flags change) the planet panel and map labels re-read the accessor on their own

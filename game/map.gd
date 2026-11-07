@@ -1134,7 +1134,7 @@ func _right_click(pos: Vector2) -> void:
 	var hit := pick_planet(pos)
 	if hit >= 0:
 		var pid := str(planets[hit].get("id", hit))
-		if not (PathfinderView._call(flight, "actions_for", [pid], []) as Array).is_empty():
+		if not (PathfinderView._call(flight, "actions_for", [pid], []) as Array).is_empty() or PathfinderView.established(flight, pid):  # T270: Dock and trade
 			action_menu_requested.emit(pid, pos)
 		return
 	if pick_station(pos) < 0 and pick_cluster(pos) < 0 and not pick_ship(pos):

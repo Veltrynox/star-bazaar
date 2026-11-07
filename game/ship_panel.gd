@@ -8,7 +8,10 @@ const PathfinderView := preload("res://game/pathfinder_view.gd")  # T180 accesso
 
 signal buy_requested(kind: String)
 signal explore_toggled  # T206
+signal boost_toggled(on: bool)  # T270
 var explore_button: Button  # T206: exploration mode on/off; hidden unless discovery is on
+var hold_label: Label  # T270: "Hold: n of m", goods held, boost charges
+var boost_button: Button  # T270: boost on/off; hotkey B (hold)
 var buy_buttons: Dictionary = {}  # kind -> Button
 var label: Label
 var upkeep_label: Label
@@ -53,6 +56,18 @@ func _ready() -> void:
 	explore_button.visible = false
 	explore_button.pressed.connect(func(): explore_toggled.emit())
 	box.add_child(explore_button)
+	hold_label = Label.new()  # T270: hold readout and boost gauge
+	hold_label.name = "HoldReadout"
+	hold_label.theme_type_variation = "LabelSmall"
+	hold_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	hold_label.visible = false
+	box.add_child(hold_label)
+	boost_button = Button.new()
+	boost_button.name = "BoostButton"
+	boost_button.visible = false
+	boost_button.toggle_mode = true
+	boost_button.toggled.connect(func(on: bool): boost_toggled.emit(on))
+	box.add_child(boost_button)
 	free_label = Label.new()
 	free_label.name = "FreeShips"
 	free_label.theme_type_variation = "LabelSmall"
@@ -159,6 +174,9 @@ func _set_pathfinder(main: Control) -> void:
 		pathfinder_label.visible = false
 		if explore_button != null:
 			explore_button.visible = false
+		if hold_label != null:
+			hold_label.visible = false
+			boost_button.visible = false
 		return
 	var status := StoryText.get_or("LBL_PATHFINDER_IDLE", "Pathfinder waiting")
 	if PathfinderView.state(f) == "flying":
@@ -170,6 +188,25 @@ func _set_pathfinder(main: Control) -> void:
 			status = StoryText.get_or("LBL_PATHFINDER_FLYING_UNKNOWN", "Pathfinder flying to an unknown world")
 	pathfinder_label.text = "%s\n%s\n%s" % [StoryText.get_or("LBL_PATHFINDER_NAME", "Pathfinder"), StoryText.get_or("LBL_PATHFINDER_DESC", ""), status]
 	pathfinder_label.visible = true
+	_set_hold(main, f)
 	if explore_button != null:
 		explore_button.visible = true
 		explore_button.text = StoryText.get_text("BTN_EXPLORE_OFF" if bool(PathfinderView._call(f, "exploring", [], false)) else "BTN_EXPLORE_ON")
+
+## T270: hold readout (units, goods) and boost gauge from the Flagship API; hidden while the hold has no room (key 0) or discovery is off.
+func _set_hold(main: Control, f) -> void:
+	var cap: int = main.flight.hold_cap()
+	hold_label.visible = cap > 0
+	boost_button.visible = cap > 0
+	if cap <= 0:
+		return
+	var goods: Dictionary = main.flight.hold_goods()
+	var lines: Array = [StoryText.get_or("LBL_HOLD_FILL", "Hold: {n} of {m}", {"n": main.flight.hold_total(), "m": cap})]
+	for g in goods:
+		lines.append("%s: %d" % [Ui.good_name(str(g)), int(goods[g])])
+	lines.append(StoryText.get_or("LBL_BOOST_CHARGES", "Boost: {n} left", {"n": main.flight.boost_charges()}))
+	hold_label.text = "\n".join(lines)
+	boost_button.text = "%s (B)" % StoryText.get_or("BTN_BOOST", "Boost")
+	boost_button.tooltip_text = StoryText.get_or("LBL_BOOST_HINT", "Faster on straight legs. Burns energy from the hold. Turning stays slow.")
+	if boost_button.button_pressed != main.flight.boost_on():
+		boost_button.set_pressed_no_signal(main.flight.boost_on())

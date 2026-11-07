@@ -91,6 +91,9 @@ func systems_in_game() -> int:
 var events: RefCounted = Events.new()  # T12 random events and active price effects
 const ASTEROID_REWARD_POINTS := 1  # T109: EV20_PAID gives one expansion point (no balance key)
 var asteroid_last_hit: int = -1  # T109: planet hit by the last asteroid (-1 none), runtime only
+var dock_sheet: ColorRect  # T270 dock sheet (game/dock_sheet.gd), null when closed
+var _dock_was_paused := false
+var _dock_after := ""  # T270: planet id of a 'Dock and trade' order still in flight
 var event_notice: ColorRect  # T12 event window (opened from an icon), null when none
 var event_icons: HBoxContainer  # strip of event icons (game/event_icons.gd)
 var _event_pause_held := false  # the open event window holds the pause
@@ -266,6 +269,7 @@ func _ready() -> void:
 	ship_panel = load("res://game/ship_panel.gd").new()
 	right_col.add_child(ship_panel)
 	ship_panel.buy_requested.connect(_buy_ship_kind)
+	ship_panel.boost_toggled.connect(set_flagship_boost)  # T270
 	ship_panel.explore_toggled.connect(func(): set_exploring(not flight.exploring()))  # T206
 	mission_planet = _find_mission_planet()
 	commodities = _commodities(map.planets)
@@ -3010,6 +3014,13 @@ func set_paused(value: bool) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if preface != null or event_notice != null:
 		return
+	if event is InputEventKey and event.keycode == KEY_B and not event.echo and flight != null and flight.is_enabled():  # T270: hold B to boost
+		set_flagship_boost(event.pressed and dock_sheet == null)
+		return
+	if dock_sheet != null:  # T270: the dock sheet is modal; Esc undocks, Space does not unpause
+		if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE:
+			dock_sheet.close_sheet()
+		return
 	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE and (not sell_offer.is_empty() or not pending.is_empty()):
 		cancel_chain()
 	elif event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE:
@@ -3364,6 +3375,7 @@ func _tut_id(i: int) -> String:
 
 ## T180: map orders go to the flight accessor; its refusal reason becomes a NOT_* notice. No accessor: nothing happens.
 func _on_fly_requested(target: Dictionary) -> void:
+	_dock_after = ""  # T270: a new order cancels a pending dock
 	var f = map.flight
 	if not PathfinderView.active(f):
 		return
@@ -3378,6 +3390,9 @@ func _on_action_menu_requested(planet_id: String, screen_pos: Vector2) -> void:
 	if not PathfinderView.active(f):
 		return
 	var acts: Array = PathfinderView._call(f, "actions_for", [planet_id], [])
+	if PathfinderView.established(f, planet_id):  # T270: an established world offers Dock and trade
+		acts = acts.duplicate()
+		acts.append("dock")
 	if acts.is_empty():
 		return
 	if _action_menu != null:
@@ -3386,13 +3401,68 @@ func _on_action_menu_requested(planet_id: String, screen_pos: Vector2) -> void:
 	_action_menu.name = "ShipActionMenu"
 	for k in acts.size():
 		var a := str(acts[k])
-		_action_menu.add_item(StoryText.get_or("BTN_ESTABLISH_PLATFORM" if a == "establish_platform" else "BTN_ESTABLISH_POST",
-			"Establish mining platform" if a == "establish_platform" else "Establish trading post"), k)
+		var txt := StoryText.get_or("BTN_ESTABLISH_PLATFORM" if a == "establish_platform" else "BTN_ESTABLISH_POST",
+			"Establish mining platform" if a == "establish_platform" else "Establish trading post")
+		if a == "dock":
+			txt = StoryText.get_or("BTN_DOCK", "Dock and trade")
+		_action_menu.add_item(txt, k)
 	_action_menu.id_pressed.connect(func(id: int):
 		if id >= 0 and id < acts.size():
-			_on_fly_establish_requested(planet_id))
+			if str(acts[id]) == "dock":
+				request_dock(planet_id)
+			else:
+				_dock_after = ""
+				_on_fly_establish_requested(planet_id))
 	add_child(_action_menu)
 	_action_menu.popup_on_parent(Rect2i(Vector2i(screen_pos), Vector2i.ZERO))
+
+## T270: 'Dock and trade'. Docked there: open the sheet now; otherwise fly there and open it on arrival.
+func request_dock(planet_id: String) -> void:
+	var f = map.flight
+	if not PathfinderView.active(f):
+		return
+	if not PathfinderView.established(f, planet_id):
+		post_notice_now(StoryText.get_or("NOT_DOCK_NO_POST", "Establish a trading post here to dock and trade."))
+		return
+	if flight.state() == "idle" and flight.docked_at() == planet_id:
+		_dock_after = ""
+		open_dock_sheet()
+		return
+	var r = PathfinderView._call(f, "request_fly", [{"kind": "planet", "pos": map.positions[planet_index_of(planet_id)], "index": planet_index_of(planet_id)}], "")
+	_flight_notice(r)
+	_dock_after = planet_id if r == "" else ""
+	on_flight_changed()
+
+## T270: opens the dock sheet at the world the Flagship is docked at; pauses like the event window. False when it cannot.
+func open_dock_sheet() -> bool:
+	if dock_sheet != null or game_over or event_notice != null or preface != null:
+		return dock_sheet != null
+	var i: int = flight.dock_planet()
+	if i < 0:
+		post_notice_now(StoryText.get_or("NOT_DOCK_FAR", "Fly the Flagship here first."))
+		return false
+	dock_sheet = load("res://game/dock_sheet.gd").new()
+	add_child(dock_sheet)
+	_dock_was_paused = paused
+	paused = true
+	dock_sheet.open(self, i)
+	dock_sheet.closed.connect(_on_dock_closed)
+	_refresh()
+	return true
+
+func _on_dock_closed() -> void:
+	dock_sheet = null
+	paused = _dock_was_paused
+	_refresh()
+	save_now()
+
+## T270: boost on/off (hold key B or the ship panel button). A refusal becomes a notice.
+func set_flagship_boost(on: bool) -> void:
+	var r: String = flight.set_boost(on) if flight != null and flight.is_enabled() else ""
+	if r == "no_fuel":
+		post_notice_now(StoryText.get_or("NOT_BOOST_NO_ENERGY", "No energy in the hold to boost."))
+	elif r == "no_charges":
+		post_notice_now(StoryText.get_or("NOT_BOOST_EMPTY", "Boost is recharging."))
 
 func _on_fly_establish_requested(planet_id: String) -> void:
 	var f = map.flight
@@ -3462,6 +3532,10 @@ func on_flight_changed() -> void:
 	_refresh()
 
 func _on_flight_arrived(planet_id: String) -> void:
+	if _dock_after == planet_id:  # T270: the ordered dock opens its sheet on arrival
+		_dock_after = ""
+		if open_dock_sheet():
+			return
 	post_notice(StoryText.get_or("NOT_PATHFINDER_ARRIVED", "The Pathfinder arrived at {planet}.", {"planet": planet_name(planet_index_of(planet_id))}))
 
 func _on_flight_build_done(planet_id: String) -> void:
