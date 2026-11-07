@@ -2543,7 +2543,8 @@ func _finish(side: String, ending_id: String, stat: String, win_market: String =
 			if is_instance_valid(self) and is_inside_tree():
 				_open_end_screen().show_ending(ending_id, side, stats, stat))
 	else:
-		_open_end_screen().show_ending(ending_id, side, stats, stat)	if not run_recorded:  # local record, once per run
+		_open_end_screen().show_ending(ending_id, side, stats, stat)
+	if not run_recorded:  # local record, once per run
 		run_recorded = true
 		RunStats.record(side, ending_id, cycle, cash, "")
 	run_ended.emit(side, ending_id)
