@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "agent": "juice-programmer",
+  "date": "2026-11-07",
+  "task": "T274",
+  "status": "built",
+  "files_changed": [
+    "game/pathfinder_view.gd",
+    "game/juice.gd",
+    "game/ship_trail.gd",
+    "game/dock_sheet.gd",
+    "data/balance.json",
+    "story/screens.md",
+    "data/story_text.json"
+  ],
+  "open_questions": [
+    "Not run and not seen by eye: no tests, no window. The owner should fly the Flagship and check every beat.",
+    "The rush sting and clamp tick are tiny synthesized tones (Juice.TONES), no audio files. The owner may want real sounds later.",
+    "All effects on the map freeze while paused, so a rush delivery made inside the (paused) dock sheet shows its ring when the clock runs again; the sting and label pop play at once."
+  ],
+  "handoff": "Flight and dock juice built, all in the four named scripts. pathfinder_view.gd watches the Flagship each frame (no edits to main.gd or pathfinder.gd) and starts: selection ring pop and nose swing and engine flare on an accepted order, departure puff on leaving, bright boost burst plus a stretched, brighter, wider trail (ship_trail.gd stretch/glow, eased on game time), a docking ring that closes on the ship then a clamp pulse and tick on arrival, a slow pulse on the target marker (own material) while flying, and on a finished rush order a double ring on the world, a label pop and a sting (it connects to flight.delivered and compares gigs.rush_done next frame). A fixed pool of 8 rings and 3 flares is reused; nothing allocates per frame; idle cost is a few compares. Motion <= 0 stops everything and resets the ship yaw offset and ring scale. dock_sheet.gd: the card settles in (Juice.enter), a Credits row counts up or down with a signed float, and a trade streams small crates between the hold line and the world name. juice.gd: tone_wav, play_tone, crates, float_text. Tuning: 19 new data/balance.json flight_juice_* keys, all PLACEHOLDERS, noted in the source note (FX_FALLBACK and JUICE_FALLBACK mirror them only for a missing key). Text: new id LBL_DOCK_CASH (story/screens.md, build_story.py run). No save fields. Hooks added to other files: none.",
+  "details": {
+    "balance_keys": ["flight_juice_ring_pop_s", "flight_juice_ring_pop_scale", "flight_juice_swing_deg", "flight_juice_swing_s", "flight_juice_flare_s", "flight_juice_flare_size", "flight_juice_boost_burst_s", "flight_juice_boost_stretch", "flight_juice_boost_ease_s", "flight_juice_dock_ring_s", "flight_juice_clamp_s", "flight_juice_puff_s", "flight_juice_marker_hz", "flight_juice_marker_amp", "flight_juice_rush_s", "flight_juice_sting_db", "flight_juice_crates", "flight_juice_crate_s", "flight_juice_cash_float_px"],
+    "pure_helpers_for_tests": ["PathfinderView.fx_state", "PathfinderView.swing_value", "PathfinderView.pop_scale", "Juice.tone_wav"],
+    "ideas_not_built": ["need notch flash on the planet panel need bar when a rush lands", "ease the ship itself into the dock (needs pathfinder.gd braking change)"]
+  }
+}

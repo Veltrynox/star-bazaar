@@ -67,6 +67,89 @@ static func planet_screen(map, index: int) -> Variant:
 		return null
 	return map.camera.unproject_position(w)
 
+## ---- T274: tiny synthesized sounds (a clamp tick, a rush sting). Built once, played from one pooled player each. ----
+## Notes are [hertz, seconds]; each note is a sine with a quick attack and an exponential fade. No audio files needed.
+const TONES := {
+	"clamp": [[1320.0, 0.05]],
+	"sting": [[660.0, 0.07], [880.0, 0.07], [1320.0, 0.16]],
+}
+const TONE_RATE := 22050
+
+## 16-bit mono sound of the notes, played one after the other. Pure; the headless tests call it.
+static func tone_wav(notes: Array) -> AudioStreamWAV:
+	var data := PackedByteArray()
+	for n in notes:
+		var count := int(float(n[1]) * TONE_RATE)
+		for i in count:
+			var t := float(i) / TONE_RATE
+			var env := minf(1.0, float(i) / 80.0) * exp(-4.0 * float(i) / maxf(1.0, count))
+			var v := int(clampf(sin(TAU * float(n[0]) * t) * env * 0.6, -1.0, 1.0) * 32767.0)
+			data.append(v & 0xFF)
+			data.append((v >> 8) & 0xFF)
+	var w := AudioStreamWAV.new()
+	w.format = AudioStreamWAV.FORMAT_16_BITS
+	w.mix_rate = TONE_RATE
+	w.stereo = false
+	w.data = data
+	return w
+
+## Plays a named tone (see TONES) at db. Silent when motion is 0 or the node is outside the tree. Never blocks.
+static func play_tone(host: Node, id: String, db: float = -14.0) -> void:
+	if not _active(host) or not TONES.has(id):
+		return
+	var root := host.get_tree().root
+	var key := "juice_tone_" + id
+	var pl: AudioStreamPlayer = root.get_meta(key) if root.has_meta(key) else null
+	if pl == null or not is_instance_valid(pl):
+		pl = AudioStreamPlayer.new()
+		pl.stream = tone_wav(TONES[id])
+		root.add_child(pl)
+		root.set_meta(key, pl)
+	pl.volume_db = db
+	pl.play()
+
+## ---- T274: crates and floating numbers (dock sheet) ----
+
+## `count` small crates fly from `from` to `to` (both in host-local coordinates), one after another, then fade out and free themselves.
+## Visual only; never takes clicks. Returns at once.
+static func crates(host: Control, from: Vector2, to: Vector2, count: int, secs: float, tint: Color) -> void:
+	if not _active(host) or count <= 0:
+		return
+	var gap := _seconds(secs) * 0.5 / maxf(1.0, float(count))
+	for k in count:
+		var c := ColorRect.new()
+		c.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		c.color = tint
+		c.size = Vector2(9, 9)
+		c.pivot_offset = c.size * 0.5
+		c.modulate.a = 0.0
+		c.position = from - c.size * 0.5
+		host.add_child(c)
+		var tw := c.create_tween()
+		var jitter := Vector2(0.0, (float(k % 3) - 1.0) * 7.0)
+		tw.tween_interval(gap * k)
+		tw.tween_property(c, "modulate:a", 1.0, _seconds(0.04))
+		tw.tween_property(c, "position", to - c.size * 0.5 + jitter, _seconds(secs)) \
+			.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+		tw.parallel().tween_property(c, "scale", Vector2(0.5, 0.5), _seconds(secs)).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
+		tw.tween_property(c, "modulate:a", 0.0, _seconds(0.08))
+		tw.tween_callback(c.queue_free)
+
+## A short text rises from `at` (host-local) and fades, then frees itself. For "+120" beside a counted number.
+static func float_text(host: Control, text: String, at: Vector2, tint: Color, rise_px: float = 28.0, secs: float = 0.7) -> void:
+	if not _active(host):
+		return
+	var l := Label.new()
+	l.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	l.text = text
+	l.modulate = tint
+	l.position = at
+	host.add_child(l)
+	var tw := l.create_tween()
+	tw.tween_property(l, "position:y", at.y - rise_px * motion, _seconds(secs)).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	tw.parallel().tween_property(l, "modulate:a", 0.0, _seconds(secs)).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
+	tw.tween_callback(l.queue_free)
+
 ## ---- channel plumbing ----
 
 static func _active(n: Node) -> bool:

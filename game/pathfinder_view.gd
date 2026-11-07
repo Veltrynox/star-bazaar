@@ -77,7 +77,61 @@ const BURST_RING_FROM := 2.3     # ring starts at this many planet radii, closes
 const BURST_RING_MIN := 1.15
 const BURST_RING_TO := 2.8
 
+# T274 flight and dock juice. Every number is data/balance.json flight_juice_* (placeholders); FX_FALLBACK only mirrors them for a missing key.
+# Effects run on game time (frozen while paused, off when Juice.motion <= 0) and reuse a fixed pool of meshes: nothing is allocated per frame.
+const FX_FALLBACK := {"flight_juice_ring_pop_s": 0.3, "flight_juice_ring_pop_scale": 1.7, "flight_juice_swing_deg": 10.0, "flight_juice_swing_s": 0.45,
+	"flight_juice_flare_s": 0.35, "flight_juice_flare_size": 0.45, "flight_juice_boost_burst_s": 0.55, "flight_juice_boost_stretch": 1.8,
+	"flight_juice_boost_ease_s": 0.4, "flight_juice_dock_ring_s": 0.45, "flight_juice_clamp_s": 0.18, "flight_juice_puff_s": 0.6,
+	"flight_juice_marker_hz": 0.8, "flight_juice_marker_amp": 0.2, "flight_juice_rush_s": 0.9, "flight_juice_sting_db": -14.0}
+const FX_RINGS := 8              # pooled ring meshes
+const FX_FLARES := 3             # pooled flare spheres
+const COL_FLARE := Color(1.0, 0.85, 0.5, 1.0)
+const COL_BOOST := Color(0.8, 0.95, 1.0, 1.0)
+const COL_DOCK := Color(0.55, 0.9, 1.0, 1.0)
+const COL_PUFF := Color(1.0, 0.9, 0.7, 1.0)
+const DOCK_RING_FROM := 5.0      # docking ring starts at this many ship radii and closes to DOCK_RING_TO
+const DOCK_RING_TO := 1.15
+const CLAMP_FROM := 1.4          # the clamp pulse starts at this many ship radii and settles on DOCK_RING_TO
+const PUFF_FROM := 0.5           # departure puff ring, in ship radii
+const PUFF_TO := 2.6
+const BURST_SHIP_TO := 6.0       # boost burst ring end radius, in ship radii
+const SWING_MIN_TURN := 0.5      # a course change of this many radians (or more) gives the full nose swing
+const MARKER_ALPHA_LOW := 0.55   # target marker pulse: alpha floor (ceiling 1.0)
+
+class Fx:
+	var mi: MeshInstance3D
+	var mat: StandardMaterial3D
+	var sphere := false
+	var on := false
+	var t := 0.0            # seconds into the beat; negative = still waiting (delay)
+	var dur := 1.0
+	var r0 := 1.0           # radius (world units) at start and end
+	var r1 := 1.0
+	var a0 := 1.0           # alpha at start and end
+	var a1 := 0.0
+	var col := Color.WHITE
+	var pos := Vector3.ZERO
+	var follow := 0         # 0 fixed at pos, 1 follows the ship, 2 follows the engines
+	var then_clamp := false # on its end, the clamp pulse and tick play
+
 var flight = null
+var _fx: Array = []
+var _fx_conn = null            # the flight object whose delivered signal is connected
+var _ship_pos := Vector3.ZERO
+var _eng_pos := Vector3.ZERO
+var _prev_state := ""
+var _prev_tkey := ""
+var _prev_boost := false
+var _prev_sel := false
+var _seen := false
+var _sel_t := -1.0             # selection ring pop
+var _swing_t := -1.0           # nose swing
+var _swing_amp := 0.0
+var _boost_k := 0.0            # 0..1 boost look (trail stretch), eased on game time
+var _clock := 0.0              # game seconds, drives the target marker pulse
+var _marker_mat: StandardMaterial3D
+var _deliv_planet := ""
+var _rush_seen := -1
 var _model_path := ""
 var _holder: Node3D
 var _line: MeshInstance3D
@@ -240,6 +294,264 @@ func _end_burst() -> void:
 		_burst_ring.visible = false
 		_burst_mesh.clear_surfaces()
 
+# ---- T274 flight and dock juice ---------------------------------------------------------------------------------------
+
+## Pure curves (the headless tests call these). p is 0..1 of a beat.
+## Ring or flare state: x = radius, y = alpha. Ease out cubic on the radius, straight fade on alpha.
+static func fx_state(p: float, r0: float, r1: float, a0: float, a1: float) -> Vector2:
+	p = clampf(p, 0.0, 1.0)
+	var e := 1.0 - pow(1.0 - p, 3.0)
+	return Vector2(lerpf(r0, r1, e), lerpf(a0, a1, p))
+
+## Nose swing: a damped sway about the heading, zero at both ends, peak near amp.
+static func swing_value(p: float, amp: float) -> float:
+	p = clampf(p, 0.0, 1.0)
+	return amp * sin(p * TAU * 1.25) * (1.0 - p)
+
+## Selection ring pop: scale at p (starts at peak, settles to 1 with a back-out ease).
+static func pop_scale(p: float, peak: float) -> float:
+	p = clampf(p, 0.0, 1.0)
+	var c1 := 1.70158
+	var x := p - 1.0
+	var e := 1.0 + (c1 + 1.0) * x * x * x + c1 * x * x
+	return lerpf(peak, 1.0, e)
+
+func _main():
+	var f = flight
+	return f.main if f != null and is_instance_valid(f) and "main" in f else null
+
+## A juice tuning value: balance key flight_juice_*, else the mirror in FX_FALLBACK.
+func _k(key: String) -> float:
+	var m = _main()
+	if m != null and "balance" in m and m.balance.has(key):
+		return float(m.balance[key])
+	return float(FX_FALLBACK.get(key, 0.0))
+
+func _fx_ensure() -> void:
+	if not _fx.is_empty():
+		return
+	var tm := TorusMesh.new()
+	tm.inner_radius = 0.94
+	tm.outer_radius = 1.0
+	tm.rings = 32
+	tm.ring_segments = 6
+	var sm := SphereMesh.new()
+	sm.radius = 1.0
+	sm.height = 2.0
+	sm.radial_segments = 12
+	sm.rings = 6
+	for k in FX_RINGS + FX_FLARES:
+		var fx := Fx.new()
+		fx.sphere = k >= FX_RINGS
+		fx.mat = StandardMaterial3D.new()
+		fx.mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		fx.mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		fx.mat.no_depth_test = true
+		if fx.sphere:
+			fx.mat.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
+		fx.mi = MeshInstance3D.new()
+		fx.mi.mesh = sm if fx.sphere else tm
+		fx.mi.material_override = fx.mat
+		fx.mi.top_level = true
+		fx.mi.visible = false
+		fx.mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		add_child(fx.mi)
+		_fx.append(fx)
+
+## Starts a ring (or a flare when sphere) from the pool: a free slot, else the first of its kind is reused.
+func _fx_spawn(sphere: bool, r0: float, r1: float, a0: float, a1: float, dur: float, col: Color, follow: int, pos: Vector3 = Vector3.ZERO, delay: float = 0.0) -> Fx:
+	if Juice.motion <= 0.0 or dur <= 0.0:
+		return null
+	_fx_ensure()
+	var pick: Fx = null
+	for fx in _fx:
+		if fx.sphere != sphere:
+			continue
+		if pick == null:
+			pick = fx
+		if not fx.on:
+			pick = fx
+			break
+	pick.on = true
+	pick.t = -delay
+	pick.dur = dur * Juice.motion
+	pick.r0 = r0
+	pick.r1 = r1
+	pick.a0 = a0
+	pick.a1 = a1
+	pick.col = col
+	pick.follow = follow
+	pick.pos = pos
+	pick.then_clamp = false
+	pick.mi.visible = false
+	return pick
+
+func _fx_pos(fx: Fx) -> Vector3:
+	match fx.follow:
+		1:
+			return _ship_pos + Vector3(0, LIFT, 0)
+		2:
+			return _eng_pos + Vector3(0, LIFT, 0)
+	return fx.pos + Vector3(0, LIFT, 0)
+
+## Advances every running effect by game time; costs nothing while none runs.
+func _tick_fx(delta: float, paused: bool) -> void:
+	if Juice.motion <= 0.0:
+		_boost_k = 0.0
+		if _fx_busy():
+			_fx_stop()
+		return
+	if not paused:
+		_clock += delta
+		var want := 1.0 if bool(_call(flight, "boost_on", [], false)) else 0.0
+		if _boost_k != want:
+			_boost_k = move_toward(_boost_k, want, delta / maxf(0.05, _k("flight_juice_boost_ease_s") * Juice.motion))
+		if _sel_t >= 0.0:
+			_sel_t += delta
+			var sd := _k("flight_juice_ring_pop_s") * Juice.motion
+			if _sel_t >= sd:
+				_sel_t = -1.0
+				_sel.scale = Vector3.ONE
+			else:
+				_sel.scale = Vector3.ONE * pop_scale(_sel_t / sd, 1.0 + (_k("flight_juice_ring_pop_scale") - 1.0) * Juice.motion)
+		if _swing_t >= 0.0:
+			_swing_t += delta
+			var wd := _k("flight_juice_swing_s") * Juice.motion
+			if _swing_t >= wd:
+				_swing_t = -1.0
+				if _holder != null:
+					_holder.rotation.y = 0.0
+			elif _holder != null:
+				_holder.rotation.y = swing_value(_swing_t / wd, _swing_amp)
+	if _fx.is_empty():
+		return
+	for fx in _fx:
+		if not fx.on:
+			continue
+		if not paused:
+			fx.t += delta
+		if fx.t < 0.0:
+			continue
+		var p: float = fx.t / fx.dur
+		if p >= 1.0:
+			fx.on = false
+			fx.mi.visible = false
+			if fx.then_clamp:
+				_clamp()
+			continue
+		var st := fx_state(p, fx.r0, fx.r1, fx.a0, fx.a1)
+		var c: Color = fx.col
+		c.a = st.y
+		fx.mat.albedo_color = c
+		fx.mi.global_position = _fx_pos(fx)
+		fx.mi.scale = Vector3.ONE * st.x
+		fx.mi.visible = true
+
+func _fx_busy() -> bool:
+	for fx in _fx:
+		if fx.on:
+			return true
+	return _sel_t >= 0.0 or _swing_t >= 0.0
+
+## Motion switched off mid-effect: everything returns to rest.
+func _fx_stop() -> void:
+	for fx in _fx:
+		fx.on = false
+		fx.mi.visible = false
+	_sel_t = -1.0
+	_swing_t = -1.0
+	_sel.scale = Vector3.ONE
+	if _holder != null:
+		_holder.rotation.y = 0.0
+
+## The clamp: a short bright pulse settles on the ship and a tick sounds.
+func _clamp() -> void:
+	var r := FIT_RADIUS * DOCK_RING_TO
+	_fx_spawn(false, FIT_RADIUS * CLAMP_FROM, r, 1.0, 0.0, _k("flight_juice_clamp_s"), COL_DOCK.lightened(0.5), 1)
+	Juice.play_tone(self, "clamp", _k("flight_juice_sting_db"))
+
+## Reads the Flagship's state each frame (cheap compares) and starts the beats: order accepted, departure, boost, dock, rush delivered.
+func _fx_events(f, selected: bool) -> void:
+	var st := state(f)
+	var tg = _call(f, "target", [], {})
+	var tkey := ""
+	if typeof(tg) == TYPE_DICTIONARY and tg.has("pos"):
+		var tp: Vector3 = tg["pos"]
+		tkey = "%.2f,%.2f" % [tp.x, tp.z]
+	var boost := bool(_call(f, "boost_on", [], false))
+	var m = _main()
+	if m != null and _fx_conn != f and f.has_signal("delivered"):  # connect once per Flagship object
+		_fx_conn = f
+		f.delivered.connect(_on_delivered)
+	if not _seen:  # first look: take the state as it is, no beat
+		_seen = true
+		_prev_state = st
+		_prev_tkey = tkey
+		_prev_boost = boost
+		_prev_sel = selected
+		_rush_seen = int(m.gigs.rush_done) if m != null and "gigs" in m else 0
+		return
+	if Juice.motion > 0.0:
+		if selected and not _prev_sel:
+			_sel_t = 0.0
+		if st == "flying" and tkey != "" and tkey != _prev_tkey:  # an order was accepted
+			_sel_t = 0.0
+			_order_swing(f, tg)
+			_fx_spawn(true, FIT_RADIUS * 0.4, FIT_RADIUS * 0.4 + _k("flight_juice_flare_size"), 0.9, 0.0, _k("flight_juice_flare_s"), COL_FLARE, 2)
+		if st == "flying" and _prev_state != "flying":  # departure puff where the ship leaves
+			_fx_spawn(false, FIT_RADIUS * PUFF_FROM, FIT_RADIUS * PUFF_TO, 0.6, 0.0, _k("flight_juice_puff_s"), COL_PUFF, 0, _ship_pos)
+		if boost and not _prev_boost:  # boost: bright burst
+			_fx_spawn(false, FIT_RADIUS, FIT_RADIUS * BURST_SHIP_TO, 1.0, 0.0, _k("flight_juice_boost_burst_s"), COL_BOOST, 1)
+			_fx_spawn(true, FIT_RADIUS * 0.5, FIT_RADIUS * 0.5 + _k("flight_juice_flare_size") * 1.6, 1.0, 0.0, _k("flight_juice_boost_burst_s"), COL_BOOST, 2)
+		if _prev_state == "flying" and st != "flying" and str(_call(f, "docked_at", [], "")) != "":  # docking ring closes in, then clamps
+			var fx := _fx_spawn(false, FIT_RADIUS * DOCK_RING_FROM, FIT_RADIUS * DOCK_RING_TO, 0.0, 0.9, _k("flight_juice_dock_ring_s"), COL_DOCK, 1)
+			if fx != null:
+				fx.then_clamp = true
+	_prev_state = st
+	_prev_tkey = tkey
+	_prev_boost = boost
+	_prev_sel = selected
+	if _deliv_planet != "":  # a hand delivery was reported: did it finish a rush order?
+		var pid := _deliv_planet
+		_deliv_planet = ""
+		var done := int(m.gigs.rush_done) if m != null and "gigs" in m else _rush_seen
+		if done > _rush_seen:
+			_rush_beat(f, pid)
+		_rush_seen = done
+
+func _on_delivered(planet_id: String, _good: String, _units: int) -> void:
+	_deliv_planet = planet_id
+
+## Nose swing toward the new course: a small sway in the direction of the turn, then it settles on the heading.
+func _order_swing(f, tg) -> void:
+	var tp: Vector3 = tg["pos"]
+	var d := Vector2(tp.x - _ship_pos.x, tp.z - _ship_pos.z)
+	if d.length() < 0.05:
+		return
+	var turn := wrapf(atan2(-d.x, -d.y) - rotation.y, -PI, PI)
+	var k := clampf(absf(turn) / SWING_MIN_TURN, 0.3, 1.0)
+	_swing_amp = deg_to_rad(_k("flight_juice_swing_deg")) * Juice.motion * k * signf(turn if turn != 0.0 else 1.0)
+	_swing_t = 0.0
+
+## A rush order was delivered at planet pid: a gold-green double ring on the world, a pop of its label and a sting.
+func _rush_beat(f, pid: String) -> void:
+	var m = _main()
+	if m == null or Juice.motion <= 0.0:
+		return
+	var i: int = m.planet_index_of(pid)
+	var map = get_parent()
+	if i < 0 or map == null or not map.has_method("planet_radius"):
+		return
+	var r: float = map.planet_radius(i)
+	var pos: Vector3 = f._planet_pos(i)
+	var good := Ui.col("signal_good")
+	var secs := _k("flight_juice_rush_s")
+	_fx_spawn(false, r * 1.05, r * 2.6, 0.95, 0.0, secs, good, 0, pos)
+	_fx_spawn(false, r * 1.05, r * 2.0, 0.8, 0.0, secs * 0.8, good.lightened(0.5), 0, pos, secs * 0.2)
+	if "planet_label_2d" in map and i < map.planet_label_2d.size():
+		Juice.pop(map.planet_label_2d[i])
+	Juice.play_tone(self, "sting", _k("flight_juice_sting_db"))
+
 # ---- the 3D ship --------------------------------------------------------------------------------------------------
 
 func _ready() -> void:
@@ -260,7 +572,11 @@ func _ready() -> void:
 	ring.outer_radius = MARKER_RADIUS
 	_marker = MeshInstance3D.new()
 	_marker.mesh = ring
-	_marker.material_override = _mat
+	_marker_mat = StandardMaterial3D.new()  # T274: own material so the pulse can change alpha
+	_marker_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	_marker_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	_marker_mat.no_depth_test = true
+	_marker.material_override = _marker_mat
 	_marker.top_level = true
 	_marker.visible = false
 	add_child(_marker)
@@ -285,8 +601,11 @@ func _ready() -> void:
 ## Called by map.gd every frame. Does nothing visible while the accessor is missing or discovery is off.
 func update_from(f, view_system: int, selected: bool = false) -> void:
 	flight = f
-	_tick_burst(get_process_delta_time(), bool(_call(f, "is_paused", [], false)))
+	var is_paused := bool(_call(f, "is_paused", [], false))
+	_tick_burst(get_process_delta_time(), is_paused)
+	_tick_fx(get_process_delta_time(), is_paused)
 	if not active(f):
+		_seen = false
 		visible = false
 		_line.visible = false
 		_marker.visible = false
@@ -310,8 +629,14 @@ func update_from(f, view_system: int, selected: bool = false) -> void:
 	var has_heading: bool = f != null and is_instance_valid(f) and f.has_method("heading")
 	if has_heading:
 		rotation.y = float(f.heading())  # T196: the ship turns at a limited rate, the accessor owns the heading
-	var paused := bool(_call(f, "is_paused", [], false))
+	var paused := is_paused
 	_trail.visible = true
+	_ship_pos = pos
+	var back0 := Ships.engine_back_for_path(str(_call(f, "model_path", [], ""))) * FIT_RADIUS
+	_eng_pos = pos + Vector3(sin(rotation.y), 0.0, cos(rotation.y)) * back0
+	_trail.stretch = lerpf(1.0, _k("flight_juice_boost_stretch"), _boost_k)  # T274: stretched, brighter trail while boosting
+	_trail.glow = _boost_k
+	_fx_events(f, selected)
 	if not paused:  # T198: nothing is sampled or redrawn while paused; the trail freezes as it is
 		var moved: bool = _last_pos != Vector3.INF and _last_pos.distance_to(pos) > 0.0005
 		var back := Ships.engine_back_for_path(str(_call(f, "model_path", [], ""))) * FIT_RADIUS  # T205: trail starts at the engines
@@ -341,6 +666,13 @@ func update_from(f, view_system: int, selected: bool = false) -> void:
 			_mesh.surface_end()
 			_marker.global_position = tp + Vector3(0, LIFT, 0)
 			_marker.visible = true
+			if Juice.motion > 0.0 and state(f) == "flying":  # T274: slow pulse on the target while the ship flies (game clock)
+				var ph := 0.5 + 0.5 * sin(_clock * _k("flight_juice_marker_hz") * TAU)
+				_marker.scale = Vector3.ONE * (1.0 + _k("flight_juice_marker_amp") * Juice.motion * ph)
+				_marker_mat.albedo_color = Color(1, 1, 1, lerpf(MARKER_ALPHA_LOW, 1.0, ph))
+			else:
+				_marker.scale = Vector3.ONE
+				_marker_mat.albedo_color = Color.WHITE
 
 ## T273: a ring at each accepted gig target in this system. It pulses with the game clock, faster and amber once the offer is within
 ## balance gig_marker_amber_cycles of its deadline (rates: gig_marker_pulse_hz, gig_marker_pulse_fast_hz).

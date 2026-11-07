@@ -16,7 +16,12 @@ const CORE_ALPHA := 1.0     # T246: core strength (share of START_ALPHA)
 const CORE_WHITE := 0.65    # T246: how far the core colour is mixed toward white
 const SIDE_SMOOTH := 14.0   # T246: per-second rate at which the head's sideways direction follows the heading (kills jitter)
 
+const BOOST_WIDTH := 0.6    # T274: at glow 1 the ribbons are this much wider (share of their width)
+const BOOST_WHITE := 0.5    # T274: at glow 1 the colours are mixed this far toward white
+
 var tint := Color(1.0, 0.8, 0.45)
+var stretch := 1.0          # T274: trail length multiplier (life and sample count); the Flagship view raises it while boosting
+var glow := 0.0             # T274: 0..1 boost look, brighter and wider
 var _pts: Array = []        # [centre Vector3, age, side Vector3 (unit, across the heading)]
 var _side := Vector3.RIGHT  # smoothed side of the head
 var _mesh := ImmediateMesh.new()
@@ -34,6 +39,12 @@ func _init() -> void:
 	m.cull_mode = BaseMaterial3D.CULL_DISABLED
 	material_override = m
 
+func _life() -> float:
+	return LIFE_S * maxf(1.0, stretch)
+
+func _max_points() -> int:
+	return int(ceil(MAX_POINTS * maxf(1.0, stretch)))
+
 func point_count() -> int:
 	return _pts.size()
 
@@ -42,7 +53,7 @@ func push(pos: Vector3, dt: float, moving: bool) -> void:
 	if dt > 0.0:
 		for p in _pts:
 			p[1] += dt
-		while not _pts.is_empty() and float(_pts[0][1]) >= LIFE_S:
+		while not _pts.is_empty() and float(_pts[0][1]) >= _life():
 			_pts.pop_front()
 	if moving and not _pts.is_empty():
 		var d: Vector3 = pos - (_pts[_pts.size() - 1][0] as Vector3)
@@ -54,7 +65,7 @@ func push(pos: Vector3, dt: float, moving: bool) -> void:
 			_side = _side.lerp(target, clampf(SIDE_SMOOTH * maxf(dt, 0.0), 0.0, 1.0)).normalized()
 	if moving and (_pts.is_empty() or (_pts[_pts.size() - 1][0] as Vector3).distance_to(pos) >= MIN_STEP):
 		_pts.append([pos, 0.0, _side])
-		if _pts.size() > MAX_POINTS:
+		if _pts.size() > _max_points():
 			_pts.pop_front()
 	_redraw(pos if moving else Vector3.INF)
 
@@ -68,15 +79,18 @@ func _redraw(head: Vector3) -> void:
 		return
 	var pts: Array = []  # [centre, age 0..1 (share of life), side]
 	for p in _pts:
-		pts.append([p[0], clampf(float(p[1]) / LIFE_S, 0.0, 1.0), p[2]])
+		pts.append([p[0], clampf(float(p[1]) / _life(), 0.0, 1.0), p[2]])
 	if head != Vector3.INF:  # joins the newest sample to the engine so the trail has no gap
 		pts.append([head, 0.0, _side])
 	if pts.size() < 2:
 		return
-	var core_col := tint.lerp(Color.WHITE, CORE_WHITE)
+	var g := clampf(glow, 0.0, 1.0)
+	var wide := 1.0 + BOOST_WIDTH * g
+	var glow_col := tint.lerp(Color.WHITE, BOOST_WHITE * g)
+	var core_col := tint.lerp(Color.WHITE, minf(1.0, CORE_WHITE + BOOST_WHITE * g))
 	for e in [-1.0, 1.0]:
-		_ribbon(pts, e, GLOW_WIDTH, GLOW_ALPHA, tint)
-		_ribbon(pts, e, CORE_WIDTH, CORE_ALPHA, core_col)
+		_ribbon(pts, e, GLOW_WIDTH * wide, GLOW_ALPHA, glow_col)
+		_ribbon(pts, e, CORE_WIDTH * wide, CORE_ALPHA, core_col)
 
 func _ribbon(pts: Array, engine: float, width: float, strength: float, col: Color) -> void:
 	_mesh.surface_begin(Mesh.PRIMITIVE_TRIANGLE_STRIP)

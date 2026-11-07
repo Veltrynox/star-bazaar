@@ -6398,6 +6398,12 @@
    "place": "Dock sheet, small line: time stands still while it is open"
   },
   {
+   "id": "LBL_DOCK_CASH",
+   "text": "Credits",
+   "max": 24,
+   "place": "Dock sheet, label before the player's credits count"
+  },
+  {
    "id": "LBL_DOCK_STORAGE_ROW",
    "text": "Company storage: {n}",
    "max": 40,

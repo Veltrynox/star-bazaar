@@ -1318,6 +1318,7 @@ BTN_UNLOAD_STORAGE | 24 | Dock sheet, moves the row from the hold to Company sto
 BTN_LOAD_STORAGE | 24 | Dock sheet, moves goods from Company storage here into the hold | Load from storage
 BTN_DOCK_CLOSE | 24 | Dock sheet, closes it and lets the clock run | Undock
 LBL_DOCK_PAUSED | 60 | Dock sheet, small line: time stands still while it is open | Time is paused while you are docked.
+LBL_DOCK_CASH | 24 | Dock sheet, label before the player's credits count | Credits
 LBL_DOCK_STORAGE_ROW | 40 | Dock sheet, the Company storage line of a good; {n} units | Company storage: {n}
 NOT_DOCK_NO_CASH | 110 | Notice, Buy refused for lack of credits | Not enough credits to buy that.
 NOT_DOCK_HOLD_FULL | 110 | Notice, Buy refused or cut short because the hold is full | The hold is full. Sell or unload first.

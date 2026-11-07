@@ -16,7 +16,12 @@ var rows_box: VBoxContainer
 var hold_label: Label
 var fuel_label: Label
 var rush_label: Label
+var title_label: Label
+var cash_value: Label   # T274: the player's credits, counted up or down after a trade
 var _sig := ""
+const CRATE_TINT := Color(0.95, 0.75, 0.4, 0.95)  # T274: crate sprites of the trade stream
+# T274 tuning: balance flight_juice_crates / flight_juice_crate_s / flight_juice_cash_float_px (placeholders); these mirror them for a missing key.
+const JUICE_FALLBACK := {"flight_juice_crates": 5.0, "flight_juice_crate_s": 0.5, "flight_juice_cash_float_px": 28.0}
 
 func open(main_node: Control, planet_index: int) -> void:
 	main = main_node
@@ -38,8 +43,18 @@ func open(main_node: Control, planet_index: int) -> void:
 	title.theme_type_variation = "LabelHero"
 	title.text = StoryText.get_or("LBL_DOCK_TITLE", "Dock at {planet}", {"planet": main.planet_name(planet)})
 	box.add_child(title)
+	title_label = title
 	hold_label = Label.new()
 	box.add_child(hold_label)
+	var cash_row := HBoxContainer.new()
+	cash_row.add_theme_constant_override("separation", 8)
+	box.add_child(cash_row)
+	var cash_caption := Label.new()
+	cash_caption.theme_type_variation = "LabelSmall"
+	cash_caption.text = StoryText.get_or("LBL_DOCK_CASH", "Credits")
+	cash_row.add_child(cash_caption)
+	cash_value = Label.new()
+	cash_row.add_child(cash_value)
 	fuel_label = Label.new()
 	fuel_label.theme_type_variation = "LabelSmall"
 	box.add_child(fuel_label)
@@ -66,6 +81,7 @@ func open(main_node: Control, planet_index: int) -> void:
 	close.pressed.connect(close_sheet)
 	box.add_child(close)
 	rebuild()
+	Juice.enter(card, 0.96)  # T274: the sheet settles in (the scrim stays put)
 
 func _process(_dt: float) -> void:
 	if main == null:
@@ -106,6 +122,7 @@ func rebuild() -> void:
 	hold_label.text = "%s\n%s" % [StoryText.get_or("LBL_HOLD_FILL", "Hold: {n} of {m}", {"n": f.hold_total(), "m": f.hold_cap()}),
 		StoryText.get_or("LBL_DOCK_HOLD_FULL", "The hold is full. Buy is limited to the room left.") if f.hold_space() <= 0 else ""]
 	hold_label.text = hold_label.text.strip_edges()
+	Juice.count_to(cash_value, main.cash, "%d", Ui.col("signal_good"))  # T274: credits count to the new value
 	fuel_label.visible = Availability.good("energy")
 	fuel_label.text = "%s: %d" % [Ui.good_name("energy"), f.hold_units("energy")]
 	for ch in rows_box.get_children():
@@ -180,6 +197,8 @@ func _btn(parent: Control, id: String, fallback: String, cb: Callable, disabled:
 func _do(kind: String, g: String, units: int) -> void:
 	var f = main.flight
 	var before: int = f.hold_total()
+	var good_before: int = f.hold_units(g)
+	var cash_before: int = main.cash
 	var r := ""
 	match kind:
 		"buy":
@@ -196,6 +215,24 @@ func _do(kind: String, g: String, units: int) -> void:
 	if msg != "":
 		main.post_notice_now(msg)
 	rebuild()
+	if r == "":
+		_trade_juice(kind, g, absi(f.hold_units(g) - good_before), main.cash - cash_before)
+
+func _jk(key: String) -> float:
+	return float(main.balance.get(key, JUICE_FALLBACK.get(key, 0.0)))
+
+## T274: crates stream between the hold line and the world name (to the world for sell and unload, to the ship for buy and load),
+## and a signed credit change floats up beside the credits count. Real-time UI tweens (the sheet pauses the game); visual only.
+func _trade_juice(kind: String, g: String, moved: int, cash_delta: int) -> void:
+	var ship_at := hold_label.global_position - global_position + Vector2(8.0, hold_label.size.y * 0.5)
+	var world_at := title_label.global_position - global_position + Vector2(title_label.size.x * 0.5, title_label.size.y * 0.5)
+	if moved > 0:
+		var to_world := kind == "sell" or kind == "unload"
+		Juice.crates(self, ship_at if to_world else world_at, world_at if to_world else ship_at,
+			clampi(moved, 1, maxi(1, int(_jk("flight_juice_crates")))), _jk("flight_juice_crate_s"), Ui.commodity_col(g).lerp(CRATE_TINT, 0.4))
+	if cash_delta != 0:
+		var at := cash_value.global_position - global_position + Vector2(cash_value.size.x + 10.0, 0.0)
+		Juice.float_text(self, "%+d" % cash_delta, at, Ui.col("signal_good" if cash_delta > 0 else "signal_warn"), _jk("flight_juice_cash_float_px"))
 
 static func refusal_text(r: String) -> String:
 	match r:
