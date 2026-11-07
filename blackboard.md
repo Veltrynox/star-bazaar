@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-07 10:23 run: T271
-- Summary: Built game/gigs.gd and data/gigs.json with an offer board, signal and rush kinds, gig atoms, balance placeholders and save v15, plus a GDD section
-- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
-- Approach: built by a worker in worktree ../wt/T271 on branch task/T271, merged by the serial merge queue.
-- Agent prompts: /overnight-worker T271 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T271.log.
-- Worked: rebase, full test suite and fast-forward merge passed.
-- Failed / did not work: nothing.
-- Files and commits: see git log on branch new-features for commits starting with T271.
-- Left to do: nothing for this task.
-
 ## 2026-11-07 10:35 run: T272
 - Summary: Rush order generator posts seeded weighted rush offers from tier-up-ready and Restless worlds with ETA-based deadlines, rush_* placeholder balance keys, hook stubs for shortage and hub, save v16
 - Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
@@ -64,4 +54,14 @@
 - Worked: rebase, full test suite and fast-forward merge passed.
 - Failed / did not work: nothing.
 - Files and commits: see git log on branch new-features for commits starting with T280.
+- Left to do: nothing for this task.
+
+## 2026-11-07 10:47 run: T274
+- Summary: Flagship flight and dock juice built (order, boost, dock ring and clamp, departure puff, target pulse, rush-delivered burst and sting, dock sheet crate stream and credit count-up) with placeholder flight_juice_* balance keys
+- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
+- Approach: built by a worker in worktree ../wt/T274 on branch task/T274, merged by the serial merge queue.
+- Agent prompts: /overnight-worker T274 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T274.log.
+- Worked: rebase, full test suite and fast-forward merge passed.
+- Failed / did not work: nothing.
+- Files and commits: see git log on branch new-features for commits starting with T274.
 - Left to do: nothing for this task.
