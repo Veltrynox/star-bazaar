@@ -25,6 +25,8 @@ signal send_requested(commodity: String)  # "Send to..." on a storage row
 signal buy_send_requested(commodity: String)  # Buy toggle on a resource row: standing buy order only
 signal remove_requested(route_id: int)
 signal found_bazaar_requested(planet: int)  # T262: confirmed in the dialog; main founds the Bazaar
+signal make_hub_requested(planet: int)  # T291
+signal hub_panel_requested(planet: int)  # T291
 
 var COL_LIT: Color = Ui.col("star_warm")
 var COL_DIM: Color = Ui.col("panel_300")
@@ -203,6 +205,7 @@ func _growth_section() -> void:
 		rl.name = "RestlessLine"
 		rl.theme_type_variation = "LabelAccent"
 		wrap.add_child(rl)
+	_hub_controls(wrap)
 	if main.bazaar.can_found(planet_index):
 		var fb := Button.new()
 		fb.name = "FoundBazaarButton"
@@ -210,6 +213,33 @@ func _growth_section() -> void:
 		fb.pressed.connect(_ask_found_bazaar)
 		wrap.add_child(fb)
 	box.add_child(wrap)
+
+## T291: 'Make hub' on an eligible world, 'Open hub panel' on a hub, the reason when the world cannot be one yet.
+func _hub_controls(wrap: VBoxContainer) -> void:
+	var hs = main.hubs
+	if hs.is_hub(planet_index):
+		var ob := Button.new()
+		ob.name = "OpenHubButton"
+		ob.text = StoryText.get_or("ST_HUB_OPEN", "Hub panel")
+		ob.pressed.connect(func(): hub_panel_requested.emit(planet_index))
+		wrap.add_child(ob)
+		return
+	if main.prosperity.tier(planet_index) < int(main.balance.get("hub_tier", 3)):
+		return  # not a candidate yet: no clutter
+	var can: Dictionary = hs.can_designate(planet_index)
+	if bool(can["ok"]):
+		var mb := Button.new()
+		mb.name = "MakeHubButton"
+		mb.text = StoryText.get_or("ST_HUB_MAKE", "Make hub")
+		mb.tooltip_text = StoryText.get_or("ST_HUB_MAKE_TIP", "A hub keeps the needs of worlds in its reach fed, with ships from its own pool.")
+		var idx := planet_index
+		mb.pressed.connect(func(): make_hub_requested.emit(idx))
+		wrap.add_child(mb)
+	else:
+		var rl := _label(str(can["reason"]))
+		rl.name = "HubReason"
+		rl.theme_type_variation = "LabelMuted"
+		wrap.add_child(rl)
 
 func _need_row(n: Dictionary) -> Control:
 	var pr = main.prosperity
@@ -245,8 +275,16 @@ func _need_row(n: Dictionary) -> Control:
 		st.text = StoryText.get_or("PROS_NEED_SHORT", "Short")
 	st.theme_type_variation = "LabelSmall"
 	row.add_child(st)
-	var fed := HBoxContainer.new()  # empty 'fed by' column slot, filled by hubs later
+	var fed := HBoxContainer.new()  # T291: 'fed by' column: route / hub / short and why (Hubs.status)
 	fed.name = "FedBySlot"
+	if not locked:
+		var code: String = main.hubs.status_of(planet_index, g)
+		if code != "" and code != Hubs.STATUS_MET:
+			var fl := Label.new()
+			fl.name = "FedBy_" + code
+			fl.text = main.hubs.status_text(code)
+			fl.theme_type_variation = "LabelSmall"
+			fed.add_child(fl)
 	row.add_child(fed)
 	return row
 

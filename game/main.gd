@@ -121,6 +121,7 @@ var planet_panel: PanelContainer
 var cluster_info: PanelContainer  # T159: info card of the asteroid cluster clicked on the map
 var cluster_info_index: int = -1
 var goal_label: Label
+var hub_panel: PanelContainer  # T291 the hub panel (game/hub_panel.gd)
 var bazaar_panel: PanelContainer  # T263 the Bazaar panel (M, rail button)
 var next_up: HBoxContainer  # T263 the Next Up strip in the top bar
 var bazaar_button: Button
@@ -245,6 +246,8 @@ func _ready() -> void:
 	planet_panel.mine_requested.connect(begin_buy_and_send)
 	planet_panel.remove_requested.connect(_remove_requested)
 	planet_panel.found_bazaar_requested.connect(_on_found_bazaar)  # T262
+	planet_panel.make_hub_requested.connect(_on_make_hub)  # T291
+	planet_panel.hub_panel_requested.connect(open_hub_panel)  # T291
 	map.planet_clicked.connect(_on_planet_clicked)
 	map.route_clicked.connect(_on_route_clicked)
 	map.cluster_clicked.connect(_on_cluster_clicked)  # T159
@@ -329,6 +332,10 @@ func _ready() -> void:
 	bazaar_panel = load("res://game/bazaar_panel.gd").new()  # T263
 	add_child(bazaar_panel)
 	bazaar_panel.setup(self)
+	hub_panel = load("res://game/hub_panel.gd").new()  # T291
+	add_child(hub_panel)
+	hub_panel.setup(self)
+	hub_panel.changed.connect(_on_hubs_changed)
 	gig_panel = load("res://game/gig_board.gd").new()  # T273
 	add_child(gig_panel)
 	gig_panel.setup(self)
@@ -515,6 +522,7 @@ func apply_state(s: Dictionary) -> void:
 	if bazaar.wing_pending > 0 and bazaar_panel != null:
 		bazaar_panel.show_wing_choice.call_deferred()  # T299: a wing choice left open when the save was made
 	hubs.from_array(s.get("hubs"))  # T289; old saves: no hubs
+	sync_hub_rings()  # T291
 	flight.resync(game_time())
 	_sync_closed()
 	_refresh_event_feed()
@@ -2256,8 +2264,42 @@ func _on_found_bazaar(planet: int) -> void:
 		if planet_panel != null and planet_panel.visible:
 			planet_panel.rebuild()
 
+## T291: Make hub on a card: designate, redraw the ring and open the panel to set the pool.
+func _on_make_hub(planet: int) -> void:
+	var r: Dictionary = hubs.designate(planet)
+	if not bool(r["ok"]):
+		post_notice(str(r["reason"]))
+		return
+	post_notice(StoryText.get_or("ST_HUB_FIRST_NOTICE", "{planet} is now a hub.", {"planet": planet_name(planet)}))
+	_on_hubs_changed()
+	open_hub_panel(planet)
+
+func open_hub_panel(planet: int) -> void:
+	if preface != null or game_over or not hubs.is_hub(planet):
+		return
+	if galaxy_view != null and galaxy_view.visible:
+		galaxy_view.close_view()
+	if skill_screen.visible:
+		skill_screen.close_screen()
+	hub_panel.open_for(planet)
+
+## Hubs changed (made, released, pool, ticks): reach rings and the open card follow.
+func _on_hubs_changed() -> void:
+	sync_hub_rings()
+	if planet_panel != null and planet_panel.visible:
+		planet_panel.rebuild()
+
+func sync_hub_rings() -> void:
+	if map == null:
+		return
+	var list: Array = []
+	for h in hubs.hub_planets():
+		list.append({"planet": h, "radius": hubs.reach_of(h)})
+	map.set_hub_rings(list)
+
 func _on_prosperity_tier_up(planet: int, tier: int) -> void:
 	_beat_slow_left = float(balance.get("beat_slow_seconds", 0.4)) * Juice.motion  # T266: a short slow-motion beat, game clock only
+	sync_hub_rings()  # T291: reach grows with the hub's tier
 	if map != null:
 		map.beat_tier_up(planet, tier)
 	post_notice(StoryText.get_or("NOT_PROSPERITY_TIER_UP", "{planet} has grown to tier {tier}.", {"planet": planet_name(planet), "tier": tier}))
@@ -3179,6 +3221,8 @@ func _unhandled_input(event: InputEvent) -> void:
 			galaxy_view.close_view()
 		elif skill_screen.visible:
 			skill_screen.close_screen()
+		elif hub_panel.visible:
+			hub_panel.close_screen()
 		elif bazaar_panel.visible:
 			bazaar_panel.close_screen()
 		elif gig_panel.visible:
@@ -3448,6 +3492,8 @@ func _refresh() -> void:
 	goal_label.text = StoryText.get_or("LBL_GOAL_MARKETS", "Goal: more than {pct}% of one market", {"pct": roundi(float(balance.get("win_share_pct", 0.5)) * 100.0)})
 	if bazaar_panel != null:
 		bazaar_panel.refresh()
+	if hub_panel != null:
+		hub_panel.refresh()  # T291
 	if gig_button != null:
 		gig_button.visible = flight != null and flight.is_enabled()
 	if next_up != null:

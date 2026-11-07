@@ -1,0 +1,6 @@
+{
+  "task": "T291",
+  "agent": "ui-programmer (built by main session of the worktree)",
+  "files": ["game/hub_panel.gd", "game/planet_panel.gd", "game/map.gd", "game/main.gd"],
+  "summary": "Make hub / Hub panel buttons on the card growth block; hub panel (pool +/-, worlds and needs with ticks, status per need, release with confirm); reach ring on the map (Map.set_hub_rings); 'fed by' slot on need rows filled from Hubs.status. Text via StoryText.get_or fallbacks (ST_HUB_*), no new balance keys, no new save fields (hubs already saved), no new condition atoms."
+}

@@ -451,6 +451,7 @@ func set_view_system(id: int) -> void:
 	if traffic != null:
 		traffic.set_view_system(id)  # T277: ships are drawn only in the viewed system
 	focus_system(id)
+	_refresh_hub_ring_visibility()  # T291
 	_apply_view()
 
 func planet_in_view(i: int) -> bool:
@@ -611,6 +612,50 @@ func set_hint(index: int, on: bool) -> void:
 		_hint_i = index
 		hint.setup(planet_radius(index))
 	hint.position = positions[index]
+
+## T291: reach rings of hubs: [{planet: int, radius: float}] in map units; a thin flat ring around each hub world, only in
+## the viewed system. An empty list removes them all. Main calls this when a hub is made, released or changes tier.
+var hub_rings := {}  # planet index -> MeshInstance3D
+func set_hub_rings(list: Array) -> void:
+	var keep := {}
+	for e in list:
+		var i := int(e["planet"])
+		if i < 0 or i >= positions.size() or float(e["radius"]) <= 0.0:
+			continue
+		keep[i] = float(e["radius"])
+	for i in hub_rings.keys():
+		if not keep.has(i):
+			(hub_rings[i] as Node).queue_free()
+			hub_rings.erase(i)
+	for i in keep:
+		var r: float = keep[i]
+		var m: MeshInstance3D = hub_rings.get(i)
+		if m == null:
+			m = MeshInstance3D.new()
+			m.name = "HubReach_%d" % i
+			m.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+			add_child(m)
+			hub_rings[i] = m
+		var ring := TorusMesh.new()
+		var half := maxf(0.02, r * 0.004)
+		ring.inner_radius = r - half
+		ring.outer_radius = r + half
+		ring.rings = 96
+		ring.ring_segments = 4
+		var mat := StandardMaterial3D.new()
+		mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		var c := Ui.col("star_warm")
+		mat.albedo_color = Color(c, 0.45)
+		ring.material = mat
+		m.mesh = ring
+		m.position = positions[i]
+		m.visible = planet_in_view(i)
+
+## Hub rings follow the viewed system (called with the system change).
+func _refresh_hub_ring_visibility() -> void:
+	for i in hub_rings:
+		(hub_rings[i] as MeshInstance3D).visible = planet_in_view(int(i))
 
 ## Event icon click: halo on the planet the event names; -1 removes it.
 var event_hint: MeshInstance3D
