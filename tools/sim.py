@@ -249,7 +249,7 @@ for _e in EVS:
         _m = re.match(r"\[planet closed: (\w+)\]", _e["tag"])
         _t = _e["tag"]
         MEV.append(("closed", MN.index(_m.group(1)), None) if _m and _m.group(1) in MN[:3] else
-                   ("fee", -1, "debris_clear_fee") if "route efficiency" in _t else ("fee", -1, "shield_build_cost") if "shield" in _t else
+                   ("fee", -1, "debris_clear_fee") if "route efficiency" in _t else
                    ("fee", -1, "asteroid_deflect_cost") if "asteroid" in _t else ("noop", -1, None))
 MTREE = {"C1": [], "B1": []}  # unlock flags only, no skills
 MORDER = list(MTREE)
@@ -383,8 +383,8 @@ def mirror(strat="decent", rng=None, trace=False, permit=None, noevents=False, s
             for e in sched.get(c, []): ev.append((e, V["event_close_cycles"] if e[0] == "closed" else V["event_price_cycles"]))
         elif not noevents and rng and c > 1 and c % V["event_interval"] == 1 and rng.random() < 0.88:
             e = rng.choice(MEV)
-            if e[0] == "fee":   # bot answers with the first enabled choice = the paying one, when it can pay (EV18 only from cycle 10)
-                if V[e[2]] <= cash and not (e[2] == "shield_build_cost" and c < 10): cash -= V[e[2]]
+            if e[0] == "fee":   # bot answers with the first enabled choice = the paying one, when it can pay 
+                if V[e[2]] <= cash: cash -= V[e[2]]
             else: ev.append((e, V["event_close_cycles"] if e[0] == "closed" else V["event_price_cycles"]))
         # ---- bot decide
         if ships == 0: cash -= V["ship_price"]; ships += 1; buys.append((c, ships))

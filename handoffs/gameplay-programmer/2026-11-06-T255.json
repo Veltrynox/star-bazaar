@@ -1,0 +1,16 @@
+{
+  "task": "T255",
+  "agent": "gameplay-programmer (worker, main session)",
+  "removed_keys": {
+    "shield_build_cost": "no read in game/, data/, tools/tests; only tools/sim.py (dead EV18 branch, edited out)",
+    "shield_energy_share_shift": "grep game/ tools/ data/ qa/: no match outside balance.json",
+    "shield_food_share_shift": "same, no match",
+    "shield_energy_gain": "same, no match",
+    "shield_profit_gain": "same, no match",
+    "shield_unhappiness": "same, no match"
+  },
+  "skill_keys": "none removed: every skill_cost_<id> has a node in data/skills.json (test lint), every skill_<NODE>_* key names a current node and appears in game/ or data/; skill_points_share_20/35 are read dynamically in game/skills.gd",
+  "outside_touches": "tools/sim.py: removed the shield_build_cost read (EV18 fee branch) so the owner-run sim does not KeyError",
+  "left_alone": "EV18 text and shield_event() in tools/build_story.py still generate an unused EV18 entry in events.json (game has no code for it); not in touches",
+  "tests": "13 failures, all in goods/workshop/availability/cells (known base categories)"
+}
