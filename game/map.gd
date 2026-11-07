@@ -8,6 +8,7 @@ signal route_clicked(id: int)      # T07b: click on a route line (no planet unde
 
 const PlanetTypes := preload("res://game/planet_types.gd")
 const Systems := preload("res://game/systems.gd")
+const Ships := preload("res://game/ships.gd")  # T252: ship_scale
 const Motion := preload("res://game/ship_motion.gd")  # T202: SPAWN_GAP, BODY_MARGIN
 const StationScript := preload("res://game/station.gd")
 const RouteLineScript := preload("res://game/route_line.gd")  # T303: GAP and BOW of the lane arc
@@ -979,7 +980,7 @@ func _update_orbit_traffic(delta: float) -> void:
 		var r_in := r * float(bal.get("traffic_orbit_ring_in", 1.2))
 		var r_out := r * float(bal.get("traffic_orbit_ring_out", 1.5))
 		var tilt := deg_to_rad(float(bal.get("traffic_orbit_tilt_deg", 20.0))) * (1.0 if i % 2 == 0 else -1.0)
-		traffic.set_orbit_group(key, positions[i], r_in, r_out, n, "corvette", tilt, 1.0 if i % 2 == 0 else -1.0, Color.TRANSPARENT, float(bal.get("traffic_orbit_ship_scale", 0.5)))
+		traffic.set_orbit_group(key, positions[i], r_in, r_out, n, "corvette", tilt, 1.0 if i % 2 == 0 else -1.0, Color.TRANSPARENT, float(bal.get("traffic_orbit_ship_scale", 0.5)) * Ships.ship_scale())
 
 ## T303: ambient lanes. Every pair of planets in the viewed system carries a stream of small ships from the start of a run, no
 ## condition (a lane exists whether or not the player trades there). balance traffic_ambient_ships is shared over the pairs

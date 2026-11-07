@@ -7,6 +7,7 @@
     "travel_cycles_per_leg": 1,
     "starting_credits": 2100,
     "ship_price": 900,
+    "ship_scale": 0.8,
     "bundle_bonus_pct": 0.05,
     "bundle_bonus_cap": 150,
     "salvage_share": 0.4,

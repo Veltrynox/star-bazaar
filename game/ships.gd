@@ -22,6 +22,16 @@ const MODEL_YAW_DEG := {"small": -90.0, "bulk": -90.0, "dart": -90.0, "fleet": -
 const ENGINE_BACK := {"small": 0.9, "bulk": 0.9, "dart": 0.9, "fleet": 0.9}
 
 static var _defs: Dictionary = {}
+static var _scale: float = -1.0
+
+## T252: global ship size multiplier (data/balance.json ship_scale). Applies to every ship model on the map (player, rival,
+## traffic, later pirates, which multiply their own ratio on top), its selection ring, trail width and engine offset.
+static func ship_scale() -> float:
+	if _scale < 0.0:
+		var parsed = JSON.parse_string(FileAccess.get_file_as_string("res://data/balance.json")) if FileAccess.file_exists("res://data/balance.json") else null
+		_scale = maxf(0.05, float((parsed.get("values", {}) as Dictionary).get("ship_scale", 1.0))) if parsed is Dictionary else 1.0
+	return _scale
+
 
 ## Yaw offset (radians) of a ship type's model; 0 for an unknown id.
 static func model_yaw(kind: String) -> float:

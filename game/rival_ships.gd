@@ -31,7 +31,11 @@ const SPEED_DEFAULT := 0.6      # world units per second at x1
 const LIFT := 0.35
 const ShipTrail := preload("res://game/ship_trail.gd")  # T198
 const RIVAL_SHIP_SCALE := 0.5   # T198: ship size on the map; 1.0 is the old size (halved in T198). One constant for the rival ship kind.
-const FIT_RADIUS := 0.35 * RIVAL_SHIP_SCALE
+const FIT_RADIUS_BASE := 0.35 * RIVAL_SHIP_SCALE
+
+## T252: footprint radius times the global balance key ship_scale.
+static func fit_radius() -> float:
+	return FIT_RADIUS_BASE * Ships.ship_scale()
 const PICK_PX := 20.0           # T199: click radius around a ship's projected position
 const TINT_ALPHA := 0.3         # T199: strength of the competitor tint over the model (0 = none)
 const TINTS := {1: Color(1.0, 0.45, 0.35), 2: Color(0.75, 0.45, 1.0), 3: Color(0.4, 0.95, 0.55)}  # T199: Harrow red, Velvet violet, Ostrel green
@@ -180,7 +184,7 @@ func _make_ship(kind: String) -> Node3D:
 		cm.height = 0.35
 		cone.mesh = cm
 		cone.rotation_degrees = Vector3(-90, 0, 0)
-		holder.scale = Vector3.ONE * RIVAL_SHIP_SCALE  # T198
+		holder.scale = Vector3.ONE * RIVAL_SHIP_SCALE * Ships.ship_scale()  # T198, T252
 		holder.add_child(cone)
 	else:
 		var box := _aabb(model, Transform3D.IDENTITY)
@@ -189,7 +193,7 @@ func _make_ship(kind: String) -> Node3D:
 			for i in 8:
 				var c := box.get_endpoint(i) - box.get_center()
 				rxz = maxf(rxz, Vector2(c.x, c.z).length())
-			holder.scale = Vector3.ONE * (FIT_RADIUS / rxz)
+			holder.scale = Vector3.ONE * (fit_radius() / rxz)
 			model.position = -box.get_center()
 		var pivot := Node3D.new()  # T197: turns the model's own nose axis onto -Z
 		pivot.rotation.y = Ships.model_yaw(kind)
@@ -263,7 +267,7 @@ func advance(dt: float) -> void:
 		if tr != null:
 			tr.visible = node.visible
 			var yaw := float(s["yaw"])  # T205: trail starts at the engines, behind the centre
-			var eng: Vector3 = node.position + Vector3(sin(yaw), 0.0, cos(yaw)) * (Ships.engine_back(str(s.get("kind", ""))) * FIT_RADIUS)
+			var eng: Vector3 = node.position + Vector3(sin(yaw), 0.0, cos(yaw)) * (Ships.engine_back(str(s.get("kind", ""))) * fit_radius())
 			tr.push(eng, dt, float(s["speed"]) > 0.02 and node.visible)
 		_sync_escorts(s, bot_of(i), node.visible)
 

@@ -59,14 +59,22 @@ const Ships := preload("res://game/ships.gd")  # T197: per-model yaw offset
 const ShipTrail := preload("res://game/ship_trail.gd")  # T198
 const Juice := preload("res://game/juice.gd")  # T203: motion scale
 const PLAYER_SHIP_SCALE := 0.5  # T198: ship size on the map; 1.0 is the old size (T198 halved it). One constant for the player ship kind.
-const FIT_RADIUS := 0.45 * PLAYER_SHIP_SCALE  # horizontal footprint radius of the model in world units (planets are about 0.9 to 2.4 across)
-const FIT_HEIGHT := 0.3 * PLAYER_SHIP_SCALE
+const FIT_RADIUS_BASE := 0.45 * PLAYER_SHIP_SCALE  # horizontal footprint radius of the model in world units (planets are about 0.9 to 2.4 across)
+const FIT_HEIGHT_BASE := 0.3 * PLAYER_SHIP_SCALE
+
+## T252: the sizes below times the global balance key ship_scale (Ships.ship_scale()).
+static func fit_radius() -> float:
+	return FIT_RADIUS_BASE * Ships.ship_scale()
+static func fit_height() -> float:
+	return FIT_HEIGHT_BASE * Ships.ship_scale()
+static func sel_radius() -> float:
+	return SEL_RADIUS_BASE * Ships.ship_scale()
 const TRAIL_TINT := Color(1.0, 0.8, 0.4)  # T198: player trail, warm gold (rivals use a cool blue)
 const LIFT := 0.35             # ship hovers above the map plane so it clears planet spheres' lower rim
 const MARKER_RADIUS := 0.35
 const COL_LINE_MOVING := Color(1.0, 0.85, 0.5, 0.9)
 const COL_SELECTED := Color(0.55, 0.9, 1.0, 0.95)  # T200 selected look: cyan ring under the ship
-const SEL_RADIUS := 0.5 * PLAYER_SHIP_SCALE
+const SEL_RADIUS_BASE := 0.5 * PLAYER_SHIP_SCALE
 const COL_LINE_PAUSED := Color(1.0, 0.85, 0.5, 0.35)
 # T203: post / platform established. A ring closes on the planet (build-up), then bursts open with spokes of sparkle.
 # Runs on game time only: it does not advance while the game is paused (the ring and spokes freeze as they are).
@@ -466,8 +474,8 @@ func _fx_stop() -> void:
 
 ## The clamp: a short bright pulse settles on the ship and a tick sounds.
 func _clamp() -> void:
-	var r := FIT_RADIUS * DOCK_RING_TO
-	_fx_spawn(false, FIT_RADIUS * CLAMP_FROM, r, 1.0, 0.0, _k("flight_juice_clamp_s"), COL_DOCK.lightened(0.5), 1)
+	var r := fit_radius() * DOCK_RING_TO
+	_fx_spawn(false, fit_radius() * CLAMP_FROM, r, 1.0, 0.0, _k("flight_juice_clamp_s"), COL_DOCK.lightened(0.5), 1)
 	Juice.play_tone(self, "clamp", _k("flight_juice_sting_db"))
 
 ## Reads the Flagship's state each frame (cheap compares) and starts the beats: order accepted, departure, boost, dock, rush delivered.
@@ -497,14 +505,14 @@ func _fx_events(f, selected: bool) -> void:
 		if st == "flying" and tkey != "" and tkey != _prev_tkey:  # an order was accepted
 			_sel_t = 0.0
 			_order_swing(f, tg)
-			_fx_spawn(true, FIT_RADIUS * 0.4, FIT_RADIUS * 0.4 + _k("flight_juice_flare_size"), 0.9, 0.0, _k("flight_juice_flare_s"), COL_FLARE, 2)
+			_fx_spawn(true, fit_radius() * 0.4, fit_radius() * 0.4 + _k("flight_juice_flare_size"), 0.9, 0.0, _k("flight_juice_flare_s"), COL_FLARE, 2)
 		if st == "flying" and _prev_state != "flying":  # departure puff where the ship leaves
-			_fx_spawn(false, FIT_RADIUS * PUFF_FROM, FIT_RADIUS * PUFF_TO, 0.6, 0.0, _k("flight_juice_puff_s"), COL_PUFF, 0, _ship_pos)
+			_fx_spawn(false, fit_radius() * PUFF_FROM, fit_radius() * PUFF_TO, 0.6, 0.0, _k("flight_juice_puff_s"), COL_PUFF, 0, _ship_pos)
 		if boost and not _prev_boost:  # boost: bright burst
-			_fx_spawn(false, FIT_RADIUS, FIT_RADIUS * BURST_SHIP_TO, 1.0, 0.0, _k("flight_juice_boost_burst_s"), COL_BOOST, 1)
-			_fx_spawn(true, FIT_RADIUS * 0.5, FIT_RADIUS * 0.5 + _k("flight_juice_flare_size") * 1.6, 1.0, 0.0, _k("flight_juice_boost_burst_s"), COL_BOOST, 2)
+			_fx_spawn(false, fit_radius(), fit_radius() * BURST_SHIP_TO, 1.0, 0.0, _k("flight_juice_boost_burst_s"), COL_BOOST, 1)
+			_fx_spawn(true, fit_radius() * 0.5, fit_radius() * 0.5 + _k("flight_juice_flare_size") * 1.6, 1.0, 0.0, _k("flight_juice_boost_burst_s"), COL_BOOST, 2)
 		if _prev_state == "flying" and st != "flying" and str(_call(f, "docked_at", [], "")) != "":  # docking ring closes in, then clamps
-			var fx := _fx_spawn(false, FIT_RADIUS * DOCK_RING_FROM, FIT_RADIUS * DOCK_RING_TO, 0.0, 0.9, _k("flight_juice_dock_ring_s"), COL_DOCK, 1)
+			var fx := _fx_spawn(false, fit_radius() * DOCK_RING_FROM, fit_radius() * DOCK_RING_TO, 0.0, 0.9, _k("flight_juice_dock_ring_s"), COL_DOCK, 1)
 			if fx != null:
 				fx.then_clamp = true
 	_prev_state = st
@@ -581,8 +589,8 @@ func _ready() -> void:
 	_marker.visible = false
 	add_child(_marker)
 	var sring := TorusMesh.new()
-	sring.inner_radius = SEL_RADIUS * 0.9
-	sring.outer_radius = SEL_RADIUS
+	sring.inner_radius = sel_radius() * 0.9
+	sring.outer_radius = sel_radius()
 	_sel = MeshInstance3D.new()
 	_sel.mesh = sring
 	var smat := StandardMaterial3D.new()
@@ -632,14 +640,14 @@ func update_from(f, view_system: int, selected: bool = false) -> void:
 	var paused := is_paused
 	_trail.visible = true
 	_ship_pos = pos
-	var back0 := Ships.engine_back_for_path(str(_call(f, "model_path", [], ""))) * FIT_RADIUS
+	var back0 := Ships.engine_back_for_path(str(_call(f, "model_path", [], ""))) * fit_radius()
 	_eng_pos = pos + Vector3(sin(rotation.y), 0.0, cos(rotation.y)) * back0
 	_trail.stretch = lerpf(1.0, _k("flight_juice_boost_stretch"), _boost_k)  # T274: stretched, brighter trail while boosting
 	_trail.glow = _boost_k
 	_fx_events(f, selected)
 	if not paused:  # T198: nothing is sampled or redrawn while paused; the trail freezes as it is
 		var moved: bool = _last_pos != Vector3.INF and _last_pos.distance_to(pos) > 0.0005
-		var back := Ships.engine_back_for_path(str(_call(f, "model_path", [], ""))) * FIT_RADIUS  # T205: trail starts at the engines
+		var back := Ships.engine_back_for_path(str(_call(f, "model_path", [], ""))) * fit_radius()  # T205: trail starts at the engines
 		var eng := pos + Vector3(sin(rotation.y), 0.0, cos(rotation.y)) * back
 		_trail.push(eng + Vector3(0, LIFT, 0), get_process_delta_time(), moved and state(f) == "flying")
 	_last_pos = pos
@@ -738,7 +746,7 @@ func _ensure_model(path: String) -> void:
 		cm.height = 0.4
 		cone.mesh = cm
 		cone.rotation_degrees = Vector3(-90, 0, 0)
-		_holder.scale = Vector3.ONE * PLAYER_SHIP_SCALE  # T198
+		_holder.scale = Vector3.ONE * PLAYER_SHIP_SCALE * Ships.ship_scale()  # T198, T252
 		_holder.add_child(cone)
 	else:
 		var box := _bounds(model, Transform3D.IDENTITY)  # same measured-bounds fit as game/ship_setup.gd
@@ -748,7 +756,7 @@ func _ensure_model(path: String) -> void:
 				var c := box.get_endpoint(i) - box.get_center()
 				rxz = maxf(rxz, Vector2(c.x, c.z).length())
 			var ry := maxf(box.size.y * 0.5, 0.000001)
-			_holder.scale = Vector3.ONE * minf(FIT_RADIUS / rxz, FIT_HEIGHT / ry)
+			_holder.scale = Vector3.ONE * minf(fit_radius() / rxz, fit_height() / ry)
 			model.position = -box.get_center()
 		var pivot := Node3D.new()  # T197: turns the model's own nose axis onto -Z
 		pivot.rotation.y = Ships.model_yaw_for_path(path)

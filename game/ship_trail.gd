@@ -5,6 +5,7 @@ extends MeshInstance3D
 
 # --- look constants (tune here) ---
 const MAX_POINTS := 14      # longest trail in samples
+const Ships := preload("res://game/ships.gd")  # T252: ship_scale
 const MIN_STEP := 0.06      # world units the ship must move before a new sample is added
 const LIFE_S := 0.9         # seconds (game time) a sample lives before it has faded out
 const START_ALPHA := 0.7    # glow alpha at the engine end
@@ -89,8 +90,8 @@ func _redraw(head: Vector3) -> void:
 	var glow_col := tint.lerp(Color.WHITE, BOOST_WHITE * g)
 	var core_col := tint.lerp(Color.WHITE, minf(1.0, CORE_WHITE + BOOST_WHITE * g))
 	for e in [-1.0, 1.0]:
-		_ribbon(pts, e, GLOW_WIDTH * wide, GLOW_ALPHA, glow_col)
-		_ribbon(pts, e, CORE_WIDTH * wide, CORE_ALPHA, core_col)
+		_ribbon(pts, e, GLOW_WIDTH * Ships.ship_scale() * wide, GLOW_ALPHA, glow_col)
+		_ribbon(pts, e, CORE_WIDTH * Ships.ship_scale() * wide, CORE_ALPHA, core_col)
 
 func _ribbon(pts: Array, engine: float, width: float, strength: float, col: Color) -> void:
 	_mesh.surface_begin(Mesh.PRIMITIVE_TRIANGLE_STRIP)

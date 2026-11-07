@@ -12,6 +12,7 @@ extends Node3D
 ## Callers (later tasks): set_path_group / set_orbit_group / set_free_ship / clear_group; the map owns the layer and calls set_view_system.
 
 const Meshes := preload("res://game/traffic/traffic_meshes.gd")
+const Ships := preload("res://game/ships.gd")  # T252: ship_scale
 const ShipMotion := preload("res://game/ship_motion.gd")
 const SHIP_SHADER := preload("res://game/traffic/traffic_ship.gdshader")
 const STREAK_SHADER := preload("res://game/traffic/traffic_streak.gdshader")
@@ -201,7 +202,7 @@ func _cap() -> int:
 
 ## Pushes balance numbers into the materials when one of them changed (the debug menu edits balance live).
 func _apply_balance() -> void:
-	var now := [_b("traffic_ship_length") * _b("traffic_ship_scale"), _b("traffic_streak_len"), _b("traffic_light_glow"), _b("traffic_blink_hz"), _b("traffic_ambient_bright"), _b("traffic_ambient_streak")]
+	var now := [_b("traffic_ship_length") * _b("traffic_ship_scale") * Ships.ship_scale(), _b("traffic_streak_len"), _b("traffic_light_glow"), _b("traffic_blink_hz"), _b("traffic_ambient_bright"), _b("traffic_ambient_streak")]
 	if now == _applied:
 		return
 	_applied = now
