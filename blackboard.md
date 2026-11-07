@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-07 15:51 run: T290
-- Summary: Hubs now stop buying under the ship cash floor (`plan(cash, cash_floor)`, main passes `ship_cash_floor()`); per-need status, untick, release, hidden hub routes and save/load were already built in T289
-- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
-- Approach: built by a worker in worktree ../wt/T290 on branch task/T290, merged by the serial merge queue.
-- Agent prompts: /overnight-worker T290 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T290.log.
-- Worked: rebase, full test suite and fast-forward merge passed.
-- Failed / did not work: nothing.
-- Files and commits: see git log on branch new-features for commits starting with T290.
-- Left to do: nothing for this task.
-
 ## 2026-11-07 15:52 run: T292
 - Summary: Hub deliveries draw as shuttle path groups with a designate ripple, fan launch and return on release, driven by new placeholder balance keys
 - Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
@@ -65,3 +55,13 @@
 - Failed / did not work: fast-forward merge refused.
 - Files and commits: see git log on branch new-features for commits starting with T291.
 - Left to do: owner or a new run: see blocked_log in schedule.json.
+
+## 2026-11-07 15:58 run: T291
+- Summary: Hub UI built: Make hub and Hub panel buttons on the card, a hub panel (pool +/-, per-world and per-need ticks with status, release), a map reach ring, and the card's 'fed by' column filled
+- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
+- Approach: built by a worker in worktree ../wt/T291 on branch task/T291, merged by the serial merge queue.
+- Agent prompts: /overnight-worker T291 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T291.log.
+- Worked: rebase, full test suite and fast-forward merge passed.
+- Failed / did not work: nothing.
+- Files and commits: see git log on branch new-features for commits starting with T291.
+- Left to do: nothing for this task.

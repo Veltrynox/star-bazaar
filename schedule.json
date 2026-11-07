@@ -2763,7 +2763,7 @@
         "T289",
         "T262"
       ],
-      "status": "blocked",
+      "status": "done",
       "turn_cap": 50,
       "window": "Owner request 2026-11-06: empire growth v2, phase 4 (design/proposals/2026-11-06-empire-growth-v2.md). Priority over conflicting older tasks.",
       "brief": "Goal: the player sets up and reads a hub at a glance. Design: design/proposals/2026-11-06-empire-growth-v2.md section 3.3 (Feedback). Read: game/hubs.gd API, game/planet_panel.gd, game/map.gd. Build: 'Make hub' on an eligible world's card; a hub panel (served worlds, gaps with reasons, pool size with add/remove ship, untick per world/need, release); a reach ring on the map; the card's 'fed by' column filled (route / hub / short and why). Numbers: only data/balance.json keys with placeholder values, marked placeholder in the balance source note; economy-designer sets them later (owner starts it by hand); never put tuning numbers in code. Text: ids only (story source, python3 tools/build_story.py, English only; use StoryText.get_or fallbacks until the story task lands). Anything that lists or names a good follows Availability (game/availability.gd, data/availability.json); conditions only via game/conditions.gd (update its header for new atoms). Old saves must still load (bump the save version when fields are added). Done when built: no QA, bots, sim or screenshots. gdd.md is synced at commit by the main session. Handoff: handoffs/ui-programmer/<date>-T291.json.",
@@ -2775,7 +2775,7 @@
         "game/main.gd"
       ],
       "priority": 1,
-      "note": "Blocked by orchestrator: fast-forward merge refused",
+      "note": "Done by orchestrator: Hub UI built: Make hub and Hub panel buttons on the card, a hub panel (pool +/-, per-world and per-need ticks with status, release), a map reach ring, and the card's 'fed by' column filled",
       "blocked_log": "/Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T291-merge.log"
     },
     {
