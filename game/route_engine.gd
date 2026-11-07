@@ -34,6 +34,7 @@ var closed_planets: Array = []  # planet indexes closed (permits/events hook); r
 var debris_planets: Array = []  # T98: planets with debris; routes from them carry less (runtime, set by main)
 var dead_locked: Array = []  # planet indexes of dead worlds that are not open yet (before balance dead_unlock_cycle); runtime, set by main
 var pirates_active := false  # runtime: true while a pirate volume cut is on (no pirate system yet; the Null Core is immune to it)
+var raids: RefCounted = null  # T296: Raids (game/raids.gd), set by main; null = no raids. Lane malus and the trip share a raid takes.
 var upkeep_out: Callable = Callable()  # T227: (key, good, stock) -> units storage upkeep takes from this stock next cycle (set by main)
 var trade_gate: Callable = Callable()  # owner 2026-11-03: planet -> bool, false when its system has no Space Storage post (set by main)
 var suns_fn: Callable = Callable()  # route offset: () -> Array of [Vector3 position, float radius] per sun, set by main from the map
@@ -714,6 +715,8 @@ func _route_cap(rec: Dictionary) -> int:
 		eff = 1.0 - float(balance.get("debris_route_penalty", 0.0))
 	if pirates_active and not has_core(rec):  # pirates cut trade volume; the Null Core ship is immune
 		eff *= 1.0 - float(balance.get("pirate_volume_penalty", 0.0))
+	if raids != null:  # T296: a raid malus on this lane (the Null Core ship is immune)
+		eff *= raids.lane_mult(rec)
 	var units := floori(units_per_cycle(rec) * clampf(float(rec["fresh"]), 0.0, 1.0) * eff)
 	var lim := _split_limit(rec)  # N2: a split lane takes no more than its share of the stock
 	if lim >= 0:
@@ -1267,6 +1270,8 @@ func _settle_one(rec: Dictionary, cash: int) -> int:
 		sale = sold * sold_price(int(rec["stop"]), c)
 		carried = from_planet - sold
 		_note_sale(c, sold, int(rec["stop"]))
+	if raids != null:  # T296: a raid on this lane takes part of the trip (pods drop as a salvage gig)
+		carried -= raids.strike(rec, carried)
 	var stored: int = storage.add(dst, c, carried)
 	rec["moved"] = stored  # T289: read by hubs after the settle
 	_spend_split(rec, moved)  # N2

@@ -179,6 +179,7 @@ var workshops: RefCounted = WorkshopsScript.new()  # smelter, munitions, atelier
 var fabric: RefCounted = Fabric.new()  # the fabric at the trading post, saved under "fabric"
 var prosperity: Prosperity = Prosperity.new()  # T256 world tiers and needs, saved under "prosperity"
 var hubs: Hubs = Hubs.new()  # T289 hubs keep neighbours fed, saved under "hubs"
+var raids: Raids = Raids.new()  # T296 raids from unreclaimed dead worlds, saved under "raids"
 var gigs: Gigs = Gigs.new()  # T271 the gig board (signals, rush orders), saved under "gigs"
 var bazaar: Bazaar = Bazaar.new()  # T259 the Star Bazaar: capital, stages, saved under "bazaar"
 var dead: RefCounted = DeadWorlds.new()  # dead worlds: danger meter per planet id, saved under "danger"
@@ -291,6 +292,8 @@ func _ready() -> void:
 	hubs.owned_ships_fn = func() -> int: return ships
 	gigs.setup(self)  # T271
 	gigs.arrival.connect(_on_gig_arrival)
+	raids.setup(self)  # T296
+	engine.raids = raids
 	map.prosperity = prosperity  # T264 growth ring and need icons
 	if not prosperity.reclaimed.is_connected(_on_prosperity_reclaimed):
 		prosperity.reclaimed.connect(_on_prosperity_reclaimed)
@@ -405,7 +408,7 @@ func collect_state() -> Dictionary:
 		"chains": Chains.to_dict(), "storage_cuts": storage.cuts_to_dict(), "price_history": price_history,
 		"forecast_id": forecast_id, "forecast_slot": forecast_slot, "forecast_noted": forecast_noted, "station_systems": station_systems,
 		"second_lane": second_lane_planet, "clusters": clusters.to_dict(), "danger": dead.to_dict(), "dead_mining": dead.state_to_dict(), "fabric": fabric.to_dict(), "workshops": workshops.to_dict(),
-			"pathfinder": flight.to_dict(), "storage_links": storage_link.to_array(), "prosperity": prosperity.to_dict(), "bazaar": bazaar.to_dict(), "gigs": gigs.to_dict(), "hubs": hubs.to_array(), "free_play": free_play}
+			"pathfinder": flight.to_dict(), "storage_links": storage_link.to_array(), "prosperity": prosperity.to_dict(), "bazaar": bazaar.to_dict(), "gigs": gigs.to_dict(), "hubs": hubs.to_array(), "raids": raids.to_dict(), "free_play": free_play}
 
 func apply_state(s: Dictionary) -> void:
 	_loading_state = true
@@ -496,6 +499,7 @@ func apply_state(s: Dictionary) -> void:
 	fabric.from_dict(s.get("fabric"))  # old saves: not built
 	workshops.from_dict(s.get("workshops"))
 	flight.from_dict(s.get("pathfinder"))  # T179: a save without it (from before discovery) opens every planet
+	raids.from_dict(s.get("raids"))  # T296; old saves: nothing active
 	gigs.from_dict(s.get("gigs"))  # T271; old saves: empty board
 	hubs.from_array(s.get("hubs"))  # T289; old saves: no hubs
 	flight.resync(game_time())
@@ -2321,6 +2325,7 @@ func _end_cycle() -> void:
 	events.tick()  # T12: effects that ran this cycle age
 	cycle += 1
 	gigs.on_cycle(cycle)  # T271: perks age, a signal may open
+	raids.on_cycle(cycle)  # T296: malus ages, a raid may be chosen
 	_sync_earn()
 	Chains.tick(cycle)  # chain effects that ran through the last cycle expire
 	_sync_closed()

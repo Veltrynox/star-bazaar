@@ -73,6 +73,8 @@ func refresh() -> void:
 	_live()
 
 func kind_text(o: Dictionary) -> String:
+	if str(o["kind"]) == "salvage":
+		return StoryText.get_or("GIG_KIND_SALVAGE", "Salvage")
 	if str(o["kind"]) == "rush":
 		return StoryText.get_or("GIG_KIND_RUSH", "Rush order")
 	return StoryText.get_or("GIG_KIND_SIGNAL", "Signal")
@@ -84,6 +86,8 @@ func _def(o: Dictionary) -> Dictionary:
 	return {}
 
 func title_text(o: Dictionary) -> String:
+	if str(o["kind"]) == "salvage":
+		return StoryText.get_or("GIG_ROW_SALVAGE", "Cargo pods")
 	if str(o["kind"]) == "rush":
 		var good := str(o["req"]["good"])
 		var gname := Ui.good_name(good) if Availability.good(good) else StoryText.get_or("PROS_NEED_LOCKED", "? Not known yet")
@@ -96,6 +100,8 @@ func world_text(o: Dictionary) -> String:
 	return StoryText.get_or("GIG_WHERE_SPACE", "Open space")
 
 func reward_text(o: Dictionary) -> String:
+	if str(o["kind"]) == "salvage":
+		return StoryText.get_or("GIG_REWARD_SALVAGE", "Stolen cargo, loaded into the Flagship hold")
 	if str(o["kind"]) == "rush":
 		return StoryText.get_or("GIG_REWARD_RUSH", "Premium on the lot and the world's need met for a while")
 	return StoryText.get_or(str(_def(o).get("hook", "")), StoryText.get_or("GIG_REWARD_SIGNAL", "Unknown reward"))

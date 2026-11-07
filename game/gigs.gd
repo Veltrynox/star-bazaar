@@ -4,7 +4,8 @@ extends RefCounted
 ## Data: data/gigs.json (signals, rush rewards); numbers: data/balance.json gig_* keys (all PLACEHOLDERS). Never skill points, never share.
 ## Kinds (open field "kind"): "signal" (a marker in open space; fly there, a window opens with two neutral options; one-time, expires for
 ## free, an expired signal is gone for the run) and "rush" (a world wants units of a good by a deadline; hand sale or unload at that world
-## counts; posted by Gigs.post_rush; T272 generator _gen_rush: one a cycle by seeded weighted draw). "salvage" and "opening" come later.
+## counts; posted by Gigs.post_rush; T272 generator _gen_rush: one a cycle by seeded weighted draw) and "salvage" (T296: cargo pods a raid dropped, posted by
+## Gigs.post_salvage from game/raids.gd; fly there before they fade, the goods load into the Flagship hold; no window, no board-size limit). "opening" comes later.
 ## Board: up to gig_board_max open offers (any kind); one open signal at a time, gig_gap_cycles between signals, gig_cap_signals per run,
 ## none before gig_first_cycle. The draw is seeded (saved seed + cycle), so a save's list is stable. Deadlines are on the game clock.
 ## An offer: {uid, id, kind, target {kind "point"|"planet", sys, pos [x,y,z] | index}, due (game time), accepted, req {good, units, got}, rewards}.
@@ -123,6 +124,31 @@ func perk_active(id: String) -> bool:
 
 func has_knowledge(id: String) -> bool:
 	return knowledge.has(id)
+
+## T296: cargo pods at `pos` in system `sys`: `units` of `good`, fading after `life` cycles. Not limited by the board size (a raid made them).
+func post_salvage(uid: String, sys: int, pos: Vector3, good: String, units: int, count: int, life: float) -> void:
+	offers.append({"uid": uid, "id": uid, "kind": "salvage", "target": {"kind": "point", "sys": sys, "pos": [pos.x, 0.0, pos.z]},
+		"due": _now() + life, "accepted": false, "req": {}, "rewards": [], "pods": [{"good": good, "units": units}], "count": maxi(1, count)})
+	changed.emit()
+
+## The Flagship reached a salvage marker: the pods load into the hold; what does not fit stays (the offer ends when empty).
+func _scoop(o: Dictionary) -> void:
+	var left_pods: Array = []
+	var lines: Array = []
+	for p in o.get("pods", []):
+		var put: int = main.flight._put(str(p["good"]), int(p["units"]))
+		if put > 0 and Availability.good(str(p["good"])):
+			lines.append("%d %s" % [put, Ui.good_name(str(p["good"])).to_lower()])
+		if int(p["units"]) - put > 0:
+			left_pods.append({"good": str(p["good"]), "units": int(p["units"]) - put})
+	o["pods"] = left_pods
+	o["accepted"] = false
+	if left_pods.is_empty():
+		offers.erase(o)
+		main.post_notice(StoryText.get_or("NOT_SALVAGE_DONE", "Pods scooped into the Flagship hold: {lines}.", {"lines": ", ".join(lines)}))
+	else:
+		main.post_notice(StoryText.get_or("NOT_SALVAGE_FULL", "The Flagship hold is full. Some pods stay adrift.", {}))
+	changed.emit()
 
 # ---- spawn -----------------------------------------------------------------------------------------------------------
 
@@ -337,10 +363,14 @@ func tick(now: float) -> void:
 		arrival.emit(uid)
 
 func on_arrived_point(sys: int, pos: Vector3) -> void:
-	for o in offers:
-		if str(o["kind"]) == "signal" and int(o["target"]["sys"]) == sys and target_pos(o).distance_to(pos) <= _bal("gig_arrive_radius", 0.3):
-			pending = str(o["uid"])
-			return
+	for o in offers.duplicate():
+		if int(o["target"]["sys"]) == sys and target_pos(o).distance_to(pos) <= _bal("gig_arrive_radius", 0.3):
+			if str(o["kind"]) == "salvage":
+				_scoop(o)
+				return
+			if str(o["kind"]) == "signal":
+				pending = str(o["uid"])
+				return
 
 ## Units sold by hand or unloaded at a world: counts for a rush order there; complete = rewards.
 func on_delivered(planet_id: String, good: String, units: int) -> void:

@@ -1,0 +1,6 @@
+{
+  "task": "T296",
+  "agent": "main-session (gameplay-programmer scope, done inline)",
+  "changed": ["game/raids.gd", "game/route_engine.gd", "game/gigs.gd", "game/gig_board.gd", "game/main.gd", "game/save_game.gd", "data/balance.json", "gdd.md", "tools/tests/run_tests.gd"],
+  "notes": "Raids from unreclaimed dead worlds; chance by lanes in system and mining danger_mult; hit takes share of one trip, capped lane malus, salvage pods as gig kind 'salvage' (scooped into Flagship hold); warning notice with forecast skills (Raids.warning() getter for a chip); Null Core immune. Save v18. raid_* keys in balance.json are placeholders. Text via StoryText.get_or fallbacks (ids NOT_RAID_WARNING, NOT_RAID_HIT, NOT_SALVAGE_DONE, NOT_SALVAGE_FULL, GIG_KIND_SALVAGE, GIG_ROW_SALVAGE, GIG_REWARD_SALVAGE) until story task. Outside touches: gig_board.gd, tools/tests/run_tests.gd (version 18)."
+}
