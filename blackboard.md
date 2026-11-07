@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-07 06:34 run: T270
-- Summary: Added a paused dock sheet (game/dock_sheet.gd) opened from a new "Dock and trade" right-click item, a hold readout and boost button on the ship panel, and hold-B boost; one edit outside the touches list, a line in game/map.gd.
-- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
-- Approach: built by a worker in worktree ../wt/T270 on branch task/T270, merged by the serial merge queue.
-- Agent prompts: /overnight-worker T270 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T270.log.
-- Worked: rebase, full test suite and fast-forward merge passed.
-- Failed / did not work: nothing.
-- Files and commits: see git log on branch new-features for commits starting with T270.
-- Left to do: nothing for this task.
-
 ## 2026-11-07 06:35 run: T255
 - Summary: Removed the six dead shield_* keys from balance.json (no skill key was dead), added a source-note line, and dropped the dead shield branch in tools/sim.py
 - Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
@@ -64,4 +54,14 @@
 - Worked: rebase, full test suite and fast-forward merge passed.
 - Failed / did not work: nothing.
 - Files and commits: see git log on branch new-features for commits starting with T271.
+- Left to do: nothing for this task.
+
+## 2026-11-07 10:35 run: T272
+- Summary: Rush order generator posts seeded weighted rush offers from tier-up-ready and Restless worlds with ETA-based deadlines, rush_* placeholder balance keys, hook stubs for shortage and hub, save v16
+- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
+- Approach: built by a worker in worktree ../wt/T272 on branch task/T272, merged by the serial merge queue.
+- Agent prompts: /overnight-worker T272 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T272.log.
+- Worked: rebase, full test suite and fast-forward merge passed.
+- Failed / did not work: nothing.
+- Files and commits: see git log on branch new-features for commits starting with T272.
 - Left to do: nothing for this task.
