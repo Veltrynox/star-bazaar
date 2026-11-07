@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-06 19:04 run: T248
-- Summary: Route line shape (endpoints and arc) now eases with a damped follow via retarget(), with in-place rebuilds, instead of a harsh rebuild; draw-in, fade and pulse kept
-- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
-- Approach: built by a worker in worktree ../wt/T248 on branch task/T248, merged by the serial merge queue.
-- Agent prompts: /overnight-worker T248 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T248.log.
-- Worked: rebase, full test suite and fast-forward merge passed.
-- Failed / did not work: nothing.
-- Files and commits: see git log on branch new-features for commits starting with T248.
-- Left to do: nothing for this task.
-
 ## 2026-11-06 19:05 run: T249
 - Summary: Skill info panel moved from the bottom to a 320px right-hand column on the skill screen, tree uses freed height and remaining width
 - Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
@@ -64,4 +54,14 @@
 - Worked: rebase, full test suite and fast-forward merge passed.
 - Failed / did not work: nothing.
 - Files and commits: see git log on branch new-features for commits starting with T295.
+- Left to do: nothing for this task.
+
+## 2026-11-06 21:31 run: T269
+- Summary: Flagship hold, dock trade, storage load/unload and energy-burning boost with charges, saved in v14 with placeholder flagship_* balance keys
+- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
+- Approach: built by a worker in worktree ../wt/T269 on branch task/T269, merged by the serial merge queue.
+- Agent prompts: /overnight-worker T269 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T269.log.
+- Worked: rebase, full test suite and fast-forward merge passed.
+- Failed / did not work: nothing.
+- Files and commits: see git log on branch new-features for commits starting with T269.
 - Left to do: nothing for this task.
