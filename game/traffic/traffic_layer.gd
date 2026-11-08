@@ -24,6 +24,7 @@ const MODE_FREE := 2
 const MODE_AMBIENT := 3       # T303: path motion, own MultiMesh so its 1000 ships never use up the lane cap
 const BIG := 100000.0        # custom AABB half extent: the instance transforms carry data, not positions
 const MAX_SUBSTEPS := 8
+const LANE_SPREAD := 0.04    # T304: visual constant (not a balance key): per-ship sideways spread, fraction of lane length
 
 static var _globals_ready := false
 
@@ -261,6 +262,7 @@ func _slot_for(mode: int, mesh: String) -> String:
 		var m := ShaderMaterial.new()
 		m.shader = SHIP_SHADER if si == 0 else STREAK_SHADER
 		m.set_shader_parameter("mode", mode)
+		m.set_shader_parameter("lane_spread", LANE_SPREAD)
 		m.set_shader_parameter("palette", _palette_packed())
 		if si == 0:
 			m.set_shader_parameter("sun_dir", _sun_dir)

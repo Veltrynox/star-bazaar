@@ -1,0 +1,1 @@
+{"task":"T304","files":["game/traffic/traffic_layer.gd","game/traffic/traffic_motion.gdshaderinc"],"screenshot":"logs/screenshots/T304.png","note":"LANE_SPREAD=0.04 uniform lane_spread; per-ship offset from seed, perpendicular in XZ, sin fade to zero at both ends; written by main session"}

@@ -15,6 +15,7 @@ uniform float streak_len = 0.0;           // streak length in ship lengths
 uniform float glow = 0.0;                 // HDR multiplier of lights and engines (above 1.0 feeds the glow)
 uniform float blink_hz = 0.0;
 uniform float amb_gain = 1.0;             // T303: brightness multiplier of ambient (mode 3) ships
+uniform float lane_spread = 0.0;          // T304: sideways spread per ship, fraction of the lane length (+- this), modes 0 and 3
 uniform float amb_streak = 1.0;           // T303: streak length multiplier of ambient ships
 uniform vec4 col_warm : source_color = vec4(1.0, 0.72, 0.35, 1.0);   // laden, running lights
 uniform vec4 col_dim : source_color = vec4(0.45, 0.5, 0.6, 1.0);     // empty, going back
@@ -39,6 +40,11 @@ void traffic_place(mat4 M, vec4 cu, out vec3 pos, out vec3 fwd, out float sc, ou
 		laden = back ? 0.0 : 1.0;
 		float w = 1.0 - u;
 		pos = w * w * M[0].xyz + 2.0 * w * u * M[1].xyz + u * u * M[2].xyz;
+		// T304: fixed per-ship offset in the map plane, perpendicular to the lane, zero at both planets
+		vec3 lane = M[2].xyz - M[0].xyz;
+		vec3 side = normalize(vec3(-lane.z, 0.0, lane.x) + vec3(0.0, 0.0, 0.00001));
+		float ends = sin(3.14159265 * clamp((u - 0.04) / 0.92, 0.0, 1.0));
+		pos += side * ((cu.w * 2.0 - 1.0) * lane_spread * length(lane) * ends);
 		vec3 d = 2.0 * w * (M[1].xyz - M[0].xyz) + 2.0 * u * (M[2].xyz - M[1].xyz);
 		fwd = normalize(back ? -d : d);
 		sc *= M[3].x;
