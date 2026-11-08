@@ -3136,7 +3136,7 @@
       "depends_on": [
         "T309"
       ],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 35,
       "window": "Owner request 2026-11-07. The ships are too small to need geometry.",
       "brief": "Goal: small ships are simple flat triangles, each with its own colour and a faint noise texture, which is all that reads at that size. Read: game/traffic/traffic_meshes.gd (the low-poly corvette and pirate proxies), traffic_ship.gdshader, traffic_layer.gd (_slot_for, mesh keys, the palette uniform, _palette_packed) and the debug readout that counts meshes and draw calls. Build: replace the hull mesh of the traffic layer with one triangle (one nose vertex and two rear vertices, a flat shape in the map plane, double sided, facing along the direction of travel); keep the instanced MultiMesh, the streaks and the engine glow. Each ship has a different colour: a per-ship colour picked from a small palette (the existing palette uniform or a new one, a spread of hues that still sit well on the dark space background, picked from the ship seed so it is stable) multiplied by a noise texture sampled in the shader (a small tileable noise texture, generated in code once or a procedural noise function in the shader, no per-frame cost) so the triangle has some grain rather than a flat fill. Laden and empty lane states, the ambient dimming and the far-zoom fade keep working (state shown by brightness or a tint on top of the ship colour). Drop the now unused mesh variants and their draw calls: the debug menu readout must show the new, lower draw call and instance count correctly. The Flagship, convoy ships and orbit shuttles that use real ship models are not changed unless they go through the same hull mesh, in which case keep their model. No per-ship nodes or scripts. Old saves must still load. Done when built: no QA, bots or sim. Take the one Quick look screenshot (sh tools/screenshot.sh --out logs/screenshots/T310.png), fix only objective breakage, record the path in the handoff. gdd.md is synced at commit by the main session. Handoff: handoffs/fx-programmer/<date>-T310.json.",
@@ -3145,7 +3145,8 @@
         "game/traffic/*",
         "assets/*"
       ],
-      "priority": 1
+      "priority": 1,
+      "note": "Done by orchestrator: Small ships are now one flat double-sided triangle with a per-ship colour from an 8-hue palette and a procedural noise grain, in one MultiMesh per mode (at most 8 draw calls, down from 12)."
     },
     {
       "task_id": "T311",
