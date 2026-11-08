@@ -1181,22 +1181,6 @@
       "note": "Closed by owner decision 2026-11-05: 3 placeholder systems (T226)."
     },
     {
-      "task_id": "T193",
-      "title": "Close T05: measure galaxy frame_time_ms windowed",
-      "owner_agent": "galaxy-builder",
-      "brief": "Density grid and sun propagation already exist in game/galaxy/star_field.gd (handoff 2026-10-31-T05). Only frame_time_ms on a windowed macOS run is missing; owner measures or approves closing T05 as done. needs owner decision.",
-      "owner_note": "",
-      "depends_on": [],
-      "status": "queued",
-      "turn_cap": 30,
-      "window": "Gap analysis 2026-11-05 (overnight). Needs owner decision before start.",
-      "note": "",
-      "touches": [
-        "game/galaxy/star_field.gd"
-      ],
-      "needs_owner": "hold (empire growth v2): Owner's windowed measure; the traffic task adds a debug readout he can use too."
-    },
-    {
       "task_id": "T194",
       "title": "Remove Competitors from the main menu",
       "owner_agent": "ui-programmer",
