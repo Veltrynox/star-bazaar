@@ -3223,7 +3223,7 @@
       "title": "Tutorial text: rewrite the guided steps and add tips for the new mechanics",
       "owner_agent": "story-designer",
       "depends_on": [],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 35,
       "window": "Owner request 2026-11-07. Text half; T316 wires it into the game.",
       "brief": "Goal: the tutorial explains the game as it is now and guides the player through it. Read: story/voice.md, story/screens.md (Tutorial lines, Tutorial: first flight TUT_G0_*, TUT_GUIDE steps TUT_G1 to TUT_G10 with their _WHY lines, TUT_GALAXY_*, TUT_C1 to TUT_C4), story/game-flow.md, gdd.md sections 2-4, gdd-skills.md, and the const TUT_GUIDE and TUT_FALLBACK in game/main.gd. Many lines are out of date: TUT_C4_FREE, TUT_G10_DONE and its why line still say hold over half of one market, which no longer wins. Write: (1) a guided step list for a new run, in order, each a short action line (max 60) plus a why line (max 110) in the existing id pattern, from first flight to the first Prosperity tier, first skill, first permit, and a last step that states the real goal (the Star Bazaar); keep steps the player can do in the first cycles and each step ends on the player's own action. (2) One-time contextual tips (a card line plus a why line, shown the first time the thing matters, never twice, never blocking) for the later mechanics, each saying what it is, why it matters and what to do next: the goal (raise the Star Bazaar: found it on a capital-tier world, finish its stages, fly the charter cargo there for the Opening gig; market share no longer wins and there is no Competitors menu); Prosperity (each world's need list, filling needs with sales, tiers, tax, restless worlds); discovery (Pathfinder, trading post or mining platform, Exploration mode); the Flagship (dock and trade, boost, hold); gigs and rush orders and the gig board (J); house weather and convoys (floods, shortages, congestion; weather, not rivals); need pricing (hungry and surplus prices); mining (Prospecting, asteroid clusters that move round the sun, dead worlds, intensity, danger and raids, salvage, reclaiming a dead world); workshops and the Fabric; Space Storage and Storage Link; hubs; permits and new systems; skill points and the six Foundations then one market tree. Each tip names its trigger in plain words (for example: first world reaches tier 1, first gig appears, first house convoy appears, Prospecting learned, first dead world opened, capital tier reached, Bazaar founded) so T316 can wire it. (3) Fix every stale tutorial line and the goal wording in story/game-flow.md. No text names a hidden good before it is visible (Availability), a number, a skill-point price or the hidden GOOD or BAD lean. Plain voice, no flavour words. Write in story/*.md (English only, no Russian work), then run python3 tools/build_story.py; never edit data/story_text.json, data/story_text_ru.json or data/events.json by hand. In the handoff list the final step ids in order and every tip id with its trigger. Done when written. Handoff: handoffs/story-designer/<date>-T315.json.",
@@ -3233,7 +3233,8 @@
         "data/story_text.json",
         "data/events.json"
       ],
-      "priority": 2
+      "priority": 2,
+      "note": "Done by orchestrator: Tutorial guided steps rewritten (two new steps, Star Bazaar goal as the last step), 31 one-time tips with plain-word triggers added, stale goal lines fixed in story/*.md and story_text.json regenerated"
     },
     {
       "task_id": "T316",

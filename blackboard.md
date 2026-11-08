@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-07 22:33 run: T309
-- Summary: Path and ambient ships glide to and from a seeded point on the visible planet disc at both lane ends and shrink into the surface, with the middle of the lane unchanged
-- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
-- Approach: built by a worker in worktree ../wt/T309 on branch task/T309, merged by the serial merge queue.
-- Agent prompts: /overnight-worker T309 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T309.log.
-- Worked: rebase, full test suite and fast-forward merge passed.
-- Failed / did not work: nothing.
-- Files and commits: see git log on branch new-features for commits starting with T309.
-- Left to do: nothing for this task.
-
 ## 2026-11-07 22:34 run: T313
 - Summary: Rewrote SCR_PREFACE, STORY ARC lines and the game-flow goal sentence for the Star Bazaar goal (no new id, no UI change needed)
 - Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
@@ -64,4 +54,14 @@
 - Worked: rebase, full test suite and fast-forward merge passed.
 - Failed / did not work: nothing.
 - Files and commits: see git log on branch new-features for commits starting with T314.
+- Left to do: nothing for this task.
+
+## 2026-11-07 22:47 run: T315
+- Summary: Tutorial guided steps rewritten (two new steps, Star Bazaar goal as the last step), 31 one-time tips with plain-word triggers added, stale goal lines fixed in story/*.md and story_text.json regenerated
+- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
+- Approach: built by a worker in worktree ../wt/T315 on branch task/T315, merged by the serial merge queue.
+- Agent prompts: /overnight-worker T315 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T315.log.
+- Worked: rebase, full test suite and fast-forward merge passed.
+- Failed / did not work: nothing.
+- Files and commits: see git log on branch new-features for commits starting with T315.
 - Left to do: nothing for this task.
