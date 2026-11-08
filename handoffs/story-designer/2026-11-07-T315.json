@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-11-07",
+  "task": "T315",
+  "status": "done",
+  "files_changed": [
+    "story/screens.md",
+    "story/voice.md",
+    "story/game-flow.md",
+    "data/story_text.json"
+  ],
+  "open_questions": [
+    "The brief asked tips to say there is no Competitors menu. voice.md retires Competitors in player text, so TIP_GOAL says only that holding a market does not win. OK?",
+    "SK_FND_RIVAL_WATCH_PLAIN in story/skills.md still mentions the Competitors screen and share. Out of T315 scope; rewrite in a skills task?",
+    "TIP_HUB shares its trigger with TIP_CAPITAL (both tier 3 today). Fine to queue, or give hubs their own tier?"
+  ],
+  "handoff": "All texts built (build_story.py: 0 skipped). Guided order for TUT_GUIDE: [TUT_G0_* flight card replaces step 0 as today], TUT_G1_SELECT, TUT_G2_BUY, TUT_G3_SEND (TUT_G3_PICK sub-line), TUT_G4_ROUTE_PAY, TUT_G5_UPKEEP, TUT_G6_SELL, TUT_G7_STORAGE, TUT_G7_NEEDS (new), TUT_G7_GROW (new), TUT_G8_SKILLS, TUT_G9_PERMIT, TUT_G10_DONE (goal; ends when the Bazaar panel opens). Each has a _WHY id. No old id removed; ids stay stable, so TUT_OLD_MAP needs only the two new steps added. TUT_FALLBACK texts in main.gd are stale for G8 to G10. Tips: see details. Triggers are in story/screens.md (table and place fields). TUT_C4_FREE and MB_05 goal wording fixed; game-flow items 8 and 9 added.",
+  "details": {
+    "guided_steps_in_order": ["TUT_G0_FLY/BUILD/WAIT (conditional)", "TUT_G1_SELECT", "TUT_G2_BUY", "TUT_G3_SEND", "TUT_G3_PICK", "TUT_G4_ROUTE_PAY", "TUT_G5_UPKEEP", "TUT_G6_SELL", "TUT_G7_STORAGE", "TUT_G7_NEEDS", "TUT_G7_GROW", "TUT_G8_SKILLS", "TUT_G9_PERMIT", "TUT_G10_DONE"],
+    "step_triggers": {
+      "TUT_G7_NEEDS": "a world card with a Needs list has been opened",
+      "TUT_G7_GROW": "the first world reaches tier 1",
+      "TUT_G10_DONE": "the Star Bazaar panel is opened (or the existing 12 second timer)"
+    },
+    "tips_each_with_WHY_id_and_trigger": {
+      "TIP_GOAL": "guided tutorial ends or is skipped",
+      "TIP_TIER1": "first world reaches tier 1",
+      "TIP_TAX": "first cycle in which worlds pay tax",
+      "TIP_RESTLESS": "first world turns Restless",
+      "TIP_HUNGRY": "first Hungry chip appears on a need row",
+      "TIP_CAPITAL": "first world reaches the capital tier",
+      "TIP_HUB": "first world can be made a hub (after TIP_CAPITAL)",
+      "TIP_FOUNDED": "Bazaar is founded",
+      "TIP_OPENING": "last Bazaar stage done, Opening gig appears",
+      "TIP_PLATFORM": "Flagship first arrives at a dead world",
+      "TIP_EXPLORE": "Ships panel opened first while an unknown world is left in the system",
+      "TIP_DOCK": "dock sheet opens for the first time",
+      "TIP_BOOST": "Flagship first flies with energy in its hold",
+      "TIP_GIG": "first gig appears on the board",
+      "TIP_RUSH": "first rush order appears (after TIP_GIG if both due)",
+      "TIP_WEATHER": "first house convoy appears",
+      "TIP_WEATHER_KINDS": "first house weather lands on a world",
+      "TIP_PROSPECT": "Prospecting learned",
+      "TIP_DEAD": "first dead world open for mining",
+      "TIP_RECLAIM": "first dead world card opened (after TIP_DEAD)",
+      "TIP_RAID": "first raid warning appears",
+      "TIP_SALVAGE": "first salvage payout",
+      "TIP_WORKSHOP": "first workshop becomes available to build",
+      "TIP_FABRIC": "Fabric becomes available to build",
+      "TIP_NULLCORE": "Fabric is built",
+      "TIP_SPACE_STORAGE": "Space Storage learned",
+      "TIP_LINK": "Storage Link becomes available",
+      "TIP_PERMIT": "Permit Charter learned",
+      "TIP_NEWSYSTEM": "first new system opened by a permit",
+      "TIP_POINTS": "first skill point earned (skip while the skills step shows)",
+      "TIP_FOUNDATIONS": "third required Foundation learned"
+    },
+    "removed_ids": "none",
+    "stale_main_gd": "TUT_FALLBACK G8 to G10 text is stale; TUT_OLD_MAP must account for the two new steps."
+  }
+}

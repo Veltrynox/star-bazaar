@@ -351,7 +351,7 @@
   },
   {
    "id": "MB_05",
-   "text": "Build a second route, or learn a skill. Skills cost skill points. The goal: over half of one market.",
+   "text": "Build a second route, or learn a skill. Skills cost skill points. The goal: raise the Star Bazaar.",
    "max": 110,
    "place": "Mission board, later"
   },
@@ -411,7 +411,7 @@
   },
   {
    "id": "TUT_C4_FREE",
-   "text": "That is the basics. Now take over half of one market. Watch for house convoys.",
+   "text": "That is the basics. The goal is the Star Bazaar. Watch for house convoys.",
    "max": 110,
    "place": "Cycle 4, end of tutorial"
   },
@@ -933,13 +933,13 @@
   },
   {
    "id": "TUT_G3_PICK",
-   "text": "Click Ashgate to send Energy there.",
+   "text": "Click a world with a post to send Energy there.",
    "max": 60,
    "place": "Guided step 3, after Send to is chosen, until a destination is clicked"
   },
   {
    "id": "TUT_G3_SEND_WHY",
-   "text": "Pick a planet that wants the good. A route carries your goods there by ship.",
+   "text": "Pick a world that wants the good. A route carries your goods there by ship.",
    "max": 110,
    "place": "Guided step, why it matters (second line of the card)"
   },
@@ -969,7 +969,7 @@
   },
   {
    "id": "TUT_G6_SELL",
-   "text": "Select Ashgate, right-click Energy, choose Sell.",
+   "text": "Open your route's end world. Turn Sell on for Energy.",
    "max": 60,
    "place": "Guided step 6, until the first Sell order"
   },
@@ -992,14 +992,38 @@
    "place": "Guided step, why it matters (second line of the card)"
   },
   {
-   "id": "TUT_G8_SKILLS",
-   "text": "Open Skills and learn one.",
+   "id": "TUT_G7_NEEDS",
+   "text": "Open a world and read its Needs.",
    "max": 60,
-   "place": "Guided step 8, until a skill is learned"
+   "place": "Guided step 8 (T315), until a world card with a Needs list has been opened"
+  },
+  {
+   "id": "TUT_G7_NEEDS_WHY",
+   "text": "A world grows when your sales meet its needs. Grown worlds pay tax.",
+   "max": 110,
+   "place": "Guided step, why it matters (second line of the card)"
+  },
+  {
+   "id": "TUT_G7_GROW",
+   "text": "Sell a world the goods it needs, until it grows.",
+   "max": 60,
+   "place": "Guided step 9 (T315), until the first world reaches tier 1"
+  },
+  {
+   "id": "TUT_G7_GROW_WHY",
+   "text": "Turn Sell on there, or send goods in. Your first tier also earns a skill point.",
+   "max": 110,
+   "place": "Guided step, why it matters (second line of the card)"
+  },
+  {
+   "id": "TUT_G8_SKILLS",
+   "text": "Open Skills and learn a Foundation.",
+   "max": 60,
+   "place": "Guided step 10, until a skill is learned"
   },
   {
    "id": "TUT_G8_SKILLS_WHY",
-   "text": "Spend an expansion point. Skills unlock bigger storage, longer routes and the permit.",
+   "text": "Skill points come from firsts, like your first tier. Three Foundations come before any market skill.",
    "max": 110,
    "place": "Guided step, why it matters (second line of the card)"
   },
@@ -1007,23 +1031,23 @@
    "id": "TUT_G9_PERMIT",
    "text": "Learn Permit Charter.",
    "max": 60,
-   "place": "Guided step 9, permits"
+   "place": "Guided step 11, permits"
   },
   {
    "id": "TUT_G9_PERMIT_WHY",
-   "text": "It lets you open a new system, and a new system has more planets to trade with.",
+   "text": "It lets you buy a permit for a new system. A new system has more worlds to grow and trade with.",
    "max": 110,
    "place": "Guided step, why it matters (second line of the card)"
   },
   {
    "id": "TUT_G10_DONE",
-   "text": "Goal: hold over half of one market.",
+   "text": "Goal: raise the Star Bazaar. Open its panel.",
    "max": 60,
-   "place": "Guided step 10, the last"
+   "place": "Guided step 12, the last, until the Star Bazaar panel is opened"
   },
   {
    "id": "TUT_G10_DONE_WHY",
-   "text": "Open House weather to see convoys on their way. Chain choices can soften a house's weather.",
+   "text": "Grow a world to the capital tier, found the Bazaar there, finish its stages, then fly the cargo in.",
    "max": 110,
    "place": "Guided step, why it matters (second line of the card)"
   },
@@ -1038,6 +1062,378 @@
    "text": "{n} of {total}",
    "max": 24,
    "place": "Tutorial card, step counter; {n} is the step, {total} the number of steps"
+  },
+  {
+   "id": "TIP_GOAL",
+   "text": "You win by raising the Star Bazaar. Holding a market does not win.",
+   "max": 110,
+   "place": "Tip card line; trigger: the guided tutorial ends or is skipped"
+  },
+  {
+   "id": "TIP_GOAL_WHY",
+   "text": "Grow a world to the capital tier, found the Bazaar there, then finish its stages. Open the Bazaar panel.",
+   "max": 110,
+   "place": "Tip card, why line"
+  },
+  {
+   "id": "TIP_CAPITAL",
+   "text": "A world has reached the capital tier. You can found the Star Bazaar there. It is final.",
+   "max": 110,
+   "place": "Tip card line; trigger: the first world reaches the capital tier"
+  },
+  {
+   "id": "TIP_CAPITAL_WHY",
+   "text": "A run has one capital. Choose with care, then press Found the Bazaar here on the world's panel.",
+   "max": 110,
+   "place": "Tip card, why line"
+  },
+  {
+   "id": "TIP_FOUNDED",
+   "text": "The Bazaar is built in stages. Each needs goods in the capital's storage and other worlds at a tier.",
+   "max": 110,
+   "place": "Tip card line; trigger: the Bazaar is founded"
+  },
+  {
+   "id": "TIP_FOUNDED_WHY",
+   "text": "The Bazaar panel shows what is short. A later stage needs a world in another system.",
+   "max": 110,
+   "place": "Tip card, why line"
+  },
+  {
+   "id": "TIP_OPENING",
+   "text": "The last stage posts the Opening: a gig to fly the charter cargo to the capital.",
+   "max": 110,
+   "place": "Tip card line; trigger: the last Bazaar stage is done and the Opening gig appears"
+  },
+  {
+   "id": "TIP_OPENING_WHY",
+   "text": "Accept it on the gig board (J), then dock at the capital. That opens the Star Bazaar and wins the run.",
+   "max": 110,
+   "place": "Tip card, why line"
+  },
+  {
+   "id": "TIP_TIER1",
+   "text": "Your first world has grown a tier. Worlds grow when your sales meet their needs.",
+   "max": 110,
+   "place": "Tip card line; trigger: the first world reaches tier 1"
+  },
+  {
+   "id": "TIP_TIER1_WHY",
+   "text": "Each tier opens more and leads to a capital. Open a world card to see what it needs next.",
+   "max": 110,
+   "place": "Tip card, why line"
+  },
+  {
+   "id": "TIP_TAX",
+   "text": "Grown worlds pay tax at the end of each cycle. The credits are added to your cash.",
+   "max": 110,
+   "place": "Tip card line; trigger: the first cycle in which worlds pay tax"
+  },
+  {
+   "id": "TIP_TAX_WHY",
+   "text": "More tiers mean more tax. Keep worlds supplied so they keep growing.",
+   "max": 110,
+   "place": "Tip card, why line"
+  },
+  {
+   "id": "TIP_RESTLESS",
+   "text": "A Restless world is losing growth progress because one of its needs is short.",
+   "max": 110,
+   "place": "Tip card line; trigger: the first world turns Restless"
+  },
+  {
+   "id": "TIP_RESTLESS_WHY",
+   "text": "Sell it the short good, or send stock there. Meeting every need stops the loss.",
+   "max": 110,
+   "place": "Tip card, why line"
+  },
+  {
+   "id": "TIP_HUNGRY",
+   "text": "Hungry means a need is short and its price is up. Surplus means sales passed demand.",
+   "max": 110,
+   "place": "Tip card line; trigger: the first Hungry chip appears on a need row"
+  },
+  {
+   "id": "TIP_HUNGRY_WHY",
+   "text": "Send goods to a Hungry world first. It pays more and your sale fills the need.",
+   "max": 110,
+   "place": "Tip card, why line"
+  },
+  {
+   "id": "TIP_HUB",
+   "text": "A hub keeps the worlds near it fed, using ships from its own pool.",
+   "max": 110,
+   "place": "Tip card line; trigger: the first world can be made a hub (right after TIP_CAPITAL)"
+  },
+  {
+   "id": "TIP_HUB_WHY",
+   "text": "One hub per system. Press Make this a hub, then add ships. Each delivery adds a hub fee.",
+   "max": 110,
+   "place": "Tip card, why line"
+  },
+  {
+   "id": "TIP_PLATFORM",
+   "text": "A dead world takes a mining platform, not a trading post.",
+   "max": 110,
+   "place": "Tip card line; trigger: the Flagship first arrives at a dead world"
+  },
+  {
+   "id": "TIP_PLATFORM_WHY",
+   "text": "Once it stands you can mine there and route what it gives. Mining needs the right skill.",
+   "max": 110,
+   "place": "Tip card, why line"
+  },
+  {
+   "id": "TIP_EXPLORE",
+   "text": "Exploration mode flies the Flagship to each unknown world here and builds its post.",
+   "max": 110,
+   "place": "Tip card line; trigger: the Ships panel is opened first while an unknown world is left in the system"
+  },
+  {
+   "id": "TIP_EXPLORE_WHY",
+   "text": "Each post costs credits, so it waits at a world while cash is short. Press the button again to stop.",
+   "max": 110,
+   "place": "Tip card, why line"
+  },
+  {
+   "id": "TIP_DOCK",
+   "text": "Dock and trade lets the Flagship buy and sell by hand. Its hold has limited room.",
+   "max": 110,
+   "place": "Tip card line; trigger: the dock sheet opens for the first time"
+  },
+  {
+   "id": "TIP_DOCK_WHY",
+   "text": "Unload to storage moves goods into Company storage here. Time is paused while you are docked.",
+   "max": 110,
+   "place": "Tip card, why line"
+  },
+  {
+   "id": "TIP_BOOST",
+   "text": "Boost burns energy from the hold for a short burst of speed. Hold B to use it.",
+   "max": 110,
+   "place": "Tip card line; trigger: the Flagship first flies with energy in its hold"
+  },
+  {
+   "id": "TIP_BOOST_WHY",
+   "text": "Use it on straight legs to beat a deadline. Turning stays slow, and charges refill slowly.",
+   "max": 110,
+   "place": "Tip card, why line"
+  },
+  {
+   "id": "TIP_GIG",
+   "text": "The gig board (J) lists offers for the Flagship. Accept one to get a map marker.",
+   "max": 110,
+   "place": "Tip card line; trigger: the first gig appears on the board"
+  },
+  {
+   "id": "TIP_GIG_WHY",
+   "text": "Compare ETA with the deadline before you accept. You can take one gig at a time.",
+   "max": 110,
+   "place": "Tip card, why line"
+  },
+  {
+   "id": "TIP_RUSH",
+   "text": "A rush order: a world wants a good before a deadline. Deliver it by hand to be paid.",
+   "max": 110,
+   "place": "Tip card line; trigger: the first rush order appears"
+  },
+  {
+   "id": "TIP_RUSH_WHY",
+   "text": "Dock there and sell it, or unload it. You get a premium and the world's need is filled.",
+   "max": 110,
+   "place": "Tip card, why line"
+  },
+  {
+   "id": "TIP_WEATHER",
+   "text": "A tinted ship is a house convoy. It flies to a world before that house's weather lands.",
+   "max": 110,
+   "place": "Tip card line; trigger: the first house convoy appears"
+  },
+  {
+   "id": "TIP_WEATHER_WHY",
+   "text": "The houses send weather, not rivals. Click a convoy to see what is due and where.",
+   "max": 110,
+   "place": "Tip card, why line"
+  },
+  {
+   "id": "TIP_WEATHER_KINDS",
+   "text": "Flood: a sell price dips. Shortage: a world needs more and pays more. Congestion: trip cost rises.",
+   "max": 110,
+   "place": "Tip card line; trigger: the first house weather lands on a world"
+  },
+  {
+   "id": "TIP_WEATHER_KINDS_WHY",
+   "text": "Move goods to ride it out, or wait. Forecast skills give more cycles of warning.",
+   "max": 110,
+   "place": "Tip card, why line"
+  },
+  {
+   "id": "TIP_PROSPECT",
+   "text": "Prospecting lets a route start at an asteroid cluster. Clusters move round the sun.",
+   "max": 110,
+   "place": "Tip card line; trigger: Prospecting is learned"
+  },
+  {
+   "id": "TIP_PROSPECT_WHY",
+   "text": "Goods at a cluster are free, you pay only the lane. A cluster runs empty and never refills.",
+   "max": 110,
+   "place": "Tip card, why line"
+  },
+  {
+   "id": "TIP_DEAD",
+   "text": "A dead world has no market. You mine it for goods no living world makes.",
+   "max": 110,
+   "place": "Tip card line; trigger: the first dead world is open for mining"
+  },
+  {
+   "id": "TIP_DEAD_WHY",
+   "text": "Hard mining gives more and draws more raids. Set Mining intensity on its card.",
+   "max": 110,
+   "place": "Tip card, why line"
+  },
+  {
+   "id": "TIP_RECLAIM",
+   "text": "Start reclaiming turns a dead world into a living one. Mining there stops for good.",
+   "max": 110,
+   "place": "Tip card line; trigger: the first dead world card is opened"
+  },
+  {
+   "id": "TIP_RECLAIM_WHY",
+   "text": "Meet its needs to fill the bar. Raids from it stop, and it can grow like any world.",
+   "max": 110,
+   "place": "Tip card, why line"
+  },
+  {
+   "id": "TIP_RAID",
+   "text": "Raiders gather at a dead world you have not reclaimed. They may hit a lane in its system.",
+   "max": 110,
+   "place": "Tip card line; trigger: the first raid warning appears"
+  },
+  {
+   "id": "TIP_RAID_WHY",
+   "text": "A raid costs part of a trip. Cargo pods may drift near: fly the Flagship to pick them up.",
+   "max": 110,
+   "place": "Tip card, why line"
+  },
+  {
+   "id": "TIP_SALVAGE",
+   "text": "Salvage is a one-time payout for goods that could not be kept or sold on your lanes.",
+   "max": 110,
+   "place": "Tip card line; trigger: the first salvage payout"
+  },
+  {
+   "id": "TIP_SALVAGE_WHY",
+   "text": "It pays less than a Sell order. Add a Sell order, or make room, to keep more.",
+   "max": 110,
+   "place": "Tip card, why line"
+  },
+  {
+   "id": "TIP_WORKSHOP",
+   "text": "A workshop turns stock in Space Storage into new goods each cycle. Build it once.",
+   "max": 110,
+   "place": "Tip card line; trigger: the first workshop becomes available to build"
+  },
+  {
+   "id": "TIP_WORKSHOP_WHY",
+   "text": "With an input missing it stalls and says what it needs. Send the inputs to Space Storage.",
+   "max": 110,
+   "place": "Tip card, why line"
+  },
+  {
+   "id": "TIP_FABRIC",
+   "text": "The Fabric turns mined goods into a new good at the trading post.",
+   "max": 110,
+   "place": "Tip card line; trigger: the Fabric becomes available to build"
+  },
+  {
+   "id": "TIP_FABRIC_WHY",
+   "text": "It crafts from stock in Space Storage. Mine what it needs and send it there.",
+   "max": 110,
+   "place": "Tip card, why line"
+  },
+  {
+   "id": "TIP_NULLCORE",
+   "text": "The Fabric can build a Null Core. It is built once and fitted to one ship.",
+   "max": 110,
+   "place": "Tip card line; trigger: the Fabric is built"
+  },
+  {
+   "id": "TIP_NULLCORE_WHY",
+   "text": "That ship has a lower trip cost and is safe from raids. Fit it to the ship on your busiest lane.",
+   "max": 110,
+   "place": "Tip card, why line"
+  },
+  {
+   "id": "TIP_SPACE_STORAGE",
+   "text": "Space Storage is one big store for each system. Planet storage feeds it slowly.",
+   "max": 110,
+   "place": "Tip card line; trigger: Space Storage is learned"
+  },
+  {
+   "id": "TIP_SPACE_STORAGE_WHY",
+   "text": "Sell orders and routes draw on it when planet storage is empty. Click its station to see stock.",
+   "max": 110,
+   "place": "Tip card, why line"
+  },
+  {
+   "id": "TIP_LINK",
+   "text": "A Storage Link joins the Space Storages of two systems. It moves goods only, never credits.",
+   "max": 110,
+   "place": "Tip card line; trigger: the Storage Link becomes available"
+  },
+  {
+   "id": "TIP_LINK_WHY",
+   "text": "It costs goods to build and energy each cycle. With no energy it goes dormant, and may collapse.",
+   "max": 110,
+   "place": "Tip card, why line"
+  },
+  {
+   "id": "TIP_PERMIT",
+   "text": "Buy the permit in the galaxy view. Click a closed system to see its price.",
+   "max": 110,
+   "place": "Tip card line; trigger: Permit Charter is learned"
+  },
+  {
+   "id": "TIP_PERMIT_WHY",
+   "text": "The window also says why you cannot buy it yet. Then fly the Flagship in to open its worlds.",
+   "max": 110,
+   "place": "Tip card, why line"
+  },
+  {
+   "id": "TIP_NEWSYSTEM",
+   "text": "A new system starts unknown, like the first. Fly the Flagship in and build posts.",
+   "max": 110,
+   "place": "Tip card line; trigger: the first new system is opened by a permit"
+  },
+  {
+   "id": "TIP_NEWSYSTEM_WHY",
+   "text": "Each system has its own Space Storage. A later Bazaar stage needs a world in another system.",
+   "max": 110,
+   "place": "Tip card, why line"
+  },
+  {
+   "id": "TIP_POINTS",
+   "text": "Skill points come from firsts: a new world, route, system or tier. Spend them in Skills (K).",
+   "max": 110,
+   "place": "Tip card line; trigger: the first skill point is earned"
+  },
+  {
+   "id": "TIP_POINTS_WHY",
+   "text": "Six Foundations come before your market tree. Three of them must be learned first.",
+   "max": 110,
+   "place": "Tip card, why line"
+  },
+  {
+   "id": "TIP_FOUNDATIONS",
+   "text": "The three required Foundations are done. Your market tree is open now.",
+   "max": 110,
+   "place": "Tip card line; trigger: the third required Foundation is learned"
+  },
+  {
+   "id": "TIP_FOUNDATIONS_WHY",
+   "text": "Points are limited, so choose the skills your lanes use. Learn the ones you will use.",
+   "max": 110,
+   "place": "Tip card, why line"
   },
   {
    "id": "MAP_ARROW_PERMIT",

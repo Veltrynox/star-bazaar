@@ -74,7 +74,7 @@ The player is "you" or "the company". Never a gender, never a name.
 - Permits: allow entry to a new system. Permit Charter unlocks them; system 2 is open in the Alpha.
 - Cycles: the game's time unit.
 - Ships: Skerrit (the only ship type). Working name.
-- Credits: the currency. The goal is market share (LBL_GOAL_MARKETS); there is no cash goal.
+- Credits: the currency. The goal is the Star Bazaar (BAZ_NAME); market share no longer wins and there is no cash goal. Tutorial tips (TIP_*, T315) are two lines each: a card line and a why line, max 110 each.
 - New goods (T154, working names, owner decides): Starsilk (id silk, luxury), Logic Cores (id chips, tech), Rock Ore (id ore, mined). UI shows the names; running text uses lower case: silk, logic cores, ore. Asteroid cluster: a pack of rock on the map that gives ore free until it is empty. Prospecting (B1): the skill that lets routes start at a cluster. Added 2026-11-02.
 - System 1: Voltara (abundant energy, scarce food), Tillam and Ashgate (abundant food, scarce energy).
 - Hollin Reach: system 1 (owner approved, T92).

@@ -100,7 +100,7 @@ Move stock with a route: right-click a resource, choose Send to, then pick the d
 MB_04 | 110 | Mission board, route done
 First route running. A ship carries stock between the two Company storages.
 MB_05 | 110 | Mission board, later
-Build a second route, or learn a skill. Skills cost skill points. The goal: over half of one market.
+Build a second route, or learn a skill. Skills cost skill points. The goal: raise the Star Bazaar.
 
 ## Tutorial lines (first 4 cycles)
 TUT_C1_PLANET | 110 | Cycle 1, planet highlighted
@@ -122,7 +122,7 @@ Routes are one way. To send stock both ways, make a second route back.
 TUT_C4_SKILLS | 110 | Cycle 4, if a skill point is held
 You have skill points. Open Skills and learn something.
 TUT_C4_FREE | 110 | Cycle 4, end of tutorial
-That is the basics. Now take over half of one market. Watch for house convoys.
+That is the basics. The goal is the Star Bazaar. Watch for house convoys.
 
 ## Key notices
 NOT_ROUTE_BLOCKED_CLOSED | 110 | Notice, route touches a closed planet
@@ -245,24 +245,144 @@ TUT_G1_SELECT_WHY | 110 | Guided step, why it matters (second line of the card) 
 TUT_G2_BUY | 60 | Guided step 2, until Buy is on for a good | Press Buy on Energy.
 TUT_G2_BUY_WHY | 110 | Guided step, why it matters (second line of the card) | A Buy order fills your storage on this planet each cycle.
 TUT_G3_SEND | 60 | Guided step 3, until a route exists | Right-click Energy, choose Send to.
-TUT_G3_PICK | 60 | Guided step 3, after Send to is chosen, until a destination is clicked | Click Ashgate to send Energy there.
-TUT_G3_SEND_WHY | 110 | Guided step, why it matters (second line of the card) | Pick a planet that wants the good. A route carries your goods there by ship.
+TUT_G3_PICK | 60 | Guided step 3, after Send to is chosen, until a destination is clicked | Click a world with a post to send Energy there.
+TUT_G3_SEND_WHY | 110 | Guided step, why it matters (second line of the card) | Pick a world that wants the good. A route carries your goods there by ship.
 TUT_G4_ROUTE_PAY | 60 | Guided step 4, until a route has sold goods | Press the lit time button, top right, to run the cycle.
 TUT_G4_ROUTE_PAY_WHY | 110 | Guided step, why it matters (second line of the card) | The route earns when it sells there. That is where your money comes from.
 TUT_G5_UPKEEP | 60 | Guided step 5, after a ship is working | Find Ship upkeep under Expenses.
 TUT_G5_UPKEEP_WHY | 110 | Guided step, why it matters (second line of the card) | A ship costs money every cycle, so a route must earn more than it costs.
-TUT_G6_SELL | 60 | Guided step 6, until the first Sell order | Select Ashgate, right-click Energy, choose Sell.
+TUT_G6_SELL | 60 | Guided step 6, until the first Sell order | Open your route's end world. Turn Sell on for Energy.
 TUT_G6_SELL_WHY | 110 | Guided step, why it matters (second line of the card) | A Sell order turns your stock into credits.
 TUT_G7_STORAGE | 60 | Guided step 7, storage | Watch stored/capacity on the resource button.
 TUT_G7_STORAGE_WHY | 110 | Guided step, why it matters (second line of the card) | Company storage holds your goods on a planet. When it is full, Buy waits.
-TUT_G8_SKILLS | 60 | Guided step 8, until a skill is learned | Open Skills and learn one.
-TUT_G8_SKILLS_WHY | 110 | Guided step, why it matters (second line of the card) | Spend an expansion point. Skills unlock bigger storage, longer routes and the permit.
-TUT_G9_PERMIT | 60 | Guided step 9, permits | Learn Permit Charter.
-TUT_G9_PERMIT_WHY | 110 | Guided step, why it matters (second line of the card) | It lets you open a new system, and a new system has more planets to trade with.
-TUT_G10_DONE | 60 | Guided step 10, the last | Goal: hold over half of one market.
-TUT_G10_DONE_WHY | 110 | Guided step, why it matters (second line of the card) | Open House weather to see convoys on their way. Chain choices can soften a house's weather.
+TUT_G7_NEEDS | 60 | Guided step 8 (T315), until a world card with a Needs list has been opened | Open a world and read its Needs.
+TUT_G7_NEEDS_WHY | 110 | Guided step, why it matters (second line of the card) | A world grows when your sales meet its needs. Grown worlds pay tax.
+TUT_G7_GROW | 60 | Guided step 9 (T315), until the first world reaches tier 1 | Sell a world the goods it needs, until it grows.
+TUT_G7_GROW_WHY | 110 | Guided step, why it matters (second line of the card) | Turn Sell on there, or send goods in. Your first tier also earns a skill point.
+TUT_G8_SKILLS | 60 | Guided step 10, until a skill is learned | Open Skills and learn a Foundation.
+TUT_G8_SKILLS_WHY | 110 | Guided step, why it matters (second line of the card) | Skill points come from firsts, like your first tier. Three Foundations come before any market skill.
+TUT_G9_PERMIT | 60 | Guided step 11, permits | Learn Permit Charter.
+TUT_G9_PERMIT_WHY | 110 | Guided step, why it matters (second line of the card) | It lets you buy a permit for a new system. A new system has more worlds to grow and trade with.
+TUT_G10_DONE | 60 | Guided step 12, the last, until the Star Bazaar panel is opened | Goal: raise the Star Bazaar. Open its panel.
+TUT_G10_DONE_WHY | 110 | Guided step, why it matters (second line of the card) | Grow a world to the capital tier, found the Bazaar there, finish its stages, then fly the cargo in.
 TUT_HEADER | 24 | Header of the guided tutorial card | Tutorial
 TUT_STEP_COUNT | 24 | Tutorial card, step counter; {n} is the step, {total} the number of steps | {n} of {total}
+
+## Contextual tips (T315, 2026-11-07; one-time cards for later mechanics)
+Rules for T316 (notes, not blocks): each tip is two ids, TIP_<NAME> (what it is, card line) and TIP_<NAME>_WHY (why it matters and what to do next, second line). Show each tip once per run, the first time its trigger is true, never blocking and never over a guided step card: queue it until the card is gone. If two tips fire at once, show them in the order listed below. No placeholders. No text names a hidden good, a number or a price. The trigger of every tip is also in the place field of its first block.
+
+Trigger table (tip id: trigger in plain words):
+- TIP_GOAL: the guided tutorial ends or is skipped.
+- TIP_TIER1: the first world reaches tier 1.
+- TIP_TAX: the first cycle in which worlds pay tax.
+- TIP_RESTLESS: the first world turns Restless.
+- TIP_HUNGRY: the first Hungry chip appears on a need row.
+- TIP_CAPITAL: the first world reaches the capital tier.
+- TIP_HUB: the first world can be made a hub (same moment as TIP_CAPITAL today; show TIP_CAPITAL first).
+- TIP_FOUNDED: the Bazaar is founded.
+- TIP_OPENING: the last Bazaar stage is done and the Opening gig appears.
+- TIP_PLATFORM: the Flagship first arrives at a dead world.
+- TIP_EXPLORE: the Ships panel is opened for the first time while an unknown world is left in the system.
+- TIP_DOCK: the dock sheet opens for the first time.
+- TIP_BOOST: the Flagship first flies with energy in its hold.
+- TIP_GIG: the first gig appears on the board.
+- TIP_RUSH: the first rush order appears.
+- TIP_WEATHER: the first house convoy appears.
+- TIP_WEATHER_KINDS: the first house weather lands on a world.
+- TIP_PROSPECT: Prospecting is learned.
+- TIP_DEAD: the first dead world is open for mining (its skill is learned and dead worlds have opened).
+- TIP_RECLAIM: the first dead world card is opened (show TIP_DEAD first if both are due).
+- TIP_RAID: the first raid warning appears.
+- TIP_SALVAGE: the first salvage payout.
+- TIP_WORKSHOP: the first workshop becomes available to build.
+- TIP_FABRIC: the Fabric becomes available to build.
+- TIP_NULLCORE: the Fabric is built.
+- TIP_SPACE_STORAGE: Space Storage is learned.
+- TIP_LINK: the Storage Link becomes available.
+- TIP_PERMIT: Permit Charter is learned.
+- TIP_NEWSYSTEM: the first new system is opened by a permit.
+- TIP_POINTS: the first skill point is earned (skip if the guided step for skills is showing).
+- TIP_FOUNDATIONS: the third required Foundation is learned.
+
+### Goal and Bazaar
+TIP_GOAL | 110 | Tip card line; trigger: the guided tutorial ends or is skipped | You win by raising the Star Bazaar. Holding a market does not win.
+TIP_GOAL_WHY | 110 | Tip card, why line | Grow a world to the capital tier, found the Bazaar there, then finish its stages. Open the Bazaar panel.
+TIP_CAPITAL | 110 | Tip card line; trigger: the first world reaches the capital tier | A world has reached the capital tier. You can found the Star Bazaar there. It is final.
+TIP_CAPITAL_WHY | 110 | Tip card, why line | A run has one capital. Choose with care, then press Found the Bazaar here on the world's panel.
+TIP_FOUNDED | 110 | Tip card line; trigger: the Bazaar is founded | The Bazaar is built in stages. Each needs goods in the capital's storage and other worlds at a tier.
+TIP_FOUNDED_WHY | 110 | Tip card, why line | The Bazaar panel shows what is short. A later stage needs a world in another system.
+TIP_OPENING | 110 | Tip card line; trigger: the last Bazaar stage is done and the Opening gig appears | The last stage posts the Opening: a gig to fly the charter cargo to the capital.
+TIP_OPENING_WHY | 110 | Tip card, why line | Accept it on the gig board (J), then dock at the capital. That opens the Star Bazaar and wins the run.
+
+### Prosperity
+TIP_TIER1 | 110 | Tip card line; trigger: the first world reaches tier 1 | Your first world has grown a tier. Worlds grow when your sales meet their needs.
+TIP_TIER1_WHY | 110 | Tip card, why line | Each tier opens more and leads to a capital. Open a world card to see what it needs next.
+TIP_TAX | 110 | Tip card line; trigger: the first cycle in which worlds pay tax | Grown worlds pay tax at the end of each cycle. The credits are added to your cash.
+TIP_TAX_WHY | 110 | Tip card, why line | More tiers mean more tax. Keep worlds supplied so they keep growing.
+TIP_RESTLESS | 110 | Tip card line; trigger: the first world turns Restless | A Restless world is losing growth progress because one of its needs is short.
+TIP_RESTLESS_WHY | 110 | Tip card, why line | Sell it the short good, or send stock there. Meeting every need stops the loss.
+TIP_HUNGRY | 110 | Tip card line; trigger: the first Hungry chip appears on a need row | Hungry means a need is short and its price is up. Surplus means sales passed demand.
+TIP_HUNGRY_WHY | 110 | Tip card, why line | Send goods to a Hungry world first. It pays more and your sale fills the need.
+TIP_HUB | 110 | Tip card line; trigger: the first world can be made a hub (right after TIP_CAPITAL) | A hub keeps the worlds near it fed, using ships from its own pool.
+TIP_HUB_WHY | 110 | Tip card, why line | One hub per system. Press Make this a hub, then add ships. Each delivery adds a hub fee.
+
+### Discovery and the Flagship
+TIP_PLATFORM | 110 | Tip card line; trigger: the Flagship first arrives at a dead world | A dead world takes a mining platform, not a trading post.
+TIP_PLATFORM_WHY | 110 | Tip card, why line | Once it stands you can mine there and route what it gives. Mining needs the right skill.
+TIP_EXPLORE | 110 | Tip card line; trigger: the Ships panel is opened first while an unknown world is left in the system | Exploration mode flies the Flagship to each unknown world here and builds its post.
+TIP_EXPLORE_WHY | 110 | Tip card, why line | Each post costs credits, so it waits at a world while cash is short. Press the button again to stop.
+TIP_DOCK | 110 | Tip card line; trigger: the dock sheet opens for the first time | Dock and trade lets the Flagship buy and sell by hand. Its hold has limited room.
+TIP_DOCK_WHY | 110 | Tip card, why line | Unload to storage moves goods into Company storage here. Time is paused while you are docked.
+TIP_BOOST | 110 | Tip card line; trigger: the Flagship first flies with energy in its hold | Boost burns energy from the hold for a short burst of speed. Hold B to use it.
+TIP_BOOST_WHY | 110 | Tip card, why line | Use it on straight legs to beat a deadline. Turning stays slow, and charges refill slowly.
+
+### Gigs
+TIP_GIG | 110 | Tip card line; trigger: the first gig appears on the board | The gig board (J) lists offers for the Flagship. Accept one to get a map marker.
+TIP_GIG_WHY | 110 | Tip card, why line | Compare ETA with the deadline before you accept. You can take one gig at a time.
+TIP_RUSH | 110 | Tip card line; trigger: the first rush order appears | A rush order: a world wants a good before a deadline. Deliver it by hand to be paid.
+TIP_RUSH_WHY | 110 | Tip card, why line | Dock there and sell it, or unload it. You get a premium and the world's need is filled.
+
+### House weather
+TIP_WEATHER | 110 | Tip card line; trigger: the first house convoy appears | A tinted ship is a house convoy. It flies to a world before that house's weather lands.
+TIP_WEATHER_WHY | 110 | Tip card, why line | The houses send weather, not rivals. Click a convoy to see what is due and where.
+TIP_WEATHER_KINDS | 110 | Tip card line; trigger: the first house weather lands on a world | Flood: a sell price dips. Shortage: a world needs more and pays more. Congestion: trip cost rises.
+TIP_WEATHER_KINDS_WHY | 110 | Tip card, why line | Move goods to ride it out, or wait. Forecast skills give more cycles of warning.
+
+### Mining
+TIP_PROSPECT | 110 | Tip card line; trigger: Prospecting is learned | Prospecting lets a route start at an asteroid cluster. Clusters move round the sun.
+TIP_PROSPECT_WHY | 110 | Tip card, why line | Goods at a cluster are free, you pay only the lane. A cluster runs empty and never refills.
+TIP_DEAD | 110 | Tip card line; trigger: the first dead world is open for mining | A dead world has no market. You mine it for goods no living world makes.
+TIP_DEAD_WHY | 110 | Tip card, why line | Hard mining gives more and draws more raids. Set Mining intensity on its card.
+TIP_RECLAIM | 110 | Tip card line; trigger: the first dead world card is opened | Start reclaiming turns a dead world into a living one. Mining there stops for good.
+TIP_RECLAIM_WHY | 110 | Tip card, why line | Meet its needs to fill the bar. Raids from it stop, and it can grow like any world.
+TIP_RAID | 110 | Tip card line; trigger: the first raid warning appears | Raiders gather at a dead world you have not reclaimed. They may hit a lane in its system.
+TIP_RAID_WHY | 110 | Tip card, why line | A raid costs part of a trip. Cargo pods may drift near: fly the Flagship to pick them up.
+TIP_SALVAGE | 110 | Tip card line; trigger: the first salvage payout | Salvage is a one-time payout for goods that could not be kept or sold on your lanes.
+TIP_SALVAGE_WHY | 110 | Tip card, why line | It pays less than a Sell order. Add a Sell order, or make room, to keep more.
+
+### Workshops
+TIP_WORKSHOP | 110 | Tip card line; trigger: the first workshop becomes available to build | A workshop turns stock in Space Storage into new goods each cycle. Build it once.
+TIP_WORKSHOP_WHY | 110 | Tip card, why line | With an input missing it stalls and says what it needs. Send the inputs to Space Storage.
+TIP_FABRIC | 110 | Tip card line; trigger: the Fabric becomes available to build | The Fabric turns mined goods into a new good at the trading post.
+TIP_FABRIC_WHY | 110 | Tip card, why line | It crafts from stock in Space Storage. Mine what it needs and send it there.
+TIP_NULLCORE | 110 | Tip card line; trigger: the Fabric is built | The Fabric can build a Null Core. It is built once and fitted to one ship.
+TIP_NULLCORE_WHY | 110 | Tip card, why line | That ship has a lower trip cost and is safe from raids. Fit it to the ship on your busiest lane.
+
+### Storage and systems
+TIP_SPACE_STORAGE | 110 | Tip card line; trigger: Space Storage is learned | Space Storage is one big store for each system. Planet storage feeds it slowly.
+TIP_SPACE_STORAGE_WHY | 110 | Tip card, why line | Sell orders and routes draw on it when planet storage is empty. Click its station to see stock.
+TIP_LINK | 110 | Tip card line; trigger: the Storage Link becomes available | A Storage Link joins the Space Storages of two systems. It moves goods only, never credits.
+TIP_LINK_WHY | 110 | Tip card, why line | It costs goods to build and energy each cycle. With no energy it goes dormant, and may collapse.
+TIP_PERMIT | 110 | Tip card line; trigger: Permit Charter is learned | Buy the permit in the galaxy view. Click a closed system to see its price.
+TIP_PERMIT_WHY | 110 | Tip card, why line | The window also says why you cannot buy it yet. Then fly the Flagship in to open its worlds.
+TIP_NEWSYSTEM | 110 | Tip card line; trigger: the first new system is opened by a permit | A new system starts unknown, like the first. Fly the Flagship in and build posts.
+TIP_NEWSYSTEM_WHY | 110 | Tip card, why line | Each system has its own Space Storage. A later Bazaar stage needs a world in another system.
+
+### Skills
+TIP_POINTS | 110 | Tip card line; trigger: the first skill point is earned | Skill points come from firsts: a new world, route, system or tier. Spend them in Skills (K).
+TIP_POINTS_WHY | 110 | Tip card, why line | Six Foundations come before your market tree. Three of them must be learned first.
+TIP_FOUNDATIONS | 110 | Tip card line; trigger: the third required Foundation is learned | The three required Foundations are done. Your market tree is open now.
+TIP_FOUNDATIONS_WHY | 110 | Tip card, why line | Points are limited, so choose the skills your lanes use. Learn the ones you will use.
 
 ## Map edge arrow (T128, owner item 7)
 MAP_ARROW_PERMIT | 50 | Tooltip of the arrow at the edge of the 3D map when a permit or system can be opened; click opens Skills with the steps lit | A new system is within reach. Open Skills.
