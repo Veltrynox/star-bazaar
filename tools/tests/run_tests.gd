@@ -6754,11 +6754,10 @@ func _t202_bodies(m, sys: int) -> Array:
 	for c in m.map._cluster_list:
 		if int(c["system"]) == sys and m.map.asteroid_packs.packs.has(str(c["id"])):
 			var pk: Dictionary = m.map.asteroid_packs.packs[str(c["id"])]
-			var mm: Node3D = pk["mm"]
 			var r := 0.0
 			for q in pk["points"]:
 				r = maxf(r, Vector2(q.x, q.z).length())
-			out.append({"id": "cluster_" + str(c["id"]), "pos": Vector2(mm.position.x, mm.position.z), "r": r})
+			out.append({"id": "cluster_" + str(c["id"]), "pos": Vector2((pk["anchor"] as Vector3).x, (pk["anchor"] as Vector3).z), "r": r})  # T306: the logical anchor, the visual pack swings a little
 	return out
 
 ## parent = id of the body the ship must be near ("" = any body; "-" = only the outside rule is asserted).

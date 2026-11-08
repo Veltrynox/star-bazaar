@@ -161,6 +161,7 @@ func _ready() -> void:
 	asteroid_packs = load("res://game/galaxy/asteroid_packs.gd").new()
 	asteroid_packs.map_unit_scale = MAP_UNIT_SCALE
 	asteroid_packs.sun_positions = sun_positions
+	asteroid_packs.running = _game_running
 	add_child(asteroid_packs)
 	# T277: instanced traffic ships (game/traffic/traffic_layer.gd); drives itself, fades out at far zoom. Groups are fed by the traffic tasks.
 	traffic = load("res://game/traffic/traffic_layer.gd").new()
@@ -460,6 +461,10 @@ func planet_in_view(i: int) -> bool:
 ## T157: show the asteroid packs of the clusters given (main.clusters_in_system). Visual only.
 func set_clusters(list: Array) -> void:
 	_cluster_list = list
+	if prosperity != null:  # T306: slow spin and orbit swing of the packs (balance keys, placeholders)
+		asteroid_packs.spin_speed = _bk("asteroid_spin_deg_per_s", 0.0)
+		asteroid_packs.orbit_speed = _bk("asteroid_orbit_deg_per_s", 0.0)
+		asteroid_packs.orbit_arc = _bk("asteroid_orbit_arc_deg", 0.0)
 	asteroid_packs.sync(list)
 
 ## T159: index of the cluster of the viewed system whose pack is under the cursor (ray against an ellipsoid: radius across the orbit radius, radius x stretch along the tangent), or -1.

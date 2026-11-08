@@ -18,7 +18,11 @@ extends Node3D
 @export var cluster_stretch := 2.0       # fallback when the cluster dictionary has no "stretch" (data/asteroid_clusters.json cluster_stretch)
 @export var rock_color := Color(1.0, 1.0, 1.0)  # tints the rock texture; white = texture colours as they are
 @export var rock_roughness := 0.95
-@export var spin_speed := 0.0             # degrees per second the whole pack turns; 0 = still
+@export var spin_speed := 0.0             # degrees per second the whole pack turns; 0 = still (T306: map.gd sets it from balance asteroid_spin_deg_per_s)
+@export var orbit_speed := 0.0            # T306: peak degrees per second of the pack along its orbit around the sun (balance asteroid_orbit_deg_per_s)
+@export var orbit_arc := 0.0              # T306: half-width in degrees of the arc the pack swings through (balance asteroid_orbit_arc_deg)
+var running := Callable()                 # T306: returns false while the game is paused; empty = always running
+var _clock := 0.0                         # game-clock seconds of pack motion (not saved)
 
 # Rock model: assets/asteroid_asset/asteroid_low.obj, from asteroid.obj decimated to 400 tris (was 20480) by tools in the asteroid_asset folder.
 # Normalised so the furthest vertex sits at radius 1.0, the same radius the old SphereMesh had.
@@ -121,9 +125,35 @@ func _build(id: String, c: Dictionary, n: int) -> void:
 	mmi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	mmi.position = Vector3(float(c["x"]), 0.0, float(c["y"])) * map_unit_scale
 	add_child(mmi)
-	packs[id] = {"mm": mmi, "system": int(c["system"]), "max": n, "tangent": tdir, "points": points, "stretch": stretch}
+	var mrng := RandomNumberGenerator.new()
+	mrng.seed = hash(id) ^ 104729
+	var spin_mul := mrng.randf_range(0.5, 1.5) * (1.0 if mrng.randf() < 0.5 else -1.0)
+	packs[id] = {"mm": mmi, "system": int(c["system"]), "max": n, "tangent": tdir, "points": points, "stretch": stretch,
+		"anchor": mmi.position, "spin_mul": spin_mul, "phase": mrng.randf() * TAU}
+	_place(id)
+
+## T306: the visual pack swings along its orbit about the sun inside a small arc (sine, peak speed orbit_speed) and spins about
+## its own centre. The logical anchor (cluster x, y) never moves, so picks, routes, platforms and labels stay valid.
+func _place(id: String) -> void:
+	var d: Dictionary = packs[id]
+	var mm: MultiMeshInstance3D = d["mm"]
+	var anchor: Vector3 = d["anchor"]
+	var arc := deg_to_rad(orbit_arc)
+	var ang := 0.0
+	if arc > 0.0 and orbit_speed > 0.0:
+		ang = arc * sin(deg_to_rad(orbit_speed) * _clock / arc + float(d["phase"]))
+	var centre: Vector3 = sun_positions.get(int(d["system"]), Vector3.ZERO)
+	# the anchor turns about the sun by ang; the rocks turn by ang too (long axis stays on the tangent) plus their own spin
+	var rel := (anchor - centre).rotated(Vector3.UP, -ang)
+	mm.position = centre + rel
+	mm.rotation = Vector3(0.0, -ang + deg_to_rad(spin_speed) * float(d["spin_mul"]) * _clock, 0.0)
 
 func _process(delta: float) -> void:
-	if spin_speed != 0.0:
-		for id in packs:
-			packs[id]["mm"].rotate_y(deg_to_rad(spin_speed) * delta)
+	if spin_speed == 0.0 and (orbit_speed == 0.0 or orbit_arc == 0.0):
+		return
+	if running.is_valid() and not bool(running.call()):
+		return
+	_clock += delta
+	for id in packs:
+		if packs[id]["mm"].visible:
+			_place(id)

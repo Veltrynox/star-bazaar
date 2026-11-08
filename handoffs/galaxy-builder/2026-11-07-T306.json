@@ -1,0 +1,9 @@
+{
+  "task": "T306",
+  "agent": "galaxy-builder (done by worker main session)",
+  "changed": ["game/galaxy/asteroid_packs.gd", "game/map.gd", "data/balance.json", "tools/tests/run_tests.gd"],
+  "decision": "Logical anchor stays fixed (cluster x, y): picks, routes, platforms, labels, ship parking and lane ends are untouched. Only the visual MultiMeshInstance3D moves: it swings along its orbit about the sun inside a small arc (sine, peak speed asteroid_orbit_deg_per_s, half-width asteroid_orbit_arc_deg, rocks and long axis turn with it) and spins about its own centre (asteroid_spin_deg_per_s x a per-pack 0.5-1.5 factor and direction seeded from the cluster id). One transform per pack per frame, no buffer rewrites. Runs on game time (paused when the game is paused). Nothing saved, old saves load.",
+  "balance_keys": "asteroid_spin_deg_per_s 0.8, asteroid_orbit_deg_per_s 0.05, asteroid_orbit_arc_deg 3 (all placeholders, noted in balance source)",
+  "test_change": "T202 test helper reads the pack's logical anchor instead of its visual position",
+  "screenshot": "logs/screenshots/T306.png (not blank, no breakage)"
+}
