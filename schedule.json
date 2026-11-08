@@ -1528,7 +1528,7 @@
       "title": "Juice: ship trails and rival ships rough edges, plus notice board entry and exit",
       "owner_agent": "juice-programmer",
       "depends_on": [],
-      "status": "queued",
+      "status": "blocked",
       "turn_cap": 20,
       "window": "Follow-up from T203 (juice review 2026-11-05). One small run.",
       "brief": "Owner ruling 2026-11-07: ship trails start AT THE ENGINES. Every ship model is different and has 1, 2 or 4 engines: open each model in assets/ships/* (corvettes 01-08 and the pirate ship), find its engine nozzles, and attach the trail to each engine directly (one trail per engine, so a 4-engine ship draws 4 trails). Keep the engine positions as data (per model, local-space points in a data file such as data/ships.json or a new data/ship_engines.json read through game/ships.gd), not hard-coded in the trail script; rival ships use the same data. Trail width and length scale per engine so 4 thin trails do not look 4x heavier than 1 (placeholder balance keys, never numbers in code). Then: Review and smooth the rough parts left after T198/T205: (1) game/ship_trail.gd: check the trail on stop, on a system change and on a sharp turn (no jump or long straight streak, clears cleanly, rival trails do not keep drawing while paused or in another system); (2) the notification board and pop-up notices (game/main.gd post_notice and its scripts): confirm each enters in under 0.3 s with the Juice.enter vocabulary, leaves with Juice.leave, and that a notice dismissed or replaced mid-animation ends in its final state; do not shorten hold times. Why it matters: trails and notices are on screen all the time, so any pop, streak or stuck half-faded notice is seen constantly. Fix only what is found, list what was fine, no text or logic changes, tests where headless-testable.",
@@ -1538,7 +1538,9 @@
         "data/*.json",
         "game/main.gd"
       ],
-      "owner_note": "Empire growth v2: keep only the trail and notice-board parts; the rival-ship part is dropped (house convoys replace it)."
+      "owner_note": "Empire growth v2: keep only the trail and notice-board parts; the rival-ship part is dropped (house convoys replace it).",
+      "note": "Blocked by orchestrator: worker did not report done: None",
+      "blocked_log": "/Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T221-merge.log"
     },
     {
       "task_id": "T222",
