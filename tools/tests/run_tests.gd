@@ -921,6 +921,66 @@ func _click(btn: int) -> InputEventMouseButton:
 	e.pressed = true
 	return e
 
+## T316: step ids exist in the story, tip triggers are valid conditions, old-save step mapping, a tip shows once.
+func _test_tutorial_t316(m: Node) -> void:
+	for id in m.TUT_GUIDE:
+		check(StoryText.get_or(id, "", {}) != "" and StoryText.get_or(id + "_WHY", "", {}) != "", "T316: guided step %s has its text and why line" % id)
+	var ids: Array = []
+	for def in m.TIP_DEFS:
+		var tid: String = def["id"]
+		check(not ids.has(tid), "T316: tip %s is listed once" % tid)
+		ids.append(tid)
+		check(StoryText.get_or(tid, "", {}) != "" and StoryText.get_or(tid + "_WHY", "", {}) != "", "T316: tip %s has its text and why line" % tid)
+		check(def.has("cond") or def.has("state") or def.has("sig"), "T316: tip %s has a trigger" % tid)
+		if def.has("cond"):
+			var errs: Array = []
+			Conditions.lint(def["cond"], "tip " + tid, errs)
+			check(errs.is_empty(), "T316: tip %s condition is valid" % tid, str(errs))
+		if def.has("state"):
+			var ok := true
+			m.tut_step = 0
+			ok = typeof(m._tip_state(str(def["state"]))) == TYPE_BOOL
+			check(ok, "T316: tip %s state check answers true or false" % tid)
+	# old saves land on the matching step; finished stays finished
+	var G: Array = m.TUT_GUIDE
+	check(G[m.tut_map_saved_step(6, 2)] == "TUT_G7_STORAGE", "T316: v2 save at storage stays on storage")
+	check(G[m.tut_map_saved_step(7, 2)] == "TUT_G8_SKILLS", "T316: v2 save at skills lands on skills")
+	check(G[m.tut_map_saved_step(8, 2)] == "TUT_G9_PERMIT", "T316: v2 save at permit lands on permit")
+	check(G[m.tut_map_saved_step(9, 2)] == "TUT_G10_DONE", "T316: v2 save at done lands on done")
+	check(m.tut_map_saved_step(10, 2) == G.size(), "T316: a finished v2 tutorial stays finished")
+	check(G[m.tut_map_saved_step(4, 1)] == "TUT_G8_SKILLS" and m.tut_map_saved_step(6, 1) == G.size(), "T316: v1 mapping and finished v1")
+	check(m.tut_map_saved_step(G.size(), m.TUT_VER) == G.size() and m.tut_map_saved_step(3, m.TUT_VER) == 3, "T316: current version keeps its step")
+	# a tip shows once, even after save and load; Skip tutorial silences them
+	m.debug_restart_tutorial()
+	m.tut_step = G.size()
+	m.tips_seen = {}
+	m.tips_off = false
+	m.tip_sig = {}
+	m.tips_seen["TIP_TIER1"] = true  # a grown world is not what this test is about
+	m.tip_signal("tax")
+	check(m.tip_next() == "TIP_GOAL", "T316: the goal tip is due first when the tutorial is over", m.tip_next())
+	m.tips_seen["TIP_GOAL"] = true
+	check(m.tip_next() == "TIP_TAX", "T316: a signalled tip is next", m.tip_next())
+	m._tip_show("TIP_TAX")
+	check(m.tip_card.visible and m.tip_text_label.text != "" and m.tips_seen.has("TIP_TAX"), "T316: the tip card shows the tip and marks it seen")
+	m._tip_close()
+	check(m.tip_next() != "TIP_TAX", "T316: a shown tip does not come back")
+	var st: Dictionary = JSON.parse_string(JSON.stringify(m.collect_state()))
+	m.tips_seen = {}
+	m.apply_state(st)
+	check(m.tips_seen.has("TIP_TAX") and not m.tips_seed_pending, "T316: shown tips are saved and stay shown after load")
+	m.tip_signal("tax")
+	check(m.tip_next() != "TIP_TAX", "T316: no repeat after load")
+	m.tut_step = 3
+	m._tut_skip()
+	check(m.tips_off and not m.tip_card.visible, "T316: Skip tutorial turns the tips off")
+	var s2: Dictionary = JSON.parse_string(JSON.stringify(m.collect_state()))
+	m.tips_off = false
+	m.apply_state(s2)
+	check(m.tips_off, "T316: tips stay off after load")
+	m.debug_restart_tutorial()
+	check(not m.tips_off and m.tips_seen.is_empty(), "T316: restart brings the tips back")
+
 func _test_tutorial_steps() -> void:
 	var m: Control = await _new_main(true)
 	var G: Array = m.TUT_GUIDE
@@ -976,7 +1036,7 @@ func _test_tutorial_steps() -> void:
 	m.selected_planet = -1
 	await process_frame
 	check(_buttons(m.tut_actions, []).size() == 1 and _buttons(m.tut_card, []).all(func(b): return (b as Button).text != StoryText.get_or("BTN_NEXT", "Next")), "tutorial: no Next button on the guided card, only Skip")
-	check(G == ["TUT_G1_SELECT", "TUT_G2_BUY", "TUT_G3_SEND", "TUT_G4_ROUTE_PAY", "TUT_G5_UPKEEP", "TUT_G6_SELL", "TUT_G7_STORAGE", "TUT_G8_SKILLS", "TUT_G9_PERMIT", "TUT_G10_DONE"], "tutorial steps: order")
+	check(G == ["TUT_G1_SELECT", "TUT_G2_BUY", "TUT_G3_SEND", "TUT_G4_ROUTE_PAY", "TUT_G5_UPKEEP", "TUT_G6_SELL", "TUT_G7_STORAGE", "TUT_G7_NEEDS", "TUT_G7_GROW", "TUT_G8_SKILLS", "TUT_G9_PERMIT", "TUT_G10_DONE"], "tutorial steps: order")
 	# skip at step 3 ends the tutorial for good, also after save and load
 	m.tut_step = 3
 	m._tut_skip()
@@ -985,7 +1045,7 @@ func _test_tutorial_steps() -> void:
 	m.apply_state(st)
 	m._tut_advance()
 	check(m.tut_step == G.size(), "tutorial steps: skip stays after save and load")
-	# old save: tut_step 4 meant skills; the new numbering puts skills at 7
+	# old save: tut_step 4 meant skills; the new numbering puts skills at 9
 	var old: Dictionary = st.duplicate(true)
 	old.erase("tut_ver")
 	old["tut_step"] = 4
@@ -1015,13 +1075,13 @@ func _test_tutorial_steps() -> void:
 	m.skill_points = 0
 	m.learned_skills = []
 	m.tut_skipped = []
-	m.tut_step = 7
+	m.tut_step = 9
 	m._tut_advance()
 	check(G[m.tut_step] == "TUT_G10_DONE" and m.tut_skipped == ["TUT_G8_SKILLS", "TUT_G9_PERMIT"], "tutorial steps: skills and permit skipped with no point", str(m.tut_skipped))
 	m.skill_points = 1
-	m.tut_step = 7
+	m.tut_step = 9
 	m._tut_advance()
-	check(m.tut_step == 7, "tutorial steps: skills step waits while a point is held")
+	check(m.tut_step == 9, "tutorial steps: skills step waits while a point is held")
 	# step 3 with a send pending: heading and target switch to the destination planet
 	m.tut_step = 2
 	m.selected_planet = 0
@@ -1055,26 +1115,27 @@ func _test_tutorial_steps() -> void:
 	check(m.tut_step > 6, "tutorial steps: right-clicking the resource button moves the storage step on", str(m.tut_step))
 	m.skill_points = 1
 	m.learned_skills = []
-	m.tut_step = 7
-	m._tut_advance()
-	check(m.tut_step == 7, "tutorial steps: skills waits until a skill is learned")
 	m.tut_step = 9
+	m._tut_advance()
+	check(m.tut_step == 9, "tutorial steps: skills waits until a skill is learned")
+	m.tut_step = 11
 	m.tut_goal_t = 0.0
 	m._tut_show()
 	m._tut_tick(m.TUT_LAST_SECS - 1.0)
-	check(m.tut_step == 9, "tutorial steps: last step stays before its time is up")
+	check(m.tut_step == 11, "tutorial steps: last step stays before its time is up")
 	m._tut_tick(2.0)
 	check(m.tut_step == G.size() and not m.tut_card.visible, "tutorial steps: last step closes by itself after the timer")
 	m.tut_step = 2
 	m._tut_show()
 	m._tut_tick(100.0)
 	check(m.tut_step == 2, "tutorial steps: the timer only runs on the last step")
+	_test_tutorial_t316(m)
 	m.debug_restart_tutorial()
 	check(m.tut_step <= 1 and m.tut_skipped.is_empty(), "tutorial steps: restart goes back to the start")
 	# the tutorial card is its own panel, never part of the notifications board
 	var board: Node = m.notice_label.get_parent().get_parent()
 	check(m.tut_card != null and m.tut_card.visible and not board.is_ancestor_of(m.tut_card) and not board.is_ancestor_of(m.tutorial_label) and not board.is_ancestor_of(m.tut_actions), "tutorial card: not a child of the notifications board")
-	check(m.tut_card.get_parent() == m and not m.right_col.is_ancestor_of(m.tut_card) and m.tut_count.text == "1 of 10", "tutorial card: floats outside the right column, with a step count", m.tut_count.text)
+	check(m.tut_card.get_parent() == m and not m.right_col.is_ancestor_of(m.tut_card) and m.tut_count.text == "1 of 12", "tutorial card: floats outside the right column, with a step count", m.tut_count.text)
 	check(m.tip_label.visible and m.tip_label.text != "" and board.is_ancestor_of(m.tip_label), "tips: the right board shows a game tip")
 	var tip_all: String = m.tip_label.text
 	for k in 6:
@@ -1186,7 +1247,7 @@ func _test_tutorial_steps() -> void:
 	m.skill_screen.close_screen()
 	m.selected_planet = -1
 	check(m._tut_highlight_key() == "planet", "tutorial highlight: no planet panel falls back to the planet ring")
-	m.tut_step = 9
+	m.tut_step = 11
 	check(m._tut_highlight_key() == "", "tutorial highlight: last step has none")
 	m._tut_skip()
 	check(m.tut_step == G.size() and not m.tut_card.visible and not m.tut_hl.visible, "tutorial card: Skip ends the tutorial and hides card and outline")

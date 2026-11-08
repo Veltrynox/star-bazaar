@@ -19,6 +19,7 @@ const MENU_SEND := 0
 const MENU_SELL := 1
 const MENU_SALVAGE := 2
 signal salvage_requested(commodity: String)  # N5
+signal tip_seen(key: String)  # T316: a one-time tip trigger was drawn (hungry chip)
 signal order_requested(commodity: String, role: String)  # role: "buy" or "sell" (toggles the local order)
 signal mine_requested(commodity: String)  # dead world: "Mine and send to..." (buy order plus a route to the clicked planet)
 signal send_requested(commodity: String)  # "Send to..." on a storage row
@@ -262,6 +263,8 @@ func _need_row(n: Dictionary) -> Control:
 		if reason != "":
 			var chip := Label.new()
 			chip.name = "Chip_" + reason
+			if reason == "hungry":
+				tip_seen.emit("hungry")
 			chip.text = StoryText.get_or("PROS_CHIP_HUNGRY" if reason == "hungry" else "PROS_CHIP_SURPLUS", reason.capitalize())
 			chip.theme_type_variation = "LabelSmall"
 			row.add_child(chip)

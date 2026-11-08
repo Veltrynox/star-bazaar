@@ -151,10 +151,24 @@ var _tut_lock_seen := -1  # lock step the panels were last drawn for
 var _tut_sig: Array = []  # last state the card was built from
 var _voiced_tut := -1  # guided step last spoken
 ## T124 guided first steps: index into TUT_GUIDE; TUT_GUIDE.size() means done. Saved.
-const TUT_GUIDE := ["TUT_G1_SELECT", "TUT_G2_BUY", "TUT_G3_SEND", "TUT_G4_ROUTE_PAY", "TUT_G5_UPKEEP", "TUT_G6_SELL", "TUT_G7_STORAGE", "TUT_G8_SKILLS", "TUT_G9_PERMIT", "TUT_G10_DONE"]
-## Old saves (no tut_ver) counted 6 steps: select, buy, send, sell, skills, done. Old index -> new index.
-const TUT_OLD_MAP := [0, 1, 2, 5, 7, 9]
-const TUT_VER := 2
+const TUT_GUIDE := ["TUT_G1_SELECT", "TUT_G2_BUY", "TUT_G3_SEND", "TUT_G4_ROUTE_PAY", "TUT_G5_UPKEEP", "TUT_G6_SELL", "TUT_G7_STORAGE", "TUT_G7_NEEDS", "TUT_G7_GROW", "TUT_G8_SKILLS", "TUT_G9_PERMIT", "TUT_G10_DONE"]
+## Version 1 saves (no tut_ver) counted 6 steps: select, buy, send, sell, skills, done. Old index -> current index.
+const TUT_OLD_MAP := [0, 1, 2, 5, 9, 11]
+## Version 2 had 10 steps; T316 added Needs and Grow after Storage (index 7 and 8), so v2 index >= 7 moves up by 2.
+const TUT_V2_INSERT_AT := 7
+const TUT_V2_INSERTED := 2
+const TUT_VER := 3
+
+## Current step index for a saved one. Pure, so tests can call it: v1 and v2 numbering map to the current list, a finished tutorial stays finished.
+static func tut_map_saved_step(saved: int, ver: int) -> int:
+	var size := TUT_GUIDE.size()
+	if ver >= TUT_VER:
+		return clampi(saved, 0, size)
+	if ver < 2:
+		return TUT_OLD_MAP[maxi(0, saved)] if saved < TUT_OLD_MAP.size() else size
+	if saved >= 10:  # a v2 tutorial that was finished
+		return size
+	return clampi(saved + (TUT_V2_INSERTED if saved >= TUT_V2_INSERT_AT else 0), 0, size)
 ## English fallbacks until the story text ids exist in the story files.
 const TUT_FALLBACK := {
 	"TUT_G3_PICK": "Click the planet that wants the good.",
@@ -167,6 +181,16 @@ const TUT_FALLBACK := {
 	"TUT_G10_DONE": "That is the loop: buy, move, sell, learn. The guidance stops here.",
 }
 var tut_step: int = 0
+var tips_seen: Dictionary = {}  # T316 one-time tips already shown this run (saved)
+var tips_off := false  # Skip tutorial was pressed: no more tips (saved)
+var tip_active := ""  # tip id on the tip card now
+var tip_sig: Dictionary = {}  # signals seen this session (tax, hungry, ...), see tip_signal
+var tips_seed_pending := false  # a save without tips_seen: tips already due at load are marked seen
+var tip_card: PanelContainer
+var tip_text_label: Label
+var tip_why_label: Label
+var tip_left := 0.0  # real seconds the active tip stays up
+var _tip_poll_t := 0.0
 var tut_flags: Dictionary = {}  # actions seen this session: "expenses" (forecast opened), "storage" (resource button right-clicked)
 var tut_goal_t: float = 0.0  # real seconds the last guided step has been shown
 const TUT_LAST_SECS := 12.0
@@ -243,6 +267,7 @@ func _ready() -> void:
 	planet_panel.setup(self)
 	planet_panel.order_requested.connect(_on_order)
 	planet_panel.salvage_requested.connect(_on_salvage)
+	planet_panel.tip_seen.connect(tip_signal)  # T316
 	planet_panel.send_requested.connect(_on_send)
 	planet_panel.buy_send_requested.connect(_on_buy_send)
 	planet_panel.mine_requested.connect(begin_buy_and_send)
@@ -427,7 +452,7 @@ func collect_state() -> Dictionary:
 		"routes": engine.to_array(), "storage": storage.to_dict(), "orders": engine.local_to_array(),
 		"markets": Markets.to_dict(), "rescues_paid": rescues_paid, "repossessions": repossessions, "learned_skills": learned_skills.duplicate(), "skills": Skills.to_dict(), "tech": Tech.to_dict(), "systems_reached": systems_reached,
 		"time_speed": time_speed, "skill_points": skill_points, "pts_planets": pts_planets, "pts_pairs": pts_pairs, "events": events.to_dict(),
-			"open_systems": open_systems, "reached_ids": reached_ids, "galaxy_seen": galaxy_seen, "tut_step": tut_step, "tut_ver": TUT_VER,
+			"open_systems": open_systems, "reached_ids": reached_ids, "galaxy_seen": galaxy_seen, "tut_step": tut_step, "tut_ver": TUT_VER, "tips_seen": tips_seen.keys(), "tips_off": tips_off,
 		"chains": Chains.to_dict(), "storage_cuts": storage.cuts_to_dict(), "price_history": price_history,
 		"forecast_id": forecast_id, "forecast_slot": forecast_slot, "forecast_noted": forecast_noted, "station_systems": station_systems,
 		"second_lane": second_lane_planet, "clusters": clusters.to_dict(), "danger": dead.to_dict(), "dead_mining": dead.state_to_dict(), "fabric": fabric.to_dict(), "workshops": workshops.to_dict(),
@@ -454,10 +479,15 @@ func apply_state(s: Dictionary) -> void:
 	if not s.has("tut_step"):  # no saved step: guided tutorial starts in cycles 1 to 4, stays finished later
 		tut_step = 0 if int(s.get("cycle", 1)) <= 4 else TUT_GUIDE.size()
 	else:
-		tut_step = int(s["tut_step"])
-		if int(s.get("tut_ver", 1)) < TUT_VER:  # old numbering: map to the new steps
-			tut_step = TUT_OLD_MAP[maxi(0, tut_step)] if tut_step < TUT_OLD_MAP.size() else TUT_GUIDE.size()
+		tut_step = tut_map_saved_step(int(s["tut_step"]), int(s.get("tut_ver", 1)))  # old numbering: map to the current steps
 	tut_step = clampi(tut_step, 0, TUT_GUIDE.size())
+	tips_seen = {}
+	for k in (s.get("tips_seen", []) if typeof(s.get("tips_seen", [])) == TYPE_ARRAY else []):
+		tips_seen[str(k)] = true
+	tips_off = bool(s.get("tips_off", false))
+	tip_active = ""
+	tip_sig = {}
+	tips_seed_pending = not s.has("tips_seen")  # an older save: tips already due stay quiet instead of all firing at once
 	cycle = maxi(1, int(s.get("cycle", 1)))
 	trade_income_total = maxi(0, int(s.get("trade_income_total", 0)))  # old saves: 0, earned again
 	_sync_earn()
@@ -1008,6 +1038,7 @@ func toggle_bazaar_panel() -> void:
 		if skill_screen.visible:
 			skill_screen.close_screen()
 		bazaar_panel.open_screen()
+		tut_note("bazaar")  # T316: the last guided step ends when the Bazaar panel opens
 
 ## T263: a Next Up slot was clicked: put the map camera on that world.
 func focus_next_up(planet: int) -> void:
@@ -2223,6 +2254,7 @@ func _process(delta: float) -> void:
 	_tut_poll()
 	_tut_update_highlight()
 	_tut_tick(delta)
+	_tip_tick(delta)
 	if event_icons != null:
 		event_icons.tick(delta)  # real time, also while paused
 	_update_station_markers()
@@ -2365,6 +2397,7 @@ func _on_raid_hit(lane: int, nest: int, pods_at: Vector3) -> void:
 
 ## T300: the Flagship scooped pods: they zip into it.
 func _on_salvage_scooped() -> void:
+	tip_signal("salvage")
 	if map != null and flight != null:
 		map.beat_scoop(flight.ship_position())
 
@@ -2401,6 +2434,7 @@ func _pay_prosperity() -> void:
 	if tax > 0:
 		cash += tax
 		post_notice(StoryText.get_or("NOT_PROSPERITY_TAX", "Your worlds paid {n} credits in tax.", {"n": tax}))
+		tip_signal("tax")
 	for r in prosperity.claim_new_tiers():
 		if int(r["points"]) > 0:
 			_add_points(int(r["points"]))
@@ -3151,6 +3185,10 @@ func debug_restart_tutorial() -> void:
 		return
 	tut_first = {}
 	tut_step = 0
+	tips_seen = {}
+	tips_off = false
+	tip_sig = {}
+	_tip_close()
 	tut_skipped = []
 	tut_flags = {}
 	tut_goal_t = 0.0
@@ -3638,6 +3676,7 @@ func request_dock(planet_id: String) -> void:
 func open_dock_sheet() -> bool:
 	if dock_sheet != null or game_over or event_notice != null or preface != null:
 		return dock_sheet != null
+	tip_signal("dock")
 	var i: int = flight.dock_planet()
 	if i < 0:
 		post_notice_now(StoryText.get_or("NOT_DOCK_FAR", "Fly the Flagship here first."))
@@ -3660,6 +3699,8 @@ func _on_dock_closed() -> void:
 ## T270: boost on/off (hold key B or the ship panel button). A refusal becomes a notice.
 func set_flagship_boost(on: bool) -> void:
 	var r: String = flight.set_boost(on) if flight != null and flight.is_enabled() else ""
+	if on and r == "" and flight != null and flight.is_enabled():
+		tip_signal("boost")
 	if r == "no_fuel":
 		post_notice_now(StoryText.get_or("NOT_BOOST_NO_ENERGY", "No energy in the hold to boost."))
 	elif r == "no_charges":
@@ -3742,6 +3783,8 @@ func _on_flight_arrived(planet_id: String) -> void:
 func _on_flight_build_done(planet_id: String) -> void:
 	var i := planet_index_of(planet_id)
 	var dead: bool = i >= 0 and DeadWorlds.is_dead(map.planets[i])
+	if dead:
+		tip_signal("platform")
 	post_notice(StoryText.get_or("NOT_PLATFORM_DONE" if dead else "NOT_POST_DONE", "Established at {planet}.", {"planet": planet_name(i)}))
 	on_flight_changed()
 	map.establish_beat(i, Ui.col("star_warm" if dead else "signal_good"))  # T203: ring, sparkle, label pop, soft nudge
@@ -3868,6 +3911,8 @@ func _tut_tick(delta: float) -> void:
 ## Skip ends the whole tutorial, the galaxy view one too (it never starts once skipped). Saved as tut_step = size.
 func _tut_skip() -> void:
 	tut_step = TUT_GUIDE.size()
+	tips_off = true  # T316: skipping the tutorial also silences the one-time tips
+	_tip_close()
 	galaxy_seen = true
 	if galaxy_view != null and galaxy_view.tut_step >= 0 and galaxy_view.tut_step < galaxy_view.TUT_IDS.size():
 		galaxy_view.tut_step = galaxy_view.TUT_IDS.size()
@@ -3875,7 +3920,7 @@ func _tut_skip() -> void:
 	_tut_show()
 
 ## Which control each guided step is about. "planet" = the pulsing ring on the map planet, "" = nothing.
-const TUT_TARGET := ["planet", "buy", "send", "time", "expenses", "sell", "storage", "skills", "permit", ""]
+const TUT_TARGET := ["planet", "buy", "send", "time", "expenses", "sell", "storage", "", "", "skills", "permit", ""]
 
 func _tut_first_named(root: Node, prefix: String) -> Control:
 	var found: Control = null
@@ -4213,6 +4258,7 @@ func _tut_sig_now() -> Array:
 		engine.routes.size(), buys, sells, tut_flags.size(), learned_skills.size(), skill_points, cycle,
 		planet_panel != null and planet_panel.visible, skill_screen != null and skill_screen.visible,
 		galaxy_view != null and galaxy_view.visible, tut_card != null and tut_card.visible])
+	sig.append(prosperity.any_tier_reached(1))
 	if tut_step == 6:  # the only step that reads storage stock
 		var held := 0
 		for k in storage.stock.keys():
@@ -4279,20 +4325,232 @@ func _tut_step_done(i: int) -> bool:
 				if not str(k).begins_with("system") and storage.stock[k].values().any(func(n): return int(n) > 0):
 					return true
 			return false
-		7:
+		7:  # a world card with a Needs list is open (or the first world already grew, so the lesson is past)
+			if prosperity.any_tier_reached(1):
+				return true
+			return planet_panel != null and planet_panel.visible and selected_planet >= 0 and not prosperity.needs(selected_planet).is_empty()
+		8:  # the first world reached tier 1
+			return Conditions.eval("any_tier:1")
+		9:
 			return not learned_skills.is_empty()
-		8:
+		10:
 			return has_skill("FND_PERMIT")
+		11:  # the last step: the Star Bazaar panel is opened (or the timer in _tut_tick closes it)
+			return bool(tut_flags.get("bazaar", false))
 	return false
 
 ## A step whose state can never be reached from here is passed over, so the tutorial never blocks.
 func _tut_step_skipped(i: int) -> bool:
 	match i:
-		7:  # no skill point held and nothing learned: nothing to teach yet
+		9:  # no skill point held and nothing learned: nothing to teach yet
 			return skill_points <= 0 and learned_skills.is_empty()
-		8:  # the permit line needs a held point
+		10:  # the permit line needs a held point
 			return skill_points <= 0 and not has_skill("FND_PERMIT")
 	return false
+
+## ---- T316 one-time tips. Each tip is two story ids (TIP_X, TIP_X_WHY), shown once per run in this order, queued one at a time. ----
+## A tip is due when its condition tree holds (game/conditions.gd), or its state check `state` is true, or its signal was sent
+## (tip_signal). A tip never pauses the game, waits while a popup, the event window, the dock sheet, the Skills window, the galaxy
+## view or a guided step card is up, and is skipped for good once Skip tutorial was pressed.
+const TIP_DEFS := [
+	{"id": "TIP_GOAL", "state": "tut_over"},
+	{"id": "TIP_TIER1", "cond": "any_tier:1"},
+	{"id": "TIP_TAX", "sig": "tax"},
+	{"id": "TIP_RESTLESS", "state": "restless"},
+	{"id": "TIP_HUNGRY", "sig": "hungry"},
+	{"id": "TIP_CAPITAL", "state": "capital"},
+	{"id": "TIP_HUB", "state": "capital"},
+	{"id": "TIP_FOUNDED", "state": "founded"},
+	{"id": "TIP_OPENING", "state": "opening"},
+	{"id": "TIP_PLATFORM", "sig": "platform"},
+	{"id": "TIP_EXPLORE", "state": "explore"},
+	{"id": "TIP_DOCK", "sig": "dock"},
+	{"id": "TIP_BOOST", "sig": "boost"},
+	{"id": "TIP_GIG", "cond": "gig_open"},
+	{"id": "TIP_RUSH", "state": "rush"},
+	{"id": "TIP_WEATHER", "state": "convoy"},
+	{"id": "TIP_WEATHER_KINDS", "state": "weather"},
+	{"id": "TIP_PROSPECT", "cond": "skill_learned:FND_PROSPECT"},
+	{"id": "TIP_DEAD", "state": "dead_open"},
+	{"id": "TIP_RECLAIM", "state": "dead_card"},
+	{"id": "TIP_RAID", "state": "raid"},
+	{"id": "TIP_SALVAGE", "sig": "salvage"},
+	{"id": "TIP_WORKSHOP", "state": "workshop"},
+	{"id": "TIP_FABRIC", "state": "fabric"},
+	{"id": "TIP_NULLCORE", "cond": "workshop_built:fabric"},
+	{"id": "TIP_SPACE_STORAGE", "cond": "skill_learned:FND_STORAGE"},
+	{"id": "TIP_LINK", "state": "link"},
+	{"id": "TIP_PERMIT", "cond": "skill_learned:FND_PERMIT"},
+	{"id": "TIP_NEWSYSTEM", "cond": "system_open:2"},
+	{"id": "TIP_POINTS", "state": "points"},
+	{"id": "TIP_FOUNDATIONS", "state": "foundations"},
+]
+const TIP_SECS := 14.0
+const TIP_POLL_SECS := 0.5
+
+## A one-time event happened (key: "tax", "hungry", "platform", "dock", "boost", "salvage"). Remembered for this session.
+func tip_signal(key: String) -> void:
+	tip_sig[key] = true
+
+func _tip_state(key: String) -> bool:
+	match key:
+		"tut_over":
+			return tut_step >= TUT_GUIDE.size()
+		"restless":
+			for i in map.planets.size():
+				if prosperity.restless(i):
+					return true
+			return false
+		"capital":
+			return prosperity.any_tier_reached(bazaar.capital_tier())
+		"founded":
+			return bazaar.is_founded()
+		"opening":
+			return gigs.offers.any(func(o): return str(o.get("kind", "")) == "opening")
+		"explore":
+			if flight == null or not flight.is_enabled() or not PathfinderView.active(flight):
+				return false
+			for p in map.planets:
+				if not Conditions.eval("planet_visited:" + str(p.get("id", ""))):
+					return true
+			return false
+		"rush":
+			return gigs.offers.any(func(o): return str(o.get("kind", "")) == "rush")
+		"convoy":
+			return forecast_id != "" and events.is_weather(forecast_id)
+		"weather":
+			return not events.active.is_empty()
+		"dead_open":
+			return has_skill("FND_PROSPECT") and map.planets.any(func(p): return DeadWorlds.is_dead(p))
+		"dead_card":
+			return selected_planet >= 0 and selected_planet < map.planets.size() and DeadWorlds.is_dead(map.planets[selected_planet]) and tips_seen.has("TIP_DEAD")
+		"raid":
+			return not raids.warning().is_empty()
+		"workshop":
+			return ["smelter", "munitions", "atelier", "culture_lab"].any(func(w): return Availability.workshop(w))
+		"fabric":
+			return Availability.workshop("fabric")
+		"link":
+			return storage_link.visible_feature()
+		"points":
+			return skill_points > 0 and tut_step >= TUT_GUIDE.size()
+		"foundations":
+			return learned_skills.filter(func(k): return str(k).begins_with("FND_")).size() >= 3
+	return false
+
+## Is this tip due now? Condition tree first (game/conditions.gd), then the state check, then the signal.
+func tip_due(def: Dictionary) -> bool:
+	if def.has("cond") and Conditions.eval(def["cond"]):
+		return true
+	if def.has("state") and _tip_state(str(def["state"])):
+		return true
+	return def.has("sig") and bool(tip_sig.get(str(def["sig"]), false))
+
+## Text of a tip: "" when the story has no id for it (a missing id never shows a raw key).
+func tip_text(id: String) -> String:
+	return StoryText.get_or(id, "", {}).strip_edges()
+
+## True when a tip card may be on screen now: nothing modal, no event window, no guided step card.
+func tip_can_show() -> bool:
+	if game_over or preface != null or event_notice != null or dock_sheet != null or tip_card == null:
+		return false
+	if tut_card != null and tut_card.visible:
+		return false
+	if skill_screen != null and skill_screen.visible:
+		return false
+	if galaxy_view != null and galaxy_view.visible:
+		return false
+	return true
+
+## The next tip that is due and unseen, or "". Marks tips with no text as seen.
+func tip_next() -> String:
+	for def in TIP_DEFS:
+		var id: String = def["id"]
+		if tips_seen.has(id):
+			continue
+		if tip_text(id) == "":
+			tips_seen[id] = true
+			continue
+		if tip_due(def):
+			return id
+	return ""
+
+func _tip_show(id: String) -> void:
+	tips_seen[id] = true  # marked at once, so a save or load never repeats it
+	tip_active = id
+	tip_left = TIP_SECS
+	tip_text_label.text = tip_text(id)
+	tip_why_label.text = StoryText.get_or(id + "_WHY", "", {})
+	tip_why_label.visible = tip_why_label.text != ""
+	tip_card.size = Vector2(TUT_CARD_W, 0.0)
+	tip_card.position = Vector2((get_viewport_rect().size.x - TUT_CARD_W) * 0.5, 84.0)
+	tip_card.visible = true
+
+func _tip_close() -> void:
+	tip_active = ""
+	if tip_card != null:
+		tip_card.visible = false
+
+## One step of the tip system: seeds an old save, hides the card while something modal is up, shows the next due tip, times it out.
+func _tip_tick(delta: float) -> void:
+	if tip_card == null or map == null or engine == null:
+		return
+	if tips_off or tut_step < 0:
+		if tip_active != "":
+			_tip_close()
+		return
+	_tip_poll_t += delta
+	if tip_active != "":
+		tip_card.visible = tip_can_show()
+		if tip_card.visible:
+			tip_card.size = Vector2(TUT_CARD_W, 0.0)  # height shrinks to the text, as the guided card does
+			tip_left -= delta
+			if tip_left <= 0.0:
+				_tip_close()
+		return
+	if _tip_poll_t < TIP_POLL_SECS:
+		return
+	_tip_poll_t = 0.0
+	if tips_seed_pending:
+		tips_seed_pending = false
+		for def in TIP_DEFS:
+			if tip_due(def):
+				tips_seen[str(def["id"])] = true
+		return
+	if not tip_can_show():
+		return
+	var id := tip_next()
+	if id != "":
+		_tip_show(id)
+
+func _build_tip_card() -> void:
+	tip_card = PanelContainer.new()
+	tip_card.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	tip_card.custom_minimum_size = Vector2(TUT_CARD_W, 0)
+	tip_card.visible = false
+	add_child(tip_card)
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 8)
+	tip_card.add_child(box)
+	var cap := Label.new()
+	cap.text = StoryText.get_or("TIP_HEADER", "Tip").to_upper()
+	cap.theme_type_variation = "LabelCaption"
+	box.add_child(cap)
+	tip_text_label = Label.new()
+	tip_text_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	box.add_child(tip_text_label)
+	tip_why_label = Label.new()
+	tip_why_label.theme_type_variation = "LabelMuted"
+	tip_why_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	box.add_child(tip_why_label)
+	var row := HBoxContainer.new()
+	row.alignment = BoxContainer.ALIGNMENT_END
+	var ok := Button.new()
+	ok.theme_type_variation = "ButtonGhost"
+	ok.text = StoryText.get_or("BTN_TIP_OK", "Got it")
+	ok.pressed.connect(_tip_close)
+	row.add_child(ok)
+	box.add_child(row)
 
 ## Game tips on the right board: one short tip per cycle, rotating. Never tutorial text.
 const TIP_IDS := ["TIP_BOARD_1", "TIP_BOARD_2", "TIP_BOARD_3", "TIP_BOARD_4", "TIP_BOARD_5", "TIP_BOARD_6"]
@@ -4386,6 +4644,7 @@ func _build_board() -> void:
 	add_child(tut_hl)
 	tut_arrow = tut_make_arrow()
 	add_child(tut_arrow)
+	_build_tip_card()
 	notice_label = Label.new()
 	notice_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	notice_label.visible = false

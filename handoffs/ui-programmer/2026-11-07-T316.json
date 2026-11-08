@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-07",
+  "task": "T316",
+  "status": "done",
+  "files_changed": ["game/main.gd", "game/planet_panel.gd", "tools/tests/run_tests.gd"],
+  "handoff": "TUT_GUIDE now has 12 steps (TUT_G7_NEEDS and TUT_G7_GROW at index 7 and 8; skills 9, permit 10, done 11). TUT_VER 3; Main.tut_map_saved_step maps v1/v2/current saves, finished tutorials stay finished. Needs ends when a world card with a Needs list is open, Grow when any_tier:1; the done step ends when the Bazaar panel opens (or the 12 s timer). One-time tips: TIP_DEFS in main.gd (31 tips, in story order), each by Conditions tree, state check or tip_signal; separate tip card under the top bar, queued one at a time, waits behind guided card, event window, dock sheet, skills window, galaxy view, game over. Saved as tips_seen/tips_off; Skip tutorial turns tips off; saves without tips_seen mark already-due tips as seen. New text ids used with fallback: TIP_HEADER, BTN_TIP_OK. Tests added: _test_tutorial_t316. Quick look: logs/screenshots/T316.png (tip card visible, fixed a stretched card height).",
+  "open_questions": ["TIP_HEADER and BTN_TIP_OK have no story text yet (fallbacks Tip / Got it).", "Some tip triggers are approximations: EXPLORE, WEATHER (forecast), DEAD, RECLAIM, BOOST."]
+}
