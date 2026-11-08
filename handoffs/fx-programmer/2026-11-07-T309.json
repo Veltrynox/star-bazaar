@@ -1,0 +1,8 @@
+{
+  "task": "T309",
+  "agent": "fx-programmer (done by main session)",
+  "summary": "Path and ambient ships glide to / from a seeded point on the visible planet disc at both lane ends, shrinking into the surface; mid-lane T304 spread unchanged.",
+  "files": ["game/traffic/traffic_motion.gdshaderinc", "game/traffic/traffic_layer.gd", "game/map.gd", "game/route_line.gd"],
+  "notes": "route_line.gd (outside touches) got a 4-line edit so player-lane ships pass planet radii. Constants LAND_FADE, LAND_DISC, LAND_GAP in traffic_layer.gd. Radii packed into M[3].z.",
+  "screenshot": "logs/screenshots/T309.png"
+}

@@ -1074,13 +1074,13 @@ func _update_ambient_traffic() -> void:
 			var chord := p0.distance_to(p2)
 			var w := 1.0 / maxf(chord, 0.1)
 			wsum += w
-			lanes.append(["ambient_%d_%d" % [a, b], p0, c, p2, w])
+			lanes.append(["ambient_%d_%d" % [a, b], p0, c, p2, w, planet_radius(a), planet_radius(b)])
 	var spare := maxi(total - min_n * lanes.size(), 0)
 	for l in lanes:
 		var n := min_n + int(floor(float(spare) * float(l[4]) / maxf(wsum, 0.0001)))
 		if total <= 0:
 			continue
-		traffic.set_ambient_group(l[0], l[1], l[2], l[3], n)
+		traffic.set_ambient_group(l[0], l[1], l[2], l[3], n, "corvette", l[5], l[6])
 		_ambient_keys.append(l[0])
 
 ## T292: hub shuttles. A hub keeps its worlds fed; every need it fills (Hubs status "hub") draws as small shuttles on the lane hub >
@@ -1191,7 +1191,7 @@ func _update_hub_traffic(delta: float) -> void:
 				traffic.clear_group(k)
 			else:
 				var cv := _lane_curve(w, h) if back else _lane_curve(h, w)
-				traffic.set_path_group(k, cv[0], cv[1], cv[2], n, 0, Color.TRANSPARENT, "corvette", scale_m)
+				traffic.set_path_group(k, cv[0], cv[1], cv[2], n, 0, Color.TRANSPARENT, "corvette", scale_m, 1.0, planet_radius(w if back else h), planet_radius(h if back else w))
 		if n <= 0 and int(lane["want"]) <= 0 and float(lane["delay"]) <= 0.0:
 			_hub_lanes.erase(k)  # fully gone (released, or the need was met)
 

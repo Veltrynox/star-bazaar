@@ -2,6 +2,7 @@
 //   INSTANCE_CUSTOM = (phase 0..1, palette index of the cargo tint, state 0 running / 1 stalled / 2 blocked, seed 0..1)
 //   MODEL_MATRIX columns carry the group data (the MultiMesh buffer is written in game/traffic/traffic_layer.gd):
 //     mode 0 path : c0 = p0, c1 = pc, c2 = p2 (quadratic Bezier), c3.x = scale multiplier, c3.y = speed multiplier
+//     c3.z (modes 0, 3): packed q0 * 65536 + q1 * 256 + q2, q = round(radius / 8 * 255): planet radii at p0 / p2, and the radius the lane ends were offset by (0 = each end's own radius); 0 = no landing
 //     mode 3 ambient: as mode 0 (T303: between-planets flow, own MultiMesh, dimmer, shorter streak)
 //     mode 1 orbit: c0 = centre, c1 = (radius in, radius out, revolutions per clock unit), c2 = (tilt rad, scale mult, 0)
 //     mode 2 free : c3 = position, c0 = unit forward, c1.x = scale multiplier (CPU steps these with ShipMotion)
@@ -18,6 +19,9 @@ uniform float amb_gain = 1.0;             // T303: brightness multiplier of ambi
 uniform float lane_spread = 0.0;          // T304: sideways spread per ship, fraction of the lane length (+- this), modes 0 and 3
 uniform float size_jitter = 0.0;          // T307: per-ship size factor 1 +- this, modes 0 and 3 (seeded, fixed per ship)
 uniform float speed_jitter = 0.0;         // T307: per-ship speed factor 1 +- this, modes 0 and 3 (own draw, not tied to the size draw)
+uniform float land_fade = 0.0;            // T309: fraction of the lane over which a ship glides to / from its landing point (0 = off), modes 0 and 3
+uniform float land_disc = 0.0;            // T309: landing points lie within this fraction of the planet radius from its centre
+uniform float land_gap = 0.0;             // T309: lane end distance from the planet centre in planet radii (route_line GAP)
 uniform float amb_streak = 1.0;           // T303: streak length multiplier of ambient ships
 uniform vec4 col_warm : source_color = vec4(1.0, 0.72, 0.35, 1.0);   // laden, running lights
 uniform vec4 col_dim : source_color = vec4(0.45, 0.5, 0.6, 1.0);     // empty, going back
@@ -50,11 +54,37 @@ void traffic_place(mat4 M, vec4 cu, out vec3 pos, out vec3 fwd, out float sc, ou
 		// T304: fixed per-ship offset in the map plane, perpendicular to the lane, zero at both planets
 		vec3 lane = M[2].xyz - M[0].xyz;
 		vec3 side = normalize(vec3(-lane.z, 0.0, lane.x) + vec3(0.0, 0.0, 0.00001));
-		float ends = sin(3.14159265 * clamp((u - 0.04) / 0.92, 0.0, 1.0));
+		float e = clamp((u - 0.04) / 0.92, 0.0, 1.0);
+		float ends = sin(3.14159265 * e);
 		pos += side * ((cu.w * 2.0 - 1.0) * lane_spread * length(lane) * ends);
+		// T309: the lane ends glide to a seeded point on the visible planet disc (touch down / take off), shrinking into the surface
+		float shrink = 1.0;
+		float qp = M[3].z;
+		if (land_fade > 0.0 && qp > 0.5 && st < 0.5) {
+			float q0 = floor(qp / 65536.0);
+			float q1 = floor((qp - q0 * 65536.0) / 256.0);
+			float q2 = qp - q0 * 65536.0 - q1 * 256.0;
+			vec3 ldir = normalize(lane + vec3(0.00001, 0.0, 0.0));
+			float r0 = q0 / 255.0 * 8.0;
+			float r1 = q1 / 255.0 * 8.0;
+			float g0 = q2 > 0.5 ? q2 / 255.0 * 8.0 : r0;
+			float g1 = q2 > 0.5 ? q2 / 255.0 * 8.0 : r1;
+			vec3 c0 = M[0].xyz - ldir * g0 * land_gap;
+			vec3 c1 = M[2].xyz + ldir * g1 * land_gap;
+			float a0 = 6.2831853 * traffic_draw(cu.w, 3.0);
+			float a1 = 6.2831853 * traffic_draw(cu.w, 5.0);
+			vec2 o0 = vec2(cos(a0), sin(a0)) * sqrt(traffic_draw(cu.w, 4.0)) * land_disc * r0;
+			vec2 o1 = vec2(cos(a1), sin(a1)) * sqrt(traffic_draw(cu.w, 6.0)) * land_disc * r1;
+			vec3 l0 = c0 + vec3(o0.x, sqrt(max(r0 * r0 - dot(o0, o0), 0.0)), o0.y);
+			vec3 l1 = c1 + vec3(o1.x, sqrt(max(r1 * r1 - dot(o1, o1), 0.0)), o1.y);
+			float k0 = 1.0 - smoothstep(0.0, land_fade, e);
+			float k1 = 1.0 - smoothstep(0.0, land_fade, 1.0 - e);
+			pos += (l0 - M[0].xyz) * k0 + (l1 - M[2].xyz) * k1;
+			shrink = (1.0 - k0 * k0) * (1.0 - k1 * k1);
+		}
 		vec3 d = 2.0 * w * (M[1].xyz - M[0].xyz) + 2.0 * u * (M[2].xyz - M[1].xyz);
 		fwd = normalize(back ? -d : d);
-		sc *= M[3].x * (1.0 + size_jitter * (traffic_draw(cu.w, 1.0) * 2.0 - 1.0));
+		sc *= M[3].x * (1.0 + size_jitter * (traffic_draw(cu.w, 1.0) * 2.0 - 1.0)) * shrink;
 	} else if (mode == 1) {
 		float a = 6.2831853 * (cu.x + traffic_clock * M[1].z);
 		float r = mix(M[1].x, M[1].y, cu.w);

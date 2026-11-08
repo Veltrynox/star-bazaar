@@ -26,6 +26,11 @@ const BIG := 100000.0        # custom AABB half extent: the instance transforms 
 const MAX_SUBSTEPS := 8
 const SIZE_JITTER := 0.05    # T307: visual constant (not a balance key): per-ship size factor 1 +- this (path and ambient ships)
 const SPEED_JITTER := 0.10   # T307: visual constant: per-ship speed factor 1 +- this
+const LAND_FADE := 0.12      # T309: visual constant: share of the lane over which a ship glides in to / out of its landing point
+const LAND_DISC := 0.9       # T309: landing points lie within this fraction of the planet radius from its centre (on the visible disc)
+const LAND_GAP := 0.6        # T309: lane end distance from the planet centre in radii; must match RouteLine.GAP (game/route_line.gd)
+const LAND_QMAX := 255.0     # T309: radius packing: q = round(radius / LAND_RMAX * LAND_QMAX), three of them in one float
+const LAND_RMAX := 8.0
 const LANE_SPREAD := 0.04    # T304: visual constant (not a balance key): per-ship sideways spread, fraction of lane length
 
 static var _globals_ready := false
@@ -77,13 +82,15 @@ func set_view_system(id: int) -> void:
 
 ## A lane: `count` ships spread evenly in time along p0 > p2 (bowed through pc), out loaded and back empty.
 ## state: 0 running, 1 stalled (parked at source, amber blink), 2 blocked (parked, red blink). cargo tints the pod.
-func set_path_group(key: String, p0: Vector3, pc: Vector3, p2: Vector3, count: int, state: int = 0, cargo: Color = Color.TRANSPARENT, mesh: String = "corvette", scale_mult: float = 1.0, speed_mult: float = 1.0) -> void:
+## r0 / r1: radii of the planets at p0 / p2 (> 0 turns on the landing glide, T309; 0 keeps the ends as they were); gap_r: the radius
+## the lane ends were offset from the centres by, when it is not each planet's own (route lines use the larger of the two).
+func set_path_group(key: String, p0: Vector3, pc: Vector3, p2: Vector3, count: int, state: int = 0, cargo: Color = Color.TRANSPARENT, mesh: String = "corvette", scale_mult: float = 1.0, speed_mult: float = 1.0, r0: float = 0.0, r1: float = 0.0, gap_r: float = 0.0) -> void:
 	var slot := _slot_for(MODE_PATH, mesh)
 	var buf := PackedFloat32Array()
 	var pal := float(_palette_index(cargo))
 	var n := mini(maxi(count, 0), _cap())
 	for i in n:
-		_push(buf, p0, pc, p2, Vector3(scale_mult, speed_mult, 0.0), Vector4(float(i) / float(maxi(n, 1)), pal, float(state), _seed(key, i)))
+		_push(buf, p0, pc, p2, Vector3(scale_mult, speed_mult, _pack_radii(r0, r1, gap_r)), Vector4(float(i) / float(maxi(n, 1)), pal, float(state), _seed(key, i)))
 	_set_group(key, slot, buf, n)
 
 ## Ships circling `centre` with radii between r_in and r_out (spread by seed), ring tilted by `tilt` radians about X.
@@ -100,12 +107,12 @@ func set_orbit_group(key: String, centre: Vector3, r_in: float, r_out: float, co
 
 ## T303: ambient lane between two planets: `count` ships spread over the loop (both directions), p0 > p2 bowed through pc.
 ## Size, speed and look come from balance traffic_ambient_*. Plain tint, always running.
-func set_ambient_group(key: String, p0: Vector3, pc: Vector3, p2: Vector3, count: int, mesh: String = "corvette") -> void:
+func set_ambient_group(key: String, p0: Vector3, pc: Vector3, p2: Vector3, count: int, mesh: String = "corvette", r0: float = 0.0, r1: float = 0.0) -> void:
 	var slot := _slot_for(MODE_AMBIENT, mesh)
 	var buf := PackedFloat32Array()
 	var n := mini(maxi(count, 0), _cap())
 	for i in n:
-		_push(buf, p0, pc, p2, Vector3(_b("traffic_ambient_scale"), _b("traffic_ambient_speed"), 0.0), Vector4(float(i) / float(maxi(n, 1)), 0.0, 0.0, _seed(key, i)))
+		_push(buf, p0, pc, p2, Vector3(_b("traffic_ambient_scale"), _b("traffic_ambient_speed"), _pack_radii(r0, r1)), Vector4(float(i) / float(maxi(n, 1)), 0.0, 0.0, _seed(key, i)))
 	_set_group(key, slot, buf, n)
 
 ## One free-flying ship (plane x/z, height y) that flies to `target` with ShipMotion.step. Call again to retarget (keeps its motion).
@@ -229,6 +236,16 @@ static func _push(buf: PackedFloat32Array, c0: Vector3, c1: Vector3, c2: Vector3
 	# MultiMesh 3D transform is 3 rows of (basis x, basis y, basis z, origin): the shader reads the columns as data.
 	buf.append_array(PackedFloat32Array([c0.x, c1.x, c2.x, c3.x, c0.y, c1.y, c2.y, c3.y, c0.z, c1.z, c2.z, c3.z, cu.x, cu.y, cu.z, cu.w]))
 
+## T309: planet radii r0 / r1 and the radius the lane ends were offset by (gap_r, 0 = each end's own) in one float (the matrix has
+## no free column): q0 * 65536 + q1 * 256 + q2; 0 when a planet radius is missing.
+static func _pack_radii(r0: float, r1: float, gap_r: float = 0.0) -> float:
+	if r0 <= 0.0 or r1 <= 0.0:
+		return 0.0
+	var q0 := clampi(roundi(r0 / LAND_RMAX * LAND_QMAX), 1, int(LAND_QMAX))
+	var q1 := clampi(roundi(r1 / LAND_RMAX * LAND_QMAX), 1, int(LAND_QMAX))
+	var q2 := 0 if gap_r <= 0.0 else clampi(roundi(gap_r / LAND_RMAX * LAND_QMAX), 1, int(LAND_QMAX))
+	return float(q0 * 65536 + q1 * 256 + q2)
+
 static func _seed(key: String, i: int) -> float:
 	return fposmod(float(hash(key) % 9973) * 0.0137 + float(i) * 0.61803398875, 1.0)
 
@@ -265,6 +282,9 @@ func _slot_for(mode: int, mesh: String) -> String:
 		m.shader = SHIP_SHADER if si == 0 else STREAK_SHADER
 		m.set_shader_parameter("mode", mode)
 		m.set_shader_parameter("lane_spread", LANE_SPREAD)
+		m.set_shader_parameter("land_fade", LAND_FADE)
+		m.set_shader_parameter("land_disc", LAND_DISC)
+		m.set_shader_parameter("land_gap", LAND_GAP)
 		m.set_shader_parameter("size_jitter", SIZE_JITTER)
 		m.set_shader_parameter("speed_jitter", SPEED_JITTER)
 		m.set_shader_parameter("palette", _palette_packed())

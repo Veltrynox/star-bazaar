@@ -723,7 +723,10 @@ func _sync_ships() -> void:
 	elif _ship_status != "running":
 		st = 1
 	var n := mini(_ship_count, DOT_MAX) if st == 0 else 1  # a parked lane shows one ship, as the dots do
-	tl.set_path_group(key, _p0, _c, _p2, n, st, _ship_cargo)
+	var mp := get_parent()  # T309: ships land on the planets' discs (the ends were offset by the line's radius, the discs are each planet's own)
+	var ra: float = mp.planet_radius(pair_a) if pair_a >= 0 and pair_b >= 0 and "positions" in mp and pair_a < mp.positions.size() and pair_b < mp.positions.size() else 0.0
+	var rb: float = mp.planet_radius(pair_b) if ra > 0.0 else 0.0
+	tl.set_path_group(key, _p0, _c, _p2, n, st, _ship_cargo, "corvette", 1.0, 1.0, ra, rb, radius)
 
 func _exit_tree() -> void:
 	var tl := _traffic()
