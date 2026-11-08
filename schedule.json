@@ -3038,7 +3038,7 @@
       "depends_on": [
         "T303"
       ],
-      "status": "queued",
+      "status": "blocked",
       "turn_cap": 25,
       "window": "Owner request 2026-11-07: the routes the small ships travel are too linear, add ship position variation in the horizontal plane of +-4 percent.",
       "brief": "Goal: ships on one lane no longer line up on a single curve; each ship flies slightly beside the lane centre so a lane reads as a soft band. Read: game/traffic/traffic_layer.gd (set_ambient_group, the path group push, _push, _seed), game/traffic/traffic_motion.gdshaderinc and traffic_ship.gdshader (Bezier motion in the vertex shader). Build: a per-ship sideways offset in the horizontal (map) plane, perpendicular to the lane direction, in the range -4 to +4 percent of the lane length (p0 to p2 distance), fixed per ship from its existing seed (stable, not re-rolled per frame, same offset on the outbound and return leg is fine). Apply to the ambient group and the path group (player lanes), not to orbit or free ships. The offset is applied in the vertex shader (or folded into the control points when the buffer is written); no per-ship nodes, no per-frame buffer rewrites. Ships keep leaving and docking exactly at the planets: fade the offset to zero near both ends so the lane still starts and ends on the planet. Numbers: the 0.04 is a plain visual constant, not a balance key (owner ruling 2026-11-07): one named const in game/traffic/traffic_layer.gd (LANE_SPREAD = 0.04) passed to the shader as a uniform; do not add anything to data/balance.json and do not bump data_version. Old saves must still load (no saved state). Done when built: no QA, bots or sim. Take the one Quick look screenshot (sh tools/screenshot.sh --out logs/screenshots/T304.png), fix only objective breakage, record the path in the handoff. gdd.md is synced at commit by the main session. Handoff: handoffs/fx-programmer/<date>-T304.json.",
@@ -3046,7 +3046,9 @@
       "touches": [
         "game/traffic/*"
       ],
-      "priority": 1
+      "priority": 1,
+      "note": "Blocked by orchestrator: worker did not report done: blocked T304 | task not found in schedule.json (neither open nor done) in this worktree, so there is nothing to build",
+      "blocked_log": "/Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T304-merge.log"
     }
   ],
   "done_task_ids": [

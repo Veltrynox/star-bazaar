@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-07 15:52 run: T292
-- Summary: Hub deliveries draw as shuttle path groups with a designate ripple, fan launch and return on release, driven by new placeholder balance keys
-- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
-- Approach: built by a worker in worktree ../wt/T292 on branch task/T292, merged by the serial merge queue.
-- Agent prompts: /overnight-worker T292 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T292.log.
-- Worked: rebase, full test suite and fast-forward merge passed.
-- Failed / did not work: nothing.
-- Files and commits: see git log on branch new-features for commits starting with T292.
-- Left to do: nothing for this task.
-
 ## 2026-11-07 15:55 run: T291
 - Summary: Not merged: fast-forward merge refused
 - Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
@@ -65,3 +55,13 @@
 - Failed / did not work: nothing.
 - Files and commits: see git log on branch new-features for commits starting with T291.
 - Left to do: nothing for this task.
+
+## 2026-11-07 21:22 run: T304
+- Summary: Not merged: worker did not report done: blocked T304 | task not found in schedule.json (neither open nor done) in this worktree, so there is nothing to build
+- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
+- Approach: built by a worker in worktree ../wt/T304 on branch task/T304, merged by the serial merge queue.
+- Agent prompts: /overnight-worker T304 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T304.log.
+- Worked: worker finished.
+- Failed / did not work: worker did not report done: blocked T304 | task not found in schedule.json (neither open nor done) in this worktree, so there is nothing to build.
+- Files and commits: see git log on branch new-features for commits starting with T304.
+- Left to do: owner or a new run: see blocked_log in schedule.json.
