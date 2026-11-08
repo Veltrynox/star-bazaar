@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-07 15:57 run: T291
-- Summary: Not merged: fast-forward merge refused
-- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
-- Approach: built by a worker in worktree ../wt/T291 on branch task/T291, merged by the serial merge queue.
-- Agent prompts: /overnight-worker T291 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T291.log.
-- Worked: worker finished.
-- Failed / did not work: fast-forward merge refused.
-- Files and commits: see git log on branch new-features for commits starting with T291.
-- Left to do: owner or a new run: see blocked_log in schedule.json.
-
 ## 2026-11-07 15:58 run: T291
 - Summary: Hub UI built: Make hub and Hub panel buttons on the card, a hub panel (pool +/-, per-world and per-need ticks with status, release), a map reach ring, and the card's 'fed by' column filled
 - Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
@@ -64,4 +54,14 @@
 - Worked: rebase, full test suite and fast-forward merge passed.
 - Failed / did not work: nothing.
 - Files and commits: see git log on branch new-features for commits starting with T304.
+- Left to do: nothing for this task.
+
+## 2026-11-07 21:46 run: T240
+- Summary: Branch good icons (powder, spyware, rounds, arms, blooms, attar, medicine) already existed and resolve via ui.gd; wrote handoff only
+- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
+- Approach: built by a worker in worktree ../wt/T240 on branch task/T240, merged by the serial merge queue.
+- Agent prompts: /overnight-worker T240 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T240.log.
+- Worked: rebase, full test suite and fast-forward merge passed.
+- Failed / did not work: nothing.
+- Files and commits: see git log on branch new-features for commits starting with T240.
 - Left to do: nothing for this task.

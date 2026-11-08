@@ -1763,13 +1763,14 @@
       "depends_on": [
         "T238"
       ],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 40,
       "window": "Owner request 2026-11-05. Not started: main session sets it running.",
       "brief": "Draw an icon for every new or renamed good in design/proposals/2026-11-05-branch-goods.md in art/icons, same format, size and style as the existing icon_<good>_64.svg files (read several first; one palette per branch so a branch reads at a glance, energy keeps its own icon as the shared good). Follow the icon brief of each good (silhouette readable at 64 px). Hook them wherever goods icons load (ui.gd and the galaxy and solar views) so the new ids resolve; remove icons of dropped goods only if nothing references them. Generated atlases are not edited by hand. Handoff handoffs/ui-programmer/2026-11-05-T240.json with the list of ids and files.",
       "touches": [
         "game/ui.gd"
-      ]
+      ],
+      "note": "Done by orchestrator: Branch good icons (powder, spyware, rounds, arms, blooms, attar, medicine) already existed and resolve via ui.gd; wrote handoff only"
     },
     {
       "task_id": "T241",
