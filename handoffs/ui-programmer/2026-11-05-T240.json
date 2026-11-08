@@ -1,0 +1,17 @@
+{
+  "task": "T240",
+  "agent": "ui-programmer",
+  "summary": "No new art needed: icons for every new or renamed branch good already exist in art/icons (commit b190f90) and resolve through Ui.icon / Ui.good_icon; colours for all ids are in Ui.COMMODITY_FALLBACK in game/ui.gd.",
+  "ids": ["powder", "spyware", "rounds", "arms", "blooms", "attar", "medicine"],
+  "files": [
+    "art/icons/icon_powder_64.svg",
+    "art/icons/icon_spyware_64.svg",
+    "art/icons/icon_rounds_64.svg",
+    "art/icons/icon_arms_64.svg",
+    "art/icons/icon_blooms_64.svg",
+    "art/icons/icon_attar_64.svg",
+    "art/icons/icon_medicine_64.svg"
+  ],
+  "kept_icons_of_old_ids": "cells, armour, cask, gel, chips not removed (the goods are still the live ids until T238 ships)",
+  "changed_files": ["handoffs/ui-programmer/2026-11-05-T240.json"]
+}
