@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "agent": "qa-analyst",
+  "date": "2026-11-08",
+  "task": "QA: flight, discovery and trading post runs with bots",
+  "status": "partial",
+  "files_changed": [
+    "qa/bots/flight_probe.gd",
+    "qa/bots/flight_probe.sh",
+    "qa/reports/2026-11-05-ship-flight.md",
+    "qa/reports/2026-11-05-T182-bug_report.json",
+    "qa/reports/2026-11-05-T182-runs.jsonl",
+    "handoffs/qa-analyst/2026-11-05-T182.json"
+  ],
+  "open_questions": [
+    "UNKNOWN: whether the Bazaar win is reachable at all (win detection is a stub, T281), so the win and pacing checks are not judged.",
+    "UNKNOWN: whether always_expand bankruptcy at cycle 6 (fleet ship) is intended.",
+    "UNKNOWN: whether exploration mode should switch off by itself while a dead world waits for MIN_3."
+  ],
+  "handoff": "T182 done with partial coverage. 480 bot runs (5 CEO states x 4 ships x 4 strategies x 6 seeds): 0 crashes, 0 freezes, 0 script errors. No win recorded anywhere (HIGH, win detection stub), so win and pacing are not judgeable. Flight probe on 6 seeds, 26 checks each: pause stops the ship, all target types fly, mid-flight and mid-build saves round-trip, every planet reachable (no soft-lock). No global dominant strategy; decent beats never_expand in 16 of 20 combos; always_expand dominates only ceo_woman_02+dart (medium). Medium: decent cash spread (15 of 120 under 1000) and route 12 'Waiting for room' (26 runs). Release export: static check passes, no export built. Details in qa/reports/2026-11-05-ship-flight.md and the bug_report JSON.",
+  "details": {
+    "results": [
+      {
+        "strategy": "decent",
+        "final_cash": 12241,
+        "cycle_reached": 40,
+        "outcome": "soft"
+      },
+      {
+        "strategy": "sloppy",
+        "final_cash": 8619,
+        "cycle_reached": 40,
+        "outcome": "soft"
+      },
+      {
+        "strategy": "always_expand",
+        "final_cash": 6874,
+        "cycle_reached": 40,
+        "outcome": "soft"
+      },
+      {
+        "strategy": "never_expand",
+        "final_cash": 9470,
+        "cycle_reached": 40,
+        "outcome": "soft"
+      }
+    ],
+    "batch": {
+      "runs": 480,
+      "combos": "ceo none, ceo_man_01, ceo_man_02, ceo_woman_01, ceo_woman_02 x ship small, bulk, dart, fleet x 4 strategies x seeds 1 to 6",
+      "runner": "qa/bots/skill_signoff_one.sh, xargs -P 8, job list logs/qa-t182/batch/jobs.txt",
+      "crashes": 0,
+      "frozen": 0,
+      "script_errors": 0,
+      "wins": 0,
+      "loss_endings": "14 END_BANKRUPT, all always_expand, cycles 6 to 32",
+      "soft_endings": "466 END_UNFINISHED at cycle 40",
+      "top_cash_cells_of_120": {
+        "decent": 65,
+        "never_expand": 30,
+        "always_expand": 19,
+        "sloppy": 6
+      },
+      "decent_beats_never_expand_combos": "16 of 20",
+      "warnings": "route 12 'Waiting for room' 3+ cycles in 26 runs (40 warnings)",
+      "not_judgeable": [
+        "win and pacing (no win detected, T281)",
+        "share, best market and win-streak report fields (stubbed, T281)"
+      ]
+    },
+    "probe": {
+      "script": "qa/bots/flight_probe.gd via qa/bots/flight_probe.sh <out> <seed>",
+      "seeds": "1 to 6, 26 checks each, 0 fails, 1 skip per seed (dead world needs MIN_3, informational)",
+      "covers": [
+        "pause stops ship (200 paused frames, drift 0)",
+        "flights to planet, point, storage, cluster, system 2 jump out and back (no_gate before permit)",
+        "save mid-flight and mid-build, reload, finish",
+        "sweep: all 19 planets established after permits and MIN chain",
+        "exploration mode completes in system 1"
+      ],
+      "note": "probe adds cash, skill points and trade income; the skill chain needs FND_PERMIT, FND_STORAGE, FND_PROSPECT, MIN_1, MIN_3"
+    },
+    "release_export": "static only: debug_menu.gd loaded only when OS.is_debug_build(), and excluded in export_presets.cfg. No export built.",
+    "bugs": "qa/reports/2026-11-05-T182-bug_report.json: 6 entries (1 high win_not_detected, 2 medium, 1 medium route, 2 low)"
+  }
+}

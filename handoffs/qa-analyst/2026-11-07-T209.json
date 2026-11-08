@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "agent": "qa-analyst",
+  "date": "2026-11-07",
+  "task": "T209 QA re-run with the bot discover step (owner started by hand)",
+  "status": "partial",
+  "files_changed": [
+    "qa/reports/2026-11-07-T209-rerun-bug_report.json",
+    "qa/reports/2026-11-07-T209-rerun-summary.json",
+    "qa/reports/2026-11-07-T209-rerun-runs.jsonl",
+    "handoffs/qa-analyst/2026-11-07-T209.json"
+  ],
+  "open_questions": [
+    "UNKNOWN: which agent or owner policy sets the decent bot's skill path in market focus (it never learns MIL/LUX/MIN/BIO nodes), so 61 of 68 skill ablations are no-ops. Producer to decide the bot policy.",
+    "UNKNOWN: is the Bazaar win ever reachable? No run records a win (stub T281), so pacing (cycle 22 to 30) cannot be judged; END_UNFINISHED at cycle 40 is the only ending seen.",
+    "UNKNOWN: the release-export debug-menu check was not in this request and was not run."
+  ],
+  "handoff": "T209 re-run with the discover step. Probe worked: planets 3, 2, 4 flown to and established, 13 lanes built, no script error. Full batch: 304 runs (76 arms x 4 seeds), 0 crashes, 0 script errors, every run built lanes. Seeds now differ in all arms. Strategy: decent base best in 3 of 4 seeds; no dominant strategy. Skills: no dominant or trap skill confirmed. FND_PROSPECT looks useless on cash. FND_LEDGER removal costs about 8k in 2 of 4 seeds (concern). FND_PERMIT and FND_STORAGE swing both ways. 61 of 68 ablations match their comparator exactly (bot never learns those nodes), so coverage is partial. Pacing not judgeable (no win detected). Route 16 shows 'Waiting for room' in 80 runs. Details in the summary JSON.",
+  "details": {
+    "probe": "logs/qa-t209/probe3 base decent 1: notes discover fly planet_3, establish planet_3 (cycle 4), fly planet_2, establish (11), fly planet_4, establish (15); lanes_built 13, routes_open 9, ships 9, permits 1, skills 7, END_UNFINISHED.",
+    "batch": "logs/qa-t209/batch2 (git-ignored). Job list reused from logs/qa-t209/batch/jobs.txt. Runner qa/bots/skill_signoff_one.sh with xargs -P 8. Analysis script logs/qa-t209/analyse_t209.py (scratch).",
+    "strategy_results": [
+      {"arm": "decent base (no focus)", "final_cash_by_seed": [485, 20700, 26528, 23144], "lanes_mean": 13.2, "ships_mean": 8.8, "skills_mean": 4.5, "outcome": "soft, END_UNFINISHED x4"},
+      {"arm": "decent focus mil", "final_cash_by_seed": [9425, 20700, 26528, 23144], "lanes_mean": 11.5, "ships_mean": 7.0, "skills_mean": 3.8, "outcome": "soft, END_UNFINISHED x4"},
+      {"arm": "decent focus lux", "final_cash_by_seed": [14422, 12709, 12930, 12957], "lanes_mean": 4.0, "ships_mean": 2.0, "skills_mean": 2.0, "outcome": "soft, END_UNFINISHED x4"},
+      {"arm": "decent focus min", "final_cash_by_seed": [934, 20700, 26528, 23144], "lanes_mean": 11.8, "ships_mean": 7.2, "skills_mean": 4.0, "outcome": "soft, END_UNFINISHED x4"},
+      {"arm": "decent focus bio", "final_cash_by_seed": [714, 738, 10755, 14931], "lanes_mean": 12.2, "ships_mean": 6.2, "skills_mean": 4.2, "outcome": "soft, END_UNFINISHED x4"},
+      {"arm": "sloppy", "final_cash_by_seed": [7402, 8580, 8697, 9202], "lanes_mean": 1.0, "ships_mean": 1.0, "skills_mean": 0.0, "outcome": "soft, END_UNFINISHED x4"},
+      {"arm": "always_expand", "final_cash_by_seed": [8408, 478, 2729, 15052], "lanes_mean": 16.5, "ships_mean": 10.0, "skills_mean": 5.5, "outcome": "soft, END_UNFINISHED x4"},
+      {"arm": "never_expand", "final_cash_by_seed": [9375, 9034, 10722, 9414], "lanes_mean": 4.0, "ships_mean": 1.0, "skills_mean": 3.5, "outcome": "soft, END_UNFINISHED x4"}
+    ],
+    "skill_verdicts": {
+      "arms": 68,
+      "tally": "64 UNREACHED (61 identical to comparator, plus BIO_1, BIO_2, FND_RIVAL_WATCH), 4 MIXED/SMALL (FND_LEDGER, FND_PERMIT, FND_PROSPECT, FND_STORAGE); no DOMINANT or TRAP",
+      "fnd_per_seed_cash_delta_vs_base": {
+        "FND_PERMIT": [27288, -4070, -9163, 5740],
+        "FND_STORAGE": [264, 1498, -14350, -1517],
+        "FND_LEDGER": [183, -8317, 0, -8377],
+        "FND_PROSPECT": [273, -44, 0, 0],
+        "FND_RIVAL_WATCH": [138, -7342, 0, 0]
+      },
+      "judgement": "useless candidate: FND_PROSPECT (cash effect under 0.5 pct). concern: FND_LEDGER (costs about 8k in 2 seeds, fails the 3-seed rule). untestable: FND_RIVAL_WATCH (2 of 4 seeds), market and tech nodes (not learned in focus). path-dependent: FND_PERMIT, FND_STORAGE."
+    },
+    "dominance": "no strategy wins 3 of 4 seeds except decent base (3 of 4). never_expand wins seed 1 only (base seed 1 is weak, 485).",
+    "pacing": "not judgeable: 0 wins in 304 runs (win detection is a stub, T281). Every run END_UNFINISHED at cycle 40.",
+    "seeds": "distinct in all 76 arms; no identical seed pairs. focus_mil and focus_min seeds 2 to 4 equal base (focus only changes seed 1 there).",
+    "batch_flags": {"runs": 304, "crashes": 0, "frozen": 0, "script_errors": 0, "runs_with_lanes": 304, "discover_fly": 619, "discover_establish": 619, "discover_errors": 0, "runs_with_warning": 80},
+    "bug_report": "qa/reports/2026-11-07-T209-rerun-bug_report.json: 4 entries (route 16 Waiting for room medium, base seed-1 economy spread medium, skill coverage gap medium, win not detected high)",
+    "superseded": "qa/reports/2026-11-07-T209-bug_report.json (the 0-lane high bug) is resolved by the discover step; kept as history."
+  }
+}

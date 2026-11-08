@@ -1,0 +1,46 @@
+[
+  {
+    "run_id": "T209-batch-abl_FND_PERMIT-decent-1",
+    "seed": 1,
+    "strategy": "decent",
+    "issue_type": "bot_cannot_build_lanes_after_discovery",
+    "severity": "high",
+    "steps": [
+      "Working tree with the fixed qa/bots/bot_run.gd (parses). Log dir: logs/qa-t209/batch (git-ignored).",
+      "Run: bash qa/bots/skill_signoff_one.sh <out_dir> probe decent 1 --skip-tutorial --keep-running=38 (no market focus). Same result with --market=mil, lux, min, bio.",
+      "Read the row: lanes_built 0, routes_open 0, permits_bought 0, ship_buys [[1,0,1]], event_rows show closed [1,2,3,4] from cycle 2 to 40, outcome soft, ending_id END_UNFINISHED, cycle_reached 40.",
+      "Batch of 304 runs (76 arms x 4 seeds, all with 0 lanes): 0 runs built a lane in any arm, so every skill ablation matches the baseline."
+    ],
+    "expected": "A decent bot builds trade lanes, buys a permit when affordable and reaches the win at cycle 27 to 35 (the 2026-11-05 sign-off design). Each skill ablation then changes cash, lanes or win cycle.",
+    "actual": "Every run has 0 lanes. planet_established() is false for planets 1 to 4 (Tillam, Ashgate, Cinderrest, Flintmoor): data/balance.json discovery_enabled is 1 (added after the 2026-11-05 sign-off, T179 proposal 58e37d9). game/route_engine.gd check_connection() then refuses every lane, and _ranked_lanes() in bot_run.gd returns nothing. bot_run.gd has no Pathfinder calls (request_fly, request_establish, post build), so the bot never opens a second planet. Only the home world (planet_1, Voltara) is trading, and a lane needs two open planets. The skill and market arms therefore measure nothing. Result: no win, no loss-by-bankruptcy; the run ends at cycle 40 with END_UNFINISHED.",
+    "owner_agent": "qa-analyst"
+  },
+  {
+    "run_id": "T209-batch-decent-seeds",
+    "seed": 3,
+    "strategy": "decent",
+    "issue_type": "seed_has_no_effect",
+    "severity": "medium",
+    "steps": [
+      "Run decent with seeds 1, 2, 3 and 4 on the same arm, e.g. bash qa/bots/skill_signoff_one.sh <out_dir> base decent <seed> --skip-tutorial --keep-running=38.",
+      "Compare final_cash, ship_buys and skills_learned across seeds (logs/qa-t209/batch/rows/base_decent_*.json)."
+    ],
+    "expected": "Four seeds give four different runs, so the seed count adds coverage.",
+    "actual": "Seeds 1 and 2 give identical results, and seeds 3 and 4 give identical results (final cash 1040 and 640). The game has no RNG and the bot's seed only drives timer chunks and the choice policy (alt: odd RELEASE, even CORP), which does not change these runs. Four seeds are therefore two distinct runs. Coverage is overstated in the sign-off format.",
+    "owner_agent": "qa-analyst"
+  },
+  {
+    "run_id": "T209-batch-decent-end",
+    "seed": 1,
+    "strategy": "decent",
+    "issue_type": "run_ends_unfinished_not_loss",
+    "severity": "medium",
+    "steps": [
+      "Run decent, any arm, e.g. bash qa/bots/skill_signoff_one.sh <out_dir> base decent 1 --skip-tutorial --keep-running=38.",
+      "Read ending_id and cycle_reached in the row."
+    ],
+    "expected": "UNKNOWN: a run that never wins should reach a defined loss ending at the designed cycle. Only END_BANKRUPT is documented in game/main.gd as the loss.",
+    "actual": "The run ends at cycle 40 with ending_id END_UNFINISHED. The harness labels this soft. It is neither a win nor END_BANKRUPT, and cash stayed positive (640 to 1040). Whether this is the intended outcome for a run that never wins is UNKNOWN to QA; the owner or Producer needs to confirm it. Note this may also be a symptom of the lane gap above.",
+    "owner_agent": "producer"
+  }
+]

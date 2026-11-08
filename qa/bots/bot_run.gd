@@ -173,6 +173,8 @@ var bankrupt_worst := false  # --bankrupt-worst: bankrupt builds the least profi
 var chain_policy := "first"  # --chains=first|good|bad|random
 var chain_picks: Array = []  # [cycle, step id, option id, nudge, dir after]
 var market_focus := ""  # --market=<id>: trade only goods of this market (empty: all goods)
+var bazaar_log: Array = []  # Bazaar milestones [cycle, event, value]: tier_cap (first world at capital tier), founded, stage, opening_ready, opened
+var _baz_seen := {"tier_cap": false, "founded": false, "stage": 0, "opening_ready": false, "opened": false}
 var share_rows: Array = []  # per cycle end: [cycle, [share per Markets.ids], cash] (market readout for QA)
 var events_resolved := 0  # events answered by _resolve_events (0 while the hook is a stub)
 var workshops_built: Array = []  # QA 2026-11-03: [cycle, workshop id] per workshop the bot built
@@ -484,6 +486,7 @@ func _decide(c: int) -> void:
 		_workshop_turn(c)  # QA 2026-11-03: build the workshops of the focus once their node is learned
 	_bot_skill_turn(c)  # QA 2026-11-03: a ready bot skill is used on the leading bot
 	_buy_wanted_permit()
+	_discover_step(c)  # T209 follow-up: open a second world with the Pathfinder before lanes are planned
 	var plan := _plan()
 	_expand(plan, c)
 	if strategy != "sloppy":
@@ -495,6 +498,45 @@ func _decide(c: int) -> void:
 		# "spent" at the end of the bot's turn, the cycle's overhead and upkeep then push it negative, rescues and repossessions follow.
 		drained += int(main.cash) - bankrupt_floor
 		main.cash = bankrupt_floor
+
+
+## T209 follow-up (owner policy): with discovery on, only established planets trade, so a lane needs the Pathfinder to open a world
+## first. When no lane is rankable, the bot flies to the nearest living planet without a post (open systems only) and establishes one,
+## using the same game API the player UI uses (main.fly_to, main.establish). Posts are capped so the bot cannot drain its cash.
+const DISCOVER_MAX_POSTS := 4  # extra posts the bot builds at most (beyond the free first one)
+func _discover_step(c: int) -> void:
+	if strategy == "passive" or strategy == "bankrupt" or not main.flight.is_enabled():
+		return
+	var st: Dictionary = main.flagship_state()
+	var state := str(st["state"])
+	if state == "building" or state == "flying":
+		return
+	var docked := str(st["docked"])
+	if docked != "" and not bool(st["post"][docked]) and not bool(st["platform"][docked]) \
+			and not DeadWorlds.is_dead(main.map.planets[main.planet_index_of(docked)]):
+		var cost: Dictionary = main.flight.cost(docked)
+		if int(main.cash) >= int(cost["cash"]):
+			var r: String = main.establish(docked)
+			notes.append("QA discover: establish %s at cycle %d -> '%s'" % [docked, c, r])
+		return  # docked at an open world: let the post finish before another trip
+	if not _ranked_lanes().is_empty() or main.flight.extra_posts() >= DISCOVER_MAX_POSTS:
+		return
+	var best := ""
+	var best_eta := INF
+	for i in main.map.planets.size():
+		var pid := str(main.map.planets[i].get("id", ""))
+		if bool(st["post"][pid]) or bool(st["platform"][pid]) or DeadWorlds.is_dead(main.map.planets[i]):
+			continue
+		var eta: float = float(st["eta"][pid])
+		if eta < 0.0 or eta >= best_eta:
+			continue
+		if int(main.cash) < int(main.flight.cost(pid)["cash"]):
+			continue
+		best = pid
+		best_eta = eta
+	if best != "":
+		var r2: String = main.fly_to(best)
+		notes.append("QA discover: fly to %s (eta %.2f) at cycle %d -> '%s'" % [best, best_eta, c, r2])
 
 
 func _mission_planet() -> int:
@@ -1192,7 +1234,7 @@ func _bot_skill_turn(c: int) -> void:
 	for id in Skills.bot_skill_ids():
 		if not Skills.bot_skill_ready(id):
 			continue
-		var bot := Markets.leading_bot()
+		var bot := 0  # T281: no leading bot any more; house 0
 		var r: Dictionary = Skills.activate_bot_skill(id, bot)
 		bot_skill_log.append([c, id, bot, int(r.get("until", -1)), bool(r["ok"]), str(r.get("reason", ""))])
 		if bool(r["ok"]):
@@ -1675,6 +1717,7 @@ func _on_cycle_ended(cycle: int) -> void:
 		if SkillTree.is_tech(str(tid)) and not tech_seen.has(tid):
 			tech_seen.append(tid)
 			tech_log.append([cycle, str(tid)])
+	_track_bazaar(cycle)
 	share_rows.append([cycle, _shares_now(), main.cash])
 	for id in live_bot_skills.keys():  # QA 2026-11-03: the bot's strength in the skill's market for the next cycle
 		var d: Dictionary = live_bot_skills[id]
@@ -1682,17 +1725,59 @@ func _on_cycle_ended(cycle: int) -> void:
 		bot_skill_rows.append([cycle + 1, id, int(d["bot"]), snappedf(float(m["strength_mult"]), 0.0001)])
 		if cycle + 1 > int(d["until"]) + 1:
 			live_bot_skills.erase(id)
-	expect_over = cycle >= win_cycle or not Markets.verdict(cycle).is_empty()  # win, swept or the last cycle
+	expect_over = cycle >= win_cycle or Markets.timed_out(cycle)  # T281: no share verdict; the last cycle
 	if expect_over and first_over_cycle < 0:
 		first_over_cycle = cycle
 	if probe != "":
 		probe_rows.append(_probe_row(cycle))
 
 
+## Polls the Bazaar (game/bazaar.gd) at each cycle end and logs the first time each milestone is seen.
+func _track_bazaar(cycle: int) -> void:
+	var b = main.bazaar
+	if b == null:
+		return
+	if not _baz_seen["tier_cap"]:
+		for i in main.map.planets.size():
+			if main.prosperity.tier(i) >= b.capital_tier():
+				_baz_seen["tier_cap"] = true
+				bazaar_log.append([cycle, "tier_cap", i])
+				break
+	if b.is_founded() and not _baz_seen["founded"]:
+		_baz_seen["founded"] = true
+		bazaar_log.append([cycle, "founded", b.capital()])
+	while b.stage() > int(_baz_seen["stage"]):
+		_baz_seen["stage"] = int(_baz_seen["stage"]) + 1
+		bazaar_log.append([cycle, "stage", _baz_seen["stage"]])
+	if b.opening_pending and not _baz_seen["opening_ready"]:
+		_baz_seen["opening_ready"] = true
+		bazaar_log.append([cycle, "opening_ready", b.stage()])
+
+
+## Bazaar block of the RESULT line (replaces the removed market shares).
+func _bazaar_summary() -> Dictionary:
+	var b = main.bazaar
+	var cyc := func(ev: String) -> int:
+		for r in bazaar_log:
+			if r[1] == ev:
+				return int(r[0])
+		return -1
+	var opened_cycle := -1
+	if b.opened and run_side == "WIN":
+		opened_cycle = win_at_cycle
+	return {
+		"founded": b.is_founded(), "capital": b.capital(), "stage": b.stage(), "stages_total": b.stages_total(),
+		"opening_pending": b.opening_pending, "opened": b.opened, "wings": b.wings.duplicate(),
+		"capital_tier_cycle": cyc.call("tier_cap"), "founded_cycle": cyc.call("founded"),
+		"opening_ready_cycle": cyc.call("opening_ready"), "opened_cycle": opened_cycle,
+		"stage_cycles": bazaar_log.filter(func(r): return r[1] == "stage").map(func(r): return [r[2], r[0]]),
+	}
+
+
 func _shares_by_market() -> Dictionary:
 	var out := {}
 	for m in Markets.ids:
-		out[str(m)] = snappedf(Markets.share(m), 0.001)
+		out[str(m)] = 0.0  # T281: no share
 	return out
 
 
@@ -1727,7 +1812,7 @@ func _rival_strengths() -> Dictionary:
 func _shares_now() -> Array:
 	var out: Array = []
 	for m in Markets.ids:
-		out.append(snappedf(Markets.share(m), 0.001))
+		out.append(0.0)  # T281: no share
 	return out
 
 
@@ -1910,7 +1995,7 @@ func _on_run_ended(side: String, ending_id: String) -> void:
 		first_side = side
 		first_ending = ending_id
 	if win_at_cycle < 0 and side == "WIN":
-		win_at_cycle = last_ended
+		win_at_cycle = main.cycle  # the Opening is flown mid-cycle: the current cycle, not the last ended one
 	run_side = side
 	run_ending = ending_id
 
@@ -2030,8 +2115,12 @@ func _finish() -> bool:
 		"rival_strengths": _rival_strengths(),
 		"skills_learned_count": skills_learned.size(),
 		"tech_done_count": SkillTree.all_ids().filter(func(t): return SkillTree.is_tech(str(t)) and main.learned_skills.has(t)).size(),
-		"final_best": Markets.best(),
-		"win_streaks": Markets.win_streak,
+		"final_best": "bazaar" if main.bazaar.opened else "",  # T281: no best market; kept for old analysis scripts
+		"bazaar": _bazaar_summary(),
+		"bazaar_log": bazaar_log,
+		"bazaar_stage": main.bazaar.stage(),
+		"bazaar_win": run_side == "WIN",
+		"win_streaks": {},  # T281: no streaks
 		"close_at": close_at,
 		"close_planet": close_planet,
 		"closure": _closure_summary() if close_planet >= 0 else {},
