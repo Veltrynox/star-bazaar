@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "data_version": 3,
+  "data_version": 4,
   "source": "2026-11-04 availability-rules (economy-designer). Derived from data/goods.json (unlocked_by, unlock effects), data/skills.json (unlock/mine_unlock), data/planets.json, data/systems.json, data/markets.json, gdd-skills.md section 4, game/goods.gd (good_open, merge_prices), game/main.gd (dead_unlock_cycle, permit). No price or balance value changed. T179 (gameplay-programmer): added atoms planet_visited, post_built, platform_built; kind 'planet' rules; start_state open_planets / closed_planets (valid while discovery_enabled is 1). 2026-11-06 T239: every good and workshop rule gains its owner branch (branch_is); energy stays shared; starters powder and blooms; renames chips-spyware, cells-rounds, armour-arms, cask-attar, gel-medicine; per-branch start_states.",
   "atoms": {
     "_doc": "Vocabulary of the one evaluator, game/conditions.gd (header lists it too). Trees: string atom, {all:[]}, {any:[]}, {not:cond}. An entry may carry visible_when with the same trees.",
@@ -737,72 +737,6 @@
         "any": [
           "post_built:s3_p3",
           "platform_built:s3_p3"
-        ]
-      },
-      "note": "T226 discovery for a placeholder planet: same rule as the real ones (T179). Always true with balance.discovery_enabled 0."
-    },
-    {
-      "kind": "planet",
-      "id": "s4_p1",
-      "visible_when": {
-        "any": [
-          "post_built:s4_p1",
-          "platform_built:s4_p1"
-        ]
-      },
-      "note": "T226 discovery for a placeholder planet: same rule as the real ones (T179). Always true with balance.discovery_enabled 0."
-    },
-    {
-      "kind": "planet",
-      "id": "s4_p2",
-      "visible_when": {
-        "any": [
-          "post_built:s4_p2",
-          "platform_built:s4_p2"
-        ]
-      },
-      "note": "T226 discovery for a placeholder planet: same rule as the real ones (T179). Always true with balance.discovery_enabled 0."
-    },
-    {
-      "kind": "planet",
-      "id": "s4_p3",
-      "visible_when": {
-        "any": [
-          "post_built:s4_p3",
-          "platform_built:s4_p3"
-        ]
-      },
-      "note": "T226 discovery for a placeholder planet: same rule as the real ones (T179). Always true with balance.discovery_enabled 0."
-    },
-    {
-      "kind": "planet",
-      "id": "s5_p1",
-      "visible_when": {
-        "any": [
-          "post_built:s5_p1",
-          "platform_built:s5_p1"
-        ]
-      },
-      "note": "T226 discovery for a placeholder planet: same rule as the real ones (T179). Always true with balance.discovery_enabled 0."
-    },
-    {
-      "kind": "planet",
-      "id": "s5_p2",
-      "visible_when": {
-        "any": [
-          "post_built:s5_p2",
-          "platform_built:s5_p2"
-        ]
-      },
-      "note": "T226 discovery for a placeholder planet: same rule as the real ones (T179). Always true with balance.discovery_enabled 0."
-    },
-    {
-      "kind": "planet",
-      "id": "s5_p3",
-      "visible_when": {
-        "any": [
-          "post_built:s5_p3",
-          "platform_built:s5_p3"
         ]
       },
       "note": "T226 discovery for a placeholder planet: same rule as the real ones (T179). Always true with balance.discovery_enabled 0."

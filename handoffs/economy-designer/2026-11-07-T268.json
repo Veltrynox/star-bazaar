@@ -1,0 +1,126 @@
+{
+  "schema_version": 1,
+  "agent": "economy-designer",
+  "date": "2026-11-07",
+  "task": "T268",
+  "status": "done",
+  "files_changed": [
+    "data/balance.json (data_version 76)"
+  ],
+  "open_questions": [
+    "Story calls tier 3 the Town (capital placeholder) but bazaar_capital_tier stays 2 (Village): tier 3 needs 128 units/cycle. Owner: confirm.",
+    "Bazaar pace (capital c10, Opening c37) is an estimate; needs an owner hand run.",
+    "win_cycle_markets 40 vs recommended 45: test goal hard-codes 40."
+  ],
+  "handoff": "Phase 1 keys set by hand reasoning, no sim. Capital tier 2, bills about 290 units, term kept 40 (45 recommended). prosperity.json weights and bazaar.json unchanged.",
+  "details": {
+    "changed_keys": {
+      "prosperity_demand_t1": {
+        "old": 20,
+        "new": 16,
+        "why": "16/cycle is under one ship (20/cycle): two ships clear two needs with slack; first tier-up about 3 met cycles after ship 2 (cycle 8-10)"
+      },
+      "prosperity_demand_t2": {
+        "old": 30,
+        "new": 24,
+        "why": "3 needs x 24 = 72/cycle, about 3.6 ships: a mid-game goal"
+      },
+      "prosperity_demand_t3": {
+        "old": 40,
+        "new": 32,
+        "why": "4 x 32 = 128/cycle, needs hubs (the hub cue)"
+      },
+      "prosperity_steps_t2": {
+        "old": 4,
+        "new": 5,
+        "why": "5 met cycles: tier 3 is the slow rung"
+      },
+      "prosperity_decay_steps": {
+        "old": 1,
+        "new": 0.5,
+        "why": "a short cycle costs less than a met one gains; Restless stays recoverable"
+      },
+      "need_price_t2": {
+        "old": 1.1,
+        "new": 1.05,
+        "why": "a new buyer pays about base value, never a bonanza"
+      },
+      "need_price_t3": {
+        "old": 1.2,
+        "new": 1.1,
+        "why": "same"
+      },
+      "need_hunger_cap_pct": {
+        "old": 50,
+        "new": 40,
+        "why": "+10 percent per short cycle, capped +40: a nudge toward needs, not a jackpot"
+      },
+      "prosperity_tax_t1": {
+        "old": 5,
+        "new": 6,
+        "why": "growth pays apart from margins: about 90/cycle for a 5-world empire, under a third of lane income"
+      },
+      "prosperity_tax_t2": {
+        "old": 10,
+        "new": 16,
+        "why": "same"
+      },
+      "prosperity_tax_t3": {
+        "old": 15,
+        "new": 35,
+        "why": "same"
+      },
+      "prosperity_points_t3": {
+        "old": 1,
+        "new": 2,
+        "why": "top tier is rare, worth 2 points (t2 stays 1, t1 0)"
+      },
+      "bazaar_bill_s1_t1": {
+        "old": 20,
+        "new": 60,
+        "why": "Bazaar bills total about 290 units; delivery is cheap, the quorum worlds and goods tiers set the pace"
+      },
+      "bazaar_bill_s2_t1": {
+        "old": 20,
+        "new": 50,
+        "why": "Bazaar bills total about 290 units; delivery is cheap, the quorum worlds and goods tiers set the pace"
+      },
+      "bazaar_bill_s2_t2": {
+        "old": 15,
+        "new": 40,
+        "why": "Bazaar bills total about 290 units; delivery is cheap, the quorum worlds and goods tiers set the pace"
+      },
+      "bazaar_bill_s3_t2": {
+        "old": 20,
+        "new": 50,
+        "why": "Bazaar bills total about 290 units; delivery is cheap, the quorum worlds and goods tiers set the pace"
+      },
+      "bazaar_bill_s3_t3": {
+        "old": 15,
+        "new": 30,
+        "why": "Bazaar bills total about 290 units; delivery is cheap, the quorum worlds and goods tiers set the pace"
+      },
+      "bazaar_bill_s4_t3": {
+        "old": 20,
+        "new": 40,
+        "why": "Bazaar bills total about 290 units; delivery is cheap, the quorum worlds and goods tiers set the pace"
+      },
+      "bazaar_bill_s4_t4": {
+        "old": 10,
+        "new": 20,
+        "why": "Bazaar bills total about 290 units; delivery is cheap, the quorum worlds and goods tiers set the pace"
+      },
+      "skill_LUX_5_need_fill": {
+        "old": 0.3,
+        "new": 0.2,
+        "why": "0.3 covered 23 percent of a demand alone; 0.2 sits nearer the other nodes (0.08-0.15)"
+      },
+      "win_cycle_markets": {
+        "old": 40,
+        "new": 40,
+        "why": "NOT changed: tools/tests/run_tests.gd pins 40. Recommend 45 (Opening estimated c37); needs the test updated."
+      }
+    },
+    "sim": "not run (owner instruction: no sim, bots or QA). Numbers reasoned by hand: a lane ship moves 20 units/cycle (cargo 40, 2-cycle round trip), margin about 14/unit, trip cost 60."
+  }
+}

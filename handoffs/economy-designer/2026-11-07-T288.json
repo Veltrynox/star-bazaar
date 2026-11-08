@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "agent": "economy-designer",
+  "date": "2026-11-07",
+  "task": "T288",
+  "status": "done",
+  "files_changed": [
+    "data/balance.json (data_version 78)"
+  ],
+  "open_questions": [],
+  "handoff": "Weather numbers softened (shortage x1.3 with bigger hunger, congestion 2 cycles). Mood and traffic counts set.",
+  "details": {
+    "changed_keys": {
+      "shortage_demand_mult": {
+        "old": 1.5,
+        "new": 1.3,
+        "why": "demand x1.3 for 3 cycles with a 1-cycle telegraph: a chance (hungry price), not a trap (worst case 1.5 steps of progress lost)"
+      },
+      "shortage_hunger_steps": {
+        "old": 2,
+        "new": 3,
+        "why": "3 extra steps = +30 percent price at the world: riding it pays"
+      },
+      "congestion_cycles": {
+        "old": 3,
+        "new": 2,
+        "why": "trip x1.5 (about +30 per trip) for 2 cycles: a nuisance, easy to dodge"
+      },
+      "weather_next_soften_pct": {
+        "old": 0.3,
+        "new": 0.35,
+        "why": "a chain option softens a house by 35 percent"
+      },
+      "mood_branch_dark": {
+        "old": -6,
+        "new": -6,
+        "why": "kept: test moods needs one choice to tint (+-6 = threshold)"
+      },
+      "mood_branch_public": {
+        "old": 6,
+        "new": 6,
+        "why": "kept"
+      },
+      "traffic_orbit_t2": {
+        "old": 6,
+        "new": 5,
+        "why": "orbital ships 3/5/8 per tier: readable density, under the 30 per world budget"
+      },
+      "traffic_orbit_t3": {
+        "old": 10,
+        "new": 8,
+        "why": "same"
+      }
+    },
+    "sim": "not run (owner instruction: no sim, bots or QA). Numbers reasoned by hand: a lane ship moves 20 units/cycle (cargo 40, 2-cycle round trip), margin about 14/unit, trip cost 60."
+  }
+}

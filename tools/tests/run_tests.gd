@@ -8185,10 +8185,10 @@ func _test_placeholder_systems() -> void:
 	var slots: Array = gm.galaxy_view.SLOTS
 	# T226: systems 3 to 5 are live in a normal game: listed in the galaxy, enterable, TEMPORARY in the name
 	var Systems := preload("res://game/systems.gd")
-	check(Systems.ids() == [2, 3, 4, 5], "placeholder systems: 3 to 5 live by default", str(Systems.ids()))
-	check(gm.galaxy_view._sys_ids() == [1, 2, 3, 4, 5], "placeholder systems: all listed in the galaxy overview")
+	check(Systems.ids() == [2, 3], "placeholder systems: 3 live by default, 4 and 5 off", str(Systems.ids()))
+	check(gm.galaxy_view._sys_ids() == [1, 2, 3], "placeholder systems: 1 to 3 listed in the galaxy overview", str(gm.galaxy_view._sys_ids()))
 	var live_ok := true
-	for sid in [3, 4, 5]:
+	for sid in [3]:
 		live_ok = live_ok and Systems.name_of(sid).begins_with("TEMPORARY") and Availability.feature("placeholder_system_%d" % sid)
 		live_ok = live_ok and not gm.go_to_system(sid)  # locked until its permit
 		gm._open_system(sid)

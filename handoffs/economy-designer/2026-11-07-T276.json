@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "agent": "economy-designer",
+  "date": "2026-11-07",
+  "task": "T276",
+  "status": "done",
+  "files_changed": [
+    "data/balance.json (data_version 77)"
+  ],
+  "open_questions": [
+    "Rule 'gigs out-earn routine hand trade' is checked by arithmetic only; owner to verify by hand in a run."
+  ],
+  "handoff": "Boost trimmed, gig cash and rush premium raised so hand play pays in gigs. gigs.json unchanged.",
+  "details": {
+    "changed_keys": {
+      "flagship_boost_mult": {
+        "old": 2,
+        "new": 1.6,
+        "why": "boosted round trip 1.25 cycles: hand trade 16 units/cycle, below one lane ship (20), so a lane of 2+ ships always beats routine hand trade (hold 20, 24 and 30 with wings 1a/3a, still under cargo 40)"
+      },
+      "flagship_boost_charges": {
+        "old": 3,
+        "new": 2,
+        "why": "boost covers part of a leg run, not all"
+      },
+      "flagship_boost_refill_cycles": {
+        "old": 2,
+        "new": 3,
+        "why": "slower refill keeps boost a line-choice skill"
+      },
+      "gig_cash_small": {
+        "old": 150,
+        "new": 200,
+        "why": "a signal earns more per Flagship cycle than routine hand trade (about 220/cycle)"
+      },
+      "gig_cash_medium": {
+        "old": 300,
+        "new": 450,
+        "why": "same, medium lot"
+      },
+      "gig_lot_small": {
+        "old": 6,
+        "new": 8,
+        "why": "lot under the hold of 20"
+      },
+      "gig_lot_medium": {
+        "old": 12,
+        "new": 16,
+        "why": "lot under the hold of 20"
+      },
+      "gig_rush_premium_pct": {
+        "old": 0.25,
+        "new": 0.6,
+        "why": "a rush (about 20 units at 25 value) pays sale plus 60 percent premium, about 250 over routine, plus need credit: hand play pays in gigs"
+      }
+    },
+    "sim": "not run (owner instruction: no sim, bots or QA). Numbers reasoned by hand: a lane ship moves 20 units/cycle (cargo 40, 2-cycle round trip), margin about 14/unit, trip cost 60."
+  }
+}

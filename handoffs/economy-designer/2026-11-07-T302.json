@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "agent": "economy-designer",
+  "date": "2026-11-07",
+  "task": "T302",
+  "status": "done",
+  "files_changed": [
+    "data/balance.json (data_version 80)"
+  ],
+  "open_questions": [
+    "Wing 1a/3a hold stack (20 -> 30) stays under cargo 40; owner to confirm it is felt but not a courier game."
+  ],
+  "handoff": "Raids softened and delayed, reclaim 5 steps, wing amounts raised (hub reach +3, tax +30/+40, workshops -20). Mining keys kept.",
+  "details": {
+    "changed_keys": {
+      "raid_first_cycle": {
+        "old": 8,
+        "new": 12,
+        "why": "no raid before the player has lanes and a base"
+      },
+      "raid_gap_cycles": {
+        "old": 4,
+        "new": 5,
+        "why": "at least 5 cycles apart"
+      },
+      "raid_chance_per_lane": {
+        "old": 0.04,
+        "new": 0.03,
+        "why": "3 lanes: (0.05+0.09)=0.14 per cycle, hard intensity x2 = 0.28, under the cap"
+      },
+      "raid_chance_max": {
+        "old": 0.6,
+        "new": 0.35,
+        "why": "never above 35 percent a cycle"
+      },
+      "raid_take_share": {
+        "old": 0.5,
+        "new": 0.4,
+        "why": "40 percent of one trip (about 16 units, about 240 credits): stings, never ruins"
+      },
+      "raid_pod_fade_cycles": {
+        "old": 4,
+        "new": 5,
+        "why": "5 cycles to reach the pods"
+      },
+      "prosperity_reclaim_steps": {
+        "old": 4,
+        "new": 5,
+        "why": "5 met cycles x 3 needs x 16 = about 240 units, close to the whole Bazaar bill (290): reclaim competes with it"
+      },
+      "bazaar_wing_wing_1b": {
+        "old": 1,
+        "new": 3,
+        "why": "+3 hub reach (about 20 percent; +1 was invisible)"
+      },
+      "bazaar_wing_wing_2a": {
+        "old": 10,
+        "new": 30,
+        "why": "+30 percent tax (tax is small, wing must be felt)"
+      },
+      "bazaar_wing_wing_2b": {
+        "old": -15,
+        "new": -20,
+        "why": "-20 percent workshop cost"
+      },
+      "bazaar_wing_wing_3b": {
+        "old": 15,
+        "new": 40,
+        "why": "+40 percent tax, higher than 2a as it comes later"
+      }
+    },
+    "sim": "not run (owner instruction: no sim, bots or QA). Numbers reasoned by hand: a lane ship moves 20 units/cycle (cargo 40, 2-cycle round trip), margin about 14/unit, trip cost 60."
+  }
+}

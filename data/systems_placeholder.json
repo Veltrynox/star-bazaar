@@ -3,7 +3,7 @@
   "data_version": 1,
   "placeholder": true,
   "enabled": false,
-  "note": "T176/T210: placeholder systems 3 to 10, OFF. game/systems.gd loads them only when enabled is true (or Systems.set_placeholders(true) in a test). Every name, price and sun is temporary; economy-designer and story-designer replace them. galaxy_slot is the SLOTS index in game/galaxy_view.gd (list position). Permit cost keys reuse system 2 keys as stand-ins. T226: systems 3 to 5 carry \"on\": true and are live in normal play (TEMPORARY names, placeholder:true); 6 to 10 stay off until \"enabled\" is true.",
+  "note": "T176/T210: placeholder systems 3 to 10, OFF. game/systems.gd loads them only when enabled is true (or Systems.set_placeholders(true) in a test). Every name, price and sun is temporary; economy-designer and story-designer replace them. galaxy_slot is the SLOTS index in game/galaxy_view.gd (list position). Permit cost keys reuse system 2 keys as stand-ins. T226: systems 3 to 5 carried \"on\": true and were live in normal play; 2026-11-08 (T311 fallback, owner approved): only system 3 stays on (3 systems live, term 40), 4 and 5 are \"on\": false and system 3 uses permit_3_cost / permit_points_3 (1500 + 2 points); 4 and 5 keep the permit_2 keys until re-enabled. Formerly (TEMPORARY names, placeholder:true); 6 to 10 stay off until \"enabled\" is true.",
   "systems": [
     {
       "id": 3,
@@ -18,8 +18,8 @@
       "permit_desc_id": "PERMIT_S3_DESC",
       "permit_btn_id": "PERMIT_S3_BTN",
       "permit_notice_id": "NOT_PERMIT_S3",
-      "permit_cost_key": "permit_2_cost",
-      "permit_points_key": "permit_points_2",
+      "permit_cost_key": "permit_3_cost",
+      "permit_points_key": "permit_points_3",
       "requires_skill": "FND_PERMIT",
       "planets": [
         {
@@ -81,7 +81,7 @@
     {
       "id": 4,
       "placeholder": true,
-      "on": true,
+      "on": false,
       "note": "T176 placeholder: temporary name, sun, prices. Replace before enabling.",
       "galaxy_slot": 3,
       "sun_color": "#7cff9a",
@@ -154,7 +154,7 @@
     {
       "id": 5,
       "placeholder": true,
-      "on": true,
+      "on": false,
       "note": "T176 placeholder: temporary name, sun, prices. Replace before enabling.",
       "galaxy_slot": 4,
       "sun_color": "#d58cff",

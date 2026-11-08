@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "agent": "economy-designer",
+  "date": "2026-11-07",
+  "task": "T209",
+  "status": "done",
+  "files_changed": ["handoffs/economy-designer/2026-11-07-T209.json"],
+  "open_questions": [
+    "Ship cap: brief says 20, balance.json ship_cap is 10 (+ Tramp bonus). Which is true? No skill touches the cap, so the review holds either way; only the upkeep stacking check depends on it.",
+    "Point supply is UNKNOWN without a sim (tools/sim.py is not wired to prosperity or the Bazaar bill). Hand estimate ~25-32 points per run vs branch tree 28-30 (FND 7 + branch 21-23). If true, the player buys nearly everything and there is no choice.",
+    "Weather skills (soften, warning, reveal/event_warning): keep or cut depends on whether weather is a real threat after T282/T288 (owner call)."
+  ],
+  "handoff": "Analysis only, no data changed, no sim run. Market goal is now Bazaar bill + prosperity needs + tax, not share. Skills that move it: need_fill_pct, progress_grace, route_capacity, workshop_batches/batch_yield, storage_cap, stock_growth, sale_price (cash only). Cut or merge 11 nodes, retune about 12, keep the rest. Biggest risk: tree is affordable in full, so no trade-offs. See details.",
+  "details": {
+    "method": "Hand review of data/skills.json (68 nodes) with values from balance.json; no sim, no bots. No approved skill proposal beyond skill-tree-final/skills-fill (T208 not built).",
+    "scope_note": "Cost per branch: FND 7, MIL 21, LUX 23, MIN 23, BIO 21 points. Sources: 1/planet, 1/route, 2/system, 2 per permit tier 2 and 3, prosperity first tiers 1 (t2) and 2 (t3); share points are off. A run learns FND + one branch only, about 28-30 points.",
+    "main_finding": "Full branch is likely affordable by ~cycle 30, so skills do not force choices. Fix by cutting the weakest nodes and letting the tree total fall about 6-8 points below the supply, not by adding points.",
+    "ship_cap_check": "No skill raises the ship cap. Upkeep stack MIL_1 0.20 + MIL_8 0.08 + FND_DOCKS 0.08 = 0.36 off ship upkeep: safe at cap 10 or 20 (upkeep is 40/ship maintenance + 60/trip), but at 20 ships it is the strongest unconditional skill. Route capacity (MIL_3 .125, MIL_13 .12, LUX_12 .10, MIN_5B .10, BIO_8 .10) adds units per lane without ships, which weakens the pressure of the cap; one branch gets about +25 percent lane units at most, acceptable.",
+    "cut": [
+      {"id": "LUX_5B", "why": "Near duplicate of LUX_1 (reveal_prices) + LUX_3 (event_warning); costs 2 for nothing new. Cut."},
+      {"id": "FND_RIVAL_WATCH", "why": "Name and effect (all events -10 percent) are rival-era leftovers; weak, 1 point. Cut or fold into FND_LEDGER."},
+      {"id": "MIL_15", "why": "weather_soften 0.12 on top of MIL_5 0.5 and MIL_7; 3 points for a rounding error."},
+      {"id": "LUX_15, MIN_15 (cluster +25 percent, only if mining stays side activity), BIO_15", "why": "Tier 6 capstones: warning +1 cycle on top of an existing warning (LUX_3, MIL_7), 3 points each. Cut LUX_15 and BIO_15; keep MIN_15 only if yield limits reclaim."},
+      {"id": "MIL_10, MIN_8 overlap", "why": "MIL_10 stock_protect (mil) duplicates BIO_5 stock_protect; only matters if hits cut storage. Cut MIL_10 unless storage hits are common."},
+      {"id": "BIO_10, MIN_10, LUX_10", "why": "Three 2-point event_cut/immune nodes in a tier that already has MIL_6, BIO_6, MIN_5B. Events are a chance, never a trap (T288); keep one per branch, cut the others (keep MIN_5B, BIO_6, MIL_6, LUX_10)."}
+    ],
+    "merge": [
+      {"ids": ["MIL_9, MIL_14, LUX_14, MIN_9, MIN_14"], "why": "Tech nodes giving +0.08 need_fill or +1 batch yield, free but gated by crafting goals. Merge each pair per branch (need_fill 0.08+0.08 into one 0.15 node) to cut the count."},
+      {"ids": ["MIL_11, LUX_11, MIN_11, BIO_14, MIL_6, LUX_6, MIN_6, BIO_4, BIO_6"], "why": "Nine sale_price nodes (+6 to +10 percent, stackable to ~+20 percent per branch). Sale price is cash-only and does not fill needs, so it helps tax/bill purchase but not growth. Keep one per tier-4 tech; drop MIL_11, LUX_11, MIN_11, BIO_14."},
+      {"ids": ["FND_LEDGER + FND_DOCKS"], "why": "Both unconditional small perks (order size +10 percent, upkeep -8 percent). Keep both at 1 point each but make DOCKS cost 1."}
+    ],
+    "retune": [
+      {"id": "BIO_2 / BIO_12 stock_growth", "now": "2 percent per cycle, cap 20 and 40 percent", "advice": "Free stock is the strongest scaler against the Bazaar bill held in storage. Hold cap 0.4 only after sim; if bill is ~240 units, 40 percent of stock is too generous. Suggest cap 0.3 max. Likely dominant branch."},
+      {"id": "BIO_3 storage +50 percent", "advice": "Pairs with BIO_2 and Space Storage; keep, but MIN_8 +25 percent is then redundant for BIO runs. Fine."},
+      {"id": "LUX_5 need_fill 0.20 + event_bonus .25 (3 pts)", "advice": "Best need_fill in the game for 3 points; LUX_13 +0.10 and LUX_14 +0.08 stack to +0.46 plus LUX_2 +0.08 = +0.54. That is the dominant growth path. Cap total need_fill per branch near +0.35: LUX_13 to 0.05, LUX_14 to 0.05."},
+      {"id": "BIO_13 need_fill .15 (2 pts)", "advice": "Cheaper than LUX_13 for more. Raise cost to 3 or cut to .10; BIO_2 .12 + BIO_13 .15 = .27 for 2 points is a trap-in-reverse (too good)."},
+      {"id": "progress_grace (BIO_5 .5, MIL_12 .5, LUX_8 .5)", "advice": "Halves cost of an unmet cycle at every world; 2 points for LUX_8/MIL_12 is cheap for a safety net that removes growth risk. Keep one per branch at 3 points; BIO_5 already 3."},
+      {"id": "MIL_1 upkeep .20 at cost 1", "advice": "Strongest 1-point node; first tier-1 pick for all MIL runs. Lower to .15, keep MIL_8 .08."},
+      {"id": "MIL_3 route units .125, MIL_13 .12", "advice": "Cumulative +24.5 percent lane units for MIL. Keep MIL_3, make MIL_13 .08."},
+      {"id": "weather_soften MIL_5/LUX_7/MIN_7/BIO_7", "advice": "Duration/cooldown figures (5/7, 8/9) mean MIL_5 covers 71 percent of cycles, LUX_7 89 percent: LUX_7 is nearly permanent. Cut LUX_7 duration to 6. MIN_7 and BIO_7 have no duration (permanent): intended per vocabulary; check."},
+      {"id": "FND_PERMIT / PROSPECT / STORAGE gating", "advice": "1 point each, all three needed before any branch node. Zero choice, no problem (tutorial feel); keep."}
+    ],
+    "keep": [
+      "FND_PERMIT, FND_PROSPECT, FND_STORAGE, FND_LEDGER, FND_DOCKS",
+      "All tier-1 unlocks (MIL_1/LUX_1/MIN_1/BIO_1) - the unlock itself is the value",
+      "Workshop batch/yield techs (MIL_2, MIL_14, LUX_6, LUX_9, MIN_4, MIN_6, BIO_9, BIO_11): crafting-gated, tie to workshops, +1 batch is real output",
+      "MIN_3, MIN_5 (mining unlocks), MIN_5B, BIO_3, BIO_5"
+    ],
+    "traps_suspected_no_bot_data": [
+      "MIN_5 (3 points, mine nullglass): useful only if Greywake mining pays; cannot judge without QA bots.",
+      "LUX_3 (2 points event_warning) and LUX_1 reveal_prices: cheap info, low value; players will skip LUX_3 unless a cheap path to LUX_5 needs it (it does), so it is a tax node, not a trap."
+    ],
+    "dominant_suspects": ["LUX path (need_fill stack, +54 percent)", "BIO path (free stock growth + need_fill .27 + storage .5)"],
+    "sim_results": "not run (analysis only; sim.py does not model prosperity or the Bazaar bill). Win-cycle targets in balance targets (22-26 skilled) cannot be checked by hand.",
+    "recommended_next": "After T208, one sim/bot pass per branch comparing win cycle with all-skills vs no-skills (targets win_no_skills 26-30, win_skilled 22-26, win_full_tree 19-23), then apply the cuts above."
+  }
+}

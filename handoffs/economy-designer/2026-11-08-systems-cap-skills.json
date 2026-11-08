@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "agent": "economy-designer",
+  "date": "2026-11-08",
+  "task": "systems-cap-skills",
+  "status": "partial",
+  "files_changed": [
+    "data/balance.json",
+    "data/systems_placeholder.json",
+    "data/availability.json",
+    "handoffs/economy-designer/2026-11-08-systems-cap-skills.json"
+  ],
+  "open_questions": [
+    "tools/tests/run_tests.gd _test_placeholder_systems pins systems [2,3,4,5] live (3 new FAILs: live by default, listed in galaxy, enterable with sun and three planets). Programmer must change it to [2,3]. Owner call to edit the test.",
+    "Proposal gave exact keys only for 4 systems; 3-system keys derived (system 3 on, 4 and 5 off, system 3 permit_3_cost / permit_points_3 per the 3-system table row). Spread run is a coin flip at term 40 (margin -1), per the proposal.",
+    "Tuning values below are hand estimates, no sim. Ship cap 15 saturation and skill retunes need one owner hand run."
+  ],
+  "handoff": "3 systems live at term 40, ship_cap 15, eight skill retunes. No skill nodes cut or merged: tests pin 68 nodes and ids are used by story, icons and game code, and with 3 systems the point supply (~24) is below the tree (~28-30) so the review's main worry (everything affordable) is gone.",
+  "details": {
+    "A_systems": [
+      {"file": "data/systems_placeholder.json", "key": "system 4 on", "old": true, "new": false, "why": "3 systems live"},
+      {"file": "data/systems_placeholder.json", "key": "system 5 on", "old": true, "new": false, "why": "3 systems live"},
+      {"file": "data/systems_placeholder.json", "key": "system 3 permit_cost_key", "old": "permit_2_cost", "new": "permit_3_cost", "why": "1500 = 1 fleet-cycle, dearer than system 2 (600)"},
+      {"file": "data/systems_placeholder.json", "key": "system 3 permit_points_key", "old": "permit_points_2", "new": "permit_points_3", "why": "same 2 points"},
+      {"file": "data/availability.json", "key": "planet rules s4_p1..s5_p3 (6 rules removed), data_version 3 to 4", "why": "data lint fails on rules for planets of off systems; restore them (same text as s3_p*) when systems 4 and 5 are re-enabled"},
+      {"file": "data/balance.json", "key": "win_cycle_markets / win_gate_cycle", "old": "40 / 38", "new": "unchanged", "why": "fallback keeps term 40"}
+    ],
+    "B_cap": [
+      {"key": "ship_cap", "old": 10, "new": 15, "why": "owner decision (+ Tramp cap_add on top, ships.json)"},
+      {"check": "maintenance 40, trip_cost 60 scale per ship; ship_price flat; no other key tied to the cap. Upkeep skill stack after retune 0.15+0.08+0.08 = 0.31, above upkeep_floor 0.5. At 15 ships maintenance is about 200 per cycle, stack saves about 62. Lane saturation at 15 ships is UNKNOWN without a sim."}
+    ],
+    "C_skills_retuned": [
+      {"key": "skill_MIL_1_upkeep", "old": 0.2, "new": 0.15, "why": "strongest 1-point node, worth more with 15 ships"},
+      {"key": "skill_MIL_13_route_units", "old": 0.12, "new": 0.08, "why": "route units weaken cap pressure; MIL total about +20 percent"},
+      {"key": "skill_LUX_13_need_fill", "old": 0.1, "new": 0.05, "why": "LUX need_fill stack 0.54 to 0.38 (review target near 0.35)"},
+      {"key": "skill_LUX_14_need_fill", "old": 0.08, "new": 0.05, "why": "same"},
+      {"key": "skill_BIO_13_need_fill", "old": 0.15, "new": 0.1, "why": "BIO_2 0.12 + 0.15 for 2 points was too cheap; retuned the value, cost kept so points stay scarce"},
+      {"key": "skill_BIO_12_stock_cap", "old": 0.4, "new": 0.35, "why": "review asked 0.3 max; 0.35 keeps BIO_12 above BIO_3 ceiling 0.3, so the node still does something. Re-check by hand run"},
+      {"key": "skill_LUX_7_cycles", "old": 8, "new": 6, "why": "soften up 6 of every 9 cycles (67 percent) instead of 89 percent"},
+      {"key": "data_version", "old": 80, "new": 81, "why": "bump, source note updated"}
+    ],
+    "C_not_done": [
+      "Cuts LUX_5B, FND_RIVAL_WATCH, MIL_15, LUX_15, BIO_15, MIN_15, MIL_10, BIO_10, MIN_10 and sale_price merges (MIL_11, LUX_11, MIN_11, BIO_14): tests pin 68 nodes (SkillTree, skill screen, skill_icons), ids used in story/skills.md, screens.md, game code; LUX_12 has LUX_5B as prereq. Point supply with 3 systems (~24) is below the tree (28-30), so cuts are not needed to create choices.",
+      "FND_DOCKS cost 2 to 1: skipped, points are scarce with 3 systems and DOCKS gets stronger at 15 ships.",
+      "progress_grace and weather node changes (MIL_15, MIN_7, BIO_7 permanence): need a sim or the owner's weather call."
+    ],
+    "tests": "sh tools/tests/run.sh: 16 FAIL lines (13 on stash baseline, which includes owner's uncommitted changes). The 3 extra are the placeholder systems pins above. Data lint passes after the availability cleanup. Remaining FAILs (goods, workshop, availability powder/blooms/food, energy tooltip) were already there."
+  }
+}
