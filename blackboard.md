@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-07 21:46 run: T240
-- Summary: Branch good icons (powder, spyware, rounds, arms, blooms, attar, medicine) already existed and resolve via ui.gd; wrote handoff only
-- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
-- Approach: built by a worker in worktree ../wt/T240 on branch task/T240, merged by the serial merge queue.
-- Agent prompts: /overnight-worker T240 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T240.log.
-- Worked: rebase, full test suite and fast-forward merge passed.
-- Failed / did not work: nothing.
-- Files and commits: see git log on branch new-features for commits starting with T240.
-- Left to do: nothing for this task.
-
 ## 2026-11-07 21:56 run: T221
 - Summary: Not merged: worker did not report done: None
 - Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
@@ -64,4 +54,14 @@
 - Worked: rebase, full test suite and fast-forward merge passed.
 - Failed / did not work: nothing.
 - Files and commits: see git log on branch new-features for commits starting with T305.
+- Left to do: nothing for this task.
+
+## 2026-11-07 22:25 run: T306
+- Summary: Asteroid packs now spin slowly about their own centre and swing back and forth along their orbit around the system sun, on the game clock. The cluster's logical anchor stays fixed, so picks, routes and platforms are untouched.
+- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
+- Approach: built by a worker in worktree ../wt/T306 on branch task/T306, merged by the serial merge queue.
+- Agent prompts: /overnight-worker T306 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T306.log.
+- Worked: rebase, full test suite and fast-forward merge passed.
+- Failed / did not work: nothing.
+- Files and commits: see git log on branch new-features for commits starting with T306.
 - Left to do: nothing for this task.

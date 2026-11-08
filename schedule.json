@@ -3060,7 +3060,7 @@
       "title": "Asteroid packs rotate slowly and fly along their orbit",
       "owner_agent": "galaxy-builder",
       "depends_on": [],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 30,
       "window": "Owner request 2026-11-07.",
       "brief": "Goal: asteroid packs are alive: each pack spins slowly about its own centre and also drifts along its orbit around the system sun. Read: game/galaxy/asteroid_packs.gd (spin_speed export exists and is 0 by default; tangent_of(c); sun_positions the orbit centre; one MultiMeshInstance3D per cluster, long axis along the orbit tangent), game/map.gd (how clusters are positioned and synced, how mining platforms, routes and clicks find a cluster position). Build: (1) a slow spin of the rock field about its own centre, a different slow rate and direction per pack (seeded from the cluster id, stable); (2) the pack orbits the system sun at a very slow angular speed, keeping its radius, and its long axis stays along the orbit tangent. Anything that uses a cluster's position (click and hover pick, mining routes and their line ends, platform marker, labels, ambient or traffic lane ends) must follow the moving pack, or the cluster keeps a fixed logical anchor and only the visual rocks move within a small arc: choose the one that does not break routes or picking and state it in the handoff. Motion runs on the game clock (paused when the game is paused). No per-rock nodes or scripts, no per-frame buffer rewrites. Numbers: new data/balance.json keys (asteroid_spin_deg_per_s, asteroid_orbit_deg_per_s), PLACEHOLDER values marked placeholder in the balance source note, never numbers in code. Old saves must still load. Done when built: no QA, bots or sim. Take the one Quick look screenshot (sh tools/screenshot.sh --out logs/screenshots/T306.png), fix only objective breakage, record the path in the handoff. gdd.md is synced at commit by the main session. Handoff: handoffs/galaxy-builder/<date>-T306.json.",
@@ -3070,7 +3070,8 @@
         "game/map.gd",
         "data/balance.json"
       ],
-      "priority": 1
+      "priority": 1,
+      "note": "Done by orchestrator: Asteroid packs now spin slowly about their own centre and swing back and forth along their orbit around the system sun, on the game clock. The cluster's logical anchor stays fixed, so picks, routes and platforms are untouched."
     },
     {
       "task_id": "T307",
