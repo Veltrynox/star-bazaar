@@ -119,6 +119,9 @@ var _shades := {}                 # planet index -> dim overlay sphere of a clos
 var _known_cache := {}            # planet index -> last "discovered" state, to rewrite names only on a change
 signal cluster_clicked(index: int)  # T159: click on an asteroid pack (index in the cluster data)
 var _cluster_list: Array = []  # T159: last list given to set_clusters, for picking
+var game_seconds_fn := Callable()  # T314: main sets it: game seconds (stops while paused); drives the pack orbits
+var clusters_fn := Callable()      # T314: main sets it: returns main.clusters_in_system(0) with the current pack positions
+var _cluster_refresh := 0.0
 const STATION_OFFSET := Vector3(2.4, 0.0, -2.4)  # from the system's sun
 const STATION_PICK_PX := 40.0
 const STATION_MARKER_LIFT := 0.45
@@ -464,7 +467,7 @@ func set_clusters(list: Array) -> void:
 	if prosperity != null:  # T306: slow spin and orbit swing of the packs (balance keys, placeholders)
 		asteroid_packs.spin_speed = _bk("asteroid_spin_deg_per_s", 0.0)
 		asteroid_packs.orbit_speed = _bk("asteroid_orbit_deg_per_s", 0.0)
-		asteroid_packs.orbit_arc = _bk("asteroid_orbit_arc_deg", 0.0)
+		asteroid_packs.clock = game_seconds_fn  # T314: packs and cluster positions read the same game clock
 	asteroid_packs.sync(list)
 
 ## T159: index of the cluster of the viewed system whose pack is under the cursor (ray against an ellipsoid: radius across the orbit radius, radius x stretch along the tangent), or -1.
@@ -1198,7 +1201,32 @@ func _update_hub_traffic(delta: float) -> void:
 func _hub_ripple_running(h: int) -> bool:
 	return beat_progress("hub", h) >= 0.0
 
+## T314: packs move round their sun, so the list picks, route ends, bodies and labels read is refreshed from Clusters.list (its x, y
+## are the current position). Route lines that start at a pack are re-aimed about once a second (they ease to the new ends).
+func _refresh_clusters(delta: float) -> void:
+	if _cluster_list.is_empty() or not clusters_fn.is_valid() or asteroid_packs.orbit_speed == 0.0:
+		return
+	if game_seconds_fn.is_valid() and not bool(_game_running()):
+		return
+	var fresh: Array = clusters_fn.call()
+	var byid := {}
+	for c in fresh:
+		byid[int(c["index"])] = c
+	for c in _cluster_list:
+		var f: Dictionary = byid.get(int(c["index"]), {})
+		if not f.is_empty():
+			c["x"] = f["x"]
+			c["y"] = f["y"]
+	_cluster_refresh += delta
+	if _cluster_refresh >= 1.0:
+		_cluster_refresh = 0.0
+		for r in _route_list:
+			if int(r["a"]) <= -1000:
+				set_routes(_route_list)
+				break
+
 func _process(delta: float) -> void:
+	_refresh_clusters(delta)
 	_update_beats(delta)
 	_update_reclaim_looks(delta)
 	_update_tier_looks()

@@ -1,0 +1,12 @@
+{
+  "task": "T314",
+  "agent": "gameplay-programmer (done by the worker main session)",
+  "summary": "Asteroid packs travel the whole orbit about their sun. Clusters.pos_of(i) is the one function of the game clock; Clusters.list() gives current x, y to every consumer (pick, bodies, route line ends, route warning, cluster_body for the pathfinder). Packs use Clusters.orbit_angle with the same clock.",
+  "files": ["game/clusters.gd", "game/galaxy/asteroid_packs.gd", "game/map.gd", "game/main.gd", "data/balance.json", "data/asteroid_clusters.json"],
+  "outside_touches": "game/main.gd (wires clock_fn, centre_fn, map.game_seconds_fn, map.clusters_fn; a few lines)",
+  "balance": "asteroid_orbit_arc_deg removed; asteroid_orbit_deg_per_s 0.05 now the mean angular speed (seeded 0.6-1.4 factor and direction per pack); data_version 74 -> 75",
+  "saves": "No new per-pack state for base packs; spawned (event) clusters carry t0 (old saves: 0).",
+  "orbit_check": "Only c1_2 reached a planet orbit (radius 298 vs dead_1 orbit 328); moved to radius 210, same direction (x 22, y -67). System 2 packs end at 286, nearest planet orbit 351.",
+  "known_limit": "A pathfinder ship already flying to a pack keeps the target it was given at dispatch.",
+  "screenshot": "logs/screenshots/T314.png"
+}

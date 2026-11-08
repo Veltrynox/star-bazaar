@@ -1,4 +1,5 @@
 extends Node3D
+const Clusters := preload("res://game/clusters.gd")
 ## T157: ellipsoid packs (long axis along the orbit tangent, cluster_stretch) of asteroids on the trade map. One MultiMeshInstance3D per cluster = one draw call per pack.
 ## Per-instance position, rotation and scale come from a seed (hash of the cluster id + seed_salt), so a pack looks the same
 ## every time. The pack thins from the end of the list as ore is taken (visible_instance_count), so the surviving rocks stay put.
@@ -19,10 +20,10 @@ extends Node3D
 @export var rock_color := Color(1.0, 1.0, 1.0)  # tints the rock texture; white = texture colours as they are
 @export var rock_roughness := 0.95
 @export var spin_speed := 0.0             # degrees per second the whole pack turns; 0 = still (T306: map.gd sets it from balance asteroid_spin_deg_per_s)
-@export var orbit_speed := 0.0            # T306: peak degrees per second of the pack along its orbit around the sun (balance asteroid_orbit_deg_per_s)
-@export var orbit_arc := 0.0              # T306: half-width in degrees of the arc the pack swings through (balance asteroid_orbit_arc_deg)
-var running := Callable()                 # T306: returns false while the game is paused; empty = always running
-var _clock := 0.0                         # game-clock seconds of pack motion (not saved)
+@export var orbit_speed := 0.0            # T314: degrees per second of a pack round the whole orbit about the sun (balance asteroid_orbit_deg_per_s; Clusters.orbit_angle seeds direction and a speed factor per pack)
+var clock := Callable()                   # T314: returns game seconds (stops while paused); the same clock Clusters.pos_of reads. Empty = _clock below
+var running := Callable()                 # returns false while the game is paused; only used when clock is empty
+var _clock := 0.0                         # fallback game-clock seconds when no clock callable is set
 
 # Rock model: assets/asteroid_asset/asteroid_low.obj, from asteroid.obj decimated to 400 tris (was 20480) by tools in the asteroid_asset folder.
 # Normalised so the furthest vertex sits at radius 1.0, the same radius the old SphereMesh had.
@@ -74,8 +75,8 @@ func sync(clusters: Array) -> void:
 		var id := str(c["id"])
 		seen[id] = true
 		var n := maxi(1, int(c["count"]))
-		# rebuilt too when the system centre moved (the sun is placed after the packs exist), since the tangent follows it
-		if not packs.has(id) or int(packs[id]["max"]) != n or not (packs[id]["tangent"] as Vector3).is_equal_approx(tangent_of(c)):
+		# rebuilt too when the system centre moved (the sun is placed after the packs exist)
+		if not packs.has(id) or int(packs[id]["max"]) != n or not (packs[id]["centre"] as Vector3).is_equal_approx(sun_positions.get(int(c["system"]), Vector3.ZERO)):
 			_build(id, c, n)
 		var mmi: MultiMeshInstance3D = packs[id]["mm"]
 		mmi.multimesh.visible_instance_count = clampi(int(c.get("visible", n)), 0, n)
@@ -89,6 +90,8 @@ func set_view_system(sid: int) -> void:
 	view_system = sid
 	for id in packs:
 		packs[id]["mm"].visible = int(packs[id]["system"]) == sid
+		if packs[id]["mm"].visible:
+			_place(id)
 
 func _build(id: String, c: Dictionary, n: int) -> void:
 	if packs.has(id):
@@ -128,32 +131,36 @@ func _build(id: String, c: Dictionary, n: int) -> void:
 	var mrng := RandomNumberGenerator.new()
 	mrng.seed = hash(id) ^ 104729
 	var spin_mul := mrng.randf_range(0.5, 1.5) * (1.0 if mrng.randf() < 0.5 else -1.0)
+	var t0 := float(c.get("t0", 0.0))
 	packs[id] = {"mm": mmi, "system": int(c["system"]), "max": n, "tangent": tdir, "points": points, "stretch": stretch,
-		"anchor": mmi.position, "spin_mul": spin_mul, "phase": mrng.randf() * TAU}
+		"anchor": mmi.position, "spin_mul": spin_mul, "centre": sun_positions.get(int(c["system"]), Vector3.ZERO), "t0": t0}
+	# the rocks are laid out on the tangent at the position the pack has now, so the turn counts from the angle it has now
+	packs[id]["ang0"] = Clusters.orbit_angle(id, orbit_speed, _now() - t0)
 	_place(id)
 
-## T306: the visual pack swings along its orbit about the sun inside a small arc (sine, peak speed orbit_speed) and spins about
-## its own centre. The logical anchor (cluster x, y) never moves, so picks, routes, platforms and labels stay valid.
+func _now() -> float:
+	return float(clock.call()) if clock.is_valid() else _clock
+
+## T314: the pack travels the whole circle about the sun at its own radius (angle from Clusters.orbit_angle, one function of the
+## game clock, the same one Clusters.pos_of uses for picks, routes, platforms and labels). The long axis stays on the tangent (the
+## rocks turn with the orbit), plus the pack's own slow spin about its centre.
 func _place(id: String) -> void:
 	var d: Dictionary = packs[id]
 	var mm: MultiMeshInstance3D = d["mm"]
 	var anchor: Vector3 = d["anchor"]
-	var arc := deg_to_rad(orbit_arc)
-	var ang := 0.0
-	if arc > 0.0 and orbit_speed > 0.0:
-		ang = arc * sin(deg_to_rad(orbit_speed) * _clock / arc + float(d["phase"]))
-	var centre: Vector3 = sun_positions.get(int(d["system"]), Vector3.ZERO)
-	# the anchor turns about the sun by ang; the rocks turn by ang too (long axis stays on the tangent) plus their own spin
-	var rel := (anchor - centre).rotated(Vector3.UP, -ang)
-	mm.position = centre + rel
-	mm.rotation = Vector3(0.0, -ang + deg_to_rad(spin_speed) * float(d["spin_mul"]) * _clock, 0.0)
+	var t := _now()
+	var ang := Clusters.orbit_angle(id, orbit_speed, t - float(d["t0"])) - float(d["ang0"])
+	var centre: Vector3 = d["centre"]
+	mm.position = centre + (anchor - centre).rotated(Vector3.UP, ang)
+	mm.rotation = Vector3(0.0, ang + deg_to_rad(spin_speed) * float(d["spin_mul"]) * t, 0.0)
 
 func _process(delta: float) -> void:
-	if spin_speed == 0.0 and (orbit_speed == 0.0 or orbit_arc == 0.0):
+	if not clock.is_valid():
+		if running.is_valid() and not bool(running.call()):
+			return
+		_clock += delta
+	if spin_speed == 0.0 and orbit_speed == 0.0:
 		return
-	if running.is_valid() and not bool(running.call()):
-		return
-	_clock += delta
 	for id in packs:
 		if packs[id]["mm"].visible:
 			_place(id)

@@ -19,6 +19,34 @@ var items: Array = []
 var event_shape := {"radius": 30, "count": 50}
 var default_good := "ore"
 var stretch := 2.0  # cluster_stretch in the json: pack length along the orbit tangent vs across the radius
+## T314: packs travel the whole orbit about their sun. x, y of an item are the START position (angle 0, at game second "t0"); list()
+## and pos_of() give the current one. Both callables are set by main: centre_fn(system) -> Vector2 (the sun in map units),
+## clock_fn() -> float (game seconds, stops while paused). Unset = the start position (tests, tools).
+var centre_fn := Callable()
+var clock_fn := Callable()
+
+## Signed angle in radians (rotation about the world UP axis) a pack has turned after t game seconds: constant speed, direction
+## and a 0.6..1.4 speed factor seeded from the id, so packs do not move in step. deg_per_s = balance asteroid_orbit_deg_per_s.
+static func orbit_angle(id: String, deg_per_s: float, t: float) -> float:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = hash(id) ^ 7777
+	var mul := rng.randf_range(0.6, 1.4) * (1.0 if rng.randf() < 0.5 else -1.0)
+	return deg_to_rad(deg_per_s) * mul * t
+
+func _now() -> float:
+	return float(clock_fn.call()) if clock_fn.is_valid() else 0.0
+
+## Current map position of cluster i (map units). One function of the game clock, used by every consumer.
+func pos_of(i: int) -> Vector2:
+	if not valid(i):
+		return Vector2.ZERO
+	var it: Dictionary = items[i]
+	var start := Vector2(float(it["x"]), float(it["y"]))
+	if not centre_fn.is_valid():
+		return start
+	var centre: Vector2 = centre_fn.call(int(it["system"]))
+	var ang := orbit_angle(str(it["id"]), float(balance.get("asteroid_orbit_deg_per_s", 0.0)), _now() - float(it.get("t0", 0.0)))
+	return centre + (start - centre).rotated(-ang)  # the map's (x, y) is the world (x, z): a turn about UP is the opposite 2D turn
 
 static func node_id(i: int) -> int:
 	return -(BASE + i)
@@ -56,7 +84,7 @@ func setup(bal: Dictionary) -> void:
 		var rich := int(balance.get("mining_cluster_richness", 0))
 		items.append({"id": str(d["id"]), "system": sid, "x": float(d.get("x", 0)), "y": float(d.get("y", 0)),
 			"radius": float(d.get("radius", 40)), "count": int(d.get("count", 1)), "good": str(d.get("good", default_good)),
-			"max": rich, "left": rich, "spawned": false, "intensity": DeadWorlds.DEFAULT_STEP})
+			"max": rich, "left": rich, "spawned": false, "t0": 0.0, "intensity": DeadWorlds.DEFAULT_STEP})
 
 func find(id: String) -> int:
 	for i in items.size():
@@ -127,6 +155,9 @@ func list(system: int = 0, include_empty: bool = false) -> Array:
 			continue
 		var d: Dictionary = items[i].duplicate()
 		d["index"] = i
+		var cp := pos_of(i)
+		d["x"] = cp.x
+		d["y"] = cp.y
 		d["node"] = node_id(i)
 		d["visible"] = visible_count(i)
 		d["stretch"] = stretch
@@ -154,7 +185,7 @@ func spawn_small(system: int, x: float, y: float) -> int:
 	var rich := int(balance.get("mining_event_cluster_richness", 0))
 	items.append({"id": "ev_%d" % (n + 1), "system": system, "x": x + cos(ang) * 70.0, "y": y + sin(ang) * 70.0,
 		"radius": float(event_shape.get("radius", 30)), "count": int(event_shape.get("count", 50)), "good": default_good,
-		"max": rich, "left": rich, "spawned": true, "intensity": DeadWorlds.DEFAULT_STEP})
+		"max": rich, "left": rich, "spawned": true, "t0": _now(), "intensity": DeadWorlds.DEFAULT_STEP})  # T314: its orbit starts here, now
 	return items.size() - 1
 
 ## Saved form: ore left per base cluster id, and the full record of every spawned cluster. Positions and counts of base clusters come from the data file.
@@ -193,5 +224,5 @@ func from_dict(saved) -> void:
 				var mx := int(d.get("max", balance.get("mining_event_cluster_richness", 0)))
 				items.append({"id": str(d["id"]), "system": int(d.get("system", 1)), "x": float(d.get("x", 0)), "y": float(d.get("y", 0)),
 					"radius": float(d.get("radius", 30)), "count": int(d.get("count", 50)), "good": str(d.get("good", default_good)),
-					"max": mx, "left": clampi(int(d.get("left", 0)), 0, mx), "spawned": true,
+					"max": mx, "left": clampi(int(d.get("left", 0)), 0, mx), "spawned": true, "t0": float(d.get("t0", 0.0)),
 					"intensity": clampi(int(d.get("intensity", DeadWorlds.DEFAULT_STEP)), 0, DeadWorlds.STEPS.size() - 1)})

@@ -222,6 +222,8 @@ func _ready() -> void:
 	rival_ships.setup(self, map)
 	map.add_child(rival_ships)
 	map.rivals = rival_ships  # T199
+	map.game_seconds_fn = func() -> float: return game_time() * _cycle_seconds()  # T314
+	map.clusters_fn = func() -> Array: return clusters_in_system(0)
 	flight = Pathfinder.new()  # T179: needs the map's planets; discovery_enabled in balance.json switches it on or off live
 	flight.setup(self)
 	map.flight = flight
@@ -286,6 +288,10 @@ func _ready() -> void:
 		storage_link.link_notice.connect(_on_link_notice)
 	engine.setup(balance, trade, commodities, storage)
 	clusters.setup(balance)  # T156
+	clusters.clock_fn = func() -> float: return game_time() * _cycle_seconds()  # T314: packs orbit on the game clock
+	clusters.centre_fn = func(sid: int) -> Vector2:
+		var sp: Vector3 = map.sun_positions.get(sid, Vector3.ZERO) if map != null else Vector3.ZERO
+		return Vector2(sp.x, sp.z) / map.MAP_UNIT_SCALE
 	dead.setup(balance)
 	prosperity.setup(balance, map.planets, func(pid: String) -> bool: return flight != null and flight.established(pid))
 	engine.prosperity = prosperity
