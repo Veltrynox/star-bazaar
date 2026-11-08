@@ -3142,6 +3142,36 @@
         "assets/*"
       ],
       "priority": 1
+    },
+    {
+      "task_id": "T311",
+      "title": "OWNER: economy-designer proposal for the best number of solar systems against cycles",
+      "owner_agent": "economy-designer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 40,
+      "window": "Owner request 2026-11-07. Owner-run by hand only: the orchestrator skips this task. Not a build task.",
+      "brief": "Goal: a proposal (no data changes until the owner approves) for the number of live solar systems and the term length in cycles that balance the Star Bazaar run. Read: gdd.md sections 2-4, gdd-skills.md, data/balance.json (term, cycle length, permit costs, tier tax, Bazaar stage bills and quorums), data/systems.json, data/planets.json, data/chains.json. Question: the win is raising the Bazaar (stages, quorum worlds, one quorum world in another system, the Opening gig) before the last cycle. Find how many systems (today 2 designed plus placeholders 3-5, 6-10 off) and how many cycles make a focused run finish with some margin, a spread run fall short, and a slow run end Unfinished rather than Bankrupt. Show the reasoning per system count (for example 2, 3, 4, 5): permit cost against income, worlds available for quorum, skill points on offer, time to reach the capital tier. Give one recommended pair (systems, cycles) with a table of the alternatives and the exact data keys to change. Output: design/proposals/2026-11-07-systems-vs-cycles.md. Hand the file to the owner; the qa-analyst task T312 checks it afterwards.",
+      "size": "M",
+      "touches": [
+        "design/proposals/*"
+      ],
+      "priority": 3
+    },
+    {
+      "task_id": "T312",
+      "title": "OWNER: qa-analyst check of systems against cycles pacing",
+      "owner_agent": "qa-analyst",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 40,
+      "window": "Owner request 2026-11-07. Owner-run by hand only: the orchestrator skips this task. Not a build task. Start only after the owner has approved the T311 proposal and its numbers are in data/.",
+      "brief": "Goal: confirm with bot playthroughs that the (systems, cycles) pair chosen in design/proposals/2026-11-07-systems-vs-cycles.md gives the intended pacing. Run focused, spread and idle bot runs at the proposed system count and cycle term. Report per run: cycle the capital tier was reached, Bazaar stage reached, ending (win, END_UNFINISHED, END_BANKRUPT), softlocks, crashes, and any dominant strategy. Compare with the proposal's predicted ranges and say where they differ. Do not change code or balance. Output: a QA report under qa/reports/ and a short summary for the owner.",
+      "size": "M",
+      "touches": [
+        "qa/reports/*"
+      ],
+      "priority": 3
     }
   ],
   "done_task_ids": [
