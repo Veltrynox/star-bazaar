@@ -16,6 +16,8 @@ uniform float glow = 0.0;                 // HDR multiplier of lights and engine
 uniform float blink_hz = 0.0;
 uniform float amb_gain = 1.0;             // T303: brightness multiplier of ambient (mode 3) ships
 uniform float lane_spread = 0.0;          // T304: sideways spread per ship, fraction of the lane length (+- this), modes 0 and 3
+uniform float size_jitter = 0.0;          // T307: per-ship size factor 1 +- this, modes 0 and 3 (seeded, fixed per ship)
+uniform float speed_jitter = 0.0;         // T307: per-ship speed factor 1 +- this, modes 0 and 3 (own draw, not tied to the size draw)
 uniform float amb_streak = 1.0;           // T303: streak length multiplier of ambient ships
 uniform vec4 col_warm : source_color = vec4(1.0, 0.72, 0.35, 1.0);   // laden, running lights
 uniform vec4 col_dim : source_color = vec4(0.45, 0.5, 0.6, 1.0);     // empty, going back
@@ -23,13 +25,18 @@ uniform vec4 col_warn : source_color = vec4(0.886, 0.753, 0.369, 1.0);
 uniform vec4 col_bad : source_color = vec4(0.9, 0.25, 0.2, 1.0);
 uniform vec4 palette[16];                 // cargo tints, index 0 = plain
 
+// T307: stable 0..1 draw from the ship seed; k picks an independent draw.
+float traffic_draw(float seed, float k) {
+	return fract(sin(seed * 12.9898 * k + k * 78.233) * 43758.5453);
+}
+
 // World position, heading, scale, state and laden flag of one instance.
 void traffic_place(mat4 M, vec4 cu, out vec3 pos, out vec3 fwd, out float sc, out float st, out float laden) {
 	st = cu.z;
 	laden = 1.0;
 	sc = ship_len;
 	if (mode == 0 || mode == 3) {
-		float c = fract(traffic_clock * traffic_leg_speed * M[3].y + cu.x);
+		float c = fract(traffic_clock * traffic_leg_speed * M[3].y * (1.0 + speed_jitter * (traffic_draw(cu.w, 2.0) * 2.0 - 1.0)) + cu.x);
 		bool back = c > 0.5;
 		float u = back ? 2.0 - c * 2.0 : c * 2.0;
 		u = 0.04 + u * 0.92;
@@ -47,7 +54,7 @@ void traffic_place(mat4 M, vec4 cu, out vec3 pos, out vec3 fwd, out float sc, ou
 		pos += side * ((cu.w * 2.0 - 1.0) * lane_spread * length(lane) * ends);
 		vec3 d = 2.0 * w * (M[1].xyz - M[0].xyz) + 2.0 * u * (M[2].xyz - M[1].xyz);
 		fwd = normalize(back ? -d : d);
-		sc *= M[3].x;
+		sc *= M[3].x * (1.0 + size_jitter * (traffic_draw(cu.w, 1.0) * 2.0 - 1.0));
 	} else if (mode == 1) {
 		float a = 6.2831853 * (cu.x + traffic_clock * M[1].z);
 		float r = mix(M[1].x, M[1].y, cu.w);

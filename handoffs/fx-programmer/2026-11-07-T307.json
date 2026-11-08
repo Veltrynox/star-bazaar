@@ -1,0 +1,7 @@
+{
+  "task": "T307",
+  "agent": "fx-programmer (done by worker main session)",
+  "changed": ["game/traffic/traffic_layer.gd", "game/traffic/traffic_motion.gdshaderinc"],
+  "summary": "SIZE_JITTER 0.05 and SPEED_JITTER 0.10 consts passed as uniforms; shader derives two independent draws from the ship seed (modes 0 and 3 only). Streak scales with ship size.",
+  "screenshot": "logs/screenshots/T307.png"
+}
