@@ -1,0 +1,7 @@
+{
+  "task": "T310",
+  "agent": "fx-programmer (done by main session)",
+  "changed": ["game/traffic/traffic_meshes.gd", "game/traffic/traffic_ship.gdshader", "game/traffic/traffic_layer.gd"],
+  "summary": "Hull mesh is one flat double-sided triangle plus a tiny engine glow triangle; streak surface kept. Per-ship colour from an 8-hue palette picked from the ship seed, value-noise grain in the fragment shader (no textures, no per-frame cost); empty ships dimmer, cargo tint mixed in, raiders dark red. One MultiMesh per mode (max 4 -> 8 draw calls, was up to 12); stats() unchanged and counts correctly.",
+  "screenshot": "logs/screenshots/T310.png (start state, no ships on screen, no breakage or shader errors)"
+}

@@ -1,10 +1,20 @@
-// T277: traffic ship hull (surface 0 of the proxy meshes). One draw call per MultiMesh. Motion: traffic_motion.gdshaderinc.
-// Cheap fake light (one sun direction, shared with the map's key light), unshaded; lights and engines are HDR for the glow pass.
+// T310: traffic ship hull (surface 0 of the ship mesh): a flat double-sided triangle with a per-ship colour and a faint grain.
+// One draw call per MultiMesh. Motion: traffic_motion.gdshaderinc. Unshaded; the engine glow is HDR for the glow pass.
 shader_type spatial;
-render_mode unshaded, depth_draw_always, cull_back;
+render_mode unshaded, depth_draw_always, cull_disabled;
 #include "res://game/traffic/traffic_motion.gdshaderinc"
-uniform vec3 sun_dir = vec3(0.5, 0.7, 0.3);   // world direction towards the light
+uniform float grain = 0.22;           // strength of the noise grain (0 = flat fill)
+uniform float grain_scale = 14.0;     // grain cells across the triangle
+uniform float empty_gain = 0.6;       // brightness of a ship on its way back (empty)
+uniform float cargo_mix = 0.3;        // share of the cargo tint mixed into the ship colour (path ships with cargo)
+// Ship colours: a spread of hues that sit well on dark space; picked from the ship seed, so stable per ship.
+const vec3 SHIP_COL[8] = vec3[8](
+	vec3(0.95, 0.62, 0.35), vec3(0.95, 0.85, 0.40), vec3(0.55, 0.88, 0.50), vec3(0.40, 0.85, 0.80),
+	vec3(0.45, 0.68, 0.98), vec3(0.72, 0.60, 0.98), vec3(0.95, 0.55, 0.78), vec3(0.88, 0.90, 0.95));
 varying vec3 v_col;
+varying vec2 v_uv;
+varying float v_seed;
+varying float v_part;
 void vertex() {
 	vec3 pos;
 	vec3 fwd;
@@ -14,28 +24,44 @@ void vertex() {
 	traffic_place(MODEL_MATRIX, INSTANCE_CUSTOM, pos, fwd, sc, st, laden);
 	mat3 B = traffic_frame(fwd);
 	vec3 wp = pos + B * (VERTEX * sc);
-	float lam = 0.3 + 0.7 * max(dot(B * NORMAL, normalize(sun_dir)), 0.0);
-	vec3 col = COLOR.rgb * lam;
-	float part = UV.x;  // 0 hull, 1 cargo pod, 2 engine, 4 nav light
-	if (part > 0.5 && part < 1.5) {
-		col = palette[int(INSTANCE_CUSTOM.y)].rgb * lam;
-	} else if (part > 1.5 && part < 2.5) {
-		col = col_warm.rgb * glow * (st < 0.5 ? 1.0 : 0.15);
-	} else if (part > 3.5) {
-		float on = step(0.5, fract(TIME * blink_hz + INSTANCE_CUSTOM.w));
-		if (st < 0.5) {
-			col = (laden > 0.5 ? col_warm.rgb : col_dim.rgb * 0.5) * glow;
-		} else {
-			col = (st < 1.5 ? col_warn.rgb : col_bad.rgb) * glow * on;
-		}
+	float seed = INSTANCE_CUSTOM.w;
+	vec3 col = SHIP_COL[int(floor(traffic_draw(seed, 7.0) * 7.999))];
+	int pi = int(INSTANCE_CUSTOM.y);
+	if (pi > 0) {
+		vec3 tint = palette[pi].rgb;
+		// free ships (convoys, raiders) wear their tint fully; lane ships only a share of the cargo tint
+		col = mix(col, tint, mode == 2 ? 0.85 : cargo_mix);
 	}
+	col *= (st < 0.5 && laden < 0.5) ? empty_gain : 1.0;
+	if (st > 0.5) {
+		col *= 0.8;  // parked: a little dimmer
+	}
+	if (UV.x > 1.5) {
+		col = col_warm.rgb * glow * (st < 0.5 ? 1.0 : 0.15);
+	}
+	v_part = UV.x;
 	v_col = mode == 3 ? col * amb_gain : col;
+	v_uv = VERTEX.xz + vec2(0.5);
+	v_seed = seed;
 	POSITION = PROJECTION_MATRIX * VIEW_MATRIX * vec4(wp, 1.0);
 	if (traffic_fade <= 0.001) {
 		POSITION = vec4(2.0, 2.0, 2.0, 1.0);  // off: outside the clip volume
 	}
 }
+float grain_hash(vec2 p) {
+	return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
+}
 void fragment() {
-	ALBEDO = v_col;
+	vec3 c = v_col;
+	if (v_part < 1.5) {
+		// value noise on the hull, offset by the ship seed so no two ships share a grain pattern
+		vec2 q = v_uv * grain_scale + vec2(v_seed * 91.0, v_seed * 37.0);
+		vec2 f = fract(q);
+		vec2 i0 = floor(q);
+		f = f * f * (3.0 - 2.0 * f);
+		float n = mix(mix(grain_hash(i0), grain_hash(i0 + vec2(1.0, 0.0)), f.x), mix(grain_hash(i0 + vec2(0.0, 1.0)), grain_hash(i0 + vec2(1.0, 1.0)), f.x), f.y);
+		c *= 1.0 - grain + grain * 2.0 * n;
+	}
+	ALBEDO = c;
 	ALPHA = traffic_fade;
 }

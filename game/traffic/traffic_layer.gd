@@ -1,6 +1,6 @@
 extends Node3D
 ## T277: the traffic layer of one system view. Many small 3D ships at almost no CPU cost; a readout of the books, never a simulation.
-## Four groups (T303 adds ambient), one MultiMesh per (group, mesh) = a hull draw call and a streak draw call each (6 meshes at most, 12 draw calls):
+## Four groups (T303 adds ambient), one MultiMesh per group (T310: one triangle mesh for all kinds) = a hull draw call and a streak draw call each (4 MultiMeshes at most, 8 draw calls):
 ##   path  : ships along a quadratic Bezier lane (p0, pc, p2, count, state, cargo tint). Shader motion, like the lane dots.
 ##   orbit : ships circling a centre inside a radius band (count). Shader motion.
 ##   ambient: between-planets flow, same Bezier motion as path, dimmer and thinner (set_ambient_group).
@@ -31,6 +31,7 @@ const LAND_DISC := 0.9       # T309: landing points lie within this fraction of 
 const LAND_GAP := 0.6        # T309: lane end distance from the planet centre in radii; must match RouteLine.GAP (game/route_line.gd)
 const LAND_QMAX := 255.0     # T309: radius packing: q = round(radius / LAND_RMAX * LAND_QMAX), three of them in one float
 const LAND_RMAX := 8.0
+const PIRATE_COL := Color(0.85, 0.22, 0.18)  # T310: raider colour (visual constant)
 const LANE_SPREAD := 0.04    # T304: visual constant (not a balance key): per-ship sideways spread, fraction of lane length
 
 static var _globals_ready := false
@@ -272,10 +273,10 @@ func _set_group(key: String, slot: String, buf: PackedFloat32Array, n: int) -> v
 	_dirty[slot] = true
 
 func _slot_for(mode: int, mesh: String) -> String:
-	var slot := "%d|%s" % [mode, mesh]
+	var slot := "%d|ship" % mode  # T310: one triangle mesh for every kind, so one MultiMesh per mode
 	if _slots.has(slot):
 		return slot
-	var am: ArrayMesh = Meshes.make(mesh)
+	var am: ArrayMesh = Meshes.make()
 	var mats: Array = []
 	for si in 2:
 		var m := ShaderMaterial.new()
@@ -333,10 +334,10 @@ func _flush() -> void:
 				total += take
 		if slot.begins_with("%d|" % MODE_FREE):
 			for f in _free.values():
-				if "%d|%s" % [MODE_FREE, f["kind"]] == slot and total < cap:
+				if total < cap:
 					var p: Vector2 = f["s"]["pos"]
 					var fw := ShipMotion.forward(float(f["s"]["yaw"]))
-					_push(buf, Vector3(fw.x, 0.0, fw.y), Vector3(f["scale"], 0.0, 0.0), Vector3.ZERO, Vector3(p.x, f["y"], p.y), Vector4(0.0, float(_palette_index(f["tint"])), 0.0, _seed(str(slot), total)))
+					_push(buf, Vector3(fw.x, 0.0, fw.y), Vector3(f["scale"], 0.0, 0.0), Vector3.ZERO, Vector3(p.x, f["y"], p.y), Vector4(0.0, float(_palette_index(_free_tint(f))), 0.0, _seed(str(slot), total)))
 					total += 1
 		var s: Dictionary = _slots[slot]
 		var mm: MultiMesh = (s["mmi"] as MultiMeshInstance3D).multimesh
@@ -345,6 +346,13 @@ func _flush() -> void:
 			mm.buffer = buf
 		s["count"] = total
 	_dirty.clear()
+
+## T310: raiders are dark red (the one mesh has no kind); others wear their own tint.
+func _free_tint(f: Dictionary) -> Color:
+	var t: Color = f["tint"]
+	if t.a <= 0.0 and f["kind"] == "pirate":
+		return PIRATE_COL
+	return t
 
 ## Free ships: ShipMotion.step on the CPU for the few that fly. Marks the free buffer for rewrite only while something moves.
 func _step_free(dt: float) -> void:
