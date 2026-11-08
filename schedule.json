@@ -3117,7 +3117,7 @@
       "depends_on": [
         "T308"
       ],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 30,
       "window": "Owner request 2026-11-07.",
       "brief": "Goal: small ships appear to land on the planet and take off from it, instead of all meeting at its centre point. Read: game/traffic/traffic_layer.gd (set_ambient_group p0 and p2, the path group), game/traffic/traffic_motion.gdshaderinc (the T304 lane spread fades the sideways offset to zero at both ends: this task replaces that end fade at the ends only), game/map.gd (planet_radius(i), lane registration, where lane end points come from). Build: each ship's lane end points are a random point near the planet it flies to or from, found within about the planet's radius of the planet centre (a point on the visible disc of the planet, in the map plane, the same radius the map draws), fixed per ship from its seed (the same ship always lands at the same point), both ends independently. The ship then reads as touching down on the planet surface: at the end of its leg it fades or shrinks into the planet, and appears from the planet at the start, rather than stopping in empty space beside it. Keep the middle of the lane unchanged (the T304 sideways spread stays in the middle). Applies to ambient and path ships; orbit ships, free ships and the Flagship are not changed. Player-lane end markers and route lines stay at the planet centre. Planet radius comes from the map (no new number in code); any new tuning (landing depth, fade length) is a plain named constant in game/traffic/traffic_layer.gd passed as a uniform, not a balance key. Old saves must still load. Done when built: no QA, bots or sim. Take the one Quick look screenshot (sh tools/screenshot.sh --out logs/screenshots/T309.png), fix only objective breakage, record the path in the handoff. gdd.md is synced at commit by the main session. Handoff: handoffs/fx-programmer/<date>-T309.json.",
@@ -3126,7 +3126,8 @@
         "game/traffic/*",
         "game/map.gd"
       ],
-      "priority": 1
+      "priority": 1,
+      "note": "Done by orchestrator: Path and ambient ships glide to and from a seeded point on the visible planet disc at both lane ends and shrink into the surface, with the middle of the lane unchanged"
     },
     {
       "task_id": "T310",

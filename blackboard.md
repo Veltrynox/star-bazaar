@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-07 22:12 run: T307
-- Summary: Path and ambient ships now each get a fixed size factor (±5%) and speed factor (±10%), drawn from the ship seed with two independent draws and passed as SIZE_JITTER/SPEED_JITTER uniforms; the streak scales with ship size
-- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
-- Approach: built by a worker in worktree ../wt/T307 on branch task/T307, merged by the serial merge queue.
-- Agent prompts: /overnight-worker T307 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T307.log.
-- Worked: rebase, full test suite and fast-forward merge passed.
-- Failed / did not work: nothing.
-- Files and commits: see git log on branch new-features for commits starting with T307.
-- Left to do: nothing for this task.
-
 ## 2026-11-07 22:24 run: T305
 - Summary: Planets in system 1 and 2 moved onto separate orbits at least 2x the larger planet's diameter apart (Ashgate and Flintmoor no longer share one), with a new `_test_orbit_spacing` test; routes and flight times in both systems changed, and the default camera view of system 1 shows the outer orbits part
 - Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
@@ -64,4 +54,14 @@
 - Worked: rebase, full test suite and fast-forward merge passed.
 - Failed / did not work: nothing.
 - Files and commits: see git log on branch new-features for commits starting with T308.
+- Left to do: nothing for this task.
+
+## 2026-11-07 22:33 run: T309
+- Summary: Path and ambient ships glide to and from a seeded point on the visible planet disc at both lane ends and shrink into the surface, with the middle of the lane unchanged
+- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
+- Approach: built by a worker in worktree ../wt/T309 on branch task/T309, merged by the serial merge queue.
+- Agent prompts: /overnight-worker T309 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T309.log.
+- Worked: rebase, full test suite and fast-forward merge passed.
+- Failed / did not work: nothing.
+- Files and commits: see git log on branch new-features for commits starting with T309.
 - Left to do: nothing for this task.
