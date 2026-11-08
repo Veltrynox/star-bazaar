@@ -3041,7 +3041,7 @@
       "title": "Planet orbits: Ashgate off Flintmoor's orbit, at least 2x planet size between orbits, plus a unit test",
       "owner_agent": "gameplay-programmer",
       "depends_on": [],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 30,
       "window": "Owner request 2026-11-07. Ashgate sits on the same orbit as Flintmoor.",
       "brief": "Goal: no two planets of a system share an orbit, and neighbouring orbits are at least 2x a planet's size apart. Read: data/planets.json and data/systems.json (x, y per planet; the orbit radius is the distance from the system centre, scaled by ORBIT_SCALE in game/map.gd), game/map.gd (PLANET_RADIUS, planet_scale, planet_radius(i), how orbit rings are drawn from the planet radii). Ashgate (planet_3, 0/-220) and Flintmoor (planet_4, -20/250) are at nearly the same orbit radius. Build: move planets in the data (x, y, keep each planet in its system and roughly its angle) so that for every system the sorted orbit radii differ by at least 2x the planet diameter measured on the map (use the larger planet radius of the pair, in map units after ORBIT_SCALE; read the real value from map.gd, do not guess), and no planet is on the sun. Check every system with planets in data, including the live placeholder systems. Keep the first system readable and the outermost orbit within the camera pan_margin. The flight times and route lengths depend on distances: keep route-based tuning intact as far as possible and list in the handoff which planet distances changed. Test: add a unit test to tools/tests/run_tests.gd (called from the main test list) that loads the planet and system data, computes each planet's orbit radius as the map does, and fails naming the two planets when any two orbits in one system are closer than 2x planet size; the test must pass at the end. Text: ids only. Old saves must still load (positions come from data, no saved state). Done when built: no QA, bots or sim. Take the one Quick look screenshot (sh tools/screenshot.sh --out logs/screenshots/T305.png), fix only objective breakage, record the path in the handoff. gdd.md is synced at commit by the main session. Handoff: handoffs/gameplay-programmer/<date>-T305.json.",
@@ -3052,7 +3052,8 @@
         "game/map.gd",
         "tools/tests/run_tests.gd"
       ],
-      "priority": 1
+      "priority": 1,
+      "note": "Done by orchestrator: Planets in system 1 and 2 moved onto separate orbits at least 2x the larger planet's diameter apart (Ashgate and Flintmoor no longer share one), with a new `_test_orbit_spacing` test; routes and flight times in both systems changed, and the default camera view of system 1 shows the outer orbits part"
     },
     {
       "task_id": "T306",
