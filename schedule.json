@@ -3098,7 +3098,7 @@
       "depends_on": [
         "T307"
       ],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 20,
       "window": "Owner request 2026-11-07.",
       "brief": "Goal: the streaks behind the small ships are three times shorter. Read: game/traffic/traffic_layer.gd and traffic_streak.gdshader, and the balance keys traffic_streak_len and traffic_ambient_streak in data/balance.json (the streak length comes from these). Build: divide the streak length of every traffic group by 3 (ambient, path, orbit and free ships alike) by changing the existing values or the one place they are multiplied, so the result is exactly one third; keep brightness and width as they are. Do not touch the Flagship, the convoy ships or the player ship trails (game/ship_trail.gd). If the value is edited in data/balance.json, bump data_version and note the old and new value in the balance source. Old saves must still load. Done when built: no QA, bots or sim. Take the one Quick look screenshot (sh tools/screenshot.sh --out logs/screenshots/T308.png), fix only objective breakage, record the path in the handoff. gdd.md is synced at commit by the main session. Handoff: handoffs/fx-programmer/<date>-T308.json.",
@@ -3107,7 +3107,8 @@
         "game/traffic/*",
         "data/balance.json"
       ],
-      "priority": 1
+      "priority": 1,
+      "note": "Done by orchestrator: Small-ship streaks are now one third as long: `traffic_streak_len` went from 2.5 to 0.8333333, and ambient ships follow through their multiplier. `data_version` is now 74 and the old and new values are noted in the balance source. The Quick look screenshot (`logs/screenshots/T308.png`) shows a norma"
     },
     {
       "task_id": "T309",
