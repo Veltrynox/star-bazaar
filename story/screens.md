@@ -6,15 +6,15 @@ Menus, buttons, labels, notices and tutorial lines are plain. Flavour lives in t
 
 ## STORY ARC (10 lines)
 1. Title: a small company in a shared, indifferent sky.
-2. Preface: everything is shared and counted. A company that holds over half of one market is hard to count as shared.
+2. Preface: everything is shared and counted. You run a trading company with one home world and a scout, and you aim to build the Star Bazaar on one grown world.
 3. First cycles: three planets, two goods. Read prices, set standing orders.
 4. Early growth: Company storage and the first expansion points. The company looks like a company, which the Commons finds suspicious.
 5. First event: the market moves without asking you.
 6. Skills: you choose what kind of company you are: Military, Luxury, Minerals or Biotech.
 7. Midgame: debts, upkeep and the question of what is enough.
 8. Pressure: events test routes; the rescue notice shows the Bureau will carry you once, politely.
-9. The goal: more than half of one market. Holding it ends the run with a market ending.
-10. Ending: one of the market endings, or a loss (bankrupt, swept), or the soft ending when the window closes.
+9. The goal: raise the Star Bazaar on one grown world, stage by stage, and open it with a final delivery before the term ends. That ends the run with a market ending.
+10. Ending: one of the market endings, or a loss (bankrupt, swept), or the soft ending when the term ends first.
 
 ## Title
 SCR_TITLE_NAME | 24 | Title screen, big text
@@ -24,11 +24,11 @@ A small company in a shared, indifferent sky.
 
 ## Preface (one block, shown before the game starts)
 SCR_PREFACE | 700 | Preface screen
-Everything under this sky is shared. The air, the ducts, the hulls that creak like something asleep, and every credit anyone earns, which goes into the Common Ledger and comes back in portions. The Plan is generous. It is also five cycles long, and then another five.
+Everything under this sky is shared, and counted. Every credit goes into the Common Ledger and comes back in portions. The Plan is generous. It is also five cycles long, and then another five.
 
-Four markets: Military, Luxury, Minerals, Biotech. Three houses send weather, and the Plan counts every share. Hold over half of one market and the count stops being a rumour.
+You run a small trading company. You start with one home world, one ship's worth of cash and a scout that finds other worlds. Ships fly your routes by themselves. You choose where to invest.
 
-So you have a small company, one ship's worth of cash, three planets and two goods. Buy where it is cheap. Sell where it is not. Serving the common good is encouraged. Profit, officially, is a typing error.
+Worlds grow when their needs are met. Raise one into a capital and build the Star Bazaar there, stage by stage. Open it with a final delivery before your term ends. Pick one market to lean on: Military, Luxury, Minerals or Biotech. Three houses send weather, not war.
 
 What it costs the sky, the sky does not say.
 SCR_PREFACE_BTN | 24 | Preface screen, continue button
