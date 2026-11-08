@@ -3182,7 +3182,7 @@
       "title": "Preface and goal text: explain what Star Bazaar is and what the goal is",
       "owner_agent": "story-designer",
       "depends_on": [],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 30,
       "window": "Owner request 2026-11-07.",
       "brief": "Goal: a new player reads the opening screen and knows what Star Bazaar is and what they are trying to do, in the game's voice. Read: story/voice.md, story/screens.md (STORY ARC and the Preface block: SCR_PREFACE, max 700 chars), story/game-flow.md, gdd.md sections 1-4. The current preface is out of date: it talks about market shares, the Plan counting every share, and holding over half of one market, which no longer wins (market share was removed; houses are weather, not rivals; there is no Competitors menu). Write to match the game as it is now: you run a trading company, not a freighter; ships fly on automated routes; you decide where to invest; you start with one home world, one ship's worth of cash and a scout (the Pathfinder) that finds other worlds; worlds grow through Prosperity when their needs are met; the goal is to raise the Star Bazaar, a capital on one grown world, stage by stage, and open it with a final delivery before the term ends; you pick one market (Military, Luxury, Minerals or Biotech) and focus on it; three houses send weather, not war. Build: rewrite SCR_PREFACE (and the tagline if it no longer fits) in story/screens.md; if one block cannot hold the goal in 700 chars, keep the preface as mood plus a plain two-line goal, and add one new id for it (for example SCR_GOAL) only where the preface or new-company screen can show it; check game/ for where SCR_PREFACE is used and tell the owner in the handoff if a new id needs a UI change (do not edit game code). Update the stale STORY ARC lines and the stale goal sentence in story/game-flow.md to match. No text may name a hidden good, a number or a skill-point price, and nothing reveals the hidden GOOD or BAD lean. Write in story/*.md (English only, no Russian work), then run python3 tools/build_story.py; never edit data/story_text.json, data/story_text_ru.json or data/events.json by hand. Done when written. Handoff: handoffs/story-designer/<date>-T313.json.",
@@ -3192,7 +3192,8 @@
         "data/story_text.json",
         "data/events.json"
       ],
-      "priority": 2
+      "priority": 2,
+      "note": "Done by orchestrator: Rewrote SCR_PREFACE, STORY ARC lines and the game-flow goal sentence for the Star Bazaar goal (no new id, no UI change needed)"
     },
     {
       "task_id": "T314",

@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-07 22:24 run: T305
-- Summary: Planets in system 1 and 2 moved onto separate orbits at least 2x the larger planet's diameter apart (Ashgate and Flintmoor no longer share one), with a new `_test_orbit_spacing` test; routes and flight times in both systems changed, and the default camera view of system 1 shows the outer orbits part
-- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
-- Approach: built by a worker in worktree ../wt/T305 on branch task/T305, merged by the serial merge queue.
-- Agent prompts: /overnight-worker T305 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T305.log.
-- Worked: rebase, full test suite and fast-forward merge passed.
-- Failed / did not work: nothing.
-- Files and commits: see git log on branch new-features for commits starting with T305.
-- Left to do: nothing for this task.
-
 ## 2026-11-07 22:25 run: T306
 - Summary: Asteroid packs now spin slowly about their own centre and swing back and forth along their orbit around the system sun, on the game clock. The cluster's logical anchor stays fixed, so picks, routes and platforms are untouched.
 - Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
@@ -64,4 +54,14 @@
 - Worked: rebase, full test suite and fast-forward merge passed.
 - Failed / did not work: nothing.
 - Files and commits: see git log on branch new-features for commits starting with T309.
+- Left to do: nothing for this task.
+
+## 2026-11-07 22:34 run: T313
+- Summary: Rewrote SCR_PREFACE, STORY ARC lines and the game-flow goal sentence for the Star Bazaar goal (no new id, no UI change needed)
+- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
+- Approach: built by a worker in worktree ../wt/T313 on branch task/T313, merged by the serial merge queue.
+- Agent prompts: /overnight-worker T313 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T313.log.
+- Worked: rebase, full test suite and fast-forward merge passed.
+- Failed / did not work: nothing.
+- Files and commits: see git log on branch new-features for commits starting with T313.
 - Left to do: nothing for this task.
