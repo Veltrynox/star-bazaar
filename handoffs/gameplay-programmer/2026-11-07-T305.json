@@ -1,0 +1,20 @@
+{
+  "task": "T305",
+  "agent": "gameplay-programmer",
+  "summary": "Moved planets in system 1 and 2 so every orbit is >= 2x the larger planet's diameter (4 x radius, world units after MAP_UNIT_SCALE*ORBIT_SCALE) from its neighbour; added _test_orbit_spacing; widened the T214 wake check to 6 s (ships turn 45 deg/s before moving).",
+  "files": ["data/planets.json", "data/systems.json", "tools/tests/run_tests.gd"],
+  "changed_positions_x_y": {
+    "planet_1 Voltara": "-200,80 -> -600,175",
+    "planet_2 Tillam": "200,80 -> 140,55",
+    "planet_3 Ashgate": "0,-220 -> -165,540",
+    "dead_1 Cinderrest": "-340,-120 (unchanged)",
+    "planet_4 Flintmoor": "-20,250 -> 225,-660",
+    "s2_p1": "520,60 -> 560,65",
+    "s2_p2": "760,140 -> 870,270",
+    "s2_p3": "700,-140 -> 360,-570",
+    "s2_p4": "900,-20 -> 1360,95",
+    "dead_2": "700,300 -> 860,760"
+  },
+  "note": "Route distances and flight times in both systems changed (system 1 and 2 are much wider; route-based tuning is not preserved). The gap rule forces roughly 500+ data units of outer orbit. Default camera view of system 1 now shows the outer orbits partly off screen: owner decision.",
+  "screenshot": "logs/screenshots/T305.png (ignored by git)"
+}

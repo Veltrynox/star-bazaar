@@ -29,6 +29,7 @@ func _initialize() -> void:
 
 func _run() -> void:
 	_test_good_icons()
+	_test_orbit_spacing()
 	_test_story_text()
 	_test_generated_files()
 	_test_data_pack_lint()
@@ -6630,7 +6631,7 @@ func _test_t187_ship_flight() -> void:
 	var woke := true
 	for sh in rs._ships:
 		woke = woke and not bool(sh.get("parked", false))
-	rs.advance(2.0)
+	rs.advance(6.0)  # T305: a ship turns 45 deg/s and only moves once aligned, so a half-turn course needs about 4 s before it moves
 	var moved2 := false
 	for k in rs.get_child_count():
 		moved2 = moved2 or rs.get_child(k).position != pos_idle[k]
@@ -7161,6 +7162,49 @@ func _learn_storage(m) -> Dictionary:
 	m.trade_income_total = t
 	m._sync_earn()
 	return r
+
+## T305: in one system no two planets share an orbit; neighbouring orbits are >= 2x the larger planet's diameter apart (as the map draws them).
+func _test_orbit_spacing() -> void:
+	var MapS := load("res://game/map.gd")
+	var systems := {}  # system id -> [{id, x, y, size}]
+	var pj: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/planets.json"))
+	var sj: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/systems.json"))
+	var all: Array = []
+	all.append_array(pj.get("planets", []))
+	for sy in sj.get("systems", []):
+		for p in sy.get("planets", []):
+			var q: Dictionary = p.duplicate()
+			q["system"] = int(sy.get("id", 2))
+			all.append(q)
+	for p in all:
+		if not p.has("x") or not p.has("y"):
+			continue
+		var sid := int(p.get("system", 1))
+		if not systems.has(sid):
+			systems[sid] = []
+		var f: float
+		if p.has("size"):
+			f = clampf(float(p["size"]), MapS.PLANET_SIZE_MIN, MapS.PLANET_SIZE_MAX)
+		else:
+			f = lerpf(MapS.PLANET_SIZE_MIN, MapS.PLANET_SIZE_MAX, float(absi(str(p["id"]).hash()) % 1000) / 999.0)
+		systems[sid].append({"id": str(p["id"]), "v": Vector2(float(p["x"]), float(p["y"])), "r": MapS.PLANET_RADIUS * MapS.PLANET_SIZE * f})
+	for sid in systems:
+		var list: Array = systems[sid]
+		var lo: Vector2 = list[0]["v"]
+		var hi: Vector2 = list[0]["v"]
+		for e in list:
+			lo = Vector2(minf(lo.x, e["v"].x), minf(lo.y, e["v"].y))
+			hi = Vector2(maxf(hi.x, e["v"].x), maxf(hi.y, e["v"].y))
+		var mid := (lo + hi) * 0.5  # the system centre the map uses (middle of the planets' bounding box)
+		for e in list:
+			e["orbit"] = (e["v"] - mid).length() * MapS.MAP_UNIT_SCALE * MapS.ORBIT_SCALE
+		list.sort_custom(func(a, b): return a["orbit"] < b["orbit"])
+		for k in range(list.size() - 1):
+			var a: Dictionary = list[k]
+			var b: Dictionary = list[k + 1]
+			var need := 4.0 * maxf(a["r"], b["r"])
+			check(b["orbit"] - a["orbit"] >= need, "orbits: system %d %s and %s are 2x planet size apart" % [sid, a["id"], b["id"]], "gap %.2f need %.2f" % [b["orbit"] - a["orbit"], need])
+		check(list[0]["orbit"] > 2.0 * list[0]["r"], "orbits: system %d %s is not on the sun" % [sid, list[0]["id"]])
 
 func _test_good_icons() -> void:
 	for g in Goods.ids():
