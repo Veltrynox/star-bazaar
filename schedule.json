@@ -3201,7 +3201,7 @@
       "title": "Asteroid packs travel the big orbit around the sun, not a small arc",
       "owner_agent": "gameplay-programmer",
       "depends_on": [],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 40,
       "window": "Owner request 2026-11-07. Follows T306.",
       "brief": "Goal: each asteroid pack travels the big orbit around its system sun, the full ring at its own orbit radius (like the planet orbit rings), instead of swinging back and forth through a small arc. Read: game/galaxy/asteroid_packs.gd (_place: today the pack swings through orbit_arc degrees with a sine and peak speed orbit_speed; the cluster's logical position stays fixed and only the visuals move), game/clusters.gd, game/map.gd (cluster positions, sun_positions, orbit rings, ORBIT_SCALE), data/asteroid_clusters.json, balance keys asteroid_orbit_deg_per_s, asteroid_orbit_arc_deg, asteroid_spin_deg_per_s, and every user of a cluster position (click and hover pick, mining routes and their line ends, platform marker, labels, traffic and ambient lane ends, pathfinder survey, raids). Build: (1) the pack moves round the whole circle about the sun at a constant very slow angular speed at its own radius (radius fixed from its data position), long axis kept on the orbit tangent, own spin kept; direction and speed per pack stay seeded from the cluster id so packs do not move in step; start angle is the data position so a new game looks as before at time zero. (2) Because a full lap moves the pack far from its data position, the cluster's logical position must follow the visual pack, computed from one function of the game clock (angle = start angle + speed * game time), used by every consumer listed above, so picks, platforms, route ends and labels stay on the rocks; no consumer may keep a stale fixed position. Routes from a moving cluster keep working and their flight time follows the current distance. (3) Replace the arc swing: remove orbit_arc and its balance key if nothing else uses it, keep orbit_speed as the angular speed (rename the key only if clearer, bump data_version and note old and new in the balance source). (4) Motion runs on the game clock, paused when the game is paused. Save and load keeps the pack where it was (it follows the saved game time, no new per-pack state), old saves still load. Check that a pack's orbit radius does not cross a planet orbit in any system with planets (planets are about 2x apart after T305); if one does, say which in the handoff and move the cluster radius in data to sit between the planet orbits. No per-rock nodes or scripts. Done when built: no QA, bots or sim. Take the one Quick look screenshot (sh tools/screenshot.sh --out logs/screenshots/T314.png), fix only objective breakage, record the path in the handoff. gdd.md is synced at commit by the main session. Handoff: handoffs/gameplay-programmer/<date>-T314.json.",
@@ -3215,7 +3215,8 @@
         "data/balance.json",
         "data/asteroid_clusters.json"
       ],
-      "priority": 2
+      "priority": 2,
+      "note": "Done by orchestrator: Asteroid packs travel the full orbit about the sun, with cluster positions following the game clock for every consumer; c1_2 moved clear of the dead_1 orbit"
     },
     {
       "task_id": "T315",
