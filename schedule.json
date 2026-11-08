@@ -3035,6 +3035,112 @@
       ],
       "priority": 1,
       "note": "Done by orchestrator: Per-ship sideways lane offset of ±4% (LANE_SPREAD uniform, faded to zero at both planets) added in the shared traffic motion shader for ambient and path ships"
+    },
+    {
+      "task_id": "T305",
+      "title": "Planet orbits: Ashgate off Flintmoor's orbit, at least 2x planet size between orbits, plus a unit test",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 30,
+      "window": "Owner request 2026-11-07. Ashgate sits on the same orbit as Flintmoor.",
+      "brief": "Goal: no two planets of a system share an orbit, and neighbouring orbits are at least 2x a planet's size apart. Read: data/planets.json and data/systems.json (x, y per planet; the orbit radius is the distance from the system centre, scaled by ORBIT_SCALE in game/map.gd), game/map.gd (PLANET_RADIUS, planet_scale, planet_radius(i), how orbit rings are drawn from the planet radii). Ashgate (planet_3, 0/-220) and Flintmoor (planet_4, -20/250) are at nearly the same orbit radius. Build: move planets in the data (x, y, keep each planet in its system and roughly its angle) so that for every system the sorted orbit radii differ by at least 2x the planet diameter measured on the map (use the larger planet radius of the pair, in map units after ORBIT_SCALE; read the real value from map.gd, do not guess), and no planet is on the sun. Check every system with planets in data, including the live placeholder systems. Keep the first system readable and the outermost orbit within the camera pan_margin. The flight times and route lengths depend on distances: keep route-based tuning intact as far as possible and list in the handoff which planet distances changed. Test: add a unit test to tools/tests/run_tests.gd (called from the main test list) that loads the planet and system data, computes each planet's orbit radius as the map does, and fails naming the two planets when any two orbits in one system are closer than 2x planet size; the test must pass at the end. Text: ids only. Old saves must still load (positions come from data, no saved state). Done when built: no QA, bots or sim. Take the one Quick look screenshot (sh tools/screenshot.sh --out logs/screenshots/T305.png), fix only objective breakage, record the path in the handoff. gdd.md is synced at commit by the main session. Handoff: handoffs/gameplay-programmer/<date>-T305.json.",
+      "size": "S",
+      "touches": [
+        "data/planets.json",
+        "data/systems.json",
+        "game/map.gd",
+        "tools/tests/run_tests.gd"
+      ],
+      "priority": 1
+    },
+    {
+      "task_id": "T306",
+      "title": "Asteroid packs rotate slowly and fly along their orbit",
+      "owner_agent": "galaxy-builder",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 30,
+      "window": "Owner request 2026-11-07.",
+      "brief": "Goal: asteroid packs are alive: each pack spins slowly about its own centre and also drifts along its orbit around the system sun. Read: game/galaxy/asteroid_packs.gd (spin_speed export exists and is 0 by default; tangent_of(c); sun_positions the orbit centre; one MultiMeshInstance3D per cluster, long axis along the orbit tangent), game/map.gd (how clusters are positioned and synced, how mining platforms, routes and clicks find a cluster position). Build: (1) a slow spin of the rock field about its own centre, a different slow rate and direction per pack (seeded from the cluster id, stable); (2) the pack orbits the system sun at a very slow angular speed, keeping its radius, and its long axis stays along the orbit tangent. Anything that uses a cluster's position (click and hover pick, mining routes and their line ends, platform marker, labels, ambient or traffic lane ends) must follow the moving pack, or the cluster keeps a fixed logical anchor and only the visual rocks move within a small arc: choose the one that does not break routes or picking and state it in the handoff. Motion runs on the game clock (paused when the game is paused). No per-rock nodes or scripts, no per-frame buffer rewrites. Numbers: new data/balance.json keys (asteroid_spin_deg_per_s, asteroid_orbit_deg_per_s), PLACEHOLDER values marked placeholder in the balance source note, never numbers in code. Old saves must still load. Done when built: no QA, bots or sim. Take the one Quick look screenshot (sh tools/screenshot.sh --out logs/screenshots/T306.png), fix only objective breakage, record the path in the handoff. gdd.md is synced at commit by the main session. Handoff: handoffs/galaxy-builder/<date>-T306.json.",
+      "size": "S",
+      "touches": [
+        "game/galaxy/asteroid_packs.gd",
+        "game/map.gd",
+        "data/balance.json"
+      ],
+      "priority": 1
+    },
+    {
+      "task_id": "T307",
+      "title": "Small ships: random size +-5 percent and speed +-10 percent per ship",
+      "owner_agent": "fx-programmer",
+      "depends_on": [
+        "T304"
+      ],
+      "status": "queued",
+      "turn_cap": 25,
+      "window": "Owner request 2026-11-07. The small ships look good.",
+      "brief": "Goal: ships in a lane are not clones. Each small ship gets its own size and speed. Read: game/traffic/traffic_layer.gd (_push, _seed, set_ambient_group, the path group), game/traffic/traffic_motion.gdshaderinc and traffic_ship.gdshader. Build: a fixed per-ship size factor in the range 0.95 to 1.05 and a fixed per-ship speed factor in the range 0.90 to 1.10, both drawn from the ship's existing seed (stable per ship, not per frame, different draws for size and speed so they are not correlated). Apply to the ambient and path groups, not to orbit or free ships. The speed factor must not make ships jump: ships keep their phase on the lane when the factor is applied (derive position from the clock and the factor in a way that has no visible jump at start, and the lane still reads as a continuous stream). The streak scales with the ship size. The two ranges are plain visual constants (named consts, SIZE_JITTER = 0.05 and SPEED_JITTER = 0.10) in game/traffic/traffic_layer.gd passed to the shader as uniforms, not balance keys (owner ruling 2026-11-07, as for the lane spread). No new data/balance.json keys. Old saves must still load. Done when built: no QA, bots or sim. Take the one Quick look screenshot (sh tools/screenshot.sh --out logs/screenshots/T307.png), fix only objective breakage, record the path in the handoff. gdd.md is synced at commit by the main session. Handoff: handoffs/fx-programmer/<date>-T307.json.",
+      "size": "S",
+      "touches": [
+        "game/traffic/*"
+      ],
+      "priority": 1
+    },
+    {
+      "task_id": "T308",
+      "title": "Small ships: trails 3x shorter",
+      "owner_agent": "fx-programmer",
+      "depends_on": [
+        "T307"
+      ],
+      "status": "queued",
+      "turn_cap": 20,
+      "window": "Owner request 2026-11-07.",
+      "brief": "Goal: the streaks behind the small ships are three times shorter. Read: game/traffic/traffic_layer.gd and traffic_streak.gdshader, and the balance keys traffic_streak_len and traffic_ambient_streak in data/balance.json (the streak length comes from these). Build: divide the streak length of every traffic group by 3 (ambient, path, orbit and free ships alike) by changing the existing values or the one place they are multiplied, so the result is exactly one third; keep brightness and width as they are. Do not touch the Flagship, the convoy ships or the player ship trails (game/ship_trail.gd). If the value is edited in data/balance.json, bump data_version and note the old and new value in the balance source. Old saves must still load. Done when built: no QA, bots or sim. Take the one Quick look screenshot (sh tools/screenshot.sh --out logs/screenshots/T308.png), fix only objective breakage, record the path in the handoff. gdd.md is synced at commit by the main session. Handoff: handoffs/fx-programmer/<date>-T308.json.",
+      "size": "S",
+      "touches": [
+        "game/traffic/*",
+        "data/balance.json"
+      ],
+      "priority": 1
+    },
+    {
+      "task_id": "T309",
+      "title": "Small ships land and take off at random points on the planet",
+      "owner_agent": "fx-programmer",
+      "depends_on": [
+        "T308"
+      ],
+      "status": "queued",
+      "turn_cap": 30,
+      "window": "Owner request 2026-11-07.",
+      "brief": "Goal: small ships appear to land on the planet and take off from it, instead of all meeting at its centre point. Read: game/traffic/traffic_layer.gd (set_ambient_group p0 and p2, the path group), game/traffic/traffic_motion.gdshaderinc (the T304 lane spread fades the sideways offset to zero at both ends: this task replaces that end fade at the ends only), game/map.gd (planet_radius(i), lane registration, where lane end points come from). Build: each ship's lane end points are a random point near the planet it flies to or from, found within about the planet's radius of the planet centre (a point on the visible disc of the planet, in the map plane, the same radius the map draws), fixed per ship from its seed (the same ship always lands at the same point), both ends independently. The ship then reads as touching down on the planet surface: at the end of its leg it fades or shrinks into the planet, and appears from the planet at the start, rather than stopping in empty space beside it. Keep the middle of the lane unchanged (the T304 sideways spread stays in the middle). Applies to ambient and path ships; orbit ships, free ships and the Flagship are not changed. Player-lane end markers and route lines stay at the planet centre. Planet radius comes from the map (no new number in code); any new tuning (landing depth, fade length) is a plain named constant in game/traffic/traffic_layer.gd passed as a uniform, not a balance key. Old saves must still load. Done when built: no QA, bots or sim. Take the one Quick look screenshot (sh tools/screenshot.sh --out logs/screenshots/T309.png), fix only objective breakage, record the path in the handoff. gdd.md is synced at commit by the main session. Handoff: handoffs/fx-programmer/<date>-T309.json.",
+      "size": "S",
+      "touches": [
+        "game/traffic/*",
+        "game/map.gd"
+      ],
+      "priority": 1
+    },
+    {
+      "task_id": "T310",
+      "title": "Small ships: replace the ship mesh with a simple textured triangle in varied colours",
+      "owner_agent": "fx-programmer",
+      "depends_on": [
+        "T309"
+      ],
+      "status": "queued",
+      "turn_cap": 35,
+      "window": "Owner request 2026-11-07. The ships are too small to need geometry.",
+      "brief": "Goal: small ships are simple flat triangles, each with its own colour and a faint noise texture, which is all that reads at that size. Read: game/traffic/traffic_meshes.gd (the low-poly corvette and pirate proxies), traffic_ship.gdshader, traffic_layer.gd (_slot_for, mesh keys, the palette uniform, _palette_packed) and the debug readout that counts meshes and draw calls. Build: replace the hull mesh of the traffic layer with one triangle (one nose vertex and two rear vertices, a flat shape in the map plane, double sided, facing along the direction of travel); keep the instanced MultiMesh, the streaks and the engine glow. Each ship has a different colour: a per-ship colour picked from a small palette (the existing palette uniform or a new one, a spread of hues that still sit well on the dark space background, picked from the ship seed so it is stable) multiplied by a noise texture sampled in the shader (a small tileable noise texture, generated in code once or a procedural noise function in the shader, no per-frame cost) so the triangle has some grain rather than a flat fill. Laden and empty lane states, the ambient dimming and the far-zoom fade keep working (state shown by brightness or a tint on top of the ship colour). Drop the now unused mesh variants and their draw calls: the debug menu readout must show the new, lower draw call and instance count correctly. The Flagship, convoy ships and orbit shuttles that use real ship models are not changed unless they go through the same hull mesh, in which case keep their model. No per-ship nodes or scripts. Old saves must still load. Done when built: no QA, bots or sim. Take the one Quick look screenshot (sh tools/screenshot.sh --out logs/screenshots/T310.png), fix only objective breakage, record the path in the handoff. gdd.md is synced at commit by the main session. Handoff: handoffs/fx-programmer/<date>-T310.json.",
+      "size": "M",
+      "touches": [
+        "game/traffic/*",
+        "assets/*"
+      ],
+      "priority": 1
     }
   ],
   "done_task_ids": [
