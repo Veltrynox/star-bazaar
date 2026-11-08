@@ -3243,7 +3243,7 @@
       "depends_on": [
         "T315"
       ],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 40,
       "window": "Owner request 2026-11-07. Code half of T315.",
       "brief": "Goal: the guided tutorial and the contextual tips written in T315 run in the game. Read: the T315 handoff (final step ids in order, tip ids and triggers), game/main.gd (TUT_GUIDE, TUT_FALLBACK, TUT_OLD_MAP, TUT_VER, tut_step, tut_first, tut_flags, the tutorial card, arrow and highlight, _tut_show, _tut_cycle, save and load of tut_step), game/galaxy_view.gd, game/planet_panel.gd, game/dest_hint.gd, game/pathfinder_view.gd, game/skill_screen.gd, game/chains.gd, game/conditions.gd, story/screens.md. Build: (1) replace TUT_GUIDE with the new step list in order, each step with its target control (card beside it, highlight, arrow) and its done condition from the player's own action, using game/conditions.gd atoms where one exists; Skip tutorial still ends everything and steps whose state was already reached are passed over as today. (2) Bump TUT_VER and extend TUT_OLD_MAP so old saves land on the matching new step, and finished tutorials stay finished. (3) Add the one-time tips as a small system on the same card (or the existing tips board): each has a trigger evaluated through game/conditions.gd or an existing signal, is shown once per run, is saved so it does not repeat after load, never pauses the game, never covers a popup or the event window, queues behind another tip, and is skipped when Skip tutorial was pressed. (4) Old text ids that no longer exist must not be referenced; a missing id never shows a raw key. (5) Tutorial text never names a hidden good: respect Availability. Add unit tests in tools/tests/ for: the step list ids all exist in story_text.json, tip triggers are valid conditions, old-save step mapping, a tip shows once. Done when built: no QA, bots or sim. For the Quick look take one screenshot (sh tools/screenshot.sh --out logs/screenshots/T316.png) with a tutorial card visible, fix only objective breakage (clipped or overlapping text), record the path in the handoff. gdd.md is synced at commit by the main session. Handoff: handoffs/ui-programmer/<date>-T316.json.",
@@ -3257,7 +3257,8 @@
         "game/skill_screen.gd",
         "tools/tests/*"
       ],
-      "priority": 2
+      "priority": 2,
+      "note": "Done by orchestrator: 12-step guided tutorial with the new Needs and Grow steps, v3 save mapping, and a one-time tip system (31 tips on a queued tip card, saved, silenced by Skip)"
     }
   ],
   "done_task_ids": [
