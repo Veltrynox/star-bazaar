@@ -3078,7 +3078,7 @@
       "depends_on": [
         "T304"
       ],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 25,
       "window": "Owner request 2026-11-07. The small ships look good.",
       "brief": "Goal: ships in a lane are not clones. Each small ship gets its own size and speed. Read: game/traffic/traffic_layer.gd (_push, _seed, set_ambient_group, the path group), game/traffic/traffic_motion.gdshaderinc and traffic_ship.gdshader. Build: a fixed per-ship size factor in the range 0.95 to 1.05 and a fixed per-ship speed factor in the range 0.90 to 1.10, both drawn from the ship's existing seed (stable per ship, not per frame, different draws for size and speed so they are not correlated). Apply to the ambient and path groups, not to orbit or free ships. The speed factor must not make ships jump: ships keep their phase on the lane when the factor is applied (derive position from the clock and the factor in a way that has no visible jump at start, and the lane still reads as a continuous stream). The streak scales with the ship size. The two ranges are plain visual constants (named consts, SIZE_JITTER = 0.05 and SPEED_JITTER = 0.10) in game/traffic/traffic_layer.gd passed to the shader as uniforms, not balance keys (owner ruling 2026-11-07, as for the lane spread). No new data/balance.json keys. Old saves must still load. Done when built: no QA, bots or sim. Take the one Quick look screenshot (sh tools/screenshot.sh --out logs/screenshots/T307.png), fix only objective breakage, record the path in the handoff. gdd.md is synced at commit by the main session. Handoff: handoffs/fx-programmer/<date>-T307.json.",
@@ -3086,7 +3086,8 @@
       "touches": [
         "game/traffic/*"
       ],
-      "priority": 1
+      "priority": 1,
+      "note": "Done by orchestrator: Path and ambient ships now each get a fixed size factor (±5%) and speed factor (±10%), drawn from the ship seed with two independent draws and passed as SIZE_JITTER/SPEED_JITTER uniforms; the streak scales with ship size"
     },
     {
       "task_id": "T308",

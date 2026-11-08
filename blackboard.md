@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-07 21:22 run: T304
-- Summary: Not merged: worker did not report done: blocked T304 | task not found in schedule.json (neither open nor done) in this worktree, so there is nothing to build
-- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
-- Approach: built by a worker in worktree ../wt/T304 on branch task/T304, merged by the serial merge queue.
-- Agent prompts: /overnight-worker T304 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T304.log.
-- Worked: worker finished.
-- Failed / did not work: worker did not report done: blocked T304 | task not found in schedule.json (neither open nor done) in this worktree, so there is nothing to build.
-- Files and commits: see git log on branch new-features for commits starting with T304.
-- Left to do: owner or a new run: see blocked_log in schedule.json.
-
 ## 2026-11-07 21:29 run: T304
 - Summary: Per-ship sideways lane offset of ±4% (LANE_SPREAD uniform, faded to zero at both planets) added in the shared traffic motion shader for ambient and path ships
 - Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
@@ -65,3 +55,13 @@
 - Failed / did not work: worker did not report done: None.
 - Files and commits: see git log on branch new-features for commits starting with T221.
 - Left to do: owner or a new run: see blocked_log in schedule.json.
+
+## 2026-11-07 22:12 run: T307
+- Summary: Path and ambient ships now each get a fixed size factor (±5%) and speed factor (±10%), drawn from the ship seed with two independent draws and passed as SIZE_JITTER/SPEED_JITTER uniforms; the streak scales with ship size
+- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
+- Approach: built by a worker in worktree ../wt/T307 on branch task/T307, merged by the serial merge queue.
+- Agent prompts: /overnight-worker T307 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T307.log.
+- Worked: rebase, full test suite and fast-forward merge passed.
+- Failed / did not work: nothing.
+- Files and commits: see git log on branch new-features for commits starting with T307.
+- Left to do: nothing for this task.
