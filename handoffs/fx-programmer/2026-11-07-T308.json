@@ -1,0 +1,7 @@
+{
+  "task": "T308",
+  "agent": "main session (small edit)",
+  "changed": ["data/balance.json"],
+  "summary": "traffic_streak_len 2.5 -> 0.8333333 (exactly 1/3); ambient streak follows via its multiplier; data_version 73 -> 74.",
+  "screenshot": "logs/screenshots/T308.png (not blank, no crash)"
+}
