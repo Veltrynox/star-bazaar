@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-09 11:13 run: T335
-- Summary: Rewrote the slide 6 card in discovery mode (TUT_G7_STORAGE) to say "Right-click the resource button. Let the cycle end.", rewrote its why-line to say sales and stock change when the cycle ends, and added the same hint to the TUT_G6_SELL why-line (slide 6 without discovery)
-- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
-- Approach: built by a worker in worktree ../wt/T335 on branch task/T335, merged by the serial merge queue.
-- Agent prompts: /overnight-worker T335 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T335.log.
-- Worked: rebase, full test suite and fast-forward merge passed.
-- Failed / did not work: nothing.
-- Files and commits: see git log on branch new-features for commits starting with T335.
-- Left to do: nothing for this task.
-
 ## 2026-11-09 11:18 run: T339
 - Summary: Not merged: rebase onto new-features failed
 - Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
@@ -64,4 +54,14 @@
 - Worked: rebase, full test suite and fast-forward merge passed.
 - Failed / did not work: nothing.
 - Files and commits: see git log on branch new-features for commits starting with T344.
+- Left to do: nothing for this task.
+
+## 2026-11-09 11:33 run: T338
+- Summary: Final tutorial slide now says what the Star Bazaar is and where to start, and TIP_GOAL_WHY now points to the Bazaar panel
+- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
+- Approach: built by a worker in worktree ../wt/T338 on branch task/T338, merged by the serial merge queue.
+- Agent prompts: /overnight-worker T338 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T338.log.
+- Worked: rebase, full test suite and fast-forward merge passed.
+- Failed / did not work: nothing.
+- Files and commits: see git log on branch new-features for commits starting with T338.
 - Left to do: nothing for this task.

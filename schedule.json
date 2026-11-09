@@ -3653,7 +3653,7 @@
       "title": "Tutorial text: the final slide explains what the Star Bazaar is",
       "owner_agent": "story-designer",
       "depends_on": [],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 40,
       "window": "Owner request 2026-11-09.",
       "brief": "Owner: the final slide of the tutorial should explain what the Bazaar is that the player needs to build. Today TUT_G10_DONE is 'Goal: raise the Star Bazaar. Open its panel.' and TUT_G10_DONE_WHY lists the steps (capital tier, found the Bazaar, finish its stages, then fly...) without saying what the Bazaar IS. Read story/screens.md (TUT_G10_DONE, TUT_G10_DONE_WHY, TIP_GOAL, TIP_CAPITAL, TIP_FOUNDED, TIP_OPENING, and the Bazaar panel texts), gdd.md (the Win paragraph: one capital per run, raised in stages, each stage needs a bill of goods in the capital's storage, a quorum of other worlds at a prosperity tier, a world in another system from a set stage; the Opening gig and docking wins), story/voice.md and the preface text SCR_PREFACE. Rewrite TUT_G10_DONE (60 chars) and TUT_G10_DONE_WHY (110 chars) so a new player learns in two short lines what the Star Bazaar is in the fiction and in practice (the great market the company raises in one capital world, stage by stage, from goods and worlds that have grown; finishing it wins the run) and where to start (grow a world to the capital tier). Do not duplicate TIP_GOAL word for word: it fires right after the tutorial; if the two now say the same thing, adjust TIP_GOAL and TIP_GOAL_WHY so the tip adds the next piece of information (where to look: the Bazaar panel) instead of repeating. No hidden goods named; English only; story/screens.md only, then python3 tools/build_story.py; if it fails only because of a story/ru line make the smallest fix in that one Russian line and say so. Done when written: no QA. Handoff handoffs/story-designer/<date>-T338.json with final texts.",
@@ -3661,7 +3661,8 @@
       "touches": [
         "story/screens.md"
       ],
-      "priority": 2
+      "priority": 2,
+      "note": "Done by orchestrator: Final tutorial slide now says what the Star Bazaar is and where to start, and TIP_GOAL_WHY now points to the Bazaar panel"
     },
     {
       "task_id": "T339",
