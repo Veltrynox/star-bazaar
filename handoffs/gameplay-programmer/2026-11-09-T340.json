@@ -1,0 +1,10 @@
+{
+  "agent": "gameplay-programmer",
+  "date": "2026-11-09",
+  "task": "T340",
+  "status": "done",
+  "files_changed": ["game/gigs.gd", "game/raids.gd", "data/balance.json", "tools/tests/run_tests.gd", "handoffs/gameplay-programmer/2026-11-09-T340.json"],
+  "schema_version": 1,
+  "open_questions": ["gig_min_planet_dist 1.0 and gig_min_lane_dist 0.6 are placeholders in world units; tune by eye.", "Stations and asteroid packs are not treated as obstacles (only living planets and lane curves)."],
+  "handoff": "Signals and salvage pods no longer sit on lanes or living planets. Gigs.clear_of_map is the pure check (planets plus 24-segment Bezier lanes, same maths as lane drawing, dead planet allowed). Signals try 4 rings x 8 seeded directions (same seed+cycle = same result); if none is clear, no signal that cycle and counters are untouched. Raid pods are nudged by ring search (Gigs.nudge_clear) unless at a dead planet, and the offer stores lane id. Saved offers untouched. New tests (gig clear: ...) pass. Full suite: 13 failures, all the known ones (workshop, goods, availability, cells); no new failures."
+}

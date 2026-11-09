@@ -1,0 +1,15 @@
+{
+  "agent": "ui-programmer",
+  "date": "2026-11-08",
+  "task": "T320",
+  "status": "done",
+  "files_changed": ["game/main.gd", "tools/tests/run_tests.gd", "handoffs/ui-programmer/2026-11-08-T320.json"],
+  "schema_version": 1,
+  "screens_changed": ["Guided tutorial card (board): step 1 select, new step 2 Ships, highlight on the Pathfinder card in the Ships menu"],
+  "how_to_see": "Start a fresh game with discovery on: the first card (TUT_G0_FLY) now outlines the Pathfinder card on the right. With discovery off, step 1 outlines the Voltara ring as before.",
+  "not_checked_by_eye": "Screenshot logs/screenshots/T320.png shows a later game state (tutorial over, a tip card), not step 1 or the Ships step, so neither card was seen. Hero-card outline, arrow placement and a real old-save load were not viewed.",
+  "open_questions": [
+    "UNKNOWN: why step 1 read as unclear at a fresh start. I could not see it; I pointed the discovery-on first card at the hero card (it used to ring Voltara while the text said to click the Pathfinder card). Please look at a fresh run."
+  ],
+  "handoff": "TUT_GUIDE now has 13 steps, TUT_G1B_SHIPS at index 1, target 'hero' = ship_panel.hero_card (arrow and outline reuse the existing machinery). Every hard-coded index was shifted: lock steps (lock now runs 0 to 6; select/buy/send/sell cases), _tut_picking (3), storage sig (7), TUT_TARGET, step done/skipped. TUT_VER 4, TUT_OLD_MAP [0,2,3,6,10,12]; v2 and v3 saves chain to the new numbering; finished stays finished. Ships step done when map.ship_selected (flag tut_flags hero) or a route exists; skipped when Availability.hero_ship is false OR the discovery flight card (TUT_G0_*) was shown at step 0 (flag g0), since it already sent the player to the card. While TUT_G0_FLY shows, the outline is on the hero card, not Voltara. Existing tests renumbered; new T320 tests (ids, order, old-save mapping, skip without hero). Full suite: 13 failures, same as baseline, none new."
+}

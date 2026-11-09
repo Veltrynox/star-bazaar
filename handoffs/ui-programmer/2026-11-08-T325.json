@@ -1,0 +1,24 @@
+{
+  "agent": "ui-programmer",
+  "date": "2026-11-08",
+  "task": "T325",
+  "status": "partial",
+  "schema_version": 1,
+  "files_changed": [
+    "game/main.gd",
+    "story/screens.md",
+    "tools/tests/run_tests.gd",
+    "handoffs/ui-programmer/2026-11-08-T325.json",
+    "logs/screenshots/T325.png"
+  ],
+  "screens_changed": {
+    "preface (welcome) screen": "Skip button removed; Begin is the only button. Tutorial card, outline, arrow, planet ring, ship pulse and tip card stay hidden and no step advances while preface != null (_tut_show, _tut_poll, tut_planet_ring_target, ship_pulse_on_select, tip_can_show). _dismiss_preface resets the tutorial signature and calls _tut_show so the first step shows after Begin. Continue from a save is unchanged."
+  },
+  "how_to_see": "New game, Start: welcome screen has only the Begin button and no tutorial card; press Begin and the card appears.",
+  "tests": "Added _test_preface_hides_tutorial (all T325 checks pass). _new_main(guided=true) now dismisses the preface unless _keep_preface is set, since guided tests need the tutorial running. Full suite via direct Godot run: only the 13 baseline FAILs plus 'generated files' (3-4 checks), caused by the blocker below.",
+  "blocker": "Removing SCR_PREFACE_SKIP from story/screens.md makes tools/build_story.py exit 1: 'story/ru/screens.json: SCR_PREFACE_SKIP: id is not in the English data'. So run.sh stops at the build step and data/story_text.json still has the id. The id must be removed from story/ru/screens.json (not touched, as instructed), then run build_story.py.",
+  "quick_look": "logs/screenshots/T325.png taken by the tool; not viewed, so not confirmed it shows the preface.",
+  "open_questions": [
+    "Remove SCR_PREFACE_SKIP from story/ru/screens.json (one line) so build_story.py passes? Then rerun python3 tools/build_story.py."
+  ]
+}

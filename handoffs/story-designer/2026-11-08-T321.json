@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-11-08",
+  "task": "T321",
+  "status": "done",
+  "files_changed": [
+    "story/screens.md",
+    "data/story_text.json (generated)"
+  ],
+  "open_questions": [],
+  "handoff": "Flight-card texts rewritten; skip-tutorial toggle ids added. BTN_SKIP_TUTORIAL already existed (tutorial card, galaxy view) and is reused as the main-menu label. T322 wires BTN_SKIP_TUTORIAL_ON and MENU_HINT_SKIP_TUTORIAL. TUT_G1B_SHIPS and WHY already say the card selects the ship; unchanged. Tests: 13 FAIL, same as clean tree.",
+  "details": {
+    "changed": {
+      "TUT_G0_FLY": "Select the Pathfinder, then click a nearby unexplored world.",
+      "TUT_G0_FLY_WHY": "The ship on the map and the Pathfinder card in the Ships menu are one ship. Click either.",
+      "TUT_G0_BUILD": "Right-click this world, choose Establish trading post.",
+      "TUT_G0_BUILD_WHY": "A post lets you buy, sell and route there. Your first one is free.",
+      "TUT_G0_WAIT": "Press the lit time button, top right, and wait for the post.",
+      "TUT_G0_WAIT_WHY": "The post is built over cycles. Time stands still while the game is paused."
+    },
+    "new": {
+      "BTN_SKIP_TUTORIAL_ON": "Tutorial: skipped",
+      "MENU_HINT_SKIP_TUTORIAL": "New games start with the tutorial already done."
+    },
+    "reused": {
+      "BTN_SKIP_TUTORIAL": "Skip tutorial"
+    }
+  }
+}

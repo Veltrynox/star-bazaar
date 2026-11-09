@@ -1,0 +1,20 @@
+{
+  "agent": "ui-programmer",
+  "date": "2026-11-09",
+  "task": "T336",
+  "status": "done",
+  "schema_version": 1,
+  "files_changed": [
+    "game/skill_screen.gd",
+    "tools/tests/run_tests.gd",
+    "handoffs/ui-programmer/2026-11-09-T336.json"
+  ],
+  "screens_changed": ["Skills window (K)"],
+  "how_to_see": "Press K. Foundations are a full-width block at the top (6 nodes in learning order, rows sized to the window width); the run's market column (or four columns side by side on an old save) is one block below it. Page scrolls vertically only.",
+  "not_checked_by_eye": "Whole screen at 1920x1080 and smaller windows. No screenshot: tools/screenshot.sh cannot open the skill screen (only --planet).",
+  "tests": "sh tools/tests/run.sh: 13 failures, same as clean tree (goods, workshop, cells, availability); no new failures. New checks 'skill blocks (...)' pass for all-trees and each market run.",
+  "open_questions": [
+    "gdd-skills.md line 148 says 'one block for the Foundations and one tree per market'; it already matches the new layout, so not edited (doc-manager can add 'Foundations across the full width on top' if wanted)."
+  ],
+  "handoff": "Skill screen _build_vertical now builds a full-width Foundations block (nodes in depth/learning order, as many cells per row as the width allows) above one market block. Cell width comes from the market columns only. Added link_ends() (used by _draw_links) so tests check line endpoints. Removed unused STACKED_BRANCHES and FND_WIDE_CELLS. node_buttons, selection, detail strip, Use menu, K/Esc, scroll untouched. Tests added in run_tests.gd."
+}

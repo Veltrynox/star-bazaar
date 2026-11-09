@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-09",
+  "task": "T339",
+  "status": "done",
+  "files_changed": [
+    "game/main.gd",
+    "data/balance.json",
+    "tools/tests/run_tests.gd",
+    "handoffs/ui-programmer/2026-11-09-T339.json"
+  ],
+  "open_questions": [
+    "tip_gap_seconds is 90 game seconds (placeholder, start of one card to start of the next). Right value?",
+    "Suggested story merges (no text edited): TIP_WEATHER + TIP_WEATHER_KINDS and TIP_CAPITAL + TIP_HUB now share one card with both texts joined by a blank line; they would read better as one id each. The right TIPS box list has no caption because no story id exists: wanted, e.g. TIP_RECENT_HEADER.",
+    "Card life is now 0.05 s per character, 8 to 24 s (about 10 s for the longest 100+102 chars), down from a flat 14 s. OK?"
+  ],
+  "handoff": "MEASURED before the change (scratch walk, discovery on, 1920x1080, tutorial finished, passive, 0.5 s steps, speed 1): 8 tips in the first 10 cycles. TIP_GOAL 0.5 s, TIER1 15.4, EXPLORE 29.6, POINTS 43.8 (all cycle 1, gaps 14 to 15 s: each card was replaced the moment it timed out), TAX 60.6 (cycle 2), RESTLESS 75.3, GIG 180.7 (cycle 4), WEATHER_KINDS 240.5 (cycle 5). After: due tips are latched into tip_queue (never dropped even if the trigger ends), shown by TIP_PRIORITY then table order, at least tip_gap_seconds apart on the game clock, merged per TIP_MERGE. Right TIPS box: newest tip with why-line plus the 2 older of the last 3 cards (small muted text, newest first); hidden with tips off; recent list rebuilt from tips_seen order on load, no save change. Tests: _test_tip_spacing (20 checks) drive the real _tip_tick. run.sh: 13 FAIL, same baseline set, no new failures. Not checked by eye: the right box layout."
+}

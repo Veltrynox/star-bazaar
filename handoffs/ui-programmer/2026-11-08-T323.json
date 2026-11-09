@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-08",
+  "task": "T323",
+  "status": "done",
+  "files_changed": [
+    "game/fx/pulse_ring.gd",
+    "game/fx/pulse_ring.gd.uid",
+    "game/fx/pulse_ring.tscn",
+    "game/main.gd",
+    "game/map.gd",
+    "tools/tests/run_tests.gd",
+    "handoffs/ui-programmer/2026-11-08-T323.json",
+    "logs/screenshots/T323.png",
+    "logs/t323.txt"
+  ],
+  "open_questions": [
+    "UNKNOWN: the screenshot tool loads a mid-game state, so the planet ring at the real planet-click step and the ship pulse were not seen by eye."
+  ],
+  "handoff": "Cause: the ring on a planet from the start was the 3D halo (map.set_hint) that main refresh put on mission_planet whenever ships == 0, with no tutorial check. That halo is no longer used by main (map.set_hint(-1,false)); map.set_hint itself is kept. New asset game/fx/pulse_ring.tscn + pulse_ring.gd (class PulseRing, exports pulses/0=loop, seconds_per_pulse, radius_start, radius_end, line_width, alpha, color, free_when_done; follow and allowed Callables; play/stop/finished; one tween per play, bound to the node, no per-frame allocation). main.ship_ring is an instance with the T322 values (3, 0.9 s, 14 to 54, 1 px, 0.35, once per run, after camera reveal). main.planet_ring is a second instance, looping (1.6 s, 16 to 56 px), driven by tut_planet_ring_target(): only while the tutorial card shows and the step key is planet (guided step 0 without discovery, picking step); none under discovery (step 0 is the ship), after the step, after Skip or the menu skip setting, over the galaxy view. map.planet_screen_pos(i) added. Tests: 9 new T323 pass (new _test_pulse_ring plus ring cases in the T316 block); T322 pulse test adapted. Full suite 13 FAIL, same as clean tree, no new failures. Screenshot logs/screenshots/T323.png (mid-game state, no planet ring visible, nothing broken)."
+}

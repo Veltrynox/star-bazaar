@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-08",
+  "task": "T333",
+  "status": "done",
+  "files_changed": [
+    "game/main.gd",
+    "tools/tests/run_tests.gd",
+    "handoffs/ui-programmer/2026-11-08-T333.json"
+  ],
+  "open_questions": [
+    "UNKNOWN: with real clicks at 1920x1080 (layout is always 1920x1080, canvas_items stretch) the lock never refused the cash box, the panel opened, Next appeared and advanced in both modes, before and after my change. I could not reproduce a refusal. Did the owner click the forecast panel itself, expecting that to progress the card?"
+  ],
+  "handoff": "Part 1: speed card built as a sub-state of step 0 (indexes, TUT_OLD_MAP, TUT_VER, save mapping and counter unchanged; it counts as slide 1). It shows after the Voltara click (no discovery) or after the Yay Next (discovery, then the Voltara card follows). Outline covers the whole 1x..12x row, Next (tut_next) or any speed button click ends it (flag speed_done), no pause, no lock gate. Part 2 measured (scratch walk.gd and measure.gd): the 4th card by the counter in discovery is Expenses (Voltara, Buy, Send, Expenses; Route-pay is passed over because cycles ran during the flight). Real clicks progress it, but the open forecast panel (96,44 300x158) sat under the card (8,64 300x161) and Next (232,176) lay inside the panel rect, so the card hid the expenses list and the panel looked like the thing to click. Fix: with the panel open the card anchors to the cash box plus panel and sits clear of both. Tests: new _test_tut_speed_card (4 real-click walks), counter walk and 4 old tests updated, overlap check. run.sh: 13 baseline FAIL, no new. Not checked by eye.",
+  "followup_T333b": {
+    "files_changed": [
+      "game/main.gd",
+      "tools/tests/run_tests.gd"
+    ],
+    "note": "Review found no bug; added a guard in _tut_upkeep_lines_rect that skips upkeep labels scrolled out of the forecast panel (falls back to cash box). Test _check_upkeep_highlight added to the Expenses walk in _test_tut_counter: cash box before open; with panel open and an upkeep line, outline inside panel, covers the line, not cash box, arrow centre inside the line. Discovery-off walk has no upkeep line, so it tests the fallback."
+  }
+}

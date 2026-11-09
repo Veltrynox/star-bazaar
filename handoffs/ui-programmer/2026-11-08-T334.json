@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-08",
+  "task": "T334",
+  "status": "done",
+  "files_changed": [
+    "game/main.gd",
+    "game/planet_panel.gd",
+    "tools/tests/run_tests.gd",
+    "handoffs/ui-programmer/2026-11-08-T334.json"
+  ],
+  "open_questions": [
+    "Text suggestion (not edited): while the ship is still flying after the speed card, the flight card TUT_G0_FLY still reads 'Right-click <world>, choose Establish...' although the order is given. A line such as 'The Pathfinder is on its way.' (new id) would fit better. Also TUT_G6_SELL says 'Turn Sell on for Energy' and now points at the Sell button in the route line (fits).",
+    "Speed card text TUT_G1C_SPEED now shows while the ship still flies (and may stay up over arrival and build until Next or a speed click). Wording is neutral, no change needed unless you want it."
+  ],
+  "handoff": "Part 1 measured (scratch sell.gd, 1920x1080, both modes, real route Voltara to Ashgate, Energy): target 'sell' was _tut_first_named(planet_panel,'BuyButton_'), the first resource button in the panel (BuyButton_energy at 92,270). The Sell control, the 'Pays when ... : off' route line with a visible Sell button (PaysSellButton, 338,499), sits lower in the same panel. With discovery the lock is released, so the outline also sat on the resource button of whatever planet was open (the start world). Sell also exists in the resource button's right-click menu, but the visible button is the route line one. Fix: Sell targets that button for the route's good at the route's end world (meta sell_dest/sell_good set in planet_panel); while another world is open or none, it points at the end world's planet (ring too); fallback is the good's resource button if the line has no button. Part 2: g0_ordered flag set when the establish order is accepted; the speed card then outranks FLY, BUILD, WAIT and Yay; speed_done ends it once; no discovery unchanged; flags are session-only, so a loaded save cannot show it twice. Tests updated and added (_test_tut_sell_and_order, speed test, T329 walk) with real clicks, real text, outline rect and arrow tip. run.sh: 13 baseline FAIL, no new. Not checked by eye."
+}

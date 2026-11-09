@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-08",
+  "task": "T331",
+  "status": "done",
+  "files_changed": [
+    "game/main.gd",
+    "tools/tests/run_tests.gd",
+    "handoffs/ui-programmer/2026-11-08-T331.json"
+  ],
+  "open_questions": [
+    "UNKNOWN: I could not reproduce '7' at Expenses. Measured with real tut_step walks (scratchpad walk.gd, 1920x1080, discovery on and off): Expenses (index 5) showed '6 of 13' in both modes. Where did the owner's 7 come from (the Yay card counted as a step, or an earlier build)?",
+    "Total can still change mid-run when a skill point is gained or spent (skill steps are counted only while a point is held). Acceptable?"
+  ],
+  "handoff": "Measured cause (old counter = tut_step + 1 over TUT_GUIDE.size() = 13): step 1 (Pathfinder card, TUT_G1B_SHIPS) is always passed over in both modes (no hero ship without discovery; tut_flags g0 with discovery), so the card went 1 of 13 then 3 of 13 (jump by two) and Expenses read 6 although it is the 5th card shown. In discovery the sub-cards FLY, DONE and Voltara all read 1 of 13 (repeat, correct by design as one step). Skill steps passed over do the same. Fix: new tut_seen (indexes of steps whose card was shown); n = its size, total = n + later steps expected to show (step 1 if g0 or flight card; skill steps while no point). Indexes, TUT_VER, save map untouched. Result: no discovery 1..5 Expenses..12 of 12; discovery 1..4 at Expenses. Expenses: Next (tut_next) shows only after the forecast flag is set, step 5 done only when Next sets tut_flags upkeep_next. Tests: new _test_tut_counter reads the real label with real clicks (planet, cash box, Next), both modes; two old tests updated. run.sh: 13 baseline FAIL, no new. Not checked by eye."
+}

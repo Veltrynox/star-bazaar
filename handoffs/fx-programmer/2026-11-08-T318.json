@@ -1,0 +1,20 @@
+{
+  "task_id": "T318",
+  "agent": "fx-programmer",
+  "summary": "Traffic hulls darker (balance traffic_hull_dark 0.45, placeholder) and five hull kinds (triangle plus square, long rectangle, wide slab, stacked box). Kinds live in the one hull surface; each vertex carries its kind in UV2.x and the vertex shader collapses the kinds a ship does not wear. Kind comes from a seed hash (KIND_TABLE, triangles most common), stable per ship. Draw calls unchanged (8 at most), no new nodes, no per-frame CPU work, buffers untouched. Engine streak unchanged (all tails at z=+0.5). Cargo tint is darkened only half as much as the hull so it stays readable.",
+  "files_changed": [
+    "game/traffic/traffic_meshes.gd",
+    "game/traffic/traffic_ship.gdshader",
+    "game/traffic/traffic_layer.gd",
+    "data/balance.json",
+    "tools/tests/run_tests.gd",
+    "handoffs/fx-programmer/2026-11-08-T318.json"
+  ],
+  "files_created": [
+    "handoffs/fx-programmer/2026-11-08-T318.json",
+    "logs/screenshots/T318.png"
+  ],
+  "tests": "sh tools/tests/run.sh: new test _test_t318_traffic_hulls passes; 13 FAIL lines, the same known baseline (powder, blooms, workshop, goods), no new failures",
+  "quick_look": "logs/screenshots/T318.png: not blank, no crash, no shader errors; system view at far zoom, traffic is too small to judge there. Hull look not judged.",
+  "notes": "If the vertex shader KIND_TABLE changes, change KIND_TABLE in traffic_meshes.gd too (the test compares them)."
+}

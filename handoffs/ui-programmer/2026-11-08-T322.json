@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-08",
+  "task": "T322",
+  "status": "done",
+  "files_changed": [
+    "game/main.gd",
+    "game/main_menu.gd",
+    "game/map.gd",
+    "game/save_game.gd",
+    "tools/tests/run_tests.gd",
+    "handoffs/ui-programmer/2026-11-08-T322.json",
+    "logs/screenshots/T322-menu.png",
+    "logs/screenshots/T322-ship.png",
+    "game/ship_panel.gd",
+    "game/ship_reveal.gd (deleted)",
+    "game/ship_reveal.gd.uid (deleted)"
+  ],
+  "open_questions": [
+    "UNKNOWN: ring and link were not seen on screen; the flight step is not reachable in the screenshot tool (the shot loaded a mid-game save with the tutorial already past it)."
+  ],
+  "handoff": "Main menu: Skip tutorial toggle (ButtonGhost, between Settings and Quit), labels BTN_SKIP_TUTORIAL / BTN_SKIP_TUTORIAL_ON, tooltip MENU_HINT_SKIP_TUTORIAL. Setting lives in user://settings.cfg [game] skip_tutorial via SaveGame.skip_tutorial()/set_skip_tutorial() (same file as Voice). New runs in main.gd call _tut_skip() when on (tut_step = size, tips off); apply_state is untouched so Continue keeps tut_step. Ship highlight: main.gd _tut_update_ship_link draws a 56px ring (tut_make_hl style, same colour and pulse) on the ship plus a Line2D from the Pathfinder card, only while the step key is hero (TUT_G0_FLY, TUT_G1B_SHIPS), card shown, no event window or Skills screen, ship in view; two preallocated nodes, no per-frame allocation. map.ship_screen_pos() added. 6 new T322 tests pass. Full suite: 13 FAIL, same as clean tree, no new failures. Menu screenshot looked fine; ship screenshot could not reach the flight step. Not checked by eye: ring and link, toggle on-state.",
+  "rework": "Owner rework: Line2D ship_link removed. ship_ring is now one faint thin (1 px, alpha 0.35, no fill) circle pulsed 3 times (grows 14 to 54 px radius, fades) by one Tween on the first Pathfinder card selection per run (main.ship_pulse_on_select, called from ship_panel._on_hero_input); follows map.ship_screen_pos(); hidden over event window, Skills screen, game over; independent of the tutorial; card outline and Skip tutorial unchanged. Tests: link/ring update code removed, 3 new T322 pulse tests pass. Not seen by eye.",
+  "camera_removal_and_start_view": "Owner decision: camera reveal removed (game/ship_reveal.gd and .uid deleted; map.reveal_ship, cancel_reveal, _step_reveal, _ship_inside, _ship_view_pos, _reveal_* vars, ShipReveal in main.gd; ship_panel._on_hero_input calls ship_pulse_on_select again). ship_screen_pos, PulseRing, once-per-run pulse kept. New run: main.gd calls map.start_view_on(ship_position) after _award_planet when discovery is active; map.NEW_RUN_ZOOM_MULT=2.0 (placeholder) times START_ZOOM, focus on the Pathfinder at its home dock (nearest-target framing not done, ship only), clamp_focus kept; a save never calls it. Test _test_ship_reveal now checks zoomed-in, ship inside 1920x1080 and outside the Ships strip, and that apply_state leaves the camera alone. Suite: 13 FAIL, same as clean tree. Not seen by eye, 1280x720 not tested."
+}

@@ -1,0 +1,22 @@
+{
+  "agent": "ui-programmer",
+  "date": "2026-11-08",
+  "task": "T324",
+  "status": "done",
+  "schema_version": 1,
+  "files_changed": [
+    "game/main_menu.gd",
+    "game/company_setup.gd",
+    "tools/tests/run_tests.gd",
+    "handoffs/ui-programmer/2026-11-08-T324.json",
+    "logs/screenshots/T324.png"
+  ],
+  "screens_changed": {
+    "main menu": "Skip tutorial button, tooltip and refresh code removed.",
+    "new company screen": "Ghost toggle 'Skip tutorial' / on-label sits in the bottom row after Back and Start. Same ids and same saved setting (settings.cfg [game] skip_tutorial). main.gd unchanged."
+  },
+  "how_to_see": "Main menu > New game; toggle at the bottom right of the Back / Start row; Start with it on begins with the tutorial done.",
+  "tests": "T322 menu tests now run on company_setup.tscn; added a check that the main menu has no skip_button. Full suite: 13 FAIL, same as baseline (availability, goods, workshop, cells). Note: run.sh shares a scratch dir, so concurrent runs by other agents clobber it; use STAR_TEST_SCRATCH.",
+  "quick_look": "logs/screenshots/T324.png (setup screen shows, toggle visible, no clipping; on-state not captured).",
+  "open_questions": []
+}

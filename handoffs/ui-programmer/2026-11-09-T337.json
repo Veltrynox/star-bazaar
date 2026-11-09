@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-09",
+  "task": "T337",
+  "status": "done",
+  "files_changed": [
+    "game/main.gd",
+    "tools/tests/run_tests.gd",
+    "handoffs/ui-programmer/2026-11-09-T337.json"
+  ],
+  "measured": {
+    "counter_discovery": "Measured with a real walk (1920x1080, discovery on): 1-5 are Pathfinder-flight/speed/Yay/Voltara card (1), Buy (2), Send (3), Expenses (4), Sell (5); 6 = TUT_G7_STORAGE, 7 = TUT_G8_SKILLS ('Open Skills and learn a Foundation.', shown as '7 of 9'), 8 = TUT_G9_PERMIT, 9 = TUT_G10_DONE. Needs and Grow were passed over in that walk (step 7 went straight to 10). So the owner's slide 7 is the Skills card.",
+    "cause": "Step 10 had one fixed target, the Skills button (points_button), whatever the window state. With the Skills window open (button or K) the card text, outline (1243,17 107x26) and arrow stayed on the Skills button, which sits under the window: nothing changed or pointed at a skill. The card was visible (index above the window) and the lock did not refuse (tut_lock_step -1), learning any skill did advance (step 10 done = any learned skill; Permit first jumps on to 12). Also the step was only skipped when no point was held, not when no Foundation was learnable.",
+    "fix": "New _tut_foundation_pick(): cheapest Foundation SkillTree.can_learn accepts now (file order on ties; earn-locks and points respected). Skills step: window closed = outline on the Skills button; window open = key 'foundation', outline and arrow on that node button in skill_screen.node_buttons. New _tut_place_in_skills(): the card goes to the free spot nearest the node that overlaps no skill node or the detail strip, arrow points at the node; card and arrow stay above the window. Step 10 is passed over when nothing is learned and no Foundation can be learned (no point or none affordable). Permit step uses the same placement. At 1920x1080 with 3 points the card sat at (1128,88), clear of all nodes, outline on FND_PERMIT (25,148 175x57)."
+  },
+  "tests": "New _test_tut_skills_card (run_tests.gd), discovery on, real clicks on the points figure and a K key event, real card text, counter, outline rect, arrow tip, card vs every node, z-order, node click + Learn advances the step, no-point skip. sh tools/tests/run.sh with STAR_TEST_SCRATCH=/Volumes/Work/t337_home: the same 13 baseline FAIL (goods, workshop, cells, availability), no new failures.",
+  "not_checked_by_eye": "Skills window with the card at 1920x1080 and smaller windows (no free spot falls back to beside the node, may cover neighbours). The card can sit far from the lit node, so the arrow is a short triangle at the node pointing toward the card.",
+  "open_questions": [
+    "Wording idea (not edited): TUT_G8_SKILLS while the window is open could read 'Pick the lit skill, then press Learn.' (new id). With no point the step is silently skipped, so no 'points are earned' card exists.",
+    "Learning Permit Charter first skips the Permit card (step 11 is done at once); learning another Foundation first leaves it up. Acceptable?"
+  ],
+  "handoff": "Cause: the Skills card always pointed at the Skills button, even with the window open, so nothing guided the player inside. Counter in discovery: 6 Storage, 7 Skills, 8 Permit, 9 Done. Fixed in game/main.gd: card, outline and arrow target the cheapest learnable Foundation in the open window, card placed clear of all nodes above the window, step skipped when none is learnable. Test added with real clicks and K. Only baseline failures remain."
+}

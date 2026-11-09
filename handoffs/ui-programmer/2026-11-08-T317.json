@@ -1,0 +1,28 @@
+{
+  "agent": "ui-programmer",
+  "date": "2026-11-08",
+  "task": "T317",
+  "status": "done",
+  "schema_version": 1,
+  "files_changed": [
+    "game/ship_panel.gd",
+    "game/ship_preview.gd",
+    "game/availability.gd",
+    "story/screens.md",
+    "data/story_text.json",
+    "data/story_text_ru.json",
+    "data/events.json",
+    "tools/tests/run_tests.gd",
+    "handoffs/ui-programmer/2026-11-08-T317.json",
+    "logs/screenshots/T317.png"
+  ],
+  "screens_changed": ["Ships menu (right side): hero ship card at the top"],
+  "how_to_see": "Start a run with discovery on: the Ships menu shows a card with the 3D ship, name and state. Click it to select the ship (gold border, state adds Selected); click again or press Esc to deselect. Click the ship in the viewport and the card lights too.",
+  "not_checked_by_eye": "Quick look screenshot logs/screenshots/T317.png shows the card (small ship model, text fits). Selected and flying and building states and click behaviour not seen in a window; covered by the unit test only (7 T317 checks pass).",
+  "tests": "sh tools/tests/run.sh: 13 failures, the same powder/blooms/workshop/goods/availability set as before; no new failures.",
+  "open_questions": [
+    "The card is gated by new Availability.hero_ship(flight) in code, not a rule in data/availability.json (I may not edit data). Add a rule there if you want it data driven.",
+    "The name uses LBL_PATHFINDER_NAME, matching the rest of the panel; FLAGSHIP_NAME exists but no code uses it yet."
+  ],
+  "handoff": "Hero ship card added to the Ships menu with one SubViewport preview (ship_preview.gd, new make_passive and set_active so it is paused while hidden). Card click calls map.select_ship(not selected); the card polls map.ship_selected each frame so viewport clicks and Esc stay in sync. Hidden unless a flight ship is active. New text ids LBL_HERO_STATE_IDLE, _FLYING, _BUILDING, LBL_HERO_HINT, LBL_HERO_SELECTED; story rebuilt. Unit test _test_t317_hero_card added."
+}

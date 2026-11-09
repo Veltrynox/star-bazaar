@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-08",
+  "task": "T329",
+  "status": "done",
+  "files_changed": [
+    "game/main.gd",
+    "game/map.gd",
+    "tools/tests/run_tests.gd",
+    "handoffs/ui-programmer/2026-11-08-T329.json"
+  ],
+  "open_questions": [
+    "Card 1 shows the target as 'Unknown world' until discovered (map label), the Yay card then says its real name (Ashgate). Intended?",
+    "Voice: the Yay card shares step 0 with the flight card, so its _WHY line is not spoken (voice plays once per step index)."
+  ],
+  "handoff": "Repro first (scratchpad r329.gd, discovery on, 1920x1080, real RMB events). Before: RMB on the target with the ship not selected opened no menu (map._right_click needs ship_selected); with the ship selected the menu had 1 item, Establish started the ship but the run stayed paused (paused true, flying); on arrival the card jumped straight to the Voltara card. After: RMB on the target opens the menu with no ship selected, Establish sends the ship and unpauses, arrival gives TUT_G0_DONE 'Yay! We established a trading post on Ashgate!' with Next (paused false, no ring), clicking Next (real click) gives the TUT_G1_SELECT card. Changes: map.free_ship_menu (set by main each frame while the flight card is up) lets the menu open; main refuses other planets in the menu and in the establish call (lock notice); _tut_g0_id returns TUT_G0_DONE until tut_flags g0_done (sub-state of step 0, so no index change, TUT_VER and TUT_OLD_MAP untouched); new tut_next button (TutNext) shown only on that card; tut_fly_target stays on the planet once its post stands; card 1 highlight key is planet (no more Pathfinder card highlight). Tests: new _test_tut_g0_rmb (14 checks, RMB through root.push_input, Next by real click; the menu entry is the menu's id_pressed signal since popups have no hit test headless); old 'no Next button' test now allows the Yay Next. run.sh: 13 FAIL, all baseline set, no new failures. Not checked by eye: card position and look."
+}
