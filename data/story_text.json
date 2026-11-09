@@ -1059,13 +1059,13 @@
   },
   {
    "id": "TUT_G10_DONE",
-   "text": "The Star Bazaar is where the sky trades. Build it.",
+   "text": "The Star Bazaar: the great market you raise on one world.",
    "max": 60,
    "place": "Guided step 12, the last, until the Star Bazaar panel is opened"
   },
   {
    "id": "TUT_G10_DONE_WHY",
-   "text": "One exchange for every world, raised stage by stage on one capital. Finish it and the company tops the galaxy.",
+   "text": "Built stage by stage from goods and grown worlds. Finishing it wins. Start: grow a world to the capital tier.",
    "max": 110,
    "place": "Guided step, why it matters (second line of the card)"
   },
@@ -1089,7 +1089,7 @@
   },
   {
    "id": "TIP_GOAL_WHY",
-   "text": "Grow a world to the capital tier. Its panel founds the Bazaar, then shows each stage and what is short.",
+   "text": "Open the Bazaar panel: it founds the Bazaar on a capital world, then shows each stage and what is short.",
    "max": 110,
    "place": "Tip card, why line"
   },

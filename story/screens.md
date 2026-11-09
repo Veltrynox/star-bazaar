@@ -265,8 +265,8 @@ TUT_G8_SKILLS | 60 | Guided step 10, until a skill is learned | Open Skills and 
 TUT_G8_SKILLS_WHY | 110 | Guided step, why it matters (second line of the card) | Skill points come from firsts, like your first tier. Three Foundations come before any market skill.
 TUT_G9_PERMIT | 60 | Guided step 11, permits | Learn Permit Charter.
 TUT_G9_PERMIT_WHY | 110 | Guided step, why it matters (second line of the card) | It lets you buy a permit for a new system. A new system has more worlds to grow and trade with.
-TUT_G10_DONE | 60 | Guided step 12, the last, until the Star Bazaar panel is opened | The Star Bazaar is where the sky trades. Build it.
-TUT_G10_DONE_WHY | 110 | Guided step, why it matters (second line of the card) | One exchange for every world, raised stage by stage on one capital. Finish it and the company tops the galaxy.
+TUT_G10_DONE | 60 | Guided step 12, the last, until the Star Bazaar panel is opened | The Star Bazaar: the great market you raise on one world.
+TUT_G10_DONE_WHY | 110 | Guided step, why it matters (second line of the card) | Built stage by stage from goods and grown worlds. Finishing it wins. Start: grow a world to the capital tier.
 TUT_HEADER | 24 | Header of the guided tutorial card | Tutorial
 TUT_STEP_COUNT | 24 | Tutorial card, step counter; {n} is the step, {total} the number of steps | {n} of {total}
 
@@ -308,7 +308,7 @@ Trigger table (tip id: trigger in plain words):
 
 ### Goal and Bazaar
 TIP_GOAL | 110 | Tip card line; trigger: the guided tutorial ends or is skipped | Holding a market does not win. Only a finished Star Bazaar does.
-TIP_GOAL_WHY | 110 | Tip card, why line | Grow a world to the capital tier. Its panel founds the Bazaar, then shows each stage and what is short.
+TIP_GOAL_WHY | 110 | Tip card, why line | Open the Bazaar panel: it founds the Bazaar on a capital world, then shows each stage and what is short.
 TIP_CAPITAL | 110 | Tip card line; trigger: the first world reaches the capital tier | A world has reached the capital tier. You can found the Star Bazaar there. It is final.
 TIP_CAPITAL_WHY | 110 | Tip card, why line | A run has one capital. Choose with care, then press Found the Bazaar here on the world's panel.
 TIP_FOUNDED | 110 | Tip card line; trigger: the Bazaar is founded | The Bazaar is built in stages. Each needs goods in the capital's storage and other worlds at a tier.
