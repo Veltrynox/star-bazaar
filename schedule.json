@@ -3511,7 +3511,7 @@
       "title": "Tutorial text: slide 8 (storage) does not say what to do",
       "owner_agent": "story-designer",
       "depends_on": [],
-      "status": "queued",
+      "status": "blocked",
       "turn_cap": 40,
       "window": "Owner report 2026-11-08: 'tutorial slide 8, not clear what to do'.",
       "brief": "Slide 8 of 13 is TUT_G7_STORAGE (the card counter is tut_step + 1, game/main.gd). Its text is 'Watch stored/capacity on the resource button.' with the why-line 'Company storage holds your goods on a planet. When it is full, Buy waits.' But the step only completes when the player RIGHT-CLICKS the resource button (tut_flags['storage'], game/main.gd around lines 3992, 4045, 4413 and 4481): the text says 'watch' and names no action. Read story/screens.md (TUT_G7_STORAGE, TUT_G7_STORAGE_WHY and the neighbours TUT_G6_SELL, TUT_G7_NEEDS), story/voice.md, and game/main.gd (what the resource button shows, what the right-click menu offers, which planet and button the highlight points at, line 199 has an older fallback text for the same id) so the new wording matches what really happens. Rewrite TUT_G7_STORAGE and its WHY: one clear action in plain words naming the control and the click (for example the right click on the resource button) and what the player will see, and why it matters, within 60 and 110 characters; no hidden goods named. Also update the fallback string at main.gd line 199 only if it contradicts the new text (text-only edit, no logic). English only, edit story/screens.md then python3 tools/build_story.py. Also scan slides 1 to 13 for any other card whose text names no action or does not match its completion condition and list them in the handoff (do not rewrite them). Done when written: no QA. Handoff handoffs/story-designer/<date>-T330.json.",
@@ -3519,7 +3519,9 @@
       "touches": [
         "story/screens.md"
       ],
-      "priority": 2
+      "priority": 2,
+      "note": "Blocked by orchestrator: fast-forward merge refused",
+      "blocked_log": "/Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T330-merge.log"
     },
     {
       "task_id": "T331",

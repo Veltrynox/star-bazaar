@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-09 10:53 run: T343
-- Summary: Not merged: fast-forward merge refused
-- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
-- Approach: built by a worker in worktree ../wt/T343 on branch task/T343, merged by the serial merge queue.
-- Agent prompts: /overnight-worker T343 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T343.log.
-- Worked: worker finished.
-- Failed / did not work: fast-forward merge refused.
-- Files and commits: see git log on branch new-features for commits starting with T343.
-- Left to do: owner or a new run: see blocked_log in schedule.json.
-
 ## 2026-11-09 10:54 run: T336
 - Summary: Not merged: fast-forward merge refused
 - Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
@@ -64,4 +54,14 @@
 - Worked: worker finished.
 - Failed / did not work: fast-forward merge refused.
 - Files and commits: see git log on branch new-features for commits starting with T340.
+- Left to do: owner or a new run: see blocked_log in schedule.json.
+
+## 2026-11-09 11:06 run: T330
+- Summary: Not merged: fast-forward merge refused
+- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
+- Approach: built by a worker in worktree ../wt/T330 on branch task/T330, merged by the serial merge queue.
+- Agent prompts: /overnight-worker T330 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T330.log.
+- Worked: worker finished.
+- Failed / did not work: fast-forward merge refused.
+- Files and commits: see git log on branch new-features for commits starting with T330.
 - Left to do: owner or a new run: see blocked_log in schedule.json.
