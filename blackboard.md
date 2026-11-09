@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-09 10:41 run: T334
-- Summary: Not merged: worker did not report done: blocked T334 | Part 2 moves the speed card (TUT_G1C_SPEED, speed_done flag) that T333 is supposed to build. T333 and its dependency T332 are both still queued, and neither the card nor the flag exists in this branch. T334 has no declared dependency on them, so it needs one added or T333 merged first.
-- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
-- Approach: built by a worker in worktree ../wt/T334 on branch task/T334, merged by the serial merge queue.
-- Agent prompts: /overnight-worker T334 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T334.log.
-- Worked: worker finished.
-- Failed / did not work: worker did not report done: blocked T334 | Part 2 moves the speed card (TUT_G1C_SPEED, speed_done flag) that T333 is supposed to build. T333 and its dependency T332 are both still queued, and neither the card nor the flag exists in this branch. T334 has no declared dependency on them, so it needs one added or T333 merged first..
-- Files and commits: see git log on branch new-features for commits starting with T334.
-- Left to do: owner or a new run: see blocked_log in schedule.json.
-
 ## 2026-11-09 10:46 run: T342
 - Summary: Not merged: worker did not report done: blocked T342 | depends on unmerged T329/T331/T333/T334/T337 (tut_seen counter, speed and Yay cards absent from this tree); re-run after they merge
 - Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
@@ -64,4 +54,14 @@
 - Worked: worker finished.
 - Failed / did not work: fast-forward merge refused.
 - Files and commits: see git log on branch new-features for commits starting with T336.
+- Left to do: owner or a new run: see blocked_log in schedule.json.
+
+## 2026-11-09 10:59 run: T344
+- Summary: Not merged: worker did not report done: None
+- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
+- Approach: built by a worker in worktree ../wt/T344 on branch task/T344, merged by the serial merge queue.
+- Agent prompts: /overnight-worker T344 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T344.log.
+- Worked: worker finished.
+- Failed / did not work: worker did not report done: None.
+- Files and commits: see git log on branch new-features for commits starting with T344.
 - Left to do: owner or a new run: see blocked_log in schedule.json.
