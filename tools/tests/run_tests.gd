@@ -5098,6 +5098,15 @@ func _test_stations() -> void:
 	m._ensure_posts()
 	check(m.station_systems.size() == 2 and m.map.stations.size() == 2 and m.station_markers.size() == 2, "station: no duplicates on a second call")
 	check(m.map.add_station(1) == false, "station: map refuses a second station")
+	var mk: Button = m.station_markers[1]
+	m._update_station_markers()
+	var was_vis: bool = mk.visible
+	m.skill_screen.open_screen()
+	m._update_station_markers()
+	check(not mk.visible and m.map_overlays_blocked(), "station: marker hidden while the skill screen is open")
+	m.skill_screen.close_screen()
+	m._update_station_markers()
+	check(mk.visible == was_vis, "station: marker back after the skill screen closes")
 	var st: Dictionary = m.collect_state()
 	check(st["station_systems"] == [1, 2], "station: flag saved", str(st["station_systems"]))
 	await _free_main(m)

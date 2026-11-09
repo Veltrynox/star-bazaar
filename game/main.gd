@@ -740,11 +740,19 @@ func _make_station_marker(id: int) -> void:
 	add_child(b)
 	station_markers[id] = b
 
+## T352: true while a full-screen or large window covers the map; map-anchored overlays (station markers, pulse rings, the sell offer) hide then.
+func map_overlays_blocked() -> bool:
+	for n in [skill_screen, bazaar_panel, hub_panel, flagship_panel, gig_panel, space_storage_view, game_menu, galaxy_view, end_screen, preface, dock_sheet]:
+		if n != null and is_instance_valid(n) and n.visible:
+			return true
+	return event_notice != null
+
 func _update_station_markers() -> void:
+	var blocked := map_overlays_blocked()
 	for id in station_markers:
 		var b: Button = station_markers[id]
 		var p = map.station_marker_pos(int(id))
-		b.visible = p != null
+		b.visible = p != null and not blocked
 		if p != null:
 			b.position = (p as Vector2) - Vector2(b.size.x * 0.5, b.size.y)
 
@@ -1375,6 +1383,8 @@ func _update_sell_offer_box() -> void:
 	var pl: int = int(sell_offer["planet"])
 	var c: String = str(sell_offer["c"])
 	var key := "%d|%s" % [pl, c]
+	if sell_offer_box != null:
+		sell_offer_box.visible = not map_overlays_blocked()
 	if sell_offer_box == null or key != _sell_offer_key:
 		if sell_offer_box != null:
 			sell_offer_box.queue_free()
@@ -4458,7 +4468,7 @@ func ship_pulse_on_select() -> void:
 	ship_ring.play()
 
 func _ring_allowed() -> bool:
-	return not game_over and event_notice == null and (skill_screen == null or not skill_screen.visible)
+	return not game_over and not map_overlays_blocked()
 
 ## T323: planet that should carry the loop now, or -1: only while the tutorial card shows a step that asks for a planet click.
 func tut_planet_ring_target() -> int:

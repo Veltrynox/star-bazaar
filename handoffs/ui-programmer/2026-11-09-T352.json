@@ -1,0 +1,20 @@
+{
+  "agent": "ui-programmer",
+  "date": "2026-11-09",
+  "task": "T352",
+  "status": "done",
+  "files_changed": ["game/main.gd", "tools/tests/run_tests.gd"],
+  "schema_version": 1,
+  "screens_changed": ["map overlays while a window is open"],
+  "overlays_covered": [
+    "Space Storage station markers (hidden via _update_station_markers)",
+    "ship and planet pulse rings (_ring_allowed now uses the helper)",
+    "sell offer box (hidden while blocked)"
+  ],
+  "rule": "main.gd map_overlays_blocked(): true when skill screen, bazaar, hub, flagship, gig, space storage, game menu, galaxy view, end screen, preface, dock sheet or an event notice is open. Tutorial card, tip card and arrow untouched. Planet labels live in the map's CanvasLayer -1 (already under the UI); route warning, dest hint and rival card are not map-anchored, left as is.",
+  "how_to_see": "Learn FND_STORAGE with a station, press K: the Space Storage button is gone; close it: it returns.",
+  "not_checked_by_eye": "Screenshot skipped: the screenshot script cannot open the skill screen with a station. Not seen in a window.",
+  "tests": "New checks in _test_stations. Full run: 13 known failures only.",
+  "open_questions": [],
+  "handoff": "Added map_overlays_blocked() in main.gd; station markers, pulse rings and the sell offer hide while any large window or event notice is open. Test added and passing."
+}
