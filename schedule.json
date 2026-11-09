@@ -3668,7 +3668,7 @@
       "title": "Tips after the tutorial pile up: space them out and keep them readable on the right panel",
       "owner_agent": "ui-programmer",
       "depends_on": [],
-      "status": "queued",
+      "status": "blocked",
       "turn_cap": 40,
       "window": "Owner request 2026-11-09: 'tips after the tutorial pile up, we need to space them up a little, or combine some on the right side of the panel, so a player can read them there'.",
       "brief": "Read game/main.gd (the one-time tip system from T316: tips_seen, tip_active, tip_left, TIP_SECS, tip_card, _tip_state, _tip_show, _tip_close, _tip_tick, tip_can_show, the queue and trigger table, the TIPS box in the right-hand column (right_col, notification board), tips_off), story/screens.md (TIP_* ids and the trigger notes at lines ~270-360). MEASURE first with a scratch headless walk (scratchpad dir; discovery on; 1920x1080 root set before the run): after the tutorial ends, how many tips fire in the first 10 cycles of a normal run and how close together (print time/cycle of every _tip_show). Then: (1) spacing: a minimum gap between two tip cards (one named balance key in data/balance.json, placeholder, for example 90 game seconds, plus the card staying long enough to read: check TIP_SECS against the longest tip text at 110+110 chars), a tip whose trigger fired while another is up or in the gap stays queued and is shown later, in priority order (goal and capital tips before minor ones; put the order in one constant list); never drop a tip silently and never show two at once. (2) the right panel: the right-hand TIPS box shows the tip that is currently active (or the last shown) with its why-line, and keeps a short list of the last 3 tips shown so a player who missed the floating card can still read them there (newest first, small text); the floating card stays for the new tip but is shorter-lived. Clicking a tip in the list does nothing special; Skip tutorial / tips_off hides everything as today; nothing in the saved state breaks (tips_seen stays as the persisted set; the list of recent tips can be rebuilt from tips_seen order or saved as a short array, bump the save version only if you add a field, with a migration). Combining is allowed where two tips are about the same thing (TIP_WEATHER and TIP_WEATHER_KINDS; TIP_CAPITAL and TIP_HUB): show them as one card with both texts if both are due; do not edit story text, list suggested merges in the handoff. (3) tests in tools/tests/run_tests.gd through the real tick: two tips due at once are shown 1 gap apart in priority order, none lost, none doubled; the right panel shows the active tip and keeps the last 3; spacing is not applied while tips_off. Done when built: no QA, bots or sim, no screenshots. Run sh tools/tests/run.sh once at the end with STAR_TEST_SCRATCH=/Volumes/Work/t339_home set; 13 tests already fail on a clean tree (workshop, goods, availability, cells), report only new failures. Never prefix Godot commands with HOME= or cd. gdd.md synced at commit by the main session. Handoff handoffs/ui-programmer/<date>-T339.json including the measured tip timings before the change.",
@@ -3678,7 +3678,9 @@
         "data/balance.json",
         "tools/tests/*"
       ],
-      "priority": 2
+      "priority": 2,
+      "note": "Blocked by orchestrator: rebase onto new-features failed",
+      "blocked_log": "/Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T339-merge.log"
     },
     {
       "task_id": "T340",
