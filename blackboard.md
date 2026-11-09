@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-07 22:59 run: T316
-- Summary: 12-step guided tutorial with the new Needs and Grow steps, v3 save mapping, and a one-time tip system (31 tips on a queued tip card, saved, silenced by Skip)
-- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
-- Approach: built by a worker in worktree ../wt/T316 on branch task/T316, merged by the serial merge queue.
-- Agent prompts: /overnight-worker T316 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T316.log.
-- Worked: rebase, full test suite and fast-forward merge passed.
-- Failed / did not work: nothing.
-- Files and commits: see git log on branch new-features for commits starting with T316.
-- Left to do: nothing for this task.
-
 ## 2026-11-08 run: T208
 - Summary: skill tree build from the T207 proposal, reconciled against the current 68-node tree. 6 new effect types (lane upgrade cost, new ship price, Embargo Desk cooldown, workshop ore input, Null Core trip cost, Luxury bundle bonus) with placeholder numbers in data/balance.json. FND_LEDGER, FND_RIVAL_WATCH, MIN_8, MIN_10 and BIO_12 were dropped or merged and keep reworded stand-in effects. English only.
 - Why this task: owner said "run T208" on 2026-11-08 (approval waived 2026-11-05).
@@ -64,4 +54,14 @@
 - Worked: worker finished.
 - Failed / did not work: fast-forward merge refused.
 - Files and commits: see git log on branch new-features for commits starting with T328.
+- Left to do: owner or a new run: see blocked_log in schedule.json.
+
+## 2026-11-09 10:35 run: T331
+- Summary: Not merged: worker did not report done: blocked T331 | Depends on T329, which is not in this tree: tut_next/TutNext, the TUT_G0_DONE_NEXT label and the card Next button don't exist. T331 has no depends_on, so it was dispatched too early. This tree also doesn't match the brief: TUT_GUIDE has 12 steps, not 13, UPKEEP is index 4, and TUT_G1B_SHIPS is absent. Nothing was built; I only ran the test suite (11603 pass, 13 known failures).
+- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
+- Approach: built by a worker in worktree ../wt/T331 on branch task/T331, merged by the serial merge queue.
+- Agent prompts: /overnight-worker T331 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T331.log.
+- Worked: worker finished.
+- Failed / did not work: worker did not report done: blocked T331 | Depends on T329, which is not in this tree: tut_next/TutNext, the TUT_G0_DONE_NEXT label and the card Next button don't exist. T331 has no depends_on, so it was dispatched too early. This tree also doesn't match the brief: TUT_GUIDE has 12 steps, not 13, UPKEEP is index 4, and TUT_G1B_SHIPS is absent. Nothing was built; I only ran the test suite (11603 pass, 13 known failures)..
+- Files and commits: see git log on branch new-features for commits starting with T331.
 - Left to do: owner or a new run: see blocked_log in schedule.json.

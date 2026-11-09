@@ -3526,7 +3526,7 @@
       "title": "Tutorial: wrong step number on the card, and a Next button on the Expenses (ins and outs) step",
       "owner_agent": "ui-programmer",
       "depends_on": [],
-      "status": "queued",
+      "status": "blocked",
       "turn_cap": 40,
       "window": "Owner report 2026-11-08: 'the tutorial number went off, fix it' and 'the one that needs the Next button is the one when we click on the ins and outs panel on top left of the screen'.",
       "brief": "Two parts. (1) The step counter on the tutorial card ('{n} of {total}', game/main.gd around line 3934, n = tut_step + 1, total = TUT_GUIDE.size() = 13) is wrong in the owner's run: the Expenses step (TUT_G5_UPKEEP, index 5) showed as step 7 where the owner expected 6. Likely causes to MEASURE, not guess: step indexes that are passed over (TUT_G1B_SHIPS is skipped under discovery, steps whose state was already reached are skipped, tut_skipped), sub-states of step 0 (TUT_G0_FLY, BUILD, WAIT, DONE) that count as one step, TUT_G3_PICK as a sub-state of step 3, and the old-save map. Reproduce with a scratch headless script (scratchpad dir; discovery on and off; root 1920x1080 set before the run; real input where possible): walk the tutorial and print the displayed counter text at every card. Then make the counter honest: n is the position among the steps this run will actually show, total is the number of steps this run will show (skipped steps do not count, a sub-state counts as its step, the number never goes backwards or jumps by two). Keep TUT_GUIDE indexes and save mapping as they are; only the displayed numbers change. (2) The Expenses step (TUT_G5_UPKEEP, 'Find Ship upkeep under Expenses', the cash/forecast 'ins and outs' panel at the top left; flag tut_flags['expenses'] set when the forecast is opened): when the player has opened that panel, the card stays on this step and shows a Next button (the existing tut_next / TutNext button and TUT_G0_DONE_NEXT label 'Next', as built for the Yay card in T329); the step advances only when Next is pressed. Before the panel is opened, no Next button (the action is still to open it). Skip tutorial still ends everything; old saves keep working (bump TUT_VER only if indexes change, they should not). Tests in tools/tests/run_tests.gd acting through real clicks: the counter text at each step in both modes never skips or repeats; the Expenses card shows Next only after the panel is open; Next advances to the Sell step; the counter after it is consistent. No text edits (a story-designer may reword later). Done when built: no QA, bots or sim, no screenshots. Run sh tools/tests/run.sh once at the end with STAR_TEST_SCRATCH=/Volumes/Work/t331_home set; 13 tests already fail on a clean tree (workshop, goods, availability, cells), report only new failures. gdd.md synced at commit by the main session. Handoff handoffs/ui-programmer/<date>-T331.json including the measured cause of the wrong number.",
@@ -3535,7 +3535,9 @@
         "game/main.gd",
         "tools/tests/*"
       ],
-      "priority": 1
+      "priority": 1,
+      "note": "Blocked by orchestrator: worker did not report done: blocked T331 | Depends on T329, which is not in this tree: tut_next/TutNext, the TUT_G0_DONE_NEXT label and the card Next button don't exist. T331 has no depends_on, so it was dispatched too early. This tree also doesn't match the brief: TUT_GUIDE has 12 steps, not 13, UPKEEP is index 4, and TUT_G1B_SHIPS is absent. Nothing was built; I only ran the test suite (11603 pass, 13 known failures).",
+      "blocked_log": "/Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T331-merge.log"
     },
     {
       "task_id": "T332",
