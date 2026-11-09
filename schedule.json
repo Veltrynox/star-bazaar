@@ -3759,7 +3759,7 @@
       "title": "Tutorial slide 6 (Storage): explanation card with Next, no right-click",
       "owner_agent": "ui-programmer",
       "depends_on": [],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 40,
       "window": "Owner request 2026-11-09, revised: slide 6 is an explanation card with Next, no right-click and no waiting.",
       "brief": "REVISED by owner 2026-11-09 (replaces the first brief): Guided step TUT_G7_STORAGE ('Right-click the lit resource button, then let a cycle end.') asks for a right-click that has no function worth teaching, and the step completes on it via main.tut_note('storage') in game/planet_panel.gd (~line 706). The step must become a pure explanation card: nothing is required of the player except pressing Next. It explains how storage works: Company storage on this planet now holds the good the Buy order buys, and the lit resource button shows that good in a different colour with stored/capacity on it; when storage is full, Buy waits. Do it like the Expenses card (T331): the card gets the Next button (see _tut_upkeep_next, tut_flags 'upkeep_next', the tut_next visibility line ~3977 and _tut_next ~4085; add a matching storage_next flag/state, saved/reset like the others) and the step completes only on Next. No right-click, no waiting for a cycle, no time-button hint. Keep the lit target (TUT_TARGET 'storage') on the resource button so the player sees what the colour means. Rewrite TUT_G7_STORAGE (60 chars) and TUT_G7_STORAGE_WHY (110 chars) as a statement, not an order (e.g. what the lit colour is and what stored/capacity means; the why line: when it is full Buy waits, then press Next), keep the pair consistent, and keep the fallback table text in main.gd (~line 201) consistent. Remove the tut_note('storage') call from planet_panel.gd (the right-click menu itself stays). Keep TUT_GUIDE indexes, TUT_VER and the save mapping. Do not change other steps; if T342's counter walk asserts this card, keep it counted as its own card as before. Read story/voice.md first (deadpan, quiet, no exclamation marks, no hidden goods named, English only; do not add Russian work). Edit story/screens.md only for text, then python3 tools/build_story.py; if it fails only because of a story/ru line make the smallest fix in that one Russian line and say so. Done when built: no QA, bots, sim or screenshots. Run sh tools/tests/run.sh once at the end with STAR_TEST_SCRATCH=/Volumes/Work/t344_home set; 13 tests already fail on a clean tree (workshop, goods, availability, cells), report only new failures. Never prefix Godot commands with HOME= or cd. gdd.md synced at commit by the main session. Handoff handoffs/ui-programmer/<date>-T344.json.",
@@ -3770,7 +3770,7 @@
         "game/planet_panel.gd"
       ],
       "priority": 1,
-      "note": "Blocked by orchestrator: worker did not report done: None",
+      "note": "Done by orchestrator: Tutorial slide 6 (Storage) is now an explanation card that ends only on Next, with the right-click call removed and the text rewritten as a statement",
       "blocked_log": "/Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T344-merge.log"
     }
   ],

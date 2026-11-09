@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-09 11:06 run: T330
-- Summary: Not merged: fast-forward merge refused
-- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
-- Approach: built by a worker in worktree ../wt/T330 on branch task/T330, merged by the serial merge queue.
-- Agent prompts: /overnight-worker T330 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T330.log.
-- Worked: worker finished.
-- Failed / did not work: fast-forward merge refused.
-- Files and commits: see git log on branch new-features for commits starting with T330.
-- Left to do: owner or a new run: see blocked_log in schedule.json.
-
 ## 2026-11-09 11:13 run: T335
 - Summary: Rewrote the slide 6 card in discovery mode (TUT_G7_STORAGE) to say "Right-click the resource button. Let the cycle end.", rewrote its why-line to say sales and stock change when the cycle ends, and added the same hint to the TUT_G6_SELL why-line (slide 6 without discovery)
 - Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
@@ -64,4 +54,14 @@
 - Worked: rebase, full test suite and fast-forward merge passed.
 - Failed / did not work: nothing.
 - Files and commits: see git log on branch new-features for commits starting with T343.
+- Left to do: nothing for this task.
+
+## 2026-11-09 11:26 run: T344
+- Summary: Tutorial slide 6 (Storage) is now an explanation card that ends only on Next, with the right-click call removed and the text rewritten as a statement
+- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
+- Approach: built by a worker in worktree ../wt/T344 on branch task/T344, merged by the serial merge queue.
+- Agent prompts: /overnight-worker T344 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T344.log.
+- Worked: rebase, full test suite and fast-forward merge passed.
+- Failed / did not work: nothing.
+- Files and commits: see git log on branch new-features for commits starting with T344.
 - Left to do: nothing for this task.
