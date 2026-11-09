@@ -134,6 +134,7 @@ var progress: ProgressBar
 var preface: Control  # T23 preface overlay; null once dismissed
 var ships: int = 0  # T28 abstract ship count (all types)
 var ship_panel: PanelContainer
+var flagship_panel: PanelContainer  # T350 Flagship details (opens from the hero card)
 var top_bar: PanelContainer
 var right_col: VBoxContainer  # holds the notification board and the ship panel
 var cash_forecast: PanelContainer  # T40
@@ -332,8 +333,7 @@ func _ready() -> void:
 	ship_panel = load("res://game/ship_panel.gd").new()
 	right_col.add_child(ship_panel)
 	ship_panel.buy_requested.connect(_buy_ship_kind)
-	ship_panel.boost_toggled.connect(set_flagship_boost)  # T270
-	ship_panel.explore_toggled.connect(func(): set_exploring(not flight.exploring()))  # T206
+	ship_panel.details_requested.connect(open_flagship_panel)  # T350
 	mission_planet = _find_mission_planet()
 	commodities = _commodities(map.planets)
 	trade.setup(balance, map.planets)
@@ -399,6 +399,11 @@ func _ready() -> void:
 	add_child(hub_panel)
 	hub_panel.setup(self)
 	hub_panel.changed.connect(_on_hubs_changed)
+	flagship_panel = load("res://game/flagship_panel.gd").new()  # T350
+	add_child(flagship_panel)
+	flagship_panel.setup(self)
+	flagship_panel.boost_toggled.connect(set_flagship_boost)  # T270
+	flagship_panel.explore_toggled.connect(func(): set_exploring(not flight.exploring()))  # T206
 	gig_panel = load("res://game/gig_board.gd").new()  # T273
 	add_child(gig_panel)
 	gig_panel.setup(self)
@@ -985,6 +990,7 @@ func open_skills() -> void:
 		galaxy_view.close_view()  # one screen at a time
 	if bazaar_panel != null:
 		bazaar_panel.close_screen()
+	flagship_panel.close_screen()
 	skill_screen.open_screen()
 
 ## T105: click on a system in the galaxy view: close the view and put the map camera on that system.
@@ -1056,6 +1062,19 @@ func _on_skill_arrow() -> void:
 		go_to_system(int(t["system"]))
 
 ## T273: J and the rail button open the gig board (only while the Flagship exists).
+## T350: the hero card in the Ships menu opens the Flagship details; one screen at a time like the other panels.
+func open_flagship_panel() -> void:
+	if preface != null or game_over or flagship_panel == null:
+		return
+	if galaxy_view != null and galaxy_view.visible:
+		galaxy_view.close_view()
+	if skill_screen.visible:
+		skill_screen.close_screen()
+	gig_panel.close_screen()
+	bazaar_panel.close_screen()
+	hub_panel.close_screen()
+	flagship_panel.open_screen()
+
 func toggle_gig_board() -> void:
 	if gig_panel.visible:
 		gig_panel.close_screen()
@@ -1064,6 +1083,7 @@ func toggle_gig_board() -> void:
 			galaxy_view.close_view()
 		if skill_screen.visible:
 			skill_screen.close_screen()
+		flagship_panel.close_screen()
 		gig_panel.open_screen()
 
 func toggle_bazaar_panel() -> void:
@@ -1074,6 +1094,7 @@ func toggle_bazaar_panel() -> void:
 			galaxy_view.close_view()
 		if skill_screen.visible:
 			skill_screen.close_screen()
+		flagship_panel.close_screen()
 		bazaar_panel.open_screen()
 		tut_note("bazaar")  # T316: the last guided step ends when the Bazaar panel opens
 
@@ -2363,6 +2384,7 @@ func open_hub_panel(planet: int) -> void:
 		galaxy_view.close_view()
 	if skill_screen.visible:
 		skill_screen.close_screen()
+	flagship_panel.close_screen()
 	hub_panel.open_for(planet)
 
 ## Hubs changed (made, released, pool, ticks): reach rings and the open card follow.
@@ -3317,6 +3339,8 @@ func _unhandled_input(event: InputEvent) -> void:
 			galaxy_view.close_view()
 		elif skill_screen.visible:
 			skill_screen.close_screen()
+		elif flagship_panel.visible:
+			flagship_panel.close_screen()
 		elif hub_panel.visible:
 			hub_panel.close_screen()
 		elif bazaar_panel.visible:
@@ -3654,6 +3678,8 @@ func _refresh() -> void:
 	if ship_panel != null:
 		ship_panel.set_count(ships, ship_cap())
 		ship_panel.set_upkeep(self)
+		if flagship_panel != null:
+			flagship_panel.refresh_closed()
 		map.set_hint(-1, false)  # T323: no 3D halo; the planet pulse ring (planet_ring) marks a tutorial planet click
 		mission_label.visible = ships == 0
 		mission_label.text = StoryText.get_or("LBL_MISSION_FIRST", "Mission: Send stock to another planet")
@@ -4700,6 +4726,8 @@ func _tut_poll() -> void:
 		_refresh_panel()
 		if ship_panel != null:
 			ship_panel.set_upkeep(self)
+		if flagship_panel != null:
+			flagship_panel.refresh_closed()
 	_tut_sig = _tut_sig_now()  # the advance may have moved the step
 
 ## T124: moves the guided tutorial on when the player has done the current step. Run by _tut_poll when the state it reads changes.

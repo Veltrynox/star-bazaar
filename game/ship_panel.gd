@@ -8,15 +8,10 @@ const PathfinderView := preload("res://game/pathfinder_view.gd")  # T180 accesso
 const ShipPreview := preload("res://game/ship_preview.gd")  # T317 hero card preview
 
 signal buy_requested(kind: String)
-signal explore_toggled  # T206
-signal boost_toggled(on: bool)  # T270
-var explore_button: Button  # T206: exploration mode on/off; hidden unless discovery is on
-var hold_label: Label  # T270: "Hold: n of m", goods held, boost charges
-var boost_button: Button  # T270: boost on/off; hotkey B (hold)
+signal details_requested  # T350: a click on the hero card opens the Flagship details panel
 var buy_buttons: Dictionary = {}  # kind -> Button
 var label: Label
 var upkeep_label: Label
-var pathfinder_label: Label  # T180: Pathfinder name, description, status; hidden unless discovery is on
 var upkeep_scroll: ScrollContainer
 const UPKEEP_MAX_H := 220.0
 var free_label: Label  # free ships, upkeep each, and what Send to... does when none is free
@@ -53,30 +48,6 @@ func _ready() -> void:
 	upkeep_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	upkeep_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	upkeep_scroll.add_child(upkeep_label)
-	pathfinder_label = Label.new()
-	pathfinder_label.name = "Pathfinder"
-	pathfinder_label.theme_type_variation = "LabelSmall"
-	pathfinder_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	pathfinder_label.visible = false
-	box.add_child(pathfinder_label)
-	explore_button = Button.new()
-	explore_button.name = "ExploreButton"
-	explore_button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	explore_button.visible = false
-	explore_button.pressed.connect(func(): explore_toggled.emit())
-	box.add_child(explore_button)
-	hold_label = Label.new()  # T270: hold readout and boost gauge
-	hold_label.name = "HoldReadout"
-	hold_label.theme_type_variation = "LabelSmall"
-	hold_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	hold_label.visible = false
-	box.add_child(hold_label)
-	boost_button = Button.new()
-	boost_button.name = "BoostButton"
-	boost_button.visible = false
-	boost_button.toggle_mode = true
-	boost_button.toggled.connect(func(on: bool): boost_toggled.emit(on))
-	box.add_child(boost_button)
 	free_label = Label.new()
 	free_label.name = "FreeShips"
 	free_label.theme_type_variation = "LabelSmall"
@@ -148,6 +119,7 @@ func _on_hero_input(event: InputEvent) -> void:
 			if _hero_main.map.ship_selected:
 				_hero_main.ship_pulse_on_select()
 			_set_hero_card(_hero_main)
+			details_requested.emit()  # T350
 
 ## T317: drawn only through Availability.hero_ship; follows map.ship_selected both ways; the preview renders only while the card shows.
 func _set_hero_card(main: Control) -> void:
@@ -193,7 +165,6 @@ func set_upkeep(main: Control) -> void:
 	lines.append("%s, total: %d / cycle" % [upkeep_name, total])
 	upkeep_label.text = "\n".join(lines)
 	upkeep_scroll.custom_minimum_size.y = minf(UPKEEP_MAX_H, upkeep_label.get_combined_minimum_size().y)
-	_set_pathfinder(main)
 	_set_hero_card(main)
 	var core_on: bool = main.core_route_id() >= 0
 	upkeep_label.mouse_filter = Control.MOUSE_FILTER_STOP if core_on else Control.MOUSE_FILTER_IGNORE
@@ -250,49 +221,3 @@ func set_count(ships: int, cap: int) -> void:
 	if _last_count >= 0 and ships > _last_count:  # a purchase or a new lane: the count flashes warm
 		Juice.flash(label, Ui.col("star_warm"))
 	_last_count = ships
-
-## T180: three lines (name, description, status) from the flight accessor; nothing shows while discovery is off.
-func _set_pathfinder(main: Control) -> void:
-	if pathfinder_label == null:
-		return
-	var f = main.map.flight if main.map != null else null
-	if not PathfinderView.active(f):
-		pathfinder_label.visible = false
-		if explore_button != null:
-			explore_button.visible = false
-		if hold_label != null:
-			hold_label.visible = false
-			boost_button.visible = false
-		return
-	var status := StoryText.get_or("LBL_PATHFINDER_IDLE", "Pathfinder waiting")
-	if PathfinderView.state(f) == "flying":
-		var tg = PathfinderView._call(f, "target", [], {})
-		var idx := int(tg.get("index", -1)) if typeof(tg) == TYPE_DICTIONARY and str(tg.get("kind", "")) == "planet" else -1
-		if idx >= 0 and idx < main.map.planets.size() and PathfinderView.discovered(f, str(main.map.planets[idx].get("id", idx))):
-			status = StoryText.get_or("LBL_PATHFINDER_FLYING", "Pathfinder flying to {planet}", {"planet": main.planet_name(idx)})
-		else:
-			status = StoryText.get_or("LBL_PATHFINDER_FLYING_UNKNOWN", "Pathfinder flying to an unknown world")
-	pathfinder_label.text = "%s\n%s\n%s" % [StoryText.get_or("LBL_PATHFINDER_NAME", "Pathfinder"), StoryText.get_or("LBL_PATHFINDER_DESC", ""), status]
-	pathfinder_label.visible = true
-	_set_hold(main, f)
-	if explore_button != null:
-		explore_button.visible = true
-		explore_button.text = StoryText.get_text("BTN_EXPLORE_OFF" if bool(PathfinderView._call(f, "exploring", [], false)) else "BTN_EXPLORE_ON")
-
-## T270: hold readout (units, goods) and boost gauge from the Flagship API; hidden while the hold has no room (key 0) or discovery is off.
-func _set_hold(main: Control, f) -> void:
-	var cap: int = main.flight.hold_cap()
-	hold_label.visible = cap > 0
-	boost_button.visible = cap > 0
-	if cap <= 0:
-		return
-	var goods: Dictionary = main.flight.hold_goods()
-	var lines: Array = [StoryText.get_or("LBL_HOLD_FILL", "Hold: {n} of {m}", {"n": main.flight.hold_total(), "m": cap})]
-	for g in goods:
-		lines.append("%s: %d" % [Ui.good_name(str(g)), int(goods[g])])
-	lines.append(StoryText.get_or("LBL_BOOST_CHARGES", "Boost: {n} left", {"n": main.flight.boost_charges()}))
-	hold_label.text = "\n".join(lines)
-	boost_button.text = "%s (B)" % StoryText.get_or("BTN_BOOST", "Boost")
-	boost_button.tooltip_text = StoryText.get_or("LBL_BOOST_HINT", "Faster on straight legs. Burns energy from the hold. Turning stays slow.")
-	if boost_button.button_pressed != main.flight.boost_on():
-		boost_button.set_pressed_no_signal(main.flight.boost_on())

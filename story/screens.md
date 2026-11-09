@@ -1168,6 +1168,12 @@ NOT_POST_DONE | 110 | Notice, post finished; {planet} is a name | Trading post e
 NOT_PLATFORM_DONE | 110 | Notice, platform finished | Mining platform established at {planet}. You can now mine there and route what you mine.
 BTN_EXPLORE_ON | 28 | Ship panel, button that starts exploration mode (the Pathfinder scouts and establishes this system by itself) | Explore this system
 BTN_EXPLORE_OFF | 28 | Ship panel, same button while the mode runs; pressing it stops the mode | Stop exploring
+LBL_FLAGSHIP_TITLE | 24 | Flagship details panel, title | Flagship
+LBL_FLAGSHIP_SPEED | 40 | Flagship details panel, current speed line; {n} is a number | Speed: {n}
+LBL_FLAGSHIP_HOLD_CAP | 40 | Flagship details panel, hold size line; {m} is the room in total | Hold capacity: {m}
+LBL_FLAGSHIP_FOUND | 40 | Flagship details panel, worlds found so far; {n} found of {m} | Worlds found: {n} of {m}
+LBL_FLAGSHIP_TARGET | 60 | Flagship details panel, current destination line; {planet} is a name | Heading for: {planet}
+LBL_FLAGSHIP_NO_TARGET | 40 | Flagship details panel, no destination | Heading for: nowhere
 NOT_EXPLORE_DONE | 110 | Notice, exploration mode finished: every world of the system is surveyed and established | Exploration complete. Every world in this system is surveyed and established.
 NOT_FIELD_SURVEYED | 110 | Notice, the Pathfinder reached an asteroid field | Asteroid field surveyed.
 NOT_FLIGHT_EVENT | 110 | Notice before a flight event, optional | The Pathfinder reports something on the lane.

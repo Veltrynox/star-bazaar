@@ -5414,6 +5414,42 @@
    "place": "Ship panel, same button while the mode runs; pressing it stops the mode"
   },
   {
+   "id": "LBL_FLAGSHIP_TITLE",
+   "text": "Flagship",
+   "max": 24,
+   "place": "Flagship details panel, title"
+  },
+  {
+   "id": "LBL_FLAGSHIP_SPEED",
+   "text": "Speed: {n}",
+   "max": 40,
+   "place": "Flagship details panel, current speed line; {n} is a number"
+  },
+  {
+   "id": "LBL_FLAGSHIP_HOLD_CAP",
+   "text": "Hold capacity: {m}",
+   "max": 40,
+   "place": "Flagship details panel, hold size line; {m} is the room in total"
+  },
+  {
+   "id": "LBL_FLAGSHIP_FOUND",
+   "text": "Worlds found: {n} of {m}",
+   "max": 40,
+   "place": "Flagship details panel, worlds found so far; {n} found of {m}"
+  },
+  {
+   "id": "LBL_FLAGSHIP_TARGET",
+   "text": "Heading for: {planet}",
+   "max": 60,
+   "place": "Flagship details panel, current destination line; {planet} is a name"
+  },
+  {
+   "id": "LBL_FLAGSHIP_NO_TARGET",
+   "text": "Heading for: nowhere",
+   "max": 40,
+   "place": "Flagship details panel, no destination"
+  },
+  {
    "id": "NOT_EXPLORE_DONE",
    "text": "Exploration complete. Every world in this system is surveyed and established.",
    "max": 110,

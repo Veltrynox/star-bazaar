@@ -1,0 +1,8 @@
+{
+  "task": "T350",
+  "agent": "main session (built directly, no subagent)",
+  "files": ["game/flagship_panel.gd", "game/ship_panel.gd", "game/main.gd", "story/screens.md", "data/story_text.json", "tools/tests/run_tests.gd", "gdd.md"],
+  "included": "name, ship preview, description, status line, Start/Stop exploring, hold fill and goods, boost charges and Boost (B) toggle with tooltip, speed, hold capacity, worlds found, destination",
+  "left_out": "hub reach and a discoveries-made counter beyond worlds found (the flight object has no such accessor)",
+  "screenshot": "logs/screenshots/T350.png (Ships panel with hero card only; the script cannot open the details panel)"
+}
