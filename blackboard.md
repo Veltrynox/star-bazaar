@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-07 22:46 run: T314
-- Summary: Asteroid packs travel the full orbit about the sun, with cluster positions following the game clock for every consumer; c1_2 moved clear of the dead_1 orbit
-- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
-- Approach: built by a worker in worktree ../wt/T314 on branch task/T314, merged by the serial merge queue.
-- Agent prompts: /overnight-worker T314 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T314.log.
-- Worked: rebase, full test suite and fast-forward merge passed.
-- Failed / did not work: nothing.
-- Files and commits: see git log on branch new-features for commits starting with T314.
-- Left to do: nothing for this task.
-
 ## 2026-11-07 22:47 run: T315
 - Summary: Tutorial guided steps rewritten (two new steps, Star Bazaar goal as the last step), 31 one-time tips with plain-word triggers added, stale goal lines fixed in story/*.md and story_text.json regenerated
 - Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
@@ -65,3 +55,13 @@
 - Failed / did not work: sh tools/tests/run.sh shows 13 FAIL (powder, blooms, workshop, goods, availability); agent reports the same 13 fail on a clean tree, not re-checked by the main session. No window check.
 - Files and commits: uncommitted: game/skills.gd, ships.gd, goods.gd, route_engine.gd, main.gd, planet_panel.gd, data/skills.json, balance.json, story_text.json, story/skills.md, gdd-skills.md, the handoff.
 - Left to do: owner decides whether to keep the 4 stand-in nodes and whether to build a dead-world ore-loss mechanic (MIN_10). T209 review stays owner by hand.
+
+## 2026-11-09 10:29 run: T327
+- Summary: Not merged: worker did not report done: blocked T327 | This worktree's base commit (01a78b1) lacks the code the task builds on: no T322 zoomed start and no T323 `planet_ring` PulseRing. TUT_G0_FLY here still reads "Click your ship, then right-click the dim world." `schedule.json` in the worktree has no T327 entry either, so I read the task from the main checkout. Rebase the branch onto a base that includes T322 and T323, then rerun. Nothing was built or changed.
+- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
+- Approach: built by a worker in worktree ../wt/T327 on branch task/T327, merged by the serial merge queue.
+- Agent prompts: /overnight-worker T327 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T327.log.
+- Worked: worker finished.
+- Failed / did not work: worker did not report done: blocked T327 | This worktree's base commit (01a78b1) lacks the code the task builds on: no T322 zoomed start and no T323 `planet_ring` PulseRing. TUT_G0_FLY here still reads "Click your ship, then right-click the dim world." `schedule.json` in the worktree has no T327 entry either, so I read the task from the main checkout. Rebase the branch onto a base that includes T322 and T323, then rerun. Nothing was built or changed..
+- Files and commits: see git log on branch new-features for commits starting with T327.
+- Left to do: owner or a new run: see blocked_log in schedule.json.

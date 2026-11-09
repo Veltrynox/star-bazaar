@@ -3455,7 +3455,7 @@
       "title": "Tutorial: first flight step names one specific planet, and clicking it must progress the tutorial",
       "owner_agent": "ui-programmer",
       "depends_on": [],
-      "status": "queued",
+      "status": "blocked",
       "turn_cap": 40,
       "window": "Owner request 2026-11-08.",
       "brief": "Owner report: (1) the first tutorial card under discovery (TUT_G0_FLY, 'Select the Pathfinder, then click a nearby unexplored world.') should ask for ONE specific planet, not 'a nearby world'. (2) When the player clicks that planet nothing happens and the tutorial does not progress. Read: game/main.gd (_tut_g0_id, TUT_G0_FLY / TUT_G0_BUILD / TUT_G0_WAIT, what finishes step 0, tut_planet_ring_target and _tut_ring_planet, the tutorial lock tut_lock_target that mutes clicks, planet_ring), game/map.gd (planet picking, select_ship and ship_selected, how a left click sends the Pathfinder, picking of closed or unknown planets under discovery), game/pathfinder_view.gd, game/pathfinder.gd, game/dest_hint.gd, story/screens.md (TUT_G0_*). Do this: (A) REPRODUCE (2) first with a headless script (discovery on, fresh run, step TUT_G0_FLY, root 1920x1080; start camera is the T322 zoomed start; scratch files in the scratchpad dir, not the repo): select the ship through the card, click the planet through the same path a real click takes, advance frames, and print what happens (does the planet pick fire, is the click swallowed by the tutorial lock NOT_TUT_LOCKED, is an unknown planet unpickable, does the ship start flying, does _tut_g0_id change, does the step advance). Find the real cause with measured values and fix it so that a click on the asked-for planet sends the Pathfinder there and the tutorial moves on (TUT_G0_FLY -> BUILD when it arrives, as today). (B) Choose the specific target in code: the nearest closed planet the Pathfinder can fly to (deterministic, same for a given run); show its pulse ring (the existing planet_ring PulseRing from T323) on it during TUT_G0_FLY, and make the card name it: change TUT_G0_FLY in story/screens.md to use a {planet} placeholder (for example 'Select the Pathfinder, then click {planet}.'), passing the planet's display name; if the planet is still unknown/unnamed on the map (shown as 'Unknown world'), name it the way the map labels it so the player can find it, and do not reveal a hidden good. Only this one text id may be edited (owner allows it for this task); keep it under its character limit, English only, then python3 tools/build_story.py. (C) Tests in tools/tests/: the specific target is chosen deterministically and is a closed planet; clicking it sends the ship and advances the step; the ring is on that planet only during TUT_G0_FLY. Done when built: no QA, bots or sim. No screenshots. Run sh tools/tests/run.sh once at the end with STAR_TEST_SCRATCH=/Volumes/Work/t327_home set; 13 tests already fail on a clean tree (workshop, goods, availability, cells), report only new failures. gdd.md synced at commit by the main session. Handoff handoffs/ui-programmer/<date>-T327.json including the measured cause of (2).",
@@ -3466,7 +3466,9 @@
         "story/screens.md",
         "tools/tests/*"
       ],
-      "priority": 1
+      "priority": 1,
+      "note": "Blocked by orchestrator: worker did not report done: blocked T327 | This worktree's base commit (01a78b1) lacks the code the task builds on: no T322 zoomed start and no T323 `planet_ring` PulseRing. TUT_G0_FLY here still reads \"Click your ship, then right-click the dim world.\" `schedule.json` in the worktree has no T327 entry either, so I read the task from the main checkout. Rebase the branch onto a base that includes T322 and T323, then rerun. Nothing was built or changed.",
+      "blocked_log": "/Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T327-merge.log"
     },
     {
       "task_id": "T328",
