@@ -3780,7 +3780,7 @@
       "title": "Last tutorial card: say plainly what the Star Bazaar is",
       "owner_agent": "story-designer",
       "depends_on": [],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 40,
       "window": "Owner request 2026-11-09: the last tutorial card and the welcome screen still do not explain what the Star Bazaar is.",
       "brief": "The final guided card (TUT_G10_DONE 60 chars, TUT_G10_DONE_WHY 110 chars, story/screens.md ~line 268) is still poetic ('the exchange where the whole sky trades') and a new player still does not learn what the Star Bazaar IS. Rewrite the pair so a player who knows nothing learns three plain things across the two lines: what it is (a giant market hall that all the worlds trade through, one building, which the player builds), where it goes (on one world you grow into a capital) and why it matters (building it wins the game). Plain words first, the deadpan understatement second; a literal sentence beats an image here. No word-for-word repeat of TIP_GOAL / TIP_GOAL_WHY (~line 310); if they now contradict or repeat the new pair, adjust those two lines as well and keep them consistent. Read story/voice.md first (deadpan, quiet, no exclamation marks, no real-world brand names, no hidden goods named, no numbers that live in data/). Do not promise mechanics that are not there: read gdd.md (Win paragraph) so every claim is true (one capital per run, raised in stages, each stage needs a bill of goods plus other worlds grown, the last stage posts the Opening gig, docking at the capital wins). English only, no Russian work. Edit story/screens.md only, then python3 tools/build_story.py; if it fails only because of a story/ru line make the smallest fix in that one Russian line and say so. Offer the final text plus one alternate in the handoff. Done when written: no QA, bots, sim or screenshots. Run sh tools/tests/run.sh once at the end with STAR_TEST_SCRATCH=/Volumes/Work/t345_home set; report only new failures. Never prefix Godot commands with HOME= or cd. gdd.md synced at commit by the main session. Handoff handoffs/story-designer/<date>-T345.json.",
@@ -3788,7 +3788,8 @@
       "touches": [
         "story/screens.md"
       ],
-      "priority": 1
+      "priority": 1,
+      "note": "Done by orchestrator: Rewrote the last tutorial card (TUT_G10_DONE and its why line) to say plainly that the Star Bazaar is one market hall all worlds trade in, built in stages on a capital world, and that finishing it wins"
     },
     {
       "task_id": "T346",
