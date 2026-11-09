@@ -7593,6 +7593,8 @@ func _test_t317_hero_card() -> void:
 	m0._dismiss_preface()
 	m0.ship_panel.set_upkeep(m0)
 	check(not m0.ship_panel.hero_card.visible, "T317: no hero card without a hero ship")
+	m0.open_flagship_panel()
+	check(not m0.flagship_panel.visible, "T350: the details panel hides with discovery off")
 	var m: Control = await _new_main(false, true)
 	m._dismiss_preface()
 	var sp = m.ship_panel
@@ -7613,6 +7615,20 @@ func _test_t317_hero_card() -> void:
 	check(m.map.ship_selected == by_card and sp._hero_selected, "T317: viewport select gives the same state and lights the card")
 	sp._on_hero_input(click)
 	check(not m.map.ship_selected and not sp._hero_selected, "T317: a second card click deselects")
+	# T350: the card click opens the Flagship details; the Ships panel no longer owns the controls
+	var fp = m.flagship_panel
+	check(fp.visible, "T350: clicking the hero card opens the details panel")
+	check(fp.explore_button != null and fp.explore_button.is_visible_in_tree(), "T350: the details panel holds the explore button")
+	check(not ("explore_button" in sp) and not ("boost_button" in sp) and not ("hold_label" in sp) and not ("pathfinder_label" in sp), "T350: the Ships panel no longer has explore, boost, hold or status nodes")
+	check(not m.flight.exploring(), "T350: not exploring at start")
+	fp.explore_button.pressed.emit()
+	check(m.flight.exploring(), "T350: the explore button starts exploring")
+	fp.refresh()
+	check(fp.explore_button.text == StoryText.get_text("BTN_EXPLORE_OFF"), "T350: the button reads Stop exploring")
+	fp.explore_button.pressed.emit()
+	check(not m.flight.exploring(), "T350: the explore button stops exploring")
+	fp.close_screen()
+	check(not fp.visible, "T350: the close button hides the panel")
 
 func _test_t187_ship_flight() -> void:
 	_wipe_user()
@@ -7985,7 +8001,7 @@ func _test_t206_explore() -> void:
 	check(m.flight.exploring(), "T228: mode on while paused")
 	m.set_exploring(false)
 	check(not m.flight.exploring(), "T228: mode off while paused")
-	check(m.ship_panel.explore_button.text == StoryText.get_text("BTN_EXPLORE_ON"), "T228: button label follows while paused")
+	check(m.flagship_panel.explore_button.text == StoryText.get_text("BTN_EXPLORE_ON"), "T228: button label follows while paused")
 	# cash short: the ship waits at the first planet it cannot pay for
 	m.cash = 0
 	f.set_exploring(true)
