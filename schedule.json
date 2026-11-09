@@ -3475,7 +3475,7 @@
       "title": "Tutorial text: right-click Establish trading post card, a Yay card, and a reworded Voltara card",
       "owner_agent": "story-designer",
       "depends_on": [],
-      "status": "queued",
+      "status": "blocked",
       "turn_cap": 40,
       "window": "Owner request 2026-11-08. Text half; T329 is the code half.",
       "brief": "Owner decision 2026-11-08 on the first tutorial screens under discovery: card 1 asks for ONE action, 'Right-click {planet} (the specific target, today Ashgate) and choose Establish a trading post'; the ship flies there by itself, so no separate select-the-ship click is needed. When the post stands, a celebration card 'Yay! We established a trading post on {planet}!' with a Next button. Only then the Voltara card, reworded because Voltara already has a post. Read story/screens.md (TUT_G0_FLY, TUT_G0_BUILD, TUT_G0_WAIT and WHY lines, TUT_G1_SELECT and WHY, TUT_G1B_SHIPS), story/voice.md, and game/main.gd (_tut_g0_id and how the cards are filled, {planet} is already filled for TUT_G0_FLY). Write, English only: (1) TUT_G0_FLY: one action line using {planet}, e.g. 'Right-click {planet}, choose Establish a trading post.' (max 60 chars) and a WHY/hint line: the ship flies there by itself and builds it (max 110). (2) TUT_G0_BUILD and TUT_G0_WAIT: keep them accurate for what the player sees after the ship arrives (a post is being built, time must run): shorten or reword only if they now repeat card 1. (3) New ids TUT_G0_DONE (and TUT_G0_DONE_WHY, plus a button label id TUT_G0_DONE_NEXT, 24 chars max, such as 'Next'; reuse an existing Next id if one exists): 'Yay! We established a trading post on {planet}!' with a WHY line saying what a post gives (buy, sell and route there). (4) TUT_G1_SELECT and its WHY: Voltara already has a post, so say what to do with it, e.g. 'Click Voltara, your home world, to start trading.' with the why-line that its panel shows what it sells, buys and what can be traded; no hidden goods named. Give the final ids, limits and texts to T329 in the handoff. Texts in story/*.md only, then python3 tools/build_story.py; if it fails only because story/ru/ has an id the English no longer has, or lacks {planet}, make the smallest fix in that one Russian line and say so; no other Russian work. Voice per story/voice.md. Done when written: no QA. Handoff handoffs/story-designer/<date>-T328.json.",
@@ -3483,7 +3483,9 @@
       "touches": [
         "story/screens.md"
       ],
-      "priority": 1
+      "priority": 1,
+      "note": "Blocked by orchestrator: fast-forward merge refused",
+      "blocked_log": "/Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T328-merge.log"
     },
     {
       "task_id": "T329",

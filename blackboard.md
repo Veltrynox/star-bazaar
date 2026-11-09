@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-07 22:47 run: T315
-- Summary: Tutorial guided steps rewritten (two new steps, Star Bazaar goal as the last step), 31 one-time tips with plain-word triggers added, stale goal lines fixed in story/*.md and story_text.json regenerated
-- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
-- Approach: built by a worker in worktree ../wt/T315 on branch task/T315, merged by the serial merge queue.
-- Agent prompts: /overnight-worker T315 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T315.log.
-- Worked: rebase, full test suite and fast-forward merge passed.
-- Failed / did not work: nothing.
-- Files and commits: see git log on branch new-features for commits starting with T315.
-- Left to do: nothing for this task.
-
 ## 2026-11-07 22:59 run: T316
 - Summary: 12-step guided tutorial with the new Needs and Grow steps, v3 save mapping, and a one-time tip system (31 tips on a queued tip card, saved, silenced by Skip)
 - Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
@@ -64,4 +54,14 @@
 - Worked: worker finished.
 - Failed / did not work: worker did not report done: blocked T327 | This worktree's base commit (01a78b1) lacks the code the task builds on: no T322 zoomed start and no T323 `planet_ring` PulseRing. TUT_G0_FLY here still reads "Click your ship, then right-click the dim world." `schedule.json` in the worktree has no T327 entry either, so I read the task from the main checkout. Rebase the branch onto a base that includes T322 and T323, then rerun. Nothing was built or changed..
 - Files and commits: see git log on branch new-features for commits starting with T327.
+- Left to do: owner or a new run: see blocked_log in schedule.json.
+
+## 2026-11-09 10:35 run: T328
+- Summary: Not merged: fast-forward merge refused
+- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
+- Approach: built by a worker in worktree ../wt/T328 on branch task/T328, merged by the serial merge queue.
+- Agent prompts: /overnight-worker T328 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T328.log.
+- Worked: worker finished.
+- Failed / did not work: fast-forward merge refused.
+- Files and commits: see git log on branch new-features for commits starting with T328.
 - Left to do: owner or a new run: see blocked_log in schedule.json.
