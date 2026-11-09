@@ -1588,7 +1588,8 @@ func _test_tut_full_walk() -> void:
 					6:
 						m.engine.local_of(1, "ore", true)["sell"] = true
 					7:
-						m.tut_flags["storage_next"] = true
+						if m.tut_next.is_visible_in_tree():  # T344: the Storage card moves on by its Next button
+							_click_at(m.tut_next.get_global_rect().get_center())
 					8, 9:
 						m.debug_advance_cycle()
 						if guard > 60:
@@ -2266,7 +2267,7 @@ func _test_main() -> void:
 	var bal: Dictionary = m.balance
 	var win_cycle := int(bal["win_cycle_markets"])
 	check(not bal.has("win_cash") and not bal.has("win_cycle"), "goal: old win_cash and win_cycle keys are gone")
-	check(win_cycle == 40, "goal: run length is win_cycle_markets (40)")
+	check(win_cycle == 80, "goal: run length is win_cycle_markets (80)")
 
 	# --- T259: a market share no longer wins; the Star Bazaar does ---
 	_wipe_user()
@@ -2564,7 +2565,7 @@ func _test_main() -> void:
 		if str(k).begins_with("skill_cost_") and not SkillTree.has(str(k).trim_prefix("skill_cost_")):
 			old_gone = false
 	check(old_gone and not bal.has("skill_A4_route_units") and not bal.has("skill_B3_margin") and not bal.has("skill_C4_permit_discount"), "skills: no old A/B/C/M/F balance keys left")
-	check(int(bal["skill_points_route"]) == 1 and int(bal["skill_points_system"]) == 2 and int(bal["permit_points_2"]) == 2 and int(bal["permit_points_3"]) == 2, "skills: economy retunes applied (route 1, system 2, permits 2/2)")
+	check(int(bal["skill_points_route"]) == 1 and int(bal["skill_points_system"]) == 4 and int(bal["permit_points_2"]) == 2 and int(bal["permit_points_3"]) == 2, "skills: economy retunes applied (route 1, system 4, permits 2/2)")
 	await _free_main(m)
 	await _test_skill_screen()
 	await _test_skill_screen_ui()
@@ -3088,7 +3089,7 @@ func _test_bot_hooks() -> void:
 	check(absf(float(Markets.bot_mods(2, "lux")["growth_mult"]) - 1.21) < 0.0001 and is_equal_approx(float(Markets.bot_mods(2, "mil")["growth_mult"]), 1.0), "bot hooks: growth hits stack, other markets untouched")
 	# tier: -1 lowers effective tier, clamps at 1
 	Markets.reset(bal, 7)
-	var t_late := 40
+	var t_late := 80
 	Markets.hit_bot(1, "mil", "tier", -1)
 	var off := int(Markets.bot_mods(1, "mil")["tier_offset"])
 	check(off == -1 and Bots.tier(bal, 1, t_late, off) == 2 and Bots.tier(bal, 1, 1, off) == 1, "bot hooks: tier hit is -1 and the effective tier stays within 1..4")
@@ -6498,7 +6499,7 @@ func _test_dead_world_mechanics() -> void:
 	# skills
 	var ST = m.SkillTree
 	check(ST.prereqs("MIN_3") == ["MIN_1"] and ST.prereqs("MIN_5") == ["MIN_3"] and ST.prereqs("MIN_1") == FND3, "dead skills: MIN_3 needs MIN_1, MIN_5 needs MIN_3, MIN_1 needs the three Foundations")
-	check(ST.ids_in("min").has("MIN_3") and ST.cost(m.balance, "MIN_3") == 2 and ST.cost(m.balance, "MIN_5") == 3 and ST.cost(m.balance, "MIN_1") == 1, "dead skills: Minerals tree, costs 2, 3, 1 (balance v36)")
+	check(ST.ids_in("min").has("MIN_3") and ST.cost(m.balance, "MIN_3") == 2 and ST.cost(m.balance, "MIN_5") == 2 and ST.cost(m.balance, "MIN_1") == 1, "dead skills: Minerals tree, costs 2, 2, 1 (balance v83)")
 	# gate
 	m.cash = 6000
 	m.ships = 3
@@ -7091,7 +7092,7 @@ func _test_chains() -> void:
 	check(not Chains.win_open("mil", 5), "win gate: closed early without B4")
 	Chains.picks["MIL_B4"] = {"opt": "opt_a", "cycle": 20, "nudge": 0}
 	check(Chains.win_open("mil", 5), "win gate: opens as soon as B4 fired")
-	check(not Chains.win_open("lux", 37) and Chains.win_open("lux", 38), "win gate: cycle 38 opens it for any market")
+	check(not Chains.win_open("lux", 77) and Chains.win_open("lux", 78), "win gate: cycle 78 opens it for any market")
 	# effects: apply and expire
 	Markets.reset(bal, 3)
 	Chains.reset(bal, 3)

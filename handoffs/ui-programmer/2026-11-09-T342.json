@@ -25,5 +25,6 @@
   "open_questions": [
     "Skill-less players see the total drop at the last card (e.g. 6/9 then 7/7) because a skipped skill step is only known when reached. Acceptable?"
   ],
+  "recheck_2026_11_09": "Tree already held the T342 code (9e82807). Re-run after T344: walk test now clicks the real Next on the Storage card; tables unchanged (Storage stays its own counted card: 7/10 off, 6/9 on). 13 known FAILs only, no new.",
   "handoff": "Counter n was already 1,2,3 with slide 1 as one slide; total could grow with skill points, now it only falls. Last card has Finish (tips stay on), others Skip. Full tables in card_counter_table. Tests added, no new failures. Not checked by eye."
 }
