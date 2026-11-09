@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-09 11:40 run: T341
-- Summary: Rewrote TUT_G10_DONE and TUT_G10_DONE_WHY to describe the Star Bazaar as the exchange where the whole sky trades, raised stage by stage on one capital world, with the company at the top of the galaxy once it's finished; build_story ran clean
-- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
-- Approach: built by a worker in worktree ../wt/T341 on branch task/T341, merged by the serial merge queue.
-- Agent prompts: /overnight-worker T341 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T341.log.
-- Worked: rebase, full test suite and fast-forward merge passed.
-- Failed / did not work: nothing.
-- Files and commits: see git log on branch new-features for commits starting with T341.
-- Left to do: nothing for this task.
-
 ## 2026-11-09 12:01 run: T345
 - Summary: Rewrote the last tutorial card (TUT_G10_DONE and its why line) to say plainly that the Star Bazaar is one market hall all worlds trade in, built in stages on a capital world, and that finishing it wins
 - Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
@@ -65,3 +55,13 @@
 - Failed / did not work: worker did not report done: blocked T347 | task T347 does not exist in this worktree's schedule (`python3 tools/task.py T347` returns "not found", and neither schedule.json nor git history mentions it), so there is nothing to build.
 - Files and commits: see git log on branch new-features for commits starting with T347.
 - Left to do: owner or a new run: see blocked_log in schedule.json.
+
+## 2026-11-09 12:51 run: T348
+- Summary: Gig rail button now shows a star_warm dot badge while a gig is open (updated via gigs.changed and _refresh) and uses a new crate icon (art/icons/icon_gig_64.svg, outside touches); headless test added, screenshot at logs/screenshots/T348.png
+- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
+- Approach: built by a worker in worktree ../wt/T348 on branch task/T348, merged by the serial merge queue.
+- Agent prompts: /overnight-worker T348 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T348.log.
+- Worked: rebase, full test suite and fast-forward merge passed.
+- Failed / did not work: nothing.
+- Files and commits: see git log on branch new-features for commits starting with T348.
+- Left to do: nothing for this task.

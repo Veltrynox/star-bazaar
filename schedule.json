@@ -3829,7 +3829,7 @@
       "title": "Gig board button: notification badge while a gig is open, and a new icon",
       "owner_agent": "ui-programmer",
       "depends_on": [],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 40,
       "window": "Owner request 2026-11-09: 'when there is a gig, we need to see the notification badge on the gig icon. Also change the gig icon.'",
       "brief": "Two parts, both on the gig board rail button (gig_button in game/main.gd, built with _rail_button('planet', 'GIG_BOARD_TITLE', ...) ~line 3563; gig data and open-gig state in game/gigs.gd; the T339 tip trigger 'gig_open' already knows when a gig is open). (1) Badge: while at least one gig is open (offered and not yet taken or finished: use the same definition as the gig_open tip and the gig board list, do not invent a new one) the button shows a small notification badge in its corner, the same look as any other rail or top-bar badge already in the UI (search game/*.gd for dot, pip, badge or count markers on buttons, e.g. the skills button point marker, and reuse that helper and its colour tokens; if none exists, make one small round badge in a Ui colour token, top-right of the 44x44 button, mouse_filter ignore). It shows the number of open gigs if the existing pattern shows counts, else a plain dot. It hides when no gig is open and updates as gigs appear, are taken, finish or expire (hook the place that refreshes the rail, ~line 3592 _refresh, or the gig signals, whichever is cheaper; no per-frame cost). Opening the board does not hide the badge while gigs are still open. (2) Icon: replace the 'planet' icon token the gig button uses, which does not say gig, with a new simple icon that reads as a job or delivery (for example a crate or parcel with an arrow, or a contract sheet), drawn in the same style, size and colour as the other rail icons: look at how Ui.icon(token) loads icons (game/ui.gd and its icon source: atlas, svg or drawn code) and add the new token the same way, without changing other icons or any generated atlas file by hand (if icons come from a generator tool, change the tool or its input and rerun it). Tooltip, shortcut J and visibility rules stay. Add a headless test in tools/tests/run_tests.gd that the badge is visible with an open gig and hidden without one. Done when built: per CLAUDE.md a ui task takes one screenshot with sh tools/screenshot.sh --out logs/screenshots/T348.png, look at it, fix only objective breakage (blank, clipped, overlapping) and record the path in the handoff; no QA, bots or sim. Run sh tools/tests/run.sh once at the end with STAR_TEST_SCRATCH=/Volumes/Work/t348_home set; report only new failures. Never prefix Godot commands with HOME= or cd. gdd.md synced at commit by the main session. Handoff handoffs/ui-programmer/<date>-T348.json.",
@@ -3839,7 +3839,8 @@
         "game/ui.gd",
         "tools/tests/run_tests.gd"
       ],
-      "priority": 1
+      "priority": 1,
+      "note": "Done by orchestrator: Gig rail button now shows a star_warm dot badge while a gig is open (updated via gigs.changed and _refresh) and uses a new crate icon (art/icons/icon_gig_64.svg, outside touches); headless test added, screenshot at logs/screenshots/T348.png"
     }
   ],
   "done_task_ids": [
