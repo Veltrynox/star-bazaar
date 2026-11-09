@@ -3682,7 +3682,7 @@
       "title": "Gigs: map markers never sit on an established lane or on a planet, except a dead planet",
       "owner_agent": "gameplay-programmer",
       "depends_on": [],
-      "status": "queued",
+      "status": "blocked",
       "turn_cap": 40,
       "window": "Owner request 2026-11-09: 'gigs should never appear on the established route or a planet's position, unless it's a dead planet'.",
       "brief": "Read game/gigs.gd (spawn: _gen signal around line 247 puts a point marker at main.flight.ship_position() + a random direction * gig_marker_dist; post_salvage for pods a raid dropped; post_rush with planet targets; target kinds 'point' and 'planet'), game/raids.gd, game/map.gd and game/route_line.gd (how established lanes are drawn: quadratic Bezier arcs between planets, route lists), data/balance.json gig_* keys, data/gigs.json, the design notes gdd.md (Gigs paragraphs). The rule: a gig marker placed in open space (kind 'point', i.e. signals, and salvage pods) must never be placed on top of an established route (lane) or on a planet's position (any living planet, plus stations/clusters if they have a map position), so the ring never hides a lane or a world and clicking never competes with them. A dead planet is the exception: a marker may sit at a dead planet (raid nests drop pods there; and a gig that targets a dead world as a planet target is fine). Rush gigs that target a planet by index are unaffected (the world is the target). Build: (1) a pure helper (for example Gigs.clear_of_map(pos, planets, lanes, min_planet_dist, min_lane_dist)) that tells whether a candidate point is at least min distance from every living planet and from every established lane curve (sample each lane's Bezier into segments in the plane x/z, same maths the lane drawing uses), with the dead-planet exception; two balance keys gig_min_planet_dist and gig_min_lane_dist (placeholders, in world units, sized so a marker ring does not touch a lane or planet); (2) signal spawn: try the seeded candidate directions, then a few more seeded rings of distance, take the first clear point; if none is clear in N tries, do not post a signal this cycle (the draw stays seeded and stable for a saved game: same seed + cycle gives the same result); (3) salvage pods: nudge the drop point off the lane and planet just enough to satisfy the rule unless the drop is at a dead planet; the pods keep a record of the lane they came from; (4) existing open offers in saves are left alone (no migration). Tests in tools/tests/ (the gig tests): the helper on hand-made planets and lanes; a signal never lands within the min distances over many seeds and cycles in a run with routes; a dead planet position is allowed; the same seed and cycle gives the same marker. Done when built: no QA, bots or sim, no screenshots. Run sh tools/tests/run.sh once at the end with STAR_TEST_SCRATCH=/Volumes/Work/t340_home set; 13 tests already fail on a clean tree (workshop, goods, availability, cells), report only new failures. Never prefix Godot commands with HOME= or cd. gdd.md synced at commit by the main session. Handoff handoffs/gameplay-programmer/<date>-T340.json.",
@@ -3693,7 +3693,9 @@
         "data/balance.json",
         "tools/tests/*"
       ],
-      "priority": 2
+      "priority": 2,
+      "note": "Blocked by orchestrator: fast-forward merge refused",
+      "blocked_log": "/Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T340-merge.log"
     },
     {
       "task_id": "T341",
