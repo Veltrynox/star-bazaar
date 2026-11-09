@@ -3938,6 +3938,23 @@
         "tools/tests/run_tests.gd"
       ],
       "priority": 1
+    },
+    {
+      "task_id": "T354",
+      "title": "Bug: small ships fly sideways, the nose must point along the movement",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 40,
+      "window": "Owner request 2026-11-09: 'small ships fly sideways, they need to point the nose in a direction of the movement'.",
+      "brief": "The small ships on the map (the traffic layer: game/traffic/traffic_layer.gd, traffic_meshes.gd, traffic_ship.gdshader, traffic_motion.gdshaderinc, frontier_beats.gd; also check the route and lane ships drawn in game/map.gd and the Flagship's ShipMotion.forward(yaw) path, in case they share the cause) move along their path but are drawn turned sideways: the nose does not point along the direction of travel. Find the cause by reading the code and, if needed, a scratch headless script in the scratchpad dir that evaluates the motion math (position at t and t+dt, forward axis from the mesh, resulting heading): candidates are a mismatch between the mesh forward axis (traffic_meshes.gd says forward is -Z, one ship length along -Z, nose vertex first) and the tangent the motion shader or the instance basis uses, a 90 degree offset in the yaw or basis build (~traffic_layer.gd line 238 and 340), the wrong sign for the orbit direction (set_orbit_group dir parameter, reversed orbits fly tail first), a lane loop whose return leg is not flipped, or a model-based ship mesh whose own forward axis differs from -Z. Fix so that, for every kind of small ship (orbit groups, ambient lanes between planets in both directions, frontier beats, route ships, convoys), the nose points along the current direction of movement, including on curved paths and at the loop turnaround, with no snapping or popping at path ends beyond what exists today. Fix the cause, not each case with a special offset, unless one mesh really has a different forward axis (then fix that mesh's own basis or import rotation in one place). Keep the shader instance data layout and performance as they are: instance buffers are rewritten only when dirty, nothing new per frame. Do not change speeds, counts, colours or balance. Add a headless test in tools/tests/run_tests.gd that samples a few ships of an orbit group and a two-way lane at two nearby times and asserts the forward axis of the ship matches the movement direction within a small angle (use the math the shader uses, ported to GDScript or the same helper). Done when built: per CLAUDE.md a fx or galaxy task takes one screenshot with sh tools/screenshot.sh --out logs/screenshots/T354.png; look at it, fix only objective breakage, and record the path (a still frame cannot prove direction, so say what the test proves instead); no QA, bots or sim. Run sh tools/tests/run.sh once at the end with STAR_TEST_SCRATCH=/Volumes/Work/t354_home set; report only new failures against the known 13. Never prefix Godot commands with HOME= or cd. Do not commit. gdd.md is synced by the main session. Handoff handoffs/gameplay-programmer/<date>-T354.json with the root cause.",
+      "size": "M",
+      "touches": [
+        "game/traffic/*",
+        "game/map.gd",
+        "tools/tests/run_tests.gd"
+      ],
+      "priority": 1
     }
   ],
   "done_task_ids": [
