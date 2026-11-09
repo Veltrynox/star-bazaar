@@ -1039,14 +1039,14 @@
         "T180",
         "T181"
       ],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 40,
       "window": "Owner request 2026-11-05 (later). Not started: main session sets it running.",
       "brief": "Run the bots (qa/bots) over 6 seeds and the CEO and ship combos: check the game can still be won, discovery and posts do not soft-lock (no open planet reachable), pause stops the ship, flights to every target type work, saves round-trip mid-flight, no dominant strategy (fast-expand versus stay home). Report in qa/reports/2026-11-05-ship-flight.md and handoff handoffs/qa-analyst/2026-11-05-T182.json. Do not fix code.",
       "touches": [
         "**"
       ],
-      "needs_owner": "hold (empire growth v2): QA run: owner only, by hand, per the QA gate."
+      "note": "Run by the owner 2026-11-08 (commit 01a78b1), partial coverage: 480 bot runs and 6 flight probes, 0 crashes, no soft-lock, pause/saves/flights pass. Win and pacing not judgeable (Bazaar win detection stub, T281). Report qa/reports/2026-11-05-ship-flight.md."
     },
     {
       "task_id": "T183",
@@ -1353,7 +1353,7 @@
       "depends_on": [
         "T207"
       ],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 40,
       "window": "Owner request 2026-11-05. Needs the owner to approve the proposal first.",
       "brief": "Build the skills from the T207 proposal after the owner approves it: new effect types in game/skills.gd, nodes in data/skills.json, numbers in data/balance.json as the proposal says (placeholders), skill names and descriptions through story/skills.md and story/ru/skills.json (no hidden goods named), python3 tools/build_story.py, update gdd-skills.md. Handoff handoffs/gameplay-programmer/2026-11-05-<id>.json.",
@@ -1368,7 +1368,7 @@
         "gdd-skills.md",
         "game/main.gd"
       ],
-      "needs_owner": "hold (empire growth v2): Skill effects are being swapped off share and rivals first (P1 and P3 skill tasks); then re-check what T207 still adds."
+      "note": "Built 2026-11-08 by gameplay-programmer, uncommitted. 6 new effect types (FND_DOCKS upgrade_cost_pct, MIL_8 ship_price_pct, MIL_13 cooldown_cut, MIN_9 recipe_input_cut, MIN_13 null_core_trip_pct, LUX_13 bundle_bonus_pct), placeholder numbers in balance.json. Dropped or merged against the 2026-11-05 proposal: FND_LEDGER readout, FND_RIVAL_WATCH (now Market Watch), MIN_8, MIN_10, BIO_12 rule; they keep reworded stand-in effects. English only. run.sh: 13 FAIL, same 13 on a clean tree per agent. Owner open: keep the 4 stand-ins? build a dead-world ore-loss mechanic for MIN_10? Handoff handoffs/gameplay-programmer/2026-11-08-T208.json."
     },
     {
       "task_id": "T209",
@@ -3259,6 +3259,494 @@
       ],
       "priority": 2,
       "note": "Done by orchestrator: 12-step guided tutorial with the new Needs and Grow steps, v3 save mapping, and a one-time tip system (31 tips on a queued tip card, saved, silenced by Skip)"
+    },
+    {
+      "task_id": "T317",
+      "title": "Ships menu: hero ship card with a 3D preview, select the Pathfinder ship without clicking in the viewport",
+      "owner_agent": "ui-programmer",
+      "depends_on": [],
+      "status": "done",
+      "turn_cap": 40,
+      "window": "Owner request 2026-11-08.",
+      "brief": "Goal: the player can select the hero ship (the Pathfinder flight ship, today selected only by clicking it in the viewport, map.select_ship / map.ship_selected in game/map.gd) from the right-side Ships menu. Read: game/ship_panel.gd (Ships menu, right side under the notification board), game/ship_preview.gd (3D turntable preview of a ship GLB, reuse it), game/map.gd (select_ship, ship_selected, PathfinderView.active), game/pathfinder_view.gd, game/main.gd (Esc deselect, panel wiring), game/availability.gd. Build: (1) a hero ship card at the top of the Ships menu showing the chosen ship model in a small 3D preview (reuse ship_preview.gd, no new renderer), its name, and its state (idle, flying, building); it is drawn only when a hero ship exists (discovery on and a flight ship active), through Availability, otherwise not drawn at all. (2) Clicking the card selects the ship exactly like a viewport click (calls map.select_ship(true)); clicking it again or Esc deselects. The card shows the selected state and follows the viewport selection both ways (click in the viewport lights the card, deselect clears it). (3) After selecting, a left click in the viewport sends the ship as today; the card click must not leak to the map and must not close other panels. (4) The preview must stay cheap: one SubViewport, paused while the card is hidden. Done when built: no QA, bots or sim. Add a unit test in tools/tests/ that the card is absent without a hero ship, present with one, and that a card click and a viewport select give the same ship_selected state. Quick look: one screenshot (sh tools/screenshot.sh --out logs/screenshots/T317.png) with the Ships menu visible, fix only objective breakage, record the path in the handoff. Text through story/*.md ids (English only), then python3 tools/build_story.py. gdd.md synced at commit by the main session. Handoff handoffs/ui-programmer/<date>-T317.json.",
+      "size": "M",
+      "touches": [
+        "game/ship_panel.gd",
+        "game/ship_preview.gd",
+        "game/map.gd",
+        "game/main.gd",
+        "story/*.md",
+        "tools/tests/*"
+      ],
+      "priority": 2,
+      "note": "Built 2026-11-08, uncommitted: hero ship card with 3D preview at the top of the Ships menu, click selects like a viewport click, synced both ways, hidden via Availability.hero_ship. Not seen in a window except the idle card. Handoff handoffs/ui-programmer/2026-11-08-T317.json."
+    },
+    {
+      "task_id": "T318",
+      "title": "Traffic ships: darker hulls and more shape variety (boxes, rectangles)",
+      "owner_agent": "fx-programmer",
+      "depends_on": [],
+      "status": "done",
+      "turn_cap": 40,
+      "window": "Owner request 2026-11-08.",
+      "brief": "Goal: the small traffic ships (the many small 3D ships on lanes and in orbit, game/traffic/) look darker and are less uniform: add more hull shapes, such as squares, rectangles, boxy freighters and flat slabs, next to the current ones. Read: game/traffic/traffic_meshes.gd (hull kinds; T310 made ONE flat triangle mesh for all kinds so draw calls stay at 8; shapes can be varied by a per-instance shape value in the shader/vertex data, or by a few extra meshes in the same MultiMesh-per-group budget; pick the way that adds the fewest draw calls and say what you chose), game/traffic/traffic_layer.gd, game/traffic/traffic_ship.gdshader, game/traffic/traffic_motion.gdshaderinc, the traffic_* keys in data/balance.json. Build: (1) darken the hull colour and its lit/emissive part so the ships sit back from the planets and the Pathfinder; keep cargo tint and state colours readable, and keep the engine streak as it is unless it clashes. The darkness amount is one named balance key (placeholder). (2) Add at least 4 new box-like hull kinds (square, long rectangle, wide slab, stacked box) in traffic_meshes.gd as low-poly meshes, with a spread of sizes; each ship picks its kind from its instance id or a hash, so it is stable per ship and nothing is chosen per frame. Heading follows the model convention in game/ship_motion.gd (forward = (-sin yaw, -cos yaw)); long shapes must point along the flight direction. (3) No new per-ship nodes, no per-frame CPU work, draw calls at most a few more than today and justified in the handoff; instance buffers are still rewritten only on set or clear. Not in scope: the Pathfinder, rival ships (game/rival_ships.gd), lane dots in route_line.gd. Done when built: no QA, bots or sim. Add a small unit test in tools/tests/ that every hull kind has valid mesh data and the kind index from a hash stays in range. Quick look: one screenshot (sh tools/screenshot.sh --out logs/screenshots/T318.png) with lane traffic visible, fix only objective breakage, record the path in the handoff. gdd.md is synced at commit by the main session. Handoff handoffs/fx-programmer/<date>-T318.json.",
+      "size": "M",
+      "touches": [
+        "game/traffic/*",
+        "data/balance.json",
+        "tools/tests/*"
+      ],
+      "priority": 3,
+      "note": "Built 2026-11-08, uncommitted: traffic hulls darker (traffic_hull_dark 0.45, placeholder) and 5 hull kinds (triangle, square, long rectangle, wide slab, stacked box) in the same draw-call budget. Look not checked (screenshot too far to see). Handoff handoffs/fx-programmer/2026-11-08-T318.json."
+    },
+    {
+      "task_id": "T319",
+      "title": "Tutorial text: make step 1 obvious and add a step that points at the Ships menu",
+      "owner_agent": "story-designer",
+      "depends_on": [],
+      "status": "done",
+      "turn_cap": 40,
+      "window": "Owner request 2026-11-08. Text half; T320 is the code half.",
+      "brief": "Owner report 2026-11-08: the first tutorial step is not obvious, the player does not know what it asks them to do; the tutorial also does not show the new Ships menu on the right (hero ship card, T317). Goal: rewrite the opening of the guided tutorial so a new player knows what to do at once. Read: story/screens.md (TUT_G1_SELECT and TUT_G1_SELECT_WHY and the following TUT_G* steps), game/main.gd (TUT_GUIDE, how step 1 is shown and what completes it), game/ship_panel.gd (the Ships menu with the hero ship card, LBL_HERO_*), story/voice.md. Check first what a fresh run shows at step 1: planets can still be unknown or hidden at the start (discovery), so 'Click Voltara, the ringed planet' may name something the player cannot see or find. Write: (1) a clearer step 1 line and why-line that say exactly what to click and where it is, in plain words, without naming a hidden good or an unseen planet; (2) a new step text (id TUT_G1B_SHIPS or similar) that points at the Ships menu on the right and the Pathfinder card: click the card to select the ship, then click a world to send it; one short action line plus a why-line. Decide where in the step order it sits, and give the final order and ids to T320 in the handoff. Texts in story/*.md only, then python3 tools/build_story.py; English only (no Russian). Voice per story/voice.md. Done when written: no QA. Handoff handoffs/story-designer/<date>-T319.json with the step ids in order.",
+      "size": "S",
+      "touches": [
+        "story/screens.md"
+      ],
+      "priority": 2,
+      "note": "Done 2026-11-08, uncommitted: step 1 text names the home world, new TUT_G1B_SHIPS step text, TUT_G0_FLY rewritten. Handoff handoffs/story-designer/2026-11-08-T319.json."
+    },
+    {
+      "task_id": "T320",
+      "title": "Tutorial code: show the Ships menu step and fix the first step target",
+      "owner_agent": "ui-programmer",
+      "depends_on": [
+        "T319"
+      ],
+      "status": "done",
+      "turn_cap": 40,
+      "window": "Owner request 2026-11-08. Code half of T319.",
+      "brief": "Owner report 2026-11-08: the first tutorial step is not obvious, the player does not know what it asks them to do; the tutorial also does not show the new Ships menu on the right (hero ship card, T317). Goal: the tutorial points at the right place in step 1 and has a step for the Ships menu. Read: the T319 handoff (final step ids and order), game/main.gd (TUT_GUIDE, TUT_VER, TUT_OLD_MAP, tut_step, the tutorial card, arrow and highlight, _tut_show, save and load of tut_step), game/ship_panel.gd (hero ship card), game/map.gd (select_ship, ship_selected), game/availability.gd. Build: (1) step 1: find out why it is not obvious in a fresh run (the card text, what is highlighted, whether the named planet is visible or discovered) and give it a highlight and arrow on the thing to click; if the target planet is not clickable at the start, point at one that is. (2) a new Ships step from T319: highlight and arrow at the hero ship card in the right-side Ships menu, done when the ship is selected (map.ship_selected) or the player sends it; the step is skipped when no hero ship exists (Availability.hero_ship). (3) Bump TUT_VER and extend TUT_OLD_MAP so old saves land on the matching step and finished tutorials stay finished; Skip tutorial still ends everything. (4) Unit tests in tools/tests/: new ids exist in story_text.json, old-save mapping, the Ships step is skipped without a hero ship. Done when built: no QA, bots or sim. Quick look: one screenshot (sh tools/screenshot.sh --out logs/screenshots/T320.png) with the step 1 card visible and one with the Ships step if reachable, fix only objective breakage, record paths in the handoff. gdd.md synced at commit by the main session. Handoff handoffs/ui-programmer/<date>-T320.json.",
+      "size": "M",
+      "touches": [
+        "game/main.gd",
+        "game/ship_panel.gd",
+        "tools/tests/*"
+      ],
+      "priority": 2,
+      "note": "Built 2026-11-08, uncommitted: Ships step at index 1 (13 steps), indexes shifted, TUT_VER 4, step skipped under discovery flight card or without a hero ship, step 1 highlight on the hero card. Not seen on screen. Handoff handoffs/ui-programmer/2026-11-08-T320.json."
+    },
+    {
+      "task_id": "T321",
+      "title": "Tutorial text: say what the flight step really asks, and a Skip tutorial button label for the main menu",
+      "owner_agent": "story-designer",
+      "depends_on": [],
+      "status": "done",
+      "turn_cap": 40,
+      "window": "Owner request 2026-11-08. Text half; T322 is the code half.",
+      "brief": "Owner report 2026-11-08 on the tutorial after T319/T320. Goal: (1) The discovery flight card TUT_G0_FLY says 'Click the Pathfinder card on the right, then a dim world.' The owner says 'dim world' is not what is required. Read game/main.gd (_tut_g0_id, TUT_G0_FLY / TUT_G0_BUILD / TUT_G0_WAIT, what finishes step 0: the Pathfinder must reach a nearby unexplored world and build a post there), game/map.gd and game/pathfinder_view.gd (how the player sends the ship: select it, then click a target), and story/screens.md. Rewrite TUT_G0_FLY, TUT_G0_BUILD and TUT_G0_WAIT and their WHY lines so each says exactly the action the player must take at that moment, in order (select the ship, send it to a nearby unexplored world, build the post, wait for it), and so it says the ship on the map and the card in the Ships menu are the same ship. Name no hidden good and no unseen planet; no 'dim world' wording. Also check TUT_G1B_SHIPS (and its WHY) for the same one-ship idea and adjust only if needed. (2) Add text ids for a Skip tutorial button on the main menu and its states (for example BTN_SKIP_TUTORIAL, plus an 'on' label such as 'Tutorial: skipped' and a short tooltip or hint that says new games start with the tutorial already done). Put them in the menu section of story/*.md where MENU_* ids live, and give the final ids to T322 in the handoff. English only (no Russian). Texts in story/*.md only, then python3 tools/build_story.py. Done when written: no QA. Handoff handoffs/story-designer/<date>-T321.json with every id and its final text.",
+      "size": "S",
+      "touches": [
+        "story/screens.md"
+      ],
+      "priority": 2,
+      "note": "Done 2026-11-08, uncommitted: TUT_G0_FLY/BUILD/WAIT say the real action, new BTN_SKIP_TUTORIAL_ON and MENU_HINT_SKIP_TUTORIAL ids. Handoff handoffs/story-designer/2026-11-08-T321.json."
+    },
+    {
+      "task_id": "T322",
+      "title": "Tutorial code: highlight the 3D ship together with its card, and a Skip tutorial button on the main menu",
+      "owner_agent": "ui-programmer",
+      "depends_on": [
+        "T321"
+      ],
+      "status": "done",
+      "turn_cap": 40,
+      "window": "Owner request 2026-11-08. Code half of T321.",
+      "brief": "Owner report 2026-11-08 on the tutorial after T319/T320. Goal: (1) While a tutorial step points at the Pathfinder (TUT_G0_FLY, and TUT_G1B_SHIPS when shown), highlight the ship in the 3D viewport as well as the card in the Ships menu, so the player sees the card and the ship are one thing: a pulsing ring or halo around the 3D ship that matches the card outline colour and pulse, and a thin line or animated link from the card to the ship (or the other way round) while the step is active. The link follows the ship as it moves and as the camera moves; it is drawn only while a tutorial step asks for it, never after Skip tutorial, never over a popup or event window, and costs no per-frame allocation. Read: game/main.gd (_tut_highlight_key, tut_lock_target, the tutorial outline and arrow, TUT_TARGET), game/ship_panel.gd (hero_card), game/map.gd (flight ship node, select_ship, ship_selected, camera projection helpers), game/pathfinder_view.gd, game/ship_trail.gd. Keep it a UI overlay or a cheap ring mesh: no new shader unless needed. (2) Add a Skip tutorial button to the main menu (game/main_menu.gd, next to New game / Continue / Settings, ButtonGhost variation). Pressing it saves a setting (same place and style as the Voice on/off setting in Settings) so every new run starts with the tutorial finished (tut_step = TUT_GUIDE.size(), no tips card nagging, same state as pressing Skip tutorial on the card); the button shows its on/off state with the T321 labels and pressing again turns the tutorial back on. Continue on an existing save is unaffected. Use the T321 ids, no new wording. (3) Unit tests in tools/tests/: the setting round-trips, a new run with it on starts with the tutorial done, with it off starts at step 0, existing saves keep their tut_step. Done when built: no QA, bots or sim. Quick look: one screenshot of the main menu (sh tools/screenshot.sh --out logs/screenshots/T322-menu.png) and, if the flight step can be reached, one of the ship highlight (T322-ship.png); fix only objective breakage, record paths in the handoff. gdd.md synced at commit by the main session. Handoff handoffs/ui-programmer/<date>-T322.json.",
+      "size": "M",
+      "touches": [
+        "game/main.gd",
+        "game/main_menu.gd",
+        "game/map.gd",
+        "game/ship_panel.gd",
+        "tools/tests/*"
+      ],
+      "priority": 2,
+      "owner_note": "Reopened 2026-11-08 by the owner: remove the UI line from the card to the 3D ship. Instead the ship pulses 3 times with a very faint thin circle that grows and fades, when the ship card in the Ships menu is first selected. Earlier build (ring + link + menu Skip tutorial toggle) stays except the link and the continuous ring. Also (2026-11-08): when the ship card is selected, move the camera so the player can see the ring and the ship: smoothly pan (keep the zoom unless the ship would still be hidden) so the ship ends in the free map area, not under the right-side Ships menu or other panels; no jump, a short ease, skipped if the ship is already comfortably in view, and the pulse starts once the camera has arrived. Use the existing camera helpers in game/map.gd.",
+      "note": "Built 2026-11-08, uncommitted: faint thin pulse ring (3 pulses, once per run) on the 3D Pathfinder when its card is first selected, persisted Skip tutorial toggle on the main menu, new runs under discovery start zoomed in on the ship (NEW_RUN_ZOOM_MULT 2.0 placeholder). The camera-move code was written and then removed on the owner's decision. Not seen by the agent in a window. Handoff handoffs/ui-programmer/2026-11-08-T322.json."
+    },
+    {
+      "task_id": "T323",
+      "title": "Tutorial: the planet ring shows from the start; fix its timing and replace it with the ship pulse as a reusable asset",
+      "owner_agent": "ui-programmer",
+      "depends_on": [
+        "T322"
+      ],
+      "status": "done",
+      "turn_cap": 40,
+      "window": "Owner request 2026-11-08. Builds on the T322 pulse.",
+      "brief": "Owner report: the planet has a UI ring from the beginning of the game, which contradicts the tutorial timing (the ring points at a planet before the tutorial step that asks for it, and at the same time the ship card is meant to be the first thing). Goal: (1) Find every planet ring that shows at the start: the tutorial highlight on a planet (tut_hl with the 'planet' key, _tut_picking and tut_highlight_key in game/main.gd), and any ring or marker drawn on the planet in game/map.gd or game/galaxy_view.gd for the tutorial. Make it appear only while the tutorial step that asks for a planet click is the active step (TUT_G1_SELECT, and the planet picks of later steps), never before, never after the step is done, never after Skip tutorial or the main-menu skip setting; under discovery the first step is the ship (TUT_G0_FLY), so no planet ring then. (2) Replace the planet ring look with the pulse made in T322 (very faint, thin circle that grows and fades, repeated; for the planet use a repeat or slow loop while the step is active, not just 3 times, and stop at once when the step is done). (3) Make that pulse a reusable asset: one script and one scene (for example game/fx/pulse_ring.gd and pulse_ring.tscn), parameters as exported vars: pulses (0 = loop), seconds per pulse, radius start and end, line width, alpha, colour, follow callable or target node/screen position; plays, stops and frees without leaks; instanced from a scene so any UI or world spot can use it. T322's ship pulse is moved onto this asset (same look and behaviour), the planet ring uses a second instance. Do not duplicate the tween code. No per-frame allocation. (4) Read: game/main.gd (tut_hl, _tut_picking, tut_highlight_key, ship_pulse_on_select, ship_ring), game/map.gd (planet screen position helpers, ship_screen_pos), game/galaxy_view.gd, the T322 handoff. Unit tests in tools/tests/: no planet ring at game start, ring only on the planet-click step, stops when the step ends, the asset plays N pulses then frees, loop mode stops on stop(). Done when built: no QA, bots or sim. Quick look: one screenshot at a fresh start (sh tools/screenshot.sh --out logs/screenshots/T323.png) showing no planet ring before its step; fix only objective breakage and record the path in the handoff. English only, no new story text unless a missing id appears. gdd.md synced at commit by the main session. Handoff handoffs/ui-programmer/<date>-T323.json.",
+      "size": "M",
+      "touches": [
+        "game/main.gd",
+        "game/map.gd",
+        "game/galaxy_view.gd",
+        "game/fx/*",
+        "tools/tests/*"
+      ],
+      "priority": 2,
+      "note": "Built 2026-11-08, uncommitted: planet ring no longer shows at the start (it was the map.set_hint halo on the mission planet), the planet ring shows only on tutorial steps that ask for a planet click, both rings are PulseRing instances (game/fx/pulse_ring.gd and .tscn). Not seen at the real tutorial moments. Handoff handoffs/ui-programmer/2026-11-08-T323.json."
+    },
+    {
+      "task_id": "T324",
+      "title": "Move the Skip tutorial option from the main menu to the new company screen",
+      "owner_agent": "ui-programmer",
+      "depends_on": [],
+      "status": "done",
+      "turn_cap": 40,
+      "window": "Owner request 2026-11-08. Changes T322.",
+      "brief": "Owner: the Skip tutorial button belongs on the screen that opens after the player clicks New game (the new company screen, game/company_setup.gd, where Start is), not on the main menu. Read: game/main_menu.gd (skip_button, _mark_skip, the T322 code), game/company_setup.gd and company_setup.tscn, game/save_game.gd (skip_tutorial, set_skip_tutorial, settings.cfg [game] skip_tutorial), game/main.gd (the new-run branch that reads SaveGame.skip_tutorial, around line 421). Build: (1) remove the Skip tutorial button from the main menu (and its tooltip and refresh code). (2) add the same on/off toggle to the new company screen, as a ghost-style button or check next to Start (not between the CEO choice and the name field in a way that crowds them), using the same ids BTN_SKIP_TUTORIAL (off), BTN_SKIP_TUTORIAL_ON (on) and MENU_HINT_SKIP_TUTORIAL; it keeps its state in the same saved setting so the choice is remembered, and Start begins the run with the tutorial done when it is on (same behaviour as today: tut_step = guide size, tips off, galaxy view seen). Continue on an existing save is unaffected. (3) update the T322 tests that touch the main-menu button (menu round-trip, labels and tooltip) so they test the new screen; keep the new-run and existing-save tests. Done when built: no QA, bots or sim. Quick look: one screenshot of the new company screen (sh tools/screenshot.sh --out logs/screenshots/T324.png) if the tool can show it, fix only objective breakage, record the path in the handoff. English only, no new text. gdd.md synced at commit by the main session. Handoff handoffs/ui-programmer/<date>-T324.json.",
+      "size": "S",
+      "touches": [
+        "game/main_menu.gd",
+        "game/company_setup.gd",
+        "game/company_setup.tscn",
+        "game/save_game.gd",
+        "tools/tests/*"
+      ],
+      "priority": 2,
+      "note": "Built 2026-11-08, uncommitted: Skip tutorial toggle moved from the main menu to the new company screen (same ids, same saved setting), tests updated. Handoff handoffs/ui-programmer/2026-11-08-T324.json."
+    },
+    {
+      "task_id": "T325",
+      "title": "Hide the tutorial until Begin is pressed on the welcome screen; remove the welcome screen Skip button",
+      "owner_agent": "ui-programmer",
+      "depends_on": [],
+      "status": "done",
+      "turn_cap": 40,
+      "window": "Owner request 2026-11-08.",
+      "brief": "Owner: (1) the tutorial window is visible while the welcome (preface) screen is still up; it must stay hidden until the player clicks Begin. (2) The Skip button on the welcome screen is useless: remove it. Read: game/main.gd (_build_preface around line 4782, the preface variable, the Begin and Skip buttons SCR_PREFACE_BTN and SCR_PREFACE_SKIP, what Skip does today, _tut_show, tut_card, tut_hl, ship_ring, planet_ring, tutorial tips and the tip card, the places that already check preface != null). Build: (1) while preface != null no tutorial card, no tutorial arrow or outline, no planet or ship pulse ring, no tip card is shown or advanced, and no tutorial step can complete; when the preface is dismissed with Begin the tutorial card appears (and the first step is evaluated) normally. Saved games (Continue) have no preface and are unaffected. (2) remove the Skip button from the preface and whatever it did; Begin is the only way forward, nothing else may depend on the skip path. Remove the now unused text id SCR_PREFACE_SKIP from story/screens.md and run python3 tools/build_story.py (English only; do not touch story/ru). (3) Unit tests in tools/tests/: tutorial card hidden while preface exists, visible after Begin, no preface skip button node. Done when built: no QA, bots or sim. Quick look: one screenshot of the preface (sh tools/screenshot.sh --out logs/screenshots/T325.png) if the tool can show it, fix only objective breakage, record the path in the handoff. gdd.md synced at commit by the main session. Handoff handoffs/ui-programmer/<date>-T325.json.",
+      "size": "S",
+      "touches": [
+        "game/main.gd",
+        "story/screens.md",
+        "tools/tests/*"
+      ],
+      "priority": 2,
+      "note": "Built 2026-11-08, uncommitted: tutorial card, outlines, rings, tips and step completion hidden while the welcome screen is up; welcome Skip button and SCR_PREFACE_SKIP removed (also its orphan line in story/ru/screens.json, needed for the story build). Handoff handoffs/ui-programmer/2026-11-08-T325.json."
+    },
+    {
+      "task_id": "T326",
+      "title": "Story: a funnier label for the welcome screen Begin button",
+      "owner_agent": "story-designer",
+      "depends_on": [],
+      "status": "done",
+      "turn_cap": 40,
+      "window": "Owner request 2026-11-08. The Skip button on the welcome screen is removed in T325.",
+      "brief": "Owner: rephrase the welcome (preface) screen button, today SCR_PREFACE_BTN = 'Begin', to something funny. Read story/voice.md first and keep the game's dry, quiet voice: the joke is deadpan, one short line, not slapstick, no meme speak, nothing that breaks the mood of the preface text above it (a small company in a shared, indifferent sky). Max 24 characters (the id's limit in story/screens.md). Offer the final choice plus two alternates in the handoff, with a line on why each fits the voice. Edit only SCR_PREFACE_BTN in story/screens.md, then python3 tools/build_story.py. Do not touch SCR_PREFACE_SKIP (T325 removes it), no Russian. Done when written: no QA. Handoff handoffs/story-designer/<date>-T326.json.",
+      "size": "S",
+      "touches": [
+        "story/screens.md"
+      ],
+      "priority": 3,
+      "note": "Done 2026-11-08, uncommitted: welcome button SCR_PREFACE_BTN is now 'Sign here, and here' (alternates: 'Sign where marked', 'Count us in'). Handoff handoffs/story-designer/2026-11-08-T326.json."
+    },
+    {
+      "task_id": "T327",
+      "title": "Tutorial: first flight step names one specific planet, and clicking it must progress the tutorial",
+      "owner_agent": "ui-programmer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 40,
+      "window": "Owner request 2026-11-08.",
+      "brief": "Owner report: (1) the first tutorial card under discovery (TUT_G0_FLY, 'Select the Pathfinder, then click a nearby unexplored world.') should ask for ONE specific planet, not 'a nearby world'. (2) When the player clicks that planet nothing happens and the tutorial does not progress. Read: game/main.gd (_tut_g0_id, TUT_G0_FLY / TUT_G0_BUILD / TUT_G0_WAIT, what finishes step 0, tut_planet_ring_target and _tut_ring_planet, the tutorial lock tut_lock_target that mutes clicks, planet_ring), game/map.gd (planet picking, select_ship and ship_selected, how a left click sends the Pathfinder, picking of closed or unknown planets under discovery), game/pathfinder_view.gd, game/pathfinder.gd, game/dest_hint.gd, story/screens.md (TUT_G0_*). Do this: (A) REPRODUCE (2) first with a headless script (discovery on, fresh run, step TUT_G0_FLY, root 1920x1080; start camera is the T322 zoomed start; scratch files in the scratchpad dir, not the repo): select the ship through the card, click the planet through the same path a real click takes, advance frames, and print what happens (does the planet pick fire, is the click swallowed by the tutorial lock NOT_TUT_LOCKED, is an unknown planet unpickable, does the ship start flying, does _tut_g0_id change, does the step advance). Find the real cause with measured values and fix it so that a click on the asked-for planet sends the Pathfinder there and the tutorial moves on (TUT_G0_FLY -> BUILD when it arrives, as today). (B) Choose the specific target in code: the nearest closed planet the Pathfinder can fly to (deterministic, same for a given run); show its pulse ring (the existing planet_ring PulseRing from T323) on it during TUT_G0_FLY, and make the card name it: change TUT_G0_FLY in story/screens.md to use a {planet} placeholder (for example 'Select the Pathfinder, then click {planet}.'), passing the planet's display name; if the planet is still unknown/unnamed on the map (shown as 'Unknown world'), name it the way the map labels it so the player can find it, and do not reveal a hidden good. Only this one text id may be edited (owner allows it for this task); keep it under its character limit, English only, then python3 tools/build_story.py. (C) Tests in tools/tests/: the specific target is chosen deterministically and is a closed planet; clicking it sends the ship and advances the step; the ring is on that planet only during TUT_G0_FLY. Done when built: no QA, bots or sim. No screenshots. Run sh tools/tests/run.sh once at the end with STAR_TEST_SCRATCH=/Volumes/Work/t327_home set; 13 tests already fail on a clean tree (workshop, goods, availability, cells), report only new failures. gdd.md synced at commit by the main session. Handoff handoffs/ui-programmer/<date>-T327.json including the measured cause of (2).",
+      "size": "M",
+      "touches": [
+        "game/main.gd",
+        "game/map.gd",
+        "story/screens.md",
+        "tools/tests/*"
+      ],
+      "priority": 1
+    },
+    {
+      "task_id": "T328",
+      "title": "Tutorial text: right-click Establish trading post card, a Yay card, and a reworded Voltara card",
+      "owner_agent": "story-designer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 40,
+      "window": "Owner request 2026-11-08. Text half; T329 is the code half.",
+      "brief": "Owner decision 2026-11-08 on the first tutorial screens under discovery: card 1 asks for ONE action, 'Right-click {planet} (the specific target, today Ashgate) and choose Establish a trading post'; the ship flies there by itself, so no separate select-the-ship click is needed. When the post stands, a celebration card 'Yay! We established a trading post on {planet}!' with a Next button. Only then the Voltara card, reworded because Voltara already has a post. Read story/screens.md (TUT_G0_FLY, TUT_G0_BUILD, TUT_G0_WAIT and WHY lines, TUT_G1_SELECT and WHY, TUT_G1B_SHIPS), story/voice.md, and game/main.gd (_tut_g0_id and how the cards are filled, {planet} is already filled for TUT_G0_FLY). Write, English only: (1) TUT_G0_FLY: one action line using {planet}, e.g. 'Right-click {planet}, choose Establish a trading post.' (max 60 chars) and a WHY/hint line: the ship flies there by itself and builds it (max 110). (2) TUT_G0_BUILD and TUT_G0_WAIT: keep them accurate for what the player sees after the ship arrives (a post is being built, time must run): shorten or reword only if they now repeat card 1. (3) New ids TUT_G0_DONE (and TUT_G0_DONE_WHY, plus a button label id TUT_G0_DONE_NEXT, 24 chars max, such as 'Next'; reuse an existing Next id if one exists): 'Yay! We established a trading post on {planet}!' with a WHY line saying what a post gives (buy, sell and route there). (4) TUT_G1_SELECT and its WHY: Voltara already has a post, so say what to do with it, e.g. 'Click Voltara, your home world, to start trading.' with the why-line that its panel shows what it sells, buys and what can be traded; no hidden goods named. Give the final ids, limits and texts to T329 in the handoff. Texts in story/*.md only, then python3 tools/build_story.py; if it fails only because story/ru/ has an id the English no longer has, or lacks {planet}, make the smallest fix in that one Russian line and say so; no other Russian work. Voice per story/voice.md. Done when written: no QA. Handoff handoffs/story-designer/<date>-T328.json.",
+      "size": "S",
+      "touches": [
+        "story/screens.md"
+      ],
+      "priority": 1
+    },
+    {
+      "task_id": "T329",
+      "title": "Tutorial code: right-click establish flow for card 1, a Yay card with Next, then the Voltara card",
+      "owner_agent": "ui-programmer",
+      "depends_on": [
+        "T328"
+      ],
+      "status": "queued",
+      "turn_cap": 40,
+      "window": "Owner request 2026-11-08. Code half of T328; builds on T327.",
+      "brief": "Owner decision 2026-11-08 on the first tutorial screens under discovery: card 1 asks for ONE action, 'Right-click {planet} (the specific target, today Ashgate) and choose Establish a trading post'; the ship flies there by itself, so no separate select-the-ship click is needed. When the post stands, a celebration card 'Yay! We established a trading post on {planet}!' with a Next button. Only then the Voltara card, reworded because Voltara already has a post. Read the T328 handoff (final ids), game/main.gd (_tut_g0_id, tut_fly_target, tut_gate and the lock, TUT_GUIDE, TUT_TARGET, _tut_show, tut_card and its Next button, how step 0 ends: built > 1), game/map.gd (right-click menu on a planet, the Establish trading post action and how it sends the Pathfinder; fly_requested, planet_clicked), game/pathfinder_view.gd, T327 handoff (target choice, ring, unpause). Build: (1) Card 1 (TUT_G0_FLY): the lock allows exactly the right-click menu on the target planet and its Establish trading post entry (and keeps the T327 left-click fly order working); other planets stay refused. The pulse ring stays on the target. Accepting the establish order must start the ship (resume the clock as in T327) and the card moves on without needing the ship card to be selected. (2) After the ship arrives and the post stands, show the Yay card (TUT_G0_DONE) naming the target planet, with a Next button; the tutorial waits on that button (game can run behind it, do not pause the game); Next goes on to the Voltara card (TUT_G1_SELECT), which must not appear before the post stands and must not call Voltara a place that needs a post. Keep TUT_G0_BUILD/WAIT states only if they still fit the flow. (3) Old saves: bump TUT_VER and extend TUT_OLD_MAP only if step indexes change; if the Yay card is a sub-state of step 0 like TUT_G0_*, no index change is needed; Skip tutorial still ends everything and finished tutorials stay finished. (4) Tests in tools/tests/, acting through real input events (right-click on the planet, the menu entry, the Next button; root 1920x1080 set before the run), not internals: card 1 text names the target; RMB establish on the target sends the ship and unpauses; another planet is refused; on arrival and post built the Yay card shows with Next; Next leads to the Voltara card; no Yay card without discovery. REPRODUCE first with a scratch headless script (scratchpad dir) and print what happens at each step, as in T327; two earlier fixes failed because they were tested on maths only. Done when built: no QA, bots or sim, no screenshots. Run sh tools/tests/run.sh once at the end with STAR_TEST_SCRATCH=/Volumes/Work/t329_home set; 13 tests already fail on a clean tree (workshop, goods, availability, cells), report only new failures. gdd.md synced at commit by the main session. Handoff handoffs/ui-programmer/<date>-T329.json.",
+      "size": "M",
+      "touches": [
+        "game/main.gd",
+        "game/map.gd",
+        "tools/tests/*"
+      ],
+      "priority": 1
+    },
+    {
+      "task_id": "T330",
+      "title": "Tutorial text: slide 8 (storage) does not say what to do",
+      "owner_agent": "story-designer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 40,
+      "window": "Owner report 2026-11-08: 'tutorial slide 8, not clear what to do'.",
+      "brief": "Slide 8 of 13 is TUT_G7_STORAGE (the card counter is tut_step + 1, game/main.gd). Its text is 'Watch stored/capacity on the resource button.' with the why-line 'Company storage holds your goods on a planet. When it is full, Buy waits.' But the step only completes when the player RIGHT-CLICKS the resource button (tut_flags['storage'], game/main.gd around lines 3992, 4045, 4413 and 4481): the text says 'watch' and names no action. Read story/screens.md (TUT_G7_STORAGE, TUT_G7_STORAGE_WHY and the neighbours TUT_G6_SELL, TUT_G7_NEEDS), story/voice.md, and game/main.gd (what the resource button shows, what the right-click menu offers, which planet and button the highlight points at, line 199 has an older fallback text for the same id) so the new wording matches what really happens. Rewrite TUT_G7_STORAGE and its WHY: one clear action in plain words naming the control and the click (for example the right click on the resource button) and what the player will see, and why it matters, within 60 and 110 characters; no hidden goods named. Also update the fallback string at main.gd line 199 only if it contradicts the new text (text-only edit, no logic). English only, edit story/screens.md then python3 tools/build_story.py. Also scan slides 1 to 13 for any other card whose text names no action or does not match its completion condition and list them in the handoff (do not rewrite them). Done when written: no QA. Handoff handoffs/story-designer/<date>-T330.json.",
+      "size": "S",
+      "touches": [
+        "story/screens.md"
+      ],
+      "priority": 2
+    },
+    {
+      "task_id": "T331",
+      "title": "Tutorial: wrong step number on the card, and a Next button on the Expenses (ins and outs) step",
+      "owner_agent": "ui-programmer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 40,
+      "window": "Owner report 2026-11-08: 'the tutorial number went off, fix it' and 'the one that needs the Next button is the one when we click on the ins and outs panel on top left of the screen'.",
+      "brief": "Two parts. (1) The step counter on the tutorial card ('{n} of {total}', game/main.gd around line 3934, n = tut_step + 1, total = TUT_GUIDE.size() = 13) is wrong in the owner's run: the Expenses step (TUT_G5_UPKEEP, index 5) showed as step 7 where the owner expected 6. Likely causes to MEASURE, not guess: step indexes that are passed over (TUT_G1B_SHIPS is skipped under discovery, steps whose state was already reached are skipped, tut_skipped), sub-states of step 0 (TUT_G0_FLY, BUILD, WAIT, DONE) that count as one step, TUT_G3_PICK as a sub-state of step 3, and the old-save map. Reproduce with a scratch headless script (scratchpad dir; discovery on and off; root 1920x1080 set before the run; real input where possible): walk the tutorial and print the displayed counter text at every card. Then make the counter honest: n is the position among the steps this run will actually show, total is the number of steps this run will show (skipped steps do not count, a sub-state counts as its step, the number never goes backwards or jumps by two). Keep TUT_GUIDE indexes and save mapping as they are; only the displayed numbers change. (2) The Expenses step (TUT_G5_UPKEEP, 'Find Ship upkeep under Expenses', the cash/forecast 'ins and outs' panel at the top left; flag tut_flags['expenses'] set when the forecast is opened): when the player has opened that panel, the card stays on this step and shows a Next button (the existing tut_next / TutNext button and TUT_G0_DONE_NEXT label 'Next', as built for the Yay card in T329); the step advances only when Next is pressed. Before the panel is opened, no Next button (the action is still to open it). Skip tutorial still ends everything; old saves keep working (bump TUT_VER only if indexes change, they should not). Tests in tools/tests/run_tests.gd acting through real clicks: the counter text at each step in both modes never skips or repeats; the Expenses card shows Next only after the panel is open; Next advances to the Sell step; the counter after it is consistent. No text edits (a story-designer may reword later). Done when built: no QA, bots or sim, no screenshots. Run sh tools/tests/run.sh once at the end with STAR_TEST_SCRATCH=/Volumes/Work/t331_home set; 13 tests already fail on a clean tree (workshop, goods, availability, cells), report only new failures. gdd.md synced at commit by the main session. Handoff handoffs/ui-programmer/<date>-T331.json including the measured cause of the wrong number.",
+      "size": "M",
+      "touches": [
+        "game/main.gd",
+        "tools/tests/*"
+      ],
+      "priority": 1
+    },
+    {
+      "task_id": "T332",
+      "title": "Tutorial text: a card after slide 1 that tells the player the game speed can be changed",
+      "owner_agent": "story-designer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 40,
+      "window": "Owner request 2026-11-08. Text half; T333 is the code half.",
+      "brief": "Owner: after slide 1 of the tutorial (under discovery slide 1 covers the flight, the Yay card and the Voltara card; without discovery it is the Voltara card) the player must be told that the speed of the game can be changed. Read story/screens.md (the TUT_G* cards and the top bar speed buttons 1x 2x 6x 12x and the play/pause button, find their ids and labels), story/voice.md, game/main.gd (the top bar speed controls, how the game starts paused after Begin). Write, English only, a new card TUT_G1C_SPEED (max 60 chars) naming the control and the action, for example 'Top right: 2x, 6x and 12x run the game faster.', with a TUT_G1C_SPEED_WHY line (max 110) saying why (time is a cycle clock, trips and posts take cycles, faster waiting) and that Pause stops it; the card is information plus one try-it action, so it also needs the Next label (reuse TUT_G0_DONE_NEXT). Plain words, no hidden goods. Give the final ids and texts to T333 in the handoff. Edit story/screens.md only, then python3 tools/build_story.py; if it fails only because of a story/ru line, make the smallest fix in that one Russian line and say so. Done when written: no QA. Handoff handoffs/story-designer/<date>-T332.json.",
+      "size": "S",
+      "touches": [
+        "story/screens.md"
+      ],
+      "priority": 1
+    },
+    {
+      "task_id": "T333",
+      "title": "Tutorial code: a speed card after slide 1, and the top-left (Expenses) card must progress on click",
+      "owner_agent": "ui-programmer",
+      "depends_on": [
+        "T332"
+      ],
+      "status": "queued",
+      "turn_cap": 40,
+      "window": "Owner request 2026-11-08. Code half of T332; fixes a T331 follow-up.",
+      "brief": "Two parts. (1) Add the speed card (TUT_G1C_SPEED from T332) right after slide 1: it highlights the speed buttons at the top right (outline, arrow, same system as the other cards, no new effect), shows Next (the existing tut_next button), and the step ends on Next or when the player clicks a speed button (whichever comes first); it must not pause the game or block clicking the speed buttons while the tutorial lock mutes other controls (tut_gate / lock target). Pick the safest build: if adding a step to TUT_GUIDE shifts indexes (hard-coded indexes in main.gd, TUT_TARGET, TUT_OLD_MAP, TUT_VER, the T331 counter tut_seen) you must update all of them and old saves must still land on the right step; a sub-state of an existing step (like the TUT_G0_* sub-states) is fine if it works in both modes (with and without discovery: without discovery the card follows the Voltara click; with discovery it follows the Yay Next) and the counter counts it as one card. (2) Owner report: 'slide 4 of the tutorial, when I click the top left window, tutorial doesn't progress.' Under discovery slide 4 is the Expenses card (TUT_G5_UPKEEP: open the cash forecast panel, top left; T331 made it wait for a Next button). MEASURE what happens with a scratch headless script (scratchpad dir; discovery on, 1920x1080 root set before the run, real clicks on the cash box and then on Next, and print the card text, counter, tut_flags, whether TutNext is visible and its global rect versus the forecast panel rect): does the lock refuse the click, does the panel open, does the Next button appear, is the button covered by the forecast panel or off-screen, does clicking Next advance? Also check the card at the other slide-4 candidates in discovery mode (the card that is 4th by the displayed counter) and report which card it is. Fix the real cause so that opening the panel and then Next progresses in both modes, and the Next button is always visible and clickable while the panel is open. Tests in tools/tests/run_tests.gd acting through real clicks and reading the real card text and counter: speed card shows after slide 1 in both modes, highlights the speed buttons, ends on Next and on a speed click, old save mapping if indexes changed; Expenses card progresses after the real panel click and Next in discovery mode. Done when built: no QA, bots or sim, no screenshots. Run sh tools/tests/run.sh once at the end with STAR_TEST_SCRATCH=/Volumes/Work/t333_home set; 13 tests already fail on a clean tree (workshop, goods, availability, cells), report only new failures. Never prefix Godot commands with HOME= or cd. gdd.md synced at commit by the main session. Handoff handoffs/ui-programmer/<date>-T333.json including the measured cause for part 2.",
+      "size": "M",
+      "touches": [
+        "game/main.gd",
+        "tools/tests/*"
+      ],
+      "priority": 1
+    },
+    {
+      "task_id": "T334",
+      "title": "Tutorial: slide 5 (Sell) must point at the Sell button, and the speed card comes right after the establish order",
+      "owner_agent": "ui-programmer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 40,
+      "window": "Owner report 2026-11-08: 'slide 5 points to a wrong line, should point to the sell button' and 'we need to show the game speed slide right after we do what slide 1 asks us to do, rmb -> establish a trading post'.",
+      "brief": "Two parts. (1) Slide 5 under discovery is the Sell card (TUT_G6_SELL, 'Open your route's end world. Turn Sell on for Energy.'); without discovery it is slide 6. Its highlight and arrow point at the wrong line. Today TUT_TARGET maps 'sell' to a control found with _tut_first_named(planet_panel, 'BuyButton_') in game/main.gd (around line 4100, the 'send', 'sell', 'storage' case), i.e. the first resource button of whatever panel is open, not the Sell control. MEASURE first with a scratch headless walk (scratchpad dir; discovery on and off; root 1920x1080 set before the run; real clicks): at the Sell card, which planet panel is open or not, what the outline and arrow rect are, which controls exist for Sell in that panel (a Sell toggle, a right-click menu entry on the resource button, the good the route carries versus the first good in the list) and where each is. Then make the highlight and arrow point at the Sell control for the good the route carries (the Sell button/toggle itself if it is a visible control; if Sell is only an entry in the resource button's right-click menu, point at that resource button AND say so in the handoff), at the route's end world, and handle the card's first half ('Open your route's end world') by pointing at the end world's planet until its panel is open, then at the Sell control. No text edits; if the wording no longer fits what you point at, list the id and your suggestion in the handoff. (2) Move the speed card (TUT_G1C_SPEED, built in T333 as a sub-state of step 0 after the Yay card's Next / after the Voltara click) so that it comes RIGHT AFTER the player does what card 1 asks: with discovery, right after the establish order is accepted from the right-click menu (the ship is on its way, the clock runs), before the arrival cards (TUT_G0_BUILD / TUT_G0_WAIT) and before the Yay card; the card still ends on Next or a speed-button click, does not pause, does not block the speed buttons, and afterwards the flow continues unchanged (build, wait, Yay card with Next, Voltara card). Without discovery nothing changes (speed card after the Voltara click). The step counter still counts it as part of slide 1; old saves must still load (a save made mid-flight must not show the speed card twice or get stuck: use the existing speed_done flag). Tests in tools/tests/run_tests.gd through real clicks and the real card text: the Sell card's highlight rect and arrow target land on the Sell control (or the documented resource button) in both modes; the speed card appears right after the establish order and before the arrival cards; Yay and Voltara cards follow in order; no speed card twice. Done when built: no QA, bots or sim, no screenshots. Run sh tools/tests/run.sh once at the end with STAR_TEST_SCRATCH=/Volumes/Work/t334_home set; 13 tests already fail on a clean tree (workshop, goods, availability, cells), report only new failures. Never prefix Godot commands with HOME= or cd. gdd.md synced at commit by the main session. Handoff handoffs/ui-programmer/<date>-T334.json including the measured cause for part 1.",
+      "size": "M",
+      "touches": [
+        "game/main.gd",
+        "tools/tests/*"
+      ],
+      "priority": 1
+    },
+    {
+      "task_id": "T335",
+      "title": "Tutorial text: slide 6 must tell the player to wait for the cycle to end",
+      "owner_agent": "story-designer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 40,
+      "window": "Owner report 2026-11-09: 'slide 6 of the tutorial should mention we need to wait for the cycle to end'.",
+      "brief": "The card counter now counts the cards this run shows (T331). In discovery mode (the owner's run; slide 5 there is the Sell card) slide 6 is TUT_G7_STORAGE ('Right-click the lit resource button. Read stored/capacity.' with the why-line 'The figure is your Company storage here. The menu has Send to and Sell. When full, Buy waits.'); without discovery slide 6 is the Sell card TUT_G6_SELL instead. Read handoffs/ui-programmer/2026-11-08-T331.json (card order per mode), story/screens.md (TUT_G6_SELL, TUT_G7_STORAGE and WHY lines, TUT_G4_ROUTE_PAY which says 'Press the lit time button, top right, to run the cycle.'), story/voice.md, and game/main.gd (what ends each card: the storage card ends on a right-click of the resource button, it does NOT wait for the cycle). Goal: the owner's slide 6 tells the player that sales, trips and stock changes happen when the cycle ends, so they should let the cycle finish (running time with the lit time button or the speed buttons) before the numbers move. Edit TUT_G7_STORAGE and TUT_G7_STORAGE_WHY (60 and 110 chars) so the card still names the real action (right-click the resource button) and also says to wait for the cycle to end; keep it true to the logic (the step does not wait for the cycle). If TUT_G6_SELL (the without-discovery slide 6) would also benefit from one short cycle-end hint in its WHY line, add it there too within 110 chars. No hidden goods named. English only; story/screens.md only, then python3 tools/build_story.py; if it fails only because of a story/ru line make the smallest fix in that one Russian line and say so. Done when written: no QA. Handoff handoffs/story-designer/<date>-T335.json with final texts and which card is slide 6 in each mode.",
+      "size": "S",
+      "touches": [
+        "story/screens.md"
+      ],
+      "priority": 2
+    },
+    {
+      "task_id": "T336",
+      "title": "Skill screen: Foundations row at the top, the other skills below it",
+      "owner_agent": "ui-programmer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 40,
+      "window": "Owner request 2026-11-09.",
+      "brief": "Owner: the Foundational skills should be at the top of the skill panel and the rest of the skills below them. Today (game/skill_screen.gd, VERTICAL_LAYOUT := true) every branch is a column side by side, with Foundations (fnd, STACKED_BRANCHES, one narrow column, FND_WIDE_CELLS) as one column among them. Read game/skill_screen.gd (layout, _build, _cell_width, tier_rows, depth_rows, node_buttons, detail strip, the links drawn between prerequisites, scroll wrap), game/skill_tree.gd (BRANCHES, visible_branches, ids_in), game/skill_icons.gd, and the earlier handoffs handoffs/ui-programmer/2026-11-03-skills-vertical.json and 2026-11-04-skills-window-rework.json for the design intent. Build: a Foundations block across the full width at the top (its nodes laid out in rows of several cells, in learning order, not one narrow column), then below it the run's market tree (and, for old saves that show every tree, the market columns side by side) in one block. Prerequisite lines still connect nodes correctly across the two blocks, node_buttons[id] still holds every button (the tutorial highlights FND_PERMIT and reads node_buttons), selection, the detail strip with Learn, the Use menu for learned bot skills, keyboard open/close (K, Esc) and the scroll behave as before, and nothing overflows the window at 1920x1080 or a smaller window (the page scrolls vertically only). Keep the look (node size, tints, tags); no new colours. No new text. Tests in tools/tests/: Foundations nodes sit above (smaller y) every market node, every node button exists and is inside the scroll area, and the prerequisite line endpoints sit on the right buttons; keep the existing skill screen tests green. Done when built: no QA, bots or sim. Quick look: one screenshot of the skill screen (sh tools/screenshot.sh --out logs/screenshots/T336.png) if the tool can open it, fix only objective breakage (overlap, clipped text), record the path in the handoff. gdd-skills.md: note the layout in one line only if it describes it. Handoff handoffs/ui-programmer/<date>-T336.json.",
+      "size": "M",
+      "touches": [
+        "game/skill_screen.gd",
+        "tools/tests/*",
+        "gdd-skills.md"
+      ],
+      "priority": 2
+    },
+    {
+      "task_id": "T337",
+      "title": "Tutorial: slide 7 does nothing when the skill panel is opened",
+      "owner_agent": "ui-programmer",
+      "depends_on": [
+        "T336"
+      ],
+      "status": "queued",
+      "turn_cap": 40,
+      "window": "Owner report 2026-11-09: 'slide 7 of the tutorial does nothing when I open the skill panel'.",
+      "brief": "Under discovery the owner's slide 7 is, by the card counter (T331), most likely the Skills card TUT_G8_SKILLS ('Open Skills and learn a Foundation.') or a card just before it (TUT_G7_NEEDS / TUT_G7_GROW if they were not passed over); find out which cards the counter shows as 6, 7 and 8 in discovery mode and report it. MEASURE with a scratch headless walk (scratchpad dir; discovery on; root 1920x1080 set before the run; real clicks; the player has at least one skill point; the skill screen is the new layout from T336 with Foundations on top): at the card, open the Skills screen with the real button and with K; print the card text, whether the card is still visible or hidden under the Skills window (the tutorial card and arrow are raised above it, see the z-order code around main.gd line 395), the highlight rect and the arrow target (should be a learnable Foundation node button in skill_screen.node_buttons, or the Skills button before the panel is open), whether the lock refuses the click, whether learning a Foundation advances the step, and what the step needs exactly (tut_step 10 TUT_G8_SKILLS: learn a skill; TUT_G9_PERMIT: learn Permit Charter). 'Does nothing' may mean: the card does not change when the panel opens, the highlight is not moved to the Foundation node, no Next, or the step needs a learned skill the player cannot afford. Fix the real cause so the card guides the player in the panel: when the Skills screen is open the outline and arrow point at a Foundation skill the player can learn now (the cheapest affordable one), the card says what to do (text exists: do not edit; list suggested wording changes in the handoff), the card and its Next/arrow are never hidden or covered by the Skills window, and learning that skill advances the step. If the player has no skill point at this card, the card must be skipped or explain that points are earned (as T331 treats skill steps) rather than sit there. Tests in tools/tests/run_tests.gd through real clicks and the real card text, outline rect and arrow target, in discovery mode. Done when built: no QA, bots or sim, no screenshots. Run sh tools/tests/run.sh once at the end with STAR_TEST_SCRATCH=/Volumes/Work/t337_home set; 13 tests already fail on a clean tree (workshop, goods, availability, cells), report only new failures. Never prefix Godot commands with HOME= or cd. gdd.md synced at commit by the main session. Handoff handoffs/ui-programmer/<date>-T337.json including the measured cause.",
+      "size": "M",
+      "touches": [
+        "game/main.gd",
+        "game/skill_screen.gd",
+        "tools/tests/*"
+      ],
+      "priority": 1
+    },
+    {
+      "task_id": "T338",
+      "title": "Tutorial text: the final slide explains what the Star Bazaar is",
+      "owner_agent": "story-designer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 40,
+      "window": "Owner request 2026-11-09.",
+      "brief": "Owner: the final slide of the tutorial should explain what the Bazaar is that the player needs to build. Today TUT_G10_DONE is 'Goal: raise the Star Bazaar. Open its panel.' and TUT_G10_DONE_WHY lists the steps (capital tier, found the Bazaar, finish its stages, then fly...) without saying what the Bazaar IS. Read story/screens.md (TUT_G10_DONE, TUT_G10_DONE_WHY, TIP_GOAL, TIP_CAPITAL, TIP_FOUNDED, TIP_OPENING, and the Bazaar panel texts), gdd.md (the Win paragraph: one capital per run, raised in stages, each stage needs a bill of goods in the capital's storage, a quorum of other worlds at a prosperity tier, a world in another system from a set stage; the Opening gig and docking wins), story/voice.md and the preface text SCR_PREFACE. Rewrite TUT_G10_DONE (60 chars) and TUT_G10_DONE_WHY (110 chars) so a new player learns in two short lines what the Star Bazaar is in the fiction and in practice (the great market the company raises in one capital world, stage by stage, from goods and worlds that have grown; finishing it wins the run) and where to start (grow a world to the capital tier). Do not duplicate TIP_GOAL word for word: it fires right after the tutorial; if the two now say the same thing, adjust TIP_GOAL and TIP_GOAL_WHY so the tip adds the next piece of information (where to look: the Bazaar panel) instead of repeating. No hidden goods named; English only; story/screens.md only, then python3 tools/build_story.py; if it fails only because of a story/ru line make the smallest fix in that one Russian line and say so. Done when written: no QA. Handoff handoffs/story-designer/<date>-T338.json with final texts.",
+      "size": "S",
+      "touches": [
+        "story/screens.md"
+      ],
+      "priority": 2
+    },
+    {
+      "task_id": "T339",
+      "title": "Tips after the tutorial pile up: space them out and keep them readable on the right panel",
+      "owner_agent": "ui-programmer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 40,
+      "window": "Owner request 2026-11-09: 'tips after the tutorial pile up, we need to space them up a little, or combine some on the right side of the panel, so a player can read them there'.",
+      "brief": "Read game/main.gd (the one-time tip system from T316: tips_seen, tip_active, tip_left, TIP_SECS, tip_card, _tip_state, _tip_show, _tip_close, _tip_tick, tip_can_show, the queue and trigger table, the TIPS box in the right-hand column (right_col, notification board), tips_off), story/screens.md (TIP_* ids and the trigger notes at lines ~270-360). MEASURE first with a scratch headless walk (scratchpad dir; discovery on; 1920x1080 root set before the run): after the tutorial ends, how many tips fire in the first 10 cycles of a normal run and how close together (print time/cycle of every _tip_show). Then: (1) spacing: a minimum gap between two tip cards (one named balance key in data/balance.json, placeholder, for example 90 game seconds, plus the card staying long enough to read: check TIP_SECS against the longest tip text at 110+110 chars), a tip whose trigger fired while another is up or in the gap stays queued and is shown later, in priority order (goal and capital tips before minor ones; put the order in one constant list); never drop a tip silently and never show two at once. (2) the right panel: the right-hand TIPS box shows the tip that is currently active (or the last shown) with its why-line, and keeps a short list of the last 3 tips shown so a player who missed the floating card can still read them there (newest first, small text); the floating card stays for the new tip but is shorter-lived. Clicking a tip in the list does nothing special; Skip tutorial / tips_off hides everything as today; nothing in the saved state breaks (tips_seen stays as the persisted set; the list of recent tips can be rebuilt from tips_seen order or saved as a short array, bump the save version only if you add a field, with a migration). Combining is allowed where two tips are about the same thing (TIP_WEATHER and TIP_WEATHER_KINDS; TIP_CAPITAL and TIP_HUB): show them as one card with both texts if both are due; do not edit story text, list suggested merges in the handoff. (3) tests in tools/tests/run_tests.gd through the real tick: two tips due at once are shown 1 gap apart in priority order, none lost, none doubled; the right panel shows the active tip and keeps the last 3; spacing is not applied while tips_off. Done when built: no QA, bots or sim, no screenshots. Run sh tools/tests/run.sh once at the end with STAR_TEST_SCRATCH=/Volumes/Work/t339_home set; 13 tests already fail on a clean tree (workshop, goods, availability, cells), report only new failures. Never prefix Godot commands with HOME= or cd. gdd.md synced at commit by the main session. Handoff handoffs/ui-programmer/<date>-T339.json including the measured tip timings before the change.",
+      "size": "M",
+      "touches": [
+        "game/main.gd",
+        "data/balance.json",
+        "tools/tests/*"
+      ],
+      "priority": 2
+    },
+    {
+      "task_id": "T340",
+      "title": "Gigs: map markers never sit on an established lane or on a planet, except a dead planet",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 40,
+      "window": "Owner request 2026-11-09: 'gigs should never appear on the established route or a planet's position, unless it's a dead planet'.",
+      "brief": "Read game/gigs.gd (spawn: _gen signal around line 247 puts a point marker at main.flight.ship_position() + a random direction * gig_marker_dist; post_salvage for pods a raid dropped; post_rush with planet targets; target kinds 'point' and 'planet'), game/raids.gd, game/map.gd and game/route_line.gd (how established lanes are drawn: quadratic Bezier arcs between planets, route lists), data/balance.json gig_* keys, data/gigs.json, the design notes gdd.md (Gigs paragraphs). The rule: a gig marker placed in open space (kind 'point', i.e. signals, and salvage pods) must never be placed on top of an established route (lane) or on a planet's position (any living planet, plus stations/clusters if they have a map position), so the ring never hides a lane or a world and clicking never competes with them. A dead planet is the exception: a marker may sit at a dead planet (raid nests drop pods there; and a gig that targets a dead world as a planet target is fine). Rush gigs that target a planet by index are unaffected (the world is the target). Build: (1) a pure helper (for example Gigs.clear_of_map(pos, planets, lanes, min_planet_dist, min_lane_dist)) that tells whether a candidate point is at least min distance from every living planet and from every established lane curve (sample each lane's Bezier into segments in the plane x/z, same maths the lane drawing uses), with the dead-planet exception; two balance keys gig_min_planet_dist and gig_min_lane_dist (placeholders, in world units, sized so a marker ring does not touch a lane or planet); (2) signal spawn: try the seeded candidate directions, then a few more seeded rings of distance, take the first clear point; if none is clear in N tries, do not post a signal this cycle (the draw stays seeded and stable for a saved game: same seed + cycle gives the same result); (3) salvage pods: nudge the drop point off the lane and planet just enough to satisfy the rule unless the drop is at a dead planet; the pods keep a record of the lane they came from; (4) existing open offers in saves are left alone (no migration). Tests in tools/tests/ (the gig tests): the helper on hand-made planets and lanes; a signal never lands within the min distances over many seeds and cycles in a run with routes; a dead planet position is allowed; the same seed and cycle gives the same marker. Done when built: no QA, bots or sim, no screenshots. Run sh tools/tests/run.sh once at the end with STAR_TEST_SCRATCH=/Volumes/Work/t340_home set; 13 tests already fail on a clean tree (workshop, goods, availability, cells), report only new failures. Never prefix Godot commands with HOME= or cd. gdd.md synced at commit by the main session. Handoff handoffs/gameplay-programmer/<date>-T340.json.",
+      "size": "M",
+      "touches": [
+        "game/gigs.gd",
+        "game/raids.gd",
+        "data/balance.json",
+        "tools/tests/*"
+      ],
+      "priority": 2
+    },
+    {
+      "task_id": "T341",
+      "title": "Tutorial text: the Star Bazaar is a galaxy-wide exchange, the goal is the top of the galaxy",
+      "owner_agent": "story-designer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 40,
+      "window": "Owner direction 2026-11-09, redo of T338.",
+      "brief": "Owner direction on the final tutorial slide (T338 said only 'a great market'): the Star Bazaar is a galaxy-sized market that manages all of the trade, like a stock exchange such as Nasdaq, so building it is a total win; the goal reads something like 'rise to the top of the galaxy / world'. Rewrite TUT_G10_DONE (60 chars) and TUT_G10_DONE_WHY (110 chars) with that picture: the exchange where the whole sky trades, raised in one capital world, stage by stage; finishing it puts the company at the top. Keep the where-to-start piece (grow a world to the capital tier) if it fits, otherwise leave it to TIP_GOAL / TIP_GOAL_WHY and keep the pair consistent (no word-for-word repeats). Read story/voice.md (deadpan, quiet; the joke or the grandness is understated, no exclamation marks, no real-world brand names: say 'exchange' or 'trading floor', not Nasdaq), SCR_PREFACE and the Bazaar panel and ending texts in story/*.md so the fiction matches what the endings already say, and gdd.md (Win paragraph). Do not promise mechanics that are not there (the win is the finished Bazaar plus docking at the capital through the Opening gig). No hidden goods named; English only; story/screens.md only, then python3 tools/build_story.py; if it fails only because of a story/ru line make the smallest fix in that one Russian line and say so. Offer the final pair plus one alternate pair in the handoff. Done when written: no QA. Handoff handoffs/story-designer/<date>-T341.json.",
+      "size": "S",
+      "touches": [
+        "story/screens.md"
+      ],
+      "priority": 2
+    },
+    {
+      "task_id": "T342",
+      "title": "Tutorial: re-check every slide number, and a Finish button instead of Skip on the last slide",
+      "owner_agent": "ui-programmer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 40,
+      "window": "Owner request 2026-11-09: 'double check the tutorial slides numbers, also the last slide should have a finish button instead of skip'.",
+      "brief": "Two parts. (1) Slide numbers. The card counter ('{n} of {total}', T331 tut_seen / expected-later logic in game/main.gd near the tut_count label) has been touched by T331, T333 (speed card as a sub-state of step 0), T334 (speed card moved to right after the establish order), T337 (skills card skipped when no learnable Foundation) and T329 (Yay card). Re-verify it end to end. With a scratch headless walk (scratchpad dir; root 1920x1080 set before the run; real clicks and the real card text node) play the WHOLE guided tutorial from the first card to the last in BOTH modes, discovery on and discovery off, once with skill points available and once without, and print for every card shown: the card id, the displayed counter text, tut_step, tut_seen size, and the computed total. Check: n starts at 1, rises by exactly 1 for each new card, never repeats on the same card (slide 1 stays ONE slide on purpose: the flight, speed, build, wait and Yay cards and the Voltara card all read '1 of N'; the owner's references to slides 4 (Expenses), 5 (Sell), 6 (Storage) and 7 (Skills) in discovery mode rely on this, so do NOT give those cards their own numbers; if the sequence of n after slide 1 is not exactly 2, 3, 4, ... in the order the player meets the cards, fix it), total never shrinks below n, total changes at most when a skipped step is known to be skipped (explain each change), and the last card reads 'k of k'. Fix anything that breaks these rules. Keep TUT_GUIDE indexes, TUT_VER and the save mapping unless unavoidable. Report the full table of cards and counters per mode in the handoff. (2) The last slide (TUT_G10_DONE) shows the Skip tutorial button; replace it, on that card only, with a Finish button that ends the tutorial exactly as Skip does (tut_step = guide size, tips behaviour as Skip: check what _tut_skip does to tips_off and keep tips ON for a finished tutorial if Skip silences them, because Finish is a normal ending: tips should continue). The button label is a new text id BTN_TUT_FINISH 'Finish' (24 chars max) in story/screens.md near BTN_SKIP_TUTORIAL (owner allows this one new id; reuse an existing id if one fits), then python3 tools/build_story.py; if it fails only because of a story/ru line make the smallest fix in that one Russian line and say so. Other cards keep Skip. Opening the Star Bazaar panel still ends the last step as before. Tests in tools/tests/run_tests.gd through real clicks: the full walk counter table for both modes is asserted (n sequence 1..k, last is k of k), the last card shows Finish and not Skip, clicking Finish ends the tutorial and tips still run, other cards show Skip. Done when built: no QA, bots or sim, no screenshots. Run sh tools/tests/run.sh once at the end with STAR_TEST_SCRATCH=/Volumes/Work/t342_home set; 13 tests already fail on a clean tree (workshop, goods, availability, cells), report only new failures. Never prefix Godot commands with HOME= or cd. gdd.md synced at commit by the main session. Handoff handoffs/ui-programmer/<date>-T342.json with the card/counter table.",
+      "size": "M",
+      "touches": [
+        "game/main.gd",
+        "story/screens.md",
+        "tools/tests/*"
+      ],
+      "priority": 1
+    },
+    {
+      "task_id": "T343",
+      "title": "Tutorial slide 2: press the Energy resource button (not 'Buy'), and say that it buys the good",
+      "owner_agent": "ui-programmer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 40,
+      "window": "Owner request 2026-11-09: slide 2 of the tutorial asks to press 'Buy', but what we need to do is press the resource button, and we need to explain to the user that it buys the good.",
+      "brief": "Guided step TUT_G2_BUY (story/screens.md; TUT_GUIDE index 2 in game/main.gd; target 'buy', node BuyButton_<good>) says 'Press Buy on Energy.' There is no button labelled Buy to press: the player presses the Energy resource button in the planet panel, and that click turns the standing Buy order on, so the card must say so. Rewrite TUT_G2_BUY (60 chars) and TUT_G2_BUY_WHY (110 chars): the instruction names the resource button (e.g. 'Press the lit Energy button.') and the why line explains that this buys the good: each cycle it buys Energy into Company storage here, a standing order, press again to stop. Keep the pair consistent (no word-for-word repeat). Check that no other tutorial text, tip, tooltip or the fallback table in game/main.gd (~line 197) still tells the player to 'press Buy' for this step, and update those that do. Make sure the highlighted control (TUT_TARGET 'buy') really is the resource button the player must press, and the step still completes on that press. Do not change mechanics. Read story/voice.md first (deadpan, quiet, no exclamation marks, no hidden goods named, English only; do not add Russian work). Edit story/screens.md only for text, then python3 tools/build_story.py; if it fails only because of a story/ru line make the smallest fix in that one Russian line and say so. Done when built: no QA, bots, sim or screenshots. Run sh tools/tests/run.sh once at the end with STAR_TEST_SCRATCH=/Volumes/Work/t343_home set; 13 tests already fail on a clean tree (workshop, goods, availability, cells), report only new failures. Never prefix Godot commands with HOME= or cd. gdd.md synced at commit by the main session. Handoff handoffs/ui-programmer/<date>-T343.json.",
+      "size": "S",
+      "touches": [
+        "story/screens.md",
+        "game/main.gd"
+      ],
+      "priority": 1
+    },
+    {
+      "task_id": "T344",
+      "title": "Tutorial slide 6 (Storage): wait for the cycle to end, no right-click",
+      "owner_agent": "ui-programmer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 40,
+      "window": "Owner request 2026-11-09: slide 6 asks to right click on the button, but what we actually need to do is wait for the cycle to end.",
+      "brief": "Guided step TUT_G7_STORAGE ('Right-click the lit resource button, then let a cycle end.') still asks for a right-click, and the step completes on a right-click via main.tut_note('storage') in game/planet_panel.gd (~line 706). What the player must do is let the cycle end and read the storage figure. Make the step complete when a cycle ends (use the cycle-end hook in game/main.gd, same style as time-driven steps such as TUT_G4_ROUTE_PAY; pick the cleanest), not on a right-click; remove the right-click from the instruction; keep the lit target (TUT_TARGET 'storage') on the storage figure so the player knows where to look. Rewrite TUT_G7_STORAGE (60 chars) and TUT_G7_STORAGE_WHY (110 chars) to match: wait for the cycle to end, then read stored/capacity; the why line says what changes at cycle end. Keep the time-button hint working if the game is paused. Keep the fallback table text in main.gd (~line 201) consistent. The right-click menu stays in the game; only the tutorial no longer depends on it (remove tut_note('storage') only if nothing else needs it). Keep TUT_GUIDE indexes, TUT_VER and the save mapping. Do not change other steps. Read story/voice.md first (deadpan, quiet, no exclamation marks, no hidden goods named, English only; do not add Russian work). Edit story/screens.md only for text, then python3 tools/build_story.py; if it fails only because of a story/ru line make the smallest fix in that one Russian line and say so. Done when built: no QA, bots, sim or screenshots. Run sh tools/tests/run.sh once at the end with STAR_TEST_SCRATCH=/Volumes/Work/t344_home set; 13 tests already fail on a clean tree (workshop, goods, availability, cells), report only new failures. Never prefix Godot commands with HOME= or cd. gdd.md synced at commit by the main session. Handoff handoffs/ui-programmer/<date>-T344.json.",
+      "size": "S",
+      "touches": [
+        "story/screens.md",
+        "game/main.gd",
+        "game/planet_panel.gd"
+      ],
+      "priority": 1
     }
   ],
   "done_task_ids": [
