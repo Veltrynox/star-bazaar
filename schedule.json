@@ -3858,6 +3858,25 @@
         "tools/tests/run_tests.gd"
       ],
       "priority": 1
+    },
+    {
+      "task_id": "T350",
+      "title": "Flagship detail menu: explore on/off, boost, hold and all stats move out of the Ships panel",
+      "owner_agent": "ui-programmer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 50,
+      "window": "Owner request 2026-11-09: 'move the start/stop exploring button of the main ship to a separate menu, with all of its stats. When I click the ship UI icon, then open the menu with the ship details, start and stop exploration etc'.",
+      "brief": "Today the Flagship (Pathfinder) controls live inline in the Ships panel (game/ship_panel.gd): pathfinder_label (name, description, status), explore_button (BTN_EXPLORE_ON / BTN_EXPLORE_OFF, set in _set_pathfinder), hold_label and boost_button (_set_hold), plus the small hero card at the top (_build_hero_card / _on_hero_input / _set_hero_card, T317/T320: a click on it toggles map.select_ship). Move all of that into its own Flagship details menu. (1) Clicking the hero card (the ship icon in the Ships menu) still selects the flight ship exactly as now (the tutorial step TUT_G1B_SHIPS, TUT_TARGET 'hero' and tut_flags['hero'] keep working unchanged) AND opens the Flagship details panel; a second click selects/deselects as before and the details panel has its own close button (and closes on Esc like the other panels: follow how the gig board / hub / bazaar panels in game/main.gd are built, shown and closed, and how they avoid overlapping each other; reuse the same panel pattern, placement and style, opaque like the tip card). (2) The details panel shows everything the Flagship has, from the existing flight accessors only (PathfinderView, main.flight; no new mechanics): name, ship preview (reuse ShipPreview like the hero card), description, status line (waiting / flying to X / unknown world, as _set_pathfinder builds it), Start / Stop exploring button (same behaviour, same BTN_EXPLORE_* ids, hidden when discovery is off exactly as today), hold fill and the goods in it, boost charges and the Boost (B) toggle with its tooltip, and every other stat the flight object exposes (speed, hold capacity, hub reach, discoveries made, current target; look at game/flight*.gd and PathfinderView for what exists, list in the handoff what you included and what you left out). Labels use story ids: reuse the existing LBL_* / BTN_* ids; any new label gets a new id in story/screens.md (plain words, no hidden goods named, English only, no Russian work), then python3 tools/build_story.py; if it fails only because of a story/ru line make the smallest fix in that one Russian line and say so. (3) The Ships panel then keeps only the hero card (name and state line, as now), the fleet upkeep and the buy buttons; remove explore_button, hold_label, boost_button and pathfinder_label from it (or move the same node owners to the new panel), and make sure keyboard B still toggles boost and every caller of set_exploring and the tests keep working. Use Availability.hero_ship so nothing shows before the hero ship exists. Update tutorial mentions if any text says to find the explore button in the Ships menu. Tests in tools/tests/run_tests.gd: clicking the hero card opens the details panel; the panel holds the explore button and the Ships panel no longer does; pressing the explore button toggles exploring; the panel hides with discovery off. Done when built: per CLAUDE.md a ui task takes one screenshot with sh tools/screenshot.sh --out logs/screenshots/T350.png (panel open if the script can), look at it, fix only objective breakage (blank, clipped or overlapping text) and record the path in the handoff; no QA, bots or sim. Run sh tools/tests/run.sh once at the end with STAR_TEST_SCRATCH=/Volumes/Work/t350_home set; report only new failures. Never prefix Godot commands with HOME= or cd. gdd.md synced at commit by the main session. Handoff handoffs/ui-programmer/<date>-T350.json.",
+      "size": "L",
+      "touches": [
+        "game/ship_panel.gd",
+        "game/main.gd",
+        "game/flagship_panel.gd",
+        "story/screens.md",
+        "tools/tests/*"
+      ],
+      "priority": 1
     }
   ],
   "done_task_ids": [
