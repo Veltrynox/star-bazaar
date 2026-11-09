@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-08 run: T208
-- Summary: skill tree build from the T207 proposal, reconciled against the current 68-node tree. 6 new effect types (lane upgrade cost, new ship price, Embargo Desk cooldown, workshop ore input, Null Core trip cost, Luxury bundle bonus) with placeholder numbers in data/balance.json. FND_LEDGER, FND_RIVAL_WATCH, MIN_8, MIN_10 and BIO_12 were dropped or merged and keep reworded stand-in effects. English only.
-- Why this task: owner said "run T208" on 2026-11-08 (approval waived 2026-11-05).
-- Approach: gameplay-programmer started by the main session; story/skills.md edited, tools/build_story.py run, gdd-skills.md updated.
-- Agent prompts: gameplay-programmer, brief from tools/task.py T208 plus reconcile-with-current-tree instruction.
-- Worked: build finished, handoffs/gameplay-programmer/2026-11-08-T208.json written.
-- Failed / did not work: sh tools/tests/run.sh shows 13 FAIL (powder, blooms, workshop, goods, availability); agent reports the same 13 fail on a clean tree, not re-checked by the main session. No window check.
-- Files and commits: uncommitted: game/skills.gd, ships.gd, goods.gd, route_engine.gd, main.gd, planet_panel.gd, data/skills.json, balance.json, story_text.json, story/skills.md, gdd-skills.md, the handoff.
-- Left to do: owner decides whether to keep the 4 stand-in nodes and whether to build a dead-world ore-loss mechanic (MIN_10). T209 review stays owner by hand.
-
 ## 2026-11-09 10:29 run: T327
 - Summary: Not merged: worker did not report done: blocked T327 | This worktree's base commit (01a78b1) lacks the code the task builds on: no T322 zoomed start and no T323 `planet_ring` PulseRing. TUT_G0_FLY here still reads "Click your ship, then right-click the dim world." `schedule.json` in the worktree has no T327 entry either, so I read the task from the main checkout. Rebase the branch onto a base that includes T322 and T323, then rerun. Nothing was built or changed.
 - Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
@@ -64,4 +54,14 @@
 - Worked: worker finished.
 - Failed / did not work: worker did not report done: blocked T331 | Depends on T329, which is not in this tree: tut_next/TutNext, the TUT_G0_DONE_NEXT label and the card Next button don't exist. T331 has no depends_on, so it was dispatched too early. This tree also doesn't match the brief: TUT_GUIDE has 12 steps, not 13, UPKEEP is index 4, and TUT_G1B_SHIPS is absent. Nothing was built; I only ran the test suite (11603 pass, 13 known failures)..
 - Files and commits: see git log on branch new-features for commits starting with T331.
+- Left to do: owner or a new run: see blocked_log in schedule.json.
+
+## 2026-11-09 10:41 run: T332
+- Summary: Not merged: fast-forward merge refused
+- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
+- Approach: built by a worker in worktree ../wt/T332 on branch task/T332, merged by the serial merge queue.
+- Agent prompts: /overnight-worker T332 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T332.log.
+- Worked: worker finished.
+- Failed / did not work: fast-forward merge refused.
+- Files and commits: see git log on branch new-features for commits starting with T332.
 - Left to do: owner or a new run: see blocked_log in schedule.json.

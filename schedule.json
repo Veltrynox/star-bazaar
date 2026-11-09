@@ -3544,7 +3544,7 @@
       "title": "Tutorial text: a card after slide 1 that tells the player the game speed can be changed",
       "owner_agent": "story-designer",
       "depends_on": [],
-      "status": "queued",
+      "status": "blocked",
       "turn_cap": 40,
       "window": "Owner request 2026-11-08. Text half; T333 is the code half.",
       "brief": "Owner: after slide 1 of the tutorial (under discovery slide 1 covers the flight, the Yay card and the Voltara card; without discovery it is the Voltara card) the player must be told that the speed of the game can be changed. Read story/screens.md (the TUT_G* cards and the top bar speed buttons 1x 2x 6x 12x and the play/pause button, find their ids and labels), story/voice.md, game/main.gd (the top bar speed controls, how the game starts paused after Begin). Write, English only, a new card TUT_G1C_SPEED (max 60 chars) naming the control and the action, for example 'Top right: 2x, 6x and 12x run the game faster.', with a TUT_G1C_SPEED_WHY line (max 110) saying why (time is a cycle clock, trips and posts take cycles, faster waiting) and that Pause stops it; the card is information plus one try-it action, so it also needs the Next label (reuse TUT_G0_DONE_NEXT). Plain words, no hidden goods. Give the final ids and texts to T333 in the handoff. Edit story/screens.md only, then python3 tools/build_story.py; if it fails only because of a story/ru line, make the smallest fix in that one Russian line and say so. Done when written: no QA. Handoff handoffs/story-designer/<date>-T332.json.",
@@ -3552,7 +3552,9 @@
       "touches": [
         "story/screens.md"
       ],
-      "priority": 1
+      "priority": 1,
+      "note": "Blocked by orchestrator: fast-forward merge refused",
+      "blocked_log": "/Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T332-merge.log"
     },
     {
       "task_id": "T333",
