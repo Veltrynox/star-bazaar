@@ -1,0 +1,7 @@
+{
+  "task": "T346",
+  "files": ["story/screens.md", "data/story_text.json"],
+  "final": "Everything under this sky is shared, and counted. Every credit goes into the Common Ledger and comes back in portions. The Plan is generous. It is also five cycles long, and then another five.\n\nYou run a small trading company. You start with one home world, a little cash and a scout. Ships fly your routes by themselves.\n\nWorlds grow when their needs are met. The Star Bazaar is the market hall every world will trade through. You build it, stage by stage, on one world grown into a capital. Open it before your term ends and you win. Pick one market to lean on: Military, Luxury, Minerals or Biotech. Three houses send weather, not war.\n\nWhat it costs the sky, the sky does not say.",
+  "alternate_paragraph_3": "The Star Bazaar is the one hall where every world will trade. You raise it, stage by stage, on a single world grown into a capital. Open it before your term ends and the run is won. Pick one market to lean on: Military, Luxury, Minerals or Biotech.",
+  "notes": "Matches TUT_G10_DONE. Under 700 chars. story/ru SCR_PREFACE has no English id match error was transient and cleared once the English text fit the limit."
+}

@@ -26,9 +26,9 @@ A small company in a shared, indifferent sky.
 SCR_PREFACE | 700 | Preface screen
 Everything under this sky is shared, and counted. Every credit goes into the Common Ledger and comes back in portions. The Plan is generous. It is also five cycles long, and then another five.
 
-You run a small trading company. You start with one home world, one ship's worth of cash and a scout that finds other worlds. Ships fly your routes by themselves. You choose where to invest.
+You run a small trading company. You start with one home world, a little cash and a scout. Ships fly your routes by themselves.
 
-Worlds grow when their needs are met. Raise one into a capital and build the Star Bazaar there, stage by stage. Open it with a final delivery before your term ends. Pick one market to lean on: Military, Luxury, Minerals or Biotech. Three houses send weather, not war.
+Worlds grow when their needs are met. The Star Bazaar is the market hall every world will trade through. You build it, stage by stage, on one world grown into a capital. Open it before your term ends and you win. Pick one market to lean on: Military, Luxury, Minerals or Biotech. Three houses send weather, not war.
 
 What it costs the sky, the sky does not say.
 SCR_PREFACE_BTN | 24 | Preface screen, continue button
