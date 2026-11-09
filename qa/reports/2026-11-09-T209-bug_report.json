@@ -1,0 +1,93 @@
+[
+  {
+    "run_id": "T209-2026-11-09-batch3-win-path-never-founded",
+    "seed": 1,
+    "strategy": "decent",
+    "issue_type": "win_path_unreachable_in_bot",
+    "severity": "high",
+    "steps": [
+      "Batch: qa/bots/skill_signoff_one.sh logs/qa-t209/batch3 <tag> decent <seed> with the 76-arm T209 job list (304 runs, 4 seeds, --skip-tutorial --keep-running=38 on the focus and base arms).",
+      "Read bazaar.founded, bazaar.capital, bazaar_stage and bazaar_log in every RESULT row.",
+      "Result: founded false, capital -1, stage 0 in 304 of 304 runs. The capital tier was reached (bazaar_log tier_cap at cycle 7 in 155 runs, cycle 8 in 79 runs), so founding was possible from cycle 7 to 8.",
+      "qa/bots/bot_run.gd only observes the Bazaar (_track_bazaar). It never calls main.bazaar.found(), which the planet card's 'Found the Bazaar here' (game/main.gd _on_found_bazaar) uses. No stage, quorum, Opening or open() is ever reached, so every run ends END_UNFINISHED at cycle 40."
+    ],
+    "expected": "A decent run that reaches the capital tier founds the Bazaar, completes the stages and opens it, so the win (or a recorded reason why not) is visible in the batch and pacing (about cycle 22 to 30) can be judged.",
+    "actual": "0 of 304 runs found the Bazaar. win_cycle is -1 in all runs. The win path is not exercised by any bot, so win timing and pacing stay unverified. The earlier note 'win detection is a stub (T281)' is out of date: detection exists, the missing piece is the bot's found step (and the stage play that follows).",
+    "owner_agent": "qa-analyst"
+  },
+  {
+    "run_id": "T209-2026-11-09-batch3-skill-coverage",
+    "seed": 1,
+    "strategy": "decent",
+    "issue_type": "test_coverage_gap_skills_not_learned",
+    "severity": "medium",
+    "steps": [
+      "Batch: logs/qa-t209/batch3, all 304 runs. Tally skill_log across runs.",
+      "Result: the bot learns only 9 distinct nodes in the whole batch: FND_PERMIT 296 runs, FND_STORAGE 293, FND_PROSPECT 228, FND_LEDGER 228, FND_RIVAL_WATCH 137, FND_DOCKS 57, BIO_1 34, MIL_1 12, LUX_1 3.",
+      "Every MIL_2..MIL_15, LUX_2..LUX_15, MIN_* and BIO_2..BIO_15 node is learned in 0 decent runs. The ablation arms for those nodes equal their comparator on all 4 seeds (no-op)."
+    ],
+    "expected": "Each ablated or retuned node is learned by the arm it is removed from or tested in, so removal and retune can show a cash, lane or win effect.",
+    "actual": "61 of 68 nodes show no signal (identical to comparator). The retuned nodes MIL_13, LUX_13, LUX_14, BIO_12, BIO_13 and LUX_7 are never learned by decent runs, so the 2026-11-08 retune cannot be measured on decent play. MIL_1 (retuned to 0.15) is learned only by always_expand (2 of 4) and never_expand (1 of 4). Skill policy is a bot decision: Producer to decide.",
+    "owner_agent": "qa-analyst"
+  },
+  {
+    "run_id": "T209-2026-11-09-batch3-skill-points-starved",
+    "seed": 1,
+    "strategy": "decent",
+    "issue_type": "economy_skill_points_starved",
+    "severity": "medium",
+    "steps": [
+      "Batch: logs/qa-t209/batch3. For each run sum balance skill_cost_<id> over skill_log (points spent). skill_points_left is 0 in 303 of 304 runs (1 in focus_lux seed 1).",
+      "Result: mean points spent per run 4.4, range 0 to 9. Per arm: base 4 to 7 (seeds 1 to 4: 4, 7, 5, 4), focus_lux 2 to 3, focus_bio 4 to 7, dom_always_expand 6 to 9, dom_never_expand 4 to 6, dom_sloppy 0.",
+      "focus_lux seed 1 ends with 1 point unspent: FND_PROSPECT (cost 1) is not learned. The bot's permit reserve check (qa/bots/bot_run.gd about line 1308) may hold it back; cause not confirmed (QA does not diagnose code)."
+    ],
+    "expected": "Skill points earned in a 40-cycle run cover a meaningful part of the tree (economy-designer estimate 25 to 32 points per run, tree 28 to 30). If the bot is representative, the branch choice has a real cost.",
+    "actual": "The bot earns about 4 to 9 points per run and spends all of them on FND nodes plus one tier-1 unlock. The LUX branch is never reached (LUX_1 needs FND_STORAGE, FND_PERMIT and FND_PROSPECT plus 1 point; focus_lux gets 2 to 3 points in total). Either the bot establishes too few worlds and routes, or the supply estimate is far too high. UNKNOWN which; economy-designer to check against human-like play.",
+    "owner_agent": "economy-designer"
+  },
+  {
+    "run_id": "T209-2026-11-09-batch3-bio-focus-cash-drain",
+    "seed": 1,
+    "strategy": "decent",
+    "issue_type": "economy_trap_candidate_bio_branch",
+    "severity": "medium",
+    "steps": [
+      "Run: qa/bots/skill_signoff_one.sh logs/qa-t209/batch3 focus_bio decent <seed> --skip-tutorial --keep-running=38 --market=bio (seeds 1 to 4).",
+      "Read final_cash, min cash_by_cycle, reserve_short and rescues_paid. Compare with abl_BIO_1 (same seeds, --skip-skill=BIO_1).",
+      "Result: focus_bio final cash 257, 4605, 1113, 12042. Minimum cash 77 (seed 1 and 2), 330 (seeds 3 and 4). Seed 1 needed 2 rescues and reserve_short at cycle 33 (cash 438). Base decent final cash 20196 to 29830 on the same seeds."
+    ],
+    "expected": "A market branch does not leave the run at near zero cash at the end while the other branches end above 20000 on the same seeds, unless the trade-off is designed and stated.",
+    "actual": "The BIO focus is the lowest-cash arm in 3 of 4 seeds. Removing BIO_1 (the culture lab unlock, 1 point) raises final cash on seeds 1 and 3 (abl_BIO_1 6510 and 7414 against 257 and 1113). The BIO branch is a cash trap candidate at this build. The bot's culture-lab build is one cause; whether the design intends it is for economy-designer to judge.",
+    "owner_agent": "economy-designer"
+  },
+  {
+    "run_id": "T209-2026-11-09-batch3-ablation-substitution",
+    "seed": 1,
+    "strategy": "decent",
+    "issue_type": "test_design_ablation_substitutes_path",
+    "severity": "medium",
+    "steps": [
+      "Run: qa/bots/skill_signoff_one.sh logs/qa-t209/batch3 abl_FND_LEDGER decent <seed> --skip-tutorial --keep-running=38 --skip-skill=FND_LEDGER (seeds 1 to 4).",
+      "Compare skill_log with base decent same seed. Seed 1 base: FND_PERMIT, FND_PROSPECT, FND_STORAGE, FND_LEDGER (cycle 21). abl_FND_LEDGER seed 1: FND_PERMIT, FND_PROSPECT, FND_STORAGE, MIL_1 (cycle 21). Seed 2: MIL_1 at cycle 18, LUX_1 at cycle 29.",
+      "Same pattern in abl_FND_PERMIT, abl_FND_PROSPECT and abl_FND_RIVAL_WATCH (the bot takes FND_LEDGER, FND_RIVAL_WATCH or FND_DOCKS instead)."
+    ],
+    "expected": "Removing one skill from a learning path changes only that skill's effect, so the cash delta measures the skill.",
+    "actual": "The skip flag blocks the node, and the bot spends the same point on another node. Cash deltas (for example FND_LEDGER -16k to -26k on all seeds) mix the skill's effect with the substitute path, and final cash also tracks ship spending (abl_FND_LEDGER ended with 8 ships in all seeds). No single-node verdict from final cash is valid until the ablation holds the other picks fixed (skill-order option or --skills whitelist).",
+    "owner_agent": "qa-analyst"
+  },
+  {
+    "run_id": "T209-2026-11-09-batch3-route-waiting-for-room",
+    "seed": 2,
+    "strategy": "decent",
+    "issue_type": "route_waiting_for_room_streak",
+    "severity": "medium",
+    "steps": [
+      "Batch: logs/qa-t209/batch3. Read issues in every RESULT row (warning_streak entries).",
+      "Run: qa/bots/skill_signoff_one.sh logs/qa-t209/batch3 abl_BIO_1 decent 1 --skip-tutorial --keep-running=38 --skip-skill=BIO_1 --market=bio. Warning on route 6: 'Waiting for room' for 3+ cycles in a row.",
+      "Same warning in 20 of 304 runs: route 6 in 17 runs, route 7, route 12 and route 14 once each. 18 of the 20 runs are BIO arms (abl_BIO_* and focus_bio). Earlier round (T209 rerun): route 16 in 80 runs. The route changed, the count fell."
+    ],
+    "expected": "A lane the bot keeps running does not sit in 'Waiting for room' for 3 or more cycles in a row, or the storage it waits on has room.",
+    "actual": "The warning still appears in 20 runs. Cause not analysed (QA does not diagnose code). Separately, 2 runs show route 3 or 6 'Not enough cash: needs 103 cr, had 0 cr' for 3+ cycles in a row.",
+    "owner_agent": "gameplay-programmer"
+  }
+]

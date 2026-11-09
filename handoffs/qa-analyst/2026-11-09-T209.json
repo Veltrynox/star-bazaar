@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "agent": "qa-analyst",
+  "date": "2026-11-09",
+  "task": "T209 QA half: bot run over the current skills after the retunes (owner started by hand)",
+  "status": "done",
+  "files_changed": [
+    "qa/reports/2026-11-09-T209-bug_report.json",
+    "qa/reports/2026-11-09-T209-summary.json",
+    "qa/reports/2026-11-09-T209-runs.jsonl",
+    "handoffs/qa-analyst/2026-11-09-T209.json"
+  ],
+  "open_questions": [
+    "UNKNOWN: is the bot's skill-point supply (mean 4.4 spent per run, max 9) representative of human play, or is the 25 to 32 economy estimate right and the bot under-expands? Economy-designer to check.",
+    "UNKNOWN: should the bots get a Bazaar found step (and stage play) so the win and pacing can be measured? No bot reaches the win, so pacing stays unjudged. Producer to decide.",
+    "UNKNOWN: release export check was static only (export excludes game/debug_menu.gd and the debug gate is OS.is_debug_build()); no export was built, so the packaged zip is not verified."
+  ],
+  "handoff": "T209 QA on the 2026-11-08 build (data_version 82, ship_cap 15, term 40). Batch: 304 runs (76 arms x 4 seeds), 0 crashes, 0 script errors, 0 wins. Bot never founds the Bazaar (0 of 304), so win and pacing are unjudged; capital tier reached at cycle 7 to 8 in 234 runs. Skills: bot learns only 9 nodes; no dominant skill; FND_PROSPECT no longer useless (gate); BIO_1 / BIO focus is a cash trap candidate (min cash 77); LUX branch unreached (points starved). Ablations of FND_LEDGER and others substitute paths, so cash deltas are confounded. Retuned nodes MIL_13, LUX_13, LUX_14, BIO_12, BIO_13, LUX_7 are never learned, so untestable. Seed-1 spread resolved (base 20.2k to 29.8k). Route waiting-for-room now 20 runs (route 6). Decent base leads on cash; no strategy wins. Details in the summary JSON.",
+  "details": {
+    "results_table": [
+      {"strategy": "decent base", "final_cash_by_seed": [29830, 20196, 28537, 28248], "ships": "6 to 12", "wins": 0},
+      {"strategy": "decent focus mil", "final_cash_by_seed": [29830, 20196, 28537, 28248], "note": "same as base (no MIL node learned)", "wins": 0},
+      {"strategy": "decent focus min", "final_cash_by_seed": [29830, 20196, 28537, 28248], "note": "same as base (no MIN node learned)", "wins": 0},
+      {"strategy": "decent focus lux", "final_cash_by_seed": [14422, 12709, 12930, 12957], "ships": 2, "wins": 0},
+      {"strategy": "decent focus bio", "final_cash_by_seed": [257, 4605, 1113, 12042], "wins": 0},
+      {"strategy": "sloppy", "final_cash_by_seed": [13938, 12833, 13448, 12863], "ships": 1, "wins": 0},
+      {"strategy": "always_expand", "final_cash_by_seed": [2113, 933, 816, 12340], "ships": "13 to 15 (cap 15 in 3 of 4)", "wins": 0},
+      {"strategy": "never_expand", "final_cash_by_seed": [14701, 15700, 13748, 15428], "ships": 1, "wins": 0}
+    ],
+    "method": "qa/bots/skill_signoff_one.sh with the T209 job list (logs/qa-t209/batch/jobs.txt) into logs/qa-t209/batch3 (git-ignored). Analysis: qa/bots/skill_signoff_analyse.py (output logs/qa-t209/batch3/analysis.txt). No game code, data or bots changed. Nothing committed. Orchestrator not run.",
+    "not_run": "brb_lux, brb_min, brb_bio, abl_LUX_7, abl_MIN_7, abl_BIO_7 and the CEO x ship check were not in the T209 job list, so they have no data in this batch (the analysis shows NO DATA for them).",
+    "skill_verdicts": "keep: FND_PERMIT, FND_STORAGE, FND_PROSPECT (gates). untestable by ablation: FND_LEDGER (substitution). weak and confounded: FND_RIVAL_WATCH (cut candidate not contradicted). unreached: FND_DOCKS, MIL_1, all MIL/LUX/MIN/BIO nodes beyond BIO_1. trap candidates: BIO_1 and the BIO focus (cash), LUX branch (points never reach LUX_1). dominant: none.",
+    "bug_report": "qa/reports/2026-11-09-T209-bug_report.json: 6 entries. high: win path never founded (bot has no found step). medium: skill coverage gap, skill points starved (economy), BIO cash drain (economy), ablation substitution (test design), route waiting for room.",
+    "release_export": "static check: export_presets.cfg excludes game/debug_menu.gd; game/main.gd debug_tools_allowed() is OS.is_debug_build(). Pass (static only)."
+  }
+}

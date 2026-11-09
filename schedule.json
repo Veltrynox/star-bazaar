@@ -1377,7 +1377,7 @@
       "depends_on": [
         "T208"
       ],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 40,
       "window": "OWNER BY HAND ONLY (CLAUDE.md QA and economy gate). Do not start.",
       "brief": "Owner request: think about every skill with the QA agent and the economy agent: is it really worth it. Run by the OWNER by hand after the skill build (never started, scheduled or waited on by the main session or the overnight runner; no other task depends on it). economy-designer checks each new and changed skill's cost and effect against the market goal and the 20-ship cap; qa-analyst runs the bots over the skills and reports dominant, useless or trap skills; both write what to cut, merge or retune. Reports in qa/reports/ and handoffs/economy-designer/ and handoffs/qa-analyst/.",

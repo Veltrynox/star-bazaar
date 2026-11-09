@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "agent": "economy-designer",
+  "date": "2026-11-09",
+  "task": "T209",
+  "status": "done",
+  "files_changed": ["handoffs/economy-designer/2026-11-09-T209.json"],
+  "open_questions": [
+    "Cuts: tests pin 68 nodes and ids are used by story/icons/code. Approve a cut pass (list below) with the matching test/story updates, or keep all ids and only zero cost / merge effects?",
+    "Bot policy: may the Producer change the bot to buy the branch unlock before FND_LEDGER / FND_RIVAL_WATCH and to expand like a human (planets, pairs, systems 2 and 3), so retuned nodes get measured? Without it MIL_13, LUX_13, LUX_14, BIO_12, BIO_13, LUX_7 stay unjudged.",
+    "BIO cash drain: is the culture lab (or its goods) meant to be a cash sink early? If not, the fix is the lab build cost / BIO goods margin (workshop keys), not BIO_1. UNKNOWN: current lab cost, I did not open it."
+  ],
+  "handoff": "Review only, hand reasoning, nothing changed, no sim. Point supply: bot undercounts. Sources are once each: 1 per planet, 1 per distinct pair, 2 per system entered (systems 2 and 3 = 4), prosperity first tier ever t2 = 1, t3 = 2 (3 total, not per world), minus 4 for permits (2 + 2, spent from the same pool; not in skill_log). A human who visits ~12 planets and ~8 pairs earns ~27, nets ~23 after permits; tree for FND + one branch is 28-30. So choices exist, but at ~23 not the 25-32 I estimated before. The bot nets 5-9 because it runs 1-7 lanes and few planets, then spends the first 5 on FND_LEDGER and FND_RIVAL_WATCH, so it never reaches a branch. Not representative. Priority: cut RIVAL_WATCH, fix bot order, check BIO lab cost.",
+  "details": {
+    "point_supply": {
+      "is_bot_representative": "No. Bot evidence: base run with 19 lanes and 12 ships (seed 2) spent only 7 points + 4 on permits = about 11 earned, because lane points count once per distinct pair, planet points once per planet, and the bot reuses few pairs. 'Points left' is 0 in 303 of 304 runs: every point earned is spent at once, in cheap-first order (FND_PERMIT, STORAGE, PROSPECT, LEDGER, RIVAL_WATCH), so branch nodes (cost 1 unlock then 2 to 3) are never affordable.",
+      "real_supply_estimate": "Planets 5 in system 1 plus those of systems 2 and 3 (UNKNOWN count, assume ~12 reachable) = 12; pairs reachable and used ~8; systems 4; prosperity 3 (only the first time any world reaches t2 and t3, balance prosperity_points_t2 1, t3 2). Gross ~27, permits -4, net ~23 by cycle 35. Range 15 (cautious) to 28 (explorer).",
+      "tree_cost": "FND 3 gate + 4 optional (LEDGER 1, RIVAL_WATCH 1, DOCKS 2) = 7; one branch about 21-23. Needed for one branch run = 3 + 21 = 24 points: slightly more than the net supply, so a human buys nearly the whole branch and skips the optional FND nodes. That is OK: the branch choice is real (cannot take two), the within-branch choice is thin.",
+      "pacing_consequence": "Points arrive mostly early (planets/pairs by cycle ~15) except systems and prosperity (late). The 3 gate points plus branch unlock (4 points) should arrive by about cycle 6-8. Bot supply of ~5 total means unlock at point 4 and nothing else, which is a bot artefact."
+    },
+    "ranked_recommendations": [
+      {"rank": 1, "id": "FND_RIVAL_WATCH", "action": "cut (or fold into FND_LEDGER as extra: event_cut_pct, one node)", "why": "QA: weak, learned in 137 of 304 runs only because it costs 1; it eats a point that should reach the branch. All events -10 percent is a rival-era leftover, events are a chance, not a trap. If ids must stay, set cost 0 as a free tech-style reward."},
+  {"rank": 2, "id": "BIO branch / BIO_1 / culture lab", "action": "retune the lab, keep BIO_1 at 1 point", "why": "Cash trap candidate: focus_bio ends 257 / 4605 / 1113 / 12042 against base 20-30k, min cash 77. The unlock costs 1 point and is not the drain; building and feeding the lab before income is. Propose: lab build cost down to about 0.5 x its current value or first lab free of goods input for 3 cycles (UNKNOWN key names, programmer/owner pick), and keep BIO_2 stock_growth cap at 0.30 (advised last round). Re-measure only after the bot buys BIO_2."},
+      {"rank": 3, "id": "FND gate (FND_PERMIT, FND_PROSPECT, FND_STORAGE)", "action": "keep, cost 1 each", "why": "Three points before any branch node is the tutorial cost; they also unlock permits, cluster routes and storage. FND_PROSPECT is no longer useless (QA). Do not raise."},
+      {"rank": 4, "id": "FND_LEDGER", "action": "keep, 1 point", "why": "Order size +10 percent, unconditional. Ablation confounded, so no evidence either way; cheap enough. If a point-short run must choose, it is the first FND optional to skip: acceptable."},
+      {"rank": 5, "id": "FND_DOCKS", "action": "retune cost 2 to 1", "why": "Upkeep/upgrade -8 percent at 2 points is poor value next to a branch unlock (1 point); only 57 of 304 bot runs bought it. At cost 1 it is a fair optional."},
+      {"rank": 6, "id": "MIL_1 (upkeep 0.15 + munitions + rounds)", "action": "keep", "why": "1 point, unlock plus -15 percent ship upkeep. At ship_cap 15 the stack MIL_1 .15 + MIL_8 .08 + FND_DOCKS .08 = .31 is safe (floor 0.5). Best 1-point node; it is the reason MIL is the default pick, which is fine as the safest branch."},
+      {"rank": 7, "id": "LUX need_fill stack (LUX_2, LUX_5, LUX_13, LUX_14)", "action": "keep as retuned (LUX_13 0.05, LUX_14 0.05); no change until measured", "why": "Hand total after retune about +0.38 need_fill, still the strongest growth path, but unreachable for the bot (LUX_1 needs 4 points and 2 of 4 seeds had 2). LUX unlock needs the 3 gate points plus LUX_1: the same as every other branch, so LUX is not a trap, only unmeasured."},
+      {"rank": 8, "id": "BIO_12 / BIO_13 (stock_growth cap, need_fill)", "action": "keep as retuned; if BIO_13 is still 0.15 at cost 2 raise cost to 3", "why": "Too good for the price (BIO_2 .12 + BIO_13 .15 = .27 for 2 points). Unmeasured."},
+      {"rank": 9, "id": "LUX_5B", "action": "cut", "why": "Duplicate of LUX_1 + LUX_3, 2 points for nothing new (unchanged from 2026-11-07)."},
+      {"rank": 10, "id": "MIL_15, LUX_15, BIO_15 (tier 6 warning capstones)", "action": "cut or cost 3 to 1", "why": "Warning on top of an existing warning (MIL_7). With supply ~23 and a branch costing 21-23 they are the last nodes bought and add nothing; cut. Keep MIN_15 (cluster +25 percent) only if mining stays a side activity."},
+      {"rank": 11, "id": "LUX_10, MIN_10, BIO_10 (2-point event_cut/immune)", "action": "keep one per branch (MIL_6, BIO_6, MIN_5B, LUX_10), cut BIO_10 and MIN_10", "why": "Events never trap (T288)."},
+      {"rank": 12, "id": "MIL_11, LUX_11, MIN_11, BIO_14 (sale_price techs)", "action": "merge into the tier-4 tech of the same branch (+0.08 once)", "why": "Sale price does not fill needs; five stacked nodes per branch make cash too easy for the Bazaar bill."},
+      {"rank": 13, "id": "MIL_10 (stock_protect)", "action": "cut", "why": "Duplicates BIO_5 stock_protect."},
+      {"rank": 14, "id": "weather_soften nodes (MIL_5, LUX_7, MIN_7, BIO_7)", "action": "LUX_7 duration to 6 (if not yet), others keep", "why": "LUX_7 covered ~89 percent of cycles, nearly permanent. Unmeasured since never learned."},
+      {"rank": 15, "id": "MIL_3, MIL_13, LUX_12, MIN_5B, BIO_8 (route capacity / cooldown)", "action": "keep MIL_3 .125, MIL_13 .08 as is", "why": "Lane units up to ~+25 percent without ships; with cap 15 this slightly relieves the ship limit but never replaces ships (a lane is capped by trips). Acceptable."},
+      {"rank": 16, "id": "MIN_5 (3 points, nullglass mine)", "action": "keep, flag as possible trap", "why": "Cannot judge, no MIN node learned by any bot. Check that nullglass margin repays 3 points after the first fill."}
+    ],
+    "qa_answers": {
+      "bot_supply": "Not representative of human play. See point_supply. Net ~5-9 versus ~23 human estimate; 3 of 4 factors are bot expansion (few planets and pairs), cheap-first buying and counting only skill_log (permit points are paid from the same pool).",
+      "ledger_ablation": "Confounded by substitution: removing LEDGER makes the bot buy RIVAL_WATCH or DOCKS, so cash delta is noise. Do not draw any value from it.",
+      "bio_1_trap": "Partly. The point is cheap; the drain is the lab and its inputs. See rank 2.",
+      "no_win_in_batch": "No bot founds the Bazaar, so win pacing (targets 22-26 skilled, 26-30 none) is unjudged by this batch. Cash 20-30k by cycle 40 with 6-12 ships is plausible for a Bazaar bill, but UNKNOWN."
+    },
+    "ship_cap_15_check": "No skill raises the cap. Always-expand reached 13-15 ships with cash 0.8-2.1k in 3 of 4 seeds and lost: ship upkeep (maintenance 40 + trip 60) still bites at 15, so expansion is not dominant. Never-expand 1 ship ~15k and sloppy ~13k both far below base 26k mean. Dominance check passes on bot evidence, win unjudged.",
+    "method": "Hand reasoning from data/skills.json (68 nodes), balance.json keys, game/main.gd point awards, QA summary and bug report. No sim.py, bots, Godot; no data changed; not committed."
+  }
+}
