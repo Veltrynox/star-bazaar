@@ -3599,7 +3599,7 @@
       "title": "Tutorial text: slide 6 must tell the player to wait for the cycle to end",
       "owner_agent": "story-designer",
       "depends_on": [],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 40,
       "window": "Owner report 2026-11-09: 'slide 6 of the tutorial should mention we need to wait for the cycle to end'.",
       "brief": "The card counter now counts the cards this run shows (T331). In discovery mode (the owner's run; slide 5 there is the Sell card) slide 6 is TUT_G7_STORAGE ('Right-click the lit resource button. Read stored/capacity.' with the why-line 'The figure is your Company storage here. The menu has Send to and Sell. When full, Buy waits.'); without discovery slide 6 is the Sell card TUT_G6_SELL instead. Read handoffs/ui-programmer/2026-11-08-T331.json (card order per mode), story/screens.md (TUT_G6_SELL, TUT_G7_STORAGE and WHY lines, TUT_G4_ROUTE_PAY which says 'Press the lit time button, top right, to run the cycle.'), story/voice.md, and game/main.gd (what ends each card: the storage card ends on a right-click of the resource button, it does NOT wait for the cycle). Goal: the owner's slide 6 tells the player that sales, trips and stock changes happen when the cycle ends, so they should let the cycle finish (running time with the lit time button or the speed buttons) before the numbers move. Edit TUT_G7_STORAGE and TUT_G7_STORAGE_WHY (60 and 110 chars) so the card still names the real action (right-click the resource button) and also says to wait for the cycle to end; keep it true to the logic (the step does not wait for the cycle). If TUT_G6_SELL (the without-discovery slide 6) would also benefit from one short cycle-end hint in its WHY line, add it there too within 110 chars. No hidden goods named. English only; story/screens.md only, then python3 tools/build_story.py; if it fails only because of a story/ru line make the smallest fix in that one Russian line and say so. Done when written: no QA. Handoff handoffs/story-designer/<date>-T335.json with final texts and which card is slide 6 in each mode.",
@@ -3607,7 +3607,8 @@
       "touches": [
         "story/screens.md"
       ],
-      "priority": 2
+      "priority": 2,
+      "note": "Done by orchestrator: Rewrote the slide 6 card in discovery mode (TUT_G7_STORAGE) to say \"Right-click the resource button. Let the cycle end.\", rewrote its why-line to say sales and stock change when the cycle ends, and added the same hint to the TUT_G6_SELL why-line (slide 6 without discovery)"
     },
     {
       "task_id": "T336",
