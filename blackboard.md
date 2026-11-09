@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-09 10:35 run: T331
-- Summary: Not merged: worker did not report done: blocked T331 | Depends on T329, which is not in this tree: tut_next/TutNext, the TUT_G0_DONE_NEXT label and the card Next button don't exist. T331 has no depends_on, so it was dispatched too early. This tree also doesn't match the brief: TUT_GUIDE has 12 steps, not 13, UPKEEP is index 4, and TUT_G1B_SHIPS is absent. Nothing was built; I only ran the test suite (11603 pass, 13 known failures).
-- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
-- Approach: built by a worker in worktree ../wt/T331 on branch task/T331, merged by the serial merge queue.
-- Agent prompts: /overnight-worker T331 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T331.log.
-- Worked: worker finished.
-- Failed / did not work: worker did not report done: blocked T331 | Depends on T329, which is not in this tree: tut_next/TutNext, the TUT_G0_DONE_NEXT label and the card Next button don't exist. T331 has no depends_on, so it was dispatched too early. This tree also doesn't match the brief: TUT_GUIDE has 12 steps, not 13, UPKEEP is index 4, and TUT_G1B_SHIPS is absent. Nothing was built; I only ran the test suite (11603 pass, 13 known failures)..
-- Files and commits: see git log on branch new-features for commits starting with T331.
-- Left to do: owner or a new run: see blocked_log in schedule.json.
-
 ## 2026-11-09 10:41 run: T332
 - Summary: Not merged: fast-forward merge refused
 - Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
@@ -64,4 +54,14 @@
 - Worked: worker finished.
 - Failed / did not work: worker did not report done: blocked T342 | depends on unmerged T329/T331/T333/T334/T337 (tut_seen counter, speed and Yay cards absent from this tree); re-run after they merge.
 - Files and commits: see git log on branch new-features for commits starting with T342.
+- Left to do: owner or a new run: see blocked_log in schedule.json.
+
+## 2026-11-09 10:53 run: T343
+- Summary: Not merged: fast-forward merge refused
+- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
+- Approach: built by a worker in worktree ../wt/T343 on branch task/T343, merged by the serial merge queue.
+- Agent prompts: /overnight-worker T343 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T343.log.
+- Worked: worker finished.
+- Failed / did not work: fast-forward merge refused.
+- Files and commits: see git log on branch new-features for commits starting with T343.
 - Left to do: owner or a new run: see blocked_log in schedule.json.
