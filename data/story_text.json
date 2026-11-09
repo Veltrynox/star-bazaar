@@ -933,13 +933,13 @@
   },
   {
    "id": "TUT_G2_BUY",
-   "text": "Press Buy on Energy.",
+   "text": "Press the lit Energy button.",
    "max": 60,
-   "place": "Guided step 2, until Buy is on for a good"
+   "place": "Guided step 2, until a Buy order is on for a good"
   },
   {
    "id": "TUT_G2_BUY_WHY",
-   "text": "A Buy order fills your storage on this planet each cycle.",
+   "text": "This buys Energy: each cycle it fills Company storage here. A standing order; press again to stop.",
    "max": 110,
    "place": "Guided step, why it matters (second line of the card)"
   },

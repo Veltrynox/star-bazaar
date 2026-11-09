@@ -244,8 +244,8 @@ TUT_G1_SELECT | 60 | Guided step 1, until a planet is clicked | Click Voltara, y
 TUT_G1_SELECT_WHY | 110 | Guided step, why it matters (second line of the card) | Its panel shows what Voltara sells, what it buys and what you can trade there.
 TUT_G1B_SHIPS | 60 | Guided step 2 (T319), until the Pathfinder card in the Ships menu is clicked | In the Ships menu, right, click the Pathfinder card.
 TUT_G1B_SHIPS_WHY | 110 | Guided step, why it matters (second line of the card) | The card selects your ship. Then click a world on the map to send it there.
-TUT_G2_BUY | 60 | Guided step 2, until Buy is on for a good | Press Buy on Energy.
-TUT_G2_BUY_WHY | 110 | Guided step, why it matters (second line of the card) | A Buy order fills your storage on this planet each cycle.
+TUT_G2_BUY | 60 | Guided step 2, until a Buy order is on for a good | Press the lit Energy button.
+TUT_G2_BUY_WHY | 110 | Guided step, why it matters (second line of the card) | This buys Energy: each cycle it fills Company storage here. A standing order; press again to stop.
 TUT_G3_SEND | 60 | Guided step 3, until a route exists | Right-click Energy, choose Send to.
 TUT_G3_PICK | 60 | Guided step 3, after Send to is chosen, until a destination is clicked | Click a world with a post to send Energy there.
 TUT_G3_SEND_WHY | 110 | Guided step, why it matters (second line of the card) | Pick a world that wants the good. A route carries your goods there by ship.

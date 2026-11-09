@@ -1,0 +1,6 @@
+{
+  "task": "T343",
+  "agent": "ui-programmer (done by main session)",
+  "changed": ["story/screens.md", "data/story_text.json"],
+  "summary": "TUT_G2_BUY now 'Press the lit Energy button.'; TUT_G2_BUY_WHY explains it buys Energy into Company storage each cycle as a standing order, press again to stop. TUT_TARGET 'buy' already resolves to BuyButton_<good> (the resource button) and the step completes on any local buy order; no code change. No other text told the player to press Buy."
+}
