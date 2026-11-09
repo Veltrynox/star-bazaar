@@ -1147,7 +1147,6 @@ LBL_HERO_STATE_IDLE | 24 | Ships menu hero card, state line, ship waiting | Idle
 LBL_HERO_STATE_FLYING | 24 | Ships menu hero card, state line, ship flying | Flying
 LBL_HERO_STATE_BUILDING | 24 | Ships menu hero card, state line, ship building a post | Building
 LBL_HERO_HINT | 60 | Ships menu hero card, tooltip: click selects the ship, then click the map to send it | Click to select. Then click the map to fly.
-LBL_HERO_SELECTED | 24 | Ships menu hero card, extra word on the state line while selected | Selected
 BTN_ESTABLISH_POST | 24 | Planet panel of a living world the Pathfinder has reached | Establish trading post
 BTN_ESTABLISH_PLATFORM | 28 | Planet panel of a dead world the Pathfinder has reached, only after Prospecting-level mining is learned (long button: exception to the 24 limit) | Establish mining platform
 LBL_POST_COST | 60 | Under the establish button, a post that costs credits; {cash} and {cycles} are numbers | Cost: {cash} cr. Build time: {cycles} cycles.

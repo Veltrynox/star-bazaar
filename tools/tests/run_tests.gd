@@ -7600,6 +7600,8 @@ func _test_t317_hero_card() -> void:
 	var sp = m.ship_panel
 	sp.set_upkeep(m)
 	check(sp.hero_card.visible, "T317: hero card shown with a hero ship")
+	check(sp.hero_icon != null and sp.hero_icon.texture != null and sp.hero_icon.mouse_filter == Control.MOUSE_FILTER_IGNORE, "T351: the hero card shows a static icon")
+	check(not ("hero_preview" in sp), "T351: the hero card has no 3D preview")
 	check(not m.map.ship_selected, "T317: ship not selected at start")
 	var click := InputEventMouseButton.new()
 	click.button_index = MOUSE_BUTTON_LEFT
@@ -7613,6 +7615,7 @@ func _test_t317_hero_card() -> void:
 	m.map.select_ship(true)
 	sp.set_upkeep(m)
 	check(m.map.ship_selected == by_card and sp._hero_selected, "T317: viewport select gives the same state and lights the card")
+	check(not sp.hero_state.text.contains(","), "T351: the state line has no selected suffix", sp.hero_state.text)
 	sp._on_hero_input(click)
 	check(not m.map.ship_selected and not sp._hero_selected, "T317: a second card click deselects")
 	# T350: the card click opens the Flagship details; the Ships panel no longer owns the controls

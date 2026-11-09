@@ -1,0 +1,20 @@
+{
+  "agent": "ui-programmer",
+  "date": "2026-11-09",
+  "task": "T351",
+  "status": "done",
+  "files_changed": [
+    "game/ship_panel.gd",
+    "tools/make_icons.py",
+    "art/icons/icon_ship_flagship_64.svg",
+    "art/icons/icon_ship_flagship_64.svg.import",
+    "game/flagship_panel.gd.uid",
+    "story/screens.md",
+    "data/story_text.json",
+    "tools/tests/run_tests.gd",
+    "handoffs/ui-programmer/2026-11-09-T351.json"
+  ],
+  "schema_version": 1,
+  "open_questions": [],
+  "handoff": "Hero card now shows a static 60px ship_flagship line icon (new SVG from tools/make_icons.py, same 24px grid and 1.5 stroke as the other glyphs, tinted ink) instead of the 3D ShipPreview; ShipPreview, hero_preview and _hero_model removed. State line shows only the state; LBL_HERO_SELECTED removed from story/screens.md and rebuilt. The T350 details panel was not touched. Tests updated for the icon and the state line. Screenshot: logs/screenshots/T351.png (Ships panel visible, card shows icon and Idle; not checked in selected state)."
+}
