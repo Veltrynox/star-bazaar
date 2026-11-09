@@ -46,9 +46,9 @@ Six Foundations (not a market, not in endings, shown in every run), cost [GCM:sk
   FND_PERMIT Permit Charter: permits for new systems and routes between systems (section 5).
   FND_PROSPECT Prospecting: routes may start at asteroid clusters.
   FND_STORAGE Space Storage: unlocks Space Storage (section 4).
-  FND_LEDGER Route Ledger (no prerequisite): Buy and Sell orders move more per cycle (all goods).
-  FND_RIVAL_WATCH Rival Watch (needs Route Ledger): price events against the player hit weaker in every market.
-  FND_DOCKS Dock Contracts (needs Prospecting): ship upkeep lower.
+  FND_LEDGER Route Ledger (no prerequisite): Buy and Sell orders move more per cycle (all goods). The proposed route-profit readout is not gated: route net per cycle is already shown to every player.
+  FND_RIVAL_WATCH Market Watch (needs Route Ledger): price events against the player hit weaker in every market (the proposed rival-share readout is dropped: skills no longer read share or rivals).
+  FND_DOCKS Dock Contracts (needs Prospecting): a lane upgrade costs less (effect upgrade_cost_pct).
 
 Each market has seven core nodes MKT_1 to MKT_7 (MIL, LUX, MIN, BIO) in tiers 1 to 5, eight fill nodes MKT_8 to MKT_15 in tiers 2 to 6, and one side skill in Luxury and Minerals. Skill nodes (core 1, 3, 5, 7; fill 8, 10, 12, 13, 15; side skills) cost points, set per node in balance.json ([GCM:skill_cost_MIL_1] and so on). Tech nodes (core 2, 4, 6; fill 9, 11, 14) cost 0 and complete by themselves after the player crafts the goal count of units in that market's workshop: [GCM:tech_goal_2] for node 2, [GCM:tech_goal_4] for nodes 4 and 9, [GCM:tech_goal_6] for nodes 6, 11 and 14, counted only from when the prerequisites are met. Core prerequisites: 2 and 3 need 1; 4 needs 2; 5 needs 3; 6 needs 4 and 5; 7 needs 6; side skills need 3. Fill prerequisites: 8 needs 1; 9 needs 2; 10 needs 3; 11 needs 4; 12 needs 4 in Military, the side skill in Luxury and Minerals, and 5 in Biotech; 13 needs 5; 14 needs 6; 15 (tier 6, the last node) needs 7 and 14. The L size is [GCM:skill_size_l]; other sizes are balance keys named per node in data/skills.json. A node can carry a second effect (a price bonus, a good unlocked); the lines below name the main ones. Exact lines for the player are in story/skills.md.
 
@@ -62,12 +62,12 @@ Military (workshop: Munitions Line)
   MIL_5 Embargo Desk (skill): every [GCM:skill_MIL_5_every] cycles pick one rival: its Military strength falls for a set time.
   MIL_6 Contract Doctrine (tech): Military events against the player cut; Military sale price up (cash only).
   MIL_7 Standing Fleet (capstone skill): all rivals' Military growth cut for the rest of the run.
-  MIL_8 Yard Account (skill): ship upkeep lower again.
+  MIL_8 Yard Account (skill): a new ship costs less to buy (ship_price_pct).
   MIL_9 Cell Press (tech): Military sales count more toward share.
   MIL_10 Hardened Stores (skill): stored Military goods survive storage cuts.
   MIL_11 Proof Range (tech): Military sale price up (cash only).
   MIL_12 Open Arsenal (skill): worlds lose less progress on an unmet cycle (Military needs).
-  MIL_13 Pressure Doctrine (skill): Military routes carry more per cycle.
+  MIL_13 Pressure Doctrine (skill): the Embargo Desk (MIL_5) recharges sooner (cooldown_cut, at least 1 cycle).
   MIL_14 War Economy (tech): each Military batch yields more units.
   MIL_15 Last Line (final skill, needs MIL_7 and MIL_14): rivals' Military strength down for the rest of the run.
 Luxury (workshop: Atelier)
@@ -84,7 +84,7 @@ Luxury (workshop: Atelier)
   LUX_10 Trend Desk (skill): Luxury price events against the player hit weaker.
   LUX_11 Collector's Eye (tech): Luxury sale price up (cash only).
   LUX_12 Press Room (skill, needs LUX_5B): Luxury routes carry more per cycle.
-  LUX_13 Patron's Purse (skill): Luxury sales count more toward share; Luxury sale price up (cash only).
+  LUX_13 Patron's Purse (skill): Luxury sales count more toward a world's need; the mixed-load bonus on Luxury is larger (bundle_bonus_pct, the cap still binds).
   LUX_14 Auction House (tech): Luxury sales count more toward share.
   LUX_15 Grand Salon (final skill, needs LUX_7 and LUX_14): all rivals' Luxury growth cut for the rest of the run.
 Minerals (workshops: Smelter, Fabric)
@@ -96,12 +96,12 @@ Minerals (workshops: Smelter, Fabric)
   MIN_5B Hard Hats (side skill): Minerals routes carry more and ignore debris; Minerals price events hit weaker.
   MIN_6 Lattice Works (tech): each Minerals batch yields one more unit; unlocks alloy; Minerals sale price up (cash only).
   MIN_7 Cornered Seam (capstone skill): rivals' Minerals strength down for the rest of the run.
-  MIN_8 Deep Hold (skill): planet storage holds more (all goods).
-  MIN_9 Slag Reclaim (tech): Minerals sales count more toward share.
-  MIN_10 Safe Passage (skill): Minerals price events against the player hit weaker.
+  MIN_8 Deep Hold (skill): planet storage holds more (all goods; the proposed ore-only room needs per-good capacity and is not built).
+  MIN_9 Slag Reclaim (tech): Minerals sales count more toward a world's need; workshop recipes take 1 less ore per batch (recipe_input_cut, never below 1).
+  MIN_10 Safe Passage (skill): Minerals price events against the player hit weaker (the proposed dead-world ore loss has no mechanic in the game yet).
   MIN_11 Hot Foundry (tech): Minerals sale price up (cash only).
   MIN_12 Seam Brokers (skill, needs MIN_5B): Minerals price-up events pay more.
-  MIN_13 Core Tuning (skill): Minerals routes carry more per cycle.
+  MIN_13 Core Tuning (skill): trips of a ship with a Null Core cost less (null_core_trip_pct).
   MIN_14 Mass Melt (tech): Minerals sales count more toward share.
   MIN_15 Motherlode (final skill, needs MIN_7 and MIN_14): cluster yield up again.
 Biotech (workshop: Culture Lab)

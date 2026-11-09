@@ -160,15 +160,15 @@ SK_MIN_5B_FLAVOUR | 90 | Skill screen, detail panel | Hats will not stop a rock.
 SK_MIN_5B_PLAIN | 110 | Skill screen, detail panel | Minerals routes carry 10% more and ignore debris. Minerals price events hit 30% weaker.
 
 ## Skills fill (T207 proposal, 35 nodes; ids kept from design/proposals/2026-11-05-skills-fill.md)
-Text only. Sizes are in words; the economy designer sets numbers. Nodes are not yet in data/skills.json.
+Sizes are in words; the economy designer sets numbers. All nodes are in data/skills.json (T208).
 
 SK_FND_LEDGER_NAME | 24 | Skill screen, node name | Route Ledger
-SK_FND_LEDGER_FLAVOUR | 90 | Skill screen, detail panel | A column of small numbers, honest to the last coin. You read it twice.
-SK_FND_LEDGER_PLAIN | 110 | Skill screen, detail panel | Each route shows its net profit per cycle after trip cost and Ship upkeep.
+SK_FND_LEDGER_FLAVOUR | 90 | Skill screen, detail panel | A column of small numbers, honest to the last coin. You sign it twice.
+SK_FND_LEDGER_PLAIN | 110 | Skill screen, detail panel | Buy and Sell orders move more each cycle, for every good.
 
-SK_FND_RIVAL_WATCH_NAME | 24 | Skill screen, node name | Rival Watch
-SK_FND_RIVAL_WATCH_FLAVOUR | 90 | Skill screen, detail panel | You learn where the others will stand before they do. They learn you looked.
-SK_FND_RIVAL_WATCH_PLAIN | 110 | Skill screen, detail panel | The Competitors screen shows each rival's expected share 3 cycles ahead.
+SK_FND_RIVAL_WATCH_NAME | 24 | Skill screen, node name | Market Watch
+SK_FND_RIVAL_WATCH_FLAVOUR | 90 | Skill screen, detail panel | A quiet clerk reads the wind for you. Fewer surprises reach your desk.
+SK_FND_RIVAL_WATCH_PLAIN | 110 | Skill screen, detail panel | Price events against you hit weaker, in every market.
 
 SK_FND_DOCKS_NAME | 24 | Skill screen, node name | Dock Contracts
 SK_FND_DOCKS_FLAVOUR | 90 | Skill screen, detail panel | A fixed fee, a stamped berth, a clerk who stops asking.
@@ -246,7 +246,7 @@ SK_LUX_15_PLAIN | 110 | Skill screen, detail panel | Adds {n} more cycles of war
 
 SK_MIN_8_NAME | 24 | Skill screen, node name | Deep Hold
 SK_MIN_8_FLAVOUR | 90 | Skill screen, detail panel | A bigger hold, a lower ceiling. The crew learns to stoop.
-SK_MIN_8_PLAIN | 110 | Skill screen, detail panel | Storage holds more mined cargo.
+SK_MIN_8_PLAIN | 110 | Skill screen, detail panel | Planet storage holds more of every good.
 
 SK_MIN_9_NAME | 24 | Skill screen, node name | Slag Reclaim
 SK_MIN_9_FLAVOUR | 90 | Skill screen, detail panel | What the fire leaves is melted down again. Waste becomes a habit you drop.
@@ -254,8 +254,8 @@ SK_MIN_9_PLAIN | 140 | Skill screen, detail panel | Workshop recipes need less m
 SK_MIN_9_CRAFT | 60 | Skill screen, tech node progress line | Minerals workshop crafts: {n} of {goal}
 
 SK_MIN_10_NAME | 24 | Skill screen, node name | Safe Passage
-SK_MIN_10_FLAVOUR | 90 | Skill screen, detail panel | A beacon on every cold rock. Fewer crews go missing.
-SK_MIN_10_PLAIN | 110 | Skill screen, detail panel | Mined cargo is lost less often on dead worlds.
+SK_MIN_10_FLAVOUR | 90 | Skill screen, detail panel | A beacon on every cold rock, and a calmer market behind it.
+SK_MIN_10_PLAIN | 110 | Skill screen, detail panel | Minerals price events against you hit weaker.
 
 SK_MIN_11_NAME | 24 | Skill screen, node name | Hot Foundry
 SK_MIN_11_FLAVOUR | 90 | Skill screen, detail panel | The pour is bright and quick. Buyers like the shine.
@@ -268,7 +268,7 @@ SK_MIN_12_PLAIN | 110 | Skill screen, detail panel | Minerals price events in yo
 
 SK_MIN_13_NAME | 24 | Skill screen, node name | Core Tuning
 SK_MIN_13_FLAVOUR | 90 | Skill screen, detail panel | Dials, a steady hand, a long cold trip made a little shorter.
-SK_MIN_13_PLAIN | 110 | Skill screen, detail panel | Trips to dead worlds cost less.
+SK_MIN_13_PLAIN | 110 | Skill screen, detail panel | Trips by a ship with a Null Core cost less.
 
 SK_MIN_14_NAME | 24 | Skill screen, node name | Mass Melt
 SK_MIN_14_FLAVOUR | 90 | Skill screen, detail panel | The big furnace never asks what it is melting. It asks for more.

@@ -1,5 +1,5 @@
 extends PanelContainer
-## Skill screen for the four market trees: a Foundations row on top, then one column per market with its
+## Skill screen for the four market trees: a full-width Foundations block on top, then one column per market with its
 ## seven nodes in tier order, linked by prerequisite lines. Skills and techs look different (tint and tag).
 ## A detail strip shows the selected node with a Learn button that learns at once. Learned bot skills get a Use menu.
 ## Does not pause the game. Open/close is owned by main.gd (K, Esc, Skills button).
@@ -22,11 +22,9 @@ const NODE_BTN_H := 50.4  # 0.9 of the old 56
 const CELL_W := 129.6  # 0.9 of the old 144
 const CELL_W_MAX := 420.0  # the cells grow to fill the window width, up to this
 const WINDOW_MARGIN := 24.0  # gap between the skill window and the screen edge
-const FND_WIDE_CELLS := 2  # Foundations column width (cells) when only one market is shown
 const ICON_PX := 24  # skill icon on the node button
 const TREE_RESERVE := 200.0  # window height kept for header, help and footer; the tree gets the rest
 const DETAIL_W := 320.0  # width of the skill info panel on the right of the tree
-const STACKED_BRANCHES := ["fnd"]  # these branches put every node on its own row (one narrow column)
 const MAX_ROW_CELLS := 2  # a tier with more nodes wraps onto a second line, so four columns of 3 do not overflow 1500 px
 const NODE_GAP_H := 15  # between nodes in a row
 const NODE_GAP_V := 21  # between rows of a branch
@@ -242,28 +240,47 @@ func _cell_width(branches: Array, widths: Dictionary) -> float:
 		avail -= NODE_GAP_H * (int(widths[b]) - 1)
 	return clampf(avail / float(maxi(1, units)), CELL_W, CELL_W_MAX)
 
-## One column per branch, all in a single row; inside a column one row per depth (row 0 = no prerequisites,
-## at the top). Branches in STACKED_BRANCHES put each node on its own row so the column stays one cell wide.
+## Two blocks: Foundations across the full width on top (nodes in learning order, several cells per row), then one
+## block below with the market columns side by side (one column for a run's tree). Inside a market column one row per
+## depth (row 0 = no prerequisites, at the top).
 func _build_vertical(rows: VBoxContainer) -> void:
 	var branches := _branches()
+	var markets: Array = branches.filter(func(x): return x != "fnd")
 	var d_rows := depth_rows(branches)
+	var wide: bool = markets.size() <= 1  # one market: spread its nodes over the whole width
+	var widths := {}
+	for b in markets:
+		var wd := 1
+		for r in d_rows:
+			if r.has(b):
+				wd = maxi(wd, mini((r[b] as Array).size(), _row_cap(wide)))
+		widths[b] = wd
+	_cell_w = _cell_width(markets, widths)
+	rows.add_theme_constant_override("separation", BRANCH_GAP)
+	if branches.has("fnd"):
+		var fnd_ids: Array = []  # learning order: by depth, then as the tree lists them
+		for r in d_rows:
+			if r.has("fnd"):
+				fnd_ids.append_array(r["fnd"])
+		var tree_w := custom_minimum_size.x - 24.0 - 24.0 - 10.0 - DETAIL_W - 12.0
+		var per_row := clampi(int(floor((tree_w + NODE_GAP_H) / (_cell_w + NODE_GAP_H))), 1, maxi(1, fnd_ids.size()))
+		var fsec := VBoxContainer.new()
+		fsec.add_theme_constant_override("separation", NODE_GAP_V)
+		rows.add_child(fsec)
+		fsec.add_child(_caption(StoryText.get_text("SK_TAB_FND")))
+		fsec.add_child(HSeparator.new())
+		var at := 0
+		while at < fnd_ids.size():
+			fsec.add_child(_node_row(fnd_ids.slice(at, at + per_row)))
+			at += per_row
+		if SHOW_PLACEHOLDERS:
+			_add_placeholder_rows(fsec, per_row, fnd_ids.size())
 	var band := HBoxContainer.new()
 	band.add_theme_constant_override("separation", BRANCH_GAP)
 	band.alignment = BoxContainer.ALIGNMENT_CENTER
 	band.size_flags_vertical = Control.SIZE_EXPAND_FILL  # columns run the full height of the tree area
 	rows.add_child(band)
-	var wide: bool = branches.size() <= 2  # Foundations + one market: spread the nodes over the whole width
-	var widths := {}
-	for b in branches:
-		var wd := 1
-		if wide or not STACKED_BRANCHES.has(b):
-			for r in d_rows:
-				if r.has(b):
-					wd = maxi(wd, mini((r[b] as Array).size(), _row_cap(b, wide)))
-		widths[b] = wd
-	_cell_w = _cell_width(branches, widths)
-	for b in branches:
-		var stacked: bool = STACKED_BRANCHES.has(b) and not wide
+	for b in markets:
 		var widest: int = widths[b]
 		var w := widest * _cell_w + (widest - 1) * NODE_GAP_H
 		var sec := VBoxContainer.new()
@@ -272,42 +289,37 @@ func _build_vertical(rows: VBoxContainer) -> void:
 		sec.add_theme_constant_override("separation", NODE_GAP_V)
 		band.add_child(sec)
 		var cap := _caption(StoryText.get_text("SK_TAB_" + b.to_upper()))
-		if b != "fnd":
-			cap.tooltip_text = StoryText.get_text("MKT_%s_ID" % b.to_upper())
-			cap.mouse_filter = Control.MOUSE_FILTER_STOP
+		cap.tooltip_text = StoryText.get_text("MKT_%s_ID" % b.to_upper())
+		cap.mouse_filter = Control.MOUSE_FILTER_STOP
 		sec.add_child(cap)
 		sec.add_child(HSeparator.new())
 		for r in d_rows:
 			if not r.has(b):
 				continue
-			var groups: Array = []
-			if stacked:
-				for id in r[b]:
-					groups.append([id])
-			else:
-				var ids: Array = r[b]
-				var at := 0
-				while at < ids.size():  # a tier with more than MAX_ROW_CELLS nodes wraps onto the next line
-					groups.append(ids.slice(at, at + _row_cap(b, wide)))
-					at += _row_cap(b, wide)
-			for g in groups:
-				var row := HBoxContainer.new()
-				row.add_theme_constant_override("separation", NODE_GAP_H)
+			var ids: Array = r[b]
+			var at := 0
+			while at < ids.size():  # a tier with more nodes than a line holds wraps onto the next line
+				var row := _node_row(ids.slice(at, at + _row_cap(wide)))
 				row.size_flags_vertical = Control.SIZE_EXPAND_FILL
 				sec.add_child(row)
-				for id in g:
-					var cell := _node_cell(id)
-					cell.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN  # fixed width, rows line up on the left
-					cell.custom_minimum_size.x = _cell_w
-					row.add_child(cell)
+				at += _row_cap(wide)
 		if SHOW_PLACEHOLDERS:
-			_add_placeholder_rows(sec, 1 if stacked else widest, SkillTree.ids_in(b).size())
+			_add_placeholder_rows(sec, widest, SkillTree.ids_in(b).size())
 
-## Nodes per line in a branch: one market beside Foundations uses every column the width allows.
-func _row_cap(b: String, wide: bool) -> int:
-	if not wide:
-		return MAX_ROW_CELLS
-	return FND_WIDE_CELLS if b == "fnd" else 6
+## One line of node cells, fixed width, lined up on the left.
+func _node_row(ids: Array) -> HBoxContainer:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", NODE_GAP_H)
+	for id in ids:
+		var cell := _node_cell(id)
+		cell.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+		cell.custom_minimum_size.x = _cell_w
+		row.add_child(cell)
+	return row
+
+## Nodes per line in a market column: a lone market uses every column the width allows.
+func _row_cap(wide: bool) -> int:
+	return 6 if wide else MAX_ROW_CELLS
 
 ## Extra empty rows under a branch: enough slots for (PLACEHOLDER_GROWTH - 1) x its real nodes, `width` slots per row.
 func _add_placeholder_rows(sec: VBoxContainer, width: int, nodes: int) -> void:
@@ -521,16 +533,22 @@ func _draw_links() -> void:
 			var b: Control = cells[id]
 			if not a.is_visible_in_tree() or not b.is_visible_in_tree():
 				continue
-			var ra := a.get_global_rect()
-			var rb := b.get_global_rect()
-			var p0 := Vector2(ra.position.x + ra.size.x * 0.5, ra.end.y) - origin
-			var p1 := Vector2(rb.position.x + rb.size.x * 0.5, rb.position.y) - origin
+			var ends := link_ends(p, id)
+			var p0: Vector2 = ends[0]
+			var p1: Vector2 = ends[1]
 			var my := (p0.y + p1.y) * 0.5
 			var col := COL_LEARNED if learned.has(p) else COL_LOCKED
 			var pts := [p0, Vector2(p0.x, my), Vector2(p1.x, my), p1]
 			for i in 3:
 				for seg in clip_segment(pts[i], pts[i + 1], boxes):
 					_tree.draw_line(seg[0], seg[1], col, 2.0)
+
+## Tree-local end points of the line from prerequisite `pid` to node `id`: bottom centre of the prerequisite, top centre of the node.
+func link_ends(pid: String, id: String) -> Array:
+	var origin := _tree.get_global_rect().position
+	var ra := (cells[pid] as Control).get_global_rect()
+	var rb := (cells[id] as Control).get_global_rect()
+	return [Vector2(ra.position.x + ra.size.x * 0.5, ra.end.y) - origin, Vector2(rb.position.x + rb.size.x * 0.5, rb.position.y) - origin]
 
 ## Axis-aligned segment a-b minus the node boxes it crosses: the pieces to draw, each [from, to].
 static func clip_segment(a: Vector2, b: Vector2, boxes: Array) -> Array:

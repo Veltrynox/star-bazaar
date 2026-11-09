@@ -28,6 +28,12 @@
    "ore_free_slots": "ore Buy and Sell orders ignore the order-size cap (limited by storage room, cash and stock)",
    "reopen_sooner": "a closed planet reopens 'cycles' cycles sooner",
    "event_immune": "routes carrying target-market goods ignore route events of the listed kinds (kinds: debris). Pirates have no live source, so no pirate kind.",
+   "ship_price_pct": "T208: price of a new ship x (1 - balance[key])",
+   "upgrade_cost_pct": "T208: cost of a lane upgrade x (1 - balance[key])",
+   "recipe_input_cut": "T208: workshop recipes need balance[key] fewer units of input 'good' per batch (never below 1)",
+   "null_core_trip_pct": "T208: a Null Core ship's trip cost x (1 - balance[key]) on top of null_core_trip_mult",
+   "bundle_bonus_pct": "T208: mixed-load bonus of target-market goods x (1 + balance[key]); bundle_bonus_cap still binds",
+   "cooldown_cut": "T208: balance[key] cycles off the cooldown of the target market's chosen_bot skills (min 1 cycle)",
    "stock_growth_cap": "raises the cap of the stock_growth_pct effect for target market to balance[cap_key] (BIO_3 lifts the BIO_2 ceiling)"
   }
  },
@@ -761,9 +767,9 @@
    ],
    "cost": 2,
    "effect": {
-    "type": "upkeep_mult",
-    "target": "ships",
-    "key": "skill_FND_DOCKS_upkeep"
+    "type": "upgrade_cost_pct",
+    "target": "feature",
+    "key": "skill_FND_DOCKS_cost"
    }
   },
   {
@@ -776,9 +782,9 @@
    ],
    "cost": 2,
    "effect": {
-    "type": "upkeep_mult",
+    "type": "ship_price_pct",
     "target": "ships",
-    "key": "skill_MIL_8_upkeep"
+    "key": "skill_MIL_8_price"
    }
   },
   {
@@ -854,9 +860,9 @@
    ],
    "cost": 3,
    "effect": {
-    "type": "route_capacity_pct",
+    "type": "cooldown_cut",
     "target": "mil",
-    "key": "skill_MIL_13_route_units"
+    "key": "skill_MIL_13_cooldown"
    }
   },
   {
@@ -987,10 +993,9 @@
    },
    "extra": [
     {
-     "type": "sale_price_pct",
+     "type": "bundle_bonus_pct",
      "target": "lux",
-     "key": "skill_LUX_13_price",
-     "share_effect": false
+     "key": "skill_LUX_13_bundle"
     }
    ]
   },
@@ -1057,6 +1062,14 @@
     "target": "min",
     "key": "skill_MIN_9_need_fill"
    },
+   "extra": [
+    {
+     "type": "recipe_input_cut",
+     "target": "workshop",
+     "good": "ore",
+     "key": "skill_MIN_9_ore"
+    }
+   ],
    "tech_goal_key": "tech_goal_4"
   },
   {
@@ -1116,9 +1129,9 @@
    ],
    "cost": 3,
    "effect": {
-    "type": "route_capacity_pct",
-    "target": "min",
-    "key": "skill_MIN_13_route_units"
+    "type": "null_core_trip_pct",
+    "target": "feature",
+    "key": "skill_MIN_13_trip"
    }
   },
   {

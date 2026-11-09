@@ -267,6 +267,43 @@ static func reopen_sooner() -> int:
 		n += int(e.get("cycles", 1))
 	return n
 
+## ship_price_pct (T208): price of a new ship x this.
+static func ship_price_mult() -> float:
+	var m := 1.0
+	for e in _eff("ship_price_pct"):
+		m *= 1.0 - clampf(_key(e), 0.0, 1.0)
+	return m
+
+## upgrade_cost_pct (T208): cost of upgrading a lane to level 2 x this.
+static func upgrade_cost_mult() -> float:
+	var m := 1.0
+	for e in _eff("upgrade_cost_pct"):
+		m *= 1.0 - clampf(_key(e), 0.0, 1.0)
+	return m
+
+## recipe_input_cut (T208): units fewer of this input good per batch (a recipe never drops below 1 unit of it).
+static func recipe_input_cut(good: String) -> int:
+	var n := 0
+	for e in _eff("recipe_input_cut"):
+		if str(e.get("good", "")) == good:
+			n += int(_key(e))
+	return n
+
+## null_core_trip_pct (T208): a Null Core ship's trip cost x this on top of null_core_trip_mult.
+static func null_core_trip_mult() -> float:
+	var m := 1.0
+	for e in _eff("null_core_trip_pct"):
+		m *= 1.0 - clampf(_key(e), 0.0, 1.0)
+	return m
+
+## bundle_bonus_pct (T208): the mixed-load bonus of goods of market m x this (the bundle_bonus_cap still binds).
+static func bundle_bonus_mult(m: String) -> float:
+	return 1.0 + maxf(0.0, _sum("bundle_bonus_pct", m))
+
+## cooldown_cut (T208): cycles taken off the cooldown of the chosen-house skills of market m (never below 1 cycle).
+static func cooldown_cut(m: String) -> int:
+	return roundi(_sum("cooldown_cut", m))
+
 ## ---- choose-a-bot skills (MIL_5 Embargo Desk, LUX_7 Guild Seal) ----
 
 static func _bot_effect(id: String) -> Dictionary:
@@ -295,7 +332,7 @@ static func bot_skill_cooldown(id: String) -> int:
 		return -1
 	if not bot_used.has(id):
 		return shared_cooldown_left()
-	var every := int(_key(e, "cooldown_key"))
+	var every := maxi(1, int(_key(e, "cooldown_key")) - cooldown_cut(str(e.get("target", ""))))
 	return maxi(shared_cooldown_left(), maxi(0, int(bot_used[id]) + every - current_cycle()))
 
 ## Shared lock (BIO_6B): after any chosen-bot hit all chosen-bot skills wait balance[shared_cooldown_key] cycles.
