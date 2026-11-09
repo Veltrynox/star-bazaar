@@ -95,6 +95,7 @@ var capital_planet := ""  # T264: planet id of the Bazaar capital (marker); set 
 var _growth: Control = null
 var rivals: Node = null  # T199: game/rival_ships.gd, set by main
 ## T180: flight orders and establish orders; see the interface at the top of game/pathfinder_view.gd. Never emitted while flight is null or off.
+var free_ship_menu := false  # T329: set by main during the first tutorial card: the planet menu opens without selecting the ship
 signal fly_requested(target: Dictionary)   # {"kind": "planet"|"storage"|"cluster"|"point", "pos": Vector3, "index": int}
 signal establish_requested(planet_id: String)
 ## T200: ship controls. Click the ship to select it; with it selected LEFT click flies at once, RIGHT click on a planet asks main for the
@@ -1314,8 +1315,54 @@ func pick_ship(screen_pos: Vector2) -> bool:
 		return false
 	return camera.unproject_position(w).distance_to(screen_pos) <= SHIP_PICK_PX
 
+## T323: window position of planet `i`, or (-1, -1) when it is behind the camera or unknown.
+func planet_screen_pos(i: int) -> Vector2:
+	if camera == null or i < 0 or i >= positions.size() or camera.is_position_behind(positions[i]):
+		return Vector2(-1, -1)
+	return camera.unproject_position(positions[i])
+
+## T322: window position of the Pathfinder, or (-1, -1) when it is not drawn or behind the camera.
+func ship_screen_pos() -> Vector2:
+	if not PathfinderView.active(flight) or pathfinder == null or not pathfinder.visible or camera == null:
+		return Vector2(-1, -1)
+	var w: Vector3 = PathfinderView._call(flight, "ship_position", [], Vector3.ZERO) + Vector3(0, PathfinderView.LIFT, 0)
+	if camera.is_position_behind(w):
+		return Vector2(-1, -1)
+	return camera.unproject_position(w)
+
 func select_ship(on: bool) -> void:
 	ship_selected = on and PathfinderView.active(flight)
+
+## T322: a new run starts zoomed in on `world` (the Pathfinder at its home dock); a loaded save never calls this.
+## Placeholders for the owner: NEW_RUN_ZOOM_MULT times the default zoom, so the ship and its home world fill the window.
+const NEW_RUN_ZOOM_MULT := 2.0
+func start_view_on(world: Vector3) -> void:
+	focus = Vector3(world.x, focus.y, world.z)
+	zoom = clampf(START_ZOOM * NEW_RUN_ZOOM_MULT, zoom_min, zoom_max)
+	clamp_focus()
+	_update_camera()
+
+## T327: centres the camera on the middle of the world points `pts` and zooms out (never in) until every one lies inside the
+## window rect `region`. Stops at zoom_min.
+func fit_points(pts: Array, region: Rect2) -> void:
+	if pts.is_empty() or camera == null:
+		return
+	var mid := Vector3.ZERO
+	for q in pts:
+		mid += q
+	mid /= float(pts.size())
+	focus = Vector3(mid.x, focus.y, mid.z)
+	clamp_focus()
+	for _k in 80:
+		_update_camera()
+		var ok := true
+		for q in pts:
+			if camera.is_position_behind(q) or not region.has_point(camera.unproject_position(q)):
+				ok = false
+				break
+		if ok or zoom <= zoom_min:
+			return
+		zoom = maxf(zoom_min, zoom * 0.93)
 
 func _input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion and _rc_down and (event.button_mask & MOUSE_BUTTON_MASK_RIGHT) != 0:
@@ -1377,7 +1424,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 ## T200: right click (no drag). With the ship selected: a planet with allowed actions opens the menu; open space deselects.
 func _right_click(pos: Vector2) -> void:
-	if not (PathfinderView.active(flight) and ship_selected):
+	if not (PathfinderView.active(flight) and (ship_selected or free_ship_menu)):
 		return
 	var hit := pick_planet(pos)
 	if hit >= 0:

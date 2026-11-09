@@ -141,9 +141,25 @@ var tutorial_label: Label  # the current step's line on the floating tutorial ca
 var tip_label: Label  # game tip on the right board
 var tut_arrow: Polygon2D  # pointer from the card to the target
 var tut_actions: HBoxContainer  # Skip only: every guided step moves on by the player's own action
+var tut_next: Button  # T329: Next on the Yay card (TUT_G0_DONE) only
 var tut_card: PanelContainer  # the guided tutorial card: floats beside the control the step is about
+var tut_skip_btn: Button
+var tut_finish_btn: Button
 var tut_count: Label  # "2 of 10"
 var tut_why: Label  # the step's why line (story id <step id>_WHY), hidden when the story has none
+var ship_ring: PulseRing  # T322/T323: one faint thin circle on the 3D Pathfinder, pulsed 3 times on the first card selection
+var ship_pulse_plays := 0  # runtime only, not saved: how many times the cue has started this run
+var planet_ring: PulseRing  # T323: the same pulse, looping on the planet while the tutorial step asks for a planet click
+var _planet_ring_i := -1  # planet the loop is on, -1 = not playing
+var _tut_fly_i := -1  # T327: the one planet the first flight card asks for (cached so it stays the same while the planets orbit)
+const SHIP_PULSE_N := 3
+const SHIP_PULSE_SEC := 0.9
+const SHIP_PULSE_R0 := 14.0
+const SHIP_PULSE_R1 := 54.0
+const SHIP_PULSE_ALPHA := 0.35
+const PLANET_PULSE_SEC := 1.6  # T323: slower loop on the planet
+const PLANET_PULSE_R0 := 16.0
+const PLANET_PULSE_R1 := 56.0
 var tut_hl: Panel  # pulsing accent outline over the control the current step is about
 var tut_first: Dictionary = {}  # T15: one-time triggers already used this session
 var tut_show_count := 0  # card rebuilds, for tests
@@ -151,13 +167,15 @@ var _tut_lock_seen := -1  # lock step the panels were last drawn for
 var _tut_sig: Array = []  # last state the card was built from
 var _voiced_tut := -1  # guided step last spoken
 ## T124 guided first steps: index into TUT_GUIDE; TUT_GUIDE.size() means done. Saved.
-const TUT_GUIDE := ["TUT_G1_SELECT", "TUT_G2_BUY", "TUT_G3_SEND", "TUT_G4_ROUTE_PAY", "TUT_G5_UPKEEP", "TUT_G6_SELL", "TUT_G7_STORAGE", "TUT_G7_NEEDS", "TUT_G7_GROW", "TUT_G8_SKILLS", "TUT_G9_PERMIT", "TUT_G10_DONE"]
+const TUT_GUIDE := ["TUT_G1_SELECT", "TUT_G1B_SHIPS", "TUT_G2_BUY", "TUT_G3_SEND", "TUT_G4_ROUTE_PAY", "TUT_G5_UPKEEP", "TUT_G6_SELL", "TUT_G7_STORAGE", "TUT_G7_NEEDS", "TUT_G7_GROW", "TUT_G8_SKILLS", "TUT_G9_PERMIT", "TUT_G10_DONE"]
 ## Version 1 saves (no tut_ver) counted 6 steps: select, buy, send, sell, skills, done. Old index -> current index.
-const TUT_OLD_MAP := [0, 1, 2, 5, 9, 11]
+const TUT_OLD_MAP := [0, 2, 3, 6, 10, 12]
 ## Version 2 had 10 steps; T316 added Needs and Grow after Storage (index 7 and 8), so v2 index >= 7 moves up by 2.
 const TUT_V2_INSERT_AT := 7
 const TUT_V2_INSERTED := 2
-const TUT_VER := 3
+## Version 3 had 12 steps; T320 added the Ships step at index 1, so v3 index >= 1 moves up by 1.
+const TUT_V3_INSERT_AT := 1
+const TUT_VER := 4
 
 ## Current step index for a saved one. Pure, so tests can call it: v1 and v2 numbering map to the current list, a finished tutorial stays finished.
 static func tut_map_saved_step(saved: int, ver: int) -> int:
@@ -166,9 +184,14 @@ static func tut_map_saved_step(saved: int, ver: int) -> int:
 		return clampi(saved, 0, size)
 	if ver < 2:
 		return TUT_OLD_MAP[maxi(0, saved)] if saved < TUT_OLD_MAP.size() else size
-	if saved >= 10:  # a v2 tutorial that was finished
+	if saved >= 10 and ver < 3:  # a v2 tutorial that was finished
 		return size
-	return clampi(saved + (TUT_V2_INSERTED if saved >= TUT_V2_INSERT_AT else 0), 0, size)
+	var v3 := saved
+	if ver < 3:
+		v3 = saved + (TUT_V2_INSERTED if saved >= TUT_V2_INSERT_AT else 0)
+	if v3 >= size - 1:  # v3 had 12 steps, so its finished value 12 equals size - 1: finished stays finished
+		return size
+	return clampi(v3 + (1 if v3 >= TUT_V3_INSERT_AT else 0), 0, size)
 ## English fallbacks until the story text ids exist in the story files.
 const TUT_FALLBACK := {
 	"TUT_G3_PICK": "Click the planet that wants the good.",
@@ -183,7 +206,14 @@ const TUT_FALLBACK := {
 var tut_step: int = 0
 var tips_seen: Dictionary = {}  # T316 one-time tips already shown this run (saved)
 var tips_off := false  # Skip tutorial was pressed: no more tips (saved)
-var tip_active := ""  # tip id on the tip card now
+var tip_active := ""  # tip id on the tip card now (the first id when two tips share a card)
+var tip_active_ids: Array = []  # T339 ids on the card now
+var tip_queue: Array = []  # T339 tips that fired and wait their turn (never dropped, shown in TIP_PRIORITY order)
+var tip_recent: Array = []  # T339 last cards shown, newest first, each an array of tip ids (at most TIP_RECENT_MAX)
+var tip_last_at := -1.0e9  # T339 game clock (seconds) when the last card was shown
+var tip_now_label: Label  # T339 right board: newest tip text
+var tip_now_why: Label
+var tip_recent_box: VBoxContainer  # T339 right board: the older cards of the last three
 var tip_sig: Dictionary = {}  # signals seen this session (tax, hungry, ...), see tip_signal
 var tips_seed_pending := false  # a save without tips_seen: tips already due at load are marked seen
 var tip_card: PanelContainer
@@ -194,6 +224,7 @@ var _tip_poll_t := 0.0
 var tut_flags: Dictionary = {}  # actions seen this session: "expenses" (forecast opened), "storage" (resource button right-clicked)
 var tut_goal_t: float = 0.0  # real seconds the last guided step has been shown
 const TUT_LAST_SECS := 12.0
+var tut_seen: Array = []  # T331: indexes of guided steps whose card has been on screen; the counter's n is its size
 var tut_skipped: Array = []  # ids of guided steps passed over automatically (their state was never reached)
 var trade: RefCounted = Trade.new()  # price/margin logic for T07
 var commodities: Array = []
@@ -399,6 +430,10 @@ func _ready() -> void:
 		_quiet_points = true
 		_award_planet(maxi(mission_planet, 0))  # T82: the home planet counts at start
 		_quiet_points = false
+		if SaveGame.skip_tutorial():  # T322: main menu setting, new runs start with the tutorial finished
+			_tut_skip()
+		if map != null and map.flight != null and PathfinderView.active(map.flight):  # T322: new run starts zoomed in on the ship
+			map.start_view_on(PathfinderView._call(map.flight, "ship_position", [], Vector3.ZERO))
 		_build_preface()
 		_tut_show()
 		_tut_cycle()
@@ -487,6 +522,7 @@ func apply_state(s: Dictionary) -> void:
 	tips_off = bool(s.get("tips_off", false))
 	tip_active = ""
 	tip_sig = {}
+	tip_reset_flow(true)
 	tips_seed_pending = not s.has("tips_seen")  # an older save: tips already due stay quiet instead of all firing at once
 	cycle = maxi(1, int(s.get("cycle", 1)))
 	trade_income_total = maxi(0, int(s.get("trade_income_total", 0)))  # old saves: 0, earned again
@@ -1573,10 +1609,14 @@ func can_upgrade_route(id: int) -> Dictionary:
 		return {"ok": false, "reason": "Already upgraded."}
 	if not engine.lane_full(int(r["a"]), int(r["b"]), str(r["c"])):
 		return {"ok": false, "reason": "Only a full lane can be upgraded."}
-	var cost := int(balance.get("upgrade_cost", 0))
+	var cost := upgrade_cost()
 	if cash < cost:
 		return {"ok": false, "reason": "Not enough cash to upgrade the route (%d cr)." % cost}
 	return {"ok": true, "reason": ""}
+
+## Cost of a lane upgrade: upgrade_cost x the upgrade_cost_pct skills (FND_DOCKS).
+func upgrade_cost() -> int:
+	return roundi(float(balance.get("upgrade_cost", 0)) * Skills.upgrade_cost_mult())
 
 ## Upgrades the whole lane of route `id` to level 2 and charges upgrade_cost once. {ok, reason}.
 func upgrade_route(id: int) -> Dictionary:
@@ -1586,7 +1626,7 @@ func upgrade_route(id: int) -> Dictionary:
 	if not r["ok"]:
 		return r
 	var rec: Dictionary = engine.routes[engine.find_by_id(id)]
-	cash -= int(balance.get("upgrade_cost", 0))
+	cash -= upgrade_cost()
 	engine.set_lane_level(int(rec["a"]), int(rec["b"]), str(rec["c"]), 2)
 	_after_change()
 	return r
@@ -2253,6 +2293,9 @@ func _cycle_seconds() -> float:
 func _process(delta: float) -> void:
 	_tut_poll()
 	_tut_update_highlight()
+	_tut_update_planet_ring()
+	if map != null:
+		map.free_ship_menu = _tut_fly_step()  # T329
 	_tut_tick(delta)
 	_tip_tick(delta)
 	if event_icons != null:
@@ -3189,7 +3232,9 @@ func debug_restart_tutorial() -> void:
 	tips_off = false
 	tip_sig = {}
 	_tip_close()
+	tip_reset_flow(false)
 	tut_skipped = []
+	tut_seen = []
 	tut_flags = {}
 	tut_goal_t = 0.0
 	galaxy_seen = false
@@ -3225,9 +3270,15 @@ func _build_speed_buttons(box: HBoxContainer) -> void:
 		b.theme_type_variation = "ButtonGhost"
 		b.tooltip_text = "Game speed %dx" % int(SPEEDS[i])
 		b.custom_minimum_size = Vector2(34, 28)
-		b.pressed.connect(set_speed.bind(SPEEDS[i]))
+		b.pressed.connect(_on_speed_pressed.bind(SPEEDS[i]))
 		box.add_child(b)
 		speed_buttons.append(b)
+
+## T333: a click on a speed button also ends the speed card of the guided tutorial (it never pauses or gates the game).
+func _on_speed_pressed(value: float) -> void:
+	set_speed(value)
+	if _tut_speed_card():
+		tut_note("speed_done")
 
 func set_speed(value: float) -> void:
 	time_speed = _speed_or_default(value)
@@ -3580,10 +3631,7 @@ func _refresh() -> void:
 	if ship_panel != null:
 		ship_panel.set_count(ships, ship_cap())
 		ship_panel.set_upkeep(self)
-		var target: int = mission_planet if ships == 0 else -1  # halo on the planet that sells the first ship
-		if tut_card != null and tut_card.visible and _tut_ring_planet() >= 0:
-			target = _tut_ring_planet()  # the guided step is about the map planet
-		map.set_hint(target, target >= 0)
+		map.set_hint(-1, false)  # T323: no 3D halo; the planet pulse ring (planet_ring) marks a tutorial planet click
 		mission_label.visible = ships == 0
 		mission_label.text = StoryText.get_or("LBL_MISSION_FIRST", "Mission: Send stock to another planet")
 
@@ -3599,7 +3647,7 @@ func _tut_g0_id() -> String:
 		if PathfinderView.established(f, str(p.get("id", ""))):
 			built += 1
 	if built > 1:
-		return ""
+		return "" if bool(tut_flags.get("g0_done", false)) else "TUT_G0_DONE"  # T329: the Yay card waits for its Next button
 	if PathfinderView.state(f) == "building":
 		return "TUT_G0_WAIT"
 	var here := PathfinderView.docked_at(f)
@@ -3609,8 +3657,21 @@ func _tut_g0_id() -> String:
 
 ## Story id of guided step i (the flight card replaces step 0 while it applies).
 func _tut_id(i: int) -> String:
+	if i == 0 and _tut_speed_card():
+		return "TUT_G1C_SPEED"
 	var g := _tut_g0_id() if i == 0 else ""
 	return g if g != "" else TUT_GUIDE[i]
+
+## T333: sub-card of step 0 that points at the speed buttons. It follows the Yay card's Next (discovery) or the Voltara click
+## (no discovery), and ends on its Next or on a click on a speed button. Step 0 is done only after it.
+func _tut_speed_card() -> bool:
+	if tut_step != 0 or bool(tut_flags.get("speed_done", false)):
+		return false
+	if bool(tut_flags.get("g0_ordered", false)):
+		return true  # T334: with discovery, right after the establish order was accepted, ahead of the arrival cards and the Yay card
+	if _tut_g0_id() != "":
+		return false
+	return bool(tut_flags.get("g0_done", false)) or selected_planet >= 0
 
 ## T180: map orders go to the flight accessor; its refusal reason becomes a NOT_* notice. No accessor: nothing happens.
 func _on_fly_requested(target: Dictionary) -> void:
@@ -3618,8 +3679,13 @@ func _on_fly_requested(target: Dictionary) -> void:
 	var f = map.flight
 	if not PathfinderView.active(f):
 		return
+	if _tut_fly_step() and str(target.get("kind", "")) == "planet" and int(target.get("index", -1)) != tut_fly_target():
+		post_notice_now(tut_lock_text())  # T327: the first flight goes to the one planet the card names
+		return
 	var r = PathfinderView._call(f, "request_fly", [target], "")
 	_flight_notice(r)
+	if r == "" and _tut_fly_step() and paused and event_notice == null:
+		set_paused(false)  # T327: the run starts paused; the first order of the tutorial must not leave the ship standing
 	on_flight_changed()  # T228: a manual order ends exploration mode; the panel must show it while paused
 
 ## T200: right-click menu on a planet with the ship selected: one item per allowed action (flight.actions_for), nothing else drawn.
@@ -3627,6 +3693,9 @@ func _on_fly_requested(target: Dictionary) -> void:
 func _on_action_menu_requested(planet_id: String, screen_pos: Vector2) -> void:
 	var f = map.flight
 	if not PathfinderView.active(f):
+		return
+	if _tut_fly_step() and planet_index_of(planet_id) != tut_fly_target():
+		post_notice_now(tut_lock_text())  # T329: other planets stay refused while the first card is up
 		return
 	var acts: Array = PathfinderView._call(f, "actions_for", [planet_id], [])
 	if PathfinderView.established(f, planet_id):  # T270: an established world offers Dock and trade
@@ -3710,8 +3779,16 @@ func _on_fly_establish_requested(planet_id: String) -> void:
 	var f = map.flight
 	if not PathfinderView.active(f):
 		return
+	if _tut_fly_step() and planet_index_of(planet_id) != tut_fly_target():
+		post_notice_now(tut_lock_text())  # T329: the first card allows the Establish entry on its one planet only
+		return
+	var fly_card := _tut_fly_step()
 	var r = PathfinderView._call(f, "request_fly_establish", [planet_id], "")
 	_flight_notice(r)
+	if r == "" and tut_step == 0 and not bool(tut_flags.get("speed_done", false)):
+		tut_flags["g0_ordered"] = true  # T334: the speed card comes now (once: speed_done ends it)
+	if r == "" and fly_card and paused and event_notice == null:
+		set_paused(false)  # T329: the run starts paused; the one tutorial order must set the ship going
 	on_flight_changed()  # T228
 
 func _on_flight_establish_failed(_planet_id: String, reason: String) -> void:
@@ -3866,13 +3943,13 @@ func _tut_show(_ids: Array = []) -> void:
 	if tutorial_label == null:
 		return
 	tut_show_count += 1
-	var guided: bool = tut_step < TUT_GUIDE.size()
+	var guided: bool = tut_step < TUT_GUIDE.size() and preface == null  # T325: nothing shows behind the welcome screen
 	var t := ""
 	if guided:
 		var id: String = _tut_id(tut_step)
 		if _tut_picking():
 			id = "TUT_G3_PICK"  # heading only; the why line and voice stay on the step
-		t = StoryText.get_or(id, str(TUT_FALLBACK.get(id, "")), {}).strip_edges()
+		t = StoryText.get_or(id, str(TUT_FALLBACK.get(id, "")), _tut_text_args(id)).strip_edges()
 	tutorial_label.text = t
 	if guided and t != "" and not game_over:
 		if _voiced_tut != tut_step:  # _tut_show runs often; speak a step once
@@ -3888,10 +3965,105 @@ func _tut_show(_ids: Array = []) -> void:
 		tut_why.text = StoryText.get_or(_tut_id(tut_step) + "_WHY", "", {}) if guided else ""
 		tut_why.visible = tut_why.text != ""
 		if guided:
-			tut_count.text = StoryText.get_or("TUT_STEP_COUNT", "{n} of {total}", {"n": tut_step + 1, "total": TUT_GUIDE.size()})
+			var nt := _tut_count_nt()
+			tut_count.text = StoryText.get_or("TUT_STEP_COUNT", "{n} of {total}", {"n": nt[0], "total": nt[1]})
 	if tut_actions != null:  # Skip only while the guided steps run
 		tut_actions.visible = tutorial_label.visible
+	if tut_skip_btn != null:  # T342: the last card ends with Finish, every other card with Skip
+		var last_card: bool = guided and tut_step == TUT_GUIDE.size() - 1
+		tut_skip_btn.visible = not last_card
+		tut_finish_btn.visible = last_card
+	if tut_next != null:
+		tut_next.visible = guided and (_tut_g0_id() == "TUT_G0_DONE" or _tut_upkeep_next() or _tut_speed_card())
 	_tut_update_highlight()
+
+## T331: the Expenses card waits for Next once the forecast panel has been opened.
+func _tut_upkeep_next() -> bool:
+	return tut_step == 5 and bool(tut_flags.get("expenses", false)) and not bool(tut_flags.get("upkeep_next", false))
+
+## T331: [n, total] for the card counter. n = position among the steps shown so far (a step's sub-cards count as one step; a step
+## passed over never counts, so it never repeats or jumps). total = n + the steps after this one expected to show (step 2 when the
+## flight card or no Pathfinder passes it over; skill steps while no point is held). TUT_GUIDE indexes are untouched.
+func _tut_count_nt() -> Array:
+	tut_seen = tut_seen.filter(func(i): return int(i) < tut_step)
+	if tut_seen.is_empty():  # loaded mid-guide: the steps before this one were shown unless they pass over
+		for i in tut_step:
+			if not (_tut_expect_skip(i) or _tut_step_skipped(i)):
+				tut_seen.append(i)
+	tut_seen.append(tut_step)
+	var total := tut_seen.size()
+	for i in range(tut_step + 1, TUT_GUIDE.size()):
+		if not _tut_expect_skip(i):
+			total += 1
+	return [tut_seen.size(), total]
+
+## T342: later step i is expected to be passed over only when that is already certain (state that never reverts), so the total
+## never grows: step 1 (flight card or no Pathfinder), step 4 once a cycle has run, Needs and Grow once a world reached tier 1,
+## the skill steps once learned. A skill step with no point still counts until it is reached and passed over (known then).
+func _tut_expect_skip(i: int) -> bool:
+	match i:
+		1:
+			return bool(tut_flags.get("g0", false)) or _tut_g0_id() != "" or _tut_step_skipped(1)
+		4:
+			return cycle >= 2
+		8, 9:
+			return prosperity.any_tier_reached(1)
+		10:
+			return not learned_skills.is_empty()
+		11:
+			return has_skill("FND_PERMIT")
+	return false
+
+## T327: placeholder values of a guided card. TUT_G0_FLY names the one planet it asks for, as the map labels it.
+func _tut_text_args(id: String) -> Dictionary:
+	if id == "TUT_G0_FLY" or id == "TUT_G0_DONE":
+		var i := tut_fly_target()
+		return {"planet": planet_name(i) if i >= 0 else StoryText.get_or("LBL_UNKNOWN_WORLD", "Unknown world")}
+	return {}
+
+## T327: the one planet the first flight card (TUT_G0_FLY) asks the player to click: the closest planet of the viewed system
+## the Pathfinder can fly to and establish at (a closed living world; flight.actions_for is not empty), by distance from the
+## ship, lowest index on a tie. Chosen once and kept until it stops qualifying, so it is the same for a given run. -1: none.
+func tut_fly_target() -> int:
+	var f = map.flight if map != null else null
+	if not PathfinderView.active(f):
+		return -1
+	if _tut_fly_i >= 0 and _tut_fly_i < map.planets.size():
+		var cid := str(map.planets[_tut_fly_i].get("id", ""))
+		if PathfinderView.established(f, cid) or bool(tut_flags.get("g0_ordered", false)) or not (PathfinderView._call(f, "actions_for", [cid], []) as Array).is_empty():
+			return _tut_fly_i  # T329: stays the same once its post stands, the Yay card names it
+	var ship: Vector3 = PathfinderView._call(f, "ship_position", [], Vector3.ZERO)
+	var best := -1
+	var best_d := INF
+	for i in map.planets.size():
+		if not map.planet_in_view(i) or i >= map.positions.size():
+			continue
+		if (PathfinderView._call(f, "actions_for", [str(map.planets[i].get("id", ""))], []) as Array).is_empty():
+			continue
+		var d: float = Vector2(map.positions[i].x - ship.x, map.positions[i].z - ship.z).length()
+		if d < best_d - 0.0001:
+			best_d = d
+			best = i
+	_tut_fly_i = best
+	return best
+
+## T327: true while the first flight card is up.
+func _tut_fly_step() -> bool:
+	return tut_step == 0 and _tut_g0_id() == "TUT_G0_FLY" and not tut_lock_released_now()
+
+## A guided step the lock lets go of is never enforced.
+func tut_lock_released_now() -> bool:
+	return tut_lock_step() < 0
+
+## T327: frames the Pathfinder and the asked-for planet inside the open part of the window (clear of the left and right
+## panels), so the planet can be seen and clicked. Zooms out only as far as needed; never closer than the current zoom.
+func tut_frame_fly_target() -> void:
+	var i := tut_fly_target()
+	if map == null or i < 0 or not PathfinderView.active(map.flight):
+		return
+	var vp := get_viewport_rect().size
+	var region := Rect2(vp * Vector2(0.06, 0.14), vp * Vector2(0.72, 0.76))  # clear of the right Ships strip and the top and bottom bars
+	map.fit_points([PathfinderView._call(map.flight, "ship_position", [], Vector3.ZERO), map.positions[i]], region)
 
 ## A guided step's action happened (key: "expenses", "storage"): remember it and move the tutorial on.
 func tut_note(key: String) -> void:
@@ -3909,9 +4081,28 @@ func _tut_tick(delta: float) -> void:
 		_tut_show()
 
 ## Skip ends the whole tutorial, the galaxy view one too (it never starts once skipped). Saved as tut_step = size.
+## T329: Next on the Yay card: the first-post celebration ends and the Voltara card follows. The game is not paused by it.
+func _tut_next() -> void:
+	if _tut_speed_card():
+		tut_flags["speed_done"] = true  # T333
+	elif _tut_upkeep_next():
+		tut_flags["upkeep_next"] = true  # T331: the Expenses card moves on only by Next
+	else:
+		tut_flags["g0_done"] = true
+	_tut_poll()
+	_tut_show()
+
 func _tut_skip() -> void:
+	_tut_end(true)
+
+## T342: Finish on the last card is a normal ending: the tutorial is over, the one-time tips go on.
+func _tut_finish() -> void:
+	_tut_end(false)
+
+func _tut_end(silence_tips: bool) -> void:
 	tut_step = TUT_GUIDE.size()
-	tips_off = true  # T316: skipping the tutorial also silences the one-time tips
+	if silence_tips:
+		tips_off = true  # T316: skipping the tutorial also silences the one-time tips
 	_tip_close()
 	galaxy_seen = true
 	if galaxy_view != null and galaxy_view.tut_step >= 0 and galaxy_view.tut_step < galaxy_view.TUT_IDS.size():
@@ -3920,7 +4111,7 @@ func _tut_skip() -> void:
 	_tut_show()
 
 ## Which control each guided step is about. "planet" = the pulsing ring on the map planet, "" = nothing.
-const TUT_TARGET := ["planet", "buy", "send", "time", "expenses", "sell", "storage", "", "", "skills", "permit", ""]
+const TUT_TARGET := ["planet", "hero", "buy", "send", "time", "expenses", "sell", "storage", "", "", "skills", "permit", ""]
 
 func _tut_first_named(root: Node, prefix: String) -> Control:
 	var found: Control = null
@@ -3934,12 +4125,49 @@ func _tut_first_named(root: Node, prefix: String) -> Control:
 		return c
 	return found
 
+## T334: end world of the route the Sell card is about (the Energy route first, else the first route), or -1.
+func _tut_sell_end() -> int:
+	var best := -1
+	for r in engine.routes:
+		if int(r["b"]) < 0:
+			continue
+		if str(r["c"]) == TUT_GOOD:
+			return int(r["b"])
+		if best < 0:
+			best = int(r["b"])
+	return best
+
+## T334: the Sell control of the route's good at its end world: the Sell button of the route line in the open end world's
+## panel (PaysSellButton). Null while another world is open. When that line shows no button, the good's resource button.
+func _tut_sell_node() -> Control:
+	var e := _tut_sell_end()
+	if e < 0 or selected_planet != e or planet_panel == null or not planet_panel.visible:
+		return null
+	var good := ""
+	for r in engine.routes:
+		if int(r["b"]) == e:
+			good = str(r["c"])
+			if good == TUT_GOOD:
+				break
+	var fallback: Control = null
+	for n in planet_panel.find_children("*", "Button", true, false):
+		var b := n as Button
+		if b == null or not b.is_visible_in_tree():
+			continue
+		if b.has_meta("sell_dest") and int(b.get_meta("sell_dest")) == e and str(b.get_meta("sell_good")) == good:
+			return b
+		if fallback == null and b.name == "BuyButton_" + good:
+			fallback = b
+	return fallback
+
 ## The control for a target key, or null when it is not on screen at this moment.
 func _tut_target_node(key: String) -> Control:
 	var c: Control = null
 	match key:
+		"hero": c = ship_panel.hero_card if ship_panel != null and ship_panel.hero_card != null else null  # T320: the Pathfinder card in the Ships menu
 		"buy": c = _tut_first_named(planet_panel, "BuyButton_")
-		"send", "sell", "storage": c = _tut_first_named(planet_panel, "BuyButton_")  # Send, Sell and the stock figure now live on the resource button (right-click menu)
+		"send", "storage": c = _tut_first_named(planet_panel, "BuyButton_")  # Send and the stock figure live on the resource button (right-click menu)
+		"sell": c = _tut_sell_node()  # T334
 		"route":
 			for n in planet_panel.find_children("*", "HBoxContainer", true, false):
 				if n.has_meta("tut_target") and n.get_meta("tut_target") == "route" and (n as Control).is_visible_in_tree():
@@ -3955,7 +4183,16 @@ func _tut_target_node(key: String) -> Control:
 					if SPEEDS[i] == time_speed:
 						c = speed_buttons[i]
 		"expenses": c = cash_box
+		"speed": c = speed_buttons[0] if not speed_buttons.is_empty() else null  # T333: the row of speed buttons (see _tut_target_rect)
 		"skills": c = points_button
+		"foundation":  # T337: the Skills window is open: the cheapest Foundation skill the player can learn now
+			var fid := _tut_foundation_pick()
+			if fid != "" and skill_screen != null and skill_screen.visible and skill_screen.node_buttons.has(fid):
+				c = skill_screen.node_buttons[fid]
+				var ts: ScrollContainer = skill_screen.tree_scroll
+				if ts != null and not ts.get_global_rect().encloses((c as Control).get_global_rect()):
+					ts.ensure_control_visible.call_deferred(c)
+					return null
 		"permit":
 			if skill_screen != null and skill_screen.visible and skill_screen.node_buttons.has("FND_PERMIT"):
 				c = skill_screen.node_buttons["FND_PERMIT"]
@@ -3968,16 +4205,40 @@ func _tut_target_node(key: String) -> Control:
 		return c
 	return null
 
+## T337: id of the Foundation skill the skills step points at: the cheapest one the player can learn right now (file order on a
+## tie), or "" when none can be learned (no point held, none affordable, or earn-locked).
+func _tut_foundation_pick() -> String:
+	if balance == null or skill_points <= 0:
+		return ""
+	_sync_earn()
+	var best := ""
+	var best_cost := 1 << 30
+	for id in SkillTree.ids_in("fnd"):
+		if bool(SkillTree.can_learn(learned_skills, skill_points, balance, id)["ok"]) and SkillTree.cost(balance, id) < best_cost:
+			best = id
+			best_cost = SkillTree.cost(balance, id)
+	return best
+
 ## "planet" when the step is about the map planet, or when its control is not on screen now. "" = no highlight.
 func _tut_highlight_key() -> String:
 	if _tut_picking():
 		return "planet"
+	if _tut_speed_card():
+		return "speed"  # T333
+	if tut_step == 0 and _tut_g0_id() == "TUT_G0_DONE":
+		return ""  # T329: the Yay card points at nothing
+	if tut_step == 0 and _tut_g0_id() == "TUT_G0_FLY":
+		return "planet"  # T329: one right-click on the named planet; no Pathfinder card click
 	if tut_step >= TUT_TARGET.size() or TUT_TARGET[tut_step] == "":
 		return ""
 	var key: String = TUT_TARGET[tut_step]
+	if key == "skills" and skill_screen != null and skill_screen.visible and _tut_foundation_pick() != "":
+		return "foundation" if _tut_target_node("foundation") != null else "skills"  # T337: point into the open window, not at the Skills button
 	var lt := tut_lock_target()
 	if lt >= 0 and selected_planet != lt and key in ["buy", "send", "sell"]:
 		return "planet"  # the right planet is not open yet: point at it first
+	if key == "sell" and _tut_sell_end() >= 0 and selected_planet != _tut_sell_end():
+		return "planet"  # T334: the route's end world is not open yet: point at it first
 	if key != "planet" and _tut_target_node(key) == null:
 		return "planet"
 	return key
@@ -4004,21 +4265,21 @@ func _tut_lock_released() -> bool:
 	if v < 0 or a < 0 or not commodities.has(TUT_GOOD):
 		return true
 	match tut_step:
-		1:
-			return not (system_trade_open(v) and bool(engine.check_local(v, TUT_GOOD, "buy")["ok"]))
 		2:
+			return not (system_trade_open(v) and bool(engine.check_local(v, TUT_GOOD, "buy")["ok"]))
+		3:
 			if not bool(engine.check_connection(v, a, TUT_GOOD)["ok"]):
 				return true
 			return free_ships() <= 0 and not bool(can_buy_ship()["ok"])
-		3:
+		4:
 			return engine.routes.is_empty()  # nothing to wait for
-		5:
+		6:
 			return not (system_trade_open(a) and bool(engine.check_local(a, TUT_GOOD, "sell")["ok"]))
 	return false
 
 ## The guided step the lock holds (0 to 5), or -1 when nothing is locked.
 func tut_lock_step() -> int:
-	if game_over or tut_step < 0 or tut_step > 5 or map == null or engine == null:
+	if game_over or tut_step < 0 or tut_step > 6 or map == null or engine == null:
 		return -1
 	return -1 if _tut_lock_released() else tut_step
 
@@ -4037,21 +4298,21 @@ func tut_allows(action: String, planet: int = -1, good: String = "", dst: int = 
 	match action:
 		"select":
 			match s:
-				0, 1:
-					return planet == v
-				2:
+				0, 1, 2:
+					return planet == v or (s == 0 and _tut_g0_id() == "TUT_G0_FLY" and planet == tut_fly_target())  # T327: the flight card names its planet
+				3:
 					return planet == (a if not pending.is_empty() else v)
-				5:
+				6:
 					return planet == a
 			return false
 		"buy":
-			return e and planet == v and (s == 1 or s == 2)
+			return e and planet == v and (s == 2 or s == 3)
 		"sell":
-			return e and planet == a and s == 5
+			return e and planet == a and s == 6
 		"send_start":
-			return s == 2 and e and planet == v
+			return s == 3 and e and planet == v
 		"send":
-			return s == 2 and e and planet == v and dst == a
+			return s == 3 and e and planet == v and dst == a
 	return false
 
 func tut_lock_text() -> String:
@@ -4071,17 +4332,19 @@ func tut_gate_order(planet: int, c: String, role: String) -> bool:
 ## Planet the locked step points at, or -1: Voltara for select/buy/send, Ashgate for the destination and the sell.
 func tut_lock_target() -> int:
 	match tut_lock_step():
-		0, 1:
+		0, 1, 2:
+			if tut_step == 0 and _tut_g0_id() == "TUT_G0_FLY" and tut_fly_target() >= 0:
+				return tut_fly_target()  # T327
 			return _tut_idx(TUT_PLANET_FROM)
-		2:
+		3:
 			return _tut_idx(TUT_PLANET_TO if not pending.is_empty() else TUT_PLANET_FROM)
-		5:
+		6:
 			return _tut_idx(TUT_PLANET_TO)
 	return -1
 
 ## Guided send step (index 2) with a send pending: the player now has to click a destination planet.
 func _tut_picking() -> bool:
-	return tut_step == 2 and tut_step < TUT_GUIDE.size() and not pending.is_empty()
+	return tut_step == 3 and tut_step < TUT_GUIDE.size() and not pending.is_empty()
 
 ## A planet that takes the pending good (same system first), or -1. Uses the engine's connection check and the trade margin.
 func _tut_pick_planet() -> int:
@@ -4089,7 +4352,7 @@ func _tut_pick_planet() -> int:
 		return -1
 	var src := int(pending["planet"])
 	var c := str(pending["c"])
-	if tut_lock_step() == 2:
+	if tut_lock_step() == 3:
 		return _tut_idx(TUT_PLANET_TO)  # the guided route goes to Ashgate only
 	var best := -1
 	for i in trade.planets.size():
@@ -4110,6 +4373,8 @@ func _tut_ring_planet() -> int:
 	var lt := tut_lock_target()
 	if lt >= 0:
 		return lt
+	if tut_step == 6 and _tut_sell_end() >= 0:
+		return _tut_sell_end()  # T334
 	return selected_planet if selected_planet >= 0 else mission_planet
 
 func _tut_update_highlight() -> void:
@@ -4121,7 +4386,7 @@ func _tut_update_highlight() -> void:
 	if c == null or not shown:
 		tut_hl.visible = false
 	else:
-		var r := c.get_global_rect().grow(3.0)
+		var r := _tut_target_rect(key, c).grow(3.0)
 		tut_hl.visible = true
 		tut_hl.global_position = r.position
 		tut_hl.size = r.size
@@ -4129,12 +4394,88 @@ func _tut_update_highlight() -> void:
 		tut_hl.modulate.a = lerpf(0.55, 1.0, k)
 	_tut_place_card(key, c)
 
+## T322: first selection of the Pathfinder card in a run plays a faint thin ring 3 times (grows, fades), once per run.
+## The ring is one PulseRing instance (game/fx/pulse_ring.tscn); it follows the ship.
+func ship_pulse_on_select() -> void:
+	if ship_pulse_plays > 0 or ship_ring == null or map == null or preface != null:
+		return
+	ship_pulse_plays += 1
+	ship_ring.play()
+
+func _ring_allowed() -> bool:
+	return not game_over and event_notice == null and (skill_screen == null or not skill_screen.visible)
+
+## T323: planet that should carry the loop now, or -1: only while the tutorial card shows a step that asks for a planet click.
+func tut_planet_ring_target() -> int:
+	if preface != null or tut_card == null or not tut_card.visible or game_over or tut_step >= TUT_GUIDE.size():
+		return -1
+	if galaxy_view != null and galaxy_view.visible:
+		return -1
+	if tut_step == 0 and (_tut_g0_id() == "TUT_G0_DONE" or _tut_speed_card()):
+		return -1
+	if tut_step == 0 and _tut_g0_id() == "TUT_G0_FLY":
+		return tut_fly_target()  # T327: the ring marks the one planet the first card asks for, only during that card
+	return _tut_ring_planet()
+
+## Starts, moves or stops the planet loop from the state; called every frame, allocates nothing.
+func _tut_update_planet_ring() -> void:
+	if planet_ring == null:
+		return
+	var i := tut_planet_ring_target()
+	if i == _planet_ring_i:
+		return
+	_planet_ring_i = i
+	if i < 0:
+		planet_ring.stop()
+	else:
+		planet_ring.play()
+
+func _planet_ring_pos() -> Vector2:
+	return map.planet_screen_pos(_planet_ring_i) if map != null and _planet_ring_i >= 0 else Vector2(-1, -1)
+
+func _ship_ring_pos() -> Vector2:
+	return map.ship_screen_pos() if map != null else Vector2(-1, -1)
+
 const TUT_CARD_W := 300.0
 const TUT_GAP := 18.0  # card to target; the pointer sits in this gap
 const TUT_EDGE := 8.0
 
 ## Screen rect the card keeps clear: the target, or the whole panel the target sits in.
+## T333: the rect a card points at: the whole row of speed buttons for the speed card, else the control itself.
+func _tut_target_rect(key: String, c: Control) -> Rect2:
+	if key == "speed" and not speed_buttons.is_empty():
+		var r: Rect2 = speed_buttons[0].get_global_rect()
+		for b in speed_buttons:
+			r = r.merge(b.get_global_rect())
+		return r
+	if key == "expenses":
+		var ur := _tut_upkeep_lines_rect()
+		if ur.size != Vector2.ZERO:
+			return ur  # the open forecast: outline and arrow aim at the Ship upkeep line(s), not the cash box
+	return c.get_global_rect()
+
+## Union of the Ship upkeep line labels in the open cash forecast, or an empty Rect2 when the panel is closed or has none
+## (then the target stays the cash box). The labels are rebuilt on every refresh, so this is read fresh each frame.
+func _tut_upkeep_lines_rect() -> Rect2:
+	if cash_forecast == null or not cash_forecast.visible or cash_forecast.box == null:
+		return Rect2()
+	var key_text := StoryText.get_text("LBL_SHIP_UPKEEP")
+	var r := Rect2()
+	var found := false
+	for n in cash_forecast.box.get_children():
+		if n is Label and (n as Label).visible and (n as Label).text.contains(key_text):
+			var lr: Rect2 = (n as Label).get_global_rect()
+			if not lr.intersects(cash_forecast.get_global_rect()):
+				continue  # scrolled out of the window: not a place to point at
+			r = lr if not found else r.merge(lr)
+			found = true
+	return r if found else Rect2()
+
 func _tut_anchor_rect(key: String, c: Control) -> Rect2:
+	if c != null and key == "expenses" and cash_forecast != null and cash_forecast.visible:
+		return c.get_global_rect().merge(cash_forecast.get_global_rect()).grow(6.0)  # T333: the card sits clear of the open forecast, never over it
+	if c != null and key == "speed":
+		return _tut_target_rect(key, c).grow(6.0)
 	if c != null:
 		if planet_panel != null and planet_panel.visible and planet_panel.is_ancestor_of(c):
 			return planet_panel.get_global_rect().grow(4.0)
@@ -4164,14 +4505,61 @@ func _tut_place_card(key: String, c: Control) -> void:
 		tut_arrow.visible = false
 		return
 	var avoid: Array = [a]
+	if c != null and skill_screen != null and skill_screen.visible and skill_screen.is_ancestor_of(c):
+		_tut_place_in_skills(a, c)  # T337: inside the Skills window the card keeps clear of every skill node
+		return
 	if planet_panel != null and planet_panel.visible and not planet_panel.get_global_rect().intersects(a):
 		avoid.append(planet_panel.get_global_rect().grow(4.0))
 	var sc := right_col.get_parent() as Control if right_col != null else null
 	if sc != null and not sc.get_global_rect().intersects(a):
 		avoid.append(sc.get_global_rect().grow(4.0))
-	var tpt: Vector2 = c.get_global_rect().get_center() if c != null else a.get_center()
+	var tpt: Vector2 = _tut_target_rect(key, c).get_center() if c != null else a.get_center()
 	var order: Array = ["below", "right", "left", "above"] if a.position.y < 90.0 and a.size.y < 120.0 else ["right", "left", "below", "above"]
 	tut_place_beside(tut_card, tut_arrow, a, avoid, tpt, order)
+
+## T337: the card for a skill node in the open Skills window. It is drawn above the window (z-order after setup) and is put on the
+## free spot nearest the node that overlaps no skill node, the node's outline or the detail strip; the arrow points from it at the node.
+func _tut_place_in_skills(a: Rect2, c: Control) -> void:
+	var avoid: Array = [a]
+	for id in skill_screen.node_buttons:
+		var b: Control = skill_screen.node_buttons[id]
+		if b.is_visible_in_tree():
+			avoid.append(b.get_global_rect().grow(4.0))
+	if skill_screen.detail_box != null and skill_screen.detail_box.is_visible_in_tree():
+		avoid.append(skill_screen.detail_box.get_global_rect().grow(4.0))
+	var cs := tut_card.size
+	var vp := get_viewport_rect().size
+	var field := Rect2(Vector2(TUT_EDGE, TUT_EDGE), vp - Vector2(TUT_EDGE, TUT_EDGE) * 2.0)
+	var target := a.get_center()
+	var best := Vector2.ZERO
+	var best_d := INF
+	var y := field.position.y
+	while y + cs.y <= field.end.y:
+		var x := field.position.x
+		while x + cs.x <= field.end.x:
+			var r := Rect2(Vector2(x, y), cs)
+			var clear := true
+			for av in avoid:
+				if r.intersects(av):
+					clear = false
+					break
+			if clear:
+				var d := r.get_center().distance_to(target)
+				if d < best_d:
+					best_d = d
+					best = r.position
+			x += 20.0
+		y += 20.0
+	if best_d == INF:  # no free spot: beside the node, still above the window
+		tut_place_beside(tut_card, tut_arrow, a, [a], c.get_global_rect().get_center(), ["right", "below", "left", "above"])
+		return
+	tut_card.position = best
+	var cr := Rect2(best, cs)
+	var from := cr.get_center()
+	var tip := Vector2(clampf(from.x, a.position.x, a.end.x), clampf(from.y, a.position.y, a.end.y))
+	tut_arrow.visible = true
+	tut_arrow.position = tip
+	tut_arrow.rotation = (tip - from).angle()
 
 ## Shared by the board card and the galaxy view card: puts `card` beside the rect `a` on the first side in `order` with
 ## room (inside the window, clear of every rect in `avoid`), and points `arrow` from the gap at `tpt`. Both use window coordinates.
@@ -4244,7 +4632,7 @@ func tut_make_arrow() -> Polygon2D:
 ## The card is derived from game state: every frame a cheap signature of what it depends on is compared with the last one;
 ## only when it differs does the tutorial advance and the card refresh. No handler has to call the tutorial.
 func _tut_sig_now() -> Array:
-	var sig: Array = [tut_step, game_over, tutorial_label == null, _tut_g0_id()]
+	var sig: Array = [tut_step, game_over, tutorial_label == null, _tut_g0_id(), _tut_speed_card()]
 	sig.append(tut_lock_step())
 	if tut_step >= TUT_GUIDE.size():
 		return sig
@@ -4257,9 +4645,9 @@ func _tut_sig_now() -> Array:
 		pending.is_empty(), str(pending.get("c", "")), int(pending.get("planet", -1)), selected_planet, paused, time_speed,
 		engine.routes.size(), buys, sells, tut_flags.size(), learned_skills.size(), skill_points, cycle,
 		planet_panel != null and planet_panel.visible, skill_screen != null and skill_screen.visible,
-		galaxy_view != null and galaxy_view.visible, tut_card != null and tut_card.visible])
+		galaxy_view != null and galaxy_view.visible, tut_card != null and tut_card.visible, map != null and map.ship_selected])
 	sig.append(prosperity.any_tier_reached(1))
-	if tut_step == 6:  # the only step that reads storage stock
+	if tut_step == 7:  # the only step that reads storage stock
 		var held := 0
 		for k in storage.stock.keys():
 			if not str(k).begins_with("system"):
@@ -4269,6 +4657,8 @@ func _tut_sig_now() -> Array:
 	return sig
 
 func _tut_poll() -> void:
+	if preface != null:  # T325: no step can complete behind the welcome screen
+		return
 	var sig := _tut_sig_now()
 	if sig == _tut_sig:
 		return
@@ -4302,49 +4692,57 @@ func _tut_advance() -> void:
 func _tut_step_done(i: int) -> bool:
 	match i:
 		0:
-			return selected_planet >= 0 and _tut_g0_id() == ""  # T180: with discovery on, the flight steps come first
-		1:
-			return engine.local.values().any(func(o): return bool(o["buy"]))
+			if _tut_g0_id() != "":
+				tut_flags["g0"] = true  # the flight card already sent the player to the Pathfinder card
+			return selected_planet >= 0 and _tut_g0_id() == "" and bool(tut_flags.get("speed_done", false))  # T333: after the speed card; T180: with discovery on, the flight steps come first
+		1:  # T320: the Pathfinder card in the Ships menu was clicked (ship selected), or a route was sent
+			if map != null and map.ship_selected:
+				tut_flags["hero"] = true
+			return bool(tut_flags.get("hero", false)) or not engine.routes.is_empty()
 		2:
+			return engine.local.values().any(func(o): return bool(o["buy"]))
+		3:
 			return not engine.routes.is_empty()
-		3:  # the route was paid: a cycle ended with it open, or its destination already has a Sell order
+		4:  # the route was paid: a cycle ended with it open, or its destination already has a Sell order
 			if engine.routes.is_empty():
 				return false
 			if cycle >= 2:
 				return true
 			var dsts: Array = engine.routes.map(func(r): return str(r["dst"]))
 			return engine.local.keys().any(func(k): return dsts.has(str(k)) and bool(engine.local[k]["sell"]))
-		4:  # the Expenses forecast (top bar cash) was opened
-			return bool(tut_flags.get("expenses", false))
-		5:
+		5:  # the Expenses forecast (top bar cash) was opened
+			return bool(tut_flags.get("expenses", false)) and bool(tut_flags.get("upkeep_next", false))  # T331: Next, not the panel, ends it
+		6:
 			return engine.local.values().any(func(o): return bool(o["sell"]))
-		6:  # the resource button was right-clicked, or some planet's storage holds stock
+		7:  # the resource button was right-clicked, or some planet's storage holds stock
 			if bool(tut_flags.get("storage", false)):
 				return true
 			for k in storage.stock.keys():
 				if not str(k).begins_with("system") and storage.stock[k].values().any(func(n): return int(n) > 0):
 					return true
 			return false
-		7:  # a world card with a Needs list is open (or the first world already grew, so the lesson is past)
+		8:  # a world card with a Needs list is open (or the first world already grew, so the lesson is past)
 			if prosperity.any_tier_reached(1):
 				return true
 			return planet_panel != null and planet_panel.visible and selected_planet >= 0 and not prosperity.needs(selected_planet).is_empty()
-		8:  # the first world reached tier 1
+		9:  # the first world reached tier 1
 			return Conditions.eval("any_tier:1")
-		9:
-			return not learned_skills.is_empty()
 		10:
+			return not learned_skills.is_empty()
+		11:
 			return has_skill("FND_PERMIT")
-		11:  # the last step: the Star Bazaar panel is opened (or the timer in _tut_tick closes it)
+		12:  # the last step: the Star Bazaar panel is opened (or the timer in _tut_tick closes it)
 			return bool(tut_flags.get("bazaar", false))
 	return false
 
 ## A step whose state can never be reached from here is passed over, so the tutorial never blocks.
 func _tut_step_skipped(i: int) -> bool:
 	match i:
-		9:  # no skill point held and nothing learned: nothing to teach yet
-			return skill_points <= 0 and learned_skills.is_empty()
-		10:  # the permit line needs a held point
+		1:  # T320: no Pathfinder card to point at (no hero ship), or the flight card at step 0 already taught it
+			return not Availability.hero_ship(map.flight if map != null else null) or bool(tut_flags.get("g0", false))
+		10:  # no Foundation can be learned now (no point held, or none affordable) and nothing learned: nothing to teach yet
+			return learned_skills.is_empty() and _tut_foundation_pick() == ""
+		11:  # the permit line needs a held point
 			return skill_points <= 0 and not has_skill("FND_PERMIT")
 	return false
 
@@ -4385,7 +4783,15 @@ const TIP_DEFS := [
 	{"id": "TIP_POINTS", "state": "points"},
 	{"id": "TIP_FOUNDATIONS", "state": "foundations"},
 ]
-const TIP_SECS := 14.0
+## T339: order tips are shown in when several wait (goal and capital first); tips not listed follow in TIP_DEFS order.
+const TIP_PRIORITY := ["TIP_GOAL", "TIP_CAPITAL", "TIP_HUB", "TIP_FOUNDED", "TIP_TIER1", "TIP_TAX", "TIP_HUNGRY", "TIP_RESTLESS", "TIP_RAID"]
+## T339: two tips about one thing share a card when both are due (first shown pulls in the second).
+const TIP_MERGE := {"TIP_WEATHER": "TIP_WEATHER_KINDS", "TIP_CAPITAL": "TIP_HUB"}
+const TIP_SECS_PER_CHAR := 0.05
+const TIP_SECS_MIN := 8.0
+const TIP_SECS_MAX := 24.0
+const TIP_RECENT_MAX := 3
+const TIP_RECENT_FONT := 12
 const TIP_POLL_SECS := 0.5
 
 ## A one-time event happened (key: "tax", "hungry", "platform", "dock", "boost", "salvage"). Remembered for this session.
@@ -4463,41 +4869,130 @@ func tip_can_show() -> bool:
 	return true
 
 ## The next tip that is due and unseen, or "". Marks tips with no text as seen.
-func tip_next() -> String:
+func tip_priority(id: String) -> int:
+	var k := TIP_PRIORITY.find(id)
+	if k >= 0:
+		return k
+	for n in TIP_DEFS.size():
+		if str(TIP_DEFS[n]["id"]) == id:
+			return TIP_PRIORITY.size() + n
+	return 100000
+
+## T339: forget the queue and the gap (new run, load). With rebuild, the recent list is rebuilt from the order of tips_seen.
+func tip_reset_flow(rebuild: bool) -> void:
+	tip_queue = []
+	tip_active_ids = []
+	tip_last_at = -1.0e9
+	tip_recent = []
+	if rebuild:
+		var shown: Array = tips_seen.keys().filter(func(k): return tip_text(str(k)) != "")
+		for k in range(shown.size() - 1, maxi(-1, shown.size() - 1 - TIP_RECENT_MAX), -1):
+			tip_recent.append([str(shown[k])])
+	_tip_refresh_board()
+
+func _tip_clock() -> float:
+	return game_time() * _cycle_seconds()
+
+## T339: puts every tip that is due now into the queue (once). A tip that fired stays queued even if its trigger goes away.
+func tip_latch() -> void:
+	tip_queue = tip_queue.filter(func(id): return not tips_seen.has(id))
 	for def in TIP_DEFS:
 		var id: String = def["id"]
-		if tips_seen.has(id):
+		if tips_seen.has(id) or tip_queue.has(id):
 			continue
 		if tip_text(id) == "":
 			tips_seen[id] = true
 			continue
 		if tip_due(def):
-			return id
-	return ""
+			tip_queue.append(id)
+
+## The next tip to show: the queued tip of highest priority (TIP_PRIORITY, then table order), or "". Marks tips with no text as seen.
+func tip_next() -> String:
+	tip_latch()
+	var best := ""
+	for id in tip_queue:
+		if best == "" or tip_priority(str(id)) < tip_priority(best):
+			best = str(id)
+	return best
+
+## Seconds the card stays up: long enough to read both texts (about 20 characters a second), kept inside a floor and a ceiling.
+func tip_card_secs(chars: int) -> float:
+	return clampf(float(chars) * TIP_SECS_PER_CHAR, TIP_SECS_MIN, TIP_SECS_MAX)
+
+func _tip_ids_text(ids: Array, why: bool) -> String:
+	var parts: Array = []
+	for id in ids:
+		var t: String = StoryText.get_or(str(id) + "_WHY", "", {}) if why else tip_text(str(id))
+		if t.strip_edges() != "":
+			parts.append(t.strip_edges())
+	return "\n".join(parts) if why else "\n\n".join(parts)
 
 func _tip_show(id: String) -> void:
-	tips_seen[id] = true  # marked at once, so a save or load never repeats it
+	var ids: Array = [id]
+	var partner: String = str(TIP_MERGE.get(id, ""))
+	if partner != "" and not tips_seen.has(partner) and tip_text(partner) != "":
+		for def in TIP_DEFS:
+			if str(def["id"]) == partner and (tip_queue.has(partner) or tip_due(def)):
+				ids.append(partner)
+	for x in ids:
+		tips_seen[x] = true  # marked at once, so a save or load never repeats it
+	tip_queue = tip_queue.filter(func(q): return not ids.has(q))
 	tip_active = id
-	tip_left = TIP_SECS
-	tip_text_label.text = tip_text(id)
-	tip_why_label.text = StoryText.get_or(id + "_WHY", "", {})
+	tip_active_ids = ids
+	tip_last_at = _tip_clock()
+	tip_recent.push_front(ids)
+	while tip_recent.size() > TIP_RECENT_MAX:
+		tip_recent.pop_back()
+	tip_text_label.text = _tip_ids_text(ids, false)
+	tip_why_label.text = _tip_ids_text(ids, true)
 	tip_why_label.visible = tip_why_label.text != ""
+	tip_left = tip_card_secs(tip_text_label.text.length() + tip_why_label.text.length())
 	tip_card.size = Vector2(TUT_CARD_W, 0.0)
 	tip_card.position = Vector2((get_viewport_rect().size.x - TUT_CARD_W) * 0.5, 84.0)
 	tip_card.visible = true
+	_tip_refresh_board()
 
 func _tip_close() -> void:
 	tip_active = ""
+	tip_active_ids = []
 	if tip_card != null:
 		tip_card.visible = false
 
-## One step of the tip system: seeds an old save, hides the card while something modal is up, shows the next due tip, times it out.
+## T339: the right-hand TIPS box: newest tip with its why-line, then the older cards of the last three (small text, newest first).
+func _tip_refresh_board() -> void:
+	if tip_now_label == null:
+		return
+	var show_it := not tips_off and not tip_recent.is_empty() and not game_over
+	tip_now_label.visible = show_it
+	tip_recent_box.visible = show_it
+	if not show_it:
+		tip_now_why.visible = false
+		return
+	var newest: Array = tip_recent[0]
+	tip_now_label.text = _tip_ids_text(newest, false)
+	tip_now_why.text = _tip_ids_text(newest, true)
+	tip_now_why.visible = tip_now_why.text != ""
+	for c in tip_recent_box.get_children():
+		tip_recent_box.remove_child(c)
+		c.queue_free()
+	for k in range(1, tip_recent.size()):
+		var l := Label.new()
+		l.text = _tip_ids_text(tip_recent[k], false)
+		l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		l.theme_type_variation = "LabelMuted"
+		l.add_theme_font_size_override("font_size", TIP_RECENT_FONT)
+		tip_recent_box.add_child(l)
+	tip_recent_box.visible = tip_recent.size() > 1
+
+## One step of the tip system: seeds an old save, hides the card while something modal is up, queues what is due, shows the next
+## queued tip once the gap since the last card has passed, times the card out.
 func _tip_tick(delta: float) -> void:
 	if tip_card == null or map == null or engine == null:
 		return
 	if tips_off or tut_step < 0:
 		if tip_active != "":
 			_tip_close()
+		_tip_refresh_board()
 		return
 	_tip_poll_t += delta
 	if tip_active != "":
@@ -4507,7 +5002,6 @@ func _tip_tick(delta: float) -> void:
 			tip_left -= delta
 			if tip_left <= 0.0:
 				_tip_close()
-		return
 	if _tip_poll_t < TIP_POLL_SECS:
 		return
 	_tip_poll_t = 0.0
@@ -4517,7 +5011,13 @@ func _tip_tick(delta: float) -> void:
 			if tip_due(def):
 				tips_seen[str(def["id"])] = true
 		return
-	if not tip_can_show():
+	tip_latch()
+	if tip_active != "" or not tip_can_show():
+		return
+	var now := _tip_clock()
+	if now < tip_last_at:
+		tip_last_at = -1.0e9  # the clock restarted (new run)
+	if now - tip_last_at < float(balance.get("tip_gap_seconds", 90)):
 		return
 	var id := tip_next()
 	if id != "":
@@ -4601,6 +5101,19 @@ func _build_board() -> void:
 	tip_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	tip_label.theme_type_variation = "LabelMuted"
 	box.add_child(tip_label)
+	tip_now_label = Label.new()  # T339 the newest one-time tip, with its why-line, so a missed card can be read here
+	tip_now_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	tip_now_label.visible = false
+	box.add_child(tip_now_label)
+	tip_now_why = Label.new()
+	tip_now_why.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	tip_now_why.theme_type_variation = "LabelMuted"
+	tip_now_why.visible = false
+	box.add_child(tip_now_why)
+	tip_recent_box = VBoxContainer.new()
+	tip_recent_box.add_theme_constant_override("separation", 4)
+	tip_recent_box.visible = false
+	box.add_child(tip_recent_box)
 	# The guided tutorial is its own floating card, placed beside the control the step is about (see _tut_place_card).
 	tut_card = PanelContainer.new()
 	tut_card.mouse_filter = Control.MOUSE_FILTER_IGNORE  # the buttons inside still take clicks
@@ -4633,17 +5146,53 @@ func _build_board() -> void:
 	tut_actions.alignment = BoxContainer.ALIGNMENT_END
 	tut_actions.add_theme_constant_override("separation", 8)
 	tut_actions.visible = false
-	var tut_skip := Button.new()
-	tut_skip.theme_type_variation = "ButtonGhost"
-	tut_skip.text = StoryText.get_or("BTN_SKIP_TUTORIAL", "Skip tutorial")
-	tut_skip.pressed.connect(_tut_skip)
-	tut_actions.add_child(tut_skip)
+	tut_skip_btn = Button.new()
+	tut_skip_btn.name = "TutSkip"
+	tut_skip_btn.theme_type_variation = "ButtonGhost"
+	tut_skip_btn.text = StoryText.get_or("BTN_SKIP_TUTORIAL", "Skip tutorial")
+	tut_skip_btn.pressed.connect(_tut_skip)
+	tut_actions.add_child(tut_skip_btn)
+	tut_finish_btn = Button.new()  # T342: replaces Skip on the last card only
+	tut_finish_btn.name = "TutFinish"
+	tut_finish_btn.text = StoryText.get_or("BTN_TUT_FINISH", "Finish")
+	tut_finish_btn.visible = false
+	tut_finish_btn.pressed.connect(_tut_finish)
+	tut_actions.add_child(tut_finish_btn)
+	tut_next = Button.new()
+	tut_next.name = "TutNext"
+	tut_next.text = StoryText.get_or("TUT_G0_DONE_NEXT", "Next")
+	tut_next.visible = false
+	tut_next.pressed.connect(_tut_next)
+	tut_actions.add_child(tut_next)
 	cbox.add_child(tut_actions)
 	# pulsing outline drawn over the control the step is about
 	tut_hl = tut_make_hl()
 	add_child(tut_hl)
 	tut_arrow = tut_make_arrow()
 	add_child(tut_arrow)
+	var pulse_scene: PackedScene = load("res://game/fx/pulse_ring.tscn")
+	ship_ring = pulse_scene.instantiate()
+	ship_ring.pulses = SHIP_PULSE_N
+	ship_ring.seconds_per_pulse = SHIP_PULSE_SEC
+	ship_ring.radius_start = SHIP_PULSE_R0
+	ship_ring.radius_end = SHIP_PULSE_R1
+	ship_ring.alpha = SHIP_PULSE_ALPHA
+	ship_ring.color = Ui.col("star_warm")
+	ship_ring.z_index = 40
+	ship_ring.follow = _ship_ring_pos
+	ship_ring.allowed = _ring_allowed
+	add_child(ship_ring)
+	planet_ring = pulse_scene.instantiate()
+	planet_ring.pulses = 0
+	planet_ring.seconds_per_pulse = PLANET_PULSE_SEC
+	planet_ring.radius_start = PLANET_PULSE_R0
+	planet_ring.radius_end = PLANET_PULSE_R1
+	planet_ring.alpha = SHIP_PULSE_ALPHA
+	planet_ring.color = Ui.col("star_warm")
+	planet_ring.z_index = 40
+	planet_ring.follow = _planet_ring_pos
+	planet_ring.allowed = _ring_allowed
+	add_child(planet_ring)
 	_build_tip_card()
 	notice_label = Label.new()
 	notice_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -4685,11 +5234,6 @@ func _build_preface() -> void:
 	start.text = StoryText.get_text("SCR_PREFACE_BTN")
 	start.pressed.connect(_dismiss_preface)
 	box.add_child(start)
-	var skip := Button.new()
-	skip.theme_type_variation = "ButtonGhost"
-	skip.text = StoryText.get_text("SCR_PREFACE_SKIP")
-	skip.pressed.connect(_dismiss_preface)
-	box.add_child(skip)
 	Ui.scroll_wrap(center, box, 48.0)  # long preface text scrolls instead of leaving the window
 	start.grab_focus()
 
@@ -4697,8 +5241,12 @@ func _dismiss_preface() -> void:
 	if preface != null:
 		preface.queue_free()
 		preface = null
+		_tut_sig = []  # T325: the tutorial starts now: first step is evaluated on the next poll
 	map.set_process(true)
 	map.set_process_input(true)
 	map.set_process_unhandled_input(true)
 	paused = true
+	if tut_step == 0:
+		tut_frame_fly_target()  # T327: the planet the first card names is inside the window (the window has its final size now)
+	_tut_show()
 	_refresh()

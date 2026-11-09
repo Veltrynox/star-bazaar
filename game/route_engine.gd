@@ -229,7 +229,7 @@ func local_amount(good: String = "") -> int:
 func fixed_cost(rec = null) -> int:
 	var tp := trip_part(rec)
 	if has_core(rec):  # Null Core: the fitted ship's trips cost null_core_trip_mult of normal
-		tp = floori(float(tp) * float(balance.get("null_core_trip_mult", 1.0)))
+		tp = floori(float(tp) * float(balance.get("null_core_trip_mult", 1.0)) * Skills.null_core_trip_mult())
 	if is_cross_load(rec):  # Four Markets: a load of 2+ markets on one lane pays cross_load_trip_mult on trip cost
 		tp = floori(float(tp) * float(balance.get("cross_load_trip_mult", 1.0)))
 	return tp * (2 if has_stop(rec) else 1) + upkeep_part(rec)  # N9: a stop pays one more trip cost
@@ -1053,7 +1053,7 @@ func forecast(cash: int) -> Dictionary:
 				pend[str(p) + "|" + c] = int(pend.get(str(p) + "|" + c, 0)) + n
 				sold_n = n
 				var m: Dictionary = mixed.get(p, {"goods": 0, "bonus": 0, "mk": []})
-				var b := mixed_bonus(credits, int(m["goods"]), int(m["bonus"]), _cross_with(m["mk"], c))
+				var b := mixed_bonus(credits, int(m["goods"]), int(m["bonus"]), _cross_with(m["mk"], c), c)
 				credits += b
 				mixed[p] = {"goods": int(m["goods"]) + 1, "bonus": int(m["bonus"]) + b, "mk": _add_mk(m["mk"], c)}
 		delta += credits
@@ -1100,11 +1100,12 @@ func _attribute_lanes(loc: Array, res: Array) -> void:
 
 ## N3 Mixed load (code name: bundle bonus). Bonus credits for a sale of `revenue` at a planet that already sold
 ## `goods_before` distinct goods this cycle with `bonus_before` bonus paid. First good gets none; per-planet cap.
-func mixed_bonus(revenue: int, goods_before: int, bonus_before: int, cross: bool = false) -> int:
+func mixed_bonus(revenue: int, goods_before: int, bonus_before: int, cross: bool = false, good: String = "") -> int:
 	if goods_before < 1 or revenue <= 0 or cross:  # Four Markets: the bonus is for single-market loads only
 		return 0
 	var cap := int(balance.get("bundle_bonus_cap", 0))
-	return clampi(floori(revenue * float(balance.get("bundle_bonus_pct", 0.0))), 0, maxi(cap - bonus_before, 0))
+	var mult := Skills.bundle_bonus_mult(Markets.market_of(good)) if good != "" else 1.0  # T208 LUX_13
+	return clampi(floori(revenue * float(balance.get("bundle_bonus_pct", 0.0)) * mult), 0, maxi(cap - bonus_before, 0))
 
 ## Applied percent of a mixed load bonus for a sale (after the cap), 0 when none.
 static func mixed_pct(bonus: int, revenue: int) -> float:
@@ -1123,7 +1124,7 @@ func mixed_preview(planet: int) -> Dictionary:
 		if int(r["n"]) <= 0:
 			continue
 		var rev := int(r["credits"])
-		var b := mixed_bonus(rev, goods, paid, _cross_with(seen, str(o["c"])))
+		var b := mixed_bonus(rev, goods, paid, _cross_with(seen, str(o["c"])), str(o["c"]))
 		if b > 0:
 			out[str(o["c"])] = {"bonus": b, "revenue": rev, "pct": mixed_pct(b, rev)}
 		goods += 1
@@ -1200,7 +1201,7 @@ func _run_local(o: Dictionary, role: String, cash: int, out: Array) -> int:
 			r["credits"] = sale_value(planet, c, n)
 			var m: Dictionary = mix.get(planet, {"goods": 0, "bonus": 0, "mk": []})
 			if n > 0:
-				var b := mixed_bonus(int(r["credits"]), int(m["goods"]), int(m["bonus"]), _cross_with(m["mk"], c))
+				var b := mixed_bonus(int(r["credits"]), int(m["goods"]), int(m["bonus"]), _cross_with(m["mk"], c), c)
 				r["credits"] = int(r["credits"]) + b
 				mix[planet] = {"goods": int(m["goods"]) + 1, "bonus": int(m["bonus"]) + b, "mk": _add_mk(m["mk"], c)}
 				_note_sale(c, n, planet)

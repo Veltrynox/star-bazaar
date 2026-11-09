@@ -1097,6 +1097,8 @@ func _pays_line(dest: int, c: String) -> Control:
 	if not on:
 		var b := Button.new()
 		b.name = "PaysSellButton"
+		b.set_meta("sell_dest", dest)  # T334: the guided Sell card finds the button for its route
+		b.set_meta("sell_good", c)
 		b.text = StoryText.get_text("BTN_SELL")
 		b.disabled = main.engine.check_local(dest, c, "sell")["ok"] == false or not main.tut_allows("sell", dest, c)
 		b.tooltip_text = StoryText.get_or("LBL_ROUTE_PAYS_TIP", "Turn on the Sell order at {planet}.", {"planet": main.planet_name(dest)}) if not b.disabled else StoryText.get_or("LBL_ROUTE_PAYS_NO", "Not traded there.")
@@ -1110,7 +1112,7 @@ func _pays_line(dest: int, c: String) -> Control:
 ## T147: shown only on a full lane (the caller checks engine.lane_full). Enable and tooltip come from
 ## main.can_upgrade_route; once the lane is level 2 it reads as taken.
 func _upgrade_line(first: Dictionary) -> Control:
-	var cost := int(main.balance.get("upgrade_cost", 0))
+	var cost: int = main.upgrade_cost()
 	var bonus_pct := roundi(float(main.balance.get("upgrade_margin_bonus", 0.0)) * 100.0)
 	var row := HBoxContainer.new()
 	row.name = "UpgradeLine"

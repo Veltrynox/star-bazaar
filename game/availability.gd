@@ -69,6 +69,10 @@ static func feature(id: String) -> bool:
 
 ## T179 discovery: a planet shows goods, prices and routes only once its trading post or mining platform stands
 ## (rule kind "planet", one per planet id; always true while discovery_enabled is 0). Hidden means not drawn at all.
+## T317: the hero ship card (Ships menu) is drawn only while a flight ship is active (discovery on). Not a data rule: it is no good or workshop.
+static func hero_ship(flight) -> bool:
+	return flight != null and is_instance_valid(flight) and flight.has_method("is_enabled") and bool(flight.is_enabled())
+
 static func planet(id: String) -> bool:
 	return is_visible("planet", id)
 

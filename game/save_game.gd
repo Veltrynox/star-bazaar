@@ -28,6 +28,20 @@ static var pending_ceo: String = ""   # CEO id = portrait id; set by the ship sc
 static var pending_branch: String = ""  # market id of the CEO's branch
 static var pending_ship: String = ""  # ship type id from data/ships.json
 
+## Main menu "Skip tutorial" setting (user://settings.cfg, [game] skip_tutorial, same file as the Voice setting).
+## On: every new run starts with the tutorial finished. Continue on a saved run is unaffected.
+const SETTINGS := "user://settings.cfg"
+
+static func skip_tutorial() -> bool:
+	var cf := ConfigFile.new()
+	return cf.load(SETTINGS) == OK and bool(cf.get_value("game", "skip_tutorial", false))
+
+static func set_skip_tutorial(on: bool) -> void:
+	var cf := ConfigFile.new()
+	cf.load(SETTINGS)
+	cf.set_value("game", "skip_tutorial", on)
+	cf.save(SETTINGS)
+
 static func exists() -> bool:
 	return not load_state().is_empty()
 

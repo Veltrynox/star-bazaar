@@ -32,9 +32,7 @@ Worlds grow when their needs are met. Raise one into a capital and build the Sta
 
 What it costs the sky, the sky does not say.
 SCR_PREFACE_BTN | 24 | Preface screen, continue button
-Begin
-SCR_PREFACE_SKIP | 24 | Preface screen, skip button
-Skip
+Sign here, and here
 
 ## Main menu (title screen buttons)
 MENU_CONTINUE | 24 | Main menu, loads the saved game | Continue
@@ -42,6 +40,8 @@ MENU_NEW_GAME | 24 | Main menu, starts a new run | New game
 MENU_CONFIRM_NEW | 110 | Confirmation dialog, new game while a saved game exists | Start a new game?
 NOT_NO_SAVE | 110 | Main menu, Continue with no saved game | No saved game yet.
 MENU_HINT_CONTINUE_OFF | 110 | Main menu, hint on a disabled Continue | Continue needs a saved game.
+BTN_SKIP_TUTORIAL_ON | 24 | Main menu, same toggle once pressed | Tutorial: skipped
+MENU_HINT_SKIP_TUTORIAL | 110 | Main menu, hint on the Skip tutorial toggle | New games start with the tutorial already done.
 
 ## Menu entries
 MENU_RESUME | 24 | Game menu | Resume
@@ -116,7 +116,7 @@ The ship is assigned. It moves stock between storages when the cycle runs.
 TUT_C2_UPKEEP | 110 | Cycle 2, first upkeep line shown
 Each ship costs Ship upkeep. It appears in the top bar as part of Expenses.
 TUT_C3_STORAGE | 110 | Cycle 3, first company storage view
-Company storage holds your goods on a planet. When it is full, Buy waits.
+The figure is your Company storage here. The menu has Send to and Sell. When full, Buy waits.
 TUT_C3_ONEWAY | 110 | Cycle 3
 Routes are one way. To send stock both ways, make a second route back.
 TUT_C4_SKILLS | 110 | Cycle 4, if a skill point is held
@@ -240,8 +240,10 @@ PLANET_UNHAPPY | 110 | Planet panel, resident unhappiness line when above zero; 
 NOT_SKILL_POP_TITLE | 32 | Pop-up title when expansion points are earned; {points} is the number earned | Skill point earned: +{points}
 
 ## Guided first steps (T124, 2026-10-31, owner item 3; shown one at a time, each moves on when done)
-TUT_G1_SELECT | 60 | Guided step 1, until a planet is clicked | Click Voltara, the ringed planet.
-TUT_G1_SELECT_WHY | 110 | Guided step, why it matters (second line of the card) | Its panel shows what it sells, what it buys and what the company can trade there.
+TUT_G1_SELECT | 60 | Guided step 1, until a planet is clicked | Click Voltara, your home world, to start trading.
+TUT_G1_SELECT_WHY | 110 | Guided step, why it matters (second line of the card) | Its panel shows what Voltara sells, what it buys and what you can trade there.
+TUT_G1B_SHIPS | 60 | Guided step 2 (T319), until the Pathfinder card in the Ships menu is clicked | In the Ships menu, right, click the Pathfinder card.
+TUT_G1B_SHIPS_WHY | 110 | Guided step, why it matters (second line of the card) | The card selects your ship. Then click a world on the map to send it there.
 TUT_G2_BUY | 60 | Guided step 2, until Buy is on for a good | Press Buy on Energy.
 TUT_G2_BUY_WHY | 110 | Guided step, why it matters (second line of the card) | A Buy order fills your storage on this planet each cycle.
 TUT_G3_SEND | 60 | Guided step 3, until a route exists | Right-click Energy, choose Send to.
@@ -252,9 +254,9 @@ TUT_G4_ROUTE_PAY_WHY | 110 | Guided step, why it matters (second line of the car
 TUT_G5_UPKEEP | 60 | Guided step 5, after a ship is working | Find Ship upkeep under Expenses.
 TUT_G5_UPKEEP_WHY | 110 | Guided step, why it matters (second line of the card) | A ship costs money every cycle, so a route must earn more than it costs.
 TUT_G6_SELL | 60 | Guided step 6, until the first Sell order | Open your route's end world. Turn Sell on for Energy.
-TUT_G6_SELL_WHY | 110 | Guided step, why it matters (second line of the card) | A Sell order turns your stock into credits.
-TUT_G7_STORAGE | 60 | Guided step 7, storage | Watch stored/capacity on the resource button.
-TUT_G7_STORAGE_WHY | 110 | Guided step, why it matters (second line of the card) | Company storage holds your goods on a planet. When it is full, Buy waits.
+TUT_G6_SELL_WHY | 110 | Guided step, why it matters (second line of the card) | A Sell order turns stock into credits when the cycle ends. Let one finish.
+TUT_G7_STORAGE | 60 | Guided step 7, storage | Right-click the lit resource button, then let a cycle end.
+TUT_G7_STORAGE_WHY | 110 | Guided step, why it matters (second line of the card) | Sales, trips and stock changes happen when the cycle ends. Run time, then read stored/capacity.
 TUT_G7_NEEDS | 60 | Guided step 8 (T315), until a world card with a Needs list has been opened | Open a world and read its Needs.
 TUT_G7_NEEDS_WHY | 110 | Guided step, why it matters (second line of the card) | A world grows when your sales meet its needs. Grown worlds pay tax.
 TUT_G7_GROW | 60 | Guided step 9 (T315), until the first world reaches tier 1 | Sell a world the goods it needs, until it grows.
@@ -263,8 +265,8 @@ TUT_G8_SKILLS | 60 | Guided step 10, until a skill is learned | Open Skills and 
 TUT_G8_SKILLS_WHY | 110 | Guided step, why it matters (second line of the card) | Skill points come from firsts, like your first tier. Three Foundations come before any market skill.
 TUT_G9_PERMIT | 60 | Guided step 11, permits | Learn Permit Charter.
 TUT_G9_PERMIT_WHY | 110 | Guided step, why it matters (second line of the card) | It lets you buy a permit for a new system. A new system has more worlds to grow and trade with.
-TUT_G10_DONE | 60 | Guided step 12, the last, until the Star Bazaar panel is opened | Goal: raise the Star Bazaar. Open its panel.
-TUT_G10_DONE_WHY | 110 | Guided step, why it matters (second line of the card) | Grow a world to the capital tier, found the Bazaar there, finish its stages, then fly the cargo in.
+TUT_G10_DONE | 60 | Guided step 12, the last, until the Star Bazaar panel is opened | The Star Bazaar is where the sky trades. Build it.
+TUT_G10_DONE_WHY | 110 | Guided step, why it matters (second line of the card) | One exchange for every world, raised stage by stage on one capital. Finish it and the company tops the galaxy.
 TUT_HEADER | 24 | Header of the guided tutorial card | Tutorial
 TUT_STEP_COUNT | 24 | Tutorial card, step counter; {n} is the step, {total} the number of steps | {n} of {total}
 
@@ -305,8 +307,8 @@ Trigger table (tip id: trigger in plain words):
 - TIP_FOUNDATIONS: the third required Foundation is learned.
 
 ### Goal and Bazaar
-TIP_GOAL | 110 | Tip card line; trigger: the guided tutorial ends or is skipped | You win by raising the Star Bazaar. Holding a market does not win.
-TIP_GOAL_WHY | 110 | Tip card, why line | Grow a world to the capital tier, found the Bazaar there, then finish its stages. Open the Bazaar panel.
+TIP_GOAL | 110 | Tip card line; trigger: the guided tutorial ends or is skipped | Holding a market does not win. Only a finished Star Bazaar does.
+TIP_GOAL_WHY | 110 | Tip card, why line | Grow a world to the capital tier. Its panel founds the Bazaar, then shows each stage and what is short.
 TIP_CAPITAL | 110 | Tip card line; trigger: the first world reaches the capital tier | A world has reached the capital tier. You can found the Star Bazaar there. It is final.
 TIP_CAPITAL_WHY | 110 | Tip card, why line | A run has one capital. Choose with care, then press Found the Bazaar here on the world's panel.
 TIP_FOUNDED | 110 | Tip card line; trigger: the Bazaar is founded | The Bazaar is built in stages. Each needs goods in the capital's storage and other worlds at a tier.
@@ -519,6 +521,7 @@ NOT_SHIP_KEEP_CASH | 110 | Ships panel and Buy ship tooltip, purchase refused to
 ## Tutorial panels and game tips (2026-11-03, owner: tutorial beside its button, right board for tips only)
 LBL_TIPS | 24 | Right board title, game tips | Tips
 BTN_SKIP_TUTORIAL | 24 | Tutorial card and galaxy view tutorial, ends the whole tutorial | Skip tutorial
+BTN_TUT_FINISH | 24 | Tutorial card, last card only, replaces Skip tutorial; ends the tutorial, tips go on | Finish
 TIP_BOARD_1 | 110 | Tips board, rotates one per cycle | A route should earn more than its ship costs in upkeep. Check Expenses.
 TIP_BOARD_2 | 110 | Tips board | Routes are one way. To send stock both ways, make a second route back.
 TIP_BOARD_3 | 110 | Tips board | When Company storage is full, Buy waits. Sell or send stock on to make room.
@@ -1140,6 +1143,11 @@ LBL_PATHFINDER_DESC | 110 | Ship panel, scout line | A scout. It carries no carg
 LBL_PATHFINDER_FLYING | 60 | Top bar or ship panel, while flying to a known planet; {planet} is a name | Pathfinder flying to {planet}
 LBL_PATHFINDER_FLYING_UNKNOWN | 60 | Same, while flying to a closed world | Pathfinder flying to an unknown world
 LBL_PATHFINDER_IDLE | 60 | Ship panel, not flying and not building | Pathfinder waiting
+LBL_HERO_STATE_IDLE | 24 | Ships menu hero card, state line, ship waiting | Idle
+LBL_HERO_STATE_FLYING | 24 | Ships menu hero card, state line, ship flying | Flying
+LBL_HERO_STATE_BUILDING | 24 | Ships menu hero card, state line, ship building a post | Building
+LBL_HERO_HINT | 60 | Ships menu hero card, tooltip: click selects the ship, then click the map to send it | Click to select. Then click the map to fly.
+LBL_HERO_SELECTED | 24 | Ships menu hero card, extra word on the state line while selected | Selected
 BTN_ESTABLISH_POST | 24 | Planet panel of a living world the Pathfinder has reached | Establish trading post
 BTN_ESTABLISH_PLATFORM | 28 | Planet panel of a dead world the Pathfinder has reached, only after Prospecting-level mining is learned (long button: exception to the 24 limit) | Establish mining platform
 LBL_POST_COST | 60 | Under the establish button, a post that costs credits; {cash} and {cycles} are numbers | Cost: {cash} cr. Build time: {cycles} cycles.
@@ -1165,12 +1173,17 @@ NOT_FIELD_SURVEYED | 110 | Notice, the Pathfinder reached an asteroid field | As
 NOT_FLIGHT_EVENT | 110 | Notice before a flight event, optional | The Pathfinder reports something on the lane.
 
 ## Tutorial: first flight (T181; replaces the old guided step 1 when discovery is on; Russian in story/ru/discovery.json)
-TUT_G0_FLY | 60 | Guided step 0, until the Pathfinder has reached the nearby world | Click your ship, then right-click the dim world.
-TUT_G0_FLY_WHY | 110 | Guided step, why it matters (second line of the card) | Only your home world is known. Other worlds open when you fly there and build a post.
-TUT_G0_BUILD | 60 | Guided step 0, after arrival, until the post is built | Right-click the world, choose Establish trading post.
+TUT_G0_FLY | 60 | Guided step 0, until the Pathfinder has reached the nearby world | Right-click {planet}, choose Establish a trading post.
+TUT_G0_FLY_WHY | 110 | Guided step, why it matters (second line of the card) | The Pathfinder flies there by itself and builds the post. Your first one is free.
+TUT_G0_BUILD | 60 | Guided step 0, after arrival, until the post is built | Right-click this world, choose Establish trading post.
 TUT_G0_BUILD_WHY | 110 | Guided step, why it matters (second line of the card) | A post lets you buy, sell and route there. Your first one is free.
-TUT_G0_WAIT | 60 | Guided step 0, while the post is building | Press the lit time button, top right, to build.
-TUT_G0_WAIT_WHY | 110 | Guided step, why it matters (second line of the card) | Flights and builds run on cycles. Time stands still while the game is paused.
+TUT_G0_WAIT | 60 | Guided step 0, while the post is building | Press the lit time button, top right, and wait for the post.
+TUT_G0_WAIT_WHY | 110 | Guided step, why it matters (second line of the card) | The post is built over cycles. Time stands still while the game is paused.
+TUT_G0_DONE | 60 | Guided step 0, celebration card once the post stands | Yay! We established a trading post on {planet}!
+TUT_G0_DONE_WHY | 110 | Guided step, why it matters (second line of the card) | A post lets you buy, sell and route there. Voltara is next.
+TUT_G0_DONE_NEXT | 24 | Guided step 0, button on the celebration card | Next
+TUT_G1C_SPEED | 60 | Guided card after slide 1, information plus one try-it action; Next button reuses TUT_G0_DONE_NEXT | Top right: 2x, 6x and 12x run the game faster.
+TUT_G1C_SPEED_WHY | 110 | Guided card after slide 1, second line (why); the speed buttons are 1x 2x 6x 12x, the icon beside them is pause/play | Trips and posts take cycles, so waiting is quicker at speed. The pause button stops time.
 
 ## STORAGE LINK (T171, 2026-11-05; from design/proposals/2026-11-05-storage-link.md)
 Unlocks with the storage_link feature (Space Storage learned, system 2 open, rivets visible). No text names a good literally except energy (visible from the start); cost goods come through {goods}, a list of visible goods only. Interface texts stay English (ru/GLOSSARY.md); story/ru/storage_link.json is empty on purpose. States: Active, Dormant, Collapsed. Placeholders: {a} and {b} system names, {good} one good name, {goods} list of goods, {n} {m} numbers, {cycles} number of cycles.

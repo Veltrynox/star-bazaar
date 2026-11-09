@@ -15,6 +15,9 @@ extends RefCounted
 
 const StoryText := preload("res://game/story_text.gd")
 const PATH := "res://data/gigs.json"
+const DeadWorlds := preload("res://game/dead_worlds.gd")
+const RouteLineScript := preload("res://game/route_line.gd")
+const RouteOffset := preload("res://game/route_offset.gd")
 const BRANCH_SUFFIX := {"mil": "MIL", "lux": "LUX", "min": "MIN", "bio": "BIO"}
 
 signal scooped                 # T300: the Flagship scooped salvage pods (juice)
@@ -128,9 +131,10 @@ func has_knowledge(id: String) -> bool:
 	return knowledge.has(id)
 
 ## T296: cargo pods at `pos` in system `sys`: `units` of `good`, fading after `life` cycles. Not limited by the board size (a raid made them).
-func post_salvage(uid: String, sys: int, pos: Vector3, good: String, units: int, count: int, life: float) -> void:
+## `lane` is the id of the route the pods came from (-1 when none).
+func post_salvage(uid: String, sys: int, pos: Vector3, good: String, units: int, count: int, life: float, lane: int = -1) -> void:
 	offers.append({"uid": uid, "id": uid, "kind": "salvage", "target": {"kind": "point", "sys": sys, "pos": [pos.x, 0.0, pos.z]},
-		"due": _now() + life, "accepted": false, "req": {}, "rewards": [], "pods": [{"good": good, "units": units}], "count": maxi(1, count)})
+		"due": _now() + life, "accepted": false, "req": {}, "rewards": [], "pods": [{"good": good, "units": units}], "count": maxi(1, count), "lane": lane})
 	changed.emit()
 
 ## T298: the Opening offer at the capital (one at a time). Not limited by the board size.
@@ -242,10 +246,125 @@ func eligible(g: Dictionary) -> bool:
 				return false
 	return true
 
+## T340: pure check. `planets`: [{"pos": Vector3, "dead": bool}]; `lanes`: [[p0, ctrl, p2]] quadratic Beziers (route_line.gd maths), x/z plane.
+## A point is clear when it is at least `min_planet_dist` from every living planet and `min_lane_dist` from every lane curve.
+## A point within `min_planet_dist` of a dead planet is at that world and is allowed (a marker may sit at a dead planet).
+static func clear_of_map(pos: Vector3, planets: Array, lanes: Array, min_planet_dist: float, min_lane_dist: float) -> bool:
+	var p := Vector2(pos.x, pos.z)
+	var at_dead := false
+	for w in planets:
+		var c: Vector3 = w["pos"]
+		if p.distance_to(Vector2(c.x, c.z)) < min_planet_dist:
+			if not bool(w.get("dead", false)):
+				return false
+			at_dead = true
+	if at_dead:
+		return true
+	for ln in lanes:
+		if _lane_dist(p, ln) < min_lane_dist:
+			return false
+	return true
+
+## Distance from a plane point to a sampled quadratic Bezier (24 segments).
+static func _lane_dist(p: Vector2, ln: Array) -> float:
+	var best := INF
+	var prev := Vector2.ZERO
+	for i in 25:
+		var t := float(i) / 24.0
+		var u := 1.0 - t
+		var v: Vector3 = (ln[0] as Vector3) * (u * u) + (ln[1] as Vector3) * (2.0 * u * t) + (ln[2] as Vector3) * (t * t)
+		var q := Vector2(v.x, v.z)
+		if i > 0:
+			var ab := q - prev
+			var l2 := ab.length_squared()
+			var k := clampf((p - prev).dot(ab) / l2, 0.0, 1.0) if l2 > 0.0 else 0.0
+			best = minf(best, p.distance_to(prev + ab * k))
+		prev = q
+	return best
+
+## Planets of the current system and the lane curves of the established routes, for clear_of_map.
+func map_obstacles(sys: int) -> Dictionary:
+	var planets: Array = []
+	var mp = main.map
+	for i in mp.planets.size():
+		if i < mp.positions.size() and int(mp.planets[i].get("system", 1)) == sys:
+			planets.append({"pos": mp.positions[i], "dead": DeadWorlds.is_dead(mp.planets[i])})
+	var lanes: Array = []
+	for rec in main.engine.routes:
+		var a := int(rec["a"])
+		var b := int(rec["b"])
+		var pa := Vector3.INF
+		var pb := Vector3.INF
+		if a <= -1000:
+			var cc: Dictionary = mp._cluster_by_node(a)
+			if not cc.is_empty() and int(cc["system"]) == sys:
+				pa = Vector3(float(cc["x"]), 0.0, float(cc["y"])) * mp.MAP_UNIT_SCALE
+		elif a >= 0 and a < mp.positions.size() and int(mp.planets[a].get("system", 1)) == sys:
+			pa = mp.positions[a]
+		if b < 0:
+			var st = mp.stations.get(-b)
+			if st != null and -b == sys:
+				pb = st.position
+		elif b < mp.positions.size() and int(mp.planets[b].get("system", 1)) == sys:
+			pb = mp.positions[b]
+		if pa == Vector3.INF or pb == Vector3.INF:
+			continue
+		var dir: Vector3 = (pb - pa).normalized()
+		var p0: Vector3 = pa + dir * mp.planet_radius(maxi(a, 0)) * RouteLineScript.GAP
+		var p2: Vector3 = pb - dir * mp.planet_radius(maxi(b, 0)) * RouteLineScript.GAP
+		var chord := p0.distance_to(p2)
+		var c: Vector3 = (p0 + p2) * 0.5 + Vector3.UP.cross(dir).normalized() * chord * RouteLineScript.BOW
+		var sw = RouteOffset.sun_waypoint(pa, pb, mp.sun_list())
+		if sw != null:
+			var wt: float = clampf(p0.distance_to(sw) / maxf(p0.distance_to(sw) + sw.distance_to(p2), 0.001), 0.15, 0.85)
+			c = (sw - p0 * ((1.0 - wt) * (1.0 - wt)) - p2 * (wt * wt)) / (2.0 * (1.0 - wt) * wt)
+		lanes.append([p0, c, p2])
+	return {"planets": planets, "lanes": lanes}
+
+func is_clear(pos: Vector3, sys: int) -> bool:
+	var ob := map_obstacles(sys)
+	return clear_of_map(pos, ob["planets"], ob["lanes"], _bal("gig_min_planet_dist"), _bal("gig_min_lane_dist"))
+
+## Moves `pos` off every lane and living planet by the least step: rings of growing radius round it, 16 fixed directions from `ang0`.
+## A point at a dead planet stays. Returns `pos` when nothing clear is found within the search.
+func nudge_clear(pos: Vector3, sys: int, ang0: float) -> Vector3:
+	var ob := map_obstacles(sys)
+	var mpd := _bal("gig_min_planet_dist")
+	var mld := _bal("gig_min_lane_dist")
+	if clear_of_map(pos, ob["planets"], ob["lanes"], mpd, mld):
+		return pos
+	var step := maxf(0.1, minf(mpd, mld) * 0.5)
+	for ring in range(1, 41):
+		for k in 16:
+			var a := ang0 + TAU * float(k) / 16.0
+			var q := pos + Vector3(cos(a), 0.0, sin(a)) * step * float(ring)
+			if clear_of_map(q, ob["planets"], ob["lanes"], mpd, mld):
+				return q
+	return pos
+
+const SIGNAL_RINGS := 4
+const SIGNAL_DIRS := 8
+
 func _open_signal(g: Dictionary, cycle: int, rng: RandomNumberGenerator) -> void:
-	var ang := rng.randf() * TAU
 	var base: Vector3 = main.flight.ship_position()
-	var pos := base + Vector3(cos(ang), 0.0, sin(ang)) * _bal("gig_marker_dist", 1.0)
+	var sys: int = main.flight.system_id()
+	var ob := map_obstacles(sys)
+	var mpd := _bal("gig_min_planet_dist")
+	var mld := _bal("gig_min_lane_dist")
+	var pos := Vector3.INF
+	var ang0 := rng.randf() * TAU  # first candidate is the plain draw; the rest follow in a fixed order
+	for ring in SIGNAL_RINGS:
+		var dist := _bal("gig_marker_dist", 1.0) + float(ring) * maxf(mpd, mld) * 0.5
+		for k in SIGNAL_DIRS:
+			var ang := ang0 if (ring == 0 and k == 0) else rng.randf() * TAU
+			var q := base + Vector3(cos(ang), 0.0, sin(ang)) * dist
+			if clear_of_map(q, ob["planets"], ob["lanes"], mpd, mld):
+				pos = q
+				break
+		if pos != Vector3.INF:
+			break
+	if pos == Vector3.INF:
+		return  # no clear point this cycle: no signal (the next cycle draws again)
 	var life := Conditions.balance_value(str(g.get("expires", "balance.gig_expire_cycles")))
 	offers.append({"uid": str(g["id"]), "id": str(g["id"]), "kind": "signal", "target": {"kind": "point", "sys": main.flight.system_id(), "pos": [pos.x, 0.0, pos.z]},
 		"due": _now() + life, "accepted": false, "req": {}, "rewards": []})

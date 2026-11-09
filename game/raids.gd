@@ -158,9 +158,10 @@ func _drop_pods(rec: Dictionary, good: String, units: int) -> Vector3:
 	rng.seed = main.gigs.seed_value + main.cycle * 7507 + int(rec["id"])
 	var ang := rng.randf() * TAU
 	var pos := base + Vector3(cos(ang), 0.0, sin(ang)) * _bal("raid_pod_dist", 0.6)
+	pos = main.gigs.nudge_clear(pos, main.system_of(a), ang)  # T340: never on a lane or a living world (a dead world is fine)
 	_uid += 1
 	var uid := "SALV%d_%d" % [main.cycle, _uid]
-	main.gigs.post_salvage(uid, main.system_of(a), pos, good, units, int(_bal("raid_pod_count", 1.0)), _bal("raid_pod_fade_cycles"))
+	main.gigs.post_salvage(uid, main.system_of(a), pos, good, units, int(_bal("raid_pod_count", 1.0)), _bal("raid_pod_fade_cycles"), int(rec["id"]))
 	return pos
 
 # ---- save ------------------------------------------------------------------------------------------------------------

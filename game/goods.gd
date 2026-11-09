@@ -61,7 +61,14 @@ static func merge_prices(planet: Dictionary) -> void:
 
 static func recipe(id: String) -> Dictionary:
 	var r = entry(id).get("recipe")
-	return r if typeof(r) == TYPE_DICTIONARY else {}
+	if typeof(r) != TYPE_DICTIONARY:
+		return {}
+	var out: Dictionary = r.duplicate()
+	for c in out.keys():  # T208 recipe_input_cut: fewer units of an input, at least 1
+		var cut := Skills.recipe_input_cut(str(c))
+		if cut > 0:
+			out[c] = maxi(1, int(out[c]) - cut)
+	return out
 
 static func batch_out(id: String, balance: Dictionary) -> int:
 	return maxi(1, int(balance.get(id + "_batch_out", entry(id).get("batch_out", 1))))

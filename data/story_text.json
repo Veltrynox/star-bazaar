@@ -27,15 +27,9 @@
   },
   {
    "id": "SCR_PREFACE_BTN",
-   "text": "Begin",
+   "text": "Sign here, and here",
    "max": 24,
    "place": "Preface screen, continue button"
-  },
-  {
-   "id": "SCR_PREFACE_SKIP",
-   "text": "Skip",
-   "max": 24,
-   "place": "Preface screen, skip button"
   },
   {
    "id": "MENU_CONTINUE",
@@ -66,6 +60,18 @@
    "text": "Continue needs a saved game.",
    "max": 110,
    "place": "Main menu, hint on a disabled Continue"
+  },
+  {
+   "id": "BTN_SKIP_TUTORIAL_ON",
+   "text": "Tutorial: skipped",
+   "max": 24,
+   "place": "Main menu, same toggle once pressed"
+  },
+  {
+   "id": "MENU_HINT_SKIP_TUTORIAL",
+   "text": "New games start with the tutorial already done.",
+   "max": 110,
+   "place": "Main menu, hint on the Skip tutorial toggle"
   },
   {
    "id": "MENU_RESUME",
@@ -393,7 +399,7 @@
   },
   {
    "id": "TUT_C3_STORAGE",
-   "text": "Company storage holds your goods on a planet. When it is full, Buy waits.",
+   "text": "The figure is your Company storage here. The menu has Send to and Sell. When full, Buy waits.",
    "max": 110,
    "place": "Cycle 3, first company storage view"
   },
@@ -903,13 +909,25 @@
   },
   {
    "id": "TUT_G1_SELECT",
-   "text": "Click Voltara, the ringed planet.",
+   "text": "Click Voltara, your home world, to start trading.",
    "max": 60,
    "place": "Guided step 1, until a planet is clicked"
   },
   {
    "id": "TUT_G1_SELECT_WHY",
-   "text": "Its panel shows what it sells, what it buys and what the company can trade there.",
+   "text": "Its panel shows what Voltara sells, what it buys and what you can trade there.",
+   "max": 110,
+   "place": "Guided step, why it matters (second line of the card)"
+  },
+  {
+   "id": "TUT_G1B_SHIPS",
+   "text": "In the Ships menu, right, click the Pathfinder card.",
+   "max": 60,
+   "place": "Guided step 2 (T319), until the Pathfinder card in the Ships menu is clicked"
+  },
+  {
+   "id": "TUT_G1B_SHIPS_WHY",
+   "text": "The card selects your ship. Then click a world on the map to send it there.",
    "max": 110,
    "place": "Guided step, why it matters (second line of the card)"
   },
@@ -975,19 +993,19 @@
   },
   {
    "id": "TUT_G6_SELL_WHY",
-   "text": "A Sell order turns your stock into credits.",
+   "text": "A Sell order turns stock into credits when the cycle ends. Let one finish.",
    "max": 110,
    "place": "Guided step, why it matters (second line of the card)"
   },
   {
    "id": "TUT_G7_STORAGE",
-   "text": "Watch stored/capacity on the resource button.",
+   "text": "Right-click the lit resource button, then let a cycle end.",
    "max": 60,
    "place": "Guided step 7, storage"
   },
   {
    "id": "TUT_G7_STORAGE_WHY",
-   "text": "Company storage holds your goods on a planet. When it is full, Buy waits.",
+   "text": "Sales, trips and stock changes happen when the cycle ends. Run time, then read stored/capacity.",
    "max": 110,
    "place": "Guided step, why it matters (second line of the card)"
   },
@@ -1041,13 +1059,13 @@
   },
   {
    "id": "TUT_G10_DONE",
-   "text": "Goal: raise the Star Bazaar. Open its panel.",
+   "text": "The Star Bazaar is where the sky trades. Build it.",
    "max": 60,
    "place": "Guided step 12, the last, until the Star Bazaar panel is opened"
   },
   {
    "id": "TUT_G10_DONE_WHY",
-   "text": "Grow a world to the capital tier, found the Bazaar there, finish its stages, then fly the cargo in.",
+   "text": "One exchange for every world, raised stage by stage on one capital. Finish it and the company tops the galaxy.",
    "max": 110,
    "place": "Guided step, why it matters (second line of the card)"
   },
@@ -1065,13 +1083,13 @@
   },
   {
    "id": "TIP_GOAL",
-   "text": "You win by raising the Star Bazaar. Holding a market does not win.",
+   "text": "Holding a market does not win. Only a finished Star Bazaar does.",
    "max": 110,
    "place": "Tip card line; trigger: the guided tutorial ends or is skipped"
   },
   {
    "id": "TIP_GOAL_WHY",
-   "text": "Grow a world to the capital tier, found the Bazaar there, then finish its stages. Open the Bazaar panel.",
+   "text": "Grow a world to the capital tier. Its panel founds the Bazaar, then shows each stage and what is short.",
    "max": 110,
    "place": "Tip card, why line"
   },
@@ -2088,6 +2106,12 @@
    "text": "Skip tutorial",
    "max": 24,
    "place": "Tutorial card and galaxy view tutorial, ends the whole tutorial"
+  },
+  {
+   "id": "BTN_TUT_FINISH",
+   "text": "Finish",
+   "max": 24,
+   "place": "Tutorial card, last card only, replaces Skip tutorial; ends the tutorial, tips go on"
   },
   {
    "id": "TIP_BOARD_1",
@@ -5240,6 +5264,36 @@
    "place": "Ship panel, not flying and not building"
   },
   {
+   "id": "LBL_HERO_STATE_IDLE",
+   "text": "Idle",
+   "max": 24,
+   "place": "Ships menu hero card, state line, ship waiting"
+  },
+  {
+   "id": "LBL_HERO_STATE_FLYING",
+   "text": "Flying",
+   "max": 24,
+   "place": "Ships menu hero card, state line, ship flying"
+  },
+  {
+   "id": "LBL_HERO_STATE_BUILDING",
+   "text": "Building",
+   "max": 24,
+   "place": "Ships menu hero card, state line, ship building a post"
+  },
+  {
+   "id": "LBL_HERO_HINT",
+   "text": "Click to select. Then click the map to fly.",
+   "max": 60,
+   "place": "Ships menu hero card, tooltip: click selects the ship, then click the map to send it"
+  },
+  {
+   "id": "LBL_HERO_SELECTED",
+   "text": "Selected",
+   "max": 24,
+   "place": "Ships menu hero card, extra word on the state line while selected"
+  },
+  {
    "id": "BTN_ESTABLISH_POST",
    "text": "Establish trading post",
    "max": 24,
@@ -5379,19 +5433,19 @@
   },
   {
    "id": "TUT_G0_FLY",
-   "text": "Click your ship, then right-click the dim world.",
+   "text": "Right-click {planet}, choose Establish a trading post.",
    "max": 60,
    "place": "Guided step 0, until the Pathfinder has reached the nearby world"
   },
   {
    "id": "TUT_G0_FLY_WHY",
-   "text": "Only your home world is known. Other worlds open when you fly there and build a post.",
+   "text": "The Pathfinder flies there by itself and builds the post. Your first one is free.",
    "max": 110,
    "place": "Guided step, why it matters (second line of the card)"
   },
   {
    "id": "TUT_G0_BUILD",
-   "text": "Right-click the world, choose Establish trading post.",
+   "text": "Right-click this world, choose Establish trading post.",
    "max": 60,
    "place": "Guided step 0, after arrival, until the post is built"
   },
@@ -5403,15 +5457,45 @@
   },
   {
    "id": "TUT_G0_WAIT",
-   "text": "Press the lit time button, top right, to build.",
+   "text": "Press the lit time button, top right, and wait for the post.",
    "max": 60,
    "place": "Guided step 0, while the post is building"
   },
   {
    "id": "TUT_G0_WAIT_WHY",
-   "text": "Flights and builds run on cycles. Time stands still while the game is paused.",
+   "text": "The post is built over cycles. Time stands still while the game is paused.",
    "max": 110,
    "place": "Guided step, why it matters (second line of the card)"
+  },
+  {
+   "id": "TUT_G0_DONE",
+   "text": "Yay! We established a trading post on {planet}!",
+   "max": 60,
+   "place": "Guided step 0, celebration card once the post stands"
+  },
+  {
+   "id": "TUT_G0_DONE_WHY",
+   "text": "A post lets you buy, sell and route there. Voltara is next.",
+   "max": 110,
+   "place": "Guided step, why it matters (second line of the card)"
+  },
+  {
+   "id": "TUT_G0_DONE_NEXT",
+   "text": "Next",
+   "max": 24,
+   "place": "Guided step 0, button on the celebration card"
+  },
+  {
+   "id": "TUT_G1C_SPEED",
+   "text": "Top right: 2x, 6x and 12x run the game faster.",
+   "max": 60,
+   "place": "Guided card after slide 1, information plus one try-it action; Next button reuses TUT_G0_DONE_NEXT"
+  },
+  {
+   "id": "TUT_G1C_SPEED_WHY",
+   "text": "Trips and posts take cycles, so waiting is quicker at speed. The pause button stops time.",
+   "max": 110,
+   "place": "Guided card after slide 1, second line (why); the speed buttons are 1x 2x 6x 12x, the icon beside them is pause/play"
   },
   {
    "id": "SS_LINK_TITLE",
@@ -8367,31 +8451,31 @@
   },
   {
    "id": "SK_FND_LEDGER_FLAVOUR",
-   "text": "A column of small numbers, honest to the last coin. You read it twice.",
+   "text": "A column of small numbers, honest to the last coin. You sign it twice.",
    "max": 90,
    "place": "Skill screen, detail panel"
   },
   {
    "id": "SK_FND_LEDGER_PLAIN",
-   "text": "Each route shows its net profit per cycle after trip cost and Ship upkeep.",
+   "text": "Buy and Sell orders move more each cycle, for every good.",
    "max": 110,
    "place": "Skill screen, detail panel"
   },
   {
    "id": "SK_FND_RIVAL_WATCH_NAME",
-   "text": "Rival Watch",
+   "text": "Market Watch",
    "max": 24,
    "place": "Skill screen, node name"
   },
   {
    "id": "SK_FND_RIVAL_WATCH_FLAVOUR",
-   "text": "You learn where the others will stand before they do. They learn you looked.",
+   "text": "A quiet clerk reads the wind for you. Fewer surprises reach your desk.",
    "max": 90,
    "place": "Skill screen, detail panel"
   },
   {
    "id": "SK_FND_RIVAL_WATCH_PLAIN",
-   "text": "The Competitors screen shows each rival's expected share 3 cycles ahead.",
+   "text": "Price events against you hit weaker, in every market.",
    "max": 110,
    "place": "Skill screen, detail panel"
   },
@@ -8751,7 +8835,7 @@
   },
   {
    "id": "SK_MIN_8_PLAIN",
-   "text": "Storage holds more mined cargo.",
+   "text": "Planet storage holds more of every good.",
    "max": 110,
    "place": "Skill screen, detail panel"
   },
@@ -8787,13 +8871,13 @@
   },
   {
    "id": "SK_MIN_10_FLAVOUR",
-   "text": "A beacon on every cold rock. Fewer crews go missing.",
+   "text": "A beacon on every cold rock, and a calmer market behind it.",
    "max": 90,
    "place": "Skill screen, detail panel"
   },
   {
    "id": "SK_MIN_10_PLAIN",
-   "text": "Mined cargo is lost less often on dead worlds.",
+   "text": "Minerals price events against you hit weaker.",
    "max": 110,
    "place": "Skill screen, detail panel"
   },
@@ -8853,7 +8937,7 @@
   },
   {
    "id": "SK_MIN_13_PLAIN",
-   "text": "Trips to dead worlds cost less.",
+   "text": "Trips by a ship with a Null Core cost less.",
    "max": 110,
    "place": "Skill screen, detail panel"
   },

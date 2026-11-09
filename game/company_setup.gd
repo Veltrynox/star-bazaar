@@ -22,6 +22,7 @@ var name_edit: LineEdit
 var random_button: Button
 var start_button: Button
 var back_button: Button
+var skip_button: Button  # T324: Skip tutorial on/off (SaveGame.skip_tutorial, saved)
 var cards: Dictionary = {}  # portrait id -> Button
 var selected_id: String = ""
 var ceo_defs: Dictionary = {}  # portrait id -> row of data/ceos.json
@@ -118,6 +119,13 @@ func _ready() -> void:
 	start_button.text = StoryText.get_or("SETUP_NEXT", "Start")
 	start_button.pressed.connect(start)
 	buttons.add_child(start_button)
+	skip_button = Button.new()
+	skip_button.theme_type_variation = "ButtonGhost"
+	skip_button.toggle_mode = true
+	skip_button.tooltip_text = StoryText.get_or("MENU_HINT_SKIP_TUTORIAL", "")
+	skip_button.toggled.connect(_on_skip_toggled)
+	buttons.add_child(skip_button)
+	_mark_skip(SaveGame.skip_tutorial())
 	if restore:
 		restore = false
 		if SaveGame.pending_company != "":
@@ -127,6 +135,14 @@ func _ready() -> void:
 	_refresh_start()
 	_refresh_info()
 	name_edit.grab_focus()  # focus the name field, so no card draws a focus highlight at open
+
+func _on_skip_toggled(on: bool) -> void:
+	SaveGame.set_skip_tutorial(on)
+	_mark_skip(on)
+
+func _mark_skip(on: bool) -> void:
+	skip_button.set_pressed_no_signal(on)
+	skip_button.text = StoryText.get_or("BTN_SKIP_TUTORIAL_ON", "Skip tutorial") if on else StoryText.get_or("BTN_SKIP_TUTORIAL", "Skip tutorial")
 
 func _make_card(id: String, group: ButtonGroup) -> Button:
 	var b := Button.new()
