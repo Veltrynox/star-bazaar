@@ -39,6 +39,7 @@ var data: Dictionary = {}
 var _tier: Dictionary = {}      # planet id -> stored tier (only tiers above 1, or 1 for reclaimed worlds)
 var _steps: Dictionary = {}     # planet id -> progress steps in the current tier (float since T261: progress_grace spares part of a loss)
 var _sold: Dictionary = {}      # planet id -> {good: units sold this cycle}
+var _warned_empty: Dictionary = {}
 var _restless: Dictionary = {}  # planet id -> true when a need was short at the last cycle end
 var _reclaimed: Dictionary = {} # planet id -> true (hook for the Barren reclaim task)
 var _carry: Dictionary = {}     # T261: fractional need-fill bonus units not yet counted (not saved)
@@ -399,6 +400,13 @@ func end_cycle() -> void:
 			continue  # no platform yet: nothing can be sold there
 		var ok := all_met(i)
 		_update_hunger(i, pid)
+		# T349: a world with nothing to need is neither met nor Restless: it gains and loses no progress (and warns once).
+		if _need_goods(i).is_empty():
+			_restless[pid] = false
+			if not _warned_empty.has(pid):
+				_warned_empty[pid] = true
+				push_warning("Prosperity: world %s has no need goods (check data/prosperity.json)" % pid)
+			continue
 		_restless[pid] = not ok
 		if barren or t < max_tier():
 			if ok:

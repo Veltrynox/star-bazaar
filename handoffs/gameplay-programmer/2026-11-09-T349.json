@@ -1,0 +1,9 @@
+{
+  "task": "T349",
+  "agent": "main session (small edit, no role agent)",
+  "root_cause": "Voltara sells energy, food, powder and blooms to the player (all have a _buy price), so _sells_to_player excluded every tier-1 candidate except ore. Ore is locked at start and no route can fill it, so the world's only need was an unmet hidden one: all_met() false every cycle, _restless true, growth bar never moved.",
+  "data_fix": "data/prosperity.json overrides: planet_1 = [food] (Voltara's scarce good; fillable from Ashgate/Tillam).",
+  "engine_rule": "end_cycle(): a world whose need list is empty is never Restless, gains and loses no progress, and push_warning is logged once per world. Save format unchanged (_restless still saved; _warned_empty is runtime only).",
+  "tests": "tools/tests/run_tests.gd: _test_prosperity_needs_never_empty (every starting world has a visible need and is not restless; synthetic empty world never restless after end_cycle). _test_mixed_load sets need_surplus_pct 100 because Voltara now needs food, which made the surplus cut change the bundle-bonus math.",
+  "files": ["game/prosperity.gd", "data/prosperity.json", "tools/tests/run_tests.gd"]
+}

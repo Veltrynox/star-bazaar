@@ -96,6 +96,7 @@ func _run() -> void:
 	await _test_workshops_in_cells()
 	await _test_chains()
 	_test_prosperity()
+	_test_prosperity_needs_never_empty()
 	await _test_price_event()
 	await _test_route_move()
 	await _test_split_send()
@@ -5364,6 +5365,7 @@ func _test_salvage() -> void:
 func _test_mixed_load() -> void:
 	var m: Control = await _new_main()
 	m._dismiss_preface()
+	m.prosperity.balance["need_surplus_pct"] = 100  # T349: Voltara needs food now; no surplus cut so the bonus math stays pure
 	var e = m.engine
 	var pct: float = float(m.balance["bundle_bonus_pct"])
 	var cap: int = int(m.balance["bundle_bonus_cap"])
@@ -8616,6 +8618,33 @@ func _test_prosperity() -> void:
 	again.setup(nb, pl2, func(pid: String) -> bool: return true)
 	again.from_dict(np.to_dict())
 	check(again.hunger_steps(0, "energy") == 1, "need price: hunger survives save and load")
+
+## T349: every living world of a fresh game has a visible, fillable need and starts calm; a world with no needs is never Restless.
+func _test_prosperity_needs_never_empty() -> void:
+	_wipe_user()
+	var bal: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/balance.json"))
+	if bal.has("balance"):
+		bal = bal["balance"]
+	var pl: Array = JSON.parse_string(FileAccess.get_file_as_string("res://data/planets.json"))["planets"]
+	for p in pl:
+		Goods.merge_prices(p)
+	var pr := Prosperity.new()
+	pr.setup(bal, pl, func(_pid: String) -> bool: return true)
+	for i in range(pl.size()):
+		if pr.tier(i) < 1:
+			continue
+		var visible := 0
+		for n in pr.needs(i):
+			if not bool(n["locked"]):
+				visible += 1
+		check(visible > 0, "prosperity: %s starts with a visible need" % str(pl[i]["id"]), str(pr.needs(i)))
+		check(not pr.restless(i), "prosperity: %s starts not restless" % str(pl[i]["id"]))
+	var empty := Prosperity.new()
+	empty.setup({"prosperity_max_tier": 3, "prosperity_needs_t1": 0, "prosperity_demand_t1": 2, "prosperity_steps_t1": 2, "prosperity_decay_steps": 1}, [{"id": "e0", "type": "agrarian", "base_prices": {}}], func(_pid: String) -> bool: return true)
+	check(empty.needs(0).is_empty(), "prosperity: synthetic world has no needs")
+	empty.end_cycle()
+	empty.end_cycle()
+	check(not empty.restless(0) and empty.steps(0) == 0, "prosperity: a world with no needs is never restless and gains no step")
 
 func _test_availability() -> void:
 	_wipe_user()
