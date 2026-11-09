@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-09 11:00 run: T340
-- Summary: Not merged: fast-forward merge refused
-- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
-- Approach: built by a worker in worktree ../wt/T340 on branch task/T340, merged by the serial merge queue.
-- Agent prompts: /overnight-worker T340 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T340.log.
-- Worked: worker finished.
-- Failed / did not work: fast-forward merge refused.
-- Files and commits: see git log on branch new-features for commits starting with T340.
-- Left to do: owner or a new run: see blocked_log in schedule.json.
-
 ## 2026-11-09 11:06 run: T330
 - Summary: Not merged: fast-forward merge refused
 - Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
@@ -65,3 +55,13 @@
 - Failed / did not work: rebase onto new-features failed.
 - Files and commits: see git log on branch new-features for commits starting with T339.
 - Left to do: owner or a new run: see blocked_log in schedule.json.
+
+## 2026-11-09 11:20 run: T343
+- Summary: Slide 2 now says "Press the lit Energy button." and the why line says it buys Energy into Company storage each cycle as a standing order, with another press to stop it
+- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
+- Approach: built by a worker in worktree ../wt/T343 on branch task/T343, merged by the serial merge queue.
+- Agent prompts: /overnight-worker T343 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T343.log.
+- Worked: rebase, full test suite and fast-forward merge passed.
+- Failed / did not work: nothing.
+- Files and commits: see git log on branch new-features for commits starting with T343.
+- Left to do: nothing for this task.

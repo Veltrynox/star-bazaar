@@ -3741,7 +3741,7 @@
       "title": "Tutorial slide 2: press the Energy resource button (not 'Buy'), and say that it buys the good",
       "owner_agent": "ui-programmer",
       "depends_on": [],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 40,
       "window": "Owner request 2026-11-09: slide 2 of the tutorial asks to press 'Buy', but what we need to do is press the resource button, and we need to explain to the user that it buys the good.",
       "brief": "Guided step TUT_G2_BUY (story/screens.md; TUT_GUIDE index 2 in game/main.gd; target 'buy', node BuyButton_<good>) says 'Press Buy on Energy.' There is no button labelled Buy to press: the player presses the Energy resource button in the planet panel, and that click turns the standing Buy order on, so the card must say so. Rewrite TUT_G2_BUY (60 chars) and TUT_G2_BUY_WHY (110 chars): the instruction names the resource button (e.g. 'Press the lit Energy button.') and the why line explains that this buys the good: each cycle it buys Energy into Company storage here, a standing order, press again to stop. Keep the pair consistent (no word-for-word repeat). Check that no other tutorial text, tip, tooltip or the fallback table in game/main.gd (~line 197) still tells the player to 'press Buy' for this step, and update those that do. Make sure the highlighted control (TUT_TARGET 'buy') really is the resource button the player must press, and the step still completes on that press. Do not change mechanics. Read story/voice.md first (deadpan, quiet, no exclamation marks, no hidden goods named, English only; do not add Russian work). Edit story/screens.md only for text, then python3 tools/build_story.py; if it fails only because of a story/ru line make the smallest fix in that one Russian line and say so. Done when built: no QA, bots, sim or screenshots. Run sh tools/tests/run.sh once at the end with STAR_TEST_SCRATCH=/Volumes/Work/t343_home set; 13 tests already fail on a clean tree (workshop, goods, availability, cells), report only new failures. Never prefix Godot commands with HOME= or cd. gdd.md synced at commit by the main session. Handoff handoffs/ui-programmer/<date>-T343.json.",
@@ -3751,7 +3751,7 @@
         "game/main.gd"
       ],
       "priority": 1,
-      "note": "Blocked by orchestrator: fast-forward merge refused",
+      "note": "Done by orchestrator: Slide 2 now says \"Press the lit Energy button.\" and the why line says it buys Energy into Company storage each cycle as a standing order, with another press to stop it",
       "blocked_log": "/Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T343-merge.log"
     },
     {
