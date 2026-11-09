@@ -5,7 +5,6 @@ const StoryText := preload("res://game/story_text.gd")
 const Ships := preload("res://game/ships.gd")
 const Juice := preload("res://game/juice.gd")
 const PathfinderView := preload("res://game/pathfinder_view.gd")  # T180 accessor helpers
-const ShipPreview := preload("res://game/ship_preview.gd")  # T317 hero card preview
 
 signal buy_requested(kind: String)
 signal details_requested  # T350: a click on the hero card opens the Flagship details panel
@@ -19,11 +18,10 @@ var core_scroll: ScrollContainer
 var core_box: VBoxContainer  # Null Core: one Fit button per ship while a built core is not on it
 var _core_sig := ""
 var hero_card: PanelContainer  # T317: hero ship card, first in the menu; a click selects the flight ship like a viewport click
-var hero_preview: PanelContainer
+var hero_icon: TextureRect  # T351: static Flagship icon in the card
 var hero_name: Label
 var hero_state: Label
 var _hero_main: Control
-var _hero_model := ""
 var _hero_selected := false
 var _last_count := -1  # -1 until the first count, so a loaded save does not flash
 
@@ -80,11 +78,15 @@ func _build_hero_card(box: VBoxContainer) -> void:
 	row.add_theme_constant_override("separation", 8)
 	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	hero_card.add_child(row)
-	hero_preview = ShipPreview.new()
-	hero_preview.setup(Vector2(96, 64))
-	hero_preview.make_passive()
-	hero_preview.set_active(false)
-	row.add_child(hero_preview)
+	hero_icon = TextureRect.new()
+	hero_icon.texture = Ui.icon("ship_flagship")
+	hero_icon.custom_minimum_size = Vector2(60, 60)
+	hero_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	hero_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	hero_icon.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	hero_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	hero_icon.modulate = Ui.col("ink")
+	row.add_child(hero_icon)
 	var col := VBoxContainer.new()
 	col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	col.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -121,20 +123,15 @@ func _on_hero_input(event: InputEvent) -> void:
 			_set_hero_card(_hero_main)
 			details_requested.emit()  # T350
 
-## T317: drawn only through Availability.hero_ship; follows map.ship_selected both ways; the preview renders only while the card shows.
+## T317: drawn only through Availability.hero_ship; follows map.ship_selected both ways.
 func _set_hero_card(main: Control) -> void:
 	_hero_main = main
 	var f = main.map.flight if main.map != null else null
 	var show: bool = Availability.hero_ship(f)
 	hero_card.visible = show
-	hero_preview.set_active(show and is_visible_in_tree())
 	if not show:
 		_hero_selected = false
 		return
-	var path := str(PathfinderView._call(f, "model_path", [], ""))
-	if path != _hero_model:
-		_hero_model = path
-		hero_preview.show_model(path)
 	var sel: bool = main.map.ship_selected
 	if sel != _hero_selected:
 		_hero_selected = sel
@@ -142,7 +139,7 @@ func _set_hero_card(main: Control) -> void:
 	var st := PathfinderView.state(f)
 	var key := "LBL_HERO_STATE_FLYING" if st == "flying" else ("LBL_HERO_STATE_BUILDING" if st == "building" else "LBL_HERO_STATE_IDLE")
 	hero_name.text = StoryText.get_or("LBL_PATHFINDER_NAME", "Pathfinder")
-	hero_state.text = StoryText.get_text(key) + ((", " + StoryText.get_text("LBL_HERO_SELECTED")) if sel else "")
+	hero_state.text = StoryText.get_text(key)
 
 ## T69: each ship's upkeep per cycle (paid while its route moves stock; an idle ship pays 0) and the total.
 ## T58: lines carry the ship type name; buy buttons show price and upkeep per type.
