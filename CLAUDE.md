@@ -9,8 +9,8 @@
 - Design and proposal tasks (skills, events, markets) produce a proposal only. Do not implement anything until the owner has reviewed and approved it.
 - When asked to stop or change one task (e.g. T207), touch only that task id.
 
-## Unattended runs (job_runner)
-- 'Run the job runner' means `/tools/job_runner.py`
+## Unattended runs (orchestrator)
+- 'Run the job runner' (or the runner / orchestrator) means `python3 tools/orchestrator.py run`: loops merge -> start -> sleep until nothing is left. Stop it with a `STOP_ORCHESTRATOR` file in the project root. Rebase conflicts it cannot resolve itself go to the `merge-resolver` agent. Other sessions and agents may edit `schedule.json` / `blackboard.md` while it runs: the orchestrator commits those edits on their own before adding its board update (JSON and blackboard check must be valid), so no one has to wait for it or commit first. `tools/job_runner.py` was deleted; the `overnight-task` skill (the old sequential prompt) is no longer called by anything.
 - If the full test suite has failures, check whether they also fail on a clean tree (`git stash && run tests && git stash pop`) before calling them unrelated. Record the result on the blackboard.
 - Read every proposal or text file a subagent writes before committing it, and summarise its content in the blackboard entry.
 - Never delete branches with unmerged commits.

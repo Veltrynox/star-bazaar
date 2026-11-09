@@ -44,6 +44,7 @@ func _run() -> void:
 	await _test_juice()
 	_test_epilogue_placeholders()
 	await _test_main()
+	await _test_pulse_ring()
 	await _test_rescue_waiting()
 	await _test_events()
 	await _test_ships()
@@ -56,6 +57,14 @@ func _run() -> void:
 	await _test_placeholder_systems()
 	await _test_galaxy_view()
 	await _test_tutorial_steps()
+	await _test_ship_reveal()
+	await _test_tut_fly_click()
+	await _test_tut_g0_rmb()
+	await _test_tut_counter()
+	await _test_tut_full_walk()
+	await _test_tut_speed_card()
+	await _test_tut_skills_card()
+	await _test_tut_sell_and_order()
 	await _test_tutorial_lock()
 	_test_route_tag()
 	await _test_ship_clock()
@@ -108,14 +117,17 @@ func _run() -> void:
 	await _test_ship_facing()
 	await _test_ships_spawn_near_bodies()
 	await _test_t211_ship_traffic()
+	_test_t318_traffic_hulls()
 	await _test_t199_rival_pick()
 	await _test_t206_explore()
 	await _test_t187_ship_flight()
+	await _test_t317_hero_card()
 	await _test_asteroid_packs()
 	_test_event_banners()
 	await _test_company_setup()
 	await _test_availability()
 	await _test_gigs()
+	await _test_gig_clearance()
 	await _test_skill_link_clip()
 	print("TOTAL pass=%d fail=%d" % [passed, failed])
 	quit(1 if failed > 0 else 0)
@@ -316,6 +328,24 @@ func _test_localisation() -> void:
 	var cf3 := ConfigFile.new()
 	cf3.load("user://settings.cfg")
 	check(Lang.current() == "en" and cf3.get_value("game", "language", "") == "en", "settings: choosing English saves and applies at once")
+	# T324: the new company screen Skip tutorial button saves the setting, labels from the story ids
+	var cs: Control = load("res://game/company_setup.tscn").instantiate()
+	root.add_child(cs)
+	await process_frame
+	check(not mm.get("skip_button"), "T324: the main menu has no Skip tutorial button")
+	var skip_was: bool = SaveGame.skip_tutorial()
+	SaveGame.set_skip_tutorial(false)
+	cs._mark_skip(false)
+	check(not SaveGame.skip_tutorial() and cs.skip_button.text == StoryText.get_text("BTN_SKIP_TUTORIAL") and not cs.skip_button.button_pressed, "T322: skip tutorial is off by default and shows the off label")
+	cs.skip_button.button_pressed = true
+	check(SaveGame.skip_tutorial() and cs.skip_button.text == StoryText.get_text("BTN_SKIP_TUTORIAL_ON") and cs.skip_button.tooltip_text == StoryText.get_text("MENU_HINT_SKIP_TUTORIAL"), "T322: skip tutorial on is saved and shows the on label and hint")
+	var cfs := ConfigFile.new()
+	cfs.load("user://settings.cfg")
+	check(cfs.get_value("game", "skip_tutorial", false) == true and cfs.get_value("game", "language", "") == "en", "T322: the setting sits in settings.cfg next to the language")
+	cs.skip_button.button_pressed = false
+	check(not SaveGame.skip_tutorial() and cs.skip_button.text == StoryText.get_text("BTN_SKIP_TUTORIAL"), "T322: pressing again turns the tutorial back on")
+	SaveGame.set_skip_tutorial(skip_was)
+	cs.queue_free()
 	mm.queue_free()
 	await process_frame
 	StoryText.ru_path = old_path
@@ -818,7 +848,11 @@ func _test_tutorial_lock() -> void:
 	m._on_planet_clicked(v)
 	await process_frame
 	await process_frame
-	check(m.selected_planet == v and m.tut_step == 1, "lock step 0: Voltara selects and the guide moves on", str(m.tut_step))
+	check(m.selected_planet == v and m.tut_step == 0 and m.tutorial_label.text == StoryText.get_or("TUT_G1C_SPEED", "", {}).strip_edges(), "lock step 0: Voltara selects and the speed card shows", str(m.tut_step))  # T333
+	m.tut_next.pressed.emit()
+	await process_frame
+	await process_frame
+	check(m.selected_planet == v and m.tut_step == 2, "lock step 0: Next on the speed card moves the guide on", str(m.tut_step))
 	# step 1: only Energy buy on Voltara
 	m.last_notice = ""
 	m._on_buy_send("food")
@@ -834,7 +868,7 @@ func _test_tutorial_lock() -> void:
 	m._on_buy_send("energy")
 	await process_frame
 	await process_frame
-	check(m.engine.local_on(v, "energy", "buy") and m.tut_step == 2, "lock step 1: Energy buy on Voltara works and moves on", str(m.tut_step))
+	check(m.engine.local_on(v, "energy", "buy") and m.tut_step == 3, "lock step 1: Energy buy on Voltara works and moves on", str(m.tut_step))
 	# step 2: only the Energy send from Voltara, to Ashgate
 	check(m._tut_picking() and m._tut_pick_planet() == a and m._tut_ring_planet() == a, "lock step 2: the pointer goes to Ashgate")
 	m.last_notice = ""
@@ -845,7 +879,7 @@ func _test_tutorial_lock() -> void:
 	await process_frame
 	await process_frame
 	check(m.engine.routes.size() == 1 and str(m.engine.routes[0]["c"]) == "energy" and int(m.engine.routes[0]["a"]) == v and int(m.engine.routes[0]["b"]) == a, "lock step 2: Ashgate completes the Energy route")
-	check(m.tut_step == 3, "lock step 2: the guide moves to the run-time step", str(m.tut_step))
+	check(m.tut_step == 4, "lock step 2: the guide moves to the run-time step", str(m.tut_step))
 	# step 3: time stays usable, everything else muted
 	m.last_notice = ""
 	m._on_planet_clicked(t)
@@ -860,14 +894,18 @@ func _test_tutorial_lock() -> void:
 		m._end_cycle()
 	await process_frame
 	await process_frame
-	check(m.tut_step == 4, "lock step 3: a paid cycle moves to Expenses", str(m.tut_step))
+	check(m.tut_step == 5, "lock step 3: a paid cycle moves to Expenses", str(m.tut_step))
 	check(m.cash > cash0 - 1 or m.cash > 0, "lock: the route is not a loss in its first cycle", "%d -> %d" % [cash0, m.cash])
 	# step 4: Expenses and time only
 	check(not bool(m.set_local_order(a, "energy", "sell", true)["ok"]), "lock step 4: Sell is still muted")
 	m.cash_forecast.anchor.gui_input.emit(_click(MOUSE_BUTTON_LEFT))
 	await process_frame
 	await process_frame
-	check(m.tut_step == 5, "lock step 4: opening Expenses moves on", str(m.tut_step))
+	check(m.tut_step == 5 and m.tut_next.visible, "lock step 4: opening Expenses shows Next and stays", str(m.tut_step))  # T331
+	m.tut_next.pressed.emit()  # the real click is covered in _test_tut_counter
+	await process_frame
+	await process_frame
+	check(m.tut_step == 6, "lock step 4: Next moves on", str(m.tut_step))
 	# step 5: only Sell of Energy on Ashgate
 	m._on_planet_clicked(v)
 	check(m.selected_planet != v, "lock step 5: Voltara cannot be selected")
@@ -877,7 +915,7 @@ func _test_tutorial_lock() -> void:
 	m._on_order("energy", "sell")
 	await process_frame
 	await process_frame
-	check(m.engine.local_on(a, "energy", "sell") and m.tut_step >= 6, "lock step 5: Sell on Ashgate works and the guide moves on", str(m.tut_step))
+	check(m.engine.local_on(a, "energy", "sell") and m.tut_step >= 7, "lock step 5: Sell on Ashgate works and the guide moves on", str(m.tut_step))
 	check(m.tut_lock_step() == -1 and bool(m.set_local_order(t, "food", "buy", true)["ok"]), "lock: no lock from step 6")
 	var c1: int = m.cash
 	m._end_cycle()
@@ -892,11 +930,11 @@ func _test_tutorial_lock() -> void:
 	await _free_main(m)
 	# a save in the middle of the tutorial keeps the lock from the loaded step; a finished one has none
 	m = await _new_main(true)
-	m.tut_step = 4
+	m.tut_step = 5
 	var mid: Dictionary = JSON.parse_string(JSON.stringify(m.collect_state()))
 	m.tut_step = 0
 	m.apply_state(mid)
-	check(m.tut_step == 4 and m.tut_lock_step() == 4, "lock: a save in step 4 loads locked at step 4", str(m.tut_step))
+	check(m.tut_step == 5 and m.tut_lock_step() == 5, "lock: a save in step 5 loads locked at step 5", str(m.tut_step))
 	mid["tut_step"] = m.TUT_GUIDE.size()
 	m.apply_state(mid)
 	check(m.tut_lock_step() == -1, "lock: a finished save loads with no lock")
@@ -907,12 +945,12 @@ func _test_tutorial_lock() -> void:
 	check(m.tut_lock_step() == -1, "lock: no lock when the game is over")
 	m.game_over = false
 	# missing planet data: the lock lets go
-	m.tut_step = 2
+	m.tut_step = 3
 	var saved_id: String = str(m.map.planets[m._tut_idx("planet_3")]["id"])
 	m.map.planets[m._tut_idx("planet_3")]["id"] = "zz"
 	check(m.tut_lock_step() == -1, "lock: missing Ashgate data releases the lock")
 	m.map.planets[m._tut_idx("zz")]["id"] = saved_id
-	check(m.tut_lock_step() == 2, "lock: restored data locks again")
+	check(m.tut_lock_step() == 3, "lock: restored data locks again")
 	await _free_main(m)
 
 func _click(btn: int) -> InputEventMouseButton:
@@ -922,6 +960,135 @@ func _click(btn: int) -> InputEventMouseButton:
 	return e
 
 ## T316: step ids exist in the story, tip triggers are valid conditions, old-save step mapping, a tip shows once.
+func _test_pulse_ring() -> void:
+	# T323: the PulseRing asset: N pulses then finished (and freed on request), loop mode runs until stop()
+	var PR: PackedScene = load("res://game/fx/pulse_ring.tscn")
+	var pr: PulseRing = PR.instantiate()
+	root.add_child(pr)
+	pr.pulses = 2
+	pr.seconds_per_pulse = 0.05
+	pr.follow = func() -> Vector2: return Vector2(100, 100)
+	var fin := [0]
+	pr.finished.connect(func(): fin[0] += 1)
+	pr.play()
+	check(pr.is_playing(), "T323: pulse ring plays")
+	for _i in 60:
+		await process_frame
+	check(fin[0] == 1 and not pr.is_playing() and not pr.visible, "T323: pulse ring ends after its N pulses and hides", str(fin))
+	pr.pulses = 0
+	pr.play()
+	for _i in 6:
+		await process_frame
+	check(pr.is_playing() and pr.visible and fin[0] == 1, "T323: loop mode keeps running past one pulse")
+	pr.stop()
+	check(not pr.is_playing() and not pr.visible, "T323: stop() ends the loop and hides at once")
+	pr.pulses = 1
+	pr.free_when_done = true
+	pr.play()
+	for _i in 60:
+		await process_frame
+	check(not is_instance_valid(pr) or pr.is_queued_for_deletion(), "T323: free_when_done frees the ring after the last pulse")
+
+## T339: tips are spaced by tip_gap_seconds on the game clock, wait in a queue in priority order, share a card when about one thing,
+## and the right-hand TIPS box shows the newest tip with its why-line plus the older ones of the last three. All through the real _tip_tick.
+func _tip_clock_to(m: Node, c0: int, secs: float) -> void:
+	var len: float = m._cycle_seconds()
+	m.cycle = c0 + int(secs / len)
+	m.cycle_elapsed = fmod(secs, len)
+
+func _tip_run(m: Node, secs: float) -> void:
+	var t := 0.0
+	while t < secs:
+		m._tip_tick(0.5)
+		t += 0.5
+
+func _tip_close_by_time(m: Node) -> void:
+	_tip_run(m, 30.0)  # longer than the longest card, the clock does not move
+
+func _test_tip_spacing(m: Node) -> void:
+	if m.preface != null:
+		m._dismiss_preface()
+	m.debug_restart_tutorial()
+	m.tut_step = m.TUT_GUIDE.size()
+	m._tut_show()
+	m.tips_off = false
+	m.tip_sig = {}
+	m.tips_seed_pending = false
+	for def in m.TIP_DEFS:
+		m.tips_seen[str(def["id"])] = true
+	for id in ["TIP_TAX", "TIP_HUNGRY", "TIP_DOCK"]:
+		m.tips_seen.erase(id)
+	m.tip_signal("dock")
+	m.tip_signal("hungry")
+	m.tip_signal("tax")
+	var gap: float = float(m.balance.get("tip_gap_seconds", 90))
+	var c0: int = m.cycle
+	check(gap > 0.0 and m.tip_can_show(), "T339: tips can show in the test world and the gap key exists", "gap %s preface %s event %s dock %s tut %s skill %s galaxy %s over %s" % [gap, m.preface, m.event_notice, m.dock_sheet, m.tut_card.visible, m.skill_screen != null and m.skill_screen.visible, m.galaxy_view != null and m.galaxy_view.visible, m.game_over])
+	_tip_clock_to(m, c0, 0.0)
+	_tip_run(m, 1.0)
+	check(m.tip_card.visible and m.tip_active == "TIP_TAX" and m.tip_text_label.text == StoryText.get_text("TIP_TAX"), "T339: of three tips due at once the highest priority shows first", m.tip_active)
+	check(m.tip_queue.has("TIP_HUNGRY") and m.tip_queue.has("TIP_DOCK") and not m.tips_seen.has("TIP_HUNGRY"), "T339: the others wait unseen in the queue")
+	check(m.tip_left > 0.0 and m.tip_left <= m.TIP_SECS_MAX and m.tip_card_secs(202) >= 10.0, "T339: the card life stays up long enough for the longest tip", str(m.tip_left))
+	_tip_close_by_time(m)
+	check(not m.tip_card.visible and m.tip_active == "", "T339: the card closes by itself")
+	_tip_clock_to(m, c0, gap - 1.0)
+	_tip_run(m, 2.0)
+	check(not m.tip_card.visible and m.tip_active == "", "T339: no second card one second before the gap is over")
+	_tip_clock_to(m, c0, gap)
+	_tip_run(m, 1.0)
+	check(m.tip_card.visible and m.tip_active == "TIP_HUNGRY", "T339: the second tip shows one gap after the first", m.tip_active)
+	_tip_close_by_time(m)
+	_tip_clock_to(m, c0, 2.0 * gap - 1.0)
+	_tip_run(m, 2.0)
+	check(m.tip_active == "", "T339: still no card before the second gap is over")
+	_tip_clock_to(m, c0, 2.0 * gap)
+	_tip_run(m, 1.0)
+	check(m.tip_active == "TIP_DOCK" and m.tip_queue.is_empty(), "T339: the third tip shows a gap later and the queue is empty: none lost, none doubled", m.tip_active)
+	# the right-hand box: newest with its why-line, the two before it small below
+	var board: Node = m.tip_now_label.get_parent()
+	check(m.tip_now_label.visible and m.tip_now_label.text == StoryText.get_text("TIP_DOCK") and m.tip_now_why.text == StoryText.get_text("TIP_DOCK_WHY"), "T339: the right panel shows the active tip with its why-line")
+	check(board.is_ancestor_of(m.tip_recent_box) and m.tip_recent_box.visible and m.tip_recent_box.get_child_count() == 2, "T339: the right panel lists the two earlier tips", str(m.tip_recent_box.get_child_count()))
+	check((m.tip_recent_box.get_child(0) as Label).text == StoryText.get_text("TIP_HUNGRY") and (m.tip_recent_box.get_child(1) as Label).text == StoryText.get_text("TIP_TAX"), "T339: the list is newest first")
+	_tip_close_by_time(m)
+	check(m.tip_now_label.visible and m.tip_now_label.text == StoryText.get_text("TIP_DOCK"), "T339: after the card closes the panel still shows the last tip")
+	# a fourth tip pushes the oldest out: only the last three remain
+	m.tips_seen.erase("TIP_SALVAGE")
+	m.tip_signal("salvage")
+	_tip_clock_to(m, c0, 3.0 * gap)
+	_tip_run(m, 1.0)
+	check(m.tip_active == "TIP_SALVAGE" and m.tip_recent.size() == 3, "T339: a fourth tip shows and the recent list keeps three", m.tip_active)
+	var rec := ""
+	for c in m.tip_recent_box.get_children():
+		rec += (c as Label).text + "|"
+	check(m.tip_now_label.text == StoryText.get_text("TIP_SALVAGE") and not rec.contains(StoryText.get_text("TIP_TAX")) and rec.contains(StoryText.get_text("TIP_DOCK")), "T339: the oldest of four is gone from the panel", rec)
+	# two tips about one thing share one card
+	_tip_close_by_time(m)
+	m.tips_seen.erase("TIP_WEATHER")
+	m.tips_seen.erase("TIP_WEATHER_KINDS")
+	m.tip_queue = ["TIP_WEATHER_KINDS", "TIP_WEATHER"]
+	_tip_clock_to(m, c0, 4.0 * gap)
+	_tip_run(m, 1.0)
+	check(m.tip_active == "TIP_WEATHER" and m.tip_text_label.text.contains(StoryText.get_text("TIP_WEATHER")) and m.tip_text_label.text.contains(StoryText.get_text("TIP_WEATHER_KINDS")), "T339: weather tip and weather kinds tip share one card", m.tip_text_label.text)
+	check(m.tips_seen.has("TIP_WEATHER") and m.tips_seen.has("TIP_WEATHER_KINDS") and m.tip_queue.is_empty(), "T339: the merged tips are both seen and not queued again")
+	_tip_close_by_time(m)
+	# Skip tutorial / tips off: no card, the gap state is untouched, the panel hides; back on, the tip comes at once
+	m.tips_seen.erase("TIP_TAX")
+	m.tip_sig = {}
+	m.tip_signal("tax")
+	var last_before: float = m.tip_last_at
+	m.tips_off = true
+	_tip_clock_to(m, c0, 9.0 * gap)
+	_tip_run(m, 2.0)
+	check(not m.tip_card.visible and m.tip_active == "" and m.tip_last_at == last_before and not m.tips_seen.has("TIP_TAX"), "T339: with tips off no card shows and no gap is started")
+	check(not m.tip_now_label.visible and not m.tip_recent_box.visible, "T339: with tips off the panel list is hidden")
+	m.tips_off = false
+	_tip_run(m, 1.0)
+	check(m.tip_active == "TIP_TAX", "T339: with tips on again the waiting tip shows", m.tip_active)
+	_tip_close_by_time(m)
+	m.cycle = c0
+	m.cycle_elapsed = 0.0
+	m.tip_reset_flow(false)
+
 func _test_tutorial_t316(m: Node) -> void:
 	for id in m.TUT_GUIDE:
 		check(StoryText.get_or(id, "", {}) != "" and StoryText.get_or(id + "_WHY", "", {}) != "", "T316: guided step %s has its text and why line" % id)
@@ -950,6 +1117,23 @@ func _test_tutorial_t316(m: Node) -> void:
 	check(m.tut_map_saved_step(10, 2) == G.size(), "T316: a finished v2 tutorial stays finished")
 	check(G[m.tut_map_saved_step(4, 1)] == "TUT_G8_SKILLS" and m.tut_map_saved_step(6, 1) == G.size(), "T316: v1 mapping and finished v1")
 	check(m.tut_map_saved_step(G.size(), m.TUT_VER) == G.size() and m.tut_map_saved_step(3, m.TUT_VER) == 3, "T316: current version keeps its step")
+	# T320: the Ships step, old saves one more time
+	check(G[1] == "TUT_G1B_SHIPS" and G.size() == 13 and G[0] == "TUT_G1_SELECT" and G[2] == "TUT_G2_BUY", "T320: the Ships step sits second, 13 steps")
+	check(StoryText.get_or("TUT_G1B_SHIPS", "", {}) != "" and StoryText.get_or("TUT_G1B_SHIPS_WHY", "", {}) != "", "T320: Ships step ids exist in the story")
+	check(m.TUT_TARGET.size() == G.size() and m.TUT_TARGET[1] == "hero", "T320: every step has a target slot, step 2 points at the hero card")
+	check(G[m.tut_map_saved_step(1, 3)] == "TUT_G2_BUY" and m.tut_map_saved_step(0, 3) == 0, "T320: v3 save at buy lands on buy, at select stays")
+	check(G[m.tut_map_saved_step(11, 3)] == "TUT_G10_DONE" and m.tut_map_saved_step(12, 3) == G.size(), "T320: v3 done lands on done, finished v3 stays finished")
+	check(G[m.tut_map_saved_step(7, 3)] == "TUT_G7_NEEDS" and G[m.tut_map_saved_step(3, 2)] == "TUT_G4_ROUTE_PAY", "T320: mid-way v3 and v2 saves land on the same step")
+	check(G[m.tut_map_saved_step(9, 2)] == "TUT_G10_DONE" and m.tut_map_saved_step(10, 2) == G.size(), "T320: v2 done and finished map to the new numbering")
+	check(G[m.tut_map_saved_step(2, 1)] == "TUT_G3_SEND" and G[m.tut_map_saved_step(4, 1)] == "TUT_G8_SKILLS" and G[m.tut_map_saved_step(5, 1)] == "TUT_G10_DONE", "T320: v1 saves map to the new numbering")
+	# no hero ship (discovery off): the Ships step is passed over; with a hero ship it waits for the card click
+	m.debug_restart_tutorial()
+	m.tut_flags = {}
+	check(not Availability.hero_ship(m.map.flight) and m._tut_step_skipped(1), "T320: the Ships step is skipped without a hero ship")
+	check(not m._tut_step_done(1), "T320: the Ships step is not done before the card is used")
+	m.tut_flags["hero"] = true
+	check(m._tut_step_done(1), "T320: the Ships step is done once the Pathfinder card was used")
+	m.tut_flags = {}
 	# a tip shows once, even after save and load; Skip tutorial silences them
 	m.debug_restart_tutorial()
 	m.tut_step = G.size()
@@ -980,6 +1164,776 @@ func _test_tutorial_t316(m: Node) -> void:
 	check(m.tips_off, "T316: tips stay off after load")
 	m.debug_restart_tutorial()
 	check(not m.tips_off and m.tips_seen.is_empty(), "T316: restart brings the tips back")
+	# T322: new run with the menu setting on starts finished, off starts at step 0, a saved run keeps its step
+	var skip_keep: bool = SaveGame.skip_tutorial()
+	var results: Array = []
+	for on in [true, false]:
+		SaveGame.set_skip_tutorial(on)
+		SaveGame.continue_requested = false
+		var nm: Control = load(MAIN_SCENE).instantiate()
+		root.add_child(nm)
+		results.append(nm.tut_step)
+		results.append(nm.tips_off)
+		nm.queue_free()
+	check(results[0] == G.size() and results[1] and results[2] == 0 and not results[3], "T322: a new run starts with the tutorial done when skip is on, at step 0 when off", str(results))
+	# T322 rework: the ship pulse plays once per run, 3 pulses, and not again on a second selection
+	check(m.ship_ring != null and not m.ship_ring.visible and m.ship_pulse_plays == 0, "T322: ship pulse ring exists, hidden, unplayed at start")
+	m.ship_pulse_on_select()
+	var first_tween: Tween = m.ship_ring._tween
+	m.ship_pulse_on_select()
+	check(m.ship_pulse_plays == 1 and m.ship_ring._tween == first_tween and m.ship_ring.pulses == 3 and m.SHIP_PULSE_N == 3, "T322: ship pulse plays once (3 pulses) and does not replay on a second selection")
+	m.ship_ring.stop()
+	check(not ("ship_link" in m), "T322: the card-to-ship link line is gone")
+	# T323: the planet ring shows only while the tutorial step asks for a planet click
+	var saved_step: int = m.tut_step
+	m.tut_step = G.size()
+	m._tut_show()
+	m._tut_update_planet_ring()
+	check(m.tut_planet_ring_target() == -1 and m._planet_ring_i == -1 and not m.planet_ring.is_playing(), "T323: no planet ring when the tutorial is over or skipped")
+	m.tut_step = 0
+	m._tut_show()
+	var g0: String = m._tut_g0_id()
+	if g0 == "TUT_G0_FLY":
+		check(m.tut_planet_ring_target() == m.tut_fly_target() and m.tut_fly_target() >= 0, "T327: under discovery step 0 the planet ring marks the one planet the card asks for")
+	else:
+		check(m.tut_planet_ring_target() >= 0, "T323: the planet-click step has the ring")
+		m._tut_update_planet_ring()
+		check(m.planet_ring.is_playing() and m.planet_ring.pulses == 0, "T323: the planet ring loops on that step")
+		m._tut_skip()
+		m._tut_update_planet_ring()
+		check(m._planet_ring_i == -1 and not m.planet_ring.is_playing() and not m.planet_ring.visible, "T323: Skip tutorial stops the planet ring at once")
+	m.tut_step = saved_step
+	m._tut_show()
+	m._tut_update_planet_ring()
+	m.tut_step = 3
+	var keep_state: Dictionary = JSON.parse_string(JSON.stringify(m.collect_state()))
+	SaveGame.set_skip_tutorial(true)
+	m.apply_state(keep_state)
+	check(m.tut_step == 3, "T322: a saved run keeps its tut_step whatever the setting says")
+	SaveGame.set_skip_tutorial(skip_keep)
+
+## T322: a new run starts zoomed in with the Pathfinder inside the window and clear of the right Ships strip; a loaded save keeps its camera.
+func _test_ship_reveal() -> void:
+	var old_size := root.size
+	root.size = Vector2i(1920, 1080)  # T327: the start framing reads the window size, so it is set before the run starts
+	var m: Control = await _new_main(true, true)
+	if m.preface != null:
+		m._dismiss_preface()
+	for i in 4:
+		await process_frame
+	var map = m.map
+	var win := Rect2(Vector2.ZERO, Vector2(root.size))
+	var strip := m.right_col.get_parent() as Control
+	var p: Vector2 = map.ship_screen_pos()
+	# T327: the start view may back off, but only as far as it takes to show the one planet the first card asks for
+	var fly_t: int = m.tut_fly_target()
+	check(map.zoom > map.START_ZOOM or (fly_t >= 0 and win.has_point(map.planet_screen_pos(fly_t))), "T322 start view: a new run is zoomed in (or just far enough out to show the first target)", str(map.zoom))
+	check(p != Vector2(-1, -1) and win.has_point(p), "T322 start view: the Pathfinder is inside the window", str(p))
+	check(strip == null or not strip.get_global_rect().has_point(p), "T322 start view: the Pathfinder is clear of the right Ships strip", str(p))
+	var keep_f := Vector3(1.5, 0.0, -2.5)
+	var keep_z := 0.77
+	var st: Dictionary = JSON.parse_string(JSON.stringify(m.collect_state()))
+	map.focus = keep_f
+	map.zoom = keep_z
+	m.apply_state(st)
+	check(is_equal_approx(map.zoom, keep_z) and map.focus.is_equal_approx(keep_f), "T322 start view: loading a save does not override the camera", str(map.zoom))
+	root.size = old_size
+	await _free_main(m)
+
+## T327: real click path (map input events, the tutorial lock, the pause state), discovery on, window 1920x1080.
+func _click_at(p: Vector2) -> void:
+	for down in [true, false]:
+		var e := InputEventMouseButton.new()
+		e.button_index = MOUSE_BUTTON_LEFT
+		e.pressed = down
+		e.position = p
+		e.global_position = p
+		root.push_input(e)
+
+func _test_tut_fly_click() -> void:
+	var old_size := root.size
+	root.size = Vector2i(1920, 1080)
+	for c in root.get_children():  # runs left by earlier tests would sit under the cursor and take the clicks
+		if c.scene_file_path == MAIN_SCENE:
+			c.free()
+	var m: Control = await _new_main(true, true)
+	for i in 4:
+		await process_frame
+	var map = m.map
+	var f = map.flight
+	var win := Rect2(Vector2.ZERO, Vector2(root.size))
+	check(m._tut_g0_id() == "TUT_G0_FLY", "T327: the first card is the flight card", m._tut_g0_id())
+	var t: int = m.tut_fly_target()
+	# the target is the nearest closed planet the ship can fly to: recompute it here from the accessor, independent of the cache
+	var ship: Vector3 = f.ship_position()
+	var best := -1
+	var best_d := INF
+	for i in map.planets.size():
+		if map.planet_in_view(i) and not (f.actions_for(str(map.planets[i].get("id", ""))) as Array).is_empty():
+			var d := Vector2(map.positions[i].x - ship.x, map.positions[i].z - ship.z).length()
+			if d < best_d - 0.0001:
+				best_d = d
+				best = i
+	check(t >= 0 and t == best, "T327: the target is the nearest closed planet the Pathfinder can fly to", str([t, best]))
+	check(t >= 0 and not f.post_built(str(map.planets[t].get("id", ""))) and m.tut_fly_target() == t, "T327: the target is closed and stays the same on the next call")
+	var tp: Vector2 = map.planet_screen_pos(t)
+	check(win.has_point(tp) and map.pick_planet(tp) == t, "T327: the target is inside the window and pickable at the start view", str(tp))
+	var txt: String = m.tutorial_label.text
+	check(txt.contains(m.planet_name(t)) and not txt.contains("{"), "T327: the card names the target as the map labels it", txt)
+	m._tut_update_planet_ring()
+	check(m._planet_ring_i == t and m.planet_ring.is_playing(), "T327: the pulse ring plays on the target during the flight card")
+	# a click on another planet is refused: the ship does not go
+	var other := -1
+	for i in map.planets.size():
+		if i != t and map.planet_in_view(i) and win.has_point(map.planet_screen_pos(i)) and map.pick_planet(map.planet_screen_pos(i)) == i and str(map.planets[i].get("id", "")) != f.docked_at():
+			other = i
+			break
+	_click_at(map.ship_screen_pos())
+	await process_frame
+	check(map.ship_selected, "T327: a click on the Pathfinder selects it")
+	if other >= 0:
+		_click_at(map.planet_screen_pos(other))
+		await process_frame
+		check(f.state() == "idle", "T327: the flight card refuses another planet, the ship stays", f.state())
+		map.select_ship(true)
+	# the click on the asked-for planet sends the ship, and the run is not left paused
+	_click_at(map.planet_screen_pos(t))
+	await process_frame
+	check(f.state() == "flying" and not m.paused, "T327: clicking the asked-for planet sends the Pathfinder and starts the clock", str([f.state(), m.paused]))
+	check(m._tut_g0_id() == "TUT_G0_FLY" and m.tut_step == 0, "T327: still the flight card while the ship is on its way")
+	for i in 8:
+		if m._tut_g0_id() != "TUT_G0_FLY":
+			break
+		m.debug_advance_cycle()
+		await process_frame
+	check(m._tut_g0_id() == "TUT_G0_BUILD" and f.docked_at() == str(map.planets[t].get("id", "")), "T327: on arrival the tutorial moves from flight to build", m._tut_g0_id())
+	m._tut_update_planet_ring()
+	check(m._planet_ring_i != t or not m.planet_ring.is_playing(), "T327: the target ring is gone once the flight card is over")
+	await _free_main(m)
+	root.size = old_size
+
+func _rclick_at(p: Vector2) -> void:
+	for down in [true, false]:
+		var e := InputEventMouseButton.new()
+		e.button_index = MOUSE_BUTTON_RIGHT
+		e.pressed = down
+		e.position = p
+		e.global_position = p
+		root.push_input(e)
+
+## T329: card 1 is one right-click on the named planet and its Establish entry; Yay card with Next; then the Voltara card.
+func _test_tut_g0_rmb() -> void:
+	var old_size := root.size
+	root.size = Vector2i(1920, 1080)
+	for c in root.get_children():
+		if c.scene_file_path == MAIN_SCENE:
+			c.free()
+	var m: Control = await _new_main(true, true)
+	for i in 4:
+		await process_frame
+	var map = m.map
+	var f = map.flight
+	var win := Rect2(Vector2.ZERO, Vector2(root.size))
+	var t: int = m.tut_fly_target()
+	check(m._tut_g0_id() == "TUT_G0_FLY" and t >= 0 and m.tutorial_label.text.contains(m.planet_name(t)), "T329: card 1 names the target planet", m.tutorial_label.text)
+	check(m.paused and not map.ship_selected, "T329: the run starts paused with no ship selected")
+	var other := -1
+	for i in map.planets.size():
+		if i != t and map.planet_in_view(i) and win.has_point(map.planet_screen_pos(i)) and map.pick_planet(map.planet_screen_pos(i)) == i and not (f.actions_for(str(map.planets[i].get("id", ""))) as Array).is_empty():
+			other = i
+			break
+	if other >= 0:
+		_rclick_at(map.planet_screen_pos(other))
+		await process_frame
+		var om = m.get_node_or_null("ShipActionMenu")
+		check(om == null or not om.visible, "T329: a right-click on another planet opens no Establish menu")
+		check(f.state() == "idle" and m.paused, "T329: another planet is refused, the ship stays")
+	_rclick_at(map.planet_screen_pos(t))
+	await process_frame
+	var menu: PopupMenu = m.get_node_or_null("ShipActionMenu")
+	check(menu != null and menu.visible and menu.item_count == 1, "T329: right-click on the target opens the Establish menu without selecting the ship", str(menu))
+	if menu != null:
+		check(menu.get_item_text(0) == StoryText.get_or("BTN_ESTABLISH_POST", "Establish trading post"), "T329: the entry is Establish a trading post", menu.get_item_text(0))
+		menu.id_pressed.emit(menu.get_item_id(0))  # the menu's own signal; popups have no hit test headless
+		await process_frame
+	check(f.state() == "flying" and not m.paused, "T329: Establish on the target sends the ship and starts the clock", str([f.state(), m.paused]))
+	for i in 12:
+		if m._tut_g0_id() != "TUT_G0_FLY":
+			break
+		m.debug_advance_cycle()
+		await process_frame
+	check(m._tut_g0_id() == "TUT_G0_DONE" and f.post_built(str(map.planets[t].get("id", ""))), "T329: ship arrived and post stands: the Yay card", m._tut_g0_id())
+	check(m.tutorial_label.text == StoryText.get_or("TUT_G1C_SPEED", "", {}).strip_edges() and m.tut_next.is_visible_in_tree(), "T334: the speed card (shown after the order) is still up when the post stands", m.tutorial_label.text)
+	_click_at(m.tut_next.get_global_rect().get_center())
+	await process_frame
+	await process_frame
+	check(m.tutorial_label.text.contains(m.planet_name(t)) and m.tut_next.visible and m.tut_next.is_visible_in_tree(), "T329: the Yay card names the planet and shows Next", m.tutorial_label.text)
+	check(m.tut_step == 0 and not m.paused and m.tut_planet_ring_target() == -1, "T329: Yay card: still step 1, game running, no ring")
+	var step_before: int = m.tut_step
+	var nb: Rect2 = m.tut_next.get_global_rect()
+	_click_at(nb.get_center())
+	await process_frame
+	await process_frame
+	check(m._tut_g0_id() == "" and m.tut_step == 0 and m.tutorial_label.text == StoryText.get_or("TUT_G1_SELECT", "", {}).strip_edges() and not m.tut_next.visible, "T334: the Yay card's Next leads straight to the Voltara card (no second speed card)", m.tutorial_label.text)
+	check(m._tut_g0_id() == "" and m.tut_step == 0 and m.tutorial_label.text == StoryText.get_or("TUT_G1_SELECT", "", {}).strip_edges() and step_before == 0, "T329: Next leads to the Voltara card", m.tutorial_label.text)
+	check(not m.tut_next.visible, "T329: Next is gone on the Voltara card")
+	await _free_main(m)
+	# the Voltara card never shows before the post stands
+	m = await _new_main(true, true)
+	for i in 4:
+		await process_frame
+	check(m.tutorial_label.text != StoryText.get_or("TUT_G1_SELECT", "", {}).strip_edges() and not m.tut_next.visible, "T329: no Voltara card before the post stands")
+	await _free_main(m)
+	# no discovery: no Yay card
+	m = await _new_main(true, false)
+	for i in 4:
+		await process_frame
+	check(m._tut_g0_id() == "" and not m.tut_next.visible, "T329: without discovery there is no flight or Yay card")
+	await _free_main(m)
+	root.size = old_size
+
+## T331: the card counter read from the real label while the guide is walked with real clicks (planet, cash panel, Next).
+## Each distinct step shows n = previous n + 1, never repeats or jumps; the last card reads "k of k"; Expenses shows Next only
+## after the cash panel was clicked open, and Next (clicked) leads to the Sell card.
+func _test_tut_counter() -> void:
+	var old_size := root.size
+	root.size = Vector2i(1920, 1080)
+	for c in root.get_children():
+		if c.scene_file_path == MAIN_SCENE:
+			c.free()
+	for disc in [false, true]:
+		var tag := "T331 (discovery %s): " % str(disc)
+		var m: Control = await _new_main(true, disc)
+		for i in 4:
+			await process_frame
+		var seen: Array = []  # [step, n, total, label text]
+		var obs := func():
+			var parts: PackedStringArray = m.tut_count.text.split(" of ")
+			if m.tut_step < m.TUT_GUIDE.size() and m.tut_count.visible and parts.size() == 2:
+				var rec := [m.tut_step, int(parts[0]), int(parts[1]), m.tutorial_label.text]
+				if seen.is_empty() or seen[-1][0] != rec[0] or seen[-1][1] != rec[1] or seen[-1][2] != rec[2] or seen[-1][3] != rec[3]:
+					seen.append(rec)
+		var map = m.map
+		var guard := 0
+		var upkeep_checked := false
+		var sell_n := -1
+		while m.tut_step < m.TUT_GUIDE.size() and guard < 40:
+			guard += 1
+			await process_frame
+			obs.call()
+			match m.tut_step:
+				0:
+					var g0: String = m._tut_g0_id()
+					if g0 == "TUT_G0_FLY":
+						m._on_fly_establish_requested(str(map.planets[m.tut_fly_target()].get("id", "")))
+						m.set_paused(false)
+						for k in 20:
+							if m._tut_g0_id() != "TUT_G0_FLY":
+								break
+							m.debug_advance_cycle()
+							await process_frame
+					elif g0 == "TUT_G0_DONE":
+						_click_at(m.tut_next.get_global_rect().get_center())
+					elif g0 != "":
+						m.debug_advance_cycle()
+					elif m._tut_speed_card():
+						_click_at(m.tut_next.get_global_rect().get_center())  # T333: the speed card ends on Next
+					else:
+						var pi := 0
+						for i in map.planets.size():
+							if map.planet_in_view(i) and map.pick_planet(map.planet_screen_pos(i)) == i:
+								pi = i
+								break
+						_click_at(map.planet_screen_pos(pi))
+				1:
+					m.tut_flags["hero"] = true
+				2:
+					m.engine.local_of(0, "ore", true)["buy"] = true
+				3:
+					m.engine.routes.append(m.engine.new_record(0, 1, "ore"))
+				4:
+					m.cycle = 2
+				5:
+					if not upkeep_checked:
+						upkeep_checked = true
+						for k in 3:
+							await process_frame
+						check(not m.tut_next.visible and m.tutorial_label.text == StoryText.get_or("TUT_G5_UPKEEP", "", {}).strip_edges(), tag + "no Next before the cash panel is opened", m.tutorial_label.text)
+						var cbr: Rect2 = m.cash_box.get_global_rect()
+						check(m.tut_hl.visible and m.tut_hl.get_global_rect().grow(-3.0).is_equal_approx(cbr), tag + "T333b: before the panel is opened the outline is the cash box", str([m.tut_hl.get_global_rect(), cbr]))
+						_click_at(m.cash_box.get_global_rect().get_center())
+						for k in 3:
+							await process_frame
+						_check_upkeep_highlight(m, tag, cbr)
+						check(m.cash_forecast.visible and m.tut_step == 5 and m.tut_next.visible and m.tut_next.is_visible_in_tree(), tag + "panel open: the card stays on Expenses and shows Next", str([m.tut_step, m.tut_next.visible]))
+						obs.call()
+						var fr: Rect2 = m.cash_forecast.get_global_rect()
+						check(not m.tut_card.get_global_rect().intersects(fr) and not m.tut_next.get_global_rect().intersects(fr), tag + "T333: the open forecast panel is not covered by the card, Next is clear of it", str([m.tut_card.get_global_rect(), m.tut_next.get_global_rect(), fr]))
+						_click_at(m.tut_next.get_global_rect().get_center())
+						for k in 3:
+							await process_frame
+						check(m.tut_step == 6 and not m.tut_next.visible, tag + "clicking Next advances to the Sell step", str(m.tut_step))
+						obs.call()
+						sell_n = seen[-1][1] if seen[-1][0] == 6 else -1
+				6:
+					m.engine.local_of(1, "ore", true)["sell"] = true
+				7:
+					m.tut_note("storage")
+				8, 9, 10, 11:
+					m.skill_points = 0
+					m.learned_skills = []
+					m.tut_step = 12
+				12:
+					m.tut_note("bazaar")
+		check(m.tut_step == m.TUT_GUIDE.size(), tag + "the walk reached the end", str(m.tut_step))
+		check(upkeep_checked and sell_n > 0, tag + "the Expenses and Sell cards were both read", str(sell_n))
+		var ok: bool = not seen.is_empty() and seen[0][1] == 1
+		var detail := ""
+		for k in seen.size():
+			detail += "%d:%d/%d " % [seen[k][0], seen[k][1], seen[k][2]]
+			if k > 0:
+				var stepped: bool = seen[k][0] != seen[k - 1][0]
+				if stepped and seen[k][1] != seen[k - 1][1] + 1:
+					ok = false  # a new step must be exactly one more
+				if not stepped and seen[k][1] != seen[k - 1][1]:
+					ok = false  # the same step keeps its number
+			if seen[k][1] > seen[k][2]:
+				ok = false
+		check(ok and seen[-1][1] == seen[-1][2], tag + "counter runs 1, 2, 3 ... without repeat or jump and ends on k of k", detail)
+		var g0cards := 0
+		for rec in seen:
+			if rec[0] == 5:
+				check(rec[1] == sell_n - 1, tag + "Expenses is one before Sell", detail)
+				g0cards += 1
+		check(g0cards >= 1, tag + "Expenses card was recorded")
+		await _free_main(m)
+	root.size = old_size
+
+## T342: the WHOLE guided tutorial, real clicks, both modes, with and without a skill point. Reads the real counter label and the
+## real Skip and Finish button nodes. n runs 1, 2, 3 ... (slide 1 is one slide), the total never grows and never drops below n, the
+## last card reads k of k and shows Finish instead of Skip, and clicking Finish ends the tutorial with the tips still on.
+func _test_tut_full_walk() -> void:
+	var old_size := root.size
+	root.size = Vector2i(1920, 1080)
+	for c in root.get_children():
+		if c.scene_file_path == MAIN_SCENE:
+			c.free()
+	for disc in [false, true]:
+		for pts in [true, false]:
+			var tag := "T342 (discovery %s, points %s): " % [str(disc), str(pts)]
+			var m: Control = await _new_main(true, disc)
+			for i in 4:
+				await process_frame
+			var map = m.map
+			var rows: Array = []  # [card id, n, total, step, skip visible, finish visible]
+			var guard := 0
+			var last_key := ""
+			var upk := false
+			var ev := InputEventKey.new()
+			ev.keycode = KEY_K
+			ev.pressed = true
+			while m.tut_step < m.TUT_GUIDE.size() and guard < 80:
+				guard += 1
+				await process_frame
+				await process_frame
+				if not pts:
+					m.skill_points = 0
+				var parts: PackedStringArray = m.tut_count.text.split(" of ")
+				var key: String = m._tut_id(m.tut_step) + "|" + m.tut_count.text
+				if key != last_key and m.tut_card.visible and parts.size() == 2:
+					last_key = key
+					rows.append([m._tut_id(m.tut_step), int(parts[0]), int(parts[1]), m.tut_step, m.tut_skip_btn.visible and m.tut_skip_btn.is_visible_in_tree(), m.tut_finish_btn.visible and m.tut_finish_btn.is_visible_in_tree()])
+				if m.tut_step == m.TUT_GUIDE.size() - 1:
+					break
+				match m.tut_step:
+					0:
+						var g0: String = m._tut_g0_id()
+						if m._tut_speed_card() or g0 == "TUT_G0_DONE":
+							_click_at(m.tut_next.get_global_rect().get_center())
+						elif g0 == "TUT_G0_FLY":
+							m._on_fly_establish_requested(str(map.planets[m.tut_fly_target()].get("id", "")))
+							m.set_paused(false)
+							for k in 30:
+								if m._tut_g0_id() == "TUT_G0_DONE":
+									break
+								m.debug_advance_cycle()
+								await process_frame
+						elif g0 != "":
+							m.debug_advance_cycle()
+						else:
+							var pi := 0
+							for i in map.planets.size():
+								if map.planet_in_view(i) and map.pick_planet(map.planet_screen_pos(i)) == i:
+									pi = i
+									break
+							_click_at(map.planet_screen_pos(pi))
+					1:
+						m.tut_flags["hero"] = true
+					2:
+						m.engine.local_of(0, "ore", true)["buy"] = true
+					3:
+						m.engine.routes.append(m.engine.new_record(0, 1, "ore"))
+					4:
+						m.cycle = 2
+					5:
+						if not upk:
+							upk = true
+							_click_at(m.cash_box.get_global_rect().get_center())
+							for k in 3:
+								await process_frame
+						if m.tut_next.visible:
+							_click_at(m.tut_next.get_global_rect().get_center())
+					6:
+						m.engine.local_of(1, "ore", true)["sell"] = true
+					7:
+						m.tut_note("storage")
+					8, 9:
+						m.debug_advance_cycle()
+						if guard > 60:
+							m.tut_step = 10
+					10:
+						if pts and m.skill_points == 0:
+							m.skill_points = 3
+						if not m.skill_screen.visible:
+							root.push_input(ev)
+							for k in 3:
+								await process_frame
+						var best := ""
+						for id in m.skill_screen.node_buttons:
+							if id.begins_with("FND_") and m.skill_screen.node_state(m.learned_skills, m.skill_points, m.balance, id) == "learnable" and m.skill_lock_reason(id) == "":
+								best = id
+								break
+						if best != "":
+							_click_at(m.skill_screen.node_buttons[best].get_global_rect().get_center())
+							for k in 3:
+								await process_frame
+							_click_at(m.skill_screen.learn_button.get_global_rect().get_center())
+						for k in 3:
+							await process_frame
+						if m.skill_screen.visible:
+							root.push_input(ev)
+					11:
+						if m.skill_screen.visible:
+							root.push_input(ev)
+						m.debug_advance_cycle()
+						if guard > 70:
+							m.tut_step = 12
+			var detail := ""
+			for r in rows:
+				detail += "%s %d/%d s%d%s%s; " % [r[0], r[1], r[2], r[3], " skip" if r[4] else "", " finish" if r[5] else ""]
+			print("T342 table ", tag, detail)
+			var ok: bool = not rows.is_empty() and rows[0][1] == 1
+			var n_prev := 0
+			var t_prev := 99
+			var step_prev := -1
+			var skips_ok := true
+			for r in rows:
+				var new_step: bool = r[3] != step_prev
+				if new_step and r[1] != n_prev + 1 and not (r[3] == 0 and step_prev == -1):
+					ok = false
+				if not new_step and r[1] != n_prev:
+					ok = false
+				if r[3] == 0 and r[1] != 1:
+					ok = false  # slide 1 is one slide: flight, speed, build, wait, Yay and Voltara cards all read 1
+				if r[1] > r[2] or r[2] > t_prev:
+					ok = false
+				if r[3] != m.TUT_GUIDE.size() - 1 and (not r[4] or r[5]):
+					skips_ok = false
+				n_prev = r[1]
+				t_prev = r[2]
+				step_prev = r[3]
+			check(ok, tag + "counter runs 1, 2, 3 ... slide 1 stays one slide, total never grows or drops below n", detail)
+			check(skips_ok, tag + "every card but the last shows Skip and no Finish", detail)
+			check(m.tut_step == m.TUT_GUIDE.size() - 1 and m.tut_card.visible and not rows.is_empty(), tag + "the walk reached the last card", str(m.tut_step))
+			if m.tut_step == m.TUT_GUIDE.size() - 1:
+				for k in 3:
+					await process_frame
+				check(m._tut_id(m.tut_step) == "TUT_G10_DONE" and m.tut_count.text == "%d of %d" % [rows[-1][1], rows[-1][1]], tag + "the last card reads k of k", m.tut_count.text)
+				check(m.tut_finish_btn.is_visible_in_tree() and m.tut_finish_btn.text == StoryText.get_text("BTN_TUT_FINISH") and not m.tut_skip_btn.is_visible_in_tree(), tag + "the last card shows Finish and not Skip", m.tut_finish_btn.text)
+				_click_at(m.tut_finish_btn.get_global_rect().get_center())
+				for k in 3:
+					await process_frame
+				check(m.tut_step == m.TUT_GUIDE.size() and not m.tut_card.visible, tag + "clicking Finish ends the tutorial", str(m.tut_step))
+				check(not m.tips_off and m.tip_next() != "", tag + "after Finish the one-time tips still run", str([m.tips_off, m.tip_next()]))
+			await _free_main(m)
+	# Skip on a middle card still silences the tips, by a real click
+	var m2: Control = await _new_main(true, false)
+	for i in 4:
+		await process_frame
+	check(m2.tut_skip_btn.is_visible_in_tree() and not m2.tut_finish_btn.is_visible_in_tree() and m2.tut_skip_btn.text == StoryText.get_text("BTN_SKIP_TUTORIAL"), "T342: the first card shows Skip and no Finish")
+	_click_at(m2.tut_skip_btn.get_global_rect().get_center())
+	for k in 3:
+		await process_frame
+	check(m2.tut_step == m2.TUT_GUIDE.size() and m2.tips_off, "T342: clicking Skip ends the tutorial and silences the tips", str([m2.tut_step, m2.tips_off]))
+	await _free_main(m2)
+	root.size = old_size
+
+## T333b: with the forecast open on the Expenses card, the outline and arrow aim at the Ship upkeep line, not the cash box.
+func _check_upkeep_highlight(m: Control, tag: String, cbr: Rect2) -> void:
+	var up := StoryText.get_text("LBL_SHIP_UPKEEP")
+	var fr: Rect2 = m.cash_forecast.get_global_rect()
+	var hl: Rect2 = m.tut_hl.get_global_rect().grow(-3.0)
+	var lines: Array = []
+	for n in m.cash_forecast.box.get_children():
+		if n is Label and (n as Label).text.contains(up):
+			lines.append((n as Label).get_global_rect())
+	if lines.is_empty():
+		check(hl.is_equal_approx(cbr), tag + "T333b: no Ship upkeep line, so the outline stays on the cash box (fallback)", str([hl, cbr]))
+		return
+	var covers := false
+	for lr in lines:
+		if hl.encloses(lr):
+			covers = true
+	check(m.tut_hl.visible and fr.grow(1.0).encloses(hl) and covers, tag + "T333b: the outline sits inside the forecast panel and covers a Ship upkeep line", str([hl, fr, lines]))
+	check(not hl.is_equal_approx(cbr) and not hl.intersects(cbr), tag + "T333b: the outline is not the cash box", str([hl, cbr]))
+	var tip: Vector2 = m._tut_target_rect("expenses", m.cash_box).get_center()
+	var inside := false
+	for lr in lines:
+		if (lr as Rect2).has_point(tip):
+			inside = true
+	check(inside and hl.has_point(tip), tag + "T333b: the arrow aims inside the Ship upkeep line", str([tip, lines]))
+
+## T337: the Skills card (discovery on) guides inside the open Skills window. Real clicks (the points figure and the K key opens it,
+## a node and Learn), the real card text, outline rect and arrow tip.
+func _test_tut_skills_card() -> void:
+	var old_size := root.size
+	root.size = Vector2i(1920, 1080)
+	for c in root.get_children():
+		if c.scene_file_path == MAIN_SCENE:
+			c.free()
+	var want := StoryText.get_or("TUT_G8_SKILLS", "", {}).strip_edges()
+	for mode in ["click", "key", "nopoint"]:
+		var tag := "T337 (%s): " % mode
+		var m: Control = await _new_main(true, true)
+		for i in 4:
+			await process_frame
+		m.skill_points = 0 if mode == "nopoint" else 3
+		m.tut_step = 9 if mode == "nopoint" else 10
+		m._tut_sig = []
+		for i in 4:
+			await process_frame
+		if mode == "nopoint":
+			check(m.tut_step >= 12 and m.tut_skipped.has("TUT_G8_SKILLS"), tag + "no skill point: the Skills card is passed over, not shown", str([m.tut_step, m.tut_skipped]))
+			await _free_main(m)
+			continue
+		var ss = m.skill_screen
+		var count0: String = m.tut_count.text
+		check(m.tut_step == 10 and m.tutorial_label.text == want and m.tut_hl.visible, tag + "closed: the Skills card shows its text and an outline", str([m.tut_step, m.tutorial_label.text]))
+		check(m.tut_hl.get_global_rect().grow(-3.0).is_equal_approx(m.points_button.get_global_rect()), tag + "closed: the outline is the Skills button", str(m.tut_hl.get_global_rect()))
+		if mode == "click":
+			_click_at(m.points_hit.get_global_rect().get_center())
+		else:
+			var ev := InputEventKey.new()
+			ev.keycode = KEY_K
+			ev.pressed = true
+			root.push_input(ev)
+		for i in 4:
+			await process_frame
+		check(ss.visible and m.tut_step == 10 and m.tut_card.visible, tag + "window open: the card is still up on the same step", str([ss.visible, m.tut_step]))
+		check(m.tutorial_label.text == want and m.tut_count.text == count0, tag + "window open: same card text and counter", m.tutorial_label.text + " " + m.tut_count.text)
+		var best := ""
+		for id in ss.node_buttons:
+			if id.begins_with("FND_") and ss.node_state(m.learned_skills, m.skill_points, m.balance, id) == "learnable" and m.skill_lock_reason(id) == "":
+				if best == "" or SkillTree.cost(m.balance, id) < SkillTree.cost(m.balance, best):
+					best = id
+		var nr: Rect2 = ss.node_buttons[best].get_global_rect()
+		var hl: Rect2 = m.tut_hl.get_global_rect().grow(-3.0)
+		check(best != "" and m.tut_hl.visible and hl.is_equal_approx(nr), tag + "window open: the outline is the cheapest learnable Foundation (%s)" % best, str([hl, nr]))
+		check(m.tut_arrow.visible and nr.grow(8.0).has_point(m.tut_arrow.position), tag + "window open: the arrow tip is on that node", str([m.tut_arrow.position, nr]))
+		var cr: Rect2 = m.tut_card.get_global_rect()
+		var clash := ""
+		for id in ss.node_buttons:
+			if (ss.node_buttons[id] as Control).get_global_rect().intersects(cr):
+				clash = id
+		check(clash == "" and Rect2(Vector2.ZERO, Vector2(root.size)).encloses(cr), tag + "window open: the card covers no skill node and is on screen", clash + str(cr))
+		check(m.tut_card.get_index() > ss.get_index() and m.tut_arrow.get_index() > ss.get_index() and m.tut_hl.z_index > ss.z_index, tag + "window open: card, arrow and outline are drawn above the Skills window")
+		_click_at(ss.node_buttons[best].get_global_rect().get_center())
+		for i in 3:
+			await process_frame
+		check(ss.selected == best, tag + "clicking the lit node selects it", ss.selected)
+		_click_at(ss.learn_button.get_global_rect().get_center())
+		for i in 4:
+			await process_frame
+		check(m.has_skill(best) and m.tut_step > 10, tag + "learning it advances the step", str([m.learned_skills, m.tut_step]))
+		await _free_main(m)
+	root.size = old_size
+
+## T333: the speed card after slide 1, both modes, real clicks, real card text and counter.
+func _test_tut_speed_card() -> void:
+	var old_size := root.size
+	root.size = Vector2i(1920, 1080)
+	for c in root.get_children():
+		if c.scene_file_path == MAIN_SCENE:
+			c.free()
+	var speed_text: String = StoryText.get_or("TUT_G1C_SPEED", "", {}).strip_edges()
+	var select_text: String = StoryText.get_or("TUT_G1_SELECT", "", {}).strip_edges()
+	check(speed_text != "", "T333: the speed card text id exists")
+	for disc in [false, true]:
+		for by_speed_click in [false, true]:
+			var tag := "T333 (discovery %s, end by %s): " % [str(disc), "speed click" if by_speed_click else "Next"]
+			var m: Control = await _new_main(true, disc)
+			for i in 4:
+				await process_frame
+			var map = m.map
+			if disc:
+				check(m._tut_g0_id() == "TUT_G0_FLY", tag + "starts on the flight card", m._tut_g0_id())
+				m._on_fly_establish_requested(str(map.planets[m.tut_fly_target()].get("id", "")))  # the menu entry's handler
+				for k in 4:
+					await process_frame
+				check(m._tut_g0_id() == "TUT_G0_FLY" and m.tutorial_label.text == speed_text, tag + "T334: the speed card shows right after the establish order, before arrival", m.tutorial_label.text)
+				check(not m.paused, tag + "T334: the clock runs (order accepted)")
+				m.set_paused(false)
+				# the ship arrives and builds while the card is up: it stays, the arrival cards wait behind it
+				for k in 40:
+					if m._tut_g0_id() == "TUT_G0_DONE":
+						break
+					m.debug_advance_cycle()
+					await process_frame
+				for k in 3:
+					await process_frame
+				check(m._tut_g0_id() == "TUT_G0_DONE" and m.tutorial_label.text == speed_text, tag + "T334: the speed card stays over the arrival cards until it ends", m.tutorial_label.text)
+			else:
+				var pi := 0
+				for i in map.planets.size():
+					if map.planet_in_view(i) and map.pick_planet(map.planet_screen_pos(i)) == i:
+						pi = i
+						break
+				check(m.tutorial_label.text == select_text, tag + "slide 1 is the Voltara card", m.tutorial_label.text)
+				_click_at(map.planet_screen_pos(pi))
+			for k in 4:
+				await process_frame
+			check(m.tut_step == 0 and m.tutorial_label.text == speed_text, tag + "the speed card shows right after slide 1 (T334: right after the order with discovery)", m.tutorial_label.text)
+			check(m.tut_count.text.begins_with("1 of "), tag + "it counts as slide 1", m.tut_count.text)
+			check(m.tut_next.is_visible_in_tree(), tag + "Next shows on the speed card")
+			var row: Rect2 = m.speed_buttons[0].get_global_rect()
+			for b in m.speed_buttons:
+				row = row.merge(b.get_global_rect())
+			check(m.tut_hl.visible and m.tut_hl.get_global_rect().encloses(row), tag + "the outline covers the speed buttons", str([m.tut_hl.get_global_rect(), row]))
+			var was_paused: bool = m.paused
+			for k in 6:
+				await process_frame
+			check(m.paused == was_paused and m.tut_step == 0 and m.tutorial_label.text == speed_text, tag + "the card does not pause the game or move on by itself", str(m.paused))
+			check(m.planet_ring == null or m.tut_planet_ring_target() == -1, tag + "no planet ring on the speed card")
+			check(m.tut_lock_active(), tag + "the tutorial lock is on while the card shows")
+			var before: float = m.time_speed
+			if by_speed_click:
+				_click_at(m.speed_buttons[2].get_global_rect().get_center())
+				for k in 3:
+					await process_frame
+				check(m.time_speed == m.SPEEDS[2] and m.time_speed != before, tag + "the lock does not block the speed button", str(m.time_speed))
+			else:
+				_click_at(m.tut_next.get_global_rect().get_center())
+				for k in 3:
+					await process_frame
+				check(m.time_speed == before and m.paused == was_paused, tag + "Next changes neither speed nor pause")
+			if disc:
+				var yay_text: String = StoryText.get_or("TUT_G0_DONE", "", {"planet": m.planet_name(m.tut_fly_target())}).strip_edges()
+				check(m._tut_g0_id() == "TUT_G0_DONE" and m.tutorial_label.text == yay_text and m.tut_next.is_visible_in_tree(), tag + "T334: the Yay card follows the speed card", m.tutorial_label.text)
+				check(m.tutorial_label.text != speed_text, tag + "T334: no speed card twice")
+				_click_at(m.tut_next.get_global_rect().get_center())
+				for k in 4:
+					await process_frame
+				check(m.tut_step == 0 and m.tutorial_label.text == select_text, tag + "the Voltara card follows the Yay card", m.tutorial_label.text)
+				_click_at(map.planet_screen_pos(0 if m.planet_index_of("planet_1") < 0 else m.planet_index_of("planet_1")))
+				for k in 4:
+					await process_frame
+			check(m.tut_step >= 2 and m.tutorial_label.text != speed_text and not m.tut_next.visible, tag + "the guide moved past the speed card", "%d %s" % [m.tut_step, m.tutorial_label.text])
+			await _free_main(m)
+	root.size = old_size
+
+## T334: the Sell card (step 6) points at the Sell button of the route's good at the route's end world, both modes, through real
+## clicks; and the speed card (discovery) comes before the arrival cards and ends once.
+func _test_tut_sell_and_order() -> void:
+	var old_size := root.size
+	root.size = Vector2i(1920, 1080)
+	for c in root.get_children():
+		if c.scene_file_path == MAIN_SCENE:
+			c.free()
+	var sell_text: String = StoryText.get_or("TUT_G6_SELL", "", {}).strip_edges()
+	for disc in [false, true]:
+		var tag := "T334 sell (discovery %s): " % str(disc)
+		var m: Control = await _new_main(true, disc)
+		for i in 4:
+			await process_frame
+		if disc:
+			m.debug_open_all_planets()
+		var v: int = m._tut_idx("planet_1")
+		var a: int = m._tut_idx("planet_3")
+		m.tut_flags["g0"] = true
+		m.tut_flags["g0_done"] = true
+		m.tut_flags["speed_done"] = true
+		m.tut_flags["hero"] = true
+		m.engine.local_of(v, "energy", true)["buy"] = true
+		m.engine.routes.append(m.engine.new_record(v, a, "energy"))
+		m.cycle = 3
+		m.tut_flags["expenses"] = true
+		m.tut_flags["upkeep_next"] = true
+		m.tut_step = 5
+		m.selected_planet = -1
+		for i in 8:
+			await process_frame
+		check(m.tut_step == 6 and m.tutorial_label.text == sell_text, tag + "the Sell card shows", "%d %s" % [m.tut_step, m.tutorial_label.text])
+		# first half: the end world is not open, the card points at the end world's planet (no control outline)
+		check(m._tut_highlight_key() == "planet" and not m.tut_hl.visible and m.tut_planet_ring_target() == a, tag + "end world not open: planet pointer on the end world", str([m._tut_highlight_key(), m.tut_planet_ring_target(), a]))
+		# the start world is open instead: still the end world is pointed at, not its resource button
+		m.selected_planet = v  # the lock refuses a click on the start world at this step, so the state is set
+		for i in 6:
+			await process_frame
+		check(m.selected_planet == v and m._tut_highlight_key() == "planet" and not m.tut_hl.visible and m.tut_planet_ring_target() == a, tag + "start world open: still points at the end world", str([m.selected_planet, m._tut_highlight_key()]))
+		# open the end world with a real click
+		_click_at(m.map.planet_screen_pos(a))
+		for i in 6:
+			await process_frame
+		if m.selected_planet != a:
+			m._on_planet_clicked(a)
+			for i in 6:
+				await process_frame
+		check(m.selected_planet == a and m.planet_panel.visible and m.tutorial_label.text == sell_text, tag + "the end world's panel is open on the Sell card")
+		var sb: Button = null
+		for n in m.planet_panel.find_children("*", "Button", true, false):
+			if n.name == "PaysSellButton" and n.is_visible_in_tree():
+				sb = n
+		check(sb != null, tag + "the route line has a Sell button at the end world")
+		if sb != null:
+			var rect: Rect2 = sb.get_global_rect()
+			var hl: Rect2 = m.tut_hl.get_global_rect().grow(-3.0)
+			check(m._tut_highlight_key() == "sell" and m.tut_hl.visible and hl.is_equal_approx(rect), tag + "the outline is the Sell button", str([hl, rect]))
+			var tip: Vector2 = m.tut_arrow.global_position
+			check(m.tut_arrow.visible and tip.y >= rect.position.y - 1.0 and tip.y <= rect.end.y + 1.0 and absf(tip.x - rect.get_center().x) <= rect.size.x * 0.5 + 40.0, tag + "the arrow points at the Sell button", str([tip, rect]))
+			var rb := m.planet_panel.find_child("BuyButton_energy", true, false) as Control
+			check(rb == null or not hl.intersects(rb.get_global_rect()), tag + "the outline is not the resource button", str([hl]))
+			_click_at(rect.get_center())
+			for i in 6:
+				await process_frame
+			check(m.engine.local_on(a, "energy", "sell"), tag + "a real click on the outlined button turns Sell on")
+			check(m.tut_step >= 7, tag + "the guide moves on", str(m.tut_step))
+		await _free_main(m)
+	# speed card ordering with discovery: order -> speed card -> (Next) -> arrival cards -> Yay -> Voltara
+	var m2: Control = await _new_main(true, true)
+	for i in 4:
+		await process_frame
+	var speed_text: String = StoryText.get_or("TUT_G1C_SPEED", "", {}).strip_edges()
+	m2._on_fly_establish_requested(str(m2.map.planets[m2.tut_fly_target()].get("id", "")))
+	for i in 4:
+		await process_frame
+	check(m2.tutorial_label.text == speed_text and m2.tut_count.text.begins_with("1 of "), "T334 order: the speed card right after the order, counted as slide 1", m2.tutorial_label.text)
+	_click_at(m2.tut_next.get_global_rect().get_center())
+	for i in 4:
+		await process_frame
+	check(m2.tutorial_label.text != speed_text and m2.tut_step == 0, "T334 order: Next ends the speed card", m2.tutorial_label.text)
+	check(m2._tut_g0_id() == "TUT_G0_FLY" and m2.tutorial_label.text != speed_text, "T334 order: after Next the flight is still under way and the arrival cards are still ahead", m2.tutorial_label.text)
+	m2.flight.finish_flight()
+	m2.debug_establish_now(str(m2.map.planets[m2.tut_fly_target()].get("id", "")))
+	for i in 4:
+		await process_frame
+	var yay_text: String = StoryText.get_or("TUT_G0_DONE", "", {"planet": m2.planet_name(m2.tut_fly_target())}).strip_edges()
+	check(m2.tutorial_label.text == yay_text and m2.tutorial_label.text != speed_text, "T334 order: the Yay card follows the arrival, no second speed card", m2.tutorial_label.text)
+	_click_at(m2.tut_next.get_global_rect().get_center())
+	for i in 4:
+		await process_frame
+	check(m2.tutorial_label.text == StoryText.get_or("TUT_G1_SELECT", "", {}).strip_edges(), "T334 order: the Voltara card follows the Yay card", m2.tutorial_label.text)
+	await _free_main(m2)
+	root.size = old_size
 
 func _test_tutorial_steps() -> void:
 	var m: Control = await _new_main(true)
@@ -989,16 +1943,20 @@ func _test_tutorial_steps() -> void:
 	# clicking a planet is the step 1 action: the guide moves on at once, with no other refresh
 	m._on_planet_clicked(0)
 	await process_frame
-	check(m.tut_step >= 1, "tutorial: clicking a planet advances step 1", str(m.tut_step))
+	check(m.tut_step == 0 and m._tut_speed_card(), "tutorial: clicking a planet shows the speed card (T333)", str(m.tut_step))
+	m.tut_next.pressed.emit()
+	await process_frame
+	check(m.tut_step >= 1, "tutorial: clicking a planet then Next advances step 1", str(m.tut_step))
 	m.tut_step = 0
 	m.selected_planet = -1
 	await process_frame
 	# derived state: mutate the state directly, call no tutorial function, wait frames
 	m.selected_planet = 0
+	m.tut_flags["speed_done"] = true  # T333: the speed card comes first
 	await process_frame
 	await process_frame
 	check(m.tut_step >= 1, "tutorial derived: setting selected_planet alone advances step 1", str(m.tut_step))
-	m.tut_step = 2
+	m.tut_step = 3
 	m.selected_planet = 0
 	m.pending = {}
 	await process_frame
@@ -1010,12 +1968,12 @@ func _test_tutorial_steps() -> void:
 	await process_frame
 	await process_frame
 	check(m.tutorial_label.text == g3pick and m._tut_highlight_key() == "planet" and m._tut_ring_planet() != 0, "tutorial derived: setting pending alone shows PICK and a planet target", m.tutorial_label.text)
-	check(m._voiced_tut == 2, "tutorial derived: heading switch keeps the step voiced once")
+	check(m._voiced_tut == 3, "tutorial derived: heading switch keeps the step voiced once")
 	m.pending = {}
 	await process_frame
 	await process_frame
 	check(m.tutorial_label.text == g3send and m._tut_highlight_key() == "send", "tutorial derived: clearing pending alone restores SEND and the resource target", m.tutorial_label.text)
-	m.tut_step = 3
+	m.tut_step = 4
 	m.set_paused(false)
 	await process_frame
 	await process_frame
@@ -1035,8 +1993,8 @@ func _test_tutorial_steps() -> void:
 	m.tut_step = 0
 	m.selected_planet = -1
 	await process_frame
-	check(_buttons(m.tut_actions, []).size() == 1 and _buttons(m.tut_card, []).all(func(b): return (b as Button).text != StoryText.get_or("BTN_NEXT", "Next")), "tutorial: no Next button on the guided card, only Skip")
-	check(G == ["TUT_G1_SELECT", "TUT_G2_BUY", "TUT_G3_SEND", "TUT_G4_ROUTE_PAY", "TUT_G5_UPKEEP", "TUT_G6_SELL", "TUT_G7_STORAGE", "TUT_G7_NEEDS", "TUT_G7_GROW", "TUT_G8_SKILLS", "TUT_G9_PERMIT", "TUT_G10_DONE"], "tutorial steps: order")
+	check(_buttons(m.tut_actions, []).filter(func(b): return (b as Button).visible).size() == 1 and not m.tut_next.visible, "tutorial: no Next button on the guided card except the Yay card, only Skip")  # T329
+	check(G == ["TUT_G1_SELECT", "TUT_G1B_SHIPS", "TUT_G2_BUY", "TUT_G3_SEND", "TUT_G4_ROUTE_PAY", "TUT_G5_UPKEEP", "TUT_G6_SELL", "TUT_G7_STORAGE", "TUT_G7_NEEDS", "TUT_G7_GROW", "TUT_G8_SKILLS", "TUT_G9_PERMIT", "TUT_G10_DONE"], "tutorial steps: order")
 	# skip at step 3 ends the tutorial for good, also after save and load
 	m.tut_step = 3
 	m._tut_skip()
@@ -1075,15 +2033,15 @@ func _test_tutorial_steps() -> void:
 	m.skill_points = 0
 	m.learned_skills = []
 	m.tut_skipped = []
-	m.tut_step = 9
+	m.tut_step = 10
 	m._tut_advance()
 	check(G[m.tut_step] == "TUT_G10_DONE" and m.tut_skipped == ["TUT_G8_SKILLS", "TUT_G9_PERMIT"], "tutorial steps: skills and permit skipped with no point", str(m.tut_skipped))
 	m.skill_points = 1
-	m.tut_step = 9
+	m.tut_step = 10
 	m._tut_advance()
-	check(m.tut_step == 9, "tutorial steps: skills step waits while a point is held")
+	check(m.tut_step == 10, "tutorial steps: skills step waits while a point is held")
 	# step 3 with a send pending: heading and target switch to the destination planet
-	m.tut_step = 2
+	m.tut_step = 3
 	m.selected_planet = 0
 	m.cancel_pending()
 	await process_frame
@@ -1100,29 +2058,32 @@ func _test_tutorial_steps() -> void:
 	m.selected_planet = -1
 	# every step moves on only by its own action
 	m.tut_flags = {}
-	m.tut_step = 4
+	m.tut_step = 5
 	m._tut_advance()
-	check(m.tut_step == 4, "tutorial steps: upkeep waits until Expenses is opened")
+	check(m.tut_step == 5, "tutorial steps: upkeep waits until Expenses is opened")
 	m.tut_note("expenses")
 	await process_frame
-	check(m.tut_step > 4, "tutorial steps: opening Expenses moves the upkeep step on", str(m.tut_step))
+	check(m.tut_step == 5 and m.tut_next.visible, "tutorial steps: opening Expenses keeps the upkeep step and shows Next", str(m.tut_step))  # T331
+	m._tut_next()
+	await process_frame
+	check(m.tut_step > 5, "tutorial steps: Next moves the upkeep step on", str(m.tut_step))
 	m.tut_flags = {}
-	m.tut_step = 6
+	m.tut_step = 7
 	m._tut_advance()
-	check(m.tut_step == 6, "tutorial steps: storage waits with no stock and no right-click")
+	check(m.tut_step == 7, "tutorial steps: storage waits with no stock and no right-click")
 	m.tut_note("storage")
 	await process_frame
-	check(m.tut_step > 6, "tutorial steps: right-clicking the resource button moves the storage step on", str(m.tut_step))
+	check(m.tut_step > 7, "tutorial steps: right-clicking the resource button moves the storage step on", str(m.tut_step))
 	m.skill_points = 1
 	m.learned_skills = []
-	m.tut_step = 9
+	m.tut_step = 10
 	m._tut_advance()
-	check(m.tut_step == 9, "tutorial steps: skills waits until a skill is learned")
-	m.tut_step = 11
+	check(m.tut_step == 10, "tutorial steps: skills waits until a skill is learned")
+	m.tut_step = 12
 	m.tut_goal_t = 0.0
 	m._tut_show()
 	m._tut_tick(m.TUT_LAST_SECS - 1.0)
-	check(m.tut_step == 11, "tutorial steps: last step stays before its time is up")
+	check(m.tut_step == 12, "tutorial steps: last step stays before its time is up")
 	m._tut_tick(2.0)
 	check(m.tut_step == G.size() and not m.tut_card.visible, "tutorial steps: last step closes by itself after the timer")
 	m.tut_step = 2
@@ -1130,12 +2091,13 @@ func _test_tutorial_steps() -> void:
 	m._tut_tick(100.0)
 	check(m.tut_step == 2, "tutorial steps: the timer only runs on the last step")
 	_test_tutorial_t316(m)
+	_test_tip_spacing(m)
 	m.debug_restart_tutorial()
 	check(m.tut_step <= 1 and m.tut_skipped.is_empty(), "tutorial steps: restart goes back to the start")
 	# the tutorial card is its own panel, never part of the notifications board
 	var board: Node = m.notice_label.get_parent().get_parent()
 	check(m.tut_card != null and m.tut_card.visible and not board.is_ancestor_of(m.tut_card) and not board.is_ancestor_of(m.tutorial_label) and not board.is_ancestor_of(m.tut_actions), "tutorial card: not a child of the notifications board")
-	check(m.tut_card.get_parent() == m and not m.right_col.is_ancestor_of(m.tut_card) and m.tut_count.text == "1 of 12", "tutorial card: floats outside the right column, with a step count", m.tut_count.text)
+	check(m.tut_card.get_parent() == m and not m.right_col.is_ancestor_of(m.tut_card) and m.tut_count.text.begins_with("1 of "), "tutorial card: floats outside the right column, with a step count", m.tut_count.text)
 	check(m.tip_label.visible and m.tip_label.text != "" and board.is_ancestor_of(m.tip_label), "tips: the right board shows a game tip")
 	var tip_all: String = m.tip_label.text
 	for k in 6:
@@ -1150,7 +2112,7 @@ func _test_tutorial_steps() -> void:
 	m.selected_planet = 1
 	m.planet_panel.show_planet(1)
 	m.planet_panel.visible = true
-	m.tut_step = 1
+	m.tut_step = 2
 	m._tut_show()
 	await process_frame
 	await process_frame
@@ -1159,7 +2121,7 @@ func _test_tutorial_steps() -> void:
 	var cr: Rect2 = m.tut_card.get_global_rect()
 	check(tgt != null and vpr.encloses(cr) and not cr.intersects(tgt.get_global_rect()) and not cr.intersects(m.planet_panel.get_global_rect()), "tutorial card: beside the Buy button, in the window, clear of it and its panel", str(cr))
 	check(m.tut_arrow.visible and m.tut_card.mouse_filter == Control.MOUSE_FILTER_IGNORE and m.tut_hl.mouse_filter == Control.MOUSE_FILTER_IGNORE, "tutorial card: pointer shows, outline lets clicks through")
-	m.tut_step = 4
+	m.tut_step = 5
 	m._tut_show()
 	await process_frame
 	cr = m.tut_card.get_global_rect()
@@ -1186,7 +2148,7 @@ func _test_tutorial_steps() -> void:
 		var hk: String = m._tut_highlight_key()
 		var ok: bool = hk == "planet" or m._tut_target_node(hk) != null
 		check(ok, "tutorial highlight: %s has a target in the scene or falls back to the planet" % G[i], hk)
-	m.tut_step = 3
+	m.tut_step = 4
 	m.set_paused(false)
 	await process_frame
 	check(m._tut_highlight_key() == "time" and m._tut_target_node("time") == m.speed_buttons[0], "tutorial highlight: route-pay step outlines the speed button")
@@ -1194,17 +2156,17 @@ func _test_tutorial_steps() -> void:
 	await process_frame
 	check(m._tut_highlight_key() == "time" and m._tut_target_node("time") == m.pause_button, "tutorial highlight: route-pay step while paused outlines the Play button")
 	m.set_paused(false)
-	m.tut_step = 4
+	m.tut_step = 5
 	check(m._tut_highlight_key() == "expenses" and m._tut_target_node("expenses") == m.cash_box, "tutorial highlight: expenses step outlines the top bar cash")
-	m.tut_step = 1
+	m.tut_step = 2
 	m.selected_planet = m._tut_idx("planet_1")  # the guided lock points at Voltara until it is open
 	m.planet_panel.show_planet(m.selected_planet)
 	check(m._tut_target_node("buy") != null and m._tut_highlight_key() == "buy", "tutorial highlight: buy step outlines the Buy button")
-	m.tut_step = 7
+	m.tut_step = 10
 	check(m._tut_target_node("skills") == m.points_button, "tutorial highlight: skills step outlines the Skills button")
-	m.tut_step = 8
+	m.tut_step = 11
 	check(m._tut_target_node("permit") == m.skill_screen.node_buttons["FND_PERMIT"], "tutorial highlight: permit step outlines Permit Charter in the Skills window")
-	m.tut_step = 1
+	m.tut_step = 2
 	m._tut_update_highlight()
 	check(m.tut_hl.visible, "tutorial highlight: outline shows over the control")
 	# planet surface banners: atlas regions, header image, fade gradient, edge to edge
@@ -1247,7 +2209,7 @@ func _test_tutorial_steps() -> void:
 	m.skill_screen.close_screen()
 	m.selected_planet = -1
 	check(m._tut_highlight_key() == "planet", "tutorial highlight: no planet panel falls back to the planet ring")
-	m.tut_step = 11
+	m.tut_step = 12
 	check(m._tut_highlight_key() == "", "tutorial highlight: last step has none")
 	m._tut_skip()
 	check(m.tut_step == G.size() and not m.tut_card.visible and not m.tut_hl.visible, "tutorial card: Skip ends the tutorial and hides card and outline")
@@ -1258,6 +2220,8 @@ const TEST_SEED := 20261104
 
 ## discovery: false (default) switches the Pathfinder rules off (balance discovery_enabled 0), so every planet is open as before T179;
 ## true keeps the shipped default (only Voltara open at the start).
+var _keep_preface := false  # T325: the preface test wants the welcome screen left up
+
 func _new_main(guided: bool = false, discovery: bool = false) -> Control:
 	var m: Control = load(MAIN_SCENE).instantiate()
 	root.add_child(m)
@@ -1271,6 +2235,9 @@ func _new_main(guided: bool = false, discovery: bool = false) -> Control:
 	await process_frame
 	if not guided:
 		m.tut_step = m.TUT_GUIDE.size()
+		await process_frame
+	elif not _keep_preface and m.preface != null:  # T325: the tutorial only runs after Begin
+		m._dismiss_preface()
 		await process_frame
 	return m
 
@@ -1642,6 +2609,7 @@ func _test_skill_screen_ui() -> void:
 			inside = false
 	check(inside, "skill placeholders: every node and slot sits inside the scrolled tree area (scroll reaches all)")
 	check(sk.tree_scroll.horizontal_scroll_mode == ScrollContainer.SCROLL_MODE_AUTO and sk.tree_scroll.vertical_scroll_mode == ScrollContainer.SCROLL_MODE_AUTO, "skill placeholders: tree scrolls both ways when larger than the window")
+	_check_skill_blocks(sk, "all trees")
 	m.skill_points = 9
 	Skills.learned.append_array(FND3)
 	m.skill_screen.select("MIL_1")
@@ -1673,6 +2641,7 @@ func _test_skill_branch_screen() -> void:
 		for id in sk.cells:
 			if not want.has(id):
 				only_own = false
+		_check_skill_blocks(sk, mk)
 		check(only_own, "branch screen: %s run draws only Foundations and its own tree" % mk, str(sk.cells.size()))
 		var leak := false
 		for other in SkillTree.MARKETS:
@@ -1703,6 +2672,42 @@ func _test_skill_branch_screen() -> void:
 	await process_frame
 	check(m2.skill_screen.cells.size() == SkillTree.all_ids().size() and SkillTree.can_learn(FND3, 9, bal, "LUX_1")["ok"], "branch screen: old save (no branch) shows and learns every tree")
 	await _free_main(m2)
+
+## T336: Foundations block above every market node, every button inside the scroll area, links end on the right buttons.
+func _check_skill_blocks(sk, label: String) -> void:
+	var fnd_bottom := -1.0
+	var mkt_top := 1.0e9
+	var all_in := true
+	var scroll_rect: Rect2 = sk.tree_scroll.get_global_rect()
+	var tree_rect: Rect2 = sk._tree.get_global_rect()
+	for id in SkillTree.all_ids():
+		if not sk.node_buttons.has(id):
+			continue
+		var r: Rect2 = (sk.node_buttons[id] as Control).get_global_rect()
+		if not tree_rect.encloses(r.grow(-1.0)) or r.position.x < scroll_rect.position.x - 1.0 or r.end.x > scroll_rect.end.x + 1.0:
+			all_in = false
+		if id.begins_with("FND_"):
+			fnd_bottom = maxf(fnd_bottom, r.end.y)
+		else:
+			mkt_top = minf(mkt_top, r.position.y)
+	check(fnd_bottom > 0.0 and fnd_bottom <= mkt_top, "skill blocks (%s): Foundations nodes sit above every market node" % label, "%s %s" % [fnd_bottom, mkt_top])
+	check(all_in, "skill blocks (%s): every node button is inside the scrolled tree, within the scroll width" % label)
+	var ends_ok := true
+	var n_links := 0
+	for id in sk.cells:
+		for p in SkillTree.prereqs(id):
+			if not sk.cells.has(p):
+				continue
+			n_links += 1
+			var e: Array = sk.link_ends(p, id)
+			var o: Vector2 = tree_rect.position
+			var ra: Rect2 = (sk.node_buttons[p] as Control).get_global_rect()
+			var rb: Rect2 = (sk.node_buttons[id] as Control).get_global_rect()
+			if absf((e[0] as Vector2).x + o.x - (ra.position.x + ra.size.x * 0.5)) > 1.0 or absf((e[1] as Vector2).x + o.x - (rb.position.x + rb.size.x * 0.5)) > 1.0:
+				ends_ok = false
+			if (e[0] as Vector2).y + o.y < ra.end.y - 1.0 or (e[0] as Vector2).y + o.y > ra.end.y + 70.0 or absf((e[1] as Vector2).y + o.y - rb.position.y) > 1.0:
+				ends_ok = false
+	check(n_links > 0 and ends_ok, "skill blocks (%s): link end points sit on the prerequisite and node buttons" % label, str(n_links))
 
 func _node_text_has(n: Node, text: String) -> bool:
 	if n is Label and (n as Label).text.to_upper() == text:
@@ -4227,7 +5232,7 @@ func _test_station_send() -> void:
 	m = await _new_main(true)
 	m._dismiss_preface()
 	await _station_ready(m)
-	m.tut_step = 2
+	m.tut_step = 3
 	m.pending = {"planet": 0, "c": "energy"}
 	await _station_click(m)
 	check(m.engine.routes.is_empty() and not m.pending.is_empty() and m.notice_label.text == m.tut_lock_text() and m.notice_label.visible, "station send: the guided tutorial refuses with its text", m.notice_label.text)
@@ -6580,6 +7585,33 @@ func maxf_s(x: String, y: String) -> String:
 
 ## T187: the owner's six ship rules. Chosen ship flown; flies only while time runs; second system; rival ships are scenery
 ## only; an unvisited planet stays closed; a mining platform on a dead world mines into Space Storage.
+func _test_t317_hero_card() -> void:
+	_wipe_user()
+	var m0: Control = await _new_main(false, false)  # discovery off: no hero ship
+	m0._dismiss_preface()
+	m0.ship_panel.set_upkeep(m0)
+	check(not m0.ship_panel.hero_card.visible, "T317: no hero card without a hero ship")
+	var m: Control = await _new_main(false, true)
+	m._dismiss_preface()
+	var sp = m.ship_panel
+	sp.set_upkeep(m)
+	check(sp.hero_card.visible, "T317: hero card shown with a hero ship")
+	check(not m.map.ship_selected, "T317: ship not selected at start")
+	var click := InputEventMouseButton.new()
+	click.button_index = MOUSE_BUTTON_LEFT
+	click.pressed = true
+	sp._on_hero_input(click)
+	var by_card: bool = m.map.ship_selected
+	check(by_card, "T317: a card click selects the ship")
+	m.map.select_ship(false)  # the viewport route, same call as map.gd uses
+	sp.set_upkeep(m)
+	check(not m.map.ship_selected and not sp._hero_selected, "T317: card follows a viewport deselect")
+	m.map.select_ship(true)
+	sp.set_upkeep(m)
+	check(m.map.ship_selected == by_card and sp._hero_selected, "T317: viewport select gives the same state and lights the card")
+	sp._on_hero_input(click)
+	check(not m.map.ship_selected and not sp._hero_selected, "T317: a second card click deselects")
+
 func _test_t187_ship_flight() -> void:
 	_wipe_user()
 	var m: Control = await _new_main(false, true)
@@ -6861,6 +7893,35 @@ func _test_t199_rival_pick() -> void:
 	card.show_bot(0)
 	check(not card.visible, "T199: bot 0 closes the card")
 	await _free_main(m)
+
+## T318: every traffic hull kind has valid mesh data, and the kind picked from a hash stays in range (and the shader table matches).
+func _test_t318_traffic_hulls() -> void:
+	var TM := preload("res://game/traffic/traffic_meshes.gd")
+	check(TM.KINDS >= 5 and TM.SHAPES.size() == TM.KINDS, "T318: at least 5 hull kinds, one shape each", str(TM.KINDS))
+	var m: ArrayMesh = TM.make()
+	var arr: Array = m.surface_get_arrays(0)
+	var v: PackedVector3Array = arr[Mesh.ARRAY_VERTEX]
+	var u2: PackedVector2Array = arr[Mesh.ARRAY_TEX_UV2]
+	var idx: PackedInt32Array = arr[Mesh.ARRAY_INDEX]
+	check(u2.size() == v.size() and idx.size() % 3 == 0 and idx.size() > 0, "T318: hull mesh has a kind per vertex and whole triangles")
+	var seen := {}
+	for p in v.size():
+		seen[int(u2[p].x)] = true
+		check(absf(v[p].x) <= 0.5 and absf(v[p].z) <= 0.5 + 0.0001, "T318: hull vertex inside one ship length", str(v[p]))
+	for k in TM.KINDS:
+		check(seen.has(k), "T318: hull kind %d has vertices" % k)
+	for i in idx:
+		check(i >= 0 and i < v.size(), "T318: index in range")
+	for h in [0.0, 0.1, 0.5, 0.999, 1.0]:
+		var k: int = TM.kind_for(h)
+		check(k >= 0 and k < TM.KINDS, "T318: kind from hash %s in range" % h, str(k))
+	var used := {}
+	for j in 800:
+		used[TM.kind_for(fmod(j * 0.6180339, 1.0))] = true
+	check(used.size() == TM.KINDS, "T318: every kind is reachable from the hash", str(used.keys()))
+	var sh := FileAccess.get_file_as_string("res://game/traffic/traffic_ship.gdshader")
+	check(sh.contains("int[8](" + ", ".join(TM.KIND_TABLE.map(func(x): return str(x))) + ")"), "T318: shader kind table matches KIND_TABLE")
+	check(float(_read_json("res://data/balance.json")["values"].get("traffic_hull_dark", -1.0)) > 0.0, "T318: hull darkness key set")
 
 func _test_t211_ship_traffic() -> void:
 	var Systems := preload("res://game/systems.gd")
@@ -7695,7 +8756,7 @@ func _test_dest_hint() -> void:
 	m.pending = {"planet": 0, "c": "ore"}  # ore is hidden at the start
 	check(DestHint.describe(m, 1, -1) == "", "hover card: a hidden pending good shows nothing")
 	m.pending = {"planet": 0, "c": "energy"}
-	m.tut_step = 2  # the guided send step locks the controls: no card
+	m.tut_step = 3  # the guided send step locks the controls: no card
 	if m.tut_lock_active():
 		check(DestHint.describe(m, 1, -1) == "", "hover card: no card under the tutorial lock")
 	m.tut_step = -1
@@ -8252,6 +9313,66 @@ func _test_epilogue_placeholders() -> void:
 					bad += 1
 					print("raw token: ", line)
 	check(bad == 0, "epilogue: no raw placeholder left in end screen lines")
+
+## T340: gig markers in open space never sit on an established lane or a living planet (a dead planet is allowed).
+func _test_gig_clearance() -> void:
+	# helper on hand-made data
+	var pl := [{"pos": Vector3(0, 0, 0), "dead": false}, {"pos": Vector3(10, 0, 0), "dead": true}]
+	var ln := [[Vector3(0, 0, 5), Vector3(5, 0, 7), Vector3(10, 0, 5)]]
+	check(not Gigs.clear_of_map(Vector3(0.3, 0, 0), pl, [], 1.0, 0.6), "gig clear: inside a living planet radius is not clear")
+	check(Gigs.clear_of_map(Vector3(3, 0, 3), pl, ln, 1.0, 0.6), "gig clear: open space is clear")
+	check(not Gigs.clear_of_map(Vector3(5, 0, 6.0), pl, ln, 1.0, 0.6), "gig clear: on a lane curve is not clear")
+	check(Gigs.clear_of_map(Vector3(10.2, 0, 0), pl, ln, 1.0, 0.6), "gig clear: at a dead planet is allowed")
+	var m: Control = await _new_main(false, true)
+	m._dismiss_preface()
+	var g = m.gigs
+	m.balance["gig_first_cycle"] = 1
+	m.balance["gig_gap_cycles"] = 1
+	m.balance["gig_cap_signals"] = 100000
+	var n: int = mini(m.map.planets.size(), 5)
+	var rid := 0
+	for a in n:
+		for b in range(a + 1, n):
+			if int(m.map.planets[a].get("system", 1)) == 1 and int(m.map.planets[b].get("system", 1)) == 1:
+				m.engine.routes.append(m.engine.new_record(a, b, "ore"))
+				rid += 1
+	check(rid >= 3, "gig clear: the run has established routes", str(rid))
+	var ob: Dictionary = g.map_obstacles(m.flight.system_id())
+	check(ob["lanes"].size() == rid, "gig clear: every route gives a lane curve", str(ob["lanes"].size()))
+	var mpd: float = float(m.balance["gig_min_planet_dist"])
+	var mld: float = float(m.balance["gig_min_lane_dist"])
+	var posted := 0
+	var bad := 0
+	var first := {}
+	for pass_i in 2:
+		for sd in 40:
+			for cyc in range(2, 8):
+				g.reset()
+				g.seed_value = sd * 31 + 5
+				m.flight._pos = Vector3(float(sd % 7) - 3.0, 0.0, float(sd % 5) - 2.0) * 1.3
+				g.on_cycle(cyc)
+				var key := "%d_%d" % [sd, cyc]
+				var cur := Vector3.INF
+				if g.is_open():
+					var pp: Array = g.offers[0]["target"]["pos"]
+					cur = Vector3(float(pp[0]), 0.0, float(pp[2]))
+					posted += 1
+					if not Gigs.clear_of_map(cur, ob["planets"], ob["lanes"], mpd, mld):
+						bad += 1
+				if pass_i == 0:
+					first[key] = cur
+				elif first[key] != cur:
+					bad += 1000
+	check(posted > 0 and bad == 0, "gig clear: signals never on a lane or world, same seed and cycle gives the same marker", "posted %d bad %d" % [posted, bad])
+	# salvage nudge: a point on a lane moves off it; at a dead planet it stays
+	var lane0: Array = ob["lanes"][0]
+	var mid: Vector3 = (lane0[0] + lane0[1] * 2.0 + lane0[2]) * 0.25
+	var nd: Vector3 = g.nudge_clear(mid, m.flight.system_id(), 0.7)
+	check(nd != mid and Gigs.clear_of_map(nd, ob["planets"], ob["lanes"], mpd, mld), "gig clear: salvage on a lane is nudged off")
+	m.map.planets[0]["type"] = "dead"
+	var dpos: Vector3 = m.map.positions[0] + Vector3(0.2, 0, 0)
+	check(g.nudge_clear(dpos, m.flight.system_id(), 0.7) == dpos, "gig clear: a drop at a dead planet stays")
+	await _free_main(m)
 
 ## T271 gig engine: a signal opens, expires for free and stays gone; reaching it and choosing applies gives and costs; a rush order completes
 ## on a hand delivery; the board saves and loads; nothing is offered with discovery off.

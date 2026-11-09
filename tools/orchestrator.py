@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
 """Parallel overnight orchestrator: several scheduled tasks at once, one git worktree each.
 
-Sequential runner stays in tools/job_runner.py. This one never loops or sleeps: every command
-does one step and exits, state lives in logs/orchestrator/state.json. A Claude session driven by
-/loop (dynamic mode) calls `status` and `merge` from ScheduleWakeup check-ins (see DRIVER below).
+`run` is the unattended loop (it replaced tools/job_runner.py): merge finished workers, start the next round, sleep,
+repeat until nothing is left, the time is up, or the stop file exists. Every other command does one step and exits.
+State lives in ../wt/_state/state.json (outside the repo).
+
+  python3 tools/orchestrator.py run [--hours 8] [--max 4] [--poll 300] [--worker-timeout 120]
+                                                    LOOP: merge -> start -> sleep, until idle, time up, or STOP_ORCHESTRATOR exists
 
   python3 tools/orchestrator.py plan [--max 4]      DRY RUN: which tasks would run in parallel, which are skipped and why
   python3 tools/orchestrator.py infer [--write]     fill missing `touches` (file globs) in schedule.json from the task briefs
@@ -23,12 +26,14 @@ Workers (skill overnight-worker) build in their worktree, commit on task/<id>, i
 never touch schedule.json or blackboard.md. The merge queue handles one finished task at a time:
   rebase task/<id> onto the base branch -> full test suite in the worktree -> `git merge --ff-only` in the main checkout ->
   schedule.json + blackboard.md updated and committed (only those two files) -> worktree and branch removed.
-A rebase conflict, a test FAIL, a dirty worktree or a refused fast-forward marks the task `blocked` (log path in
+A rebase conflict that the built-in rules (.uid, gdd.md keep-both, balance.json additions) cannot resolve is handed to
+the merge-resolver agent (.claude/agents/merge-resolver.md), which runs in the task worktree; if it reports
+MERGE_UNRESOLVED or leaves markers, the task is blocked. A still-unresolved rebase conflict, a test FAIL, a dirty worktree or a refused fast-forward marks the task `blocked` (log path in
 `blocked_log`), keeps worktree and branch, and does NOT merge. Never runs on `main` unless --allow-main.
 Windowed Godot is only used by the worker's Quick look screenshot; no QA agents or bots are ever started.
 
-DRIVER (what the /loop session does): `start`, then at each ScheduleWakeup check-in `status`; when workers have
-finished run `merge`; when nothing is running or queued for merge run `report`; wake again after 10 to 20 minutes while any worker runs.
+Stop `run` early: create a file named STOP_ORCHESTRATOR in the project root (checked every poll), or press Ctrl+C
+(workers keep running; start `run` again to carry on). `run` also stops after three workers in a row end without a result line.
 """
 import argparse
 import datetime as dt
@@ -325,7 +330,7 @@ def cmd_resume(args):
         f = open(v["log"], "a")
         p = subprocess.Popen(cmd, cwd=v["worktree"], stdin=subprocess.DEVNULL, stdout=f, stderr=subprocess.STDOUT,
                              env=dict(os.environ, STAR_TEST_SCRATCH=str(SCRATCH / f"test-home-{tid}"), TMPDIR=str(SCRATCH)), start_new_session=True)
-        v.update(state="running", pid=p.pid)
+        v.update(state="running", pid=p.pid, started=dt.datetime.now().isoformat(timespec="minutes"))  # the worker timeout counts from the resume
         v.pop("why", None)
         print(f"resumed {tid} (pid {p.pid})")
     save_state(st)
@@ -375,6 +380,8 @@ def cmd_status(args):
 def commit_board(tid, title, status, note, summary, extra_fail=""):
     """schedule.json + blackboard.md entry, committed alone. Returns an error string or None."""
     dirty = sh(["git", "status", "--porcelain", "--", "schedule.json", "blackboard.md"]).stdout.strip()
+    if dirty and shutil.which("claude") and commit_pending_board():
+        dirty = ""
     if dirty:
         return "schedule.json or blackboard.md has uncommitted changes in the main checkout; left untouched"
     data = load_schedule()
@@ -432,8 +439,18 @@ def resolve_balance_source(wt):
 
     def fix(m):
         head, mine = m.group(1), m.group(2)
-        if head.startswith(pre) and mine.startswith(pre):
-            return pre + mine[len(pre):].split(" Earlier: ")[0] + " Earlier: " + head[len(pre):]
+        hv, mv = (re.match(r'  "data_version": (\d+),\n(  "source": ".*\n)\Z', x) for x in (head, mine))
+        if hv and mv:  # both sides bumped the version and wrote a note: base version + 1, task note on top
+            return f'  "data_version": {int(hv.group(1)) + 1},\n' + pre + mv.group(2)[len(pre):].split(" Earlier: ")[0] + " Earlier: " + hv.group(2)[len(pre):]
+        if head.startswith(pre) and mine.startswith(pre) and head.count("\n") == 1:
+            first, _, rest = mine.partition("\n")  # the task's note, then any key lines it added after it: all kept
+            rest_lines = rest.splitlines()
+            if all(keyline.match(l) for l in rest_lines):
+                head_note = head[len(pre):].rstrip("\n")
+                out = pre + first[len(pre):].split(" Earlier: ")[0] + " Earlier: " + head_note + "\n"
+                if rest_lines:  # the note line ended without a comma only if it was the last key; here keys follow
+                    out += "\n".join(rest_lines) + "\n"
+                return out
         lines = (head + mine).splitlines()
         if lines and all(keyline.match(l) for l in lines):
             tail = text[m.end():].lstrip()[:1]  # what follows the region: "}" means the last key needs no comma
@@ -468,6 +485,82 @@ def resolve_keep_both(wt, name):
     return True
 
 
+def run_resolver(prompt, cwd):
+    """Run the merge-resolver agent headless in cwd. Returns the last non-empty line of its reply ('' on failure or timeout)."""
+    SCRATCH.mkdir(parents=True, exist_ok=True)
+    # definition comes from the main checkout, so worktrees made before the file was committed still find the agent
+    head, body = (ROOT / ".claude" / "agents" / "merge-resolver.md").read_text().split("---", 2)[1:]
+    meta = dict(l.split(": ", 1) for l in head.strip().splitlines())
+    agent = {"description": meta["description"], "prompt": body.strip(), "tools": [t.strip() for t in meta["tools"].split(",")], "model": meta.get("model", "sonnet")}
+    cmd = ["claude", "-p", prompt, "--agents", json.dumps({"merge-resolver": agent}), "--agent", "merge-resolver",
+           "--permission-mode", "acceptEdits", "--allowedTools", TOOLS]
+    try:
+        p = sh(cmd, cwd=cwd, env={"TMPDIR": str(SCRATCH)}, timeout=900)
+    except subprocess.TimeoutExpired:
+        print("  merge-resolver timed out")
+        return ""
+    OUT.mkdir(parents=True, exist_ok=True)
+    with open(OUT / f"{Path(cwd).name}-resolver.log", "a") as f:
+        f.write(p.stdout + p.stderr + "\n---\n")
+    last = ([l for l in p.stdout.strip().splitlines() if l.strip()][-1:] or [""])[0]
+    if p.returncode != 0:
+        print("  merge-resolver exit", p.returncode, last[:200])
+        return ""
+    if "UNRESOLVED" in last or "NOT_COMMITTED" in last:
+        print("  merge-resolver:", last[:200])
+    return last
+
+
+def commit_pending_board():
+    """schedule.json / blackboard.md carry uncommitted edits in the main checkout (owner or main session). The merge-resolver
+    agent (mode 2) reviews and commits just those files. Returns True if they are clean afterwards and the commit touched nothing else."""
+    files = ["schedule.json", "blackboard.md"]
+    if not sh(["git", "status", "--porcelain", "--"] + files).stdout.strip():
+        return True
+    prompt = ("Mode 2 (commit pending board files) in the main checkout. schedule.json and/or blackboard.md have uncommitted edits "
+              "that someone else made. Review `git diff -- schedule.json blackboard.md`, check schedule.json parses as JSON and "
+              "`python3 tools/blackboard.py --check` passes, then commit ONLY those files with a one-line message naming what changed "
+              "plus [no-gdd] [no-tests], using `git commit -m ... -- schedule.json blackboard.md`. No attribution trailer, no push. "
+              "End with COMMITTED or NOT_COMMITTED: <reason>.")
+    before = sh(["git", "rev-parse", "HEAD"]).stdout.strip()
+    last = run_resolver(prompt, ROOT)
+    if "COMMITTED" not in last or "NOT_COMMITTED" in last:
+        return False
+    if sh(["git", "status", "--porcelain", "--"] + files).stdout.strip():
+        return False
+    new = sh(["git", "rev-list", f"{before}..HEAD"]).stdout.split()
+    for c in new:  # only the two board files may be in what the agent committed
+        names = sh(["git", "show", "--name-only", "--format=", c]).stdout.split()
+        if set(names) - set(files):
+            print(f"  merge-resolver commit {c[:7]} touched other files: {names}; not trusted")
+            return False
+    return bool(new)
+
+
+def ai_resolve(wt, files):
+    """Hand conflicted files to the merge-resolver agent (it works in the worktree and stages what it resolves).
+    Returns True only if it reported MERGE_RESOLVED, no conflict marker is left and every json file parses."""
+    prompt = ("Rebase of this task worktree onto the base branch stopped on conflicts in: " + ", ".join(files) +
+              ". Resolve them as the merge-resolver agent (rules in .claude/agents/merge-resolver.md, mode 1), `git add` each file, "
+              "do not continue the rebase and do not commit. End with MERGE_RESOLVED or MERGE_UNRESOLVED: <file>: <reason>.")
+    last = run_resolver(prompt, wt)
+    if "MERGE_RESOLVED" not in last:
+        return False
+    for f in files:
+        txt = (Path(wt) / f).read_text(errors="replace") if (Path(wt) / f).exists() else ""
+        if re.search(r"^(<<<<<<< |=======$|>>>>>>> )", txt, re.M):
+            print(f"  merge-resolver left conflict markers in {f}")
+            return False
+        if f.endswith(".json"):
+            try:
+                json.loads(txt)
+            except ValueError:
+                print(f"  merge-resolver left invalid JSON in {f}")
+                return False
+    sh(["git", "add", "--"] + files, cwd=wt)
+    return True
+
+
 def rebase_with_auto_resolve(wt, base):
     r = sh(["git", "rebase", base], cwd=wt)
     for _ in range(12):
@@ -482,12 +575,13 @@ def rebase_with_auto_resolve(wt, base):
             sh(["git", "add", "gdd.md"], cwd=wt)
             GDD_MERGED.append(wt)
             files.remove("gdd.md")
-        if files not in ([], ["data/balance.json"]):
-            return r
-        if files and not resolve_balance_source(wt):
-            return r
-        if files:
+        if "data/balance.json" in files and resolve_balance_source(wt):
             sh(["git", "add", "data/balance.json"], cwd=wt)
+            files.remove("data/balance.json")
+        if files:
+            print(f"  {Path(wt).name}: conflicts in {', '.join(files)}; calling merge-resolver")
+            if shutil.which("claude") is None or not ai_resolve(wt, files):
+                return r
         r = sh(["git", "rebase", "--continue"], cwd=wt, env={"GIT_EDITOR": "true"})
     return r
 
@@ -552,6 +646,59 @@ def cmd_merge(args):
         merge_one(st, tid)
 
 
+STOP_FILE = ROOT / "STOP_ORCHESTRATOR"
+
+
+def cmd_run(args):
+    """The unattended loop: merge finished workers, start the next round, sleep, repeat."""
+    import time
+    if branch() in ("main", "") and not args.allow_main:
+        sys.exit("refusing to run on branch main; pass --allow-main to override")
+    if shutil.which("claude") is None:
+        sys.exit("claude CLI not found on PATH")
+    deadline = time.time() + args.hours * 3600
+    empty_streak = 0
+    seen = set()
+    print(f"orchestrator run: branch {branch()}, up to {args.hours} h, {args.max} workers, poll {args.poll}s. Stop: touch {STOP_FILE.name}")
+    while True:
+        if STOP_FILE.exists():
+            print("STOP_ORCHESTRATOR found, stopping (workers keep running)")
+            break
+        st = load_state()
+        refresh(st)
+        for tid, v in st["tasks"].items():  # kill a worker that runs far too long
+            if v["state"] == "running" and v.get("started") and (dt.datetime.now() - dt.datetime.fromisoformat(v["started"])).total_seconds() > args.worker_timeout * 60:
+                try:
+                    os.killpg(v["pid"], 15)
+                except OSError:
+                    pass
+                v["state"], v["why"] = "stopped", "worker timeout"
+                print(f"{tid}: worker timeout, stopped (use resume {tid})")
+        save_state(st)
+        for tid, v in st["tasks"].items():
+            if v["state"] == "finished" and tid not in seen:
+                seen.add(tid)
+                empty_streak = empty_streak + 1 if not v.get("result") else 0
+        if empty_streak >= 3:
+            print("three workers in a row ended without a result line, stopping")
+            break
+        cmd_merge(args)  # first, so the next round is built on the merged base
+        before = {k for k, v in load_state()["tasks"].items()}
+        if time.time() < deadline:
+            cmd_start(args)
+        st = load_state()
+        running = [k for k, v in st["tasks"].items() if v["state"] == "running"]
+        started = {k for k in st["tasks"]} - before
+        if not running and not started:
+            print("nothing running and nothing left to start, done")
+            break
+        if time.time() >= deadline and not running:
+            print("time is up, stopping")
+            break
+        time.sleep(args.poll)
+    cmd_report(args)
+
+
 def cmd_report(args):
     st = load_state()
     refresh(st)
@@ -579,13 +726,17 @@ def cmd_report(args):
 
 
 def main():
+    sys.stdout.reconfigure(line_buffering=True)  # progress lines show up at once when piped to a log
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
-    for name, fn in [("plan", cmd_plan), ("infer", cmd_infer), ("start", cmd_start), ("baseline", cmd_baseline), ("resume", cmd_resume), ("status", cmd_status), ("merge", cmd_merge), ("report", cmd_report)]:
+    for name, fn in [("plan", cmd_plan), ("infer", cmd_infer), ("start", cmd_start), ("baseline", cmd_baseline), ("resume", cmd_resume), ("status", cmd_status), ("merge", cmd_merge), ("report", cmd_report), ("run", cmd_run)]:
         p = sub.add_parser(name)
         p.set_defaults(fn=fn)
         p.add_argument("ids", nargs="*")
         p.add_argument("--max", type=int, default=4)
+        p.add_argument("--hours", type=float, default=8.0)
+        p.add_argument("--poll", type=int, default=300)
+        p.add_argument("--worker-timeout", type=float, default=120.0)
         p.add_argument("--write", action="store_true")
         p.add_argument("--allow-main", action="store_true")
         p.add_argument("--skip-permissions", action="store_true")

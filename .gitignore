@@ -2,7 +2,7 @@
 build/
 .godot/
 tools/godot/
-.claude/settings.local.json
+.claude/
 build/StarBazaar.zip
 __pycache__/
 dcc/backup/
