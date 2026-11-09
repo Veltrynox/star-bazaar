@@ -3796,7 +3796,7 @@
       "title": "Welcome screen (preface): say plainly what the Star Bazaar is",
       "owner_agent": "story-designer",
       "depends_on": [],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 40,
       "window": "Owner request 2026-11-09: the last tutorial card and the welcome screen still do not explain what the Star Bazaar is.",
       "brief": "The preface (SCR_PREFACE, 700 chars max, story/screens.md ~line 26) names the Star Bazaar only in passing ('Raise one into a capital and build the Star Bazaar there') and never says what it is, so the player starts without knowing the goal. Rewrite the third paragraph (and tighten the others only if the 700-char limit needs it) so the preface states in plain words: the Star Bazaar is the great market hall every world will trade through; you build it, stage by stage, on one world you have grown into a capital; finishing it is how you win, before your term of cycles runs out. Keep the Common Ledger / Plan opening, the market pick and the closing line 'What it costs the sky, the sky does not say.' if they fit, and keep the tone and the SCR_PREFACE_BTN as is. Check the preface text against the last tutorial card (T345 rewrites TUT_G10_DONE) so the two say the same thing in different words. Read story/voice.md first (deadpan, quiet, no exclamation marks, no real-world brand names, no hidden goods named, no numbers that live in data/). Do not promise mechanics that are not there: read gdd.md (Win paragraph) so every claim is true (one capital per run, raised in stages, each stage needs a bill of goods plus other worlds grown, the last stage posts the Opening gig, docking at the capital wins). English only, no Russian work. Edit story/screens.md only, then python3 tools/build_story.py; if it fails only because of a story/ru line make the smallest fix in that one Russian line and say so. Offer the final text plus one alternate in the handoff. Done when written: no QA, bots, sim or screenshots. Run sh tools/tests/run.sh once at the end with STAR_TEST_SCRATCH=/Volumes/Work/t346_home set; report only new failures. Never prefix Godot commands with HOME= or cd. gdd.md synced at commit by the main session. Handoff handoffs/story-designer/<date>-T346.json.",
@@ -3804,7 +3804,8 @@
       "touches": [
         "story/screens.md"
       ],
-      "priority": 1
+      "priority": 1,
+      "note": "Done by orchestrator: Preface now says the Star Bazaar is the market hall every world will trade through, built stage by stage on one grown capital, and opening it before the term ends wins; text is under the 700-char limit and matches the last tutorial card"
     }
   ],
   "done_task_ids": [

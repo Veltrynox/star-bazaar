@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-09 11:26 run: T344
-- Summary: Tutorial slide 6 (Storage) is now an explanation card that ends only on Next, with the right-click call removed and the text rewritten as a statement
-- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
-- Approach: built by a worker in worktree ../wt/T344 on branch task/T344, merged by the serial merge queue.
-- Agent prompts: /overnight-worker T344 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T344.log.
-- Worked: rebase, full test suite and fast-forward merge passed.
-- Failed / did not work: nothing.
-- Files and commits: see git log on branch new-features for commits starting with T344.
-- Left to do: nothing for this task.
-
 ## 2026-11-09 11:33 run: T338
 - Summary: Final tutorial slide now says what the Star Bazaar is and where to start, and TIP_GOAL_WHY now points to the Bazaar panel
 - Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
@@ -64,4 +54,14 @@
 - Worked: rebase, full test suite and fast-forward merge passed.
 - Failed / did not work: nothing.
 - Files and commits: see git log on branch new-features for commits starting with T345.
+- Left to do: nothing for this task.
+
+## 2026-11-09 12:08 run: T346
+- Summary: Preface now says the Star Bazaar is the market hall every world will trade through, built stage by stage on one grown capital, and opening it before the term ends wins; text is under the 700-char limit and matches the last tutorial card
+- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
+- Approach: built by a worker in worktree ../wt/T346 on branch task/T346, merged by the serial merge queue.
+- Agent prompts: /overnight-worker T346 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T346.log.
+- Worked: rebase, full test suite and fast-forward merge passed.
+- Failed / did not work: nothing.
+- Files and commits: see git log on branch new-features for commits starting with T346.
 - Left to do: nothing for this task.
