@@ -1128,6 +1128,7 @@ func _upgrade_line(first: Dictionary) -> Control:
 		return row
 	l.text = StoryText.get_or("LBL_ROUTE_UPGRADE_INFO", "Full lane. Upgrade: {cost} credits for +{pct}% margin.", {"cost": cost, "pct": bonus_pct})
 	row.add_child(l)
+	tip_seen.emit("upgrade")  # T353: the Upgrade route button is drawn on a lane not yet level 2
 	var rid: int = int(first["id"])
 	var chk: Dictionary = main.can_upgrade_route(rid)
 	var b := Button.new()

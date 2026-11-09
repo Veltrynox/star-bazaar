@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-09",
+  "task": "T353",
+  "status": "done",
+  "files_changed": ["story/screens.md", "data/story_text.json", "game/main.gd", "game/planet_panel.gd", "tools/tests/run_tests.gd"],
+  "tip_lines": {
+    "TIP_UPGRADE": "A full lane cannot take another ship. It can be upgraded instead.",
+    "TIP_UPGRADE_WHY": "Open the world the route starts from and press Upgrade route. One fee, a better margin on every trip."
+  },
+  "alternate_pair": {
+    "TIP_UPGRADE": "A lane that carries the whole order is full. More ships will not help, an upgrade will.",
+    "TIP_UPGRADE_WHY": "Open the source world, find the route line, press Upgrade route. You pay once and every trip earns more."
+  },
+  "notes": "Signal 'upgrade' emitted from planet_panel._upgrade_line (button drawn, lane below level 2) and from main._connect when a refused add-ship click hits a full lane. Registered after TIP_HUNGRY in TIP_DEFS and TIP_PRIORITY. Signal is sticky for the session like 'hungry', so a tip queued behind a guided card can show after the card is closed; its text names the button but tells the player where to find it. build_story ran clean, no ru fix needed. Tests added in the T147 block of run_tests.gd. Full suite: only the known 13 failures. Not checked by eye.",
+  "open_questions": [],
+  "handoff": "T353 built. Tip TIP_UPGRADE/_WHY added to story/screens.md (trigger table, blocks), registered in TIP_DEFS and TIP_PRIORITY, sig upgrade from the planet card and the refused add-ship click. Tests added. Only the known 13 failures remain."
+}

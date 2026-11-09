@@ -3393,6 +3393,24 @@ func _test_rescue_waiting() -> void:
 	var m1: int = e.route_margin(0, 1, c)
 	var cost: int = int(m.balance["upgrade_cost"])
 	# T147: button on a full lane, absent on a lane that is not full, taken after the upgrade
+	# T353: the upgrade tip fires when the full lane's card is opened or an add-ship click is refused, once, behind a guided card
+	var tdef := {"id": "TIP_UPGRADE", "sig": "upgrade"}
+	check(m.TIP_DEFS.any(func(d): return d["id"] == "TIP_UPGRADE" and d["sig"] == "upgrade") and m.TIP_PRIORITY.has("TIP_UPGRADE"), "T353: the upgrade tip is listed")
+	check(StoryText.get_or("TIP_UPGRADE", "", {}) != "" and StoryText.get_or("TIP_UPGRADE_WHY", "", {}) != "", "T353: the upgrade tip has both lines")
+	m.tip_sig = {}
+	m.tips_seen.erase("TIP_UPGRADE")
+	check(not m.tip_due(tdef), "T353: the upgrade tip is not due before a full lane is shown")
+	m.planet_panel.show_planet(0, 21)
+	check(m.tip_due(tdef), "T353: opening the full lane's card makes the upgrade tip due")
+	m.tip_sig = {}
+	m._connect(0, 1, c)
+	check(m.tip_due(tdef), "T353: a refused add-ship click on the full lane makes it due")
+	var was_card: bool = m.tut_card.visible
+	m.tut_card.visible = true
+	check(not m.tip_can_show(), "T353: the upgrade tip waits behind a guided card")
+	m.tut_card.visible = was_card
+	m.tips_seen["TIP_UPGRADE"] = true
+	check(m.tip_next() != "TIP_UPGRADE", "T353: the upgrade tip does not come back once seen")
 	m.planet_panel.show_planet(0, 21)
 	var ub: Button = _find_named(m.planet_panel, "UpgradeRouteButton") as Button
 	check(ub != null and not ub.disabled and _find_named(m.planet_panel, "UpgradeRouteTaken") == null, "T147: full lane shows an enabled Upgrade route button")

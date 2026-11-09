@@ -1787,6 +1787,8 @@ func toggle_local(planet: int, c: String, role: String) -> Dictionary:
 func _connect(src: int, dst: int, c: String, stop: int = -1) -> Dictionary:
 	var r := can_connect(src, dst, c)
 	if not r["ok"]:
+		if engine.lane_full(src, dst, c):
+			tip_signal("upgrade")  # T353: the refused click is the moment to teach the upgrade
 		return r
 	var rec: Dictionary = engine.new_record(src, dst, c)
 	var mining := Clusters.is_node(src)
@@ -4818,6 +4820,7 @@ const TIP_DEFS := [
 	{"id": "TIP_TAX", "sig": "tax"},
 	{"id": "TIP_RESTLESS", "state": "restless"},
 	{"id": "TIP_HUNGRY", "sig": "hungry"},
+	{"id": "TIP_UPGRADE", "sig": "upgrade"},
 	{"id": "TIP_CAPITAL", "state": "capital"},
 	{"id": "TIP_HUB", "state": "capital"},
 	{"id": "TIP_FOUNDED", "state": "founded"},
@@ -4846,7 +4849,7 @@ const TIP_DEFS := [
 	{"id": "TIP_FOUNDATIONS", "state": "foundations"},
 ]
 ## T339: order tips are shown in when several wait (goal and capital first); tips not listed follow in TIP_DEFS order.
-const TIP_PRIORITY := ["TIP_GOAL", "TIP_CAPITAL", "TIP_HUB", "TIP_FOUNDED", "TIP_TIER1", "TIP_TAX", "TIP_HUNGRY", "TIP_RESTLESS", "TIP_RAID"]
+const TIP_PRIORITY := ["TIP_GOAL", "TIP_CAPITAL", "TIP_HUB", "TIP_FOUNDED", "TIP_TIER1", "TIP_TAX", "TIP_HUNGRY", "TIP_UPGRADE", "TIP_RESTLESS", "TIP_RAID"]
 ## T339: two tips about one thing share a card when both are due (first shown pulls in the second).
 const TIP_MERGE := {"TIP_WEATHER": "TIP_WEATHER_KINDS", "TIP_CAPITAL": "TIP_HUB"}
 const TIP_SECS_PER_CHAR := 0.05
@@ -4856,7 +4859,7 @@ const TIP_RECENT_MAX := 3
 const TIP_RECENT_FONT := 12
 const TIP_POLL_SECS := 0.5
 
-## A one-time event happened (key: "tax", "hungry", "platform", "dock", "boost", "salvage"). Remembered for this session.
+## A one-time event happened (key: "tax", "hungry", "upgrade", "platform", "dock", "boost", "salvage"). Remembered for this session.
 func tip_signal(key: String) -> void:
 	tip_sig[key] = true
 

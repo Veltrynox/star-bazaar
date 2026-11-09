@@ -1178,6 +1178,18 @@
    "place": "Tip card, why line"
   },
   {
+   "id": "TIP_UPGRADE",
+   "text": "A full lane cannot take another ship. It can be upgraded instead.",
+   "max": 110,
+   "place": "Tip card line; trigger: the first full lane shows the Upgrade route button, or an add-ship click is refused as full"
+  },
+  {
+   "id": "TIP_UPGRADE_WHY",
+   "text": "Open the world the route starts from and press Upgrade route. One fee, a better margin on every trip.",
+   "max": 110,
+   "place": "Tip card, why line"
+  },
+  {
    "id": "TIP_HUB",
    "text": "A hub keeps the worlds near it fed, using ships from its own pool.",
    "max": 110,

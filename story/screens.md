@@ -279,6 +279,7 @@ Trigger table (tip id: trigger in plain words):
 - TIP_TAX: the first cycle in which worlds pay tax.
 - TIP_RESTLESS: the first world turns Restless.
 - TIP_HUNGRY: the first Hungry chip appears on a need row.
+- TIP_UPGRADE: the first time a route card shows the Upgrade route button on a full lane, or an add-ship click is refused because the lane is full (after TIP_HUNGRY).
 - TIP_CAPITAL: the first world reaches the capital tier.
 - TIP_HUB: the first world can be made a hub (same moment as TIP_CAPITAL today; show TIP_CAPITAL first).
 - TIP_FOUNDED: the Bazaar is founded.
@@ -325,6 +326,8 @@ TIP_RESTLESS | 110 | Tip card line; trigger: the first world turns Restless | A 
 TIP_RESTLESS_WHY | 110 | Tip card, why line | Sell it the short good, or send stock there. Meeting every need stops the loss.
 TIP_HUNGRY | 110 | Tip card line; trigger: the first Hungry chip appears on a need row | Hungry means a need is short and its price is up. Surplus means sales passed demand.
 TIP_HUNGRY_WHY | 110 | Tip card, why line | Send goods to a Hungry world first. It pays more and your sale fills the need.
+TIP_UPGRADE | 110 | Tip card line; trigger: the first full lane shows the Upgrade route button, or an add-ship click is refused as full | A full lane cannot take another ship. It can be upgraded instead.
+TIP_UPGRADE_WHY | 110 | Tip card, why line | Open the world the route starts from and press Upgrade route. One fee, a better margin on every trip.
 TIP_HUB | 110 | Tip card line; trigger: the first world can be made a hub (right after TIP_CAPITAL) | A hub keeps the worlds near it fed, using ships from its own pool.
 TIP_HUB_WHY | 110 | Tip card, why line | One hub per system. Press Make this a hub, then add ships. Each delivery adds a hub fee.
 
