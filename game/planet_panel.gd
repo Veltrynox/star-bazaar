@@ -703,7 +703,6 @@ func _row(c: String, prices: Dictionary, pend: Dictionary) -> Control:
 	bs.gui_input.connect(func(ev: InputEvent):
 		if ev is InputEventMouseButton and ev.pressed and ev.button_index == MOUSE_BUTTON_RIGHT:
 			menu.popup_on_parent(Rect2i(Vector2i(bs.get_global_mouse_position()), Vector2i.ZERO))
-			main.tut_note("storage")
 			bs.accept_event())
 	wrap.add_child(bs)
 	if mining and buy != null:  # what mining costs per unit, under the row

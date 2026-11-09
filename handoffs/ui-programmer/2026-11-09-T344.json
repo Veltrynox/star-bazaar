@@ -1,0 +1,1 @@
+{"task":"T344","files":["game/main.gd","game/planet_panel.gd","story/screens.md","tools/tests/run_tests.gd"],"note":"Storage card is Next-only (storage_next flag); right-click tut_note removed; tests updated to set storage_next."}

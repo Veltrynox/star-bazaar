@@ -999,13 +999,13 @@
   },
   {
    "id": "TUT_G7_STORAGE",
-   "text": "Right-click the lit resource button, then let a cycle end.",
+   "text": "The lit colour is stock in Company storage.",
    "max": 60,
    "place": "Guided step 7, storage"
   },
   {
    "id": "TUT_G7_STORAGE_WHY",
-   "text": "Sales, trips and stock changes happen when the cycle ends. Run time, then read stored/capacity.",
+   "text": "Stored/capacity shows how much it holds. When it is full, Buy waits. Press Next.",
    "max": 110,
    "place": "Guided step, why it matters (second line of the card)"
   },

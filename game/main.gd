@@ -198,7 +198,7 @@ const TUT_FALLBACK := {
 	"TUT_G4_ROUTE_PAY": "A route earns when its goods sell at the destination. Wait for the cycle to end and watch your cash.",
 	"TUT_G5_UPKEEP": "Each ship has upkeep every cycle. It is listed under Expenses.",
 	"TUT_G6_SELL": "Turn Sell on at the other planet. The company sells what arrives, at that planet's price.",
-	"TUT_G7_STORAGE": "Company storage holds your stock at each planet. When it is full, Buy waits until there is room.",
+	"TUT_G7_STORAGE": "The lit colour is stock in Company storage.",
 	"TUT_G8_SKILLS": "Skill points come from planets, routes and systems. Open Skills and learn one.",
 	"TUT_G9_PERMIT": "The Permit Charter lets you open a new system. Learn it when you are ready to expand.",
 	"TUT_G10_DONE": "That is the loop: buy, move, sell, learn. The guidance stops here.",
@@ -221,7 +221,7 @@ var tip_text_label: Label
 var tip_why_label: Label
 var tip_left := 0.0  # real seconds the active tip stays up
 var _tip_poll_t := 0.0
-var tut_flags: Dictionary = {}  # actions seen this session: "expenses" (forecast opened), "storage" (resource button right-clicked)
+var tut_flags: Dictionary = {}  # actions seen this session: "expenses" (forecast opened), "storage_next" (Storage card read)
 var tut_goal_t: float = 0.0  # real seconds the last guided step has been shown
 const TUT_LAST_SECS := 12.0
 var tut_seen: Array = []  # T331: indexes of guided steps whose card has been on screen; the counter's n is its size
@@ -3974,12 +3974,16 @@ func _tut_show(_ids: Array = []) -> void:
 		tut_skip_btn.visible = not last_card
 		tut_finish_btn.visible = last_card
 	if tut_next != null:
-		tut_next.visible = guided and (_tut_g0_id() == "TUT_G0_DONE" or _tut_upkeep_next() or _tut_speed_card())
+		tut_next.visible = guided and (_tut_g0_id() == "TUT_G0_DONE" or _tut_upkeep_next() or _tut_storage_next() or _tut_speed_card())
 	_tut_update_highlight()
 
 ## T331: the Expenses card waits for Next once the forecast panel has been opened.
 func _tut_upkeep_next() -> bool:
 	return tut_step == 5 and bool(tut_flags.get("expenses", false)) and not bool(tut_flags.get("upkeep_next", false))
+
+## T344: the Storage card is an explanation: it waits for Next, nothing else.
+func _tut_storage_next() -> bool:
+	return tut_step == 7 and not bool(tut_flags.get("storage_next", false))
 
 ## T331: [n, total] for the card counter. n = position among the steps shown so far (a step's sub-cards count as one step; a step
 ## passed over never counts, so it never repeats or jumps). total = n + the steps after this one expected to show (step 2 when the
@@ -4087,6 +4091,8 @@ func _tut_next() -> void:
 		tut_flags["speed_done"] = true  # T333
 	elif _tut_upkeep_next():
 		tut_flags["upkeep_next"] = true  # T331: the Expenses card moves on only by Next
+	elif _tut_storage_next():
+		tut_flags["storage_next"] = true  # T344: the Storage card moves on only by Next
 	else:
 		tut_flags["g0_done"] = true
 	_tut_poll()
@@ -4714,13 +4720,8 @@ func _tut_step_done(i: int) -> bool:
 			return bool(tut_flags.get("expenses", false)) and bool(tut_flags.get("upkeep_next", false))  # T331: Next, not the panel, ends it
 		6:
 			return engine.local.values().any(func(o): return bool(o["sell"]))
-		7:  # the resource button was right-clicked, or some planet's storage holds stock
-			if bool(tut_flags.get("storage", false)):
-				return true
-			for k in storage.stock.keys():
-				if not str(k).begins_with("system") and storage.stock[k].values().any(func(n): return int(n) > 0):
-					return true
-			return false
+		7:  # T344: the Storage card is read, Next pressed
+			return bool(tut_flags.get("storage_next", false))
 		8:  # a world card with a Needs list is open (or the first world already grew, so the lesson is past)
 			if prosperity.any_tier_reached(1):
 				return true

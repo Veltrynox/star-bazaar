@@ -1478,7 +1478,7 @@ func _test_tut_counter() -> void:
 				6:
 					m.engine.local_of(1, "ore", true)["sell"] = true
 				7:
-					m.tut_note("storage")
+					m.tut_flags["storage_next"] = true
 				8, 9, 10, 11:
 					m.skill_points = 0
 					m.learned_skills = []
@@ -1586,7 +1586,7 @@ func _test_tut_full_walk() -> void:
 					6:
 						m.engine.local_of(1, "ore", true)["sell"] = true
 					7:
-						m.tut_note("storage")
+						m.tut_flags["storage_next"] = true
 					8, 9:
 						m.debug_advance_cycle()
 						if guard > 60:
@@ -2070,10 +2070,10 @@ func _test_tutorial_steps() -> void:
 	m.tut_flags = {}
 	m.tut_step = 7
 	m._tut_advance()
-	check(m.tut_step == 7, "tutorial steps: storage waits with no stock and no right-click")
-	m.tut_note("storage")
+	check(m.tut_step == 7, "tutorial steps: storage waits for Next")
+	m.tut_flags["storage_next"] = true
 	await process_frame
-	check(m.tut_step > 7, "tutorial steps: right-clicking the resource button moves the storage step on", str(m.tut_step))
+	check(m.tut_step > 7, "tutorial steps: Next moves the storage step on", str(m.tut_step))
 	m.skill_points = 1
 	m.learned_skills = []
 	m.tut_step = 10

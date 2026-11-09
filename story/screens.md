@@ -255,8 +255,8 @@ TUT_G5_UPKEEP | 60 | Guided step 5, after a ship is working | Find Ship upkeep u
 TUT_G5_UPKEEP_WHY | 110 | Guided step, why it matters (second line of the card) | A ship costs money every cycle, so a route must earn more than it costs.
 TUT_G6_SELL | 60 | Guided step 6, until the first Sell order | Open your route's end world. Turn Sell on for Energy.
 TUT_G6_SELL_WHY | 110 | Guided step, why it matters (second line of the card) | A Sell order turns stock into credits when the cycle ends. Let one finish.
-TUT_G7_STORAGE | 60 | Guided step 7, storage | Right-click the lit resource button, then let a cycle end.
-TUT_G7_STORAGE_WHY | 110 | Guided step, why it matters (second line of the card) | Sales, trips and stock changes happen when the cycle ends. Run time, then read stored/capacity.
+TUT_G7_STORAGE | 60 | Guided step 7, storage | The lit colour is stock in Company storage.
+TUT_G7_STORAGE_WHY | 110 | Guided step, why it matters (second line of the card) | Stored/capacity shows how much it holds. When it is full, Buy waits. Press Next.
 TUT_G7_NEEDS | 60 | Guided step 8 (T315), until a world card with a Needs list has been opened | Open a world and read its Needs.
 TUT_G7_NEEDS_WHY | 110 | Guided step, why it matters (second line of the card) | A world grows when your sales meet its needs. Grown worlds pay tax.
 TUT_G7_GROW | 60 | Guided step 9 (T315), until the first world reaches tier 1 | Sell a world the goods it needs, until it grows.
