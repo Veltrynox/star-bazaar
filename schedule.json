@@ -3708,7 +3708,7 @@
       "title": "Tutorial text: the Star Bazaar is a galaxy-wide exchange, the goal is the top of the galaxy",
       "owner_agent": "story-designer",
       "depends_on": [],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 40,
       "window": "Owner direction 2026-11-09, redo of T338.",
       "brief": "Owner direction on the final tutorial slide (T338 said only 'a great market'): the Star Bazaar is a galaxy-sized market that manages all of the trade, like a stock exchange such as Nasdaq, so building it is a total win; the goal reads something like 'rise to the top of the galaxy / world'. Rewrite TUT_G10_DONE (60 chars) and TUT_G10_DONE_WHY (110 chars) with that picture: the exchange where the whole sky trades, raised in one capital world, stage by stage; finishing it puts the company at the top. Keep the where-to-start piece (grow a world to the capital tier) if it fits, otherwise leave it to TIP_GOAL / TIP_GOAL_WHY and keep the pair consistent (no word-for-word repeats). Read story/voice.md (deadpan, quiet; the joke or the grandness is understated, no exclamation marks, no real-world brand names: say 'exchange' or 'trading floor', not Nasdaq), SCR_PREFACE and the Bazaar panel and ending texts in story/*.md so the fiction matches what the endings already say, and gdd.md (Win paragraph). Do not promise mechanics that are not there (the win is the finished Bazaar plus docking at the capital through the Opening gig). No hidden goods named; English only; story/screens.md only, then python3 tools/build_story.py; if it fails only because of a story/ru line make the smallest fix in that one Russian line and say so. Offer the final pair plus one alternate pair in the handoff. Done when written: no QA. Handoff handoffs/story-designer/<date>-T341.json.",
@@ -3716,7 +3716,8 @@
       "touches": [
         "story/screens.md"
       ],
-      "priority": 2
+      "priority": 2,
+      "note": "Done by orchestrator: Rewrote TUT_G10_DONE and TUT_G10_DONE_WHY to describe the Star Bazaar as the exchange where the whole sky trades, raised stage by stage on one capital world, with the company at the top of the galaxy once it's finished; build_story ran clean"
     },
     {
       "task_id": "T342",
