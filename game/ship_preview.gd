@@ -70,6 +70,18 @@ func setup(size: Vector2) -> void:
 	catcher.gui_input.connect(_on_input)
 	add_child(catcher)
 
+## T317: a passive preview (no drag, lets clicks through to a parent card) that costs nothing while off.
+func make_passive() -> void:
+	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	for c in get_children():
+		if c is Control:
+			c.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+func set_active(on: bool) -> void:
+	set_process(on)
+	if viewport != null and is_instance_valid(viewport):
+		viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS if on else SubViewport.UPDATE_DISABLED
+
 func _on_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
 		dragging = event.pressed

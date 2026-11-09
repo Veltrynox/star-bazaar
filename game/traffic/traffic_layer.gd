@@ -213,7 +213,7 @@ func _cap() -> int:
 
 ## Pushes balance numbers into the materials when one of them changed (the debug menu edits balance live).
 func _apply_balance() -> void:
-	var now := [_b("traffic_ship_length") * _b("traffic_ship_scale") * Ships.ship_scale(), _b("traffic_streak_len"), _b("traffic_light_glow"), _b("traffic_blink_hz"), _b("traffic_ambient_bright"), _b("traffic_ambient_streak")]
+	var now := [_b("traffic_ship_length") * _b("traffic_ship_scale") * Ships.ship_scale(), _b("traffic_streak_len"), _b("traffic_light_glow"), _b("traffic_blink_hz"), _b("traffic_ambient_bright"), _b("traffic_ambient_streak"), _b("traffic_hull_dark")]
 	if now == _applied:
 		return
 	_applied = now
@@ -230,6 +230,7 @@ func _push_params(mats: Array) -> void:
 		m.set_shader_parameter("blink_hz", _applied[3])
 		m.set_shader_parameter("amb_gain", _applied[4])
 		m.set_shader_parameter("amb_streak", _applied[5])
+		m.set_shader_parameter("hull_dark", _applied[6])
 
 ## ---- buffers ----
 

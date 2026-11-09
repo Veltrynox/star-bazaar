@@ -5,6 +5,7 @@ const StoryText := preload("res://game/story_text.gd")
 const Ships := preload("res://game/ships.gd")
 const Juice := preload("res://game/juice.gd")
 const PathfinderView := preload("res://game/pathfinder_view.gd")  # T180 accessor helpers
+const ShipPreview := preload("res://game/ship_preview.gd")  # T317 hero card preview
 
 signal buy_requested(kind: String)
 signal explore_toggled  # T206
@@ -22,6 +23,13 @@ var free_label: Label  # free ships, upkeep each, and what Send to... does when 
 var core_scroll: ScrollContainer
 var core_box: VBoxContainer  # Null Core: one Fit button per ship while a built core is not on it
 var _core_sig := ""
+var hero_card: PanelContainer  # T317: hero ship card, first in the menu; a click selects the flight ship like a viewport click
+var hero_preview: PanelContainer
+var hero_name: Label
+var hero_state: Label
+var _hero_main: Control
+var _hero_model := ""
+var _hero_selected := false
 var _last_count := -1  # -1 until the first count, so a loaded save does not flash
 
 func _ready() -> void:
@@ -34,6 +42,7 @@ func _ready() -> void:
 	title.text = StoryText.get_or("LBL_SHIPS", "Ships").to_upper()
 	title.theme_type_variation = "LabelCaption"
 	box.add_child(title)
+	_build_hero_card(box)
 	label = Label.new()
 	box.add_child(label)
 	upkeep_scroll = ScrollContainer.new()  # T186: up to 10 ships, so the per-ship list scrolls past UPKEEP_MAX_H
@@ -87,6 +96,82 @@ func _ready() -> void:
 		box.add_child(b)
 		buy_buttons[kind] = b
 
+## T317: the card is a stop-filter PanelContainer, so a click on it never reaches the map and touches no other panel.
+func _build_hero_card(box: VBoxContainer) -> void:
+	hero_card = PanelContainer.new()
+	hero_card.name = "HeroCard"
+	hero_card.mouse_filter = Control.MOUSE_FILTER_STOP
+	hero_card.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	hero_card.visible = false
+	hero_card.tooltip_text = StoryText.get_or("LBL_HERO_HINT", "")
+	hero_card.gui_input.connect(_on_hero_input)
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 8)
+	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	hero_card.add_child(row)
+	hero_preview = ShipPreview.new()
+	hero_preview.setup(Vector2(96, 64))
+	hero_preview.make_passive()
+	hero_preview.set_active(false)
+	row.add_child(hero_preview)
+	var col := VBoxContainer.new()
+	col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	col.alignment = BoxContainer.ALIGNMENT_CENTER
+	col.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.add_child(col)
+	hero_name = Label.new()
+	hero_name.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	hero_name.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	col.add_child(hero_name)
+	hero_state = Label.new()
+	hero_state.theme_type_variation = "LabelSmall"
+	hero_state.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	hero_state.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	col.add_child(hero_state)
+	_style_hero(false)
+	box.add_child(hero_card)
+
+func _style_hero(selected: bool) -> void:
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Ui.col("panel_100")
+	sb.border_color = Ui.col("star_warm") if selected else Ui.col("line_200")
+	sb.set_border_width_all(2 if selected else 1)
+	sb.set_corner_radius_all(4)
+	sb.set_content_margin_all(6)
+	hero_card.add_theme_stylebox_override("panel", sb)
+
+func _on_hero_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		hero_card.accept_event()
+		if _hero_main != null and _hero_main.map != null:
+			_hero_main.map.select_ship(not _hero_main.map.ship_selected)
+			if _hero_main.map.ship_selected:
+				_hero_main.ship_pulse_on_select()
+			_set_hero_card(_hero_main)
+
+## T317: drawn only through Availability.hero_ship; follows map.ship_selected both ways; the preview renders only while the card shows.
+func _set_hero_card(main: Control) -> void:
+	_hero_main = main
+	var f = main.map.flight if main.map != null else null
+	var show: bool = Availability.hero_ship(f)
+	hero_card.visible = show
+	hero_preview.set_active(show and is_visible_in_tree())
+	if not show:
+		_hero_selected = false
+		return
+	var path := str(PathfinderView._call(f, "model_path", [], ""))
+	if path != _hero_model:
+		_hero_model = path
+		hero_preview.show_model(path)
+	var sel: bool = main.map.ship_selected
+	if sel != _hero_selected:
+		_hero_selected = sel
+		_style_hero(sel)
+	var st := PathfinderView.state(f)
+	var key := "LBL_HERO_STATE_FLYING" if st == "flying" else ("LBL_HERO_STATE_BUILDING" if st == "building" else "LBL_HERO_STATE_IDLE")
+	hero_name.text = StoryText.get_or("LBL_PATHFINDER_NAME", "Pathfinder")
+	hero_state.text = StoryText.get_text(key) + ((", " + StoryText.get_text("LBL_HERO_SELECTED")) if sel else "")
+
 ## T69: each ship's upkeep per cycle (paid while its route moves stock; an idle ship pays 0) and the total.
 ## T58: lines carry the ship type name; buy buttons show price and upkeep per type.
 func set_upkeep(main: Control) -> void:
@@ -109,6 +194,7 @@ func set_upkeep(main: Control) -> void:
 	upkeep_label.text = "\n".join(lines)
 	upkeep_scroll.custom_minimum_size.y = minf(UPKEEP_MAX_H, upkeep_label.get_combined_minimum_size().y)
 	_set_pathfinder(main)
+	_set_hero_card(main)
 	var core_on: bool = main.core_route_id() >= 0
 	upkeep_label.mouse_filter = Control.MOUSE_FILTER_STOP if core_on else Control.MOUSE_FILTER_IGNORE
 	upkeep_label.tooltip_text = StoryText.get_or("NULL_CORE_FIT", "Null Core fitted. Lower Trip cost, and pirates cannot touch this ship.") if core_on else ""
