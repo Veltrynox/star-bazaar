@@ -3812,7 +3812,7 @@
       "title": "Tip panels: fully opaque background",
       "owner_agent": "ui-programmer",
       "depends_on": [],
-      "status": "queued",
+      "status": "blocked",
       "turn_cap": 30,
       "window": "Owner request 2026-11-09: 'The tip panels should be non transparent'.",
       "brief": "The one-time tip cards (T316/T339: tip_card built in _build_tip_card, game/main.gd ~line 5027, with tip_text_label and tip_why_label) are drawn with a see-through background, so the map and text behind them show through and hurt reading. Give the tip card a fully opaque panel: a StyleBoxFlat with alpha 1.0 background, the same colour family, border and corner radius the card has now (use Ui.col tokens as the rest of the UI does; pick the nearest opaque colour of the current look, do not redesign it), and the same content margins so layout and size do not change. If the tip card shares a style helper with the guided tutorial card, change only the tip card unless the guided card has the same transparency, in which case say so in the handoff and leave it. Done when built: no QA, bots, sim; per CLAUDE.md the ui task takes one screenshot with sh tools/screenshot.sh --out logs/screenshots/T347.png only if a tip can be shown by that script, otherwise skip it and say so. Run sh tools/tests/run.sh once at the end with STAR_TEST_SCRATCH=/Volumes/Work/t347_home set; report only new failures. Never prefix Godot commands with HOME= or cd. gdd.md synced at commit by the main session. Handoff handoffs/ui-programmer/<date>-T347.json.",
@@ -3820,7 +3820,9 @@
       "touches": [
         "game/main.gd"
       ],
-      "priority": 1
+      "priority": 1,
+      "note": "Blocked by orchestrator: worker did not report done: blocked T347 | task T347 does not exist in this worktree's schedule (`python3 tools/task.py T347` returns \"not found\", and neither schedule.json nor git history mentions it), so there is nothing to build",
+      "blocked_log": "/Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T347-merge.log"
     },
     {
       "task_id": "T348",

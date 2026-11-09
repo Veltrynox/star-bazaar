@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-09 11:33 run: T338
-- Summary: Final tutorial slide now says what the Star Bazaar is and where to start, and TIP_GOAL_WHY now points to the Bazaar panel
-- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
-- Approach: built by a worker in worktree ../wt/T338 on branch task/T338, merged by the serial merge queue.
-- Agent prompts: /overnight-worker T338 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T338.log.
-- Worked: rebase, full test suite and fast-forward merge passed.
-- Failed / did not work: nothing.
-- Files and commits: see git log on branch new-features for commits starting with T338.
-- Left to do: nothing for this task.
-
 ## 2026-11-09 11:40 run: T341
 - Summary: Rewrote TUT_G10_DONE and TUT_G10_DONE_WHY to describe the Star Bazaar as the exchange where the whole sky trades, raised stage by stage on one capital world, with the company at the top of the galaxy once it's finished; build_story ran clean
 - Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
@@ -65,3 +55,13 @@
 - Failed / did not work: nothing.
 - Files and commits: see git log on branch new-features for commits starting with T346.
 - Left to do: nothing for this task.
+
+## 2026-11-09 12:44 run: T347
+- Summary: Not merged: worker did not report done: blocked T347 | task T347 does not exist in this worktree's schedule (`python3 tools/task.py T347` returns "not found", and neither schedule.json nor git history mentions it), so there is nothing to build
+- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
+- Approach: built by a worker in worktree ../wt/T347 on branch task/T347, merged by the serial merge queue.
+- Agent prompts: /overnight-worker T347 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T347.log.
+- Worked: worker finished.
+- Failed / did not work: worker did not report done: blocked T347 | task T347 does not exist in this worktree's schedule (`python3 tools/task.py T347` returns "not found", and neither schedule.json nor git history mentions it), so there is nothing to build.
+- Files and commits: see git log on branch new-features for commits starting with T347.
+- Left to do: owner or a new run: see blocked_log in schedule.json.
