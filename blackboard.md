@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-09 12:08 run: T346
-- Summary: Preface now says the Star Bazaar is the market hall every world will trade through, built stage by stage on one grown capital, and opening it before the term ends wins; text is under the 700-char limit and matches the last tutorial card
-- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
-- Approach: built by a worker in worktree ../wt/T346 on branch task/T346, merged by the serial merge queue.
-- Agent prompts: /overnight-worker T346 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T346.log.
-- Worked: rebase, full test suite and fast-forward merge passed.
-- Failed / did not work: nothing.
-- Files and commits: see git log on branch new-features for commits starting with T346.
-- Left to do: nothing for this task.
-
 ## 2026-11-09 12:44 run: T347
 - Summary: Not merged: worker did not report done: blocked T347 | task T347 does not exist in this worktree's schedule (`python3 tools/task.py T347` returns "not found", and neither schedule.json nor git history mentions it), so there is nothing to build
 - Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
@@ -64,4 +54,14 @@
 - Worked: rebase, full test suite and fast-forward merge passed.
 - Failed / did not work: nothing.
 - Files and commits: see git log on branch new-features for commits starting with T347.
+- Left to do: nothing for this task.
+
+## 2026-11-09 17:02 run: T349
+- Summary: Voltara's need is now food (its only candidate was locked ore, so it was Restless forever), and a world with no needs is never Restless; headless tests added
+- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
+- Approach: built by a worker in worktree ../wt/T349 on branch task/T349, merged by the serial merge queue.
+- Agent prompts: /overnight-worker T349 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T349.log.
+- Worked: rebase, full test suite and fast-forward merge passed.
+- Failed / did not work: nothing.
+- Files and commits: see git log on branch new-features for commits starting with T349.
 - Left to do: nothing for this task.

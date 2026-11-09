@@ -3847,7 +3847,7 @@
       "title": "Bug: a world with no needs shows Restless and never grows (Voltara)",
       "owner_agent": "gameplay-programmer",
       "depends_on": [],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 40,
       "window": "Owner bug report 2026-11-09: Voltara (home world, Outpost, tier 1) shows an empty Needs list but the line 'Restless. A short need is costing it progress.' and its growth bar stays at zero. Owner: 'fix this bug then'.",
       "brief": "Reproduce first with a scratch headless script (scratchpad dir, real game objects, no windowed run): start a new game, open Voltara and read prosperity.needs(i), prosperity.restless(i), steps(i) after a few cycle ends. Suspected cause (verify, do not assume): game/prosperity.gd _need_goods(i) returns [] for Voltara at tier 1 (candidates exclude energy-or-tier-filtered goods, goods the world sells to the player via _sells_to_player, goods not branch_ok, or the overrides entry), and end_cycle() then sets _restless[pid] = not all_met(i) while all_met() returns false for an empty needs list, so a world with nothing to need is flagged Restless and can never earn a growth step. Fix both layers: (1) find why Voltara (and any other living world) has no need and make every living tier-1+ world get at least one real, satisfiable need, using the existing candidate and override logic and data/prosperity files (if the cause is data, fix the data; do not touch balance numbers, prices or demand values); (2) make the engine safe: a world whose need list is empty is never Restless, the Restless line and tip (T339 TIP_RESTLESS) never fire for it, and it is not stuck: decide the cleanest rule and state it in the handoff (e.g. an empty list counts as met only if the world can never have a need, otherwise log a push_warning). Keep save compatibility (_restless is saved). Add a headless test in tools/tests/run_tests.gd: for every planet of a fresh game at its starting tier, needs() is not empty and restless is false at start; and a synthetic world with an empty need list never reports restless after end_cycle. Do not change story text, UI layout or tutorial. Done when built: no QA, bots, sim or screenshots. Run sh tools/tests/run.sh once at the end with STAR_TEST_SCRATCH=/Volumes/Work/t349_home set; report only new failures. Never prefix Godot commands with HOME= or cd. gdd.md synced at commit by the main session. Handoff handoffs/gameplay-programmer/<date>-T349.json with the root cause found.",
@@ -3857,7 +3857,8 @@
         "data/*",
         "tools/tests/run_tests.gd"
       ],
-      "priority": 1
+      "priority": 1,
+      "note": "Done by orchestrator: Voltara's need is now food (its only candidate was locked ore, so it was Restless forever), and a world with no needs is never Restless; headless tests added"
     },
     {
       "task_id": "T350",
