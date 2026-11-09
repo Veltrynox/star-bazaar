@@ -30,6 +30,7 @@ func _initialize() -> void:
 func _run() -> void:
 	_test_good_icons()
 	_test_orbit_spacing()
+	_test_traffic_heading()
 	_test_story_text()
 	_test_generated_files()
 	_test_data_pack_lint()
@@ -8328,6 +8329,80 @@ func _test_orbit_spacing() -> void:
 			var need := 4.0 * maxf(a["r"], b["r"])
 			check(b["orbit"] - a["orbit"] >= need, "orbits: system %d %s and %s are 2x planet size apart" % [sid, a["id"], b["id"]], "gap %.2f need %.2f" % [b["orbit"] - a["orbit"], need])
 		check(list[0]["orbit"] > 2.0 * list[0]["r"], "orbits: system %d %s is not on the sun" % [sid, list[0]["id"]])
+
+# ---- T354: small ships point the nose along the movement (GDScript port of traffic_motion.gdshaderinc) ----
+func _tt_draw(seed: float, k: float) -> float:
+	return fposmod(sin(seed * 12.9898 * k + k * 78.233) * 43758.5453, 1.0)
+
+## Lane position at curve parameter u (Bezier + sideways spread + landing glide), as traffic_lane_point.
+func _tt_lane_point(p0: Vector3, pc: Vector3, p2: Vector3, r0: float, r1: float, seed: float, u: float) -> Vector3:
+	var w := 1.0 - u
+	var pos := p0 * w * w + pc * (2.0 * w * u) + p2 * u * u
+	var lane := p2 - p0
+	var side := Vector3(-lane.z, 0.0, lane.x + 0.00001).normalized() if lane.length() > 0.0 else Vector3.RIGHT
+	var e := clampf((u - 0.04) / 0.92, 0.0, 1.0)
+	pos += side * ((seed * 2.0 - 1.0) * 0.04 * lane.length() * sin(PI * e))
+	var ldir := (lane + Vector3(0.00001, 0.0, 0.0)).normalized()
+	var c0 := p0 - ldir * r0 * 0.6
+	var c1 := p2 + ldir * r1 * 0.6
+	var a0 := TAU * _tt_draw(seed, 3.0)
+	var a1 := TAU * _tt_draw(seed, 5.0)
+	var o0 := Vector2(cos(a0), sin(a0)) * sqrt(_tt_draw(seed, 4.0)) * 0.9 * r0
+	var o1 := Vector2(cos(a1), sin(a1)) * sqrt(_tt_draw(seed, 6.0)) * 0.9 * r1
+	var l0 := c0 + Vector3(o0.x, sqrt(maxf(r0 * r0 - o0.length_squared(), 0.0)), o0.y)
+	var l1 := c1 + Vector3(o1.x, sqrt(maxf(r1 * r1 - o1.length_squared(), 0.0)), o1.y)
+	var k0 := 1.0 - smoothstep(0.0, 0.12, e)
+	var k1 := 1.0 - smoothstep(0.0, 0.12, 1.0 - e)
+	return pos + (l0 - p0) * k0 + (l1 - p2) * k1
+
+func _tt_lane_pos(p0: Vector3, pc: Vector3, p2: Vector3, r0: float, r1: float, seed: float, c: float) -> Vector3:
+	var back := c > 0.5
+	var u := 2.0 - c * 2.0 if back else c * 2.0
+	return _tt_lane_point(p0, pc, p2, r0, r1, seed, 0.04 + u * 0.92)
+
+## Heading the shader gives a lane ship at clock fraction c.
+func _tt_lane_fwd(p0: Vector3, pc: Vector3, p2: Vector3, r0: float, r1: float, seed: float, c: float) -> Vector3:
+	var back := c > 0.5
+	var u := 2.0 - c * 2.0 if back else c * 2.0
+	u = 0.04 + u * 0.92
+	var d := _tt_lane_point(p0, pc, p2, r0, r1, seed, minf(u + 0.003, 0.96)) - _tt_lane_point(p0, pc, p2, r0, r1, seed, maxf(u - 0.003, 0.04))
+	return (-d if back else d).normalized()
+
+func _tt_orbit(centre: Vector3, r: float, tl: float, dir: float, ph: float, clock: float) -> Array:
+	var a := TAU * (ph + clock * 0.05 * dir)
+	var o := Vector3(cos(a), 0.0, sin(a))
+	var tg := Vector3(-sin(a), 0.0, cos(a)) * (-1.0 if dir < 0.0 else 1.0)
+	o = Vector3(o.x, o.z * sin(tl), o.z * cos(tl))
+	tg = Vector3(tg.x, tg.z * sin(tl), tg.z * cos(tl))
+	return [centre + o * r, tg.normalized()]
+
+func _test_traffic_heading() -> void:
+	var worst := 0.0
+	var seeds := [0.05, 0.3, 0.5, 0.77, 0.98]
+	var lanes := [[Vector3(0, 0, 0), Vector3(15, 0, 9), Vector3(30, 0, 0), 2.0, 3.0], [Vector3(30, 0, 0), Vector3(20, 0, -12), Vector3(0, 0, 6), 3.0, 1.5]]
+	for L in lanes:
+		for sd in seeds:
+			for c in [0.03, 0.1, 0.25, 0.4, 0.47, 0.56, 0.7, 0.9, 0.97]:
+				var dc := 0.0002
+				var mv: Vector3 = _tt_lane_pos(L[0], L[1], L[2], L[3], L[4], sd, c + dc) - _tt_lane_pos(L[0], L[1], L[2], L[3], L[4], sd, c)
+				var fw := _tt_lane_fwd(L[0], L[1], L[2], L[3], L[4], sd, c)
+				# the movement of the ship on the return leg runs along falling c steps: a step in c is a step in time for both legs
+				worst = maxf(worst, rad_to_deg(fw.angle_to(mv.normalized())))
+	check(worst < 5.0, "traffic heading: lane ships (both directions) point along the movement", "worst %.2f deg" % worst)
+	var worst_o := 0.0
+	for dir in [1.0, -1.0]:
+		for tl in [0.0, 0.5]:
+			for ph in [0.0, 0.3, 0.8]:
+				var p0 := _tt_orbit(Vector3(1, 2, 3), 6.0, tl, dir, ph, 10.0)
+				var p1 := _tt_orbit(Vector3(1, 2, 3), 6.0, tl, dir, ph, 10.01)
+				worst_o = maxf(worst_o, rad_to_deg((p1[0] - p0[0]).angle_to(p0[1])))
+	check(worst_o < 2.0, "traffic heading: orbit ships (both directions) point along the movement", "worst %.2f deg" % worst_o)
+	# the mesh nose is -Z and the frame maps -Z onto fwd (z column = -fwd)
+	var fwd := Vector3(0.6, 0.1, -0.8).normalized()
+	var z := -fwd
+	var x := Vector3.UP.cross(z).normalized()
+	var B := Basis(x, z.cross(x), z)
+	check((B * Vector3(0, 0, -1)).is_equal_approx(fwd), "traffic heading: mesh nose (-Z) maps onto the heading")
 
 func _test_good_icons() -> void:
 	for g in Goods.ids():

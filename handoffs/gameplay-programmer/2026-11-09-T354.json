@@ -1,0 +1,15 @@
+{
+  "agent": "gameplay-programmer",
+  "date": "2026-11-09",
+  "task": "T354",
+  "status": "done",
+  "files_changed": [
+    "game/traffic/traffic_motion.gdshaderinc",
+    "tools/tests/run_tests.gd",
+    "logs/screenshots/T354.png",
+    "handoffs/gameplay-programmer/2026-11-09-T354.json"
+  ],
+  "schema_version": 1,
+  "open_questions": [],
+  "handoff": "Root cause: for lane ships (path mode 0 and ambient mode 3) the nose came from the derivative of the bare Bezier, but the drawn position adds the per-ship sideways spread (T304) and the landing glide to a point on the planet disc (T309). Near the lane ends those offsets move the ship sideways and up faster than it advances, so the nose pointed away from the real movement. Fix: new traffic_lane_point() returns the full position; the heading is its central difference in u (reversed on the return leg). Orbit mode, free mode (ShipMotion.forward), mesh -Z axis and frame basis were checked and are correct. Instance layout and buffers unchanged. Test _test_traffic_heading ports the math and asserts heading within 5 deg of the movement on two lanes (both legs), orbits both directions, and the -Z nose mapping. Screenshot logs/screenshots/T354.png shows no breakage; a still cannot prove direction, the test does. Tests: the same 13 known failures, none new."
+}

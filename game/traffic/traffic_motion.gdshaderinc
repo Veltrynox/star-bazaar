@@ -34,6 +34,44 @@ float traffic_draw(float seed, float k) {
 	return fract(sin(seed * 12.9898 * k + k * 78.233) * 43758.5453);
 }
 
+// T354: position on a lane at curve parameter u (0.04..0.96): the Bezier plus the sideways spread and the landing glide; shrink = landing scale.
+// The heading is the derivative of THIS position (not of the bare Bezier), so the nose follows the real movement.
+vec3 traffic_lane_point(mat4 M, vec4 cu, float u, float st, out float shrink) {
+	float w = 1.0 - u;
+	vec3 pos = w * w * M[0].xyz + 2.0 * w * u * M[1].xyz + u * u * M[2].xyz;
+	vec3 lane = M[2].xyz - M[0].xyz;
+	vec3 side = normalize(vec3(-lane.z, 0.0, lane.x) + vec3(0.0, 0.0, 0.00001));
+	float e = clamp((u - 0.04) / 0.92, 0.0, 1.0);
+	float ends = sin(3.14159265 * e);
+	pos += side * ((cu.w * 2.0 - 1.0) * lane_spread * length(lane) * ends);
+	shrink = 1.0;
+	// T309: the lane ends glide to a seeded point on the visible planet disc (touch down / take off), shrinking into the surface
+	float qp = M[3].z;
+	if (land_fade > 0.0 && qp > 0.5 && st < 0.5) {
+		float q0 = floor(qp / 65536.0);
+		float q1 = floor((qp - q0 * 65536.0) / 256.0);
+		float q2 = qp - q0 * 65536.0 - q1 * 256.0;
+		vec3 ldir = normalize(lane + vec3(0.00001, 0.0, 0.0));
+		float r0 = q0 / 255.0 * 8.0;
+		float r1 = q1 / 255.0 * 8.0;
+		float g0 = q2 > 0.5 ? q2 / 255.0 * 8.0 : r0;
+		float g1 = q2 > 0.5 ? q2 / 255.0 * 8.0 : r1;
+		vec3 c0 = M[0].xyz - ldir * g0 * land_gap;
+		vec3 c1 = M[2].xyz + ldir * g1 * land_gap;
+		float a0 = 6.2831853 * traffic_draw(cu.w, 3.0);
+		float a1 = 6.2831853 * traffic_draw(cu.w, 5.0);
+		vec2 o0 = vec2(cos(a0), sin(a0)) * sqrt(traffic_draw(cu.w, 4.0)) * land_disc * r0;
+		vec2 o1 = vec2(cos(a1), sin(a1)) * sqrt(traffic_draw(cu.w, 6.0)) * land_disc * r1;
+		vec3 l0 = c0 + vec3(o0.x, sqrt(max(r0 * r0 - dot(o0, o0), 0.0)), o0.y);
+		vec3 l1 = c1 + vec3(o1.x, sqrt(max(r1 * r1 - dot(o1, o1), 0.0)), o1.y);
+		float k0 = 1.0 - smoothstep(0.0, land_fade, e);
+		float k1 = 1.0 - smoothstep(0.0, land_fade, 1.0 - e);
+		pos += (l0 - M[0].xyz) * k0 + (l1 - M[2].xyz) * k1;
+		shrink = (1.0 - k0 * k0) * (1.0 - k1 * k1);
+	}
+	return pos;
+}
+
 // World position, heading, scale, state and laden flag of one instance.
 void traffic_place(mat4 M, vec4 cu, out vec3 pos, out vec3 fwd, out float sc, out float st, out float laden) {
 	st = cu.z;
@@ -49,41 +87,14 @@ void traffic_place(mat4 M, vec4 cu, out vec3 pos, out vec3 fwd, out float sc, ou
 			back = false;
 		}
 		laden = back ? 0.0 : 1.0;
-		float w = 1.0 - u;
-		pos = w * w * M[0].xyz + 2.0 * w * u * M[1].xyz + u * u * M[2].xyz;
-		// T304: fixed per-ship offset in the map plane, perpendicular to the lane, zero at both planets
-		vec3 lane = M[2].xyz - M[0].xyz;
-		vec3 side = normalize(vec3(-lane.z, 0.0, lane.x) + vec3(0.0, 0.0, 0.00001));
-		float e = clamp((u - 0.04) / 0.92, 0.0, 1.0);
-		float ends = sin(3.14159265 * e);
-		pos += side * ((cu.w * 2.0 - 1.0) * lane_spread * length(lane) * ends);
-		// T309: the lane ends glide to a seeded point on the visible planet disc (touch down / take off), shrinking into the surface
-		float shrink = 1.0;
-		float qp = M[3].z;
-		if (land_fade > 0.0 && qp > 0.5 && st < 0.5) {
-			float q0 = floor(qp / 65536.0);
-			float q1 = floor((qp - q0 * 65536.0) / 256.0);
-			float q2 = qp - q0 * 65536.0 - q1 * 256.0;
-			vec3 ldir = normalize(lane + vec3(0.00001, 0.0, 0.0));
-			float r0 = q0 / 255.0 * 8.0;
-			float r1 = q1 / 255.0 * 8.0;
-			float g0 = q2 > 0.5 ? q2 / 255.0 * 8.0 : r0;
-			float g1 = q2 > 0.5 ? q2 / 255.0 * 8.0 : r1;
-			vec3 c0 = M[0].xyz - ldir * g0 * land_gap;
-			vec3 c1 = M[2].xyz + ldir * g1 * land_gap;
-			float a0 = 6.2831853 * traffic_draw(cu.w, 3.0);
-			float a1 = 6.2831853 * traffic_draw(cu.w, 5.0);
-			vec2 o0 = vec2(cos(a0), sin(a0)) * sqrt(traffic_draw(cu.w, 4.0)) * land_disc * r0;
-			vec2 o1 = vec2(cos(a1), sin(a1)) * sqrt(traffic_draw(cu.w, 6.0)) * land_disc * r1;
-			vec3 l0 = c0 + vec3(o0.x, sqrt(max(r0 * r0 - dot(o0, o0), 0.0)), o0.y);
-			vec3 l1 = c1 + vec3(o1.x, sqrt(max(r1 * r1 - dot(o1, o1), 0.0)), o1.y);
-			float k0 = 1.0 - smoothstep(0.0, land_fade, e);
-			float k1 = 1.0 - smoothstep(0.0, land_fade, 1.0 - e);
-			pos += (l0 - M[0].xyz) * k0 + (l1 - M[2].xyz) * k1;
-			shrink = (1.0 - k0 * k0) * (1.0 - k1 * k1);
-		}
-		vec3 d = 2.0 * w * (M[1].xyz - M[0].xyz) + 2.0 * u * (M[2].xyz - M[1].xyz);
-		fwd = normalize(back ? -d : d);
+		float shrink;
+		pos = traffic_lane_point(M, cu, u, st, shrink);
+		float du = 0.003;
+		float sk;
+		vec3 pa = traffic_lane_point(M, cu, max(u - du, 0.04), st, sk);
+		vec3 pb = traffic_lane_point(M, cu, min(u + du, 0.96), st, sk);
+		vec3 d = pb - pa;
+		fwd = normalize((back ? -d : d) + vec3(0.0, 0.0, 0.0000001));
 		sc *= M[3].x * (1.0 + size_jitter * (traffic_draw(cu.w, 1.0) * 2.0 - 1.0)) * shrink;
 	} else if (mode == 1) {
 		float a = 6.2831853 * (cu.x + traffic_clock * M[1].z);
