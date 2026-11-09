@@ -265,8 +265,8 @@ TUT_G8_SKILLS | 60 | Guided step 10, until a skill is learned | Open Skills and 
 TUT_G8_SKILLS_WHY | 110 | Guided step, why it matters (second line of the card) | Skill points come from firsts, like your first tier. Three Foundations come before any market skill.
 TUT_G9_PERMIT | 60 | Guided step 11, permits | Learn Permit Charter.
 TUT_G9_PERMIT_WHY | 110 | Guided step, why it matters (second line of the card) | It lets you buy a permit for a new system. A new system has more worlds to grow and trade with.
-TUT_G10_DONE | 60 | Guided step 12, the last, until the Star Bazaar panel is opened | The Star Bazaar: the exchange where the whole sky trades.
-TUT_G10_DONE_WHY | 110 | Guided step, why it matters (second line of the card) | Raise it on one capital world, stage by stage. Finish it and your company stands at the top of the galaxy.
+TUT_G10_DONE | 60 | Guided step 12, the last, until the Star Bazaar panel is opened | The Star Bazaar is one market hall all worlds trade in.
+TUT_G10_DONE_WHY | 110 | Guided step, why it matters (second line of the card) | You build it, stage by stage, on one world grown into a capital. Finishing it wins the game.
 TUT_HEADER | 24 | Header of the guided tutorial card | Tutorial
 TUT_STEP_COUNT | 24 | Tutorial card, step counter; {n} is the step, {total} the number of steps | {n} of {total}
 

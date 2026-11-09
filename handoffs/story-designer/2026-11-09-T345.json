@@ -1,0 +1,13 @@
+{
+  "task": "T345",
+  "files": ["story/screens.md", "data/story_text.json"],
+  "final": {
+    "TUT_G10_DONE": "The Star Bazaar is one market hall all worlds trade in.",
+    "TUT_G10_DONE_WHY": "You build it, stage by stage, on one world grown into a capital. Finishing it wins the game."
+  },
+  "alternate": {
+    "TUT_G10_DONE": "The Star Bazaar: one big hall where all worlds trade.",
+    "TUT_G10_DONE_WHY": "Grow one world into a capital and build it there, stage by stage. Finish it and you win."
+  },
+  "notes": "TIP_GOAL / TIP_GOAL_WHY left as is: they do not repeat or contradict the new pair. No Russian change needed."
+}

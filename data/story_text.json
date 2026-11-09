@@ -1059,13 +1059,13 @@
   },
   {
    "id": "TUT_G10_DONE",
-   "text": "The Star Bazaar: the exchange where the whole sky trades.",
+   "text": "The Star Bazaar is one market hall all worlds trade in.",
    "max": 60,
    "place": "Guided step 12, the last, until the Star Bazaar panel is opened"
   },
   {
    "id": "TUT_G10_DONE_WHY",
-   "text": "Raise it on one capital world, stage by stage. Finish it and your company stands at the top of the galaxy.",
+   "text": "You build it, stage by stage, on one world grown into a capital. Finishing it wins the game.",
    "max": 110,
    "place": "Guided step, why it matters (second line of the card)"
   },
