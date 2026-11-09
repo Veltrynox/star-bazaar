@@ -2427,7 +2427,7 @@
       "title": "OWNER STARTS BY HAND: Flagship and gig numbers (absorbs T178)",
       "owner_agent": "economy-designer",
       "depends_on": [],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 30,
       "window": "Owner request 2026-11-06: empire growth v2, phase 2 (design/proposals/2026-11-06-empire-growth-v2.md). Priority over conflicting older tasks.",
       "brief": "Goal: hand play pays in gigs, not in routine trade. Design: design/proposals/2026-11-06-empire-growth-v2.md section 3.2. Keys: flagship_hold_units, flagship_boost_*, gig_board_max, gig gaps and caps, rush_lot_mult, rush_deadline_*, gig rewards bands, post and platform costs and flight time (the old T178 scope). Rule to check: a routine hand trip earns less per cycle than one lane of the same good. OWNER STARTS BY HAND: never scheduled automatically, nothing depends on it. Set real values for the placeholder keys listed, in data/balance.json (and data files named), bump data_version, write the reasoning in the source note. Handoff: handoffs/economy-designer/<date>-T276.json.",

@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "agent": "economy-designer",
+  "date": "2026-11-09",
+  "task": "T276",
+  "status": "done",
+  "files_changed": ["data/balance.json", "handoffs/economy-designer/2026-11-09-T276.json"],
+  "open_questions": [
+    "Real per-unit lane margin is UNKNOWN (no sim by order); check used m = 10. Owner hand run should confirm a hand trip earns less than a lane.",
+    "data/gigs.json needed no change: rewards read gig_rush_premium_pct and gig_rush_credit_cycles from balance.",
+    "T178 keys (post cost, platform cost, build cycles, pathfinder_speed) already exist and were kept; no flight-speed change without a sim."
+  ],
+  "handoff": "Two keys changed, rest of the placeholders reviewed and kept. Rule holds by hand: lane about 327 per cycle vs hand about 200 at best; rush about 225 per cycle at most, under one lane.",
+  "changes": [
+    {"key": "data_version", "old": 81, "new": 82, "why": "bump"},
+    {"key": "gig_rush_premium_pct", "old": 0.6, "new": 0.8, "why": "a rush (about 450 premium on 20 units) must clearly beat a routine hand trip (about 200 per cycle)"},
+    {"key": "rush_deadline_mult", "old": 2, "new": 1.5, "why": "deadline 1.5 x ETA + 2: boost (1.6x) matters, still doable unboosted"}
+  ],
+  "kept": ["flagship_hold_units 20", "flagship_dock_lot 5", "flagship_boost_mult 1.6", "flagship_boost_energy 2", "flagship_boost_charges 2", "flagship_boost_refill_cycles 3", "gig_board_max 3", "gig_gap_cycles 6", "gig_cap_signals 6", "rush_lot_mult 1", "rush_deadline_add 2", "post_cost_ship_fraction 0.4 (360)", "post_cost_system2_mult 1.5 (540)", "platform_cost_post_mult 2 (720/1080)", "post and platform build cycles 0.025", "gig_cash/lot bands"],
+  "rule_check": "m=10/unit. Lane net/cycle = 40*10 - 60 - 40/3 = ~327. Hand trip = 20*10 = 200 at best (no fee, loaded both ways, ignores dock lot 5 and saturation); lower for any m above 3.7 means hand < lane. Rush: ~450 premium per delivery, at most 1 per 2 cycles (rush_gap) = ~225/cycle < lane 327.",
+  "code_notes": "No missing keys found for this scope."
+}
