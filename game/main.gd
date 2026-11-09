@@ -127,6 +127,7 @@ var next_up: HBoxContainer  # T263 the Next Up strip in the top bar
 var bazaar_button: Button
 var gig_panel: PanelContainer  # T273 the gig board (J, rail button)
 var gig_button: Button
+var gig_badge: Panel  # T348
 var cycle_label: Label
 var pause_button: Button
 var progress: ProgressBar
@@ -3560,9 +3561,26 @@ func _build_rail() -> void:
 	bazaar_button = _rail_button("mark", "BAZ_PANEL_TITLE", "The Star Bazaar", toggle_bazaar_panel)  # T263: where the share panel button was
 	bazaar_button.tooltip_text += " (M)"
 	col.add_child(bazaar_button)
-	gig_button = _rail_button("planet", "GIG_BOARD_TITLE", "Gig board", toggle_gig_board)  # T273
+	gig_button = _rail_button("gig", "GIG_BOARD_TITLE", "Gig board", toggle_gig_board)  # T273
 	gig_button.tooltip_text += " (J)"
 	col.add_child(gig_button)
+	gig_badge = Panel.new()  # T348: plain dot while a gig is open
+	gig_badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	gig_badge.custom_minimum_size = Vector2(10, 10)
+	gig_badge.size = Vector2(10, 10)
+	gig_badge.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
+	gig_badge.offset_left = -13
+	gig_badge.offset_right = -3
+	gig_badge.offset_top = 3
+	gig_badge.offset_bottom = 13
+	var dot := StyleBoxFlat.new()
+	dot.bg_color = Ui.col("star_warm")
+	dot.set_corner_radius_all(5)
+	gig_badge.add_theme_stylebox_override("panel", dot)
+	gig_badge.visible = false
+	gig_button.add_child(gig_badge)
+	gigs.changed.connect(_refresh_gig_badge)
+	_refresh_gig_badge()
 
 func game_menu_toggle() -> void:
 	if game_menu == null:
@@ -3571,6 +3589,10 @@ func game_menu_toggle() -> void:
 		game_menu.close_menu()
 	else:
 		game_menu.open_menu()
+
+func _refresh_gig_badge() -> void:
+	if gig_badge != null:
+		gig_badge.visible = gigs != null and gigs.is_open()
 
 func _rail_button(icon_token: String, story_id: String, fallback: String, cb: Callable) -> Button:
 	var b := Button.new()
@@ -3591,6 +3613,7 @@ func _refresh() -> void:
 		hub_panel.refresh()  # T291
 	if gig_button != null:
 		gig_button.visible = flight != null and flight.is_enabled()
+		_refresh_gig_badge()
 	if next_up != null:
 		next_up.refresh()
 	goal_label.tooltip_text = ""

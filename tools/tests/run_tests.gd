@@ -9384,8 +9384,11 @@ func _test_gigs() -> void:
 	m.balance["gig_gap_cycles"] = 1
 	check(g.defs.size() >= 2, "gigs: data loaded")
 	check(not Conditions.eval("gig_open") and not Conditions.eval("gig_done:GIG02"), "gigs: atoms false at the start")
+	check(m.gig_badge != null and not m.gig_badge.visible, "gigs: badge hidden with no open gig")
 	g.on_cycle(5)
 	check(g.is_open() and g.signals_seen == 1, "gigs: a signal opens on the cycle check")
+	m._refresh_gig_badge()
+	check(m.gig_badge.visible, "gigs: badge visible with an open gig")
 	g.on_cycle(6)
 	check(g.offers.size() == 1, "gigs: one open signal at a time")
 	var o: Dictionary = g.offers[0]
