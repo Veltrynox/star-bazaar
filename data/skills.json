@@ -1,6 +1,6 @@
 {
  "schema_version": 1,
- "data_version": 9,
+ "data_version": 10,
  "source": "2026-11-06 skills-fill (economy-designer, owner order): 35 nodes added (3 FND, 8 per market) using existing effect types only; see handoffs/economy-designer/2026-11-06-skills-fill.json. 2026-11-05 skill-tree-final (economy-designer, agreed with feature-designer and qa-analyst): see design/proposals/2026-11-05-skill-tree-final.md. Filler percent effects removed; MIL_2 batches, MIL_3 debris immunity, LUX_6 batch yield, BIO_3 growth ceiling.",
  "vocabulary": {
   "_how": "effect = {type, target, ...}. Numbers are never stored here: key / duration_key / cooldown_key / cap_key name a data/balance.json value. cost 0 = tech node (researched by crafting; goal = balance[tech_goal_key] units made by that market's workshop(s), counted from when prereqs are met). cost is also in balance skill_cost_<id> (balance is authoritative). 'extra' = more effects applied with the same node. prereqs: all listed ids must be learned/researched. target: market id (mil|lux|min|bio), 'all', 'ships', 'planet_storage', 'feature', 'workshop', 'good'.",
@@ -170,7 +170,7 @@
    "prereqs": [
     "MIL_3"
    ],
-   "cost": 3,
+   "cost": 2,
    "effect": {
     "type": "weather_soften_pct",
     "target": "mil",
@@ -213,7 +213,7 @@
    "prereqs": [
     "MIL_6"
    ],
-   "cost": 3,
+   "cost": 2,
    "effect": {
     "type": "weather_warning",
     "target": "mil",
@@ -314,7 +314,7 @@
    "prereqs": [
     "LUX_3"
    ],
-   "cost": 3,
+   "cost": 2,
    "effect": {
     "type": "need_fill_pct",
     "target": "lux",
@@ -383,7 +383,7 @@
    "prereqs": [
     "LUX_6"
    ],
-   "cost": 3,
+   "cost": 2,
    "effect": {
     "type": "weather_soften_pct",
     "target": "lux",
@@ -483,7 +483,7 @@
    "prereqs": [
     "MIN_3"
    ],
-   "cost": 3,
+   "cost": 2,
    "effect": {
     "type": "mine_unlock",
     "id": "nullglass",
@@ -557,7 +557,7 @@
    "prereqs": [
     "MIN_6"
    ],
-   "cost": 3,
+   "cost": 2,
    "effect": {
     "type": "weather_soften_pct",
     "target": "min",
@@ -669,7 +669,7 @@
    "prereqs": [
     "BIO_3"
    ],
-   "cost": 3,
+   "cost": 2,
    "effect": {
     "type": "progress_grace",
     "target": "bio",
@@ -720,7 +720,7 @@
    "prereqs": [
     "BIO_6"
    ],
-   "cost": 3,
+   "cost": 2,
    "effect": {
     "type": "weather_soften_pct",
     "target": "bio",
@@ -765,7 +765,7 @@
    "prereqs": [
     "FND_PROSPECT"
    ],
-   "cost": 2,
+   "cost": 1,
    "effect": {
     "type": "upgrade_cost_pct",
     "target": "feature",
@@ -890,7 +890,7 @@
     "MIL_7",
     "MIL_14"
    ],
-   "cost": 3,
+   "cost": 2,
    "effect": {
     "type": "weather_soften_pct",
     "target": "mil",
@@ -1024,7 +1024,7 @@
     "LUX_7",
     "LUX_14"
    ],
-   "cost": 3,
+   "cost": 2,
    "effect": {
     "type": "weather_warning",
     "target": "lux",
@@ -1159,7 +1159,7 @@
     "MIN_7",
     "MIN_14"
    ],
-   "cost": 3,
+   "cost": 2,
    "effect": {
     "type": "cluster_yield_pct",
     "target": "min",
@@ -1288,7 +1288,7 @@
     "BIO_7",
     "BIO_14"
    ],
-   "cost": 3,
+   "cost": 2,
    "effect": {
     "type": "weather_warning",
     "target": "bio",

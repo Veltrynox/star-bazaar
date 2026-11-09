@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "agent": "economy-designer",
+  "date": "2026-11-09",
+  "task": "econ80",
+  "status": "done",
+  "files_changed": ["data/balance.json", "data/skills.json", "data/goods.json", "data/chains.json", "tools/tests/run_tests.gd", "handoffs/economy-designer/2026-11-09-econ80.json"],
+  "open_questions": [
+    "Raids and gigs keep their per-cycle rates, so an 80-cycle run sees about 2x as many raids (first 12, gap 5, chance max 0.35). Keep, or lengthen raid_gap_cycles to ~8? Unmeasured.",
+    "Chain steps keep their spacing (A2 6, B2 4 cycles after the previous step); with share triggers they may finish by about cycle 35 and leave a quiet second half. Owner to say if chain content should be stretched.",
+    "Point target read as net points earned by cycle 80 (~37 typical, 45 strong explorer). Say if gross 40 was meant."
+  ],
+  "handoff": "Hand reasoning only, no sim, bots or Godot windows. Term 80, rescaled keys listed in changes. Points: planet 2, system 4, prosperity t1/t2/t3 1/2/3. Costs: FND_DOCKS 1, 12 capstone/tier-3 nodes 3 to 2. Biotech lab 600 to 300 and medicine/seed cash cost halved. Bazaar numbers unchanged after a walk. Tests: 5 pinned expectations updated; remaining 13 failures are the known ones (workshop, goods, availability, cells).",
+  "changes": {
+    "balance.json (data_version 82 to 83)": {
+      "win_cycle_markets": {"old": 40, "new": 80, "why": "the term itself"},
+      "win_gate_cycle": {"old": 38, "new": 78, "why": "keeps the 2-cycle margin before the term"},
+      "win_earliest_cycle": {"old": 23, "new": 46, "why": "legacy share-win floor, unused by game code, scaled x2 for consistency"},
+      "sweep_earliest_cycle": {"old": 25, "new": 50, "why": "legacy, unused by game code, x2"},
+      "targets.check_early_win_cycle": {"old": 22, "new": 45, "why": "brief: no Bazaar opening before about 45; the targets arrays win_*_cycles are stale (26-30, 22-26, 19-23) and left for the owner to retire, Opening target now 60 to 75"},
+      "bot_1_tier_cycle_2": {"old": 27, "new": 54, "why": "rival third tier stays at about two thirds of the term; tier 1 (13, 11, 14) kept so the early game is unchanged"},
+      "bot_2_tier_cycle_2": {"old": 24, "new": 48, "why": "same"},
+      "bot_3_tier_cycle_2": {"old": 28, "new": 56, "why": "same"},
+      "gig_cap_signals": {"old": 6, "new": 12, "why": "per-run cap at a fixed gap of 6; 6 would be used up by cycle 40"},
+      "skill_points_planet": {"old": 1, "new": 2, "why": "main point source, front-loaded so gate + branch unlock land by about cycle 6"},
+      "skill_points_system": {"old": 2, "new": 4, "why": "rewards the 3-system spread, arrives mid-game"},
+      "prosperity_points_t1": {"old": 0, "new": 1, "why": "first tier-1 world now pays (once per run)"},
+      "prosperity_points_t2": {"old": 1, "new": 2, "why": "once per run"},
+      "prosperity_points_t3": {"old": 2, "new": 3, "why": "once per run; late-game payout"},
+      "skill_cost_FND_DOCKS": {"old": 2, "new": 1, "why": "owner decision"},
+      "skill_cost_MIL_5, LUX_5, MIN_5, BIO_5": {"old": 3, "new": 2, "why": "tier-3 nodes rarely bought"},
+      "skill_cost_MIL_7, LUX_7, MIN_7, BIO_7": {"old": 3, "new": 2, "why": "tier-5 nodes rarely bought"},
+      "skill_cost_MIL_15, LUX_15, MIN_15, BIO_15": {"old": 3, "new": 2, "why": "capstones"},
+      "culture_lab_build_cost": {"old": 600, "new": 300, "why": "Biotech lab was 600 vs 900 for other workshops, now a third of them; BIO_1 itself stays 1 point"}
+    },
+    "skills.json (data_version 9 to 10)": "same 13 cost edits mirrored (balance is authoritative); 68 nodes, prereqs unchanged. Kept at 3: MIL_13, LUX_13, MIN_13, BIO_12.",
+    "goods.json (data_version 3 to 4)": {
+      "medicine.cash_cost_per_unit": {"old": 13, "new": 6, "why": "workshop cash per unit was a drain on the first Biotech batches"},
+      "seed.cash_cost_per_unit": {"old": 21, "new": 10, "why": "same"}
+    },
+    "chains.json": "win_gate note text 38 to 78 (text only)",
+    "kept_on_purpose": {
+      "dead_unlock_cycle 15, chain_min_cycle 6, chain first_sale 4, chain after_prev 6/4, branch_event_last_cycle 10": "onboarding or event rhythm, not a fraction of the term; tests pin some",
+      "raid_first_cycle 12, raid_gap_cycles 5, gig_first 4, gig_gap 6, rush_*, weather_next_delay 2": "per-cycle rhythm; more cycles gives more of them (see open questions)",
+      "all effect durations (*_cycles), prosperity decay and hunger, bazaar bills, income rates": "per-cycle, unchanged"
+    }
+  },
+  "point_curve": {
+    "sources": "planet 2 each (13 worlds in 3 systems = 26 max), pair 1 each, system 2 and 3 entered 4 each, prosperity t1/t2/t3 1+2+3 once, permits -2 -2 (unchanged).",
+    "typical_human (10 planets, 7 pairs, both systems, t1+t2+t3 by 80)": "gross 20+7+8+6 = 41, net 37 after permits at cycle 80",
+    "cycle_40 typical (7 planets, 5 pairs, 2 systems, t1+t2)": "gross 14+5+8+3 = 30, net ~26 (target 25)",
+    "cycle_10": "about 5 planets and 3 pairs = 13: Foundations and a branch unlock by about cycle 6",
+    "strong explorer": "26+9+8+6 = 49 gross, 45 net",
+    "tree_cost_now": "branch about 18 (was 21), FND 3 gate + LEDGER 1 + RIVAL 1 + DOCKS 1 = 6. Net 37 buys FND 6 + one full branch 18 + about 13 of a second (unlock + tier 2/3 nodes). Bot supply is still not representative."
+  },
+  "bazaar_walk": {
+    "data": "capital tier 2, 4 stages, bills 60T1 / 50T1+40T2 / 50T2+30T3 / 40T3+20T4 = 290 units, quorums 1xT1, 2xT1, 1xT2, 2xT2, other-system world from stage 3, then Opening.",
+    "pace": "T311 estimate: focused expert opens at ~34 of 40 with founding ~12-14. Owner's real run did not found at all in 40, so a human is roughly 2x the expert pace: capital T2 around cycle 20-30 (found), feed ~2000 units at ~70 units/cycle human fleet (about 7 ships at half uptime, 3 lanes per system) = 28 cycles, plus decay and T3/T4 goods waiting on workshops: Opening about 60-72. Spread run +4 per extra system (~+8).",
+    "verdict": "Found 25-35 and open 60-75 falls out of the current numbers with a few cycles of slack. Out of reach at 80 only for a slow or unfocused run (real chance to miss); not trivial before 45 since 290 units of T2-T4 goods plus the feed need the fleet and a second system. Bazaar numbers UNCHANGED. UNKNOWN: real T3/T4 goods timing and human fleet size, owner playthrough to confirm."
+  },
+  "tests_updated": [
+    "run_tests.gd goal: win_cycle_markets 40 to 80",
+    "run_tests.gd skills economy retunes: system points 2 to 4",
+    "run_tests.gd bot hooks: t_late 40 to 80 (rival tier at cycle 80)",
+    "run_tests.gd dead skills Minerals tree: MIN_5 cost 3 to 2",
+    "run_tests.gd win gate: cycle 38 to 78 (77 closed, 78 open)"
+  ],
+  "test_result": "sh tools/tests/run.sh with STAR_TEST_SCRATCH set: only the known 13 failures remain (energy tooltip, goods x2, workshop x4, cells, availability x5).",
+  "follow_up_needed": [
+    "Game code: game/markets.gd:167 default 40 and game/chains.gd:222 default 38 (only fallbacks when the key is missing; change to 80 and 78)",
+    "Story/UI text that says forty cycles or 40 (grep story/*.md, gdd.md, systems_placeholder.json note 'term 40'); main.gd cycle_label already reads the key",
+    "tools/sim.py V.setdefault win_cycle and its point model use the old values; not run. tools/check_chains.py reads win_gate_cycle",
+    "Retire the stale targets arrays win_no_skills_cycles / win_skilled_cycles / win_full_tree_cycles",
+    "Bot policy for QA: bot still undercounts points; re-measure after the bot learns branch nodes (owner-run QA only)"
+  ]
+}

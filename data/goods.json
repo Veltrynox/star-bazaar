@@ -1,6 +1,6 @@
 {
  "schema_version": 1,
- "data_version": 3,
+ "data_version": 4,
  "source": "2026-11-05 resource-final: rivets is the one argued sale-only trade good (a recipe use would make a third Munitions raw and bots could no longer feed armour; design/proposals/2026-11-05-resource-final.md). 2026-11-05 resource-audit: armour later went back to 4 cells in skill round 2, gems also take 1 musk (design/proposals/2026-11-05-resource-audit.md). 2026-11-03 skill-data (economy-designer): 19 goods (8 old tagged as data/markets.json, 11 new) per four-markets.md 1.1-1.3 and four-markets-economy.md section 1. planet_prices are NOT yet in planets.json/systems.json: the programmer wires them in (key style <good>_buy = player pays, <good>_sell = player receives, same as planets.json). Sell price of crafted goods = base price (share base value). Crafted goods placement (Voltara and s2_p4, buy = sell x 1.12) is mine; economy doc gives no planets. size_slots: S 1, M 2, L 3 (balance size_slots_M/L). batch_out also in balance <good>_batch_out. 2026-11-06 T239 (design/proposals/2026-11-05-branch-goods.md): every good has one owner market, energy is shared (market common); renames chips-spyware, cells-rounds, armour-arms, cask-attar, gel-medicine; new starters powder and blooms; ore also bought at Flintmoor (planet_4); second crafted buyers moved per proposal section 1.",
  "workshops": [
   {
@@ -480,7 +480,7 @@
      "medicine_sell": 74
     }
    },
-   "cash_cost_per_unit": 13
+   "cash_cost_per_unit": 6
   },
   {
    "id": "seed",
@@ -506,7 +506,7 @@
      "seed_sell": 190
     }
    },
-   "cash_cost_per_unit": 21
+   "cash_cost_per_unit": 10
   }
  ]
 }
