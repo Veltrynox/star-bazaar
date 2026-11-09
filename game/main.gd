@@ -5053,6 +5053,12 @@ func _build_tip_card() -> void:
 	tip_card.custom_minimum_size = Vector2(TUT_CARD_W, 0)
 	tip_card.visible = false
 	add_child(tip_card)
+	# Fully opaque: the theme panel is see-through; copy it (same border, radius, margins) with alpha 1.
+	var base := tip_card.get_theme_stylebox("panel", "PanelContainer")
+	if base is StyleBoxFlat:
+		var opaque := (base as StyleBoxFlat).duplicate() as StyleBoxFlat
+		opaque.bg_color = Color(opaque.bg_color, 1.0)
+		tip_card.add_theme_stylebox_override("panel", opaque)
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", 8)
 	tip_card.add_child(box)
