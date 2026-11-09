@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-09 10:41 run: T332
-- Summary: Not merged: fast-forward merge refused
-- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
-- Approach: built by a worker in worktree ../wt/T332 on branch task/T332, merged by the serial merge queue.
-- Agent prompts: /overnight-worker T332 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T332.log.
-- Worked: worker finished.
-- Failed / did not work: fast-forward merge refused.
-- Files and commits: see git log on branch new-features for commits starting with T332.
-- Left to do: owner or a new run: see blocked_log in schedule.json.
-
 ## 2026-11-09 10:41 run: T334
 - Summary: Not merged: worker did not report done: blocked T334 | Part 2 moves the speed card (TUT_G1C_SPEED, speed_done flag) that T333 is supposed to build. T333 and its dependency T332 are both still queued, and neither the card nor the flag exists in this branch. T334 has no declared dependency on them, so it needs one added or T333 merged first.
 - Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
@@ -64,4 +54,14 @@
 - Worked: worker finished.
 - Failed / did not work: fast-forward merge refused.
 - Files and commits: see git log on branch new-features for commits starting with T343.
+- Left to do: owner or a new run: see blocked_log in schedule.json.
+
+## 2026-11-09 10:54 run: T336
+- Summary: Not merged: fast-forward merge refused
+- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
+- Approach: built by a worker in worktree ../wt/T336 on branch task/T336, merged by the serial merge queue.
+- Agent prompts: /overnight-worker T336 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T336.log.
+- Worked: worker finished.
+- Failed / did not work: fast-forward merge refused.
+- Files and commits: see git log on branch new-features for commits starting with T336.
 - Left to do: owner or a new run: see blocked_log in schedule.json.

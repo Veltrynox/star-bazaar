@@ -3612,7 +3612,7 @@
       "title": "Skill screen: Foundations row at the top, the other skills below it",
       "owner_agent": "ui-programmer",
       "depends_on": [],
-      "status": "queued",
+      "status": "blocked",
       "turn_cap": 40,
       "window": "Owner request 2026-11-09.",
       "brief": "Owner: the Foundational skills should be at the top of the skill panel and the rest of the skills below them. Today (game/skill_screen.gd, VERTICAL_LAYOUT := true) every branch is a column side by side, with Foundations (fnd, STACKED_BRANCHES, one narrow column, FND_WIDE_CELLS) as one column among them. Read game/skill_screen.gd (layout, _build, _cell_width, tier_rows, depth_rows, node_buttons, detail strip, the links drawn between prerequisites, scroll wrap), game/skill_tree.gd (BRANCHES, visible_branches, ids_in), game/skill_icons.gd, and the earlier handoffs handoffs/ui-programmer/2026-11-03-skills-vertical.json and 2026-11-04-skills-window-rework.json for the design intent. Build: a Foundations block across the full width at the top (its nodes laid out in rows of several cells, in learning order, not one narrow column), then below it the run's market tree (and, for old saves that show every tree, the market columns side by side) in one block. Prerequisite lines still connect nodes correctly across the two blocks, node_buttons[id] still holds every button (the tutorial highlights FND_PERMIT and reads node_buttons), selection, the detail strip with Learn, the Use menu for learned bot skills, keyboard open/close (K, Esc) and the scroll behave as before, and nothing overflows the window at 1920x1080 or a smaller window (the page scrolls vertically only). Keep the look (node size, tints, tags); no new colours. No new text. Tests in tools/tests/: Foundations nodes sit above (smaller y) every market node, every node button exists and is inside the scroll area, and the prerequisite line endpoints sit on the right buttons; keep the existing skill screen tests green. Done when built: no QA, bots or sim. Quick look: one screenshot of the skill screen (sh tools/screenshot.sh --out logs/screenshots/T336.png) if the tool can open it, fix only objective breakage (overlap, clipped text), record the path in the handoff. gdd-skills.md: note the layout in one line only if it describes it. Handoff handoffs/ui-programmer/<date>-T336.json.",
@@ -3622,7 +3622,9 @@
         "tools/tests/*",
         "gdd-skills.md"
       ],
-      "priority": 2
+      "priority": 2,
+      "note": "Blocked by orchestrator: fast-forward merge refused",
+      "blocked_log": "/Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T336-merge.log"
     },
     {
       "task_id": "T337",
