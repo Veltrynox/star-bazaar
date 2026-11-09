@@ -219,7 +219,7 @@ static func next_step(cycle: int) -> String:
 ## A market's win is not declared before its B4 fired, or cycle win_gate_cycle.
 static func win_open(market: String, cycle: int) -> bool:
 	_ensure()
-	return fired("%s_B4" % market.to_upper()) or cycle >= int(_num("win_gate_cycle", 38.0))
+	return fired("%s_B4" % market.to_upper()) or cycle >= int(_num("win_gate_cycle", 78.0))
 
 # ---- option order and direction ----
 
