@@ -865,21 +865,6 @@
       "owner_note": "Merged into T169: the design is design/proposals/2026-11-05-storage-link.md; pointer at design/proposals/2026-11-05-station-transfer.md. Build is T171; T166 is superseded."
     },
     {
-      "task_id": "T166",
-      "title": "Build: station-to-station transfer (after owner approves T165)",
-      "owner_agent": "gameplay-programmer",
-      "depends_on": [
-        "T164"
-      ],
-      "status": "stopped",
-      "turn_cap": 50,
-      "window": "Owner request 2026-11-05 (after goal ship-ceo-skills-resources). Not started: main session sets it running.",
-      "brief": "Build the approved design from design/proposals/2026-11-05-station-transfer.md: data in data/*.json and data/availability.json, logic, save fields (bump the save version), panel hooks. UI layout goes to ui-programmer, texts to story-designer (English and Russian). Handoff handoffs/gameplay-programmer/2026-11-05-T166.json.",
-      "owner_note": "Superseded by T171 (storage link build).",
-      "needs_owner": "stopped, superseded",
-      "note": "Dropped (empire growth v2, 2026-11-06): Stopped and superseded; hubs and the Storage Link cover station transfer."
-    },
-    {
       "task_id": "T167",
       "title": "Planet name label drawn under the screen-space blur layer: put it on top",
       "owner_agent": "ui-programmer",
@@ -1122,39 +1107,6 @@
       "brief": "Add a headless test in tools/tests/run_tests.gd (runs with sh tools/tests/run.sh): for every pair of node types (planet, space storage, dead planet, asteroid field), in the same system and across systems, build a link with the game's own link function (route, storage link, mining platform) from a start state plus the needed unlocks, and assert it is created, saved and loaded back, and is not rejected for a stale reason (range, cap, closed flag, missing unlock that the game allows). Also assert from the start state that every node can be reached by some chain of allowed links, so no node is stranded. Fix code bugs the test finds. Handoff handoffs/gameplay-programmer/2026-11-05-T188.json.",
       "owner_note": "Owner asked for a test or assertion that connections can always be established.",
       "note": "Added _test_links_everywhere in run_tests.gd (all node-type pairs, same and cross system, save/load, reachability). No game bugs found. Asteroid-asteroid has no link and storage is never a route source: treated as design, owner may revisit."
-    },
-    {
-      "task_id": "T189",
-      "title": "Decide: Storage Link and Rival ships need a first playtest",
-      "owner_agent": "feature-designer",
-      "brief": "Storage Link (game/storage_link.gd) is 'built, not yet run in play' per gdd-skills.md; rival ships (T187) look unreviewed. Owner plays both, then decides keep/retune/look. needs owner decision.",
-      "owner_note": "Owner playtest, no agent can judge feel.",
-      "depends_on": [],
-      "status": "stopped",
-      "turn_cap": 30,
-      "window": "Gap analysis 2026-11-05 (overnight). Needs owner decision before start.",
-      "note": "Dropped (empire growth v2, 2026-11-06): Rival ships become house convoys (see the convoy task); the Storage Link stays as built and needs no decision task.",
-      "touches": [
-        "game/storage_link.gd",
-        "gdd-skills.md"
-      ],
-      "needs_owner": "owner decision"
-    },
-    {
-      "task_id": "T190",
-      "title": "Decide: asteroid-asteroid links and storage as route source",
-      "owner_agent": "gameplay-programmer",
-      "brief": "T188 test found no asteroid-asteroid link and storage never a route source. Owner chooses: add, or document as design in gdd.md. needs owner decision.",
-      "owner_note": "",
-      "depends_on": [],
-      "status": "stopped",
-      "turn_cap": 30,
-      "window": "Gap analysis 2026-11-05 (overnight). Needs owner decision before start.",
-      "note": "Dropped (empire growth v2, 2026-11-06): Hubs may draw from Space Storage; manual storage-as-source and asteroid-asteroid links are not needed.",
-      "touches": [
-        "gdd.md"
-      ],
-      "needs_owner": "owner decision"
     },
     {
       "task_id": "T191",
@@ -1479,24 +1431,6 @@
       "note": "2026-11-06: GIG01 (Ninth Tally wreck) and GIG02 (relay lamp) in story/gigs.md, build_gigs() in tools/build_story.py, English only. data/story_text.json rebuilt but left uncommitted (mixed with owner goods edits)."
     },
     {
-      "task_id": "T218",
-      "title": "Gigs: build the gig mechanic and the two stories",
-      "owner_agent": "gameplay-programmer",
-      "depends_on": [
-        "T216",
-        "T217"
-      ],
-      "status": "stopped",
-      "turn_cap": 45,
-      "window": "Owner request 2026-11-05. Needs the owner to approve the design proposal first.",
-      "brief": "Build the approved gig design (T216) with the two stories (T217): data/gigs.json, spawn and expiry on the game clock, marker and flight target for the 3D ship (right-click menu action from T200), arrival handling, branch-dependent rewards, save state, texts by id (no new literal text), ui-programmer for any panel or popup. A headless test for spawn, arrival and reward per branch. Update gdd.md.",
-      "touches": [
-        "gdd.md"
-      ],
-      "needs_owner": "awaits owner approval and open questions",
-      "note": "Replaced by T271 (empire growth v2, 2026-11-06): Gig engine built as the Flagship's job system (signal and rush kinds) with the board task."
-    },
-    {
       "task_id": "T219",
       "title": "Juice: route lines pop in when a route is made and pulse when a ship dispatches",
       "owner_agent": "juice-programmer",
@@ -1506,22 +1440,6 @@
       "window": "Follow-up from T203 (juice review 2026-11-05). One small run.",
       "brief": "game/route_line.gd draws lanes with no entry or feedback: a new route simply appears, a removed one vanishes, and a ship dispatch has no cue on the lane. Add a short draw-in (alpha and width grow from the source end, about 0.25 s, EASE_OUT), a quick fade on removal, and one brief brightening pulse along the lane when a ship is sent. Why it matters: making a route is the core action and today the only confirmation is the two planet rings (_route_beat); the lane itself should answer. Nothing animates while paused, no text, no logic change, tunables as constants, one headless test for the pure curve.",
       "note": "Draw-in 0.25s, removal fade 0.15s, dispatch pulse 0.5s in route_line.gd; map.gd hooks; test added. Not seen windowed."
-    },
-    {
-      "task_id": "T220",
-      "title": "Juice: Pathfinder arrival and flight-order feedback (departure puff, dock ping, target marker pulse)",
-      "owner_agent": "juice-programmer",
-      "depends_on": [],
-      "status": "stopped",
-      "turn_cap": 20,
-      "window": "Follow-up from T203 (juice review 2026-11-05). One small run.",
-      "brief": "game/pathfinder_view.gd gives no beat when the ship is ordered, leaves, or arrives: the target ring just appears and the arrival only posts a notice (_on_flight_arrived in game/main.gd). Add: a soft pulse on the target marker ring while the ship flies (slow, small), a short ping on the planet at arrival using the same ring helper as the T203 establish beat (play_established or a lighter variant), and a quick pop of the selection ring when the ship is selected or an order is accepted. Why it matters: the Pathfinder is the main thing the player steers in the new discovery mode and it is the quietest object on the map. Game time only (frozen while paused), no per-frame allocation, no logic change, tunables as constants.",
-      "touches": [
-        "game/pathfinder_view.gd",
-        "game/main.gd"
-      ],
-      "needs_owner": "look/layout, owner visual decision",
-      "note": "Replaced by T274 (empire growth v2, 2026-11-06): Folded into the flight and dock juice task."
     },
     {
       "task_id": "T221",
@@ -1552,21 +1470,6 @@
       "window": "Owner request 2026-11-05 (playtest). Not started: main session sets it running.",
       "brief": "Owner: after clicking the Start exploring button, pressing Space (pause/resume time) also activates the focused button, which flips it to Stop exploring. Fix: the exploration button (and other buttons near the ship controls) must not keep keyboard focus after a click (focus_mode NONE or release_focus), and Space must only toggle pause. Check every other button that can take focus and swallow Space or Enter. Headless test if feasible. Handoff handoffs/gameplay-programmer/2026-11-05-T222.json.",
       "note": "2026-11-05: Juice._press_for releases focus after any mouse click on a button (game/juice.gd), so Space only toggles pause. Keyboard-activated buttons keep focus. No headless test."
-    },
-    {
-      "task_id": "T223",
-      "title": "3D viewport: resource icons below each planet",
-      "owner_agent": "ui-programmer",
-      "depends_on": [],
-      "status": "stopped",
-      "turn_cap": 25,
-      "window": "Owner request 2026-11-05 (playtest). Not started: main session sets it running.",
-      "brief": "Owner: under each planet in the 3D solar system view show small icons of the resources available on that planet (icons from art/icons and ui.gd, the same set the galaxy view uses). Use the Availability rule: closed or undiscovered planets and hidden goods are not drawn. Icons must follow the planet size and zoom, stay readable, not overlap the planet label, and not block clicks. Handoff handoffs/ui-programmer/2026-11-05-T223.json.",
-      "touches": [
-        "game/ui.gd"
-      ],
-      "needs_owner": "look/layout, owner visual decision",
-      "note": "Replaced by T264 (empire growth v2, 2026-11-06): Resource icons become need icons with the progress ring."
     },
     {
       "task_id": "T224",
@@ -1785,28 +1688,6 @@
       "note": "2026-11-06: 31 skill nodes rewritten (names, flavour) in story/skills.md, English. Mismatch ideas in handoff (MIL_1, LUX_3, BIO_3, BIO_6). data/story_text.json rebuilt but uncommitted (mixed with owner edits)."
     },
     {
-      "task_id": "T243",
-      "title": "Events: make the T224 thread TH01-TH10 playable (rows, follow chain, cash-pay effect, start-cycle key)",
-      "owner_agent": "gameplay-programmer",
-      "depends_on": [
-        "T224",
-        "T260"
-      ],
-      "status": "queued",
-      "turn_cap": 40,
-      "window": "Created by gap analysis 2026-11-06. Needs owner decision: confirm the gameplay-programmer builds it and the start cycle key.",
-      "brief": "TH01-TH10 texts exist in story/events.md but build_story.py writes no event rows for them. Add the event rows and follow chain in data/events.json (via the generator source), a cash-pay choice effect for TH10_A, and a balance key for the thread start cycle (placeholder value). Conditions via game/conditions.gd, text by id only, update gdd.md.",
-      "touches": [
-        "story/events.md",
-        "tools/build_story.py",
-        "data/events.json",
-        "game/conditions.gd",
-        "gdd.md",
-        "game/main.gd"
-      ],
-      "needs_owner": "awaits owner OK"
-    },
-    {
       "task_id": "T245",
       "title": "Selecting a ship in front of a planet selects only the ship",
       "owner_agent": "gameplay-programmer",
@@ -1887,40 +1768,6 @@
       "note": "Done by orchestrator: Skill info panel moved from the bottom to a 320px right-hand column on the skill screen, tree uses freed height and remaining width"
     },
     {
-      "task_id": "T250",
-      "title": "Pirates: a pack of small fast raider ships from dead worlds that steal cargo and cut a line's profit for X cycles",
-      "owner_agent": "gameplay-programmer",
-      "depends_on": [],
-      "status": "stopped",
-      "turn_cap": 50,
-      "window": "Owner request 2026-11-06. Gameplay-programmer builds; economy numbers are placeholders in data/balance.json (the owner tunes, no QA/economy agent runs).",
-      "brief": "Owner: add pirates. Model: assets/ships/pirate_ship_01/warship 3d model.glb (import it; check scale and facing like the corvette GLBs, and set up its import settings). A pirate raid is a PACK of several ships (placeholder 3-5), each smaller than a corvette (placeholder scale ~0.6x) and slightly faster (placeholder speed ~1.15x a corvette). They appear occasionally from a DEAD planet (Cinderrest, Greywake and any later dead world), fly to a player route's lane/ship, and after the raid fly back and hide on the dead planet, i.e. simply disappear (fade or shrink into the planet) until the next raid. Pirates have no health bar, no combat and cannot be shot or selected. Effect: they steal goods. The raided line (route) becomes less profitable for X cycles: lose part of the cargo of the hit trip (placeholder share) and apply a profit malus on that route for X cycles (placeholder 3), shown as a notice and a marker on the route/ship panel with the cycles left; the malus ends by itself, no stacking beyond a cap. Triggering: occasional, only from dead worlds that are established (discovery) and only on routes that pass through the system, tied to the dead world's danger meter if it exists, with a cooldown; frequency, share, X, pack size, speed and scale all go to data/balance.json as keys (no numbers in code). Follow the Availability rule (no pirates text or UI before the first dead world is established) and write all text as ids in the story source (story/*.md, then python3 tools/build_story.py; English only): notice for a raid, notice for loot lost, route marker label and tooltip. Conditions via game/conditions.gd. Save/load the active malus and cooldown. Reuse the existing ship flight and trail code; the pack flies in loose formation. Update gdd.md (no balance numbers). Do not run QA bots or sim; sh tools/tests/run.sh is fine. Handoff: handoffs/gameplay-programmer/<date>-T250.json.",
-      "owner_note": "Owner 2026-11-06. Open design questions for the owner, defaults in the brief: pack size, X cycles, loot share, whether a pirate-hit can be prevented by a skill or escort (not in this task).",
-      "touches": [
-        "data/balance.json",
-        "tools/build_story.py",
-        "game/conditions.gd",
-        "gdd.md",
-        "game/main.gd"
-      ],
-      "note": "Replaced by T296 (empire growth v2, 2026-11-06): Pirates re-scoped: raids from unreclaimed dead worlds, with salvage pods for the Flagship."
-    },
-    {
-      "task_id": "T251",
-      "title": "Juice pass: make all effects 14 out of 10, awesome looking",
-      "owner_agent": "juice-programmer",
-      "depends_on": [],
-      "status": "queued",
-      "turn_cap": 50,
-      "window": "Owner request 2026-11-06. Look is the owner request; no QA bots or screenshots required for done.",
-      "brief": "Owner: make the effects 14 out of 10, awesome looking. Go through every existing effect and feedback in the game and push it much further: trade and sale payoffs (cash count-ups, coin or credit bursts, floating numbers), ship launch, arrival and docking, route start and completion, trails and engine glow, planet select and hover, notices and pop-ups, event reveals, skill learn (the unlock should feel big), build and upgrade moments, win and loss. Use layered effects: anticipation, impact, settle; additive glow, particles, easing with overshoot, brief screen shake and flash on big moments, and sound-sync hooks if audio exists. Keep it readable: effects never hide numbers or block clicks, big moments stay rare so small ones stay light, and frame budget on macOS holds (pool particles, no per-frame allocations). Put every strength, duration and colour as a constant atop the file or a balance key so the owner can tune, and add one master intensity setting (e.g. in the game menu) with an off or reduced option. Do not change gameplay logic, balance numbers or story text. Read game/ for existing juice code first and extend it instead of duplicating. Handoff: handoffs/juice-programmer/<date>-T251.json listing each effect added or changed.",
-      "owner_note": "Owner 2026-11-06. Overlaps T246 (ship trails): do not redo trails if T246 is done or running; coordinate by reading its handoff.",
-      "touches": [
-        "game/**"
-      ],
-      "needs_owner": "hold (empire growth v2): Run the 14/10 pass after Phase 2 so it polishes the new beats, not the share UI being removed."
-    },
-    {
       "task_id": "T252",
       "title": "Scale all ships to 0.8x (pirate ships included)",
       "owner_agent": "gameplay-programmer",
@@ -1936,44 +1783,6 @@
         "game/main.gd"
       ],
       "note": "Done by orchestrator: Added `ship_scale` 0.8 to `data/balance.json`, read through `Ships.ship_scale()`. It sizes the player, rival and traffic ships, their selection ring, FX radii, trail widths and engine offsets. The click pick radius stays at 20 px."
-    },
-    {
-      "task_id": "T253",
-      "title": "Design: merge mining and dead worlds into one \"raw sources\" mechanic",
-      "owner_agent": "feature-designer",
-      "depends_on": [],
-      "status": "stopped",
-      "turn_cap": 40,
-      "window": "Owner request 2026-11-06, from the mechanics review (design/proposals/2026-11-06-mechanics-review.md, cut/merge section). Proposal only.",
-      "brief": "Owner: merge mining (asteroid fields, clusters, mining platforms, ore) and dead worlds (danger, ore loss, fabric/plate, Null Core, shore up) into one \"raw sources\" mechanic. Write a spec, build nothing: what the player does with a raw source from discovery to output, which current rules stay, merge or go, how the existing goods (ore, dross, nullglass, plate) and the Null Core fit, what happens to dead_unlock_cycle and danger, the impact on skills (MIN tree), events and chains that name mining or dead worlds, Availability rules, tutorial text and save games. Read the review section first, then game/dead_worlds.gd, game/clusters.gd, game/fabric.gd, mining parts of game/route_engine.gd and data/balance.json key names (no values; numbers are for economy-designer). List build steps per agent (gameplay, ui, story) with sizes, and the questions for the owner. Output design/proposals/<date>-raw-sources.md. Handoff: handoffs/feature-designer/<date>-T253.json.",
-      "owner_note": "Owner 2026-11-06. Build is T254 after the owner approves this spec.",
-      "touches": [
-        "design/proposals/**"
-      ],
-      "note": "Replaced by T295 (empire growth v2, 2026-11-06): This document (section 3.4) is the spec; mining shrinks to a Minerals intensity lever inside the Frontier."
-    },
-    {
-      "task_id": "T254",
-      "title": "Build: raw sources mechanic (mining + dead worlds merged, per approved T253 spec)",
-      "owner_agent": "gameplay-programmer",
-      "depends_on": [
-        "T253"
-      ],
-      "status": "stopped",
-      "turn_cap": 80,
-      "window": "Owner request 2026-11-06. Starts only after the owner approves the T253 spec.",
-      "brief": "Build the raw sources mechanic exactly as the owner-approved T253 spec says (design/proposals/<date>-raw-sources.md and its owner answers). Follow the spec's build steps; numbers only from data/balance.json keys set by the owner or economy-designer, never invented in code. Keep Availability rules, conditions in game/conditions.gd and story text through tools/build_story.py. Update gdd.md in the same commit. Handoff: handoffs/gameplay-programmer/<date>-T254.json.",
-      "needs_owner": "approve the T253 raw sources spec",
-      "touches": [
-        "game/dead_worlds.gd",
-        "game/clusters.gd",
-        "game/fabric.gd",
-        "game/route_engine.gd",
-        "game/main.gd",
-        "data/balance.json",
-        "gdd.md"
-      ],
-      "note": "Replaced by T295 (empire growth v2, 2026-11-06): Built as the Barren step, reclaim and intensity task."
     },
     {
       "task_id": "T255",
