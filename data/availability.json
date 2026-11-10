@@ -90,18 +90,18 @@
       "kind": "good",
       "id": "ore",
       "visible_when": {
-        "all": [
-          "branch_is:min",
+        "any": [
+          "skill_learned:FND_PROSPECT",
+          "stock_held:ore",
           {
-            "any": [
-              "skill_learned:FND_PROSPECT",
-              "stock_held:ore",
+            "all": [
+              "branch_is:min",
               "branch_chosen"
             ]
           }
         ]
       },
-      "note": "T239: Minerals starter: shown from cycle 0 in a Minerals run (Flintmoor sells it, clusters stay the bulk source); an old save without branch keeps the FND_PROSPECT rule. ore_sell 12 exists at Voltara but ore only comes from asteroid clusters (route from a cluster needs FND_PROSPECT / cluster_routes) and is never bought at a planet. JUDGEMENT: hidden at start, shown once FND_PROSPECT is learned. Also a recipe input of ingot and gems."
+      "note": "2026-11-09: any CEO sees ore once FND_PROSPECT is learned (every asteroid cluster gives ore, so a non-Minerals run learned the skill and still got no Send ore button, with a card that said mining needed the skill). T239: Minerals starter: shown from cycle 0 in a Minerals run (Flintmoor sells it, clusters stay the bulk source); an old save without branch keeps the FND_PROSPECT rule. ore_sell 12 exists at Voltara but ore only comes from asteroid clusters (route from a cluster needs FND_PROSPECT / cluster_routes) and is never bought at a planet. JUDGEMENT: hidden at start, shown once FND_PROSPECT is learned. Also a recipe input of ingot and gems."
     },
     {
       "kind": "good",
