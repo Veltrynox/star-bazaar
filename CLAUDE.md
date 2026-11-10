@@ -8,6 +8,7 @@
 - Do only what the task asks. Do not add QA passes, balance passes, screenshot steps or extra testing unless the task explicitly requests them (the one exception is the Quick look screenshot in the overnight-task skill, see "Visual review" below).
 - Design and proposal tasks (skills, events, markets) produce a proposal only. Do not implement anything until the owner has reviewed and approved it.
 - When asked to stop or change one task (e.g. T207), touch only that task id.
+- Never add a test run to a task brief, agent prompt or "done" step, and never run `sh tools/tests/run.sh` (or any test) yourself, unless the owner asks for it in that request. A task is done when it is built. Commits of such work carry `[no-tests]`. (Owner rule 2026-11-09, after a one-line fix was briefed with a full suite run.)
 
 ## Unattended runs (orchestrator)
 - 'Run the job runner' (or the runner / orchestrator) means `python3 tools/orchestrator.py run`: loops merge -> start -> sleep until nothing is left. Stop it with a `STOP_ORCHESTRATOR` file in the project root. Rebase conflicts it cannot resolve itself go to the `merge-resolver` agent. Other sessions and agents may edit `schedule.json` / `blackboard.md` while it runs: the orchestrator commits those edits on their own before adding its board update (JSON and blackboard check must be valid), so no one has to wait for it or commit first. `tools/job_runner.py` was deleted; the `overnight-task` skill (the old sequential prompt) is no longer called by anything.
@@ -35,7 +36,7 @@
 
 ## Availability rule (progressive disclosure)
 - A new good, workshop or storage feature needs a rule in that file first. Use `Availability` (`game/availability.gd`) in any UI that lists goods; hidden means not drawn at all.
-- Check: `sh tools/tests/run.sh` runs `_test_availability` (start state, per-rule show/hide, text scan, data lint). It must pass before any UI, data or story change is handed off.
+- Check: `sh tools/tests/run.sh` runs `_test_availability` (start state, per-rule show/hide, text scan, data lint). Run it only when the owner asks (see Scope discipline); then it must pass before the change is handed off.
 
 ## GDD sync (commit gate)
 - `gdd.md` is the short-form design truth (no balance numbers; numbers live in `data/`). A hook (`tools/gdd_sync.py`, set in `.claude/settings.json`) blocks `git commit` when the commit changes `game/`, `data/` or `story/` and does not include `gdd.md`.
