@@ -4267,6 +4267,8 @@ func _tut_target_node(key: String) -> Control:
 	if c != null and c.is_visible_in_tree() and c.size.x > 0.0:
 		var sc := right_col.get_parent() as Control if right_col != null else null
 		if sc != null and sc.is_ancestor_of(c) and not sc.get_global_rect().encloses(c.get_global_rect()):
+			if key == "hero" and sc is ScrollContainer:
+				(sc as ScrollContainer).ensure_control_visible.call_deferred(c)  # the Pathfinder card is below the fold: scroll to it, outline it next frame
 			return null  # scrolled out of the column
 		return c
 	return null
@@ -4306,6 +4308,8 @@ func _tut_highlight_key() -> String:
 	if key == "sell" and _tut_sell_end() >= 0 and selected_planet != _tut_sell_end():
 		return "planet"  # T334: the route's end world is not open yet: point at it first
 	if key != "planet" and _tut_target_node(key) == null:
+		if key == "hero" and ship_panel != null and ship_panel.hero_card != null and ship_panel.hero_card.is_visible_in_tree():
+			return "hero"  # the card is on screen but not laid out or scrolled into view yet (a frame): keep the key, never fall back to the map planet
 		return "planet"
 	return key
 

@@ -7,6 +7,7 @@ extends SceneTree
 ##   --scene <res://...>  default res://game/main.tscn
 ##   --frames <n>         frames to wait before the shot, default 60
 ##   --planet <id>        main.tscn only: open this planet's panel (e.g. dead_1)
+##   --tut-step <n>       main.tscn only: keep the guided tutorial and show its step n (flags cleared, as after a load)
 ## For main.tscn the preface and tutorial are skipped so the map is visible. Hard self-quit after 60 s.
 
 func _arg(name: String, default: String = "") -> String:
@@ -34,7 +35,11 @@ func _initialize() -> void:
 	if m.has_method("_dismiss_preface"):
 		m._dismiss_preface()
 		if "tut_step" in m and "TUT_GUIDE" in m:
-			m.tut_step = m.TUT_GUIDE.size()
+			if _arg("--tut-step") != "":
+				m.tut_flags = {}
+				m.tut_step = int(_arg("--tut-step"))
+			else:
+				m.tut_step = m.TUT_GUIDE.size()
 		await process_frame
 		var pid := _arg("--planet")
 		if pid != "" and "map" in m:

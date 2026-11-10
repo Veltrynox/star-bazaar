@@ -63,6 +63,7 @@ func _run() -> void:
 	await _test_tut_g0_rmb()
 	await _test_tut_counter()
 	await _test_tut_full_walk()
+	await _test_tut_hero_highlight()
 	await _test_tut_speed_card()
 	await _test_tut_skills_card()
 	await _test_tut_sell_and_order()
@@ -1272,6 +1273,44 @@ func _click_at(p: Vector2) -> void:
 		e.position = p
 		e.global_position = p
 		root.push_input(e)
+
+## Owner report 2026-11-09: the Ships step (TUT_G1B_SHIPS) must outline the Pathfinder card in the Ships menu, also with the Tips
+## box tall, a tip card up, or the card below the fold of the right column. The window is a fixed 1920x1080 canvas (stretch
+## canvas_items), so 1280x720 only changes the real window, not the layout; both sizes are run anyway.
+func _test_tut_hero_highlight() -> void:
+	var old_size := root.size
+	for c in root.get_children():
+		if c.scene_file_path == MAIN_SCENE:
+			c.free()
+	for sz in [Vector2i(1920, 1080), Vector2i(1280, 720)]:
+		root.size = sz
+		for variant in ["plain", "tips", "below_fold"]:
+			var tag := "tut hero highlight (%s, %s): " % [str(sz), variant]
+			var m: Control = await _new_main(true, true)
+			for i in 4:
+				await process_frame
+			m.tut_flags = {}  # as after a load: the flight card did not skip the Ships step
+			m.tut_step = 1
+			if variant == "tips":
+				for d in m.TIP_DEFS.slice(0, 5):
+					m._tip_show(str(d["id"]))
+			elif variant == "below_fold":
+				var pad := Control.new()
+				pad.custom_minimum_size = Vector2(0, 1200)
+				m.right_col.add_child(pad)
+				m.right_col.move_child(pad, 0)
+			for i in 6:
+				await process_frame
+			var hc: Control = m.ship_panel.hero_card
+			var want: Rect2 = hc.get_global_rect().grow(3.0)
+			check(m._tut_id(1) == "TUT_G1B_SHIPS" and m.tut_step == 1 and m.tut_card.visible, tag + "the Ships card shows", str([m.tut_step, m.tut_card.visible]))
+			check(m._tut_highlight_key() == "hero", tag + "highlight key is hero", m._tut_highlight_key())
+			check(m.tut_hl.visible, tag + "the outline is visible")
+			var got := Rect2(m.tut_hl.global_position, m.tut_hl.size)
+			check(got.position.distance_to(want.position) < 4.0 and got.size.distance_to(want.size) < 4.0, tag + "the outline sits over the hero card", str([got, want]))
+			await _free_main(m)
+	root.size = old_size
+
 
 func _test_tut_fly_click() -> void:
 	var old_size := root.size

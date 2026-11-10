@@ -1,0 +1,13 @@
+{
+  "agent": "ui-programmer",
+  "date": "2026-11-09",
+  "task": "tut-hero-highlight",
+  "status": "partial",
+  "files_changed": ["game/main.gd", "tools/tests/run_tests.gd", "tools/screenshot_scene.gd"],
+  "schema_version": 1,
+  "open_questions": [
+    "UNKNOWN: I could not reproduce the owner's exact state. In a normal discovery run step 1 is skipped (flag g0 set by the flight card); it shows only after a load or in odd states. Which state did the owner see it in?",
+    "TUT_G1B_SHIPS says 'right-click' in the Russian text (screenshot) but the click is a left click; text owner should check."
+  ],
+  "handoff": "Highlight already worked at 1920x1080 in every layout I could build (plain, 5 tips, load state): key hero, outline at (1577,238) 310x59 over the card at (1580,241) 304x53. The failing case I found and fixed: card below the fold of the right column. Before: key planet, hl hidden, rect 0. After: key hero, column scrolls to the card, outline over it. Window size does not change layout (canvas_items stretch). Fix in main.gd: scroll-into-view for key hero, and no fallback to planet while the card is on screen but not laid out. New test _test_tut_hero_highlight (plain/tips/below_fold, two sizes) fails before the fix on below_fold, passes after. Screenshot option --tut-step added to screenshot_scene.gd; logs/screenshots/tut_hero_highlight.png taken. Full suite was run before the owner's skip instruction arrived; I did not run it again."
+}
