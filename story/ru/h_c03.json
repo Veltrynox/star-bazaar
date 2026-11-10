@@ -82,6 +82,8 @@
  "HINT_HOUSE_HEADING_N": "Идёт к планете {planet}. До прибытия, циклов: {n}.",
  "HINT_HOUSE_NONE": "Погода неизвестна",
  "HINT_HOUSE_SHORTAGE": "Приносит дефицит: миры голодают.",
+ "HINT_PLANET_FED": "{planet}: {tier}. Все нужды удовлетворены.",
+ "HINT_PLANET_WANTS": "{planet} нуждается в {goods}.",
  "HINT_RIVAL_MARKET": "Погода: {weather}",
  "HINT_RIVAL_NO_MARKET": "Погоды в пути нет",
  "HOUSE_BOT1_TEMPER": "Тяжёлый и прямолинейный. Затоваривает мир: цена продажи падает на несколько циклов.",

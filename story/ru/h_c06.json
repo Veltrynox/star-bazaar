@@ -81,6 +81,7 @@
  "PROS_FED_BY": "Поставщики",
  "PROS_LBL_DEMAND": "Спрос за цикл",
  "PROS_LBL_NEEDS": "Нужды",
+ "PROS_NEEDS_NOTE": "Доставлено / нужно, за цикл.",
  "PROS_LBL_PROGRESS": "Прогресс роста",
  "PROS_LBL_SOLD": "Продано в этом цикле",
  "PROS_NEED_LOCKED": "? Пока неизвестно",

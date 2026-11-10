@@ -276,8 +276,8 @@ TUT_G5_UPKEEP | 60 | Guided step 5, after a ship is working | Find Ship upkeep u
 TUT_G5_UPKEEP_WHY | 110 | Guided step, why it matters (second line of the card) | A ship costs money every cycle, so a route must earn more than it costs.
 TUT_G6_SELL | 60 | Guided step 6, until the first Sell order | Open your route's end world. Turn Sell on for Energy.
 TUT_G6_SELL_WHY | 110 | Guided step, why it matters (second line of the card) | A Sell order turns stock into credits when the cycle ends. Let one finish.
-TUT_G7_STORAGE | 60 | Guided step 7, storage | The lit colour is stock in Company storage.
-TUT_G7_STORAGE_WHY | 110 | Guided step, why it matters (second line of the card) | Stored/capacity shows how much it holds. When it is full, Buy waits. Press Next.
+TUT_G7_STORAGE | 60 | Guided step 7, storage | The lit text shows the stock in Company storage.
+TUT_G7_STORAGE_WHY | 110 | Guided step, why it matters (second line of the card) | When it is full, Buy waits. Press Next.
 TUT_G7_NEEDS | 60 | Guided step 8 (T315), until a world card with a Needs list has been opened | Open a world and read its Needs.
 TUT_G7_NEEDS_WHY | 110 | Guided step, why it matters (second line of the card) | A world grows when your sales meet its needs. Grown worlds pay tax.
 TUT_G7_GROW | 60 | Guided step 9 (T315), until the first world reaches tier 1 | Sell a world the goods it needs, until it grows.
@@ -295,7 +295,6 @@ TUT_STEP_COUNT | 24 | Tutorial card, step counter; {n} is the step, {total} the 
 Rules for T316 (notes, not blocks): each tip is two ids, TIP_<NAME> (what it is, card line) and TIP_<NAME>_WHY (why it matters and what to do next, second line). Show each tip once per run, the first time its trigger is true, never blocking and never over a guided step card: queue it until the card is gone. If two tips fire at once, show them in the order listed below. No placeholders. No text names a hidden good, a number or a price. The trigger of every tip is also in the place field of its first block.
 
 Trigger table (tip id: trigger in plain words):
-- TIP_GOAL: the guided tutorial ends or is skipped.
 - TIP_TIER1: the first world reaches tier 1.
 - TIP_TAX: the first cycle in which worlds pay tax.
 - TIP_RESTLESS: the first world turns Restless.
@@ -329,8 +328,6 @@ Trigger table (tip id: trigger in plain words):
 - TIP_FOUNDATIONS: the third required Foundation is learned.
 
 ### Goal and Bazaar
-TIP_GOAL | 110 | Tip card line; trigger: the guided tutorial ends or is skipped | Holding a market does not win. Only a finished Star Bazaar does.
-TIP_GOAL_WHY | 110 | Tip card, why line | Open the Bazaar panel: it founds the Bazaar on a capital world, then shows each stage and what is short.
 TIP_CAPITAL | 110 | Tip card line; trigger: the first world reaches the capital tier | A world has reached the capital tier. You can found the Star Bazaar there. It is final.
 TIP_CAPITAL_WHY | 110 | Tip card, why line | A run has one capital. Choose with care, then press Found the Bazaar here on the world's panel.
 TIP_FOUNDED | 110 | Tip card line; trigger: the Bazaar is founded | The Bazaar is built in stages. Each needs goods in the capital's storage and other worlds at a tier.
@@ -345,8 +342,8 @@ TIP_TAX | 110 | Tip card line; trigger: the first cycle in which worlds pay tax 
 TIP_TAX_WHY | 110 | Tip card, why line | More tiers mean more tax. Keep worlds supplied so they keep growing.
 TIP_RESTLESS | 110 | Tip card line; trigger: the first world turns Restless | A Restless world is losing growth progress because one of its needs is short.
 TIP_RESTLESS_WHY | 110 | Tip card, why line | Sell it the short good, or send stock there. Meeting every need stops the loss.
-TIP_HUNGRY | 110 | Tip card line; trigger: the first Hungry chip appears on a need row | Hungry means a need is short and its price is up. Surplus means sales passed demand.
-TIP_HUNGRY_WHY | 110 | Tip card, why line | Send goods to a Hungry world first. It pays more and your sale fills the need.
+TIP_HUNGRY | 110 | Tip card line; trigger: the first Hungry chip appears on a need row | A world is Hungry: last cycle it did not get enough of a good it needs, so it now pays extra for it.
+TIP_HUNGRY_WHY | 110 | Tip card, why line | Find the Hungry tag in a world's Needs list. Deliver that good there first: it pays more and fills the need.
 TIP_UPGRADE | 110 | Tip card line; trigger: the first full lane shows the Upgrade route button, or an add-ship click is refused as full | A full lane cannot take another ship. It can be upgraded instead.
 TIP_UPGRADE_WHY | 110 | Tip card, why line | Open the world the route starts from and press Upgrade route. One fee, a better margin on every trip.
 TIP_HUB | 110 | Tip card line; trigger: the first world can be made a hub (right after TIP_CAPITAL) | A hub keeps the worlds near it fed, using ships from its own pool.
@@ -712,17 +709,17 @@ EV_MIL_B4_OPB_STD | 90 | MIL_B4 house line 1, opt_b | {bot1}: next weather lands
 EV_MIL_B4_OPB_STD2 | 90 | MIL_B4 house line 2, opt_b | {bot3}: next weather lands a little softer.
 
 ### LUX_A1 (Luxury, chain A, step 1)
-EV_LUX_A1_TITLE | 40 | LUX_A1 choice screen title | A patron wants every first crate
-EV_LUX_A1_BODY | 280 | LUX_A1 choice screen body (one body) | Madame Ysolde Marr, a patron on Quillon's gallery ring, wants the first crate of each cycle before any other buyer. She says a crate picks its owner by smell. {bot2} supplies her now, and {bot3} keeps a counter on the same ring. Set a first-pick price, or sell one first lot.
-EV_LUX_A1_OPA_BTN | 28 | LUX_A1 button, opt_a | Set a first-pick price
-EV_LUX_A1_OPA_EFF | 200 | LUX_A1 effect line, opt_a | Get: Luxury price up a little for a while. Cost: Luxury volume down a little for a while. Weather: {bot2}'s next weather lands a little softer.
-EV_LUX_A1_OPA_RES_TITLE | 32 | LUX_A1 result popup title, opt_a | The first pick is priced
-EV_LUX_A1_OPA_RES | 280 | LUX_A1 result popup, opt_a; {bot} is bot_2 | Madame Marr agreed a first-pick price, and crates now go to the gallery ring before the shelves. Fewer reach the counters, so Luxury volume dips for a while, and prices rise a little. {bot} lost her first look, and its next weather lands a little softer. She sniffed every lid.
+EV_LUX_A1_TITLE | 40 | LUX_A1 choice screen title | Madame Marr demands the first pick
+EV_LUX_A1_BODY | 280 | LUX_A1 choice screen body (one body) | Madame Ysolde Marr, queen of Quillon's gallery ring, wants the first luxury lot of every cycle, before any other buyer sees it. She sniffs every lid and swears each lot picks its owner. {bot2} feeds her now, and {bot3} keeps a stall on her ring. Name a price, or sell her one lot.
+EV_LUX_A1_OPA_BTN | 28 | LUX_A1 button, opt_a | Name the first-pick price
+EV_LUX_A1_OPA_EFF | 200 | LUX_A1 effect line, opt_a | Get: Luxury prices rise a little for a while. Cost: Luxury volume falls a little for a while. Weather: {bot2}'s next weather lands a little softer.
+EV_LUX_A1_OPA_RES_TITLE | 32 | LUX_A1 result popup title, opt_a | Madame Marr gets her way
+EV_LUX_A1_OPA_RES | 280 | LUX_A1 result popup, opt_a; {bot} is bot_2 | Madame Marr accepts the price and the best lots now go to her ring first. Fewer reach the shelves, so volume dips and prices climb a little. {bot} has lost her favour, and its next weather lands a little softer. She sniffed every lid, and she was pleased.
 EV_LUX_A1_OPA_STD | 90 | LUX_A1 house line 1, opt_a | {bot2}: next weather lands a little softer.
-EV_LUX_A1_OPB_BTN | 28 | LUX_A1 button, opt_b | Sell one first lot
-EV_LUX_A1_OPB_EFF | 200 | LUX_A1 effect line, opt_b | Get: {cash_in} credits now. Cost: Luxury volume down a little for a few cycles; {bot2}'s next weather comes a little sooner. Weather: {bot3}'s next weather lands a little softer.
-EV_LUX_A1_OPB_RES_TITLE | 32 | LUX_A1 result popup title, opt_b | The first lot is sold
-EV_LUX_A1_OPB_RES | 280 | LUX_A1 result popup, opt_b; {bot} is bot_3 | Madame Marr paid for one first lot at the dock, and the cash arrived the same hour. Shelves stood bare for a few cycles. {bot2} supplied her next lot, so its weather comes a little sooner, while {bot} finds its counter on the ring emptier and its weather lands a little softer.
+EV_LUX_A1_OPB_BTN | 28 | LUX_A1 button, opt_b | Sell her one first lot
+EV_LUX_A1_OPB_EFF | 200 | LUX_A1 effect line, opt_b | Get: {cash_in} credits now. Cost: Luxury volume falls a little for a few cycles, and {bot2}'s next weather comes a little sooner. Weather: {bot3}'s next weather lands a little softer.
+EV_LUX_A1_OPB_RES_TITLE | 32 | LUX_A1 result popup title, opt_b | One lot, paid in full
+EV_LUX_A1_OPB_RES | 280 | LUX_A1 result popup, opt_b; {bot} is bot_3 | Madame Marr paid for one first lot on the dock, and the credits reached you within the hour. The shelves stood bare for a few cycles. {bot2} fed her next lot, so its weather comes a little sooner. {bot} found its stall on her ring empty, and its weather lands a little softer.
 EV_LUX_A1_OPB_STD | 90 | LUX_A1 house line 1, opt_b | {bot3}: next weather lands a little softer.
 EV_LUX_A1_OPB_STD2 | 90 | LUX_A1 house line 2, opt_b | {bot2}: next weather comes a little sooner.
 
@@ -1087,6 +1084,8 @@ LBL_GOOD_STORED | 60 | Resource info card, shown once Space Storage stock rows a
 HINT_DEST_BUYS | 60 | Card at the cursor while a route waits for a destination, planet that takes the good; {planet}, {good}, {price} in credits | {planet} buys {good} at {price} cr each.
 HINT_DEST_NO_BUYER | 60 | Card at the cursor while a route waits for a destination, planet that does not price the good; {planet}, {good} | {planet} does not buy {good}.
 HINT_DEST_STATION | 60 | Card at the cursor while a route waits for a destination, Space Storage station that can take the good; {good} | Space Storage keeps {good} for later.
+HINT_PLANET_WANTS | 110 | Map hover card on a planet with a short need; {planet}, {goods} (comma list of the short goods) | {planet} wants {goods}.
+HINT_PLANET_FED | 110 | Map hover card on a planet with no short need; {planet}, {tier} (its tier name) | {planet}: {tier}. Every need is met.
 HINT_DEST_SOURCE | 60 | Card at the cursor while a route waits for a destination, the planet the route starts from | The route starts here. Pick another planet.
 
 ## Lane net label and no-earn flag (2026-11-04)
@@ -1160,7 +1159,7 @@ LBL_UNKNOWN_WORLD | 24 | Map and planet panel, name of a closed living world | U
 LBL_UNKNOWN_DARK_WORLD | 24 | Map and planet panel, name of a closed dead world | Unknown dark world
 LBL_UNKNOWN_WORLD_LINE | 110 | Planet panel of a closed living world, one flavour line, no goods list | Something lives here. Fly closer to learn what it trades.
 LBL_UNKNOWN_DARK_LINE | 110 | Planet panel of a closed dead world, one flavour line, no goods list | A dark world. Fly closer to see what is left.
-BTN_FLY_HERE | 24 | Planet panel, button that sends the Pathfinder to this world | Fly here
+BTN_FLY_HERE | 24 | Planet panel, button that sends the Pathfinder to this world | Explore
 LBL_FLIGHT_TIME | 60 | Planet panel of a closed world, flight time from the Pathfinder; {cycles} is a number | Flight time: {cycles} cycles
 LBL_PATHFINDER_NAME | 24 | Ship panel and map tooltip, name of the scout | Pathfinder
 LBL_PATHFINDER_DESC | 110 | Ship panel, scout line | A scout. It carries no cargo and costs no upkeep. It flies to new worlds and builds posts.
@@ -1204,6 +1203,8 @@ NOT_FLIGHT_EVENT | 110 | Notice before a flight event, optional | The Pathfinder
 ## Tutorial: first flight (T181; replaces the old guided step 1 when discovery is on; Russian in story/ru/discovery.json)
 TUT_G0_FLY | 60 | Guided step 0, until the Pathfinder has reached the nearby world | Right-click {planet}, choose Establish a trading post.
 TUT_G0_FLY_WHY | 110 | Guided step, why it matters (second line of the card) | The Pathfinder flies there by itself and builds the post. Your first one is free.
+TUT_G0_TRAVEL | 60 | Guided step 0, after the order and the speed card, while the Pathfinder is still flying | Wait for the Pathfinder to reach {planet}.
+TUT_G0_TRAVEL_WHY | 110 | Guided step 0, travel card, second line: a tip to read during the flight | Tip: every world makes some goods and lacks others. Carry goods from where they are cheap to where they sell.
 TUT_G0_BUILD | 60 | Guided step 0, after arrival, until the post is built | Right-click this world, choose Establish trading post.
 TUT_G0_BUILD_WHY | 110 | Guided step, why it matters (second line of the card) | A post lets you buy, sell and route there. Your first one is free.
 TUT_G0_WAIT | 60 | Guided step 0, while the post is building | Press the lit time button, top right, and wait for the post.
@@ -1408,6 +1409,7 @@ NOT_SKILL_REASON_TIER | 60 | Fills {reason}, first world to reach a tier; {plane
 ### Planet card
 PROS_LBL_NEEDS | 24 | Planet card, header of the need list | Needs
 PROS_LBL_PROGRESS | 24 | Planet card, growth bar label | Growth progress
+PROS_NEEDS_NOTE | 110 | Planet card, small line under the Needs header: the numbers are per cycle, not a one-time total | Delivered / wanted, per cycle.
 PROS_LBL_DEMAND | 24 | Planet card, need row, units wanted each cycle | Demand per cycle
 PROS_LBL_SOLD | 24 | Planet card, need row, units sold here this cycle | Sold this cycle
 PROS_NEED_MET | 24 | Planet card, need row status | Met

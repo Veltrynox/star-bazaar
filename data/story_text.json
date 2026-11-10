@@ -1017,13 +1017,13 @@
   },
   {
    "id": "TUT_G7_STORAGE",
-   "text": "The lit colour is stock in Company storage.",
+   "text": "The lit text shows the stock in Company storage.",
    "max": 60,
    "place": "Guided step 7, storage"
   },
   {
    "id": "TUT_G7_STORAGE_WHY",
-   "text": "Stored/capacity shows how much it holds. When it is full, Buy waits. Press Next.",
+   "text": "When it is full, Buy waits. Press Next.",
    "max": 110,
    "place": "Guided step, why it matters (second line of the card)"
   },
@@ -1100,18 +1100,6 @@
    "place": "Tutorial card, step counter; {n} is the step, {total} the number of steps"
   },
   {
-   "id": "TIP_GOAL",
-   "text": "Holding a market does not win. Only a finished Star Bazaar does.",
-   "max": 110,
-   "place": "Tip card line; trigger: the guided tutorial ends or is skipped"
-  },
-  {
-   "id": "TIP_GOAL_WHY",
-   "text": "Open the Bazaar panel: it founds the Bazaar on a capital world, then shows each stage and what is short.",
-   "max": 110,
-   "place": "Tip card, why line"
-  },
-  {
    "id": "TIP_CAPITAL",
    "text": "A world has reached the capital tier. You can found the Star Bazaar there. It is final.",
    "max": 110,
@@ -1185,13 +1173,13 @@
   },
   {
    "id": "TIP_HUNGRY",
-   "text": "Hungry means a need is short and its price is up. Surplus means sales passed demand.",
+   "text": "A world is Hungry: last cycle it did not get enough of a good it needs, so it now pays extra for it.",
    "max": 110,
    "place": "Tip card line; trigger: the first Hungry chip appears on a need row"
   },
   {
    "id": "TIP_HUNGRY_WHY",
-   "text": "Send goods to a Hungry world first. It pays more and your sale fills the need.",
+   "text": "Find the Hungry tag in a world's Needs list. Deliver that good there first: it pays more and fills the need.",
    "max": 110,
    "place": "Tip card, why line"
   },
@@ -2967,37 +2955,37 @@
   },
   {
    "id": "EV_LUX_A1_TITLE",
-   "text": "A patron wants every first crate",
+   "text": "Madame Marr demands the first pick",
    "max": 40,
    "place": "LUX_A1 choice screen title"
   },
   {
    "id": "EV_LUX_A1_BODY",
-   "text": "Madame Ysolde Marr, a patron on Quillon's gallery ring, wants the first crate of each cycle before any other buyer. She says a crate picks its owner by smell. {bot2} supplies her now, and {bot3} keeps a counter on the same ring. Set a first-pick price, or sell one first lot.",
+   "text": "Madame Ysolde Marr, queen of Quillon's gallery ring, wants the first luxury lot of every cycle, before any other buyer sees it. She sniffs every lid and swears each lot picks its owner. {bot2} feeds her now, and {bot3} keeps a stall on her ring. Name a price, or sell her one lot.",
    "max": 280,
    "place": "LUX_A1 choice screen body (one body)"
   },
   {
    "id": "EV_LUX_A1_OPA_BTN",
-   "text": "Set a first-pick price",
+   "text": "Name the first-pick price",
    "max": 28,
    "place": "LUX_A1 button, opt_a"
   },
   {
    "id": "EV_LUX_A1_OPA_EFF",
-   "text": "Get: Luxury price up a little for a while. Cost: Luxury volume down a little for a while. Weather: {bot2}'s next weather lands a little softer.",
+   "text": "Get: Luxury prices rise a little for a while. Cost: Luxury volume falls a little for a while. Weather: {bot2}'s next weather lands a little softer.",
    "max": 200,
    "place": "LUX_A1 effect line, opt_a"
   },
   {
    "id": "EV_LUX_A1_OPA_RES_TITLE",
-   "text": "The first pick is priced",
+   "text": "Madame Marr gets her way",
    "max": 32,
    "place": "LUX_A1 result popup title, opt_a"
   },
   {
    "id": "EV_LUX_A1_OPA_RES",
-   "text": "Madame Marr agreed a first-pick price, and crates now go to the gallery ring before the shelves. Fewer reach the counters, so Luxury volume dips for a while, and prices rise a little. {bot} lost her first look, and its next weather lands a little softer. She sniffed every lid.",
+   "text": "Madame Marr accepts the price and the best lots now go to her ring first. Fewer reach the shelves, so volume dips and prices climb a little. {bot} has lost her favour, and its next weather lands a little softer. She sniffed every lid, and she was pleased.",
    "max": 280,
    "place": "LUX_A1 result popup, opt_a; {bot} is bot_2"
   },
@@ -3009,25 +2997,25 @@
   },
   {
    "id": "EV_LUX_A1_OPB_BTN",
-   "text": "Sell one first lot",
+   "text": "Sell her one first lot",
    "max": 28,
    "place": "LUX_A1 button, opt_b"
   },
   {
    "id": "EV_LUX_A1_OPB_EFF",
-   "text": "Get: {cash_in} credits now. Cost: Luxury volume down a little for a few cycles; {bot2}'s next weather comes a little sooner. Weather: {bot3}'s next weather lands a little softer.",
+   "text": "Get: {cash_in} credits now. Cost: Luxury volume falls a little for a few cycles, and {bot2}'s next weather comes a little sooner. Weather: {bot3}'s next weather lands a little softer.",
    "max": 200,
    "place": "LUX_A1 effect line, opt_b"
   },
   {
    "id": "EV_LUX_A1_OPB_RES_TITLE",
-   "text": "The first lot is sold",
+   "text": "One lot, paid in full",
    "max": 32,
    "place": "LUX_A1 result popup title, opt_b"
   },
   {
    "id": "EV_LUX_A1_OPB_RES",
-   "text": "Madame Marr paid for one first lot at the dock, and the cash arrived the same hour. Shelves stood bare for a few cycles. {bot2} supplied her next lot, so its weather comes a little sooner, while {bot} finds its counter on the ring emptier and its weather lands a little softer.",
+   "text": "Madame Marr paid for one first lot on the dock, and the credits reached you within the hour. The shelves stood bare for a few cycles. {bot2} fed her next lot, so its weather comes a little sooner. {bot} found its stall on her ring empty, and its weather lands a little softer.",
    "max": 280,
    "place": "LUX_A1 result popup, opt_b; {bot} is bot_3"
   },
@@ -4892,6 +4880,18 @@
    "place": "Card at the cursor while a route waits for a destination, Space Storage station that can take the good; {good}"
   },
   {
+   "id": "HINT_PLANET_WANTS",
+   "text": "{planet} wants {goods}.",
+   "max": 110,
+   "place": "Map hover card on a planet with a short need; {planet}, {goods} (comma list of the short goods)"
+  },
+  {
+   "id": "HINT_PLANET_FED",
+   "text": "{planet}: {tier}. Every need is met.",
+   "max": 110,
+   "place": "Map hover card on a planet with no short need; {planet}, {tier} (its tier name)"
+  },
+  {
    "id": "HINT_DEST_SOURCE",
    "text": "The route starts here. Pick another planet.",
    "max": 60,
@@ -5253,7 +5253,7 @@
   },
   {
    "id": "BTN_FLY_HERE",
-   "text": "Fly here",
+   "text": "Explore",
    "max": 24,
    "place": "Planet panel, button that sends the Pathfinder to this world"
   },
@@ -5502,6 +5502,18 @@
    "text": "The Pathfinder flies there by itself and builds the post. Your first one is free.",
    "max": 110,
    "place": "Guided step, why it matters (second line of the card)"
+  },
+  {
+   "id": "TUT_G0_TRAVEL",
+   "text": "Wait for the Pathfinder to reach {planet}.",
+   "max": 60,
+   "place": "Guided step 0, after the order and the speed card, while the Pathfinder is still flying"
+  },
+  {
+   "id": "TUT_G0_TRAVEL_WHY",
+   "text": "Tip: every world makes some goods and lacks others. Carry goods from where they are cheap to where they sell.",
+   "max": 110,
+   "place": "Guided step 0, travel card, second line: a tip to read during the flight"
   },
   {
    "id": "TUT_G0_BUILD",
@@ -6552,6 +6564,12 @@
    "text": "Growth progress",
    "max": 24,
    "place": "Planet card, growth bar label"
+  },
+  {
+   "id": "PROS_NEEDS_NOTE",
+   "text": "Delivered / wanted, per cycle.",
+   "max": 110,
+   "place": "Planet card, small line under the Needs header: the numbers are per cycle, not a one-time total"
   },
   {
    "id": "PROS_LBL_DEMAND",
