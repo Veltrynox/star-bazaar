@@ -338,9 +338,9 @@ func _test_localisation() -> void:
 	var skip_was: bool = SaveGame.skip_tutorial()
 	SaveGame.set_skip_tutorial(false)
 	cs._mark_skip(false)
-	check(not SaveGame.skip_tutorial() and cs.skip_button.text == StoryText.get_text("BTN_SKIP_TUTORIAL") and not cs.skip_button.button_pressed, "T322: skip tutorial is off by default and shows the off label")
+	check(not SaveGame.skip_tutorial() and cs.skip_button.text == StoryText.get_text("BTN_SKIP_TUTORIAL") and not cs.skip_button.button_pressed, "T322: skip tutorial is off by default, an unchecked toggle")
 	cs.skip_button.button_pressed = true
-	check(SaveGame.skip_tutorial() and cs.skip_button.text == StoryText.get_text("BTN_SKIP_TUTORIAL_ON") and cs.skip_button.tooltip_text == StoryText.get_text("MENU_HINT_SKIP_TUTORIAL"), "T322: skip tutorial on is saved and shows the on label and hint")
+	check(SaveGame.skip_tutorial() and cs.skip_button.text == StoryText.get_text("BTN_SKIP_TUTORIAL") and cs.skip_button.button_pressed and cs.skip_button.tooltip_text == StoryText.get_text("MENU_HINT_SKIP_TUTORIAL"), "T322: skip tutorial on is saved, the toggle is checked and keeps its hint")
 	var cfs := ConfigFile.new()
 	cfs.load("user://settings.cfg")
 	check(cfs.get_value("game", "skip_tutorial", false) == true and cfs.get_value("game", "language", "") == "en", "T322: the setting sits in settings.cfg next to the language")

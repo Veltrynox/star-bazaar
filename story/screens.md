@@ -40,7 +40,6 @@ MENU_NEW_GAME | 24 | Main menu, starts a new run | New game
 MENU_CONFIRM_NEW | 110 | Confirmation dialog, new game while a saved game exists | Start a new game?
 NOT_NO_SAVE | 110 | Main menu, Continue with no saved game | No saved game yet.
 MENU_HINT_CONTINUE_OFF | 110 | Main menu, hint on a disabled Continue | Continue needs a saved game.
-BTN_SKIP_TUTORIAL_ON | 24 | Main menu, same toggle once pressed | Tutorial: skipped
 MENU_HINT_SKIP_TUTORIAL | 110 | Main menu, hint on the Skip tutorial toggle | New games start with the tutorial already done.
 
 ## Menu entries

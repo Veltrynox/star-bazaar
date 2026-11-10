@@ -62,12 +62,6 @@
    "place": "Main menu, hint on a disabled Continue"
   },
   {
-   "id": "BTN_SKIP_TUTORIAL_ON",
-   "text": "Tutorial: skipped",
-   "max": 24,
-   "place": "Main menu, same toggle once pressed"
-  },
-  {
    "id": "MENU_HINT_SKIP_TUTORIAL",
    "text": "New games start with the tutorial already done.",
    "max": 110,
