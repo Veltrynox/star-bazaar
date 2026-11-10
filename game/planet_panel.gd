@@ -198,6 +198,10 @@ func _growth_section() -> void:
 	hdr.theme_type_variation = "LabelCaption"
 	hdr.text = hdr.text.to_upper()
 	wrap.add_child(hdr)
+	var note := _label(StoryText.get_or("PROS_NEEDS_NOTE", "Per cycle: units delivered / units wanted. The count starts again every cycle."))
+	note.name = "NeedsNote"
+	note.theme_type_variation = "LabelSmall"
+	wrap.add_child(note)
 	for n in pr.needs(planet_index):
 		wrap.add_child(_need_row(n))
 	if pr.restless(planet_index):
@@ -268,7 +272,7 @@ func _need_row(n: Dictionary) -> Control:
 			chip.theme_type_variation = "LabelSmall"
 			row.add_child(chip)
 	var num := Label.new()
-	num.text = "%d / %d" % [int(n["sold"]), int(n["demand"])] if not locked else ""
+	num.text = "%d / %d" % [int(n["sold"]), int(n["demand"])] if not locked else ""  # per cycle (see NeedsNote under the header)
 	num.tooltip_text = "%s / %s" % [StoryText.get_or("PROS_LBL_SOLD", "Sold this cycle"), StoryText.get_or("PROS_LBL_DEMAND", "Demand per cycle")]
 	row.add_child(num)
 	var st := Label.new()
@@ -627,13 +631,13 @@ func _row(c: String, prices: Dictionary, pend: Dictionary) -> Control:
 	var buy_on: bool = main.engine.local_on(planet_index, c, "buy")
 	var locked: bool = not main.system_trade_open(planet_index)
 	var bs := Button.new()
+	bs.set_script(load("res://game/head_tip_button.gd"))  # tooltip: resource name in bold on the first line
 	bs.theme_type_variation = "ButtonSmall"
 	bs.custom_minimum_size = Vector2(BUY_CELL_W, BUY_CELL_H)
 	bs.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	bs.toggle_mode = true
 	bs.button_pressed = buy_on
-	bs.text = Ui.good_name(c)
-	bs.alignment = HORIZONTAL_ALIGNMENT_LEFT
+	bs.alignment = HORIZONTAL_ALIGNMENT_LEFT  # no name on the button (it did not fit): the name is the bold head of the tooltip
 	bs.clip_text = true
 	bs.icon = Ui.icon(c)
 	bs.expand_icon = true
@@ -661,9 +665,11 @@ func _row(c: String, prices: Dictionary, pend: Dictionary) -> Control:
 	if nc_tip != "":
 		bs.tooltip_text += "\n" + nc_tip
 	bs.tooltip_text += "\n" + StoryText.get_or("LBL_RMB_MORE", "Right-click for Send to, Sell and more.")
-	var gi := GoodInfo.block(str(c))  # what the good is and how it is used, above the existing lines (below the lock reason)
+	var gl := GoodInfo.lines(str(c))  # what the good is and how it is used, above the existing lines (below the lock reason)
+	var gi := "\n".join(PackedStringArray(gl))
 	if gi != "":
 		bs.tooltip_text = (bs.tooltip_text + "\n\n" + gi) if locked else (gi + "\n\n" + bs.tooltip_text)
+	bs.tooltip_text = Ui.good_name(c) + "\n" + bs.tooltip_text  # first line = the resource name, drawn bold
 	_reserve_right(bs, CAP_MARGIN, PRICE_ROW_H)
 	var key: String = main.storage.planet_key(planet_index)
 	var cap_l := Label.new()  # stored/capacity of this good in the company storage here, at the right end of the button
@@ -1084,27 +1090,33 @@ func _pays_line(dest: int, c: String) -> Control:
 	var on: bool = main.engine.local_on(dest, c, "sell")
 	var row := HBoxContainer.new()
 	row.name = "PaysLine"
-	var l := Label.new()
+	# One credit icon replaces the sentence: green = the destination has a standing Sell order (the route pays), red = it does not.
+	# A click turns that Sell order on or off; the full sentence is the tooltip.
 	var state: String = StoryText.get_or("LBL_ORDER_ON", "on") if on else StoryText.get_or("LBL_ORDER_OFF", "off")
-	l.text = StoryText.get_or("LBL_ROUTE_PAYS", "Pays when {planet} has a standing Sell order: {state}", {"planet": main.planet_name(dest), "state": state})
-	l.theme_type_variation = "LabelSmall" if on else "LabelBad"
-	l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	l.custom_minimum_size = Vector2(150, 0)
-	l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	row.add_child(l)
-	if not on:
-		var b := Button.new()
-		b.name = "PaysSellButton"
-		b.set_meta("sell_dest", dest)  # T334: the guided Sell card finds the button for its route
-		b.set_meta("sell_good", c)
-		b.text = StoryText.get_text("BTN_SELL")
-		b.disabled = main.engine.check_local(dest, c, "sell")["ok"] == false or not main.tut_allows("sell", dest, c)
-		b.tooltip_text = StoryText.get_or("LBL_ROUTE_PAYS_TIP", "Turn on the Sell order at {planet}.", {"planet": main.planet_name(dest)}) if not b.disabled else StoryText.get_or("LBL_ROUTE_PAYS_NO", "Not traded there.")
-		b.pressed.connect(func():
-			var r: Dictionary = main.toggle_local(dest, c, "sell")
-			if not r["ok"]:
-				main.post_notice(str(r["reason"])))
-		row.add_child(b)
+	var sentence: String = StoryText.get_or("LBL_ROUTE_PAYS", "Pays when {planet} has a standing Sell order: {state}", {"planet": main.planet_name(dest), "state": state})
+	var b := Button.new()
+	b.name = "PaysSellButton"
+	b.set_meta("sell_dest", dest)  # T334: the guided Sell card finds the button for its route
+	b.set_meta("sell_good", c)
+	b.theme_type_variation = "ButtonGhost"
+	b.flat = true
+	b.icon = Ui.icon("credit")
+	b.expand_icon = true
+	b.add_theme_constant_override("icon_max_width", 20)
+	b.custom_minimum_size = Vector2(30, 26)
+	var col: Color = Ui.col("signal_good") if on else Ui.col("signal_bad")
+	for k in ["icon_normal_color", "icon_hover_color", "icon_pressed_color", "icon_hover_pressed_color", "icon_focus_color", "icon_disabled_color"]:
+		b.add_theme_color_override(k, col)
+	var blocked: bool = main.engine.check_local(dest, c, "sell")["ok"] == false
+	b.disabled = (not on and blocked) or not main.tut_allows("sell", dest, c)
+	b.tooltip_text = sentence if not b.disabled else StoryText.get_or("LBL_ROUTE_PAYS_NO", "Not traded there.")
+	if not on and not b.disabled:
+		b.tooltip_text += "\n" + StoryText.get_or("LBL_ROUTE_PAYS_TIP", "Turn on the Sell order at {planet}.", {"planet": main.planet_name(dest)})
+	b.pressed.connect(func():
+		var r: Dictionary = main.toggle_local(dest, c, "sell")
+		if not r["ok"]:
+			main.post_notice(str(r["reason"])))
+	row.add_child(b)
 	return row
 
 ## T147: shown only on a full lane (the caller checks engine.lane_full). Enable and tooltip come from

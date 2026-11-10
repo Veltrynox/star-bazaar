@@ -7,7 +7,10 @@ const Juice := preload("res://game/juice.gd")
 const PathfinderView := preload("res://game/pathfinder_view.gd")  # T180 accessor helpers
 
 signal buy_requested(kind: String)
-signal details_requested  # T350: a click on the hero card opens the Flagship details panel
+signal details_requested  # T350: a click on the hero card expands or collapses the Flagship details under it
+var hero_row: HBoxContainer  # the card with the explore icon button to its right
+var _hero_box: VBoxContainer
+var _hero_inner: HBoxContainer  # the row inside the card: icon, texts, and the explore button at its right end
 var buy_buttons: Dictionary = {}  # kind -> Button
 var label: Label
 var upkeep_label: Label
@@ -35,6 +38,7 @@ func _ready() -> void:
 	title.text = StoryText.get_or("LBL_SHIPS", "Ships").to_upper()
 	title.theme_type_variation = "LabelCaption"
 	box.add_child(title)
+	_hero_box = box
 	_build_hero_card(box)
 	label = Label.new()
 	box.add_child(label)
@@ -62,8 +66,11 @@ func _ready() -> void:
 		var b := Button.new()
 		b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART  # a long label wraps instead of widening the right column
 		b.pressed.connect(func(): buy_requested.emit(Ships.fleet))
+		b.visible = false  # owner: the ship upkeep list, the free-ships lines and the buy button are gone from the menu (Send to... buys a ship)
 		box.add_child(b)
 		buy_buttons[kind] = b
+	upkeep_scroll.visible = false
+	free_label.visible = false
 
 ## T317: the card is a stop-filter PanelContainer, so a click on it never reaches the map and touches no other panel.
 func _build_hero_card(box: VBoxContainer) -> void:
@@ -78,6 +85,7 @@ func _build_hero_card(box: VBoxContainer) -> void:
 	row.add_theme_constant_override("separation", 8)
 	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	hero_card.add_child(row)
+	_hero_inner = row
 	hero_icon = TextureRect.new()
 	hero_icon.texture = Ui.icon("ship_flagship")
 	hero_icon.custom_minimum_size = Vector2(30, 30)  # half the earlier 60 px
@@ -102,7 +110,20 @@ func _build_hero_card(box: VBoxContainer) -> void:
 	hero_state.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	col.add_child(hero_state)
 	_style_hero(false)
-	box.add_child(hero_card)
+	hero_row = HBoxContainer.new()
+	hero_row.name = "HeroRow"
+	hero_row.add_theme_constant_override("separation", 6)
+	hero_card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	hero_row.add_child(hero_card)
+	box.add_child(hero_row)
+
+## The Flagship details section goes right under the card; its explore icon button sits inside the card at its right end.
+func attach_flagship(fp: Control) -> void:
+	if not is_node_ready():
+		await ready
+	_hero_inner.add_child(fp.explore_button)  # inside the card but its own button: a click on it never reaches the card
+	_hero_box.add_child(fp)
+	_hero_box.move_child(fp, hero_row.get_index() + 1)
 
 func _style_hero(selected: bool) -> void:
 	var sb := StyleBoxFlat.new()
@@ -116,12 +137,23 @@ func _style_hero(selected: bool) -> void:
 func _on_hero_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 		hero_card.accept_event()
+		if event.double_click:  # the second click of a double click: put the camera on the ship, no second toggle
+			if _hero_main != null and _hero_main.map != null:
+				_hero_main.map.focus_on_ship()
+			return
 		if _hero_main != null and _hero_main.map != null:
 			_hero_main.map.select_ship(not _hero_main.map.ship_selected)
 			if _hero_main.map.ship_selected:
 				_hero_main.ship_pulse_on_select()
 			_set_hero_card(_hero_main)
 			details_requested.emit()  # T350
+
+## Called every frame by main: the card's highlight must follow map.ship_selected however it changed (a click on the ship, empty
+## space, Esc, an order), not only when the card itself or the panel refresh runs.
+func sync_selection(selected: bool) -> void:
+	if selected != _hero_selected and hero_card != null and hero_card.visible:
+		_hero_selected = selected
+		_style_hero(selected)
 
 ## T317: drawn only through Availability.hero_ship; follows map.ship_selected both ways.
 func _set_hero_card(main: Control) -> void:

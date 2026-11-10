@@ -1,11 +1,10 @@
 extends PanelContainer
-## T350: Flagship details. Opens when the hero card in the Ships menu is clicked. Holds everything the Flagship has: name, preview,
-## description, status, explore on/off, hold and goods, boost, speed, worlds found, destination. Reads the flight accessors only
-## (PathfinderView, main.flight); no mechanics of its own. Opaque like the tip card; closes with its button or Esc.
+## T350: Flagship details, an inline section of the Ships menu that expands under the Pathfinder card when it is clicked (no 3D
+## preview, no separate window). Holds the description, status, hold and goods, boost, speed, worlds found, destination. Reads the flight accessors only
+## (PathfinderView, main.flight); no mechanics of its own. Explore on/off is the icon button next to the card; the section collapses on a second click or Esc.
 
 const StoryText := preload("res://game/story_text.gd")
 const PathfinderView := preload("res://game/pathfinder_view.gd")
-const ShipPreview := preload("res://game/ship_preview.gd")
 
 signal explore_toggled
 signal boost_toggled(on: bool)
@@ -19,51 +18,38 @@ var explore_button: Button  # hidden while discovery is off
 var hold_label: Label
 var boost_button: Button
 var stats_label: Label
-var preview: PanelContainer
-var _model := ""
 var _box: VBoxContainer
 
 func setup(main_node: Control) -> void:
 	main = main_node
-	visible = false
-	mouse_filter = Control.MOUSE_FILTER_STOP
-	set_anchors_and_offsets_preset(Control.PRESET_CENTER)
-	custom_minimum_size = Vector2(minf(420.0, get_viewport_rect().size.x - 24.0), 0)
-	grow_horizontal = Control.GROW_DIRECTION_BOTH
-	grow_vertical = Control.GROW_DIRECTION_BOTH
-	var base := get_theme_stylebox("panel", "PanelContainer")  # the theme panel is see-through: copy it with alpha 1
-	if base is StyleBoxFlat:
-		var opaque := (base as StyleBoxFlat).duplicate() as StyleBoxFlat
-		opaque.bg_color = Color(opaque.bg_color, 1.0)
-		add_theme_stylebox_override("panel", opaque)
+	visible = false  # expanded or not: the card in the Ships menu toggles it
+	mouse_filter = Control.MOUSE_FILTER_PASS
 	_box = VBoxContainer.new()
-	_box.add_theme_constant_override("separation", 8)
-	Ui.scroll_wrap(self, _box, 24.0)
-	var head := HBoxContainer.new()
-	_box.add_child(head)
-	var title := Label.new()
-	title.text = StoryText.get_or("LBL_FLAGSHIP_TITLE", "Flagship")
-	title.theme_type_variation = "LabelTitle"
-	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	head.add_child(title)
-	var close := Button.new()
-	close.name = "CloseButton"
-	close.text = StoryText.get_or("SK_BTN_CLOSE", "Close")
-	close.pressed.connect(close_screen)
-	head.add_child(close)
-	preview = ShipPreview.new()
-	preview.setup(Vector2(160, 100))
-	preview.make_passive()
-	preview.set_active(false)
-	_box.add_child(preview)
-	name_label = _label(false)
+	_box.add_theme_constant_override("separation", 6)
+	add_child(_box)
+	name_label = _label(false)  # the card above already names the ship; kept so the readers below stay simple
+	name_label.visible = false
 	desc_label = _label(true)
 	status_label = _label(true)
+	# Explore on/off is one icon button; ship_panel.attach_flagship puts it to the right of the Pathfinder card.
 	explore_button = Button.new()
 	explore_button.name = "ExploreButton"
-	explore_button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	explore_button.toggle_mode = true
+	explore_button.icon = Ui.icon("explore")
+	explore_button.expand_icon = true
+	explore_button.add_theme_constant_override("icon_max_width", 24)
+	explore_button.custom_minimum_size = Vector2(38, 38)
+	for sn in ["normal", "hover", "pressed", "hover_pressed", "disabled", "focus"]:  # the theme's button padding left the icon a few pixels wide
+		var sb: StyleBox = explore_button.get_theme_stylebox(sn)
+		if sb != null:
+			var d: StyleBox = sb.duplicate()
+			d.set_content_margin_all(5.0)
+			explore_button.add_theme_stylebox_override(sn, d)
+	explore_button.mouse_filter = Control.MOUSE_FILTER_STOP
+	explore_button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	explore_button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	explore_button.visible = false
 	explore_button.pressed.connect(func(): explore_toggled.emit())
-	_box.add_child(explore_button)
 	hold_label = _label(true)
 	hold_label.name = "HoldReadout"
 	boost_button = Button.new()
@@ -90,7 +76,6 @@ func open_screen() -> void:
 func close_screen() -> void:
 	if visible:
 		visible = false
-		preview.set_active(false)
 		closed.emit()
 
 func _process(_delta: float) -> void:
@@ -101,19 +86,16 @@ func _process(_delta: float) -> void:
 func refresh_closed() -> void:
 	if not visible and main != null and main.map != null and Availability.hero_ship(main.map.flight):
 		refresh()
-		preview.set_active(false)
+	elif not visible:
+		explore_button.visible = false
 
 ## Re-reads the flight accessors; closes itself when the hero ship is gone (discovery off, new run).
 func refresh() -> void:
 	var f = main.map.flight if main.map != null else null
 	if not Availability.hero_ship(f):
+		explore_button.visible = false
 		close_screen()
 		return
-	preview.set_active(true)
-	var path := str(PathfinderView._call(f, "model_path", [], ""))
-	if path != _model:
-		_model = path
-		preview.show_model(path)
 	name_label.text = StoryText.get_or("LBL_PATHFINDER_NAME", "Pathfinder")
 	desc_label.text = StoryText.get_or("LBL_PATHFINDER_DESC", "")
 	var status := StoryText.get_or("LBL_PATHFINDER_IDLE", "Pathfinder waiting")
@@ -129,7 +111,9 @@ func refresh() -> void:
 			target_text = StoryText.get_text("LBL_FLAGSHIP_TARGET").replace("{planet}", StoryText.get_or("LBL_UNKNOWN_WORLD", "unknown"))
 	status_label.text = status
 	explore_button.visible = true
-	explore_button.text = StoryText.get_text("BTN_EXPLORE_OFF" if bool(PathfinderView._call(f, "exploring", [], false)) else "BTN_EXPLORE_ON")
+	var exploring := bool(PathfinderView._call(f, "exploring", [], false))
+	explore_button.set_pressed_no_signal(exploring)
+	explore_button.tooltip_text = StoryText.get_text("BTN_EXPLORE_OFF" if exploring else "BTN_EXPLORE_ON")
 	_set_hold()
 	var found := 0
 	for p in main.map.planets:
