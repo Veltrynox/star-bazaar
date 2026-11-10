@@ -101,6 +101,7 @@ signal establish_requested(planet_id: String)
 ## T200: ship controls. Click the ship to select it; with it selected LEFT click flies at once, RIGHT click on a planet asks main for the
 ## action menu (only the allowed actions), Esc / right-click on open space deselects.
 signal action_menu_requested(planet_id: String, screen_pos: Vector2)
+signal planet_right_clicked(index: int, screen_pos: Vector2)  # right click on a planet with no ship order mode: main decides (resource popup, or the Establish menu)
 signal fly_establish_requested(planet_id: String)
 const SHIP_PICK_PX := 20.0  # T198: was 30 at the old ship size; the ship is half as big, the pick area shrinks less so it stays easy to hit
 const RIGHT_CLICK_DRAG_PX := 6.0
@@ -198,9 +199,12 @@ func _ready() -> void:
 ## Orbit rings: thin circles on the ground plane through each planet, centred on the sun, plus one dashed
 ## outer ring. The camera pitch gives the tilt. Colours: theme tokens line_200 / line_100.
 ## Visual only: no collision, no shadows, never hit by the planet click test.
+const ORBIT_LINE_ALPHA := 0.55  # owner: orbit rings looked too thick
 func _add_orbit_rings(center: Vector3, sys: int = 1) -> void:
 	var inner := Ui.col("line_200")
 	var outer := Ui.col("line_100")
+	inner.a *= ORBIT_LINE_ALPHA  # the rings are 1 px lines (the minimum); a lower alpha makes them read thinner
+	outer.a *= ORBIT_LINE_ALPHA
 	if sys != 1:  # the rings take the colour of their own sun
 		var sc := Systems.sun_color_of(sys)
 		inner = Color(inner.lerp(sc, 0.4), inner.a)
@@ -1330,6 +1334,14 @@ func ship_screen_pos() -> Vector2:
 		return Vector2(-1, -1)
 	return camera.unproject_position(w)
 
+## Puts the camera on the Pathfinder (double click on its card in the Ships menu).
+func focus_on_ship() -> void:
+	if not PathfinderView.active(flight):
+		return
+	var w: Vector3 = PathfinderView._call(flight, "ship_position", [], Vector3.ZERO)
+	focus = Vector3(w.x, focus.y, w.z)
+	clamp_focus()
+
 func select_ship(on: bool) -> void:
 	ship_selected = on and PathfinderView.active(flight)
 
@@ -1424,13 +1436,20 @@ func _unhandled_input(event: InputEvent) -> void:
 
 ## T200: right click (no drag). With the ship selected: a planet with allowed actions opens the menu; open space deselects.
 func _right_click(pos: Vector2) -> void:
-	if not (PathfinderView.active(flight) and (ship_selected or free_ship_menu)):
-		return
 	var hit := pick_planet(pos)
-	if hit >= 0:
+	var flight_on := PathfinderView.active(flight)
+	var ship_mode: bool = flight_on and (ship_selected or free_ship_menu)
+	if hit >= 0 and not ship_mode:
+		planet_right_clicked.emit(hit, pos)
+		return
+	if not flight_on:
+		return
+	if hit >= 0:  # ship selected: the ship's action menu (Establish trading post, Dock and trade)
 		var pid := str(planets[hit].get("id", hit))
 		if not (PathfinderView._call(flight, "actions_for", [pid], []) as Array).is_empty() or PathfinderView.established(flight, pid):  # T270: Dock and trade
 			action_menu_requested.emit(pid, pos)
+		return
+	if not ship_mode:
 		return
 	if pick_station(pos) < 0 and pick_cluster(pos) < 0 and not pick_ship(pos):
 		ship_selected = false

@@ -50,8 +50,9 @@ var cycle_elapsed: float = 0.0  # seconds into current cycle
 var debug_force_event: bool = false  # T13: debug-only, fire a random event at the next cycle start, then clears
 var run_recorded: bool = false  # T78: a run is recorded once
 var free_play: bool = false  # T259: after any ending the player chose Continue: no further endings, saved
-var time_speed: float = 1.0  # clock multiplier chosen in the top bar (1, 2, 6 or 12); saved, sticky until changed
-const SPEEDS := [1.0, 2.0, 6.0, 12.0]
+var time_speed: float = 3.0  # clock multiplier chosen in the top bar; saved, sticky until changed. The UI shows it divided by SPEED_BASE
+const SPEED_BASE := 3.0  # owner: the old 3x is the new default and reads as 1x on the buttons
+const SPEEDS := [3.0, 6.0, 18.0, 36.0]  # shown as 1x 2x 6x 12x
 var speed_buttons: Array = []
 var paused: bool = true  # T23: game starts paused after the preface
 var game_over: bool = false
@@ -134,6 +135,7 @@ var progress: ProgressBar
 var preface: Control  # T23 preface overlay; null once dismissed
 var ships: int = 0  # T28 abstract ship count (all types)
 var ship_panel: PanelContainer
+var bazaar_card: PanelContainer
 var flagship_panel: PanelContainer  # T350 Flagship details (opens from the hero card)
 var top_bar: PanelContainer
 var right_col: VBoxContainer  # holds the notification board and the ship panel
@@ -216,6 +218,11 @@ var tip_last_at := -1.0e9  # T339 game clock (seconds) when the last card was sh
 var tip_now_label: Label  # T339 right board: newest tip text
 var tip_now_why: Label
 var tip_recent_box: VBoxContainer  # T339 right board: the older cards of the last three
+var tip_prev_btn: Button  # the board shows ONE tip at a time; these page through them
+var tip_next_btn: Button
+var tip_page_label: Label
+var tip_page := 0
+var _tip_board_sig := ""
 var tip_sig: Dictionary = {}  # signals seen this session (tax, hungry, ...), see tip_signal
 var tips_seed_pending := false  # a save without tips_seen: tips already due at load are marked seen
 var tip_card: PanelContainer
@@ -226,7 +233,7 @@ var _tip_poll_t := 0.0
 var tut_flags: Dictionary = {}  # actions seen this session: "expenses" (forecast opened), "storage_next" (Storage card read)
 var tut_goal_t: float = 0.0  # real seconds the last guided step has been shown
 const TUT_LAST_SECS := 12.0
-var tut_seen: Array = []  # T331: indexes of guided steps whose card has been on screen; the counter's n is its size
+var tut_seen: Array = []  # slide slots (see _tut_count_nt) whose card has been on screen; the counter's n is its size
 var tut_skipped: Array = []  # ids of guided steps passed over automatically (their state was never reached)
 var trade: RefCounted = Trade.new()  # price/margin logic for T07
 var commodities: Array = []
@@ -315,6 +322,7 @@ func _ready() -> void:
 	map.fly_requested.connect(_on_fly_requested)  # T180: both do nothing while map.flight is null or off
 	map.establish_requested.connect(_on_establish_requested)
 	map.action_menu_requested.connect(_on_action_menu_requested)  # T200
+	map.planet_right_clicked.connect(_on_planet_right_clicked)
 	map.fly_establish_requested.connect(_on_fly_establish_requested)
 	_build_board()
 	_build_pending_label()
@@ -332,8 +340,11 @@ func _ready() -> void:
 	income_popup.setup(map)
 	ship_panel = load("res://game/ship_panel.gd").new()
 	right_col.add_child(ship_panel)
+	bazaar_card = load("res://game/bazaar_card.gd").new()  # always-visible Star Bazaar stats once founded
+	right_col.add_child(bazaar_card)
+	bazaar_card.setup(self)
 	ship_panel.buy_requested.connect(_buy_ship_kind)
-	ship_panel.details_requested.connect(open_flagship_panel)  # T350
+	ship_panel.details_requested.connect(toggle_flagship_details)  # T350
 	mission_planet = _find_mission_planet()
 	commodities = _commodities(map.planets)
 	trade.setup(balance, map.planets)
@@ -399,9 +410,9 @@ func _ready() -> void:
 	add_child(hub_panel)
 	hub_panel.setup(self)
 	hub_panel.changed.connect(_on_hubs_changed)
-	flagship_panel = load("res://game/flagship_panel.gd").new()  # T350
-	add_child(flagship_panel)
+	flagship_panel = load("res://game/flagship_panel.gd").new()  # T350: inline section of the Ships menu
 	flagship_panel.setup(self)
+	ship_panel.attach_flagship(flagship_panel)
 	flagship_panel.boost_toggled.connect(set_flagship_boost)  # T270
 	flagship_panel.explore_toggled.connect(func(): set_exploring(not flight.exploring()))  # T206
 	gig_panel = load("res://game/gig_board.gd").new()  # T273
@@ -540,7 +551,7 @@ func apply_state(s: Dictionary) -> void:
 	rescues_paid = int(s.get("rescues_paid", 0))
 	repossessions = int(s.get("repossessions", 0))
 	cycle_elapsed = clampf(float(s.get("cycle_elapsed", 0.0)), 0.0, _cycle_seconds())
-	time_speed = _speed_or_default(s.get("time_speed", 1.0))  # old saves: x1
+	time_speed = _speed_or_default(s.get("time_speed", SPEED_BASE))  # old saves: a value that is not one of the speeds becomes the default
 	cash = int(s.get("cash", cash))
 	ships = clampi(int(s.get("ships", 0)), 0, ship_cap())
 	Skills.reset(balance)
@@ -645,6 +656,7 @@ func _show_point_pop(earned: int, reason: String) -> void:
 	if skill_point_pop == null:
 		skill_point_pop = load("res://game/skill_point_pop.gd").new()
 		add_child(skill_point_pop)
+	_top_stack_y()  # sets the pop-up's top edge under the system name block
 	skill_point_pop.show_points(earned, reason, StoryText.get_text("NOT_SKILL_POP_TITLE", {"points": earned}))
 
 func _award_planet(p: int) -> void:
@@ -733,7 +745,10 @@ func _make_station_marker(id: int) -> void:
 		return
 	var b := Button.new()
 	b.theme_type_variation = "ButtonSmall"
-	b.text = StoryText.get_or("LBL_STATION_MARKER", "Space Storage")
+	b.icon = Ui.icon("storage")  # icon only on the map; the name shows on hover
+	b.expand_icon = true
+	b.add_theme_constant_override("icon_max_width", 22)
+	b.custom_minimum_size = Vector2(34, 30)
 	b.tooltip_text = StoryText.get_or("TIP_STATION_MARKER", "Space Storage")
 	b.visible = false
 	b.pressed.connect(_on_station_clicked.bind(id))
@@ -742,7 +757,7 @@ func _make_station_marker(id: int) -> void:
 
 ## T352: true while a full-screen or large window covers the map; map-anchored overlays (station markers, pulse rings, the sell offer) hide then.
 func map_overlays_blocked() -> bool:
-	for n in [skill_screen, bazaar_panel, hub_panel, flagship_panel, gig_panel, space_storage_view, game_menu, galaxy_view, end_screen, preface, dock_sheet]:
+	for n in [skill_screen, bazaar_panel, hub_panel, gig_panel, space_storage_view, game_menu, galaxy_view, end_screen, preface, dock_sheet]:
 		if n != null and is_instance_valid(n) and n.visible:
 			return true
 	return event_notice != null
@@ -1074,14 +1089,14 @@ func _on_skill_arrow() -> void:
 func open_flagship_panel() -> void:
 	if preface != null or game_over or flagship_panel == null:
 		return
-	if galaxy_view != null and galaxy_view.visible:
-		galaxy_view.close_view()
-	if skill_screen.visible:
-		skill_screen.close_screen()
-	gig_panel.close_screen()
-	bazaar_panel.close_screen()
-	hub_panel.close_screen()
-	flagship_panel.open_screen()
+	flagship_panel.open_screen()  # inline in the Ships menu: nothing else has to close
+
+## A click on the Pathfinder card expands or collapses its details in place.
+func toggle_flagship_details() -> void:
+	if flagship_panel != null and flagship_panel.visible:
+		flagship_panel.close_screen()
+	else:
+		open_flagship_panel()
 
 func toggle_gig_board() -> void:
 	if gig_panel.visible:
@@ -1173,6 +1188,7 @@ func _on_planet_clicked(index: int) -> void:
 			var cnt: int = engine.lane_count(src, dst, str(r["c"]))
 			var pending_planet: int = src
 			var wants_buy: bool = bool(pending.get("buy", false))
+			var quick: bool = bool(pending.get("quick", false))  # started from the right-click resource popup: no planet panel opens
 			cancel_pending()
 			if wants_buy and not engine.local_on(pending_planet, str(r["c"]), "buy"):
 				var bo := set_local_order(pending_planet, str(r["c"]), "buy", true)
@@ -1185,10 +1201,14 @@ func _on_planet_clicked(index: int) -> void:
 				post_notice(stop_line(stop, dst))  # N9
 			route_margin_notice(pending_planet, dst, str(r["c"]))  # low-margin warning, base game
 			_route_beat(pending_planet, dst)
-			selected_planet = dst
+			if not quick:
+				selected_planet = dst
 			if sell_offer_applies(dst, str(r["c"])) and not tut_lock_active():  # the guided Sell step teaches the order
 				sell_offer = {"planet": dst, "c": str(r["c"])}
-			planet_panel.show_planet(dst)
+			if not quick:
+				planet_panel.show_planet(dst)
+			else:
+				_refresh_panel()
 			return
 	if index < 0 or index >= map.planets.size():
 		selected_planet = -1
@@ -1270,17 +1290,13 @@ func _on_cluster_clicked(index: int) -> void:
 	else:
 		info.text = "%s %s" % [StoryText.get_or("LBL_CLUSTER_INFO_YIELD", "{good}: {yield} per cycle.", args), StoryText.get_or("NOT_MINING_NEEDS_SKILL", "Mining needs the Prospecting skill.")]
 	box.add_child(info)
-	if Availability.feature("cluster_routes") and can_mine() and int(found["left"]) > 0 and not game_over:
+	if Availability.feature("cluster_routes") and Availability.good(str(found["good"])) and can_mine() and int(found["left"]) > 0 and not game_over:  # no Send while the card says mining needs the skill
 		var send := Button.new()
 		send.name = "ClusterSendButton"
 		send.text = StoryText.get_or("BTN_CLUSTER_SEND", "Send ore to...")
 		send.pressed.connect(_on_cluster_send.bind(int(found["index"])))
 		box.add_child(send)
-	var close := Button.new()
-	close.text = StoryText.get_or("BTN_CLOSE", "Close")
-	close.pressed.connect(_hide_cluster_info)
-	box.add_child(close)
-	cluster_info.visible = true
+	cluster_info.visible = true  # no Close button: a click on empty space (or Esc) dismisses it
 
 ## T65: clicking a route line selects that connection in the panel (with Remove).
 func _on_route_clicked(id: int) -> void:
@@ -1300,6 +1316,70 @@ func _on_route_clicked(id: int) -> void:
 		return
 	selected_planet = int(engine.routes[i]["b"]) if RouteEngine.from_cluster(engine.routes[i]) else int(engine.routes[i]["a"])  # T156: a cluster is no planet to select
 	planet_panel.show_planet(selected_planet, id)
+
+## Right click on an explored planet (no ship selected): a small popup of its goods as icon squares. Clicking one starts a Send to
+## from that planet without opening its card; the next planet clicked becomes the destination and the lane is made, no panel opens.
+## Buying is not offered here (only from the planet card): a good shows only when it is in storage or a Buy order is already on.
+var _res_popup: PopupPanel = null
+
+func _on_planet_right_clicked(index: int, pos: Vector2) -> void:
+	if game_over or preface != null or index < 0 or index >= map.planets.size() or map_overlays_blocked():
+		return
+	if not pending.is_empty() or tut_lock_active():
+		return
+	var f = map.flight
+	if PathfinderView.active(f) and not planet_established(index):  # not set up yet: the ship's Establish menu
+		_on_action_menu_requested(str(map.planets[index].get("id", index)), pos)
+		return
+	if not system_trade_open(index):
+		return
+	var key: String = storage.planet_key(index)
+	var goods: Array = []
+	for c in Goods.ids():
+		if not Availability.good(c):
+			continue
+		if trade.price(index, c + "_buy") < 0 and trade.price(index, c + "_sell") < 0 and storage.amount(key, c) <= 0:
+			continue
+		goods.append(c)
+	if goods.is_empty():
+		return
+	if _res_popup != null and is_instance_valid(_res_popup):
+		_res_popup.queue_free()
+	_res_popup = PopupPanel.new()
+	_res_popup.name = "ResourcePopup"
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 4)
+	_res_popup.add_child(row)
+	for c in goods:
+		var ready: bool = storage.amount(key, c) > 0 or engine.local_on(index, c, "buy")
+		var b := Button.new()
+		b.name = "ResIcon_" + str(c)
+		b.icon = Ui.icon(str(c))
+		b.expand_icon = true
+		b.add_theme_constant_override("icon_max_width", 26)
+		b.custom_minimum_size = Vector2(40, 40)
+		b.disabled = not ready
+		var col: Color = Ui.commodity_col(str(c))
+		if col == Color.WHITE:
+			col = Ui.col("ink")
+		for k in ["icon_normal_color", "icon_hover_color", "icon_pressed_color", "icon_focus_color", "icon_hover_pressed_color"]:
+			b.add_theme_color_override(k, col)
+		b.add_theme_color_override("icon_disabled_color", Color(Ui.col("ink_muted"), 0.45))
+		b.tooltip_text = Ui.good_name(str(c)) if ready else Ui.good_name(str(c)) + "\n" + StoryText.get_or("LBL_RES_POPUP_BUY_FIRST", "Buy it from the planet card first.")
+		b.pressed.connect(func():
+			_res_popup.hide()
+			_quick_send(index, str(c)))
+		row.add_child(b)
+	add_child(_res_popup)
+	_res_popup.popup(Rect2i(Vector2i(pos), Vector2i(goods.size() * 44 + 16, 56)))
+	_res_popup.popup_hide.connect(func(): if is_instance_valid(_res_popup): _res_popup.queue_free())
+
+## A good picked in the resource popup: the same state as Send to... on the card, but the card stays shut afterwards.
+func _quick_send(index: int, c: String) -> void:
+	if game_over or not tut_gate("send_start", index, c):
+		return
+	pending = {"planet": index, "c": c, "quick": true}
+	_pending_changed()
 
 ## T28: first planet with abundant energy and scarce food, or -1.
 func _find_mission_planet() -> int:
@@ -2329,6 +2409,8 @@ func _process(delta: float) -> void:
 	_tut_update_planet_ring()
 	if map != null:
 		map.free_ship_menu = _tut_fly_step()  # T329
+		if ship_panel != null:
+			ship_panel.sync_selection(map.ship_selected)  # the Pathfinder card shows the real selection
 	_tut_tick(delta)
 	_tip_tick(delta)
 	if event_icons != null:
@@ -3298,11 +3380,11 @@ func _build_speed_buttons(box: HBoxContainer) -> void:
 	var group := ButtonGroup.new()
 	for i in SPEEDS.size():
 		var b := Button.new()
-		b.text = "%dx" % int(SPEEDS[i])
+		b.text = "%dx" % int(SPEEDS[i] / SPEED_BASE)
 		b.toggle_mode = true
 		b.button_group = group
 		b.theme_type_variation = "ButtonGhost"
-		b.tooltip_text = StoryText.get_or("LBL_SPEED_TIP", "Game speed {n}x", {"n": int(SPEEDS[i])})
+		b.tooltip_text = StoryText.get_or("LBL_SPEED_TIP", "Game speed {n}x", {"n": int(SPEEDS[i] / SPEED_BASE)})
 		b.custom_minimum_size = Vector2(34, 28)
 		b.pressed.connect(_on_speed_pressed.bind(SPEEDS[i]))
 		box.add_child(b)
@@ -3320,7 +3402,7 @@ func set_speed(value: float) -> void:
 ## Only the four speeds are allowed; anything else (old or bad saves) becomes x1.
 func _speed_or_default(value) -> float:
 	var v := float(value)
-	return v if SPEEDS.has(v) else 1.0
+	return v if SPEEDS.has(v) else SPEED_BASE
 
 func toggle_pause() -> void:
 	set_paused(not paused)
@@ -3713,6 +3795,8 @@ func _tut_g0_id() -> String:
 	var here := PathfinderView.docked_at(f)
 	if here != "" and not PathfinderView.established(f, here):
 		return "TUT_G0_BUILD"
+	if bool(tut_flags.get("g0_ordered", false)):
+		return "TUT_G0_TRAVEL"  # the order is given and the speed card is read: wait for the ship (no planet click asked again)
 	return "TUT_G0_FLY"
 
 ## Story id of guided step i (the flight card replaces step 0 while it applies).
@@ -4049,17 +4133,31 @@ func _tut_storage_next() -> bool:
 ## passed over never counts, so it never repeats or jumps). total = n + the steps after this one expected to show (step 2 when the
 ## flight card or no Pathfinder passes it over; skill steps while no point is held). TUT_GUIDE indexes are untouched.
 func _tut_count_nt() -> Array:
-	tut_seen = tut_seen.filter(func(i): return int(i) < tut_step)
-	if tut_seen.is_empty():  # loaded mid-guide: the steps before this one were shown unless they pass over
-		for i in tut_step:
-			if not (_tut_expect_skip(i) or _tut_step_skipped(i)):
+	# Every card is one slide (step 0 has several). Slots: the step 0 cards in order, then guided steps 1.. one slot each.
+	var c0 := _tut_step0_cards()
+	var cur := tut_step - 1 + c0.size()
+	if tut_step == 0:
+		cur = maxi(0, c0.find(_tut_id(0)))
+	tut_seen = tut_seen.filter(func(i): return int(i) < cur)  # a slot after the current one was never shown: self-corrects on any jump back
+	if tut_seen.is_empty():  # loaded mid-guide: assume the main slides before this one were shown
+		for i in cur:
+			if i < c0.size():
+				if not (c0[i] in ["TUT_G0_BUILD", "TUT_G0_WAIT"]):
+					tut_seen.append(i)
+			elif not (_tut_expect_skip(i - c0.size() + 1) or _tut_step_skipped(i - c0.size() + 1)):
 				tut_seen.append(i)
-	tut_seen.append(tut_step)
+	tut_seen.append(cur)
 	var total := tut_seen.size()
-	for i in range(tut_step + 1, TUT_GUIDE.size()):
-		if not _tut_expect_skip(i):
+	for i in range(cur + 1, TUT_GUIDE.size() - 1 + c0.size()):
+		if i < c0.size() or not _tut_expect_skip(i - c0.size() + 1):
 			total += 1
 	return [tut_seen.size(), total]
+
+## The slides of step 0 in the order they appear: the flight cards with discovery, the planet click then the speed card without.
+func _tut_step0_cards() -> Array:
+	if PathfinderView.active(map.flight if map != null else null):
+		return ["TUT_G0_FLY", "TUT_G1C_SPEED", "TUT_G0_TRAVEL", "TUT_G0_BUILD", "TUT_G0_WAIT", "TUT_G0_DONE"]
+	return [TUT_GUIDE[0], "TUT_G1C_SPEED"]
 
 ## T342: later step i is expected to be passed over only when that is already certain (state that never reverts), so the total
 ## never grows: step 1 (flight card or no Pathfinder), step 4 once a cycle has run, Needs and Grow once a world reached tier 1,
@@ -4080,7 +4178,7 @@ func _tut_expect_skip(i: int) -> bool:
 
 ## T327: placeholder values of a guided card. TUT_G0_FLY names the one planet it asks for, as the map labels it.
 func _tut_text_args(id: String) -> Dictionary:
-	if id == "TUT_G0_FLY" or id == "TUT_G0_DONE":
+	if id == "TUT_G0_FLY" or id == "TUT_G0_DONE" or id == "TUT_G0_TRAVEL":
 		var i := tut_fly_target()
 		return {"planet": planet_name(i) if i >= 0 else StoryText.get_or("LBL_UNKNOWN_WORLD", "Unknown world")}
 	return {}
@@ -4232,7 +4330,13 @@ func _tut_target_node(key: String) -> Control:
 	match key:
 		"hero": c = ship_panel.hero_card if ship_panel != null and ship_panel.hero_card != null else null  # T320: the Pathfinder card in the Ships menu
 		"buy": c = _tut_first_named(planet_panel, "BuyButton_")
-		"send", "storage": c = _tut_first_named(planet_panel, "BuyButton_")  # Send and the stock figure live on the resource button (right-click menu)
+		"send": c = _tut_first_named(planet_panel, "BuyButton_")  # Send lives on the resource button (right-click menu)
+		"storage":  # the stored/capacity figure (e.g. 0/100) at the right end of the resource button
+			var sb := _tut_first_named(planet_panel, "BuyButton_")
+			if sb != null:
+				c = _tut_first_named(sb, "Capacity_")
+				if c == null:
+					c = sb
 		"sell": c = _tut_sell_node()  # T334
 		"route":
 			for n in planet_panel.find_children("*", "HBoxContainer", true, false):
@@ -4293,8 +4397,8 @@ func _tut_highlight_key() -> String:
 		return "planet"
 	if _tut_speed_card():
 		return "speed"  # T333
-	if tut_step == 0 and _tut_g0_id() == "TUT_G0_DONE":
-		return ""  # T329: the Yay card points at nothing
+	if tut_step == 0 and (_tut_g0_id() == "TUT_G0_DONE" or _tut_g0_id() == "TUT_G0_TRAVEL"):
+		return ""  # T329: the Yay card points at nothing; the travel card too
 	if tut_step == 0 and _tut_g0_id() == "TUT_G0_FLY":
 		return "planet"  # T329: one right-click on the named planet; no Pathfinder card click
 	if tut_step >= TUT_TARGET.size() or TUT_TARGET[tut_step] == "":
@@ -4481,7 +4585,7 @@ func tut_planet_ring_target() -> int:
 		return -1
 	if galaxy_view != null and galaxy_view.visible:
 		return -1
-	if tut_step == 0 and (_tut_g0_id() == "TUT_G0_DONE" or _tut_speed_card()):
+	if tut_step == 0 and (_tut_g0_id() in ["TUT_G0_DONE", "TUT_G0_TRAVEL"] or _tut_speed_card()):
 		return -1
 	if tut_step == 0 and _tut_g0_id() == "TUT_G0_FLY":
 		return tut_fly_target()  # T327: the ring marks the one planet the first card asks for, only during that card
@@ -4561,6 +4665,20 @@ func _tut_anchor_rect(key: String, c: Control) -> Rect2:
 	return Rect2()
 
 ## Puts the card beside the target on a side with room, inside the window, clear of the other panels, with a pointer.
+## Top-middle stack: the solar system name sits at the top, the skill point pop-up under it, and a tutorial or tip card under that,
+## so none of them is drawn over another.
+func _top_stack_y() -> float:
+	var y := 108.0
+	for l in [system_label, system_hint]:  # the whole name block, whatever its lines are now
+		if l != null and l.is_visible_in_tree() and l.text != "":
+			y = maxf(y, l.get_global_rect().end.y + 8.0)
+	if skill_point_pop != null:
+		skill_point_pop.top_y = y
+		var b: float = skill_point_pop.bottom_y()
+		if b > 0.0:
+			y = maxf(y, b + 8.0)
+	return y
+
 func _tut_place_card(key: String, c: Control) -> void:
 	if tut_card == null or not tut_card.visible:
 		if tut_arrow != null:
@@ -4571,7 +4689,7 @@ func _tut_place_card(key: String, c: Control) -> void:
 	var vp := get_viewport_rect().size
 	var a := _tut_anchor_rect(key, c)
 	if a.size == Vector2.ZERO:  # nothing to point at: a fixed spot under the top bar, middle of the window
-		tut_card.position = Vector2((vp.x - cs.x) * 0.5, 84.0)
+		tut_card.position = Vector2((vp.x - cs.x) * 0.5, _top_stack_y())
 		tut_arrow.visible = false
 		return
 	var avoid: Array = [a]
@@ -4818,7 +4936,6 @@ func _tut_step_skipped(i: int) -> bool:
 ## (tip_signal). A tip never pauses the game, waits while a popup, the event window, the dock sheet, the Skills window, the galaxy
 ## view or a guided step card is up, and is skipped for good once Skip tutorial was pressed.
 const TIP_DEFS := [
-	{"id": "TIP_GOAL", "state": "tut_over"},
 	{"id": "TIP_TIER1", "cond": "any_tier:1"},
 	{"id": "TIP_TAX", "sig": "tax"},
 	{"id": "TIP_RESTLESS", "state": "restless"},
@@ -4852,7 +4969,7 @@ const TIP_DEFS := [
 	{"id": "TIP_FOUNDATIONS", "state": "foundations"},
 ]
 ## T339: order tips are shown in when several wait (goal and capital first); tips not listed follow in TIP_DEFS order.
-const TIP_PRIORITY := ["TIP_GOAL", "TIP_CAPITAL", "TIP_HUB", "TIP_FOUNDED", "TIP_TIER1", "TIP_TAX", "TIP_HUNGRY", "TIP_UPGRADE", "TIP_RESTLESS", "TIP_RAID"]
+const TIP_PRIORITY := ["TIP_CAPITAL", "TIP_HUB", "TIP_FOUNDED", "TIP_TIER1", "TIP_TAX", "TIP_HUNGRY", "TIP_UPGRADE", "TIP_RESTLESS", "TIP_RAID"]
 ## T339: two tips about one thing share a card when both are due (first shown pulls in the second).
 const TIP_MERGE := {"TIP_WEATHER": "TIP_WEATHER_KINDS", "TIP_CAPITAL": "TIP_HUB"}
 const TIP_SECS_PER_CHAR := 0.05
@@ -5016,7 +5133,7 @@ func _tip_show(id: String) -> void:
 	tip_why_label.visible = tip_why_label.text != ""
 	tip_left = tip_card_secs(tip_text_label.text.length() + tip_why_label.text.length())
 	tip_card.size = Vector2(TUT_CARD_W, 0.0)
-	tip_card.position = Vector2((get_viewport_rect().size.x - TUT_CARD_W) * 0.5, 84.0)
+	tip_card.position = Vector2((get_viewport_rect().size.x - TUT_CARD_W) * 0.5, _top_stack_y())
 	tip_card.visible = true
 	_tip_refresh_board()
 
@@ -5031,26 +5148,62 @@ func _tip_refresh_board() -> void:
 	if tip_now_label == null:
 		return
 	var show_it := not tips_off and not tip_recent.is_empty() and not game_over
-	tip_now_label.visible = show_it
-	tip_recent_box.visible = show_it
-	if not show_it:
-		tip_now_why.visible = false
+	if show_it:
+		var newest: Array = tip_recent[0]
+		tip_now_label.text = _tip_ids_text(newest, false)
+		tip_now_why.text = _tip_ids_text(newest, true)
+		for c in tip_recent_box.get_children():
+			tip_recent_box.remove_child(c)
+			c.queue_free()
+		for k in range(1, tip_recent.size()):
+			var l := Label.new()
+			l.text = _tip_ids_text(tip_recent[k], false)
+			l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			l.theme_type_variation = "LabelMuted"
+			l.add_theme_font_size_override("font_size", TIP_RECENT_FONT)
+			tip_recent_box.add_child(l)
+	var sig := str(tip_recent)
+	if sig != _tip_board_sig:  # a new tip: show it first (this also runs every frame while tips are off, which must not reset the page)
+		_tip_board_sig = sig
+		tip_page = 0
+	_tip_page_apply()
+
+## The board reads one tip at a time. Pages, newest first: the newest tip (text and why line), the older tips, then the tip
+## of this cycle. The arrows in the title row step through them; with a single page they are hidden.
+func _tip_page_count() -> int:
+	var n := 0
+	if not tips_off and not tip_recent.is_empty() and not game_over:
+		n += tip_recent.size()
+	if tip_label != null and tip_label.text != "" and not game_over:
+		n += 1
+	return n
+
+func _tip_page_step(d: int) -> void:
+	var n := _tip_page_count()
+	if n > 0:
+		tip_page = posmod(tip_page + d, n)
+	_tip_page_apply()
+
+func _tip_page_apply() -> void:
+	if tip_now_label == null:
 		return
-	var newest: Array = tip_recent[0]
-	tip_now_label.text = _tip_ids_text(newest, false)
-	tip_now_why.text = _tip_ids_text(newest, true)
-	tip_now_why.visible = tip_now_why.text != ""
+	var n := _tip_page_count()
+	tip_page = clampi(tip_page, 0, maxi(0, n - 1))
+	var tips_n: int = tip_recent.size() if (not tips_off and not tip_recent.is_empty() and not game_over) else 0
+	tip_now_label.visible = tips_n > 0 and tip_page == 0
+	tip_now_why.visible = tip_now_label.visible and tip_now_why.text != ""
+	tip_recent_box.visible = tips_n > 1 and tip_page >= 1 and tip_page < tips_n
+	var ri := 0
 	for c in tip_recent_box.get_children():
-		tip_recent_box.remove_child(c)
-		c.queue_free()
-	for k in range(1, tip_recent.size()):
-		var l := Label.new()
-		l.text = _tip_ids_text(tip_recent[k], false)
-		l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		l.theme_type_variation = "LabelMuted"
-		l.add_theme_font_size_override("font_size", TIP_RECENT_FONT)
-		tip_recent_box.add_child(l)
-	tip_recent_box.visible = tip_recent.size() > 1
+		ri += 1
+		(c as Control).visible = tip_page == ri
+	if tip_label != null:
+		tip_label.visible = tip_label.text != "" and not game_over and tip_page == n - 1 and (tips_n == 0 or tip_page >= tips_n)
+	if tip_page_label != null:
+		tip_page_label.text = "%d / %d" % [tip_page + 1, n]
+		tip_page_label.visible = n > 1
+		tip_prev_btn.visible = n > 1
+		tip_next_btn.visible = n > 1
 
 ## One step of the tip system: seeds an old save, hides the card while something modal is up, queues what is due, shows the next
 ## queued tip once the gap since the last card has passed, times the card out.
@@ -5137,7 +5290,7 @@ func _tip_text() -> String:
 func _tut_cycle() -> void:
 	if tip_label != null:
 		tip_label.text = _tip_text()
-		tip_label.visible = tip_label.text != "" and not game_over
+		_tip_page_apply()
 
 ## T24: notification board, right side, text only. GDD section 2 'First 4 cycles'.
 func _build_board() -> void:
@@ -5165,7 +5318,26 @@ func _build_board() -> void:
 	var title := Label.new()
 	title.text = StoryText.get_or("LBL_TIPS", "Tips").to_upper()
 	title.theme_type_variation = "LabelCaption"
-	box.add_child(title)
+	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var title_row := HBoxContainer.new()  # TIPS caption, and the page arrows when there is more than one tip to read
+	title_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	title_row.add_child(title)
+	tip_prev_btn = Button.new()
+	tip_prev_btn.name = "TipPrev"
+	tip_prev_btn.text = "\u2039"
+	tip_prev_btn.theme_type_variation = "ButtonGhost"
+	tip_prev_btn.pressed.connect(func(): _tip_page_step(-1))
+	title_row.add_child(tip_prev_btn)
+	tip_page_label = Label.new()
+	tip_page_label.theme_type_variation = "LabelNumberMuted"
+	title_row.add_child(tip_page_label)
+	tip_next_btn = Button.new()
+	tip_next_btn.name = "TipNext"
+	tip_next_btn.text = "\u203a"
+	tip_next_btn.theme_type_variation = "ButtonGhost"
+	tip_next_btn.pressed.connect(func(): _tip_page_step(1))
+	title_row.add_child(tip_next_btn)
+	box.add_child(title_row)
 	mission_label = Label.new()
 	mission_label.text = StoryText.get_or("LBL_MISSION_FIRST", "Mission: Send stock to another planet")
 	mission_label.theme_type_variation = "LabelAccent"

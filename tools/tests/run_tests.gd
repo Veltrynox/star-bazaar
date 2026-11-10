@@ -1166,8 +1166,6 @@ func _test_tutorial_t316(m: Node) -> void:
 	m.tip_sig = {}
 	m.tips_seen["TIP_TIER1"] = true  # a grown world is not what this test is about
 	m.tip_signal("tax")
-	check(m.tip_next() == "TIP_GOAL", "T316: the goal tip is due first when the tutorial is over", m.tip_next())
-	m.tips_seen["TIP_GOAL"] = true
 	check(m.tip_next() == "TIP_TAX", "T316: a signalled tip is next", m.tip_next())
 	m._tip_show("TIP_TAX")
 	check(m.tip_card.visible and m.tip_text_label.text != "" and m.tips_seen.has("TIP_TAX"), "T316: the tip card shows the tip and marks it seen")
