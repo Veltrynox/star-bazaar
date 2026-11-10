@@ -3806,6 +3806,4802 @@
   {
    "id": "SK_BIO_7_FLAVOUR",
    "text": "Стена из бумаги переживёт стену из камня."
+  },
+  {
+   "id": "SK_BTN_CLOSE",
+   "text": "Закрыть"
+  },
+  {
+   "id": "SK_NONE_SELECTED",
+   "text": "Нажмите на навык, чтобы увидеть, что он делает."
+  },
+  {
+   "id": "SK_BTN_LEARNED",
+   "text": "Выучено"
+  },
+  {
+   "id": "SK_BTN_LOCKED",
+   "text": "Закрыто"
+  },
+  {
+   "id": "SK_LABEL_EFFECT",
+   "text": "Что меняется"
+  },
+  {
+   "id": "PERMIT_S2_NAME",
+   "text": "Разрешение: Dunmere Reach"
+  },
+  {
+   "id": "PERMIT_S2_DESC",
+   "text": "Открывает Dunmere Reach для маршрутов. Нужен Permit Charter. Стоит кредиты и Skill points."
+  },
+  {
+   "id": "PERMIT_S2_BTN",
+   "text": "Купить разрешение"
+  },
+  {
+   "id": "SS_POST_NAME",
+   "text": "Space Storage"
+  },
+  {
+   "id": "SS_POST_DESC",
+   "text": "Запас на всю систему. Company storage медленно пополняет его. Он хранит грузы и не даёт потока."
+  },
+  {
+   "id": "PERMIT_COST_LINE",
+   "text": "Цена: {credits} кредитов и {points} Skill points."
+  },
+  {
+   "id": "PERMIT_NEEDS_C1",
+   "text": "Чтобы покупать разрешения, нужен Permit Charter."
+  },
+  {
+   "id": "PERMIT_NO_CREDITS",
+   "text": "Не хватает кредитов."
+  },
+  {
+   "id": "SS_BTN_CLOSE",
+   "text": "Закрыть"
+  },
+  {
+   "id": "SS_LBL_CAPACITY",
+   "text": "Ёмкость: {cap} на товар"
+  },
+  {
+   "id": "SS_LBL_STOCK_RULE",
+   "text": "Всё доставленное сюда лежит, пока его не заберёт заказ Sell в этой системе, рецепт или содержание."
+  },
+  {
+   "id": "SS_NULL_CORE_BUILD",
+   "text": "Собрать Null Core: {cost}"
+  },
+  {
+   "id": "SS_FABRIC_NO_INPUTS",
+   "text": "Не хватает сырья: {items}. Привезите его с мёртвого мира."
+  },
+  {
+   "id": "SK_TAB_FND",
+   "text": "Foundations"
+  },
+  {
+   "id": "SK_TAB_MIL",
+   "text": "Military"
+  },
+  {
+   "id": "SK_TAB_LUX",
+   "text": "Luxury"
+  },
+  {
+   "id": "SK_TAB_MIN",
+   "text": "Minerals"
+  },
+  {
+   "id": "SK_TAB_BIO",
+   "text": "Biotech"
+  },
+  {
+   "id": "SK_KIND_SKILL",
+   "text": "Навык"
+  },
+  {
+   "id": "SK_KIND_TECH",
+   "text": "Технология"
+  },
+  {
+   "id": "SK_CRAFTED",
+   "text": "Изготовлено {n} из {goal}"
+  },
+  {
+   "id": "SK_LOCKED_NEEDS",
+   "text": "Закрыто: нужен навык {name}"
+  },
+  {
+   "id": "SK_NOT_ENOUGH",
+   "text": "Не хватает очков"
+  },
+  {
+   "id": "SK_POINTS_COUNTER",
+   "text": "Skill points: {n}"
+  },
+  {
+   "id": "SK_TECH_DONE",
+   "text": "Технология завершена: {name}."
+  },
+  {
+   "id": "SK_TECH_NO_POINTS",
+   "text": "Технология не стоит очков. Она завершается изготовлением."
+  },
+  {
+   "id": "PERMIT_WHY_TITLE",
+   "text": "Зачем разрешение"
+  },
+  {
+   "id": "PERMIT_WHY",
+   "text": "Бюро держит другие системы закрытыми, пока у компании нет лицензии. Разрешение даёт право водить туда маршруты, к новым планетам и новым ценам. Печать холодная и гудит."
+  },
+  {
+   "id": "PERMIT_WHY_LOCKED",
+   "text": "Бюро пока не поставит печать на разрешение. Сначала выучите Permit Charter в окне Skills."
+  },
+  {
+   "id": "SS_LINK_TITLE",
+   "text": "Связь хранилищ"
+  },
+  {
+   "id": "SS_LINK_BTN_BUILD",
+   "text": "Построить связь..."
+  },
+  {
+   "id": "SS_LINK_BTN_ADD_ORDER",
+   "text": "Добавить заказ"
+  },
+  {
+   "id": "SS_LINK_BTN_REMOVE_ORDER",
+   "text": "Убрать заказ"
+  },
+  {
+   "id": "SS_LINK_BTN_CONFIRM",
+   "text": "Построить связь"
+  },
+  {
+   "id": "SS_LINK_BTN_CANCEL",
+   "text": "Отмена"
+  },
+  {
+   "id": "SS_LINK_BTN_SAVE_ORDER",
+   "text": "Сохранить заказ"
+  },
+  {
+   "id": "SS_LINK_DLG_TITLE",
+   "text": "Построить связь хранилищ"
+  },
+  {
+   "id": "SS_LINK_DLG_PARTNER",
+   "text": "Соединить {a} с {b}"
+  },
+  {
+   "id": "SS_LINK_DLG_HINT",
+   "text": "Связь оплачивается грузами из обоих хранилищ в любой пропорции. Кредиты не списываются."
+  },
+  {
+   "id": "SS_LINK_DLG_COST",
+   "text": "{goods}: нужно {n}, есть {m}"
+  },
+  {
+   "id": "SS_LINK_DLG_FROM",
+   "text": "Взять из {a}"
+  },
+  {
+   "id": "SS_LINK_DLG_SHORT",
+   "text": "Двум хранилищам вместе не хватает: {goods}."
+  },
+  {
+   "id": "SS_LINK_LBL_LINE",
+   "text": "{a} <-> {b}"
+  },
+  {
+   "id": "SS_LINK_STATE_ACTIVE",
+   "text": "Активна"
+  },
+  {
+   "id": "SS_LINK_STATE_DORMANT",
+   "text": "Спит"
+  },
+  {
+   "id": "SS_LINK_STATE_COLLAPSED",
+   "text": "Обрушена"
+  },
+  {
+   "id": "SS_LINK_LBL_UPKEEP",
+   "text": "Содержание: Energy {n} за цикл"
+  },
+  {
+   "id": "SS_LINK_LBL_RATE",
+   "text": "Скорость: занято {n} / {m}"
+  },
+  {
+   "id": "SS_LINK_LBL_ORDERS",
+   "text": "Заказы {n} / {m}"
+  },
+  {
+   "id": "SS_LINK_LBL_ORDER_ROW",
+   "text": "{good}  {a} -> {b}  {n} за цикл"
+  },
+  {
+   "id": "SS_LINK_LBL_DORMANT_NEEDS",
+   "text": "Спит: нужно Energy: {n}"
+  },
+  {
+   "id": "SS_LINK_LBL_COLLAPSE_IN",
+   "text": "Рухнет через циклов: {cycles}"
+  },
+  {
+   "id": "SS_LINK_LBL_COLLAPSED",
+   "text": "Связь обрушена. Заказы потеряны. Постройте её снова, чтобы пользоваться."
+  },
+  {
+   "id": "SS_LINK_LBL_NO_LINK",
+   "text": "Связи пока нет. Связь переносит грузы между двумя Space Storage без корабля."
+  },
+  {
+   "id": "SS_LINK_LBL_GOOD",
+   "text": "Товар"
+  },
+  {
+   "id": "SS_LINK_LBL_FROM",
+   "text": "Откуда"
+  },
+  {
+   "id": "SS_LINK_LBL_AMOUNT",
+   "text": "За цикл"
+  },
+  {
+   "id": "SS_LINK_LBL_ORDER_NOTE",
+   "text": "Заказы идут по списку. За цикл переносится то, что позволяют скорость, запас и свободное место."
+  },
+  {
+   "id": "SS_LINK_NOT_BUILT",
+   "text": "Связь хранилищ построена между {a} и {b}."
+  },
+  {
+   "id": "SS_LINK_NOT_MOVED",
+   "text": "Связь хранилищ переместила единиц: {n}, из {a} в {b}."
+  },
+  {
+   "id": "SS_LINK_NOT_DORMANT",
+   "text": "Связь {a} <-> {b} спит. Нужно Energy: {n}. Рухнет через циклов: {cycles}."
+  },
+  {
+   "id": "SS_LINK_NOT_COLLAPSE_WARN",
+   "text": "Связь {a} <-> {b} рухнет в следующем цикле, если в хранилищах не будет Energy: {n}."
+  },
+  {
+   "id": "SS_LINK_NOT_WOKE",
+   "text": "Связь {a} <-> {b} снова активна."
+  },
+  {
+   "id": "SS_LINK_NOT_COLLAPSED",
+   "text": "Связь {a} <-> {b} обрушилась. Её заказы потеряны. Постройте её снова, чтобы восстановить."
+  },
+  {
+   "id": "SS_LINK_NOT_NO_GOODS",
+   "text": "Связь не построить. В хранилищах не хватает: {goods}."
+  },
+  {
+   "id": "SS_LINK_NOT_REFUSED_PAIR",
+   "text": "Между этими двумя системами связь уже есть."
+  },
+  {
+   "id": "SS_LINK_NOT_REFUSED_MAX",
+   "text": "У этого Space Storage уже столько связей, сколько он вмещает."
+  },
+  {
+   "id": "SS_LINK_NOT_REFUSED_ORDERS",
+   "text": "У этой связи уже столько заказов, сколько она вмещает. Сначала уберите один."
+  },
+  {
+   "id": "SS_LINK_NOT_REFUSED_NO_STORAGE",
+   "text": "Чтобы связать системы, в каждой нужен Space Storage с грузом."
+  },
+  {
+   "id": "SS_LINK_TIP_MAP",
+   "text": "Связь хранилищ: {a} и {b}. Каждый цикл переносит грузы между двумя Space Storage."
+  },
+  {
+   "id": "SS_LINK_TIP_MAP_DORMANT",
+   "text": "Спящая связь: {a} и {b}. Грузы не идут, пока в хранилищах нет Energy: {n}."
+  },
+  {
+   "id": "SS_LINK_TIP_UPKEEP",
+   "text": "Берётся каждый цикл из хранилища, где Energy больше. Без неё связь засыпает."
+  },
+  {
+   "id": "SS_LINK_FLAVOUR_BUILD",
+   "text": "Бюро оформит это как общий коридор. Грузы входят в одну дверь и ждут у другой."
+  },
+  {
+   "id": "SS_LINK_FLAVOUR_EMPTY",
+   "text": "Между системами темно и далеко. План нашёл, как пересечь тьму, чтобы никто не ехал."
+  },
+  {
+   "id": "SS_LINK_UI_BTN_REMOVE_LINK",
+   "text": "Убрать связь"
+  },
+  {
+   "id": "SS_LINK_UI_BTN_EDIT_ORDER",
+   "text": "Нажмите, чтобы изменить количество"
+  },
+  {
+   "id": "SS_LINK_UI_LBL_PARTNER",
+   "text": "Второе хранилище"
+  },
+  {
+   "id": "SS_LINK_UI_LBL_NO_PARTNER",
+   "text": "Других Space Storage для связи пока нет."
+  },
+  {
+   "id": "SS_LINK_UI_LBL_TAKEN",
+   "text": "{goods}: {n}"
+  },
+  {
+   "id": "PERMIT_S3_NAME",
+   "text": "Разрешение: TEMPORARY A"
+  },
+  {
+   "id": "PERMIT_S3_DESC",
+   "text": "Временный текст. Открывает TEMPORARY A для маршрутов."
+  },
+  {
+   "id": "PERMIT_S3_BTN",
+   "text": "Купить разрешение"
+  },
+  {
+   "id": "PERMIT_S4_NAME",
+   "text": "Разрешение: TEMPORARY B"
+  },
+  {
+   "id": "PERMIT_S4_DESC",
+   "text": "Временный текст. Открывает TEMPORARY B для маршрутов."
+  },
+  {
+   "id": "PERMIT_S4_BTN",
+   "text": "Купить разрешение"
+  },
+  {
+   "id": "PERMIT_S5_NAME",
+   "text": "Разрешение: TEMPORARY C"
+  },
+  {
+   "id": "PERMIT_S5_DESC",
+   "text": "Временный текст. Открывает TEMPORARY C для маршрутов."
+  },
+  {
+   "id": "PERMIT_S5_BTN",
+   "text": "Купить разрешение"
+  },
+  {
+   "id": "PERMIT_S6_NAME",
+   "text": "Разрешение: Placeholder D"
+  },
+  {
+   "id": "PERMIT_S6_DESC",
+   "text": "Временный текст. Открывает Placeholder D для маршрутов."
+  },
+  {
+   "id": "PERMIT_S6_BTN",
+   "text": "Купить разрешение"
+  },
+  {
+   "id": "PERMIT_S7_NAME",
+   "text": "Разрешение: Placeholder E"
+  },
+  {
+   "id": "PERMIT_S7_DESC",
+   "text": "Временный текст. Открывает Placeholder E для маршрутов."
+  },
+  {
+   "id": "PERMIT_S7_BTN",
+   "text": "Купить разрешение"
+  },
+  {
+   "id": "PERMIT_S8_NAME",
+   "text": "Разрешение: Placeholder F"
+  },
+  {
+   "id": "PERMIT_S8_DESC",
+   "text": "Временный текст. Открывает Placeholder F для маршрутов."
+  },
+  {
+   "id": "PERMIT_S8_BTN",
+   "text": "Купить разрешение"
+  },
+  {
+   "id": "PERMIT_S9_NAME",
+   "text": "Разрешение: Placeholder G"
+  },
+  {
+   "id": "PERMIT_S9_DESC",
+   "text": "Временный текст. Открывает Placeholder G для маршрутов."
+  },
+  {
+   "id": "PERMIT_S9_BTN",
+   "text": "Купить разрешение"
+  },
+  {
+   "id": "PERMIT_S10_NAME",
+   "text": "Разрешение: Placeholder H"
+  },
+  {
+   "id": "PERMIT_S10_DESC",
+   "text": "Временный текст. Открывает Placeholder H для маршрутов."
+  },
+  {
+   "id": "PERMIT_S10_BTN",
+   "text": "Купить разрешение"
+  },
+  {
+   "id": "BAZ_NAME",
+   "text": "Star Bazaar"
+  },
+  {
+   "id": "BAZ_PANEL_TITLE",
+   "text": "Star Bazaar"
+  },
+  {
+   "id": "BAZ_FOUND_BTN",
+   "text": "Основать Star Bazaar здесь"
+  },
+  {
+   "id": "BAZ_FOUND_PROMPT",
+   "text": "Основать Star Bazaar на {planet}? Это окончательно. В партии одна столица."
+  },
+  {
+   "id": "BAZ_FOUND_CONFIRM",
+   "text": "Основать"
+  },
+  {
+   "id": "BAZ_FOUND_CANCEL",
+   "text": "Пока нет"
+  },
+  {
+   "id": "BAZ_FOUNDED",
+   "text": "Star Bazaar основан на {planet}."
+  },
+  {
+   "id": "BAZ_STAGE_1_NAME",
+   "text": "Фундамент"
+  },
+  {
+   "id": "BAZ_STAGE_2_NAME",
+   "text": "Залы"
+  },
+  {
+   "id": "BAZ_STAGE_3_NAME",
+   "text": "Башни"
+  },
+  {
+   "id": "BAZ_STAGE_4_NAME",
+   "text": "Большой зал"
+  },
+  {
+   "id": "BAZ_STAGE_DONE",
+   "text": "Этап Star Bazaar завершён: {stage}."
+  },
+  {
+   "id": "BAZ_LBL_BILL",
+   "text": "Нужные грузы"
+  },
+  {
+   "id": "BAZ_LBL_QUORUM",
+   "text": "Другие миры"
+  },
+  {
+   "id": "BAZ_LBL_REACH",
+   "text": "Охват"
+  },
+  {
+   "id": "BAZ_LBL_CAPITAL",
+   "text": "Столица"
+  },
+  {
+   "id": "BAZ_LBL_WINGS",
+   "text": "Крылья"
+  },
+  {
+   "id": "BAZ_TERM_LEFT",
+   "text": "Осталось циклов: {cycles}"
+  },
+  {
+   "id": "BAZ_BILL_ROW",
+   "text": "Ещё {amount}: {commodity}"
+  },
+  {
+   "id": "BAZ_QUORUM_ROW",
+   "text": "Миров на ступени {tier}: {n} из {m}"
+  },
+  {
+   "id": "BAZ_REACH_ROW",
+   "text": "Один мир в другой системе"
+  },
+  {
+   "id": "BAZ_BTN_CONTINUE",
+   "text": "Продолжить без конца"
+  },
+  {
+   "id": "BAZ_FREEPLAY_NOTE",
+   "text": "У свободной игры нет другого конца. Панель Star Bazaar продолжает счёт."
+  },
+  {
+   "id": "HUB_NAME",
+   "text": "Узел"
+  },
+  {
+   "id": "HUB_PANEL_TITLE",
+   "text": "Узел"
+  },
+  {
+   "id": "HUB_LBL_REACH",
+   "text": "В досягаемости"
+  },
+  {
+   "id": "HUB_LBL_POOL",
+   "text": "Парк кораблей"
+  },
+  {
+   "id": "HUB_LBL_SERVED",
+   "text": "Снабжаемые миры"
+  },
+  {
+   "id": "HUB_LBL_GAPS",
+   "text": "Пробелы"
+  },
+  {
+   "id": "HUB_LBL_FEE",
+   "text": "Сбор узла"
+  },
+  {
+   "id": "HUB_MAKE_BTN",
+   "text": "Сделать узлом"
+  },
+  {
+   "id": "HUB_MAKE_PROMPT",
+   "text": "Сделать {planet} узлом? Он снабжает ближние миры кораблями из своего парка."
+  },
+  {
+   "id": "HUB_MAKE_CONFIRM",
+   "text": "Сделать узлом"
+  },
+  {
+   "id": "HUB_MAKE_CANCEL",
+   "text": "Пока нет"
+  },
+  {
+   "id": "HUB_MADE",
+   "text": "{planet} теперь узел. Добавьте ему корабли, чтобы начать."
+  },
+  {
+   "id": "HUB_FIRST",
+   "text": "{planet} теперь снабжает соседей. Ваши руки свободны для другой работы."
+  },
+  {
+   "id": "HUB_RELEASE_BTN",
+   "text": "Освободить узел"
+  },
+  {
+   "id": "HUB_RELEASE_PROMPT",
+   "text": "Освободить узел на {planet}? Его корабли вернутся в ваш флот, а его миры — к вам."
+  },
+  {
+   "id": "HUB_RELEASE_CONFIRM",
+   "text": "Освободить"
+  },
+  {
+   "id": "HUB_RELEASE_CANCEL",
+   "text": "Оставить узел"
+  },
+  {
+   "id": "HUB_RELEASED",
+   "text": "Узел на {planet} освобождён. Его мирам снова нужны ваши маршруты."
+  },
+  {
+   "id": "HUB_ASSIGN_SHIP",
+   "text": "Добавить корабль"
+  },
+  {
+   "id": "HUB_FREE_SHIP",
+   "text": "Вернуть корабль"
+  },
+  {
+   "id": "HUB_NO_SLOT",
+   "text": "В этой системе уже есть узел. Освободите его, чтобы перенести работу сюда."
+  },
+  {
+   "id": "HUB_ROW_MANUAL",
+   "text": "Ваши вручную"
+  },
+  {
+   "id": "HUB_ROW_ROUTE",
+   "text": "Снабжает ваш маршрут"
+  },
+  {
+   "id": "HUB_ROW_HUB",
+   "text": "Снабжает узел"
+  },
+  {
+   "id": "HUB_SHORT_NO_SOURCE",
+   "text": "Нехватка: нет источника рядом"
+  },
+  {
+   "id": "HUB_SHORT_NO_SHIP",
+   "text": "Нехватка: нет свободного корабля"
+  },
+  {
+   "id": "HUB_SHORT_NO_CASH",
+   "text": "Нехватка: не хватает наличных"
+  },
+  {
+   "id": "BAZ_WING_TITLE",
+   "text": "Выберите крыло"
+  },
+  {
+   "id": "BAZ_WING_PROMPT",
+   "text": "Этап завершён: {stage}. Выберите одно крыло. Второе больше не предложат."
+  },
+  {
+   "id": "BAZ_WING_PICK",
+   "text": "Добавить крыло"
+  },
+  {
+   "id": "BAZ_WING_1A_NAME",
+   "text": "Крыло трюмов"
+  },
+  {
+   "id": "BAZ_WING_1A_LINE",
+   "text": "Флагман несёт трюм больше."
+  },
+  {
+   "id": "BAZ_WING_1B_NAME",
+   "text": "Крыло охвата"
+  },
+  {
+   "id": "BAZ_WING_1B_LINE",
+   "text": "Узлы достают дальше."
+  },
+  {
+   "id": "BAZ_WING_2A_NAME",
+   "text": "Крыло пошлин"
+  },
+  {
+   "id": "BAZ_WING_2A_LINE",
+   "text": "Миры платят больше налога."
+  },
+  {
+   "id": "BAZ_WING_2B_NAME",
+   "text": "Крыло верстаков"
+  },
+  {
+   "id": "BAZ_WING_2B_LINE",
+   "text": "Мастерские работают дешевле."
+  },
+  {
+   "id": "BAZ_WING_3A_NAME",
+   "text": "Крыло ламп"
+  },
+  {
+   "id": "BAZ_WING_3A_LINE",
+   "text": "Погода соперников мягче ложится на ваши миры."
+  },
+  {
+   "id": "BAZ_WING_3B_NAME",
+   "text": "Крыло курьеров"
+  },
+  {
+   "id": "BAZ_WING_3B_LINE",
+   "text": "Заказы платят бонус больше."
+  },
+  {
+   "id": "SK_HEADER",
+   "text": "Skills"
+  },
+  {
+   "id": "SK_NEEDS",
+   "text": "Нужно: {skill}."
+  },
+  {
+   "id": "SK_COST",
+   "text": "Цена: {amount} очков"
+  },
+  {
+   "id": "SK_NO_CREDITS",
+   "text": "Навыки стоят Skill points, но никогда не кредиты."
+  },
+  {
+   "id": "SK_BOT_USE",
+   "text": "Применить к..."
+  },
+  {
+   "id": "SK_BOT_USED",
+   "text": "Применено в этой партии."
+  },
+  {
+   "id": "SK_BOT_COOLDOWN",
+   "text": "Готово через циклов: {n}."
+  },
+  {
+   "id": "SK_MIL_5_PLAIN",
+   "text": "Выберите соперника: его погода на ваших мирах и трассах слабее на {pct}. Срок, циклов: {n}. Перезарядка, циклов: {m}."
+  },
+  {
+   "id": "SK_MIL_7_PLAIN",
+   "text": "Предупреждение о погоде соперников приходит раньше на циклов: {n}, до конца партии. Вершина."
+  },
+  {
+   "id": "SK_LUX_2_PLAIN",
+   "text": "Единицы Luxury, проданные в потребность мира, засчитываются в неё немного больше. Продажи платят на 6% больше. Технология: изготовьте единиц: {goal}."
+  },
+  {
+   "id": "SK_LUX_5_PLAIN",
+   "text": "Продажи на планете с подорожавшими ценами заметно больше засчитываются в потребность мира, а событие платит на 25% больше."
+  },
+  {
+   "id": "SK_LUX_7_PLAIN",
+   "text": "Выберите соперника: его погода на ваших мирах и трассах слабее на {pct}. Срок, циклов: {n}. Перезарядка, циклов: {m}. Вершина."
+  },
+  {
+   "id": "SK_MIN_7_PLAIN",
+   "text": "Погода соперников на ваших мирах и трассах слабее на {pct} до конца партии. Вершина."
+  },
+  {
+   "id": "SK_BIO_5_PLAIN",
+   "text": "Немного снижает прогресс, который мир теряет после цикла с нехваткой. Запасы Biotech переживают сокращения хранилища."
+  },
+  {
+   "id": "SK_BIO_7_PLAIN",
+   "text": "Погода соперников на ваших мирах и трассах слабее на {pct} до конца партии. Вершина."
+  },
+  {
+   "id": "SK_FND_LEDGER_NAME",
+   "text": "Журнал маршрутов"
+  },
+  {
+   "id": "SK_FND_LEDGER_FLAVOUR",
+   "text": "Столбец мелких чисел, честных до последней монеты. Вы подписываете его дважды."
+  },
+  {
+   "id": "SK_FND_LEDGER_PLAIN",
+   "text": "Заказы Buy и Sell за цикл двигают больше, по каждому товару."
+  },
+  {
+   "id": "SK_FND_RIVAL_WATCH_NAME",
+   "text": "Надзор за рынком"
+  },
+  {
+   "id": "SK_FND_RIVAL_WATCH_FLAVOUR",
+   "text": "Тихий клерк читает ветер за вас. До вашего стола доходит меньше неожиданностей."
+  },
+  {
+   "id": "SK_FND_RIVAL_WATCH_PLAIN",
+   "text": "События с ценами против вас бьют слабее, на всех рынках."
+  },
+  {
+   "id": "SK_FND_DOCKS_NAME",
+   "text": "Договоры с доками"
+  },
+  {
+   "id": "SK_FND_DOCKS_FLAVOUR",
+   "text": "Фиксированный сбор, печать на причале, клерк, который перестал спрашивать."
+  },
+  {
+   "id": "SK_FND_DOCKS_PLAIN",
+   "text": "Улучшение маршрута стоит дешевле."
+  },
+  {
+   "id": "SK_MIL_8_NAME",
+   "text": "Счёт верфи"
+  },
+  {
+   "id": "SK_MIL_8_FLAVOUR",
+   "text": "Книга кораблей, подписанная в трёх экземплярах. Верфь знает ваше имя."
+  },
+  {
+   "id": "SK_MIL_8_PLAIN",
+   "text": "Корабли стоят дешевле при покупке."
+  },
+  {
+   "id": "SK_MIL_9_NAME",
+   "text": "Пресс для ячеек"
+  },
+  {
+   "id": "SK_MIL_9_FLAVOUR",
+   "text": "Ячейки прессуют на вашем полу. Без фрахта, без ожидания."
+  },
+  {
+   "id": "SK_MIL_9_PLAIN",
+   "text": "Единицы Military, проданные в потребность мира, засчитываются в неё немного больше. Технология: изготовьте единиц: {goal}."
+  },
+  {
+   "id": "SK_MIL_9_CRAFT",
+   "text": "Изготовлено в мастерской Military: {n} из {goal}"
+  },
+  {
+   "id": "SK_MIL_10_NAME",
+   "text": "Укреплённые склады"
+  },
+  {
+   "id": "SK_MIL_10_FLAVOUR",
+   "text": "Стальная дверь, один охранник, замок с номером. Сокращения остаются снаружи."
+  },
+  {
+   "id": "SK_MIL_10_PLAIN",
+   "text": "Сокращения хранилища не урезают ваши запасы Military."
+  },
+  {
+   "id": "SK_MIL_11_NAME",
+   "text": "Испытательный полигон"
+  },
+  {
+   "id": "SK_MIL_11_FLAVOUR",
+   "text": "Полигон шумный. Покупатель платит за шум."
+  },
+  {
+   "id": "SK_MIL_11_PLAIN",
+   "text": "Ваш второй продукт Military продаётся дороже. Технология: изготовьте единиц: {goal}."
+  },
+  {
+   "id": "SK_MIL_11_CRAFT",
+   "text": "Изготовлено в мастерской Military: {n} из {goal}"
+  },
+  {
+   "id": "SK_MIL_12_NAME",
+   "text": "Открытый арсенал"
+  },
+  {
+   "id": "SK_MIL_12_FLAVOUR",
+   "text": "Двери остаются открытыми, и голодный город ждёт вас чуть дольше."
+  },
+  {
+   "id": "SK_MIL_12_PLAIN",
+   "text": "Заметно снижает прогресс, который мир теряет после цикла с нехваткой."
+  },
+  {
+   "id": "SK_MIL_13_NAME",
+   "text": "Доктрина давления"
+  },
+  {
+   "id": "SK_MIL_13_FLAVOUR",
+   "text": "Теперь вы звоните раньше. Клерк выучил ваш голос."
+  },
+  {
+   "id": "SK_MIL_13_PLAIN",
+   "text": "Embargo Desk перезаряжается быстрее."
+  },
+  {
+   "id": "SK_MIL_14_NAME",
+   "text": "Военная экономика"
+  },
+  {
+   "id": "SK_MIL_14_FLAVOUR",
+   "text": "У каждого ящика в книге есть второе применение. Вслух об этом не говорят."
+  },
+  {
+   "id": "SK_MIL_14_PLAIN",
+   "text": "Каждая партия Military даёт больше единиц. Технология: изготовьте единиц: {goal}."
+  },
+  {
+   "id": "SK_MIL_14_CRAFT",
+   "text": "Изготовлено в мастерской Military: {n} из {goal}"
+  },
+  {
+   "id": "SK_MIL_15_NAME",
+   "text": "Последний рубеж"
+  },
+  {
+   "id": "SK_MIL_15_FLAVOUR",
+   "text": "Рубеж держится, потому что никто не хочет его проверять."
+  },
+  {
+   "id": "SK_MIL_15_PLAIN",
+   "text": "Погода соперников на ваших мирах и трассах слабее ещё на {pct} до конца партии. Вершина."
+  },
+  {
+   "id": "SK_LUX_8_NAME",
+   "text": "Салонный круг"
+  },
+  {
+   "id": "SK_LUX_8_FLAVOUR",
+   "text": "Маленькая комната, мягкие кресла, жёсткие вопросы. До рассвета уходят немногие."
+  },
+  {
+   "id": "SK_LUX_8_PLAIN",
+   "text": "Немного снижает прогресс, который мир теряет после цикла с нехваткой."
+  },
+  {
+   "id": "SK_LUX_9_NAME",
+   "text": "Второй станок"
+  },
+  {
+   "id": "SK_LUX_9_FLAVOUR",
+   "text": "Рядом с первым станком гудит второй. Нити всё равно не хватает."
+  },
+  {
+   "id": "SK_LUX_9_PLAIN",
+   "text": "Мастерские Luxury делают на одну партию за цикл больше. Технология: изготовьте единиц: {goal}."
+  },
+  {
+   "id": "SK_LUX_9_CRAFT",
+   "text": "Изготовлено в мастерской Luxury: {n} из {goal}"
+  },
+  {
+   "id": "SK_LUX_10_NAME",
+   "text": "Стол трендов"
+  },
+  {
+   "id": "SK_LUX_10_FLAVOUR",
+   "text": "Вы видите холодный фронт заранее, и пальто уже готово."
+  },
+  {
+   "id": "SK_LUX_10_PLAIN",
+   "text": "События, снижающие ваши цены на Luxury, бьют слабее."
+  },
+  {
+   "id": "SK_LUX_11_NAME",
+   "text": "Глаз коллекционера"
+  },
+  {
+   "id": "SK_LUX_11_FLAVOUR",
+   "text": "Один покупатель хочет вещь больше всех. Вы ждёте именно его."
+  },
+  {
+   "id": "SK_LUX_11_PLAIN",
+   "text": "Ваш второй продукт Luxury продаётся дороже. Технология: изготовьте единиц: {goal}."
+  },
+  {
+   "id": "SK_LUX_11_CRAFT",
+   "text": "Изготовлено в мастерской Luxury: {n} из {goal}"
+  },
+  {
+   "id": "SK_LUX_12_NAME",
+   "text": "Печатная комната"
+  },
+  {
+   "id": "SK_LUX_12_FLAVOUR",
+   "text": "Ваше имя на странице, красивым шрифтом. Страница небесплатна."
+  },
+  {
+   "id": "SK_LUX_12_PLAIN",
+   "text": "Маршруты Luxury возят за цикл больше."
+  },
+  {
+   "id": "SK_LUX_13_NAME",
+   "text": "Кошелёк мецената"
+  },
+  {
+   "id": "SK_LUX_13_FLAVOUR",
+   "text": "Смешанный ящик радует каждого за столом."
+  },
+  {
+   "id": "SK_LUX_13_PLAIN",
+   "text": "Единицы, проданные в потребность мира, засчитываются немного больше. Маршруты со смешанным грузом получают бонус больше."
+  },
+  {
+   "id": "SK_LUX_14_NAME",
+   "text": "Аукционный дом"
+  },
+  {
+   "id": "SK_LUX_14_FLAVOUR",
+   "text": "Молоток падает, зал выдыхает. Считаете вы потом."
+  },
+  {
+   "id": "SK_LUX_14_PLAIN",
+   "text": "Единицы Luxury, проданные в потребность мира, засчитываются в неё заметно больше. Технология: изготовьте единиц: {goal}."
+  },
+  {
+   "id": "SK_LUX_14_CRAFT",
+   "text": "Изготовлено в мастерской Luxury: {n} из {goal}"
+  },
+  {
+   "id": "SK_LUX_15_NAME",
+   "text": "Позолоченное окно"
+  },
+  {
+   "id": "SK_LUX_15_FLAVOUR",
+   "text": "С балкона салона виден каждый конвой. Гости думают, что это ради них."
+  },
+  {
+   "id": "SK_LUX_15_PLAIN",
+   "text": "Предупреждение о погоде соперников приходит ещё раньше на циклов: {n}, до конца партии. Вершина."
+  },
+  {
+   "id": "SK_MIN_8_NAME",
+   "text": "Глубокий трюм"
+  },
+  {
+   "id": "SK_MIN_8_FLAVOUR",
+   "text": "Трюм больше, потолок ниже. Бригада учится пригибаться."
+  },
+  {
+   "id": "SK_MIN_8_PLAIN",
+   "text": "Хранилище планеты вмещает больше каждого товара."
+  },
+  {
+   "id": "SK_MIN_9_NAME",
+   "text": "Возврат шлака"
+  },
+  {
+   "id": "SK_MIN_9_FLAVOUR",
+   "text": "Что оставил огонь, переплавляют снова. Расточительность — привычка, которую бросают."
+  },
+  {
+   "id": "SK_MIN_9_PLAIN",
+   "text": "Рецептам мастерских нужно меньше добытого груза. Единицы, проданные в потребность мира, засчитываются немного больше. Технология: изготовьте единиц: {goal}."
+  },
+  {
+   "id": "SK_MIN_9_CRAFT",
+   "text": "Изготовлено в мастерской Minerals: {n} из {goal}"
+  },
+  {
+   "id": "SK_MIN_10_NAME",
+   "text": "Безопасный проход"
+  },
+  {
+   "id": "SK_MIN_10_FLAVOUR",
+   "text": "Маяк на каждой холодной скале и более спокойный рынок за ним."
+  },
+  {
+   "id": "SK_MIN_10_PLAIN",
+   "text": "События с ценами Minerals против вас бьют слабее."
+  },
+  {
+   "id": "SK_MIN_11_NAME",
+   "text": "Горячая литейная"
+  },
+  {
+   "id": "SK_MIN_11_FLAVOUR",
+   "text": "Отливка яркая и быстрая. Покупателям нравится блеск."
+  },
+  {
+   "id": "SK_MIN_11_PLAIN",
+   "text": "Продажи Minerals платят больше. Технология: изготовьте единиц: {goal}."
+  },
+  {
+   "id": "SK_MIN_11_CRAFT",
+   "text": "Изготовлено в мастерской Minerals: {n} из {goal}"
+  },
+  {
+   "id": "SK_MIN_12_NAME",
+   "text": "Брокеры жил"
+  },
+  {
+   "id": "SK_MIN_12_FLAVOUR",
+   "text": "Человек с книгой и улыбкой хорошо платит за верное дело."
+  },
+  {
+   "id": "SK_MIN_12_PLAIN",
+   "text": "События с ценами Minerals в вашу пользу платят больше."
+  },
+  {
+   "id": "SK_MIN_13_NAME",
+   "text": "Настройка ядра"
+  },
+  {
+   "id": "SK_MIN_13_FLAVOUR",
+   "text": "Шкалы, твёрдая рука, долгий холодный рейс стал чуть короче."
+  },
+  {
+   "id": "SK_MIN_13_PLAIN",
+   "text": "Рейсы корабля с Null Core стоят дешевле."
+  },
+  {
+   "id": "SK_MIN_14_NAME",
+   "text": "Массовая плавка"
+  },
+  {
+   "id": "SK_MIN_14_FLAVOUR",
+   "text": "Большая печь не спрашивает, что плавит. Она просит ещё."
+  },
+  {
+   "id": "SK_MIN_14_PLAIN",
+   "text": "Единицы Minerals, проданные в потребность мира, засчитываются в неё заметно больше. Технология: изготовьте единиц: {goal}."
+  },
+  {
+   "id": "SK_MIN_14_CRAFT",
+   "text": "Изготовлено в мастерской Minerals: {n} из {goal}"
+  },
+  {
+   "id": "SK_MIN_15_NAME",
+   "text": "Главная жила"
+  },
+  {
+   "id": "SK_MIN_15_FLAVOUR",
+   "text": "Жила уходит глубже, чем карта. Карте никто не говорит."
+  },
+  {
+   "id": "SK_MIN_15_PLAIN",
+   "text": "Отдача скоплений снова растёт. Вершина."
+  },
+  {
+   "id": "SK_BIO_8_NAME",
+   "text": "Гелевые кооперативы"
+  },
+  {
+   "id": "SK_BIO_8_FLAVOUR",
+   "text": "Соседи делят чан и ссору. Гелю всё равно."
+  },
+  {
+   "id": "SK_BIO_8_PLAIN",
+   "text": "Маршруты Biotech возят за цикл больше."
+  },
+  {
+   "id": "SK_BIO_9_NAME",
+   "text": "Банк спор"
+  },
+  {
+   "id": "SK_BIO_9_FLAVOUR",
+   "text": "Холодная полка спящих, готовых проснуться, когда понадобятся."
+  },
+  {
+   "id": "SK_BIO_9_PLAIN",
+   "text": "Мастерские Biotech делают на одну партию за цикл больше. Технология: изготовьте единиц: {goal}."
+  },
+  {
+   "id": "SK_BIO_9_CRAFT",
+   "text": "Изготовлено в мастерской Biotech: {n} из {goal}"
+  },
+  {
+   "id": "SK_BIO_10_NAME",
+   "text": "Холодовая цепь"
+  },
+  {
+   "id": "SK_BIO_10_FLAVOUR",
+   "text": "Иней в каждом ящике, от чана до двери."
+  },
+  {
+   "id": "SK_BIO_10_PLAIN",
+   "text": "Маршруты Biotech не замечают событий с обломками на трассе."
+  },
+  {
+   "id": "SK_BIO_11_NAME",
+   "text": "Линии прививки"
+  },
+  {
+   "id": "SK_BIO_11_FLAVOUR",
+   "text": "Черенок, стежок, ряд маленьких зелёных обещаний."
+  },
+  {
+   "id": "SK_BIO_11_PLAIN",
+   "text": "Каждая партия Biotech даёт больше единиц. Технология: изготовьте единиц: {goal}."
+  },
+  {
+   "id": "SK_BIO_11_CRAFT",
+   "text": "Изготовлено в мастерской Biotech: {n} из {goal}"
+  },
+  {
+   "id": "SK_BIO_12_NAME",
+   "text": "Терпеливый сад"
+  },
+  {
+   "id": "SK_BIO_12_FLAVOUR",
+   "text": "Делать нечего, остаётся ждать. Это труднее, чем звучит."
+  },
+  {
+   "id": "SK_BIO_12_PLAIN",
+   "text": "Хранимый Biotech растёт быстрее с каждым циклом."
+  },
+  {
+   "id": "SK_BIO_13_NAME",
+   "text": "Рыночные дни"
+  },
+  {
+   "id": "SK_BIO_13_FLAVOUR",
+   "text": "Прилавки открываются вместе с новостью. Ваши банки готовы."
+  },
+  {
+   "id": "SK_BIO_13_PLAIN",
+   "text": "Продажи Biotech на планете с подорожавшими ценами больше засчитываются в потребность этого мира."
+  },
+  {
+   "id": "SK_BIO_14_NAME",
+   "text": "Живые договоры"
+  },
+  {
+   "id": "SK_BIO_14_FLAVOUR",
+   "text": "Подписанное обещание доставить что-то живое. Чернила ещё не высохли."
+  },
+  {
+   "id": "SK_BIO_14_PLAIN",
+   "text": "Продажи Biotech платят больше. Технология: изготовьте единиц: {goal}."
+  },
+  {
+   "id": "SK_BIO_14_CRAFT",
+   "text": "Изготовлено в мастерской Biotech: {n} из {goal}"
+  },
+  {
+   "id": "SK_BIO_15_NAME",
+   "text": "Ранний цвет"
+  },
+  {
+   "id": "SK_BIO_15_FLAVOUR",
+   "text": "Пыльца летит впереди каждого конвоя, и чаны тянутся к ней."
+  },
+  {
+   "id": "SK_BIO_15_PLAIN",
+   "text": "Предупреждение о погоде соперников приходит ещё раньше на циклов: {n}, до конца партии. Вершина."
+  },
+  {
+   "id": "NOT_NO_SAVE",
+   "text": "Сохранённой игры пока нет."
+  },
+  {
+   "id": "MENU_HINT_SKIP_TUTORIAL",
+   "text": "Новая игра начнётся с уже пройденным обучением."
+  },
+  {
+   "id": "MENU_SKILLS",
+   "text": "Skills"
+  },
+  {
+   "id": "NOT_LOADED",
+   "text": "Игра загружена."
+  },
+  {
+   "id": "BTN_YES",
+   "text": "Да"
+  },
+  {
+   "id": "BTN_NO",
+   "text": "Нет"
+  },
+  {
+   "id": "BTN_BACK",
+   "text": "Назад"
+  },
+  {
+   "id": "LBL_LANGUAGE",
+   "text": "Язык"
+  },
+  {
+   "id": "BTN_OK",
+   "text": "OK"
+  },
+  {
+   "id": "BTN_BUY",
+   "text": "Buy"
+  },
+  {
+   "id": "BTN_SELL",
+   "text": "Sell"
+  },
+  {
+   "id": "BTN_SEND",
+   "text": "Send to..."
+  },
+  {
+   "id": "BTN_LEARN",
+   "text": "Выучить"
+  },
+  {
+   "id": "BTN_REMOVE",
+   "text": "Убрать"
+  },
+  {
+   "id": "LBL_BUY_PRICE",
+   "text": "Buy price"
+  },
+  {
+   "id": "LBL_SELL_PRICE",
+   "text": "Sell price"
+  },
+  {
+   "id": "LBL_COMPANY_STORAGE",
+   "text": "Company storage"
+  },
+  {
+   "id": "LBL_RMB_MORE",
+   "text": "Правый щелчок: Send to, Sell и другое."
+  },
+  {
+   "id": "LBL_SHIP_UPKEEP",
+   "text": "Ship upkeep"
+  },
+  {
+   "id": "LBL_EXPENSES",
+   "text": "Expenses"
+  },
+  {
+   "id": "LBL_SKILL_POINTS",
+   "text": "Skill points"
+  },
+  {
+   "id": "LBL_GOAL_MARKETS",
+   "text": "Цель: больше {pct}% одного рынка"
+  },
+  {
+   "id": "LBL_GROSS",
+   "text": "Доход до расходов"
+  },
+  {
+   "id": "LBL_NET",
+   "text": "Доход после расходов"
+  },
+  {
+   "id": "LBL_TRIP_COST",
+   "text": "Trip cost"
+  },
+  {
+   "id": "ST_WAITING_ROOM",
+   "text": "Ждёт места"
+  },
+  {
+   "id": "ST_NO_CASH_ROUTE",
+   "text": "Не хватает кредитов: нужно {need} кр, было {have} кр."
+  },
+  {
+   "id": "ST_NO_CASH_BUY",
+   "text": "Не хватает кредитов: единица стоит {price} кр, свободно после рейсов {free} кр."
+  },
+  {
+   "id": "MB_01",
+   "text": "Нажмите на планету, чтобы увидеть, что она продаёт и чего ей не хватает."
+  },
+  {
+   "id": "MB_02",
+   "text": "Сравнивайте планеты. Покупайте там, где товар дёшев, продавайте там, где он дорог."
+  },
+  {
+   "id": "MB_03",
+   "text": "Перевозите запасы маршрутом: правый щелчок по ресурсу, Send to, затем планета назначения."
+  },
+  {
+   "id": "MB_04",
+   "text": "Первый маршрут работает. Корабль возит запасы между двумя Company storage."
+  },
+  {
+   "id": "MB_05",
+   "text": "Постройте второй маршрут или выучите навык. Навыки стоят очков навыков. Цель: поднять Star Bazaar."
+  },
+  {
+   "id": "NOT_ROUTE_BLOCKED_CLOSED",
+   "text": "Маршрут заблокирован: планета {planet} закрыта. Он возобновится после открытия порта."
+  },
+  {
+   "id": "NOT_ROUTE_BLOCKED_FULL",
+   "text": "Маршрут заблокирован: Company storage на планете {planet} заполнен."
+  },
+  {
+   "id": "NOT_ROUTE_STALLED",
+   "text": "Маршрут ждёт: в Company storage на планете {planet} нет товара {commodity}."
+  },
+  {
+   "id": "NOT_STORAGE_FULL",
+   "text": "Хранилище заполнено. Buy простаивает, пока не появится место."
+  },
+  {
+   "id": "NOT_SKILL_POINT",
+   "text": "Получено очко навыков: {reason}."
+  },
+  {
+   "id": "NOT_SKILL_REASON_PLANET",
+   "text": "первое посещение планеты {planet}"
+  },
+  {
+   "id": "NOT_SKILL_REASON_ROUTE",
+   "text": "первый маршрут из {planet_a} в {planet_b}"
+  },
+  {
+   "id": "NOT_SKILL_REASON_SYSTEM",
+   "text": "первый маршрут в новой системе"
+  },
+  {
+   "id": "NOT_SKILL_LEARNED",
+   "text": "Выучено: {skill}."
+  },
+  {
+   "id": "NOT_SKILL_NO_POINTS",
+   "text": "Не хватает очков навыков."
+  },
+  {
+   "id": "NOT_SKILL_NO_SYSTEMS",
+   "text": "Пока нет доступных систем."
+  },
+  {
+   "id": "NOT_SHIP_BOUGHT",
+   "text": "Корабль куплен. Он свободен для маршрута."
+  },
+  {
+   "id": "NOT_SHIP_FREE",
+   "text": "Нет свободного корабля. Для покупки нужно больше кредитов."
+  },
+  {
+   "id": "NOT_DEAD_RESCUE",
+   "text": "Уведомление о помощи: Бюро выдаёт пособие, кредитов: {amount}, хватит на корабль. Начните заново."
+  },
+  {
+   "id": "NOT_EVENT_PREFIX",
+   "text": "Новости из космоса"
+  },
+  {
+   "id": "NOT_SAVED",
+   "text": "Игра сохранена."
+  },
+  {
+   "id": "NOT_ROUTE_MADE",
+   "text": "Маршрут создан: из {planet_a} в {planet_b}."
+  },
+  {
+   "id": "NOT_ROUTE_REMOVED",
+   "text": "Маршрут убран: из {planet_a} в {planet_b}."
+  },
+  {
+   "id": "LBL_LANE_SHIP",
+   "text": "Корабль"
+  },
+  {
+   "id": "NOT_LANE_SHIP_ADDED",
+   "text": "Корабль добавлен к маршруту."
+  },
+  {
+   "id": "NOT_RESUMED",
+   "text": "Идёт."
+  },
+  {
+   "id": "NOT_PAUSED",
+   "text": "Пауза. Пока пауза, ничего не зарабатывается."
+  },
+  {
+   "id": "NOT_TUT_LOCKED",
+   "text": "Пока нельзя. Выполните шаг обучения или пропустите обучение."
+  },
+  {
+   "id": "NOT_PERMIT_S2",
+   "text": "Допуск куплен. Система Dunmere Reach открыта: четыре новые планеты."
+  },
+  {
+   "id": "LBL_SHIP_SMALL",
+   "text": "Skerrit"
+  },
+  {
+   "id": "NOT_EVENT_EFFECT_UP",
+   "text": "Цены на {commodity} на планете {planet} растут на {pct} процентов, циклов: {cycles}."
+  },
+  {
+   "id": "NOT_EVENT_EFFECT_DOWN",
+   "text": "Цены на {commodity} на планете {planet} падают на {pct} процентов, циклов: {cycles}."
+  },
+  {
+   "id": "NOT_EVENT_EFFECT_CLOSED",
+   "text": "Планета {planet} закрыта, циклов: {cycles}. Маршруты и заказы через неё остановлены."
+  },
+  {
+   "id": "NOT_EVENT_EFFECT_CASH",
+   "text": "Ваши кредиты один раз изменятся на {amount}."
+  },
+  {
+   "id": "NOT_EVENT_EFFECT_STOCK",
+   "text": "Запас {commodity} на планете {planet} один раз изменится на {amount}."
+  },
+  {
+   "id": "LBL_EVENT_FEED",
+   "text": "Недавние события"
+  },
+  {
+   "id": "LBL_PAUSED",
+   "text": "Пауза"
+  },
+  {
+   "id": "LBL_RUNNING",
+   "text": "Идёт"
+  },
+  {
+   "id": "LBL_GAME_OVER",
+   "text": "Игра окончена"
+  },
+  {
+   "id": "LBL_MAIN_RESOURCES",
+   "text": "Основные ресурсы"
+  },
+  {
+   "id": "MENU_GALAXY",
+   "text": "Galaxy"
+  },
+  {
+   "id": "BTN_CLOSE",
+   "text": "Закрыть"
+  },
+  {
+   "id": "NOT_ROUTE_NEEDS_C3",
+   "text": "Маршруты между системами требуют Permit Charter."
+  },
+  {
+   "id": "LBL_BEST_PARTNER",
+   "text": "Лучший партнёр: {planet}, кредитов за единицу: {margin}."
+  },
+  {
+   "id": "NOT_ROUTE_BELOW_UPKEEP",
+   "text": "Маршрут приносит {margin} кр за цикл, обходится в {cost}. Он будет работать в убыток."
+  },
+  {
+   "id": "LBL_PRICE_HISTORY",
+   "text": "Недавние цены продажи: {prices}."
+  },
+  {
+   "id": "LBL_PRICE_HISTORY_NONE",
+   "text": "Недавние цены продажи: пока нет."
+  },
+  {
+   "id": "LBL_NEXT_PRICE",
+   "text": "Следующий цикл: покупка {buy} кр, продажа {sell} кр."
+  },
+  {
+   "id": "LBL_NEXT_PRICE_2",
+   "text": "Через 2 цикла: покупка {buy} кр, продажа {sell} кр."
+  },
+  {
+   "id": "LBL_UNKNOWN",
+   "text": "?"
+  },
+  {
+   "id": "PLANET_UNHAPPY",
+   "text": "Недовольство жителей: {value}"
+  },
+  {
+   "id": "NOT_SKILL_POP_TITLE",
+   "text": "Очко навыков: +{points}"
+  },
+  {
+   "id": "MAP_ARROW_PERMIT",
+   "text": "Рядом есть новая система. Откройте Skills."
+  },
+  {
+   "id": "MAP_ARROW_SYSTEM",
+   "text": "Перейти в другую систему."
+  },
+  {
+   "id": "LBL_PRICE_EVENT",
+   "text": "{arrow} Событие, осталось циклов: {cycles}"
+  },
+  {
+   "id": "LBL_BEST_OPEN_ROUTE",
+   "text": "Лучший открытый маршрут: +{n} за цикл"
+  },
+  {
+   "id": "LBL_SETUP_LOST",
+   "text": "Перевод корабля сбросит эту настройку."
+  },
+  {
+   "id": "BTN_MOVE_SHIP",
+   "text": "К лучшему маршруту"
+  },
+  {
+   "id": "LBL_STORAGE_EMPTY",
+   "text": "Хранилище пусто. Send to... будет ждать товар."
+  },
+  {
+   "id": "LBL_SALVAGE_NO_BUYER",
+   "text": "Вынужденная продажа: {n} сейчас (на ваших трассах нет покупателя). Заказ Sell платит {m}."
+  },
+  {
+   "id": "LBL_SALVAGE_STORAGE_FULL",
+   "text": "Вынужденная продажа: {n} сейчас (хранилище заполнено). Заказ Sell платит {m}."
+  },
+  {
+   "id": "BTN_SALVAGE",
+   "text": "Вынужденная продажа"
+  },
+  {
+   "id": "LBL_SALVAGE_NA",
+   "text": "Вынужденная продажа сейчас недоступна."
+  },
+  {
+   "id": "LBL_MIXED_LOAD",
+   "text": "Смешанный груз +{n}% (максимум кредитов: {cap})"
+  },
+  {
+   "id": "LBL_MARGIN_NOW",
+   "text": "{planet}: маржа {now} за единицу"
+  },
+  {
+   "id": "LBL_MARGIN_AFTER_EVENT",
+   "text": "{planet}: маржа {now} за единицу сейчас, {after} после события"
+  },
+  {
+   "id": "LBL_STATION_BUILT",
+   "text": "Космическая станция построена. Нажмите на неё, чтобы открыть Space Storage."
+  },
+  {
+   "id": "LBL_STATION_MARKER",
+   "text": "Space Storage"
+  },
+  {
+   "id": "LBL_PENDING_OR_STATION",
+   "text": "Или нажмите на станцию Space Storage."
+  },
+  {
+   "id": "LBL_TRADE_NEEDS_STATION",
+   "text": "Нужен Space Storage в этой системе."
+  },
+  {
+   "id": "LBL_SPACE_STORAGE_NAME",
+   "text": "Space Storage"
+  },
+  {
+   "id": "LBL_NEXT_CYCLE",
+   "text": "Следующий цикл: +{in} -{out} = {after}"
+  },
+  {
+   "id": "LBL_CLUSTER_NAME",
+   "text": "Астероидное скопление {id}"
+  },
+  {
+   "id": "LBL_CLUSTER_LEFT",
+   "text": "Рудное скопление {id}: осталось {left} из {max}"
+  },
+  {
+   "id": "LBL_CLUSTER_INFO",
+   "text": "{good}: {yield} за цикл, осталось {left} из {max}."
+  },
+  {
+   "id": "LBL_CLUSTER_INFO_YIELD",
+   "text": "{good}: {yield} за цикл."
+  },
+  {
+   "id": "BTN_CLUSTER_SEND",
+   "text": "Отправить руду..."
+  },
+  {
+   "id": "NOT_MINING_NEEDS_SKILL",
+   "text": "Для добычи нужен навык Prospecting."
+  },
+  {
+   "id": "NOT_CLUSTER_ONLY_ORE",
+   "text": "Скопление даёт только руду."
+  },
+  {
+   "id": "NOT_CLUSTER_EMPTY",
+   "text": "Это скопление пусто."
+  },
+  {
+   "id": "ST_CLUSTER_EMPTY",
+   "text": "Скопление пусто"
+  },
+  {
+   "id": "ST_CLUSTER_SHARED",
+   "text": "Руду забрал другой корабль"
+  },
+  {
+   "id": "DEAD_UNLOCK",
+   "text": "Мёртвые миры открыты. Для Cinderrest нужен Cold Survey, для Greywake — Deep Cut."
+  },
+  {
+   "id": "PLANET_DEAD_LOCKED",
+   "text": "Откроется в цикле {n}."
+  },
+  {
+   "id": "NOT_DEAD_NEEDS_SKILL",
+   "text": "Для добычи здесь нужен навык {skill}."
+  },
+  {
+   "id": "PLANET_DANGER",
+   "text": "Опасность: {value} из {max}"
+  },
+  {
+   "id": "BTN_MINE_SEND",
+   "text": "Добыть {good} и отправить в..."
+  },
+  {
+   "id": "LBL_MINE_ROW_TIP",
+   "text": "Добывать здесь каждый цикл. Нажмите, чтобы остановить."
+  },
+  {
+   "id": "NOT_DEAD_NO_DELIVERY",
+   "text": "На мёртвый мир ничего не доставляется. Выберите другую планету."
+  },
+  {
+   "id": "NULL_CORE_BUILD_TITLE",
+   "text": "Ядро собрано"
+  },
+  {
+   "id": "NULL_CORE_BUILD",
+   "text": "Null Core лежало в колыбели и не давало совсем никакого тепла. Установленное, оно делает один корабль тихим так, как корабли не бывают. Никто не скажет, что оно слушает. Бюро записало его в запасные части."
+  },
+  {
+   "id": "NULL_CORE_FIT",
+   "text": "Null Core установлен. Trip cost ниже, и пираты не могут тронуть этот корабль."
+  },
+  {
+   "id": "BTN_FIT_NULL_CORE",
+   "text": "Null Core на корабль {n}"
+  },
+  {
+   "id": "LBL_NULL_CORE",
+   "text": "Null Core"
+  },
+  {
+   "id": "LBL_NULL_CORE_BUILT",
+   "text": "Null Core собрано"
+  },
+  {
+   "id": "LBL_TRADE_NEEDS_A1",
+   "text": "Сначала выучите Space Storage."
+  },
+  {
+   "id": "NOT_SHIP_KEEP_CASH",
+   "text": "Мало свободных кредитов. Оставьте на маршруты кредитов: {floor}."
+  },
+  {
+   "id": "LBL_TIPS",
+   "text": "Советы"
+  },
+  {
+   "id": "BTN_SKIP_TUTORIAL",
+   "text": "Skip tutorial"
+  },
+  {
+   "id": "BTN_TUT_FINISH",
+   "text": "Завершить"
+  },
+  {
+   "id": "LBL_SHARE_TITLE",
+   "text": "Доля рынка"
+  },
+  {
+   "id": "LBL_SHARE_HOLD",
+   "text": "Лидерство, циклов: {n} из {total}"
+  },
+  {
+   "id": "LBL_SPREAD_COST",
+   "text": "Расходы на охват за цикл: {n}"
+  },
+  {
+   "id": "LBL_SHARE_YOU",
+   "text": "Вы"
+  },
+  {
+   "id": "LBL_COMP_TITLE",
+   "text": "Погода домов"
+  },
+  {
+   "id": "LBL_COMP_SHARE",
+   "text": "Следующая погода"
+  },
+  {
+   "id": "LBL_COMP_TREND",
+   "text": "Недавняя погода"
+  },
+  {
+   "id": "MKT_MIL_ID",
+   "text": "Стабильные покупатели и большой объём. Часть навыков смягчает погоду домов."
+  },
+  {
+   "id": "MKT_LUX_ID",
+   "text": "Мало единиц и огромные скачки цен. Выигрывают время и события."
+  },
+  {
+   "id": "MKT_MIN_ID",
+   "text": "Масса, добыча и плавка. Строится медленно, вытеснить трудно."
+  },
+  {
+   "id": "MKT_BIO_ID",
+   "text": "Медленное накопление. Лаборатории и запасы растут со временем, а события могут навредить."
+  },
+  {
+   "id": "WS_SMELTER_NAME",
+   "text": "Smelter"
+  },
+  {
+   "id": "WS_MUNITIONS_NAME",
+   "text": "Munitions Line"
+  },
+  {
+   "id": "WS_ATELIER_NAME",
+   "text": "Atelier"
+  },
+  {
+   "id": "WS_CULTURE_LAB_NAME",
+   "text": "Culture Lab"
+  },
+  {
+   "id": "LBL_WORKSHOPS",
+   "text": "Мастерские"
+  },
+  {
+   "id": "BTN_WORKSHOP_BUILD",
+   "text": "Построить {workshop} ({cost} кр)"
+  },
+  {
+   "id": "LBL_WORKSHOP_BATCHES",
+   "text": "Партий за цикл: {n}"
+  },
+  {
+   "id": "LBL_WORKSHOP_MADE",
+   "text": "В прошлом цикле: {items}"
+  },
+  {
+   "id": "LBL_WORKSHOP_STALLED",
+   "text": "Стоит: {why}"
+  },
+  {
+   "id": "LBL_WORKSHOP_NEEDS",
+   "text": "нужно {items}"
+  },
+  {
+   "id": "LBL_WORKSHOP_NEEDS_OTHER",
+   "text": "другой ресурс"
+  },
+  {
+   "id": "NOT_WORKSHOP_BUILT",
+   "text": "Построено: {workshop}, система {system}."
+  },
+  {
+   "id": "NOT_SKILL_REASON_SHARE",
+   "text": "Ваша доля на рынке {market} превысила {pct}%."
+  },
+  {
+   "id": "LBL_COMP_EVENTS",
+   "text": "Смены погоды"
+  },
+  {
+   "id": "LBL_COMP_NONE",
+   "text": "Смен погоды пока нет."
+  },
+  {
+   "id": "LBL_COMP_MOVE_STR_DOWN",
+   "text": "{bot}: следующая погода слабее"
+  },
+  {
+   "id": "LBL_COMP_MOVE_STR_UP",
+   "text": "{bot}: следующая погода сильнее"
+  },
+  {
+   "id": "LBL_COMP_MOVE_GRO_DOWN",
+   "text": "{bot}: следующая погода придёт позже"
+  },
+  {
+   "id": "LBL_COMP_MOVE_GRO_UP",
+   "text": "{bot}: следующая погода придёт раньше"
+  },
+  {
+   "id": "LBL_COMP_MOVE_TIER_DOWN",
+   "text": "{bot}: следующая погода задержана"
+  },
+  {
+   "id": "LBL_COMP_CYCLE",
+   "text": "Цикл {n}:"
+  },
+  {
+   "id": "STORAGE_READY_TITLE",
+   "text": "Доступен Space Storage"
+  },
+  {
+   "id": "STORAGE_READY",
+   "text": "Бюро поставило печать на ваш бланк: компания торговала достаточно, чтобы получить право на хранение в космосе. Выучите Space Storage в окне Skills, чтобы держать запасы в каждой открытой системе. Печать была ещё тёплой, а чернила слегка сдвинулись."
+  },
+  {
+   "id": "LBL_GOOD_MARKET",
+   "text": "Рынок {market}."
+  },
+  {
+   "id": "LBL_GOOD_MADE_AT",
+   "text": "Производится: {workshop}."
+  },
+  {
+   "id": "LBL_GOOD_USED_IN",
+   "text": "Используется в: {goods}."
+  },
+  {
+   "id": "LBL_GOOD_STORED",
+   "text": "Можно хранить в Space Storage и отправлять по маршрутам."
+  },
+  {
+   "id": "HINT_DEST_BUYS",
+   "text": "На {planet} покупают {good} по {price} кр за единицу."
+  },
+  {
+   "id": "HINT_DEST_NO_BUYER",
+   "text": "На {planet} {good} не покупают."
+  },
+  {
+   "id": "HINT_DEST_STATION",
+   "text": "Space Storage хранит {good} на потом."
+  },
+  {
+   "id": "HINT_DEST_SOURCE",
+   "text": "Маршрут начинается здесь. Выберите другую планету."
+  },
+  {
+   "id": "LBL_ROUTE_COST",
+   "text": "расход {n}"
+  },
+  {
+   "id": "LBL_FC_NO_EARN",
+   "text": "Маршрут {route} ничего не приносит: он лишь переносит запас в хранилище."
+  },
+  {
+   "id": "TXT_CEO_MAN_01_BRANCH_TAG",
+   "text": "Minerals: порода, каждый болт на счету"
+  },
+  {
+   "id": "TXT_CEO_MAN_02_BRANCH_TAG",
+   "text": "Luxury: цену читают как лицо"
+  },
+  {
+   "id": "TXT_CEO_WOMAN_01_BRANCH_TAG",
+   "text": "Military: снабжение окраин, вовремя"
+  },
+  {
+   "id": "TXT_CEO_WOMAN_02_BRANCH_TAG",
+   "text": "Biotech: живой товар, приветливые бланки"
+  },
+  {
+   "id": "LBL_UNKNOWN_WORLD",
+   "text": "Неизвестный мир"
+  },
+  {
+   "id": "LBL_UNKNOWN_DARK_WORLD",
+   "text": "Неизвестный тёмный мир"
+  },
+  {
+   "id": "LBL_UNKNOWN_WORLD_LINE",
+   "text": "Здесь что-то живёт. Подлетите ближе, чтобы узнать, чем оно торгует."
+  },
+  {
+   "id": "LBL_UNKNOWN_DARK_LINE",
+   "text": "Тёмный мир. Подлетите ближе, чтобы увидеть, что от него осталось."
+  },
+  {
+   "id": "BTN_FLY_HERE",
+   "text": "Лететь сюда"
+  },
+  {
+   "id": "LBL_FLIGHT_TIME",
+   "text": "Время полёта, циклов: {cycles}"
+  },
+  {
+   "id": "LBL_PATHFINDER_NAME",
+   "text": "Pathfinder"
+  },
+  {
+   "id": "LBL_PATHFINDER_DESC",
+   "text": "Разведчик. Не возит груз и не требует Ship upkeep. Летит к новым мирам и строит посты."
+  },
+  {
+   "id": "LBL_PATHFINDER_FLYING",
+   "text": "Pathfinder летит на планету {planet}"
+  },
+  {
+   "id": "LBL_PATHFINDER_FLYING_UNKNOWN",
+   "text": "Pathfinder летит к неизвестному миру"
+  },
+  {
+   "id": "LBL_PATHFINDER_IDLE",
+   "text": "Pathfinder ждёт"
+  },
+  {
+   "id": "LBL_HERO_STATE_IDLE",
+   "text": "Ожидает"
+  },
+  {
+   "id": "LBL_HERO_STATE_FLYING",
+   "text": "В полёте"
+  },
+  {
+   "id": "LBL_HERO_STATE_BUILDING",
+   "text": "Строит"
+  },
+  {
+   "id": "LBL_HERO_HINT",
+   "text": "Нажмите, чтобы выбрать. Затем нажмите на карту."
+  },
+  {
+   "id": "BTN_ESTABLISH_POST",
+   "text": "Основать торговый пост"
+  },
+  {
+   "id": "BTN_ESTABLISH_PLATFORM",
+   "text": "Основать добывающую платформу"
+  },
+  {
+   "id": "LBL_POST_COST",
+   "text": "Цена: {cash} кр. Время постройки, циклов: {cycles}."
+  },
+  {
+   "id": "LBL_POST_COST_FREE",
+   "text": "Первый пост бесплатно. Время постройки, циклов: {cycles}."
+  },
+  {
+   "id": "LBL_POST_UNLOCKS",
+   "text": "Пост позволяет здесь покупать, продавать, прокладывать маршруты и хранить."
+  },
+  {
+   "id": "LBL_PLATFORM_UNLOCKS",
+   "text": "Платформа позволяет добывать здесь и отправлять добытое по маршрутам."
+  },
+  {
+   "id": "LBL_POST_PROGRESS",
+   "text": "Строится торговый пост, осталось циклов: {cycles}"
+  },
+  {
+   "id": "LBL_PLATFORM_PROGRESS",
+   "text": "Строится платформа, осталось циклов: {cycles}"
+  },
+  {
+   "id": "LBL_POST_BUILT",
+   "text": "Торговый пост"
+  },
+  {
+   "id": "LBL_PLATFORM_BUILT",
+   "text": "Добывающая платформа"
+  },
+  {
+   "id": "NOT_FLY_FIRST",
+   "text": "Сначала отправьте сюда Pathfinder."
+  },
+  {
+   "id": "NOT_POST_NO_CASH",
+   "text": "Не хватает кредитов, чтобы основать здесь торговый пост."
+  },
+  {
+   "id": "NOT_PLATFORM_NO_CASH",
+   "text": "Не хватает кредитов, чтобы основать здесь добывающую платформу."
+  },
+  {
+   "id": "NOT_POST_BUSY",
+   "text": "Pathfinder уже строит. Одно строительство за раз."
+  },
+  {
+   "id": "NOT_POST_LEAVE",
+   "text": "Вылет отменит строительство."
+  },
+  {
+   "id": "NOT_PATHFINDER_ARRIVED",
+   "text": "Корабль Pathfinder прибыл на планету {planet}."
+  },
+  {
+   "id": "NOT_POST_DONE",
+   "text": "Торговый пост основан на {planet}. Теперь там можно покупать, продавать, прокладывать маршруты и хранить."
+  },
+  {
+   "id": "NOT_PLATFORM_DONE",
+   "text": "Добывающая платформа основана на {planet}. Теперь там можно добывать и пускать добытое по маршрутам."
+  },
+  {
+   "id": "BTN_EXPLORE_ON",
+   "text": "Исследовать систему"
+  },
+  {
+   "id": "BTN_EXPLORE_OFF",
+   "text": "Остановить разведку"
+  },
+  {
+   "id": "LBL_FLAGSHIP_TITLE",
+   "text": "Флагман"
+  },
+  {
+   "id": "LBL_FLAGSHIP_SPEED",
+   "text": "Скорость: {n}"
+  },
+  {
+   "id": "LBL_FLAGSHIP_HOLD_CAP",
+   "text": "Вместимость трюма: {m}"
+  },
+  {
+   "id": "LBL_FLAGSHIP_FOUND",
+   "text": "Найдено миров: {n} из {m}"
+  },
+  {
+   "id": "LBL_FLAGSHIP_TARGET",
+   "text": "Курс: {planet}"
+  },
+  {
+   "id": "LBL_FLAGSHIP_NO_TARGET",
+   "text": "Курс: никуда"
+  },
+  {
+   "id": "NOT_EXPLORE_DONE",
+   "text": "Разведка завершена. Все миры системы изучены и основаны."
+  },
+  {
+   "id": "NOT_FIELD_SURVEYED",
+   "text": "Астероидное поле изучено."
+  },
+  {
+   "id": "NOT_FLIGHT_EVENT",
+   "text": "Pathfinder сообщает о чём-то на трассе."
+  },
+  {
+   "id": "LNK_NEED_STORAGE",
+   "text": "В обеих системах нужен Space Storage."
+  },
+  {
+   "id": "LNK_ALREADY",
+   "text": "Эти два хранилища уже связаны."
+  },
+  {
+   "id": "LNK_MAX_AT_STORAGE",
+   "text": "Хранилище выдерживает лишь ограниченное число связей."
+  },
+  {
+   "id": "LNK_NEED_GOODS",
+   "text": "В двух хранилищах не хватает заклёпок или Energy."
+  },
+  {
+   "id": "LNK_NOT_DORMANT",
+   "text": "Связь хранилищ спит: нужно Energy: {n}. Она рухнет, циклов осталось: {cycles}."
+  },
+  {
+   "id": "LNK_NOT_LAST",
+   "text": "Связь хранилищ рухнет в следующем цикле, если не получит Energy: {n}."
+  },
+  {
+   "id": "LNK_NOT_COLLAPSED",
+   "text": "Связь хранилищ рухнула. Постройте её снова, чтобы восстановить."
+  },
+  {
+   "id": "NOT_PERMIT_S3",
+   "text": "Допуск куплен. Система Временная A открыта: три новые планеты."
+  },
+  {
+   "id": "NOT_PERMIT_S4",
+   "text": "Допуск куплен. Система Временная B открыта: три новые планеты."
+  },
+  {
+   "id": "NOT_PERMIT_S5",
+   "text": "Допуск куплен. Система Временная C открыта: три новые планеты."
+  },
+  {
+   "id": "NOT_PERMIT_S6",
+   "text": "Допуск куплен. Система Заглушка D открыта: три новые планеты."
+  },
+  {
+   "id": "NOT_PERMIT_S7",
+   "text": "Допуск куплен. Система Заглушка E открыта: три новые планеты."
+  },
+  {
+   "id": "NOT_PERMIT_S8",
+   "text": "Допуск куплен. Система Заглушка F открыта: три новые планеты."
+  },
+  {
+   "id": "NOT_PERMIT_S9",
+   "text": "Допуск куплен. Система Заглушка G открыта: три новые планеты."
+  },
+  {
+   "id": "NOT_PERMIT_S10",
+   "text": "Допуск куплен. Система Заглушка H открыта: три новые планеты."
+  },
+  {
+   "id": "HINT_RIVAL_MARKET",
+   "text": "Погода: {weather}"
+  },
+  {
+   "id": "HINT_RIVAL_NO_MARKET",
+   "text": "Погода не ожидается"
+  },
+  {
+   "id": "PROS_TIER_BARREN",
+   "text": "Пустошь"
+  },
+  {
+   "id": "PROS_TIER_1",
+   "text": "Застава"
+  },
+  {
+   "id": "PROS_TIER_2",
+   "text": "Посёлок"
+  },
+  {
+   "id": "PROS_TIER_3",
+   "text": "Малый город"
+  },
+  {
+   "id": "PROS_TIER_4",
+   "text": "Город"
+  },
+  {
+   "id": "PROS_TIER_5",
+   "text": "Мегаполис"
+  },
+  {
+   "id": "PROS_NOTICE_TIER_UP",
+   "text": "Новый статус {planet}: {tier}."
+  },
+  {
+   "id": "PROS_NOTICE_TAX",
+   "text": "Налог миров за цикл: кредитов {cash}."
+  },
+  {
+   "id": "NOT_SKILL_REASON_TIER",
+   "text": "первый статус «{tier}», на {planet}"
+  },
+  {
+   "id": "PROS_LBL_NEEDS",
+   "text": "Нужды"
+  },
+  {
+   "id": "PROS_LBL_PROGRESS",
+   "text": "Прогресс роста"
+  },
+  {
+   "id": "PROS_LBL_DEMAND",
+   "text": "Спрос за цикл"
+  },
+  {
+   "id": "PROS_LBL_SOLD",
+   "text": "Продано за цикл"
+  },
+  {
+   "id": "PROS_NEED_MET",
+   "text": "Покрыто"
+  },
+  {
+   "id": "PROS_NEED_SHORT",
+   "text": "Нехватка"
+  },
+  {
+   "id": "PROS_NEED_LOCKED",
+   "text": "? Пока неизвестно"
+  },
+  {
+   "id": "PROS_CHIP_HUNGRY",
+   "text": "Голодает"
+  },
+  {
+   "id": "PROS_CHIP_SURPLUS",
+   "text": "Избыток"
+  },
+  {
+   "id": "PROS_RESTLESS",
+   "text": "Беспокойство. Нехватка отнимает прогресс. Покройте все нужды, чтобы это прекратить."
+  },
+  {
+   "id": "PROS_FED_BY",
+   "text": "Снабжение"
+  },
+  {
+   "id": "NEXTUP_LBL_GROWTH",
+   "text": "Ближайший рост"
+  },
+  {
+   "id": "NEXTUP_LBL_BAZAAR",
+   "text": "Базар"
+  },
+  {
+   "id": "NEXTUP_LBL_BEST",
+   "text": "Лучший ход"
+  },
+  {
+   "id": "NEXTUP_GROWTH",
+   "text": "{planet}: нужно {need}"
+  },
+  {
+   "id": "NEXTUP_GROWTH_LOCKED",
+   "text": "{planet}: выучите {skill}, чтобы видеть больше"
+  },
+  {
+   "id": "NEXTUP_BAZAAR_BILL",
+   "text": "Базар: ещё {amount} {commodity}"
+  },
+  {
+   "id": "NEXTUP_BAZAAR_QUORUM",
+   "text": "Базар: ещё миров для роста: {n}"
+  },
+  {
+   "id": "NEXTUP_BAZAAR_FOUND",
+   "text": "Основать Базар на {planet}"
+  },
+  {
+   "id": "NEXTUP_BEST_LANE",
+   "text": "Отправьте товар из {planet_a} в {planet_b}"
+  },
+  {
+   "id": "NEXTUP_BEST_CASH",
+   "text": "Накопить кредитов: {cash}, примерно циклов: {cycles}"
+  },
+  {
+   "id": "NEXTUP_BEST_GIG",
+   "text": "Возьмите подряд на перелёт"
+  },
+  {
+   "id": "NEXTUP_IDLE",
+   "text": "Торгуйте дальше. Смотрите карточки планет."
+  },
+  {
+   "id": "FLAGSHIP_NAME",
+   "text": "Tessarine"
+  },
+  {
+   "id": "FLAGSHIP_DESC",
+   "text": "Ваш собственный корабль. Разведывает, строит посты, возит малый груз и берёт подряды."
+  },
+  {
+   "id": "FLAGSHIP_FLYING",
+   "text": "Tessarine летит на планету {planet}"
+  },
+  {
+   "id": "FLAGSHIP_IDLE",
+   "text": "Tessarine ждёт"
+  },
+  {
+   "id": "FLAGSHIP_DOCKED",
+   "text": "Tessarine у причала на {planet}"
+  },
+  {
+   "id": "LBL_HOLD",
+   "text": "Трюм"
+  },
+  {
+   "id": "LBL_HOLD_FILL",
+   "text": "Трюм: {n} из {m}"
+  },
+  {
+   "id": "LBL_HOLD_EMPTY",
+   "text": "Пусто"
+  },
+  {
+   "id": "BTN_DOCK",
+   "text": "Причалить и торговать"
+  },
+  {
+   "id": "LBL_DOCK_TITLE",
+   "text": "Причал на {planet}"
+  },
+  {
+   "id": "LBL_DOCK_HOLD",
+   "text": "В трюме"
+  },
+  {
+   "id": "LBL_DOCK_WORLD",
+   "text": "На этом мире"
+  },
+  {
+   "id": "BTN_DOCK_BUY",
+   "text": "Buy"
+  },
+  {
+   "id": "BTN_DOCK_SELL",
+   "text": "Sell"
+  },
+  {
+   "id": "BTN_DOCK_BUY_MAX",
+   "text": "Купить максимум"
+  },
+  {
+   "id": "BTN_DOCK_SELL_ALL",
+   "text": "Продать всё"
+  },
+  {
+   "id": "BTN_UNLOAD_STORAGE",
+   "text": "Выгрузить в хранилище"
+  },
+  {
+   "id": "BTN_LOAD_STORAGE",
+   "text": "Взять из хранилища"
+  },
+  {
+   "id": "BTN_DOCK_CLOSE",
+   "text": "Отчалить"
+  },
+  {
+   "id": "LBL_DOCK_PAUSED",
+   "text": "Пока вы у причала, время стоит."
+  },
+  {
+   "id": "LBL_DOCK_CASH",
+   "text": "Кредиты"
+  },
+  {
+   "id": "LBL_DOCK_STORAGE_ROW",
+   "text": "Company storage: {n}"
+  },
+  {
+   "id": "NOT_DOCK_NO_CASH",
+   "text": "Не хватает кредитов на покупку."
+  },
+  {
+   "id": "NOT_DOCK_HOLD_FULL",
+   "text": "Трюм полон. Сначала продайте или выгрузите."
+  },
+  {
+   "id": "NOT_DOCK_STORAGE_FULL",
+   "text": "Company storage здесь заполнен."
+  },
+  {
+   "id": "NOT_DOCK_NO_STOCK",
+   "text": "В Company storage здесь нет этого товара."
+  },
+  {
+   "id": "NOT_DOCK_NO_POST",
+   "text": "Чтобы причалить и торговать, основайте здесь торговый пост."
+  },
+  {
+   "id": "NOT_DOCK_FAR",
+   "text": "Сначала отправьте сюда флагман."
+  },
+  {
+   "id": "NOT_DOCK_NO_BUYER",
+   "text": "Этот мир такое не покупает."
+  },
+  {
+   "id": "LBL_DOCK_HOLD_FULL",
+   "text": "Трюм полон. Покупка ограничена остатком места."
+  },
+  {
+   "id": "BTN_BOOST",
+   "text": "Ускорение"
+  },
+  {
+   "id": "LBL_BOOST_HINT",
+   "text": "Быстрее на прямых участках. Жжёт Energy из трюма. Повороты остаются медленными."
+  },
+  {
+   "id": "LBL_BOOST_CHARGES",
+   "text": "Ускорение: осталось {n}"
+  },
+  {
+   "id": "NOT_BOOST_NO_ENERGY",
+   "text": "В трюме нет Energy для ускорения."
+  },
+  {
+   "id": "NOT_BOOST_EMPTY",
+   "text": "Ускорение перезаряжается."
+  },
+  {
+   "id": "LBL_GIG_BOARD_TITLE",
+   "text": "Доска подрядов"
+  },
+  {
+   "id": "LBL_GIG_BOARD_EMPTY",
+   "text": "Открытых подрядов нет. Новые приходят с циклами."
+  },
+  {
+   "id": "LBL_GIG_SIGNAL",
+   "text": "Сигнал"
+  },
+  {
+   "id": "LBL_GIG_RUSH",
+   "text": "Срочный заказ"
+  },
+  {
+   "id": "LBL_GIG_ETA",
+   "text": "В пути, циклов: {cycles}"
+  },
+  {
+   "id": "LBL_GIG_DEADLINE",
+   "text": "Срок, циклов: {cycles}"
+  },
+  {
+   "id": "LBL_GIG_PREMIUM",
+   "text": "Премия: кредитов {cash}"
+  },
+  {
+   "id": "LBL_GIG_TOO_FAR",
+   "text": "Флагман не успеет вовремя."
+  },
+  {
+   "id": "BTN_GIG_ACCEPT",
+   "text": "Принять"
+  },
+  {
+   "id": "BTN_GIG_ABANDON",
+   "text": "Отказаться"
+  },
+  {
+   "id": "BTN_GIG_FLY",
+   "text": "Лететь туда"
+  },
+  {
+   "id": "NOT_GIG_ACCEPTED",
+   "text": "Подряд принят. Метка показывает путь."
+  },
+  {
+   "id": "NOT_GIG_ONE_AT_A_TIME",
+   "text": "Один подряд за раз. Завершите текущий или откажитесь от него."
+  },
+  {
+   "id": "NOT_GIG_ABANDONED",
+   "text": "От подряда отказались."
+  },
+  {
+   "id": "NOT_GIG_NEW",
+   "text": "На доске новый подряд."
+  },
+  {
+   "id": "NOT_RUSH_DELIVERED",
+   "text": "Доставлено. Планета {planet} получила {commodity}. Премия выплачена."
+  },
+  {
+   "id": "NOT_RUSH_PARTIAL",
+   "text": "Доставлено частично. Планета {planet} всё ещё ждёт {commodity}."
+  },
+  {
+   "id": "NOT_RUSH_EXPIRED",
+   "text": "Срочный заказ для планеты {planet} истёк."
+  },
+  {
+   "id": "NOT_RUSH_GONE",
+   "text": "Планета {planet} больше в этом не нуждается. Срочный заказ закрыт."
+  },
+  {
+   "id": "LBL_RUSH_DELIVERED_STAMP",
+   "text": "Доставлено"
+  },
+  {
+   "id": "WX_NAME_FLOOD",
+   "text": "Затоваривание"
+  },
+  {
+   "id": "WX_NAME_SHORTAGE",
+   "text": "Дефицит"
+  },
+  {
+   "id": "WX_NAME_CONGESTION",
+   "text": "Затор"
+  },
+  {
+   "id": "HOUSE_BOT1_TEMPER",
+   "text": "Тяжёлый и прямой. Затопляет мир, поэтому цена продажи падает на несколько циклов."
+  },
+  {
+   "id": "HOUSE_BOT2_TEMPER",
+   "text": "Мягкий в речи, закупает много. Создаёт дефицит: миру нужно больше, и он платит больше."
+  },
+  {
+   "id": "HOUSE_BOT3_TEMPER",
+   "text": "Медленный и дисциплинированный. Вызывает заторы, поэтому Trip cost растёт на маршрутах в одном месте."
+  },
+  {
+   "id": "HINT_HOUSE_HEADING",
+   "text": "Курс на {planet}, прибудет в следующем цикле"
+  },
+  {
+   "id": "HINT_HOUSE_HEADING_N",
+   "text": "Курс на {planet}, до прибытия циклов: {n}"
+  },
+  {
+   "id": "HINT_HOUSE_ACTIVE",
+   "text": "Погода на {planet}, ещё циклов: {n}"
+  },
+  {
+   "id": "NOT_WX_FLOOD",
+   "text": "Затоваривание от {house} на {planet}: цена продажи {commodity} падает, циклов: {cycles}."
+  },
+  {
+   "id": "NOT_WX_SHORTAGE",
+   "text": "Дефицит от {house} на {planet}: нужно больше {commodity}, платят больше, циклов: {cycles}."
+  },
+  {
+   "id": "NOT_WX_CONGEST_WORLD",
+   "text": "Затор от {house} на {planet}: Trip cost на его трассах вырос, циклов: {cycles}."
+  },
+  {
+   "id": "NOT_WX_CONGEST_EXIT",
+   "text": "Затор от {house} на выходе из системы {system}: Trip cost на трассах через него вырос."
+  },
+  {
+   "id": "NOT_WX_CONVOY",
+   "text": "Конвой {house} встал у причала на {planet}. Его погода начинается сейчас."
+  },
+  {
+   "id": "NOT_WX_FORECAST_1",
+   "text": "Конвой {house} идёт на {planet}. Его погода придёт в следующем цикле."
+  },
+  {
+   "id": "NOT_WX_FORECAST_N",
+   "text": "Конвой {house} идёт на {planet}. Его погода придёт, циклов до неё: {n}."
+  },
+  {
+   "id": "NOT_WX_ENDING",
+   "text": "Погода {house} на {planet} закончится в следующем цикле."
+  },
+  {
+   "id": "NOT_WX_END",
+   "text": "Погода {house} на {planet} прошла."
+  },
+  {
+   "id": "WX_FORECAST_FLOOD",
+   "text": "Впереди затоваривание на {planet}: цена продажи упадёт. Продавайте в другом месте или переждите."
+  },
+  {
+   "id": "WX_FORECAST_SHORTAGE",
+   "text": "Впереди дефицит на {planet}: потребуется больше, и заплатят больше. Отправьте туда запас."
+  },
+  {
+   "id": "WX_FORECAST_CONGEST",
+   "text": "Впереди затор на {planet}: Trip cost на её трассах вырастет. Перенесите маршрут или заплатите."
+  },
+  {
+   "id": "WX_FORECAST_CONGEST_EXIT",
+   "text": "Впереди затор на выходе из системы {system}: Trip cost на трассах через него вырастет."
+  },
+  {
+   "id": "MOOD_WARM",
+   "text": "Тёплое лицо"
+  },
+  {
+   "id": "MOOD_PLAIN",
+   "text": "Обычное лицо"
+  },
+  {
+   "id": "MOOD_COLD",
+   "text": "Холодное лицо"
+  },
+  {
+   "id": "MOOD_WARM_TIP",
+   "text": "Этот мир хорошо к вам относится. Цены, налог и рост не меняются."
+  },
+  {
+   "id": "MOOD_PLAIN_TIP",
+   "text": "У этого мира пока нет о вас мнения. Цены, налог и рост не меняются."
+  },
+  {
+   "id": "MOOD_COLD_TIP",
+   "text": "Этот мир относится к вам хуже. Цены, налог и рост не меняются."
+  },
+  {
+   "id": "RECLAIM_BTN",
+   "text": "Начать восстановление"
+  },
+  {
+   "id": "RECLAIM_PROMPT",
+   "text": "Восстановить {planet}? Пока идёт работа, добывать там нельзя."
+  },
+  {
+   "id": "RECLAIM_CONFIRM",
+   "text": "Восстановить"
+  },
+  {
+   "id": "RECLAIM_CANCEL",
+   "text": "Не сейчас"
+  },
+  {
+   "id": "RECLAIM_LBL_PROGRESS",
+   "text": "Ход восстановления"
+  },
+  {
+   "id": "RECLAIM_TIP",
+   "text": "Покройте все нужды, чтобы заполнить шкалу. Добыча здесь стоит, пока работа не закончится."
+  },
+  {
+   "id": "RECLAIM_STARTED",
+   "text": "Восстановление на {planet} началось. Добыча там приостановлена."
+  },
+  {
+   "id": "RECLAIM_DONE",
+   "text": "Планета {planet} восстановлена. Теперь это живой мир, налёты оттуда прекратились."
+  },
+  {
+   "id": "PROS_TYPE_RECLAIMED",
+   "text": "Восстановленный мир"
+  },
+  {
+   "id": "RAID_WARN",
+   "text": "Налётчики собираются на {planet}. В следующем цикле возможен налёт на трассы системы {system}."
+  },
+  {
+   "id": "RAID_HIT",
+   "text": "Налёт на трассу {planet_a} — {planet_b}: часть рейса потеряна. Работает хуже, циклов: {cycles}."
+  },
+  {
+   "id": "RAID_LANE_TIP",
+   "text": "Трасса под налётом. Работает хуже, циклов: {cycles}."
+  },
+  {
+   "id": "POD_SPOTTED",
+   "text": "Капсулы с грузом дрейфуют у {planet}. Они исчезнут, циклов: {cycles}."
+  },
+  {
+   "id": "POD_SCOOPED",
+   "text": "Капсулы подобраны. Товар в трюме."
+  },
+  {
+   "id": "POD_SCOOPED_PART",
+   "text": "Капсулы подобраны. Трюм взял, сколько смог."
+  },
+  {
+   "id": "POD_FADED",
+   "text": "Капсулы пропали, пока до них никто не добрался."
+  },
+  {
+   "id": "LBL_GIG_PODS",
+   "text": "Капсулы с грузом"
+  },
+  {
+   "id": "MINE_INTENSITY_LBL",
+   "text": "Интенсивность добычи"
+  },
+  {
+   "id": "MINE_INT_GENTLE",
+   "text": "Щадящая"
+  },
+  {
+   "id": "MINE_INT_GENTLE_HINT",
+   "text": "Меньше добычи. Меньше налётов."
+  },
+  {
+   "id": "MINE_INT_NORMAL",
+   "text": "Обычная"
+  },
+  {
+   "id": "MINE_INT_NORMAL_HINT",
+   "text": "Обычная добыча. Обычные налёты."
+  },
+  {
+   "id": "MINE_INT_HARD",
+   "text": "Жёсткая"
+  },
+  {
+   "id": "MINE_INT_HARD_HINT",
+   "text": "Больше добычи. Больше налётов."
+  },
+  {
+   "id": "RECAP_TITLE",
+   "text": "Итоги партии"
+  },
+  {
+   "id": "RECAP_LBL_CAPITAL",
+   "text": "Капитал"
+  },
+  {
+   "id": "RECAP_LBL_STAGES",
+   "text": "Построено этапов"
+  },
+  {
+   "id": "RECAP_LBL_WINGS",
+   "text": "Крылья"
+  },
+  {
+   "id": "RECAP_LBL_WORLDS",
+   "text": "Выросших миров"
+  },
+  {
+   "id": "RECAP_LBL_RECLAIMED",
+   "text": "Восстановленные миры"
+  },
+  {
+   "id": "RECAP_LBL_MOMENTS",
+   "text": "Решающие моменты"
+  },
+  {
+   "id": "RECAP_NONE",
+   "text": "Нет"
+  },
+  {
+   "id": "END_UNFINISHED_TITLE",
+   "text": "Недостроенный Базар"
+  },
+  {
+   "id": "END_UNFINISHED",
+   "text": "Срок вышел. Базар не открыт, и Бюро записало это, не найдя для этого слов. Вы не проиграли. Экипаж оплачен, корабли у причала, а миры, которые вы вырастили, всё ещё светятся. Кто-то оставил лампу гореть в недостроенном зале. План начнёт новые пять циклов. Люди на лестнице продолжают подниматься. У них есть время. И у вас есть, если хотите."
+  },
+  {
+   "id": "TUT_C1_PLANET",
+   "text": "Нажмите на планету. Панель покажет, что она производит, чего ей не хватает и какие там цены."
+  },
+  {
+   "id": "TUT_C1_ROW",
+   "text": "У каждого товара своя строка: Buy price, Sell price и шкала Company storage."
+  },
+  {
+   "id": "TUT_C1_BUY",
+   "text": "Buy — постоянный заказ. Каждый цикл он закупает товар в Company storage здесь."
+  },
+  {
+   "id": "TUT_C1_SELL",
+   "text": "Sell — тоже постоянный заказ. Каждый цикл он продаёт запас из Company storage."
+  },
+  {
+   "id": "TUT_C2_ROUTE_DONE",
+   "text": "Корабль назначен. Когда идёт цикл, он перевозит запас между складами."
+  },
+  {
+   "id": "TUT_C2_UPKEEP",
+   "text": "Каждый корабль требует Ship upkeep. Он входит в Expenses в верхней панели."
+  },
+  {
+   "id": "TUT_C3_STORAGE",
+   "text": "Число — ваш Company storage здесь. В меню есть Send to и Sell. Когда он полон, Buy ждёт."
+  },
+  {
+   "id": "TUT_C3_ONEWAY",
+   "text": "Маршруты односторонние. Чтобы возить запас в обе стороны, задайте второй маршрут назад."
+  },
+  {
+   "id": "TUT_C4_SKILLS",
+   "text": "У вас есть очки навыков. Откройте Skills и выучите навык."
+  },
+  {
+   "id": "TUT_C4_FREE",
+   "text": "Это основы. Цель — Star Bazaar. Следите за конвоями домов."
+  },
+  {
+   "id": "WORLD_SYS1_NAME",
+   "text": "Hollin Reach"
+  },
+  {
+   "id": "WORLD_SYS1_DESC",
+   "text": "Три планеты, два товара. Voltara горит, Tillam и Ashgate едят."
+  },
+  {
+   "id": "WORLD_SYS2_NAME",
+   "text": "Dunmere Reach"
+  },
+  {
+   "id": "WORLD_SYS2_DESC",
+   "text": "Четыре планеты, дальше от дома. С одной стороны поля и реакторы, с другой голодный рынок."
+  },
+  {
+   "id": "WORLD_S2P1_NAME",
+   "text": "Brannock"
+  },
+  {
+   "id": "WORLD_S2P1_DESC",
+   "text": "Хлебные террасы и шумный причал. На Brannock еды в избытке, а энергии вечно не хватает."
+  },
+  {
+   "id": "WORLD_S2P2_NAME",
+   "text": "Cindrel"
+  },
+  {
+   "id": "WORLD_S2P2_DESC",
+   "text": "Планета реакторов, которые гудят всю ночь. На Cindrel энергии вдоволь, а кухни ждут наполнения."
+  },
+  {
+   "id": "WORLD_S2P3_NAME",
+   "text": "Mossfell"
+  },
+  {
+   "id": "WORLD_S2P3_DESC",
+   "text": "Сырой форпост из чанов и сараев. На Mossfell выращивают еду, а энергию считают на свечи."
+  },
+  {
+   "id": "WORLD_S2P4_NAME",
+   "text": "Quillon"
+  },
+  {
+   "id": "WORLD_S2P4_DESC",
+   "text": "Мир-рынок: ничего не производит, нужны оба товара. Quillon платит вовремя, по бланкам."
+  },
+  {
+   "id": "TUT_G1B_SHIPS",
+   "text": "В меню Ships справа нажмите карточку Pathfinder."
+  },
+  {
+   "id": "TUT_G1B_SHIPS_WHY",
+   "text": "Карточка выбирает ваш корабль. Затем нажмите мир на карте, чтобы отправить его туда."
+  },
+  {
+   "id": "TUT_G7_NEEDS",
+   "text": "Откройте мир и прочтите его Needs."
+  },
+  {
+   "id": "TUT_G7_NEEDS_WHY",
+   "text": "Мир растёт, когда ваши продажи закрывают его нужды. Выросшие миры платят налог."
+  },
+  {
+   "id": "TUT_G7_GROW",
+   "text": "Продавайте миру нужные товары, пока он не вырастет."
+  },
+  {
+   "id": "TUT_G7_GROW_WHY",
+   "text": "Включите там Sell или отправьте товары. Первый tier даёт ещё и очко навыков."
+  },
+  {
+   "id": "TUT_HEADER",
+   "text": "Обучение"
+  },
+  {
+   "id": "TUT_STEP_COUNT",
+   "text": "{n} из {total}"
+  },
+  {
+   "id": "TIP_GOAL",
+   "text": "Удержать рынок мало для победы. Побеждает только достроенный Star Bazaar."
+  },
+  {
+   "id": "TIP_GOAL_WHY",
+   "text": "Откройте панель Bazaar: она закладывает Bazaar на столичном мире и показывает этапы и нехватку."
+  },
+  {
+   "id": "TIP_CAPITAL",
+   "text": "Мир достиг ступени столицы. Здесь можно основать Star Bazaar. Решение окончательное."
+  },
+  {
+   "id": "TIP_CAPITAL_WHY",
+   "text": "В партии одна столица. Выбирайте с умом, затем нажмите Found the Bazaar here на панели мира."
+  },
+  {
+   "id": "TIP_FOUNDED",
+   "text": "Bazaar строится по этапам. Каждому нужны товары на складе столицы и миры других tier."
+  },
+  {
+   "id": "TIP_FOUNDED_WHY",
+   "text": "Панель Bazaar показывает, чего не хватает. Поздний этап требует мир в другой системе."
+  },
+  {
+   "id": "TIP_OPENING",
+   "text": "Последний этап открывает Opening: заказ доставить грузы хартии в столицу."
+  },
+  {
+   "id": "TIP_OPENING_WHY",
+   "text": "Примите его на доске заказов (J) и причальте в столице. Star Bazaar откроется, партия выиграна."
+  },
+  {
+   "id": "TIP_TIER1",
+   "text": "Ваш первый мир вырос на tier. Миры растут, когда продажи закрывают их нужды."
+  },
+  {
+   "id": "TIP_TIER1_WHY",
+   "text": "Каждый tier открывает больше и ведёт к столице. Откройте карточку мира, чтобы увидеть, что нужно дальше."
+  },
+  {
+   "id": "TIP_TAX",
+   "text": "Выросшие миры платят налог в конце каждого цикла. Кредиты идут в вашу казну."
+  },
+  {
+   "id": "TIP_TAX_WHY",
+   "text": "Больше tier — больше налога. Снабжайте миры, чтобы они росли дальше."
+  },
+  {
+   "id": "TIP_RESTLESS",
+   "text": "Restless мир теряет прогресс роста: одной из его нужд не хватает."
+  },
+  {
+   "id": "TIP_RESTLESS_WHY",
+   "text": "Продайте ему недостающий товар или отправьте запас. Когда нужды закрыты, потери прекращаются."
+  },
+  {
+   "id": "TIP_HUNGRY",
+   "text": "Hungry значит, что нужды не хватает и цена выросла. Surplus — продажи превысили спрос."
+  },
+  {
+   "id": "TIP_HUNGRY_WHY",
+   "text": "Сначала везите товар в Hungry мир. Он платит больше, а ваша продажа закрывает нужду."
+  },
+  {
+   "id": "TIP_UPGRADE",
+   "text": "В полную линию нельзя добавить корабль. Её можно улучшить."
+  },
+  {
+   "id": "TIP_UPGRADE_WHY",
+   "text": "Откройте мир, откуда идёт маршрут, и нажмите Upgrade route. Один взнос, лучшая маржа в каждом рейсе."
+  },
+  {
+   "id": "TIP_HUB",
+   "text": "Узел кормит соседние миры кораблями из собственного пула."
+  },
+  {
+   "id": "TIP_HUB_WHY",
+   "text": "Один узел на систему. Нажмите Make this a hub и добавьте корабли. Каждая доставка даёт взнос узлу."
+  },
+  {
+   "id": "TIP_PLATFORM",
+   "text": "На мёртвом мире ставят добывающую платформу, а не торговый пост."
+  },
+  {
+   "id": "TIP_PLATFORM_WHY",
+   "text": "Когда она стоит, там можно добывать и пускать добытое по маршрутам. Для добычи нужен навык."
+  },
+  {
+   "id": "TIP_EXPLORE",
+   "text": "Режим Exploration ведёт Flagship к каждому неизвестному миру здесь и строит там пост."
+  },
+  {
+   "id": "TIP_EXPLORE_WHY",
+   "text": "Каждый пост стоит кредитов, поэтому при нехватке денег Flagship ждёт у мира. Нажмите ещё раз, чтобы остановить."
+  },
+  {
+   "id": "TIP_DOCK",
+   "text": "Dock and trade позволяет Flagship покупать и продавать вручную. Трюм невелик."
+  },
+  {
+   "id": "TIP_DOCK_WHY",
+   "text": "Unload to storage переносит товары в Company storage здесь. Пока вы на причале, время стоит."
+  },
+  {
+   "id": "TIP_BOOST",
+   "text": "Boost сжигает энергию из трюма для короткого рывка. Удерживайте B."
+  },
+  {
+   "id": "TIP_BOOST_WHY",
+   "text": "Используйте на прямых участках, чтобы успеть к сроку. Повороты остаются медленными, а заряды копятся долго."
+  },
+  {
+   "id": "TIP_GIG",
+   "text": "Доска заказов (J) показывает предложения для Flagship. Примите один, чтобы получить метку на карте."
+  },
+  {
+   "id": "TIP_GIG_WHY",
+   "text": "Перед тем как принять, сравните время в пути со сроком. Заказ можно взять только один."
+  },
+  {
+   "id": "TIP_RUSH",
+   "text": "Срочный заказ: мир хочет товар до срока. Доставьте его вручную, чтобы получить оплату."
+  },
+  {
+   "id": "TIP_RUSH_WHY",
+   "text": "Причальте там и продайте товар или выгрузите. Вы получите надбавку, а нужда мира закроется."
+  },
+  {
+   "id": "TIP_WEATHER",
+   "text": "Окрашенный корабль — конвой дома. Он летит к миру до того, как придёт погода этого дома."
+  },
+  {
+   "id": "TIP_WEATHER_WHY",
+   "text": "Дома присылают погоду, а не соперников. Нажмите на конвой, чтобы узнать, что и куда идёт."
+  },
+  {
+   "id": "TIP_WEATHER_KINDS",
+   "text": "Flood: Sell price падает. Shortage: миру нужно больше, и он платит больше. Congestion: Trip cost растёт."
+  },
+  {
+   "id": "TIP_WEATHER_KINDS_WHY",
+   "text": "Перевезите товары, чтобы переждать, или подождите. Навыки прогноза дают больше циклов предупреждения."
+  },
+  {
+   "id": "TIP_PROSPECT",
+   "text": "Prospecting позволяет начать маршрут у скопления астероидов. Скопления движутся вокруг солнца."
+  },
+  {
+   "id": "TIP_PROSPECT_WHY",
+   "text": "Товары в скоплении бесплатны, платить нужно только за линию. Скопление пустеет и не восполняется."
+  },
+  {
+   "id": "TIP_DEAD",
+   "text": "У мёртвого мира нет рынка. Его разрабатывают ради товаров, которых нет у живых миров."
+  },
+  {
+   "id": "TIP_DEAD_WHY",
+   "text": "Жёсткая добыча даёт больше и привлекает больше налётов. Задайте Mining intensity на его карточке."
+  },
+  {
+   "id": "TIP_RECLAIM",
+   "text": "Start reclaiming превращает мёртвый мир в живой. Добыча там прекращается навсегда."
+  },
+  {
+   "id": "TIP_RECLAIM_WHY",
+   "text": "Закрывайте его нужды, чтобы заполнить шкалу. Налёты оттуда прекратятся, и он сможет расти, как любой мир."
+  },
+  {
+   "id": "TIP_RAID",
+   "text": "Налётчики собираются у мёртвого мира, который вы не вернули к жизни. Они могут ударить по линии в его системе."
+  },
+  {
+   "id": "TIP_RAID_WHY",
+   "text": "Налёт отнимает часть рейса. Рядом могут дрейфовать грузовые капсулы: подлетите на Flagship и подберите их."
+  },
+  {
+   "id": "TIP_SALVAGE",
+   "text": "Salvage — разовая выплата за товары, которые нельзя было сохранить или продать на ваших линиях."
+  },
+  {
+   "id": "TIP_SALVAGE_WHY",
+   "text": "Платят меньше, чем по заказу Sell. Добавьте заказ Sell или освободите место, чтобы сохранить больше."
+  },
+  {
+   "id": "TIP_WORKSHOP",
+   "text": "Мастерская превращает запас в Space Storage в новые товары каждый цикл. Строится один раз."
+  },
+  {
+   "id": "TIP_WORKSHOP_WHY",
+   "text": "Без сырья она встаёт и сообщает, что ей нужно. Отправьте сырьё в Space Storage."
+  },
+  {
+   "id": "TIP_FABRIC",
+   "text": "Fabric превращает добытые товары в новый товар на торговом посту."
+  },
+  {
+   "id": "TIP_FABRIC_WHY",
+   "text": "Он работает с запасом в Space Storage. Добудьте нужное и отправьте туда."
+  },
+  {
+   "id": "TIP_NULLCORE",
+   "text": "Fabric может собрать Null Core. Он строится один раз и ставится на один корабль."
+  },
+  {
+   "id": "TIP_NULLCORE_WHY",
+   "text": "У этого корабля ниже Trip cost, и налёты ему не страшны. Поставьте его на самую загруженную линию."
+  },
+  {
+   "id": "TIP_SPACE_STORAGE",
+   "text": "Space Storage — один большой склад на систему. Склады планет пополняют его медленно."
+  },
+  {
+   "id": "TIP_SPACE_STORAGE_WHY",
+   "text": "Заказы Sell и маршруты берут из него, когда склад планеты пуст. Нажмите на станцию, чтобы увидеть запас."
+  },
+  {
+   "id": "TIP_LINK",
+   "text": "Storage Link соединяет Space Storage двух систем. Он переносит только товары, не кредиты."
+  },
+  {
+   "id": "TIP_LINK_WHY",
+   "text": "Стоит товаров при постройке и энергии каждый цикл. Без энергии он засыпает и может рухнуть."
+  },
+  {
+   "id": "TIP_PERMIT",
+   "text": "Купите разрешение в окне Galaxy. Нажмите закрытую систему, чтобы увидеть цену."
+  },
+  {
+   "id": "TIP_PERMIT_WHY",
+   "text": "Окно ещё объяснит, почему вы пока не можете купить. Затем влетите на Flagship и откройте её миры."
+  },
+  {
+   "id": "TIP_NEWSYSTEM",
+   "text": "Новая система сначала неизвестна, как первая. Влетите на Flagship и стройте посты."
+  },
+  {
+   "id": "TIP_NEWSYSTEM_WHY",
+   "text": "У каждой системы свой Space Storage. Поздний этап Bazaar требует мир в другой системе."
+  },
+  {
+   "id": "TIP_POINTS",
+   "text": "Очки навыков дают за первые разы: новый мир, маршрут, система или tier. Тратьте их в Skills (K)."
+  },
+  {
+   "id": "TIP_POINTS_WHY",
+   "text": "Шесть Foundations идут перед деревом рынка. Три из них нужно выучить первыми."
+  },
+  {
+   "id": "TIP_FOUNDATIONS",
+   "text": "Три обязательных Foundations выучены. Дерево вашего рынка открыто."
+  },
+  {
+   "id": "TIP_FOUNDATIONS_WHY",
+   "text": "Очков мало, поэтому выбирайте навыки, нужные вашим линиям. Учите те, что пригодятся."
+  },
+  {
+   "id": "TIP_STATION_MARKER",
+   "text": "Space Storage"
+  },
+  {
+   "id": "TIP_NC_UPKEEP",
+   "text": "Link upkeep -{n}"
+  },
+  {
+   "id": "GOOD_SILK_NAME",
+   "text": "Starsilk"
+  },
+  {
+   "id": "GOOD_SILK_DESC",
+   "text": "Лёгкая ткань со слабым свечением. Предмет роскоши: везти мало, любоваться много."
+  },
+  {
+   "id": "GOOD_SPYWARE_NAME",
+   "text": "Spy Software"
+  },
+  {
+   "id": "GOOD_SPYWARE_DESC",
+   "text": "Шпионский код для тех, кто любит знать. Торговый товар."
+  },
+  {
+   "id": "GOOD_ORE_NAME",
+   "text": "Rock Ore"
+  },
+  {
+   "id": "GOOD_ORE_DESC",
+   "text": "Сырая порода из скоплений астероидов. Берите бесплатно. Сырьё для всего, что требует металла."
+  },
+  {
+   "id": "WORLD_CL_S1A_NAME",
+   "text": "Cinder Shoal"
+  },
+  {
+   "id": "WORLD_CL_S1A_DESC",
+   "text": "Тёмный дрейф породы между планетами. В нём лишь столько, сколько есть, а потом ничего."
+  },
+  {
+   "id": "WORLD_CL_S1B_NAME",
+   "text": "Pale Drift"
+  },
+  {
+   "id": "WORLD_CL_S1B_DESC",
+   "text": "Рыхлая стая бледной породы. Бюро её не считало. Дважды считать не станет."
+  },
+  {
+   "id": "WORLD_CL_S2A_NAME",
+   "text": "Gantry Scatter"
+  },
+  {
+   "id": "WORLD_CL_S2A_DESC",
+   "text": "Порода вокруг старой фермы, которую никто не заявляет. Руда здесь бесплатна, пока не кончится."
+  },
+  {
+   "id": "WORLD_CL_S2B_NAME",
+   "text": "Old Tally"
+  },
+  {
+   "id": "WORLD_CL_S2B_DESC",
+   "text": "Стая породы с полосами старого счёта. Счёт прекратился. Руда нет."
+  },
+  {
+   "id": "WORLD_CL_S2C_NAME",
+   "text": "Low Teeth"
+  },
+  {
+   "id": "WORLD_CL_S2C_DESC",
+   "text": "Зубчатая порода низко в небе Dunmere Reach. Берите руду, пока скопление не иссякло."
+  },
+  {
+   "id": "GOOD_DROSS_NAME",
+   "text": "Dross Salt"
+  },
+  {
+   "id": "GOOD_DROSS_DESC",
+   "text": "Серая соль, срезанная с мёртвого мира. Сырьё, которое никто не пробует дважды."
+  },
+  {
+   "id": "GOOD_NULLGLASS_NAME",
+   "text": "Nullglass"
+  },
+  {
+   "id": "GOOD_NULLGLASS_DESC",
+   "text": "Тёмное стекло с мёртвого мира. Добытое сырьё, слабо гудит в трюме."
+  },
+  {
+   "id": "GOOD_PLATE_NAME",
+   "text": "Lattice Plate"
+  },
+  {
+   "id": "GOOD_PLATE_DESC",
+   "text": "Плотная плита, скорее собранная, чем добытая. Изделие, тяжёлое от вложенной работы."
+  },
+  {
+   "id": "GOOD_POWDER_NAME",
+   "text": "Blast Powder"
+  },
+  {
+   "id": "GOOD_POWDER_DESC",
+   "text": "Серая крупа в мешках; каждый флот начинает с неё. Торговый товар."
+  },
+  {
+   "id": "GOOD_BLOOMS_NAME",
+   "text": "Hothouse Blooms"
+  },
+  {
+   "id": "GOOD_BLOOMS_DESC",
+   "text": "Лепестки, собранные на заре; запах — самый дешёвый статус. Торговый товар."
+  },
+  {
+   "id": "GOOD_ENERGY_NAME",
+   "text": "Energy"
+  },
+  {
+   "id": "GOOD_ENERGY_DESC",
+   "text": "Энергия навалом для любого мира с лампой. Сырьё, на котором держится любая торговля."
+  },
+  {
+   "id": "GOOD_FOOD_NAME",
+   "text": "Food"
+  },
+  {
+   "id": "GOOD_FOOD_DESC",
+   "text": "Простой паёк. Сырьё, которое нужно всем и которым никто не хвастается."
+  },
+  {
+   "id": "GOOD_RIVETS_NAME",
+   "text": "Rivets"
+  },
+  {
+   "id": "GOOD_ROUNDS_NAME",
+   "text": "Munitions"
+  },
+  {
+   "id": "GOOD_ROUNDS_DESC",
+   "text": "Снаряжены и пересчитаны; План их требует. Изделие."
+  },
+  {
+   "id": "GOOD_ARMS_NAME",
+   "text": "Weapons"
+  },
+  {
+   "id": "GOOD_ARMS_DESC",
+   "text": "Рельсовые карабины и оружейные стойки в ящиках. Изделие."
+  },
+  {
+   "id": "GOOD_MUSK_NAME",
+   "text": "Musk"
+  },
+  {
+   "id": "GOOD_MUSK_DESC",
+   "text": "Резкий запах, продаётся каплями. Предмет роскоши."
+  },
+  {
+   "id": "GOOD_ATTAR_NAME",
+   "text": "Attar"
+  },
+  {
+   "id": "GOOD_ATTAR_DESC",
+   "text": "Запах во флаконах, выжатый из цветов. Изделие роскоши."
+  },
+  {
+   "id": "GOOD_GEMS_NAME",
+   "text": "Cold Gems"
+  },
+  {
+   "id": "GOOD_GEMS_DESC",
+   "text": "Огранённые камни с холодным внутренним светом. Роскошь, ценная тем, что на неё смотрят."
+  },
+  {
+   "id": "GOOD_INGOT_NAME",
+   "text": "Metal Ingots"
+  },
+  {
+   "id": "GOOD_INGOT_DESC",
+   "text": "Металлические бруски, сложенные и проштампованные. Изделие."
+  },
+  {
+   "id": "GOOD_ALLOY_NAME",
+   "text": "Furnace Alloy"
+  },
+  {
+   "id": "GOOD_ALLOY_DESC",
+   "text": "Твёрдый металл, сплавленный по строгому рецепту. Лучшее изделие своего рода."
+  },
+  {
+   "id": "GOOD_SPORES_NAME",
+   "text": "Jar Spores"
+  },
+  {
+   "id": "GOOD_SPORES_DESC",
+   "text": "Сухие споры в запаянных банках, работа в перчатках. Торговый товар."
+  },
+  {
+   "id": "GOOD_MEDICINE_NAME",
+   "text": "Medicine"
+  },
+  {
+   "id": "GOOD_MEDICINE_DESC",
+   "text": "Запас для клиник в холодных ящиках. Изделие."
+  },
+  {
+   "id": "GOOD_SEED_NAME",
+   "text": "Seed Stock"
+  },
+  {
+   "id": "GOOD_SEED_DESC",
+   "text": "Семена, которые растут под заказ. Лучшее изделие своего рода."
+  },
+  {
+   "id": "TIP_BOARD_1",
+   "text": "Маршрут должен приносить больше, чем стоит Ship upkeep корабля. Проверьте Expenses."
+  },
+  {
+   "id": "TIP_BOARD_2",
+   "text": "Маршруты односторонние. Чтобы возить запас в обе стороны, задайте второй маршрут назад."
+  },
+  {
+   "id": "TIP_BOARD_3",
+   "text": "Когда Company storage полон, Buy ждёт. Продайте запас или отправьте дальше, чтобы освободить место."
+  },
+  {
+   "id": "TIP_BOARD_4",
+   "text": "Цены меняются каждый цикл. Откройте планету, чтобы увидеть сегодняшние Buy и Sell price."
+  },
+  {
+   "id": "TIP_BOARD_5",
+   "text": "Пробел ставит игру на паузу. Поставьте паузу, спланируйте, затем нажмите пробел снова."
+  },
+  {
+   "id": "TIP_BOARD_6",
+   "text": "Очки навыков дают планеты, маршруты и системы. Тратьте их в Skills (K)."
+  },
+  {
+   "id": "TIP_NC_IN",
+   "text": "Приход: {list}."
+  },
+  {
+   "id": "TIP_NC_OUT",
+   "text": "Расход: {list}."
+  },
+  {
+   "id": "TIP_NC_BUY",
+   "text": "Заказ Buy на {planet} +{n}"
+  },
+  {
+   "id": "TIP_NC_ROUTE_IN",
+   "text": "{route} +{n}"
+  },
+  {
+   "id": "TIP_NC_ROUTE_OUT",
+   "text": "{route} -{n}"
+  },
+  {
+   "id": "TIP_NC_ROUTE_BACKUP",
+   "text": "{route} (берёт из Space Storage, если на {planet} мало) -{n}"
+  },
+  {
+   "id": "TIP_NC_SELL",
+   "text": "Заказ Sell на {planet} -{n}"
+  },
+  {
+   "id": "TIP_NC_SELL_BACKUP",
+   "text": "Заказ Sell на {planet} (берёт из Space Storage, если на {planet} мало) -{n}"
+  },
+  {
+   "id": "TUT_G0_DONE",
+   "text": "Ура! Мы основали торговый пост на {planet}!"
+  },
+  {
+   "id": "TUT_G0_DONE_WHY",
+   "text": "Пост позволяет покупать, продавать и прокладывать там маршруты. Дальше Voltara."
+  },
+  {
+   "id": "TUT_G0_DONE_NEXT",
+   "text": "Дальше"
+  },
+  {
+   "id": "TUT_G1C_SPEED",
+   "text": "Справа вверху 2x, 6x и 12x ускоряют игру."
+  },
+  {
+   "id": "TUT_G1C_SPEED_WHY",
+   "text": "Рейсы и посты занимают циклы, на скорости ждать быстрее. Кнопка паузы останавливает время."
+  },
+  {
+   "id": "WORLD_SYS3_NAME",
+   "text": "TEMPORARY A"
+  },
+  {
+   "id": "WORLD_SYS3_DESC",
+   "text": "Временный текст для дальней системы. Она ещё закрыта."
+  },
+  {
+   "id": "WORLD_S3P1_NAME",
+   "text": "Temp A1"
+  },
+  {
+   "id": "WORLD_S3P1_DESC",
+   "text": "Временный текст планеты."
+  },
+  {
+   "id": "WORLD_S3P2_NAME",
+   "text": "Temp A2"
+  },
+  {
+   "id": "WORLD_S3P2_DESC",
+   "text": "Временный текст планеты."
+  },
+  {
+   "id": "WORLD_S3P3_NAME",
+   "text": "Temp A3"
+  },
+  {
+   "id": "WORLD_S3P3_DESC",
+   "text": "Временный текст планеты."
+  },
+  {
+   "id": "WORLD_SYS4_NAME",
+   "text": "TEMPORARY B"
+  },
+  {
+   "id": "WORLD_SYS4_DESC",
+   "text": "Временный текст для дальней системы. Она ещё закрыта."
+  },
+  {
+   "id": "WORLD_S4P1_NAME",
+   "text": "Temp B1"
+  },
+  {
+   "id": "WORLD_S4P1_DESC",
+   "text": "Временный текст планеты."
+  },
+  {
+   "id": "WORLD_S4P2_NAME",
+   "text": "Temp B2"
+  },
+  {
+   "id": "WORLD_S4P2_DESC",
+   "text": "Временный текст планеты."
+  },
+  {
+   "id": "WORLD_S4P3_NAME",
+   "text": "Temp B3"
+  },
+  {
+   "id": "WORLD_S4P3_DESC",
+   "text": "Временный текст планеты."
+  },
+  {
+   "id": "WORLD_SYS5_NAME",
+   "text": "TEMPORARY C"
+  },
+  {
+   "id": "WORLD_SYS5_DESC",
+   "text": "Временный текст для дальней системы. Она ещё закрыта."
+  },
+  {
+   "id": "WORLD_S5P1_NAME",
+   "text": "Temp C1"
+  },
+  {
+   "id": "WORLD_S5P1_DESC",
+   "text": "Временный текст планеты."
+  },
+  {
+   "id": "WORLD_S5P2_NAME",
+   "text": "Temp C2"
+  },
+  {
+   "id": "WORLD_S5P2_DESC",
+   "text": "Временный текст планеты."
+  },
+  {
+   "id": "WORLD_S5P3_NAME",
+   "text": "Temp C3"
+  },
+  {
+   "id": "WORLD_S5P3_DESC",
+   "text": "Временный текст планеты."
+  },
+  {
+   "id": "WORLD_SYS6_NAME",
+   "text": "Placeholder D"
+  },
+  {
+   "id": "WORLD_SYS6_DESC",
+   "text": "Временный текст для дальней системы. Она ещё закрыта."
+  },
+  {
+   "id": "WORLD_S6P1_NAME",
+   "text": "Temp D1"
+  },
+  {
+   "id": "WORLD_S6P1_DESC",
+   "text": "Временный текст планеты."
+  },
+  {
+   "id": "WORLD_S6P2_NAME",
+   "text": "Temp D2"
+  },
+  {
+   "id": "WORLD_S6P2_DESC",
+   "text": "Временный текст планеты."
+  },
+  {
+   "id": "WORLD_S6P3_NAME",
+   "text": "Temp D3"
+  },
+  {
+   "id": "WORLD_S6P3_DESC",
+   "text": "Временный текст планеты."
+  },
+  {
+   "id": "WORLD_SYS7_NAME",
+   "text": "Placeholder E"
+  },
+  {
+   "id": "WORLD_SYS7_DESC",
+   "text": "Временный текст для дальней системы. Она ещё закрыта."
+  },
+  {
+   "id": "WORLD_S7P1_NAME",
+   "text": "Temp E1"
+  },
+  {
+   "id": "WORLD_S7P1_DESC",
+   "text": "Временный текст планеты."
+  },
+  {
+   "id": "WORLD_S7P2_NAME",
+   "text": "Temp E2"
+  },
+  {
+   "id": "WORLD_S7P2_DESC",
+   "text": "Временный текст планеты."
+  },
+  {
+   "id": "WORLD_S7P3_NAME",
+   "text": "Temp E3"
+  },
+  {
+   "id": "WORLD_S7P3_DESC",
+   "text": "Временный текст планеты."
+  },
+  {
+   "id": "WORLD_SYS8_NAME",
+   "text": "Placeholder F"
+  },
+  {
+   "id": "WORLD_SYS8_DESC",
+   "text": "Временный текст для дальней системы. Она ещё закрыта."
+  },
+  {
+   "id": "WORLD_S8P1_NAME",
+   "text": "Temp F1"
+  },
+  {
+   "id": "WORLD_S8P1_DESC",
+   "text": "Временный текст планеты."
+  },
+  {
+   "id": "WORLD_S8P2_NAME",
+   "text": "Temp F2"
+  },
+  {
+   "id": "WORLD_S8P2_DESC",
+   "text": "Временный текст планеты."
+  },
+  {
+   "id": "WORLD_S8P3_NAME",
+   "text": "Temp F3"
+  },
+  {
+   "id": "WORLD_S8P3_DESC",
+   "text": "Временный текст планеты."
+  },
+  {
+   "id": "WORLD_SYS9_NAME",
+   "text": "Placeholder G"
+  },
+  {
+   "id": "WORLD_SYS9_DESC",
+   "text": "Временный текст для дальней системы. Она ещё закрыта."
+  },
+  {
+   "id": "WORLD_S9P1_NAME",
+   "text": "Temp G1"
+  },
+  {
+   "id": "WORLD_S9P1_DESC",
+   "text": "Временный текст планеты."
+  },
+  {
+   "id": "WORLD_S9P2_NAME",
+   "text": "Temp G2"
+  },
+  {
+   "id": "WORLD_S9P2_DESC",
+   "text": "Временный текст планеты."
+  },
+  {
+   "id": "WORLD_S9P3_NAME",
+   "text": "Temp G3"
+  },
+  {
+   "id": "WORLD_S9P3_DESC",
+   "text": "Временный текст планеты."
+  },
+  {
+   "id": "WORLD_SYS10_NAME",
+   "text": "Placeholder H"
+  },
+  {
+   "id": "WORLD_SYS10_DESC",
+   "text": "Временный текст для дальней системы. Она ещё закрыта."
+  },
+  {
+   "id": "WORLD_S10P1_NAME",
+   "text": "Temp H1"
+  },
+  {
+   "id": "WORLD_S10P1_DESC",
+   "text": "Временный текст планеты."
+  },
+  {
+   "id": "WORLD_S10P2_NAME",
+   "text": "Temp H2"
+  },
+  {
+   "id": "WORLD_S10P2_DESC",
+   "text": "Временный текст планеты."
+  },
+  {
+   "id": "WORLD_S10P3_NAME",
+   "text": "Temp H3"
+  },
+  {
+   "id": "WORLD_S10P3_DESC",
+   "text": "Временный текст планеты."
+  },
+  {
+   "id": "EPI_STAGES_0",
+   "text": "Ни один этап не закончен. Земля размечена, и бригада сидит на ней и ест."
+  },
+  {
+   "id": "EPI_STAGES_1",
+   "text": "Один этап стоит. Дети с нижних колец ходят через него туда и обратно."
+  },
+  {
+   "id": "EPI_STAGES_2",
+   "text": "Два этапа стоят. Третий пока каркас, и по вечерам на нём играет ветер."
+  },
+  {
+   "id": "EPI_STAGES_3",
+   "text": "Нет только последнего зала. В крыше дыра, и звёзды ею пользуются."
+  },
+  {
+   "id": "EPI_UNFINISHED_CAPITAL",
+   "text": "{planet} хранит площадку и держит лампу зажжённой. Местные уже зовут её Bazaar."
+  },
+  {
+   "id": "EPI_CAPITAL",
+   "text": "На {planet} лампы горят сверх положенного часа. Бюро открывает для неё новую страницу."
+  },
+  {
+   "id": "EPI_WORLDS_GROWN",
+   "text": "Горят огни на мирах, которые были тёмными, когда вы пришли. Кто-то идёт домой вдоль них."
+  },
+  {
+   "id": "EPI_RECLAIMED",
+   "text": "У серого мира теперь зелёный край. Ребёнок там спрашивает, что была за красная дымка."
+  },
+  {
+   "id": "EPI_WING_1A",
+   "text": "Крыло Трюмов полно ящиков. Flagship стоит низко у своего причала."
+  },
+  {
+   "id": "EPI_WING_1B",
+   "text": "У Крыла Дали длинное окно. Из него другие системы кажутся близкими."
+  },
+  {
+   "id": "EPI_WING_2A",
+   "text": "В Крыле Пошлин длинный стол и короткая очередь. Всех считают дважды."
+  },
+  {
+   "id": "EPI_WING_2B",
+   "text": "Крыло Верстаков пахнет горячим металлом. У ночной смены свой чайник."
+  },
+  {
+   "id": "EPI_WING_3A",
+   "text": "В Крыле Ламп ставни от бурь. Когда приходит буря, они остаются открытыми."
+  },
+  {
+   "id": "EPI_WING_3B",
+   "text": "В Крыле Курьеров есть колокол для опоздавших. Он звонит чаще, чем должен."
+  },
+  {
+   "id": "EVT_HINT_CHOICE_OFF",
+   "text": "Сейчас недоступно."
+  },
+  {
+   "id": "EVT_NEXT_DUE",
+   "text": "Событие ожидается в следующем цикле."
+  },
+  {
+   "id": "EVT_NEXT_DUE_PRICE",
+   "text": "Через цикл на {planet}: {commodity} — {direction}."
+  },
+  {
+   "id": "EVT_NEXT_DUE_CLOSED",
+   "text": "Через цикл планета {planet} закроется."
+  },
+  {
+   "id": "EVT_NEXT_DUE_2",
+   "text": "Событие ожидается через 2 цикла."
+  },
+  {
+   "id": "EVT_NEXT_DUE_PRICE_2",
+   "text": "Через 2 цикла на {planet}: {commodity} — {direction}."
+  },
+  {
+   "id": "EVT_NEXT_DUE_CLOSED_2",
+   "text": "Через 2 цикла планета {planet} закроется."
+  },
+  {
+   "id": "EV_EFF_NO_RIVALS",
+   "text": "Погода: ни один из домов не меняет свою следующую погоду."
+  },
+  {
+   "id": "GIG_RUSH_TITLE",
+   "text": "Срочный заказ на {planet}"
+  },
+  {
+   "id": "GIG_RUSH_HOOK",
+   "text": "Планете {planet} нужен товар {commodity}. Доставьте в срок, циклов: {cycles}."
+  },
+  {
+   "id": "GIG_RUSH_HOOK_RESTLESS",
+   "text": "Планета {planet} в состоянии Restless, ей не хватает товара {commodity}. Срок, циклов: {cycles}."
+  },
+  {
+   "id": "GIG_RUSH_HOOK_TIER",
+   "text": "Планета {planet} близка к росту. Ей нужен товар {commodity}. Срок, циклов: {cycles}."
+  },
+  {
+   "id": "GIG_RUSH_HOOK_SHORT",
+   "text": "На планете {planet} дефицит. Ей нужен товар {commodity}. Срок, циклов: {cycles}."
+  },
+  {
+   "id": "GIG_RUSH_ARRIVE",
+   "text": "На этой планете срочный заказ на товар {commodity}. Продайте его здесь, чтобы доставить."
+  },
+  {
+   "id": "GIG01_TITLE",
+   "text": "Девятый счёт"
+  },
+  {
+   "id": "GIG01_HOOK",
+   "text": "Слабый маяк повторяет один тон. Никто на него не ответил."
+  },
+  {
+   "id": "GIG01_ARRIVE",
+   "text": "Грузовоз Общины, разломанный вдоль хребта. Огни не горят. Койки пусты и заправлены. У люка всё ещё привинчена табличка Общей книги. Вскрыть трюм — время разведчика. Бортовой журнал достать быстро, но трюм останется запечатан."
+  },
+  {
+   "id": "GIG01_A_BTN",
+   "text": "Вскрыть трюм"
+  },
+  {
+   "id": "GIG01_B_BTN",
+   "text": "Достать бортовой журнал"
+  },
+  {
+   "id": "GIG01_A_OUT_MIL",
+   "text": "На ящиках знакомая печать склада. Пломбы держатся. Разведчик идёт назад тяжёлым, а резак ещё тёплый."
+  },
+  {
+   "id": "GIG01_A_OUT_LUX",
+   "text": "Яркая ткань, плотно завёрнутая, в складках сладкий запах. Разведчик пахнет им всю дорогу назад. Пустые койки остаются позади."
+  },
+  {
+   "id": "GIG01_A_OUT_MIN",
+   "text": "Тусклые серые ящики, тяжёлые для своего размера. Пыль на перчатках не отряхивается. Разведчик идёт назад медленно."
+  },
+  {
+   "id": "GIG01_A_OUT_BIO",
+   "text": "Влажные запечатанные контейнеры, тёплые на ощупь. Что-то в них раз шевельнулось и замерло. Вы не оглядываетесь."
+  },
+  {
+   "id": "GIG01_B_OUT_MIL",
+   "text": "В журнале каждая остановка и каждый приказ. Чья-то рука дважды вывела последнюю строку. Трюм остаётся запечатан, вы оставляете его там."
+  },
+  {
+   "id": "GIG01_B_OUT_LUX",
+   "text": "В журнале порты, покупатели и кто за что платил. Последняя страница — список имён. Трюм остаётся запечатан позади."
+  },
+  {
+   "id": "GIG01_B_OUT_MIN",
+   "text": "В журнале каждая заявка, мимо которой шёл грузовоз, и что в ней было. Трюм остаётся запечатан. Разведчик отворачивается."
+  },
+  {
+   "id": "GIG01_B_OUT_BIO",
+   "text": "В журнале каждая остановка, где груз держали в холоде, и где он перестал быть холодным. Трюм остаётся запечатан."
+  },
+  {
+   "id": "GIG01_EPI",
+   "text": "Бюро числит Девятый счёт как просроченный. На этой странице он и останется."
+  },
+  {
+   "id": "GIG02_TITLE",
+   "text": "Лампа ретранслятора"
+  },
+  {
+   "id": "GIG02_HOOK",
+   "text": "Огонь ретранслятора мигает дважды, гаснет, потом снова мигает дважды."
+  },
+  {
+   "id": "GIG02_ARRIVE",
+   "text": "Станция ретранслятора с одной горящей лампой. За стеклом смотритель в сменном плаще машет рукой. Бланк смены заполнен наполовину. Если вывезти смотрителя, бланк останется пустым, а лампа погаснет. Если встать на вахту, разведчик ждёт, а смотритель остаётся."
+  },
+  {
+   "id": "GIG02_A_BTN",
+   "text": "Вывезти смотрителя"
+  },
+  {
+   "id": "GIG02_B_BTN",
+   "text": "Встать на вахту смотрителя"
+  },
+  {
+   "id": "GIG02_A_OUT_MIL",
+   "text": "Смотритель вручает вам кодовую ленту с полки ретранслятора. Лампа гаснет за спиной. Бланк остаётся пустым."
+  },
+  {
+   "id": "GIG02_A_OUT_LUX",
+   "text": "Смотритель вкладывает вам в руку небольшой подарок, завёрнутый в яркую ткань. Лампа гаснет за спиной."
+  },
+  {
+   "id": "GIG02_A_OUT_MIN",
+   "text": "Смотритель даёт вам карту породы, размеченную жирным карандашом. Лампа гаснет за спиной."
+  },
+  {
+   "id": "GIG02_A_OUT_BIO",
+   "text": "Смотритель даёт вам банку семян с оконной полки. Они ещё влажные. Лампа гаснет за спиной."
+  },
+  {
+   "id": "GIG02_B_OUT_MIL",
+   "text": "Вы держите лампу смену. В журнале ретранслятора видно, кто проходил и что вёз. Смотритель спит в кресле."
+  },
+  {
+   "id": "GIG02_B_OUT_LUX",
+   "text": "Вы держите лампу смену. В журнале ретранслятора видно, какие корабли заходили и где выгодно продавали. Смотритель спит в кресле."
+  },
+  {
+   "id": "GIG02_B_OUT_MIN",
+   "text": "Вы держите лампу смену. В журнале ретранслятора видно, какие корабли возили породу и где её продавали. Смотритель спит в кресле."
+  },
+  {
+   "id": "GIG02_B_OUT_BIO",
+   "text": "Вы держите лампу смену. В журнале ретранслятора видно, какие корабли возили холодный груз и где его продавали. Смотритель спит в кресле."
+  },
+  {
+   "id": "GIG02_EPI",
+   "text": "Бланк смотрителя подшит ради общего блага. Бюро не спрашивает, кто его заполнил."
+  },
+  {
+   "id": "GIG03_TITLE",
+   "text": "Барабан квоты"
+  },
+  {
+   "id": "GIG03_HOOK",
+   "text": "Стук на открытой полосе. Всегда одиннадцать ударов, потом пауза."
+  },
+  {
+   "id": "GIG03_ARRIVE",
+   "text": "В темноте дрейфует стальной барабан с печатью плана на пять циклов, который никто не закончил. Он стучит о собственный трос. Внутри журнал и запечатанная партия. Если открыть партию, в Плане не хватит строки. Если скопировать журнал, партия останется закрытой."
+  },
+  {
+   "id": "GIG03_A_BTN",
+   "text": "Открыть запечатанную партию"
+  },
+  {
+   "id": "GIG03_B_BTN",
+   "text": "Скопировать журнал"
+  },
+  {
+   "id": "GIG03_A_OUT_MIL",
+   "text": "Партия уложена по порядку, каждый ящик пронумерован. Вы считаете дважды. В Плане не хватает одной строки, и возражать некому."
+  },
+  {
+   "id": "GIG03_A_OUT_LUX",
+   "text": "Сложенная ткань между листами бумаги, всё ещё яркая. На бумаге печать. Вы оставляете печать как есть."
+  },
+  {
+   "id": "GIG03_A_OUT_MIN",
+   "text": "Тяжёлые плиты в серой обёртке, помеченные для заявки, которую так и не вырезали. Когда партия вынесена, барабан перестаёт стучать."
+  },
+  {
+   "id": "GIG03_A_OUT_BIO",
+   "text": "Холодные лотки, в шве зелёный запах. Барабан стучит ещё раз и затихает."
+  },
+  {
+   "id": "GIG03_B_OUT_MIL",
+   "text": "В журнале каждая выдача и каждый, кто её вёл. Вы копируете от руки. Партия остаётся закрытой позади."
+  },
+  {
+   "id": "GIG03_B_OUT_LUX",
+   "text": "В журнале, кому полагался подарок и кто его прислал. Вы копируете имена. Партия остаётся закрытой позади."
+  },
+  {
+   "id": "GIG03_B_OUT_MIN",
+   "text": "В журнале каждая заявка и её вес. Вы копируете страницы. Партия остаётся закрытой позади."
+  },
+  {
+   "id": "GIG03_B_OUT_BIO",
+   "text": "В журнале, какие лотки с какой полки и когда. Вы копируете. Партия остаётся закрытой позади."
+  },
+  {
+   "id": "GIG03_EPI",
+   "text": "Бюро отмечает барабан квоты как найденный. Как выполненный не отмечает."
+  },
+  {
+   "id": "GIG04_TITLE",
+   "text": "Пустой причал"
+  },
+  {
+   "id": "GIG04_HOOK",
+   "text": "Вызов на стыковку, повторяется. Спокойный голос, ответить негде."
+  },
+  {
+   "id": "GIG04_ARRIVE",
+   "text": "Небольшая станция, светлая и чистая. Все причалы пусты и готовы. Голос предлагает один из них. Стол накрыт на шесть человек экипажа. Можно забрать припасы из кладовой или остаться на обед и разговор. И то и другое займёт время разведчика."
+  },
+  {
+   "id": "GIG04_A_BTN",
+   "text": "Погрузить припасы кладовой"
+  },
+  {
+   "id": "GIG04_B_BTN",
+   "text": "Остаться на обед"
+  },
+  {
+   "id": "GIG04_A_OUT_MIL",
+   "text": "Пайки в запечатанных пачках, с печатью знакомого склада. Голос благодарит за каждую пачку. Стол остаётся накрыт."
+  },
+  {
+   "id": "GIG04_A_OUT_LUX",
+   "text": "Банки со сладким, яркие этикетки, ни разу не вскрытые. Голос благодарит за каждую банку. Стол остаётся накрыт."
+  },
+  {
+   "id": "GIG04_A_OUT_MIN",
+   "text": "Сухие припасы и наборы инструментов, ещё в промасленной бумаге. Голос благодарит за каждый. Стол остаётся накрыт."
+  },
+  {
+   "id": "GIG04_A_OUT_BIO",
+   "text": "Банки с культурой, на каждой аккуратной рукой надпись. Голос благодарит за каждую банку. Стол остаётся накрыт."
+  },
+  {
+   "id": "GIG04_B_OUT_MIL",
+   "text": "Вы едите. Голос называет остановки старого патрульного маршрута одну за другой. Больше никто не садится."
+  },
+  {
+   "id": "GIG04_B_OUT_LUX",
+   "text": "Вы едите. Голос рассказывает, кто здесь обедал и за что каждый платил. Больше никто не садится."
+  },
+  {
+   "id": "GIG04_B_OUT_MIN",
+   "text": "Вы едите. Голос рассказывает, где вырезали ближайшую породу и кто. Больше никто не садится."
+  },
+  {
+   "id": "GIG04_B_OUT_BIO",
+   "text": "Вы едите. Голос рассказывает, что росло в саду станции и что пошло не так. Больше никто не садится."
+  },
+  {
+   "id": "GIG04_EPI",
+   "text": "Станция держит свет включённым. Для этого у Бюро нет бланка."
+  },
+  {
+   "id": "GIG05_TITLE",
+   "text": "Испытательный полигон"
+  },
+  {
+   "id": "GIG05_HOOK",
+   "text": "Ровный тон, подаваемый каждый час. Обрывается на середине счёта."
+  },
+  {
+   "id": "GIG05_ARRIVE",
+   "text": "Давно заброшенный испытательный полигон. Мишени висят в ряд. У поста управления стоит стеллаж с инструментом, а рука крана всё ещё держит ящик. Можно забрать стеллаж или пройти по журналу полигона туда, где записано последнее испытание."
+  },
+  {
+   "id": "GIG05_A_BTN",
+   "text": "Снять инструмент со стеллажа"
+  },
+  {
+   "id": "GIG05_B_BTN",
+   "text": "Пройти по журналу полигона"
+  },
+  {
+   "id": "GIG05_A_OUT_MIL",
+   "text": "Головки свёрл и зажимы на стеллаже, сделанном для одной бригады. На каждом метка. Вы не читаете их вслух."
+  },
+  {
+   "id": "GIG05_A_OUT_MIN",
+   "text": "Резцы, буры и колонковая дрель, тяжёлые и промасленные. Рука крана отпускает ящик. Он уплывает."
+  },
+  {
+   "id": "GIG05_B_OUT_MIL",
+   "text": "Журнал обрывается на пеленге. Вы записываете его. Последнее испытание так и не закончили, и журнал не говорит почему."
+  },
+  {
+   "id": "GIG05_B_OUT_MIN",
+   "text": "Журнал обрывается на поле породы, с глубинами карандашом. Вы копируете страницу. Ящик остаётся в кране."
+  },
+  {
+   "id": "GIG05_EPI",
+   "text": "Полигон вычеркнут из Плана. Мишени всё ещё висят."
+  },
+  {
+   "id": "GIG06_TITLE",
+   "text": "Запечатанный сад"
+  },
+  {
+   "id": "GIG06_HOOK",
+   "text": "Тихий звон и слабый тёплый свет. Маяк — это окно."
+  },
+  {
+   "id": "GIG06_ARRIVE",
+   "text": "Стеклянный корабль, запотевший изнутри. За стеклом зелень, густая и неподвижная. Люк откроется за срезанный цветок или за полный мешок семян сада. И то и другое значит войти. И то и другое значит что-то оставить."
+  },
+  {
+   "id": "GIG06_A_BTN",
+   "text": "Срезать лучшие цветы"
+  },
+  {
+   "id": "GIG06_B_BTN",
+   "text": "Собрать семена сада"
+  },
+  {
+   "id": "GIG06_A_OUT_LUX",
+   "text": "Бледные лепестки в ладонь шириной, с запахом, который держится на рукаве днями. Грядки позади выглядят голыми."
+  },
+  {
+   "id": "GIG06_A_OUT_BIO",
+   "text": "Толстые цветы, мокрые у стебля. Перчатки выходят окрашенными. Грядки позади выглядят голыми."
+  },
+  {
+   "id": "GIG06_B_OUT_LUX",
+   "text": "Тонкие семена, разобранные по цвету, каждый мешок завязан ниткой. Грядки остаются зелёными, но срезать их теперь некому."
+  },
+  {
+   "id": "GIG06_B_OUT_BIO",
+   "text": "Семена во влажной бумаге, каждая партия с биркой полки. Грядки остаются зелёными. Воздух внутри пахнет тесно."
+  },
+  {
+   "id": "GIG06_EPI",
+   "text": "Сад числится ухоженным. Смотритель на странице не назван."
+  },
+  {
+   "id": "GIG07_TITLE",
+   "text": "Открытие"
+  },
+  {
+   "id": "GIG07_HOOK",
+   "text": "Последний зал под крышей. Один ящик запечатан, подписан и ждёт Flagship."
+  },
+  {
+   "id": "GIG07_ARRIVE",
+   "text": "Грузовой устав запечатан и подписан каждой рукой, что строила зал. Бригада выстроилась вдоль причала, никто не говорит. Все лампы Bazaar погашены. Он ждёт один ящик, который внесёте вы."
+  },
+  {
+   "id": "GIG07_A_BTN",
+   "text": "Внести ящик"
+  },
+  {
+   "id": "GIG07_A_OUT_MIL",
+   "text": "Ящик идёт по длинному залу в ногу. Печать ломается. Лампы загораются ряд за рядом, и никто не отдаёт приказа."
+  },
+  {
+   "id": "GIG07_A_OUT_LUX",
+   "text": "Ящик вносят на куске ткани из яркой нити. Печать ломается, и по залу проходит тёплый запах. Лампы загораются."
+  },
+  {
+   "id": "GIG07_A_OUT_MIN",
+   "text": "Ящик вносят тяжело и медленно на плоской тележке. Печать ломается с глухим стуком. Лампы загораются, и стены гудят."
+  },
+  {
+   "id": "GIG07_A_OUT_BIO",
+   "text": "Ящик вносят влажным и тёплым. Печать ломается, и воздух в зале становится зелёным и тесным. Лампы загораются."
+  },
+  {
+   "id": "EV60_TITLE",
+   "text": "Энергии не хватает на Voltara"
+  },
+  {
+   "id": "EV60_BODY",
+   "text": "Ночная сеть Voltara запросила больше мощности, чем дневная смена когда-либо заказывала. Energy на Voltara нужна сильнее на несколько циклов, и голод виден в цене. Кто довезёт груз вовремя, продаст его дороже, а следом может прийти срочный заказ."
+  },
+  {
+   "id": "EV61_TITLE",
+   "text": "Еды не хватает на Tillam"
+  },
+  {
+   "id": "EV61_BODY",
+   "text": "Кладовые Tillam опустели раньше, чем террасы успели догнать. Food на Tillam нужна сильнее на несколько циклов, и голод виден в цене. Полный трюм здесь встречают как добрую весть, а следом может прийти срочный заказ."
+  },
+  {
+   "id": "EV62_TITLE",
+   "text": "Еды не хватает на Ashgate"
+  },
+  {
+   "id": "EV62_BODY",
+   "text": "Паёчные клерки Ashgate сосчитали дважды и нашли полки тоньше, чем в бланке. Food на Ashgate нужна сильнее на несколько циклов, и голод виден в цене. Может прийти срочный заказ."
+  },
+  {
+   "id": "EV63_TITLE",
+   "text": "Затор у причалов Tillam"
+  },
+  {
+   "id": "EV63_BODY",
+   "text": "Очередь конвоев ждёт у причалов Tillam места, которого никто не обещает. Маршруты через Tillam на несколько циклов обходятся дороже за рейс. Переждите или отправьте корабли в другое место."
+  },
+  {
+   "id": "EV64_TITLE",
+   "text": "Затор у причалов Voltara"
+  },
+  {
+   "id": "EV64_BODY",
+   "text": "Причальные маяки Voltara мигают, и каждый капитан ждёт, пока первым пойдёт следующий. Маршруты через Voltara на несколько циклов обходятся дороже за рейс. Переждите или отправьте корабли в другое место."
+  },
+  {
+   "id": "EV40_EFF",
+   "text": "Погода: ни один дом не меняет свою следующую погоду."
+  },
+  {
+   "id": "EV41_EFF",
+   "text": "Погода: каждый дом сохраняет следующую погоду как была."
+  },
+  {
+   "id": "EV42_EFF",
+   "text": "Погода: ни один из трёх домов не меняет свою следующую погоду."
+  },
+  {
+   "id": "EV43_EFF",
+   "text": "Погода: ни один дом не меняет свою следующую погоду."
+  },
+  {
+   "id": "EV44_EFF",
+   "text": "Погода: каждый дом сохраняет следующую погоду как была."
+  },
+  {
+   "id": "EV45_EFF",
+   "text": "Погода: ни один из трёх домов не меняет свою следующую погоду."
+  },
+  {
+   "id": "EV46_EFF",
+   "text": "Погода: ни один дом не меняет свою следующую погоду."
+  },
+  {
+   "id": "EV47_EFF",
+   "text": "Погода: каждый дом сохраняет следующую погоду как была."
+  },
+  {
+   "id": "EV48_EFF",
+   "text": "Погода: ни один из трёх домов не меняет свою следующую погоду."
+  },
+  {
+   "id": "EV49_EFF",
+   "text": "Погода: ни один дом не меняет свою следующую погоду."
+  },
+  {
+   "id": "EV50_EFF",
+   "text": "Погода: каждый дом сохраняет следующую погоду как была."
+  },
+  {
+   "id": "EV51_EFF",
+   "text": "Погода: ни один из трёх домов не меняет свою следующую погоду."
+  },
+  {
+   "id": "EV52_TITLE",
+   "text": "Срочный заказ Флотского управления"
+  },
+  {
+   "id": "EV52_BODY",
+   "text": "Флотское управление дало вам срочный заказ, и три более крупные бригады хотят его, если вы замешкаетесь. У заднего выхода склада Боск Две Печати предлагает наличные за часть ящиков. Его большие пальцы синие от печатей на бланках, которых никто не писал. Продайте быстро или продайте у стойки."
+  },
+  {
+   "id": "EV52_EFF",
+   "text": "Погода: ни один дом не меняет свою следующую погоду."
+  },
+  {
+   "id": "EV52_A_BTN",
+   "text": "Продать Боску Две Печати"
+  },
+  {
+   "id": "EV52_A_EFF",
+   "text": "Платят больше сейчас: {cash_in} кредитов."
+  },
+  {
+   "id": "EV52_A_TITLE",
+   "text": "У Боска одна печать"
+  },
+  {
+   "id": "EV52_A",
+   "text": "Боск расплатился потёртыми купюрами и поставил печать на вашей квитанции. Печать у него одна. Имя — слух, который он пустил сам. Ящики ушли через задний выход, пока клерк не допил чай. Вы получаете {cash_in} кредитов сейчас."
+  },
+  {
+   "id": "EV52_B_BTN",
+   "text": "Продать у общей стойки"
+  },
+  {
+   "id": "EV52_B_EFF",
+   "text": "Платят меньше сейчас: {cash_in} кредитов."
+  },
+  {
+   "id": "EV52_B_TITLE",
+   "text": "Стойка не торопится"
+  },
+  {
+   "id": "EV52_B",
+   "text": "Клерк у стойки сверил каждый ящик с заказом, потом заказ с ящиками. Где-то в глубине стукнула печать. Заплатили {cash_in} кредитов, меньше, чем у заднего выхода."
+  },
+  {
+   "id": "EV53_TITLE",
+   "text": "Заказ дома Оррел на приём"
+  },
+  {
+   "id": "EV53_BODY",
+   "text": "Дом Оррел заказал столовые наборы из резного стекла для своего приёма, и две старые фирмы торгуются за ту же отправку. На прогулочной барже у причального кольца мадам Фенн предлагает наличные за несколько наборов. Любую продажу она зовёт частным показом и берёт плату за кресло."
+  },
+  {
+   "id": "EV53_EFF",
+   "text": "Погода: каждый дом сохраняет следующую погоду как была."
+  },
+  {
+   "id": "EV53_A_BTN",
+   "text": "Продать мадам Фенн"
+  },
+  {
+   "id": "EV53_A_EFF",
+   "text": "Платят больше сейчас: {cash_in} кредитов."
+  },
+  {
+   "id": "EV53_A_TITLE",
+   "text": "Частный показ"
+  },
+  {
+   "id": "EV53_A",
+   "text": "Показ длился, пока считали купюры. Мадам Фенн всё равно взяла плату за кресло. Наборы спустились по трапу в её шалях. Вы получаете {cash_in} кредитов сейчас. На столе приёма не хватит нескольких бокалов."
+  },
+  {
+   "id": "EV53_B_BTN",
+   "text": "Продать на открытых рядах"
+  },
+  {
+   "id": "EV53_B_EFF",
+   "text": "Платят меньше сейчас: {cash_in} кредитов."
+  },
+  {
+   "id": "EV53_B_TITLE",
+   "text": "Ряды открываются в полдень"
+  },
+  {
+   "id": "EV53_B",
+   "text": "Вы разложили наборы на открытых рядах под лампами причала. Покупатели вертели каждый бокал на свету и торговались из-за сколов, которых не было. Заплатили {cash_in} кредитов, меньше, чем на барже."
+  },
+  {
+   "id": "EV54_TITLE",
+   "text": "Пробный рейс «Глубинной линии»"
+  },
+  {
+   "id": "EV54_BODY",
+   "text": "«Глубинная линия» наняла вас везти запечатанные ящики с образцами в пробирную палату, а более быстрая бригада уже грузится. Тамск Реддок, хозяин шлакового двора, предлагает наличные за часть ящиков. Всё он взвешивает на одном пальце и говорит: тяжёлый. Даже пустые."
+  },
+  {
+   "id": "EV54_EFF",
+   "text": "Погода: ни один из трёх домов не меняет свою следующую погоду."
+  },
+  {
+   "id": "EV54_A_BTN",
+   "text": "Продать Тамску Реддоку"
+  },
+  {
+   "id": "EV54_A_EFF",
+   "text": "Платят больше сейчас: {cash_in} кредитов."
+  },
+  {
+   "id": "EV54_A_TITLE",
+   "text": "Тамск говорит: тяжёлый"
+  },
+  {
+   "id": "EV54_A",
+   "text": "Тамск поднял ящик на пальце и сказал: тяжёлый, как каждый раз. Потом заплатил полностью из жестяной банки. Ящики покатили на шлаковый двор на тележке с одним целым колесом. Вы получаете {cash_in} кредитов сейчас."
+  },
+  {
+   "id": "EV54_B_BTN",
+   "text": "Продать пробирной палате"
+  },
+  {
+   "id": "EV54_B_EFF",
+   "text": "Платят меньше сейчас: {cash_in} кредитов."
+  },
+  {
+   "id": "EV54_B_TITLE",
+   "text": "Пробирная палата считает"
+  },
+  {
+   "id": "EV54_B",
+   "text": "Пробирная палата приняла ящики по своему курсу и в своём темпе. Клерк читал каждую печать вслух, дважды. Ваша бригада стояла на холоде, пока сохли чернила. Заплатили {cash_in} кредитов, меньше, чем на шлаковом дворе."
+  },
+  {
+   "id": "EV55_TITLE",
+   "text": "Клиникам Лоумур нужны лотки"
+  },
+  {
+   "id": "EV55_BODY",
+   "text": "Клиники Лоумур наняли вас везти охлаждённые лотки с образцами в палаты, а у соперничающей бригады корабль быстрее. За холодным причалом ждёт доктор Пелл Орук и предлагает наличные за часть лотков. Каждую монету он пробует на зуб и зовёт её в основном здоровой."
+  },
+  {
+   "id": "EV55_EFF",
+   "text": "Погода: ни один дом не меняет свою следующую погоду."
+  },
+  {
+   "id": "EV55_A_BTN",
+   "text": "Продать доктору Пеллу Оруку"
+  },
+  {
+   "id": "EV55_A_EFF",
+   "text": "Платят больше сейчас: {cash_in} кредитов."
+  },
+  {
+   "id": "EV55_A_TITLE",
+   "text": "В основном здоровые монеты"
+  },
+  {
+   "id": "EV55_A",
+   "text": "Доктор Орук прокусил каждую монету и нашёл их в основном здоровыми. Потом заплатил полностью. Лотки ушли через чёрный ход в холодном ящике, всё ещё с меткой палаты. Вы получаете {cash_in} кредитов сейчас. Палата получит меньше лотков."
+  },
+  {
+   "id": "EV55_B_BTN",
+   "text": "Продать у стойки клиники"
+  },
+  {
+   "id": "EV55_B_EFF",
+   "text": "Платят меньше сейчас: {cash_in} кредитов."
+  },
+  {
+   "id": "EV55_B_TITLE",
+   "text": "Стойка клиники подписывает"
+  },
+  {
+   "id": "EV55_B",
+   "text": "Стойка клиники приняла лотки по правилам. Медсестра читала каждую метку вслух, и колокол палаты прозвонил дважды. Заплатили {cash_in} кредитов, меньше, чем на холодном причале."
+  },
+  {
+   "id": "TH01_TITLE",
+   "text": "Буксир просит вашу книгу"
+  },
+  {
+   "id": "TH01_BODY",
+   "text": "На Voltara стыкуется буксир «Медленная расписка». Его хозяйка Марен Оук когда-то вела книги для Бюро. Она просит прочесть вашу причальную книгу страница за страницей. Говорит, что ищет один долг. Чей, не говорит."
+  },
+  {
+   "id": "TH01_A_BTN",
+   "text": "Отдать причальную книгу"
+  },
+  {
+   "id": "TH01_A_EFF",
+   "text": "Food на Voltara стоит дороже и приносит больше на какое-то время."
+  },
+  {
+   "id": "TH01_A_TITLE",
+   "text": "Оук читает при лампе"
+  },
+  {
+   "id": "TH01_A",
+   "text": "Оук читала всю ночь и переворачивала страницы одним пальцем. Её помощники наполнили столовую. Food на Voltara стоит дороже и приносит больше на какое-то время. На рассвете она поблагодарила вас и записала строку на манжете."
+  },
+  {
+   "id": "TH01_B_BTN",
+   "text": "Отправить её к столу Бюро"
+  },
+  {
+   "id": "TH01_B_EFF",
+   "text": "Energy на Voltara стоит дешевле и приносит меньше на какое-то время."
+  },
+  {
+   "id": "TH01_B_TITLE",
+   "text": "Оук берёт номерок"
+  },
+  {
+   "id": "TH01_B",
+   "text": "Стол записал её имя и выдал номерок. Она ждала в длинном ряду, пока над головой стояли краны. Energy на Voltara стоит дешевле и приносит меньше на какое-то время. Она не жаловалась. Она считала ряд."
+  },
+  {
+   "id": "TH02_TITLE",
+   "text": "Первая страница"
+  },
+  {
+   "id": "TH02_BODY",
+   "text": "Оук возвращается со страницей, бурой по краям. Это заём, на который купили первый корабль такой же бригады, как ваша. Его подписали трое заимодавцев. Двоим вернули. Третий, Теодор Ласк, за деньгами так и не пришёл."
+  },
+  {
+   "id": "TH02_A_BTN",
+   "text": "Поискать в своих бумагах"
+  },
+  {
+   "id": "TH02_A_EFF",
+   "text": "Food на Voltara стоит дешевле и приносит меньше на какое-то время."
+  },
+  {
+   "id": "TH02_A_TITLE",
+   "text": "День среди старых ящиков"
+  },
+  {
+   "id": "TH02_A",
+   "text": "Ваша бригада провела день среди старых ящиков и ела из банок. Food на Voltara стоит дешевле и приносит меньше на какое-то время. В одном ящике лежала расписка с именем Ласка. Там, где должна стоять сумма, было пусто."
+  },
+  {
+   "id": "TH02_B_BTN",
+   "text": "Спросить старые бригады"
+  },
+  {
+   "id": "TH02_B_EFF",
+   "text": "Energy на Voltara стоит дороже и приносит больше на какое-то время."
+  },
+  {
+   "id": "TH02_B_TITLE",
+   "text": "Разговор после смены"
+  },
+  {
+   "id": "TH02_B",
+   "text": "Старые бригады говорили допоздна и не гасили лампы. Energy на Voltara стоит дороже и приносит больше на какое-то время. Имя Ласк слышали почти все. Никто не мог сказать где, и каждый понижал голос, говоря об этом."
+  },
+  {
+   "id": "TH03_TITLE",
+   "text": "Ласк в списке пособий"
+  },
+  {
+   "id": "TH03_BODY",
+   "text": "Повар с Tillam пишет, что имя Ласк значится в старом списке пособий лет гнили. Комиссия хранит его в запертом ящике. Оук просит вас отвезти туда её запрос с вашей печатью."
+  },
+  {
+   "id": "TH03_A_BTN",
+   "text": "Послать корабль с запросом"
+  },
+  {
+   "id": "TH03_A_EFF",
+   "text": "Food на Voltara стоит дороже и приносит больше на какое-то время."
+  },
+  {
+   "id": "TH03_A_TITLE",
+   "text": "Корабль уходит с письмом"
+  },
+  {
+   "id": "TH03_A",
+   "text": "Трюм достался письму Оук, а не грузу. Food на Voltara стоит дороже и приносит больше на какое-то время. Корабль ушёл с письмом, привязанным к ящику, как пассажир, который ещё может передумать."
+  },
+  {
+   "id": "TH03_B_BTN",
+   "text": "Дождаться почтового корабля"
+  },
+  {
+   "id": "TH03_B_EFF",
+   "text": "Energy на Voltara стоит дешевле и приносит меньше на какое-то время."
+  },
+  {
+   "id": "TH03_B_TITLE",
+   "text": "Письмо ждёт"
+  },
+  {
+   "id": "TH03_B",
+   "text": "Письмо лежало на причале до следующего почтового корабля. Причалы работали медленно и брали меньше энергии. Energy на Voltara стоит дешевле и приносит меньше на какое-то время. Оук всё это время сидела рядом с письмом, будто его могли забрать."
+  },
+  {
+   "id": "TH04_TITLE",
+   "text": "Второй искатель"
+  },
+  {
+   "id": "TH04_BODY",
+   "text": "Человек в сером пальто, Аурел Даск из заимодавческого дома «Квилл», находит Оук на вашем причале. Его дом скупает старые бумаги. Он просит скопировать страницу Ласка и обещает найти наследника скорее. Что сделает потом, не говорит."
+  },
+  {
+   "id": "TH04_A_BTN",
+   "text": "Дать Даску скопировать"
+  },
+  {
+   "id": "TH04_A_EFF",
+   "text": "Food на Voltara стоит дешевле и приносит меньше на какое-то время."
+  },
+  {
+   "id": "TH04_A_TITLE",
+   "text": "Даск копирует страницу"
+  },
+  {
+   "id": "TH04_A",
+   "text": "Даск скопировал страницу быстрым аккуратным почерком. Его агенты продали на причале припасы, чтобы оплатить поиск. Food на Voltara стоит дешевле и приносит меньше на какое-то время. Он дважды поблагодарил Оук. Она не подняла глаз."
+  },
+  {
+   "id": "TH04_B_BTN",
+   "text": "Отказать в копировании"
+  },
+  {
+   "id": "TH04_B_EFF",
+   "text": "Energy на Voltara стоит дороже и приносит больше на какое-то время."
+  },
+  {
+   "id": "TH04_B_TITLE",
+   "text": "Даск идёт к своему кораблю"
+  },
+  {
+   "id": "TH04_B",
+   "text": "Даск поклонился и придержал запасы своего дома вдали от причала. Energy на Voltara стоит дороже и приносит больше на какое-то время. Его корабль остался на орбите с горящими лампами и всё ещё был там, когда бригада легла спать."
+  },
+  {
+   "id": "TH05_TITLE",
+   "text": "Корабль со стёртым именем"
+  },
+  {
+   "id": "TH05_BODY",
+   "text": "Под брезентом на старом дворе Voltara стоит корабль со стёртым именем. Оук читает номер корпуса сквозь грязь. Он совпадает со страницей. Двор опечатан, а вскрыть его — значит снять краны со смены."
+  },
+  {
+   "id": "TH05_A_BTN",
+   "text": "Вскрыть старый двор"
+  },
+  {
+   "id": "TH05_A_EFF",
+   "text": "Energy на Voltara стоит дороже и приносит больше на какое-то время."
+  },
+  {
+   "id": "TH05_A_TITLE",
+   "text": "Брезент снят"
+  },
+  {
+   "id": "TH05_A",
+   "text": "Краны перешли на двор, и лампы горели всю смену. Energy на Voltara стоит дороже и приносит больше на какое-то время. Внутри корабля были койка, чашка и счёт, нацарапанный на стене. Последняя отметка короче остальных."
+  },
+  {
+   "id": "TH05_B_BTN",
+   "text": "Оставить двор опечатанным"
+  },
+  {
+   "id": "TH05_B_EFF",
+   "text": "Food на Voltara стоит дешевле и приносит меньше на какое-то время."
+  },
+  {
+   "id": "TH05_B_TITLE",
+   "text": "Двор остаётся закрыт"
+  },
+  {
+   "id": "TH05_B",
+   "text": "Вы оставили двор опечатанным. Бригады, пришедшие посмотреть, ушли домой, не поев у лотков. Food на Voltara стоит дешевле и приносит меньше на какое-то время. Оук стояла у ограды, пока не сменились лампы."
+  },
+  {
+   "id": "TH06_TITLE",
+   "text": "Бюро отвечает"
+  },
+  {
+   "id": "TH06_BODY",
+   "text": "Бюро присылает письмо, вежливое и неспешное. В нём сказано, что Община давно погасила долг Ласка. Страница копирует закрытую запись. Бюро просит Оук прекратить. Вас оно просит подтвердить, что она прекратила."
+  },
+  {
+   "id": "TH06_A_BTN",
+   "text": "Подтвердить, что она прекратила"
+  },
+  {
+   "id": "TH06_A_EFF",
+   "text": "Food на Voltara стоит дешевле и приносит меньше на какое-то время."
+  },
+  {
+   "id": "TH06_A_TITLE",
+   "text": "Бюро довольно"
+  },
+  {
+   "id": "TH06_A",
+   "text": "Вы подписали подтверждение. В благодарность Бюро прислало на причал пайки пособия. Food на Voltara стоит дешевле и приносит меньше на какое-то время. Оук прочла подтверждение дважды, потом сложила и убрала к странице."
+  },
+  {
+   "id": "TH06_B_BTN",
+   "text": "Сказать, что она не прекратила"
+  },
+  {
+   "id": "TH06_B_EFF",
+   "text": "Voltara закрывает порт на какое-то время. Маршруты через Voltara заблокированы."
+  },
+  {
+   "id": "TH06_B_TITLE",
+   "text": "Voltara закрывает порт"
+  },
+  {
+   "id": "TH06_B",
+   "text": "Вы написали, что она не прекратила. Бюро прислало инспекторов, и они закрыли порт Voltara на какое-то время. Маршруты через Voltara заблокированы. С причальной книгой они обращались очень бережно. Продержали её ночь."
+  },
+  {
+   "id": "TH07_TITLE",
+   "text": "«Медленную расписку» задержали"
+  },
+  {
+   "id": "TH07_BODY",
+   "text": "Бюро держит «Медленную расписку» у причала из-за бланка, который ещё не подан. Оук спит на ящике в чужом пальто. Часть ваших людей хочет, чтобы она ушла до следующей проверки. Другие приносят ей суп."
+  },
+  {
+   "id": "TH07_A_BTN",
+   "text": "Оставить её в своей каюте"
+  },
+  {
+   "id": "TH07_A_EFF",
+   "text": "Food на Voltara стоит дороже и приносит больше на какое-то время."
+  },
+  {
+   "id": "TH07_A_TITLE",
+   "text": "Койка с её именем"
+  },
+  {
+   "id": "TH07_A",
+   "text": "К утру пустая койка стала её. В столовой образовалось два стола, один с супом и один без. Food на Voltara стоит дороже и приносит больше на какое-то время. Никто не спросил, к какому столу относится буксир."
+  },
+  {
+   "id": "TH07_B_BTN",
+   "text": "Найти ей комнату на берегу"
+  },
+  {
+   "id": "TH07_B_EFF",
+   "text": "Energy на Voltara стоит дешевле и приносит меньше на какое-то время."
+  },
+  {
+   "id": "TH07_B_TITLE",
+   "text": "Комната на берегу"
+  },
+  {
+   "id": "TH07_B",
+   "text": "Клерк нашёл ей комнату в старом корпусе с одним холодным обогревателем. Energy на Voltara стоит дешевле и приносит меньше на какое-то время. Каждое утро она приходила на причал посмотреть на свой буксир. Он не смотрел в ответ."
+  },
+  {
+   "id": "TH08_TITLE",
+   "text": "Письмо с дальней станции"
+  },
+  {
+   "id": "TH08_BODY",
+   "text": "На причал приходит письмо. Инес Ласк, дочь Теодора, стара и пишет медленно. Денег она не просит. Она просит, чтобы кто-нибудь один раз прочёл долг вслух, в комнате, где есть люди."
+  },
+  {
+   "id": "TH08_A_BTN",
+   "text": "Прочесть вслух на причале"
+  },
+  {
+   "id": "TH08_A_EFF",
+   "text": "Food на Voltara стоит дороже и приносит больше на какое-то время."
+  },
+  {
+   "id": "TH08_A_TITLE",
+   "text": "Зал причала наполняется"
+  },
+  {
+   "id": "TH08_A",
+   "text": "Слух разошёлся, и зал заполнили бригады, никогда не встречавшие ни одного Ласка. Они принесли хлеб и стояли. Food на Voltara стоит дороже и приносит больше на какое-то время. Задние ряды ушли последними."
+  },
+  {
+   "id": "TH08_B_BTN",
+   "text": "Прочесть вслух по связи"
+  },
+  {
+   "id": "TH08_B_EFF",
+   "text": "Energy на Voltara стоит дороже и приносит больше на какое-то время."
+  },
+  {
+   "id": "TH08_B_TITLE",
+   "text": "Связь остаётся включена"
+  },
+  {
+   "id": "TH08_B",
+   "text": "Ретранслятор работал всю ночь, неся один голос в дальнюю комнату. Energy на Voltara стоит дороже и приносит больше на какое-то время. На дальнем конце кто-то раз кашлянул, и линия продолжала слушать."
+  },
+  {
+   "id": "TH09_TITLE",
+   "text": "Чтение"
+  },
+  {
+   "id": "TH09_BODY",
+   "text": "Чтение сегодня вечером. На странице три имени и сумма, записанная давно. Кто-то должен произнести её вслух. Оук держит страницу обеими руками. Она говорит, что причал ваш и бригада ваша, значит, и голос ваш."
+  },
+  {
+   "id": "TH09_A_BTN",
+   "text": "Прочесть страницу самим"
+  },
+  {
+   "id": "TH09_A_EFF",
+   "text": "Energy на Voltara стоит дешевле и приносит меньше на какое-то время."
+  },
+  {
+   "id": "TH09_A_TITLE",
+   "text": "Ваш голос на странице"
+  },
+  {
+   "id": "TH09_A",
+   "text": "На третьем имени ваш голос дрогнул, и зал это услышал. Большинство ламп притушили, чтобы лучше слышать. Energy на Voltara стоит дешевле и приносит меньше на какое-то время. Когда вы закончили, никто не хлопал. Все остались сидеть."
+  },
+  {
+   "id": "TH09_B_BTN",
+   "text": "Пусть Оук прочтёт страницу"
+  },
+  {
+   "id": "TH09_B_EFF",
+   "text": "Food на Voltara стоит дешевле и приносит меньше на какое-то время."
+  },
+  {
+   "id": "TH09_B_TITLE",
+   "text": "Оук читает ровно"
+  },
+  {
+   "id": "TH09_B",
+   "text": "Оук читала сухим ровным голосом, как читала тысячу страниц. На третьем имени она остановилась и пошла дальше. Food на Voltara стоит дешевле и приносит меньше на какое-то время. Лотки закрылись рано, а зал остался полон."
+  },
+  {
+   "id": "TH10_TITLE",
+   "text": "Что причитается"
+  },
+  {
+   "id": "TH10_BODY",
+   "text": "Оук закрывает книгу. Долг Ласка стоит полностью, со своими годами. Вы можете выплатить его Инес Ласк, и страницу вычеркнут. Или Община может записать его как общий, и Бюро назовёт его погашенным. Инес не просила ни того, ни другого."
+  },
+  {
+   "id": "TH10_A_BTN",
+   "text": "Выплатить долг Инес"
+  },
+  {
+   "id": "TH10_A_EFF",
+   "text": "Заплатите {cash_out} кредитов Инес Ласк. Больше ничего не меняется."
+  },
+  {
+   "id": "TH10_A_TITLE",
+   "text": "Страница вычеркнута"
+  },
+  {
+   "id": "TH10_A",
+   "text": "Вы заплатили {cash_out} кредитов Инес Ласк, и клерк провёл одну черту через имя её отца. Оук вложила страницу в вашу причальную книгу. «Медленная расписка» ушла с приливом налегке, с горящей лампой."
+  },
+  {
+   "id": "TH10_B_BTN",
+   "text": "Записать как общий"
+  },
+  {
+   "id": "TH10_B_EFF",
+   "text": "Не платите ничего. Food на Voltara стоит дороже и приносит больше на какое-то время."
+  },
+  {
+   "id": "TH10_B_TITLE",
+   "text": "Долг стал общим"
+  },
+  {
+   "id": "TH10_B",
+   "text": "Клерк записал долг в Общую книгу, и Бюро поставило печать: погашен. Никому не заплатили. Food на Voltara стоит дороже и приносит больше на какое-то время, пока клерки считали припасы причала. Страница ушла в ящик со своими тремя именами."
   }
  ]
 }

@@ -12,7 +12,7 @@ Texts live in story/*.md; one id rule for all of them:
       gigs.md, 3 fields:    ID | place | text   (gig texts, ids GIGnn_TITLE, _HOOK, _ARRIVE, _A_BTN, _B_BTN, _A_OUT_MIL/LUX/MIN/BIO,
                             _B_OUT_*, _EPI). Max by the id suffix, see GIG_TEXT_MAX. Texts only, no mechanics rows.
   * Every text id of every event is therefore in data/story_text.json; events.json holds mechanics and text ids only.
-Russian: story/ru/*.json hold {"ID": "text"} for the localised scope (RU_SCOPE_RE: EV_, EV<digit>, BE<digit>, TUT_G<digit>, TUT_GALAXY_, CH_, WARN_, MENU_, SCR_, END_, EPI_).
+Russian: story/ru/*.json hold {"ID": "text"} for every text id (RU_SCOPE_RE matches any id; widened 2026-11-09).
 Fails (exit 1) on: repeated id, unreadable block.
 Over-max texts and ambiguous blocks (a designer note inside the text) are listed on stderr and left
 out of the output; exit code is 2 unless --allow-skip is given.
@@ -257,7 +257,7 @@ def build_events(add) -> list:
 
 
 
-RU_SCOPE_RE = re.compile(r"^(EV_|EV\d|BE\d|TUT_G\d|TUT_GALAXY_|CH_|WARN_|MENU_|SCR_|END_|EPI_|LBL_SHIP_(SCREEN|PICK|START|BULK|DART|FLEET)|TXT_SHIP_|LBL_STAT_|LBL_CEO_|TXT_CEO_|SETUP_NEXT$|GOOD_RIVETS_DESC$|SK_\w+_(NAME|FLAVOUR|PLAIN|CRAFT)$)")
+RU_SCOPE_RE = re.compile(r"^[A-Z][A-Z0-9_]{2,}$")  # 2026-11-09: owner asked for everything: every text id is localised
 PH_RE = re.compile(r"\{[^{}]*\}")
 DIGIT_RE = re.compile(r"\d")
 
@@ -323,7 +323,8 @@ def selftest_ru() -> int:
         ({"CH_CUT": "доля 5"}, None),
         ({"CH_CUT": "доля 6"}, "digits differ"),
         ({"EV_NOPE": "x"}, "not in the English data"),
-        ({"BTN_OK": "Ладно"}, "outside the localised scope"),
+        ({"BTN_OK": "Ладно"}, None),
+        ({"btn_ok": "Ладно"}, "outside the localised scope"),
         ({"EV_A": "Заплатите {sum} за 3 ящика."}, "placeholders differ"),
         ({"EV_A": "Заплатите {cost} за 4 ящика."}, "digits differ"),
         ({"EV_A": "Заплатите {cost} за ящики."}, "digits differ"),
