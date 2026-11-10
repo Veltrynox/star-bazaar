@@ -1,6 +1,6 @@
 extends Node
 ## Localisation setting (autoload "Lang"). "en" or "ru", persisted in user://settings.cfg section "game", key "language".
-## Only event texts (EV_, EV<digit>, BE<digit>, CH_), tutorial and warning texts (TUT_G<digit>*, TUT_GALAXY_*, WARN_) and the menu and screen texts (MENU_, SCR_, END_, EPI_) follow it; the rest of the interface stays English (see StoryText.in_ru_scope).
+## Every text id follows it since 2026-11-09 (see StoryText.in_ru_scope); a missing Russian text falls back to English.
 
 signal changed(code: String)
 

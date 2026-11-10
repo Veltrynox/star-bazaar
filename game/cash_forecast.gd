@@ -60,7 +60,7 @@ func order_lines() -> Array:
 	var out: Array = []
 	for l in main.engine.forecast(main.cash)["local"]:
 		var st := str(l["state"])
-		out.append([str(l["label"]) + ("" if st in ["Buying.", "Selling."] else " (" + st.trim_suffix(".").to_lower() + ")"), int(l["credits"]), st])
+		out.append([str(l["label"]) + ("" if st in [StoryText.get_or("RT_STATE_BUYING", "Buying."), StoryText.get_or("RT_STATE_SELLING", "Selling.")] else " (" + st.trim_suffix(".").to_lower() + ")"), int(l["credits"]), st])
 	return out
 
 ## Route income lines [text, credits]: what each moving route earns itself (upgrade bonus, stop sale).
@@ -69,7 +69,7 @@ func route_income_lines() -> Array:
 	var out: Array = []
 	for r in main.engine.forecast(main.cash)["routes"]:
 		if int(r["gross"]) > 0:
-			out.append(["%s > %s (%s)" % [main.planet_name(r["a"]), main.planet_name(r["b"]), r["c"]], int(r["gross"])])
+			out.append(["%s > %s (%s)" % [main.planet_name(r["a"]), main.planet_name(r["b"]), Ui.good_name(str(r["c"])).to_lower()], int(r["gross"])])
 	return out
 
 ## Route expense lines [text, positive credits leaving]: trip cost and Ship upkeep per moving route.
@@ -77,12 +77,12 @@ func route_income_lines() -> Array:
 func route_expense_lines() -> Array:
 	var out: Array = []
 	for r in main.engine.forecast(main.cash)["routes"]:
-		var base := "%s > %s (%s)" % [main.planet_name(r["a"]), main.planet_name(r["b"]), r["c"]]
+		var base := "%s > %s (%s)" % [main.planet_name(r["a"]), main.planet_name(r["b"]), Ui.good_name(str(r["c"])).to_lower()]
 		if bool(r["moves"]):
-			out.append([base + " trip cost", int(r["trip"])])
+			out.append([StoryText.get_or("FC_TRIP_COST", "{route} trip cost", {"route": base}), int(r["trip"])])
 			out.append([base + " " + StoryText.get_text("LBL_SHIP_UPKEEP"), int(r["upkeep"])])
 		elif str(r["status"]) != "running":
-			out.append([base + " " + str(r["status"]), 0])
+			out.append([StoryText.get_or("FC_ROUTE_STATUS", "{route} {status}", {"route": base, "status": StoryText.get_or("FC_STATUS_" + str(r["status"]).to_upper(), str(r["status"]))}), 0])
 	return out
 
 ## Names of moving routes that earn nothing and cost money: no sale at the destination, no route bonus, and
@@ -96,7 +96,7 @@ func no_earn_routes() -> Array:
 			continue
 		if _stock_used_onward(int(r["b"]), str(r["c"])):
 			continue
-		out.append("%s > %s (%s)" % [main.planet_name(r["a"]), main.planet_name(r["b"]), r["c"]])
+		out.append("%s > %s (%s)" % [main.planet_name(r["a"]), main.planet_name(r["b"]), Ui.good_name(str(r["c"])).to_lower()])
 	return out
 
 func _stock_used_onward(dst: int, c: String) -> bool:
@@ -150,7 +150,7 @@ func refresh() -> void:
 	var income: Array = []
 	var outcome: Array = []  # [text, amount], amount positive = cash leaving
 	for l in order_lines():
-		if int(l[1]) > 0 or (int(l[1]) == 0 and str(l[2]) not in ["Storage empty.", "Selling."]):
+		if int(l[1]) > 0 or (int(l[1]) == 0 and str(l[2]) not in [StoryText.get_or("RT_STATE_STORAGE_EMPTY", "Storage empty."), StoryText.get_or("RT_STATE_SELLING", "Selling.")]):
 			income.append(l)
 		else:
 			outcome.append([l[0], -int(l[1])])
@@ -165,22 +165,22 @@ func refresh() -> void:
 	income = nonzero_lines(income)
 	outcome = nonzero_lines(outcome)
 	var left: float = (main._cycle_seconds() - main.cycle_elapsed) / maxf(0.01, main.time_speed)
-	var timing := "paused" if main.paused else "in %ds" % ceili(left)
-	_line("Cycle %d ends %s. Now: %d" % [main.cycle, timing, cash])
+	var timing := StoryText.get_or("FC_PAUSED", "paused") if main.paused else StoryText.get_or("FC_IN_SECONDS", "in {n}s", {"n": ceili(left)})
+	_line(StoryText.get_or("FC_HEAD", "Cycle {cycle} ends {timing}. Now: {cash}", {"cycle": main.cycle, "timing": timing, "cash": cash}))
 	if main.last_summary != "":
-		_line("Last cycle: " + main.last_summary)
-	_line("Income:")
+		_line(StoryText.get_or("FC_LAST_CYCLE", "Last cycle: {summary}", {"summary": main.last_summary}))
+	_line(StoryText.get_or("FC_INCOME", "Income:"))
 	if income.is_empty():
-		_line("  none", GREEN)
+		_line("  " + StoryText.get_or("FC_NONE", "none"), GREEN)
 	for l in income:
 		_line("  %s: %+d" % [l[0], int(l[1])], GREEN if int(l[1]) >= 0 else RED)
 	_line(StoryText.get_text("LBL_EXPENSES") + ":")
 	if outcome.is_empty():
-		_line("  none", RED)
+		_line("  " + StoryText.get_or("FC_NONE", "none"), RED)
 	for l in outcome:
 		_line("  %s: -%d" % [l[0], int(l[1])], RED)
 	for nm in no_earn_routes():
 		var w := _line(StoryText.get_or("LBL_FC_NO_EARN", "{route} earns nothing: it only moves stock to storage.", {"route": nm}), Ui.col("signal_warn"))
 		w.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		w.custom_minimum_size = Vector2(280, 0)
-	_line("After cycle: %d" % (cash + total_in - total_out))
+	_line(StoryText.get_or("FC_AFTER", "After cycle: {cash}", {"cash": cash + total_in - total_out}))

@@ -280,9 +280,9 @@ func _test_localisation() -> void:
 	check(StoryText.get_text("EV_MIL_A1_OPA_BTN") != "" and StoryText.get_text("EV_MIL_A1_OPA_BTN") != "Тест", "lang: in-scope id without ru text stays English")
 	check(StoryText.get_text("CH_EFFECT_LINE") == "доля" and StoryText.in_ru_scope("CH_FX_ANY"), "lang: CH_ fill-in ids are localised")
 	for id in ["BTN_OK", "NOT_SAVED"]:
-		check(StoryText.get_text(id) != "Ладно" and StoryText.get_text(id) != "Сохранено", "lang: out-of-scope %s stays English even if the file holds it" % id)
+		check(StoryText.get_text(id) == ("Ладно" if id == "BTN_OK" else "Сохранено"), "lang: every id is localised, %s too (scope widened 2026-11-09)" % id)
 	check(StoryText.get_text("MENU_CONTINUE") == "Дальше" and StoryText.in_ru_scope("END_BANKRUPT") and StoryText.in_ru_scope("SCR_PREFACE") and StoryText.in_ru_scope("EPI_CAP_MIL") and StoryText.in_ru_scope("BE01_BODY"), "lang: menu, screen, ending and epilogue ids are localised")
-	check(StoryText.in_ru_scope("EV_X") and StoryText.in_ru_scope("TUT_G3_PICK_WHY") and StoryText.in_ru_scope("TUT_GALAXY_INTRO") and not StoryText.in_ru_scope("TUT_C1_ROW") and not StoryText.in_ru_scope("EVT_NEXT_DUE") and StoryText.in_ru_scope("EV17_BODY") and StoryText.in_ru_scope("EV01_TITLE"), "lang: scope rule")
+	check(StoryText.in_ru_scope("EV_X") and StoryText.in_ru_scope("TUT_G3_PICK_WHY") and StoryText.in_ru_scope("TUT_GALAXY_INTRO") and StoryText.in_ru_scope("TUT_C1_ROW") and StoryText.in_ru_scope("EVT_NEXT_DUE") and not StoryText.in_ru_scope("lower_case") and not StoryText.in_ru_scope("A") and StoryText.in_ru_scope("EV17_BODY") and StoryText.in_ru_scope("EV01_TITLE"), "lang: scope rule")
 	# persistence across a reload of the settings file
 	var cf := ConfigFile.new()
 	cf.load("user://settings.cfg")
@@ -438,6 +438,27 @@ func _test_story_text() -> void:
 	check(missing.is_empty(), "story: every id the game asks for exists (%d ids)" % wanted.size(), str(missing))
 	var events: Array = StoryText.entries_of(_read_json("res://data/events.json"))
 	check(events.size() > 0, "story: events.json loads")
+	_test_code_story_ids(seen)
+
+## Localisation guard: every literal id in a StoryText.get_or / get_text call in game/*.gd (not debug_menu.gd) is in data/story_text.json.
+## A get_or with an id missing from the story files would show its English fallback in Russian. Ids built with + or % (prefixes) are skipped.
+func _test_code_story_ids(seen: Dictionary) -> void:
+	var rx := RegEx.create_from_string("StoryText\\.(?:get_or|get_text)\\(\\s*\"([A-Z][A-Z0-9_]*)\"\\s*([,)+%])")
+	var missing := {}
+	var calls := 0
+	var d := DirAccess.open("res://game")
+	for fn in d.get_files():
+		if not fn.ends_with(".gd") or fn == "debug_menu.gd" or fn == "story_text.gd":
+			continue
+		for m in rx.search_all(FileAccess.get_file_as_string("res://game/" + fn)):
+			var id := m.get_string(1)
+			if id.ends_with("_") or m.get_string(2) == "+" or m.get_string(2) == "%":
+				continue
+			calls += 1
+			if not seen.has(id):
+				missing[fn + ": " + id] = true
+	check(calls > 100, "story ids in code: the scan finds the StoryText calls (%d)" % calls)
+	check(missing.is_empty(), "story ids in code: every id of a StoryText.get_or / get_text call in game/*.gd is in data/story_text.json (add it to story/screens.md and run python3 tools/build_story.py)", str(missing.keys()))
 
 # ---- generated files: a checked-in generated file must equal a fresh build ----
 const GENERATED_FILES := ["story_text.json", "story_text_ru.json", "events.json"]

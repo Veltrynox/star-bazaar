@@ -109,7 +109,7 @@ func is_branch(id: String) -> bool:
 func choice_args(ch) -> Dictionary:
 	if typeof(ch) != TYPE_DICTIONARY or not ch.has("cash_key"):
 		return {}
-	return {"cash_in": int(balance.get(str(ch["cash_key"]), 0)), "market": str(Markets.names.get(str(ch.get("market", "")), str(ch.get("market", ""))))}
+	return {"cash_in": int(balance.get(str(ch["cash_key"]), 0)), "market": Markets.name_of(str(ch.get("market", "")))}
 
 ## Hidden consequence of a dark-market choice (A of EV52-EV55): rolls once, balance spotted_chance. Spotted: Chains.spotted is set
 ## and suppressed_share of the profitable events (positive pool events not fired yet, chain options with a gain) are removed for the

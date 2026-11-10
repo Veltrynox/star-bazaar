@@ -152,7 +152,7 @@ func setup(main_node: Control) -> void:
 	var help := Label.new()
 	help.theme_type_variation = "LabelSmall"
 	help.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	help.text = StoryText.get_or("LBL_SKILL_POINTS_HELP", "Skill points: 1 for each planet you first trade with, 2 for each new route between two planets, 3 for each new system you reach.")
+	help.text = StoryText.get_or("LBL_SKILL_POINTS_HELP", "Skill points: {planet} for each planet you first trade with, {route} for each new route between two planets, {system} for each new system you reach.", {"planet": int(main.balance.get("skill_points_planet", 0)), "route": int(main.balance.get("skill_points_route", 0)), "system": int(main.balance.get("skill_points_system", 0))})
 	_root.add_child(help)
 	# Tree area: row 0 = everything with no prerequisites, lower rows = locked behind prerequisites
 	var rows := VBoxContainer.new()
@@ -695,8 +695,8 @@ func _build_detail() -> void:
 static func learn_text(amount: int) -> String:
 	var verb := StoryText.get_or("BTN_LEARN", "Learn")
 	if amount == 1:
-		return StoryText.get_or("SK_LEARN_COST_ONE", verb + "  ·  {amount} point", {"amount": amount})
-	return StoryText.get_or("SK_LEARN_COST", verb + "  ·  {amount} points", {"amount": amount})
+		return StoryText.get_or("SK_LEARN_COST_ONE", "{verb}  ·  {amount} point", {"verb": verb, "amount": amount})
+	return StoryText.get_or("SK_LEARN_COST", "{verb}  ·  {amount} points", {"verb": verb, "amount": amount})
 
 ## Called by the Learn button (tests call it directly).
 func confirm_learn() -> void:

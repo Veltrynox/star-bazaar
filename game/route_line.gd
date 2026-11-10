@@ -497,7 +497,7 @@ static func tag_text(status: String, ships: int, net: int, reason: String = "", 
 
 ## Why a route that is not running is not moving: the route's own reason; "Waiting for room" only for the waiting state.
 static func reason_text(status: String, reason: String) -> String:
-	if reason == "Source storage is empty.":
+	if reason == StoryText.get_or("RT_REASON_SRC_EMPTY", "Source storage is empty."):
 		return StoryText.get_or("LBL_NO_STOCK_SOURCE", "No stock at source")
 	if reason != "":
 		return reason

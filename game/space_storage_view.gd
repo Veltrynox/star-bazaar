@@ -115,7 +115,7 @@ func _fabric_rows() -> void:
 	else:
 		var st := Label.new()
 		st.name = "FabricStatus"
-		st.text = ("made %d plate" % f.made) if f.state == "running" else (f.reason if f.state == "stalled" else "ready")
+		st.text = StoryText.get_or("FAB_MADE", "made {n} {good}", {"n": f.made, "good": Ui.good_name("plate").to_lower()}) if f.state == "running" else (Workshops.why_text(f.reason) if f.state == "stalled" else StoryText.get_or("FAB_READY", "ready"))
 		box.add_child(st)
 	var miss: Array = unrouted if not unrouted.is_empty() else _inputs_unreached(f)
 	miss = Availability.visible_goods(miss)

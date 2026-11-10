@@ -154,12 +154,12 @@ func set_upkeep(main: Control) -> void:
 		var pay: int = up if main.engine.payout_of(rec) < 0 else 0
 		total += pay
 		var tag := ("  [" + StoryText.get_or("LBL_NULL_CORE", "Null Core") + "]") if main.engine.has_core(rec) else ""
-		lines.append("Ship %d, %s (%s): %d%s" % [n, Ships.display_name(Ships.fleet), Ui.good_name(str(rec["c"])), pay, tag])
+		lines.append(StoryText.get_or("LBL_UPKEEP_LINE", "Ship {n}, {type} ({good}): {pay}{tag}", {"n": n, "type": Ships.display_name(Ships.fleet), "good": Ui.good_name(str(rec["c"])), "pay": pay, "tag": tag}))
 	for kind in [Ships.fleet]:
 		for i in maxi(0, main.free_of(kind)):
 			n += 1
-			lines.append("Ship %d, %s (free): 0" % [n, Ships.display_name(kind)])
-	lines.append("%s, total: %d / cycle" % [upkeep_name, total])
+			lines.append(StoryText.get_or("LBL_UPKEEP_LINE_FREE", "Ship {n}, {type} (free): {pay}", {"n": n, "type": Ships.display_name(kind), "pay": 0}))
+	lines.append(StoryText.get_or("LBL_UPKEEP_TOTAL", "{name}, total: {total} / cycle", {"name": upkeep_name, "total": total}))
 	upkeep_label.text = "\n".join(lines)
 	upkeep_scroll.custom_minimum_size.y = minf(UPKEEP_MAX_H, upkeep_label.get_combined_minimum_size().y)
 	_set_hero_card(main)
@@ -174,11 +174,11 @@ func set_upkeep(main: Control) -> void:
 	var txt: String = StoryText.get_or("LBL_SHIPS_FREE_HINT", "Free ships: {free}. Ship upkeep {upkeep} / cycle each.", {"free": free, "upkeep": main.engine.upkeep_part()})
 	if free <= 0:
 		if main.ships >= cap:
-			txt += "\n" + "Ship limit reached (%d)." % cap
+			txt += "\n" + StoryText.get_or("LBL_SHIP_LIMIT", "Ship limit reached ({cap}).", {"cap": cap})
 		elif main.cash >= price:
 			txt += "\n" + StoryText.get_or("LBL_SEND_BUYS_SHIP", "No free ship. Send to... buys one for {price} credits.", {"price": price})
 		else:
-			txt += "\nNot enough credits."
+			txt += "\n" + StoryText.get_or("LBL_NO_CREDITS", "Not enough credits.")
 	var fr: Dictionary = main.can_buy_ship()
 	if fr.get("floor", false):
 		txt += "\n" + str(fr["reason"])
@@ -186,7 +186,7 @@ func set_upkeep(main: Control) -> void:
 	for kind in [Ships.fleet]:
 		var b: Button = buy_buttons["fleet"]
 		var r: Dictionary = main.can_buy_ship(kind)
-		b.text = "Buy %s (%d cr, upkeep %d)" % [Ships.display_name(kind), Ships.price(kind, main.balance), main.engine.upkeep_part({"ship": kind})]
+		b.text = StoryText.get_or("BTN_BUY_SHIP", "Buy {ship} ({price} cr, upkeep {upkeep})", {"ship": Ships.display_name(kind), "price": Ships.price(kind, main.balance), "upkeep": main.engine.upkeep_part({"ship": kind})})
 		b.disabled = not r["ok"] or main.tut_lock_active()
 		b.tooltip_text = str(r["reason"])
 
@@ -214,7 +214,7 @@ func _set_core_buttons(main: Control) -> void:
 		core_box.add_child(b)
 
 func set_count(ships: int, cap: int) -> void:
-	label.text = "Ships: %d / %d" % [ships, cap]
+	label.text = StoryText.get_or("LBL_SHIP_COUNT", "Ships: {n} / {cap}", {"n": ships, "cap": cap})
 	if _last_count >= 0 and ships > _last_count:  # a purchase or a new lane: the count flashes warm
 		Juice.flash(label, Ui.col("star_warm"))
 	_last_count = ships

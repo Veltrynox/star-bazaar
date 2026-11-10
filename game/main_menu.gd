@@ -54,7 +54,7 @@ func _ready() -> void:
 	new_game.pressed.connect(_new_game)
 	box.add_child(new_game)
 	var settings := Button.new()
-	settings.text = StoryText.get_or("BTN_SETTINGS", StoryText.get_or("MENU_SETTINGS", "Settings"))
+	settings.text = StoryText.get_or("MENU_SETTINGS", "Settings")
 	settings.pressed.connect(_show_settings.bind(true))
 	box.add_child(settings)
 	var quit := Button.new()
@@ -88,7 +88,7 @@ func _build_settings(center: Container) -> void:
 	settings_box.visible = false
 	center.add_child(settings_box)
 	var head := Label.new()
-	head.text = StoryText.get_or("BTN_SETTINGS", StoryText.get_or("MENU_SETTINGS", "Settings"))
+	head.text = StoryText.get_or("MENU_SETTINGS", "Settings")
 	head.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	head.theme_type_variation = "LabelTitle"
 	settings_box.add_child(head)

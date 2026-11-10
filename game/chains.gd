@@ -530,7 +530,7 @@ static func rival_phrase(entry: Dictionary) -> String:
 		var st := "STR" if (str(entry["stat"]) == "strength" or sw == "lowest" or str(entry["stat"]) == "tier") else "GRO"
 		id = "LBL_COMP_MOVE_%s_%s" % [st, "UP" if up else "DOWN"]
 	var m := str(entry.get("market", ""))
-	return StoryText.get_or(id, "{bot}: {market}", {"bot": Bots.bot_name(int(entry["bot"])), "market": str(Markets.names.get(m, m))})
+	return StoryText.get_or(id, "{bot}: {market}", {"bot": Bots.bot_name(int(entry["bot"])), "market": Markets.name_of(m)})
 
 ## Planned bot changes of an option as log-shaped entries (the lowest-tier case resolved against the bots as they are now).
 static func planned_rivals(step_id: String, opt_id: String, cycle: int = -1) -> Array:
@@ -593,7 +593,7 @@ static func args_for(step_id: String, opt_id: String = "", applied: bool = false
 	_ensure()
 	var m := market_of(step_id)
 	var args := _bot_names()
-	args["market"] = str(Markets.names.get(m, m))
+	args["market"] = Markets.name_of(m)
 	var mb := marked_bot(m)
 	if opt_id != "" and not applied:
 		mb = planned_marked(step_id, opt_id)

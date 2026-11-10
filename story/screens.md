@@ -23,14 +23,36 @@ SCR_TITLE_TAGLINE | 70 | Title screen, under the name
 A small company in a shared, indifferent sky.
 
 ## Preface (one block, shown before the game starts)
-SCR_PREFACE | 700 | Preface screen
-Everything under this sky is shared, and counted. Every credit goes into the Common Ledger and comes back in portions. The Plan is generous. It is also five cycles long, and then another five.
+SCR_PREFACE | 1200 | Preface screen, the text when the CEO has none of their own; {company} is the player's company name
+Welcome to the control post of the trading station {company}. Money has always been your dream, and nothing will stop you from earning even more of it.
 
-You run a small trading company. You start with one home world, a little cash and a scout. Ships fly your routes by themselves.
+You know how markets work, and now a chance has opened to make your name. You have enough capital to start your own company and grow it into something greater. You can see how to unite the worlds under your strong hand, and how to build structures and political branches so that not one cent slips past your watchful eye. So, show what you can do.
 
-Worlds grow when their needs are met. The Star Bazaar is the market hall every world will trade through. You build it, stage by stage, on one world grown into a capital. Open it before your term ends and you win. Pick one market to lean on: Military, Luxury, Minerals or Biotech. Three houses send weather, not war.
+Ahead lie unprincipled trade, sudden market crashes, random events and intrigue. Your final goal is to build your own point of control over the arteries of this system: the Star Bazaar.
+SCR_PREFACE_MAN_01 | 1200 | Preface screen, CEO Marek Voss; {company} is the company name
+Welcome to the control post of the trading station {company}. Money has always been your dream, and nothing will stop you from earning even more of it.
 
-What it costs the sky, the sky does not say.
+You know the price of every bolt, and you have never trusted luck. You know how markets work, and now a chance has opened to make your name. You have enough capital to start your own company and grow it into something greater. You can see how to unite the worlds under your strong hand, and how to build structures and political branches so that not one cent slips past your watchful eye. So, show what you can do.
+
+Ahead lie unprincipled trade, sudden market crashes, random events and intrigue. Your final goal is to build your own point of control over the arteries of this system: the Star Bazaar. You will count every bolt of it.
+SCR_PREFACE_MAN_02 | 1200 | Preface screen, CEO Idris Kane; {company} is the company name
+Welcome to the control post of the trading station {company}. Money has always been your dream, and nothing will stop you from earning even more of it.
+
+You read a price board the way others read faces, and a smile has never cost you a sale. You know how markets work, and now a chance has opened to make your name. You have enough capital to start your own company and grow it into something greater. You can see how to unite the worlds under your strong hand, and how to build structures and political branches so that not one cent slips past your watchful eye. So, show what you can do.
+
+Ahead lie unprincipled trade, sudden market crashes, random events and intrigue. Your final goal is to build your own point of control over the arteries of this system: the Star Bazaar. Keep smiling.
+SCR_PREFACE_WOMAN_01 | 1200 | Preface screen, CEO Sela Oru; {company} is the company name
+Welcome to the control post of the trading station {company}. Money has always been your dream, and nothing will stop you from earning even more of it.
+
+You have flown the worst lanes of the rim and still come home. You know how markets work, and now a chance has opened to make your name. You have enough capital to start your own company and grow it into something greater. You can see how to unite the worlds under your strong hand, and how to build structures and political branches so that not one cent slips past your watchful eye. So, show what you can do.
+
+Ahead lie unprincipled trade, sudden market crashes, random events and intrigue. Your final goal is to build your own point of control over the arteries of this system: the Star Bazaar. Deliver it on time.
+SCR_PREFACE_WOMAN_02 | 1200 | Preface screen, CEO Tamsin Hale; {company} is the company name
+Welcome to the control post of the trading station {company}. Money has always been your dream, and nothing will stop you from earning even more of it.
+
+You grew up in the docking rings and know every clerk by name. You know how markets work, and now a chance has opened to make your name. You have enough capital to start your own company and grow it into something greater. You can see how to unite the worlds under your strong hand, and how to build structures and political branches so that not one cent slips past your watchful eye. So, show what you can do.
+
+Ahead lie unprincipled trade, sudden market crashes, random events and intrigue. Your final goal is to build your own point of control over the arteries of this system: the Star Bazaar. Let every dock remember your name.
 SCR_PREFACE_BTN | 24 | Preface screen, continue button
 Sign here, and here
 
@@ -1637,3 +1659,523 @@ RECAP_LBL_WORLDS | 24 | Recap label | Worlds grown
 RECAP_LBL_RECLAIMED | 24 | Recap label | Reclaimed worlds
 RECAP_LBL_MOMENTS | 24 | Recap label, heading of the list of the choices that decided the run | Decisive moments
 RECAP_NONE | 24 | Recap value when there is nothing to list | None
+
+## Hard-coded texts moved to ids (2026-11-09, UI programmer; Russian localisation, code side)
+
+Texts that were literals in the game scripts or fallbacks of ids missing here. English is the former literal; placeholders are filled by the code. Place = file and spot in the code.
+BAZ_OPENING_BANNER | 50 | main.gd:2458
+The Star Bazaar is open.
+BOT_NAME_1 | 30 | bots.gd bot_name (house name 1)
+Harrow Combine
+BOT_NAME_2 | 30 | bots.gd bot_name (house name 2)
+Velvet Concord
+BOT_NAME_3 | 30 | bots.gd bot_name (house name 3)
+Ostrel Syndicate
+BTN_BUY_SHIP | 80 | ship_panel.gd set_upkeep (buy button)
+Buy {ship} ({price} cr, upkeep {upkeep})
+BTN_CANCEL_PENDING | 24 | planet_panel.gd build (pending send card, cancel button)
+Cancel
+BTN_MENU | 24 | main.gd:3400
+Menu
+BTN_NAV_HIDE | 30 | main.gd:3571
+Hide navigation
+BTN_NAV_SHOW | 30 | main.gd:3571
+Show navigation
+BTN_OPEN_SYSTEM | 24 | galaxy_view.gd:736
+Open system
+BTN_SPLIT_BAR | 24 | planet_panel.gd:874
+Split
+BTN_SPLIT_DONE | 24 | planet_panel.gd:944
+Done
+BTN_TIP_OK | 24 | main.gd:5120
+Got it
+BTN_UPGRADE_ROUTE | 30 | planet_panel.gd:1135
+Upgrade route
+END_BTN_CONTINUE | 24 | end_screen.gd button row
+Continue
+END_RECAP_CAPITAL | 40 | end_screen.gd:73
+Capital: {planet}
+END_RECAP_MOMENT | 50 | end_screen.gd:88
+Cycle {cycle}: {moment}
+END_RECAP_RECLAIMED | 40 | end_screen.gd:83
+Reclaimed worlds: {n}
+END_RECAP_STAGES | 50 | end_screen.gd:74
+Stages raised: {n} of {m}
+END_RECAP_WING | 30 | end_screen.gd:76
+Wing: {wing}
+END_RECAP_WORLDS | 40 | end_screen.gd:82
+{n} worlds at {tier}
+END_STAT_STAGES | 30 | main.gd:2674
+Bazaar stages
+EVFEED_LINE | 40 | main.gd _refresh_event_feed
+Cycle {cycle}: {title}
+EVT_DIR_FALL | 24 | main.gd forecast_text (fills {direction} of EVT_NEXT_DUE_PRICE*)
+fall
+EVT_DIR_RISE | 24 | main.gd forecast_text (fills {direction} of EVT_NEXT_DUE_PRICE*)
+rise
+FAB_MADE | 30 | space_storage_view.gd fabric status line
+made {n} {good}
+FAB_READY | 24 | space_storage_view.gd fabric status line
+ready
+FC_AFTER | 40 | cash_forecast.gd last line
+After cycle: {cash}
+FC_HEAD | 80 | cash_forecast.gd first line
+Cycle {cycle} ends {timing}. Now: {cash}
+FC_INCOME | 24 | cash_forecast.gd Income heading
+Income:
+FC_IN_SECONDS | 24 | cash_forecast.gd _rebuild timing
+in {n}s
+FC_LAST_CYCLE | 40 | cash_forecast.gd second line
+Last cycle: {summary}
+FC_NONE | 24 | cash_forecast.gd empty income
+none
+FC_PAUSED | 24 | cash_forecast.gd _rebuild timing
+paused
+FC_ROUTE_STATUS | 30 | cash_forecast.gd route_expense_lines
+{route} {status}
+FC_STATUS_BLOCKED | 24 | cash_forecast.gd route_expense_lines (status word after a route name)
+blocked
+FC_STATUS_STALLED | 24 | cash_forecast.gd route_expense_lines (status word after a route name)
+stalled
+FC_STATUS_WAITING | 24 | cash_forecast.gd route_expense_lines (status word after a route name)
+waiting
+FC_TRIP_COST | 40 | cash_forecast.gd route_expense_lines
+{route} trip cost
+GIG_BOARD_EMPTY | 130 | gig_board.gd:67
+No offers right now. Signals and rush orders appear as the run goes on.
+GIG_BOARD_TITLE | 24 | gig_board.gd:31
+Gig board
+GIG_BTN_ACCEPT | 24 | gig_board.gd:155
+Accept
+GIG_BTN_ORDERED | 24 | gig_board.gd:197
+Ordered
+GIG_DONE_TITLE | 24 | main.gd:2953
+Signal
+GIG_EFF_CASH | 30 | gigs.gd:603
++{n} credits.
+GIG_EFF_CREDIT | 70 | gigs.gd:622
+The need counts as met for {n} cycles.
+GIG_EFF_FEE | 30 | gigs.gd:611
+-{n} credits.
+GIG_EFF_GOODS | 40 | gigs.gd:616
+{n} {good} in storage.
+GIG_EFF_IDLE | 70 | gigs.gd:638
+The Flagship is held for {n} cycles.
+GIG_EFF_KNOWLEDGE | 40 | gigs.gd:630
+You learned something.
+GIG_EFF_PERK | 60 | gigs.gd:625
+A small edge for {n} cycles.
+GIG_ETA | 60 | gig_board.gd:195
+ETA {cycles} cycles, left {left}
+GIG_ETA_NONE | 30 | gig_board.gd:193
+Out of reach
+GIG_KIND_OPENING | 24 | gig_board.gd:77
+The Opening
+GIG_KIND_RUSH | 24 | gig_board.gd:81
+Rush order
+GIG_KIND_SALVAGE | 24 | gig_board.gd:79
+Salvage
+GIG_KIND_SIGNAL | 24 | gig_board.gd:82
+Signal
+GIG_REFUSE_BAD_TARGET | 60 | gig_board.gd _on_accept (refusal reason "bad_target")
+The Flagship cannot fly there.
+GIG_REFUSE_BUSY | 100 | gig_board.gd _on_accept (refusal reason "busy")
+The Flagship is busy and cannot take this order yet.
+GIG_REFUSE_GENERIC | 90 | gig_board.gd _on_accept
+The Flagship cannot take this order now ({why}).
+GIG_REFUSE_NO_GATE | 60 | gig_board.gd _on_accept (refusal reason "no_gate")
+That system is not open yet.
+GIG_REFUSE_NO_OFFER | 40 | gig_board.gd _on_accept (refusal reason "no_offer")
+That order is gone.
+GIG_REWARD_OPENING | 40 | gig_board.gd:108
+The Star Bazaar opens
+GIG_REWARD_RUSH | 100 | gig_board.gd:112
+Premium on the lot and the world's need met for a while
+GIG_REWARD_SALVAGE | 80 | gig_board.gd:110
+Stolen cargo, loaded into the Flagship hold
+GIG_REWARD_SIGNAL | 30 | gig_board.gd:113
+Unknown reward
+GIG_ROW_OPENING | 50 | gig_board.gd:92
+Charter cargo for {planet}
+GIG_ROW_RUSH | 50 | gig_board.gd:98
+{units} {good} for {planet}
+GIG_ROW_SALVAGE | 24 | gig_board.gd:94
+Cargo pods
+GIG_ROW_SIGNAL | 30 | gig_board.gd:99
+Unknown signal
+GIG_WHERE_SPACE | 24 | gig_board.gd:104
+Open space
+GOAL_SECOND_LANE | 120 | main.gd:821
+Optional: open system {sys} (permit {n}), then sell a lot there.
+HINT_HOUSE_CONGESTION | 70 | rival_card.gd TEMPERAMENT table
+Brings congestion: lanes cost more
+HINT_HOUSE_FLOOD | 50 | rival_card.gd TEMPERAMENT table
+Brings floods: prices fall
+HINT_HOUSE_NONE | 30 | rival_card.gd describe (house without temperament)
+Weather unknown
+HINT_HOUSE_SHORTAGE | 70 | rival_card.gd TEMPERAMENT table
+Brings shortages: needs run hungry
+KEY_MENU | 24 | main.gd key hints (hints table)
+Menu
+KEY_ORBIT | 30 | main.gd key hints (hints table)
+Right-drag Orbit
+KEY_PAN | 24 | main.gd key hints (hints table)
+Pan
+KEY_ZOOM | 24 | main.gd key hints (hints table)
+Wheel Zoom
+LBL_A_TO_B | 24 | galaxy_view.gd:863
+{a} to {b}
+LBL_BLOCKED_SHORT | 24 | galaxy_view.gd:877
+Blocked
+LBL_BUYS_GOODS | 24 | galaxy_view.gd:850
+Buys goods
+LBL_BUY_ORDER_STATE | 40 | planet_panel.gd resource row (buy button tooltip)
+Buy order: {state}
+LBL_BUY_TIP_ON | 80 | planet_panel.gd resource row (buy button tooltip)
+{tip}. Standing buy order. Press to stop.
+LBL_CONNECTIONS | 24 | planet_panel.gd:1001
+Connections
+LBL_COST_LINE | 30 | planet_panel.gd route row (running route costs)
+{label}: −{n}
+LBL_CYCLE_TIP | 24 | main.gd _refresh_hud
+Cycle
+LBL_GALAXY_HINT | 110 | galaxy_view.gd:200
+{open} of {total} systems open. Click a system to see it.
+LBL_GALAXY_PLANETS | 24 | galaxy_view.gd:646
+{n} planets
+LBL_GALAXY_PLANETS_WORD | 24 | galaxy_view.gd:729
+Planets
+LBL_GALAXY_ROUTES | 24 | galaxy_view.gd:820
+Routes
+LBL_GALAXY_ROUTE_MANY | 24 | galaxy_view.gd:647
+{n} routes
+LBL_GALAXY_ROUTE_ONE | 24 | galaxy_view.gd:647
+{n} route
+LBL_GALAXY_SHIPS | 24 | galaxy_view.gd:821
+Ships
+LBL_GALAXY_TITLE | 24 | galaxy_view.gd:199
+The galaxy
+LBL_KNOWN | 24 | galaxy_view.gd:728
+Known
+LBL_LEGEND_ENERGY | 30 | galaxy_view.gd legend (items table)
+Energy route
+LBL_LEGEND_FOOD | 24 | galaxy_view.gd legend (items table)
+Food route
+LBL_LEGEND_LINK | 24 | galaxy_view.gd legend (items table)
+Link
+LBL_LEGEND_UNCHARTED | 30 | galaxy_view.gd legend (items table)
+Uncharted link
+LBL_LINKS | 24 | galaxy_view.gd:731
+Links
+LBL_LOCKED_HOW | 30 | main.gd:1025
+permit or skill
+LBL_MISSION_FIRST | 70 | main.gd:3696
+Mission: Send stock to another planet
+LBL_NET_LINE | 40 | planet_panel.gd route row (running route costs)
+{label}: {n} / cycle
+LBL_NOT_OPEN | 30 | galaxy_view.gd:726
+Not open yet
+LBL_NO_CREDITS | 40 | ship_panel.gd set_upkeep (free-ships hint)
+Not enough credits.
+LBL_NO_ROUTES | 30 | galaxy_view.gd:856
+No routes yet.
+LBL_NO_STOCK_SOURCE | 40 | route_line.gd:501
+No stock at source
+LBL_OPEN_HOW | 30 | system_exit.gd:174
+click to travel
+LBL_OPEN_REASON | 70 | galaxy_view.gd:740
+Systems open with a permit or a skill.
+LBL_ORDER_OFF | 24 | planet_panel.gd:1088
+off
+LBL_ORDER_ON | 24 | planet_panel.gd:744
+on
+LBL_PANEL_SENDING | 120 | planet_panel.gd build (pending send card)
+Sending {good} from {planet}. Click the destination planet.{hint}
+LBL_PENDING_SEND | 130 | main.gd _refresh_pending
+Send {good} from {planet}: click the destination planet. (Esc to cancel)
+LBL_PENDING_STOP | 150 | main.gd _refresh_pending
+Click the stop in the picker, or {planet} again for a direct send. (Esc to cancel)
+LBL_PERMIT_OPEN | 40 | galaxy_view.gd:817
+Permit held: open.
+LBL_PER_CYCLE | 24 | galaxy_view.gd:822
+Per cycle
+LBL_PER_CYCLE_UNIT | 24 | galaxy_view.gd:649
+/ cycle
+LBL_PRICE_TIP | 24 | planet_panel.gd resource row (buy button tooltip)
+{tip}.
+LBL_ROUTE_BLOCKED | 24 | route_line.gd:489
+Blocked
+LBL_ROUTE_FROM | 30 | planet_panel.gd Connections rows
+From {planet}
+LBL_ROUTE_PAYS | 100 | planet_panel.gd:1089
+Pays when {planet} has a standing Sell order: {state}
+LBL_ROUTE_PAYS_NO | 40 | planet_panel.gd:1102
+Not traded there.
+LBL_ROUTE_PAYS_TIP | 70 | planet_panel.gd:1102
+Turn on the Sell order at {planet}.
+LBL_ROUTE_ROW_TIP | 50 | planet_panel.gd:1022
+Show this route's costs.
+LBL_ROUTE_SHIP_MANY | 24 | route_line.gd:492
+{n} ships
+LBL_ROUTE_SHIP_ONE | 24 | route_line.gd:492
+{n} ship
+LBL_ROUTE_TO | 24 | planet_panel.gd Connections rows
+To {planet}
+LBL_ROUTE_UPGRADED | 60 | planet_panel.gd:1125
+Route upgraded: +{pct}% margin.
+LBL_ROUTE_UPGRADE_INFO | 100 | planet_panel.gd:1128
+Full lane. Upgrade: {cost} credits for +{pct}% margin.
+LBL_ROUTE_UPGRADE_TIP | 80 | planet_panel.gd:1137
+Raise this lane's margin for {cost} credits.
+LBL_SELL_OFFER | 50 | main.gd:1398
+Sell {commodity} here too?
+LBL_SELL_ORDER_STATE | 40 | planet_panel.gd resource row (sell order status)
+Sell order: {state}
+LBL_SELL_TIP_OFF | 70 | planet_panel.gd resource menu (Sell tooltip)
+{tip}. Standing sell order each cycle.
+LBL_SELL_TIP_ON | 80 | planet_panel.gd resource menu (Sell tooltip)
+{tip}. Standing sell order. Press to stop.
+LBL_SEND_BUYS_SHIP | 100 | ship_panel.gd:179
+No free ship. Send to... buys one for {price} credits.
+LBL_SEND_TIP | 110 | planet_panel.gd resource menu (Send to tooltip)
+Move this stock to another planet's storage with a ship.
+LBL_SHIPS | 24 | ship_panel.gd:35
+Ships
+LBL_SHIPS_FREE_HINT | 100 | ship_panel.gd:174
+Free ships: {free}. Ship upkeep {upkeep} / cycle each.
+LBL_SHIP_COUNT | 40 | ship_panel.gd set_count
+Ships: {n} / {cap}
+LBL_SHIP_K_OF_N | 30 | planet_panel.gd:1197
+Ship {k} of {n}
+LBL_SHIP_LIMIT | 50 | ship_panel.gd set_upkeep (free-ships hint)
+Ship limit reached ({cap}).
+LBL_SHIP_RUNNING | 24 | planet_panel.gd:1205
+Running.
+LBL_SKILL_POINTS_HELP | 270 | skill_screen.gd build (help line under the title)
+Skill points: {planet} for each planet you first trade with, {route} for each new route between two planets, {system} for each new system you reach.
+LBL_SPEED_TIP | 30 | main.gd _build_speed_buttons
+Game speed {n}x
+LBL_SPLIT_BAR_STOP | 24 | planet_panel.gd:939
+Stop split
+LBL_SPLIT_TAG | 30 | planet_panel.gd:974
+Split {share}%
+LBL_SS_LOCKED | 50 | galaxy_view.gd:892
+Locked · permit or skill
+LBL_SS_OPEN | 24 | galaxy_view.gd:892
+Open
+LBL_STOP_AT_LINE | 120 | main.gd:1499
+Stop at {stop}: sell up to {n} here, carry the rest to {planet}.
+LBL_SYSTEM_HINT | 60 | main.gd:3684
+System {n} · {count} planets
+LBL_SYSTEM_N | 40 | galaxy_view.gd:815
+System {n} · {how}
+LBL_SYS_FIRST | 40 | galaxy_view.gd:814
+Your first system.
+LBL_SYS_PERMIT | 40 | galaxy_view.gd:814
+Opened with a permit.
+LBL_THE_PLANET | 24 | trade.gd _name (fallback for an unknown planet index)
+the planet
+LBL_UNCHARTED | 24 | galaxy_view.gd:451
+Uncharted
+LBL_UNCHARTED_BODY | 100 | galaxy_view.gd:727
+Nobody you know has traded here. That may be the point.
+LBL_UNCHARTED_SYSTEM | 30 | galaxy_view.gd:725
+Uncharted system
+LBL_UPKEEP_LINE | 70 | ship_panel.gd set_upkeep
+Ship {n}, {type} ({good}): {pay}{tag}
+LBL_UPKEEP_LINE_FREE | 60 | ship_panel.gd set_upkeep
+Ship {n}, {type} (free): {pay}
+LBL_UPKEEP_TOTAL | 60 | ship_panel.gd set_upkeep
+{name}, total: {total} / cycle
+LBL_WAITING_SHORT | 24 | galaxy_view.gd:874
+Waiting
+LBL_YOUR_ROUTES_HERE | 30 | galaxy_view.gd:854
+Your routes here
+MENU_PAUSE | 24 | main.gd:3666
+Pause
+MENU_VOICE | 24 | game_menu.gd:60
+Voice
+NOTE_SECOND_LANE | 90 | planet_panel.gd:125
+Your first sale here crossed the system line.
+NOT_BAZAAR_OPENING | 130 | main.gd:2425
+The charter cargo is ready. Fly it to {planet} to open the Star Bazaar.
+NOT_DEAD_OTHER_BRANCH | 70 | route_engine.gd:185
+Mining here is closed to your company.
+NOT_EVENT_EFFECT_DANGER | 60 | main.gd:2778
+Danger at {planet}: {amount}.
+NOT_FABRIC_BUILT | 60 | main.gd:2074
+Fabric built at the trading post.
+NOT_GIG_RUSH_DONE | 80 | gigs.gd:555
+Rush order delivered at {planet}. {lines}
+NOT_MINE_RECLAIMED | 90 | prosperity.gd:162
+This world is alive again and is no longer mined.
+NOT_MINE_RECLAIMING | 80 | prosperity.gd:163
+Being reclaimed: mining is closed here.
+NOT_OLD_SAVE | 150 | save_game.gd:82
+Your old save is from before Four Markets and cannot continue. Start a new game.
+NOT_PICK_OTHER_DEST | 80 | main.gd
+Pick a different planet as the destination.
+NOT_PROSPERITY_TAX | 70 | main.gd:2513
+Your worlds paid {n} credits in tax.
+NOT_PROSPERITY_TIER_UP | 70 | main.gd:2420
+{planet} has grown to tier {tier}.
+NOT_RAID_HIT | 190 | raids.gd:146
+Raiders from {planet} hit your lane to {lane}: {n} units lost, the lane runs weaker for {cycles} cycles.
+NOT_RAID_WARNING | 140 | raids.gd:120
+Raiders are stirring at {planet}. Your lane to {lane} may be hit next cycle.
+NOT_REPOSSESSED | 110 | main.gd:2656
+Cash ran out. The newest ship was repossessed: +{n} credits.
+NOT_SALVAGE_DONE | 90 | gigs.gd:192
+Pods scooped into the Flagship hold: {lines}.
+NOT_SALVAGE_FULL | 90 | gigs.gd:194
+The Flagship hold is full. Some pods stay adrift.
+NOT_STOP_PICK_AGAIN | 100 | main.gd:1162
+Click a stop from the picker, or the destination again.
+NOT_SYSTEM_LOCKED | 50 | main.gd:1026
+{name} is locked: {how}.
+ROUTE_OFFSET_MAINT | 80 | planet_panel.gd:1240
+Route detour +{offset}%: upkeep +{maint}%
+RSN_ALREADY_UPGRADED | 40 | main.gd
+Already upgraded.
+RSN_GAME_OVER | 40 | main.gd can_buy_ship, can_connect, set_local_order, salvage_stock, move_ship...
+The game is over.
+RSN_LANE_FULL | 120 | main.gd
+This lane is full. Upgrade the route instead of adding a ship.
+RSN_NO_CASH_SHIP | 200 | main.gd can_buy_ship
+Not enough cash for a new ship ({price} cr). Each route needs its own ship; wait for income or remove a route.
+RSN_NO_CASH_UPGRADE | 90 | main.gd can_upgrade_route
+Not enough cash to upgrade the route ({cost} cr).
+RSN_NO_PAYING_ROUTE | 60 | main.gd
+No open route pays for this ship.
+RSN_NO_ROUTE | 30 | main.gd
+No such route.
+RSN_SHIP_CAP | 40 | main.gd
+Ship cap reached.
+RSN_UPGRADE_NEEDS_FULL | 60 | main.gd
+Only a full lane can be upgraded.
+RT_ERR_NOT_TRADED_GOOD | 50 | route_engine.gd check_local
+{good} is not traded here.
+RT_ERR_NO_CLUSTER | 30 | route_engine.gd
+No such cluster.
+RT_ERR_NO_SYSTEM | 30 | route_engine.gd
+No such system.
+RT_ERR_PICK_DEST | 60 | route_engine.gd
+Pick a planet to deliver to.
+RT_ERR_PICK_SOURCE | 50 | route_engine.gd
+Pick a planet to send from.
+RT_ERR_SAME_PLANET | 50 | route_engine.gd
+Pick two different planets.
+RT_ERR_UNKNOWN_GOOD | 40 | route_engine.gd
+Unknown commodity.
+RT_ERR_UNKNOWN_ORDER | 30 | route_engine.gd
+Unknown order.
+RT_LINE_BUY | 40 | route_engine.gd forecast lines
+Buy {good} at {planet}
+RT_LINE_SELL | 50 | route_engine.gd forecast lines
+Sell {good} at {planet}
+RT_REASON_CLOSED | 60 | route_engine.gd
+A planet on this route is closed.
+RT_REASON_DEST_FULL | 60 | route_engine.gd
+Destination storage is full.
+RT_REASON_NOTHING | 30 | route_engine.gd
+Nothing to move.
+RT_REASON_SRC_EMPTY | 50 | route_engine.gd
+Source storage is empty.
+RT_STATE_BUYING | 24 | route_engine.gd
+Buying.
+RT_STATE_CLOSED | 30 | route_engine.gd
+Planet closed.
+RT_STATE_NOT_TRADED | 30 | route_engine.gd
+Not traded here.
+RT_STATE_SELLING | 24 | route_engine.gd
+Selling.
+RT_STATE_STORAGE_EMPTY | 30 | route_engine.gd
+Storage empty.
+RT_STATE_WAITING | 40 | route_engine.gd
+Waiting for cycle end.
+SETUP_BACK | 24 | company_setup.gd:114
+Back
+SETUP_CEO_LABEL | 30 | company_setup.gd:75
+Choose your CEO
+SETUP_NAME_LABEL | 30 | company_setup.gd:56
+Company name
+SETUP_NEED_CEO | 40 | company_setup.gd:212
+Choose a CEO to start.
+SETUP_NEED_NAME | 60 | company_setup.gd:210
+Enter a company name to start.
+SETUP_RANDOM | 24 | company_setup.gd:70
+Random
+SETUP_TITLE | 24 | company_setup.gd:50
+New company
+SK_EARN_LOCK | 90 | skill_tree.gd:141
+Earn {need} credits from trade ({have}/{need}).
+SK_LEARN_COST | 50 | skill_screen.gd learn_text
+{verb}  ·  {amount} points
+SK_LEARN_COST_ONE | 50 | skill_screen.gd learn_text
+{verb}  ·  {amount} point
+SS_FABRIC | 24 | good_info.gd:24
+Fabric
+SS_FABRIC_BUILD | 50 | space_storage_view.gd:111
+Build fabric ({cost} cr)
+ST_DEAD_EMPTY | 50 | route_engine.gd:175
+This world is mined out.
+ST_HUB_ALREADY | 60 | hubs.gd:91
+This world is already a hub.
+ST_HUB_FED_HUB | 24 | hubs.gd:205
+Fed by hub
+ST_HUB_FED_ROUTE | 40 | hubs.gd:203
+Fed by your route
+ST_HUB_FIRST_NOTICE | 40 | main.gd:2387
+{planet} is now a hub.
+ST_HUB_MAKE | 24 | planet_panel.gd:233
+Make hub
+ST_HUB_MAKE_TIP | 150 | planet_panel.gd:234
+A hub keeps the needs of worlds in its reach fed, with ships from its own pool.
+ST_HUB_MANUAL | 24 | hub_panel.gd:163
+Kept manual
+ST_HUB_NONE_IN_REACH | 50 | hub_panel.gd:131
+No worlds in reach yet.
+ST_HUB_NO_WORLD | 30 | hubs.gd
+No such world.
+ST_HUB_OPEN | 24 | planet_panel.gd:223
+Hub panel
+ST_HUB_PANEL_TITLE | 30 | hub_panel.gd:87
+Hub: {planet}
+ST_HUB_POOL | 24 | hub_panel.gd _head call
+Pool
+ST_HUB_POOL_FREE | 30 | hub_panel.gd:118
+Free ships: {n}
+ST_HUB_POOL_SHIPS | 40 | hub_panel.gd:95
+Ships in pool: {n}
+ST_HUB_RELEASE | 24 | hub_panel.gd:136
+Release hub
+ST_HUB_RELEASE_PROMPT | 120 | hub_panel.gd:171
+Release the hub at {planet}? Its ships return to your free fleet.
+ST_HUB_SERVED | 30 | hub_panel.gd _head call
+Worlds in reach
+ST_HUB_SHORT_CASH | 30 | hubs.gd:211
+Short: no cash
+ST_HUB_SHORT_SHIP | 50 | hubs.gd:209
+Short: no free ship in pool
+ST_HUB_SHORT_SOURCE | 50 | hubs.gd:207
+Short: no source in reach
+ST_HUB_SYSTEM_FULL | 60 | hubs.gd:95
+This system already has its hub.
+ST_HUB_TIER | 80 | hubs.gd:93
+The world must reach tier {tier} first.
+TIP_HEADER | 24 | main.gd:5106
+Tip
+TITLE_SECOND_LANE | 40 | planet_panel.gd:125
+Cross-system trader
+WS_WHY_FULL | 30 | workshops.gd why_text
+storage full
+WS_WHY_NO_RECIPE | 24 | workshops.gd why_text (stalled reason)
+no recipe
+WS_WHY_PAUSED | 24 | workshops.gd why_text (stalled reason)
+paused
+WX_LEFT_SHORT | 24 | ui.gd:256
+{n}c
+WX_NAME_CLOSED | 24 | ui.gd:245
+Closed
+WX_NAME_PRICE_UP | 24 | ui.gd:243
+Price up

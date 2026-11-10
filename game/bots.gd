@@ -1,5 +1,6 @@
 class_name Bots
 extends RefCounted
+const StoryText := preload("res://game/story_text.gd")
 ## The three houses: ids, names and tints only (T281). Houses are weather, never opponents (see game/events.gd).
 ## No volume curves: share and bot volumes are gone. tier() is kept for the chains that still cut a house tier (weather task N27).
 
@@ -8,7 +9,7 @@ const IDS := [1, 2, 3]
 const NAMES := {1: "Harrow Combine", 2: "Velvet Concord", 3: "Ostrel Syndicate"}
 
 static func bot_name(b: int) -> String:
-	return str(NAMES.get(b, "Bot %d" % b))
+	return StoryText.get_or("BOT_NAME_%d" % b, str(NAMES.get(b, "Bot %d" % b)))
 
 ## Tier 1..4: tier-ups at bot_<b>_tier_cycle_1 and _2, plus a persistent offset from events.
 static func tier(bal: Dictionary, b: int, cycle: int, offset: int = 0) -> int:

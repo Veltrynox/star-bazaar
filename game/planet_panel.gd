@@ -128,12 +128,11 @@ func rebuild() -> void:
 		box.add_child(sl)
 	var pend: Dictionary = main.pending
 	if not pend.is_empty():
-		var pl := _label("Sending %s from %s. Click the destination planet.%s" % [
-			pend["c"], main.planet_name(int(pend["planet"])), main.pending_station_hint()])
+		var pl := _label(StoryText.get_or("LBL_PANEL_SENDING", "Sending {good} from {planet}. Click the destination planet.{hint}", {"good": Ui.good_name(str(pend["c"])).to_lower(), "planet": main.planet_name(int(pend["planet"])), "hint": main.pending_station_hint()}))
 		pl.theme_type_variation = "LabelAccent"
 		box.add_child(pl)
 		var cancel := Button.new()
-		cancel.text = "Cancel"
+		cancel.text = StoryText.get_or("BTN_CANCEL_PENDING", "Cancel")
 		cancel.name = "CancelPending"
 		cancel.pressed.connect(func(): main.cancel_pending())
 		box.add_child(cancel)
@@ -612,7 +611,7 @@ func _row(c: String, prices: Dictionary, pend: Dictionary) -> Control:
 	for role in ["sell"]:  # the buy order state is in the resource button tooltip and its pressed toggle
 		if main.engine.local_on(planet_index, c, role):
 			var st := Label.new()
-			st.text = "%s order: %s" % [role.capitalize(), main.engine.local_state(planet_index, c, role)]
+			st.text = StoryText.get_or("LBL_SELL_ORDER_STATE", "Sell order: {state}", {"state": main.engine.local_state(planet_index, c, role)})
 			st.theme_type_variation = "LabelAccent"
 			info.add_child(st)
 	var mp: Dictionary = main.engine.mixed_preview(planet_index)
@@ -643,7 +642,7 @@ func _row(c: String, prices: Dictionary, pend: Dictionary) -> Control:
 		bs.add_theme_color_override("font_color", Ui.commodity_col(str(c)))  # Energy amber, Food green
 	bs.disabled = buy == null
 	var buy_tip: String = StoryText.get_or("LBL_BUY_PRICE", "Buy price") + ": " + _price(buy)
-	bs.tooltip_text = "Not traded here." if buy == null else (buy_tip + ". Standing buy order. Press to stop." if buy_on else buy_tip + ".")
+	bs.tooltip_text = StoryText.get_or("RT_STATE_NOT_TRADED", "Not traded here.") if buy == null else (StoryText.get_or("LBL_BUY_TIP_ON", "{tip}. Standing buy order. Press to stop.", {"tip": buy_tip}) if buy_on else StoryText.get_or("LBL_PRICE_TIP", "{tip}.", {"tip": buy_tip}))
 	if locked:
 		bs.disabled = true
 		bs.tooltip_text = main.trade_locked_reason()
@@ -657,7 +656,7 @@ func _row(c: String, prices: Dictionary, pend: Dictionary) -> Control:
 	if sell_p != null and buy != null and not main.DeadWorlds.is_dead(main.map.planets[planet_index]):
 		bs.tooltip_text += "\n" + StoryText.get_or("LBL_SELL_PRICE", "Sell price") + ": " + _price(sell_p)
 	if buy_on:
-		bs.tooltip_text += "\n" + "Buy order: " + str(main.engine.local_state(planet_index, c, "buy"))
+		bs.tooltip_text += "\n" + StoryText.get_or("LBL_BUY_ORDER_STATE", "Buy order: {state}", {"state": str(main.engine.local_state(planet_index, c, "buy"))})
 	var nc_tip := next_cycle_text(main, main.storage.planet_key(planet_index), str(c))
 	if nc_tip != "":
 		bs.tooltip_text += "\n" + nc_tip
@@ -738,15 +737,15 @@ func _context_menu(c: String, prices: Dictionary) -> PopupMenu:
 	var sending: bool = not pend.is_empty() and int(pend["planet"]) == planet_index and str(pend["c"]) == c
 	m.add_item(StoryText.get_text("BTN_SEND") + ("*" if sending else ""), MENU_SEND)
 	var i_send := m.get_item_index(MENU_SEND)
-	m.set_item_tooltip(i_send, "Move this stock to another planet's storage with a ship." if open else main.trade_locked_reason())
+	m.set_item_tooltip(i_send, StoryText.get_or("LBL_SEND_TIP", "Move this stock to another planet's storage with a ship.") if open else main.trade_locked_reason())
 	m.set_item_disabled(i_send, not open or not main.tut_allows("send_start", planet_index, c))
 	var sell = prices.get(c + "_sell")
 	var sell_on: bool = main.engine.local_on(planet_index, c, "sell")
-	m.add_check_item(StoryText.get_text("BTN_SELL") + (" " + _price(sell) if sell != null else "") + (": on" if sell_on else ""), MENU_SELL)
+	m.add_check_item(StoryText.get_text("BTN_SELL") + (" " + _price(sell) if sell != null else "") + (": " + StoryText.get_or("LBL_ORDER_ON", "on") if sell_on else ""), MENU_SELL)
 	var i_sell := m.get_item_index(MENU_SELL)
 	m.set_item_checked(i_sell, sell_on)
 	var sell_tip: String = StoryText.get_or("LBL_SELL_PRICE", "Sell price") + ": " + _price(sell)
-	m.set_item_tooltip(i_sell, "Not traded here." if sell == null else (sell_tip + ". " + ("Standing sell order. Press to stop." if sell_on else "Standing sell order each cycle.")))
+	m.set_item_tooltip(i_sell, StoryText.get_or("RT_STATE_NOT_TRADED", "Not traded here.") if sell == null else (StoryText.get_or("LBL_SELL_TIP_ON", "{tip}. Standing sell order. Press to stop.", {"tip": sell_tip}) if sell_on else StoryText.get_or("LBL_SELL_TIP_OFF", "{tip}. Standing sell order each cycle.", {"tip": sell_tip})))
 	m.set_item_disabled(i_sell, sell == null or not open or not main.tut_allows("sell", planet_index, c))
 	if not open:
 		m.set_item_tooltip(i_sell, main.trade_locked_reason())
@@ -1233,10 +1232,9 @@ func _route_detail(v: Dictionary) -> void:
 		var up: int = main.engine.upkeep_part(rec)
 		var trip: int = main.engine.trip_part()
 		var paying: bool = int(v["net"]) < 0
-		l.text = "%s: \u2212%d\n%s: \u2212%d\n%s: %s / cycle" % [
-			StoryText.get_text("LBL_TRIP_COST"), trip if paying else 0,
-			StoryText.get_text("LBL_SHIP_UPKEEP"), up if paying else 0,
-			StoryText.get_text("LBL_NET"), _signed(int(v["net"]))]
+		l.text = StoryText.get_or("LBL_COST_LINE", "{label}: \u2212{n}", {"label": StoryText.get_text("LBL_TRIP_COST"), "n": trip if paying else 0})
+		l.text += "\n" + StoryText.get_or("LBL_COST_LINE", "{label}: \u2212{n}", {"label": StoryText.get_text("LBL_SHIP_UPKEEP"), "n": up if paying else 0})
+		l.text += "\n" + StoryText.get_or("LBL_NET_LINE", "{label}: {n} / cycle", {"label": StoryText.get_text("LBL_NET"), "n": _signed(int(v["net"]))})
 		var off: float = main.engine.offset_of(rec)
 		if off > 0.0:  # one line: the detour round other planets or routes and what it adds to the upkeep
 			l.text += "\n" + StoryText.get_or("ROUTE_OFFSET_MAINT", "Route detour +{offset}%: upkeep +{maint}%", {"offset": roundi(off * 100.0), "maint": roundi(float(main.balance.get("route_offset_maint_pct", 0.0)) * off * 100.0)})

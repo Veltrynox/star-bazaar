@@ -1,4 +1,5 @@
 extends RefCounted
+const StoryText := preload("res://game/story_text.gd")
 ## Price and margin logic. T51 removed manual trading (cargo, flights, mission steps, buy/sell/send);
 ## what remains is the price lookup the T07 route engine builds on.
 ## Prices come from planets.json base_prices ("<commodity>_buy" is what the player pays,
@@ -66,5 +67,5 @@ func travel_cycles() -> float:
 
 func _name(i: int) -> String:
 	if i < 0 or i >= planets.size():
-		return "the planet"
+		return StoryText.get_or("LBL_THE_PLANET", "the planet")
 	return str(planets[i].get("name", planets[i].get("id", "?")))

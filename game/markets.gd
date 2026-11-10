@@ -1,5 +1,6 @@
 class_name Markets
 extends RefCounted
+const StoryText := preload("res://game/story_text.gd")
 ## Goods-to-market registry (data/markets.json): market ids, names, goods, base values, common raws. Empire growth v2 (T281):
 ## no share, bot volumes, win/sweep checks or spreading overhead. What stays besides the registry: the per-cycle record of the
 ## player's sales per market (vp_active, read by the first_sale_after_cycle chain trigger), the cycle counter, and house hits
@@ -24,6 +25,10 @@ static var cur_active: Dictionary = {}
 static var tier_off: Dictionary = {}    # "b" -> persistent tier offset (chains)
 static var mods: Dictionary = {}        # "b|m" -> {strength_mult, growth_mult, growth_add, tier_offset} from event hits
 static var cycles: int = 0              # cycles recorded
+
+## Display name of a market: the skill tab name (SK_TAB_MIL ...), else the name in data/markets.json.
+static func name_of(id: String) -> String:
+	return StoryText.get_or("SK_TAB_" + id.to_upper(), str(names.get(id, id)))
 
 static func load_data() -> void:
 	_loaded = true

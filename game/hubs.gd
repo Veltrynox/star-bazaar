@@ -86,7 +86,7 @@ func hub_in_system(sys: int) -> int:
 ## {ok, reason}: the world stands at hub_tier or above and its system has room for one more hub.
 func can_designate(planet: int) -> Dictionary:
 	if planet < 0 or planet >= trade.planets.size():
-		return {"ok": false, "reason": "No such world."}
+		return {"ok": false, "reason": StoryText.get_or("ST_HUB_NO_WORLD", "No such world.")}
 	if hubs.has(planet):
 		return {"ok": false, "reason": StoryText.get_or("ST_HUB_ALREADY", "This world is already a hub.")}
 	if prosperity.tier(planet) < int(_bal("hub_tier", 3)):

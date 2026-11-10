@@ -1,4 +1,5 @@
 extends RefCounted
+const StoryText := preload("res://game/story_text.gd")
 ## The fabric (design/proposals/2026-11-02-dead-planets.md sections 3 and 4): a standing order at the trading post
 ## (the system 1 space station) that turns dross and nullglass into Lattice Plate (id "plate", placeholder name).
 ## Needs skill MIN_1, then a one-time build cost. Every number is in balance.json: fabric_build_cost, fabric_in_dross,
@@ -47,11 +48,11 @@ func core_max() -> int:
 	return maxi(0, int(balance.get("null_core_max", 1)))
 
 func core_recipe_text() -> String:
-	return "%d plate + %d nullglass -> 1 Null Core" % [core_in("plate"), core_in("nullglass")]
+	return "%d %s + %d %s -> 1 %s" % [core_in("plate"), Ui.good_name("plate").to_lower(), core_in("nullglass"), Ui.good_name("nullglass").to_lower(), StoryText.get_or("LBL_NULL_CORE", "Null Core")]
 
 ## Recipe as text, e.g. "2 dross + 1 nullglass -> 1 plate".
 func recipe_text() -> String:
-	return "%d dross + %d nullglass -> %d plate" % [need_of("dross"), need_of("nullglass"), maxi(1, int(balance.get("fabric_out_plate", 1)))]
+	return "%d %s + %d %s -> %d %s" % [need_of("dross"), Ui.good_name("dross").to_lower(), need_of("nullglass"), Ui.good_name("nullglass").to_lower(), maxi(1, int(balance.get("fabric_out_plate", 1))), Ui.good_name("plate").to_lower()]
 
 ## One cycle on the company storage. Makes up to fabric_batches_per_cycle batches while the inputs last.
 func run(storage: RefCounted) -> void:

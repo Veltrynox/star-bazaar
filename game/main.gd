@@ -818,7 +818,7 @@ func second_lane_active() -> bool:
 	return second_lane_planet < 0 and Systems.ids().has(SECOND_LANE_SYSTEM) and ships > 0 and cycle > 1
 
 func second_lane_line() -> String:
-	return StoryText.get_or("GOAL_SECOND_LANE", "Optional: open system 2 (permit {n}), then sell a lot there.", {"n": permit_cost(SECOND_LANE_SYSTEM)})
+	return StoryText.get_or("GOAL_SECOND_LANE", "Optional: open system {sys} (permit {n}), then sell a lot there.", {"sys": SECOND_LANE_SYSTEM, "n": permit_cost(SECOND_LANE_SYSTEM)})
 
 ## Ticks on a sale (local Sell order or a route stop) at a system 2 planet; buying the permit never ticks it.
 func _check_second_lane(r: Dictionary) -> void:
@@ -1145,7 +1145,7 @@ func _on_planet_clicked(index: int) -> void:
 		if index < 0 or index >= map.planets.size():
 			cancel_pending()
 		elif index == int(pending["planet"]):
-			post_notice("Pick a different planet as the destination.")
+			post_notice(StoryText.get_or("NOT_PICK_OTHER_DEST", "Pick a different planet as the destination."))
 			return
 		elif DeadWorlds.is_dead(map.planets[index]) and not (prosperity.is_barren(index) and prosperity.is_need(index, str(pending["c"]))):  # a dead world has no market: it can only be a source (T295: a Barren world takes its reclamation goods)
 			post_notice_now(StoryText.get_or("NOT_DEAD_NO_DELIVERY", "Nothing is delivered to a dead world. Pick another planet."))
@@ -1464,10 +1464,9 @@ func _pending_changed() -> void:
 	if pending_label != null:
 		pending_label.visible = not pending.is_empty()
 		if pending.has("dest"):  # N9: destination picked, a stop is on the way
-			pending_label.text = "Click the stop in the picker, or %s again for a direct send. (Esc to cancel)" % planet_name(int(pending["dest"]))
+			pending_label.text = StoryText.get_or("LBL_PENDING_STOP", "Click the stop in the picker, or {planet} again for a direct send. (Esc to cancel)", {"planet": planet_name(int(pending["dest"]))})
 		elif not pending.is_empty():
-			pending_label.text = "Send %s from %s: click the destination planet. (Esc to cancel)" % [
-				pending["c"], planet_name(int(pending["planet"]))]
+			pending_label.text = StoryText.get_or("LBL_PENDING_SEND", "Send {good} from {planet}: click the destination planet. (Esc to cancel)", {"good": Ui.good_name(str(pending["c"])).to_lower(), "planet": planet_name(int(pending["planet"]))})
 			pending_label.text += pending_station_hint()
 	_refresh_pending_margins()
 	_refresh_panel()
@@ -1581,11 +1580,11 @@ func _buy_ship_now(kind: String = "") -> Dictionary:
 func can_buy_ship(kind: String = "") -> Dictionary:
 	kind = Ships.fleet  # one ship type per run
 	if game_over:
-		return {"ok": false, "reason": "The game is over."}
+		return {"ok": false, "reason": StoryText.get_or("RSN_GAME_OVER", "The game is over.")}
 	if ships >= ship_cap():
-		return {"ok": false, "reason": "Ship cap reached."}
+		return {"ok": false, "reason": StoryText.get_or("RSN_SHIP_CAP", "Ship cap reached.")}
 	if cash < Ships.price(kind, balance):
-		return {"ok": false, "reason": "Not enough cash for a new ship (%d cr). Each route needs its own ship; wait for income or remove a route." % Ships.price(kind, balance)}
+		return {"ok": false, "reason": StoryText.get_or("RSN_NO_CASH_SHIP", "Not enough cash for a new ship ({price} cr). Each route needs its own ship; wait for income or remove a route.", {"price": Ships.price(kind, balance)})}
 	var floor_cash := ship_cash_floor()
 	if cash - Ships.price(kind, balance) < floor_cash:  # stall fix: keep working capital for the trips of every open route
 		return {"ok": false, "floor": true, "reason": StoryText.get_or("NOT_SHIP_KEEP_CASH", "Keep cash for trips: {floor} cr after the price.", {"floor": floor_cash})}
@@ -1613,7 +1612,7 @@ func pick_ship(_src: int, _dst: int, _c: String) -> String:
 ## Setup check for a connection src -> dst carrying c. One reason when refused.
 func can_connect(src: int, dst: int, c: String) -> Dictionary:
 	if game_over:
-		return {"ok": false, "reason": "The game is over."}
+		return {"ok": false, "reason": StoryText.get_or("RSN_GAME_OVER", "The game is over.")}
 	if not planet_established(src) or (dst >= 0 and not planet_established(dst)):  # T179: both ends need a post or platform
 		return {"ok": false, "reason": closed_world_reason()}
 	var r: Dictionary = engine.check_connection(src, dst, c)
@@ -1624,7 +1623,7 @@ func can_connect(src: int, dst: int, c: String) -> Dictionary:
 	if not system_trade_open(src) or (dst >= 0 and not system_trade_open(dst)) or (dst < 0 and not space_post_open(-dst)):
 		return {"ok": false, "reason": trade_locked_reason()}
 	if engine.lane_full(src, dst, c):  # T145: a full lane takes an upgrade, not one more ship
-		return {"ok": false, "reason": "This lane is full. Upgrade the route instead of adding a ship."}
+		return {"ok": false, "reason": StoryText.get_or("RSN_LANE_FULL", "This lane is full. Upgrade the route instead of adding a ship.")}
 	if free_ships() <= 0:
 		return {"ok": false, "reason": StoryText.get_text("NOT_SHIP_FREE")}
 	return {"ok": true, "reason": ""}
@@ -1632,18 +1631,18 @@ func can_connect(src: int, dst: int, c: String) -> Dictionary:
 ## T145: Upgrade route (level 2) on a full lane. Ships and upgrades draw on the same cash.
 func can_upgrade_route(id: int) -> Dictionary:
 	if game_over:
-		return {"ok": false, "reason": "The game is over."}
+		return {"ok": false, "reason": StoryText.get_or("RSN_GAME_OVER", "The game is over.")}
 	var i: int = engine.find_by_id(id)
 	if i < 0:
-		return {"ok": false, "reason": "No such route."}
+		return {"ok": false, "reason": StoryText.get_or("RSN_NO_ROUTE", "No such route.")}
 	var r: Dictionary = engine.routes[i]
 	if int(r.get("level", 1)) >= 2:
-		return {"ok": false, "reason": "Already upgraded."}
+		return {"ok": false, "reason": StoryText.get_or("RSN_ALREADY_UPGRADED", "Already upgraded.")}
 	if not engine.lane_full(int(r["a"]), int(r["b"]), str(r["c"])):
-		return {"ok": false, "reason": "Only a full lane can be upgraded."}
+		return {"ok": false, "reason": StoryText.get_or("RSN_UPGRADE_NEEDS_FULL", "Only a full lane can be upgraded.")}
 	var cost := upgrade_cost()
 	if cash < cost:
-		return {"ok": false, "reason": "Not enough cash to upgrade the route (%d cr)." % cost}
+		return {"ok": false, "reason": StoryText.get_or("RSN_NO_CASH_UPGRADE", "Not enough cash to upgrade the route ({cost} cr).", {"cost": cost})}
 	return {"ok": true, "reason": ""}
 
 ## Cost of a lane upgrade: upgrade_cost x the upgrade_cost_pct skills (FND_DOCKS).
@@ -1744,7 +1743,7 @@ func clear_split(planet: int, c: String) -> void:
 ## T68: standing local order at a planet (no ship). role "buy" or "sell". Returns {ok, reason}.
 func set_local_order(planet: int, c: String, role: String, on: bool) -> Dictionary:
 	if game_over:
-		return {"ok": false, "reason": "The game is over."}
+		return {"ok": false, "reason": StoryText.get_or("RSN_GAME_OVER", "The game is over.")}
 	if not tut_gate(role if on else "other", planet, c):
 		return {"ok": false, "reason": tut_lock_text()}
 	if on and not planet_established(planet):  # T179
@@ -1762,7 +1761,7 @@ func set_local_order(planet: int, c: String, role: String, on: bool) -> Dictiona
 ## N5: one-off salvage sale of the stock in a planet's storage. Returns {ok, reason, credits}.
 func salvage_stock(planet: int, c: String) -> Dictionary:
 	if game_over:
-		return {"ok": false, "reason": "The game is over.", "credits": 0}
+		return {"ok": false, "reason": StoryText.get_or("RSN_GAME_OVER", "The game is over."), "credits": 0}
 	if not tut_gate("other"):
 		return {"ok": false, "reason": tut_lock_text(), "credits": 0}
 	if engine.salvage_reason(planet, c) == "":
@@ -1817,7 +1816,7 @@ func remove_connection(id: int) -> Dictionary:
 		return {"ok": false, "reason": tut_lock_text()}
 	var i: int = engine.find_by_id(id)
 	if i < 0:
-		return {"ok": false, "reason": "No such route."}
+		return {"ok": false, "reason": StoryText.get_or("RSN_NO_ROUTE", "No such route.")}
 	engine.routes.remove_at(i)
 	_after_change()
 	return {"ok": true, "reason": ""}
@@ -1842,15 +1841,15 @@ func move_offer(id: int) -> Dictionary:
 ## P2: Move ship, pressed by the player only; never automatic. Costs no cash, only the idle transit cycles. {ok, reason}.
 func move_ship(id: int) -> Dictionary:
 	if game_over:
-		return {"ok": false, "reason": "The game is over."}
+		return {"ok": false, "reason": StoryText.get_or("RSN_GAME_OVER", "The game is over.")}
 	if not tut_gate("other"):
 		return {"ok": false, "reason": tut_lock_text()}
 	var i: int = engine.find_by_id(id)
 	if i < 0:
-		return {"ok": false, "reason": "No such route."}
+		return {"ok": false, "reason": StoryText.get_or("RSN_NO_ROUTE", "No such route.")}
 	var offer := move_offer(id)
 	if offer.is_empty():
-		return {"ok": false, "reason": "No open route pays for this ship."}
+		return {"ok": false, "reason": StoryText.get_or("RSN_NO_PAYING_ROUTE", "No open route pays for this ship.")}
 	engine.move_route(i, int(offer["a"]), int(offer["b"]))
 	storage.ensure(str(engine.routes[i]["src"]))
 	storage.ensure(str(engine.routes[i]["dst"]))
@@ -2161,7 +2160,7 @@ func fit_core(id: int) -> Dictionary:
 		return {"ok": false, "reason": "no core"}
 	var i: int = engine.find_by_id(id)
 	if i < 0:
-		return {"ok": false, "reason": "No such route."}
+		return {"ok": false, "reason": StoryText.get_or("RSN_NO_ROUTE", "No such route.")}
 	for r in engine.routes:
 		r["core"] = false
 	engine.routes[i]["core"] = true
@@ -2605,14 +2604,14 @@ func forecast_text(id: String, ahead: int = 1) -> String:
 		var e2: Dictionary = events.effect_of_event(id)
 		var k2 := str(e2.get("kind", ""))
 		if k2 in ["up", "down"]:
-			return StoryText.get_or("EVT_NEXT_DUE_PRICE_2", StoryText.get_text("EVT_NEXT_DUE_2"), {"planet": planet_name(int(e2["planet"])), "commodity": Ui.good_name(str(e2["c"])), "direction": "rise" if k2 == "up" else "fall"})
+			return StoryText.get_or("EVT_NEXT_DUE_PRICE_2", StoryText.get_text("EVT_NEXT_DUE_2"), {"planet": planet_name(int(e2["planet"])), "commodity": Ui.good_name(str(e2["c"])), "direction": StoryText.get_or("EVT_DIR_RISE", "rise") if k2 == "up" else StoryText.get_or("EVT_DIR_FALL", "fall")})
 		if k2 == "closed":
 			return StoryText.get_or("EVT_NEXT_DUE_CLOSED_2", StoryText.get_text("EVT_NEXT_DUE_2"), {"planet": planet_name(int(e2["planet"]))})
 		return StoryText.get_text("EVT_NEXT_DUE_2")
 	var eff: Dictionary = events.effect_of_event(id)
 	var kind := str(eff.get("kind", ""))
 	if kind in ["up", "down"]:
-		return StoryText.get_or("EVT_NEXT_DUE_PRICE", StoryText.get_text("EVT_NEXT_DUE"), {"planet": planet_name(int(eff["planet"])), "commodity": Ui.good_name(str(eff["c"])), "direction": "rise" if kind == "up" else "fall"})
+		return StoryText.get_or("EVT_NEXT_DUE_PRICE", StoryText.get_text("EVT_NEXT_DUE"), {"planet": planet_name(int(eff["planet"])), "commodity": Ui.good_name(str(eff["c"])), "direction": StoryText.get_or("EVT_DIR_RISE", "rise") if kind == "up" else StoryText.get_or("EVT_DIR_FALL", "fall")})
 	if kind == "closed":
 		return StoryText.get_or("EVT_NEXT_DUE_CLOSED", StoryText.get_text("EVT_NEXT_DUE"), {"planet": planet_name(int(eff["planet"]))})
 	return StoryText.get_text("EVT_NEXT_DUE")
@@ -3015,7 +3014,7 @@ func _open_event_notice(id: String) -> void:
 	var line := effect_line(events.effect_of_event(id)) if choices.is_empty() else "\n".join(effs)
 	var rv := Chains.pool_rivals_line(id)
 	if events.is_branch(id):  # the written rivals line (EV<nn>_EFF) with {market}
-		rv = StoryText.get_text(id + "_EFF", {"market": str(Markets.names.get(str(events.by_id[id]["branch"]), ""))})
+		rv = StoryText.get_text(id + "_EFF", {"market": Markets.name_of(str(events.by_id[id]["branch"]))})
 	if rv != "":
 		line = (line + "\n" + rv).strip_edges()
 	event_notice = load("res://game/event_notice.gd").new()
@@ -3194,7 +3193,7 @@ func _refresh_event_feed() -> void:
 	for i in range(events.feed.size() - 1, -1, -1):
 		if shown >= 6:
 			break
-		lines.append("Cycle %d: %s" % [int(events.feed[i]["cycle"]), events.title_of(str(events.feed[i]["id"]), {"planet": planet_name(int(events.feed[i].get("planet", -1)))})])
+		lines.append(StoryText.get_or("EVFEED_LINE", "Cycle {cycle}: {title}", {"cycle": int(events.feed[i]["cycle"]), "title": events.title_of(str(events.feed[i]["id"]), {"planet": planet_name(int(events.feed[i].get("planet", -1)))})}))
 		shown += 1
 	event_feed_label.text = "\n".join(lines)
 	event_feed_label.visible = not events.feed.is_empty()
@@ -3303,7 +3302,7 @@ func _build_speed_buttons(box: HBoxContainer) -> void:
 		b.toggle_mode = true
 		b.button_group = group
 		b.theme_type_variation = "ButtonGhost"
-		b.tooltip_text = "Game speed %dx" % int(SPEEDS[i])
+		b.tooltip_text = StoryText.get_or("LBL_SPEED_TIP", "Game speed {n}x", {"n": int(SPEEDS[i])})
 		b.custom_minimum_size = Vector2(34, 28)
 		b.pressed.connect(_on_speed_pressed.bind(SPEEDS[i]))
 		box.add_child(b)
@@ -3660,7 +3659,7 @@ func _refresh() -> void:
 	var net: int = cash_forecast.net_forecast() if cash_forecast != null else 0
 	delta_label.text = "%+d" % net
 	cycle_label.text = "%d / %d" % [cycle, int(balance.get("win_cycle_markets", 0))]
-	cycle_label.tooltip_text = "Cycle"
+	cycle_label.tooltip_text = StoryText.get_or("LBL_CYCLE_TIP", "Cycle")
 	progress.value = cycle_elapsed / _cycle_seconds()
 	pause_button.text = ""  # icon only (owner item 1)
 	pause_button.disabled = game_over
@@ -5297,7 +5296,8 @@ func _build_preface() -> void:
 	title.theme_type_variation = "LabelHero"
 	box.add_child(title)
 	var body := Label.new()
-	body.text = StoryText.get_text("SCR_PREFACE")
+	var pf_args := {"company": company_name}
+	body.text = StoryText.get_or("SCR_PREFACE_" + ceo_id.replace("ceo_", "").to_upper(), StoryText.get_text("SCR_PREFACE", pf_args), pf_args) if ceo_id != "" else StoryText.get_text("SCR_PREFACE", pf_args)  # a text per CEO, the generic one when there is none
 	body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	box.add_child(body)
 	var start := Button.new()

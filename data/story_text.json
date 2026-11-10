@@ -21,9 +21,33 @@
   },
   {
    "id": "SCR_PREFACE",
-   "text": "Everything under this sky is shared, and counted. Every credit goes into the Common Ledger and comes back in portions. The Plan is generous. It is also five cycles long, and then another five.\n\nYou run a small trading company. You start with one home world, a little cash and a scout. Ships fly your routes by themselves.\n\nWorlds grow when their needs are met. The Star Bazaar is the market hall every world will trade through. You build it, stage by stage, on one world grown into a capital. Open it before your term ends and you win. Pick one market to lean on: Military, Luxury, Minerals or Biotech. Three houses send weather, not war.\n\nWhat it costs the sky, the sky does not say.",
-   "max": 700,
-   "place": "Preface screen"
+   "text": "Welcome to the control post of the trading station {company}. Money has always been your dream, and nothing will stop you from earning even more of it.\n\nYou know how markets work, and now a chance has opened to make your name. You have enough capital to start your own company and grow it into something greater. You can see how to unite the worlds under your strong hand, and how to build structures and political branches so that not one cent slips past your watchful eye. So, show what you can do.\n\nAhead lie unprincipled trade, sudden market crashes, random events and intrigue. Your final goal is to build your own point of control over the arteries of this system: the Star Bazaar.",
+   "max": 1200,
+   "place": "Preface screen, the text when the CEO has none of their own; {company} is the player's company name"
+  },
+  {
+   "id": "SCR_PREFACE_MAN_01",
+   "text": "Welcome to the control post of the trading station {company}. Money has always been your dream, and nothing will stop you from earning even more of it.\n\nYou know the price of every bolt, and you have never trusted luck. You know how markets work, and now a chance has opened to make your name. You have enough capital to start your own company and grow it into something greater. You can see how to unite the worlds under your strong hand, and how to build structures and political branches so that not one cent slips past your watchful eye. So, show what you can do.\n\nAhead lie unprincipled trade, sudden market crashes, random events and intrigue. Your final goal is to build your own point of control over the arteries of this system: the Star Bazaar. You will count every bolt of it.",
+   "max": 1200,
+   "place": "Preface screen, CEO Marek Voss; {company} is the company name"
+  },
+  {
+   "id": "SCR_PREFACE_MAN_02",
+   "text": "Welcome to the control post of the trading station {company}. Money has always been your dream, and nothing will stop you from earning even more of it.\n\nYou read a price board the way others read faces, and a smile has never cost you a sale. You know how markets work, and now a chance has opened to make your name. You have enough capital to start your own company and grow it into something greater. You can see how to unite the worlds under your strong hand, and how to build structures and political branches so that not one cent slips past your watchful eye. So, show what you can do.\n\nAhead lie unprincipled trade, sudden market crashes, random events and intrigue. Your final goal is to build your own point of control over the arteries of this system: the Star Bazaar. Keep smiling.",
+   "max": 1200,
+   "place": "Preface screen, CEO Idris Kane; {company} is the company name"
+  },
+  {
+   "id": "SCR_PREFACE_WOMAN_01",
+   "text": "Welcome to the control post of the trading station {company}. Money has always been your dream, and nothing will stop you from earning even more of it.\n\nYou have flown the worst lanes of the rim and still come home. You know how markets work, and now a chance has opened to make your name. You have enough capital to start your own company and grow it into something greater. You can see how to unite the worlds under your strong hand, and how to build structures and political branches so that not one cent slips past your watchful eye. So, show what you can do.\n\nAhead lie unprincipled trade, sudden market crashes, random events and intrigue. Your final goal is to build your own point of control over the arteries of this system: the Star Bazaar. Deliver it on time.",
+   "max": 1200,
+   "place": "Preface screen, CEO Sela Oru; {company} is the company name"
+  },
+  {
+   "id": "SCR_PREFACE_WOMAN_02",
+   "text": "Welcome to the control post of the trading station {company}. Money has always been your dream, and nothing will stop you from earning even more of it.\n\nYou grew up in the docking rings and know every clerk by name. You know how markets work, and now a chance has opened to make your name. You have enough capital to start your own company and grow it into something greater. You can see how to unite the worlds under your strong hand, and how to build structures and political branches so that not one cent slips past your watchful eye. So, show what you can do.\n\nAhead lie unprincipled trade, sudden market crashes, random events and intrigue. Your final goal is to build your own point of control over the arteries of this system: the Star Bazaar. Let every dock remember your name.",
+   "max": 1200,
+   "place": "Preface screen, CEO Tamsin Hale; {company} is the company name"
   },
   {
    "id": "SCR_PREFACE_BTN",
@@ -7770,6 +7794,1554 @@
    "text": "None",
    "max": 24,
    "place": "Recap value when there is nothing to list"
+  },
+  {
+   "id": "BAZ_OPENING_BANNER",
+   "text": "The Star Bazaar is open.",
+   "max": 50,
+   "place": "main.gd:2458"
+  },
+  {
+   "id": "BOT_NAME_1",
+   "text": "Harrow Combine",
+   "max": 30,
+   "place": "bots.gd bot_name (house name 1)"
+  },
+  {
+   "id": "BOT_NAME_2",
+   "text": "Velvet Concord",
+   "max": 30,
+   "place": "bots.gd bot_name (house name 2)"
+  },
+  {
+   "id": "BOT_NAME_3",
+   "text": "Ostrel Syndicate",
+   "max": 30,
+   "place": "bots.gd bot_name (house name 3)"
+  },
+  {
+   "id": "BTN_BUY_SHIP",
+   "text": "Buy {ship} ({price} cr, upkeep {upkeep})",
+   "max": 80,
+   "place": "ship_panel.gd set_upkeep (buy button)"
+  },
+  {
+   "id": "BTN_CANCEL_PENDING",
+   "text": "Cancel",
+   "max": 24,
+   "place": "planet_panel.gd build (pending send card, cancel button)"
+  },
+  {
+   "id": "BTN_MENU",
+   "text": "Menu",
+   "max": 24,
+   "place": "main.gd:3400"
+  },
+  {
+   "id": "BTN_NAV_HIDE",
+   "text": "Hide navigation",
+   "max": 30,
+   "place": "main.gd:3571"
+  },
+  {
+   "id": "BTN_NAV_SHOW",
+   "text": "Show navigation",
+   "max": 30,
+   "place": "main.gd:3571"
+  },
+  {
+   "id": "BTN_OPEN_SYSTEM",
+   "text": "Open system",
+   "max": 24,
+   "place": "galaxy_view.gd:736"
+  },
+  {
+   "id": "BTN_SPLIT_BAR",
+   "text": "Split",
+   "max": 24,
+   "place": "planet_panel.gd:874"
+  },
+  {
+   "id": "BTN_SPLIT_DONE",
+   "text": "Done",
+   "max": 24,
+   "place": "planet_panel.gd:944"
+  },
+  {
+   "id": "BTN_TIP_OK",
+   "text": "Got it",
+   "max": 24,
+   "place": "main.gd:5120"
+  },
+  {
+   "id": "BTN_UPGRADE_ROUTE",
+   "text": "Upgrade route",
+   "max": 30,
+   "place": "planet_panel.gd:1135"
+  },
+  {
+   "id": "END_BTN_CONTINUE",
+   "text": "Continue",
+   "max": 24,
+   "place": "end_screen.gd button row"
+  },
+  {
+   "id": "END_RECAP_CAPITAL",
+   "text": "Capital: {planet}",
+   "max": 40,
+   "place": "end_screen.gd:73"
+  },
+  {
+   "id": "END_RECAP_MOMENT",
+   "text": "Cycle {cycle}: {moment}",
+   "max": 50,
+   "place": "end_screen.gd:88"
+  },
+  {
+   "id": "END_RECAP_RECLAIMED",
+   "text": "Reclaimed worlds: {n}",
+   "max": 40,
+   "place": "end_screen.gd:83"
+  },
+  {
+   "id": "END_RECAP_STAGES",
+   "text": "Stages raised: {n} of {m}",
+   "max": 50,
+   "place": "end_screen.gd:74"
+  },
+  {
+   "id": "END_RECAP_WING",
+   "text": "Wing: {wing}",
+   "max": 30,
+   "place": "end_screen.gd:76"
+  },
+  {
+   "id": "END_RECAP_WORLDS",
+   "text": "{n} worlds at {tier}",
+   "max": 40,
+   "place": "end_screen.gd:82"
+  },
+  {
+   "id": "END_STAT_STAGES",
+   "text": "Bazaar stages",
+   "max": 30,
+   "place": "main.gd:2674"
+  },
+  {
+   "id": "EVFEED_LINE",
+   "text": "Cycle {cycle}: {title}",
+   "max": 40,
+   "place": "main.gd _refresh_event_feed"
+  },
+  {
+   "id": "EVT_DIR_FALL",
+   "text": "fall",
+   "max": 24,
+   "place": "main.gd forecast_text (fills {direction} of EVT_NEXT_DUE_PRICE*)"
+  },
+  {
+   "id": "EVT_DIR_RISE",
+   "text": "rise",
+   "max": 24,
+   "place": "main.gd forecast_text (fills {direction} of EVT_NEXT_DUE_PRICE*)"
+  },
+  {
+   "id": "FAB_MADE",
+   "text": "made {n} {good}",
+   "max": 30,
+   "place": "space_storage_view.gd fabric status line"
+  },
+  {
+   "id": "FAB_READY",
+   "text": "ready",
+   "max": 24,
+   "place": "space_storage_view.gd fabric status line"
+  },
+  {
+   "id": "FC_AFTER",
+   "text": "After cycle: {cash}",
+   "max": 40,
+   "place": "cash_forecast.gd last line"
+  },
+  {
+   "id": "FC_HEAD",
+   "text": "Cycle {cycle} ends {timing}. Now: {cash}",
+   "max": 80,
+   "place": "cash_forecast.gd first line"
+  },
+  {
+   "id": "FC_INCOME",
+   "text": "Income:",
+   "max": 24,
+   "place": "cash_forecast.gd Income heading"
+  },
+  {
+   "id": "FC_IN_SECONDS",
+   "text": "in {n}s",
+   "max": 24,
+   "place": "cash_forecast.gd _rebuild timing"
+  },
+  {
+   "id": "FC_LAST_CYCLE",
+   "text": "Last cycle: {summary}",
+   "max": 40,
+   "place": "cash_forecast.gd second line"
+  },
+  {
+   "id": "FC_NONE",
+   "text": "none",
+   "max": 24,
+   "place": "cash_forecast.gd empty income"
+  },
+  {
+   "id": "FC_PAUSED",
+   "text": "paused",
+   "max": 24,
+   "place": "cash_forecast.gd _rebuild timing"
+  },
+  {
+   "id": "FC_ROUTE_STATUS",
+   "text": "{route} {status}",
+   "max": 30,
+   "place": "cash_forecast.gd route_expense_lines"
+  },
+  {
+   "id": "FC_STATUS_BLOCKED",
+   "text": "blocked",
+   "max": 24,
+   "place": "cash_forecast.gd route_expense_lines (status word after a route name)"
+  },
+  {
+   "id": "FC_STATUS_STALLED",
+   "text": "stalled",
+   "max": 24,
+   "place": "cash_forecast.gd route_expense_lines (status word after a route name)"
+  },
+  {
+   "id": "FC_STATUS_WAITING",
+   "text": "waiting",
+   "max": 24,
+   "place": "cash_forecast.gd route_expense_lines (status word after a route name)"
+  },
+  {
+   "id": "FC_TRIP_COST",
+   "text": "{route} trip cost",
+   "max": 40,
+   "place": "cash_forecast.gd route_expense_lines"
+  },
+  {
+   "id": "GIG_BOARD_EMPTY",
+   "text": "No offers right now. Signals and rush orders appear as the run goes on.",
+   "max": 130,
+   "place": "gig_board.gd:67"
+  },
+  {
+   "id": "GIG_BOARD_TITLE",
+   "text": "Gig board",
+   "max": 24,
+   "place": "gig_board.gd:31"
+  },
+  {
+   "id": "GIG_BTN_ACCEPT",
+   "text": "Accept",
+   "max": 24,
+   "place": "gig_board.gd:155"
+  },
+  {
+   "id": "GIG_BTN_ORDERED",
+   "text": "Ordered",
+   "max": 24,
+   "place": "gig_board.gd:197"
+  },
+  {
+   "id": "GIG_DONE_TITLE",
+   "text": "Signal",
+   "max": 24,
+   "place": "main.gd:2953"
+  },
+  {
+   "id": "GIG_EFF_CASH",
+   "text": "+{n} credits.",
+   "max": 30,
+   "place": "gigs.gd:603"
+  },
+  {
+   "id": "GIG_EFF_CREDIT",
+   "text": "The need counts as met for {n} cycles.",
+   "max": 70,
+   "place": "gigs.gd:622"
+  },
+  {
+   "id": "GIG_EFF_FEE",
+   "text": "-{n} credits.",
+   "max": 30,
+   "place": "gigs.gd:611"
+  },
+  {
+   "id": "GIG_EFF_GOODS",
+   "text": "{n} {good} in storage.",
+   "max": 40,
+   "place": "gigs.gd:616"
+  },
+  {
+   "id": "GIG_EFF_IDLE",
+   "text": "The Flagship is held for {n} cycles.",
+   "max": 70,
+   "place": "gigs.gd:638"
+  },
+  {
+   "id": "GIG_EFF_KNOWLEDGE",
+   "text": "You learned something.",
+   "max": 40,
+   "place": "gigs.gd:630"
+  },
+  {
+   "id": "GIG_EFF_PERK",
+   "text": "A small edge for {n} cycles.",
+   "max": 60,
+   "place": "gigs.gd:625"
+  },
+  {
+   "id": "GIG_ETA",
+   "text": "ETA {cycles} cycles, left {left}",
+   "max": 60,
+   "place": "gig_board.gd:195"
+  },
+  {
+   "id": "GIG_ETA_NONE",
+   "text": "Out of reach",
+   "max": 30,
+   "place": "gig_board.gd:193"
+  },
+  {
+   "id": "GIG_KIND_OPENING",
+   "text": "The Opening",
+   "max": 24,
+   "place": "gig_board.gd:77"
+  },
+  {
+   "id": "GIG_KIND_RUSH",
+   "text": "Rush order",
+   "max": 24,
+   "place": "gig_board.gd:81"
+  },
+  {
+   "id": "GIG_KIND_SALVAGE",
+   "text": "Salvage",
+   "max": 24,
+   "place": "gig_board.gd:79"
+  },
+  {
+   "id": "GIG_KIND_SIGNAL",
+   "text": "Signal",
+   "max": 24,
+   "place": "gig_board.gd:82"
+  },
+  {
+   "id": "GIG_REFUSE_BAD_TARGET",
+   "text": "The Flagship cannot fly there.",
+   "max": 60,
+   "place": "gig_board.gd _on_accept (refusal reason \"bad_target\")"
+  },
+  {
+   "id": "GIG_REFUSE_BUSY",
+   "text": "The Flagship is busy and cannot take this order yet.",
+   "max": 100,
+   "place": "gig_board.gd _on_accept (refusal reason \"busy\")"
+  },
+  {
+   "id": "GIG_REFUSE_GENERIC",
+   "text": "The Flagship cannot take this order now ({why}).",
+   "max": 90,
+   "place": "gig_board.gd _on_accept"
+  },
+  {
+   "id": "GIG_REFUSE_NO_GATE",
+   "text": "That system is not open yet.",
+   "max": 60,
+   "place": "gig_board.gd _on_accept (refusal reason \"no_gate\")"
+  },
+  {
+   "id": "GIG_REFUSE_NO_OFFER",
+   "text": "That order is gone.",
+   "max": 40,
+   "place": "gig_board.gd _on_accept (refusal reason \"no_offer\")"
+  },
+  {
+   "id": "GIG_REWARD_OPENING",
+   "text": "The Star Bazaar opens",
+   "max": 40,
+   "place": "gig_board.gd:108"
+  },
+  {
+   "id": "GIG_REWARD_RUSH",
+   "text": "Premium on the lot and the world's need met for a while",
+   "max": 100,
+   "place": "gig_board.gd:112"
+  },
+  {
+   "id": "GIG_REWARD_SALVAGE",
+   "text": "Stolen cargo, loaded into the Flagship hold",
+   "max": 80,
+   "place": "gig_board.gd:110"
+  },
+  {
+   "id": "GIG_REWARD_SIGNAL",
+   "text": "Unknown reward",
+   "max": 30,
+   "place": "gig_board.gd:113"
+  },
+  {
+   "id": "GIG_ROW_OPENING",
+   "text": "Charter cargo for {planet}",
+   "max": 50,
+   "place": "gig_board.gd:92"
+  },
+  {
+   "id": "GIG_ROW_RUSH",
+   "text": "{units} {good} for {planet}",
+   "max": 50,
+   "place": "gig_board.gd:98"
+  },
+  {
+   "id": "GIG_ROW_SALVAGE",
+   "text": "Cargo pods",
+   "max": 24,
+   "place": "gig_board.gd:94"
+  },
+  {
+   "id": "GIG_ROW_SIGNAL",
+   "text": "Unknown signal",
+   "max": 30,
+   "place": "gig_board.gd:99"
+  },
+  {
+   "id": "GIG_WHERE_SPACE",
+   "text": "Open space",
+   "max": 24,
+   "place": "gig_board.gd:104"
+  },
+  {
+   "id": "GOAL_SECOND_LANE",
+   "text": "Optional: open system {sys} (permit {n}), then sell a lot there.",
+   "max": 120,
+   "place": "main.gd:821"
+  },
+  {
+   "id": "HINT_HOUSE_CONGESTION",
+   "text": "Brings congestion: lanes cost more",
+   "max": 70,
+   "place": "rival_card.gd TEMPERAMENT table"
+  },
+  {
+   "id": "HINT_HOUSE_FLOOD",
+   "text": "Brings floods: prices fall",
+   "max": 50,
+   "place": "rival_card.gd TEMPERAMENT table"
+  },
+  {
+   "id": "HINT_HOUSE_NONE",
+   "text": "Weather unknown",
+   "max": 30,
+   "place": "rival_card.gd describe (house without temperament)"
+  },
+  {
+   "id": "HINT_HOUSE_SHORTAGE",
+   "text": "Brings shortages: needs run hungry",
+   "max": 70,
+   "place": "rival_card.gd TEMPERAMENT table"
+  },
+  {
+   "id": "KEY_MENU",
+   "text": "Menu",
+   "max": 24,
+   "place": "main.gd key hints (hints table)"
+  },
+  {
+   "id": "KEY_ORBIT",
+   "text": "Right-drag Orbit",
+   "max": 30,
+   "place": "main.gd key hints (hints table)"
+  },
+  {
+   "id": "KEY_PAN",
+   "text": "Pan",
+   "max": 24,
+   "place": "main.gd key hints (hints table)"
+  },
+  {
+   "id": "KEY_ZOOM",
+   "text": "Wheel Zoom",
+   "max": 24,
+   "place": "main.gd key hints (hints table)"
+  },
+  {
+   "id": "LBL_A_TO_B",
+   "text": "{a} to {b}",
+   "max": 24,
+   "place": "galaxy_view.gd:863"
+  },
+  {
+   "id": "LBL_BLOCKED_SHORT",
+   "text": "Blocked",
+   "max": 24,
+   "place": "galaxy_view.gd:877"
+  },
+  {
+   "id": "LBL_BUYS_GOODS",
+   "text": "Buys goods",
+   "max": 24,
+   "place": "galaxy_view.gd:850"
+  },
+  {
+   "id": "LBL_BUY_ORDER_STATE",
+   "text": "Buy order: {state}",
+   "max": 40,
+   "place": "planet_panel.gd resource row (buy button tooltip)"
+  },
+  {
+   "id": "LBL_BUY_TIP_ON",
+   "text": "{tip}. Standing buy order. Press to stop.",
+   "max": 80,
+   "place": "planet_panel.gd resource row (buy button tooltip)"
+  },
+  {
+   "id": "LBL_CONNECTIONS",
+   "text": "Connections",
+   "max": 24,
+   "place": "planet_panel.gd:1001"
+  },
+  {
+   "id": "LBL_COST_LINE",
+   "text": "{label}: −{n}",
+   "max": 30,
+   "place": "planet_panel.gd route row (running route costs)"
+  },
+  {
+   "id": "LBL_CYCLE_TIP",
+   "text": "Cycle",
+   "max": 24,
+   "place": "main.gd _refresh_hud"
+  },
+  {
+   "id": "LBL_GALAXY_HINT",
+   "text": "{open} of {total} systems open. Click a system to see it.",
+   "max": 110,
+   "place": "galaxy_view.gd:200"
+  },
+  {
+   "id": "LBL_GALAXY_PLANETS",
+   "text": "{n} planets",
+   "max": 24,
+   "place": "galaxy_view.gd:646"
+  },
+  {
+   "id": "LBL_GALAXY_PLANETS_WORD",
+   "text": "Planets",
+   "max": 24,
+   "place": "galaxy_view.gd:729"
+  },
+  {
+   "id": "LBL_GALAXY_ROUTES",
+   "text": "Routes",
+   "max": 24,
+   "place": "galaxy_view.gd:820"
+  },
+  {
+   "id": "LBL_GALAXY_ROUTE_MANY",
+   "text": "{n} routes",
+   "max": 24,
+   "place": "galaxy_view.gd:647"
+  },
+  {
+   "id": "LBL_GALAXY_ROUTE_ONE",
+   "text": "{n} route",
+   "max": 24,
+   "place": "galaxy_view.gd:647"
+  },
+  {
+   "id": "LBL_GALAXY_SHIPS",
+   "text": "Ships",
+   "max": 24,
+   "place": "galaxy_view.gd:821"
+  },
+  {
+   "id": "LBL_GALAXY_TITLE",
+   "text": "The galaxy",
+   "max": 24,
+   "place": "galaxy_view.gd:199"
+  },
+  {
+   "id": "LBL_KNOWN",
+   "text": "Known",
+   "max": 24,
+   "place": "galaxy_view.gd:728"
+  },
+  {
+   "id": "LBL_LEGEND_ENERGY",
+   "text": "Energy route",
+   "max": 30,
+   "place": "galaxy_view.gd legend (items table)"
+  },
+  {
+   "id": "LBL_LEGEND_FOOD",
+   "text": "Food route",
+   "max": 24,
+   "place": "galaxy_view.gd legend (items table)"
+  },
+  {
+   "id": "LBL_LEGEND_LINK",
+   "text": "Link",
+   "max": 24,
+   "place": "galaxy_view.gd legend (items table)"
+  },
+  {
+   "id": "LBL_LEGEND_UNCHARTED",
+   "text": "Uncharted link",
+   "max": 30,
+   "place": "galaxy_view.gd legend (items table)"
+  },
+  {
+   "id": "LBL_LINKS",
+   "text": "Links",
+   "max": 24,
+   "place": "galaxy_view.gd:731"
+  },
+  {
+   "id": "LBL_LOCKED_HOW",
+   "text": "permit or skill",
+   "max": 30,
+   "place": "main.gd:1025"
+  },
+  {
+   "id": "LBL_MISSION_FIRST",
+   "text": "Mission: Send stock to another planet",
+   "max": 70,
+   "place": "main.gd:3696"
+  },
+  {
+   "id": "LBL_NET_LINE",
+   "text": "{label}: {n} / cycle",
+   "max": 40,
+   "place": "planet_panel.gd route row (running route costs)"
+  },
+  {
+   "id": "LBL_NOT_OPEN",
+   "text": "Not open yet",
+   "max": 30,
+   "place": "galaxy_view.gd:726"
+  },
+  {
+   "id": "LBL_NO_CREDITS",
+   "text": "Not enough credits.",
+   "max": 40,
+   "place": "ship_panel.gd set_upkeep (free-ships hint)"
+  },
+  {
+   "id": "LBL_NO_ROUTES",
+   "text": "No routes yet.",
+   "max": 30,
+   "place": "galaxy_view.gd:856"
+  },
+  {
+   "id": "LBL_NO_STOCK_SOURCE",
+   "text": "No stock at source",
+   "max": 40,
+   "place": "route_line.gd:501"
+  },
+  {
+   "id": "LBL_OPEN_HOW",
+   "text": "click to travel",
+   "max": 30,
+   "place": "system_exit.gd:174"
+  },
+  {
+   "id": "LBL_OPEN_REASON",
+   "text": "Systems open with a permit or a skill.",
+   "max": 70,
+   "place": "galaxy_view.gd:740"
+  },
+  {
+   "id": "LBL_ORDER_OFF",
+   "text": "off",
+   "max": 24,
+   "place": "planet_panel.gd:1088"
+  },
+  {
+   "id": "LBL_ORDER_ON",
+   "text": "on",
+   "max": 24,
+   "place": "planet_panel.gd:744"
+  },
+  {
+   "id": "LBL_PANEL_SENDING",
+   "text": "Sending {good} from {planet}. Click the destination planet.{hint}",
+   "max": 120,
+   "place": "planet_panel.gd build (pending send card)"
+  },
+  {
+   "id": "LBL_PENDING_SEND",
+   "text": "Send {good} from {planet}: click the destination planet. (Esc to cancel)",
+   "max": 130,
+   "place": "main.gd _refresh_pending"
+  },
+  {
+   "id": "LBL_PENDING_STOP",
+   "text": "Click the stop in the picker, or {planet} again for a direct send. (Esc to cancel)",
+   "max": 150,
+   "place": "main.gd _refresh_pending"
+  },
+  {
+   "id": "LBL_PERMIT_OPEN",
+   "text": "Permit held: open.",
+   "max": 40,
+   "place": "galaxy_view.gd:817"
+  },
+  {
+   "id": "LBL_PER_CYCLE",
+   "text": "Per cycle",
+   "max": 24,
+   "place": "galaxy_view.gd:822"
+  },
+  {
+   "id": "LBL_PER_CYCLE_UNIT",
+   "text": "/ cycle",
+   "max": 24,
+   "place": "galaxy_view.gd:649"
+  },
+  {
+   "id": "LBL_PRICE_TIP",
+   "text": "{tip}.",
+   "max": 24,
+   "place": "planet_panel.gd resource row (buy button tooltip)"
+  },
+  {
+   "id": "LBL_ROUTE_BLOCKED",
+   "text": "Blocked",
+   "max": 24,
+   "place": "route_line.gd:489"
+  },
+  {
+   "id": "LBL_ROUTE_FROM",
+   "text": "From {planet}",
+   "max": 30,
+   "place": "planet_panel.gd Connections rows"
+  },
+  {
+   "id": "LBL_ROUTE_PAYS",
+   "text": "Pays when {planet} has a standing Sell order: {state}",
+   "max": 100,
+   "place": "planet_panel.gd:1089"
+  },
+  {
+   "id": "LBL_ROUTE_PAYS_NO",
+   "text": "Not traded there.",
+   "max": 40,
+   "place": "planet_panel.gd:1102"
+  },
+  {
+   "id": "LBL_ROUTE_PAYS_TIP",
+   "text": "Turn on the Sell order at {planet}.",
+   "max": 70,
+   "place": "planet_panel.gd:1102"
+  },
+  {
+   "id": "LBL_ROUTE_ROW_TIP",
+   "text": "Show this route's costs.",
+   "max": 50,
+   "place": "planet_panel.gd:1022"
+  },
+  {
+   "id": "LBL_ROUTE_SHIP_MANY",
+   "text": "{n} ships",
+   "max": 24,
+   "place": "route_line.gd:492"
+  },
+  {
+   "id": "LBL_ROUTE_SHIP_ONE",
+   "text": "{n} ship",
+   "max": 24,
+   "place": "route_line.gd:492"
+  },
+  {
+   "id": "LBL_ROUTE_TO",
+   "text": "To {planet}",
+   "max": 24,
+   "place": "planet_panel.gd Connections rows"
+  },
+  {
+   "id": "LBL_ROUTE_UPGRADED",
+   "text": "Route upgraded: +{pct}% margin.",
+   "max": 60,
+   "place": "planet_panel.gd:1125"
+  },
+  {
+   "id": "LBL_ROUTE_UPGRADE_INFO",
+   "text": "Full lane. Upgrade: {cost} credits for +{pct}% margin.",
+   "max": 100,
+   "place": "planet_panel.gd:1128"
+  },
+  {
+   "id": "LBL_ROUTE_UPGRADE_TIP",
+   "text": "Raise this lane's margin for {cost} credits.",
+   "max": 80,
+   "place": "planet_panel.gd:1137"
+  },
+  {
+   "id": "LBL_SELL_OFFER",
+   "text": "Sell {commodity} here too?",
+   "max": 50,
+   "place": "main.gd:1398"
+  },
+  {
+   "id": "LBL_SELL_ORDER_STATE",
+   "text": "Sell order: {state}",
+   "max": 40,
+   "place": "planet_panel.gd resource row (sell order status)"
+  },
+  {
+   "id": "LBL_SELL_TIP_OFF",
+   "text": "{tip}. Standing sell order each cycle.",
+   "max": 70,
+   "place": "planet_panel.gd resource menu (Sell tooltip)"
+  },
+  {
+   "id": "LBL_SELL_TIP_ON",
+   "text": "{tip}. Standing sell order. Press to stop.",
+   "max": 80,
+   "place": "planet_panel.gd resource menu (Sell tooltip)"
+  },
+  {
+   "id": "LBL_SEND_BUYS_SHIP",
+   "text": "No free ship. Send to... buys one for {price} credits.",
+   "max": 100,
+   "place": "ship_panel.gd:179"
+  },
+  {
+   "id": "LBL_SEND_TIP",
+   "text": "Move this stock to another planet's storage with a ship.",
+   "max": 110,
+   "place": "planet_panel.gd resource menu (Send to tooltip)"
+  },
+  {
+   "id": "LBL_SHIPS",
+   "text": "Ships",
+   "max": 24,
+   "place": "ship_panel.gd:35"
+  },
+  {
+   "id": "LBL_SHIPS_FREE_HINT",
+   "text": "Free ships: {free}. Ship upkeep {upkeep} / cycle each.",
+   "max": 100,
+   "place": "ship_panel.gd:174"
+  },
+  {
+   "id": "LBL_SHIP_COUNT",
+   "text": "Ships: {n} / {cap}",
+   "max": 40,
+   "place": "ship_panel.gd set_count"
+  },
+  {
+   "id": "LBL_SHIP_K_OF_N",
+   "text": "Ship {k} of {n}",
+   "max": 30,
+   "place": "planet_panel.gd:1197"
+  },
+  {
+   "id": "LBL_SHIP_LIMIT",
+   "text": "Ship limit reached ({cap}).",
+   "max": 50,
+   "place": "ship_panel.gd set_upkeep (free-ships hint)"
+  },
+  {
+   "id": "LBL_SHIP_RUNNING",
+   "text": "Running.",
+   "max": 24,
+   "place": "planet_panel.gd:1205"
+  },
+  {
+   "id": "LBL_SKILL_POINTS_HELP",
+   "text": "Skill points: {planet} for each planet you first trade with, {route} for each new route between two planets, {system} for each new system you reach.",
+   "max": 270,
+   "place": "skill_screen.gd build (help line under the title)"
+  },
+  {
+   "id": "LBL_SPEED_TIP",
+   "text": "Game speed {n}x",
+   "max": 30,
+   "place": "main.gd _build_speed_buttons"
+  },
+  {
+   "id": "LBL_SPLIT_BAR_STOP",
+   "text": "Stop split",
+   "max": 24,
+   "place": "planet_panel.gd:939"
+  },
+  {
+   "id": "LBL_SPLIT_TAG",
+   "text": "Split {share}%",
+   "max": 30,
+   "place": "planet_panel.gd:974"
+  },
+  {
+   "id": "LBL_SS_LOCKED",
+   "text": "Locked · permit or skill",
+   "max": 50,
+   "place": "galaxy_view.gd:892"
+  },
+  {
+   "id": "LBL_SS_OPEN",
+   "text": "Open",
+   "max": 24,
+   "place": "galaxy_view.gd:892"
+  },
+  {
+   "id": "LBL_STOP_AT_LINE",
+   "text": "Stop at {stop}: sell up to {n} here, carry the rest to {planet}.",
+   "max": 120,
+   "place": "main.gd:1499"
+  },
+  {
+   "id": "LBL_SYSTEM_HINT",
+   "text": "System {n} · {count} planets",
+   "max": 60,
+   "place": "main.gd:3684"
+  },
+  {
+   "id": "LBL_SYSTEM_N",
+   "text": "System {n} · {how}",
+   "max": 40,
+   "place": "galaxy_view.gd:815"
+  },
+  {
+   "id": "LBL_SYS_FIRST",
+   "text": "Your first system.",
+   "max": 40,
+   "place": "galaxy_view.gd:814"
+  },
+  {
+   "id": "LBL_SYS_PERMIT",
+   "text": "Opened with a permit.",
+   "max": 40,
+   "place": "galaxy_view.gd:814"
+  },
+  {
+   "id": "LBL_THE_PLANET",
+   "text": "the planet",
+   "max": 24,
+   "place": "trade.gd _name (fallback for an unknown planet index)"
+  },
+  {
+   "id": "LBL_UNCHARTED",
+   "text": "Uncharted",
+   "max": 24,
+   "place": "galaxy_view.gd:451"
+  },
+  {
+   "id": "LBL_UNCHARTED_BODY",
+   "text": "Nobody you know has traded here. That may be the point.",
+   "max": 100,
+   "place": "galaxy_view.gd:727"
+  },
+  {
+   "id": "LBL_UNCHARTED_SYSTEM",
+   "text": "Uncharted system",
+   "max": 30,
+   "place": "galaxy_view.gd:725"
+  },
+  {
+   "id": "LBL_UPKEEP_LINE",
+   "text": "Ship {n}, {type} ({good}): {pay}{tag}",
+   "max": 70,
+   "place": "ship_panel.gd set_upkeep"
+  },
+  {
+   "id": "LBL_UPKEEP_LINE_FREE",
+   "text": "Ship {n}, {type} (free): {pay}",
+   "max": 60,
+   "place": "ship_panel.gd set_upkeep"
+  },
+  {
+   "id": "LBL_UPKEEP_TOTAL",
+   "text": "{name}, total: {total} / cycle",
+   "max": 60,
+   "place": "ship_panel.gd set_upkeep"
+  },
+  {
+   "id": "LBL_WAITING_SHORT",
+   "text": "Waiting",
+   "max": 24,
+   "place": "galaxy_view.gd:874"
+  },
+  {
+   "id": "LBL_YOUR_ROUTES_HERE",
+   "text": "Your routes here",
+   "max": 30,
+   "place": "galaxy_view.gd:854"
+  },
+  {
+   "id": "MENU_PAUSE",
+   "text": "Pause",
+   "max": 24,
+   "place": "main.gd:3666"
+  },
+  {
+   "id": "MENU_VOICE",
+   "text": "Voice",
+   "max": 24,
+   "place": "game_menu.gd:60"
+  },
+  {
+   "id": "NOTE_SECOND_LANE",
+   "text": "Your first sale here crossed the system line.",
+   "max": 90,
+   "place": "planet_panel.gd:125"
+  },
+  {
+   "id": "NOT_BAZAAR_OPENING",
+   "text": "The charter cargo is ready. Fly it to {planet} to open the Star Bazaar.",
+   "max": 130,
+   "place": "main.gd:2425"
+  },
+  {
+   "id": "NOT_DEAD_OTHER_BRANCH",
+   "text": "Mining here is closed to your company.",
+   "max": 70,
+   "place": "route_engine.gd:185"
+  },
+  {
+   "id": "NOT_EVENT_EFFECT_DANGER",
+   "text": "Danger at {planet}: {amount}.",
+   "max": 60,
+   "place": "main.gd:2778"
+  },
+  {
+   "id": "NOT_FABRIC_BUILT",
+   "text": "Fabric built at the trading post.",
+   "max": 60,
+   "place": "main.gd:2074"
+  },
+  {
+   "id": "NOT_GIG_RUSH_DONE",
+   "text": "Rush order delivered at {planet}. {lines}",
+   "max": 80,
+   "place": "gigs.gd:555"
+  },
+  {
+   "id": "NOT_MINE_RECLAIMED",
+   "text": "This world is alive again and is no longer mined.",
+   "max": 90,
+   "place": "prosperity.gd:162"
+  },
+  {
+   "id": "NOT_MINE_RECLAIMING",
+   "text": "Being reclaimed: mining is closed here.",
+   "max": 80,
+   "place": "prosperity.gd:163"
+  },
+  {
+   "id": "NOT_OLD_SAVE",
+   "text": "Your old save is from before Four Markets and cannot continue. Start a new game.",
+   "max": 150,
+   "place": "save_game.gd:82"
+  },
+  {
+   "id": "NOT_PICK_OTHER_DEST",
+   "text": "Pick a different planet as the destination.",
+   "max": 80,
+   "place": "main.gd"
+  },
+  {
+   "id": "NOT_PROSPERITY_TAX",
+   "text": "Your worlds paid {n} credits in tax.",
+   "max": 70,
+   "place": "main.gd:2513"
+  },
+  {
+   "id": "NOT_PROSPERITY_TIER_UP",
+   "text": "{planet} has grown to tier {tier}.",
+   "max": 70,
+   "place": "main.gd:2420"
+  },
+  {
+   "id": "NOT_RAID_HIT",
+   "text": "Raiders from {planet} hit your lane to {lane}: {n} units lost, the lane runs weaker for {cycles} cycles.",
+   "max": 190,
+   "place": "raids.gd:146"
+  },
+  {
+   "id": "NOT_RAID_WARNING",
+   "text": "Raiders are stirring at {planet}. Your lane to {lane} may be hit next cycle.",
+   "max": 140,
+   "place": "raids.gd:120"
+  },
+  {
+   "id": "NOT_REPOSSESSED",
+   "text": "Cash ran out. The newest ship was repossessed: +{n} credits.",
+   "max": 110,
+   "place": "main.gd:2656"
+  },
+  {
+   "id": "NOT_SALVAGE_DONE",
+   "text": "Pods scooped into the Flagship hold: {lines}.",
+   "max": 90,
+   "place": "gigs.gd:192"
+  },
+  {
+   "id": "NOT_SALVAGE_FULL",
+   "text": "The Flagship hold is full. Some pods stay adrift.",
+   "max": 90,
+   "place": "gigs.gd:194"
+  },
+  {
+   "id": "NOT_STOP_PICK_AGAIN",
+   "text": "Click a stop from the picker, or the destination again.",
+   "max": 100,
+   "place": "main.gd:1162"
+  },
+  {
+   "id": "NOT_SYSTEM_LOCKED",
+   "text": "{name} is locked: {how}.",
+   "max": 50,
+   "place": "main.gd:1026"
+  },
+  {
+   "id": "ROUTE_OFFSET_MAINT",
+   "text": "Route detour +{offset}%: upkeep +{maint}%",
+   "max": 80,
+   "place": "planet_panel.gd:1240"
+  },
+  {
+   "id": "RSN_ALREADY_UPGRADED",
+   "text": "Already upgraded.",
+   "max": 40,
+   "place": "main.gd"
+  },
+  {
+   "id": "RSN_GAME_OVER",
+   "text": "The game is over.",
+   "max": 40,
+   "place": "main.gd can_buy_ship, can_connect, set_local_order, salvage_stock, move_ship..."
+  },
+  {
+   "id": "RSN_LANE_FULL",
+   "text": "This lane is full. Upgrade the route instead of adding a ship.",
+   "max": 120,
+   "place": "main.gd"
+  },
+  {
+   "id": "RSN_NO_CASH_SHIP",
+   "text": "Not enough cash for a new ship ({price} cr). Each route needs its own ship; wait for income or remove a route.",
+   "max": 200,
+   "place": "main.gd can_buy_ship"
+  },
+  {
+   "id": "RSN_NO_CASH_UPGRADE",
+   "text": "Not enough cash to upgrade the route ({cost} cr).",
+   "max": 90,
+   "place": "main.gd can_upgrade_route"
+  },
+  {
+   "id": "RSN_NO_PAYING_ROUTE",
+   "text": "No open route pays for this ship.",
+   "max": 60,
+   "place": "main.gd"
+  },
+  {
+   "id": "RSN_NO_ROUTE",
+   "text": "No such route.",
+   "max": 30,
+   "place": "main.gd"
+  },
+  {
+   "id": "RSN_SHIP_CAP",
+   "text": "Ship cap reached.",
+   "max": 40,
+   "place": "main.gd"
+  },
+  {
+   "id": "RSN_UPGRADE_NEEDS_FULL",
+   "text": "Only a full lane can be upgraded.",
+   "max": 60,
+   "place": "main.gd"
+  },
+  {
+   "id": "RT_ERR_NOT_TRADED_GOOD",
+   "text": "{good} is not traded here.",
+   "max": 50,
+   "place": "route_engine.gd check_local"
+  },
+  {
+   "id": "RT_ERR_NO_CLUSTER",
+   "text": "No such cluster.",
+   "max": 30,
+   "place": "route_engine.gd"
+  },
+  {
+   "id": "RT_ERR_NO_SYSTEM",
+   "text": "No such system.",
+   "max": 30,
+   "place": "route_engine.gd"
+  },
+  {
+   "id": "RT_ERR_PICK_DEST",
+   "text": "Pick a planet to deliver to.",
+   "max": 60,
+   "place": "route_engine.gd"
+  },
+  {
+   "id": "RT_ERR_PICK_SOURCE",
+   "text": "Pick a planet to send from.",
+   "max": 50,
+   "place": "route_engine.gd"
+  },
+  {
+   "id": "RT_ERR_SAME_PLANET",
+   "text": "Pick two different planets.",
+   "max": 50,
+   "place": "route_engine.gd"
+  },
+  {
+   "id": "RT_ERR_UNKNOWN_GOOD",
+   "text": "Unknown commodity.",
+   "max": 40,
+   "place": "route_engine.gd"
+  },
+  {
+   "id": "RT_ERR_UNKNOWN_ORDER",
+   "text": "Unknown order.",
+   "max": 30,
+   "place": "route_engine.gd"
+  },
+  {
+   "id": "RT_LINE_BUY",
+   "text": "Buy {good} at {planet}",
+   "max": 40,
+   "place": "route_engine.gd forecast lines"
+  },
+  {
+   "id": "RT_LINE_SELL",
+   "text": "Sell {good} at {planet}",
+   "max": 50,
+   "place": "route_engine.gd forecast lines"
+  },
+  {
+   "id": "RT_REASON_CLOSED",
+   "text": "A planet on this route is closed.",
+   "max": 60,
+   "place": "route_engine.gd"
+  },
+  {
+   "id": "RT_REASON_DEST_FULL",
+   "text": "Destination storage is full.",
+   "max": 60,
+   "place": "route_engine.gd"
+  },
+  {
+   "id": "RT_REASON_NOTHING",
+   "text": "Nothing to move.",
+   "max": 30,
+   "place": "route_engine.gd"
+  },
+  {
+   "id": "RT_REASON_SRC_EMPTY",
+   "text": "Source storage is empty.",
+   "max": 50,
+   "place": "route_engine.gd"
+  },
+  {
+   "id": "RT_STATE_BUYING",
+   "text": "Buying.",
+   "max": 24,
+   "place": "route_engine.gd"
+  },
+  {
+   "id": "RT_STATE_CLOSED",
+   "text": "Planet closed.",
+   "max": 30,
+   "place": "route_engine.gd"
+  },
+  {
+   "id": "RT_STATE_NOT_TRADED",
+   "text": "Not traded here.",
+   "max": 30,
+   "place": "route_engine.gd"
+  },
+  {
+   "id": "RT_STATE_SELLING",
+   "text": "Selling.",
+   "max": 24,
+   "place": "route_engine.gd"
+  },
+  {
+   "id": "RT_STATE_STORAGE_EMPTY",
+   "text": "Storage empty.",
+   "max": 30,
+   "place": "route_engine.gd"
+  },
+  {
+   "id": "RT_STATE_WAITING",
+   "text": "Waiting for cycle end.",
+   "max": 40,
+   "place": "route_engine.gd"
+  },
+  {
+   "id": "SETUP_BACK",
+   "text": "Back",
+   "max": 24,
+   "place": "company_setup.gd:114"
+  },
+  {
+   "id": "SETUP_CEO_LABEL",
+   "text": "Choose your CEO",
+   "max": 30,
+   "place": "company_setup.gd:75"
+  },
+  {
+   "id": "SETUP_NAME_LABEL",
+   "text": "Company name",
+   "max": 30,
+   "place": "company_setup.gd:56"
+  },
+  {
+   "id": "SETUP_NEED_CEO",
+   "text": "Choose a CEO to start.",
+   "max": 40,
+   "place": "company_setup.gd:212"
+  },
+  {
+   "id": "SETUP_NEED_NAME",
+   "text": "Enter a company name to start.",
+   "max": 60,
+   "place": "company_setup.gd:210"
+  },
+  {
+   "id": "SETUP_RANDOM",
+   "text": "Random",
+   "max": 24,
+   "place": "company_setup.gd:70"
+  },
+  {
+   "id": "SETUP_TITLE",
+   "text": "New company",
+   "max": 24,
+   "place": "company_setup.gd:50"
+  },
+  {
+   "id": "SK_EARN_LOCK",
+   "text": "Earn {need} credits from trade ({have}/{need}).",
+   "max": 90,
+   "place": "skill_tree.gd:141"
+  },
+  {
+   "id": "SK_LEARN_COST",
+   "text": "{verb}  ·  {amount} points",
+   "max": 50,
+   "place": "skill_screen.gd learn_text"
+  },
+  {
+   "id": "SK_LEARN_COST_ONE",
+   "text": "{verb}  ·  {amount} point",
+   "max": 50,
+   "place": "skill_screen.gd learn_text"
+  },
+  {
+   "id": "SS_FABRIC",
+   "text": "Fabric",
+   "max": 24,
+   "place": "good_info.gd:24"
+  },
+  {
+   "id": "SS_FABRIC_BUILD",
+   "text": "Build fabric ({cost} cr)",
+   "max": 50,
+   "place": "space_storage_view.gd:111"
+  },
+  {
+   "id": "ST_DEAD_EMPTY",
+   "text": "This world is mined out.",
+   "max": 50,
+   "place": "route_engine.gd:175"
+  },
+  {
+   "id": "ST_HUB_ALREADY",
+   "text": "This world is already a hub.",
+   "max": 60,
+   "place": "hubs.gd:91"
+  },
+  {
+   "id": "ST_HUB_FED_HUB",
+   "text": "Fed by hub",
+   "max": 24,
+   "place": "hubs.gd:205"
+  },
+  {
+   "id": "ST_HUB_FED_ROUTE",
+   "text": "Fed by your route",
+   "max": 40,
+   "place": "hubs.gd:203"
+  },
+  {
+   "id": "ST_HUB_FIRST_NOTICE",
+   "text": "{planet} is now a hub.",
+   "max": 40,
+   "place": "main.gd:2387"
+  },
+  {
+   "id": "ST_HUB_MAKE",
+   "text": "Make hub",
+   "max": 24,
+   "place": "planet_panel.gd:233"
+  },
+  {
+   "id": "ST_HUB_MAKE_TIP",
+   "text": "A hub keeps the needs of worlds in its reach fed, with ships from its own pool.",
+   "max": 150,
+   "place": "planet_panel.gd:234"
+  },
+  {
+   "id": "ST_HUB_MANUAL",
+   "text": "Kept manual",
+   "max": 24,
+   "place": "hub_panel.gd:163"
+  },
+  {
+   "id": "ST_HUB_NONE_IN_REACH",
+   "text": "No worlds in reach yet.",
+   "max": 50,
+   "place": "hub_panel.gd:131"
+  },
+  {
+   "id": "ST_HUB_NO_WORLD",
+   "text": "No such world.",
+   "max": 30,
+   "place": "hubs.gd"
+  },
+  {
+   "id": "ST_HUB_OPEN",
+   "text": "Hub panel",
+   "max": 24,
+   "place": "planet_panel.gd:223"
+  },
+  {
+   "id": "ST_HUB_PANEL_TITLE",
+   "text": "Hub: {planet}",
+   "max": 30,
+   "place": "hub_panel.gd:87"
+  },
+  {
+   "id": "ST_HUB_POOL",
+   "text": "Pool",
+   "max": 24,
+   "place": "hub_panel.gd _head call"
+  },
+  {
+   "id": "ST_HUB_POOL_FREE",
+   "text": "Free ships: {n}",
+   "max": 30,
+   "place": "hub_panel.gd:118"
+  },
+  {
+   "id": "ST_HUB_POOL_SHIPS",
+   "text": "Ships in pool: {n}",
+   "max": 40,
+   "place": "hub_panel.gd:95"
+  },
+  {
+   "id": "ST_HUB_RELEASE",
+   "text": "Release hub",
+   "max": 24,
+   "place": "hub_panel.gd:136"
+  },
+  {
+   "id": "ST_HUB_RELEASE_PROMPT",
+   "text": "Release the hub at {planet}? Its ships return to your free fleet.",
+   "max": 120,
+   "place": "hub_panel.gd:171"
+  },
+  {
+   "id": "ST_HUB_SERVED",
+   "text": "Worlds in reach",
+   "max": 30,
+   "place": "hub_panel.gd _head call"
+  },
+  {
+   "id": "ST_HUB_SHORT_CASH",
+   "text": "Short: no cash",
+   "max": 30,
+   "place": "hubs.gd:211"
+  },
+  {
+   "id": "ST_HUB_SHORT_SHIP",
+   "text": "Short: no free ship in pool",
+   "max": 50,
+   "place": "hubs.gd:209"
+  },
+  {
+   "id": "ST_HUB_SHORT_SOURCE",
+   "text": "Short: no source in reach",
+   "max": 50,
+   "place": "hubs.gd:207"
+  },
+  {
+   "id": "ST_HUB_SYSTEM_FULL",
+   "text": "This system already has its hub.",
+   "max": 60,
+   "place": "hubs.gd:95"
+  },
+  {
+   "id": "ST_HUB_TIER",
+   "text": "The world must reach tier {tier} first.",
+   "max": 80,
+   "place": "hubs.gd:93"
+  },
+  {
+   "id": "TIP_HEADER",
+   "text": "Tip",
+   "max": 24,
+   "place": "main.gd:5106"
+  },
+  {
+   "id": "TITLE_SECOND_LANE",
+   "text": "Cross-system trader",
+   "max": 40,
+   "place": "planet_panel.gd:125"
+  },
+  {
+   "id": "WS_WHY_FULL",
+   "text": "storage full",
+   "max": 30,
+   "place": "workshops.gd why_text"
+  },
+  {
+   "id": "WS_WHY_NO_RECIPE",
+   "text": "no recipe",
+   "max": 24,
+   "place": "workshops.gd why_text (stalled reason)"
+  },
+  {
+   "id": "WS_WHY_PAUSED",
+   "text": "paused",
+   "max": 24,
+   "place": "workshops.gd why_text (stalled reason)"
+  },
+  {
+   "id": "WX_LEFT_SHORT",
+   "text": "{n}c",
+   "max": 24,
+   "place": "ui.gd:256"
+  },
+  {
+   "id": "WX_NAME_CLOSED",
+   "text": "Closed",
+   "max": 24,
+   "place": "ui.gd:245"
+  },
+  {
+   "id": "WX_NAME_PRICE_UP",
+   "text": "Price up",
+   "max": 24,
+   "place": "ui.gd:243"
   },
   {
    "id": "SK_HEADER",

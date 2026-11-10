@@ -351,9 +351,9 @@ func local_state(planet: int, c: String, role: String) -> String:
 ## Checks a local order toggle. {ok, reason}.
 func check_local(planet: int, c: String, role: String) -> Dictionary:
 	if planet < 0 or planet >= trade.planets.size() or not _can_trade(c) or not ["buy", "sell"].has(role):
-		return {"ok": false, "reason": "Unknown order."}
+		return {"ok": false, "reason": StoryText.get_or("RT_ERR_UNKNOWN_ORDER", "Unknown order.")}
 	if trade.price(planet, c + "_" + role) < 0:
-		return {"ok": false, "reason": "%s is not traded here." % c.capitalize()}
+		return {"ok": false, "reason": StoryText.get_or("RT_ERR_NOT_TRADED_GOOD", "{good} is not traded here.", {"good": Ui.good_name(c)})}
 	if dead_lock_reason(planet) != "":
 		return {"ok": false, "reason": dead_lock_reason(planet)}
 	if role == "buy" and dead_skill_reason(planet) != "":  # buying at a dead world is mining it
@@ -368,7 +368,7 @@ func set_local(planet: int, c: String, role: String, on: bool) -> Dictionary:
 		return r
 	var o := local_of(planet, c, true)
 	o[role] = on
-	o[role + "_state"] = "" if not on else "Waiting for cycle end."
+	o[role + "_state"] = "" if not on else StoryText.get_or("RT_STATE_WAITING", "Waiting for cycle end.")
 	if not o["buy"] and not o["sell"]:
 		local.erase(local_key(planet, c))
 	return r
@@ -456,9 +456,9 @@ func _local_calc(planet: int, c: String, role: String, cash: int) -> Dictionary:
 	var key: String = storage.planet_key(planet)
 	var price := local_price(planet, c, role)
 	if not planet_open(planet):
-		return {"n": 0, "credits": 0, "state": "Planet closed."}
+		return {"n": 0, "credits": 0, "state": StoryText.get_or("RT_STATE_CLOSED", "Planet closed.")}
 	if price < 0:
-		return {"n": 0, "credits": 0, "state": "Not traded here."}
+		return {"n": 0, "credits": 0, "state": StoryText.get_or("RT_STATE_NOT_TRADED", "Not traded here.")}
 	if trade_gate.is_valid() and not bool(trade_gate.call(planet)):
 		return {"n": 0, "credits": 0, "state": StoryText.get_or("LBL_TRADE_NEEDS_STATION", "Needs a Space Storage in this system.")}
 	if role == "buy":
@@ -477,12 +477,12 @@ func _local_calc(planet: int, c: String, role: String, cash: int) -> Dictionary:
 			n = mini(n, floori(float(maxi(cash, 0)) / price))
 		if n <= 0:
 			return {"n": 0, "credits": 0, "state": no_cash_buy_text(price, cash)}
-		return {"n": n, "credits": -n * price, "state": "Buying."}
+		return {"n": n, "credits": -n * price, "state": StoryText.get_or("RT_STATE_BUYING", "Buying.")}
 	var have: int = sell_available(planet, c)  # owner 2026-11-01: a Sell also draws from Space Storage
 	if have <= 0:
-		return {"n": 0, "credits": 0, "state": "Storage empty."}
+		return {"n": 0, "credits": 0, "state": StoryText.get_or("RT_STATE_STORAGE_EMPTY", "Storage empty.")}
 	var m: int = mini(local_amount(c), have)
-	return {"n": m, "credits": sale_value(planet, c, m), "state": "Selling."}
+	return {"n": m, "credits": sale_value(planet, c, m), "state": StoryText.get_or("RT_STATE_SELLING", "Selling.")}
 
 # ---- routes ----
 
@@ -493,11 +493,11 @@ func check_connection(src: int, dst: int, c: String, new_route: bool = true) -> 
 	if dst < 0:  # manual Space Storage: dst = -system id
 		return _check_station(src, -dst, c)
 	if src == dst or src < 0 or dst < 0 or src >= trade.planets.size() or dst >= trade.planets.size():
-		return {"ok": false, "reason": "Pick two different planets."}
+		return {"ok": false, "reason": StoryText.get_or("RT_ERR_SAME_PLANET", "Pick two different planets.")}
 	if not _can_trade(c):
-		return {"ok": false, "reason": "Unknown commodity."}
+		return {"ok": false, "reason": StoryText.get_or("RT_ERR_UNKNOWN_GOOD", "Unknown commodity.")}
 	if not planet_open(src) or not planet_open(dst):
-		return {"ok": false, "reason": "A planet on this route is closed."}
+		return {"ok": false, "reason": StoryText.get_or("RT_REASON_CLOSED", "A planet on this route is closed.")}
 	if dead_lock_reason(src) != "":  # dead worlds open at balance dead_unlock_cycle: no route from or to one before it (saved routes too)
 		return {"ok": false, "reason": dead_lock_reason(src)}
 	if dead_lock_reason(dst) != "":
@@ -515,7 +515,7 @@ func check_connection(src: int, dst: int, c: String, new_route: bool = true) -> 
 func check_cluster(node: int, dst: int, c: String, new_route: bool = true) -> Dictionary:
 	var i := Clusters.index_of(node)
 	if clusters == null or not clusters.valid(i):
-		return {"ok": false, "reason": "No such cluster."}
+		return {"ok": false, "reason": StoryText.get_or("RT_ERR_NO_CLUSTER", "No such cluster.")}
 	if new_route and not Skills.unlocked("cluster_routes"):  # a saved route loads before the skills do and stays
 		return {"ok": false, "reason": StoryText.get_or("NOT_MINING_NEEDS_SKILL", "Mining needs the Prospecting skill.")}
 	if c != clusters.good_of(i) or not _can_trade(c):
@@ -526,18 +526,18 @@ func check_cluster(node: int, dst: int, c: String, new_route: bool = true) -> Di
 	if dst < 0:  # Space Storage station of system -dst (same rule as a planet: another system needs the permit routes skill)
 		dst_system = -dst
 		if not Availability.storage("space_storage"):
-			return {"ok": false, "reason": "Pick a planet to deliver to."}
+			return {"ok": false, "reason": StoryText.get_or("RT_ERR_PICK_DEST", "Pick a planet to deliver to.")}
 		var known := false
 		for p in trade.planets:
 			if int(p.get("system", 1)) == dst_system:
 				known = true
 		if not known:
-			return {"ok": false, "reason": "No such system."}
+			return {"ok": false, "reason": StoryText.get_or("RT_ERR_NO_SYSTEM", "No such system.")}
 	else:
 		if dst >= trade.planets.size():
-			return {"ok": false, "reason": "Pick a planet to deliver to."}
+			return {"ok": false, "reason": StoryText.get_or("RT_ERR_PICK_DEST", "Pick a planet to deliver to.")}
 		if not planet_open(dst):
-			return {"ok": false, "reason": "A planet on this route is closed."}
+			return {"ok": false, "reason": StoryText.get_or("RT_REASON_CLOSED", "A planet on this route is closed.")}
 		if dead_lock_reason(dst) != "":
 			return {"ok": false, "reason": dead_lock_reason(dst)}
 		dst_system = int(trade.planets[dst].get("system", 1))
@@ -563,11 +563,11 @@ func cluster_available(node: int) -> int:
 ## A send to the Space Storage of system sid. Open post is checked by main (space_post_open).
 func _check_station(src: int, sid: int, c: String) -> Dictionary:
 	if src < 0 or src >= trade.planets.size():
-		return {"ok": false, "reason": "Pick a planet to send from."}
+		return {"ok": false, "reason": StoryText.get_or("RT_ERR_PICK_SOURCE", "Pick a planet to send from.")}
 	if not _can_trade(c):
-		return {"ok": false, "reason": "Unknown commodity."}
+		return {"ok": false, "reason": StoryText.get_or("RT_ERR_UNKNOWN_GOOD", "Unknown commodity.")}
 	if not planet_open(src):
-		return {"ok": false, "reason": "A planet on this route is closed."}
+		return {"ok": false, "reason": StoryText.get_or("RT_REASON_CLOSED", "A planet on this route is closed.")}
 	if dead_lock_reason(src) != "":
 		return {"ok": false, "reason": dead_lock_reason(src)}
 	if dead_skill_reason(src) != "":  # a send to Space Storage mines the world too (was a gate bypass)
@@ -577,7 +577,7 @@ func _check_station(src: int, sid: int, c: String) -> Dictionary:
 		if int(p.get("system", 1)) == sid:
 			known = true
 	if not known:
-		return {"ok": false, "reason": "No such system."}
+		return {"ok": false, "reason": StoryText.get_or("RT_ERR_NO_SYSTEM", "No such system.")}
 	if int(trade.planets[src].get("system", 1)) != sid and not Skills.unlocked("permit_routes"):
 		return {"ok": false, "reason": StoryText.get_text("NOT_ROUTE_NEEDS_C3")}
 	return {"ok": true, "reason": ""}
@@ -681,10 +681,10 @@ func status_of(rec: Dictionary) -> String:
 
 func reason_of(rec: Dictionary) -> String:
 	if not src_open(rec) or not dst_open(rec):
-		return "A planet on this route is closed."
+		return StoryText.get_or("RT_REASON_CLOSED", "A planet on this route is closed.")
 	if _dest_full(rec):
 		if not has_outflow(int(rec["b"]), str(rec["c"])):
-			return "Destination storage is full."
+			return StoryText.get_or("RT_REASON_DEST_FULL", "Destination storage is full.")
 		if src_available(rec) > 0:
 			return waiting_text()
 	return str(rec["reason"])
@@ -936,11 +936,11 @@ func forecast(cash: int) -> Dictionary:
 		var pk: String = storage.planet_key(p)
 		var credits := 0
 		var bought := 0
-		var state := "Buying."
+		var state := StoryText.get_or("RT_STATE_BUYING", "Buying.")
 		if not planet_open(p):
-			state = "Planet closed."
+			state = StoryText.get_or("RT_STATE_CLOSED", "Planet closed.")
 		elif price < 0:
-			state = "Not traded here."
+			state = StoryText.get_or("RT_STATE_NOT_TRADED", "Not traded here.")
 		elif trade_gate.is_valid() and not bool(trade_gate.call(p)):
 			state = StoryText.get_or("LBL_TRADE_NEEDS_STATION", "Needs a Space Storage in this system.")
 		else:
@@ -958,7 +958,7 @@ func forecast(cash: int) -> Dictionary:
 					credits = -n * price
 					bought = n
 		delta += credits
-		loc.append({"label": "Buy %s at %s" % [c, _pname(p)], "role": "buy", "planet": p, "c": c, "credits": credits, "state": state, "n": bought, "unit": maxi(price, 0)})
+		loc.append({"label": StoryText.get_or("RT_LINE_BUY", "Buy {good} at {planet}", {"good": Ui.good_name(c).to_lower(), "planet": _pname(p)}), "role": "buy", "planet": p, "c": c, "credits": credits, "state": state, "n": bought, "unit": maxi(price, 0)})
 	var budget := {}
 	for rec in routes:
 		var lk := _lane_key(int(rec["a"]), int(rec["b"]), str(rec["c"]))
@@ -1030,19 +1030,19 @@ func forecast(cash: int) -> Dictionary:
 		var pk: String = storage.planet_key(p)
 		var credits := 0
 		var sold_n := 0
-		var state := "Selling."
+		var state := StoryText.get_or("RT_STATE_SELLING", "Selling.")
 		var price := local_price(p, c, "sell")
 		if not planet_open(p):
-			state = "Planet closed."
+			state = StoryText.get_or("RT_STATE_CLOSED", "Planet closed.")
 		elif price < 0:
-			state = "Not traded here."
+			state = StoryText.get_or("RT_STATE_NOT_TRADED", "Not traded here.")
 		elif trade_gate.is_valid() and not bool(trade_gate.call(p)):
 			state = StoryText.get_or("LBL_TRADE_NEEDS_STATION", "Needs a Space Storage in this system.")
 		else:
 			var sk := space_key_for(p)
 			var have: int = int(amt.call(pk, c)) + (int(amt.call(sk, c)) if sk != "" else 0)
 			if have <= 0:
-				state = "Storage empty."
+				state = StoryText.get_or("RT_STATE_STORAGE_EMPTY", "Storage empty.")
 			else:
 				var n: int = mini(local_amount(c), have)
 				var from_planet: int = mini(n, int(amt.call(pk, c)))
@@ -1057,7 +1057,7 @@ func forecast(cash: int) -> Dictionary:
 				credits += b
 				mixed[p] = {"goods": int(m["goods"]) + 1, "bonus": int(m["bonus"]) + b, "mk": _add_mk(m["mk"], c)}
 		delta += credits
-		loc.append({"label": "Sell %s at %s" % [c, _pname(p)], "role": "sell", "planet": p, "c": c, "credits": credits, "state": state, "n": sold_n, "unit": sold_price(p, c)})
+		loc.append({"label": StoryText.get_or("RT_LINE_SELL", "Sell {good} at {planet}", {"good": Ui.good_name(c).to_lower(), "planet": _pname(p)}), "role": "sell", "planet": p, "c": c, "credits": credits, "state": state, "n": sold_n, "unit": sold_price(p, c)})
 	_attribute_lanes(loc, res)
 	return {"local": loc, "routes": res, "delta": delta}
 
@@ -1167,7 +1167,7 @@ func settle(cash: int) -> Dictionary:
 			fare_paid = true
 		if rec["state"] == "blocked" and was != "blocked":
 			newly.append(rec)
-		if rec["state"] == "stalled" and was != "stalled" and str(rec["reason"]) == "Source storage is empty.":
+		if rec["state"] == "stalled" and was != "stalled" and str(rec["reason"]) == StoryText.get_or("RT_REASON_SRC_EMPTY", "Source storage is empty."):
 			newly_stalled.append(rec)
 		rec["fresh"] = 1.0
 		results.append({"id": rec["id"], "a": rec["a"], "b": rec["b"], "c": rec["c"], "ships": 1,
@@ -1218,12 +1218,12 @@ func _settle_one(rec: Dictionary, cash: int) -> int:
 	var dst := str(rec["dst"])
 	if not src_open(rec) or not dst_open(rec):
 		rec["state"] = "blocked"
-		rec["reason"] = "A planet on this route is closed."
+		rec["reason"] = StoryText.get_or("RT_REASON_CLOSED", "A planet on this route is closed.")
 		return 0
 	var full: bool = storage.is_full(dst, c)
 	if full and not has_outflow(int(rec["b"]), c):
 		rec["state"] = "blocked"
-		rec["reason"] = "Destination storage is full."
+		rec["reason"] = StoryText.get_or("RT_REASON_DEST_FULL", "Destination storage is full.")
 		return 0
 	if src_available(rec) <= 0:
 		if from_cluster(rec):  # T156: empty cluster stalls the lane; the player removes it. A cluster shared by ships may only be out of its cycle yield.
@@ -1232,7 +1232,7 @@ func _settle_one(rec: Dictionary, cash: int) -> int:
 			rec["reason"] = StoryText.get_or("ST_CLUSTER_EMPTY", "The cluster is empty.") if empty else StoryText.get_or("ST_CLUSTER_SHARED", "Another ship took this cycle's ore.")
 			return 0
 		rec["state"] = "stalled"
-		rec["reason"] = "Source storage is empty."
+		rec["reason"] = StoryText.get_or("RT_REASON_SRC_EMPTY", "Source storage is empty.")
 		return 0
 	if full:  # T70: outflow exists, so wait for room (neutral, no notification)
 		rec["state"] = "waiting"
@@ -1246,7 +1246,7 @@ func _settle_one(rec: Dictionary, cash: int) -> int:
 	var moved := planned_units(rec)
 	if moved <= 0:
 		rec["state"] = "stalled"
-		rec["reason"] = "Nothing to move."
+		rec["reason"] = StoryText.get_or("RT_REASON_NOTHING", "Nothing to move.")
 		return 0
 	if from_cluster(rec):  # T156: the ship loads ore free at the cluster; it thins and never refills
 		var got: int = clusters.take(Clusters.index_of(int(rec["a"])), moved)

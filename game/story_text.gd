@@ -5,7 +5,7 @@ extends RefCounted
 
 const PATH := "res://data/story_text.json"
 
-## Russian overrides (only EV_ / EV<digit> / BE<digit> / TUT_G<digit> / TUT_GALAXY_ / CH_ / WARN_ / MENU_ / SCR_ / END_ / EPI_ ids; same rule as RU_SCOPE_RE in tools/build_story.py). Used only while language is "ru" and the id is in this table.
+## Russian overrides (every text id since 2026-11-09; same rule as RU_SCOPE_RE in tools/build_story.py). Used only while language is "ru" and the id is in this table.
 static var ru_path: String = "res://data/story_text_ru.json"
 static var language: String = "en"
 static var _ru: Dictionary = {}
@@ -35,20 +35,15 @@ static func entries_of(parsed) -> Array:
 		return parsed["entries"]
 	return parsed if typeof(parsed) == TYPE_ARRAY else []
 
-## True for ids the Russian table may hold.
+## True for ids the Russian table may hold: every text id (same rule as RU_SCOPE_RE in tools/build_story.py: ^[A-Z][A-Z0-9_]{2,}$).
 static func in_ru_scope(id: String) -> bool:
-	if id.length() > 2 and id.begins_with("EV") and id[2] >= "0" and id[2] <= "9":
-		return true
-	if id.length() > 2 and id.begins_with("BE") and id[2] >= "0" and id[2] <= "9":
-		return true
-	for p in ["EV_", "TUT_GALAXY_", "CH_", "WARN_", "MENU_", "SCR_", "END_", "EPI_", "TXT_SHIP_", "LBL_STAT_", "LBL_CEO_", "TXT_CEO_", "LBL_SHIP_SCREEN", "LBL_SHIP_PICK", "LBL_SHIP_START", "LBL_SHIP_BULK", "LBL_SHIP_DART", "LBL_SHIP_FLEET"]:
-		if id.begins_with(p):
-			return true
-	if id == "SETUP_NEXT" or id == "GOOD_RIVETS_DESC":
-		return true
-	if id.begins_with("SK_") and (id.ends_with("_NAME") or id.ends_with("_FLAVOUR") or id.ends_with("_PLAIN") or id.ends_with("_CRAFT")):
-		return true
-	return id.length() > 5 and id.begins_with("TUT_G") and id[5] >= "0" and id[5] <= "9"
+	if id.length() < 3 or id[0] < "A" or id[0] > "Z":
+		return false
+	for i in id.length():
+		var ch := id[i]
+		if not ((ch >= "A" and ch <= "Z") or (ch >= "0" and ch <= "9") or ch == "_"):
+			return false
+	return true
 
 static func set_language(code: String) -> void:
 	language = code

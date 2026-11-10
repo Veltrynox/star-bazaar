@@ -145,12 +145,27 @@ func recipe_line(good: String) -> String:
 			parts.append(StoryText.get_or("LBL_WORKSHOP_NEEDS_OTHER", "another input"))
 	return "%s -> %d %s" % [" + ".join(parts), out_units(good), Ui.good_name(good).to_lower()]  # yield includes batch_yield skills
 
+## A stalled reason (the internal keys "storage full", "no recipe", "paused", "needs a,b") as player text. Used by status_text and the fabric line.
+static func why_text(why: String) -> String:
+	if why == "storage full":
+		return StoryText.get_or("WS_WHY_FULL", "storage full")
+	if why == "no recipe":
+		return StoryText.get_or("WS_WHY_NO_RECIPE", "no recipe")
+	if why == "paused":
+		return StoryText.get_or("WS_WHY_PAUSED", "paused")
+	if why.begins_with("needs "):
+		var names: Array = []
+		for g in why.substr(6).split(","):
+			names.append(Ui.good_name(str(g)))
+		return StoryText.get_or("LBL_WORKSHOP_NEEDS", "needs {items}", {"items": ", ".join(names)})
+	return why
+
 ## Status line of a built workshop. Stalled: "Stalled: needs Energy, Logic Cores" naming every missing input that is
 ## visible now (Availability), plus "another input" when a hidden good is missing. Not stalled: "Batches this cycle: n"
 ## (+ what the last cycle made). A stalled workshop never shows its batch count (nothing was made).
 func status_text(id: String) -> String:
 	if str(state.get(id, "")) == "stalled":
-		var why: String = str(reason.get(id, ""))
+		var why: String = why_text(str(reason.get(id, "")))
 		var names: Array = []
 		var hidden := false
 		for g in missing.get(id, []):

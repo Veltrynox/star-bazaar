@@ -201,4 +201,4 @@ func _on_accept(uid: String) -> void:
 	if why == "":
 		close_screen()
 		return
-	main.post_notice(StoryText.get_or("GIG_REFUSE_" + why.to_upper(), "The Flagship cannot take this order now ({why}).", {"why": why}))
+	main.post_notice(StoryText.get_or("GIG_REFUSE_" + why.to_upper(), StoryText.get_or("GIG_REFUSE_GENERIC", "The Flagship cannot take this order now ({why}).", {"why": why})))
