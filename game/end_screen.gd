@@ -52,6 +52,11 @@ static func epilogue_lines(fl: Dictionary) -> Array:
 	if fl.is_empty():
 		return out
 	var mk := str(fl.get("market", "")).to_upper()
+	var ckey := EndingPicker.key_of(str(fl.get("ending_id", "")), mk)
+	if ckey != "":  # a CEO ending: its own line first, then the hidden lean line (the cap of four below keeps the rest)
+		for id in ["EPI_%s_%s" % [mk, ckey], "EPI_%s_LEAN_%s" % [mk, str(fl.get("flag", "good")).to_upper()]]:
+			if StoryText.has_text(id):
+				out.append(StoryText.get_text(id))
 	var ws := _workshop_name(str(fl.get("market", "")))
 	if bool(fl.get("capstone", false)) and StoryText.has_text("EPI_CAP_" + mk):
 		out.append(StoryText.get_text("EPI_CAP_" + mk))
@@ -59,7 +64,7 @@ static func epilogue_lines(fl: Dictionary) -> Array:
 		out.append(StoryText.get_text("EPI_TECH_%d" % int(fl.get("tech_done", 0)), {"workshop": ws}))
 	if bool(fl.get("rival_broken", false)) and StoryText.has_text("EPI_RIVAL_" + mk):
 		out.append(StoryText.get_text("EPI_RIVAL_" + mk, {"bot": Bots.bot_name(int(fl.get("rival_broken_bot", 1)))}))
-	return out
+	return out.slice(0, 4)
 
 ## T299: the recap block above the ending text: capital, stages, wings, worlds grown, reclaimed worlds, the three decisive moments.
 ## Data from Bazaar.recap() (stats.recap). Texts by id with plain fallbacks (END_RECAP_*; the story task writes them). Empty recap: nothing drawn.
@@ -101,6 +106,9 @@ static func _workshop_name(market: String) -> String:
 ## The readout under the text: the market (stats.market, else the first), the player's share and the three bots.
 func show_ending(ending_id: String, side: String, stats: Dictionary, stat: String = "") -> void:
 	var box := _box()
+	var fl: Dictionary = stats.get("flavour", {})
+	if not StoryText.has_text(ending_id) and EndingPicker.key_of(ending_id, str(fl.get("market", ""))) != "":  # CEO ending text not written yet: the market fallback stands in
+		ending_id = "END_%s_%s" % [str(fl.get("market", "")).to_upper(), str(fl.get("flag", "good")).to_upper()]
 	var title_id := ending_id + "_TITLE"
 	if not StoryText.has_text(title_id) and ending_id.ends_with("_BAD"):
 		title_id = ending_id.trim_suffix("_BAD") + "_GOOD_TITLE"

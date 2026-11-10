@@ -58,6 +58,8 @@ var paused: bool = true  # T23: game starts paused after the preface
 var game_over: bool = false
 var rescues_paid: int = 0  # Four Markets: stranded stipends paid this run (capped by rescue_max), saved
 var repossessions: int = 0  # ships repossessed this run, saved
+var run_notes: Dictionary = {}  # CEO endings: the nine counters (EndingPicker.STORED_KEYS), saved under "run_notes"; read with note_value()
+var notes_known: bool = true    # false for a save made before run_notes existed: the picker then goes straight to the GOOD / BAD fallback
 var repossessed_cycle: int = -1  # cycle of the last repossession (no stipend in that cycle)
 var end_screen: ColorRect  # T77 overlay, null when none
 ## Learned skill ids (FND_STORAGE, MIL_1 ... finished techs included), saved. The array is Skills.learned itself: appending
@@ -363,6 +365,7 @@ func _ready() -> void:
 	dead.setup(balance)
 	prosperity.setup(balance, map.planets, func(pid: String) -> bool: return flight != null and flight.established(pid))
 	engine.prosperity = prosperity
+	prosperity.branch_fn = func() -> String: return run_branch()  # overrides_by_branch
 	prosperity.weather = events  # T280: shortages change demand and hunger
 	bazaar.setup(self)  # T259
 	hubs.setup(balance, engine, prosperity, trade, storage)  # T289
@@ -502,7 +505,7 @@ func ship_price() -> int:
 func collect_state() -> Dictionary:
 	return {"company_name": company_name, "ceo_portrait": ceo_portrait, "ceo_id": ceo_id, "ship_type": ship_type, "run": {"branch": branch}, "cycle": cycle, "trade_income_total": trade_income_total, "storage_notice_done": storage_notice_done, "cycle_elapsed": cycle_elapsed, "cash": cash, "paused": paused, "ships": ships,
 		"routes": engine.to_array(), "storage": storage.to_dict(), "orders": engine.local_to_array(),
-		"markets": Markets.to_dict(), "rescues_paid": rescues_paid, "repossessions": repossessions, "learned_skills": learned_skills.duplicate(), "skills": Skills.to_dict(), "tech": Tech.to_dict(), "systems_reached": systems_reached,
+		"markets": Markets.to_dict(), "rescues_paid": rescues_paid, "repossessions": repossessions, "run_notes": run_notes.duplicate(), "learned_skills": learned_skills.duplicate(), "skills": Skills.to_dict(), "tech": Tech.to_dict(), "systems_reached": systems_reached,
 		"time_speed": time_speed, "skill_points": skill_points, "pts_planets": pts_planets, "pts_pairs": pts_pairs, "events": events.to_dict(),
 			"open_systems": open_systems, "reached_ids": reached_ids, "galaxy_seen": galaxy_seen, "tut_step": tut_step, "tut_ver": TUT_VER, "tips_seen": tips_seen.keys(), "tips_off": tips_off,
 		"chains": Chains.to_dict(), "storage_cuts": storage.cuts_to_dict(), "price_history": price_history,
@@ -550,10 +553,16 @@ func apply_state(s: Dictionary) -> void:
 	Chains.now = cycle
 	rescues_paid = int(s.get("rescues_paid", 0))
 	repossessions = int(s.get("repossessions", 0))
+	run_notes = {}
+	notes_known = typeof(s.get("run_notes")) == TYPE_DICTIONARY
+	if notes_known:
+		for k in EndingPicker.STORED_KEYS:
+			run_notes[k] = maxi(0, int(s["run_notes"].get(k, 0)))
 	cycle_elapsed = clampf(float(s.get("cycle_elapsed", 0.0)), 0.0, _cycle_seconds())
 	time_speed = _speed_or_default(s.get("time_speed", SPEED_BASE))  # old saves: a value that is not one of the speeds becomes the default
 	cash = int(s.get("cash", cash))
 	ships = clampi(int(s.get("ships", 0)), 0, ship_cap())
+	_track_ships()
 	Skills.reset(balance)
 	if typeof(s.get("learned_skills")) == TYPE_ARRAY:
 		learned_skills = s["learned_skills"]  # unknown ids are dropped by the setter
@@ -1189,6 +1198,7 @@ func _on_planet_clicked(index: int) -> void:
 			var pending_planet: int = src
 			var wants_buy: bool = bool(pending.get("buy", false))
 			var quick: bool = bool(pending.get("quick", false))  # started from the right-click resource popup: no planet panel opens
+			note("quick_routes" if quick else "card_routes")  # CEO endings: how the route was set (a lane that only adds a ship counts too)
 			cancel_pending()
 			if wants_buy and not engine.local_on(pending_planet, str(r["c"]), "buy"):
 				var bo := set_local_order(pending_planet, str(r["c"]), "buy", true)
@@ -1654,6 +1664,7 @@ func _buy_ship_now(kind: String = "") -> Dictionary:
 		return r
 	cash -= Ships.price(kind, balance)
 	ships += 1
+	_track_ships()
 	_after_change()
 	return r
 
@@ -2604,6 +2615,8 @@ func _end_cycle() -> void:
 	_settle_routes()
 	gigs.credit_tick()  # T271: a rush delivery counts as its need met for some cycles
 	prosperity.end_cycle()  # T256: needs met = progress, short = decay, full = tier up
+	note("restless_cycles", prosperity.restless_count())  # CEO endings: world-cycles spent Restless
+	_note_space_cycle()
 	_tick_danger()
 	fabric.run(storage)
 	storage_link.settle()  # T171: standing link orders and upkeep
@@ -2738,13 +2751,68 @@ func _repossess_newest() -> void:
 	post_notice(StoryText.get_or("NOT_REPOSSESSED", "Cash ran out. The newest ship was repossessed: +{n} credits.", {"n": credit}))
 	_after_change()
 
-## Ending id for an outcome (T259). A Bazaar win is the run branch's family, GOOD or BAD by the hidden chain lean:
-## END_<BRANCH>_GOOD / _BAD. The term ending is END_UNFINISHED; the loss is END_BANKRUPT.
+## ---- CEO endings: run notes ----
+## note(key): add n to a stored counter (any code may call it; the CEO event counters ceo_paid, ceo_bore, ceo_cash stay 0 until those events exist).
+func note(key: String, n: int = 1) -> void:
+	if EndingPicker.STORED_KEYS.has(key):
+		run_notes[key] = int(run_notes.get(key, 0)) + n
+
+func _track_ships() -> void:
+	run_notes["peak_ships"] = maxi(int(run_notes.get("peak_ships", 0)), ships)
+
+## A cycle ended with goods held in a Space Storage ("system:<n>" container).
+func _note_space_cycle() -> void:
+	for key in storage.stock.keys():
+		if str(key).begins_with("system:"):
+			for c in storage.stock[key]:
+				if int(storage.stock[key][c]) > 0:
+					note("space_cycles")
+					return
+
+## Value of a note for the ending conditions: a stored counter, or one derived from the live state (nothing derived is saved).
+func note_value(key: String) -> int:
+	if EndingPicker.STORED_KEYS.has(key):
+		return int(run_notes.get(key, 0))
+	match key:
+		"repossessions":
+			return repossessions
+		"rush_done":
+			return gigs.rush_done
+		"skills_min":
+			var n := 0
+			for id in SkillTree.ids_in(run_branch()):
+				if Skills.is_learned(id):
+					n += 1
+			return n
+		"worlds_city":
+			var per: Dictionary = bazaar.recap().get("worlds_per_tier", {})
+			var n2 := 0
+			for t in per:
+				if int(t) >= int(balance.get("end_city_tier", 2)):
+					n2 += int(per[t])
+			return n2
+		"explored", "established", "platforms", "warm_worlds":
+			var n3 := 0
+			for pid in Conditions.planet_ids():
+				match key:
+					"explored":
+						n3 += 1 if flight.discovered(pid) else 0
+					"established":
+						n3 += 1 if flight.established(pid) else 0
+					"platforms":
+						n3 += 1 if flight.platform_built(pid) else 0
+					"warm_worlds":
+						n3 += 1 if Chains.mood_of(pid) == "warm" else 0
+			return n3
+	return 0
+
+## Ending id for an outcome (T259). A Bazaar win is the run branch's family: a CEO ending (EndingPicker.pick, data/endings.json),
+## else END_<BRANCH>_GOOD / _BAD by the hidden chain lean. The term ending is END_UNFINISHED; the loss is END_BANKRUPT.
 func ending_id_of(outcome: Dictionary) -> String:
 	match str(outcome.get("kind", "")):
 		"bazaar":
 			var b := run_branch() if run_branch() != "" else str(Markets.ids[0])
-			return "END_%s_%s" % [b.to_upper(), Chains.ending_flag(b).to_upper()]
+			return EndingPicker.pick(b, self)
 		"bankrupt":
 			return "END_BANKRUPT"
 	return "END_UNFINISHED"
@@ -2771,6 +2839,7 @@ func _finish(side: String, ending_id: String, stat: String, win_market: String =
 	var stats := {"cycle": cycle, "cash": cash, "market": win_market}
 	if side == "WIN":  # core 6: capstone, techs done, second market ... for the flavour lines of the win ending
 		stats["flavour"] = EndingPicker.inputs(str(stats["market"]), balance, bazaar.stage(), bazaar.recap())
+		stats["flavour"]["ending_id"] = ending_id  # the picked CEO ending, not only GOOD / BAD
 	if bazaar_panel != null:
 		bazaar_panel.close_screen()
 		bazaar_panel.close_wing_choice()
@@ -3316,6 +3385,7 @@ func debug_add_ship(kind: String) -> bool:
 	if not OS.is_debug_build() or game_over or ships >= ship_cap():
 		return false
 	ships += 1
+	_track_ships()
 	_after_change()
 	return true
 

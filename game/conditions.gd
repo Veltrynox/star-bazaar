@@ -31,6 +31,8 @@ extends RefCounted
 ##   bazaar_stage:<n>                       the Star Bazaar has completed n stages (game/bazaar.gd; n from 1)
 ##   gig_done:<id>                          that gig of data/gigs.json is finished (a signal's option was picked; game/gigs.gd, saved)
 ##   gig_open                               some gig offer is open on the board
+##   note_at_least:<key>/<value>            CEO endings: run note <key> (EndingPicker.ALL_KEYS; Main.note_value) is >= value; value is a whole number or a balance key (no "balance." prefix)
+##   note_at_most:<key>/<value>             the same, <=. Only the picker (EndingPicker.pick) calls these, and never on a save without run_notes
 ## Atoms that need a chain step in the context (ctx.step), the market and previous step come from it:
 ##   share_pct:<balance>                    always false since T281 (share is gone); kept so old data parses
 ##   first_sale_after_cycle:<balance>       a non-common-raw good of the step's market sold in a cycle after that
@@ -45,7 +47,7 @@ const ATOMS := {
 	"start": "", "skill_learned": "node", "workshop_built": "workshop", "system_open": "system", "cycle_at_least": "balance", "cycle_at_most": "balance",
 	"stock_held": "good", "good_visible": "good", "good_traded": "good", "event_fired": "event",
 	"share_pct": "balance", "first_sale_after_cycle": "balance", "cycles_after_prev_step": "balance",
-	"planet_visited": "planet", "post_built": "planet", "platform_built": "planet", "branch_is": "market", "branch_chosen": "", "any_tier": "n", "planet_tier": "planet/n", "bazaar_stage": "n", "gig_done": "gig", "gig_open": "",
+	"planet_visited": "planet", "post_built": "planet", "platform_built": "planet", "branch_is": "market", "branch_chosen": "", "any_tier": "n", "planet_tier": "planet/n", "bazaar_stage": "n", "gig_done": "gig", "gig_open": "", "note_at_least": "note/value", "note_at_most": "note/value",
 }
 const STEP_ATOMS := ["share_pct", "first_sale_after_cycle", "cycles_after_prev_step"]
 
@@ -126,6 +128,13 @@ static func _atom(atom: String, ctx: Dictionary) -> bool:
 			return b == "" or b == arg
 		"branch_chosen":
 			return run_branch() != ""
+		"note_at_least", "note_at_most":
+			var nb := arg.split("/")
+			if not live() or nb.size() != 2 or not game.has_method("note_value"):
+				return false
+			var lim := int(nb[1]) if nb[1].is_valid_int() else int(balance_value(nb[1], ctx))
+			var have: int = int(game.note_value(nb[0]))
+			return have >= lim if str(parts[0]) == "note_at_least" else have <= lim
 		"gig_done":
 			return live() and game.gigs != null and game.gigs.is_done(arg)
 		"gig_open":
@@ -248,6 +257,10 @@ static func lint(cond, where: String, errs: Array, step_ok: bool = false, bal: D
 				var bits := arg.split("/")
 				if bits.size() != 2 or not planet_ids().has(bits[0]) or not bits[1].is_valid_int() or int(bits[1]) < 1:
 					errs.append("%s: atom '%s' needs <planet>/<tier>" % [where, cond])
+			"note/value":
+				var nv := arg.split("/")
+				if nv.size() != 2 or not EndingPicker.ALL_KEYS.has(nv[0]) or not (nv[1].is_valid_int() or bal.has(nv[1])):
+					errs.append("%s: atom '%s' needs <note>/<number or balance key>" % [where, cond])
 			"gig":
 				if not Gigs.ids().has(arg):
 					errs.append("%s: unknown gig '%s'" % [where, arg])

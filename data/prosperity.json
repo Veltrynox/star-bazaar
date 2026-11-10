@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "source": "2026-11-09 T349: override planet_1 (Voltara) = food. Voltara sells energy, food, powder and blooms to the player, so its only candidate was ore, a locked good at start that no route could fill: the world was Restless from cycle 1. 2026-11-06 T256 (design/proposals/2026-11-06-empire-growth-v2.md section 3.1). Rules and ordering only (reclaim: the Barren need list, T295: branch goods up to goods_tier plus one extra from the list where the branch trades it); every number (tier count, steps, decay, demand, need count) is a data/balance.json key prosperity_*.",
+  "source": "2026-11-09: Voltara's need depends on the CEO (overrides_by_branch): the food override left a permanent ? need (food is hidden unless the CEO is Bio), so Voltara was Restless from cycle 1 for the other three CEOs. Now each CEO gets the starter good it sees from the start and can bring from another world (lux blooms from Ashgate, mil powder from Flintmoor, min ore from Flintmoor, bio food); overrides stays for runs with no branch. 2026-11-09 T349: override planet_1 (Voltara) = food. Voltara sells energy, food, powder and blooms to the player, so its only candidate was ore, a locked good at start that no route could fill: the world was Restless from cycle 1. 2026-11-06 T256 (design/proposals/2026-11-06-empire-growth-v2.md section 3.1). Rules and ordering only (reclaim: the Barren need list, T295: branch goods up to goods_tier plus one extra from the list where the branch trades it); every number (tier count, steps, decay, demand, need count) is a data/balance.json key prosperity_*.",
   "default_weight": 1,
   "energy_weight": 2,
   "type_weights": {
@@ -11,5 +11,6 @@
     "cloudy": {"energy": 1, "food": 4}
   },
   "reclaim": {"goods_tier": 1, "extra": ["nullglass", "plate"]},
-  "overrides": {"planet_1": ["food"]}
+  "overrides": {"planet_1": ["food"]},
+  "overrides_by_branch": {"bio": {"planet_1": ["food"]}, "lux": {"planet_1": ["blooms"]}, "mil": {"planet_1": ["powder"]}, "min": {"planet_1": ["ore"]}}
 }

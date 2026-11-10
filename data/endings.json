@@ -1,0 +1,156 @@
+{
+  "schema_version": 1,
+  "source": "2026-11-10 CEO endings (design/proposals/2026-11-09-ceo-endings.md, owner approved). Rows in file order: the first row of the run's CEO whose visible_when and requires hold is the ending; none = END_<MKT>_GOOD/_BAD. Atoms note_at_least/note_at_most: <key>/<number or balance key>; thresholds are balance.json end_* keys (placeholders). PAGE, LIGHT, WAIT need the CEO events (not built): they never match yet.",
+  "endings": [
+    {
+      "id": "END_MIN_LONGSHIFT",
+      "visible_when": "branch_is:min",
+      "requires": "note_at_least:restless_cycles/end_restless_high"
+    },
+    {
+      "id": "END_MIN_DEEP",
+      "visible_when": "branch_is:min",
+      "requires": {
+        "all": [
+          "note_at_least:platforms/1",
+          "note_at_least:skills_min/end_skills_min"
+        ]
+      }
+    },
+    {
+      "id": "END_MIN_PICKUP",
+      "visible_when": "branch_is:min",
+      "requires": {
+        "all": [
+          "note_at_least:rush_done/end_rush_min",
+          "note_at_least:quick_routes/end_quick_min"
+        ]
+      }
+    },
+    {
+      "id": "END_MIN_PAGE",
+      "visible_when": "branch_is:min",
+      "requires": {
+        "all": [
+          "note_at_least:ceo_paid/end_paid_min",
+          "note_at_most:repossessions/0"
+        ]
+      }
+    },
+    {
+      "id": "END_MIN_THIN",
+      "visible_when": "branch_is:min",
+      "requires": "note_at_most:peak_ships/end_fleet_lean"
+    },
+    {
+      "id": "END_LUX_WIDE",
+      "visible_when": "branch_is:lux",
+      "requires": {
+        "all": [
+          "note_at_least:established/end_established_wide",
+          "skill_learned:LUX_1"
+        ]
+      }
+    },
+    {
+      "id": "END_LUX_FLEET",
+      "visible_when": "branch_is:lux",
+      "requires": "note_at_least:peak_ships/end_fleet_big"
+    },
+    {
+      "id": "END_LUX_FULLTABLE",
+      "visible_when": "branch_is:lux",
+      "requires": {
+        "all": [
+          "note_at_least:rush_done/end_rush_min",
+          "note_at_most:rush_expired/end_rush_expired_max"
+        ]
+      }
+    },
+    {
+      "id": "END_LUX_LIGHT",
+      "visible_when": "branch_is:lux",
+      "requires": "note_at_least:ceo_cash/end_cash_min"
+    },
+    {
+      "id": "END_LUX_CORNER",
+      "visible_when": "branch_is:lux",
+      "requires": "note_at_most:established/end_established_few"
+    },
+    {
+      "id": "END_MIL_SCARS",
+      "visible_when": "branch_is:mil",
+      "requires": "note_at_least:repossessions/1"
+    },
+    {
+      "id": "END_MIL_NOIDLE",
+      "visible_when": "branch_is:mil",
+      "requires": {
+        "all": [
+          "note_at_least:rush_done/end_rush_min",
+          "note_at_most:rush_expired/end_rush_expired_max"
+        ]
+      }
+    },
+    {
+      "id": "END_MIL_WAIT",
+      "visible_when": "branch_is:mil",
+      "requires": "note_at_least:ceo_bore/end_bore_min"
+    },
+    {
+      "id": "END_MIL_HARD",
+      "visible_when": "branch_is:mil",
+      "requires": {
+        "all": [
+          "note_at_least:explored/end_explored_min",
+          "note_at_least:established/end_established_wide"
+        ]
+      }
+    },
+    {
+      "id": "END_MIL_WATCH",
+      "visible_when": "branch_is:mil",
+      "requires": {
+        "all": [
+          "note_at_least:peak_ships/end_fleet_big",
+          "note_at_most:restless_cycles/end_restless_low"
+        ]
+      }
+    },
+    {
+      "id": "END_BIO_HUNGRY",
+      "visible_when": "branch_is:bio",
+      "requires": "note_at_least:restless_cycles/end_restless_high"
+    },
+    {
+      "id": "END_BIO_RING",
+      "visible_when": "branch_is:bio",
+      "requires": "note_at_least:worlds_city/end_city_worlds"
+    },
+    {
+      "id": "END_BIO_CARDS",
+      "visible_when": "branch_is:bio",
+      "requires": "note_at_least:warm_worlds/end_warm_min"
+    },
+    {
+      "id": "END_BIO_PANTRY",
+      "visible_when": "branch_is:bio",
+      "requires": {
+        "all": [
+          "skill_learned:FND_STORAGE",
+          "note_at_least:space_cycles/end_space_min"
+        ]
+      }
+    },
+    {
+      "id": "END_BIO_BYHAND",
+      "visible_when": "branch_is:bio",
+      "requires": {
+        "all": [
+          "note_at_least:card_routes/end_card_min",
+          "note_at_most:quick_routes/end_card_quick_max"
+        ]
+      }
+    }
+  ]
+}

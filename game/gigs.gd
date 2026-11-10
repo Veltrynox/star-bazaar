@@ -513,6 +513,8 @@ func tick(now: float) -> void:
 		if now >= float(o["due"]) or left_sys:
 			if str(o["kind"]) == "signal":
 				skipped[str(o["id"])] = true  # free expiry: no penalty, no log; the gig is gone for the run
+			elif str(o["kind"]) == "rush" and now >= float(o["due"]) and main.has_method("note"):
+				main.note("rush_expired")  # CEO endings: an open rush order ran out of time
 			if pending == str(o["uid"]):
 				pending = ""
 			offers.remove_at(i)

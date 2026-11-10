@@ -45,6 +45,7 @@ var _restless: Dictionary = {}  # planet id -> true when a need was short at the
 var _reclaimed: Dictionary = {} # planet id -> true (hook for the Barren reclaim task)
 var _carry: Dictionary = {}     # T261: fractional need-fill bonus units not yet counted (not saved)
 var _reached := 0               # T258: highest tier any world has reached this run (skill points paid up to it)
+var branch_fn: Callable = Callable()  # () -> String: the run's branch (CEO market id, "" when none), set by main; picks overrides_by_branch
 var weather = null              # T280: Events (shortage_mult, shortage_hunger), set by main; null in tests that do not need it
 var _hunger: Dictionary = {}    # T257: planet id -> {good: cycles the need was short in a row (capped by need_hunger_cap_pct)}
 
@@ -189,6 +190,10 @@ func _need_goods(i: int) -> Array:
 	var cap := maxi(0, int(_n("prosperity_needs", t, 2.0)))
 	var out: Array = []
 	var ov = data.get("overrides", {})
+	var by_branch = data.get("overrides_by_branch", {})  # a world's need that depends on the CEO: the starter good the CEO can see and supply
+	var br: String = str(branch_fn.call()) if branch_fn.is_valid() else ""
+	if br != "" and typeof(by_branch) == TYPE_DICTIONARY and typeof(by_branch.get(br)) == TYPE_DICTIONARY and (by_branch[br] as Dictionary).has(pid):
+		ov = by_branch[br]
 	if typeof(ov) == TYPE_DICTIONARY and ov.has(pid) and typeof(ov[pid]) == TYPE_ARRAY:
 		for g in ov[pid]:
 			if out.size() < cap and Goods.has(str(g)) and not out.has(str(g)):
@@ -396,6 +401,14 @@ func restless(i: int) -> bool:
 	return bool(_restless.get(_pid(i), false))
 
 ## Cycle end: every need met = a step; any short = minus decay (floor 0); full = tier up. Then the counters reset.
+## CEO endings: worlds Restless at the last cycle end.
+func restless_count() -> int:
+	var n := 0
+	for k in _restless:
+		if bool(_restless[k]):
+			n += 1
+	return n
+
 func end_cycle() -> void:
 	_last_sold = _sold.duplicate(true)  # sales settle at the cycle end, so the live count is 0 on screen: the panel shows this one
 	for i in range(planets.size()):
