@@ -3261,7 +3261,7 @@
   },
   {
    "id": "LBL_SHIP_COUNT",
-   "text": "Корабли: {n} / {cap}"
+   "text": "Грузовые корабли: {n} / {cap}"
   },
   {
    "id": "LBL_SHIP_K_OF_N",

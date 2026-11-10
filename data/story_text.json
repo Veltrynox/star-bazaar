@@ -8637,9 +8637,9 @@
   },
   {
    "id": "LBL_SHIP_COUNT",
-   "text": "Ships: {n} / {cap}",
+   "text": "Carrier ships: {n} / {cap}",
    "max": 40,
-   "place": "ship_panel.gd set_count"
+   "place": "ship_panel.gd set_count, the line under the Pathfinder card"
   },
   {
    "id": "LBL_SHIP_K_OF_N",

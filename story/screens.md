@@ -1943,8 +1943,8 @@ LBL_SHIPS | 24 | ship_panel.gd:35
 Ships
 LBL_SHIPS_FREE_HINT | 100 | ship_panel.gd:174
 Free ships: {free}. Ship upkeep {upkeep} / cycle each.
-LBL_SHIP_COUNT | 40 | ship_panel.gd set_count
-Ships: {n} / {cap}
+LBL_SHIP_COUNT | 40 | ship_panel.gd set_count, the line under the Pathfinder card
+Carrier ships: {n} / {cap}
 LBL_SHIP_K_OF_N | 30 | planet_panel.gd:1197
 Ship {k} of {n}
 LBL_SHIP_LIMIT | 50 | ship_panel.gd set_upkeep (free-ships hint)

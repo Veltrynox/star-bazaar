@@ -132,7 +132,7 @@
  "LBL_SHARE_YOU": "Вы",
  "LBL_SHIPS": "Корабли",
  "LBL_SHIPS_FREE_HINT": "Свободных кораблей: {free}. Содержание кораблей: {upkeep} за цикл каждый.",
- "LBL_SHIP_COUNT": "Корабли: {n} / {cap}",
+ "LBL_SHIP_COUNT": "Грузовые корабли: {n} / {cap}",
  "LBL_SHIP_K_OF_N": "Корабль {k} из {n}",
  "LBL_SHIP_LIMIT": "Достигнут предел кораблей ({cap}).",
  "LBL_SHIP_RUNNING": "Работает.",

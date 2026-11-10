@@ -80,7 +80,7 @@ func _build_hero_card(box: VBoxContainer) -> void:
 	hero_card.add_child(row)
 	hero_icon = TextureRect.new()
 	hero_icon.texture = Ui.icon("ship_flagship")
-	hero_icon.custom_minimum_size = Vector2(60, 60)
+	hero_icon.custom_minimum_size = Vector2(30, 30)  # half the earlier 60 px
 	hero_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	hero_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	hero_icon.size_flags_vertical = Control.SIZE_SHRINK_CENTER
@@ -214,7 +214,7 @@ func _set_core_buttons(main: Control) -> void:
 		core_box.add_child(b)
 
 func set_count(ships: int, cap: int) -> void:
-	label.text = StoryText.get_or("LBL_SHIP_COUNT", "Ships: {n} / {cap}", {"n": ships, "cap": cap})
+	label.text = StoryText.get_or("LBL_SHIP_COUNT", "Carrier ships: {n} / {cap}", {"n": ships, "cap": cap})
 	if _last_count >= 0 and ships > _last_count:  # a purchase or a new lane: the count flashes warm
 		Juice.flash(label, Ui.col("star_warm"))
 	_last_count = ships
