@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "agent": "feature-designer",
+  "date": "2026-11-09",
+  "task": "lux1-connections",
+  "status": "done",
+  "files_changed": [
+    "design/proposals/2026-11-09-lux1-connections.md",
+    "handoffs/feature-designer/2026-11-09-lux1-connections.json"
+  ],
+  "open_questions": [
+    "UNKNOWN: base, step, cap and K threshold of the LUX_1 ship cut, and the combined ceiling with MIL_8 (economy-designer)",
+    "UNKNOWN: whether Prosperity fill keeps per-world history to seed the counter in old saves",
+    "UNKNOWN: whether MIL_7 / LUX_15 weather warning switching on the price lines (reveal_cycles adds weather_warning_extra) is intended"
+  ],
+  "handoff": "Proposal only, waits for the owner. LUX_1 becomes 'Dressing the Stars': new ships cost less, cut grows per world that bought K Luxury units, capped. Price reveal moves to LUX_3 (recommended) so LUX_5B stays its upgrade. Producer turns approved parts into tasks.",
+  "details": {
+    "proposals": [
+      {
+        "id": "LUX1-CONNECTIONS",
+        "title": "LUX_1 Dressing the Stars: ship cut that grows with worlds that know you",
+        "problem": "LUX_1 shows next cycle's prices: a reading aid with no Luxury identity, overlapping LUX_3 and LUX_5B.",
+        "owner_agent": "gameplay-programmer",
+        "size": "M",
+        "questions": [
+          "Counter: worlds that took K Luxury units (recommended) or another; count from run start or after learning?",
+          "Price reveal to LUX_3 (A, recommended), LUX_5B only (B), or LUX_3 plus base-game best-partner line (C)?",
+          "Name, and keep LUX_A1/B1 gated options on LUX_1 with connection hooks?",
+          "Should the ship cut lower the salvage credit?",
+          "Is the weather warning meant to switch on the price lines?"
+        ]
+      }
+    ]
+  }
+}
