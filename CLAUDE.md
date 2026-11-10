@@ -50,3 +50,7 @@
 - Text ids: events keep only mechanics and text ids in `data/events.json`; every title, body, button, effect line and popup is an id in `story_text.json` (rule: header of `tools/build_story.py`).
 - Conditions (chain triggers, availability, workshop unlocks, event filters, `visible_when` on steps, options and events) all use `game/conditions.gd`; its header is the atom vocabulary.
 
+
+## Translation (owner rule, 2026-11-09)
+- Never translate with a script: no find-and-replace term swaps, no batch or machine translation. Scripts may only list, dump or validate ids (`tools/build_story.py`, coverage and length checks), never write Russian text.
+- All translation (Russian or any other language) is done by AI agents running on the Haiku model (pass `model: "haiku"` on the Agent call), who read the English line and write the text by hand under `story/ru/GLOSSARY.md`.
