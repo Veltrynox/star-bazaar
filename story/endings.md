@@ -202,3 +202,210 @@ The Wing of Lamps has shutters for storms. When a storm comes, they stay open.
 
 EPI_WING_3B | 140 | Epilogue, win, Wing of Couriers
 The Wing of Couriers has a bell for late arrivals. It rings more than it should.
+
+## CEO endings (2026-11-10, from design/proposals/2026-11-09-ceo-endings.md, owner approved)
+A win with a matching condition shows one of these instead of END_<MKT>_GOOD or _BAD. Selection is the programmer's (ordered rows per CEO, first match wins, fallback is GOOD or BAD). The bodies are neutral. The CEO may be named. EPI_<MKT>_<KEY> is epilogue 1 under its ending; the two LEAN lines of the CEO print under any of these endings, by the hidden chain lean (GOOD or BAD), never named as such. Max body 1000, title 40, epilogue 140.
+
+END_MIN_LONGSHIFT_TITLE | 40 | End screen heading, Marek, many Restless cycles
+The Long Shift
+
+END_MIN_LONGSHIFT | 1000 | End screen body, Marek, many Restless cycles
+The Bazaar opened. On the worlds along the way, for a long while, the lights were low. Needs went unmet cycle after cycle, and people made do, because people do. Marek read every report. He did not look away from any of them. The doors are open now and the halls are full. Some of the faces in them remember the hungry cycles, and some of those faces are kind. Marek keeps the old reports in a drawer, and does not throw them out.
+
+EPI_MIN_LONGSHIFT | 140 | Epilogue 1, Marek, many Restless cycles
+Marek signs the opening page last. His hand does not shake. He holds the pen a little longer than he needs to.
+
+END_MIN_DEEP_TITLE | 40 | End screen heading, Marek, mining platforms and a deep Minerals tree
+Down the Seams
+
+END_MIN_DEEP | 1000 | End screen body, Marek, mining platforms and a deep Minerals tree
+The grey worlds are working now. Platforms sit on rock that nobody listed as home, and the crews who run them sleep with the dust on their sleeves. Marek went down to see the first cut himself. He did not say much. He picked up a handful of the stone and put it back where it was. The Bazaar stands because of what came out of the dark. Someone has to remember that, and he does.
+
+EPI_MIN_DEEP | 140 | Epilogue 1, Marek, platforms and a deep Minerals tree
+A lamp burns on a platform nobody visits. The crew who keep it call it the porch.
+
+END_MIN_PICKUP_TITLE | 40 | End screen heading, Marek, many rush orders and quick routes
+The Man Who Picked Up
+
+END_MIN_PICKUP | 1000 | End screen body, Marek, many rush orders and quick routes
+When the call came, Marek answered. A rush order at Ashgate, a late food run at Tillam, a world short on energy and asking only once. He did not always have the hold for it. He made the hold. The Bazaar opened on a long list of small yeses. Nobody will carve them into a wall. The people who got their goods on time will remember, which is how a name lasts here. The old yard man sends a note. It has one line. It says, you picked up.
+
+EPI_MIN_PICKUP | 140 | Epilogue 1, Marek, rush orders and quick routes
+Every rush order on the board has the same reply scratched under it, in Marek's hand. It says, on its way.
+
+END_MIN_PAGE_TITLE | 40 | End screen heading, Marek, paid what was owed, nothing taken
+Every Crate Written Down
+
+END_MIN_PAGE | 1000 | End screen body, Marek, paid what was owed, nothing taken
+The last page is signed, and it balances. Marek checks it twice, then a third time, because that is who he is. Every fee was paid on the day it fell due. Every crate was counted going out and counted coming in. The clerks at the yards stopped asking for proof. They ask how he is. The Bureau has no form for what that is worth. Marek writes the sum in his own book, in pencil, and leaves it blank.
+
+EPI_MIN_PAGE | 140 | Epilogue 1, Marek, paid what was owed
+The yard clerks keep a chair for Marek. It is the one with the good cushion. He sits on the edge.
+
+END_MIN_THIN_TITLE | 40 | End screen heading, Marek, a small fleet
+The Thin Fleet
+
+END_MIN_THIN | 1000 | End screen body, Marek, a small fleet
+You won with fewer hulls than anyone thought it could take. Every ship ran full and came home. Nothing sat at a dock, eating upkeep. The crew ate at one table all the way, and the table never grew too big to pass the bread. Marek calls it arithmetic. The crew calls it being looked after. The Bureau notes that the fleet is small and asks, politely, whether more is planned. It is not.
+
+EPI_MIN_THIN | 140 | Epilogue 1, Marek, a small fleet
+The ships are few and well used. Each has a name the crew can say without looking.
+
+END_LUX_WIDE_TITLE | 40 | End screen heading, Idris, many worlds reached, LUX_1 learned
+Everyone Knows the Smile
+
+END_LUX_WIDE | 1000 | End screen body, Idris, many worlds reached, LUX_1 learned
+Idris did not sell to one world. He sold to all of them, a little at a time, and each one told the next. By the day the Bazaar opened, a dock clerk on the farthest post knew the smile and had never seen it. Doors opened wherever your ships landed. Idris takes the credit for the smile and none for the luck. He stands in the doorway and shakes every hand, because someone made the trip.
+
+EPI_LUX_WIDE | 140 | Epilogue 1, Idris, many worlds reached
+Letters come from posts you never saw. Most say only that the writer heard the name and wanted to say hello.
+
+END_LUX_FLEET_TITLE | 40 | End screen heading, Idris, a large fleet
+A Hull for Every Guest
+
+END_LUX_FLEET | 1000 | End screen body, Idris, a large fleet
+The hangar is loud. Ships come and go all day, one for each lane, and Idris greets every pilot by name. The fleet was never cheap to keep. Ship upkeep was a weight the crew felt on every payday. But the lanes ran, and a world that waits for a ship forgives a lot. At the Opening Idris stood on the dock and counted the hulls. He lost count, and was glad.
+
+EPI_LUX_FLEET | 140 | Epilogue 1, Idris, a large fleet
+Pilots pass in the corridor and nod at each other. It is the sound of a company that is never alone.
+
+END_LUX_FULLTABLE_TITLE | 40 | End screen heading, Idris, rush orders filled in time
+A Seat Always Free
+
+END_LUX_FULLTABLE | 1000 | End screen body, Idris, rush orders filled in time
+Every order that came to the board was filled before its time ran out. Buyers learned that when Idris said yes, the goods arrived, and they stopped asking twice. One table at the Bazaar stays empty at the end of the night. It is kept for whoever needs a good by morning. Idris does not call it a plan. He calls it manners.
+
+EPI_LUX_FULLTABLE | 140 | Epilogue 1, Idris, rush orders filled in time
+The empty table has a card on it. The card is blank on purpose, and someone fills it in each morning.
+
+END_LUX_LIGHT_TITLE | 40 | End screen heading, Idris, took credits over goods
+Light Hands
+
+END_LUX_LIGHT | 1000 | End screen body, Idris, took credits over goods
+Idris took the credits every time. A gift is polite to accept, and credits are easy to spend, and he spent them well: a round of lunches, a round of favours, a small loan to a buyer who needed it. The Bazaar opened with no crates of keepsakes in its cellar. It opened with a great many people who owe Idris a lunch. He has not decided which is worth more. He picks up the bill.
+
+EPI_LUX_LIGHT | 140 | Epilogue 1, Idris, took credits over goods
+The ribbons are all gone. A few buyers wear the ones they kept, tied loosely, in case Idris asks.
+
+END_LUX_CORNER_TITLE | 40 | End screen heading, Idris, few worlds, known well
+The Corner Table
+
+END_LUX_CORNER | 1000 | End screen body, Idris, few worlds, known well
+You kept to a few worlds, and you knew each one well. Idris read their boards like faces and sold to them as if each buyer were his only guest. The Bazaar stands on those few worlds, and they hold it up. The far posts never heard the name. Maybe that is the cost. Idris does not mind. He has a corner table, a clear view of the door, and a smile that never wore thin.
+
+EPI_LUX_CORNER | 140 | Epilogue 1, Idris, few worlds
+Three docks know his name, and each has kept a chair. He has not yet sat in all of them.
+
+END_MIL_SCARS_TITLE | 40 | End screen heading, Sela, a ship was repossessed
+The Hull She Lost
+
+END_MIL_SCARS | 1000 | End screen body, Sela, a ship was repossessed
+A ship was taken, and the crew felt the dock go quiet. Sela went to see the empty berth herself. She did not look away. The Bureau took what the debt asked, in its slow polite way, and left the rest. You rebuilt from what was left. The Bazaar opened with fewer hulls than the plan. The berth is still empty. Someone leaves a lamp there, and Sela does not ask who.
+
+EPI_MIL_SCARS | 140 | Epilogue 1, Sela, a ship was repossessed
+She still checks the empty berth before every long flight. The lamp is always lit.
+
+END_MIL_NOIDLE_TITLE | 40 | End screen heading, Sela, rush orders filled in time
+No Hull Sat Still
+
+END_MIL_NOIDLE | 1000 | End screen body, Sela, rush orders filled in time
+Not one order died on the board. Not one hull waited for a stamp it could have bought. Sela flew the worst lanes in the rim, and she learned there what a ship costs when it stands still. Now every ship moves. The Bazaar opened on time, and for once nobody checked the sky for what was coming. Sela did, from habit. She stood at the window until the last hull left the dock. Then she sat down.
+
+EPI_MIL_NOIDLE | 140 | Epilogue 1, Sela, rush orders filled in time
+The dock bell rings for a departure, not an arrival. Sela says it is the only bell worth a thought.
+
+END_MIL_WAIT_TITLE | 40 | End screen heading, Sela, bore delays rather than pay
+She Waited Her Turn
+
+END_MIL_WAIT | 1000 | End screen body, Sela, bore delays rather than pay
+The dock was full and the stamp was slow, and Sela waited. She hated every hour of it. A ship that stands still is a ship that is lost, and she knows it in her hands. But she did not pay the clerk to look away. The line moved, as lines do, and the crew watched her stand in it. Nobody said anything. The Bazaar opened a little later than it might have. The people in the line remember who stood there.
+
+EPI_MIL_WAIT | 140 | Epilogue 1, Sela, bore delays
+A new clerk at Tillam salutes her, badly, and then looks surprised at himself.
+
+END_MIL_HARD_TITLE | 40 | End screen heading, Sela, many worlds explored and settled
+The Long Way Round
+
+END_MIL_HARD | 1000 | End screen body, Sela, many worlds explored and settled
+The hard lanes were the ones nobody else would fly, and you flew them. The Flagship went out into the dark and came back with names. You put posts on worlds that were only a shape in the glass. Sela knew the cold out there. She did not say it was fine. She said it was worth knowing. Now the map is full of lit places that were black. Each one has a ship docked, and a crew that chose it.
+
+EPI_MIL_HARD | 140 | Epilogue 1, Sela, many worlds explored and settled
+On the chart, the first dark world you lit has a small ring drawn round it in her pencil.
+
+END_MIL_WATCH_TITLE | 40 | End screen heading, Sela, a large fleet and calm worlds
+The Night Watch
+
+END_MIL_WATCH | 1000 | End screen body, Sela, a large fleet and calm worlds
+A big fleet, and every world fed. It should have been chaos, and it was not. Sela ran the lanes like a watch: each ship on its hour, each world on its list. She slept in her chair most nights. At the Opening she took the late watch alone, as she always has, and no ship called for her. She stayed anyway. It was the first quiet night she had ever owned.
+
+EPI_MIL_WATCH | 140 | Epilogue 1, Sela, a large fleet and calm worlds
+The radio is silent. Sela leaves it on, and turns the chair a little toward it.
+
+END_BIO_HUNGRY_TITLE | 40 | End screen heading, Tamsin, many Restless cycles
+Still Writing Back
+
+END_BIO_HUNGRY | 1000 | End screen body, Tamsin, many Restless cycles
+The Bazaar opened, and on some worlds the lights had been low for a long time. Tamsin knew the clerks there. She had their cards. She read each hungry report and wrote back a line, by hand. It did not fill a hold. It did not hurt either, and it was all she had on the nights the lanes failed. The halls are full now. She still writes back. Some of the clerks write to her first.
+
+EPI_BIO_HUNGRY | 140 | Epilogue 1, Tamsin, many Restless cycles
+A stack of old reports sits by her bed. She reads one before sleep, as other people read a letter.
+
+END_BIO_RING_TITLE | 40 | End screen heading, Tamsin, worlds grown to cities
+The Ring Grows Up
+
+END_BIO_RING | 1000 | End screen body, Tamsin, worlds grown to cities
+The world you raised from a quiet dock is a city now. Tamsin walked its halls on the opening night and knew the clerks by their steps. The paperwork is friendly and the lines are short. People who were children on the stairs run the desks. She sends a card to every one. The Bazaar stands on a world that was once small enough to know by heart. She still does. It is the same world, and louder.
+
+EPI_BIO_RING | 140 | Epilogue 1, Tamsin, worlds grown to cities
+Someone has painted the old dock number on the wall of the new hall, small, by the door.
+
+END_BIO_CARDS_TITLE | 40 | End screen heading, Tamsin, many worlds with a warm face
+Every Clerk Has a Card
+
+END_BIO_CARDS | 1000 | End screen body, Tamsin, many worlds with a warm face
+Warm faces greet you at the docks. Tamsin knew the clerks, and they knew her. When a form had a flaw, a kind word fixed it. When a world ran short, someone called her first. It is not a plan the Bureau can file. It is a habit of being decent, and it carried you further than a good price would. At the Opening a dozen cards arrive by hand. Tamsin reads every name.
+
+EPI_BIO_CARDS | 140 | Epilogue 1, Tamsin, many worlds with a warm face
+The cards are pinned to a board by the door. A new one is added most days, and none is taken down.
+
+END_BIO_PANTRY_TITLE | 40 | End screen heading, Tamsin, Space Storage used throughout
+The Shelf Is Full
+
+END_BIO_PANTRY | 1000 | End screen body, Tamsin, Space Storage used throughout
+The shelves never ran bare. Food sat in the Space Storage through the lean cycles, held for the day a world asked. Tamsin counted the stock every night, and slept better for it. Some called it hoarding. The terraces that were fed from it did not. When the Bazaar opened there was still a full shelf at the back, and a note on it. The note says, for whoever is next.
+
+EPI_BIO_PANTRY | 140 | Epilogue 1, Tamsin, Space Storage used throughout
+The note on the shelf is in her hand. Underneath, in another hand, someone has written, thank you.
+
+END_BIO_BYHAND_TITLE | 40 | End screen heading, Tamsin, routes set from the planet card
+Done by Hand
+
+END_BIO_BYHAND | 1000 | End screen body, Tamsin, routes set from the planet card
+Every route was set by hand, at the planet card, with the page open and the numbers read aloud. Tamsin never trusted a lane she had not looked at. It was slower. It was also right more often than not, and when it was wrong she knew why. The Bazaar opened on lanes she can name from memory, in the order she laid them. She runs a finger down the list on the wall. It is the nearest thing to a map she has ever drawn.
+
+EPI_BIO_BYHAND | 140 | Epilogue 1, Tamsin, routes set from the planet card
+The list on the wall is in pencil. She has never once rubbed a line out.
+
+EPI_MIN_LEAN_GOOD | 140 | Epilogue, win with a Minerals (Marek Voss) CEO ending, world turned out kind
+The halls are warm, and the stone under them held. Marek stands on it a while and lets himself be glad.
+
+EPI_MIN_LEAN_BAD | 140 | Epilogue, win with a Minerals (Marek Voss) CEO ending, world turned out cold
+The halls are loud and the seams are bare. Marek counts what the rock gave, and what it was never asked for.
+
+EPI_LUX_LEAN_GOOD | 140 | Epilogue, win with a Luxury (Idris Kane) CEO ending, world turned out kind
+Doors open before the ships land. Idris says the sky is kind, and for once he is not selling anything.
+
+EPI_LUX_LEAN_BAD | 140 | Epilogue, win with a Luxury (Idris Kane) CEO ending, world turned out cold
+The smile is still on every door, but the welcome has gone cold. Idris notices who stopped saying his name.
+
+EPI_MIL_LEAN_GOOD | 140 | Epilogue, win with a Military (Sela Oru) CEO ending, world turned out kind
+The border is quiet and the dock is warm. Sela lets her shoulders drop one inch, where nobody sees.
+
+EPI_MIL_LEAN_BAD | 140 | Epilogue, win with a Military (Sela Oru) CEO ending, world turned out cold
+The racks are full and the quiet is a held breath. Sela keeps her coat on indoors.
+
+EPI_BIO_LEAN_GOOD | 140 | Epilogue, win with a Biotech (Tamsin Hale) CEO ending, world turned out kind
+The terraces answer when Tamsin calls. Every card that comes back has a warm word on it.
+
+EPI_BIO_LEAN_BAD | 140 | Epilogue, win with a Biotech (Tamsin Hale) CEO ending, world turned out cold
+The cards come back short and formal. Tamsin reads them twice and cannot find herself in them.
