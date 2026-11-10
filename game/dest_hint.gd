@@ -57,8 +57,28 @@ static func describe(m: Node, planet: int, station: int) -> String:
 		return StoryText.get_or("HINT_DEST_STATION", "Space Storage keeps {good} for later.", {"good": good})
 	return ""
 
+## Hover card with no route pending: the good the planet wants most (its first short need, with this cycle's count against the
+## demand), else its tier and that every need is met. "" for a world not established yet, a dead world, a locked good or a blocked view.
+static func describe_hover(m: Node, planet: int) -> String:
+	if m == null or m.game_over or m.preface != null or m.map_overlays_blocked() or planet < 0 or planet >= m.map.planets.size():
+		return ""
+	if not m.planet_established(planet) or m.DeadWorlds.is_dead(m.map.planets[planet]):
+		return ""
+	var pr = m.prosperity
+	var t: int = pr.tier(planet)
+	if t <= 0:
+		return ""
+	var wanted: Array = []
+	for n in pr.needs(planet):
+		if not bool(n["locked"]) and not bool(n["met"]):
+			wanted.append(Ui.good_name(str(n["good"])))
+	var nm: String = m.planet_name(planet)
+	if not wanted.is_empty():
+		return StoryText.get_or("HINT_PLANET_WANTS", "{planet} wants {goods}.", {"planet": nm, "goods": ", ".join(PackedStringArray(wanted))})
+	return StoryText.get_or("HINT_PLANET_FED", "{planet}: {tier}. Every need is met.", {"planet": nm, "tier": StoryText.get_or("PROS_TIER_%d" % t, "Tier %d" % t)})
+
 func _process(_delta: float) -> void:
-	if main == null or main.pending.is_empty():
+	if main == null:
 		_hide()
 		return
 	var mouse := get_viewport().get_mouse_position()
@@ -70,7 +90,7 @@ func _process(_delta: float) -> void:
 	var sid := -1
 	if hit < 0:
 		sid = main.map.pick_station(mouse)
-	var t := describe(main, hit, sid)
+	var t := describe(main, hit, sid) if not main.pending.is_empty() else describe_hover(main, hit)
 	if t == "":
 		_hide()
 		return

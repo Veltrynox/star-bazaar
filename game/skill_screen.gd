@@ -24,7 +24,8 @@ const CELL_W_MAX := 420.0  # the cells grow to fill the window width, up to this
 const WINDOW_MARGIN := 24.0  # gap between the skill window and the screen edge
 const ICON_PX := 24  # skill icon on the node button
 const TREE_RESERVE := 200.0  # window height kept for header, help and footer; the tree gets the rest
-const DETAIL_W := 320.0  # width of the skill info panel on the right of the tree
+const DETAIL_SCALE := 3  # owner: the text of the info panel on the right is 3x the tree's type
+const DETAIL_W := 560.0  # width of the skill info panel on the right of the tree
 const MAX_ROW_CELLS := 2  # a tier with more nodes wraps onto a second line, so four columns of 3 do not overflow 1500 px
 const NODE_GAP_H := 15  # between nodes in a row
 const NODE_GAP_V := 21  # between rows of a branch
@@ -392,15 +393,15 @@ func _fit_tree() -> void:
 	tree_scroll.custom_minimum_size.y = maxf(160.0, minf(_tree.get_combined_minimum_size().y + 8.0, avail))
 
 ## Smaller type for the whole window (the theme sizes are too large for 30 nodes).
-func _shrink(n: Node) -> void:
+func _shrink(n: Node, k: int = 1) -> void:
 	if n is Label:
 		var big: bool = (n as Label).theme_type_variation == "LabelTitle"
 		var sz := FONT_SIZE_TITLE if big else (FONT_SIZE - 1 if n.has_meta("dim") else FONT_SIZE)
-		(n as Label).add_theme_font_size_override("font_size", sz)
+		(n as Label).add_theme_font_size_override("font_size", sz * k)
 	elif n is Button or n is MenuButton:
-		n.add_theme_font_size_override("font_size", FONT_SIZE)
+		n.add_theme_font_size_override("font_size", FONT_SIZE * k)
 	for c in n.get_children():
-		_shrink(c)
+		_shrink(c, k)
 
 func _caption(text: String) -> Label:
 	var l := Label.new()
@@ -504,7 +505,7 @@ func refresh() -> void:
 			bar.value = float(p.get("n", 0))
 		_build_use_row(id, st)
 	_build_detail()
-	_shrink(detail_box)
+	_shrink(detail_box, DETAIL_SCALE)
 	_tree.queue_redraw()
 	call_deferred("_redraw_links")
 	_fit_tree.call_deferred()
@@ -616,7 +617,7 @@ func _build_use_row(id: String, st: String) -> void:
 		l.theme_type_variation = "LabelSmall"
 		l.text = StoryText.get_or("SK_BOT_USED", "Used this run.") if left == -1 else StoryText.get_or("SK_BOT_COOLDOWN", "Ready in {n} cycles.", {"n": left})
 		row.add_child(l)
-	_shrink(row)
+	_shrink(row, DETAIL_SCALE if row.get_parent() == detail_box else 1)
 
 var use_buttons: Dictionary = {}  # bot skill id -> MenuButton while ready
 

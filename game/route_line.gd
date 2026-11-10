@@ -54,7 +54,7 @@ uniform float pulse_white = 0.45;
 varying float along;
 varying float fr;
 varying float edge_px;
-const float AA_PX = 0.5;
+const float AA_PX = 0.3;  // owner: the soft edge showed; a narrower ramp reads crisper
 void vertex() {
 	vec3 base = VERTEX;
 	vec3 v0 = (MODELVIEW_MATRIX * vec4(base, 1.0)).xyz;
@@ -81,7 +81,7 @@ void vertex() {
 }
 void fragment() {
 	float hp = half_px * mix(draw_w0, 1.0, draw);
-	float on = clamp(hp + AA_PX - abs(edge_px), 0.0, 1.0);  // soft 1 px edge across the line
+	float on = clamp((hp + AA_PX - abs(edge_px)) / (2.0 * AA_PX), 0.0, 1.0);  // narrow ramp across the line edge
 	on *= clamp((draw * (1.0 + draw_soft) - fr) / draw_soft, 0.0, 1.0);  // grows from the source end
 	if (dash > 0.5) {
 		float a = along / (dash_px * 2.0);

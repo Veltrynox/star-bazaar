@@ -6,6 +6,7 @@ extends Control
 const Juice := preload("res://game/juice.gd")
 const HOLD_SECONDS := 5.0  # owner's hold time: unchanged (the pop-up was lengthened on purpose)
 const FADE_SECONDS := 0.6
+var top_y := 108.0  # set by main.gd to just under the solar system name block (name and hint lines)
 
 var _ring_t: float = 1.0  # 0 at the start of the splash, 1 when it has finished
 var _card: PanelContainer
@@ -21,7 +22,7 @@ func _ready() -> void:
 	_card = PanelContainer.new()
 	_card.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_card.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
-	_card.position.y = 72
+	_card.position.y = top_y
 	_card.grow_horizontal = Control.GROW_DIRECTION_BOTH
 	add_child(_card)
 	var box := VBoxContainer.new()
@@ -41,6 +42,7 @@ func _ready() -> void:
 
 ## points: how many were earned; reason: one line of story text.
 func show_points(points: int, reason: String, title: String) -> void:
+	_card.position.y = top_y
 	_title.text = title
 	_reason.text = reason
 	_dismissing = false
@@ -73,10 +75,14 @@ func _draw() -> void:
 	if not visible:
 		return
 	# one ring that opens from the card and fades: a splash without new art
-	var centre := Vector2(size.x * 0.5, 72.0 + 24.0)
+	var centre := Vector2(size.x * 0.5, top_y + 24.0)
 	var radius := lerpf(20.0, 260.0, _ring_t)
 	var col: Color = Ui.col("star_warm")
 	col.a = (1.0 - _ring_t) * 0.8
 	draw_arc(centre, radius, 0.0, TAU, 96, col, 3.0, true)
 	col.a *= 0.4
 	draw_arc(centre, radius * 0.6, 0.0, TAU, 72, col, 2.0, true)
+
+## Bottom edge of the card while the pop-up is on screen, else 0: other top-middle cards (tutorial, tips) sit below it.
+func bottom_y() -> float:
+	return _card.get_global_rect().end.y if visible and not _dismissing else 0.0

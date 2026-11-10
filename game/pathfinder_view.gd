@@ -72,10 +72,10 @@ static func sel_radius() -> float:
 const TRAIL_TINT := Color(1.0, 0.8, 0.4)  # T198: player trail, warm gold (rivals use a cool blue)
 const LIFT := 0.35             # ship hovers above the map plane so it clears planet spheres' lower rim
 const MARKER_RADIUS := 0.35
-const COL_LINE_MOVING := Color(1.0, 0.85, 0.5, 0.9)
+const COL_LINE_MOVING := Color(1.0, 0.85, 0.5, 0.3)  # owner: a plain, faded line (not dashes)
 const COL_SELECTED := Color(0.55, 0.9, 1.0, 0.95)  # T200 selected look: cyan ring under the ship
 const SEL_RADIUS_BASE := 0.5 * PLAYER_SHIP_SCALE
-const COL_LINE_PAUSED := Color(1.0, 0.85, 0.5, 0.35)
+const COL_LINE_PAUSED := Color(1.0, 0.85, 0.5, 0.15)
 # T203: post / platform established. A ring closes on the planet (build-up), then bursts open with spokes of sparkle.
 # Runs on game time only: it does not advance while the game is paused (the ring and spokes freeze as they are).
 const BURST_SECONDS := 1.1       # whole beat
@@ -665,12 +665,10 @@ func update_from(f, view_system: int, selected: bool = false) -> void:
 			_mesh.surface_begin(Mesh.PRIMITIVE_LINES)
 			var a := pos + Vector3(0, LIFT, 0)
 			var b := tp + Vector3(0, LIFT, 0)
-			var n := maxi(2, int(a.distance_to(b) / 0.4))
-			for k in range(0, n, 2):  # dashes
-				_mesh.surface_set_color(col)
-				_mesh.surface_add_vertex(a.lerp(b, float(k) / n))
-				_mesh.surface_set_color(col)
-				_mesh.surface_add_vertex(a.lerp(b, minf(float(k + 1) / n, 1.0)))
+			_mesh.surface_set_color(col)  # one solid segment from the ship to the target
+			_mesh.surface_add_vertex(a)
+			_mesh.surface_set_color(col)
+			_mesh.surface_add_vertex(b)
 			_mesh.surface_end()
 			_marker.global_position = tp + Vector3(0, LIFT, 0)
 			_marker.visible = true

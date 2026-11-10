@@ -39,6 +39,7 @@ var data: Dictionary = {}
 var _tier: Dictionary = {}      # planet id -> stored tier (only tiers above 1, or 1 for reclaimed worlds)
 var _steps: Dictionary = {}     # planet id -> progress steps in the current tier (float since T261: progress_grace spares part of a loss)
 var _sold: Dictionary = {}      # planet id -> {good: units sold this cycle}
+var _last_sold: Dictionary = {} # same, for the cycle that just ended (shown on the Needs list)
 var _warned_empty: Dictionary = {}
 var _restless: Dictionary = {}  # planet id -> true when a need was short at the last cycle end
 var _reclaimed: Dictionary = {} # planet id -> true (hook for the Barren reclaim task)
@@ -54,6 +55,7 @@ func setup(bal: Dictionary, planet_list: Array, established: Callable) -> void:
 	_tier = {}
 	_steps = {}
 	_sold = {}
+	_last_sold = {}
 	_restless = {}
 	_reclaimed = {}
 	_hunger = {}
@@ -278,6 +280,10 @@ func demand_for(i: int, good: String) -> int:
 		return d
 	return maxi(0, roundi(float(d) * float(weather.shortage_mult(i, good))))
 
+## Units of `good` sold at world i in the cycle that just ended (what the Needs list shows; the live count above resets at every cycle end).
+func sold_last(i: int, good: String) -> int:
+	return int(_last_sold.get(_pid(i), {}).get(good, 0))
+
 func sold(i: int, good: String) -> int:
 	return int(_sold.get(_pid(i), {}).get(good, 0))
 
@@ -350,7 +356,8 @@ func needs(i: int) -> Array:
 		var dem := demand_for(i, g)
 		var locked := not Availability.good(g)
 		var s := sold(i, g)
-		out.append({"good": "?" if locked else g, "demand": dem, "sold": s, "met": (not locked) and s >= dem, "locked": locked})
+		var shown := maxi(s, sold_last(i, g))  # sales happen at the cycle end: show the last settled cycle, not the empty new one
+		out.append({"good": "?" if locked else g, "demand": dem, "sold": shown, "met": (not locked) and shown >= dem, "locked": locked})
 	return out
 
 func all_met(i: int) -> bool:
@@ -390,6 +397,7 @@ func restless(i: int) -> bool:
 
 ## Cycle end: every need met = a step; any short = minus decay (floor 0); full = tier up. Then the counters reset.
 func end_cycle() -> void:
+	_last_sold = _sold.duplicate(true)  # sales settle at the cycle end, so the live count is 0 on screen: the panel shows this one
 	for i in range(planets.size()):
 		var t := _lt(i)
 		if t < 1:
@@ -455,7 +463,7 @@ func _update_hunger(i: int, pid: String) -> void:
 		_hunger[pid] = next
 
 func to_dict() -> Dictionary:
-	return {"tier": _tier.duplicate(), "steps": _steps.duplicate(), "sold": _sold.duplicate(true), "restless": _restless.duplicate(), "reclaimed": _reclaimed.duplicate(), "hunger": _hunger.duplicate(true), "reached": _reached}
+	return {"tier": _tier.duplicate(), "steps": _steps.duplicate(), "sold": _sold.duplicate(true), "last_sold": _last_sold.duplicate(true), "restless": _restless.duplicate(), "reclaimed": _reclaimed.duplicate(), "hunger": _hunger.duplicate(true), "reached": _reached}
 
 func from_dict(s) -> void:
 	_tier = {}
@@ -472,6 +480,14 @@ func from_dict(s) -> void:
 		_tier[str(k)] = clampi(int(s["tier"][k]), 1, max_tier())
 	for k in s.get("steps", {}):
 		_steps[str(k)] = maxf(0.0, float(s["steps"][k]))
+	var ls = s.get("last_sold", {})
+	if typeof(ls) == TYPE_DICTIONARY:
+		for k in ls:
+			if typeof(ls[k]) == TYPE_DICTIONARY:
+				var d2 := {}
+				for g in ls[k]:
+					d2[str(g)] = maxi(0, int(ls[k][g]))
+				_last_sold[str(k)] = d2
 	var sd = s.get("sold", {})
 	if typeof(sd) == TYPE_DICTIONARY:
 		for k in sd:

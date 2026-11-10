@@ -7,6 +7,7 @@ extends Control
 
 const StoryText := preload("res://game/story_text.gd")
 const Systems := preload("res://game/systems.gd")
+const GalaxyView := preload("res://game/galaxy_view.gd")
 const MAP_UNIT_SCALE := 0.02 * 1.4  # same as map.gd (0.02 x MAP_SCALE_UP)
 const AREA_LEFT := 430.0  # clear of the planet panel and the rail
 const AREA_RIGHT := 520.0  # clear of the board (the label runs right of the marker)
@@ -57,6 +58,21 @@ func _center(sid: int) -> Variant:
 		hi = Vector3(maxf(hi.x, p.x), 0.0, maxf(hi.z, p.z))
 	return (lo + hi) * 0.5
 
+## Where system `sid` lies from system `from` in the galaxy view (its slots), as a unit direction on the ground plane
+## (galaxy screen right = map x, galaxy screen down = map z). The exits must point the way the galaxy view shows them.
+func galaxy_dir(from: int, sid: int) -> Vector3:
+	var ids := all_ids()
+	var kf := ids.find(from)
+	var kt := ids.find(sid)
+	if kf < 0 or kt < 0:
+		return Vector3.ZERO
+	var slots: Array = GalaxyView.SLOTS
+	var d: Vector2 = (slots[kt % slots.size()] as Vector2) - (slots[kf % slots.size()] as Vector2)
+	if d.length() < 0.001:
+		return Vector3.ZERO
+	d = d.normalized()
+	return Vector3(d.x, 0.0, d.y)
+
 func _screen(world: Vector3) -> Vector2:
 	return main.map.camera.unproject_position(world)
 
@@ -78,6 +94,10 @@ func markers() -> Array:
 		var c_to = _center(int(sid))
 		if c_to == null:
 			continue
+		var gd := galaxy_dir(int(main.view_system), int(sid))
+		if gd != Vector3.ZERO:  # same bearing as in the galaxy view, at the distance the world data gives (never closer than the view's middle)
+			var dist: float = maxf(((c_to as Vector3) - (c_from as Vector3)).length(), 6.0)
+			c_to = (c_from as Vector3) + gd * dist
 		var b: Vector2 = _screen(c_to)
 		var behind: bool = main.map.camera.is_position_behind(c_to)
 		var locked: bool = not main.open_systems.has(int(sid))
