@@ -1,34 +1,52 @@
 # Star Bazaar: Russian glossary and style guide (ru)
 
-Draft 1, 2026-11-04. For four translators. English master: story/voice.md (every rule there holds in Russian too). Scope: event texts (EV_, EV<nn>_, BE<nn>), chain texts (CH_), tutorial and warning texts (TUT_G1..G10 with their _WHY lines, TUT_GALAXY_*, TUT_G3_PICK, WARN_*), and the menu and screen texts: MENU_* (main menu, game menu, confirmations), SCR_* (title, tagline, preface), END_* (ending screens, stat labels, buttons) and EPI_* (epilogue lines). The rest of the interface stays English: BTN_*, LBL_*, NOT_*, TIP_*, HINT_*, EVT_*, GOOD_*, WORLD_*, SK_* skill windows, top bar, tooltips, and the mission board MB_*. MENU_SKILLS and MENU_GALAXY also stay English: they label the top bar and the side rail, which are interface. Do not translate those.
+Draft 1, 2026-11-04; section 1 rewritten 2026-11-09 (interface is Russian). For four translators. English master: story/voice.md (every rule there holds in Russian too). Scope: event texts (EV_, EV<nn>_, BE<nn>), chain texts (CH_), tutorial and warning texts (TUT_G1..G10 with their _WHY lines, TUT_GALAXY_*, TUT_G3_PICK, WARN_*), and the menu and screen texts: MENU_* (main menu, game menu, confirmations), SCR_* (title, tagline, preface), END_* (ending screens, stat labels, buttons) and EPI_* (epilogue lines). The rest of the interface stays English: BTN_*, LBL_*, NOT_*, TIP_*, HINT_*, EVT_*, GOOD_*, WORLD_*, SK_* skill windows, top bar, tooltips, and the mission board MB_*. MENU_SKILLS and MENU_GALAXY also stay English: they label the top bar and the side rail, which are interface. Do not translate those.
 
 The Russian menu and screen captions are Russian (Продолжить, Новая игра, Главное меню, Выйти из игры), while tutorial lines name the buttons that are still English (Skills, Settings, Galaxy). Event and tutorial texts must name a button exactly as it is on screen.
 
-## 1. Words that stay Latin (exact on-screen spelling)
+## 1. Interface and names (policy of 2026-11-09, replaces the old "stays Latin" rule)
 
-The interface is English, so Russian text names on-screen things exactly as shown, in Latin letters, never changed.
+The interface is Russian too. Every on-screen name (buttons, labels, goods, workshops, panels, skills, tiers) has ONE Russian word, and every text that names it uses exactly that word. Only proper names stay Latin and are never inflected: the title and building name Star Bazaar, planets, systems and clusters, houses ({bot1} {bot2} {bot3}, Harrow Combine, Velvet Concord, Ostrel Syndicate), people, ship models (Skerrit, Voruun Hauler, Bulkhead, Dart, Tramp, Tessarine). Placeholder worlds: "Временная A..C", "Заглушка D..H" (planets "Временная A1").
 
-| Kind | Keep exactly |
+| English | Russian |
 |---|---|
-| Buttons and menu | Buy, Sell, Send to, Send to..., Skip tutorial, Skills, Competitors, Settings, Statistics, Help, Galaxy, Main menu |
-| Labels | Company storage, Ship upkeep, Expenses, Buy price, Sell price, Skill points, Space Storage, Permit Charter, Foundations |
-| Goods | Energy, Food, Starsilk, Logic Cores, Rock Ore, Dross Salt, Nullglass, Lattice Plate (as spelled in UI; check data/goods.json for any new one) |
-| Planets and systems | Voltara, Tillam, Ashgate, Cinderrest, Greywake, Brannock, Cindrel, Mossfell, Quillon, Hollin Reach, Dunmere Reach |
-| Markets | Military, Luxury, Minerals, Biotech |
-| Rivals | {bot1} {bot2} {bot3} {bot} (the game fills the name; never type Harrow Combine, Velvet Concord or Ostrel Syndicate) |
-| Ship | Skerrit, Voruun Hauler |
+| Buy / Sell (buttons) | Купить / Продать |
+| Buy order / Sell order | заказ на покупку / заказ на продажу |
+| Send to... | Отправить в... |
+| Skills / Skill points / skill | Навыки / Очки навыков / навык |
+| Galaxy / Settings / Statistics / Help | Галактика / Настройки / Статистика / Справка |
+| Competitors (retired) / House weather | Погода домов |
+| Company storage | Хранилище компании |
+| Space Storage | Космохранилище |
+| Storage Link | Связь хранилищ |
+| Ship upkeep / Expenses | Содержание кораблей / Расходы |
+| Buy price / Sell price / Trip cost | Цена покупки / Цена продажи / Стоимость рейса |
+| Permit Charter / permit | Хартия допусков / допуск |
+| Foundations (skill tab) / Foundations (Bazaar stage) | Основы / Фундамент |
+| Military / Luxury / Minerals / Biotech | Вооружения / Роскошь / Минералы / Биотех (genitive after "рынок", "объём": вооружений, роскоши, минералов, биотеха) |
+| Smelter / Atelier / Munitions Line / Culture Lab / Fabric | Плавильня / Ателье / Линия боеприпасов / Лаборатория культур / Фабрикатор |
+| Null Core | Нулевое ядро |
+| Energy, Food, Rivets, Munitions, Weapons | Энергия, Еда, Заклёпки, Боеприпасы, Оружие (other goods: see GOOD_*_NAME) |
+| Flagship / Pathfinder (ship class) | Флагман / Следопыт (capital letter, like the English) |
+| Bazaar (short) / Star Bazaar (name) | Базар / Star Bazaar (Latin, uninflected) |
+| Hungry / Surplus / Restless / Needs | Голодает / Избыток / Беспокойство / Нужды |
+| tier | ступень |
+| Flood / Shortage / Congestion | Затоваривание / Дефицит / Затор |
+| Boost / Dock and trade / Unload to storage | Ускорение / Причалить и торговать / Выгрузить в хранилище |
+| Upgrade route / Make this a hub | Улучшить маршрут / Сделать узлом |
+| Exploration / Mining intensity / Start reclaiming | Исследование / Интенсивность добычи / Начать восстановление |
+| Skip tutorial / OK | Пропустить обучение / ОК |
+| the Opening / Rush order | Открытие / Срочный заказ |
 
-Notes. "credits" is not a button or label, so it is translated (see section 2). The words strength, growth, tier appear only inside the event texts and the rival lines; no UI label with them was found in data/story_text.json, so translate them: strength = сила, growth = рост, tier = ступень. If the owner finds they are shown as English labels, switch to Latin and tell the lead translator.
+Fixed word choices: world=мир, trading post=торговый пост, hub=узел, lane=трасса, trip=рейс, hold=трюм, workshop=мастерская, permit=допуск, skill point=очко навыков, cycles as "циклов: {n}". Gig=подряд (never "заказ"); order=заказ. House (firm that sends weather)=дом (дом {bot}, дома {bot}, дому {bot}); rival (older texts, EPI_CAP_*, END_SWEPT)=соперник; never "компания {bot}" ("компания" is the player). Skill names quoted with ёлочки in running text ("Навык «Долгий обжиг» ..."). Goods in running text are lower case and decline ("скупали энергию"). Button names in tutorial lines are quoted: «Купить».
 
-### How Latin names sit in Russian sentences
-- Latin names and every {placeholder} are never inflected. No endings, no hyphen suffixes: not "{bot3}а", not "Voltara-ой", not "Minerals-ы".
-- Rewrite so no case is needed. Use an apposition with a Russian head noun that takes the case instead:
-  - "флот компании {bot3}", "компания {bot1}", "рынок Minerals", "на планете Voltara", "в системе Hollin Reach", "корабль Skerrit", "кнопка Send to".
-- A button name is quoted with ёлочки when it is inside a sentence and is not clear from context: нажмите «Buy». In a short tutorial line a bare name is fine: Нажмите Buy на Energy. Pick one style per text and keep it.
-- A preposition before a name is allowed only if the name needs no ending in that case, which is every Latin name: "на Voltara", "у {bot1}". Prefer the apposition when two names stand together.
-- Gender and agreement of a Latin name: agree verbs with the Russian head noun, not with the name ("компания {bot1} предлагает", "рынок Minerals падает").
-- Numbers come only from placeholders. {cash_in} and {cash_out} are always 150, 300 or 600, so "{cash_in} кредитов" (genitive plural) is always correct. {n} is 3 or 4, so "{n} единицы прогресса" (genitive singular) is always correct. Do not use any other numeral with a placeholder.
-- The game fills {cut}, {cut_std} with English phrases today. Russian versions of those fill strings are a programmer task (see open questions). Keep the placeholder in place, and write the rest of the line so it reads right with any short phrase after it.
+Notes. "credits" is translated (кредиты). strength and growth are no longer shown to players: house weather is "погода дома {bot}", "ляжет мягче / жёстче", "придёт позже / раньше", "придержана".
+
+### How names sit in Russian sentences
+- Latin proper names and every {placeholder} are never inflected. Use an apposition with a Russian head noun: "дом {bot3}", "на планете Voltara", "в системе Hollin Reach".
+- Russian UI words inflect normally.
+- Numbers come only from placeholders; {cash_in}/{cash_out} take "кредитов", {n} takes "единицы" or "циклов: {n}".
+- {cut}, {cut_std} fill-ins: CH_CUT "придерживает следующую погоду" (after "дом {bot}"), CH_CUT_STD "следующая погода придержана".
 
 ## 2. Story terms, one Russian term each
 
@@ -212,3 +230,7 @@ These override anything above that says otherwise.
 | Cost: label | Цена: (kept; "Цена: рынок X подешевеет" avoids the echo) |
 
 Fill-ins: {cut} follows "компания {bot} ... на рынке X" (3rd person verb phrase); {cut_std} follows "{bot}, X:". Cycles form: "на срок, циклов: {n}" (no plural choice needed). Batches: "Партий за цикл: +{n}".
+
+
+## Override of 2026-11-09
+The "Owner-side decisions" and "Terms fixed by the review" tables above that keep strength, growth, tier, Ship upkeep, Sell price, Trip cost, workshop names, Skerrit Latin or write "мастерская Smelter" are superseded by section 1. Placeholder-world and house rules above stand.
