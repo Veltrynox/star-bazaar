@@ -4160,7 +4160,7 @@
       "depends_on": [
         "T374"
       ],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 35,
       "window": "Owner request 2026-11-12: 'When the gig time runs out and the ship is still flying to it, the ship should stop and an animation should play over the ship; a UI and juice programmer job as well as the gameplay one'.",
       "brief": "JUICE PART (after T374, read its handoff for the signal names). When main.flight emits flight_aborted for an expired gig, play a short animation over the Flagship on the 3D map in game/pathfinder_view.gd, using the existing fx pool (_fx_spawn, pooled rings, COL_* colours, flight_juice_* balance keys; see the dock and boost beats around lines 480-530): the ship brakes with a small backwards shudder, a dim amber 'signal lost' ring collapses inward onto the ship and fades, and a brief static flicker on the trail of the course line, total about 0.8 s, scaled by Juice.motion (0 = no motion, just the notice), on the game clock so it freezes on pause. New placeholder keys flight_juice_lost_s and flight_juice_lost_size in data/balance.json values with a note in its source field. If the gig marker ring is still drawn at the target (T273 gig rings in _update_gig_rings), fade it out over the same time instead of popping. No per-frame allocation. Render check per CLAUDE.md (juice task): a scratch script under /Volumes/Work/Gamedev/Projects/AgentCourse/wt/_scratch that triggers flight_aborted mid-flight and saves two or three frames during the beat; Read them; fix objective breakage only. Do not run the test suite, do not commit. Handoff handoffs/juice-programmer/2026-11-12-T375.json with the PNG paths.",

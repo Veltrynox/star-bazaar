@@ -65,3 +65,13 @@
 - Failed / did not work: the Russian SS_LBL_STOCK_RULE still shows the old wording (translation paused).
 - Files and commits: see git log on main for T373.
 - Left to do: route upgrade on a station lane does nothing (no level bonus): owner to say if it should be refused; Russian for the new ids.
+
+## 2026-11-12 23:40 run: T374 T375 T376 and small owner fixes
+- Summary: An accepted gig that runs out while the Flagship flies to it stops the ship (T374, signals flight_aborted / offer_expired), plays a 0.8 s signal-lost beat over it (T375: shudder, collapsing amber rings, flickering dashed course, gig ring fades; placeholders flight_juice_lost_s / _size), greys the board row as Gone quiet then fades it and shows Holding position on the Flagship (T376). Same session, main session: exploration mode continues into the next open system and unpresses its button when done; compact skill Learn button; route tags show the good icon instead of 'units' and a credit icon by every amount; GIG02 rewritten (unpaid keeper, debris short cut) and GIG03 hook (crashed Belo Industries hauler); hub pool buy button always offered; double click on the Flagship card switches system; Space Storage panel goods are their own Send buttons (owner rule now in CLAUDE.md).
+- Why this task: owner requests 2026-11-12.
+- Approach: gameplay-programmer, then juice-programmer and ui-programmer in parallel; small fixes by the main session.
+- Agent prompts: Agent tool, briefs read from schedule.json T374-T376; handoffs in handoffs/<agent>/2026-11-12-T37x.json.
+- Worked: renders looked at (wt/_scratch/t375_*.png, /Volumes/Work/scratch/t376/*.png, t369_map3.png for the tag icons); commits went through the test gate.
+- Failed / did not work: a mislabelled commit f86b355 holds only the T374 notice line in story_text.json (the GIG02 rewrite came in a967cad); the shudder, the gig-ring fade and a real in-game expiry not seen.
+- Files and commits: see git log on main.
+- Left to do: owner to say if the whole GIG03 gig should follow its new Belo wreck hook (the arrival still describes the quota drum); Russian for every new id when translation resumes.

@@ -93,7 +93,7 @@ const FX_FALLBACK := {"flight_juice_ring_pop_s": 0.3, "flight_juice_ring_pop_sca
 	"flight_juice_boost_ease_s": 0.4, "flight_juice_dock_ring_s": 0.45, "flight_juice_clamp_s": 0.18, "flight_juice_puff_s": 0.6,
 	"flight_juice_marker_hz": 0.8, "flight_juice_marker_amp": 0.2, "flight_juice_sting_db": -14.0,
 	"flight_juice_jump_s": 0.8, "flight_juice_jump_ship_s": 0.4, "flight_juice_jump_strength": 28.0, "flight_juice_jump_flash": 1.0,
-	"flight_juice_jump_streak_px": 420.0, "flight_juice_jump_ring_px": 140.0, "flight_juice_jump_nudge_px": 3.0}
+	"flight_juice_jump_streak_px": 420.0, "flight_juice_jump_ring_px": 140.0, "flight_juice_jump_nudge_px": 3.0, "flight_juice_lost_s": 0.8, "flight_juice_lost_size": 2.4}
 const FX_RINGS := 8              # pooled ring meshes
 const FX_FLARES := 3             # pooled flare spheres
 const COL_FLARE := Color(1.0, 0.85, 0.5, 1.0)
@@ -107,6 +107,10 @@ const PUFF_FROM := 0.5           # departure puff ring, in ship radii
 const PUFF_TO := 2.6
 const BURST_SHIP_TO := 6.0       # boost burst ring end radius, in ship radii
 const SWING_MIN_TURN := 0.5      # a course change of this many radians (or more) gives the full nose swing
+const COL_LOST := Color(1.0, 0.7, 0.25, 1.0)  # T375: dim amber "signal lost"
+const LOST_SHUDDER := 0.3        # backward shudder, in ship radii (times Juice.motion)
+const LOST_TRAIL_SEGS := 8       # the old course line is drawn in this many dashes that flicker out
+const LOST_FLICKER_HZ := 22.0
 const MARKER_ALPHA_LOW := 0.55   # target marker pulse: alpha floor (ceiling 1.0)
 
 class Fx:
@@ -148,6 +152,10 @@ var _prev_sel := false
 var _seen := false
 var _sel_t := -1.0             # selection ring pop
 var _swing_t := -1.0           # nose swing
+var _lost_t := -1.0            # T375: game seconds into the signal-lost beat (-1 none)
+var _last_tp := Vector3.ZERO   # last drawn course end, for the flicker trail
+var _lost_conn = null          # the gigs node offer_expired is connected to
+var _gig_pos := {}             # offer uid -> ring position, for the fade on expiry
 var _swing_amp := 0.0
 var _boost_k := 0.0            # 0..1 boost look (trail stretch), eased on game time
 var _clock := 0.0              # game seconds, drives the target marker pulse
@@ -442,6 +450,16 @@ func _tick_fx(delta: float, paused: bool) -> void:
 					_holder.rotation.y = 0.0
 			elif _holder != null:
 				_holder.rotation.y = swing_value(_swing_t / wd, _swing_amp)
+		if _lost_t >= 0.0:
+			_lost_t += delta
+			var ld := _k("flight_juice_lost_s") * Juice.motion
+			if _lost_t >= ld:
+				_lost_t = -1.0
+				if _holder != null:
+					_holder.position = Vector3.ZERO
+			elif _holder != null:
+				var lp := _lost_t / ld
+				_holder.position = Vector3(0, 0, fit_radius() * LOST_SHUDDER * Juice.motion * (1.0 - lp) * maxf(0.0, sin(lp * TAU * 2.5)))
 	_tick_jump(delta, paused)
 	if _fx.is_empty():
 		return
@@ -471,7 +489,7 @@ func _fx_busy() -> bool:
 	for fx in _fx:
 		if fx.on:
 			return true
-	return _sel_t >= 0.0 or _swing_t >= 0.0 or _jt >= 0.0
+	return _sel_t >= 0.0 or _swing_t >= 0.0 or _jt >= 0.0 or _lost_t >= 0.0
 
 ## Motion switched off mid-effect: everything returns to rest.
 func _fx_stop() -> void:
@@ -481,9 +499,11 @@ func _fx_stop() -> void:
 		fx.mi.visible = false
 	_sel_t = -1.0
 	_swing_t = -1.0
+	_lost_t = -1.0
 	_sel.scale = Vector3.ONE
 	if _holder != null:
 		_holder.rotation.y = 0.0
+		_holder.position = Vector3.ZERO
 
 ## The clamp: a short bright pulse settles on the ship and a tick sounds.
 func _clamp() -> void:
@@ -620,10 +640,12 @@ func update_from(f, view_system: int, selected: bool = false) -> void:
 	var tgt = _call(f, "target", [], {})
 	_mesh.clear_surfaces()
 	_update_gig_rings(f, sys)
+	_draw_lost(pos)
 	if typeof(tgt) == TYPE_DICTIONARY and tgt.has("pos") and state(f) != "building":
 		var tp: Vector3 = tgt["pos"]
 		if f.has_method("leg") and str(f.leg()) == "out" and f.has_method("leg_goal"):
 			tp = f.leg_goal()  # cross-system flight: the line and marker point at the exit point of THIS system, not at the far target
+		_last_tp = tp
 		var d := Vector2(tp.x - pos.x, tp.z - pos.z)
 		if d.length() > 0.05:
 			if not has_heading:
@@ -717,6 +739,7 @@ func _update_gig_rings(f, sys: int) -> void:
 		col.a = 0.85
 		(r.material_override as StandardMaterial3D).albedo_color = col
 		r.global_position = tp + Vector3(0, LIFT, 0)
+		_gig_pos[uid] = tp
 		r.visible = true
 		var pr2 := r.get_node("Pulse") as MeshInstance3D
 		var u := (real - float(_gig_t0[uid])) / GIG_PULSE_S
@@ -734,6 +757,9 @@ func _update_gig_rings(f, sys: int) -> void:
 	for uid in _gig_t0.keys():
 		if not live.has(uid):
 			_gig_t0.erase(uid)
+	for uid in _gig_pos.keys():
+		if not live.has(uid):
+			_gig_pos.erase(uid)
 
 ## T356: the Flagship's look {shape, palette, hue}; T357 wires the run's choice. Default until then. Re-styles the drawn model at once.
 func set_look(look: Dictionary) -> void:
@@ -819,10 +845,54 @@ func _jump_connect(f) -> void:
 	if f == _jump_conn or f == null or not is_instance_valid(f):
 		return
 	_jump_conn = f
+	if f.has_signal("flight_aborted") and not f.is_connected("flight_aborted", _on_flight_aborted):
+		f.connect("flight_aborted", _on_flight_aborted)
+	var g = f.main.gigs if "main" in f and f.main != null and "gigs" in f.main else null  # T375
+	if g != null and g != _lost_conn and g.has_signal("offer_expired"):
+		_lost_conn = g
+		if not g.is_connected("offer_expired", _on_offer_expired):
+			g.connect("offer_expired", _on_offer_expired)
 	if f.has_signal("jump_started") and not f.is_connected("jump_started", _on_jump_started):
 		f.connect("jump_started", _on_jump_started)
 	if f.has_signal("jump_ended") and not f.is_connected("jump_ended", _on_jump_ended):
 		f.connect("jump_ended", _on_jump_ended)
+
+## T375: the Flagship stopped because its gig ran out. The ship brakes with a backward shudder, an amber ring collapses onto it,
+## the old course line flickers out (_draw_lost). All on the game clock, scaled by Juice.motion; at 0 only the notice shows.
+func _on_flight_aborted(_reason: String, _pos: Vector3) -> void:
+	if Juice.motion <= 0.0 or flight == null or not is_instance_valid(flight):
+		return
+	if int(_call(flight, "system_id", [], 1)) != _view_sys:
+		return
+	_lost_t = 0.0
+	_fx_spawn(false, fit_radius() * _k("flight_juice_lost_size"), fit_radius() * 0.6, 0.45, 0.0, _k("flight_juice_lost_s") * 0.8, COL_LOST, 1)
+	_fx_spawn(false, fit_radius() * _k("flight_juice_lost_size") * 0.6, fit_radius() * 0.6, 0.3, 0.0, _k("flight_juice_lost_s"), COL_LOST, 1, Vector3.ZERO, 0.1)
+
+## T375: the gig's marker ring fades in place instead of popping when its offer runs out.
+func _on_offer_expired(uid: String, _kind: String, _was_target: bool) -> void:
+	if Juice.motion <= 0.0 or not _gig_pos.has(uid):
+		return
+	_fx_spawn(false, sel_radius(), sel_radius(), 0.85, 0.0, _k("flight_juice_lost_s"), COL_LOST, 0, _gig_pos[uid])
+
+## Flicker trail: the old course line from the ship back to where it pointed, in dashes that blink out and fade.
+func _draw_lost(pos: Vector3) -> void:
+	if _lost_t < 0.0:
+		return
+	var p := _lost_t / maxf(0.05, _k("flight_juice_lost_s") * Juice.motion)
+	var a := pos + Vector3(0, LIFT, 0)
+	var b := _last_tp + Vector3(0, LIFT, 0)
+	var tick := int(_lost_t * LOST_FLICKER_HZ)
+	_mesh.surface_begin(Mesh.PRIMITIVE_LINES)
+	for k in LOST_TRAIL_SEGS:
+		if (tick * 7 + k * 5) % 3 == 0:
+			continue  # this dash is off in this flicker step
+		var col := COL_LOST
+		col.a = 0.45 * (1.0 - p)
+		_mesh.surface_set_color(col)
+		_mesh.surface_add_vertex(a.lerp(b, float(k) / float(LOST_TRAIL_SEGS)))
+		_mesh.surface_set_color(col)
+		_mesh.surface_add_vertex(a.lerp(b, (float(k) + 0.55) / float(LOST_TRAIL_SEGS)))
+	_mesh.surface_end()
 
 func _on_jump_started(from_sys: int, _to_sys: int, pos: Vector3) -> void:
 	_jump_begin(1, from_sys, pos)

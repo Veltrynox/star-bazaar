@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "agent": "juice-programmer",
+  "date": "2026-11-12",
+  "task": "T375",
+  "status": "done",
+  "files_changed": ["game/pathfinder_view.gd", "data/balance.json", "handoffs/juice-programmer/2026-11-12-T375.json"],
+  "open_questions": [],
+  "handoff": "Signal-lost beat when a gig expires mid-flight (flight_aborted). Over the Flagship: backward shudder (0.3 ship radii, always backward, damped), two dim amber rings collapsing onto the ship (pooled fx), and the old course line drawn as 8 dashes that flicker out (22 Hz) and fade. Whole beat flight_juice_lost_s = 0.8 s, scaled by Juice.motion (0 = nothing, the notice remains), on the game clock (freezes on pause, verified: frames identical while paused). The gig marker ring at the target fades in place over the same time via offer_expired (an amber pooled ring at the cached ring position) instead of popping. New placeholder keys flight_juice_lost_s 0.8 and flight_juice_lost_size 2.4 (ring start radius in ship radii) in data/balance.json, noted in its source field; FX_FALLBACK mirrors them. Hooks: pathfinder_view connects flight.flight_aborted and main.gigs.offer_expired in _jump_connect; no gameplay state changed. No per-frame allocation (uses the ImmediateMesh already rebuilt each frame, pooled rings, _gig_pos dictionary only grows per ring). Checked by render (scratch /Volumes/Work/Gamedev/Projects/AgentCourse/wt/_scratch/t375_shot.gd, frames t375_3.png and t375_10.png in the same folder): amber ring collapsing around the ship, faint dashed course line. Not checked by eye: the shudder motion itself, the gig-ring fade (no gig in that scene), the flicker rhythm. Tests not run per brief. Idea not built: a small camera nudge toward the stopped ship."
+}
