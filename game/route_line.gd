@@ -306,7 +306,10 @@ func _rebuild() -> void:
 		set_style("running", 1)
 
 var tag: Label3D            # the route tag at the middle of the arc (position and text carrier, drawn transparent)
-var tag2d: Label            # T163: the visible 2D twin, placed by map.gd on the layer above the edge blur
+var tag2d: RichTextLabel    # T163: the visible 2D twin, placed by map.gd on the layer above the edge blur; icons stand for units and credits (owner 2026-11-12)
+var _tag_parts: Array = []  # [["t", text] | ["i", texture, tint]] of the visible tag, rebuilt into tag2d by map.gd at its font size
+var _tag_fs := -1           # font size the parts were last built at
+var _commodity := ""
 var tag_pos := Vector3.ZERO
 
 func _bez(t: float) -> Vector3:
@@ -455,6 +458,7 @@ static func side_vector(t: Vector3, vp: Vector3) -> Vector3:
 
 ## Tint from route status: running = commodity colour, stalled (waiting) = dashed warn, blocked = solid red.
 func set_style(status: String, ships: int, commodity: String = "", net: int = 0, reason: String = "", net_ok: bool = true, cost: int = 0, why: String = "", units: int = -1, shared: String = "") -> void:
+	_commodity = commodity
 	_set_tag(status, ships, net, reason, net_ok, cost, why, units, shared)
 	if _ships_seen >= 0 and ships > _ships_seen:
 		pulse()  # T219: a ship was sent on this lane
@@ -533,9 +537,13 @@ func _set_tag(status: String, ships: int, net: int, reason: String = "", net_ok:
 		tag.modulate.a = 0.0
 		tag.outline_modulate.a = 0.0
 		add_child(tag)
-		tag2d = Label.new()
+		tag2d = RichTextLabel.new()
 		tag2d.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		tag2d.add_theme_font_override("font", tag.font)
+		tag2d.fit_content = true
+		tag2d.autowrap_mode = TextServer.AUTOWRAP_OFF
+		tag2d.scroll_active = false
+		tag2d.bbcode_enabled = false
+		tag2d.add_theme_font_override("normal_font", tag.font)
 		tag2d.add_theme_color_override("font_outline_color", Ui.col("panel_100"))
 	tag.text = tag_text(status, ships, net, reason, net_ok, cost, why, units, shared)
 	var ok := status == "running"
@@ -544,8 +552,47 @@ func _set_tag(status: String, ships: int, net: int, reason: String = "", net_ok:
 		tint = Ui.col("signal_good") if net > 0 else (Ui.col("signal_bad") if net < 0 else tint)
 	tint = tint if ok else (Ui.col("signal_bad") if status == "blocked" else Ui.col("signal_warn"))
 	tag.modulate = Color(tint, 0.0)
-	tag2d.text = tag.text
-	tag2d.add_theme_color_override("font_color", tint)
+	_tag_parts = tag_parts(status, ships, net, reason, net_ok, cost, why, units, shared, _commodity, tint)
+	_tag_fs = -1  # map.gd rebuilds tag2d at its current font size
+	tag2d.add_theme_color_override("default_color", tint)
+
+## The visible tag as parts: the word "units" becomes the good's icon and every credit amount gets the credit icon
+## (owner 2026-11-12). Any other state is the plain tag_text. Pure; tested.
+static func tag_parts(status: String, ships: int, net: int, reason: String = "", net_ok: bool = true, cost: int = 0, why: String = "", units: int = -1, shared: String = "", commodity: String = "", tint: Color = Color.WHITE) -> Array:
+	var plain := tag_text(status, ships, net, reason, net_ok, cost, why, units, shared)
+	if status != "running" or (not net_ok and why != "" and why != "none"):
+		return [["t", plain]]
+	var n := StoryText.get_or("LBL_ROUTE_SHIP_ONE", "{n} ship", {"n": ships}) if ships == 1 else StoryText.get_or("LBL_ROUTE_SHIP_MANY", "{n} ships", {"n": ships})
+	var credit: Texture2D = Ui.icon("credit")
+	var out: Array = [["t", n + " \u00b7 "]]
+	if not net_ok:
+		out.append(["t", "\u2212%d " % cost])
+	else:
+		if units > 0:
+			var gi: Texture2D = Ui.icon(commodity) if commodity != "" else null
+			if gi != null:
+				var gc := Ui.commodity_col(commodity)
+				out.append(["t", "%d " % units])
+				out.append(["i", gi, gc if gc != Color.WHITE else tint])
+				out.append(["t", " \u00b7 "])
+			else:
+				out.append(["t", (StoryText.get_or("LBL_ROUTE_UNIT_ONE", "{n} unit", {"n": units}) if units == 1 else StoryText.get_or("LBL_ROUTE_UNITS", "{n} units", {"n": units})) + " \u00b7 "])
+		out.append(["t", ("\u2212%d" % -net if net < 0 else ("+%d" % net if net > 0 else "0")) + " "])
+	if credit != null:
+		out.append(["i", credit, tint])
+	return out
+
+## Builds tag2d from the parts at font size `fs` (icons are one line tall). Cheap; map.gd calls it only when fs or the parts change.
+func rebuild_tag2d(fs: int) -> void:
+	if tag2d == null or fs == _tag_fs:
+		return
+	_tag_fs = fs
+	tag2d.clear()
+	for part in _tag_parts:
+		if part[0] == "t":
+			tag2d.add_text(str(part[1]))
+		elif part[1] != null:
+			tag2d.add_image(part[1], fs, fs, part[2], INLINE_ALIGNMENT_CENTER)
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_PREDELETE and tag2d != null and is_instance_valid(tag2d):

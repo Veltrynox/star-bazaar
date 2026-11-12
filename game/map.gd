@@ -400,7 +400,7 @@ func _place_route_tags() -> void:
 	var ol := maxi(2, roundi(3.0 * h / 941.0))
 	for id in route_lines:
 		var ln = route_lines[id]
-		var t: Label = ln.tag2d
+		var t: RichTextLabel = ln.tag2d
 		if t == null:
 			continue
 		var wp: Vector3 = ln.tag.global_position
@@ -408,9 +408,11 @@ func _place_route_tags() -> void:
 		t.visible = on
 		if not on:
 			continue
-		t.add_theme_font_size_override("font_size", fs)
+		t.add_theme_font_size_override("normal_font_size", fs)
 		t.add_theme_constant_override("outline_size", ol)
-		t.position = (camera.unproject_position(wp) - t.get_minimum_size() * 0.5).round()
+		ln.rebuild_tag2d(fs)
+		t.size = t.get_minimum_size()
+		t.position = (camera.unproject_position(wp) - t.size * 0.5).round()
 
 ## Middle of one system's planets from the data x,y (before ORBIT_SCALE), on the ground plane.
 func _raw_center(sys: int) -> Vector3:
