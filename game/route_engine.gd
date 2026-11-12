@@ -965,7 +965,7 @@ func _buy_feeds(planet: int, c: String, afford: int) -> bool:
 ## settle (local buys, routes, local sells) on a scratch copy of the stock, so a Sell order sees the goods the
 ## routes deliver this cycle. Nothing in the game changes. Returns
 ## {local: Array of {label, role, planet, c, credits (signed), state}, routes: Array of {a, b, c, status,
-## trip, upkeep (what a moving ship costs), gross (route bonus + stop sale, 0 when it moves nothing)},
+## trip, upkeep (what a moving ship costs), why ("closed", "room", "stock", "cash", "none" = moves or nothing to move), gross (route bonus + stop sale, 0 when it moves nothing)},
 ## delta: net credits, as settle() would add}. Approximation: a cluster shared by ships is not split between them.
 func forecast(cash: int) -> Dictionary:
 	var shadow := {}
@@ -1020,13 +1020,15 @@ func forecast(cash: int) -> Dictionary:
 		var c := str(rec["c"])
 		var src := str(rec["src"])
 		var dst := str(rec["dst"])
-		var line := {"id": int(rec.get("id", -1)), "a": int(rec["a"]), "b": int(rec["b"]), "c": c, "status": "running", "trip": trip_part(rec) * (2 if has_stop(rec) else 1), "upkeep": upkeep_part(rec), "gross": 0, "moves": false, "units": 0, "paid": 0}
+		var line := {"id": int(rec.get("id", -1)), "a": int(rec["a"]), "b": int(rec["b"]), "c": c, "status": "running", "trip": trip_part(rec) * (2 if has_stop(rec) else 1), "upkeep": upkeep_part(rec), "gross": 0, "moves": false, "why": "none", "units": 0, "paid": 0}
 		res.append(line)
 		if not src_open(rec) or not dst_open(rec):
 			line["status"] = "blocked"
+			line["why"] = "closed"
 			continue
 		var room: int = maxi(0, storage.capacity_of(dst) - int(amt.call(dst, c)))
 		if room <= 0:
+			line["why"] = "room"
 			line["status"] = "blocked" if not has_outflow(int(rec["b"]), c) else "waiting"
 			continue
 		var sk := space_key_for(int(rec["a"]))
@@ -1035,10 +1037,12 @@ func forecast(cash: int) -> Dictionary:
 		var have: int = src_available(rec) if from_cluster(rec) else int(amt.call(src, c)) + (int(amt.call(sk, c)) if sk != "" else 0)
 		if have <= 0:
 			line["status"] = "stalled"
+			line["why"] = "stock"
 			continue
 		var fixed := fare_for(fixed_cost(rec), cash + delta, fare_seen)
 		if fixed < 0:
 			line["status"] = "stalled"
+			line["why"] = "cash"
 			continue
 		var lk := _lane_key(int(rec["a"]), int(rec["b"]), c)
 		var units := _route_cap(rec)

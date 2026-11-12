@@ -5732,6 +5732,24 @@
    "place": "Lane label on the map when no result can be projected for the lane; {n} is the signed running cost, shown after the ship count"
   },
   {
+   "id": "LBL_ROUTE_NO_STOCK",
+   "text": "nothing to load",
+   "max": 30,
+   "place": "Lane label on the map after the ship count when a running lane loads nothing this cycle because the source has no stock"
+  },
+  {
+   "id": "LBL_ROUTE_NO_CASH",
+   "text": "not enough cash for the trip",
+   "max": 40,
+   "place": "Lane label on the map after the ship count when a running lane cannot pay the trip fare this cycle"
+  },
+  {
+   "id": "LBL_ROUTE_NO_ROOM",
+   "text": "no room at the destination",
+   "max": 40,
+   "place": "Lane label on the map after the ship count when a running lane has no room at the destination this cycle"
+  },
+  {
    "id": "LBL_FC_NO_EARN",
    "text": "{route} earns nothing: it only moves stock to storage.",
    "max": 80,

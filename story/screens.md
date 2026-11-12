@@ -1247,6 +1247,9 @@ HINT_DEST_SOURCE | 60 | Card at the cursor while a route waits for a destination
 
 ## Lane net label and no-earn flag (2026-11-04)
 LBL_ROUTE_COST | 20 | Lane label on the map when no result can be projected for the lane; {n} is the signed running cost, shown after the ship count | cost {n}
+LBL_ROUTE_NO_STOCK | 30 | Lane label on the map after the ship count when a running lane loads nothing this cycle because the source has no stock | nothing to load
+LBL_ROUTE_NO_CASH | 40 | Lane label on the map after the ship count when a running lane cannot pay the trip fare this cycle | not enough cash for the trip
+LBL_ROUTE_NO_ROOM | 40 | Lane label on the map after the ship count when a running lane has no room at the destination this cycle | no room at the destination
 LBL_FC_NO_EARN | 80 | Cash forecast, warning line under Expenses; {route} is "Source > Destination (good)" | {route} earns nothing: it only moves stock to storage.
 
 ## Next cycle tooltip, sources and uses (2026-11-04)

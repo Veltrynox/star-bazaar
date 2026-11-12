@@ -2008,10 +2008,11 @@ func _push_routes_to_map() -> void:
 			if moves:
 				e["net"] = int(e["net"]) + int(fl["net"])
 				e["net_ok"] = true
+				e["why"] = "none"
 			if st == "running":
 				e["status"] = st
 			continue
-		var e2 := {"id": rec["id"], "a": rec["a"], "b": rec["b"], "c": rec["c"], "ships": 1, "status": st, "net": int(fl["net"]) if moves else 0, "net_ok": moves, "cost": engine.fixed_cost(rec), "reason": engine.reason_of(rec)}
+		var e2 := {"id": rec["id"], "a": rec["a"], "b": rec["b"], "c": rec["c"], "ships": 1, "status": st, "net": int(fl["net"]) if moves else 0, "net_ok": moves, "why": str(fl.get("why", "none")), "cost": engine.fixed_cost(rec), "reason": engine.reason_of(rec)}
 		lanes[k] = e2
 		list.append(e2)
 	map.set_clusters(_all_cluster_packs())  # T157: asteroid packs follow the cluster data (before the lines: a cluster route starts at its pack)
@@ -2158,7 +2159,7 @@ func build_fabric() -> Dictionary:
 	_after_change()
 	return v
 
-## Workshop (smelter, munitions, atelier, culture_lab): can it be built now in the cell of system sid? {ok, reason}: "unknown", "built" (once per run, anywhere), "skill", "post" (no established cell there), "closed" (availability rule, e.g. system 2 shut), "credits".
+## Workshop (smelter, munitions, atelier, culture_lab): can it be built now in the cell of system sid? {ok, reason}: "unknown", "built" (once per run, anywhere), "skill", "post" (no established cell there), "closed" (availability rule: branch or skill not met), "credits".
 func can_build_workshop(id: String, sid: int = WorkshopsScript.SYSTEM) -> Dictionary:
 	if not WorkshopsScript.IDS.has(id):
 		return {"ok": false, "reason": "unknown"}
@@ -2168,7 +2169,7 @@ func can_build_workshop(id: String, sid: int = WorkshopsScript.SYSTEM) -> Dictio
 		return {"ok": false, "reason": "skill"}
 	if not station_systems.has(sid):
 		return {"ok": false, "reason": "post"}
-	if not Availability.workshop(id):  # data/availability.json rule (munitions and culture lab need system 2 open)
+	if not Availability.workshop(id):  # data/availability.json rule (any system with a Space Storage; no system condition)
 		return {"ok": false, "reason": "closed"}
 	if cash < workshops.build_cost(id):
 		return {"ok": false, "reason": "credits"}
