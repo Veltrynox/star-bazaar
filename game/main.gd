@@ -578,7 +578,6 @@ func apply_state(s: Dictionary) -> void:
 	engine.closed_planets = _discovery_closed()  # a fresh main still lists every world without a post as closed: check_connection would drop each saved route
 	engine.from_array(s.get("routes", []), ships)  # old saves: no key = zero routes
 	storage.from_dict(s.get("storage"), map.planets.size())  # old saves: fresh stock
-	engine.local_from_array(s.get("orders"))  # old saves: no local orders
 	# T51: old saves may hold cargo, ship_planet, dest, flight_left, mission_step; ignored.
 	price_history = s.get("price_history", {}) if typeof(s.get("price_history")) == TYPE_DICTIONARY else {}
 	forecast_id = str(s.get("forecast_id", ""))
@@ -596,6 +595,7 @@ func apply_state(s: Dictionary) -> void:
 	storage_link.from_array(s.get("storage_links"))  # T171; old saves: no links
 	prosperity.from_dict(s.get("prosperity"))  # T256; old saves: established worlds at tier 1
 	bazaar.from_dict(s.get("bazaar"))  # T259; old saves: nothing founded
+	engine.local_from_array(s.get("orders"))  # old saves: no local orders; after prosperity: a need opens a sell price (silk at a world that needs it)
 	free_play = bool(s.get("free_play", false))
 	if typeof(s.get("prosperity")) != TYPE_DICTIONARY or not s["prosperity"].has("reached"):
 		prosperity.claim_new_tiers()  # T258: a save from before tier rewards gets no back pay
