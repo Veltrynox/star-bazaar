@@ -43,7 +43,7 @@ GIG02_EPI | Gig 02, epilogue line | The keeper's form is filed under the common 
 ## GIG03 The quota drum (a Plan marker adrift)
 
 GIG03_TITLE | Gig 03, arrival window title | The quota drum
-GIG03_HOOK | Gig 03, signal hint | A tapping comes in on the open band, the same long run of taps, then a gap, then the run again. It is too even to be a fault. The crew has listened to it for a full watch, and someone started counting aloud before they stopped. Other crews logged it and kept their distance. It is a Plan marker, and nobody wants to be the one who touches it.
+GIG03_HOOK | Gig 03, signal hint | The sensors catch a crash beacon in the dark. Its frequency belongs to a Belo Industries hauler. Belo ships have been seen carrying living cargo sealed in black slime, the kind clinics refuse to sign for and the Bureau prefers not to list. The beacon still repeats its call, and nobody on that hull has answered it. Something drifts near the wreck. Do we look?
 GIG03_ARRIVE | Gig 03, arrival window text | A steel drum drifts in the dark, stamped with a five-cycle plan nobody finished. It taps against its own tether. Inside, a ledger and a quota page with a blank line for the world. If you take up the quota, the scout stays long. If you copy the ledger, the quota stays blank.
 GIG03_A_BTN | Gig 03, button A | Take up the quota
 GIG03_B_BTN | Gig 03, button B | Copy the ledger
