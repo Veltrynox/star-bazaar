@@ -249,6 +249,7 @@ var fabric: RefCounted = Fabric.new()  # the fabric at the trading post, saved u
 var prosperity: Prosperity = Prosperity.new()  # T256 world tiers and needs, saved under "prosperity"
 var hubs: Hubs = Hubs.new()  # T289 hubs keep neighbours fed, saved under "hubs"
 var raids: Raids = Raids.new()  # T296 raids from unreclaimed dead worlds, saved under "raids"
+var boost: Boost = Boost.new()  # T371 production charters and boosted worlds, saved under run.boost (game/boost.gd)
 var gigs: Gigs = Gigs.new()  # T271 the gig board (signals, salvage, the Opening), saved under "gigs"
 var bazaar: Bazaar = Bazaar.new()  # T259 the Star Bazaar: capital, stages, saved under "bazaar"
 var dead: RefCounted = DeadWorlds.new()  # dead worlds: finite stock per planet id, saved under "dead_mining"
@@ -360,6 +361,7 @@ func _ready() -> void:
 	if not storage_link.link_notice.is_connected(_on_link_notice):
 		storage_link.link_notice.connect(_on_link_notice)
 	engine.setup(balance, trade, commodities, storage)
+	boost.setup(self)
 	clusters.setup(balance)  # T156
 	clusters.clock_fn = func() -> float: return game_time() * _cycle_seconds()  # T314: packs orbit on the game clock
 	clusters.centre_fn = func(sid: int) -> Vector2:
@@ -547,7 +549,7 @@ func ship_price() -> int:
 ## T26: state written to the autosave. Add new keys here (see save_game.gd).
 ## Tuning values from balance.json are never saved.
 func collect_state() -> Dictionary:
-	return {"company_name": company_name, "ceo_portrait": ceo_portrait, "ceo_id": ceo_id, "ship_type": ship_type, "ship_look": ship_look.duplicate(), "run": {"branch": branch}, "cycle": cycle, "trade_income_total": trade_income_total, "storage_notice_done": storage_notice_done, "cycle_elapsed": cycle_elapsed, "cash": cash, "paused": paused, "ships": ships,
+	return {"company_name": company_name, "ceo_portrait": ceo_portrait, "ceo_id": ceo_id, "ship_type": ship_type, "ship_look": ship_look.duplicate(), "run": {"branch": branch, "boost": boost.to_dict()}, "cycle": cycle, "trade_income_total": trade_income_total, "storage_notice_done": storage_notice_done, "cycle_elapsed": cycle_elapsed, "cash": cash, "paused": paused, "ships": ships,
 		"routes": engine.to_array(), "storage": storage.to_dict(), "orders": engine.local_to_array(),
 		"markets": Markets.to_dict(), "rescues_paid": rescues_paid, "repossessions": repossessions, "run_notes": run_notes.duplicate(), "learned_skills": learned_skills.duplicate(), "skills": Skills.to_dict(), "tech": Tech.to_dict(), "systems_reached": systems_reached,
 		"time_speed": time_speed, "skill_points": skill_points, "pts_planets": pts_planets, "pts_pairs": pts_pairs, "events": events.to_dict(),
@@ -620,6 +622,7 @@ func apply_state(s: Dictionary) -> void:
 	flight.from_dict(s.get("pathfinder"))  # T179: before the routes: which worlds have a post decides which saved routes are still valid (a save without it opens every planet)
 	engine.closed_planets = _discovery_closed()  # a fresh main still lists every world without a post as closed: check_connection would drop each saved route
 	engine.from_array(s.get("routes", []), ships)  # old saves: no key = zero routes
+	boost.from_dict(s.get("run", {}).get("boost") if typeof(s.get("run")) == TYPE_DICTIONARY else null)  # T371: before the storage (its capacity); old saves: nothing boosted
 	storage.from_dict(s.get("storage"), map.planets.size())  # old saves: fresh stock
 	# T51: old saves may hold cargo, ship_planet, dest, flight_left, mission_step; ignored.
 	price_history = s.get("price_history", {}) if typeof(s.get("price_history")) == TYPE_DICTIONARY else {}
@@ -1000,6 +1003,8 @@ func learn_skill(id: String) -> Dictionary:
 	if not long_notices.has(learned_text):
 		long_notices.append(learned_text)
 	post_notice(learned_text)
+	if not SkillTree.effects(id).filter(func(e): return str(e.get("type", "")) == "boost_charge").is_empty():
+		boost.on_skill_learned()  # T371: the node is a production charter
 	if skill_screen != null:
 		skill_screen.refresh()
 	_after_change()
@@ -2819,6 +2824,7 @@ func _end_cycle() -> void:
 		post_notice(forecast_text(forecast_id, forecast_slot - cycle))
 	# One event per cycle: a chain step first, then a scheduled flavour popup, then the pool event of the slot.
 	_check_storage_ready()
+	events.note_ready(cycle)  # T371: EV97 / EV98 are forced when eligible for boost_event_force_cycles
 	var chain_id: String = Chains.next_step(cycle) if (event_notice == null and events.pending_id == "" and not game_over) else ""
 	var sched_id: String = events.take_due(cycle) if (chain_id == "" and event_notice == null and events.pending_id == "" and not game_over) else ""  # R1: flavour popups come from the schedule
 	if chain_id != "":
@@ -3112,6 +3118,8 @@ func _apply_effect(id: String, eff: Dictionary) -> Dictionary:
 					asteroid_last_hit = hit
 					storage.cut_capacity(Storage.planet_key(hit), float(balance.get("asteroid_storage_loss_pct", 0.0)))
 					popup = {"title_id": "EV20_HIT_TITLE", "id": "EV20_HIT_CAPACITY", "args": {"planet": planet_name(hit)}}
+		"boost_charge":  # T371: EV97 / EV98 charter
+			boost.grant("event:" + id)
 		"stock":
 			var key: String = storage.planet_key(int(eff["planet"]))
 			if int(eff["amount"]) >= 0:

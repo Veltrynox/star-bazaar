@@ -9872,6 +9872,90 @@
    "place": "ui.gd:243"
   },
   {
+   "id": "PB_BTN",
+   "text": "Boost production",
+   "max": 24,
+   "place": "Planet card, under the goods grid, when a charter is held"
+  },
+  {
+   "id": "PB_TIP",
+   "text": "Spend your production charter here. Buy orders and storage room at {planet} grow for the rest of the run. One charter, one world.",
+   "max": 140,
+   "place": "Tooltip of PB_BTN"
+  },
+  {
+   "id": "PB_CONFIRM_TITLE",
+   "text": "Boost {planet}?",
+   "max": 32,
+   "place": "Confirm window title"
+  },
+  {
+   "id": "PB_CONFIRM_BODY",
+   "text": "This cannot be moved or undone.",
+   "max": 110,
+   "place": "Confirm window body"
+  },
+  {
+   "id": "PB_CONFIRM_OK",
+   "text": "Boost",
+   "max": 24,
+   "place": "Confirm window, accept button"
+  },
+  {
+   "id": "PB_TAG",
+   "text": "Boosted",
+   "max": 24,
+   "place": "Small tag by the name of a boosted world"
+  },
+  {
+   "id": "PB_TAG_TIP",
+   "text": "Buy orders and storage room here are larger, for the rest of the run.",
+   "max": 110,
+   "place": "Tooltip of PB_TAG"
+  },
+  {
+   "id": "PB_NOTICE_GAINED",
+   "text": "You hold a production charter. Open a world's card to spend it.",
+   "max": 110,
+   "place": "Notice, a production charter is gained"
+  },
+  {
+   "id": "PB_NOTICE_USED",
+   "text": "{planet} is boosted. Its Buy orders and storage room are larger for the rest of the run.",
+   "max": 110,
+   "place": "Notice, a world is boosted"
+  },
+  {
+   "id": "PB_NOTICE_STACK",
+   "text": "A second charter, and the first still unspent. The Bureau filed both under one number, to be tidy. Now two worlds must be named.",
+   "max": 200,
+   "place": "Notice, a second charter is gained while one is still unspent"
+  },
+  {
+   "id": "PB_NOTICE_SECOND_MIL",
+   "text": "A second yard, at {planet}. The depot clerk stamped it twice, once for the form and once for luck. The stamps are logged. The luck is not.",
+   "max": 200,
+   "place": "Notice, a second world is boosted, Military"
+  },
+  {
+   "id": "PB_NOTICE_SECOND_LUX",
+   "text": "{planet} now stocks for a second patron. Each believes she came first. The broker has seated them at opposite ends of one long ledger.",
+   "max": 200,
+   "place": "Notice, a second world is boosted, Luxury"
+  },
+  {
+   "id": "PB_NOTICE_SECOND_MIN",
+   "text": "{planet} gets a quota too. The crews at the first world want to know where the second was hiding. It was in a drawer.",
+   "max": 200,
+   "place": "Notice, a second world is boosted, Minerals"
+  },
+  {
+   "id": "PB_NOTICE_SECOND_BIO",
+   "text": "The vines at {planet} heard the news from the first world. They are not impressed. They are growing anyway.",
+   "max": 200,
+   "place": "Notice, a second world is boosted, Biotech"
+  },
+  {
    "id": "SK_HEADER",
    "text": "Skills",
    "max": 24,
@@ -11078,6 +11162,24 @@
    "place": "Skill screen, detail panel"
   },
   {
+   "id": "SK_MIN_16_NAME",
+   "text": "Quota Charter",
+   "max": 24,
+   "place": "Skill screen, node name"
+  },
+  {
+   "id": "SK_MIN_16_FLAVOUR",
+   "text": "A stamped page names one world the yard must feed. The yard reads it twice.",
+   "max": 90,
+   "place": "Skill screen, detail panel"
+  },
+  {
+   "id": "SK_MIN_16_PLAIN",
+   "text": "Gives one production charter. Spend it on a world: its Buy orders and storage room grow for the run.",
+   "max": 110,
+   "place": "Skill screen, detail panel"
+  },
+  {
    "id": "SK_MIN_14_NAME",
    "text": "Mass Melt",
    "max": 24,
@@ -11218,6 +11320,24 @@
   {
    "id": "SK_BIO_12_PLAIN",
    "text": "Stored Biotech grows faster each cycle.",
+   "max": 110,
+   "place": "Skill screen, detail panel"
+  },
+  {
+   "id": "SK_BIO_16_NAME",
+   "text": "Greenhouse Writ",
+   "max": 24,
+   "place": "Skill screen, node name"
+  },
+  {
+   "id": "SK_BIO_16_FLAVOUR",
+   "text": "One world gets the best trays and the first water. The others do not ask why.",
+   "max": 90,
+   "place": "Skill screen, detail panel"
+  },
+  {
+   "id": "SK_BIO_16_PLAIN",
+   "text": "Gives one production charter. Spend it on a world: its Buy orders and storage room grow for the run.",
    "max": 110,
    "place": "Skill screen, detail panel"
   },
@@ -12129,13 +12249,13 @@
   },
   {
    "id": "GIG03_ARRIVE",
-   "text": "A steel drum drifts in the dark, stamped with a five-cycle plan nobody finished. It taps against its own tether. Inside, a ledger and a sealed lot. If you open the lot, the Plan loses a line. If you copy the ledger, the lot stays closed.",
+   "text": "A steel drum drifts in the dark, stamped with a five-cycle plan nobody finished. It taps against its own tether. Inside, a ledger and a quota page with a blank line for the world. If you take up the quota, the scout stays long. If you copy the ledger, the quota stays blank.",
    "max": 280,
    "place": "Gig 03, arrival window text"
   },
   {
    "id": "GIG03_A_BTN",
-   "text": "Open the sealed lot",
+   "text": "Take up the quota",
    "max": 28,
    "place": "Gig 03, button A"
   },
@@ -12147,25 +12267,25 @@
   },
   {
    "id": "GIG03_A_OUT_MIL",
-   "text": "The lot is packed in order, each crate numbered. You count them twice. The Plan is one line short, and no one is there to mind.",
+   "text": "You write one of your worlds on the blank line, and the stamp takes. The quota is yours now, and the yard there will know it. The Plan has one line fewer to mourn.",
    "max": 280,
    "place": "Gig 03, outcome A, Military"
   },
   {
    "id": "GIG03_A_OUT_LUX",
-   "text": "Folded cloth between paper sheets, still bright. The paper carries a stamp. You leave the stamp where it is.",
+   "text": "You write a world on the blank line, in your best hand, and the page seems pleased. A quota for a gift that never came is yours now. The drum taps once more.",
    "max": 280,
    "place": "Gig 03, outcome A, Luxury"
   },
   {
    "id": "GIG03_A_OUT_MIN",
-   "text": "Heavy slabs in grey wrap, marked for a claim that was never cut. The drum stops tapping when the lot is out.",
+   "text": "You write a world on the blank line, and the drum stops tapping. The old quota wanted rock and never got it. It is yours now.",
    "max": 280,
    "place": "Gig 03, outcome A, Minerals"
   },
   {
    "id": "GIG03_A_OUT_BIO",
-   "text": "Cold trays, a green smell in the seam. The drum taps once more, then goes quiet.",
+   "text": "You write a world on the blank line. The ink dries green at the edges, which ink should not do. The quota is yours now. The drum goes quiet.",
    "max": 280,
    "place": "Gig 03, outcome A, Biotech"
   },
@@ -16002,6 +16122,126 @@
    "text": "Quillon's builders found a stack of ore in a closed yard and stopped buying. Ore at Quillon costs less and pays less for a while. The yard's gate was sealed with a form that no one remembers signing. The ore is warm.",
    "max": 280,
    "place": "pool event text"
+  },
+  {
+   "id": "EV97_TITLE",
+   "text": "The depot wants a yard",
+   "max": 32,
+   "place": "pool event title"
+  },
+  {
+   "id": "EV97_BODY",
+   "text": "The Bureau's depot office will name one of your worlds a supply yard. A yard buys more each shift, and the stamp costs. The clerk has the form filled in except for the world. He taps the blank line and waits.",
+   "max": 280,
+   "place": "pool event text"
+  },
+  {
+   "id": "EV97_SIGN_BTN",
+   "text": "Sign the requisition",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV97_SIGN_EFF",
+   "text": "You gain a production charter and pay a small fee.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV97_SIGN_TITLE",
+   "text": "The form is signed",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV97_SIGN",
+   "text": "You signed, and the clerk stamped the page before the ink was dry. You gain a production charter and pay a small fee. Open a world's card to name the yard. The clerk will check the blank line.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV97_LAPSE_BTN",
+   "text": "Let the form lapse",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV97_LAPSE_EFF",
+   "text": "You gain a small sum.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV97_LAPSE_TITLE",
+   "text": "The form lapses",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV97_LAPSE",
+   "text": "You left the line blank. The clerk sighed, filed the form under lapsed, and paid out a small sum for the trouble. You gain a small sum. He wrote the date on the folder, in case.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV98_TITLE",
+   "text": "A patron picks a house",
+   "max": 32,
+   "place": "pool event title"
+  },
+  {
+   "id": "EV98_BODY",
+   "text": "A patron wants one world to carry her name, and every buyer there to stock for her. She pays nothing. She asks only that her rivals be told. Somewhere a broker is already drafting the list.",
+   "max": 280,
+   "place": "pool event text"
+  },
+  {
+   "id": "EV98_ACCEPT_BTN",
+   "text": "Accept the patronage",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV98_ACCEPT_EFF",
+   "text": "You gain a production charter. A home Luxury good costs less and pays less for a while.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV98_ACCEPT_TITLE",
+   "text": "The patron is pleased",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV98_ACCEPT",
+   "text": "The patron nodded once. You gain a production charter, and a Luxury good at your home world costs less and pays less for a while. Her rivals were told by evening. They sent no reply.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV98_DECLINE_BTN",
+   "text": "Decline politely",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV98_DECLINE_EFF",
+   "text": "You gain a small sum.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV98_DECLINE_TITLE",
+   "text": "The offer is declined",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV98_DECLINE",
+   "text": "You declined, and she took it well, which was worse. A small sum arrived the next day, with a card. You gain a small sum. The card has no name on it.",
+   "max": 280,
+   "place": "popup"
   }
  ]
 }

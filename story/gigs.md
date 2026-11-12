@@ -44,13 +44,13 @@ GIG02_EPI | Gig 02, epilogue line | The keeper's form is filed under the common 
 
 GIG03_TITLE | Gig 03, arrival window title | The quota drum
 GIG03_HOOK | Gig 03, signal hint | A tapping comes in on the open band, the same long run of taps, then a gap, then the run again. It is too even to be a fault. The crew has listened to it for a full watch, and someone started counting aloud before they stopped. Other crews logged it and kept their distance. It is a Plan marker, and nobody wants to be the one who touches it.
-GIG03_ARRIVE | Gig 03, arrival window text | A steel drum drifts in the dark, stamped with a five-cycle plan nobody finished. It taps against its own tether. Inside, a ledger and a sealed lot. If you open the lot, the Plan loses a line. If you copy the ledger, the lot stays closed.
-GIG03_A_BTN | Gig 03, button A | Open the sealed lot
+GIG03_ARRIVE | Gig 03, arrival window text | A steel drum drifts in the dark, stamped with a five-cycle plan nobody finished. It taps against its own tether. Inside, a ledger and a quota page with a blank line for the world. If you take up the quota, the scout stays long. If you copy the ledger, the quota stays blank.
+GIG03_A_BTN | Gig 03, button A | Take up the quota
 GIG03_B_BTN | Gig 03, button B | Copy the ledger
-GIG03_A_OUT_MIL | Gig 03, outcome A, Military | The lot is packed in order, each crate numbered. You count them twice. The Plan is one line short, and no one is there to mind.
-GIG03_A_OUT_LUX | Gig 03, outcome A, Luxury | Folded cloth between paper sheets, still bright. The paper carries a stamp. You leave the stamp where it is.
-GIG03_A_OUT_MIN | Gig 03, outcome A, Minerals | Heavy slabs in grey wrap, marked for a claim that was never cut. The drum stops tapping when the lot is out.
-GIG03_A_OUT_BIO | Gig 03, outcome A, Biotech | Cold trays, a green smell in the seam. The drum taps once more, then goes quiet.
+GIG03_A_OUT_MIL | Gig 03, outcome A, Military | You write one of your worlds on the blank line, and the stamp takes. The quota is yours now, and the yard there will know it. The Plan has one line fewer to mourn.
+GIG03_A_OUT_LUX | Gig 03, outcome A, Luxury | You write a world on the blank line, in your best hand, and the page seems pleased. A quota for a gift that never came is yours now. The drum taps once more.
+GIG03_A_OUT_MIN | Gig 03, outcome A, Minerals | You write a world on the blank line, and the drum stops tapping. The old quota wanted rock and never got it. It is yours now.
+GIG03_A_OUT_BIO | Gig 03, outcome A, Biotech | You write a world on the blank line. The ink dries green at the edges, which ink should not do. The quota is yours now. The drum goes quiet.
 GIG03_B_OUT_MIL | Gig 03, outcome B, Military | The ledger lists every drop and every handler. You copy it by hand, and a depot clerk pays a small sum for the copy. The lot stays closed behind you.
 GIG03_B_OUT_LUX | Gig 03, outcome B, Luxury | The ledger lists who was owed a gift and who sent it. You copy the names, and a broker pays a small sum for them. The lot stays closed behind you.
 GIG03_B_OUT_MIN | Gig 03, outcome B, Minerals | The ledger lists each claim and its weight. You copy the pages, and a claim office pays a small sum for them. The lot stays closed behind you.

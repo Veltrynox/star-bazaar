@@ -31,14 +31,14 @@
       ]
     },
     {
-      "id": "GIG03", "kind": "signal", "weight": 1, "system": 0,
+      "id": "GIG03", "kind": "signal", "weight": 1, "weight_key": "gig_weight_boost", "system": 0,
       "when": "cycle_at_least:balance.gig_first_cycle",
       "expires": "balance.gig_expire_cycles",
       "title": "GIG03_TITLE", "hook": "GIG03_HOOK", "body": "GIG03_ARRIVE", "epilogue": "GIG03_EPI",
       "options": [
         {"id": "a", "text": "GIG03_A_BTN", "outcome": "GIG03_A_OUT",
-         "gives": [{"kind": "goods", "by_branch": {"mil": "powder", "lux": "blooms", "min": "ore", "bio": "food", "other": "energy"}, "size": "small"}],
-         "costs": [{"kind": "scout_idle", "size": "short"}]},
+         "gives": [{"kind": "boost_charge"}],
+         "costs": [{"kind": "scout_idle", "size": "boost"}]},
         {"id": "b", "text": "GIG03_B_BTN", "outcome": "GIG03_B_OUT",
          "gives": [{"kind": "cash", "size": "small"}],
          "costs": [{"kind": "scout_idle", "size": "long"}]}

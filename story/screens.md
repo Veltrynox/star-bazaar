@@ -2304,3 +2304,20 @@ WX_NAME_CLOSED | 24 | ui.gd:245
 Closed
 WX_NAME_PRICE_UP | 24 | ui.gd:243
 Price up
+
+## Production charter (T370, 2026-11-12; plain UI strings, no flavour; the _STACK and _SECOND notices are short stories, max 200)
+Term: production charter. One charter boosts one world, for good. Not the Flagship boost (BTN_BOOST), a different thing.
+PB_BTN | 24 | Planet card, under the goods grid, when a charter is held | Boost production
+PB_TIP | 140 | Tooltip of PB_BTN | Spend your production charter here. Buy orders and storage room at {planet} grow for the rest of the run. One charter, one world.
+PB_CONFIRM_TITLE | 32 | Confirm window title | Boost {planet}?
+PB_CONFIRM_BODY | 110 | Confirm window body | This cannot be moved or undone.
+PB_CONFIRM_OK | 24 | Confirm window, accept button | Boost
+PB_TAG | 24 | Small tag by the name of a boosted world | Boosted
+PB_TAG_TIP | 110 | Tooltip of PB_TAG | Buy orders and storage room here are larger, for the rest of the run.
+PB_NOTICE_GAINED | 110 | Notice, a production charter is gained | You hold a production charter. Open a world's card to spend it.
+PB_NOTICE_USED | 110 | Notice, a world is boosted | {planet} is boosted. Its Buy orders and storage room are larger for the rest of the run.
+PB_NOTICE_STACK | 200 | Notice, a second charter is gained while one is still unspent | A second charter, and the first still unspent. The Bureau filed both under one number, to be tidy. Now two worlds must be named.
+PB_NOTICE_SECOND_MIL | 200 | Notice, a second world is boosted, Military | A second yard, at {planet}. The depot clerk stamped it twice, once for the form and once for luck. The stamps are logged. The luck is not.
+PB_NOTICE_SECOND_LUX | 200 | Notice, a second world is boosted, Luxury | {planet} now stocks for a second patron. Each believes she came first. The broker has seated them at opposite ends of one long ledger.
+PB_NOTICE_SECOND_MIN | 200 | Notice, a second world is boosted, Minerals | {planet} gets a quota too. The crews at the first world want to know where the second was hiding. It was in a drawer.
+PB_NOTICE_SECOND_BIO | 200 | Notice, a second world is boosted, Biotech | The vines at {planet} heard the news from the first world. They are not impressed. They are growing anyway.

@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-12",
+  "task": "T372 production boost UI",
+  "status": "done",
+  "files_changed": ["game/planet_panel.gd", "game/skill_icons.gd", "tools/tests/run_tests.gd", "handoffs/ui-programmer/2026-11-12-T372.json"],
+  "open_questions": [
+    "SK_MIN_16 and SK_BIO_16 names show in English in the Russian UI (no ru text yet); expected until a translation is asked for.",
+    "MIN_16 reuses the factory glyph and BIO_16 the culture flask glyph (alias in skill_icons.gd); say if you want other glyphs."
+  ],
+  "handoff": "Planet card: _boost_block() under the goods grid, hidden unless Availability production_boost. A world that can_boost shows button PB_BTN (with 'x2' when two charges are held) and tooltip PB_TIP; click opens a ConfirmationDialog (PB_CONFIRM_*, Cancel reuses BAZ_FOUND_CANCEL) that calls main.boost.use_boost. A boosted world shows a PB_TAG label (tooltip PB_TAG_TIP) in place of the button; the card rebuilds on every use so the button goes from every card. Skill screen: nodes sit in their trees by tier with no layout code change; icons via ALIAS in skill_icons.gd. Tests: skill buttons 68 -> 70; card tests added to _test_boost (not run). Rendered: card with charge, confirm, boosted card, Minerals tree. Skill screen opens in about 157 ms with 70 nodes. Not checked by eye in detail: BIO tree and the MIN_16 connector route at zoom.",
+  "details": {
+    "pngs": [
+      "/Volumes/Work/Gamedev/Projects/AgentCourse/wt/_scratch/t372_card_charge.png",
+      "/Volumes/Work/Gamedev/Projects/AgentCourse/wt/_scratch/t372_confirm.png",
+      "/Volumes/Work/Gamedev/Projects/AgentCourse/wt/_scratch/t372_card_boosted.png",
+      "/Volumes/Work/Gamedev/Projects/AgentCourse/wt/_scratch/t372_skills_b.png"
+    ]
+  }
+}

@@ -438,3 +438,7 @@ static func from_dict(d) -> void:
 			var v = d["stock_grown"][k]
 			if typeof(v) == TYPE_DICTIONARY:
 				stock_grown[str(k)] = {"carry": float(v.get("carry", 0.0)), "grown": int(v.get("grown", 0))}
+
+## boost_charge (T371): production charters granted by learned nodes (MIN_16, BIO_16): one each. Boost adds the event and gig grants.
+static func boost_charges() -> int:
+	return _eff("boost_charge").size()

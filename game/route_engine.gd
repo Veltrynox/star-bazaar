@@ -98,7 +98,7 @@ func lane_count(src_planet: int, dst_planet: int, c: String) -> int:
 ## per cycle (ships x units per cycle >= local_amount). Another ship would add nothing; the route is upgraded instead.
 func lane_full(src_planet: int, dst_planet: int, c: String) -> bool:
 	var n := lane_count(src_planet, dst_planet, c)
-	var feed: int = clusters.yield_per_cycle(Clusters.index_of(src_planet)) if (Clusters.is_node(src_planet) and clusters != null) else local_amount()  # T156: a cluster feeds mining_yield_per_cycle
+	var feed: int = clusters.yield_per_cycle(Clusters.index_of(src_planet)) if (Clusters.is_node(src_planet) and clusters != null) else buy_amount(src_planet)  # T156: a cluster feeds mining_yield_per_cycle
 	return n > 0 and n * units_per_cycle() >= feed
 
 ## T145: route level of a lane (all ships of a lane share one level).
@@ -224,6 +224,15 @@ func local_amount(good: String = "") -> int:
 	if good == "ore" and Skills.ore_free_slots():  # MIN_2: ore does not count against the order-size cap
 		return ORE_UNCAPPED
 	return base
+
+## T371: a boosted world (Boost, set by main) takes balance boost_order_pct more on every Buy order. Sell orders are not boosted.
+var boosted_planets: Array = []  # planet indexes
+
+func buy_amount(planet: int, good: String = "") -> int:
+	var n := local_amount(good)
+	if n >= ORE_UNCAPPED or not boosted_planets.has(planet):
+		return n
+	return floori(float(n) * (1.0 + maxf(0.0, float(balance.get("boost_order_pct", 0.0)))))
 
 ## Fixed cost per cycle of a route that moves stock (trip + ship upkeep).
 func fixed_cost(rec = null) -> int:
@@ -516,7 +525,7 @@ func _local_calc(planet: int, c: String, role: String, cash: int) -> Dictionary:
 	if role == "buy":
 		if storage.space(key, c) <= 0:
 			return {"n": 0, "credits": 0, "state": StoryText.get_text("NOT_STORAGE_FULL")}
-		var n: int = mini(local_amount(c), storage.space(key, c))
+		var n: int = mini(buy_amount(planet, c), storage.space(key, c))
 		var mined := _mined_pid(planet)  # T295: buying at a dead world is mining it: closed while reclaiming, finite stock
 		if mined != "":
 			if prosperity != null and prosperity.mining_closed(planet):
@@ -814,7 +823,7 @@ func project_storage(key: String, c: String, cash: int = 1 << 40) -> Dictionary:
 		if not planet_open(p) or price < 0 or (trade_gate.is_valid() and not bool(trade_gate.call(p))):
 			continue
 		var pk: String = storage.planet_key(p)
-		var n: int = mini(local_amount(c), maxi(0, storage.capacity_of(pk) - int(get_amt.call(pk))))
+		var n: int = mini(buy_amount(p, c), maxi(0, storage.capacity_of(pk) - int(get_amt.call(pk))))
 		if price > 0:
 			n = mini(n, floori(float(maxi(cur, 0)) / price))
 		if n > 0:
@@ -960,7 +969,7 @@ func forecast(cash: int) -> Dictionary:
 			state = StoryText.get_or("LBL_TRADE_NEEDS_STATION", "Needs a Space Storage in this system.")
 		else:
 			var room: int = maxi(0, storage.capacity_of(pk) - int(amt.call(pk, c)))
-			var n: int = mini(local_amount(c), room)
+			var n: int = mini(buy_amount(p, c), room)
 			if room <= 0:
 				state = StoryText.get_text("NOT_STORAGE_FULL")
 			else:

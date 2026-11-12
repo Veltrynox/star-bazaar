@@ -65,3 +65,13 @@
 - Failed / did not work: raid, cluster and closed reasons not rendered; test not run.
 - Files and commits: see git log on main for T369.
 - Left to do: owner decision on dividing a planet's stock fairly between lanes before they run.
+
+## 2026-11-12 21:40 run: T370 T371 T372
+- Summary: Production boost: a charge boosts one world for the run (Buy orders +boost_order_pct, storage +boost_storage_pct, placeholders 0.5); charges stack; Boost production button with confirm on the planet card, Boosted tag after; sources: new mid-tree skills MIN_16 Quota Charter and BIO_16 Greenhouse Writ (MIN_13 / BIO_12 kept), events EV97 (Military) and EV98 (Luxury) forced after boost_event_force_cycles, GIG03 option A for everyone with its own draw weight; stacking and second-world notices; save key run.boost (no VERSION bump: new optional key).
+- Why this task: owner request and answers 2026-11-12 ('run it now').
+- Approach: feature-designer proposal (design/proposals/2026-11-12-production-boost.md), then story-designer T370 and gameplay-programmer T371 in parallel, ui-programmer T372.
+- Agent prompts: Agent tool, briefs read from schedule.json T370-T372; handoffs in handoffs/<agent>/2026-11-12-T37x.json.
+- Worked: renders of the card with a charge, the confirm, the boosted card and the Minerals tree looked at; skill screen opens in about 157 ms with 70 nodes.
+- Failed / did not work: BIO tree not viewed; MIN_16 sits on the wrapped second line of its tier (two per line), so it looks lower than the middle.
+- Files and commits: see git log on main for T370-T372.
+- Left to do: owner to tune the placeholders (economy-designer only on request); Russian for every new id when translation resumes; EV98 penalty uses attar at Voltara.

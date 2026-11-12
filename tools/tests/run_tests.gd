@@ -132,6 +132,7 @@ func _run() -> void:
 	await _test_company_setup()
 	await _test_availability()
 	await _test_gigs()
+	await _test_boost()
 	await _test_bazaar_guidance()
 	await _test_bazaar_guidance_ui()
 	await _test_dead_mine_tile()
@@ -2605,7 +2606,7 @@ func _test_main() -> void:
 	# --- skill keys: every node has a cost key, a story name and numeric effect keys ---
 	m = await _new_main()
 	m._dismiss_preface()
-	check(SkillTree.all_ids().size() == 68, "skills: 6 Foundation nodes plus 62 market nodes (T173 side skills, 2026-11-06 skills fill)", str(SkillTree.all_ids().size()))
+	check(SkillTree.all_ids().size() == 70, "skills: 6 Foundation nodes plus 64 market nodes (T371 MIN_16 and BIO_16) (T173 side skills, 2026-11-06 skills fill)", str(SkillTree.all_ids().size()))
 	var costs_ok := true
 	var keys_ok := true
 	for id in SkillTree.all_ids():
@@ -2649,11 +2650,11 @@ func _test_skill_screen_ui() -> void:
 	var m: Control = await _new_main()
 	m._dismiss_preface()
 	m.skill_screen.open_screen()
-	check(m.skill_screen.node_buttons.size() == 68, "skill screen: one button per node", str(m.skill_screen.node_buttons.size()))
+	check(m.skill_screen.node_buttons.size() == 70, "skill screen: one button per node", str(m.skill_screen.node_buttons.size()))
 	var sk = m.skill_screen
 	await process_frame
 	await process_frame
-	check(sk.cells.size() == 68 and sk.node_buttons.size() == 68 and SkillTree.BRANCHES.size() == 5, "skill placeholders: real nodes (68)")
+	check(sk.cells.size() == 70 and sk.node_buttons.size() == 70 and SkillTree.BRANCHES.size() == 5, "skill placeholders: real nodes (70)")
 	check(SS.SHOW_PLACEHOLDERS == (sk.placeholders.size() > 0), "skill placeholders: the switch decides whether any exist")
 	check(SS.placeholder_row_count(7, 2, false) == 0 and SS.placeholder_row_count(7, 2, true) == ceili(7.0 * (SS.PLACEHOLDER_GROWTH - 1.0) / 2.0), "skill placeholders: switch off gives no rows")
 	var ph_ok := true
@@ -7060,7 +7061,7 @@ func _test_chains() -> void:
 				if not bal.has(str(e["key"])):
 					keys_ok = false
 	check(count_a == 12 and count_b == 28 and keys_ok and rival_ok, "chains: every step has its balance keys and every option a bot change", "%d %d %s %s" % [count_a, count_b, keys_ok, rival_ok])
-	check(data["pool_new"].size() == 60 and Chains.pool_kept.size() == 20 and Chains.retired.size() == 9 and Chains.retired[0] == "EV29", "chains: pool 20 kept + 60 new, EV29 to EV37 retired")
+	check(data["pool_new"].size() == 62 and Chains.pool_kept.size() == 20 and Chains.retired.size() == 9 and Chains.retired[0] == "EV29", "chains: pool 20 kept + 60 new, EV29 to EV37 retired")
 	# every option applies and logs at least one rival change
 	var logs_ok := true
 	for sid in Chains.step_ids():
@@ -9640,6 +9641,86 @@ func _test_gigs() -> void:
 	g.reset()
 	g.on_cycle(30)
 	check(not g.is_open(), "gigs: nothing opens with discovery off")
+	await _free_main(m)
+
+# ---- T371: production boost ----
+func _test_boost() -> void:
+	var m: Control = await _new_main()
+	m._dismiss_preface()
+	var b = m.boost
+	check(b.charges() == 0 and not Conditions.eval("boost_charge") and not Conditions.eval("boost_used_any"), "boost: nothing held at the start")
+	check(not Availability.feature("production_boost"), "boost: the feature is hidden at the start")
+	# source 1: a skill node
+	Skills.add_learned("MIN_16")
+	check(b.charges() == 1 and Conditions.eval("boost_charge") and Availability.feature("production_boost"), "boost: a boost_charge node grants one charge")
+	var ok_planets: Array = []
+	for i in m.map.planets.size():
+		if b.can_boost(i)["ok"]:
+			ok_planets.append(i)
+	check(ok_planets.size() >= 2, "boost: at least two worlds can take a charter", str(ok_planets))
+	if ok_planets.size() < 2:
+		await _free_main(m)
+		return
+	var p0: int = ok_planets[0]
+	var p1: int = ok_planets[1]
+	var base: int = m.engine.local_amount()
+	var cap1: int = m.storage.capacity_of(m.storage.planet_key(p1))
+	var cap0: int = m.storage.capacity_of(m.storage.planet_key(p0))
+	var r: Dictionary = b.use_boost(p0)
+	check(r["ok"] and b.charges() == 0 and b.is_boosted(p0) and not b.is_boosted(p1), "boost: use_boost spends the charge on one world")
+	check(Conditions.eval("boost_used_any") and Conditions.eval("boost_used:" + str(m.map.planets[p0]["id"])), "boost: the used atoms hold")
+	var want: int = floori(float(base) * (1.0 + float(m.balance["boost_order_pct"])))
+	check(m.engine.buy_amount(p0, "energy") == want and m.engine.buy_amount(p1, "energy") == base and m.engine.local_amount() == base, "boost: the Buy amount is raised only at the boosted world", "%d %d" % [m.engine.buy_amount(p0, "energy"), base])
+	check(m.storage.capacity_of(m.storage.planet_key(p0)) == int(round(cap0 * (1.0 + float(m.balance["boost_storage_pct"])))) and m.storage.capacity_of(m.storage.planet_key(p1)) == cap1, "boost: storage room is raised only at the boosted world")
+	check(not b.use_boost(p1)["ok"], "boost: no charge left, no second boost")
+	# sources 2 and 3: event and gig; two charges boost two worlds, never one world twice
+	b.grant("event:EV97")
+	b.grant("gig:GIG03")
+	check(b.charges() == 2, "boost: an event and a gig each grant one charge")
+	check(not b.use_boost(p0)["ok"] and b.charges() == 2, "boost: a world is never boosted twice")
+	check(b.use_boost(p1)["ok"] and b.charges() == 1 and b.is_boosted(p1), "boost: a second charge boosts a second world")
+	# T372: the card button shows only with a charge on a world that can take it, and goes after use
+	var pp = m.planet_panel
+	pp.show_planet(p0)
+	check(pp.box.find_child("BoostButton", true, false) == null and pp.box.find_child("BoostTag", true, false) != null, "boost card: a boosted world shows the tag and no button")
+	var p2 := -1
+	for i in m.map.planets.size():
+		if b.can_boost(i)["ok"]:
+			p2 = i
+			break
+	if p2 >= 0:
+		pp.show_planet(p2)
+		check(pp.box.find_child("BoostButton", true, false) != null, "boost card: the button shows with a charge held")
+	# save round trip, old save
+	var saved: Dictionary = JSON.parse_string(JSON.stringify(b.to_dict()))
+	b.from_dict(saved)
+	check(b.is_boosted(p0) and b.is_boosted(p1) and b.grants.size() == 2 and m.engine.buy_amount(p0, "energy") == want, "boost: the save round-trips")
+	check(JSON.parse_string(JSON.stringify(m.collect_state()))["run"]["boost"]["planets"].size() == 2, "boost: collect_state holds run.boost")
+	b.from_dict(null)
+	check(b.planets.is_empty() and b.grants.is_empty() and m.engine.buy_amount(p0, "energy") == base, "boost: an old save loads with nothing boosted")
+	# data: the event rows, the gig and the nodes
+	var fx := false
+	var fee := false
+	for ch in m.events.choices_of("EV97"):
+		for e in m.events.choice_effects(ch):
+			fx = fx or str(e.get("kind", "")) == "boost_charge"
+			fee = fee or (str(e.get("kind", "")) == "cash" and int(e.get("amount", 0)) == int(m.balance["boost_event_fee"]) and int(e.get("amount", 0)) < 0)
+	check(fx and fee, "boost: EV97 grants a charge and costs the fee")
+	var fx2 := false
+	for e in m.events.choice_effects(m.events.choices_of("EV98")[0]):
+		fx2 = fx2 or str(e.get("kind", "")) == "boost_charge"
+	check(fx2, "boost: EV98 grants a charge")
+	var g3: Dictionary = m.gigs._by_id.get("GIG03", {})
+	check(str(g3["options"][0]["gives"][0]["kind"]) == "boost_charge" and str(g3["weight_key"]) == "gig_weight_boost" and m.balance.has("gig_weight_boost"), "boost: GIG03 option A gives the charge and has its own weight")
+	check(SkillTree.has("MIN_16") and SkillTree.has("BIO_16") and SkillTree.has("MIN_13") and SkillTree.has("BIO_12") and int(SkillTree.node("MIN_16")["tier"]) == 4, "boost: MIN_16 and BIO_16 are in the tree, MIN_13 and BIO_12 stay")
+	# the forced draw
+	m.events.ready = {"EV97": 1}
+	m.balance["boost_event_force_cycles"] = 4
+	check(m.events.forced_id(3) == "" , "boost: not forced before boost_event_force_cycles")
+	m.events.ready = {"EV97": 1, "EV98": 1}
+	var fid: String = m.events.forced_id(9)
+	check(fid == "" or fid in ["EV97", "EV98"], "boost: forced id is a charter event or none for another branch")
+	Skills.reset(m.balance)
 	await _free_main(m)
 
 # ---- T356: engine plume layers and the ship hue swap ----

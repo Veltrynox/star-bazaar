@@ -4040,6 +4040,74 @@
         "tools/tests/run_tests.gd"
       ],
       "priority": 1
+    },
+    {
+      "task_id": "T370",
+      "title": "Production boost: texts (skills, events, gig, button, notices)",
+      "owner_agent": "story-designer",
+      "depends_on": [],
+      "status": "done",
+      "turn_cap": 45,
+      "window": "Owner request 2026-11-12: production boost button, sources per branch and one gig; answers to the proposal's four questions; 'run it now'.",
+      "brief": "Owner answers 2026-11-12 to design/proposals/2026-11-12-production-boost.md (read it whole, it is the spec; these answers override it where they differ): (1) Do NOT replace MIN_13 and BIO_12: ADD one NEW skill node each in the Minerals and Biotech trees, in the middle of the tree (tier 4 of 6, prereq the tier-3 node of that tree's side the proposal names; new ids MIN_16 and BIO_16), effect boost_charge; MIN_13 and BIO_12 stay as they are. (2) Charges stack (one world per charge, one boost per world). When the player gains a SECOND charge while still holding one, or boosts a second world, show a notification with a short funny story about that planet's production (new ids PB_NOTICE_STACK and PB_NOTICE_SECOND_<branch>, {planet} placeholder, two or three dry funny sentences each in the voice of story/voice.md). (3) The boost ALSO raises that world's storage room by the same factor (new key boost_storage_pct, placeholder 0.5; game/storage.gd capacity_of for that planet key). (4) Close to guaranteed: EV97 / EV98 are forced as the next event if not drawn within boost_event_force_cycles (placeholder 4) cycles after their condition holds; GIG03 gets its own draw weight so it reliably appears once per run (it may still expire, the owner accepts that). YOUR PART (story-designer, English only, translation paused: never touch story/ru): write every text of the feature in story/*.md and rebuild with python3 tools/build_story.py: the two NEW skill nodes MIN_16 and BIO_16 (name, plain line, flavour, in story/skills.md following the existing SK_ rows), EV97 and EV98 (title, body, two buttons, outcome lines, in story/events.md following the existing event format and the generated-file rules in the header of tools/build_story.py), the GIG03 option A rewrite 'Take up the quota' (button and four branch outcome lines, the hook may stay), all PB_* ids from section 4 of the proposal plus PB_NOTICE_STACK and PB_NOTICE_SECOND_MIL/LUX/MIN/BIO. No numbers or mechanics named in story texts where the file rules forbid it; the PB_ UI strings may say plainly what the button does. Do not run the test suite, do not commit. Handoff handoffs/story-designer/2026-11-12-T370.json listing every id.",
+      "size": "S",
+      "touches": [
+        "story/skills.md",
+        "story/events.md",
+        "story/gigs.md",
+        "story/screens.md",
+        "data/story_text.json",
+        "data/events.json"
+      ],
+      "priority": 1
+    },
+    {
+      "task_id": "T371",
+      "title": "Production boost: state, sources (new skills, events, gig), save, atoms",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [],
+      "status": "done",
+      "turn_cap": 45,
+      "window": "Owner request 2026-11-12: production boost button, sources per branch and one gig; answers to the proposal's four questions; 'run it now'.",
+      "brief": "Owner answers 2026-11-12 to design/proposals/2026-11-12-production-boost.md (read it whole, it is the spec; these answers override it where they differ): (1) Do NOT replace MIN_13 and BIO_12: ADD one NEW skill node each in the Minerals and Biotech trees, in the middle of the tree (tier 4 of 6, prereq the tier-3 node of that tree's side the proposal names; new ids MIN_16 and BIO_16), effect boost_charge; MIN_13 and BIO_12 stay as they are. (2) Charges stack (one world per charge, one boost per world). When the player gains a SECOND charge while still holding one, or boosts a second world, show a notification with a short funny story about that planet's production (new ids PB_NOTICE_STACK and PB_NOTICE_SECOND_<branch>, {planet} placeholder, two or three dry funny sentences each in the voice of story/voice.md). (3) The boost ALSO raises that world's storage room by the same factor (new key boost_storage_pct, placeholder 0.5; game/storage.gd capacity_of for that planet key). (4) Close to guaranteed: EV97 / EV98 are forced as the next event if not drawn within boost_event_force_cycles (placeholder 4) cycles after their condition holds; GIG03 gets its own draw weight so it reliably appears once per run (it may still expire, the owner accepts that). YOUR PART (gameplay-programmer): everything in the proposal's gameplay row of section 5 with the owner answers applied: run.boost state (grants, planets) in save (bump game/save_game.gd VERSION by one with a header sentence; an old save loads with nothing), Boost API on main (charges(), can_boost(planet), use_boost(planet) -> Dictionary ok/reason, is_boosted(planet)), boosted local_amount at that world only and boosted storage capacity for that planet key, conditions atoms boost_charge and boost_used:<planet> in game/conditions.gd (document them in its header), effect type boost_charge in data/skills.json vocabulary and game/skills.gd, the two NEW nodes MIN_16 and BIO_16 in data/skills.json (tier 4, middle of the tree, costs like the other tier-4 nodes; do not touch MIN_13 / BIO_12), EV97 and EV98 rows in the event source per tools/build_story.py rules (never edit data/events.json by hand; run python3 tools/build_story.py) with the choice that grants a charge plus its cost, the extra-effects support on event choices if missing, the forced draw after boost_event_force_cycles, GIG03 option A granting the charge in data/gigs.json with the longer Flagship idle cost and its own draw weight, the availability rule production_boost in data/availability.json, balance placeholders boost_order_pct 0.5, boost_storage_pct 0.5, boost_event_fee, boost_event_force_cycles 4 (note in the balance source field), notices: post_notice PB_NOTICE_GAINED when a charge is gained and PB_NOTICE_STACK / PB_NOTICE_SECOND_<branch> per the owner answer. The story-designer writes the texts in parallel (T370): use StoryText.get_or with plain English fallbacks, ids as listed in the proposal and the owner answers. The skill screen placement of the two new nodes is the ui-programmer's (T372); just make sure the nodes are in the tree data. Headless tests (own function): each source grants one charge; use_boost raises local_amount and capacity only there; the charge is spent; two charges boost two worlds; the save round-trips; an old save loads. Do not run the test suite, do not commit. Handoff handoffs/gameplay-programmer/2026-11-12-T371.json with the API.",
+      "size": "M",
+      "touches": [
+        "game/main.gd",
+        "game/route_engine.gd",
+        "game/storage.gd",
+        "game/skills.gd",
+        "game/events.gd",
+        "game/gigs.gd",
+        "game/conditions.gd",
+        "game/save_game.gd",
+        "data/skills.json",
+        "data/gigs.json",
+        "data/availability.json",
+        "data/balance.json",
+        "tools/tests/run_tests.gd"
+      ],
+      "priority": 1
+    },
+    {
+      "task_id": "T372",
+      "title": "Production boost: planet button, tag, skill screen nodes",
+      "owner_agent": "ui-programmer",
+      "depends_on": [
+        "T370",
+        "T371"
+      ],
+      "status": "done",
+      "turn_cap": 45,
+      "window": "Owner request 2026-11-12: production boost button, sources per branch and one gig; answers to the proposal's four questions; 'run it now'.",
+      "brief": "Owner answers 2026-11-12 to design/proposals/2026-11-12-production-boost.md (read it whole, it is the spec; these answers override it where they differ): (1) Do NOT replace MIN_13 and BIO_12: ADD one NEW skill node each in the Minerals and Biotech trees, in the middle of the tree (tier 4 of 6, prereq the tier-3 node of that tree's side the proposal names; new ids MIN_16 and BIO_16), effect boost_charge; MIN_13 and BIO_12 stay as they are. (2) Charges stack (one world per charge, one boost per world). When the player gains a SECOND charge while still holding one, or boosts a second world, show a notification with a short funny story about that planet's production (new ids PB_NOTICE_STACK and PB_NOTICE_SECOND_<branch>, {planet} placeholder, two or three dry funny sentences each in the voice of story/voice.md). (3) The boost ALSO raises that world's storage room by the same factor (new key boost_storage_pct, placeholder 0.5; game/storage.gd capacity_of for that planet key). (4) Close to guaranteed: EV97 / EV98 are forced as the next event if not drawn within boost_event_force_cycles (placeholder 4) cycles after their condition holds; GIG03 gets its own draw weight so it reliably appears once per run (it may still expire, the owner accepts that). YOUR PART (ui-programmer), after T370 and T371 (read both handoffs): the planet card button PB_BTN under the goods grid with PB_TIP, a confirm dialog (PB_CONFIRM_*) because it is final, shown only when main.can_boost(planet); after use it disappears from every card and the world shows a small PB_TAG with PB_TAG_TIP; a charge count somewhere the player can see it while holding one (e.g. the tag line under the goods or a small badge on the button, your choice, keep it quiet); the two new skill nodes MIN_16 and BIO_16 placed in the middle of their trees on the skill screen with an icon (reuse an existing glyph from game/skill_icons.gd that fits, e.g. a production or gear glyph; no new art), and make sure the skill screen still opens fast and its thin connector lines (game/skill_screen.gd route_link) still route cleanly. Render check per CLAUDE.md: scratch script under /Volumes/Work/Gamedev/Projects/AgentCourse/wt/_scratch rendering a planet card with a charge held, after boosting, and the Minerals skill tree; Read the PNGs; fix objective breakage only. Test: the button shows only with a charge, disappears after use on every card. Do not run the test suite, do not commit. Handoff handoffs/ui-programmer/2026-11-12-T372.json with the PNG paths.",
+      "size": "S",
+      "touches": [
+        "game/planet_panel.gd",
+        "game/skill_screen.gd",
+        "game/skill_icons.gd",
+        "tools/tests/run_tests.gd"
+      ],
+      "priority": 1
     }
   ],
   "done_task_ids": [

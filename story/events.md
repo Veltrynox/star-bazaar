@@ -866,3 +866,27 @@ EV88_ASHGATE | popup | The Ashgate clerk sent a card and a plate of something sw
 
 EV75_TITLE | pool event title | Quillon stops paying for ore
 EV75_BODY | pool event text | Quillon's builders found a stack of ore in a closed yard and stopped buying. Ore at Quillon costs less and pays less for a while. The yard's gate was sealed with a form that no one remembers signing. The ore is warm.
+
+## Production charter events (T370, 2026-11-12; pool choice events, mechanics in data/chains.json by the gameplay agent, once per run)
+
+EV97_TITLE | pool event title | The depot wants a yard
+EV97_BODY | pool event text | The Bureau's depot office will name one of your worlds a supply yard. A yard buys more each shift, and the stamp costs. The clerk has the form filled in except for the world. He taps the blank line and waits.
+EV97_SIGN_BTN | button | Sign the requisition
+EV97_SIGN_EFF | effect line | You gain a production charter and pay a small fee.
+EV97_SIGN_TITLE | popup title | The form is signed
+EV97_SIGN | popup | You signed, and the clerk stamped the page before the ink was dry. You gain a production charter and pay a small fee. Open a world's card to name the yard. The clerk will check the blank line.
+EV97_LAPSE_BTN | button | Let the form lapse
+EV97_LAPSE_EFF | effect line | You gain a small sum.
+EV97_LAPSE_TITLE | popup title | The form lapses
+EV97_LAPSE | popup | You left the line blank. The clerk sighed, filed the form under lapsed, and paid out a small sum for the trouble. You gain a small sum. He wrote the date on the folder, in case.
+
+EV98_TITLE | pool event title | A patron picks a house
+EV98_BODY | pool event text | A patron wants one world to carry her name, and every buyer there to stock for her. She pays nothing. She asks only that her rivals be told. Somewhere a broker is already drafting the list.
+EV98_ACCEPT_BTN | button | Accept the patronage
+EV98_ACCEPT_EFF | effect line | You gain a production charter. A home Luxury good costs less and pays less for a while.
+EV98_ACCEPT_TITLE | popup title | The patron is pleased
+EV98_ACCEPT | popup | The patron nodded once. You gain a production charter, and a Luxury good at your home world costs less and pays less for a while. Her rivals were told by evening. They sent no reply.
+EV98_DECLINE_BTN | button | Decline politely
+EV98_DECLINE_EFF | effect line | You gain a small sum.
+EV98_DECLINE_TITLE | popup title | The offer is declined
+EV98_DECLINE | popup | You declined, and she took it well, which was worse. A small sum arrived the next day, with a card. You gain a small sum. The card has no name on it.

@@ -270,6 +270,10 @@ SK_MIN_13_NAME | 24 | Skill screen, node name | Core Tuning
 SK_MIN_13_FLAVOUR | 90 | Skill screen, detail panel | Dials, a steady hand, a long cold trip made a little shorter.
 SK_MIN_13_PLAIN | 110 | Skill screen, detail panel | Trips by a ship with a Null Core cost less.
 
+SK_MIN_16_NAME | 24 | Skill screen, node name | Quota Charter
+SK_MIN_16_FLAVOUR | 90 | Skill screen, detail panel | A stamped page names one world the yard must feed. The yard reads it twice.
+SK_MIN_16_PLAIN | 110 | Skill screen, detail panel | Gives one production charter. Spend it on a world: its Buy orders and storage room grow for the run.
+
 SK_MIN_14_NAME | 24 | Skill screen, node name | Mass Melt
 SK_MIN_14_FLAVOUR | 90 | Skill screen, detail panel | The big furnace never asks what it is melting. It asks for more.
 SK_MIN_14_PLAIN | 140 | Skill screen, detail panel | Minerals units sold into a world's need count clearly more toward it. Tech: craft {goal} units.
@@ -300,6 +304,10 @@ SK_BIO_11_CRAFT | 60 | Skill screen, tech node progress line | Biotech workshop 
 SK_BIO_12_NAME | 24 | Skill screen, node name | Patient Orchard
 SK_BIO_12_FLAVOUR | 90 | Skill screen, detail panel | Nothing to do but wait. It is harder than it sounds.
 SK_BIO_12_PLAIN | 110 | Skill screen, detail panel | Stored Biotech grows faster each cycle.
+
+SK_BIO_16_NAME | 24 | Skill screen, node name | Greenhouse Writ
+SK_BIO_16_FLAVOUR | 90 | Skill screen, detail panel | One world gets the best trays and the first water. The others do not ask why.
+SK_BIO_16_PLAIN | 110 | Skill screen, detail panel | Gives one production charter. Spend it on a world: its Buy orders and storage room grow for the run.
 
 SK_BIO_13_NAME | 24 | Skill screen, node name | Market Days
 SK_BIO_13_FLAVOUR | 90 | Skill screen, detail panel | The stalls open when the news does. Your jars are ready.

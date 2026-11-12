@@ -121,6 +121,8 @@ func _data_choices(id: String, n: Dictionary) -> Array:
 		var ch := {"text_id": "%s_%s_BTN" % [id, k], "eff_id": "%s_%s_EFF" % [id, k], "popup_title_id": "%s_%s_TITLE" % [id, k], "popup_id": "%s_%s" % [id, k], "data_effect": c.get("effect", {})}
 		if c.has("follow_id"):
 			ch["follow_id"] = str(c["follow_id"])
+		if c.has("extra"):  # T371: more effect rows applied with the same choice (a charter and its fee)
+			ch["data_extra"] = c["extra"]
 		out.append(ch)
 	return out
 
@@ -130,6 +132,8 @@ func _resolve_effect(pe: Dictionary) -> Dictionary:
 	var typ := str(pe.get("type", ""))
 	if typ == "cash":
 		return {"kind": "cash", "planet": -1, "c": "", "amount": int(balance.get(str(pe.get("key", "")), 0))}
+	if typ == "boost_charge":  # T371: one production charter (Boost.grant)
+		return {"kind": "boost_charge", "planet": -1, "c": "", "amount": 0}
 	var pi := -1
 	for i in planets.size():
 		if typeof(planets[i]) == TYPE_DICTIONARY and str(planets[i].get("id", "")) == str(pe.get("planet", "")):
@@ -301,7 +305,13 @@ func debris_fee() -> int:
 ## All effects of a choice (the main tag). Each is {kind, planet, c, amount}; {} entries dropped.
 func choice_effects(ch) -> Array:
 	var first := choice_effect(ch)
-	return [] if first.is_empty() else [first]
+	var out: Array = [] if first.is_empty() else [first]
+	if typeof(ch) == TYPE_DICTIONARY and ch.has("data_extra"):  # T371: extra effect rows of a data choice
+		for x in ch["data_extra"]:
+			var e := _resolve_effect(x)
+			if not e.is_empty():
+				out.append(e)
+	return out
 
 func choice_effect(ch) -> Dictionary:
 	if typeof(ch) == TYPE_DICTIONARY and ch.has("data_effect"):  # data choice: effect row from data/chains.json
@@ -385,6 +395,23 @@ func take_due(cycle: int) -> String:
 			return id
 	return ""
 
+## T371: the charter events EV97 / EV98 are forced as the next pool event when they have been eligible for boost_event_force_cycles
+## cycles without being drawn. `ready` (saved) = id -> cycle it was first seen eligible; note_ready() is called each cycle by main.
+const BOOST_EVENTS := ["EV97", "EV98"]
+var ready: Dictionary = {}
+
+func note_ready(cycle: int) -> void:
+	for id in BOOST_EVENTS:
+		if by_id.has(id) and not ready.has(id) and not _fired(id) and available(id, cycle):
+			ready[id] = cycle
+
+func forced_id(cycle: int) -> String:
+	var after := int(balance.get("boost_event_force_cycles", 4))
+	for id in BOOST_EVENTS:
+		if ready.has(id) and not _fired(id) and not debug_off.has(id) and cycle - int(ready[id]) >= after and available(id, cycle):
+			return id
+	return ""
+
 ## True when the event or chain step fired this run (feed is saved with the run; the event_fired atom reads it).
 func has_fired(id: String) -> bool:
 	return _fired(id)
@@ -397,6 +424,9 @@ func _fired(id: String) -> bool:
 
 ## The shared pool: the 24 kept events and EV40-EV50 (data/chains.json), each at most once per run (a fired id never comes again).
 func random_id(skip: Array = [], cycle: int = 0) -> String:
+	var forced := forced_id(cycle)
+	if forced != "" and not skip.has(forced):
+		return forced
 	var pool: Array = []
 	for d in defs:
 		var pid := str(d["id"])
@@ -551,7 +581,7 @@ func record(id: String, cycle: int, planet: int = -1) -> void:
 	feed.append({"id": id, "cycle": cycle, "planet": planet})
 
 func to_dict() -> Dictionary:
-	return {"active": active.duplicate(true), "feed": feed.duplicate(true), "pending": pending_id, "debris": debris.duplicate(), "pending_planet": pending_planet, "scheduled": scheduled.duplicate(true), "held": held.duplicate(true)}
+	return {"active": active.duplicate(true), "feed": feed.duplicate(true), "pending": pending_id, "debris": debris.duplicate(), "pending_planet": pending_planet, "scheduled": scheduled.duplicate(true), "held": held.duplicate(true), "ready": ready.duplicate()}
 
 func from_dict(d) -> void:
 	active = []
@@ -561,8 +591,12 @@ func from_dict(d) -> void:
 	pending_planet = -1
 	scheduled = []
 	held = []
+	ready = {}
 	if typeof(d) != TYPE_DICTIONARY:
 		return
+	if typeof(d.get("ready")) == TYPE_DICTIONARY:  # T371; an older save has none
+		for k in d["ready"].keys():
+			ready[str(k)] = int(d["ready"][k])
 	if typeof(d.get("held")) == TYPE_ARRAY:  # T282; an older save has none
 		for hd in d["held"]:
 			if typeof(hd) == TYPE_DICTIONARY and typeof(hd.get("eff")) == TYPE_DICTIONARY and hd["eff"].has("kind"):

@@ -31,6 +31,9 @@ extends RefCounted
 ##   bazaar_stage:<n>                       the Star Bazaar has completed n stages (game/bazaar.gd; n from 1)
 ##   gig_done:<id>                          that gig of data/gigs.json is finished (a signal's option was picked; game/gigs.gd, saved)
 ##   gig_open                               some gig offer is open on the board
+##   boost_charge                           an unused production charter is held (Main.boost.charges() > 0; game/boost.gd; skill, event or gig grant)
+##   boost_used:<planet>                    that world is boosted (a charter was spent on it)
+##   boost_used_any                         some world is boosted
 ##   note_at_least:<key>/<value>            CEO endings: run note <key> (EndingPicker.ALL_KEYS; Main.note_value) is >= value; value is a whole number or a balance key (no "balance." prefix)
 ##   note_at_most:<key>/<value>             the same, <=. Only the picker (EndingPicker.pick) calls these, and never on a save without run_notes
 ## Atoms that need a chain step in the context (ctx.step), the market and previous step come from it:
@@ -47,7 +50,7 @@ const ATOMS := {
 	"start": "", "skill_learned": "node", "workshop_built": "workshop", "system_open": "system", "cycle_at_least": "balance", "cycle_at_most": "balance",
 	"stock_held": "good", "good_visible": "good", "good_traded": "good", "event_fired": "event",
 	"share_pct": "balance", "first_sale_after_cycle": "balance", "cycles_after_prev_step": "balance",
-	"planet_visited": "planet", "post_built": "planet", "platform_built": "planet", "branch_is": "market", "branch_chosen": "", "any_tier": "n", "planet_tier": "planet/n", "bazaar_stage": "n", "gig_done": "gig", "gig_open": "", "note_at_least": "note/value", "note_at_most": "note/value",
+	"planet_visited": "planet", "post_built": "planet", "platform_built": "planet", "branch_is": "market", "branch_chosen": "", "any_tier": "n", "planet_tier": "planet/n", "bazaar_stage": "n", "gig_done": "gig", "gig_open": "", "boost_charge": "", "boost_used": "planet", "boost_used_any": "", "note_at_least": "note/value", "note_at_most": "note/value",
 }
 const STEP_ATOMS := ["share_pct", "first_sale_after_cycle", "cycles_after_prev_step"]
 
@@ -139,6 +142,12 @@ static func _atom(atom: String, ctx: Dictionary) -> bool:
 			return live() and game.gigs != null and game.gigs.is_done(arg)
 		"gig_open":
 			return live() and game.gigs != null and game.gigs.is_open()
+		"boost_charge":
+			return live() and game.boost != null and game.boost.charges() > 0
+		"boost_used":
+			return live() and game.boost != null and game.boost.is_boosted(game.planet_index_of(arg))
+		"boost_used_any":
+			return live() and game.boost != null and game.boost.boosted_count() > 0
 		"any_tier", "planet_tier", "bazaar_stage":
 			return live() and _game_atom(str(parts[0]), arg)
 		"workshop_built", "system_open", "stock_held", "planet_visited", "post_built", "platform_built":

@@ -34,6 +34,7 @@
    "null_core_trip_pct": "T208: a Null Core ship's trip cost x (1 - balance[key]) on top of null_core_trip_mult",
    "bundle_bonus_pct": "T208: mixed-load bonus of target-market goods x (1 + balance[key]); bundle_bonus_cap still binds",
    "cooldown_cut": "T208: balance[key] cycles off the cooldown of the target market's chosen_bot skills (min 1 cycle)",
+   "boost_charge": "T371: learning the node grants one production charter (Boost, game/boost.gd): one world gets balance boost_order_pct more per Buy order and boost_storage_pct more storage room for the rest of the run. No key; target feature",
    "stock_growth_cap": "raises the cap of the stock_growth_pct effect for target market to balance[cap_key] (BIO_3 lifts the BIO_2 ceiling)"
   }
  },
@@ -1128,6 +1129,20 @@
    }
   },
   {
+   "id": "MIN_16",
+   "market": "min",
+   "kind": "skill",
+   "tier": 4,
+   "prereqs": [
+    "MIN_5"
+   ],
+   "cost": 3,
+   "effect": {
+    "type": "boost_charge",
+    "target": "feature"
+   }
+  },
+  {
    "id": "MIN_14",
    "market": "min",
    "kind": "tech",
@@ -1238,6 +1253,20 @@
     "key": "skill_BIO_12_stock_growth",
     "cap_key": "skill_BIO_12_stock_cap",
     "where": "planet_storage"
+   }
+  },
+  {
+   "id": "BIO_16",
+   "market": "bio",
+   "kind": "skill",
+   "tier": 4,
+   "prereqs": [
+    "BIO_5"
+   ],
+   "cost": 3,
+   "effect": {
+    "type": "boost_charge",
+    "target": "feature"
    }
   },
   {

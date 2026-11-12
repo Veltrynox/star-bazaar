@@ -31,13 +31,15 @@ func established(key: String) -> bool:
 static func planet_key(i: int) -> String:
 	return "planet:%d" % i
 
+var boosted: Array = []  # T371: container keys of boosted worlds ("planet:<i>"); main sets it from Boost; room x (1 + boost_storage_pct)
 var capacity_mult := 1.0  # BIO_3 (storage_cap_pct): planet containers only; main sets it from Skills
 
 ## Seam for space storage: override per container kind here (e.g. "system:" bigger).
 func capacity_of(key: String) -> int:
 	if key.begins_with("system:"):  # T85: Space Storage, one per system
 		return maxi(1, int(balance.get("space_storage_capacity", 1000)))
-	return maxi(1, int(round(int(balance.get("storage_capacity", DEFAULT_CAPACITY)) * float(cuts.get(key, 1.0)) * capacity_mult)))
+	var boost := 1.0 + maxf(0.0, float(balance.get("boost_storage_pct", 0.0))) if boosted.has(key) else 1.0
+	return maxi(1, int(round(int(balance.get("storage_capacity", DEFAULT_CAPACITY)) * float(cuts.get(key, 1.0)) * capacity_mult * boost)))
 
 ## T109: cut the capacity of one container by pct (0.5 = half). Stock above the new capacity is lost.
 func cut_capacity(key: String, pct: float) -> void:

@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-12",
+  "task": "T371",
+  "status": "done",
+  "files_changed": [
+    "game/boost.gd",
+    "game/main.gd",
+    "game/route_engine.gd",
+    "game/storage.gd",
+    "game/skills.gd",
+    "game/conditions.gd",
+    "game/events.gd",
+    "game/gigs.gd",
+    "data/balance.json",
+    "data/chains.json",
+    "data/skills.json",
+    "data/gigs.json",
+    "data/availability.json",
+    "tools/tests/run_tests.gd",
+    "handoffs/gameplay-programmer/2026-11-12-T371.json"
+  ],
+  "open_questions": [
+    "Save VERSION was not bumped: run.boost is a new optional key and an old save loads with nothing (save_game.gd header says bump only on changed meaning). Bump to 25 anyway?",
+    "The skill screen tests still expect 68 buttons (lines near 2652/2656 of run_tests.gd); ui-programmer T372 places MIN_16 / BIO_16 and updates them."
+  ],
+  "handoff": "Production boost is built, not run through the suite. API: main.boost (game/boost.gd): charges(), can_boost(planet_index)->{ok,reason}, use_boost(planet_index)->{ok,reason}, is_boosted(planet_index), boosted_count(), grant(source). Engine: RouteEngine.buy_amount(planet, good) is the boosted Buy amount (local_amount stays the unboosted/Sell one); Storage.capacity_of raises boosted keys by boost_storage_pct. Atoms boost_charge, boost_used:<planet>, boost_used_any; availability feature production_boost. Skills MIN_16 and BIO_16 (tier 4, effect boost_charge, no key). EV97 (SIGN: charge + boost_event_fee, LAPSE) and EV98 (ACCEPT: charge + attar down at planet_1, DECLINE) are rows in data/chains.json pool_new; choices take an 'extra' effect list. Events.note_ready/forced_id force them after boost_event_force_cycles. GIG03 option A gives boost_charge, idle gig_idle_boost, weight_key gig_weight_boost. Notices posted from Boost via StoryText.get_or. Test: _test_boost in run_tests.gd.",
+  "details": {
+    "save": "run.boost {grants:[event:EV97|gig:GIG03], planets:[ids]}; skill charges are derived live from learned nodes; events.ready saved in the events block",
+    "balance_keys": [
+      "boost_order_pct",
+      "boost_storage_pct",
+      "boost_event_fee",
+      "boost_event_force_cycles",
+      "gig_idle_boost",
+      "gig_weight_boost",
+      "skill_cost_MIN_16",
+      "skill_cost_BIO_16"
+    ],
+    "try": "debug menu: grant skill points and learn MIN_16 (Minerals run), or fire EV97 and pick Sign; then Main.boost.use_boost(i)"
+  }
+}

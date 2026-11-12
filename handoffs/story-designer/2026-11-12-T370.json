@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-11-12",
+  "task": "T370 production charter texts",
+  "status": "done",
+  "files_changed": ["story/skills.md", "story/events.md", "story/gigs.md", "story/screens.md", "data/story_text.json"],
+  "open_questions": [
+    "EV98 accept effect says 'a home Luxury good costs less and pays less': gameplay must pick the home world and one Luxury good.",
+    "PB_NOTICE_STACK and PB_NOTICE_SECOND_* are short stories, max 200 (not 110): the notice must allow two or three lines.",
+    "Confirm window Cancel: no new id, reuse the existing cancel button text."
+  ],
+  "handoff": "All texts built into data/story_text.json. Skills: SK_MIN_16_/SK_BIO_16_ NAME, FLAVOUR, PLAIN. Events EV97 (choices SIGN, LAPSE) and EV98 (ACCEPT, DECLINE): ids EVnn_TITLE, _BODY, _<KEY>_BTN, _EFF, _TITLE, plain popup id _<KEY>. Pool text only, in the format of EV93; mechanics rows (chains.json, extra effects) are NOT in events.md, T371 writes them. GIG03: ARRIVE, A_BTN, A_OUT_MIL/LUX/MIN/BIO rewritten, B and hook unchanged, no mechanic named. Screens: PB_BTN, PB_TIP, PB_CONFIRM_TITLE, PB_CONFIRM_BODY, PB_CONFIRM_OK, PB_TAG, PB_TAG_TIP, PB_NOTICE_GAINED, PB_NOTICE_USED, PB_NOTICE_STACK, PB_NOTICE_SECOND_MIL/LUX/MIN/BIO. Term: production charter. Russian not touched.",
+  "details": {}
+}

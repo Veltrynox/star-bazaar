@@ -4661,6 +4661,81 @@
       },
       "bot_effect": [],
       "numbers_source": "story"
+    },
+    {
+      "id": "EV97",
+      "kind": "C",
+      "market": "mil",
+      "once": true,
+      "choices": [
+        {
+          "key": "SIGN",
+          "effect": {
+            "type": "boost_charge"
+          },
+          "extra": [
+            {
+              "type": "cash",
+              "key": "boost_event_fee"
+            }
+          ]
+        },
+        {
+          "key": "LAPSE",
+          "effect": {
+            "type": "cash",
+            "key": "event_cash_gain_small"
+          }
+        }
+      ],
+      "visible_when": {
+        "all": [
+          "branch_is:mil",
+          "any_tier:2"
+        ]
+      },
+      "bot_effect": [],
+      "numbers_source": "story"
+    },
+    {
+      "id": "EV98",
+      "kind": "C",
+      "market": "lux",
+      "once": true,
+      "choices": [
+        {
+          "key": "ACCEPT",
+          "effect": {
+            "type": "boost_charge"
+          },
+          "extra": [
+            {
+              "type": "price_pct",
+              "planet": "planet_1",
+              "good": "attar",
+              "direction": "down",
+              "key": "event_pct_attar",
+              "cycles_key": "event_price_cycles"
+            }
+          ]
+        },
+        {
+          "key": "DECLINE",
+          "effect": {
+            "type": "cash",
+            "key": "event_cash_gain_small"
+          }
+        }
+      ],
+      "visible_when": {
+        "all": [
+          "branch_is:lux",
+          "any_tier:2",
+          "good_visible:attar"
+        ]
+      },
+      "bot_effect": [],
+      "numbers_source": "story"
     }
   ],
   "pool_new_note": "effects and numbers marked picked are mine (core 4.4 gives only the idea, story gives text for EV40, 43, 46, 49, 50). 2026-11-12 event expansion: 60 pool_new rows (10 first-pass rows plus 50 from the story-designer plan handoffs/story-designer/2026-11-11-event-expansion.json). A row is a plain event (effect: price_pct, planet_closed, shortage or congestion at a planet id, texts EV<nn>_TITLE and _BODY) or a choice event (choices: [{key, effect, follow_id?}]; effect types price_pct, planet_closed, shortage, congestion, cash {key: signed balance key}, stock {planet, good, key}; texts <id>_<KEY>_BTN, _EFF, _TITLE and the popup <id>_<KEY>; read by game/events.gd). visible_when gates the row; branch-only rows carry branch_is:<market>. Followups (key followups) are plain popups scheduled only by a choice follow_id, never drawn at random. Planets for story names Quillon, Brannock, Mossfell are system 2 ids (s2_p4, s2_p1, s2_p3). bot_effect rule of the first pass: shortage (price up or closure) slows the market's lead bot (growth S or strength S down); glut (price down) lifts bot_3 strength S; the 50 new rows carry none.",

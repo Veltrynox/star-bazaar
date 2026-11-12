@@ -191,16 +191,22 @@ func on_cycle(cycle: int) -> void:
 	rng.seed = seed_value + cycle * 7919
 	var total := 0.0
 	for g in elig:
-		total += maxf(0.0, float(g.get("weight", 1)))
+		total += _weight(g)
 	var pick: Dictionary = elig[0]
 	if total > 0.0:
 		var r := rng.randf() * total
 		for g in elig:
-			r -= maxf(0.0, float(g.get("weight", 1)))
+			r -= _weight(g)
 			if r <= 0.0:
 				pick = g
 				break
 	_open_signal(pick, cycle, rng)
+
+## Draw weight of a signal def: the balance value named by "weight_key" when it has one (T371: GIG03 so the charter appears in most runs), else "weight".
+func _weight(g: Dictionary) -> float:
+	if g.has("weight_key"):
+		return maxf(0.0, float(_bal(str(g["weight_key"]))))
+	return maxf(0.0, float(g.get("weight", 1)))
 
 ## A signal def may open now: right kind, never done, skipped or open, its tree holds, the Flagship is in its system, every good it
 ## names passes Availability.
@@ -414,7 +420,7 @@ func choose(uid: String, opt: int) -> Dictionary:
 	var outcome := ""
 	if opt >= 0 and opt < options.size():
 		var op: Dictionary = options[opt]
-		lines.append_array(apply(op.get("gives", []), {}))
+		lines.append_array(apply(op.get("gives", []), {"id": str(o["id"])}))
 		lines.append_array(apply(op.get("costs", []), {}))
 		var sfx: String = BRANCH_SUFFIX.get(Conditions.run_branch(), "")
 		outcome = str(op.get("outcome", ""))
@@ -459,6 +465,9 @@ func apply(effects: Array, ctx: Dictionary) -> Array:
 				var put := _store_lot(gd, roundi(_num(e, "gig_lot_")))
 				if put > 0:
 					lines.append(StoryText.get_or("GIG_EFF_GOODS", "{n} {good} in storage.", {"n": put, "good": Ui.good_name(gd).to_lower()}))
+			"boost_charge":  # T371: one production charter (Boost); the notice comes from Boost.grant
+				main.boost.grant("gig:" + str(ctx.get("id", "GIG")))
+				lines.append(StoryText.get_or("GIG_EFF_BOOST", "You hold a production charter.", {}))
 			"story":
 				var sid := str(e.get("id", ""))
 				if StoryText.has_text(sid):
@@ -522,7 +531,7 @@ static func lint() -> Array:
 
 static func _lint_effect(e: Dictionary, where: String, errs: Array, bal: Dictionary) -> void:
 	var kind := str(e.get("kind", ""))
-	if not ["cash", "cash_fee", "goods", "story", "scout_idle"].has(kind):
+	if not ["cash", "cash_fee", "goods", "story", "scout_idle", "boost_charge"].has(kind):
 		errs.append("%s: unknown effect kind '%s'" % [where, kind])
 	var prefix := {"cash": "gig_cash_", "cash_fee": "gig_fee_", "goods": "gig_lot_", "scout_idle": "gig_idle_"}
 	var key := str(e.get("key", str(prefix.get(kind, "")) + str(e.get("size", ""))))

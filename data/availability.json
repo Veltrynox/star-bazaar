@@ -23,6 +23,9 @@
     "branch_is:<market>": "the run's branch (from the CEO, Main.run_branch()) is that market id (mil|lux|min|bio); also true for an old save with no branch",
     "note_at_least:<key>/<value>": "CEO endings: run note <key> (counters saved in run_notes, or derived at the end) >= value; value is a whole number or a balance key. Only data/endings.json uses it",
     "note_at_most:<key>/<value>": "the same, <=",
+    "boost_charge": "T371: an unused production charter is held (granted by a skill, an event or a gig, not yet spent on a world)",
+    "boost_used:<planet>": "T371: that world is boosted (Boost.use_boost)",
+    "boost_used_any": "T371: some world is boosted",
     "branch_chosen": "the run has a branch (false only for an old save without one)"
   },
   "policy": "A good is visible only if the player could trade or use it right now. Per planet, show only goods that planet prices (base_prices + goods.json planet_prices) AND whose rule is true. Evaluate rules each cycle and after every unlock; show newly true goods immediately. T179 discovery: a planet shows no goods, prices, routes or storage until its trading post (living) or mining platform (dead) stands; see the 'planet' rules. Space Storage needs no post.",
@@ -585,6 +588,17 @@
       "id": "system_2_planets",
       "visible_when": "system_open:2",
       "note": "System 2 planets (s2_*, dead_2) price rows and goods only after the permit is bought. Tutorial galaxy view already waits for a second system."
+    },
+    {
+      "kind": "feature",
+      "id": "production_boost",
+      "visible_when": {
+        "any": [
+          "boost_charge",
+          "boost_used_any"
+        ]
+      },
+      "note": "T371: the Boost production button, the Boosted tag and their texts show only while a production charter is held or one world is boosted."
     },
     {
       "kind": "feature",

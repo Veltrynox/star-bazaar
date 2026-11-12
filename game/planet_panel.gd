@@ -179,12 +179,52 @@ func rebuild() -> void:
 		mhint.theme_type_variation = "LabelMuted"
 		mhint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		box.add_child(mhint)
+	_boost_block()
 	_bazaar_block()
 	_growth_section()
 	_lane_splits()
 	_connections()
 	_tut_mute()
 	size = Vector2.ZERO
+
+## T372: the production charter, under the goods grid. A boosted world shows a quiet tag; a world that can take a charter shows the
+## button (with the count when more than one charter is held) and a confirm window. Hidden by the production_boost availability rule.
+func _boost_block() -> void:
+	if not Availability.feature("production_boost"):
+		return
+	var bst = main.boost
+	if bst.is_boosted(planet_index):
+		var tag := _label(StoryText.get_or("PB_TAG", "Boosted"))
+		tag.name = "BoostTag"
+		tag.theme_type_variation = "LabelAccent"
+		tag.tooltip_text = StoryText.get_or("PB_TAG_TIP", "Buy orders and storage room here are larger, for the rest of the run.")
+		tag.mouse_filter = Control.MOUSE_FILTER_STOP
+		box.add_child(tag)
+		return
+	var v: Dictionary = bst.can_boost(planet_index)
+	if not bool(v["ok"]):
+		return
+	var b := Button.new()
+	b.name = "BoostButton"
+	var n: int = bst.charges()
+	b.text = StoryText.get_or("PB_BTN", "Boost production") + (" x%d" % n if n > 1 else "")
+	b.tooltip_text = StoryText.get_or("PB_TIP", "Spend your production charter here. Buy orders and storage room at {planet} grow for the rest of the run. One charter, one world.", {"planet": main.planet_name(planet_index)})
+	b.pressed.connect(_ask_boost)
+	box.add_child(b)
+
+func _ask_boost() -> void:
+	var idx := planet_index
+	var dlg := ConfirmationDialog.new()
+	dlg.name = "BoostDialog"
+	dlg.title = StoryText.get_or("PB_CONFIRM_TITLE", "Boost {planet}?", {"planet": main.planet_name(idx)})
+	dlg.dialog_text = StoryText.get_or("PB_CONFIRM_BODY", "This cannot be moved or undone.")
+	dlg.ok_button_text = StoryText.get_or("PB_CONFIRM_OK", "Boost")
+	dlg.cancel_button_text = StoryText.get_or("BAZ_FOUND_CANCEL", "Not yet")
+	dlg.confirmed.connect(func(): main.boost.use_boost(idx))
+	dlg.canceled.connect(dlg.queue_free)
+	dlg.confirmed.connect(dlg.queue_free)
+	add_child(dlg)
+	dlg.popup_centered()
 
 ## T362: the Star Bazaar block on the capital's card, under the goods grid: stage name, one instruction line per short bill row,
 ## and a lit Buy button for a good the capital sells while its Buy is off. Nothing once every row is met. Rebuilt with the card.
