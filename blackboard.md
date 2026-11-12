@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-12 17:05 run: T364
-- Summary: The Space Storage relay is removed: a route or Sell order at a planet now uses only that planet's own storage (the owner's save showed Voltara -> Space Storage +19 and Voltara -> Flintmoor drawing the same 19 back out in one cycle, storage ended at 0). Routes into a Space Storage, Storage Links, workshops, link upkeep and the Bazaar bill are untouched; space_key_for and the backup parts of project_storage are gone; the two backup tooltip texts are deleted and the station panel text rewritten.
-- Why this task: owner request 2026-11-12 ('Remove the space storage relay functionality').
-- Approach: reproduced on the owner's autosave with a headless script (wt/_scratch/sim_save.gd, before364.txt / after364.txt: system:1 energy in 19 out 19 after 0 -> in 19 out 0 after 19); one gameplay-programmer task.
-- Agent prompts: Agent tool, gameplay-programmer, brief read from schedule.json T364; handoff handoffs/gameplay-programmer/2026-11-12-T364.json.
-- Worked: reproduction after the change; run_tests.gd parses; tests updated to the new rule (not run).
-- Failed / did not work: nothing run in a window.
-- Files and commits: see git log on main for T364.
-- Left to do: stock delivered to a Space Storage can now only leave through workshops, link upkeep and Storage Links; owner to decide on Space Storage as a route source. Russian for TIP_SPACE_STORAGE_WHY and SS_LBL_STOCK_RULE needs a Haiku re-translation when the owner asks.
-
 ## 2026-11-12 18:30 run: T365 T366 T367
 - Summary: T366 (wing popup as framed banner cards, BannerArt moved to game/banner_art.gd) and T367 (dead world card: no Mine and send button, the tile toggles mining, right click opens the goods popup, one hint line) are done and committed; the start skill points drop by one (new key skill_points_home 1) and the Space Storage panel lost its next-cycle line (separate commits); the six wing pictures were redone as simple 480x160 banners. T365 (skill screen connector lines) was STOPPED by the owner before it finished.
 - Why this task: owner reports and requests 2026-11-12.
