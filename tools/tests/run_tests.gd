@@ -2549,7 +2549,7 @@ func _test_main() -> void:
 	var pp := int(bal["skill_points_planet"])
 	var pr := int(bal["skill_points_route"])
 	var home: int = maxi(m.mission_planet, 0)
-	check(m.pts_planets.has(home) and m.skill_points == pp, "points: home planet gives planet points at start", "pts=%d" % m.skill_points)
+	check(m.pts_planets.has(home) and m.skill_points == int(bal["skill_points_home"]), "points: home planet gives the home points at start", "pts=%d" % m.skill_points)
 	var start: int = m.skill_points
 	var a := home
 	var b: int = (home + 1) % m.map.planets.size()

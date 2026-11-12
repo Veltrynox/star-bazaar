@@ -35,7 +35,7 @@ Points are earned once per event:
   - First route or storage in a new system: [GCM:skill_points_system] (none in system 1).
   - Paying to deflect the asteroid event (one point, a fixed value in game/main.gd).
 Permits also cost points ([GCM:permit_points_2]; the temporary placeholder system 3 reuses the system 2 keys as stand-ins).
-The same planet, pair or system never pays twice. The player starts with 0 points; the home planet (Voltara) gives the first on cycle 1. On screen the name is "Skill points" (top bar and skill screen header). A notice appears when points are earned.
+The same planet, pair or system never pays twice. The player starts with 0 points; the home planet (Voltara) gives the first on cycle 1. The home planet pays [GCM:skill_points_home] (one) instead of [GCM:skill_points_planet], so the start is lean (owner 2026-11-12). On screen the name is "Skill points" (top bar and skill screen header). A notice appears when points are earned.
 Supply: the design pack estimates about 21 points over a run against 12 needed for the Foundations plus one core market tree (core costs 1, 2, 3, 3 now, set 2026-11-05) and about 21 for two. The estimate dates from before the 2026-11-05 redo. This assumes 7 of 9 reachable planets and 5 route pairs and is UNKNOWN until the real game confirms it.
 
 ========================================

@@ -718,7 +718,8 @@ func _award_planet(p: int) -> void:
 	if p < 0 or pts_planets.has(p):
 		return
 	pts_planets.append(p)
-	_add_points(int(balance.get("skill_points_planet", 0)))
+	var worth := int(balance.get("skill_points_home", balance.get("skill_points_planet", 0))) if p == maxi(mission_planet, 0) else int(balance.get("skill_points_planet", 0))  # the home planet pays less (owner 2026-11-12)
+	_add_points(worth)
 	_point_notice(StoryText.get_text("NOT_SKILL_REASON_PLANET", {"planet": planet_name(p)}))
 
 func _award_route(a: int, b: int) -> void:
