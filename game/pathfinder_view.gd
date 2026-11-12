@@ -90,7 +90,9 @@ const BURST_RING_TO := 2.8
 const FX_FALLBACK := {"flight_juice_ring_pop_s": 0.3, "flight_juice_ring_pop_scale": 1.7, "flight_juice_swing_deg": 10.0, "flight_juice_swing_s": 0.45,
 	"flight_juice_flare_s": 0.35, "flight_juice_flare_size": 0.45, "flight_juice_boost_burst_s": 0.55, "flight_juice_boost_stretch": 1.8,
 	"flight_juice_boost_ease_s": 0.4, "flight_juice_dock_ring_s": 0.45, "flight_juice_clamp_s": 0.18, "flight_juice_puff_s": 0.6,
-	"flight_juice_marker_hz": 0.8, "flight_juice_marker_amp": 0.2, "flight_juice_sting_db": -14.0}
+	"flight_juice_marker_hz": 0.8, "flight_juice_marker_amp": 0.2, "flight_juice_sting_db": -14.0,
+	"flight_juice_jump_s": 0.8, "flight_juice_jump_ship_s": 0.4, "flight_juice_jump_strength": 28.0, "flight_juice_jump_flash": 1.0,
+	"flight_juice_jump_streak_px": 420.0, "flight_juice_jump_ring_px": 140.0, "flight_juice_jump_nudge_px": 3.0}
 const FX_RINGS := 8              # pooled ring meshes
 const FX_FLARES := 3             # pooled flare spheres
 const COL_FLARE := Color(1.0, 0.85, 0.5, 1.0)
@@ -122,7 +124,19 @@ class Fx:
 	var follow := 0         # 0 fixed at pos, 1 follows the ship, 2 follows the engines
 	var then_clamp := false # on its end, the clamp pulse and tick play
 
+const JUMP_WARP := preload("res://game/fx/jump_warp.gd")
+const JUMP_STRETCH := 3.0       # the ship stretches to this many times its length along the heading at the streak
+const JUMP_THIN := 0.9          # and thins across by this share
+
 var flight = null
+var _jw: CanvasLayer = null    # jump distortion layer (game/fx/jump_warp.gd), created on the first jump
+var _jump_conn = null          # the flight the jump signals are connected to
+var _jmode := 0                # 0 none, 1 departure at the exit point, 2 arrival at the entry point
+var _jt := -1.0                # game seconds into the jump beat
+var _jsys := -1
+var _jpos := Vector3.ZERO
+var _holder_base := Vector3.ONE
+var _view_sys := 1
 var _fx: Array = []
 var _ship_pos := Vector3.ZERO
 var _eng_pos := Vector3.ZERO
@@ -428,6 +442,7 @@ func _tick_fx(delta: float, paused: bool) -> void:
 					_holder.rotation.y = 0.0
 			elif _holder != null:
 				_holder.rotation.y = swing_value(_swing_t / wd, _swing_amp)
+	_tick_jump(delta, paused)
 	if _fx.is_empty():
 		return
 	for fx in _fx:
@@ -456,10 +471,11 @@ func _fx_busy() -> bool:
 	for fx in _fx:
 		if fx.on:
 			return true
-	return _sel_t >= 0.0 or _swing_t >= 0.0
+	return _sel_t >= 0.0 or _swing_t >= 0.0 or _jt >= 0.0
 
 ## Motion switched off mid-effect: everything returns to rest.
 func _fx_stop() -> void:
+	_jump_end()
 	for fx in _fx:
 		fx.on = false
 		fx.mi.visible = false
@@ -572,6 +588,10 @@ func _ready() -> void:
 ## Called by map.gd every frame. Does nothing visible while the accessor is missing or discovery is off.
 func update_from(f, view_system: int, selected: bool = false) -> void:
 	flight = f
+	_view_sys = view_system
+	_jump_connect(f)
+	if _jt >= 0.0 and _jsys != view_system:  # the view moved to another system mid-effect
+		_jump_end()
 	var is_paused := bool(_call(f, "is_paused", [], false))
 	_tick_burst(get_process_delta_time(), is_paused)
 	_tick_fx(get_process_delta_time(), is_paused)
@@ -584,7 +604,10 @@ func update_from(f, view_system: int, selected: bool = false) -> void:
 		_trail.visible = false
 		return
 	var sys := int(_call(f, "system_id", [], 1))
-	visible = sys == view_system
+	var jumping := bool(_call(f, "jumping", [], false))
+	# Jumping: the ship is in no system. It stays drawn only for the departure streak, pinned to the exit point.
+	var show_ship := sys == view_system and (not jumping or (_jmode == 1 and _jt >= 0.0))
+	visible = show_ship
 	_line.visible = visible
 	if not visible:
 		_marker.visible = false
@@ -594,8 +617,10 @@ func update_from(f, view_system: int, selected: bool = false) -> void:
 		return
 	_ensure_model(str(_call(f, "model_path", [], "")))
 	var pos: Vector3 = _call(f, "ship_position", [], Vector3.ZERO)
+	if jumping:
+		pos = _jpos
 	global_position = pos + Vector3(0, LIFT, 0)
-	_sel.visible = selected
+	_sel.visible = selected and not jumping
 	_sel.global_position = pos + Vector3(0, LIFT, 0)
 	var has_heading: bool = f != null and is_instance_valid(f) and f.has_method("heading")
 	if has_heading:
@@ -753,6 +778,7 @@ func _ensure_model(path: String) -> void:
 		pivot.rotation.y = Ships.model_yaw_for_path(path)
 		pivot.add_child(model)
 		_holder.add_child(pivot)
+	_holder_base = _holder.scale
 	add_child(_holder)
 
 func _bounds(node: Node, t: Transform3D) -> AABB:
@@ -771,3 +797,87 @@ func _bounds(node: Node, t: Transform3D) -> AABB:
 		box = cb if first else box.merge(cb)
 		first = false
 	return box
+
+# ---- T-jump: departure and arrival beats (the pathfinder emits jump_started / jump_ended) ---------------------------
+
+func _jump_connect(f) -> void:
+	if f == _jump_conn or f == null or not is_instance_valid(f):
+		return
+	_jump_conn = f
+	if f.has_signal("jump_started") and not f.is_connected("jump_started", _on_jump_started):
+		f.connect("jump_started", _on_jump_started)
+	if f.has_signal("jump_ended") and not f.is_connected("jump_ended", _on_jump_ended):
+		f.connect("jump_ended", _on_jump_ended)
+
+func _on_jump_started(from_sys: int, _to_sys: int, pos: Vector3) -> void:
+	_jump_begin(1, from_sys, pos)
+
+func _on_jump_ended(sys: int, pos: Vector3) -> void:
+	_jump_begin(2, sys, pos)
+
+## Plays only when that system is the one in view; otherwise nothing runs and the ship simply stays hidden/shown by state.
+func _jump_begin(mode: int, sys: int, pos: Vector3) -> void:
+	_jump_end()
+	if Juice.motion <= 0.0 or sys != _view_sys or not is_inside_tree():
+		return
+	var cam := get_viewport().get_camera_3d()
+	if cam == null:
+		return
+	var w := pos + Vector3(0, LIFT, 0)
+	if cam.is_position_behind(w):
+		return
+	_jmode = mode
+	_jsys = sys
+	_jpos = pos
+	_jt = 0.0
+	var h := float(flight.heading()) if flight != null and is_instance_valid(flight) and flight.has_method("heading") else rotation.y
+	var fwd := Vector3(-sin(h), 0.0, -cos(h))
+	var sp := cam.unproject_position(w)
+	var bearing := cam.unproject_position(w + fwd) - sp
+	if _jw == null:
+		_jw = JUMP_WARP.new()
+		add_child(_jw)
+	_jw.begin(sp, bearing, mode == 2, {
+		"seconds": _k("flight_juice_jump_s") * Juice.motion,
+		"strength_px": _k("flight_juice_jump_strength") * Juice.motion,
+		"flash": _k("flight_juice_jump_flash"),
+		"streak_px": _k("flight_juice_jump_streak_px"),
+		"ring_px": _k("flight_juice_jump_ring_px")})
+	if mode == 1:  # a small camera nudge: the top bar shakes a few px (the same Juice nudge the event beat uses)
+		var m = _main()
+		if m != null and "top_bar" in m and m.top_bar != null:
+			Juice.nudge(m.top_bar, _k("flight_juice_jump_nudge_px"))
+	_jump_apply(0.0)
+
+## Advances the beat on game time (frozen while paused).
+func _tick_jump(delta: float, paused: bool) -> void:
+	if _jt < 0.0 or paused:
+		return
+	_jt += delta
+	var total := _k("flight_juice_jump_s") * Juice.motion
+	if _jw != null:
+		_jw.advance(delta)
+	if _jt >= total:
+		_jump_end()
+	else:
+		_jump_apply(_jt)
+
+## Ship stretch: departure stretches along the heading and thins to the streak; arrival is the reverse.
+func _jump_apply(t: float) -> void:
+	if _holder == null:
+		return
+	var d := maxf(0.05, _k("flight_juice_jump_ship_s") * Juice.motion)
+	var k := clampf(t / d, 0.0, 1.0)
+	var e := k * k * k if _jmode == 1 else 1.0 - pow(1.0 - k, 3.0)  # ease in for the exit, ease out for the entry
+	var s := e if _jmode == 1 else 1.0 - e  # s: 0 = at rest, 1 = streak
+	_holder.scale = _holder_base * Vector3(1.0 - JUMP_THIN * s, 1.0 - JUMP_THIN * s, 1.0 + (JUMP_STRETCH - 1.0) * s)
+
+## Ends the beat in the rest state: full-size ship, distortion gone.
+func _jump_end() -> void:
+	if _jw != null:
+		_jw.stop()
+	if _jt >= 0.0 and _holder != null:
+		_holder.scale = _holder_base
+	_jt = -1.0
+	_jmode = 0
+	_jsys = -1
