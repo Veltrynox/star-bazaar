@@ -4919,8 +4919,9 @@ func _tut_upkeep_lines_rect() -> Rect2:
 	var r := Rect2()
 	var found := false
 	for n in cash_forecast.box.get_children():
-		if n is Label and (n as Label).visible and (n as Label).text.contains(key_text):
-			var lr: Rect2 = (n as Label).get_global_rect()
+		var row_text := (n as Label).text if n is Label else ((n as RichTextLabel).get_parsed_text() if n is RichTextLabel else "")  # forecast rows with good icons are rich labels
+		if (n as Control).visible and row_text.contains(key_text):
+			var lr: Rect2 = (n as Control).get_global_rect()
 			if not lr.intersects(cash_forecast.get_global_rect()):
 				continue  # scrolled out of the window: not a place to point at
 			r = lr if not found else r.merge(lr)

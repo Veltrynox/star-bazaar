@@ -46,6 +46,56 @@ func _input(event: InputEvent) -> void:
 	if not get_global_rect().has_point(p) and not anchor.get_global_rect().has_point(p):
 		visible = false
 
+## A forecast row where every good's name is drawn as its icon (owner 2026-11-12); "(energy)" becomes just the icon.
+## The line texts themselves keep the names (tests and the no-earn warning read them).
+func _icon_line(text: String, color: Color) -> RichTextLabel:
+	var rt := RichTextLabel.new()
+	rt.fit_content = true
+	rt.scroll_active = false
+	rt.autowrap_mode = TextServer.AUTOWRAP_OFF
+	rt.mouse_filter = Control.MOUSE_FILTER_PASS
+	rt.add_theme_color_override("default_color", color)
+	var fs: int = get_theme_font_size("font_size", "Label")  # same size and face as the plain rows
+	rt.add_theme_font_size_override("normal_font_size", fs)
+	rt.add_theme_font_override("normal_font", get_theme_font("font", "Label"))
+	var px := fs
+	var names: Array = []  # [name as written, good id], longest first so "dross" never eats part of a longer name
+	for c in main.commodities:
+		var nm := Ui.good_name(str(c))
+		names.append([nm.to_lower(), str(c)])
+		names.append([nm, str(c)])
+	names.sort_custom(func(x, y): return str(x[0]).length() > str(y[0]).length())
+	var at := 0
+	var low := text
+	while at < low.length():
+		var hit := -1
+		var hit_len := 0
+		var hit_good := ""
+		for e in names:
+			var i := low.find(str(e[0]), at)
+			if i >= 0 and (hit < 0 or i < hit):
+				hit = i
+				hit_len = str(e[0]).length()
+				hit_good = str(e[1])
+		if hit < 0:
+			rt.add_text(low.substr(at))
+			break
+		var start := hit
+		var end := hit + hit_len
+		if start > 0 and low[start - 1] == "(" and end < low.length() and low[end] == ")":  # "(energy)" -> icon alone
+			start -= 1
+			end += 1
+		rt.add_text(low.substr(at, start - at))
+		var tex: Texture2D = Ui.icon(hit_good)
+		if tex != null:
+			var gc := Ui.commodity_col(hit_good)
+			rt.add_image(tex, px, px, gc if gc != Color.WHITE else Ui.col("ink"), INLINE_ALIGNMENT_CENTER)
+		else:
+			rt.add_text(low.substr(hit, hit_len))
+		at = end
+	box.add_child(rt)
+	return rt
+
 func _line(text: String, color: Color = Color.TRANSPARENT) -> Label:
 	var l := Label.new()
 	l.text = text
@@ -168,12 +218,12 @@ func refresh() -> void:
 	if income.is_empty():
 		_line("  " + StoryText.get_or("FC_NONE", "none"), GREEN)
 	for l in income:
-		_line("  %s: %+d" % [l[0], int(l[1])], GREEN if int(l[1]) >= 0 else RED)
+		_icon_line("  %s: %+d" % [l[0], int(l[1])], GREEN if int(l[1]) >= 0 else RED)
 	_line(StoryText.get_text("LBL_EXPENSES") + ":")
 	if outcome.is_empty():
 		_line("  " + StoryText.get_or("FC_NONE", "none"), RED)
 	for l in outcome:
-		_line("  %s: -%d" % [l[0], int(l[1])], RED)
+		_icon_line("  %s: -%d" % [l[0], int(l[1])], RED)
 	for nm in no_earn_routes():
 		var w := _line(StoryText.get_or("LBL_FC_NO_EARN", "{route} earns nothing: it only moves stock to storage.", {"route": nm}), Ui.col("signal_warn"))
 		w.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART

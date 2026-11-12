@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-12 19:40 run: T368
-- Summary: The seven gig hooks (the line under a signal on the gig board) are short story paragraphs now, 239 to 342 characters, in the voice of the arrival texts: what the crew hears, where it comes from, one pulling detail, why nobody answered; the _HOOK limit in tools/build_story.py is 420 (was 140). English only; the Russian hooks are the old short ones until the owner asks for a translation.
-- Why this task: owner request 2026-11-12 ('replace this haiku with something more storytelling, x3').
-- Approach: story-designer; the main session read all seven hooks and the board code (the row label wraps and the board scrolls, so no UI change).
-- Agent prompts: Agent tool, story-designer, brief read from schedule.json T368; handoff handoffs/story-designer/2026-11-12-T368.json (old and new text of every hook).
-- Worked: build_story.py clean, no skipped ids.
-- Failed / did not work: not seen on the board in a window.
-- Files and commits: see git log on main for T368.
-- Left to do: owner to say if 'eleven taps' should come back in the quota drum hook (the file rule forbids numbers, so the agent dropped it); the arrival texts still say 'the scout' for the Flagship (older word, a later pass); Russian hooks when translation resumes.
-
 ## 2026-11-12 20:30 run: T369
 - Summary: Each lane says what it carries: map tags show units next cycle and 'nothing left: <planet> stock goes to other lanes' when earlier lanes take the shared stock; planet card connections show N / cycle per lane, a Stock / needed line when lanes compete, and an inline reason with a fix hint under every stopped lane on both its source and destination card. One cached projection per (storage, good) per refresh. Also today, separate commits: double click on the Flagship card switches to its system; the hub's Buy a ship for the pool is always offered while the pool has room.
 - Why this task: owner requests 2026-11-12 ('show how much each lane carries', 'explain why the lane has stopped in the planet UI').
