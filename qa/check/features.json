@@ -1,0 +1,734 @@
+{
+ "schema": 1,
+ "note": "entry = signal or method a player reaches; 'engine (automatic)' = observed from state, no player entry; 'none' = engine code with no player entry (a finding).",
+ "features": [
+  {
+   "id": "setup.ceo_pick",
+   "title": "Pick a CEO (fixes branch and ship)",
+   "group": "setup",
+   "entry": "SaveGame.pending_ceo (company_setup Start)",
+   "note": ""
+  },
+  {
+   "id": "setup.preface",
+   "title": "Dismiss the preface",
+   "group": "setup",
+   "entry": "main._dismiss_preface",
+   "note": ""
+  },
+  {
+   "id": "setup.tutorial_skip",
+   "title": "Skip the tutorial",
+   "group": "setup",
+   "entry": "tut_skip_btn.pressed",
+   "note": ""
+  },
+  {
+   "id": "order.buy_on",
+   "title": "Buy order on",
+   "group": "orders",
+   "entry": "planet_panel.buy_send_requested",
+   "note": ""
+  },
+  {
+   "id": "order.buy_off",
+   "title": "Buy order off",
+   "group": "orders",
+   "entry": "planet_panel.buy_send_requested",
+   "note": ""
+  },
+  {
+   "id": "order.sell_on",
+   "title": "Sell order on",
+   "group": "orders",
+   "entry": "planet_panel.order_requested",
+   "note": ""
+  },
+  {
+   "id": "order.sell_off",
+   "title": "Sell order off",
+   "group": "orders",
+   "entry": "planet_panel.order_requested",
+   "note": ""
+  },
+  {
+   "id": "order.salvage",
+   "title": "Salvage sale of stuck stock",
+   "group": "orders",
+   "entry": "planet_panel.salvage_requested",
+   "note": ""
+  },
+  {
+   "id": "route.send_card",
+   "title": "Send to... from the planet card",
+   "group": "routes",
+   "entry": "planet_panel.send_requested + map.planet_clicked",
+   "note": ""
+  },
+  {
+   "id": "route.send_buy",
+   "title": "Buy row then click destination",
+   "group": "routes",
+   "entry": "planet_panel.buy_send_requested + map.planet_clicked",
+   "note": ""
+  },
+  {
+   "id": "route.send_quick",
+   "title": "Right-click goods icon Send",
+   "group": "routes",
+   "entry": "map.good_icon_right_clicked + map.planet_clicked",
+   "note": ""
+  },
+  {
+   "id": "route.sell_offer",
+   "title": "Accept 'Sell here too?' offer",
+   "group": "routes",
+   "entry": "main.accept_sell_offer",
+   "note": ""
+  },
+  {
+   "id": "route.second_ship",
+   "title": "Second ship on one lane",
+   "group": "routes",
+   "entry": "planet_panel.send_requested",
+   "note": ""
+  },
+  {
+   "id": "route.cross_system",
+   "title": "Route between two systems",
+   "group": "routes",
+   "entry": "planet_panel.send_requested",
+   "note": "needs FND_PERMIT skill"
+  },
+  {
+   "id": "route.to_station",
+   "title": "Planet to Space Storage route",
+   "group": "routes",
+   "entry": "map.station_clicked while pending",
+   "note": ""
+  },
+  {
+   "id": "route.cluster",
+   "title": "Asteroid cluster to planet route",
+   "group": "routes",
+   "entry": "main._on_cluster_send + map.planet_clicked",
+   "note": "needs FND_PROSPECT"
+  },
+  {
+   "id": "route.mine_dead",
+   "title": "Mine a dead world and send",
+   "group": "routes",
+   "entry": "planet_panel.mine_requested + map.planet_clicked",
+   "note": "needs platform and mining skill"
+  },
+  {
+   "id": "route.remove_panel",
+   "title": "Remove route (planet card)",
+   "group": "routes",
+   "entry": "planet_panel.remove_requested",
+   "note": ""
+  },
+  {
+   "id": "route.remove_right",
+   "title": "Remove route (right-click menu)",
+   "group": "routes",
+   "entry": "map.route_right_clicked + menu",
+   "note": ""
+  },
+  {
+   "id": "route.move",
+   "title": "Move ship of a blocked route",
+   "group": "routes",
+   "entry": "main.move_ship",
+   "note": ""
+  },
+  {
+   "id": "route.upgrade",
+   "title": "Upgrade a full lane to level 2",
+   "group": "routes",
+   "entry": "main.upgrade_route",
+   "note": ""
+  },
+  {
+   "id": "route.split",
+   "title": "Split a source between two lanes",
+   "group": "routes",
+   "entry": "main.set_split_percent",
+   "note": ""
+  },
+  {
+   "id": "route.split_clear",
+   "title": "Stop split",
+   "group": "routes",
+   "entry": "main.clear_split",
+   "note": ""
+  },
+  {
+   "id": "route.upgrade_seen",
+   "title": "A level 2 lane exists",
+   "group": "routes",
+   "entry": "engine (automatic)",
+   "note": ""
+  },
+  {
+   "id": "ship.buy_panel",
+   "title": "Buy a ship (ship panel)",
+   "group": "ships",
+   "entry": "ship_panel.buy_requested",
+   "note": ""
+  },
+  {
+   "id": "ship.buy_hub",
+   "title": "Buy a ship for a hub pool",
+   "group": "ships",
+   "entry": "hub panel button",
+   "note": ""
+  },
+  {
+   "id": "ship.cap",
+   "title": "Ship cap reached",
+   "group": "ships",
+   "entry": "engine (automatic)",
+   "note": ""
+  },
+  {
+   "id": "ship.repossession",
+   "title": "Ship repossession",
+   "group": "ships",
+   "entry": "engine (automatic)",
+   "note": ""
+  },
+  {
+   "id": "ship.stipend",
+   "title": "Rescue stipend paid",
+   "group": "ships",
+   "entry": "engine (automatic)",
+   "note": ""
+  },
+  {
+   "id": "skill.learn_fnd",
+   "title": "Learn a Foundations skill",
+   "group": "skills",
+   "entry": "main.learn_skill (skill screen)",
+   "note": ""
+  },
+  {
+   "id": "skill.learn_branch",
+   "title": "Learn a branch skill",
+   "group": "skills",
+   "entry": "main.learn_skill (skill screen)",
+   "note": ""
+  },
+  {
+   "id": "workshop.build_smelter",
+   "title": "Build smelter",
+   "group": "workshops",
+   "entry": "main.build_workshop (Space Storage view)",
+   "note": "branch bound: one per CEO"
+  },
+  {
+   "id": "workshop.build_munitions",
+   "title": "Build munitions",
+   "group": "workshops",
+   "entry": "main.build_workshop (Space Storage view)",
+   "note": "branch bound: one per CEO"
+  },
+  {
+   "id": "workshop.build_atelier",
+   "title": "Build atelier",
+   "group": "workshops",
+   "entry": "main.build_workshop (Space Storage view)",
+   "note": "branch bound: one per CEO"
+  },
+  {
+   "id": "workshop.build_culture_lab",
+   "title": "Build culture_lab",
+   "group": "workshops",
+   "entry": "main.build_workshop (Space Storage view)",
+   "note": "branch bound: one per CEO"
+  },
+  {
+   "id": "workshop.feed_run",
+   "title": "A workshop ran a batch (fed)",
+   "group": "workshops",
+   "entry": "engine (automatic)",
+   "note": ""
+  },
+  {
+   "id": "workshop.fabric",
+   "title": "Build the Fabric",
+   "group": "workshops",
+   "entry": "main.build_fabric",
+   "note": "needs MIN_1 and the dead-world inputs"
+  },
+  {
+   "id": "workshop.fabric_run",
+   "title": "Fabric made plate",
+   "group": "workshops",
+   "entry": "engine (automatic)",
+   "note": ""
+  },
+  {
+   "id": "workshop.core_build",
+   "title": "Build the Null Core",
+   "group": "workshops",
+   "entry": "main.build_null_core",
+   "note": ""
+  },
+  {
+   "id": "workshop.core_fit",
+   "title": "Fit the Null Core to a ship",
+   "group": "workshops",
+   "entry": "main.fit_core",
+   "note": ""
+  },
+  {
+   "id": "flag.establish_platform",
+   "title": "Establish a mining platform",
+   "group": "mining",
+   "entry": "map.fly_establish_requested / establish_requested",
+   "note": ""
+  },
+  {
+   "id": "mining.reclaim",
+   "title": "Reclaim a dead world",
+   "group": "mining",
+   "entry": "engine (automatic)",
+   "note": ""
+  },
+  {
+   "id": "system.permit",
+   "title": "Buy a system permit",
+   "group": "systems",
+   "entry": "main.buy_permit (galaxy card)",
+   "note": ""
+  },
+  {
+   "id": "system.go",
+   "title": "Go to another system",
+   "group": "systems",
+   "entry": "galaxy_view.system_chosen",
+   "note": ""
+  },
+  {
+   "id": "system.open_seen",
+   "title": "A system beyond the first is open",
+   "group": "systems",
+   "entry": "engine (automatic)",
+   "note": ""
+  },
+  {
+   "id": "storage.view",
+   "title": "Open a Space Storage view",
+   "group": "systems",
+   "entry": "map.station_clicked",
+   "note": ""
+  },
+  {
+   "id": "storage.station_built",
+   "title": "Space station built",
+   "group": "systems",
+   "entry": "engine (automatic)",
+   "note": ""
+  },
+  {
+   "id": "link.build",
+   "title": "Build a Storage Link",
+   "group": "systems",
+   "entry": "storage_link.build_link (station view)",
+   "note": ""
+  },
+  {
+   "id": "link.order",
+   "title": "Set a link order",
+   "group": "systems",
+   "entry": "storage_link.set_order",
+   "note": ""
+  },
+  {
+   "id": "link.order_remove",
+   "title": "Remove a link order",
+   "group": "systems",
+   "entry": "storage_link.remove_order",
+   "note": ""
+  },
+  {
+   "id": "link.remove",
+   "title": "Remove a link",
+   "group": "systems",
+   "entry": "storage_link.remove_link",
+   "note": ""
+  },
+  {
+   "id": "link.exists",
+   "title": "A link stood at a cycle end",
+   "group": "systems",
+   "entry": "engine (automatic)",
+   "note": ""
+  },
+  {
+   "id": "flag.fly",
+   "title": "Fly the Flagship to a world",
+   "group": "flagship",
+   "entry": "map.fly_requested",
+   "note": ""
+  },
+  {
+   "id": "flag.establish_post",
+   "title": "Establish a trading post",
+   "group": "flagship",
+   "entry": "map.fly_establish_requested / establish_requested",
+   "note": ""
+  },
+  {
+   "id": "flag.explore",
+   "title": "Exploration mode on",
+   "group": "flagship",
+   "entry": "flagship_panel.explore_toggled",
+   "note": ""
+  },
+  {
+   "id": "flag.boost",
+   "title": "Boost the Flagship",
+   "group": "flagship",
+   "entry": "flagship_panel.boost_toggled",
+   "note": ""
+  },
+  {
+   "id": "flag.dock_open",
+   "title": "Dock at a world",
+   "group": "flagship",
+   "entry": "main.request_dock",
+   "note": ""
+  },
+  {
+   "id": "flag.dock_buy",
+   "title": "Hand buy at the dock sheet",
+   "group": "flagship",
+   "entry": "dock_sheet buttons (_do)",
+   "note": ""
+  },
+  {
+   "id": "flag.dock_sell",
+   "title": "Hand sell at the dock sheet",
+   "group": "flagship",
+   "entry": "dock_sheet buttons (_do)",
+   "note": ""
+  },
+  {
+   "id": "flag.dock_load",
+   "title": "Load from storage at the dock sheet",
+   "group": "flagship",
+   "entry": "dock_sheet buttons (_do)",
+   "note": ""
+  },
+  {
+   "id": "flag.dock_unload",
+   "title": "Unload to storage at the dock sheet",
+   "group": "flagship",
+   "entry": "dock_sheet buttons (_do)",
+   "note": ""
+  },
+  {
+   "id": "gig.accept",
+   "title": "Accept a gig (board)",
+   "group": "gigs",
+   "entry": "gig_board accept (main.gig_panel._on_accept)",
+   "note": ""
+  },
+  {
+   "id": "gig.accept_signal",
+   "title": "Accept a signal gig",
+   "group": "gigs",
+   "entry": "gig board",
+   "note": ""
+  },
+  {
+   "id": "gig.accept_salvage",
+   "title": "Accept a salvage pod pickup",
+   "group": "gigs",
+   "entry": "gig board",
+   "note": ""
+  },
+  {
+   "id": "gig.accept_opening",
+   "title": "Accept the Opening",
+   "group": "gigs",
+   "entry": "gig board",
+   "note": ""
+  },
+  {
+   "id": "gig.signal_answer",
+   "title": "Answer a signal gig window",
+   "group": "gigs",
+   "entry": "event_notice.confirmed",
+   "note": ""
+  },
+  {
+   "id": "gig.signal_done",
+   "title": "A signal gig finished",
+   "group": "gigs",
+   "entry": "engine (automatic)",
+   "note": ""
+  },
+  {
+   "id": "gig.rush_deliver",
+   "title": "Deliver a rush order",
+   "group": "gigs",
+   "entry": "dock sheet sell or unload",
+   "note": ""
+  },
+  {
+   "id": "gig.offer_rush",
+   "title": "A rush order was posted",
+   "group": "gigs",
+   "entry": "engine (automatic)",
+   "note": ""
+  },
+  {
+   "id": "gig.offer_signal",
+   "title": "A signal was posted",
+   "group": "gigs",
+   "entry": "engine (automatic)",
+   "note": ""
+  },
+  {
+   "id": "gig.offer_salvage",
+   "title": "Salvage pods were posted after a raid",
+   "group": "gigs",
+   "entry": "engine (automatic)",
+   "note": ""
+  },
+  {
+   "id": "gig.raid_seen",
+   "title": "A raid hit a lane",
+   "group": "gigs",
+   "entry": "engine (automatic)",
+   "note": ""
+  },
+  {
+   "id": "hub.designate",
+   "title": "Make a hub",
+   "group": "hubs",
+   "entry": "planet_panel.make_hub_requested",
+   "note": ""
+  },
+  {
+   "id": "hub.pool",
+   "title": "Set the hub ship pool",
+   "group": "hubs",
+   "entry": "hub panel +/-",
+   "note": ""
+  },
+  {
+   "id": "hub.world",
+   "title": "Switch a world off or on",
+   "group": "hubs",
+   "entry": "hub panel checkbox",
+   "note": ""
+  },
+  {
+   "id": "hub.need",
+   "title": "Switch a need off or on",
+   "group": "hubs",
+   "entry": "hub panel checkbox",
+   "note": ""
+  },
+  {
+   "id": "hub.release",
+   "title": "Release a hub",
+   "group": "hubs",
+   "entry": "hub panel Release",
+   "note": ""
+  },
+  {
+   "id": "pros.tier2",
+   "title": "A world reached tier 2",
+   "group": "prosperity",
+   "entry": "engine (automatic)",
+   "note": ""
+  },
+  {
+   "id": "pros.tier3",
+   "title": "A world reached tier 3",
+   "group": "prosperity",
+   "entry": "engine (automatic)",
+   "note": ""
+  },
+  {
+   "id": "pros.tax",
+   "title": "Tax was paid",
+   "group": "prosperity",
+   "entry": "engine (automatic)",
+   "note": ""
+  },
+  {
+   "id": "pros.hungry",
+   "title": "Hungry need price seen",
+   "group": "prosperity",
+   "entry": "engine (automatic)",
+   "note": ""
+  },
+  {
+   "id": "pros.surplus",
+   "title": "Surplus price seen",
+   "group": "prosperity",
+   "entry": "engine (automatic)",
+   "note": ""
+  },
+  {
+   "id": "pros.restless",
+   "title": "A world went restless",
+   "group": "prosperity",
+   "entry": "engine (automatic)",
+   "note": ""
+  },
+  {
+   "id": "event.open_icon",
+   "title": "Open an important event icon",
+   "group": "events",
+   "entry": "main.open_event_icon",
+   "note": ""
+  },
+  {
+   "id": "event.answer",
+   "title": "Answer a pool event",
+   "group": "events",
+   "entry": "event_notice.confirmed",
+   "note": ""
+  },
+  {
+   "id": "event.answer_chain",
+   "title": "Answer a market chain step",
+   "group": "events",
+   "entry": "event_notice.confirmed",
+   "note": ""
+  },
+  {
+   "id": "event.answer_branch",
+   "title": "Answer a branch event",
+   "group": "events",
+   "entry": "event_notice.confirmed",
+   "note": ""
+  },
+  {
+   "id": "event.weather_up",
+   "title": "Price up weather",
+   "group": "events",
+   "entry": "engine (automatic)",
+   "note": ""
+  },
+  {
+   "id": "event.weather_down",
+   "title": "Price down weather",
+   "group": "events",
+   "entry": "engine (automatic)",
+   "note": ""
+  },
+  {
+   "id": "event.weather_shortage",
+   "title": "Shortage weather",
+   "group": "events",
+   "entry": "engine (automatic)",
+   "note": ""
+  },
+  {
+   "id": "event.weather_congestion",
+   "title": "Congestion weather",
+   "group": "events",
+   "entry": "engine (automatic)",
+   "note": ""
+  },
+  {
+   "id": "event.weather_closed",
+   "title": "A world closed by an event",
+   "group": "events",
+   "entry": "engine (automatic)",
+   "note": ""
+  },
+  {
+   "id": "event.debris",
+   "title": "Debris event",
+   "group": "events",
+   "entry": "engine (automatic)",
+   "note": ""
+  },
+  {
+   "id": "bazaar.found",
+   "title": "Found the Bazaar",
+   "group": "bazaar",
+   "entry": "planet_panel.found_bazaar_requested",
+   "note": ""
+  },
+  {
+   "id": "bazaar.stage_done",
+   "title": "A Bazaar stage completed",
+   "group": "bazaar",
+   "entry": "engine (automatic)",
+   "note": ""
+  },
+  {
+   "id": "bazaar.wing",
+   "title": "Pick a wing",
+   "group": "bazaar",
+   "entry": "bazaar_panel wing card",
+   "note": ""
+  },
+  {
+   "id": "bazaar.opening",
+   "title": "The Opening flew",
+   "group": "bazaar",
+   "entry": "engine (automatic)",
+   "note": ""
+  },
+  {
+   "id": "end.win",
+   "title": "Win ending reached",
+   "group": "end",
+   "entry": "engine (automatic)",
+   "note": ""
+  },
+  {
+   "id": "end.soft",
+   "title": "Unfinished ending reached",
+   "group": "end",
+   "entry": "engine (automatic)",
+   "note": ""
+  },
+  {
+   "id": "end.loss",
+   "title": "Bankrupt ending reached",
+   "group": "end",
+   "entry": "engine (automatic)",
+   "note": ""
+  },
+  {
+   "id": "end.ceo_ending",
+   "title": "A CEO ending (not GOOD/BAD/fallback)",
+   "group": "end",
+   "entry": "engine (automatic)",
+   "note": ""
+  },
+  {
+   "id": "end.screen_content",
+   "title": "End screen has content",
+   "group": "end",
+   "entry": "engine (automatic)",
+   "note": ""
+  },
+  {
+   "id": "end.continue",
+   "title": "Continue into free play",
+   "group": "end",
+   "entry": "end_screen.continue_pressed",
+   "note": ""
+  },
+  {
+   "id": "save.roundtrip",
+   "title": "Save and load keeps the run",
+   "group": "save",
+   "entry": "main.save_now + Continue",
+   "note": ""
+  }
+ ]
+}

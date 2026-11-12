@@ -10,3 +10,4 @@ tools/voice/.venv/
 assets/voice/
 tools/voice/models/
 logs/
+qa/check/out/
