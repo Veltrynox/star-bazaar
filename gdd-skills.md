@@ -34,8 +34,7 @@ Points are earned once per event:
   - First route made between a new pair of planets, direction ignored: [GCM:skill_points_route].
   - First route or storage in a new system: [GCM:skill_points_system] (none in system 1).
   - Paying to deflect the asteroid event (one point, a fixed value in game/main.gd).
-  - First time the player's share in a market reaches 20%: [GCM:skill_points_share_20]; at 35%: [GCM:skill_points_share_35]. Once per market. This pays depth, not width.
-Permits also cost points ([GCM:permit_points_2]; the temporary placeholder systems 3 to 5 reuse the system 2 keys as stand-ins).
+Permits also cost points ([GCM:permit_points_2]; the temporary placeholder system 3 reuses the system 2 keys as stand-ins).
 The same planet, pair or system never pays twice. The player starts with 0 points; the home planet (Voltara) gives the first on cycle 1. On screen the name is "Skill points" (top bar and skill screen header). A notice appears when points are earned.
 Supply: the design pack estimates about 21 points over a run against 12 needed for the Foundations plus one core market tree (core costs 1, 2, 3, 3 now, set 2026-11-05) and about 21 for two. The estimate dates from before the 2026-11-05 redo. This assumes 7 of 9 reachable planets and 5 route pairs and is UNKNOWN until the real game confirms it.
 
@@ -63,7 +62,7 @@ Military (workshop: Munitions Line)
   MIL_6 Contract Doctrine (tech): Military events against the player cut; Military sale price up (cash only).
   MIL_7 Standing Fleet (capstone skill): all rivals' Military growth cut for the rest of the run.
   MIL_8 Yard Account (skill): a new ship costs less to buy (ship_price_pct).
-  MIL_9 Cell Press (tech): Military sales count more toward share.
+  MIL_9 Cell Press (tech): Military units sold into a world's need count a little more toward it.
   MIL_10 Hardened Stores (skill): stored Military goods survive storage cuts.
   MIL_11 Proof Range (tech): Military sale price up (cash only).
   MIL_12 Open Arsenal (skill): worlds lose less progress on an unmet cycle (Military needs).
@@ -72,10 +71,10 @@ Military (workshop: Munitions Line)
   MIL_15 Last Line (final skill, needs MIL_7 and MIL_14): rivals' Military strength down for the rest of the run.
 Luxury (workshop: Atelier)
   LUX_1 Price Whisper (skill): shows next cycle's prices; unlocks the Atelier and attar.
-  LUX_2 Fine Finishing (tech): Luxury sales count more toward share; Luxury sale price up (cash only).
+  LUX_2 Fine Finishing (tech): Luxury units sold into a world's need count a little more toward it; Luxury sale price up (cash only).
   LUX_3 Event Forecast (skill): the next event is announced one cycle early (all markets).
   LUX_4 Cold Cellar (tech): unlocks gems (made only from second-system goods).
-  LUX_5 Patron's List (skill): sales at a price-up planet count more toward share, and the event pays more.
+  LUX_5 Patron's List (skill): sales at a price-up planet count clearly more toward a world's need, and the event pays more.
   LUX_5B Long Ledger (side skill): prices and events are shown two cycles ahead.
   LUX_6 Hallmark (tech): each Luxury batch yields one more unit; Luxury sale price up (cash only).
   LUX_7 Guild Seal (capstone skill): every [GCM:skill_LUX_7_every] cycles pick one rival: its Luxury strength falls for a set time.
@@ -85,7 +84,7 @@ Luxury (workshop: Atelier)
   LUX_11 Collector's Eye (tech): Luxury sale price up (cash only).
   LUX_12 Press Room (skill, needs LUX_5B): Luxury routes carry more per cycle.
   LUX_13 Patron's Purse (skill): Luxury sales count more toward a world's need; the mixed-load bonus on Luxury is larger (bundle_bonus_pct, the cap still binds).
-  LUX_14 Auction House (tech): Luxury sales count more toward share.
+  LUX_14 Auction House (tech): Luxury units sold into a world's need count clearly more toward it.
   LUX_15 Grand Salon (final skill, needs LUX_7 and LUX_14): all rivals' Luxury growth cut for the rest of the run.
 Minerals (workshops: Smelter, Fabric)
   MIN_1 Fabrication Licence (skill, needs Prospecting): unlocks the Smelter, the Fabric and ingots.
@@ -102,11 +101,11 @@ Minerals (workshops: Smelter, Fabric)
   MIN_11 Hot Foundry (tech): Minerals sale price up (cash only).
   MIN_12 Seam Brokers (skill, needs MIN_5B): Minerals price-up events pay more.
   MIN_13 Core Tuning (skill): trips of a ship with a Null Core cost less (null_core_trip_pct).
-  MIN_14 Mass Melt (tech): Minerals sales count more toward share.
+  MIN_14 Mass Melt (tech): Minerals units sold into a world's need count clearly more toward it.
   MIN_15 Motherlode (final skill, needs MIN_7 and MIN_14): cluster yield up again.
 Biotech (workshop: Culture Lab)
   BIO_1 Culture Charter (skill): unlocks the Culture Lab and medicine.
-  BIO_2 Culture Banks (tech): Biotech stock in planet storage grows a little each cycle, up to a cap; Biotech sales count more toward share.
+  BIO_2 Culture Banks (tech): Biotech stock in planet storage grows a little each cycle, up to a cap; Biotech units sold into a world's need count more toward it.
   BIO_3 Deep Shelves (skill): planet storage holds more; the Biotech growth cap rises.
   BIO_4 Gene Splicing (tech): unlocks seed; Biotech sale price up (cash only).
   BIO_5 Clinic Contracts (skill): worlds lose less progress on an unmet cycle (Biotech needs); Biotech stock survives storage cuts.
@@ -117,7 +116,7 @@ Biotech (workshop: Culture Lab)
   BIO_10 Cold Chain (skill): Biotech routes ignore debris events.
   BIO_11 Graft Lines (tech): each Biotech batch yields more units.
   BIO_12 Patient Orchard (skill): stored Biotech stock grows faster each cycle, with its own higher cap.
-  BIO_13 Market Days (skill): Biotech sales at a price-up planet count more toward share.
+  BIO_13 Market Days (skill): Biotech sales at a price-up planet count more toward that world's need.
   BIO_14 Living Contracts (tech): Biotech sale price up (cash only).
   BIO_15 Evergreen (final skill, needs BIO_7 and BIO_14): all rivals' Biotech growth cut for the rest of the run.
 Where this list and data/skills.json differ, data/skills.json and balance.json win. The Foundations are Space Storage, Permit Charter and Prospecting; Survey Beacon and Colonial Rights were dropped. The tree redone on 2026-11-05 replaced earlier effects (for example Luxury and Biotech storage-cut protection moved to BIO_5; asteroid hits cut storage only for planets without that protection). The epilogue still treats node 7 as the capstone (section 9); node 15 is the last node of the tree. Known gap (2026-11-06): several fill-node player lines in story/skills.md (for example FND_LEDGER, FND_RIVAL_WATCH, FND_DOCKS, MIL_8, MIL_13, LUX_13, MIN_8, MIN_9, MIN_10, MIN_13) still describe the proposal effects, not the effects built in data/skills.json; the list above follows the data.
@@ -140,7 +139,7 @@ Storage Link: a goods-only bridge between the Space Storages of two systems (gam
 ========================================
 5. PERMITS (FND_PERMIT)
 ========================================
-Permit Charter lets the player buy permits for other systems. Without it the permit button does not appear. Learning it does not open a system; each permit costs points ([GCM:permit_points_2], [GCM:permit_points_3]) and credits ([GCM:permit_2_cost]). System 2 is in the Alpha. Systems 3 to 5 are live temporary placeholders (names, prices and suns not designed yet) whose permits also need Permit Charter and reuse the system 2 cost keys; systems 6 to 10 are switched off.
+Permit Charter lets the player buy permits for other systems. Without it the permit button does not appear. Learning it does not open a system; each permit costs points ([GCM:permit_points_2], [GCM:permit_points_3]) and credits ([GCM:permit_2_cost]). System 2 is in the Alpha. System 3 is a live temporary placeholder (names, prices and suns not designed yet) whose permits also need Permit Charter and reuse the system 2 cost keys; there are no further systems.
 
 ========================================
 6. SKILL TREE SCREEN
@@ -170,5 +169,5 @@ The old tier selection from learned skills (Bare, Partial, Full) is RETIRED with
   1. Are the tree names and sizes right in play? UNKNOWN until the owner plays.
   2. Do workshops matter enough for share, or only for tech and cash? UNKNOWN until played.
   3. Is the point supply (about 21) right for one focused market? UNKNOWN until the real game confirms it.
-  4. Systems 3 to 5 are temporary placeholders: does anything in the trees point at them? None of the nodes does.
+  4. System 3 is a temporary placeholder: does anything in the trees point at it? None of the nodes does.
   5. The 2026-11-05 tree redo and retune were signed off by economy, feature and QA reviews on paper; whether they feel right in play is UNKNOWN until the owner plays.
