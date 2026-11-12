@@ -554,7 +554,7 @@ func _ready() -> void:
 	_line.top_level = true  # drawn in world space whatever the parent does
 	add_child(_line)
 	var ring := TorusMesh.new()
-	ring.inner_radius = MARKER_RADIUS * 0.8
+	ring.inner_radius = MARKER_RADIUS * 0.94  # thin like the other rings (selection 0.9, gig 0.96, dock 0.94)
 	ring.outer_radius = MARKER_RADIUS
 	_marker = MeshInstance3D.new()
 	_marker.mesh = ring
@@ -655,10 +655,10 @@ func update_from(f, view_system: int, selected: bool = false) -> void:
 			if Juice.motion > 0.0 and state(f) == "flying":  # T274: slow pulse on the target while the ship flies (game clock)
 				var ph := 0.5 + 0.5 * sin(_clock * _k("flight_juice_marker_hz") * TAU)
 				_marker.scale = Vector3.ONE * (1.0 + _k("flight_juice_marker_amp") * Juice.motion * ph)
-				_marker_mat.albedo_color = Color(1, 1, 1, lerpf(MARKER_ALPHA_LOW, 1.0, ph))
+				_marker_mat.albedo_color = Color(COL_SELECTED.r, COL_SELECTED.g, COL_SELECTED.b, lerpf(MARKER_ALPHA_LOW, 1.0, ph))
 			else:
 				_marker.scale = Vector3.ONE
-				_marker_mat.albedo_color = Color.WHITE
+				_marker_mat.albedo_color = Color(COL_SELECTED.r, COL_SELECTED.g, COL_SELECTED.b, 1.0)
 
 ## T273: a ring at each accepted gig target in this system. When the gig starts, one big thin blue ring pulses out once (GIG_PULSE_S);
 ## then a thin blue ring stays at the target, not pulsing (amber once the offer is within balance gig_marker_amber_cycles of its deadline).
