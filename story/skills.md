@@ -125,7 +125,7 @@ SK_BIO_1_PLAIN | 110 | Skill screen, detail panel | Unlocks Biotech crafting in 
 
 SK_BIO_2_NAME | 24 | Skill screen, node name | Culture Banks
 SK_BIO_2_FLAVOUR | 90 | Skill screen, detail panel | Something grows in the cold. It does not ask who feeds it. It knows.
-SK_BIO_2_PLAIN | 140 | Skill screen, detail panel | Stored Biotech grows 2% a cycle, up to +20%. Biotech sales count 12% more toward share. Tech: craft {goal} units.
+SK_BIO_2_PLAIN | 140 | Skill screen, detail panel | Stored Biotech grows 2% a cycle, up to +20%. Biotech units sold into a world's need count 12% more toward it. Tech: craft {goal} units.
 SK_BIO_2_CRAFT | 60 | Skill screen, tech node progress line | Biotech workshop crafts: {n} of {goal}
 
 SK_BIO_3_NAME | 24 | Skill screen, node name | The Long Ward

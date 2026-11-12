@@ -1796,12 +1796,6 @@
    "place": "Notice, route from a dead world without its skill; {skill} is the skill name"
   },
   {
-   "id": "PLANET_DANGER",
-   "text": "Danger: {value} of {max}",
-   "max": 60,
-   "place": "Planet panel, dead world danger line; {value} and {max} are numbers"
-  },
-  {
    "id": "BTN_MINE_SEND",
    "text": "Mine {good} and send to...",
    "max": 40,
@@ -2067,7 +2061,7 @@
   },
   {
    "id": "NULL_CORE_FIT",
-   "text": "Null Core fitted. Lower Trip cost, and pirates cannot touch this ship.",
+   "text": "Null Core fitted. Lower Trip cost, and raiders cannot touch this ship.",
    "max": 110,
    "place": "Ships window, label or tooltip of the fitted ship"
   },
@@ -2166,48 +2160,6 @@
    "text": "Skill points come from planets, routes and systems. Spend them in Skills (K).",
    "max": 110,
    "place": "Tips board"
-  },
-  {
-   "id": "LBL_SHARE_TITLE",
-   "text": "Market share",
-   "max": 24,
-   "place": "Market share panel heading"
-  },
-  {
-   "id": "LBL_SHARE_HOLD",
-   "text": "Held {n} of {total} cycles",
-   "max": 40,
-   "place": "Market share panel, cycles the player has held the lead"
-  },
-  {
-   "id": "LBL_SPREAD_COST",
-   "text": "Spreading cost per cycle: {n}",
-   "max": 40,
-   "place": "Market panel, cost of holding several markets"
-  },
-  {
-   "id": "LBL_SHARE_YOU",
-   "text": "You",
-   "max": 24,
-   "place": "Market share rows and end screen readout, the player's row"
-  },
-  {
-   "id": "LBL_COMP_TITLE",
-   "text": "House weather",
-   "max": 24,
-   "place": "House weather menu heading, game menu entry and panel button (was Competitors)"
-  },
-  {
-   "id": "LBL_COMP_SHARE",
-   "text": "Next weather",
-   "max": 24,
-   "place": "House weather table column, what the house sends next"
-  },
-  {
-   "id": "LBL_COMP_TREND",
-   "text": "Recent weather",
-   "max": 24,
-   "place": "House weather table column, the last weather the house sent"
   },
   {
    "id": "SK_TAB_FND",
@@ -2382,12 +2334,6 @@
    "text": "{workshop} built in {system}.",
    "max": 80,
    "place": "Board notice after building; {workshop} is the workshop name, {system} the system whose cell it stands in"
-  },
-  {
-   "id": "NOT_SKILL_REASON_SHARE",
-   "text": "Your {market} share passed {pct}%.",
-   "max": 110,
-   "place": "Notice, a skill point earned when a market share passes a step; {market} is the market, {pct} the step"
   },
   {
    "id": "EV_MIL_A1_TITLE",
@@ -2954,6 +2900,234 @@
    "place": "MIL_B4 house line 2, opt_b"
   },
   {
+   "id": "EV_MIL_C1_TITLE",
+   "text": "A depot for Dunmere Reach",
+   "max": 40,
+   "place": "MIL_C1 choice screen title"
+  },
+  {
+   "id": "EV_MIL_C1_BODY",
+   "text": "The Fleet Office has an estimate for Dunmere Reach, and a clerk at Cindrel needs a supplier before the next muster. {bot3} runs convoys on the same lane and bills by the hull. Keep a standing depot there, or ship to each muster as it is called.",
+   "max": 280,
+   "place": "MIL_C1 choice screen body (one body)"
+  },
+  {
+   "id": "EV_MIL_C1_OPA_BTN",
+   "text": "Keep a standing depot",
+   "max": 28,
+   "place": "MIL_C1 button, opt_a"
+  },
+  {
+   "id": "EV_MIL_C1_OPA_EFF",
+   "text": "Get: Military volume up a little for a while. Cost: Ship upkeep rises a little for a while. Weather: {bot3}'s next weather comes a little later.",
+   "max": 200,
+   "place": "MIL_C1 effect line, opt_a"
+  },
+  {
+   "id": "EV_MIL_C1_OPA_RES_TITLE",
+   "text": "The depot is stocked",
+   "max": 32,
+   "place": "MIL_C1 result popup title, opt_a"
+  },
+  {
+   "id": "EV_MIL_C1_OPA_RES",
+   "text": "You leased a shed on Cindrel's dock and hired a night watch. Orders now come on a schedule, so Military volume rises for a while, and the watch raises Ship upkeep a little. {bot}'s convoys wait for slots at your door, and its next weather comes a little later.",
+   "max": 280,
+   "place": "MIL_C1 result popup, opt_a; {bot} is bot_3"
+  },
+  {
+   "id": "EV_MIL_C1_OPA_STD",
+   "text": "{bot3}: next weather comes a little later.",
+   "max": 90,
+   "place": "MIL_C1 house line 1, opt_a"
+  },
+  {
+   "id": "EV_MIL_C1_OPB_BTN",
+   "text": "Ship to each muster",
+   "max": 28,
+   "place": "MIL_C1 button, opt_b"
+  },
+  {
+   "id": "EV_MIL_C1_OPB_EFF",
+   "text": "Get: {cash_in} credits now. Cost: Military volume down a little for a few cycles. Weather: {bot2}'s next weather lands a little softer.",
+   "max": 200,
+   "place": "MIL_C1 effect line, opt_b"
+  },
+  {
+   "id": "EV_MIL_C1_OPB_RES_TITLE",
+   "text": "Mustered, one at a time",
+   "max": 32,
+   "place": "MIL_C1 result popup title, opt_b"
+  },
+  {
+   "id": "EV_MIL_C1_OPB_RES",
+   "text": "You shipped to each muster as it was called, and the clerk paid on the day. Your own orders dipped for a few cycles while the berth stood empty. {bot} had counted on the Fleet Office's steady custom, and its next weather lands a little softer.",
+   "max": 280,
+   "place": "MIL_C1 result popup, opt_b; {bot} is bot_2"
+  },
+  {
+   "id": "EV_MIL_C1_OPB_STD",
+   "text": "{bot2}: next weather lands a little softer.",
+   "max": 90,
+   "place": "MIL_C1 house line 1, opt_b"
+  },
+  {
+   "id": "EV_MIL_C2_TITLE",
+   "text": "The inspector counts the halls",
+   "max": 40,
+   "place": "MIL_C2 choice screen title"
+  },
+  {
+   "id": "EV_MIL_C2_BODY_A",
+   "text": "Your depot at Cindrel is stocked, and word of it reached the Bazaar. Inspector Kethra Voss comes to the new halls with her stamp worn like a sidearm. She will pass every door in one visit for a charge, or one by one on her own time. {bot1} has already paid.",
+   "max": 280,
+   "place": "MIL_C2 choice screen body after opt_a of MIL_C1"
+  },
+  {
+   "id": "EV_MIL_C2_BODY_B",
+   "text": "Your musters were paid, and word of it reached the Bazaar. Inspector Kethra Voss comes to the new halls with her stamp worn like a sidearm. She will pass every door in one visit for a charge, or one by one on her own time. {bot1} has already paid.",
+   "max": 280,
+   "place": "MIL_C2 choice screen body after opt_b of MIL_C1"
+  },
+  {
+   "id": "EV_MIL_C2_OPA_BTN",
+   "text": "Pay for one visit",
+   "max": 28,
+   "place": "MIL_C2 button, opt_a"
+  },
+  {
+   "id": "EV_MIL_C2_OPA_EFF",
+   "text": "Get: Military price up a little for a while. Cost: {cash_out} credits for the visit. Weather: {bot1}'s next weather lands clearly softer.",
+   "max": 200,
+   "place": "MIL_C2 effect line, opt_a"
+  },
+  {
+   "id": "EV_MIL_C2_OPA_RES_TITLE",
+   "text": "Every door, one stamp",
+   "max": 32,
+   "place": "MIL_C2 result popup title, opt_a"
+  },
+  {
+   "id": "EV_MIL_C2_OPA_RES",
+   "text": "Voss passed every door in one visit and stamped the last as if it were a ruling. The visit cost credits, and Military price rises a little for a while. {bot} had paid first, and its next weather lands clearly softer.",
+   "max": 280,
+   "place": "MIL_C2 result popup, opt_a; {bot} is bot_1"
+  },
+  {
+   "id": "EV_MIL_C2_OPA_STD",
+   "text": "{bot1}: next weather lands clearly softer.",
+   "max": 90,
+   "place": "MIL_C2 house line 1, opt_a"
+  },
+  {
+   "id": "EV_MIL_C2_OPB_BTN",
+   "text": "Wait door by door",
+   "max": 28,
+   "place": "MIL_C2 button, opt_b"
+  },
+  {
+   "id": "EV_MIL_C2_OPB_EFF",
+   "text": "Get: one route's trip cost down a little for a while. Cost: Military volume down a little for a while. Weather: {bot2}'s next weather comes a little later.",
+   "max": 200,
+   "place": "MIL_C2 effect line, opt_b"
+  },
+  {
+   "id": "EV_MIL_C2_OPB_RES_TITLE",
+   "text": "A door at a time",
+   "max": 32,
+   "place": "MIL_C2 result popup title, opt_b"
+  },
+  {
+   "id": "EV_MIL_C2_OPB_RES",
+   "text": "Voss passed the doors one by one on her own time, and your crew stood by each. The busiest route's trip cost falls a little for a while, and Military volume dips as berths wait. {bot}'s next weather comes a little later.",
+   "max": 280,
+   "place": "MIL_C2 result popup, opt_b; {bot} is bot_2"
+  },
+  {
+   "id": "EV_MIL_C2_OPB_STD",
+   "text": "{bot2}: next weather comes a little later.",
+   "max": 90,
+   "place": "MIL_C2 house line 1, opt_b"
+  },
+  {
+   "id": "EV_MIL_C3_TITLE",
+   "text": "The estimate renews itself",
+   "max": 40,
+   "place": "MIL_C3 choice screen title"
+  },
+  {
+   "id": "EV_MIL_C3_BODY_A",
+   "text": "Your stamp is on every hall, and the Fleet Office has noticed. Admiral Gabe Nuer renews the estimate with the words until victory, again. Take a standing order for the Bazaar's stores, or sell the Fleet Office your slack in one lot. {bot1} is already counting.",
+   "max": 280,
+   "place": "MIL_C3 choice screen body after opt_a of MIL_C2"
+  },
+  {
+   "id": "EV_MIL_C3_BODY_B",
+   "text": "Your halls were passed one door at a time, and the Fleet Office has noticed. Admiral Gabe Nuer renews the estimate with the words until victory, again. Take a standing order for the Bazaar's stores, or sell the Fleet Office your slack in one lot. {bot1} is already counting.",
+   "max": 280,
+   "place": "MIL_C3 choice screen body after opt_b of MIL_C2"
+  },
+  {
+   "id": "EV_MIL_C3_OPA_BTN",
+   "text": "Take the standing order",
+   "max": 28,
+   "place": "MIL_C3 button, opt_a"
+  },
+  {
+   "id": "EV_MIL_C3_OPA_EFF",
+   "text": "Get: Military volume up clearly for a while. Cost: Military price down a little for a while. Weather: {bot3}'s next weather comes a little later.",
+   "max": 200,
+   "place": "MIL_C3 effect line, opt_a"
+  },
+  {
+   "id": "EV_MIL_C3_OPA_RES_TITLE",
+   "text": "Until victory, in writing",
+   "max": 32,
+   "place": "MIL_C3 result popup title, opt_a"
+  },
+  {
+   "id": "EV_MIL_C3_OPA_RES",
+   "text": "The Fleet Office stamped your standing order with the words until victory. Military volume rises clearly for a while, and the standing price pulls Military price down a little. {bot}'s convoys wait on your berths, and its next weather comes a little later.",
+   "max": 280,
+   "place": "MIL_C3 result popup, opt_a; {bot} is bot_3"
+  },
+  {
+   "id": "EV_MIL_C3_OPA_STD",
+   "text": "{bot3}: next weather comes a little later.",
+   "max": 90,
+   "place": "MIL_C3 house line 1, opt_a"
+  },
+  {
+   "id": "EV_MIL_C3_OPB_BTN",
+   "text": "Sell the slack at once",
+   "max": 28,
+   "place": "MIL_C3 button, opt_b"
+  },
+  {
+   "id": "EV_MIL_C3_OPB_EFF",
+   "text": "Get: {cash_in} credits now. Cost: Military volume down clearly for a few cycles while berths empty. Weather: {bot1} {cut}.",
+   "max": 200,
+   "place": "MIL_C3 effect line, opt_b"
+  },
+  {
+   "id": "EV_MIL_C3_OPB_RES_TITLE",
+   "text": "The slack is sold",
+   "max": 32,
+   "place": "MIL_C3 result popup title, opt_b"
+  },
+  {
+   "id": "EV_MIL_C3_OPB_RES",
+   "text": "You sold the slack in one lot, and the Admiral's clerk paid at the dock. Military volume falls clearly for a few cycles while the berths empty. {bot} had meant to carry the estimate, and its next weather is held back.",
+   "max": 280,
+   "place": "MIL_C3 result popup, opt_b; {bot} is bot_1"
+  },
+  {
+   "id": "EV_MIL_C3_OPB_STD",
+   "text": "{bot1}: {cut_std}.",
+   "max": 90,
+   "place": "MIL_C3 house line 1, opt_b"
+  },
+  {
    "id": "EV_LUX_A1_TITLE",
    "text": "Madame Marr demands the first pick",
    "max": 40,
@@ -3518,6 +3692,234 @@
    "place": "LUX_B4 house line 2, opt_b"
   },
   {
+   "id": "EV_LUX_C1_TITLE",
+   "text": "Madame Marr wants a standing order",
+   "max": 40,
+   "place": "LUX_C1 choice screen title"
+  },
+  {
+   "id": "EV_LUX_C1_BODY",
+   "text": "Madame Marr of Quillon's gallery ring wants a season of luxuries sent to her door unseen. She says a thing seen first is a thing spoiled. {bot2} would fill it at floating rates, and {bot3} keeps a stall by her door. Fill the standing order, or sell her one sealed lot.",
+   "max": 280,
+   "place": "LUX_C1 choice screen body (one body)"
+  },
+  {
+   "id": "EV_LUX_C1_OPA_BTN",
+   "text": "Fill the standing order",
+   "max": 28,
+   "place": "LUX_C1 button, opt_a"
+  },
+  {
+   "id": "EV_LUX_C1_OPA_EFF",
+   "text": "Get: Luxury price up a little for a while. Cost: Luxury volume down a little for a while. Weather: {bot2}'s next weather comes a little later.",
+   "max": 200,
+   "place": "LUX_C1 effect line, opt_a"
+  },
+  {
+   "id": "EV_LUX_C1_OPA_RES_TITLE",
+   "text": "The order goes unseen",
+   "max": 32,
+   "place": "LUX_C1 result popup title, opt_a"
+  },
+  {
+   "id": "EV_LUX_C1_OPA_RES",
+   "text": "Madame Marr took the standing order unseen and sent word round her ring. Luxury price rises a little for a while, and fewer lots reach the shelves, so volume dips. {bot} fed her the first season, and its next weather comes a little later.",
+   "max": 280,
+   "place": "LUX_C1 result popup, opt_a; {bot} is bot_2"
+  },
+  {
+   "id": "EV_LUX_C1_OPA_STD",
+   "text": "{bot2}: next weather comes a little later.",
+   "max": 90,
+   "place": "LUX_C1 house line 1, opt_a"
+  },
+  {
+   "id": "EV_LUX_C1_OPB_BTN",
+   "text": "Sell one sealed lot",
+   "max": 28,
+   "place": "LUX_C1 button, opt_b"
+  },
+  {
+   "id": "EV_LUX_C1_OPB_EFF",
+   "text": "Get: {cash_in} credits now. Cost: Ship upkeep rises a little for a while. Weather: {bot3}'s next weather lands a little softer.",
+   "max": 200,
+   "place": "LUX_C1 effect line, opt_b"
+  },
+  {
+   "id": "EV_LUX_C1_OPB_RES_TITLE",
+   "text": "One lot under seal",
+   "max": 32,
+   "place": "LUX_C1 result popup title, opt_b"
+  },
+  {
+   "id": "EV_LUX_C1_OPB_RES",
+   "text": "Madame Marr paid for one sealed lot, and the lot went out under a courier's seal. Credits reached you within the hour, and the sealed hull raised Ship upkeep a little. {bot} found its stall at her door empty, and its next weather lands a little softer.",
+   "max": 280,
+   "place": "LUX_C1 result popup, opt_b; {bot} is bot_3"
+  },
+  {
+   "id": "EV_LUX_C1_OPB_STD",
+   "text": "{bot3}: next weather lands a little softer.",
+   "max": 90,
+   "place": "LUX_C1 house line 1, opt_b"
+  },
+  {
+   "id": "EV_LUX_C2_TITLE",
+   "text": "The Guild hangs masks in the halls",
+   "max": 40,
+   "place": "LUX_C2 choice screen title"
+  },
+  {
+   "id": "EV_LUX_C2_BODY_A",
+   "text": "Your standing order pleased the gallery ring, and the Guild of Masks has noticed. It hangs its masks in the Bazaar's new halls and wants luxuries on every stand. Lend a masked display for the season, or sell masks by the case. {bot2} holds the chair, and {bot3} sits by the door.",
+   "max": 280,
+   "place": "LUX_C2 choice screen body after opt_a of LUX_C1"
+  },
+  {
+   "id": "EV_LUX_C2_BODY_B",
+   "text": "Your sealed lot pleased the gallery ring, and the Guild of Masks has noticed. It hangs its masks in the Bazaar's new halls and wants luxuries on every stand. Lend a masked display for the season, or sell masks by the case. {bot2} holds the chair, and {bot3} sits by the door.",
+   "max": 280,
+   "place": "LUX_C2 choice screen body after opt_b of LUX_C1"
+  },
+  {
+   "id": "EV_LUX_C2_OPA_BTN",
+   "text": "Lend a masked display",
+   "max": 28,
+   "place": "LUX_C2 button, opt_a"
+  },
+  {
+   "id": "EV_LUX_C2_OPA_EFF",
+   "text": "Get: Luxury volume up a little for a while. Cost: {cash_out} credits for the display. Weather: {bot2}'s next weather lands a little softer.",
+   "max": 200,
+   "place": "LUX_C2 effect line, opt_a"
+  },
+  {
+   "id": "EV_LUX_C2_OPA_RES_TITLE",
+   "text": "A mask on every stand",
+   "max": 32,
+   "place": "LUX_C2 result popup title, opt_a"
+  },
+  {
+   "id": "EV_LUX_C2_OPA_RES",
+   "text": "The Guild hung your masked display in the east hall, and every guest passed it. The display cost credits, and Luxury volume rises a little for a while. {bot} held the chair and gave up a stand, and its next weather lands a little softer.",
+   "max": 280,
+   "place": "LUX_C2 result popup, opt_a; {bot} is bot_2"
+  },
+  {
+   "id": "EV_LUX_C2_OPA_STD",
+   "text": "{bot2}: next weather lands a little softer.",
+   "max": 90,
+   "place": "LUX_C2 house line 1, opt_a"
+  },
+  {
+   "id": "EV_LUX_C2_OPB_BTN",
+   "text": "Sell masks by the case",
+   "max": 28,
+   "place": "LUX_C2 button, opt_b"
+  },
+  {
+   "id": "EV_LUX_C2_OPB_EFF",
+   "text": "Get: {cash_in} credits now. Cost: Luxury price down a little for a while. Weather: {bot3}'s next weather comes a little later.",
+   "max": 200,
+   "place": "LUX_C2 effect line, opt_b"
+  },
+  {
+   "id": "EV_LUX_C2_OPB_RES_TITLE",
+   "text": "Masks by the case",
+   "max": 32,
+   "place": "LUX_C2 result popup title, opt_b"
+  },
+  {
+   "id": "EV_LUX_C2_OPB_RES",
+   "text": "You sold masks by the case at the hall door, and the Guild's clerk paid on the spot. Luxury price falls a little for a while as the cases crowd the doors. {bot} sat by the door and watched them go, and its next weather comes a little later.",
+   "max": 280,
+   "place": "LUX_C2 result popup, opt_b; {bot} is bot_3"
+  },
+  {
+   "id": "EV_LUX_C2_OPB_STD",
+   "text": "{bot3}: next weather comes a little later.",
+   "max": 90,
+   "place": "LUX_C2 house line 1, opt_b"
+  },
+  {
+   "id": "EV_LUX_C3_TITLE",
+   "text": "The Orrel House returns to the hall",
+   "max": 40,
+   "place": "LUX_C3 choice screen title"
+  },
+  {
+   "id": "EV_LUX_C3_BODY_A",
+   "text": "Your masked display hangs in the Great Hall, and the Orrel House holds its gala beneath it. The house offers you the head table, where every glass turns, or the cloakroom, where every guest passes your crates twice. {bot2} watches the guest list.",
+   "max": 280,
+   "place": "LUX_C3 choice screen body after opt_a of LUX_C2"
+  },
+  {
+   "id": "EV_LUX_C3_BODY_B",
+   "text": "Your masks sold out at the hall door, and the Orrel House holds its gala beneath the empty hooks. The house offers you the head table, where every glass turns, or the cloakroom, where every guest passes your crates twice. {bot2} watches the guest list.",
+   "max": 280,
+   "place": "LUX_C3 choice screen body after opt_b of LUX_C2"
+  },
+  {
+   "id": "EV_LUX_C3_OPA_BTN",
+   "text": "Take the head table",
+   "max": 28,
+   "place": "LUX_C3 button, opt_a"
+  },
+  {
+   "id": "EV_LUX_C3_OPA_EFF",
+   "text": "Get: Luxury price up clearly for a while. Cost: {cash_out} credits for the table. Weather: {bot2}'s next weather lands clearly softer.",
+   "max": 200,
+   "place": "LUX_C3 effect line, opt_a"
+  },
+  {
+   "id": "EV_LUX_C3_OPA_RES_TITLE",
+   "text": "The head table",
+   "max": 32,
+   "place": "LUX_C3 result popup title, opt_a"
+  },
+  {
+   "id": "EV_LUX_C3_OPA_RES",
+   "text": "You took the head table, and every glass in the hall turned toward it. The table cost credits, and Luxury price rises clearly for a while. {bot} kept the guest list and found your name above its own, so its next weather lands clearly softer.",
+   "max": 280,
+   "place": "LUX_C3 result popup, opt_a; {bot} is bot_2"
+  },
+  {
+   "id": "EV_LUX_C3_OPA_STD",
+   "text": "{bot2}: next weather lands clearly softer.",
+   "max": 90,
+   "place": "LUX_C3 house line 1, opt_a"
+  },
+  {
+   "id": "EV_LUX_C3_OPB_BTN",
+   "text": "Take the cloakroom",
+   "max": 28,
+   "place": "LUX_C3 button, opt_b"
+  },
+  {
+   "id": "EV_LUX_C3_OPB_EFF",
+   "text": "Get: Luxury volume up clearly for a while. Cost: Luxury price down a little for a while. Weather: {bot1}'s next weather comes a little later.",
+   "max": 200,
+   "place": "LUX_C3 effect line, opt_b"
+  },
+  {
+   "id": "EV_LUX_C3_OPB_RES_TITLE",
+   "text": "The cloakroom",
+   "max": 32,
+   "place": "LUX_C3 result popup title, opt_b"
+  },
+  {
+   "id": "EV_LUX_C3_OPB_RES",
+   "text": "You took the cloakroom, and every guest passed your crates twice. Luxury volume rises clearly for a while, and Luxury price falls a little as the tags pile up. {bot} was told the cloakroom was full, and its next weather comes a little later.",
+   "max": 280,
+   "place": "LUX_C3 result popup, opt_b; {bot} is bot_1"
+  },
+  {
+   "id": "EV_LUX_C3_OPB_STD",
+   "text": "{bot1}: next weather comes a little later.",
+   "max": 90,
+   "place": "LUX_C3 house line 1, opt_b"
+  },
+  {
    "id": "EV_MIN_A1_TITLE",
    "text": "Cinderrest's cable frays on schedule",
    "max": 40,
@@ -4068,6 +4470,234 @@
    "text": "{bot3}: next weather lands a little softer.",
    "max": 90,
    "place": "MIN_B4 house line 2, opt_b"
+  },
+  {
+   "id": "EV_MIN_C1_TITLE",
+   "text": "Deepline Works wants a second shaft",
+   "max": 40,
+   "place": "MIN_C1 choice screen title"
+  },
+  {
+   "id": "EV_MIN_C1_BODY",
+   "text": "The Deepline Works wants a second shaft sunk beside your claim at Cindrel, and needs a pump that only you can feed. {bot1} offers its own pump on lease, and {bot3} has asked for the spoil. Share your pump, or sell the Works the pump.",
+   "max": 280,
+   "place": "MIN_C1 choice screen body (one body)"
+  },
+  {
+   "id": "EV_MIN_C1_OPA_BTN",
+   "text": "Share the pump",
+   "max": 28,
+   "place": "MIN_C1 button, opt_a"
+  },
+  {
+   "id": "EV_MIN_C1_OPA_EFF",
+   "text": "Get: Minerals volume up a little for a while. Cost: Minerals price down a little for a while. Weather: {bot1}'s next weather comes a little later.",
+   "max": 200,
+   "place": "MIN_C1 effect line, opt_a"
+  },
+  {
+   "id": "EV_MIN_C1_OPA_RES_TITLE",
+   "text": "Two shafts, one pump",
+   "max": 32,
+   "place": "MIN_C1 result popup title, opt_a"
+  },
+  {
+   "id": "EV_MIN_C1_OPA_RES",
+   "text": "You shared the pump, and the Works sank its shaft beside yours. Minerals volume rises a little for a while, and more rock on the market pulls price down a little. {bot} had offered its own pump on lease, and its next weather comes a little later.",
+   "max": 280,
+   "place": "MIN_C1 result popup, opt_a; {bot} is bot_1"
+  },
+  {
+   "id": "EV_MIN_C1_OPA_STD",
+   "text": "{bot1}: next weather comes a little later.",
+   "max": 90,
+   "place": "MIN_C1 house line 1, opt_a"
+  },
+  {
+   "id": "EV_MIN_C1_OPB_BTN",
+   "text": "Sell the pump",
+   "max": 28,
+   "place": "MIN_C1 button, opt_b"
+  },
+  {
+   "id": "EV_MIN_C1_OPB_EFF",
+   "text": "Get: {cash_in} credits now. Cost: Minerals volume down a little for a few cycles. Weather: {bot3}'s next weather lands a little softer.",
+   "max": 200,
+   "place": "MIN_C1 effect line, opt_b"
+  },
+  {
+   "id": "EV_MIN_C1_OPB_RES_TITLE",
+   "text": "The pump changes hands",
+   "max": 32,
+   "place": "MIN_C1 result popup title, opt_b"
+  },
+  {
+   "id": "EV_MIN_C1_OPB_RES",
+   "text": "You sold the pump, and the Works paid on the dock. Your own volume dipped for a few cycles while the shaft waited for a new crew. {bot} asked for the spoil and was told it was sold, and its next weather lands a little softer.",
+   "max": 280,
+   "place": "MIN_C1 result popup, opt_b; {bot} is bot_3"
+  },
+  {
+   "id": "EV_MIN_C1_OPB_STD",
+   "text": "{bot3}: next weather lands a little softer.",
+   "max": 90,
+   "place": "MIN_C1 house line 1, opt_b"
+  },
+  {
+   "id": "EV_MIN_C2_TITLE",
+   "text": "Gordo Gekk prices the hall stone",
+   "max": 40,
+   "place": "MIN_C2 choice screen title"
+  },
+  {
+   "id": "EV_MIN_C2_BODY_A",
+   "text": "Bidder Gordo Gekk, who says wanting more is only tidiness, has priced every slab in the Bazaar's new halls and wants yours. You shared your pump, so he calls you a friend. Fix one price for the run, or weigh each load as it comes. {bot1} supplies the rest.",
+   "max": 280,
+   "place": "MIN_C2 choice screen body after opt_a of MIN_C1"
+  },
+  {
+   "id": "EV_MIN_C2_BODY_B",
+   "text": "Bidder Gordo Gekk, who says wanting more is only tidiness, has priced every slab in the Bazaar's new halls and wants yours. You sold your pump, so he calls you a seller. Fix one price for the run, or weigh each load as it comes. {bot1} supplies the rest.",
+   "max": 280,
+   "place": "MIN_C2 choice screen body after opt_b of MIN_C1"
+  },
+  {
+   "id": "EV_MIN_C2_OPA_BTN",
+   "text": "Fix the slab price",
+   "max": 28,
+   "place": "MIN_C2 button, opt_a"
+  },
+  {
+   "id": "EV_MIN_C2_OPA_EFF",
+   "text": "Get: Minerals price up a little for a while. Cost: {cash_out} credits for the weighing seals. Weather: {bot1}'s next weather lands a little softer.",
+   "max": 200,
+   "place": "MIN_C2 effect line, opt_a"
+  },
+  {
+   "id": "EV_MIN_C2_OPA_RES_TITLE",
+   "text": "One price, tied with a bow",
+   "max": 32,
+   "place": "MIN_C2 result popup title, opt_a"
+  },
+  {
+   "id": "EV_MIN_C2_OPA_RES",
+   "text": "You fixed one price for every slab, and Gekk sealed it with a tidy bow. The weighing seals cost credits, and Minerals price rises a little for a while. {bot} supplies the rest of the halls, and its next weather lands a little softer.",
+   "max": 280,
+   "place": "MIN_C2 result popup, opt_a; {bot} is bot_1"
+  },
+  {
+   "id": "EV_MIN_C2_OPA_STD",
+   "text": "{bot1}: next weather lands a little softer.",
+   "max": 90,
+   "place": "MIN_C2 house line 1, opt_a"
+  },
+  {
+   "id": "EV_MIN_C2_OPB_BTN",
+   "text": "Weigh each load",
+   "max": 28,
+   "place": "MIN_C2 button, opt_b"
+  },
+  {
+   "id": "EV_MIN_C2_OPB_EFF",
+   "text": "Get: one route's trip cost down a little for a while. Cost: Minerals volume down a little for a while. Weather: {bot3}'s next weather comes a little later.",
+   "max": 200,
+   "place": "MIN_C2 effect line, opt_b"
+  },
+  {
+   "id": "EV_MIN_C2_OPB_RES_TITLE",
+   "text": "Every load on the scale",
+   "max": 32,
+   "place": "MIN_C2 result popup title, opt_b"
+  },
+  {
+   "id": "EV_MIN_C2_OPB_RES",
+   "text": "You weighed each load as it came, and Gekk wrote down every figure and sighed at none. The busiest route's trip cost falls a little for a while, and Minerals volume dips as loads wait for the scale. {bot}'s next weather comes a little later.",
+   "max": 280,
+   "place": "MIN_C2 result popup, opt_b; {bot} is bot_3"
+  },
+  {
+   "id": "EV_MIN_C2_OPB_STD",
+   "text": "{bot3}: next weather comes a little later.",
+   "max": 90,
+   "place": "MIN_C2 house line 1, opt_b"
+  },
+  {
+   "id": "EV_MIN_C3_TITLE",
+   "text": "Tamsk Reddock offers the last rail",
+   "max": 40,
+   "place": "MIN_C3 choice screen title"
+  },
+  {
+   "id": "EV_MIN_C3_BODY_A",
+   "text": "The Great Hall wants rail for its roof. Tamsk Reddock, who runs the slag yard, offers you the whole of the last rail, and says heavy, as he does of everything. {bot1} wants the rest, and {bot3} wants the leftovers. Take the whole rail, or a share of it.",
+   "max": 280,
+   "place": "MIN_C3 choice screen body after opt_a of MIN_C2"
+  },
+  {
+   "id": "EV_MIN_C3_BODY_B",
+   "text": "The Great Hall wants rail for its roof. Tamsk Reddock, who runs the slag yard, saw your figures on the scale and offers you the whole of the last rail. He says heavy. {bot1} wants the rest, and {bot3} wants the leftovers. Take the whole rail, or a share of it.",
+   "max": 280,
+   "place": "MIN_C3 choice screen body after opt_b of MIN_C2"
+  },
+  {
+   "id": "EV_MIN_C3_OPA_BTN",
+   "text": "Take the whole rail",
+   "max": 28,
+   "place": "MIN_C3 button, opt_a"
+  },
+  {
+   "id": "EV_MIN_C3_OPA_EFF",
+   "text": "Get: Minerals volume up clearly for a while. Cost: Ship upkeep rises a little for a while. Weather: {bot1}'s next weather lands clearly softer.",
+   "max": 200,
+   "place": "MIN_C3 effect line, opt_a"
+  },
+  {
+   "id": "EV_MIN_C3_OPA_RES_TITLE",
+   "text": "The whole rail",
+   "max": 32,
+   "place": "MIN_C3 result popup title, opt_a"
+  },
+  {
+   "id": "EV_MIN_C3_OPA_RES",
+   "text": "You took the whole last rail, and Reddock said heavy and meant it. Minerals volume rises clearly for a while, and the rail yard raises Ship upkeep a little. {bot} wanted the rest, and its next weather lands clearly softer.",
+   "max": 280,
+   "place": "MIN_C3 result popup, opt_a; {bot} is bot_1"
+  },
+  {
+   "id": "EV_MIN_C3_OPA_STD",
+   "text": "{bot1}: next weather lands clearly softer.",
+   "max": 90,
+   "place": "MIN_C3 house line 1, opt_a"
+  },
+  {
+   "id": "EV_MIN_C3_OPB_BTN",
+   "text": "Take a share of it",
+   "max": 28,
+   "place": "MIN_C3 button, opt_b"
+  },
+  {
+   "id": "EV_MIN_C3_OPB_EFF",
+   "text": "Get: {cash_in} credits now. Cost: Minerals volume down a little for a while. Weather: {bot3}'s next weather comes clearly later.",
+   "max": 200,
+   "place": "MIN_C3 effect line, opt_b"
+  },
+  {
+   "id": "EV_MIN_C3_OPB_RES_TITLE",
+   "text": "A share of the rail",
+   "max": 32,
+   "place": "MIN_C3 result popup title, opt_b"
+  },
+  {
+   "id": "EV_MIN_C3_OPB_RES",
+   "text": "You took a share of the rail and the rest went to the yard. Credits came in at the dock, and Minerals volume dips for a while. {bot} wanted the leftovers and got them, and its next weather comes clearly later.",
+   "max": 280,
+   "place": "MIN_C3 result popup, opt_b; {bot} is bot_3"
+  },
+  {
+   "id": "EV_MIN_C3_OPB_STD",
+   "text": "{bot3}: next weather comes clearly later.",
+   "max": 90,
+   "place": "MIN_C3 house line 1, opt_b"
   },
   {
    "id": "EV_BIO_A1_TITLE",
@@ -4628,6 +5258,234 @@
    "place": "BIO_B4 house line 1, opt_b"
   },
   {
+   "id": "EV_BIO_C1_TITLE",
+   "text": "A chiller fails at Brannock",
+   "max": 40,
+   "place": "BIO_C1 choice screen title"
+  },
+  {
+   "id": "EV_BIO_C1_BODY",
+   "text": "Ottoline Ryke calls from Brannock's grain dock. A chiller has failed and the racks are warming. Director Hesk says the samples are fine. Move your stock to the cold racks across the dock, or share her spare chiller. {bot2} stores there, and {bot3} rents beside it.",
+   "max": 280,
+   "place": "BIO_C1 choice screen body (one body)"
+  },
+  {
+   "id": "EV_BIO_C1_OPA_BTN",
+   "text": "Move stock to cold racks",
+   "max": 28,
+   "place": "BIO_C1 button, opt_a"
+  },
+  {
+   "id": "EV_BIO_C1_OPA_EFF",
+   "text": "Get: Biotech price up a little for a while. Cost: {cash_out} credits for the racks. Weather: {bot2}'s next weather lands a little softer.",
+   "max": 200,
+   "place": "BIO_C1 effect line, opt_a"
+  },
+  {
+   "id": "EV_BIO_C1_OPA_RES_TITLE",
+   "text": "The trays cross the dock",
+   "max": 32,
+   "place": "BIO_C1 result popup title, opt_a"
+  },
+  {
+   "id": "EV_BIO_C1_OPA_RES",
+   "text": "Ryke moved your trays to the racks across the dock and the warm alarm stopped. The racks cost credits, and Biotech price rises a little for a while. {bot} stores there too, and its next weather lands a little softer. Hesk said the samples were fine.",
+   "max": 280,
+   "place": "BIO_C1 result popup, opt_a; {bot} is bot_2"
+  },
+  {
+   "id": "EV_BIO_C1_OPA_STD",
+   "text": "{bot2}: next weather lands a little softer.",
+   "max": 90,
+   "place": "BIO_C1 house line 1, opt_a"
+  },
+  {
+   "id": "EV_BIO_C1_OPB_BTN",
+   "text": "Share her spare chiller",
+   "max": 28,
+   "place": "BIO_C1 button, opt_b"
+  },
+  {
+   "id": "EV_BIO_C1_OPB_EFF",
+   "text": "Get: Biotech volume up a little for a while. Cost: Ship upkeep rises a little for a while. Weather: {bot3}'s next weather comes a little later.",
+   "max": 200,
+   "place": "BIO_C1 effect line, opt_b"
+  },
+  {
+   "id": "EV_BIO_C1_OPB_RES_TITLE",
+   "text": "Two crews, one chiller",
+   "max": 32,
+   "place": "BIO_C1 result popup title, opt_b"
+  },
+  {
+   "id": "EV_BIO_C1_OPB_RES",
+   "text": "Ryke wheeled her spare chiller to your racks and the two crews shared the cold. Biotech volume rises a little for a while, and the extra crew raises Ship upkeep a little. {bot} rents beside the dock, and its next weather comes a little later.",
+   "max": 280,
+   "place": "BIO_C1 result popup, opt_b; {bot} is bot_3"
+  },
+  {
+   "id": "EV_BIO_C1_OPB_STD",
+   "text": "{bot3}: next weather comes a little later.",
+   "max": 90,
+   "place": "BIO_C1 house line 1, opt_b"
+  },
+  {
+   "id": "EV_BIO_C2_TITLE",
+   "text": "Doctor Marrow volunteers again",
+   "max": 40,
+   "place": "BIO_C2 choice screen title"
+  },
+  {
+   "id": "EV_BIO_C2_BODY_A",
+   "text": "Your racks held, and the Bazaar noticed. The new halls need a test rota, and Doctor Marrow, who volunteers by rota, has put his name on every line. Fund the whole rota, or count the samples yourself. {bot2} supplies strains, and {bot3} buys the stock.",
+   "max": 280,
+   "place": "BIO_C2 choice screen body after opt_a of BIO_C1"
+  },
+  {
+   "id": "EV_BIO_C2_BODY_B",
+   "text": "Your shared chiller hums, and the Bazaar noticed. The new halls need a test rota, and Doctor Marrow, who volunteers by rota, has put his name on every line. Fund the whole rota, or count the samples yourself. {bot2} supplies strains, and {bot3} buys the stock.",
+   "max": 280,
+   "place": "BIO_C2 choice screen body after opt_b of BIO_C1"
+  },
+  {
+   "id": "EV_BIO_C2_OPA_BTN",
+   "text": "Fund the whole rota",
+   "max": 28,
+   "place": "BIO_C2 button, opt_a"
+  },
+  {
+   "id": "EV_BIO_C2_OPA_EFF",
+   "text": "Get: one route's trip cost down a little for a while. Cost: {cash_out} credits for the rota. Weather: {bot2}'s next weather comes a little later.",
+   "max": 200,
+   "place": "BIO_C2 effect line, opt_a"
+  },
+  {
+   "id": "EV_BIO_C2_OPA_RES_TITLE",
+   "text": "Marrow signs every line",
+   "max": 32,
+   "place": "BIO_C2 result popup title, opt_a"
+  },
+  {
+   "id": "EV_BIO_C2_OPA_RES",
+   "text": "You funded the rota, and Marrow signed up for every line of it. The rota cost credits, and the busiest route's trip cost falls a little for a while. {bot} supplies strains to the halls, and its next weather comes a little later.",
+   "max": 280,
+   "place": "BIO_C2 result popup, opt_a; {bot} is bot_2"
+  },
+  {
+   "id": "EV_BIO_C2_OPA_STD",
+   "text": "{bot2}: next weather comes a little later.",
+   "max": 90,
+   "place": "BIO_C2 house line 1, opt_a"
+  },
+  {
+   "id": "EV_BIO_C2_OPB_BTN",
+   "text": "Count the samples",
+   "max": 28,
+   "place": "BIO_C2 button, opt_b"
+  },
+  {
+   "id": "EV_BIO_C2_OPB_EFF",
+   "text": "Get: {cash_in} credits now. Cost: Biotech volume down a little for a while. Weather: {bot3}'s next weather lands a little softer.",
+   "max": 200,
+   "place": "BIO_C2 effect line, opt_b"
+  },
+  {
+   "id": "EV_BIO_C2_OPB_RES_TITLE",
+   "text": "Counted twice",
+   "max": 32,
+   "place": "BIO_C2 result popup title, opt_b"
+  },
+  {
+   "id": "EV_BIO_C2_OPB_RES",
+   "text": "You counted the samples yourself, twice, and Marrow stood by with a pen. Credits came in at the dock, and Biotech volume dips for a while as lots wait for the count. {bot} buys the stock, and its next weather lands a little softer.",
+   "max": 280,
+   "place": "BIO_C2 result popup, opt_b; {bot} is bot_3"
+  },
+  {
+   "id": "EV_BIO_C2_OPB_STD",
+   "text": "{bot3}: next weather lands a little softer.",
+   "max": 90,
+   "place": "BIO_C2 house line 1, opt_b"
+  },
+  {
+   "id": "EV_BIO_C3_TITLE",
+   "text": "Director Hesk says it is fine",
+   "max": 40,
+   "place": "BIO_C3 choice screen title"
+  },
+  {
+   "id": "EV_BIO_C3_BODY_A",
+   "text": "The last hall is roofed, and Director Hesk says again that the sample is fine. Imre Fenn, who fitted the seals, asks to read each one aloud before the cold rooms are sealed. {bot2} wants the rooms filled today, and {bot3} wants them listed.",
+   "max": 280,
+   "place": "BIO_C3 choice screen body after opt_a of BIO_C2"
+  },
+  {
+   "id": "EV_BIO_C3_BODY_B",
+   "text": "The last hall is roofed, and Director Hesk says again that the sample is fine. Imre Fenn, who fitted the seals, asks to read each one aloud before the cold rooms are sealed. {bot2} wants the rooms filled today, and {bot3} wants them listed. Your count is in the file.",
+   "max": 280,
+   "place": "BIO_C3 choice screen body after opt_b of BIO_C2"
+  },
+  {
+   "id": "EV_BIO_C3_OPA_BTN",
+   "text": "Seal the rooms today",
+   "max": 28,
+   "place": "BIO_C3 button, opt_a"
+  },
+  {
+   "id": "EV_BIO_C3_OPA_EFF",
+   "text": "Get: Biotech price up clearly for a while. Cost: Biotech volume down a little for a while. Weather: {bot2}'s next weather lands clearly softer.",
+   "max": 200,
+   "place": "BIO_C3 effect line, opt_a"
+  },
+  {
+   "id": "EV_BIO_C3_OPA_RES_TITLE",
+   "text": "The rooms are sealed",
+   "max": 32,
+   "place": "BIO_C3 result popup title, opt_a"
+  },
+  {
+   "id": "EV_BIO_C3_OPA_RES",
+   "text": "You sealed the rooms that day, and Hesk said the sample was fine, again. Biotech price rises clearly for a while, and the sealed rooms hold stock back, so volume dips a little. {bot} wanted the rooms filled, and its next weather lands clearly softer.",
+   "max": 280,
+   "place": "BIO_C3 result popup, opt_a; {bot} is bot_2"
+  },
+  {
+   "id": "EV_BIO_C3_OPA_STD",
+   "text": "{bot2}: next weather lands clearly softer.",
+   "max": 90,
+   "place": "BIO_C3 house line 1, opt_a"
+  },
+  {
+   "id": "EV_BIO_C3_OPB_BTN",
+   "text": "Read the seals aloud",
+   "max": 28,
+   "place": "BIO_C3 button, opt_b"
+  },
+  {
+   "id": "EV_BIO_C3_OPB_EFF",
+   "text": "Get: Biotech volume up clearly for a while. Cost: {cash_out} credits for the extra shifts. Weather: {bot3}'s next weather comes a little later.",
+   "max": 200,
+   "place": "BIO_C3 effect line, opt_b"
+  },
+  {
+   "id": "EV_BIO_C3_OPB_RES_TITLE",
+   "text": "Every seal, aloud",
+   "max": 32,
+   "place": "BIO_C3 result popup title, opt_b"
+  },
+  {
+   "id": "EV_BIO_C3_OPB_RES",
+   "text": "The crew read the seals aloud, one by one, with Fenn at the door. The extra shifts cost credits, and Biotech volume rises clearly for a while. {bot} wanted the rooms listed, and its next weather comes a little later.",
+   "max": 280,
+   "place": "BIO_C3 result popup, opt_b; {bot} is bot_3"
+  },
+  {
+   "id": "EV_BIO_C3_OPB_STD",
+   "text": "{bot3}: next weather comes a little later.",
+   "max": 90,
+   "place": "BIO_C3 house line 1, opt_b"
+  },
+  {
    "id": "CH_EFFECT_LINE",
    "text": "Get: {get}. Cost: {cost}. Weather: {rivals}.",
    "max": 200,
@@ -4754,18 +5612,6 @@
    "place": "Effect line, Weather part of an event that changes no house weather"
   },
   {
-   "id": "LBL_COMP_EVENTS",
-   "text": "Weather changes",
-   "max": 24,
-   "place": "House weather menu, heading of the log of changes your choices made"
-  },
-  {
-   "id": "LBL_COMP_NONE",
-   "text": "No weather changes yet.",
-   "max": 40,
-   "place": "House weather menu, log is empty"
-  },
-  {
    "id": "LBL_COMP_MOVE_STR_DOWN",
    "text": "{bot}: next weather lands softer",
    "max": 60,
@@ -4794,12 +5640,6 @@
    "text": "{bot}: next weather held back",
    "max": 60,
    "place": "House weather log line, a house has its next weather held back"
-  },
-  {
-   "id": "LBL_COMP_CYCLE",
-   "text": "Cycle {n}:",
-   "max": 16,
-   "place": "House weather log line, prefix with the cycle of the move"
   },
   {
    "id": "STORAGE_READY_TITLE",
@@ -8108,18 +8948,6 @@
    "place": "gigs.gd:638"
   },
   {
-   "id": "GIG_EFF_KNOWLEDGE",
-   "text": "You learned something.",
-   "max": 40,
-   "place": "gigs.gd:630"
-  },
-  {
-   "id": "GIG_EFF_PERK",
-   "text": "A small edge for {n} cycles.",
-   "max": 60,
-   "place": "gigs.gd:625"
-  },
-  {
    "id": "GIG_ETA",
    "text": "ETA {cycles} cycles, left {left}",
    "max": 60,
@@ -8826,12 +9654,6 @@
    "text": "Mining here is closed to your company.",
    "max": 70,
    "place": "route_engine.gd:185"
-  },
-  {
-   "id": "NOT_EVENT_EFFECT_DANGER",
-   "text": "Danger at {planet}: {amount}.",
-   "max": 60,
-   "place": "main.gd:2778"
   },
   {
    "id": "NOT_FABRIC_BUILT",
@@ -9921,7 +10743,7 @@
   },
   {
    "id": "SK_BIO_2_PLAIN",
-   "text": "Stored Biotech grows 2% a cycle, up to +20%. Biotech sales count 12% more toward share. Tech: craft {goal} units.",
+   "text": "Stored Biotech grows 2% a cycle, up to +20%. Biotech units sold into a world's need count 12% more toward it. Tech: craft {goal} units.",
    "max": 140,
    "place": "Skill screen, detail panel"
   },
@@ -10880,30 +11702,6 @@
    "place": "End screen body, no ship left and cash still negative (loss)"
   },
   {
-   "id": "END_SWEPT_TITLE",
-   "text": "The Floor of Every Graph",
-   "max": 40,
-   "place": "End screen heading, player under a tenth of every market (loss)"
-  },
-  {
-   "id": "END_SWEPT",
-   "text": "For three cycles running, your company held less than a tenth of every market, and the Bureau has stopped listing you as a competitor. The strongest of the three rivals fills the shelves where yours stood. Your ships still run, and your orders are still taken, politely, at counters that are no longer yours. Nothing cruel was done. A market is a room, and you were not in it.",
-   "max": 600,
-   "place": "End screen body, player under a tenth of every market for the sweep window (loss)"
-  },
-  {
-   "id": "END_OUTCOMPETED_TITLE",
-   "text": "No Market Held",
-   "max": 40,
-   "place": "End screen heading, window closed with no market held (soft ending)"
-  },
-  {
-   "id": "END_OUTCOMPETED",
-   "text": "The window closed with no market held. You did not lose. The company is solvent, the ships run, and the Bureau lists you as a participant, a word with no weight. A spread of small shares does not add up to a market. A single market, held all the way, does. The sky has no opinion. It never needed one.",
-   "max": 700,
-   "place": "End screen body, window closed with no market over half (soft ending)"
-  },
-  {
    "id": "END_STAT_CYCLES",
    "text": "Cycles taken",
    "max": 24,
@@ -11010,30 +11808,6 @@
    "text": "{bot} lost a tier in Biotech. Its vats run on, and its clinics ask for less.",
    "max": 140,
    "place": "Epilogue 3, a rival lost a tier in Biotech ({bot})"
-  },
-  {
-   "id": "EPI_SECOND_MIL",
-   "text": "Military ran second, past a quarter of its market. The fleets noticed, and kept your number.",
-   "max": 140,
-   "place": "Epilogue 4, Military is a second market over a quarter share"
-  },
-  {
-   "id": "EPI_SECOND_LUX",
-   "text": "Luxury ran second, past a quarter of its market. The masks at the gala came from you.",
-   "max": 140,
-   "place": "Epilogue 4, Luxury is a second market over a quarter share"
-  },
-  {
-   "id": "EPI_SECOND_MIN",
-   "text": "Minerals ran second, past a quarter of its market. The dust remembers you anyway.",
-   "max": 140,
-   "place": "Epilogue 4, Minerals is a second market over a quarter share"
-  },
-  {
-   "id": "EPI_SECOND_BIO",
-   "text": "Biotech ran second, past a quarter of its market. A vat in a back room has your name on it.",
-   "max": 140,
-   "place": "Epilogue 4, Biotech is a second market over a quarter share"
   },
   {
    "id": "END_UNFINISHED_TITLE",
@@ -11186,24 +11960,6 @@
    "place": "Epilogue 1, Marek, rush orders and quick routes"
   },
   {
-   "id": "END_MIN_PAGE_TITLE",
-   "text": "Every Crate Written Down",
-   "max": 40,
-   "place": "End screen heading, Marek, paid what was owed, nothing taken"
-  },
-  {
-   "id": "END_MIN_PAGE",
-   "text": "The last page is signed, and it balances. Marek checks it twice, then a third time, because that is who he is. Every fee was paid on the day it fell due. Every crate was counted going out and counted coming in. The clerks at the yards stopped asking for proof. They ask how he is. The Bureau has no form for what that is worth. Marek writes the sum in his own book, in pencil, and leaves it blank.",
-   "max": 1000,
-   "place": "End screen body, Marek, paid what was owed, nothing taken"
-  },
-  {
-   "id": "EPI_MIN_PAGE",
-   "text": "The yard clerks keep a chair for Marek. It is the one with the good cushion. He sits on the edge.",
-   "max": 140,
-   "place": "Epilogue 1, Marek, paid what was owed"
-  },
-  {
    "id": "END_MIN_THIN_TITLE",
    "text": "The Thin Fleet",
    "max": 40,
@@ -11276,24 +12032,6 @@
    "place": "Epilogue 1, Idris, rush orders filled in time"
   },
   {
-   "id": "END_LUX_LIGHT_TITLE",
-   "text": "Light Hands",
-   "max": 40,
-   "place": "End screen heading, Idris, took credits over goods"
-  },
-  {
-   "id": "END_LUX_LIGHT",
-   "text": "Idris took the credits every time. A gift is polite to accept, and credits are easy to spend, and he spent them well: a round of lunches, a round of favours, a small loan to a buyer who needed it. The Bazaar opened with no crates of keepsakes in its cellar. It opened with a great many people who owe Idris a lunch. He has not decided which is worth more. He picks up the bill.",
-   "max": 1000,
-   "place": "End screen body, Idris, took credits over goods"
-  },
-  {
-   "id": "EPI_LUX_LIGHT",
-   "text": "The ribbons are all gone. A few buyers wear the ones they kept, tied loosely, in case Idris asks.",
-   "max": 140,
-   "place": "Epilogue 1, Idris, took credits over goods"
-  },
-  {
    "id": "END_LUX_CORNER_TITLE",
    "text": "The Corner Table",
    "max": 40,
@@ -11346,24 +12084,6 @@
    "text": "The dock bell rings for a departure, not an arrival. Sela says it is the only bell worth a thought.",
    "max": 140,
    "place": "Epilogue 1, Sela, rush orders filled in time"
-  },
-  {
-   "id": "END_MIL_WAIT_TITLE",
-   "text": "She Waited Her Turn",
-   "max": 40,
-   "place": "End screen heading, Sela, bore delays rather than pay"
-  },
-  {
-   "id": "END_MIL_WAIT",
-   "text": "The dock was full and the stamp was slow, and Sela waited. She hated every hour of it. A ship that stands still is a ship that is lost, and she knows it in her hands. But she did not pay the clerk to look away. The line moved, as lines do, and the crew watched her stand in it. Nobody said anything. The Bazaar opened a little later than it might have. The people in the line remember who stood there.",
-   "max": 1000,
-   "place": "End screen body, Sela, bore delays rather than pay"
-  },
-  {
-   "id": "EPI_MIL_WAIT",
-   "text": "A new clerk at Tillam salutes her, badly, and then looks surprised at himself.",
-   "max": 140,
-   "place": "Epilogue 1, Sela, bore delays"
   },
   {
    "id": "END_MIL_HARD_TITLE",
@@ -11595,25 +12315,25 @@
   },
   {
    "id": "GIG01_B_OUT_MIL",
-   "text": "The log lists every stop and every order. A hand wrote the last line twice. The hold stays sealed, and you leave it there.",
+   "text": "The log lists every stop and every order. A depot clerk pays a small sum for a copy. A hand wrote the last line twice. The hold stays sealed, and you leave it there.",
    "max": 280,
    "place": "Gig 01, outcome B, Military"
   },
   {
    "id": "GIG01_B_OUT_LUX",
-   "text": "The log lists ports, buyers and who paid for what. The last page is a list of names. The hold stays sealed behind you.",
+   "text": "The log lists ports, buyers and who paid for what. A broker pays a small sum for a copy. The last page is a list of names. The hold stays sealed behind you.",
    "max": 280,
    "place": "Gig 01, outcome B, Luxury"
   },
   {
    "id": "GIG01_B_OUT_MIN",
-   "text": "The log lists every claim the hauler passed, and what each one held. The hold stays sealed. The scout turns away.",
+   "text": "The log lists every claim the hauler passed, and what each one held. A claim office pays a small sum for a copy. The hold stays sealed. The scout turns away.",
    "max": 280,
    "place": "Gig 01, outcome B, Minerals"
   },
   {
    "id": "GIG01_B_OUT_BIO",
-   "text": "The log lists each stop where the cargo was kept cold, and where it stopped being cold. The hold stays sealed.",
+   "text": "The log lists each stop where the cargo was kept cold, and where it stopped being cold. A clinic pays a small sum for a copy. The hold stays sealed.",
    "max": 280,
    "place": "Gig 01, outcome B, Biotech"
   },
@@ -11655,49 +12375,49 @@
   },
   {
    "id": "GIG02_A_OUT_MIL",
-   "text": "The keeper hands you a code strip from the relay shelf. The lamp goes out behind you. The form stays blank.",
+   "text": "The keeper hands you a lot of crates from the relay shelf, stamped for a depot you know. You pay a small fee at the dock for the carry. The lamp goes out behind you. The form stays blank.",
    "max": 280,
    "place": "Gig 02, outcome A, Military"
   },
   {
    "id": "GIG02_A_OUT_LUX",
-   "text": "The keeper presses a little gift into your hand, wrapped in bright cloth. The lamp goes out behind you.",
+   "text": "The keeper presses a lot of bright parcels into your hands. You pay a small fee at the dock for the carry. The lamp goes out behind you.",
    "max": 280,
    "place": "Gig 02, outcome A, Luxury"
   },
   {
    "id": "GIG02_A_OUT_MIN",
-   "text": "The keeper gives you a rock map, marked in grease pencil. The lamp goes out behind you.",
+   "text": "The keeper gives you a lot of rock sacks from the relay shelf, marked in grease pencil. You pay a small fee at the dock for the carry. The lamp goes out behind you.",
    "max": 280,
    "place": "Gig 02, outcome A, Minerals"
   },
   {
    "id": "GIG02_A_OUT_BIO",
-   "text": "The keeper gives you a jar of seed from a window shelf. It is still damp. The lamp goes out behind you.",
+   "text": "The keeper gives you a lot of damp jars from the window shelf. You pay a small fee at the dock for the carry. The lamp goes out behind you.",
    "max": 280,
    "place": "Gig 02, outcome A, Biotech"
   },
   {
    "id": "GIG02_B_OUT_MIL",
-   "text": "You hold the lamp for a shift. The relay log shows who passed and what they carried. The keeper sleeps in a chair.",
+   "text": "You hold the lamp for a shift. The relay pays a small sum for the watch, and its log shows who passed and what they carried. The keeper sleeps in a chair.",
    "max": 280,
    "place": "Gig 02, outcome B, Military"
   },
   {
    "id": "GIG02_B_OUT_LUX",
-   "text": "You hold the lamp for a shift. The relay log shows which ships called, and where they sold well. The keeper sleeps in a chair.",
+   "text": "You hold the lamp for a shift. The relay pays a small sum for the watch, and its log shows which ships called, and where they sold well. The keeper sleeps in a chair.",
    "max": 280,
    "place": "Gig 02, outcome B, Luxury"
   },
   {
    "id": "GIG02_B_OUT_MIN",
-   "text": "You hold the lamp for a shift. The relay log shows which ships hauled rock, and where they sold it. The keeper sleeps in a chair.",
+   "text": "You hold the lamp for a shift. The relay pays a small sum for the watch, and its log shows which ships hauled rock, and where they sold it. The keeper sleeps in a chair.",
    "max": 280,
    "place": "Gig 02, outcome B, Minerals"
   },
   {
    "id": "GIG02_B_OUT_BIO",
-   "text": "You hold the lamp for a shift. The relay log shows which ships carried cold cargo, and where they sold it. The keeper sleeps in a chair.",
+   "text": "You hold the lamp for a shift. The relay pays a small sum for the watch, and its log shows which ships carried cold cargo, and where they sold it. The keeper sleeps in a chair.",
    "max": 280,
    "place": "Gig 02, outcome B, Biotech"
   },
@@ -11763,25 +12483,25 @@
   },
   {
    "id": "GIG03_B_OUT_MIL",
-   "text": "The ledger lists every drop and every handler. You copy it by hand. The lot stays closed behind you.",
+   "text": "The ledger lists every drop and every handler. You copy it by hand, and a depot clerk pays a small sum for the copy. The lot stays closed behind you.",
    "max": 280,
    "place": "Gig 03, outcome B, Military"
   },
   {
    "id": "GIG03_B_OUT_LUX",
-   "text": "The ledger lists who was owed a gift and who sent it. You copy the names. The lot stays closed behind you.",
+   "text": "The ledger lists who was owed a gift and who sent it. You copy the names, and a broker pays a small sum for them. The lot stays closed behind you.",
    "max": 280,
    "place": "Gig 03, outcome B, Luxury"
   },
   {
    "id": "GIG03_B_OUT_MIN",
-   "text": "The ledger lists each claim and its weight. You copy the pages. The lot stays closed behind you.",
+   "text": "The ledger lists each claim and its weight. You copy the pages, and a claim office pays a small sum for them. The lot stays closed behind you.",
    "max": 280,
    "place": "Gig 03, outcome B, Minerals"
   },
   {
    "id": "GIG03_B_OUT_BIO",
-   "text": "The ledger lists which trays came from which shelf, and when. You copy it. The lot stays closed behind you.",
+   "text": "The ledger lists which trays came from which shelf, and when. You copy it, and a clinic pays a small sum for the copy. The lot stays closed behind you.",
    "max": 280,
    "place": "Gig 03, outcome B, Biotech"
   },
@@ -11805,7 +12525,7 @@
   },
   {
    "id": "GIG04_ARRIVE",
-   "text": "A small station, lit and clean. Every berth is empty and ready. A voice offers you one. A table is set for a crew of six. You may take the stores in the pantry, or stay for the meal and the talk. Both take the scout's time.",
+   "text": "A small station, lit and clean. Every berth is empty and ready. A voice offers you one. A table is set for a crew of six. You may take the stores in the pantry, or stay for the meal and the talk. One asks a berth fee. The other takes the scout's time.",
    "max": 280,
    "place": "Gig 04, arrival window text"
   },
@@ -11823,49 +12543,49 @@
   },
   {
    "id": "GIG04_A_OUT_MIL",
-   "text": "Rations in sealed packs, stamped for a depot you know. The voice thanks you for each pack. The table stays set.",
+   "text": "Rations in sealed packs, stamped for a depot you know. The voice thanks you for each pack, and asks a berth fee, which you pay. The table stays set.",
    "max": 280,
    "place": "Gig 04, outcome A, Military"
   },
   {
    "id": "GIG04_A_OUT_LUX",
-   "text": "Tins of sweet things, bright labels, never opened. The voice thanks you for each tin. The table stays set.",
+   "text": "Tins of sweet things, bright labels, never opened. The voice thanks you for each tin, and asks a berth fee, which you pay. The table stays set.",
    "max": 280,
    "place": "Gig 04, outcome A, Luxury"
   },
   {
    "id": "GIG04_A_OUT_MIN",
-   "text": "Dry stores and tool kits, still in their grease paper. The voice thanks you for each one. The table stays set.",
+   "text": "Dry stores and tool kits, still in their grease paper. The voice thanks you for each one, and asks a berth fee, which you pay. The table stays set.",
    "max": 280,
    "place": "Gig 04, outcome A, Minerals"
   },
   {
    "id": "GIG04_A_OUT_BIO",
-   "text": "Jars of culture, a label in neat hand on each. The voice thanks you for each jar. The table stays set.",
+   "text": "Jars of culture, a label in neat hand on each. The voice thanks you for each jar, and asks a berth fee, which you pay. The table stays set.",
    "max": 280,
    "place": "Gig 04, outcome A, Biotech"
   },
   {
    "id": "GIG04_B_OUT_MIL",
-   "text": "You eat. The voice tells you the stops on the old patrol line, one by one. No one else sits down.",
+   "text": "You eat. The voice tells you the stops on the old patrol line, one by one, and hands you a purse for the company. No one else sits down.",
    "max": 280,
    "place": "Gig 04, outcome B, Military"
   },
   {
    "id": "GIG04_B_OUT_LUX",
-   "text": "You eat. The voice tells you who dined here, and what each of them paid for. No one else sits down.",
+   "text": "You eat. The voice tells you who dined here, and what each of them paid for, and hands you a purse for the company. No one else sits down.",
    "max": 280,
    "place": "Gig 04, outcome B, Luxury"
   },
   {
    "id": "GIG04_B_OUT_MIN",
-   "text": "You eat. The voice tells you where the nearest rock was cut, and by whom. No one else sits down.",
+   "text": "You eat. The voice tells you where the nearest rock was cut, and by whom, and hands you a purse for the company. No one else sits down.",
    "max": 280,
    "place": "Gig 04, outcome B, Minerals"
   },
   {
    "id": "GIG04_B_OUT_BIO",
-   "text": "You eat. The voice tells you what grew in the station's garden, and what went wrong. No one else sits down.",
+   "text": "You eat. The voice tells you what grew in the station's garden, and what went wrong, and hands you a purse for the company. No one else sits down.",
    "max": 280,
    "place": "Gig 04, outcome B, Biotech"
   },
@@ -11919,13 +12639,13 @@
   },
   {
    "id": "GIG05_B_OUT_MIL",
-   "text": "The book ends at a bearing. You write it down. The last test was never finished, and the book does not say why.",
+   "text": "The book ends at a bearing. You write it down, and a depot clerk pays a small sum for the page. The last test was never finished, and the book does not say why.",
    "max": 280,
    "place": "Gig 05, outcome B, Military"
   },
   {
    "id": "GIG05_B_OUT_MIN",
-   "text": "The book ends at a rock field, with depths in pencil. You copy the page. The crate stays in the crane.",
+   "text": "The book ends at a rock field, with depths in pencil. You copy the page, and a claim office pays a small sum for it. The crate stays in the crane.",
    "max": 280,
    "place": "Gig 05, outcome B, Minerals"
   },
@@ -11967,25 +12687,25 @@
   },
   {
    "id": "GIG06_A_OUT_LUX",
-   "text": "Pale petals the width of a hand, with a scent that stays on your sleeve for days. The beds look bare behind you.",
+   "text": "Pale petals the width of a hand, with a scent that stays on your sleeve for days. A buyer takes them at the dock for a small sum. The beds look bare behind you.",
    "max": 280,
    "place": "Gig 06, outcome A, Luxury"
   },
   {
    "id": "GIG06_A_OUT_BIO",
-   "text": "Thick blooms, wet at the stem. Your gloves come out stained. The beds look bare behind you.",
+   "text": "Thick blooms, wet at the stem. Your gloves come out stained, and a clinic buys the blooms for a small sum. The beds look bare behind you.",
    "max": 280,
    "place": "Gig 06, outcome A, Biotech"
   },
   {
    "id": "GIG06_B_OUT_LUX",
-   "text": "Fine seed, sorted by colour, each bag tied with thread. The beds stay green, but no one will cut them now.",
+   "text": "Fine seed, sorted by colour, each bag tied with thread. The hatch keeper asks a small toll, and you pay it. The beds stay green, but no one will cut them now.",
    "max": 280,
    "place": "Gig 06, outcome B, Luxury"
   },
   {
    "id": "GIG06_B_OUT_BIO",
-   "text": "Seed in damp paper, each lot tagged by shelf. The beds stay green. The air inside smells close.",
+   "text": "Seed in damp paper, each lot tagged by shelf. The hatch keeper asks a small toll, and you pay it. The beds stay green. The air inside smells close.",
    "max": 280,
    "place": "Gig 06, outcome B, Biotech"
   },
@@ -12237,51 +12957,51 @@
   },
   {
    "id": "EV21_TITLE",
-   "text": "Tillam's weavers down tools",
+   "text": "Brannock's weavers down tools",
    "max": 32,
-   "place": "Event title (News from the sky)"
+   "place": "pool event title"
   },
   {
    "id": "EV21_BODY",
-   "text": "Tillam's silk weavers downed tools over a form that counted their hours twice. Silk at Tillam costs more and pays more. An old weaver says to watch the cricket in the vat, which changes shape when it sees another. Fine Finishing makes a Luxury price rise pay clearly more.",
+   "text": "Brannock's silk weavers downed tools over a form that counted their hours twice. Silk at Brannock costs more and pays more. An old weaver says to watch the cricket in the vat, which changes shape when it sees another. Nobody has gone near the vat since.",
    "max": 280,
-   "place": "Event text (News from the sky)"
+   "place": "pool event text"
   },
   {
    "id": "EV22_TITLE",
-   "text": "Voltara holds a gala",
+   "text": "Quillon holds a gala",
    "max": 32,
-   "place": "Event title (News from the sky)"
+   "place": "pool event title"
   },
   {
    "id": "EV22_BODY",
-   "text": "Voltara's crews hold a gala to celebrate a quota met on paper. Silk at Voltara costs more and pays more. Everyone borrows a sleeve and a mask, and by the second hour the crews look alike. Patron's List counts sales here as clearly more Luxury share.",
+   "text": "Quillon's buyers hold a gala to celebrate a quota met on paper. Silk at Quillon costs more and pays more. Everyone borrows a sleeve and a mask, and by the second hour the guests look alike. Patron's List makes a price rise like this pay more.",
    "max": 280,
-   "place": "Event text (News from the sky)"
+   "place": "pool event text"
   },
   {
    "id": "EV24_TITLE",
-   "text": "Fire in Voltara's foundry",
+   "text": "Fire in Cindrel's reactor hall",
    "max": 32,
-   "place": "Event title (News from the sky)"
+   "place": "pool event title"
   },
   {
    "id": "EV24_BODY",
-   "text": "A fire swept Voltara's core foundry and left the casting floor black. Logic cores at Voltara cost more and pay more. The report calls it a gentle step toward a better line. Ash settled on the walls in neat rows. Nobody has dared to read them.",
+   "text": "A fire swept Cindrel's reactor hall and left the control floor black. Spy software at Cindrel costs more and pays more. The report calls it a gentle step toward a better line. Ash settled on the walls in neat rows. Nobody has dared to read them.",
    "max": 280,
-   "place": "Event text (News from the sky)"
+   "place": "pool event text"
   },
   {
    "id": "EV25_TITLE",
-   "text": "Ashgate recalls its tractors",
+   "text": "Mossfell recalls its tractors",
    "max": 32,
-   "place": "Event title (News from the sky)"
+   "place": "pool event title"
   },
   {
    "id": "EV25_BODY",
-   "text": "Ashgate recalled its farm tractors to be retrained as safe. Logic cores at Ashgate cost more and pay more. The retrained ones freeze when two foremen give opposite orders. The old ones were told to keep quiet and keep going, and they do. They do not look at you.",
+   "text": "Mossfell recalled its farm tractors to be retrained as safe. Spy software at Mossfell costs more and pays more. The retrained ones freeze when two foremen give opposite orders. The old ones were told to keep quiet and keep going, and they do. They do not look at you.",
    "max": 280,
-   "place": "Event text (News from the sky)"
+   "place": "pool event text"
   },
   {
    "id": "EV26_TITLE",
@@ -12428,150 +13148,6 @@
    "place": "popup"
   },
   {
-   "id": "EV18_TITLE",
-   "text": "Shade the sun",
-   "max": 32,
-   "place": "choice title"
-  },
-  {
-   "id": "EV18_BODY",
-   "text": "Chief engineer Ilya Sorn wants to shade part of the sun. The residents wrote to say no, at length. The shield would change markets on planets you can buy later: some goods get cheaper, profit and energy rise. Planets you own stay as they are.",
-   "max": 280,
-   "place": "choice body"
-  },
-  {
-   "id": "EV18_BUILD_BTN",
-   "text": "Build the shield",
-   "max": 28,
-   "place": "button"
-  },
-  {
-   "id": "EV18_BUILD_EFF",
-   "text": "Planets you can buy later change: some resources drop, profit and energy rise.",
-   "max": 90,
-   "place": "effect line"
-  },
-  {
-   "id": "EV18_SKIP_BTN",
-   "text": "Leave the sun alone",
-   "max": 28,
-   "place": "button"
-  },
-  {
-   "id": "EV18_SKIP_EFF",
-   "text": "Nothing changes. The sun keeps its full light.",
-   "max": 90,
-   "place": "effect line"
-  },
-  {
-   "id": "EV18_BUILT_TITLE",
-   "text": "The shield is up",
-   "max": 32,
-   "place": "popup title"
-  },
-  {
-   "id": "EV18_BUILT",
-   "text": "The shield is up and the sky is dim. Residents filed their anger in triplicate, by lamp. On planets you can buy later, some goods get cheaper while profit and energy climb. Planets you own are untouched. Sorn will not look up.",
-   "max": 280,
-   "place": "popup"
-  },
-  {
-   "id": "EV18_SKIPPED_TITLE",
-   "text": "The shield stays on paper",
-   "max": 32,
-   "place": "popup title"
-  },
-  {
-   "id": "EV18_SKIPPED",
-   "text": "The plans went back in a drawer. Residents are relieved and sent no thanks. Nothing changes in any market. Sorn asked what the rush had been. No one answered, and the drawer stayed shut.",
-   "max": 280,
-   "place": "popup"
-  },
-  {
-   "id": "EV19_TITLE",
-   "text": "Nomads on the asteroids",
-   "max": 32,
-   "place": "choice title"
-  },
-  {
-   "id": "EV19_BODY",
-   "text": "Nomad families live on the asteroids you could mine. They are not on the Common Ledger, so to the Bureau they do not exist. They count their people by who shares the meal. Evict them and the rock is yours. Or let them stay.",
-   "max": 280,
-   "place": "choice body"
-  },
-  {
-   "id": "EV19_EVICT_BTN",
-   "text": "Evict the nomads",
-   "max": 28,
-   "place": "button"
-  },
-  {
-   "id": "EV19_EVICT_EFF",
-   "text": "The asteroids open for mining. Some nomads turn to piracy, and pirates rise.",
-   "max": 90,
-   "place": "effect line"
-  },
-  {
-   "id": "EV19_STAY_BTN",
-   "text": "Let them stay",
-   "max": 28,
-   "place": "button"
-  },
-  {
-   "id": "EV19_STAY_EFF",
-   "text": "The asteroids stay closed to mining. No pirates come of it.",
-   "max": 90,
-   "place": "effect line"
-  },
-  {
-   "id": "EV19_EVICTED_TITLE",
-   "text": "The asteroids are cleared",
-   "max": 32,
-   "place": "popup title"
-  },
-  {
-   "id": "EV19_EVICTED",
-   "text": "The nomads left on the next tide and said nothing. The rock is yours to mine. Some did not go far. They keep ships now, and a grudge. Pirates rise. Their tables were left set.",
-   "max": 280,
-   "place": "popup"
-  },
-  {
-   "id": "EV19_STAYED_TITLE",
-   "text": "The nomads stay",
-   "max": 32,
-   "place": "popup title"
-  },
-  {
-   "id": "EV19_STAYED",
-   "text": "You let the nomads stay. Their lamps burn on the rock, small and steady. A woman brought the first crew to dock a bowl of something hot. The asteroids stay closed to mining.",
-   "max": 280,
-   "place": "popup"
-  },
-  {
-   "id": "EV19_PIRATES_TITLE",
-   "text": "Pirates reduce trade",
-   "max": 32,
-   "place": "popup title"
-  },
-  {
-   "id": "EV19_PIRATES",
-   "text": "Pirates now work the lanes and fewer cargoes get through. Trade volume falls while they stay. The Bureau opened a file on them. It is thin, like the fleet behind it. Every late ship now has a reason.",
-   "max": 280,
-   "place": "popup"
-  },
-  {
-   "id": "EV19_HIRE_BTN",
-   "text": "Hire a clearance crew",
-   "max": 28,
-   "place": "button"
-  },
-  {
-   "id": "EV19_HIRE_EFF",
-   "text": "Pay to have the pirates cleared. It costs credits and removes their effect on trade.",
-   "max": 90,
-   "place": "effect line"
-  },
-  {
    "id": "EV20_TITLE",
    "text": "An asteroid is approaching",
    "max": 32,
@@ -12692,18 +13268,6 @@
    "place": "effect line"
   },
   {
-   "id": "BE01_SEND_BTN",
-   "text": "Send it to Ashgate",
-   "max": 28,
-   "place": "button"
-  },
-  {
-   "id": "BE01_SEND_EFF",
-   "text": "Food at Ashgate costs less and pays less for a while. Ashgate remembers.",
-   "max": 90,
-   "place": "effect line"
-  },
-  {
    "id": "BE01_OPEN_TITLE",
    "text": "The granary opens",
    "max": 32,
@@ -12724,18 +13288,6 @@
   {
    "id": "BE01_SHUT",
    "text": "You said no. The lock stayed on and the queue grew in the cold. Food at Tillam costs more and pays more while it is scarce. A child at the front sat on her bag and watched your ship. Inside the granary, something shifted.",
-   "max": 280,
-   "place": "popup"
-  },
-  {
-   "id": "BE01_SEND_TITLE",
-   "text": "Grain goes to Ashgate",
-   "max": 32,
-   "place": "popup title"
-  },
-  {
-   "id": "BE01_SEND",
-   "text": "The grain left Tillam by night. The loaders worked without lamps and did not look at you. Food at Ashgate costs less and pays less for a while. The committee at Tillam found the empty shelf and wrote a short, cold note.",
    "max": 280,
    "place": "popup"
   },
@@ -12764,18 +13316,6 @@
    "place": "popup"
   },
   {
-   "id": "BE01C_TITLE",
-   "text": "Ashgate returns the favour",
-   "max": 32,
-   "place": "popup title"
-  },
-  {
-   "id": "BE01C",
-   "text": "Ashgate remembered the grain. The foundries run hot in thanks and the smoke leans toward your ships. Energy at Ashgate costs more and pays more for a while. A foreman left a loaf at the dock. It was still warm.",
-   "max": 280,
-   "place": "popup"
-  },
-  {
    "id": "BE02_TITLE",
    "text": "A beacon over Dunmere Reach",
    "max": 32,
@@ -12795,7 +13335,7 @@
   },
   {
    "id": "BE02_ANSWER_EFF",
-   "text": "Silk at Quillon costs more and pays more for a while. Something answers back.",
+   "text": "Musk at Quillon costs more and pays more for a while. Something answers back.",
    "max": 90,
    "place": "effect line"
   },
@@ -12819,7 +13359,7 @@
   },
   {
    "id": "BE02_ANSWER",
-   "text": "A crew sent a few pulses back. The beacon went dark, then lit again in the same order. Quillon's buyers heard, and bought silk as if a festival had been called. Silk there costs more and pays more. No one will say what the festival is for.",
+   "text": "A crew sent a few pulses back. The beacon went dark, then lit again in the same order. Quillon's buyers heard, and bought musk as if a festival had been called. Musk there costs more and pays more. No one will say what the festival is for.",
    "max": 280,
    "place": "popup"
   },
@@ -12843,7 +13383,7 @@
   },
   {
    "id": "BE02A",
-   "text": "Small ships came in from the quiet rock and docked at Mossfell without papers. They want food and pay in odd, heavy coins. Food at Mossfell costs more and pays more for a while. They gave no names. They counted every crate twice, and watched your crew do it.",
+   "text": "Small ships came in from the quiet rock and docked at Mossfell without papers. They want hothouse blooms and pay in odd, heavy coins. Hothouse blooms at Mossfell cost more and pay more for a while. They gave no names. They counted every stem twice, and watched your crew do it.",
    "max": 280,
    "place": "popup"
   },
@@ -12896,18 +13436,6 @@
    "place": "effect line"
   },
   {
-   "id": "BE03_REPORT_BTN",
-   "text": "Report to the Bureau",
-   "max": 28,
-   "place": "button"
-  },
-  {
-   "id": "BE03_REPORT_EFF",
-   "text": "Ashgate closes its port for an audit. Routes touching Ashgate are blocked for a while.",
-   "max": 90,
-   "place": "effect line"
-  },
-  {
    "id": "BE03_ACCEPT_TITLE",
    "text": "The family keeps the docks",
    "max": 32,
@@ -12928,18 +13456,6 @@
   {
    "id": "BE03_REFUSE",
    "text": "You sent back a polite no. The family sent back a polite nod. Food at Ashgate costs less and pays less as their buyers step back to watch. No one was threatened. Your crew check the locks twice each night.",
-   "max": 280,
-   "place": "popup"
-  },
-  {
-   "id": "BE03_REPORT_TITLE",
-   "text": "The Bureau opens a file",
-   "max": 32,
-   "place": "popup title"
-  },
-  {
-   "id": "BE03_REPORT",
-   "text": "The Bureau thanked you in writing and closed Ashgate's port for an audit. Routes touching Ashgate are blocked for a while. The audit will take its own time. The family has been told who filed.",
    "max": 280,
    "place": "popup"
   },
@@ -12968,18 +13484,6 @@
    "place": "popup"
   },
   {
-   "id": "BE03C_TITLE",
-   "text": "The audit ends, parts are short",
-   "max": 32,
-   "place": "popup title"
-  },
-  {
-   "id": "BE03C",
-   "text": "The audit ended and Ashgate's port is open. The family's contracts were frozen and the repair shops cannot get spares. Logic cores at Ashgate cost more and pay more for a while. The Bureau stamped the file closed. The family kept its copy.",
-   "max": 280,
-   "place": "popup"
-  },
-  {
    "id": "EV40_TITLE",
    "text": "Rivet guns pile up at Voltara",
    "max": 32,
@@ -12998,42 +13502,6 @@
    "place": "pool event weather line"
   },
   {
-   "id": "EV41_TITLE",
-   "text": "Pulse cells are recalled",
-   "max": 32,
-   "place": "pool event title"
-  },
-  {
-   "id": "EV41_BODY",
-   "text": "A batch of pulse cells ran hot, and the maker pulled the lot. An engineer read the recall on each dock and begged every crate's pardon. Pulse cells at Ashgate cost more and pay more while the shelves stay bare. The notice says no one was harmed. It says so twice.",
-   "max": 280,
-   "place": "pool event text"
-  },
-  {
-   "id": "EV41_EFF",
-   "text": "Weather: every house keeps its next weather as it was.",
-   "max": 90,
-   "place": "pool event weather line"
-  },
-  {
-   "id": "EV42_TITLE",
-   "text": "Hull armour is requisitioned",
-   "max": 32,
-   "place": "pool event title"
-  },
-  {
-   "id": "EV42_BODY",
-   "text": "The Admiralty wills every slab of hull armour to the front, by order of a clerk who has never seen a hull. Hull armour at Tillam costs more and pays more while shelves are bare. The Bureau entered the slabs as sanctified. They wait cold in a corridor. The crew bow in passing.",
-   "max": 280,
-   "place": "pool event text"
-  },
-  {
-   "id": "EV42_EFF",
-   "text": "Weather: none of the three houses changes its next weather.",
-   "max": 90,
-   "place": "pool event weather line"
-  },
-  {
    "id": "EV43_TITLE",
    "text": "A glut of sunmusk",
    "max": 32,
@@ -13048,42 +13516,6 @@
   {
    "id": "EV43_EFF",
    "text": "Weather: no house changes its next weather.",
-   "max": 90,
-   "place": "pool event weather line"
-  },
-  {
-   "id": "EV44_TITLE",
-   "text": "Gem cutters are booked solid",
-   "max": 32,
-   "place": "pool event title"
-  },
-  {
-   "id": "EV44_BODY",
-   "text": "Ashgate's gem cutters are booked solid after a wedding season, and the queue has a queue. Cut glimmers at Ashgate cost more and pay more while the cutters catch up. In one shop a stone hums softly and is not for sale. Fine Finishing makes this pay clearly more.",
-   "max": 280,
-   "place": "pool event text"
-  },
-  {
-   "id": "EV44_EFF",
-   "text": "Weather: every house keeps its next weather as it was.",
-   "max": 90,
-   "place": "pool event weather line"
-  },
-  {
-   "id": "EV45_TITLE",
-   "text": "Cask stock overflows the cellars",
-   "max": 32,
-   "place": "pool event title"
-  },
-  {
-   "id": "EV45_BODY",
-   "text": "Ashgate's cellars filled with a record vintage, and nobody has the room to drink it. Vintage casks at Ashgate cost less and pay less. The cellar master has begun to give the casks names, and talks to them at closing. Cask Cellar keeps Luxury stock safe from asteroid cuts.",
-   "max": 280,
-   "place": "pool event text"
-  },
-  {
-   "id": "EV45_EFF",
-   "text": "Weather: none of the three houses changes its next weather.",
    "max": 90,
    "place": "pool event weather line"
   },
@@ -13124,24 +13556,6 @@
    "place": "pool event weather line"
   },
   {
-   "id": "EV48_TITLE",
-   "text": "Fabric plate runs short",
-   "max": 32,
-   "place": "pool event title"
-  },
-  {
-   "id": "EV48_BODY",
-   "text": "Ashgate's builders drew a new ring of homes in a single week, and every wall wants plate. Lattice plate at Ashgate costs more and pays more. The draughtsmen call the plan final. The plates on the dock ring faintly when the wind turns, though no wind blows here.",
-   "max": 280,
-   "place": "pool event text"
-  },
-  {
-   "id": "EV48_EFF",
-   "text": "Weather: none of the three houses changes its next weather.",
-   "max": 90,
-   "place": "pool event weather line"
-  },
-  {
    "id": "EV49_TITLE",
    "text": "Quarantine at the culture lab",
    "max": 32,
@@ -13176,864 +13590,6 @@
    "text": "Weather: every house keeps its next weather as it was.",
    "max": 90,
    "place": "pool event weather line"
-  },
-  {
-   "id": "EV51_TITLE",
-   "text": "Seed stock is bought up",
-   "max": 32,
-   "place": "pool event title"
-  },
-  {
-   "id": "EV51_BODY",
-   "text": "Tillam's clinics bought every crate of gene seed after one failed batch. Gene seed at Tillam costs more and pays more. The ward manager wrote that the failed batch is fine, and moved the ward to another floor. Culture Banks grow stored Biotech stock.",
-   "max": 280,
-   "place": "pool event text"
-  },
-  {
-   "id": "EV51_EFF",
-   "text": "Weather: none of the three houses changes its next weather.",
-   "max": 90,
-   "place": "pool event weather line"
-  },
-  {
-   "id": "EV_PST01_TITLE",
-   "text": "A dock that keeps a book",
-   "max": 32,
-   "place": "pending event title"
-  },
-  {
-   "id": "EV_PST01_BODY",
-   "text": "The dock at {planet} keeps a visitors' book. The clerk wants your name in it before the first crate moves. The cover is cold to the touch. Nobody can say who opened it.",
-   "max": 280,
-   "place": "pending event text"
-  },
-  {
-   "id": "EV_PST01_SIGN_BTN",
-   "text": "Sign the book",
-   "max": 28,
-   "place": "button"
-  },
-  {
-   "id": "EV_PST01_SIGN_EFF",
-   "text": "The next post you build costs less.",
-   "max": 90,
-   "place": "effect line"
-  },
-  {
-   "id": "EV_PST01_SIGN_TITLE",
-   "text": "The book is signed",
-   "max": 32,
-   "place": "popup title"
-  },
-  {
-   "id": "EV_PST01_SIGN",
-   "text": "The clerk blotted your name and nodded, as if it had always been there. The next post you build costs less. On the page beside yours, someone else's handwriting changed.",
-   "max": 280,
-   "place": "popup"
-  },
-  {
-   "id": "EV_PST01_LEAVE_BTN",
-   "text": "Leave without signing",
-   "max": 28,
-   "place": "button"
-  },
-  {
-   "id": "EV_PST01_LEAVE_EFF",
-   "text": "Nothing changes.",
-   "max": 90,
-   "place": "effect line"
-  },
-  {
-   "id": "EV_PST01_LEAVE_TITLE",
-   "text": "The book stays shut",
-   "max": 32,
-   "place": "popup title"
-  },
-  {
-   "id": "EV_PST01_LEAVE",
-   "text": "You left the clerk waiting, pen raised. Nothing changes. The clerk wrote a line anyway, in a hand that was not the clerk's.",
-   "max": 280,
-   "place": "popup"
-  },
-  {
-   "id": "EV_PST02_TITLE",
-   "text": "The Port Warden's stamp",
-   "max": 32,
-   "place": "pending event title"
-  },
-  {
-   "id": "EV_PST02_BODY",
-   "text": "Warden Ilsa Dorne must inspect the new post at {planet} before she can stamp its lease. She inspects slowly. Your crew wait on the dock with the crates unopened. A gift would hurry her. Waiting would work, in time.",
-   "max": 280,
-   "place": "pending event text"
-  },
-  {
-   "id": "EV_PST02_GIFT_BTN",
-   "text": "Send a gift",
-   "max": 28,
-   "place": "button"
-  },
-  {
-   "id": "EV_PST02_GIFT_EFF",
-   "text": "Pay a small sum. The next post builds faster.",
-   "max": 90,
-   "place": "effect line"
-  },
-  {
-   "id": "EV_PST02_GIFT_TITLE",
-   "text": "The Warden is hurried",
-   "max": 32,
-   "place": "popup title"
-  },
-  {
-   "id": "EV_PST02_GIFT",
-   "text": "The gift went up the stairs and the stamp came down, still wet. You paid a small sum. The next post builds faster. The Warden did not smile. Your crew took that for thanks.",
-   "max": 280,
-   "place": "popup"
-  },
-  {
-   "id": "EV_PST02_WAIT_BTN",
-   "text": "Wait for the stamp",
-   "max": 28,
-   "place": "button"
-  },
-  {
-   "id": "EV_PST02_WAIT_EFF",
-   "text": "Nothing is paid. Prices at {planet} move a little for a while.",
-   "max": 90,
-   "place": "effect line"
-  },
-  {
-   "id": "EV_PST02_WAIT_TITLE",
-   "text": "The stamp takes its time",
-   "max": 32,
-   "place": "popup title"
-  },
-  {
-   "id": "EV_PST02_WAIT",
-   "text": "You waited. The Warden checked every rivet, then the shadows between them. Nothing was paid. Prices at {planet} move a little for a while, and the Warden will not say which way.",
-   "max": 280,
-   "place": "popup"
-  },
-  {
-   "id": "EV_PST03_TITLE",
-   "text": "The beam will not hold",
-   "max": 32,
-   "place": "pending event title"
-  },
-  {
-   "id": "EV_PST03_BODY",
-   "text": "The survey beam at {planet} will not hold a line. The foreman blames the weather, which is indoors. A part can be bought from a passing hauler. Or your crew can wait for the next shift to have an idea.",
-   "max": 280,
-   "place": "pending event text"
-  },
-  {
-   "id": "EV_PST03_PART_BTN",
-   "text": "Buy the part",
-   "max": 28,
-   "place": "button"
-  },
-  {
-   "id": "EV_PST03_PART_EFF",
-   "text": "Pay a small sum. The next post builds faster.",
-   "max": 90,
-   "place": "effect line"
-  },
-  {
-   "id": "EV_PST03_PART_TITLE",
-   "text": "The part is fitted",
-   "max": 32,
-   "place": "popup title"
-  },
-  {
-   "id": "EV_PST03_PART",
-   "text": "The hauler's mate named a price and you paid a small sum. By evening the beam held its line. The next post builds faster, since the crew now knows where the weather comes from.",
-   "max": 280,
-   "place": "popup"
-  },
-  {
-   "id": "EV_PST03_SHIFT_BTN",
-   "text": "Wait for the next shift",
-   "max": 28,
-   "place": "button"
-  },
-  {
-   "id": "EV_PST03_SHIFT_EFF",
-   "text": "Nothing changes.",
-   "max": 90,
-   "place": "effect line"
-  },
-  {
-   "id": "EV_PST03_SHIFT_TITLE",
-   "text": "The shift has an idea",
-   "max": 32,
-   "place": "popup title"
-  },
-  {
-   "id": "EV_PST03_SHIFT",
-   "text": "The next shift had an idea, and it was to wait for the one after. Nothing changes. The beam flickered once, toward nothing anyone had aimed at.",
-   "max": 280,
-   "place": "popup"
-  },
-  {
-   "id": "EV_PST04_TITLE",
-   "text": "A broker with spare fittings",
-   "max": 32,
-   "place": "pending event title"
-  },
-  {
-   "id": "EV_PST04_BODY",
-   "text": "A broker named Odo Pell meets your ship at {planet} with a tray of seals and a lease. A neighbouring post closed, and its fittings are cheap. He talks as if the sale were already done. It might be.",
-   "max": 280,
-   "place": "pending event text"
-  },
-  {
-   "id": "EV_PST04_BUY_BTN",
-   "text": "Buy the fittings",
-   "max": 28,
-   "place": "button"
-  },
-  {
-   "id": "EV_PST04_BUY_EFF",
-   "text": "Pay a small sum. The next post costs less.",
-   "max": 90,
-   "place": "effect line"
-  },
-  {
-   "id": "EV_PST04_BUY_TITLE",
-   "text": "The fittings change hands",
-   "max": 32,
-   "place": "popup title"
-  },
-  {
-   "id": "EV_PST04_BUY",
-   "text": "Pell counted the seals twice and gave you one extra, as a courtesy. You paid a small sum. The next post costs less. The fittings are warm, as if someone had only just let go of them.",
-   "max": 280,
-   "place": "popup"
-  },
-  {
-   "id": "EV_PST04_PASS_BTN",
-   "text": "Pass on the offer",
-   "max": 28,
-   "place": "button"
-  },
-  {
-   "id": "EV_PST04_PASS_EFF",
-   "text": "Nothing changes.",
-   "max": 90,
-   "place": "effect line"
-  },
-  {
-   "id": "EV_PST04_PASS_TITLE",
-   "text": "Pell packs his tray",
-   "max": 32,
-   "place": "popup title"
-  },
-  {
-   "id": "EV_PST04_PASS",
-   "text": "Pell shrugged and packed his tray. Nothing changes. He said the fittings would find a buyer, and looked at the sky as if the buyer were already on the way.",
-   "max": 280,
-   "place": "popup"
-  },
-  {
-   "id": "EV_PST05_TITLE",
-   "text": "A desk already stands here",
-   "max": 32,
-   "place": "pending event title"
-  },
-  {
-   "id": "EV_PST05_BODY",
-   "text": "A desk with the seal of {bot3} already stands on the dock at {planet}. It has a kettle, a stool and a long record of waiting. The agent offers you the next stool. He does not offer to move.",
-   "max": 280,
-   "place": "pending event text"
-  },
-  {
-   "id": "EV_PST05_SHARE_BTN",
-   "text": "Share the dock",
-   "max": 28,
-   "place": "button"
-  },
-  {
-   "id": "EV_PST05_SHARE_EFF",
-   "text": "Nothing is paid. Prices at {planet} move a little for a while.",
-   "max": 90,
-   "place": "effect line"
-  },
-  {
-   "id": "EV_PST05_SHARE_TITLE",
-   "text": "The dock is shared",
-   "max": 32,
-   "place": "popup title"
-  },
-  {
-   "id": "EV_PST05_SHARE",
-   "text": "You took the next stool. The agent poured two cups and drank both. Nothing was paid. Prices at {planet} move a little for a while, and the agent keeps the direction to himself.",
-   "max": 280,
-   "place": "popup"
-  },
-  {
-   "id": "EV_PST05_SEAL_BTN",
-   "text": "Hang your own seal",
-   "max": 28,
-   "place": "button"
-  },
-  {
-   "id": "EV_PST05_SEAL_EFF",
-   "text": "Pay a small sum. Prices at {planet} move clearly for a while.",
-   "max": 90,
-   "place": "effect line"
-  },
-  {
-   "id": "EV_PST05_SEAL_TITLE",
-   "text": "Two seals on one wall",
-   "max": 32,
-   "place": "popup title"
-  },
-  {
-   "id": "EV_PST05_SEAL",
-   "text": "You paid a small sum and hung your seal beside the other. The agent studied it as if it were a price. Prices at {planet} move clearly for a while. The kettle went cold between the seals.",
-   "max": 280,
-   "place": "popup"
-  },
-  {
-   "id": "EV_PST06_TITLE",
-   "text": "Residents come to look",
-   "max": 32,
-   "place": "pending event title"
-  },
-  {
-   "id": "EV_PST06_BODY",
-   "text": "Residents of {planet} gather at the new post and stand in rows. A child asks if it will stay. The clerk says that is a question for the Plan. No one leaves until someone speaks.",
-   "max": 280,
-   "place": "pending event text"
-  },
-  {
-   "id": "EV_PST06_OPEN_BTN",
-   "text": "Hold an open dock",
-   "max": 28,
-   "place": "button"
-  },
-  {
-   "id": "EV_PST06_OPEN_EFF",
-   "text": "Pay a small sum. The next post builds faster.",
-   "max": 90,
-   "place": "effect line"
-  },
-  {
-   "id": "EV_PST06_OPEN_TITLE",
-   "text": "The dock stays open",
-   "max": 32,
-   "place": "popup title"
-  },
-  {
-   "id": "EV_PST06_OPEN",
-   "text": "You set out chairs and a schedule, and the rows turned into a queue. You paid a small sum. The next post builds faster, since this crowd now knows the work. The child left with a bolt in her pocket.",
-   "max": 280,
-   "place": "popup"
-  },
-  {
-   "id": "EV_PST06_WORK_BTN",
-   "text": "Keep to the work",
-   "max": 28,
-   "place": "button"
-  },
-  {
-   "id": "EV_PST06_WORK_EFF",
-   "text": "You gain a small sum from early trade.",
-   "max": 90,
-   "place": "effect line"
-  },
-  {
-   "id": "EV_PST06_WORK_TITLE",
-   "text": "The rows thin out",
-   "max": 32,
-   "place": "popup title"
-  },
-  {
-   "id": "EV_PST06_WORK",
-   "text": "You kept to the work and the rows thinned by dusk. You gain a small sum from early trade. The child watched until the last crate was stamped. Then she walked home alone.",
-   "max": 280,
-   "place": "popup"
-  },
-  {
-   "id": "EV_PLT01_TITLE",
-   "text": "Who works the dark",
-   "max": 32,
-   "place": "pending event title"
-  },
-  {
-   "id": "EV_PLT01_BODY",
-   "text": "A crew from the Bureau's labour desk reaches the new platform on {planet}. They came for the pay and stay for the quiet. The foreman asks what to call a shift that never ends. No one has a form for it.",
-   "max": 280,
-   "place": "pending event text"
-  },
-  {
-   "id": "EV_PLT01_NIGHT_BTN",
-   "text": "Hire the night crew",
-   "max": 28,
-   "place": "button"
-  },
-  {
-   "id": "EV_PLT01_NIGHT_EFF",
-   "text": "Pay a small sum. Some mined goods are added to your stock.",
-   "max": 90,
-   "place": "effect line"
-  },
-  {
-   "id": "EV_PLT01_NIGHT_TITLE",
-   "text": "The night crew signs on",
-   "max": 32,
-   "place": "popup title"
-  },
-  {
-   "id": "EV_PLT01_NIGHT",
-   "text": "The night crew signed on without reading. You paid a small sum, and by morning some mined goods lay in your stock, stacked with great care. The foreman named the shift Always. It stuck.",
-   "max": 280,
-   "place": "popup"
-  },
-  {
-   "id": "EV_PLT01_DAY_BTN",
-   "text": "Keep the day crew",
-   "max": 28,
-   "place": "button"
-  },
-  {
-   "id": "EV_PLT01_DAY_EFF",
-   "text": "Nothing changes.",
-   "max": 90,
-   "place": "effect line"
-  },
-  {
-   "id": "EV_PLT01_DAY_TITLE",
-   "text": "The day crew stays",
-   "max": 32,
-   "place": "popup title"
-  },
-  {
-   "id": "EV_PLT01_DAY",
-   "text": "You kept the day crew. Nothing changes. At change of shift the foreman counted the lamps going out and the lamps coming on, and got two different answers.",
-   "max": 280,
-   "place": "popup"
-  },
-  {
-   "id": "EV_PLT02_TITLE",
-   "text": "The roof sings",
-   "max": 32,
-   "place": "pending event title"
-  },
-  {
-   "id": "EV_PLT02_BODY",
-   "text": "A gallery at {planet} sings before it fails, a low note, held. The crew is out and the rock is still. Props cost credits. Sealing the gallery costs time. The note has not stopped.",
-   "max": 280,
-   "place": "pending event text"
-  },
-  {
-   "id": "EV_PLT02_PROP_BTN",
-   "text": "Pay for props",
-   "max": 28,
-   "place": "button"
-  },
-  {
-   "id": "EV_PLT02_PROP_EFF",
-   "text": "Pay a small sum. Routes from {planet} keep running.",
-   "max": 90,
-   "place": "effect line"
-  },
-  {
-   "id": "EV_PLT02_PROP_TITLE",
-   "text": "The props go in",
-   "max": 32,
-   "place": "popup title"
-  },
-  {
-   "id": "EV_PLT02_PROP",
-   "text": "The props went in under the sound and the sound let them. You paid a small sum. Routes from {planet} keep running. The note dropped a step, the way a voice does when it has been understood.",
-   "max": 280,
-   "place": "popup"
-  },
-  {
-   "id": "EV_PLT02_SEAL_BTN",
-   "text": "Seal the gallery",
-   "max": 28,
-   "place": "button"
-  },
-  {
-   "id": "EV_PLT02_SEAL_EFF",
-   "text": "Nothing is paid. Routes touching {planet} are blocked for a while.",
-   "max": 90,
-   "place": "effect line"
-  },
-  {
-   "id": "EV_PLT02_SEAL_TITLE",
-   "text": "The gallery is sealed",
-   "max": 32,
-   "place": "popup title"
-  },
-  {
-   "id": "EV_PLT02_SEAL",
-   "text": "The crew sealed the gallery with slabs and tape. Nothing was paid. Routes touching {planet} are blocked for a while. Behind the slabs the note went on, patient, like a tenant.",
-   "max": 280,
-   "place": "popup"
-  },
-  {
-   "id": "EV_PLT03_TITLE",
-   "text": "A seam no one logged",
-   "max": 32,
-   "place": "pending event title"
-  },
-  {
-   "id": "EV_PLT03_BODY",
-   "text": "The drill at {planet} broke into a seam the old surveys never entered, as if they had looked away. It is bright, cold and heavier than it should be. The Bureau has not been told yet.",
-   "max": 280,
-   "place": "pending event text"
-  },
-  {
-   "id": "EV_PLT03_LOG_BTN",
-   "text": "Log the find",
-   "max": 28,
-   "place": "button"
-  },
-  {
-   "id": "EV_PLT03_LOG_EFF",
-   "text": "You gain a small sum as a finder's share.",
-   "max": 90,
-   "place": "effect line"
-  },
-  {
-   "id": "EV_PLT03_LOG_TITLE",
-   "text": "The find is logged",
-   "max": 32,
-   "place": "popup title"
-  },
-  {
-   "id": "EV_PLT03_LOG",
-   "text": "The Bureau stamped the find within the hour, which no one had ever seen. You gain a small sum as a finder's share. The seam now has a number, and the number, quietly, has a seam.",
-   "max": 280,
-   "place": "popup"
-  },
-  {
-   "id": "EV_PLT03_HIDE_BTN",
-   "text": "Keep it off the books",
-   "max": 28,
-   "place": "button"
-  },
-  {
-   "id": "EV_PLT03_HIDE_EFF",
-   "text": "Some mined goods are added to your stock.",
-   "max": 90,
-   "place": "effect line"
-  },
-  {
-   "id": "EV_PLT03_HIDE_TITLE",
-   "text": "The find stays quiet",
-   "max": 32,
-   "place": "popup title"
-  },
-  {
-   "id": "EV_PLT03_HIDE",
-   "text": "The crew filled three carts before the shift bell and told no one. Some mined goods are added to your stock. The seam is still bright in the dark, and still cold on the hand.",
-   "max": 280,
-   "place": "popup"
-  },
-  {
-   "id": "EV_PLT04_TITLE",
-   "text": "The hum under the floor",
-   "max": 32,
-   "place": "pending event title"
-  },
-  {
-   "id": "EV_PLT04_BODY",
-   "text": "The floor of the platform on {planet} hums while the crew sleeps. Engineers measure a steady note, the same each night. The shift lead asks to switch off the lamps. She does not say why.",
-   "max": 280,
-   "place": "pending event text"
-  },
-  {
-   "id": "EV_PLT04_DARK_BTN",
-   "text": "Switch off the lamps",
-   "max": 28,
-   "place": "button"
-  },
-  {
-   "id": "EV_PLT04_DARK_EFF",
-   "text": "Prices at {planet} move a little for a while.",
-   "max": 90,
-   "place": "effect line"
-  },
-  {
-   "id": "EV_PLT04_DARK_TITLE",
-   "text": "The lamps go out",
-   "max": 32,
-   "place": "popup title"
-  },
-  {
-   "id": "EV_PLT04_DARK",
-   "text": "The lamps went out and the hum thinned, then stopped, as if it only wanted company. Prices at {planet} move a little for a while, and the shift lead will not say which way. She slept well.",
-   "max": 280,
-   "place": "popup"
-  },
-  {
-   "id": "EV_PLT04_LIGHT_BTN",
-   "text": "Keep the lamps on",
-   "max": 28,
-   "place": "button"
-  },
-  {
-   "id": "EV_PLT04_LIGHT_EFF",
-   "text": "Nothing changes.",
-   "max": 90,
-   "place": "effect line"
-  },
-  {
-   "id": "EV_PLT04_LIGHT_TITLE",
-   "text": "The lamps stay lit",
-   "max": 32,
-   "place": "popup title"
-  },
-  {
-   "id": "EV_PLT04_LIGHT",
-   "text": "You kept the lamps on. Nothing changes. The hum went on all night. In the morning the engineers found it a little louder, and wrote down that it was not.",
-   "max": 280,
-   "place": "popup"
-  },
-  {
-   "id": "EV_FLT01_TITLE",
-   "text": "A wreck on the lane",
-   "max": 32,
-   "place": "pending event title"
-  },
-  {
-   "id": "EV_FLT01_BODY",
-   "text": "A hull drifts across the lane, cold, its name scraped off. The Pathfinder's scanner counts no one aboard, then counts again. A tow would delay the flight. Salvage is salvage, if no one comes to claim it.",
-   "max": 280,
-   "place": "pending event text"
-  },
-  {
-   "id": "EV_FLT01_TOW_BTN",
-   "text": "Tow it clear",
-   "max": 28,
-   "place": "button"
-  },
-  {
-   "id": "EV_FLT01_TOW_EFF",
-   "text": "The flight is delayed a little. You gain a small sum for the salvage.",
-   "max": 90,
-   "place": "effect line"
-  },
-  {
-   "id": "EV_FLT01_TOW_TITLE",
-   "text": "The wreck is cleared",
-   "max": 32,
-   "place": "popup title"
-  },
-  {
-   "id": "EV_FLT01_TOW",
-   "text": "The Pathfinder dragged the hull out of the lane and the flight lost a little time. You gain a small sum for the salvage. The scanner counted one aboard as the hull went. It did not count again.",
-   "max": 280,
-   "place": "popup"
-  },
-  {
-   "id": "EV_FLT01_FLY_BTN",
-   "text": "Fly on",
-   "max": 28,
-   "place": "button"
-  },
-  {
-   "id": "EV_FLT01_FLY_EFF",
-   "text": "Nothing changes.",
-   "max": 90,
-   "place": "effect line"
-  },
-  {
-   "id": "EV_FLT01_FLY_TITLE",
-   "text": "The wreck falls behind",
-   "max": 32,
-   "place": "popup title"
-  },
-  {
-   "id": "EV_FLT01_FLY",
-   "text": "The Pathfinder flew on. Nothing changes. In the rear glass the hull turned slowly, showing its scraped patch, then its other side.",
-   "max": 280,
-   "place": "popup"
-  },
-  {
-   "id": "EV_FLT02_TITLE",
-   "text": "A call on an old band",
-   "max": 32,
-   "place": "pending event title"
-  },
-  {
-   "id": "EV_FLT02_BODY",
-   "text": "A distress call comes in on an old band, the voice polite and unhurried. By the time the Pathfinder turns, the call has become a recipe. A relay fee would let you check it from here.",
-   "max": 280,
-   "place": "pending event text"
-  },
-  {
-   "id": "EV_FLT02_RELAY_BTN",
-   "text": "Pay the relay fee",
-   "max": 28,
-   "place": "button"
-  },
-  {
-   "id": "EV_FLT02_RELAY_EFF",
-   "text": "Pay a small sum. The flight is not delayed.",
-   "max": 90,
-   "place": "effect line"
-  },
-  {
-   "id": "EV_FLT02_RELAY_TITLE",
-   "text": "The relay answers",
-   "max": 32,
-   "place": "popup title"
-  },
-  {
-   "id": "EV_FLT02_RELAY",
-   "text": "You paid a small sum, and the relay checked the band without a turn. The flight is not delayed. The relay reported a pot, a stove and a very long wait. It filed the call as cooked.",
-   "max": 280,
-   "place": "popup"
-  },
-  {
-   "id": "EV_FLT02_HOLD_BTN",
-   "text": "Hold the course",
-   "max": 28,
-   "place": "button"
-  },
-  {
-   "id": "EV_FLT02_HOLD_EFF",
-   "text": "Nothing changes.",
-   "max": 90,
-   "place": "effect line"
-  },
-  {
-   "id": "EV_FLT02_HOLD_TITLE",
-   "text": "The call fades",
-   "max": 32,
-   "place": "popup title"
-  },
-  {
-   "id": "EV_FLT02_HOLD",
-   "text": "You held the course. Nothing changes. The voice went on a while with the recipe, then said the last step twice, very slowly, and was gone.",
-   "max": 280,
-   "place": "popup"
-  },
-  {
-   "id": "EV_FLT03_TITLE",
-   "text": "A toll on the lane",
-   "max": 32,
-   "place": "pending event title"
-  },
-  {
-   "id": "EV_FLT03_BODY",
-   "text": "A patrol cutter hails the Pathfinder. It says the lane is private and has been since the cutter was painted. A toll is asked, politely. The cutter's gun looks at the toll, not at you.",
-   "max": 280,
-   "place": "pending event text"
-  },
-  {
-   "id": "EV_FLT03_PAY_BTN",
-   "text": "Pay the toll",
-   "max": 28,
-   "place": "button"
-  },
-  {
-   "id": "EV_FLT03_PAY_EFF",
-   "text": "Pay a small sum. The flight goes on.",
-   "max": 90,
-   "place": "effect line"
-  },
-  {
-   "id": "EV_FLT03_PAY_TITLE",
-   "text": "The toll is paid",
-   "max": 32,
-   "place": "popup title"
-  },
-  {
-   "id": "EV_FLT03_PAY",
-   "text": "You paid a small sum and the cutter blinked twice, which is how it says thank you. The flight goes on. The gun turned away last, like someone leaving a room backwards.",
-   "max": 280,
-   "place": "popup"
-  },
-  {
-   "id": "EV_FLT03_AROUND_BTN",
-   "text": "Take the long way round",
-   "max": 28,
-   "place": "button"
-  },
-  {
-   "id": "EV_FLT03_AROUND_EFF",
-   "text": "The flight is delayed a little.",
-   "max": 90,
-   "place": "effect line"
-  },
-  {
-   "id": "EV_FLT03_AROUND_TITLE",
-   "text": "The long way",
-   "max": 32,
-   "place": "popup title"
-  },
-  {
-   "id": "EV_FLT03_AROUND",
-   "text": "The Pathfinder swung wide around a lane that was private by decree. The flight is delayed a little. The cutter followed for a while, to see that the sky was not borrowed.",
-   "max": 280,
-   "place": "popup"
-  },
-  {
-   "id": "EV_FLT04_TITLE",
-   "text": "Dust across the lane",
-   "max": 32,
-   "place": "pending event title"
-  },
-  {
-   "id": "EV_FLT04_BODY",
-   "text": "Fine dust crosses the lane and rattles on the hull like rain on a tin roof. The pilot slows, then asks if she may ask what rain is. Nobody on board is sure. The hull is sure only of the dust.",
-   "max": 280,
-   "place": "pending event text"
-  },
-  {
-   "id": "EV_FLT04_SLOW_BTN",
-   "text": "Slow down",
-   "max": 28,
-   "place": "button"
-  },
-  {
-   "id": "EV_FLT04_SLOW_EFF",
-   "text": "The flight is delayed a little.",
-   "max": 90,
-   "place": "effect line"
-  },
-  {
-   "id": "EV_FLT04_SLOW_TITLE",
-   "text": "The dust passes",
-   "max": 32,
-   "place": "popup title"
-  },
-  {
-   "id": "EV_FLT04_SLOW",
-   "text": "The Pathfinder slowed and the dust went over like a long shift change. The flight is delayed a little. The hull rang once, low, and then did not ring again.",
-   "max": 280,
-   "place": "popup"
-  },
-  {
-   "id": "EV_FLT04_PUSH_BTN",
-   "text": "Push through",
-   "max": 28,
-   "place": "button"
-  },
-  {
-   "id": "EV_FLT04_PUSH_EFF",
-   "text": "Pay a small sum for hull repairs at the next port.",
-   "max": 90,
-   "place": "effect line"
-  },
-  {
-   "id": "EV_FLT04_PUSH_TITLE",
-   "text": "The hull takes the dust",
-   "max": 32,
-   "place": "popup title"
-  },
-  {
-   "id": "EV_FLT04_PUSH",
-   "text": "The Pathfinder pushed through at speed. A small sum goes to hull repairs at the next port. The pilot stood the rest of the shift at the glass, trying to remember what rain was for.",
-   "max": 280,
-   "place": "popup"
   },
   {
    "id": "EV52_TITLE",
@@ -14898,6 +14454,1866 @@
    "text": "The clerk entered the debt in the Common Ledger and the Bureau stamped it settled. Nobody was paid. Food at Voltara costs more and pays more for a while, as clerks counted the dock stores. The page went into a drawer with its three names.",
    "max": 280,
    "place": "popup"
+  },
+  {
+   "id": "EV_PST01_TITLE",
+   "text": "A dock that keeps a book",
+   "max": 32,
+   "place": "pool event title"
+  },
+  {
+   "id": "EV_PST01_BODY",
+   "text": "The dock at Flintmoor keeps a visitors' book. The clerk wants your name in it before the first crate moves. The cover is cold to the touch. Nobody can say who opened it. A signed name earns the dock's favour. An unsigned one earns a refund.",
+   "max": 280,
+   "place": "pool event text"
+  },
+  {
+   "id": "EV_PST01_SIGN_BTN",
+   "text": "Sign the book",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV_PST01_SIGN_EFF",
+   "text": "Energy at Flintmoor costs more and pays more for a while.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV_PST01_SIGN_TITLE",
+   "text": "The book is signed",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV_PST01_SIGN",
+   "text": "The clerk blotted your name and nodded, as if it had always been there. The dock's buyers took note, and energy at Flintmoor costs more and pays more for a while. On the page beside yours, someone else's handwriting changed.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV_PST01_LEAVE_BTN",
+   "text": "Leave without signing",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV_PST01_LEAVE_EFF",
+   "text": "You gain a small sum, the dock's refund for a name not written.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV_PST01_LEAVE_TITLE",
+   "text": "The book stays shut",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV_PST01_LEAVE",
+   "text": "You left the clerk waiting, pen raised. The clerk sent a small sum after you, the fee for a name not written. You gain a small sum. The clerk wrote a line anyway, in a hand that was not the clerk's.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV_PST02_TITLE",
+   "text": "The Port Warden's stamp",
+   "max": 32,
+   "place": "pool event title"
+  },
+  {
+   "id": "EV_PST02_BODY",
+   "text": "Warden Ilsa Dorne must inspect the new post at Brannock before she can stamp its lease. She inspects slowly. Your crew wait on the dock with the crates unopened. A gift would hurry her. Waiting would work, in time.",
+   "max": 280,
+   "place": "pool event text"
+  },
+  {
+   "id": "EV_PST02_GIFT_BTN",
+   "text": "Send a gift",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV_PST02_GIFT_EFF",
+   "text": "Pay a small sum. The stamp comes today.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV_PST02_GIFT_TITLE",
+   "text": "The Warden is hurried",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV_PST02_GIFT",
+   "text": "The gift went up the stairs and the stamp came down, still wet. You paid a small sum. The Warden did not smile. Your crew took that for thanks.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV_PST02_WAIT_BTN",
+   "text": "Wait for the stamp",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV_PST02_WAIT_EFF",
+   "text": "Energy at Brannock costs less and pays less for a while.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV_PST02_WAIT_TITLE",
+   "text": "The stamp takes its time",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV_PST02_WAIT",
+   "text": "You waited. The Warden checked every rivet, then the shadows between them. Buyers at Brannock held back while the dock stood idle, so energy there costs less and pays less for a while.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV_PST03_TITLE",
+   "text": "The beam will not hold",
+   "max": 32,
+   "place": "pool event title"
+  },
+  {
+   "id": "EV_PST03_BODY",
+   "text": "The survey beam at Cindrel will not hold a line. The foreman blames the weather, which is indoors. A part can be bought from a passing hauler. Or your crew can wait for the next shift to have an idea.",
+   "max": 280,
+   "place": "pool event text"
+  },
+  {
+   "id": "EV_PST03_PART_BTN",
+   "text": "Buy the part",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV_PST03_PART_EFF",
+   "text": "Pay a small sum. The beam is fixed today.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV_PST03_PART_TITLE",
+   "text": "The part is fitted",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV_PST03_PART",
+   "text": "The hauler's mate named a price and you paid a small sum. By evening the beam held its line. The crew now knows where the weather comes from.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV_PST03_SHIFT_BTN",
+   "text": "Wait for the next shift",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV_PST03_SHIFT_EFF",
+   "text": "Lanes that touch Cindrel cost more per trip for a few cycles.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV_PST03_SHIFT_TITLE",
+   "text": "The shift has an idea",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV_PST03_SHIFT",
+   "text": "The next shift had an idea, and it was to wait for the one after. Haulers stacked up behind the dead beam, so lanes that touch Cindrel cost more per trip for a few cycles. The beam flickered once, toward nothing anyone had aimed at.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV_PST04_TITLE",
+   "text": "A broker with spare fittings",
+   "max": 32,
+   "place": "pool event title"
+  },
+  {
+   "id": "EV_PST04_BODY",
+   "text": "A broker named Odo Pell meets your ship at Mossfell with a tray of seals and a lease. A neighbouring post closed, and he must clear its books. He talks as if the deal were already done. He can hand over the lease, or the spare cells in its stores.",
+   "max": 280,
+   "place": "pool event text"
+  },
+  {
+   "id": "EV_PST04_LEASE_BTN",
+   "text": "Take the lease",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV_PST04_LEASE_EFF",
+   "text": "Energy at Mossfell costs more and pays more for a while.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV_PST04_LEASE_TITLE",
+   "text": "The lease changes hands",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV_PST04_LEASE",
+   "text": "Pell counted the seals twice and gave you one extra, as a courtesy. Buyers at Mossfell followed the lease, so energy there costs more and pays more for a while. The seals are warm, as if someone had only just let go of them.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV_PST04_CELLS_BTN",
+   "text": "Take the spare cells",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV_PST04_CELLS_EFF",
+   "text": "Some energy is added to your Company storage at Mossfell.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV_PST04_CELLS_TITLE",
+   "text": "The cells are counted",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV_PST04_CELLS",
+   "text": "Pell wheeled out the spare cells on a cart and read each tag aloud. Some energy is added to your Company storage at Mossfell. He said the closed post would not miss them, and looked at the sky as if someone might.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV_PST05_TITLE",
+   "text": "A desk already stands here",
+   "max": 32,
+   "place": "pool event title"
+  },
+  {
+   "id": "EV_PST05_BODY",
+   "text": "A desk with a broker's seal already stands on the dock at Quillon. It has a kettle, a stool and a long record of waiting. The agent offers you the next stool, or a small sum to take your crates to another berth. He does not offer to move.",
+   "max": 280,
+   "place": "pool event text"
+  },
+  {
+   "id": "EV_PST05_SHARE_BTN",
+   "text": "Share the dock",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV_PST05_SHARE_EFF",
+   "text": "Energy at Quillon costs more and pays more for a while.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV_PST05_SHARE_TITLE",
+   "text": "The dock is shared",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV_PST05_SHARE",
+   "text": "You took the next stool. The agent poured two cups and drank both. Buyers at Quillon saw two seals at one dock and bought hard, so energy there costs more and pays more for a while.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV_PST05_MOVE_BTN",
+   "text": "Take the other berth",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV_PST05_MOVE_EFF",
+   "text": "You gain a small sum.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV_PST05_MOVE_TITLE",
+   "text": "A berth farther down",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV_PST05_MOVE",
+   "text": "You took the far berth. The agent counted out a small sum without being asked, and you gain a small sum. The kettle went cold between the seals.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV_PST06_TITLE",
+   "text": "Residents come to look",
+   "max": 32,
+   "place": "pool event title"
+  },
+  {
+   "id": "EV_PST06_BODY",
+   "text": "Tillam has grown, and its residents gather at the dock to see your ships. They stand in rows. A child asks if you will stay. The clerk says that is a question for the Plan. No one leaves until someone speaks.",
+   "max": 280,
+   "place": "pool event text"
+  },
+  {
+   "id": "EV_PST06_OPEN_BTN",
+   "text": "Hold an open dock",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV_PST06_OPEN_EFF",
+   "text": "Energy at Tillam costs more and pays more for a while.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV_PST06_OPEN_TITLE",
+   "text": "The dock stays open",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV_PST06_OPEN",
+   "text": "You set out chairs and a schedule, and the rows turned into a queue. The crowd bought energy for its stoves, so energy at Tillam costs more and pays more for a while. The child left with a bolt in her pocket.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV_PST06_WORK_BTN",
+   "text": "Keep to the work",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV_PST06_WORK_EFF",
+   "text": "Some energy is added to your Company storage at Tillam.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV_PST06_WORK_TITLE",
+   "text": "The rows thin out",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV_PST06_WORK",
+   "text": "You kept to the work and the rows thinned by dusk. The dock clerk stacked spare cells in your storage, a thanks that came with a stamp. Some energy is added to your Company storage at Tillam. The child watched until the last crate was stamped. Then she walked home alone.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV_FLT01_TITLE",
+   "text": "A wreck on the lane",
+   "max": 32,
+   "place": "pool event title"
+  },
+  {
+   "id": "EV_FLT01_BODY",
+   "text": "A hull drifts across the lane, cold, its name scraped off. The Flagship's scanner counts no one aboard, then counts again. Salvage is salvage, if no one comes to claim it. The hull can be sold as scrap, or stripped for its cells.",
+   "max": 280,
+   "place": "pool event text"
+  },
+  {
+   "id": "EV_FLT01_TOW_BTN",
+   "text": "Sell it as scrap",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV_FLT01_TOW_EFF",
+   "text": "You gain a small sum for the salvage.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV_FLT01_TOW_TITLE",
+   "text": "The wreck is sold",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV_FLT01_TOW",
+   "text": "A scrap crew towed the hull away and paid at the dock. You gain a small sum for the salvage. The scanner counted one aboard as the hull went. It did not count again.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV_FLT01_STRIP_BTN",
+   "text": "Strip its cells",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV_FLT01_STRIP_EFF",
+   "text": "Some energy is added to your Company storage at Voltara.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV_FLT01_STRIP_TITLE",
+   "text": "The cells come out",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV_FLT01_STRIP",
+   "text": "Your crew pulled the hull's cells one by one and carried them home. Some energy is added to your Company storage at Voltara. In the rear glass the hull turned slowly, showing its scraped patch, then its other side.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV_FLT02_TITLE",
+   "text": "A call on an old band",
+   "max": 32,
+   "place": "pool event title"
+  },
+  {
+   "id": "EV_FLT02_BODY",
+   "text": "A distress call comes in on an old band, the voice polite and unhurried. By the time the Flagship turns, the call has become a recipe. A relay fee would let you check it from here. Or the band can stay busy while you hold your course.",
+   "max": 280,
+   "place": "pool event text"
+  },
+  {
+   "id": "EV_FLT02_RELAY_BTN",
+   "text": "Pay the relay fee",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV_FLT02_RELAY_EFF",
+   "text": "Pay a small sum. The band is checked from here.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV_FLT02_RELAY_TITLE",
+   "text": "The relay answers",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV_FLT02_RELAY",
+   "text": "You paid a small sum, and the relay checked the band without a turn. The relay reported a pot, a stove and a very long wait. It filed the call as cooked.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV_FLT02_HOLD_BTN",
+   "text": "Hold the course",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV_FLT02_HOLD_EFF",
+   "text": "Lanes that touch Brannock cost more per trip for a few cycles.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV_FLT02_HOLD_TITLE",
+   "text": "The call fades",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV_FLT02_HOLD",
+   "text": "You held the course. Other ships turned to answer, and the dock beacons at Brannock jammed with their replies. Lanes that touch Brannock cost more per trip for a few cycles. The voice said the last step twice, very slowly, and was gone.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV41_TITLE",
+   "text": "Cindrel fires a training round",
+   "max": 32,
+   "place": "pool event title"
+  },
+  {
+   "id": "EV41_BODY",
+   "text": "Cindrel's reactor crews were ordered to drill with live munitions, to prove the drill was real. The order ran three days past the drill. Munitions at Cindrel cost more and pay more. The blast doors still hum a low note when no one is near them.",
+   "max": 280,
+   "place": "pool event text"
+  },
+  {
+   "id": "EV42_TITLE",
+   "text": "Quillon buys a parade",
+   "max": 32,
+   "place": "pool event title"
+  },
+  {
+   "id": "EV42_BODY",
+   "text": "Quillon's buyers ordered weapons for a parade, since a march looks bare without them. Weapons at Quillon cost more and pay more. The parade has no route and no date. The crates arrive anyway, each signed for by a different clerk in the same hand.",
+   "max": 280,
+   "place": "pool event text"
+  },
+  {
+   "id": "EV81_TITLE",
+   "text": "Energy runs short at Flintmoor",
+   "max": 32,
+   "place": "pool event title"
+  },
+  {
+   "id": "EV81_BODY",
+   "text": "Flintmoor's powder works asked for more power than the moon's grid books. Old rim crews know the sound of a grid about to say no. Energy at Flintmoor is wanted harder for a few cycles and the hunger shows in the price. A rush order may follow.",
+   "max": 280,
+   "place": "pool event text"
+  },
+  {
+   "id": "EV82_TITLE",
+   "text": "A hull waits for a stamp",
+   "max": 32,
+   "place": "pool event title"
+  },
+  {
+   "id": "EV82_BODY",
+   "text": "A ship sits at Tillam waiting for a clearance stamp. A clerk will stamp it today for a payment. Or it waits its turn, and the dock fills behind it. Every idle hour is counted by someone who is not you.",
+   "max": 280,
+   "place": "pool event text"
+  },
+  {
+   "id": "EV82_PAY_BTN",
+   "text": "Pay for the stamp",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV82_PAY_EFF",
+   "text": "Pay a small sum. The ship moves today.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV82_PAY_TITLE",
+   "text": "The hull moves",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV82_PAY",
+   "text": "The stamp landed and the hull was gone by the next bell. You paid a small sum. Your crew did not watch it go.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV82_WAIT_BTN",
+   "text": "Wait its turn",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV82_WAIT_EFF",
+   "text": "Lanes that touch Tillam cost more per trip for a few cycles.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV82_WAIT_TITLE",
+   "text": "The dock fills up",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV82_WAIT",
+   "text": "One hull waited and others stacked behind it. Lanes that touch Tillam cost more per trip for a few cycles. The rim taught your crew to wait. It never taught them to like it.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV83_TITLE",
+   "text": "One patrol, two ends",
+   "max": 32,
+   "place": "pool event title"
+  },
+  {
+   "id": "EV83_BODY",
+   "text": "A patrol cutter can hold one end of a lane for a while. Traders go where the line is watched. Voltara's dock or Flintmoor's yard gets it. The other keeps its own luck, and says so.",
+   "max": 280,
+   "place": "pool event text"
+  },
+  {
+   "id": "EV83_VOLT_BTN",
+   "text": "Watch Voltara",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV83_VOLT_EFF",
+   "text": "Blast powder at Voltara costs more and pays more for a while.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV83_VOLT_TITLE",
+   "text": "A watched dock",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV83_VOLT",
+   "text": "Traders at Voltara saw the patrol light and stayed late. Blast powder at Voltara costs more and pays more for a while. The patrol never looked at the cargo, only at the people.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV83_FLINT_BTN",
+   "text": "Watch Flintmoor",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV83_FLINT_EFF",
+   "text": "Energy at Flintmoor costs more and pays more for a while.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV83_FLINT_TITLE",
+   "text": "A watched yard",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV83_FLINT",
+   "text": "Traders at Flintmoor saw the patrol light and unloaded without checking the door twice. Energy at Flintmoor costs more and pays more for a while. The cutter's lamp stayed on all shift.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV84_TITLE",
+   "text": "A rim crew pays a debt",
+   "max": 32,
+   "place": "pool event title"
+  },
+  {
+   "id": "EV84_BODY",
+   "text": "A crew you once carried home pays what they owe. They offer credits, or a hold of blast powder left at Flintmoor. They do not ask which you prefer. They only ask that it be taken.",
+   "max": 280,
+   "place": "pool event text"
+  },
+  {
+   "id": "EV84_CASH_BTN",
+   "text": "Take the credits",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV84_CASH_EFF",
+   "text": "You gain a small sum.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV84_CASH_TITLE",
+   "text": "The debt is paid",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV84_CASH",
+   "text": "The credits came in a worn bag. You counted them once and nodded once. You gain a small sum.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV84_GOODS_BTN",
+   "text": "Take the powder",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV84_GOODS_EFF",
+   "text": "Some blast powder is added to your Company storage at Flintmoor.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV84_GOODS_TITLE",
+   "text": "The powder is stacked",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV84_GOODS",
+   "text": "The crew loaded the sacks themselves. Some blast powder is added to your Company storage at Flintmoor. You walked the shelf twice afterwards.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV85_TITLE",
+   "text": "A convoy arrives all at once",
+   "max": 32,
+   "place": "pool event title"
+  },
+  {
+   "id": "EV85_BODY",
+   "text": "A convoy that was late came in all at once at Voltara, every hold full of powder. Blast powder at Voltara costs less and pays less. The lane keeps its notes and moves on. Bad news is only news.",
+   "max": 280,
+   "place": "pool event text"
+  },
+  {
+   "id": "EV_FLT03_TITLE",
+   "text": "A toll on the lane",
+   "max": 32,
+   "place": "pool event title"
+  },
+  {
+   "id": "EV_FLT03_BODY",
+   "text": "A patrol cutter hails the Flagship. It says the lane to Quillon is private and has been since the cutter was painted. A toll is asked, politely. The cutter's gun looks at the toll, not at you. Your ships use the same lane.",
+   "max": 280,
+   "place": "pool event text"
+  },
+  {
+   "id": "EV_FLT03_PAY_BTN",
+   "text": "Pay the toll",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV_FLT03_PAY_EFF",
+   "text": "Pay a small sum. The lane stays as it is.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV_FLT03_PAY_TITLE",
+   "text": "The toll is paid",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV_FLT03_PAY",
+   "text": "You paid a small sum and the cutter blinked twice, which is how it says thank you. The gun turned away last, like someone leaving a room backwards.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV_FLT03_AROUND_BTN",
+   "text": "Take the wide way",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV_FLT03_AROUND_EFF",
+   "text": "Lanes that touch Quillon cost more per trip for a few cycles.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV_FLT03_AROUND_TITLE",
+   "text": "The wide way",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV_FLT03_AROUND",
+   "text": "Your ships swung wide around a lane that was private by decree. Lanes that touch Quillon cost more per trip for a few cycles. The cutter followed for a while, to see that the sky was not borrowed.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV91_TITLE",
+   "text": "Cindrel closes for a drill",
+   "max": 32,
+   "place": "pool event title"
+  },
+  {
+   "id": "EV91_BODY",
+   "text": "Cindrel's range officer called a drill and cleared every dock to run it. The drill is real, the officer says. The port is closed for a while, and routes touching Cindrel are blocked. The sirens ran a full day. No one learned what they were practising against.",
+   "max": 280,
+   "place": "pool event text"
+  },
+  {
+   "id": "EV92_TITLE",
+   "text": "Two buyers want one convoy",
+   "max": 32,
+   "place": "pool event title"
+  },
+  {
+   "id": "EV92_BODY",
+   "text": "Two buyers sent word on the same morning, each sure the rivets were meant for them. One sits at Quillon, behind a desk. One sits at Cindrel, behind a gun rack. A convoy can answer one of them first. The other will say it understands.",
+   "max": 280,
+   "place": "pool event text"
+  },
+  {
+   "id": "EV92_QUILLON_BTN",
+   "text": "Answer Quillon",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV92_QUILLON_EFF",
+   "text": "Rivets at Quillon cost more and pay more for a while.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV92_QUILLON_TITLE",
+   "text": "Quillon is answered",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV92_QUILLON",
+   "text": "The convoy turned toward Quillon's desks. Rivets there cost more and pay more for a while. The buyer at Cindrel sent a note that said it understood, and the note was very neat.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV92_CINDREL_BTN",
+   "text": "Answer Cindrel",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV92_CINDREL_EFF",
+   "text": "Rivets at Cindrel cost more and pay more for a while.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV92_CINDREL_TITLE",
+   "text": "Cindrel is answered",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV92_CINDREL",
+   "text": "The convoy turned toward Cindrel's gun racks. Rivets there cost more and pay more for a while. The desk at Quillon logged the delay and kept the page.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV93_TITLE",
+   "text": "The Fleet Office pays in kind",
+   "max": 32,
+   "place": "pool event title"
+  },
+  {
+   "id": "EV93_BODY",
+   "text": "A Fleet Office clerk settles an old account at Quillon. The estimate allows credits, or a lot of rivets from the depot shelf. The clerk does not say which the estimate prefers. The clerk says that is for the next estimate.",
+   "max": 280,
+   "place": "pool event text"
+  },
+  {
+   "id": "EV93_CASH_BTN",
+   "text": "Take the credits",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV93_CASH_EFF",
+   "text": "You gain a small sum.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV93_CASH_TITLE",
+   "text": "The account is settled",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV93_CASH",
+   "text": "The clerk stamped a slip and counted out credits in worn notes. You gain a small sum. The stamp was dry, and the clerk pressed it anyway.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV93_GOODS_BTN",
+   "text": "Take the rivets",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV93_GOODS_EFF",
+   "text": "Some rivets are added to your Company storage at Quillon.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV93_GOODS_TITLE",
+   "text": "The shelf is emptied",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV93_GOODS",
+   "text": "Depot hands rolled out the rivet crates and stacked them in your bay at Quillon. Some rivets are added to your Company storage there. The clerk counted them off in the same voice as the credits.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV44_TITLE",
+   "text": "A rich cut at Brannock",
+   "max": 32,
+   "place": "pool event title"
+  },
+  {
+   "id": "EV44_BODY",
+   "text": "A cutter at Brannock found a flaw that makes every gem in the case look finer, and the case sold out by noon. Gems at Brannock cost more and pay more. Nobody can find the flaw again. The cutter has stopped trying to look.",
+   "max": 280,
+   "place": "pool event text"
+  },
+  {
+   "id": "EV45_TITLE",
+   "text": "Attar floods Quillon",
+   "max": 32,
+   "place": "pool event title"
+  },
+  {
+   "id": "EV45_BODY",
+   "text": "A convoy of attar reached Quillon on one tide, and the perfumers' guild took no stock of it. Attar at Quillon costs less and pays less. Every stall smells of a different promise. The guild counts it as one scent and sends no one to check.",
+   "max": 280,
+   "place": "pool event text"
+  },
+  {
+   "id": "EV76_TITLE",
+   "text": "Lunch at a buyer's table",
+   "max": 32,
+   "place": "pool event title"
+  },
+  {
+   "id": "EV76_BODY",
+   "text": "A broker buys lunch for a Voltara buyer and leaves with the buyer's order in his head. Hothouse blooms at Voltara cost more and pay more. The buyer thinks it was a coincidence. The broker's smile is the first thing anyone recalls.",
+   "max": 280,
+   "place": "pool event text"
+  },
+  {
+   "id": "EV77_TITLE",
+   "text": "An old broker wants thanks",
+   "max": 32,
+   "place": "pool event title"
+  },
+  {
+   "id": "EV77_BODY",
+   "text": "A broker who says he taught you everything wants to be thanked. His friends sit at Ashgate's dock, and they are patient. Thank him in credits, or let them sell low at Ashgate for a while.",
+   "max": 280,
+   "place": "pool event text"
+  },
+  {
+   "id": "EV77_THANK_BTN",
+   "text": "Thank him",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV77_THANK_EFF",
+   "text": "Pay a small sum.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV77_THANK_TITLE",
+   "text": "A warm farewell",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV77_THANK",
+   "text": "The broker took the credits and the credit, and told everyone at Ashgate what a fine pupil he had. You paid a small sum.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV77_SKIP_BTN",
+   "text": "Smile and go",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV77_SKIP_EFF",
+   "text": "Hothouse blooms at Ashgate cost less and pay less for a while.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV77_SKIP_TITLE",
+   "text": "The friends sell low",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV77_SKIP",
+   "text": "The broker's friends sold blooms at Ashgate for what they fetched. Hothouse blooms at Ashgate cost less and pay less for a while. You kept the smile. It is the only thing you kept.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV78_TITLE",
+   "text": "The board shows two gaps",
+   "max": 32,
+   "place": "pool event title"
+  },
+  {
+   "id": "EV78_BODY",
+   "text": "You read two price boards and see a gap on each. You can whisper one gap to one buyer. Whoever hears it first pays more for a while, and the other gap closes by itself. The board at Tillam is longer. Ashgate's is louder.",
+   "max": 280,
+   "place": "pool event text"
+  },
+  {
+   "id": "EV78_TILLAM_BTN",
+   "text": "Tell the Tillam buyer",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV78_TILLAM_EFF",
+   "text": "Musk at Tillam costs more and pays more for a while.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV78_TILLAM_TITLE",
+   "text": "The Tillam buyer nods",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV78_TILLAM",
+   "text": "The Tillam buyer nodded and said nothing. Musk at Tillam costs more and pays more for a while. Prices moved by the next bell, and nobody said by whose hand.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV78_ASHGATE_BTN",
+   "text": "Tell the Ashgate buyer",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV78_ASHGATE_EFF",
+   "text": "Hothouse blooms at Ashgate cost more and pay more for a while.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV78_ASHGATE_TITLE",
+   "text": "The Ashgate buyer writes",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV78_ASHGATE",
+   "text": "The Ashgate buyer wrote it on a napkin and left a large tip for lunch. Hothouse blooms at Ashgate cost more and pay more for a while.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV79_TITLE",
+   "text": "A gift from a grateful buyer",
+   "max": 32,
+   "place": "pool event title"
+  },
+  {
+   "id": "EV79_BODY",
+   "text": "A buyer you once let win a deal sends a crate with a note. The note says it is a gift, not payment. Gifts are polite to accept. Credits are lighter to carry. The crate is hothouse blooms, waiting at Ashgate.",
+   "max": 280,
+   "place": "pool event text"
+  },
+  {
+   "id": "EV79_CASH_BTN",
+   "text": "Take the credits",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV79_CASH_EFF",
+   "text": "You gain a small sum.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV79_CASH_TITLE",
+   "text": "Credits and a smile",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV79_CASH",
+   "text": "The buyer sent credits instead, and a second note thanking you for understanding. You gain a small sum.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV79_GOODS_BTN",
+   "text": "Take the blooms",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV79_GOODS_EFF",
+   "text": "Some hothouse blooms are added to your Company storage at Ashgate.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV79_GOODS_TITLE",
+   "text": "A crate of blooms",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV79_GOODS",
+   "text": "The crate reached Ashgate with a ribbon on it. Some hothouse blooms are added to your Company storage there. The ribbon was the buyer's. It stayed on the crate.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV80_TITLE",
+   "text": "Mossfell has seen the smile",
+   "max": 32,
+   "place": "pool event title"
+  },
+  {
+   "id": "EV80_BODY",
+   "text": "A broker's smile has been seen too often at Mossfell. Buyers now wait for his price to drop before they pay. Hothouse blooms at Mossfell cost less and pay less. The broker takes it as a compliment.",
+   "max": 280,
+   "place": "pool event text"
+  },
+  {
+   "id": "EV94_TITLE",
+   "text": "The gala sends a bill",
+   "max": 32,
+   "place": "pool event title"
+  },
+  {
+   "id": "EV94_BODY",
+   "text": "The house that held last season's gala sends your crew a bill for the sleeves they borrowed. The sum is small and the tone is warm. The house keeps a long memory for sleeves. Pay now, or let the house tell the story at Brannock's looms.",
+   "max": 280,
+   "place": "pool event text"
+  },
+  {
+   "id": "EV94_PAY_BTN",
+   "text": "Pay the bill",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV94_PAY_EFF",
+   "text": "Pay a small sum.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV94_PAY_TITLE",
+   "text": "The bill is paid",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV94_PAY",
+   "text": "You paid a small sum. The house wrote a receipt in violet ink and sent the sleeves back, pressed. Nobody in your crew will say who wore which.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV94_TELL_BTN",
+   "text": "Let the house talk",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV94_TELL_EFF",
+   "text": "Silk at Brannock costs less and pays less for a while.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV94_TELL_TITLE",
+   "text": "The story gets round",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV94_TELL",
+   "text": "The house told the story at Brannock's looms, with gestures. Weavers laughed into their sleeves, and silk at Brannock costs less and pays less for a while. The bill is still on file.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV95_TITLE",
+   "text": "Brannock's dyers run dry",
+   "max": 32,
+   "place": "pool event title"
+  },
+  {
+   "id": "EV95_BODY",
+   "text": "Brannock's dye vats ran dry mid-batch, and the dyers asked for musk to fix the colour. Nobody will say what musk has to do with colour. Musk at Brannock costs more and pays more. The cloth came out the same shade, only warmer.",
+   "max": 280,
+   "place": "pool event text"
+  },
+  {
+   "id": "EV96_TITLE",
+   "text": "Two orders at the counter",
+   "max": 32,
+   "place": "pool event title"
+  },
+  {
+   "id": "EV96_BODY",
+   "text": "Two orders reach the Voltara counter in one hour, and the case has room for one display. One buyer wants attar, one wants gems. Whichever is set out first draws the crowd. The other buyer will wait, and watch the case.",
+   "max": 280,
+   "place": "pool event text"
+  },
+  {
+   "id": "EV96_ATTAR_BTN",
+   "text": "Set out the attar",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV96_ATTAR_EFF",
+   "text": "Attar at Voltara costs more and pays more for a while.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV96_ATTAR_TITLE",
+   "text": "The attar is shown",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV96_ATTAR",
+   "text": "The attar went under the lamp and the crowd leaned in. Attar at Voltara costs more and pays more for a while. The buyer of gems studied the empty velvet beside it.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV96_GEMS_BTN",
+   "text": "Set out the gems",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV96_GEMS_EFF",
+   "text": "Gems at Voltara cost more and pay more for a while.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV96_GEMS_TITLE",
+   "text": "The gems are shown",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV96_GEMS",
+   "text": "The gems went under the lamp and the crowd went still. Gems at Voltara cost more and pay more for a while. The buyer of attar left a scented card in the case.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV48_TITLE",
+   "text": "Plate runs short at Quillon",
+   "max": 32,
+   "place": "pool event title"
+  },
+  {
+   "id": "EV48_BODY",
+   "text": "Quillon's builders wanted plate for a hall that has no plan, and every sheet in the yard was spoken for by noon. Plate at Quillon costs more and pays more. The hall is drawn on a wall and not on paper. Someone keeps adding rooms.",
+   "max": 280,
+   "place": "pool event text"
+  },
+  {
+   "id": "EV70_TITLE",
+   "text": "A note from the old yard",
+   "max": 32,
+   "place": "pool event title"
+  },
+  {
+   "id": "EV70_BODY",
+   "text": "A man you once paid for spare parts sends a note. Cinderrest wants dross before the next shift, and he gives no reason. Dross at Cinderrest costs more and pays more for a while. The note is signed twice, in two hands that do not match.",
+   "max": 280,
+   "place": "pool event text"
+  },
+  {
+   "id": "EV71_TITLE",
+   "text": "The count is off by a crate",
+   "max": 32,
+   "place": "pool event title"
+  },
+  {
+   "id": "EV71_BODY",
+   "text": "The yard counts your spare parts and finds one crate more than the page says. You will not keep what is not written down. The yard pays you for it, in credits or in ore left at Voltara.",
+   "max": 280,
+   "place": "pool event text"
+  },
+  {
+   "id": "EV71_CASH_BTN",
+   "text": "Take the credits",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV71_CASH_EFF",
+   "text": "You gain a small sum.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV71_CASH_TITLE",
+   "text": "Credits, counted twice",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV71_CASH",
+   "text": "The clerk counted the credits out twice, and so did you. The page and the crate now agree. You gain a small sum.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV71_ORE_BTN",
+   "text": "Take the ore",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV71_ORE_EFF",
+   "text": "Some ore is added to your Company storage at Voltara.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV71_ORE_TITLE",
+   "text": "Ore, on the shelf",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV71_ORE",
+   "text": "The crate was swapped for sacks of ore. Some ore is added to your Company storage at Voltara. You checked every seal before you signed.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV72_TITLE",
+   "text": "A clerk wants every bolt",
+   "max": 32,
+   "place": "pool event title"
+  },
+  {
+   "id": "EV72_BODY",
+   "text": "A Bureau clerk at Ashgate wants to check every part aboard. Your books are in order and you say so. The check takes days either way. A fee hurries it. Or the line grows at the dock.",
+   "max": 280,
+   "place": "pool event text"
+  },
+  {
+   "id": "EV72_PAY_BTN",
+   "text": "Pay to hurry it",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV72_PAY_EFF",
+   "text": "Pay a small sum. The check ends today.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV72_PAY_TITLE",
+   "text": "The clerk is quick",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV72_PAY",
+   "text": "The clerk stamped the last page and did not look up. You paid a small sum, and filed the receipt first.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV72_WAIT_BTN",
+   "text": "Let the line grow",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV72_WAIT_EFF",
+   "text": "Lanes that touch Ashgate cost more per trip for a few cycles.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV72_WAIT_TITLE",
+   "text": "The dock is full",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV72_WAIT",
+   "text": "Ships stacked up outside Ashgate. Nobody left, and nobody was told when. Lanes that touch Ashgate cost more per trip for a few cycles.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV73_TITLE",
+   "text": "One crew, two docks",
+   "max": 32,
+   "place": "pool event title"
+  },
+  {
+   "id": "EV73_BODY",
+   "text": "You can lend a work crew to one dock for a short time. Cindrel's yard would run hot. Quillon's would run light. Both owe you a favour. The dock that gets the crew sees trade pick up for a while.",
+   "max": 280,
+   "place": "pool event text"
+  },
+  {
+   "id": "EV73_CINDREL_BTN",
+   "text": "Send them to Cindrel",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV73_CINDREL_EFF",
+   "text": "Ore at Cindrel costs more and pays more for a while.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV73_CINDREL_TITLE",
+   "text": "Cindrel's yard is busy",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV73_CINDREL",
+   "text": "The crew worked two shifts at Cindrel. Ore there costs more and pays more for a while. The yard master wrote the favour in a small book.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV73_QUILLON_BTN",
+   "text": "Send them to Quillon",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV73_QUILLON_EFF",
+   "text": "Ore at Quillon costs more and pays more for a while.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV73_QUILLON_TITLE",
+   "text": "Quillon's yard is busy",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV73_QUILLON",
+   "text": "The crew worked easy hours at Quillon. Ore there costs more and pays more for a while. The yard master paid back in goodwill, which you also count.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV74_TITLE",
+   "text": "Luck pays Ashgate once",
+   "max": 32,
+   "place": "pool event title"
+  },
+  {
+   "id": "EV74_BODY",
+   "text": "A shipment of dross reaches Ashgate by a mistake nobody owns. Dross at Ashgate costs less and pays less for a while. You call it luck, and do not trust it. The second page of the manifest is blank.",
+   "max": 280,
+   "place": "pool event text"
+  },
+  {
+   "id": "EV_FLT04_TITLE",
+   "text": "Dust across the lane",
+   "max": 32,
+   "place": "pool event title"
+  },
+  {
+   "id": "EV_FLT04_BODY",
+   "text": "Fine dust crosses the lane to Flintmoor and rattles on the hull like rain on a tin roof. The pilot slows, then asks if she may ask what rain is. Nobody on board is sure. Ships can slow with her, or push through and pay for the hull.",
+   "max": 280,
+   "place": "pool event text"
+  },
+  {
+   "id": "EV_FLT04_SLOW_BTN",
+   "text": "Slow down",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV_FLT04_SLOW_EFF",
+   "text": "Lanes that touch Flintmoor cost more per trip for a few cycles.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV_FLT04_SLOW_TITLE",
+   "text": "The dust passes",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV_FLT04_SLOW",
+   "text": "The ships slowed and the dust went over like a long shift change. Lanes that touch Flintmoor cost more per trip for a few cycles. The hull rang once, low, and then did not ring again.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV_FLT04_PUSH_BTN",
+   "text": "Push through",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV_FLT04_PUSH_EFF",
+   "text": "Pay a small sum for hull repairs.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV_FLT04_PUSH_TITLE",
+   "text": "The hull takes the dust",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV_FLT04_PUSH",
+   "text": "The ships pushed through at speed. You paid a small sum for hull repairs at the next port. The pilot stood the rest of the shift at the glass, trying to remember what rain was for.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV_PLT01_TITLE",
+   "text": "Who works the dark",
+   "max": 32,
+   "place": "pool event title"
+  },
+  {
+   "id": "EV_PLT01_BODY",
+   "text": "A crew from the Bureau's labour desk reaches the new platform on Cinderrest. They came for the pay and stay for the quiet. The foreman asks what to call a shift that never ends. No one has a form for it.",
+   "max": 280,
+   "place": "pool event text"
+  },
+  {
+   "id": "EV_PLT01_NIGHT_BTN",
+   "text": "Hire the night crew",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV_PLT01_NIGHT_EFF",
+   "text": "Some dross is added to your Company storage at Cinderrest.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV_PLT01_NIGHT_TITLE",
+   "text": "The night crew signs on",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV_PLT01_NIGHT",
+   "text": "The night crew signed on without reading. By morning some dross lay in your storage at Cinderrest, stacked with great care. The foreman named the shift Always. It stuck.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV_PLT01_DAY_BTN",
+   "text": "Send the crew home",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV_PLT01_DAY_EFF",
+   "text": "You gain a small sum, the labour desk's refund.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV_PLT01_DAY_TITLE",
+   "text": "The crew goes home",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV_PLT01_DAY",
+   "text": "You sent the crew back to the labour desk, which refunded the hire with a small sum. You gain a small sum. At change of shift the foreman counted the lamps going out and the lamps coming on, and got two different answers.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV_PLT02_TITLE",
+   "text": "The roof sings",
+   "max": 32,
+   "place": "pool event title"
+  },
+  {
+   "id": "EV_PLT02_BODY",
+   "text": "A gallery at Cinderrest sings before it fails, a low note, held. The crew is out and the rock is still. Props cost credits. Sealing the gallery costs time. The note has not stopped.",
+   "max": 280,
+   "place": "pool event text"
+  },
+  {
+   "id": "EV_PLT02_PROP_BTN",
+   "text": "Pay for props",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV_PLT02_PROP_EFF",
+   "text": "Pay a small sum. Routes from Cinderrest keep running.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV_PLT02_PROP_TITLE",
+   "text": "The props go in",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV_PLT02_PROP",
+   "text": "The props went in under the sound and the sound let them. You paid a small sum. Routes from Cinderrest keep running. The note dropped a step, the way a voice does when it has been understood.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV_PLT02_SEAL_BTN",
+   "text": "Seal the gallery",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV_PLT02_SEAL_EFF",
+   "text": "Cinderrest closes for a while. Routes touching it are blocked.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV_PLT02_SEAL_TITLE",
+   "text": "The gallery is sealed",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV_PLT02_SEAL",
+   "text": "The crew sealed the gallery with slabs and tape. Cinderrest is closed for a while, and routes touching it are blocked. Behind the slabs the note went on, patient, like a tenant.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV_PLT03_TITLE",
+   "text": "A seam no one logged",
+   "max": 32,
+   "place": "pool event title"
+  },
+  {
+   "id": "EV_PLT03_BODY",
+   "text": "The drill at Greywake broke into a seam the old surveys never entered, as if they had looked away. It is bright, cold and heavier than it should be. The Bureau has not been told yet.",
+   "max": 280,
+   "place": "pool event text"
+  },
+  {
+   "id": "EV_PLT03_LOG_BTN",
+   "text": "Log the find",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV_PLT03_LOG_EFF",
+   "text": "You gain a small sum as a finder's share.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV_PLT03_LOG_TITLE",
+   "text": "The find is logged",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV_PLT03_LOG",
+   "text": "The Bureau stamped the find within the hour, which no one had ever seen. You gain a small sum as a finder's share. The seam now has a number, and the number, quietly, has a seam.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV_PLT03_HIDE_BTN",
+   "text": "Keep it off the books",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV_PLT03_HIDE_EFF",
+   "text": "Some nullglass is added to your Company storage at Greywake.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV_PLT03_HIDE_TITLE",
+   "text": "The find stays quiet",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV_PLT03_HIDE",
+   "text": "The crew filled the carts before the shift bell and told no one. Some nullglass is added to your Company storage at Greywake. The seam is still bright in the dark, and still cold on the hand.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV_PLT04_TITLE",
+   "text": "The hum under the floor",
+   "max": 32,
+   "place": "pool event title"
+  },
+  {
+   "id": "EV_PLT04_BODY",
+   "text": "The floor of the platform on Greywake hums while the crew sleeps, a steady note, the same each night. Two buyers want the next lot of nullglass, one at Cindrel and one at Quillon. The shift lead says the hum changes with the lot's road. She does not say how.",
+   "max": 280,
+   "place": "pool event text"
+  },
+  {
+   "id": "EV_PLT04_CINDREL_BTN",
+   "text": "Send the lot to Cindrel",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV_PLT04_CINDREL_EFF",
+   "text": "Nullglass at Cindrel costs more and pays more for a while.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV_PLT04_CINDREL_TITLE",
+   "text": "The lot goes to Cindrel",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV_PLT04_CINDREL",
+   "text": "The lot left for Cindrel and the hum thinned, then stopped. Nullglass at Cindrel costs more and pays more for a while. The shift lead slept well.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV_PLT04_QUILLON_BTN",
+   "text": "Send the lot to Quillon",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV_PLT04_QUILLON_EFF",
+   "text": "Nullglass at Quillon costs more and pays more for a while.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV_PLT04_QUILLON_TITLE",
+   "text": "The lot goes to Quillon",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV_PLT04_QUILLON",
+   "text": "The lot left for Quillon and the hum rose a note. Nullglass at Quillon costs more and pays more for a while. The engineers wrote down that it was not louder.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV51_TITLE",
+   "text": "Seed stock sells out at Brannock",
+   "max": 32,
+   "place": "pool event title"
+  },
+  {
+   "id": "EV51_BODY",
+   "text": "A planting season came early at Brannock, and every grower wanted seed stock before the frost. Seed stock at Brannock costs more and pays more. The growers say the frost will not come. They keep one eye on the sky and one on the lock.",
+   "max": 280,
+   "place": "pool event text"
+  },
+  {
+   "id": "EV88_TITLE",
+   "text": "Two clerks ask a favour",
+   "max": 32,
+   "place": "pool event title"
+  },
+  {
+   "id": "EV88_BODY",
+   "text": "A clerk at Tillam and a clerk at Ashgate both ask you to put in a word for their dock. You know them both by name. You can do it for one this cycle. The other will understand, and remember.",
+   "max": 280,
+   "place": "pool event text"
+  },
+  {
+   "id": "EV88_TILLAM_BTN",
+   "text": "Speak for Tillam",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV88_TILLAM_EFF",
+   "text": "Spores at Tillam cost more and pay more for a while.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV88_TILLAM_TITLE",
+   "text": "Tillam is pleased",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV88_TILLAM",
+   "text": "The Tillam clerk bowed twice. Spores at Tillam cost more and pay more for a while. A queue of buyers formed by the next bell.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV88_ASHGATE_BTN",
+   "text": "Speak for Ashgate",
+   "max": 28,
+   "place": "button"
+  },
+  {
+   "id": "EV88_ASHGATE_EFF",
+   "text": "Spores at Ashgate cost more and pay more for a while.",
+   "max": 90,
+   "place": "effect line"
+  },
+  {
+   "id": "EV88_ASHGATE_TITLE",
+   "text": "Ashgate is pleased",
+   "max": 32,
+   "place": "popup title"
+  },
+  {
+   "id": "EV88_ASHGATE",
+   "text": "The Ashgate clerk sent a card and a plate of something sweet. Spores at Ashgate cost more and pay more for a while.",
+   "max": 280,
+   "place": "popup"
+  },
+  {
+   "id": "EV75_TITLE",
+   "text": "Quillon stops paying for ore",
+   "max": 32,
+   "place": "pool event title"
+  },
+  {
+   "id": "EV75_BODY",
+   "text": "Quillon's builders found a stack of ore in a closed yard and stopped buying. Ore at Quillon costs less and pays less for a while. The yard's gate was sealed with a form that no one remembers signing. The ore is warm.",
+   "max": 280,
+   "place": "pool event text"
   }
  ]
 }

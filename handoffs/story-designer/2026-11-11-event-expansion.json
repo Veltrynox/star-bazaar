@@ -1,0 +1,3606 @@
+{
+ "schema_version": 1,
+ "agent": "story-designer",
+ "date": "2026-11-11",
+ "task": "event-expansion",
+ "status": "done",
+ "files_changed": [
+  "story/events.md",
+  "story/screens.md",
+  "story/gigs.md",
+  "story/skills.md",
+  "handoffs/story-designer/2026-11-11-event-expansion.json"
+ ],
+ "open_questions": [
+  "Owner: EV24/EV25/EV21/EV22 move from data/events.json (pool_kept) to chains.json pool_new so they carry a gate; ok?",
+  "GIG03 to GIG06 'when' uses any_tier:2 as a placeholder start; owner may prefer plain gig_first_cycle.",
+  "Stage-2/3 chain triggers (bazaar_stage:2, :3) assume the Bazaar reaches stage 3 before the win; programmer should confirm."
+ ],
+ "handoff": "Texts are final in story/events.md, screens.md and gigs.md; build passes with --out. Wire from this plan: pool_new rows (pool_events, with visible_when from gate; choices use cash_key/stock keys, follow_id for BE01/02/03), chain steps C1-C3 for four markets (chain_steps), gigs GIG03-06 rows and GIG07 note. EV_PST*/EV_PLT*/EV_FLT* are now ordinary gated pool events (no post-built trigger needed). EV75, EV70-EV96 and EV41/42/44/45/48/51 have no data row yet. story/ru has stale ids for deleted/reworded texts (build lists them as RU ERROR); Haiku retranslation is a separate task. Not edited: story/ru, data, game.",
+ "details": {
+  "new_effect_kinds": [],
+  "notes": "Zero new kinds. Every choice option has one effect: price up/down, planet closed, shortage, congestion, cash (signed, balance key), stock (Company storage, balance key). Weather house follows Events.house_of unless 'house' given. 'a small sum' and 'some' map to balance keys the programmer adds in the existing band. Pool rows need min_cycle only if wanted. dead_2/dead_1 worlds count as post_built when reclaimed; platform_built used for mining platform events.",
+  "pool_events": [
+   {
+    "id": "EV_PST01",
+    "group": "shared",
+    "shape": "choice",
+    "kind": "C",
+    "title_id": "EV_PST01_TITLE",
+    "body_id": "EV_PST01_BODY",
+    "type": "gain or gain",
+    "options": [
+     {
+      "key": "SIGN",
+      "btn_id": "EV_PST01_SIGN_BTN",
+      "eff_id": "EV_PST01_SIGN_EFF",
+      "popup_title_id": "EV_PST01_SIGN_TITLE",
+      "popup_id": "EV_PST01_SIGN",
+      "effect": {
+       "kind": "up",
+       "world": "planet_4",
+       "world_name": "Flintmoor",
+       "good": "energy"
+      },
+      "tag": "[price up: Flintmoor, energy]",
+      "house_weather": "Velvet Concord (bot_2)"
+     },
+     {
+      "key": "LEAVE",
+      "btn_id": "EV_PST01_LEAVE_BTN",
+      "eff_id": "EV_PST01_LEAVE_EFF",
+      "popup_title_id": "EV_PST01_LEAVE_TITLE",
+      "popup_id": "EV_PST01_LEAVE",
+      "effect": {
+       "kind": "cash",
+       "amount": "a small sum",
+       "sign": 1
+      },
+      "tag": "[cash: signed amount by balance key]"
+     }
+    ],
+    "gate": {
+     "all": [
+      "post_built:planet_4"
+     ]
+    },
+    "once_per_run": true,
+    "status": "reused: old EV_PST01 rewritten"
+   },
+   {
+    "id": "EV_PST02",
+    "group": "shared",
+    "shape": "choice",
+    "kind": "C",
+    "title_id": "EV_PST02_TITLE",
+    "body_id": "EV_PST02_BODY",
+    "type": "cost or cost",
+    "options": [
+     {
+      "key": "GIFT",
+      "btn_id": "EV_PST02_GIFT_BTN",
+      "eff_id": "EV_PST02_GIFT_EFF",
+      "popup_title_id": "EV_PST02_GIFT_TITLE",
+      "popup_id": "EV_PST02_GIFT",
+      "effect": {
+       "kind": "cash",
+       "amount": "a small sum",
+       "sign": -1
+      },
+      "tag": "[cash: signed amount by balance key]"
+     },
+     {
+      "key": "WAIT",
+      "btn_id": "EV_PST02_WAIT_BTN",
+      "eff_id": "EV_PST02_WAIT_EFF",
+      "popup_title_id": "EV_PST02_WAIT_TITLE",
+      "popup_id": "EV_PST02_WAIT",
+      "effect": {
+       "kind": "down",
+       "world": "s2_p1",
+       "world_name": "Brannock",
+       "good": "energy"
+      },
+      "tag": "[price down: Brannock, energy]",
+      "house_weather": "Harrow Combine (bot_1)"
+     }
+    ],
+    "gate": {
+     "all": [
+      "system_open:2",
+      "post_built:s2_p1"
+     ]
+    },
+    "once_per_run": true,
+    "status": "reused: old EV_PST02 rewritten"
+   },
+   {
+    "id": "EV_PST03",
+    "group": "shared",
+    "shape": "choice",
+    "kind": "C",
+    "title_id": "EV_PST03_TITLE",
+    "body_id": "EV_PST03_BODY",
+    "type": "cost or cost",
+    "options": [
+     {
+      "key": "PART",
+      "btn_id": "EV_PST03_PART_BTN",
+      "eff_id": "EV_PST03_PART_EFF",
+      "popup_title_id": "EV_PST03_PART_TITLE",
+      "popup_id": "EV_PST03_PART",
+      "effect": {
+       "kind": "cash",
+       "amount": "a small sum",
+       "sign": -1
+      },
+      "tag": "[cash: signed amount by balance key]"
+     },
+     {
+      "key": "SHIFT",
+      "btn_id": "EV_PST03_SHIFT_BTN",
+      "eff_id": "EV_PST03_SHIFT_EFF",
+      "popup_title_id": "EV_PST03_SHIFT_TITLE",
+      "popup_id": "EV_PST03_SHIFT",
+      "effect": {
+       "kind": "congestion",
+       "world": "s2_p2",
+       "world_name": "Cindrel"
+      },
+      "tag": "[congestion: Cindrel]",
+      "house_weather": "Ostrel Syndicate (bot_3)"
+     }
+    ],
+    "gate": {
+     "all": [
+      "system_open:2",
+      "post_built:s2_p2"
+     ]
+    },
+    "once_per_run": true,
+    "status": "reused: old EV_PST03 rewritten"
+   },
+   {
+    "id": "EV_PST04",
+    "group": "shared",
+    "shape": "choice",
+    "kind": "C",
+    "title_id": "EV_PST04_TITLE",
+    "body_id": "EV_PST04_BODY",
+    "type": "gain or gain",
+    "options": [
+     {
+      "key": "LEASE",
+      "btn_id": "EV_PST04_LEASE_BTN",
+      "eff_id": "EV_PST04_LEASE_EFF",
+      "popup_title_id": "EV_PST04_LEASE_TITLE",
+      "popup_id": "EV_PST04_LEASE",
+      "effect": {
+       "kind": "up",
+       "world": "s2_p3",
+       "world_name": "Mossfell",
+       "good": "energy"
+      },
+      "tag": "[price up: Mossfell, energy]",
+      "house_weather": "Velvet Concord (bot_2)"
+     },
+     {
+      "key": "CELLS",
+      "btn_id": "EV_PST04_CELLS_BTN",
+      "eff_id": "EV_PST04_CELLS_EFF",
+      "popup_title_id": "EV_PST04_CELLS_TITLE",
+      "popup_id": "EV_PST04_CELLS",
+      "effect": {
+       "kind": "stock",
+       "world": "s2_p3",
+       "world_name": "Mossfell",
+       "good": "energy",
+       "amount": "some (a small lot)"
+      },
+      "tag": "[stock: Mossfell, energy, amount by balance key]"
+     }
+    ],
+    "gate": {
+     "all": [
+      "system_open:2",
+      "post_built:s2_p3"
+     ]
+    },
+    "once_per_run": true,
+    "status": "reused: old EV_PST04 rewritten (keys BUY/PASS replaced by LEASE/CELLS)"
+   },
+   {
+    "id": "EV_PST05",
+    "group": "shared",
+    "shape": "choice",
+    "kind": "C",
+    "title_id": "EV_PST05_TITLE",
+    "body_id": "EV_PST05_BODY",
+    "type": "gain or gain",
+    "options": [
+     {
+      "key": "SHARE",
+      "btn_id": "EV_PST05_SHARE_BTN",
+      "eff_id": "EV_PST05_SHARE_EFF",
+      "popup_title_id": "EV_PST05_SHARE_TITLE",
+      "popup_id": "EV_PST05_SHARE",
+      "effect": {
+       "kind": "up",
+       "world": "s2_p4",
+       "world_name": "Quillon",
+       "good": "energy"
+      },
+      "tag": "[price up: Quillon, energy]",
+      "house_weather": "Velvet Concord (bot_2)"
+     },
+     {
+      "key": "MOVE",
+      "btn_id": "EV_PST05_MOVE_BTN",
+      "eff_id": "EV_PST05_MOVE_EFF",
+      "popup_title_id": "EV_PST05_MOVE_TITLE",
+      "popup_id": "EV_PST05_MOVE",
+      "effect": {
+       "kind": "cash",
+       "amount": "a small sum",
+       "sign": 1
+      },
+      "tag": "[cash: signed amount by balance key]"
+     }
+    ],
+    "gate": {
+     "all": [
+      "system_open:2",
+      "post_built:s2_p4"
+     ]
+    },
+    "once_per_run": true,
+    "status": "reused: old EV_PST05 rewritten (key SEAL replaced by MOVE; no house named)"
+   },
+   {
+    "id": "EV_PST06",
+    "group": "shared",
+    "shape": "choice",
+    "kind": "C",
+    "title_id": "EV_PST06_TITLE",
+    "body_id": "EV_PST06_BODY",
+    "type": "gain or gain",
+    "options": [
+     {
+      "key": "OPEN",
+      "btn_id": "EV_PST06_OPEN_BTN",
+      "eff_id": "EV_PST06_OPEN_EFF",
+      "popup_title_id": "EV_PST06_OPEN_TITLE",
+      "popup_id": "EV_PST06_OPEN",
+      "effect": {
+       "kind": "up",
+       "world": "planet_2",
+       "world_name": "Tillam",
+       "good": "energy"
+      },
+      "tag": "[price up: Tillam, energy]",
+      "house_weather": "Velvet Concord (bot_2)"
+     },
+     {
+      "key": "WORK",
+      "btn_id": "EV_PST06_WORK_BTN",
+      "eff_id": "EV_PST06_WORK_EFF",
+      "popup_title_id": "EV_PST06_WORK_TITLE",
+      "popup_id": "EV_PST06_WORK",
+      "effect": {
+       "kind": "stock",
+       "world": "planet_2",
+       "world_name": "Tillam",
+       "good": "energy",
+       "amount": "some (a small lot)"
+      },
+      "tag": "[stock: Tillam, energy, amount by balance key]"
+     }
+    ],
+    "gate": {
+     "all": [
+      "post_built:planet_2",
+      "planet_tier:planet_2/2"
+     ]
+    },
+    "once_per_run": true,
+    "status": "reused: old EV_PST06 rewritten; later state: Tillam at prosperity tier 2"
+   },
+   {
+    "id": "EV_FLT01",
+    "group": "shared",
+    "shape": "choice",
+    "kind": "C",
+    "title_id": "EV_FLT01_TITLE",
+    "body_id": "EV_FLT01_BODY",
+    "type": "gain or gain",
+    "options": [
+     {
+      "key": "TOW",
+      "btn_id": "EV_FLT01_TOW_BTN",
+      "eff_id": "EV_FLT01_TOW_EFF",
+      "popup_title_id": "EV_FLT01_TOW_TITLE",
+      "popup_id": "EV_FLT01_TOW",
+      "effect": {
+       "kind": "cash",
+       "amount": "a small sum",
+       "sign": 1
+      },
+      "tag": "[cash: signed amount by balance key]"
+     },
+     {
+      "key": "STRIP",
+      "btn_id": "EV_FLT01_STRIP_BTN",
+      "eff_id": "EV_FLT01_STRIP_EFF",
+      "popup_title_id": "EV_FLT01_STRIP_TITLE",
+      "popup_id": "EV_FLT01_STRIP",
+      "effect": {
+       "kind": "stock",
+       "world": "planet_1",
+       "world_name": "Voltara",
+       "good": "energy",
+       "amount": "some (a small lot)"
+      },
+      "tag": "[stock: Voltara, energy, amount by balance key]"
+     }
+    ],
+    "gate": {
+     "all": [
+      "any_tier:2"
+     ]
+    },
+    "once_per_run": true,
+    "status": "reused: old EV_FLT01 rewritten (key FLY replaced by STRIP); later state: a world at tier 2"
+   },
+   {
+    "id": "EV_FLT02",
+    "group": "shared",
+    "shape": "choice",
+    "kind": "C",
+    "title_id": "EV_FLT02_TITLE",
+    "body_id": "EV_FLT02_BODY",
+    "type": "cost or cost",
+    "options": [
+     {
+      "key": "RELAY",
+      "btn_id": "EV_FLT02_RELAY_BTN",
+      "eff_id": "EV_FLT02_RELAY_EFF",
+      "popup_title_id": "EV_FLT02_RELAY_TITLE",
+      "popup_id": "EV_FLT02_RELAY",
+      "effect": {
+       "kind": "cash",
+       "amount": "a small sum",
+       "sign": -1
+      },
+      "tag": "[cash: signed amount by balance key]"
+     },
+     {
+      "key": "HOLD",
+      "btn_id": "EV_FLT02_HOLD_BTN",
+      "eff_id": "EV_FLT02_HOLD_EFF",
+      "popup_title_id": "EV_FLT02_HOLD_TITLE",
+      "popup_id": "EV_FLT02_HOLD",
+      "effect": {
+       "kind": "congestion",
+       "world": "s2_p1",
+       "world_name": "Brannock"
+      },
+      "tag": "[congestion: Brannock]",
+      "house_weather": "Ostrel Syndicate (bot_3)"
+     }
+    ],
+    "gate": {
+     "all": [
+      "system_open:2",
+      "post_built:s2_p1",
+      "any_tier:3"
+     ]
+    },
+    "once_per_run": true,
+    "status": "reused: old EV_FLT02 rewritten; later state: a world at tier 3"
+   },
+   {
+    "id": "EV41",
+    "group": "mil",
+    "shape": "plain",
+    "kind": "Q",
+    "title_id": "EV41_TITLE",
+    "body_id": "EV41_BODY",
+    "tag": "[price up: Cindrel, rounds]",
+    "effect": {
+     "kind": "up",
+     "world": "s2_p2",
+     "world_name": "Cindrel",
+     "good": "rounds"
+    },
+    "target": "Cindrel (s2_p2), rounds",
+    "gate": {
+     "all": [
+      "branch_is:mil",
+      "system_open:2",
+      "post_built:s2_p2",
+      "good_visible:rounds"
+     ]
+    },
+    "once_per_run": true,
+    "house_weather": "Velvet Concord (bot_2)",
+    "status": "new",
+    "note": "table row existed (wrong world Ashgate); text new. Later state: Munitions Line built."
+   },
+   {
+    "id": "EV42",
+    "group": "mil",
+    "shape": "plain",
+    "kind": "I",
+    "title_id": "EV42_TITLE",
+    "body_id": "EV42_BODY",
+    "tag": "[price up: Quillon, arms]",
+    "effect": {
+     "kind": "up",
+     "world": "s2_p4",
+     "world_name": "Quillon",
+     "good": "arms"
+    },
+    "target": "Quillon (s2_p4), arms",
+    "gate": {
+     "all": [
+      "branch_is:mil",
+      "system_open:2",
+      "post_built:s2_p4",
+      "good_visible:arms"
+     ]
+    },
+    "once_per_run": true,
+    "house_weather": "Velvet Concord (bot_2)",
+    "status": "new",
+    "note": "table row existed (wrong world Tillam); text new. Late: needs MIL_4 and the workshop."
+   },
+   {
+    "id": "EV81",
+    "group": "mil",
+    "shape": "plain",
+    "kind": "Q",
+    "title_id": "EV81_TITLE",
+    "body_id": "EV81_BODY",
+    "tag": "[shortage: Flintmoor, energy]",
+    "effect": {
+     "kind": "shortage",
+     "world": "planet_4",
+     "world_name": "Flintmoor",
+     "good": "energy"
+    },
+    "target": "Flintmoor (planet_4), energy",
+    "gate": {
+     "all": [
+      "branch_is:mil",
+      "post_built:planet_4"
+     ]
+    },
+    "once_per_run": true,
+    "house_weather": "Velvet Concord (bot_2)",
+    "status": "new",
+    "note": "new. The existing need gate (Events.available) applies; Flintmoor has scarce energy."
+   },
+   {
+    "id": "EV82",
+    "group": "mil",
+    "shape": "choice",
+    "kind": "C",
+    "title_id": "EV82_TITLE",
+    "body_id": "EV82_BODY",
+    "type": "cost or cost",
+    "options": [
+     {
+      "key": "PAY",
+      "btn_id": "EV82_PAY_BTN",
+      "eff_id": "EV82_PAY_EFF",
+      "popup_title_id": "EV82_PAY_TITLE",
+      "popup_id": "EV82_PAY",
+      "effect": {
+       "kind": "cash",
+       "amount": "a small sum",
+       "sign": -1
+      },
+      "tag": "[cash: signed amount by balance key]"
+     },
+     {
+      "key": "WAIT",
+      "btn_id": "EV82_WAIT_BTN",
+      "eff_id": "EV82_WAIT_EFF",
+      "popup_title_id": "EV82_WAIT_TITLE",
+      "popup_id": "EV82_WAIT",
+      "effect": {
+       "kind": "congestion",
+       "world": "planet_2",
+       "world_name": "Tillam"
+      },
+      "tag": "[congestion: Tillam]",
+      "house_weather": "Ostrel Syndicate (bot_3)"
+     }
+    ],
+    "gate": {
+     "all": [
+      "branch_is:mil",
+      "post_built:planet_2"
+     ]
+    },
+    "once_per_run": true,
+    "status": "new, from the CEO proposal EV82"
+   },
+   {
+    "id": "EV83",
+    "group": "mil",
+    "shape": "choice",
+    "kind": "C",
+    "title_id": "EV83_TITLE",
+    "body_id": "EV83_BODY",
+    "type": "gain or gain",
+    "options": [
+     {
+      "key": "VOLT",
+      "btn_id": "EV83_VOLT_BTN",
+      "eff_id": "EV83_VOLT_EFF",
+      "popup_title_id": "EV83_VOLT_TITLE",
+      "popup_id": "EV83_VOLT",
+      "effect": {
+       "kind": "up",
+       "world": "planet_1",
+       "world_name": "Voltara",
+       "good": "powder"
+      },
+      "tag": "[price up: Voltara, powder]",
+      "house_weather": "Velvet Concord (bot_2)"
+     },
+     {
+      "key": "FLINT",
+      "btn_id": "EV83_FLINT_BTN",
+      "eff_id": "EV83_FLINT_EFF",
+      "popup_title_id": "EV83_FLINT_TITLE",
+      "popup_id": "EV83_FLINT",
+      "effect": {
+       "kind": "up",
+       "world": "planet_4",
+       "world_name": "Flintmoor",
+       "good": "energy"
+      },
+      "tag": "[price up: Flintmoor, energy]",
+      "house_weather": "Velvet Concord (bot_2)"
+     }
+    ],
+    "gate": {
+     "all": [
+      "branch_is:mil",
+      "post_built:planet_4"
+     ]
+    },
+    "once_per_run": true,
+    "status": "new, from the CEO proposal EV83 (food replaced by powder)"
+   },
+   {
+    "id": "EV84",
+    "group": "mil",
+    "shape": "choice",
+    "kind": "C",
+    "title_id": "EV84_TITLE",
+    "body_id": "EV84_BODY",
+    "type": "gain or gain",
+    "options": [
+     {
+      "key": "CASH",
+      "btn_id": "EV84_CASH_BTN",
+      "eff_id": "EV84_CASH_EFF",
+      "popup_title_id": "EV84_CASH_TITLE",
+      "popup_id": "EV84_CASH",
+      "effect": {
+       "kind": "cash",
+       "amount": "a small sum",
+       "sign": 1
+      },
+      "tag": "[cash: signed amount by balance key]"
+     },
+     {
+      "key": "GOODS",
+      "btn_id": "EV84_GOODS_BTN",
+      "eff_id": "EV84_GOODS_EFF",
+      "popup_title_id": "EV84_GOODS_TITLE",
+      "popup_id": "EV84_GOODS",
+      "effect": {
+       "kind": "stock",
+       "world": "planet_4",
+       "world_name": "Flintmoor",
+       "good": "powder",
+       "amount": "some (a small lot)"
+      },
+      "tag": "[stock: Flintmoor, powder, amount by balance key]"
+     }
+    ],
+    "gate": {
+     "all": [
+      "branch_is:mil",
+      "post_built:planet_4"
+     ]
+    },
+    "once_per_run": true,
+    "status": "new, from the CEO proposal EV84"
+   },
+   {
+    "id": "EV85",
+    "group": "mil",
+    "shape": "plain",
+    "kind": "Q",
+    "title_id": "EV85_TITLE",
+    "body_id": "EV85_BODY",
+    "tag": "[price down: Voltara, powder]",
+    "effect": {
+     "kind": "down",
+     "world": "planet_1",
+     "world_name": "Voltara",
+     "good": "powder"
+    },
+    "target": "Voltara (planet_1), powder",
+    "gate": {
+     "all": [
+      "branch_is:mil"
+     ]
+    },
+    "once_per_run": true,
+    "house_weather": "Harrow Combine (bot_1)",
+    "status": "new",
+    "note": "new, from the CEO proposal EV85 (food replaced by powder)"
+   },
+   {
+    "id": "EV_FLT03",
+    "group": "mil",
+    "shape": "choice",
+    "kind": "C",
+    "title_id": "EV_FLT03_TITLE",
+    "body_id": "EV_FLT03_BODY",
+    "type": "cost or cost",
+    "options": [
+     {
+      "key": "PAY",
+      "btn_id": "EV_FLT03_PAY_BTN",
+      "eff_id": "EV_FLT03_PAY_EFF",
+      "popup_title_id": "EV_FLT03_PAY_TITLE",
+      "popup_id": "EV_FLT03_PAY",
+      "effect": {
+       "kind": "cash",
+       "amount": "a small sum",
+       "sign": -1
+      },
+      "tag": "[cash: signed amount by balance key]"
+     },
+     {
+      "key": "AROUND",
+      "btn_id": "EV_FLT03_AROUND_BTN",
+      "eff_id": "EV_FLT03_AROUND_EFF",
+      "popup_title_id": "EV_FLT03_AROUND_TITLE",
+      "popup_id": "EV_FLT03_AROUND",
+      "effect": {
+       "kind": "congestion",
+       "world": "s2_p4",
+       "world_name": "Quillon"
+      },
+      "tag": "[congestion: Quillon]",
+      "house_weather": "Ostrel Syndicate (bot_3)"
+     }
+    ],
+    "gate": {
+     "all": [
+      "branch_is:mil",
+      "system_open:2",
+      "post_built:s2_p4"
+     ]
+    },
+    "once_per_run": true,
+    "status": "reused: old EV_FLT03 rewritten; Military by gate"
+   },
+   {
+    "id": "EV91",
+    "group": "mil",
+    "shape": "plain",
+    "kind": "I",
+    "title_id": "EV91_TITLE",
+    "body_id": "EV91_BODY",
+    "tag": "[planet closed: Cindrel]",
+    "effect": {
+     "kind": "closed",
+     "world": "s2_p2",
+     "world_name": "Cindrel"
+    },
+    "target": "Cindrel (s2_p2)",
+    "gate": {
+     "all": [
+      "branch_is:mil",
+      "system_open:2",
+      "post_built:s2_p2"
+     ]
+    },
+    "once_per_run": true,
+    "house_weather": "Ostrel Syndicate (bot_3)",
+    "status": "new",
+    "note": "new"
+   },
+   {
+    "id": "EV92",
+    "group": "mil",
+    "shape": "choice",
+    "kind": "C",
+    "title_id": "EV92_TITLE",
+    "body_id": "EV92_BODY",
+    "type": "gain or gain",
+    "options": [
+     {
+      "key": "QUILLON",
+      "btn_id": "EV92_QUILLON_BTN",
+      "eff_id": "EV92_QUILLON_EFF",
+      "popup_title_id": "EV92_QUILLON_TITLE",
+      "popup_id": "EV92_QUILLON",
+      "effect": {
+       "kind": "up",
+       "world": "s2_p4",
+       "world_name": "Quillon",
+       "good": "rivets"
+      },
+      "tag": "[price up: Quillon, rivets]",
+      "house_weather": "Velvet Concord (bot_2)"
+     },
+     {
+      "key": "CINDREL",
+      "btn_id": "EV92_CINDREL_BTN",
+      "eff_id": "EV92_CINDREL_EFF",
+      "popup_title_id": "EV92_CINDREL_TITLE",
+      "popup_id": "EV92_CINDREL",
+      "effect": {
+       "kind": "up",
+       "world": "s2_p2",
+       "world_name": "Cindrel",
+       "good": "rivets"
+      },
+      "tag": "[price up: Cindrel, rivets]",
+      "house_weather": "Velvet Concord (bot_2)"
+     }
+    ],
+    "gate": {
+     "all": [
+      "branch_is:mil",
+      "system_open:2",
+      "post_built:s2_p4",
+      "post_built:s2_p2",
+      "good_visible:rivets"
+     ]
+    },
+    "once_per_run": true,
+    "status": "new"
+   },
+   {
+    "id": "EV93",
+    "group": "mil",
+    "shape": "choice",
+    "kind": "C",
+    "title_id": "EV93_TITLE",
+    "body_id": "EV93_BODY",
+    "type": "gain or gain",
+    "options": [
+     {
+      "key": "CASH",
+      "btn_id": "EV93_CASH_BTN",
+      "eff_id": "EV93_CASH_EFF",
+      "popup_title_id": "EV93_CASH_TITLE",
+      "popup_id": "EV93_CASH",
+      "effect": {
+       "kind": "cash",
+       "amount": "a small sum",
+       "sign": 1
+      },
+      "tag": "[cash: signed amount by balance key]"
+     },
+     {
+      "key": "GOODS",
+      "btn_id": "EV93_GOODS_BTN",
+      "eff_id": "EV93_GOODS_EFF",
+      "popup_title_id": "EV93_GOODS_TITLE",
+      "popup_id": "EV93_GOODS",
+      "effect": {
+       "kind": "stock",
+       "world": "s2_p4",
+       "world_name": "Quillon",
+       "good": "rivets",
+       "amount": "some (a small lot)"
+      },
+      "tag": "[stock: Quillon, rivets, amount by balance key]"
+     }
+    ],
+    "gate": {
+     "all": [
+      "branch_is:mil",
+      "system_open:2",
+      "post_built:s2_p4",
+      "good_visible:rivets",
+      "bazaar_stage:1"
+     ]
+    },
+    "once_per_run": true,
+    "status": "new; later state: Bazaar stage 1 done"
+   },
+   {
+    "id": "EV24",
+    "group": "mil",
+    "shape": "plain",
+    "kind": "P",
+    "title_id": "EV24_TITLE",
+    "body_id": "EV24_BODY",
+    "tag": "[price up: Cindrel, spyware]",
+    "effect": {
+     "kind": "up",
+     "world": "s2_p2",
+     "world_name": "Cindrel",
+     "good": "spyware"
+    },
+    "target": "Cindrel (s2_p2), spyware",
+    "gate": {
+     "all": [
+      "branch_is:mil",
+      "system_open:2",
+      "post_built:s2_p2",
+      "good_visible:spyware"
+     ]
+    },
+    "once_per_run": true,
+    "house_weather": "Velvet Concord (bot_2)",
+    "status": "retargeted: moved from pool_kept (events.json) to pool_new so it can carry the gate; same id, new text",
+    "note": "was Voltara; Voltara has no spyware price"
+   },
+   {
+    "id": "EV25",
+    "group": "mil",
+    "shape": "plain",
+    "kind": "Q",
+    "title_id": "EV25_TITLE",
+    "body_id": "EV25_BODY",
+    "tag": "[price up: Mossfell, spyware]",
+    "effect": {
+     "kind": "up",
+     "world": "s2_p3",
+     "world_name": "Mossfell",
+     "good": "spyware"
+    },
+    "target": "Mossfell (s2_p3), spyware",
+    "gate": {
+     "all": [
+      "branch_is:mil",
+      "system_open:2",
+      "post_built:s2_p3",
+      "good_visible:spyware"
+     ]
+    },
+    "once_per_run": true,
+    "house_weather": "Velvet Concord (bot_2)",
+    "status": "retargeted: moved from pool_kept (events.json) to pool_new so it can carry the gate; same id, new text",
+    "note": "was Ashgate; Ashgate has no spyware price"
+   },
+   {
+    "id": "EV21",
+    "group": "lux",
+    "shape": "plain",
+    "kind": "I",
+    "title_id": "EV21_TITLE",
+    "body_id": "EV21_BODY",
+    "tag": "[price up: Brannock, silk]",
+    "effect": {
+     "kind": "up",
+     "world": "s2_p1",
+     "world_name": "Brannock",
+     "good": "silk"
+    },
+    "target": "Brannock (s2_p1), silk",
+    "gate": {
+     "all": [
+      "branch_is:lux",
+      "system_open:2",
+      "post_built:s2_p1",
+      "good_visible:silk"
+     ]
+    },
+    "once_per_run": true,
+    "house_weather": "Velvet Concord (bot_2)",
+    "status": "retargeted: moved from pool_kept (events.json) to pool_new so it can carry the gate; same id, new text",
+    "note": "was Tillam; Tillam has no silk price"
+   },
+   {
+    "id": "EV22",
+    "group": "lux",
+    "shape": "plain",
+    "kind": "I",
+    "title_id": "EV22_TITLE",
+    "body_id": "EV22_BODY",
+    "tag": "[price up: Quillon, silk]",
+    "effect": {
+     "kind": "up",
+     "world": "s2_p4",
+     "world_name": "Quillon",
+     "good": "silk"
+    },
+    "target": "Quillon (s2_p4), silk",
+    "gate": {
+     "all": [
+      "branch_is:lux",
+      "system_open:2",
+      "post_built:s2_p4",
+      "good_visible:silk"
+     ]
+    },
+    "once_per_run": true,
+    "house_weather": "Velvet Concord (bot_2)",
+    "status": "retargeted: moved from pool_kept (events.json) to pool_new so it can carry the gate; same id, new text",
+    "note": "was Voltara; Voltara has no silk price"
+   },
+   {
+    "id": "EV44",
+    "group": "lux",
+    "shape": "plain",
+    "kind": "Q",
+    "title_id": "EV44_TITLE",
+    "body_id": "EV44_BODY",
+    "tag": "[price up: Brannock, gems]",
+    "effect": {
+     "kind": "up",
+     "world": "s2_p1",
+     "world_name": "Brannock",
+     "good": "gems"
+    },
+    "target": "Brannock (s2_p1), gems",
+    "gate": {
+     "all": [
+      "branch_is:lux",
+      "system_open:2",
+      "post_built:s2_p1",
+      "good_visible:gems"
+     ]
+    },
+    "once_per_run": true,
+    "house_weather": "Velvet Concord (bot_2)",
+    "status": "new",
+    "note": "table row existed (wrong world Ashgate); text new. Late: needs LUX_4 and the Atelier."
+   },
+   {
+    "id": "EV45",
+    "group": "lux",
+    "shape": "plain",
+    "kind": "P",
+    "title_id": "EV45_TITLE",
+    "body_id": "EV45_BODY",
+    "tag": "[price down: Quillon, attar]",
+    "effect": {
+     "kind": "down",
+     "world": "s2_p4",
+     "world_name": "Quillon",
+     "good": "attar"
+    },
+    "target": "Quillon (s2_p4), attar",
+    "gate": {
+     "all": [
+      "branch_is:lux",
+      "system_open:2",
+      "post_built:s2_p4",
+      "good_visible:attar"
+     ]
+    },
+    "once_per_run": true,
+    "house_weather": "Harrow Combine (bot_1)",
+    "status": "new",
+    "note": "table row existed (wrong world Ashgate); text new. Needs LUX_1 and the Atelier."
+   },
+   {
+    "id": "EV76",
+    "group": "lux",
+    "shape": "plain",
+    "kind": "I",
+    "title_id": "EV76_TITLE",
+    "body_id": "EV76_BODY",
+    "tag": "[price up: Voltara, blooms]",
+    "effect": {
+     "kind": "up",
+     "world": "planet_1",
+     "world_name": "Voltara",
+     "good": "blooms"
+    },
+    "target": "Voltara (planet_1), blooms",
+    "gate": {
+     "all": [
+      "branch_is:lux"
+     ]
+    },
+    "once_per_run": true,
+    "house_weather": "Velvet Concord (bot_2)",
+    "status": "new",
+    "note": "new, from the CEO proposal EV76 (food replaced by blooms)"
+   },
+   {
+    "id": "EV77",
+    "group": "lux",
+    "shape": "choice",
+    "kind": "C",
+    "title_id": "EV77_TITLE",
+    "body_id": "EV77_BODY",
+    "type": "cost or cost",
+    "options": [
+     {
+      "key": "THANK",
+      "btn_id": "EV77_THANK_BTN",
+      "eff_id": "EV77_THANK_EFF",
+      "popup_title_id": "EV77_THANK_TITLE",
+      "popup_id": "EV77_THANK",
+      "effect": {
+       "kind": "cash",
+       "amount": "a small sum",
+       "sign": -1
+      },
+      "tag": "[cash: signed amount by balance key]"
+     },
+     {
+      "key": "SKIP",
+      "btn_id": "EV77_SKIP_BTN",
+      "eff_id": "EV77_SKIP_EFF",
+      "popup_title_id": "EV77_SKIP_TITLE",
+      "popup_id": "EV77_SKIP",
+      "effect": {
+       "kind": "down",
+       "world": "planet_3",
+       "world_name": "Ashgate",
+       "good": "blooms"
+      },
+      "tag": "[price down: Ashgate, blooms]",
+      "house_weather": "Harrow Combine (bot_1)"
+     }
+    ],
+    "gate": {
+     "all": [
+      "branch_is:lux",
+      "post_built:planet_3"
+     ]
+    },
+    "once_per_run": true,
+    "status": "new, from the CEO proposal EV77"
+   },
+   {
+    "id": "EV78",
+    "group": "lux",
+    "shape": "choice",
+    "kind": "C",
+    "title_id": "EV78_TITLE",
+    "body_id": "EV78_BODY",
+    "type": "gain or gain",
+    "options": [
+     {
+      "key": "TILLAM",
+      "btn_id": "EV78_TILLAM_BTN",
+      "eff_id": "EV78_TILLAM_EFF",
+      "popup_title_id": "EV78_TILLAM_TITLE",
+      "popup_id": "EV78_TILLAM",
+      "effect": {
+       "kind": "up",
+       "world": "planet_2",
+       "world_name": "Tillam",
+       "good": "musk"
+      },
+      "tag": "[price up: Tillam, musk]",
+      "house_weather": "Velvet Concord (bot_2)"
+     },
+     {
+      "key": "ASHGATE",
+      "btn_id": "EV78_ASHGATE_BTN",
+      "eff_id": "EV78_ASHGATE_EFF",
+      "popup_title_id": "EV78_ASHGATE_TITLE",
+      "popup_id": "EV78_ASHGATE",
+      "effect": {
+       "kind": "up",
+       "world": "planet_3",
+       "world_name": "Ashgate",
+       "good": "blooms"
+      },
+      "tag": "[price up: Ashgate, blooms]",
+      "house_weather": "Velvet Concord (bot_2)"
+     }
+    ],
+    "gate": {
+     "all": [
+      "branch_is:lux",
+      "system_open:2",
+      "post_built:planet_2",
+      "post_built:planet_3",
+      "good_visible:musk"
+     ]
+    },
+    "once_per_run": true,
+    "status": "new, from the CEO proposal EV78; musk needs system 2"
+   },
+   {
+    "id": "EV79",
+    "group": "lux",
+    "shape": "choice",
+    "kind": "C",
+    "title_id": "EV79_TITLE",
+    "body_id": "EV79_BODY",
+    "type": "gain or gain",
+    "options": [
+     {
+      "key": "CASH",
+      "btn_id": "EV79_CASH_BTN",
+      "eff_id": "EV79_CASH_EFF",
+      "popup_title_id": "EV79_CASH_TITLE",
+      "popup_id": "EV79_CASH",
+      "effect": {
+       "kind": "cash",
+       "amount": "a small sum",
+       "sign": 1
+      },
+      "tag": "[cash: signed amount by balance key]"
+     },
+     {
+      "key": "GOODS",
+      "btn_id": "EV79_GOODS_BTN",
+      "eff_id": "EV79_GOODS_EFF",
+      "popup_title_id": "EV79_GOODS_TITLE",
+      "popup_id": "EV79_GOODS",
+      "effect": {
+       "kind": "stock",
+       "world": "planet_3",
+       "world_name": "Ashgate",
+       "good": "blooms",
+       "amount": "some (a small lot)"
+      },
+      "tag": "[stock: Ashgate, blooms, amount by balance key]"
+     }
+    ],
+    "gate": {
+     "all": [
+      "branch_is:lux",
+      "post_built:planet_3"
+     ]
+    },
+    "once_per_run": true,
+    "status": "new, from the CEO proposal EV79"
+   },
+   {
+    "id": "EV80",
+    "group": "lux",
+    "shape": "plain",
+    "kind": "Q",
+    "title_id": "EV80_TITLE",
+    "body_id": "EV80_BODY",
+    "tag": "[price down: Mossfell, blooms]",
+    "effect": {
+     "kind": "down",
+     "world": "s2_p3",
+     "world_name": "Mossfell",
+     "good": "blooms"
+    },
+    "target": "Mossfell (s2_p3), blooms",
+    "gate": {
+     "all": [
+      "branch_is:lux",
+      "system_open:2",
+      "post_built:s2_p3"
+     ]
+    },
+    "once_per_run": true,
+    "house_weather": "Harrow Combine (bot_1)",
+    "status": "new",
+    "note": "new, from the CEO proposal EV80"
+   },
+   {
+    "id": "EV94",
+    "group": "lux",
+    "shape": "choice",
+    "kind": "C",
+    "title_id": "EV94_TITLE",
+    "body_id": "EV94_BODY",
+    "type": "cost or cost",
+    "options": [
+     {
+      "key": "PAY",
+      "btn_id": "EV94_PAY_BTN",
+      "eff_id": "EV94_PAY_EFF",
+      "popup_title_id": "EV94_PAY_TITLE",
+      "popup_id": "EV94_PAY",
+      "effect": {
+       "kind": "cash",
+       "amount": "a small sum",
+       "sign": -1
+      },
+      "tag": "[cash: signed amount by balance key]"
+     },
+     {
+      "key": "TELL",
+      "btn_id": "EV94_TELL_BTN",
+      "eff_id": "EV94_TELL_EFF",
+      "popup_title_id": "EV94_TELL_TITLE",
+      "popup_id": "EV94_TELL",
+      "effect": {
+       "kind": "down",
+       "world": "s2_p1",
+       "world_name": "Brannock",
+       "good": "silk"
+      },
+      "tag": "[price down: Brannock, silk]",
+      "house_weather": "Harrow Combine (bot_1)"
+     }
+    ],
+    "gate": {
+     "all": [
+      "branch_is:lux",
+      "system_open:2",
+      "post_built:s2_p1",
+      "good_visible:silk",
+      "any_tier:2"
+     ]
+    },
+    "once_per_run": true,
+    "status": "new; later state: a world at tier 2"
+   },
+   {
+    "id": "EV95",
+    "group": "lux",
+    "shape": "plain",
+    "kind": "Q",
+    "title_id": "EV95_TITLE",
+    "body_id": "EV95_BODY",
+    "tag": "[price up: Brannock, musk]",
+    "effect": {
+     "kind": "up",
+     "world": "s2_p1",
+     "world_name": "Brannock",
+     "good": "musk"
+    },
+    "target": "Brannock (s2_p1), musk",
+    "gate": {
+     "all": [
+      "branch_is:lux",
+      "system_open:2",
+      "post_built:s2_p1",
+      "good_visible:musk"
+     ]
+    },
+    "once_per_run": true,
+    "house_weather": "Velvet Concord (bot_2)",
+    "status": "new",
+    "note": "new"
+   },
+   {
+    "id": "EV96",
+    "group": "lux",
+    "shape": "choice",
+    "kind": "C",
+    "title_id": "EV96_TITLE",
+    "body_id": "EV96_BODY",
+    "type": "gain or gain",
+    "options": [
+     {
+      "key": "ATTAR",
+      "btn_id": "EV96_ATTAR_BTN",
+      "eff_id": "EV96_ATTAR_EFF",
+      "popup_title_id": "EV96_ATTAR_TITLE",
+      "popup_id": "EV96_ATTAR",
+      "effect": {
+       "kind": "up",
+       "world": "planet_1",
+       "world_name": "Voltara",
+       "good": "attar"
+      },
+      "tag": "[price up: Voltara, attar]",
+      "house_weather": "Velvet Concord (bot_2)"
+     },
+     {
+      "key": "GEMS",
+      "btn_id": "EV96_GEMS_BTN",
+      "eff_id": "EV96_GEMS_EFF",
+      "popup_title_id": "EV96_GEMS_TITLE",
+      "popup_id": "EV96_GEMS",
+      "effect": {
+       "kind": "up",
+       "world": "planet_1",
+       "world_name": "Voltara",
+       "good": "gems"
+      },
+      "tag": "[price up: Voltara, gems]",
+      "house_weather": "Velvet Concord (bot_2)"
+     }
+    ],
+    "gate": {
+     "all": [
+      "branch_is:lux",
+      "good_visible:attar",
+      "good_visible:gems"
+     ]
+    },
+    "once_per_run": true,
+    "status": "new; late: Atelier built, LUX_1 and LUX_4 learned, system 2 open"
+   },
+   {
+    "id": "BE02",
+    "group": "lux",
+    "shape": "choice",
+    "kind": "C",
+    "title_id": "BE02_TITLE",
+    "body_id": "BE02_BODY",
+    "type": "gain or gain (a gain, or a closure)",
+    "options": [
+     {
+      "key": "ANSWER",
+      "btn_id": "BE02_ANSWER_BTN",
+      "eff_id": "BE02_ANSWER_EFF",
+      "popup_title_id": "BE02_ANSWER_TITLE",
+      "popup_id": "BE02_ANSWER",
+      "effect": {
+       "kind": "up",
+       "world": "s2_p4",
+       "world_name": "Quillon",
+       "good": "musk"
+      },
+      "tag": "[price up: Quillon, musk]",
+      "house_weather": "Velvet Concord (bot_2)",
+      "follow_id": "BE02A",
+      "follow_after": "balance dead_follow_cycles (4 cycles, the existing default)"
+     },
+     {
+      "key": "REPORT",
+      "btn_id": "BE02_REPORT_BTN",
+      "eff_id": "BE02_REPORT_EFF",
+      "popup_title_id": "BE02_REPORT_TITLE",
+      "popup_id": "BE02_REPORT",
+      "effect": {
+       "kind": "closed",
+       "world": "s2_p4",
+       "world_name": "Quillon"
+      },
+      "tag": "[planet closed: Quillon]",
+      "house_weather": "Ostrel Syndicate (bot_3)",
+      "follow_id": "BE02B",
+      "follow_after": "balance dead_follow_cycles (4 cycles, the existing default)"
+     }
+    ],
+    "gate": {
+     "all": [
+      "branch_is:lux",
+      "system_open:2",
+      "post_built:s2_p4",
+      "post_built:s2_p3",
+      "good_visible:musk"
+     ]
+    },
+    "once_per_run": true,
+    "status": "reused: BE02 rewritten (ANSWER now raises musk at Quillon, not silk); follow-ups BE02A (price up: Mossfell, blooms) and BE02B (price down: Quillon, silk) are plain scheduled rows"
+   },
+   {
+    "id": "EV48",
+    "group": "min",
+    "shape": "plain",
+    "kind": "P",
+    "title_id": "EV48_TITLE",
+    "body_id": "EV48_BODY",
+    "tag": "[price up: Quillon, plate]",
+    "effect": {
+     "kind": "up",
+     "world": "s2_p4",
+     "world_name": "Quillon",
+     "good": "plate"
+    },
+    "target": "Quillon (s2_p4), plate",
+    "gate": {
+     "all": [
+      "branch_is:min",
+      "system_open:2",
+      "post_built:s2_p4",
+      "good_visible:plate"
+     ]
+    },
+    "once_per_run": true,
+    "house_weather": "Velvet Concord (bot_2)",
+    "status": "new",
+    "note": "table row existed (wrong world Ashgate); text new. Late: Fabric built."
+   },
+   {
+    "id": "EV70",
+    "group": "min",
+    "shape": "plain",
+    "kind": "Q",
+    "title_id": "EV70_TITLE",
+    "body_id": "EV70_BODY",
+    "tag": "[price up: Cinderrest, dross]",
+    "effect": {
+     "kind": "up",
+     "world": "dead_1",
+     "world_name": "Cinderrest",
+     "good": "dross"
+    },
+    "target": "Cinderrest (dead_1), dross",
+    "gate": {
+     "all": [
+      "branch_is:min",
+      "post_built:dead_1",
+      "good_visible:dross"
+     ]
+    },
+    "once_per_run": true,
+    "house_weather": "Velvet Concord (bot_2)",
+    "status": "new",
+    "note": "new, from the CEO proposal EV70; later state: Cinderrest reclaimed (a reclaimed world counts as post_built)"
+   },
+   {
+    "id": "EV71",
+    "group": "min",
+    "shape": "choice",
+    "kind": "C",
+    "title_id": "EV71_TITLE",
+    "body_id": "EV71_BODY",
+    "type": "gain or gain",
+    "options": [
+     {
+      "key": "CASH",
+      "btn_id": "EV71_CASH_BTN",
+      "eff_id": "EV71_CASH_EFF",
+      "popup_title_id": "EV71_CASH_TITLE",
+      "popup_id": "EV71_CASH",
+      "effect": {
+       "kind": "cash",
+       "amount": "a small sum",
+       "sign": 1
+      },
+      "tag": "[cash: signed amount by balance key]"
+     },
+     {
+      "key": "ORE",
+      "btn_id": "EV71_ORE_BTN",
+      "eff_id": "EV71_ORE_EFF",
+      "popup_title_id": "EV71_ORE_TITLE",
+      "popup_id": "EV71_ORE",
+      "effect": {
+       "kind": "stock",
+       "world": "planet_1",
+       "world_name": "Voltara",
+       "good": "ore",
+       "amount": "some (a small lot)"
+      },
+      "tag": "[stock: Voltara, ore, amount by balance key]"
+     }
+    ],
+    "gate": {
+     "all": [
+      "branch_is:min"
+     ]
+    },
+    "once_per_run": true,
+    "status": "new, from the CEO proposal EV71"
+   },
+   {
+    "id": "EV72",
+    "group": "min",
+    "shape": "choice",
+    "kind": "C",
+    "title_id": "EV72_TITLE",
+    "body_id": "EV72_BODY",
+    "type": "cost or cost",
+    "options": [
+     {
+      "key": "PAY",
+      "btn_id": "EV72_PAY_BTN",
+      "eff_id": "EV72_PAY_EFF",
+      "popup_title_id": "EV72_PAY_TITLE",
+      "popup_id": "EV72_PAY",
+      "effect": {
+       "kind": "cash",
+       "amount": "a small sum",
+       "sign": -1
+      },
+      "tag": "[cash: signed amount by balance key]"
+     },
+     {
+      "key": "WAIT",
+      "btn_id": "EV72_WAIT_BTN",
+      "eff_id": "EV72_WAIT_EFF",
+      "popup_title_id": "EV72_WAIT_TITLE",
+      "popup_id": "EV72_WAIT",
+      "effect": {
+       "kind": "congestion",
+       "world": "planet_3",
+       "world_name": "Ashgate"
+      },
+      "tag": "[congestion: Ashgate]",
+      "house_weather": "Ostrel Syndicate (bot_3)"
+     }
+    ],
+    "gate": {
+     "all": [
+      "branch_is:min",
+      "post_built:planet_3"
+     ]
+    },
+    "once_per_run": true,
+    "status": "new, from the CEO proposal EV72"
+   },
+   {
+    "id": "EV73",
+    "group": "min",
+    "shape": "choice",
+    "kind": "C",
+    "title_id": "EV73_TITLE",
+    "body_id": "EV73_BODY",
+    "type": "gain or gain",
+    "options": [
+     {
+      "key": "CINDREL",
+      "btn_id": "EV73_CINDREL_BTN",
+      "eff_id": "EV73_CINDREL_EFF",
+      "popup_title_id": "EV73_CINDREL_TITLE",
+      "popup_id": "EV73_CINDREL",
+      "effect": {
+       "kind": "up",
+       "world": "s2_p2",
+       "world_name": "Cindrel",
+       "good": "ore"
+      },
+      "tag": "[price up: Cindrel, ore]",
+      "house_weather": "Velvet Concord (bot_2)"
+     },
+     {
+      "key": "QUILLON",
+      "btn_id": "EV73_QUILLON_BTN",
+      "eff_id": "EV73_QUILLON_EFF",
+      "popup_title_id": "EV73_QUILLON_TITLE",
+      "popup_id": "EV73_QUILLON",
+      "effect": {
+       "kind": "up",
+       "world": "s2_p4",
+       "world_name": "Quillon",
+       "good": "ore"
+      },
+      "tag": "[price up: Quillon, ore]",
+      "house_weather": "Velvet Concord (bot_2)"
+     }
+    ],
+    "gate": {
+     "all": [
+      "branch_is:min",
+      "system_open:2",
+      "post_built:s2_p2",
+      "post_built:s2_p4"
+     ]
+    },
+    "once_per_run": true,
+    "status": "new, from the CEO proposal EV73 (worlds changed)"
+   },
+   {
+    "id": "EV74",
+    "group": "min",
+    "shape": "plain",
+    "kind": "Q",
+    "title_id": "EV74_TITLE",
+    "body_id": "EV74_BODY",
+    "tag": "[price down: Ashgate, dross]",
+    "effect": {
+     "kind": "down",
+     "world": "planet_3",
+     "world_name": "Ashgate",
+     "good": "dross"
+    },
+    "target": "Ashgate (planet_3), dross",
+    "gate": {
+     "all": [
+      "branch_is:min",
+      "post_built:planet_3",
+      "good_visible:dross"
+     ]
+    },
+    "once_per_run": true,
+    "house_weather": "Harrow Combine (bot_1)",
+    "status": "new",
+    "note": "new, from the CEO proposal EV74 (energy replaced by dross)"
+   },
+   {
+    "id": "EV_FLT04",
+    "group": "min",
+    "shape": "choice",
+    "kind": "C",
+    "title_id": "EV_FLT04_TITLE",
+    "body_id": "EV_FLT04_BODY",
+    "type": "cost or cost",
+    "options": [
+     {
+      "key": "SLOW",
+      "btn_id": "EV_FLT04_SLOW_BTN",
+      "eff_id": "EV_FLT04_SLOW_EFF",
+      "popup_title_id": "EV_FLT04_SLOW_TITLE",
+      "popup_id": "EV_FLT04_SLOW",
+      "effect": {
+       "kind": "congestion",
+       "world": "planet_4",
+       "world_name": "Flintmoor"
+      },
+      "tag": "[congestion: Flintmoor]",
+      "house_weather": "Ostrel Syndicate (bot_3)"
+     },
+     {
+      "key": "PUSH",
+      "btn_id": "EV_FLT04_PUSH_BTN",
+      "eff_id": "EV_FLT04_PUSH_EFF",
+      "popup_title_id": "EV_FLT04_PUSH_TITLE",
+      "popup_id": "EV_FLT04_PUSH",
+      "effect": {
+       "kind": "cash",
+       "amount": "a small sum",
+       "sign": -1
+      },
+      "tag": "[cash: signed amount by balance key]"
+     }
+    ],
+    "gate": {
+     "all": [
+      "branch_is:min",
+      "post_built:planet_4"
+     ]
+    },
+    "once_per_run": true,
+    "status": "reused: old EV_FLT04 rewritten; Minerals by gate"
+   },
+   {
+    "id": "EV_PLT01",
+    "group": "min",
+    "shape": "choice",
+    "kind": "C",
+    "title_id": "EV_PLT01_TITLE",
+    "body_id": "EV_PLT01_BODY",
+    "type": "gain or gain",
+    "options": [
+     {
+      "key": "NIGHT",
+      "btn_id": "EV_PLT01_NIGHT_BTN",
+      "eff_id": "EV_PLT01_NIGHT_EFF",
+      "popup_title_id": "EV_PLT01_NIGHT_TITLE",
+      "popup_id": "EV_PLT01_NIGHT",
+      "effect": {
+       "kind": "stock",
+       "world": "dead_1",
+       "world_name": "Cinderrest",
+       "good": "dross",
+       "amount": "some (a small lot)"
+      },
+      "tag": "[stock: Cinderrest, dross, amount by balance key]"
+     },
+     {
+      "key": "DAY",
+      "btn_id": "EV_PLT01_DAY_BTN",
+      "eff_id": "EV_PLT01_DAY_EFF",
+      "popup_title_id": "EV_PLT01_DAY_TITLE",
+      "popup_id": "EV_PLT01_DAY",
+      "effect": {
+       "kind": "cash",
+       "amount": "a small sum",
+       "sign": 1
+      },
+      "tag": "[cash: signed amount by balance key]"
+     }
+    ],
+    "gate": {
+     "all": [
+      "branch_is:min",
+      "platform_built:dead_1",
+      "good_visible:dross"
+     ]
+    },
+    "once_per_run": true,
+    "status": "reused: old EV_PLT01 rewritten; Minerals by gate; fires after a mining platform stands on Cinderrest"
+   },
+   {
+    "id": "EV_PLT02",
+    "group": "min",
+    "shape": "choice",
+    "kind": "C",
+    "title_id": "EV_PLT02_TITLE",
+    "body_id": "EV_PLT02_BODY",
+    "type": "cost or cost",
+    "options": [
+     {
+      "key": "PROP",
+      "btn_id": "EV_PLT02_PROP_BTN",
+      "eff_id": "EV_PLT02_PROP_EFF",
+      "popup_title_id": "EV_PLT02_PROP_TITLE",
+      "popup_id": "EV_PLT02_PROP",
+      "effect": {
+       "kind": "cash",
+       "amount": "a small sum",
+       "sign": -1
+      },
+      "tag": "[cash: signed amount by balance key]"
+     },
+     {
+      "key": "SEAL",
+      "btn_id": "EV_PLT02_SEAL_BTN",
+      "eff_id": "EV_PLT02_SEAL_EFF",
+      "popup_title_id": "EV_PLT02_SEAL_TITLE",
+      "popup_id": "EV_PLT02_SEAL",
+      "effect": {
+       "kind": "closed",
+       "world": "dead_1",
+       "world_name": "Cinderrest"
+      },
+      "tag": "[planet closed: Cinderrest]",
+      "house_weather": "Ostrel Syndicate (bot_3)"
+     }
+    ],
+    "gate": {
+     "all": [
+      "branch_is:min",
+      "platform_built:dead_1"
+     ]
+    },
+    "once_per_run": true,
+    "status": "reused: old EV_PLT02 rewritten; closing a dead world uses the existing closed effect"
+   },
+   {
+    "id": "EV_PLT03",
+    "group": "min",
+    "shape": "choice",
+    "kind": "C",
+    "title_id": "EV_PLT03_TITLE",
+    "body_id": "EV_PLT03_BODY",
+    "type": "gain or gain",
+    "options": [
+     {
+      "key": "LOG",
+      "btn_id": "EV_PLT03_LOG_BTN",
+      "eff_id": "EV_PLT03_LOG_EFF",
+      "popup_title_id": "EV_PLT03_LOG_TITLE",
+      "popup_id": "EV_PLT03_LOG",
+      "effect": {
+       "kind": "cash",
+       "amount": "a small sum",
+       "sign": 1
+      },
+      "tag": "[cash: signed amount by balance key]"
+     },
+     {
+      "key": "HIDE",
+      "btn_id": "EV_PLT03_HIDE_BTN",
+      "eff_id": "EV_PLT03_HIDE_EFF",
+      "popup_title_id": "EV_PLT03_HIDE_TITLE",
+      "popup_id": "EV_PLT03_HIDE",
+      "effect": {
+       "kind": "stock",
+       "world": "dead_2",
+       "world_name": "Greywake",
+       "good": "nullglass",
+       "amount": "some (a small lot)"
+      },
+      "tag": "[stock: Greywake, nullglass, amount by balance key]"
+     }
+    ],
+    "gate": {
+     "all": [
+      "branch_is:min",
+      "platform_built:dead_2",
+      "good_visible:nullglass"
+     ]
+    },
+    "once_per_run": true,
+    "status": "reused: old EV_PLT03 rewritten; fires after a platform on Greywake"
+   },
+   {
+    "id": "EV_PLT04",
+    "group": "min",
+    "shape": "choice",
+    "kind": "C",
+    "title_id": "EV_PLT04_TITLE",
+    "body_id": "EV_PLT04_BODY",
+    "type": "gain or gain",
+    "options": [
+     {
+      "key": "CINDREL",
+      "btn_id": "EV_PLT04_CINDREL_BTN",
+      "eff_id": "EV_PLT04_CINDREL_EFF",
+      "popup_title_id": "EV_PLT04_CINDREL_TITLE",
+      "popup_id": "EV_PLT04_CINDREL",
+      "effect": {
+       "kind": "up",
+       "world": "s2_p2",
+       "world_name": "Cindrel",
+       "good": "nullglass"
+      },
+      "tag": "[price up: Cindrel, nullglass]",
+      "house_weather": "Velvet Concord (bot_2)"
+     },
+     {
+      "key": "QUILLON",
+      "btn_id": "EV_PLT04_QUILLON_BTN",
+      "eff_id": "EV_PLT04_QUILLON_EFF",
+      "popup_title_id": "EV_PLT04_QUILLON_TITLE",
+      "popup_id": "EV_PLT04_QUILLON",
+      "effect": {
+       "kind": "up",
+       "world": "s2_p4",
+       "world_name": "Quillon",
+       "good": "nullglass"
+      },
+      "tag": "[price up: Quillon, nullglass]",
+      "house_weather": "Velvet Concord (bot_2)"
+     }
+    ],
+    "gate": {
+     "all": [
+      "branch_is:min",
+      "platform_built:dead_2",
+      "system_open:2",
+      "post_built:s2_p2",
+      "post_built:s2_p4",
+      "good_visible:nullglass"
+     ]
+    },
+    "once_per_run": true,
+    "status": "reused: old EV_PLT04 rewritten (keys DARK/LIGHT replaced)"
+   },
+   {
+    "id": "EV75",
+    "group": "min",
+    "shape": "plain",
+    "kind": "Q",
+    "title_id": "EV75_TITLE",
+    "body_id": "EV75_BODY",
+    "tag": "[price down: Quillon, ore]",
+    "effect": {
+     "kind": "down",
+     "world": "s2_p4",
+     "world_name": "Quillon",
+     "good": "ore"
+    },
+    "target": "Quillon (s2_p4), ore",
+    "gate": {
+     "all": [
+      "branch_is:min",
+      "system_open:2",
+      "post_built:s2_p4",
+      "good_visible:ore"
+     ]
+    },
+    "once_per_run": true,
+    "house_weather": "Harrow Combine (bot_1)",
+    "status": "new",
+    "note": "new"
+   },
+   {
+    "id": "BE01",
+    "group": "bio",
+    "shape": "choice",
+    "kind": "C",
+    "title_id": "BE01_TITLE",
+    "body_id": "BE01_BODY",
+    "type": "gain or gain (cheap food, or dear food)",
+    "options": [
+     {
+      "key": "OPEN",
+      "btn_id": "BE01_OPEN_BTN",
+      "eff_id": "BE01_OPEN_EFF",
+      "popup_title_id": "BE01_OPEN_TITLE",
+      "popup_id": "BE01_OPEN",
+      "effect": {
+       "kind": "down",
+       "world": "planet_2",
+       "world_name": "Tillam",
+       "good": "food"
+      },
+      "tag": "[price down: Tillam, food]",
+      "house_weather": "Harrow Combine (bot_1)",
+      "follow_id": "BE01A",
+      "follow_after": "balance dead_follow_cycles (4 cycles, the existing default)"
+     },
+     {
+      "key": "SHUT",
+      "btn_id": "BE01_SHUT_BTN",
+      "eff_id": "BE01_SHUT_EFF",
+      "popup_title_id": "BE01_SHUT_TITLE",
+      "popup_id": "BE01_SHUT",
+      "effect": {
+       "kind": "up",
+       "world": "planet_2",
+       "world_name": "Tillam",
+       "good": "food"
+      },
+      "tag": "[price up: Tillam, food]",
+      "house_weather": "Velvet Concord (bot_2)",
+      "follow_id": "BE01B",
+      "follow_after": "balance dead_follow_cycles (4 cycles, the existing default)"
+     }
+    ],
+    "gate": {
+     "all": [
+      "branch_is:bio",
+      "post_built:planet_2"
+     ]
+    },
+    "once_per_run": true,
+    "status": "reused: BE01 cut to two options; follow-ups BE01A (price up: Tillam, energy) and BE01B (planet closed: Tillam) are plain scheduled rows; option SEND and BE01C deleted"
+   },
+   {
+    "id": "BE03",
+    "group": "bio",
+    "shape": "choice",
+    "kind": "C",
+    "title_id": "BE03_TITLE",
+    "body_id": "BE03_BODY",
+    "type": "gain or gain (dear food, or cheap food)",
+    "options": [
+     {
+      "key": "ACCEPT",
+      "btn_id": "BE03_ACCEPT_BTN",
+      "eff_id": "BE03_ACCEPT_EFF",
+      "popup_title_id": "BE03_ACCEPT_TITLE",
+      "popup_id": "BE03_ACCEPT",
+      "effect": {
+       "kind": "up",
+       "world": "planet_3",
+       "world_name": "Ashgate",
+       "good": "food"
+      },
+      "tag": "[price up: Ashgate, food]",
+      "house_weather": "Velvet Concord (bot_2)",
+      "follow_id": "BE03A",
+      "follow_after": "balance dead_follow_cycles (4 cycles, the existing default)"
+     },
+     {
+      "key": "REFUSE",
+      "btn_id": "BE03_REFUSE_BTN",
+      "eff_id": "BE03_REFUSE_EFF",
+      "popup_title_id": "BE03_REFUSE_TITLE",
+      "popup_id": "BE03_REFUSE",
+      "effect": {
+       "kind": "down",
+       "world": "planet_3",
+       "world_name": "Ashgate",
+       "good": "food"
+      },
+      "tag": "[price down: Ashgate, food]",
+      "house_weather": "Harrow Combine (bot_1)",
+      "follow_id": "BE03B",
+      "follow_after": "balance dead_follow_cycles (4 cycles, the existing default)"
+     }
+    ],
+    "gate": {
+     "all": [
+      "branch_is:bio",
+      "post_built:planet_3",
+      "event_fired:EV13"
+     ]
+    },
+    "once_per_run": true,
+    "status": "reused: BE03 cut to two options; follow-ups BE03A (planet closed: Ashgate) and BE03B (price down: Ashgate, energy); option REPORT and BE03C deleted; gate event_fired:EV13 ties it to the family who bought Ashgate's food"
+   },
+   {
+    "id": "EV51",
+    "group": "bio",
+    "shape": "plain",
+    "kind": "Q",
+    "title_id": "EV51_TITLE",
+    "body_id": "EV51_BODY",
+    "tag": "[price up: Brannock, seed]",
+    "effect": {
+     "kind": "up",
+     "world": "s2_p1",
+     "world_name": "Brannock",
+     "good": "seed"
+    },
+    "target": "Brannock (s2_p1), seed",
+    "gate": {
+     "all": [
+      "branch_is:bio",
+      "system_open:2",
+      "post_built:s2_p1",
+      "good_visible:seed"
+     ]
+    },
+    "once_per_run": true,
+    "house_weather": "Velvet Concord (bot_2)",
+    "status": "new",
+    "note": "table row existed (wrong world Tillam); text new. Late: BIO_4 and the Culture Lab."
+   },
+   {
+    "id": "EV88",
+    "group": "bio",
+    "shape": "choice",
+    "kind": "C",
+    "title_id": "EV88_TITLE",
+    "body_id": "EV88_BODY",
+    "type": "gain or gain",
+    "options": [
+     {
+      "key": "TILLAM",
+      "btn_id": "EV88_TILLAM_BTN",
+      "eff_id": "EV88_TILLAM_EFF",
+      "popup_title_id": "EV88_TILLAM_TITLE",
+      "popup_id": "EV88_TILLAM",
+      "effect": {
+       "kind": "up",
+       "world": "planet_2",
+       "world_name": "Tillam",
+       "good": "spores"
+      },
+      "tag": "[price up: Tillam, spores]",
+      "house_weather": "Velvet Concord (bot_2)"
+     },
+     {
+      "key": "ASHGATE",
+      "btn_id": "EV88_ASHGATE_BTN",
+      "eff_id": "EV88_ASHGATE_EFF",
+      "popup_title_id": "EV88_ASHGATE_TITLE",
+      "popup_id": "EV88_ASHGATE",
+      "effect": {
+       "kind": "up",
+       "world": "planet_3",
+       "world_name": "Ashgate",
+       "good": "spores"
+      },
+      "tag": "[price up: Ashgate, spores]",
+      "house_weather": "Velvet Concord (bot_2)"
+     }
+    ],
+    "gate": {
+     "all": [
+      "branch_is:bio",
+      "system_open:2",
+      "post_built:planet_2",
+      "post_built:planet_3",
+      "good_visible:spores"
+     ]
+    },
+    "once_per_run": true,
+    "status": "new, from the CEO proposal EV88 (food and energy replaced by spores)"
+   }
+  ],
+  "followups": [
+   {
+    "id": "BE01A",
+    "group": "bio",
+    "shape": "follow-up plain popup",
+    "kind": "Q",
+    "title_id": "BE01A_TITLE",
+    "body_id": "BE01A",
+    "tag": "[price up: Tillam, energy]",
+    "effect": {
+     "kind": "up",
+     "world": "planet_2",
+     "world_name": "Tillam",
+     "good": "energy"
+    },
+    "follow_of": "BE01_OPEN",
+    "fires": "balance dead_follow_cycles (4 cycles) after the choice; never drawn at random (scheduled_only: set 'random': false)",
+    "once_per_run": true,
+    "house_weather": "Velvet Concord (bot_2)",
+    "note": "text id is the bare id (popup text), title id <id>_TITLE; no visible_when needed, the parent's gate covers the worlds"
+   },
+   {
+    "id": "BE01B",
+    "group": "bio",
+    "shape": "follow-up plain popup",
+    "kind": "P",
+    "title_id": "BE01B_TITLE",
+    "body_id": "BE01B",
+    "tag": "[planet closed: Tillam]",
+    "effect": {
+     "kind": "closed",
+     "world": "planet_2",
+     "world_name": "Tillam"
+    },
+    "follow_of": "BE01_SHUT",
+    "fires": "balance dead_follow_cycles (4 cycles) after the choice; never drawn at random (scheduled_only: set 'random': false)",
+    "once_per_run": true,
+    "house_weather": "Ostrel Syndicate (bot_3)",
+    "note": "text id is the bare id (popup text), title id <id>_TITLE; no visible_when needed, the parent's gate covers the worlds"
+   },
+   {
+    "id": "BE02A",
+    "group": "lux",
+    "shape": "follow-up plain popup",
+    "kind": "Q",
+    "title_id": "BE02A_TITLE",
+    "body_id": "BE02A",
+    "tag": "[price up: Mossfell, blooms]",
+    "effect": {
+     "kind": "up",
+     "world": "s2_p3",
+     "world_name": "Mossfell",
+     "good": "blooms"
+    },
+    "follow_of": "BE02_ANSWER",
+    "fires": "balance dead_follow_cycles (4 cycles) after the choice; never drawn at random (scheduled_only: set 'random': false)",
+    "once_per_run": true,
+    "house_weather": "Velvet Concord (bot_2)",
+    "note": "text id is the bare id (popup text), title id <id>_TITLE; no visible_when needed, the parent's gate covers the worlds"
+   },
+   {
+    "id": "BE02B",
+    "group": "lux",
+    "shape": "follow-up plain popup",
+    "kind": "Q",
+    "title_id": "BE02B_TITLE",
+    "body_id": "BE02B",
+    "tag": "[price down: Quillon, silk]",
+    "effect": {
+     "kind": "down",
+     "world": "s2_p4",
+     "world_name": "Quillon",
+     "good": "silk"
+    },
+    "follow_of": "BE02_REPORT",
+    "fires": "balance dead_follow_cycles (4 cycles) after the choice; never drawn at random (scheduled_only: set 'random': false)",
+    "once_per_run": true,
+    "house_weather": "Harrow Combine (bot_1)",
+    "note": "text id is the bare id (popup text), title id <id>_TITLE; no visible_when needed, the parent's gate covers the worlds"
+   },
+   {
+    "id": "BE03A",
+    "group": "bio",
+    "shape": "follow-up plain popup",
+    "kind": "P",
+    "title_id": "BE03A_TITLE",
+    "body_id": "BE03A",
+    "tag": "[planet closed: Ashgate]",
+    "effect": {
+     "kind": "closed",
+     "world": "planet_3",
+     "world_name": "Ashgate"
+    },
+    "follow_of": "BE03_ACCEPT",
+    "fires": "balance dead_follow_cycles (4 cycles) after the choice; never drawn at random (scheduled_only: set 'random': false)",
+    "once_per_run": true,
+    "house_weather": "Ostrel Syndicate (bot_3)",
+    "note": "text id is the bare id (popup text), title id <id>_TITLE; no visible_when needed, the parent's gate covers the worlds"
+   },
+   {
+    "id": "BE03B",
+    "group": "bio",
+    "shape": "follow-up plain popup",
+    "kind": "Q",
+    "title_id": "BE03B_TITLE",
+    "body_id": "BE03B",
+    "tag": "[price down: Ashgate, energy]",
+    "effect": {
+     "kind": "down",
+     "world": "planet_3",
+     "world_name": "Ashgate",
+     "good": "energy"
+    },
+    "follow_of": "BE03_REFUSE",
+    "fires": "balance dead_follow_cycles (4 cycles) after the choice; never drawn at random (scheduled_only: set 'random': false)",
+    "once_per_run": true,
+    "house_weather": "Harrow Combine (bot_1)",
+    "note": "text id is the bare id (popup text), title id <id>_TITLE; no visible_when needed, the parent's gate covers the worlds"
+   }
+  ],
+  "chain_steps": [
+   {
+    "id": "MIL_C1",
+    "market": "mil",
+    "chain": "C",
+    "step": 1,
+    "trigger": {
+     "all": [
+      "system_open:2",
+      "any_tier:3"
+     ]
+    },
+    "requires_prev_step": false,
+    "min_gap_key": "chain_min_gap",
+    "text_ids": "EV_MIL_C1_TITLE, EV_MIL_C1_BODY, EV_MIL_C1_OPA_BTN/_EFF/_RES_TITLE/_RES/_STD, the same for OPB",
+    "opt_a": {
+     "button_text": "EV_MIL_C1_OPA_BTN",
+     "dir": 8,
+     "lean": "warm",
+     "gets": [
+      {
+       "type": "volume_pct",
+       "direction": "up",
+       "size": "a little",
+       "duration": "a while"
+      }
+     ],
+     "costs": [
+      {
+       "type": "upkeep_pct",
+       "direction": "up",
+       "size": "a little",
+       "duration": "a while"
+      }
+     ],
+     "bot": [
+      {
+       "bot": "bot_3",
+       "market": "mil",
+       "stat": "growth",
+       "size": "S",
+       "direction": "down"
+      }
+     ],
+     "marked_house": "bot_3"
+    },
+    "opt_b": {
+     "button_text": "EV_MIL_C1_OPB_BTN",
+     "dir": -7,
+     "lean": "cold",
+     "gets": [
+      {
+       "type": "cash",
+       "direction": "gain (cash_in)"
+      }
+     ],
+     "costs": [
+      {
+       "type": "volume_pct",
+       "direction": "down",
+       "size": "a little",
+       "duration": "a few cycles"
+      }
+     ],
+     "bot": [
+      {
+       "bot": "bot_2",
+       "market": "mil",
+       "stat": "strength",
+       "size": "S",
+       "direction": "down"
+      }
+     ],
+     "marked_house": "bot_2"
+    },
+    "story": "Fleet Office depot at Cindrel, Dunmere Reach"
+   },
+   {
+    "id": "MIL_C2",
+    "market": "mil",
+    "chain": "C",
+    "step": 2,
+    "trigger": "bazaar_stage:2",
+    "requires_prev_step": true,
+    "min_gap_key": "chain_min_gap",
+    "text_ids": "EV_MIL_C2_TITLE, EV_MIL_C2_BODY_A (after opt_a of the previous step) and _BODY_B, EV_MIL_C2_OPA_BTN/_EFF/_RES_TITLE/_RES/_STD, the same for OPB",
+    "opt_a": {
+     "button_text": "EV_MIL_C2_OPA_BTN",
+     "dir": -9,
+     "lean": "cold",
+     "gets": [
+      {
+       "type": "price_pct",
+       "direction": "up",
+       "size": "a little",
+       "duration": "a while"
+      }
+     ],
+     "costs": [
+      {
+       "type": "cash",
+       "direction": "cost (cash_out)"
+      }
+     ],
+     "bot": [
+      {
+       "bot": "bot_1",
+       "market": "mil",
+       "stat": "strength",
+       "size": "M",
+       "direction": "down"
+      }
+     ],
+     "marked_house": "bot_1"
+    },
+    "opt_b": {
+     "button_text": "EV_MIL_C2_OPB_BTN",
+     "dir": 8,
+     "lean": "warm",
+     "gets": [
+      {
+       "type": "trip_cost_pct (scope one_route)",
+       "direction": "down",
+       "size": "a little",
+       "duration": "a while"
+      }
+     ],
+     "costs": [
+      {
+       "type": "volume_pct",
+       "direction": "down",
+       "size": "a little",
+       "duration": "a while"
+      }
+     ],
+     "bot": [
+      {
+       "bot": "bot_2",
+       "market": "mil",
+       "stat": "growth",
+       "size": "S",
+       "direction": "down"
+      }
+     ],
+     "marked_house": "bot_2"
+    },
+    "story": "Inspector Kethra Voss at the new Bazaar halls"
+   },
+   {
+    "id": "MIL_C3",
+    "market": "mil",
+    "chain": "C",
+    "step": 3,
+    "trigger": "bazaar_stage:3",
+    "requires_prev_step": true,
+    "min_gap_key": "chain_min_gap",
+    "text_ids": "EV_MIL_C3_TITLE, EV_MIL_C3_BODY_A (after opt_a of the previous step) and _BODY_B, EV_MIL_C3_OPA_BTN/_EFF/_RES_TITLE/_RES/_STD, the same for OPB",
+    "opt_a": {
+     "button_text": "EV_MIL_C3_OPA_BTN",
+     "dir": 9,
+     "lean": "warm",
+     "gets": [
+      {
+       "type": "volume_pct",
+       "direction": "up",
+       "size": "clearly",
+       "duration": "a while"
+      }
+     ],
+     "costs": [
+      {
+       "type": "price_pct",
+       "direction": "down",
+       "size": "a little",
+       "duration": "a while"
+      }
+     ],
+     "bot": [
+      {
+       "bot": "bot_3",
+       "market": "mil",
+       "stat": "growth",
+       "size": "S",
+       "direction": "down"
+      }
+     ],
+     "marked_house": "bot_3"
+    },
+    "opt_b": {
+     "button_text": "EV_MIL_C3_OPB_BTN",
+     "dir": -10,
+     "lean": "cold",
+     "gets": [
+      {
+       "type": "cash",
+       "direction": "gain (cash_in)"
+      }
+     ],
+     "costs": [
+      {
+       "type": "volume_pct",
+       "direction": "down",
+       "size": "clearly",
+       "duration": "a few cycles"
+      }
+     ],
+     "bot": [
+      {
+       "bot": "bot_1",
+       "market": "mil",
+       "stat": "tier",
+       "size": null,
+       "direction": "down",
+       "note": "held back; key event_hit_tier; text uses {cut} and {cut_std}"
+      }
+     ],
+     "marked_house": "bot_1"
+    },
+    "story": "Admiral Gabe Nuer renews the estimate at the Great Hall"
+   },
+   {
+    "id": "LUX_C1",
+    "market": "lux",
+    "chain": "C",
+    "step": 1,
+    "trigger": {
+     "all": [
+      "system_open:2",
+      "any_tier:3"
+     ]
+    },
+    "requires_prev_step": false,
+    "min_gap_key": "chain_min_gap",
+    "text_ids": "EV_LUX_C1_TITLE, EV_LUX_C1_BODY, EV_LUX_C1_OPA_BTN/_EFF/_RES_TITLE/_RES/_STD, the same for OPB",
+    "opt_a": {
+     "button_text": "EV_LUX_C1_OPA_BTN",
+     "dir": 7,
+     "lean": "warm",
+     "gets": [
+      {
+       "type": "price_pct",
+       "direction": "up",
+       "size": "a little",
+       "duration": "a while"
+      }
+     ],
+     "costs": [
+      {
+       "type": "volume_pct",
+       "direction": "down",
+       "size": "a little",
+       "duration": "a while"
+      }
+     ],
+     "bot": [
+      {
+       "bot": "bot_2",
+       "market": "lux",
+       "stat": "growth",
+       "size": "S",
+       "direction": "down"
+      }
+     ],
+     "marked_house": "bot_2"
+    },
+    "opt_b": {
+     "button_text": "EV_LUX_C1_OPB_BTN",
+     "dir": -8,
+     "lean": "cold",
+     "gets": [
+      {
+       "type": "cash",
+       "direction": "gain (cash_in)"
+      }
+     ],
+     "costs": [
+      {
+       "type": "upkeep_pct",
+       "direction": "up",
+       "size": "a little",
+       "duration": "a while"
+      }
+     ],
+     "bot": [
+      {
+       "bot": "bot_3",
+       "market": "lux",
+       "stat": "strength",
+       "size": "S",
+       "direction": "down"
+      }
+     ],
+     "marked_house": "bot_3"
+    },
+    "story": "Madame Marr's standing order, Quillon gallery ring"
+   },
+   {
+    "id": "LUX_C2",
+    "market": "lux",
+    "chain": "C",
+    "step": 2,
+    "trigger": "bazaar_stage:2",
+    "requires_prev_step": true,
+    "min_gap_key": "chain_min_gap",
+    "text_ids": "EV_LUX_C2_TITLE, EV_LUX_C2_BODY_A (after opt_a of the previous step) and _BODY_B, EV_LUX_C2_OPA_BTN/_EFF/_RES_TITLE/_RES/_STD, the same for OPB",
+    "opt_a": {
+     "button_text": "EV_LUX_C2_OPA_BTN",
+     "dir": 9,
+     "lean": "warm",
+     "gets": [
+      {
+       "type": "volume_pct",
+       "direction": "up",
+       "size": "a little",
+       "duration": "a while"
+      }
+     ],
+     "costs": [
+      {
+       "type": "cash",
+       "direction": "cost (cash_out)"
+      }
+     ],
+     "bot": [
+      {
+       "bot": "bot_2",
+       "market": "lux",
+       "stat": "strength",
+       "size": "S",
+       "direction": "down"
+      }
+     ],
+     "marked_house": "bot_2"
+    },
+    "opt_b": {
+     "button_text": "EV_LUX_C2_OPB_BTN",
+     "dir": -8,
+     "lean": "cold",
+     "gets": [
+      {
+       "type": "cash",
+       "direction": "gain (cash_in)"
+      }
+     ],
+     "costs": [
+      {
+       "type": "price_pct",
+       "direction": "down",
+       "size": "a little",
+       "duration": "a while"
+      }
+     ],
+     "bot": [
+      {
+       "bot": "bot_3",
+       "market": "lux",
+       "stat": "growth",
+       "size": "S",
+       "direction": "down"
+      }
+     ],
+     "marked_house": "bot_3"
+    },
+    "story": "The Guild of Masks hangs masks in the new halls"
+   },
+   {
+    "id": "LUX_C3",
+    "market": "lux",
+    "chain": "C",
+    "step": 3,
+    "trigger": "bazaar_stage:3",
+    "requires_prev_step": true,
+    "min_gap_key": "chain_min_gap",
+    "text_ids": "EV_LUX_C3_TITLE, EV_LUX_C3_BODY_A (after opt_a of the previous step) and _BODY_B, EV_LUX_C3_OPA_BTN/_EFF/_RES_TITLE/_RES/_STD, the same for OPB",
+    "opt_a": {
+     "button_text": "EV_LUX_C3_OPA_BTN",
+     "dir": -10,
+     "lean": "cold",
+     "gets": [
+      {
+       "type": "price_pct",
+       "direction": "up",
+       "size": "clearly",
+       "duration": "a while"
+      }
+     ],
+     "costs": [
+      {
+       "type": "cash",
+       "direction": "cost (cash_out)"
+      }
+     ],
+     "bot": [
+      {
+       "bot": "bot_2",
+       "market": "lux",
+       "stat": "strength",
+       "size": "M",
+       "direction": "down"
+      }
+     ],
+     "marked_house": "bot_2"
+    },
+    "opt_b": {
+     "button_text": "EV_LUX_C3_OPB_BTN",
+     "dir": 9,
+     "lean": "warm",
+     "gets": [
+      {
+       "type": "volume_pct",
+       "direction": "up",
+       "size": "clearly",
+       "duration": "a while"
+      }
+     ],
+     "costs": [
+      {
+       "type": "price_pct",
+       "direction": "down",
+       "size": "a little",
+       "duration": "a while"
+      }
+     ],
+     "bot": [
+      {
+       "bot": "bot_1",
+       "market": "lux",
+       "stat": "growth",
+       "size": "S",
+       "direction": "down"
+      }
+     ],
+     "marked_house": "bot_1"
+    },
+    "story": "The Orrel House gala in the Great Hall"
+   },
+   {
+    "id": "MIN_C1",
+    "market": "min",
+    "chain": "C",
+    "step": 1,
+    "trigger": {
+     "all": [
+      "system_open:2",
+      "any_tier:3"
+     ]
+    },
+    "requires_prev_step": false,
+    "min_gap_key": "chain_min_gap",
+    "text_ids": "EV_MIN_C1_TITLE, EV_MIN_C1_BODY, EV_MIN_C1_OPA_BTN/_EFF/_RES_TITLE/_RES/_STD, the same for OPB",
+    "opt_a": {
+     "button_text": "EV_MIN_C1_OPA_BTN",
+     "dir": 8,
+     "lean": "warm",
+     "gets": [
+      {
+       "type": "volume_pct",
+       "direction": "up",
+       "size": "a little",
+       "duration": "a while"
+      }
+     ],
+     "costs": [
+      {
+       "type": "price_pct",
+       "direction": "down",
+       "size": "a little",
+       "duration": "a while"
+      }
+     ],
+     "bot": [
+      {
+       "bot": "bot_1",
+       "market": "min",
+       "stat": "growth",
+       "size": "S",
+       "direction": "down"
+      }
+     ],
+     "marked_house": "bot_1"
+    },
+    "opt_b": {
+     "button_text": "EV_MIN_C1_OPB_BTN",
+     "dir": -7,
+     "lean": "cold",
+     "gets": [
+      {
+       "type": "cash",
+       "direction": "gain (cash_in)"
+      }
+     ],
+     "costs": [
+      {
+       "type": "volume_pct",
+       "direction": "down",
+       "size": "a little",
+       "duration": "a few cycles"
+      }
+     ],
+     "bot": [
+      {
+       "bot": "bot_3",
+       "market": "min",
+       "stat": "strength",
+       "size": "S",
+       "direction": "down"
+      }
+     ],
+     "marked_house": "bot_3"
+    },
+    "story": "Deepline Works asks for a second shaft at Cindrel"
+   },
+   {
+    "id": "MIN_C2",
+    "market": "min",
+    "chain": "C",
+    "step": 2,
+    "trigger": "bazaar_stage:2",
+    "requires_prev_step": true,
+    "min_gap_key": "chain_min_gap",
+    "text_ids": "EV_MIN_C2_TITLE, EV_MIN_C2_BODY_A (after opt_a of the previous step) and _BODY_B, EV_MIN_C2_OPA_BTN/_EFF/_RES_TITLE/_RES/_STD, the same for OPB",
+    "opt_a": {
+     "button_text": "EV_MIN_C2_OPA_BTN",
+     "dir": -8,
+     "lean": "cold",
+     "gets": [
+      {
+       "type": "price_pct",
+       "direction": "up",
+       "size": "a little",
+       "duration": "a while"
+      }
+     ],
+     "costs": [
+      {
+       "type": "cash",
+       "direction": "cost (cash_out)"
+      }
+     ],
+     "bot": [
+      {
+       "bot": "bot_1",
+       "market": "min",
+       "stat": "strength",
+       "size": "S",
+       "direction": "down"
+      }
+     ],
+     "marked_house": "bot_1"
+    },
+    "opt_b": {
+     "button_text": "EV_MIN_C2_OPB_BTN",
+     "dir": 9,
+     "lean": "warm",
+     "gets": [
+      {
+       "type": "trip_cost_pct (scope one_route)",
+       "direction": "down",
+       "size": "a little",
+       "duration": "a while"
+      }
+     ],
+     "costs": [
+      {
+       "type": "volume_pct",
+       "direction": "down",
+       "size": "a little",
+       "duration": "a while"
+      }
+     ],
+     "bot": [
+      {
+       "bot": "bot_3",
+       "market": "min",
+       "stat": "growth",
+       "size": "S",
+       "direction": "down"
+      }
+     ],
+     "marked_house": "bot_3"
+    },
+    "story": "Bidder Gordo Gekk prices the hall stone"
+   },
+   {
+    "id": "MIN_C3",
+    "market": "min",
+    "chain": "C",
+    "step": 3,
+    "trigger": "bazaar_stage:3",
+    "requires_prev_step": true,
+    "min_gap_key": "chain_min_gap",
+    "text_ids": "EV_MIN_C3_TITLE, EV_MIN_C3_BODY_A (after opt_a of the previous step) and _BODY_B, EV_MIN_C3_OPA_BTN/_EFF/_RES_TITLE/_RES/_STD, the same for OPB",
+    "opt_a": {
+     "button_text": "EV_MIN_C3_OPA_BTN",
+     "dir": 8,
+     "lean": "warm",
+     "gets": [
+      {
+       "type": "volume_pct",
+       "direction": "up",
+       "size": "clearly",
+       "duration": "a while"
+      }
+     ],
+     "costs": [
+      {
+       "type": "upkeep_pct",
+       "direction": "up",
+       "size": "a little",
+       "duration": "a while"
+      }
+     ],
+     "bot": [
+      {
+       "bot": "bot_1",
+       "market": "min",
+       "stat": "strength",
+       "size": "M",
+       "direction": "down"
+      }
+     ],
+     "marked_house": "bot_1"
+    },
+    "opt_b": {
+     "button_text": "EV_MIN_C3_OPB_BTN",
+     "dir": -9,
+     "lean": "cold",
+     "gets": [
+      {
+       "type": "cash",
+       "direction": "gain (cash_in)"
+      }
+     ],
+     "costs": [
+      {
+       "type": "volume_pct",
+       "direction": "down",
+       "size": "a little",
+       "duration": "a while"
+      }
+     ],
+     "bot": [
+      {
+       "bot": "bot_3",
+       "market": "min",
+       "stat": "growth",
+       "size": "M",
+       "direction": "down"
+      }
+     ],
+     "marked_house": "bot_3"
+    },
+    "story": "Tamsk Reddock offers the last rail for the Great Hall roof"
+   },
+   {
+    "id": "BIO_C1",
+    "market": "bio",
+    "chain": "C",
+    "step": 1,
+    "trigger": {
+     "all": [
+      "system_open:2",
+      "any_tier:3"
+     ]
+    },
+    "requires_prev_step": false,
+    "min_gap_key": "chain_min_gap",
+    "text_ids": "EV_BIO_C1_TITLE, EV_BIO_C1_BODY, EV_BIO_C1_OPA_BTN/_EFF/_RES_TITLE/_RES/_STD, the same for OPB",
+    "opt_a": {
+     "button_text": "EV_BIO_C1_OPA_BTN",
+     "dir": -8,
+     "lean": "cold",
+     "gets": [
+      {
+       "type": "price_pct",
+       "direction": "up",
+       "size": "a little",
+       "duration": "a while"
+      }
+     ],
+     "costs": [
+      {
+       "type": "cash",
+       "direction": "cost (cash_out)"
+      }
+     ],
+     "bot": [
+      {
+       "bot": "bot_2",
+       "market": "bio",
+       "stat": "strength",
+       "size": "S",
+       "direction": "down"
+      }
+     ],
+     "marked_house": "bot_2"
+    },
+    "opt_b": {
+     "button_text": "EV_BIO_C1_OPB_BTN",
+     "dir": 7,
+     "lean": "warm",
+     "gets": [
+      {
+       "type": "volume_pct",
+       "direction": "up",
+       "size": "a little",
+       "duration": "a while"
+      }
+     ],
+     "costs": [
+      {
+       "type": "upkeep_pct",
+       "direction": "up",
+       "size": "a little",
+       "duration": "a while"
+      }
+     ],
+     "bot": [
+      {
+       "bot": "bot_3",
+       "market": "bio",
+       "stat": "growth",
+       "size": "S",
+       "direction": "down"
+      }
+     ],
+     "marked_house": "bot_3"
+    },
+    "story": "A chiller fails at Brannock; Ottoline Ryke calls"
+   },
+   {
+    "id": "BIO_C2",
+    "market": "bio",
+    "chain": "C",
+    "step": 2,
+    "trigger": "bazaar_stage:2",
+    "requires_prev_step": true,
+    "min_gap_key": "chain_min_gap",
+    "text_ids": "EV_BIO_C2_TITLE, EV_BIO_C2_BODY_A (after opt_a of the previous step) and _BODY_B, EV_BIO_C2_OPA_BTN/_EFF/_RES_TITLE/_RES/_STD, the same for OPB",
+    "opt_a": {
+     "button_text": "EV_BIO_C2_OPA_BTN",
+     "dir": 9,
+     "lean": "warm",
+     "gets": [
+      {
+       "type": "trip_cost_pct (scope one_route)",
+       "direction": "down",
+       "size": "a little",
+       "duration": "a while"
+      }
+     ],
+     "costs": [
+      {
+       "type": "cash",
+       "direction": "cost (cash_out)"
+      }
+     ],
+     "bot": [
+      {
+       "bot": "bot_2",
+       "market": "bio",
+       "stat": "growth",
+       "size": "S",
+       "direction": "down"
+      }
+     ],
+     "marked_house": "bot_2"
+    },
+    "opt_b": {
+     "button_text": "EV_BIO_C2_OPB_BTN",
+     "dir": -8,
+     "lean": "cold",
+     "gets": [
+      {
+       "type": "cash",
+       "direction": "gain (cash_in)"
+      }
+     ],
+     "costs": [
+      {
+       "type": "volume_pct",
+       "direction": "down",
+       "size": "a little",
+       "duration": "a while"
+      }
+     ],
+     "bot": [
+      {
+       "bot": "bot_3",
+       "market": "bio",
+       "stat": "strength",
+       "size": "S",
+       "direction": "down"
+      }
+     ],
+     "marked_house": "bot_3"
+    },
+    "story": "Doctor Marrow volunteers for the new halls' test rota"
+   },
+   {
+    "id": "BIO_C3",
+    "market": "bio",
+    "chain": "C",
+    "step": 3,
+    "trigger": "bazaar_stage:3",
+    "requires_prev_step": true,
+    "min_gap_key": "chain_min_gap",
+    "text_ids": "EV_BIO_C3_TITLE, EV_BIO_C3_BODY_A (after opt_a of the previous step) and _BODY_B, EV_BIO_C3_OPA_BTN/_EFF/_RES_TITLE/_RES/_STD, the same for OPB",
+    "opt_a": {
+     "button_text": "EV_BIO_C3_OPA_BTN",
+     "dir": -10,
+     "lean": "cold",
+     "gets": [
+      {
+       "type": "price_pct",
+       "direction": "up",
+       "size": "clearly",
+       "duration": "a while"
+      }
+     ],
+     "costs": [
+      {
+       "type": "volume_pct",
+       "direction": "down",
+       "size": "a little",
+       "duration": "a while"
+      }
+     ],
+     "bot": [
+      {
+       "bot": "bot_2",
+       "market": "bio",
+       "stat": "strength",
+       "size": "M",
+       "direction": "down"
+      }
+     ],
+     "marked_house": "bot_2"
+    },
+    "opt_b": {
+     "button_text": "EV_BIO_C3_OPB_BTN",
+     "dir": 9,
+     "lean": "warm",
+     "gets": [
+      {
+       "type": "volume_pct",
+       "direction": "up",
+       "size": "clearly",
+       "duration": "a while"
+      }
+     ],
+     "costs": [
+      {
+       "type": "cash",
+       "direction": "cost (cash_out)"
+      }
+     ],
+     "bot": [
+      {
+       "bot": "bot_3",
+       "market": "bio",
+       "stat": "growth",
+       "size": "S",
+       "direction": "down"
+      }
+     ],
+     "marked_house": "bot_3"
+    },
+    "story": "Director Hesk and Imre Fenn, the last hall's cold rooms"
+   }
+  ],
+  "gigs": [
+   {
+    "id": "GIG03",
+    "kind": "signal",
+    "weight": 1,
+    "system": 0,
+    "when": {
+     "all": [
+      "cycle_at_least:balance.gig_first_cycle",
+      "any_tier:2"
+     ]
+    },
+    "expires": "balance.gig_expire_cycles",
+    "title": "GIG03_TITLE",
+    "hook": "GIG03_HOOK",
+    "body": "GIG03_ARRIVE",
+    "epilogue": "GIG03_EPI",
+    "options": [
+     {
+      "id": "a",
+      "text": "GIG03_A_BTN",
+      "outcome": "GIG03_A_OUT",
+      "gives": [
+       {
+        "kind": "goods",
+        "by_branch": {
+         "mil": "powder",
+         "lux": "blooms",
+         "min": "ore",
+         "bio": "food",
+         "other": "energy"
+        },
+        "size": "small"
+       }
+      ],
+      "costs": [
+       {
+        "kind": "scout_idle",
+        "size": "short"
+       }
+      ]
+     },
+     {
+      "id": "b",
+      "text": "GIG03_B_BTN",
+      "outcome": "GIG03_B_OUT",
+      "gives": [
+       {
+        "kind": "cash",
+        "size": "small"
+       }
+      ],
+      "costs": [
+       {
+        "kind": "scout_idle",
+        "size": "long"
+       }
+      ]
+     }
+    ],
+    "note": "shared, all four branches (outcome ids _MIL/_LUX/_MIN/_BIO)"
+   },
+   {
+    "id": "GIG04",
+    "kind": "signal",
+    "weight": 1,
+    "system": 0,
+    "when": {
+     "all": [
+      "cycle_at_least:balance.gig_first_cycle",
+      "any_tier:2"
+     ]
+    },
+    "expires": "balance.gig_expire_cycles",
+    "title": "GIG04_TITLE",
+    "hook": "GIG04_HOOK",
+    "body": "GIG04_ARRIVE",
+    "epilogue": "GIG04_EPI",
+    "options": [
+     {
+      "id": "a",
+      "text": "GIG04_A_BTN",
+      "outcome": "GIG04_A_OUT",
+      "gives": [
+       {
+        "kind": "goods",
+        "by_branch": {
+         "mil": "powder",
+         "lux": "blooms",
+         "min": "ore",
+         "bio": "food",
+         "other": "energy"
+        },
+        "size": "small"
+       }
+      ],
+      "costs": [
+       {
+        "kind": "cash_fee",
+        "size": "small"
+       }
+      ]
+     },
+     {
+      "id": "b",
+      "text": "GIG04_B_BTN",
+      "outcome": "GIG04_B_OUT",
+      "gives": [
+       {
+        "kind": "cash",
+        "size": "small"
+       }
+      ],
+      "costs": [
+       {
+        "kind": "scout_idle",
+        "size": "short"
+       }
+      ]
+     }
+    ],
+    "note": "shared, all four branches"
+   },
+   {
+    "id": "GIG05",
+    "kind": "signal",
+    "weight": 1,
+    "system": 0,
+    "when": {
+     "all": [
+      "cycle_at_least:balance.gig_first_cycle",
+      "any_tier:2",
+      {
+       "any": [
+        "branch_is:mil",
+        "branch_is:min"
+       ]
+      }
+     ]
+    },
+    "expires": "balance.gig_expire_cycles",
+    "title": "GIG05_TITLE",
+    "hook": "GIG05_HOOK",
+    "body": "GIG05_ARRIVE",
+    "epilogue": "GIG05_EPI",
+    "options": [
+     {
+      "id": "a",
+      "text": "GIG05_A_BTN",
+      "outcome": "GIG05_A_OUT",
+      "gives": [
+       {
+        "kind": "goods",
+        "by_branch": {
+         "mil": "powder",
+         "min": "ore"
+        },
+        "size": "small"
+       }
+      ],
+      "costs": [
+       {
+        "kind": "scout_idle",
+        "size": "short"
+       }
+      ]
+     },
+     {
+      "id": "b",
+      "text": "GIG05_B_BTN",
+      "outcome": "GIG05_B_OUT",
+      "gives": [
+       {
+        "kind": "cash",
+        "size": "small"
+       }
+      ],
+      "costs": [
+       {
+        "kind": "scout_idle",
+        "size": "long"
+       }
+      ]
+     }
+    ],
+    "note": "Military and Minerals only; outcome ids exist only for _MIL and _MIN"
+   },
+   {
+    "id": "GIG06",
+    "kind": "signal",
+    "weight": 1,
+    "system": 0,
+    "when": {
+     "all": [
+      "cycle_at_least:balance.gig_first_cycle",
+      "any_tier:2",
+      {
+       "any": [
+        "branch_is:lux",
+        "branch_is:bio"
+       ]
+      }
+     ]
+    },
+    "expires": "balance.gig_expire_cycles",
+    "title": "GIG06_TITLE",
+    "hook": "GIG06_HOOK",
+    "body": "GIG06_ARRIVE",
+    "epilogue": "GIG06_EPI",
+    "options": [
+     {
+      "id": "a",
+      "text": "GIG06_A_BTN",
+      "outcome": "GIG06_A_OUT",
+      "gives": [
+       {
+        "kind": "cash",
+        "size": "small"
+       }
+      ],
+      "costs": [
+       {
+        "kind": "scout_idle",
+        "size": "short"
+       }
+      ]
+     },
+     {
+      "id": "b",
+      "text": "GIG06_B_BTN",
+      "outcome": "GIG06_B_OUT",
+      "gives": [
+       {
+        "kind": "goods",
+        "by_branch": {
+         "lux": "blooms",
+         "bio": "food"
+        },
+        "size": "small"
+       }
+      ],
+      "costs": [
+       {
+        "kind": "cash_fee",
+        "size": "small"
+       }
+      ]
+     }
+    ],
+    "note": "Luxury and Biotech only; outcome ids exist only for _LUX and _BIO"
+   }
+  ],
+  "gig07": {
+   "id": "GIG07",
+   "where": "the Opening docking only (not a board offer)",
+   "how": "When the Flagship docks at the Bazaar capital carrying the charter cargo after the last Bazaar stage, show the arrival window with GIG07_TITLE and GIG07_ARRIVE and one button GIG07_A_BTN. On the press show GIG07_A_OUT_<MIL|LUX|MIN|BIO> of the run's branch, then the win screen. GIG07_HOOK is the one-line board hint while the cargo waits. Texts are unchanged.",
+   "gives_costs": "none"
+  },
+  "deleted_ids": [
+   "BE01C",
+   "BE01C_TITLE",
+   "BE01_SEND",
+   "BE01_SEND_BTN",
+   "BE01_SEND_EFF",
+   "BE01_SEND_TITLE",
+   "BE03C",
+   "BE03C_TITLE",
+   "BE03_REPORT",
+   "BE03_REPORT_BTN",
+   "BE03_REPORT_EFF",
+   "BE03_REPORT_TITLE",
+   "EV_FLT01_FLY",
+   "EV_FLT01_FLY_BTN",
+   "EV_FLT01_FLY_EFF",
+   "EV_FLT01_FLY_TITLE",
+   "EV_PLT04_DARK",
+   "EV_PLT04_DARK_BTN",
+   "EV_PLT04_DARK_EFF",
+   "EV_PLT04_DARK_TITLE",
+   "EV_PLT04_LIGHT",
+   "EV_PLT04_LIGHT_BTN",
+   "EV_PLT04_LIGHT_EFF",
+   "EV_PLT04_LIGHT_TITLE",
+   "EV_PST04_BUY",
+   "EV_PST04_BUY_BTN",
+   "EV_PST04_BUY_EFF",
+   "EV_PST04_BUY_TITLE",
+   "EV_PST04_PASS",
+   "EV_PST04_PASS_BTN",
+   "EV_PST04_PASS_EFF",
+   "EV_PST04_PASS_TITLE",
+   "EV_PST05_SEAL",
+   "EV_PST05_SEAL_BTN",
+   "EV_PST05_SEAL_EFF",
+   "EV_PST05_SEAL_TITLE"
+  ],
+  "reworded_ids": {
+   "live_texts": [
+    "NULL_CORE_FIT",
+    "SK_BIO_2_PLAIN",
+    "GIG01_B_OUT_BIO",
+    "GIG01_B_OUT_LUX",
+    "GIG01_B_OUT_MIL",
+    "GIG01_B_OUT_MIN",
+    "GIG02_A_OUT_BIO",
+    "GIG02_A_OUT_LUX",
+    "GIG02_A_OUT_MIL",
+    "GIG02_A_OUT_MIN",
+    "GIG02_B_OUT_BIO",
+    "GIG02_B_OUT_LUX",
+    "GIG02_B_OUT_MIL",
+    "GIG02_B_OUT_MIN",
+    "GIG03_B_OUT_BIO",
+    "GIG03_B_OUT_LUX",
+    "GIG03_B_OUT_MIL",
+    "GIG03_B_OUT_MIN",
+    "GIG04_A_OUT_BIO",
+    "GIG04_A_OUT_LUX",
+    "GIG04_A_OUT_MIL",
+    "GIG04_A_OUT_MIN",
+    "GIG04_B_OUT_BIO",
+    "GIG04_B_OUT_LUX",
+    "GIG04_B_OUT_MIL",
+    "GIG04_B_OUT_MIN",
+    "GIG05_B_OUT_MIL",
+    "GIG05_B_OUT_MIN",
+    "GIG06_A_OUT_BIO",
+    "GIG06_A_OUT_LUX",
+    "GIG06_B_OUT_BIO",
+    "GIG06_B_OUT_LUX"
+   ],
+   "retargeted_or_rewritten_events": [
+    "BE02A",
+    "BE02_ANSWER",
+    "BE02_ANSWER_EFF",
+    "EV21_BODY",
+    "EV21_TITLE",
+    "EV22_BODY",
+    "EV22_TITLE",
+    "EV24_BODY",
+    "EV24_TITLE",
+    "EV25_BODY",
+    "EV25_TITLE",
+    "EV_FLT01_BODY",
+    "EV_FLT01_TOW",
+    "EV_FLT01_TOW_BTN",
+    "EV_FLT01_TOW_EFF",
+    "EV_FLT01_TOW_TITLE",
+    "EV_FLT02_BODY",
+    "EV_FLT02_HOLD",
+    "EV_FLT02_HOLD_EFF",
+    "EV_FLT02_RELAY",
+    "EV_FLT02_RELAY_EFF",
+    "EV_FLT03_AROUND",
+    "EV_FLT03_AROUND_BTN",
+    "EV_FLT03_AROUND_EFF",
+    "EV_FLT03_AROUND_TITLE",
+    "EV_FLT03_BODY",
+    "EV_FLT03_PAY",
+    "EV_FLT03_PAY_EFF",
+    "EV_FLT04_BODY",
+    "EV_FLT04_PUSH",
+    "EV_FLT04_PUSH_EFF",
+    "EV_FLT04_SLOW",
+    "EV_FLT04_SLOW_EFF",
+    "EV_PLT01_BODY",
+    "EV_PLT01_DAY",
+    "EV_PLT01_DAY_BTN",
+    "EV_PLT01_DAY_EFF",
+    "EV_PLT01_DAY_TITLE",
+    "EV_PLT01_NIGHT",
+    "EV_PLT01_NIGHT_EFF",
+    "EV_PLT02_BODY",
+    "EV_PLT02_PROP",
+    "EV_PLT02_PROP_EFF",
+    "EV_PLT02_SEAL",
+    "EV_PLT02_SEAL_EFF",
+    "EV_PLT03_BODY",
+    "EV_PLT03_HIDE",
+    "EV_PLT03_HIDE_EFF",
+    "EV_PLT04_BODY",
+    "EV_PST01_BODY",
+    "EV_PST01_LEAVE",
+    "EV_PST01_LEAVE_EFF",
+    "EV_PST01_SIGN",
+    "EV_PST01_SIGN_EFF",
+    "EV_PST02_BODY",
+    "EV_PST02_GIFT",
+    "EV_PST02_GIFT_EFF",
+    "EV_PST02_WAIT",
+    "EV_PST02_WAIT_EFF",
+    "EV_PST03_BODY",
+    "EV_PST03_PART",
+    "EV_PST03_PART_EFF",
+    "EV_PST03_SHIFT",
+    "EV_PST03_SHIFT_EFF",
+    "EV_PST04_BODY",
+    "EV_PST05_BODY",
+    "EV_PST05_SHARE",
+    "EV_PST05_SHARE_EFF",
+    "EV_PST06_BODY",
+    "EV_PST06_OPEN",
+    "EV_PST06_OPEN_EFF",
+    "EV_PST06_WORK",
+    "EV_PST06_WORK_EFF"
+   ]
+  },
+  "totals": {
+   "shared": {
+    "count": 25,
+    "ids": [
+     "EV01",
+     "EV05",
+     "EV06",
+     "EV10",
+     "EV11",
+     "EV12",
+     "EV26",
+     "EV28",
+     "EV07",
+     "EV08",
+     "EV09",
+     "EV49",
+     "EV60",
+     "EV63",
+     "EV64",
+     "EV17",
+     "EV20",
+     "EV_PST01",
+     "EV_PST02",
+     "EV_PST03",
+     "EV_PST04",
+     "EV_PST05",
+     "EV_PST06",
+     "EV_FLT01",
+     "EV_FLT02"
+    ]
+   },
+   "mil": {
+    "count": 15,
+    "ids": [
+     "EV40",
+     "EV52",
+     "EV41",
+     "EV42",
+     "EV81",
+     "EV82",
+     "EV83",
+     "EV84",
+     "EV85",
+     "EV_FLT03",
+     "EV91",
+     "EV92",
+     "EV93",
+     "EV24",
+     "EV25"
+    ]
+   },
+   "lux": {
+    "count": 15,
+    "ids": [
+     "EV43",
+     "EV53",
+     "EV21",
+     "EV22",
+     "EV44",
+     "EV45",
+     "EV76",
+     "EV77",
+     "EV78",
+     "EV79",
+     "EV80",
+     "EV94",
+     "EV95",
+     "EV96",
+     "BE02"
+    ]
+   },
+   "min": {
+    "count": 15,
+    "ids": [
+     "EV46",
+     "EV47",
+     "EV54",
+     "EV48",
+     "EV70",
+     "EV71",
+     "EV72",
+     "EV73",
+     "EV74",
+     "EV_FLT04",
+     "EV_PLT01",
+     "EV_PLT02",
+     "EV_PLT03",
+     "EV_PLT04",
+     "EV75"
+    ]
+   },
+   "bio": {
+    "count": 15,
+    "ids": [
+     "EV02",
+     "EV03",
+     "EV04",
+     "EV13",
+     "EV14",
+     "EV15",
+     "EV16",
+     "EV61",
+     "EV62",
+     "EV50",
+     "EV55",
+     "BE01",
+     "BE03",
+     "EV51",
+     "EV88"
+    ]
+   },
+   "chain_steps_per_market": {
+    "mil": {
+     "count": 10,
+     "ids": [
+      "MIL_A1..A3, B1..B4 (existing 7)",
+      "MIL_C1",
+      "MIL_C2",
+      "MIL_C3"
+     ]
+    },
+    "lux": {
+     "count": 10,
+     "ids": [
+      "LUX_A1..A3, B1..B4 (existing 7)",
+      "LUX_C1",
+      "LUX_C2",
+      "LUX_C3"
+     ]
+    },
+    "min": {
+     "count": 10,
+     "ids": [
+      "MIN_A1..A3, B1..B4 (existing 7)",
+      "MIN_C1",
+      "MIN_C2",
+      "MIN_C3"
+     ]
+    },
+    "bio": {
+     "count": 10,
+     "ids": [
+      "BIO_A1..A3, B1..B4 (existing 7)",
+      "BIO_C1",
+      "BIO_C2",
+      "BIO_C3"
+     ]
+    }
+   }
+  },
+  "unchanged_not_in_plan": "EV40, EV43, EV46, EV47, EV52 to EV55 stay as they are (live)."
+ }
+}

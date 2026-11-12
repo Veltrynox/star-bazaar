@@ -65,17 +65,6 @@ The Ledger Closes
 END_BANKRUPT | 600 | End screen body, no ship left and cash still negative (loss)
 The company has no ships left, and the cash is still below zero. Each cycle the Bureau took the newest hull to cover the debt, and now the last is gone. Your ships are entered in the Common Ledger, and your name is given a quota that is equal and exactly the size of everyone else's. A clerk reads the closing form aloud and adds that nothing here was ever owed to you. The three rivals go on selling. The sky did not notice.
 
-END_SWEPT_TITLE | 40 | End screen heading, player under a tenth of every market (loss)
-The Floor of Every Graph
-
-END_SWEPT | 600 | End screen body, player under a tenth of every market for the sweep window (loss)
-For three cycles running, your company held less than a tenth of every market, and the Bureau has stopped listing you as a competitor. The strongest of the three rivals fills the shelves where yours stood. Your ships still run, and your orders are still taken, politely, at counters that are no longer yours. Nothing cruel was done. A market is a room, and you were not in it.
-
-END_OUTCOMPETED_TITLE | 40 | End screen heading, window closed with no market held (soft ending)
-No Market Held
-
-END_OUTCOMPETED | 700 | End screen body, window closed with no market over half (soft ending)
-The window closed with no market held. You did not lose. The company is solvent, the ships run, and the Bureau lists you as a participant, a word with no weight. A spread of small shares does not add up to a market. A single market, held all the way, does. The sky has no opinion. It never needed one.
 
 ## End screen texts
 
@@ -137,17 +126,6 @@ EPI_RIVAL_MIN | 140 | Epilogue 3, a rival lost a tier in Minerals ({bot})
 EPI_RIVAL_BIO | 140 | Epilogue 3, a rival lost a tier in Biotech ({bot})
 {bot} lost a tier in Biotech. Its vats run on, and its clinics ask for less.
 
-EPI_SECOND_MIL | 140 | Epilogue 4, Military is a second market over a quarter share
-Military ran second, past a quarter of its market. The fleets noticed, and kept your number.
-
-EPI_SECOND_LUX | 140 | Epilogue 4, Luxury is a second market over a quarter share
-Luxury ran second, past a quarter of its market. The masks at the gala came from you.
-
-EPI_SECOND_MIN | 140 | Epilogue 4, Minerals is a second market over a quarter share
-Minerals ran second, past a quarter of its market. The dust remembers you anyway.
-
-EPI_SECOND_BIO | 140 | Epilogue 4, Biotech is a second market over a quarter share
-Biotech ran second, past a quarter of its market. A vat in a back room has your name on it.
 
 ## The Unfinished Bazaar (2026-11-06, T267, soft ending when the term ends before the Opening)
 Kind, never a loss. The epilogue line is picked by stages done. Programmer: EPI_STAGES_3 is used for three or more. EPI_UNFINISHED_CAPITAL is added when a capital was founded.
@@ -233,15 +211,6 @@ When the call came, Marek answered. A rush order at Ashgate, a late food run at 
 EPI_MIN_PICKUP | 140 | Epilogue 1, Marek, rush orders and quick routes
 Every rush order on the board has the same reply scratched under it, in Marek's hand. It says, on its way.
 
-END_MIN_PAGE_TITLE | 40 | End screen heading, Marek, paid what was owed, nothing taken
-Every Crate Written Down
-
-END_MIN_PAGE | 1000 | End screen body, Marek, paid what was owed, nothing taken
-The last page is signed, and it balances. Marek checks it twice, then a third time, because that is who he is. Every fee was paid on the day it fell due. Every crate was counted going out and counted coming in. The clerks at the yards stopped asking for proof. They ask how he is. The Bureau has no form for what that is worth. Marek writes the sum in his own book, in pencil, and leaves it blank.
-
-EPI_MIN_PAGE | 140 | Epilogue 1, Marek, paid what was owed
-The yard clerks keep a chair for Marek. It is the one with the good cushion. He sits on the edge.
-
 END_MIN_THIN_TITLE | 40 | End screen heading, Marek, a small fleet
 The Thin Fleet
 
@@ -278,15 +247,6 @@ Every order that came to the board was filled before its time ran out. Buyers le
 EPI_LUX_FULLTABLE | 140 | Epilogue 1, Idris, rush orders filled in time
 The empty table has a card on it. The card is blank on purpose, and someone fills it in each morning.
 
-END_LUX_LIGHT_TITLE | 40 | End screen heading, Idris, took credits over goods
-Light Hands
-
-END_LUX_LIGHT | 1000 | End screen body, Idris, took credits over goods
-Idris took the credits every time. A gift is polite to accept, and credits are easy to spend, and he spent them well: a round of lunches, a round of favours, a small loan to a buyer who needed it. The Bazaar opened with no crates of keepsakes in its cellar. It opened with a great many people who owe Idris a lunch. He has not decided which is worth more. He picks up the bill.
-
-EPI_LUX_LIGHT | 140 | Epilogue 1, Idris, took credits over goods
-The ribbons are all gone. A few buyers wear the ones they kept, tied loosely, in case Idris asks.
-
 END_LUX_CORNER_TITLE | 40 | End screen heading, Idris, few worlds, known well
 The Corner Table
 
@@ -313,15 +273,6 @@ Not one order died on the board. Not one hull waited for a stamp it could have b
 
 EPI_MIL_NOIDLE | 140 | Epilogue 1, Sela, rush orders filled in time
 The dock bell rings for a departure, not an arrival. Sela says it is the only bell worth a thought.
-
-END_MIL_WAIT_TITLE | 40 | End screen heading, Sela, bore delays rather than pay
-She Waited Her Turn
-
-END_MIL_WAIT | 1000 | End screen body, Sela, bore delays rather than pay
-The dock was full and the stamp was slow, and Sela waited. She hated every hour of it. A ship that stands still is a ship that is lost, and she knows it in her hands. But she did not pay the clerk to look away. The line moved, as lines do, and the crew watched her stand in it. Nobody said anything. The Bazaar opened a little later than it might have. The people in the line remember who stood there.
-
-EPI_MIL_WAIT | 140 | Epilogue 1, Sela, bore delays
-A new clerk at Tillam salutes her, badly, and then looks surprised at himself.
 
 END_MIL_HARD_TITLE | 40 | End screen heading, Sela, many worlds explored and settled
 The Long Way Round

@@ -24,7 +24,7 @@ Size words (fixed): volume, price and upkeep up or down 5 or 8 or 20 percent or 
 
 House effect is visible in every step three ways: the effect line (Weather part), the result text (the marked house as {bot}, other changed houses by {bot1} to {bot3}) and one or two house lines (_STD, _STD2) shown under the result and written into the house weather log (LBL_COMP_MOVE_*). Cuts come before boosts in the house lines. The held-back result text says "held back"; the house line carries {cut_std}. Rule of the rewrite: no chain text says a house is beaten, cut down or weaker. Choices only delay or soften a house's next weather, or make it come sooner or land harder.
 
-Marked house per option (R7), computed by hand from economy 8.2; the game computes it itself and must agree:
+Marked house per option (R7), computed by hand from economy 8.2; the game computes it itself and must agree. Rows MIL_C1 to BIO_C3 (added 2026-11-11) follow the plan file handoffs/story-designer/2026-11-11-event-expansion.json, where each option has exactly one house effect:
 
 | Step | opt_a {bot} | opt_b {bot} |
 |---|---|---|
@@ -35,6 +35,9 @@ Marked house per option (R7), computed by hand from economy 8.2; the game comput
 | MIL_B2 | Velvet Concord | Harrow Combine |
 | MIL_B3 | Ostrel Syndicate | Harrow Combine |
 | MIL_B4 | Harrow Combine | Harrow Combine |
+| MIL_C1 | Ostrel Syndicate | Velvet Concord |
+| MIL_C2 | Harrow Combine | Velvet Concord |
+| MIL_C3 | Ostrel Syndicate | Harrow Combine |
 | LUX_A1 | Velvet Concord | Ostrel Syndicate |
 | LUX_A2 | Velvet Concord | Velvet Concord |
 | LUX_A3 | Velvet Concord | Ostrel Syndicate |
@@ -42,6 +45,9 @@ Marked house per option (R7), computed by hand from economy 8.2; the game comput
 | LUX_B2 | Ostrel Syndicate | Velvet Concord |
 | LUX_B3 | Velvet Concord | Harrow Combine |
 | LUX_B4 | Velvet Concord | Velvet Concord |
+| LUX_C1 | Velvet Concord | Ostrel Syndicate |
+| LUX_C2 | Velvet Concord | Ostrel Syndicate |
+| LUX_C3 | Velvet Concord | Harrow Combine |
 | MIN_A1 | Harrow Combine | Harrow Combine |
 | MIN_A2 | Ostrel Syndicate | Harrow Combine |
 | MIN_A3 | Harrow Combine | Harrow Combine |
@@ -49,6 +55,9 @@ Marked house per option (R7), computed by hand from economy 8.2; the game comput
 | MIN_B2 | Ostrel Syndicate | Harrow Combine |
 | MIN_B3 | Harrow Combine | Harrow Combine |
 | MIN_B4 | Harrow Combine | Harrow Combine |
+| MIN_C1 | Harrow Combine | Ostrel Syndicate |
+| MIN_C2 | Harrow Combine | Ostrel Syndicate |
+| MIN_C3 | Harrow Combine | Ostrel Syndicate |
 | BIO_A1 | Velvet Concord | Velvet Concord |
 | BIO_A2 | Ostrel Syndicate | Velvet Concord |
 | BIO_A3 | Velvet Concord | Velvet Concord |
@@ -56,6 +65,9 @@ Marked house per option (R7), computed by hand from economy 8.2; the game comput
 | BIO_B2 | Velvet Concord | Ostrel Syndicate |
 | BIO_B3 | Velvet Concord | Velvet Concord |
 | BIO_B4 | Velvet Concord | Velvet Concord |
+| BIO_C1 | Velvet Concord | Ostrel Syndicate |
+| BIO_C2 | Velvet Concord | Ostrel Syndicate |
+| BIO_C3 | Velvet Concord | Ostrel Syndicate |
 
 Flavour pass 2 (2026-11-04, Military and Biotech). Story terms and cast for these two markets (flavour only, no mechanic; voice.md glossary not edited this session, owner to approve):
 - Military: the Admiralty (wills things, in triplicate), the Fleet Office (its clerks), the estimate (a campaign budget that renews itself with the words "until victory"), the Quartermaster-Saint (patron of counters, a stamp-and-thumb figure), litanies and blessed crates (ritual around paperwork). Cast: Quartermaster Hanno Sulo (A1, A3), Tavi Brask (your Munitions Line engineer, talks to the press; A2, A3), Admiral Gabe Nuer (B1), Inspector Kethra Voss (B2, stamp worn like a sidearm), Madame Orlenne Vaux (B3, the Feast of Arms with its relic cannon), the Fleet Office clerk (B4).
@@ -114,17 +126,17 @@ EV16 | A ship leaves Tillam half empty | [price down: Tillam, food] | Q
 A ship left Tillam half empty, bound for a rock nobody has charted. Those who stayed sold spare food to pay for staying. Food at Tillam costs less and pays less. A letter came back, from a Tillam that chose otherwise. No one has answered it. It sits on the sill.
 
 ## Goods events (T154, 2026-11-02): silk, logic cores, ore
-EV21 | Tillam's weavers down tools | [price up: Tillam, silk] | I
-Tillam's silk weavers downed tools over a form that counted their hours twice. Silk at Tillam costs more and pays more. An old weaver says to watch the cricket in the vat, which changes shape when it sees another. Fine Finishing makes a Luxury price rise pay clearly more.
+EV21_TITLE | pool event title | Brannock's weavers down tools
+EV21_BODY | pool event text | Brannock's silk weavers downed tools over a form that counted their hours twice. Silk at Brannock costs more and pays more. An old weaver says to watch the cricket in the vat, which changes shape when it sees another. Nobody has gone near the vat since.
 
-EV22 | Voltara holds a gala | [price up: Voltara, silk] | I
-Voltara's crews hold a gala to celebrate a quota met on paper. Silk at Voltara costs more and pays more. Everyone borrows a sleeve and a mask, and by the second hour the crews look alike. Patron's List counts sales here as clearly more Luxury share.
+EV22_TITLE | pool event title | Quillon holds a gala
+EV22_BODY | pool event text | Quillon's buyers hold a gala to celebrate a quota met on paper. Silk at Quillon costs more and pays more. Everyone borrows a sleeve and a mask, and by the second hour the guests look alike. Patron's List makes a price rise like this pay more.
 
-EV24 | Fire in Voltara's foundry | [price up: Voltara, spyware] | P
-A fire swept Voltara's core foundry and left the casting floor black. Logic cores at Voltara cost more and pay more. The report calls it a gentle step toward a better line. Ash settled on the walls in neat rows. Nobody has dared to read them.
+EV24_TITLE | pool event title | Fire in Cindrel's reactor hall
+EV24_BODY | pool event text | A fire swept Cindrel's reactor hall and left the control floor black. Spy software at Cindrel costs more and pays more. The report calls it a gentle step toward a better line. Ash settled on the walls in neat rows. Nobody has dared to read them.
 
-EV25 | Ashgate recalls its tractors | [price up: Ashgate, spyware] | Q
-Ashgate recalled its farm tractors to be retrained as safe. Logic cores at Ashgate cost more and pay more. The retrained ones freeze when two foremen give opposite orders. The old ones were told to keep quiet and keep going, and they do. They do not look at you.
+EV25_TITLE | pool event title | Mossfell recalls its tractors
+EV25_BODY | pool event text | Mossfell recalled its farm tractors to be retrained as safe. Spy software at Mossfell costs more and pays more. The retrained ones freeze when two foremen give opposite orders. The old ones were told to keep quiet and keep going, and they do. They do not look at you.
 
 EV26 | A rich seam is logged twice | [price down: Voltara, ore] | Q
 A survey crew found a rich seam and logged it in two offices, so it is counted twice and sold twice. Ore at Voltara costs less and pays less while the news is fresh. With Smelting, ore orders ignore the size cap, so a cheap week can be a big one.
@@ -163,34 +175,6 @@ EV17_PAID | popup | Rusk's tugs swept the orbit and handed you a receipt. Routes
 EV17_LEFT_TITLE | popup title | Debris stays over {planet}
 EV17_LEFT | popup | You left the wreck. Ships from {planet} thread around it in the dark and carry less. The offer stays open. Rusk's tug waits at the edge of the field, patient as a bill.
 
-## Solar shield [shield built: affects only planets the player can buy later; residents unhappy]
-EV18_TITLE | choice title | Shade the sun
-EV18_BODY | choice body | Chief engineer Ilya Sorn wants to shade part of the sun. The residents wrote to say no, at length. The shield would change markets on planets you can buy later: some goods get cheaper, profit and energy rise. Planets you own stay as they are.
-EV18_BUILD_BTN | button | Build the shield
-EV18_BUILD_EFF | effect line | Planets you can buy later change: some resources drop, profit and energy rise.
-EV18_SKIP_BTN | button | Leave the sun alone
-EV18_SKIP_EFF | effect line | Nothing changes. The sun keeps its full light.
-EV18_BUILT_TITLE | popup title | The shield is up
-EV18_BUILT | popup | The shield is up and the sky is dim. Residents filed their anger in triplicate, by lamp. On planets you can buy later, some goods get cheaper while profit and energy climb. Planets you own are untouched. Sorn will not look up.
-EV18_SKIPPED_TITLE | popup title | The shield stays on paper
-EV18_SKIPPED | popup | The plans went back in a drawer. Residents are relieved and sent no thanks. Nothing changes in any market. Sorn asked what the rush had been. No one answered, and the drawer stayed shut.
-
-## Nomads and pirates [choice: evict nomads or let them stay; pirates reduce trade volume; hire to clear pirates, at a cost]
-EV19_TITLE | choice title | Nomads on the asteroids
-EV19_BODY | choice body | Nomad families live on the asteroids you could mine. They are not on the Common Ledger, so to the Bureau they do not exist. They count their people by who shares the meal. Evict them and the rock is yours. Or let them stay.
-EV19_EVICT_BTN | button | Evict the nomads
-EV19_EVICT_EFF | effect line | The asteroids open for mining. Some nomads turn to piracy, and pirates rise.
-EV19_STAY_BTN | button | Let them stay
-EV19_STAY_EFF | effect line | The asteroids stay closed to mining. No pirates come of it.
-EV19_EVICTED_TITLE | popup title | The asteroids are cleared
-EV19_EVICTED | popup | The nomads left on the next tide and said nothing. The rock is yours to mine. Some did not go far. They keep ships now, and a grudge. Pirates rise. Their tables were left set.
-EV19_STAYED_TITLE | popup title | The nomads stay
-EV19_STAYED | popup | You let the nomads stay. Their lamps burn on the rock, small and steady. A woman brought the first crew to dock a bowl of something hot. The asteroids stay closed to mining.
-EV19_PIRATES_TITLE | popup title | Pirates reduce trade
-EV19_PIRATES | popup | Pirates now work the lanes and fewer cargoes get through. Trade volume falls while they stay. The Bureau opened a file on them. It is thin, like the fleet behind it. Every late ship now has a reason.
-EV19_HIRE_BTN | button | Hire a clearance crew
-EV19_HIRE_EFF | effect line | Pay to have the pirates cleared. It costs credits and removes their effect on trade.
-
 ## Asteroid approach [warning; pay the state: no skill point, no reputation; decline: 50/50 bad outcome or nothing; bad outcome is storage destroyed or storage capacity cut]
 EV20_TITLE | choice title | An asteroid is approaching
 EV20_BODY | choice body | A rock is coming in on a slow path. The Bureau saw it late, as it sees everything. The state can turn it aside for a fee, and says it does so out of love. Refusing is a shorter form. Cask Cellar keeps Luxury stock safe from such a cut.
@@ -207,32 +191,21 @@ EV20_HIT_CAPACITY | popup | The asteroid grazed {planet}. Your company storage t
 EV20_MISS_TITLE | popup title | The asteroid passes
 EV20_MISS | popup | The asteroid passed the system and kept going. Nothing was hit and nothing changes. The Bureau withdrew its warning, but kept the form. For one night your crew slept in their boots.
 
-# Choice events (branching) (draft 1, 2026-11-02)
+# Choice events with follow-ups (rewritten 2026-11-11)
 
-Three story events with 2 or 3 choices. Each choice fires one tag the code already applies now (price up, price down, planet closed; size and duration from balance). Each choice also queues a short follow-up event, which needs one NEW mechanism (request R1 below). Limits as the choice screen: title 40, body 280, button 28, effect line 90; popups: title 32, text 280. No numbers. Tags are the engine tags, copied in the form events.gd parses.
-Gates (requests R2, R3): BE01 and BE03 are system 1 only, from cycle 9. BE02 needs system 2 reached and uses silk (system 2 only). Follow-up ids end in A, B, C and are never picked at random (R1).
+Three story events with two choices each, one engine tag per choice (price up, price down, planet closed), and a follow-up popup that comes a few cycles after the choice (a choice carries follow_id; the follow-up is never drawn at random). Limits as the choice screen: title 40, body 280, button 28, effect line 90; popups: title 32, text 280. No numbers. Gates are in the plan file handoffs/story-designer/2026-11-11-event-expansion.json. BE01 and BE03 are Biotech only (they name food), BE02 is Luxury only (it names musk, silk and blooms).
 
-Requests for the gameplay programmer (new, not in the code today):
-R1. Follow-up: a choice may carry "follow_id" and "follow_after" (suggest 4 cycles, economy designer sets the key). When that many cycles pass, the follow-up fires as a plain event (existing popup, its own tag, OK button). Follow-ups have "random": false and stay out of random_id(). Save pending follow-ups in the events state (id, cycle due).
-R2. "min_cycle" 9 on BE01 and BE03 (already supported by the json key).
-R3. "requires_system": 2 on BE02: not picked until the player has system 2. Not supported today.
-R4. Choice events with 3 choices: the choice screen must show three buttons (EV17 to EV20 have two).
-
-## BE01 Tillam's sealed granary [3 choices, system 1]
+## BE01 Tillam's sealed granary [2 choices, Biotech, Tillam]
 BE01_TITLE | choice title | Tillam's sealed granary
 BE01_BODY | choice body | Tillam keeps grain behind a lock only the committee can open. Winter is close and the stores outside are thin. The committee will open it for a company that carries the grain out, and wants an answer today. The queue has not moved since dawn.
 BE01_OPEN_BTN | button | Open it to the crowd
 BE01_OPEN_EFF | effect line | Food at Tillam costs less and pays less for a while. Tillam remembers.
 BE01_SHUT_BTN | button | Keep the lock shut
 BE01_SHUT_EFF | effect line | Food at Tillam costs more and pays more for a while. Tillam remembers.
-BE01_SEND_BTN | button | Send it to Ashgate
-BE01_SEND_EFF | effect line | Food at Ashgate costs less and pays less for a while. Ashgate remembers.
 BE01_OPEN_TITLE | popup title | The granary opens
 BE01_OPEN | popup | The lock gave way. The grain went out by hand, sack to sack, and no one in the line spoke. Food at Tillam costs less and pays less while stores are full. The committee recorded a loan. Nobody asked who owes whom.
 BE01_SHUT_TITLE | popup title | The lock stays shut
 BE01_SHUT | popup | You said no. The lock stayed on and the queue grew in the cold. Food at Tillam costs more and pays more while it is scarce. A child at the front sat on her bag and watched your ship. Inside the granary, something shifted.
-BE01_SEND_TITLE | popup title | Grain goes to Ashgate
-BE01_SEND | popup | The grain left Tillam by night. The loaders worked without lamps and did not look at you. Food at Ashgate costs less and pays less for a while. The committee at Tillam found the empty shelf and wrote a short, cold note.
 
 [follow-up of BE01_OPEN, tag: price up: Tillam, energy]
 BE01A_TITLE | popup title | Tillam burns bright for you
@@ -242,45 +215,37 @@ BE01A | popup | Tillam remembered the grain. Heaters on every terrace run high, 
 BE01B_TITLE | popup title | Tillam closes its port
 BE01B | popup | The queue that waited in the cold came down to the docks. Tillam's port is closed for a while, and routes touching Tillam are blocked. No one shouts. They stand in rows and watch your ships sit still.
 
-[follow-up of BE01_SEND, tag: price up: Ashgate, energy]
-BE01C_TITLE | popup title | Ashgate returns the favour
-BE01C | popup | Ashgate remembered the grain. The foundries run hot in thanks and the smoke leans toward your ships. Energy at Ashgate costs more and pays more for a while. A foreman left a loaf at the dock. It was still warm.
-
-## BE02 The beacon over Dunmere Reach [2 choices, system 2, silk]
+## BE02 The beacon over Dunmere Reach [2 choices, Luxury, system 2]
 BE02_TITLE | choice title | A beacon over Dunmere Reach
 BE02_BODY | choice body | A beacon pulses over Dunmere Reach, from a rock no chart lists. Its pattern repeats, then changes, as if it heard the dock talk. The Bureau office at Quillon wants it logged and silenced. Your crews want to answer. Your ships pass it every cycle.
 BE02_ANSWER_BTN | button | Answer the beacon
-BE02_ANSWER_EFF | effect line | Silk at Quillon costs more and pays more for a while. Something answers back.
+BE02_ANSWER_EFF | effect line | Musk at Quillon costs more and pays more for a while. Something answers back.
 BE02_REPORT_BTN | button | Report it to the Bureau
 BE02_REPORT_EFF | effect line | Quillon closes its port to check the sky. Routes touching Quillon are blocked for a while.
 BE02_ANSWER_TITLE | popup title | The beacon is answered
-BE02_ANSWER | popup | A crew sent a few pulses back. The beacon went dark, then lit again in the same order. Quillon's buyers heard, and bought silk as if a festival had been called. Silk there costs more and pays more. No one will say what the festival is for.
+BE02_ANSWER | popup | A crew sent a few pulses back. The beacon went dark, then lit again in the same order. Quillon's buyers heard, and bought musk as if a festival had been called. Musk there costs more and pays more. No one will say what the festival is for.
 BE02_REPORT_TITLE | popup title | Quillon checks the sky
 BE02_REPORT | popup | The Bureau filed the beacon as a fault and closed Quillon's port to inspect the sky. Routes touching Quillon are blocked for a while. The inspectors were polite. The beacon pulsed once, as if it had read the form.
 
-[follow-up of BE02_ANSWER, tag: price up: Mossfell, food]
+[follow-up of BE02_ANSWER, tag: price up: Mossfell, blooms]
 BE02A_TITLE | popup title | Visitors reach Mossfell
-BE02A | popup | Small ships came in from the quiet rock and docked at Mossfell without papers. They want food and pay in odd, heavy coins. Food at Mossfell costs more and pays more for a while. They gave no names. They counted every crate twice, and watched your crew do it.
+BE02A | popup | Small ships came in from the quiet rock and docked at Mossfell without papers. They want hothouse blooms and pay in odd, heavy coins. Hothouse blooms at Mossfell cost more and pay more for a while. They gave no names. They counted every stem twice, and watched your crew do it.
 
 [follow-up of BE02_REPORT, tag: price down: Quillon, silk]
 BE02B_TITLE | popup title | The inspection finds nothing
 BE02B | popup | The inspectors found no fault and Quillon's port reopened. Stock held back for the check came out all at once. Silk at Quillon costs less and pays less for a while. The beacon is still up there. The report says it is not.
 
-## BE03 A family offers cover [3 choices, system 1, Ashgate]
+## BE03 A family offers cover [2 choices, Biotech, Ashgate, after the family bought Ashgate's food (EV13)]
 BE03_TITLE | choice title | A family offers cover
 BE03_BODY | choice body | The family that bought Ashgate's food contracts sends a polite note. For a share, they will keep the docks quiet and the other traders out. They also mention how fragile a dock can be. Your crew read the note over your shoulder. No one spoke.
 BE03_ACCEPT_BTN | button | Accept their cover
 BE03_ACCEPT_EFF | effect line | Food at Ashgate costs more and pays more for a while. The family will call in the favour.
 BE03_REFUSE_BTN | button | Refuse politely
 BE03_REFUSE_EFF | effect line | Food at Ashgate costs less and pays less for a while. The family will wait.
-BE03_REPORT_BTN | button | Report to the Bureau
-BE03_REPORT_EFF | effect line | Ashgate closes its port for an audit. Routes touching Ashgate are blocked for a while.
 BE03_ACCEPT_TITLE | popup title | The family keeps the docks
 BE03_ACCEPT | popup | The family's people took the docks at dawn, in clean coats. Food at Ashgate costs more and pays more, since their prices came with them. The docks are quiet. Your crew lower their voices there. A quiet dock has an owner.
 BE03_REFUSE_TITLE | popup title | The note is declined
 BE03_REFUSE | popup | You sent back a polite no. The family sent back a polite nod. Food at Ashgate costs less and pays less as their buyers step back to watch. No one was threatened. Your crew check the locks twice each night.
-BE03_REPORT_TITLE | popup title | The Bureau opens a file
-BE03_REPORT | popup | The Bureau thanked you in writing and closed Ashgate's port for an audit. Routes touching Ashgate are blocked for a while. The audit will take its own time. The family has been told who filed.
 
 [follow-up of BE03_ACCEPT, tag: planet closed: Ashgate]
 BE03A_TITLE | popup title | The family calls its favour
@@ -289,10 +254,6 @@ BE03A | popup | The family closed Ashgate's docks to every ship but its own, and
 [follow-up of BE03_REFUSE, tag: price down: Ashgate, energy]
 BE03B_TITLE | popup title | The family waits
 BE03B | popup | The family did nothing, which was its answer. Its buyers stayed away from the furnaces, and energy at Ashgate costs less and pays less for a while. A courier sits in a booth on the dock, reading, never turning a page. He is there every shift.
-
-[follow-up of BE03_REPORT, tag: price up: Ashgate, spyware]
-BE03C_TITLE | popup title | The audit ends, parts are short
-BE03C | popup | The audit ended and Ashgate's port is open. The family's contracts were frozen and the repair shops cannot get spares. Logic cores at Ashgate cost more and pay more for a while. The Bureau stamped the file closed. The family kept its copy.
 
 # Events, dead worlds: retired (2026-11-03)
 
@@ -306,41 +267,25 @@ Tags updated 2026-11-04 to match data/chains.json pool_new (planets and goods as
 | Id | Tag | Kind |
 |---|---|---|
 | EV40 | [price down: Voltara, rivets] | P |
-| EV41 | [price up: Ashgate, rounds] | Q |
-| EV42 | [price up: Tillam, arms] | I |
+| EV41 | [price up: Cindrel, rounds] | Q |
+| EV42 | [price up: Quillon, arms] | I |
 | EV43 | [price down: Tillam, musk] | I |
-| EV44 | [price up: Ashgate, gems] | Q |
-| EV45 | [price down: Ashgate, attar] | P |
+| EV44 | [price up: Brannock, gems] | Q |
+| EV45 | [price down: Quillon, attar] | P |
 | EV46 | [price up: Voltara, ingot] | P |
 | EV47 | [price down: Voltara, alloy] | I |
-| EV48 | [price up: Ashgate, plate] | P |
+| EV48 | [price up: Quillon, plate] | P |
 | EV49 | [planet closed: Ashgate] | I |
 | EV50 | [price down: Tillam, spores] | Q |
-| EV51 | [price up: Tillam, seed] | Q |
+| EV51 | [price up: Brannock, seed] | Q |
 
 EV40_TITLE | pool event title | Rivet guns pile up at Voltara
 EV40_BODY | pool event text | Voltara's foundry kept casting rivet guns after the Admiralty's order was filled, since its last line reads until victory. Stacks reach the roof. Rivet guns at Voltara cost less and pay less. A clerk asked if victory knew. Contract Doctrine softens Military price events.
 EV40_EFF | pool event weather line | Weather: no house changes its next weather.
 
-EV41_TITLE | pool event title | Pulse cells are recalled
-EV41_BODY | pool event text | A batch of pulse cells ran hot, and the maker pulled the lot. An engineer read the recall on each dock and begged every crate's pardon. Pulse cells at Ashgate cost more and pay more while the shelves stay bare. The notice says no one was harmed. It says so twice.
-EV41_EFF | pool event weather line | Weather: every house keeps its next weather as it was.
-
-EV42_TITLE | pool event title | Hull armour is requisitioned
-EV42_BODY | pool event text | The Admiralty wills every slab of hull armour to the front, by order of a clerk who has never seen a hull. Hull armour at Tillam costs more and pays more while shelves are bare. The Bureau entered the slabs as sanctified. They wait cold in a corridor. The crew bow in passing.
-EV42_EFF | pool event weather line | Weather: none of the three houses changes its next weather.
-
 EV43_TITLE | pool event title | A glut of sunmusk
 EV43_BODY | pool event text | A convoy of sunmusk reached Tillam on one tide, and nobody had ordered it. Sunmusk at Tillam costs less and pays less. The scent hangs in the corridors, and no two buyers agree what it smells of. The Bureau calls that variety. One dockhand calls it a headache.
 EV43_EFF | pool event weather line | Weather: no house changes its next weather.
-
-EV44_TITLE | pool event title | Gem cutters are booked solid
-EV44_BODY | pool event text | Ashgate's gem cutters are booked solid after a wedding season, and the queue has a queue. Cut glimmers at Ashgate cost more and pay more while the cutters catch up. In one shop a stone hums softly and is not for sale. Fine Finishing makes this pay clearly more.
-EV44_EFF | pool event weather line | Weather: every house keeps its next weather as it was.
-
-EV45_TITLE | pool event title | Cask stock overflows the cellars
-EV45_BODY | pool event text | Ashgate's cellars filled with a record vintage, and nobody has the room to drink it. Vintage casks at Ashgate cost less and pay less. The cellar master has begun to give the casks names, and talks to them at closing. Cask Cellar keeps Luxury stock safe from asteroid cuts.
-EV45_EFF | pool event weather line | Weather: none of the three houses changes its next weather.
 
 EV46_TITLE | pool event title | The smelter goes cold
 EV46_BODY | pool event text | Voltara's smelter lost its heat to a cracked line, and the casting stopped. Ingot at Voltara costs more and pays more until the furnace is lit again. The crew stand by the dead furnace with their hands out. The metal inside still ticks as it shrinks.
@@ -350,10 +295,6 @@ EV47_TITLE | pool event title | Alloy rolls off the line early
 EV47_BODY | pool event text | Voltara's line turned out seam alloy a week early, before the builders had placed an order. Seam alloy at Voltara costs less and pays less. The bales are stacked to the lamps, and a clerk is counting them for the third time. The count has not improved.
 EV47_EFF | pool event weather line | Weather: every house keeps its next weather as it was.
 
-EV48_TITLE | pool event title | Fabric plate runs short
-EV48_BODY | pool event text | Ashgate's builders drew a new ring of homes in a single week, and every wall wants plate. Lattice plate at Ashgate costs more and pays more. The draughtsmen call the plan final. The plates on the dock ring faintly when the wind turns, though no wind blows here.
-EV48_EFF | pool event weather line | Weather: none of the three houses changes its next weather.
-
 EV49_TITLE | pool event title | Quarantine at the culture lab
 EV49_BODY | pool event text | A culture in Ashgate's lab grew a colour it was not meant to, and the doctors sealed the port. Routes touching Ashgate are blocked for a while. The notice says contained. The night shift counts heads each hour. One is short. Hardy Strains reopens a closed planet a cycle sooner.
 EV49_EFF | pool event weather line | Weather: no house changes its next weather.
@@ -362,197 +303,6 @@ EV50_TITLE | pool event title | Spores come in cheap
 EV50_BODY | pool event text | A damp season at Tillam raised spore cultures in every crate, more than anyone could sell. Spore cultures at Tillam cost less and pay less. The manager says the crates are fine. The crates sweat in rows, and the ones in the corner have grown a lid of their own.
 EV50_EFF | pool event weather line | Weather: every house keeps its next weather as it was.
 
-EV51_TITLE | pool event title | Seed stock is bought up
-EV51_BODY | pool event text | Tillam's clinics bought every crate of gene seed after one failed batch. Gene seed at Tillam costs more and pays more. The ward manager wrote that the failed batch is fine, and moved the ward to another floor. Culture Banks grow stored Biotech stock.
-EV51_EFF | pool event weather line | Weather: none of the three houses changes its next weather.
-
-# PENDING (T181, 2026-11-05): post, platform and flight events. TEXT ONLY, no mechanics row
-
-These blocks are text rows (3 fields), so build_story.py writes them to data/story_text.json and writes NO row to data/events.json. They are inert until the gameplay-programmer wires them in T179 (see handoffs/story-designer/2026-11-05-T181.json). Text ids are final; the effect lines are written for the effects in the Tag line below, and must be edited if economy-designer sets a different effect. No digits: sizes are words ("a small sum", "a little", "clearly"). {planet} is the planet just built or the flight's target; {bot3} is Ostrel Syndicate (name filled by the game). No good is named. Planet names never appear: the events fire after the post exists, and the text works for any planet.
-Row ids: EV_<kind><nn>_TITLE (32), _BODY (280), then per option <KEY>: _<KEY>_BTN (28), _<KEY>_EFF (90), _<KEY>_TITLE (32), _<KEY> (popup, 280).
-Choices are neutral: two buttons of similar length, no good or bad label, no hidden catastrophe, no loss of the Pathfinder or the fleet (design default, owner Q5 not yet answered). New effect kinds the programmer needs: [post bonus] (next post cheaper or builds faster) and [flight delay] (a little, up to half a cycle).
-
-## EV_PST01 post: arrival [pending]
-Tag: post_built:<planet> just built; tags A [post bonus: next post cheaper], B none
-EV_PST01_TITLE | pending event title | A dock that keeps a book
-EV_PST01_BODY | pending event text | The dock at {planet} keeps a visitors' book. The clerk wants your name in it before the first crate moves. The cover is cold to the touch. Nobody can say who opened it.
-EV_PST01_SIGN_BTN | button | Sign the book
-EV_PST01_SIGN_EFF | effect line | The next post you build costs less.
-EV_PST01_SIGN_TITLE | popup title | The book is signed
-EV_PST01_SIGN | popup | The clerk blotted your name and nodded, as if it had always been there. The next post you build costs less. On the page beside yours, someone else's handwriting changed.
-EV_PST01_LEAVE_BTN | button | Leave without signing
-EV_PST01_LEAVE_EFF | effect line | Nothing changes.
-EV_PST01_LEAVE_TITLE | popup title | The book stays shut
-EV_PST01_LEAVE | popup | You left the clerk waiting, pen raised. Nothing changes. The clerk wrote a line anyway, in a hand that was not the clerk's.
-
-## EV_PST02 post: local officials [pending]
-Tag: post_built:<planet>; A [cash: pay small sum] + [post bonus: next post builds faster]; B [price lean: planet, direction hidden, a few cycles]
-EV_PST02_TITLE | pending event title | The Port Warden's stamp
-EV_PST02_BODY | pending event text | Warden Ilsa Dorne must inspect the new post at {planet} before she can stamp its lease. She inspects slowly. Your crew wait on the dock with the crates unopened. A gift would hurry her. Waiting would work, in time.
-EV_PST02_GIFT_BTN | button | Send a gift
-EV_PST02_GIFT_EFF | effect line | Pay a small sum. The next post builds faster.
-EV_PST02_GIFT_TITLE | popup title | The Warden is hurried
-EV_PST02_GIFT | popup | The gift went up the stairs and the stamp came down, still wet. You paid a small sum. The next post builds faster. The Warden did not smile. Your crew took that for thanks.
-EV_PST02_WAIT_BTN | button | Wait for the stamp
-EV_PST02_WAIT_EFF | effect line | Nothing is paid. Prices at {planet} move a little for a while.
-EV_PST02_WAIT_TITLE | popup title | The stamp takes its time
-EV_PST02_WAIT | popup | You waited. The Warden checked every rivet, then the shadows between them. Nothing was paid. Prices at {planet} move a little for a while, and the Warden will not say which way.
-
-## EV_PST03 post: a snag [pending]
-Tag: post_built:<planet>; A [cash: pay small sum] + [post bonus: next post builds faster]; B none
-EV_PST03_TITLE | pending event title | The beam will not hold
-EV_PST03_BODY | pending event text | The survey beam at {planet} will not hold a line. The foreman blames the weather, which is indoors. A part can be bought from a passing hauler. Or your crew can wait for the next shift to have an idea.
-EV_PST03_PART_BTN | button | Buy the part
-EV_PST03_PART_EFF | effect line | Pay a small sum. The next post builds faster.
-EV_PST03_PART_TITLE | popup title | The part is fitted
-EV_PST03_PART | popup | The hauler's mate named a price and you paid a small sum. By evening the beam held its line. The next post builds faster, since the crew now knows where the weather comes from.
-EV_PST03_SHIFT_BTN | button | Wait for the next shift
-EV_PST03_SHIFT_EFF | effect line | Nothing changes.
-EV_PST03_SHIFT_TITLE | popup title | The shift has an idea
-EV_PST03_SHIFT | popup | The next shift had an idea, and it was to wait for the one after. Nothing changes. The beam flickered once, toward nothing anyone had aimed at.
-
-## EV_PST04 post: a bargain [pending]
-Tag: post_built:<planet>; A [cash: pay small sum] + [post bonus: next post cheaper]; B none
-EV_PST04_TITLE | pending event title | A broker with spare fittings
-EV_PST04_BODY | pending event text | A broker named Odo Pell meets your ship at {planet} with a tray of seals and a lease. A neighbouring post closed, and its fittings are cheap. He talks as if the sale were already done. It might be.
-EV_PST04_BUY_BTN | button | Buy the fittings
-EV_PST04_BUY_EFF | effect line | Pay a small sum. The next post costs less.
-EV_PST04_BUY_TITLE | popup title | The fittings change hands
-EV_PST04_BUY | popup | Pell counted the seals twice and gave you one extra, as a courtesy. You paid a small sum. The next post costs less. The fittings are warm, as if someone had only just let go of them.
-EV_PST04_PASS_BTN | button | Pass on the offer
-EV_PST04_PASS_EFF | effect line | Nothing changes.
-EV_PST04_PASS_TITLE | popup title | Pell packs his tray
-EV_PST04_PASS | popup | Pell shrugged and packed his tray. Nothing changes. He said the fittings would find a buyer, and looked at the sky as if the buyer were already on the way.
-
-## EV_PST05 post: a rival is already there [pending]
-Tag: post_built:<planet>; uses {bot3}; A [price lean: planet, direction hidden]; B [cash: pay small sum] + [price lean: planet, clearly]
-EV_PST05_TITLE | pending event title | A desk already stands here
-EV_PST05_BODY | pending event text | A desk with the seal of {bot3} already stands on the dock at {planet}. It has a kettle, a stool and a long record of waiting. The agent offers you the next stool. He does not offer to move.
-EV_PST05_SHARE_BTN | button | Share the dock
-EV_PST05_SHARE_EFF | effect line | Nothing is paid. Prices at {planet} move a little for a while.
-EV_PST05_SHARE_TITLE | popup title | The dock is shared
-EV_PST05_SHARE | popup | You took the next stool. The agent poured two cups and drank both. Nothing was paid. Prices at {planet} move a little for a while, and the agent keeps the direction to himself.
-EV_PST05_SEAL_BTN | button | Hang your own seal
-EV_PST05_SEAL_EFF | effect line | Pay a small sum. Prices at {planet} move clearly for a while.
-EV_PST05_SEAL_TITLE | popup title | Two seals on one wall
-EV_PST05_SEAL | popup | You paid a small sum and hung your seal beside the other. The agent studied it as if it were a price. Prices at {planet} move clearly for a while. The kettle went cold between the seals.
-
-## EV_PST06 post: the dock crowd [pending]
-Tag: post_built:<planet>; A [cash: pay small sum] + [post bonus: next post builds faster]; B [cash: gain small sum]
-EV_PST06_TITLE | pending event title | Residents come to look
-EV_PST06_BODY | pending event text | Residents of {planet} gather at the new post and stand in rows. A child asks if it will stay. The clerk says that is a question for the Plan. No one leaves until someone speaks.
-EV_PST06_OPEN_BTN | button | Hold an open dock
-EV_PST06_OPEN_EFF | effect line | Pay a small sum. The next post builds faster.
-EV_PST06_OPEN_TITLE | popup title | The dock stays open
-EV_PST06_OPEN | popup | You set out chairs and a schedule, and the rows turned into a queue. You paid a small sum. The next post builds faster, since this crowd now knows the work. The child left with a bolt in her pocket.
-EV_PST06_WORK_BTN | button | Keep to the work
-EV_PST06_WORK_EFF | effect line | You gain a small sum from early trade.
-EV_PST06_WORK_TITLE | popup title | The rows thin out
-EV_PST06_WORK | popup | You kept to the work and the rows thinned by dusk. You gain a small sum from early trade. The child watched until the last crate was stamped. Then she walked home alone.
-
-## EV_PLT01 platform: crew [pending]
-Tag: platform_built:<planet>; A [cash: pay small sum] + [stock: gain some mined goods]; B none
-EV_PLT01_TITLE | pending event title | Who works the dark
-EV_PLT01_BODY | pending event text | A crew from the Bureau's labour desk reaches the new platform on {planet}. They came for the pay and stay for the quiet. The foreman asks what to call a shift that never ends. No one has a form for it.
-EV_PLT01_NIGHT_BTN | button | Hire the night crew
-EV_PLT01_NIGHT_EFF | effect line | Pay a small sum. Some mined goods are added to your stock.
-EV_PLT01_NIGHT_TITLE | popup title | The night crew signs on
-EV_PLT01_NIGHT | popup | The night crew signed on without reading. You paid a small sum, and by morning some mined goods lay in your stock, stacked with great care. The foreman named the shift Always. It stuck.
-EV_PLT01_DAY_BTN | button | Keep the day crew
-EV_PLT01_DAY_EFF | effect line | Nothing changes.
-EV_PLT01_DAY_TITLE | popup title | The day crew stays
-EV_PLT01_DAY | popup | You kept the day crew. Nothing changes. At change of shift the foreman counted the lamps going out and the lamps coming on, and got two different answers.
-
-## EV_PLT02 platform: collapse [pending]
-Tag: platform_built:<planet>; A [cash: pay small sum]; B [planet closed: planet]
-EV_PLT02_TITLE | pending event title | The roof sings
-EV_PLT02_BODY | pending event text | A gallery at {planet} sings before it fails, a low note, held. The crew is out and the rock is still. Props cost credits. Sealing the gallery costs time. The note has not stopped.
-EV_PLT02_PROP_BTN | button | Pay for props
-EV_PLT02_PROP_EFF | effect line | Pay a small sum. Routes from {planet} keep running.
-EV_PLT02_PROP_TITLE | popup title | The props go in
-EV_PLT02_PROP | popup | The props went in under the sound and the sound let them. You paid a small sum. Routes from {planet} keep running. The note dropped a step, the way a voice does when it has been understood.
-EV_PLT02_SEAL_BTN | button | Seal the gallery
-EV_PLT02_SEAL_EFF | effect line | Nothing is paid. Routes touching {planet} are blocked for a while.
-EV_PLT02_SEAL_TITLE | popup title | The gallery is sealed
-EV_PLT02_SEAL | popup | The crew sealed the gallery with slabs and tape. Nothing was paid. Routes touching {planet} are blocked for a while. Behind the slabs the note went on, patient, like a tenant.
-
-## EV_PLT03 platform: a find [pending]
-Tag: platform_built:<planet>; A [cash: gain small sum]; B [stock: gain some mined goods]
-EV_PLT03_TITLE | pending event title | A seam no one logged
-EV_PLT03_BODY | pending event text | The drill at {planet} broke into a seam the old surveys never entered, as if they had looked away. It is bright, cold and heavier than it should be. The Bureau has not been told yet.
-EV_PLT03_LOG_BTN | button | Log the find
-EV_PLT03_LOG_EFF | effect line | You gain a small sum as a finder's share.
-EV_PLT03_LOG_TITLE | popup title | The find is logged
-EV_PLT03_LOG | popup | The Bureau stamped the find within the hour, which no one had ever seen. You gain a small sum as a finder's share. The seam now has a number, and the number, quietly, has a seam.
-EV_PLT03_HIDE_BTN | button | Keep it off the books
-EV_PLT03_HIDE_EFF | effect line | Some mined goods are added to your stock.
-EV_PLT03_HIDE_TITLE | popup title | The find stays quiet
-EV_PLT03_HIDE | popup | The crew filled three carts before the shift bell and told no one. Some mined goods are added to your stock. The seam is still bright in the dark, and still cold on the hand.
-
-## EV_PLT04 platform: the hum [pending]
-Tag: platform_built:<planet>; A [price lean: planet, direction hidden, a few cycles]; B none
-EV_PLT04_TITLE | pending event title | The hum under the floor
-EV_PLT04_BODY | pending event text | The floor of the platform on {planet} hums while the crew sleeps. Engineers measure a steady note, the same each night. The shift lead asks to switch off the lamps. She does not say why.
-EV_PLT04_DARK_BTN | button | Switch off the lamps
-EV_PLT04_DARK_EFF | effect line | Prices at {planet} move a little for a while.
-EV_PLT04_DARK_TITLE | popup title | The lamps go out
-EV_PLT04_DARK | popup | The lamps went out and the hum thinned, then stopped, as if it only wanted company. Prices at {planet} move a little for a while, and the shift lead will not say which way. She slept well.
-EV_PLT04_LIGHT_BTN | button | Keep the lamps on
-EV_PLT04_LIGHT_EFF | effect line | Nothing changes.
-EV_PLT04_LIGHT_TITLE | popup title | The lamps stay lit
-EV_PLT04_LIGHT | popup | You kept the lamps on. Nothing changes. The hum went on all night. In the morning the engineers found it a little louder, and wrote down that it was not.
-
-## EV_FLT01 flight: drifting wreck [pending]
-Tag: flight longer than 1 cycle, outside home orbit; A [flight delay: a little] + [cash: gain small sum]; B none
-EV_FLT01_TITLE | pending event title | A wreck on the lane
-EV_FLT01_BODY | pending event text | A hull drifts across the lane, cold, its name scraped off. The Pathfinder's scanner counts no one aboard, then counts again. A tow would delay the flight. Salvage is salvage, if no one comes to claim it.
-EV_FLT01_TOW_BTN | button | Tow it clear
-EV_FLT01_TOW_EFF | effect line | The flight is delayed a little. You gain a small sum for the salvage.
-EV_FLT01_TOW_TITLE | popup title | The wreck is cleared
-EV_FLT01_TOW | popup | The Pathfinder dragged the hull out of the lane and the flight lost a little time. You gain a small sum for the salvage. The scanner counted one aboard as the hull went. It did not count again.
-EV_FLT01_FLY_BTN | button | Fly on
-EV_FLT01_FLY_EFF | effect line | Nothing changes.
-EV_FLT01_FLY_TITLE | popup title | The wreck falls behind
-EV_FLT01_FLY | popup | The Pathfinder flew on. Nothing changes. In the rear glass the hull turned slowly, showing its scraped patch, then its other side.
-
-## EV_FLT02 flight: distress call [pending]
-Tag: same conditions; A [cash: pay small sum]; B none
-EV_FLT02_TITLE | pending event title | A call on an old band
-EV_FLT02_BODY | pending event text | A distress call comes in on an old band, the voice polite and unhurried. By the time the Pathfinder turns, the call has become a recipe. A relay fee would let you check it from here.
-EV_FLT02_RELAY_BTN | button | Pay the relay fee
-EV_FLT02_RELAY_EFF | effect line | Pay a small sum. The flight is not delayed.
-EV_FLT02_RELAY_TITLE | popup title | The relay answers
-EV_FLT02_RELAY | popup | You paid a small sum, and the relay checked the band without a turn. The flight is not delayed. The relay reported a pot, a stove and a very long wait. It filed the call as cooked.
-EV_FLT02_HOLD_BTN | button | Hold the course
-EV_FLT02_HOLD_EFF | effect line | Nothing changes.
-EV_FLT02_HOLD_TITLE | popup title | The call fades
-EV_FLT02_HOLD | popup | You held the course. Nothing changes. The voice went on a while with the recipe, then said the last step twice, very slowly, and was gone.
-
-## EV_FLT03 flight: toll patrol [pending]
-Tag: same conditions; A [cash: pay small sum]; B [flight delay: a little]
-EV_FLT03_TITLE | pending event title | A toll on the lane
-EV_FLT03_BODY | pending event text | A patrol cutter hails the Pathfinder. It says the lane is private and has been since the cutter was painted. A toll is asked, politely. The cutter's gun looks at the toll, not at you.
-EV_FLT03_PAY_BTN | button | Pay the toll
-EV_FLT03_PAY_EFF | effect line | Pay a small sum. The flight goes on.
-EV_FLT03_PAY_TITLE | popup title | The toll is paid
-EV_FLT03_PAY | popup | You paid a small sum and the cutter blinked twice, which is how it says thank you. The flight goes on. The gun turned away last, like someone leaving a room backwards.
-EV_FLT03_AROUND_BTN | button | Take the long way round
-EV_FLT03_AROUND_EFF | effect line | The flight is delayed a little.
-EV_FLT03_AROUND_TITLE | popup title | The long way
-EV_FLT03_AROUND | popup | The Pathfinder swung wide around a lane that was private by decree. The flight is delayed a little. The cutter followed for a while, to see that the sky was not borrowed.
-
-## EV_FLT04 flight: asteroid dust [pending]
-Tag: same conditions; A [flight delay: a little]; B [cash: pay small sum]
-EV_FLT04_TITLE | pending event title | Dust across the lane
-EV_FLT04_BODY | pending event text | Fine dust crosses the lane and rattles on the hull like rain on a tin roof. The pilot slows, then asks if she may ask what rain is. Nobody on board is sure. The hull is sure only of the dust.
-EV_FLT04_SLOW_BTN | button | Slow down
-EV_FLT04_SLOW_EFF | effect line | The flight is delayed a little.
-EV_FLT04_SLOW_TITLE | popup title | The dust passes
-EV_FLT04_SLOW | popup | The Pathfinder slowed and the dust went over like a long shift change. The flight is delayed a little. The hull rang once, low, and then did not ring again.
-EV_FLT04_PUSH_BTN | button | Push through
-EV_FLT04_PUSH_EFF | effect line | Pay a small sum for hull repairs at the next port.
-EV_FLT04_PUSH_TITLE | popup title | The hull takes the dust
-EV_FLT04_PUSH | popup | The Pathfinder pushed through at speed. A small sum goes to hull repairs at the next port. The pilot stood the rest of the shift at the glass, trying to remember what rain was for.
 
 # Early branch events, one per market, EV52 to EV55 (added 2026-11-06, T233)
 
@@ -746,3 +496,373 @@ TH10_B_BTN | button | Enter it as shared
 TH10_B_EFF | effect line | Pay nothing. Food at Voltara costs more and pays more for a while.
 TH10_B_TITLE | popup title | The debt is shared
 TH10_B | popup | The clerk entered the debt in the Common Ledger and the Bureau stamped it settled. Nobody was paid. Food at Voltara costs more and pays more for a while, as clerks counted the dock stores. The page went into a drawer with its three names.
+
+# Events, expansion (2026-11-11): posts, platforms, lanes, Military, Luxury, Minerals, Biotech
+
+Pool events added on 2026-11-11. Every one is a pool row (data/chains.json pool_new) with a gate and one effect per option; the plan file handoffs/story-designer/2026-11-11-event-expansion.json names effect, world, good and gate for each. All rows are 3-field text rows (the build writes no events.json row). Each fires once per run. Plain event: EV<nn>_TITLE (32), EV<nn>_BODY (280). Choice event: those two, then per option key K: _K_BTN (28), _K_EFF (90), _K_TITLE (32), _K (popup, 280). Effect lines say only what the one option does, in words ("a small sum", "for a while"). No digits, no names of hidden goods: a text names a good only when its gate makes that good visible.
+The posts and platforms events (EV_PST01 to EV_PST06, EV_PLT01 to EV_PLT04) and the lane events (EV_FLT01 to EV_FLT04) are the old pending texts, rewritten to effects the game has today and wired as ordinary pool events; they no longer need a "post built" or "in flight" trigger.
+
+## Shared pool: posts and lanes (any CEO)
+
+EV_PST01_TITLE | pool event title | A dock that keeps a book
+EV_PST01_BODY | pool event text | The dock at Flintmoor keeps a visitors' book. The clerk wants your name in it before the first crate moves. The cover is cold to the touch. Nobody can say who opened it. A signed name earns the dock's favour. An unsigned one earns a refund.
+EV_PST01_SIGN_BTN | button | Sign the book
+EV_PST01_SIGN_EFF | effect line | Energy at Flintmoor costs more and pays more for a while.
+EV_PST01_SIGN_TITLE | popup title | The book is signed
+EV_PST01_SIGN | popup | The clerk blotted your name and nodded, as if it had always been there. The dock's buyers took note, and energy at Flintmoor costs more and pays more for a while. On the page beside yours, someone else's handwriting changed.
+EV_PST01_LEAVE_BTN | button | Leave without signing
+EV_PST01_LEAVE_EFF | effect line | You gain a small sum, the dock's refund for a name not written.
+EV_PST01_LEAVE_TITLE | popup title | The book stays shut
+EV_PST01_LEAVE | popup | You left the clerk waiting, pen raised. The clerk sent a small sum after you, the fee for a name not written. You gain a small sum. The clerk wrote a line anyway, in a hand that was not the clerk's.
+
+EV_PST02_TITLE | pool event title | The Port Warden's stamp
+EV_PST02_BODY | pool event text | Warden Ilsa Dorne must inspect the new post at Brannock before she can stamp its lease. She inspects slowly. Your crew wait on the dock with the crates unopened. A gift would hurry her. Waiting would work, in time.
+EV_PST02_GIFT_BTN | button | Send a gift
+EV_PST02_GIFT_EFF | effect line | Pay a small sum. The stamp comes today.
+EV_PST02_GIFT_TITLE | popup title | The Warden is hurried
+EV_PST02_GIFT | popup | The gift went up the stairs and the stamp came down, still wet. You paid a small sum. The Warden did not smile. Your crew took that for thanks.
+EV_PST02_WAIT_BTN | button | Wait for the stamp
+EV_PST02_WAIT_EFF | effect line | Energy at Brannock costs less and pays less for a while.
+EV_PST02_WAIT_TITLE | popup title | The stamp takes its time
+EV_PST02_WAIT | popup | You waited. The Warden checked every rivet, then the shadows between them. Buyers at Brannock held back while the dock stood idle, so energy there costs less and pays less for a while.
+
+EV_PST03_TITLE | pool event title | The beam will not hold
+EV_PST03_BODY | pool event text | The survey beam at Cindrel will not hold a line. The foreman blames the weather, which is indoors. A part can be bought from a passing hauler. Or your crew can wait for the next shift to have an idea.
+EV_PST03_PART_BTN | button | Buy the part
+EV_PST03_PART_EFF | effect line | Pay a small sum. The beam is fixed today.
+EV_PST03_PART_TITLE | popup title | The part is fitted
+EV_PST03_PART | popup | The hauler's mate named a price and you paid a small sum. By evening the beam held its line. The crew now knows where the weather comes from.
+EV_PST03_SHIFT_BTN | button | Wait for the next shift
+EV_PST03_SHIFT_EFF | effect line | Lanes that touch Cindrel cost more per trip for a few cycles.
+EV_PST03_SHIFT_TITLE | popup title | The shift has an idea
+EV_PST03_SHIFT | popup | The next shift had an idea, and it was to wait for the one after. Haulers stacked up behind the dead beam, so lanes that touch Cindrel cost more per trip for a few cycles. The beam flickered once, toward nothing anyone had aimed at.
+
+EV_PST04_TITLE | pool event title | A broker with spare fittings
+EV_PST04_BODY | pool event text | A broker named Odo Pell meets your ship at Mossfell with a tray of seals and a lease. A neighbouring post closed, and he must clear its books. He talks as if the deal were already done. He can hand over the lease, or the spare cells in its stores.
+EV_PST04_LEASE_BTN | button | Take the lease
+EV_PST04_LEASE_EFF | effect line | Energy at Mossfell costs more and pays more for a while.
+EV_PST04_LEASE_TITLE | popup title | The lease changes hands
+EV_PST04_LEASE | popup | Pell counted the seals twice and gave you one extra, as a courtesy. Buyers at Mossfell followed the lease, so energy there costs more and pays more for a while. The seals are warm, as if someone had only just let go of them.
+EV_PST04_CELLS_BTN | button | Take the spare cells
+EV_PST04_CELLS_EFF | effect line | Some energy is added to your Company storage at Mossfell.
+EV_PST04_CELLS_TITLE | popup title | The cells are counted
+EV_PST04_CELLS | popup | Pell wheeled out the spare cells on a cart and read each tag aloud. Some energy is added to your Company storage at Mossfell. He said the closed post would not miss them, and looked at the sky as if someone might.
+
+EV_PST05_TITLE | pool event title | A desk already stands here
+EV_PST05_BODY | pool event text | A desk with a broker's seal already stands on the dock at Quillon. It has a kettle, a stool and a long record of waiting. The agent offers you the next stool, or a small sum to take your crates to another berth. He does not offer to move.
+EV_PST05_SHARE_BTN | button | Share the dock
+EV_PST05_SHARE_EFF | effect line | Energy at Quillon costs more and pays more for a while.
+EV_PST05_SHARE_TITLE | popup title | The dock is shared
+EV_PST05_SHARE | popup | You took the next stool. The agent poured two cups and drank both. Buyers at Quillon saw two seals at one dock and bought hard, so energy there costs more and pays more for a while.
+EV_PST05_MOVE_BTN | button | Take the other berth
+EV_PST05_MOVE_EFF | effect line | You gain a small sum.
+EV_PST05_MOVE_TITLE | popup title | A berth farther down
+EV_PST05_MOVE | popup | You took the far berth. The agent counted out a small sum without being asked, and you gain a small sum. The kettle went cold between the seals.
+
+EV_PST06_TITLE | pool event title | Residents come to look
+EV_PST06_BODY | pool event text | Tillam has grown, and its residents gather at the dock to see your ships. They stand in rows. A child asks if you will stay. The clerk says that is a question for the Plan. No one leaves until someone speaks.
+EV_PST06_OPEN_BTN | button | Hold an open dock
+EV_PST06_OPEN_EFF | effect line | Energy at Tillam costs more and pays more for a while.
+EV_PST06_OPEN_TITLE | popup title | The dock stays open
+EV_PST06_OPEN | popup | You set out chairs and a schedule, and the rows turned into a queue. The crowd bought energy for its stoves, so energy at Tillam costs more and pays more for a while. The child left with a bolt in her pocket.
+EV_PST06_WORK_BTN | button | Keep to the work
+EV_PST06_WORK_EFF | effect line | Some energy is added to your Company storage at Tillam.
+EV_PST06_WORK_TITLE | popup title | The rows thin out
+EV_PST06_WORK | popup | You kept to the work and the rows thinned by dusk. The dock clerk stacked spare cells in your storage, a thanks that came with a stamp. Some energy is added to your Company storage at Tillam. The child watched until the last crate was stamped. Then she walked home alone.
+
+EV_FLT01_TITLE | pool event title | A wreck on the lane
+EV_FLT01_BODY | pool event text | A hull drifts across the lane, cold, its name scraped off. The Flagship's scanner counts no one aboard, then counts again. Salvage is salvage, if no one comes to claim it. The hull can be sold as scrap, or stripped for its cells.
+EV_FLT01_TOW_BTN | button | Sell it as scrap
+EV_FLT01_TOW_EFF | effect line | You gain a small sum for the salvage.
+EV_FLT01_TOW_TITLE | popup title | The wreck is sold
+EV_FLT01_TOW | popup | A scrap crew towed the hull away and paid at the dock. You gain a small sum for the salvage. The scanner counted one aboard as the hull went. It did not count again.
+EV_FLT01_STRIP_BTN | button | Strip its cells
+EV_FLT01_STRIP_EFF | effect line | Some energy is added to your Company storage at Voltara.
+EV_FLT01_STRIP_TITLE | popup title | The cells come out
+EV_FLT01_STRIP | popup | Your crew pulled the hull's cells one by one and carried them home. Some energy is added to your Company storage at Voltara. In the rear glass the hull turned slowly, showing its scraped patch, then its other side.
+
+EV_FLT02_TITLE | pool event title | A call on an old band
+EV_FLT02_BODY | pool event text | A distress call comes in on an old band, the voice polite and unhurried. By the time the Flagship turns, the call has become a recipe. A relay fee would let you check it from here. Or the band can stay busy while you hold your course.
+EV_FLT02_RELAY_BTN | button | Pay the relay fee
+EV_FLT02_RELAY_EFF | effect line | Pay a small sum. The band is checked from here.
+EV_FLT02_RELAY_TITLE | popup title | The relay answers
+EV_FLT02_RELAY | popup | You paid a small sum, and the relay checked the band without a turn. The relay reported a pot, a stove and a very long wait. It filed the call as cooked.
+EV_FLT02_HOLD_BTN | button | Hold the course
+EV_FLT02_HOLD_EFF | effect line | Lanes that touch Brannock cost more per trip for a few cycles.
+EV_FLT02_HOLD_TITLE | popup title | The call fades
+EV_FLT02_HOLD | popup | You held the course. Other ships turned to answer, and the dock beacons at Brannock jammed with their replies. Lanes that touch Brannock cost more per trip for a few cycles. The voice said the last step twice, very slowly, and was gone.
+
+## Military pool
+
+EV41_TITLE | pool event title | Cindrel fires a training round
+EV41_BODY | pool event text | Cindrel's reactor crews were ordered to drill with live munitions, to prove the drill was real. The order ran three days past the drill. Munitions at Cindrel cost more and pay more. The blast doors still hum a low note when no one is near them.
+
+EV42_TITLE | pool event title | Quillon buys a parade
+EV42_BODY | pool event text | Quillon's buyers ordered weapons for a parade, since a march looks bare without them. Weapons at Quillon cost more and pay more. The parade has no route and no date. The crates arrive anyway, each signed for by a different clerk in the same hand.
+
+EV81_TITLE | pool event title | Energy runs short at Flintmoor
+EV81_BODY | pool event text | Flintmoor's powder works asked for more power than the moon's grid books. Old rim crews know the sound of a grid about to say no. Energy at Flintmoor is wanted harder for a few cycles and the hunger shows in the price. A rush order may follow.
+
+EV82_TITLE | pool event title | A hull waits for a stamp
+EV82_BODY | pool event text | A ship sits at Tillam waiting for a clearance stamp. A clerk will stamp it today for a payment. Or it waits its turn, and the dock fills behind it. Every idle hour is counted by someone who is not you.
+EV82_PAY_BTN | button | Pay for the stamp
+EV82_PAY_EFF | effect line | Pay a small sum. The ship moves today.
+EV82_PAY_TITLE | popup title | The hull moves
+EV82_PAY | popup | The stamp landed and the hull was gone by the next bell. You paid a small sum. Your crew did not watch it go.
+EV82_WAIT_BTN | button | Wait its turn
+EV82_WAIT_EFF | effect line | Lanes that touch Tillam cost more per trip for a few cycles.
+EV82_WAIT_TITLE | popup title | The dock fills up
+EV82_WAIT | popup | One hull waited and others stacked behind it. Lanes that touch Tillam cost more per trip for a few cycles. The rim taught your crew to wait. It never taught them to like it.
+
+EV83_TITLE | pool event title | One patrol, two ends
+EV83_BODY | pool event text | A patrol cutter can hold one end of a lane for a while. Traders go where the line is watched. Voltara's dock or Flintmoor's yard gets it. The other keeps its own luck, and says so.
+EV83_VOLT_BTN | button | Watch Voltara
+EV83_VOLT_EFF | effect line | Blast powder at Voltara costs more and pays more for a while.
+EV83_VOLT_TITLE | popup title | A watched dock
+EV83_VOLT | popup | Traders at Voltara saw the patrol light and stayed late. Blast powder at Voltara costs more and pays more for a while. The patrol never looked at the cargo, only at the people.
+EV83_FLINT_BTN | button | Watch Flintmoor
+EV83_FLINT_EFF | effect line | Energy at Flintmoor costs more and pays more for a while.
+EV83_FLINT_TITLE | popup title | A watched yard
+EV83_FLINT | popup | Traders at Flintmoor saw the patrol light and unloaded without checking the door twice. Energy at Flintmoor costs more and pays more for a while. The cutter's lamp stayed on all shift.
+
+EV84_TITLE | pool event title | A rim crew pays a debt
+EV84_BODY | pool event text | A crew you once carried home pays what they owe. They offer credits, or a hold of blast powder left at Flintmoor. They do not ask which you prefer. They only ask that it be taken.
+EV84_CASH_BTN | button | Take the credits
+EV84_CASH_EFF | effect line | You gain a small sum.
+EV84_CASH_TITLE | popup title | The debt is paid
+EV84_CASH | popup | The credits came in a worn bag. You counted them once and nodded once. You gain a small sum.
+EV84_GOODS_BTN | button | Take the powder
+EV84_GOODS_EFF | effect line | Some blast powder is added to your Company storage at Flintmoor.
+EV84_GOODS_TITLE | popup title | The powder is stacked
+EV84_GOODS | popup | The crew loaded the sacks themselves. Some blast powder is added to your Company storage at Flintmoor. You walked the shelf twice afterwards.
+
+EV85_TITLE | pool event title | A convoy arrives all at once
+EV85_BODY | pool event text | A convoy that was late came in all at once at Voltara, every hold full of powder. Blast powder at Voltara costs less and pays less. The lane keeps its notes and moves on. Bad news is only news.
+
+EV_FLT03_TITLE | pool event title | A toll on the lane
+EV_FLT03_BODY | pool event text | A patrol cutter hails the Flagship. It says the lane to Quillon is private and has been since the cutter was painted. A toll is asked, politely. The cutter's gun looks at the toll, not at you. Your ships use the same lane.
+EV_FLT03_PAY_BTN | button | Pay the toll
+EV_FLT03_PAY_EFF | effect line | Pay a small sum. The lane stays as it is.
+EV_FLT03_PAY_TITLE | popup title | The toll is paid
+EV_FLT03_PAY | popup | You paid a small sum and the cutter blinked twice, which is how it says thank you. The gun turned away last, like someone leaving a room backwards.
+EV_FLT03_AROUND_BTN | button | Take the wide way
+EV_FLT03_AROUND_EFF | effect line | Lanes that touch Quillon cost more per trip for a few cycles.
+EV_FLT03_AROUND_TITLE | popup title | The wide way
+EV_FLT03_AROUND | popup | Your ships swung wide around a lane that was private by decree. Lanes that touch Quillon cost more per trip for a few cycles. The cutter followed for a while, to see that the sky was not borrowed.
+
+EV91_TITLE | pool event title | Cindrel closes for a drill
+EV91_BODY | pool event text | Cindrel's range officer called a drill and cleared every dock to run it. The drill is real, the officer says. The port is closed for a while, and routes touching Cindrel are blocked. The sirens ran a full day. No one learned what they were practising against.
+
+EV92_TITLE | pool event title | Two buyers want one convoy
+EV92_BODY | pool event text | Two buyers sent word on the same morning, each sure the rivets were meant for them. One sits at Quillon, behind a desk. One sits at Cindrel, behind a gun rack. A convoy can answer one of them first. The other will say it understands.
+EV92_QUILLON_BTN | button | Answer Quillon
+EV92_QUILLON_EFF | effect line | Rivets at Quillon cost more and pay more for a while.
+EV92_QUILLON_TITLE | popup title | Quillon is answered
+EV92_QUILLON | popup | The convoy turned toward Quillon's desks. Rivets there cost more and pay more for a while. The buyer at Cindrel sent a note that said it understood, and the note was very neat.
+EV92_CINDREL_BTN | button | Answer Cindrel
+EV92_CINDREL_EFF | effect line | Rivets at Cindrel cost more and pay more for a while.
+EV92_CINDREL_TITLE | popup title | Cindrel is answered
+EV92_CINDREL | popup | The convoy turned toward Cindrel's gun racks. Rivets there cost more and pay more for a while. The desk at Quillon logged the delay and kept the page.
+
+EV93_TITLE | pool event title | The Fleet Office pays in kind
+EV93_BODY | pool event text | A Fleet Office clerk settles an old account at Quillon. The estimate allows credits, or a lot of rivets from the depot shelf. The clerk does not say which the estimate prefers. The clerk says that is for the next estimate.
+EV93_CASH_BTN | button | Take the credits
+EV93_CASH_EFF | effect line | You gain a small sum.
+EV93_CASH_TITLE | popup title | The account is settled
+EV93_CASH | popup | The clerk stamped a slip and counted out credits in worn notes. You gain a small sum. The stamp was dry, and the clerk pressed it anyway.
+EV93_GOODS_BTN | button | Take the rivets
+EV93_GOODS_EFF | effect line | Some rivets are added to your Company storage at Quillon.
+EV93_GOODS_TITLE | popup title | The shelf is emptied
+EV93_GOODS | popup | Depot hands rolled out the rivet crates and stacked them in your bay at Quillon. Some rivets are added to your Company storage there. The clerk counted them off in the same voice as the credits.
+
+## Luxury pool
+
+EV44_TITLE | pool event title | A rich cut at Brannock
+EV44_BODY | pool event text | A cutter at Brannock found a flaw that makes every gem in the case look finer, and the case sold out by noon. Gems at Brannock cost more and pay more. Nobody can find the flaw again. The cutter has stopped trying to look.
+
+EV45_TITLE | pool event title | Attar floods Quillon
+EV45_BODY | pool event text | A convoy of attar reached Quillon on one tide, and the perfumers' guild took no stock of it. Attar at Quillon costs less and pays less. Every stall smells of a different promise. The guild counts it as one scent and sends no one to check.
+
+EV76_TITLE | pool event title | Lunch at a buyer's table
+EV76_BODY | pool event text | A broker buys lunch for a Voltara buyer and leaves with the buyer's order in his head. Hothouse blooms at Voltara cost more and pay more. The buyer thinks it was a coincidence. The broker's smile is the first thing anyone recalls.
+
+EV77_TITLE | pool event title | An old broker wants thanks
+EV77_BODY | pool event text | A broker who says he taught you everything wants to be thanked. His friends sit at Ashgate's dock, and they are patient. Thank him in credits, or let them sell low at Ashgate for a while.
+EV77_THANK_BTN | button | Thank him
+EV77_THANK_EFF | effect line | Pay a small sum.
+EV77_THANK_TITLE | popup title | A warm farewell
+EV77_THANK | popup | The broker took the credits and the credit, and told everyone at Ashgate what a fine pupil he had. You paid a small sum.
+EV77_SKIP_BTN | button | Smile and go
+EV77_SKIP_EFF | effect line | Hothouse blooms at Ashgate cost less and pay less for a while.
+EV77_SKIP_TITLE | popup title | The friends sell low
+EV77_SKIP | popup | The broker's friends sold blooms at Ashgate for what they fetched. Hothouse blooms at Ashgate cost less and pay less for a while. You kept the smile. It is the only thing you kept.
+
+EV78_TITLE | pool event title | The board shows two gaps
+EV78_BODY | pool event text | You read two price boards and see a gap on each. You can whisper one gap to one buyer. Whoever hears it first pays more for a while, and the other gap closes by itself. The board at Tillam is longer. Ashgate's is louder.
+EV78_TILLAM_BTN | button | Tell the Tillam buyer
+EV78_TILLAM_EFF | effect line | Musk at Tillam costs more and pays more for a while.
+EV78_TILLAM_TITLE | popup title | The Tillam buyer nods
+EV78_TILLAM | popup | The Tillam buyer nodded and said nothing. Musk at Tillam costs more and pays more for a while. Prices moved by the next bell, and nobody said by whose hand.
+EV78_ASHGATE_BTN | button | Tell the Ashgate buyer
+EV78_ASHGATE_EFF | effect line | Hothouse blooms at Ashgate cost more and pay more for a while.
+EV78_ASHGATE_TITLE | popup title | The Ashgate buyer writes
+EV78_ASHGATE | popup | The Ashgate buyer wrote it on a napkin and left a large tip for lunch. Hothouse blooms at Ashgate cost more and pay more for a while.
+
+EV79_TITLE | pool event title | A gift from a grateful buyer
+EV79_BODY | pool event text | A buyer you once let win a deal sends a crate with a note. The note says it is a gift, not payment. Gifts are polite to accept. Credits are lighter to carry. The crate is hothouse blooms, waiting at Ashgate.
+EV79_CASH_BTN | button | Take the credits
+EV79_CASH_EFF | effect line | You gain a small sum.
+EV79_CASH_TITLE | popup title | Credits and a smile
+EV79_CASH | popup | The buyer sent credits instead, and a second note thanking you for understanding. You gain a small sum.
+EV79_GOODS_BTN | button | Take the blooms
+EV79_GOODS_EFF | effect line | Some hothouse blooms are added to your Company storage at Ashgate.
+EV79_GOODS_TITLE | popup title | A crate of blooms
+EV79_GOODS | popup | The crate reached Ashgate with a ribbon on it. Some hothouse blooms are added to your Company storage there. The ribbon was the buyer's. It stayed on the crate.
+
+EV80_TITLE | pool event title | Mossfell has seen the smile
+EV80_BODY | pool event text | A broker's smile has been seen too often at Mossfell. Buyers now wait for his price to drop before they pay. Hothouse blooms at Mossfell cost less and pay less. The broker takes it as a compliment.
+
+EV94_TITLE | pool event title | The gala sends a bill
+EV94_BODY | pool event text | The house that held last season's gala sends your crew a bill for the sleeves they borrowed. The sum is small and the tone is warm. The house keeps a long memory for sleeves. Pay now, or let the house tell the story at Brannock's looms.
+EV94_PAY_BTN | button | Pay the bill
+EV94_PAY_EFF | effect line | Pay a small sum.
+EV94_PAY_TITLE | popup title | The bill is paid
+EV94_PAY | popup | You paid a small sum. The house wrote a receipt in violet ink and sent the sleeves back, pressed. Nobody in your crew will say who wore which.
+EV94_TELL_BTN | button | Let the house talk
+EV94_TELL_EFF | effect line | Silk at Brannock costs less and pays less for a while.
+EV94_TELL_TITLE | popup title | The story gets round
+EV94_TELL | popup | The house told the story at Brannock's looms, with gestures. Weavers laughed into their sleeves, and silk at Brannock costs less and pays less for a while. The bill is still on file.
+
+EV95_TITLE | pool event title | Brannock's dyers run dry
+EV95_BODY | pool event text | Brannock's dye vats ran dry mid-batch, and the dyers asked for musk to fix the colour. Nobody will say what musk has to do with colour. Musk at Brannock costs more and pays more. The cloth came out the same shade, only warmer.
+
+EV96_TITLE | pool event title | Two orders at the counter
+EV96_BODY | pool event text | Two orders reach the Voltara counter in one hour, and the case has room for one display. One buyer wants attar, one wants gems. Whichever is set out first draws the crowd. The other buyer will wait, and watch the case.
+EV96_ATTAR_BTN | button | Set out the attar
+EV96_ATTAR_EFF | effect line | Attar at Voltara costs more and pays more for a while.
+EV96_ATTAR_TITLE | popup title | The attar is shown
+EV96_ATTAR | popup | The attar went under the lamp and the crowd leaned in. Attar at Voltara costs more and pays more for a while. The buyer of gems studied the empty velvet beside it.
+EV96_GEMS_BTN | button | Set out the gems
+EV96_GEMS_EFF | effect line | Gems at Voltara cost more and pay more for a while.
+EV96_GEMS_TITLE | popup title | The gems are shown
+EV96_GEMS | popup | The gems went under the lamp and the crowd went still. Gems at Voltara cost more and pay more for a while. The buyer of attar left a scented card in the case.
+
+## Minerals pool
+
+EV48_TITLE | pool event title | Plate runs short at Quillon
+EV48_BODY | pool event text | Quillon's builders wanted plate for a hall that has no plan, and every sheet in the yard was spoken for by noon. Plate at Quillon costs more and pays more. The hall is drawn on a wall and not on paper. Someone keeps adding rooms.
+
+EV70_TITLE | pool event title | A note from the old yard
+EV70_BODY | pool event text | A man you once paid for spare parts sends a note. Cinderrest wants dross before the next shift, and he gives no reason. Dross at Cinderrest costs more and pays more for a while. The note is signed twice, in two hands that do not match.
+
+EV71_TITLE | pool event title | The count is off by a crate
+EV71_BODY | pool event text | The yard counts your spare parts and finds one crate more than the page says. You will not keep what is not written down. The yard pays you for it, in credits or in ore left at Voltara.
+EV71_CASH_BTN | button | Take the credits
+EV71_CASH_EFF | effect line | You gain a small sum.
+EV71_CASH_TITLE | popup title | Credits, counted twice
+EV71_CASH | popup | The clerk counted the credits out twice, and so did you. The page and the crate now agree. You gain a small sum.
+EV71_ORE_BTN | button | Take the ore
+EV71_ORE_EFF | effect line | Some ore is added to your Company storage at Voltara.
+EV71_ORE_TITLE | popup title | Ore, on the shelf
+EV71_ORE | popup | The crate was swapped for sacks of ore. Some ore is added to your Company storage at Voltara. You checked every seal before you signed.
+
+EV72_TITLE | pool event title | A clerk wants every bolt
+EV72_BODY | pool event text | A Bureau clerk at Ashgate wants to check every part aboard. Your books are in order and you say so. The check takes days either way. A fee hurries it. Or the line grows at the dock.
+EV72_PAY_BTN | button | Pay to hurry it
+EV72_PAY_EFF | effect line | Pay a small sum. The check ends today.
+EV72_PAY_TITLE | popup title | The clerk is quick
+EV72_PAY | popup | The clerk stamped the last page and did not look up. You paid a small sum, and filed the receipt first.
+EV72_WAIT_BTN | button | Let the line grow
+EV72_WAIT_EFF | effect line | Lanes that touch Ashgate cost more per trip for a few cycles.
+EV72_WAIT_TITLE | popup title | The dock is full
+EV72_WAIT | popup | Ships stacked up outside Ashgate. Nobody left, and nobody was told when. Lanes that touch Ashgate cost more per trip for a few cycles.
+
+EV73_TITLE | pool event title | One crew, two docks
+EV73_BODY | pool event text | You can lend a work crew to one dock for a short time. Cindrel's yard would run hot. Quillon's would run light. Both owe you a favour. The dock that gets the crew sees trade pick up for a while.
+EV73_CINDREL_BTN | button | Send them to Cindrel
+EV73_CINDREL_EFF | effect line | Ore at Cindrel costs more and pays more for a while.
+EV73_CINDREL_TITLE | popup title | Cindrel's yard is busy
+EV73_CINDREL | popup | The crew worked two shifts at Cindrel. Ore there costs more and pays more for a while. The yard master wrote the favour in a small book.
+EV73_QUILLON_BTN | button | Send them to Quillon
+EV73_QUILLON_EFF | effect line | Ore at Quillon costs more and pays more for a while.
+EV73_QUILLON_TITLE | popup title | Quillon's yard is busy
+EV73_QUILLON | popup | The crew worked easy hours at Quillon. Ore there costs more and pays more for a while. The yard master paid back in goodwill, which you also count.
+
+EV74_TITLE | pool event title | Luck pays Ashgate once
+EV74_BODY | pool event text | A shipment of dross reaches Ashgate by a mistake nobody owns. Dross at Ashgate costs less and pays less for a while. You call it luck, and do not trust it. The second page of the manifest is blank.
+
+EV_FLT04_TITLE | pool event title | Dust across the lane
+EV_FLT04_BODY | pool event text | Fine dust crosses the lane to Flintmoor and rattles on the hull like rain on a tin roof. The pilot slows, then asks if she may ask what rain is. Nobody on board is sure. Ships can slow with her, or push through and pay for the hull.
+EV_FLT04_SLOW_BTN | button | Slow down
+EV_FLT04_SLOW_EFF | effect line | Lanes that touch Flintmoor cost more per trip for a few cycles.
+EV_FLT04_SLOW_TITLE | popup title | The dust passes
+EV_FLT04_SLOW | popup | The ships slowed and the dust went over like a long shift change. Lanes that touch Flintmoor cost more per trip for a few cycles. The hull rang once, low, and then did not ring again.
+EV_FLT04_PUSH_BTN | button | Push through
+EV_FLT04_PUSH_EFF | effect line | Pay a small sum for hull repairs.
+EV_FLT04_PUSH_TITLE | popup title | The hull takes the dust
+EV_FLT04_PUSH | popup | The ships pushed through at speed. You paid a small sum for hull repairs at the next port. The pilot stood the rest of the shift at the glass, trying to remember what rain was for.
+
+EV_PLT01_TITLE | pool event title | Who works the dark
+EV_PLT01_BODY | pool event text | A crew from the Bureau's labour desk reaches the new platform on Cinderrest. They came for the pay and stay for the quiet. The foreman asks what to call a shift that never ends. No one has a form for it.
+EV_PLT01_NIGHT_BTN | button | Hire the night crew
+EV_PLT01_NIGHT_EFF | effect line | Some dross is added to your Company storage at Cinderrest.
+EV_PLT01_NIGHT_TITLE | popup title | The night crew signs on
+EV_PLT01_NIGHT | popup | The night crew signed on without reading. By morning some dross lay in your storage at Cinderrest, stacked with great care. The foreman named the shift Always. It stuck.
+EV_PLT01_DAY_BTN | button | Send the crew home
+EV_PLT01_DAY_EFF | effect line | You gain a small sum, the labour desk's refund.
+EV_PLT01_DAY_TITLE | popup title | The crew goes home
+EV_PLT01_DAY | popup | You sent the crew back to the labour desk, which refunded the hire with a small sum. You gain a small sum. At change of shift the foreman counted the lamps going out and the lamps coming on, and got two different answers.
+
+EV_PLT02_TITLE | pool event title | The roof sings
+EV_PLT02_BODY | pool event text | A gallery at Cinderrest sings before it fails, a low note, held. The crew is out and the rock is still. Props cost credits. Sealing the gallery costs time. The note has not stopped.
+EV_PLT02_PROP_BTN | button | Pay for props
+EV_PLT02_PROP_EFF | effect line | Pay a small sum. Routes from Cinderrest keep running.
+EV_PLT02_PROP_TITLE | popup title | The props go in
+EV_PLT02_PROP | popup | The props went in under the sound and the sound let them. You paid a small sum. Routes from Cinderrest keep running. The note dropped a step, the way a voice does when it has been understood.
+EV_PLT02_SEAL_BTN | button | Seal the gallery
+EV_PLT02_SEAL_EFF | effect line | Cinderrest closes for a while. Routes touching it are blocked.
+EV_PLT02_SEAL_TITLE | popup title | The gallery is sealed
+EV_PLT02_SEAL | popup | The crew sealed the gallery with slabs and tape. Cinderrest is closed for a while, and routes touching it are blocked. Behind the slabs the note went on, patient, like a tenant.
+
+EV_PLT03_TITLE | pool event title | A seam no one logged
+EV_PLT03_BODY | pool event text | The drill at Greywake broke into a seam the old surveys never entered, as if they had looked away. It is bright, cold and heavier than it should be. The Bureau has not been told yet.
+EV_PLT03_LOG_BTN | button | Log the find
+EV_PLT03_LOG_EFF | effect line | You gain a small sum as a finder's share.
+EV_PLT03_LOG_TITLE | popup title | The find is logged
+EV_PLT03_LOG | popup | The Bureau stamped the find within the hour, which no one had ever seen. You gain a small sum as a finder's share. The seam now has a number, and the number, quietly, has a seam.
+EV_PLT03_HIDE_BTN | button | Keep it off the books
+EV_PLT03_HIDE_EFF | effect line | Some nullglass is added to your Company storage at Greywake.
+EV_PLT03_HIDE_TITLE | popup title | The find stays quiet
+EV_PLT03_HIDE | popup | The crew filled the carts before the shift bell and told no one. Some nullglass is added to your Company storage at Greywake. The seam is still bright in the dark, and still cold on the hand.
+
+EV_PLT04_TITLE | pool event title | The hum under the floor
+EV_PLT04_BODY | pool event text | The floor of the platform on Greywake hums while the crew sleeps, a steady note, the same each night. Two buyers want the next lot of nullglass, one at Cindrel and one at Quillon. The shift lead says the hum changes with the lot's road. She does not say how.
+EV_PLT04_CINDREL_BTN | button | Send the lot to Cindrel
+EV_PLT04_CINDREL_EFF | effect line | Nullglass at Cindrel costs more and pays more for a while.
+EV_PLT04_CINDREL_TITLE | popup title | The lot goes to Cindrel
+EV_PLT04_CINDREL | popup | The lot left for Cindrel and the hum thinned, then stopped. Nullglass at Cindrel costs more and pays more for a while. The shift lead slept well.
+EV_PLT04_QUILLON_BTN | button | Send the lot to Quillon
+EV_PLT04_QUILLON_EFF | effect line | Nullglass at Quillon costs more and pays more for a while.
+EV_PLT04_QUILLON_TITLE | popup title | The lot goes to Quillon
+EV_PLT04_QUILLON | popup | The lot left for Quillon and the hum rose a note. Nullglass at Quillon costs more and pays more for a while. The engineers wrote down that it was not louder.
+
+## Biotech pool
+
+EV51_TITLE | pool event title | Seed stock sells out at Brannock
+EV51_BODY | pool event text | A planting season came early at Brannock, and every grower wanted seed stock before the frost. Seed stock at Brannock costs more and pays more. The growers say the frost will not come. They keep one eye on the sky and one on the lock.
+
+EV88_TITLE | pool event title | Two clerks ask a favour
+EV88_BODY | pool event text | A clerk at Tillam and a clerk at Ashgate both ask you to put in a word for their dock. You know them both by name. You can do it for one this cycle. The other will understand, and remember.
+EV88_TILLAM_BTN | button | Speak for Tillam
+EV88_TILLAM_EFF | effect line | Spores at Tillam cost more and pay more for a while.
+EV88_TILLAM_TITLE | popup title | Tillam is pleased
+EV88_TILLAM | popup | The Tillam clerk bowed twice. Spores at Tillam cost more and pay more for a while. A queue of buyers formed by the next bell.
+EV88_ASHGATE_BTN | button | Speak for Ashgate
+EV88_ASHGATE_EFF | effect line | Spores at Ashgate cost more and pay more for a while.
+EV88_ASHGATE_TITLE | popup title | Ashgate is pleased
+EV88_ASHGATE | popup | The Ashgate clerk sent a card and a plate of something sweet. Spores at Ashgate cost more and pay more for a while.
+
+## Minerals pool, one more (EV75)
+
+EV75_TITLE | pool event title | Quillon stops paying for ore
+EV75_BODY | pool event text | Quillon's builders found a stack of ore in a closed yard and stopped buying. Ore at Quillon costs less and pays less for a while. The yard's gate was sealed with a form that no one remembers signing. The ore is warm.

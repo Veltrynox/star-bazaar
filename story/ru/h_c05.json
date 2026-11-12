@@ -96,7 +96,6 @@
  "NOT_DOCK_STORAGE_FULL": "Хранилище компании здесь заполнено.",
  "NOT_EVENT_EFFECT_CASH": "Ваши кредиты разово изменятся на {amount}.",
  "NOT_EVENT_EFFECT_CLOSED": "Планета {planet} закрыта на срок, циклов: {cycles}. Маршруты и заказы через неё остановятся.",
- "NOT_EVENT_EFFECT_DANGER": "Опасность на {planet}: {amount}.",
  "NOT_EVENT_EFFECT_DOWN": "{commodity}: цены на {planet} упадут на {pct} процентов на срок, циклов: {cycles}.",
  "NOT_EVENT_EFFECT_STOCK": "Запас: {commodity} на {planet} разово меняется на {amount}.",
  "NOT_EVENT_EFFECT_UP": "{commodity}: цены на {planet} вырастут на {pct} процентов на срок, циклов: {cycles}.",

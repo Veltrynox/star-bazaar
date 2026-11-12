@@ -478,7 +478,6 @@ ST_CLUSTER_SHARED | 60 | Route panel, status when another ship took the cycle's 
 DEAD_UNLOCK | 110 | Notice, posted when the dead worlds open | Dead worlds are open. Cinderrest needs Cold Survey, Greywake needs Deep Cut.
 PLANET_DEAD_LOCKED | 60 | Planet panel, dead world before it opens; {n} is the cycle | Opens at cycle {n}.
 NOT_DEAD_NEEDS_SKILL | 110 | Notice, route from a dead world without its skill; {skill} is the skill name | Mining here needs {skill}.
-PLANET_DANGER | 60 | Planet panel, dead world danger line; {value} and {max} are numbers | Danger: {value} of {max}
 BTN_MINE_SEND | 40 | Planet panel, dead world, button under the mined goods; {good} is the good name | Mine {good} and send to...
 LBL_MINE_ROW_TIP | 80 | Planet panel, dead world, tooltip of a mined good | Mine here every cycle. Press to stop.
 SCR_MINE_HEADER | 30 | Planet panel, dead world, caption above the mined goods | Mining
@@ -523,7 +522,7 @@ GOOD_SEED_NAME | 24 | Commodity name, seed | Seed Stock
 GOOD_SEED_DESC | 110 | Commodity tooltip, seed | Seed stock that grows to order. The finest crafted good of its kind.
 NULL_CORE_BUILD_TITLE | 32 | Popup title, first Null Core built (one per run) | The core is built
 NULL_CORE_BUILD | 280 | Popup text, first Null Core built (one per run) | The Null Core sat in its cradle and gave off no heat at all. Fitted, it makes one hull quiet in a way hulls are not. Nobody can say what it listens to. The Bureau has filed it under spare parts.
-NULL_CORE_FIT | 110 | Ships window, label or tooltip of the fitted ship | Null Core fitted. Lower Trip cost, and pirates cannot touch this ship.
+NULL_CORE_FIT | 110 | Ships window, label or tooltip of the fitted ship | Null Core fitted. Lower Trip cost, and raiders cannot touch this ship.
 
 
 ## Null Core buttons and labels (added 2026-11-03)
@@ -549,17 +548,6 @@ TIP_BOARD_3 | 110 | Tips board | When Company storage is full, Buy waits. Sell o
 TIP_BOARD_4 | 110 | Tips board | Prices change each cycle. Open a planet to see today's Buy and Sell prices.
 TIP_BOARD_5 | 110 | Tips board | Space pauses the game. Pause to plan, then press Space again.
 TIP_BOARD_6 | 110 | Tips board | Skill points come from planets, routes and systems. Spend them in Skills (K).
-
-## Market share readout (UI fallback ids, added 2026-11-03)
-LBL_SHARE_TITLE | 24 | Market share panel heading | Market share
-LBL_SHARE_HOLD | 40 | Market share panel, cycles the player has held the lead | Held {n} of {total} cycles
-LBL_SPREAD_COST | 40 | Market panel, cost of holding several markets | Spreading cost per cycle: {n}
-LBL_SHARE_YOU | 24 | Market share rows and end screen readout, the player's row | You
-
-## Competitors menu (added 2026-11-03)
-LBL_COMP_TITLE | 24 | House weather menu heading, game menu entry and panel button (was Competitors) | House weather
-LBL_COMP_SHARE | 24 | House weather table column, what the house sends next | Next weather
-LBL_COMP_TREND | 24 | House weather table column, the last weather the house sent | Recent weather
 
 ## Four-market skill screen (added 2026-11-03; labels plain, no flavour)
 SK_TAB_FND | 24 | Skill screen, tab or column title | Foundations
@@ -595,7 +583,6 @@ LBL_WORKSHOP_NEEDS_OTHER | 60 | Workshop status, a missing input the player cann
 NOT_WORKSHOP_BUILT | 80 | Board notice after building; {workshop} is the workshop name, {system} the system whose cell it stands in | {workshop} built in {system}.
 
 ## Skill points from share (added 2026-11-03)
-NOT_SKILL_REASON_SHARE | 110 | Notice, a skill point earned when a market share passes a step; {market} is the market, {pct} the step | Your {market} share passed {pct}%.
 
 ## Market chains (28 steps; added 2026-11-03, from design/proposals/2026-11-03-four-markets-story.md)
 Chain text for Military, Luxury, Minerals and Biotech, steps A1 to A3 and B1 to B4. Ids: EV_<step>_<field>, for example EV_MIL_A1_TITLE. Fields: TITLE, BODY (A1 and B1) or BODY_A and BODY_B (steps 2 and later, keyed to the option picked in the previous step of the same chain), OPA_BTN, OPA_EFF, OPA_RES_TITLE, OPA_RES, OPA_STD, OPA_STD2 (second house line, only where the option has two), and the same for OPB. The placeholders are documented at the top of story/events.md, section "Chain placeholders". Option ids opt_a and opt_b are internal; the game may shuffle the button order. No text states a direction, a count or a stance.
@@ -708,6 +695,50 @@ EV_MIL_B4_OPB_RES | 280 | MIL_B4 result popup, opt_b; {bot} is bot_1 | Deliverie
 EV_MIL_B4_OPB_STD | 90 | MIL_B4 house line 1, opt_b | {bot1}: next weather lands clearly softer.
 EV_MIL_B4_OPB_STD2 | 90 | MIL_B4 house line 2, opt_b | {bot3}: next weather lands a little softer.
 
+### MIL_C1 (Military, chain C, step 1; added 2026-11-11)
+EV_MIL_C1_TITLE | 40 | MIL_C1 choice screen title | A depot for Dunmere Reach
+EV_MIL_C1_BODY | 280 | MIL_C1 choice screen body (one body) | The Fleet Office has an estimate for Dunmere Reach, and a clerk at Cindrel needs a supplier before the next muster. {bot3} runs convoys on the same lane and bills by the hull. Keep a standing depot there, or ship to each muster as it is called.
+EV_MIL_C1_OPA_BTN | 28 | MIL_C1 button, opt_a | Keep a standing depot
+EV_MIL_C1_OPA_EFF | 200 | MIL_C1 effect line, opt_a | Get: Military volume up a little for a while. Cost: Ship upkeep rises a little for a while. Weather: {bot3}'s next weather comes a little later.
+EV_MIL_C1_OPA_RES_TITLE | 32 | MIL_C1 result popup title, opt_a | The depot is stocked
+EV_MIL_C1_OPA_RES | 280 | MIL_C1 result popup, opt_a; {bot} is bot_3 | You leased a shed on Cindrel's dock and hired a night watch. Orders now come on a schedule, so Military volume rises for a while, and the watch raises Ship upkeep a little. {bot}'s convoys wait for slots at your door, and its next weather comes a little later.
+EV_MIL_C1_OPA_STD | 90 | MIL_C1 house line 1, opt_a | {bot3}: next weather comes a little later.
+EV_MIL_C1_OPB_BTN | 28 | MIL_C1 button, opt_b | Ship to each muster
+EV_MIL_C1_OPB_EFF | 200 | MIL_C1 effect line, opt_b | Get: {cash_in} credits now. Cost: Military volume down a little for a few cycles. Weather: {bot2}'s next weather lands a little softer.
+EV_MIL_C1_OPB_RES_TITLE | 32 | MIL_C1 result popup title, opt_b | Mustered, one at a time
+EV_MIL_C1_OPB_RES | 280 | MIL_C1 result popup, opt_b; {bot} is bot_2 | You shipped to each muster as it was called, and the clerk paid on the day. Your own orders dipped for a few cycles while the berth stood empty. {bot} had counted on the Fleet Office's steady custom, and its next weather lands a little softer.
+EV_MIL_C1_OPB_STD | 90 | MIL_C1 house line 1, opt_b | {bot2}: next weather lands a little softer.
+
+### MIL_C2 (Military, chain C, step 2; added 2026-11-11)
+EV_MIL_C2_TITLE | 40 | MIL_C2 choice screen title | The inspector counts the halls
+EV_MIL_C2_BODY_A | 280 | MIL_C2 choice screen body after opt_a of MIL_C1 | Your depot at Cindrel is stocked, and word of it reached the Bazaar. Inspector Kethra Voss comes to the new halls with her stamp worn like a sidearm. She will pass every door in one visit for a charge, or one by one on her own time. {bot1} has already paid.
+EV_MIL_C2_BODY_B | 280 | MIL_C2 choice screen body after opt_b of MIL_C1 | Your musters were paid, and word of it reached the Bazaar. Inspector Kethra Voss comes to the new halls with her stamp worn like a sidearm. She will pass every door in one visit for a charge, or one by one on her own time. {bot1} has already paid.
+EV_MIL_C2_OPA_BTN | 28 | MIL_C2 button, opt_a | Pay for one visit
+EV_MIL_C2_OPA_EFF | 200 | MIL_C2 effect line, opt_a | Get: Military price up a little for a while. Cost: {cash_out} credits for the visit. Weather: {bot1}'s next weather lands clearly softer.
+EV_MIL_C2_OPA_RES_TITLE | 32 | MIL_C2 result popup title, opt_a | Every door, one stamp
+EV_MIL_C2_OPA_RES | 280 | MIL_C2 result popup, opt_a; {bot} is bot_1 | Voss passed every door in one visit and stamped the last as if it were a ruling. The visit cost credits, and Military price rises a little for a while. {bot} had paid first, and its next weather lands clearly softer.
+EV_MIL_C2_OPA_STD | 90 | MIL_C2 house line 1, opt_a | {bot1}: next weather lands clearly softer.
+EV_MIL_C2_OPB_BTN | 28 | MIL_C2 button, opt_b | Wait door by door
+EV_MIL_C2_OPB_EFF | 200 | MIL_C2 effect line, opt_b | Get: one route's trip cost down a little for a while. Cost: Military volume down a little for a while. Weather: {bot2}'s next weather comes a little later.
+EV_MIL_C2_OPB_RES_TITLE | 32 | MIL_C2 result popup title, opt_b | A door at a time
+EV_MIL_C2_OPB_RES | 280 | MIL_C2 result popup, opt_b; {bot} is bot_2 | Voss passed the doors one by one on her own time, and your crew stood by each. The busiest route's trip cost falls a little for a while, and Military volume dips as berths wait. {bot}'s next weather comes a little later.
+EV_MIL_C2_OPB_STD | 90 | MIL_C2 house line 1, opt_b | {bot2}: next weather comes a little later.
+
+### MIL_C3 (Military, chain C, step 3; added 2026-11-11)
+EV_MIL_C3_TITLE | 40 | MIL_C3 choice screen title | The estimate renews itself
+EV_MIL_C3_BODY_A | 280 | MIL_C3 choice screen body after opt_a of MIL_C2 | Your stamp is on every hall, and the Fleet Office has noticed. Admiral Gabe Nuer renews the estimate with the words until victory, again. Take a standing order for the Bazaar's stores, or sell the Fleet Office your slack in one lot. {bot1} is already counting.
+EV_MIL_C3_BODY_B | 280 | MIL_C3 choice screen body after opt_b of MIL_C2 | Your halls were passed one door at a time, and the Fleet Office has noticed. Admiral Gabe Nuer renews the estimate with the words until victory, again. Take a standing order for the Bazaar's stores, or sell the Fleet Office your slack in one lot. {bot1} is already counting.
+EV_MIL_C3_OPA_BTN | 28 | MIL_C3 button, opt_a | Take the standing order
+EV_MIL_C3_OPA_EFF | 200 | MIL_C3 effect line, opt_a | Get: Military volume up clearly for a while. Cost: Military price down a little for a while. Weather: {bot3}'s next weather comes a little later.
+EV_MIL_C3_OPA_RES_TITLE | 32 | MIL_C3 result popup title, opt_a | Until victory, in writing
+EV_MIL_C3_OPA_RES | 280 | MIL_C3 result popup, opt_a; {bot} is bot_3 | The Fleet Office stamped your standing order with the words until victory. Military volume rises clearly for a while, and the standing price pulls Military price down a little. {bot}'s convoys wait on your berths, and its next weather comes a little later.
+EV_MIL_C3_OPA_STD | 90 | MIL_C3 house line 1, opt_a | {bot3}: next weather comes a little later.
+EV_MIL_C3_OPB_BTN | 28 | MIL_C3 button, opt_b | Sell the slack at once
+EV_MIL_C3_OPB_EFF | 200 | MIL_C3 effect line, opt_b | Get: {cash_in} credits now. Cost: Military volume down clearly for a few cycles while berths empty. Weather: {bot1} {cut}.
+EV_MIL_C3_OPB_RES_TITLE | 32 | MIL_C3 result popup title, opt_b | The slack is sold
+EV_MIL_C3_OPB_RES | 280 | MIL_C3 result popup, opt_b; {bot} is bot_1 | You sold the slack in one lot, and the Admiral's clerk paid at the dock. Military volume falls clearly for a few cycles while the berths empty. {bot} had meant to carry the estimate, and its next weather is held back.
+EV_MIL_C3_OPB_STD | 90 | MIL_C3 house line 1, opt_b | {bot1}: {cut_std}.
+
 ### LUX_A1 (Luxury, chain A, step 1)
 EV_LUX_A1_TITLE | 40 | LUX_A1 choice screen title | Madame Marr demands the first pick
 EV_LUX_A1_BODY | 280 | LUX_A1 choice screen body (one body) | Madame Ysolde Marr, queen of Quillon's gallery ring, wants the first luxury lot of every cycle, before any other buyer sees it. She sniffs every lid and swears each lot picks its owner. {bot2} feeds her now, and {bot3} keeps a stall on her ring. Name a price, or sell her one lot.
@@ -816,6 +847,50 @@ EV_LUX_B4_OPB_RES | 280 | LUX_B4 result popup, opt_b; {bot} is bot_2 | You took 
 EV_LUX_B4_OPB_STD | 90 | LUX_B4 house line 1, opt_b | {bot2}: next weather lands clearly softer.
 EV_LUX_B4_OPB_STD2 | 90 | LUX_B4 house line 2, opt_b | {bot3}: next weather lands a little softer.
 
+### LUX_C1 (Luxury, chain C, step 1; added 2026-11-11)
+EV_LUX_C1_TITLE | 40 | LUX_C1 choice screen title | Madame Marr wants a standing order
+EV_LUX_C1_BODY | 280 | LUX_C1 choice screen body (one body) | Madame Marr of Quillon's gallery ring wants a season of luxuries sent to her door unseen. She says a thing seen first is a thing spoiled. {bot2} would fill it at floating rates, and {bot3} keeps a stall by her door. Fill the standing order, or sell her one sealed lot.
+EV_LUX_C1_OPA_BTN | 28 | LUX_C1 button, opt_a | Fill the standing order
+EV_LUX_C1_OPA_EFF | 200 | LUX_C1 effect line, opt_a | Get: Luxury price up a little for a while. Cost: Luxury volume down a little for a while. Weather: {bot2}'s next weather comes a little later.
+EV_LUX_C1_OPA_RES_TITLE | 32 | LUX_C1 result popup title, opt_a | The order goes unseen
+EV_LUX_C1_OPA_RES | 280 | LUX_C1 result popup, opt_a; {bot} is bot_2 | Madame Marr took the standing order unseen and sent word round her ring. Luxury price rises a little for a while, and fewer lots reach the shelves, so volume dips. {bot} fed her the first season, and its next weather comes a little later.
+EV_LUX_C1_OPA_STD | 90 | LUX_C1 house line 1, opt_a | {bot2}: next weather comes a little later.
+EV_LUX_C1_OPB_BTN | 28 | LUX_C1 button, opt_b | Sell one sealed lot
+EV_LUX_C1_OPB_EFF | 200 | LUX_C1 effect line, opt_b | Get: {cash_in} credits now. Cost: Ship upkeep rises a little for a while. Weather: {bot3}'s next weather lands a little softer.
+EV_LUX_C1_OPB_RES_TITLE | 32 | LUX_C1 result popup title, opt_b | One lot under seal
+EV_LUX_C1_OPB_RES | 280 | LUX_C1 result popup, opt_b; {bot} is bot_3 | Madame Marr paid for one sealed lot, and the lot went out under a courier's seal. Credits reached you within the hour, and the sealed hull raised Ship upkeep a little. {bot} found its stall at her door empty, and its next weather lands a little softer.
+EV_LUX_C1_OPB_STD | 90 | LUX_C1 house line 1, opt_b | {bot3}: next weather lands a little softer.
+
+### LUX_C2 (Luxury, chain C, step 2; added 2026-11-11)
+EV_LUX_C2_TITLE | 40 | LUX_C2 choice screen title | The Guild hangs masks in the halls
+EV_LUX_C2_BODY_A | 280 | LUX_C2 choice screen body after opt_a of LUX_C1 | Your standing order pleased the gallery ring, and the Guild of Masks has noticed. It hangs its masks in the Bazaar's new halls and wants luxuries on every stand. Lend a masked display for the season, or sell masks by the case. {bot2} holds the chair, and {bot3} sits by the door.
+EV_LUX_C2_BODY_B | 280 | LUX_C2 choice screen body after opt_b of LUX_C1 | Your sealed lot pleased the gallery ring, and the Guild of Masks has noticed. It hangs its masks in the Bazaar's new halls and wants luxuries on every stand. Lend a masked display for the season, or sell masks by the case. {bot2} holds the chair, and {bot3} sits by the door.
+EV_LUX_C2_OPA_BTN | 28 | LUX_C2 button, opt_a | Lend a masked display
+EV_LUX_C2_OPA_EFF | 200 | LUX_C2 effect line, opt_a | Get: Luxury volume up a little for a while. Cost: {cash_out} credits for the display. Weather: {bot2}'s next weather lands a little softer.
+EV_LUX_C2_OPA_RES_TITLE | 32 | LUX_C2 result popup title, opt_a | A mask on every stand
+EV_LUX_C2_OPA_RES | 280 | LUX_C2 result popup, opt_a; {bot} is bot_2 | The Guild hung your masked display in the east hall, and every guest passed it. The display cost credits, and Luxury volume rises a little for a while. {bot} held the chair and gave up a stand, and its next weather lands a little softer.
+EV_LUX_C2_OPA_STD | 90 | LUX_C2 house line 1, opt_a | {bot2}: next weather lands a little softer.
+EV_LUX_C2_OPB_BTN | 28 | LUX_C2 button, opt_b | Sell masks by the case
+EV_LUX_C2_OPB_EFF | 200 | LUX_C2 effect line, opt_b | Get: {cash_in} credits now. Cost: Luxury price down a little for a while. Weather: {bot3}'s next weather comes a little later.
+EV_LUX_C2_OPB_RES_TITLE | 32 | LUX_C2 result popup title, opt_b | Masks by the case
+EV_LUX_C2_OPB_RES | 280 | LUX_C2 result popup, opt_b; {bot} is bot_3 | You sold masks by the case at the hall door, and the Guild's clerk paid on the spot. Luxury price falls a little for a while as the cases crowd the doors. {bot} sat by the door and watched them go, and its next weather comes a little later.
+EV_LUX_C2_OPB_STD | 90 | LUX_C2 house line 1, opt_b | {bot3}: next weather comes a little later.
+
+### LUX_C3 (Luxury, chain C, step 3; added 2026-11-11)
+EV_LUX_C3_TITLE | 40 | LUX_C3 choice screen title | The Orrel House returns to the hall
+EV_LUX_C3_BODY_A | 280 | LUX_C3 choice screen body after opt_a of LUX_C2 | Your masked display hangs in the Great Hall, and the Orrel House holds its gala beneath it. The house offers you the head table, where every glass turns, or the cloakroom, where every guest passes your crates twice. {bot2} watches the guest list.
+EV_LUX_C3_BODY_B | 280 | LUX_C3 choice screen body after opt_b of LUX_C2 | Your masks sold out at the hall door, and the Orrel House holds its gala beneath the empty hooks. The house offers you the head table, where every glass turns, or the cloakroom, where every guest passes your crates twice. {bot2} watches the guest list.
+EV_LUX_C3_OPA_BTN | 28 | LUX_C3 button, opt_a | Take the head table
+EV_LUX_C3_OPA_EFF | 200 | LUX_C3 effect line, opt_a | Get: Luxury price up clearly for a while. Cost: {cash_out} credits for the table. Weather: {bot2}'s next weather lands clearly softer.
+EV_LUX_C3_OPA_RES_TITLE | 32 | LUX_C3 result popup title, opt_a | The head table
+EV_LUX_C3_OPA_RES | 280 | LUX_C3 result popup, opt_a; {bot} is bot_2 | You took the head table, and every glass in the hall turned toward it. The table cost credits, and Luxury price rises clearly for a while. {bot} kept the guest list and found your name above its own, so its next weather lands clearly softer.
+EV_LUX_C3_OPA_STD | 90 | LUX_C3 house line 1, opt_a | {bot2}: next weather lands clearly softer.
+EV_LUX_C3_OPB_BTN | 28 | LUX_C3 button, opt_b | Take the cloakroom
+EV_LUX_C3_OPB_EFF | 200 | LUX_C3 effect line, opt_b | Get: Luxury volume up clearly for a while. Cost: Luxury price down a little for a while. Weather: {bot1}'s next weather comes a little later.
+EV_LUX_C3_OPB_RES_TITLE | 32 | LUX_C3 result popup title, opt_b | The cloakroom
+EV_LUX_C3_OPB_RES | 280 | LUX_C3 result popup, opt_b; {bot} is bot_1 | You took the cloakroom, and every guest passed your crates twice. Luxury volume rises clearly for a while, and Luxury price falls a little as the tags pile up. {bot} was told the cloakroom was full, and its next weather comes a little later.
+EV_LUX_C3_OPB_STD | 90 | LUX_C3 house line 1, opt_b | {bot1}: next weather comes a little later.
+
 ### MIN_A1 (Minerals, chain A, step 1)
 EV_MIN_A1_TITLE | 40 | MIN_A1 choice screen title | Cinderrest's cable frays on schedule
 EV_MIN_A1_BODY | 280 | MIN_A1 choice screen body (one body) | Shift chief Brakka Dun reports that Cinderrest's lift cable frayed at exactly the length of its warranty, and the lamps drop out on the lower level. {bot1} runs the next shaft, sells cable, and offers to lend crew and rope, for a price. Sell the lower level, or replace the cable.
@@ -921,6 +996,50 @@ EV_MIN_B4_OPB_RES_TITLE | 32 | MIN_B4 result popup title, opt_b | The claim is l
 EV_MIN_B4_OPB_RES | 280 | MIN_B4 result popup, opt_b; {bot} is bot_1 | You leased the claim to a crew and the first payment arrived. Your ships carry its ore, so Minerals volume rose, and Ship upkeep rises a little for a while. {bot}'s weather lands clearly softer, and {bot3}'s a little softer: both lost the lease. It has a clause about weather.
 EV_MIN_B4_OPB_STD | 90 | MIN_B4 house line 1, opt_b | {bot1}: next weather lands clearly softer.
 EV_MIN_B4_OPB_STD2 | 90 | MIN_B4 house line 2, opt_b | {bot3}: next weather lands a little softer.
+
+### MIN_C1 (Minerals, chain C, step 1; added 2026-11-11)
+EV_MIN_C1_TITLE | 40 | MIN_C1 choice screen title | Deepline Works wants a second shaft
+EV_MIN_C1_BODY | 280 | MIN_C1 choice screen body (one body) | The Deepline Works wants a second shaft sunk beside your claim at Cindrel, and needs a pump that only you can feed. {bot1} offers its own pump on lease, and {bot3} has asked for the spoil. Share your pump, or sell the Works the pump.
+EV_MIN_C1_OPA_BTN | 28 | MIN_C1 button, opt_a | Share the pump
+EV_MIN_C1_OPA_EFF | 200 | MIN_C1 effect line, opt_a | Get: Minerals volume up a little for a while. Cost: Minerals price down a little for a while. Weather: {bot1}'s next weather comes a little later.
+EV_MIN_C1_OPA_RES_TITLE | 32 | MIN_C1 result popup title, opt_a | Two shafts, one pump
+EV_MIN_C1_OPA_RES | 280 | MIN_C1 result popup, opt_a; {bot} is bot_1 | You shared the pump, and the Works sank its shaft beside yours. Minerals volume rises a little for a while, and more rock on the market pulls price down a little. {bot} had offered its own pump on lease, and its next weather comes a little later.
+EV_MIN_C1_OPA_STD | 90 | MIN_C1 house line 1, opt_a | {bot1}: next weather comes a little later.
+EV_MIN_C1_OPB_BTN | 28 | MIN_C1 button, opt_b | Sell the pump
+EV_MIN_C1_OPB_EFF | 200 | MIN_C1 effect line, opt_b | Get: {cash_in} credits now. Cost: Minerals volume down a little for a few cycles. Weather: {bot3}'s next weather lands a little softer.
+EV_MIN_C1_OPB_RES_TITLE | 32 | MIN_C1 result popup title, opt_b | The pump changes hands
+EV_MIN_C1_OPB_RES | 280 | MIN_C1 result popup, opt_b; {bot} is bot_3 | You sold the pump, and the Works paid on the dock. Your own volume dipped for a few cycles while the shaft waited for a new crew. {bot} asked for the spoil and was told it was sold, and its next weather lands a little softer.
+EV_MIN_C1_OPB_STD | 90 | MIN_C1 house line 1, opt_b | {bot3}: next weather lands a little softer.
+
+### MIN_C2 (Minerals, chain C, step 2; added 2026-11-11)
+EV_MIN_C2_TITLE | 40 | MIN_C2 choice screen title | Gordo Gekk prices the hall stone
+EV_MIN_C2_BODY_A | 280 | MIN_C2 choice screen body after opt_a of MIN_C1 | Bidder Gordo Gekk, who says wanting more is only tidiness, has priced every slab in the Bazaar's new halls and wants yours. You shared your pump, so he calls you a friend. Fix one price for the run, or weigh each load as it comes. {bot1} supplies the rest.
+EV_MIN_C2_BODY_B | 280 | MIN_C2 choice screen body after opt_b of MIN_C1 | Bidder Gordo Gekk, who says wanting more is only tidiness, has priced every slab in the Bazaar's new halls and wants yours. You sold your pump, so he calls you a seller. Fix one price for the run, or weigh each load as it comes. {bot1} supplies the rest.
+EV_MIN_C2_OPA_BTN | 28 | MIN_C2 button, opt_a | Fix the slab price
+EV_MIN_C2_OPA_EFF | 200 | MIN_C2 effect line, opt_a | Get: Minerals price up a little for a while. Cost: {cash_out} credits for the weighing seals. Weather: {bot1}'s next weather lands a little softer.
+EV_MIN_C2_OPA_RES_TITLE | 32 | MIN_C2 result popup title, opt_a | One price, tied with a bow
+EV_MIN_C2_OPA_RES | 280 | MIN_C2 result popup, opt_a; {bot} is bot_1 | You fixed one price for every slab, and Gekk sealed it with a tidy bow. The weighing seals cost credits, and Minerals price rises a little for a while. {bot} supplies the rest of the halls, and its next weather lands a little softer.
+EV_MIN_C2_OPA_STD | 90 | MIN_C2 house line 1, opt_a | {bot1}: next weather lands a little softer.
+EV_MIN_C2_OPB_BTN | 28 | MIN_C2 button, opt_b | Weigh each load
+EV_MIN_C2_OPB_EFF | 200 | MIN_C2 effect line, opt_b | Get: one route's trip cost down a little for a while. Cost: Minerals volume down a little for a while. Weather: {bot3}'s next weather comes a little later.
+EV_MIN_C2_OPB_RES_TITLE | 32 | MIN_C2 result popup title, opt_b | Every load on the scale
+EV_MIN_C2_OPB_RES | 280 | MIN_C2 result popup, opt_b; {bot} is bot_3 | You weighed each load as it came, and Gekk wrote down every figure and sighed at none. The busiest route's trip cost falls a little for a while, and Minerals volume dips as loads wait for the scale. {bot}'s next weather comes a little later.
+EV_MIN_C2_OPB_STD | 90 | MIN_C2 house line 1, opt_b | {bot3}: next weather comes a little later.
+
+### MIN_C3 (Minerals, chain C, step 3; added 2026-11-11)
+EV_MIN_C3_TITLE | 40 | MIN_C3 choice screen title | Tamsk Reddock offers the last rail
+EV_MIN_C3_BODY_A | 280 | MIN_C3 choice screen body after opt_a of MIN_C2 | The Great Hall wants rail for its roof. Tamsk Reddock, who runs the slag yard, offers you the whole of the last rail, and says heavy, as he does of everything. {bot1} wants the rest, and {bot3} wants the leftovers. Take the whole rail, or a share of it.
+EV_MIN_C3_BODY_B | 280 | MIN_C3 choice screen body after opt_b of MIN_C2 | The Great Hall wants rail for its roof. Tamsk Reddock, who runs the slag yard, saw your figures on the scale and offers you the whole of the last rail. He says heavy. {bot1} wants the rest, and {bot3} wants the leftovers. Take the whole rail, or a share of it.
+EV_MIN_C3_OPA_BTN | 28 | MIN_C3 button, opt_a | Take the whole rail
+EV_MIN_C3_OPA_EFF | 200 | MIN_C3 effect line, opt_a | Get: Minerals volume up clearly for a while. Cost: Ship upkeep rises a little for a while. Weather: {bot1}'s next weather lands clearly softer.
+EV_MIN_C3_OPA_RES_TITLE | 32 | MIN_C3 result popup title, opt_a | The whole rail
+EV_MIN_C3_OPA_RES | 280 | MIN_C3 result popup, opt_a; {bot} is bot_1 | You took the whole last rail, and Reddock said heavy and meant it. Minerals volume rises clearly for a while, and the rail yard raises Ship upkeep a little. {bot} wanted the rest, and its next weather lands clearly softer.
+EV_MIN_C3_OPA_STD | 90 | MIN_C3 house line 1, opt_a | {bot1}: next weather lands clearly softer.
+EV_MIN_C3_OPB_BTN | 28 | MIN_C3 button, opt_b | Take a share of it
+EV_MIN_C3_OPB_EFF | 200 | MIN_C3 effect line, opt_b | Get: {cash_in} credits now. Cost: Minerals volume down a little for a while. Weather: {bot3}'s next weather comes clearly later.
+EV_MIN_C3_OPB_RES_TITLE | 32 | MIN_C3 result popup title, opt_b | A share of the rail
+EV_MIN_C3_OPB_RES | 280 | MIN_C3 result popup, opt_b; {bot} is bot_3 | You took a share of the rail and the rest went to the yard. Credits came in at the dock, and Minerals volume dips for a while. {bot} wanted the leftovers and got them, and its next weather comes clearly later.
+EV_MIN_C3_OPB_STD | 90 | MIN_C3 house line 1, opt_b | {bot3}: next weather comes clearly later.
 
 ### BIO_A1 (Biotech, chain A, step 1)
 EV_BIO_A1_TITLE | 40 | BIO_A1 choice screen title | A canister arrives unlabelled
@@ -1029,6 +1148,50 @@ EV_BIO_B4_OPB_RES_TITLE | 32 | BIO_B4 result popup title, opt_b | The first clai
 EV_BIO_B4_OPB_RES | 280 | BIO_B4 result popup, opt_b; {bot} is bot_2 | You sold the firm your first claim to the aisle, and a large payment cleared. Your ships work new routes, so Ship upkeep rises a little for a while. {bot} and {bot3} both lost the aisle, and each sees its weather land clearly softer. One lamp lights the hull and does not flicker.
 EV_BIO_B4_OPB_STD | 90 | BIO_B4 house line 1, opt_b | {bot2} and {bot3}: next weather lands clearly softer.
 
+### BIO_C1 (Biotech, chain C, step 1; added 2026-11-11)
+EV_BIO_C1_TITLE | 40 | BIO_C1 choice screen title | A chiller fails at Brannock
+EV_BIO_C1_BODY | 280 | BIO_C1 choice screen body (one body) | Ottoline Ryke calls from Brannock's grain dock. A chiller has failed and the racks are warming. Director Hesk says the samples are fine. Move your stock to the cold racks across the dock, or share her spare chiller. {bot2} stores there, and {bot3} rents beside it.
+EV_BIO_C1_OPA_BTN | 28 | BIO_C1 button, opt_a | Move stock to cold racks
+EV_BIO_C1_OPA_EFF | 200 | BIO_C1 effect line, opt_a | Get: Biotech price up a little for a while. Cost: {cash_out} credits for the racks. Weather: {bot2}'s next weather lands a little softer.
+EV_BIO_C1_OPA_RES_TITLE | 32 | BIO_C1 result popup title, opt_a | The trays cross the dock
+EV_BIO_C1_OPA_RES | 280 | BIO_C1 result popup, opt_a; {bot} is bot_2 | Ryke moved your trays to the racks across the dock and the warm alarm stopped. The racks cost credits, and Biotech price rises a little for a while. {bot} stores there too, and its next weather lands a little softer. Hesk said the samples were fine.
+EV_BIO_C1_OPA_STD | 90 | BIO_C1 house line 1, opt_a | {bot2}: next weather lands a little softer.
+EV_BIO_C1_OPB_BTN | 28 | BIO_C1 button, opt_b | Share her spare chiller
+EV_BIO_C1_OPB_EFF | 200 | BIO_C1 effect line, opt_b | Get: Biotech volume up a little for a while. Cost: Ship upkeep rises a little for a while. Weather: {bot3}'s next weather comes a little later.
+EV_BIO_C1_OPB_RES_TITLE | 32 | BIO_C1 result popup title, opt_b | Two crews, one chiller
+EV_BIO_C1_OPB_RES | 280 | BIO_C1 result popup, opt_b; {bot} is bot_3 | Ryke wheeled her spare chiller to your racks and the two crews shared the cold. Biotech volume rises a little for a while, and the extra crew raises Ship upkeep a little. {bot} rents beside the dock, and its next weather comes a little later.
+EV_BIO_C1_OPB_STD | 90 | BIO_C1 house line 1, opt_b | {bot3}: next weather comes a little later.
+
+### BIO_C2 (Biotech, chain C, step 2; added 2026-11-11)
+EV_BIO_C2_TITLE | 40 | BIO_C2 choice screen title | Doctor Marrow volunteers again
+EV_BIO_C2_BODY_A | 280 | BIO_C2 choice screen body after opt_a of BIO_C1 | Your racks held, and the Bazaar noticed. The new halls need a test rota, and Doctor Marrow, who volunteers by rota, has put his name on every line. Fund the whole rota, or count the samples yourself. {bot2} supplies strains, and {bot3} buys the stock.
+EV_BIO_C2_BODY_B | 280 | BIO_C2 choice screen body after opt_b of BIO_C1 | Your shared chiller hums, and the Bazaar noticed. The new halls need a test rota, and Doctor Marrow, who volunteers by rota, has put his name on every line. Fund the whole rota, or count the samples yourself. {bot2} supplies strains, and {bot3} buys the stock.
+EV_BIO_C2_OPA_BTN | 28 | BIO_C2 button, opt_a | Fund the whole rota
+EV_BIO_C2_OPA_EFF | 200 | BIO_C2 effect line, opt_a | Get: one route's trip cost down a little for a while. Cost: {cash_out} credits for the rota. Weather: {bot2}'s next weather comes a little later.
+EV_BIO_C2_OPA_RES_TITLE | 32 | BIO_C2 result popup title, opt_a | Marrow signs every line
+EV_BIO_C2_OPA_RES | 280 | BIO_C2 result popup, opt_a; {bot} is bot_2 | You funded the rota, and Marrow signed up for every line of it. The rota cost credits, and the busiest route's trip cost falls a little for a while. {bot} supplies strains to the halls, and its next weather comes a little later.
+EV_BIO_C2_OPA_STD | 90 | BIO_C2 house line 1, opt_a | {bot2}: next weather comes a little later.
+EV_BIO_C2_OPB_BTN | 28 | BIO_C2 button, opt_b | Count the samples
+EV_BIO_C2_OPB_EFF | 200 | BIO_C2 effect line, opt_b | Get: {cash_in} credits now. Cost: Biotech volume down a little for a while. Weather: {bot3}'s next weather lands a little softer.
+EV_BIO_C2_OPB_RES_TITLE | 32 | BIO_C2 result popup title, opt_b | Counted twice
+EV_BIO_C2_OPB_RES | 280 | BIO_C2 result popup, opt_b; {bot} is bot_3 | You counted the samples yourself, twice, and Marrow stood by with a pen. Credits came in at the dock, and Biotech volume dips for a while as lots wait for the count. {bot} buys the stock, and its next weather lands a little softer.
+EV_BIO_C2_OPB_STD | 90 | BIO_C2 house line 1, opt_b | {bot3}: next weather lands a little softer.
+
+### BIO_C3 (Biotech, chain C, step 3; added 2026-11-11)
+EV_BIO_C3_TITLE | 40 | BIO_C3 choice screen title | Director Hesk says it is fine
+EV_BIO_C3_BODY_A | 280 | BIO_C3 choice screen body after opt_a of BIO_C2 | The last hall is roofed, and Director Hesk says again that the sample is fine. Imre Fenn, who fitted the seals, asks to read each one aloud before the cold rooms are sealed. {bot2} wants the rooms filled today, and {bot3} wants them listed.
+EV_BIO_C3_BODY_B | 280 | BIO_C3 choice screen body after opt_b of BIO_C2 | The last hall is roofed, and Director Hesk says again that the sample is fine. Imre Fenn, who fitted the seals, asks to read each one aloud before the cold rooms are sealed. {bot2} wants the rooms filled today, and {bot3} wants them listed. Your count is in the file.
+EV_BIO_C3_OPA_BTN | 28 | BIO_C3 button, opt_a | Seal the rooms today
+EV_BIO_C3_OPA_EFF | 200 | BIO_C3 effect line, opt_a | Get: Biotech price up clearly for a while. Cost: Biotech volume down a little for a while. Weather: {bot2}'s next weather lands clearly softer.
+EV_BIO_C3_OPA_RES_TITLE | 32 | BIO_C3 result popup title, opt_a | The rooms are sealed
+EV_BIO_C3_OPA_RES | 280 | BIO_C3 result popup, opt_a; {bot} is bot_2 | You sealed the rooms that day, and Hesk said the sample was fine, again. Biotech price rises clearly for a while, and the sealed rooms hold stock back, so volume dips a little. {bot} wanted the rooms filled, and its next weather lands clearly softer.
+EV_BIO_C3_OPA_STD | 90 | BIO_C3 house line 1, opt_a | {bot2}: next weather lands clearly softer.
+EV_BIO_C3_OPB_BTN | 28 | BIO_C3 button, opt_b | Read the seals aloud
+EV_BIO_C3_OPB_EFF | 200 | BIO_C3 effect line, opt_b | Get: Biotech volume up clearly for a while. Cost: {cash_out} credits for the extra shifts. Weather: {bot3}'s next weather comes a little later.
+EV_BIO_C3_OPB_RES_TITLE | 32 | BIO_C3 result popup title, opt_b | Every seal, aloud
+EV_BIO_C3_OPB_RES | 280 | BIO_C3 result popup, opt_b; {bot} is bot_3 | The crew read the seals aloud, one by one, with Fenn at the door. The extra shifts cost credits, and Biotech volume rises clearly for a while. {bot} wanted the rooms listed, and its next weather comes a little later.
+EV_BIO_C3_OPB_STD | 90 | BIO_C3 house line 1, opt_b | {bot3}: next weather comes a little later.
+
 ## Chain effect line template and rival log (added 2026-11-03)
 CH_EFFECT_LINE | 200 | Effect line template for any option the game builds itself (the id game/chains.gd reads); {get}, {cost} and {rivals} are phrases without a final full stop | Get: {get}. Cost: {cost}. Weather: {rivals}.
 CH_CUT | 24 | Chain fill-in: used inside event sentences (see game/chains.gd) | is held back
@@ -1053,14 +1216,11 @@ CH_FX_IDLE | 24 | Chain fill-in: used inside event sentences (see game/chains.gd
 EV_EFF_NO_RIVALS | 90 | Effect line, Weather part of an event that changes no house weather | Weather: no house changes its next weather.
 
 ## Rival changes: Competitors menu event log (added 2026-11-03)
-LBL_COMP_EVENTS | 24 | House weather menu, heading of the log of changes your choices made | Weather changes
-LBL_COMP_NONE | 40 | House weather menu, log is empty | No weather changes yet.
 LBL_COMP_MOVE_STR_DOWN | 60 | House weather log line, a house sends softer weather; also used for a held-back cut at the lowest step | {bot}: next weather lands softer
 LBL_COMP_MOVE_STR_UP | 60 | House weather log line, a house sends harder weather | {bot}: next weather lands harder
 LBL_COMP_MOVE_GRO_DOWN | 60 | House weather log line, a house sends its weather later | {bot}: next weather comes later
 LBL_COMP_MOVE_GRO_UP | 60 | House weather log line, a house sends its weather sooner | {bot}: next weather comes sooner
 LBL_COMP_MOVE_TIER_DOWN | 60 | House weather log line, a house has its next weather held back | {bot}: next weather held back
-LBL_COMP_CYCLE | 16 | House weather log line, prefix with the cycle of the move | Cycle {n}:
 
 ## Space Storage available (2026-11-04)
 STORAGE_READY_TITLE | 32 | Event window title, one-time notice when trade income unlocks the Space Storage skill (FND_STORAGE) | Space Storage is available
@@ -1763,10 +1923,6 @@ GIG_EFF_GOODS | 40 | gigs.gd:616
 {n} {good} in storage.
 GIG_EFF_IDLE | 70 | gigs.gd:638
 The Flagship is held for {n} cycles.
-GIG_EFF_KNOWLEDGE | 40 | gigs.gd:630
-You learned something.
-GIG_EFF_PERK | 60 | gigs.gd:625
-A small edge for {n} cycles.
 GIG_ETA | 60 | gig_board.gd:195
 ETA {cycles} cycles, left {left}
 GIG_ETA_NONE | 30 | gig_board.gd:193
@@ -2003,8 +2159,6 @@ NOT_BAZAAR_OPENING | 130 | main.gd:2425
 The charter cargo is ready. Fly it to {planet} to open the Star Bazaar.
 NOT_DEAD_OTHER_BRANCH | 70 | route_engine.gd:185
 Mining here is closed to your company.
-NOT_EVENT_EFFECT_DANGER | 60 | main.gd:2778
-Danger at {planet}: {amount}.
 NOT_FABRIC_BUILT | 60 | main.gd:2074
 Fabric built at the trading post.
 NOT_GIG_RUSH_DONE | 80 | gigs.gd:555

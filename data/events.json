@@ -136,38 +136,6 @@
    "choices": []
   },
   {
-   "id": "EV21",
-   "title_id": "EV21_TITLE",
-   "text_id": "EV21_BODY",
-   "tag": "[price up: Tillam, silk]",
-   "kind": "I",
-   "choices": []
-  },
-  {
-   "id": "EV22",
-   "title_id": "EV22_TITLE",
-   "text_id": "EV22_BODY",
-   "tag": "[price up: Voltara, silk]",
-   "kind": "I",
-   "choices": []
-  },
-  {
-   "id": "EV24",
-   "title_id": "EV24_TITLE",
-   "text_id": "EV24_BODY",
-   "tag": "[price up: Voltara, spyware]",
-   "kind": "P",
-   "choices": []
-  },
-  {
-   "id": "EV25",
-   "title_id": "EV25_TITLE",
-   "text_id": "EV25_BODY",
-   "tag": "[price up: Ashgate, spyware]",
-   "kind": "Q",
-   "choices": []
-  },
-  {
    "id": "EV26",
    "title_id": "EV26_TITLE",
    "text_id": "EV26_BODY",
@@ -243,29 +211,6 @@
      "tag": "[debris: leave]",
      "popup_title_id": "EV17_LEFT_TITLE",
      "popup_id": "EV17_LEFT"
-    }
-   ]
-  },
-  {
-   "id": "EV18",
-   "title_id": "EV18_TITLE",
-   "text_id": "EV18_BODY",
-   "tag": "[shield: offer]",
-   "kind": "C",
-   "choices": [
-    {
-     "text_id": "EV18_BUILD_BTN",
-     "eff_id": "EV18_BUILD_EFF",
-     "tag": "[shield: build]",
-     "popup_title_id": "EV18_BUILT_TITLE",
-     "popup_id": "EV18_BUILT"
-    },
-    {
-     "text_id": "EV18_SKIP_BTN",
-     "eff_id": "EV18_SKIP_EFF",
-     "tag": "[shield: skip]",
-     "popup_title_id": "EV18_SKIPPED_TITLE",
-     "popup_id": "EV18_SKIPPED"
     }
    ]
   },

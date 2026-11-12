@@ -196,17 +196,6 @@ def debris_event() -> dict:
                  "popup_title_id": "EV17_LEFT_TITLE", "popup_id": "EV17_LEFT"}]}
 
 
-def shield_event() -> dict:
-    """T101: EV18 solar shield, a choice event. Cost and shifts come from balance.json (shield_*)."""
-    return {"id": "EV18", "title_id": "EV18_TITLE", "text_id": "EV18_BODY",
-            "tag": "[shield: offer]", "kind": "C",
-            "choices": [
-                {"text_id": "EV18_BUILD_BTN", "eff_id": "EV18_BUILD_EFF", "tag": "[shield: build]",
-                 "popup_title_id": "EV18_BUILT_TITLE", "popup_id": "EV18_BUILT"},
-                {"text_id": "EV18_SKIP_BTN", "eff_id": "EV18_SKIP_EFF", "tag": "[shield: skip]",
-                 "popup_title_id": "EV18_SKIPPED_TITLE", "popup_id": "EV18_SKIPPED"}]}
-
-
 def asteroid_event() -> dict:
     """T109: EV20 asteroid approach, a choice event. Cost, odds and storage loss come from balance.json (asteroid_*)."""
     return {"id": "EV20", "title_id": "EV20_TITLE", "text_id": "EV20_BODY",
@@ -251,7 +240,6 @@ def build_events(add) -> list:
         add(f"{eid}_BODY", text, 280, "Event text (News from the sky)", "story/events.md", n)
         out.append({"id": eid, "title_id": f"{eid}_TITLE", "text_id": f"{eid}_BODY", "tag": tag, "kind": kind, "choices": []})
     out.append(debris_event())
-    out.append(shield_event())
     out.append(asteroid_event())
     return out
 

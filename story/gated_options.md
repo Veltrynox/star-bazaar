@@ -37,7 +37,6 @@ Rule for every row: the option appears (or is cheaper) only if the player has le
 | BIO_B3 | opt_c | BIO_5 Clinic Contracts | Take the slot by contract | Взять ячейку по контракту | Cheaper. Story: A clinic contract is your credential at the call, and the slot costs less. | As opt_b, slot cost halved |
 | BIO_B4 | opt_c | BIO_3 Seed Bank | Use your own racks | Использовать свои стеллажи | Option appears only with the skill. Story: Your own racks hold the stock, and the derelict hull stays sealed. | As opt_a, no volume dip |
 | EV17 | third button | MIL_1 Drydock Deals | Call your drydock tugs | Вызвать буксиры доков | Cheaper | Debris cleared, fee halved |
-| EV18 | third button | FND_PERMIT Permit Charter | File the permit terms first | Сначала подать условия допуска | Extra payoff | As build, smaller drop in resources |
 | EV20 | third button | MIL_4 Armour Plating | Plate the storage | Обшить склад бронёй | Option appears only with the skill | As decline, no hit chance |
 
 Optional, no gate (owner's example for MIL_B1): opt_d "Disobey" / "Неподчинение": Sell price on one planet down for a set number of cycles, no cost now. Needs a new effect type; see ideas.md item 6.
