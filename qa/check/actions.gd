@@ -43,7 +43,7 @@ extends RefCounted
 ##          establish_here() (map.establish_requested)  flag.establish_post / flag.establish_platform
 ##          set_exploring(on)                          flag.explore       flagship_panel.explore_toggled
 ##          set_boost(on)                              flag.boost         flagship_panel.boost_toggled
-##          request_dock(planet) / dock_do(kind, good, units) / dock_close()   flag.dock_open, flag.dock_buy/sell/load/unload  (dock sheet buttons)
+##          request_dock(planet) / dock_do(kind, good, units) / dock_close()   flag.dock_open, flag.dock_load/unload  (dock sheet buttons)
 ##          fs_queue(step...) / fs_busy() / fs_pump()  queue of Flagship steps: {"op":"fly","planet":i} {"op":"establish"}
 ##                {"op":"fly_establish","planet":i} {"op":"dock","planet":i,"todo":[[kind,good,units],...]} {"op":"gig","uid":s}
 ## GIGS     accept_gig(uid)                            gig.accept          gig_board accept button (main.gig_panel._on_accept)
@@ -668,21 +668,18 @@ func request_dock(planet: int) -> Dictionary:
 	return _res("flag.dock_open", main.dock_sheet != null or main.flight.state() == "flying", _notice(), false)
 
 
-## One hand trade on the open dock sheet: kind buy | sell | load | unload (the sheet buttons). units: lot count (buy max = hold cap).
+## One hand trade on the open dock sheet: kind load | unload (the sheet buttons). units: lot count.
 func dock_do(kind: String, good: String, units: int) -> Dictionary:
+	if kind != "load" and kind != "unload":
+		return {"ok": false, "reason": "no hand trade: " + kind}
 	var fid := "flag.dock_" + kind
 	if main.dock_sheet == null:
 		return _res(fid, false, "dock sheet closed", false)
 	var f = main.flight
 	var h0: int = int(f.hold_total())
-	var c0 := cash()
 	var st0: int = int(main.storage.amount(main.storage.planet_key(int(main.dock_sheet.planet)), good))
 	main.dock_sheet._do(kind, good, units)
-	var moved: bool = int(f.hold_total()) != h0 or cash() != c0 or int(main.storage.amount(main.storage.planet_key(int(main.dock_sheet.planet)), good)) != st0
-	if kind == "sell" and cash() > c0:
-		bot.add_flow("hand_sales", cash() - c0, true)
-	elif kind == "buy" and c0 > cash():
-		bot.add_flow("hand_buys", c0 - cash())
+	var moved: bool = int(f.hold_total()) != h0 or int(main.storage.amount(main.storage.planet_key(int(main.dock_sheet.planet)), good)) != st0
 	return _res(fid, moved, "" if moved else _notice())
 
 

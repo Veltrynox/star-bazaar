@@ -402,20 +402,6 @@
    "note": ""
   },
   {
-   "id": "flag.dock_buy",
-   "title": "Hand buy at the dock sheet",
-   "group": "flagship",
-   "entry": "dock_sheet buttons (_do)",
-   "note": ""
-  },
-  {
-   "id": "flag.dock_sell",
-   "title": "Hand sell at the dock sheet",
-   "group": "flagship",
-   "entry": "dock_sheet buttons (_do)",
-   "note": ""
-  },
-  {
    "id": "flag.dock_load",
    "title": "Load from storage at the dock sheet",
    "group": "flagship",
@@ -467,20 +453,6 @@
   {
    "id": "gig.signal_done",
    "title": "A signal gig finished",
-   "group": "gigs",
-   "entry": "engine (automatic)",
-   "note": ""
-  },
-  {
-   "id": "gig.rush_deliver",
-   "title": "Deliver a rush order",
-   "group": "gigs",
-   "entry": "dock sheet sell or unload",
-   "note": ""
-  },
-  {
-   "id": "gig.offer_rush",
-   "title": "A rush order was posted",
    "group": "gigs",
    "entry": "engine (automatic)",
    "note": ""

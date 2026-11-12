@@ -46,7 +46,7 @@ func each_cycle(c: int) -> void:
 		var w := int(worlds[worlds.size() - 1])
 		for g in a.goods_visible():
 			if int(main.trade.price(w, str(g) + "_buy")) > 0:
-				a.fs_queue({"op": "dock", "planet": w, "todo": [["buy", str(g), 5], ["unload", str(g), 5], ["load", str(g), 5], ["sell", str(g), 5]]})
+				a.fs_queue({"op": "dock", "planet": w, "todo": [["unload", str(g), 5], ["load", str(g), 5]]})
 				_done["dock"] = true
 				break
 	if main.can_mine() and not _done.has("cluster") and not a.cluster_list().is_empty() and worlds.size() >= 1:

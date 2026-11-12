@@ -623,8 +623,6 @@ func _observe_features() -> void:
 		record_feature("bazaar.stage_done", true, "", false)
 	if bool(main.bazaar.opened):
 		record_feature("bazaar.opening", true, "", false)
-	if int(main.gigs.rush_done) > 0:
-		record_feature("gig.rush_deliver", true, "", false)
 	for k in main.gigs.done:
 		record_feature("gig.signal_done", true, "", false)
 	if main.engine.routes.any(func(r): return int(r.get("level", 1)) >= 2):
