@@ -601,6 +601,14 @@ func _row(c: String, prices: Dictionary, pend: Dictionary) -> Control:
 			st.text = StoryText.get_or("LBL_SELL_ORDER_STATE", "Sell order: {state}", {"state": main.engine.local_state(planet_index, c, role)})
 			st.theme_type_variation = "LabelAccent"
 			info.add_child(st)
+	var nc_line: String = _buy_no_cash_line(planet_index, c)
+	if nc_line != "":  # a Buy order that cannot afford one unit: say so on the card, not only in the tooltip
+		var nl := Label.new()
+		nl.name = "BuyNoCash_" + str(c)
+		nl.text = nc_line
+		nl.theme_type_variation = "LabelSmall"
+		nl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		info.add_child(nl)
 	var mp: Dictionary = main.engine.mixed_preview(planet_index)
 	if mp.has(c):
 		var ml := Label.new()
@@ -761,6 +769,15 @@ func _salvage_text(c: String) -> String:
 	return StoryText.get_or("LBL_SALVAGE_NO_BUYER", "Salvage: {n} now (no buyer on your lanes). Sell order pays {m}.", {"n": so["n"], "m": so["m"]})
 
 ## A missing price is a data gap (planets.json), shown as text, never invented.
+## The engine's not-enough-cash state text for a running Buy order, else "". Recognised by the text's fixed start.
+func _buy_no_cash_line(planet_index: int, c) -> String:
+	if not main.engine.local_on(planet_index, c, "buy"):
+		return ""
+	var st: String = main.engine.local_state(planet_index, c, "buy")
+	var tpl: String = StoryText.get_or("ST_NO_CASH_BUY", "Not enough cash: one unit costs {price} cr, {free} cr free after trips.", {"price": "\u0001", "free": "\u0001"})
+	var head: String = tpl.split("\u0001")[0]
+	return st if head != "" and st.begins_with(head) else ""
+
 func _price(v) -> String:
 	return str(v) if v != null else "\u2013"  # compact: no unit, no data shown as a dash
 
