@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-09 12:58 run: T347
-- Summary: The one-time tip card now copies the theme panel style with background alpha 1.0, so border, radius and margins are unchanged; the guided tutorial card is untouched
-- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
-- Approach: built by a worker in worktree ../wt/T347 on branch task/T347, merged by the serial merge queue.
-- Agent prompts: /overnight-worker T347 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T347.log.
-- Worked: rebase, full test suite and fast-forward merge passed.
-- Failed / did not work: nothing.
-- Files and commits: see git log on branch new-features for commits starting with T347.
-- Left to do: nothing for this task.
-
 ## 2026-11-09 17:02 run: T349
 - Summary: Voltara's need is now food (its only candidate was locked ore, so it was Restless forever), and a world with no needs is never Restless; headless tests added
 - Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
@@ -75,3 +65,13 @@
 - Failed / did not work: man_01 torch plume at 180 degrees may touch the left edge at the hull floor size; engine view looks small in the portrait panel; not seen in a real window.
 - Files and commits: see git log on main for T359.
 - Left to do: owner to look at the engine view distance and the whole-ship size in the real window.
+
+## 2026-11-12 14:40 run: T360
+- Summary: The hub is now explained in the game: an always-visible muted paragraph under the hub panel title (ST_HUB_EXPLAIN) and a fuller hover tooltip on Make hub (ST_HUB_MAKE_TIP extended, also on the disabled reason line). English only. Separate commit: the Flagship line and droplet on a cross-system flight now point at the exit point during the out leg (Pathfinder.leg_goal).
+- Why this task: owner request 2026-11-12 (hub panel screenshot) and 'the UI target points to a wrong place' on inter-system flights.
+- Approach: one ui-programmer task for the text; the target fix by the main session (target().pos belongs to the destination system, the view drew to it from the old system).
+- Agent prompts: Agent tool, ui-programmer, brief read from schedule.json T360; handoff handoffs/ui-programmer/2026-11-12-T360.json (written by the main session).
+- Worked: scratch render of the hub panel at 1920x1080 looked at; text wraps to four lines, nothing clipped.
+- Failed / did not work: tooltips and the cross-system line not seen in a window.
+- Files and commits: see git log on main for T360 and the leg_goal commit.
+- Left to do: Russian for ST_HUB_EXPLAIN and ST_HUB_MAKE_TIP (Haiku agents) when the owner asks; owner to fly the Flagship to another system and check the line and droplet at the exit point, then at the real target after the jump.

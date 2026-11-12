@@ -39,6 +39,13 @@ func setup(main_node: Control) -> void:
 	close.text = StoryText.get_or("SK_BTN_CLOSE", "Close")
 	close.pressed.connect(close_screen)
 	head.add_child(close)
+	var explain := Label.new()
+	explain.name = "HubExplain"
+	explain.theme_type_variation = "LabelMuted"
+	explain.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	explain.custom_minimum_size.x = 100.0
+	explain.text = StoryText.get_or("ST_HUB_EXPLAIN", "A hub feeds the worlds around it for you.")
+	_root.add_child(explain)
 	_body = VBoxContainer.new()
 	_body.add_theme_constant_override("separation", 6)
 	_root.add_child(_body)

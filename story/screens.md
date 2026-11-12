@@ -2209,6 +2209,8 @@ ST_DEAD_EMPTY | 50 | route_engine.gd:175
 This world is mined out.
 ST_HUB_ALREADY | 60 | hubs.gd:91
 This world is already a hub.
+ST_HUB_EXPLAIN | 320 | hub_panel.gd, block under the title, always shown
+A hub feeds the worlds around it for you. Give it ships from your free fleet. Each cycle it buys whatever those worlds are short of from the cheapest source in reach and delivers it, for the usual trip cost plus a small hub fee. Untick a world or a good to keep it in your own hands.
 ST_HUB_FED_HUB | 24 | hubs.gd:205
 Fed by hub
 ST_HUB_FED_ROUTE | 40 | hubs.gd:203
@@ -2217,8 +2219,8 @@ ST_HUB_FIRST_NOTICE | 40 | main.gd:2387
 {planet} is now a hub.
 ST_HUB_MAKE | 24 | planet_panel.gd:233
 Make hub
-ST_HUB_MAKE_TIP | 150 | planet_panel.gd:234
-A hub keeps the needs of worlds in its reach fed, with ships from its own pool.
+ST_HUB_MAKE_TIP | 340 | planet_panel.gd:234, hub make button tooltip (also on the reason line)
+Makes this world a hub: it keeps nearby worlds fed on its own. You add ships from your free fleet; each cycle the hub buys what those worlds lack and delivers it, never more than they need. Each delivery costs the trip plus a hub fee. One hub per system; it never draws on Space Storage.
 ST_HUB_MANUAL | 24 | hub_panel.gd:163
 Kept manual
 ST_HUB_NONE_IN_REACH | 50 | hub_panel.gd:131

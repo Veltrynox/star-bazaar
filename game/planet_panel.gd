@@ -241,6 +241,8 @@ func _hub_controls(wrap: VBoxContainer) -> void:
 		var rl := _label(str(can["reason"]))
 		rl.name = "HubReason"
 		rl.theme_type_variation = "LabelMuted"
+		rl.mouse_filter = Control.MOUSE_FILTER_STOP  # labels ignore the mouse by default; the tip needs it
+		rl.tooltip_text = str(can["reason"]) + "\n\n" + StoryText.get_or("ST_HUB_MAKE_TIP", "A hub keeps the needs of worlds in its reach fed, with ships from its own pool.")
 		wrap.add_child(rl)
 
 func _need_row(n: Dictionary) -> Control:

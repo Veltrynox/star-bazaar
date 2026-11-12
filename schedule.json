@@ -3852,6 +3852,25 @@
         "tools/tests/run_tests.gd"
       ],
       "priority": 1
+    },
+    {
+      "task_id": "T360",
+      "title": "Explain the hub: text in the hub panel and a hover tooltip on Make this a hub",
+      "owner_agent": "ui-programmer",
+      "depends_on": [],
+      "status": "done",
+      "turn_cap": 30,
+      "window": "Owner request 2026-11-12: 'we need to explain what the hub does in that menu and also before establishing it in a hover menu'.",
+      "brief": "Owner request 2026-11-12 (screenshot of the hub panel, titled 'Hub: <planet>' with the ship pool, the worlds in reach and Release hub): 'we need to explain what the hub does in that menu and also before establishing it in a hover menu'. Read game/hub_panel.gd, game/hubs.gd, the planet panel code that shows the HUB_MAKE_BTN button ('Make this a hub', grep HUB_MAKE_BTN in game/*.gd) and the Hubs section of story/screens.md (~line 1617) and the hub paragraph of gdd.md. 1) Hub panel: add a short explanation block directly under the title, muted label style (theme_type_variation LabelMuted, autowrap, width like the panel), text id HUB_EXPLAIN. It must be always visible, not only the first time, and must not push the Close and Release buttons off screen at the default window size (panel may get slightly taller or the block may sit in the existing scroll area). 2) Before establishing: the 'Make this a hub' button gets a hover tooltip, text id HUB_MAKE_TIP, using the project's existing tooltip mechanism (find how other buttons set tooltips, e.g. tooltip_text or a Ui helper; match it, do not invent a new popup). The tooltip also shows when the button is disabled (system already has a hub, HUB_NO_SLOT stays as the reason line, add the explanation below it or in the same tooltip). 3) Texts, English only, add to story/screens.md in the Hubs section using the file's id | max | place | text row format (two lines per entry as the file does) and rebuild with python3 tools/build_story.py (never edit data/story_text.json by hand; no Russian). Text (keep these words, trim only if the max length forces it; the numbers in the max column are yours to set so the text fits): HUB_EXPLAIN: 'A hub feeds the worlds around it for you. Give it ships from your free fleet. Each cycle it buys whatever those worlds are short of from the cheapest source in reach and delivers it, for the usual trip cost plus a small hub fee. Untick a world or a good to keep it in your own hands.' HUB_MAKE_TIP: 'Makes this world a hub: it keeps nearby worlds fed on its own. You add ships from your free fleet; each cycle the hub buys what those worlds lack and delivers it, never more than they need. Each delivery costs the trip plus a hub fee. One hub per system; it never draws on Space Storage.' 4) Per CLAUDE.md this is a ui task: one screenshot of the hub panel if sh tools/screenshot.sh can reach it, else a scratch render like handoffs/ui-programmer/2026-11-12-T359.json describes (instantiate the panel in a scratch script under /Volumes/Work/Gamedev/Projects/AgentCourse/wt/_scratch, save the viewport PNG, Read it); fix only objective breakage (clipped text, buttons off screen). Do not run the test suite, do not commit. Add a tiny headless check that both ids exist in StoryText and are non-empty. Handoff handoffs/ui-programmer/2026-11-12-T360.json; also say in it that the Russian for these two ids is still to be written by the Haiku translation agents when the owner asks (do not translate).",
+      "size": "S",
+      "touches": [
+        "game/hub_panel.gd",
+        "game/planet_panel.gd",
+        "story/screens.md",
+        "data/story_text.json",
+        "tools/tests/run_tests.gd"
+      ],
+      "priority": 1
     }
   ],
   "done_task_ids": [

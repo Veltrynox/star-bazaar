@@ -134,6 +134,7 @@ func _run() -> void:
 	await _test_gig_clearance()
 	await _test_skill_link_clip()
 	_test_engine_plume()
+	_test_hub_explain_ids()
 	print("TOTAL pass=%d fail=%d" % [passed, failed])
 	quit(1 if failed > 0 else 0)
 
@@ -9640,3 +9641,7 @@ func _test_engine_plume() -> void:
 	var d := ShipLook.default_look()
 	check(d["shape"] == "torch" and d["palette"] == "infrared" and ShipLook.rival_look()["palette"] == "plasma", "look: defaults come from exhaust.json")
 	check(ShipLook.look_of_ceo("no_such_ceo") == d, "look: unknown CEO falls back to the default look")
+
+func _test_hub_explain_ids() -> void:
+	for id in ["ST_HUB_EXPLAIN", "ST_HUB_MAKE_TIP"]:
+		check(StoryText.get_or(id, "") != "", "hub texts: %s exists and is not empty" % id)

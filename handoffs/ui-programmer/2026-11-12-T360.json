@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-12",
+  "task": "T360",
+  "status": "done",
+  "files_changed": ["game/hub_panel.gd", "game/planet_panel.gd", "story/screens.md", "data/story_text.json", "tools/tests/run_tests.gd"],
+  "open_questions": ["Russian text for ST_HUB_EXPLAIN and ST_HUB_MAKE_TIP is still to be written by the Haiku translation agents when the owner asks."],
+  "handoff": "Hub panel has an always-visible muted explanation (ST_HUB_EXPLAIN) under the title; the Make hub tooltip (ST_HUB_MAKE_TIP, extended in place) explains the hub before it exists, and the disabled reason label carries the same tooltip. Handoff written by the main session from the agent's report; render at wt/_scratch/t360_hub.png showed the text wrapped to four lines with Close and Release hub on screen. Tooltips not seen in a render.",
+  "details": {}
+}
