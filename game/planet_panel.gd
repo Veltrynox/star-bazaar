@@ -21,7 +21,6 @@ const MENU_SALVAGE := 2
 signal salvage_requested(commodity: String)  # N5
 signal tip_seen(key: String)  # T316: a one-time tip trigger was drawn (hungry chip)
 signal order_requested(commodity: String, role: String)  # role: "buy" or "sell" (toggles the local order)
-signal mine_requested(commodity: String)  # dead world: "Mine and send to..." (buy order plus a route to the clicked planet)
 signal send_requested(commodity: String)  # "Send to..." on a storage row
 signal buy_send_requested(commodity: String)  # Buy toggle on a resource row: standing buy order only
 signal remove_requested(route_id: int)
@@ -167,9 +166,12 @@ func rebuild() -> void:
 		mh.text = mh.text.to_upper()
 		box.add_child(mh)
 	box.add_child(grid)
-	if _dead_minable(p):
-		for c in mined:
-			box.add_child(_mine_button(str(c)))
+	if _dead_minable(p) and not mined.is_empty():  # T367: no extra button; the tile is the Buy toggle, right click is Send to
+		var mhint := _label(StoryText.get_or("SCR_MINE_HINT", "Press the resource to mine it each cycle. Right-click it to send it to another world."))
+		mhint.name = "MineHint"
+		mhint.theme_type_variation = "LabelMuted"
+		mhint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		box.add_child(mhint)
 	_bazaar_block()
 	_growth_section()
 	_lane_splits()
@@ -587,25 +589,6 @@ func _progress_text(f) -> String:
 func _dead_minable(p: Dictionary) -> bool:
 	return main.DeadWorlds.is_dead(p) and not main.engine.dead_locked.has(planet_index) and main.engine.dead_skill_reason(planet_index) == ""
 
-## The primary action of a dead world: like Send to..., but the ship mines the good first.
-func _mine_button(c: String) -> Button:
-	var b := Button.new()
-	b.name = "MineSendButton_" + c
-	b.text = StoryText.get_or("BTN_MINE_SEND", "Mine {good} and send to...", {"good": Ui.good_name(c)})
-	b.theme_type_variation = "ButtonSmall"
-	b.custom_minimum_size = Vector2(ACTION_BTN_MIN.x, ACTION_BTN_MIN.y)
-	b.icon = Ui.icon(c)
-	b.expand_icon = true
-	b.add_theme_constant_override("icon_max_width", 18)
-	b.clip_text = true
-	if not main.system_trade_open(planet_index):
-		b.disabled = true
-		b.tooltip_text = main.trade_locked_reason()
-	elif main.tut_lock_active() and not main.tut_allows("send_start", planet_index, c):
-		b.disabled = true
-	b.pressed.connect(func(): mine_requested.emit(c))
-	return b
-
 func _row(c: String, prices: Dictionary, pend: Dictionary) -> Control:
 	# One grid cell per resource: the resource itself (icon, name, buy price) is the Buy toggle; small status lines sit under it.
 	var wrap := VBoxContainer.new()
@@ -801,6 +784,8 @@ func _context_menu(c: String, prices: Dictionary) -> PopupMenu:
 	m.set_item_disabled(i_sell, sell == null or not open or not main.tut_allows("sell", planet_index, c))
 	if not open:
 		m.set_item_tooltip(i_sell, main.trade_locked_reason())
+	if main.DeadWorlds.is_dead(main.map.planets[planet_index]):
+		m.remove_item(i_sell)  # the mine sells nothing: no Sell item on a dead world
 	if main.engine.salvage_reason(planet_index, c) != "":  # N5: stuck stock can be sold off for a share of the Sell price
 		m.add_item(StoryText.get_or("BTN_SALVAGE", "Salvage"), MENU_SALVAGE)
 		m.set_item_disabled(m.get_item_index(MENU_SALVAGE), main.tut_lock_active())

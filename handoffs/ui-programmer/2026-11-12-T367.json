@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-12",
+  "task": "T367",
+  "status": "done",
+  "files_changed": ["game/planet_panel.gd", "game/main.gd", "story/screens.md", "story/ru/h_c01.json", "data/story_text.json", "tools/tests/run_tests.gd"],
+  "open_questions": [],
+  "handoff": "Dead world card: Mine and send button, mine_requested signal and its connect removed; BTN_MINE_SEND removed (EN and stale RU entry). Resource tile left click toggles the mining Buy order (unchanged path), right click opens the normal Send to popup; the popup has no Sell item on a dead world. New muted hint SCR_MINE_HINT under the tile. Gating on dead_skill_reason and unlock cycle unchanged. Tests updated, test _test_dead_mine_tile appended. Not run (per instructions). Only an after picture was rendered.",
+  "details": {"screenshot_after": "/Volumes/Work/Gamedev/Projects/AgentCourse/wt/_scratch/t367_after.png", "scratch_script": "/Volumes/Work/Gamedev/Projects/AgentCourse/wt/_scratch/t367_shot.gd"}
+}

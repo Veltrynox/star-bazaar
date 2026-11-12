@@ -314,7 +314,6 @@ func _ready() -> void:
 	planet_panel.tip_seen.connect(tip_signal)  # T316
 	planet_panel.send_requested.connect(_on_send)
 	planet_panel.buy_send_requested.connect(_on_buy_send)
-	planet_panel.mine_requested.connect(begin_buy_and_send)
 	planet_panel.remove_requested.connect(_remove_requested)
 	planet_panel.found_bazaar_requested.connect(_on_found_bazaar)  # T262
 	planet_panel.make_hub_requested.connect(_on_make_hub)  # T291

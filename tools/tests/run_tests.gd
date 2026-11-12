@@ -133,6 +133,7 @@ func _run() -> void:
 	await _test_gigs()
 	await _test_bazaar_guidance()
 	await _test_bazaar_guidance_ui()
+	await _test_dead_mine_tile()
 	await _test_gig_clearance()
 	await _test_skill_link_clip()
 	_test_engine_plume()
@@ -8939,7 +8940,7 @@ func _test_dest_hint() -> void:
 	check(DestHint.describe(m, 1, -1) == "", "hover card: gone when the pending state ends")
 	await _free_main(m)
 
-## Dead world panel (owner 2026-11-04): locked line, needs-skill line, Mine and send to..., destination refused.
+## Dead world panel (owner 2026-11-04): locked line, needs-skill line, Buy and send, destination refused.
 func _test_dead_world_panel() -> void:
 	_wipe_user()
 	var m: Control = await _new_main()
@@ -8969,12 +8970,11 @@ func _test_dead_world_panel() -> void:
 	m.learned_skills.append("FND_PROSPECT")
 	pp.rebuild()
 	await process_frame
-	var mb = pp.box.find_child("MineSendButton_dross", true, false)
-	check(mb != null and pp.box.find_child("BuyButton_dross", true, false) != null and pp.box.find_child("DeadNeedsSkillLine", true, false) == null, "dead panel: with skill and cycle the dross row and Mine button show")
+	check(pp.box.find_child("BuyButton_dross", true, false) != null and pp.box.find_child("DeadNeedsSkillLine", true, false) == null, "dead panel: with skill and cycle the dross row shows")
 	m.cash = 6000
 	m.ships = 0
-	mb.pressed.emit()
-	check(not m.pending.is_empty() and int(m.pending["planet"]) == d1 and bool(m.pending.get("buy", false)), "dead panel: Mine starts a pending send from the dead world")
+	m.begin_buy_and_send("dross")
+	check(not m.pending.is_empty() and int(m.pending["planet"]) == d1 and bool(m.pending.get("buy", false)), "dead panel: a Buy and send starts a pending send from the dead world")
 	m._on_planet_clicked(0)
 	check(m.pending.is_empty() and m.engine.routes.size() == 1 and int(m.engine.routes[0]["a"]) == d1 and m.ships == 1, "dead panel: clicking a planet makes the route from the dead world and buys a ship", str(m.engine.routes))
 	# a dead world clicked as a destination is refused with a reason
@@ -9717,3 +9717,30 @@ func _find_all_named(n: Node, nm: String) -> Array:
 			out.append(c)
 		out.append_array(_find_all_named(c, nm))
 	return out
+
+## T367: a minable dead world's card has no "Mine ... and send to" button; the resource tile is the Buy toggle, with the hint line.
+func _test_dead_mine_tile() -> void:
+	_wipe_user()
+	var m: Control = await _new_main()
+	m._dismiss_preface()
+	var d1: int = -1
+	for i in m.map.planets.size():
+		if str(m.map.planets[i].get("id", "")) == "dead_1":
+			d1 = i
+	var pp = m.planet_panel
+	m.cycle = int(m.balance["dead_unlock_cycle"])
+	m._sync_dead_lock()
+	Skills.add_learned("FND_PROSPECT")
+	m.learned_skills.append("FND_PROSPECT")
+	m.cash = 6000
+	m._on_planet_clicked(d1)
+	await process_frame
+	var bad := false
+	for b in pp.box.find_children("*", "Button", true, false):
+		if "and send to" in b.text:
+			bad = true
+	var tile = pp.box.find_child("BuyButton_dross", true, false)
+	check(not bad and pp.box.find_children("MineSendButton_*", "Button", true, false).is_empty() and tile != null and pp.box.find_child("MineHint", true, false) != null, "T367: dead card has no Mine and send button, has the tile and the hint")
+	tile.pressed.emit()
+	check(m.engine.local_on(d1, "dross", "buy"), "T367: pressing the dead world tile sets the Buy order")
+	await _free_main(m)

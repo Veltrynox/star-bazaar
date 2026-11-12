@@ -477,8 +477,8 @@ ST_CLUSTER_SHARED | 60 | Route panel, status when another ship took the cycle's 
 DEAD_UNLOCK | 110 | Notice, posted when the dead worlds open | Dead worlds are open. Prospecting lets you mine them.
 PLANET_DEAD_LOCKED | 60 | Planet panel, dead world before it opens; {n} is the cycle | Opens at cycle {n}.
 NOT_DEAD_NEEDS_SKILL | 110 | Notice, route from a dead world without its skill; {skill} is the skill name | Mining here needs {skill}.
-BTN_MINE_SEND | 40 | Planet panel, dead world, button under the mined goods; {good} is the good name | Mine {good} and send to...
 LBL_MINE_ROW_TIP | 80 | Planet panel, dead world, tooltip of a mined good | Mine here every cycle. Press to stop.
+SCR_MINE_HINT | 100 | Planet panel, dead world, muted line under the mined goods | Press the resource to mine it each cycle. Right-click it to send it to another world.
 SCR_MINE_HEADER | 30 | Planet panel, dead world, caption above the mined goods | Mining
 SCR_MINE_YIELD | 40 | Planet panel, dead world, under the mined good; {n} is units per trip | {n} per trip
 SCR_MINE_COST | 60 | Planet panel, dead world, line under the mined good; {price} is credits per unit | Mining cost: {price} per unit

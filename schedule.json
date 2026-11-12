@@ -3949,6 +3949,60 @@
         "tools/tests/run_tests.gd"
       ],
       "priority": 1
+    },
+    {
+      "task_id": "T365",
+      "title": "Skill screen connector lines match the node boxes and do not cross",
+      "owner_agent": "ui-programmer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 40,
+      "window": "Owner report 2026-11-12: 'the lines are visibly not matching, many lines intersect each other on the skill screen'.",
+      "brief": "Owner report 2026-11-12 with a screenshot of the skill screen: 'the lines are visibly not matching, many lines intersect each other on the skill screen'. The connector lines between skill nodes (prerequisite links, drawn in game/skill_screen.gd / game/skill_tree.gd; the lines are amber-gold elbow lines going from a node down to its dependants) do not line up with the node boxes and cross each other. 1) FIND THE CAUSE by rendering, not guessing: write a scratch script under /Volumes/Work/Gamedev/Projects/AgentCourse/wt/_scratch that builds a main (see how tools/screenshot_scene.gd or the ui tests open the skill screen, e.g. main.skill_screen, main.open_skills or the K key handler), opens the skill screen with several skills learned and some not, and saves the viewport PNG at 1920x1080 and at 1280x720 (set the window / root size); Read the PNGs. Compare each drawn connector's endpoints with the node rectangles (print both from the code that draws them): candidates are lines computed from layout positions before the container layout settled (stale rects, drawn on the first frame only), a different coordinate space than the nodes (scroll offset, the tree gutter, ring grow of RING_GAP), the node wrap onto a second line (MAX_ROW_CELLS) that the connector router ignores, and several dependants sharing one vertical channel so their horizontal runs overlap and cross. 2) FIX it at the cause: every connector must start at the bottom-centre of the prerequisite node's box and end at the top-centre of the dependant's box, routed as one clean elbow (down, across, down) whose horizontal run sits in the gap between the two rows, with lines of one parent sharing a single trunk; two connectors never cross a node box, and where two different parents' lines must cross, minimise crossings by ordering or by a small offset per parent so that parallel runs are separated, not overlapping. Lines are recomputed after the layout settles and on window resize and scroll (no stale positions), and drawn UNDER the nodes. Keep the existing colours, widths and the learned / available / locked line states exactly as they are. 3) Verify with your own renders at both sizes for every market tree and the Foundations block; Read them and fix only objective breakage. Add a headless test (own function registered in the test list) that opens the skill screen and asserts for each connector that its start lies on the bottom edge of the prerequisite box and its end on the top edge of the dependant box (within 1 px) and that no connector's polyline passes through a third node's box. Per CLAUDE.md: no test suite run, no QA bots, do not commit. Never edit data/story_text.json by hand. Handoff handoffs/ui-programmer/2026-11-12-T365.json with the root cause and the PNG paths.",
+      "size": "M",
+      "touches": [
+        "game/skill_screen.gd",
+        "game/skill_tree.gd",
+        "tools/tests/run_tests.gd"
+      ],
+      "priority": 1
+    },
+    {
+      "task_id": "T366",
+      "title": "Wing popup: banner card in the game's style (rounded, fading, inside the border)",
+      "owner_agent": "ui-programmer",
+      "depends_on": [],
+      "status": "done",
+      "turn_cap": 30,
+      "window": "Owner feedback 2026-11-12 on the wing pictures.",
+      "brief": "Owner feedback 2026-11-12 on the wing choice popup (game/bazaar_panel.gd show_wing_choice): 'the images are very similar, have too much detail for that size, and don't fit the existing images' style; they are square and don't fit into the borders, which contradicts the style of the game'. The main session already replaced the six pictures assets/wings/wing_1a.png ... wing_3b.png with simple painterly banners in the same style and size as the game's event banners (480x160, 3:1, dark navy edges, one focal subject each, distinct colours: 1a amber crate crane, 1b cyan dish and ringed planet, 2a gold toll gate, 2b ember forge, 3a violet lantern, 3b teal courier ship) and re-imported them. YOUR JOB is the UI: show the wing picture exactly the way event notices show their banner: reuse class BannerArt in game/event_notice.gd (read it first: ~line 144; it draws the texture with rounded TOP corners of the card radius and a fade into the card colour at the foot). Move BannerArt to its own file game/banner_art.gd (class name or preload constant, keep game/event_notice.gd using it unchanged in behaviour) so both screens share it. In the wing popup each card becomes one framed card (StyleBoxFlat in the popup's panel style, same corner radius as the popup frame, 1 px border like the other panels, no square image): the banner runs edge to edge across the top of the card with the card's top corners rounded and the fade at its foot, the wing name sits on the foot of the fade (like the event title: separation -28 in event_notice.gd), then the one-line effect, the description with {n} filled as before, and the pick button inside the card at the bottom. The two cards sit side by side with a gap; the popup stays within the viewport at 1280x720 and 1920x1080. A missing image leaves the card without banner and no gap. The Wings tooltip row in the Bazaar panel is unchanged. Verify with your own renders at 1920x1080 and 1280x720 (scratch script under /Volumes/Work/Gamedev/Projects/AgentCourse/wt/_scratch that builds a main, founds the Bazaar, sets wing_pending and calls show_wing_choice; the earlier script wt/_scratch/t362.gd does this for the popup): Read the PNGs; fix only objective breakage (square image corners, image not inside the border, clipped text, buttons off screen). Per CLAUDE.md no test suite run, do not commit; keep the existing UI test for the wing popup passing (read _test_bazaar_guidance_ui in tools/tests/run_tests.gd and update assertions that look for the old TextureRect structure). Other agents are editing game/skill_screen.gd and game/skill_tree.gd: do not touch them. Never edit data/story_text.json by hand. Handoff handoffs/ui-programmer/2026-11-12-T366.json with the PNG paths.",
+      "size": "S",
+      "touches": [
+        "game/event_notice.gd",
+        "game/banner_art.gd",
+        "game/bazaar_panel.gd",
+        "tools/tests/run_tests.gd"
+      ],
+      "priority": 1
+    },
+    {
+      "task_id": "T367",
+      "title": "Dead world card: remove the Mine and send button, the resource tile acts like on any planet",
+      "owner_agent": "ui-programmer",
+      "depends_on": [],
+      "status": "done",
+      "turn_cap": 35,
+      "window": "Owner report 2026-11-12: 'remove the button from this planet, Buy X and send; the resource button should act like on any other planet'.",
+      "brief": "Owner report 2026-11-12 with a screenshot of a dead world's planet card (Cinderrest, a mining world: section 'Mining', one resource tile showing 78/100 and '22 per trip', the line 'Mining cost: 10 per unit', and a wide button 'Mine Rivets and send to...'): 'remove the button from this planet, Buy X and send. The resource button should act like on any other planet to buy and sell stuff'. Read game/planet_panel.gd: _mine_button (~line 591) and its use at ~170-172, the signal mine_requested (~line 24) and whoever connects it in game/main.gd (grep mine_requested, _on_mine_requested, begin_buy_and_send, BTN_MINE_SEND), the goods tile code (~lines 680-770: the Buy / Sell toggles, tooltips LBL_MINE_ROW_TIP, the dead-world branch 'mining' that shows the yield per trip). DO: (1) remove the 'Mine X and send to...' button for dead worlds completely: the button, its signal and handler if nothing else uses them (check game/main.gd, tutorial code and tools/tests/run_tests.gd), the story id BTN_MINE_SEND from story/screens.md if nothing else uses it (rebuild with python3 tools/build_story.py; never edit data/story_text.json by hand; if a lint needs the id kept, keep it). (2) The resource tile of a minable dead world must behave exactly as a tile on any other planet: left click toggles the Buy order (here: mining that good every cycle, the existing LBL_MINE_ROW_TIP tooltip says so; keep the stock bar, the price line and the yield per trip), right click opens the same goods popup with 'Send to...' (the one the owner knows from other planets, see the Send to flow and TIP / gdd lines 'A right click on an explored planet opens a small popup of its goods as icons'), and the connection lines, Sell and Send behaviour are the normal ones. If the right-click popup or the Sell toggle is currently suppressed for dead worlds, enable the popup; Sell stays hidden on a dead world (the mine sells nothing, see data/planets.json note on mines_by_branch) unless the code for other planets already offers it. Check that mining still gates on dead_skill_reason and the unlock cycle exactly as before (a locked world shows its existing reason line, no tile press). Do not change mining prices, yields or any balance number. (3) The first-time explanation: make sure a player can tell what the tile does without the button: if the dead-world section header SCR_MINE_HEADER has no hint line, add one muted line under the tile (new id SCR_MINE_HINT, English only, e.g. 'Press the resource to mine it each cycle. Right-click it to send it to another world.') and rebuild the story data. Per CLAUDE.md this is a ui task: render the dead world's card before and after with a scratch script under /Volumes/Work/Gamedev/Projects/AgentCourse/wt/_scratch (build a main, open the planet panel of a dead world with its skill learned, e.g. set Skills.learned and main.engine state as the existing dead-world tests do, save the viewport PNG) and Read it; fix only objective breakage. Update the tests that used the mine button; add one asserting the card of a minable dead world has no 'Mine ... and send to' button and that pressing the tile sets the Buy order. Do not run the test suite, do not commit. Other agents are editing game/skill_screen.gd, game/skill_tree.gd, game/bazaar_panel.gd, game/event_notice.gd: do not touch them. Handoff handoffs/ui-programmer/2026-11-12-T367.json with the PNG paths.",
+      "size": "S",
+      "touches": [
+        "game/planet_panel.gd",
+        "game/main.gd",
+        "story/screens.md",
+        "data/story_text.json",
+        "tools/tests/run_tests.gd"
+      ],
+      "priority": 1
     }
   ],
   "done_task_ids": [

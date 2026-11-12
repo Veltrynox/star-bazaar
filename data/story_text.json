@@ -1796,16 +1796,16 @@
    "place": "Notice, route from a dead world without its skill; {skill} is the skill name"
   },
   {
-   "id": "BTN_MINE_SEND",
-   "text": "Mine {good} and send to...",
-   "max": 40,
-   "place": "Planet panel, dead world, button under the mined goods; {good} is the good name"
-  },
-  {
    "id": "LBL_MINE_ROW_TIP",
    "text": "Mine here every cycle. Press to stop.",
    "max": 80,
    "place": "Planet panel, dead world, tooltip of a mined good"
+  },
+  {
+   "id": "SCR_MINE_HINT",
+   "text": "Press the resource to mine it each cycle. Right-click it to send it to another world.",
+   "max": 100,
+   "place": "Planet panel, dead world, muted line under the mined goods"
   },
   {
    "id": "SCR_MINE_HEADER",
