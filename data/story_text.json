@@ -1610,12 +1610,6 @@
    "place": "Space Storage view, under the capacity line: the rule for delivered goods"
   },
   {
-   "id": "SS_BTN_SEND",
-   "text": "Send to...",
-   "max": 16,
-   "place": "Space Storage view, button on a good row: start a route out of the storage"
-  },
-  {
    "id": "SS_TIP_SEND",
    "text": "Send this good from the Space Storage to a planet: click the planet on the map next.",
    "max": 90,

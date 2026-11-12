@@ -35,6 +35,9 @@
 - Windowed single screenshot for the overnight Quick look: `sh tools/screenshot.sh --out logs/screenshots/<task>.png` (not QA; main session only)
 - Never prefix these with `cd &&` or `HOME=`.
 
+## Resource buttons (owner rule 2026-11-12)
+- A good shown in any panel IS its own action button (icon plus amount, as the planet goods tiles): click or right click starts its action (Buy toggle, Send to...). Never add a separate 'Send to...' or 'Buy' button next to a resource, unless the owner says otherwise for that screen.
+
 ## Availability rule (progressive disclosure)
 - A new good, workshop or storage feature needs a rule in that file first. Use `Availability` (`game/availability.gd`) in any UI that lists goods; hidden means not drawn at all.
 - Check: `sh tools/tests/run.sh` runs `_test_availability` (start state, per-rule show/hide, text scan, data lint). Run it only when the owner asks (see Scope discipline); then it must pass before the change is handed off.

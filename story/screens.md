@@ -440,7 +440,6 @@ LBL_SPACE_STORAGE_NAME | 32 | Route row, name of the station end of a route | Sp
 
 ## Storage projection (added 2026-11-03)
 SS_LBL_STOCK_RULE | 140 | Space Storage view, under the capacity line: the rule for delivered goods | Goods stay until a recipe, link upkeep, Storage Link or a route you send from here takes them. Planet routes and Sells never draw on it.
-SS_BTN_SEND | 16 | Space Storage view, button on a good row: start a route out of the storage | Send to...
 SS_TIP_SEND | 90 | Space Storage view, tooltip on Send to... | Send this good from the Space Storage to a planet: click the planet on the map next.
 SS_TIP_SEND_NONE | 70 | Space Storage view, tooltip on a disabled Send to... | Nothing to send: none in stock and none on its way.
 SS_LBL_ROUTES_OUT | 24 | Space Storage view, title of the list of routes sent out of this storage | Sent out from here

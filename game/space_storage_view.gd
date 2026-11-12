@@ -79,22 +79,29 @@ func refresh() -> void:
 		var bar := RatingBar.new()
 		bar.level = main.storage.rating(key, str(c))
 		row.add_child(bar)
-		row.add_child(Ui.good_icon(str(c), 16))
-		var l := Label.new()
-		l.text = "%s  %d/%d" % [Ui.good_name(str(c)), main.storage.amount(key, str(c)), cap]
-		l.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-		l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		row.add_child(l)
-		var sb := Button.new()  # T373: start a route out of the storage; the next planet clicked is the destination
+		# T373 / owner rule 2026-11-12: the resource itself is the send button, as on planet cards (no separate Send to... button)
+		var can_send: bool = main.engine.station_can_send(system_id, str(c))
+		var sb := Button.new()
 		sb.name = "Send_" + str(c)
 		sb.theme_type_variation = "ButtonSmall"
-		sb.text = StoryText.get_or("SS_BTN_SEND", "Send to...")
-		var can_send: bool = main.engine.station_can_send(system_id, str(c))
+		sb.icon = Ui.good_icon(str(c), 16).texture
+		sb.expand_icon = false
+		sb.add_theme_constant_override("icon_max_width", 16)
+		var gc: Color = Ui.commodity_col(str(c)) if Ui.commodity_col(str(c)) != Color.WHITE else Ui.col("ink")  # the good keeps its own colour, as on planet tiles
+		for st in ["icon_normal_color", "icon_hover_color", "icon_pressed_color", "icon_focus_color", "icon_hover_pressed_color"]:
+			sb.add_theme_color_override(st, gc)
+		sb.add_theme_color_override("icon_disabled_color", Color(gc.r, gc.g, gc.b, 0.45))
+		sb.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		sb.text = "%s  %d/%d" % [Ui.good_name(str(c)), main.storage.amount(key, str(c)), cap]
+		sb.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		sb.disabled = not can_send
-		sb.tooltip_text = StoryText.get_or("SS_TIP_SEND", "Send this good from the Space Storage to a planet: click the planet on the map next.") if can_send else StoryText.get_or("SS_TIP_SEND_NONE", "Nothing to send: none in stock and none on its way.")
+		sb.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND if can_send else Control.CURSOR_ARROW
+		sb.tooltip_text = (StoryText.get_or("SS_TIP_SEND", "Send this good from the Space Storage to a planet: click the planet on the map next.") if can_send else StoryText.get_or("SS_TIP_SEND_NONE", "Nothing to send: none in stock and none on its way.")) + "\n\n" + GoodInfo.block(str(c))
 		sb.pressed.connect(_on_send.bind(str(c)))
+		sb.gui_input.connect(func(ev: InputEvent) -> void:  # a right click sends too, the same gesture as on a planet tile
+			if can_send and ev is InputEventMouseButton and ev.pressed and ev.button_index == MOUSE_BUTTON_RIGHT:
+				_on_send(str(c)))
 		row.add_child(sb)
-		row.tooltip_text = GoodInfo.block(str(c))  # hover: what the good is and how it is used
 		box.add_child(row)
 	_routes_out()
 	_fabric_rows()

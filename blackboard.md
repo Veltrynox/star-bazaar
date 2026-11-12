@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-12 19:10 run: T365 (main session)
-- Summary: Skill screen prerequisite lines redone by the main session after the ui-programmer's attempt was stopped (its partial edit reverted): thin orthogonal routes (1 px locked, 1.5 px learned), down into the gap under the parent, across, down a clear lane beside any node in the way, across above the child, into it; two nodes on one line join side to side; routes cached per layout (cell rects fingerprinted at draw), the learn animation only recolours. Old mid-row horizontals and the clip-through-nodes code are gone.
-- Why this task: owner report 2026-11-12 ('lines visibly not matching, many lines intersect'); owner asked the main session to do it after the agent's version could not open the window.
-- Approach: rendered the screen from the owner's autosave at 1920x1080 and 1280x720 before and after (wt/_scratch/skills.png, skills_after.png, skills_720.png); cause was the horizontal run at the midpoint between parent and child (inside intermediate wrapped lines) and verticals through nodes under the parent; fixed in game/skill_screen.gd route_link; test _test_skill_link_clip replaced by _test_skill_link_route.
-- Agent prompts: none (ui-programmer T365 killed before the handoff).
-- Worked: both renders looked at: no line through a node, lanes shared, nothing clipped.
-- Failed / did not work: lines still cross each other where a lane meets another parent's bus (circuit look, accepted); a link's short stub can overlap a sibling's lit stub in a different colour.
-- Files and commits: see git log on main for T365.
-- Left to do: owner to look at the skill screen windowed.
-
 ## 2026-11-12 19:40 run: T368
 - Summary: The seven gig hooks (the line under a signal on the gig board) are short story paragraphs now, 239 to 342 characters, in the voice of the arrival texts: what the crew hears, where it comes from, one pulling detail, why nobody answered; the _HOOK limit in tools/build_story.py is 420 (was 140). English only; the Russian hooks are the old short ones until the owner asks for a translation.
 - Why this task: owner request 2026-11-12 ('replace this haiku with something more storytelling, x3').
