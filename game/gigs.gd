@@ -188,8 +188,8 @@ func on_cycle(cycle: int) -> void:
 	_gen_rush(cycle)
 	if not enabled() or not board_room() or not open_signal().is_empty():
 		return
-	if cycle < int(_bal("gig_first_cycle")) or cycle - last_signal_cycle < int(_bal("gig_gap_cycles")) or signals_seen >= int(_bal("gig_cap_signals")):
-		return
+	if cycle < int(_bal("gig_first_cycle")) or cycle - last_signal_cycle < int(_bal("gig_gap_cycles")) or signals_seen >= maxi(int(_bal("gig_cap_signals")), int(_bal("gig_cap_signals_hard"))):
+		return  # no signal is open here, so past the soft cap the board still draws one, up to the hard cap (2026-11-12)
 	var elig: Array = []
 	for g in defs:
 		if eligible(g):
@@ -379,6 +379,21 @@ func _unmet_goods(i: int) -> Array:
 			out.append(str(n["good"]))
 	return out
 
+## Rush rule (2026-11-12): a rush order may ask only for a good some open, established world sells to the player, or one the company
+## holds anywhere (planet storage, Space Storage, Flagship hold). Ore is an industrial input and is never asked for.
+func _obtainable(good: String) -> bool:
+	if good == "" or good == "ore":
+		return false
+	for j in main.map.planets.size():
+		if main.planet_established(j):
+			var bp = main.map.planets[j].get("base_prices")
+			if typeof(bp) == TYPE_DICTIONARY and bp.has(good + "_buy"):
+				return true
+	for key in main.storage.stock:
+		if int((main.storage.stock[key] as Dictionary).get(good, 0)) > 0:
+			return true
+	return main.flight.hold_units(good) > 0
+
 ## One candidate per world: {planet, good, weight, why}. Reasons: "shortage" (weather hook), "tier" (one step from a tier-up with a short need),
 ## "restless". A world with a reason but no unmet visible need is skipped, except a shortage (it names its own good).
 func rush_candidates(cycle: int) -> Array:
@@ -412,6 +427,15 @@ func rush_candidates(cycle: int) -> Array:
 			if good == "":
 				good = str(unmet[0])
 		if weight <= 0.0 or good == "":
+			continue
+		var ok_unmet: Array = []
+		for ug in unmet:
+			if _obtainable(str(ug)):
+				ok_unmet.append(ug)
+		unmet = ok_unmet
+		if why != "shortage" and not unmet.is_empty():
+			good = str(unmet[0])
+		if not _obtainable(good):
 			continue
 		out.append({"planet": i, "good": good, "weight": weight, "why": why, "unmet": unmet})
 	return out

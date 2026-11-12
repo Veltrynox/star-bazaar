@@ -201,7 +201,7 @@ func set_upkeep(main: Control) -> void:
 	_set_core_buttons(main)
 	core_scroll.custom_minimum_size.y = minf(UPKEEP_MAX_H * 0.7, core_box.get_combined_minimum_size().y)
 	var free: int = main.free_ships()
-	var price := Ships.price(Ships.fleet, main.balance)
+	var price: int = main.ship_price()
 	var cap: int = main.ship_cap()
 	var txt: String = StoryText.get_or("LBL_SHIPS_FREE_HINT", "Free ships: {free}. Ship upkeep {upkeep} / cycle each.", {"free": free, "upkeep": main.engine.upkeep_part()})
 	if free <= 0:
@@ -218,7 +218,7 @@ func set_upkeep(main: Control) -> void:
 	for kind in [Ships.fleet]:
 		var b: Button = buy_buttons["fleet"]
 		var r: Dictionary = main.can_buy_ship(kind)
-		b.text = StoryText.get_or("BTN_BUY_SHIP", "Buy {ship} ({price} cr, upkeep {upkeep})", {"ship": Ships.display_name(kind), "price": Ships.price(kind, main.balance), "upkeep": main.engine.upkeep_part({"ship": kind})})
+		b.text = StoryText.get_or("BTN_BUY_SHIP", "Buy {ship} ({price} cr, upkeep {upkeep})", {"ship": Ships.display_name(kind), "price": main.ship_price(), "upkeep": main.engine.upkeep_part({"ship": kind})})
 		b.disabled = not r["ok"] or main.tut_lock_active()
 		b.tooltip_text = str(r["reason"])
 

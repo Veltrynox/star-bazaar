@@ -36,6 +36,8 @@ var dead_locked: Array = []  # planet indexes of dead worlds that are not open y
 var raids: RefCounted = null  # T296: Raids (game/raids.gd), set by main; null = no raids. Lane malus and the trip share a raid takes.
 var upkeep_out: Callable = Callable()  # T227: (key, good, stock) -> units storage upkeep takes from this stock next cycle (set by main)
 var bill_need_fn: Callable = Callable()  # (planet, good) -> units the Bazaar stage bill still needs there (0 off the capital), set by Bazaar.setup; empty = none
+var owned_ships_fn: Callable = Callable()  # () -> ships the company owns; the ones on no route pay ship_idle_upkeep (set by main; empty = none)
+var workshops: RefCounted = null  # set by main: built workshops decide which Buy orders settle first
 var trade_gate: Callable = Callable()  # owner 2026-11-03: planet -> bool, false when its system has no Space Storage post (set by main)
 var suns_fn: Callable = Callable()  # route offset: () -> Array of [Vector3 position, float radius] per sun, set by main from the map
 var positions_fn: Callable = Callable()  # route offset: () -> Array of world positions (Vector3) per planet index, set by main from the map
@@ -309,12 +311,64 @@ func offset_of(rec = null) -> float:
 func offset_maint_mult(rec = null) -> float:
 	return 1.0 + float(balance.get("route_offset_maint_pct", 0.0)) * offset_of(rec)
 
-## T69: ship upkeep part of the fixed cost (one ship per route, paid only while it moves stock).
+## T69: ship upkeep part of the fixed cost (one ship per route). Since 2026-11-12 it is charged every cycle, see idle_route_upkeep.
 func upkeep_part(rec = null) -> int:
 	var upkeep := float(balance.get("maintenance", 0))
 	upkeep *= maxf(float(balance.get("upkeep_floor", 0.0)), Ships.upkeep_mult(kind_of(rec), balance) * Skills.upkeep_mult())  # ship type x skills x CEO thrift, floored
 	upkeep *= offset_maint_mult(rec) * Chains.upkeep_mult()
 	return floori(upkeep / maxf(1.0, float(balance.get("maintenance_interval", 1))))
+
+## A ship is paid for whether or not its lane ran: a route that idles, stalls or is blocked still costs its upkeep part (not the trip cost).
+## Hub delivery records (owner set) are not ships of their own: the pool ship pays ship_idle_upkeep instead.
+func idle_route_upkeep(rec: Dictionary) -> int:
+	return 0 if str(rec.get("owner", "")) != "" else upkeep_part(rec)
+
+## Ships on no route and ships in a hub pool pay ship_idle_upkeep each, every cycle.
+func idle_ship_count() -> int:
+	if not owned_ships_fn.is_valid():
+		return 0
+	var on_routes := 0
+	for r in routes:
+		if str(r.get("owner", "")) == "":
+			on_routes += 1
+	return maxi(0, int(owned_ships_fn.call()) - on_routes)
+
+func idle_ship_cost() -> int:
+	return idle_ship_count() * maxi(0, int(balance.get("ship_idle_upkeep", 0)))
+
+## True when a Buy order at `planet` for `c` feeds the input of a built workshop: some route carries `c` from that planet into the
+## Space Storage of the workshop's system and the good is an input of one of its recipes.
+func feeds_workshop(planet: int, c: String) -> bool:
+	if workshops == null:
+		return false
+	for ws in workshops.IDS:
+		if not bool(workshops.built.get(ws, false)):
+			continue
+		var fed := false
+		for g in Goods.recipes_of(ws):
+			if Goods.recipe(g).has(c):
+				fed = true
+		if not fed:
+			continue
+		for rec in routes:
+			if int(rec["a"]) == planet and str(rec["c"]) == c and int(rec["b"]) == -workshops.system_of(ws):
+				return true
+	return false
+
+## The Buy orders in settle order: a stable sort that puts orders feeding a built workshop's input first, so the cash left after the
+## route reserve goes to the feed lanes before the trading lanes (economy check 3.5). Sell orders are not touched.
+func buy_order_list(orders: Array) -> Array:
+	var first: Array = []
+	var rest: Array = []
+	for o in orders:
+		if not o["buy"]:
+			continue
+		if feeds_workshop(int(o["planet"]), str(o["c"])):
+			first.append(o)
+		else:
+			rest.append(o)
+	first.append_array(rest)
+	return first
 
 ## T70: outflow at a destination = an enabled local Sell order for the commodity there, or an
 ## outgoing route from that storage for the commodity. Only then a full storage will drain.
@@ -504,9 +558,20 @@ func check_connection(src: int, dst: int, c: String, new_route: bool = true) -> 
 		return {"ok": false, "reason": dead_skill_reason(src)}
 	if new_route and _mined_pid(src) != "" and dead_mining_reason(src) != "":  # T295
 		return {"ok": false, "reason": dead_mining_reason(src)}
+	if new_route and not source_has_good(src, c):  # the source must sell, mine or hold the good (2026-11-12)
+		return {"ok": false, "reason": StoryText.get_or("RT_ERR_SRC_NO_GOOD", "The source world has none of this good.")}
 	if int(trade.planets[src].get("system", 1)) != int(trade.planets[dst].get("system", 1)) and not Skills.unlocked("permit_routes"):
 		return {"ok": false, "reason": StoryText.get_text("NOT_ROUTE_NEEDS_C3")}
 	return {"ok": true, "reason": ""}  # T87: a second ship on the same lane is allowed
+
+## The source world prices the good for sale to the player, is a mine that yields it, or the company holds it there (planet or Space Storage).
+func source_has_good(src: int, c: String) -> bool:
+	if local_price(src, c, "buy") >= 0 or _mined_pid(src) != "":
+		return true
+	if storage.amount(storage.planet_key(src), c) > 0:
+		return true
+	var sk := space_key_for(src)
+	return sk != "" and storage.amount(sk, c) > 0
 
 ## T156: a route that starts at a cluster. Needs the mining skill, a known cluster that still has ore (new routes only),
 ## a planet destination that is open, and FND_PERMIT for another system. Ore is free to load; the cost is the lane (fixed_cost).
@@ -912,9 +977,7 @@ func forecast(cash: int) -> Dictionary:
 	var loc: Array = []
 	var res: Array = []
 	var orders: Array = local.values()
-	for o in orders:  # 1 local buys
-		if not o["buy"]:
-			continue
+	for o in buy_order_list(orders):  # 1 local buys (feed lanes first)
 		var p := int(o["planet"])
 		var c := str(o["c"])
 		var price := local_price(p, c, "buy")
@@ -1043,8 +1106,15 @@ func forecast(cash: int) -> Dictionary:
 				mixed[p] = {"goods": int(m["goods"]) + 1, "bonus": int(m["bonus"]) + b, "mk": _add_mk(m["mk"], c)}
 		delta += credits
 		loc.append({"label": StoryText.get_or("RT_LINE_SELL", "Sell {good} at {planet}", {"good": Ui.good_name(c).to_lower(), "planet": _pname(p)}), "role": "sell", "planet": p, "c": c, "credits": credits, "state": state, "n": sold_n, "unit": sold_price(p, c)})
+	for k in routes.size():  # a route that does not move still pays its ship upkeep (idle_route_upkeep)
+		res[k]["idle_upkeep"] = 0
+		if not bool(res[k]["moves"]):
+			res[k]["idle_upkeep"] = idle_route_upkeep(routes[k])
+			delta -= int(res[k]["idle_upkeep"])
+	var idle_ships := idle_ship_cost()
+	delta -= idle_ships
 	_attribute_lanes(loc, res)
-	return {"local": loc, "routes": res, "delta": delta}
+	return {"local": loc, "routes": res, "delta": delta, "idle_ships": idle_ship_count(), "idle_ships_cost": idle_ships}
 
 ## Lane result per cycle, added to each route line of forecast(): sale (what the units it carries fetch at the
 ## destination Sell order), cost (what those units cost at the source Buy order), net = sale + gross - cost - paid.
@@ -1136,9 +1206,8 @@ func settle(cash: int) -> Dictionary:
 	sales_up_units = {}
 	var amt_now := func(k: String, c: String) -> int: return storage.amount(k, c)
 	delta += _fill_needs_from_storage(loc)  # 0 goods already stored at a world fill its needs first
-	for o in orders:  # 1 local buys; they may not spend the fixed cost of a route that runs this cycle
-		if o["buy"]:
-			delta += _run_local(o, "buy", cash + delta - route_reserve(cash + delta, amt_now), loc)
+	for o in buy_order_list(orders):  # 1 local buys, feed lanes first; they may not spend the fixed cost of a route that runs this cycle
+		delta += _run_local(o, "buy", cash + delta - route_reserve(cash + delta, amt_now), loc)
 	_begin_split_budget()
 	_begin_cluster_budget()
 	fare_paid = false
@@ -1147,8 +1216,13 @@ func settle(cash: int) -> Dictionary:
 		var paid := _settle_one(rec, cash + delta)
 		var bonus := int(rec.get("bonus", 0))
 		delta += paid + bonus
+		var idle_up := 0
 		if paid < 0:
 			upkeep_paid += upkeep_part(rec)
+		elif str(rec["state"]) != "running":  # idle, stalled or blocked: the ship still costs its upkeep
+			idle_up = idle_route_upkeep(rec)
+			delta -= idle_up
+			upkeep_paid += idle_up
 		if rec["state"] == "running":
 			fare_paid = true
 		if rec["state"] == "blocked" and was != "blocked":
@@ -1157,10 +1231,13 @@ func settle(cash: int) -> Dictionary:
 			newly_stalled.append(rec)
 		rec["fresh"] = 1.0
 		results.append({"id": rec["id"], "a": rec["a"], "b": rec["b"], "c": rec["c"], "ships": 1,
-			"net": paid + bonus, "paid": paid + bonus, "stop": int(rec.get("stop", -1)), "stop_sale": int(rec.get("stop_sale", 0)), "status": rec["state"], "reason": rec["reason"]})
+			"net": paid + bonus - idle_up, "paid": paid + bonus - idle_up, "stop": int(rec.get("stop", -1)), "stop_sale": int(rec.get("stop_sale", 0)), "status": rec["state"], "reason": rec["reason"]})
 	for o in orders:  # 3 local sells
 		if o["sell"]:
 			delta += _run_local(o, "sell", cash + delta, loc)
+	var idle_ships := idle_ship_cost()  # ships on no route or in a hub pool
+	delta -= idle_ships
+	upkeep_paid += idle_ships
 	split_budget = {}
 	cluster_budget = {}
 	return {"delta": delta, "results": results, "local": loc, "newly_blocked": newly, "newly_stalled": newly_stalled,

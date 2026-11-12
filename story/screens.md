@@ -1819,6 +1819,8 @@ FC_STATUS_WAITING | 24 | cash_forecast.gd route_expense_lines (status word after
 waiting
 FC_TRIP_COST | 40 | cash_forecast.gd route_expense_lines
 {route} trip cost
+FC_IDLE_UPKEEP | 40 | cash_forecast.gd route_expense_lines (ships on no route or in a hub pool)
+Idle ships upkeep
 GIG_BOARD_EMPTY | 130 | gig_board.gd:67
 No offers right now. Signals and rush orders appear as the run goes on.
 GIG_BOARD_TITLE | 24 | gig_board.gd:31
@@ -2125,6 +2127,8 @@ RSN_UPGRADE_NEEDS_FULL | 60 | main.gd
 Only a full lane can be upgraded.
 RT_ERR_NOT_TRADED_GOOD | 50 | route_engine.gd check_local
 {good} is not traded here.
+RT_ERR_SRC_NO_GOOD | 40 | route_engine.gd check_connection
+The source world has none of this good.
 RT_ERR_NO_CLUSTER | 30 | route_engine.gd
 No such cluster.
 RT_ERR_NO_SYSTEM | 30 | route_engine.gd

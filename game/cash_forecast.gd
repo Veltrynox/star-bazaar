@@ -81,8 +81,14 @@ func route_expense_lines() -> Array:
 		if bool(r["moves"]):
 			out.append([StoryText.get_or("FC_TRIP_COST", "{route} trip cost", {"route": base}), int(r["trip"])])
 			out.append([base + " " + StoryText.get_text("LBL_SHIP_UPKEEP"), int(r["upkeep"])])
-		elif str(r["status"]) != "running":
+		else:
+			if int(r.get("idle_upkeep", 0)) > 0:  # the ship is paid even when the lane idles
+				out.append([base + " " + StoryText.get_text("LBL_SHIP_UPKEEP"), int(r["idle_upkeep"])])
+		if not bool(r["moves"]) and str(r["status"]) != "running":
 			out.append([StoryText.get_or("FC_ROUTE_STATUS", "{route} {status}", {"route": base, "status": StoryText.get_or("FC_STATUS_" + str(r["status"]).to_upper(), str(r["status"]))}), 0])
+	var idle := int(main.engine.forecast(main.cash).get("idle_ships_cost", 0))
+	if idle > 0:
+		out.append([StoryText.get_or("FC_IDLE_UPKEEP", "Idle ships upkeep"), idle])
 	return out
 
 ## Names of moving routes that earn nothing and cost money: no sale at the destination, no route bonus, and

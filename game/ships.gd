@@ -92,9 +92,15 @@ static func _num(kind: String, field: String, bal: Dictionary, fallback: float) 
 		return float(bal.get(str(d[field + "_key"]), fallback))
 	return float(d.get(field, fallback))
 
-## Price of one ship: ship_price x price_mult.
-static func price(kind: String, bal: Dictionary) -> int:
-	return roundi(_num(kind, "price", bal, 0.0) * float(def(kind).get("price_mult", 1.0)) * Skills.ship_price_mult())
+## Price of one ship: ship_price x price_mult. `owned` (ships already owned; -1 = ignore): the first and the second ship after the first
+## cost ship_price_step_1 and ship_price_step_2 of the price (economy check 3.5); later ships pay full price. Main.ship_price() is the one caller that passes it.
+static func price(kind: String, bal: Dictionary, owned: int = -1) -> int:
+	var step := 1.0
+	if owned == 1:
+		step = float(bal.get("ship_price_step_1", 1.0))
+	elif owned == 2:
+		step = float(bal.get("ship_price_step_2", 1.0))
+	return roundi(_num(kind, "price", bal, 0.0) * float(def(kind).get("price_mult", 1.0)) * Skills.ship_price_mult() * step)
 
 ## Trip cost multiplier of the type.
 static func trip_mult(kind: String) -> float:

@@ -203,7 +203,7 @@ func _need_goods(i: int) -> Array:
 	for g in Goods.ids():
 		if g != "energy" and (int(Goods.entry(g).get("tier", 1)) > t or not Goods.branch_ok(g)):
 			continue
-		if _sells_to_player(i, g):
+		if g == "ore" or _sells_to_player(i, g):  # ore is an industrial input, never a world need (2026-11-12)
 			continue
 		cands.append(g)
 	var weights: Dictionary = {}
@@ -224,6 +224,8 @@ func _need_goods(i: int) -> Array:
 	for g in cands:
 		if out.size() < cap:
 			out.append(g)
+	if out.is_empty() and cap > 0 and Goods.has("energy"):
+		out.append("energy")  # ore is never a need; a world with nothing else to want asks for energy rather than nothing
 	return out
 
 ## T295: reclamation list of a Barren world: energy and the branch goods up to goods_tier (ordered like a living world), capped by
@@ -238,7 +240,7 @@ func _reclaim_goods(i: int) -> Array:
 	for g in Goods.ids():
 		if g != "energy" and (int(Goods.entry(g).get("tier", 1)) > gt or not Goods.branch_ok(g)):
 			continue
-		if _sells_to_player(i, g):
+		if g == "ore" or _sells_to_player(i, g):  # ore is an industrial input, never a world need (2026-11-12)
 			continue
 		cands.append(g)
 	var order: Dictionary = {}

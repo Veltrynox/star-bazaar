@@ -396,6 +396,8 @@ func _ready() -> void:
 	fabric.setup(balance)
 	workshops.setup(balance)
 	engine.clusters = clusters
+	engine.workshops = workshops  # feed lanes of built workshops settle their Buy orders first
+	engine.owned_ships_fn = func() -> int: return ships  # ships on no route pay ship_idle_upkeep
 	engine.dead_worlds = dead  # T295
 	engine.trade_gate = Callable(self, "system_trade_open")
 	engine.upkeep_out = func(k: String, g: String, have: int) -> int: return storage_link.upkeep_drain(k, g, have)
@@ -510,9 +512,9 @@ func run_branch() -> String:
 func ship_cap() -> int:
 	return Ships.cap(balance)
 
-## Price of the next ship: ship_price x price_mult of the ship type.
+## Price of the next ship: ship_price x price_mult of the ship type, x ship_price_step_1 / _2 for the first two ships after the first.
 func ship_price() -> int:
-	return Ships.price(Ships.fleet, balance)
+	return Ships.price(Ships.fleet, balance, ships)  # the one place the price steps apply: panels, hub, forecast and buying all read this
 
 ## T26: state written to the autosave. Add new keys here (see save_game.gd).
 ## Tuning values from balance.json are never saved.
@@ -1662,7 +1664,7 @@ func _buy_ship_now(kind: String = "") -> Dictionary:
 	var r := can_buy_ship(kind)
 	if not r["ok"]:
 		return r
-	cash -= Ships.price(kind, balance)
+	cash -= ship_price()
 	ships += 1
 	_track_ships()
 	_after_change()
@@ -1674,10 +1676,10 @@ func can_buy_ship(kind: String = "") -> Dictionary:
 		return {"ok": false, "reason": StoryText.get_or("RSN_GAME_OVER", "The game is over.")}
 	if ships >= ship_cap():
 		return {"ok": false, "reason": StoryText.get_or("RSN_SHIP_CAP", "Ship cap reached.")}
-	if cash < Ships.price(kind, balance):
-		return {"ok": false, "reason": StoryText.get_or("RSN_NO_CASH_SHIP", "Not enough cash for a new ship ({price} cr). Each route needs its own ship; wait for income or remove a route.", {"price": Ships.price(kind, balance)})}
+	if cash < ship_price():
+		return {"ok": false, "reason": StoryText.get_or("RSN_NO_CASH_SHIP", "Not enough cash for a new ship ({price} cr). Each route needs its own ship; wait for income or remove a route.", {"price": ship_price()})}
 	var floor_cash := ship_cash_floor()
-	if cash - Ships.price(kind, balance) < floor_cash:  # stall fix: keep working capital for the trips of every open route
+	if cash - ship_price() < floor_cash:  # stall fix: keep working capital for the trips of every open route
 		return {"ok": false, "floor": true, "reason": StoryText.get_or("NOT_SHIP_KEEP_CASH", "Keep cash for trips: {floor} cr after the price.", {"floor": floor_cash})}
 	return {"ok": true, "reason": ""}
 
@@ -1688,7 +1690,7 @@ func route_unaffordable() -> Dictionary:
 		return {}
 	if ships >= ship_cap() or bool(can_buy_ship()["ok"]):
 		return {}
-	return {"planet": int(pending["planet"]), "need": Ships.price(Ships.fleet, balance) + ship_cash_floor(), "have": cash}
+	return {"planet": int(pending["planet"]), "need": ship_price() + ship_cash_floor(), "have": cash}
 
 ## Cash that must remain after buying a ship: the fixed cost of every open route.
 func ship_cash_floor() -> int:
@@ -2310,11 +2312,13 @@ func _blocked_text(rec: Dictionary) -> String:
 	return StoryText.get_text("NOT_ROUTE_BLOCKED_FULL", {"planet": planet_name(int(rec["b"]))})
 
 ## T46 / T95: stranded = (no ships and cash below ship_price) OR (cash below one route's fixed cost,
-## no net income last cycle or no route running, and no local Sell order with stock). Pays rescue_stipend, once per cycle, never a loss.
+## no net income last cycle or no route running, and no local Sell order with stock). Pays rescue_stipend, once per cycle, only after a cycle with a net loss (last_net < 0).
 func _check_stranded() -> void:
 	if last_rescue_cycle == cycle or repossessed_cycle == cycle or rescues_paid >= int(balance.get("rescue_max", 2)):
 		return  # Four Markets: no stipend in a repossession cycle, and only the first rescue_max are paid
-	var stuck := ships == 0 and cash < Ships.price(Ships.fleet, balance)
+	if last_net >= 0:
+		return  # 2026-11-12: the stipend is earned: only after a cycle whose net cash change was negative
+	var stuck := ships == 0 and cash < ship_price()
 	if not stuck and cash < engine.fixed_cost() and (last_net <= 0 or not _any_route_running()) and not _any_sellable():
 		stuck = true
 	# stall fix: cash below the summed fixed cost of all open routes and no net income for 2 cycles in a row
@@ -2332,7 +2336,7 @@ func _check_stranded() -> void:
 func _is_dead_end() -> bool:
 	if rescues_paid < int(balance.get("rescue_max", 2)) or last_rescue_cycle == cycle or repossessed_cycle == cycle:
 		return false
-	if ships == 0 and cash < Ships.price(Ships.fleet, balance):
+	if ships == 0 and cash < ship_price():
 		return true
 	return cash < engine.fixed_cost() and last_net <= 0 and prev_net <= 0 and not _any_route_running() and not _any_sellable()
 
@@ -2620,6 +2624,7 @@ func _pay_prosperity() -> void:
 func _end_cycle() -> void:
 	_advance_notice()  # the board notice lives for one cycle, then the next queued one shows
 	_settle_routes()
+	clusters.regrow()  # 2026-11-12: empty clusters come back slowly, a stalled cluster lane resumes by itself
 	gigs.credit_tick()  # T271: a rush delivery counts as its need met for some cycles
 	prosperity.end_cycle()  # T256: needs met = progress, short = decay, full = tier up
 	note("restless_cycles", prosperity.restless_count())  # CEO endings: world-cycles spent Restless

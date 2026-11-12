@@ -8384,6 +8384,12 @@
    "place": "cash_forecast.gd route_expense_lines"
   },
   {
+   "id": "FC_IDLE_UPKEEP",
+   "text": "Idle ships upkeep",
+   "max": 40,
+   "place": "cash_forecast.gd route_expense_lines (ships on no route or in a hub pool)"
+  },
+  {
    "id": "GIG_BOARD_EMPTY",
    "text": "No offers right now. Signals and rush orders appear as the run goes on.",
    "max": 130,
@@ -9300,6 +9306,12 @@
    "text": "{good} is not traded here.",
    "max": 50,
    "place": "route_engine.gd check_local"
+  },
+  {
+   "id": "RT_ERR_SRC_NO_GOOD",
+   "text": "The source world has none of this good.",
+   "max": 40,
+   "place": "route_engine.gd check_connection"
   },
   {
    "id": "RT_ERR_NO_CLUSTER",

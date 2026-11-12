@@ -2457,6 +2457,7 @@ func _test_main() -> void:
 	m.cash = int(bal["ship_price"]) - 1
 	m.rescues_paid = int(bal["rescue_max"])
 	m.last_rescue_cycle = -1
+	m.last_net = -1  # the stipend needs a cycle that lost cash
 	m._check_stranded()
 	check(m.cash == int(bal["ship_price"]) - 1, "rescue: no stipend after rescue_max stipends")
 	m.rescues_paid = 0
@@ -3279,6 +3280,7 @@ func _test_rescue_waiting() -> void:
 	m.cash = int(bal["starting_credits"])
 	m.last_rescue_cycle = -1
 	m.rescues_paid = 0
+	m.last_net = -1  # the stipend needs a cycle that lost cash
 	m._check_stranded()
 	check(m.cash == int(bal["starting_credits"]), "rescue: default start cash is never rescued")
 	# no ships and cash below a ship
@@ -3325,7 +3327,7 @@ func _test_rescue_waiting() -> void:
 	m.cash = fixed + 5
 	m.last_rescue_cycle = -1
 	m.rescues_paid = 0
-	m.last_net = 0
+	m.last_net = -1  # the stipend needs a cycle that lost cash
 	m.prev_net = 10
 	m._check_stranded()
 	check(m.cash == fixed + 5, "rescue: one flat cycle is not a stall")
@@ -3932,7 +3934,7 @@ func _test_ships() -> void:
 	var cash_before: int = m.cash
 	m.ships = 1
 	var rb: Dictionary = m.send_stock_buying(0, 2, c)
-	check(rb["ok"] and rb["bought"] and m.ships == 2 and e.routes.size() == 2 and m.cash == cash_before - int(bal["ship_price"]), "send: no free ship buys one, then makes the route")
+	check(rb["ok"] and rb["bought"] and m.ships == 2 and e.routes.size() == 2 and m.cash == cash_before - roundi(float(bal["ship_price"]) * float(bal["ship_price_step_1"])), "send: no free ship buys one, then makes the route")
 	m.planet_panel.show_planet(0, int(e.routes[0]["id"]))  # builds route rows, ship rows and the detail block
 	var texts: Array = []
 	var stack: Array = [m.planet_panel]
@@ -7847,7 +7849,7 @@ func _test_ship_motion() -> void:
 
 ## T202: no ship is ever inside a body, and a ship at spawn is near its parent body. Bodies are measured the way the map draws them
 ## (planet sphere scale, sun radius, station MAP_RADIUS, asteroid rocks of the pack). Limits: Motion.BODY_MARGIN (outside) and
-## Motion.near_limit (near), the same constants the game code parks ships with. Every system incl. placeholder systems 3 to 5.
+## Motion.near_limit (near), the same constants the game code parks ships with. Every system incl. placeholder system 3.
 func _t202_bodies(m, sys: int) -> Array:
 	var out: Array = []
 	for i in m.map.planets.size():
@@ -8801,10 +8803,10 @@ func _test_availability() -> void:
 		var kind := str(r["kind"])
 		var id := str(r["id"])
 		var cond = r["visible_when"]
-		if id in ["placeholder_system_3", "placeholder_system_4", "placeholder_system_5"]:  # T226: live ("start")
+		if id in ["placeholder_system_3"]:  # T226: live ("start")
 			check(Availability.is_visible(kind, id), "availability rule feature '%s': live placeholder" % id)
 			continue
-		if id.begins_with("placeholder_system_"):  # T176: placeholder systems 6 to 10 are off ({not: start})
+		if id.begins_with("placeholder_system_"):  # 2026-11-12: only system 3 exists; any other placeholder rule is off
 			check(not Availability.is_visible(kind, id), "availability rule feature '%s': off for now" % id)
 			continue
 		_av_reset(m)
@@ -9353,12 +9355,12 @@ func _test_forecast_pure() -> void:
 	_free_main(m)
 	await process_frame
 
-## T176: placeholder systems 3 to 5 stay out of normal play and load cleanly when switched on.
+## T176: placeholder system 3 stay out of normal play and load cleanly when switched on.
 func _test_placeholder_systems() -> void:
 	_wipe_user()
 	var gm: Control = await _new_main()
 	var slots: Array = gm.galaxy_view.SLOTS
-	# T226: systems 3 to 5 are live in a normal game: listed in the galaxy, enterable, TEMPORARY in the name
+	# T226: system 3 are live in a normal game: listed in the galaxy, enterable, TEMPORARY in the name
 	var Systems := preload("res://game/systems.gd")
 	check(Systems.ids() == [2, 3], "placeholder systems: 3 live by default, 4 and 5 off", str(Systems.ids()))
 	check(gm.galaxy_view._sys_ids() == [1, 2, 3], "placeholder systems: 1 to 3 listed in the galaxy overview", str(gm.galaxy_view._sys_ids()))
@@ -9379,19 +9381,19 @@ func _test_placeholder_systems() -> void:
 	check(Systems.ids() == [2], "placeholder systems: switched off by set_placeholders(false)")
 	Systems.set_placeholders(true)
 	var ids: Array = Systems.ids()
-	check(ids == [2, 3, 4, 5, 6, 7, 8, 9, 10], "placeholder systems: 3 to 10 load when switched on", str(ids))
+	check(ids == [2, 3], "placeholder systems: 3 loads when switched on", str(ids))
 	var ok := true
-	for sid in [3, 4, 5, 6, 7, 8, 9, 10]:
+	for sid in [3]:
 		var pl: Array = Systems.planets_of(sid)
 		ok = ok and pl.size() == 3 and bool(Systems.get_system(sid).get("placeholder", false)) and Systems.name_of(sid) != "" and Systems.sun_color_of(sid) is Color
 		for p in pl:
 			ok = ok and bool(p.get("placeholder", false)) and str(p["name"]) != "" and not str(p["name"]).begins_with("WORLD_")
 	check(ok, "placeholder systems: placeholder flag, names and planets resolve")
-	# T210: ten systems in all (system 1 is planets.json), unique ids, planet ids and text ids, slots inside SLOTS, permit keys exist
+	# 2026-11-12: three systems in all (system 1 is planets.json), unique ids, planet ids and text ids, slots inside SLOTS, permit keys exist
 	var bal = JSON.parse_string(FileAccess.get_file_as_string("res://data/balance.json"))
 	var seen := {}
 	var uniq := true
-	var slots_ok := ids.size() + 1 == 10
+	var slots_ok := ids.size() + 1 == 3
 	var keys_ok := true
 	for sid in ids:
 		var sd: Dictionary = Systems.get_system(sid)
@@ -9408,7 +9410,7 @@ func _test_placeholder_systems() -> void:
 			uniq = uniq and not seen.has(str(p["id"]))
 			seen[str(p["id"])] = true
 	check(uniq, "placeholder systems: ids, planet ids and text ids are unique")
-	check(slots_ok and slots.size() >= 10, "placeholder systems: ten systems, galaxy_slot valid inside SLOTS")
+	check(slots_ok and slots.size() >= 3, "placeholder systems: three systems, galaxy_slot valid inside SLOTS")
 	check(keys_ok, "placeholder systems: permit cost keys exist in balance")
 	Systems.set_placeholders(false)
 	check(Systems.ids() == [2], "placeholder systems: off again")

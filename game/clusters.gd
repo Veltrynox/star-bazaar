@@ -1,6 +1,6 @@
 extends RefCounted
 ## T156: asteroid clusters. A cluster is a source of ore, not a market: a route may start at a cluster
-## (like a planet node), the ship loads ore free, the cost is the lane. Richness is finite and never respawns.
+## (like a planet node), the ship loads ore free, the cost is the lane. Richness is finite; a cluster regrows slowly (mining_regrow_per_cycle).
 ## Definitions: data/asteroid_clusters.json. Numbers: balance.json (mining_cluster_richness, mining_yield_per_cycle,
 ## mining_clusters_s<N>, mining_event_cluster_richness). Cluster i is route node id node_id(i) = -(BASE + i).
 ## UI getters: stock_left(i), cycles_left(i), yield_per_cycle(i).
@@ -108,7 +108,7 @@ func yield_per_cycle(_i: int = -1) -> int:
 func stock_left(i: int) -> int:
 	return left(i)
 
-## Cycles the ore lasts at the cluster's yield for one cycle (it never refills); 0 when empty.
+## Cycles the ore lasts at the cluster's yield for one cycle (not counting regrowth); 0 when empty.
 func cycles_left(i: int) -> int:
 	var y := yield_per_cycle(i)
 	return 0 if left(i) <= 0 else (ceili(float(left(i)) / float(y)) if y > 0 else -1)
@@ -120,6 +120,14 @@ func take(i: int, n: int) -> int:
 	var got: int = mini(n, int(items[i]["left"]))
 	items[i]["left"] = int(items[i]["left"]) - got
 	return got
+
+## Cycle end (main, after the routes settled): every cluster, spawned ones too, regrows mining_regrow_per_cycle units up to its max.
+func regrow() -> void:
+	var n := int(balance.get("mining_regrow_per_cycle", 0))
+	if n <= 0:
+		return
+	for it in items:
+		it["left"] = mini(int(it["max"]), int(it["left"]) + n)
 
 ## Pack instances T157 draws now: full count at full richness, thinning with the ore, 0 when empty.
 func visible_count(i: int) -> int:
