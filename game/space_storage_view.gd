@@ -86,9 +86,6 @@ func refresh() -> void:
 		l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		row.add_child(l)
 		row.tooltip_text = GoodInfo.block(str(c))  # hover: what the good is and how it is used
-		var nc: Control = PlanetPanel.next_cycle_label(main, key, str(c))
-		if nc != null:
-			row.add_child(nc)  # right end of the same row
 		box.add_child(row)
 	_fabric_rows()
 	_build_blocks()
