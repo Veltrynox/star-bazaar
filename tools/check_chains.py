@@ -11,10 +11,10 @@ def eff_keys(e, w):
     for f in ('key', 'cycles_key'):
         if f in e: key(e[f], w)
 ids = [s['id'] for s in c['steps']]
-if len(ids) != 28 or len(set(ids)) != 28: err.append('need 28 unique steps')
+if len(ids) != 40 or len(set(ids)) != 40: err.append('need 40 unique steps')
 for m in ('mil', 'lux', 'min', 'bio'):
     ss = [s for s in c['steps'] if s['market'] == m]
-    if sorted(s['id'][4:] for s in ss) != ['A1','A2','A3','B1','B2','B3','B4']: err.append(f'{m}: wrong step set')
+    if sorted(s['id'][4:] for s in ss) != ['A1','A2','A3','B1','B2','B3','B4','C1','C2','C3']: err.append(f'{m}: wrong step set')
     dirs = [s[o]['dir'] for s in ss for o in ('opt_a', 'opt_b')]
     if not (any(d > 0 for d in dirs) and any(d < 0 for d in dirs)): err.append(f'{m}: dir needs both signs')
     sa = sum(d for d in dirs if d > 0); sb = -sum(d for d in dirs if d < 0)
@@ -43,13 +43,15 @@ for s in c['steps']:
     walk(s['trigger'])
 for k in ('dir_nudge_cap','dir_echo_mult','dir_swing_mult','dir_swing_min_abs','win_gate_cycle'):
     key(k, 'rules')
-if len(c['pool_new']) != 12: err.append('pool_new must be 12')
+if len(c['pool_new']) != 60: err.append('pool_new must be 60')
 for e in c['pool_new']:
-    if not e['bot_effect']: err.append(e['id'] + ': no bot effect')
-    eff_keys(e['effect'], e['id']);
+    if 'effect' in e: eff_keys(e['effect'], e['id'])
+    for ch in e.get('choices', []): eff_keys(ch['effect'], e['id'])
     for x in e['bot_effect']: eff_keys(x, e['id'])
+for f in c.get('followups', []): eff_keys(f['effect'], f['id'])
+if len(c.get('followups', [])) != 6: err.append('followups must be 6')
 for k, e in c['pool_kept'].items():
     for x in e['bot_effect']: eff_keys(x, k)
-if len(c['pool_kept']) != 24: err.append('pool_kept must be 24')
+if len(c['pool_kept']) != 20: err.append('pool_kept must be 20')
 print('ERRORS' if err else 'OK'); [print(' ', x) for x in err]
 sys.exit(1 if err else 0)

@@ -12,7 +12,6 @@ extends RefCounted
 ##   Chains.prev_option(step_id) -> option id picked in the previous step of the same chain ("" for A1, B1)
 ##   Chains.ending_flag(market) -> "good" | "bad"  (hidden direction, never shown)
 ##   Chains.rival_log() -> Array of {cycle, source_id, bot, market, stat, direction, size_word, tier_changed}
-##   Chains.win_open(market, cycle) -> false while the win gate holds
 ##   Chains.volume_mult(m), price_mult(m), upkeep_mult(), trip_cost_mult(route_id), workshop_idle(m), workshop_extra(m): timed effects
 ## Direction values (dir) are kept here and saved, but no screen reads them.
 
@@ -25,6 +24,7 @@ static var step_by_id: Dictionary = {}
 static var pool_new: Dictionary = {}  # id -> pool_new entry
 static var pool_kept: Dictionary = {} # id -> {market, bot_effect}
 static var retired: Array = []
+static var followups: Array = []  # scheduled-only plain popups (data/chains.json "followups"): {id, kind, effect, follow_of}
 static var _loaded := false
 
 static var bal: Dictionary = {}
@@ -52,6 +52,7 @@ static func load_data() -> void:
 	pool_new = {}
 	pool_kept = {}
 	retired = []
+	followups = []
 	var parsed = JSON.parse_string(FileAccess.get_file_as_string(PATH)) if FileAccess.file_exists(PATH) else null
 	if typeof(parsed) != TYPE_DICTIONARY:
 		push_error("Chains: %s missing or bad." % PATH)
@@ -65,6 +66,7 @@ static func load_data() -> void:
 	if typeof(pk) == TYPE_DICTIONARY:
 		pool_kept = pk
 	retired = parsed.get("pool_retired", [])
+	followups = parsed.get("followups", [])
 
 static func _ensure() -> void:
 	if not _loaded:
@@ -106,8 +108,6 @@ static func has_step(id: String) -> bool:
 static func market_of(step_id: String) -> String:
 	return str(step_by_id.get(step_id, {}).get("market", ""))
 
-static func chain_of(step_id: String) -> String:
-	return "%s_%s" % [market_of(step_id), str(step_by_id.get(step_id, {}).get("chain", ""))]
 
 static func prev_id(step_id: String) -> String:
 	var s: Dictionary = step_by_id.get(step_id, {})
@@ -216,11 +216,6 @@ static func next_step(cycle: int) -> String:
 			return str(s["id"])
 	return ""
 
-## A market's win is not declared before its B4 fired, or cycle win_gate_cycle.
-static func win_open(market: String, cycle: int) -> bool:
-	_ensure()
-	return fired("%s_B4" % market.to_upper()) or cycle >= int(_num("win_gate_cycle", 78.0))
-
 # ---- option order and direction ----
 
 ## Button order of a step in this run: seeded, same after a load, no meaning attached to the position.
@@ -271,11 +266,6 @@ static func marked_bot(market: String) -> int:
 static func bot_id(e: Dictionary) -> int:
 	return int(str(e.get("bot", "bot_0")).trim_prefix("bot_"))
 
-## Tier of bot b in market m at cycle now with every offset applied (1..4).
-static func effective_tier(b: int, m: String, cycle: int) -> int:
-	var md := Markets.bot_mods(b, m, cycle)
-	return Bots.tier(bal, b, cycle, int(Markets.tier_off.get(str(b), 0)) + int(md["tier_offset"]))
-
 static func _size_of(e: Dictionary) -> String:
 	return str(e.get("size", "")) if e.get("size") != null else ""
 
@@ -290,7 +280,7 @@ static func apply_bot(src: String, e: Dictionary, cycle: int) -> Dictionary:
 	# T282: rivals are gone; a hit on house b now delays (growth cut) or softens (strength or tier cut) that house's NEXT weather.
 	# A boost to a rival does nothing. The log keeps its old shape. Numbers: balance weather_next_soften_pct, weather_next_delay_cycles (placeholders).
 	if stat == "tier":
-		if effective_tier(b, m, cycle) > 1:
+		if Bots.tier(bal, b, cycle) > 1:
 			entry["size_word"] = "tier"
 			entry["tier_changed"] = true
 		else:
@@ -539,7 +529,7 @@ static func planned_rivals(step_id: String, opt_id: String, cycle: int = -1) -> 
 	for e in step_by_id.get(step_id, {}).get(opt_id, {}).get("bot", []):
 		var entry := {"bot": bot_id(e), "market": str(e.get("market", "")), "stat": str(e.get("stat", "")), "direction": str(e.get("direction", "down")), "size_word": _size_of(e)}
 		if entry["stat"] == "tier":
-			entry["size_word"] = "tier" if effective_tier(int(entry["bot"]), str(entry["market"]), c) > 1 else "lowest"
+			entry["size_word"] = "tier" if Bots.tier(bal, int(entry["bot"]), c) > 1 else "lowest"
 		out.append(entry)
 	return out
 

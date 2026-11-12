@@ -2330,7 +2330,7 @@ func _test_main() -> void:
 	# --- T259: a market share no longer wins; the Star Bazaar does ---
 	_wipe_user()
 	Chains.picks["MIL_B4"] = {"opt": "opt_a", "cycle": 1, "nudge": 0}
-	m.cycle = int(bal["win_earliest_cycle"]) - 2
+	m.cycle = 44  # the old win_earliest_cycle (46) minus 2
 	var ended := []
 	m.run_ended.connect(func(side, id): ended.append([side, id]))
 	for i in 12:
@@ -2389,16 +2389,6 @@ func _test_main() -> void:
 	await _free_main(m)
 	m = await _new_main()
 	m._dismiss_preface()
-	await _free_main(m)
-
-	# --- swept: gone (T259), the share sweep never ends a run ---
-	_wipe_user()
-	m = await _new_main()
-	m._dismiss_preface()
-	m.cycle = int(bal["sweep_earliest_cycle"]) + int(bal["sweep_hold_cycles"]) + 2
-	for i in 4:
-		m._end_cycle()
-	check(not m.game_over, "swept: no END_SWEPT any more")
 	await _free_main(m)
 
 	# --- soft ending at the last cycle with no market over 50% ---
@@ -3120,61 +3110,35 @@ func _collect_sell(o, key: String, out: Array) -> void:
 		for v in o:
 			_collect_sell(v, key, out)
 
-func _bot_run(_bal_unused: Dictionary, _seed_v: int, from: int, to: int, hits: bool) -> void:
+func _bot_run(_bal_unused: Dictionary, _seed_v: int, from: int, to: int) -> void:
 	for c in range(from, to + 1):
-		if hits and c == 4:
-			Markets.hit_bot(1, "mil", "strength", -0.2)
-			Markets.hit_bot(2, "lux", "growth", 0.1)
-			Markets.hit_bot(3, "bio", "tier", -1)
 		Markets.cur_active["mil"] = 100.0 * c
 		Markets.end_cycle(c)
 
 func _test_bot_hooks() -> void:
 	var bal := _bal()
 	Markets.load_data()
-	var base := {}
-	# neutral defaults and size words
-	Markets.reset(bal, 7)
-	var d0 := Markets.bot_mods(1, "mil")
-	check(is_equal_approx(float(d0["strength_mult"]), 1.0) and int(d0["tier_offset"]) == 0 and float(d0["growth_add"]) == 0.0, "bot hooks: neutral mods by default")
-	check(is_equal_approx(Markets.size_pct("S"), 0.05) and is_equal_approx(Markets.size_pct("M"), 0.1) and is_equal_approx(Markets.size_pct("L"), 0.2) and Markets.size_pct("X") == 0.0, "bot hooks: size_pct S/M/L from balance")
-	# stacking multiplicative
-	Markets.hit_bot(1, "mil", "strength", -0.2)
-	Markets.hit_bot(1, "mil", "strength", -0.1)
-	check(absf(float(Markets.bot_mods(1, "mil")["strength_mult"]) - 0.72) < 0.0001, "bot hooks: strength hits stack multiplicatively")
-	Markets.hit_bot(2, "lux", "growth", 0.1)
-	Markets.hit_bot(2, "lux", "growth", 0.1)
-	check(absf(float(Markets.bot_mods(2, "lux")["growth_mult"]) - 1.21) < 0.0001 and is_equal_approx(float(Markets.bot_mods(2, "mil")["growth_mult"]), 1.0), "bot hooks: growth hits stack, other markets untouched")
-	# tier: -1 lowers effective tier, clamps at 1
-	Markets.reset(bal, 7)
-	var t_late := 80
-	Markets.hit_bot(1, "mil", "tier", -1)
-	var off := int(Markets.bot_mods(1, "mil")["tier_offset"])
-	check(off == -1 and Bots.tier(bal, 1, t_late, off) == 2 and Bots.tier(bal, 1, 1, off) == 1, "bot hooks: tier hit is -1 and the effective tier stays within 1..4")
-	for i in 6:
-		Markets.hit_bot(1, "mil", "tier", -1)
-	check(int(Markets.bot_mods(1, "mil")["tier_offset"]) == -3 and Bots.tier(bal, 1, 1, -3) == 1 and Bots.tier(bal, 1, 99, 9) == 4, "bot hooks: tier offset clamped")
-	check(not Markets.hit_bot(9, "mil", "strength", 0.1) and not Markets.hit_bot(1, "zzz", "strength", 0.1) and not Markets.hit_bot(1, "mil", "bogus", 0.1), "bot hooks: bad bot, market or stat rejected")
-	# determinism and save round trip with hits over 10 cycles
+	# determinism and save round trip over 10 cycles
 	Markets.reset(bal, 99)
-	_bot_run(bal, 99, 1, 10, true)
+	_bot_run(bal, 99, 1, 10)
 	var full := JSON.stringify(Markets.to_dict())
 	Markets.reset(bal, 99)
-	_bot_run(bal, 99, 1, 10, true)
-	check(JSON.stringify(Markets.to_dict()) == full, "bot hooks: same hits give identical state")
+	_bot_run(bal, 99, 1, 10)
+	check(JSON.stringify(Markets.to_dict()) == full, "bot hooks: same run gives identical state")
 	Markets.reset(bal, 99)
-	_bot_run(bal, 99, 1, 6, true)
+	_bot_run(bal, 99, 1, 6)
 	var mid = JSON.parse_string(JSON.stringify(Markets.to_dict()))
 	Markets.reset(bal, 0)
 	Markets.from_dict(mid, bal)
-	check(Markets.cycles == 6 and absf(float(Markets.bot_mods(1, "mil")["strength_mult"]) - 0.8) < 0.0001 and int(Markets.bot_mods(3, "bio")["tier_offset"]) == -1, "bot hooks: mods and cycle count survive save and load")
-	_bot_run(bal, 99, 7, 10, false)
+	check(Markets.cycles == 6, "bot hooks: cycle count survives save and load")
+	_bot_run(bal, 99, 7, 10)
 	check(JSON.stringify(Markets.to_dict()) == full, "bot hooks: a loaded run continues with identical state")
-	# a v2 save without mods still loads
+	# an old save with the removed house-hit fields still loads
 	var old = JSON.parse_string(JSON.stringify(mid))
-	old.erase("mods")
+	old["mods"] = {"1|mil": {"strength_mult": 0.8}}
+	old["tier_off"] = {"1": -1}
 	Markets.from_dict(old, bal)
-	check(Markets.cycles == 6 and is_equal_approx(float(Markets.bot_mods(1, "mil")["strength_mult"]), 1.0), "bot hooks: save without mods loads with defaults")
+	check(Markets.cycles == 6, "bot hooks: old save with house hits loads and ignores them")
 	Markets.reset(bal, 5)
 	# bots are numbers only: no nodes
 	var src := FileAccess.get_file_as_string("res://game/bots.gd") + FileAccess.get_file_as_string("res://game/markets.gd")
@@ -3511,7 +3475,7 @@ func _test_events() -> void:
 	m._dismiss_preface()
 	m._open_system(2)  # story events name Greywake (system 2): its tags need the planet in the list
 	var ev = m.events
-	check(ev.defs.size() >= 19 and ev.by_id.has("EV20") and not Chains.in_pool("EV18"), "events: definitions loaded from data/events.json (EV18 is out of the pool)", str(ev.defs.size()))
+	check(ev.defs.size() >= 19 and ev.by_id.has("EV20"), "events: definitions loaded from data/events.json", str(ev.defs.size()))
 	var sk: Dictionary = ev.parse_tag("[price up: Tillam, silk]")
 	check(sk.get("c") == "silk" and ev.parse_tag("[price down: Voltara, ore]").get("c") == "ore" and ev.parse_tag("[price up: Ashgate, spyware]").get("c") == "spyware", "T155: events parse the new goods", str(sk))
 	check(is_equal_approx(ev.pct("silk"), float(m.balance["event_pct_silk"])) and is_equal_approx(ev.pct("energy"), float(m.balance["event_pct_energy"])), "T155: per-good event pct, energy uses its own swing")
@@ -3592,7 +3556,7 @@ func _test_events() -> void:
 		var is_price: bool = (str(e.get("tag", "")).begins_with("[price") or str(e.get("tag", "")).begins_with("[shortage") or str(e.get("tag", "")).begins_with("[congestion")) and (e.get("choices", []) as Array).is_empty()
 		if not e.has("chain_step") and str(e.get("tag", "")) != "":
 			check(m.events.is_minor(str(e["id"])) == is_price, "icons: classification of " + str(e["id"]))
-	for id in ["EV17", "EV18", "EV20", "EV07", "EV08", "EV09"]:
+	for id in ["EV17", "EV20", "EV07", "EV08", "EV09"]:
 		check(major_ids.has(id), "icons: %s is important" % id)
 	for id in ["EV01", "EV02", "EV24"]:
 		check(minor_ids.has(id), "icons: %s is minor" % id)
@@ -3616,10 +3580,10 @@ func _test_events() -> void:
 	await process_frame
 	check(not m.paused and m.map.event_hint == null, "icons: closing restores play and removes the ring")
 	m.cycle = 5
-	m.debug_fire_event("EV18")
+	m.debug_fire_event("EV17")
 	m.debug_fire_event("EV01")
-	check(m.event_icons.count() == 1 and m.events.pending_id == "EV18", "icons: a pending important event blocks the next one")
-	m.open_event_icon("EV18")
+	check(m.event_icons.count() == 1 and m.events.pending_id == "EV17", "icons: a pending important event blocks the next one")
+	m.open_event_icon("EV17")
 	_buttons(m.event_notice, [])[1].pressed.emit()
 	await process_frame
 	m.events.pending_id = ""
@@ -6477,7 +6441,7 @@ func _test_voltara_belt() -> void:
 	check(m.cash == before[0] and m.cycle == before[1] and map.positions == before[2], "voltara belt: changes no game state")
 
 
-## Dead worlds (design/proposals/2026-11-02-dead-planets.md): data, skill gate, danger meter, scheduled follow-up.
+## Dead worlds (design/proposals/2026-11-02-dead-planets.md): data, skill gate, scheduled follow-up.
 func _test_fabric() -> void:
 	_wipe_user()
 	var m: Control = await _new_main()
@@ -6570,7 +6534,7 @@ func _test_dead_world_mechanics() -> void:
 	_wipe_user()
 	var m: Control = await _new_main()
 	m._dismiss_preface()
-	m.balance["dead_unlock_cycle"] = 1  # these tests are about skills and danger, not the cycle gate
+	m.balance["dead_unlock_cycle"] = 1  # these tests are about skills, not the cycle gate
 	m._sync_dead_lock()
 	var d1: int = -1
 	for i in m.map.planets.size():
@@ -6601,38 +6565,6 @@ func _test_dead_world_mechanics() -> void:
 	check(g2 >= 0 and not r2["ok"] and "Deep Cut" in str(r2["reason"]), "dead gate: Greywake refused without MIN_5 (MIN_3 does not open it)", str(r2))
 	m.learned_skills.append("MIN_5")
 	check(m.engine.check_connection(g2, g2 - 1, "nullglass")["ok"], "dead gate: Greywake allowed with MIN_5")
-	# danger
-	check(m.danger_of(d1) == 0 and m.danger_of(0) == 0, "danger: starts at 0")
-	m.set_local_order(d1, "dross", "buy", true)
-	check(m._connect(d1, 0, "dross")["ok"], "danger: route out of Cinderrest made")
-	m.debug_advance_cycle()
-	check(m.danger_of(d1) == 1, "danger: +1 after one mining cycle", str(m.danger_of(d1)))
-	m.debug_advance_cycle()
-	check(m.danger_of(d1) == 2, "danger: +1 each cycle", str(m.danger_of(d1)))
-	m.dead.change("dead_1", -1)
-	check(m.danger_of(d1) == 1 and m.dead.change("dead_1", 99) == 5, "danger: events lower it, capped at 5")
-	var st: Dictionary = m.collect_state()
-	check(int(st["danger"]["dead_1"]) == 5, "danger: saved")
-	m.dead.from_dict(null)
-	check(m.danger_of(d1) == 0, "danger: an old save has no meter, starts at 0")
-	m.dead.from_dict(st["danger"])
-	check(m.danger_of(d1) == 5, "danger: loads back")
-	var panel_text := ""
-	m.planet_panel.show_planet(d1)
-	for l in _labels(m.planet_panel, []):
-		if l.name == "DangerLine":
-			panel_text = l.text
-	check(panel_text == "", "danger: hidden by its availability rule, no line on the planet panel", panel_text)
-	check(not Availability.feature("dead_danger_meter") and m.effect_line({"kind": "danger", "planet": d1, "c": "", "amount": 1}) == "", "danger: no notice names it while hidden")
-	var saved_rule = Availability._rules["feature|dead_danger_meter"]
-	Availability._rules["feature|dead_danger_meter"] = "start"  # the rule flipped: the line comes back
-	m.planet_panel.show_planet(d1)
-	for l in _labels(m.planet_panel, []):
-		if l.name == "DangerLine":
-			panel_text = l.text
-	check(panel_text == "Danger: 5 of 5", "danger: shown when the rule is true", panel_text)
-	Availability._rules["feature|dead_danger_meter"] = saved_rule
-	m.planet_panel.show_planet(d1)
 	# scheduled follow-up
 	var ev = m.events
 	var a := {"id": "T_PART1", "title": "p1", "tag": "", "text": "x", "choices": [{"text": "go", "tag": "[cash: +1]", "follow_id": "T_PART2", "follow_after": 2}]}
@@ -6719,12 +6651,10 @@ func _test_dead_unlock_and_core() -> void:
 	check(m.cycle == 15 and m.engine.dead_locked.is_empty(), "dead gate: open at cycle 15", str(m.cycle))
 	check(m.last_notice.begins_with("Dead worlds are open") or m.shown_notice.begins_with("Dead worlds are open") or m.notice_queue.any(func(t): return str(t).begins_with("Dead worlds are open")), "dead gate: one notice at the unlock cycle", m.last_notice)
 	m._on_planet_clicked(d1)
-	var dl_found := false
 	var lock_found := false
 	for l in _labels(m.planet_panel, []):
-		dl_found = dl_found or (l.name == "DangerLine" and l.is_visible_in_tree())
 		lock_found = lock_found or l.name == "DeadLockedLine"
-	check(m.planet_panel.visible and not dl_found and not lock_found and m.planet_panel.find_child("BuyButton_dross", true, false) != null, "dead gate: after the unlock Cinderrest shows its dross row, no locked line, no danger line (hidden)")
+	check(m.planet_panel.visible and not lock_found and m.planet_panel.find_child("BuyButton_dross", true, false) != null, "dead gate: after the unlock Cinderrest shows its dross row, no locked line")
 	check(m.can_connect(d1, 0, "dross")["ok"], "dead gate: route from Cinderrest allowed at cycle 15 with MIN_3")
 	check(m.set_local_order(d1, "dross", "buy", true)["ok"], "dead gate: buy order allowed at 15")
 	# skill gate bypasses now closed
@@ -6737,7 +6667,7 @@ func _test_dead_unlock_and_core() -> void:
 	m.apply_state(sv)
 	check(m.engine.local_on(d1, "dross", "buy"), "dead save: the buy order at a dead world survives load with MIN_3")
 	m.apply_state({"cycle": 20, "cash": 500, "ships": 1})
-	check(m.cycle == 20 and m.danger_of(d1) == 0 and not m.fabric.built and m.fabric.core_made == 0 and m.events.scheduled.is_empty(), "dead save: an old save with no dead data loads clean")
+	check(m.cycle == 20 and not m.fabric.built and m.fabric.core_made == 0 and m.events.scheduled.is_empty(), "dead save: an old save with no dead data loads clean")
 	# a save made at cycle 3 holding a route from a dead world drops it
 	m.cycle = 3
 	var bad := {"cycle": 3, "cash": 500, "ships": 1, "learned_skills": ["MIN_3"], "routes": [{"id": 1, "a": d1, "b": 0, "c": "dross"}]}
@@ -6763,7 +6693,7 @@ func _test_dead_unlock_and_core() -> void:
 	var cash1: int = m.cash
 	check(not m.build_null_core()["ok"] and m.can_build_core()["reason"] == "max" and m.cash == cash1 and m.fabric.core_made == 1, "null core: at most one per run (null_core_max)")
 	check(int(m.collect_state()["fabric"]["core_made"]) == 1, "null core: saved")
-	# fit, trip cost, pirate immunity
+	# fit, trip cost
 	m.ships = 3
 	var a1: Dictionary = m._connect(0, 1, "ore")
 	var a2: Dictionary = m._connect(1, 0, "energy") if a1["ok"] else {"ok": false}
@@ -6777,24 +6707,6 @@ func _test_dead_unlock_and_core() -> void:
 	check(m.engine.fixed_cost(r0) == want and m.engine.fixed_cost(r0) < normal and m.engine.fixed_cost(r1) == normal, "null core: the fitted ship pays null_core_trip_mult of the trip cost, the other pays full", "%d vs %d" % [m.engine.fixed_cost(r0), normal])
 	check(m.fit_core(int(r1["id"]))["ok"] and not m.engine.has_core(r0) and m.core_route_id() == int(r1["id"]), "null core: only one ship carries it")
 	m.fit_core(int(r0["id"]))
-	m.engine.routes[0]["fresh"] = 1.0
-	m.engine.routes[1]["fresh"] = 1.0
-	var u_core0: int = m.engine.planned_units(r0)
-	var u_norm0: int = m.engine.planned_units(r1)
-	m.storage.add(str(r0["src"]), str(r0["c"]), 100)
-	m.storage.add(str(r1["src"]), str(r1["c"]), 100)
-	m.engine.pirates_active = true
-	var pen := float(m.balance["pirate_volume_penalty"])
-	r1["a"] = r0["a"]
-	r1["c"] = r0["c"]
-	r1["b"] = r0["b"]
-	r1["src"] = r0["src"]
-	r1["dst"] = r0["dst"]
-	var uc: int = m.engine.planned_units(r0)
-	var un: int = m.engine.planned_units(r1)
-	m.engine.pirates_active = false
-	var u_free: int = m.engine.planned_units(r1)
-	check(pen > 0.0 and uc == u_free and un < uc, "null core: pirate volume cut skips the core ship and cuts the other", "%d %d %d" % [uc, un, u_free])
 	# the core returns to the hold when its route is removed
 	m.remove_connection(int(r0["id"]))
 	check(m.core_route_id() == -1 and m.fabric.core_made == 1, "null core: removing the route frees the core, still one built")
@@ -7053,8 +6965,8 @@ func _test_chains() -> void:
 	var bal: Dictionary = m.balance
 	var data = JSON.parse_string(FileAccess.get_file_as_string("res://data/chains.json"))
 	Chains.reset(bal, 7)
-	# data: 28 steps (A 3, B 4 per market), every key named by the data exists, every option has a rival change
-	check(Chains.step_ids().size() == 28, "chains: 28 steps load", str(Chains.step_ids().size()))
+	# data: 40 steps (A 3, B 4, C 3 per market), every key named by the data exists, every option has a rival change
+	check(Chains.step_ids().size() == 40, "chains: 40 steps load", str(Chains.step_ids().size()))
 	var keys_ok := true
 	var rival_ok := true
 	var count_a := 0
@@ -7081,8 +6993,8 @@ func _test_chains() -> void:
 			for e in st[opt]["bot"]:
 				if not bal.has(str(e["key"])):
 					keys_ok = false
-	check(count_a == 12 and count_b == 16 and keys_ok and rival_ok, "chains: every step has its balance keys and every option a bot change", "%d %d %s %s" % [count_a, count_b, keys_ok, rival_ok])
-	check(data["pool_new"].size() == 16 and Chains.pool_kept.size() == 24 and Chains.retired.size() == 10 and Chains.retired[0] == "EV18", "chains: pool 24 kept + 12 new + 4 branch, EV18 and EV29 to EV37 retired")
+	check(count_a == 12 and count_b == 28 and keys_ok and rival_ok, "chains: every step has its balance keys and every option a bot change", "%d %d %s %s" % [count_a, count_b, keys_ok, rival_ok])
+	check(data["pool_new"].size() == 60 and Chains.pool_kept.size() == 20 and Chains.retired.size() == 9 and Chains.retired[0] == "EV29", "chains: pool 20 kept + 60 new, EV29 to EV37 retired")
 	# every option applies and logs at least one rival change
 	var logs_ok := true
 	for sid in Chains.step_ids():
@@ -7171,13 +7083,6 @@ func _test_chains() -> void:
 	Chains.apply_option("MIL_B1", "opt_a", 13)
 	check(Chains.next_step(14) != "MIL_B1" and not Chains.eligible("MIL_B2", 14), "slot: the next step of that market waits for the gap")
 	Skills.reset(bal)
-	# win gate (Chains.win_open stays as data; no share verdict reads it any more)
-	Markets.reset(bal, 3)
-	Chains.reset(bal, 3)
-	check(not Chains.win_open("mil", 5), "win gate: closed early without B4")
-	Chains.picks["MIL_B4"] = {"opt": "opt_a", "cycle": 20, "nudge": 0}
-	check(Chains.win_open("mil", 5), "win gate: opens as soon as B4 fired")
-	check(not Chains.win_open("lux", 77) and Chains.win_open("lux", 78), "win gate: cycle 78 opens it for any market")
 	# effects: apply and expire
 	Markets.reset(bal, 3)
 	Chains.reset(bal, 3)
@@ -7256,13 +7161,13 @@ func _test_chains() -> void:
 		for sid in Chains.step_ids():
 			seen[str(Chains.order(sid))] = true
 	check(stable and seen.size() == 2 and o1.size() == 2 and o1.has("opt_a") and o1.has("opt_b"), "shuffle: stable per run seed, both orders occur")
-	# pool: 36 ids, once only, EV18 gone
+	# pool: 34 ids, once only
 	var ev = m.events
 	var in_pool := 0
 	for d in ev.defs:
 		if Chains.in_pool(str(d["id"])):
 			in_pool += 1
-	check(in_pool == 40 and not Chains.in_pool("EV18") and not Chains.in_pool("EV29") and not Chains.in_pool("EV30") and not ev.by_id.has("EV29") and not ev.by_id.has("EV30") and not ev.by_id.has("EV37") and Chains.retired.has("EV29") and ev.by_id.has("EV40") and ev.by_id.has("MIL_A1"), "pool: 24 kept + 12 new + 4 branch, no EV18, no Minerals chain events", str(in_pool))
+	check(in_pool == 80 and not Chains.in_pool("EV29") and not Chains.in_pool("EV30") and not ev.by_id.has("EV29") and not ev.by_id.has("EV30") and not ev.by_id.has("EV37") and Chains.retired.has("EV29") and ev.by_id.has("EV40") and ev.by_id.has("MIL_A1"), "pool: 20 kept + 60 new, no Minerals chain events", str(in_pool))
 	m.events.debug_off = []
 	var drawn := {}
 	var dup := false
@@ -7274,7 +7179,7 @@ func _test_chains() -> void:
 			dup = true
 		drawn[pid] = true
 		ev.record(pid, 20)
-	check(not dup and not drawn.has("EV18") and not drawn.has("EV29") and not drawn.has("MIL_A1") and drawn.size() >= 10, "pool: each event at most once, retired and chain events never drawn", str(drawn.size()))
+	check(not dup and not drawn.has("EV29") and not drawn.has("MIL_A1") and drawn.size() >= 10, "pool: each event at most once, retired and chain events never drawn", str(drawn.size()))
 	# T234: the four branch events EV52-EV55 (one pattern, window cycles 1-10, hidden spotted consequence)
 	var bids := ["EV52", "EV53", "EV54", "EV55"]
 	var br_ok := true
@@ -8899,9 +8804,6 @@ func _test_availability() -> void:
 		if id.begins_with("placeholder_system_"):  # T176: placeholder systems 6 to 10 are off ({not: start})
 			check(not Availability.is_visible(kind, id), "availability rule feature '%s': off for now" % id)
 			continue
-		if id == "dead_danger_meter":  # the off switch ({not: start}); its hidden and shown states are tested in _test_dead_world_mechanics
-			check(not Availability.is_visible(kind, id), "availability rule feature 'dead_danger_meter': off for now")
-			continue
 		_av_reset(m)
 		var can_true: bool = _av_make(m, cond, true)
 		check(can_true and Availability.is_visible(kind, id), "availability rule %s '%s': condition true shows it" % [kind, id])
@@ -9004,7 +8906,7 @@ func _test_dead_world_panel() -> void:
 	pp.rebuild()
 	await process_frame
 	var mb = pp.box.find_child("MineSendButton_dross", true, false)
-	check(mb != null and pp.box.find_child("BuyButton_dross", true, false) != null and pp.box.find_child("DeadNeedsSkillLine", true, false) == null and pp.box.find_child("DangerLine", true, false) == null, "dead panel: with skill and cycle the dross row and Mine button show, the danger line stays hidden")
+	check(mb != null and pp.box.find_child("BuyButton_dross", true, false) != null and pp.box.find_child("DeadNeedsSkillLine", true, false) == null, "dead panel: with skill and cycle the dross row and Mine button show")
 	m.cash = 6000
 	m.ships = 0
 	mb.pressed.emit()

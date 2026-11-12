@@ -10,7 +10,7 @@ extends RefCounted
 ## none before gig_first_cycle. The draw is seeded (saved seed + cycle), so a save's list is stable. Deadlines are on the game clock.
 ## An offer: {uid, id, kind, target {kind "point"|"planet", sys, pos [x,y,z] | index}, due (game time), accepted, req {good, units, got}, rewards}.
 ## Rewards land through apply(): goods in the nearest established world's storage (no share), cash, need credit (the delivery counts
-## as that need met for some cycles: prosperity.add_fill before the cycle's progress), a one-off perk, knowledge, a story line.
+## as that need met for some cycles: prosperity.add_fill before the cycle's progress), a story line.
 ## Condition atoms (game/conditions.gd): gig_done:<id>, gig_open. Saved under "gigs" (save version 15; older saves load empty).
 
 const StoryText := preload("res://game/story_text.gd")
@@ -31,8 +31,6 @@ var offers: Array = []         # open offers, oldest first
 var done := {}                 # data id -> true (finished)
 var skipped := {}              # data id -> true (expired, gone for the run)
 var credits: Array = []        # {planet: int, good, units, left}: need credits still running
-var perks := {}                # perk id -> cycles left
-var knowledge: Array = []      # knowledge ids held
 var signals_seen := 0
 var rush_done := 0
 var last_signal_cycle := -100000
@@ -80,8 +78,6 @@ func reset() -> void:
 	done = {}
 	skipped = {}
 	credits = []
-	perks = {}
-	knowledge = []
 	signals_seen = 0
 	rush_done = 0
 	last_signal_cycle = -100000
@@ -99,9 +95,6 @@ func _now() -> float:
 
 func enabled() -> bool:
 	return main != null and main.flight != null and main.flight.is_enabled()
-
-func has_def(id: String) -> bool:
-	return _by_id.has(id)
 
 func is_done(id: String) -> bool:
 	return done.has(id)
@@ -123,12 +116,6 @@ func open_signal() -> Dictionary:
 		if str(o["kind"]) == "signal":
 			return o
 	return {}
-
-func perk_active(id: String) -> bool:
-	return float(perks.get(id, 0.0)) > 0.0
-
-func has_knowledge(id: String) -> bool:
-	return knowledge.has(id)
 
 ## T296: cargo pods at `pos` in system `sys`: `units` of `good`, fading after `life` cycles. Not limited by the board size (a raid made them).
 ## `lane` is the id of the route the pods came from (-1 when none).
@@ -196,12 +183,8 @@ func _scoop(o: Dictionary) -> void:
 
 # ---- spawn -----------------------------------------------------------------------------------------------------------
 
-## Start of every cycle (main): perks age, then at most one new signal may open.
+## Start of every cycle (main): rush orders, then at most one new signal may open.
 func on_cycle(cycle: int) -> void:
-	for k in perks.keys():
-		perks[k] = float(perks[k]) - 1.0
-		if float(perks[k]) <= 0.0:
-			perks.erase(k)
 	_gen_rush(cycle)
 	if not enabled() or not board_room() or not open_signal().is_empty():
 		return
@@ -321,10 +304,6 @@ func map_obstacles(sys: int) -> Dictionary:
 		lanes.append([p0, c, p2])
 	return {"planets": planets, "lanes": lanes}
 
-func is_clear(pos: Vector3, sys: int) -> bool:
-	var ob := map_obstacles(sys)
-	return clear_of_map(pos, ob["planets"], ob["lanes"], _bal("gig_min_planet_dist"), _bal("gig_min_lane_dist"))
-
 ## Moves `pos` off every lane and living planet by the least step: rings of growing radius round it, 16 fixed directions from `ang0`.
 ## A point at a dead planet stays. Returns `pos` when nothing clear is found within the search.
 func nudge_clear(pos: Vector3, sys: int, ang0: float) -> Vector3:
@@ -388,12 +367,9 @@ func post_rush(planet: int, good: String, units: int, deadline_cycles: float) ->
 	return uid
 
 ## ---- rush generator (T272) ----------------------------------------------------------------------------------------
-## Hooks for later tasks: a shortage weather hit on a world (the good it lacks, "" = none) and a hub that feeds a world (posts fewer).
+## Hook: a shortage weather hit on a world (the good it lacks, "" = none).
 func shortage_good(planet: int) -> String:
 	return main.events.shortage_good_at(planet)  # T280: the live house shortage
-
-func hub_fed(_planet: int) -> bool:
-	return false
 
 ## The goods a world's unmet needs still want (visible goods only).
 func _unmet_goods(i: int) -> Array:
@@ -437,8 +413,6 @@ func rush_candidates(cycle: int) -> Array:
 				good = str(unmet[0])
 		if weight <= 0.0 or good == "":
 			continue
-		if hub_fed(i):
-			weight *= maxf(0.0, _bal("rush_hub_mult", 1.0))
 		out.append({"planet": i, "good": good, "weight": weight, "why": why, "unmet": unmet})
 	return out
 
@@ -622,14 +596,6 @@ func apply(effects: Array, ctx: Dictionary) -> Array:
 				if pl >= 0 and cycles > 0:
 					credits.append({"planet": pl, "good": str(ctx.get("good", "")), "units": main.prosperity.demand(pl), "left": cycles})
 					lines.append(StoryText.get_or("GIG_EFF_CREDIT", "The need counts as met for {n} cycles.", {"n": cycles}))
-			"perk":
-				perks[str(e.get("id", ""))] = _bal("gig_perk_cycles")
-				lines.append(StoryText.get_or("GIG_EFF_PERK", "A small edge for {n} cycles.", {"n": int(_bal("gig_perk_cycles"))}))
-			"knowledge":
-				var kid := str(e.get("id", ""))
-				if not knowledge.has(kid):
-					knowledge.append(kid)
-				lines.append(StoryText.get_or("GIG_EFF_KNOWLEDGE", "You learned something.", {}))
 			"story":
 				var sid := str(e.get("id", ""))
 				if StoryText.has_text(sid):
@@ -704,7 +670,7 @@ static func lint() -> Array:
 
 static func _lint_effect(e: Dictionary, where: String, errs: Array, bal: Dictionary) -> void:
 	var kind := str(e.get("kind", ""))
-	if not ["cash", "cash_pct", "cash_fee", "goods", "need_credit", "perk", "knowledge", "story", "scout_idle"].has(kind):
+	if not ["cash", "cash_pct", "cash_fee", "goods", "need_credit", "story", "scout_idle"].has(kind):
 		errs.append("%s: unknown effect kind '%s'" % [where, kind])
 	var prefix := {"cash": "gig_cash_", "cash_fee": "gig_fee_", "goods": "gig_lot_", "scout_idle": "gig_idle_"}
 	var key := str(e.get("key", str(prefix.get(kind, "")) + str(e.get("size", "")))) if kind != "need_credit" else str(e.get("cycles_key", ""))
@@ -718,7 +684,7 @@ static func _lint_effect(e: Dictionary, where: String, errs: Array, bal: Diction
 
 func to_dict() -> Dictionary:
 	return {"seed": seed_value, "offers": offers.duplicate(true), "done": done.keys(), "skipped": skipped.keys(), "credits": credits.duplicate(true),
-		"perks": perks.duplicate(), "knowledge": knowledge.duplicate(), "signals_seen": signals_seen, "rush_done": rush_done,
+		"signals_seen": signals_seen, "rush_done": rush_done,
 		"last_signal_cycle": last_signal_cycle, "uid": _uid, "rush_last": rush_last.duplicate(), "rush_posted": rush_posted, "last_rush_cycle": last_rush_cycle}
 
 ## A missing or bad dictionary (a save from before gigs) means an empty board, nothing done.
@@ -738,11 +704,6 @@ func from_dict(s) -> void:
 	for c in s.get("credits", []):
 		if typeof(c) == TYPE_DICTIONARY:
 			credits.append({"planet": int(c.get("planet", -1)), "good": str(c.get("good", "")), "units": int(c.get("units", 0)), "left": int(c.get("left", 0))})
-	if typeof(s.get("perks")) == TYPE_DICTIONARY:
-		for k in s["perks"]:
-			perks[str(k)] = float(s["perks"][k])
-	for k in s.get("knowledge", []):
-		knowledge.append(str(k))
 	signals_seen = int(s.get("signals_seen", 0))
 	rush_done = int(s.get("rush_done", 0))
 	last_signal_cycle = int(s.get("last_signal_cycle", -100000))

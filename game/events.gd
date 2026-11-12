@@ -5,7 +5,7 @@ extends RefCounted
 ## Tags: [price up: Planet, commodity]  [price down: Planet, commodity]  [planet closed: Planet]
 ## plus one-off [cash: +N] and [stock: Planet, commodity, +N] (used only by choice effects, if the data has them).
 ## Market chains (game/chains.gd) take the chain steps and the bot effects; this file holds the shared one-time pool (24 kept
-## rows of data/events.json plus EV40-EV51 from data/chains.json), the timed price effects and the scheduled Minerals A flavour popups.
+## rows of data/events.json plus the pool_new rows of data/chains.json: plain events, data choice events and their scheduled followups), the timed price effects and the scheduled Minerals A flavour popups.
 ## A choice has one "tag" in the data. Use choice_effects(ch) for all its effects.
 ## A choice is a Dictionary with "text" and optional "tag" (same tag format), or a plain String (no effect).
 
@@ -73,7 +73,7 @@ func setup(bal: Dictionary, plist: Array) -> void:
 	_add_chain_defs()
 	by_id[NOTICE_STORAGE] = {"id": NOTICE_STORAGE, "notice": true, "title": "STORAGE_READY_TITLE", "title_id": "STORAGE_READY_TITLE", "text_id": "STORAGE_READY"}
 
-## Chain data adds rows without touching data/events.json: the 12 new pool events (price or closure, text by EV<nn>_TITLE / _BODY /
+## Chain data adds rows without touching data/events.json: the 6 new pool events (price or closure, text by EV<nn>_TITLE / _BODY /
 ## _EFF ids) and one row per chain step (kind C, texts by EV_<step>_..., see chains.gd).
 func _add_chain_defs() -> void:
 	for id in Chains.pool_new.keys():
@@ -85,10 +85,20 @@ func _add_chain_defs() -> void:
 			d.erase("pool_effect")
 			d["branch"] = str(n.get("market", ""))
 			d["choices"] = _branch_choices(id, n)
+		elif n.has("choices"):  # data choice event: options with a data effect, resolved live (see _resolve_effect)
+			d.erase("pool_effect")
+			d["choices"] = _data_choices(id, n)
 		if n.has("visible_when"):
 			d["visible_when"] = n["visible_when"]
 		defs.append(d)
 		by_id[id] = d
+	for f in Chains.followups:  # scheduled-only popups that follow a choice (never drawn at random): text ids are the bare id and <id>_TITLE
+		var fid := str(f["id"])
+		if by_id.has(fid):
+			continue
+		var fd := {"id": fid, "title": fid, "title_id": fid + "_TITLE", "text_id": fid, "text": "", "tag": "", "kind": str(f.get("kind", "Q")), "choices": [], "pool_effect": f.get("effect", {}), "random": false}
+		defs.append(fd)
+		by_id[fid] = fd
 	for sid in Chains.step_ids():
 		by_id[sid] = {"id": sid, "title": sid, "text": "", "tag": "", "kind": "C", "choices": [], "chain_step": true, "market": Chains.market_of(sid)}
 
@@ -101,6 +111,41 @@ func _branch_choices(id: String, n: Dictionary) -> Array:
 		out.append({"text_id": "%s_%s_BTN" % [id, side], "eff_id": "%s_%s_EFF" % [id, side], "popup_title_id": "%s_%s_TITLE" % [id, side], "popup_id": "%s_%s" % [id, side],
 			"cash_key": str(br.get("a_cash_key" if side == "A" else "b_cash_key", "")), "market": str(n.get("market", "")), "dark": side == "A"})
 	return out
+
+## The options of a data choice event (pool_new row with "choices": [{key, effect, follow_id?}]). Texts by <id>_<KEY>_BTN / _EFF / _TITLE and the popup <id>_<KEY>.
+## "data_effect" holds the effect row; choice_effect() resolves it live (balance keys read at the moment of the choice).
+func _data_choices(id: String, n: Dictionary) -> Array:
+	var out: Array = []
+	for c in n.get("choices", []):
+		var k := str(c.get("key", ""))
+		var ch := {"text_id": "%s_%s_BTN" % [id, k], "eff_id": "%s_%s_EFF" % [id, k], "popup_title_id": "%s_%s_TITLE" % [id, k], "popup_id": "%s_%s" % [id, k], "data_effect": c.get("effect", {})}
+		if c.has("follow_id"):
+			ch["follow_id"] = str(c["follow_id"])
+		out.append(ch)
+	return out
+
+## A data effect row (pool_new "effect", a choice's "effect", a followup's "effect") to {kind, planet, c, amount}; {} when it names a planet this run lacks.
+## Types: price_pct (direction up|down, good), planet_closed, shortage (good), congestion, cash (key: signed balance value), stock (planet, good, key).
+func _resolve_effect(pe: Dictionary) -> Dictionary:
+	var typ := str(pe.get("type", ""))
+	if typ == "cash":
+		return {"kind": "cash", "planet": -1, "c": "", "amount": int(balance.get(str(pe.get("key", "")), 0))}
+	var pi := -1
+	for i in planets.size():
+		if typeof(planets[i]) == TYPE_DICTIONARY and str(planets[i].get("id", "")) == str(pe.get("planet", "")):
+			pi = i
+	if pi < 0:
+		return {}
+	match typ:
+		"planet_closed":
+			return {"kind": "closed", "planet": pi, "c": "", "amount": 0}
+		"congestion":
+			return {"kind": "congestion", "planet": pi, "c": "", "amount": 0}
+		"shortage":
+			return {"kind": "shortage", "planet": pi, "c": str(pe.get("good", "")), "amount": 0}
+		"stock":
+			return {"kind": "stock", "planet": pi, "c": str(pe.get("good", "")), "amount": int(balance.get(str(pe.get("key", "")), 0))}
+	return {"kind": str(pe.get("direction", "up")), "planet": pi, "c": str(pe.get("good", "")), "amount": 0}
 
 func is_branch(id: String) -> bool:
 	return by_id.get(id, {}).has("branch")
@@ -201,13 +246,7 @@ func named_planet(id: String) -> int:
 func effect_of_event(id: String) -> Dictionary:
 	var pe = by_id.get(id, {}).get("pool_effect")
 	if typeof(pe) == TYPE_DICTIONARY and not pe.is_empty():  # new pool event from data/chains.json: planet by its id
-		var pi := -1
-		for i in planets.size():
-			if typeof(planets[i]) == TYPE_DICTIONARY and str(planets[i].get("id", "")) == str(pe.get("planet", "")):
-				pi = i
-		if pi < 0:
-			return {}
-		return {"kind": str(pe.get("direction", "up")), "planet": pi, "c": str(pe.get("good", "")), "amount": 0}
+		return _resolve_effect(pe)
 	return parse_tag(str(by_id.get(id, {}).get("tag", "")))
 
 func choices_of(id: String) -> Array:
@@ -258,8 +297,6 @@ func asteroid_cost() -> int:
 func debris_fee() -> int:
 	return int(balance.get("debris_clear_fee", 0))
 
-func debris_penalty() -> float:
-	return float(balance.get("debris_route_penalty", 0.0))
 
 ## All effects of a choice (the main tag). Each is {kind, planet, c, amount}; {} entries dropped.
 func choice_effects(ch) -> Array:
@@ -267,6 +304,8 @@ func choice_effects(ch) -> Array:
 	return [] if first.is_empty() else [first]
 
 func choice_effect(ch) -> Dictionary:
+	if typeof(ch) == TYPE_DICTIONARY and ch.has("data_effect"):  # data choice: effect row from data/chains.json
+		return _resolve_effect(ch["data_effect"])
 	if typeof(ch) == TYPE_DICTIONARY and ch.has("cash_key"):  # branch option: cash from balance, live
 		return {"kind": "cash", "planet": -1, "c": "", "amount": int(balance.get(str(ch["cash_key"]), 0))}
 	return parse_tag(str(ch.get("tag", ch.get("effect", "")))) if typeof(ch) == TYPE_DICTIONARY else {}
@@ -356,7 +395,7 @@ func _fired(id: String) -> bool:
 			return true
 	return false
 
-## The shared pool: the 24 kept events and EV40-EV51 (data/chains.json), each at most once per run (a fired id never comes again).
+## The shared pool: the 24 kept events and EV40-EV50 (data/chains.json), each at most once per run (a fired id never comes again).
 func random_id(skip: Array = [], cycle: int = 0) -> String:
 	var pool: Array = []
 	for d in defs:

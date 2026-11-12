@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "data_version": 2,
-  "source": "2026-11-03 chain-data (economy-designer): per core 4.2/4.3 and economy 8.1/8.2/8.3. DATA ONLY; the Gameplay Programmer reads this. All numbers are balance keys in data/balance.json.",
+  "data_version": 3,
+  "source": "2026-11-12 event expansion (gameplay-programmer): +50 pool_new rows, +6 followups, +12 C steps, 4 rows moved from pool_kept. 2026-11-03 chain-data (economy-designer): per core 4.2/4.3 and economy 8.1/8.2/8.3. DATA ONLY; the Gameplay Programmer reads this. All numbers are balance keys in data/balance.json.",
   "vocabulary": {
     "signs": "every key value is signed in the direction of the real change: cash -150 pays 150; volume_pct -0.05 = 5% less volume; upkeep_pct +0.2 = 20% more ship upkeep; price_pct -0.08 = 8% lower sell prices; trip_cost_pct +0.33 = one route costs 33% more trip cost. Gets lists contain the good effects, costs the bad ones, but the sign is always in the value.",
     "cycles": "cycles_key names a balance key with a cycle count; 99 means the rest of the run.",
@@ -19,7 +19,8 @@
     "bot_effect": "{bot bot_1..3, market, stat strength|growth|tier, size S|M|L (null for tier), key, direction up|down, optional cycles_key}. key resolves the size: event_hit_strength_S/M/L and event_hit_growth_S/M/L (down), event_hit_strength_up_S/M and event_hit_growth_up_S (up), event_hit_tier (tier -1; on a tier-1 bot becomes strength down M, summary R8). With cycles_key the hit is timed (strength x (1 - value) for n cycles, then restored); otherwise permanent and multiplicative. Tier is only ever cut.",
     "trigger": "a condition tree of game/conditions.gd (one vocabulary for chains, availability, events and goods). Atoms are strings 'name:arg': any_tier:<n> (some world reached prosperity tier n) and bazaar_stage:<n> (n Star Bazaar stages done) are the growth triggers; share_pct:balance.<key> is legacy, kept for old data, no data uses it; first_sale_after_cycle:balance.<key> (first sale of a non-common-raw good of the market after that cycle); cycles_after_prev_step:balance.<key> (n cycles since the previous step of the SAME chain fired); skill_learned:<node> (skill or tech node, e.g. MIL_2); event_fired:<event or step id>; more in the header of game/conditions.gd. Trees: {all:[...]}, {any:[...]}, {not: cond}. A bare atom string is that atom. A step or an option may carry visible_when (same trees); it is only offered while true. Steps with requires_prev_step true can only fire after the previous step of the same chain (A2 after A1 ...). Every step also needs min_gap (balance key chain_min_gap, 3 cycles) since the last chain step of that market, and a chain step takes the event slot before any pool event.",
     "dir": "signed nudge base value from core 4.3 before echo, swing and cap; rules in balance keys dir_echo_mult, dir_swing_mult, dir_swing_min_abs, dir_nudge_cap. Order: echo, swing, cap. Never shown to the player.",
-    "win_gate": "a market's win is not declared before its B4 fired or cycle win_gate_cycle (78) is reached."
+    "win_gate": "a market's win is not declared before its B4 fired or cycle win_gate_cycle (78) is reached.",
+    "pool": "2026-11-12: pool_new rows may carry choices (data choice events) and visible_when; followups are scheduled-only popups. Chain steps now: A1-A3, B1-B4 and C1-C3 per market (C1 at system_open:2 and any_tier:3, C2 at bazaar_stage:2, C3 at bazaar_stage:3)."
   },
   "steps": [
     {
@@ -2101,6 +2102,771 @@
           }
         ]
       }
+    },
+    {
+      "id": "MIL_C1",
+      "market": "mil",
+      "chain": "C",
+      "step": 1,
+      "trigger": {
+        "all": [
+          "system_open:2",
+          "any_tier:3"
+        ]
+      },
+      "requires_prev_step": false,
+      "min_gap_key": "chain_min_gap",
+      "opt_a": {
+        "dir": 8,
+        "gets": [
+          {
+            "type": "volume_pct",
+            "key": "chain_MIL_C1_a_volume_pct",
+            "cycles_key": "chain_MIL_C1_a_volume_cycles"
+          }
+        ],
+        "costs": [
+          {
+            "type": "upkeep_pct",
+            "key": "chain_MIL_C1_a_upkeep_pct",
+            "cycles_key": "chain_MIL_C1_a_upkeep_cycles"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_3",
+            "market": "mil",
+            "stat": "growth",
+            "size": "S",
+            "key": "event_hit_growth_S",
+            "direction": "down"
+          }
+        ]
+      },
+      "opt_b": {
+        "dir": -7,
+        "gets": [
+          {
+            "type": "cash",
+            "key": "chain_MIL_C1_b_cash"
+          }
+        ],
+        "costs": [
+          {
+            "type": "volume_pct",
+            "key": "chain_MIL_C1_b_volume_pct",
+            "cycles_key": "chain_MIL_C1_b_volume_cycles"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_2",
+            "market": "mil",
+            "stat": "strength",
+            "size": "S",
+            "key": "event_hit_strength_S",
+            "direction": "down"
+          }
+        ]
+      }
+    },
+    {
+      "id": "MIL_C2",
+      "market": "mil",
+      "chain": "C",
+      "step": 2,
+      "trigger": "bazaar_stage:2",
+      "requires_prev_step": true,
+      "min_gap_key": "chain_min_gap",
+      "opt_a": {
+        "dir": -9,
+        "gets": [
+          {
+            "type": "price_pct",
+            "key": "chain_MIL_C2_a_price_pct",
+            "cycles_key": "chain_MIL_C2_a_price_cycles"
+          }
+        ],
+        "costs": [
+          {
+            "type": "cash",
+            "key": "chain_MIL_C2_a_cash"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_1",
+            "market": "mil",
+            "stat": "strength",
+            "size": "M",
+            "key": "event_hit_strength_M",
+            "direction": "down"
+          }
+        ]
+      },
+      "opt_b": {
+        "dir": 8,
+        "gets": [
+          {
+            "type": "trip_cost_pct",
+            "key": "chain_MIL_C2_b_trip_cost_pct",
+            "cycles_key": "chain_MIL_C2_b_trip_cost_cycles",
+            "scope": "one_route"
+          }
+        ],
+        "costs": [
+          {
+            "type": "volume_pct",
+            "key": "chain_MIL_C2_b_volume_pct",
+            "cycles_key": "chain_MIL_C2_b_volume_cycles"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_2",
+            "market": "mil",
+            "stat": "growth",
+            "size": "S",
+            "key": "event_hit_growth_S",
+            "direction": "down"
+          }
+        ]
+      }
+    },
+    {
+      "id": "MIL_C3",
+      "market": "mil",
+      "chain": "C",
+      "step": 3,
+      "trigger": "bazaar_stage:3",
+      "requires_prev_step": true,
+      "min_gap_key": "chain_min_gap",
+      "opt_a": {
+        "dir": 9,
+        "gets": [
+          {
+            "type": "volume_pct",
+            "key": "chain_MIL_C3_a_volume_pct",
+            "cycles_key": "chain_MIL_C3_a_volume_cycles"
+          }
+        ],
+        "costs": [
+          {
+            "type": "price_pct",
+            "key": "chain_MIL_C3_a_price_pct",
+            "cycles_key": "chain_MIL_C3_a_price_cycles"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_3",
+            "market": "mil",
+            "stat": "growth",
+            "size": "S",
+            "key": "event_hit_growth_S",
+            "direction": "down"
+          }
+        ]
+      },
+      "opt_b": {
+        "dir": -10,
+        "gets": [
+          {
+            "type": "cash",
+            "key": "chain_MIL_C3_b_cash"
+          }
+        ],
+        "costs": [
+          {
+            "type": "volume_pct",
+            "key": "chain_MIL_C3_b_volume_pct",
+            "cycles_key": "chain_MIL_C3_b_volume_cycles"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_1",
+            "market": "mil",
+            "stat": "tier",
+            "size": null,
+            "key": "event_hit_tier",
+            "direction": "down"
+          }
+        ]
+      }
+    },
+    {
+      "id": "LUX_C1",
+      "market": "lux",
+      "chain": "C",
+      "step": 1,
+      "trigger": {
+        "all": [
+          "system_open:2",
+          "any_tier:3"
+        ]
+      },
+      "requires_prev_step": false,
+      "min_gap_key": "chain_min_gap",
+      "opt_a": {
+        "dir": 7,
+        "gets": [
+          {
+            "type": "price_pct",
+            "key": "chain_LUX_C1_a_price_pct",
+            "cycles_key": "chain_LUX_C1_a_price_cycles"
+          }
+        ],
+        "costs": [
+          {
+            "type": "volume_pct",
+            "key": "chain_LUX_C1_a_volume_pct",
+            "cycles_key": "chain_LUX_C1_a_volume_cycles"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_2",
+            "market": "lux",
+            "stat": "growth",
+            "size": "S",
+            "key": "event_hit_growth_S",
+            "direction": "down"
+          }
+        ]
+      },
+      "opt_b": {
+        "dir": -8,
+        "gets": [
+          {
+            "type": "cash",
+            "key": "chain_LUX_C1_b_cash"
+          }
+        ],
+        "costs": [
+          {
+            "type": "upkeep_pct",
+            "key": "chain_LUX_C1_b_upkeep_pct",
+            "cycles_key": "chain_LUX_C1_b_upkeep_cycles"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_3",
+            "market": "lux",
+            "stat": "strength",
+            "size": "S",
+            "key": "event_hit_strength_S",
+            "direction": "down"
+          }
+        ]
+      }
+    },
+    {
+      "id": "LUX_C2",
+      "market": "lux",
+      "chain": "C",
+      "step": 2,
+      "trigger": "bazaar_stage:2",
+      "requires_prev_step": true,
+      "min_gap_key": "chain_min_gap",
+      "opt_a": {
+        "dir": 9,
+        "gets": [
+          {
+            "type": "volume_pct",
+            "key": "chain_LUX_C2_a_volume_pct",
+            "cycles_key": "chain_LUX_C2_a_volume_cycles"
+          }
+        ],
+        "costs": [
+          {
+            "type": "cash",
+            "key": "chain_LUX_C2_a_cash"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_2",
+            "market": "lux",
+            "stat": "strength",
+            "size": "S",
+            "key": "event_hit_strength_S",
+            "direction": "down"
+          }
+        ]
+      },
+      "opt_b": {
+        "dir": -8,
+        "gets": [
+          {
+            "type": "cash",
+            "key": "chain_LUX_C2_b_cash"
+          }
+        ],
+        "costs": [
+          {
+            "type": "price_pct",
+            "key": "chain_LUX_C2_b_price_pct",
+            "cycles_key": "chain_LUX_C2_b_price_cycles"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_3",
+            "market": "lux",
+            "stat": "growth",
+            "size": "S",
+            "key": "event_hit_growth_S",
+            "direction": "down"
+          }
+        ]
+      }
+    },
+    {
+      "id": "LUX_C3",
+      "market": "lux",
+      "chain": "C",
+      "step": 3,
+      "trigger": "bazaar_stage:3",
+      "requires_prev_step": true,
+      "min_gap_key": "chain_min_gap",
+      "opt_a": {
+        "dir": -10,
+        "gets": [
+          {
+            "type": "price_pct",
+            "key": "chain_LUX_C3_a_price_pct",
+            "cycles_key": "chain_LUX_C3_a_price_cycles"
+          }
+        ],
+        "costs": [
+          {
+            "type": "cash",
+            "key": "chain_LUX_C3_a_cash"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_2",
+            "market": "lux",
+            "stat": "strength",
+            "size": "M",
+            "key": "event_hit_strength_M",
+            "direction": "down"
+          }
+        ]
+      },
+      "opt_b": {
+        "dir": 9,
+        "gets": [
+          {
+            "type": "volume_pct",
+            "key": "chain_LUX_C3_b_volume_pct",
+            "cycles_key": "chain_LUX_C3_b_volume_cycles"
+          }
+        ],
+        "costs": [
+          {
+            "type": "price_pct",
+            "key": "chain_LUX_C3_b_price_pct",
+            "cycles_key": "chain_LUX_C3_b_price_cycles"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_1",
+            "market": "lux",
+            "stat": "growth",
+            "size": "S",
+            "key": "event_hit_growth_S",
+            "direction": "down"
+          }
+        ]
+      }
+    },
+    {
+      "id": "MIN_C1",
+      "market": "min",
+      "chain": "C",
+      "step": 1,
+      "trigger": {
+        "all": [
+          "system_open:2",
+          "any_tier:3"
+        ]
+      },
+      "requires_prev_step": false,
+      "min_gap_key": "chain_min_gap",
+      "opt_a": {
+        "dir": 8,
+        "gets": [
+          {
+            "type": "volume_pct",
+            "key": "chain_MIN_C1_a_volume_pct",
+            "cycles_key": "chain_MIN_C1_a_volume_cycles"
+          }
+        ],
+        "costs": [
+          {
+            "type": "price_pct",
+            "key": "chain_MIN_C1_a_price_pct",
+            "cycles_key": "chain_MIN_C1_a_price_cycles"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_1",
+            "market": "min",
+            "stat": "growth",
+            "size": "S",
+            "key": "event_hit_growth_S",
+            "direction": "down"
+          }
+        ]
+      },
+      "opt_b": {
+        "dir": -7,
+        "gets": [
+          {
+            "type": "cash",
+            "key": "chain_MIN_C1_b_cash"
+          }
+        ],
+        "costs": [
+          {
+            "type": "volume_pct",
+            "key": "chain_MIN_C1_b_volume_pct",
+            "cycles_key": "chain_MIN_C1_b_volume_cycles"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_3",
+            "market": "min",
+            "stat": "strength",
+            "size": "S",
+            "key": "event_hit_strength_S",
+            "direction": "down"
+          }
+        ]
+      }
+    },
+    {
+      "id": "MIN_C2",
+      "market": "min",
+      "chain": "C",
+      "step": 2,
+      "trigger": "bazaar_stage:2",
+      "requires_prev_step": true,
+      "min_gap_key": "chain_min_gap",
+      "opt_a": {
+        "dir": -8,
+        "gets": [
+          {
+            "type": "price_pct",
+            "key": "chain_MIN_C2_a_price_pct",
+            "cycles_key": "chain_MIN_C2_a_price_cycles"
+          }
+        ],
+        "costs": [
+          {
+            "type": "cash",
+            "key": "chain_MIN_C2_a_cash"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_1",
+            "market": "min",
+            "stat": "strength",
+            "size": "S",
+            "key": "event_hit_strength_S",
+            "direction": "down"
+          }
+        ]
+      },
+      "opt_b": {
+        "dir": 9,
+        "gets": [
+          {
+            "type": "trip_cost_pct",
+            "key": "chain_MIN_C2_b_trip_cost_pct",
+            "cycles_key": "chain_MIN_C2_b_trip_cost_cycles",
+            "scope": "one_route"
+          }
+        ],
+        "costs": [
+          {
+            "type": "volume_pct",
+            "key": "chain_MIN_C2_b_volume_pct",
+            "cycles_key": "chain_MIN_C2_b_volume_cycles"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_3",
+            "market": "min",
+            "stat": "growth",
+            "size": "S",
+            "key": "event_hit_growth_S",
+            "direction": "down"
+          }
+        ]
+      }
+    },
+    {
+      "id": "MIN_C3",
+      "market": "min",
+      "chain": "C",
+      "step": 3,
+      "trigger": "bazaar_stage:3",
+      "requires_prev_step": true,
+      "min_gap_key": "chain_min_gap",
+      "opt_a": {
+        "dir": 8,
+        "gets": [
+          {
+            "type": "volume_pct",
+            "key": "chain_MIN_C3_a_volume_pct",
+            "cycles_key": "chain_MIN_C3_a_volume_cycles"
+          }
+        ],
+        "costs": [
+          {
+            "type": "upkeep_pct",
+            "key": "chain_MIN_C3_a_upkeep_pct",
+            "cycles_key": "chain_MIN_C3_a_upkeep_cycles"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_1",
+            "market": "min",
+            "stat": "strength",
+            "size": "M",
+            "key": "event_hit_strength_M",
+            "direction": "down"
+          }
+        ]
+      },
+      "opt_b": {
+        "dir": -9,
+        "gets": [
+          {
+            "type": "cash",
+            "key": "chain_MIN_C3_b_cash"
+          }
+        ],
+        "costs": [
+          {
+            "type": "volume_pct",
+            "key": "chain_MIN_C3_b_volume_pct",
+            "cycles_key": "chain_MIN_C3_b_volume_cycles"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_3",
+            "market": "min",
+            "stat": "growth",
+            "size": "M",
+            "key": "event_hit_growth_M",
+            "direction": "down"
+          }
+        ]
+      }
+    },
+    {
+      "id": "BIO_C1",
+      "market": "bio",
+      "chain": "C",
+      "step": 1,
+      "trigger": {
+        "all": [
+          "system_open:2",
+          "any_tier:3"
+        ]
+      },
+      "requires_prev_step": false,
+      "min_gap_key": "chain_min_gap",
+      "opt_a": {
+        "dir": -8,
+        "gets": [
+          {
+            "type": "price_pct",
+            "key": "chain_BIO_C1_a_price_pct",
+            "cycles_key": "chain_BIO_C1_a_price_cycles"
+          }
+        ],
+        "costs": [
+          {
+            "type": "cash",
+            "key": "chain_BIO_C1_a_cash"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_2",
+            "market": "bio",
+            "stat": "strength",
+            "size": "S",
+            "key": "event_hit_strength_S",
+            "direction": "down"
+          }
+        ]
+      },
+      "opt_b": {
+        "dir": 7,
+        "gets": [
+          {
+            "type": "volume_pct",
+            "key": "chain_BIO_C1_b_volume_pct",
+            "cycles_key": "chain_BIO_C1_b_volume_cycles"
+          }
+        ],
+        "costs": [
+          {
+            "type": "upkeep_pct",
+            "key": "chain_BIO_C1_b_upkeep_pct",
+            "cycles_key": "chain_BIO_C1_b_upkeep_cycles"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_3",
+            "market": "bio",
+            "stat": "growth",
+            "size": "S",
+            "key": "event_hit_growth_S",
+            "direction": "down"
+          }
+        ]
+      }
+    },
+    {
+      "id": "BIO_C2",
+      "market": "bio",
+      "chain": "C",
+      "step": 2,
+      "trigger": "bazaar_stage:2",
+      "requires_prev_step": true,
+      "min_gap_key": "chain_min_gap",
+      "opt_a": {
+        "dir": 9,
+        "gets": [
+          {
+            "type": "trip_cost_pct",
+            "key": "chain_BIO_C2_a_trip_cost_pct",
+            "cycles_key": "chain_BIO_C2_a_trip_cost_cycles",
+            "scope": "one_route"
+          }
+        ],
+        "costs": [
+          {
+            "type": "cash",
+            "key": "chain_BIO_C2_a_cash"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_2",
+            "market": "bio",
+            "stat": "growth",
+            "size": "S",
+            "key": "event_hit_growth_S",
+            "direction": "down"
+          }
+        ]
+      },
+      "opt_b": {
+        "dir": -8,
+        "gets": [
+          {
+            "type": "cash",
+            "key": "chain_BIO_C2_b_cash"
+          }
+        ],
+        "costs": [
+          {
+            "type": "volume_pct",
+            "key": "chain_BIO_C2_b_volume_pct",
+            "cycles_key": "chain_BIO_C2_b_volume_cycles"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_3",
+            "market": "bio",
+            "stat": "strength",
+            "size": "S",
+            "key": "event_hit_strength_S",
+            "direction": "down"
+          }
+        ]
+      }
+    },
+    {
+      "id": "BIO_C3",
+      "market": "bio",
+      "chain": "C",
+      "step": 3,
+      "trigger": "bazaar_stage:3",
+      "requires_prev_step": true,
+      "min_gap_key": "chain_min_gap",
+      "opt_a": {
+        "dir": -10,
+        "gets": [
+          {
+            "type": "price_pct",
+            "key": "chain_BIO_C3_a_price_pct",
+            "cycles_key": "chain_BIO_C3_a_price_cycles"
+          }
+        ],
+        "costs": [
+          {
+            "type": "volume_pct",
+            "key": "chain_BIO_C3_a_volume_pct",
+            "cycles_key": "chain_BIO_C3_a_volume_cycles"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_2",
+            "market": "bio",
+            "stat": "strength",
+            "size": "M",
+            "key": "event_hit_strength_M",
+            "direction": "down"
+          }
+        ]
+      },
+      "opt_b": {
+        "dir": 9,
+        "gets": [
+          {
+            "type": "volume_pct",
+            "key": "chain_BIO_C3_b_volume_pct",
+            "cycles_key": "chain_BIO_C3_b_volume_cycles"
+          }
+        ],
+        "costs": [
+          {
+            "type": "cash",
+            "key": "chain_BIO_C3_b_cash"
+          }
+        ],
+        "bot": [
+          {
+            "bot": "bot_3",
+            "market": "bio",
+            "stat": "growth",
+            "size": "S",
+            "key": "event_hit_growth_S",
+            "direction": "down"
+          }
+        ]
+      }
     }
   ],
   "pool_new": [
@@ -2130,56 +2896,6 @@
       "numbers_source": "story"
     },
     {
-      "id": "EV41",
-      "kind": "Q",
-      "market": "mil",
-      "once": true,
-      "effect": {
-        "type": "price_pct",
-        "planet": "planet_3",
-        "good": "rounds",
-        "direction": "up",
-        "key": "event_pct_rounds",
-        "cycles_key": "event_price_cycles"
-      },
-      "bot_effect": [
-        {
-          "bot": "bot_1",
-          "market": "mil",
-          "stat": "growth",
-          "size": "S",
-          "key": "event_hit_growth_S",
-          "direction": "down"
-        }
-      ],
-      "numbers_source": "story"
-    },
-    {
-      "id": "EV42",
-      "kind": "I",
-      "market": "mil",
-      "once": true,
-      "effect": {
-        "type": "price_pct",
-        "planet": "planet_2",
-        "good": "arms",
-        "direction": "up",
-        "key": "event_pct_arms",
-        "cycles_key": "event_price_cycles"
-      },
-      "bot_effect": [
-        {
-          "bot": "bot_1",
-          "market": "mil",
-          "stat": "growth",
-          "size": "S",
-          "key": "event_hit_growth_S",
-          "direction": "down"
-        }
-      ],
-      "numbers_source": "picked"
-    },
-    {
       "id": "EV43",
       "kind": "I",
       "market": "lux",
@@ -2203,56 +2919,6 @@
         }
       ],
       "numbers_source": "story"
-    },
-    {
-      "id": "EV44",
-      "kind": "Q",
-      "market": "lux",
-      "once": true,
-      "effect": {
-        "type": "price_pct",
-        "planet": "planet_3",
-        "good": "gems",
-        "direction": "up",
-        "key": "event_pct_gems",
-        "cycles_key": "event_price_cycles"
-      },
-      "bot_effect": [
-        {
-          "bot": "bot_2",
-          "market": "lux",
-          "stat": "growth",
-          "size": "S",
-          "key": "event_hit_growth_S",
-          "direction": "down"
-        }
-      ],
-      "numbers_source": "picked"
-    },
-    {
-      "id": "EV45",
-      "kind": "P",
-      "market": "lux",
-      "once": true,
-      "effect": {
-        "type": "price_pct",
-        "planet": "planet_3",
-        "good": "attar",
-        "direction": "down",
-        "key": "event_pct_attar",
-        "cycles_key": "event_price_cycles"
-      },
-      "bot_effect": [
-        {
-          "bot": "bot_3",
-          "market": "lux",
-          "stat": "strength",
-          "size": "S",
-          "key": "event_hit_strength_up_S",
-          "direction": "up"
-        }
-      ],
-      "numbers_source": "picked"
     },
     {
       "id": "EV46",
@@ -2305,31 +2971,6 @@
       "numbers_source": "picked"
     },
     {
-      "id": "EV48",
-      "kind": "I",
-      "market": "min",
-      "once": true,
-      "effect": {
-        "type": "price_pct",
-        "planet": "planet_3",
-        "good": "plate",
-        "direction": "up",
-        "key": "event_price_pct",
-        "cycles_key": "event_price_cycles"
-      },
-      "bot_effect": [
-        {
-          "bot": "bot_1",
-          "market": "min",
-          "stat": "growth",
-          "size": "S",
-          "key": "event_hit_growth_S",
-          "direction": "down"
-        }
-      ],
-      "numbers_source": "picked"
-    },
-    {
       "id": "EV49",
       "kind": "I",
       "market": "bio",
@@ -2375,31 +3016,6 @@
         }
       ],
       "numbers_source": "story"
-    },
-    {
-      "id": "EV51",
-      "kind": "P",
-      "market": "bio",
-      "once": true,
-      "effect": {
-        "type": "price_pct",
-        "planet": "planet_2",
-        "good": "seed",
-        "direction": "up",
-        "key": "event_pct_seed",
-        "cycles_key": "event_price_cycles"
-      },
-      "bot_effect": [
-        {
-          "bot": "bot_2",
-          "market": "bio",
-          "stat": "growth",
-          "size": "S",
-          "key": "event_hit_growth_S",
-          "direction": "down"
-        }
-      ],
-      "numbers_source": "picked"
     },
     {
       "id": "EV52",
@@ -2506,9 +3122,1548 @@
       },
       "bot_effect": [],
       "numbers_source": "first_pass"
+    },
+    {
+      "id": "EV_PST01",
+      "kind": "C",
+      "market": null,
+      "once": true,
+      "choices": [
+        {
+          "key": "SIGN",
+          "effect": {
+            "type": "price_pct",
+            "planet": "planet_4",
+            "good": "energy",
+            "direction": "up",
+            "key": "event_pct_energy",
+            "cycles_key": "event_price_cycles"
+          }
+        },
+        {
+          "key": "LEAVE",
+          "effect": {
+            "type": "cash",
+            "key": "event_cash_gain_small"
+          }
+        }
+      ],
+      "visible_when": {
+        "all": [
+          "post_built:planet_4"
+        ]
+      },
+      "bot_effect": [],
+      "numbers_source": "story"
+    },
+    {
+      "id": "EV_PST02",
+      "kind": "C",
+      "market": null,
+      "once": true,
+      "choices": [
+        {
+          "key": "GIFT",
+          "effect": {
+            "type": "cash",
+            "key": "event_cash_cost_small"
+          }
+        },
+        {
+          "key": "WAIT",
+          "effect": {
+            "type": "price_pct",
+            "planet": "s2_p1",
+            "good": "energy",
+            "direction": "down",
+            "key": "event_pct_energy",
+            "cycles_key": "event_price_cycles"
+          }
+        }
+      ],
+      "visible_when": {
+        "all": [
+          "system_open:2",
+          "post_built:s2_p1"
+        ]
+      },
+      "bot_effect": [],
+      "numbers_source": "story"
+    },
+    {
+      "id": "EV_PST03",
+      "kind": "C",
+      "market": null,
+      "once": true,
+      "choices": [
+        {
+          "key": "PART",
+          "effect": {
+            "type": "cash",
+            "key": "event_cash_cost_small"
+          }
+        },
+        {
+          "key": "SHIFT",
+          "effect": {
+            "type": "congestion",
+            "planet": "s2_p2",
+            "direction": "congestion",
+            "cycles_key": "congestion_cycles"
+          }
+        }
+      ],
+      "visible_when": {
+        "all": [
+          "system_open:2",
+          "post_built:s2_p2"
+        ]
+      },
+      "bot_effect": [],
+      "numbers_source": "story"
+    },
+    {
+      "id": "EV_PST04",
+      "kind": "C",
+      "market": null,
+      "once": true,
+      "choices": [
+        {
+          "key": "LEASE",
+          "effect": {
+            "type": "price_pct",
+            "planet": "s2_p3",
+            "good": "energy",
+            "direction": "up",
+            "key": "event_pct_energy",
+            "cycles_key": "event_price_cycles"
+          }
+        },
+        {
+          "key": "CELLS",
+          "effect": {
+            "type": "stock",
+            "planet": "s2_p3",
+            "good": "energy",
+            "key": "event_stock_small"
+          }
+        }
+      ],
+      "visible_when": {
+        "all": [
+          "system_open:2",
+          "post_built:s2_p3"
+        ]
+      },
+      "bot_effect": [],
+      "numbers_source": "story"
+    },
+    {
+      "id": "EV_PST05",
+      "kind": "C",
+      "market": null,
+      "once": true,
+      "choices": [
+        {
+          "key": "SHARE",
+          "effect": {
+            "type": "price_pct",
+            "planet": "s2_p4",
+            "good": "energy",
+            "direction": "up",
+            "key": "event_pct_energy",
+            "cycles_key": "event_price_cycles"
+          }
+        },
+        {
+          "key": "MOVE",
+          "effect": {
+            "type": "cash",
+            "key": "event_cash_gain_small"
+          }
+        }
+      ],
+      "visible_when": {
+        "all": [
+          "system_open:2",
+          "post_built:s2_p4"
+        ]
+      },
+      "bot_effect": [],
+      "numbers_source": "story"
+    },
+    {
+      "id": "EV_PST06",
+      "kind": "C",
+      "market": null,
+      "once": true,
+      "choices": [
+        {
+          "key": "OPEN",
+          "effect": {
+            "type": "price_pct",
+            "planet": "planet_2",
+            "good": "energy",
+            "direction": "up",
+            "key": "event_pct_energy",
+            "cycles_key": "event_price_cycles"
+          }
+        },
+        {
+          "key": "WORK",
+          "effect": {
+            "type": "stock",
+            "planet": "planet_2",
+            "good": "energy",
+            "key": "event_stock_small"
+          }
+        }
+      ],
+      "visible_when": {
+        "all": [
+          "post_built:planet_2",
+          "planet_tier:planet_2/2"
+        ]
+      },
+      "bot_effect": [],
+      "numbers_source": "story"
+    },
+    {
+      "id": "EV_FLT01",
+      "kind": "C",
+      "market": null,
+      "once": true,
+      "choices": [
+        {
+          "key": "TOW",
+          "effect": {
+            "type": "cash",
+            "key": "event_cash_gain_small"
+          }
+        },
+        {
+          "key": "STRIP",
+          "effect": {
+            "type": "stock",
+            "planet": "planet_1",
+            "good": "energy",
+            "key": "event_stock_small"
+          }
+        }
+      ],
+      "visible_when": {
+        "all": [
+          "any_tier:2"
+        ]
+      },
+      "bot_effect": [],
+      "numbers_source": "story"
+    },
+    {
+      "id": "EV_FLT02",
+      "kind": "C",
+      "market": null,
+      "once": true,
+      "choices": [
+        {
+          "key": "RELAY",
+          "effect": {
+            "type": "cash",
+            "key": "event_cash_cost_small"
+          }
+        },
+        {
+          "key": "HOLD",
+          "effect": {
+            "type": "congestion",
+            "planet": "s2_p1",
+            "direction": "congestion",
+            "cycles_key": "congestion_cycles"
+          }
+        }
+      ],
+      "visible_when": {
+        "all": [
+          "system_open:2",
+          "post_built:s2_p1",
+          "any_tier:3"
+        ]
+      },
+      "bot_effect": [],
+      "numbers_source": "story"
+    },
+    {
+      "id": "EV41",
+      "kind": "Q",
+      "market": "mil",
+      "once": true,
+      "effect": {
+        "type": "price_pct",
+        "planet": "s2_p2",
+        "good": "rounds",
+        "direction": "up",
+        "key": "event_pct_rounds",
+        "cycles_key": "event_price_cycles"
+      },
+      "visible_when": {
+        "all": [
+          "branch_is:mil",
+          "system_open:2",
+          "post_built:s2_p2",
+          "good_visible:rounds"
+        ]
+      },
+      "bot_effect": [],
+      "numbers_source": "story"
+    },
+    {
+      "id": "EV42",
+      "kind": "I",
+      "market": "mil",
+      "once": true,
+      "effect": {
+        "type": "price_pct",
+        "planet": "s2_p4",
+        "good": "arms",
+        "direction": "up",
+        "key": "event_pct_arms",
+        "cycles_key": "event_price_cycles"
+      },
+      "visible_when": {
+        "all": [
+          "branch_is:mil",
+          "system_open:2",
+          "post_built:s2_p4",
+          "good_visible:arms"
+        ]
+      },
+      "bot_effect": [],
+      "numbers_source": "story"
+    },
+    {
+      "id": "EV81",
+      "kind": "Q",
+      "market": "mil",
+      "once": true,
+      "effect": {
+        "type": "shortage",
+        "planet": "planet_4",
+        "good": "energy",
+        "direction": "shortage",
+        "cycles_key": "shortage_cycles"
+      },
+      "visible_when": {
+        "all": [
+          "branch_is:mil",
+          "post_built:planet_4"
+        ]
+      },
+      "bot_effect": [],
+      "numbers_source": "story"
+    },
+    {
+      "id": "EV82",
+      "kind": "C",
+      "market": "mil",
+      "once": true,
+      "choices": [
+        {
+          "key": "PAY",
+          "effect": {
+            "type": "cash",
+            "key": "event_cash_cost_small"
+          }
+        },
+        {
+          "key": "WAIT",
+          "effect": {
+            "type": "congestion",
+            "planet": "planet_2",
+            "direction": "congestion",
+            "cycles_key": "congestion_cycles"
+          }
+        }
+      ],
+      "visible_when": {
+        "all": [
+          "branch_is:mil",
+          "post_built:planet_2"
+        ]
+      },
+      "bot_effect": [],
+      "numbers_source": "story"
+    },
+    {
+      "id": "EV83",
+      "kind": "C",
+      "market": "mil",
+      "once": true,
+      "choices": [
+        {
+          "key": "VOLT",
+          "effect": {
+            "type": "price_pct",
+            "planet": "planet_1",
+            "good": "powder",
+            "direction": "up",
+            "key": "event_price_pct",
+            "cycles_key": "event_price_cycles"
+          }
+        },
+        {
+          "key": "FLINT",
+          "effect": {
+            "type": "price_pct",
+            "planet": "planet_4",
+            "good": "energy",
+            "direction": "up",
+            "key": "event_pct_energy",
+            "cycles_key": "event_price_cycles"
+          }
+        }
+      ],
+      "visible_when": {
+        "all": [
+          "branch_is:mil",
+          "post_built:planet_4"
+        ]
+      },
+      "bot_effect": [],
+      "numbers_source": "story"
+    },
+    {
+      "id": "EV84",
+      "kind": "C",
+      "market": "mil",
+      "once": true,
+      "choices": [
+        {
+          "key": "CASH",
+          "effect": {
+            "type": "cash",
+            "key": "event_cash_gain_small"
+          }
+        },
+        {
+          "key": "GOODS",
+          "effect": {
+            "type": "stock",
+            "planet": "planet_4",
+            "good": "powder",
+            "key": "event_stock_small"
+          }
+        }
+      ],
+      "visible_when": {
+        "all": [
+          "branch_is:mil",
+          "post_built:planet_4"
+        ]
+      },
+      "bot_effect": [],
+      "numbers_source": "story"
+    },
+    {
+      "id": "EV85",
+      "kind": "Q",
+      "market": "mil",
+      "once": true,
+      "effect": {
+        "type": "price_pct",
+        "planet": "planet_1",
+        "good": "powder",
+        "direction": "down",
+        "key": "event_price_pct",
+        "cycles_key": "event_price_cycles"
+      },
+      "visible_when": {
+        "all": [
+          "branch_is:mil"
+        ]
+      },
+      "bot_effect": [],
+      "numbers_source": "story"
+    },
+    {
+      "id": "EV_FLT03",
+      "kind": "C",
+      "market": "mil",
+      "once": true,
+      "choices": [
+        {
+          "key": "PAY",
+          "effect": {
+            "type": "cash",
+            "key": "event_cash_cost_small"
+          }
+        },
+        {
+          "key": "AROUND",
+          "effect": {
+            "type": "congestion",
+            "planet": "s2_p4",
+            "direction": "congestion",
+            "cycles_key": "congestion_cycles"
+          }
+        }
+      ],
+      "visible_when": {
+        "all": [
+          "branch_is:mil",
+          "system_open:2",
+          "post_built:s2_p4"
+        ]
+      },
+      "bot_effect": [],
+      "numbers_source": "story"
+    },
+    {
+      "id": "EV91",
+      "kind": "I",
+      "market": "mil",
+      "once": true,
+      "effect": {
+        "type": "planet_closed",
+        "planet": "s2_p2",
+        "cycles_key": "event_close_cycles"
+      },
+      "visible_when": {
+        "all": [
+          "branch_is:mil",
+          "system_open:2",
+          "post_built:s2_p2"
+        ]
+      },
+      "bot_effect": [],
+      "numbers_source": "story"
+    },
+    {
+      "id": "EV92",
+      "kind": "C",
+      "market": "mil",
+      "once": true,
+      "choices": [
+        {
+          "key": "QUILLON",
+          "effect": {
+            "type": "price_pct",
+            "planet": "s2_p4",
+            "good": "rivets",
+            "direction": "up",
+            "key": "event_pct_rivets",
+            "cycles_key": "event_price_cycles"
+          }
+        },
+        {
+          "key": "CINDREL",
+          "effect": {
+            "type": "price_pct",
+            "planet": "s2_p2",
+            "good": "rivets",
+            "direction": "up",
+            "key": "event_pct_rivets",
+            "cycles_key": "event_price_cycles"
+          }
+        }
+      ],
+      "visible_when": {
+        "all": [
+          "branch_is:mil",
+          "system_open:2",
+          "post_built:s2_p4",
+          "post_built:s2_p2",
+          "good_visible:rivets"
+        ]
+      },
+      "bot_effect": [],
+      "numbers_source": "story"
+    },
+    {
+      "id": "EV93",
+      "kind": "C",
+      "market": "mil",
+      "once": true,
+      "choices": [
+        {
+          "key": "CASH",
+          "effect": {
+            "type": "cash",
+            "key": "event_cash_gain_small"
+          }
+        },
+        {
+          "key": "GOODS",
+          "effect": {
+            "type": "stock",
+            "planet": "s2_p4",
+            "good": "rivets",
+            "key": "event_stock_small"
+          }
+        }
+      ],
+      "visible_when": {
+        "all": [
+          "branch_is:mil",
+          "system_open:2",
+          "post_built:s2_p4",
+          "good_visible:rivets",
+          "bazaar_stage:1"
+        ]
+      },
+      "bot_effect": [],
+      "numbers_source": "story"
+    },
+    {
+      "id": "EV24",
+      "kind": "P",
+      "market": "mil",
+      "once": true,
+      "effect": {
+        "type": "price_pct",
+        "planet": "s2_p2",
+        "good": "spyware",
+        "direction": "up",
+        "key": "event_pct_spyware",
+        "cycles_key": "event_price_cycles"
+      },
+      "visible_when": {
+        "all": [
+          "branch_is:mil",
+          "system_open:2",
+          "post_built:s2_p2",
+          "good_visible:spyware"
+        ]
+      },
+      "bot_effect": [],
+      "numbers_source": "story"
+    },
+    {
+      "id": "EV25",
+      "kind": "Q",
+      "market": "mil",
+      "once": true,
+      "effect": {
+        "type": "price_pct",
+        "planet": "s2_p3",
+        "good": "spyware",
+        "direction": "up",
+        "key": "event_pct_spyware",
+        "cycles_key": "event_price_cycles"
+      },
+      "visible_when": {
+        "all": [
+          "branch_is:mil",
+          "system_open:2",
+          "post_built:s2_p3",
+          "good_visible:spyware"
+        ]
+      },
+      "bot_effect": [],
+      "numbers_source": "story"
+    },
+    {
+      "id": "EV21",
+      "kind": "I",
+      "market": "lux",
+      "once": true,
+      "effect": {
+        "type": "price_pct",
+        "planet": "s2_p1",
+        "good": "silk",
+        "direction": "up",
+        "key": "event_pct_silk",
+        "cycles_key": "event_price_cycles"
+      },
+      "visible_when": {
+        "all": [
+          "branch_is:lux",
+          "system_open:2",
+          "post_built:s2_p1",
+          "good_visible:silk"
+        ]
+      },
+      "bot_effect": [],
+      "numbers_source": "story"
+    },
+    {
+      "id": "EV22",
+      "kind": "I",
+      "market": "lux",
+      "once": true,
+      "effect": {
+        "type": "price_pct",
+        "planet": "s2_p4",
+        "good": "silk",
+        "direction": "up",
+        "key": "event_pct_silk",
+        "cycles_key": "event_price_cycles"
+      },
+      "visible_when": {
+        "all": [
+          "branch_is:lux",
+          "system_open:2",
+          "post_built:s2_p4",
+          "good_visible:silk"
+        ]
+      },
+      "bot_effect": [],
+      "numbers_source": "story"
+    },
+    {
+      "id": "EV44",
+      "kind": "Q",
+      "market": "lux",
+      "once": true,
+      "effect": {
+        "type": "price_pct",
+        "planet": "s2_p1",
+        "good": "gems",
+        "direction": "up",
+        "key": "event_pct_gems",
+        "cycles_key": "event_price_cycles"
+      },
+      "visible_when": {
+        "all": [
+          "branch_is:lux",
+          "system_open:2",
+          "post_built:s2_p1",
+          "good_visible:gems"
+        ]
+      },
+      "bot_effect": [],
+      "numbers_source": "story"
+    },
+    {
+      "id": "EV45",
+      "kind": "P",
+      "market": "lux",
+      "once": true,
+      "effect": {
+        "type": "price_pct",
+        "planet": "s2_p4",
+        "good": "attar",
+        "direction": "down",
+        "key": "event_pct_attar",
+        "cycles_key": "event_price_cycles"
+      },
+      "visible_when": {
+        "all": [
+          "branch_is:lux",
+          "system_open:2",
+          "post_built:s2_p4",
+          "good_visible:attar"
+        ]
+      },
+      "bot_effect": [],
+      "numbers_source": "story"
+    },
+    {
+      "id": "EV76",
+      "kind": "I",
+      "market": "lux",
+      "once": true,
+      "effect": {
+        "type": "price_pct",
+        "planet": "planet_1",
+        "good": "blooms",
+        "direction": "up",
+        "key": "event_price_pct",
+        "cycles_key": "event_price_cycles"
+      },
+      "visible_when": {
+        "all": [
+          "branch_is:lux"
+        ]
+      },
+      "bot_effect": [],
+      "numbers_source": "story"
+    },
+    {
+      "id": "EV77",
+      "kind": "C",
+      "market": "lux",
+      "once": true,
+      "choices": [
+        {
+          "key": "THANK",
+          "effect": {
+            "type": "cash",
+            "key": "event_cash_cost_small"
+          }
+        },
+        {
+          "key": "SKIP",
+          "effect": {
+            "type": "price_pct",
+            "planet": "planet_3",
+            "good": "blooms",
+            "direction": "down",
+            "key": "event_price_pct",
+            "cycles_key": "event_price_cycles"
+          }
+        }
+      ],
+      "visible_when": {
+        "all": [
+          "branch_is:lux",
+          "post_built:planet_3"
+        ]
+      },
+      "bot_effect": [],
+      "numbers_source": "story"
+    },
+    {
+      "id": "EV78",
+      "kind": "C",
+      "market": "lux",
+      "once": true,
+      "choices": [
+        {
+          "key": "TILLAM",
+          "effect": {
+            "type": "price_pct",
+            "planet": "planet_2",
+            "good": "musk",
+            "direction": "up",
+            "key": "event_pct_musk",
+            "cycles_key": "event_price_cycles"
+          }
+        },
+        {
+          "key": "ASHGATE",
+          "effect": {
+            "type": "price_pct",
+            "planet": "planet_3",
+            "good": "blooms",
+            "direction": "up",
+            "key": "event_price_pct",
+            "cycles_key": "event_price_cycles"
+          }
+        }
+      ],
+      "visible_when": {
+        "all": [
+          "branch_is:lux",
+          "system_open:2",
+          "post_built:planet_2",
+          "post_built:planet_3",
+          "good_visible:musk"
+        ]
+      },
+      "bot_effect": [],
+      "numbers_source": "story"
+    },
+    {
+      "id": "EV79",
+      "kind": "C",
+      "market": "lux",
+      "once": true,
+      "choices": [
+        {
+          "key": "CASH",
+          "effect": {
+            "type": "cash",
+            "key": "event_cash_gain_small"
+          }
+        },
+        {
+          "key": "GOODS",
+          "effect": {
+            "type": "stock",
+            "planet": "planet_3",
+            "good": "blooms",
+            "key": "event_stock_small"
+          }
+        }
+      ],
+      "visible_when": {
+        "all": [
+          "branch_is:lux",
+          "post_built:planet_3"
+        ]
+      },
+      "bot_effect": [],
+      "numbers_source": "story"
+    },
+    {
+      "id": "EV80",
+      "kind": "Q",
+      "market": "lux",
+      "once": true,
+      "effect": {
+        "type": "price_pct",
+        "planet": "s2_p3",
+        "good": "blooms",
+        "direction": "down",
+        "key": "event_price_pct",
+        "cycles_key": "event_price_cycles"
+      },
+      "visible_when": {
+        "all": [
+          "branch_is:lux",
+          "system_open:2",
+          "post_built:s2_p3"
+        ]
+      },
+      "bot_effect": [],
+      "numbers_source": "story"
+    },
+    {
+      "id": "EV94",
+      "kind": "C",
+      "market": "lux",
+      "once": true,
+      "choices": [
+        {
+          "key": "PAY",
+          "effect": {
+            "type": "cash",
+            "key": "event_cash_cost_small"
+          }
+        },
+        {
+          "key": "TELL",
+          "effect": {
+            "type": "price_pct",
+            "planet": "s2_p1",
+            "good": "silk",
+            "direction": "down",
+            "key": "event_pct_silk",
+            "cycles_key": "event_price_cycles"
+          }
+        }
+      ],
+      "visible_when": {
+        "all": [
+          "branch_is:lux",
+          "system_open:2",
+          "post_built:s2_p1",
+          "good_visible:silk",
+          "any_tier:2"
+        ]
+      },
+      "bot_effect": [],
+      "numbers_source": "story"
+    },
+    {
+      "id": "EV95",
+      "kind": "Q",
+      "market": "lux",
+      "once": true,
+      "effect": {
+        "type": "price_pct",
+        "planet": "s2_p1",
+        "good": "musk",
+        "direction": "up",
+        "key": "event_pct_musk",
+        "cycles_key": "event_price_cycles"
+      },
+      "visible_when": {
+        "all": [
+          "branch_is:lux",
+          "system_open:2",
+          "post_built:s2_p1",
+          "good_visible:musk"
+        ]
+      },
+      "bot_effect": [],
+      "numbers_source": "story"
+    },
+    {
+      "id": "EV96",
+      "kind": "C",
+      "market": "lux",
+      "once": true,
+      "choices": [
+        {
+          "key": "ATTAR",
+          "effect": {
+            "type": "price_pct",
+            "planet": "planet_1",
+            "good": "attar",
+            "direction": "up",
+            "key": "event_pct_attar",
+            "cycles_key": "event_price_cycles"
+          }
+        },
+        {
+          "key": "GEMS",
+          "effect": {
+            "type": "price_pct",
+            "planet": "planet_1",
+            "good": "gems",
+            "direction": "up",
+            "key": "event_pct_gems",
+            "cycles_key": "event_price_cycles"
+          }
+        }
+      ],
+      "visible_when": {
+        "all": [
+          "branch_is:lux",
+          "good_visible:attar",
+          "good_visible:gems"
+        ]
+      },
+      "bot_effect": [],
+      "numbers_source": "story"
+    },
+    {
+      "id": "BE02",
+      "kind": "C",
+      "market": "lux",
+      "once": true,
+      "choices": [
+        {
+          "key": "ANSWER",
+          "effect": {
+            "type": "price_pct",
+            "planet": "s2_p4",
+            "good": "musk",
+            "direction": "up",
+            "key": "event_pct_musk",
+            "cycles_key": "event_price_cycles"
+          },
+          "follow_id": "BE02A"
+        },
+        {
+          "key": "REPORT",
+          "effect": {
+            "type": "planet_closed",
+            "planet": "s2_p4",
+            "cycles_key": "event_close_cycles"
+          },
+          "follow_id": "BE02B"
+        }
+      ],
+      "visible_when": {
+        "all": [
+          "branch_is:lux",
+          "system_open:2",
+          "post_built:s2_p4",
+          "post_built:s2_p3",
+          "good_visible:musk"
+        ]
+      },
+      "bot_effect": [],
+      "numbers_source": "story"
+    },
+    {
+      "id": "EV48",
+      "kind": "P",
+      "market": "min",
+      "once": true,
+      "effect": {
+        "type": "price_pct",
+        "planet": "s2_p4",
+        "good": "plate",
+        "direction": "up",
+        "key": "event_price_pct",
+        "cycles_key": "event_price_cycles"
+      },
+      "visible_when": {
+        "all": [
+          "branch_is:min",
+          "system_open:2",
+          "post_built:s2_p4",
+          "good_visible:plate"
+        ]
+      },
+      "bot_effect": [],
+      "numbers_source": "story"
+    },
+    {
+      "id": "EV70",
+      "kind": "Q",
+      "market": "min",
+      "once": true,
+      "effect": {
+        "type": "price_pct",
+        "planet": "dead_1",
+        "good": "dross",
+        "direction": "up",
+        "key": "event_price_pct",
+        "cycles_key": "event_price_cycles"
+      },
+      "visible_when": {
+        "all": [
+          "branch_is:min",
+          "post_built:dead_1",
+          "good_visible:dross"
+        ]
+      },
+      "bot_effect": [],
+      "numbers_source": "story"
+    },
+    {
+      "id": "EV71",
+      "kind": "C",
+      "market": "min",
+      "once": true,
+      "choices": [
+        {
+          "key": "CASH",
+          "effect": {
+            "type": "cash",
+            "key": "event_cash_gain_small"
+          }
+        },
+        {
+          "key": "ORE",
+          "effect": {
+            "type": "stock",
+            "planet": "planet_1",
+            "good": "ore",
+            "key": "event_stock_small"
+          }
+        }
+      ],
+      "visible_when": {
+        "all": [
+          "branch_is:min"
+        ]
+      },
+      "bot_effect": [],
+      "numbers_source": "story"
+    },
+    {
+      "id": "EV72",
+      "kind": "C",
+      "market": "min",
+      "once": true,
+      "choices": [
+        {
+          "key": "PAY",
+          "effect": {
+            "type": "cash",
+            "key": "event_cash_cost_small"
+          }
+        },
+        {
+          "key": "WAIT",
+          "effect": {
+            "type": "congestion",
+            "planet": "planet_3",
+            "direction": "congestion",
+            "cycles_key": "congestion_cycles"
+          }
+        }
+      ],
+      "visible_when": {
+        "all": [
+          "branch_is:min",
+          "post_built:planet_3"
+        ]
+      },
+      "bot_effect": [],
+      "numbers_source": "story"
+    },
+    {
+      "id": "EV73",
+      "kind": "C",
+      "market": "min",
+      "once": true,
+      "choices": [
+        {
+          "key": "CINDREL",
+          "effect": {
+            "type": "price_pct",
+            "planet": "s2_p2",
+            "good": "ore",
+            "direction": "up",
+            "key": "event_pct_ore",
+            "cycles_key": "event_price_cycles"
+          }
+        },
+        {
+          "key": "QUILLON",
+          "effect": {
+            "type": "price_pct",
+            "planet": "s2_p4",
+            "good": "ore",
+            "direction": "up",
+            "key": "event_pct_ore",
+            "cycles_key": "event_price_cycles"
+          }
+        }
+      ],
+      "visible_when": {
+        "all": [
+          "branch_is:min",
+          "system_open:2",
+          "post_built:s2_p2",
+          "post_built:s2_p4"
+        ]
+      },
+      "bot_effect": [],
+      "numbers_source": "story"
+    },
+    {
+      "id": "EV74",
+      "kind": "Q",
+      "market": "min",
+      "once": true,
+      "effect": {
+        "type": "price_pct",
+        "planet": "planet_3",
+        "good": "dross",
+        "direction": "down",
+        "key": "event_price_pct",
+        "cycles_key": "event_price_cycles"
+      },
+      "visible_when": {
+        "all": [
+          "branch_is:min",
+          "post_built:planet_3",
+          "good_visible:dross"
+        ]
+      },
+      "bot_effect": [],
+      "numbers_source": "story"
+    },
+    {
+      "id": "EV_FLT04",
+      "kind": "C",
+      "market": "min",
+      "once": true,
+      "choices": [
+        {
+          "key": "SLOW",
+          "effect": {
+            "type": "congestion",
+            "planet": "planet_4",
+            "direction": "congestion",
+            "cycles_key": "congestion_cycles"
+          }
+        },
+        {
+          "key": "PUSH",
+          "effect": {
+            "type": "cash",
+            "key": "event_cash_cost_small"
+          }
+        }
+      ],
+      "visible_when": {
+        "all": [
+          "branch_is:min",
+          "post_built:planet_4"
+        ]
+      },
+      "bot_effect": [],
+      "numbers_source": "story"
+    },
+    {
+      "id": "EV_PLT01",
+      "kind": "C",
+      "market": "min",
+      "once": true,
+      "choices": [
+        {
+          "key": "NIGHT",
+          "effect": {
+            "type": "stock",
+            "planet": "dead_1",
+            "good": "dross",
+            "key": "event_stock_small"
+          }
+        },
+        {
+          "key": "DAY",
+          "effect": {
+            "type": "cash",
+            "key": "event_cash_gain_small"
+          }
+        }
+      ],
+      "visible_when": {
+        "all": [
+          "branch_is:min",
+          "platform_built:dead_1",
+          "good_visible:dross"
+        ]
+      },
+      "bot_effect": [],
+      "numbers_source": "story"
+    },
+    {
+      "id": "EV_PLT02",
+      "kind": "C",
+      "market": "min",
+      "once": true,
+      "choices": [
+        {
+          "key": "PROP",
+          "effect": {
+            "type": "cash",
+            "key": "event_cash_cost_small"
+          }
+        },
+        {
+          "key": "SEAL",
+          "effect": {
+            "type": "planet_closed",
+            "planet": "dead_1",
+            "cycles_key": "event_close_cycles"
+          }
+        }
+      ],
+      "visible_when": {
+        "all": [
+          "branch_is:min",
+          "platform_built:dead_1"
+        ]
+      },
+      "bot_effect": [],
+      "numbers_source": "story"
+    },
+    {
+      "id": "EV_PLT03",
+      "kind": "C",
+      "market": "min",
+      "once": true,
+      "choices": [
+        {
+          "key": "LOG",
+          "effect": {
+            "type": "cash",
+            "key": "event_cash_gain_small"
+          }
+        },
+        {
+          "key": "HIDE",
+          "effect": {
+            "type": "stock",
+            "planet": "dead_2",
+            "good": "nullglass",
+            "key": "event_stock_small"
+          }
+        }
+      ],
+      "visible_when": {
+        "all": [
+          "branch_is:min",
+          "platform_built:dead_2",
+          "good_visible:nullglass"
+        ]
+      },
+      "bot_effect": [],
+      "numbers_source": "story"
+    },
+    {
+      "id": "EV_PLT04",
+      "kind": "C",
+      "market": "min",
+      "once": true,
+      "choices": [
+        {
+          "key": "CINDREL",
+          "effect": {
+            "type": "price_pct",
+            "planet": "s2_p2",
+            "good": "nullglass",
+            "direction": "up",
+            "key": "event_price_pct",
+            "cycles_key": "event_price_cycles"
+          }
+        },
+        {
+          "key": "QUILLON",
+          "effect": {
+            "type": "price_pct",
+            "planet": "s2_p4",
+            "good": "nullglass",
+            "direction": "up",
+            "key": "event_price_pct",
+            "cycles_key": "event_price_cycles"
+          }
+        }
+      ],
+      "visible_when": {
+        "all": [
+          "branch_is:min",
+          "platform_built:dead_2",
+          "system_open:2",
+          "post_built:s2_p2",
+          "post_built:s2_p4",
+          "good_visible:nullglass"
+        ]
+      },
+      "bot_effect": [],
+      "numbers_source": "story"
+    },
+    {
+      "id": "EV75",
+      "kind": "Q",
+      "market": "min",
+      "once": true,
+      "effect": {
+        "type": "price_pct",
+        "planet": "s2_p4",
+        "good": "ore",
+        "direction": "down",
+        "key": "event_pct_ore",
+        "cycles_key": "event_price_cycles"
+      },
+      "visible_when": {
+        "all": [
+          "branch_is:min",
+          "system_open:2",
+          "post_built:s2_p4",
+          "good_visible:ore"
+        ]
+      },
+      "bot_effect": [],
+      "numbers_source": "story"
+    },
+    {
+      "id": "BE01",
+      "kind": "C",
+      "market": "bio",
+      "once": true,
+      "choices": [
+        {
+          "key": "OPEN",
+          "effect": {
+            "type": "price_pct",
+            "planet": "planet_2",
+            "good": "food",
+            "direction": "down",
+            "key": "event_price_pct",
+            "cycles_key": "event_price_cycles"
+          },
+          "follow_id": "BE01A"
+        },
+        {
+          "key": "SHUT",
+          "effect": {
+            "type": "price_pct",
+            "planet": "planet_2",
+            "good": "food",
+            "direction": "up",
+            "key": "event_price_pct",
+            "cycles_key": "event_price_cycles"
+          },
+          "follow_id": "BE01B"
+        }
+      ],
+      "visible_when": {
+        "all": [
+          "branch_is:bio",
+          "post_built:planet_2"
+        ]
+      },
+      "bot_effect": [],
+      "numbers_source": "story"
+    },
+    {
+      "id": "BE03",
+      "kind": "C",
+      "market": "bio",
+      "once": true,
+      "choices": [
+        {
+          "key": "ACCEPT",
+          "effect": {
+            "type": "price_pct",
+            "planet": "planet_3",
+            "good": "food",
+            "direction": "up",
+            "key": "event_price_pct",
+            "cycles_key": "event_price_cycles"
+          },
+          "follow_id": "BE03A"
+        },
+        {
+          "key": "REFUSE",
+          "effect": {
+            "type": "price_pct",
+            "planet": "planet_3",
+            "good": "food",
+            "direction": "down",
+            "key": "event_price_pct",
+            "cycles_key": "event_price_cycles"
+          },
+          "follow_id": "BE03B"
+        }
+      ],
+      "visible_when": {
+        "all": [
+          "branch_is:bio",
+          "post_built:planet_3",
+          "event_fired:EV13"
+        ]
+      },
+      "bot_effect": [],
+      "numbers_source": "story"
+    },
+    {
+      "id": "EV51",
+      "kind": "Q",
+      "market": "bio",
+      "once": true,
+      "effect": {
+        "type": "price_pct",
+        "planet": "s2_p1",
+        "good": "seed",
+        "direction": "up",
+        "key": "event_pct_seed",
+        "cycles_key": "event_price_cycles"
+      },
+      "visible_when": {
+        "all": [
+          "branch_is:bio",
+          "system_open:2",
+          "post_built:s2_p1",
+          "good_visible:seed"
+        ]
+      },
+      "bot_effect": [],
+      "numbers_source": "story"
+    },
+    {
+      "id": "EV88",
+      "kind": "C",
+      "market": "bio",
+      "once": true,
+      "choices": [
+        {
+          "key": "TILLAM",
+          "effect": {
+            "type": "price_pct",
+            "planet": "planet_2",
+            "good": "spores",
+            "direction": "up",
+            "key": "event_pct_spores",
+            "cycles_key": "event_price_cycles"
+          }
+        },
+        {
+          "key": "ASHGATE",
+          "effect": {
+            "type": "price_pct",
+            "planet": "planet_3",
+            "good": "spores",
+            "direction": "up",
+            "key": "event_pct_spores",
+            "cycles_key": "event_price_cycles"
+          }
+        }
+      ],
+      "visible_when": {
+        "all": [
+          "branch_is:bio",
+          "system_open:2",
+          "post_built:planet_2",
+          "post_built:planet_3",
+          "good_visible:spores"
+        ]
+      },
+      "bot_effect": [],
+      "numbers_source": "story"
     }
   ],
-  "pool_new_note": "effects and numbers marked picked are mine (core 4.4 gives only the idea, story gives text for EV40, 41, 43, 46, 49, 50). Planets for story names Quillon, Brannock, Mossfell are mapped to existing planets (planet_2, planet_3, planet_2); story text must be reworded. bot_effect rule: shortage (price up or closure) slows the market's lead bot (growth S or strength S down); glut (price down) lifts bot_3 strength S.",
+  "pool_new_note": "effects and numbers marked picked are mine (core 4.4 gives only the idea, story gives text for EV40, 43, 46, 49, 50). 2026-11-12 event expansion: 60 pool_new rows (10 first-pass rows plus 50 from the story-designer plan handoffs/story-designer/2026-11-11-event-expansion.json). A row is a plain event (effect: price_pct, planet_closed, shortage or congestion at a planet id, texts EV<nn>_TITLE and _BODY) or a choice event (choices: [{key, effect, follow_id?}]; effect types price_pct, planet_closed, shortage, congestion, cash {key: signed balance key}, stock {planet, good, key}; texts <id>_<KEY>_BTN, _EFF, _TITLE and the popup <id>_<KEY>; read by game/events.gd). visible_when gates the row; branch-only rows carry branch_is:<market>. Followups (key followups) are plain popups scheduled only by a choice follow_id, never drawn at random. Planets for story names Quillon, Brannock, Mossfell are system 2 ids (s2_p4, s2_p1, s2_p3). bot_effect rule of the first pass: shortage (price up or closure) slows the market's lead bot (growth S or strength S down); glut (price down) lifts bot_3 strength S; the 50 new rows carry none.",
   "pool_kept": {
     "EV01": {
       "market": "mil",
@@ -2637,58 +4792,6 @@
       "market": "bio",
       "bot_effect": []
     },
-    "EV21": {
-      "market": "lux",
-      "bot_effect": [
-        {
-          "bot": "bot_2",
-          "market": "lux",
-          "stat": "growth",
-          "size": "S",
-          "key": "event_hit_growth_S",
-          "direction": "down"
-        }
-      ]
-    },
-    "EV22": {
-      "market": "lux",
-      "bot_effect": [
-        {
-          "bot": "bot_2",
-          "market": "lux",
-          "stat": "growth",
-          "size": "S",
-          "key": "event_hit_growth_S",
-          "direction": "down"
-        }
-      ]
-    },
-    "EV24": {
-      "market": "mil",
-      "bot_effect": [
-        {
-          "bot": "bot_1",
-          "market": "mil",
-          "stat": "growth",
-          "size": "S",
-          "key": "event_hit_growth_S",
-          "direction": "down"
-        }
-      ]
-    },
-    "EV25": {
-      "market": "mil",
-      "bot_effect": [
-        {
-          "bot": "bot_1",
-          "market": "mil",
-          "stat": "growth",
-          "size": "S",
-          "key": "event_hit_growth_S",
-          "direction": "down"
-        }
-      ]
-    },
     "EV26": {
       "market": "min",
       "bot_effect": []
@@ -2724,9 +4827,8 @@
       ]
     }
   },
-  "pool_kept_note": "24 kept pool events: EV01-EV16, EV17, EV20, EV21, EV22, EV24, EV25, EV26, EV28. bot_effect is optional and small: price-up events slow the lead bot of the good's market (growth S down); EV20 asteroid hits bot_1 min growth S; closures, glut events and EV17 have none.",
+  "pool_kept_note": "20 kept pool events: EV01-EV16, EV17, EV20, EV26, EV28 (EV21, EV22, EV24, EV25 moved to pool_new on 2026-11-12 to carry a gate). bot_effect is optional and small: price-up events slow the lead bot of the good's market (growth S down); EV20 asteroid hits bot_1 min growth S; closures, glut events and EV17 have none.",
   "pool_retired": [
-    "EV18",
     "EV29",
     "EV30",
     "EV31",
@@ -2736,5 +4838,103 @@
     "EV35",
     "EV36",
     "EV37"
+  ],
+  "followups": [
+    {
+      "id": "BE01A",
+      "kind": "Q",
+      "market": "bio",
+      "once": true,
+      "random": false,
+      "effect": {
+        "type": "price_pct",
+        "planet": "planet_2",
+        "good": "energy",
+        "direction": "up",
+        "key": "event_pct_energy",
+        "cycles_key": "event_price_cycles"
+      },
+      "follow_of": "BE01_OPEN",
+      "bot_effect": []
+    },
+    {
+      "id": "BE01B",
+      "kind": "P",
+      "market": "bio",
+      "once": true,
+      "random": false,
+      "effect": {
+        "type": "planet_closed",
+        "planet": "planet_2",
+        "cycles_key": "event_close_cycles"
+      },
+      "follow_of": "BE01_SHUT",
+      "bot_effect": []
+    },
+    {
+      "id": "BE02A",
+      "kind": "Q",
+      "market": "lux",
+      "once": true,
+      "random": false,
+      "effect": {
+        "type": "price_pct",
+        "planet": "s2_p3",
+        "good": "blooms",
+        "direction": "up",
+        "key": "event_price_pct",
+        "cycles_key": "event_price_cycles"
+      },
+      "follow_of": "BE02_ANSWER",
+      "bot_effect": []
+    },
+    {
+      "id": "BE02B",
+      "kind": "Q",
+      "market": "lux",
+      "once": true,
+      "random": false,
+      "effect": {
+        "type": "price_pct",
+        "planet": "s2_p4",
+        "good": "silk",
+        "direction": "down",
+        "key": "event_pct_silk",
+        "cycles_key": "event_price_cycles"
+      },
+      "follow_of": "BE02_REPORT",
+      "bot_effect": []
+    },
+    {
+      "id": "BE03A",
+      "kind": "P",
+      "market": "bio",
+      "once": true,
+      "random": false,
+      "effect": {
+        "type": "planet_closed",
+        "planet": "planet_3",
+        "cycles_key": "event_close_cycles"
+      },
+      "follow_of": "BE03_ACCEPT",
+      "bot_effect": []
+    },
+    {
+      "id": "BE03B",
+      "kind": "Q",
+      "market": "bio",
+      "once": true,
+      "random": false,
+      "effect": {
+        "type": "price_pct",
+        "planet": "planet_3",
+        "good": "energy",
+        "direction": "down",
+        "key": "event_pct_energy",
+        "cycles_key": "event_price_cycles"
+      },
+      "follow_of": "BE03_REFUSE",
+      "bot_effect": []
+    }
   ]
 }
