@@ -150,6 +150,9 @@ var _swing_t := -1.0           # nose swing
 var _swing_amp := 0.0
 var _boost_k := 0.0            # 0..1 boost look (trail stretch), eased on game time
 var _clock := 0.0              # game seconds, drives the target marker pulse
+var _look: Dictionary = ShipLook.default_look()  # T356
+var _model_node: Node3D
+var _plume: EnginePlume
 var _marker_mat: StandardMaterial3D
 var _model_path := ""
 var _holder: Node3D
@@ -740,10 +743,24 @@ func _update_gig_rings(f, sys: int) -> void:
 		if not live.has(uid):
 			_gig_t0.erase(uid)
 
+## T356: the Flagship's look {shape, palette, hue}; T357 wires the run's choice. Default until then. Re-styles the drawn model at once.
+func set_look(look: Dictionary) -> void:
+	_look = look
+	_style_model()
+
+func _style_model() -> void:
+	if _model_node == null or not is_instance_valid(_model_node):
+		return
+	ShipLook.apply_hue(_model_node, float(_look.get("hue", 0.0)))
+	if _plume != null and is_instance_valid(_plume):
+		_plume.set_look(_look)
+
 func _ensure_model(path: String) -> void:
 	if path == _model_path and _holder != null:
 		return
 	_model_path = path
+	_model_node = null
+	_plume = null
 	if _holder != null:
 		remove_child(_holder)
 		_holder.queue_free()
@@ -774,10 +791,16 @@ func _ensure_model(path: String) -> void:
 			var ry := maxf(box.size.y * 0.5, 0.000001)
 			_holder.scale = Vector3.ONE * minf(fit_radius() / rxz, fit_height() / ry)
 			model.position = -box.get_center()
+		_model_node = model
+		_plume = EnginePlume.new()  # T356: child of the model, so the fit scale and the yaw pivot apply; hidden with the view in transit
+		_plume.clock = func() -> float: return _clock
+		model.add_child(_plume)
+		_plume.set_engines(Ships.engine_points_for_path(path, box))
 		var pivot := Node3D.new()  # T197: turns the model's own nose axis onto -Z
 		pivot.rotation.y = Ships.model_yaw_for_path(path)
 		pivot.add_child(model)
 		_holder.add_child(pivot)
+		_style_model()
 	_holder_base = _holder.scale
 	add_child(_holder)
 

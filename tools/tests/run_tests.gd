@@ -132,6 +132,7 @@ func _run() -> void:
 	await _test_gigs()
 	await _test_gig_clearance()
 	await _test_skill_link_clip()
+	_test_engine_plume()
 	print("TOTAL pass=%d fail=%d" % [passed, failed])
 	quit(1 if failed > 0 else 0)
 
@@ -9549,3 +9550,53 @@ func _test_gigs() -> void:
 	g.on_cycle(30)
 	check(not g.is_open(), "gigs: nothing opens with discovery off")
 	await _free_main(m)
+
+# ---- T356: engine plume layers and the ship hue swap ----
+func _test_engine_plume() -> void:
+	var ex := ShipLook.exhaust()
+	check(ex.get("shapes", {}).size() == 5 and ex.get("palettes", {}).size() == 10, "plume: exhaust.json has 5 shapes and 10 palettes")
+	var pal_ok := true
+	for k in ex["palettes"]:
+		pal_ok = pal_ok and ex["palettes"][k].size() == 6
+	check(pal_ok, "plume: every palette has six colours")
+	var p := EnginePlume.new()
+	root.add_child(p)
+	p.set_engines([{"pos": Vector3(1, 0, 0.5), "size": 1.0}, {"pos": Vector3(1, 0, -0.5), "size": 2.0}])
+	p.set_look({"shape": "torch", "palette": "infrared"})
+	var ls := p.layer_meshes()
+	check(ls.size() == 12, "plume: two engines give 12 layer meshes", str(ls.size()))
+	if ls.size() == 12:
+		var cols: Array = ex["palettes"]["infrared"]
+		for i in 6:
+			var m: CylinderMesh = ls[i].mesh
+			check(absf(m.top_radius - 0.16 * (1.0 + i * 0.18)) < 0.0001, "plume: torch layer %d radius" % i)
+			check(absf(m.bottom_radius - m.top_radius * 0.02) < 0.0001, "plume: torch layer %d is a cone" % i)
+			check(absf(m.height - 1.4 * (1.0 + i * 0.08)) < 0.0001, "plume: torch layer %d length" % i)
+			var mat: ShaderMaterial = ls[i].material_override
+			check((mat.get_shader_parameter("col") as Color).is_equal_approx(Color(cols[i])), "plume: torch layer %d colour" % i)
+			check(absf(float(mat.get_shader_parameter("layer_alpha")) - (1.0 - i * 0.12)) < 0.0001, "plume: layer %d alpha" % i)
+	p.set_look({"shape": "pillar", "palette": "ion"})
+	ls = p.layer_meshes()
+	check(ls.size() == 12, "plume: set_look rebuilds the same count")
+	if ls.size() == 12:
+		var m2: CylinderMesh = ls[3].mesh
+		check(absf(m2.top_radius - m2.bottom_radius) < 0.0001 and absf(m2.top_radius - 0.12 * (1.0 + 3 * 0.1)) < 0.0001, "plume: pillar layers are cylinders")
+		check((ls[0].material_override.get_shader_parameter("col") as Color).is_equal_approx(Color(ex["palettes"]["ion"][0])), "plume: set_look recolours")
+	p.free()
+	var model := MeshInstance3D.new()
+	var bm := BoxMesh.new()
+	var sm := StandardMaterial3D.new()
+	sm.albedo_color = Color(0.8, 0.4, 0.2)
+	bm.material = sm
+	model.mesh = bm
+	ShipLook.apply_hue(model, 0.5)
+	check(model.get_surface_override_material(0) is ShaderMaterial, "hue: 0.5 swaps in a ShaderMaterial")
+	check(model.get_active_material(0) != sm, "hue: the active material is no longer the original")
+	ShipLook.apply_hue(model, 0.5)
+	check(model.get_surface_override_material(0) == ShipLook._hue_material(sm, 0.5), "hue: same material and hue is cached")
+	ShipLook.apply_hue(model, 0.0)
+	check(model.get_surface_override_material(0) == null and model.get_active_material(0) == sm, "hue: 0 restores the original")
+	model.free()
+	var d := ShipLook.default_look()
+	check(d["shape"] == "torch" and d["palette"] == "infrared" and ShipLook.rival_look()["palette"] == "plasma", "look: defaults come from exhaust.json")
+	check(ShipLook.look_of_ceo("no_such_ceo") == d, "look: unknown CEO falls back to the default look")

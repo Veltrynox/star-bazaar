@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "agent": "juice-programmer",
+  "date": "2026-11-12",
+  "task": "T356",
+  "status": "built, not run (owner rule: no tests, no commit)",
+  "files_changed": [
+    "data/exhaust.json",
+    "game/fx/engine_plume.gd",
+    "game/fx/engine_plume.gdshader",
+    "game/fx/ship_hue.gdshader",
+    "game/ship_look.gd",
+    "game/pathfinder_view.gd",
+    "game/rival_ships.gd",
+    "game/ship_preview.gd",
+    "tools/tests/run_tests.gd"
+  ],
+  "open_questions": [
+    "Plume and hue are not seen by eye: check nozzle position, plume direction (+X tail) and brightness on all four ships.",
+    "Hue shader only replaces opaque BaseMaterial3D surfaces; the four current GLBs have one StandardMaterial3D each (albedo jpg, normal on, roughness 0.9, metallic 0, cull back or disabled)."
+  ],
+  "handoff": "EnginePlume(extends Node3D): set_engines(points), set_look(look), layer_meshes(), resolved(), vars clock/running. ShipLook (static): exhaust(), default_look(), rival_look(), look_of_ceo(id), apply_hue(model, hue), hue_of(model). Views: PathfinderView.set_look(look), ShipPreview.show_model(path, look := {}) and set_look(look). Flagship plume uses the view's _clock (game time, frozen while paused); rivals use an own counter gated by main.paused. Hue replaces surface override materials (hue 0 puts the original override back), cached per (material id, hue); two-sided originals get a cull_disabled twin of the shader. Hooks added: none in gameplay code. Ships.engine_points/_for_path from T355 are called as per contract. Ideas: a short plume brightening on boost (glow param is already live per look).",
+  "details": {
+    "durations": "none (continuous flicker)",
+    "max_meshes_per_ship": 24
+  }
+}

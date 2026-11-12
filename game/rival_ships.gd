@@ -195,6 +195,11 @@ func _make_ship(kind: String) -> Node3D:
 				rxz = maxf(rxz, Vector2(c.x, c.z).length())
 			holder.scale = Vector3.ONE * (fit_radius() / rxz)
 			model.position = -box.get_center()
+		var plume := EnginePlume.new()  # T356: default shape, rival palette; child of the model so the fit scale and the yaw pivot apply
+		plume.running = func() -> bool: return main != null and not bool(main.paused) and not bool(main.game_over)  # own counter, frozen while paused
+		model.add_child(plume)
+		plume.set_engines(Ships.engine_points(kind, box))
+		plume.set_look(ShipLook.rival_look())
 		var pivot := Node3D.new()  # T197: turns the model's own nose axis onto -Z
 		pivot.rotation.y = Ships.model_yaw(kind)
 		pivot.add_child(model)

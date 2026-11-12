@@ -4,6 +4,7 @@ extends PanelContainer
 
 const TURN_DEG_PER_SEC := 18.0
 const DRAG_RAD_PER_PX := 0.012
+const Ships := preload("res://game/ships.gd")  # T356: engine points for the plume
 const FIT_HALF_WIDTH := 2.0
 const FIT_HALF_HEIGHT := 1.15
 ## stat key -> [label id, fallback label, field in ships.json, higher_is_better]
@@ -21,6 +22,9 @@ var pivot: Node3D
 var holder: Node3D
 var dragging := false
 var model_path := ""
+var model_node: Node3D
+var plume: EnginePlume
+var _look: Dictionary = {}
 
 static func stat_text(field: String, value: float) -> String:
 	if field == "cap_add":
@@ -83,8 +87,11 @@ func _process(delta: float) -> void:
 		pivot.rotation.y += deg_to_rad(TURN_DEG_PER_SEC) * delta
 
 ## Shows the model, centred and scaled by measured bounds. A missing or unimported GLB leaves the preview empty.
-func show_model(path: String) -> void:
+func show_model(path: String, look: Dictionary = {}) -> void:
 	model_path = path
+	_look = look if not look.is_empty() else ShipLook.default_look()
+	model_node = null
+	plume = null
 	if holder != null:
 		pivot.remove_child(holder)
 		holder.queue_free()
@@ -107,6 +114,20 @@ func show_model(path: String) -> void:
 		model.position = -box.get_center()
 	holder.add_child(model)
 	pivot.add_child(holder)
+	model_node = model
+	plume = EnginePlume.new()  # T356: child of the model, so the fit scale applies
+	model.add_child(plume)
+	plume.set_engines(Ships.engine_points_for_path(path, box))
+	set_look(_look)
+
+## T356: re-styles the shown ship (plume shape and palette, hull hue) without reloading the model.
+func set_look(look: Dictionary) -> void:
+	_look = look if not look.is_empty() else ShipLook.default_look()
+	if model_node == null or not is_instance_valid(model_node):
+		return
+	ShipLook.apply_hue(model_node, float(_look.get("hue", 0.0)))
+	if plume != null and is_instance_valid(plume):
+		plume.set_look(_look)
 
 func _bounds(node: Node, t: Transform3D) -> AABB:
 	var box := AABB()
