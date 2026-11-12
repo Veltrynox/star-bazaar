@@ -10,11 +10,25 @@ extends RefCounted
 ## post_cost_system2_mult, platform_cost_post_mult, post_first_free, post_build_cycles, post_first_build_cycles,
 ## platform_build_cycles. While discovery_enabled is 0 (read live) every planet counts as established and nothing moves.
 ##
+## FLIGHT TO ANOTHER SYSTEM runs in three legs, so the ship leaves along the line that points at that system:
+##   "out"  : a normal in-system flight (_fly) to SystemGeometry.exit_point(_sys, to_sys), the same point the exit marker draws;
+##   "jump" : a timed phase of pathfinder_jump_cycles (not divided by the fleet speed) in neither system. jumping() is true,
+##            state() stays "flying", system_id() is the OLD system and ship_position() stays at the old system's exit point
+##            for the whole jump (the juice listens to jump_started / jump_ended for the visual). Boost burns no energy here;
+##   "in"   : on jump end the ship appears at exit_point(to_sys, old_sys) in the new system (_sys = to_sys) and flies on to the
+##            final target (dock point, storage, cluster or point). The arrival (_arrive) is the one of any flight.
+## "direct" is an ordinary flight inside one system. leg() returns the name.
+## Signals for the juice (connect on main.flight):
+##   jump_started(from_sys: int, to_sys: int, pos: Vector3)  # the jump phase begins; pos = exit point in from_sys
+##   jump_ended(sys: int, pos: Vector3)                      # the ship appears in sys at pos = entry point
+## ETA (_flight_cycles for another system) = in-system leg 1 + pathfinder_jump_cycles + in-system leg 2 (entry point to target).
+##
 ## UNVERIFIED BY EXECUTION when written (owner forbade runs).
 
 const DeadWorlds := preload("res://game/dead_worlds.gd")
 const Ships := preload("res://game/ships.gd")
 const Motion := preload("res://game/ship_motion.gd")  # T196
+const Geometry := preload("res://game/system_geometry.gd")  # exit points between systems (shared with system_exit.gd)
 const Station := preload("res://game/station.gd")  # T202: MAP_RADIUS of the storage station
 
 signal arrived(planet_id: String)         # the ship reached a planet (it is discovered now)
@@ -23,6 +37,8 @@ signal build_done(planet_id: String)      # a post or a platform stands now
 signal build_cancelled(planet_id: String) # the ship left during a build: credits are not refunded
 signal establish_failed(planet_id: String, reason: String) # T200: an order "fly there and establish" could not start on arrival
 signal arrived_point(sys: int, pos: Vector3)  # T271: a flight to a point of open space ended (gig signal markers listen)
+signal jump_started(from_sys: int, to_sys: int, pos: Vector3)  # leg "jump" begins at the exit point of from_sys
+signal jump_ended(sys: int, pos: Vector3)  # the ship appears in sys at the entry point; the last leg starts
 signal exploration_done                   # T206: exploration mode finished: every planet of the system stands established; the mode is off
 
 const PLATFORM_SKILL := "FND_PROSPECT"  # skill that allows a mining platform (Prospecting opens every dead world)
@@ -36,8 +52,13 @@ var _sys := 1
 var _state := "idle"            # idle | flying | building
 var _target := {}               # {kind, pos, index} while flying, else {}
 var _from := Vector3.ZERO
-var _to := Vector3.ZERO
-var _to_sys := 1
+var _to := Vector3.ZERO         # where the current leg ends (the exit point on leg "out", else the final target)
+var _to_sys := 1                # system of the final target
+var _leg := "direct"            # direct | out | jump | in (see the header)
+var _final_to := Vector3.ZERO   # final target position while a cross-system flight is on its way
+var _jump_from := 1             # system left by the jump
+var _jump_t := 0.0              # cycles of the jump done
+var _jump_dur := 0.0            # cycles the jump takes
 var _dur := 0.0                 # flight length in cycles (estimate for an in-system flight, the jump time for a jump)
 var _t := 0.0                   # cycles flown (a jump moves by it; an in-system flight is physics: speed, heading)
 var _speed := 0.0               # T196: world units per cycle, ramps up from rest and brakes before the target
@@ -75,6 +96,9 @@ func reset() -> void:
 	_target = {}
 	_dur = 0.0
 	_t = 0.0
+	_leg = "direct"
+	_jump_t = 0.0
+	_jump_dur = 0.0
 	_speed = 0.0
 	_yaw = 0.0
 	_build = ""
@@ -148,10 +172,20 @@ func _speed_mult() -> float:
 func _world_per_map_unit() -> float:
 	return main.map.MAP_UNIT_SCALE * main.map.ORBIT_SCALE
 
+## Estimate in cycles of a flight from `from` to `to` in system `to_sys` (the gig board calls it). Another system: leg 1 to the
+## exit point + the jump + leg 2 from the entry point to `to`.
 func _flight_cycles(from: Vector3, to: Vector3, to_sys: int) -> float:
-	var spd := _speed_mult()
 	if to_sys != _sys:
-		return maxf(0.05, _bal("pathfinder_jump_cycles", 2.0) / spd)
+		var ex := Geometry.exit_point(main, _sys, to_sys)
+		var en := Geometry.exit_point(main, to_sys, _sys)
+		return _leg_cycles(from, ex, _yaw) + _jump_cycles() + _leg_cycles(en, to, Motion.yaw_to(Vector2(to.x - en.x, to.z - en.z)))
+	return _leg_cycles(from, to, _yaw)
+
+func _jump_cycles() -> float:
+	return maxf(0.05, _bal("pathfinder_jump_cycles", 2.0))
+
+## In-system flight time (accelerate, cruise, brake) plus the turn from heading `yaw`.
+func _leg_cycles(from: Vector3, to: Vector3, yaw: float) -> float:
 	var dist := Vector2(to.x - from.x, to.z - from.z).length()
 	var v := _vmax()
 	var a := v / maxf(0.001, _bal("pathfinder_accel_cycles", 0.05))
@@ -166,7 +200,7 @@ func _flight_cycles(from: Vector3, to: Vector3, to_sys: int) -> float:
 		t = vp / a + vp / b
 	var turn := deg_to_rad(maxf(1.0, _bal("pathfinder_turn_deg", 2400.0)))
 	if dist > Motion.ARRIVE_EPS:
-		t += absf(wrapf(Motion.yaw_to(Vector2(to.x - from.x, to.z - from.z)) - _yaw, -PI, PI)) / turn
+		t += absf(wrapf(Motion.yaw_to(Vector2(to.x - from.x, to.z - from.z)) - yaw, -PI, PI)) / turn
 	return t
 
 ## Top speed in world units per cycle.
@@ -188,6 +222,14 @@ func is_enabled() -> bool:
 
 func state() -> String:
 	return _state
+
+## True during the jump leg: the ship is in neither system (state() is still "flying").
+func jumping() -> bool:
+	return _state == "flying" and _leg == "jump"
+
+## "direct" | "out" | "jump" | "in" (see the header).
+func leg() -> String:
+	return _leg
 
 func ship_position() -> Vector3:
 	return _pos
@@ -286,7 +328,7 @@ func eta_cycles(pid: String) -> float:
 		return -1.0
 	if _docked == pid:
 		return 0.0
-	return _flight_cycles(_pos, _dock_pos(i, _pos if tsys == _sys else Vector3.ZERO), tsys)
+	return _flight_cycles(_pos, _dock_pos(i, _pos if tsys == _sys else Geometry.exit_point(main, tsys, _sys)), tsys)
 
 # ---- orders ----------------------------------------------------------------------------------------------------------
 
@@ -310,10 +352,10 @@ func request_fly(t: Dictionary) -> String:
 				return "bad_target"
 			pid = str(_planets()[idx].get("id", ""))
 			to_sys = main.system_of(idx)
-			to = _dock_pos(idx, _pos if to_sys == _sys else Vector3.ZERO)  # T202: beside the planet, never in it
+			to = _dock_pos(idx, _pos if to_sys == _sys else Geometry.exit_point(main, to_sys, _sys))  # T202: beside the planet, never in it
 		"storage":
 			to_sys = idx if idx > 0 else _sys
-			to = _dock_body(t.get("pos", _pos), Station.MAP_RADIUS, _pos if to_sys == _sys else Vector3.ZERO, to_sys)
+			to = _dock_body(t.get("pos", _pos), Station.MAP_RADIUS, _pos if to_sys == _sys else Geometry.exit_point(main, to_sys, _sys), to_sys)
 		"cluster":
 			to = t.get("pos", _pos)
 			if main.clusters != null and main.clusters.valid(idx):
@@ -321,7 +363,7 @@ func request_fly(t: Dictionary) -> String:
 			var cb: Dictionary = main.map.cluster_body(idx)
 			if not cb.is_empty():
 				var cc: Vector2 = cb["pos"]
-				to = _dock_body(Vector3(cc.x, 0.0, cc.y), float(cb["radius"]), _pos if to_sys == _sys else Vector3.ZERO, to_sys)
+				to = _dock_body(Vector3(cc.x, 0.0, cc.y), float(cb["radius"]), _pos if to_sys == _sys else Geometry.exit_point(main, to_sys, _sys), to_sys)
 		_:
 			kind = "point"
 			to = t.get("pos", _pos)
@@ -335,13 +377,27 @@ func request_fly(t: Dictionary) -> String:
 	if _state == "building":
 		_cancel_build()
 	_auto = ""
+	var in_jump := _state == "flying" and _leg == "jump"
+	if in_jump and to_sys == _to_sys:
+		# redirected inside the same jump: it goes on, only the final target changes
+		_final_to = to
+		_dur = _t + (_jump_dur - _jump_t) + _leg_cycles(Geometry.exit_point(main, to_sys, _sys), to, 0.0)
+		_docked = ""
+		_target = {"kind": kind, "pos": to, "index": idx if kind != "point" else -1}
+		return ""
 	_from = _pos
-	_to = to
 	_to_sys = to_sys
-	_dur = _flight_cycles(_pos, to, to_sys)
 	_t = 0.0
-	if to_sys != _sys:
+	if in_jump:
 		_speed = 0.0
+	if to_sys != _sys:
+		_leg = "out"
+		_final_to = to
+		_to = Geometry.exit_point(main, _sys, to_sys)
+	else:
+		_leg = "direct"
+		_to = to
+	_dur = _flight_cycles(_pos, to, to_sys)
 	_docked = ""
 	_target = {"kind": kind, "pos": to, "index": idx if kind != "point" else -1}
 	_state = "flying"
@@ -434,7 +490,7 @@ func resync(now: float) -> void:
 func advance(cycles: float) -> void:
 	_tick_charges(cycles)
 	_idle_left = maxf(0.0, _idle_left - cycles)
-	if _boost:
+	if _boost and _leg != "jump":  # the jump burns no energy
 		var rate := _bal("flagship_boost_energy", 0.0)
 		var run := cycles
 		if rate > 0.0:
@@ -459,17 +515,17 @@ func _advance_flight(cycles: float) -> void:
 		guard += 1
 		if _explore and _state == "idle" and not _explore_tick():
 			break
-		if _state == "flying" and _to_sys != _sys:
-			# a jump to another system: timed, the heading still turns toward the target at the limited rate
-			var rem := _dur - _t
-			_turn_toward(minf(left, rem))
+		if _state == "flying" and _leg == "jump":
+			# in neither system: timed, the ship stays at the old system's exit point (_pos) until the jump ends
+			var rem := _jump_dur - _jump_t
 			if left >= rem:
 				left -= rem
-				_arrive()
+				_t += rem
+				_end_jump()
 			else:
+				_jump_t += left
 				_t += left
 				left = 0.0
-				_pos = _from.lerp(_to, _t / maxf(_dur, EPS))
 		elif _state == "flying":
 			left = _fly(left)
 		elif _state == "building":
@@ -564,7 +620,32 @@ func _fly(cycles: float) -> float:
 			return left
 	return 0.0
 
+func _begin_jump() -> void:
+	_leg = "jump"
+	_jump_from = _sys
+	_jump_t = 0.0
+	_jump_dur = _jump_cycles()
+	_speed = 0.0
+	_pos = Geometry.exit_point(main, _sys, _to_sys)
+	jump_started.emit(_sys, _to_sys, _pos)
+
+func _end_jump() -> void:
+	_sys = _to_sys
+	_leg = "in"
+	_pos = Geometry.exit_point(main, _sys, _jump_from)
+	_to = _final_to
+	_jump_t = 0.0
+	_speed = 0.0
+	var d := Vector2(_to.x - _pos.x, _to.z - _pos.z)
+	if d.length() > Motion.ARRIVE_EPS:
+		_yaw = Motion.yaw_to(d)  # the ship comes out already facing its target
+	jump_ended.emit(_sys, _pos)
+
 func _arrive() -> void:
+	if _state == "flying" and _leg == "out":
+		_begin_jump()  # leg 1 done: the exit point is reached, the jump starts (no arrival yet)
+		return
+	_leg = "direct"
 	_pos = _to
 	_speed = 0.0
 	_sys = _to_sys
@@ -788,6 +869,7 @@ func to_dict() -> Dictionary:
 	if not _target.is_empty():
 		tgt = {"kind": str(_target.get("kind", "point")), "pos": _v(_target.get("pos", Vector3.ZERO)), "index": int(_target.get("index", -1))}
 	return {"pos": _v(_pos), "sys": _sys, "state": _state, "target": tgt, "from": _v(_from), "to": _v(_to), "to_sys": _to_sys,
+		"leg": _leg, "final_to": _v(_final_to), "jump_from": _jump_from, "jump_t": _jump_t, "jump_dur": _jump_dur,
 		"dur": _dur, "t": _t, "speed": _speed, "yaw": _yaw, "docked": _docked, "build": _build, "build_total": _build_total, "build_left": _build_left, "auto": _auto, "explore": _explore,
 		"hold": _hold.duplicate(), "idle": _idle_left, "boost_charges": _charges, "boost_refill": _refill_left,
 		"discovered": _discovered.keys(), "posts": _posts.keys(), "platforms": _platforms.keys(), "legacy": _legacy}
@@ -821,6 +903,24 @@ func from_dict(d) -> void:
 		_to_sys = maxi(1, int(d.get("to_sys", _sys)))
 		_dur = float(d["dur"])
 		_t = clampf(float(d.get("t", 0.0)), 0.0, _dur)
+		_final_to = _vec(d.get("final_to"), _to)
+		_jump_from = maxi(1, int(d.get("jump_from", _sys)))
+		_jump_dur = maxf(0.0, float(d.get("jump_dur", 0.0)))
+		_jump_t = clampf(float(d.get("jump_t", 0.0)), 0.0, _jump_dur)
+		_leg = str(d.get("leg", ""))
+		if not ["direct", "out", "jump", "in"].has(_leg):
+			# an old save (no legs): another system means the jump phase from the old system's exit, else an ordinary flight
+			if _to_sys != _sys:
+				_leg = "jump"
+				_final_to = _to
+				_jump_from = _sys
+				_jump_dur = _jump_cycles()
+				_jump_t = clampf(_t / maxf(_dur, EPS), 0.0, 1.0) * _jump_dur
+				_pos = Geometry.exit_point(main, _sys, _to_sys)
+			else:
+				_leg = "direct"
+		elif _leg == "out" and _to_sys == _sys:
+			_leg = "direct"
 		_state = "flying"
 		_auto = str(d.get("auto", ""))
 	elif st == "building" and str(d.get("build", "")) != "" and _index_of(str(d["build"])) >= 0 and float(d.get("build_total", 0.0)) > 0.0:

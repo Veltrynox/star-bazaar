@@ -2,22 +2,19 @@ extends Control
 ## Next solar system, drawn over the system map as in the design pack (screens/SystemView.html, "locked exit"):
 ## a lock icon with the system's name and how it opens, and a thin dotted line that fades out toward the current
 ## system. The marker sits at the outskirts of the current system: on the galaxy-view bearing, outside the outermost orbit
-## (outer radius x EXIT_RADIUS_MULT + EXIT_RADIUS_PAD from the sun); when that is off screen, the marker and the line
+## (Geometry.exit_point in system_geometry.gd, also where the Pathfinder leaves the system); when that is off screen, the marker and the line
 ## are both hidden (nothing is pinned to the edge). An open system shows an amber arrow and a click moves the player
 ## there; a locked one shows the grey lock and a click only says why it is locked. Clicks are read in _input.
 
 const StoryText := preload("res://game/story_text.gd")
 const Systems := preload("res://game/systems.gd")
-const GalaxyView := preload("res://game/galaxy_view.gd")
-const MAP_UNIT_SCALE := 0.02 * 1.4  # same as map.gd (0.02 x MAP_SCALE_UP)
+const Geometry := preload("res://game/system_geometry.gd")  # exit point geometry shared with the Pathfinder
 const AREA_LEFT := 430.0  # clear of the planet panel and the rail
 const AREA_RIGHT := 520.0  # clear of the board (the label runs right of the marker)
 const AREA_TOP := 110.0
 const AREA_BOTTOM := 150.0  # clear of the legend and key hints
 const EDGE_MARGIN := 24.0  # the lock icon must fit inside the view
 const LINE_LEN := 190.0
-const EXIT_RADIUS_MULT := 1.18  # marker distance from the sun, times the outermost planet's orbit radius
-const EXIT_RADIUS_PAD := 2.0  # plus this many map units
 const LINE_ALPHA := 0.3
 const DOT_STEP := 5.0
 
@@ -33,7 +30,7 @@ func setup(main_node: Control) -> void:
 
 ## System 1 (planets.json, always open) and every system of systems.json.
 func all_ids() -> Array:
-	return [1] + Systems.ids()
+	return Geometry.all_ids()
 
 ## First system that is not open yet (-1 when every system is open).
 func next_locked() -> int:
@@ -42,39 +39,13 @@ func next_locked() -> int:
 			return int(sid)
 	return -1
 
-## Middle of a system on the ground plane: live planets when it is open, else its data (x, y in map units).
+## Middle of a system on the ground plane (live planets, else its data); null when it has none.
 func _center(sid: int) -> Variant:
-	var pts: Array = []
-	for i in main.map.planets.size():
-		if int(main.map.planets[i].get("system", 1)) == sid and i < main.map.positions.size():
-			pts.append(main.map.positions[i])
-	if pts.is_empty():
-		for p in Systems.get_system(sid).get("planets", []):
-			if p.has("x") and p.has("y"):
-				pts.append(Vector3(float(p["x"]), 0.0, float(p["y"])) * MAP_UNIT_SCALE)
-	if pts.is_empty():
-		return null
-	var lo: Vector3 = pts[0]
-	var hi: Vector3 = pts[0]
-	for p in pts:
-		lo = Vector3(minf(lo.x, p.x), 0.0, minf(lo.z, p.z))
-		hi = Vector3(maxf(hi.x, p.x), 0.0, maxf(hi.z, p.z))
-	return (lo + hi) * 0.5
+	return Geometry.center(main, sid)
 
-## Where system `sid` lies from system `from` in the galaxy view (its slots), as a unit direction on the ground plane
-## (galaxy screen right = map x, galaxy screen down = map z). The exits must point the way the galaxy view shows them.
+## Same bearing as the galaxy view shows (see system_geometry.gd).
 func galaxy_dir(from: int, sid: int) -> Vector3:
-	var ids := all_ids()
-	var kf := ids.find(from)
-	var kt := ids.find(sid)
-	if kf < 0 or kt < 0:
-		return Vector3.ZERO
-	var slots: Array = GalaxyView.SLOTS
-	var d: Vector2 = (slots[kt % slots.size()] as Vector2) - (slots[kf % slots.size()] as Vector2)
-	if d.length() < 0.001:
-		return Vector3.ZERO
-	d = d.normalized()
-	return Vector3(d.x, 0.0, d.y)
+	return Geometry.galaxy_dir(from, sid)
 
 func _screen(world: Vector3) -> Vector2:
 	return main.map.camera.unproject_position(world)
@@ -90,15 +61,6 @@ func markers() -> Array:
 	var rect := Rect2(Vector2(AREA_LEFT, AREA_TOP), get_viewport_rect().size - Vector2(AREA_LEFT + AREA_RIGHT, AREA_TOP + AREA_BOTTOM))
 	if rect.size.x < 50.0 or rect.size.y < 50.0:
 		return out
-	var origin: Vector3 = c_from
-	var sp = main.map.sun_positions.get(int(main.view_system))
-	if sp != null:
-		origin = Vector3(sp.x, 0.0, sp.z)
-	var outer := 0.0  # outermost planet of the view system, from the origin
-	for i in main.map.planets.size():
-		if int(main.map.planets[i].get("system", 1)) == int(main.view_system) and i < main.map.positions.size():
-			var pp: Vector3 = main.map.positions[i]
-			outer = maxf(outer, Vector2(pp.x - origin.x, pp.z - origin.z).length())
 	var a: Vector2 = _screen(c_from).clamp(rect.position, rect.end)
 	for sid in all_ids():
 		if int(sid) == int(main.view_system):
@@ -106,9 +68,8 @@ func markers() -> Array:
 		var c_to = _center(int(sid))
 		if c_to == null:
 			continue
-		var gd := galaxy_dir(int(main.view_system), int(sid))
-		if gd != Vector3.ZERO:  # same bearing as in the galaxy view, outside the outermost orbit
-			c_to = origin + gd * (outer * EXIT_RADIUS_MULT + EXIT_RADIUS_PAD)
+		if galaxy_dir(int(main.view_system), int(sid)) != Vector3.ZERO:  # the Pathfinder's exit point, same bearing as the galaxy view
+			c_to = Geometry.exit_point(main, int(main.view_system), int(sid))
 		var b: Vector2 = _screen(c_to)
 		var behind: bool = main.map.camera.is_position_behind(c_to)
 		var locked: bool = not main.open_systems.has(int(sid))
