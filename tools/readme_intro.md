@@ -5,5 +5,6 @@ A single-player space trading game for macOS, made in Godot 4 (GDScript). You ru
 ## Run and test
 
 - Tests (headless): `sh tools/tests/run.sh`
-- Windowed playthrough or screenshots: `qa/run_game.sh res://qa/bots/<script>.gd`
+- Economy check (bots in several play styles, headless): `sh qa/check/run.sh`
+- Windowed screenshots: `qa/run_game.sh res://qa/gui/<script>.gd`
 - Godot lives in `tools/godot/Godot.app` (not in git). Never prefix these commands with `cd &&` or `HOME=`.

@@ -22,15 +22,16 @@
 - If a request is ambiguous (e.g. 'brighter notes'), ask whether it means text color or background before changing anything.
 
 ## QA and economy gate (hard rule, owner approval required)
-- The QA and balance agents (qa-analyst, economy-designer) and everything they run (`qa/bots/*`, `tools/sim.py`, ablations, retunes, sign-offs) are called only by the owner, by hand; they take no part in production, so never start them, schedule them or make a task depend on them (`sh tools/tests/run.sh` is not QA and is always allowed).
+- The QA and balance agents (qa-analyst, economy-designer) and everything they run (the economy check `qa/check/*`, retunes, sign-offs) are called only by the owner, by hand; they take no part in production, so never start them, schedule them or make a task depend on them (`sh tools/tests/run.sh` is not QA and is always allowed).
 
 ## Visual review is the owner's job (by design, not a gap)
 - The owner looks at every visual result in the running game. Passing headless tests is the finished state for a build task, so an unattended run that did not look at a window is complete, not partial, and a missing window check is not a defect or a warning.
-- One cheap exception, owner-approved 2026-11-06: for ui/juice/fx/galaxy tasks the overnight run takes one screenshot with `sh tools/screenshot.sh --out logs/screenshots/<task>.png` (`tools/screenshot_scene.gd`), looks at it, fixes only objective breakage (blank, crash, clipped or overlapping text), and records the path on the blackboard for the owner. It is not QA: no bots, sim or playthroughs, and agents never judge look or taste.
+- One cheap exception, owner-approved 2026-11-06: for ui/juice/fx/galaxy tasks the overnight run takes one screenshot with `sh tools/screenshot.sh --out logs/screenshots/<task>.png` (`tools/screenshot_scene.gd`), looks at it, fixes only objective breakage (blank, crash, clipped or overlapping text), and records the path on the blackboard for the owner. It is not QA: no bots or playthroughs, and agents never judge look or taste.
 
 ## Running Godot
 - Headless (tests, imports): `tools/godot/Godot.app/Contents/MacOS/Godot --headless --path . ...`
-- Windowed (playthroughs, screenshots): `qa/run_game.sh res://qa/bots/<script>.gd` (owner-run QA only)
+- Windowed (screenshots): `qa/run_game.sh res://qa/gui/<script>.gd` (owner-run QA only)
+- Economy check (bots in several play styles, headless): `sh qa/check/run.sh`, report in `qa/check/out/report.md` (owner-run QA only)
 - Windowed single screenshot for the overnight Quick look: `sh tools/screenshot.sh --out logs/screenshots/<task>.png` (not QA; main session only)
 - Never prefix these with `cd &&` or `HOME=`.
 

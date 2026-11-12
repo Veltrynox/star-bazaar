@@ -199,7 +199,7 @@ First append a kind "claim" entry to ${BOARD} with status running. If this idea 
 // ---- Test ------------------------------------------------------------------
 phase('Test')
 const qa = await agent(
-  `Run only the plain test suite: sh tools/tests/run.sh in ${ROOT} on branch ${BRANCH}, and report the pass and fail counts with any error lines. This is not QA: do NOT run tools/sim.py, qa/bots or any balance check, and do not act as qa-analyst (owner approval required, see CLAUDE.md). Do not change code or balance. Return the result in the schema.,
+  `Run only the plain test suite: sh tools/tests/run.sh in ${ROOT} on branch ${BRANCH}, and report the pass and fail counts with any error lines. This is not QA: do NOT run the economy check (qa/check) or any balance check, and do not act as qa-analyst (owner approval required, see CLAUDE.md). Do not change code or balance. Return the result in the schema.,
   { label: 'qa', schema: qaSchema, model: 'sonnet' },
 )
 

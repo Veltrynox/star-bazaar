@@ -65,7 +65,7 @@
   <div class="wrap"><svg id="g" viewBox="0 0 1100 720" role="img" aria-label="Project workflow graph"></svg></div>
   <div class="notes">
     <div><b>Loop:</b> the owner decides, the main session briefs an agent, the agent changes files and writes a handoff, the main session reads the handoff and commits.</div>
-    <div><b>Hard rule:</b> economy-designer and qa-analyst (and bots, <code>tools/sim.py</code>, retunes, sign-offs) run only when the owner asks. <code>sh tools/tests/run.sh</code> is always allowed and is not QA.</div>
+    <div><b>Hard rule:</b> economy-designer and qa-analyst (and the economy check <code>qa/check/run.sh</code>, retunes, sign-offs) run only when the owner asks. <code>sh tools/tests/run.sh</code> is always allowed and is not QA.</div>
     <div><b>Commit gates:</b> one hook (<code>tools/gdd_sync.py</code>) runs three checks on every <code>git commit</code>, in this order. A failed check blocks the commit and tells the agent what to fix.</div>
     <div><b>1. GDD sync:</b> <code>game/</code>, <code>data/</code> or <code>story/</code> changed without <code>gdd.md</code>. Fix: start doc-manager to update the GDD from the diff, stage it, commit again. No design effect: put <code>[no-gdd]</code> in the commit command.</div>
     <div><b>2. Blackboard:</b> <code>tools/blackboard.py</code> moves run entries older than the last 4 from <code>blackboard.md</code> to <code>logs/&lt;stamp&gt;-blackboard-archive.md</code> (disposable, git-ignored; a script, never the agent; the notes are kept). A <code>blackboard.md</code> with a bad structure (title, "Do not repeat", "Left to do", run heading, the eight fields in order) blocks the commit.</div>
@@ -94,7 +94,7 @@ const N = {
   gates:   ['rule', 20, 630, 210, 84, 'commit checks', '1 GDD sync, 2 blackboard structure + archive, 3 tests. [no-gdd] and [no-tests] skip 1 and 3'],
 
   tests:   ['rule', 20, 140, 210, 76, 'tools/tests/run.sh', 'always allowed: build_story, then headless Godot tests. Not QA'],
-  sim:     ['file', 20, 30, 210, 90, 'tools/sim.py  ★', 'paper cash-curve sim, owner by hand only. Reads data/*.json, never runs run.sh'],
+  sim:     ['file', 20, 30, 210, 90, 'qa/check/run.sh  ★', 'economy check: bots play the game in several styles, owner by hand only. Never runs run.sh'],
 
   owner:   ['person', 270, 60, 210, 76, 'Owner', 'decides everything, plays builds, approves proposals'],
   main:    ['person', 270, 250, 210, 92, 'Main session (Claude)', 'briefs agents, reads handoffs, commits'],
@@ -113,7 +113,7 @@ const N = {
   f3:  ['file', 800, 154, 270, 50, 'story/*.md, story/ru/*.json', 'text source'],
   f4:  ['gen',  800, 216, 270, 50, 'story_text*.json, events.json', 'built by tools/build_story.py'],
   f5:  ['file', 800, 278, 270, 50, 'design/proposals/*.md', 'dated proposals, waiting for owner'],
-  f6:  ['file', 800, 340, 270, 50, 'qa/reports/*', 'bug_report.json, runs.jsonl, screenshots'],
+  f6:  ['file', 800, 340, 270, 50, 'qa/check/out/*', 'report.md, results.jsonl'],
   f7:  ['file', 800, 402, 270, 50, 'gdd.md, gdd-skills.md', 'design truth, short form, no balance numbers'],
   f8:  ['file', 800, 464, 270, 50, 'schedule.json', 'task queue, status, goal log'],
   f9:  ['file', 800, 526, 270, 62, 'handoffs/<agent>/<date>-<task>.json', 'fixed schema, the only memory between sessions'],

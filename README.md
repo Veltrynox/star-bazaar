@@ -7,7 +7,8 @@ A single-player space trading game for macOS, made in Godot 4 (GDScript). You ru
 ## Run and test
 
 - Tests (headless): `sh tools/tests/run.sh`
-- Windowed playthrough or screenshots: `qa/run_game.sh res://qa/bots/<script>.gd`
+- Economy check (bots in several play styles, headless): `sh qa/check/run.sh`
+- Windowed screenshots: `qa/run_game.sh res://qa/gui/<script>.gd`
 - Godot lives in `tools/godot/Godot.app` (not in git). Never prefix these commands with `cd &&` or `HOME=`.
 
 ## How the work flows
@@ -21,7 +22,7 @@ flowchart LR
   git["<b>git commit</b><br/>hook runs three checks first (tools/gdd_sync.py)"]:::rule
   gates["<b>commit checks</b><br/>1 GDD sync, 2 blackboard structure + archive, 3 tests. [no-gdd] and [no-tests] skip 1 and 3"]:::rule
   tests["<b>tools/tests/run.sh</b><br/>always allowed: build_story, then headless Godot tests. Not QA"]:::rule
-  sim["<b>tools/sim.py  ★</b><br/>paper cash-curve sim, owner by hand only. Reads data/*.json, never runs run.sh"]:::file
+  sim["<b>qa/check/run.sh  ★</b><br/>economy check: bots play the game in several styles, owner by hand only. Never runs run.sh"]:::file
   owner["<b>Owner</b><br/>decides everything, plays builds, approves proposals"]:::person
   main["<b>Main session (Claude)</b><br/>briefs agents, reads handoffs, commits"]:::person
   f1["<b>game/*.gd, *.tscn</b><br/>the game code"]:::file
@@ -29,7 +30,7 @@ flowchart LR
   f3["<b>story/*.md, story/ru/*.json</b><br/>text source"]:::file
   f4["<b>story_text*.json, events.json</b><br/>built by tools/build_story.py"]:::gen
   f5["<b>design/proposals/*.md</b><br/>dated proposals, waiting for owner"]:::file
-  f6["<b>qa/reports/*</b><br/>bug_report.json, runs.jsonl, screenshots"]:::file
+  f6["<b>qa/check/out/*</b><br/>report.md, results.jsonl"]:::file
   f7["<b>gdd.md, gdd-skills.md</b><br/>design truth, short form, no balance numbers"]:::file
   f8["<b>schedule.json</b><br/>task queue, status, goal log"]:::file
   f9["<b>handoffs/&lt;agent&gt;/&lt;date&gt;-&lt;task&gt;.json</b><br/>fixed schema, the only memory between sessions"]:::file
@@ -73,7 +74,7 @@ flowchart LR
 ## Rules and commit checks
 
 - **Loop:** the owner decides, the main session briefs an agent, the agent changes files and writes a handoff, the main session reads the handoff and commits.
-- **Hard rule:** economy-designer and qa-analyst (and bots, `tools/sim.py`, retunes, sign-offs) run only when the owner asks. `sh tools/tests/run.sh` is always allowed and is not QA.
+- **Hard rule:** economy-designer and qa-analyst (and the economy check `qa/check/run.sh`, retunes, sign-offs) run only when the owner asks. `sh tools/tests/run.sh` is always allowed and is not QA.
 - **Commit gates:** one hook (`tools/gdd_sync.py`) runs three checks on every `git commit`, in this order. A failed check blocks the commit and tells the agent what to fix.
 - **1. GDD sync:** `game/`, `data/` or `story/` changed without `gdd.md`. Fix: start doc-manager to update the GDD from the diff, stage it, commit again. No design effect: put `[no-gdd]` in the commit command.
 - **2. Blackboard:** `tools/blackboard.py` moves run entries older than the last 4 from `blackboard.md` to `logs/&lt;stamp&gt;-blackboard-archive.md` (disposable, git-ignored; a script, never the agent; the notes are kept). A `blackboard.md` with a bad structure (title, "Do not repeat", "Left to do", run heading, the eight fields in order) blocks the commit.
@@ -90,6 +91,6 @@ flowchart LR
 | gameplay-programmer | Use for any Star Bazaar code task in Godot 4 / GDScript — the core trading loop, ships, automated routes, saturation, permits, upgrades, events, cycle timer, win/loss, tutorial, UI panels, the debug and game-control menus, and the... |
 | juice-programmer | Use for Star Bazaar game juice and dynamism in Godot 4 / GDScript: UI tweens and micro-animations, event animations, pop-up and notice animations, number count-ups, screen shake and feedback that keeps the player's attention on th... |
 | merge-resolver | Use only when called by tools/orchestrator.py. Mode 1 resolves git rebase conflicts it cannot resolve by its own rules, in one task worktree, keeping both sides' intent. Mode 2 commits uncommitted schedule.json / blackboard.md edi... |
-| qa-analyst | Use after each Star Bazaar build to run scripted bot playthroughs and report crashes, softlocks, broken win/loss checks and dominant strategies, before the owner plays it. Also use to confirm a reported bug is fixed |
+| qa-analyst | Use when the owner asks for the Star Bazaar economy check (qa/check, bots in several play styles) to be run, to report crashes, softlocks, broken endings, unreachable features and dominant strategies. Also use to confirm a reporte... |
 | story-designer | Use for the Star Bazaar story and voice: the title and preface screen, event texts, win, loss and ending screens, skill tree names and descriptions, how the learned skills shape the ending, and keeping every text and menu in one c... |
 | ui-programmer | Use for Star Bazaar screen and panel work in Godot 4 / GDScript — layout and behaviour of the top bar, planet and route panels, ship panel, cash forecast, skill screen, game menu, notice queue, notification board, dialogs, the pre... |
