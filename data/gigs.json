@@ -1,12 +1,6 @@
 {
   "schema_version": 1,
-  "_doc": "Gig engine (T271, game/gigs.gd). One list for every Flagship job; the kind field is open (signal and rush today; salvage and opening later). Texts are ids in data/story_text.json (story/gigs.md); every number is a data/balance.json key (gig_*), never a literal. A signal: id, kind, weight (seeded draw), when (a Conditions tree; the gig is also never offered twice, and only when every good it names passes Availability), system (0 = the system the Flagship is in), expires (balance key), title/hook/body (text ids), epilogue (text id), options (two neutral ones: text id, outcome id prefix, gives, costs). Outcome text = <outcome>_<MIL|LUX|MIN|BIO> of the run's branch. Effect kinds: cash {size|key}, cash_pct {key} (rush only), cash_fee {size|key} (cost), goods {good | by_branch {mil,lux,min,bio,other}, size|key} (lands in the nearest established world's storage), need_credit {cycles_key} (rush only), story {id}, scout_idle {size|key} (cost). size maps to balance gig_cash_<size>, gig_fee_<size>, gig_lot_<size>, gig_idle_<size>. Never skill points, never share. 'rush' holds the rewards every rush order pays (rush offers are posted in code by Gigs.post_rush).",
-  "rush": {
-    "rewards": [
-      {"kind": "cash_pct", "key": "gig_rush_premium_pct"},
-      {"kind": "need_credit", "cycles_key": "gig_rush_credit_cycles"}
-    ]
-  },
+  "_doc": "Gig engine (T271, game/gigs.gd). One list for every Flagship job; the kind field is open (signal today; salvage and the Opening are posted in code). Texts are ids in data/story_text.json (story/gigs.md); every number is a data/balance.json key (gig_*), never a literal. A signal: id, kind, weight (seeded draw), when (a Conditions tree; the gig is also never offered twice, and only when every good it names passes Availability), system (0 = the system the Flagship is in), expires (balance key), title/hook/body (text ids), epilogue (text id), options (two neutral ones: text id, outcome id prefix, gives, costs). Outcome text = <outcome>_<MIL|LUX|MIN|BIO> of the run's branch. Effect kinds: cash {size|key}, cash_fee {size|key} (cost), goods {good | by_branch {mil,lux,min,bio,other}, size|key} (lands in the nearest established world's storage), story {id}, scout_idle {size|key} (cost). size maps to balance gig_cash_<size>, gig_fee_<size>, gig_lot_<size>, gig_idle_<size>. Never skill points, never share.",
   "gigs": [
     {
       "id": "GIG01", "kind": "signal", "weight": 1, "system": 0,

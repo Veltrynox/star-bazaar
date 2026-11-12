@@ -247,7 +247,7 @@ var fabric: RefCounted = Fabric.new()  # the fabric at the trading post, saved u
 var prosperity: Prosperity = Prosperity.new()  # T256 world tiers and needs, saved under "prosperity"
 var hubs: Hubs = Hubs.new()  # T289 hubs keep neighbours fed, saved under "hubs"
 var raids: Raids = Raids.new()  # T296 raids from unreclaimed dead worlds, saved under "raids"
-var gigs: Gigs = Gigs.new()  # T271 the gig board (signals, rush orders), saved under "gigs"
+var gigs: Gigs = Gigs.new()  # T271 the gig board (signals, salvage, the Opening), saved under "gigs"
 var bazaar: Bazaar = Bazaar.new()  # T259 the Star Bazaar: capital, stages, saved under "bazaar"
 var dead: RefCounted = DeadWorlds.new()  # dead worlds: finite stock per planet id, saved under "dead_mining"
 var clusters: RefCounted = Clusters.new()  # T156 asteroid clusters (ore sources), saved
@@ -2625,7 +2625,6 @@ func _end_cycle() -> void:
 	_advance_notice()  # the board notice lives for one cycle, then the next queued one shows
 	_settle_routes()
 	clusters.regrow()  # 2026-11-12: empty clusters come back slowly, a stalled cluster lane resumes by itself
-	gigs.credit_tick()  # T271: a rush delivery counts as its need met for some cycles
 	prosperity.end_cycle()  # T256: needs met = progress, short = decay, full = tier up
 	note("restless_cycles", prosperity.restless_count())  # CEO endings: world-cycles spent Restless
 	_note_space_cycle()
@@ -2793,8 +2792,6 @@ func note_value(key: String) -> int:
 	match key:
 		"repossessions":
 			return repossessions
-		"rush_done":
-			return gigs.rush_done
 		"skills_min":
 			var n := 0
 			for id in SkillTree.ids_in(run_branch()):
@@ -5050,7 +5047,6 @@ const TIP_DEFS := [
 	{"id": "TIP_DOCK", "sig": "dock"},
 	{"id": "TIP_BOOST", "sig": "boost"},
 	{"id": "TIP_GIG", "cond": "gig_open"},
-	{"id": "TIP_RUSH", "state": "rush"},
 	{"id": "TIP_WEATHER", "state": "convoy"},
 	{"id": "TIP_WEATHER_KINDS", "state": "weather"},
 	{"id": "TIP_PROSPECT", "cond": "skill_learned:FND_PROSPECT"},
@@ -5105,8 +5101,6 @@ func _tip_state(key: String) -> bool:
 				if not Conditions.eval("planet_visited:" + str(p.get("id", ""))):
 					return true
 			return false
-		"rush":
-			return gigs.offers.any(func(o): return str(o.get("kind", "")) == "rush")
 		"convoy":
 			return forecast_id != "" and events.is_weather(forecast_id)
 		"weather":

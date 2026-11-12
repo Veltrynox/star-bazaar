@@ -1,16 +1,15 @@
 class_name Gigs
 extends RefCounted
 ## T271 the gig engine: one board for every Flagship job (design/proposals/2026-11-06-empire-growth-v2.md section 3.2).
-## Data: data/gigs.json (signals, rush rewards); numbers: data/balance.json gig_* keys (all PLACEHOLDERS). Never skill points, never share.
+## Data: data/gigs.json (signals); numbers: data/balance.json gig_* keys (all PLACEHOLDERS). Never skill points, never share.
 ## Kinds (open field "kind"): "signal" (a marker in open space; fly there, a window opens with two neutral options; one-time, expires for
-## free, an expired signal is gone for the run) and "rush" (a world wants units of a good by a deadline; hand sale or unload at that world
-## counts; posted by Gigs.post_rush; T272 generator _gen_rush: one a cycle by seeded weighted draw) and "salvage" (T296: cargo pods a raid dropped, posted by
+## free, an expired signal is gone for the run) and "salvage" (T296: cargo pods a raid dropped, posted by
 ## Gigs.post_salvage from game/raids.gd; fly there before they fade, the goods load into the Flagship hold; no window, no board-size limit) and "opening" (T298: after the last Bazaar stage; the Flagship flies the charter cargo to the capital, no window, no expiry to speak of; docking there calls Bazaar.open() and the run is won; post_opening, ensure_opening).
 ## Board: up to gig_board_max open offers (any kind); one open signal at a time, gig_gap_cycles between signals, gig_cap_signals per run,
 ## none before gig_first_cycle. The draw is seeded (saved seed + cycle), so a save's list is stable. Deadlines are on the game clock.
-## An offer: {uid, id, kind, target {kind "point"|"planet", sys, pos [x,y,z] | index}, due (game time), accepted, req {good, units, got}, rewards}.
-## Rewards land through apply(): goods in the nearest established world's storage (no share), cash, need credit (the delivery counts
-## as that need met for some cycles: prosperity.add_fill before the cycle's progress), a story line.
+## An offer: {uid, id, kind, target {kind "point"|"planet", sys, pos [x,y,z] | index}, due (game time), accepted, req, rewards}.
+## Rewards land through apply(): goods in the nearest established world's storage (no share), cash, a story line.
+## Run notes for the CEO endings: gigs_done (signals answered, salvage pods scooped) and gigs_expired (signals that ran out).
 ## Condition atoms (game/conditions.gd): gig_done:<id>, gig_open. Saved under "gigs" (save version 15; older saves load empty).
 
 const StoryText := preload("res://game/story_text.gd")
@@ -26,17 +25,13 @@ signal arrival(uid: String)    # the Flagship reached a signal marker: main open
 
 var main: Node = null
 var defs: Array = []
-var rush_rewards: Array = []
 var offers: Array = []         # open offers, oldest first
 var done := {}                 # data id -> true (finished)
 var skipped := {}              # data id -> true (expired, gone for the run)
-var credits: Array = []        # {planet: int, good, units, left}: need credits still running
 var signals_seen := 0
-var rush_done := 0
+var gigs_done := 0             # signals answered plus salvage offers scooped empty (run note gigs_done)
+var gigs_expired := 0          # signals that ran out of time (run note gigs_expired)
 var last_signal_cycle := -100000
-var rush_last := {}            # T272: planet index -> cycle a rush was last posted there (cooldown)
-var rush_posted := 0
-var last_rush_cycle := -100000
 var seed_value := 0
 var pending := ""              # uid of a reached signal waiting for a free window
 var _uid := 0
@@ -57,7 +52,6 @@ func setup(m: Node) -> void:
 	main = m
 	var d := read_data()
 	defs = d.get("gigs", [])
-	rush_rewards = d.get("rush", {}).get("rewards", [])
 	_by_id = {}
 	for g in defs:
 		_by_id[str(g.get("id", ""))] = g
@@ -71,19 +65,15 @@ func setup(m: Node) -> void:
 	if main.flight != null:
 		main.flight.arrived_point.connect(on_arrived_point)
 		main.flight.arrived.connect(on_arrived_planet)
-		main.flight.delivered.connect(on_delivered)
 
 func reset() -> void:
 	offers = []
 	done = {}
 	skipped = {}
-	credits = []
 	signals_seen = 0
-	rush_done = 0
+	gigs_done = 0
+	gigs_expired = 0
 	last_signal_cycle = -100000
-	rush_last = {}
-	rush_posted = 0
-	last_rush_cycle = -100000
 	pending = ""
 	_uid = 0
 
@@ -176,6 +166,8 @@ func _scoop(o: Dictionary) -> void:
 		scooped.emit()
 	if left_pods.is_empty():
 		offers.erase(o)
+		gigs_done += 1
+		main.note("gigs_done")
 		main.post_notice(StoryText.get_or("NOT_SALVAGE_DONE", "Pods scooped into the Flagship hold: {lines}.", {"lines": ", ".join(lines)}))
 	else:
 		main.post_notice(StoryText.get_or("NOT_SALVAGE_FULL", "The Flagship hold is full. Some pods stay adrift.", {}))
@@ -183,9 +175,8 @@ func _scoop(o: Dictionary) -> void:
 
 # ---- spawn -----------------------------------------------------------------------------------------------------------
 
-## Start of every cycle (main): rush orders, then at most one new signal may open.
+## Start of every cycle (main): at most one new signal may open.
 func on_cycle(cycle: int) -> void:
-	_gen_rush(cycle)
 	if not enabled() or not board_room() or not open_signal().is_empty():
 		return
 	if cycle < int(_bal("gig_first_cycle")) or cycle - last_signal_cycle < int(_bal("gig_gap_cycles")) or signals_seen >= maxi(int(_bal("gig_cap_signals")), int(_bal("gig_cap_signals_hard"))):
@@ -351,130 +342,6 @@ func _open_signal(g: Dictionary, cycle: int, rng: RandomNumberGenerator) -> void
 	last_signal_cycle = cycle
 	changed.emit()
 
-## A rush order (generator in a later task): `planet` index of an established world, `units` of `good` by `deadline_cycles` of game time.
-## Returns the uid, "" when it cannot be posted (board full, good hidden, world not established or already asking).
-func post_rush(planet: int, good: String, units: int, deadline_cycles: float) -> String:
-	if not enabled() or not board_room() or units <= 0 or not Availability.good(good) or not main.planet_established(planet):
-		return ""
-	for o in offers:
-		if str(o["kind"]) == "rush" and int(o["target"].get("index", -1)) == planet:
-			return ""
-	_uid += 1
-	var uid := "RUSH%d" % _uid
-	offers.append({"uid": uid, "id": uid, "kind": "rush", "target": {"kind": "planet", "sys": main.system_of(planet), "index": planet},
-		"due": _now() + deadline_cycles, "accepted": false, "req": {"good": good, "units": units, "got": 0}, "rewards": rush_rewards.duplicate(true)})
-	changed.emit()
-	return uid
-
-## ---- rush generator (T272) ----------------------------------------------------------------------------------------
-## Hook: a shortage weather hit on a world (the good it lacks, "" = none).
-func shortage_good(planet: int) -> String:
-	return main.events.shortage_good_at(planet)  # T280: the live house shortage
-
-## The goods a world's unmet needs still want (visible goods only).
-func _unmet_goods(i: int) -> Array:
-	var out: Array = []
-	for n in main.prosperity.needs(i):
-		if not bool(n["locked"]) and not bool(n["met"]) and str(n["good"]) != "?" and Availability.good(str(n["good"])):
-			out.append(str(n["good"]))
-	return out
-
-## Rush rule (2026-11-12): a rush order may ask only for a good some open, established world sells to the player, or one the company
-## holds anywhere (planet storage, Space Storage, Flagship hold). Ore is an industrial input and is never asked for.
-func _obtainable(good: String) -> bool:
-	if good == "" or good == "ore":
-		return false
-	for j in main.map.planets.size():
-		if main.planet_established(j):
-			var bp = main.map.planets[j].get("base_prices")
-			if typeof(bp) == TYPE_DICTIONARY and bp.has(good + "_buy"):
-				return true
-	for key in main.storage.stock:
-		if int((main.storage.stock[key] as Dictionary).get(good, 0)) > 0:
-			return true
-	return main.flight.hold_units(good) > 0
-
-## One candidate per world: {planet, good, weight, why}. Reasons: "shortage" (weather hook), "tier" (one step from a tier-up with a short need),
-## "restless". A world with a reason but no unmet visible need is skipped, except a shortage (it names its own good).
-func rush_candidates(cycle: int) -> Array:
-	var out: Array = []
-	var cool := int(_bal("rush_cooldown_cycles"))
-	var pr = main.prosperity
-	for i in main.map.planets.size():
-		if not main.planet_established(i) or pr.tier(i) < 1 or pr.is_barren(i):
-			continue
-		if rush_last.has(i) and cycle - int(rush_last[i]) < cool:
-			continue
-		var pid := str(main.map.planets[i].get("id", ""))
-		if not main.flight.established(pid) or main.flight.eta_cycles(pid) < 0.0:
-			continue
-		var unmet := _unmet_goods(i)
-		var weight := 0.0
-		var why := ""
-		var good := ""
-		var sg := shortage_good(i)
-		if sg != "" and Availability.good(sg):
-			weight += _bal("rush_weight_shortage")
-			why = "shortage"
-			good = sg
-		if not unmet.is_empty():
-			if pr.tier(i) < pr.max_tier() and pr.steps(i) + 1 >= pr.steps_needed(i):
-				weight += _bal("rush_weight_tier")
-				why = why if why != "" else "tier"
-			if pr.restless(i):
-				weight += _bal("rush_weight_restless")
-				why = why if why != "" else "restless"
-			if good == "":
-				good = str(unmet[0])
-		if weight <= 0.0 or good == "":
-			continue
-		var ok_unmet: Array = []
-		for ug in unmet:
-			if _obtainable(str(ug)):
-				ok_unmet.append(ug)
-		unmet = ok_unmet
-		if why != "shortage" and not unmet.is_empty():
-			good = str(unmet[0])
-		if not _obtainable(good):
-			continue
-		out.append({"planet": i, "good": good, "weight": weight, "why": why, "unmet": unmet})
-	return out
-
-## Start of a cycle: at most one new rush order, by a seeded weighted draw. Board room, first cycle, gap and per-world cooldown apply.
-func _gen_rush(cycle: int) -> void:
-	if not enabled() or not board_room() or cycle < int(_bal("rush_first_cycle")) or cycle - last_rush_cycle < int(_bal("rush_gap_cycles")):
-		return
-	var cands := rush_candidates(cycle)
-	var total := 0.0
-	for c in cands:
-		total += float(c["weight"])
-	if total <= 0.0:
-		return
-	var rng := RandomNumberGenerator.new()
-	rng.seed = seed_value + cycle * 104729 + 17
-	var r := rng.randf() * total
-	var pick: Dictionary = cands[0]
-	for c in cands:
-		r -= float(c["weight"])
-		if r <= 0.0:
-			pick = c
-			break
-	var i := int(pick["planet"])
-	var good := str(pick["good"])
-	if pick["unmet"].size() > 1 and str(pick["why"]) != "shortage":
-		good = str(pick["unmet"][rng.randi() % pick["unmet"].size()])
-	var units := maxi(1, roundi(float(main.prosperity.demand(i)) * _bal("rush_lot_mult", 1.0)))
-	var eta: float = main.flight.eta_cycles(str(main.map.planets[i].get("id", "")))
-	var uid := post_rush(i, good, units, eta * _bal("rush_deadline_mult", 1.0) + _bal("rush_deadline_add"))
-	if uid == "":
-		return
-	var o := offer(uid)
-	o["why"] = str(pick["why"])
-	rush_last[i] = cycle
-	rush_posted += 1
-	last_rush_cycle = cycle
-	changed.emit()
-
 # ---- the player's side -----------------------------------------------------------------------------------------------
 
 ## Marks the offer accepted and orders the Flagship to its target. "" = ordered; else request_fly's reason ("busy", "no_gate", ...) or "no_offer".
@@ -511,8 +378,9 @@ func tick(now: float) -> void:
 		if now >= float(o["due"]) or left_sys:
 			if str(o["kind"]) == "signal":
 				skipped[str(o["id"])] = true  # free expiry: no penalty, no log; the gig is gone for the run
-			elif str(o["kind"]) == "rush" and now >= float(o["due"]) and main.has_method("note"):
-				main.note("rush_expired")  # CEO endings: an open rush order ran out of time
+				if now >= float(o["due"]):
+					gigs_expired += 1
+					main.note("gigs_expired")  # CEO endings: an open signal ran out of time
 			if pending == str(o["uid"]):
 				pending = ""
 			offers.remove_at(i)
@@ -534,35 +402,6 @@ func on_arrived_point(sys: int, pos: Vector3) -> void:
 				pending = str(o["uid"])
 				return
 
-## Units sold by hand or unloaded at a world: counts for a rush order there; complete = rewards.
-func on_delivered(planet_id: String, good: String, units: int) -> void:
-	var pi: int = main.planet_index_of(planet_id)
-	for o in offers:
-		if str(o["kind"]) != "rush" or int(o["target"].get("index", -1)) != pi or str(o["req"]["good"]) != good:
-			continue
-		o["req"]["got"] = int(o["req"]["got"]) + units
-		if int(o["req"]["got"]) >= int(o["req"]["units"]):
-			_finish_rush(o)
-		else:
-			main.post_notice(StoryText.get_or("NOT_RUSH_PARTIAL", "Part delivered. {planet} still needs more {commodity}.", {"planet": main.planet_name(pi), "commodity": Ui.good_name(good)}))
-			changed.emit()
-		return
-
-## The open rush order at a world: {got, units, good}; {} when none.
-func rush_progress(planet: int) -> Dictionary:
-	for o in offers:
-		if str(o["kind"]) == "rush" and int(o["target"].get("index", -1)) == planet:
-			return {"got": int(o["req"]["got"]), "units": int(o["req"]["units"]), "good": str(o["req"]["good"])}
-	return {}
-
-func _finish_rush(o: Dictionary) -> void:
-	offers.erase(o)
-	rush_done += 1
-	var ctx := {"good": str(o["req"]["good"]), "units": int(o["req"]["units"]), "planet": int(o["target"]["index"]) if str(o["target"].get("kind", "planet")) == "planet" else -1}
-	var lines := apply(o["rewards"], ctx)
-	main.post_notice(StoryText.get_or("NOT_GIG_RUSH_DONE", "Rush order delivered at {planet}. {lines}", {"planet": main.planet_name(int(ctx["planet"])), "lines": " ".join(lines)}))
-	changed.emit()
-
 ## The player picked option `opt` (index; -1 for a gig with no options) of a reached signal. Applies gives and costs, closes the offer,
 ## marks it done. Returns {outcome (story id), epilogue (story id), lines (effect lines)}; {} when there is no such offer.
 func choose(uid: String, opt: int) -> Dictionary:
@@ -583,6 +422,8 @@ func choose(uid: String, opt: int) -> Dictionary:
 			outcome += "_" + sfx
 	offers.erase(o)
 	done[str(o["id"])] = true
+	gigs_done += 1
+	main.note("gigs_done")
 	changed.emit()
 	return {"outcome": outcome, "epilogue": str(g.get("epilogue", "")), "lines": lines}
 
@@ -599,7 +440,7 @@ func _good_of(e: Dictionary) -> String:
 		return str(m.get(b, m.get("other", ""))) if b != "" or m.has("other") else ""
 	return str(e.get("good", ""))
 
-## Applies effects (rewards and costs) and returns their lines for the result window. ctx: good, units, planet (rush).
+## Applies effects (rewards and costs) and returns their lines for the result window. ctx: unused today.
 func apply(effects: Array, ctx: Dictionary) -> Array:
 	var lines: Array = []
 	for e in effects:
@@ -609,10 +450,6 @@ func apply(effects: Array, ctx: Dictionary) -> Array:
 				var n := roundi(_num(e, "gig_cash_"))
 				main.cash += n
 				lines.append(StoryText.get_or("GIG_EFF_CASH", "+{n} credits.", {"n": n}))
-			"cash_pct":
-				var n2 := roundi(float(int(ctx.get("units", 0)) * Markets.value_of(str(ctx.get("good", "")))) * _bal(str(e.get("key", ""))))
-				main.cash += n2
-				lines.append(StoryText.get_or("GIG_EFF_CASH", "+{n} credits.", {"n": n2}))
 			"cash_fee":
 				var n3 := mini(int(main.cash), roundi(_num(e, "gig_fee_")))
 				main.cash -= n3
@@ -622,12 +459,6 @@ func apply(effects: Array, ctx: Dictionary) -> Array:
 				var put := _store_lot(gd, roundi(_num(e, "gig_lot_")))
 				if put > 0:
 					lines.append(StoryText.get_or("GIG_EFF_GOODS", "{n} {good} in storage.", {"n": put, "good": Ui.good_name(gd).to_lower()}))
-			"need_credit":
-				var pl := int(ctx.get("planet", -1))
-				var cycles := int(_bal(str(e.get("cycles_key", ""))))
-				if pl >= 0 and cycles > 0:
-					credits.append({"planet": pl, "good": str(ctx.get("good", "")), "units": main.prosperity.demand(pl), "left": cycles})
-					lines.append(StoryText.get_or("GIG_EFF_CREDIT", "The need counts as met for {n} cycles.", {"n": cycles}))
 			"story":
 				var sid := str(e.get("id", ""))
 				if StoryText.has_text(sid):
@@ -660,15 +491,6 @@ func _store_lot(good: String, units: int) -> int:
 			break
 	return units - left
 
-## Before prosperity.end_cycle (main): every running need credit fills its world's need for this cycle.
-func credit_tick() -> void:
-	for i in range(credits.size() - 1, -1, -1):
-		var c: Dictionary = credits[i]
-		main.prosperity.add_fill(int(c["planet"]), str(c["good"]), int(c["units"]))
-		c["left"] = int(c["left"]) - 1
-		if int(c["left"]) <= 0:
-			credits.remove_at(i)
-
 # ---- lint and save ---------------------------------------------------------------------------------------------------
 
 ## Problems of data/gigs.json against the other data files (balance keys, text ids, goods, atoms). Empty = clean.
@@ -696,17 +518,15 @@ static func lint() -> Array:
 				errs.append("%s: missing text id '%s'" % [id, o.get("text", "")])
 			for e in o.get("gives", []) + o.get("costs", []):
 				_lint_effect(e, id, errs, bal)
-	for e in d.get("rush", {}).get("rewards", []):
-		_lint_effect(e, "rush", errs, bal)
 	return errs
 
 static func _lint_effect(e: Dictionary, where: String, errs: Array, bal: Dictionary) -> void:
 	var kind := str(e.get("kind", ""))
-	if not ["cash", "cash_pct", "cash_fee", "goods", "need_credit", "story", "scout_idle"].has(kind):
+	if not ["cash", "cash_fee", "goods", "story", "scout_idle"].has(kind):
 		errs.append("%s: unknown effect kind '%s'" % [where, kind])
 	var prefix := {"cash": "gig_cash_", "cash_fee": "gig_fee_", "goods": "gig_lot_", "scout_idle": "gig_idle_"}
-	var key := str(e.get("key", str(prefix.get(kind, "")) + str(e.get("size", "")))) if kind != "need_credit" else str(e.get("cycles_key", ""))
-	if (prefix.has(kind) or kind == "cash_pct" or kind == "need_credit") and not bal.has(key):
+	var key := str(e.get("key", str(prefix.get(kind, "")) + str(e.get("size", ""))))
+	if prefix.has(kind) and not bal.has(key):
 		errs.append("%s: unknown balance key '%s'" % [where, key])
 	if kind == "goods":
 		var goods: Array = e.get("by_branch", {}).values() if e.has("by_branch") else [str(e.get("good", ""))]
@@ -715,9 +535,9 @@ static func _lint_effect(e: Dictionary, where: String, errs: Array, bal: Diction
 				errs.append("%s: unknown good '%s'" % [where, gd])
 
 func to_dict() -> Dictionary:
-	return {"seed": seed_value, "offers": offers.duplicate(true), "done": done.keys(), "skipped": skipped.keys(), "credits": credits.duplicate(true),
-		"signals_seen": signals_seen, "rush_done": rush_done,
-		"last_signal_cycle": last_signal_cycle, "uid": _uid, "rush_last": rush_last.duplicate(), "rush_posted": rush_posted, "last_rush_cycle": last_rush_cycle}
+	return {"seed": seed_value, "offers": offers.duplicate(true), "done": done.keys(), "skipped": skipped.keys(),
+		"signals_seen": signals_seen, "gigs_done": gigs_done, "gigs_expired": gigs_expired,
+		"last_signal_cycle": last_signal_cycle, "uid": _uid}
 
 ## A missing or bad dictionary (a save from before gigs) means an empty board, nothing done.
 func from_dict(s) -> void:
@@ -727,21 +547,15 @@ func from_dict(s) -> void:
 		return
 	seed_value = int(s.get("seed", keep_seed))
 	for o in s.get("offers", []):
-		if typeof(o) == TYPE_DICTIONARY and o.has("uid") and o.has("target") and o.has("due"):
+		if typeof(o) == TYPE_DICTIONARY and o.has("uid") and o.has("target") and o.has("due") and str(o.get("kind", "")) != "rush":  # an old save's rush offers are dropped
 			offers.append(o)
 	for k in s.get("done", []):
 		done[str(k)] = true
 	for k in s.get("skipped", []):
 		skipped[str(k)] = true
-	for c in s.get("credits", []):
-		if typeof(c) == TYPE_DICTIONARY:
-			credits.append({"planet": int(c.get("planet", -1)), "good": str(c.get("good", "")), "units": int(c.get("units", 0)), "left": int(c.get("left", 0))})
 	signals_seen = int(s.get("signals_seen", 0))
-	rush_done = int(s.get("rush_done", 0))
+	gigs_done = int(s.get("gigs_done", 0))
+	gigs_expired = int(s.get("gigs_expired", 0))
 	last_signal_cycle = int(s.get("last_signal_cycle", -100000))
 	_uid = int(s.get("uid", 0))
-	if typeof(s.get("rush_last")) == TYPE_DICTIONARY:
-		for k in s["rush_last"]:
-			rush_last[int(k)] = int(s["rush_last"][k])
-	rush_posted = int(s.get("rush_posted", 0))
-	last_rush_cycle = int(s.get("last_rush_cycle", -100000))
+	changed.emit()

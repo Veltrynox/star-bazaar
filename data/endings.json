@@ -22,7 +22,7 @@
       "visible_when": "branch_is:min",
       "requires": {
         "all": [
-          "note_at_least:rush_done/end_rush_min",
+          "note_at_least:gigs_done/end_gigs_min",
           "note_at_least:quick_routes/end_quick_min"
         ]
       }
@@ -52,8 +52,8 @@
       "visible_when": "branch_is:lux",
       "requires": {
         "all": [
-          "note_at_least:rush_done/end_rush_min",
-          "note_at_most:rush_expired/end_rush_expired_max"
+          "note_at_least:gigs_done/end_gigs_min",
+          "note_at_most:gigs_expired/end_gigs_expired_max"
         ]
       }
     },
@@ -72,8 +72,8 @@
       "visible_when": "branch_is:mil",
       "requires": {
         "all": [
-          "note_at_least:rush_done/end_rush_min",
-          "note_at_most:rush_expired/end_rush_expired_max"
+          "note_at_least:gigs_done/end_gigs_min",
+          "note_at_most:gigs_expired/end_gigs_expired_max"
         ]
       }
     },

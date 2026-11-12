@@ -90,7 +90,7 @@ const BURST_RING_TO := 2.8
 const FX_FALLBACK := {"flight_juice_ring_pop_s": 0.3, "flight_juice_ring_pop_scale": 1.7, "flight_juice_swing_deg": 10.0, "flight_juice_swing_s": 0.45,
 	"flight_juice_flare_s": 0.35, "flight_juice_flare_size": 0.45, "flight_juice_boost_burst_s": 0.55, "flight_juice_boost_stretch": 1.8,
 	"flight_juice_boost_ease_s": 0.4, "flight_juice_dock_ring_s": 0.45, "flight_juice_clamp_s": 0.18, "flight_juice_puff_s": 0.6,
-	"flight_juice_marker_hz": 0.8, "flight_juice_marker_amp": 0.2, "flight_juice_rush_s": 0.9, "flight_juice_sting_db": -14.0}
+	"flight_juice_marker_hz": 0.8, "flight_juice_marker_amp": 0.2, "flight_juice_sting_db": -14.0}
 const FX_RINGS := 8              # pooled ring meshes
 const FX_FLARES := 3             # pooled flare spheres
 const COL_FLARE := Color(1.0, 0.85, 0.5, 1.0)
@@ -124,7 +124,6 @@ class Fx:
 
 var flight = null
 var _fx: Array = []
-var _fx_conn = null            # the flight object whose delivered signal is connected
 var _ship_pos := Vector3.ZERO
 var _eng_pos := Vector3.ZERO
 var _prev_state := ""
@@ -138,8 +137,6 @@ var _swing_amp := 0.0
 var _boost_k := 0.0            # 0..1 boost look (trail stretch), eased on game time
 var _clock := 0.0              # game seconds, drives the target marker pulse
 var _marker_mat: StandardMaterial3D
-var _deliv_planet := ""
-var _rush_seen := -1
 var _model_path := ""
 var _holder: Node3D
 var _line: MeshInstance3D
@@ -478,7 +475,7 @@ func _clamp() -> void:
 	_fx_spawn(false, fit_radius() * CLAMP_FROM, r, 1.0, 0.0, _k("flight_juice_clamp_s"), COL_DOCK.lightened(0.5), 1)
 	Juice.play_tone(self, "clamp", _k("flight_juice_sting_db"))
 
-## Reads the Flagship's state each frame (cheap compares) and starts the beats: order accepted, departure, boost, dock, rush delivered.
+## Reads the Flagship's state each frame (cheap compares) and starts the beats: order accepted, departure, boost, dock.
 func _fx_events(f, selected: bool) -> void:
 	var st := state(f)
 	var tg = _call(f, "target", [], {})
@@ -487,17 +484,12 @@ func _fx_events(f, selected: bool) -> void:
 		var tp: Vector3 = tg["pos"]
 		tkey = "%.2f,%.2f" % [tp.x, tp.z]
 	var boost := bool(_call(f, "boost_on", [], false))
-	var m = _main()
-	if m != null and _fx_conn != f and f.has_signal("delivered"):  # connect once per Flagship object
-		_fx_conn = f
-		f.delivered.connect(_on_delivered)
 	if not _seen:  # first look: take the state as it is, no beat
 		_seen = true
 		_prev_state = st
 		_prev_tkey = tkey
 		_prev_boost = boost
 		_prev_sel = selected
-		_rush_seen = int(m.gigs.rush_done) if m != null and "gigs" in m else 0
 		return
 	if Juice.motion > 0.0:
 		if selected and not _prev_sel:
@@ -519,16 +511,6 @@ func _fx_events(f, selected: bool) -> void:
 	_prev_tkey = tkey
 	_prev_boost = boost
 	_prev_sel = selected
-	if _deliv_planet != "":  # a hand delivery was reported: did it finish a rush order?
-		var pid := _deliv_planet
-		_deliv_planet = ""
-		var done := int(m.gigs.rush_done) if m != null and "gigs" in m else _rush_seen
-		if done > _rush_seen:
-			_rush_beat(f, pid)
-		_rush_seen = done
-
-func _on_delivered(planet_id: String, _good: String, _units: int) -> void:
-	_deliv_planet = planet_id
 
 ## Nose swing toward the new course: a small sway in the direction of the turn, then it settles on the heading.
 func _order_swing(f, tg) -> void:
@@ -540,25 +522,6 @@ func _order_swing(f, tg) -> void:
 	var k := clampf(absf(turn) / SWING_MIN_TURN, 0.3, 1.0)
 	_swing_amp = deg_to_rad(_k("flight_juice_swing_deg")) * Juice.motion * k * signf(turn if turn != 0.0 else 1.0)
 	_swing_t = 0.0
-
-## A rush order was delivered at planet pid: a gold-green double ring on the world, a pop of its label and a sting.
-func _rush_beat(f, pid: String) -> void:
-	var m = _main()
-	if m == null or Juice.motion <= 0.0:
-		return
-	var i: int = m.planet_index_of(pid)
-	var map = get_parent()
-	if i < 0 or map == null or not map.has_method("planet_radius"):
-		return
-	var r: float = map.planet_radius(i)
-	var pos: Vector3 = f._planet_pos(i)
-	var good := Ui.col("signal_good")
-	var secs := _k("flight_juice_rush_s")
-	_fx_spawn(false, r * 1.05, r * 2.6, 0.95, 0.0, secs, good, 0, pos)
-	_fx_spawn(false, r * 1.05, r * 2.0, 0.8, 0.0, secs * 0.8, good.lightened(0.5), 0, pos, secs * 0.2)
-	if "planet_label_2d" in map and i < map.planet_label_2d.size():
-		Juice.pop(map.planet_label_2d[i])
-	Juice.play_tone(self, "sting", _k("flight_juice_sting_db"))
 
 # ---- the 3D ship --------------------------------------------------------------------------------------------------
 

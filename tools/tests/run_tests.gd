@@ -9490,8 +9490,8 @@ func _test_gig_clearance() -> void:
 	check(g.nudge_clear(dpos, m.flight.system_id(), 0.7) == dpos, "gig clear: a drop at a dead planet stays")
 	await _free_main(m)
 
-## T271 gig engine: a signal opens, expires for free and stays gone; reaching it and choosing applies gives and costs; a rush order completes
-## on a hand delivery; the board saves and loads; nothing is offered with discovery off.
+## T271 gig engine: a signal opens, expires for free and stays gone; reaching it and choosing applies gives and costs; gigs count as run notes
+## and an old save's rush offer is dropped; the board saves and loads; nothing is offered with discovery off.
 func _test_gigs() -> void:
 	var m: Control = await _new_main(false, true)
 	m._dismiss_preface()
@@ -9520,15 +9520,11 @@ func _test_gigs() -> void:
 	check(g.offers.size() == 1 and g.skipped.has(id), "gigs: save and load keep the board")
 	var res: Dictionary = g.choose(uid, 0)
 	check(not res.is_empty() and Conditions.eval("gig_done:" + uid) and not g.is_open(), "gigs: choosing closes the offer and marks it done")
-	# rush
-	m.flight.set_flag("post", "planet_2", true)
-	var pi: int = m.planet_index_of("planet_2")
-	var ruid: String = g.post_rush(pi, "energy", 5, 4.0)
-	check(ruid != "" and g.is_open(), "gigs: a rush order posts")
-	var c1: int = m.cash
-	g.on_delivered("planet_2", "energy", 5)
-	check(not g.is_open() and g.rush_done == 1 and m.cash > c1 and not g.credits.is_empty(), "gigs: a rush delivery pays a premium and a need credit")
-	g.credit_tick()
+	check(g.gigs_done == 1 and g.gigs_expired == 1 and m.note_value("gigs_done") == 1 and m.note_value("gigs_expired") == 1, "gigs: an answered signal and an expired one are counted as run notes")
+	var old: Dictionary = g.to_dict()
+	old["offers"] = [{"uid": "RUSH1", "id": "RUSH1", "kind": "rush", "target": {"kind": "planet", "sys": 1, "index": 0}, "due": 99999.0}]
+	g.from_dict(old)
+	check(g.offers.is_empty() and g.gigs_done == 1, "gigs: an old save's rush offer is dropped on load")
 	m.balance["discovery_enabled"] = 0
 	g.reset()
 	g.on_cycle(30)

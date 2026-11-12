@@ -1,9 +1,9 @@
 extends ColorRect
 ## T270: the dock sheet (design/proposals/2026-11-06-empire-growth-v2.md section 3.2). A paused window, like the event window,
-## opened by "Dock and trade" (right-click menu) or on docking after that order. Hand trade through the Flagship API of
-## game/pathfinder.gd (dock_trade, unload_to_storage, load_from_storage). Rows: a fuel (energy) line, then every visible good the
-## Flagship holds, the world buys or sells, or Company storage here holds. Goods follow Availability; text is ids with fallbacks.
-## Numbers: the lot size is balance flagship_dock_lot (placeholder); no tuning numbers live here.
+## opened by "Dock and trade" (right-click menu) or on docking after that order. No buying or selling by hand (owner, 2026-11-12):
+## the sheet moves goods between the Flagship hold and this world's Company storage (unload_to_storage, load_from_storage of
+## game/pathfinder.gd) and shows the boost state. Rows: every visible good the Flagship holds or Company storage here holds.
+## Goods follow Availability; text is ids with fallbacks. No numbers live here.
 
 const StoryText := preload("res://game/story_text.gd")
 const Juice := preload("res://game/juice.gd")
@@ -15,13 +15,11 @@ var planet := -1
 var rows_box: VBoxContainer
 var hold_label: Label
 var fuel_label: Label
-var rush_label: Label
 var title_label: Label
-var cash_value: Label   # T274: the player's credits, counted up or down after a trade
 var _sig := ""
 const CRATE_TINT := Color(0.95, 0.75, 0.4, 0.95)  # T274: crate sprites of the trade stream
-# T274 tuning: balance flight_juice_crates / flight_juice_crate_s / flight_juice_cash_float_px (placeholders); these mirror them for a missing key.
-const JUICE_FALLBACK := {"flight_juice_crates": 5.0, "flight_juice_crate_s": 0.5, "flight_juice_cash_float_px": 28.0}
+# T274 tuning: balance flight_juice_crates / flight_juice_crate_s (placeholders); these mirror them for a missing key.
+const JUICE_FALLBACK := {"flight_juice_crates": 5.0, "flight_juice_crate_s": 0.5}
 
 func open(main_node: Control, planet_index: int) -> void:
 	main = main_node
@@ -46,21 +44,9 @@ func open(main_node: Control, planet_index: int) -> void:
 	title_label = title
 	hold_label = Label.new()
 	box.add_child(hold_label)
-	var cash_row := HBoxContainer.new()
-	cash_row.add_theme_constant_override("separation", 8)
-	box.add_child(cash_row)
-	var cash_caption := Label.new()
-	cash_caption.theme_type_variation = "LabelSmall"
-	cash_caption.text = StoryText.get_or("LBL_DOCK_CASH", "Credits")
-	cash_row.add_child(cash_caption)
-	cash_value = Label.new()
-	cash_row.add_child(cash_value)
 	fuel_label = Label.new()
 	fuel_label.theme_type_variation = "LabelSmall"
 	box.add_child(fuel_label)
-	rush_label = Label.new()  # a rush-order banner slot for the gig task; empty here
-	rush_label.visible = false
-	box.add_child(rush_label)
 	var scroll := ScrollContainer.new()
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	scroll.custom_minimum_size = Vector2(0, 280)
@@ -102,34 +88,25 @@ func _goods() -> Array:
 	var key: String = main.storage.planet_key(planet)
 	for c in Availability.all_visible_goods():
 		var g := str(c)
-		if main.flight.hold_units(g) > 0 or main.flight.dock_buy_price(g) > 0 or int(main.engine.sold_price(planet, g)) > 0 or main.storage.amount(key, g) > 0:
+		if main.flight.hold_units(g) > 0 or main.storage.amount(key, g) > 0:
 			out.append(g)
 	return out
 
 func _signature() -> String:
-	var s := "%d|%d|%d|%d" % [main.cash, main.flight.hold_total(), planet, int(main.gigs.rush_progress(planet).get("got", -1)) if main.gigs != null else -1]
+	var s := "%d|%d|%d|%s" % [main.flight.hold_total(), planet, main.flight.boost_charges(), str(main.flight.boost_on())]
 	var key: String = main.storage.planet_key(planet)
 	for g in _goods():
-		s += ",%s:%d:%d:%d:%s" % [g, main.flight.hold_units(g), main.flight.dock_buy_price(g), main.storage.amount(key, g), main.engine.price_reason(planet, g)]
+		s += ",%s:%d:%d" % [g, main.flight.hold_units(g), main.storage.amount(key, g)]
 	return s
-
-func _lot() -> int:
-	return maxi(1, int(main.balance.get("flagship_dock_lot", 1)))
 
 func rebuild() -> void:
 	_sig = _signature()
 	var f = main.flight
-	var rp: Dictionary = main.gigs.rush_progress(planet) if main.gigs != null else {}
-	rush_label.visible = not rp.is_empty() and Availability.good(str(rp.get("good", "")))
-	if rush_label.visible:
-		rush_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		rush_label.text = StoryText.get_or("GIG_RUSH_ARRIVE", "This world has a rush order for {commodity}: {got} of {units} brought. Sell or unload it here to deliver.", {"commodity": Ui.good_name(str(rp["good"])), "got": int(rp["got"]), "units": int(rp["units"])})
 	hold_label.text = "%s\n%s" % [StoryText.get_or("LBL_HOLD_FILL", "Hold: {n} of {m}", {"n": f.hold_total(), "m": f.hold_cap()}),
-		StoryText.get_or("LBL_DOCK_HOLD_FULL", "The hold is full. Buy is limited to the room left.") if f.hold_space() <= 0 else ""]
+		StoryText.get_or("LBL_DOCK_HOLD_FULL", "The hold is full. Unload some goods to storage.") if f.hold_space() <= 0 else ""]
 	hold_label.text = hold_label.text.strip_edges()
-	Juice.count_to(cash_value, main.cash, "%d", Ui.col("signal_good"))  # T274: credits count to the new value
-	fuel_label.visible = Availability.good("energy")
-	fuel_label.text = "%s: %d" % [Ui.good_name("energy"), f.hold_units("energy")]
+	var boost := StoryText.get_or("LBL_BOOST_CHARGES", "Boost: {n} left", {"n": f.boost_charges()})
+	fuel_label.text = "%s: %d    %s" % [Ui.good_name("energy"), f.hold_units("energy"), boost] if Availability.good("energy") else boost
 	for ch in rows_box.get_children():
 		ch.queue_free()
 	var head := Label.new()
@@ -143,8 +120,6 @@ func rebuild() -> void:
 func _add_row(g: String, key: String) -> void:
 	var f = main.flight
 	var held: int = f.hold_units(g)
-	var buy: int = f.dock_buy_price(g)
-	var sell: int = int(main.engine.sold_price(planet, g))
 	var stored: int = main.storage.amount(key, g)
 	var line := VBoxContainer.new()
 	line.name = "Row_" + g
@@ -161,21 +136,6 @@ func _add_row(g: String, key: String) -> void:
 	hl.text = "%s: %s" % [StoryText.get_or("LBL_HOLD", "Hold"), str(held) if held > 0 else StoryText.get_or("LBL_HOLD_EMPTY", "Empty")]
 	hl.custom_minimum_size = Vector2(110, 0)
 	info.add_child(hl)
-	var pl := Label.new()
-	var parts: Array = []
-	if buy > 0:
-		parts.append("%s %d" % [StoryText.get_or("BTN_DOCK_BUY", "Buy"), buy])
-	if sell > 0:
-		parts.append("%s %d" % [StoryText.get_or("BTN_DOCK_SELL", "Sell"), sell])
-	pl.text = "  ".join(parts)
-	info.add_child(pl)
-	var reason: String = main.engine.price_reason(planet, g) if sell > 0 else ""
-	if reason != "":
-		var chip := Label.new()
-		chip.theme_type_variation = "LabelSmall"
-		chip.text = StoryText.get_or("PROS_CHIP_HUNGRY" if reason == "hungry" else "PROS_CHIP_SURPLUS", "Hungry" if reason == "hungry" else "Surplus")
-		chip.modulate = Ui.col("signal_good" if reason == "hungry" else "signal_warn")
-		info.add_child(chip)
 	var sl := Label.new()
 	sl.theme_type_variation = "LabelSmall"
 	sl.text = StoryText.get_or("LBL_DOCK_STORAGE_ROW", "Company storage: {n}", {"n": stored})
@@ -183,11 +143,6 @@ func _add_row(g: String, key: String) -> void:
 	var btns := HBoxContainer.new()
 	btns.add_theme_constant_override("separation", 6)
 	line.add_child(btns)
-	var lot := _lot()
-	_btn(btns, "BTN_DOCK_BUY", "Buy", func(): _do("buy", g, lot), buy <= 0)
-	_btn(btns, "BTN_DOCK_BUY_MAX", "Buy max", func(): _do("buy", g, f.hold_cap()), buy <= 0)
-	_btn(btns, "BTN_DOCK_SELL", "Sell", func(): _do("sell", g, lot), held <= 0 or sell <= 0)
-	_btn(btns, "BTN_DOCK_SELL_ALL", "Sell all", func(): _do("sell", g, held), held <= 0 or sell <= 0)
 	_btn(btns, "BTN_UNLOAD_STORAGE", "Unload to storage", func(): _do("unload", g, held), held <= 0)
 	_btn(btns, "BTN_LOAD_STORAGE", "Load from storage", func(): _do("load", g, stored), stored <= 0)
 
@@ -203,54 +158,42 @@ func _do(kind: String, g: String, units: int) -> void:
 	var f = main.flight
 	var before: int = f.hold_total()
 	var good_before: int = f.hold_units(g)
-	var cash_before: int = main.cash
 	var r := ""
 	match kind:
-		"buy":
-			r = f.dock_trade(planet, g, units, "buy")
-		"sell":
-			r = f.dock_trade(planet, g, units, "sell")
 		"unload":
 			r = f.unload_to_storage(planet, g, units)
 		"load":
 			r = f.load_from_storage(planet, g, units)
-	if r == "" and kind == "buy" and f.hold_space() <= 0 and f.hold_total() - before < units:
+	if r == "" and kind == "load" and f.hold_space() <= 0 and f.hold_total() - before < units:
 		r = "hold_full"  # cut short by the room left
 	var msg := refusal_text(r)
 	if msg != "":
 		main.post_notice_now(msg)
 	rebuild()
 	if r == "":
-		_trade_juice(kind, g, absi(f.hold_units(g) - good_before), main.cash - cash_before)
+		_trade_juice(kind, g, absi(f.hold_units(g) - good_before))
 
 func _jk(key: String) -> float:
 	return float(main.balance.get(key, JUICE_FALLBACK.get(key, 0.0)))
 
-## T274: crates stream between the hold line and the world name (to the world for sell and unload, to the ship for buy and load),
-## and a signed credit change floats up beside the credits count. Real-time UI tweens (the sheet pauses the game); visual only.
-func _trade_juice(kind: String, g: String, moved: int, cash_delta: int) -> void:
+## T274: crates stream between the hold line and the world name (to the world for unload, to the ship for load).
+## Real-time UI tweens (the sheet pauses the game); visual only.
+func _trade_juice(kind: String, g: String, moved: int) -> void:
 	var ship_at := hold_label.global_position - global_position + Vector2(8.0, hold_label.size.y * 0.5)
 	var world_at := title_label.global_position - global_position + Vector2(title_label.size.x * 0.5, title_label.size.y * 0.5)
 	if moved > 0:
-		var to_world := kind == "sell" or kind == "unload"
+		var to_world := kind == "unload"
 		Juice.crates(self, ship_at if to_world else world_at, world_at if to_world else ship_at,
 			clampi(moved, 1, maxi(1, int(_jk("flight_juice_crates")))), _jk("flight_juice_crate_s"), Ui.commodity_col(g).lerp(CRATE_TINT, 0.4))
-	if cash_delta != 0:
-		var at := cash_value.global_position - global_position + Vector2(cash_value.size.x + 10.0, 0.0)
-		Juice.float_text(self, "%+d" % cash_delta, at, Ui.col("signal_good" if cash_delta > 0 else "signal_warn"), _jk("flight_juice_cash_float_px"))
 
 static func refusal_text(r: String) -> String:
 	match r:
-		"no_cash":
-			return StoryText.get_or("NOT_DOCK_NO_CASH", "Not enough credits to buy that.")
 		"hold_full":
-			return StoryText.get_or("NOT_DOCK_HOLD_FULL", "The hold is full. Sell or unload first.")
+			return StoryText.get_or("NOT_DOCK_HOLD_FULL", "The hold is full. Unload something to storage first.")
 		"storage_full":
 			return StoryText.get_or("NOT_DOCK_STORAGE_FULL", "Company storage here is full.")
 		"no_stock":
 			return StoryText.get_or("NOT_DOCK_NO_STOCK", "Company storage here has none of that.")
-		"no_price":
-			return StoryText.get_or("NOT_DOCK_NO_BUYER", "This world does not buy that.")
 		"not_docked":
 			return StoryText.get_or("NOT_DOCK_FAR", "Fly the Flagship here first.")
 	return ""

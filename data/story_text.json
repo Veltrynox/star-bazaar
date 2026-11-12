@@ -1268,18 +1268,6 @@
    "place": "Tip card, why line"
   },
   {
-   "id": "TIP_RUSH",
-   "text": "A rush order: a world wants a good before a deadline. Deliver it by hand to be paid.",
-   "max": 110,
-   "place": "Tip card line; trigger: the first rush order appears"
-  },
-  {
-   "id": "TIP_RUSH_WHY",
-   "text": "Dock there and sell it, or unload it. You get a premium and the world's need is filled.",
-   "max": 110,
-   "place": "Tip card, why line"
-  },
-  {
    "id": "TIP_WEATHER",
    "text": "A tinted ship is a house convoy. It flies to a world before that house's weather lands.",
    "max": 110,
@@ -7244,30 +7232,6 @@
    "place": "Dock sheet, column or block heading for the world's market"
   },
   {
-   "id": "BTN_DOCK_BUY",
-   "text": "Buy",
-   "max": 24,
-   "place": "Dock sheet, buys one lot of the row's good into the hold"
-  },
-  {
-   "id": "BTN_DOCK_SELL",
-   "text": "Sell",
-   "max": 24,
-   "place": "Dock sheet, sells one lot of the row's good from the hold"
-  },
-  {
-   "id": "BTN_DOCK_BUY_MAX",
-   "text": "Buy max",
-   "max": 24,
-   "place": "Dock sheet, buys as much as cash and room allow"
-  },
-  {
-   "id": "BTN_DOCK_SELL_ALL",
-   "text": "Sell all",
-   "max": 24,
-   "place": "Dock sheet, sells the whole row"
-  },
-  {
    "id": "BTN_UNLOAD_STORAGE",
    "text": "Unload to storage",
    "max": 24,
@@ -7292,22 +7256,10 @@
    "place": "Dock sheet, small line: time stands still while it is open"
   },
   {
-   "id": "LBL_DOCK_CASH",
-   "text": "Credits",
-   "max": 24,
-   "place": "Dock sheet, label before the player's credits count"
-  },
-  {
    "id": "LBL_DOCK_STORAGE_ROW",
    "text": "Company storage: {n}",
    "max": 40,
    "place": "Dock sheet, the Company storage line of a good; {n} units"
-  },
-  {
-   "id": "NOT_DOCK_NO_CASH",
-   "text": "Not enough credits to buy that.",
-   "max": 110,
-   "place": "Notice, Buy refused for lack of credits"
   },
   {
    "id": "NOT_DOCK_HOLD_FULL",
@@ -7338,12 +7290,6 @@
    "text": "Fly the Flagship here first.",
    "max": 110,
    "place": "Notice, dock pressed while the Flagship is away from the world"
-  },
-  {
-   "id": "NOT_DOCK_NO_BUYER",
-   "text": "This world does not buy that.",
-   "max": 110,
-   "place": "Notice, Sell pressed on a good the world does not buy"
   },
   {
    "id": "LBL_DOCK_HOLD_FULL",
@@ -7400,12 +7346,6 @@
    "place": "Gig board, tag on a signal offer"
   },
   {
-   "id": "LBL_GIG_RUSH",
-   "text": "Rush order",
-   "max": 24,
-   "place": "Gig board, tag on a rush order"
-  },
-  {
    "id": "LBL_GIG_ETA",
    "text": "ETA: {cycles} cycles",
    "max": 40,
@@ -7416,12 +7356,6 @@
    "text": "Deadline: {cycles} cycles",
    "max": 40,
    "place": "Gig board row; {cycles} cycles left to deliver"
-  },
-  {
-   "id": "LBL_GIG_PREMIUM",
-   "text": "Premium: {cash} credits",
-   "max": 40,
-   "place": "Gig board row of a rush order; {cash} credits paid on delivery"
   },
   {
    "id": "LBL_GIG_TOO_FAR",
@@ -7470,72 +7404,6 @@
    "text": "A new gig is on the board.",
    "max": 60,
    "place": "Notice, a new offer reached the board"
-  },
-  {
-   "id": "GIG_RUSH_TITLE",
-   "text": "Rush to {planet}",
-   "max": 32,
-   "place": "Gig board row and marker tooltip of a rush order; {planet}"
-  },
-  {
-   "id": "GIG_RUSH_HOOK",
-   "text": "{planet} needs {commodity}. Deliver within {cycles} cycles.",
-   "max": 110,
-   "place": "Gig board row of a rush order, one line; {planet}, {commodity}, {cycles}"
-  },
-  {
-   "id": "GIG_RUSH_HOOK_RESTLESS",
-   "text": "{planet} is Restless and short of {commodity}. Deliver within {cycles} cycles.",
-   "max": 110,
-   "place": "Same, when the world is Restless"
-  },
-  {
-   "id": "GIG_RUSH_HOOK_TIER",
-   "text": "{planet} is close to growing. It needs {commodity} within {cycles} cycles.",
-   "max": 110,
-   "place": "Same, when the world is close to its next tier"
-  },
-  {
-   "id": "GIG_RUSH_HOOK_SHORT",
-   "text": "A shortage hit {planet}. It needs {commodity} within {cycles} cycles.",
-   "max": 110,
-   "place": "Same, when a shortage hit the world"
-  },
-  {
-   "id": "GIG_RUSH_ARRIVE",
-   "text": "This world has a rush order for {commodity}: {got} of {units} brought. Sell or unload it here to deliver.",
-   "max": 110,
-   "place": "Dock sheet banner when the Flagship is docked at the rush world; {commodity}, {got}, {units}"
-  },
-  {
-   "id": "NOT_RUSH_DELIVERED",
-   "text": "Delivered. {planet} has its {commodity}. The premium is paid.",
-   "max": 110,
-   "place": "Notice, rush delivered; {planet}, {commodity}"
-  },
-  {
-   "id": "NOT_RUSH_PARTIAL",
-   "text": "Part delivered. {planet} still needs more {commodity}.",
-   "max": 110,
-   "place": "Notice, part of a rush lot delivered; {planet}, {commodity}"
-  },
-  {
-   "id": "NOT_RUSH_EXPIRED",
-   "text": "The rush order for {planet} has expired.",
-   "max": 110,
-   "place": "Notice, the deadline passed; {planet}"
-  },
-  {
-   "id": "NOT_RUSH_GONE",
-   "text": "{planet} no longer needs that. The rush order is closed.",
-   "max": 110,
-   "place": "Notice, the world no longer needs the good before the deadline"
-  },
-  {
-   "id": "LBL_RUSH_DELIVERED_STAMP",
-   "text": "Delivered",
-   "max": 24,
-   "place": "Stamp on the world's need row after a delivery"
   },
   {
    "id": "WX_NAME_FLOOD",
@@ -8391,7 +8259,7 @@
   },
   {
    "id": "GIG_BOARD_EMPTY",
-   "text": "No offers right now. Signals and rush orders appear as the run goes on.",
+   "text": "No offers right now. Signals appear as the run goes on.",
    "max": 130,
    "place": "gig_board.gd:67"
   },
@@ -8424,12 +8292,6 @@
    "text": "+{n} credits.",
    "max": 30,
    "place": "gigs.gd:603"
-  },
-  {
-   "id": "GIG_EFF_CREDIT",
-   "text": "The need counts as met for {n} cycles.",
-   "max": 70,
-   "place": "gigs.gd:622"
   },
   {
    "id": "GIG_EFF_FEE",
@@ -8466,12 +8328,6 @@
    "text": "The Opening",
    "max": 24,
    "place": "gig_board.gd:77"
-  },
-  {
-   "id": "GIG_KIND_RUSH",
-   "text": "Rush order",
-   "max": 24,
-   "place": "gig_board.gd:81"
   },
   {
    "id": "GIG_KIND_SALVAGE",
@@ -8522,12 +8378,6 @@
    "place": "gig_board.gd:108"
   },
   {
-   "id": "GIG_REWARD_RUSH",
-   "text": "Premium on the lot and the world's need met for a while",
-   "max": 100,
-   "place": "gig_board.gd:112"
-  },
-  {
    "id": "GIG_REWARD_SALVAGE",
    "text": "Stolen cargo, loaded into the Flagship hold",
    "max": 80,
@@ -8544,18 +8394,6 @@
    "text": "Charter cargo for {planet}",
    "max": 50,
    "place": "gig_board.gd:92"
-  },
-  {
-   "id": "GIG_ROW_RUSH",
-   "text": "{got} of {units} {good} brought to {planet}",
-   "max": 50,
-   "place": "gig_board.gd:98; {got}, {units}, {good}, {planet}"
-  },
-  {
-   "id": "GIG_ROW_RUSH_HOW",
-   "text": "Dock the Flagship at {planet} and sell or unload the goods there. Routes and orders do not count.",
-   "max": 110,
-   "place": "gig_board.gd _add_row, second line of a rush order row; {planet}"
   },
   {
    "id": "GIG_ROW_SALVAGE",
@@ -9162,12 +9000,6 @@
    "text": "Fabric built at the trading post.",
    "max": 60,
    "place": "main.gd:2074"
-  },
-  {
-   "id": "NOT_GIG_RUSH_DONE",
-   "text": "Rush order delivered at {planet}. {lines}",
-   "max": 80,
-   "place": "gigs.gd:555"
   },
   {
    "id": "NOT_MINE_RECLAIMED",

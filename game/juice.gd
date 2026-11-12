@@ -80,7 +80,7 @@ static func planet_screen(map, index: int) -> Variant:
 		return null
 	return map.camera.unproject_position(w)
 
-## ---- T274: tiny synthesized sounds (a clamp tick, a rush sting). Built once, played from one pooled player each. ----
+## ---- T274: tiny synthesized sounds (a clamp tick, a sting). Built once, played from one pooled player each. ----
 ## Notes are [hertz, seconds]; each note is a sine with a quick attack and an exponential fade. No audio files needed.
 const TONES := {
 	"clamp": [[1320.0, 0.05]],

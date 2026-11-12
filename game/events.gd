@@ -506,13 +506,6 @@ func shortage_hunger(planet: int, c: String) -> int:
 			return maxi(0, int(balance.get("shortage_hunger_steps", 0)))
 	return 0
 
-## The good a live shortage hits at a world, "" when none (the rush generator reads it).
-func shortage_good_at(planet: int) -> String:
-	for a in active:
-		if a["kind"] == "shortage" and int(a["planet"]) == planet:
-			return str(a["c"])
-	return ""
-
 ## Trip cost multiplier for a lane with these ends from live congestion (1.0 when none; one hit per lane, not per end).
 func congestion_mult(a_planet: int, b_planet: int) -> float:
 	for a in active:

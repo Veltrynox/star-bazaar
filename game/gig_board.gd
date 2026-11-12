@@ -2,7 +2,7 @@ extends PanelContainer
 ## T273: the gig board (design/proposals/2026-11-06-empire-growth-v2.md section 3.2, Feedback). Opens from the rail button or key J.
 ## One row per open offer (Gigs.offers): kind icon, title, world, reward line, deadline bar and the Flagship ETA; Accept orders the
 ## Flagship there. Reads Gigs (game/gigs.gd) only; computes no rule. Does not pause the game. Bars and ETA update live while open.
-## Texts by id from StoryText with plain fallbacks. A rush good is named only when Availability shows it. No numbers of its own:
+## Texts by id from StoryText with plain fallbacks. No numbers of its own:
 ## the amber threshold is balance gig_marker_amber_cycles.
 
 const StoryText := preload("res://game/story_text.gd")
@@ -64,7 +64,7 @@ func refresh() -> void:
 	var gigs = main.gigs
 	if gigs.offers.is_empty():
 		var l := Label.new()
-		l.text = StoryText.get_or("GIG_BOARD_EMPTY", "No offers right now. Signals and rush orders appear as the run goes on.")
+		l.text = StoryText.get_or("GIG_BOARD_EMPTY", "No offers right now. Signals appear as the run goes on.")
 		l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		_body.add_child(l)
 		return
@@ -77,8 +77,6 @@ func kind_text(o: Dictionary) -> String:
 		return StoryText.get_or("GIG_KIND_OPENING", "The Opening")
 	if str(o["kind"]) == "salvage":
 		return StoryText.get_or("GIG_KIND_SALVAGE", "Salvage")
-	if str(o["kind"]) == "rush":
-		return StoryText.get_or("GIG_KIND_RUSH", "Rush order")
 	return StoryText.get_or("GIG_KIND_SIGNAL", "Signal")
 
 func _def(o: Dictionary) -> Dictionary:
@@ -92,14 +90,10 @@ func title_text(o: Dictionary) -> String:
 		return StoryText.get_or("GIG_ROW_OPENING", "Charter cargo for {planet}", {"planet": main.planet_name(int(o["target"]["index"]))})
 	if str(o["kind"]) == "salvage":
 		return StoryText.get_or("GIG_ROW_SALVAGE", "Cargo pods")
-	if str(o["kind"]) == "rush":
-		var good := str(o["req"]["good"])
-		var gname := Ui.good_name(good) if Availability.good(good) else StoryText.get_or("PROS_NEED_LOCKED", "? Not known yet")
-		return StoryText.get_or("GIG_ROW_RUSH", "{got} of {units} {good} brought to {planet}", {"got": int(o["req"]["got"]), "units": int(o["req"]["units"]), "good": gname, "planet": main.planet_name(int(o["target"]["index"]))})
 	return StoryText.get_or(str(_def(o).get("title", "")), StoryText.get_or("GIG_ROW_SIGNAL", "Unknown signal"))
 
 func world_text(o: Dictionary) -> String:
-	if (str(o["kind"]) == "rush" or str(o["kind"]) == "opening") and str(o["target"].get("kind", "planet")) == "planet":
+	if str(o["kind"]) == "opening" and str(o["target"].get("kind", "planet")) == "planet":
 		return main.planet_name(int(o["target"]["index"]))
 	return StoryText.get_or("GIG_WHERE_SPACE", "Open space")
 
@@ -108,8 +102,6 @@ func reward_text(o: Dictionary) -> String:
 		return StoryText.get_or("GIG_REWARD_OPENING", "The Star Bazaar opens")
 	if str(o["kind"]) == "salvage":
 		return StoryText.get_or("GIG_REWARD_SALVAGE", "Stolen cargo, loaded into the Flagship hold")
-	if str(o["kind"]) == "rush":
-		return StoryText.get_or("GIG_REWARD_RUSH", "Premium on the lot and the world's need met for a while")
 	return StoryText.get_or(str(_def(o).get("hook", "")), StoryText.get_or("GIG_REWARD_SIGNAL", "Unknown reward"))
 
 ## Cycles left on the game clock.
@@ -139,7 +131,7 @@ func _add_row(o: Dictionary) -> void:
 	top.add_theme_constant_override("separation", 8)
 	col.add_child(top)
 	var ic := TextureRect.new()
-	ic.texture = Ui.icon("planet" if str(o["kind"]) == "rush" else "mark")
+	ic.texture = Ui.icon("mark")
 	ic.custom_minimum_size = Vector2(24, 24)
 	ic.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	ic.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
@@ -159,11 +151,6 @@ func _add_row(o: Dictionary) -> void:
 	sub.text = "%s · %s" % [world_text(o), reward_text(o)]
 	sub.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	col.add_child(sub)
-	if str(o["kind"]) == "rush":  # how to deliver: only a hand sale or an unload while docked there counts
-		var how := Label.new()
-		how.text = StoryText.get_or("GIG_ROW_RUSH_HOW", "Dock the Flagship at {planet} and sell or unload the goods there. Routes and orders do not count.", {"planet": main.planet_name(int(o["target"]["index"]))})
-		how.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		col.add_child(how)
 	var bottom := HBoxContainer.new()
 	bottom.add_theme_constant_override("separation", 8)
 	col.add_child(bottom)

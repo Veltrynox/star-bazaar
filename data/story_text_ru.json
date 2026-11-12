@@ -208,24 +208,8 @@
    "text": "Причалить и торговать"
   },
   {
-   "id": "BTN_DOCK_BUY",
-   "text": "Купить"
-  },
-  {
-   "id": "BTN_DOCK_BUY_MAX",
-   "text": "Купить максимум"
-  },
-  {
    "id": "BTN_DOCK_CLOSE",
    "text": "Отчалить"
-  },
-  {
-   "id": "BTN_DOCK_SELL",
-   "text": "Продать"
-  },
-  {
-   "id": "BTN_DOCK_SELL_ALL",
-   "text": "Продать всё"
   },
   {
    "id": "BTN_ESTABLISH_PLATFORM",
@@ -1176,10 +1160,6 @@
    "text": "Кредитов: +{n}."
   },
   {
-   "id": "GIG_EFF_CREDIT",
-   "text": "Нужда считается выполненной на срок, циклов: {n}."
-  },
-  {
    "id": "GIG_EFF_FEE",
    "text": "Кредитов: -{n}."
   },
@@ -1202,10 +1182,6 @@
   {
    "id": "GIG_KIND_OPENING",
    "text": "Открытие"
-  },
-  {
-   "id": "GIG_KIND_RUSH",
-   "text": "Срочный заказ"
   },
   {
    "id": "GIG_KIND_SALVAGE",
@@ -1240,10 +1216,6 @@
    "text": "Star Bazaar открывается"
   },
   {
-   "id": "GIG_REWARD_RUSH",
-   "text": "Надбавка за партию и нужда мира удовлетворена на какое-то время."
-  },
-  {
    "id": "GIG_REWARD_SALVAGE",
    "text": "Краденый груз, загружен в трюм Флагмана."
   },
@@ -1262,26 +1234,6 @@
   {
    "id": "GIG_ROW_SIGNAL",
    "text": "Неизвестный сигнал"
-  },
-  {
-   "id": "GIG_RUSH_HOOK",
-   "text": "На планете {planet} нужен товар: {commodity}. Срок доставки, циклов: {cycles}."
-  },
-  {
-   "id": "GIG_RUSH_HOOK_RESTLESS",
-   "text": "На планете {planet} беспокойство, нужен товар: {commodity}. Срок доставки, циклов: {cycles}."
-  },
-  {
-   "id": "GIG_RUSH_HOOK_SHORT",
-   "text": "На планете {planet} случился дефицит. Нужен товар: {commodity}. Срок доставки, циклов: {cycles}."
-  },
-  {
-   "id": "GIG_RUSH_HOOK_TIER",
-   "text": "Планета {planet} близка к новой ступени. Нужен товар: {commodity}. Срок доставки, циклов: {cycles}."
-  },
-  {
-   "id": "GIG_RUSH_TITLE",
-   "text": "Срочно: {planet}"
   },
   {
    "id": "GIG_WHERE_SPACE",
@@ -1744,10 +1696,6 @@
    "text": "Цикл"
   },
   {
-   "id": "LBL_DOCK_CASH",
-   "text": "Кредиты"
-  },
-  {
    "id": "LBL_DOCK_HOLD",
    "text": "В трюме"
   },
@@ -1866,14 +1814,6 @@
   {
    "id": "LBL_GIG_PODS",
    "text": "Грузовые капсулы"
-  },
-  {
-   "id": "LBL_GIG_PREMIUM",
-   "text": "Премия: {cash} кредитов"
-  },
-  {
-   "id": "LBL_GIG_RUSH",
-   "text": "Срочный заказ"
   },
   {
    "id": "LBL_GIG_SIGNAL",
@@ -2214,10 +2154,6 @@
   {
    "id": "LBL_RUNNING",
    "text": "Работает"
-  },
-  {
-   "id": "LBL_RUSH_DELIVERED_STAMP",
-   "text": "Доставлено"
   },
   {
    "id": "LBL_SALVAGE_NA",
@@ -2692,14 +2628,6 @@
    "text": "Трюм полон. Сначала продайте или выгрузите товар."
   },
   {
-   "id": "NOT_DOCK_NO_BUYER",
-   "text": "Этот мир такое не покупает."
-  },
-  {
-   "id": "NOT_DOCK_NO_CASH",
-   "text": "Не хватает кредитов, чтобы это купить."
-  },
-  {
    "id": "NOT_DOCK_NO_POST",
    "text": "Откройте здесь торговый пост, чтобы причалить и торговать."
   },
@@ -2770,10 +2698,6 @@
   {
    "id": "NOT_GIG_ONE_AT_A_TIME",
    "text": "Один подряд за раз. Завершите текущий или откажитесь от него."
-  },
-  {
-   "id": "NOT_GIG_RUSH_DONE",
-   "text": "Срочный заказ доставлен на {planet}. {lines}"
   },
   {
    "id": "NOT_LANE_SHIP_ADDED",
@@ -2898,22 +2822,6 @@
   {
    "id": "NOT_ROUTE_STALLED",
    "text": "Маршрут ждёт. В хранилище компании на {planet} нет товара: {commodity}."
-  },
-  {
-   "id": "NOT_RUSH_DELIVERED",
-   "text": "Доставлено. {planet} получил нужное: {commodity}. Премия выплачена."
-  },
-  {
-   "id": "NOT_RUSH_EXPIRED",
-   "text": "Срочный заказ для {planet} истёк."
-  },
-  {
-   "id": "NOT_RUSH_GONE",
-   "text": "{planet} больше в этом не нуждается. Срочный заказ закрыт."
-  },
-  {
-   "id": "NOT_RUSH_PARTIAL",
-   "text": "Часть доставлена. {planet} всё ещё нужно больше: {commodity}."
   },
   {
    "id": "NOT_SALVAGE_DONE",
@@ -5030,14 +4938,6 @@
   {
    "id": "TIP_RESTLESS_WHY",
    "text": "Продайте ему товар, которого не хватает, или отправьте туда товар. Если закрыть все нужды, потери прекратятся."
-  },
-  {
-   "id": "TIP_RUSH",
-   "text": "Срочный заказ: мир хочет товар до срока. Доставьте его вручную, чтобы получить плату."
-  },
-  {
-   "id": "TIP_RUSH_WHY",
-   "text": "Причальте там и продайте его или выгрузите. Вы получаете надбавку, а нужда мира закрывается."
   },
   {
    "id": "TIP_SALVAGE",

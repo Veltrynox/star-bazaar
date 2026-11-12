@@ -309,7 +309,6 @@ Trigger table (tip id: trigger in plain words):
 - TIP_DOCK: the dock sheet opens for the first time.
 - TIP_BOOST: the Flagship first flies with energy in its hold.
 - TIP_GIG: the first gig appears on the board.
-- TIP_RUSH: the first rush order appears.
 - TIP_WEATHER: the first house convoy appears.
 - TIP_WEATHER_KINDS: the first house weather lands on a world.
 - TIP_PROSPECT: Prospecting is learned.
@@ -362,8 +361,6 @@ TIP_BOOST_WHY | 110 | Tip card, why line | Use it on straight legs to beat a dea
 ### Gigs
 TIP_GIG | 110 | Tip card line; trigger: the first gig appears on the board | The gig board (J) lists offers for the Flagship. Accept one to get a map marker.
 TIP_GIG_WHY | 110 | Tip card, why line | Compare ETA with the deadline before you accept. You can take one gig at a time.
-TIP_RUSH | 110 | Tip card line; trigger: the first rush order appears | A rush order: a world wants a good before a deadline. Deliver it by hand to be paid.
-TIP_RUSH_WHY | 110 | Tip card, why line | Dock there and sell it, or unload it. You get a premium and the world's need is filled.
 
 ### House weather
 TIP_WEATHER | 110 | Tip card line; trigger: the first house convoy appears | A tinted ship is a house convoy. It flies to a world before that house's weather lands.
@@ -1535,8 +1532,8 @@ NEXTUP_BEST_CASH | 60 | Slot 3, cash gap to the next buy; {cash} credits, {cycle
 NEXTUP_BEST_GIG | 60 | Slot 3, a flight job is open | Take a flight job
 NEXTUP_IDLE | 60 | Any slot with nothing to show | Keep trading. Check the planet cards.
 
-## Flagship, dock sheet, gig board and rush orders (T275, 2026-11-06; Phase 2)
-The Pathfinder becomes the Flagship: same scout, now with a small hold. The old LBL_PATHFINDER_* and NOT_PATHFINDER_* ids stay until the programmer swaps them for the FLAGSHIP ids below; the notices in the Pathfinder block that say "Pathfinder" should then use {ship} (the game fills the Flagship name) or the FLAGSHIP_NAME text. Goods in rush texts come only through {commodity}, a visible good; the game never fills a hidden one. Boost burns energy, which is visible from the start. Placeholders: {planet}, {commodity}, {amount}, {cash}, {cycles}, {n}, {m}.
+## Flagship, dock sheet and gig board (T275, 2026-11-06; Phase 2)
+The Pathfinder becomes the Flagship: same scout, now with a small hold. The old LBL_PATHFINDER_* and NOT_PATHFINDER_* ids stay until the programmer swaps them for the FLAGSHIP ids below; the notices in the Pathfinder block that say "Pathfinder" should then use {ship} (the game fills the Flagship name) or the FLAGSHIP_NAME text. Goods in gig texts come only through {commodity}, a visible good; the game never fills a hidden one. Boost burns energy, which is visible from the start. Placeholders: {planet}, {commodity}, {amount}, {cash}, {cycles}, {n}, {m}.
 
 FLAGSHIP_NAME | 24 | Ship panel, map tooltip, dock sheet title: name of the player's own ship (replaces LBL_PATHFINDER_NAME) | Tessarine
 FLAGSHIP_DESC | 110 | Ship panel, one line under the name | Your own ship. It scouts, builds posts, carries a small hold and takes gigs.
@@ -1550,23 +1547,16 @@ BTN_DOCK | 24 | Planet panel and right-click menu, opens the dock sheet (the Fla
 LBL_DOCK_TITLE | 40 | Dock sheet heading; {planet} | Dock at {planet}
 LBL_DOCK_HOLD | 24 | Dock sheet, column or block heading for the hold | In the hold
 LBL_DOCK_WORLD | 24 | Dock sheet, column or block heading for the world's market | At this world
-BTN_DOCK_BUY | 24 | Dock sheet, buys one lot of the row's good into the hold | Buy
-BTN_DOCK_SELL | 24 | Dock sheet, sells one lot of the row's good from the hold | Sell
-BTN_DOCK_BUY_MAX | 24 | Dock sheet, buys as much as cash and room allow | Buy max
-BTN_DOCK_SELL_ALL | 24 | Dock sheet, sells the whole row | Sell all
 BTN_UNLOAD_STORAGE | 24 | Dock sheet, moves the row from the hold to Company storage here | Unload to storage
 BTN_LOAD_STORAGE | 24 | Dock sheet, moves goods from Company storage here into the hold | Load from storage
 BTN_DOCK_CLOSE | 24 | Dock sheet, closes it and lets the clock run | Undock
 LBL_DOCK_PAUSED | 60 | Dock sheet, small line: time stands still while it is open | Time is paused while you are docked.
-LBL_DOCK_CASH | 24 | Dock sheet, label before the player's credits count | Credits
 LBL_DOCK_STORAGE_ROW | 40 | Dock sheet, the Company storage line of a good; {n} units | Company storage: {n}
-NOT_DOCK_NO_CASH | 110 | Notice, Buy refused for lack of credits | Not enough credits to buy that.
 NOT_DOCK_HOLD_FULL | 110 | Notice, Buy refused or cut short because the hold is full | The hold is full. Sell or unload first.
 NOT_DOCK_STORAGE_FULL | 110 | Notice, Unload refused or cut short because Company storage here is full | Company storage here is full.
 NOT_DOCK_NO_STOCK | 110 | Notice, Load refused because Company storage here has none of that good | Company storage here has none of that.
 NOT_DOCK_NO_POST | 110 | Notice, dock pressed at a world with no trading post | Establish a trading post here to dock and trade.
 NOT_DOCK_FAR | 110 | Notice, dock pressed while the Flagship is away from the world | Fly the Flagship here first.
-NOT_DOCK_NO_BUYER | 110 | Notice, Sell pressed on a good the world does not buy | This world does not buy that.
 LBL_DOCK_HOLD_FULL | 60 | Dock sheet, line under the hold when it is full | The hold is full. Buy is limited to the room left.
 BTN_BOOST | 24 | Ship panel and flight hud, boost button (also a held key) | Boost
 LBL_BOOST_HINT | 110 | Tooltip of the boost button | Faster on straight legs. Burns energy from the hold. Turning stays slow.
@@ -1576,10 +1566,8 @@ NOT_BOOST_EMPTY | 110 | Notice, boost pressed with no charge left | Boost is rec
 LBL_GIG_BOARD_TITLE | 24 | Gig board heading | Gig board
 LBL_GIG_BOARD_EMPTY | 60 | Gig board with no open offers | No open gigs. New ones come with the cycles.
 LBL_GIG_SIGNAL | 24 | Gig board, tag on a signal offer | Signal
-LBL_GIG_RUSH | 24 | Gig board, tag on a rush order | Rush order
 LBL_GIG_ETA | 40 | Gig board row; {cycles} flight time from the Flagship | ETA: {cycles} cycles
 LBL_GIG_DEADLINE | 40 | Gig board row; {cycles} cycles left to deliver | Deadline: {cycles} cycles
-LBL_GIG_PREMIUM | 40 | Gig board row of a rush order; {cash} credits paid on delivery | Premium: {cash} credits
 LBL_GIG_TOO_FAR | 60 | Gig board row when the ETA is longer than the deadline | The Flagship cannot make it in time.
 BTN_GIG_ACCEPT | 24 | Gig board row, takes the offer and drops a map marker | Accept
 BTN_GIG_ABANDON | 24 | Gig board row of the taken gig, gives it up | Give up
@@ -1588,17 +1576,6 @@ NOT_GIG_ACCEPTED | 110 | Notice, a gig was accepted | Gig accepted. A marker sho
 NOT_GIG_ONE_AT_A_TIME | 110 | Notice, accept pressed while a gig is already taken | One gig at a time. Finish or give up the one you have.
 NOT_GIG_ABANDONED | 110 | Notice, a gig was given up | Gig given up.
 NOT_GIG_NEW | 60 | Notice, a new offer reached the board | A new gig is on the board.
-GIG_RUSH_TITLE | 32 | Gig board row and marker tooltip of a rush order; {planet} | Rush to {planet}
-GIG_RUSH_HOOK | 110 | Gig board row of a rush order, one line; {planet}, {commodity}, {cycles} | {planet} needs {commodity}. Deliver within {cycles} cycles.
-GIG_RUSH_HOOK_RESTLESS | 110 | Same, when the world is Restless | {planet} is Restless and short of {commodity}. Deliver within {cycles} cycles.
-GIG_RUSH_HOOK_TIER | 110 | Same, when the world is close to its next tier | {planet} is close to growing. It needs {commodity} within {cycles} cycles.
-GIG_RUSH_HOOK_SHORT | 110 | Same, when a shortage hit the world | A shortage hit {planet}. It needs {commodity} within {cycles} cycles.
-GIG_RUSH_ARRIVE | 110 | Dock sheet banner when the Flagship is docked at the rush world; {commodity}, {got}, {units} | This world has a rush order for {commodity}: {got} of {units} brought. Sell or unload it here to deliver.
-NOT_RUSH_DELIVERED | 110 | Notice, rush delivered; {planet}, {commodity} | Delivered. {planet} has its {commodity}. The premium is paid.
-NOT_RUSH_PARTIAL | 110 | Notice, part of a rush lot delivered; {planet}, {commodity} | Part delivered. {planet} still needs more {commodity}.
-NOT_RUSH_EXPIRED | 110 | Notice, the deadline passed; {planet} | The rush order for {planet} has expired.
-NOT_RUSH_GONE | 110 | Notice, the world no longer needs the good before the deadline | {planet} no longer needs that. The rush order is closed.
-LBL_RUSH_DELIVERED_STAMP | 24 | Stamp on the world's need row after a delivery | Delivered
 
 ## House weather, forecasts and moods (T287, 2026-11-06; houses are weather, not rivals)
 Houses: {bot1} Harrow Combine floods a world, {bot2} Velvet Concord makes shortages, {bot3} Ostrel Syndicate causes congestion. Placeholders (new, the game fills them): {house} is the house name (STD_BOT1_NAME to STD_BOT3_NAME), {weather} is WX_NAME_FLOOD, WX_NAME_SHORTAGE or WX_NAME_CONGESTION, {planet}, {commodity} (a visible good only), {cycles}, {n}, {system}. Notices are plain, no flavour. Weather never names a hidden good.
@@ -1822,7 +1799,7 @@ FC_TRIP_COST | 40 | cash_forecast.gd route_expense_lines
 FC_IDLE_UPKEEP | 40 | cash_forecast.gd route_expense_lines (ships on no route or in a hub pool)
 Idle ships upkeep
 GIG_BOARD_EMPTY | 130 | gig_board.gd:67
-No offers right now. Signals and rush orders appear as the run goes on.
+No offers right now. Signals appear as the run goes on.
 GIG_BOARD_TITLE | 24 | gig_board.gd:31
 Gig board
 GIG_BTN_ACCEPT | 24 | gig_board.gd:155
@@ -1833,8 +1810,6 @@ GIG_DONE_TITLE | 24 | main.gd:2953
 Signal
 GIG_EFF_CASH | 30 | gigs.gd:603
 +{n} credits.
-GIG_EFF_CREDIT | 70 | gigs.gd:622
-The need counts as met for {n} cycles.
 GIG_EFF_FEE | 30 | gigs.gd:611
 -{n} credits.
 GIG_EFF_GOODS | 40 | gigs.gd:616
@@ -1847,8 +1822,6 @@ GIG_ETA_NONE | 30 | gig_board.gd:193
 Out of reach
 GIG_KIND_OPENING | 24 | gig_board.gd:77
 The Opening
-GIG_KIND_RUSH | 24 | gig_board.gd:81
-Rush order
 GIG_KIND_SALVAGE | 24 | gig_board.gd:79
 Salvage
 GIG_KIND_SIGNAL | 24 | gig_board.gd:82
@@ -1865,18 +1838,12 @@ GIG_REFUSE_NO_OFFER | 40 | gig_board.gd _on_accept (refusal reason "no_offer")
 That order is gone.
 GIG_REWARD_OPENING | 40 | gig_board.gd:108
 The Star Bazaar opens
-GIG_REWARD_RUSH | 100 | gig_board.gd:112
-Premium on the lot and the world's need met for a while
 GIG_REWARD_SALVAGE | 80 | gig_board.gd:110
 Stolen cargo, loaded into the Flagship hold
 GIG_REWARD_SIGNAL | 30 | gig_board.gd:113
 Unknown reward
 GIG_ROW_OPENING | 50 | gig_board.gd:92
 Charter cargo for {planet}
-GIG_ROW_RUSH | 50 | gig_board.gd:98; {got}, {units}, {good}, {planet}
-{got} of {units} {good} brought to {planet}
-GIG_ROW_RUSH_HOW | 110 | gig_board.gd _add_row, second line of a rush order row; {planet}
-Dock the Flagship at {planet} and sell or unload the goods there. Routes and orders do not count.
 GIG_ROW_SALVAGE | 24 | gig_board.gd:94
 Cargo pods
 GIG_ROW_SIGNAL | 30 | gig_board.gd:99
@@ -2079,8 +2046,6 @@ NOT_BAZAAR_OPENING | 130 | main.gd:2425
 The charter cargo is ready. Fly it to {planet} to open the Star Bazaar.
 NOT_FABRIC_BUILT | 60 | main.gd:2074
 Fabric built at the trading post.
-NOT_GIG_RUSH_DONE | 80 | gigs.gd:555
-Rush order delivered at {planet}. {lines}
 NOT_MINE_RECLAIMED | 90 | prosperity.gd:162
 This world is alive again and is no longer mined.
 NOT_MINE_RECLAIMING | 80 | prosperity.gd:163

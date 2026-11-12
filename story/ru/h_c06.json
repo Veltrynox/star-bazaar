@@ -1,8 +1,4 @@
 {
- "NOT_RUSH_DELIVERED": "Доставлено. {planet} получил нужное: {commodity}. Премия выплачена.",
- "NOT_RUSH_EXPIRED": "Срочный заказ для {planet} истёк.",
- "NOT_RUSH_GONE": "{planet} больше в этом не нуждается. Срочный заказ закрыт.",
- "NOT_RUSH_PARTIAL": "Часть доставлена. {planet} всё ещё нужно больше: {commodity}.",
  "NOT_SALVAGE_DONE": "Капсулы подобраны в трюм Флагмана: {lines}.",
  "NOT_SALVAGE_FULL": "Трюм Флагмана полон. Часть капсул так и дрейфует.",
  "NOT_SAVED": "Игра сохранена.",

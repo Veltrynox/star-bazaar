@@ -115,7 +115,7 @@ func _bazaar() -> Dictionary:
 		return {"text": StoryText.get_or("BAZ_REACH_ROW", "One world in another system"), "planet": bz.capital()}
 	return {"text": StoryText.get_or("BAZ_NAME", "Star Bazaar"), "planet": bz.capital()}
 
-## T273: the open gig with the nearest deadline, as a Best move line (rush orders name a good only when Availability shows it).
+## T273: the open gig with the nearest deadline, as a Best move line.
 func _gig() -> Dictionary:
 	var best := {}
 	for o in main.gigs.offers:
@@ -125,8 +125,6 @@ func _gig() -> Dictionary:
 		return {}
 	var board = main.gig_panel
 	var lf := snappedf(board.left(best), 0.1)
-	if str(best["kind"]) == "rush":
-		return {"text": StoryText.get_or("NEXTUP_BEST_GIG", "Gig: {title}, {cycles} cycles left", {"title": board.title_text(best), "cycles": lf}), "planet": int(best["target"]["index"]) if str(best["target"].get("kind", "planet")) == "planet" else -1}
 	return {"text": StoryText.get_or("NEXTUP_BEST_GIG", "Gig: {title}, {cycles} cycles left", {"title": board.title_text(best), "cycles": lf}), "planet": -1}
 
 func _best() -> Dictionary:
