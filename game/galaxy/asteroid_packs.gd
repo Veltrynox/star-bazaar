@@ -3,7 +3,8 @@ const Clusters := preload("res://game/clusters.gd")
 ## T157: ellipsoid packs (long axis along the orbit tangent, cluster_stretch) of asteroids on the trade map. One MultiMeshInstance3D per cluster = one draw call per pack.
 ## Per-instance position, rotation and scale come from a seed (hash of the cluster id + seed_salt), so a pack looks the same
 ## every time. The pack thins from the end of the list as ore is taken (visible_instance_count), so the surviving rocks stay put.
-## Standard material, no shader, no collision: the map's click tests are maths on planets, so packs never block them.
+## Motion: game/galaxy/asteroid_pack.gdshader moves every rock in the vertex stage (own tumble, small closed drift path round its home spot kept inside the
+## pack ellipsoid, gentle bob); the pack no longer turns as one block, so the click ellipsoid in map.gd stays valid. No collision: the map's click tests are maths on planets, so packs never block them.
 ## Visual only; reads the list given to sync(), never gameplay state.
 
 @export var map_unit_scale := 0.02        # world units per map unit (same as map.gd MAP_UNIT_SCALE)
@@ -46,7 +47,10 @@ const ROCK_TEXTURE := preload("res://assets/asteroid_asset/material_512.png")
 
 var packs := {}  # cluster id -> {mm: MultiMeshInstance3D, system: int, max: int}
 var _mesh: Mesh
-var _mat: StandardMaterial3D
+var _mat: ShaderMaterial  # template; each pack gets a duplicate (own tangent / size uniforms)
+const PACK_SHADER := preload("res://game/galaxy/asteroid_pack.gdshader")
+const DRIFT_MAX := 0.3     # biggest drift amplitude, share of the pack radius
+const HOME_SHARE := 0.9   # rocks sit inside this share of the ellipsoid so even the outer ones have room to drift
 var view_system := 1
 var sun_positions := {}  # system id -> world position of its sun (map.gd fills it); the orbit centre. Missing = world origin
 
@@ -63,10 +67,11 @@ func tangent_of(c: Dictionary) -> Vector3:
 
 func _ready() -> void:
 	_mesh = make_rock_mesh()
-	_mat = StandardMaterial3D.new()
-	_mat.albedo_color = rock_color
-	_mat.albedo_texture = ROCK_TEXTURE
-	_mat.roughness = rock_roughness
+	_mat = ShaderMaterial.new()
+	_mat.shader = PACK_SHADER
+	_mat.set_shader_parameter("albedo_color", rock_color)
+	_mat.set_shader_parameter("albedo_tex", ROCK_TEXTURE)
+	_mat.set_shader_parameter("roughness", rock_roughness)
 
 ## clusters: dictionaries from main.clusters_in_system(sid) (id, system, x, y, radius, count, visible). Missing ones are removed.
 func sync(clusters: Array) -> void:
@@ -100,6 +105,7 @@ func _build(id: String, c: Dictionary, n: int) -> void:
 		_ready()
 	var mm := MultiMesh.new()
 	mm.transform_format = MultiMesh.TRANSFORM_3D
+	mm.use_custom_data = true  # per-rock phase / drift amplitude / speed / seed for the shader (set before instance_count)
 	mm.mesh = _mesh
 	mm.instance_count = n
 	var rng := RandomNumberGenerator.new()
@@ -113,18 +119,31 @@ func _build(id: String, c: Dictionary, n: int) -> void:
 		var p := Vector3(rng.randf_range(-1, 1), rng.randf_range(-1, 1), rng.randf_range(-1, 1))
 		while p.length_squared() > 1.0:  # uniform inside the unit sphere
 			p = Vector3(rng.randf_range(-1, 1), rng.randf_range(-1, 1), rng.randf_range(-1, 1))
+		p *= HOME_SHARE
+		var margin := 1.0 - p.length()  # room left to the ellipsoid surface (normalised); the drift amplitude must fit in it
 		p.y *= flatten
 		p.x *= stretch  # x = along the tangent, z = across the radius; rocks keep their own shape
 		var big := rng.randf() < big_share
 		var s := rng.randf_range(big_min, big_max) if big else rng.randf_range(rock_min, rock_max)
 		var sc := Vector3(1.0 + rng.randf_range(-squash, squash), 1.0 + rng.randf_range(-squash, squash), 1.0 + rng.randf_range(-squash, squash)) * s
-		var basis := Basis.from_euler(Vector3(rng.randf() * TAU, rng.randf() * TAU, rng.randf() * TAU)) * Basis.from_scale(sc)
+		rng.randf(); rng.randf(); rng.randf()  # (was the random start rotation; the shader tumbles the rock now, the draws stay so pack layouts do not change)
+		var basis := Basis.from_scale(sc)
+		# custom data: x phase, y drift amplitude (share of pack radius; drift ellipse + bob reach <= 1.08 x amp, so 0.83 x margin fits inside), z signed speed factor, w seed
+		var drng_sign := 1.0 if rng.randf() < 0.5 else -1.0
+		mm.set_instance_custom_data(i, Color(rng.randf() * TAU, minf(0.83 * margin, DRIFT_MAX), rng.randf_range(0.5, 1.5) * drng_sign, rng.randf()))
 		var pos := (tdir * p.x + rad_dir * p.z + Vector3.UP * p.y) * r
 		points.append(pos)
 		mm.set_instance_transform(i, Transform3D(basis, pos))
 	var mmi := MultiMeshInstance3D.new()
 	mmi.multimesh = mm
-	mmi.material_override = _mat
+	var pmat := _mat.duplicate() as ShaderMaterial  # shares shader and texture, own pack size / direction
+	pmat.set_shader_parameter("pack_tangent", tdir)
+	pmat.set_shader_parameter("pack_radius", r)
+	pmat.set_shader_parameter("pack_stretch", stretch)
+	pmat.set_shader_parameter("pack_flatten", flatten)
+	pmat.set_shader_parameter("game_time", _now())
+	mmi.material_override = pmat
+	mmi.extra_cull_margin = r * stretch * 0.3  # drifting rocks may leave the AABB of their home spots a little
 	mmi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	mmi.position = Vector3(float(c["x"]), 0.0, float(c["y"])) * map_unit_scale
 	add_child(mmi)
@@ -152,15 +171,15 @@ func _place(id: String) -> void:
 	var ang := Clusters.orbit_angle(id, orbit_speed, t - float(d["t0"])) - float(d["ang0"])
 	var centre: Vector3 = d["centre"]
 	mm.position = centre + (anchor - centre).rotated(Vector3.UP, ang)
-	mm.rotation = Vector3(0.0, ang + deg_to_rad(spin_speed) * float(d["spin_mul"]) * t, 0.0)
+	# no rigid spin of the whole pack any more: the rocks move on their own in the shader, and the click ellipsoid must stay put
+	mm.rotation = Vector3(0.0, ang, 0.0)
+	(mm.material_override as ShaderMaterial).set_shader_parameter("game_time", t)
 
 func _process(delta: float) -> void:
 	if not clock.is_valid():
 		if running.is_valid() and not bool(running.call()):
 			return
 		_clock += delta
-	if spin_speed == 0.0 and orbit_speed == 0.0:
-		return
 	for id in packs:
 		if packs[id]["mm"].visible:
-			_place(id)
+			_place(id)  # moves the pack along its orbit and feeds game_time to the shader (frozen while paused: the clock stops)
