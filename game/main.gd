@@ -609,6 +609,7 @@ func apply_state(s: Dictionary) -> void:
 	storage_link.from_array(s.get("storage_links"))  # T171; old saves: no links
 	prosperity.from_dict(s.get("prosperity"))  # T256; old saves: established worlds at tier 1
 	bazaar.from_dict(s.get("bazaar"))  # T259; old saves: nothing founded
+	workshops.from_dict(s.get("workshops"))  # before the orders: a good that shows once its workshop stands (ingot) opens its sell price
 	engine.local_from_array(s.get("orders"))  # old saves: no local orders; after prosperity: a need opens a sell price (silk at a world that needs it)
 	free_play = bool(s.get("free_play", false))
 	if typeof(s.get("prosperity")) != TYPE_DICTIONARY or not s["prosperity"].has("reached"):
@@ -629,7 +630,6 @@ func apply_state(s: Dictionary) -> void:
 	events.from_dict(s.get("events"))  # old saves: no events and no scheduled follow-ups
 	dead.state_from_dict(s.get("dead_mining"))  # T295; old saves: full stock
 	fabric.from_dict(s.get("fabric"))  # old saves: not built
-	workshops.from_dict(s.get("workshops"))
 	raids.from_dict(s.get("raids"))  # T296; old saves: nothing active
 	gigs.from_dict(s.get("gigs"))  # T271; old saves: empty board
 	gigs.ensure_opening()  # T298: an Opening still to fly is on the board
