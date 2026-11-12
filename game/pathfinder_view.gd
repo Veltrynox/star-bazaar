@@ -680,47 +680,77 @@ func update_from(f, view_system: int, selected: bool = false) -> void:
 				_marker.scale = Vector3.ONE
 				_marker_mat.albedo_color = Color.WHITE
 
-## T273: a ring at each accepted gig target in this system. It pulses with the game clock, faster and amber once the offer is within
-## balance gig_marker_amber_cycles of its deadline (rates: gig_marker_pulse_hz, gig_marker_pulse_fast_hz).
+## T273: a ring at each accepted gig target in this system. When the gig starts, one big thin blue ring pulses out once (GIG_PULSE_S);
+## then a thin blue ring stays at the target, not pulsing (amber once the offer is within balance gig_marker_amber_cycles of its deadline).
+const GIG_PULSE_S := 1.1        # the one start pulse
+const GIG_PULSE_SCALE := 3.2    # the pulse ring grows to this multiple of the resting ring
+const GIG_RING_THICK := 0.04    # resting ring width as a fraction of its radius (the ship's selection ring is 0.10)
+var _gig_t0 := {}  # offer uid -> real seconds when its ring first showed
+func _gig_ring_mesh(radius: float, thick: float) -> TorusMesh:
+	var ring := TorusMesh.new()
+	ring.inner_radius = radius * (1.0 - thick)
+	ring.outer_radius = radius
+	return ring
+
+func _gig_ring_mat() -> StandardMaterial3D:
+	var mat := StandardMaterial3D.new()
+	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	mat.no_depth_test = true
+	return mat
+
 func _update_gig_rings(f, sys: int) -> void:
 	var main_node = f.main if f != null and is_instance_valid(f) and "main" in f else null
 	var offers: Array = main_node.gigs.offers if main_node != null and "gigs" in main_node else []
 	var now: float = main_node.game_time() if main_node != null else 0.0
 	var amber := float(main_node.balance.get("gig_marker_amber_cycles", 2.0)) if main_node != null else 2.0
-	var slow := float(main_node.balance.get("gig_marker_pulse_hz", 0.6)) if main_node != null else 0.6
-	var fast := float(main_node.balance.get("gig_marker_pulse_fast_hz", 2.4)) if main_node != null else 2.4
+	var real := Time.get_ticks_msec() * 0.001
+	var live := {}
 	var used := 0
 	for o in offers:
 		if not bool(o["accepted"]) or int(o["target"]["sys"]) != sys:
 			continue
+		var uid := str(o["uid"])
+		live[uid] = true
+		if not _gig_t0.has(uid):
+			_gig_t0[uid] = real
 		var tp: Vector3 = main_node.gigs.target_pos(o) if str(o["kind"]) == "signal" else f._planet_pos(int(o["target"]["index"]))
 		if used >= _gig_rings.size():
-			var ring := TorusMesh.new()
-			ring.inner_radius = MARKER_RADIUS * 0.8
-			ring.outer_radius = MARKER_RADIUS
 			var m := MeshInstance3D.new()
-			m.mesh = ring
-			var mat := StandardMaterial3D.new()
-			mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-			mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-			mat.no_depth_test = true
-			m.material_override = mat
+			m.mesh = _gig_ring_mesh(sel_radius(), GIG_RING_THICK)
+			m.material_override = _gig_ring_mat()
 			m.top_level = true
+			var pr := MeshInstance3D.new()
+			pr.name = "Pulse"
+			pr.mesh = _gig_ring_mesh(sel_radius(), GIG_RING_THICK * 0.6)
+			pr.material_override = _gig_ring_mat()
+			pr.visible = false
+			m.add_child(pr)
 			add_child(m)
 			_gig_rings.append(m)
-		var lf := float(o["due"]) - now
-		var urgent := lf <= amber
-		var pulse := 0.5 + 0.5 * sin(now * main_node._cycle_seconds() * (fast if urgent else slow) * TAU)
+		var urgent := float(o["due"]) - now <= amber
 		var r: MeshInstance3D = _gig_rings[used]
 		var col := Color(1.0, 0.72, 0.25) if urgent else Color(0.45, 0.85, 1.0)
-		col.a = 0.45 + 0.5 * pulse
+		col.a = 0.85
 		(r.material_override as StandardMaterial3D).albedo_color = col
-		r.scale = Vector3.ONE * (1.0 + 0.25 * pulse)
 		r.global_position = tp + Vector3(0, LIFT, 0)
 		r.visible = true
+		var pr2 := r.get_node("Pulse") as MeshInstance3D
+		var u := (real - float(_gig_t0[uid])) / GIG_PULSE_S
+		if u < 1.0 and Juice.motion > 0.0:
+			var e := 1.0 - pow(1.0 - u, 3.0)
+			pr2.scale = Vector3.ONE * lerpf(1.0, GIG_PULSE_SCALE, e)
+			var pc := Color(0.45, 0.85, 1.0, 0.9 * (1.0 - u))
+			(pr2.material_override as StandardMaterial3D).albedo_color = pc
+			pr2.visible = true
+		else:
+			pr2.visible = false
 		used += 1
 	for k in range(used, _gig_rings.size()):
 		_gig_rings[k].visible = false
+	for uid in _gig_t0.keys():
+		if not live.has(uid):
+			_gig_t0.erase(uid)
 
 func _ensure_model(path: String) -> void:
 	if path == _model_path and _holder != null:

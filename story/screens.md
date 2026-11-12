@@ -1150,7 +1150,7 @@ TXT_CEO_WOMAN_01_BRANCH_TAG | 40 | Pick card, one-line branch tag, Sela Oru | Mi
 TXT_CEO_WOMAN_02_BRANCH_TAG | 40 | Pick card, one-line branch tag, Tamsin Hale | Biotech: living goods, friendly forms
 
 ## Company screen (2026-11-05)
-SETUP_NEXT | 24 | Company screen, button that moves on to the ship screen | Next
+SETUP_NEXT | 24 | Company screen, button that starts the game | Start the game
 
 ## Pathfinder, trading posts and mining platforms (T181, 2026-11-05; PENDING until T179 is built)
 Design: design/proposals/2026-11-05-ship-flight-discovery.md, recommended defaults (owner questions open): Pathfinder is separate from the fleet, only Voltara is known at the start, the first post is free, leaving a build cancels it. Interface texts stay English (ru/GLOSSARY.md); only the tutorial lines have a Russian version (story/ru/discovery.json). No text here names a planet or a good: closed worlds stay unnamed until the Pathfinder arrives.

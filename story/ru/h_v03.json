@@ -65,7 +65,7 @@
  "SCR_MINE_HEADER": "Добыча",
  "SCR_MINE_YIELD": "{n} за рейс",
  "SCR_MINE_COST": "Цена добычи: {price} за единицу",
- "SETUP_NEXT": "Далее",
+ "SETUP_NEXT": "Начать игру",
  "LBL_SHIP_SCREEN_TITLE": "Выберите корабль",
  "LBL_SHIP_PICK_HINT": "Выберите корабль. Все новые корабли будут того же типа.",
  "LBL_SHIP_START": "Старт",

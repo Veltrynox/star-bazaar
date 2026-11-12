@@ -5223,9 +5223,9 @@
   },
   {
    "id": "SETUP_NEXT",
-   "text": "Next",
+   "text": "Start the game",
    "max": 24,
-   "place": "Company screen, button that moves on to the ship screen"
+   "place": "Company screen, button that starts the game"
   },
   {
    "id": "LBL_UNKNOWN_WORLD",

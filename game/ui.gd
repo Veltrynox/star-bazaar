@@ -38,14 +38,20 @@ static func orbit_line() -> Color:
 static func orbit_line_outer() -> Color:
 	return col(LINE_ORBIT_OUTER)
 
+static var _icon_cache := {}  # token -> Texture2D: keeps placeholder SVGs alive; a texture freed right after draw_texture_rect drew as a grey square
+
 static func icon(token: String) -> Texture2D:
+	if _icon_cache.has(token):
+		return _icon_cache[token]
 	var t := ThemeDB.get_project_theme()
 	if t != null and t.has_icon(token, "Icons"):
 		return t.get_icon(token, "Icons")
 	# Goods without a theme icon (all but energy and food): placeholder SVGs in art/icons/
 	var p := "res://art/icons/icon_%s_64.svg" % token
 	if ResourceLoader.exists(p):
-		return load(p) as Texture2D
+		var tex := load(p) as Texture2D
+		_icon_cache[token] = tex
+		return tex
 	return null
 
 ## Small tinted icon for a good (every good). Never takes mouse input.
