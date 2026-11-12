@@ -7,7 +7,7 @@ extends RefCounted
 const StoryText := preload("res://game/story_text.gd")
 const PlanetTypes := preload("res://game/planet_types.gd")
 const PATH := "res://data/systems.json"
-## T176: placeholder systems (data/systems_placeholder.json) join all() when they carry "on": true (T226: systems 3 to 5, live, TEMPORARY names),
+## T176: placeholder systems (data/systems_placeholder.json) join all() when they carry "on": true (system 3, live, TEMPORARY names; the game has three systems),
 ## or all of them while that file says "enabled": true or a test calls set_placeholders(true). set_placeholders(false) hides every one.
 const PLACEHOLDER_PATH := "res://data/systems_placeholder.json"
 
@@ -32,7 +32,7 @@ static func set_placeholders(on: bool) -> void:
 
 static var _placeholders_override := -1
 
-## Back to the data default (T226: systems 3 to 5 on, the rest off). Tests call this after set_placeholders.
+## Back to the data default (system 3 on). Tests call this after set_placeholders.
 static func reset_placeholders() -> void:
 	_placeholders_override = -1
 	_loaded = false

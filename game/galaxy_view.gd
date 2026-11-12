@@ -11,10 +11,8 @@ const StoryText := preload("res://game/story_text.gd")
 const Systems := preload("res://game/systems.gd")
 const TUT_IDS := ["TUT_GALAXY_INTRO", "TUT_GALAXY_ICONS", "TUT_GALAXY_ROUTES"]
 ## Design-pack sample positions (1672x941 frame), used by system index. Mapped into the free middle area.
-const SLOTS := [Vector2(640, 500), Vector2(1062, 372), Vector2(470, 238), Vector2(868, 742),
-	Vector2(1232, 660), Vector2(1250, 150), Vector2(790, 236),
-	# T210: temporary slots 8 to 10, used only by the placeholder systems 8 to 10 when enabled
-	Vector2(560, 760), Vector2(1100, 140), Vector2(480, 520)]
+## 2026-11-12: three systems in the game, so three slots.
+const SLOTS := [Vector2(640, 500), Vector2(1062, 372), Vector2(470, 238)]
 const FRAME_X0 := 340.0
 const FRAME_W := 992.0
 const FRAME_Y0 := 100.0
