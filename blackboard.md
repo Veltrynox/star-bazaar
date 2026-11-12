@@ -69,8 +69,8 @@
 ## 2026-11-12 12:10 run: T355 T356 T357
 - Summary: Ship look in the game: measured engine points per ship type (1-4, data/ships.json), a six-layer additive plume per engine with 5 shape and 10 colour presets (data/exhaust.json) on the Flagship, rivals and the company-screen preview, a hull hue shader, and the New company screen lets the player pick shape, palette and hue (per-CEO defaults in data/ceos.json, saved as ship_look, save version 23).
 - Why this task: owner request 2026-11-12 after tuning positions in tools/engine_tuner.html (also published as a private artifact).
-- Agent prompts: Agent tool, subagent_type gameplay-programmer (T355), juice-programmer (T356), ui-programmer (T357), each told to read its brief from schedule.json; handoffs in handoffs/<agent>/2026-11-12-T35x.json.
 - Approach: T355 gameplay-programmer and T356 juice-programmer in parallel against a shared Ships.engine_points contract, then T357 ui-programmer; main session reviewed the diffs, fixed the plume shader (Godot CylinderMesh side UV.y is 0..0.5, the fade now doubles it) and the normal-map hint, wrote the gdd.md paragraph.
+- Agent prompts: Agent tool, subagent_type gameplay-programmer (T355), juice-programmer (T356), ui-programmer (T357), each told to read its brief from schedule.json; handoffs in handoffs/<agent>/2026-11-12-T35x.json.
 - Worked: three commits 0fad822, 644d93e, 9cf099c plus the tuner page 5210324; the commit hook (test gate) let each through.
 - Failed / did not work: nothing seen headless; nothing looked at in a window (owner's job).
 - Files and commits: see git log on main for T355, T356, T357.
