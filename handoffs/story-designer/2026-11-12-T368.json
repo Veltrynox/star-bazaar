@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-11-12",
+  "task": "T368",
+  "status": "done",
+  "files_changed": [
+    "story/gigs.md",
+    "tools/build_story.py",
+    "data/story_text.json"
+  ],
+  "open_questions": [
+    "Russian hooks are old until translation resumes."
+  ],
+  "handoff": "All seven GIGxx_HOOK lines rewritten as short story paragraphs (max 420). _HOOK limit raised 140 to 420 in GIG_TEXT_MAX and in the gigs.md header. Build rerun. No other gig line changed. Russian untouched.",
+  "details": {
+    "limit": {
+      "_HOOK": {
+        "old": 140,
+        "new": 420
+      }
+    },
+    "hooks": {
+      "GIG01": {
+        "old": "A weak beacon repeats one tone. Nobody has answered it.",
+        "new": "A beacon on the Commons band, one tone, over and over. The crew checked the Bureau's lists and found a hauler marked overdue in this sector. The tone has not changed in all that time, as if someone set it and walked away. Every ship that heard it logged it and flew on."
+      },
+      "GIG02": {
+        "old": "A relay light blinks twice, stops, then blinks twice again.",
+        "new": "A relay light is blinking in a pattern the old shift books call a keeper's check. Twice, a pause, twice again. The relay was struck from the Plan cycles ago, and no one filed a replacement. If the lamp is still lit, then someone is still lighting it, and no ship has stopped to ask who."
+      },
+      "GIG03": {
+        "old": "A tapping on the open band. Always eleven taps, then a gap.",
+        "new": "A tapping comes in on the open band, the same long run of taps, then a gap, then the run again. It is too even to be a fault. The crew has listened to it for a full watch, and someone started counting aloud before they stopped. Other crews logged it and kept their distance. It is a Plan marker, and nobody wants to be the one who touches it."
+      },
+      "GIG04": {
+        "old": "A docking call, repeated. A calm voice, no reply space.",
+        "new": "A docking call, in a calm voice, repeated word for word. It offers a berth, gives the berth number, and leaves no space to answer. The station is small and off every lane, and it is not on the current Plan. The voice sounds pleased to have you coming, which is more than the crew can say for any dock on the board."
+      },
+      "GIG05": {
+        "old": "A flat tone, struck on the hour. It stops mid-count.",
+        "new": "A flat tone, struck once on the hour, and it stops in the middle of the count. The crew traced it to a test range the Bureau closed long ago. The old book would show who ran it and why they left. The Bureau still holds the file, and nobody has asked to see it."
+      },
+      "GIG06": {
+        "old": "A soft chime and a faint warm light. The beacon is a window.",
+        "new": "A soft chime, and behind it a faint warm light that no hull lamp makes. It is steady, like a window left lit in a dark street. The sealed garden was never put on a Plan, so no crew owes it a visit. The warm light shows on the board, and no ship has gone near."
+      },
+      "GIG07": {
+        "old": "The last hall is roofed. One crate is sealed and signed, and it waits for the Flagship.",
+        "new": "The last hall is roofed, and the Bazaar has gone quiet. One crate sits sealed and signed at the dock, and the board holds it for the Flagship. Every hand that built the hall has put a name on it. No one will break the seal for anyone else."
+      }
+    },
+    "other_english_fixes": []
+  }
+}

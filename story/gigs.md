@@ -1,13 +1,13 @@
 # Gigs (T217, draft 1)
 
-Format: ID | place | text (one text per line). Limits by id suffix: _TITLE 32, _BTN 28 (written to 24), _HOOK 140, _EPI 140, everything else 280 (see GIG_TEXT_MAX in tools/build_story.py).
+Format: ID | place | text (one text per line). Limits by id suffix: _TITLE 32, _BTN 28 (written to 24), _HOOK 420, _EPI 140, everything else 280 (see GIG_TEXT_MAX in tools/build_story.py).
 A gig is one signal in the Pathfinder's system. Hook: shown with the label "Signal" and the system name; the story stays hidden. Arrive: the window on arrival. Two neutral buttons, each gives something and costs something. Branch outcome ids end _OUT_MIL, _OUT_LUX, _OUT_MIN, _OUT_BIO (Military, Luxury, Minerals, Biotech); the game shows the one for the company's branch after the player picks A or B. Epilogue: one line, same for every branch.
 No text names a good, a number, a skill point or a mechanic. The game picks what is given and taken (a small cash sum, a small lot of the branch's goods, a small fee, or Flagship idle time; data/gigs.json); the outcome lines only describe the scene and may say "a small sum", "a small fee" or "a lot". Updated 2026-11-11: the outcome lines of GIG01 to GIG06 now match those rewards.
 
 ## GIG01 The wreck of the Ninth Tally (ship crash, salvage)
 
 GIG01_TITLE | Gig 01, arrival window title | The Ninth Tally
-GIG01_HOOK | Gig 01, signal hint | A weak beacon repeats one tone. Nobody has answered it.
+GIG01_HOOK | Gig 01, signal hint | A beacon on the Commons band, one tone, over and over. The crew checked the Bureau's lists and found a hauler marked overdue in this sector. The tone has not changed in all that time, as if someone set it and walked away. Every ship that heard it logged it and flew on.
 GIG01_ARRIVE | Gig 01, arrival window text | A Commons hauler, split along the spine. Its lights are dark. The bunks are empty and made. A Common Ledger plate is still bolted by the hatch. Cutting into the hold takes the scout's time. The flight log is quick to pull, but then the hold stays sealed.
 GIG01_A_BTN | Gig 01, button A | Cut the hold free
 GIG01_B_BTN | Gig 01, button B | Pull the flight log
@@ -24,7 +24,7 @@ GIG01_EPI | Gig 01, epilogue line | The Bureau lists the Ninth Tally as overdue.
 ## GIG02 The relay keeper (a lamp still lit)
 
 GIG02_TITLE | Gig 02, arrival window title | The relay lamp
-GIG02_HOOK | Gig 02, signal hint | A relay light blinks twice, stops, then blinks twice again.
+GIG02_HOOK | Gig 02, signal hint | A relay light is blinking in a pattern the old shift books call a keeper's check. Twice, a pause, twice again. The relay was struck from the Plan cycles ago, and no one filed a replacement. If the lamp is still lit, then someone is still lighting it, and no ship has stopped to ask who.
 GIG02_ARRIVE | Gig 02, arrival window text | A relay station with one lamp lit. A keeper in a shift coat waves from the glass. The shift form lies half filled. If you carry the keeper out, the form stays blank and the lamp goes dark. If you stand the watch, the scout waits and the keeper stays.
 GIG02_A_BTN | Gig 02, button A | Carry the keeper out
 GIG02_B_BTN | Gig 02, button B | Stand the keeper's watch
@@ -43,7 +43,7 @@ GIG02_EPI | Gig 02, epilogue line | The keeper's form is filed under the common 
 ## GIG03 The quota drum (a Plan marker adrift)
 
 GIG03_TITLE | Gig 03, arrival window title | The quota drum
-GIG03_HOOK | Gig 03, signal hint | A tapping on the open band. Always eleven taps, then a gap.
+GIG03_HOOK | Gig 03, signal hint | A tapping comes in on the open band, the same long run of taps, then a gap, then the run again. It is too even to be a fault. The crew has listened to it for a full watch, and someone started counting aloud before they stopped. Other crews logged it and kept their distance. It is a Plan marker, and nobody wants to be the one who touches it.
 GIG03_ARRIVE | Gig 03, arrival window text | A steel drum drifts in the dark, stamped with a five-cycle plan nobody finished. It taps against its own tether. Inside, a ledger and a sealed lot. If you open the lot, the Plan loses a line. If you copy the ledger, the lot stays closed.
 GIG03_A_BTN | Gig 03, button A | Open the sealed lot
 GIG03_B_BTN | Gig 03, button B | Copy the ledger
@@ -60,7 +60,7 @@ GIG03_EPI | Gig 03, epilogue line | The Bureau marks the quota drum as found. It
 ## GIG04 The empty berth (a station that kept the lights)
 
 GIG04_TITLE | Gig 04, arrival window title | The empty berth
-GIG04_HOOK | Gig 04, signal hint | A docking call, repeated. A calm voice, no reply space.
+GIG04_HOOK | Gig 04, signal hint | A docking call, in a calm voice, repeated word for word. It offers a berth, gives the berth number, and leaves no space to answer. The station is small and off every lane, and it is not on the current Plan. The voice sounds pleased to have you coming, which is more than the crew can say for any dock on the board.
 GIG04_ARRIVE | Gig 04, arrival window text | A small station, lit and clean. Every berth is empty and ready. A voice offers you one. A table is set for a crew of six. You may take the stores in the pantry, or stay for the meal and the talk. One asks a berth fee. The other takes the scout's time.
 GIG04_A_BTN | Gig 04, button A | Load the pantry stores
 GIG04_B_BTN | Gig 04, button B | Stay for the meal
@@ -77,7 +77,7 @@ GIG04_EPI | Gig 04, epilogue line | The station keeps its lights on. The Bureau 
 ## GIG05 The proving range (Military, Minerals)
 
 GIG05_TITLE | Gig 05, arrival window title | The proving range
-GIG05_HOOK | Gig 05, signal hint | A flat tone, struck on the hour. It stops mid-count.
+GIG05_HOOK | Gig 05, signal hint | A flat tone, struck once on the hour, and it stops in the middle of the count. The crew traced it to a test range the Bureau closed long ago. The old book would show who ran it and why they left. The Bureau still holds the file, and nobody has asked to see it.
 GIG05_ARRIVE | Gig 05, arrival window text | A test range, long abandoned. Targets hang in a line. A rack of tools sits by the control hut, and a crane arm still holds a crate. You can take the rack, or follow the range book to where the last test was logged.
 GIG05_A_BTN | Gig 05, button A | Strip the tool rack
 GIG05_B_BTN | Gig 05, button B | Follow the range book
@@ -90,7 +90,7 @@ GIG05_EPI | Gig 05, epilogue line | The range is struck from the Plan. The targe
 ## GIG06 The sealed garden (Luxury, Biotech)
 
 GIG06_TITLE | Gig 06, arrival window title | The sealed garden
-GIG06_HOOK | Gig 06, signal hint | A soft chime and a faint warm light. The beacon is a window.
+GIG06_HOOK | Gig 06, signal hint | A soft chime, and behind it a faint warm light that no hull lamp makes. It is steady, like a window left lit in a dark street. The sealed garden was never put on a Plan, so no crew owes it a visit. The warm light shows on the board, and no ship has gone near.
 GIG06_ARRIVE | Gig 06, arrival window text | A glass hull, fogged from inside. Green behind it, thick and still. A hatch will open for a cut flower, or for a full bag of the garden's seed. Either one means going in. Either one means leaving something behind.
 GIG06_A_BTN | Gig 06, button A | Cut the best blooms
 GIG06_B_BTN | Gig 06, button B | Bag the garden seed
@@ -104,7 +104,7 @@ GIG06_EPI | Gig 06, epilogue line | The garden is listed as tended. No keeper is
 The last Bazaar stage is done. The Flagship flies the charter cargo to the capital. One button, no choice. Docking wins the run. No text names a good or a number. Where it shows (2026-11-11): at the Opening docking only. When the Flagship docks at the Bazaar capital with the charter cargo after the last Bazaar stage, the arrival window shows GIG07_TITLE and GIG07_ARRIVE with one button GIG07_A_BTN; the press shows GIG07_A_OUT_<branch> and then the win screen. GIG07_HOOK is the one-line hint on the board while the cargo is sealed.
 
 GIG07_TITLE | Gig 07, arrival window title | The Opening
-GIG07_HOOK | Gig 07, signal hint | The last hall is roofed. One crate is sealed and signed, and it waits for the Flagship.
+GIG07_HOOK | Gig 07, signal hint | The last hall is roofed, and the Bazaar has gone quiet. One crate sits sealed and signed at the dock, and the board holds it for the Flagship. Every hand that built the hall has put a name on it. No one will break the seal for anyone else.
 GIG07_ARRIVE | Gig 07, arrival window text | The charter cargo is sealed and signed by every hand that built the hall. The crew lines the dock and no one speaks. Every lamp in the Bazaar is dark. It waits for one crate, carried in by you.
 GIG07_A_BTN | Gig 07, button | Bring the crate in
 GIG07_A_OUT_MIL | Gig 07, docking outcome, Military | The crate goes down the long hall in step. The seal breaks. The lamps come on one row at a time, and no one gives an order.

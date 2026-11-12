@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-12 15:20 run: bazaar-guidance proposal
-- Summary: design/proposals/2026-11-12-bazaar-guidance.md: why the Star Bazaar stage reads as a dead end (the bill is shown as a number in three places, never as an instruction; powder must be HELD in the capital's planet storage, sold at Flintmoor 12 cr / Voltara 30 cr) and a proposal: one Bazaar.next_step() record rendered in five voices (Bazaar panel how-line and Buy/Send buttons, capital card block, Bazaar card and Next Up clicks, a gentle cycle-end reminder only while nothing feeds the bill, stage-done next line) plus an optional persistent Main line card.
-- Why this task: owner question 2026-11-12 ('not clear how to proceed at the Town stage').
-- Approach: main session read bazaar.gd, next_up.gd, bazaar_panel/card, planet_panel, story ids and the Bazaar test; no agent, no code change.
-- Agent prompts: none.
-- Worked: analysis; the test in run_tests.gd already proves storage.add at the capital fills the bill.
-- Failed / did not work: nothing run in a window.
-- Files and commits: the proposal file only.
-- Left to do: owner to answer the 4 questions in section 6, then tasks T361-T363 are scheduled.
-
 ## 2026-11-12 16:10 run: T361 T362 T363
 - Summary: Star Bazaar guidance, must set only: Bazaar.next_step / bill_lines / step_line / is_fed, a cycle-end reminder notice (every bazaar_remind_cycles = 4 cycles, only while a bill item is short and unfed) and TIP_BILL (save version 24); texts for the how-to lines and a long description per wing; Bazaar panel with a how line, a step line per short row and Buy at / Send to buttons; a Star Bazaar block on the capital's planet card with a lit Buy button; the top Next Up strip lost its Bazaar slot; the wing popup shows a picture, the effect line and a description; six wing images generated with codex in assets/wings. Not built: Main line card, Bazaar card and Next Up clicks, stage-done next line.
 - Why this task: owner request 2026-11-12 ('implement the must ones only', remove the top reminder, wing descriptions, wing pictures via codex).
@@ -75,3 +65,13 @@
 - Failed / did not work: lines still cross each other where a lane meets another parent's bus (circuit look, accepted); a link's short stub can overlap a sibling's lit stub in a different colour.
 - Files and commits: see git log on main for T365.
 - Left to do: owner to look at the skill screen windowed.
+
+## 2026-11-12 19:40 run: T368
+- Summary: The seven gig hooks (the line under a signal on the gig board) are short story paragraphs now, 239 to 342 characters, in the voice of the arrival texts: what the crew hears, where it comes from, one pulling detail, why nobody answered; the _HOOK limit in tools/build_story.py is 420 (was 140). English only; the Russian hooks are the old short ones until the owner asks for a translation.
+- Why this task: owner request 2026-11-12 ('replace this haiku with something more storytelling, x3').
+- Approach: story-designer; the main session read all seven hooks and the board code (the row label wraps and the board scrolls, so no UI change).
+- Agent prompts: Agent tool, story-designer, brief read from schedule.json T368; handoff handoffs/story-designer/2026-11-12-T368.json (old and new text of every hook).
+- Worked: build_story.py clean, no skipped ids.
+- Failed / did not work: not seen on the board in a window.
+- Files and commits: see git log on main for T368.
+- Left to do: owner to say if 'eleven taps' should come back in the quota drum hook (the file rule forbids numbers, so the agent dropped it); the arrival texts still say 'the scout' for the Flagship (older word, a later pass); Russian hooks when translation resumes.

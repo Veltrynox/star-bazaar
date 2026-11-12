@@ -11865,8 +11865,8 @@
   },
   {
    "id": "GIG01_HOOK",
-   "text": "A weak beacon repeats one tone. Nobody has answered it.",
-   "max": 140,
+   "text": "A beacon on the Commons band, one tone, over and over. The crew checked the Bureau's lists and found a hauler marked overdue in this sector. The tone has not changed in all that time, as if someone set it and walked away. Every ship that heard it logged it and flew on.",
+   "max": 420,
    "place": "Gig 01, signal hint"
   },
   {
@@ -11949,8 +11949,8 @@
   },
   {
    "id": "GIG02_HOOK",
-   "text": "A relay light blinks twice, stops, then blinks twice again.",
-   "max": 140,
+   "text": "A relay light is blinking in a pattern the old shift books call a keeper's check. Twice, a pause, twice again. The relay was struck from the Plan cycles ago, and no one filed a replacement. If the lamp is still lit, then someone is still lighting it, and no ship has stopped to ask who.",
+   "max": 420,
    "place": "Gig 02, signal hint"
   },
   {
@@ -12033,8 +12033,8 @@
   },
   {
    "id": "GIG03_HOOK",
-   "text": "A tapping on the open band. Always eleven taps, then a gap.",
-   "max": 140,
+   "text": "A tapping comes in on the open band, the same long run of taps, then a gap, then the run again. It is too even to be a fault. The crew has listened to it for a full watch, and someone started counting aloud before they stopped. Other crews logged it and kept their distance. It is a Plan marker, and nobody wants to be the one who touches it.",
+   "max": 420,
    "place": "Gig 03, signal hint"
   },
   {
@@ -12117,8 +12117,8 @@
   },
   {
    "id": "GIG04_HOOK",
-   "text": "A docking call, repeated. A calm voice, no reply space.",
-   "max": 140,
+   "text": "A docking call, in a calm voice, repeated word for word. It offers a berth, gives the berth number, and leaves no space to answer. The station is small and off every lane, and it is not on the current Plan. The voice sounds pleased to have you coming, which is more than the crew can say for any dock on the board.",
+   "max": 420,
    "place": "Gig 04, signal hint"
   },
   {
@@ -12201,8 +12201,8 @@
   },
   {
    "id": "GIG05_HOOK",
-   "text": "A flat tone, struck on the hour. It stops mid-count.",
-   "max": 140,
+   "text": "A flat tone, struck once on the hour, and it stops in the middle of the count. The crew traced it to a test range the Bureau closed long ago. The old book would show who ran it and why they left. The Bureau still holds the file, and nobody has asked to see it.",
+   "max": 420,
    "place": "Gig 05, signal hint"
   },
   {
@@ -12261,8 +12261,8 @@
   },
   {
    "id": "GIG06_HOOK",
-   "text": "A soft chime and a faint warm light. The beacon is a window.",
-   "max": 140,
+   "text": "A soft chime, and behind it a faint warm light that no hull lamp makes. It is steady, like a window left lit in a dark street. The sealed garden was never put on a Plan, so no crew owes it a visit. The warm light shows on the board, and no ship has gone near.",
+   "max": 420,
    "place": "Gig 06, signal hint"
   },
   {
@@ -12321,8 +12321,8 @@
   },
   {
    "id": "GIG07_HOOK",
-   "text": "The last hall is roofed. One crate is sealed and signed, and it waits for the Flagship.",
-   "max": 140,
+   "text": "The last hall is roofed, and the Bazaar has gone quiet. One crate sits sealed and signed at the dock, and the board holds it for the Flagship. Every hand that built the hall has put a name on it. No one will break the seal for anyone else.",
+   "max": 420,
    "place": "Gig 07, signal hint"
   },
   {

@@ -150,7 +150,7 @@ def build_text(entries: dict, add) -> list:
 
 
 # Max length of a gigs.md text row (ID | place | text), by id suffix. Anything else (arrival, outcomes) is 280.
-GIG_TEXT_MAX = {"_TITLE": 32, "_BTN": 28, "_HOOK": 140, "_EPI": 140}
+GIG_TEXT_MAX = {"_TITLE": 32, "_BTN": 28, "_HOOK": 420, "_EPI": 140}
 GIG_TEXT_MAX_BODY = 280
 
 

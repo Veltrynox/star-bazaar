@@ -4003,6 +4003,23 @@
         "tools/tests/run_tests.gd"
       ],
       "priority": 1
+    },
+    {
+      "task_id": "T368",
+      "title": "Gig hooks as short stories (3x longer), English only",
+      "owner_agent": "story-designer",
+      "depends_on": [],
+      "status": "done",
+      "turn_cap": 30,
+      "window": "Owner request 2026-11-12: 'replace this haiku with something more storytelling, x3 text; check the other stories; English first, translation paused'.",
+      "brief": "Owner request 2026-11-12 (gig board screenshot: row 'The quota drum / Signal / Open space - A tapping on the open band. Always eleven taps, then a gap.'): 'replace this haiku with something more storytelling, you can increase the text amount x3. Check the other stories. Fix the English first, translation is paused.' The line is GIGxx_HOOK in story/gigs.md (limit 140 by id suffix, GIG_TEXT_MAX in tools/build_story.py). Rewrite EVERY GIGxx_HOOK as a short story paragraph of two to four sentences, up to 420 characters: what the Flagship's crew hears or sees on the band before anyone goes near, where it comes from, one concrete detail that makes it pull at the captain, and why nobody else has answered. Keep the file's own rules (header of story/gigs.md): no good, number, skill point or mechanic named; the hook must not give away the arrival scene, its two choices or the outcomes (read GIGxx_ARRIVE, _A_BTN, _B_BTN, _EPI so the hook leads into them without repeating them). Voice: read story/voice.md and the longer event stories in story/events.md and the gig ARRIVE texts first and match their register (plain, concrete, dry, no adjectives in heaps, no exclamation marks, the Bureau and the Plan as background). Mechanics: raise the _HOOK limit in GIG_TEXT_MAX of tools/build_story.py from 140 to 420 and update the 'Limits by id suffix' line in the story/gigs.md header to match; rebuild with python3 tools/build_story.py (never edit data/story_text.json by hand). English only: do not touch story/ru/*.json or any Russian text, translation is paused; the Russian hooks stay old until the owner asks for a translation. Do not change any other gig line unless it has an actual English error (a typo or a broken sentence), and list each such fix in the handoff. Do not run the test suite, do not commit. Handoff handoffs/story-designer/2026-11-12-T368.json listing every hook (old and new) and the limit change.",
+      "size": "S",
+      "touches": [
+        "story/gigs.md",
+        "data/story_text.json",
+        "tools/build_story.py"
+      ],
+      "priority": 1
     }
   ],
   "done_task_ids": [
