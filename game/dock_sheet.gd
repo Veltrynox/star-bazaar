@@ -107,7 +107,7 @@ func _goods() -> Array:
 	return out
 
 func _signature() -> String:
-	var s := "%d|%d|%d" % [main.cash, main.flight.hold_total(), planet]
+	var s := "%d|%d|%d|%d" % [main.cash, main.flight.hold_total(), planet, int(main.gigs.rush_progress(planet).get("got", -1)) if main.gigs != null else -1]
 	var key: String = main.storage.planet_key(planet)
 	for g in _goods():
 		s += ",%s:%d:%d:%d:%s" % [g, main.flight.hold_units(g), main.flight.dock_buy_price(g), main.storage.amount(key, g), main.engine.price_reason(planet, g)]
@@ -119,6 +119,11 @@ func _lot() -> int:
 func rebuild() -> void:
 	_sig = _signature()
 	var f = main.flight
+	var rp: Dictionary = main.gigs.rush_progress(planet) if main.gigs != null else {}
+	rush_label.visible = not rp.is_empty() and Availability.good(str(rp.get("good", "")))
+	if rush_label.visible:
+		rush_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		rush_label.text = StoryText.get_or("GIG_RUSH_ARRIVE", "This world has a rush order for {commodity}: {got} of {units} brought. Sell or unload it here to deliver.", {"commodity": Ui.good_name(str(rp["good"])), "got": int(rp["got"]), "units": int(rp["units"])})
 	hold_label.text = "%s\n%s" % [StoryText.get_or("LBL_HOLD_FILL", "Hold: {n} of {m}", {"n": f.hold_total(), "m": f.hold_cap()}),
 		StoryText.get_or("LBL_DOCK_HOLD_FULL", "The hold is full. Buy is limited to the room left.") if f.hold_space() <= 0 else ""]
 	hold_label.text = hold_label.text.strip_edges()

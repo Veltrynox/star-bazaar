@@ -1593,7 +1593,7 @@ GIG_RUSH_HOOK | 110 | Gig board row of a rush order, one line; {planet}, {commod
 GIG_RUSH_HOOK_RESTLESS | 110 | Same, when the world is Restless | {planet} is Restless and short of {commodity}. Deliver within {cycles} cycles.
 GIG_RUSH_HOOK_TIER | 110 | Same, when the world is close to its next tier | {planet} is close to growing. It needs {commodity} within {cycles} cycles.
 GIG_RUSH_HOOK_SHORT | 110 | Same, when a shortage hit the world | A shortage hit {planet}. It needs {commodity} within {cycles} cycles.
-GIG_RUSH_ARRIVE | 110 | Dock sheet banner when the Flagship is docked at the rush world; {commodity} | This world has a rush order for {commodity}. Sell it here to deliver.
+GIG_RUSH_ARRIVE | 110 | Dock sheet banner when the Flagship is docked at the rush world; {commodity}, {got}, {units} | This world has a rush order for {commodity}: {got} of {units} brought. Sell or unload it here to deliver.
 NOT_RUSH_DELIVERED | 110 | Notice, rush delivered; {planet}, {commodity} | Delivered. {planet} has its {commodity}. The premium is paid.
 NOT_RUSH_PARTIAL | 110 | Notice, part of a rush lot delivered; {planet}, {commodity} | Part delivered. {planet} still needs more {commodity}.
 NOT_RUSH_EXPIRED | 110 | Notice, the deadline passed; {planet} | The rush order for {planet} has expired.
@@ -1873,8 +1873,10 @@ GIG_REWARD_SIGNAL | 30 | gig_board.gd:113
 Unknown reward
 GIG_ROW_OPENING | 50 | gig_board.gd:92
 Charter cargo for {planet}
-GIG_ROW_RUSH | 50 | gig_board.gd:98
-{units} {good} for {planet}
+GIG_ROW_RUSH | 50 | gig_board.gd:98; {got}, {units}, {good}, {planet}
+{got} of {units} {good} brought to {planet}
+GIG_ROW_RUSH_HOW | 110 | gig_board.gd _add_row, second line of a rush order row; {planet}
+Dock the Flagship at {planet} and sell or unload the goods there. Routes and orders do not count.
 GIG_ROW_SALVAGE | 24 | gig_board.gd:94
 Cargo pods
 GIG_ROW_SIGNAL | 30 | gig_board.gd:99

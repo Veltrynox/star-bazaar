@@ -22,6 +22,7 @@ signal build_started(planet_id: String)
 signal build_done(planet_id: String)      # a post or a platform stands now
 signal build_cancelled(planet_id: String) # the ship left during a build: credits are not refunded
 signal establish_failed(planet_id: String, reason: String) # T200: an order "fly there and establish" could not start on arrival
+var _loaded_here: Dictionary = {}  # good -> units loaded from the docked world's storage during this docking
 signal delivered(planet_id: String, good: String, units: int)  # T271: units sold by hand or unloaded to storage at an established world (gig rush orders listen)
 signal arrived_point(sys: int, pos: Vector3)  # T271: a flight to a point of open space ended (gig signal markers listen)
 signal exploration_done                   # T206: exploration mode finished: every planet of the system stands established; the mode is off
@@ -344,6 +345,7 @@ func request_fly(t: Dictionary) -> String:
 	if to_sys != _sys:
 		_speed = 0.0
 	_docked = ""
+	_loaded_here.clear()
 	_target = {"kind": kind, "pos": to, "index": idx if kind != "point" else -1}
 	_state = "flying"
 	if _dur <= EPS:
@@ -575,6 +577,7 @@ func _arrive() -> void:
 	_t = 0.0
 	_dur = 0.0
 	_docked = ""
+	_loaded_here.clear()
 	if str(tgt.get("kind", "")) == "point":
 		arrived_point.emit(_sys, _pos)
 	if str(tgt.get("kind", "")) == "planet":
@@ -695,7 +698,8 @@ func dock_trade(planet: int, good: String, units: int, dir: String) -> String:
 	delivered.emit(_docked, good, have)
 	return ""
 
-## Free move hold -> that world's company storage. Returns "" or a reason ("not_docked", "no_stock", "storage_full"-> "hold_full" is for loads).
+## Free move hold -> that world's company storage. Only units beyond what was loaded from this world's storage during this docking
+## (per good, `_loaded_here`) are reported through `delivered` (rush orders), so load-and-unload cannot fake a delivery. Returns "" or a reason ("not_docked", "no_stock", "storage_full"-> "hold_full" is for loads).
 func unload_to_storage(planet: int, good: String, units: int) -> String:
 	if dock_planet() < 0 or dock_planet() != planet:
 		return "not_docked"
@@ -705,10 +709,14 @@ func unload_to_storage(planet: int, good: String, units: int) -> String:
 	if put <= 0:
 		return "storage_full"
 	_take(good, put)
-	delivered.emit(_docked, good, put)
+	var back: int = int(_loaded_here.get(good, 0))
+	var counted: int = maxi(0, put - back)
+	_loaded_here[good] = maxi(0, back - put)
+	if counted > 0:
+		delivered.emit(_docked, good, counted)
 	return ""
 
-## Free move that world's company storage -> hold.
+## Free move that world's company storage -> hold. Tracks the units per good for this docking (cleared on undock or flight).
 func load_from_storage(planet: int, good: String, units: int) -> String:
 	if dock_planet() < 0 or dock_planet() != planet:
 		return "not_docked"
@@ -720,6 +728,7 @@ func load_from_storage(planet: int, good: String, units: int) -> String:
 	var n := mini(mini(units, main.storage.amount(key, good)), hold_space())
 	main.storage.remove(key, good, n)
 	_put(good, n)
+	_loaded_here[good] = int(_loaded_here.get(good, 0)) + n
 	return ""
 
 ## T271 gig cost: the ship takes no order for this many cycles (game clock). 0 clears it.

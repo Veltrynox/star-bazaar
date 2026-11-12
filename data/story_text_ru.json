@@ -1256,20 +1256,12 @@
    "text": "Фрахтовый груз для планеты {planet}"
   },
   {
-   "id": "GIG_ROW_RUSH",
-   "text": "{good}, единиц: {units}, для планеты {planet}"
-  },
-  {
    "id": "GIG_ROW_SALVAGE",
    "text": "Грузовые капсулы"
   },
   {
    "id": "GIG_ROW_SIGNAL",
    "text": "Неизвестный сигнал"
-  },
-  {
-   "id": "GIG_RUSH_ARRIVE",
-   "text": "Здесь есть срочный заказ: {commodity}. Продайте товар здесь, чтобы выполнить его."
   },
   {
    "id": "GIG_RUSH_HOOK",

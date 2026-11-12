@@ -7503,9 +7503,9 @@
   },
   {
    "id": "GIG_RUSH_ARRIVE",
-   "text": "This world has a rush order for {commodity}. Sell it here to deliver.",
+   "text": "This world has a rush order for {commodity}: {got} of {units} brought. Sell or unload it here to deliver.",
    "max": 110,
-   "place": "Dock sheet banner when the Flagship is docked at the rush world; {commodity}"
+   "place": "Dock sheet banner when the Flagship is docked at the rush world; {commodity}, {got}, {units}"
   },
   {
    "id": "NOT_RUSH_DELIVERED",
@@ -8547,9 +8547,15 @@
   },
   {
    "id": "GIG_ROW_RUSH",
-   "text": "{units} {good} for {planet}",
+   "text": "{got} of {units} {good} brought to {planet}",
    "max": 50,
-   "place": "gig_board.gd:98"
+   "place": "gig_board.gd:98; {got}, {units}, {good}, {planet}"
+  },
+  {
+   "id": "GIG_ROW_RUSH_HOW",
+   "text": "Dock the Flagship at {planet} and sell or unload the goods there. Routes and orders do not count.",
+   "max": 110,
+   "place": "gig_board.gd _add_row, second line of a rush order row; {planet}"
   },
   {
    "id": "GIG_ROW_SALVAGE",

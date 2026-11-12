@@ -95,7 +95,7 @@ func title_text(o: Dictionary) -> String:
 	if str(o["kind"]) == "rush":
 		var good := str(o["req"]["good"])
 		var gname := Ui.good_name(good) if Availability.good(good) else StoryText.get_or("PROS_NEED_LOCKED", "? Not known yet")
-		return StoryText.get_or("GIG_ROW_RUSH", "{units} {good} for {planet}", {"units": int(o["req"]["units"]) - int(o["req"]["got"]), "good": gname, "planet": main.planet_name(int(o["target"]["index"]))})
+		return StoryText.get_or("GIG_ROW_RUSH", "{got} of {units} {good} brought to {planet}", {"got": int(o["req"]["got"]), "units": int(o["req"]["units"]), "good": gname, "planet": main.planet_name(int(o["target"]["index"]))})
 	return StoryText.get_or(str(_def(o).get("title", "")), StoryText.get_or("GIG_ROW_SIGNAL", "Unknown signal"))
 
 func world_text(o: Dictionary) -> String:
@@ -159,6 +159,11 @@ func _add_row(o: Dictionary) -> void:
 	sub.text = "%s · %s" % [world_text(o), reward_text(o)]
 	sub.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	col.add_child(sub)
+	if str(o["kind"]) == "rush":  # how to deliver: only a hand sale or an unload while docked there counts
+		var how := Label.new()
+		how.text = StoryText.get_or("GIG_ROW_RUSH_HOW", "Dock the Flagship at {planet} and sell or unload the goods there. Routes and orders do not count.", {"planet": main.planet_name(int(o["target"]["index"]))})
+		how.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		col.add_child(how)
 	var bottom := HBoxContainer.new()
 	bottom.add_theme_constant_override("separation", 8)
 	col.add_child(bottom)

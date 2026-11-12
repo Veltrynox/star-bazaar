@@ -544,8 +544,16 @@ func on_delivered(planet_id: String, good: String, units: int) -> void:
 		if int(o["req"]["got"]) >= int(o["req"]["units"]):
 			_finish_rush(o)
 		else:
+			main.post_notice(StoryText.get_or("NOT_RUSH_PARTIAL", "Part delivered. {planet} still needs more {commodity}.", {"planet": main.planet_name(pi), "commodity": Ui.good_name(good)}))
 			changed.emit()
 		return
+
+## The open rush order at a world: {got, units, good}; {} when none.
+func rush_progress(planet: int) -> Dictionary:
+	for o in offers:
+		if str(o["kind"]) == "rush" and int(o["target"].get("index", -1)) == planet:
+			return {"got": int(o["req"]["got"]), "units": int(o["req"]["units"]), "good": str(o["req"]["good"])}
+	return {}
 
 func _finish_rush(o: Dictionary) -> void:
 	offers.erase(o)
