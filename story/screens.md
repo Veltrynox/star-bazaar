@@ -2181,6 +2181,10 @@ LBL_LOOK_PALETTE_ARCTIC | 16 | company_setup.gd Ship look block
 Arctic
 LBL_LOOK_PALETTE_VOID | 16 | company_setup.gd Ship look block
 Void
+LBL_PREVIEW_PAUSE | 24 | ship_preview.gd turntable button
+Stop rotation
+LBL_PREVIEW_PLAY | 24 | ship_preview.gd turntable button
+Rotate
 SETUP_NEED_NAME | 60 | company_setup.gd:210
 Enter a company name to start.
 SETUP_RANDOM | 24 | company_setup.gd:70

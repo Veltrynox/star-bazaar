@@ -68,21 +68,6 @@ static func _to_local(rows: Array, box: AABB) -> Array:
 		out.append({"pos": box.get_center() + (e["pos"] as Vector3) * r, "size": float(e["size"]) * r})
 	return out
 
-## Mean x of the engines (tuner units), kept for the trail callers.
-static func engine_back(kind: String) -> float:
-	var rows := engines(kind)
-	var sum := 0.0
-	for e in rows:
-		sum += (e["pos"] as Vector3).x
-	return sum / float(rows.size())
-
-static func engine_back_for_path(path: String) -> float:
-	var rows := engines_for_path(path)
-	var sum := 0.0
-	for e in rows:
-		sum += (e["pos"] as Vector3).x
-	return sum / float(rows.size())
-
 ## Same, found by GLB path (for views that only know the model path).
 static func model_yaw_for_path(path: String) -> float:
 	for k in types():

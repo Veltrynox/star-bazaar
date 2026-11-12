@@ -26,26 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-09 12:44 run: T347
-- Summary: Not merged: worker did not report done: blocked T347 | task T347 does not exist in this worktree's schedule (`python3 tools/task.py T347` returns "not found", and neither schedule.json nor git history mentions it), so there is nothing to build
-- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
-- Approach: built by a worker in worktree ../wt/T347 on branch task/T347, merged by the serial merge queue.
-- Agent prompts: /overnight-worker T347 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T347.log.
-- Worked: worker finished.
-- Failed / did not work: worker did not report done: blocked T347 | task T347 does not exist in this worktree's schedule (`python3 tools/task.py T347` returns "not found", and neither schedule.json nor git history mentions it), so there is nothing to build.
-- Files and commits: see git log on branch new-features for commits starting with T347.
-- Left to do: owner or a new run: see blocked_log in schedule.json.
-
-## 2026-11-09 12:51 run: T348
-- Summary: Gig rail button now shows a star_warm dot badge while a gig is open (updated via gigs.changed and _refresh) and uses a new crate icon (art/icons/icon_gig_64.svg, outside touches); headless test added, screenshot at logs/screenshots/T348.png
-- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
-- Approach: built by a worker in worktree ../wt/T348 on branch task/T348, merged by the serial merge queue.
-- Agent prompts: /overnight-worker T348 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T348.log.
-- Worked: rebase, full test suite and fast-forward merge passed.
-- Failed / did not work: nothing.
-- Files and commits: see git log on branch new-features for commits starting with T348.
-- Left to do: nothing for this task.
-
 ## 2026-11-09 12:58 run: T347
 - Summary: The one-time tip card now copies the theme panel style with background alpha 1.0, so border, radius and margins are unchanged; the guided tutorial card is untouched
 - Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
@@ -75,3 +55,13 @@
 - Failed / did not work: nothing seen headless; nothing looked at in a window (owner's job).
 - Files and commits: see git log on main for T355, T356, T357.
 - Left to do: owner to check by eye: nozzle placement and +X tail direction on all four ships, plume brightness vs the tuner page, hue on corvette 01 (two-sided material) and 04, flicker frozen while paused, and that the Ship look block fits the company screen at the default window size. Idea not built: brighten the plume glow on boost.
+
+## 2026-11-12 13:05 run: T358
+- Summary: Old two-ribbon ship trail removed (Flagship, rivals, Ships.engine_back, ship_trail.gd deleted); the company-screen ship preview has a round pause/play button in its corner and is 325x250 (1.3x wider); the cut-off plume was a framing bug, so the camera is now 4.6 away and the ship is scaled so hull plus the longest plume of any shape stays in frame (ship about 45% smaller, knob FRAME_FILL in ship_preview.gd).
+- Why this task: owner request 2026-11-12.
+- Approach: one ui-programmer task; cause measured headless on all four ships every 10 degrees of turntable angle (needle plume tips reached 4.4 to 4.7 units, outside the frame and sometimes behind the camera); depth test and additive blend were not the cause.
+- Agent prompts: Agent tool, ui-programmer, brief read from schedule.json T358; handoff handoffs/ui-programmer/2026-11-12-T358.json.
+- Worked: build and grep for leftovers; headless parse of the screen.
+- Failed / did not work: screenshot logs/screenshots/T358.png shows no preview because the tool cannot pick a CEO; the button, plume at every angle and Ship look block width (info column about 435 px) not seen by eye.
+- Files and commits: see git log on main for T358.
+- Left to do: owner to look at the preview size (FRAME_FILL 0.92, CAM_DIST 4.6) and the pause button; the boost stretch of the old trail is not rebuilt for the plume (idea: raise plume glow on boost).

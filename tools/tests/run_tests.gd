@@ -3956,13 +3956,10 @@ func _test_ships() -> void:
 	for k in Sh.types():
 		var rows: Array = Sh.engines(str(k))
 		eng_ok = eng_ok and rows.size() >= 1 and rows.size() <= 4
-		var sx := 0.0
 		for row in rows:
 			var pv: Vector3 = row["pos"]
 			eng_ok = eng_ok and absf(pv.x) <= 1.5 and absf(pv.y) <= 1.5 and absf(pv.z) <= 1.5 and float(row["size"]) > 0.0
-			sx += pv.x
-		eng_ok = eng_ok and is_equal_approx(Sh.engine_back(str(k)), sx / float(rows.size()))
-	check(eng_ok, "T355: every ship type has 1..4 engines with pos within -1.5..1.5, size > 0, engine_back is the mean x")
+	check(eng_ok, "T355: every ship type has 1..4 engines with pos within -1.5..1.5, size > 0")
 	var ebox := AABB(Vector3(-2, -1, -0.5), Vector3(4, 2, 1))
 	var er: float = ebox.size.length() * 0.5
 	var ep: Array = Sh.engine_points("small", ebox)

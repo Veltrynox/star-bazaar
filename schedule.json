@@ -3808,6 +3808,31 @@
         "tools/tests/run_tests.gd"
       ],
       "priority": 1
+    },
+    {
+      "task_id": "T358",
+      "title": "Remove the old ship trail, pause/play on the ship preview, preview 1.3x wider, fix the plume cut-off",
+      "owner_agent": "ui-programmer",
+      "depends_on": [],
+      "status": "done",
+      "turn_cap": 40,
+      "window": "Owner request 2026-11-12: 'remove the old engines from the game; in the CEO choosing window the 3D ship preview can be stopped with a || icon in the corner and > to play again; increase 1.3x the ship preview window horizontally; the engine fx is culled by the ship silhouette, why?'",
+      "brief": "Three changes, owner request 2026-11-12. (1) Remove the OLD engine effect from the game: the two-ribbon ShipTrail (game/ship_trail.gd) on the Flagship (game/pathfinder_view.gd: ShipTrail preload, TRAIL_TINT, _trail, its creation ~line 587, visibility/clear/stretch/glow/push ~lines 607-645, the engine_back lookups there) and on rival ships (game/rival_ships.gd: preload, TRAIL_TINT, the trail created per ship ~line 102 and the s['trail'] block in advance() ~line 270). Delete game/ship_trail.gd (and its .uid) and any test lines that only cover it; delete Ships.engine_back / engine_back_for_path and the T355 test line that checks engine_back (keep the engines checks). The new EnginePlume (game/fx/engine_plume.gd) is the only exhaust afterwards. The boost look the trail had (stretch and glow while boosting): do not rebuild it, just drop the dead code and leave the flight_juice_boost_* data keys alone. Check with grep that nothing else references the removed names. (2) CEO window (game/company_setup.gd + game/ship_preview.gd): the 3D ship preview turntable gets a small round button in its top-right corner that toggles the auto-rotation: it shows a pause icon (two bars, drawn as text '||' or two small rects, match the Ui theme) while turning and a play icon (triangle, '>' glyph or a drawn triangle) while stopped. While stopped the model stays where it is and drag-to-turn still works. Remember the state across CEO changes within the screen. Tooltip ids LBL_PREVIEW_PAUSE ('Stop rotation') and LBL_PREVIEW_PLAY ('Rotate') in story/screens.md, rebuild with python3 tools/build_story.py, English only. (3) Make the preview window 1.3x wider horizontally: PREVIEW_SIZE in company_setup.gd 250 -> 325 wide, height unchanged; the viewport, camera framing and the Ship look block below must still fit the screen. The owner also reports that the engine plume is cut off by the ship silhouette in the preview. FIND THE CAUSE before changing anything and say it in the handoff. Candidates to measure, not guess: the plume runs past the SubViewport edge (the camera is 3.4 from the origin at default fov 75, the model is fitted to FIT_HALF_WIDTH 2.0 world units, an engine sits at about 0.8 of the model radius and a plume is up to 1.4 * engine size * radius long, so the far end can leave the frame; widening may only partly help, so also frame the model plus plume: move the camera back or enlarge the fit margin so ship plus the longest plume (needle shape, length 2.6) stays inside the frame at every turntable angle); the plume is depth-tested against the opaque hull (its start sits inside the hull, and when the ship turns the hull hides the plume behind it, which is correct, but check whether the plume is also hidden where it should be in front); the viewport clearing alpha (transparent_bg true with additive blending can drop the additive light where the background alpha is 0: if so, fix the blend or the alpha write, e.g. render_mode blend_add with the right ALPHA, or a non-transparent clear colour in the preview). Fix what the measurements show. Per CLAUDE.md this is a ui task: take one screenshot with sh tools/screenshot.sh --out logs/screenshots/T358.png of the company screen if the script can reach it (else say so), fix only objective breakage (clipped plume, clipped text, overlap), record the path. Do not run the test suite, do not commit. gdd.md: note in your handoff the one sentence to add. Handoff handoffs/ui-programmer/2026-11-12-T358.json with the root cause of the cut-off plume.",
+      "size": "M",
+      "touches": [
+        "game/ship_trail.gd",
+        "game/pathfinder_view.gd",
+        "game/rival_ships.gd",
+        "game/ships.gd",
+        "game/ship_preview.gd",
+        "game/company_setup.gd",
+        "game/fx/engine_plume.gd",
+        "game/fx/engine_plume.gdshader",
+        "story/screens.md",
+        "data/story_text.json",
+        "tools/tests/run_tests.gd"
+      ],
+      "priority": 1
     }
   ],
   "done_task_ids": [

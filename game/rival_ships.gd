@@ -29,7 +29,6 @@ const VISIT_LEGS_MIN := 2
 const VISIT_LEGS_MAX := 3
 const SPEED_DEFAULT := 0.6      # world units per second at x1
 const LIFT := 0.35
-const ShipTrail := preload("res://game/ship_trail.gd")  # T198
 const RIVAL_SHIP_SCALE := 0.5   # T198: ship size on the map; 1.0 is the old size (halved in T198). One constant for the rival ship kind.
 const FIT_RADIUS_BASE := 0.35 * RIVAL_SHIP_SCALE
 
@@ -39,7 +38,6 @@ static func fit_radius() -> float:
 const PICK_PX := 20.0           # T199: click radius around a ship's projected position
 const TINT_ALPHA := 0.3         # T199: strength of the competitor tint over the model (0 = none)
 const TINTS := {1: Color(1.0, 0.45, 0.35), 2: Color(0.75, 0.45, 1.0), 3: Color(0.4, 0.95, 0.55)}  # T199: Harrow red, Velvet violet, Ostrel green
-const TRAIL_TINT := Color(0.45, 0.7, 1.0)  # T198: rival trail, cool blue (the player's is gold)
 
 var main: Node = null
 var map: Node = null
@@ -99,12 +97,9 @@ func _build() -> void:
 	for n in count():
 		var node := _make_ship(str(kinds[n % kinds.size()]))
 		add_child(node)
-		var trail := ShipTrail.new()  # T198: world-space, a sibling of the ship so it ignores the ship's yaw
-		trail.tint = TRAIL_TINT
-		add_child(trail)
 		var from := _random_point(sys)
 		_ships.append({"node": node, "system": sys, "pos": Vector2(from.x, from.z), "yaw": _rng.randf_range(-PI, PI), "speed": 0.0,
-			"to": Vector2(from.x, from.z), "wait": 0.0, "trail": trail, "kind": str(kinds[n % kinds.size()]), "visit": 0})
+			"to": Vector2(from.x, from.z), "wait": 0.0, "kind": str(kinds[n % kinds.size()]), "visit": 0})
 		var last: Dictionary = _ships[_ships.size() - 1]
 		_new_leg(last)
 		node.position = Vector3(from.x, LIFT, from.z)
@@ -117,9 +112,6 @@ func _move_to_system(s: Dictionary, sys: int) -> void:
 	var p := _random_point(sys)
 	s["pos"] = Vector2(p.x, p.z)
 	s["speed"] = 0.0
-	var tr: Node = s.get("trail")
-	if tr != null:
-		tr.clear()
 
 ## T214: a reason to move: every idle ship picks one new course (it may visit an opened system or head home).
 func wake() -> void:
@@ -268,12 +260,6 @@ func advance(dt: float) -> void:
 		var p: Vector2 = s["pos"]
 		node.position = Vector3(p.x, LIFT, p.y)
 		node.rotation.y = float(s["yaw"])
-		var tr: Node = s.get("trail")  # T198: advance() only runs while the game runs, so the trail is idle when paused
-		if tr != null:
-			tr.visible = node.visible
-			var yaw := float(s["yaw"])  # T205: trail starts at the engines, behind the centre
-			var eng: Vector3 = node.position + Vector3(sin(yaw), 0.0, cos(yaw)) * (Ships.engine_back(str(s.get("kind", ""))) * fit_radius())
-			tr.push(eng, dt, float(s["speed"]) > 0.02 and node.visible)
 		_sync_escorts(s, bot_of(i), node.visible)
 
 ## T283: the planet index house `h` has weather for now (running) or soon (forecast within the lead), -1 when none.

@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-12",
+  "task": "T358",
+  "status": "done",
+  "files_changed": ["game/ship_preview.gd", "game/company_setup.gd", "game/pathfinder_view.gd", "game/rival_ships.gd", "game/ships.gd", "game/ship_trail.gd (deleted)", "game/ship_trail.gd.uid (deleted)", "tools/tests/run_tests.gd", "story/screens.md", "data/story_text.json", "logs/screenshots/T358.png", "handoffs/ui-programmer/2026-11-12-T358.json"],
+  "open_questions": [
+    "Not seen by eye: the preview needs a CEO picked, and the screenshot tool cannot pick one, so the PNG shows the company screen with the preview hidden (no errors). Check the pause/play button, the plume at all angles and the Ship look block width (info column is now about 435 px, was about 510).",
+    "Ship is about 45 percent smaller in the preview (needle plume framing). If too small, lower the longest plume in the framing or raise FRAME_FILL in ship_preview.gd.",
+    "gdd.md sentence to add: The New company screen's ship preview can be paused and resumed with a round button in its corner, and the ship is framed so its longest engine plume always stays in view."
+  ],
+  "handoff": "ROOT CAUSE (measured headless, all four ships, every 10 degrees): framing. The model was fitted by hull only (radius 2.0) with the camera 3.4 away at fov 75. A needle plume tip reached 4.4 to 4.7 units from the turntable axis, so it left the frame and at many angles passed behind the camera plane (76 to 150 of 216 tip samples per ship). Depth test and additive blend were not the cause. Fix: camera 4.6 away, and the holder scale is limited so hull plus the longest plume of any shape (computed from data/exhaust.json and engine points) stays inside 92 percent of the view sphere; after the fix tips reach 0.87 of the frame at most (aspect 1), none behind the camera. Also done: old ShipTrail removed everywhere (file, Flagship, rivals, Ships.engine_back*, its test line; pathfinder_view got a small _engine_back helper because boost fx still start at the engines; _boost_k kept, flight_juice_boost_* untouched). Pause/play round button top-right of the preview, state kept for the screen, drag still works; ids LBL_PREVIEW_PAUSE and LBL_PREVIEW_PLAY, story rebuilt. PREVIEW_SIZE 325x250."
+}

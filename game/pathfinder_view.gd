@@ -56,7 +56,6 @@ extends Node3D
 ## Model forward axis is -Z after the per-model offset of Ships.MODEL_YAW_DEG (T197); the ship is turned with rotation.y = atan2(-dx, -dz).
 
 const Ships := preload("res://game/ships.gd")  # T197: per-model yaw offset
-const ShipTrail := preload("res://game/ship_trail.gd")  # T198
 const Juice := preload("res://game/juice.gd")  # T203: motion scale
 const PLAYER_SHIP_SCALE := 0.5  # T198: ship size on the map; 1.0 is the old size (T198 halved it). One constant for the player ship kind.
 const FIT_RADIUS_BASE := 0.45 * PLAYER_SHIP_SCALE  # horizontal footprint radius of the model in world units (planets are about 0.9 to 2.4 across)
@@ -69,7 +68,6 @@ static func fit_height() -> float:
 	return FIT_HEIGHT_BASE * Ships.ship_scale()
 static func sel_radius() -> float:
 	return SEL_RADIUS_BASE * Ships.ship_scale()
-const TRAIL_TINT := Color(1.0, 0.8, 0.4)  # T198: player trail, warm gold (rivals use a cool blue)
 const LIFT := 0.35             # ship hovers above the map plane so it clears planet spheres' lower rim
 const MARKER_RADIUS := 0.35
 const COL_LINE_MOVING := Color(1.0, 0.85, 0.5, 0.3)  # owner: a plain, faded line (not dashes)
@@ -160,8 +158,6 @@ var _line: MeshInstance3D
 var _mesh: ImmediateMesh
 var _marker: MeshInstance3D
 var _gig_rings: Array = []  # T273: one ring per accepted gig target (pool, grows to the board size)
-var _trail: MeshInstance3D     # T198: engine trail
-var _last_pos := Vector3.INF
 var _sel: MeshInstance3D       # T200: ring around the ship while it is selected
 var _mat: StandardMaterial3D
 var _burst_t := -1.0           # T203: seconds into the beat, -1 when idle
@@ -584,9 +580,14 @@ func _ready() -> void:
 	_sel.top_level = true
 	_sel.visible = false
 	add_child(_sel)
-	_trail = ShipTrail.new()
-	_trail.tint = TRAIL_TINT
-	add_child(_trail)
+
+## Mean engine x of the model (tuner units), where effects at the engines start.
+func _engine_back(path: String) -> float:
+	var rows := Ships.engines_for_path(path)
+	var sum := 0.0
+	for e in rows:
+		sum += (e["pos"] as Vector3).x
+	return sum / float(maxi(1, rows.size()))
 
 ## Called by map.gd every frame. Does nothing visible while the accessor is missing or discovery is off.
 func update_from(f, view_system: int, selected: bool = false) -> void:
@@ -604,7 +605,6 @@ func update_from(f, view_system: int, selected: bool = false) -> void:
 		_line.visible = false
 		_marker.visible = false
 		_sel.visible = false
-		_trail.visible = false
 		return
 	var sys := int(_call(f, "system_id", [], 1))
 	var jumping := bool(_call(f, "jumping", [], false))
@@ -615,8 +615,6 @@ func update_from(f, view_system: int, selected: bool = false) -> void:
 	if not visible:
 		_marker.visible = false
 		_sel.visible = false
-		_trail.visible = false
-		_trail.clear()
 		return
 	_ensure_model(str(_call(f, "model_path", [], "")))
 	var pos: Vector3 = _call(f, "ship_position", [], Vector3.ZERO)
@@ -629,19 +627,10 @@ func update_from(f, view_system: int, selected: bool = false) -> void:
 	if has_heading:
 		rotation.y = float(f.heading())  # T196: the ship turns at a limited rate, the accessor owns the heading
 	var paused := is_paused
-	_trail.visible = true
 	_ship_pos = pos
-	var back0 := Ships.engine_back_for_path(str(_call(f, "model_path", [], ""))) * fit_radius()
+	var back0 := _engine_back(str(_call(f, "model_path", [], ""))) * fit_radius()
 	_eng_pos = pos + Vector3(sin(rotation.y), 0.0, cos(rotation.y)) * back0
-	_trail.stretch = lerpf(1.0, _k("flight_juice_boost_stretch"), _boost_k)  # T274: stretched, brighter trail while boosting
-	_trail.glow = _boost_k
 	_fx_events(f, selected)
-	if not paused:  # T198: nothing is sampled or redrawn while paused; the trail freezes as it is
-		var moved: bool = _last_pos != Vector3.INF and _last_pos.distance_to(pos) > 0.0005
-		var back := Ships.engine_back_for_path(str(_call(f, "model_path", [], ""))) * fit_radius()  # T205: trail starts at the engines
-		var eng := pos + Vector3(sin(rotation.y), 0.0, cos(rotation.y)) * back
-		_trail.push(eng + Vector3(0, LIFT, 0), get_process_delta_time(), moved and state(f) == "flying")
-	_last_pos = pos
 	var tgt = _call(f, "target", [], {})
 	_mesh.clear_surfaces()
 	_marker.visible = false

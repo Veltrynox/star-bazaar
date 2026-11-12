@@ -11,7 +11,7 @@ const Names := preload("res://game/company_names.gd")
 const Portraits := preload("res://game/company_portraits.gd")
 const ShipPreview := preload("res://game/ship_preview.gd")
 const SHIPS_PATH := "res://data/ships.json"
-const PREVIEW_SIZE := Vector2(250, 250)
+const PREVIEW_SIZE := Vector2(325, 250)  # T358: 1.3x wider than the 250 square
 const CARD_SIZE := Vector2(184, 232)
 const STAT_KEYS := ["haggling", "thrift", "nerve"]
 

@@ -9422,6 +9422,18 @@
    "place": "company_setup.gd Ship look block"
   },
   {
+   "id": "LBL_PREVIEW_PAUSE",
+   "text": "Stop rotation",
+   "max": 24,
+   "place": "ship_preview.gd turntable button"
+  },
+  {
+   "id": "LBL_PREVIEW_PLAY",
+   "text": "Rotate",
+   "max": 24,
+   "place": "ship_preview.gd turntable button"
+  },
+  {
    "id": "SETUP_NEED_NAME",
    "text": "Enter a company name to start.",
    "max": 60,
