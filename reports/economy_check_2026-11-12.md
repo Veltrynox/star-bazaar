@@ -77,5 +77,29 @@ Eleven CEO-and-world pairs had an empty need list (the world already sold the br
 - Systems 4 and 5: switched off in the data, called live in the docs. Decide which.
 - Russian: the new and reworded texts have no translation yet (2295 of 2718 ids).
 
+## 7. Second run, after the changes of the afternoon
+
+The same 58 games were played again after the dead-world rule (every company mines its own raw), the four directions (ore as an input with regrowing clusters, obtainable rush goods, cheaper first ships and feed-first orders, upkeep whether lanes run or not with a stipend only after a loss), the route guard and the three-systems cut.
+
+| Style | Cash at end | Peak ships | 2nd ship | First tier 2 | First tier 3 | Bazaar | Repossessions (8 games) |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| trader | 7k (was 18k) | 15 | c6 (was c8) | c13 | c24 | founded c14 | 8; one game bankrupt at c74 |
+| founder | 0.1k (was 30k) | 13 | c11 | c14 | c19 | founded c15, **stage 3** (was 2) | 26; two games bankrupt at c56 and c63 |
+| captain | 58k | 3 | c6 | c10 | c16 | no | 0 |
+| expander | 4k (was 60k) | 15 | c6 | c12 | c36 | no | 17 |
+| industrialist | 40k | 9 | c6 (was c8) | c9 | c15 | no | 2 |
+| miner | 49k (was 24k) | 11 | c6 | c8 | c62 (was c26) | no | 0 |
+| idler | 19k | 1 | never | c6 | c12 | no | 0 |
+| reckless | 0.01k | 3 | c2 | c7 | never | no | 19; bankrupt at c9 to c17 (was c6 to c10, no repossession) |
+
+What the changes did:
+- **Debt is real now.** Repossession happens by play (72 across the matrix, none before), bankruptcy comes through debt and the fool lasts to cycle 9 to 17 instead of 6 to 10. The founder reached Bazaar stage 3 for the first time (ore no longer blocks the Minerals bill chain).
+- **Too harsh at the placeholder numbers for anyone who parks ships.** The expander and the founder buy to the 15-ship cap and leave ships idle; at 10 credits a cycle per idle ship plus the upkeep of idle lanes they bled into repossession, and three builder games went bankrupt in the last third of the term. The bots do not watch the forecast; a player would, but the numbers still need tuning: the idle upkeep goes to 5 as a first step, and the economy designer should set the rest when you call for a balance pass.
+- **The miner's first tier 3 moved from cycle 26 to 62**: with ore out of the need lists, a Minerals world's needs are energy and the branch's goods only, so tiers climb slower on that branch. Worth a look when the needs are next tuned.
+- **Cheaper first ships worked:** second ship at cycle 6 for most styles (was 7 to 8).
+- The idler and captain are unchanged; the late-game "cash only grows" rows remain for styles that reach the cap without a Bazaar.
+- Health: no script error, no invariant break, 111 distinct events seen, one remaining save-and-load case (an order lost in 2 of 50 round trips) traced and fixed afterwards: a Sell order for a crafted good whose buyer comes from a need was loaded before the workshops, so the good counted as hidden; workshops now load before orders, and both round trips are clean.
+- Goods never traded by any style: plate, rounds, arms, gems, alloy, seed (the tier-3 and tier-4 crafted goods); skills never learned: the tier-7, 12 and 15 nodes. These are the bots' limits as much as the game's.
+
 ## 6. Fixed today, before this run
 Save and load dropped every route; the same cycle settled twice after Continue; a script error on the gig rings and three more places that read a planet index on a point-target gig; a hub carried goods out of Space Storage with no link or route; the capital's own needs ate the Bazaar stage bill; eleven worlds with no needs; "pay a small sum" event options could push cash below zero; the Opening had no window before the win.
