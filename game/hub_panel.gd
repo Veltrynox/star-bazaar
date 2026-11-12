@@ -125,7 +125,7 @@ func refresh() -> void:
 	fl.text = StoryText.get_or("ST_HUB_POOL_FREE", "Free ships: {n}", {"n": hs.free_for_pool()})
 	fl.theme_type_variation = "LabelMuted"
 	_body.add_child(fl)
-	if hs.free_for_pool() <= 0 and hs.pool_of(hub) < int(main.balance.get("hub_pool_max", 0)):  # no free ship: buy one straight into the pool
+	if hs.pool_of(hub) < int(main.balance.get("hub_pool_max", 0)):  # always offered (owner 2026-11-12): buy one straight into the pool, whether or not a ship is free
 		var can: Dictionary = main.can_buy_ship()
 		var buy := Button.new()
 		buy.name = "PoolBuyShip"
