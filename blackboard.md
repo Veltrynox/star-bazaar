@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-12 12:10 run: T355 T356 T357
-- Summary: Ship look in the game: measured engine points per ship type (1-4, data/ships.json), a six-layer additive plume per engine with 5 shape and 10 colour presets (data/exhaust.json) on the Flagship, rivals and the company-screen preview, a hull hue shader, and the New company screen lets the player pick shape, palette and hue (per-CEO defaults in data/ceos.json, saved as ship_look, save version 23).
-- Why this task: owner request 2026-11-12 after tuning positions in tools/engine_tuner.html (also published as a private artifact).
-- Approach: T355 gameplay-programmer and T356 juice-programmer in parallel against a shared Ships.engine_points contract, then T357 ui-programmer; main session reviewed the diffs, fixed the plume shader (Godot CylinderMesh side UV.y is 0..0.5, the fade now doubles it) and the normal-map hint, wrote the gdd.md paragraph.
-- Agent prompts: Agent tool, subagent_type gameplay-programmer (T355), juice-programmer (T356), ui-programmer (T357), each told to read its brief from schedule.json; handoffs in handoffs/<agent>/2026-11-12-T35x.json.
-- Worked: three commits 0fad822, 644d93e, 9cf099c plus the tuner page 5210324; the commit hook (test gate) let each through.
-- Failed / did not work: nothing seen headless; nothing looked at in a window (owner's job).
-- Files and commits: see git log on main for T355, T356, T357.
-- Left to do: owner to check by eye: nozzle placement and +X tail direction on all four ships, plume brightness vs the tuner page, hue on corvette 01 (two-sided material) and 04, flicker frozen while paused, and that the Ship look block fits the company screen at the default window size. Idea not built: brighten the plume glow on boost.
-
 ## 2026-11-12 13:05 run: T358
 - Summary: Old two-ribbon ship trail removed (Flagship, rivals, Ships.engine_back, ship_trail.gd deleted); the company-screen ship preview has a round pause/play button in its corner and is 325x250 (1.3x wider); the cut-off plume was a framing bug, so the camera is now 4.6 away and the ship is scaled so hull plus the longest plume of any shape stays in frame (ship about 45% smaller, knob FRAME_FILL in ship_preview.gd).
 - Why this task: owner request 2026-11-12.

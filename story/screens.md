@@ -330,7 +330,9 @@ Trigger table (tip id: trigger in plain words):
 TIP_CAPITAL | 110 | Tip card line; trigger: the first world reaches the capital tier | A world has reached the capital tier. You can found the Star Bazaar there. It is final.
 TIP_CAPITAL_WHY | 110 | Tip card, why line | A run has one capital. Choose with care, then press Found the Bazaar here on the world's panel.
 TIP_FOUNDED | 110 | Tip card line; trigger: the Bazaar is founded | The Bazaar is built in stages. Each needs goods in the capital's storage and other worlds at a tier.
-TIP_FOUNDED_WHY | 110 | Tip card, why line | The Bazaar panel shows what is short. A later stage needs a world in another system.
+TIP_FOUNDED_WHY | 110 | Tip card, why line | Goods are held in the capital's storage. Set Buy there, or send them from a cheaper world.
+TIP_BILL | 110 | Tip card line; trigger: the first time a Bazaar bill item is short | A stage needs goods in the capital's own storage. Goods held elsewhere do not count.
+TIP_BILL_WHY | 110 | Tip card, why line | Turn Buy on at the capital, or send the goods from a cheaper world. The Bazaar panel shows the steps.
 TIP_OPENING | 110 | Tip card line; trigger: the last Bazaar stage is done and the Opening gig appears | The last stage posts the Opening: a gig to fly the charter cargo to the capital.
 TIP_OPENING_WHY | 110 | Tip card, why line | Accept it on the gig board (J), then dock at the capital. That opens the Star Bazaar and wins the run.
 
@@ -1704,11 +1706,31 @@ BAZ_WING_1B_LINE | 110 | Same | Hubs reach farther.
 BAZ_WING_2A_NAME | 24 | Stage 2, choice A | Wing of Tolls
 BAZ_WING_2A_LINE | 110 | Same | Worlds pay more tax.
 BAZ_WING_2B_NAME | 24 | Stage 2, choice B | Wing of Benches
-BAZ_WING_2B_LINE | 110 | Same | Workshops craft for less.
+BAZ_WING_2B_LINE | 110 | Same | Workshops cost less to build.
 BAZ_WING_3A_NAME | 24 | Stage 3, choice A | Wing of Lamps
-BAZ_WING_3A_LINE | 110 | Same | House weather lands softer on your worlds.
+BAZ_WING_3A_LINE | 110 | Same | The Flagship carries a bigger hold.
 BAZ_WING_3B_NAME | 24 | Stage 3, choice B | Wing of Couriers
-BAZ_WING_3B_LINE | 110 | Same | Gigs pay a bigger premium.
+BAZ_WING_3B_LINE | 110 | Same | Your worlds pay more tax.
+BAZ_WING_1A_DESC | 260 | Wing popup and Bazaar panel, stage 1 A; {n} is units of hold | A long dock where crates wait for the Flagship. The racks are wide and the doors tall. The Flagship carries {n} more units in its hold.
+BAZ_WING_1B_DESC | 260 | Same, stage 1 B; no {n} | A gallery of signal masts above the Bazaar roof. Each hub hears farther and serves farther. Hubs reach farther.
+BAZ_WING_2A_DESC | 260 | Same, stage 2 A; {n} is percent | The hall where clerks sit and count what each world sends up. Your worlds pay {n}% more tax each cycle.
+BAZ_WING_2B_DESC | 260 | Same, stage 2 B; {n} is percent, build cost only | A long room of vises and lathes, open to any crew. New workshops cost {n}% less to build. Crafting costs do not change.
+BAZ_WING_3A_DESC | 260 | Same, stage 3 A; {n} is units of hold (what the code does today) | A loading dock under the Bazaar lamps, lit through the night shift. The Flagship carries {n} more units in its hold.
+BAZ_WING_3B_DESC | 260 | Same, stage 3 B; {n} is percent (what the code does today) | The couriers' stair, where each day's count goes up to the Bureau. Your worlds pay {n}% more tax each cycle.
+
+
+### Bazaar guidance (2026-11-12, T363)
+Placeholders: {stage} stage name, {amount} units still short, {good} good name (shown goods only), {capital} the capital world, {source} the cheaper world, {price} and {local} credits per unit, {n} count, {tier} tier name, {planet} world name, {line} the step line. Wing descriptions: {n} is the absolute effect amount from data/balance.json (unit named in each row).
+BAZ_HOW | 200 | Bazaar panel, paragraph under the title | The Bazaar is raised in stages. Each needs goods held in the capital's own storage and other worlds grown to a tier. Each must be done before the term ends.
+BAZ_STEP_BILL | 220 | Bazaar panel and capital card, under a short bill row | {stage} needs {amount} more {good} held in {capital}'s storage. Buy it at {source} ({price} cr) and send it to {capital}, or turn Buy on at {capital} ({local} cr).
+BAZ_STEP_BILL_LOCAL | 160 | Same, when only the capital sells the good | {stage} needs {amount} more {good} held in {capital}'s storage. Turn Buy on for it at {capital} ({local} cr).
+BAZ_STEP_BILL_FED | 160 | Same, when a Buy order or route already feeds it | {stage}: {amount} more {good} still to reach {capital}. Your Buy or route is on. Give it a few cycles.
+BAZ_STEP_QUORUM | 120 | Same, quorum step | {stage} needs {n} more worlds at {tier}. Meet their needs every cycle.
+BAZ_STEP_REACH | 120 | Same, reach step | {stage} needs a world in another system. Buy a permit in Skills, then establish a post there.
+BAZ_BTN_BUY_AT | 24 | Bazaar panel, button under a bill row | Buy at {planet}
+BAZ_BTN_SEND_TO | 24 | Bazaar panel, button under a bill row | Send to {planet}
+BAZ_CARD_TITLE | 40 | Capital card block and Bazaar card, title | Star Bazaar: {stage}
+NOT_BAZAAR_REMIND | 110 | Cycle-end notice while a bill item is short and not fed | Star Bazaar: {line}
 
 ### Recap
 RECAP_TITLE | 40 | End screen, heading of the recap | The run in brief

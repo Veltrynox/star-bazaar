@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "agent": "story-designer",
+  "date": "2026-11-12",
+  "task": "T363",
+  "status": "done",
+  "files_changed": [
+    "story/screens.md",
+    "data/story_text.json"
+  ],
+  "open_questions": [
+    "Stage 3 wings in data/bazaar.json are hold_units and tax_pct, but names/lines say Lamps (weather) and Couriers (gigs). DESC texts follow the code; change data or the NAME/LINE rows?",
+    "BAZ_WING_2B_LINE says 'craft for less' but code cuts workshop build cost only; DESC says build."
+  ],
+  "handoff": "Ready to wire: BAZ_HOW, BAZ_STEP_BILL/_LOCAL/_FED/_QUORUM/_REACH, BAZ_BTN_BUY_AT, BAZ_BTN_SEND_TO, BAZ_CARD_TITLE, NOT_BAZAAR_REMIND, TIP_BILL, TIP_BILL_WHY, TIP_FOUNDED_WHY (rewritten), BAZ_WING_<id>_DESC x6. {n} units: 1A hold units, 2A percent tax, 2B percent off build cost, 3A hold units, 3B percent tax. 1B has no {n}. Fill {n} as absolute value. BAZ_STEP_* in the section 'Bazaar guidance' of screens.md. Not translated, no tests run.",
+  "details": {}
+}
