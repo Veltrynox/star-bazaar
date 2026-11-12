@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-12",
+  "task": "T355",
+  "status": "done",
+  "files_changed": ["data/ships.json", "game/ships.gd", "tools/tests/run_tests.gd", "handoffs/gameplay-programmer/2026-11-12-T355.json"],
+  "open_questions": [],
+  "handoff": "Measured engine points are now data: every ship type in data/ships.json has an engines list (pos in tuner units, size 0.5). ENGINE_BACK is gone. Ships API: engines, engines_for_path, engine_points, engine_points_for_path; engine_back and engine_back_for_path stay as the mean x. Types without the field get one engine at (0.9, 0, 0). Tests added in _test_ships; not run (owner rule). ships.gd parses.",
+  "details": {}
+}

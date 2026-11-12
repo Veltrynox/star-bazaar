@@ -3745,6 +3745,69 @@
         "tools/tests/run_tests.gd"
       ],
       "priority": 1
+    },
+    {
+      "task_id": "T355",
+      "title": "Engine positions per ship type as data (1-4 engines), Ships API",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 25,
+      "window": "Owner request 2026-11-12: engine positions measured with tools/engine_tuner.html; 'we need to include it in the game for the user to choose when we choose the CEO, each CEO can have a different visual ship (ship settings stay); also allow the player to tune the hue color of the ship texture'.",
+      "brief": "Replace the single ENGINE_BACK guess in game/ships.gd with measured engine points as data. data/ships.json: every type gets \"engines\": a list of 1 to 4 {\"pos\": [x, y, z], \"size\": s} rows, size 0.5 for all, positions (tuner units, see contract): small: [0.82, 0.03, -0.16], [0.82, 0.03, 0.15], [0.78, -0.15, -0.17], [0.82, -0.15, 0.15]; bulk: [0.79, 0.08, -0.17], [0.79, 0.08, 0.17]; dart: [0.9, 0.05, 0.05], [0.9, -0.11, -0.08], [0.9, -0.11, 0.08]; fleet: [0.76, 0.01, -0.34], [0.76, 0.01, 0.29], [0.76, 0.01, 0.1], [0.76, 0.01, -0.1]. Extend the file's note field with the units: model axes nose -X, tail +X, Y up, Z side; origin at the model AABB centre; 1.0 = half the AABB diagonal; measured 2026-11-12 with tools/engine_tuner.html. game/ships.gd: delete the ENGINE_BACK constant and build the API below from the data; a type without the field gets one engine at [0.9, 0, 0] size 0.5. Keep MODEL_YAW_DEG. Keep rival_ships.gd and pathfinder_view.gd unchanged (they call engine_back, which stays). Shared API contract (T355 builds it, T356 and T357 call it; do not change the signatures): in game/ships.gd static func engines(kind: String) -> Array of {\"pos\": Vector3, \"size\": float} in tuner units; static func engines_for_path(path: String) -> Array (same, by GLB path); static func engine_points(kind: String, box: AABB) -> Array of {\"pos\": Vector3, \"size\": float} in MODEL-LOCAL units, where box is the model's measured AABB (the same _bounds / _aabb the views already compute): pos_local = box.get_center() + pos * r and size_local = size * r with r = box.size.length() * 0.5 (half the AABB diagonal; this is exactly the inverse of the tuner's normalisation); static func engine_points_for_path(path: String, box: AABB) -> Array. Tuner units: model axes (nose -X, tail +X, Y up, Z side), origin at the AABB centre, 1.0 = half the AABB diagonal. engine_back(kind) and engine_back_for_path(path) stay as derived values (mean x of the engines) so the trail callers keep working. Test in tools/tests/run_tests.gd _test_ships: every type has 1..4 engines, each pos three numbers within -1.5..1.5, size > 0; engine_points maps pos (0,0,0) to the AABB centre and pos (1,0,0) to centre + half diagonal along x; engine_back equals the mean x. Do not run the test suite (owner rule in CLAUDE.md); a task is done when built. Do not touch other files. Do not commit. Handoff handoffs/gameplay-programmer/2026-11-12-T355.json.",
+      "size": "S",
+      "touches": [
+        "data/ships.json",
+        "game/ships.gd",
+        "tools/tests/run_tests.gd"
+      ],
+      "priority": 1
+    },
+    {
+      "task_id": "T356",
+      "title": "Engine plume: 6-layer additive exhaust with shape and colour presets, ship hue shader",
+      "owner_agent": "juice-programmer",
+      "depends_on": [],
+      "status": "queued",
+      "turn_cap": 45,
+      "window": "Owner request 2026-11-12: engine positions measured with tools/engine_tuner.html; 'we need to include it in the game for the user to choose when we choose the CEO, each CEO can have a different visual ship (ship settings stay); also allow the player to tune the hue color of the ship texture'.",
+      "brief": "Port the exhaust from tools/engine_tuner.html (read its <script type=module>: layerGeometry, blastFrag, buildExhaust, SHAPE_PRESETS, COLOR_PRESETS) to Godot 4 so every ship model drawn from a GLB gets a plume at each of its engine points. 1) data/exhaust.json: \"shapes\" (id -> {shape cone|cylinder, offset, spread, length, len_step, radius}): torch {shape cone, offset 0.06, spread 0.18, length 1.4, len_step 0.08, radius 0.16}; needle {cone, 0.02, 0.08, 2.6, -0.06, 0.09}; bloom {cone, 0.12, 0.42, 0.8, -0.1, 0.2}; pillar {cylinder, 0.0, 0.1, 1.6, -0.12, 0.12}; rings {cylinder, 0.25, 0.06, 0.5, 0.0, 0.16}. \"palettes\" (id -> six hex colours, core first): infrared [#ffffff #fff1a8 #ff9a2e #ff3a1c #c8189a #4b0c8f]; ironbow [#ffffff #ffe36b #ff8c1a #d8301c #7a1a7e #1a0633]; plasma [#ffffff #c8f4ff #5fd8ff #2b7bff #3b2fd8 #120a5a]; ion [#f4fffb #b8ffe6 #52e8c2 #1fa8c8 #1b4fa0 #0b1c4a]; fusion [#ffffff #e8ffb0 #9cff4a #2fd36b #1a7a6e #0a2b3a]; ember [#fff6d8 #ffc24a #ff7a1a #c62a12 #6b1206 #1f0603]; antimatter [#ffffff #ffc8f4 #ff5ad6 #b32bd8 #5a1fb8 #160a3a]; sunfire [#fffce0 #ffe94a #ffb000 #ff6a00 #c41e00 #3a0a00]; arctic [#ffffff #e4f6ff #aee0ff #6fb4ff #3a6fd8 #152a6b]; void [#f0e8ff #c9b4ff #8f6bff #5a3ad8 #2a1a8a #080418]. \"defaults\": {shape torch, palette infrared, glow 1.2, flicker 0.35, layers 6, alpha_step 0.12}, \"rival_palette\": plasma. Names shown to the player are story text ids LBL_LOOK_SHAPE_<ID> and LBL_LOOK_PALETTE_<ID> (T357 adds them; you only read ids). 2) game/fx/engine_plume.gd (class EnginePlume extends Node3D) and game/fx/engine_plume.gdshader. API: set_engines(points: Array) with model-local {pos, size} rows (from Ships.engine_points, contract below); set_look(look: Dictionary) with keys shape (id), palette (id), optional glow, flicker, params (dict overriding the shape numbers) and colors (six Colors overriding the palette); var clock: Callable returning game seconds (flicker freezes while paused; follow the clock callable pattern of game/galaxy/asteroid_packs.gd), falling back to an own counter. Per engine six layers, layer i: radius r*(1+i*spread), length max(0.02, L*(1+i*len_step)), nozzle at the engine point shifted i*offset along +X, alpha 1 - i*alpha_step, colour palette[i]; cone = open cylinder top radius r at the nozzle tapering to r*0.02, cylinder = constant r; the axis runs along model +X (the tail), nozzle at the engine point, all scaled by the engine size. Shader: unshaded, additive blend, no depth write, cull disabled, render after opaque; alpha = smoothstep(0,0.08,t) * pow(1-t,1.6) * mix(0.25,1,abs(dot(N,V))) * flicker * layer alpha with t = 0 at the nozzle and 1 at the far end, flicker = mix(1, 0.55+0.45*(f1*0.6+f2*0.4), flicker_k) with f1 = sin(t*26 - time*9 + seed)*0.5+0.5 and f2 = sin(t*61 + time*14 + seed*3.1)*0.5+0.5, colour = col * glow * alpha (same as the page). Build meshes once per set_engines/set_look, nothing allocated per frame; at most 24 MeshInstance3D per ship (or one MultiMesh per layer). 3) Attach it as a child of the GLB model node (so the fit scale and the T197 yaw pivot apply) in: game/pathfinder_view.gd _ensure_model (~line 743; box from its _bounds; look from a new func set_look(look) on the view, default look until T357 wires the run's choice; hidden together with the ship while it is in transit); game/rival_ships.gd _make_ship (~line 171; default shape, palette = rival_palette); game/ship_preview.gd show_model(path, look := {}) plus set_look(look) that re-styles without reloading. 4) Ship hue: game/fx/ship_hue.gdshader and a new static helper game/ship_look.gd: apply_hue(model: Node3D, hue: float) replaces every MeshInstance3D surface material that is a BaseMaterial3D with a ShaderMaterial reproducing albedo texture x albedo colour, the normal map if any, roughness and metallic, and rotates the hue of the albedo by hue (0..1 = one turn; 0 leaves the texture as is) before lighting; keep the original material so hue 0 can restore it; apply once per change, cache per (material, hue). ship_look.gd also gives default_look() from exhaust.json defaults and look_of_ceo(ceo_id) reading an optional \"look\" {shape, palette, hue} row of data/ceos.json (T357 adds it; fall back to default_look()). The preview and the Flagship apply the hue together with the plume look. Shared API contract (T355 builds it, T356 and T357 call it; do not change the signatures): in game/ships.gd static func engines(kind: String) -> Array of {\"pos\": Vector3, \"size\": float} in tuner units; static func engines_for_path(path: String) -> Array (same, by GLB path); static func engine_points(kind: String, box: AABB) -> Array of {\"pos\": Vector3, \"size\": float} in MODEL-LOCAL units, where box is the model's measured AABB (the same _bounds / _aabb the views already compute): pos_local = box.get_center() + pos * r and size_local = size * r with r = box.size.length() * 0.5 (half the AABB diagonal; this is exactly the inverse of the tuner's normalisation); static func engine_points_for_path(path: String, box: AABB) -> Array. Tuner units: model axes (nose -X, tail +X, Y up, Z side), origin at the AABB centre, 1.0 = half the AABB diagonal. engine_back(kind) and engine_back_for_path(path) stay as derived values (mean x of the engines) so the trail callers keep working. T355 builds that API in parallel: do not edit game/ships.gd or data/ships.json; if the functions are not there yet when you test, stub nothing, just code against the contract. Keep the existing ship trail (game/ship_trail.gd) as it is. Do not run the test suite (owner rule in CLAUDE.md); a task is done when built. Add a headless test in tools/tests/run_tests.gd: an EnginePlume with two engines and the torch/infrared look has 12 layer meshes with the right per-layer radii and colours, set_look to pillar rebuilds them as cylinders, and ShipLook.apply_hue(model, 0.5) swaps the material and apply_hue(model, 0.0) restores the original. Do not commit. Handoff handoffs/juice-programmer/2026-11-12-T356.json.",
+      "size": "L",
+      "touches": [
+        "data/exhaust.json",
+        "game/fx/engine_plume.gd",
+        "game/fx/engine_plume.gdshader",
+        "game/fx/ship_hue.gdshader",
+        "game/ship_look.gd",
+        "game/pathfinder_view.gd",
+        "game/rival_ships.gd",
+        "game/ship_preview.gd",
+        "tools/tests/run_tests.gd"
+      ],
+      "priority": 1
+    },
+    {
+      "task_id": "T357",
+      "title": "Ship look on the New company screen: shape, colour and hue per run, CEO defaults, saved",
+      "owner_agent": "ui-programmer",
+      "depends_on": [
+        "T355",
+        "T356"
+      ],
+      "status": "queued",
+      "turn_cap": 40,
+      "window": "Owner request 2026-11-12: engine positions measured with tools/engine_tuner.html; 'we need to include it in the game for the user to choose when we choose the CEO, each CEO can have a different visual ship (ship settings stay); also allow the player to tune the hue color of the ship texture'.",
+      "brief": "Let the player pick the ship's look when choosing the CEO; the ship type and its stats stay fixed by the CEO. 1) data/ceos.json: every CEO gets \"look\": {\"shape\": id, \"palette\": id, \"hue\": 0..1}, all four different (ids from data/exhaust.json; e.g. torch/infrared/0, needle/plasma/0.55, pillar/ember/0.08, bloom/ion/0.78); extend the note. 2) game/company_setup.gd: under the ship preview (built by _add_ship, ~line 281) a Ship look block: a row of five shape buttons (label = StoryText.get_or('LBL_LOOK_SHAPE_' + id.to_upper(), id.capitalize())), a row of ten palette swatches (each a small button drawing the six colours as a horizontal strip, tooltip = LBL_LOOK_PALETTE_<ID>), and a hue HSlider 0..1 with a label LBL_LOOK_HUE ('Hull hue'). Selecting a CEO loads that CEO's look (ShipLook.look_of_ceo); every change re-styles the preview live via ShipPreview.set_look and ShipLook.apply_hue. commit() also sets a new SaveGame.pending_look (Dictionary {shape, palette, hue}). Add the new text ids to story/screens.md next to SETUP_NEED_CEO and rebuild with python3 tools/build_story.py (never edit data/story_text.json by hand; English only, no Russian). 3) game/main.gd: var ship_look: Dictionary saved under key \"ship_look\" (next to ceo_id / ship_type in the state dict ~line 522); set from pending_look on a new game (~line 448, fallback ShipLook.look_of_ceo); on load an older save without the key gets the CEO's default look. game/save_game.gd: VERSION 22 -> 23 and one sentence in the header note (Version 23 = ship look, T357; an older save loads with the CEO default, nothing to migrate). Pass the look to the Flagship view (pathfinder_view.set_look from T356) on new game and on load, and the hue to its model. Nothing in Ships stats, prices or routes changes. 4) Test in tools/tests/run_tests.gd: a new game with pending_look set keeps it in main.ship_look and in the saved state; loading that state returns the same look; a v22 state without the key loads with the CEO's default look. Do not run the test suite (owner rule in CLAUDE.md); a task is done when built. Do not commit. Handoff handoffs/ui-programmer/2026-11-12-T357.json.",
+      "size": "M",
+      "touches": [
+        "data/ceos.json",
+        "game/company_setup.gd",
+        "game/main.gd",
+        "game/save_game.gd",
+        "story/screens.md",
+        "tools/tests/run_tests.gd"
+      ],
+      "priority": 1
     }
   ],
   "done_task_ids": [

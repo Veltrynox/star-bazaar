@@ -3918,6 +3918,25 @@ func _test_ships() -> void:
 	var Sh = load("res://game/ships.gd")
 	check(Sh.types() == ["small", "bulk", "dart", "fleet"] and Sh.price("small", bal) == int(bal["ship_price"]), "T58: four ship types, small price from balance")
 	check(Sh.display_name("small") == "Skerrit", "T58: plain fallback name")
+	var eng_ok := true
+	for k in Sh.types():
+		var rows: Array = Sh.engines(str(k))
+		eng_ok = eng_ok and rows.size() >= 1 and rows.size() <= 4
+		var sx := 0.0
+		for row in rows:
+			var pv: Vector3 = row["pos"]
+			eng_ok = eng_ok and absf(pv.x) <= 1.5 and absf(pv.y) <= 1.5 and absf(pv.z) <= 1.5 and float(row["size"]) > 0.0
+			sx += pv.x
+		eng_ok = eng_ok and is_equal_approx(Sh.engine_back(str(k)), sx / float(rows.size()))
+	check(eng_ok, "T355: every ship type has 1..4 engines with pos within -1.5..1.5, size > 0, engine_back is the mean x")
+	var ebox := AABB(Vector3(-2, -1, -0.5), Vector3(4, 2, 1))
+	var er: float = ebox.size.length() * 0.5
+	var ep: Array = Sh.engine_points("small", ebox)
+	var e0: Dictionary = Sh.engines("small")[0]
+	var map_ok: bool = ep.size() == Sh.engines("small").size() and (ep[0]["pos"] as Vector3).is_equal_approx(ebox.get_center() + (e0["pos"] as Vector3) * er) and is_equal_approx(float(ep[0]["size"]), float(e0["size"]) * er)
+	check(map_ok, "T355: engine_points maps tuner pos to model-local by centre + pos * half diagonal")
+	var unit: Array = Sh._to_local([{"pos": Vector3.ZERO, "size": 1.0}, {"pos": Vector3(1, 0, 0), "size": 1.0}], ebox)
+	check((unit[0]["pos"] as Vector3).is_equal_approx(ebox.get_center()) and (unit[1]["pos"] as Vector3).is_equal_approx(ebox.get_center() + Vector3(er, 0, 0)), "T355: pos (0,0,0) is the AABB centre, (1,0,0) is centre + half diagonal along x")
 	m.cash = 10000
 	check(m.buy_ship()["ok"] and m.ships == 1 and m.cash == 10000 - int(bal["ship_price"]), "T58: buy charges ship_price")
 	var e = m.engine
