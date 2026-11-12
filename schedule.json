@@ -4178,7 +4178,7 @@
       "depends_on": [
         "T374"
       ],
-      "status": "queued",
+      "status": "done",
       "turn_cap": 35,
       "window": "Owner request 2026-11-12: 'When the gig time runs out and the ship is still flying to it, the ship should stop and an animation should play over the ship; a UI and juice programmer job as well as the gameplay one'.",
       "brief": "UI PART (after T374, read its handoff). When a gig the Flagship was flying to expires (Gigs.offer_expired with was_target true): the gig board row (game/gig_board.gd) of that offer does not just vanish: it stays for about 2 seconds of real time greyed with the label GIG_ROW_EXPIRED ('Gone quiet') and then fades out; the Flagship card in the Ships menu and the Flagship details panel (game/ship_panel.gd, game/flagship_panel.gd) show the status 'Holding position: the signal went quiet' (new id LBL_FLAGSHIP_HELD) until the next order; the course line and the target droplet disappear at once (check game/pathfinder_view.gd draws nothing for an empty target). English only, ids in story/screens.md, rebuild with python3 tools/build_story.py. Render check per CLAUDE.md: scratch render of the board with the greyed row and of the ship card status; Read the PNGs. Do not run the test suite, do not commit. Do not touch the juice in game/pathfinder_view.gd except the course line check (the juice-programmer works there in parallel). Handoff handoffs/ui-programmer/2026-11-12-T376.json with the PNG paths.",

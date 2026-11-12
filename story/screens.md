@@ -1353,6 +1353,7 @@ LBL_PATHFINDER_IDLE | 60 | Ship panel, not flying and not building | Pathfinder 
 LBL_HERO_STATE_IDLE | 24 | Ships menu hero card, state line, ship waiting | Idle
 LBL_HERO_STATE_FLYING | 24 | Ships menu hero card, state line, ship flying | Flying
 LBL_HERO_STATE_BUILDING | 24 | Ships menu hero card, state line, ship building a post | Building
+LBL_FLAGSHIP_HELD | 60 | Ships menu hero card state line and Flagship details status, after the signal it flew to went quiet; until the next order | Holding position: the signal went quiet
 LBL_HERO_HINT | 60 | Ships menu hero card, tooltip: click selects the ship, then click the map to send it | Click to select. Then click the map to fly.
 BTN_ESTABLISH_POST | 24 | Planet panel of a living world the Pathfinder has reached | Establish trading post
 BTN_ESTABLISH_PLATFORM | 28 | Planet panel of a dead world the Pathfinder has reached, only after Prospecting-level mining is learned (long button: exception to the 24 limit) | Establish mining platform
@@ -1870,6 +1871,8 @@ GIG_ETA | 60 | gig_board.gd:195
 ETA {cycles} cycles, left {left}
 GIG_ETA_NONE | 30 | gig_board.gd:193
 Out of reach
+GIG_ROW_EXPIRED | 24 | Gig board, the row of an offer that ran out while the Flagship flew to it; greyed for 2 seconds, then gone
+Gone quiet
 GIG_KIND_OPENING | 24 | gig_board.gd:77
 The Opening
 GIG_KIND_SALVAGE | 24 | gig_board.gd:79

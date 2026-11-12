@@ -12,6 +12,9 @@ signal closed
 var main: Control
 var _body: VBoxContainer
 var _rows := {}    # uid -> {bar, eta, accept, span}
+var _ghosts := {}   # card node -> true: rows of offers that just ran out, kept greyed until their fade ends
+const GHOST_HOLD_S := 2.0   # real seconds the greyed row stays
+const GHOST_FADE_S := 0.5
 var _spans := {}   # uid -> longest remaining seen (the bar's full length)
 
 func setup(main_node: Control) -> void:
@@ -40,6 +43,7 @@ func setup(main_node: Control) -> void:
 	_body.add_theme_constant_override("separation", 8)
 	root.add_child(_body)
 	main.gigs.changed.connect(refresh)
+	main.gigs.offer_expired.connect(_on_offer_expired)
 
 func open_screen() -> void:
 	visible = true
@@ -59,9 +63,12 @@ func refresh() -> void:
 	if _body == null or not visible:
 		return
 	for c in _body.get_children():
-		c.queue_free()
+		if not _ghosts.has(c):
+			c.queue_free()
 	_rows = {}
 	var gigs = main.gigs
+	if gigs.offers.is_empty() and not _ghosts.is_empty():
+		return
 	if gigs.offers.is_empty():
 		var l := Label.new()
 		l.text = StoryText.get_or("GIG_BOARD_EMPTY", "No offers right now. Signals appear as the run goes on.")
@@ -169,7 +176,30 @@ func _add_row(o: Dictionary) -> void:
 	why_l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	why_l.visible = false
 	col.add_child(why_l)
-	_rows[uid] = {"bar": bar, "eta": eta_l, "accept": accept, "why": why_l}
+	_rows[uid] = {"card": card, "bar": bar, "eta": eta_l, "accept": accept, "why": why_l}
+
+## T376: the offer the Flagship flew to ran out: its row stays greyed with "Gone quiet", then fades out (real time, no game clock).
+## Fires before the board's own refresh (changed follows), which leaves ghost rows alone.
+func _on_offer_expired(uid: String, _kind: String, was_target: bool) -> void:
+	if not was_target or not visible or not _rows.has(uid):
+		return
+	var r: Dictionary = _rows[uid]
+	_rows.erase(uid)
+	var card: PanelContainer = r["card"]
+	_ghosts[card] = true
+	(r["accept"] as Button).visible = false
+	(r["bar"] as ProgressBar).value = 0.0
+	(r["why"] as Label).visible = false
+	var eta_l: Label = r["eta"]
+	eta_l.text = StoryText.get_or("GIG_ROW_EXPIRED", "Gone quiet")
+	card.modulate = Color(0.6, 0.6, 0.6, 0.8)
+	var tw := card.create_tween()
+	tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+	tw.tween_interval(GHOST_HOLD_S)
+	tw.tween_property(card, "modulate:a", 0.0, GHOST_FADE_S)
+	tw.tween_callback(func():
+		_ghosts.erase(card)
+		card.queue_free())
 
 func _live() -> void:
 	var amber := float(main.balance.get("gig_marker_amber_cycles", 2.0))

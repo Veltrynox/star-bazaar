@@ -19,11 +19,14 @@ var hold_label: Label
 var boost_button: Button
 var stats_label: Label
 var _box: VBoxContainer
+var _held := false  # T376: the signal the Flagship flew to went quiet; it holds position until the next order
 
 func setup(main_node: Control) -> void:
 	main = main_node
 	visible = false  # expanded or not: the card in the Ships menu toggles it
 	mouse_filter = Control.MOUSE_FILTER_PASS
+	if main.flight != null and main.flight.has_signal("flight_aborted"):
+		main.flight.flight_aborted.connect(_on_aborted)
 	_box = VBoxContainer.new()
 	_box.add_theme_constant_override("separation", 6)
 	add_child(_box)
@@ -102,6 +105,17 @@ func _process(_delta: float) -> void:
 	if visible:
 		refresh()
 
+func _on_aborted(reason: String, _pos: Vector3) -> void:
+	_held = reason == "gig_expired"
+	if _held and main.ship_panel != null:
+		main.ship_panel.set_upkeep(main)  # the Ships card shows the status at once, not at the next refresh
+
+## T376: true from the abort until the ship is given another order (it leaves idle).
+func is_held(f) -> bool:
+	if _held and PathfinderView.state(f) != "idle":
+		_held = false
+	return _held
+
 ## Called with the Ships panel refresh: keeps the texts current while the panel is shut (no preview, no closing).
 func refresh_closed() -> void:
 	if not visible and main != null and main.map != null and Availability.hero_ship(main.map.flight):
@@ -129,6 +143,8 @@ func refresh() -> void:
 		else:
 			status = StoryText.get_or("LBL_PATHFINDER_FLYING_UNKNOWN", "Pathfinder flying to an unknown world")
 			target_text = StoryText.get_text("LBL_FLAGSHIP_TARGET").replace("{planet}", StoryText.get_or("LBL_UNKNOWN_WORLD", "unknown"))
+	if is_held(f):
+		status = StoryText.get_or("LBL_FLAGSHIP_HELD", "Holding position: the signal went quiet")
 	status_label.text = status
 	explore_button.visible = true
 	var exploring := bool(PathfinderView._call(f, "exploring", [], false))

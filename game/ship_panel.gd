@@ -21,6 +21,7 @@ var core_scroll: ScrollContainer
 var core_box: VBoxContainer  # Null Core: one Fit button per ship while a built core is not on it
 var _core_sig := ""
 var hero_card: PanelContainer  # T317: hero ship card, first in the menu; a click selects the flight ship like a viewport click
+var _fp: Control  # T376: the Flagship details panel (owns the held flag)
 var hero_icon: TextureRect  # T351: static Flagship icon in the card
 var hero_name: Label
 var hero_state: Label
@@ -119,6 +120,7 @@ func _build_hero_card(box: VBoxContainer) -> void:
 
 ## The Flagship details section goes right under the card; its explore icon button sits inside the card at its right end.
 func attach_flagship(fp: Control) -> void:
+	_fp = fp
 	if not is_node_ready():
 		await ready
 	_hero_inner.add_child(fp.explore_button)  # inside the card but its own button: a click on it never reaches the card
@@ -175,6 +177,8 @@ func _set_hero_card(main: Control) -> void:
 	var key := "LBL_HERO_STATE_FLYING" if st == "flying" else ("LBL_HERO_STATE_BUILDING" if st == "building" else "LBL_HERO_STATE_IDLE")
 	hero_name.text = StoryText.get_or("LBL_PATHFINDER_NAME", "Pathfinder")
 	hero_state.text = StoryText.get_text(key)
+	if _fp != null and _fp.is_held(f):
+		hero_state.text = StoryText.get_or("LBL_FLAGSHIP_HELD", "Holding position: the signal went quiet")  # T376
 
 ## T69: each ship's upkeep per cycle (paid while its route moves stock; an idle ship pays 0) and the total.
 ## T58: lines carry the ship type name; buy buttons show price and upkeep per type.

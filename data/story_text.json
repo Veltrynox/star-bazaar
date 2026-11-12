@@ -6302,6 +6302,12 @@
    "place": "Ships menu hero card, state line, ship building a post"
   },
   {
+   "id": "LBL_FLAGSHIP_HELD",
+   "text": "Holding position: the signal went quiet",
+   "max": 60,
+   "place": "Ships menu hero card state line and Flagship details status, after the signal it flew to went quiet; until the next order"
+  },
+  {
    "id": "LBL_HERO_HINT",
    "text": "Click to select. Then click the map to fly.",
    "max": 60,
@@ -8598,6 +8604,12 @@
    "text": "Out of reach",
    "max": 30,
    "place": "gig_board.gd:193"
+  },
+  {
+   "id": "GIG_ROW_EXPIRED",
+   "text": "Gone quiet",
+   "max": 24,
+   "place": "Gig board, the row of an offer that ran out while the Flagship flew to it; greyed for 2 seconds, then gone"
   },
   {
    "id": "GIG_KIND_OPENING",

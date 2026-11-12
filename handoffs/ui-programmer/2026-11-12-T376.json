@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-12",
+  "task": "T376",
+  "status": "done",
+  "files_changed": ["game/gig_board.gd", "game/flagship_panel.gd", "game/ship_panel.gd", "story/screens.md", "data/story_text.json", "handoffs/ui-programmer/2026-11-12-T376.json"],
+  "open_questions": [],
+  "handoff": "Gig board: on offer_expired(was_target true) the open row stays greyed (accept button hidden, bar empty, label GIG_ROW_EXPIRED 'Gone quiet') for 2 s real time, then fades 0.5 s and is freed; refresh leaves ghost rows alone. Flagship card (ship_panel) and details status (flagship_panel) show LBL_FLAGSHIP_HELD after flight_aborted('gig_expired') until the ship leaves idle (next order); the card updates at once. Course line: pathfinder_view already draws nothing for an empty target, file untouched. Scratch renders (Russian locale active, new English ids shown as fallback): /Volumes/Work/scratch/t376/board_ghost.png, board_after.png, ship_card.png, script shot.gd in same folder. Ghost row keeps its place at the top while new rows append below.",
+  "details": {}
+}
