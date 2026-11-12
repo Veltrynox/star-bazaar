@@ -119,17 +119,6 @@ func net_forecast() -> int:
 		return 0
 	return int(main.engine.forecast(main.cash)["delta"])
 
-## Credits leaving per cycle (the Expenses block of the forecast): costs of standing orders and route trips plus upkeep.
-func expenses_total() -> int:
-	if main == null:
-		return 0
-	var total := 0
-	for l in order_lines():
-		if int(l[1]) < 0:
-			total -= int(l[1])
-	for l in route_expense_lines():
-		total += int(l[1])
-	return total
 
 ## Only lines worth something are listed; a 0 line is not an income or an expense. Totals are unaffected.
 func nonzero_lines(lines: Array) -> Array:

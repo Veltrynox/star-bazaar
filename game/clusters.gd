@@ -3,12 +3,9 @@ extends RefCounted
 ## (like a planet node), the ship loads ore free, the cost is the lane. Richness is finite and never respawns.
 ## Definitions: data/asteroid_clusters.json. Numbers: balance.json (mining_cluster_richness, mining_yield_per_cycle,
 ## mining_clusters_s<N>, mining_event_cluster_richness). Cluster i is route node id node_id(i) = -(BASE + i).
-## T295: each cluster has a mining intensity (gentle, normal, hard; DeadWorlds.STEPS; Minerals runs only) with balance keys
-## mining_intensity_yield_<step> / mining_intensity_danger_<step>. UI getters: stock_left(i), cycles_left(i), intensity_of(i), set_intensity(i, step),
-## yield_per_cycle(i), danger_mult(i). Saved inside to_dict() under "intensity" {cluster id: step}.
+## UI getters: stock_left(i), cycles_left(i), yield_per_cycle(i).
 ## T157 reads list() / visible_count() for the map; the planet panel reads near_planet() / ore_line data.
 
-const DeadWorlds := preload("res://game/dead_worlds.gd")
 const PATH := "res://data/asteroid_clusters.json"
 const BASE := 1000  # node ids <= -BASE are clusters (-1 .. -999 are Space Storage stations: -system id)
 const NEAR_PX := 260.0  # map units: a cluster within this distance of a planet is "near" it (panel line); display only
@@ -84,7 +81,7 @@ func setup(bal: Dictionary) -> void:
 		var rich := int(balance.get("mining_cluster_richness", 0))
 		items.append({"id": str(d["id"]), "system": sid, "x": float(d.get("x", 0)), "y": float(d.get("y", 0)),
 			"radius": float(d.get("radius", 40)), "count": int(d.get("count", 1)), "good": str(d.get("good", default_good)),
-			"max": rich, "left": rich, "spawned": false, "t0": 0.0, "intensity": DeadWorlds.DEFAULT_STEP})
+			"max": rich, "left": rich, "spawned": false, "t0": 0.0})
 
 func find(id: String) -> int:
 	for i in items.size():
@@ -105,26 +102,11 @@ func system_of(i: int) -> int:
 	return int(items[i]["system"]) if valid(i) else 1
 
 ## Units one cluster gives per cycle, shared by every ship on it (mining_yield_per_cycle).
-## With a cluster index the cluster's intensity multiplier applies (T295).
-func yield_per_cycle(i: int = -1) -> int:
-	var m := DeadWorlds.yield_mult_for(balance, intensity_of(i)) if valid(i) else 1.0
-	return floori(float(balance.get("mining_yield_per_cycle", 0)) * Skills.cluster_yield_mult() * m)
+func yield_per_cycle(_i: int = -1) -> int:
+	return floori(float(balance.get("mining_yield_per_cycle", 0)) * Skills.cluster_yield_mult())
 
 func stock_left(i: int) -> int:
 	return left(i)
-
-func intensity_of(i: int) -> int:
-	return clampi(int(items[i].get("intensity", DeadWorlds.DEFAULT_STEP)), 0, DeadWorlds.STEPS.size() - 1) if valid(i) else DeadWorlds.DEFAULT_STEP
-
-## False when the lever is closed (not a Minerals run) or the cluster is unknown.
-func set_intensity(i: int, step: int) -> bool:
-	if not valid(i) or not DeadWorlds.intensity_open():
-		return false
-	items[i]["intensity"] = clampi(step, 0, DeadWorlds.STEPS.size() - 1)
-	return true
-
-func danger_mult(i: int) -> float:
-	return DeadWorlds.danger_mult_for(balance, intensity_of(i))
 
 ## Cycles the ore lasts at the cluster's yield for one cycle (it never refills); 0 when empty.
 func cycles_left(i: int) -> int:
@@ -185,21 +167,19 @@ func spawn_small(system: int, x: float, y: float) -> int:
 	var rich := int(balance.get("mining_event_cluster_richness", 0))
 	items.append({"id": "ev_%d" % (n + 1), "system": system, "x": x + cos(ang) * 70.0, "y": y + sin(ang) * 70.0,
 		"radius": float(event_shape.get("radius", 30)), "count": int(event_shape.get("count", 50)), "good": default_good,
-		"max": rich, "left": rich, "spawned": true, "t0": _now(), "intensity": DeadWorlds.DEFAULT_STEP})  # T314: its orbit starts here, now
+		"max": rich, "left": rich, "spawned": true, "t0": _now()})  # T314: its orbit starts here, now
 	return items.size() - 1
 
 ## Saved form: ore left per base cluster id, and the full record of every spawned cluster. Positions and counts of base clusters come from the data file.
 func to_dict() -> Dictionary:
 	var left_map := {}
-	var inten := {}
 	var spawned: Array = []
 	for it in items:
 		if bool(it["spawned"]):
 			spawned.append(it.duplicate())
 		else:
 			left_map[str(it["id"])] = int(it["left"])
-			inten[str(it["id"])] = int(it.get("intensity", DeadWorlds.DEFAULT_STEP))
-	return {"left": left_map, "spawned": spawned, "intensity": inten}
+	return {"left": left_map, "spawned": spawned}
 
 func from_dict(saved) -> void:
 	setup(balance)  # fresh base clusters, then the saved state on top (old saves: all full)
@@ -211,12 +191,6 @@ func from_dict(saved) -> void:
 			var k := str(items[i]["id"])
 			if lm.has(k):
 				items[i]["left"] = clampi(int(lm[k]), 0, int(items[i]["max"]))
-	var im = saved.get("intensity", {})
-	if typeof(im) == TYPE_DICTIONARY:
-		for i in items.size():
-			var k2 := str(items[i]["id"])
-			if im.has(k2):
-				items[i]["intensity"] = clampi(int(im[k2]), 0, DeadWorlds.STEPS.size() - 1)
 	var sp = saved.get("spawned", [])
 	if typeof(sp) == TYPE_ARRAY:
 		for d in sp:
@@ -224,5 +198,4 @@ func from_dict(saved) -> void:
 				var mx := int(d.get("max", balance.get("mining_event_cluster_richness", 0)))
 				items.append({"id": str(d["id"]), "system": int(d.get("system", 1)), "x": float(d.get("x", 0)), "y": float(d.get("y", 0)),
 					"radius": float(d.get("radius", 30)), "count": int(d.get("count", 50)), "good": str(d.get("good", default_good)),
-					"max": mx, "left": clampi(int(d.get("left", 0)), 0, mx), "spawned": true, "t0": float(d.get("t0", 0.0)),
-					"intensity": clampi(int(d.get("intensity", DeadWorlds.DEFAULT_STEP)), 0, DeadWorlds.STEPS.size() - 1)})
+					"max": mx, "left": clampi(int(d.get("left", 0)), 0, mx), "spawned": true, "t0": float(d.get("t0", 0.0))})

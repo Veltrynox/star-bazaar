@@ -9,8 +9,8 @@ extends RefCounted
 
 
 const ENDINGS_PATH := "res://data/endings.json"
-## Counters saved in Main.run_notes (nine ints).
-const STORED_KEYS := ["quick_routes", "card_routes", "rush_expired", "restless_cycles", "peak_ships", "space_cycles", "ceo_paid", "ceo_bore", "ceo_cash"]
+## Counters saved in Main.run_notes (six ints).
+const STORED_KEYS := ["quick_routes", "card_routes", "rush_expired", "restless_cycles", "peak_ships", "space_cycles"]
 ## Notes derived from the live state at the end (Main.note_value); not saved.
 const DERIVED_KEYS := ["rush_done", "explored", "established", "platforms", "worlds_city", "warm_worlds", "repossessions", "skills_min"]
 const ALL_KEYS := STORED_KEYS + DERIVED_KEYS

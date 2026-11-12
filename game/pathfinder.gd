@@ -656,19 +656,12 @@ func dock_planet() -> int:
 		return -1
 	return _index_of(_docked)
 
-## "" when the dock trade is open here, else "not_docked".
-func dock_reason() -> String:
-	return "" if is_enabled() and dock_planet() >= 0 else "not_docked"
 
 ## Buy price per unit (the same as a Buy order at that world); < 0 when the world does not sell it.
 func dock_buy_price(good: String) -> int:
 	var i := dock_planet()
 	return -1 if i < 0 else main.trade.price(i, good + "_buy")
 
-## Credits n units would fetch here, as a Sell order would pay (need pricing and surplus apply).
-func dock_sale_value(good: String, units: int) -> int:
-	var i := dock_planet()
-	return 0 if i < 0 else int(main.engine.sale_value(i, good, units))
 
 ## dir "buy" | "sell". Moves up to `units` (clamped by cash, space, stock) at the order prices. "" = done (at least one unit moved).
 func dock_trade(planet: int, good: String, units: int, dir: String) -> String:
@@ -745,9 +738,6 @@ func boost_max_charges() -> int:
 func boost_charges() -> int:
 	return boost_max_charges() if _charges < 0 else mini(_charges, boost_max_charges())
 
-## Cycles until the next charge is back (0 when full).
-func boost_refill_left() -> float:
-	return 0.0 if boost_charges() >= boost_max_charges() else _refill_left
 
 ## Switches the boost. Turning on spends one charge and needs energy in the hold. "" ok, else "no_fuel" | "no_charges".
 func set_boost(on: bool) -> String:

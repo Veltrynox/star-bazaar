@@ -8,8 +8,7 @@ extends RefCounted
 ## malus on the lane (raid_malus_pct per hit, capped at raid_malus_cap, raid_malus_cycles long, the timer resets) and drops cargo pods
 ## as a Salvage gig (kind "salvage" in game/gigs.gd): raid_pod_return of the stolen units, near the lane's source world; the Flagship
 ## reaches them before raid_pod_fade_cycles run out and the goods load into its hold (what does not fit stays in the pods).
-## Chance per nest per cycle = (raid_chance_base + raid_chance_per_lane x the player's lanes in the system) x the nest's mining danger
-## multiplier (DeadWorlds.danger_mult, the intensity lever), capped at raid_chance_max. raid_first_cycle and raid_gap_cycles space them.
+## Chance per nest per cycle = (raid_chance_base + raid_chance_per_lane x the player's lanes in the system), capped at raid_chance_max. raid_first_cycle and raid_gap_cycles space them.
 ## The Null Core ship is immune: never chosen, never cut, no malus. Cluster ore lanes are never hit. All numbers: balance raid_* keys
 ## (PLACEHOLDERS). Saved by main under "raids" (save version 18; older saves load with nothing active); pods live in the gigs block.
 
@@ -50,11 +49,6 @@ func lane_mult(rec) -> float:
 		return 1.0
 	return 1.0 - clampf(float(malus[int(rec["id"])]["pct"]), 0.0, 1.0)
 
-## Cycles left of a lane's malus (0 = none), for a marker.
-func malus_left(rec) -> int:
-	if typeof(rec) != TYPE_DICTIONARY or not malus.has(int(rec.get("id", 0))):
-		return 0
-	return int(malus[int(rec["id"])]["left"])
 
 ## The raid chosen for the next settle, {planet (nest index), lane (route id), hit (cycle)}; {} when none or no forecast skill.
 func warning() -> Dictionary:
@@ -87,8 +81,7 @@ func chance(nest: int) -> float:
 	var n := lanes_in(main.system_of(nest)).size()
 	if n <= 0:
 		return 0.0
-	var pid := str(main.map.planets[nest].get("id", ""))
-	var c: float = (_bal("raid_chance_base") + _bal("raid_chance_per_lane") * float(n)) * main.dead.danger_mult(pid)
+	var c: float = (_bal("raid_chance_base") + _bal("raid_chance_per_lane") * float(n))
 	return clampf(c, 0.0, _bal("raid_chance_max"))
 
 # ---- cycle -----------------------------------------------------------------------------------------------------------

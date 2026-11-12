@@ -594,14 +594,6 @@
       "note": "Any recipe/batch UI only once at least one workshop is built; each recipe row also needs its crafted good's rule true."
     },
     {
-      "kind": "feature",
-      "id": "dead_danger_meter",
-      "visible_when": {
-        "not": "start"
-      },
-      "note": "Hidden until danger has a mechanical effect; flip this rule to bring the line back (planet panel dead world 'Danger: n of 5'). The meter itself still runs and is saved. {not: start} is never true."
-    },
-    {
       "kind": "planet",
       "id": "planet_1",
       "visible_when": {
@@ -843,8 +835,7 @@
       "cluster_routes",
       "dead_worlds_mining",
       "null_core",
-      "crafting_recipes_panel",
-      "dead_danger_meter"
+      "crafting_recipes_panel"
     ],
     "voltara_price_rows_shown": [
       "energy_buy",

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "source": "2026-11-10 CEO endings (design/proposals/2026-11-09-ceo-endings.md, owner approved). Rows in file order: the first row of the run's CEO whose visible_when and requires hold is the ending; none = END_<MKT>_GOOD/_BAD. Atoms note_at_least/note_at_most: <key>/<number or balance key>; thresholds are balance.json end_* keys (placeholders). PAGE, LIGHT, WAIT need the CEO events (not built): they never match yet.",
+  "source": "2026-11-10 CEO endings (design/proposals/2026-11-09-ceo-endings.md, owner approved). Rows in file order: the first row of the run's CEO whose visible_when and requires hold is the ending; none = END_<MKT>_GOOD/_BAD. Atoms note_at_least/note_at_most: <key>/<number or balance key>; thresholds are balance.json end_* keys (placeholders).",
   "endings": [
     {
       "id": "END_MIN_LONGSHIFT",
@@ -24,16 +24,6 @@
         "all": [
           "note_at_least:rush_done/end_rush_min",
           "note_at_least:quick_routes/end_quick_min"
-        ]
-      }
-    },
-    {
-      "id": "END_MIN_PAGE",
-      "visible_when": "branch_is:min",
-      "requires": {
-        "all": [
-          "note_at_least:ceo_paid/end_paid_min",
-          "note_at_most:repossessions/0"
         ]
       }
     },
@@ -68,11 +58,6 @@
       }
     },
     {
-      "id": "END_LUX_LIGHT",
-      "visible_when": "branch_is:lux",
-      "requires": "note_at_least:ceo_cash/end_cash_min"
-    },
-    {
       "id": "END_LUX_CORNER",
       "visible_when": "branch_is:lux",
       "requires": "note_at_most:established/end_established_few"
@@ -91,11 +76,6 @@
           "note_at_most:rush_expired/end_rush_expired_max"
         ]
       }
-    },
-    {
-      "id": "END_MIL_WAIT",
-      "visible_when": "branch_is:mil",
-      "requires": "note_at_least:ceo_bore/end_bore_min"
     },
     {
       "id": "END_MIL_HARD",

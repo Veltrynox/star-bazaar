@@ -58,7 +58,7 @@ var paused: bool = true  # T23: game starts paused after the preface
 var game_over: bool = false
 var rescues_paid: int = 0  # Four Markets: stranded stipends paid this run (capped by rescue_max), saved
 var repossessions: int = 0  # ships repossessed this run, saved
-var run_notes: Dictionary = {}  # CEO endings: the nine counters (EndingPicker.STORED_KEYS), saved under "run_notes"; read with note_value()
+var run_notes: Dictionary = {}  # CEO endings: the six counters (EndingPicker.STORED_KEYS), saved under "run_notes"; read with note_value()
 var notes_known: bool = true    # false for a save made before run_notes existed: the picker then goes straight to the GOOD / BAD fallback
 var repossessed_cycle: int = -1  # cycle of the last repossession (no stipend in that cycle)
 var end_screen: ColorRect  # T77 overlay, null when none
@@ -249,7 +249,7 @@ var hubs: Hubs = Hubs.new()  # T289 hubs keep neighbours fed, saved under "hubs"
 var raids: Raids = Raids.new()  # T296 raids from unreclaimed dead worlds, saved under "raids"
 var gigs: Gigs = Gigs.new()  # T271 the gig board (signals, rush orders), saved under "gigs"
 var bazaar: Bazaar = Bazaar.new()  # T259 the Star Bazaar: capital, stages, saved under "bazaar"
-var dead: RefCounted = DeadWorlds.new()  # dead worlds: danger meter per planet id, saved under "danger"
+var dead: RefCounted = DeadWorlds.new()  # dead worlds: finite stock per planet id, saved under "dead_mining"
 var clusters: RefCounted = Clusters.new()  # T156 asteroid clusters (ore sources), saved
 var notice_label: Label
 var last_notice: String = ""
@@ -512,7 +512,7 @@ func collect_state() -> Dictionary:
 			"open_systems": open_systems, "reached_ids": reached_ids, "galaxy_seen": galaxy_seen, "tut_step": tut_step, "tut_ver": TUT_VER, "tips_seen": tips_seen.keys(), "tips_off": tips_off,
 		"chains": Chains.to_dict(), "storage_cuts": storage.cuts_to_dict(), "price_history": price_history,
 		"forecast_id": forecast_id, "forecast_slot": forecast_slot, "forecast_noted": forecast_noted, "station_systems": station_systems,
-		"second_lane": second_lane_planet, "clusters": clusters.to_dict(), "danger": dead.to_dict(), "dead_mining": dead.state_to_dict(), "fabric": fabric.to_dict(), "workshops": workshops.to_dict(),
+		"second_lane": second_lane_planet, "clusters": clusters.to_dict(), "dead_mining": dead.state_to_dict(), "fabric": fabric.to_dict(), "workshops": workshops.to_dict(),
 			"pathfinder": flight.to_dict(), "storage_links": storage_link.to_array(), "prosperity": prosperity.to_dict(), "bazaar": bazaar.to_dict(), "gigs": gigs.to_dict(), "hubs": hubs.to_array(), "raids": raids.to_dict(), "free_play": free_play}
 
 func apply_state(s: Dictionary) -> void:
@@ -574,6 +574,8 @@ func apply_state(s: Dictionary) -> void:
 	_sync_skill_effects()
 	_sync_dead_lock()  # dead worlds still shut at this cycle: saved routes and orders to them are dropped
 	clusters.from_dict(s.get("clusters"))  # T156: before the routes, which may start at a cluster; old saves: all full
+	flight.from_dict(s.get("pathfinder"))  # T179: before the routes: which worlds have a post decides which saved routes are still valid (a save without it opens every planet)
+	engine.closed_planets = _discovery_closed()  # a fresh main still lists every world without a post as closed: check_connection would drop each saved route
 	engine.from_array(s.get("routes", []), ships)  # old saves: no key = zero routes
 	storage.from_dict(s.get("storage"), map.planets.size())  # old saves: fresh stock
 	engine.local_from_array(s.get("orders"))  # old saves: no local orders
@@ -611,11 +613,9 @@ func apply_state(s: Dictionary) -> void:
 			_award_route(int(r["a"]), int(r["b"]))
 		_quiet_points = false
 	events.from_dict(s.get("events"))  # old saves: no events and no scheduled follow-ups
-	dead.from_dict(s.get("danger"))  # old saves: no meter
-	dead.state_from_dict(s.get("dead_mining"))  # T295; old saves: full stock, normal intensity
+	dead.state_from_dict(s.get("dead_mining"))  # T295; old saves: full stock
 	fabric.from_dict(s.get("fabric"))  # old saves: not built
 	workshops.from_dict(s.get("workshops"))
-	flight.from_dict(s.get("pathfinder"))  # T179: a save without it (from before discovery) opens every planet
 	raids.from_dict(s.get("raids"))  # T296; old saves: nothing active
 	gigs.from_dict(s.get("gigs"))  # T271; old saves: empty board
 	gigs.ensure_opening()  # T298: an Opening still to fly is on the board
@@ -2098,21 +2098,10 @@ func display_status(rec: Dictionary) -> String:
 		return st
 	return st if int(idle_cycles.get(int(rec["id"]), 0)) >= WARN_AFTER_CYCLES else "running"
 
-## Dead worlds: a running route out of a dead world mines it, so its danger rises by dead_danger_rise each cycle.
 ## T295: a reclaimed world turns living: its post counts as built.
 func _on_prosperity_reclaimed(i: int) -> void:
 	if flight != null and i >= 0 and i < map.planets.size():
 		flight.set_flag("post", str(map.planets[i].get("id", "")), true)
-
-func _tick_danger() -> void:
-	var ids: Array = []
-	for rec in engine.routes:
-		var a := int(rec["a"])
-		if str(rec["state"]) == "running" and a >= 0 and a < map.planets.size() and DeadWorlds.is_dead(map.planets[a]):
-			var pid := str(map.planets[a]["id"])
-			if not ids.has(pid):  # two ships on one world raise it once
-				ids.append(pid)
-	dead.tick(ids)
 
 ## Fabric inputs (dross, nullglass) with no route into the system 1 Space Storage. Routes only, stock does not count.
 func fabric_inputs_unrouted() -> Array:
@@ -2246,10 +2235,6 @@ func fit_core(id: int) -> Dictionary:
 	_after_change()
 	return {"ok": true, "reason": ""}
 
-## Danger meter (0 to dead_danger_max) of planet index i; 0 for a planet that is not a dead world.
-func danger_of(i: int) -> int:
-	return dead.get_danger(str(map.planets[i].get("id", ""))) if i >= 0 and i < map.planets.size() else 0
-
 func _settle_routes() -> Array:
 	cash -= hubs.plan(cash, ship_cash_floor())  # T289/T290: never under the ship cash floor; hub deliveries buy their goods, then settle with the routes
 	hubs.begin_settle()
@@ -2357,11 +2342,6 @@ func _any_sellable() -> bool:
 			return true
 	return false
 
-## T07 HOOK: the offer of an automated route belongs here (GDD: "asks if we want to
-## establish an automated trade route"). Nothing calls it since T51 removed the manual
-## first-trade mission; T07 decides the trigger.
-func _on_trade_mission_complete() -> void:
-	pass
 
 ## Cycle progress (cycle number plus time within the cycle), unaffected by pausing.
 func _progress() -> float:
@@ -2607,15 +2587,15 @@ func _end_cycle() -> void:
 	prosperity.end_cycle()  # T256: needs met = progress, short = decay, full = tier up
 	note("restless_cycles", prosperity.restless_count())  # CEO endings: world-cycles spent Restless
 	_note_space_cycle()
-	_tick_danger()
+	dead.tick()  # mining counts of the settled cycle become the rate cycles_left reads
 	fabric.run(storage)
 	storage_link.settle()  # T171: standing link orders and upkeep
 	workshops.run(storage, Callable(self, "craft_units"))
 	Skills.grow_stock(storage)  # BIO_2: Biotech stock in planet storage grows
 	_post_tech_done()  # techs the fabric just finished
 	_count_idle_cycles()
-	# Space Storage fills only by a ship sent to it (send_stock with a station destination); planet_to_space_rate is unused.
-	Markets.end_cycle(cycle)  # sales record per market, house hits age
+	# Space Storage fills only by a ship sent to it (send_stock with a station destination).
+	Markets.end_cycle(cycle)  # sales record per market
 	_pay_prosperity()  # T258: tax per world, skill points for a tier reached first
 	var outcome := bazaar.end_cycle()  # T259: a Bazaar stage completes; the last one wins. No share win, no swept loss, no market overhead.
 	if outcome.is_empty():
@@ -2742,7 +2722,7 @@ func _repossess_newest() -> void:
 	_after_change()
 
 ## ---- CEO endings: run notes ----
-## note(key): add n to a stored counter (any code may call it; the CEO event counters ceo_paid, ceo_bore, ceo_cash stay 0 until those events exist).
+## note(key): add n to a stored counter (any code may call it).
 func note(key: String, n: int = 1) -> void:
 	if EndingPicker.STORED_KEYS.has(key):
 		run_notes[key] = int(run_notes.get(key, 0)) + n
@@ -2854,6 +2834,14 @@ func _finish(side: String, ending_id: String, stat: String, win_market: String =
 func _continue_free_play() -> void:
 	free_play = true
 	game_over = false
+	# _end_cycle returned at the ending before its tail ran: take the skipped step now so the next settle is the next cycle, not a repeat
+	events.tick()
+	cycle += 1
+	gigs.on_cycle(cycle)
+	raids.on_cycle(cycle)
+	_sync_earn()
+	Chains.tick(cycle)
+	_sync_closed()
 	if end_screen != null:
 		end_screen.queue_free()
 		end_screen = null
@@ -2913,10 +2901,6 @@ func effect_line(eff: Dictionary) -> String:
 			body = StoryText.get_text("NOT_EVENT_EFFECT_CASH", args)
 		"stock":
 			body = StoryText.get_text("NOT_EVENT_EFFECT_STOCK", args)
-		"danger":
-			if not Availability.feature("dead_danger_meter"):  # the meter is hidden: no notice names it
-				return ""
-			body = StoryText.get_or("NOT_EVENT_EFFECT_DANGER", "Danger at {planet}: {amount}.", args)
 	return "%s: %s" % [StoryText.get_text("NOT_EVENT_PREFIX"), body]
 
 ## One-off effects (cash, stock). Timed ones go through events.start_timed.
@@ -2980,11 +2964,6 @@ func can_mine() -> bool:
 func clusters_in_system(sid: int) -> Array:
 	return clusters.list(sid)
 
-## T156 for the planet panel: clusters with ore left near a planet, nearest first.
-func clusters_near_planet(planet: int) -> Array:
-	if planet < 0 or planet >= map.planets.size():
-		return []
-	return clusters.near(system_of(planet), float(map.planets[planet].get("x", 0)), float(map.planets[planet].get("y", 0)))
 
 ## T156 for T157 and tests: starts an ore route from cluster `node` (Clusters.node_id(i)) to planet dst. Buys a ship if none is free, as Send to... does.
 func send_from_cluster(node: int, dst: int) -> Dictionary:
@@ -3124,9 +3103,6 @@ func _release_event_pause() -> void:
 		_event_pause_held = false
 		paused = _event_prev_paused
 
-## Id of the important event waiting for a click (icon up, window closed), "" when none.
-func pending_event_icon() -> String:
-	return events.pending_id if event_notice == null else ""
 
 func _open_event_notice(id: String) -> void:
 	_dismiss_event_notice()

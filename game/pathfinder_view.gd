@@ -714,7 +714,7 @@ func _update_gig_rings(f, sys: int) -> void:
 		live[uid] = true
 		if not _gig_t0.has(uid):
 			_gig_t0[uid] = real
-		var tp: Vector3 = main_node.gigs.target_pos(o) if str(o["kind"]) == "signal" else f._planet_pos(int(o["target"]["index"]))
+		var tp: Vector3 = main_node.gigs.target_pos(o) if str(o["target"].get("kind", "point")) != "planet" else f._planet_pos(int(o["target"]["index"]))  # point targets (signals, salvage pods) have a pos, no index
 		if used >= _gig_rings.size():
 			var m := MeshInstance3D.new()
 			m.mesh = _gig_ring_mesh(sel_radius(), GIG_RING_THICK)

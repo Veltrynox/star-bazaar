@@ -65,7 +65,3 @@ func trip_cost() -> int:
 func travel_cycles() -> float:
 	return maxf(0.0, float(balance.get("travel_cycles_per_leg", 1)))
 
-func _name(i: int) -> String:
-	if i < 0 or i >= planets.size():
-		return StoryText.get_or("LBL_THE_PLANET", "the planet")
-	return str(planets[i].get("name", planets[i].get("id", "?")))

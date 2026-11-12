@@ -400,24 +400,19 @@ func _header(p: Dictionary) -> void:
 		d.theme_type_variation = "LabelSmall"
 		box.add_child(d)
 	if not estab:
-		pass  # T180: no mining, danger or lock lines before the post or platform exists
+		pass  # T180: no mining or lock lines before the post or platform exists
 	elif main.DeadWorlds.is_dead(p) and main.engine.dead_locked.has(planet_index):  # not open before dead_unlock_cycle
 		var ll := _label(StoryText.get_or("PLANET_DEAD_LOCKED", "Opens at cycle {n}.", {"n": main.dead_unlock_cycle()}))
 		ll.name = "DeadLockedLine"
 		ll.theme_type_variation = "LabelAccent"
 		box.add_child(ll)
-	elif main.DeadWorlds.is_dead(p):  # dead world: what is missing for mining (if anything), then the danger line (only when its availability rule is true)
+	elif main.DeadWorlds.is_dead(p):  # dead world: what is missing for mining (if anything)
 		var need_s: String = main.engine.dead_skill_reason(planet_index)
 		if need_s != "":
 			var nl := _label(need_s)
 			nl.name = "DeadNeedsSkillLine"
 			nl.theme_type_variation = "LabelAccent"
 			box.add_child(nl)
-		if Availability.feature("dead_danger_meter"):  # hidden until danger has an effect (data/availability.json)
-			var dl := _label(StoryText.get_or("PLANET_DANGER", "Danger: {value} of {max}", {"value": main.danger_of(planet_index), "max": main.dead.max_danger()}))
-			dl.name = "DangerLine"
-			dl.theme_type_variation = "LabelAccent"
-			box.add_child(dl)
 	var thumbs := HBoxContainer.new()
 	thumbs.add_theme_constant_override("separation", 8)
 	var sid: int = int(p.get("system", 1))
@@ -1243,10 +1238,6 @@ func _label(text: String) -> Label:
 	l.custom_minimum_size = Vector2(288, 0)
 	return l
 
-func _txt(v) -> String:
-	if v == null:
-		return "UNKNOWN"
-	return str(v).capitalize() if str(v) != "UNKNOWN" else "UNKNOWN"
 
 ## A clickable route row: hover highlights it, click emits pressed.
 class RouteRow extends HBoxContainer:

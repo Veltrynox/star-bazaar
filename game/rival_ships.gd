@@ -344,14 +344,6 @@ func _sync_escorts(s: Dictionary, h: int, shown: bool) -> void:
 static func bot_of(i: int) -> int:
 	return int(Bots.IDS[i]) if i >= 0 and i < Bots.IDS.size() else 0
 
-## T199: a see-through colour layer over every mesh of the ship.
-func _tint(node: Node, bot: int) -> void:
-	var c: Color = TINTS.get(bot, Color(1, 1, 1))
-	var mat := StandardMaterial3D.new()
-	mat.albedo_color = Color(c.r, c.g, c.b, TINT_ALPHA)
-	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	_overlay(node, mat)
 
 func _overlay(node: Node, mat: Material) -> void:
 	if node is MeshInstance3D:

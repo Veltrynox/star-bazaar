@@ -1,12 +1,12 @@
 extends PanelContainer
-## T33: debug menu. Live editor for every value and target in data/balance.json plus
+## T33: debug menu. Live editor for every value in data/balance.json plus
 ## map/camera tunables. Toggle with the backtick key. Debug builds only (main.gd creates
 ## it only when OS.is_debug_build()), so release exports never show it.
 ##
 ## T13 QA section (add_qa_tools): events, debris, permits, skills and tech, ships, cash and points, notices,
 ## tutorial, galaxy view, save. Every balance key stays editable below (ship_cap, saturation, orders...).
 ## Edits are runtime only: balance values are changed in place in main.balance (the same
-## Dictionary trade.gd reads), targets in a private copy, map tunables on the map node.
+## Dictionary trade.gd reads), map tunables on the map node.
 ## Nothing here writes data/balance.json and nothing is added to the autosave.
 ## Values that are only read once at start (starting_credits) change nothing mid-game.
 
@@ -27,7 +27,6 @@ const MAP_TUNABLES := [
 ]
 
 var main: Control        # game/main.gd; owns balance and map
-var targets: Dictionary = {}
 var tools_box: VBoxContainer  # T34 HOOK: add_tool() puts controls here, always visible at the top
 var _body: VBoxContainer      # rebuilt on reset
 var _qa: VBoxContainer        # T13: QA controls, built once by add_qa_tools()
@@ -69,7 +68,6 @@ func setup(main_node: Control) -> void:
 	_body = VBoxContainer.new()
 	_body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	root.add_child(_body)
-	targets = _read_file().get("targets", {})
 	_build()
 
 ## T34 HOOK: add a control (e.g. the speed button) to the top of the menu.
@@ -268,7 +266,6 @@ func add_qa_tools() -> void:
 	_qa_button("save_now", "Force save", func(): main.save_now(); _refresh_qa())
 	_qa_label("save_state")
 	add_game_control()
-	_qa_section("Not built yet, skipped: solar shield, pirates, nomads, asteroid approach, asteroid fields")
 	_refresh_qa()
 
 ## ---- T13 game control: event tuning, route keys, save to data/balance.json ----
@@ -302,7 +299,7 @@ func add_game_control() -> void:
 	_qa_button("local_clear_orders", "Clear all local orders", func(): main.engine.local.clear(); main._after_change(); _refresh_qa())
 	_qa_label("saturation_note").text = "Saturation: no such rule in this build (storage fill is the only pressure), so no key to edit."
 	_qa_section("Control: save")
-	_qa_button("balance_save", "Save values and targets to data/balance.json", func(): (qa["balance_save_state"] as Label).text = save_balance_file())
+	_qa_button("balance_save", "Save values to data/balance.json", func(): (qa["balance_save_state"] as Label).text = save_balance_file())
 	_qa_label("balance_save_state")
 
 func set_event_enabled(id: String, on: bool) -> void:
@@ -342,7 +339,7 @@ func _whole_numbers(v):
 			return int(v) if v == round(v) and absf(v) < 1e15 else v
 	return v
 
-## Writes the live balance values and targets back into data/balance.json (other keys kept). Returns a status line.
+## Writes the live balance values back into data/balance.json (other keys kept). Returns a status line.
 func save_balance_file() -> String:
 	if not OS.is_debug_build():
 		return "Not allowed in release."
@@ -350,7 +347,6 @@ func save_balance_file() -> String:
 	if file.is_empty():
 		return "Cannot read data/balance.json."
 	file["values"] = _whole_numbers(main.balance)
-	file["targets"] = _whole_numbers(targets)
 	file["schema_version"] = int(file.get("schema_version", 1))
 	file["data_version"] = int(file.get("data_version", 1))
 	var f := FileAccess.open(BALANCE_PATH, FileAccess.WRITE)
@@ -414,7 +410,6 @@ func _reset() -> void:
 	var file := _read_file()
 	for k in file.get("values", {}):
 		main.balance[k] = file["values"][k]
-	targets = file.get("targets", {})
 	_build()
 
 func _build() -> void:
@@ -428,8 +423,6 @@ func _build() -> void:
 	_planet_size_rows()
 	_section("Balance values")
 	_add_dict(main.balance, 0)
-	_section("Balance targets")
-	_add_dict(targets, 0)
 	_section("Map and camera")
 	for t in MAP_TUNABLES:
 		var prop: String = t[0]

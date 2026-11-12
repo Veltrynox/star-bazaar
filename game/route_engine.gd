@@ -33,13 +33,13 @@ var next_id: int = 1
 var closed_planets: Array = []  # planet indexes closed (permits/events hook); runtime only
 var debris_planets: Array = []  # T98: planets with debris; routes from them carry less (runtime, set by main)
 var dead_locked: Array = []  # planet indexes of dead worlds that are not open yet (before balance dead_unlock_cycle); runtime, set by main
-var pirates_active := false  # runtime: true while a pirate volume cut is on (no pirate system yet; the Null Core is immune to it)
 var raids: RefCounted = null  # T296: Raids (game/raids.gd), set by main; null = no raids. Lane malus and the trip share a raid takes.
 var upkeep_out: Callable = Callable()  # T227: (key, good, stock) -> units storage upkeep takes from this stock next cycle (set by main)
+var bill_need_fn: Callable = Callable()  # (planet, good) -> units the Bazaar stage bill still needs there (0 off the capital), set by Bazaar.setup; empty = none
 var trade_gate: Callable = Callable()  # owner 2026-11-03: planet -> bool, false when its system has no Space Storage post (set by main)
 var suns_fn: Callable = Callable()  # route offset: () -> Array of [Vector3 position, float radius] per sun, set by main from the map
 var positions_fn: Callable = Callable()  # route offset: () -> Array of world positions (Vector3) per planet index, set by main from the map
-var dead_worlds: RefCounted = null  # T295: DeadWorlds (stock, intensity), set by main; null = unlimited stock
+var dead_worlds: RefCounted = null  # T295: DeadWorlds (finite stock), set by main; null = unlimited stock
 var clusters: RefCounted = null  # T156: asteroid clusters (clusters.gd), set by main; null = no mining
 var cluster_budget: Dictionary = {}  # T156: runtime, set at the start of each settle: cluster index -> units it may still give this cycle
 var fare_paid := false  # runtime, per settle: true once a route has run this cycle (see fare_for)
@@ -465,14 +465,14 @@ func _local_calc(planet: int, c: String, role: String, cash: int) -> Dictionary:
 		if storage.space(key, c) <= 0:
 			return {"n": 0, "credits": 0, "state": StoryText.get_text("NOT_STORAGE_FULL")}
 		var n: int = mini(local_amount(c), storage.space(key, c))
-		var mined := _mined_pid(planet)  # T295: buying at a dead world is mining it: closed while reclaiming, intensity yield, finite stock
+		var mined := _mined_pid(planet)  # T295: buying at a dead world is mining it: closed while reclaiming, finite stock
 		if mined != "":
 			if prosperity != null and prosperity.mining_closed(planet):
 				return {"n": 0, "credits": 0, "state": str(prosperity.mining_closed_reason(planet))}
 			if dead_worlds != null:
 				if dead_worlds.exhausted(mined):
 					return {"n": 0, "credits": 0, "state": StoryText.get_or("ST_DEAD_EMPTY", "This world is mined out.")}
-				n = mini(floori(float(n) * float(dead_worlds.yield_mult(mined))), int(dead_worlds.stock_left(mined)))
+				n = mini(n, int(dead_worlds.stock_left(mined)))
 		if price > 0:
 			n = mini(n, floori(float(maxi(cash, 0)) / price))
 		if n <= 0:
@@ -648,13 +648,14 @@ func space_key_for(planet: int) -> String:
 	return k if storage.established(k) else ""
 
 ## T85: stock a route can draw at its source: planet storage plus the Space Storage backup of that system.
+## A hub delivery record (owner "hub:...") never counts Space Storage: it moves only what the hub bought or the world holds.
 func src_available(rec: Dictionary) -> int:
 	if from_cluster(rec):  # T156
 		return cluster_available(int(rec["a"]))
 	var c := str(rec["c"])
 	var n: int = storage.amount(str(rec["src"]), c)
 	var sk := space_key_for(int(rec["a"]))
-	if sk == str(rec["dst"]):  # a send to the station never draws from it
+	if sk == str(rec["dst"]) or str(rec.get("owner", "")).begins_with("hub:"):  # a send to the station never draws from it
 		sk = ""
 	return n + (storage.amount(sk, c) if sk != "" else 0)
 
@@ -713,8 +714,6 @@ func _route_cap(rec: Dictionary) -> int:
 	var lane_end := int(rec["b"]) if from_cluster(rec) else int(rec["a"])  # T156: an ore lane has no source planet; debris at the delivery planet counts
 	if debris_planets.has(lane_end) and not Skills.event_immune(Markets.market_of(c), "debris"):  # T98: debris at the source planet; MIL_3 makes Military goods immune
 		eff = 1.0 - float(balance.get("debris_route_penalty", 0.0))
-	if pirates_active and not has_core(rec):  # pirates cut trade volume; the Null Core ship is immune
-		eff *= 1.0 - float(balance.get("pirate_volume_penalty", 0.0))
 	if raids != null:  # T296: a raid malus on this lane (the Null Core ship is immune)
 		eff *= raids.lane_mult(rec)
 	var units := floori(units_per_cycle(rec) * clampf(float(rec["fresh"]), 0.0, 1.0) * eff)
@@ -843,18 +842,6 @@ func payout_of(rec: Dictionary) -> int:
 		return 0
 	return -fixed_cost(rec)
 
-## Projected local order lines for the cash forecast: Array of [label, signed credits], for active orders.
-func local_preview(cash: int) -> Array:
-	var out: Array = []
-	var cur := cash
-	for o in local.values():
-		for role in ["buy", "sell"]:
-			if not o[role]:
-				continue
-			var r := _local_calc(int(o["planet"]), str(o["c"]), role, cur)
-			cur += int(r["credits"])
-			out.append(["%s %s at %s" % [role.capitalize(), o["c"], _pname(int(o["planet"]))], int(r["credits"]), str(r["state"])])
-	return out
 
 ## Fare a route pays this cycle. Normally the fixed cost. Stall rescue: when cash is below the fixed cost and no route has
 ## run yet this cycle, the ship flies for what cash is left (it can be 0), so a broke player is never stuck for good
@@ -1182,7 +1169,8 @@ func settle(cash: int) -> Dictionary:
 		"upkeep": upkeep_paid, "gross": delta + upkeep_paid}
 
 ## Goods sitting in a world's own storage that the world needs go to the need before anything else this cycle
-## (up to the unmet demand), paid at the sell price like any sale. Returns the credits.
+## (up to the unmet demand), paid at the sell price like any sale. At the Bazaar capital the current stage bill is held back:
+## only stock above what the bill still needs of a good is sold. Returns the credits.
 func _fill_needs_from_storage(out: Array) -> int:
 	if prosperity == null:
 		return 0
@@ -1198,7 +1186,10 @@ func _fill_needs_from_storage(out: Array) -> int:
 			var room: int = int(prosperity.demand_for(i, g)) - int(prosperity.sold(i, g))
 			if room <= 0:
 				continue
-			var n: int = storage.remove(key, g, mini(room, storage.amount(key, g)))
+			var have: int = storage.amount(key, g)
+			if bill_need_fn.is_valid():
+				have = maxi(0, have - int(bill_need_fn.call(i, g)))
+			var n: int = storage.remove(key, g, mini(room, have)) if have > 0 else 0
 			if n <= 0:
 				continue
 			var credits := sale_value(i, g, n)

@@ -1300,14 +1300,6 @@ func _refresh_known() -> void:
 			_shades[i].queue_free()
 			_shades.erase(i)
 
-## World point on the ground plane under the cursor, or null.
-func _ground_point(screen_pos: Vector2) -> Variant:
-	var o := camera.project_ray_origin(screen_pos)
-	var d := camera.project_ray_normal(screen_pos)
-	if absf(d.y) < 0.0001:
-		return null
-	var t := -o.y / d.y
-	return o + d * t if t > 0.0 else null
 
 func _axis(neg: Key, pos: Key) -> float:
 	return float(Input.is_physical_key_pressed(pos)) - float(Input.is_physical_key_pressed(neg))

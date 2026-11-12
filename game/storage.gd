@@ -106,8 +106,6 @@ func rating(key: String, c: String) -> int:
 static func system_key(sys: int) -> String:
 	return "system:%d" % sys
 
-func planet_rating(i: int, c: String) -> int:
-	return rating(planet_key(i), c)
 
 func to_dict() -> Dictionary:
 	return stock.duplicate(true)

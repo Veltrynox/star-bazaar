@@ -119,9 +119,6 @@ static func flavour(id: String) -> String:
 static func plain(id: String) -> String:
 	return StoryText.get_or("SK_%s_PLAIN" % id, "")
 
-## Craft line of a tech ("" for a skill).
-static func craft_text(id: String) -> String:
-	return StoryText.get_or("SK_%s_CRAFT" % id, "") if is_tech(id) else ""
 
 ## "learned" (a skill bought or a tech finished), "available" (prerequisites met: a skill can be bought, a tech is being
 ## researched) or "locked".

@@ -98,9 +98,3 @@ static func get_text(id: String, args: Dictionary = {}) -> String:
 		t = t.replace("{%s}" % str(k), str(args[k]))
 	return t
 
-## T77: ending names are only in the "place" field ("Ending: The Cheapest Road"). Returns the name.
-static func ending_name(id: String) -> String:
-	if not _loaded:
-		_load()
-	var p: String = _places.get(id, "")
-	return p.trim_prefix("Ending: ") if p.begins_with("Ending: ") else id

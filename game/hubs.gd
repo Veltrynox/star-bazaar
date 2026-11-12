@@ -5,7 +5,7 @@ extends RefCounted
 ## delivery record per short need (owner "hub:<planet>"): the cheapest established source in reach, up to the demand only,
 ## never surplus. The records live in `records` and are put into engine.routes only for the settle (begin_settle /
 ## end_settle), so they are never saved and never shown in route lists. They settle with the normal route engine.
-## A delivery pays the buy price of the goods (stock already owned in the source storage or its Space Storage is free),
+## A delivery pays the buy price of the goods (stock already owned in the source world's planet storage is free; Space Storage is never a hub source),
 ## the trip cost (the engine's fixed cost) and hub_fee_pct of the buy value. Manual routes into a world count first.
 ## All numbers: data/balance.json hub_* keys (placeholders). Text ids: ST_HUB_* via StoryText.get_or fallbacks.
 
@@ -223,7 +223,7 @@ func _manual_cover(world: int, good: String) -> int:
 	return n
 
 ## Cheapest source for `qty` units of good for world, inside the hub's reach: {planet, price, stock} or {}.
-## Stock already in the source's storage or its Space Storage costs nothing; otherwise the planet's buy price.
+## Stock already in the source's own planet storage costs nothing (Space Storage is never used); otherwise the planet's buy price.
 func _best_source(hub: int, world: int, good: String, qty: int) -> Dictionary:
 	var best := {}
 	for p in worlds_in_reach(hub):
@@ -232,9 +232,6 @@ func _best_source(hub: int, world: int, good: String, qty: int) -> Dictionary:
 		if engine.dead_lock_reason(p) != "":
 			continue
 		var stock: int = storage.amount(storage.planet_key(p), good)
-		var sk: String = engine.space_key_for(p)
-		if sk != "":
-			stock += storage.amount(sk, good)
 		var price: int = engine.local_price(p, good, "buy")
 		var free_stock := stock >= qty
 		if not free_stock and (price <= 0 or (engine.trade_gate.is_valid() and not bool(engine.trade_gate.call(p)))):
@@ -314,9 +311,7 @@ func plan(cash: int, cash_floor: int = 0) -> int:
 	return spent_last
 
 func _stock_at(p: int, good: String) -> int:
-	var n: int = storage.amount(storage.planet_key(p), good)
-	var sk: String = engine.space_key_for(p)
-	return n + (storage.amount(sk, good) if sk != "" else 0)
+	return storage.amount(storage.planet_key(p), good)
 
 func _make_record(hub: int, world: int, good: String, short: int, src: int = -1) -> Dictionary:
 	var rec: Dictionary = engine.new_record(src if src >= 0 else hub, world, good)

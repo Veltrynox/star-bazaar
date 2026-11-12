@@ -1,7 +1,7 @@
 {
  "schema_version": 1,
  "data_version": 10,
- "source": "2026-11-06 skills-fill (economy-designer, owner order): 35 nodes added (3 FND, 8 per market) using existing effect types only; see handoffs/economy-designer/2026-11-06-skills-fill.json. 2026-11-05 skill-tree-final (economy-designer, agreed with feature-designer and qa-analyst): see design/proposals/2026-11-05-skill-tree-final.md. Filler percent effects removed; MIL_2 batches, MIL_3 debris immunity, LUX_6 batch yield, BIO_3 growth ceiling.",
+ "source": "2026-11-06 skills-fill (economy-designer, owner order): 35 nodes added (3 FND, 8 per market) using existing effect types only; see handoffs/economy-designer/2026-11-06-skills-fill.json. 2026-11-05 skill-tree-final (economy-designer, agreed with feature-designer): see design/proposals/2026-11-05-skill-tree-final.md. Filler percent effects removed; MIL_2 batches, MIL_3 debris immunity, LUX_6 batch yield, BIO_3 growth ceiling.",
  "vocabulary": {
   "_how": "effect = {type, target, ...}. Numbers are never stored here: key / duration_key / cooldown_key / cap_key name a data/balance.json value. cost 0 = tech node (researched by crafting; goal = balance[tech_goal_key] units made by that market's workshop(s), counted from when prereqs are met). cost is also in balance skill_cost_<id> (balance is authoritative). 'extra' = more effects applied with the same node. prereqs: all listed ids must be learned/researched. target: market id (mil|lux|min|bio), 'all', 'ships', 'planet_storage', 'feature', 'workshop', 'good'.",
   "types": {

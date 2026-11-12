@@ -44,6 +44,8 @@ func setup(main_node: Object) -> void:
 	wings = []
 	wing_pending = 0
 	_rebuild_bonus()
+	if main_node != null and main_node.get("engine") != null:
+		main_node.engine.bill_need_fn = Callable(self, "bill_need_of")  # the route engine keeps the stage bill out of need fills
 
 func _bal(key: String, fallback: int) -> int:
 	return int(game.balance.get(key, fallback)) if game != null else fallback
@@ -109,6 +111,23 @@ func bill_status() -> Array:
 			have += game.storage.amount(StorageScript.planet_key(_capital), g)
 		out.append({"tier": t, "need": need, "have": have, "goods": Availability.visible_goods(goods), "ok": have >= need})
 	return out
+
+## Units of `good` at `planet` (only the capital counts) the stage being built still needs held in the capital's storage: its tier's bill minus what the tier's other
+## goods already cover. 0 for a non-bill good, before founding or once complete. The route engine never sells these to a need.
+func bill_need_of(planet: int, good: String) -> int:
+	if planet != _capital:
+		return 0
+	var key := StorageScript.planet_key(_capital)
+	for r in bill_status():
+		var goods := _branch_goods(int(r["tier"]))
+		if not goods.has(good):
+			continue
+		var others := 0
+		for g in goods:
+			if g != good:
+				others += game.storage.amount(key, g)
+		return maxi(0, int(r["need"]) - others)
+	return 0
 
 func bill_ok() -> bool:
 	for r in bill_status():
