@@ -69,7 +69,9 @@ static func fit_height() -> float:
 static func sel_radius() -> float:
 	return SEL_RADIUS_BASE * Ships.ship_scale()
 const LIFT := 0.35             # ship hovers above the map plane so it clears planet spheres' lower rim
-const MARKER_RADIUS := 0.35
+const MARKER_RADIUS := 0.35   # round end of the target droplet
+const MARKER_TAIL := 3.0      # droplet tip sits this many radii behind the target centre
+const MARKER_ARC_STEPS := 40
 const COL_LINE_MOVING := Color(1.0, 0.85, 0.5, 0.3)  # owner: a plain, faded line (not dashes)
 const COL_SELECTED := Color(0.55, 0.9, 1.0, 0.95)  # T200 selected look: cyan ring under the ship
 const SEL_RADIUS_BASE := 0.5 * PLAYER_SHIP_SCALE
@@ -151,12 +153,10 @@ var _clock := 0.0              # game seconds, drives the target marker pulse
 var _look: Dictionary = ShipLook.default_look()  # T356
 var _model_node: Node3D
 var _plume: EnginePlume
-var _marker_mat: StandardMaterial3D
 var _model_path := ""
 var _holder: Node3D
 var _line: MeshInstance3D
 var _mesh: ImmediateMesh
-var _marker: MeshInstance3D
 var _gig_rings: Array = []  # T273: one ring per accepted gig target (pool, grows to the board size)
 var _sel: MeshInstance3D       # T200: ring around the ship while it is selected
 var _mat: StandardMaterial3D
@@ -553,19 +553,6 @@ func _ready() -> void:
 	_line.material_override = _mat
 	_line.top_level = true  # drawn in world space whatever the parent does
 	add_child(_line)
-	var ring := TorusMesh.new()
-	ring.inner_radius = MARKER_RADIUS * 0.94  # thin like the other rings (selection 0.9, gig 0.96, dock 0.94)
-	ring.outer_radius = MARKER_RADIUS
-	_marker = MeshInstance3D.new()
-	_marker.mesh = ring
-	_marker_mat = StandardMaterial3D.new()  # T274: own material so the pulse can change alpha
-	_marker_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	_marker_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	_marker_mat.no_depth_test = true
-	_marker.material_override = _marker_mat
-	_marker.top_level = true
-	_marker.visible = false
-	add_child(_marker)
 	var sring := TorusMesh.new()
 	sring.inner_radius = sel_radius() * 0.9
 	sring.outer_radius = sel_radius()
@@ -603,7 +590,6 @@ func update_from(f, view_system: int, selected: bool = false) -> void:
 		_seen = false
 		visible = false
 		_line.visible = false
-		_marker.visible = false
 		_sel.visible = false
 		return
 	var sys := int(_call(f, "system_id", [], 1))
@@ -613,7 +599,6 @@ func update_from(f, view_system: int, selected: bool = false) -> void:
 	visible = show_ship
 	_line.visible = visible
 	if not visible:
-		_marker.visible = false
 		_sel.visible = false
 		return
 	_ensure_model(str(_call(f, "model_path", [], "")))
@@ -633,7 +618,6 @@ func update_from(f, view_system: int, selected: bool = false) -> void:
 	_fx_events(f, selected)
 	var tgt = _call(f, "target", [], {})
 	_mesh.clear_surfaces()
-	_marker.visible = false
 	_update_gig_rings(f, sys)
 	if typeof(tgt) == TYPE_DICTIONARY and tgt.has("pos") and state(f) != "building":
 		var tp: Vector3 = tgt["pos"]
@@ -642,23 +626,39 @@ func update_from(f, view_system: int, selected: bool = false) -> void:
 			if not has_heading:
 				rotation.y = atan2(-d.x, -d.y)  # turn toward the heading (model forward is -Z)
 			var col := COL_LINE_PAUSED if paused else COL_LINE_MOVING  # paused look: faint planned line, ship waits
-			_mesh.surface_begin(Mesh.PRIMITIVE_LINES)
 			var a := pos + Vector3(0, LIFT, 0)
 			var b := tp + Vector3(0, LIFT, 0)
-			_mesh.surface_set_color(col)  # one solid segment from the ship to the target
+			var pulse := 0.0
+			var ph := 0.0
+			if Juice.motion > 0.0 and state(f) == "flying":  # T274: slow pulse on the target while the ship flies (game clock)
+				ph = 0.5 + 0.5 * sin(_clock * _k("flight_juice_marker_hz") * TAU)
+				pulse = _k("flight_juice_marker_amp") * Juice.motion * ph
+			var r := MARKER_RADIUS * (1.0 + pulse)
+			var dist := d.length()
+			var tail := clampf(MARKER_TAIL * r, r * 1.2, dist * 0.8)  # tip distance behind the target centre, never behind the ship
+			var dir := Vector3(d.x, 0.0, d.y).normalized()
+			var tip := b - dir * tail
+			_mesh.surface_begin(Mesh.PRIMITIVE_LINES)  # the course: ship to the tip of the droplet
+			_mesh.surface_set_color(col)
 			_mesh.surface_add_vertex(a)
 			_mesh.surface_set_color(col)
-			_mesh.surface_add_vertex(b)
+			_mesh.surface_add_vertex(tip)
 			_mesh.surface_end()
-			_marker.global_position = tp + Vector3(0, LIFT, 0)
-			_marker.visible = true
-			if Juice.motion > 0.0 and state(f) == "flying":  # T274: slow pulse on the target while the ship flies (game clock)
-				var ph := 0.5 + 0.5 * sin(_clock * _k("flight_juice_marker_hz") * TAU)
-				_marker.scale = Vector3.ONE * (1.0 + _k("flight_juice_marker_amp") * Juice.motion * ph)
-				_marker_mat.albedo_color = Color(COL_SELECTED.r, COL_SELECTED.g, COL_SELECTED.b, lerpf(MARKER_ALPHA_LOW, 1.0, ph))
-			else:
-				_marker.scale = Vector3.ONE
-				_marker_mat.albedo_color = Color(COL_SELECTED.r, COL_SELECTED.g, COL_SELECTED.b, 1.0)
+			# One closed stretched droplet: the tip points back along the course, the straight sides run tangent to a circle of radius r
+			# around the target, the round end closes in front. One thin line, same cyan as the selection ring, pulsing in alpha.
+			var mc := Color(COL_SELECTED.r, COL_SELECTED.g, COL_SELECTED.b, lerpf(MARKER_ALPHA_LOW, 1.0, ph) if pulse > 0.0 else 1.0)
+			var side := Vector3(-dir.z, 0.0, dir.x)
+			var phi := acos(clampf(r / tail, 0.0, 1.0))  # angle of the tangent point from the back direction
+			_mesh.surface_begin(Mesh.PRIMITIVE_LINE_STRIP)
+			_mesh.surface_set_color(mc)
+			_mesh.surface_add_vertex(tip)
+			for k in MARKER_ARC_STEPS + 1:
+				var th := phi + (TAU - 2.0 * phi) * float(k) / float(MARKER_ARC_STEPS)
+				_mesh.surface_set_color(mc)
+				_mesh.surface_add_vertex(b + (-dir * cos(th) + side * sin(th)) * r)
+			_mesh.surface_set_color(mc)
+			_mesh.surface_add_vertex(tip)
+			_mesh.surface_end()
 
 ## T273: a ring at each accepted gig target in this system. When the gig starts, one big thin blue ring pulses out once (GIG_PULSE_S);
 ## then a thin blue ring stays at the target, not pulsing (amber once the offer is within balance gig_marker_amber_cycles of its deadline).
