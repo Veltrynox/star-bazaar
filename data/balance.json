@@ -10,7 +10,7 @@
     "ship_price_step_1": 0.6,
     "ship_price_step_2": 0.8,
     "ship_idle_upkeep": 5,
-    "ship_scale": 0.8,
+    "ship_scale": 1.04,
     "bundle_bonus_pct": 0.05,
     "bundle_bonus_cap": 150,
     "salvage_share": 0.4,
