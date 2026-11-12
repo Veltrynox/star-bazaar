@@ -24,19 +24,19 @@ GIG01_EPI | Gig 01, epilogue line | The Bureau lists the Ninth Tally as overdue.
 ## GIG02 The relay keeper (a lamp still lit)
 
 GIG02_TITLE | Gig 02, arrival window title | The relay lamp
-GIG02_HOOK | Gig 02, signal hint | A relay light is blinking in a pattern the old shift books call a keeper's check. Twice, a pause, twice again. The relay was struck from the Plan cycles ago, and no one filed a replacement. If the lamp is still lit, then someone is still lighting it, and no ship has stopped to ask who.
-GIG02_ARRIVE | Gig 02, arrival window text | A relay station with one lamp lit. A keeper in a shift coat waves from the glass. The shift form lies half filled. If you carry the keeper out, the form stays blank and the lamp goes dark. If you stand the watch, the scout waits and the keeper stays.
-GIG02_A_BTN | Gig 02, button A | Carry the keeper out
-GIG02_B_BTN | Gig 02, button B | Stand the keeper's watch
-GIG02_A_OUT_MIL | Gig 02, outcome A, Military | The keeper hands you a lot of crates from the relay shelf, stamped for a depot you know. You pay a small fee at the dock for the carry. The lamp goes out behind you. The form stays blank.
-GIG02_A_OUT_LUX | Gig 02, outcome A, Luxury | The keeper presses a lot of bright parcels into your hands. You pay a small fee at the dock for the carry. The lamp goes out behind you.
-GIG02_A_OUT_MIN | Gig 02, outcome A, Minerals | The keeper gives you a lot of rock sacks from the relay shelf, marked in grease pencil. You pay a small fee at the dock for the carry. The lamp goes out behind you.
-GIG02_A_OUT_BIO | Gig 02, outcome A, Biotech | The keeper gives you a lot of damp jars from the window shelf. You pay a small fee at the dock for the carry. The lamp goes out behind you.
-GIG02_B_OUT_MIL | Gig 02, outcome B, Military | You hold the lamp for a shift. The relay pays a small sum for the watch, and its log shows who passed and what they carried. The keeper sleeps in a chair.
-GIG02_B_OUT_LUX | Gig 02, outcome B, Luxury | You hold the lamp for a shift. The relay pays a small sum for the watch, and its log shows which ships called, and where they sold well. The keeper sleeps in a chair.
-GIG02_B_OUT_MIN | Gig 02, outcome B, Minerals | You hold the lamp for a shift. The relay pays a small sum for the watch, and its log shows which ships hauled rock, and where they sold it. The keeper sleeps in a chair.
-GIG02_B_OUT_BIO | Gig 02, outcome B, Biotech | You hold the lamp for a shift. The relay pays a small sum for the watch, and its log shows which ships carried cold cargo, and where they sold it. The keeper sleeps in a chair.
-GIG02_EPI | Gig 02, epilogue line | The keeper's form is filed under the common good. The Bureau does not ask who filled it in.
+GIG02_HOOK | Gig 02, signal hint | A relay lamp is blinking a keeper's check: twice, a pause, twice again. The relay marks a debris field that ships use as a short cut, and it was struck from the Plan cycles ago. Nobody was sent to pay its keeper or relieve him. If the lamp is still lit, the old keeper is still out there, alone, keeping ships off the rocks.
+GIG02_ARRIVE | Gig 02, arrival window text | An old man in a shift coat waves from the relay glass. He has kept this lamp for years without pay, so ships do not hit the debris. He is ill and wants to go home, but no one will take his shift. Take him to a dock and the lamp goes dark, or keep it for him while he rests.
+GIG02_A_BTN | Gig 02, button A | Take the keeper home
+GIG02_B_BTN | Gig 02, button B | Keep the lamp for him
+GIG02_A_OUT_MIL | Gig 02, outcome A, Military | He pays with what he has: crates from the relay shelf, stamped for a depot you know. The dock charges a small fee for an extra passenger. The lamp goes out behind you, and the short cut is closed for now.
+GIG02_A_OUT_LUX | Gig 02, outcome A, Luxury | He pays with what he has: bright parcels traders left for him over the years. The dock charges a small fee for an extra passenger. The lamp goes out behind you, and the short cut is closed for now.
+GIG02_A_OUT_MIN | Gig 02, outcome A, Minerals | He pays with what he has: rock sacks from the relay shelf, marked in grease pencil. The dock charges a small fee for an extra passenger. The lamp goes out behind you, and the short cut is closed for now.
+GIG02_A_OUT_BIO | Gig 02, outcome A, Biotech | He pays with what he has: damp jars he grew on the window shelf. The dock charges a small fee for an extra passenger. The lamp goes out behind you, and the short cut is closed for now.
+GIG02_B_OUT_MIL | Gig 02, outcome B, Military | Your crew keeps the lamp through a long shift while he sleeps. Passing haulers leave a small sum in the relay box, as they always did. His log shows who passed and what they carried. When he wakes, he looks better.
+GIG02_B_OUT_LUX | Gig 02, outcome B, Luxury | Your crew keeps the lamp through a long shift while he sleeps. Passing traders leave a small sum in the relay box, as they always did. His log shows which ships called and where they sold well. When he wakes, he looks better.
+GIG02_B_OUT_MIN | Gig 02, outcome B, Minerals | Your crew keeps the lamp through a long shift while he sleeps. Passing haulers leave a small sum in the relay box, as they always did. His log shows which ships hauled rock and where they sold it. When he wakes, he looks better.
+GIG02_B_OUT_BIO | Gig 02, outcome B, Biotech | Your crew keeps the lamp through a long shift while he sleeps. Passing haulers leave a small sum in the relay box, as they always did. His log shows which ships carried cold cargo and where. When he wakes, he looks better.
+GIG02_EPI | Gig 02, epilogue line | The Bureau still lists the relay as closed. The ships that use the short cut know better.
 
 ## Phase 2 signals (T275, 2026-11-06). GIG03 and GIG04 are shared: all four branch outcomes. GIG05 (Military and Minerals) and GIG06 (Luxury and Biotech) are branch gigs: outcome lines only for those two branches, and the game offers each only to a company with that branch.
 
