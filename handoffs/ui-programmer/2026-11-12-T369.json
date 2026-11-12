@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-12",
+  "task": "T369",
+  "status": "done",
+  "files_changed": ["game/main.gd", "game/map.gd", "game/route_line.gd", "game/planet_panel.gd", "story/screens.md", "data/story_text.json", "tools/tests/run_tests.gd"],
+  "open_questions": ["Raid, cluster and closed-planet reason lines are code-only, not seen in a render.", "The units-per-lane numbers show the competition; dividing stock fairly between lanes is still an owner decision."],
+  "handoff": "Lane tags show units carried next cycle ('1 ship · 6 units · +64') and 'nothing left: <planet> stock goes to other lanes' when earlier lanes take the stock; planet card connections show 'N / cycle' per lane, a 'Stock X / needed Y per cycle' line under the goods grid when lanes compete, and an inline reason with a fix hint under every lane that carries 0, on both source and destination cards. One project_storage call per (storage, good), cached until routes or cash change. Written by the main session from the agent's report; renders wt/_scratch/t369_map2.png and t369_card3.png.",
+  "details": {}
+}

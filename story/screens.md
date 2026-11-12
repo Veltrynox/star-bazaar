@@ -1252,6 +1252,21 @@ LBL_ROUTE_COST | 20 | Lane label on the map when no result can be projected for 
 LBL_ROUTE_NO_STOCK | 30 | Lane label on the map after the ship count when a running lane loads nothing this cycle because the source has no stock | nothing to load
 LBL_ROUTE_NO_CASH | 40 | Lane label on the map after the ship count when a running lane cannot pay the trip fare this cycle | not enough cash for the trip
 LBL_ROUTE_NO_ROOM | 40 | Lane label on the map after the ship count when a running lane has no room at the destination this cycle | no room at the destination
+LBL_ROUTE_UNITS | 20 | Lane label on the map after the ship count: units the lane carries next cycle; {n} is the number (shown with '1 unit' for one) | {n} units
+LBL_ROUTE_UNIT_ONE | 20 | Lane label on the map, same as LBL_ROUTE_UNITS for exactly one unit | {n} unit
+LBL_ROUTE_NO_STOCK_SHARED | 60 | Lane label on the map after the ship count when a running lane loads nothing because earlier lanes or Sell orders of the same good take the source planet's stock; {planet} is the source | nothing left: {planet} stock goes to other lanes
+LBL_CONN_UNITS | 20 | Planet card, Connections row of a lane: units the lane carries next cycle; {n} is the number | {n} / cycle
+LBL_CONN_SHARED | 60 | Planet card, muted line under the goods grid when the lanes and orders of one good want more than the planet has; {stock} is the stock plus this cycle's Buy, {want} the units they ask | Stock {stock} / needed {want} per cycle
+LBL_CONN_WHY_NO_STOCK | 110 | Planet card, Connections, muted line under a lane that carries nothing because the source storage has none; {planet} source, {good} | {planet} has no {good} in storage. Turn Buy on for {good} at {planet}, or send it there.
+LBL_CONN_WHY_SHARED | 110 | Planet card, Connections, muted line under a lane that carries nothing because other lanes and Sell orders take the source stock first; {planet}, {good} | Other lanes and Sell orders take {planet}'s {good} first. Send more there or turn Buy on.
+LBL_CONN_WHY_DEST_FULL | 110 | Planet card, Connections, muted line under a blocked lane whose destination storage is full with no outflow; {planet} destination, {good} | {planet}'s storage for {good} is full and nothing takes it out. Turn Sell on there.
+LBL_CONN_WHY_WAITING | 110 | Planet card, Connections, muted line under a lane waiting because the destination is full but has outflow; {planet}, {good} | {planet}'s storage for {good} is full. The ship waits for room.
+LBL_CONN_WHY_NO_CASH | 110 | Planet card, Connections, muted line under a lane that cannot pay its trip fare | Not enough cash for the trip. It runs again when you can pay.
+LBL_CONN_WHY_CLOSED | 110 | Planet card, Connections, muted line under a lane with a closed planet at one end | A planet on this route is closed. The ship waits, or use Move ship if offered.
+LBL_CONN_WHY_RAID | 110 | Planet card, Connections, muted line under a lane whose load a raid cut to nothing | A raid cut this lane's load to nothing. It recovers on its own.
+LBL_CONN_WHY_CLUSTER_EMPTY | 110 | Planet card, Connections, muted line under an ore lane whose asteroid cluster is empty | The asteroid cluster is empty. Remove this route.
+LBL_CONN_WHY_CLUSTER_SHARED | 110 | Planet card, Connections, muted line under an ore lane whose cycle yield another ship took | Another ship took this cycle's ore. It loads again next cycle.
+LBL_CONN_WHY_NOTHING | 110 | Planet card, Connections, muted line under a lane that carries nothing for a reason not listed | Nothing can be loaded this cycle.
 LBL_FC_NO_EARN | 80 | Cash forecast, warning line under Expenses; {route} is "Source > Destination (good)" | {route} earns nothing: it only moves stock to storage.
 
 ## Next cycle tooltip, sources and uses (2026-11-04)

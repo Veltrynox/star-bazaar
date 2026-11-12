@@ -70,6 +70,7 @@ func _run() -> void:
 	await _test_tut_sell_and_order()
 	await _test_tutorial_lock()
 	_test_route_tag()
+	await _test_lane_units_shared()
 	await _test_ship_clock()
 	await _test_energy_then_food()
 	await _test_salvage()
@@ -9070,6 +9071,38 @@ func _test_panel_thumb_switch() -> void:
 	check(_leaked_clicks == 0, "thumb switch: a click on an icon is marked handled, so it never reaches the map as a click on space", str(_leaked_clicks))
 	await _free_main(m)
 
+
+## T369: two lanes of one good from one planet with less stock than their caps: the first carries it, the second says the stock goes
+## to other lanes, and the planet card lists both lanes' units.
+func _test_lane_units_shared() -> void:
+	_wipe_user()
+	var m: Control = await _new_main()
+	m._dismiss_preface()
+	var c := "energy"
+	m.cash = 100000
+	m.ships = 4
+	m.learned_skills.append("FND_STORAGE")
+	for k in ["planet:0", "planet:1", "planet:2"]:
+		m.storage.ensure(k)
+		m.storage.remove(k, c, m.storage.amount(k, c))
+	check(m.send_stock(0, 1, c)["ok"] and m.send_stock(0, 2, c)["ok"], "lane units: two lanes set up")
+	for r in m.engine.routes:
+		r["fresh"] = 1.0
+	m.storage.add("planet:0", c, 3)
+	m._push_routes_to_map()
+	var l1 = m.map.route_lines[int(m.engine.routes[0]["id"])]
+	var l2 = m.map.route_lines[int(m.engine.routes[1]["id"])]
+	check(l1.tag.text.contains("3 units") or l1.tag.text.contains("2 units") or l1.tag.text.contains("1 unit"), "lane units: the first lane shows its units", l1.tag.text)
+	check(l2.tag.text.contains("stock goes to other lanes"), "lane units: the second lane says the stock goes to other lanes", l2.tag.text)
+	m._on_planet_clicked(0)
+	await process_frame
+	check(m.planet_panel.find_children("LaneUnits", "Label", true, false).size() == 2, "lane units: the planet card lists both lanes")
+	var whys := m.planet_panel.find_children("LaneWhy", "Label", true, false)
+	check(whys.size() == 1 and (whys[0] as Label).text.contains("first"), "lane units: the card says in plain words why the second lane carries nothing", str(whys))
+	m._on_planet_clicked(2)
+	await process_frame
+	check(m.planet_panel.find_children("LaneWhy", "Label", true, false).size() == 1, "lane units: the destination card shows the same reason")
+	await _free_main(m)
 
 ## Owner change 2026-11-04: the lane label shows the lane's net per cycle (same projection as the cash forecast),
 ## and the forecast flags a lane that earns nothing.

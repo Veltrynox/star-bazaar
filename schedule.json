@@ -4020,6 +4020,26 @@
         "tools/build_story.py"
       ],
       "priority": 1
+    },
+    {
+      "task_id": "T369",
+      "title": "Show what each lane carries per cycle: map lane tag and planet card connections",
+      "owner_agent": "ui-programmer",
+      "depends_on": [],
+      "status": "done",
+      "turn_cap": 40,
+      "window": "Owner request 2026-11-12: 'show how much each lane carries on route and in the planet UI each cycle'.",
+      "brief": "Owner request 2026-11-12 (lane tag 'Ship: 1 - nothing to load' on a map lane out of Voltara while other lanes of the same good show +163 and +327, all sharing one planet's stock): 'we need to show how much each lane carries on its route and in the planet UI each cycle'. The numbers already exist: RouteEngine.project_storage(key, good, cash) (game/route_engine.gd ~line 801) returns parts [{dir in|out, kind buy|route|sell, route id, planet, n}] for one storage and good, run in the real cycle order, so each route's n out of the source is exactly what it will load next cycle; route tag data is built in game/main.gd (~lines 1987 and 2045: d['reason'], the e2 dict with status, net, net_ok) and drawn by RouteLine.tag_text (game/route_line.gd ~485); the planet card's next-cycle tooltip is PlanetPanel.next_cycle_breakdown / next_cycle_label (game/planet_panel.gd ~853-900). DO: (1) Map lane tag: a running lane shows the units it carries next cycle before the money: '1 ship · 18 units · +163' (new id LBL_ROUTE_UNITS '{n} units', ' · ' joined like the existing parts; one unit reads '1 unit'). When the lane carries 0 the tag keeps the existing 'nothing to load / no room / not enough cash' reason, but when the reason is stock and the source planet's stock is being used by earlier lanes of the same good, say so: '1 ship · nothing left: Voltara stock goes to other lanes' (new id LBL_ROUTE_NO_STOCK_SHARED; use it when the projection shows the source storage's out parts to other routes or Sell orders this cycle are greater than zero; otherwise keep LBL_ROUTE_NO_STOCK). Keep the tag short (it must still fit the lane label length the code allows; truncate nothing, shorten wording if needed). The numbers come from one project_storage call per (source storage, good) per refresh, cached in the same pass that already builds the lane data; no per-frame cost. (2) Planet card, every planet that is the source or destination of a lane or has a Buy or Sell order: in the connections block (the card's CONNECTIONS list, grep it in game/planet_panel.gd) each lane row gets '<units> per cycle' on its right (new id LBL_CONN_UNITS '{n} / cycle'), from the same projection; a lane that carries 0 shows '0' in the muted style with its short reason as the row tooltip. Under the goods grid tile of a good that has more than one outgoing lane or order, one muted line 'Stock {stock} / needed {want} per cycle' (new id LBL_CONN_SHARED) when the lanes together want more than the planet has (stock plus this cycle's Buy), so the owner sees at a glance that lanes compete; want = sum of the out parts' planned amounts before stock limits (use RouteEngine.planned_units or _route_cap per lane, and local_amount for Sell orders). The existing next-cycle tooltip is unchanged. (3) Texts: English only, add the ids to story/screens.md next to the lane label ids (LBL_ROUTE_NO_STOCK, ~line 1252) and rebuild with python3 tools/build_story.py (never edit data/story_text.json by hand, no Russian, translation is paused). (4) Render check per CLAUDE.md (ui task): a scratch script under /Volumes/Work/Gamedev/Projects/AgentCourse/wt/_scratch that loads the owner's save (/Users/macmini/Library/Application Support/Godot/app_userdata/StarBazaar/autosave.json through main.apply_state, as wt/_scratch/skills_shot.gd does), saves a PNG of the map with the lane tags and of Voltara's card with its connections; Read both PNGs; fix only objective breakage (clipped or overlapping text). Do not change routing rules, caps, shares or any balance number. Add one headless test: with two lanes of one good from one planet with stock less than their combined caps, the tag data of the first lane carries its units, the second shows the shared-stock reason, and the planet card lists both units. Do not run the test suite, do not commit. Handoff handoffs/ui-programmer/2026-11-12-T369.json with the PNG paths.",
+      "size": "M",
+      "touches": [
+        "game/main.gd",
+        "game/route_line.gd",
+        "game/planet_panel.gd",
+        "story/screens.md",
+        "data/story_text.json",
+        "tools/tests/run_tests.gd"
+      ],
+      "priority": 1
     }
   ],
   "done_task_ids": [

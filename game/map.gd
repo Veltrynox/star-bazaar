@@ -781,7 +781,7 @@ func set_routes(routes: Array) -> void:
 			_label_layer_node().add_child(line.tag2d)
 			if _routes_seen and int(id) > _max_route_id:
 				line.draw_in()  # T219: a route made now grows from its source end (a load or a rebuild does not)
-		line.set_style(str(r.get("status", "running")), int(r.get("ships", 1)), str(r.get("c", "")), int(r.get("net", 0)), str(r.get("reason", "")), bool(r.get("net_ok", false)), int(r.get("cost", 0)), str(r.get("why", "")))
+		line.set_style(str(r.get("status", "running")), int(r.get("ships", 1)), str(r.get("c", "")), int(r.get("net", 0)), str(r.get("reason", "")), bool(r.get("net_ok", false)), int(r.get("cost", 0)), str(r.get("why", "")), int(r.get("units", -1)), str(r.get("shared", "")))
 	for id in route_lines.keys():
 		if not seen.has(id):
 			if not route_lines[id].fade_out():  # T219: fades, then frees itself (paused or no motion: freed at once)

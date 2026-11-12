@@ -454,8 +454,8 @@ static func side_vector(t: Vector3, vp: Vector3) -> Vector3:
 	return alt / alt.length()
 
 ## Tint from route status: running = commodity colour, stalled (waiting) = dashed warn, blocked = solid red.
-func set_style(status: String, ships: int, commodity: String = "", net: int = 0, reason: String = "", net_ok: bool = true, cost: int = 0, why: String = "") -> void:
-	_set_tag(status, ships, net, reason, net_ok, cost, why)
+func set_style(status: String, ships: int, commodity: String = "", net: int = 0, reason: String = "", net_ok: bool = true, cost: int = 0, why: String = "", units: int = -1, shared: String = "") -> void:
+	_set_tag(status, ships, net, reason, net_ok, cost, why, units, shared)
 	if _ships_seen >= 0 and ships > _ships_seen:
 		pulse()  # T219: a ship was sent on this lane
 	_ships_seen = ships
@@ -484,7 +484,7 @@ func set_style(status: String, ships: int, commodity: String = "", net: int = 0,
 		mats[si].set_shader_parameter("dash", 1.0 if (si == 0 and waiting) else 0.0)
 
 ## Route tag text as in the design (SystemView route tag): "2 ships · +286", or the status when not running.
-static func tag_text(status: String, ships: int, net: int, reason: String = "", net_ok: bool = true, cost: int = 0, why: String = "") -> String:
+static func tag_text(status: String, ships: int, net: int, reason: String = "", net_ok: bool = true, cost: int = 0, why: String = "", units: int = -1, shared: String = "") -> String:
 	if status == "blocked":
 		return StoryText.get_or("LBL_ROUTE_BLOCKED", "Blocked")
 	if status != "running":
@@ -492,11 +492,16 @@ static func tag_text(status: String, ships: int, net: int, reason: String = "", 
 	var n := StoryText.get_or("LBL_ROUTE_SHIP_ONE", "{n} ship", {"n": ships}) if ships == 1 else StoryText.get_or("LBL_ROUTE_SHIP_MANY", "{n} ships", {"n": ships})
 	if not net_ok and why != "" and why != "none":  # running lane that moves nothing: say why instead of a cost
 		var ids := {"stock": ["LBL_ROUTE_NO_STOCK", "nothing to load"], "cash": ["LBL_ROUTE_NO_CASH", "not enough cash for the trip"], "room": ["LBL_ROUTE_NO_ROOM", "no room at the destination"]}
+		if why == "stock" and shared != "":  # T369: the stock is there, other lanes take it
+			return "%s \u00b7 %s" % [n, StoryText.get_or("LBL_ROUTE_NO_STOCK_SHARED", "nothing left: {planet} stock goes to other lanes", {"planet": shared})]
 		if ids.has(why):
 			return "%s \u00b7 %s" % [n, StoryText.get_or(ids[why][0], ids[why][1])]
 	if not net_ok:  # no projection for this lane: show its fixed running cost, marked as cost
 		return "%s \u00b7 %s" % [n, StoryText.get_or("LBL_ROUTE_COST", "cost {n}", {"n": "\u2212%d" % cost})]
 	var sg := "\u2212%d" % -net if net < 0 else ("+%d" % net if net > 0 else "0")
+	if units > 0:  # T369: what the lane carries next cycle, before the money
+		var u := StoryText.get_or("LBL_ROUTE_UNIT_ONE", "{n} unit", {"n": units}) if units == 1 else StoryText.get_or("LBL_ROUTE_UNITS", "{n} units", {"n": units})
+		return "%s \u00b7 %s \u00b7 %s" % [n, u, sg]
 	return "%s \u00b7 %s" % [n, sg]
 
 ## Why a route that is not running is not moving: the route's own reason; "Waiting for room" only for the waiting state.
@@ -509,7 +514,7 @@ static func reason_text(status: String, reason: String) -> String:
 		return StoryText.get_or("ST_WAITING_ROOM", "Waiting for room")
 	return status.capitalize()
 
-func _set_tag(status: String, ships: int, net: int, reason: String = "", net_ok: bool = true, cost: int = 0, why: String = "") -> void:
+func _set_tag(status: String, ships: int, net: int, reason: String = "", net_ok: bool = true, cost: int = 0, why: String = "", units: int = -1, shared: String = "") -> void:
 	if tag == null:
 		tag = Label3D.new()
 		tag.billboard = BaseMaterial3D.BILLBOARD_ENABLED
@@ -532,7 +537,7 @@ func _set_tag(status: String, ships: int, net: int, reason: String = "", net_ok:
 		tag2d.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		tag2d.add_theme_font_override("font", tag.font)
 		tag2d.add_theme_color_override("font_outline_color", Ui.col("panel_100"))
-	tag.text = tag_text(status, ships, net, reason, net_ok, cost, why)
+	tag.text = tag_text(status, ships, net, reason, net_ok, cost, why, units, shared)
 	var ok := status == "running"
 	var tint := Ui.col("ink")  # net result: green gain, red loss, plain at zero; a cost fallback stays plain
 	if ok and net_ok:

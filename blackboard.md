@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-12 16:10 run: T361 T362 T363
-- Summary: Star Bazaar guidance, must set only: Bazaar.next_step / bill_lines / step_line / is_fed, a cycle-end reminder notice (every bazaar_remind_cycles = 4 cycles, only while a bill item is short and unfed) and TIP_BILL (save version 24); texts for the how-to lines and a long description per wing; Bazaar panel with a how line, a step line per short row and Buy at / Send to buttons; a Star Bazaar block on the capital's planet card with a lit Buy button; the top Next Up strip lost its Bazaar slot; the wing popup shows a picture, the effect line and a description; six wing images generated with codex in assets/wings. Not built: Main line card, Bazaar card and Next Up clicks, stage-done next line.
-- Why this task: owner request 2026-11-12 ('implement the must ones only', remove the top reminder, wing descriptions, wing pictures via codex).
-- Approach: gameplay-programmer (data) and story-designer (texts) in parallel, then ui-programmer; main session made the 2B, 3A, 3B one-line effects truthful and generated the images with codex exec (generic art prompts only), shrunk to 960 px.
-- Agent prompts: Agent tool, gameplay-programmer T361, story-designer T363, ui-programmer T362, briefs read from schedule.json; handoffs in handoffs/<agent>/2026-11-12-T36x.json.
-- Worked: scratch renders of the panel, capital card and wing popup looked at; no objective breakage.
-- Failed / did not work: Buy at highlight uses a new planet_panel.show_lit instead of the tutorial helper; Send to may ask one more click for a stop; a small window scroll not tested; run_tests.gd line ~7336 asserts SaveGame.VERSION == 22 and was already stale.
-- Files and commits: see git log on main for T361, T362, T363.
-- Left to do: owner decision on stage 3 wings (data gives 3A hold units and 3B tax, names say weather and gig premium); owner decision on the Space Storage draw rule (see chat); Russian for all new ids by the Haiku agents when asked.
-
 ## 2026-11-12 17:05 run: T364
 - Summary: The Space Storage relay is removed: a route or Sell order at a planet now uses only that planet's own storage (the owner's save showed Voltara -> Space Storage +19 and Voltara -> Flintmoor drawing the same 19 back out in one cycle, storage ended at 0). Routes into a Space Storage, Storage Links, workshops, link upkeep and the Bazaar bill are untouched; space_key_for and the backup parts of project_storage are gone; the two backup tooltip texts are deleted and the station panel text rewritten.
 - Why this task: owner request 2026-11-12 ('Remove the space storage relay functionality').
@@ -75,3 +65,13 @@
 - Failed / did not work: not seen on the board in a window.
 - Files and commits: see git log on main for T368.
 - Left to do: owner to say if 'eleven taps' should come back in the quota drum hook (the file rule forbids numbers, so the agent dropped it); the arrival texts still say 'the scout' for the Flagship (older word, a later pass); Russian hooks when translation resumes.
+
+## 2026-11-12 20:30 run: T369
+- Summary: Each lane says what it carries: map tags show units next cycle and 'nothing left: <planet> stock goes to other lanes' when earlier lanes take the shared stock; planet card connections show N / cycle per lane, a Stock / needed line when lanes compete, and an inline reason with a fix hint under every stopped lane on both its source and destination card. One cached projection per (storage, good) per refresh. Also today, separate commits: double click on the Flagship card switches to its system; the hub's Buy a ship for the pool is always offered while the pool has room.
+- Why this task: owner requests 2026-11-12 ('show how much each lane carries', 'explain why the lane has stopped in the planet UI').
+- Approach: one ui-programmer task, the stopped-lane reasons added mid-run by message.
+- Agent prompts: Agent tool, ui-programmer, brief read from schedule.json T369 plus the owner's addition; handoff written by the main session.
+- Worked: renders of the map tags and Voltara's card looked at (wt/_scratch/t369_map2.png, t369_card3.png); nothing clipped.
+- Failed / did not work: raid, cluster and closed reasons not rendered; test not run.
+- Files and commits: see git log on main for T369.
+- Left to do: owner decision on dividing a planet's stock fairly between lanes before they run.

@@ -2019,8 +2019,108 @@ func planet_name(i: int) -> String:
 		return StoryText.get_or("LBL_UNKNOWN_DARK_WORLD" if DeadWorlds.is_dead(p) else "LBL_UNKNOWN_WORLD", "Unknown world")
 	return str(p.get("name", p.get("id", "?")))
 
+## T369: one project_storage per (storage, good), kept until the routes are pushed again or the cash differs. Read by the lane tags and the planet card.
+var _proj_cache := {}
+var _proj_cash := -1
+
+func lane_projection(key: String, c: String) -> Dictionary:
+	if _proj_cash != int(cash):
+		_proj_cache.clear()
+		_proj_cash = int(cash)
+	var ck := key + "|" + c
+	if not _proj_cache.has(ck):
+		_proj_cache[ck] = engine.project_storage(key, c, int(cash))
+	return _proj_cache[ck]
+
+## T369: units a route carries next cycle (its part of the source storage projection; an ore lane reads the destination).
+func route_units(rec: Dictionary) -> int:
+	var cl: bool = engine.from_cluster(rec)
+	var pr := lane_projection(str(rec["dst"] if cl else rec["src"]), str(rec["c"]))
+	var n := 0
+	for pt in pr["parts"]:
+		if pt["kind"] == "route" and int(pt["route"]) == int(rec["id"]) and pt["dir"] == ("in" if cl else "out"):
+			n += int(pt["n"])
+	return n
+
+## T369: units the source storage hands to other lanes and Sell orders next cycle (not counting this lane's own ships).
+func other_out_units(rec: Dictionary) -> int:
+	if engine.from_cluster(rec):
+		return 0
+	var pr := lane_projection(str(rec["src"]), str(rec["c"]))
+	var n := 0
+	for pt in pr["parts"]:
+		if pt["dir"] != "out" or pt["kind"] == "buy":
+			continue
+		if pt["kind"] == "route":
+			var i: int = engine.find_by_id(int(pt["route"]))
+			if i >= 0 and engine.routes[i]["a"] == rec["a"] and engine.routes[i]["b"] == rec["b"]:
+				continue
+		n += int(pt["n"])
+	return n
+
+## T369: one plain line saying why a lane carries nothing next cycle, with what to do ("" when it carries units or nothing is known).
+## Reads live engine state and the cached projection; same order as the cycle (closed, full, empty, cash).
+func lane_hint(rec: Dictionary) -> String:
+	if route_units(rec) > 0:
+		return ""
+	var c := str(rec["c"])
+	var g: String = Ui.good_name(c).to_lower()
+	var src_n := planet_name(int(rec["a"]))
+	var dst_n := planet_name(int(rec["b"]))
+	if not engine.src_open(rec) or not engine.dst_open(rec):
+		for e in [int(rec["a"]), int(rec["b"])]:
+			var lock: String = engine.dead_lock_reason(e)
+			if lock != "":
+				return "%s: %s" % [planet_name(e), lock]
+		return StoryText.get_or("LBL_CONN_WHY_CLOSED", "A planet on this route is closed. The ship waits, or use Move ship if offered.")
+	if storage.is_full(str(rec["dst"]), c):
+		if not engine.has_outflow(int(rec["b"]), c):
+			return StoryText.get_or("LBL_CONN_WHY_DEST_FULL", "{planet}'s storage for {good} is full and nothing takes it out. Turn Sell on there.", {"planet": dst_n, "good": g})
+		return StoryText.get_or("LBL_CONN_WHY_WAITING", "{planet}'s storage for {good} is full. The ship waits for room.", {"planet": dst_n, "good": g})
+	if engine.from_cluster(rec):
+		if engine.clusters == null or engine.clusters.left(Clusters.index_of(int(rec["a"]))) <= 0:
+			return StoryText.get_or("LBL_CONN_WHY_CLUSTER_EMPTY", "The asteroid cluster is empty. Remove this route.")
+		return StoryText.get_or("LBL_CONN_WHY_CLUSTER_SHARED", "Another ship took this cycle's ore. It loads again next cycle.")
+	if other_out_units(rec) > 0:
+		return StoryText.get_or("LBL_CONN_WHY_SHARED", "Other lanes and Sell orders take {planet}'s {good} first. Send more there or turn Buy on.", {"planet": src_n, "good": g})
+	var inflow := 0
+	for pt in lane_projection(str(rec["src"]), c)["parts"]:
+		if pt["dir"] == "in":
+			inflow += int(pt["n"])
+	if storage.amount(str(rec["src"]), c) + inflow <= 0:
+		return StoryText.get_or("LBL_CONN_WHY_NO_STOCK", "{planet} has no {good} in storage. Turn Buy on for {good} at {planet}, or send it there.", {"planet": src_n, "good": g})
+	if engine.raids != null and engine.raids.lane_mult(rec) < 1.0 and engine.route_cap(rec) <= 0:
+		return StoryText.get_or("LBL_CONN_WHY_RAID", "A raid cut this lane's load to nothing. It recovers on its own.")
+	if int(cash) < engine.fixed_cost(rec):
+		return StoryText.get_or("LBL_CONN_WHY_NO_CASH", "Not enough cash for the trip. It runs again when you can pay.")
+	return StoryText.get_or("LBL_CONN_WHY_NOTHING", "Nothing can be loaded this cycle.")
+
+## T369: what the lanes and Sell orders of one good at a planet ask per cycle against what the planet has: {lanes, want, stock}.
+func good_demand(planet: int, c: String) -> Dictionary:
+	var key: String = storage.planet_key(planet)
+	var lanes := {}
+	var want := 0
+	for rec in engine.routes:
+		if str(rec["c"]) != c or int(rec["a"]) != planet or engine.from_cluster(rec) or not engine.src_open(rec):
+			continue
+		var lk := "%d|%d" % [rec["a"], rec["b"]]
+		if not lanes.has(lk):
+			lanes[lk] = true
+		want += engine.route_cap(rec)
+	var orders := 0
+	if engine.local_on(planet, c, "sell"):
+		orders = 1
+		want += engine.local_amount(c)
+	var stock: int = storage.amount(key, c)
+	if lanes.size() + orders > 1:
+		for pt in lane_projection(key, c)["parts"]:
+			if pt["dir"] == "in" and pt["kind"] == "buy":
+				stock += int(pt["n"])
+	return {"lanes": lanes.size() + orders, "want": want, "stock": stock}
+
 ## T07b: tell the map which route lines to draw (cheap: restyles existing lines, adds/removes changed ones).
 func _push_routes_to_map() -> void:
+	_proj_cache.clear()
 	var list: Array = []
 	var lanes := {}  # T87: one line per lane; ships = ships on it, status = running if any ship runs
 	var fc := {}  # route id -> forecast line: the lane label shows the same projection as the cash forecast
@@ -2035,6 +2135,7 @@ func _push_routes_to_map() -> void:
 			var e: Dictionary = lanes[k]
 			e["ships"] = int(e["ships"]) + 1
 			e["cost"] = int(e["cost"]) + engine.fixed_cost(rec)
+			e["units"] = int(e["units"]) + route_units(rec)
 			if moves:
 				e["net"] = int(e["net"]) + int(fl["net"])
 				e["net_ok"] = true
@@ -2042,7 +2143,9 @@ func _push_routes_to_map() -> void:
 			if st == "running":
 				e["status"] = st
 			continue
-		var e2 := {"id": rec["id"], "a": rec["a"], "b": rec["b"], "c": rec["c"], "ships": 1, "status": st, "net": int(fl["net"]) if moves else 0, "net_ok": moves, "why": str(fl.get("why", "none")), "cost": engine.fixed_cost(rec), "reason": engine.reason_of(rec)}
+		var e2 := {"id": rec["id"], "a": rec["a"], "b": rec["b"], "c": rec["c"], "ships": 1, "status": st, "net": int(fl["net"]) if moves else 0, "net_ok": moves, "why": str(fl.get("why", "none")), "cost": engine.fixed_cost(rec), "reason": engine.reason_of(rec), "units": route_units(rec), "shared": ""}
+		if str(e2["why"]) == "stock" and other_out_units(rec) > 0:  # T369: the stock exists but earlier lanes or Sell orders take it
+			e2["shared"] = planet_name(int(rec["a"]))
 		lanes[k] = e2
 		list.append(e2)
 	map.set_clusters(_all_cluster_packs())  # T157: asteroid packs follow the cluster data (before the lines: a cluster route starts at its pack)

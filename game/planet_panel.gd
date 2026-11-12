@@ -166,6 +166,13 @@ func rebuild() -> void:
 		mh.text = mh.text.to_upper()
 		box.add_child(mh)
 	box.add_child(grid)
+	for c in mined:  # T369: lanes and orders of one good ask for more than the planet has
+		var dm: Dictionary = main.good_demand(planet_index, str(c))
+		if int(dm["lanes"]) > 1 and int(dm["want"]) > int(dm["stock"]):
+			var sh := _label(StoryText.get_or("LBL_CONN_SHARED", "Stock {stock} / needed {want} per cycle", {"stock": int(dm["stock"]), "want": int(dm["want"])}))
+			sh.name = "SharedStock_" + str(c)
+			sh.theme_type_variation = "LabelMuted"
+			box.add_child(sh)
 	if _dead_minable(p) and not mined.is_empty():  # T367: no extra button; the tile is the Buy toggle, right click is Send to
 		var mhint := _label(StoryText.get_or("SCR_MINE_HINT", "Press the resource to mine it each cycle. Right-click it to send it to another world."))
 		mhint.name = "MineHint"
@@ -1092,6 +1099,20 @@ func _connections() -> void:
 				row.add_child(tag)
 				if str(first["c"]) == split_open:
 					_split_tags[int(first["b"])] = tag
+		var un := 0
+		for s in ships:
+			un += main.route_units(s)
+		var ul := Label.new()  # T369: units the lane carries next cycle, from the cached storage projection
+		ul.name = "LaneUnits"
+		ul.theme_type_variation = "LabelSmall" if un > 0 else "LabelNumberMuted"
+		ul.text = StoryText.get_or("LBL_CONN_UNITS", "{n} / cycle", {"n": un}) if un > 0 else "0"
+		if un <= 0:
+			ul.text = "0"
+			ul.tooltip_text = str(first["reason"])
+			ul.mouse_filter = Control.MOUSE_FILTER_PASS
+		else:
+			ul.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		row.add_child(ul)
 		var nl := Label.new()
 		nl.text = _signed(net)
 		nl.theme_type_variation = "LabelGood" if net > 0 else ("LabelBad" if net < 0 else "LabelNumberMuted")
@@ -1102,6 +1123,14 @@ func _connections() -> void:
 			selected_route = -1 if selected_route == first_id else first_id
 			rebuild())
 		box.add_child(row)
+		if un <= 0:  # T369: why the lane carries nothing, in plain words, on the row itself
+			var why: String = main.lane_hint(first)
+			if why != "":
+				var wl := _label(why)
+				wl.name = "LaneWhy"
+				wl.theme_type_variation = "LabelMuted"
+				wl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+				box.add_child(wl)
 		if int(first["b"]) >= 0:
 			box.add_child(_pays_line(int(first["b"]), str(first["c"])))
 		for k in ships.size():
