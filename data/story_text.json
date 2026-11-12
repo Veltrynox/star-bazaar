@@ -7568,6 +7568,12 @@
    "place": "Notice, a new offer reached the board"
   },
   {
+   "id": "NOT_GIG_EXPIRED_EN_ROUTE",
+   "text": "The signal went quiet before we got there. The Flagship holds position.",
+   "max": 110,
+   "place": "Notice, the offer the Flagship was flying to ran out; the Flagship stops"
+  },
+  {
    "id": "WX_NAME_FLOOD",
    "text": "Flood",
    "max": 24,
