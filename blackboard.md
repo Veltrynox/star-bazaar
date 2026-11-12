@@ -65,3 +65,13 @@
 - Failed / did not work: screenshot logs/screenshots/T358.png shows no preview because the tool cannot pick a CEO; the button, plume at every angle and Ship look block width (info column about 435 px) not seen by eye.
 - Files and commits: see git log on main for T358.
 - Left to do: owner to look at the preview size (FRAME_FILL 0.92, CAM_DIST 4.6) and the pause button; the boost stretch of the old trail is not rebuilt for the plume (idea: raise plume glow on boost).
+
+## 2026-11-12 13:50 run: T359
+- Summary: The cut-off plume in the company-screen preview was the transparent viewport (additive light over alpha 0 vanishes outside the hull outline); the viewport is now opaque in the panel colour. The ship is framed by the current look's plume reach (hull floor 70% of the pre-T358 size) and a crosshair button focuses the camera on the engines from behind; ship_scale 0.8 -> 1.04 (1.3x) was set by the owner request in a separate commit.
+- Why this task: owner feedback 2026-11-12 ('still clipped like with alpha, preview is small, camera needs a toggle to focus on the engines').
+- Approach: cause found by the main session with a scratch render of game/company_setup.gd; one ui-programmer task.
+- Agent prompts: Agent tool, ui-programmer, brief read from schedule.json T359; handoff handoffs/ui-programmer/2026-11-12-T359.json.
+- Worked: scratch renders of whole ship and engine view for all CEOs looked at (PNGs in ../wt/_scratch/t359_*.png); background opaque, plume continues past the hull, engines in frame.
+- Failed / did not work: man_01 torch plume at 180 degrees may touch the left edge at the hull floor size; engine view looks small in the portrait panel; not seen in a real window.
+- Files and commits: see git log on main for T359.
+- Left to do: owner to look at the engine view distance and the whole-ship size in the real window.

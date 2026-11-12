@@ -9434,6 +9434,18 @@
    "place": "ship_preview.gd turntable button"
   },
   {
+   "id": "LBL_PREVIEW_VIEW_ENGINES",
+   "text": "Focus engines",
+   "max": 24,
+   "place": "ship_preview.gd camera button"
+  },
+  {
+   "id": "LBL_PREVIEW_VIEW_SHIP",
+   "text": "Whole ship",
+   "max": 24,
+   "place": "ship_preview.gd camera button"
+  },
+  {
    "id": "SETUP_NEED_NAME",
    "text": "Enter a company name to start.",
    "max": 60,

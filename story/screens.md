@@ -2185,6 +2185,10 @@ LBL_PREVIEW_PAUSE | 24 | ship_preview.gd turntable button
 Stop rotation
 LBL_PREVIEW_PLAY | 24 | ship_preview.gd turntable button
 Rotate
+LBL_PREVIEW_VIEW_ENGINES | 24 | ship_preview.gd camera button
+Focus engines
+LBL_PREVIEW_VIEW_SHIP | 24 | ship_preview.gd camera button
+Whole ship
 SETUP_NEED_NAME | 60 | company_setup.gd:210
 Enter a company name to start.
 SETUP_RANDOM | 24 | company_setup.gd:70

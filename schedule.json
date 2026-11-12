@@ -3833,6 +3833,25 @@
         "tools/tests/run_tests.gd"
       ],
       "priority": 1
+    },
+    {
+      "task_id": "T359",
+      "title": "Ship preview: opaque viewport so the plume is not clipped, bigger ship, camera focus-on-engines toggle",
+      "owner_agent": "ui-programmer",
+      "depends_on": [],
+      "status": "done",
+      "turn_cap": 40,
+      "window": "Owner feedback 2026-11-12: 'still clipped like with alpha, and preview is small, the camera need a toggle to focus on the engines'.",
+      "brief": "Owner feedback 2026-11-12 on T358: 'still clipped like with alpha, and preview is small, the camera needs a toggle to focus on the engines'. DIAGNOSIS ALREADY MADE by the main session (render check in a scratch script: instantiate game/company_setup.gd, select a CEO, save the SubViewport texture): the ship preview viewport has transparent_bg = true (game/ship_preview.gd setup). The plume material is blend_add: over the opaque hull the result is bright, but over empty background (alpha 0) the additive light lands in a buffer whose alpha stays ~0, and the UI composites it with that tiny alpha, so the plume vanishes exactly where it leaves the ship silhouette (the owner sees it clipped to the hull outline and fading far too early). This is separate from the T358 framing fix, which stays. FIX 1: make the preview viewport opaque: transparent_bg = false and an Environment with background_mode BG_COLOR and bg_color = the panel colour the preview panel already uses (Ui.col('panel_100')), so additive plume light shows over it as on the map. Check the same trap in any other SubViewport that shows a ship plume (grep SubViewport in game/*.gd; only the preview shows plumes today). FIX 2: the ship is too small. Frame hull plus the CURRENT look's plume reach (not the longest of any shape): recompute the fit in show_model and in set_look when the shape changes, with a short tween of the scale (about 0.25 s) so shape clicks do not jump; keep the hull no smaller than 70% of the pre-T358 size (hull radius at least 1.4 world units at camera 3.4 equivalent, or the same ratio with your camera distance). Keep the T358 guarantee that the plume never leaves the frame at any turntable angle. FIX 3: a camera focus toggle: a second small round button, left of the existing pause/play button, same style, icon drawn as a small ship-with-engine glyph or a simple crosshair/target (draw it, no emoji), tooltips LBL_PREVIEW_VIEW_ENGINES ('Focus engines') and LBL_PREVIEW_VIEW_SHIP ('Whole ship') in story/screens.md, rebuild with python3 tools/build_story.py, English only. Engine view: the camera sits close, aimed at the centroid of the ship's engine points (Ships.engine_points_for_path with the model box, then transformed by the pivot every frame), from the rear three-quarter (tail toward the camera, slightly above and to the side), at a distance that shows all engines and the first part of the plume (derive from the engine spread and size, not a magic number); the model is not rescaled for it. Entering engine view also stops the turntable rotation (the pause button then shows play), drag still turns the ship and the camera keeps following the engine centroid while it does; leaving engine view restores the whole-ship camera and the turning state from before. The state of the toggle is kept across CEO changes like the pause state. Camera moves ease over about 0.3 s. Verify with a scratch render like the main session's: a scratch script under /Volumes/Work/Gamedev/Projects/AgentCourse/wt/_scratch that instantiates game/company_setup.gd, calls select('ceo_woman_02') then select the other CEOs, sets look shapes (needle, torch, pillar) via the preview's set_look, switches the engine view on and off, and saves PNGs of preview.viewport.get_texture() in both views; LOOK at the PNGs (Read tool) and fix objective breakage (plume cut at the hull outline, plume cut by the frame, ship still tiny, engines out of frame). Note a PNG with a transparent background shows white: after FIX 1 the background must be the panel colour. Per CLAUDE.md no test suite run, no commit, no QA bots. Add or extend a headless test for the toggle state and the opaque viewport (transparent_bg false). Handoff handoffs/ui-programmer/2026-11-12-T359.json with the PNG paths.",
+      "size": "M",
+      "touches": [
+        "game/ship_preview.gd",
+        "game/company_setup.gd",
+        "story/screens.md",
+        "data/story_text.json",
+        "tools/tests/run_tests.gd"
+      ],
+      "priority": 1
     }
   ],
   "done_task_ids": [

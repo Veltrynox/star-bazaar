@@ -6100,6 +6100,16 @@ func _test_company_setup() -> void:
 			ships_ok = false
 	check(tags_ok, "setup: each CEO shows its own branch tag")
 	check(ships_ok, "setup: each CEO shows its ship name and preview model")
+	# T359: opaque preview viewport (additive plume needs it) and the engine-view toggle
+	check(not setup.preview.viewport.transparent_bg, "T359: ship preview viewport is opaque")
+	var tpv = setup.preview
+	var turn0: bool = tpv.turning
+	tpv.set_view_engines(true)
+	check(tpv.view_engines and not tpv.turning, "T359: engine view stops the turntable")
+	setup.cards[Portraits.IDS[0]].pressed.emit()
+	check(tpv.view_engines, "T359: engine view kept across CEO changes")
+	tpv.set_view_engines(false)
+	check(not tpv.view_engines and tpv.turning == turn0, "T359: leaving engine view restores the turning state")
 	setup.cards[Portraits.IDS[1]].pressed.emit()
 	var before: String = setup.name_edit.text
 	setup.random_button.pressed.emit()

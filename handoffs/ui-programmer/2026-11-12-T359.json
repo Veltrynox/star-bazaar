@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-12",
+  "task": "T359",
+  "status": "done",
+  "files_changed": ["game/ship_preview.gd", "tools/tests/run_tests.gd", "story/screens.md", "data/story_text.json", "handoffs/ui-programmer/2026-11-12-T359.json"],
+  "open_questions": [
+    "Scratch renders (company screen in a small window, preview about 323x418): /Volumes/Work/Gamedev/Projects/AgentCourse/wt/_scratch/t359_*.png. Plume now continues past the hull outline on the panel colour. Engine view shows all engines and the first plume part. Not run: the new tests (owner rule).",
+    "At the hull floor (70% of old size) a very long plume can still touch the frame edge in a narrow (portrait) preview: man_01 torch at 180 degrees reaches the left edge. In the real 325x250 panel there is more width.",
+    "gdd.md: the ship preview has an engine close-up toggle and is framed by the current plume."
+  ],
+  "handoff": "Preview viewport opaque (BG_COLOR panel_100), which fixes the plume vanishing outside the hull silhouette. Framing now uses the current look's plume, tweened 0.25 s on look change, hull floored at 70% of the pre-T358 size, aspect-aware. New crosshair round button left of pause: engine view eases the camera (0.3 s) to the engine centroid from the rear three-quarter, stops the turntable, restores it on exit, kept across CEO changes. Ids LBL_PREVIEW_VIEW_ENGINES / _SHIP added, story rebuilt."
+}
