@@ -1,7 +1,8 @@
 extends Control
 ## Next solar system, drawn over the system map as in the design pack (screens/SystemView.html, "locked exit"):
 ## a lock icon with the system's name and how it opens, and a thin dotted line that fades out toward the current
-## system. The marker sits where the next system lies in the world; when that is off screen, the marker and the line
+## system. The marker sits at the outskirts of the current system: on the galaxy-view bearing, outside the outermost orbit
+## (outer radius x EXIT_RADIUS_MULT + EXIT_RADIUS_PAD from the sun); when that is off screen, the marker and the line
 ## are both hidden (nothing is pinned to the edge). An open system shows an amber arrow and a click moves the player
 ## there; a locked one shows the grey lock and a click only says why it is locked. Clicks are read in _input.
 
@@ -15,6 +16,8 @@ const AREA_TOP := 110.0
 const AREA_BOTTOM := 150.0  # clear of the legend and key hints
 const EDGE_MARGIN := 24.0  # the lock icon must fit inside the view
 const LINE_LEN := 190.0
+const EXIT_RADIUS_MULT := 1.18  # marker distance from the sun, times the outermost planet's orbit radius
+const EXIT_RADIUS_PAD := 2.0  # plus this many map units
 const LINE_ALPHA := 0.3
 const DOT_STEP := 5.0
 
@@ -87,6 +90,15 @@ func markers() -> Array:
 	var rect := Rect2(Vector2(AREA_LEFT, AREA_TOP), get_viewport_rect().size - Vector2(AREA_LEFT + AREA_RIGHT, AREA_TOP + AREA_BOTTOM))
 	if rect.size.x < 50.0 or rect.size.y < 50.0:
 		return out
+	var origin: Vector3 = c_from
+	var sp = main.map.sun_positions.get(int(main.view_system))
+	if sp != null:
+		origin = Vector3(sp.x, 0.0, sp.z)
+	var outer := 0.0  # outermost planet of the view system, from the origin
+	for i in main.map.planets.size():
+		if int(main.map.planets[i].get("system", 1)) == int(main.view_system) and i < main.map.positions.size():
+			var pp: Vector3 = main.map.positions[i]
+			outer = maxf(outer, Vector2(pp.x - origin.x, pp.z - origin.z).length())
 	var a: Vector2 = _screen(c_from).clamp(rect.position, rect.end)
 	for sid in all_ids():
 		if int(sid) == int(main.view_system):
@@ -95,9 +107,8 @@ func markers() -> Array:
 		if c_to == null:
 			continue
 		var gd := galaxy_dir(int(main.view_system), int(sid))
-		if gd != Vector3.ZERO:  # same bearing as in the galaxy view, at the distance the world data gives (never closer than the view's middle)
-			var dist: float = maxf(((c_to as Vector3) - (c_from as Vector3)).length(), 6.0)
-			c_to = (c_from as Vector3) + gd * dist
+		if gd != Vector3.ZERO:  # same bearing as in the galaxy view, outside the outermost orbit
+			c_to = origin + gd * (outer * EXIT_RADIUS_MULT + EXIT_RADIUS_PAD)
 		var b: Vector2 = _screen(c_to)
 		var behind: bool = main.map.camera.is_position_behind(c_to)
 		var locked: bool = not main.open_systems.has(int(sid))
