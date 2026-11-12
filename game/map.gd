@@ -5,6 +5,7 @@ extends Node3D
 
 signal planet_clicked(index: int)  # -1 when the click hit empty space
 signal route_clicked(id: int)      # T07b: click on a route line (no planet under the cursor)
+signal route_right_clicked(id: int, screen_pos: Vector2)  # right click on a route line (no planet, station or cluster under the cursor): main offers Remove
 
 const PlanetTypes := preload("res://game/planet_types.gd")
 const Systems := preload("res://game/systems.gd")
@@ -101,6 +102,7 @@ signal establish_requested(planet_id: String)
 ## T200: ship controls. Click the ship to select it; with it selected LEFT click flies at once, RIGHT click on a planet asks main for the
 ## action menu (only the allowed actions), Esc / right-click on open space deselects.
 signal action_menu_requested(planet_id: String, screen_pos: Vector2)
+signal good_icon_right_clicked(planet: int, good: String)  # right click on a goods icon above a planet: main starts a Send to for it
 signal planet_right_clicked(index: int, screen_pos: Vector2)  # right click on a planet with no ship order mode: main decides (resource popup, or the Establish menu)
 signal fly_establish_requested(planet_id: String)
 const SHIP_PICK_PX := 20.0  # T198: was 30 at the old ship size; the ship is half as big, the pick area shrinks less so it stays easy to hit
@@ -1439,9 +1441,19 @@ func _right_click(pos: Vector2) -> void:
 	var hit := pick_planet(pos)
 	var flight_on := PathfinderView.active(flight)
 	var ship_mode: bool = flight_on and (ship_selected or free_ship_menu)
+	if not ship_mode and _growth != null:
+		var gi: Dictionary = _growth.good_icon_at(pos)
+		if not gi.is_empty():
+			good_icon_right_clicked.emit(int(gi["planet"]), str(gi["good"]))
+			return
 	if hit >= 0 and not ship_mode:
 		planet_right_clicked.emit(hit, pos)
 		return
+	if hit < 0 and pick_station(pos) < 0 and pick_cluster(pos) < 0:
+		var rid := pick_route(pos)
+		if rid >= 0:
+			route_right_clicked.emit(rid, pos)
+			return
 	if not flight_on:
 		return
 	if hit >= 0:  # ship selected: the ship's action menu (Establish trading post, Dock and trade)

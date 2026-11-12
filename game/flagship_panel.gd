@@ -38,13 +38,33 @@ func setup(main_node: Control) -> void:
 	explore_button.icon = Ui.icon("explore")
 	explore_button.expand_icon = true
 	explore_button.add_theme_constant_override("icon_max_width", 24)
-	explore_button.custom_minimum_size = Vector2(38, 38)
-	for sn in ["normal", "hover", "pressed", "hover_pressed", "disabled", "focus"]:  # the theme's button padding left the icon a few pixels wide
-		var sb: StyleBox = explore_button.get_theme_stylebox(sn)
-		if sb != null:
-			var d: StyleBox = sb.duplicate()
-			d.set_content_margin_all(5.0)
-			explore_button.add_theme_stylebox_override(sn, d)
+	explore_button.custom_minimum_size = Vector2(40, 40)
+	# One hand-made, perfectly symmetric square for every state (equal border and margins on all four sides, icon centred).
+	# Off: dim panel with a thin line. On: warm border, warm tint and a bright warm icon.
+	var warm := Ui.col("star_warm")
+	var styles := {
+		"normal": [Ui.col("panel_100"), Ui.col("line_200"), 1],
+		"hover": [Ui.col("panel_100").lerp(Color.WHITE, 0.08), Ui.col("ink_muted"), 1],
+		"pressed": [warm.darkened(0.55), warm, 2],
+		"hover_pressed": [warm.darkened(0.4), warm.lightened(0.25), 2],
+		"disabled": [Ui.col("panel_100"), Ui.col("line_200"), 1],
+		"focus": [Color(0, 0, 0, 0), Color(0, 0, 0, 0), 0],
+	}
+	for sn in styles:
+		var sb := StyleBoxFlat.new()
+		sb.bg_color = styles[sn][0]
+		sb.border_color = styles[sn][1]
+		sb.set_border_width_all(int(styles[sn][2]))
+		sb.set_corner_radius_all(6)
+		sb.set_content_margin_all(7.0)
+		explore_button.add_theme_stylebox_override(sn, sb)
+	explore_button.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	explore_button.vertical_icon_alignment = VERTICAL_ALIGNMENT_CENTER
+	explore_button.add_theme_color_override("icon_normal_color", Ui.col("ink_muted"))
+	explore_button.add_theme_color_override("icon_hover_color", Ui.col("ink"))
+	explore_button.add_theme_color_override("icon_pressed_color", warm.lightened(0.55))
+	explore_button.add_theme_color_override("icon_hover_pressed_color", Color.WHITE)
+	explore_button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	explore_button.mouse_filter = Control.MOUSE_FILTER_STOP
 	explore_button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	explore_button.size_flags_vertical = Control.SIZE_SHRINK_CENTER

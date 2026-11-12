@@ -319,12 +319,14 @@ func _ready() -> void:
 	planet_panel.hub_panel_requested.connect(open_hub_panel)  # T291
 	map.planet_clicked.connect(_on_planet_clicked)
 	map.route_clicked.connect(_on_route_clicked)
+	map.route_right_clicked.connect(_on_route_right_clicked)
 	map.cluster_clicked.connect(_on_cluster_clicked)  # T159
 	map.station_clicked.connect(_on_station_clicked)
 	map.fly_requested.connect(_on_fly_requested)  # T180: both do nothing while map.flight is null or off
 	map.establish_requested.connect(_on_establish_requested)
 	map.action_menu_requested.connect(_on_action_menu_requested)  # T200
 	map.planet_right_clicked.connect(_on_planet_right_clicked)
+	map.good_icon_right_clicked.connect(_on_good_icon_right_clicked)
 	map.fly_establish_requested.connect(_on_fly_establish_requested)
 	_build_board()
 	_build_pending_label()
@@ -1327,64 +1329,48 @@ func _on_route_clicked(id: int) -> void:
 	selected_planet = int(engine.routes[i]["b"]) if RouteEngine.from_cluster(engine.routes[i]) else int(engine.routes[i]["a"])  # T156: a cluster is no planet to select
 	planet_panel.show_planet(selected_planet, id)
 
-## Right click on an explored planet (no ship selected): a small popup of its goods as icon squares. Clicking one starts a Send to
-## from that planet without opening its card; the next planet clicked becomes the destination and the lane is made, no panel opens.
-## Buying is not offered here (only from the planet card): a good shows only when it is in storage or a Buy order is already on.
-var _res_popup: PopupPanel = null
+## Right click on a route line: a one-item menu that deletes the connection (same path as the panel's Remove).
+var _route_menu: PopupMenu = null
 
+func _on_route_right_clicked(id: int, pos: Vector2) -> void:
+	if game_over or preface != null or map_overlays_blocked() or not pending.is_empty() or tut_lock_active():
+		return
+	if engine.find_by_id(id) < 0:
+		return
+	if _route_menu != null:
+		_route_menu.queue_free()
+	_route_menu = PopupMenu.new()
+	_route_menu.name = "RouteRemoveMenu"
+	_route_menu.add_item(StoryText.get_text("BTN_REMOVE"), 0)
+	_route_menu.id_pressed.connect(func(_i: int): _remove_requested(id))
+	add_child(_route_menu)
+	_route_menu.popup_on_parent(Rect2i(Vector2i(pos), Vector2i.ZERO))
+
+## Right click on a goods icon above an explored planet: starts a Send to from that planet without opening its card; the next
+## planet clicked becomes the destination and the lane is made, no panel opens. Buying is not offered here (only from the card):
+## a good is ready only when it is in storage or a Buy order is already on.
+func _on_good_icon_right_clicked(index: int, c: String) -> void:
+	if game_over or preface != null or index < 0 or index >= map.planets.size() or map_overlays_blocked():
+		return
+	if not pending.is_empty() or tut_lock_active():
+		return
+	if not planet_established(index) or not system_trade_open(index):
+		return
+	if storage.amount(storage.planet_key(index), c) <= 0 and not engine.local_on(index, c, "buy"):
+		post_notice_now(Ui.good_name(c) + ": " + StoryText.get_or("LBL_RES_POPUP_BUY_FIRST", "Buy it from the planet card first."))
+		return
+	_quick_send(index, c)
+
+## Right click on a planet body: only a world not yet set up has a menu (the ship's Establish menu); explored worlds use their goods icons.
 func _on_planet_right_clicked(index: int, pos: Vector2) -> void:
 	if game_over or preface != null or index < 0 or index >= map.planets.size() or map_overlays_blocked():
 		return
 	if not pending.is_empty() or tut_lock_active():
 		return
-	var f = map.flight
-	if PathfinderView.active(f) and not planet_established(index):  # not set up yet: the ship's Establish menu
+	if PathfinderView.active(map.flight) and not planet_established(index):
 		_on_action_menu_requested(str(map.planets[index].get("id", index)), pos)
-		return
-	if not system_trade_open(index):
-		return
-	var key: String = storage.planet_key(index)
-	var goods: Array = []
-	for c in Goods.ids():
-		if not Availability.good(c):
-			continue
-		if trade.price(index, c + "_buy") < 0 and trade.price(index, c + "_sell") < 0 and storage.amount(key, c) <= 0:
-			continue
-		goods.append(c)
-	if goods.is_empty():
-		return
-	if _res_popup != null and is_instance_valid(_res_popup):
-		_res_popup.queue_free()
-	_res_popup = PopupPanel.new()
-	_res_popup.name = "ResourcePopup"
-	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 4)
-	_res_popup.add_child(row)
-	for c in goods:
-		var ready: bool = storage.amount(key, c) > 0 or engine.local_on(index, c, "buy")
-		var b := Button.new()
-		b.name = "ResIcon_" + str(c)
-		b.icon = Ui.icon(str(c))
-		b.expand_icon = true
-		b.add_theme_constant_override("icon_max_width", 26)
-		b.custom_minimum_size = Vector2(40, 40)
-		b.disabled = not ready
-		var col: Color = Ui.commodity_col(str(c))
-		if col == Color.WHITE:
-			col = Ui.col("ink")
-		for k in ["icon_normal_color", "icon_hover_color", "icon_pressed_color", "icon_focus_color", "icon_hover_pressed_color"]:
-			b.add_theme_color_override(k, col)
-		b.add_theme_color_override("icon_disabled_color", Color(Ui.col("ink_muted"), 0.45))
-		b.tooltip_text = Ui.good_name(str(c)) if ready else Ui.good_name(str(c)) + "\n" + StoryText.get_or("LBL_RES_POPUP_BUY_FIRST", "Buy it from the planet card first.")
-		b.pressed.connect(func():
-			_res_popup.hide()
-			_quick_send(index, str(c)))
-		row.add_child(b)
-	add_child(_res_popup)
-	_res_popup.popup(Rect2i(Vector2i(pos), Vector2i(goods.size() * 44 + 16, 56)))
-	_res_popup.popup_hide.connect(func(): if is_instance_valid(_res_popup): _res_popup.queue_free())
 
-## A good picked in the resource popup: the same state as Send to... on the card, but the card stays shut afterwards.
+## A good picked by right click on its icon: the same state as Send to... on the card, but the card stays shut afterwards.
 func _quick_send(index: int, c: String) -> void:
 	if game_over or not tut_gate("send_start", index, c):
 		return
@@ -1633,7 +1619,8 @@ func _route_beat(a: int, b: int) -> void:
 	for idx in [a, b]:
 		var sp = Juice.planet_screen(map, idx)
 		if sp != null:
-			Juice.ping(self, sp, Ui.col("signal_good"))
+			Juice.ping_burst(self, sp, Ui.col("signal_good"))
+	Juice.pop(notice_label, 1.06)  # the "Route made" line on the board swells with the rings
 
 func _buy_ship_kind(kind: String) -> void:
 	var r := buy_ship(kind)
@@ -2065,6 +2052,7 @@ func _show_notice(text: String) -> void:
 		notice_label.text = text
 		notice_label.visible = true
 		Juice.enter(notice_label, 0.96, 0.0, true)
+		Juice.flash(notice_label, Ui.col("star_warm").lightened(0.3), 0.45)  # a new notice catches the eye
 
 func _advance_notice() -> void:
 	if shown_notice == "":
@@ -2508,6 +2496,8 @@ func sync_hub_rings() -> void:
 func _on_prosperity_tier_up(planet: int, tier: int) -> void:
 	_beat_slow_left = float(balance.get("beat_slow_seconds", 0.4)) * Juice.motion  # T266: a short slow-motion beat, game clock only
 	sync_hub_rings()  # T291: reach grows with the hub's tier
+	if top_bar != null:
+		Juice.flash(top_bar, Ui.col("star_warm").lightened(0.5), 0.5)  # a tier-up lights the top bar warm
 	if map != null:
 		map.beat_tier_up(planet, tier)
 	post_notice(StoryText.get_or("NOT_PROSPERITY_TIER_UP", "{planet} has grown to tier {tier}.", {"planet": planet_name(planet), "tier": tier}))
@@ -3530,6 +3520,21 @@ func _unhandled_input(event: InputEvent) -> void:
 		toggle_gig_board()
 	elif event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_SPACE and not game_menu.visible:
 		toggle_pause()
+	elif event is InputEventKey and event.pressed and not event.echo and not game_over and _speed_key_index(event) >= 0:
+		var si := _speed_key_index(event)
+		if si < SPEEDS.size() and not game_menu.visible:  # keys 1..4 pick the speed buttons in order (keypad too)
+			_on_speed_pressed(SPEEDS[si])
+			if si < speed_buttons.size():
+				speed_buttons[si].button_pressed = true
+
+## 0-based index of a number key (top row or keypad), -1 for any other key.
+func _speed_key_index(event: InputEventKey) -> int:
+	var k: int = event.keycode
+	if k >= KEY_1 and k <= KEY_9:
+		return k - KEY_1
+	if k >= KEY_KP_1 and k <= KEY_KP_9:
+		return k - KEY_KP_1
+	return -1
 
 func _build_ui() -> void:
 	var bar := PanelContainer.new()
@@ -5270,10 +5275,12 @@ func _tip_page_apply() -> void:
 	if tip_label != null:
 		tip_label.visible = tip_label.text != "" and not game_over and tip_page == n - 1 and (tips_n == 0 or tip_page >= tips_n)
 	if tip_page_label != null:
-		tip_page_label.text = "%d / %d" % [tip_page + 1, n]
-		tip_page_label.visible = n > 1
-		tip_prev_btn.visible = n > 1
-		tip_next_btn.visible = n > 1
+		tip_page_label.text = "%d / %d" % [tip_page + 1, maxi(n, 1)]
+		tip_page_label.visible = true  # the arrows are always drawn (greyed with a single tip), so the board reads as a pager
+		tip_prev_btn.visible = true
+		tip_next_btn.visible = true
+		tip_prev_btn.disabled = n <= 1
+		tip_next_btn.disabled = n <= 1
 
 ## One step of the tip system: seeds an old save, hides the card while something modal is up, queues what is due, shows the next
 ## queued tip once the gap since the last card has passed, times the card out.

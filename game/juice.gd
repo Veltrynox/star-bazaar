@@ -24,8 +24,15 @@ const NUDGE_PX := 3.0            # a screen nudge: horizontal shake amplitude
 const NUDGE_SECONDS := 0.24
 const PING_SECONDS := 0.9        # a ring opens from a planet and fades
 const PING_RADIUS := 56.0
+const Rings := preload("res://game/juice_rings.gd")
 const POP_SCALE := 1.18          # a value pop: the label swells to this scale and settles back
 const POP_SECONDS := 0.22
+const HOVER_SCALE := 1.04        # a button lifts to this scale under the mouse (same lift as the skill nodes)
+const HOVER_SECONDS := 0.12
+const COUNT_POP_SCALE := 1.1     # a counted number swells once when it goes up (cash, credits, points)
+const PANEL_SCALE := 0.965       # a screen or card that opens grows from this scale (fade only when it fills the window)
+const SWAP_SCALE := 0.985        # a card that stays open but shows something else settles in from this scale
+const BURST_GAP := 0.14          # a second ring follows the first this much later
 
 const NO_TINT := Color(1.0, 1.0, 1.0, 0.0)  # alpha 0 means count_to does not flash
 
@@ -43,6 +50,12 @@ const _META_OFF := "juice_off_"
 const _META_SHOWN := "juice_shown"
 const _META_TARGET := "juice_target"
 const _META_PRESS := "juice_press_on"
+const _META_HOVER := "juice_hover_on"
+const _META_PANEL := "juice_panel_hooked"
+
+## Scripts whose nodes fade and grow in whenever they become visible (their own close stays instant).
+const PANEL_SCRIPTS := ["planet_panel", "hub_panel", "ship_panel", "bazaar_panel", "flagship_panel", "gig_board",
+	"game_menu", "space_storage_view", "bazaar_card", "galaxy_view", "world_growth_view", "company_setup", "end_screen"]
 
 ## Pure helpers (no node needed; the headless tests call these).
 
@@ -278,10 +291,12 @@ static func install_press(tree: SceneTree) -> void:
 		return
 	tree.root.set_meta("juice_press", true)
 	tree.node_added.connect(_press_for)
+	tree.node_added.connect(_panel_for)
 	_press_walk(tree.root)
 
 static func _press_walk(n: Node) -> void:
 	_press_for(n)
+	_panel_for(n)
 	for ch in n.get_children():
 		_press_walk(ch)
 
@@ -305,10 +320,59 @@ static func press(b: BaseButton, down: bool) -> void:
 	if c == null:
 		return
 	var tw := _begin(c, CH_PRESS, Callable())
-	var target := (1.0 - (1.0 - PRESS_SCALE) * motion) if down else 1.0
+	var rest := 1.0 + (HOVER_SCALE - 1.0) * motion if b.has_meta(_META_HOVER) else 1.0
+	var target := (1.0 - (1.0 - PRESS_SCALE) * motion) if down else rest
 	var secs := _seconds(PRESS_IN_SECONDS if down else PRESS_OUT_SECONDS)
 	tw.tween_method(func(v: float) -> void: _set_scale(c, v), c.scale.x, target, secs) \
 		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+
+## Hover lift: a button grows a little under the mouse and returns on exit. Shares the press channel, so a press
+## squashes from the lifted size and springs back to it. Skill-screen buttons keep their own lift.
+static func hover(b: BaseButton, on: bool) -> void:
+	if on and (b.disabled or _in_skill_screen(b)):
+		return
+	if on:
+		b.set_meta(_META_HOVER, true)
+	elif b.has_meta(_META_HOVER):
+		b.remove_meta(_META_HOVER)
+	elif b.scale == Vector2.ONE:
+		return
+	if not _active(b):
+		return
+	var tw := _begin(b, CH_PRESS, Callable())
+	var target := 1.0 + (HOVER_SCALE - 1.0) * motion if on else 1.0
+	tw.tween_method(func(v: float) -> void: _set_scale(b, v), b.scale.x, target, _seconds(HOVER_SECONDS)) \
+		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+
+static func _in_skill_screen(n: Node) -> bool:
+	var p := n
+	while p != null:
+		var sc: Script = p.get_script()
+		if sc != null and sc.resource_path.ends_with("skill_screen.gd"):
+			return true
+		p = p.get_parent()
+	return false
+
+## ---- screens that open ----
+
+static func _panel_for(n: Node) -> void:
+	if not (n is Control) or n.has_meta(_META_PANEL):
+		return
+	var sc: Script = n.get_script()
+	if sc == null or not PANEL_SCRIPTS.has(sc.resource_path.get_file().get_basename()):
+		return
+	n.set_meta(_META_PANEL, true)
+	var c: Control = n
+	c.visibility_changed.connect(func() -> void:
+		if c.visible and c.is_visible_in_tree() and _active(c):
+			var vp := c.get_viewport_rect().size
+			var full := c.size.x >= vp.x * 0.9 and c.size.y >= vp.y * 0.9  # a full-window screen only fades
+			enter(c, 1.0 if full else PANEL_SCALE))
+
+## A card that stays open but now shows something else (another planet): a short settle so the change is seen.
+static func swap(c: Control) -> void:
+	if _active(c) and c.is_visible_in_tree():
+		enter(c, SWAP_SCALE)
 
 ## ---- numbers ----
 
@@ -337,6 +401,7 @@ static func count_from(label: Label, from: int, to: int, fmt: String = "%d", up_
 		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	if to > from and up_tint.a > 0.0:
 		label.modulate = up_tint
+		pop(label, COUNT_POP_SCALE)
 		tw.parallel().tween_property(label, "modulate", base, _seconds(FLASH_SECONDS)) \
 			.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 
@@ -392,6 +457,57 @@ static func ping(host: Control, at: Vector2, tint: Color) -> void:
 		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 	tw.tween_callback(ring.queue_free)
 
+## Two rings in a row from one point: a confirmed action (a route made) reads stronger than a single ring.
+static func ping_burst(host: Control, at: Vector2, tint: Color) -> void:
+	if not _active(host):
+		return
+	ping(host, at, tint)
+	host.get_tree().create_timer(_seconds(BURST_GAP)).timeout.connect(func() -> void:
+		if is_instance_valid(host) and host.is_inside_tree():
+			ping(host, at, tint))
+
+## Points of a rounded rectangle outline, clockwise from the top-left corner start (closed: last = first).
+static func rr_points(r: Rect2, rad: float, steps: int = 5) -> PackedVector2Array:
+	var pts := PackedVector2Array()
+	rad = minf(rad, minf(r.size.x, r.size.y) * 0.5)
+	var cs := [r.position + Vector2(rad, rad), Vector2(r.end.x - rad, r.position.y + rad), r.end - Vector2(rad, rad), Vector2(r.position.x + rad, r.end.y - rad)]
+	for q in 4:
+		for k in steps + 1:
+			var a := PI + q * PI * 0.5 + (PI * 0.5) * float(k) / float(steps)
+			pts.append(cs[q] + Vector2(cos(a), sin(a)) * rad)
+	pts.append(pts[0])
+	return pts
+
+## Part of a closed polyline between fractions f0..f1 of its length (f1 may pass 1.0 and wraps).
+static func sub_polyline(pts: PackedVector2Array, f0: float, f1: float) -> PackedVector2Array:
+	var total := 0.0
+	for i in pts.size() - 1:
+		total += pts[i].distance_to(pts[i + 1])
+	var out := PackedVector2Array()
+	if total <= 0.0:
+		return out
+	var d0 := f0 * total
+	var d1 := f1 * total
+	var run := 0.0
+	for lap in 2:
+		for i in pts.size() - 1:
+			var seg := pts[i].distance_to(pts[i + 1])
+			var s0 := run
+			var s1 := run + seg
+			run = s1
+			if s1 < d0 or s0 > d1 or seg <= 0.0:
+				continue
+			if out.is_empty():
+				out.append(pts[i].lerp(pts[i + 1], clampf((d0 - s0) / seg, 0.0, 1.0)))
+			out.append(pts[i].lerp(pts[i + 1], clampf((d1 - s0) / seg, 0.0, 1.0)) if s1 >= d1 else pts[i + 1])
+		if run >= d1:
+			break
+	return out
+
+## Layered shock ring (see juice_rings.gd).
+static func draw_shock(ci: CanvasItem, c: Vector2, r0: float, r1: float, u: float, col: Color, w: float = 3.0, sparks: int = 10) -> void:
+	Rings.draw_shock(ci, c, r0, r1, u, col, w, sparks)
+
 class Ring extends Control:
 	var t := 0.0
 	var tint := Color.WHITE
@@ -404,6 +520,9 @@ class Ring extends Control:
 		queue_redraw()
 
 	func _draw() -> void:
-		var col := tint
-		col.a = (1.0 - t) * 0.85
-		draw_arc(Vector2.ZERO, lerpf(6.0, PING_RADIUS, t), 0.0, TAU, 64, col, 2.5, true)
+		var col := Color(tint, 0.9)
+		Rings.draw_shock(self, Vector2.ZERO, 6.0, PING_RADIUS, t, col, 2.5, 8)
+		# a second, smaller ring a beat behind, and a core dot that dies fast
+		Rings.draw_shock(self, Vector2.ZERO, 4.0, PING_RADIUS * 0.6, clampf((t - 0.15) / 0.85, 0.0, 1.0), Color(tint.lerp(Color.WHITE, 0.4), 0.7), 1.5, 0)
+		if t < 0.35:
+			draw_circle(Vector2.ZERO, 5.0 * (1.0 - t / 0.35) + 1.0, Color(1, 1, 1, 0.5 * (1.0 - t / 0.35)))

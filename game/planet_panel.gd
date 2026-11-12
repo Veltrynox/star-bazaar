@@ -95,9 +95,12 @@ func _process(_delta: float) -> void:
 func show_planet(index: int, route_id: int = -1) -> void:
 	if index != planet_index:
 		split_open = ""
+	var was_open := visible and index != planet_index  # another planet while open: a short settle
 	planet_index = index
 	selected_route = route_id
 	visible = true
+	if was_open:
+		load("res://game/juice.gd").swap(self)
 	rebuild()
 
 func rebuild() -> void:
@@ -131,11 +134,6 @@ func rebuild() -> void:
 		var pl := _label(StoryText.get_or("LBL_PANEL_SENDING", "Sending {good} from {planet}. Click the destination planet.{hint}", {"good": Ui.good_name(str(pend["c"])).to_lower(), "planet": main.planet_name(int(pend["planet"])), "hint": main.pending_station_hint()}))
 		pl.theme_type_variation = "LabelAccent"
 		box.add_child(pl)
-		var cancel := Button.new()
-		cancel.text = StoryText.get_or("BTN_CANCEL_PENDING", "Cancel")
-		cancel.name = "CancelPending"
-		cancel.pressed.connect(func(): main.cancel_pending())
-		box.add_child(cancel)
 	var prices = p.get("base_prices")
 	var mined: Array = []  # dead world: goods shown as rows, each gets a "Mine and send to..." button
 	var grid := GridContainer.new()
@@ -174,6 +172,9 @@ func _growth_section() -> void:
 	var t: int = pr.tier(planet_index)
 	if t == 0:
 		return
+	var sep := HSeparator.new()
+	sep.name = "GrowthSeparator"
+	box.add_child(sep)
 	var wrap := VBoxContainer.new()
 	wrap.name = "GrowthSection"
 	wrap.add_theme_constant_override("separation", 4)
@@ -193,15 +194,12 @@ func _growth_section() -> void:
 	bar.show_percentage = false
 	bar.custom_minimum_size = Vector2(0, float(main.balance.get("planet_growth_bar_px", 10)))
 	bar.tooltip_text = "%s: %d / %d" % [StoryText.get_or("PROS_LBL_PROGRESS", "Growth progress"), pr.steps(planet_index), pr.steps_needed(planet_index)]
+	bar.visible = pr.progress(planet_index) > 0.0  # no bar until the growth actually starts
 	wrap.add_child(bar)
 	var hdr := _label(StoryText.get_or("PROS_LBL_NEEDS", "Needs"))
 	hdr.theme_type_variation = "LabelCaption"
 	hdr.text = hdr.text.to_upper()
 	wrap.add_child(hdr)
-	var note := _label(StoryText.get_or("PROS_NEEDS_NOTE", "Per cycle: units delivered / units wanted. The count starts again every cycle."))
-	note.name = "NeedsNote"
-	note.theme_type_variation = "LabelSmall"
-	wrap.add_child(note)
 	for n in pr.needs(planet_index):
 		wrap.add_child(_need_row(n))
 	if pr.restless(planet_index):
@@ -252,46 +250,36 @@ func _need_row(n: Dictionary) -> Control:
 	var locked: bool = bool(n["locked"])
 	var g := str(n["good"])
 	row.name = "NeedRow_" + ("locked" if locked else g)
-	var nm := Label.new()
-	nm.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var tip := PackedStringArray()
+	var icon: Control
 	if locked:
-		nm.text = "?"  # never the good
-		nm.tooltip_text = StoryText.get_or("PROS_NEED_LOCKED", "? Not known yet")
-		row.add_child(nm)
+		icon = Label.new()
+		(icon as Label).text = "?"  # never the good
+		tip.append(StoryText.get_or("PROS_NEED_LOCKED", "? Not known yet"))
 	else:
-		row.add_child(Ui.good_icon(g))
-		nm.text = Ui.good_name(g)
-		row.add_child(nm)
+		icon = Ui.good_icon(g)
+		tip.append(Ui.good_name(g))
 		var reason: String = pr.price_reason(planet_index, g)
 		if reason != "":
-			var chip := Label.new()
-			chip.name = "Chip_" + reason
 			if reason == "hungry":
 				tip_seen.emit("hungry")
-			chip.text = StoryText.get_or("PROS_CHIP_HUNGRY" if reason == "hungry" else "PROS_CHIP_SURPLUS", reason.capitalize())
-			chip.theme_type_variation = "LabelSmall"
-			row.add_child(chip)
-	var num := Label.new()
-	num.text = "%d / %d" % [int(n["sold"]), int(n["demand"])] if not locked else ""  # per cycle (see NeedsNote under the header)
-	num.tooltip_text = "%s / %s" % [StoryText.get_or("PROS_LBL_SOLD", "Sold this cycle"), StoryText.get_or("PROS_LBL_DEMAND", "Demand per cycle")]
-	row.add_child(num)
-	var st := Label.new()
-	st.text = StoryText.get_or("PROS_NEED_MET", "Met") if bool(n["met"]) else StoryText.get_or("PROS_NEED_SHORT", "Short")
-	if locked:
-		st.text = StoryText.get_or("PROS_NEED_SHORT", "Short")
-	st.theme_type_variation = "LabelSmall"
-	row.add_child(st)
-	var fed := HBoxContainer.new()  # T291: 'fed by' column: route / hub / short and why (Hubs.status)
-	fed.name = "FedBySlot"
-	if not locked:
+			tip.append(StoryText.get_or("PROS_CHIP_HUNGRY" if reason == "hungry" else "PROS_CHIP_SURPLUS", reason.capitalize()))
 		var code: String = main.hubs.status_of(planet_index, g)
 		if code != "" and code != Hubs.STATUS_MET:
-			var fl := Label.new()
-			fl.name = "FedBy_" + code
-			fl.text = main.hubs.status_text(code)
-			fl.theme_type_variation = "LabelSmall"
-			fed.add_child(fl)
-	row.add_child(fed)
+			tip.append(main.hubs.status_text(code))
+	var num := Label.new()
+	num.name = "NeedCount"
+	if not locked:
+		num.text = "%d / %d" % [int(n["sold"]), int(n["demand"])]
+		tip.append("%s: %d  |  %s: %d" % [StoryText.get_or("PROS_LBL_SOLD", "Sold this cycle"), int(n["sold"]), StoryText.get_or("PROS_LBL_DEMAND", "Demand per cycle"), int(n["demand"])])
+	tip.append(StoryText.get_or("PROS_NEED_MET", "Met") if (bool(n["met"]) and not locked) else StoryText.get_or("PROS_NEED_SHORT", "Short"))
+	var full := "\n".join(tip)
+	icon.tooltip_text = full
+	icon.mouse_filter = Control.MOUSE_FILTER_PASS
+	num.tooltip_text = full
+	num.mouse_filter = Control.MOUSE_FILTER_PASS
+	row.add_child(icon)
+	row.add_child(num)
 	return row
 
 func _ask_found_bazaar() -> void:
@@ -664,6 +652,9 @@ func _row(c: String, prices: Dictionary, pend: Dictionary) -> Control:
 	var nc_tip := next_cycle_text(main, main.storage.planet_key(planet_index), str(c))
 	if nc_tip != "":
 		bs.tooltip_text += "\n" + nc_tip
+	var salv_t: String = _salvage_text(c)  # the Salvage offer shows on hover; the action is in the right-click menu
+	if salv_t != "":
+		bs.tooltip_text += "\n" + salv_t
 	bs.tooltip_text += "\n" + StoryText.get_or("LBL_RMB_MORE", "Right-click for Send to, Sell and more.")
 	var gl := GoodInfo.lines(str(c))  # what the good is and how it is used, above the existing lines (below the lock reason)
 	var gi := "\n".join(PackedStringArray(gl))
@@ -717,9 +708,6 @@ func _row(c: String, prices: Dictionary, pend: Dictionary) -> Control:
 		mc.theme_type_variation = "LabelSmall"
 		mc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		info.add_child(mc)
-	var salv_l: Control = _salvage_line(str(c))
-	if salv_l != null:
-		info.add_child(salv_l)
 	if info.get_child_count() > 0:
 		wrap.add_child(info)
 	return wrap
@@ -767,20 +755,15 @@ func _context_menu(c: String, prices: Dictionary) -> PopupMenu:
 			salvage_requested.emit(c))
 	return m
 
-## N5: the Salvage offer line under a resource (null when it does not apply). The action is in the right-click menu.
-func _salvage_line(c: String) -> Control:
+## N5: the Salvage offer text of a resource ("" when it does not apply). Shown in the resource tooltip; the action is in the right-click menu.
+func _salvage_text(c: String) -> String:
 	var salv: String = main.engine.salvage_reason(planet_index, c)
 	if salv == "":
-		return null
+		return ""
 	var so: Dictionary = main.engine.salvage_offer(planet_index, c)
-	var sl := Label.new()
-	sl.name = "Salvage_" + c
 	if salv == "full":
-		sl.text = StoryText.get_or("LBL_SALVAGE_STORAGE_FULL", "Salvage: {n} now (storage full). Sell order pays {m}.", {"n": so["n"], "m": so["m"]})
-	else:
-		sl.text = StoryText.get_or("LBL_SALVAGE_NO_BUYER", "Salvage: {n} now (no buyer on your lanes). Sell order pays {m}.", {"n": so["n"], "m": so["m"]})
-	sl.theme_type_variation = "LabelAccent"
-	return sl
+		return StoryText.get_or("LBL_SALVAGE_STORAGE_FULL", "Salvage: {n} now (storage full). Sell order pays {m}.", {"n": so["n"], "m": so["m"]})
+	return StoryText.get_or("LBL_SALVAGE_NO_BUYER", "Salvage: {n} now (no buyer on your lanes). Sell order pays {m}.", {"n": so["n"], "m": so["m"]})
 
 ## A missing price is a data gap (planets.json), shown as text, never invented.
 func _price(v) -> String:

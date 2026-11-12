@@ -8,11 +8,13 @@ extends Control
 ## missing key from breaking the draw. Needs and progress come from game/prosperity.gd.
 
 const PathfinderView := preload("res://game/pathfinder_view.gd")
+const Juice := preload("res://game/juice.gd")
 const REF_H := 941.0  # the design frame height the pixel keys are given in
 
 var map: Node = null  # game/map.gd
 var _met_before := {}  # "planet:slot" -> met at the last frame
 var _pulse := {}       # "planet:slot" -> seconds left of the amber pulse
+var _goods_hits: Array = []  # [{planet, good, rect}] of the goods icons drawn last frame (right click target)
 
 func _init() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -45,6 +47,7 @@ func _draw() -> void:
 	var cam: Camera3D = map.camera
 	var scale_px := get_viewport().get_visible_rect().size.y / REF_H
 	var font := Ui.mono_font()
+	_goods_hits.clear()
 	for i in map.planets.size():
 		var capital: bool = map.capital_planet != "" and str(map.planets[i].get("id", "")) == map.capital_planet
 		var visible_i: bool = _shown(i) or (capital and map.planet_labels[i].visible and map.prosperity.tier(i) >= 0)
@@ -65,6 +68,7 @@ func _draw() -> void:
 			_draw_capital(c2, r_px, scale_px)
 		_draw_beats(i, c2, r_px, scale_px)
 		_draw_needs(i, scale_px, font, c2.y + r_px + (_k("growth_ring_gap_px", 6.0) + _k("growth_ring_width_px", 2.0)) * scale_px)
+		_draw_goods(i, c2, r_px, scale_px, capital)
 
 func _draw_ring(i: int, c: Vector2, r_px: float, scale_px: float) -> void:
 	var p = map.prosperity
@@ -81,6 +85,8 @@ func _draw_ring(i: int, c: Vector2, r_px: float, scale_px: float) -> void:
 		col_on.a *= clampf(_k("beat_restless_dim", 0.5), 0.0, 1.0)  # T266: and the ring dims
 		col_off.a *= clampf(_k("beat_restless_dim", 0.5), 0.0, 1.0)
 	var tick: float = map.beat_progress("notch", i)  # T266: the newest notch swells and flashes
+	draw_arc(c, radius + w * 2.4, 0.0, TAU, 64, Color(col_off, col_off.a * 0.35), 1.0, true)  # outer hairline: a second, quiet ring
+	draw_arc(c, radius - w * 2.2, 0.0, TAU, 64, Color(col_off, col_off.a * 0.25), 1.0, true)  # inner hairline
 	for k in n:
 		var a0 := -PI / 2.0 + seg * float(k) + seg * gap_frac * 0.5
 		var a1 := -PI / 2.0 + seg * float(k + 1) - seg * gap_frac * 0.5
@@ -90,10 +96,17 @@ func _draw_ring(i: int, c: Vector2, r_px: float, scale_px: float) -> void:
 			var pk := 1.0 - tick
 			col_k = col_k.lerp(Color(1, 1, 1, 1), pk * 0.8)
 			w_k = w * (1.0 + pk * _k("beat_notch_swell", 1.5))
+		if k < lit:
+			draw_arc(c, radius, a0, a1, 12, Color(col_k, col_k.a * 0.18), w_k * 2.6, true)  # soft glow under a lit notch
 		draw_arc(c, radius, a0, a1, 12, col_k, w_k, true)
+	if tick >= 0.0:  # the new notch sends out a small shock ring
+		Juice.draw_shock(self, c, radius, radius + 22.0 * scale_px, tick, Color(col_on, 0.8), w, 0)
 
 func _draw_needs(i: int, scale_px: float, font: Font, ring_bottom: float) -> void:
-	var needs: Array = map.prosperity.needs(i)
+	var needs: Array = []
+	for nd0 in map.prosperity.needs(i):
+		if not bool(nd0["locked"]):  # Availability: a hidden good is not drawn at all (no "?" placeholder, it showed as a grey square)
+			needs.append(nd0)
 	if needs.is_empty():
 		return
 	var lab: Label = map.planet_label_2d[i] if i < map.planet_label_2d.size() else null
@@ -133,6 +146,46 @@ func _draw_needs(i: int, scale_px: float, font: Font, ring_bottom: float) -> voi
 			if tex != null:
 				draw_texture_rect(tex, rect, false, col)
 
+## The goods this world trades (Availability-visible only), as icons in a row above the planet, the mirror of the need icons below it.
+## Sits above the ring and above the capital marker.
+func _draw_goods(i: int, c: Vector2, r_px: float, scale_px: float, capital: bool) -> void:
+	var prices = map.planets[i].get("base_prices")
+	if typeof(prices) != TYPE_DICTIONARY:
+		return
+	var goods: Array = []
+	for k in prices.keys():
+		var ks := str(k)
+		var g := ks.trim_suffix("_buy").trim_suffix("_sell")
+		if g != ks and not goods.has(g) and Availability.good(g):
+			goods.append(g)
+	if goods.is_empty():
+		return
+	var px := maxf(8.0, _k("growth_goods_icon_px", 18.0) * scale_px)
+	var gap := px * 0.35
+	var total := float(goods.size()) * px + float(goods.size() - 1) * gap
+	var up := r_px + (_k("growth_ring_gap_px", 6.0) + _k("growth_ring_width_px", 2.0)) * scale_px + gap
+	if capital:
+		up += (_k("growth_marker_px", 5.0) * 2.0 + 4.0) * scale_px  # clear of the capital marker
+	var x := c.x - total * 0.5
+	var y := c.y - up - px
+	for s in goods.size():
+		var tex := Ui.icon(goods[s])
+		if tex == null:
+			continue
+		var col := Ui.commodity_col(goods[s])
+		if col == Color.WHITE:
+			col = Ui.col("ink")
+		var rect := Rect2(Vector2(x + float(s) * (px + gap), y), Vector2(px, px))
+		draw_texture_rect(tex, rect, false, col)
+		_goods_hits.append({"planet": i, "good": goods[s], "rect": rect.grow(gap * 0.5)})
+
+## The goods icon under a screen point: {planet, good}, or {} when none.
+func good_icon_at(pos: Vector2) -> Dictionary:
+	for h in _goods_hits:
+		if (h["rect"] as Rect2).has_point(pos):
+			return {"planet": int(h["planet"]), "good": str(h["good"])}
+	return {}
+
 func _draw_capital(c: Vector2, r_px: float, scale_px: float) -> void:
 	var m := maxf(3.0, _k("growth_marker_px", 5.0) * scale_px)
 	var top := c + Vector2(0, -(r_px + (_k("growth_ring_gap_px", 6.0) + _k("growth_ring_width_px", 2.0) + 4.0) * scale_px + m))
@@ -146,24 +199,26 @@ func _draw_capital(c: Vector2, r_px: float, scale_px: float) -> void:
 func _draw_beats(i: int, c: Vector2, r_px: float, scale_px: float) -> void:
 	var warm := Ui.col("star_warm")
 	var u: float = map.beat_progress("tier", i)
-	if u >= 0.0:
-		var rr := r_px + lerpf(0.0, _k("beat_ring_radius_px", 140.0) * scale_px, 1.0 - pow(1.0 - u, 2.0))
-		draw_arc(c, rr, 0.0, TAU, 64, Color(warm, (1.0 - u) * 0.9), maxf(1.0, 3.0 * scale_px * (1.0 - u) + 1.0), true)
-	u = map.beat_progress("hub", i)  # T292: designate ripple runs out to the reach edge (two rings, the second a beat behind)
+	if u >= 0.0:  # tier-up: layered shock ring with a lagging thread, halo and sparks, plus a soft inner glow
+		Juice.draw_shock(self, c, r_px, r_px + _k("beat_ring_radius_px", 140.0) * scale_px, u, Color(warm, 0.9), maxf(1.0, 3.0 * scale_px), 12)
+		draw_circle(c, r_px * (1.0 + 0.25 * u), Color(warm, 0.18 * pow(1.0 - u, 2.0)))
+	u = map.beat_progress("hub", i)  # T292: designate ripple runs out to the reach edge (three rings, each a beat behind the last)
 	if u >= 0.0 and map.hubs != null:
 		var cam: Camera3D = map.camera
 		var edge: float = c.distance_to(cam.unproject_position(map.positions[i] + cam.global_transform.basis.x.normalized() * map.hubs.reach_of(i)))
-		for lag in [0.0, 0.18]:
+		var rip := Color(warm.lerp(Color.WHITE, 0.3), 0.8)
+		for lag in [0.0, 0.14, 0.28]:
 			var uu := clampf((u - lag) / (1.0 - lag), 0.0, 1.0)
-			if uu > 0.0 and uu < 1.0:
-				draw_arc(c, lerpf(r_px, edge, 1.0 - pow(1.0 - uu, 2.0)), 0.0, TAU, 96, Color(warm.lerp(Color.WHITE, 0.3), (1.0 - uu) * 0.7), maxf(1.0, 3.0 * scale_px * (1.0 - uu) + 1.0), true)
+			Juice.draw_shock(self, c, r_px, edge, uu, Color(rip, rip.a * (1.0 - lag)), maxf(1.0, 3.0 * scale_px), 0 if lag > 0.0 else 16)
 	u = map.beat_progress("stage", i)
 	if u >= 0.0:
 		var flash := clampf(1.0 - u * 4.0, 0.0, 1.0)  # the flash is the first quarter
 		if flash > 0.0:
 			draw_circle(c, r_px * 1.15, Color(1.0, 0.95, 0.8, flash * _k("beat_flash_alpha", 0.6)))
-		var rr2 := r_px + lerpf(0.0, _k("beat_stage_radius_px", 260.0) * scale_px, 1.0 - pow(1.0 - u, 2.0))
-		draw_arc(c, rr2, 0.0, TAU, 96, Color(warm.lerp(Color.WHITE, 0.5), (1.0 - u) * 0.9), maxf(1.0, 4.0 * scale_px * (1.0 - u) + 1.0), true)
+		var sc := Color(warm.lerp(Color.WHITE, 0.5), 0.9)
+		var sr: float = _k("beat_stage_radius_px", 260.0) * scale_px
+		Juice.draw_shock(self, c, r_px, r_px + sr, u, sc, maxf(1.0, 4.0 * scale_px), 20)
+		Juice.draw_shock(self, c, r_px, r_px + sr * 0.6, clampf((u - 0.18) / 0.82, 0.0, 1.0), Color(sc, 0.6), maxf(1.0, 2.0 * scale_px), 0)
 
 ## T285: an established, discovered world with its name on screen (the weather chips and the mood face show only there).
 func _established(i: int) -> bool:

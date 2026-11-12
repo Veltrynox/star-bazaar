@@ -7,6 +7,7 @@ extends PanelContainer
 const StoryText := preload("res://game/story_text.gd")
 const SkillTree := preload("res://game/skill_tree.gd")
 const SkillIcons := preload("res://game/skill_icons.gd")
+const Juice := preload("res://game/juice.gd")
 var COL_LEARNED: Color = Ui.col("star_warm")
 var COL_AVAILABLE: Color = Color.WHITE
 var COL_SHORT: Color = Color(0.82, 0.82, 0.82)
@@ -19,13 +20,14 @@ const VERTICAL_LAYOUT := true  # true: branch columns in a vertical scroll; fals
 const FONT_SIZE := 10
 const FONT_SIZE_TITLE := 15
 const NODE_BTN_H := 50.4  # 0.9 of the old 56
-const CELL_W := 129.6  # 0.9 of the old 144
-const CELL_W_MAX := 420.0  # the cells grow to fill the window width, up to this
-const WINDOW_MARGIN := 24.0  # gap between the skill window and the screen edge
+const CELL_W := 124.0  # node button width
+const CELL_W_MAX := 132.0  # a little give when the window has room; buttons are not stretched to the window
+const WINDOW_MAX := Vector2(1200.0, 840.0)  # the skill window never grows past this
+const WINDOW_MARGIN := 48.0  # gap between the skill window and the screen edge
 const ICON_PX := 24  # skill icon on the node button
-const TREE_RESERVE := 200.0  # window height kept for header, help and footer; the tree gets the rest
-const DETAIL_SCALE := 3  # owner: the text of the info panel on the right is 3x the tree's type
-const DETAIL_W := 560.0  # width of the skill info panel on the right of the tree
+const TREE_RESERVE := 190.0  # window height kept for header, help and footer; the tree gets the rest
+const DETAIL_SCALE := 1.5  # right info panel type, a step above the tree (title 22, body 15)
+const DETAIL_W := 400.0  # width of the skill info panel on the right of the tree
 const MAX_ROW_CELLS := 2  # a tier with more nodes wraps onto a second line, so four columns of 3 do not overflow 1500 px
 const NODE_GAP_H := 15  # between nodes in a row
 const NODE_GAP_V := 21  # between rows of a branch
@@ -37,6 +39,111 @@ const PLACEHOLDER_GROWTH := 2.0  # planned tree size as a multiple of today's no
 const PLACEHOLDER_COL := Color(1, 1, 1, 0.16)
 
 signal closed
+
+# ---- juice (visual only; durations in seconds, scaled by Juice.motion) ----
+const JUICE_INTRO_STAGGER := 0.025   # delay per depth row when the nodes pop in on open
+const JUICE_INTRO_SECONDS := 0.2
+const JUICE_INTRO_MAX_DELAY := 0.35  # cap so a deep tree still finishes quickly
+const JUICE_HOVER_SCALE := 1.05      # node and button hover lift
+const JUICE_HOVER_SECONDS := 0.12
+const JUICE_PULSE_SECONDS := 1.8     # learnable border breathing
+const JUICE_LINK_SECONDS := 0.55     # a new learned path lights up
+const JUICE_DETAIL_SECONDS := 0.18   # detail panel crossfade on selection
+const JUICE_DETAIL_FROM := 0.25
+
+const RING_GAP := 4.0       # clear gap between a node button and its ring: the ring always encloses the button
+const RING_RADIUS := 8.0    # corner radius of the node ring
+const JUICE_BURST_SECONDS := 0.95  # learn burst: sweep, shock rings, sparks
+
+## Border and glow drawn over a node button; reads state, never takes the mouse. The ring sits RING_GAP outside the
+## button on every side, so it is never smaller than the button it belongs to.
+class NodeFx extends Control:
+	var state := "locked"
+	var selected := false
+	var hover := 0.0
+	var pulse := 0.0   # 0..1, set by the screen's single loop
+	var spin := 0.0    # 0..TAU, the same loop: a bright dash travels round a learnable ring
+	var warm := Color.WHITE
+	var soft := Color.WHITE
+	var _ring := PackedVector2Array()
+	var _ring_size := Vector2.ZERO
+
+	func _init() -> void:
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+		set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+
+	func set_hover(v: float) -> void:
+		hover = v
+		queue_redraw()
+
+	func _ring_pts() -> PackedVector2Array:
+		if _ring_size != size or _ring.is_empty():
+			_ring_size = size
+			_ring = Juice.rr_points(Rect2(Vector2.ZERO, size).grow(RING_GAP), RING_RADIUS + RING_GAP)
+		return _ring
+
+	func _draw() -> void:
+		var r := Rect2(Vector2.ZERO, size).grow(RING_GAP)
+		var pts := _ring_pts()
+		match state:
+			"learned":
+				var a := 0.7 + 0.25 * hover
+				draw_polyline(Juice.rr_points(r.grow(3.0), RING_RADIUS + RING_GAP + 3.0), Color(warm.r, warm.g, warm.b, 0.10 + 0.06 * hover), 3.0, true)  # outer glow
+				draw_polyline(Juice.rr_points(r.grow(1.5), RING_RADIUS + RING_GAP + 1.5), Color(warm.r, warm.g, warm.b, 0.20 + 0.06 * hover), 1.0, true)  # thread
+				draw_polyline(pts, Color(warm.r, warm.g, warm.b, a), 2.0, true)
+				for c in [r.position, Vector2(r.end.x, r.position.y), r.end, Vector2(r.position.x, r.end.y)]:  # corner studs
+					draw_circle(c, 2.0, Color(warm.r, warm.g, warm.b, 0.9))
+			"learnable", "researching":
+				draw_polyline(pts, Color(soft.r, soft.g, soft.b, 0.22 + 0.35 * pulse + 0.25 * hover), 1.5, true)
+				draw_polyline(Juice.rr_points(r.grow(2.5), RING_RADIUS + RING_GAP + 2.5), Color(soft.r, soft.g, soft.b, 0.14 * pulse), 1.0, true)
+				var f := spin / TAU
+				var dash := Juice.sub_polyline(pts, f, f + 0.16)
+				if dash.size() > 1:
+					draw_polyline(dash, Color(soft.r, soft.g, soft.b, 0.55 + 0.4 * pulse), 2.5, true)
+			_:
+				if hover > 0.0:
+					draw_polyline(pts, Color(1, 1, 1, 0.25 * hover), 1.0, true)
+		if selected:
+			draw_polyline(Juice.rr_points(r.grow(2.0), RING_RADIUS + RING_GAP + 2.0), Color(warm.r, warm.g, warm.b, 0.95), 2.0, true)
+
+## One-shot learn burst over a node: a progress sweep round a circle that encloses the button, then expanding shock
+## rings, a crown of sparks and a core flash. Frees itself. Visual only.
+class LearnBurst extends Control:
+	var t := 0.0
+	var tint := Color.WHITE
+	var half := Vector2(60, 25)  # half size of the button
+
+	func _init() -> void:
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	func set_t(v: float) -> void:
+		t = v
+		queue_redraw()
+
+	func _draw() -> void:
+		var c := half  # drawn about the button centre (this control sits at the button's top-left)
+		var r_in := half.length() + RING_GAP + 4.0  # a circle that encloses the whole button, with a gap
+		var sweep := clampf(t / 0.4, 0.0, 1.0)
+		var se := 1.0 - pow(1.0 - sweep, 3.0)
+		var fade := 1.0 - clampf((t - 0.55) / 0.45, 0.0, 1.0)
+		if fade > 0.0:
+			draw_arc(c, r_in, 0.0, TAU, 72, Color(tint, 0.14 * fade), 1.0, true)  # track
+			if se > 0.0:
+				draw_arc(c, r_in, -PI * 0.5, -PI * 0.5 + TAU * se, 72, Color(tint, 0.95 * fade), 3.0, true)  # progress sweep
+				draw_arc(c, r_in + 4.0, -PI * 0.5, -PI * 0.5 + TAU * se, 72, Color(tint, 0.30 * fade), 1.0, true)
+				var ha := -PI * 0.5 + TAU * se  # bright head
+				draw_circle(c + Vector2(cos(ha), sin(ha)) * r_in, 3.5 * fade, Color(1, 1, 1, 0.9 * fade))
+			for i in 24:  # tick marks light up as the sweep passes them
+				var a := -PI * 0.5 + TAU * float(i) / 24.0
+				if float(i) / 24.0 <= se:
+					var d := Vector2(cos(a), sin(a))
+					draw_line(c + d * (r_in + 6.0), c + d * (r_in + 6.0 + (4.0 if i % 6 == 0 else 2.0)), Color(tint, 0.7 * fade), 1.0, true)
+		var u := clampf((t - 0.3) / 0.7, 0.0, 1.0)  # shock rings start as the sweep closes
+		Juice.draw_shock(self, c, r_in, r_in + 46.0, u, Color(tint.lerp(Color.WHITE, 0.25), 0.95), 3.0, 14)
+		Juice.draw_shock(self, c, r_in, r_in + 30.0, clampf((t - 0.42) / 0.58, 0.0, 1.0), Color(tint, 0.6), 1.5, 0)
+		if t < 0.3:  # core flash over the button
+			var fa := 1.0 - t / 0.3
+			draw_rect(Rect2(Vector2.ZERO, half * 2.0).grow(RING_GAP), Color(1, 0.95, 0.8, 0.22 * fa), true)
 
 var main: Control
 var selected: String = ""
@@ -52,6 +159,15 @@ var placeholders: Array = []  # empty slot Controls (UI only, inert)
 var _root: VBoxContainer
 var _built_branch: String = ""  # run branch the node grid was built for
 var _cell_w: float = CELL_W
+var node_fx: Dictionary = {}  # node id -> NodeFx
+var _prev_learned: Variant = null  # learned set at the last refresh (null = fresh open, no burst)
+var _intro_tw: Tween
+var _pulse_tw: Tween
+var _link_tw: Tween
+var _link_id: String = ""  # node whose incoming links are lighting up
+var _link_t: float = 1.0
+var _last_detail_id: String = ""
+var _last_points: int = -1
 var tree_scroll: ScrollContainer  # holds the four trees; scrolls vertically when they do not fit
 var _tree: VBoxContainer  # the scrolled content, the connector lines are drawn on it
 
@@ -128,7 +244,7 @@ func setup(main_node: Control) -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	set_anchors_and_offsets_preset(Control.PRESET_CENTER)
 	# the window fills the screen: all the width and height the viewport has, less a margin
-	custom_minimum_size = Vector2(get_viewport_rect().size.x - WINDOW_MARGIN, get_viewport_rect().size.y - WINDOW_MARGIN)
+	custom_minimum_size = Vector2(minf(get_viewport_rect().size.x - WINDOW_MARGIN, WINDOW_MAX.x), minf(get_viewport_rect().size.y - WINDOW_MARGIN, WINDOW_MAX.y))
 	grow_horizontal = Control.GROW_DIRECTION_BOTH
 	grow_vertical = Control.GROW_DIRECTION_BOTH
 	_root = VBoxContainer.new()
@@ -149,6 +265,7 @@ func setup(main_node: Control) -> void:
 	var close := Button.new()
 	close.text = StoryText.get_text("SK_BTN_CLOSE")
 	close.pressed.connect(close_screen)
+	_hover_lift(close)
 	head.add_child(close)
 	var help := Label.new()
 	help.theme_type_variation = "LabelSmall"
@@ -167,8 +284,10 @@ func setup(main_node: Control) -> void:
 	tree_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
 	tree_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	var tree_gutter := MarginContainer.new()  # keeps the last column clear of the scrollbar
-	tree_gutter.add_theme_constant_override("margin_right", 10)
-	tree_gutter.add_theme_constant_override("margin_bottom", 6)
+	tree_gutter.add_theme_constant_override("margin_left", 14)  # room for the node rings (they sit outside the buttons) inside the scroll clip
+	tree_gutter.add_theme_constant_override("margin_top", 14)
+	tree_gutter.add_theme_constant_override("margin_right", 16)
+	tree_gutter.add_theme_constant_override("margin_bottom", 14)
 	tree_gutter.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	rows.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	tree_gutter.add_child(rows)
@@ -218,6 +337,7 @@ func _rebuild_tree() -> void:
 		_tree.remove_child(c)
 		c.queue_free()
 	node_buttons.clear()
+	node_fx.clear()  # the old NodeFx nodes are freed with the grid
 	cells.clear()
 	use_rows.clear()
 	use_buttons.clear()
@@ -320,7 +440,10 @@ func _node_row(ids: Array) -> HBoxContainer:
 
 ## Nodes per line in a market column: a lone market uses every column the width allows.
 func _row_cap(wide: bool) -> int:
-	return 6 if wide else MAX_ROW_CELLS
+	if not wide:
+		return MAX_ROW_CELLS
+	var tree_w := custom_minimum_size.x - 24.0 - 24.0 - 10.0 - DETAIL_W - 12.0  # as many cells as fit the tree area, 2..6
+	return clampi(int(floor((tree_w + NODE_GAP_H) / (_cell_w + NODE_GAP_H))), 2, 6)
 
 ## Extra empty rows under a branch: enough slots for (PLACEHOLDER_GROWTH - 1) x its real nodes, `width` slots per row.
 func _add_placeholder_rows(sec: VBoxContainer, width: int, nodes: int) -> void:
@@ -389,17 +512,17 @@ func _build_horizontal(rows: VBoxContainer) -> void:
 func _fit_tree() -> void:
 	if tree_scroll == null or not is_instance_valid(tree_scroll) or not is_inside_tree():
 		return
-	var avail := get_viewport_rect().size.y - TREE_RESERVE
+	var avail := custom_minimum_size.y - TREE_RESERVE
 	tree_scroll.custom_minimum_size.y = maxf(160.0, minf(_tree.get_combined_minimum_size().y + 8.0, avail))
 
 ## Smaller type for the whole window (the theme sizes are too large for 30 nodes).
-func _shrink(n: Node, k: int = 1) -> void:
+func _shrink(n: Node, k: float = 1.0) -> void:
 	if n is Label:
 		var big: bool = (n as Label).theme_type_variation == "LabelTitle"
 		var sz := FONT_SIZE_TITLE if big else (FONT_SIZE - 1 if n.has_meta("dim") else FONT_SIZE)
-		(n as Label).add_theme_font_size_override("font_size", sz * k)
+		(n as Label).add_theme_font_size_override("font_size", int(sz * k))
 	elif n is Button or n is MenuButton:
-		n.add_theme_font_size_override("font_size", FONT_SIZE * k)
+		n.add_theme_font_size_override("font_size", int(FONT_SIZE * k))
 	for c in n.get_children():
 		_shrink(c, k)
 
@@ -412,19 +535,25 @@ func _caption(text: String) -> Label:
 func _node_cell(id: String) -> Control:
 	var cell := VBoxContainer.new()
 	cell.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	cell.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	cell.size_flags_vertical = Control.SIZE_SHRINK_BEGIN  # the button keeps its own height, rows are not stretched
 	cell.size_flags_stretch_ratio = 1.0
 	cell.add_theme_constant_override("separation", CELL_GAP)
 	var btn := Button.new()
 	btn.custom_minimum_size = Vector2(0, NODE_BTN_H)
 	btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	btn.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	btn.size_flags_vertical = Control.SIZE_FILL
 	btn.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	btn.clip_text = true
 	btn.icon = SkillIcons.texture(id)
 	btn.expand_icon = true
 	btn.add_theme_constant_override("icon_max_width", ICON_PX)
 	btn.pressed.connect(select.bind(id))
+	var fx := NodeFx.new()
+	fx.warm = Ui.col("star_warm")
+	fx.soft = COL_AVAILABLE
+	btn.add_child(fx)
+	node_fx[id] = fx
+	_hover_lift(btn, fx)
 	cell.add_child(btn)
 	node_buttons[id] = btn
 	cells[id] = cell
@@ -451,12 +580,21 @@ func _node_cell(id: String) -> Control:
 func open_screen() -> void:
 	if main != null and main.run_branch() != _built_branch:
 		_rebuild_tree()  # the run choice arrived after setup
+	var was_open := visible
+	_prev_learned = null
+	_last_detail_id = ""
+	_last_points = -1
 	visible = true
 	refresh()
 	_fit_tree.call_deferred()
+	if not was_open:
+		Juice.enter(self, 0.97)
+		_intro_nodes.call_deferred()
+		_start_pulse()
 
 func close_screen() -> void:
 	if visible:
+		_stop_juice()
 		visible = false
 		selected = ""
 		highlight = []
@@ -476,6 +614,127 @@ func select(id: String) -> void:
 	selected = id
 	refresh()
 
+# ---- juice ----
+
+## Hover lift: scale about the centre, plus the border brightening on a node's fx layer.
+func _hover_lift(btn: Button, fx: NodeFx = null) -> void:
+	btn.mouse_entered.connect(_hover_to.bind(btn, fx, true))
+	btn.mouse_exited.connect(_hover_to.bind(btn, fx, false))
+
+func _hover_to(btn: Button, fx: NodeFx, on: bool) -> void:
+	if Juice.motion <= 0.0 or not btn.is_inside_tree() or btn.disabled and fx == null:
+		return
+	btn.pivot_offset = btn.size * 0.5
+	var k := 1.0 + (JUICE_HOVER_SCALE - 1.0) * Juice.motion
+	var tw := btn.create_tween().set_parallel(true)
+	tw.tween_property(btn, "scale", Vector2(k, k) if on else Vector2.ONE, JUICE_HOVER_SECONDS * Juice.motion) \
+		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	if fx != null:
+		tw.tween_method(fx.set_hover, fx.hover, 1.0 if on else 0.0, JUICE_HOVER_SECONDS * Juice.motion)
+	if btn.has_meta("sk_hover_tw"):
+		var old = btn.get_meta("sk_hover_tw")
+		if old is Tween and old.is_valid():
+			old.kill()
+	btn.set_meta("sk_hover_tw", tw)
+
+## Nodes fade and scale in, staggered by depth row.
+func _intro_nodes() -> void:
+	if Juice.motion <= 0.0 or not visible:
+		return
+	if _intro_tw != null and _intro_tw.is_valid():
+		_intro_tw.kill()
+	_intro_tw = create_tween().set_parallel(true)
+	for id in cells:
+		var c: Control = cells[id]
+		if not c.is_visible_in_tree():
+			continue
+		var delay := minf(depth(id) * JUICE_INTRO_STAGGER, JUICE_INTRO_MAX_DELAY) * Juice.motion
+		c.pivot_offset = c.size * 0.5
+		c.modulate.a = 0.0
+		c.scale = Vector2(0.9, 0.9)
+		_intro_tw.tween_property(c, "modulate:a", 1.0, JUICE_INTRO_SECONDS * Juice.motion).set_delay(delay) \
+			.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+		_intro_tw.tween_property(c, "scale", Vector2.ONE, JUICE_INTRO_SECONDS * Juice.motion).set_delay(delay) \
+			.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	_intro_tw.chain().tween_callback(_intro_rest)
+
+func _intro_rest() -> void:
+	for id in cells:
+		var c: Control = cells[id]
+		c.modulate.a = 1.0
+		c.scale = Vector2.ONE
+
+## One loop drives the breathing border of every learnable node (a handful of small redraws, nothing else).
+func _start_pulse() -> void:
+	if Juice.motion <= 0.0:
+		return
+	if _pulse_tw != null and _pulse_tw.is_valid():
+		_pulse_tw.kill()
+	_pulse_tw = create_tween().set_loops()
+	_pulse_tw.tween_method(_set_pulse, 0.0, TAU, JUICE_PULSE_SECONDS)
+
+func _set_pulse(a: float) -> void:
+	var p := 0.5 - 0.5 * cos(a)
+	for id in node_fx:
+		var fx: NodeFx = node_fx[id]
+		if not is_instance_valid(fx):
+			continue
+		if fx.state == "learnable" or fx.state == "researching":
+			fx.pulse = p
+			fx.queue_redraw()
+
+func _stop_juice() -> void:
+	for t in [_intro_tw, _pulse_tw, _link_tw]:
+		if t != null and t.is_valid():
+			t.kill()
+	_link_id = ""
+	_link_t = 1.0
+	if not cells.is_empty():
+		_intro_rest()
+
+## A skill was just learned: ring, pop, warm flash, points readout pop, and its incoming links light up.
+func _celebrate(id: String) -> void:
+	var btn: Button = node_buttons.get(id)
+	if btn == null or Juice.motion <= 0.0:
+		return
+	var warm := Ui.col("star_warm")
+	var burst := LearnBurst.new()
+	burst.tint = warm
+	burst.half = btn.size * 0.5
+	btn.add_child(burst)
+	var btw := burst.create_tween()
+	btw.tween_method(burst.set_t, 0.0, 1.0, JUICE_BURST_SECONDS * Juice.motion) \
+		.set_trans(Tween.TRANS_LINEAR)
+	btw.tween_callback(burst.queue_free)
+	Juice.pop(btn, 1.12)
+	Juice.flash(btn, warm * 1.6)
+	_link_id = id
+	_link_t = 0.0
+	if _link_tw != null and _link_tw.is_valid():
+		_link_tw.kill()
+	_link_tw = create_tween()
+	_link_tw.tween_method(_set_link_t, 0.0, 1.0, JUICE_LINK_SECONDS * Juice.motion) \
+		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+
+func _set_link_t(t: float) -> void:
+	_link_t = t
+	if t >= 1.0:
+		_link_id = ""
+	_tree.queue_redraw()
+
+## Detail panel: a quick fade-up when another skill is selected.
+func _detail_swap() -> void:
+	if selected == _last_detail_id:
+		return
+	_last_detail_id = selected
+	if Juice.motion <= 0.0 or not detail_box.is_inside_tree():
+		return
+	Juice.settle(detail_box, "detail")
+	var tw := Juice._begin(detail_box, "detail", func() -> void: detail_box.modulate.a = 1.0)
+	detail_box.modulate.a = JUICE_DETAIL_FROM
+	tw.tween_property(detail_box, "modulate:a", 1.0, JUICE_DETAIL_SECONDS * Juice.motion) \
+		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+
 # ---- refresh ----
 
 func refresh() -> void:
@@ -483,6 +742,15 @@ func refresh() -> void:
 		return
 	var learned: Array = main.learned_skills
 	points_label.text = StoryText.get_text("SK_POINTS_COUNTER", {"n": main.skill_points})
+	if _last_points >= 0 and _last_points != main.skill_points:
+		Juice.pop(points_label)
+	_last_points = main.skill_points
+	var fresh: Array = []
+	if _prev_learned != null:
+		for lid in learned:
+			if not (_prev_learned as Array).has(lid):
+				fresh.append(lid)
+	_prev_learned = learned.duplicate()
 	for id in node_buttons:
 		var st := node_state(learned, main.skill_points, main.balance, id)
 		var tech := SkillTree.is_tech(id)
@@ -496,6 +764,11 @@ func refresh() -> void:
 		btn.self_modulate = col
 		if highlight.has(id) and st != "learned":
 			btn.self_modulate = COL_LEARNED * 1.5  # lit step on the way to a permit
+		if node_fx.has(id):
+			var fx: NodeFx = node_fx[id]
+			fx.state = st
+			fx.selected = id == selected
+			fx.queue_redraw()
 		btn.tooltip_text = "%s\n%s" % [SkillTree.skill_name(id), StoryText.get_or("SK_%s_PLAIN" % id, "", plain_args(main.balance, id))]
 		if bars.has(id):
 			var bar: ProgressBar = bars[id]
@@ -506,6 +779,9 @@ func refresh() -> void:
 		_build_use_row(id, st)
 	_build_detail()
 	_shrink(detail_box, DETAIL_SCALE)
+	_detail_swap()
+	for lid in fresh:
+		_celebrate(str(lid))
 	_tree.queue_redraw()
 	call_deferred("_redraw_links")
 	_fit_tree.call_deferred()
@@ -538,11 +814,23 @@ func _draw_links() -> void:
 			var p0: Vector2 = ends[0]
 			var p1: Vector2 = ends[1]
 			var my := (p0.y + p1.y) * 0.5
-			var col := COL_LEARNED if learned.has(p) else COL_LOCKED
+			var lit: bool = learned.has(p)
+			var col := COL_LEARNED if lit else COL_LOCKED
+			var w := 2.0
+			var glow := 0.0
+			if lit:
+				w = 2.5
+				glow = 0.18
+			if id == _link_id and lit:
+				col = COL_LOCKED.lerp(COL_LEARNED, _link_t)  # a new path warms up
+				glow = 0.18 + 0.5 * (1.0 - _link_t)
+				w = 2.5 + 2.0 * (1.0 - _link_t)
 			var pts := [p0, Vector2(p0.x, my), Vector2(p1.x, my), p1]
 			for i in 3:
 				for seg in clip_segment(pts[i], pts[i + 1], boxes):
-					_tree.draw_line(seg[0], seg[1], col, 2.0)
+					if glow > 0.0:
+						_tree.draw_line(seg[0], seg[1], Color(COL_LEARNED.r, COL_LEARNED.g, COL_LEARNED.b, glow), w + 4.0)
+					_tree.draw_line(seg[0], seg[1], col, w)
 
 ## Tree-local end points of the line from prerequisite `pid` to node `id`: bottom centre of the prerequisite, top centre of the node.
 func link_ends(pid: String, id: String) -> Array:
@@ -617,7 +905,7 @@ func _build_use_row(id: String, st: String) -> void:
 		l.theme_type_variation = "LabelSmall"
 		l.text = StoryText.get_or("SK_BOT_USED", "Used this run.") if left == -1 else StoryText.get_or("SK_BOT_COOLDOWN", "Ready in {n} cycles.", {"n": left})
 		row.add_child(l)
-	_shrink(row, DETAIL_SCALE if row.get_parent() == detail_box else 1)
+	_shrink(row, DETAIL_SCALE if row.get_parent() == detail_box else 1.0)
 
 var use_buttons: Dictionary = {}  # bot skill id -> MenuButton while ready
 
@@ -689,6 +977,7 @@ func _build_detail() -> void:
 		learn_button.tooltip_text = StoryText.get_text("SK_NOT_ENOUGH")
 	elif st == "locked" and not names.is_empty():
 		learn_button.tooltip_text = StoryText.get_text("SK_NEEDS", {"skill": ", ".join(names)})
+	_hover_lift(learn_button)
 	learn_button.pressed.connect(confirm_learn)  # one step: the Learn button learns at once
 	detail_box.add_child(learn_button)
 
