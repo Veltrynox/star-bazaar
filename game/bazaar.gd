@@ -189,7 +189,7 @@ static func wing_options(stage_n: int) -> Array:
 		for w in row.get("options", []):
 			var id := str(w.get("id", ""))
 			out.append({"id": id, "effect": str(w.get("effect", "")), "key": "bazaar_wing_" + id.to_lower(),
-				"name": StoryText.get_or("BAZ_WING_%s_NAME" % id, id), "text": StoryText.get_or("BAZ_WING_%s_TEXT" % id, "")})
+				"name": StoryText.get_or("BAZ_%s_NAME" % id, id), "text": StoryText.get_or("BAZ_%s_LINE" % id, "")})
 	return out
 
 static func wing_def(id: String) -> Dictionary:

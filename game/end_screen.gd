@@ -78,7 +78,7 @@ func _recap_block(box: Control, rc: Dictionary) -> void:
 		lines.append(StoryText.get_or("END_RECAP_CAPITAL", "Capital: {planet}", {"planet": str(rc.get("capital_name", "#%d" % cap))}))
 	lines.append(StoryText.get_or("END_RECAP_STAGES", "Stages raised: {n} of {m}", {"n": int(rc.get("stages", 0)), "m": int(rc.get("stages_total", 0))}))
 	for w in rc.get("wings", []):
-		lines.append(StoryText.get_or("END_RECAP_WING", "Wing: {wing}", {"wing": StoryText.get_or("BAZ_WING_%s_NAME" % w, str(w))}))
+		lines.append(StoryText.get_or("END_RECAP_WING", "Wing: {wing}", {"wing": StoryText.get_or("BAZ_%s_NAME" % w, str(w))}))
 	var per: Dictionary = rc.get("worlds_per_tier", {})
 	var tiers := per.keys()
 	tiers.sort()

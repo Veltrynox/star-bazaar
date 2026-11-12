@@ -75,12 +75,12 @@ func show_wing_choice() -> void:
 		card.add_theme_constant_override("separation", 6)
 		cards.add_child(card)
 		var nm := Label.new()
-		nm.text = StoryText.get_or("BAZ_WING_%s_NAME" % o["id"], str(o["id"]))
+		nm.text = StoryText.get_or("BAZ_%s_NAME" % o["id"], str(o["id"]))
 		nm.theme_type_variation = "LabelCaption"
 		nm.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		card.add_child(nm)
 		var tx := Label.new()
-		tx.text = StoryText.get_or("BAZ_WING_%s_LINE" % o["id"], "")
+		tx.text = StoryText.get_or("BAZ_%s_LINE" % o["id"], "")
 		tx.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		tx.size_flags_vertical = Control.SIZE_EXPAND_FILL
 		card.add_child(tx)
@@ -167,7 +167,7 @@ func refresh() -> void:
 	if not bz.wings.is_empty():
 		_head("BAZ_LBL_WINGS", "Wings")
 		for w in bz.wings:
-			_row(StoryText.get_or("BAZ_WING_%s_NAME" % w, str(w)))
+			_row(StoryText.get_or("BAZ_%s_NAME" % w, str(w)))
 	if bz.complete():
 		_row(StoryText.get_or("BAZ_NAME", "Star Bazaar"))
 		_term()
