@@ -99,7 +99,7 @@ func title_text(o: Dictionary) -> String:
 	return StoryText.get_or(str(_def(o).get("title", "")), StoryText.get_or("GIG_ROW_SIGNAL", "Unknown signal"))
 
 func world_text(o: Dictionary) -> String:
-	if str(o["kind"]) == "rush" or str(o["kind"]) == "opening":
+	if (str(o["kind"]) == "rush" or str(o["kind"]) == "opening") and str(o["target"].get("kind", "planet")) == "planet":
 		return main.planet_name(int(o["target"]["index"]))
 	return StoryText.get_or("GIG_WHERE_SPACE", "Open space")
 

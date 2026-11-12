@@ -148,7 +148,7 @@ func ensure_opening() -> void:
 ## The Flagship docked at a world: at the capital with an open Opening, the Bazaar opens and the run is won.
 func on_arrived_planet(planet_id: String) -> void:
 	var o := opening_offer()
-	if o.is_empty() or main.planet_index_of(planet_id) != int(o["target"]["index"]):
+	if o.is_empty() or str(o["target"].get("kind", "planet")) != "planet" or main.planet_index_of(planet_id) != int(o["target"]["index"]):
 		return
 	offers.erase(o)
 	changed.emit()
@@ -526,7 +526,7 @@ func on_delivered(planet_id: String, good: String, units: int) -> void:
 func _finish_rush(o: Dictionary) -> void:
 	offers.erase(o)
 	rush_done += 1
-	var ctx := {"good": str(o["req"]["good"]), "units": int(o["req"]["units"]), "planet": int(o["target"]["index"])}
+	var ctx := {"good": str(o["req"]["good"]), "units": int(o["req"]["units"]), "planet": int(o["target"]["index"]) if str(o["target"].get("kind", "planet")) == "planet" else -1}
 	var lines := apply(o["rewards"], ctx)
 	main.post_notice(StoryText.get_or("NOT_GIG_RUSH_DONE", "Rush order delivered at {planet}. {lines}", {"planet": main.planet_name(int(ctx["planet"])), "lines": " ".join(lines)}))
 	changed.emit()

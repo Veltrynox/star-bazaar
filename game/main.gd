@@ -2494,6 +2494,30 @@ func _on_bazaar_wing_offered(_stage: int) -> void:
 
 ## T298: the Flagship docked at the capital with the charter cargo (Gigs.on_arrived_planet): the Bazaar opens, the run is won.
 func on_opening_flown() -> void:
+	if event_notice != null or game_over or not is_inside_tree():
+		_finish_opening()
+		return
+	# GIG07: the arrival window (one button), then the outcome popup of the run branch, then the win.
+	if not _event_pause_held:
+		_event_prev_paused = paused
+		_event_pause_held = true
+	paused = true
+	event_notice = load("res://game/event_notice.gd").new()
+	add_child(event_notice)
+	event_notice.show_event(StoryText.get_or("GIG07_TITLE", "The Opening"), StoryText.get_or("GIG07_ARRIVE", ""), "", [StoryText.get_or("GIG07_A_BTN", "Bring the crate in")], StoryText.get_text("MENU_CONTINUE"))
+	event_notice.confirmed.connect(func(_c: int):
+		_dismiss_event_notice()
+		var out_id := "GIG07_A_OUT_" + (branch if branch != "" else str(Markets.ids[0])).to_upper()
+		event_notice = load("res://game/event_notice.gd").new()
+		add_child(event_notice)
+		event_notice.show_event(StoryText.get_or("GIG07_TITLE", "The Opening"), StoryText.get_or(out_id, ""), "", [], StoryText.get_text("BTN_OK"))
+		event_notice.confirmed.connect(func(_c2: int):
+			_dismiss_event_notice()
+			_release_event_pause()
+			_finish_opening()))
+	_refresh()
+
+func _finish_opening() -> void:
 	var outcome := bazaar.open()
 	if outcome.is_empty() or game_over:
 		return
@@ -3171,6 +3195,8 @@ func _choice_fee(kind: String, amount: int = 0) -> int:
 			return events.debris_fee()
 		"asteroid_pay":
 			return events.asteroid_cost()
+		"cash":
+			return maxi(0, -amount)
 	return 0
 
 ## T98: after a debris choice: popup with the outcome text, closed with OK.

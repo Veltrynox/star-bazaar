@@ -126,7 +126,7 @@ func _gig() -> Dictionary:
 	var board = main.gig_panel
 	var lf := snappedf(board.left(best), 0.1)
 	if str(best["kind"]) == "rush":
-		return {"text": StoryText.get_or("NEXTUP_BEST_GIG", "Gig: {title}, {cycles} cycles left", {"title": board.title_text(best), "cycles": lf}), "planet": int(best["target"]["index"])}
+		return {"text": StoryText.get_or("NEXTUP_BEST_GIG", "Gig: {title}, {cycles} cycles left", {"title": board.title_text(best), "cycles": lf}), "planet": int(best["target"]["index"]) if str(best["target"].get("kind", "planet")) == "planet" else -1}
 	return {"text": StoryText.get_or("NEXTUP_BEST_GIG", "Gig: {title}, {cycles} cycles left", {"title": board.title_text(best), "cycles": lf}), "planet": -1}
 
 func _best() -> Dictionary:

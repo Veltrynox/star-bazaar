@@ -2377,6 +2377,10 @@ func _test_main() -> void:
 	check(bz2.wings == ["WING_2A"] and bz2.opening_pending and bz2.capital() == cap, "wings and Opening survive a save", str(bz.to_dict()))
 	m.gigs.on_arrived_planet(str(m.map.planets[cap].get("id", "")))
 	await process_frame
+	m.event_notice.confirmed.emit(0)  # the Opening window, then its outcome popup
+	await process_frame
+	m.event_notice.confirmed.emit(-1)
+	await process_frame
 	var fam := "END_%s_GOOD" % (m.run_branch() if m.run_branch() != "" else str(Markets.ids[0])).to_upper()
 	check(m.game_over and bz.complete() and bz.opened and ended.size() == 1 and ended[0][0] == "WIN" and ended[0][1] == fam, "win: the last stage wins with the branch family", str(ended))
 	check(m.end_screen != null and _stats_runs() == 1, "win: end screen shown, run recorded once")
