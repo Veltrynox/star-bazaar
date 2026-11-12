@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-12 14:40 run: T360
-- Summary: The hub is now explained in the game: an always-visible muted paragraph under the hub panel title (ST_HUB_EXPLAIN) and a fuller hover tooltip on Make hub (ST_HUB_MAKE_TIP extended, also on the disabled reason line). English only. Separate commit: the Flagship line and droplet on a cross-system flight now point at the exit point during the out leg (Pathfinder.leg_goal).
-- Why this task: owner request 2026-11-12 (hub panel screenshot) and 'the UI target points to a wrong place' on inter-system flights.
-- Approach: one ui-programmer task for the text; the target fix by the main session (target().pos belongs to the destination system, the view drew to it from the old system).
-- Agent prompts: Agent tool, ui-programmer, brief read from schedule.json T360; handoff handoffs/ui-programmer/2026-11-12-T360.json (written by the main session).
-- Worked: scratch render of the hub panel at 1920x1080 looked at; text wraps to four lines, nothing clipped.
-- Failed / did not work: tooltips and the cross-system line not seen in a window.
-- Files and commits: see git log on main for T360 and the leg_goal commit.
-- Left to do: Russian for ST_HUB_EXPLAIN and ST_HUB_MAKE_TIP (Haiku agents) when the owner asks; owner to fly the Flagship to another system and check the line and droplet at the exit point, then at the real target after the jump.
-
 ## 2026-11-12 15:20 run: bazaar-guidance proposal
 - Summary: design/proposals/2026-11-12-bazaar-guidance.md: why the Star Bazaar stage reads as a dead end (the bill is shown as a number in three places, never as an instruction; powder must be HELD in the capital's planet storage, sold at Flintmoor 12 cr / Voltara 30 cr) and a proposal: one Bazaar.next_step() record rendered in five voices (Bazaar panel how-line and Buy/Send buttons, capital card block, Bazaar card and Next Up clicks, a gentle cycle-end reminder only while nothing feeds the bill, stage-done next line) plus an optional persistent Main line card.
 - Why this task: owner question 2026-11-12 ('not clear how to proceed at the Town stage').
@@ -75,3 +65,13 @@
 - Failed / did not work: T365 not finished: game/skill_screen.gd holds its partial, uncommitted edits (about 220 added lines), no test, no handoff, never rendered by the main session.
 - Files and commits: see git log on main for T366 and T367.
 - Left to do: owner to decide on T365: restart it, keep the partial edits, or revert game/skill_screen.gd (git checkout game/skill_screen.gd); the skill screen lines still cross until then.
+
+## 2026-11-12 19:10 run: T365 (main session)
+- Summary: Skill screen prerequisite lines redone by the main session after the ui-programmer's attempt was stopped (its partial edit reverted): thin orthogonal routes (1 px locked, 1.5 px learned), down into the gap under the parent, across, down a clear lane beside any node in the way, across above the child, into it; two nodes on one line join side to side; routes cached per layout (cell rects fingerprinted at draw), the learn animation only recolours. Old mid-row horizontals and the clip-through-nodes code are gone.
+- Why this task: owner report 2026-11-12 ('lines visibly not matching, many lines intersect'); owner asked the main session to do it after the agent's version could not open the window.
+- Approach: rendered the screen from the owner's autosave at 1920x1080 and 1280x720 before and after (wt/_scratch/skills.png, skills_after.png, skills_720.png); cause was the horizontal run at the midpoint between parent and child (inside intermediate wrapped lines) and verticals through nodes under the parent; fixed in game/skill_screen.gd route_link; test _test_skill_link_clip replaced by _test_skill_link_route.
+- Agent prompts: none (ui-programmer T365 killed before the handoff).
+- Worked: both renders looked at: no line through a node, lanes shared, nothing clipped.
+- Failed / did not work: lines still cross each other where a lane meets another parent's bus (circuit look, accepted); a link's short stub can overlap a sibling's lit stub in a different colour.
+- Files and commits: see git log on main for T365.
+- Left to do: owner to look at the skill screen windowed.

@@ -135,7 +135,7 @@ func _run() -> void:
 	await _test_bazaar_guidance_ui()
 	await _test_dead_mine_tile()
 	await _test_gig_clearance()
-	await _test_skill_link_clip()
+	await _test_skill_link_route()
 	_test_engine_plume()
 	_test_hub_explain_ids()
 	print("TOTAL pass=%d fail=%d" % [passed, failed])
@@ -8695,17 +8695,34 @@ func _av_tooltips(n: Node) -> String:
 		t += _av_tooltips(c)
 	return t
 
-func _test_skill_link_clip() -> void:
-	_wipe_user()
-	var m: Control = await _new_main(false, true)
-	var sc = m.skill_screen
-	var boxes: Array = [Rect2(80, 40, 40, 20)]
-	var v: Array = sc.clip_segment(Vector2(100, 0), Vector2(100, 100), boxes)
-	check(v.size() == 2 and is_equal_approx(v[0][1].y, 40.0) and is_equal_approx(v[1][0].y, 60.0), "T225: vertical link stops at a node box and resumes after it")
-	var h: Array = sc.clip_segment(Vector2(0, 50), Vector2(200, 50), boxes)
-	check(h.size() == 2 and is_equal_approx(h[0][1].x, 80.0) and is_equal_approx(h[1][0].x, 120.0), "T225: horizontal link stops at a node box")
-	check(sc.clip_segment(Vector2(10, 0), Vector2(10, 100), boxes).size() == 1, "T225: a link clear of every box is drawn whole")
-	m.queue_free()
+func _test_skill_link_route() -> void:
+	var SS = load("res://game/skill_screen.gd")
+	var hits := func(pts: PackedVector2Array, box: Rect2) -> bool:  # an axis-aligned run passing through the box interior
+		for k in pts.size() - 1:
+			var a: Vector2 = pts[k]
+			var b: Vector2 = pts[k + 1]
+			if absf(a.x - b.x) < 0.01:
+				if box.position.x < a.x and a.x < box.end.x and box.end.y > minf(a.y, b.y) and box.position.y < maxf(a.y, b.y):
+					return true
+			elif absf(a.y - b.y) < 0.01:
+				if box.position.y < a.y and a.y < box.end.y and box.end.x > minf(a.x, b.x) and box.position.x < maxf(a.x, b.x):
+					return true
+			else:
+				return true  # a slanted run is never allowed
+		return false
+	var a := Rect2(100, 0, 120, 40)
+	var b := Rect2(100, 100, 120, 40)    # directly under a
+	var c := Rect2(300, 100, 120, 40)    # beside b
+	var d := Rect2(100, 200, 120, 40)    # two lines down, b in the way
+	var boxes: Array = [a, b, c, d]
+	var pts: PackedVector2Array = SS.route_link(a, b, boxes)
+	check(pts.size() == 2 and pts[0] == Vector2(160, 40) and pts[1] == Vector2(160, 100), "T365: a node directly below gets one straight line from bottom centre to top centre", str(pts))
+	pts = SS.route_link(a, c, boxes)
+	check(pts[0] == Vector2(160, 40) and pts[pts.size() - 1] == Vector2(360, 100) and not hits.call(pts, b) and not hits.call(pts, c), "T365: a node beside the one below gets an elbow in the gap, through no box", str(pts))
+	pts = SS.route_link(a, d, boxes)
+	check(pts[0] == Vector2(160, 40) and pts[pts.size() - 1] == Vector2(160, 200) and not hits.call(pts, b) and not hits.call(pts, c), "T365: a node two lines down is reached by a lane beside the node in between", str(pts))
+	pts = SS.route_link(a, Rect2(300, 0, 120, 40), boxes)
+	check(pts.size() == 2 and pts[0] == Vector2(220, 20) and pts[1] == Vector2(300, 20), "T365: two nodes on one line are joined side to side", str(pts))
 
 func _test_prosperity() -> void:
 	var bal: Dictionary = {"prosperity_max_tier": 3, "prosperity_needs_t1": 1, "prosperity_needs_t2": 2, "prosperity_needs_t3": 3, "prosperity_demand_t1": 2, "prosperity_demand_t2": 3, "prosperity_demand_t3": 4, "prosperity_steps_t1": 2, "prosperity_steps_t2": 2, "prosperity_decay_steps": 1}

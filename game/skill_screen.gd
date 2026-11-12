@@ -790,92 +790,102 @@ func _redraw_links() -> void:
 	if _tree != null and is_instance_valid(_tree):
 		_tree.queue_redraw()
 
-## Prerequisite lines under the buttons: down from the prerequisite, across, down into the node.
+## Prerequisite lines under the buttons (owner 2026-11-12: thin, and never through a node). Each link is an orthogonal route:
+## down out of the prerequisite into the gap under its line, across, down a clear lane (the nearest box edge whose vertical
+## run meets no node), across in the gap above the node, down into it. Routes are computed once per layout (the cell rects
+## are fingerprinted at draw time) and only redrawn afterwards; the learn animation changes colour and width, not geometry.
+const LINK_W := 1.0          # locked link
+const LINK_W_LIT := 1.5      # link out of a learned node
+const LANE_PAD := 8.0        # a lane runs this far outside a node box
+const BUS_IN := 12.0         # the horizontal run sits this far into the gap below a parent / above a node
+const BOX_GROW := RING_GAP + 3.0  # routing clearance around a node: its ring plus a little air
+var _routes: Array = []      # [{p: String, id: String, pts: PackedVector2Array}]
+var _routes_key := 0         # fingerprint of the cell rects the routes were made for
+
 func _draw_links() -> void:
 	if main == null:
 		return
 	var origin := _tree.get_global_rect().position
-	var learned: Array = main.learned_skills
-	var boxes: Array[Rect2] = []  # every visible node box, tree-local; lines stop at their edges
+	var rects := {}  # id -> tree-local Rect2 of every visible node
+	var key := 0
 	for cid in cells:
 		var cc: Control = cells[cid]
 		if cc.is_visible_in_tree():
 			var cr := cc.get_global_rect()
-			boxes.append(Rect2(cr.position - origin, cr.size))
-	for id in cells:
-		for p in SkillTree.prereqs(id):
-			if not cells.has(p):
+			var r := Rect2(cr.position - origin, cr.size)
+			rects[cid] = r
+			key = hash([key, cid, r.position.x, r.position.y, r.size.x, r.size.y])
+	if key != _routes_key:
+		_routes_key = key
+		_route_links(rects)
+	var learned: Array = main.learned_skills
+	for layer in 2:  # locked lines first, lit ones on top where they share a run
+		for rt in _routes:
+			var lit: bool = learned.has(rt["p"])
+			if lit != (layer == 1):
 				continue
-			var a: Control = cells[p]
-			var b: Control = cells[id]
-			if not a.is_visible_in_tree() or not b.is_visible_in_tree():
-				continue
-			var ends := link_ends(p, id)
-			var p0: Vector2 = ends[0]
-			var p1: Vector2 = ends[1]
-			var my := (p0.y + p1.y) * 0.5
-			var lit: bool = learned.has(p)
 			var col := COL_LEARNED if lit else COL_LOCKED
-			var w := 2.0
-			var glow := 0.0
-			if lit:
-				w = 2.5
-				glow = 0.18
-			if id == _link_id and lit:
+			var w := LINK_W_LIT if lit else LINK_W
+			if rt["id"] == _link_id and lit:
 				col = COL_LOCKED.lerp(COL_LEARNED, _link_t)  # a new path warms up
-				glow = 0.18 + 0.5 * (1.0 - _link_t)
-				w = 2.5 + 2.0 * (1.0 - _link_t)
-			var pts := [p0, Vector2(p0.x, my), Vector2(p1.x, my), p1]
-			for i in 3:
-				for seg in clip_segment(pts[i], pts[i + 1], boxes):
-					if glow > 0.0:
-						_tree.draw_line(seg[0], seg[1], Color(COL_LEARNED.r, COL_LEARNED.g, COL_LEARNED.b, glow), w + 4.0)
-					_tree.draw_line(seg[0], seg[1], col, w)
+				w = LINK_W_LIT + 1.5 * (1.0 - _link_t)
+			_tree.draw_polyline(rt["pts"], col, w, true)
 
-## Tree-local end points of the line from prerequisite `pid` to node `id`: bottom centre of the prerequisite, top centre of the node.
-func link_ends(pid: String, id: String) -> Array:
-	var origin := _tree.get_global_rect().position
-	var ra := (cells[pid] as Control).get_global_rect()
-	var rb := (cells[id] as Control).get_global_rect()
-	return [Vector2(ra.position.x + ra.size.x * 0.5, ra.end.y) - origin, Vector2(rb.position.x + rb.size.x * 0.5, rb.position.y) - origin]
+func _route_links(rects: Dictionary) -> void:
+	_routes.clear()
+	var boxes: Array = []
+	for cid in rects:
+		boxes.append((rects[cid] as Rect2).grow(BOX_GROW))
+	for id in rects:
+		for p in SkillTree.prereqs(id):
+			if rects.has(p):
+				_routes.append({"p": p, "id": id, "pts": route_link(rects[p], rects[id], boxes)})
 
-## Axis-aligned segment a-b minus the node boxes it crosses: the pieces to draw, each [from, to].
-static func clip_segment(a: Vector2, b: Vector2, boxes: Array) -> Array:
-	var horizontal := absf(a.y - b.y) < 0.01
-	var lo := minf(a.x, b.x) if horizontal else minf(a.y, b.y)
-	var hi := maxf(a.x, b.x) if horizontal else maxf(a.y, b.y)
-	var cuts: Array = []  # [from, to] ranges covered by a box
+## Route from the bottom centre of `a` to the top centre of `b` (tree-local rects) that passes through no box of `boxes`
+## (grown node rects). Two nodes on one line get a straight side-to-side link. Pure; tested.
+static func route_link(a: Rect2, b: Rect2, boxes: Array) -> PackedVector2Array:
+	var p0 := Vector2(a.position.x + a.size.x * 0.5, a.end.y)
+	var p1 := Vector2(b.position.x + b.size.x * 0.5, b.position.y)
+	if p1.y < p0.y + 1.0:  # same line: side to side at the shared middle height
+		var left := a if a.position.x < b.position.x else b
+		var right := b if left == a else a
+		var y := (a.get_center().y + b.get_center().y) * 0.5
+		return PackedVector2Array([Vector2(left.end.x, y), Vector2(right.position.x, y)])
+	var bus_a := p0.y + BUS_IN
+	var bus_b := p1.y - BUS_IN
+	if bus_b < bus_a:  # neighbouring lines: one horizontal run in the middle of the gap
+		bus_a = (p0.y + p1.y) * 0.5
+		bus_b = bus_a
+	var lane := p1.x
+	if not _clear_v(lane, bus_a, bus_b, boxes):  # something sits between: take the nearest clear lane beside a box
+		var best := INF
+		for r: Rect2 in boxes:
+			for x in [r.position.x - LANE_PAD, r.end.x + LANE_PAD]:
+				var d := absf(x - p1.x)
+				if d < best and _clear_v(x, bus_a, bus_b, boxes):
+					best = d
+					lane = x
+	var raw := [p0, Vector2(p0.x, bus_a), Vector2(lane, bus_a), Vector2(lane, bus_b), Vector2(p1.x, bus_b), p1]
+	var pts := PackedVector2Array()
+	for q in raw:  # drop repeats and points on a straight run
+		if pts.size() > 0 and pts[pts.size() - 1].is_equal_approx(q):
+			continue
+		if pts.size() > 1:
+			var u: Vector2 = pts[pts.size() - 1] - pts[pts.size() - 2]
+			var v: Vector2 = q - pts[pts.size() - 1]
+			if absf(u.x * v.y - u.y * v.x) < 0.01 and u.dot(v) > 0.0:
+				pts.remove_at(pts.size() - 1)
+		pts.append(q)
+	return pts
+
+## True when a vertical run at `x` between y0 and y1 meets no box.
+static func _clear_v(x: float, y0: float, y1: float, boxes: Array) -> bool:
+	var lo := minf(y0, y1)
+	var hi := maxf(y0, y1)
 	for r: Rect2 in boxes:
-		var c0: float
-		var c1: float
-		if horizontal:
-			if a.y <= r.position.y or a.y >= r.end.y:
-				continue
-			c0 = r.position.x
-			c1 = r.end.x
-		else:
-			if a.x <= r.position.x or a.x >= r.end.x:
-				continue
-			c0 = r.position.y
-			c1 = r.end.y
-		if c1 > lo and c0 < hi:
-			cuts.append([c0, c1])
-	cuts.sort_custom(func(u, v): return u[0] < v[0])
-	var out: Array = []
-	var at := lo
-	for c in cuts:
-		if c[0] > at:
-			out.append([at, minf(c[0], hi)])
-		at = maxf(at, c[1])
-	if at < hi:
-		out.append([at, hi])
-	var res: Array = []
-	for o in out:
-		if horizontal:
-			res.append([Vector2(o[0], a.y), Vector2(o[1], a.y)])
-		else:
-			res.append([Vector2(a.x, o[0]), Vector2(a.x, o[1])])
-	return res
+		if r.position.x < x and x < r.end.x and r.end.y > lo and r.position.y < hi:
+			return false
+	return true
 
 ## Bot skills (Embargo Desk, Guild Seal): a Use menu when ready, else the cooldown or used note.
 func _build_use_row(id: String, st: String) -> void:
