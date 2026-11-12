@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "agent": "ui-programmer",
+  "date": "2026-11-12",
+  "task": "T366",
+  "status": "done",
+  "files_changed": ["game/banner_art.gd", "game/event_notice.gd", "game/bazaar_panel.gd", "handoffs/ui-programmer/2026-11-12-T366.json"],
+  "open_questions": [],
+  "handoff": "BannerArt moved to game/banner_art.gd (preload constant in event_notice.gd and bazaar_panel.gd). Wing popup cards are now framed PanelContainers (popup stylebox copy, 1 px border, banner edge to edge with rounded top corners and fade, name on the fade, line, description, pick button). Missing image leaves no banner and no gap. Renders at 1920x1080 and 1280x720 show no clipping. No test asserts the old TextureRect structure, so tests were not changed.",
+  "details": {"pngs": ["/Volumes/Work/Gamedev/Projects/AgentCourse/wt/_scratch/t366_1920.png", "/Volumes/Work/Gamedev/Projects/AgentCourse/wt/_scratch/t366_1280.png"]}
+}

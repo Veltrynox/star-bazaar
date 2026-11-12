@@ -5,6 +5,7 @@ extends PanelContainer
 ## Texts by id from StoryText with plain fallbacks. Goods are named only when Availability shows them (bill_status does that).
 
 const StoryText := preload("res://game/story_text.gd")
+const BannerArt := preload("res://game/banner_art.gd")
 
 signal closed
 
@@ -71,42 +72,66 @@ func show_wing_choice() -> void:
 	prompt.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	col.add_child(prompt)
 	var cards := HBoxContainer.new()
-	cards.add_theme_constant_override("separation", 10)
+	cards.add_theme_constant_override("separation", 14)
 	col.add_child(cards)
+	var frame := pop.get_theme_stylebox("panel")
 	for i in 2:
 		var o: Dictionary = opts[i]
-		var card := VBoxContainer.new()
+		var card := PanelContainer.new()  # one framed card: banner on top, text and button inside
 		card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		card.add_theme_constant_override("separation", 6)
+		var flat := StyleBoxFlat.new()
+		var ml := 12
+		var mb := 12
+		if frame is StyleBoxFlat:
+			flat = (frame as StyleBoxFlat).duplicate() as StyleBoxFlat
+			ml = int(flat.content_margin_left)
+			mb = int(flat.content_margin_bottom)
+		flat.set_content_margin_all(0.0)
+		flat.set_border_width_all(1)
+		if flat.border_color.a < 0.1:
+			flat.border_color = Color(1, 1, 1, 0.2)
+		card.add_theme_stylebox_override("panel", flat)
 		cards.add_child(card)
+		var outer := VBoxContainer.new()
+		outer.add_theme_constant_override("separation", -28)  # the name sits on the foot of the fade
+		card.add_child(outer)
 		var tex_path := "res://assets/wings/%s.png" % str(o["id"]).to_lower()
-		if ResourceLoader.exists(tex_path):  # a missing image shows nothing and leaves no gap
-			var img := TextureRect.new()
-			img.texture = load(tex_path)
-			img.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-			img.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-			img.custom_minimum_size = Vector2(0, 140)
-			img.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-			card.add_child(img)
+		if ResourceLoader.exists(tex_path):  # a missing image leaves the card without banner and no gap
+			var pic := BannerArt.new()
+			pic.texture = load(tex_path)
+			pic.bg = flat.bg_color
+			pic.r_tl = float(flat.corner_radius_top_left)
+			pic.r_tr = float(flat.corner_radius_top_right)
+			outer.add_child(pic)
+		var pad := MarginContainer.new()
+		pad.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		pad.add_theme_constant_override("margin_left", ml)
+		pad.add_theme_constant_override("margin_right", ml)
+		pad.add_theme_constant_override("margin_top", 0 if outer.get_child_count() > 0 else mb)
+		pad.add_theme_constant_override("margin_bottom", mb)
+		outer.add_child(pad)
+		var inner := VBoxContainer.new()
+		inner.add_theme_constant_override("separation", 6)
+		pad.add_child(inner)
 		var nm := Label.new()
 		nm.text = StoryText.get_or("BAZ_%s_NAME" % o["id"], str(o["id"]))
-		nm.theme_type_variation = "LabelCaption"
+		nm.theme_type_variation = "LabelTitle"
 		nm.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		card.add_child(nm)
+		inner.add_child(nm)
 		var tx := Label.new()
 		tx.text = StoryText.get_or("BAZ_%s_LINE" % o["id"], "")
 		tx.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		card.add_child(tx)
+		inner.add_child(tx)
 		var ds := Label.new()
 		ds.text = wing_desc(str(o["id"]))
 		ds.theme_type_variation = "LabelMuted"
 		ds.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		ds.size_flags_vertical = Control.SIZE_EXPAND_FILL
-		card.add_child(ds)
+		inner.add_child(ds)
 		var b := Button.new()
 		b.text = StoryText.get_or("BAZ_WING_PICK", "Add this wing")
 		b.pressed.connect(_pick_wing.bind(i))
-		card.add_child(b)
+		inner.add_child(b)
 	main.add_child(pop)
 	_wing_popup = pop
 
