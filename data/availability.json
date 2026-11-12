@@ -508,13 +508,12 @@
           "branch_is:mil",
           {
             "all": [
-              "skill_learned:MIL_1",
-              "system_open:2"
+              "skill_learned:MIL_1"
             ]
           }
         ]
       },
-      "note": "2026-11-04 owner: no Munitions Line in system 1. Pulse cells need 2 energy + 1 chips (logic cores), and chips are priced only in system 2, so the line could never run before the permit. Visible only with MIL_1 AND system_open:2."
+      "note": "2026-11-12 owner: workshops can be built in any system with a Space Storage, so no system condition (was: no Munitions Line before system 2 open). Visible with MIL_1 on the mil branch."
     },
     {
       "kind": "workshop",
@@ -539,13 +538,12 @@
           "branch_is:bio",
           {
             "all": [
-              "skill_learned:BIO_1",
-              "system_open:2"
+              "skill_learned:BIO_1"
             ]
           }
         ]
       },
-      "note": "Gel needs food + spores; spores are priced only in system 2 (s2 planets, one system-1 buy price only). Seed needs gel + spores. Nothing can be made in system 1, so visible only with BIO_1 AND system_open:2."
+      "note": "2026-11-12 owner: workshops can be built in any system with a Space Storage, so no system condition (was: visible only with BIO_1 AND system_open:2). Gel needs food + spores; spores are priced only in system 2."
     },
     {
       "kind": "storage",

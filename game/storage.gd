@@ -36,7 +36,7 @@ var capacity_mult := 1.0  # BIO_3 (storage_cap_pct): planet containers only; mai
 ## Seam for space storage: override per container kind here (e.g. "system:" bigger).
 func capacity_of(key: String) -> int:
 	if key.begins_with("system:"):  # T85: Space Storage, one per system
-		return maxi(1, int(balance.get("space_storage_capacity", 500)))
+		return maxi(1, int(balance.get("space_storage_capacity", 1000)))
 	return maxi(1, int(round(int(balance.get("storage_capacity", DEFAULT_CAPACITY)) * float(cuts.get(key, 1.0)) * capacity_mult)))
 
 ## T109: cut the capacity of one container by pct (0.5 = half). Stock above the new capacity is lost.
