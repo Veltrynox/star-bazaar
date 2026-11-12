@@ -39,6 +39,7 @@ signal establish_failed(planet_id: String, reason: String) # T200: an order "fly
 signal arrived_point(sys: int, pos: Vector3)  # T271: a flight to a point of open space ended (gig signal markers listen)
 signal jump_started(from_sys: int, to_sys: int, pos: Vector3)  # leg "jump" begins at the exit point of from_sys
 signal jump_ended(sys: int, pos: Vector3)  # the ship appears in sys at the entry point; the last leg starts
+signal flight_aborted(reason: String, pos: Vector3)  # T374: the flight was ended on the spot (its target is gone); the ship holds position
 signal exploration_done                   # T206: exploration mode finished: every planet of the system stands established; the mode is off
 
 const PLATFORM_SKILL := "FND_PROSPECT"  # skill that allows a mining platform (Prospecting opens every dead world)
@@ -494,6 +495,7 @@ func resync(now: float) -> void:
 
 func advance(cycles: float) -> void:
 	_tick_charges(cycles)
+	_coast(cycles)
 	_idle_left = maxf(0.0, _idle_left - cycles)
 	if _boost and _leg != "jump":  # the jump burns no energy
 		var rate := _bal("flagship_boost_energy", 0.0)
@@ -512,6 +514,40 @@ func advance(cycles: float) -> void:
 			_advance_flight(cycles - run)
 			return
 	_advance_flight(cycles)
+
+## T374: after an abort the idle ship eases its speed to 0 over the usual brake, drifting on along its heading.
+func _coast(cycles: float) -> void:
+	if _state != "idle" or _speed <= 0.0:
+		return
+	var brake := _vmax() / maxf(0.001, _bal("pathfinder_brake_cycles", 0.05))
+	var t := minf(cycles, _speed / brake)
+	var dist := _speed * t - 0.5 * brake * t * t
+	_pos += Vector3(-sin(_yaw), 0.0, -cos(_yaw)) * maxf(0.0, dist)
+	_speed = maxf(0.0, _speed - brake * t)
+	if t >= cycles - 0.000001 and _speed < 0.0001:
+		_speed = 0.0
+
+## T374: ends a flight on the spot, like an arrival without a dock: idle, no build, target cleared, exploration mode as it was.
+## Mid-jump the jump is finished first (the ship comes out at the entry point, never stranded between systems). Emits flight_aborted.
+## Returns false when the ship was not flying.
+func abort_flight(reason: String) -> bool:
+	if _state != "flying":
+		return false
+	if _leg == "jump":
+		_end_jump()
+	_leg = "direct"
+	_state = "idle"
+	_target = {}
+	_auto = ""
+	_t = 0.0
+	_dur = 0.0
+	_to = _pos
+	_from = _pos
+	_final_to = _pos
+	_to_sys = _sys
+	_docked = ""
+	flight_aborted.emit(reason, _pos)
+	return true
 
 func _advance_flight(cycles: float) -> void:
 	var left := cycles

@@ -4132,6 +4132,65 @@
         "tools/tests/run_tests.gd"
       ],
       "priority": 1
+    },
+    {
+      "task_id": "T374",
+      "title": "Expired gig stops the Flagship en route (gameplay)",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [],
+      "status": "done",
+      "turn_cap": 35,
+      "window": "Owner request 2026-11-12: 'When the gig time runs out and the ship is still flying to it, the ship should stop and an animation should play over the ship; a UI and juice programmer job as well as the gameplay one'.",
+      "brief": "GAMEPLAY PART. Today game/gigs.gd tick (~line 381) removes an expired offer (signal, salvage, opening) and the Flagship keeps flying to a target that no longer exists. Change: when an offer runs out (now >= due, not the left-system case) while it is ACCEPTED and the Flagship's current target is that offer's target (compare target kind/pos/index the way on_arrived_point and accept do; also during the jump leg of a cross-system flight), the Flagship stops where it is: add Pathfinder.abort_flight(reason: String) in game/pathfinder.gd that ends the flight like a normal arrival would (state idle, speed eased to 0 over the existing brake, no dock, no build, target cleared, exploration mode left as it was), works mid-jump by finishing the jump at the entry point first (never strand the ship between systems), saves cleanly, and emits a new signal flight_aborted(reason, pos: Vector3) on main.flight. Gigs emits a new signal offer_expired(uid, kind, was_target: bool) so UI and juice can react. Post one notice NOT_GIG_EXPIRED_EN_ROUTE ('The signal went quiet before we got there. The Flagship holds position.' English only, story/screens.md next to the GIG_ ids, rebuild with python3 tools/build_story.py). Do not change gig rewards, lifetimes or any balance number. Headless test (own function): accept a gig, start the flight, advance game time past due: the ship's state is idle, its target is empty, flight_aborted fired once, offer_expired fired with was_target true; an expiry of a gig the ship is NOT flying to leaves the flight alone; mid-jump expiry lands the ship at the entry point. Do not run the test suite, do not commit. Handoff handoffs/gameplay-programmer/2026-11-12-T374.json with the signal names and arguments.",
+      "size": "S",
+      "touches": [
+        "game/gigs.gd",
+        "game/pathfinder.gd",
+        "game/main.gd",
+        "story/screens.md",
+        "data/story_text.json",
+        "tools/tests/run_tests.gd"
+      ],
+      "priority": 1
+    },
+    {
+      "task_id": "T375",
+      "title": "Expired gig: signal-lost beat over the Flagship (juice)",
+      "owner_agent": "juice-programmer",
+      "depends_on": [
+        "T374"
+      ],
+      "status": "queued",
+      "turn_cap": 35,
+      "window": "Owner request 2026-11-12: 'When the gig time runs out and the ship is still flying to it, the ship should stop and an animation should play over the ship; a UI and juice programmer job as well as the gameplay one'.",
+      "brief": "JUICE PART (after T374, read its handoff for the signal names). When main.flight emits flight_aborted for an expired gig, play a short animation over the Flagship on the 3D map in game/pathfinder_view.gd, using the existing fx pool (_fx_spawn, pooled rings, COL_* colours, flight_juice_* balance keys; see the dock and boost beats around lines 480-530): the ship brakes with a small backwards shudder, a dim amber 'signal lost' ring collapses inward onto the ship and fades, and a brief static flicker on the trail of the course line, total about 0.8 s, scaled by Juice.motion (0 = no motion, just the notice), on the game clock so it freezes on pause. New placeholder keys flight_juice_lost_s and flight_juice_lost_size in data/balance.json values with a note in its source field. If the gig marker ring is still drawn at the target (T273 gig rings in _update_gig_rings), fade it out over the same time instead of popping. No per-frame allocation. Render check per CLAUDE.md (juice task): a scratch script under /Volumes/Work/Gamedev/Projects/AgentCourse/wt/_scratch that triggers flight_aborted mid-flight and saves two or three frames during the beat; Read them; fix objective breakage only. Do not run the test suite, do not commit. Handoff handoffs/juice-programmer/2026-11-12-T375.json with the PNG paths.",
+      "size": "S",
+      "touches": [
+        "game/pathfinder_view.gd",
+        "data/balance.json"
+      ],
+      "priority": 1
+    },
+    {
+      "task_id": "T376",
+      "title": "Expired gig: board row and ship status (UI)",
+      "owner_agent": "ui-programmer",
+      "depends_on": [
+        "T374"
+      ],
+      "status": "queued",
+      "turn_cap": 35,
+      "window": "Owner request 2026-11-12: 'When the gig time runs out and the ship is still flying to it, the ship should stop and an animation should play over the ship; a UI and juice programmer job as well as the gameplay one'.",
+      "brief": "UI PART (after T374, read its handoff). When a gig the Flagship was flying to expires (Gigs.offer_expired with was_target true): the gig board row (game/gig_board.gd) of that offer does not just vanish: it stays for about 2 seconds of real time greyed with the label GIG_ROW_EXPIRED ('Gone quiet') and then fades out; the Flagship card in the Ships menu and the Flagship details panel (game/ship_panel.gd, game/flagship_panel.gd) show the status 'Holding position: the signal went quiet' (new id LBL_FLAGSHIP_HELD) until the next order; the course line and the target droplet disappear at once (check game/pathfinder_view.gd draws nothing for an empty target). English only, ids in story/screens.md, rebuild with python3 tools/build_story.py. Render check per CLAUDE.md: scratch render of the board with the greyed row and of the ship card status; Read the PNGs. Do not run the test suite, do not commit. Do not touch the juice in game/pathfinder_view.gd except the course line check (the juice-programmer works there in parallel). Handoff handoffs/ui-programmer/2026-11-12-T376.json with the PNG paths.",
+      "size": "S",
+      "touches": [
+        "game/gig_board.gd",
+        "game/ship_panel.gd",
+        "game/flagship_panel.gd",
+        "story/screens.md",
+        "data/story_text.json"
+      ],
+      "priority": 1
     }
   ],
   "done_task_ids": [

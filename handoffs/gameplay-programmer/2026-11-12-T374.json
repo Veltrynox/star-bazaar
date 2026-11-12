@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-12",
+  "task": "T374",
+  "status": "done",
+  "files_changed": ["game/pathfinder.gd", "game/gigs.gd", "story/screens.md", "data/story_text.json", "tools/tests/run_tests.gd", "handoffs/gameplay-programmer/2026-11-12-T374.json"],
+  "open_questions": [],
+  "handoff": "Signals for T375 (juice) and T376 (UI): main.flight.flight_aborted(reason: String, pos: Vector3), reason is 'gig_expired' (pos = where the ship holds, after any jump finished at the entry point); main.gigs.offer_expired(uid: String, kind: String, was_target: bool), emitted for every offer that ran out of time (not for the left-system removal), was_target true when the Flagship was flying to it. Pathfinder.abort_flight(reason) -> bool (false if not flying): idle, target cleared, no dock/build, exploration flag untouched, speed eases to 0 over the brake while the ship drifts on (_coast). Notice NOT_GIG_EXPIRED_EN_ROUTE is posted with post_notice. New headless test _test_gig_expiry_abort (not run, per rules).",
+  "details": {}
+}

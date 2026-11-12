@@ -12219,79 +12219,79 @@
   },
   {
    "id": "GIG02_HOOK",
-   "text": "A relay light is blinking in a pattern the old shift books call a keeper's check. Twice, a pause, twice again. The relay was struck from the Plan cycles ago, and no one filed a replacement. If the lamp is still lit, then someone is still lighting it, and no ship has stopped to ask who.",
+   "text": "A relay lamp is blinking a keeper's check: twice, a pause, twice again. The relay marks a debris field that ships use as a short cut, and it was struck from the Plan cycles ago. Nobody was sent to pay its keeper or relieve him. If the lamp is still lit, the old keeper is still out there, alone, keeping ships off the rocks.",
    "max": 420,
    "place": "Gig 02, signal hint"
   },
   {
    "id": "GIG02_ARRIVE",
-   "text": "A relay station with one lamp lit. A keeper in a shift coat waves from the glass. The shift form lies half filled. If you carry the keeper out, the form stays blank and the lamp goes dark. If you stand the watch, the scout waits and the keeper stays.",
+   "text": "An old man in a shift coat waves from the relay glass. He has kept this lamp for years without pay, so ships do not hit the debris. He is ill and wants to go home, but no one will take his shift. Take him to a dock and the lamp goes dark, or keep it for him while he rests.",
    "max": 280,
    "place": "Gig 02, arrival window text"
   },
   {
    "id": "GIG02_A_BTN",
-   "text": "Carry the keeper out",
+   "text": "Take the keeper home",
    "max": 28,
    "place": "Gig 02, button A"
   },
   {
    "id": "GIG02_B_BTN",
-   "text": "Stand the keeper's watch",
+   "text": "Keep the lamp for him",
    "max": 28,
    "place": "Gig 02, button B"
   },
   {
    "id": "GIG02_A_OUT_MIL",
-   "text": "The keeper hands you a lot of crates from the relay shelf, stamped for a depot you know. You pay a small fee at the dock for the carry. The lamp goes out behind you. The form stays blank.",
+   "text": "He pays with what he has: crates from the relay shelf, stamped for a depot you know. The dock charges a small fee for an extra passenger. The lamp goes out behind you, and the short cut is closed for now.",
    "max": 280,
    "place": "Gig 02, outcome A, Military"
   },
   {
    "id": "GIG02_A_OUT_LUX",
-   "text": "The keeper presses a lot of bright parcels into your hands. You pay a small fee at the dock for the carry. The lamp goes out behind you.",
+   "text": "He pays with what he has: bright parcels traders left for him over the years. The dock charges a small fee for an extra passenger. The lamp goes out behind you, and the short cut is closed for now.",
    "max": 280,
    "place": "Gig 02, outcome A, Luxury"
   },
   {
    "id": "GIG02_A_OUT_MIN",
-   "text": "The keeper gives you a lot of rock sacks from the relay shelf, marked in grease pencil. You pay a small fee at the dock for the carry. The lamp goes out behind you.",
+   "text": "He pays with what he has: rock sacks from the relay shelf, marked in grease pencil. The dock charges a small fee for an extra passenger. The lamp goes out behind you, and the short cut is closed for now.",
    "max": 280,
    "place": "Gig 02, outcome A, Minerals"
   },
   {
    "id": "GIG02_A_OUT_BIO",
-   "text": "The keeper gives you a lot of damp jars from the window shelf. You pay a small fee at the dock for the carry. The lamp goes out behind you.",
+   "text": "He pays with what he has: damp jars he grew on the window shelf. The dock charges a small fee for an extra passenger. The lamp goes out behind you, and the short cut is closed for now.",
    "max": 280,
    "place": "Gig 02, outcome A, Biotech"
   },
   {
    "id": "GIG02_B_OUT_MIL",
-   "text": "You hold the lamp for a shift. The relay pays a small sum for the watch, and its log shows who passed and what they carried. The keeper sleeps in a chair.",
+   "text": "Your crew keeps the lamp through a long shift while he sleeps. Passing haulers leave a small sum in the relay box, as they always did. His log shows who passed and what they carried. When he wakes, he looks better.",
    "max": 280,
    "place": "Gig 02, outcome B, Military"
   },
   {
    "id": "GIG02_B_OUT_LUX",
-   "text": "You hold the lamp for a shift. The relay pays a small sum for the watch, and its log shows which ships called, and where they sold well. The keeper sleeps in a chair.",
+   "text": "Your crew keeps the lamp through a long shift while he sleeps. Passing traders leave a small sum in the relay box, as they always did. His log shows which ships called and where they sold well. When he wakes, he looks better.",
    "max": 280,
    "place": "Gig 02, outcome B, Luxury"
   },
   {
    "id": "GIG02_B_OUT_MIN",
-   "text": "You hold the lamp for a shift. The relay pays a small sum for the watch, and its log shows which ships hauled rock, and where they sold it. The keeper sleeps in a chair.",
+   "text": "Your crew keeps the lamp through a long shift while he sleeps. Passing haulers leave a small sum in the relay box, as they always did. His log shows which ships hauled rock and where they sold it. When he wakes, he looks better.",
    "max": 280,
    "place": "Gig 02, outcome B, Minerals"
   },
   {
    "id": "GIG02_B_OUT_BIO",
-   "text": "You hold the lamp for a shift. The relay pays a small sum for the watch, and its log shows which ships carried cold cargo, and where they sold it. The keeper sleeps in a chair.",
+   "text": "Your crew keeps the lamp through a long shift while he sleeps. Passing haulers leave a small sum in the relay box, as they always did. His log shows which ships carried cold cargo and where. When he wakes, he looks better.",
    "max": 280,
    "place": "Gig 02, outcome B, Biotech"
   },
   {
    "id": "GIG02_EPI",
-   "text": "The keeper's form is filed under the common good. The Bureau does not ask who filled it in.",
+   "text": "The Bureau still lists the relay as closed. The ships that use the short cut know better.",
    "max": 140,
    "place": "Gig 02, epilogue line"
   },

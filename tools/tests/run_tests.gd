@@ -133,6 +133,7 @@ func _run() -> void:
 	await _test_company_setup()
 	await _test_availability()
 	await _test_gigs()
+	await _test_gig_expiry_abort()
 	await _test_boost()
 	await _test_bazaar_guidance()
 	await _test_bazaar_guidance_ui()
@@ -9684,6 +9685,60 @@ func _test_gigs() -> void:
 	g.reset()
 	g.on_cycle(30)
 	check(not g.is_open(), "gigs: nothing opens with discovery off")
+	await _free_main(m)
+
+# ---- T374: an offer that runs out while the Flagship flies to it stops the flight ----
+func _test_gig_expiry_abort() -> void:
+	var m: Control = await _new_main(false, true)
+	m._dismiss_preface()
+	var g = m.gigs
+	var f = m.flight
+	var aborted := []
+	var expired := []
+	f.flight_aborted.connect(func(r: String, p: Vector3) -> void: aborted.append([r, p]))
+	g.offer_expired.connect(func(u: String, k: String, w: bool) -> void: expired.append([u, k, w]))
+	var start: Vector3 = f.ship_position()
+	var far := Vector3(start.x + 3.0, 0.0, start.z)
+	g.post_salvage("T374A", f.system_id(), far, "energy", 1, 1, 5.0)
+	check(g.accept("T374A") == "" and f.state() == "flying", "gig expiry: accepted, the Flagship flies")
+	f.advance(0.001)
+	g.tick(m.game_time() + 6.0)
+	check(f.state() == "idle" and f.target().is_empty(), "gig expiry: the ship is idle with no target")
+	check(aborted.size() == 1 and aborted[0][0] == "gig_expired", "gig expiry: flight_aborted fired once")
+	check(expired.size() == 1 and expired[0][2] == true and expired[0][1] == "salvage", "gig expiry: offer_expired with was_target true")
+	for i in 20:
+		f.advance(0.05)
+	check(f.speed() == 0.0, "gig expiry: speed eased to 0")
+	# an expiry of an offer the ship is not flying to leaves the flight alone
+	aborted.clear()
+	expired.clear()
+	g.post_salvage("T374B", f.system_id(), Vector3(start.x - 2.0, 0.0, start.z), "energy", 1, 1, 5.0)
+	var r := f.request_fly({"kind": "point", "pos": Vector3(start.x + 5.0, 0.0, start.z + 1.0)})
+	g.tick(m.game_time() + 6.0)
+	check(r == "" and f.state() == "flying" and aborted.is_empty() and expired.size() == 1 and expired[0][2] == false, "gig expiry: a gig the ship is not flying to leaves the flight alone")
+	# mid-jump: the ship lands at the entry point
+	var other := 0
+	for sid in m.open_systems:
+		if int(sid) != f.system_id():
+			other = int(sid)
+	if other > 0:
+		f.abort_flight("setup")
+		var pi := -1
+		for i in m.map.planets.size():
+			if m.system_of(i) == other:
+				pi = i
+				break
+		aborted.clear()
+		expired.clear()
+		g.offers.append({"uid": "T374C", "id": "T374C", "kind": "signal", "target": {"kind": "planet", "sys": other, "index": pi}, "due": m.game_time() + 50.0, "accepted": true, "req": {}, "rewards": []})
+		check(f.request_fly({"kind": "planet", "index": pi}) == "", "gig expiry: cross-system flight starts")
+		var guard := 0
+		while not f.jumping() and guard < 400:
+			f.advance(0.05)
+			guard += 1
+		g.offers[g.offers.size() - 1]["due"] = m.game_time() - 1.0
+		g.tick(m.game_time())
+		check(f.state() == "idle" and not f.jumping() and f.system_id() == other and aborted.size() == 1, "gig expiry: mid-jump expiry lands the ship in the new system")
 	await _free_main(m)
 
 # ---- T371: production boost ----

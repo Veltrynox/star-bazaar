@@ -21,6 +21,7 @@ const BRANCH_SUFFIX := {"mil": "MIL", "lux": "LUX", "min": "MIN", "bio": "BIO"}
 
 signal scooped                 # T300: the Flagship scooped salvage pods (juice)
 signal changed                 # the board changed (offer opened, done, expired)
+signal offer_expired(uid: String, kind: String, was_target: bool)  # T374: an offer ran out of time (not the left-system case); was_target = the Flagship was flying to it and stopped
 signal arrival(uid: String)    # the Flagship reached a signal marker: main opens the window
 
 var main: Node = null
@@ -393,14 +394,35 @@ func tick(now: float) -> void:
 					main.note("gigs_expired")  # CEO endings: an open signal ran out of time
 			if pending == str(o["uid"]):
 				pending = ""
+			var was_target := false
+			if now >= float(o["due"]) and bool(o.get("accepted", false)) and _is_flight_target(o):
+				was_target = true
 			offers.remove_at(i)
 			gone = true
+			if now >= float(o["due"]):
+				if was_target:
+					main.flight.abort_flight("gig_expired")
+					main.post_notice(StoryText.get_text("NOT_GIG_EXPIRED_EN_ROUTE"))
+				offer_expired.emit(str(o["uid"]), str(o["kind"]), was_target)
 	if gone:
 		changed.emit()
 	if pending != "" and not offer(pending).is_empty() and main.gig_window_free():
 		var uid := pending
 		pending = ""
 		arrival.emit(uid)
+
+## T374: the Flagship's current flight goes to this offer's target (same comparison as accept: planet index, or a point within the arrive radius).
+func _is_flight_target(o: Dictionary) -> bool:
+	if main.flight.state() != "flying":
+		return false
+	var ft: Dictionary = main.flight.target()
+	var t: Dictionary = o["target"]
+	if str(t["kind"]) == "planet":
+		return str(ft.get("kind", "")) == "planet" and int(ft.get("index", -1)) == int(t["index"])
+	if str(ft.get("kind", "")) != "point":
+		return false
+	var fp: Vector3 = ft.get("pos", Vector3.ZERO)
+	return Vector2(fp.x, fp.z).distance_to(Vector2(target_pos(o).x, target_pos(o).z)) <= _bal("gig_arrive_radius", 0.3)
 
 func on_arrived_point(sys: int, pos: Vector3) -> void:
 	for o in offers.duplicate():

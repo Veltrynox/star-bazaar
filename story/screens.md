@@ -1603,6 +1603,7 @@ NOT_GIG_ACCEPTED | 110 | Notice, a gig was accepted | Gig accepted. A marker sho
 NOT_GIG_ONE_AT_A_TIME | 110 | Notice, accept pressed while a gig is already taken | One gig at a time. Finish or give up the one you have.
 NOT_GIG_ABANDONED | 110 | Notice, a gig was given up | Gig given up.
 NOT_GIG_NEW | 60 | Notice, a new offer reached the board | A new gig is on the board.
+NOT_GIG_EXPIRED_EN_ROUTE | 110 | Notice, the offer the Flagship was flying to ran out; the Flagship stops | The signal went quiet before we got there. The Flagship holds position.
 
 ## House weather, forecasts and moods (T287, 2026-11-06; houses are weather, not rivals)
 Houses: {bot1} Harrow Combine floods a world, {bot2} Velvet Concord makes shortages, {bot3} Ostrel Syndicate causes congestion. Placeholders (new, the game fills them): {house} is the house name (STD_BOT1_NAME to STD_BOT3_NAME), {weather} is WX_NAME_FLOOD, WX_NAME_SHORTAGE or WX_NAME_CONGESTION, {planet}, {commodity} (a visible good only), {cycles}, {n}, {system}. Notices are plain, no flavour. Weather never names a hidden good.
