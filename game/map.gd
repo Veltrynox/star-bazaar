@@ -1328,6 +1328,12 @@ func ship_screen_pos() -> Vector2:
 		return Vector2(-1, -1)
 	return camera.unproject_position(w)
 
+## System the Pathfinder is in (the one it is drawn in), 0 when there is none. During a jump it is still the old system.
+func ship_system() -> int:
+	if not PathfinderView.active(flight):
+		return 0
+	return int(PathfinderView._call(flight, "system_id", [], 0))
+
 ## Puts the camera on the Pathfinder (double click on its card in the Ships menu).
 func focus_on_ship() -> void:
 	if not PathfinderView.active(flight):

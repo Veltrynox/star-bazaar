@@ -139,6 +139,9 @@ func _on_hero_input(event: InputEvent) -> void:
 		hero_card.accept_event()
 		if event.double_click:  # the second click of a double click: put the camera on the ship, no second toggle
 			if _hero_main != null and _hero_main.map != null:
+				var sid := int(_hero_main.map.ship_system())  # the ship may be in another system: go there first
+				if sid > 0 and sid != int(_hero_main.map.view_system):
+					_hero_main.go_to_system(sid)
 				_hero_main.map.focus_on_ship()
 			return
 		if _hero_main != null and _hero_main.map != null:
