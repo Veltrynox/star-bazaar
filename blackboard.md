@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-09 17:02 run: T349
-- Summary: Voltara's need is now food (its only candidate was locked ore, so it was Restless forever), and a world with no needs is never Restless; headless tests added
-- Why this task: parallel orchestrator round (tools/orchestrator.py); ready, touches did not overlap.
-- Approach: built by a worker in worktree ../wt/T349 on branch task/T349, merged by the serial merge queue.
-- Agent prompts: /overnight-worker T349 (skill overnight-worker); worker log /Volumes/Work/Gamedev/Projects/AgentCourse/star-bazaar/logs/orchestrator/T349.log.
-- Worked: rebase, full test suite and fast-forward merge passed.
-- Failed / did not work: nothing.
-- Files and commits: see git log on branch new-features for commits starting with T349.
-- Left to do: nothing for this task.
-
 ## 2026-11-12 12:10 run: T355 T356 T357
 - Summary: Ship look in the game: measured engine points per ship type (1-4, data/ships.json), a six-layer additive plume per engine with 5 shape and 10 colour presets (data/exhaust.json) on the Flagship, rivals and the company-screen preview, a hull hue shader, and the New company screen lets the player pick shape, palette and hue (per-CEO defaults in data/ceos.json, saved as ship_look, save version 23).
 - Why this task: owner request 2026-11-12 after tuning positions in tools/engine_tuner.html (also published as a private artifact).
@@ -75,3 +65,13 @@
 - Failed / did not work: tooltips and the cross-system line not seen in a window.
 - Files and commits: see git log on main for T360 and the leg_goal commit.
 - Left to do: Russian for ST_HUB_EXPLAIN and ST_HUB_MAKE_TIP (Haiku agents) when the owner asks; owner to fly the Flagship to another system and check the line and droplet at the exit point, then at the real target after the jump.
+
+## 2026-11-12 15:20 run: bazaar-guidance proposal
+- Summary: design/proposals/2026-11-12-bazaar-guidance.md: why the Star Bazaar stage reads as a dead end (the bill is shown as a number in three places, never as an instruction; powder must be HELD in the capital's planet storage, sold at Flintmoor 12 cr / Voltara 30 cr) and a proposal: one Bazaar.next_step() record rendered in five voices (Bazaar panel how-line and Buy/Send buttons, capital card block, Bazaar card and Next Up clicks, a gentle cycle-end reminder only while nothing feeds the bill, stage-done next line) plus an optional persistent Main line card.
+- Why this task: owner question 2026-11-12 ('not clear how to proceed at the Town stage').
+- Approach: main session read bazaar.gd, next_up.gd, bazaar_panel/card, planet_panel, story ids and the Bazaar test; no agent, no code change.
+- Agent prompts: none.
+- Worked: analysis; the test in run_tests.gd already proves storage.add at the capital fills the bill.
+- Failed / did not work: nothing run in a window.
+- Files and commits: the proposal file only.
+- Left to do: owner to answer the 4 questions in section 6, then tasks T361-T363 are scheduled.
