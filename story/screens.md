@@ -392,7 +392,7 @@ TIP_NULLCORE_WHY | 110 | Tip card, why line | That ship has a lower trip cost an
 
 ### Storage and systems
 TIP_SPACE_STORAGE | 110 | Tip card line; trigger: Space Storage is learned | Space Storage is one big store for each system. Planet storage feeds it slowly.
-TIP_SPACE_STORAGE_WHY | 110 | Tip card, why line | Sell orders and routes draw on it when planet storage is empty. Click its station to see stock.
+TIP_SPACE_STORAGE_WHY | 110 | Tip card, why line | Workshops, link upkeep and Storage Links use it. Click its station to see stock.
 TIP_LINK | 110 | Tip card line; trigger: the Storage Link becomes available | A Storage Link joins the Space Storages of two systems. It moves goods only, never credits.
 TIP_LINK_WHY | 110 | Tip card, why line | It costs goods to build and energy each cycle. With no energy it goes dormant, and may collapse.
 TIP_PERMIT | 110 | Tip card line; trigger: Permit Charter is learned | Buy the permit in the galaxy view. Click a closed system to see its price.
@@ -439,7 +439,7 @@ SS_LBL_CAPACITY | 48 | Space Storage view, capacity line | Capacity: {cap} per c
 LBL_SPACE_STORAGE_NAME | 32 | Route row, name of the station end of a route | Space Storage
 
 ## Storage projection (added 2026-11-03)
-SS_LBL_STOCK_RULE | 110 | Space Storage view, under the capacity line: the rule for delivered goods | Everything delivered here stays in stock until a Sell order in this system, a recipe or upkeep uses it.
+SS_LBL_STOCK_RULE | 110 | Space Storage view, under the capacity line: the rule for delivered goods | Goods stay until a recipe, link upkeep or Storage Link uses them. Planet routes and Sells never draw on it.
 TIP_NC_UPKEEP | 40 | Next cycle tooltip, entry, storage link upkeep takes from this stock; {n} | Link upkeep -{n}
 LBL_NEXT_CYCLE | 48 | Storage view, projected stock after the next cycle | Next cycle: +{in} -{out} = {after}
 
@@ -1260,9 +1260,7 @@ TIP_NC_OUT | 40 | Storage view, tooltip on the Next cycle line, line listing wha
 TIP_NC_BUY | 46 | Next cycle tooltip, entry, a Buy order fills this stock; {planet}, {n} | Buy order at {planet} +{n}
 TIP_NC_ROUTE_IN | 40 | Next cycle tooltip, entry, a route delivers; {route} is Source > Destination; {n} | {route} +{n}
 TIP_NC_ROUTE_OUT | 40 | Next cycle tooltip, entry, a route takes from this stock; {route}, {n} | {route} -{n}
-TIP_NC_ROUTE_BACKUP | 83 | Next cycle tooltip, entry, a route takes from Space Storage because its source planet is short; {route}, {planet}, {n} | {route} (draws Space Storage when {planet} has too little) -{n}
 TIP_NC_SELL | 47 | Next cycle tooltip, entry, a Sell order takes from this stock; {planet}, {n} | Sell order at {planet} -{n}
-TIP_NC_SELL_BACKUP | 98 | Next cycle tooltip, entry, a Sell order takes from Space Storage because the planet is short; {planet}, {n} | Sell order at {planet} (draws Space Storage when {planet} has too little) -{n}
 
 ## Ship screen and CEO (2026-11-05, proposal ship-select-ceo; no goods named; ids per CEO use the portrait id without the ceo_ prefix)
 LBL_SHIP_SCREEN_TITLE | 32 | Ship screen, title | Choose your ship

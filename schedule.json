@@ -3928,6 +3928,27 @@
         "tools/tests/run_tests.gd"
       ],
       "priority": 1
+    },
+    {
+      "task_id": "T364",
+      "title": "Remove the Space Storage relay: planet routes and Sell orders no longer draw on Space Storage",
+      "owner_agent": "gameplay-programmer",
+      "depends_on": [],
+      "status": "done",
+      "turn_cap": 40,
+      "window": "Owner request 2026-11-12: 'Remove the space storage relay functionality'.",
+      "brief": "Owner request 2026-11-12: 'Remove the space storage relay functionality.' Context found by the main session on the owner's save (cycle 28): a route Voltara -> Space Storage delivers 19 energy, then a route Voltara -> Flintmoor finds Voltara empty and draws those same 19 from the Space Storage (the rule 'Sell orders and routes at a planet draw on its system's Space Storage when planet storage is short', owner answer 2026-11-01, gdd-skills.md section 4 line ~136, game/route_engine.gd src_available / sell_available), so the storage ends at 0 and two trips pay for one delivery. The owner wants nothing to leave a Space Storage through that fallback. DO: remove the Space Storage backup draw everywhere: src_available (routes), sell_available and the Sell order path (_local_calc ~line 533, local sells in the cycle settle ~1094 and ~1294), check_connection ~573 and the source checks ~742-752 and ~1325-1401 that count the backup, project_storage (the 'backup' parts and shadow draws for routes and sells), the cycle settle for routes (~1034-1037, ~1359) and anything else that calls space_key_for to add Space Storage stock to a planet-sourced route or Sell. After the change a route or Sell at a planet uses ONLY that planet's own storage. Delete space_key_for if nothing else needs it. Keep everything that is NOT a backup draw: routes INTO a Space Storage, Space Storage to Space Storage (Storage Link, permit routes), workshops crafting from the Space Storage, link upkeep, hubs (already excluded), the Bazaar bill (planet storage of the capital). Do NOT add storage as a route source and do not change any balance number. UI and text: the planet panel next-cycle tooltip keys TIP_NC_ROUTE_BACKUP and TIP_NC_SELL_BACKUP (game/planet_panel.gd ~893-902) are no longer reachable: remove the branches and the two rows from story/screens.md (rebuild with python3 tools/build_story.py; never edit data/story_text.json by hand; if a story lint or test needs the ids kept, keep them and say so). Find the station panel text that says delivered goods stay 'until a Sell order here, a recipe or upkeep takes it' (grep the Russian-visible id in story/screens.md around the Space Storage panel: ST_STATION_* or similar) and rewrite it in English to say what is now true: delivered goods stay in the Space Storage until a workshop recipe or link upkeep uses them or a Storage Link moves them; routes and Sell orders at planets do not draw on it. Grep story/*.md and the tutorial text for any other line that promises the old draw. DOCS: update gdd-skills.md section 4 (the line about the draw becomes: routes and Sell orders use only their own planet's storage; Space Storage feeds workshops, links and upkeep) and the Space Storage paragraph of gdd.md (line ~89: 'It also backs routes and Sell orders in its system...' must go). TESTS: grep tools/tests/run_tests.gd for tests that assert the draw (search 'Space Storage', 'backup', 'sell_available', 'draws', 'space_key_for', 'station' near route or sell checks) and change them to assert the new behaviour: a route from a planet with 0 stock does not move even when its system's Space Storage holds the good; a Sell order with 0 planet stock sells nothing; project_storage has no backup parts; a route into the Space Storage followed by a route out of the same planet in the same cycle no longer relays. Do not run the test suite (owner rule in CLAUDE.md); a task is done when built; parse-check scripts headlessly instead. Do not commit. Handoff handoffs/gameplay-programmer/2026-11-12-T364.json listing every removed branch and every test you changed, and say plainly in it what a player can no longer do (stock delivered to a Space Storage can now only leave through workshops, link upkeep and Storage Links).",
+      "size": "M",
+      "touches": [
+        "game/route_engine.gd",
+        "game/planet_panel.gd",
+        "story/screens.md",
+        "data/story_text.json",
+        "gdd.md",
+        "gdd-skills.md",
+        "tools/tests/run_tests.gd"
+      ],
+      "priority": 1
     }
   ],
   "done_task_ids": [

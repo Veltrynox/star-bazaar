@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "agent": "gameplay-programmer",
+  "date": "2026-11-12",
+  "task": "T364",
+  "status": "done",
+  "files_changed": [
+    "game/route_engine.gd",
+    "game/planet_panel.gd",
+    "game/space_storage_view.gd",
+    "story/screens.md",
+    "story/ru/h_c09.json",
+    "data/story_text.json",
+    "data/story_text_ru.json",
+    "gdd.md",
+    "gdd-skills.md",
+    "tools/tests/run_tests.gd"
+  ],
+  "open_questions": [
+    "story/ru TIP_SPACE_STORAGE_WHY (h_c09) and SS_LBL_STOCK_RULE (h_c08) still carry the old Russian wording; they need a Haiku re-translation of the new English lines."
+  ],
+  "handoff": "Space Storage backup draw removed. Routes and Sells at a planet use only that planet's storage. Player can no longer: relay stock delivered to a Space Storage out through a planet route or Sell order; it now leaves only through workshop recipes, link upkeep and Storage Links. Reproduction: before, system:1 energy parts were route 2 in +19 and route 3 out +19 backup true (after 0); after, route 2 in +19, no out, no backup, after 19. Tests not run (owner rule); run_tests.gd passes --check-only.",
+  "details": {
+    "removed_branches": [
+      "space_key_for deleted",
+      "src_available (planet storage only; hub/dst special cases gone)",
+      "sell_available (planet storage only)",
+      "source_has_good (no Space Storage count)",
+      "project_storage: backup field, shadow draws for routes and sells, take() backup arg",
+      "forecast: route have, sell have and shadow draw",
+      "route_reserve source count",
+      "_run_local sell draw",
+      "_settle_one route draw",
+      "planet_panel TIP_NC_*_BACKUP branches"
+    ],
+    "story": "TIP_NC_ROUTE_BACKUP and TIP_NC_SELL_BACKUP deleted from screens.md and story/ru/h_c09.json; rebuilt with build_story.py. Rewrote SS_LBL_STOCK_RULE (also default in space_storage_view.gd) and TIP_SPACE_STORAGE_WHY.",
+    "tests_changed": [
+      "space storage test (~4371): Sell with 0 planet stock sells nothing, planet-first sell leaves station, route with empty source stalls and leaves station",
+      "workshop status (~6800): planet route with empty source no longer drains station",
+      "_test_station_energy_outflow: no backup parts, nothing leaves, tooltip has no Out line"
+    ],
+    "repro_before": "system:1 in 19 out 19 after 0; route 2 in 19; route 3 out 19 backup true",
+    "repro_after": "system:1 in 19 out 0 after 19; route 2 in 19 only"
+  }
+}

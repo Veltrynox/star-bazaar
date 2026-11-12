@@ -4828,10 +4828,6 @@
    "text": "Уходит: {list}."
   },
   {
-   "id": "TIP_NC_ROUTE_BACKUP",
-   "text": "{route} (берёт из Космохранилища, когда на планете {planet} мало) -{n}"
-  },
-  {
    "id": "TIP_NC_ROUTE_IN",
    "text": "{route} +{n}"
   },
@@ -4842,10 +4838,6 @@
   {
    "id": "TIP_NC_SELL",
    "text": "Заказ на продажу на планете {planet} -{n}"
-  },
-  {
-   "id": "TIP_NC_SELL_BACKUP",
-   "text": "Заказ на продажу на планете {planet} (берёт из Космохранилища, когда на {planet} мало) -{n}"
   },
   {
    "id": "TIP_NC_UPKEEP",

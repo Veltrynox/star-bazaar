@@ -890,7 +890,7 @@ static func next_cycle_breakdown(main_node: Control, pr: Dictionary) -> String:
 				"buy":
 					key = "TIP_NC_BUY"
 				"sell":
-					key = "TIP_NC_SELL_BACKUP" if bool(p["backup"]) else "TIP_NC_SELL"
+					key = "TIP_NC_SELL"
 				"upkeep":
 					key = "TIP_NC_UPKEEP"
 				_:
@@ -899,7 +899,7 @@ static func next_cycle_breakdown(main_node: Control, pr: Dictionary) -> String:
 						if int(r["id"]) == int(p["route"]):
 							rec = r
 					vars["route"] = "%s > %s (%s)" % [planet, main_node.planet_name(int(rec.get("b", -1))), Ui.good_name(str(rec.get("c", "")))]
-					key = "TIP_NC_ROUTE_BACKUP" if bool(p["backup"]) else ("TIP_NC_ROUTE_IN" if dir == "in" else "TIP_NC_ROUTE_OUT")
+					key = "TIP_NC_ROUTE_IN" if dir == "in" else "TIP_NC_ROUTE_OUT"
 			items.append(StoryText.get_text(key, vars))
 		if not items.is_empty():
 			lines.append(StoryText.get_text("TIP_NC_IN" if dir == "in" else "TIP_NC_OUT", {"list": ", ".join(items)}))

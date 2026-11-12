@@ -530,7 +530,7 @@ func _local_calc(planet: int, c: String, role: String, cash: int) -> Dictionary:
 		if n <= 0:
 			return {"n": 0, "credits": 0, "state": no_cash_buy_text(price, cash)}
 		return {"n": n, "credits": -n * price, "state": StoryText.get_or("RT_STATE_BUYING", "Buying.")}
-	var have: int = sell_available(planet, c)  # owner 2026-11-01: a Sell also draws from Space Storage
+	var have: int = sell_available(planet, c)  # T364: a Sell uses only the planet's own storage
 	if have <= 0:
 		return {"n": 0, "credits": 0, "state": StoryText.get_or("RT_STATE_STORAGE_EMPTY", "Storage empty.")}
 	var m: int = mini(local_amount(c), have)
@@ -564,14 +564,11 @@ func check_connection(src: int, dst: int, c: String, new_route: bool = true) -> 
 		return {"ok": false, "reason": StoryText.get_text("NOT_ROUTE_NEEDS_C3")}
 	return {"ok": true, "reason": ""}  # T87: a second ship on the same lane is allowed
 
-## The source world prices the good for sale to the player, is a mine that yields it, or the company holds it there (planet or Space Storage).
+## The source world prices the good for sale to the player, is a mine that yields it, or the company holds it in that planet's storage.
 func source_has_good(src: int, c: String) -> bool:
 	if local_price(src, c, "buy") >= 0 or _mined_pid(src) != "":
 		return true
-	if storage.amount(storage.planet_key(src), c) > 0:
-		return true
-	var sk := space_key_for(src)
-	return sk != "" and storage.amount(sk, c) > 0
+	return storage.amount(storage.planet_key(src), c) > 0
 
 ## T156: a route that starts at a cluster. Needs the mining skill, a known cluster that still has ore (new routes only),
 ## a planet destination that is open, and FND_PERMIT for another system. Ore is free to load; the cost is the lane (fixed_cost).
@@ -703,30 +700,16 @@ func stop_open(rec: Dictionary) -> bool:
 	return planet_open(k) and local_on(k, c, "sell") and sold_price(k, c) > 0 and (not trade_gate.is_valid() or bool(trade_gate.call(k)))
 
 ## T70: full destination, no source stock check: true when the route cannot add a unit now.
-## T85: Space Storage of the source planet's system, "" when there is none (needs FND_STORAGE and an established post).
-func space_key_for(planet: int) -> String:
-	if not Availability.storage("space_storage") or planet < 0 or planet >= trade.planets.size():
-		return ""
-	var k: String = storage.system_key(int(trade.planets[planet].get("system", 1)))
-	return k if storage.established(k) else ""
-
-## T85: stock a route can draw at its source: planet storage plus the Space Storage backup of that system.
-## A hub delivery record (owner "hub:...") never counts Space Storage: it moves only what the hub bought or the world holds.
+## Stock a route can draw at its source: the storage it starts from (T364: a planet route never draws a Space Storage).
 func src_available(rec: Dictionary) -> int:
 	if from_cluster(rec):  # T156
 		return cluster_available(int(rec["a"]))
 	var c := str(rec["c"])
-	var n: int = storage.amount(str(rec["src"]), c)
-	var sk := space_key_for(int(rec["a"]))
-	if sk == str(rec["dst"]) or str(rec.get("owner", "")).begins_with("hub:"):  # a send to the station never draws from it
-		sk = ""
-	return n + (storage.amount(sk, c) if sk != "" else 0)
+	return storage.amount(str(rec["src"]), c)
 
-## Stock a local Sell order can take at a planet: its storage plus the Space Storage of its system.
+## Stock a local Sell order can take at a planet: its own storage only.
 func sell_available(planet: int, c: String) -> int:
-	var n: int = storage.amount(storage.planet_key(planet), c)
-	var sk := space_key_for(planet)
-	return n + (storage.amount(sk, c) if sk != "" else 0)
+	return storage.amount(storage.planet_key(planet), c)
 
 func _dest_full(rec: Dictionary) -> bool:
 	return storage.is_full(str(rec["dst"]), str(rec["c"]))
@@ -794,7 +777,7 @@ func route_cap(rec: Dictionary) -> int:
 ## Read-only projection of one storage key and commodity over the next cycle. Runs the cycle order
 ## (local buys, routes, local sells) on a scratch copy of the stock; nothing in the game changes.
 ## {in, out, after, capacity, parts}. `parts` lists every flow of `key`: {dir "in"|"out", kind "buy"|"route"|"sell", route id or -1,
-## planet, backup (true when a source or Sell draws the Space Storage because the planet's own stock is short), n}; the in
+## planet, n}; the in
 ## parts sum to `in`, the out parts to `out`. `cash` bounds buys and route costs (default: unlimited). Approximations:
 ## the cash of other commodities' orders is not tracked, split budgets use the live stock, and Mixed load
 ## and level bonuses (credits only) are ignored.
@@ -806,22 +789,22 @@ func project_storage(key: String, c: String, cash: int = 1 << 40) -> Dictionary:
 	var cur := cash
 	var get_amt := func(k: String) -> int:
 		return int(shadow[k]) if shadow.has(k) else storage.amount(k, c)
-	var note := func(dir: String, kind: String, rid: int, planet: int, backup: bool, n: int) -> void:
+	var note := func(dir: String, kind: String, rid: int, planet: int, n: int) -> void:
 		for p in parts:
-			if p["dir"] == dir and p["kind"] == kind and int(p["route"]) == rid and int(p["planet"]) == planet and bool(p["backup"]) == backup:
+			if p["dir"] == dir and p["kind"] == kind and int(p["route"]) == rid and int(p["planet"]) == planet:
 				p["n"] = int(p["n"]) + n
 				return
-		parts.append({"dir": dir, "kind": kind, "route": rid, "planet": planet, "backup": backup, "n": n})
+		parts.append({"dir": dir, "kind": kind, "route": rid, "planet": planet, "n": n})
 	var put := func(k: String, n: int, kind: String, rid: int, planet: int) -> void:
 		shadow[k] = int(get_amt.call(k)) + n
 		if k == key:
 			tally["in"] += n
-			note.call("in", kind, rid, planet, false, n)
-	var take := func(k: String, n: int, kind: String, rid: int, planet: int, backup: bool) -> void:
+			note.call("in", kind, rid, planet, n)
+	var take := func(k: String, n: int, kind: String, rid: int, planet: int) -> void:
 		shadow[k] = int(get_amt.call(k)) - n
 		if k == key:
 			tally["out"] += n
-			note.call("out", kind, rid, planet, backup, n)
+			note.call("out", kind, rid, planet, n)
 	var orders: Array = local.values()
 	for o in orders:  # 1 local buys
 		if str(o["c"]) != c or not o["buy"]:
@@ -851,10 +834,7 @@ func project_storage(key: String, c: String, cash: int = 1 << 40) -> Dictionary:
 			continue
 		var src := str(rec["src"])
 		var dst := str(rec["dst"])
-		var sk := space_key_for(int(rec["a"]))
-		if sk == dst:
-			sk = ""
-		var have: int = int(get_amt.call(src)) + (int(get_amt.call(sk)) if sk != "" else 0)
+		var have: int = int(get_amt.call(src))
 		if from_cluster(rec):
 			have = src_available(rec)
 		var room: int = maxi(0, storage.capacity_of(dst) - int(get_amt.call(dst)))
@@ -870,11 +850,8 @@ func project_storage(key: String, c: String, cash: int = 1 << 40) -> Dictionary:
 		cur -= fixed_cost(rec)
 		if budget.has(lk):
 			budget[lk] = maxi(0, int(budget[lk]) - moved)
-		var from_planet: int = mini(moved, int(get_amt.call(src)))
-		if from_planet > 0:
-			take.call(src, from_planet, "route", int(rec["id"]), int(rec["a"]), false)
-		if sk != "" and from_planet < moved:
-			take.call(sk, moved - from_planet, "route", int(rec["id"]), int(rec["a"]), true)
+		if not from_cluster(rec):
+			take.call(src, moved, "route", int(rec["id"]), int(rec["a"]))
 		put.call(dst, moved, "route", int(rec["id"]), int(rec["a"]))
 	for o in orders:  # 3 local sells
 		if str(o["c"]) != c or not o["sell"]:
@@ -883,20 +860,13 @@ func project_storage(key: String, c: String, cash: int = 1 << 40) -> Dictionary:
 		if not planet_open(p) or local_price(p, c, "sell") < 0 or (trade_gate.is_valid() and not bool(trade_gate.call(p))):
 			continue
 		var pk: String = storage.planet_key(p)
-		var sk := space_key_for(p)
-		var have: int = int(get_amt.call(pk)) + (int(get_amt.call(sk)) if sk != "" else 0)
-		var n: int = mini(local_amount(c), have)
-		if n <= 0:
-			continue
-		var from_planet: int = mini(n, int(get_amt.call(pk)))
-		if from_planet > 0:
-			take.call(pk, from_planet, "sell", -1, p, false)
-		if sk != "" and from_planet < n:
-			take.call(sk, n - from_planet, "sell", -1, p, true)
+		var n: int = mini(local_amount(c), int(get_amt.call(pk)))
+		if n > 0:
+			take.call(pk, n, "sell", -1, p)
 	if upkeep_out.is_valid():  # T227: declared upkeep (link) is the only other fixed drain; show it so the stock line adds up
 		var un: int = mini(int(upkeep_out.call(key, c, int(get_amt.call(key)))), maxi(0, int(get_amt.call(key))))
 		if un > 0:
-			take.call(key, un, "upkeep", -1, -1, false)
+			take.call(key, un, "upkeep", -1, -1)
 	return {"in": int(tally["in"]), "out": int(tally["out"]), "after": clampi(int(get_amt.call(key)), 0, cap), "capacity": cap, "parts": parts}
 
 ## Projected net credits of the next cycle (display and cash forecast): the ship cost while it can move stock.
@@ -931,10 +901,7 @@ func route_reserve(cash: int, amt: Callable) -> int:
 		if from_cluster(rec):
 			have = src_available(rec)
 		else:
-			var sk := space_key_for(int(rec["a"]))
-			if sk == dst:
-				sk = ""
-			have = int(amt.call(str(rec["src"]), c)) + (int(amt.call(sk, c)) if sk != "" else 0)
+			have = int(amt.call(str(rec["src"]), c))
 		var fixed := fixed_cost(rec)
 		if not from_cluster(rec) and have <= 0 and _buy_feeds(int(rec["a"]), c, left - fixed):
 			have = 1  # fed only by a Buy that can still buy one unit after this reserve
@@ -1031,10 +998,7 @@ func forecast(cash: int) -> Dictionary:
 			line["why"] = "room"
 			line["status"] = "blocked" if not has_outflow(int(rec["b"]), c) else "waiting"
 			continue
-		var sk := space_key_for(int(rec["a"]))
-		if sk == dst:
-			sk = ""
-		var have: int = src_available(rec) if from_cluster(rec) else int(amt.call(src, c)) + (int(amt.call(sk, c)) if sk != "" else 0)
+		var have: int = src_available(rec) if from_cluster(rec) else int(amt.call(src, c))
 		if have <= 0:
 			line["status"] = "stalled"
 			line["why"] = "stock"
@@ -1059,8 +1023,6 @@ func forecast(cash: int) -> Dictionary:
 		if not from_cluster(rec):
 			var from_planet: int = mini(moved, int(amt.call(src, c)))
 			shadow[src + "|" + c] = int(amt.call(src, c)) - from_planet
-			if sk != "" and from_planet < moved:
-				shadow[sk + "|" + c] = int(amt.call(sk, c)) - (moved - from_planet)
 			if stop_open(rec):
 				var sold := mini(moved, local_amount(c))
 				sale = sale_value(int(rec["stop"]), c, sold, int(pend.get(str(rec["stop"]) + "|" + c, 0)))
@@ -1091,16 +1053,12 @@ func forecast(cash: int) -> Dictionary:
 		elif trade_gate.is_valid() and not bool(trade_gate.call(p)):
 			state = StoryText.get_or("LBL_TRADE_NEEDS_STATION", "Needs a Space Storage in this system.")
 		else:
-			var sk := space_key_for(p)
-			var have: int = int(amt.call(pk, c)) + (int(amt.call(sk, c)) if sk != "" else 0)
+			var have: int = int(amt.call(pk, c))
 			if have <= 0:
 				state = StoryText.get_or("RT_STATE_STORAGE_EMPTY", "Storage empty.")
 			else:
 				var n: int = mini(local_amount(c), have)
-				var from_planet: int = mini(n, int(amt.call(pk, c)))
-				shadow[pk + "|" + c] = int(amt.call(pk, c)) - from_planet
-				if sk != "" and from_planet < n:
-					shadow[sk + "|" + c] = int(amt.call(sk, c)) - (n - from_planet)
+				shadow[pk + "|" + c] = int(amt.call(pk, c)) - n
 				credits = sale_value(p, c, n, int(pend.get(str(p) + "|" + c, 0)))
 				pend[str(p) + "|" + c] = int(pend.get(str(p) + "|" + c, 0)) + n
 				sold_n = n
@@ -1290,11 +1248,7 @@ func _run_local(o: Dictionary, role: String, cash: int, out: Array) -> int:
 				dead_worlds.take(_mined_pid(planet), n)  # T295: the world's stock thins and never refills
 			r["credits"] = -n * local_price(planet, c, role)
 		else:
-			var took: int = storage.remove(key, c, n)  # planet storage first, Space Storage covers the rest
-			var sk := space_key_for(planet)
-			if sk != "" and took < n:
-				took += storage.remove(sk, c, n - took)
-			n = took
+			n = storage.remove(key, c, n)  # T364: the planet's own storage only
 			r["credits"] = sale_value(planet, c, n)
 			var m: Dictionary = mix.get(planet, {"goods": 0, "bonus": 0, "mk": []})
 			if n > 0:
@@ -1355,12 +1309,7 @@ func _settle_one(rec: Dictionary, cash: int) -> int:
 		rec["state"] = "running"
 		rec["reason"] = ""
 		return -fixed
-	var from_planet: int = storage.remove(src, c, moved)  # T85: the planet storage first, Space Storage covers the rest
-	var sk := space_key_for(int(rec["a"]))
-	if sk == dst:  # a send to the station never draws from it
-		sk = ""
-	if from_planet < moved and sk != "":
-		from_planet += storage.remove(sk, c, moved - from_planet)
+	var from_planet: int = storage.remove(src, c, moved)  # T364: the source storage only
 	var carried := from_planet
 	var sale := 0
 	if stop_open(rec):  # N9: the stop buys up to its Sell order amount; the rest is carried on

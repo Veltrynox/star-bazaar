@@ -66,7 +66,7 @@ func refresh() -> void:
 	var cl := Label.new()
 	cl.text = StoryText.get_or("SS_LBL_CAPACITY", "Capacity: {cap} per commodity", {"cap": cap})
 	box.add_child(cl)
-	var rule := _wrapped(StoryText.get_or("SS_LBL_STOCK_RULE", "Everything delivered here stays in stock until a Sell order in this system, a recipe or upkeep uses it."))
+	var rule := _wrapped(StoryText.get_or("SS_LBL_STOCK_RULE", "Goods stay until a recipe, link upkeep or Storage Link uses them. Planet routes and Sells never draw on it."))
 	rule.name = "StockRule"
 	rule.add_theme_color_override("font_color", Ui.col("ink_muted"))
 	box.add_child(rule)

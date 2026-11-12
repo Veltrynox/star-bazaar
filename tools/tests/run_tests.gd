@@ -4368,39 +4368,35 @@ func _test_systems() -> void:
 	m.storage.stock["planet:0"]["energy"] = 60 - moved
 	m.storage.add("system:1", "energy", 100000)
 	check(m.storage.amount("system:1", "energy") == int(bal["space_storage_capacity"]), "space: capacity is a hard cap")
-	# T64: a Sell order draws from Space Storage (planet storage first, then the post)
+	# T364: no backup draw. A Sell order with an empty planet storage sells nothing, even when the Space Storage holds the good.
 	m.storage.ensure("planet:1")
 	m.storage.stock["planet:1"]["energy"] = 0
 	m.storage.stock["system:1"]["energy"] = 30
 	m.cash = 1000
 	m.set_local_order(1, "energy", "sell", true)
+	check(m.engine.sell_available(1, "energy") == 0, "space: sell_available counts only the planet storage", str(m.engine.sell_available(1, "energy")))
 	var sr: Dictionary = m.engine.settle(m.cash)
-	var sold_n: int = 30 - m.storage.amount("system:1", "energy")
 	var paid_in := 0
 	for v in sr["local"]:
 		if str(v["role"]) == "sell" and int(v["planet"]) == 1:
 			paid_in += int(v["paid"])
-	check(sold_n > 0 and paid_in > 0, "space: a Sell order sells stock held in Space Storage and pays", "sold %d paid %d" % [sold_n, paid_in])
-	m.storage.stock["planet:1"]["energy"] = 5
-	m.storage.stock["system:1"]["energy"] = 30
 	m.engine.settle(m.cash)
-	check(m.storage.amount("planet:1", "energy") == 0 and m.storage.amount("system:1", "energy") > 30 - m.engine.local_amount() - 1, "space: planet storage is sold first", str(m.storage.amount("system:1", "energy")))
+	check(paid_in == 0 and m.storage.amount("system:1", "energy") == 30, "space: a Sell order with 0 planet stock sells nothing and leaves the Space Storage alone", "paid %d left %d" % [paid_in, m.storage.amount("system:1", "energy")])
+	m.storage.stock["planet:1"]["energy"] = 5
+	m.engine.settle(m.cash)
+	check(m.storage.amount("planet:1", "energy") == 0 and m.storage.amount("system:1", "energy") == 30, "space: a Sell order sells the planet storage and never the Space Storage", str(m.storage.amount("system:1", "energy")))
 	m.set_local_order(1, "energy", "sell", false)
-	# backup: route runs with an empty source planet storage
+	# a route from a planet with 0 stock does not move while the Space Storage holds the good
 	m.storage.stock["planet:0"]["energy"] = 0
 	m.storage.stock["system:1"]["energy"] = 100
 	m.cash = 5000
 	m.ships = 3
-	m.set_local_order(1, "energy", "sell", true)
 	var cr: Dictionary = m.send_stock(0, 1, "energy")
 	check(cr["ok"], "space: route created", str(cr))
 	var rec: Dictionary = m.engine.routes[m.engine.routes.size() - 1]
 	var before: int = m.storage.amount("system:1", "energy")
 	m.engine.settle(m.cash)
-	check(str(rec["state"]) == "running" and m.storage.amount("system:1", "energy") < before, "space: post backs a route with an empty source", str(rec["state"]))
-	m.learned_skills.erase("FND_STORAGE")
-	m.engine.settle(m.cash)
-	check(str(rec["state"]) == "stalled", "space: no backup without FND_STORAGE", str(rec["state"]))
+	check(str(rec["state"]) == "stalled" and m.storage.amount("system:1", "energy") == before and m.engine.src_available(rec) == 0, "space: the post does not back a route with an empty source", str(rec["state"]))
 	await _free_main(m)
 	_wipe_user()
 
@@ -6797,7 +6793,7 @@ func _test_workshop_status() -> void:
 	var ws = m.workshops
 	m.storage.ensure(key)
 	check(not Availability.good("spyware"), "workshop status: chips hidden before system 2")
-	# settle order: routes (including a route that draws the station as backup) run BEFORE the workshop
+	# settle order: routes run BEFORE the workshop
 	m.storage.ensure("planet:0")
 	m.storage.stock["planet:0"]["energy"] = 0
 	m.storage.stock[key]["energy"] = 18
@@ -6808,7 +6804,7 @@ func _test_workshop_status() -> void:
 	var e0: int = m.storage.amount(key, "energy")
 	m.engine.settle(m.cash)
 	var e1: int = m.storage.amount(key, "energy")
-	check(e1 < e0, "workshop status: a route out of the system drains the station before the workshop runs", "%d -> %d" % [e0, e1])
+	check(e1 == e0, "workshop status: a planet route with an empty source no longer drains the station (T364)", "%d -> %d" % [e0, e1])
 	m.storage.stock[key]["energy"] = 0
 	ws.run(m.storage, Callable(m, "craft_units"))
 	var t: String = ws.status_text("munitions")
@@ -9141,7 +9137,8 @@ func _test_lane_net_label() -> void:
 	await _free_main(m)
 
 ## Owner bug 2026-11-04: Space Storage "Next cycle: +18 -18 = 0" with no lane out of the station. The Sell order at the
-## destination planet (Ashgate) draws the station when its own stock is short; the tooltip must say so.
+## destination planet (Ashgate) drew the station when its own stock was short. T364: that draw is gone; the Sell order at Ashgate and the
+## route out of Voltara no longer take anything from the station, and the projection has no backup parts.
 func _test_station_energy_outflow() -> void:
 	_wipe_user()
 	var m: Control = await _new_main()
@@ -9183,24 +9180,25 @@ func _test_station_energy_outflow() -> void:
 	var pr: Dictionary = e.project_storage("system:1", "energy", m.cash)
 	var sum_in := 0
 	var sum_out := 0
-	var sell_backup := false
-	var route_backup := false
+	var any_backup := false
+	var station_out := 0
 	for p in pr["parts"]:
 		if p["dir"] == "in":
 			sum_in += int(p["n"])
 		else:
 			sum_out += int(p["n"])
-		sell_backup = sell_backup or (p["kind"] == "sell" and bool(p["backup"]) and int(p["planet"]) == 2)
-		route_backup = route_backup or (p["kind"] == "route" and bool(p["backup"]))
+		any_backup = any_backup or p.has("backup")
+		if p["dir"] == "out":
+			station_out += int(p["n"])
 	print("STATION ENERGY ", pr)
-	check(int(pr["in"]) > 0 and int(pr["out"]) == int(pr["in"]) and sum_in == int(pr["in"]) and sum_out == int(pr["out"]), "station energy: sources and uses add up to the shown in and out", str(pr))
-	check(sell_backup and not route_backup, "station energy: the 18 leaving is the Sell order at Ashgate, no route", str(pr["parts"]))
+	check(int(pr["in"]) > 0 and int(pr["out"]) == 0 and sum_in == int(pr["in"]) and sum_out == int(pr["out"]), "station energy: sources and uses add up to the shown in and out, nothing leaves", str(pr))
+	check(not any_backup and station_out == 0, "station energy: no backup parts, no Sell order or route draws the station", str(pr["parts"]))
 	var before: int = m.storage.amount("system:1", "energy")
 	m._settle_routes()
 	check(m.storage.amount("system:1", "energy") - before == int(pr["after"]) - before, "station energy: the real settle ends where the projection says", "%d" % m.storage.amount("system:1", "energy"))
 	m.storage.add("planet:0", "energy", 0)
 	var tip: String = load("res://game/planet_panel.gd").next_cycle_breakdown(m, e.project_storage("system:1", "energy", m.cash))
-	check(tip.contains("In: Voltara > Space Storage (") and tip.contains("+%d" % int(pr["in"])) and tip.contains("Out: Sell order at Ashgate (draws Space Storage when Ashgate has too little) -%d" % int(pr["out"])), "station energy: the tooltip names the source and the consumer", tip)
+	check(tip.contains("In: Voltara > Space Storage (") and tip.contains("+%d" % int(pr["in"])) and tip.contains("Sell order at Ashgate") == false and not tip.contains("Out:"), "station energy: the tooltip names the source and no consumer", tip)
 	await _free_main(m)
 
 

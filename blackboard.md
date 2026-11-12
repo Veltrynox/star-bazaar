@@ -26,16 +26,6 @@
 
 - Owner: T176 placeholder systems are ids 3-5 (not 6 total), off by default (data/systems_placeholder.json enabled:false); permit keys reuse permit_2_*; no Russian text; galaxy overview with them on not exercised windowed.
 
-## 2026-11-12 13:05 run: T358
-- Summary: Old two-ribbon ship trail removed (Flagship, rivals, Ships.engine_back, ship_trail.gd deleted); the company-screen ship preview has a round pause/play button in its corner and is 325x250 (1.3x wider); the cut-off plume was a framing bug, so the camera is now 4.6 away and the ship is scaled so hull plus the longest plume of any shape stays in frame (ship about 45% smaller, knob FRAME_FILL in ship_preview.gd).
-- Why this task: owner request 2026-11-12.
-- Approach: one ui-programmer task; cause measured headless on all four ships every 10 degrees of turntable angle (needle plume tips reached 4.4 to 4.7 units, outside the frame and sometimes behind the camera); depth test and additive blend were not the cause.
-- Agent prompts: Agent tool, ui-programmer, brief read from schedule.json T358; handoff handoffs/ui-programmer/2026-11-12-T358.json.
-- Worked: build and grep for leftovers; headless parse of the screen.
-- Failed / did not work: screenshot logs/screenshots/T358.png shows no preview because the tool cannot pick a CEO; the button, plume at every angle and Ship look block width (info column about 435 px) not seen by eye.
-- Files and commits: see git log on main for T358.
-- Left to do: owner to look at the preview size (FRAME_FILL 0.92, CAM_DIST 4.6) and the pause button; the boost stretch of the old trail is not rebuilt for the plume (idea: raise plume glow on boost).
-
 ## 2026-11-12 13:50 run: T359
 - Summary: The cut-off plume in the company-screen preview was the transparent viewport (additive light over alpha 0 vanishes outside the hull outline); the viewport is now opaque in the panel colour. The ship is framed by the current look's plume reach (hull floor 70% of the pre-T358 size) and a crosshair button focuses the camera on the engines from behind; ship_scale 0.8 -> 1.04 (1.3x) was set by the owner request in a separate commit.
 - Why this task: owner feedback 2026-11-12 ('still clipped like with alpha, preview is small, camera needs a toggle to focus on the engines').
@@ -75,3 +65,13 @@
 - Failed / did not work: Buy at highlight uses a new planet_panel.show_lit instead of the tutorial helper; Send to may ask one more click for a stop; a small window scroll not tested; run_tests.gd line ~7336 asserts SaveGame.VERSION == 22 and was already stale.
 - Files and commits: see git log on main for T361, T362, T363.
 - Left to do: owner decision on stage 3 wings (data gives 3A hold units and 3B tax, names say weather and gig premium); owner decision on the Space Storage draw rule (see chat); Russian for all new ids by the Haiku agents when asked.
+
+## 2026-11-12 17:05 run: T364
+- Summary: The Space Storage relay is removed: a route or Sell order at a planet now uses only that planet's own storage (the owner's save showed Voltara -> Space Storage +19 and Voltara -> Flintmoor drawing the same 19 back out in one cycle, storage ended at 0). Routes into a Space Storage, Storage Links, workshops, link upkeep and the Bazaar bill are untouched; space_key_for and the backup parts of project_storage are gone; the two backup tooltip texts are deleted and the station panel text rewritten.
+- Why this task: owner request 2026-11-12 ('Remove the space storage relay functionality').
+- Approach: reproduced on the owner's autosave with a headless script (wt/_scratch/sim_save.gd, before364.txt / after364.txt: system:1 energy in 19 out 19 after 0 -> in 19 out 0 after 19); one gameplay-programmer task.
+- Agent prompts: Agent tool, gameplay-programmer, brief read from schedule.json T364; handoff handoffs/gameplay-programmer/2026-11-12-T364.json.
+- Worked: reproduction after the change; run_tests.gd parses; tests updated to the new rule (not run).
+- Failed / did not work: nothing run in a window.
+- Files and commits: see git log on main for T364.
+- Left to do: stock delivered to a Space Storage can now only leave through workshops, link upkeep and Storage Links; owner to decide on Space Storage as a route source. Russian for TIP_SPACE_STORAGE_WHY and SS_LBL_STOCK_RULE needs a Haiku re-translation when the owner asks.

@@ -1407,7 +1407,7 @@
   },
   {
    "id": "TIP_SPACE_STORAGE_WHY",
-   "text": "Sell orders and routes draw on it when planet storage is empty. Click its station to see stock.",
+   "text": "Workshops, link upkeep and Storage Links use it. Click its station to see stock.",
    "max": 110,
    "place": "Tip card, why line"
   },
@@ -1605,7 +1605,7 @@
   },
   {
    "id": "SS_LBL_STOCK_RULE",
-   "text": "Everything delivered here stays in stock until a Sell order in this system, a recipe or upkeep uses it.",
+   "text": "Goods stay until a recipe, link upkeep or Storage Link uses them. Planet routes and Sells never draw on it.",
    "max": 110,
    "place": "Space Storage view, under the capacity line: the rule for delivered goods"
   },
@@ -5798,22 +5798,10 @@
    "place": "Next cycle tooltip, entry, a route takes from this stock; {route}, {n}"
   },
   {
-   "id": "TIP_NC_ROUTE_BACKUP",
-   "text": "{route} (draws Space Storage when {planet} has too little) -{n}",
-   "max": 83,
-   "place": "Next cycle tooltip, entry, a route takes from Space Storage because its source planet is short; {route}, {planet}, {n}"
-  },
-  {
    "id": "TIP_NC_SELL",
    "text": "Sell order at {planet} -{n}",
    "max": 47,
    "place": "Next cycle tooltip, entry, a Sell order takes from this stock; {planet}, {n}"
-  },
-  {
-   "id": "TIP_NC_SELL_BACKUP",
-   "text": "Sell order at {planet} (draws Space Storage when {planet} has too little) -{n}",
-   "max": 98,
-   "place": "Next cycle tooltip, entry, a Sell order takes from Space Storage because the planet is short; {planet}, {n}"
   },
   {
    "id": "LBL_SHIP_SCREEN_TITLE",
