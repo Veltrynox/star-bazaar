@@ -125,12 +125,16 @@ func _gig() -> Dictionary:
 		return {}
 	var board = main.gig_panel
 	var lf := snappedf(board.left(best), 0.1)
-	return {"text": StoryText.get_or("NEXTUP_BEST_GIG", "Gig: {title}, {cycles} cycles left", {"title": board.title_text(best), "cycles": lf}), "planet": -1}
+	var t: Dictionary = best["target"]
+	var amber := float(main.balance.get("gig_marker_amber_cycles", 2.0))
+	var urgent: bool = board.left(best) <= amber or str(best["kind"]) == "opening"
+	var pl := int(t["index"]) if str(t.get("kind", "")) == "planet" else -1
+	return {"text": StoryText.get_or("NEXTUP_BEST_GIG", "Gig: {title}, {cycles} cycles left", {"title": board.title_text(best), "cycles": lf}), "planet": pl, "urgent": urgent}
 
 func _best() -> Dictionary:
 	var pr = main.prosperity
 	var gig := _gig()
-	if not gig.is_empty():
+	if not gig.is_empty() and bool(gig["urgent"]):
 		return gig
 	# a newly hungry lane: a need short for a cycle or more, and a world that sells the good
 	for i in main.map.planets.size():

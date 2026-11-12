@@ -69,7 +69,6 @@
  "NEXTUP_BAZAAR_FOUND": "Основать Базар на {planet}",
  "NEXTUP_BAZAAR_QUORUM": "Базар: ещё миров для роста: {n}",
  "NEXTUP_BEST_CASH": "Накопите {cash} кредитов, примерно циклов: {cycles}",
- "NEXTUP_BEST_GIG": "Возьмите полётный подряд",
  "NEXTUP_BEST_LANE": "Отправьте товары с {planet_a} на {planet_b}",
  "NEXTUP_GROWTH": "{planet}: нужно {need}",
  "NEXTUP_GROWTH_LOCKED": "{planet}: выучите {skill}, чтобы увидеть больше",

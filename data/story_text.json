@@ -7149,9 +7149,9 @@
   },
   {
    "id": "NEXTUP_BEST_GIG",
-   "text": "Take a flight job",
+   "text": "Gig: {title}, {cycles} cycles left",
    "max": 60,
-   "place": "Slot 3, a flight job is open"
+   "place": "Slot 3, a gig is urgent or nothing better is open; {title}, {cycles}"
   },
   {
    "id": "NEXTUP_IDLE",
@@ -7458,6 +7458,18 @@
    "text": "Weather at {planet} for {n} more cycles",
    "max": 60,
    "place": "House convoy card, third line, weather in force; {n} cycles left"
+  },
+  {
+   "id": "HINT_HOUSE_ACTIVE_KIND",
+   "text": "{house}: {weather} at {planet} for {n} more cycles",
+   "max": 80,
+   "place": "House convoy card, weather chip tooltip, with the weather kind named; {house}, {weather}, {planet}, {n} cycles left"
+  },
+  {
+   "id": "HINT_WEATHER_ACTIVE",
+   "text": "{weather} at {planet} for {n} more cycles",
+   "max": 70,
+   "place": "Weather chip tooltip when no house is behind it; {weather}, {planet}, {n} cycles left"
   },
   {
    "id": "NOT_WX_FLOOD",
@@ -8349,7 +8361,7 @@
   },
   {
    "id": "GIG_REFUSE_BUSY",
-   "text": "The Flagship is busy and cannot take this order yet.",
+   "text": "The Flagship is held after its last gig and cannot take orders yet.",
    "max": 100,
    "place": "gig_board.gd _on_accept (refusal reason \"busy\")"
   },

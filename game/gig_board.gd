@@ -164,7 +164,12 @@ func _add_row(o: Dictionary) -> void:
 	bottom.add_child(bar)
 	var eta_l := Label.new()
 	bottom.add_child(eta_l)
-	_rows[uid] = {"bar": bar, "eta": eta_l, "accept": accept}
+	var why_l := Label.new()
+	why_l.add_theme_color_override("font_color", Color(1.0, 0.55, 0.35))
+	why_l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	why_l.visible = false
+	col.add_child(why_l)
+	_rows[uid] = {"bar": bar, "eta": eta_l, "accept": accept, "why": why_l}
 
 func _live() -> void:
 	var amber := float(main.balance.get("gig_marker_amber_cycles", 2.0))
@@ -185,7 +190,9 @@ func _live() -> void:
 			eta_l.text = StoryText.get_or("GIG_ETA_NONE", "Out of reach")
 		else:
 			eta_l.text = StoryText.get_or("GIG_ETA", "ETA {cycles} cycles, left {left}", {"cycles": snappedf(e, 0.1), "left": snappedf(lf, 0.1)})
-		acc.disabled = e < 0.0
+		var held: bool = main.flight != null and main.flight.idle_left() > 0.0
+		acc.disabled = e < 0.0 or held
+		acc.tooltip_text = _refuse_text("busy") if held and e >= 0.0 else ""
 		acc.text = StoryText.get_or("GIG_BTN_ORDERED", "Ordered") if bool(o["accepted"]) else StoryText.get_or("GIG_BTN_ACCEPT", "Accept")
 
 func _on_accept(uid: String) -> void:
@@ -193,4 +200,14 @@ func _on_accept(uid: String) -> void:
 	if why == "":
 		close_screen()
 		return
-	main.post_notice(StoryText.get_or("GIG_REFUSE_" + why.to_upper(), StoryText.get_or("GIG_REFUSE_GENERIC", "The Flagship cannot take this order now ({why}).", {"why": why})))
+	var txt := _refuse_text(why)
+	main.post_notice_now(txt)
+	if _rows.has(uid):
+		var r: Dictionary = _rows[uid]
+		(r["accept"] as Button).tooltip_text = txt
+		var wl: Label = r["why"]
+		wl.text = txt
+		wl.visible = true
+
+func _refuse_text(why: String) -> String:
+	return StoryText.get_or("GIG_REFUSE_" + why.to_upper(), StoryText.get_or("GIG_REFUSE_GENERIC", "The Flagship cannot take this order now ({why}).", {"why": why}))

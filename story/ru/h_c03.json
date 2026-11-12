@@ -7,7 +7,6 @@
   "GIG_KIND_SALVAGE": "Вынужденная продажа",
   "GIG_KIND_SIGNAL": "Сигнал",
   "GIG_REFUSE_BAD_TARGET": "Флагман туда не может лететь.",
-  "GIG_REFUSE_BUSY": "Флагман занят и пока не может принять этот заказ.",
   "GIG_REFUSE_GENERIC": "Флагман сейчас не может принять этот заказ: {why}.",
   "GIG_REFUSE_NO_GATE": "Эта система ещё не открыта.",
   "GIG_REFUSE_NO_OFFER": "Этого заказа уже нет.",

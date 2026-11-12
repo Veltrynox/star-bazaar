@@ -1465,7 +1465,7 @@ Ids and placeholders (notes, not blocks):
 - BAZ_STAGE_1_NAME to BAZ_STAGE_4_NAME: stage names (four is a placeholder). BAZ_STAGE_DONE: notice, {stage}.
 - BAZ_BILL_ROW: {amount}, {commodity}. BAZ_QUORUM_ROW: {n}, {m}, {tier}. BAZ_REACH_ROW: no placeholders. BAZ_TERM_LEFT: {cycles}.
 - BAZ_BTN_CONTINUE: button on the end screen. BAZ_FREEPLAY_NOTE: line under it.
-- NEXTUP_LBL_GROWTH, NEXTUP_LBL_BAZAAR, NEXTUP_LBL_BEST: slot labels. NEXTUP_GROWTH: {planet}, {need}. NEXTUP_GROWTH_LOCKED: {planet}, {skill}. NEXTUP_BAZAAR_BILL: {amount}, {commodity}. NEXTUP_BAZAAR_QUORUM: {n}. NEXTUP_BAZAAR_FOUND: {planet}. NEXTUP_BEST_LANE: {planet_a}, {planet_b}. NEXTUP_BEST_CASH: {cash}, {cycles}. NEXTUP_BEST_GIG, NEXTUP_IDLE: none.
+- NEXTUP_LBL_GROWTH, NEXTUP_LBL_BAZAAR, NEXTUP_LBL_BEST: slot labels. NEXTUP_GROWTH: {planet}, {need}. NEXTUP_GROWTH_LOCKED: {planet}, {skill}. NEXTUP_BAZAAR_BILL: {amount}, {commodity}. NEXTUP_BAZAAR_QUORUM: {n}. NEXTUP_BAZAAR_FOUND: {planet}. NEXTUP_BEST_LANE: {planet_a}, {planet_b}. NEXTUP_BEST_CASH: {cash}, {cycles}. NEXTUP_BEST_GIG: {title}, {cycles}. NEXTUP_IDLE: none.
 - Placeholder values: {tier} and {stage} are the names below. {need} is the name of a shown need only. {skill} is a skill or workshop name. Never fill any of them with a hidden good.
 
 ### Prosperity tiers
@@ -1529,7 +1529,7 @@ NEXTUP_BAZAAR_QUORUM | 60 | Slot 2, the world gap; {n} worlds still needed | Baz
 NEXTUP_BAZAAR_FOUND | 60 | Slot 2, a world can host the Bazaar; {planet} | Found the Bazaar at {planet}
 NEXTUP_BEST_LANE | 60 | Slot 3, a hungry lane | Send goods from {planet_a} to {planet_b}
 NEXTUP_BEST_CASH | 60 | Slot 3, cash gap to the next buy; {cash} credits, {cycles} | Save {cash} credits, about {cycles} cycles
-NEXTUP_BEST_GIG | 60 | Slot 3, a flight job is open | Take a flight job
+NEXTUP_BEST_GIG | 60 | Slot 3, a gig is urgent or nothing better is open; {title}, {cycles} | Gig: {title}, {cycles} cycles left
 NEXTUP_IDLE | 60 | Any slot with nothing to show | Keep trading. Check the planet cards.
 
 ## Flagship, dock sheet and gig board (T275, 2026-11-06; Phase 2)
@@ -1589,6 +1589,8 @@ HOUSE_BOT3_TEMPER | 90 | House card, temperament line of {bot3} | Slow and order
 HINT_HOUSE_HEADING | 60 | House convoy card, third line, convoy due next cycle | Heading to {planet}, lands next cycle
 HINT_HOUSE_HEADING_N | 60 | House convoy card, third line, convoy due later; {n} cycles | Heading to {planet}, lands in {n} cycles
 HINT_HOUSE_ACTIVE | 60 | House convoy card, third line, weather in force; {n} cycles left | Weather at {planet} for {n} more cycles
+HINT_HOUSE_ACTIVE_KIND | 80 | House convoy card, weather chip tooltip, with the weather kind named; {house}, {weather}, {planet}, {n} cycles left | {house}: {weather} at {planet} for {n} more cycles
+HINT_WEATHER_ACTIVE | 70 | Weather chip tooltip when no house is behind it; {weather}, {planet}, {n} cycles left | {weather} at {planet} for {n} more cycles
 NOT_WX_FLOOD | 110 | Notice, flood starts; {house}, {planet}, {commodity}, {cycles} | {house} flood at {planet}: {commodity} sell price is down for {cycles} cycles.
 NOT_WX_SHORTAGE | 110 | Notice, shortage starts | {house} shortage at {planet}: it needs more {commodity} and pays more for {cycles} cycles.
 NOT_WX_CONGEST_WORLD | 110 | Notice, congestion at one world starts | {house} congestion at {planet}: trip cost is up on its lanes for {cycles} cycles.
@@ -1829,7 +1831,7 @@ Signal
 GIG_REFUSE_BAD_TARGET | 60 | gig_board.gd _on_accept (refusal reason "bad_target")
 The Flagship cannot fly there.
 GIG_REFUSE_BUSY | 100 | gig_board.gd _on_accept (refusal reason "busy")
-The Flagship is busy and cannot take this order yet.
+The Flagship is held after its last gig and cannot take orders yet.
 GIG_REFUSE_GENERIC | 90 | gig_board.gd _on_accept
 The Flagship cannot take this order now ({why}).
 GIG_REFUSE_NO_GATE | 60 | gig_board.gd _on_accept (refusal reason "no_gate")

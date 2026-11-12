@@ -448,7 +448,11 @@ func _weather_row() -> void:
 		chip.setup(a, float(main.balance.get("weather_chip_px", 15)), int(main.balance.get("weather_chip_font_px", 11)), float(main.balance.get("weather_chip_alpha", 0.88)))
 		var hn := Ui.house_name(int(a.get("house", 0))) if int(a.get("house", 0)) > 0 else ""
 		var pl := str(main.map.planets[planet_index].get("name", ""))
-		chip.tooltip_text = (hn + ". " if hn != "" else "") + StoryText.get_or("HINT_HOUSE_ACTIVE", "Weather at {planet} for {n} more cycles", {"planet": pl, "n": int(a["left"])})
+		var wk := Ui.weather_kind_name(str(a.get("kind", "")))
+		if hn != "":
+			chip.tooltip_text = StoryText.get_or("HINT_HOUSE_ACTIVE_KIND", "{house}: {weather} at {planet} for {n} more cycles", {"house": hn, "weather": wk, "planet": pl, "n": int(a["left"])})
+		else:
+			chip.tooltip_text = StoryText.get_or("HINT_WEATHER_ACTIVE", "{weather} at {planet} for {n} more cycles", {"weather": wk, "planet": pl, "n": int(a["left"])})
 		wrap.add_child(chip)
 	if wrap.get_child_count() == 0:
 		wrap.queue_free()
